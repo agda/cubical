@@ -350,14 +350,14 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
 
     ineq1 : ⋁ (d ∘ α) ≤ ⋁ (d ∘ β)
     ineq1 = ⋁IsMax (d ∘ α) (⋁ (d ∘ β))
-            λ i → ZarMapRadicalIneq isZarMapd β (α i) (equivFun (√FGIdealChar α ⟨ β ⟩) incl1 i)
+            λ i → ZarMapRadicalIneq isZarMapd β (α i) (√FGIdealCharLImpl α ⟨ β ⟩ incl1 i)
 
     incl2 : √ ⟨ β ⟩ ⊆ √ ⟨ α ⟩
     incl2 = ⊆-refl-consequence _ _ (cong fst √⟨α⟩≡√⟨β⟩) .snd
 
     ineq2 : ⋁ (d ∘ β) ≤ ⋁ (d ∘ α)
     ineq2 = ⋁IsMax (d ∘ β) (⋁ (d ∘ α))
-            λ i → ZarMapRadicalIneq isZarMapd α (β i) (equivFun (√FGIdealChar β ⟨ α ⟩) incl2 i)
+            λ i → ZarMapRadicalIneq isZarMapd α (β i) (√FGIdealCharLImpl β ⟨ α ⟩ incl2 i)
 
 
   pres0 (snd χ) = refl
@@ -476,12 +476,12 @@ module SmallZarLat (R' : CommRing ℓ) where
  IsoLarLatSmall = relBiimpl→TruncIso ~→∼' ~'→∼
   where
   ~→∼' : ∀ {a b : A} → a ∼ b → a ∼' b
-  ~→∼' r = equivFun (√FGIdealChar _ ⟨ _ ⟩) (λ x h → subst (λ p → x ∈ p) r h)
-         , equivFun (√FGIdealChar _ ⟨ _ ⟩) (λ x h → subst (λ p → x ∈ p) (sym r) h)
+  ~→∼' r = √FGIdealCharLImpl _ ⟨ _ ⟩ (λ x h → subst (λ p → x ∈ p) r h)
+         , √FGIdealCharLImpl _ ⟨ _ ⟩ (λ x h → subst (λ p → x ∈ p) (sym r) h)
 
   ~'→∼ : ∀ {a b : A} → a ∼' b → a ∼ b
-  ~'→∼ r = CommIdeal≡Char (equivFun (invEquiv (√FGIdealChar _ ⟨ _ ⟩)) (fst r))
-                          (equivFun (invEquiv (√FGIdealChar _ ⟨ _ ⟩)) (snd r))
+  ~'→∼ r = CommIdeal≡Char (√FGIdealCharRImpl _ ⟨ _ ⟩ (fst r))
+                          (√FGIdealCharRImpl _ ⟨ _ ⟩ (snd r))
 
  ZL≃ZL' : ZL ≃ ZL'
  ZL≃ZL' = isoToEquiv IsoLarLatSmall

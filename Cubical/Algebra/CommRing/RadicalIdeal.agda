@@ -99,134 +99,137 @@ module RadicalIdeal (R' : CommRing ℓ) where
 
 
  -- important lemma for characterization of the Zariski lattice
+ open KroneckerDelta (CommRing→Ring R')
+ √FGIdealCharLImpl : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
+         → √ ⟨ V ⟩[ R' ] ⊆ √ I → (∀ i → V i ∈ √ I)
+ √FGIdealCharLImpl V I √⟨V⟩⊆√I i = √⟨V⟩⊆√I _ (∈→∈√ ⟨ V ⟩[ R' ] (V i)
+                                       ∣ (λ j → δ i j) , sym (∑Mul1r _ _ i) ∣)
+
+ √FGIdealCharRImpl : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
+         → (∀ i → V i ∈ √ I) → √ ⟨ V ⟩[ R' ] ⊆ √ I
+ √FGIdealCharRImpl V I ∀i→Vi∈√I x = PT.elim (λ _ → √ I .fst x .snd)
+                               λ { (n , xⁿ∈⟨V⟩) → ^∈√→∈√ I x n (elimHelper _ xⁿ∈⟨V⟩) }
+  where
+  elimHelper : ∀ (y : R) → y ∈ ⟨ V ⟩[ R' ] → y ∈ √ I
+  elimHelper y = PT.elim (λ _ → √ I .fst y .snd)
+                  λ { (α , y≡∑αV) → subst-∈ (√ I) (sym y≡∑αV)
+                                          (∑Closed (√ I)
+                                          (λ i → α i · V i)
+                                          (λ i → √ I .snd .·Closed (α i) (∀i→Vi∈√I i))) }
+
  √FGIdealChar : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
                 → √ ⟨ V ⟩[ R' ] ⊆ √ I ≃ (∀ i → V i ∈ √ I)
  √FGIdealChar V I = propBiimpl→Equiv (⊆-isProp (√ ⟨ V ⟩[ R' ] .fst) (√ I .fst))
                                      (isPropΠ (λ _ → √ I .fst _ .snd))
-                                     ltrImpl rtlImpl
-  where
-  open KroneckerDelta (CommRing→Ring R')
-  ltrImpl : √ ⟨ V ⟩[ R' ] ⊆ √ I → (∀ i → V i ∈ √ I)
-  ltrImpl √⟨V⟩⊆√I i = √⟨V⟩⊆√I _ (∈→∈√ ⟨ V ⟩[ R' ] (V i)
-                                        ∣ (λ j → δ i j) , sym (∑Mul1r _ _ i) ∣)
+                                     (√FGIdealCharLImpl V I)
+                                     (√FGIdealCharRImpl V I)
 
-  rtlImpl : (∀ i → V i ∈ √ I) → √ ⟨ V ⟩[ R' ] ⊆ √ I
-  rtlImpl ∀i→Vi∈√I x = PT.elim (λ _ → √ I .fst x .snd)
-                                λ { (n , xⁿ∈⟨V⟩) → ^∈√→∈√ I x n (elimHelper _ xⁿ∈⟨V⟩) }
+ √+RContrLIncl : (I J : CommIdeal) → √ (I +i √ J) ⊆ √ (I +i J)
+ √+RContrLIncl I J x = PT.elim (λ _ → isPropPropTrunc)
+             (uncurry (λ n → PT.elim (λ _ → isPropPropTrunc)
+               (uncurry3 (curriedIncl1 n))))
+  where
+  curriedIncl1 : (n : ℕ) (y : R × R)
+               → (y .fst ∈ I)
+               → (y . snd ∈ √ J)
+               → (x ^ n ≡ y .fst + y .snd)
+               → x ∈ √ (I +i J)
+  curriedIncl1 n (y , z) y∈I = PT.elim (λ _ → isPropΠ λ _ → isPropPropTrunc) Σhelper
    where
-   elimHelper : ∀ (y : R) → y ∈ ⟨ V ⟩[ R' ] → y ∈ √ I
-   elimHelper y = PT.elim (λ _ → √ I .fst y .snd)
-                   λ { (α , y≡∑αV) → subst-∈ (√ I) (sym y≡∑αV)
-                                           (∑Closed (√ I)
-                                           (λ i → α i · V i)
-                                           (λ i → √ I .snd .·Closed (α i) (∀i→Vi∈√I i))) }
+   yVec : (m : ℕ) → FinVec R m
+   yVec m = (BinomialVec m y z) ∘ suc
+
+   ∑yVec∈I : ∀ m → ∑ (yVec m) ∈ I
+   ∑yVec∈I zero = I .snd .contains0
+   ∑yVec∈I (suc m) = ∑Closed I (yVec (suc m))
+                        λ _ → subst-∈ I (useSolver _ _ _ _) (I .snd .·Closed _ y∈I)
+    where
+    useSolver : (bc y y^i z^m-i : R) → (bc · y^i · z^m-i) · y ≡ bc · (y · y^i) · z^m-i
+    useSolver = solve R'
+
+   path : (m : ℕ) → x ^ n ≡ y + z → x ^ (n ·ℕ m) ≡ ∑ (yVec m) + z ^ m
+   path m p = x ^ (n ·ℕ m) ≡⟨ ^-rdist-·ℕ x n m ⟩
+              (x ^ n) ^ m ≡⟨ cong (_^ m) p ⟩
+              (y + z) ^ m ≡⟨ BinomialThm m y z ⟩
+              ∑ (BinomialVec m y z) ≡⟨ useSolver _ _ ⟩
+              ∑ (yVec m) + z ^ m ∎
+    where
+    useSolver : (zm ∑yVec : R) → 1r · 1r · zm + ∑yVec ≡ ∑yVec + zm
+    useSolver = solve R'
+
+   Σhelper : Σ[ m ∈ ℕ ] (z ^ m ∈ J) → x ^ n ≡ y + z → x ∈ √ (I +i J)
+   Σhelper (m , z^m∈J) x^n≡y+z =
+     ∣ n ·ℕ m , ∣ (∑ (yVec m) , z ^ m) , ∑yVec∈I m  , z^m∈J , path m x^n≡y+z ∣ ∣
+
+ √+RContrRIncl : (I J : CommIdeal) → √ (I +i J) ⊆ √ (I +i √ J)
+ √+RContrRIncl I J x = PT.elim (λ _ → isPropPropTrunc) (uncurry curriedIncl2)
+  where
+  curriedIncl2 : (n : ℕ) → (x ^ n ∈ (I +i J)) → x ∈ √ ((I +i √ J))
+  curriedIncl2 n = map λ ((y , z) , y∈I , z∈J , x≡y+z)
+                          → n , ∣ (y , z) , y∈I , ∈→∈√ J z z∈J , x≡y+z ∣
 
  √+RContr : (I J : CommIdeal) → √ (I +i √ J) ≡ √ (I +i J)
- √+RContr I J = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : √ (I +i √ J) ⊆ √ (I +i J)
-  incl1 x = PT.elim (λ _ → isPropPropTrunc)
-              (uncurry (λ n → PT.elim (λ _ → isPropPropTrunc)
-                (uncurry3 (curriedIncl1 n))))
-   where
-   curriedIncl1 : (n : ℕ) (y : R × R)
-                → (y .fst ∈ I)
-                → (y . snd ∈ √ J)
-                → (x ^ n ≡ y .fst + y .snd)
-                → x ∈ √ (I +i J)
-   curriedIncl1 n (y , z) y∈I = PT.elim (λ _ → isPropΠ λ _ → isPropPropTrunc) Σhelper
-    where
-    yVec : (m : ℕ) → FinVec R m
-    yVec m = (BinomialVec m y z) ∘ suc
-
-    ∑yVec∈I : ∀ m → ∑ (yVec m) ∈ I
-    ∑yVec∈I zero = I .snd .contains0
-    ∑yVec∈I (suc m) = ∑Closed I (yVec (suc m))
-                         λ _ → subst-∈ I (useSolver _ _ _ _) (I .snd .·Closed _ y∈I)
-     where
-     useSolver : (bc y y^i z^m-i : R) → (bc · y^i · z^m-i) · y ≡ bc · (y · y^i) · z^m-i
-     useSolver = solve R'
-
-    path : (m : ℕ) → x ^ n ≡ y + z → x ^ (n ·ℕ m) ≡ ∑ (yVec m) + z ^ m
-    path m p = x ^ (n ·ℕ m) ≡⟨ ^-rdist-·ℕ x n m ⟩
-               (x ^ n) ^ m ≡⟨ cong (_^ m) p ⟩
-               (y + z) ^ m ≡⟨ BinomialThm m y z ⟩
-               ∑ (BinomialVec m y z) ≡⟨ useSolver _ _ ⟩
-               ∑ (yVec m) + z ^ m ∎
-     where
-     useSolver : (zm ∑yVec : R) → 1r · 1r · zm + ∑yVec ≡ ∑yVec + zm
-     useSolver = solve R'
-
-    Σhelper : Σ[ m ∈ ℕ ] (z ^ m ∈ J) → x ^ n ≡ y + z → x ∈ √ (I +i J)
-    Σhelper (m , z^m∈J) x^n≡y+z =
-      ∣ n ·ℕ m , ∣ (∑ (yVec m) , z ^ m) , ∑yVec∈I m  , z^m∈J , path m x^n≡y+z ∣ ∣
-
-  incl2 : √ (I +i J) ⊆ √ (I +i √ J)
-  incl2 x = PT.elim (λ _ → isPropPropTrunc) (uncurry curriedIncl2)
-   where
-   curriedIncl2 : (n : ℕ) → (x ^ n ∈ (I +i J)) → x ∈ √ ((I +i √ J))
-   curriedIncl2 n = map λ ((y , z) , y∈I , z∈J , x≡y+z)
-                           → n , ∣ (y , z) , y∈I , ∈→∈√ J z z∈J , x≡y+z ∣
+ √+RContr I J = CommIdeal≡Char (√+RContrLIncl I J) (√+RContrRIncl I J)
 
  √+LContr : (I J : CommIdeal) → √ (√ I +i J) ≡ √ (I +i J)
  √+LContr I J = cong √ (+iComm (√ I) J) ∙∙ √+RContr J I ∙∙ cong √ (+iComm J I)
 
- √·RContr : (I J : CommIdeal) → √ (I ·i √ J) ≡ √ (I ·i J)
- √·RContr I J = CommIdeal≡Char incl1 incl2
+ √·RContrLIncl : (I J : CommIdeal) → √ (I ·i √ J) ⊆ √ (I ·i J)
+ √·RContrLIncl I J x = PT.elim (λ _ → isPropPropTrunc)
+             (uncurry (λ n → PT.elim (λ _ → isPropPropTrunc)
+               (uncurry4 (curriedIncl1 n))))
   where
-  incl1 : √ (I ·i √ J) ⊆ √ (I ·i J)
-  incl1 x = PT.elim (λ _ → isPropPropTrunc)
-              (uncurry (λ n → PT.elim (λ _ → isPropPropTrunc)
-                (uncurry4 (curriedIncl1 n))))
+  curriedIncl1 : (n m : ℕ) (α : FinVec R m × FinVec R m)
+               → (∀ i → α .fst i ∈ I)
+               → (∀ i → α .snd i ∈ √ J)
+               → (x ^ n ≡ linearCombination R' (α .fst) (α .snd))
+               → x ∈ √ (I ·i J)
+  curriedIncl1 n m (α , β) α∈I β∈√J xⁿ≡∑αβ = ^∈√→∈√ (I ·i J) x n
+   (subst-∈ (√ (I ·i J)) (sym xⁿ≡∑αβ)
+   (∑Closed (√ (I ·i J)) (λ i → α i · β i) λ i → prodHelper i (β∈√J i)))
    where
-   curriedIncl1 : (n m : ℕ) (α : FinVec R m × FinVec R m)
-                → (∀ i → α .fst i ∈ I)
-                → (∀ i → α .snd i ∈ √ J)
-                → (x ^ n ≡ linearCombination R' (α .fst) (α .snd))
-                → x ∈ √ (I ·i J)
-   curriedIncl1 n m (α , β) α∈I β∈√J xⁿ≡∑αβ = ^∈√→∈√ (I ·i J) x n
-    (subst-∈ (√ (I ·i J)) (sym xⁿ≡∑αβ)
-    (∑Closed (√ (I ·i J)) (λ i → α i · β i) λ i → prodHelper i (β∈√J i)))
-    where
-    curriedHelper : ∀ x y → x ∈ I → ∀ l → y ^ l ∈ J → (x · y) ∈ √ (I ·i J)
-    curriedHelper x y x∈I zero 1∈J = subst (λ K → (x · y) ∈ √ K)
-                                       (sym (·iRContains1id I J 1∈J)) --1∈J → √J ≡ √ ⊃ I
-                                       (∈→∈√ I _ (·RClosed (I .snd) y x∈I))
-    curriedHelper x y x∈I (suc l) y^l+1∈J = -- (xy)^l+1 ≡ x^l · x (∈I) · y^l+1 (∈J)
-      ∣ suc l , subst-∈ (I ·i J) (sym (^-ldist-· _ _ (suc l)))
-      (prodInProd I J _ _ (subst-∈ I (·-comm _ _) (I .snd .·Closed (x ^ l) x∈I)) y^l+1∈J) ∣
+   curriedHelper : ∀ x y → x ∈ I → ∀ l → y ^ l ∈ J → (x · y) ∈ √ (I ·i J)
+   curriedHelper x y x∈I zero 1∈J = subst (λ K → (x · y) ∈ √ K)
+                                      (sym (·iRContains1id I J 1∈J)) --1∈J → √J ≡ √ ⊃ I
+                                      (∈→∈√ I _ (·RClosed (I .snd) y x∈I))
+   curriedHelper x y x∈I (suc l) y^l+1∈J = -- (xy)^l+1 ≡ x^l · x (∈I) · y^l+1 (∈J)
+     ∣ suc l , subst-∈ (I ·i J) (sym (^-ldist-· _ _ (suc l)))
+     (prodInProd I J _ _ (subst-∈ I (·-comm _ _) (I .snd .·Closed (x ^ l) x∈I)) y^l+1∈J) ∣
 
-    prodHelper : ∀ i → β i ∈ √ J → α i · β i ∈ √ (I ·i J)
-    prodHelper i = PT.elim (λ _ → isPropPropTrunc) (uncurry (curriedHelper (α i) (β i) (α∈I i)))
+   prodHelper : ∀ i → β i ∈ √ J → α i · β i ∈ √ (I ·i J)
+   prodHelper i = PT.elim (λ _ → isPropPropTrunc) (uncurry (curriedHelper (α i) (β i) (α∈I i)))
 
-  incl2 : √ (I ·i J) ⊆ √ (I ·i √ J)
-  incl2 x =  PT.elim (λ _ → isPropPropTrunc) (uncurry curriedIncl2)
-   where
-   curriedIncl2 : (n : ℕ) → x ^ n ∈ (I ·i J) → x ∈ √ (I ·i √ J)
-   curriedIncl2 n = map λ (m , (α , β) , α∈I , β∈J , xⁿ≡∑αβ)
-                    → n , ∣ m , (α , β) , α∈I , (λ i → ∈→∈√ J (β i) (β∈J i)) , xⁿ≡∑αβ ∣
+ √·RContrRIncl : (I J : CommIdeal) → √ (I ·i J) ⊆ √ (I ·i √ J)
+ √·RContrRIncl I J x =  PT.elim (λ _ → isPropPropTrunc) (uncurry curriedIncl2)
+  where
+  curriedIncl2 : (n : ℕ) → x ^ n ∈ (I ·i J) → x ∈ √ (I ·i √ J)
+  curriedIncl2 n = map λ (m , (α , β) , α∈I , β∈J , xⁿ≡∑αβ)
+                   → n , ∣ m , (α , β) , α∈I , (λ i → ∈→∈√ J (β i) (β∈J i)) , xⁿ≡∑αβ ∣
+
+ √·RContr : (I J : CommIdeal) → √ (I ·i √ J) ≡ √ (I ·i J)
+ √·RContr I J = CommIdeal≡Char (√·RContrLIncl I J) (√·RContrRIncl I J)
 
  √·LContr : (I J : CommIdeal) → √ (√ I ·i J) ≡ √ (I ·i J)
  √·LContr I J = cong √ (·iComm (√ I) J) ∙∙ √·RContr J I ∙∙ cong √ (·iComm J I)
 
- √·Idem : ∀ (I : CommIdeal) → √ (I ·i I) ≡ √ I
- √·Idem I = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : √ (I ·i I) ⊆ √ I
-  incl1 x = map λ (n , x^n∈II) → (n , ·iLincl I I _ x^n∈II)
+ √·IdemLIncl : ∀ (I : CommIdeal) → √ (I ·i I) ⊆ √ I
+ √·IdemLIncl I x = map λ (n , x^n∈II) → (n , ·iLincl I I _ x^n∈II)
 
-  incl2 : √ I ⊆ √ (I ·i I)
-  incl2 x = map λ (n , x^n∈I) → (n +ℕ n , subst-∈ (I ·i I)
-                                 (·-of-^-is-^-of-+ x n n) -- x²ⁿ≡xⁿ (∈I) · xⁿ (∈I)
-                                 (prodInProd I I _ _ x^n∈I x^n∈I))
+ √·IdemRIncl : ∀ (I : CommIdeal) → √ I ⊆ √ (I ·i I)
+ √·IdemRIncl I x = map λ (n , x^n∈I) → (n +ℕ n , subst-∈ (I ·i I)
+                                (·-of-^-is-^-of-+ x n n) -- x²ⁿ≡xⁿ (∈I) · xⁿ (∈I)
+                                (prodInProd I I _ _ x^n∈I x^n∈I))
+
+ √·Idem : ∀ (I : CommIdeal) → √ (I ·i I) ≡ √ I
+ √·Idem I = CommIdeal≡Char (√·IdemLIncl I) (√·IdemRIncl I)
+
+ √·Absorb+LIncl : ∀ (I J : CommIdeal) → √ (I ·i (I +i J)) ⊆ √ I
+ √·Absorb+LIncl I J x = map λ (n , x^n∈I[I+J]) → (n , ·iLincl I (I +i J) _ x^n∈I[I+J])
+
+ √·Absorb+RIncl : ∀ (I J : CommIdeal) → √ I ⊆ √ (I ·i (I +i J))
+ √·Absorb+RIncl I J x = map λ (n , x^n∈I) → (n +ℕ n , subst-∈ (I ·i (I +i J))
+                                (·-of-^-is-^-of-+ x n n) -- x²ⁿ≡xⁿ (∈I) · xⁿ (∈I⊆I+J)
+                                (prodInProd I (I +i J) _ _ x^n∈I (+iLincl I J _ x^n∈I)))
 
  √·Absorb+ : ∀ (I J : CommIdeal) → √ (I ·i (I +i J)) ≡ √ I
- √·Absorb+ I J = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : √ (I ·i (I +i J)) ⊆ √ I
-  incl1 x = map λ (n , x^n∈I[I+J]) → (n , ·iLincl I (I +i J) _ x^n∈I[I+J])
-
-  incl2 : √ I ⊆ √ (I ·i (I +i J))
-  incl2 x = map λ (n , x^n∈I) → (n +ℕ n , subst-∈ (I ·i (I +i J))
-                                 (·-of-^-is-^-of-+ x n n) -- x²ⁿ≡xⁿ (∈I) · xⁿ (∈I⊆I+J)
-                                 (prodInProd I (I +i J) _ _ x^n∈I (+iLincl I J _ x^n∈I)))
+ √·Absorb+ I J = CommIdeal≡Char (√·Absorb+LIncl I J) (√·Absorb+RIncl I J)

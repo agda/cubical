@@ -138,70 +138,68 @@ module _ (R' : CommRing ℓ) where
   path = solve R'
 
  emptyFGIdeal : ∀ (V : FinVec R 0) → ⟨ V ⟩ ≡ 0Ideal
- emptyFGIdeal V = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : ⟨ V ⟩ ⊆ 0Ideal
-  incl1 x = rec (is-set _ _) λ (_ , p) → p
+ emptyFGIdeal V = CommIdeal≡Char (λ _ →  rec (is-set _ _) snd)
+                                 (λ _ x≡0 → ∣ (λ ()) , x≡0 ∣)
 
-  incl2 : 0Ideal ⊆ ⟨ V ⟩
-  incl2 x x≡0 = ∣ (λ ()) , x≡0 ∣
+ 0FGIdealLIncl : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩ ⊆ 0Ideal
+ 0FGIdealLIncl x = elim (λ _ → is-set _ _)
+         λ (α , x≡∑α0) → subst-∈ 0Ideal (sym x≡∑α0) (∑Closed 0Ideal (λ i → α i · 0r)
+         λ i → subst-∈ 0Ideal (sym (0RightAnnihilates _)) refl)
+
+ 0FGIdealRIncl : {n : ℕ} → 0Ideal ⊆ ⟨ replicateFinVec n 0r ⟩
+ 0FGIdealRIncl x x≡0 = subst-∈ ⟨ replicateFinVec _ 0r ⟩ (sym x≡0)
+                        (⟨ replicateFinVec _ 0r ⟩ .snd .contains0)
 
  0FGIdeal : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩ ≡ 0Ideal
- 0FGIdeal = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : ⟨ replicateFinVec _ 0r ⟩ ⊆ 0Ideal
-  incl1 x = elim (λ _ → is-set _ _)
-          λ (α , x≡∑α0) → subst-∈ 0Ideal (sym x≡∑α0) (∑Closed 0Ideal (λ i → α i · 0r)
-          λ i → subst-∈ 0Ideal (sym (0RightAnnihilates _)) refl)
+ 0FGIdeal = CommIdeal≡Char 0FGIdealLIncl 0FGIdealRIncl
 
-  incl2 : 0Ideal ⊆ ⟨ replicateFinVec _ 0r ⟩
-  incl2 x x≡0 = subst-∈ ⟨ replicateFinVec _ 0r ⟩ (sym x≡0)
-                         (⟨ replicateFinVec _ 0r ⟩ .snd .contains0)
+ FGIdealAddLemmaLIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
+                      → ⟨ U ++Fin V ⟩ ⊆ (⟨ U ⟩ +i ⟨ V ⟩)
+ FGIdealAddLemmaLIncl {n = ℕzero} U V x x∈⟨V⟩ =
+                                  ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+Lid x) ∣
+ FGIdealAddLemmaLIncl {n = ℕsuc n} U V x = rec isPropPropTrunc helperΣ
+   where
+   helperΣ : Σ[ α ∈ FinVec R _ ] (x ≡ ∑ λ i → α i · (U ++Fin V) i) → x ∈ (⟨ U ⟩ +i ⟨ V ⟩)
+   helperΣ (α , p) = subst-∈ (⟨ U ⟩ +i ⟨ V ⟩) (sym p)
+                              ((⟨ U ⟩ +i ⟨ V ⟩) .snd .+Closed zeroIncl sumIncl)
+    where
+    zeroIncl : (α zero · U zero) ∈ (⟨ U ⟩ +i ⟨ V ⟩)
+    zeroIncl = +iLincl ⟨ U ⟩ ⟨ V ⟩ (α zero · U zero)
+                 (⟨ U ⟩ .snd .·Closed (α zero) (indInIdeal U zero))
 
+    sumIncl : (∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i) ∈ (⟨ U ⟩ +i ⟨ V ⟩)
+    sumIncl = let sum = ∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i in
+         +iRespLincl ⟨ U ∘ suc ⟩ ⟨ U ⟩ ⟨ V ⟩ (sucIncl U) sum
+           (FGIdealAddLemmaLIncl (U ∘ suc) V _ ∣ (α ∘ suc) , refl ∣)
+
+ FGIdealAddLemmaRIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
+                      → (⟨ U ⟩ +i ⟨ V ⟩) ⊆ ⟨ U ++Fin V ⟩
+ FGIdealAddLemmaRIncl U V x = rec isPropPropTrunc (uncurry3 helper)
+   where
+   helperΣ : ((y , z) : R × R)
+           → Σ[ α ∈ FinVec R _ ] (y ≡ ∑ λ i → α i · U i)
+           → Σ[ β ∈ FinVec R _ ] (z ≡ ∑ λ i → β i · V i)
+           → x ≡ y + z
+           → x ∈ ⟨ U ++Fin V ⟩
+   helperΣ (y , z) (α , y≡∑αU) (β , z≡∑βV) x≡y+z = ∣ (α ++Fin β) , path ∣
+    where
+    path : x ≡ ∑ λ i → (α ++Fin β) i · (U ++Fin V) i
+    path = x                                               ≡⟨ x≡y+z ⟩
+           y + z                                           ≡⟨ cong₂ (_+_) y≡∑αU z≡∑βV ⟩
+           (∑ λ i → α i · U i) + (∑ λ i → β i · V i)       ≡⟨ sym (∑Split++ (λ i → α i · U i) _) ⟩
+           (∑ ((λ i → α i · U i) ++Fin (λ i → β i · V i))) ≡⟨ ∑Ext (mul++dist α U β V) ⟩
+           (∑ λ i → (α ++Fin β) i · (U ++Fin V) i)         ∎
+
+   helper : ((y , z) : R × R)
+          → ∃[ α ∈ FinVec R _ ] (y ≡ ∑ λ i → α i · U i)
+          → ∃[ β ∈ FinVec R _ ] (z ≡ ∑ λ i → β i · V i)
+          → x ≡ y + z
+          → x ∈ ⟨ U ++Fin V ⟩
+   helper _ = rec2 (isPropΠ (λ _ → isPropPropTrunc)) (helperΣ _)
 
  FGIdealAddLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ++Fin V ⟩ ≡ ⟨ U ⟩ +i ⟨ V ⟩
- FGIdealAddLemma U V = CommIdeal≡Char (ltrIncl U V) (rtlIncl U V)
-  where
-  ltrIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → ⟨ U ++Fin V ⟩ ⊆ (⟨ U ⟩ +i ⟨ V ⟩)
-  ltrIncl {n = ℕzero} U V x x∈⟨V⟩ = ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+Lid x) ∣
-  ltrIncl {n = ℕsuc n} U V x = rec isPropPropTrunc helperΣ
-    where
-    helperΣ : Σ[ α ∈ FinVec R _ ] (x ≡ ∑ λ i → α i · (U ++Fin V) i) → x ∈ (⟨ U ⟩ +i ⟨ V ⟩)
-    helperΣ (α , p) = subst-∈ (⟨ U ⟩ +i ⟨ V ⟩) (sym p)
-                               ((⟨ U ⟩ +i ⟨ V ⟩) .snd .+Closed zeroIncl sumIncl)
-     where
-     zeroIncl : (α zero · U zero) ∈ (⟨ U ⟩ +i ⟨ V ⟩)
-     zeroIncl = +iLincl ⟨ U ⟩ ⟨ V ⟩ (α zero · U zero) (⟨ U ⟩ .snd .·Closed (α zero) (indInIdeal U zero))
-
-     sumIncl : (∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i) ∈ (⟨ U ⟩ +i ⟨ V ⟩)
-     sumIncl = let sum = ∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i in
-          +iRespLincl ⟨ U ∘ suc ⟩ ⟨ U ⟩ ⟨ V ⟩ (sucIncl U) sum
-            (ltrIncl (U ∘ suc) V _ ∣ (α ∘ suc) , refl ∣)
-
-  rtlIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → (⟨ U ⟩ +i ⟨ V ⟩) ⊆ ⟨ U ++Fin V ⟩
-  rtlIncl U V x = rec isPropPropTrunc (uncurry3 helper)
-    where
-    helperΣ : ((y , z) : R × R)
-            → Σ[ α ∈ FinVec R _ ] (y ≡ ∑ λ i → α i · U i)
-            → Σ[ β ∈ FinVec R _ ] (z ≡ ∑ λ i → β i · V i)
-            → x ≡ y + z
-            → x ∈ ⟨ U ++Fin V ⟩
-    helperΣ (y , z) (α , y≡∑αU) (β , z≡∑βV) x≡y+z = ∣ (α ++Fin β) , path ∣
-     where
-     path : x ≡ ∑ λ i → (α ++Fin β) i · (U ++Fin V) i
-     path = x                                               ≡⟨ x≡y+z ⟩
-            y + z                                           ≡⟨ cong₂ (_+_) y≡∑αU z≡∑βV ⟩
-            (∑ λ i → α i · U i) + (∑ λ i → β i · V i)       ≡⟨ sym (∑Split++ (λ i → α i · U i) _) ⟩
-            (∑ ((λ i → α i · U i) ++Fin (λ i → β i · V i))) ≡⟨ ∑Ext (mul++dist α U β V) ⟩
-            (∑ λ i → (α ++Fin β) i · (U ++Fin V) i)         ∎
-
-    helper : ((y , z) : R × R)
-           → ∃[ α ∈ FinVec R _ ] (y ≡ ∑ λ i → α i · U i)
-           → ∃[ β ∈ FinVec R _ ] (z ≡ ∑ λ i → β i · V i)
-           → x ≡ y + z
-           → x ∈ ⟨ U ++Fin V ⟩
-    helper _ = rec2 (isPropΠ (λ _ → isPropPropTrunc)) (helperΣ _)
+ FGIdealAddLemma U V = CommIdeal≡Char (FGIdealAddLemmaLIncl U V) (FGIdealAddLemmaRIncl U V)
 
 
  IdealAddAssoc :  {n m k : ℕ} (U : FinVec R n) (V : FinVec R m) (W : FinVec R k)
@@ -231,19 +229,21 @@ module _ (R' : CommRing ℓ) where
           (∑ λ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j) ≡⟨ ∑Ext (·Dist··Fin α U β V) ⟩
           (∑ λ i → (α ··Fin β) i · (U ··Fin V) i) ∎
 
+ FGIdealMultLemmaLIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
+                       → ⟨ U ··Fin V ⟩ ⊆ (⟨ U ⟩ ·i ⟨ V ⟩)
+ FGIdealMultLemmaLIncl U V x = elim (λ _ → isPropPropTrunc)
+   λ (α , x≡∑αUV) → subst-∈ (⟨ U ⟩ ·i ⟨ V ⟩)  (sym x≡∑αUV) --replace x by ∑αᵢⱼUᵢVⱼ
+     (∑Closed (⟨ U ⟩ ·i ⟨ V ⟩) (λ i → α i · (U ··Fin V) i) --show that each αᵢ(U··V)ᵢ is in product
+       λ i → (⟨ U ⟩ ·i ⟨ V ⟩) .snd .·Closed (α i) --drop the α's
+         (flattenElim {P = _∈ (⟨ U ⟩ ·i ⟨ V ⟩)} (toMatrix U V) --show theat UᵢVⱼ is in product
+           (λ j k → prodInProd ⟨ U ⟩ ⟨ V ⟩ (U j) (V k) (indInIdeal U j) (indInIdeal V k)) i))
+
+ FGIdealMultLemmaRIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
+                       → (⟨ U ⟩ ·i ⟨ V ⟩) ⊆ ⟨ U ··Fin V ⟩
+ FGIdealMultLemmaRIncl U V x = elim (λ _ → isPropPropTrunc)
+   λ (_ , (α , β) , ∀α∈⟨U⟩ , ∀β∈⟨V⟩ , x≡∑αβ) → subst-∈ ⟨ U ··Fin V ⟩ (sym x≡∑αβ)
+     (∑Closed ⟨ U ··Fin V ⟩ _ (λ i → prodIn··Ideal U V (α i) (β i) (∀α∈⟨U⟩ i) (∀β∈⟨V⟩ i)))
+
  FGIdealMultLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ··Fin V ⟩ ≡ ⟨ U ⟩ ·i ⟨ V ⟩
- FGIdealMultLemma U V = CommIdeal≡Char (ltrIncl U V) (rtlIncl U V)
-  where
-  ltrIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → ⟨ U ··Fin V ⟩ ⊆ (⟨ U ⟩ ·i ⟨ V ⟩)
-  ltrIncl U V x = elim (λ _ → isPropPropTrunc)
-    λ (α , x≡∑αUV) → subst-∈ (⟨ U ⟩ ·i ⟨ V ⟩)  (sym x≡∑αUV) --replace x by ∑αᵢⱼUᵢVⱼ
-      (∑Closed (⟨ U ⟩ ·i ⟨ V ⟩) (λ i → α i · (U ··Fin V) i) --show that each αᵢ(U··V)ᵢ is in product
-        λ i → (⟨ U ⟩ ·i ⟨ V ⟩) .snd .·Closed (α i) --drop the α's
-          (flattenElim {P = _∈ (⟨ U ⟩ ·i ⟨ V ⟩)} (toMatrix U V) --show theat UᵢVⱼ is in product
-            (λ j k → prodInProd ⟨ U ⟩ ⟨ V ⟩ (U j) (V k) (indInIdeal U j) (indInIdeal V k)) i))
-
-  rtlIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) → (⟨ U ⟩ ·i ⟨ V ⟩) ⊆ ⟨ U ··Fin V ⟩
-  rtlIncl U V x = elim (λ _ → isPropPropTrunc)
-    λ (_ , (α , β) , ∀α∈⟨U⟩ , ∀β∈⟨V⟩ , x≡∑αβ) → subst-∈ ⟨ U ··Fin V ⟩ (sym x≡∑αβ)
-      (∑Closed ⟨ U ··Fin V ⟩ _ (λ i → prodIn··Ideal U V (α i) (β i) (∀α∈⟨U⟩ i) (∀β∈⟨V⟩ i)))
+ FGIdealMultLemma U V = CommIdeal≡Char (FGIdealMultLemmaLIncl U V) (FGIdealMultLemmaRIncl U V)

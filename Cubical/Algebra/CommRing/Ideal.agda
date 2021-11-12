@@ -154,15 +154,15 @@ module CommIdeal (R' : CommRing ℓ) where
  +iComm : ∀ (I J : CommIdeal) → I +i J ≡ J +i I
  +iComm I J = CommIdeal≡Char (+iComm⊆ I J)  (+iComm⊆ J I)
 
- +iLid : ∀ (I : CommIdeal) → 0Ideal +i I ≡ I
- +iLid I = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : (0Ideal +i I) ⊆ I
-  incl1 x = rec (I .fst x .snd) λ ((y , z) , y≡0 , z∈I , x≡y+z)
-                                  → subst-∈ I (sym (x≡y+z ∙∙ cong (_+ z) y≡0 ∙∙ +Lid z)) z∈I
+ +iLidLIncl : ∀ (I : CommIdeal) → (0Ideal +i I) ⊆ I
+ +iLidLIncl I x = rec (I .fst x .snd) λ ((y , z) , y≡0 , z∈I , x≡y+z)
+                                 → subst-∈ I (sym (x≡y+z ∙∙ cong (_+ z) y≡0 ∙∙ +Lid z)) z∈I
 
-  incl2 : I ⊆ (0Ideal +i I)
-  incl2 x x∈I = ∣ (0r , x) , refl , x∈I , sym (+Lid _) ∣
+ +iLidRIncl : ∀ (I : CommIdeal) → I ⊆ (0Ideal +i I)
+ +iLidRIncl I x x∈I = ∣ (0r , x) , refl , x∈I , sym (+Lid _) ∣
+
+ +iLid : ∀ (I : CommIdeal) → 0Ideal +i I ≡ I
+ +iLid I = CommIdeal≡Char (+iLidLIncl I) (+iLidRIncl I)
 
  +iLincl : ∀ (I J : CommIdeal) → I ⊆ (I +i J)
  +iLincl I J x x∈I = ∣ (x , 0r) , x∈I , J .snd .contains0 , sym (+Rid x) ∣
@@ -173,31 +173,32 @@ module CommIdeal (R' : CommRing ℓ) where
  +iRespLincl : ∀ (I J K : CommIdeal) → I ⊆ J → (I +i K) ⊆ (J +i K)
  +iRespLincl I J K I⊆J x = map λ ((y , z) , y∈I , z∈K , x≡y+z) → ((y , z) , I⊆J y y∈I , z∈K , x≡y+z)
 
+ +iAssocLIncl : ∀ (I J K : CommIdeal) → (I +i (J +i K)) ⊆ ((I +i J) +i K)
+ +iAssocLIncl I J K x = elim (λ _ → ((I +i J) +i K) .fst x .snd) (uncurry3
+           λ (y , z) y∈I → elim (λ _ → isPropΠ λ _ → ((I +i J) +i K) .fst x .snd)
+             λ ((u , v) , u∈J , v∈K , z≡u+v) x≡y+z
+               → ∣ (y + u , v) , ∣ _ , y∈I , u∈J , refl ∣ , v∈K
+                                , x≡y+z ∙∙ cong (y +_) z≡u+v ∙∙ +Assoc _ _ _ ∣)
+
+ +iAssocRIncl : ∀ (I J K : CommIdeal) → ((I +i J) +i K) ⊆ (I +i (J +i K))
+ +iAssocRIncl I J K x = elim (λ _ → (I +i (J +i K)) .fst x .snd) (uncurry3
+           λ (y , z) → elim (λ _ → isPropΠ2 λ _ _ → (I +i (J +i K)) .fst x .snd)
+             λ ((u , v) , u∈I , v∈J , y≡u+v) z∈K x≡y+z
+               → ∣ (u , v + z) , u∈I , ∣ _ , v∈J , z∈K , refl ∣
+                                      , x≡y+z ∙∙ cong (_+ z) y≡u+v ∙∙ sym (+Assoc _ _ _) ∣)
+
  +iAssoc : ∀ (I J K : CommIdeal) → I +i (J +i K) ≡ (I +i J) +i K
- +iAssoc I J K = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : (I +i (J +i K)) ⊆ ((I +i J) +i K)
-  incl1 x = elim (λ _ → ((I +i J) +i K) .fst x .snd) (uncurry3
-            λ (y , z) y∈I → elim (λ _ → isPropΠ λ _ → ((I +i J) +i K) .fst x .snd)
-              λ ((u , v) , u∈J , v∈K , z≡u+v) x≡y+z
-                → ∣ (y + u , v) , ∣ _ , y∈I , u∈J , refl ∣ , v∈K
-                                 , x≡y+z ∙∙ cong (y +_) z≡u+v ∙∙ +Assoc _ _ _ ∣)
-  incl2 : ((I +i J) +i K) ⊆ (I +i (J +i K))
-  incl2 x = elim (λ _ → (I +i (J +i K)) .fst x .snd) (uncurry3
-            λ (y , z) → elim (λ _ → isPropΠ2 λ _ _ → (I +i (J +i K)) .fst x .snd)
-              λ ((u , v) , u∈I , v∈J , y≡u+v) z∈K x≡y+z
-                → ∣ (u , v + z) , u∈I , ∣ _ , v∈J , z∈K , refl ∣
-                                       , x≡y+z ∙∙ cong (_+ z) y≡u+v ∙∙ sym (+Assoc _ _ _) ∣)
+ +iAssoc I J K = CommIdeal≡Char (+iAssocLIncl I J K) (+iAssocRIncl I J K)
+
+ +iIdemLIncl : ∀ (I : CommIdeal) → (I +i I) ⊆ I
+ +iIdemLIncl I x = rec (I .fst x .snd) λ ((y , z) , y∈I , z∈I , x≡y+z)
+                                 → subst-∈ I (sym x≡y+z) (I .snd .+Closed y∈I z∈I)
+
+ +iIdemRIncl : ∀ (I : CommIdeal) → I ⊆ (I +i I)
+ +iIdemRIncl I x x∈I = ∣ (0r , x) , I .snd .contains0 , x∈I , sym (+Lid _) ∣
 
  +iIdem : ∀ (I : CommIdeal) → I +i I ≡ I
- +iIdem I = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : (I +i I) ⊆ I
-  incl1 x = rec (I .fst x .snd) λ ((y , z) , y∈I , z∈I , x≡y+z)
-                                  → subst-∈ I (sym x≡y+z) (I .snd .+Closed y∈I z∈I)
-
-  incl2 : I ⊆ (I +i I)
-  incl2 x x∈I = ∣ (0r , x) , I .snd .contains0 , x∈I , sym (+Lid _) ∣
+ +iIdem I = CommIdeal≡Char (+iIdemLIncl I) (+iIdemRIncl I)
 
 
  -- where to put this?
@@ -242,86 +243,86 @@ module CommIdeal (R' : CommRing ℓ) where
  ·iComm : ∀ (I J : CommIdeal) → I ·i J ≡ J ·i I
  ·iComm I J = CommIdeal≡Char (·iComm⊆ I J) (·iComm⊆ J I)
 
- ·iRid : ∀ (I : CommIdeal) → I ·i 1Ideal ≡ I
- ·iRid I = CommIdeal≡Char (·iLincl I 1Ideal) I1⊆I
+ I⊆I1 : ∀ (I : CommIdeal) → I ⊆ (I ·i 1Ideal)
+ I⊆I1 I x x∈I = ∣ 1 , ((λ _ → x) , λ _ → 1r) , (λ _ → x∈I) , (λ _ → lift tt) , useSolver x ∣
   where
   useSolver : ∀ x → x ≡ x · 1r + 0r
   useSolver = solve R'
 
-  I1⊆I : I ⊆ (I ·i 1Ideal)
-  I1⊆I x x∈I = ∣ 1 , ((λ _ → x) , λ _ → 1r) , (λ _ → x∈I) , (λ _ → lift tt) , useSolver x ∣
+ ·iRid : ∀ (I : CommIdeal) → I ·i 1Ideal ≡ I
+ ·iRid I = CommIdeal≡Char (·iLincl I 1Ideal) (I⊆I1 I)
 
  -- a useful corollary
  ·iRContains1id : ∀ (I J : CommIdeal) → 1r ∈ J → I ·i J ≡ I
  ·iRContains1id I J 1∈J = cong (I ·i_) (contains1Is1 J 1∈J) ∙ ·iRid I
 
- ·iAssoc : ∀ (I J K : CommIdeal) → I ·i (J ·i K) ≡ (I ·i J) ·i K
- ·iAssoc I J K = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : (I ·i (J ·i K)) ⊆ ((I ·i J) ·i K)
-  incl1 x = rec isPropPropTrunc
-          λ (_ , (α , β) , α∈I , β∈JK , x≡∑αβ)
-              → subst-∈ ((I ·i J) ·i K) (sym x≡∑αβ)
-                (∑Closed ((I ·i J) ·i K) (λ i → α i · β i)
-          λ i → rec isPropPropTrunc
-                (λ (_ , (γ , δ) , γ∈J , δ∈K , βi≡∑γδ)
-                   → subst-∈ ((I ·i J) ·i K) -- each αᵢβᵢ ≡...≡ ∑αᵢγⱼδⱼ ∈IJK
-                              (sym (cong (α i ·_) βi≡∑γδ ∙∙ ∑Mulrdist (α i) (λ j → γ j · δ j)
-                                                         ∙∙ ∑Ext (λ j → ·Assoc (α i) (γ j) (δ j))))
-                              (∑Closed ((I ·i J) ·i K) (λ j → α i · γ j · δ j) -- each αᵢγⱼδⱼ∈IJK
-                                       λ j → prodInProd (I ·i J) K _ _
-                                               (prodInProd I J _ _ (α∈I i) (γ∈J j)) (δ∈K j)))
-                (β∈JK i))
+ ·iAssocLIncl : ∀ (I J K : CommIdeal) → (I ·i (J ·i K)) ⊆ ((I ·i J) ·i K)
+ ·iAssocLIncl I J K x = rec isPropPropTrunc
+         λ (_ , (α , β) , α∈I , β∈JK , x≡∑αβ)
+             → subst-∈ ((I ·i J) ·i K) (sym x≡∑αβ)
+               (∑Closed ((I ·i J) ·i K) (λ i → α i · β i)
+         λ i → rec isPropPropTrunc
+               (λ (_ , (γ , δ) , γ∈J , δ∈K , βi≡∑γδ)
+                  → subst-∈ ((I ·i J) ·i K) -- each αᵢβᵢ ≡...≡ ∑αᵢγⱼδⱼ ∈IJK
+                             (sym (cong (α i ·_) βi≡∑γδ ∙∙ ∑Mulrdist (α i) (λ j → γ j · δ j)
+                                                        ∙∙ ∑Ext (λ j → ·Assoc (α i) (γ j) (δ j))))
+                             (∑Closed ((I ·i J) ·i K) (λ j → α i · γ j · δ j) -- each αᵢγⱼδⱼ∈IJK
+                                      λ j → prodInProd (I ·i J) K _ _
+                                              (prodInProd I J _ _ (α∈I i) (γ∈J j)) (δ∈K j)))
+               (β∈JK i))
 
-  incl2 : ((I ·i J) ·i K) ⊆ (I ·i (J ·i K))
-  incl2 x = rec isPropPropTrunc
-          λ (_ , (α , β) , α∈IJ , β∈K , x≡∑αβ)
-              → subst-∈ (I ·i (J ·i K)) (sym x≡∑αβ)
-                (∑Closed (I ·i (J ·i K)) (λ i → α i · β i)
-          λ i → rec isPropPropTrunc
-                (λ (_ , (γ , δ) , γ∈I , δ∈J , αi≡∑γδ)
-                   → subst-∈ (I ·i (J ·i K))
-                              (sym (cong (_· β i) αi≡∑γδ ∙∙ ∑Mulldist (β i) (λ j → γ j · δ j)
-                                         ∙∙ ∑Ext (λ j → sym (·Assoc (γ j) (δ j) (β i)))))
-                              (∑Closed (I ·i (J ·i K)) (λ j → γ j · (δ j · β i))
-                                       λ j → prodInProd I (J ·i K) _ _ (γ∈I j)
-                                               (prodInProd J K _ _ (δ∈J j) (β∈K i))))
-                (α∈IJ i))
+ ·iAssocRIncl : ∀ (I J K : CommIdeal) → ((I ·i J) ·i K) ⊆ (I ·i (J ·i K))
+ ·iAssocRIncl I J K x = rec isPropPropTrunc
+         λ (_ , (α , β) , α∈IJ , β∈K , x≡∑αβ)
+             → subst-∈ (I ·i (J ·i K)) (sym x≡∑αβ)
+               (∑Closed (I ·i (J ·i K)) (λ i → α i · β i)
+         λ i → rec isPropPropTrunc
+               (λ (_ , (γ , δ) , γ∈I , δ∈J , αi≡∑γδ)
+                  → subst-∈ (I ·i (J ·i K))
+                             (sym (cong (_· β i) αi≡∑γδ ∙∙ ∑Mulldist (β i) (λ j → γ j · δ j)
+                                        ∙∙ ∑Ext (λ j → sym (·Assoc (γ j) (δ j) (β i)))))
+                             (∑Closed (I ·i (J ·i K)) (λ j → γ j · (δ j · β i))
+                                      λ j → prodInProd I (J ·i K) _ _ (γ∈I j)
+                                              (prodInProd J K _ _ (δ∈J j) (β∈K i))))
+               (α∈IJ i))
+
+ ·iAssoc : ∀ (I J K : CommIdeal) → I ·i (J ·i K) ≡ (I ·i J) ·i K
+ ·iAssoc I J K = CommIdeal≡Char (·iAssocLIncl I J K) (·iAssocRIncl I J K)
+
+ ·iRdist+iLIncl : ∀ (I J K : CommIdeal) → (I ·i (J +i K)) ⊆ (I ·i J +i I ·i K)
+ ·iRdist+iLIncl I J K x = rec isPropPropTrunc
+   λ (n , (α , β) , α∈I , β∈J+K , x≡∑αβ) → subst-∈ ((I ·i J) +i (I ·i K)) (sym x≡∑αβ)
+     (∑Closed ((I ·i J) +i (I ·i K)) (λ i → α i · β i) -- each αi·βi ∈ IJ+IK
+     λ i → rec isPropPropTrunc
+           (λ ((γi , δi) , γi∈J , δi∈K , βi≡γi+δi) →
+              ∣ (α i · γi , α i · δi) , prodInProd I J _ _ (α∈I i) γi∈J
+                                      , prodInProd I K _ _ (α∈I i) δi∈K
+                                      , cong (α i ·_) βi≡γi+δi ∙ ·Rdist+ _ _ _ ∣)
+           (β∈J+K i))
+
+ ·iRdist+iRIncl : ∀ (I J K : CommIdeal) → ((I ·i J) +i (I ·i K)) ⊆ (I ·i (J +i K))
+ ·iRdist+iRIncl I J K x = rec isPropPropTrunc λ ((y , z) , y∈IJ , z∈IK , x≡y+z)
+         → subst-∈ (I ·i (J +i K)) (sym x≡y+z)
+             ((I ·i (J +i K)) .snd .+Closed (inclHelperLeft _ y∈IJ) (inclHelperRight _ z∈IK))
+  where
+  inclHelperLeft : (I ·i J) ⊆ (I ·i (J +i K))
+  inclHelperLeft x' = map (λ (n , (α , β) , α∈I , β∈J , x'≡∑αβ)
+                    → n , (α , β) , α∈I , (λ i → +iLincl J K _ (β∈J i)) , x'≡∑αβ)
+
+  inclHelperRight : (I ·i K) ⊆ (I ·i (J +i K))
+  inclHelperRight x' = map (λ (n , (α , β) , α∈I , β∈K , x'≡∑αβ)
+                     → n , (α , β) , α∈I , (λ i → +iRincl J K _ (β∈K i)) , x'≡∑αβ)
 
  ·iRdist+i : ∀ (I J K : CommIdeal) → I ·i (J +i K) ≡ I ·i J +i I ·i K
- ·iRdist+i I J K = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : (I ·i (J +i K)) ⊆ (I ·i J +i I ·i K)
-  incl1 x = rec isPropPropTrunc
-    λ (n , (α , β) , α∈I , β∈J+K , x≡∑αβ) → subst-∈ ((I ·i J) +i (I ·i K)) (sym x≡∑αβ)
-      (∑Closed ((I ·i J) +i (I ·i K)) (λ i → α i · β i) -- each αi·βi ∈ IJ+IK
-      λ i → rec isPropPropTrunc
-            (λ ((γi , δi) , γi∈J , δi∈K , βi≡γi+δi) →
-               ∣ (α i · γi , α i · δi) , prodInProd I J _ _ (α∈I i) γi∈J
-                                       , prodInProd I K _ _ (α∈I i) δi∈K
-                                       , cong (α i ·_) βi≡γi+δi ∙ ·Rdist+ _ _ _ ∣)
-            (β∈J+K i))
-
-  incl2 : ((I ·i J) +i (I ·i K)) ⊆ (I ·i (J +i K))
-  incl2 x = rec isPropPropTrunc λ ((y , z) , y∈IJ , z∈IK , x≡y+z)
-          → subst-∈ (I ·i (J +i K)) (sym x≡y+z)
-              ((I ·i (J +i K)) .snd .+Closed (inclHelperLeft _ y∈IJ) (inclHelperRight _ z∈IK))
-   where
-   inclHelperLeft : (I ·i J) ⊆ (I ·i (J +i K))
-   inclHelperLeft x' = map (λ (n , (α , β) , α∈I , β∈J , x'≡∑αβ)
-                     → n , (α , β) , α∈I , (λ i → +iLincl J K _ (β∈J i)) , x'≡∑αβ)
-
-   inclHelperRight : (I ·i K) ⊆ (I ·i (J +i K))
-   inclHelperRight x' = map (λ (n , (α , β) , α∈I , β∈K , x'≡∑αβ)
-                      → n , (α , β) , α∈I , (λ i → +iRincl J K _ (β∈K i)) , x'≡∑αβ)
+ ·iRdist+i I J K = CommIdeal≡Char (·iRdist+iLIncl I J K) (·iRdist+iRIncl I J K)
 
  -- only one absorption law, i.e. CommIdeal , +i , ·i does not form a dist. lattice
- ·iAbsorb+i : ∀ (I J : CommIdeal) → I +i (I ·i J) ≡ I
- ·iAbsorb+i I J = CommIdeal≡Char incl1 incl2
-  where
-  incl1 : (I +i (I ·i J)) ⊆ I
-  incl1 x = rec (I .fst x .snd) λ ((y , z) , y∈I , z∈IJ , x≡y+z)
-          → subst-∈ I (sym x≡y+z) (I .snd .+Closed y∈I (·iLincl I J _ z∈IJ))
+ ·iAbsorb+iLIncl : ∀ (I J : CommIdeal) → (I +i (I ·i J)) ⊆ I
+ ·iAbsorb+iLIncl I J x = rec (I .fst x .snd) λ ((y , z) , y∈I , z∈IJ , x≡y+z)
+         → subst-∈ I (sym x≡y+z) (I .snd .+Closed y∈I (·iLincl I J _ z∈IJ))
 
-  incl2 : I ⊆ (I +i (I ·i J))
-  incl2 = +iLincl I (I ·i J)
+ ·iAbsorb+iRIncl : ∀ (I J : CommIdeal) → I ⊆ (I +i (I ·i J))
+ ·iAbsorb+iRIncl I J = +iLincl I (I ·i J)
+
+ ·iAbsorb+i : ∀ (I J : CommIdeal) → I +i (I ·i J) ≡ I
+ ·iAbsorb+i I J = CommIdeal≡Char (·iAbsorb+iLIncl I J) (·iAbsorb+iRIncl I J)
