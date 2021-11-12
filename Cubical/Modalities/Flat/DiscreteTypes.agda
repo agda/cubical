@@ -82,7 +82,4 @@ crispPropRec Pprop f (squash x y i) = Pprop (crispPropRec Pprop f x) (crispPropR
               crispPropRec PropTrunc.isPropPropTrunc f p
               where f : (@♭ p : _) → _
                     f p = ∣ fst (invEquiv (♭≡Comm y x)) (p ^♭) ∣
-
-BAutEquiv : {@♭ ♭ℓ : Level} (@♭ X : Type ♭ℓ)
-            → _
-BAutEquiv = {!!}
+{- ... tbc ... -}
