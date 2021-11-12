@@ -102,7 +102,8 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
  isEquivRel.transitive locIsEquivRel = locTrans
 
  _+ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
- _+ₗ_ = setQuotSymmBinOp locRefl locTrans _+ₚ_ +ₚ-symm θ
+ _+ₗ_ = setQuotSymmBinOp locRefl locTrans _+ₚ_
+         (λ a b → subst (λ x → (a +ₚ b) ≈ x) (+ₚ-symm a b) (locRefl (a +ₚ b))) θ
   where
   _+ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) +ₚ (r₂ , s₂ , s₂∈S) =
@@ -206,7 +207,8 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
 
  -- Now for multiplication
  _·ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
- _·ₗ_ = setQuotSymmBinOp locRefl locTrans _·ₚ_ ·ₚ-symm θ
+ _·ₗ_ = setQuotSymmBinOp locRefl locTrans _·ₚ_
+         (λ a b → subst (λ x → (a ·ₚ b) ≈ x) (·ₚ-symm a b) (locRefl (a ·ₚ b))) θ
   where
   _·ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) ·ₚ (r₂ , s₂ , s₂∈S) =

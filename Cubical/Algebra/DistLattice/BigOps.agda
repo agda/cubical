@@ -29,6 +29,8 @@ open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
+open import Cubical.Relation.Binary.Poset
+
 
 private
   variable
@@ -95,6 +97,26 @@ module Join (L' : DistLattice ℓ) where
    (λ i → 0lLeftAnnihilates∧l (V zero) i ∨l ⋁ (λ i → (δ j i) ∧l V (suc i)))
    ∙∙ ∨lLid _ ∙∙ ⋁Meet1r n (V ∘ suc) j
 
+ -- inequalities of big joins
+ open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L'))
+ open PosetReasoning IndPoset
+ open PosetStr (IndPoset .snd) hiding (_≤_)
+
+ ⋁IsMax : {n : ℕ} (U : FinVec L n) (x : L) → (∀ i → U i ≤ x) → ⋁ U ≤ x
+ ⋁IsMax {n = zero} _ _ _ = ∨lLid _
+ ⋁IsMax {n = suc n} U x U≤x =
+   ⋁ U                   ≤⟨ is-refl _ ⟩
+   U zero ∨l ⋁ (U ∘ suc) ≤⟨ ≤-∨LPres _ _ _ (⋁IsMax _ _ (U≤x ∘ suc)) ⟩
+   U zero ∨l x            ≤⟨ ∨lIsMax _ _ _ (U≤x zero) (is-refl x) ⟩
+   x ◾
+
+ ≤-⋁Ext : {n : ℕ} (U W : FinVec L n) → (∀ i → U i ≤ W i) → ⋁ U ≤ ⋁ W
+ ≤-⋁Ext {n = zero} U W U≤W = is-refl 0l
+ ≤-⋁Ext {n = suc n} U W U≤W =
+   ⋁ U                   ≤⟨ is-refl _ ⟩
+   U zero ∨l ⋁ (U ∘ suc) ≤⟨ ≤-∨Pres _ _ _ _ (U≤W zero) (≤-⋁Ext _ _ (U≤W ∘ suc)) ⟩
+   W zero ∨l ⋁ (W ∘ suc) ≤⟨ is-refl _ ⟩
+   ⋁ W ◾
 
 module Meet (L' : DistLattice ℓ) where
  private
