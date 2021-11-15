@@ -1,9 +1,9 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.NatAsAlmostRing where
+module Cubical.Algebra.NatSolver.NatAsAlmostRing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat
-open import Cubical.Algebra.RingSolver.AlmostRing
+open import Cubical.Algebra.NatSolver.AlmostRing
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup

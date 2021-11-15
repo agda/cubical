@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.RingExpression where
+module Cubical.Algebra.NatSolver.RingExpression where
 
 open import Cubical.Foundations.Prelude
 
@@ -7,7 +7,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
-open import Cubical.Algebra.RingSolver.AlmostRing
+open import Cubical.Algebra.NatSolver.AlmostRing
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 
 private

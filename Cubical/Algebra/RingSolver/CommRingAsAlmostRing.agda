@@ -3,7 +3,7 @@ module Cubical.Algebra.RingSolver.CommRingAsAlmostRing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.Algebra.RingSolver.AlmostRing
+-- open import Cubical.Algebra.RingSolver.AlmostRing
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Group

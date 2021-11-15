@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.HornerForms where
+module Cubical.Algebra.NatSolver.HornerForms where
 
 open import Cubical.Foundations.Prelude
 
@@ -9,7 +9,7 @@ open import Cubical.Data.Vec
 open import Cubical.Data.Bool using (Bool; true; false; if_then_else_)
 
 open import Cubical.Algebra.RingSolver.RawRing
-open import Cubical.Algebra.RingSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.NatSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 
 private
   variable

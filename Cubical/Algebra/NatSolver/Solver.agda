@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.Solver where
+module Cubical.Algebra.NatSolver.Solver where
 
 open import Cubical.Foundations.Prelude
 
@@ -7,11 +7,11 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
-open import Cubical.Algebra.RingSolver.AlmostRing
+open import Cubical.Algebra.NatSolver.AlmostRing
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.RingSolver.RingExpression
-open import Cubical.Algebra.RingSolver.HornerForms
-open import Cubical.Algebra.RingSolver.EvaluationHomomorphism
+open import Cubical.Algebra.NatSolver.RingExpression
+open import Cubical.Algebra.NatSolver.HornerForms
+open import Cubical.Algebra.NatSolver.EvaluationHomomorphism
 
 private
   variable

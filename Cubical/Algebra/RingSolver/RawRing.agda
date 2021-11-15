@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ)
 
-open import Cubical.Algebra.RingSolver.AlmostRing hiding (⟨_⟩)
+open import Cubical.Algebra.NatSolver.AlmostRing hiding (⟨_⟩)
 
 private
   variable

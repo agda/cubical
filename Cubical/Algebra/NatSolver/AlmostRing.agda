@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.AlmostRing where
+module Cubical.Algebra.NatSolver.AlmostRing where
 
 open import Cubical.Foundations.Prelude
 
