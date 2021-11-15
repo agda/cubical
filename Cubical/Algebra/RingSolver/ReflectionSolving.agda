@@ -32,7 +32,7 @@ open import Cubical.Algebra.RingSolver.AlgebraExpression
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
-open import Cubical.Algebra.RingSolver.CommRingSolver renaming (solve to ringSolve)
+open import Cubical.Algebra.RingSolver.Solver renaming (solve to ringSolve)
 
 private
   variable

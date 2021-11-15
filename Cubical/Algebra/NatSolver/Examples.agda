@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.NatSolver.NatExamples where
+module Cubical.Algebra.NatSolver.Examples where
 
 open import Cubical.Foundations.Prelude
 

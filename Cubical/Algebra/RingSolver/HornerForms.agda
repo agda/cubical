@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.CommRingHornerForms where
+module Cubical.Algebra.RingSolver.HornerForms where
 
 open import Cubical.Foundations.Prelude
 
