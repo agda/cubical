@@ -128,9 +128,6 @@ private
 
 
 module pr (R : CommRing ℓ) {n : ℕ} where
-  private
-    νR = CommRing→RawℤAlgebra R
-
   open CommRingStr (snd R)
 
   0' : Expr ℤAsRawRing (fst R) n
@@ -140,9 +137,6 @@ module pr (R : CommRing ℓ) {n : ℕ} where
   1' = K 1
 
 module _ (cring : Term) where
-  private
-    νR = def (quote CommRing→RawℤAlgebra) (varg cring ∷ [])
-
   open pr
 
   `0` : List (Arg Term) → Term
