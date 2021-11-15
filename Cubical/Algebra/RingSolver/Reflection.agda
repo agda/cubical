@@ -6,7 +6,7 @@
   Boilerplate code for calling the ring solver is constructed automatically
   with agda's reflection features.
 -}
-module Cubical.Algebra.RingSolver.ReflectionSolving where
+module Cubical.Algebra.RingSolver.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)
 open import Cubical.Functions.Logic
