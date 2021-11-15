@@ -16,7 +16,7 @@ open import Cubical.Data.FinData
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Ring.Ideal renaming (IdealsIn to IdealsInRing)
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.RingSolver.ReflectionSolving
+open import Cubical.Algebra.RingSolver.Reflection
 
 private
   variable

@@ -22,7 +22,6 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.RingSolver.ReflectionSolving
 
 private
   variable
@@ -101,4 +100,3 @@ syntax genIdeal R V = ⟨ V ⟩[ R ]
 
 FGIdealIn : (R : CommRing ℓ) → Type (ℓ-suc ℓ)
 FGIdealIn R = Σ[ I ∈ CommIdeal R ] ∃[ n ∈ ℕ ] ∃[ V ∈ FinVec (fst R) n ] I ≡ ⟨ V ⟩[ R ]
-
