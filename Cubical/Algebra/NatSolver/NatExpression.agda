@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.NatSolver.RingExpression where
+module Cubical.Algebra.NatSolver.NatExpression where
 
 open import Cubical.Foundations.Prelude
 
@@ -7,8 +7,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
-open import Cubical.Algebra.NatSolver.AlmostRing
-open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.NatSolver.RawSemiring renaming (⟨_⟩ to ⟨_⟩ᵣ)
 
 private
   variable
@@ -23,7 +22,6 @@ data Expr {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
   ∣ : Fin n → Expr A n
   _+'_ : Expr A n → Expr A n → Expr A n
   _·'_ : Expr A n → Expr A n → Expr A n
-  -'_ : Expr A n → Expr A n
 
 module Eval (R : RawRing ℓ) where
   open import Cubical.Data.Vec
@@ -34,4 +32,3 @@ module Eval (R : RawRing ℓ) where
   ⟦ ∣ k ⟧ v = lookup k v
   ⟦ x +' y ⟧ v =  ⟦ x ⟧ v + ⟦ y ⟧ v
   ⟦ x ·' y ⟧ v = ⟦ x ⟧ v · ⟦ y ⟧ v
-  ⟦ -' x ⟧ v = - ⟦ x ⟧ v

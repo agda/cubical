@@ -7,7 +7,7 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
 
-open import Cubical.Algebra.RingSolver.RawRing
+open import Cubical.Algebra.NatSolver.RawSemiring
 open import Cubical.Algebra.NatSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.NatSolver.HornerForms
 
@@ -47,31 +47,6 @@ module HomomorphismProperties (R : AlmostRing ℓ) where
     0r + 1r                                                ≡⟨ +Lid _ ⟩
     1r ∎
 
-  -evalDist :
-    (n : ℕ) (P : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)
-    → eval n (-ₕ P) xs ≡ - eval n P xs
-  -evalDist .ℕ.zero (const x) []   = refl
-  -evalDist          n       0H  xs =
-    eval n (-ₕ 0H) xs  ≡⟨ eval0H n xs ⟩
-    0r                        ≡⟨ sym 0IsSelfinverse ⟩
-    - 0r                      ≡⟨ cong -_ (sym (eval0H n xs)) ⟩
-    - eval n 0H xs     ∎
-  -evalDist .(ℕ.suc _) (P ·X+ Q) (x ∷ xs) =
-      eval (ℕ.suc _) (-ₕ (P ·X+ Q)) (x ∷ xs)
-    ≡⟨ refl ⟩
-      eval (ℕ.suc _) ((-ₕ P) ·X+ (-ₕ Q)) (x ∷ xs)
-    ≡⟨ refl ⟩
-      (eval (ℕ.suc _) (-ₕ P) (x ∷ xs)) · x + eval _ (-ₕ Q) xs
-    ≡⟨ cong (λ u → u · x + eval _ (-ₕ Q) xs) (-evalDist _ P _) ⟩
-      (- eval (ℕ.suc _) P (x ∷ xs)) · x + eval _ (-ₕ Q) xs
-    ≡⟨ cong (λ u → (- eval (ℕ.suc _) P (x ∷ xs)) · x + u) (-evalDist _ Q _) ⟩
-      (- eval (ℕ.suc _) P (x ∷ xs)) · x + - eval _ Q xs
-    ≡⟨ cong (λ u → u + - eval _ Q xs) (sym (-Comm· _ _)) ⟩
-      - (eval (ℕ.suc _) P (x ∷ xs)) · x + - eval _ Q xs
-    ≡⟨ sym (-Dist+ _ _) ⟩
-      - ((eval (ℕ.suc _) P (x ∷ xs)) · x + eval _ Q xs)
-    ≡⟨ refl ⟩
-      - eval (ℕ.suc _) (P ·X+ Q) (x ∷ xs) ∎
 
   +Homeval :
     (n : ℕ) (P Q : IteratedHornerForms νR n) (xs : Vec ⟨ νR ⟩ n)

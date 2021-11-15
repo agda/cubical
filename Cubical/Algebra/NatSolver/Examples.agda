@@ -9,8 +9,8 @@ open import Cubical.Data.Vec.Base
 
 open import Cubical.Algebra.NatSolver.AlmostRing
 open import Cubical.Algebra.NatSolver.NatAsAlmostRing
-open import Cubical.Algebra.NatSolver.RingExpression
-open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.NatSolver.NatExpression
+open import Cubical.Algebra.NatSolver.RawSemiring renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.NatSolver.HornerForms
 open import Cubical.Algebra.NatSolver.Solver
 

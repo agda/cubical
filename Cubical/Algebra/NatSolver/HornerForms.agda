@@ -8,8 +8,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Vec
 open import Cubical.Data.Bool using (Bool; true; false; if_then_else_)
 
-open import Cubical.Algebra.RingSolver.RawRing
-open import Cubical.Algebra.NatSolver.AlmostRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.NatSolver.RawSemiring
 
 private
   variable
@@ -76,11 +75,6 @@ module IteratedHornerOperations (R : RawRing ℓ) where
   (P ·X+ r) +ₕ 0H = P ·X+ r
   (P ·X+ r) +ₕ (Q ·X+ s) = (P +ₕ Q) ·X+ (r +ₕ s)
 
-  -ₕ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R n
-  -ₕ (const x) = const (- x)
-  -ₕ 0H = 0H
-  -ₕ (P ·X+ Q) = (-ₕ P) ·X+ (-ₕ Q)
-
   isZero : {n : ℕ} → IteratedHornerForms R (ℕ.suc n)
                    → Bool
   isZero 0H = true
@@ -108,7 +102,6 @@ module IteratedHornerOperations (R : RawRing ℓ) where
   RawRing.1r (asRawRing n) = 1ₕ
   RawRing._+_ (asRawRing n) = _+ₕ_
   RawRing._·_ (asRawRing n) = _·ₕ_
-  RawRing.- (asRawRing n) =  -ₕ
 
 Variable : (n : ℕ) (R : RawRing ℓ) (k : Fin n) → IteratedHornerForms R n
 Variable n R k = IteratedHornerOperations.X R n k

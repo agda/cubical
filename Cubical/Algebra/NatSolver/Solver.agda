@@ -7,11 +7,11 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
-open import Cubical.Algebra.NatSolver.AlmostRing
-open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.NatSolver.RingExpression
+open import Cubical.Algebra.NatSolver.RawSemiring renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.NatSolver.NatExpression
 open import Cubical.Algebra.NatSolver.HornerForms
 open import Cubical.Algebra.NatSolver.EvaluationHomomorphism
+open import Cubical.Algebra.NatSolver.AlmostRing
 
 private
   variable
@@ -32,7 +32,7 @@ module EqualityToNormalform (R : AlmostRing ℓ) where
     (normalize n x) +ₕ (normalize n y)
   normalize n (x ·' y) =
     (normalize n x) ·ₕ (normalize n y)
-  normalize n (-' x) =  -ₕ (normalize n x)
+
 
   isEqualToNormalform :
             (n : ℕ)
@@ -69,24 +69,6 @@ module EqualityToNormalform (R : AlmostRing ℓ) where
       eval n (Variable n νR k) xs
     ≡⟨ isEqualToNormalform n (∣ k) xs ⟩
       ⟦ ∣ (suc k) ⟧ (x ∷ xs) ∎
-
-  isEqualToNormalform ℕ.zero (-' e) [] =
-    eval ℕ.zero (-ₕ (normalize ℕ.zero e)) [] ≡⟨ -evalDist ℕ.zero
-                                                                  (normalize ℕ.zero e)
-                                                                  [] ⟩
-    - eval ℕ.zero (normalize ℕ.zero e) []    ≡⟨ cong -_
-                                                          (isEqualToNormalform
-                                                            ℕ.zero e [] ) ⟩
-    - ⟦ e ⟧ [] ∎
-  isEqualToNormalform (ℕ.suc n) (-' e) (x ∷ xs) =
-    eval (ℕ.suc n) (-ₕ (normalize (ℕ.suc n) e)) (x ∷ xs) ≡⟨ -evalDist (ℕ.suc n)
-                                                                  (normalize
-                                                                    (ℕ.suc n) e)
-                                                                  (x ∷ xs) ⟩
-    - eval (ℕ.suc n) (normalize (ℕ.suc n) e) (x ∷ xs)    ≡⟨ cong -_
-                                                          (isEqualToNormalform
-                                                            (ℕ.suc n) e (x ∷ xs) ) ⟩
-    - ⟦ e ⟧ (x ∷ xs) ∎
 
   isEqualToNormalform ℕ.zero (e +' e₁) [] =
         eval ℕ.zero (normalize ℕ.zero e +ₕ normalize ℕ.zero e₁) []
