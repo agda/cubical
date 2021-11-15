@@ -56,18 +56,18 @@ module MultivariateSolving where
      can be checked by agda's unification (so refl is a proof)
 
    -}
-  _ : normalize 3 ((K 2) ⊗ X) ≡
-      normalize 3 (X ⊕ X)
+  _ : normalize 3 ((K 2) ·' X) ≡
+      normalize 3 (X +' X)
   _ = refl
 
 
-  _ : normalize 3 ((K 2) ⊗ X) ≡ normalize 3 (X ⊕ X)
+  _ : normalize 3 ((K 2) ·' X) ≡ normalize 3 (X +' X)
   _ = refl
 
-  _ : normalize 3 (((K 2) ⊗ X) ⊗ Y) ≡ normalize 3 (Y ⊗ (X ⊕ X))
+  _ : normalize 3 (((K 2) ·' X) ·' Y) ≡ normalize 3 (Y ·' (X +' X))
   _ = refl
 
-  _ : normalize 3 (Z ⊗ (((K 2) ⊗ X) ⊗ Y)) ≡ normalize 3 (Z ⊗ (Y ⊗ (X ⊕ X)))
+  _ : normalize 3 (Z ·' (((K 2) ·' X) ·' Y)) ≡ normalize 3 (Z ·' (Y ·' (X +' X)))
   _ = refl
 
 
@@ -77,9 +77,9 @@ module MultivariateSolving where
     those actual ring elements are equal to a normal form:
   -}
   _ : (x y z : ℕ) →
-      eval 3 (normalize 3 ((K 2) ⊗ X ⊗ Y)) (x ∷ y ∷ z ∷ [])
+      eval 3 (normalize 3 ((K 2) ·' X ·' Y)) (x ∷ y ∷ z ∷ [])
       ≡ 2 · x · y
-  _ = λ x y z → isEqualToNormalform 3 ((K 2) ⊗ X ⊗ Y) (x ∷ y ∷ z ∷ [])
+  _ = λ x y z → isEqualToNormalform 3 ((K 2) ·' X ·' Y) (x ∷ y ∷ z ∷ [])
 
   {-
     Now two of these proofs can be plugged together
@@ -88,8 +88,8 @@ module MultivariateSolving where
   open Eval ℕAsRawRing
   _ : (x y z : ℕ) → 3 + x + y · y ≡ y · y + x + 1 + 2
   _ = let
-        lhs = (K 3) ⊕ X ⊕ (Y ⊗ Y)
-        rhs = Y ⊗ Y ⊕ X ⊕ (K 1) ⊕ (K 2)
+        lhs = (K 3) +' X +' (Y ·' Y)
+        rhs = Y ·' Y +' X +' (K 1) +' (K 2)
       in (λ x y z →
           ⟦ lhs ⟧ (x ∷ y ∷ z ∷ [])
         ≡⟨ sym (isEqualToNormalform 3 lhs (x ∷ y ∷ z ∷ [])) ⟩
@@ -104,8 +104,8 @@ module MultivariateSolving where
   -}
   _ : (x y z : ℕ) → (x + y) · (x + y) ≡ x · x + 2 · x · y + y · y
   _ = λ x y z → let
-              lhs = (X ⊕ Y) ⊗ (X ⊕ Y)
-              rhs = X ⊗ X ⊕ (K 2) ⊗ X ⊗ Y ⊕ Y ⊗ Y
+              lhs = (X +' Y) ·' (X +' Y)
+              rhs = X ·' X +' (K 2) ·' X ·' Y +' Y ·' Y
              in solve lhs rhs (x ∷ y ∷ z ∷ []) refl
 
   {-
@@ -115,20 +115,20 @@ module MultivariateSolving where
                 ≡ x · x · x · x + 4 · x · x · x · y + 6 · x · x · y · y
                   +  4 · x · y · y · y + y · y · y · y
   _ = λ x y z → let
-              lhs = (X ⊕ Y) ⊗ (X ⊕ Y) ⊗ (X ⊕ Y) ⊗ (X ⊕ Y)
-              rhs = X ⊗ X ⊗ X ⊗ X
-                  ⊕ (K 4) ⊗ X ⊗ X ⊗ X ⊗ Y
-                  ⊕ (K 6) ⊗ X ⊗ X ⊗ Y ⊗ Y
-                  ⊕ (K 4) ⊗ X ⊗ Y ⊗ Y ⊗ Y
-                  ⊕ Y ⊗ Y ⊗ Y ⊗ Y
+              lhs = (X +' Y) ·' (X +' Y) ·' (X +' Y) ·' (X +' Y)
+              rhs = X ·' X ·' X ·' X
+                  +' (K 4) ·' X ·' X ·' X ·' Y
+                  +' (K 6) ·' X ·' X ·' Y ·' Y
+                  +' (K 4) ·' X ·' Y ·' Y ·' Y
+                  +' Y ·' Y ·' Y ·' Y
              in solve lhs rhs (x ∷ y ∷ z ∷ []) refl
   {-
     this one cannot work so far:
 
   _ : (x y z : ℕ) → (x + y) · (x - y) ≡ (x · x - (y · y))
   _ = λ x y z → let
-                lhs = (X ⊕ Y) ⊗ (X ⊕ (⊝ Y))
-                rhs = (X ⊗ X) ⊕ (⊝ (Y ⊗ Y))
+                lhs = (X +' Y) ·' (X +' (-' Y))
+                rhs = (X ·' X) +' (-' (Y ·' Y))
               in solve lhs rhs (x ∷ y ∷ z ∷ []) {!!}
   -}
 
@@ -150,22 +150,22 @@ module ExamplesForArbitraryRings (R : AlmostRing ℓ) where
 
   _ : (x y a b : ⟨ R ⟩) → (x + y) + (a + b) ≡ (y + b) + (x + a)
   _ = λ x y a b → let
-                lhs = (X ⊕ Y) ⊕ (A ⊕ B)
-                rhs = (Y ⊕ B) ⊕ (X ⊕ A)
+                lhs = (X +' Y) +' (A +' B)
+                rhs = (Y +' B) +' (X +' A)
               in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
 
   _ : (x y a b : ⟨ R ⟩) → (x + y) · (x + y) ≡ x · x + x · y + x · y + y · y
   _ = λ x y a b →
               let
-                lhs = (X ⊕ Y) ⊗ (X ⊕ Y)
-                rhs = (X ⊗ X) ⊕ (X ⊗ Y) ⊕ (X ⊗ Y) ⊕ (Y ⊗ Y)
+                lhs = (X +' Y) ·' (X +' Y)
+                rhs = (X ·' X) +' (X ·' Y) +' (X ·' Y) +' (Y ·' Y)
               in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
 
   _ : (x y a b : ⟨ R ⟩) → x · a ≡ a · x
   _ = λ x y a b →
               let
-                lhs = X ⊗ A
-                rhs = A ⊗ X
+                lhs = X ·' A
+                rhs = A ·' X
               in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
 
 {-
@@ -174,8 +174,8 @@ module ExamplesForArbitraryRings (R : AlmostRing ℓ) where
   _ : (x y a b : ⟨ R ⟩) → x · (a + b) ≡ a · x + b · x
   _ = λ x y a b →
               let
-                lhs = X ⊗ (A ⊕ B)
-                rhs = (A ⊗ X) ⊕ (B ⊗ X)
+                lhs = X ·' (A +' B)
+                rhs = (A ·' X) +' (B ·' X)
               in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
 
   the reason ist, that lhs and rhs evaluate to definitionally different things:
@@ -199,7 +199,7 @@ module ExamplesForArbitraryRings (R : AlmostRing ℓ) where
 
   _ : (x y a b : ⟨ R ⟩) → (x + y) · (x - y) ≡ (x · x - (y · y))
   _ = λ x y a b → let
-                lhs = (X ⊕ Y) ⊗ (X ⊕ (⊝ Y))
-                rhs = (X ⊗ X) ⊕ (⊝ (Y ⊗ Y))
+                lhs = (X +' Y) ·' (X +' (-' Y))
+                rhs = (X ·' X) +' (-' (Y ·' Y))
               in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) {!!}
 -}
