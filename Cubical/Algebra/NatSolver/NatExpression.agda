@@ -4,30 +4,24 @@ module Cubical.Algebra.NatSolver.NatExpression where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData
-open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
-open import Cubical.Algebra.NatSolver.RawSemiring renaming (⟨_⟩ to ⟨_⟩ᵣ)
-
-private
-  variable
-    ℓ : Level
 
 infixl 6 _+'_
 infixl 7 _·'_
 
 -- Expression in a ring on A with n variables
-data Expr {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
-  K : A → Expr A n
-  ∣ : Fin n → Expr A n
-  _+'_ : Expr A n → Expr A n → Expr A n
-  _·'_ : Expr A n → Expr A n → Expr A n
+data Expr (n : ℕ) : Type ℓ-zero where
+  K : ℕ → Expr n
+  ∣ : Fin n → Expr n
+  _+'_ : Expr n → Expr n → Expr n
+  _·'_ : Expr n → Expr n → Expr n
 
-module Eval (R : RawRing ℓ) where
+module Eval where
   open import Cubical.Data.Vec
-  open RawRing R
 
-  ⟦_⟧ : ∀ {n} → Expr ⟨ R ⟩ᵣ n → Vec ⟨ R ⟩ᵣ n → ⟨ R ⟩ᵣ
+  ⟦_⟧ : ∀ {n} → Expr n → Vec ℕ n → ℕ
   ⟦ K r ⟧ v = r
   ⟦ ∣ k ⟧ v = lookup k v
   ⟦ x +' y ⟧ v =  ⟦ x ⟧ v + ⟦ y ⟧ v

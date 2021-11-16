@@ -3,87 +3,83 @@ module Cubical.Algebra.NatSolver.HornerForms where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
 open import Cubical.Data.Bool using (Bool; true; false; if_then_else_)
-
-open import Cubical.Algebra.NatSolver.RawSemiring
 
 private
   variable
     ℓ : Level
 
 {-
-  This defines the type of multivariate Polynomials over the RawRing R.
+  This defines the type of multivariate Polynomials over ℕ.
   The construction is based on the algebraic fact
 
-    R[X₀][X₁]⋯[Xₙ] ≅ R[X₀,⋯,Xₙ]
+    ℕ[X₀][X₁]⋯[Xₙ] ≅ ℕ[X₀,⋯,Xₙ]
 
   BUT: Contrary to algebraic convetions, we will give 'Xₙ' the lowest index
-  in the definition of 'Variable' below. So if 'Variable n R k' is identified
-  with 'Xₖ', then the RawRing we construct should rather be denoted with
+  in the definition of 'Variable' below. So if 'Variable n k' is identified
+  with 'Xₖ', what we construct should rather be denoted with
 
-    R[Xₙ][Xₙ₋₁]⋯[X₀]
+    ℕ[Xₙ][Xₙ₋₁]⋯[X₀]
 
   or, to be precise about the evaluation order:
 
-    (⋯((R[Xₙ])[Xₙ₋₁])⋯)[X₀]
+    (⋯((ℕ[Xₙ])[Xₙ₋₁])⋯)[X₀]
 
 -}
 
-data IteratedHornerForms (R : RawRing ℓ) : ℕ → Type ℓ where
-  const : ⟨ R ⟩ → IteratedHornerForms R ℕ.zero
-  0H : {n : ℕ} → IteratedHornerForms R (ℕ.suc n)
-  _·X+_ : {n : ℕ} → IteratedHornerForms R (ℕ.suc n) → IteratedHornerForms R n
-                  → IteratedHornerForms R (ℕ.suc n)
+data IteratedHornerForms : ℕ → Type ℓ-zero where
+  const : ℕ → IteratedHornerForms ℕ.zero
+  0H : {n : ℕ} → IteratedHornerForms (ℕ.suc n)
+  _·X+_ : {n : ℕ} → IteratedHornerForms (ℕ.suc n) → IteratedHornerForms n
+                  → IteratedHornerForms (ℕ.suc n)
 
-eval : {R : RawRing ℓ} (n : ℕ) (P : IteratedHornerForms R n)
-             → Vec ⟨ R ⟩ n → ⟨ R ⟩
+eval : (n : ℕ) (P : IteratedHornerForms n)
+       → Vec ℕ n → ℕ
 eval ℕ.zero (const r) [] = r
-eval {R = R} .(ℕ.suc _) 0H (_ ∷ _) = RawRing.0r R
-eval {R = R} (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
-  let open RawRing R
-  in (eval (ℕ.suc n) P (x ∷ xs)) · x + eval n Q xs
+eval .(ℕ.suc _) 0H (_ ∷ _) = 0
+eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
+  (eval (ℕ.suc n) P (x ∷ xs)) · x + eval n Q xs
 
-module IteratedHornerOperations (R : RawRing ℓ) where
-  open RawRing R
+module IteratedHornerOperations where
 
   private
-    1H' : (n : ℕ) → IteratedHornerForms R n
-    1H' ℕ.zero = const 1r
+    1H' : (n : ℕ) → IteratedHornerForms n
+    1H' ℕ.zero = const 1
     1H' (ℕ.suc n) = 0H ·X+ 1H' n
 
-    0H' : (n : ℕ) → IteratedHornerForms R n
-    0H' ℕ.zero = const 0r
+    0H' : (n : ℕ) → IteratedHornerForms n
+    0H' ℕ.zero = const 0
     0H' (ℕ.suc n) = 0H
 
-  1ₕ : {n : ℕ} → IteratedHornerForms R n
+  1ₕ : {n : ℕ} → IteratedHornerForms n
   1ₕ {n = n} = 1H' n
 
-  0ₕ : {n : ℕ} → IteratedHornerForms R n
+  0ₕ : {n : ℕ} → IteratedHornerForms n
   0ₕ {n = n} = 0H' n
 
-  X : (n : ℕ) (k : Fin n) → IteratedHornerForms R n
+  X : (n : ℕ) (k : Fin n) → IteratedHornerForms n
   X (ℕ.suc m) zero = 1ₕ ·X+ 0ₕ
   X (ℕ.suc m) (suc k) = 0ₕ ·X+ X m k
 
-  _+ₕ_ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R n
-               → IteratedHornerForms R n
+  _+ₕ_ : {n : ℕ} → IteratedHornerForms n → IteratedHornerForms n
+               → IteratedHornerForms n
   (const r) +ₕ (const s) = const (r + s)
   0H +ₕ Q = Q
   (P ·X+ r) +ₕ 0H = P ·X+ r
   (P ·X+ r) +ₕ (Q ·X+ s) = (P +ₕ Q) ·X+ (r +ₕ s)
 
-  isZero : {n : ℕ} → IteratedHornerForms R (ℕ.suc n)
+  isZero : {n : ℕ} → IteratedHornerForms (ℕ.suc n)
                    → Bool
   isZero 0H = true
   isZero (P ·X+ P₁) = false
 
-  _⋆_ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R (ℕ.suc n)
-                → IteratedHornerForms R (ℕ.suc n)
-  _·ₕ_ : {n : ℕ} → IteratedHornerForms R n → IteratedHornerForms R n
-                → IteratedHornerForms R n
+  _⋆_ : {n : ℕ} → IteratedHornerForms n → IteratedHornerForms (ℕ.suc n)
+                → IteratedHornerForms (ℕ.suc n)
+  _·ₕ_ : {n : ℕ} → IteratedHornerForms n → IteratedHornerForms n
+                → IteratedHornerForms n
   r ⋆ 0H = 0H
   r ⋆ (P ·X+ Q) = (r ⋆ P) ·X+ (r ·ₕ Q)
 
@@ -96,16 +92,9 @@ module IteratedHornerOperations (R : RawRing ℓ) where
         then (Q ⋆ S)
         else (z ·X+ 0ₕ) +ₕ (Q ⋆ S)
 
-  asRawRing : (n : ℕ) → RawRing ℓ
-  RawRing.Carrier (asRawRing n) = IteratedHornerForms R n
-  RawRing.0r (asRawRing n) = 0ₕ
-  RawRing.1r (asRawRing n) = 1ₕ
-  RawRing._+_ (asRawRing n) = _+ₕ_
-  RawRing._·_ (asRawRing n) = _·ₕ_
+Variable : (n : ℕ) (k : Fin n) → IteratedHornerForms n
+Variable n k = IteratedHornerOperations.X n k
 
-Variable : (n : ℕ) (R : RawRing ℓ) (k : Fin n) → IteratedHornerForms R n
-Variable n R k = IteratedHornerOperations.X R n k
-
-Constant : (n : ℕ) (R : RawRing ℓ) (r : ⟨ R ⟩) → IteratedHornerForms R n
-Constant ℕ.zero R r = const r
-Constant (ℕ.suc n) R r = IteratedHornerOperations.0ₕ R ·X+ Constant n R r
+Constant : (n : ℕ) (r : ℕ) → IteratedHornerForms n
+Constant ℕ.zero r = const r
+Constant (ℕ.suc n) r = IteratedHornerOperations.0ₕ ·X+ Constant n r

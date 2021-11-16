@@ -4,13 +4,10 @@ module Cubical.Algebra.NatSolver.Examples where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData
-open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat
 open import Cubical.Data.Vec.Base
 
-open import Cubical.Algebra.NatSolver.AlmostRing
-open import Cubical.Algebra.NatSolver.NatAsAlmostRing
 open import Cubical.Algebra.NatSolver.NatExpression
-open import Cubical.Algebra.NatSolver.RawSemiring renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.NatSolver.HornerForms
 open import Cubical.Algebra.NatSolver.Solver
 
@@ -19,19 +16,18 @@ private
     ℓ : Level
 
 module MultivariateSolving where
-  open AlmostRing ℕAsAlmostRing
-  ℕAsRawRing = AlmostRing→RawRing ℕAsAlmostRing
-  open EqualityToNormalform ℕAsAlmostRing
-  ℕ[X₀,X₁] = IteratedHornerOperations.asRawRing ℕAsRawRing 2
+  open EqualityToNormalform
+  open IteratedHornerOperations hiding (X)
 
-  X₀ : ⟨ ℕ[X₀,X₁] ⟩ᵣ
-  X₀ = Variable 2 ℕAsRawRing (Fin.zero)
+  ℕ[X₀,X₁] = IteratedHornerForms 2
+  X₀ : ℕ[X₀,X₁]
+  X₀ = Variable 2 (Fin.zero)
 
-  X₁ : ⟨ ℕ[X₀,X₁] ⟩ᵣ
-  X₁ = Variable 2 ℕAsRawRing (suc Fin.zero)
+  X₁ : ℕ[X₀,X₁]
+  X₁ = Variable 2 (suc Fin.zero)
 
-  Two : ⟨ ℕ[X₀,X₁] ⟩ᵣ
-  Two = Constant 2 ℕAsRawRing 2
+  Two : ℕ[X₀,X₁]
+  Two = Constant 2 2
 
   _ : eval 2 X₀ (1 ∷ 0 ∷ []) ≡ 1
   _ = refl
@@ -39,13 +35,13 @@ module MultivariateSolving where
   _ : eval 2 X₁ (0 ∷ 1 ∷ []) ≡ 1
   _ = refl
 
-  X : Expr ℕ 3
+  X : Expr 3
   X = ∣ Fin.zero
 
-  Y : Expr ℕ 3
+  Y : Expr 3
   Y = ∣ (suc Fin.zero)
 
-  Z : Expr ℕ 3
+  Z : Expr 3
   Z = ∣ (suc (suc Fin.zero))
 
   {-
@@ -85,7 +81,7 @@ module MultivariateSolving where
     Now two of these proofs can be plugged together
     to solve an equation:
   -}
-  open Eval ℕAsRawRing
+  open Eval
   _ : (x y z : ℕ) → 3 + x + y · y ≡ y · y + x + 1 + 2
   _ = let
         lhs = (K 3) +' X +' (Y ·' Y)
@@ -131,75 +127,3 @@ module MultivariateSolving where
                 rhs = (X ·' X) +' (-' (Y ·' Y))
               in solve lhs rhs (x ∷ y ∷ z ∷ []) {!!}
   -}
-
-module ExamplesForArbitraryRings (R : AlmostRing ℓ) where
-  open AlmostRing R
-  open EqualityToNormalform R
-
-  X : Expr ⟨ R ⟩ 4
-  X = ∣ Fin.zero
-
-  Y : Expr ⟨ R ⟩ 4
-  Y = ∣ (suc Fin.zero)
-
-  A : Expr ⟨ R ⟩ 4
-  A = ∣ (suc (suc Fin.zero))
-
-  B : Expr ⟨ R ⟩ 4
-  B = ∣ (suc (suc (suc Fin.zero)))
-
-  _ : (x y a b : ⟨ R ⟩) → (x + y) + (a + b) ≡ (y + b) + (x + a)
-  _ = λ x y a b → let
-                lhs = (X +' Y) +' (A +' B)
-                rhs = (Y +' B) +' (X +' A)
-              in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
-
-  _ : (x y a b : ⟨ R ⟩) → (x + y) · (x + y) ≡ x · x + x · y + x · y + y · y
-  _ = λ x y a b →
-              let
-                lhs = (X +' Y) ·' (X +' Y)
-                rhs = (X ·' X) +' (X ·' Y) +' (X ·' Y) +' (Y ·' Y)
-              in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
-
-  _ : (x y a b : ⟨ R ⟩) → x · a ≡ a · x
-  _ = λ x y a b →
-              let
-                lhs = X ·' A
-                rhs = A ·' X
-              in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
-
-{-
-  this one should work, but doesn't:
-
-  _ : (x y a b : ⟨ R ⟩) → x · (a + b) ≡ a · x + b · x
-  _ = λ x y a b →
-              let
-                lhs = X ·' (A +' B)
-                rhs = (A ·' X) +' (B ·' X)
-              in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) refl
-
-  the reason ist, that lhs and rhs evaluate to definitionally different things:
-
-(0r · x +
- (0r · y +
-  ((0r · a + (0r · b + 1r · 1r)) · a +
-   ((0r · b + 1r · 1r) · b + 1r · 0r))))
-· x
-+ 0r
-
-(0r · x +
- (0r · y +
-  ((0r · a + (0r · b + 1r · 1r)) · a +
-   ((0r · b + 1r · 1r) · b + (0r + 0r · 1r)))))
-· x
-+ 0r
--}
-{-
-  '-' is problematic...
-
-  _ : (x y a b : ⟨ R ⟩) → (x + y) · (x - y) ≡ (x · x - (y · y))
-  _ = λ x y a b → let
-                lhs = (X +' Y) ·' (X +' (-' Y))
-                rhs = (X ·' X) +' (-' (Y ·' Y))
-              in solve lhs rhs (x ∷ y ∷ a ∷ b ∷ []) {!!}
--}

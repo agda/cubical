@@ -4,50 +4,43 @@ module Cubical.Algebra.NatSolver.Solver where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData
-open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
-open import Cubical.Algebra.NatSolver.RawSemiring renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.NatSolver.NatExpression
 open import Cubical.Algebra.NatSolver.HornerForms
 open import Cubical.Algebra.NatSolver.EvaluationHomomorphism
-open import Cubical.Algebra.NatSolver.AlmostRing
 
 private
   variable
     ℓ : Level
 
-module EqualityToNormalform (R : AlmostRing ℓ) where
-  νR = AlmostRing→RawRing R
-  open AlmostRing R
-  open Theory R
-  open Eval νR
-  open IteratedHornerOperations νR
-  open HomomorphismProperties R
+module EqualityToNormalform where
+  open Eval
+  open IteratedHornerOperations
+  open HomomorphismProperties
 
-  normalize : (n : ℕ) → Expr ⟨ R ⟩ n → IteratedHornerForms νR n
-  normalize n (K r) = Constant n νR r
-  normalize n (∣ k) = Variable n νR k
+  normalize : (n : ℕ) → Expr n → IteratedHornerForms n
+  normalize n (K r) = Constant n r
+  normalize n (∣ k) = Variable n k
   normalize n (x +' y) =
     (normalize n x) +ₕ (normalize n y)
   normalize n (x ·' y) =
     (normalize n x) ·ₕ (normalize n y)
 
-
   isEqualToNormalform :
             (n : ℕ)
-            (e : Expr ⟨ R ⟩ n) (xs : Vec ⟨ R ⟩ n)
+            (e : Expr n) (xs : Vec ℕ n)
           → eval n (normalize n e) xs ≡ ⟦ e ⟧ xs
   isEqualToNormalform ℕ.zero (K r) [] = refl
   isEqualToNormalform (ℕ.suc n) (K r) (x ∷ xs) =
-     eval (ℕ.suc n) (Constant (ℕ.suc n) νR r) (x ∷ xs)           ≡⟨ refl ⟩
-     eval (ℕ.suc n) (0ₕ ·X+ Constant n νR r) (x ∷ xs)             ≡⟨ refl ⟩
-     eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Constant n νR r) xs
-    ≡⟨ cong (λ u → u · x + eval n (Constant n νR r) xs) (eval0H _ (x ∷ xs)) ⟩
-     0r · x + eval n (Constant n νR r) xs
-    ≡⟨ cong (λ u → u + eval n (Constant n νR r) xs) (0LeftAnnihilates _) ⟩
-     0r + eval n (Constant n νR r) xs                             ≡⟨ +Lid _ ⟩
-     eval n (Constant n νR r) xs
+     eval (ℕ.suc n) (Constant (ℕ.suc n) r) (x ∷ xs)           ≡⟨ refl ⟩
+     eval (ℕ.suc n) (0ₕ ·X+ Constant n r) (x ∷ xs)             ≡⟨ refl ⟩
+     eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Constant n r) xs
+    ≡⟨ cong (λ u → u · x + eval n (Constant n r) xs) (eval0H _ (x ∷ xs)) ⟩
+     0 · x + eval n (Constant n r) xs
+    ≡⟨ refl ⟩
+     eval n (Constant n r) xs
     ≡⟨ isEqualToNormalform n (K r) xs ⟩
      r ∎
 
@@ -55,18 +48,17 @@ module EqualityToNormalform (R : AlmostRing ℓ) where
     eval (ℕ.suc n) (1ₕ ·X+ 0ₕ) (x ∷ xs)           ≡⟨ refl ⟩
     eval (ℕ.suc n) 1ₕ (x ∷ xs) · x + eval n 0ₕ xs ≡⟨ cong (λ u → u · x + eval n 0ₕ xs)
                                                           (eval1ₕ _ (x ∷ xs)) ⟩
-    1r · x + eval n 0ₕ xs                         ≡⟨ cong (λ u → 1r · x + u ) (eval0H _ xs) ⟩
-    1r · x + 0r                                   ≡⟨ +Rid _ ⟩
-    1r · x                                        ≡⟨ ·Lid _ ⟩
+    1 · x + eval n 0ₕ xs                         ≡⟨ cong (λ u → 1 · x + u ) (eval0H _ xs) ⟩
+    1 · x + 0                                   ≡⟨ +-zero _ ⟩
+    1 · x                                        ≡⟨ ·-identityˡ _ ⟩
     x ∎
   isEqualToNormalform (ℕ.suc n) (∣ (suc k)) (x ∷ xs) =
-      eval (ℕ.suc n) (0ₕ ·X+ Variable n νR k) (x ∷ xs)             ≡⟨ refl ⟩
-      eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Variable n νR k) xs
-    ≡⟨ cong (λ u → u · x + eval n (Variable n νR k) xs) (eval0H _ (x ∷ xs)) ⟩
-      0r · x + eval n (Variable n νR k) xs
-    ≡⟨ cong (λ u → u + eval n (Variable n νR k) xs) (0LeftAnnihilates _) ⟩
-      0r + eval n (Variable n νR k) xs                             ≡⟨ +Lid _ ⟩
-      eval n (Variable n νR k) xs
+      eval (ℕ.suc n) (0ₕ ·X+ Variable n k) (x ∷ xs)             ≡⟨ refl ⟩
+      eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Variable n k) xs
+    ≡⟨ cong (λ u → u · x + eval n (Variable n k) xs) (eval0H _ (x ∷ xs)) ⟩
+      0 · x + eval n (Variable n k) xs
+    ≡⟨ refl ⟩
+      eval n (Variable n k) xs
     ≡⟨ isEqualToNormalform n (∣ k) xs ⟩
       ⟦ ∣ (suc k) ⟧ (x ∷ xs) ∎
 
@@ -122,7 +114,7 @@ module EqualityToNormalform (R : AlmostRing ℓ) where
         ⟦ e ⟧ (x ∷ xs) · ⟦ e₁ ⟧ (x ∷ xs) ∎
 
   solve :
-    {n : ℕ} (e₁ e₂ : Expr ⟨ R ⟩ n) (xs : Vec ⟨ R ⟩ n)
+    {n : ℕ} (e₁ e₂ : Expr n) (xs : Vec ℕ n)
     (p : eval n (normalize n e₁) xs ≡ eval n (normalize n e₂) xs)
     → ⟦ e₁ ⟧ xs ≡ ⟦ e₂ ⟧ xs
   solve e₁ e₂ xs p =
