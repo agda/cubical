@@ -41,6 +41,19 @@ module _ (A : Type ℓ) where
 UnitToTypePath : ∀ {ℓ} (A : Type ℓ) → (Unit → A) ≡ A
 UnitToTypePath A = ua (UnitToType≃ A)
 
+module _ (A : Unit → Type ℓ) where
+
+  open Iso
+
+  ΠUnitIso : Iso ((x : Unit) → A x) (A tt)
+  fun ΠUnitIso f = f tt
+  inv ΠUnitIso a tt = a
+  rightInv ΠUnitIso a = refl
+  leftInv ΠUnitIso f = refl
+
+  ΠUnit : ((x : Unit) → A x) ≃ A tt
+  ΠUnit = isoToEquiv ΠUnitIso
+
 isContr→Iso2 : {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
 Iso.fun (isContr→Iso2 iscontr) f = f (fst iscontr)
 Iso.inv (isContr→Iso2 iscontr) b _ = b
@@ -72,3 +85,12 @@ isOfHLevelUnit* zero = tt* , λ _ → refl
 isOfHLevelUnit* (suc zero) _ _ = refl
 isOfHLevelUnit* (suc (suc zero)) _ _ _ _ _ _ = tt*
 isOfHLevelUnit* (suc (suc (suc n))) = isOfHLevelPlus 3 (isOfHLevelUnit* n)
+
+Unit≃Unit* : ∀ {ℓ} → Unit ≃ Unit* {ℓ}
+Unit≃Unit* = invEquiv (isContr→≃Unit isContrUnit*)
+
+isContr→≃Unit* : {A : Type ℓ} → isContr A → A ≃ Unit* {ℓ}
+isContr→≃Unit* contr = compEquiv (isContr→≃Unit contr) Unit≃Unit*
+
+isContr→≡Unit* : {A : Type ℓ} → isContr A → A ≡ Unit*
+isContr→≡Unit* contr = ua (isContr→≃Unit* contr)
