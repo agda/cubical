@@ -36,7 +36,7 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
     A : Type ℓ
-    R : A → A → Type ℓ
+    R R' : A → A → Type ℓ
     B : A / R → Type ℓ
     C : A / R → A / R → Type ℓ
     D : A / R → A / R → A / R → Type ℓ
@@ -213,14 +213,15 @@ setQuotBinOp isReflR _∗_ h = Iso.inv (setQuotUniversal2Iso squash/ isReflR)
 
 setQuotSymmBinOp : isRefl R → isTrans R
                  → (_∗_ : A → A → A)
-                 → (∀ a b → a ∗ b ≡ b ∗ a)
+                 → (∀ a b → R (a ∗ b) (b ∗ a))
                  → (∀ a a' b → R a a' → R (a ∗ b) (a' ∗ b))
                  → (A / R → A / R → A / R)
-setQuotSymmBinOp {A = A} {R = R} isReflR isTransR _∗_ ∗-symm h = setQuotBinOp isReflR _∗_ h'
+setQuotSymmBinOp {A = A} {R = R} isReflR isTransR _∗_ ∗Rsymm h = setQuotBinOp isReflR _∗_ h'
   where
   h' : ∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b')
   h' a a' b b' ra rb = isTransR _ _ _ (h a a' b ra)
-                               (transport (λ i → R (∗-symm b a' i) (∗-symm b' a' i)) (h b b' a' rb))
+                        (isTransR _ _ _ (∗Rsymm a' b)
+                          (isTransR _ _ _ (h b b' a' rb) (∗Rsymm b' a')))
 
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R) (a b : A) → [ a ] ≡ [ b ] → R a b
@@ -296,3 +297,11 @@ isEquivRel→TruncIso {A = A} {R = R} Req a b = compIso (isProp→Iso (squash/ _
  reflexive ∥R∥eq a = ∣ reflexive Req a ∣
  symmetric ∥R∥eq a b = PropTrunc.map (symmetric Req a b)
  transitive ∥R∥eq a b c = PropTrunc.map2 (transitive Req a b c)
+
+
+-- quotienting by 'logically equivalent' relations gives the same quotient
+relBiimpl→TruncIso : ({a b : A} → R a b → R' a b) → ({a b : A} → R' a b → R a b) → Iso (A / R) (A / R')
+Iso.fun (relBiimpl→TruncIso R→R' R'→R) = rec squash/ [_] λ _ _ Rab → eq/ _ _ (R→R' Rab)
+Iso.inv (relBiimpl→TruncIso R→R' R'→R) = rec squash/ [_] λ _ _ R'ab → eq/ _ _ (R'→R R'ab)
+Iso.rightInv (relBiimpl→TruncIso R→R' R'→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
+Iso.leftInv (relBiimpl→TruncIso R→R' R'→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
