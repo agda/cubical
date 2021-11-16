@@ -10,13 +10,18 @@ open import Cubical.Data.Vec.Base
 open import Cubical.Algebra.NatSolver.NatExpression
 open import Cubical.Algebra.NatSolver.HornerForms
 open import Cubical.Algebra.NatSolver.Solver
+open import Cubical.Algebra.NatSolver.Reflection
 
 private
   variable
     ℓ : Level
 
-module MultivariateSolving where
-  open EqualityToNormalform
+module ReflectionSolving where
+  _ : (x y : ℕ) → (x + y) · (x + y) ≡ x · x + 2 · x · y + y · y
+  _ = solve
+
+module SolvingExplained where
+  open EqualityToNormalform renaming (solve to natSolve)
   open IteratedHornerOperations hiding (X)
 
   ℕ[X₀,X₁] = IteratedHornerForms 2
@@ -102,7 +107,7 @@ module MultivariateSolving where
   _ = λ x y z → let
               lhs = (X +' Y) ·' (X +' Y)
               rhs = X ·' X +' (K 2) ·' X ·' Y +' Y ·' Y
-             in solve lhs rhs (x ∷ y ∷ z ∷ []) refl
+             in natSolve lhs rhs (x ∷ y ∷ z ∷ []) refl
 
   {-
     A bigger example
@@ -117,7 +122,7 @@ module MultivariateSolving where
                   +' (K 6) ·' X ·' X ·' Y ·' Y
                   +' (K 4) ·' X ·' Y ·' Y ·' Y
                   +' Y ·' Y ·' Y ·' Y
-             in solve lhs rhs (x ∷ y ∷ z ∷ []) refl
+             in natSolve lhs rhs (x ∷ y ∷ z ∷ []) refl
   {-
     this one cannot work so far:
 
@@ -125,5 +130,5 @@ module MultivariateSolving where
   _ = λ x y z → let
                 lhs = (X +' Y) ·' (X +' (-' Y))
                 rhs = (X ·' X) +' (-' (Y ·' Y))
-              in solve lhs rhs (x ∷ y ∷ z ∷ []) {!!}
+              in natSolve lhs rhs (x ∷ y ∷ z ∷ []) {!!}
   -}
