@@ -22,8 +22,8 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
 open import Cubical.Data.SumFin renaming (Fin to SumFin)
-open import Cubical.Data.FinSet
-open import Cubical.Data.FinSet.SumFinReduction
+open import Cubical.Data.FinSet.Base
+open import Cubical.Data.FinSet.Properties
 
 private
   variable
@@ -59,7 +59,7 @@ module _
     ⋆ propTrunc≃ (invEquiv (equivΠ {B' = λ x → Y (invEq e x)} e (transpFamily q)))
 
 module _
-  ((X , p) : FinSet {ℓ})
+  ((X , p) : FinSet ℓ)
   (Y : X → Type ℓ') where
 
   choice≃ : ((x : X) → ∥ Y x ∥) ≃ ∥ ((x : X) → Y x) ∥

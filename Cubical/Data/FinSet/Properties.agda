@@ -1,33 +1,25 @@
-{-
-
-This file contains:
-
-- Some useful implications;
-
-- Closure properties of FinSet under several type constructors.
-
--}
 {-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv
 
-open import Cubical.HITs.PropositionalTruncation renaming (rec to TruncRec)
+open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty renaming (rec to EmptyRec)
-open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
 open import Cubical.Data.Fin
 open import Cubical.Data.SumFin renaming (Fin to SumFin) hiding (discreteFin)
-open import Cubical.Data.FinSet hiding (isFinSetΣ)
-open import Cubical.Data.FinSet.SumFinReduction
-open import Cubical.Data.FinSet.FiniteChoice
+open import Cubical.Data.FinSet.Base
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -35,11 +27,26 @@ open import Cubical.Relation.Nullary.HLevels
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ''' : Level
+    ℓ ℓ' : Level
+    A : Type ℓ
+
+-- infix operator to more conveniently compose equivalences
+
+_⋆_ = compEquiv
+
+infixr 30 _⋆_
+
+-- useful implications
+
+isFinSetFin : ∀ {n} → isFinSet (Fin n)
+isFinSetFin = ∣ _ , pathToEquiv refl ∣
+
+isFinSetUnit : isFinSet Unit
+isFinSetUnit = ∣ 1 , Unit≃Fin1 ∣
 
 isFinSet→Discrete : {X : Type ℓ} → isFinSet X → Discrete X
 isFinSet→Discrete p =
-  TruncRec isPropDiscrete (λ (_ , p) → EquivPresDiscrete (invEquiv p) discreteFin) p
+  rec isPropDiscrete (λ (_ , p) → EquivPresDiscrete (invEquiv p) discreteFin) p
 
 isFinSet→isSet : {X : Type ℓ} → isFinSet X → isSet X
 isFinSet→isSet p = Discrete→isSet (isFinSet→Discrete p)
@@ -52,202 +59,93 @@ isDecProp→isFinSet h (yes p) = isContr→isFinSet (inhProp→isContr p h)
 isDecProp→isFinSet h (no ¬p) = ∣ 0 , uninhabEquiv ¬p ¬Fin0 ∣
 
 EquivPresFinSet : {X : Type ℓ}{Y : Type ℓ'} → X ≃ Y → isFinSet X → isFinSet Y
-EquivPresFinSet e p = TruncRec isProp-isFinSet (λ (n , p) → ∣ n , compEquiv (invEquiv e) p ∣) p
+EquivPresFinSet e p = rec isPropIsFinSet (λ (n , p) → ∣ n , compEquiv (invEquiv e) p ∣) p
 
-module _
-  (X : Type ℓ)(p : ≃Fin X) where
+{-
 
-  ≃Fin∥∥ : ≃Fin ∥ X ∥
-  ≃Fin∥∥ = ≃SumFin→Fin (_ , compEquiv (propTrunc≃ (≃Fin→SumFin p .snd)) (SumFin∥∥ _))
+Alternative definition of finite sets
 
-module _
-  (X : Type ℓ )(p : ≃Fin X)
-  (Y : Type ℓ')(q : ≃Fin Y) where
+A set is finite if it is merely equivalent to `Fin n` for some `n`. We
+can translate this to code in two ways: a truncated sigma of a nat and
+an equivalence, or a sigma of a nat and a truncated equivalence. We
+prove that both formulations are equivalent.
 
-  ≃Fin⊎ : ≃Fin (X ⊎ Y)
-  ≃Fin⊎ = ≃SumFin→Fin (_ , compEquiv (⊎-equiv (≃Fin→SumFin p .snd) (≃Fin→SumFin q .snd)) (SumFin⊎≃ _ _))
+-}
 
-  ≃Fin× : ≃Fin (X × Y)
-  ≃Fin× = ≃SumFin→Fin (_ , compEquiv (Σ-cong-equiv (≃Fin→SumFin p .snd) (λ _ → ≃Fin→SumFin q .snd)) (SumFin×≃ _ _))
+isFinSet' : Type ℓ → Type ℓ
+isFinSet' A = Σ[ n ∈ ℕ ] ∥ A ≃ Fin n ∥
 
-module _
-  (X : Type ℓ )(p : ≃Fin X)
-  (Y : X → Type ℓ')(q : (x : X) → ≃Fin (Y x)) where
+FinSet' : (ℓ : Level) → Type (ℓ-suc ℓ)
+FinSet' ℓ = TypeWithStr _ isFinSet'
 
-  private
-    p' = ≃Fin→SumFin p
+isPropIsFinSet' : isProp (isFinSet' A)
+isPropIsFinSet' {A = A} (n , equivn) (m , equivm) =
+  Σ≡Prop (λ _ → isPropPropTrunc) n≡m
+  where
+    Fin-n≃Fin-m : ∥ Fin n ≃ Fin m ∥
+    Fin-n≃Fin-m = rec
+      isPropPropTrunc
+      (rec
+        (isPropΠ λ _ → isPropPropTrunc)
+        (λ hm hn → ∣ Fin n ≃⟨ invEquiv hn ⟩ A ≃⟨ hm ⟩ Fin m ■ ∣)
+        equivm
+      )
+      equivn
 
-    m = p' .fst
-    e = p' .snd
+    Fin-n≡Fin-m : ∥ Fin n ≡ Fin m ∥
+    Fin-n≡Fin-m = rec isPropPropTrunc (∣_∣ ∘ ua) Fin-n≃Fin-m
 
-    q' : (x : X) → ≃SumFin (Y x)
-    q' x = ≃Fin→SumFin (q x)
+    ∥n≡m∥ : ∥ n ≡ m ∥
+    ∥n≡m∥ = rec isPropPropTrunc (∣_∣ ∘ Fin-inj n m) Fin-n≡Fin-m
 
-    f : (x : X) → ℕ
-    f x = q' x .fst
+    n≡m : n ≡ m
+    n≡m = rec (isSetℕ n m) (λ p → p) ∥n≡m∥
 
-  ≃SumFinΣ : ≃SumFin (Σ X Y)
-  ≃SumFinΣ = _ ,
-      Σ-cong-equiv {B' = λ x → Y (invEq (p' .snd) x)} (p' .snd) (transpFamily p')
-    ⋆ Σ-cong-equiv-snd (λ x → q' (invEq e x) .snd)
-    ⋆ SumFinΣ≃ _ _
+isFinSet≡isFinSet' : isFinSet A ≡ isFinSet' A
+isFinSet≡isFinSet' {A = A} = hPropExt isPropIsFinSet isPropIsFinSet' to from
+  where
+    to : isFinSet A → isFinSet' A
+    to ∣ n , equiv ∣ = n , ∣ equiv ∣
+    to (squash p q i) = isPropIsFinSet' (to p) (to q) i
 
-  ≃SumFinΠ : ≃SumFin ((x : X) → Y x)
-  ≃SumFinΠ = _ ,
-      equivΠ {B' = λ x → Y (invEq (p' .snd) x)} (p' .snd) (transpFamily p')
-    ⋆ equivΠCod (λ x → q' (invEq e x) .snd)
-    ⋆ SumFinΠ≃ _ _
+    from : isFinSet' A → isFinSet A
+    from (n , ∣ isFinSet-A ∣) = ∣ n , isFinSet-A ∣
+    from (n , squash p q i) = isPropIsFinSet (from (n , p)) (from (n , q)) i
 
-  ≃FinΣ : ≃Fin (Σ X Y)
-  ≃FinΣ = ≃SumFin→Fin ≃SumFinΣ
+FinSet≡FinSet' : FinSet ℓ ≡ FinSet' ℓ
+FinSet≡FinSet' = ua (isoToEquiv (iso to from to-from from-to))
+  where
+    to : FinSet ℓ → FinSet' ℓ
+    to (A , isFinSetA) = A , transport isFinSet≡isFinSet' isFinSetA
 
-  ≃FinΠ : ≃Fin ((x : X) → Y x)
-  ≃FinΠ = ≃SumFin→Fin ≃SumFinΠ
+    from : FinSet' ℓ → FinSet ℓ
+    from (A , isFinSet'A) = A , transport (sym isFinSet≡isFinSet') isFinSet'A
 
-module _
-  (X : FinSet {ℓ})
-  (Y : X .fst → FinSet {ℓ'}) where
+    to-from : ∀ A → to (from A) ≡ A
+    to-from A = Σ≡Prop (λ _ → isPropIsFinSet') refl
 
-  isFinSetΣ : isFinSet (Σ (X .fst) (λ x → Y x .fst))
-  isFinSetΣ =
-    elim2 (λ _ _ → isProp-isFinSet {A = Σ (X .fst) (λ x → Y x .fst)})
-          (λ p q → ∣ ≃FinΣ (X .fst) p (λ x → Y x .fst) q ∣)
-          (X .snd) (choice X (λ x → ≃Fin (Y x .fst)) (λ x → Y x .snd))
+    from-to : ∀ A → from (to A) ≡ A
+    from-to A = Σ≡Prop (λ _ → isPropIsFinSet) refl
 
-  isFinSetΠ : isFinSet ((x : X .fst) → Y x .fst)
-  isFinSetΠ =
-    elim2 (λ _ _ → isProp-isFinSet {A = ((x : X .fst) → Y x .fst)})
-          (λ p q → ∣ ≃FinΠ (X .fst) p (λ x → Y x .fst) q ∣)
-          (X .snd) (choice X (λ x → ≃Fin (Y x .fst)) (λ x → Y x .snd))
+-- cardinality of finite sets
 
-module _
-  (X : FinSet {ℓ})
-  (Y : X .fst → FinSet {ℓ'})
-  (Z : (x : X .fst) → Y x .fst → FinSet {ℓ''}) where
+card : FinSet ℓ → ℕ
+card = fst ∘ snd ∘ transport FinSet≡FinSet'
 
-  isFinSetΠ2 : isFinSet ((x : X .fst) → (y : Y x .fst) → Z x y .fst)
-  isFinSetΠ2 = isFinSetΠ X (λ x → _ , isFinSetΠ (Y x) (Z x))
+-- Definitions to reduce problems about FinSet to SumFin
 
-module _
-  (X : FinSet {ℓ})
-  (Y : X .fst → FinSet {ℓ'})
-  (Z : (x : X .fst) → Y x .fst → FinSet {ℓ''})
-  (W : (x : X .fst) → (y : Y x .fst) → Z x y .fst → FinSet {ℓ'''}) where
+≃Fin : Type ℓ → Type ℓ
+≃Fin A = Σ[ n ∈ ℕ ] A ≃ Fin n
 
-  isFinSetΠ3 : isFinSet ((x : X .fst) → (y : Y x .fst) → (z : Z x y .fst) → W x y z .fst)
-  isFinSetΠ3 = isFinSetΠ X (λ x → _ , isFinSetΠ2 (Y x) (Z x) (W x))
+≃SumFin : Type ℓ → Type ℓ
+≃SumFin A = Σ[ n ∈ ℕ ] A ≃ SumFin n
 
-module _
-  (X : FinSet {ℓ}) where
+≃Fin→SumFin : {X : Type ℓ} → ≃Fin X → ≃SumFin X
+≃Fin→SumFin (n , e) = n , compEquiv e (invEquiv (SumFin≃Fin _))
 
-  isFinSet≡ : (a b : X .fst) → isFinSet (a ≡ b)
-  isFinSet≡ a b = isDecProp→isFinSet (isFinSet→isSet (X .snd) a b) (isFinSet→Discrete (X .snd) a b)
+≃SumFin→Fin : {X : Type ℓ} → ≃SumFin X → ≃Fin X
+≃SumFin→Fin (n , e) = n , compEquiv e (SumFin≃Fin _)
 
-  isFinSetIsContr : isFinSet (isContr (X .fst))
-  isFinSetIsContr = isFinSetΣ X (λ x → _ , (isFinSetΠ X (λ y → _ , isFinSet≡ x y)))
-
-  isFinSet∥∥ : isFinSet ∥ X .fst ∥
-  isFinSet∥∥ = TruncRec isProp-isFinSet (λ p → ∣ ≃Fin∥∥ (X .fst) p ∣) (X .snd)
-
-module _
-  (X : FinSet {ℓ })
-  (Y : FinSet {ℓ'})
-  (f : X .fst → Y .fst) where
-
-  isFinSetFiber : (y : Y .fst) → isFinSet (fiber f y)
-  isFinSetFiber y = isFinSetΣ X (λ x → _ , isFinSet≡ Y (f x) y)
-
-  isFinSetIsEquiv : isFinSet (isEquiv f)
-  isFinSetIsEquiv =
-    EquivPresFinSet
-      (invEquiv (isEquiv≃isEquiv' f))
-      (isFinSetΠ Y (λ y → _ , isFinSetIsContr (_ , isFinSetFiber y)))
-
-module _
-  (X : FinSet {ℓ })
-  (Y : FinSet {ℓ'}) where
-
-  isFinSet⊎ : isFinSet (X .fst ⊎ Y .fst)
-  isFinSet⊎ = elim2 (λ _ _ → isProp-isFinSet) (λ p q → ∣ ≃Fin⊎ (X .fst) p (Y .fst) q ∣) (X .snd) (Y .snd)
-
-  isFinSet× : isFinSet (X .fst × Y .fst)
-  isFinSet× = elim2 (λ _ _ → isProp-isFinSet) (λ p q → ∣ ≃Fin× (X .fst) p (Y .fst) q ∣) (X .snd) (Y .snd)
-
-  isFinSet→ : isFinSet (X .fst → Y .fst)
-  isFinSet→ = isFinSetΠ X (λ _ → Y)
-
-  isFinSet≃ : isFinSet (X .fst ≃ Y .fst)
-  isFinSet≃ = isFinSetΣ (_ , isFinSet→) (λ f → _ , isFinSetIsEquiv X Y f)
-
-module _
-  (X : FinSet {ℓ}) where
-
-  isFinSet¬ : isFinSet (¬ (X .fst))
-  isFinSet¬ = isFinSet→ X (⊥ , ∣ 0 , uninhabEquiv (λ x → x) ¬Fin0 ∣)
-
-module _
-  (X : FinSet {ℓ}) where
-
-  isFinSetNonEmpty : isFinSet (NonEmpty (X .fst))
-  isFinSetNonEmpty = isFinSet¬ (_ , isFinSet¬ X)
-
-module _
-  {X : Type ℓ }
-  {Y : Type ℓ'}
-  (f : X → Y) where
-
-  isInjective : Type (ℓ-max ℓ ℓ')
-  isInjective = (a b : X) → ¬ (a ≡ b) → ¬ (f a ≡ f b)
-
-  isSurjective : Type (ℓ-max ℓ ℓ')
-  isSurjective = (y : Y) → NonEmpty (fiber f y)
-
-  isBijective : Type (ℓ-max ℓ ℓ')
-  isBijective = isInjective × isSurjective
-
-module _
-  (X : Type ℓ )
-  (Y : Type ℓ') where
-
-  Injection : Type (ℓ-max ℓ ℓ')
-  Injection = Σ[ f ∈ (X → Y) ] isInjective f
-
-  Surjection : Type (ℓ-max ℓ ℓ')
-  Surjection = Σ[ f ∈ (X → Y) ] isSurjective f
-
-  Bijection : Type (ℓ-max ℓ ℓ')
-  Bijection = Σ[ f ∈ (X → Y) ] isBijective f
-
-module _
-  (X : FinSet {ℓ })
-  (Y : FinSet {ℓ'})
-  (f : X .fst → Y .fst) where
-
-  isFinSetIsInjective : isFinSet (isInjective f)
-  isFinSetIsInjective =
-    isFinSetΠ3
-      X (λ _ → X) (λ a b → _ , isFinSet¬ (_ , isFinSet≡ X a b))
-      (λ a b _ → _ , isFinSet¬ (_ , isFinSet≡ Y (f a) (f b)))
-
-  isFinSetIsSurjective : isFinSet (isSurjective f)
-  isFinSetIsSurjective =
-    isFinSetΠ Y (λ y → _ , isFinSetNonEmpty (_ , isFinSetFiber X Y f y))
-
-  isFinSetIsBijective : isFinSet (isBijective f)
-  isFinSetIsBijective = isFinSet× (_ , isFinSetIsInjective) (_ , isFinSetIsSurjective)
-
-module _
-  (X : FinSet {ℓ })
-  (Y : FinSet {ℓ'}) where
-
-  isFinSetInjection : isFinSet (Injection (X .fst) (Y .fst))
-  isFinSetInjection =
-    isFinSetΣ (_ , isFinSet→ X Y) (λ f → _ , isFinSetIsInjective X Y f)
-
-  isFinSetSurjection : isFinSet (Surjection (X .fst) (Y .fst))
-  isFinSetSurjection =
-    isFinSetΣ (_ , isFinSet→ X Y) (λ f → _ , isFinSetIsSurjective X Y f)
-
-  isFinSetBijection : isFinSet (Bijection (X .fst) (Y .fst))
-  isFinSetBijection =
-    isFinSetΣ (_ , isFinSet→ X Y) (λ f → _ , isFinSetIsBijective X Y f)
+transpFamily : {X : Type ℓ}{Y : X → Type ℓ'}
+  → ((n , e) : ≃SumFin X) → (x : X) → Y x ≃ Y (invEq e (e .fst x))
+transpFamily {X = X} {Y = Y} (n , e) x = pathToEquiv (λ i → Y (retEq e x (~ i)))
