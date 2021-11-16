@@ -20,6 +20,18 @@ module ReflectionSolving where
   _ : (x y : ℕ) → (x + y) · (x + y) ≡ x · x + 2 · x · y + y · y
   _ = solve
 
+  {-
+    If you want to use the solver in some more complex situation,
+    you have to declare a helper variable (`useSolver` below) that
+    is a term of the a dependent function type as above:
+  -}
+  module _ (SomeType : Type ℓ-zero) where
+    complexSolverApplication : (someStuff : SomeType) → (x y : ℕ) → (moreStuff : SomeType)
+        → x + y ≡ y + x
+    complexSolverApplication someStuff x y moreStuff = useSolver x y
+                              where useSolver : (x y : ℕ) → x + y ≡ y + x
+                                    useSolver = solve
+
 module SolvingExplained where
   open EqualityToNormalform renaming (solve to natSolve)
   open IteratedHornerOperations hiding (X)
