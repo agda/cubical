@@ -53,7 +53,7 @@ SumFin≃Fin _ =
 SumFin≡Fin : ∀ k → Fin k ≡ Fin.Fin k
 SumFin≡Fin k = ua (SumFin≃Fin k)
 
--- Closed properties of SumFin under type constructors
+-- Closure properties of SumFin under type constructors
 
 private
   _⋆_ = compEquiv

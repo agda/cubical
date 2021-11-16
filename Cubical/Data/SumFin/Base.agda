@@ -56,7 +56,7 @@ discreteFin fj fk with discreteℕ (toℕ fj) (toℕ fk)
 isSetFin : isSet (Fin k)
 isSetFin = Discrete→isSet discreteFin
 
--- Summation and multplication
+-- Summation and multiplication
 
 totalSum : {k : ℕ} → (f : Fin k → ℕ) → ℕ
 totalSum {k = 0} _ = 0

@@ -1,5 +1,12 @@
+{-
 
+This file contains:
 
+- Some useful implications;
+
+- Closure properties of FinSet under several type constructors.
+
+-}
 {-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Properties where
@@ -244,26 +251,3 @@ module _
   isFinSetBijection : isFinSet (Bijection (X .fst) (Y .fst))
   isFinSetBijection =
     isFinSetΣ (_ , isFinSet→ X Y) (λ f → _ , isFinSetIsBijective X Y f)
-
--- some computable function
-
-card+ : ℕ → ℕ → ℕ
-card+ m n = card (Fin m ⊎ Fin n , isFinSet⊎ (Fin m , isFinSetFin) (Fin n , isFinSetFin))
-
-card× : ℕ → ℕ → ℕ
-card× m n = card (Fin m × Fin n , isFinSet× (Fin m , isFinSetFin) (Fin n , isFinSetFin))
-
-card→ : ℕ → ℕ → ℕ
-card→ m n = card ((Fin m → Fin n) , isFinSet→ (Fin m , isFinSetFin) (Fin n , isFinSetFin))
-
-card≃ : ℕ → ℕ → ℕ
-card≃ m n = card ((Fin m ≃ Fin n) , isFinSet≃ (Fin m , isFinSetFin) (Fin n , isFinSetFin))
-
-cardInj : ℕ → ℕ → ℕ
-cardInj m n = card (Injection (Fin m) (Fin n) , isFinSetInjection (Fin m , isFinSetFin) (Fin n , isFinSetFin))
-
-cardSurj : ℕ → ℕ → ℕ
-cardSurj m n = card (Surjection (Fin m) (Fin n) , isFinSetSurjection (Fin m , isFinSetFin) (Fin n , isFinSetFin))
-
-cardBij : ℕ → ℕ → ℕ
-cardBij m n = card (Bijection (Fin m) (Fin n) , isFinSetBijection (Fin m , isFinSetFin) (Fin n , isFinSetFin))
