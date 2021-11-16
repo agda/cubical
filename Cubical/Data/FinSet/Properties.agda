@@ -27,8 +27,9 @@ open import Cubical.Relation.Nullary.HLevels
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
     A : Type ℓ
+    B : Type ℓ'
 
 -- infix operator to more conveniently compose equivalences
 
@@ -38,28 +39,24 @@ infixr 30 _⋆_
 
 -- useful implications
 
-isFinSetFin : ∀ {n} → isFinSet (Fin n)
+EquivPresIsFinSet : A ≃ B → isFinSet A → isFinSet B
+EquivPresIsFinSet e = rec isPropIsFinSet (λ (n , p) → ∣ n , compEquiv (invEquiv e) p ∣)
+
+isFinSetFin : {n : ℕ} → isFinSet (Fin n)
 isFinSetFin = ∣ _ , pathToEquiv refl ∣
 
 isFinSetUnit : isFinSet Unit
 isFinSetUnit = ∣ 1 , Unit≃Fin1 ∣
 
-isFinSet→Discrete : {X : Type ℓ} → isFinSet X → Discrete X
-isFinSet→Discrete p =
-  rec isPropDiscrete (λ (_ , p) → EquivPresDiscrete (invEquiv p) discreteFin) p
+isFinSet→Discrete : isFinSet A → Discrete A
+isFinSet→Discrete = rec isPropDiscrete (λ (_ , p) → EquivPresDiscrete (invEquiv p) discreteFin)
 
-isFinSet→isSet : {X : Type ℓ} → isFinSet X → isSet X
-isFinSet→isSet p = Discrete→isSet (isFinSet→Discrete p)
-
-isContr→isFinSet : {X : Type ℓ} → isContr X → isFinSet X
+isContr→isFinSet : isContr A → isFinSet A
 isContr→isFinSet h = ∣ 1 , isContr→≃Unit* h ⋆ invEquiv (Unit≃Unit* ) ⋆ Unit≃Fin1 ∣
 
-isDecProp→isFinSet : {P : Type ℓ} → isProp P → Dec P → isFinSet P
+isDecProp→isFinSet : isProp A → Dec A → isFinSet A
 isDecProp→isFinSet h (yes p) = isContr→isFinSet (inhProp→isContr p h)
 isDecProp→isFinSet h (no ¬p) = ∣ 0 , uninhabEquiv ¬p ¬Fin0 ∣
-
-EquivPresFinSet : {X : Type ℓ}{Y : Type ℓ'} → X ≃ Y → isFinSet X → isFinSet Y
-EquivPresFinSet e p = rec isPropIsFinSet (λ (n , p) → ∣ n , compEquiv (invEquiv e) p ∣) p
 
 {-
 
@@ -101,38 +98,41 @@ isPropIsFinSet' {A = A} (n , equivn) (m , equivm) =
     n≡m : n ≡ m
     n≡m = rec (isSetℕ n m) (λ p → p) ∥n≡m∥
 
-isFinSet≡isFinSet' : isFinSet A ≡ isFinSet' A
-isFinSet≡isFinSet' {A = A} = hPropExt isPropIsFinSet isPropIsFinSet' to from
-  where
-    to : isFinSet A → isFinSet' A
-    to ∣ n , equiv ∣ = n , ∣ equiv ∣
-    to (squash p q i) = isPropIsFinSet' (to p) (to q) i
+-- logical equivalence of two definitions
 
-    from : isFinSet' A → isFinSet A
-    from (n , ∣ isFinSet-A ∣) = ∣ n , isFinSet-A ∣
-    from (n , squash p q i) = isPropIsFinSet (from (n , p)) (from (n , q)) i
+isFinSet→isFinSet' : isFinSet A → isFinSet' A
+isFinSet→isFinSet' ∣ n , equiv ∣ = n , ∣ equiv ∣
+isFinSet→isFinSet' (squash p q i) = isPropIsFinSet' (isFinSet→isFinSet' p) (isFinSet→isFinSet' q) i
+
+isFinSet'→isFinSet : isFinSet' A → isFinSet A
+isFinSet'→isFinSet (n , ∣ isFinSet-A ∣) = ∣ n , isFinSet-A ∣
+isFinSet'→isFinSet (n , squash p q i) = isPropIsFinSet (isFinSet'→isFinSet (n , p)) (isFinSet'→isFinSet (n , q)) i
+
+isFinSet≡isFinSet' : isFinSet A ≡ isFinSet' A
+isFinSet≡isFinSet' {A = A} = hPropExt isPropIsFinSet isPropIsFinSet' isFinSet→isFinSet' isFinSet'→isFinSet
+
+FinSet→FinSet' : FinSet ℓ → FinSet' ℓ
+FinSet→FinSet' (A , isFinSetA) = A , transport isFinSet≡isFinSet' isFinSetA
+
+FinSet'→FinSet : FinSet' ℓ → FinSet ℓ
+FinSet'→FinSet (A , isFinSet'A) = A , transport (sym isFinSet≡isFinSet') isFinSet'A
+
+FinSet≃FinSet' : FinSet ℓ ≃ FinSet' ℓ
+FinSet≃FinSet' =
+  isoToEquiv
+    (iso FinSet→FinSet' FinSet'→FinSet
+        (λ _ → Σ≡Prop (λ _ → isPropIsFinSet') refl)
+        (λ _ → Σ≡Prop (λ _ → isPropIsFinSet) refl))
 
 FinSet≡FinSet' : FinSet ℓ ≡ FinSet' ℓ
-FinSet≡FinSet' = ua (isoToEquiv (iso to from to-from from-to))
-  where
-    to : FinSet ℓ → FinSet' ℓ
-    to (A , isFinSetA) = A , transport isFinSet≡isFinSet' isFinSetA
-
-    from : FinSet' ℓ → FinSet ℓ
-    from (A , isFinSet'A) = A , transport (sym isFinSet≡isFinSet') isFinSet'A
-
-    to-from : ∀ A → to (from A) ≡ A
-    to-from A = Σ≡Prop (λ _ → isPropIsFinSet') refl
-
-    from-to : ∀ A → from (to A) ≡ A
-    from-to A = Σ≡Prop (λ _ → isPropIsFinSet) refl
+FinSet≡FinSet' = ua FinSet≃FinSet'
 
 -- cardinality of finite sets
 
 card : FinSet ℓ → ℕ
 card = fst ∘ snd ∘ transport FinSet≡FinSet'
 
--- Definitions to reduce problems about FinSet to SumFin
+-- definitions to reduce problems about FinSet to SumFin
 
 ≃Fin : Type ℓ → Type ℓ
 ≃Fin A = Σ[ n ∈ ℕ ] A ≃ Fin n
@@ -140,12 +140,13 @@ card = fst ∘ snd ∘ transport FinSet≡FinSet'
 ≃SumFin : Type ℓ → Type ℓ
 ≃SumFin A = Σ[ n ∈ ℕ ] A ≃ SumFin n
 
-≃Fin→SumFin : {X : Type ℓ} → ≃Fin X → ≃SumFin X
+≃Fin→SumFin : ≃Fin A → ≃SumFin A
 ≃Fin→SumFin (n , e) = n , compEquiv e (invEquiv (SumFin≃Fin _))
 
-≃SumFin→Fin : {X : Type ℓ} → ≃SumFin X → ≃Fin X
+≃SumFin→Fin : ≃SumFin A → ≃Fin A
 ≃SumFin→Fin (n , e) = n , compEquiv e (SumFin≃Fin _)
 
-transpFamily : {X : Type ℓ}{Y : X → Type ℓ'}
-  → ((n , e) : ≃SumFin X) → (x : X) → Y x ≃ Y (invEq e (e .fst x))
-transpFamily {X = X} {Y = Y} (n , e) x = pathToEquiv (λ i → Y (retEq e x (~ i)))
+transpFamily :
+    {A : Type ℓ}{B : A → Type ℓ'}
+  → ((n , e) : ≃SumFin A) → (x : A) → B x ≃ B (invEq e (e .fst x))
+transpFamily {B = B} (n , e) x = pathToEquiv (λ i → B (retEq e x (~ i)))

@@ -139,7 +139,7 @@ module _
 
   isFinSetIsEquiv : isFinSet (isEquiv f)
   isFinSetIsEquiv =
-    EquivPresFinSet
+    EquivPresIsFinSet
       (invEquiv (isEquiv≃isEquiv' f))
       (isFinSetΠ Y (λ y → _ , isFinSetIsContr (_ , isFinSetFiber y)))
 
