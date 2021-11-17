@@ -112,10 +112,10 @@ isFinSet≡isFinSet' : isFinSet A ≡ isFinSet' A
 isFinSet≡isFinSet' {A = A} = hPropExt isPropIsFinSet isPropIsFinSet' isFinSet→isFinSet' isFinSet'→isFinSet
 
 FinSet→FinSet' : FinSet ℓ → FinSet' ℓ
-FinSet→FinSet' (A , isFinSetA) = A , transport isFinSet≡isFinSet' isFinSetA
+FinSet→FinSet' (A , isFinSetA) = A , isFinSet→isFinSet' isFinSetA
 
 FinSet'→FinSet : FinSet' ℓ → FinSet ℓ
-FinSet'→FinSet (A , isFinSet'A) = A , transport (sym isFinSet≡isFinSet') isFinSet'A
+FinSet'→FinSet (A , isFinSet'A) = A , isFinSet'→isFinSet isFinSet'A
 
 FinSet≃FinSet' : FinSet ℓ ≃ FinSet' ℓ
 FinSet≃FinSet' =
