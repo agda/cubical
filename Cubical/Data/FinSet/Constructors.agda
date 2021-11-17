@@ -38,7 +38,7 @@ module _
   (X : Type ℓ)(p : ≃Fin X) where
 
   ≃Fin∥∥ : ≃Fin ∥ X ∥
-  ≃Fin∥∥ = ≃SumFin→Fin (_ , compEquiv (propTrunc≃ (≃Fin→SumFin p .snd)) (SumFin∥∥ _))
+  ≃Fin∥∥ = ≃SumFin→Fin (_ , compEquiv (propTrunc≃ (≃Fin→SumFin p .snd)) (SumFin∥∥≃ _))
 
 module _
   (X : Type ℓ )(p : ≃Fin X)

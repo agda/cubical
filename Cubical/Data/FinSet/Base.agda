@@ -21,6 +21,7 @@ private
 isFinSet : Type ℓ → Type ℓ
 isFinSet A = ∃[ n ∈ ℕ ] A ≃ Fin n
 
+-- finite sets are sets
 isFinSet→isSet : isFinSet A → isSet A
 isFinSet→isSet = rec isPropIsSet (λ (_ , p) → isOfHLevelRespectEquiv 2 (invEquiv p) isSetFin)
 

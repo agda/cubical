@@ -85,8 +85,8 @@ isNotZero : ℕ → ℕ
 isNotZero 0 = 0
 isNotZero (suc n) = 1
 
-SumFin∥∥ : (n : ℕ) → ∥ Fin n ∥ ≃ Fin (isNotZero n)
-SumFin∥∥ 0 = propTruncIdempotent≃ (isProp⊥)
-SumFin∥∥ (suc n) =
+SumFin∥∥≃ : (n : ℕ) → ∥ Fin n ∥ ≃ Fin (isNotZero n)
+SumFin∥∥≃ 0 = propTruncIdempotent≃ (isProp⊥)
+SumFin∥∥≃ (suc n) =
     isContr→≃Unit (inhProp→isContr ∣ inl tt ∣ isPropPropTrunc)
   ⋆ isContr→≃Unit (isContrUnit) ⋆ invEquiv (⊎-⊥-≃)
