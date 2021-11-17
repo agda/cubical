@@ -130,7 +130,7 @@ FinSet≡FinSet' = ua FinSet≃FinSet'
 -- cardinality of finite sets
 
 card : FinSet ℓ → ℕ
-card = fst ∘ snd ∘ transport FinSet≡FinSet'
+card = fst ∘ snd ∘ FinSet→FinSet'
 
 -- definitions to reduce problems about FinSet to SumFin
 
