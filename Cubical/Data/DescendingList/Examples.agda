@@ -9,7 +9,7 @@
 -- 2. "sorting" finite multisets by converting into sorted lists.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 
 module Cubical.Data.DescendingList.Examples where
 
@@ -88,9 +88,8 @@ l3 = l1 ++ᴰᴸ l2
 ValueOfl3 : l3 ≡ cons 4 (cons 3 (cons 2 (cons 2 (cons 0 _ _) _) _) _) _
 ValueOfl3 = refl
 
--- Disabled due to excessive resource usage.
--- l3=l2++l1 : l3 ≡ l2 ++ᴰᴸ l1
--- l3=l2++l1 = refl
+l3=l2++l1 : l3 ≡ l2 ++ᴰᴸ l1
+l3=l2++l1 = refl
 
 -- Commented as it was the slowest definition in the whole library :-)
 -- LongerExample :   l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1 ++ᴰᴸ l2
