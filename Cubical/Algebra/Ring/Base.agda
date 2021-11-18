@@ -189,11 +189,13 @@ isPropIsRingHom R f S = isOfHLevelRetractFromIso 1 IsRingHomIsoΣ
                                   (isPropΠ2 λ _ _ → isSetRing (_ , S) _ _)
                                   (isPropΠ λ _ → isSetRing (_ , S) _ _))
 
-RingHomEqDep : (R S T : Ring ℓ) (p : S ≡ T) (φ : RingHom R S) (ψ : RingHom R T)
+RingHomPathP : (R S T : Ring ℓ) (p : S ≡ T) (φ : RingHom R S) (ψ : RingHom R T)
              → PathP (λ i → R .fst → p i .fst) (φ .fst) (ψ .fst)
              → PathP (λ i → RingHom R (p i)) φ ψ
-RingHomEqDep R S T p φ ψ q = ΣPathP (q , isProp→PathP (λ _ → isPropIsRingHom _ _ _) _ _)
+RingHomPathP R S T p φ ψ q = ΣPathP (q , isProp→PathP (λ _ → isPropIsRingHom _ _ _) _ _)
 
+RingHom≡ : {R S : Ring ℓ} {φ ψ : RingHom R S} → fst φ ≡ fst ψ → φ ≡ ψ
+RingHom≡ = Σ≡Prop λ f → isPropIsRingHom _ f _
 
 𝒮ᴰ-Ring : DUARel (𝒮-Univ ℓ) RingStr ℓ
 𝒮ᴰ-Ring =
