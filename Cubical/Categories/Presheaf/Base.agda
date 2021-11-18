@@ -31,6 +31,7 @@ module Yoneda (C : Precategory ℓ ℓ') ⦃ C-cat : isCategory C ⦄ where
   open Functor
   open NatTrans
   open Precategory C
+  open isCategory
 
   yo : ob → Functor (C ^op) (SET ℓ')
   yo x .F-ob y .fst = C [ y , x ]
@@ -49,7 +50,7 @@ module Yoneda (C : Precategory ℓ ℓ') ⦃ C-cat : isCategory C ⦄ where
 
   module _ {x} (F : Functor (C ^op) (SET ℓ')) where
     yo-yo-yo : NatTrans (yo x) F → F .F-ob x .fst
-    yo-yo-yo α = α .N-ob _ (id _)
+    yo-yo-yo α = α .N-ob _ id
 
     no-no-no : F .F-ob x .fst → NatTrans (yo x) F
     no-no-no a .N-ob y f = F .F-hom f a
@@ -64,8 +65,8 @@ module Yoneda (C : Precategory ℓ ℓ') ⦃ C-cat : isCategory C ⦄ where
         rem : ∀ {z} (x₁ : C [ z , x ]) → F .F-hom x₁ (yo-yo-yo a) ≡ (a .N-ob z) x₁
         rem g =
           F .F-hom g (yo-yo-yo a)
-            ≡[ i ]⟨ a .N-hom g (~ i) (id x) ⟩
-          a .N-hom g i0 (id x)
+            ≡[ i ]⟨ a .N-hom g (~ i) id ⟩
+          a .N-hom g i0 id
             ≡[ i ]⟨ a .N-ob _ (⋆IdR g i) ⟩
           (a .N-ob _) g
             ∎

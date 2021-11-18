@@ -1,21 +1,23 @@
 {-# OPTIONS --safe #-}
 
-open import Cubical.Categories.Category
-open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open Iso
 open import Cubical.Foundations.HLevels
-open Precategory
-open import Cubical.Core.Glue
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport using (transpFill)
 
-module Cubical.Categories.Constructions.Slice {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') (c : C .ob) {{isC : isCategory C}} where
+open import Cubical.Categories.Category
+open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
 
 open import Cubical.Data.Sigma
 
+open Precategory
+open isCategory
+open isUnivalent
+open Iso
+
+module Cubical.Categories.Constructions.Slice {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') (c : C .ob) {{isC : isCategory C}} where
 
 -- just a helper to prevent redundency
 TypeC : Type (ℓ-suc (ℓ-max ℓ ℓ'))
@@ -103,7 +105,7 @@ SliceHom-Σ-Iso .leftInv = λ x → refl
 SliceCat : Precategory _ _
 SliceCat .ob = SliceOb
 SliceCat .Hom[_,_] = SliceHom
-SliceCat .id (sliceob {x} f) = slicehom (C .id x) (C .⋆IdL _)
+SliceCat .id = slicehom (C .id) (C .⋆IdL _)
 SliceCat ._⋆_ {sliceob j} {sliceob k} {sliceob l} (slicehom f p) (slicehom g p') =
   slicehom
     (f ⋆⟨ C ⟩ g)
@@ -191,7 +193,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
         -- the meat of the proof
         sIso : Iso (xf ≡ yg) (CatIso xf yg)
-        sIso .fun p = pathToIso xf yg p -- we use the normal pathToIso via path induction to get an isomorphism
+        sIso .fun p = pathToIso p -- we use the normal pathToIso via path induction to get an isomorphism
         sIso .inv is@(catiso kc lc s r) = SliceOb-≡-intro x≡y (symP (sym (lc .S-comm) ◁ lf≡f))
           where
             -- we get a path between xf and yg by combining paths between
@@ -215,19 +217,19 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
             -- to show that f ≡ g, we show that l ≡ id
             -- by using C's isomorphism
-            pToI≡id : PathP (λ i → C [ x≡y (~ i) , x ]) (pathToIso {C = C} x y x≡y .inv) (C .id x)
-            pToI≡id = J (λ y p → PathP (λ i → C [ p (~ i) , x ]) (pathToIso {C = C} x y p .inv) (C .id x))
+            pToI≡id : PathP (λ i → C [ x≡y (~ i) , x ]) (pathToIso {C = C} x≡y .inv) (C .id)
+            pToI≡id = J (λ y p → PathP (λ i → C [ p (~ i) , x ]) (pathToIso {C = C} p .inv) (C .id))
                         (λ j → JRefl pToIFam pToIBase j .inv)
                         x≡y
               where
-                idx = C .id x
+                idx = C .id
                 pToIFam = (λ z _ → CatIso {C = C} x z)
-                pToIBase = catiso (C .id x) idx (C .⋆IdL idx) (C .⋆IdL idx)
+                pToIBase = catiso (C .id) idx (C .⋆IdL idx) (C .⋆IdL idx)
 
-            l≡pToI : l ≡ pathToIso {C = C} x y x≡y .inv
+            l≡pToI : l ≡ pathToIso {C = C} x≡y .inv
             l≡pToI i = pToIIso .rightInv extractIso (~ i) .inv
 
-            l≡id : PathP (λ i → C [ x≡y (~ i) , x ]) l (C .id x)
+            l≡id : PathP (λ i → C [ x≡y (~ i) , x ]) l (C .id)
             l≡id = l≡pToI ◁ pToI≡id
 
             lf≡f : PathP (λ i → C [ x≡y (~ i) , c ]) (l ⋆⟨ C ⟩ f) f
@@ -273,13 +275,13 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             -- sec
 
             s' = (sIso .fun) (sIso .inv is) .sec
-            s'≡s : PathP (λ i → lc'≡lc i ⋆⟨ SliceCat ⟩ kc'≡kc i ≡ SliceCat .id _) s' s
+            s'≡s : PathP (λ i → lc'≡lc i ⋆⟨ SliceCat ⟩ kc'≡kc i ≡ SliceCat .id) s' s
             s'≡s = isSetHomP1 _ _ λ i → lc'≡lc i ⋆⟨ SliceCat ⟩ kc'≡kc i
 
             -- ret
 
             r' = (sIso .fun) (sIso .inv is) .ret
-            r'≡r : PathP (λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i ≡ SliceCat .id _) r' r
+            r'≡r : PathP (λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i ≡ SliceCat .id) r' r
             r'≡r = isSetHomP1 _ _ λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i
 
         sIso .leftInv p = p'≡p
@@ -306,17 +308,17 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
             -- we first show that it's equivalent to use sIso first then extract, or to extract first than use pToIIso
             extractCom : extractIso' (sIso .fun p) ≡ pToIIso .fun pOb
-            extractCom = J (λ yg' p̃ → extractIso' (pathToIso xf yg' p̃) ≡ pToIIso' {xf = xf} {yg'} .fun (λ i → (p̃ i) .S-ob))
+            extractCom = J (λ yg' p̃ → extractIso' (pathToIso p̃) ≡ pToIIso' {xf = xf} {yg'} .fun (λ i → (p̃ i) .S-ob))
                            (cong extractIso' (JRefl pToIFam' pToIBase') ∙ sym (JRefl pToIFam pToIBase))
                            p
                where
-                 idx = C .id x
+                 idx = C .id
                  pToIFam = (λ z _ → CatIso {C = C} x z)
-                 pToIBase = catiso (C .id x) idx (C .⋆IdL idx) (C .⋆IdL idx)
+                 pToIBase = catiso (C .id) idx (C .⋆IdL idx) (C .⋆IdL idx)
 
-                 idxf = SliceCat .id xf
+                 idxf = SliceCat .id
                  pToIFam' = (λ z _ → CatIso {C = SliceCat} xf z)
-                 pToIBase' = catiso (SliceCat .id xf) idxf (SliceCat .⋆IdL idxf) (SliceCat .⋆IdL idxf)
+                 pToIBase' = catiso (SliceCat .id) idxf (SliceCat .⋆IdL idxf) (SliceCat .⋆IdL idxf)
 
             -- why does this not follow definitionally?
             -- from extractCom, we get that performing the roundtrip on pOb gives us back p'Ob

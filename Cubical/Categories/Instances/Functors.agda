@@ -15,13 +15,14 @@ private
 
 module _ (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') ⦃ isCatD : isCategory D ⦄ where
   open Precategory
+  open isCategory
   open NatTrans
   open Functor
 
   FUNCTOR : Precategory (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) (ℓ-max (ℓ-max ℓC ℓC') ℓD')
   FUNCTOR .ob = Functor C D
   FUNCTOR .Hom[_,_] = NatTrans
-  FUNCTOR .id = idTrans
+  FUNCTOR .id {F} = idTrans F
   FUNCTOR ._⋆_ = seqTrans
   FUNCTOR .⋆IdL α = makeNatTransPath λ i x → D .⋆IdL (α .N-ob x) i
   FUNCTOR .⋆IdR α = makeNatTransPath λ i x → D .⋆IdR (α .N-ob x) i
