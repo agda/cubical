@@ -1,5 +1,4 @@
 {-# OPTIONS --safe #-}
-
 module Cubical.Categories.Yoneda where
 
 open import Cubical.Foundations.Prelude
