@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Homotopy.Whitehead2 where
 
 open import Cubical.Core.Everything
@@ -14,16 +14,18 @@ open import Cubical.Functions.Fibration
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Nullification
-open import Cubical.HITs.Susp
+open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.SmashProduct
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 renaming (_·_ to _*_)
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit
-
+open import Cubical.Homotopy.HopfInvariant.Homomorphism
+open import Cubical.Homotopy.Hopf
+open import Cubical.Homotopy.HSpace
 
 open import Cubical.HITs.Join
 open import Cubical.HITs.Sn
@@ -33,475 +35,837 @@ private
     ℓ : Level
     A B : Pointed ℓ
 
-join-elim : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'}
-         → {P : join A B → Type ℓ''}
-         → (l : (a : A) → P (inl a))
-         → (r : (b : B) → P (inr b))
-         → ((a : A) (b : B) → PathP (λ i → P (push a b i)) (l a) (r b))
-         → (x : join A B) → P x
-join-elim l r p (inl x) = l x
-join-elim l r p (inr x) = r x
-join-elim l r p (push a b i) = p a b i
+open import Cubical.Homotopy.Group.Base
+open import Cubical.HITs.SetTruncation renaming (map to sMap ; elim2 to sElim2 ; elim to sElim)
+open import Cubical.HITs.PropositionalTruncation renaming (map to pMap ; rec to pRec ; elim to pElim)
+open import Cubical.Algebra.Group
+open import Cubical.Foundations.Pointed.Homogeneous
 
-φ : (A : Pointed ℓ) (a : typ A) → Path (Susp (typ A)) north north
-φ A a = merid a ∙ sym (merid (pt A))
+Hopfie = S¹Hopf.TotalHopf
+Hopfie∙ : Pointed _
+Hopfie∙ = Hopfie , (north , base)
 
-W : join (typ A) (typ B) → (Susp (typ A) , north) ⋁ (Susp (typ B) , north)
-W (inl x) = inr north
-W (inr x) = inl north
-W {A = A} {B = B} (push a b i) =
-     ((λ i → inr (φ B b i))
-  ∙∙ sym (push tt)
-  ∙∙ λ i → inl (φ A a i)) i
+open import Cubical.Homotopy.Hopf
+open import Cubical.Homotopy.HSpace
+open import Cubical.HITs.S1
 
-open 3x3-span
-open Iso
+module S1Hopf =
+  Hopf S1-AssocHSpace
+       (toPropElim (λ _ → isPropΠ λ _ → squash) isConnectedS¹)
 
-module _ (A B : Type) (a₀ : A) (b₀ : B) where
-  whitehead3x3 :  3x3-span
-  A00 whitehead3x3 = Susp A
-  A02 whitehead3x3 = B
-  A04 whitehead3x3 = Unit
-  A20 whitehead3x3 = B
-  A22 whitehead3x3 = A × B
-  A24 whitehead3x3 = A
-  A40 whitehead3x3 = B
-  A42 whitehead3x3 = B
-  A44 whitehead3x3 = Unit
-  f10 whitehead3x3 = λ _ → south
-  f12 whitehead3x3 = snd
-  f14 whitehead3x3 = λ _ → tt
-  f30 whitehead3x3 = idfun B
-  f32 whitehead3x3 = snd
-  f34 whitehead3x3 = λ _ → tt
-  f01 whitehead3x3 _ = north
-  f21 whitehead3x3 = snd
-  f41 whitehead3x3 = idfun B
-  f03 whitehead3x3 _ = tt
-  f23 whitehead3x3 = fst
-  f43 whitehead3x3 _ = tt
-  H11 whitehead3x3 (a , _) = merid a
-  H13 whitehead3x3 _ = refl
-  H31 whitehead3x3 _ = refl
-  H33 whitehead3x3 _ = refl
+Hopf' : Type _
+Hopf' = Σ[ x ∈ S₊ 2 ] S1Hopf.Hopf x
 
-  A∨B = (Susp A , north) ⋁ (Susp B , north)
+Hopf'∙ : Pointed _
+Hopf'∙ = Hopf' , north , base
 
-  φB = φ (B , b₀)
-  φA = φ (A , a₀)
+{-
+π₃ A → π₃ Total → π₃ 2
 
-  A0□→A∨B : A0□ whitehead3x3 → A∨B
-  A0□→A∨B (inl x) = inl x
-  A0□→A∨B (inr x) = inr north
-  A0□→A∨B (push a i) = (push tt ∙ λ i → inr (φB a (~ i))) i
+given f : Total → S²
+want : ∥ (f : S² → S²) ∥ s.t. (x : S²) → Hopf (f x) 
 
-  A∨B→A0□ : A∨B → A0□ whitehead3x3
-  A∨B→A0□ (inl x) = inl x
-  A∨B→A0□ (inr north) = inl north
-  A∨B→A0□ (inr south) = inl north
-  A∨B→A0□ (inr (merid b i)) = (push b₀ ∙ sym (push b)) i
-  A∨B→A0□ (push a i) = inl north
+-}
 
-  firstRow≡Susp⋁ : Iso (A0□ whitehead3x3) A∨B
-  fun firstRow≡Susp⋁ = A0□→A∨B
-  inv firstRow≡Susp⋁ = A∨B→A0□
-  rightInv firstRow≡Susp⋁ (inl x) = refl
-  rightInv firstRow≡Susp⋁ (inr north) = push tt
-  rightInv firstRow≡Susp⋁ (inr south) = push tt ∙ λ i → inr (merid b₀ i)
-  rightInv firstRow≡Susp⋁ (inr (merid a i)) j = h j i
-    where
-    h : PathP (λ i → push tt i ≡ (push tt ∙ (λ i → inr (merid b₀ i))) i)
-              (cong A0□→A∨B (cong A∨B→A0□ λ i → inr (merid a i)))
-              (λ i → inr (merid a i))
-    h = (cong-∙ A0□→A∨B (push b₀) (sym (push a))
-      ∙ cong₂ _∙_ (cong (push tt ∙_)
-                  (λ j i → inr (rCancel (merid b₀) j (~ i))) ∙ sym (rUnit (push tt)))
-                  (symDistr (push tt) (λ i → inr (φB a (~ i)))))
-      ◁ λ i j → hcomp (λ k → λ { (i = i0) → compPath-filler' (push tt)
-                                                (compPath-filler (λ i → inr (φB a i)) (sym (push tt)) k) k j
-                                 ; (i = i1) → inr (merid a j)
-                                 ; (j = i0) → push tt (i ∨ ~ k)
-                                 ; (j = i1) → compPath-filler' (push tt) (λ i → inr (merid b₀ i)) k i})
-                       (inr (compPath-filler (merid a) (sym (merid b₀)) (~ i) j))
+loop2 : typ ( (Ω^ 2) (S₊∙ 2))
+loop2 i j =
+  hcomp (λ k → λ { (i = i0) → north
+                  ; (i = i1) → north
+                  ; (j = i0) → rCancel (merid base) k i
+                  ; (j = i1) → rCancel (merid base) k i})
+        ((merid (loop j) ∙ sym (merid base)) i)
 
-  rightInv firstRow≡Susp⋁ (push a i) j = push tt (i ∧ j)
-  leftInv firstRow≡Susp⋁ (inl x) = refl
-  leftInv firstRow≡Susp⋁ (inr tt) = push b₀
-  leftInv firstRow≡Susp⋁ (push b i) j = help j i
-    where
-    help : PathP (λ i → inl north ≡ push b₀ i)
-                 (cong A∨B→A0□ (cong A0□→A∨B (push b)))
-                 (push b)
-    help = (cong-∙ A∨B→A0□ (push tt) (λ i → inr (φB b (~ i)))
-         ∙ (λ i → lUnit (sym (cong-∙ (A∨B→A0□ ∘ inr) (merid b) (sym (merid b₀)) i)) (~ i))
-         ∙ cong sym (cong ((push b₀ ∙ sym (push b)) ∙_) (cong sym (rCancel (push b₀))))
-         ∙ cong sym (sym (rUnit (push b₀ ∙ sym (push b)))))
-         ◁ λ i j → compPath-filler' (push b₀) (sym (push b)) (~ i) (~ j)
+EHMap : S₊∙ 3 →∙ S₊∙ 2
+fst EHMap north = north
+fst EHMap south = north
+fst EHMap (merid north i) = north
+fst EHMap (merid south i) = north
+fst EHMap (merid (merid base i₁) i) = north
+fst EHMap (merid (merid (loop k) j) i) =
+        (sym (rCancel loop2) ∙∙ (EH 0 loop2 (sym loop2)) ∙∙ lCancel loop2) i j k
+snd EHMap = refl
 
-  2ndRow≡join : Iso (A2□ whitehead3x3) (join A B)
-  fun 2ndRow≡join (inl x) = inr x
-  fun 2ndRow≡join (inr x) = inl x
-  fun 2ndRow≡join (push (a , b) i) = push a b (~ i)
-  inv 2ndRow≡join (inl x) = inr x
-  inv 2ndRow≡join (inr x) = inl x
-  inv 2ndRow≡join (push a b i) = push (a , b) (~ i)
-  rightInv 2ndRow≡join (inl x) = refl
-  rightInv 2ndRow≡join (inr x) = refl
-  rightInv 2ndRow≡join (push a b i) = refl
-  leftInv 2ndRow≡join (inl x) = refl
-  leftInv 2ndRow≡join (inr x) = refl
-  leftInv 2ndRow≡join (push a i) = refl
+Ω3 : typ ((Ω^ 3) (S₊∙ 2))
+Ω3 = (sym (rCancel loop2) ∙∙ (EH 0 loop2 (sym loop2)) ∙∙ lCancel loop2)
 
-  isContr-3rdRow : isContr (A4□ whitehead3x3)
-  fst isContr-3rdRow = inr tt
-  snd isContr-3rdRow (inl x) = sym (push x)
-  snd isContr-3rdRow (inr x) = refl
-  snd isContr-3rdRow (push a i) j = push a (i ∨ ~ j)
+Ωa→ : S₊ 2 → typ ((Ω^ 4) {!!})
+Ωa→ = {!!}
 
-  isContr-3rdRow' : A4□ whitehead3x3 ≃ Unit
-  isContr-3rdRow' = isContr→≃Unit isContr-3rdRow
++π₃S2' : S₊ 2 → S₊ 2 → S₊ 2
++π₃S2' north y = north
++π₃S2' south y = north
++π₃S2' (merid base i) y = north
++π₃S2' (merid (loop j) i) north = north
++π₃S2' (merid (loop j) i) south = north
++π₃S2' (merid (loop j) i) (merid base i₁) = north
++π₃S2' (merid (loop j) i) (merid (loop j2) i2) =
+ ((sym (rCancel Ω3) ∙∙ EH 1 Ω3 (sym Ω3) ∙∙ lCancel Ω3) i j i2 j2)
 
-  1stColumn≡SuspA : Iso (A□0 whitehead3x3) (Susp A)
-  fun 1stColumn≡SuspA (inl x) = x
-  fun 1stColumn≡SuspA (inr x) = north
-  fun 1stColumn≡SuspA (push a i) = merid a₀ (~ i)
-  inv 1stColumn≡SuspA x = inl x
-  rightInv 1stColumn≡SuspA x = refl
-  leftInv 1stColumn≡SuspA (inl x) = refl
-  leftInv 1stColumn≡SuspA (inr x) = (λ i → inl (merid a₀ i)) ∙ push x
-  leftInv 1stColumn≡SuspA (push a i) j =
-    hcomp (λ k → λ { (i = i0) → inl (merid a₀ (k ∨ j))
-                    ; (i = i1) → compPath-filler
-                                   (λ i₁ → inl (merid a₀ i₁))
-                                   (push (idfun B a)) k j
-                    ; (j = i0) → inl (merid a₀ (~ i ∧ k))
-                    ; (j = i1) → push a (i ∧ k)})
-          (inl (merid a₀ j))
+cool : {!!}
+cool = {!!}
 
-  2rdColumn≡SuspA : Iso (A□2 whitehead3x3) (Susp A × B)
-  fun 2rdColumn≡SuspA (inl x) = north , x
-  fun 2rdColumn≡SuspA (inr x) = south , x
-  fun 2rdColumn≡SuspA (push a i) = merid (fst a) i , (snd a)
-  inv 2rdColumn≡SuspA (north , y) = inl y
-  inv 2rdColumn≡SuspA (south , y) = inr y
-  inv 2rdColumn≡SuspA (merid a i , y) = push (a , y) i
-  rightInv 2rdColumn≡SuspA (north , snd₁) = refl
-  rightInv 2rdColumn≡SuspA (south , snd₁) = refl
-  rightInv 2rdColumn≡SuspA (merid a i , snd₁) = refl
-  leftInv 2rdColumn≡SuspA (inl x) = refl
-  leftInv 2rdColumn≡SuspA (inr x) = refl
-  leftInv 2rdColumn≡SuspA (push a i) = refl
-
-  3rdColumn≡SuspA : Iso (A□4 whitehead3x3) (Susp A)
-  fun 3rdColumn≡SuspA (inl x) = north
-  fun 3rdColumn≡SuspA (inr x) = south
-  fun 3rdColumn≡SuspA (push a i) = merid a i
-  inv 3rdColumn≡SuspA north = inl tt
-  inv 3rdColumn≡SuspA south = inr tt
-  inv 3rdColumn≡SuspA (merid a i) = push a i
-  rightInv 3rdColumn≡SuspA north = refl
-  rightInv 3rdColumn≡SuspA south = refl
-  rightInv 3rdColumn≡SuspA (merid a i) = refl
-  leftInv 3rdColumn≡SuspA (inl x) = refl
-  leftInv 3rdColumn≡SuspA (inr x) = refl
-  leftInv 3rdColumn≡SuspA (push a i) = refl
-
-  module P {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
-               (AIso : A₁ ≃ A₂) (BIso : B₁ ≃ B₂) (CIso : C₁ ≃ C₂)
-               (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
-               (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
-               (id1 : (fst BIso) ∘ f₁ ≡ f₂ ∘ (fst AIso))
-               (id2 : (fst CIso) ∘ g₁ ≡ g₂ ∘ (fst AIso))
-   where
-   F' : Pushout f₁ g₁ → Pushout f₂ g₂
-   F' (inl x) = inl (fst BIso x)
-   F' (inr x) = inr (fst CIso x)
-   F' (push a i) =
-     ((λ i → inl (funExt⁻ id1 a i))
-      ∙∙ push (fst AIso a)
-      ∙∙ λ i → inr (sym (funExt⁻ id2 a) i)) i
-
-   G' : Pushout f₂ g₂ → Pushout f₁ g₁
-   G' (inl x) = inl (invEq BIso x)
-   G' (inr x) = inr (invEq CIso x)
-   G' (push a i) =
-     ((λ i → inl ((sym (cong (invEq BIso) (funExt⁻ id1 (invEq AIso a)
-                    ∙ cong f₂ (secEq AIso a)))
-                    ∙ retEq BIso (f₁ (invEq AIso a))) i))
-      ∙∙ push (invEq AIso a)
-      ∙∙ λ i → inr (((sym (retEq CIso (g₁ (invEq AIso a)))
-                   ∙ (cong (invEq CIso) ((funExt⁻ id2 (invEq AIso a)))))
-                   ∙ cong (invEq CIso) (cong g₂ (secEq AIso a))) i)) i
+check : S₊ 2 → Type
+check = {!!}
 
 
-  cType₁ : {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
-               (AIso : A₁ ≃ A₂) (BIso : B₁ ≃ B₂) (CIso : C₁ ≃ C₂)
-         → (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
-            (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
-         → (id1 : (fst BIso) ∘ f₁ ≡ f₂ ∘ (fst AIso))
-            (id2 : (fst CIso) ∘ g₁ ≡ g₂ ∘ (fst AIso))
-         → Type _
-  cType₁ AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2 =
-      ((x : _) → P.F' AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2
-                   (P.G' AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2 x) ≡ x)
-    × ((x : _) → P.G' AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2
-                   (P.F' AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2 x) ≡ x)
++π₃S2 : typ ((Ω^ 3) (S₊∙ 2))
+     → typ ((Ω^ 3) (S₊∙ 2))
+     → typ ((Ω^ 3) (S₊∙ 2))
++π₃S2 = {!!}
 
-  cType : {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
-               (AIso : A₁ ≃ A₂) (BIso : B₁ ≃ B₂) (CIso : C₁ ≃ C₂)
-          → Type _
-  cType {A₁ = A₁} {B₁ = B₁} {C₁ = C₁} {A₂ = A₂} {B₂ = B₂} {C₂ = C₂}
-         AIso BIso CIso =
-    (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
-               (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
-               (id1 : (fst BIso) ∘ f₁ ≡ f₂ ∘ (fst AIso))
-               (id2 : (fst CIso) ∘ g₁ ≡ g₂ ∘ (fst AIso))
-               → cType₁ AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2 
+themap : (S₊∙ 3 →∙ S₊∙ 2) → {!!}
+themap = {!!}
 
-  F-G-cancel : {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
-               (AIso : A₁ ≃ A₂) (BIso : B₁ ≃ B₂) (CIso : C₁ ≃ C₂)
-             → cType AIso BIso CIso
-  F-G-cancel {A₁ = A₁} {B₁ = B₁} {C₁ = C₁} {A₂ = A₂} {B₂ = B₂} {C₂ = C₂} =
-    EquivJ (λ A₁ AIso → (BIso : B₁ ≃ B₂) (CIso : C₁ ≃ C₂) →
-      cType AIso BIso CIso)
-      (EquivJ (λ B₁ BIso → (CIso : C₁ ≃ C₂) →
-      cType (idEquiv A₂) BIso CIso)
-        (EquivJ (λ C₁ CIso → cType (idEquiv A₂) (idEquiv B₂) CIso)
-          λ f₁ g₁ f₂ g₂
-            → J (λ f₂ id1 → (id2 : g₁ ≡ g₂)
-                          → cType₁ (idEquiv A₂) (idEquiv B₂) (idEquiv C₂)
-                                    f₁ g₁ f₂ g₂ id1 id2)
-                 (J (λ g₂ id2 → cType₁ (idEquiv A₂) (idEquiv B₂) (idEquiv C₂)
-                                        f₁ g₁ f₁ g₂ refl id2)
-                    (postJ f₁ g₁))))
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
 
-    where
-    postJ : (f₁ : A₂ → B₂) (g₁ : A₂ → C₂)
-      → cType₁ (idEquiv A₂) (idEquiv B₂) (idEquiv C₂)
-                 f₁ g₁ f₁ g₁ refl refl
-    postJ f₁ g₁ = help , help₂
-      where
-      refl-lem : ∀ {ℓ} {A : Type ℓ} (x : A) → (refl {x = x} ∙ refl) ∙ refl ≡ refl
-      refl-lem x = sym (rUnit _) ∙ sym (rUnit _)
+fiberS¹ : Iso (fiber (fst EHMap) north) (coHomK 1)
+Iso.fun fiberS¹ (x , y) = {!fst EHMap x!}
+Iso.inv fiberS¹ = trRec {!!} λ { base → north , refl ; (loop i) → north , loop2 i}
+Iso.rightInv fiberS¹ = Trunc.elim {!!} {!!}
+Iso.leftInv fiberS¹ = {!!}
 
-      FF = P.F' (idEquiv A₂) (idEquiv B₂) (idEquiv C₂) f₁ g₁ f₁ g₁ refl refl
-      GG = P.G' (idEquiv A₂) (idEquiv B₂) (idEquiv C₂) f₁ g₁ f₁ g₁ refl refl
+rr : hLevelTrunc 5 {!!} → TypeOfHLevel _ 5
+rr = {!!}
 
-      help : (x : Pushout f₁ g₁) → FF (GG x) ≡ x
-      help (inl x) = refl
-      help (inr x) = refl
-      help (push a i) j = hh j i
-        where
-        hh : Path (Path (Pushout f₁ g₁) (inl (f₁ a)) (inr (g₁ a)))
-                  (cong FF ((λ i → inl (((refl ∙ refl) ∙ (refl {x = f₁ a})) i ))
-                        ∙∙ push {f = f₁} {g = g₁} a
-                        ∙∙ λ i → inr (((refl ∙ refl) ∙ (refl {x = g₁ a})) i)))
-                  (push a)
-        hh = (λ i → cong FF ((λ j → inl (refl-lem (f₁ a) i j))
-                           ∙∙ push a
-                           ∙∙ λ j → inr (refl-lem (g₁ a) i j)))
-          ∙∙ cong (cong FF) (sym (rUnit (push a)))
-          ∙∙ sym (rUnit (push a))
+HopfIsh : ∀ {ℓ} {A : Type ℓ} → Iso (Hopf' → A) (Σ[ f ∈ (S₊ 2 → A) ] ((x : S₊ 2) → S1Hopf.Hopf x))
+Iso.fun HopfIsh f = (λ x → f (x , {!x!})) , {!!}
+Iso.inv HopfIsh f = {!!}
+Iso.rightInv HopfIsh = {!!}
+Iso.leftInv HopfIsh = {!!}
 
-      help₂ : (x : _) → GG (FF x) ≡ x
-      help₂ (inl x) = refl
-      help₂ (inr x) = refl
-      help₂ (push a i) j = hh j i
-        where
-        hh : cong GG (refl ∙∙ push a ∙∙ refl) ≡ push a
-        hh = cong (cong GG) (sym (rUnit (push a)))
-          ∙∙ (λ i → ((λ j → inl (refl-lem (f₁ a) i j))
-                   ∙∙ push a
-                   ∙∙ λ j → inr (refl-lem (g₁ a) i j)))
-          ∙∙ sym (rUnit (push a))
+Code : (x : S₊ 2) → isContr ∥ (S1Hopf.Hopf x → S₊ 2) ∥₂
+Code = sphereElim 1 (λ _ → isProp→isSet isPropIsContr)
+         (subst isContr (cong ∥_∥₂ (isoToPath (invIso IsoFunSpaceS¹)))
+           (∣ north , refl ∣₂
+           , Cubical.HITs.SetTruncation.elim
+              (λ _ → isSetPathImplicit)
+              (uncurry
+                (sphereElim 1
+                  (λ _ → isSetΠ λ _ → isSetPathImplicit)
+                  (λ y → trRec (squash₂ _ _)
+                    (λ p → cong ∣_∣₂ λ i → north , p i)
+                    (Iso.fun (PathIdTruncIso _)
+                      (isContr→isProp (isConnectedPathSⁿ 1 north north) ∣ refl ∣ ∣ y ∣)))))))
 
-  pushoutIso : {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
-               (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
-               (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
-               (AIso : A₁ ≃ A₂) (BIso : B₁ ≃ B₂) (CIso : C₁ ≃ C₂)
-             → (fst BIso ∘ f₁ ≡ f₂ ∘ fst AIso)
-             → (id2 : fst CIso ∘ g₁ ≡ g₂ ∘ fst AIso)
-             → Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
-  pushoutIso f₁ g₁ f₂ g₂ AIso BIso CIso id1 id2 = theIso
-    where
-    module P' = P AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2
+Iso1 : Iso ∥ Hopf'∙ →∙ S₊∙ 2 ∥₂ (∥ (S₊∙ 2 →∙ S₊∙ 2) ∥₂)
+Iso.fun Iso1 = sMap {!!}
+Iso.inv Iso1 = sMap {!λ f →!}
+Iso.rightInv Iso1 = {!!}
+Iso.leftInv Iso1 = {!!}
 
-    l-r-cancel = F-G-cancel AIso BIso CIso f₁ g₁ f₂ g₂ id1 id2
+-- Σ→∙ : ∀ {ℓ} {A : Pointed ℓ}
+--     → Iso (A →∙ Hopfie∙)
+--            (Σ[ f ∈ ((fst A) → S₊ 2) ]
+--              (Σ[ g ∈ ((a : fst A) → S¹Hopf.HopfSuspS¹ (f a)) ]
+--                 Σ[ p ∈ f (pt A) ≡ north ]
+--                  PathP (λ i → S¹Hopf.HopfSuspS¹ (p i)) (g (pt A)) base))
+-- Σ→∙ = {!!}
 
-    theIso : Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
-    fun theIso = P'.F'
-    inv theIso = P'.G'
-    rightInv theIso = fst l-r-cancel
-    leftInv theIso = snd (l-r-cancel)
+-- Σ→∙' : ∀ {ℓ} {A : Pointed ℓ}
+--     → Iso (A →∙ Hopfie∙)
+--            (Σ[ f ∈ (A →∙ S₊∙ 2) ]
+--              (Σ[ g ∈ ((a : fst A) → S¹Hopf.HopfSuspS¹ (fst f a)) ]
+--                 (PathP (λ i → S¹Hopf.HopfSuspS¹ (snd f i)) (g (pt A)) base)))
+-- Σ→∙' = iso {!!} {!!} {!!} {!!}
 
-  PushoutPushout : Iso (Pushout {A = Susp A × B} fst fst)
-                       (Susp A × Susp B)
-  PushoutPushout = theIso
-    where
-    F : Pushout {A = Susp A × B} fst fst
-     → Susp A × Susp B
-    F (inl x) = x , north
-    F (inr x) = x , north
-    F (push (x , b) i) = x , φB b i
 
-    G : Susp A × Susp B → Pushout {A = Susp A × B} fst fst
-    G (a , north) = inl a
-    G (a , south) = inr a
-    G (a , merid b i) = push (a , b) i
+-- →fun : ∥ S₊∙ 2 →∙ S₊∙ 2 ∥₂ → ∥ (Hopfie∙ →∙ S₊∙ 2) ∥₂
+-- →fun = sMap λ f → fst f ∘ fst , snd f
 
-    retr : retract F G
-    retr (inl x) = refl
-    retr (inr x) = push (x , b₀)
-    retr (push (a , b) i) j = help j i
-      where
-      help : PathP (λ i → Path (Pushout fst fst) (inl a) (push (a , b₀) i))
-                   (cong G (λ i → a , φB b i))
-                   (push (a , b))
-      help = cong-∙ (λ x → G (a , x)) (merid b) (sym (merid b₀))
-                  ◁ λ i j → compPath-filler
-                               (push (a , b))
-                               (sym (push (a , b₀)))
-                               (~ i) j
+-- isEquivLem : isEquiv →fun
+-- equiv-proof isEquivLem =
+--   sElim {!!}
+--     λ f → ({!f!} , {!!}) , {!!}
 
-    theIso : Iso (Pushout fst fst) (Susp A × Susp B)
-    fun theIso = F
-    inv theIso = G
-    rightInv theIso (a , north) = refl
-    rightInv theIso (a , south) = ΣPathP (refl , merid b₀)
-    rightInv theIso (a , merid b i) j =
-      a , compPath-filler (merid b) (sym (merid b₀)) (~ j) i
-    leftInv theIso = retr
+-- Iso3 : Iso (Hopfie∙ →∙ S₊∙ 2)
+--            (Σ[ f ∈ (S₊∙ 2 →∙ S₊∙ 2) ]
+--              Σ[ g ∈ ((x : S₊ 2) → S¹Hopf.HopfSuspS¹ (fst f x)) ]
+--                PathP (λ i → S¹Hopf.HopfSuspS¹ (snd f i)) (g north) base)
+-- Iso3 = {!!}
+--   where
 
-  PushoutColumn₁ : Iso (A□○ whitehead3x3) (Pushout {A = Susp A × B} fst fst)
-  PushoutColumn₁ =
-    pushoutIso _ _ fst fst
-      (isoToEquiv 2rdColumn≡SuspA)
-      (isoToEquiv 1stColumn≡SuspA)
-      (isoToEquiv 3rdColumn≡SuspA)
-      (funExt (λ { (inl x) → refl
-                 ; (inr x) → merid a₀
-                 ; (push a i) j → help₁ a j i}))
-      (funExt λ { (inl x) → refl
-                ; (inr x) → refl
-                ; (push a i) j
-                  → fun 3rdColumn≡SuspA (rUnit (push (fst a)) (~ j) i)})
-    where
-    help₁ : (a : A × B)
-      → PathP (λ i → north ≡ merid a₀ i)
-               (cong (fun 1stColumn≡SuspA)
-                 (cong (f□1 whitehead3x3) (push a)))
-               (merid (fst a))
-    help₁ a =
-        (cong-∙∙ (fun 1stColumn≡SuspA)
-                 (λ i → inl (merid (fst a) i))
-                 (push (snd a))
-                 refl)
-      ◁ (λ i j → hcomp (λ k → λ {(i = i1) → merid (fst a) (j ∨ ~ k)
-                                 ; (j = i0) → merid (fst a) (~ k)
-                                 ; (j = i1) → merid a₀ i})
-                        (merid a₀ (i ∨ ~ j)))
+--   fib = S¹Hopf.HopfSuspS¹
 
-  PushoutColumn : Iso (A□○ whitehead3x3) (Susp A × Susp B)
-  PushoutColumn = compIso PushoutColumn₁ PushoutPushout
+--   contrFst' : {x y : S₊ 2}
+--             → (t1 t2 : S¹Hopf.HopfSuspS¹ x)
+--             → (s1 s2 : S¹Hopf.HopfSuspS¹ y)
+--             → (p q : x ≡ y)
+--             → (pp : p ≡ q)
+--             → (pp1 : PathP (λ j → S¹Hopf.HopfSuspS¹ (p j)) t1 s1)
+--             → (pp2 : PathP (λ j → S¹Hopf.HopfSuspS¹ (q j)) t2 s2)
+--             → (pp3 : t1 ≡ t2)
+--             → (pp4 : s1 ≡ s2)
+--             → isContr ∥ SquareP (λ i j → S¹Hopf.HopfSuspS¹ (pp i j))
+--                          pp1
+--                          pp2
+--                          pp3
+--                          pp4 ∥₂
+--   contrFst' {x = x} {y = y} t1 t2 s1 s2 p q =
+--     J (λ q pp → (pp1 : PathP (λ j → S¹Hopf.HopfSuspS¹ (p j)) t1 s1)
+--             → (pp2 : PathP (λ j → S¹Hopf.HopfSuspS¹ (q j)) t2 s2)
+--             → (pp3 : t1 ≡ t2)
+--             → (pp4 : s1 ≡ s2)
+--             → isContr ∥ SquareP (λ i j → S¹Hopf.HopfSuspS¹ (pp i j)) pp1 pp2 pp3 pp4 ∥₂)
+--       (postJ x y p t1 t2 s1 s2)
+--     where
+--     postJ : (x y : S₊ 2)
+--             (p : x ≡ y)
+--          → (t1 t2 : S¹Hopf.HopfSuspS¹ x)
+--          → (s1 s2 : S¹Hopf.HopfSuspS¹ y)
+--          → (pp1 : PathP (λ j → S¹Hopf.HopfSuspS¹ (p j)) t1 s1)
+--          → (pp2 : PathP (λ j → S¹Hopf.HopfSuspS¹ (p j)) t2 s2)
+--          → (pp3 : t1 ≡ t2)
+--          → (pp4 : s1 ≡ s2)
+--          → isContr ∥ SquareP (λ i j → S¹Hopf.HopfSuspS¹ (p j)) pp1 pp2 pp3 pp4 ∥₂
+--     postJ =
+--       sphereElim
+--         1
+--         (λ _ → isSetΠ3
+--           λ _ _ _ → isSetΠ3
+--             λ _ _ _ → isSetΠ3
+--               λ _ _ _ → isSetΠ λ _ → isProp→isSet isPropIsContr)
+--         λ y → J (λ y p → (t3 t4 : S¹) (s3 s4 : S¹Hopf.HopfSuspS¹ y)
+--       (pp1 : PathP (λ j → S¹Hopf.HopfSuspS¹ (p j)) t3 s3)
+--       (pp2 : PathP (λ j → S¹Hopf.HopfSuspS¹ (p j)) t4 s4)
+--       (pp3 : t3 ≡ t4) (pp4 : s3 ≡ s4) →
+--       isContr
+--       ∥ SquareP (λ i j → S¹Hopf.HopfSuspS¹ (p j)) pp1 pp2 pp3 pp4 ∥₂)
+--       {!!}
 
-  W-AB = W {A = (A , a₀)} {B = (B , b₀)}
+--   contrFst : (x y : S₊ 2)
+--              (p : north ≡ x)
+--              (gn : fib x)
+--              (pp : PathP (λ i → S¹Hopf.HopfSuspS¹ (p i)) base gn)
+--              (mer : x ≡ y)
+--              (gs : fib y)
+--              (mer-l : mer ≡ mer)
+--              (ppl : PathP (λ j → S¹Hopf.HopfSuspS¹ (mer j)) gn gs)
+--     → isContr ∥ PathP (λ i → PathP (λ j → S¹Hopf.HopfSuspS¹ (mer-l i j)) gn gs) ppl ppl ∥₂
+--   contrFst x y =
+--     J (λ x p
+--     → (gn : fib x)
+--              (pp : PathP (λ i → S¹Hopf.HopfSuspS¹ (p i)) base gn)
+--              (mer : x ≡ y)
+--              (gs : fib y)
+--              (mer-l : mer ≡ mer)
+--              (ppl : PathP (λ j → S¹Hopf.HopfSuspS¹ (mer j)) gn gs)
+--     → isContr ∥ PathP (λ i → PathP (λ j → S¹Hopf.HopfSuspS¹ (mer-l i j)) gn gs) ppl ppl ∥₂)
+--       λ gn → J (λ gn _ → (mer : north ≡ y) (gs : fib y) (mer-l : mer ≡ mer)
+--       (ppl : PathP (λ j → S¹Hopf.HopfSuspS¹ (mer j)) gn gs) →
+--       isContr
+--       ∥
+--       PathP (λ i → PathP (λ j → S¹Hopf.HopfSuspS¹ (mer-l i j)) gn gs) ppl
+--       ppl
+--       ∥₂)
+--       (J (λ y mer → (gs : fib y) (mer-l : mer ≡ mer)
+--       (ppl : PathP (λ j → S¹Hopf.HopfSuspS¹ (mer j)) base gs) →
+--       isContr
+--       ∥
+--       PathP (λ i → PathP (λ j → S¹Hopf.HopfSuspS¹ (mer-l i j)) base gs)
+--       ppl ppl
+--       ∥₂) λ gs pp
+--       → J (λ gs ppl → isContr
+--       ∥
+--       PathP (λ i → PathP (λ j → S¹Hopf.HopfSuspS¹ (pp i j)) base gs) ppl
+--       ppl
+--       ∥₂)
+--       {!!})
 
-  PushoutRows₁ : Iso (A○□ whitehead3x3) (Pushout W-AB λ _ → tt)
-  PushoutRows₁ =
-    pushoutIso _ _
-      W-AB (λ _ → tt)
-      (isoToEquiv 2ndRow≡join) (isoToEquiv firstRow≡Susp⋁)
-      isContr-3rdRow'
-      (funExt h)
-      λ _ _ → tt
-    where
-    h : (x : A2□ whitehead3x3)
-      → A0□→A∨B (f1□ whitehead3x3 x) ≡ W-AB (fun 2ndRow≡join x)
-    h (inl x) = (λ i → inl (merid a₀ (~ i)))
-    h (inr x) = refl
-    h (push (a , b) i) j = help j i
-      where
-      help : PathP (λ i → Path (Pushout (λ _ → north) (λ _ → north))
-                                ((inl (merid a₀ (~ i))))
-                                (inr north))
-                   (cong A0□→A∨B (cong (f1□ whitehead3x3) (push (a , b))))
-                   (cong W-AB (cong (fun 2ndRow≡join) (push (a , b))))
-      help = (cong-∙∙ A0□→A∨B (λ i → inl (merid a (~ i))) (push b) refl
-            ∙ λ j → (λ i₂ → inl (merid a (~ i₂)))
-                   ∙∙ compPath-filler (push tt) (λ i → inr (φB b (~ i))) (~ j)
-                   ∙∙ λ i → inr (φB b (~ i ∧ j)))
-           ◁ ((λ j → (λ i → inl (sym (compPath-filler (merid a) (sym (merid a₀)) j) i)) ∙∙ push tt ∙∙ λ i → inr (φB b (~ i)))
-           ▷ (λ _ → (λ i → inl (φA a (~ i))) ∙∙ push tt ∙∙ λ i → inr (φB b (~ i))))
+--   testhLevel :
+--     Iso ((f : (S₊∙ 2 →∙ S₊∙ 2))
+--       → Iso (Σ[ g ∈ ((x : S₊ 2) → S¹Hopf.HopfSuspS¹ (fst f x)) ]
+--                PathP (λ i → S¹Hopf.HopfSuspS¹ (snd f i)) (g north) base)
+--              (Σ[ gn ∈ fib (fst f north) ]
+--                Σ[ gn≡ ∈ PathP (λ i → S¹Hopf.HopfSuspS¹ (snd f i)) gn base ]
+--                  Σ[ gs ∈ fib (fst f south) ]
+--                    ((a : S₊ 1)
+--                    → PathP (λ i → S¹Hopf.HopfSuspS¹  (fst f (merid a i))) gn gs)))
+--         {!!}
+--   testhLevel = {!!}
 
-  combineIso : Iso (Susp A × Susp B) (Pushout W-AB λ _ → tt)
-  combineIso = compIso (invIso PushoutColumn)
-                       (compIso (3x3-Iso whitehead3x3) PushoutRows₁)
+-- -- ΣHopf : Iso (Hopfie∙ →∙ Hopfie∙)
+-- --             (Σ[ f ∈ Hopfie∙ →∙ (S₊∙ 2) ]
+-- --               Σ[ g ∈ ((x : Hopfie) → S¹Hopf.HopfSuspS¹ (fst f x)) ]
+-- --                 PathP (λ i → S¹Hopf.HopfSuspS¹ (snd f i)) (g (north , base)) base)
+-- -- ΣHopf = {!!}
+-- --   where
+-- --   gr : (f : Hopfie∙ →∙ (S₊∙ 2)) →
+-- --     isContr ∥ (Σ[ g ∈ ((x : Hopfie) → S¹Hopf.HopfSuspS¹ (fst f x)) ]
+-- --                 PathP (λ i → S¹Hopf.HopfSuspS¹ (snd f i)) (g (north , base)) base) ∥₂
+-- --   gr f = ∣ (λ { (north , y) → {!!}
+-- --              ; (south , y) → {!!}
+-- --              ; (merid a i , y) → {!!}}) , {!!} ∣₂ , {!!}
 
-  -Susp : ∀ {ℓ} {A : Type ℓ} → Susp A → Susp A
-  -Susp north = south
-  -Susp south = north
-  -Susp (merid a i) = merid a (~ i)
+-- -- strunc1 : ∀ {ℓ} {A : Pointed ℓ}
+-- --         → (x : S₊ 2)
+-- --         → (p : north ≡ x)
+-- --         → (y : S¹Hopf.HopfSuspS¹ x)
+-- --         → isContr (∥ (PathP ((λ i → S¹Hopf.HopfSuspS¹ (p i))) base y) ∥₂ )
+-- -- strunc1 {A = A} x =
+-- --   J (λ x p → (y : S¹Hopf.HopfSuspS¹ x)
+-- --         → isContr (∥ (PathP ((λ i → S¹Hopf.HopfSuspS¹ (p i))) base y) ∥₂ ))
+-- --     {!sphere!}
 
-  -Susp² : ∀ {ℓ} {A : Type ℓ} (x : Susp A) → -Susp (-Susp x) ≡ x
-  -Susp² north = refl
-  -Susp² south = refl
-  -Susp² (merid a i) = refl
+-- -- coolIsoPre : Iso (∥ Hopfie∙ →∙ Hopfie∙ ∥₂)
+-- --                  (∥ (Hopfie∙ →∙ S₊∙ 2) ∥₂)
+-- -- Iso.fun coolIsoPre = sMap λ f → (fst ∘ fst f) , cong fst (snd f)
+-- -- Iso.inv coolIsoPre =
+-- --   sMap λ f → {!!} , {!!}
+-- -- Iso.rightInv coolIsoPre = {!!}
+-- -- Iso.leftInv coolIsoPre = {!!}
 
-  -SuspIso : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (Susp A)
-  fun -SuspIso = -Susp
-  inv -SuspIso = -Susp
-  rightInv -SuspIso = -Susp²
-  leftInv -SuspIso = -Susp²
+-- -- coolIso : Iso (π' 3 (Hopfie , north , base)) (π' 3 (S₊∙ 2))
+-- -- coolIso = iso (sMap h) (sMap {!!}) {!!} {!!}
+-- --   where
+-- --   invie : S₊∙ 3 →∙ S₊∙ 2 → S₊∙ 3 →∙ (Hopfie , north , base)
+-- --   fst (invie f) x = fst f x , {!!}
+-- --   snd (invie f) = {!refl!}
 
-  correctIso : Iso (Susp A × Susp B) (Pushout W-AB λ _ → tt)
-  correctIso = compIso (Σ-cong-iso-snd (λ _ → -SuspIso)) combineIso
+-- --   h : _ → (_ →∙ _)
+-- --   fst (h f) = fst ∘ fst f
+-- --   snd (h f) = cong fst (snd f)
 
-  correctIsoId : Path (A∨B → Susp A × Susp B)
-                      (Iso.inv correctIso ∘ inl)
-                      ⋁-fun
-  correctIsoId =
-    funExt λ { (inl x) → ΣPathP (refl , (sym (merid b₀)))
-             ; (inr north) → ΣPathP (refl , (sym (merid b₀)))
-             ; (inr south) → refl
-             ; (inr (merid a i)) j → help a j i
-             ; (push a i) j → north , (merid b₀ (~ j))}
-    where
-    lem2 : (b : B) → cong ((λ x → fun PushoutPushout
-                       (fun PushoutColumn₁ (backward-l whitehead3x3
-                         x)))) (push b)
-                         ≡ (λ i → north , φB b i)
-    lem2 b = (λ _ → cong (λ x → fun PushoutPushout
-                       (fun PushoutColumn₁ x)) (push (inl b)))
-          ∙∙ cong (cong (fun PushoutPushout)) (sym (rUnit (push (north , b)))) 
-          ∙∙ refl
+-- -- -- →∙Homogeneous≡Path : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'} {f∙ g∙ : A∙ →∙ B∙}
+-- -- --   (h : isHomogeneous B∙) → (p q : f∙ ≡ g∙) → cong fst p ≡ cong fst q → p ≡ q
+-- -- -- →∙Homogeneous≡Path {A∙ = A∙@(A , a₀)} {B∙@(B , b)} {f∙@(f , f₀)} {g∙@(g , g₀)} h p q r =
+-- -- --   transport (λ k
+-- -- --       → PathP (λ i
+-- -- --         → PathP (λ j → (A , a₀) →∙ newPath-refl p q r i j (~ k))
+-- -- --                  (f , f₀) (g , g₀)) p q)
+-- -- --       (badPath p q r)
+-- -- --   where
+-- -- --   newPath : (p q : f∙ ≡ g∙) (r : cong fst p ≡ cong fst q)
+-- -- --     → Square (refl {x = b}) refl refl refl
+-- -- --   newPath p q r i j =
+-- -- --     hcomp (λ k → λ {(i = i0) → cong snd p j k
+-- -- --                    ; (i = i1) → cong snd q j k
+-- -- --                    ; (j = i0) → f₀ k
+-- -- --                    ; (j = i1) → g₀ k})
+-- -- --           (r i j a₀)
 
-    help : (a : B) → PathP (λ i → (north , merid b₀ (~ i)) ≡ (north , south))
-                 ((cong (λ x → fun (Σ-cong-iso-snd (λ _ → -SuspIso)) (fun PushoutPushout
-                       (fun PushoutColumn₁ (backward-l whitehead3x3
-                         (A∨B→A0□ (inr x)))))) (merid a)))
-                 λ i → north , merid a i
-    help a = cong (cong (fun (Σ-cong-iso-snd (λ _ → -SuspIso))))
-                  ((cong-∙ ((λ x → fun PushoutPushout
-                       (fun PushoutColumn₁ (backward-l whitehead3x3
-                         x)))) (push b₀) (sym (push a))
-        ∙∙ cong₂ _∙_ (lem2 b₀ ∙ (λ j i → north , rCancel (merid b₀) j i))
-                     (cong sym (lem2 a))
-        ∙∙ sym (lUnit (λ i₁ → north , φB a (~ i₁)))))
-        ∙ (λ j i → north , cong-∙ -Susp (merid a) (sym (merid b₀)) j (~ i) )
-         ◁ λ i j → north , compPath-filler (sym (merid a)) (merid b₀) (~ i) (~ j)
+-- -- --   newPath-refl : (p q : f∙ ≡ g∙) (r : cong fst p ≡ cong fst q)
+-- -- --          → PathP (λ i → (PathP (λ j → B∙ ≡ (B , newPath p q r i j))) refl refl) refl refl
+-- -- --   newPath-refl p q r i j k =
+-- -- --     hcomp (λ w → λ { (i = i0) → lCancel (h b) w k
+-- -- --                     ; (i = i1) → lCancel (h b) w k
+-- -- --                     ; (j = i0) → lCancel (h b) w k
+-- -- --                     ; (j = i1) → lCancel (h b) w k
+-- -- --                     ; (k = i0) → lCancel (h b) w k
+-- -- --                     ; (k = i1) → B , newPath p q r i j})
+-- -- --           ((sym (h b) ∙ h (newPath p q r i j)) k)
 
-[_∣_]' : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-       → (S₊∙ (suc n) →∙ X)
-       → (S₊∙ (suc m) →∙ X)
-       → S₊∙ (suc (n + m)) →∙ X
-fst ([_∣_]' {X = X} {n = n} {m = m} f g) x =
-  help {X = X} f g {!W-AB (S₊ n) (S₊ m) (ptSn _) (ptSn _) ?!}
-  where
-  help : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {X : Pointed ℓ''}
-       → A →∙ X
-       → B →∙ X
-       → (A ⋁ B → typ X)
-  help f g (inl x) = fst f x
-  help f g (inr x) = fst g x
-  help f g (push a i) = (snd f ∙ sym (snd g)) i
-snd ([_∣_]' {n = n} {m = m} f g) = {!joinIso!}
+-- -- --   badPath : (p q : f∙ ≡ g∙) (r : cong fst p ≡ cong fst q)
+-- -- --     → PathP (λ i →
+-- -- --         PathP (λ j → A∙ →∙ (B , newPath p q r i j))
+-- -- --              (f , f₀) (g , g₀))
+-- -- --               p q
+-- -- --   fst (badPath p q r i j) = r i j
+-- -- --   snd (badPath p q s i j) k =
+-- -- --     hcomp (λ r → λ { (i = i0) → snd (p j) (r ∧ k)
+-- -- --                     ; (i = i1) → snd (q j) (r ∧ k)
+-- -- --                     ; (j = i0) → f₀ (k ∧ r)
+-- -- --                     ; (j = i1) → g₀ (k ∧ r)
+-- -- --                     ; (k = i0) → s i j a₀})
+-- -- --           (s i j a₀)
+
+-- -- -- contrsnd : {!(f : !}
+-- -- -- contrsnd = {!!}
+
+-- -- -- π→ : (n : ℕ) → A →∙ B → π' n A → π' n B 
+-- -- -- π→ n f = sMap (f ∘∙_)
+
+-- -- -- coef : (n : ℕ) → {!!} → {!!}
+-- -- -- coef = {!!}
+
+-- -- -- →isHomogeneousΣ≡ : ∀ {ℓ ℓ'} (C : Pointed ℓ) (B : (typ A) → Type ℓ')
+-- -- --   → (b₀ : B (pt A))
+-- -- --   → (((x : (typ A)) (b : B x) → isHomogeneous (B x , b)))
+-- -- --   → (f : typ C → (Σ (typ A) B))
+-- -- --   → (sndf1 sndf2 : f (snd C) ≡ (pt A , b₀))
+-- -- --   → cong fst sndf1 ≡ cong fst sndf2
+-- -- --   → Path {!!} {!!} {!!}
+-- -- -- →isHomogeneousΣ≡ C B b₀ hom f g = {!!}
+
+-- -- -- →∙Σ' : ∀ {ℓ ℓ'} (C : Pointed ℓ) (B : typ A → Type ℓ')
+-- -- --     → (b₀ : B (pt A))
+-- -- --     → (f : C →∙ A)
+-- -- --     → Πᵘ∙ (typ C) (λ x → B (fst f x) , {!!}) .fst
+-- -- --     → {!!}
+-- -- -- →∙Σ' = {!isHomogeneousPi!}
+
+-- -- -- →∙Σ : ∀ {ℓ ℓ'} (C : Pointed ℓ) (B : (typ A) → Type ℓ')
+-- -- --     → (b₀ : B (pt A))
+-- -- --     → (f : C →∙ A)
+-- -- --     → (g : (x : fst C) → B (fst f x))
+-- -- --     → (p : fst f (snd C) ≡ snd A)
+-- -- --     → PathP (λ i → B (p i)) (g (snd C)) b₀
+-- -- --     → (C →∙ (Σ (typ A) B , pt A , b₀))
+-- -- -- fst (fst (→∙Σ C B b₀ f g p pp) x) = fst f x
+-- -- -- snd (fst (→∙Σ C B b₀ f g p pp) x) = g x
+-- -- -- fst (snd (→∙Σ C B b₀ f g p pp) i) = p i
+-- -- -- snd (snd (→∙Σ C B b₀ f g p pp) i) = pp i
+
+-- -- -- theTyp : ∀ {ℓ ℓ'} (C : Pointed ℓ) (B : (typ A) → Type ℓ')
+-- -- --     → (b₀ : B (pt A))
+-- -- --     → Type _
+-- -- -- theTyp {A = A} C B b₀ =
+-- -- --   Σ[ f ∈ C →∙ A ]
+-- -- --     Σ[ g ∈ ((x : fst C) → B (fst f x)) ]
+-- -- --      Σ[ p ∈ (fst f (snd C) ≡ snd A) ]
+-- -- --        PathP (λ i → B (p i)) (g (snd C)) b₀
+
+-- -- -- -- isHomogeneousΠ∙
+
+-- -- -- IsoΣ : ∀ {ℓ ℓ'} (C : Pointed ℓ) (B : (typ A) → Type ℓ')
+-- -- --     → (b₀ : B (pt A))
+-- -- --     → Iso (C →∙ (Σ (typ A) B , pt A , b₀))
+-- -- --            (Σ[ f ∈ C →∙ A ]
+-- -- --              Π∙ C (λ c → B (fst f c)) (subst B (sym (snd f)) b₀))
+-- -- -- Iso.fun (IsoΣ C B b₀) f = ((fst ∘ (fst f)) , (cong fst (snd f)))
+-- -- --                        , (snd ∘ (fst f))
+-- -- --                        , λ j → transp (λ i → B (fst (snd f (~ i ∧ j))))
+-- -- --                                        (~ j)
+-- -- --                                        (snd (snd f j))
+-- -- -- fst (fst (Iso.inv (IsoΣ C B b₀) (f , g , p)) x) = fst f x
+-- -- -- snd (fst (Iso.inv (IsoΣ C B b₀) (f , g , p)) x) = g x
+-- -- -- snd (Iso.inv (IsoΣ C B b₀) (f , g , p)) =
+-- -- --   ΣPathP ((snd f) , {!!})
+-- -- -- Iso.rightInv (IsoΣ C B b₀) = {!!}
+-- -- -- Iso.leftInv (IsoΣ C B b₀) = {!!}
+
+-- -- -- theTyp≡hom : ∀ {ℓ ℓ'} (C : Pointed ℓ) (B : (typ A) → Type ℓ')
+-- -- --     → (b₀ : B (pt A))
+-- -- --     → ((x : (typ A)) (b : B x) → isHomogeneous (B x , b))
+-- -- --     → (x y : theTyp C B b₀)
+-- -- --     → (p : fst x ≡ fst y)
+-- -- --     → (e : (c : fst C)
+-- -- --      →  PathP (λ i → B (p i .fst c))
+-- -- --               (fst (snd x) c) (fst (snd y) c))
+-- -- --     → PathP (λ i → fst (p i) (snd C) ≡ snd A)
+-- -- --              (fst (snd (snd x))) (fst (snd (snd y)))
+-- -- --     → x ≡ y
+-- -- -- theTyp≡hom {A = A} C B b₀ hom x y p q r =
+-- -- --   transport
+-- -- --     (λ i → {!p!})
+-- -- --     {!theTyp C B b₀!}
+-- -- --   where
+-- -- --   main : PathP (λ i → Σ[ f ∈ (C →∙ A) ] {!!}) x y
+-- -- --   main = {!(λ f →
+-- -- --    Σ-syntax ((x₁ : fst C) → B (fst f x₁))
+-- -- --    (λ g →
+-- -- --       Σ-syntax (fst f (snd C) ≡ snd A)
+-- -- --       (λ p₁ → PathP (λ i → B (p₁ i)) (g (snd C)) b₀)))!}
+
+-- -- --   newPath : SquareP (λ i j → (B (fst (p i) (pt C)))) {!!} {!!} {!!} {!!}
+-- -- --   newPath i j =
+-- -- --     hcomp (λ k → λ { (i = i0) → {!snd (snd (snd x)) j!}
+-- -- --                     ; (i = i1) → {!snd (snd (snd y)) k!}
+-- -- --                     ; (j = i0) → {!!}
+-- -- --                     ; (j = i1) → {!!}})
+-- -- --           {!!}
+
+
+-- -- -- πHom→ : (n : ℕ) → A →∙ B → GroupHom (π'Gr n A) (π'Gr n B)
+-- -- -- fst (πHom→ n f) = π→ (suc n) f
+-- -- -- snd (πHom→ zero f) =
+-- -- --   makeIsGroupHom
+-- -- --     (sElim2 (λ _ _ → isSetPathImplicit)
+-- -- --     λ g h →
+-- -- --      cong ∣_∣₂
+-- -- --       (ΣPathP ((funExt
+-- -- --         (λ { base → snd f
+-- -- --           ; (loop i) → {!!}}))
+-- -- --              , (sym (lUnit _) ◁ λ i j → snd f (i ∨ j)))))
+-- -- -- snd (πHom→ (suc n) f) =
+-- -- --   makeIsGroupHom
+-- -- --     (sElim2 (λ _ _ → isSetPathImplicit)
+-- -- --       λ g h → cong ∣_∣₂
+-- -- --         (ΣPathP ((funExt λ { north → snd f
+-- -- --                            ; south → snd f
+-- -- --                            ; (merid a i) j →
+-- -- --                              hcomp (λ k →
+-- -- --                                λ {(i = i0) → snd f (j ∧ k)
+-- -- --                                 ; (i = i1) → snd f (j ∧ k)
+-- -- --                                 ; (j = i0) →
+-- -- --                                   cong-∙ (fst f)
+-- -- --                                     (sym (snd g) ∙∙ cong (fst g) (σ (S₊∙ (suc n)) a) ∙∙ snd g)
+-- -- --                                     (sym (snd h) ∙∙ cong (fst h) (σ (S₊∙ (suc n)) a) ∙∙ snd h)
+-- -- --                                   (~ k) i
+-- -- --                                 ; (j = i1) →
+-- -- --                                    ((sym (compPath-filler (cong (fst f) (snd g)) (snd f) k)
+-- -- --                                   ∙∙ cong (fst f) (cong (fst g)
+-- -- --                                       (σ (S₊∙ (suc n)) a))
+-- -- --                                   ∙∙ compPath-filler (cong (fst f) (snd g)) (snd f) k)
+-- -- --                                   ∙ (sym (compPath-filler (cong (fst f) (snd h)) (snd f) k)
+-- -- --                                   ∙∙ cong (fst f) (cong (fst h)
+-- -- --                                       (σ (S₊∙ (suc n)) a))
+-- -- --                                   ∙∙ compPath-filler (cong (fst f) (snd h)) (snd f) k))
+-- -- --                                   i})
+-- -- --                 ((cong-∙∙ (fst f) (sym (snd g)) (cong (fst g) (σ (S₊∙ (suc n)) a)) (snd g) j
+-- -- --                ∙ cong-∙∙ (fst f) (sym (snd h)) (cong (fst h) (σ (S₊∙ (suc n)) a)) (snd h) j) i)})
+-- -- --       , (sym (lUnit (snd f)) ◁ λ i j → snd f (i ∨ j)))))
+
+-- -- -- module _ (f : A →∙ B)
+-- -- --   where
+-- -- --   fib = fiber (fst f) (pt B)
+
+-- -- --   fib∙ : Pointed _
+-- -- --   fst fib∙ = fib
+-- -- --   snd fib∙ = (pt A) , (snd f)
+
+-- -- --   fib→A : fib∙ →∙ A
+-- -- --   fst fib→A = fst
+-- -- --   snd fib→A = refl
+
+-- -- --   hom₁ : (n : ℕ) → GroupHom (π'Gr n fib∙) (π'Gr n A)
+-- -- --   hom₁ n = πHom→ n fib→A
+
+-- -- --   hom₂ : (n : ℕ) → GroupHom (π'Gr n A) (π'Gr n B)
+-- -- --   hom₂ n = πHom→ n f
+
+-- -- --   ∙Π' : (n : ℕ) → (S₊∙ (suc n) →∙ fib∙) → (S₊∙ (suc n) →∙ fib∙)
+-- -- --       → S₊∙ (suc n) →∙ fib∙
+-- -- --   fst (∙Π' n g h) x =
+-- -- --       (pt A)
+-- -- --     , snd f ∙ (sym (snd (fst g x)) ∙ fst g x .snd) ∙ (sym (snd (fst h x)) ∙ fst h x .snd)
+-- -- --   snd (∙Π' n g h) =
+-- -- --     ΣPathP (refl , (cong (snd f ∙_) (cong₂ _∙_ (rCancel (sym (snd (fst g (ptSn _))))) (rCancel (sym (snd (fst h (ptSn _))))) ∙ sym (rUnit refl)) ∙ sym (rUnit (snd f))))
+
+-- -- --   ∙Π'≡∙Π : (n : ℕ) (f g : _) → ∙Π' n f g ≡ ∙Π f g
+-- -- --   ∙Π'≡∙Π zero f g =
+-- -- --     ΣPathP ((funExt (λ { base → snd (∙Π' zero f g)
+-- -- --                        ; (loop i) j → {!snd A!}
+-- -- --                                      , {!!}}))
+-- -- --           , λ i j → snd (∙Π' zero f g) (i ∨ j))
+-- -- --   ∙Π'≡∙Π (suc n) f g = {!!}
+
+-- -- -- --   fun₃ : (n : ℕ) →  S₊∙ (suc (suc n)) →∙ B → S₊∙ (suc n) →∙ fib∙
+-- -- -- --   fst (fun₃ n g) x = pt A , (snd f
+-- -- -- --       ∙ (sym (snd g) ∙∙ cong (fst g) (σ (S₊∙ (suc n)) x) ∙∙ snd g))
+-- -- -- --   snd (fun₃ n g) =
+-- -- -- --     ΣPathP (refl , (cong (snd f ∙_) (cong (sym (snd g) ∙∙_∙∙ snd g) (cong (cong (fst g)) (rCancel (merid (ptSn (suc n))))) ∙ ∙∙lCancel (snd g)) ∙ sym (rUnit (snd f))))
+
+-- -- -- --   hom₃ : (n : ℕ) → GroupHom (π'Gr (suc n) B) (π'Gr n fib∙)
+-- -- -- --   fst (hom₃ n) = sMap (fun₃ n)
+-- -- -- --   snd (hom₃ zero) = {!!}
+-- -- -- --   snd (hom₃ (suc n)) =
+-- -- -- --     makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
+-- -- -- --       λ g h → cong ∣_∣₂
+-- -- -- --         (ΣPathP
+-- -- -- --           ((funExt λ { north →
+-- -- -- --             ΣPathP (refl , cong (snd f ∙_)
+-- -- -- --                           (sym (rUnit (λ i₁ → fst (∙Π g h) (σ (S₊∙ (suc (suc n))) north i₁)))
+-- -- -- --                        ∙∙ cong-∙ (fst (∙Π g h)) (merid north) (sym (merid north))
+-- -- -- --                        ∙∙ rCancel (cong (fst (∙Π g h)) (merid north)))
+-- -- -- --                         ∙ sym (rUnit (snd f)))
+-- -- -- --                      ; south →
+-- -- -- --             ΣPathP (refl , cong (snd f ∙_)
+-- -- -- --                           (sym (rUnit (λ i₁ → fst (∙Π g h) (σ (S₊∙ (suc (suc n))) south i₁)))
+-- -- -- --                        ∙∙ ((λ j → cong (fst (∙Π g h)) (merid (merid (ptSn (suc n)) (~ j)) ∙ (λ i → merid north (~ i)))) ∙ cong-∙ (fst (∙Π g h)) (merid north) (sym (merid north)))
+-- -- -- --                        ∙∙ rCancel (cong (fst (∙Π g h)) (merid north)))
+-- -- -- --                         ∙ sym (rUnit (snd f)))
+-- -- -- --                      ; (merid a i) j → {!!} , {!!}})
+-- -- -- --          , {!!})))
+
+
+-- -- -- -- --   ker⊂im : (n : ℕ) (x : _) → isInKer (hom₁ n) x → isInIm (hom₃ n) x
+-- -- -- -- --   ker⊂im n =
+-- -- -- -- --     sElim {!!}
+-- -- -- -- --       λ h p →
+-- -- -- -- --        pRec squash
+-- -- -- -- --          (λ r → ∣ ∣ lem h r ∣₂
+-- -- -- -- --                 , {!!} ∣)
+-- -- -- -- --         (Iso.fun PathIdTrunc₀Iso p)
+
+-- -- -- -- --     where
+-- -- -- -- --     lem : (g : S₊∙ (suc n) →∙ fib∙) → (fib→A ∘∙ g) ≡ 1Π → S₊∙ (suc (suc n)) →∙ B
+-- -- -- -- --     fst (lem g r) north = pt B
+-- -- -- -- --     fst (lem g r) south = pt B
+-- -- -- -- --     fst (lem g r) (merid a i) =
+-- -- -- -- --        ((sym (snd f)
+-- -- -- -- --       ∙ cong (fst f) (sym (funExt⁻ (cong fst r) a)))
+-- -- -- -- --       ∙ snd (fst g a)) i
+-- -- -- -- --     snd (lem g r) = refl
+
+-- -- -- -- --     lem₂ : (g : S₊∙ (suc n) →∙ fib∙) (r : (fib→A ∘∙ g) ≡ 1Π) →
+-- -- -- -- --          (x : _) → fst (fun₃ _ (lem g r)) x ≡ fst g x
+-- -- -- -- --     lem₂ g r x =
+-- -- -- -- --       ΣPathP ((sym (funExt⁻ (cong fst r) x))
+-- -- -- -- --           , (cong (snd f ∙_) (sym (rUnit (cong (fst (lem g r)) (σ (S₊∙ (suc n)) x )))
+-- -- -- -- --           ∙ cong-∙ (fst (lem g r)) (merid x) (sym (merid (ptSn (suc n)))))
+-- -- -- -- --           ◁ {!!}))
+
+-- -- -- -- --   im→ker : (n : ℕ) (x : _) → isInIm (hom₃ n) x → isInKer (hom₁ n) x
+-- -- -- -- --   im→ker n =
+-- -- -- -- --     sElim {!!}
+-- -- -- -- --       λ h →
+-- -- -- -- --         pRec (squash₂ _ _)
+-- -- -- -- --          (uncurry
+-- -- -- -- --           (sElim (λ _ → isSetΠ λ _ → isSetPathImplicit)
+-- -- -- -- --             λ g p → pRec (isPropIsInKer (hom₁ n) ∣ h ∣₂)
+-- -- -- -- --               (J (λ h _ → isInKer (hom₁ n) ∣ h ∣₂)
+-- -- -- -- --                 (cong ∣_∣₂ (ΣPathP (funExt (λ _ → refl)
+-- -- -- -- --                 , {!!}))))
+-- -- -- -- --               (Iso.fun PathIdTrunc₀Iso p)))
+
+-- -- -- -- -- module _ {ℓ} (P : typ A → Pointed ℓ) (e : Iso (typ (P (pt A))) (typ (P (pt A))))
+-- -- -- -- --              (e∙ : Iso.inv e (pt (P (pt A))) ≡ pt (P (pt A)))
+-- -- -- -- --   where
+-- -- -- -- --   B' = (P (pt A))
+
+-- -- -- -- --   e∙' : Iso.fun e (pt (P (pt A))) ≡ pt (P (pt A))
+-- -- -- -- --   e∙' = {!!} ∙ {!!}
+-- -- -- -- --   TS : Pointed _
+-- -- -- -- --   TS = Σ (typ A) (fst ∘ P) , pt A , pt (P (pt A))
+
+-- -- -- -- --   transpPath : (n : ℕ) (f : S₊∙ (suc (suc n)) →∙ TS) → S₊ (suc n) → fst f north ≡ snd TS
+-- -- -- -- --   transpPath n f x =
+-- -- -- -- --     cong (fst f) (merid x ∙ sym (merid (ptSn _))) ∙ snd f
+
+-- -- -- -- --   ll : (n : ℕ) (f : S₊∙ (suc (suc n)) →∙ TS)
+-- -- -- -- --      → S₊ (suc n)
+-- -- -- -- --      → (fst ∘ P) (fst (snd TS))
+-- -- -- -- --   ll n f x = subst (fst ∘ P) (cong fst (cong (fst f)
+-- -- -- -- --                    (merid x ∙ sym (merid (ptSn _))) ∙ snd f))
+-- -- -- -- --                      (fst f north .snd)
+
+-- -- -- -- --   transpPath∙ : (n : ℕ) → (f : S₊∙ (suc (suc n)) →∙ TS)
+-- -- -- -- --              → transpPath n f (ptSn (suc n)) ≡ snd f
+-- -- -- -- --   transpPath∙ n f =
+-- -- -- -- --       cong (_∙ snd f) (cong (cong (fst f))
+-- -- -- -- --        (rCancel (merid (ptSn (suc n)))))
+-- -- -- -- --     ∙ sym (lUnit _)
+
+-- -- -- -- --   B→TS : B' →∙ TS
+-- -- -- -- --   fst B→TS x = pt A , x
+-- -- -- -- --   snd B→TS = refl
+
+-- -- -- -- --   TS→A : TS →∙ A
+-- -- -- -- --   fst TS→A = fst
+-- -- -- -- --   snd TS→A = refl
+
+-- -- -- -- --   π↓ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+-- -- -- -- --         (n : ℕ) (f : ((S₊∙ (suc (suc n))) →∙ A)
+-- -- -- -- --                      → S₊∙ (suc n) →∙ B)
+-- -- -- -- --       → GroupHom (π'Gr (suc n) A) (π'Gr n B)
+-- -- -- -- --   fst (π↓ n F) = sMap F
+-- -- -- -- --   snd (π↓ zero F) =
+-- -- -- -- --     makeIsGroupHom
+-- -- -- -- --       (sElim2 (λ _ _ → isSetPathImplicit)
+-- -- -- -- --         λ f g → cong ∣_∣₂
+-- -- -- -- --           (ΣPathP (funExt (λ { base → snd (F (∙Π f g))
+-- -- -- -- --                              ; (loop i) → {!!}})
+-- -- -- -- --                  , λ i j → snd (F (∙Π f g)) (i ∨ j))))
+-- -- -- -- --   snd (π↓ (suc n) F) = {!!}
+
+-- -- -- -- --   fun→₁ : (n : ℕ) → π' (suc (suc n)) B' → (π' (suc (suc n)) TS)
+-- -- -- -- --   fun→₁ n = π→ (suc (suc n)) B→TS
+
+-- -- -- -- --   fun→₁Hom : (n : ℕ) → GroupHom (π'Gr (suc n) B') (π'Gr (suc n) TS)
+-- -- -- -- --   fun→₁Hom n = πHom→ (suc n) B→TS
+
+-- -- -- -- --   fun→₂Hom : (n : ℕ) → GroupHom (π'Gr (suc n) TS) (π'Gr (suc n) A)
+-- -- -- -- --   fun→₂Hom n = πHom→ (suc n) TS→A
+
+-- -- -- -- --   lem₁ : (n : ℕ) → (f : S₊∙ (suc (suc n)) →∙ A)
+-- -- -- -- --     → (x : S₊ (suc n))
+-- -- -- -- --     → pt A ≡ pt A
+-- -- -- -- --   lem₁ n f x = sym (snd f) ∙∙ cong (fst f) (σ (S₊∙ (suc n)) x) ∙∙ snd f
+
+-- -- -- -- --   lem₁Π∙ : (n : ℕ) → (f g : S₊∙ (suc (suc n)) →∙ A)
+-- -- -- -- --                     → (x : S₊ (suc n))
+-- -- -- -- --                     → pt A ≡ pt A
+-- -- -- -- --   lem₁Π∙ n f g x =
+-- -- -- -- --       sym (snd f) ∙∙ cong (fst f) (σ (S₊∙ (suc n)) x) ∙∙ snd f
+-- -- -- -- --     ∙ (sym (snd g) ∙∙ cong (fst g) (σ (S₊∙ (suc n)) x) ∙∙ snd g)
+
+-- -- -- -- --   lem₁Π∙∙ : (n : ℕ) → (f g : S₊∙ (suc (suc n)) →∙ A)
+-- -- -- -- --     → lem₁Π∙ n f g (ptSn (suc n)) ≡ refl
+-- -- -- -- --   lem₁Π∙∙ n f g = {!!}
+
+-- -- -- -- --   lem₁≡ : (n : ℕ) (f g : S₊∙ (suc (suc n)) →∙ A) (x : S₊ (suc n))
+-- -- -- -- --                 → lem₁ n (∙Π f g) x ≡ lem₁Π∙ n f g x 
+-- -- -- -- --   lem₁≡ = {!!}
+
+-- -- -- -- --   lem₁∙ : (n : ℕ) → (f : S₊∙ (suc (suc n)) →∙ A)
+-- -- -- -- --     → lem₁ n f (ptSn (suc n)) ≡ refl
+-- -- -- -- --   lem₁∙ n f = cong (sym (snd f) ∙∙_∙∙ snd f) (cong (cong (fst f)) (rCancel _))
+-- -- -- -- --           ∙ ∙∙lCancel (snd f)
+
+-- -- -- -- --   fib≡ : Iso (fiber (fst B→TS) ((pt A) , (pt (P (pt A)))))
+-- -- -- -- --              (typ (P (pt A)))
+-- -- -- -- --   Iso.fun fib≡ x = fst B→TS {!x!} .snd
+-- -- -- -- --   Iso.inv fib≡ x = {!!}
+-- -- -- -- --   Iso.rightInv fib≡ x = {!!}
+-- -- -- -- --   Iso.leftInv fib≡ x = {!!}
+
+-- -- -- -- --   fun→₃Hom-gen : {!!}
+-- -- -- -- --   fun→₃Hom-gen = {!!}
+
+-- -- -- -- --   fun→₃Hom : (n : ℕ)
+-- -- -- -- --     → GroupHom (π'Gr (suc n) A)
+-- -- -- -- --                (π'Gr n B')
+-- -- -- -- --   fst (fun→₃Hom n) =
+-- -- -- -- --     sMap λ f → (λ x → subst (fst ∘ P) (lem₁ n f x) (pt (P (pt A))))
+-- -- -- -- --               , cong (λ x → subst (λ x → fst (P x)) x (pt (P (pt A)))) (lem₁∙ n f)
+-- -- -- -- --               ∙ transportRefl (snd B')
+-- -- -- -- --   snd (fun→₃Hom zero) =
+-- -- -- -- --     makeIsGroupHom
+-- -- -- -- --       (sElim2 (λ _ _ → isSetPathImplicit)
+-- -- -- -- --         λ f g → cong ∣_∣₂ (ΣPathP ((funExt
+-- -- -- -- --           λ { base → cong (λ x → subst (λ x → fst (P x)) x (pt (P (pt A))))
+-- -- -- -- --                           (lem₁∙ zero ((∙Π f g) ))
+-- -- -- -- --                         ∙ transportRefl (snd B')
+-- -- -- -- --            ; (loop i) j → {!!}})
+-- -- -- -- --            , λ i j → (cong (λ x → subst (λ x → fst (P x)) x (pt (P (pt A))))
+-- -- -- -- --                           (lem₁∙ zero ((∙Π f g) ))
+-- -- -- -- --                         ∙ transportRefl (snd B')) (i ∨ j))))
+-- -- -- -- --   snd (fun→₃Hom (suc n)) =
+-- -- -- -- --     makeIsGroupHom
+-- -- -- -- --       (sElim2 (λ _ _ → isSetPathImplicit)
+-- -- -- -- --         λ f g
+-- -- -- -- --          → cong ∣_∣₂ (ΣPathP ({!!}
+-- -- -- -- --                             , {!!})))
+-- -- -- -- --   {-
+-- -- -- -- --     makeIsGroupHom
+-- -- -- -- --       (sElim2 (λ _ _ → isSetPathImplicit)
+-- -- -- -- --         λ f g → cong ∣_∣₂ (ΣPathP ((funExt λ x → {!!}) , {!!})))
+-- -- -- -- -- -}
+-- -- -- -- --   im₁⊂ker₂ : (n : ℕ) (x : _)
+-- -- -- -- --            → isInIm (fun→₁Hom n) x
+-- -- -- -- --            → isInKer (fun→₂Hom n) x
+-- -- -- -- --   im₁⊂ker₂ n =
+-- -- -- -- --     sElim (λ _ → isSetΠ λ _ → isSetPathImplicit)
+-- -- -- -- --       λ f → pRec (isPropIsInKer _ _)
+-- -- -- -- --         (uncurry
+-- -- -- -- --           (sElim (λ _ → isSetΠ λ _ → isSetPathImplicit)
+-- -- -- -- --             λ g p → pRec (isPropIsInKer (fun→₂Hom n) ∣ f ∣₂)
+-- -- -- -- --               (J (λ f _ → isInKer (fun→₂Hom n) ∣ f ∣₂)
+-- -- -- -- --                 (cong ∣_∣₂ (ΣPathP (refl
+-- -- -- -- --                                 , (sym (rUnit _)
+-- -- -- -- --                                  ∙ cong-∙ (fst TS→A) (λ i → pt A , snd g i) refl
+-- -- -- -- --                                  ∙ sym (rUnit _))))))
+-- -- -- -- --               (Iso.fun PathIdTrunc₀Iso p)))
+
+-- -- -- -- --   ker₂⊂im₁ : (n : ℕ) (x : _)
+-- -- -- -- --            → isInKer (fun→₂Hom n) x
+-- -- -- -- --            → isInIm (fun→₁Hom n) x
+-- -- -- -- --   ker₂⊂im₁ n =
+-- -- -- -- --     sElim (λ _ → isSetΠ
+-- -- -- -- --             λ _ → isProp→isSet (isPropIsInIm (fun→₁Hom n) _))
+-- -- -- -- --       λ f p → pRec (isPropIsInIm (fun→₁Hom n) ∣ f ∣₂)
+-- -- -- -- --         (λ q →
+-- -- -- -- --           (help (fst ∘ fst f) (sym (cong fst q)) (cong fst (snd f))
+-- -- -- -- --                 ((λ i j → snd (q (~ i)) j) ▷ sym (rUnit _))
+-- -- -- -- --                 (snd ∘ fst f)
+-- -- -- -- --                 λ j → snd (snd f j)))
+-- -- -- -- --         (Iso.fun PathIdTrunc₀Iso p)
+-- -- -- -- --     where
+-- -- -- -- --     help : (f : (a : fst (S₊∙ (suc (suc n)))) → typ A)
+-- -- -- -- --          → (p : (λ _ → pt A) ≡ f)
+-- -- -- -- --          → (f∙ : f north ≡ pt A)
+-- -- -- -- --          → PathP (λ i → p i north ≡ pt A) refl f∙
+-- -- -- -- --          → (r : (a : _) → fst (P (f a)))
+-- -- -- -- --         → (r∙ : PathP (λ i → fst (P (f∙ i))) (r north) (pt B'))
+-- -- -- -- --         → isInIm (fun→₁Hom n) ∣ (λ a → (f a) , (r a)) , ΣPathP (f∙ , r∙) ∣₂
+-- -- -- -- --     help f =
+-- -- -- -- --       J (λ f p →
+-- -- -- -- --         (f∙ : f north ≡ pt A)
+-- -- -- -- --          → PathP (λ i → p i north ≡ pt A) refl f∙
+-- -- -- -- --          → (r : (a : _) → fst (P (f a)))
+-- -- -- -- --         → (r∙ : PathP (λ i → fst (P (f∙ i))) (r north) (pt B'))
+-- -- -- -- --         → isInIm (fun→₁Hom n) ∣ (λ a → (f a) , (r a)) , ΣPathP (f∙ , r∙) ∣₂)
+-- -- -- -- --         λ f∙ → J (λ f∙ _ → (r : (a : Susp (S₊ (suc n))) → fst (P (pt A)))
+-- -- -- -- --       (r∙
+-- -- -- -- --        : PathP (λ i → fst (P (f∙ i))) (r (snd (S₊∙ (suc (suc n)))))
+-- -- -- -- --          (pt B')) →
+-- -- -- -- --       isInIm (fun→₁Hom n) ∣ (λ a → pt A , r a) , (λ i → f∙ i , r∙ i) ∣₂)
+-- -- -- -- --       λ r r∙ → ∣ ∣ r , r∙ ∣₂
+-- -- -- -- --                , cong ∣_∣₂ (ΣPathP (refl , sym (rUnit _))) ∣
+
+-- -- -- -- --   im₃⊂ker₁ : (n : ℕ) (x : _)
+-- -- -- -- --              → isInIm (fun→₃Hom (suc n)) x
+-- -- -- -- --              → isInKer (fun→₁Hom n) x
+-- -- -- -- --   im₃⊂ker₁ n =
+-- -- -- -- --     sElim (λ _ → (isSetΠ (λ _ → isSetPathImplicit)))
+-- -- -- -- --       λ f → pRec (isPropIsInKer (fun→₁Hom n) ∣ f ∣₂)
+-- -- -- -- --         (uncurry (sElim
+-- -- -- -- --           (λ _ → isSetΠ (λ _ → isSetPathImplicit))
+-- -- -- -- --           λ g p →
+-- -- -- -- --             pRec
+-- -- -- -- --               (isPropIsInKer (fun→₁Hom n) ∣ f ∣₂)
+-- -- -- -- --               (J (λ f _ → isInKer (fun→₁Hom n) ∣ f ∣₂)
+-- -- -- -- --                 (cong ∣_∣₂
+-- -- -- -- --                   (ΣPathP
+-- -- -- -- --                     (funExt (λ x → ΣPathP (sym (lem₁ (suc n) g x)
+-- -- -- -- --                           , λ i →  transp (λ j → fst (P (lem₁ (suc n) g x (j ∧ ~ i)))) i
+-- -- -- -- --                                            (pt (P (pt A)))))
+-- -- -- -- --                   , {!!}))))
+-- -- -- -- --               (Iso.fun PathIdTrunc₀Iso p)))
+
+-- -- -- -- --   ker₁⊂im₃ : (n : ℕ) (x : _)
+-- -- -- -- --              → isInKer (fun→₁Hom n) x
+-- -- -- -- --              → isInIm (fun→₃Hom (suc n)) x
+-- -- -- -- --   ker₁⊂im₃ n =
+-- -- -- -- --     sElim (λ _ → isSetΠ λ _ → isProp→isSet (isPropIsInIm _ _))
+-- -- -- -- --       λ f p → pRec (isPropIsInIm (fun→₃Hom (suc n)) ∣ f ∣₂)
+-- -- -- -- --                 (λ q → ∣ ∣ (λ { north → pt A
+-- -- -- -- --                               ; south → pt A
+-- -- -- -- --                               ; (merid a i) → cong fst q i a .fst})
+-- -- -- -- --                         , refl ∣₂
+-- -- -- -- --                        , cong ∣_∣₂ (ΣPathP (funExt
+-- -- -- -- --                          (λ { north → {!refl!}
+-- -- -- -- --                             ; south → {!!}
+-- -- -- -- --                             ; (merid a i) → {!!}}) , {!!})) ∣)
+-- -- -- -- --                 (Iso.fun PathIdTrunc₀Iso p)
+-- -- -- -- --       where
+-- -- -- -- --       help : (f : S₊ (suc (suc n)) → typ A)
+-- -- -- -- --         → (q : (λ _ → pt A) ≡ f)
+-- -- -- -- --         → (f∙ : f north ≡ pt A)
+-- -- -- -- --         → PathP {!!} -- (λ i → q (~ i) north ≡ pt A)
+-- -- -- -- --                  (λ _ → pt A)
+-- -- -- -- --                  f
+-- -- -- -- --         → {!!}
+-- -- -- -- --       help = {!!}
+
+-- -- -- -- --   fun→₂ : (n : ℕ) → π' (suc (suc n)) TS → π' (suc (suc n)) A
+-- -- -- -- --   fun→₂ n = sMap λ f → (λ x → fst f x .fst)
+-- -- -- -- --                        , cong fst (snd f)
+
+-- -- -- -- --   fun→₃ : (n : ℕ) → π' (suc (suc n)) A → π' (suc n) B'
+-- -- -- -- --   fun→₃ n =
+-- -- -- -- --     sMap λ f → (λ x → Iso.fun e (subst (fst ∘ P)
+-- -- -- -- --                            (sym (snd f)
+-- -- -- -- --                          ∙∙ cong (fst f) (σ (S₊∙ (suc n)) x)
+-- -- -- -- --                          ∙∙ snd f) (snd (P (pt A)))))
+-- -- -- -- --              , cong (Iso.fun e)
+-- -- -- -- --                 (cong (λ y → subst (λ x → fst (P x)) y (snd (P (pt A))))
+-- -- -- -- --                   (cong (sym (snd f) ∙∙_∙∙ snd f)
+-- -- -- -- --                     (cong (cong (fst f)) (rCancel (merid (ptSn _))))
+-- -- -- -- --                     ∙ ∙∙lCancel (snd f))
+-- -- -- -- --                ∙ transportRefl ((snd (P (pt A)))))
+-- -- -- -- --               ∙ sym (cong (Iso.fun e) e∙)
+-- -- -- -- --               ∙ Iso.rightInv e (snd B')
+-- -- -- -- --   fun→₃' : {!!}
+-- -- -- -- --   fun→₃' = {!!}
+
+-- -- -- -- -- -- fibreSeq : ∀ {ℓ} → (P : typ A → Pointed ℓ)
+-- -- -- -- -- --   → (e : Iso (typ (P (pt A))) (typ B))
+-- -- -- -- -- --   → Iso.fun e (pt (P (pt A))) ≡ pt B
+-- -- -- -- -- --   → (n : ℕ)
+-- -- -- -- -- --   → isContr (π' (suc n) (P (pt A)))
+-- -- -- -- -- --   → Iso (π' (suc n) ((Σ (typ A) (fst ∘ P) , pt A , pt (P (pt A)))))
+-- -- -- -- -- --          (π' n B)
+-- -- -- -- -- -- Iso.fun (fibreSeq P e e∙ n c) =
+-- -- -- -- -- --   sMap λ f →
+-- -- -- -- -- --     (λ x → Iso.fun e (subst (λ x → typ (P x))
+-- -- -- -- -- --                       (cong fst (snd f) ∙ {!(merid x)!})
+-- -- -- -- -- --                       (f .fst (ptSn (suc n)) .snd)))
+-- -- -- -- -- --                     , {!Iso.fun e (subst (λ x → typ (P x))
+-- -- -- -- -- --                       (cong fst (snd f) ∙ {!(merid x)!})
+-- -- -- -- -- --                       (f .fst (ptSn (suc n)) .snd))!}
+-- -- -- -- -- -- Iso.inv (fibreSeq P e e∙ n c) = {!!}
+-- -- -- -- -- -- Iso.rightInv (fibreSeq P e e∙ n c) = {!!}
+-- -- -- -- -- -- Iso.leftInv (fibreSeq P e e∙ n c) = {!!}

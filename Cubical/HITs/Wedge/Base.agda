@@ -11,13 +11,26 @@ _⋁_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ �
 _⋁_ (A , ptA) (B , ptB) = Pushout {A = Unit} {B = A} {C = B} (λ _ → ptA) (λ _ → ptB)
 
 
--- pointed versions
-
+-- Pointed versions
 _⋁∙ₗ_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋁∙ₗ B = (A ⋁ B) , (inl (snd A))
 
 _⋁∙ᵣ_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋁∙ᵣ B = (A ⋁ B) , (inr (snd B))
+
+-- Wedge sums of functions
+_∨→_ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+      → (f : A →∙ C) (g : B →∙ C)
+      → A ⋁ B → fst C
+(f ∨→ g) (inl x) = fst f x
+(f ∨→ g) (inr x) = fst g x
+(f ∨→ g) (push a i₁) = (snd f ∙ sym (snd g)) i₁
+
+-- Pointed version
+∨→∙ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+   → (f : A →∙ C) (g : B →∙ C) → ((A ⋁∙ₗ B) →∙ C)
+fst (∨→∙ {A = A} f g) = f ∨→ g
+snd (∨→∙ {A = A} f g) = snd f
 
 -- Wedge sum of Units is contractible
 isContr-Unit⋁Unit : isContr ((Unit , tt) ⋁ (Unit , tt))

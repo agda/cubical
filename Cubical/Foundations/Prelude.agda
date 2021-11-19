@@ -485,9 +485,6 @@ PathP→compPathR {p = p} {q = q} {r = r} {s = s} P j i =
                   ; (j = i1) → doubleCompPath-filler∙ p s (sym q) (~ k) i})
         (P j i)
 
-
--- otherdir
-
 compPathL→PathP : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
            → sym p ∙ r ∙ q ≡ s
            → PathP (λ i → p i ≡ q i) r s
@@ -517,3 +514,12 @@ compPathR→PathP∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
                     ; (j = i0) → r i
                     ; (j = i1) → doubleCompPath-filler  p s (sym q) (~ k) i})
           (P j i)
+
+doubleCompPath≡compPath : {x y z w : A}
+    (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
+  → p ∙∙ q ∙∙ r ≡ p ∙ q ∙ r
+doubleCompPath≡compPath p q r i j =
+  hcomp (λ k → λ { (i = i1) → compPath-filler' p (q ∙ r) k j
+                  ; (j = i0) → p (~ k)
+                  ; (j = i1) → r (i ∨ k)})
+        (compPath-filler q r i j)
