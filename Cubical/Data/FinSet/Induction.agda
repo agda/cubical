@@ -1,0 +1,131 @@
+{-
+
+Indutiive eliminators to directly prove properties of all finite sets
+
+-}
+{-# OPTIONS --safe #-}
+
+module Cubical.Data.FinSet.Induction where
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
+
+open import Cubical.HITs.PropositionalTruncation renaming (rec to TruncRec) hiding (elim ; elim')
+open import Cubical.HITs.SetTruncation renaming (rec to SetRec ; elim to SetElim)
+
+open import Cubical.Data.Nat renaming (_+_ to _+ℕ_) hiding (elim)
+open import Cubical.Data.Unit
+open import Cubical.Data.Empty hiding (elim)
+open import Cubical.Data.Sum   hiding (elim)
+
+open import Cubical.Data.Fin hiding (elim)
+open import Cubical.Data.SumFin renaming (Fin to SumFin) hiding (elim)
+open import Cubical.Data.FinSet.Base
+open import Cubical.Data.FinSet.Properties
+open import Cubical.Data.FinSet.Constructors
+
+private
+  variable
+    ℓ ℓ' : Level
+
+-- definitions mimicking that of natural numbers
+
+module _
+  {ℓ : Level} where
+
+  𝟘 : FinSet ℓ
+  𝟘 = ⊥* , ∣ 0 , uninhabEquiv rec* ¬Fin0 ∣
+
+  𝟙 : FinSet ℓ
+  𝟙 = Unit* , isContr→isFinSet (isContrUnit*)
+
+  _+_ : FinSet ℓ → FinSet ℓ → FinSet ℓ
+  X + Y = X .fst ⊎ Y .fst , isFinSet⊎ X Y
+
+  -- 𝔽in can be seen as a universe polymorphic version of SumFin
+  𝔽in : ℕ → FinSet ℓ
+  𝔽in 0 = 𝟘
+  𝔽in (suc n) = 𝟙 + 𝔽in n
+
+  -- useful properties
+
+  𝟘≃Empty : 𝟘 .fst ≃ ⊥
+  𝟘≃Empty = uninhabEquiv rec* (λ x → x)
+
+  𝟙≃Unit : 𝟙 .fst ≃ Unit
+  𝟙≃Unit = isContr→≃Unit (isContrUnit*)
+
+  * : {n : ℕ} → 𝔽in (suc n) .fst
+  * = inl tt*
+
+  𝔽in≃SumFin : (n : ℕ) → 𝔽in n .fst ≃ SumFin n
+  𝔽in≃SumFin 0 = 𝟘≃Empty
+  𝔽in≃SumFin (suc n) = ⊎-equiv 𝟙≃Unit (𝔽in≃SumFin n)
+
+  𝔽in≃Fin : (n : ℕ) → 𝔽in n .fst ≃ Fin n
+  𝔽in≃Fin n = 𝔽in≃SumFin n ⋆ SumFin≃Fin n
+
+  -- 𝔽in preserves addition
+
+  𝟘+X≡X : {X : FinSet ℓ} → 𝟘 + X ≡ X
+  𝟘+X≡X {X = X} i .fst = ua (⊎-swap-≃ ⋆ ⊎-equiv (idEquiv (X .fst)) 𝟘≃Empty ⋆ ⊎-⊥-≃) i
+  𝟘+X≡X {X = X} i .snd =
+    isProp→PathP {B = λ i → isFinSet (𝟘+X≡X {X = X} i .fst)}
+                 (λ _ → isPropIsFinSet) ((𝟘 + X) .snd) (X .snd) i
+
+  𝔽in1≡𝟙 : 𝔽in 1 ≡ 𝟙
+  𝔽in1≡𝟙 i .fst = ua (⊎-equiv (idEquiv (𝟙 .fst)) 𝟘≃Empty ⋆ ⊎-⊥-≃) i
+  𝔽in1≡𝟙 i .snd =
+    isProp→PathP {B = λ i → isFinSet (𝔽in1≡𝟙 i .fst)}
+                 (λ _ → isPropIsFinSet) (𝔽in 1 .snd) (𝟙 .snd) i
+
+  𝔽in+ : (m n : ℕ) → 𝔽in m + 𝔽in n ≡ 𝔽in (m +ℕ n)
+  𝔽in+ 0 n = 𝟘+X≡X
+  𝔽in+ (suc m) n i .fst = (ua (⊎-assoc-≃) ∙ (λ i → (𝟙 + 𝔽in+ m n i) .fst)) i
+  𝔽in+ (suc m) n i .snd =
+    isProp→PathP {B = λ i → isFinSet (𝔽in+ (suc m) n i .fst)}
+                 (λ _ → isPropIsFinSet) ((𝔽in (suc m) + 𝔽in n) .snd) (𝔽in (suc m +ℕ n) .snd) i
+
+-- every finite sets are merely equal to some 𝔽in
+
+∣≡𝔽in∣ : (X : FinSet ℓ) → ∥ Σ[ n ∈ ℕ ] X ≡ 𝔽in n ∥
+∣≡𝔽in∣ X = TruncRec isPropPropTrunc (λ (n , p) → ∣ n , path X (n , p) ∣) (X .snd)
+  where
+    path : (X : FinSet ℓ) → ((n , _) : ≃Fin (X .fst)) → X ≡ 𝔽in n
+    path X (n , p) i .fst = ua (p ⋆ invEquiv (𝔽in≃Fin n)) i
+    path X (n , p) i .snd =
+      isProp→PathP {B = λ i → isFinSet (path X (n , p) i .fst)}
+                   (λ _ → isPropIsFinSet) (X .snd) (𝔽in n .snd) i
+
+-- the eliminators
+
+module _
+  (P : FinSet ℓ → Type ℓ')
+  (h : (X : FinSet ℓ) → isProp (P X)) where
+
+  module _
+    (p : (n : ℕ) → P (𝔽in n)) where
+
+    elimProp : (X : FinSet ℓ) → P X
+    elimProp X = TruncRec (h X) (λ (n , q) → transport (λ i → P (q (~ i))) (p n)) (∣≡𝔽in∣ X)
+
+  module _
+    (p0 : P 𝟘)
+    (p1 : {X : FinSet ℓ} → P X → P (𝟙 + X)) where
+
+    elimProp𝔽in : (n : ℕ) → P (𝔽in n)
+    elimProp𝔽in 0 = p0
+    elimProp𝔽in (suc n) = p1 (elimProp𝔽in n)
+
+    elimProp' : (X : FinSet ℓ) → P X
+    elimProp' = elimProp elimProp𝔽in
+
+  module _
+    (p0 : P 𝟘)(p1 : P 𝟙)
+    (p+ : {X Y : FinSet ℓ} → P X → P Y → P (X + Y)) where
+
+    elimProp'' : (X : FinSet ℓ) → P X
+    elimProp'' = elimProp' p0 (λ p → p+ p1 p)

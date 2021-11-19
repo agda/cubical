@@ -31,11 +31,25 @@ private
     A : Type ℓ
     B : Type ℓ'
 
--- infix operator to more conveniently compose equivalences
+-- operators to more conveniently compose equivalences
 
-_⋆_ = compEquiv
+module _
+  {A : Type ℓ}{B : Type ℓ'}{C : Type ℓ''} where
 
-infixr 30 _⋆_
+  infixr 30 _⋆_
+  infixr 30 _⋆̂_
+
+  _⋆_ : A ≃ B → B ≃ C → A ≃ C
+  _⋆_ = compEquiv
+
+  _⋆̂_ : ∥ A ≃ B ∥ → ∥ B ≃ C ∥ → ∥ A ≃ C ∥
+  _⋆̂_ = rec2 isPropPropTrunc (λ p q → ∣ p ⋆ q ∣)
+
+module _
+  {A : Type ℓ}{B : Type ℓ'} where
+
+  ∣invEquiv∣ : ∥ A ≃ B ∥ → ∥ B ≃ A ∥
+  ∣invEquiv∣ = rec isPropPropTrunc (λ p → ∣ invEquiv p ∣)
 
 -- useful implications
 
@@ -57,6 +71,17 @@ isContr→isFinSet h = ∣ 1 , isContr→≃Unit* h ⋆ invEquiv (Unit≃Unit* )
 isDecProp→isFinSet : isProp A → Dec A → isFinSet A
 isDecProp→isFinSet h (yes p) = isContr→isFinSet (inhProp→isContr p h)
 isDecProp→isFinSet h (no ¬p) = ∣ 0 , uninhabEquiv ¬p ¬Fin0 ∣
+
+isFinSet→Dec∥∥ : isFinSet A → Dec ∥ A ∥
+isFinSet→Dec∥∥ =
+  rec (isPropDec isPropPropTrunc)
+      (λ (_ , p) → EquivPresDec (propTrunc≃ (invEquiv p)) (∥Fin∥ _))
+
+PeirceLaw∥∥ : isFinSet A → NonEmpty ∥ A ∥ → ∥ A ∥
+PeirceLaw∥∥ p = Dec→Stable (isFinSet→Dec∥∥ p)
+
+PeirceLaw : isFinSet A → NonEmpty A → ∥ A ∥
+PeirceLaw p q = PeirceLaw∥∥ p (λ f → q (λ x → f ∣ x ∣))
 
 {-
 
@@ -126,11 +151,6 @@ FinSet≃FinSet' =
 
 FinSet≡FinSet' : FinSet ℓ ≡ FinSet' ℓ
 FinSet≡FinSet' = ua FinSet≃FinSet'
-
--- cardinality of finite sets
-
-card : FinSet ℓ → ℕ
-card = fst ∘ snd ∘ FinSet→FinSet'
 
 -- definitions to reduce problems about FinSet to SumFin
 

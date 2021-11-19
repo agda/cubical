@@ -54,6 +54,19 @@ module _ (A : Unit → Type ℓ) where
   ΠUnit : ((x : Unit) → A x) ≃ A tt
   ΠUnit = isoToEquiv ΠUnitIso
 
+module _ (A : Unit* {ℓ} → Type ℓ') where
+
+  open Iso
+
+  ΠUnit*Iso : Iso ((x : Unit*) → A x) (A tt*)
+  fun ΠUnit*Iso f = f tt*
+  inv ΠUnit*Iso a tt* = a
+  rightInv ΠUnit*Iso a = refl
+  leftInv ΠUnit*Iso f = refl
+
+  ΠUnit* : ((x : Unit*) → A x) ≃ A tt*
+  ΠUnit* = isoToEquiv ΠUnit*Iso
+
 isContr→Iso2 : {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
 Iso.fun (isContr→Iso2 iscontr) f = f (fst iscontr)
 Iso.inv (isContr→Iso2 iscontr) b _ = b

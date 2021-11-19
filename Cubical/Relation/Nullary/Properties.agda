@@ -71,6 +71,10 @@ mapDec : ∀ {B : Type ℓ} → (A → B) → (¬ A → ¬ B) → Dec A → Dec 
 mapDec f _ (yes p) = yes (f p)
 mapDec _ f (no ¬p) = no (f ¬p)
 
+EquivPresDec : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B
+          → Dec A → Dec B
+EquivPresDec p = mapDec (p .fst) (λ f → f ∘ invEq p)
+
 -- we have the following implications
 -- X ── ∣_∣ ─→ ∥ X ∥
 -- ∥ X ∥ ── populatedBy ─→ ⟪ X ⟫

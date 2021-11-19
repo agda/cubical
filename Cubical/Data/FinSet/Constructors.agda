@@ -1,6 +1,6 @@
 {-
 
-Closure properties of FinSet under several type constructors.
+This files contains lots of useful properties about constructions on finite sets
 
 -}
 {-# OPTIONS --safe #-}
@@ -20,13 +20,14 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
 open import Cubical.Data.Fin
-open import Cubical.Data.SumFin renaming (Fin to SumFin) hiding (discreteFin)
+open import Cubical.Data.SumFin renaming (Fin to SumFin)
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.FiniteChoice
 
 open import Cubical.Relation.Nullary
 
+open import Cubical.Functions.Fibration
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Surjection
 
@@ -84,6 +85,8 @@ module _
   ≃FinΠ : ≃Fin ((x : X) → Y x)
   ≃FinΠ = ≃SumFin→Fin ≃SumFinΠ
 
+-- closedness under several type constructors
+
 module _
   (X : FinSet ℓ)
   (Y : X .fst → FinSet ℓ') where
@@ -123,11 +126,14 @@ module _
   isFinSet≡ : (a b : X .fst) → isFinSet (a ≡ b)
   isFinSet≡ a b = isDecProp→isFinSet (isFinSet→isSet (X .snd) a b) (isFinSet→Discrete (X .snd) a b)
 
+  isFinSet∥∥ : isFinSet ∥ X .fst ∥
+  isFinSet∥∥ = TruncRec isPropIsFinSet (λ p → ∣ ≃Fin∥∥ (X .fst) p ∣) (X .snd)
+
   isFinSetIsContr : isFinSet (isContr (X .fst))
   isFinSetIsContr = isFinSetΣ X (λ x → _ , (isFinSetΠ X (λ y → _ , isFinSet≡ x y)))
 
-  isFinSet∥∥ : isFinSet ∥ X .fst ∥
-  isFinSet∥∥ = TruncRec isPropIsFinSet (λ p → ∣ ≃Fin∥∥ (X .fst) p ∣) (X .snd)
+  isFinSetIsProp : isFinSet (isProp (X .fst))
+  isFinSetIsProp = isFinSetΠ2 X (λ _ → X) (λ x x' → _ , isFinSet≡ x x')
 
 module _
   (X : FinSet ℓ )
@@ -194,3 +200,39 @@ module _
 
   isFinSet↠ : isFinSet (X .fst ↠ Y .fst)
   isFinSet↠ = isFinSetΣ (_ , isFinSet→ X Y) (λ f → _ , isFinSetIsSurjection X Y f)
+
+-- a criterion of being finite set
+
+module _
+  (X : Type ℓ)(Y : FinSet ℓ')
+  (f : X → Y .fst)
+  (h : (y : Y .fst) → isFinSet (fiber f y)) where
+
+  isFinSetTotal : isFinSet X
+  isFinSetTotal = EquivPresIsFinSet (invEquiv (totalEquiv f)) (isFinSetΣ Y (λ y → _ , h y))
+
+-- a criterion of fibers being finite sets, more general than the previous result
+
+module _
+  (X : FinSet ℓ)
+  (Y : Type ℓ')(h : Discrete Y)
+  (f : X. fst → Y) where
+
+  isFinSetFiberDec : (y : Y) → isFinSet (fiber f y)
+  isFinSetFiberDec y = isFinSetΣ X (λ x → _ , isDecProp→isFinSet (Discrete→isSet h _ _) (h (f x) y))
+
+-- decidable predicate
+
+module _
+  (X : FinSet ℓ)
+  (P : X .fst → Type ℓ')
+  (h : (x : X .fst) → isProp (P x))
+  (dec : (x : X .fst) → Dec (P x)) where
+
+  DecΣ : Dec ∥ Σ (X .fst) P ∥
+  DecΣ = isFinSet→Dec∥∥ (isFinSetΣ X (λ x → _ , isDecProp→isFinSet (h x) (dec x)))
+
+  DecΠ : Dec ((x : X .fst) → P x)
+  DecΠ =
+    EquivPresDec (propTruncIdempotent≃ (isPropΠ h))
+                 (isFinSet→Dec∥∥ (isFinSetΠ X (λ x → _ , isDecProp→isFinSet (h x) (dec x))))
