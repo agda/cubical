@@ -1,5 +1,5 @@
 -- Defines abelian categories
-{-# OPTIONS -safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Abelian.Base where
 
