@@ -40,9 +40,9 @@ module _ (C : Precategory ℓ ℓ') where
         x→y = fst (hx y) -- morphism forwards
         y→x : C [ y , x ]
         y→x = fst (hy x) -- morphism backwards
-        x→y→x : x→y ⋆⟨ C ⟩ y→x ≡ id x
+        x→y→x : x→y ⋆⟨ C ⟩ y→x ≡ id
         x→y→x = isContr→isProp (hx x) _ _ -- compose to id by uniqueness
-        y→x→y : y→x ⋆⟨ C ⟩ x→y ≡ id y
+        y→x→y : y→x ⋆⟨ C ⟩ x→y ≡ id
         y→x→y = isContr→isProp (hy y) _ _ -- similar.
     in catiso x→y y→x y→x→y x→y→x
 
@@ -71,9 +71,9 @@ module _ (C : Precategory ℓ ℓ') where
         x→y = fst (hy x) -- morphism forwards
         y→x : C [ y , x ]
         y→x = fst (hx y) -- morphism backwards
-        x→y→x : x→y ⋆⟨ C ⟩ y→x ≡ id x
+        x→y→x : x→y ⋆⟨ C ⟩ y→x ≡ id
         x→y→x = isContr→isProp (hx x) _ _ -- compose to id by uniqueness
-        y→x→y : y→x ⋆⟨ C ⟩ x→y ≡ id y
+        y→x→y : y→x ⋆⟨ C ⟩ x→y ≡ id
         y→x→y = isContr→isProp (hy y) _ _ -- similar.
     in catiso x→y y→x y→x→y x→y→x
 

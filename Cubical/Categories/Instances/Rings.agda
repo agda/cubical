@@ -14,7 +14,7 @@ open RingHoms
 RingsPrecategory : ∀ {ℓ} → Precategory (ℓ-suc ℓ) ℓ
 ob RingsPrecategory       = Ring _
 Hom[_,_] RingsPrecategory = RingHom
-id RingsPrecategory       = idRingHom
+id RingsPrecategory {R}   = idRingHom R
 _⋆_ RingsPrecategory      = compRingHom
 ⋆IdL RingsPrecategory     = compIdRingHom
 ⋆IdR RingsPrecategory     = idCompRingHom

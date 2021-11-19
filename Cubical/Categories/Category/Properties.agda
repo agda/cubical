@@ -1,12 +1,10 @@
 {-# OPTIONS --safe #-}
-
-
 module Cubical.Categories.Category.Properties where
 
-open import Cubical.Core.Glue
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Categories.Category.Base hiding (isSetHom)
+
+open import Cubical.Categories.Category.Base
 
 open Precategory
 
@@ -32,36 +30,37 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isC : isCategory C ⦄ where
   isSetHomP2r = isOfHLevel→isOfHLevelDep 2 (λ a → isSetHom {y = a})
 
 
-
 -- opposite of opposite is definitionally equal to itself
-involutiveOp : ∀ {C : Precategory ℓ ℓ'} → (C ^op) ^op ≡ C
+involutiveOp : ∀ {C : Precategory ℓ ℓ'} → C ^op ^op ≡ C
 involutiveOp = refl
 
 module _ {C : Precategory ℓ ℓ'} where
   -- Other useful operations on categories
 
   -- whisker the parallel morphisms g and g' with f
-  lPrecatWhisker : {x y z : C .ob} (f : C [ x , y ]) (g g' : C [ y , z ]) (p : g ≡ g') → f ⋆⟨ C ⟩ g ≡ f ⋆⟨ C ⟩ g'
+  lPrecatWhisker : {x y z : C .ob} (f : C [ x , y ]) (g g' : C [ y , z ]) (p : g ≡ g')
+                 → f ⋆⟨ C ⟩ g ≡ f ⋆⟨ C ⟩ g'
   lPrecatWhisker f _ _ p = cong (_⋆_ C f) p
 
-  rPrecatWhisker : {x y z : C .ob} (f f' : C [ x , y ]) (g : C [ y , z ]) (p : f ≡ f') → f ⋆⟨ C ⟩ g ≡ f' ⋆⟨ C ⟩ g
+  rPrecatWhisker : {x y z : C .ob} (f f' : C [ x , y ]) (g : C [ y , z ]) (p : f ≡ f')
+                 → f ⋆⟨ C ⟩ g ≡ f' ⋆⟨ C ⟩ g
   rPrecatWhisker _ _ g p = cong (λ v → v ⋆⟨ C ⟩ g) p
 
   -- working with equal objects
   idP : ∀ {x x'} {p : x ≡ x'} → C [ x , x' ]
-  idP {x = x} {x'} {p} = subst (λ v → C [ x , v ]) p (C .id x)
+  idP {x} {x'} {p} = subst (λ v → C [ x , v ]) p (C .id)
 
   -- heterogeneous seq
   seqP : ∀ {x y y' z} {p : y ≡ y'}
        → (f : C [ x , y ]) (g : C [ y' , z ])
        → C [ x , z ]
-  seqP {x = x} {_} {_} {z} {p} f g = f ⋆⟨ C ⟩ (subst (λ a → C [ a , z ]) (sym p) g)
+  seqP {x} {_} {_} {z} {p} f g = f ⋆⟨ C ⟩ (subst (λ a → C [ a , z ]) (sym p) g)
 
   -- also heterogeneous seq, but substituting on the left
   seqP' : ∀ {x y y' z} {p : y ≡ y'}
-       → (f : C [ x , y ]) (g : C [ y' , z ])
-       → C [ x , z ]
-  seqP' {x = x} {_} {_} {z} {p} f g = subst (λ a → C [ x , a ]) p f ⋆⟨ C ⟩ g
+        → (f : C [ x , y ]) (g : C [ y' , z ])
+        → C [ x , z ]
+  seqP' {x} {_} {_} {z} {p} f g = subst (λ a → C [ x , a ]) p f ⋆⟨ C ⟩ g
 
   -- show that they're equal
   seqP≡seqP' : ∀ {x y y' z} {p : y ≡ y'}
@@ -74,8 +73,8 @@ module _ {C : Precategory ℓ ℓ'} where
 
   -- seqP is equal to normal seq when y ≡ y'
   seqP≡seq : ∀ {x y z}
-             → (f : C [ x , y ]) (g : C [ y , z ])
-             → seqP {p = refl} f g ≡ f ⋆⟨ C ⟩ g
+           → (f : C [ x , y ]) (g : C [ y , z ])
+           → seqP {p = refl} f g ≡ f ⋆⟨ C ⟩ g
   seqP≡seq {y = y} {z} f g i = f ⋆⟨ C ⟩ toPathP {A = λ _ → C [ y , z ]} {x = g} refl (~ i)
 
 

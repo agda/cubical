@@ -10,16 +10,17 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 
 open Precategory
+open isCategory
 
 module _ ℓ where
   SET : Precategory (ℓ-suc ℓ) ℓ
-  SET .ob = Σ (Type ℓ) isSet
+  SET .ob                       = Σ (Type ℓ) isSet
   SET .Hom[_,_] (A , _) (B , _) = A → B
-  SET .id _  = λ x → x
-  SET ._⋆_ f g = λ x → g (f x)
-  SET .⋆IdL f = refl
-  SET .⋆IdR f = refl
-  SET .⋆Assoc f g h = refl
+  SET .id                       = λ x → x
+  SET ._⋆_ f g                  = λ x → g (f x)
+  SET .⋆IdL f                   = refl
+  SET .⋆IdR f                   = refl
+  SET .⋆Assoc f g h             = refl
 
 module _ {ℓ} where
   isSetExpIdeal : {A B : Type ℓ} → isSet B → isSet (A → B)
@@ -97,10 +98,10 @@ Iso→CatIso is .ret = funExt λ b → is .leftInv b -- is .rightInv
 -- kind of useless
 module _ ℓ where
   TYPE : Precategory (ℓ-suc ℓ) ℓ
-  TYPE .ob = Type ℓ
+  TYPE .ob           = Type ℓ
   TYPE .Hom[_,_] A B = A → B
-  TYPE .id A  = λ x → x
-  TYPE ._⋆_ f g = λ x → g (f x)
-  TYPE .⋆IdL f = refl
-  TYPE .⋆IdR f = refl
+  TYPE .id           = λ x → x
+  TYPE ._⋆_ f g      = λ x → g (f x)
+  TYPE .⋆IdL f       = refl
+  TYPE .⋆IdR f       = refl
   TYPE .⋆Assoc f g h = refl

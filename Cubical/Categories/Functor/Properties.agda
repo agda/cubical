@@ -90,18 +90,18 @@ module _ {F : Functor C D} where
       ≡⟨ sym (F .F-seq f⁻¹ f) ⟩
         F ⟪ f⁻¹ ⋆⟨ C ⟩ f ⟫
       ≡⟨ cong (F .F-hom) sec' ⟩
-        F ⟪ C .id y ⟫
+        F ⟪ C .id ⟫
       ≡⟨ F .F-id ⟩
-        D .id y'
+        D .id
       ∎ )
       -- ret
       ( (g ⋆⟨ D ⟩ g⁻¹)
         ≡⟨ sym (F .F-seq f f⁻¹) ⟩
       F ⟪ f ⋆⟨ C ⟩ f⁻¹ ⟫
         ≡⟨ cong (F .F-hom) ret' ⟩
-      F ⟪ C .id x ⟫
+      F ⟪ C .id ⟫
       ≡⟨ F .F-id ⟩
-        D .id x'
+        D .id
       ∎ )
 
       where
