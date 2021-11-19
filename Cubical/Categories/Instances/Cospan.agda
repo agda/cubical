@@ -6,14 +6,14 @@ open import Cubical.Categories.Category
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty
 
-open Precategory
+open Category
 
 data 𝟛 : Type ℓ-zero where
   ⓪ : 𝟛
   ① : 𝟛
   ② : 𝟛
 
-CospanCat : Precategory ℓ-zero ℓ-zero
+CospanCat : Category ℓ-zero ℓ-zero
 CospanCat .ob = 𝟛
 
 CospanCat .Hom[_,_] ⓪ ① = Unit
@@ -57,3 +57,5 @@ CospanCat .⋆Assoc {②} {②} {②} {②} _ _ _ = refl
 CospanCat .⋆Assoc {②} {②} {②} {①} _ _ _ = refl
 CospanCat .⋆Assoc {②} {②} {①} {①} _ _ _ = refl
 CospanCat .⋆Assoc {②} {①} {①} {①} _ _ _ = refl
+
+CospanCat .isSetHom = {!!}

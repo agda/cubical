@@ -12,7 +12,7 @@ open import Cubical.Foundations.Isomorphism
 open Functor
 
 open Iso
-open Precategory
+open Category
 
 {-
 ==============================================
@@ -43,7 +43,7 @@ definition.
 module UnitCounit where
 
   -- Adjoint def 1: unit-counit
-  record _⊣_ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor C D) (G : Functor D C)
+  record _⊣_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C)
                   : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
     field
       -- unit
@@ -64,8 +64,7 @@ module UnitCounit where
   -}
 
   module _ {ℓC ℓC' ℓD ℓD'}
-    {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} {F : Functor C D} {G : Functor D C}
-    ⦃ isCatC : isCategory C ⦄ ⦃ isCatD : isCategory D ⦄
+    {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D} {G : Functor D C}
     (η : 𝟙⟨ C ⟩ ⇒ (funcComp G F))
     (ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩)
     (Δ₁ : ∀ c → F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ≡ D .id)
@@ -84,7 +83,7 @@ module UnitCounit where
 
 module NaturalBijection where
   -- Adjoint def 2: natural bijection
-  record _⊣_ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor C D) (G : Functor D C) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
+  record _⊣_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
     field
       adjIso : ∀ {c d} → Iso (D [ F ⟅ c ⟆ , d ]) (C [ c , G ⟅ d ⟆ ])
 
@@ -115,7 +114,7 @@ definition to the first.
 The second unnamed module does the reverse.
 -}
 
-module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor C D) (G : Functor D C) where
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C) where
   open UnitCounit
   open NaturalBijection renaming (_⊣_ to _⊣²_)
   module _ (adj : F ⊣² G) where
@@ -159,7 +158,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor 
 
     -- note : had to make this record syntax because termination checker was complaining
     -- due to referencing η and ε from the definitions of Δs
-    adj'→adj : ⦃ isCatC : isCategory C ⦄ ⦃ isCatD : isCategory D ⦄ → F ⊣ G
+    adj'→adj : F ⊣ G
     adj'→adj = record
       { η = η'
       ; ε = ε'
@@ -282,11 +281,11 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor 
       ≡⟨ sym (C .⋆Assoc _ _ _) ⟩
         η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⟫ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫
       -- apply naturality
-      ≡⟨ rPrecatWhisker {C = C} _ _ _ natu ⟩
+      ≡⟨ rCatWhisker {C = C} _ _ _ natu ⟩
         (g ⋆⟨ C ⟩ η ⟦ G ⟅ d ⟆ ⟧) ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫
       ≡⟨ C .⋆Assoc _ _ _ ⟩
         g ⋆⟨ C ⟩ (η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫)
-      ≡⟨ lPrecatWhisker {C = C} _ _ _ δ₂ ⟩
+      ≡⟨ lCatWhisker {C = C} _ _ _ δ₂ ⟩
         g ⋆⟨ C ⟩ C .id
       ≡⟨ C .⋆IdR _ ⟩
         g
@@ -301,12 +300,12 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor 
       ≡⟨ D .⋆Assoc _ _ _ ⟩
         F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ (F ⟪ G ⟪ f ⟫ ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧)
       -- apply naturality
-      ≡⟨ lPrecatWhisker {C = D} _ _ _ natu ⟩
+      ≡⟨ lCatWhisker {C = D} _ _ _ natu ⟩
         F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ (ε ⟦ F ⟅ c ⟆ ⟧ ⋆⟨ D ⟩ f)
       ≡⟨ sym (D .⋆Assoc _ _ _) ⟩
         F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ⋆⟨ D ⟩ f
       -- apply triangle identity
-      ≡⟨ rPrecatWhisker {C = D} _ _ _ δ₁ ⟩
+      ≡⟨ rCatWhisker {C = D} _ _ _ δ₁ ⟩
         D .id ⋆⟨ D ⟩ f
       ≡⟨ D .⋆IdL _ ⟩
         f

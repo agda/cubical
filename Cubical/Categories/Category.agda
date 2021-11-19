@@ -9,9 +9,9 @@
   Category             Type   Set    No
   Univalent Category   Type   Set    Yes
 
-  This file also contains
-    - pathToIso : Turns a path between two objects into an isomorphism between them
-    - opposite categories
+  The most useful notion is Category and the library is hence based on
+  them. If one needs precategories then they can be found in
+  Cubical.Categories.Category.Precategory
 
 -}
 {-# OPTIONS --safe #-}

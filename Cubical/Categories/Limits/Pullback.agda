@@ -14,9 +14,9 @@ private
   variable
     ℓ ℓ' : Level
 
-module _ {C : Precategory ℓ ℓ'} where
+module _ {C : Category ℓ ℓ'} where
 
-  open Precategory C
+  open Category C
   open Functor
 
   record Cospan : Type (ℓ-max ℓ ℓ') where

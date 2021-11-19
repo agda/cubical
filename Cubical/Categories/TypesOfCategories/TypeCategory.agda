@@ -1,4 +1,4 @@
-{-# OPTIONS --postfix-projections --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Categories.TypesOfCategories.TypeCategory where
 
@@ -18,9 +18,9 @@ open import Cubical.Categories.Instances.Sets
 
 open Fibration.ForSets
 
-record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
+record isTypeCategory {ℓ ℓ' ℓ''} (C : Category ℓ ℓ')
        : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc ℓ''))) where
-  open Precategory C
+  open Category C
   open Cospan
   open PullbackLegs
   open isPullback
@@ -54,9 +54,9 @@ record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
                       (pblegs (π Γ' (reindex f A)) q⟨ f , A ⟩)
 
 -- presheaves are type contexts
-module _ {ℓ ℓ' ℓ'' : Level} (C : Precategory ℓ ℓ') where
+module _ {ℓ ℓ' ℓ'' : Level} (C : Category ℓ ℓ') where
   open isTypeCategory
-  open Precategory
+  open Category
   open Functor
   open NatTrans
   open isPullback

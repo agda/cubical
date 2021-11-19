@@ -11,8 +11,8 @@ private
   variable
     ℓ ℓ' : Level
 
-module _ {C : Precategory ℓ ℓ'} where
-  open Precategory C
+module _ {C : Category ℓ ℓ'} where
+  open Category C
 
   private
     variable

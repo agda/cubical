@@ -341,6 +341,10 @@ isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
 isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ A B)
 isSetΣ = isOfHLevelΣ 2
 
+-- Useful consequence
+isSetΣSndProp : isSet A → ((x : A) → isProp (B x)) → isSet (Σ A B)
+isSetΣSndProp h p = isSetΣ h (λ x → isProp→isSet (p x))
+
 isGroupoidΣ : isGroupoid A → ((x : A) → isGroupoid (B x)) → isGroupoid (Σ A B)
 isGroupoidΣ = isOfHLevelΣ 3
 

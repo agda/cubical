@@ -20,11 +20,10 @@ private
 open isIsoC
 open NatIso
 open NatTrans
-open Precategory
-open isCategory
+open Category
 open Functor
 
-module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   private
     _⋆ᴰ_ : ∀ {x y z} (f : D [ x , y ]) (g : D [ y , z ]) → D [ x , z ]
     f ⋆ᴰ g = f ⋆⟨ D ⟩ g
@@ -89,7 +88,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
 
       NTPath≡PathΣ = ua NTPath≃PathΣ
 
-  module _ ⦃ isCatD : isCategory D ⦄ where
+  module _ where
     open NatTransP
 
     -- if the target category has hom Sets, then any natural transformation is a set
@@ -125,11 +124,11 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
 
         -- the Ob function is a set
         isSetN-ob : isSet ((x : C .ob) → D [(F .F-ob x) , (G .F-ob x)])
-        isSetN-ob = isOfHLevelΠ 2 λ _ → isCatD .isSetHom
+        isSetN-ob = isOfHLevelΠ 2 λ _ → D .isSetHom
 
         -- the Hom function is a set
         isSetN-hom : (ϕ : typeN-ob) → isSet (typeN-hom ϕ)
-        isSetN-hom γ = isProp→isSet (isPropImplicitΠ λ x → isPropImplicitΠ λ y → isPropΠ λ f → isCatD .isSetHom _ _)
+        isSetN-hom γ = isProp→isSet (isPropImplicitΠ2 λ x y → isPropΠ λ f → D .isSetHom _ _)
 
         -- in fact it's a dependent Set, which we need because N-hom depends on N-ob
         isSetN-homP : isOfHLevelDep 2 (λ γ → {x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (γ y) ≡ (γ x) ⋆ᴰ (G .F-hom f))

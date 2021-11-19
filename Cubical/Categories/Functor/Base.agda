@@ -11,11 +11,11 @@ private
   variable
     ℓC ℓC' ℓD ℓD' : Level
 
-record Functor (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') :
+record Functor (C : Category ℓC ℓC') (D : Category ℓD ℓD') :
          Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
   no-eta-equality
 
-  open Precategory
+  open Category
 
   field
     F-ob  : C .ob → D .ob
@@ -31,9 +31,9 @@ record Functor (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') :
 private
   variable
     ℓ ℓ' : Level
-    C D E : Precategory ℓ ℓ'
+    C D E : Category ℓ ℓ'
 
-open Precategory
+open Category
 open Functor
 
 -- Helpful notation
@@ -56,10 +56,10 @@ _⟪_⟫ = F-hom
 
 -- Functor constructions
 
-𝟙⟨_⟩ : ∀ (C : Precategory ℓ ℓ') → Functor C C
-𝟙⟨ C ⟩ .F-ob x = x
-𝟙⟨ C ⟩ .F-hom f = f
-𝟙⟨ C ⟩ .F-id = refl
+𝟙⟨_⟩ : ∀ (C : Category ℓ ℓ') → Functor C C
+𝟙⟨ C ⟩ .F-ob x    = x
+𝟙⟨ C ⟩ .F-hom f   = f
+𝟙⟨ C ⟩ .F-id      = refl
 𝟙⟨ C ⟩ .F-seq _ _ = refl
 
 -- functor composition

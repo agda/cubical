@@ -16,9 +16,9 @@ private
     ℓJ ℓJ' ℓC ℓC' : Level
     ℓ ℓ' ℓ'' : Level
 
-module _ {J : Precategory ℓJ ℓJ'}
-         {C : Precategory ℓC ℓC'} where
-  open Precategory
+module _ {J : Category ℓJ ℓJ'}
+         {C : Category ℓC ℓC'} where
+  open Category
   open Functor
   open NatTrans
 
@@ -80,15 +80,15 @@ module _ {J : Precategory ℓJ ℓJ'}
         islim : isLimit head
 
 -- a Category is complete if it has all limits
-complete' : {ℓJ ℓJ' : Level} (C : Precategory ℓC ℓC') → Type _
-complete' {ℓJ = ℓJ} {ℓJ'} C = (J : Precategory ℓJ ℓJ') (K : Functor J C) → Limit K
+complete' : {ℓJ ℓJ' : Level} (C : Category ℓC ℓC') → Type _
+complete' {ℓJ = ℓJ} {ℓJ'} C = (J : Category ℓJ ℓJ') (K : Functor J C) → Limit K
 
-complete : (C : Precategory ℓC ℓC') → Typeω
+complete : (C : Category ℓC ℓC') → Typeω
 complete C = ∀ {ℓJ ℓJ'} → complete' {ℓJ = ℓJ} {ℓJ'} C
 
 open Limit
 open NatTrans
-open Precategory
+open Category
 
 
 

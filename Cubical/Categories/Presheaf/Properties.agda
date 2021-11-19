@@ -27,14 +27,14 @@ private
 
 
 -- (PreShv C) / F ≃ᶜ PreShv (∫ᴾ F)
-module _ {ℓS : Level} (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓS)) where
-  open Precategory
+module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS)) where
+  open Category
   open Functor
   open _≃ᶜ_
   open isEquivalence
   open NatTrans
   open NatIso
-  open Slice (PreShv C ℓS) F ⦃ isCatPreShv {C = C} ⦄
+  open Slice (PreShv C ℓS) F
   open Elements {C = C}
 
   open Fibration.ForSets
