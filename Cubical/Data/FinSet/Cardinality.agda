@@ -519,7 +519,7 @@ module _
       isSetℕ (λ (x , p) → f x)
              (λ (x , p) (x' , q) → uniqMax x x' p q)
 
--- lemma about maximal valune on sum type
+-- lemma about maximal value on sum type
 module _
   (X : Type ℓ )
   (Y : Type ℓ')
