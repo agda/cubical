@@ -15,7 +15,7 @@ module _ ℓ where
   SET : Category (ℓ-suc ℓ) ℓ
   ob SET = hSet ℓ
   Hom[_,_] SET (A , _) (B , _) = A → B
-  id SET x = x 
+  id SET x = x
   _⋆_ SET f g x = g (f x)
   ⋆IdL SET f = refl
   ⋆IdR SET f = refl
