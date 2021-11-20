@@ -132,7 +132,6 @@ makeRing 0r 1r _+_ _·_ -_ is-setR assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-
        (makeIsRing is-setR assoc +-rid +-rinv +-comm
                    ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ )
 
--- TODO: why are the Ring structures split and organized like this?
 record IsRingHom {A : Type ℓ} {B : Type ℓ'} (R : RingStr A) (f : A → B) (S : RingStr B)
   : Type (ℓ-max ℓ ℓ')
   where
