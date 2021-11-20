@@ -659,8 +659,8 @@ transportCohomIso :  {A : Type ℓ} {n m : ℕ}
                   → GroupIso (coHomGr n A) (coHomGr m A)
 Iso.fun (fst (transportCohomIso {A = A} p)) = subst (λ n → coHom n A) p
 Iso.inv (fst (transportCohomIso {A = A} p)) = subst (λ n → coHom n A) (sym p)
-Iso.rightInv (fst (transportCohomIso p)) = transportTransport⁻ _
-Iso.leftInv (fst (transportCohomIso p)) = transportTransport⁻ _
+Iso.rightInv (fst (transportCohomIso p)) = transportTransport⁻ (cong (\ n → coHomGr n _ .fst) p)
+Iso.leftInv (fst (transportCohomIso p)) = transportTransport⁻ (cong (\ n → coHomGr n _ .fst) (sym p))
 snd (transportCohomIso {A = A} {n = n} {m = m} p) =
   makeIsGroupHom (λ x y → help x y p)
   where
