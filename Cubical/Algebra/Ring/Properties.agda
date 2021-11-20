@@ -2,6 +2,7 @@
 module Cubical.Algebra.Ring.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
@@ -163,17 +164,41 @@ module RingTheory (R' : Ring ℓ) where
   ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
 
 
-module HomTheory {R S : Ring ℓ} (f′ : RingHom  R S) where
+module RingHoms where
+  open IsRingHom
+
+  idRingHom : (R : Ring ℓ) → RingHom R R
+  fst (idRingHom R) = idfun (fst R)
+  snd (idRingHom R) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+
+  compRingHom : {R S T : Ring ℓ} → RingHom R S → RingHom S T → RingHom R T
+  fst (compRingHom f g) x = g .fst (f .fst x)
+  snd (compRingHom f g) = makeIsRingHom (cong (g .fst) (pres1 (snd f)) ∙ pres1 (snd g))
+                                        (λ x y → cong (g .fst) (pres+ (snd f) _ _) ∙ pres+ (snd g) _ _)
+                                        (λ x y → cong (g .fst) (pres· (snd f) _ _) ∙ pres· (snd g) _ _)
+
+  compIdRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
+  compIdRingHom φ = RingHom≡ refl
+
+  idCompRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom φ (idRingHom S) ≡ φ
+  idCompRingHom φ = RingHom≡ refl
+
+  compAssocRingHom : {R S T U : Ring ℓ} (φ : RingHom R S) (ψ : RingHom S T) (χ : RingHom T U) →
+                     compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
+  compAssocRingHom _ _ _ = RingHom≡ refl
+
+
+module RingHomTheory {R S : Ring ℓ} (φ : RingHom R S) where
   open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
-  open IsRingHom (f′ .snd)
+  open IsRingHom (φ .snd)
   private
     instance
       _ = R
       _ = S
       _ = snd R
       _ = snd S
-    f = fst f′
+    f = fst φ
 
   ker≡0→inj : ({x : ⟨ R ⟩} → f x ≡ 0r → x ≡ 0r)
             → ({x y : ⟨ R ⟩} → f x ≡ f y → x ≡ y)
@@ -185,17 +210,3 @@ module HomTheory {R S : Ring ℓ} (f′ : RingHom  R S) where
           f x - f y     ≡⟨ cong (_- f y) p ⟩
           f y - f y     ≡⟨ +Rinv _ ⟩
           0r            ∎
-
-
-module _{R S : Ring ℓ} (φ ψ : RingHom R S) where
- open RingStr ⦃...⦄
- open IsRingHom
- private
-   instance
-     _ = R
-     _ = S
-     _ = snd R
-     _ = snd S
-
- RingHom≡f : fst φ ≡ fst ψ → φ ≡ ψ
- RingHom≡f = Σ≡Prop λ f → isPropIsRingHom _ f _

@@ -1,5 +1,4 @@
 {-# OPTIONS --safe #-}
-
 module Cubical.Categories.NaturalTransformation.Base where
 
 open import Cubical.Foundations.Prelude
@@ -79,17 +78,17 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
 
   -- component of a natural transformation
   infix 30 _⟦_⟧
-  _⟦_⟧ : ∀ {F G : Functor C D} → (F ⇒ G) → (x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]
+  _⟦_⟧ : ∀ {F G : Functor C D} → F ⇒ G → (x : C .ob) → D [ F .F-ob x , G .F-ob x ]
   _⟦_⟧ = N-ob
 
   idTrans : (F : Functor C D) → NatTrans F F
-  idTrans F .N-ob x = D .id (F .F-ob x)
+  idTrans F .N-ob x  = D .id
   idTrans F .N-hom f =
       (F .F-hom f) ⋆ᴰ (idTrans F .N-ob _)
     ≡⟨ D .⋆IdR _ ⟩
       F .F-hom f
     ≡⟨ sym (D .⋆IdL _) ⟩
-      (D .id (F .F-ob _)) ⋆ᴰ (F .F-hom f)
+      (D .id) ⋆ᴰ (F .F-hom f)
     ∎
 
   syntax idTrans F = 1[ F ]
@@ -175,6 +174,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
 
   module _  ⦃ isCatD : isCategory D ⦄ {F G : Functor C D} {α β : NatTrans F G} where
     open Precategory
+    open isCategory
     open Functor
     open NatTrans
 
@@ -189,6 +189,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
             {α : NatTrans F G}
             {β : NatTrans F' G'} where
     open Precategory
+    open isCategory
     open Functor
     open NatTrans
     makeNatTransPathP : ∀ (p : F ≡ F') (q : G ≡ G')

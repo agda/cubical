@@ -21,6 +21,7 @@ open isIsoC
 open NatIso
 open NatTrans
 open Precategory
+open isCategory
 open Functor
 
 module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where

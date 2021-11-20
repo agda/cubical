@@ -13,12 +13,8 @@
     - pathToIso : Turns a path between two objects into an isomorphism between them
     - opposite categories
 
-
 -}
-
 {-# OPTIONS --safe #-}
-
-
 module Cubical.Categories.Category where
 
 open import Cubical.Categories.Category.Base public
