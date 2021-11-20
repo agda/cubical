@@ -297,9 +297,9 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
 
    χunique : (y : Σ[ χ' ∈ CommRingHom S⁻¹RAsCommRing B' ] fst χ' ∘ _/1 ≡ ψ₀)
            → (χ , funExt χcomp) ≡ y
-   χunique (χ' , χ'/1≡ψ) = Σ≡Prop (λ x → isSetΠ (λ _ → Bset) _ _) (RingHom≡f _ _ fχ≡fχ')
+   χunique (χ' , χ'/1≡ψ) = Σ≡Prop (λ x → isSetΠ (λ _ → Bset) _ _) (RingHom≡ fχ≡fχ')
     where
-    open RingHomRespUnits {A' = S⁻¹RAsCommRing} {B' = B'} χ'
+    open CommRingHomTheory {A' = S⁻¹RAsCommRing} {B' = B'} χ'
                           renaming (φ[x⁻¹]≡φ[x]⁻¹ to χ'[x⁻¹]≡χ'[x]⁻¹)
 
     module χ' = IsRingHom (χ' .snd)
@@ -385,7 +385,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
    instance
     _ = cond
    χ = (S⁻¹RHasUniversalProp A' φ φS⊆Aˣ .fst .fst)
-   open HomTheory χ
+   open RingHomTheory χ
 
   S⁻¹R≃A : S⁻¹R ≃ A
   S⁻¹R≃A = fst χ , isEmbedding×isSurjection→isEquiv (Embχ , Surχ)

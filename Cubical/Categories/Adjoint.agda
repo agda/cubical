@@ -68,8 +68,8 @@ module UnitCounit where
     ⦃ isCatC : isCategory C ⦄ ⦃ isCatD : isCategory D ⦄
     (η : 𝟙⟨ C ⟩ ⇒ (funcComp G F))
     (ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩)
-    (Δ₁ : ∀ c → F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ≡ D .id (F ⟅ c ⟆))
-    (Δ₂ : ∀ d → η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫ ≡ C .id (G ⟅ d ⟆))
+    (Δ₁ : ∀ c → F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ≡ D .id)
+    (Δ₂ : ∀ d → η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫ ≡ C .id)
     where
 
     make⊣ : F ⊣ G
@@ -170,27 +170,27 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor 
         -- ETA
 
         -- trivial commutative diagram between identities in D
-        commInD : ∀ {x y} (f : C [ x , y ]) → (D .id _) ⋆⟨ D ⟩ F ⟪ f ⟫ ≡ F ⟪ f ⟫ ⋆⟨ D ⟩ (D .id _)
+        commInD : ∀ {x y} (f : C [ x , y ]) → D .id ⋆⟨ D ⟩ F ⟪ f ⟫ ≡ F ⟪ f ⟫ ⋆⟨ D ⟩ D .id
         commInD f = (D .⋆IdL _) ∙ sym (D .⋆IdR _)
 
-        sharpen1 : ∀ {x y} (f : C [ x , y ]) → F ⟪ f ⟫ ⋆⟨ D ⟩ (D .id _) ≡ F ⟪ f ⟫ ⋆⟨ D ⟩ (D .id _) ♭ ♯
+        sharpen1 : ∀ {x y} (f : C [ x , y ]) → F ⟪ f ⟫ ⋆⟨ D ⟩ D .id ≡ F ⟪ f ⟫ ⋆⟨ D ⟩ D .id ♭ ♯
         sharpen1 f = cong (λ v → F ⟪ f ⟫ ⋆⟨ D ⟩ v) (sym (adjIso .leftInv _))
 
         η' : 𝟙⟨ C ⟩ ⇒ G ∘F F
-        η' .N-ob x = (D .id _) ♭
+        η' .N-ob x = D .id ♭
         η' .N-hom f = sym (fst (adjNat') (commInD f ∙ sharpen1 f))
 
         -- EPSILON
 
         -- trivial commutative diagram between identities in C
-        commInC : ∀ {x y} (g : D [ x , y ]) → (C .id _) ⋆⟨ C ⟩ G ⟪ g ⟫ ≡ G ⟪ g ⟫ ⋆⟨ C ⟩ (C .id _)
+        commInC : ∀ {x y} (g : D [ x , y ]) → C .id ⋆⟨ C ⟩ G ⟪ g ⟫ ≡ G ⟪ g ⟫ ⋆⟨ C ⟩ C .id
         commInC g = (C .⋆IdL _) ∙ sym (C .⋆IdR _)
 
-        sharpen2 : ∀ {x y} (g : D [ x , y ]) → (C .id _ ♯ ♭) ⋆⟨ C ⟩ G ⟪ g ⟫ ≡ (C .id _) ⋆⟨ C ⟩ G ⟪ g ⟫
+        sharpen2 : ∀ {x y} (g : D [ x , y ]) → C .id ♯ ♭ ⋆⟨ C ⟩ G ⟪ g ⟫ ≡ C .id ⋆⟨ C ⟩ G ⟪ g ⟫
         sharpen2 g = cong (λ v → v ⋆⟨ C ⟩ G ⟪ g ⟫) (adjIso .rightInv _)
 
         ε' : F ∘F G ⇒ 𝟙⟨ D ⟩
-        ε' .N-ob x = (C .id _) ♯
+        ε' .N-ob x  = C .id ♯
         ε' .N-hom g = sym (snd adjNat' (sharpen2 g ∙ commInC g))
 
         -- DELTA 1
@@ -209,9 +209,9 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor 
             → (idTrans F) ⟦ c ⟧ ≡ (seqTransP F-assoc (F ∘ʳ η') (ε' ∘ˡ F) .N-ob c)
         body c = (idTrans F) ⟦ c ⟧
               ≡⟨ refl ⟩
-                D .id _
+                D .id
               ≡⟨ sym (D .⋆IdL _) ⟩
-                D .id _ ⋆⟨ D ⟩ D .id _
+                D .id ⋆⟨ D ⟩ D .id
               ≡⟨ snd adjNat' (cong (λ v → (η' ⟦ c ⟧) ⋆⟨ C ⟩ v) (G .F-id)) ⟩
                 F ⟪ η' ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε' ⟦ F ⟅ c ⟆ ⟧
               ≡⟨ sym (expL c) ⟩
@@ -226,16 +226,16 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor 
         -- DELTA 2
 
         body2 : ∀ (d)
-            →  seqP {C = C} {p = refl} ((η' ∘ˡ G) ⟦ d ⟧) ((G ∘ʳ ε') ⟦ d ⟧) ≡ C .id (G .F-ob d)
+            →  seqP {C = C} {p = refl} ((η' ∘ˡ G) ⟦ d ⟧) ((G ∘ʳ ε') ⟦ d ⟧) ≡ C .id
         body2 d = seqP {C = C} {p = refl} ((η' ∘ˡ G) ⟦ d ⟧) ((G ∘ʳ ε') ⟦ d ⟧)
                 ≡⟨ seqP≡seq {C = C} _ _ ⟩
                   ((η' ∘ˡ G) ⟦ d ⟧) ⋆⟨ C ⟩ ((G ∘ʳ ε') ⟦ d ⟧)
                 ≡⟨ refl ⟩
                   (η' ⟦ G ⟅ d ⟆ ⟧) ⋆⟨ C ⟩ (G ⟪ ε' ⟦ d ⟧ ⟫)
                 ≡⟨ fst adjNat' (cong (λ v → v ⋆⟨ D ⟩ (ε' ⟦ d ⟧)) (sym (F .F-id))) ⟩
-                  C .id _ ⋆⟨ C ⟩ C .id _
+                  C .id ⋆⟨ C ⟩ C .id
                 ≡⟨ C .⋆IdL _ ⟩
-                  C .id (G .F-ob d)
+                  C .id
                 ∎
 
         Δ₂' : PathP (λ i → NatTrans (F-rUnit {F = G} i) (F-lUnit {F = G} i))
@@ -251,20 +251,20 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor 
 
     -- helper functions for working with this Adjoint definition
 
-    δ₁ : ∀ {c} → (F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧) ≡ D .id _
+    δ₁ : ∀ {c} → (F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧) ≡ D .id
     δ₁ {c} = (F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧)
           ≡⟨ sym (seqP≡seq {C = D} _ _) ⟩
             seqP {C = D} {p = refl} (F ⟪ η ⟦ c ⟧ ⟫) (ε ⟦ F ⟅ c ⟆ ⟧)
           ≡⟨ (λ j → (Δ₁ j) .N-ob c) ⟩
-            D .id _
+            D .id
           ∎
 
-    δ₂ : ∀ {d} → (η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫) ≡ C .id _
+    δ₂ : ∀ {d} → (η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫) ≡ C .id
     δ₂ {d} = (η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫)
         ≡⟨ sym (seqP≡seq {C = C} _ _) ⟩
           seqP {C = C} {p = refl} (η ⟦ G ⟅ d ⟆ ⟧) (G ⟪ ε ⟦ d ⟧ ⟫)
         ≡⟨ (λ j → (Δ₂ j) .N-ob d) ⟩
-          C .id _
+          C .id
         ∎
 
 
@@ -287,7 +287,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor 
       ≡⟨ C .⋆Assoc _ _ _ ⟩
         g ⋆⟨ C ⟩ (η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫)
       ≡⟨ lPrecatWhisker {C = C} _ _ _ δ₂ ⟩
-        g ⋆⟨ C ⟩ C .id _
+        g ⋆⟨ C ⟩ C .id
       ≡⟨ C .⋆IdR _ ⟩
         g
       ∎
@@ -307,7 +307,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} (F : Functor 
         F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ⋆⟨ D ⟩ f
       -- apply triangle identity
       ≡⟨ rPrecatWhisker {C = D} _ _ _ δ₁ ⟩
-        (D .id _) ⋆⟨ D ⟩ f
+        D .id ⋆⟨ D ⟩ f
       ≡⟨ D .⋆IdL _ ⟩
         f
       ∎

@@ -1,5 +1,4 @@
 {-# OPTIONS --safe #-}
-
 module Cubical.Categories.Instances.Cospan where
 
 open import Cubical.Foundations.Prelude
@@ -33,9 +32,9 @@ CospanCat ._⋆_ {x = ②} {①} {①} f g = tt
 CospanCat ._⋆_ {x = ⓪} {⓪} {①} f g = tt
 CospanCat ._⋆_ {x = ②} {②} {①} f g = tt
 
-CospanCat .id ⓪ = tt
-CospanCat .id ① = tt
-CospanCat .id ② = tt
+CospanCat .id {⓪} = tt
+CospanCat .id {①} = tt
+CospanCat .id {②} = tt
 
 CospanCat .⋆IdL {⓪} {①} _ = refl
 CospanCat .⋆IdL {②} {①} _ = refl

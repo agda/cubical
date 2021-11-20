@@ -26,7 +26,7 @@ module _ {J : Precategory ℓJ ℓJ'}
   -- morphisms to the identity
   constF : (c : C .ob) → Functor J C
   constF c .F-ob _ = c
-  constF c .F-hom _ = C .id c
+  constF c .F-hom _ = C .id
   constF c .F-id = refl
   constF c .F-seq _ _ = sym (C .⋆IdL _)
 
@@ -45,11 +45,11 @@ module _ {J : Precategory ℓJ ℓJ'}
         → Cone K d
     (f ◼ μ) .N-ob x = f ⋆⟨ C ⟩ μ ⟦ x ⟧
     (f ◼ μ) .N-hom {x = x} {y} k
-      = C .id _ ⋆⟨ C ⟩ (f ⋆⟨ C ⟩ μ ⟦ y ⟧)
+      = C .id ⋆⟨ C ⟩ (f ⋆⟨ C ⟩ μ ⟦ y ⟧)
       ≡⟨ C .⋆IdL _ ⟩
         f ⋆⟨ C ⟩ μ ⟦ y ⟧
       ≡⟨ cong (λ v → f ⋆⟨ C ⟩ v) (sym (C .⋆IdL _)) ⟩
-        f ⋆⟨ C ⟩ (C .id _ ⋆⟨ C ⟩ μ ⟦ y ⟧)
+        f ⋆⟨ C ⟩ (C .id ⋆⟨ C ⟩ μ ⟦ y ⟧)
       ≡⟨ cong (λ v → f ⋆⟨ C ⟩ v) (μ .N-hom k) ⟩
         f ⋆⟨ C ⟩ (μ ⟦ x ⟧ ⋆⟨ C ⟩ K ⟪ k ⟫)
       ≡⟨ sym (C .⋆Assoc _ _ _) ⟩

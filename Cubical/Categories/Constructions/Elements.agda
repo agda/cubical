@@ -31,7 +31,7 @@ infix 50 ∫_
 (∫ F) .ob = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
 -- morphisms are f : c → c' which take x to x'
 (∫ F) .Hom[_,_] (c , x) (c' , x')  = Σ[ f ∈ C [ c , c' ] ] x' ≡ (F ⟪ f ⟫) x
-(∫ F) .id (c , x) = C .id c , sym (funExt⁻ (F .F-id) x ∙ refl)
+(∫ F) .id {x = (c , x)} = C .id , sym (funExt⁻ (F .F-id) x ∙ refl)
 (∫ F) ._⋆_ {c , x} {c₁ , x₁} {c₂ , x₂} (f , p) (g , q)
   = (f ⋆⟨ C ⟩ g) , (x₂
             ≡⟨ q ⟩
@@ -49,16 +49,16 @@ infix 50 ∫_
       cIdL = C .⋆IdL f
 
       -- proof from composition with id
-      p' : x' ≡ (F ⟪ C .id c ⋆⟨ C ⟩ f ⟫) x
-      p' = snd ((∫ F) ._⋆_ ((∫ F) .id o) f')
+      p' : x' ≡ (F ⟪ C .id ⋆⟨ C ⟩ f ⟫) x
+      p' = snd ((∫ F) ._⋆_ ((∫ F) .id) f')
 (∫ F) .⋆IdR o@{c , x} o1@{c' , x'} f'@(f , p) i
     = (cIdR i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS' x' ((F ⟪ a ⟫) x)) p' p cIdR i
       where
         cIdR = C .⋆IdR f
         isS' = getIsSet F c'
 
-        p' : x' ≡ (F ⟪ f ⋆⟨ C ⟩ C .id c' ⟫) x
-        p' = snd ((∫ F) ._⋆_ f' ((∫ F) .id o1))
+        p' : x' ≡ (F ⟪ f ⋆⟨ C ⟩ C .id ⟫) x
+        p' = snd ((∫ F) ._⋆_ f' ((∫ F) .id))
 (∫ F) .⋆Assoc o@{c , x} o1@{c₁ , x₁} o2@{c₂ , x₂} o3@{c₃ , x₃} f'@(f , p) g'@(g , q) h'@(h , r) i
   = (cAssoc i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS₃ x₃ ((F ⟪ a ⟫) x)) p1 p2 cAssoc i
     where
@@ -78,7 +78,7 @@ infix 50 ∫_
 (∫ᴾ F) .ob = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
 -- morphisms are f : c → c' which take x to x'
 (∫ᴾ F) .Hom[_,_] (c , x) (c' , x')  = Σ[ f ∈ C [ c , c' ] ] x ≡ (F ⟪ f ⟫) x'
-(∫ᴾ F) .id (c , x) = C .id c , sym (funExt⁻ (F .F-id) x ∙ refl)
+(∫ᴾ F) .id {x = (c , x)} = C .id , sym (funExt⁻ (F .F-id) x ∙ refl)
 (∫ᴾ F) ._⋆_ {c , x} {c₁ , x₁} {c₂ , x₂} (f , p) (g , q)
   = (f ⋆⟨ C ⟩ g) , (x
             ≡⟨ p ⟩
@@ -96,16 +96,16 @@ infix 50 ∫_
       cIdL = C .⋆IdL f
 
       -- proof from composition with id
-      p' : x ≡ (F ⟪ C .id c ⋆⟨ C ⟩ f ⟫) x'
-      p' = snd ((∫ᴾ F) ._⋆_ ((∫ᴾ F) .id o) f')
+      p' : x ≡ (F ⟪ C .id ⋆⟨ C ⟩ f ⟫) x'
+      p' = snd ((∫ᴾ F) ._⋆_ ((∫ᴾ F) .id) f')
 (∫ᴾ F) .⋆IdR o@{c , x} o1@{c' , x'} f'@(f , p) i
     = (cIdR i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS x ((F ⟪ a ⟫) x')) p' p cIdR i
       where
         cIdR = C .⋆IdR f
         isS = getIsSet F c
 
-        p' : x ≡ (F ⟪ f ⋆⟨ C ⟩ C .id c' ⟫) x'
-        p' = snd ((∫ᴾ F) ._⋆_ f' ((∫ᴾ F) .id o1))
+        p' : x ≡ (F ⟪ f ⋆⟨ C ⟩ C .id ⟫) x'
+        p' = snd ((∫ᴾ F) ._⋆_ f' ((∫ᴾ F) .id))
 (∫ᴾ F) .⋆Assoc o@{c , x} o1@{c₁ , x₁} o2@{c₂ , x₂} o3@{c₃ , x₃} f'@(f , p) g'@(g , q) h'@(h , r) i
   = (cAssoc i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS x ((F ⟪ a ⟫) x₃)) p1 p2 cAssoc i
     where
