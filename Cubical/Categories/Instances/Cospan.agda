@@ -23,7 +23,6 @@ CospanCat .Hom[_,_] ① ① = Unit
 CospanCat .Hom[_,_] ② ② = Unit
 CospanCat .Hom[_,_] _ _ = ⊥
 
-
 CospanCat ._⋆_ {x = ⓪} {⓪} {⓪} f g = tt
 CospanCat ._⋆_ {x = ①} {①} {①} f g = tt
 CospanCat ._⋆_ {x = ②} {②} {②} f g = tt
@@ -58,4 +57,8 @@ CospanCat .⋆Assoc {②} {②} {②} {①} _ _ _ = refl
 CospanCat .⋆Assoc {②} {②} {①} {①} _ _ _ = refl
 CospanCat .⋆Assoc {②} {①} {①} {①} _ _ _ = refl
 
-CospanCat .isSetHom = {!!}
+CospanCat .isSetHom {⓪} {⓪} = isSetUnit
+CospanCat .isSetHom {⓪} {①} = isSetUnit
+CospanCat .isSetHom {①} {①} = isSetUnit
+CospanCat .isSetHom {②} {①} = isSetUnit
+CospanCat .isSetHom {②} {②} = isSetUnit

@@ -62,12 +62,14 @@ module _ {ℓ ℓ' ℓ'' : Level} (C : Category ℓ ℓ') where
   open isPullback
 
   private
+    isSurjSET : ∀ {ℓ} {A B : SET ℓ .ob} → (f : SET ℓ [ A , B ]) → Type _
+    isSurjSET {A = A} {B} f = ∀ (b : fst B) → Σ[ a ∈ fst A ] f a ≡ b
+
     -- types over Γ are types with a "projection" (aka surjection) to Γ
     PSTy[_] : PreShv C ℓ'' .ob → Type _
     PSTy[ Γ ] = Σ[ ΓA ∈ PreShv C ℓ'' .ob ]
                    Σ[ π ∈ ΓA ⇒ Γ ]
-                     (∀ (c : C .ob)
-                     → isSurjSET {A = ΓA ⟅ c ⟆} {Γ ⟅ c ⟆} (π ⟦ c ⟧))
+                     (∀ (c : C .ob) → isSurjSET {A = ΓA ⟅ c ⟆} {Γ ⟅ c ⟆} (π ⟦ c ⟧))
 
     -- just directly use types from above as context extensions
     PSCext : (Γ : _) → PSTy[ Γ ] → Σ[ ΓA ∈ PreShv C ℓ'' .ob ] ΓA ⇒ Γ
