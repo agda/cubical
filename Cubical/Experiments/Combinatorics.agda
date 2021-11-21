@@ -21,10 +21,12 @@ open import Cubical.Data.SumFin renaming (Fin to SumFin) hiding (fzero)
 open import Cubical.Data.FinSet
 open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Cardinality
+open import Cubical.Data.FinSet.Quotients
 
 open import Cubical.HITs.PropositionalTruncation renaming (∥_∥ to ∥_∥')
 
 open import Cubical.Relation.Nullary renaming (¬_ to ¬'_ ; ∥_∥ to ∥_∥')
+open import Cubical.Relation.Binary
 
 open import Cubical.Functions.Embedding  renaming (_↪_ to _↪'_)
 open import Cubical.Functions.Surjection renaming (_↠_ to _↠'_)
@@ -138,3 +140,25 @@ m = refl
 -- the number of numeral 1
 n1 : card (_ , isFinSetFiberDec (Fin _) ℕ discreteℕ f 1) ≡ 2
 n1 = refl
+
+-- a somewhat trivial equivalence relation making everything equivalent
+R : {n : ℕ} → Fin n .fst → Fin n .fst → Type
+R _ _ = Unit
+
+isDecR : {n : ℕ} → (x y : Fin n .fst) → Dec (R {n = n} x y)
+isDecR _ _ = yes tt
+
+open BinaryRelation
+open isEquivRel
+
+isEquivRelR : {n : ℕ} → isEquivRel (R {n = n})
+isEquivRelR {n = n} .reflexive _ = tt
+isEquivRelR {n = n} .symmetric _ _ tt = tt
+isEquivRelR {n = n} .transitive _ _ _ tt tt = tt
+
+collapsed : (n : ℕ) → FinSet ℓ-zero
+collapsed n = _ , isFinSetQuot (Fin n) R isEquivRelR isDecR
+
+-- this number should be 1
+≡1 : card (collapsed 2) ≡ 1
+≡1 = refl
