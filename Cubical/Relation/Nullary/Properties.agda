@@ -75,6 +75,13 @@ EquivPresDec : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B
           → Dec A → Dec B
 EquivPresDec p = mapDec (p .fst) (λ f → f ∘ invEq p)
 
+¬→¬∥∥ : ¬ A → ¬ ∥ A ∥
+¬→¬∥∥ ¬p ∣ a ∣ = ¬p a
+¬→¬∥∥ ¬p (squash x y i) = isProp⊥ (¬→¬∥∥ ¬p x) (¬→¬∥∥ ¬p y) i
+
+Dec∥∥ : Dec A → Dec ∥ A ∥
+Dec∥∥ = mapDec ∣_∣ ¬→¬∥∥
+
 -- we have the following implications
 -- X ── ∣_∣ ─→ ∥ X ∥
 -- ∥ X ∥ ── populatedBy ─→ ⟪ X ⟫
