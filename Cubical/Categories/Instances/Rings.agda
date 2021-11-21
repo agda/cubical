@@ -8,14 +8,15 @@ open import Cubical.Algebra.Ring
 
 open import Cubical.Categories.Category
 
-open Precategory
+open Category
 open RingHoms
 
-RingsPrecategory : ∀ {ℓ} → Precategory (ℓ-suc ℓ) ℓ
-ob RingsPrecategory       = Ring _
-Hom[_,_] RingsPrecategory = RingHom
-id RingsPrecategory {R}   = idRingHom R
-_⋆_ RingsPrecategory      = compRingHom
-⋆IdL RingsPrecategory     = compIdRingHom
-⋆IdR RingsPrecategory     = idCompRingHom
-⋆Assoc RingsPrecategory   = compAssocRingHom
+RingsCategory : ∀ {ℓ} → Category (ℓ-suc ℓ) ℓ
+ob RingsCategory       = Ring _
+Hom[_,_] RingsCategory = RingHom
+id RingsCategory {R}   = idRingHom R
+_⋆_ RingsCategory      = compRingHom
+⋆IdL RingsCategory     = compIdRingHom
+⋆IdR RingsCategory     = idCompRingHom
+⋆Assoc RingsCategory   = compAssocRingHom
+isSetHom RingsCategory = isSetRingHom _ _

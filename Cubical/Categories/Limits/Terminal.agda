@@ -13,8 +13,8 @@ private
   variable
     ℓ ℓ' : Level
 
-module _ (C : Precategory ℓ ℓ') where
-  open Precategory C
+module _ (C : Category ℓ ℓ') where
+  open Category C
 
   isInitial : (x : ob) → Type (ℓ-max ℓ ℓ')
   isInitial x = ∀ (y : ob) → isContr (C [ x , y ])
@@ -48,7 +48,7 @@ module _ (C : Precategory ℓ ℓ') where
 
   open isUnivalent
 
-  -- The type of initial objects of a univalent precategory is a proposition,
+  -- The type of initial objects of a univalent category is a proposition,
   -- i.e. all initial objects are equal.
   isPropInitial : (hC : isUnivalent C) → isProp (hasInitialOb)
   isPropInitial hC x y =
@@ -77,11 +77,11 @@ module _ (C : Precategory ℓ ℓ') where
         y→x→y = isContr→isProp (hy y) _ _ -- similar.
     in catiso x→y y→x y→x→y x→y→x
 
-  -- The type of final objects of a univalent precategory is a proposition,
+  -- The type of final objects of a univalent category is a proposition,
   -- i.e. all final objects are equal.
   isPropFinal : (hC : isUnivalent C) → isProp (hasFinalOb)
   isPropFinal hC x y =
     -- Being final is a prop ∴ Suffices equal as objects in C.
-    Σ≡Prop (isPropIsFinal)
+    Σ≡Prop isPropIsFinal
     -- C is univalent ∴ Suffices isomorphic as objects in C.
     (CatIsoToPath hC (isFinalToIso (snd x) (snd y)))
