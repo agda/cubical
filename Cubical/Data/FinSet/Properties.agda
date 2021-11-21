@@ -14,6 +14,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
+open import Cubical.Data.Bool
 open import Cubical.Data.Empty renaming (rec to EmptyRec)
 open import Cubical.Data.Sigma
 
@@ -62,6 +63,9 @@ isFinSetFin = ∣ _ , pathToEquiv refl ∣
 isFinSetUnit : isFinSet Unit
 isFinSetUnit = ∣ 1 , Unit≃Fin1 ∣
 
+isFinSetBool : isFinSet Bool
+isFinSetBool = ∣ 2 , invEquiv (SumFin2≃Bool) ⋆ SumFin≃Fin 2 ∣
+
 isFinSet→Discrete : isFinSet A → Discrete A
 isFinSet→Discrete = rec isPropDiscrete (λ (_ , p) → EquivPresDiscrete (invEquiv p) discreteFin)
 
@@ -72,10 +76,16 @@ isDecProp→isFinSet : isProp A → Dec A → isFinSet A
 isDecProp→isFinSet h (yes p) = isContr→isFinSet (inhProp→isContr p h)
 isDecProp→isFinSet h (no ¬p) = ∣ 0 , uninhabEquiv ¬p ¬Fin0 ∣
 
+isDec→isFinSet∥∥ : Dec A → isFinSet ∥ A ∥
+isDec→isFinSet∥∥ dec = isDecProp→isFinSet isPropPropTrunc (Dec∥∥ dec)
+
 isFinSet→Dec∥∥ : isFinSet A → Dec ∥ A ∥
 isFinSet→Dec∥∥ =
   rec (isPropDec isPropPropTrunc)
       (λ (_ , p) → EquivPresDec (propTrunc≃ (invEquiv p)) (∥Fin∥ _))
+
+isFinProp→Dec : isFinSet A → isProp A → Dec A
+isFinProp→Dec p h = subst Dec (propTruncIdempotent h) (isFinSet→Dec∥∥ p)
 
 PeirceLaw∥∥ : isFinSet A → NonEmpty ∥ A ∥ → ∥ A ∥
 PeirceLaw∥∥ p = Dec→Stable (isFinSet→Dec∥∥ p)

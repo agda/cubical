@@ -22,6 +22,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty renaming (rec to EmptyRec)
+open import Cubical.Data.Bool hiding (_≟_)
 open import Cubical.Data.Sum hiding (rec)
 open import Cubical.Data.Sigma
 
@@ -585,3 +586,35 @@ Iso-∥FinSet∥₂-ℕ {ℓ = ℓ} .leftInv =
 -- this is the definition of natural numbers you learned from school
 ∥FinSet∥₂≃ℕ : ∥ FinSet ℓ ∥₂ ≃ ℕ
 ∥FinSet∥₂≃ℕ = isoToEquiv Iso-∥FinSet∥₂-ℕ
+
+-- FinProp is equivalent to Bool
+
+Bool→FinProp : Bool → FinProp ℓ
+Bool→FinProp true = 𝟙 , isPropUnit*
+Bool→FinProp false = 𝟘 , isProp⊥*
+
+injBool→FinProp : (x y : Bool) → Bool→FinProp {ℓ = ℓ} x ≡ Bool→FinProp y → x ≡ y
+injBool→FinProp true true _ = refl
+injBool→FinProp false false _ = refl
+injBool→FinProp true false p = EmptyRec (snotz (cong (card ∘ fst) p))
+injBool→FinProp false true p = EmptyRec (znots (cong (card ∘ fst) p))
+
+isEmbeddingBool→FinProp : isEmbedding (Bool→FinProp {ℓ = ℓ})
+isEmbeddingBool→FinProp = injEmbedding isSetBool isSetFinProp (λ {x} {y} → injBool→FinProp x y)
+
+card-case : (P : FinProp ℓ) → {n : ℕ} → card (P .fst) ≡ n → Σ[ x ∈ Bool ] Bool→FinProp x ≡ P
+card-case P {n = 0} p = false , FinProp≡ (𝟘 , isProp⊥*) P .fst (cong fst (sym (card≡0 {X = P .fst} p)))
+card-case P {n = 1} p = true , FinProp≡ (𝟙 , isPropUnit*) P .fst (cong fst (sym (card≡1 {X = P .fst} p)))
+card-case P {n = suc (suc n)} p =
+  EmptyRec (¬-<-zero (pred-≤-pred (subst (λ a → a ≤ 1) p (isProp→card≤1 (P .fst) (P .snd)))))
+
+isSurjectionBool→FinProp : isSurjection (Bool→FinProp {ℓ = ℓ})
+isSurjectionBool→FinProp P = ∣ card-case P refl ∣
+
+FinProp≃Bool : FinProp ℓ ≃ Bool
+FinProp≃Bool =
+  invEquiv (Bool→FinProp ,
+    isEmbedding×isSurjection→isEquiv (isEmbeddingBool→FinProp  , isSurjectionBool→FinProp))
+
+isFinSetFinProp : isFinSet (FinProp ℓ)
+isFinSetFinProp = EquivPresIsFinSet (invEquiv FinProp≃Bool) isFinSetBool

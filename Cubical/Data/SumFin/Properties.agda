@@ -10,8 +10,9 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
-import Cubical.Data.Fin as Fin
+open import Cubical.Data.Bool
 open import Cubical.Data.Nat
+import Cubical.Data.Fin as Fin
 open import Cubical.Data.SumFin.Base as SumFin
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
@@ -90,3 +91,20 @@ SumFin∥∥≃ 0 = propTruncIdempotent≃ (isProp⊥)
 SumFin∥∥≃ (suc n) =
     isContr→≃Unit (inhProp→isContr ∣ inl tt ∣ isPropPropTrunc)
   ⋆ isContr→≃Unit (isContrUnit) ⋆ invEquiv (⊎-⊥-≃)
+
+-- SumFin 2 is equivalent to Bool
+
+open Iso
+
+Iso-⊤⊎⊤-Bool : Iso (⊤ ⊎ ⊤) Bool
+Iso-⊤⊎⊤-Bool .fun (inl tt) = true
+Iso-⊤⊎⊤-Bool .fun (inr tt) = false
+Iso-⊤⊎⊤-Bool .inv true = inl tt
+Iso-⊤⊎⊤-Bool .inv false = inr tt
+Iso-⊤⊎⊤-Bool .leftInv (inl tt) = refl
+Iso-⊤⊎⊤-Bool .leftInv (inr tt) = refl
+Iso-⊤⊎⊤-Bool .rightInv true = refl
+Iso-⊤⊎⊤-Bool .rightInv false = refl
+
+SumFin2≃Bool : Fin 2 ≃ Bool
+SumFin2≃Bool = ⊎-equiv (idEquiv _) ⊎-⊥-≃ ⋆ isoToEquiv Iso-⊤⊎⊤-Bool

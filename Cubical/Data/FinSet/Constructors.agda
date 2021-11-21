@@ -10,6 +10,7 @@ module Cubical.Data.FinSet.Constructors where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.PropositionalTruncation renaming (rec to TruncRec)
 
@@ -164,6 +165,12 @@ module _
 
   isFinSet≃ : isFinSet (X .fst ≃ Y .fst)
   isFinSet≃ = isFinSetΣ (_ , isFinSet→) (λ f → _ , isFinSetIsEquiv X Y f)
+
+module _
+  (X Y : FinSet ℓ ) where
+
+  isFinSetType≡ : isFinSet (X .fst ≡ Y .fst)
+  isFinSetType≡ = EquivPresIsFinSet (invEquiv univalence) (isFinSet≃ X Y)
 
 module _
   (X : FinSet ℓ) where
