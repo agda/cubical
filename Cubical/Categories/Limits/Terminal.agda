@@ -34,7 +34,7 @@ module _ (C : Category ℓ ℓ') where
 
   -- Objects that are initial are isomorphic.
   isInitialToIso : {x y : ob} (hx : isInitial x) (hy : isInitial y) →
-    CatIso {C = C} x y
+    CatIso C x y
   isInitialToIso {x = x} {y = y} hx hy =
     let x→y : C [ x , y ]
         x→y = fst (hx y) -- morphism forwards
@@ -65,7 +65,7 @@ module _ (C : Category ℓ ℓ') where
 
   -- Objects that are initial are isomorphic.
   isFinalToIso : {x y : ob} (hx : isFinal x) (hy : isFinal y) →
-    CatIso {C = C} x y
+    CatIso C x y
   isFinalToIso {x = x} {y = y} hx hy =
     let x→y : C [ x , y ]
         x→y = fst (hy x) -- morphism forwards

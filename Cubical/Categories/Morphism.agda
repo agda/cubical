@@ -2,16 +2,16 @@
 module Cubical.Categories.Morphism where
 
 open import Cubical.Foundations.Prelude
-
 open import Cubical.Data.Sigma
-
 open import Cubical.Categories.Category
+
 
 private
   variable
     ℓ ℓ' : Level
 
-module _ {C : Category ℓ ℓ'} where
+-- C needs to be explicit for these definitions as Agda can't infer it
+module _ (C : Category ℓ ℓ') where
   open Category C
 
   private
@@ -38,16 +38,31 @@ module _ {C : Category ℓ ℓ'} where
     field
       sec : g ⋆ f ≡ id
       ret : f ⋆ g ≡ id
+  
+  record isIso (f : Hom[ x , y ]) : Type ℓ' where
+    field
+      inv : Hom[ y , x ]
+      sec : inv ⋆ f ≡ id
+      ret : f ⋆ inv ≡ id
+
+
+-- C can be implicit here
+module _ {C : Category ℓ ℓ'} where
+  open Category C
+
+  private
+    variable
+      x y z w : ob
 
   open areInv
 
-  symAreInv : {f : Hom[ x , y ]} {g : Hom[ y , x ]} → areInv f g → areInv g f
+  symAreInv : {f : Hom[ x , y ]} {g : Hom[ y , x ]} → areInv C f g → areInv C g f
   sec (symAreInv x) = ret x
   ret (symAreInv x) = sec x
 
   -- equational reasoning with inverses
   invMoveR : ∀ {f : Hom[ x , y ]} {g : Hom[ y , x ]} {h : Hom[ z , x ]} {k : Hom[ z , y ]}
-           → areInv f g
+           → areInv C f g
            → h ⋆ f ≡ k
            → h ≡ k ⋆ g
   invMoveR {f = f} {g} {h} {k} ai p
@@ -63,7 +78,7 @@ module _ {C : Category ℓ ℓ'} where
     ∎
 
   invMoveL : ∀ {f : Hom[ x , y ]} {g : Hom[ y , x ]} {h : Hom[ y , z ]} {k : Hom[ x , z ]}
-          → areInv f g
+          → areInv C f g
           → f ⋆ h ≡ k
           → h ≡ g ⋆ k
   invMoveL {f = f} {g} {h} {k} ai p
@@ -78,17 +93,11 @@ module _ {C : Category ℓ ℓ'} where
       (g ⋆ k)
     ∎
 
-  record isIso (f : Hom[ x , y ]) : Type ℓ' where
-    field
-      inv : Hom[ y , x ]
-      sec : inv ⋆ f ≡ id
-      ret : f ⋆ inv ≡ id
-
   open isIso
 
   isIso→areInv : ∀ {f : Hom[ x , y ]}
-               → (isI : isIso f)
-               → areInv f (isI .inv)
+               → (isI : isIso C f)
+               → areInv C f (isI .inv)
   sec (isIso→areInv isI) = sec isI
   ret (isIso→areInv isI) = ret isI
 
@@ -96,25 +105,26 @@ module _ {C : Category ℓ ℓ'} where
 
   -- isIso agrees with CatIso
   isIso→CatIso : ∀ {f : C [ x , y ]}
-               → isIso f
-               → CatIso {C = C} x y
+               → isIso C f
+               → CatIso C x y
   mor (isIso→CatIso {f = f} x) = f
   inv (isIso→CatIso x) = inv x
   sec (isIso→CatIso x) = sec x
   ret (isIso→CatIso x) = ret x
 
-  CatIso→isIso : (cIso : CatIso {C = C} x y)
-               → isIso (cIso .mor)
+  CatIso→isIso : (cIso : CatIso C x y)
+               → isIso C (cIso .mor)
   inv (CatIso→isIso f) = inv f
   sec (CatIso→isIso f) = sec f
   ret (CatIso→isIso f) = ret f
 
-  CatIso→areInv : (cIso : CatIso {C = C} x y)
-                → areInv (cIso .mor) (cIso .inv)
+  CatIso→areInv : (cIso : CatIso C x y)
+                → areInv C (cIso .mor) (cIso .inv)
   CatIso→areInv cIso = isIso→areInv (CatIso→isIso cIso)
 
   -- reverse of an iso is also an iso
   symCatIso : ∀ {x y}
-             → CatIso {C = C} x y
-             → CatIso {C = C} y x
+             → CatIso C x y
+             → CatIso C y x
   symCatIso (catiso mor inv sec ret) = catiso inv mor ret sec
+ 

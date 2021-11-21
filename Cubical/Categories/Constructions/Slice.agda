@@ -158,18 +158,18 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
     -- names for the equivalences/isos
 
-    pathIsoEquiv : (x ≡ y) ≃ (CatIso x y)
+    pathIsoEquiv : (x ≡ y) ≃ (CatIso _ x y)
     pathIsoEquiv = univEquiv isU x y
 
-    isoPathEquiv : (CatIso x y) ≃ (x ≡ y)
+    isoPathEquiv : (CatIso _ x y) ≃ (x ≡ y)
     isoPathEquiv = invEquiv pathIsoEquiv
 
-    pToIIso' : Iso (x ≡ y) (CatIso x y)
+    pToIIso' : Iso (x ≡ y) (CatIso _ x y)
     pToIIso' = equivToIso pathIsoEquiv
 
     -- the iso in SliceCat we're given induces an iso in C between x and y
-    module _ ( cIso@(catiso kc lc s r) : CatIso {C = SliceCat} xf yg ) where
-      extractIso' : CatIso {C = C} x y
+    module _ ( cIso@(catiso kc lc s r) : CatIso SliceCat xf yg ) where
+      extractIso' : CatIso C x y
       extractIso' .mor = kc .S-hom
       extractIso' .inv = lc .S-hom
       extractIso' .sec i = (s i) .S-hom
@@ -181,11 +181,11 @@ module _ ⦃ isU : isUnivalent C ⦄ where
     preservesUnivalenceSlice .univ xf@(sliceob {x} f) yg@(sliceob {y} g) = isoToIsEquiv sIso
       where
         -- this is just here because the type checker can't seem to infer xf and yg
-        pToIIso : Iso (x ≡ y) (CatIso x y)
+        pToIIso : Iso (x ≡ y) (CatIso _ x y)
         pToIIso = pToIIso' {xf = xf} {yg}
 
         -- the meat of the proof
-        sIso : Iso (xf ≡ yg) (CatIso xf yg)
+        sIso : Iso (xf ≡ yg) (CatIso _ xf yg)
         sIso .fun p = pathToIso p -- we use the normal pathToIso via path induction to get an isomorphism
         sIso .inv is@(catiso kc lc s r) = SliceOb-≡-intro x≡y (symP (sym (lc .S-comm) ◁ lf≡f))
           where
@@ -201,7 +201,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             l = lc .S-hom
 
             -- extract out the iso between x and y
-            extractIso : CatIso {C = C} x y
+            extractIso : CatIso C x y
             extractIso = extractIso' is
 
             -- and we can use univalence of C to get x ≡ y
@@ -216,7 +216,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
                         x≡y
               where
                 idx = C .id
-                pToIFam = (λ z _ → CatIso {C = C} x z)
+                pToIFam = (λ z _ → CatIso C x z)
                 pToIBase = catiso (C .id) idx (C .⋆IdL idx) (C .⋆IdL idx)
 
             l≡pToI : l ≡ pathToIso {C = C} x≡y .inv
@@ -238,7 +238,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             k = kc .S-hom
             l = lc .S-hom
 
-            extractIso : CatIso {C = C} x y
+            extractIso : CatIso C x y
             extractIso = extractIso' is
 
             -- we do the equality component wise
@@ -305,11 +305,11 @@ module _ ⦃ isU : isUnivalent C ⦄ where
                            p
                where
                  idx = C .id
-                 pToIFam = (λ z _ → CatIso {C = C} x z)
+                 pToIFam = (λ z _ → CatIso C x z)
                  pToIBase = catiso (C .id) idx (C .⋆IdL idx) (C .⋆IdL idx)
 
                  idxf = SliceCat .id
-                 pToIFam' = (λ z _ → CatIso {C = SliceCat} xf z)
+                 pToIFam' = (λ z _ → CatIso SliceCat xf z)
                  pToIBase' = catiso (SliceCat .id) idxf (SliceCat .⋆IdL idxf) (SliceCat .⋆IdL idxf)
 
             -- why does this not follow definitionally?
@@ -370,8 +370,8 @@ open isIsoC renaming (inv to invC)
 
 -- make a slice isomorphism from just the hom
 sliceIso : ∀ {a b} (f : C [ a .S-ob , b .S-ob ]) (c : (f ⋆⟨ C ⟩ b .S-arr) ≡ a .S-arr)
-         → isIsoC {C = C} f
-         → isIsoC {C = SliceCat} (slicehom f c)
+         → isIsoC C f
+         → isIsoC SliceCat (slicehom f c)
 sliceIso f c isof .invC = slicehom (isof .invC) (sym (invMoveL (isIso→areInv isof) c))
 sliceIso f c isof .sec = SliceHom-≡-intro' (isof .sec)
 sliceIso f c isof .ret = SliceHom-≡-intro' (isof .ret)
