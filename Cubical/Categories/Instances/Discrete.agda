@@ -9,6 +9,7 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Transport
 
 private
   variable
@@ -36,4 +37,18 @@ module _ {A : hGroupoid ℓ}
   DiscFunc f .F-ob = f
   DiscFunc f .F-hom {x} p = subst (λ z → C [ f x , f z ]) p (id C)
   DiscFunc f .F-id {x} = substRefl {B = λ z → C [ f x , f z ]} (id C)
-  DiscFunc f .F-seq p q = {!   !}
+  
+  DiscFunc f .F-seq {x} {y} p q =
+      let open Category C using () renaming (_⋆_ to _●_) in
+                                              
+      let Hom[fx,f—] = (λ (w : fst A) → C [ f x , f w ]) in
+      let Hom[fy,f—] = (λ (w : fst A) → C [ f y , f w ]) in
+      let id-fx = id C {f x} in
+      let id-fy = id C {f y} in
+      let Fp = (subst Hom[fx,f—] (p) id-fx) in
+      
+      subst Hom[fx,f—] (p ∙ q) id-fx            ≡⟨ substComposite Hom[fx,f—] _ _ _ ⟩
+      subst Hom[fx,f—] (q) (Fp)                 ≡⟨ cong (subst _ q) (sym (⋆IdR C _)) ⟩
+      subst Hom[fx,f—] (q) (Fp ● id-fy)         ≡⟨ substCommSlice _ _ (λ _ → Fp ●_) q _ ⟩
+      Fp ● (subst Hom[fy,f—] (q) id-fy)         ∎
+ 
