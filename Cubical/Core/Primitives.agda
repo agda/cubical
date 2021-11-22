@@ -172,8 +172,7 @@ hfill : {A : Type ℓ}
         -----------------------
         (i : I) → A
 hfill {φ = φ} u u0 i =
-  hcomp (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
-                 ; (i = i0) → outS u0 })
+  hcomp (λ j → λ { (φ = i1) → u (i ∧ j) 1=1 })
         (outS u0)
 
 -- Heterogeneous composition can defined as in CHM, however we use the
