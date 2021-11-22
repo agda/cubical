@@ -27,7 +27,7 @@ open import Cubical.Categories.Instances.Sets
 -}
 
 module Lan {ℓC ℓC' ℓD ℓD'} ℓS
-  {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'}
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (F : Functor C D)
   where
 
@@ -35,8 +35,8 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   open NatTrans
 
   private
-    module C = Precategory C
-    module D = Precategory D
+    module C = Category C
+    module D = Category D
 
     {-
       We want the category SET ℓ we're mapping into to be large enough that the coend will take presheaves
@@ -76,7 +76,7 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
     mapR h (squash/ t u p q i j) =
       squash/ (mapR h t) (mapR h u) (cong (mapR h) p) (cong (mapR h) q) i j
 
-    mapRId : (d : D.ob) → mapR (D.id d) ≡ (idfun _)
+    mapRId : (d : D.ob) → mapR (D.id {x = d}) ≡ idfun (Quo d)
     mapRId d =
       funExt (elimProp (λ _ → squash/ _ _) (λ (c , g , a) i → [ c , D.⋆IdL g i , a ]))
 
@@ -143,17 +143,17 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   open UnitCounit
 
   η : 𝟙⟨ FUNCTOR (C ^op) (SET ℓ) ⟩ ⇒ funcComp F* Lan
-  η .N-ob G .N-ob c a = [ c , D.id _ , a ]
+  η .N-ob G .N-ob c a = [ c , D.id , a ]
   η .N-ob G .N-hom {c'} {c} f =
     funExt λ a →
-    [ c , D.id _ , (G ⟪ f ⟫) a ]
-      ≡⟨ sym (shift/ (D.id _) f a) ⟩
-    [ c' , ((D.id _) D.⋆ F ⟪ f ⟫) , a ]
+    [ c , D.id , (G ⟪ f ⟫) a ]
+      ≡⟨ sym (shift/ D.id f a) ⟩
+    [ c' , (D.id D.⋆ F ⟪ f ⟫) , a ]
       ≡[ i ]⟨ [ c' , lem i , a ] ⟩
-    [ c' , (F ⟪ f ⟫ D.⋆ (D.id _)) , a ]
+    [ c' , (F ⟪ f ⟫ D.⋆ D.id) , a ]
     ∎
     where
-    lem : (D.id _) D.⋆ F ⟪ f ⟫ ≡ F ⟪ f ⟫ D.⋆ (D.id _)
+    lem : D.id D.⋆ F ⟪ f ⟫ ≡ F ⟪ f ⟫ D.⋆ D.id
     lem = D.⋆IdL (F ⟪ f ⟫) ∙ sym (D.⋆IdR (F ⟪ f ⟫))
   η .N-hom f = makeNatTransPath refl
 
@@ -177,11 +177,11 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
       (funExt₂ λ d →
         elimProp (λ _ → squash/ _ _)
           (λ (c , g , a) →
-            [ c , g D.⋆ D.id _ , a ]
+            [ c , g D.⋆ D.id , a ]
               ≡[ i ]⟨ [ c , (g D.⋆ F .F-id (~ i)) , a ] ⟩
-            [ c , g D.⋆ (F ⟪ C.id _ ⟫) , a ]
-              ≡⟨ shift/ g (C.id _) a ⟩
-            [ c , g , (G ⟪ C.id _ ⟫) a ]
+            [ c , g D.⋆ (F ⟪ C.id ⟫) , a ]
+              ≡⟨ shift/ g C.id a ⟩
+            [ c , g , (G ⟪ C.id ⟫) a ]
               ≡[ i ]⟨ [ c , g , G .F-id i a ] ⟩
             [ c , g , a ]
             ∎))
@@ -197,7 +197,7 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
 -}
 
 module Ran {ℓC ℓC' ℓD ℓD'} ℓS
-  {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'}
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (F : Functor C D)
   where
 
@@ -205,8 +205,8 @@ module Ran {ℓC ℓC' ℓD ℓD'} ℓS
   open NatTrans
 
   private
-    module C = Precategory C
-    module D = Precategory D
+    module C = Category C
+    module D = Category D
 
     {-
       We want the category SET ℓ we're mapping into to be large enough that the coend will take presheaves
@@ -243,7 +243,7 @@ module Ran {ℓC ℓC' ℓD ℓD'} ℓS
     mapR h x .fun c g = x .fun c (g ⋆⟨ D ⟩ h)
     mapR h x .coh f g = cong (x .fun _) (D.⋆Assoc (F ⟪ f ⟫) g h) ∙ x .coh f (g ⋆⟨ D ⟩ h)
 
-    mapRId : (d : D.ob) → mapR (D.id d) ≡ (idfun _)
+    mapRId : (d : D.ob) → mapR (D.id {x = d}) ≡ idfun (End d)
     mapRId h = funExt λ x → end≡ λ c g → cong (x .fun c) (D.⋆IdR g)
 
     mapR∘ : {d d' d'' : D.ob}
@@ -325,10 +325,10 @@ module Ran {ℓC ℓC' ℓD ℓD'} ℓS
     makeNatTransPath (funExt₂ λ d a → end≡ _ λ c g → sym (funExt⁻ (α .N-hom g) a))
 
   ε : funcComp F* Ran ⇒ 𝟙⟨ FUNCTOR (C ^op) (SET ℓ) ⟩
-  ε .N-ob H .N-ob c x = x .fun c (D.id _)
+  ε .N-ob H .N-ob c x = x .fun c D.id
   ε .N-ob H .N-hom {c} {c'} g =
     funExt λ x →
-    cong (x .fun c') (D.⋆IdL _ ∙ sym (D.⋆IdR _)) ∙ x .coh g (D.id _)
+    cong (x .fun c') (D.⋆IdL _ ∙ sym (D.⋆IdR _)) ∙ x .coh g D.id
   ε .N-hom {H} {H'} α = makeNatTransPath refl
 
   Δ₁ : ∀ G → seqTrans (F* ⟪ η ⟦ G ⟧ ⟫) (ε ⟦ F* ⟅ G ⟆ ⟧) ≡ idTrans _

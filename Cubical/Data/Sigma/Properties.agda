@@ -30,6 +30,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Unit.Base
+open import Cubical.Data.Empty.Base
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -359,3 +360,14 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''}
   Iso.leftInv curryIso f = refl
 
   unquoteDecl curryEquiv = declStrictIsoToEquiv curryEquiv curryIso
+
+-- Sigma type with empty base
+module _ (A : ⊥ → Type ℓ) where
+
+  open Iso
+
+  ΣEmptyIso : Iso (Σ ⊥ A) ⊥
+  fun ΣEmptyIso (* , _) = *
+
+  ΣEmpty : Σ ⊥ A ≃ ⊥
+  ΣEmpty = isoToEquiv ΣEmptyIso
