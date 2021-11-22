@@ -1,12 +1,16 @@
 {-
 
 This file contains:
+- Elimination principle for pushouts
 
 - Homotopy natural equivalences of pushout spans
   Written by: Loïc Pujet, September 2019
 
 - 3×3 lemma for pushouts
   Written by: Loïc Pujet, April 2019
+
+- Homotopy natural equivalences of pushout spans
+  (unpacked and avoiding transports)
 
 -}
 
@@ -22,6 +26,7 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -363,3 +368,142 @@ PushoutToProp isset baseB baseC (inl x) = baseB x
 PushoutToProp isset baseB baseC (inr x) = baseC x
 PushoutToProp {f = f} {g = g} isset baseB baseC (push a i) =
   isOfHLevel→isOfHLevelDep 1 isset (baseB (f a)) (baseC (g a)) (push a) i
+
+-- explicit characterisation of equivalences
+-- Pushout f₁ g₁ ≃ Pushout f₂ g₂ avoiding
+-- transports
+
+open Iso
+private
+  module PushoutIso {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
+           (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
+           (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
+           (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
+           (id1 : (fst B≃) ∘ f₁ ≡ f₂ ∘ (fst A≃))
+           (id2 : (fst C≃) ∘ g₁ ≡ g₂ ∘ (fst A≃))
+   where
+   F : Pushout f₁ g₁ → Pushout f₂ g₂
+   F (inl x) = inl (fst B≃ x)
+   F (inr x) = inr (fst C≃ x)
+   F (push a i) =
+     ((λ i → inl (funExt⁻ id1 a i))
+      ∙∙ push (fst A≃ a)
+      ∙∙ λ i → inr (sym (funExt⁻ id2 a) i)) i
+
+   G : Pushout f₂ g₂ → Pushout f₁ g₁
+   G (inl x) = inl (invEq B≃ x)
+   G (inr x) = inr (invEq C≃ x)
+   G (push a i) =
+     ((λ i → inl ((sym (cong (invEq B≃) (funExt⁻ id1 (invEq A≃ a)
+                    ∙ cong f₂ (secEq A≃ a)))
+                    ∙ retEq B≃ (f₁ (invEq A≃ a))) i))
+      ∙∙ push (invEq A≃ a)
+      ∙∙ λ i → inr (((sym (retEq C≃ (g₁ (invEq A≃ a)))
+                   ∙ (cong (invEq C≃) ((funExt⁻ id2 (invEq A≃ a)))))
+                   ∙ cong (invEq C≃) (cong g₂ (secEq A≃ a))) i)) i
+
+
+  abbrType₁ : {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
+       (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
+    → (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
+       (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
+    → (id1 : (fst B≃) ∘ f₁ ≡ f₂ ∘ (fst A≃))
+       (id2 : (fst C≃) ∘ g₁ ≡ g₂ ∘ (fst A≃))
+    → Type _
+  abbrType₁ A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2 =
+      ((x : _) → PushoutIso.F A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2
+                   (PushoutIso.G A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2 x) ≡ x)
+    × ((x : _) → PushoutIso.G A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2
+                   (PushoutIso.F A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2 x) ≡ x)
+
+  abbrType : {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
+             (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
+          → Type _
+  abbrType {A₁ = A₁} {B₁ = B₁} {C₁ = C₁} {A₂ = A₂} {B₂ = B₂} {C₂ = C₂}
+    A≃ B≃ C≃ =
+    (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
+    (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
+    (id1 : (fst B≃) ∘ f₁ ≡ f₂ ∘ (fst A≃))
+    (id2 : (fst C≃) ∘ g₁ ≡ g₂ ∘ (fst A≃))
+    → abbrType₁ A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2
+
+  F-G-cancel : {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
+               (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
+             → abbrType A≃ B≃ C≃
+  F-G-cancel {A₁ = A₁} {B₁ = B₁} {C₁ = C₁} {A₂ = A₂} {B₂ = B₂} {C₂ = C₂} =
+    EquivJ (λ A₁ A≃ → (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂) →
+      abbrType A≃ B≃ C≃)
+      (EquivJ (λ B₁ B≃ → (C≃ : C₁ ≃ C₂) →
+      abbrType (idEquiv A₂) B≃ C≃)
+        (EquivJ (λ C₁ C≃ → abbrType (idEquiv A₂) (idEquiv B₂) C≃)
+          λ f₁ g₁ f₂ g₂
+            → J (λ f₂ id1 → (id2 : g₁ ≡ g₂)
+                          → abbrType₁ (idEquiv A₂) (idEquiv B₂) (idEquiv C₂)
+                                    f₁ g₁ f₂ g₂ id1 id2)
+                 (J (λ g₂ id2 → abbrType₁ (idEquiv A₂) (idEquiv B₂) (idEquiv C₂)
+                                        f₁ g₁ f₁ g₂ refl id2)
+                    (postJ f₁ g₁))))
+
+    where
+    postJ : (f₁ : A₂ → B₂) (g₁ : A₂ → C₂)
+      → abbrType₁ (idEquiv A₂) (idEquiv B₂) (idEquiv C₂)
+                 f₁ g₁ f₁ g₁ refl refl
+    postJ f₁ g₁ = FF-GG , GG-FF
+      where
+      refl-lem : ∀ {ℓ} {A : Type ℓ} (x : A)
+              → (refl {x = x} ∙ refl) ∙ refl ≡ refl
+      refl-lem x = sym (rUnit _) ∙ sym (rUnit _)
+
+      FF = PushoutIso.F (idEquiv A₂) (idEquiv B₂) (idEquiv C₂)
+                        f₁ g₁ f₁ g₁ refl refl
+      GG = PushoutIso.G (idEquiv A₂) (idEquiv B₂) (idEquiv C₂)
+                        f₁ g₁ f₁ g₁ refl refl
+
+      FF-GG : (x : Pushout f₁ g₁) → FF (GG x) ≡ x
+      FF-GG (inl x) = refl
+      FF-GG (inr x) = refl
+      FF-GG (push a i) j = lem j i
+        where
+        lem : Path (Path (Pushout f₁ g₁) (inl (f₁ a)) (inr (g₁ a)))
+                  (cong FF ((λ i → inl (((refl ∙ refl) ∙ (refl {x = f₁ a})) i ))
+                        ∙∙ push {f = f₁} {g = g₁} a
+                        ∙∙ λ i → inr (((refl ∙ refl) ∙ (refl {x = g₁ a})) i)))
+                  (push a)
+        lem = (λ i → cong FF ((λ j → inl (refl-lem (f₁ a) i j))
+                           ∙∙ push a
+                           ∙∙ λ j → inr (refl-lem (g₁ a) i j)))
+          ∙∙ cong (cong FF) (sym (rUnit (push a)))
+          ∙∙ sym (rUnit (push a))
+
+      GG-FF : (x : _) → GG (FF x) ≡ x
+      GG-FF (inl x) = refl
+      GG-FF (inr x) = refl
+      GG-FF (push a i) j = lem j i
+        where
+        lem : cong GG (refl ∙∙ push a ∙∙ refl) ≡ push a
+        lem = cong (cong GG) (sym (rUnit (push a)))
+          ∙∙ (λ i → ((λ j → inl (refl-lem (f₁ a) i j))
+                   ∙∙ push a
+                   ∙∙ λ j → inr (refl-lem (g₁ a) i j)))
+          ∙∙ sym (rUnit (push a))
+
+
+module _ {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
+  (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
+  (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
+  (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
+  (id1 : fst B≃ ∘ f₁ ≡ f₂ ∘ fst A≃)
+  (id2 : fst C≃ ∘ g₁ ≡ g₂ ∘ fst A≃)
+  where
+  private
+    module P = PushoutIso A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2
+    l-r-cancel = F-G-cancel A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2
+
+  pushoutIso : Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
+  fun pushoutIso = P.F
+  inv pushoutIso = P.G
+  rightInv pushoutIso = fst l-r-cancel
+  leftInv pushoutIso = snd l-r-cancel
+
+  pushoutEquiv : Pushout f₁ g₁ ≃ Pushout f₂ g₂
+  pushoutEquiv = isoToEquiv pushoutIso

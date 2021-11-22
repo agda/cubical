@@ -30,6 +30,11 @@ IsoSucSphereSusp : (n : ℕ) → Iso (S₊ (suc n)) (Susp (S₊ n))
 IsoSucSphereSusp zero = S¹IsoSuspBool
 IsoSucSphereSusp (suc n) = idIso
 
+IsoSucSphereSusp∙ : (n : ℕ)
+  → Iso.inv (IsoSucSphereSusp n) north ≡ ptSn (suc n)
+IsoSucSphereSusp∙ zero = refl
+IsoSucSphereSusp∙ (suc n) = refl
+
 -- Elimination principles for spheres
 sphereElim : (n : ℕ) {A : (S₊ (suc n)) → Type ℓ} → ((x : S₊ (suc n)) → isOfHLevel (suc n) (A x))
           → A (ptSn (suc n))
