@@ -2,7 +2,7 @@ AGDA_EXEC?=agda -W error -W noNoEquivWhenSplitting
 FIX_WHITESPACE?=fix-whitespace
 RTS_OPTIONS=+RTS -H3G -RTS
 AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
-RUNHASKELL?=runghc
+RUNHASKELL?=runhaskell
 EVERYTHINGS=$(RUNHASKELL) ./Everythings.hs
 
 .PHONY : all
