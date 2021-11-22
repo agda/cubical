@@ -18,6 +18,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma renaming (fst to proj₁; snd to proj₂)
 
@@ -27,6 +28,21 @@ open import Cubical.HITs.Pushout
 private
   variable
     ℓ ℓ' : Level
+
+open Iso
+
+-- Characterisation of function type join A B → C
+IsoFunSpaceJoin : ∀ {ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+               → Iso (join A B → C)
+                      (Σ[ f ∈ (A → C) ] Σ[ g ∈ (B → C) ]
+                        ((a : A) (b : B) → f a ≡ g b))
+fun IsoFunSpaceJoin f = (f ∘ inl) , ((f ∘ inr) , (λ a b → cong f (push a b)))
+inv IsoFunSpaceJoin (f , g , p) (inl x) = f x
+inv IsoFunSpaceJoin (f , g , p) (inr x) = g x
+inv IsoFunSpaceJoin (f , g , p) (push a b i) = p a b i
+rightInv IsoFunSpaceJoin (f , g , p) = refl
+leftInv IsoFunSpaceJoin f =
+  funExt λ { (inl x) → refl ; (inr x) → refl ; (push a b i) → refl}
 
 -- Alternative definition of the join using a pushout
 joinPushout : (A : Type ℓ) → (B : Type ℓ') → Type (ℓ-max ℓ ℓ')
@@ -417,3 +433,41 @@ joinAssocDirect {A = A} {B} {C} =
           ; (l = i1) → push (push a b i) c j
           })
         (push (push a b i) c j))
+
+-- commutativity
+join-commFun : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} → join A B → join B A
+join-commFun (inl x) = inr x
+join-commFun (inr x) = inl x
+join-commFun (push a b i) = push b a (~ i)
+
+join-commFun² : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} (x : join A B)
+                → join-commFun (join-commFun x) ≡ x
+join-commFun² (inl x) = refl
+join-commFun² (inr x) = refl
+join-commFun² (push a b i) = refl
+
+join-comm : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  → Iso (join A B) (join B A)
+fun join-comm = join-commFun
+inv join-comm = join-commFun
+rightInv join-comm = join-commFun²
+leftInv join-comm = join-commFun²
+
+-- Applying Isos to joins (more efficient than transports)
+Iso→joinIso : ∀ {ℓ'' ℓ'''}
+     {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+  → Iso A C → Iso B D → Iso (join A B) (join C D)
+fun (Iso→joinIso is1 is2) (inl x) = inl (fun is1 x)
+fun (Iso→joinIso is1 is2) (inr x) = inr (fun is2 x)
+fun (Iso→joinIso is1 is2) (push a b i) = push (fun is1 a) (fun is2 b) i
+inv (Iso→joinIso is1 is2) (inl x) = inl (inv is1 x)
+inv (Iso→joinIso is1 is2) (inr x) = inr (inv is2 x)
+inv (Iso→joinIso is1 is2) (push a b i) = push (inv is1 a) (inv is2 b) i
+rightInv (Iso→joinIso is1 is2) (inl x) i = inl (rightInv is1 x i)
+rightInv (Iso→joinIso is1 is2) (inr x) i = inr (rightInv is2 x i)
+rightInv (Iso→joinIso is1 is2) (push a b j) i =
+  push (rightInv is1 a i) (rightInv is2 b i) j
+leftInv (Iso→joinIso is1 is2) (inl x) i = inl (leftInv is1 x i)
+leftInv (Iso→joinIso is1 is2) (inr x) i = inr (leftInv is2 x i)
+leftInv (Iso→joinIso is1 is2) (push a b i) j =
+  push (leftInv is1 a j) (leftInv is2 b j) i

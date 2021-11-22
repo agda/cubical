@@ -12,6 +12,7 @@ module Cubical.Relation.Nullary.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Fixpoint
 
 open import Cubical.Data.Empty as ⊥
@@ -33,6 +34,10 @@ IsoPresDiscrete e dA x y with dA (Iso.inv e x) (Iso.inv e y)
                    (no λ q → p (sym (Iso.leftInv e (Iso.inv e x))
                      ∙∙ cong (Iso.inv e) q
                      ∙∙ Iso.leftInv e (Iso.inv e y)))
+
+EquivPresDiscrete : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B
+               → Discrete A → Discrete B
+EquivPresDiscrete e = IsoPresDiscrete (equivToIso e)
 
 isProp¬ : (A : Type ℓ) → isProp (¬ A)
 isProp¬ A p q i x = isProp⊥ (p x) (q x) i
