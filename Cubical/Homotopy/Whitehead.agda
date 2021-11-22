@@ -376,7 +376,7 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   -- the following identity
   Susp×Susp→cofibW≡ : Path (A∨B → Susp A × Susp B)
                       (Iso.inv Iso-Susp×Susp-cofibW ∘ inl)
-                      ⋁-fun
+                      ⋁↪
   Susp×Susp→cofibW≡ =
     funExt λ { (inl x) → ΣPathP (refl , (sym (merid b₀)))
              ; (inr north) → ΣPathP (refl , (sym (merid b₀)))

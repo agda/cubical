@@ -39,8 +39,8 @@ snd isContr-Unit⋁Unit (inl tt) = refl
 snd isContr-Unit⋁Unit (inr tt) = push tt
 snd isContr-Unit⋁Unit (push tt i) j = push tt (i ∧ j)
 
-⋁-fun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+⋁↪ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
       → A ⋁ B → typ A × typ B
-⋁-fun {B = B} (inl x) = x , pt B
-⋁-fun {A = A} (inr x) = pt A , x
-⋁-fun {A = A} {B = B} (push a i) = pt A , pt B
+⋁↪ {B = B} (inl x) = x , pt B
+⋁↪ {A = A} (inr x) = pt A , x
+⋁↪ {A = A} {B = B} (push a i) = pt A , pt B

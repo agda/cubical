@@ -63,9 +63,10 @@ fst (isHomogeneousΠ∙ A B b₀ h f g i) =
                      (snd (h (pt A) (fst f (pt A)) (fst g (pt A)) i))
 snd (isHomogeneousΠ∙ A B b₀ h f g i) =
     (λ a → snd (h a (fst f a) (fst g a) i))
-  , λ j → hcomp (λ k → λ {(i = i0) → snd f (k ∧ j)
+  , λ j → hcomp (λ k → λ { (i = i0) → snd f (k ∧ j)
                           ; (i = i1) → snd g (k ∧ j)
-                          ; (j = i0) → snd (h (pt A) (fst f (pt A)) (fst g (pt A)) i)})
+                          ; (j = i0) → snd (h (pt A) (fst f (pt A))
+                                                      (fst g (pt A)) i)})
                  (snd (h (pt A) (fst f (pt A)) (fst g (pt A)) i))
 
 isHomogeneous→∙ : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'}
