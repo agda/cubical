@@ -21,12 +21,12 @@ open import Cubical.Homotopy.Group.Base
 open Iso
 open 3x3-span
 
-W : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+joinTo⋁ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
  → join (typ A) (typ B)
  → (Susp (typ A) , north) ⋁ (Susp (typ B) , north)
-W (inl x) = inr north
-W (inr x) = inl north
-W {A = A} {B = B} (push a b i) =
+joinTo⋁ (inl x) = inr north
+joinTo⋁ (inr x) = inl north
+joinTo⋁ {A = A} {B = B} (push a b i) =
      ((λ i → inr (σ B b i))
   ∙∙ sym (push tt)
   ∙∙ λ i → inl (σ A a i)) i
@@ -39,12 +39,12 @@ W {A = A} {B = B} (push a b i) =
 fst ([_∣_] {X = X} {n = n} {m = m} f g) x =
   _∨→_ (f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
         (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m))
-        (W {A = S₊∙ n} {B = S₊∙ m}
+        (joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}
           (inv (IsoSphereJoin n m) x))
 snd ([_∣_] {n = n} {m = m} f g) =
   cong (_∨→_ (f ∘∙ (inv (IsoSucSphereSusp n) , IsoSucSphereSusp∙ n))
        (g ∘∙ (inv (IsoSucSphereSusp m) , IsoSucSphereSusp∙ m)))
-       (cong (W {A = S₊∙ n} {B = S₊∙ m}) (IsoSphereJoin⁻Pres∙ n m))
+       (cong (joinTo⋁ {A = S₊∙ n} {B = S₊∙ m}) (IsoSphereJoin⁻Pres∙ n m))
     ∙ cong (fst g) (IsoSucSphereSusp∙ m)
     ∙ snd g
 
@@ -56,7 +56,7 @@ snd ([_∣_] {n = n} {m = m} f g) =
        → join (typ (S₊∙ (suc n))) (typ (S₊∙ (suc m))) → fst X
 [_∣_]-pre {n = n} {m = m} f g x =
   _∨→_ f g
-        (W {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
+        (joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
         x)
 
 [_∣_]₂ : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
@@ -77,16 +77,16 @@ snd ([_∣_]₂ {n = n} {m = m} f g) =
   ΣPathP (
     (λ i x → _∨→_ (∘∙-idˡ f i)
                     (∘∙-idˡ g i)
-                (W {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
+                (joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
                  (inv (IsoSphereJoin (suc n) (suc m)) x)))
   , (cong (cong (_∨→_ (f ∘∙ idfun∙ _)
                        (g ∘∙ idfun∙ _))
-       (cong (W {A = S₊∙ (suc n)} {B = S₊∙ (suc m)})
+       (cong (joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)})
              (IsoSphereJoin⁻Pres∙ (suc n) (suc m))) ∙_)
                 (sym (lUnit (snd g)))
   ◁ λ j → (λ i → _∨→_ (∘∙-idˡ f j)
                         (∘∙-idˡ g j)
-           ( W {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
+           ( joinTo⋁ {A = S₊∙ (suc n)} {B = S₊∙ (suc m)}
           ((IsoSphereJoin⁻Pres∙ (suc n) (suc m)) i))) ∙ snd g))
 
 -- Homotopy group version
@@ -95,21 +95,21 @@ snd ([_∣_]₂ {n = n} {m = m} f g) =
        → π' (suc (n + m)) X
 [_∣_]π' = elim2 (λ _ _ → squash₂) λ f g → ∣ [ f ∣ g ] ∣₂
 
--- We prove that the function W used in the definition of the whitehead
+-- We prove that the function joinTo⋁ used in the definition of the whitehead
 -- product gives an equivalence between (Susp A × Susp B) and the
--- appropriate cofibre of W (last two theorems in the following
+-- appropriate cofibre of joinTo⋁ (last two theorems in the following
 -- module).
 
 module _ (A B : Type) (a₀ : A) (b₀ : B) where
+  private
+    W = joinTo⋁ {A = (A , a₀)} {B = (B , b₀)}
 
   A∨B = (Susp A , north) ⋁ (Susp B , north)
 
   σB = σ (B , b₀)
   σA = σ (A , a₀)
 
-  W-AB = W {A = (A , a₀)} {B = (B , b₀)}
-
-  cofibW = Pushout W-AB λ _ → tt
+  cofibW = Pushout W λ _ → tt
 
   whitehead3x3 :  3x3-span
   A00 whitehead3x3 = Susp A
@@ -335,14 +335,14 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
   Iso-A○□-cofibW : Iso (A○□ whitehead3x3) cofibW
   Iso-A○□-cofibW =
     pushoutIso _ _
-      W-AB (λ _ → tt)
+      W (λ _ → tt)
       (isoToEquiv Iso-A2□-join) (isoToEquiv Iso-A0□-⋁)
       A4□≃Unit
       (funExt lem)
       λ _ _ → tt
     where
     lem : (x : A2□ whitehead3x3)
-      → A0□→A∨B (f1□ whitehead3x3 x) ≡ W-AB (fun Iso-A2□-join x)
+      → A0□→A∨B (f1□ whitehead3x3 x) ≡ W (fun Iso-A2□-join x)
     lem (inl x) = (λ i → inl (merid a₀ (~ i)))
     lem (inr x) = refl
     lem (push (a , b) i) j = help j i
@@ -351,7 +351,7 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
                                 ((inl (merid a₀ (~ i))))
                                 (inr north))
                    (cong A0□→A∨B (cong (f1□ whitehead3x3) (push (a , b))))
-                   (cong W-AB (cong (fun Iso-A2□-join) (push (a , b))))
+                   (cong W (cong (fun Iso-A2□-join) (push (a , b))))
       help = (cong-∙∙ A0□→A∨B (λ i → inl (merid a (~ i))) (push b) refl
             ∙ λ j → (λ i₂ → inl (merid a (~ i₂)))
                    ∙∙ compPath-filler (push tt) (λ i → inr (σB b (~ i))) (~ j)
@@ -367,15 +367,15 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
             (compIso (3x3-Iso whitehead3x3) Iso-A○□-cofibW)
 
   -- Main iso
-  Iso-Susp×Susp-cofibW : Iso (Susp A × Susp B) cofibW
-  Iso-Susp×Susp-cofibW =
+  Iso-Susp×Susp-cofibJoinTo⋁ : Iso (Susp A × Susp B) cofibW
+  Iso-Susp×Susp-cofibJoinTo⋁ =
     compIso (Σ-cong-iso-snd (λ _ → invSuspIso))
             Iso₁-Susp×Susp-cofibW
 
   -- The induced function A ∨ B → Susp A × Susp B satisfies
   -- the following identity
   Susp×Susp→cofibW≡ : Path (A∨B → Susp A × Susp B)
-                      (Iso.inv Iso-Susp×Susp-cofibW ∘ inl)
+                      (Iso.inv Iso-Susp×Susp-cofibJoinTo⋁ ∘ inl)
                       ⋁↪
   Susp×Susp→cofibW≡ =
     funExt λ { (inl x) → ΣPathP (refl , (sym (merid b₀)))
