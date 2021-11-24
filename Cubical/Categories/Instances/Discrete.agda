@@ -18,23 +18,23 @@ private
 open Category
 
 -- Discrete category
-Discrete : hGroupoid ℓ → Category ℓ ℓ
-Discrete A .ob = A .fst
-Discrete A .Hom[_,_] a a' = a ≡ a'
-Discrete A .id = refl
-Discrete A ._⋆_ = _∙_
-Discrete A .⋆IdL f = sym (lUnit f)
-Discrete A .⋆IdR f = sym (rUnit f)
-Discrete A .⋆Assoc f g h = sym (assoc f g h)
-Discrete A .isSetHom {x} {y} = A .snd x y
+DiscreteCategory : hGroupoid ℓ → Category ℓ ℓ
+DiscreteCategory A .ob = A .fst
+DiscreteCategory A .Hom[_,_] a a' = a ≡ a'
+DiscreteCategory A .id = refl
+DiscreteCategory A ._⋆_ = _∙_
+DiscreteCategory A .⋆IdL f = sym (lUnit f)
+DiscreteCategory A .⋆IdR f = sym (rUnit f)
+DiscreteCategory A .⋆Assoc f g h = sym (assoc f g h)
+DiscreteCategory A .isSetHom {x} {y} = A .snd x y
 
 
 module _ {A : hGroupoid ℓ}
          {C : Category ℓC ℓC'} where
   open Functor
 
-  -- Functions f: A → ob C give functors F: Discrete A → C
-  DiscFunc : (fst A → ob C) → Functor (Discrete A) C
+  -- Functions f: A → ob C give functors F: DiscreteCategory A → C
+  DiscFunc : (fst A → ob C) → Functor (DiscreteCategory A) C
   DiscFunc f .F-ob = f
   DiscFunc f .F-hom {x} p = subst (λ z → C [ f x , f z ]) p (id C)
   DiscFunc f .F-id {x} = substRefl {B = λ z → C [ f x , f z ]} (id C)
