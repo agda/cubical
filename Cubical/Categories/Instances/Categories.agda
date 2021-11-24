@@ -1,20 +1,19 @@
--- Category of (small) categories
+-- The (pre)category of (small) categories
 {-# OPTIONS --safe #-}
 
 module Cubical.Categories.Instances.Categories where
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Category.Precategory
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Properties
--- open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 
 
--- Definition of Cat
 module _ (ℓ ℓ' : Level) where
-  open Category
+  open Precategory
 
-  Cat : Category (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
+  Cat : Precategory (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
   Cat .ob = Category ℓ ℓ'
   Cat .Hom[_,_] = Functor
   Cat .id = 𝟙⟨ _ ⟩
@@ -22,4 +21,5 @@ module _ (ℓ ℓ' : Level) where
   Cat .⋆IdL _ = F-lUnit
   Cat .⋆IdR _ = F-rUnit
   Cat .⋆Assoc _ _ _ = F-assoc
-  Cat .isSetHom = {!   !}   -- is `Functor C D` a set?
+
+-- TODO: what is required for Functor C D to be a set?
