@@ -49,6 +49,26 @@ FinSemiGroupStr X .snd =
   isFinSetΣ (_ , isFinSetΠ2 X (λ _ → X) (λ _ _ → X))
     (λ p → _ , isFinSetΠ3 X (λ _ → X) (λ _ _ → X) (λ _ _ _ → _ , isFinSet≡ X _ _))
 
+-- finite groups
+
+FinGroupStr : FinSet ℓ → FinSet ℓ
+FinGroupStr X .fst =
+  Σ[ e ∈ X .fst ]
+    Σ[ inv ∈ (X .fst → X .fst) ]
+      Σ[ p ∈ (X .fst → X .fst → X .fst) ]
+          ((x y z : X .fst) → p (p x y) z ≡ p x (p y z))
+        × ((x : X .fst)
+            → (p x e ≡ x) × (p e x ≡ x) × (p (inv x) x ≡ e) × (p x (inv x) ≡ e))
+FinGroupStr X .snd =
+  isFinSetΣ X (λ _ → _ ,
+    isFinSetΣ (_ , isFinSetΠ X (λ _ → X)) (λ _ → _ ,
+      isFinSetΣ (_ , isFinSetΠ2 X (λ _ → X) (λ _ _ → X)) (λ _ → _ ,
+        isFinSet× (_ , isFinSetΠ3 X (λ _ → X) (λ _ _ → X) (λ _ _ _ → _ , isFinSet≡ X _ _)) (_ ,
+          isFinSetΠ X (λ _ → _ ,
+            isFinSet× (_ , isFinSet≡ X _ _) (_ ,
+              isFinSet× (_ , isFinSet≡ X _ _) (_ ,
+                isFinSet× (_ , isFinSet≡ X _ _) (_ , isFinSet≡ X _ _))))))))
+
 -- two rather trivial numbers
 -- but the computation is essentially not that trivial
 -- this one can be computed in half-a-minute
@@ -65,3 +85,8 @@ b2 = card (_ , isFinStrCard IdentityStr 2)
 -- would you like to try?
 n2 : ℕ
 n2 = card (_ , isFinStrCard FinSemiGroupStr 2)
+
+-- OEIS-A000001
+-- I think you'd better not evaluate this function
+numberOfFinGroups : ℕ → ℕ
+numberOfFinGroups n = card (_ , isFinStrCard FinGroupStr n)
