@@ -12,12 +12,12 @@ open import Cubical.Foundations.Prelude
 module _ {ℓ : Level} where
   open Category
 
-  Ab : Category (ℓ-suc ℓ) ℓ
-  Ab .ob = AbGroup ℓ
-  Ab .Hom[_,_] = AbGroupHom
-  Ab .id = idGroupHom
-  Ab ._⋆_ = compGroupHom
-  Ab .⋆IdL f = GroupHom≡ refl
-  Ab .⋆IdR f = GroupHom≡ refl
-  Ab .⋆Assoc f g h = GroupHom≡ refl
-  Ab .isSetHom = isSetGroupHom
+  AbGroupCategory : Category (ℓ-suc ℓ) ℓ
+  AbGroupCategory .ob = AbGroup ℓ
+  AbGroupCategory .Hom[_,_] = AbGroupHom
+  AbGroupCategory .id = idGroupHom
+  AbGroupCategory ._⋆_ = compGroupHom
+  AbGroupCategory .⋆IdL f = GroupHom≡ refl
+  AbGroupCategory .⋆IdR f = GroupHom≡ refl
+  AbGroupCategory .⋆Assoc f g h = GroupHom≡ refl
+  AbGroupCategory .isSetHom = isSetGroupHom
