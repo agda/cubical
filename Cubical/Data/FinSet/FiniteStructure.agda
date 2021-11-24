@@ -1,9 +1,9 @@
-{
+{-
 
 Definition and properties of finite sets equipped with finite structures,
 namely the type of structures over a given finte set is a finite set.
 
-}
+-}
 {-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.FiniteStructure where
