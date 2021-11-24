@@ -38,7 +38,7 @@ module _ (C : Category ℓ ℓ') where
     field
       sec : g ⋆ f ≡ id
       ret : f ⋆ g ≡ id
-  
+
   record isIso (f : Hom[ x , y ]) : Type ℓ' where
     field
       inv : Hom[ y , x ]
@@ -127,4 +127,3 @@ module _ {C : Category ℓ ℓ'} where
              → CatIso C x y
              → CatIso C y x
   symCatIso (catiso mor inv sec ret) = catiso inv mor ret sec
- 
