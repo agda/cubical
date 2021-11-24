@@ -49,22 +49,16 @@ FinSemiGroupStr X .snd =
   isFinSetΣ (_ , isFinSetΠ2 X (λ _ → X) (λ _ _ → X))
     (λ p → _ , isFinSetΠ3 X (λ _ → X) (λ _ _ → X) (λ _ _ _ → _ , isFinSet≡ X _ _))
 
-FinSemiGroupOfCard : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
-FinSemiGroupOfCard ℓ n = FinSetWithStrOfCard ℓ FinSemiGroupStr n
-
-isFinSemiGroupOfCard : (ℓ : Level) (n : ℕ) → isFinType 0 (FinSemiGroupOfCard ℓ n)
-isFinSemiGroupOfCard ℓ n = isFinTypeFinSetWithStrOfCard _ FinSemiGroupStr _
-
 -- two rather trivial numbers
 -- but the computation is essentially not that trivial
 -- this one can be computed in half-a-minute
-g : ℕ
-g = card (_ , isFinStrCard TrivialStr 2)
+a2 : ℕ
+a2 = card (_ , isFinStrCard TrivialStr 2)
 
 -- this is already hard to compute
--- don't know if anyone's computer give the final result
-f : ℕ
-f = card (_ , isFinStrCard IdentityStr 2)
+-- it takes less than half-an-hour
+b2 : ℕ
+b2 = card (_ , isFinStrCard IdentityStr 2)
 
 -- the number of finite semi-groups with cardinal 2
 -- it should be 5
