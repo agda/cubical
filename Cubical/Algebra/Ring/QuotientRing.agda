@@ -11,6 +11,8 @@ open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
 
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Ideal
+open import Cubical.Algebra.Ring.Kernel
 
 private
   variable
@@ -196,7 +198,7 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
 
   module _ {S : Ring ℓ} (φ : RingHom R S) where
     open IsRingHom
-    open HomTheory φ
+    open RingHomTheory φ
     private
       instance
         _ = S

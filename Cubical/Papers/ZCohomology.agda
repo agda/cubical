@@ -6,7 +6,9 @@ necessary.
 This file contains pointers to the code examples and main results from
 the paper:
 
-Synthetic Cohomology Theory in Cubical Agda
+Synthetic Integral Cohomology in Cubical Agda
+Guillaume Brunerie, Axel Ljungström, Anders Mörtberg
+Computer Science Logic (CSL) 2022
 
 -}
 
@@ -82,7 +84,7 @@ import Cubical.ZCohomology.Groups.CP2                        as HⁿℂP²
   description given in the paper, since h : S³ → S² is given by
   S³ ≃ TotalHopf → S² -}
 
--- Appendix
+-- Additional material
 import Cubical.Homotopy.EilenbergSteenrod                    as ES-axioms
 import Cubical.ZCohomology.EilenbergSteenrodZ                as satisfies-ES-axioms
   renaming (coHomFunctor to H^~ ; coHomFunctor' to Ĥ)
@@ -122,7 +124,11 @@ open Sn using (S₊∙)
 open Loop using (Ω^_)
 
 -- Eckmann-Hilton argument
-open Loop using (Eckmann-Hilton)
+Eckmann-Hilton : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc n)) A)
+Eckmann-Hilton n α β =
+  transport (λ i → cong (λ x → rUnit x (~ i)) α ∙ cong (λ x → lUnit x (~ i)) β
+                 ≡ cong (λ x → lUnit x (~ i)) β ∙ cong (λ x → rUnit x (~ i)) α)
+        (λ i → (λ j → α (j ∧ ~ i) ∙ β (j ∧ i)) ∙ λ j → α (~ i ∨ j) ∙ β (i ∨ j))
 
 -- n-types Note that we start indexing from 0 in the Cubical Library
 -- (so (-2)-types as referred to as 0-types, (-1) as 1-types, and so
@@ -178,7 +184,7 @@ open Gr using (Group)
 open GrPath using (GroupPath)
 
 
------ 3. ℤ-COHOMOLOGY IN CUBICAL AGDA -----
+----- 3. INTEGRAL COHOMOLOGY IN CUBICAL AGDA -----
 
 
 -- 3.1 Eilenberg-MacLane spaces
@@ -221,11 +227,11 @@ wedgeConSn' (suc n) m hlev fₗ fᵣ p =
 -- +ₖ (addition) and 0ₖ
 open GroupStructure using (_+ₖ_ ; 0ₖ)
 
--- The function σ : Kₙ → ΩKₙ₊₁
-open Properties using (σ)
-
 -- -ₖ (subtraction)
 open GroupStructure using (-ₖ_)
+
+-- The function σ : Kₙ → ΩKₙ₊₁
+open Properties using (σ)
 
 -- Group laws for +ₖ
 open GroupStructure using ( rUnitₖ ; lUnitₖ
@@ -237,9 +243,9 @@ open GroupStructure using ( rUnitₖ ; lUnitₖ
 -- rUnitₖ (definitional)
 0-rUnit≡refl : rUnitₖ 0 (0ₖ 0) ≡ refl
 1-rUnit≡refl : rUnitₖ 1 (0ₖ 1) ≡ refl
+n≥2-rUnit≡refl : {n : ℕ} → rUnitₖ (2 + n) (0ₖ (2 + n)) ≡ refl
 0-rUnit≡refl = refl
 1-rUnit≡refl = refl
-n≥2-rUnit≡refl : {n : ℕ} → rUnitₖ (2 + n) (0ₖ (2 + n)) ≡ refl
 n≥2-rUnit≡refl = refl
 
 -- lUnitₖ (definitional)
@@ -274,7 +280,7 @@ n≥2-lCancel≡refl : {n : ℕ} → lCancelₖ (2 + n) (0ₖ (2 + n)) ≡ refl
 1-lCancel≡refl = refl
 n≥2-lCancel≡refl = refl
 
--- rCancelₖ (≡ (refl ∙ refl) ∙ refl for n ≥ 1)
+-- rCancelₖ (≡ (refl ∙ refl) ∙ refl for n ≥ 2)
 0-rCancel≡refl : rCancelₖ 0 (0ₖ 0) ≡ refl
 1-rCancel≡refl : rCancelₖ 1 (0ₖ 1) ≡ refl
 n≥2-rCancel≡refl : {n : ℕ} → rCancelₖ (2 + n) (0ₖ (2 + n)) ≡ refl
@@ -325,7 +331,8 @@ open GroupStructure using ( rUnitₕ ; lUnitₕ
                           ; commₕ
                           ; assocₕ)
 
--------------------------------------------------------------------- MOVE?
+--- Additional material -------------------------------------------
+
 -- Reduced cohomology, group structure
 open GroupStructure using (coHomRedGroupDir)
 
@@ -371,7 +378,7 @@ open ⌣Ring using (leftDistr-⌣ ; rightDistr-⌣
                 ; ⌣0 ; 0⌣)
 open ⌣Comm using (gradedComm-⌣)
 
------ 5. CHARACTERIZING ℤ-COHOMOLOGY GROUPS -----
+----- 5. CHARACTERIZING INTEGRAL COHOMOLOGY GROUPS -----
 
 -- 5.1
 -- Proposition 19
@@ -391,7 +398,7 @@ open 𝕂² using (𝕂²)
 -- The real projective plane
 open ℝP using (ℝP²)
 
--- Proposition 22 and 23 respectively
+-- Proposition 22 and 24 respectively
 -- ℤ/2ℤ is represented by Bool with the unique group structure
 -- Lemma 23 is used implicitly in H²-𝕂²≅Bool
 open Hⁿ𝕂² using (H¹-𝕂²≅ℤ ; H²-𝕂²≅Bool)
@@ -471,6 +478,7 @@ open HⁿℂP² using (g)
 brunerie2 : ℤ
 brunerie2 = g 1
 
+-- Additional material (from the appendix of the preprint)
 ----- A. Proofs -----
 
 -- A.2 Proofs for Section 4

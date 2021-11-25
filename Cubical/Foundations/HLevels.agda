@@ -35,6 +35,7 @@ private
     C : (x : A) → B x → Type ℓ
     D : (x : A) (y : B x) → C x y → Type ℓ
     E : (x : A) (y : B x) → (z : C x y) → D x y z → Type ℓ
+    F : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) → Type ℓ
     w x y z : A
     n : HLevel
 
@@ -340,6 +341,10 @@ isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
 isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ A B)
 isSetΣ = isOfHLevelΣ 2
 
+-- Useful consequence
+isSetΣSndProp : isSet A → ((x : A) → isProp (B x)) → isSet (Σ A B)
+isSetΣSndProp h p = isSetΣ h (λ x → isProp→isSet (p x))
+
 isGroupoidΣ : isGroupoid A → ((x : A) → isGroupoid (B x)) → isGroupoid (Σ A B)
 isGroupoidΣ = isOfHLevelΣ 3
 
@@ -408,6 +413,13 @@ isOfHLevelΠ (suc (suc (suc (suc (suc n))))) h f g p q P Q R S =
                   (cong funExt⁻ P) (cong funExt⁻ Q)
                   (cong (cong funExt⁻) R) (cong (cong funExt⁻) S))
 
+isOfHLevelΠ2 : (n : HLevel) → ((x : A) → (y : B x) → isOfHLevel n (C x y))
+             → isOfHLevel n ((x : A) → (y : B x) → C x y)
+isOfHLevelΠ2 n f = isOfHLevelΠ n (λ x → isOfHLevelΠ n (f x))
+
+isContrΠ : (h : (x : A) → isContr (B x)) → isContr ((x : A) → B x)
+isContrΠ = isOfHLevelΠ 0
+
 isPropΠ : (h : (x : A) → isProp (B x)) → isProp ((x : A) → B x)
 isPropΠ = isOfHLevelΠ 1
 
@@ -421,7 +433,11 @@ isPropΠ3 h = isPropΠ λ x → isPropΠ λ y → isPropΠ λ z → h x y z
 
 isPropΠ4 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) → isProp (E x y z w))
             → isProp ((x : A) (y : B x) (z : C x y) (w : D x y z) → E x y z w)
-isPropΠ4 h = isPropΠ λ _ → isPropΠ3 λ _ → h _ _
+isPropΠ4 h = isPropΠ λ _ → isPropΠ3 (h _)
+
+isPropΠ5 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) → isProp (F x y z w v))
+            → isProp ((x : A) (y : B x) (z : C x y) (w : D x y z)  (v : E x y z w) → F x y z w v)
+isPropΠ5 h = isPropΠ λ _ → isPropΠ4 (h _)
 
 isPropImplicitΠ : (h : (x : A) → isProp (B x)) → isProp ({x : A} → B x)
 isPropImplicitΠ h f g i {x} = h x (f {x}) (g {x}) i

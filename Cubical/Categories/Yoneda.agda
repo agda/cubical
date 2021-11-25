@@ -1,5 +1,4 @@
 {-# OPTIONS --safe #-}
-
 module Cubical.Categories.Yoneda where
 
 open import Cubical.Foundations.Prelude
@@ -29,18 +28,9 @@ open NatTransP
 open Functor
 open Iso
 
+module _ {C : Category ℓ ℓ'} where
+  open Category
 
-module _ (A B : Type ℓ) (f : A → B) where
-
-  isInj = ∀ (x y : A) → (f x ≡ f y) → x ≡ y
-  isSurj = ∀ (b : B) → Σ[ a ∈ A ] f a ≡ b
-
-  bijectionToIso : isInj × isSurj
-                 → isIso f
-  bijectionToIso (i , s) = (λ b → fst (s b)) , (λ b → snd (s b)) , λ a → i (fst (s (f a))) a (snd (s (f a)))
-
-module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
-  open Precategory
   yoneda : (F : Functor C (SET ℓ'))
          → (c : C .ob)
          → Iso ((FUNCTOR C (SET ℓ')) [ C [ c ,-] , F ]) (fst (F ⟅ c ⟆))
@@ -51,7 +41,7 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
 
       -- takes a natural transformation to what it does on id
       ϕ : natType → setType
-      ϕ α = (α ⟦ _ ⟧) (C .id c)
+      ϕ α = (α ⟦ _ ⟧) (C .id)
 
       -- takes an element x of F c and sends it to the (only) natural transformation
       -- which takes the identity to x
@@ -79,9 +69,9 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
           αo≡βo = funExt λ x → funExt λ f
                 → αo x f
                 ≡[ i ]⟨ αo x (C .⋆IdL f (~ i)) ⟩ -- expand into the bottom left of the naturality diagram
-                  αo x (C .id c ⋆⟨ C ⟩ f)
-                ≡[ i ]⟨ αh f i (C .id c) ⟩ -- apply naturality
-                  (F ⟪ f ⟫) ((αo _) (C .id c))
+                  αo x (C .id ⋆⟨ C ⟩ f)
+                ≡[ i ]⟨ αh f i (C .id) ⟩ -- apply naturality
+                  (F ⟪ f ⟫) ((αo _) (C .id))
                 ∎
 
           -- type aliases for natural transformation
@@ -92,11 +82,8 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
           αh≡βh : PathP (λ i → NHType (αo≡βo i)) αh βh -- αh βh
           αh≡βh = isPropHomP αh βh αo≡βo
             where
-              isProp-hom : ⦃ isCatSET : isCategory (SET ℓ') ⦄ → (ϕ : NOType) → isProp (NHType ϕ)
-              isProp-hom ⦃ isCatSET ⦄ γ = isPropImplicitΠ λ x
-                                        → isPropImplicitΠ λ y
-                                        → isPropΠ λ f
-                                        → isCatSET .isSetHom {x = (C [ c , x ]) , (isCatC .isSetHom)} {F ⟅ y ⟆} _ _
+              isProp-hom : (ϕ : NOType) → isProp (NHType ϕ)
+              isProp-hom γ = isPropImplicitΠ2 λ x y → isPropΠ λ f → isSetHom (SET _) {x = (C [ c , x ]) , C .isSetHom } {F ⟅ y ⟆} _ _
 
               isPropHomP : isOfHLevelDep 1 (λ ηo → NHType ηo)
               isPropHomP = isOfHLevel→isOfHLevelDep 1 λ a → isProp-hom a
@@ -122,27 +109,27 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
   yonedaIsNaturalInOb {F = F} c c' f = funExt (λ α
                              → (yoneda F c' .fun ◍ preComp f) α
                              ≡⟨ refl ⟩
-                               (α ⟦ c' ⟧) (f ⋆⟨ C ⟩ C .id c')
+                               (α ⟦ c' ⟧) (f ⋆⟨ C ⟩ C .id)
                              ≡[ i ]⟨ (α ⟦ c' ⟧) (C .⋆IdR f i) ⟩
                                (α ⟦ c' ⟧) f
                              ≡[ i ]⟨ (α ⟦ c' ⟧) (C .⋆IdL f (~ i)) ⟩
-                               (α ⟦ c' ⟧) (C .id c ⋆⟨ C ⟩ f)
-                             ≡[ i ]⟨ (α .N-hom f i) (C .id c) ⟩
-                               (F ⟪ f ⟫) ((α ⟦ c ⟧) (C .id c))
+                               (α ⟦ c' ⟧) (C .id ⋆⟨ C ⟩ f)
+                             ≡[ i ]⟨ (α .N-hom f i) (C .id) ⟩
+                               (F ⟪ f ⟫) ((α ⟦ c ⟧) (C .id))
                              ≡⟨ refl ⟩
                                ((F ⟪ f ⟫) ◍ yoneda F c .fun) α
                              ∎)
 
 -- Yoneda embedding
 -- TODO: probably want to rename/refactor
-module _ {C : Precategory ℓ ℓ} ⦃ C-cat : isCategory C ⦄ where
+module _ {C : Category ℓ ℓ} where
   open Functor
   open NatTrans
-  open Precategory C
+  open Category C
 
   yo : ob → Functor (C ^op) (SET ℓ)
   yo x .F-ob y .fst = C [ y , x ]
-  yo x .F-ob y .snd = C-cat .isSetHom
+  yo x .F-ob y .snd = isSetHom
   yo x .F-hom f g = f ⋆⟨ C ⟩ g
   yo x .F-id i f = ⋆IdL f i
   yo x .F-seq f g i h = ⋆Assoc g f h i
@@ -157,7 +144,7 @@ module _ {C : Precategory ℓ ℓ} ⦃ C-cat : isCategory C ⦄ where
 
   module _ {x} (F : Functor (C ^op) (SET ℓ)) where
     yo-yo-yo : NatTrans (yo x) F → F .F-ob x .fst
-    yo-yo-yo α = α .N-ob _ (id _)
+    yo-yo-yo α = α .N-ob _ id
 
     no-no-no : F .F-ob x .fst → NatTrans (yo x) F
     no-no-no a .N-ob y f = F .F-hom f a
@@ -172,8 +159,8 @@ module _ {C : Precategory ℓ ℓ} ⦃ C-cat : isCategory C ⦄ where
         rem : ∀ {z} (x₁ : C [ z , x ]) → F .F-hom x₁ (yo-yo-yo a) ≡ (a .N-ob z) x₁
         rem g =
           F .F-hom g (yo-yo-yo a)
-            ≡[ i ]⟨ a .N-hom g (~ i) (id x) ⟩
-          a .N-hom g i0 (id x)
+            ≡[ i ]⟨ a .N-hom g (~ i) id ⟩
+          a .N-hom g i0 id
             ≡[ i ]⟨ a .N-ob _ (⋆IdR g i) ⟩
           (a .N-ob _) g
             ∎

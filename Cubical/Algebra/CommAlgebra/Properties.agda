@@ -85,7 +85,7 @@ module CommAlgChar (R : CommRing ℓ) where
 
   -- this only works because fst (APath i) = fst A definitionally!
   φPathP : PathP (λ i → CommRingHom R (APath i)) (snd (fromCommAlg (toCommAlg (A , φ)))) φ
-  φPathP = RingHomEqDep _ _ _ _ _ _ λ i x → ·Rid (snd A) (fst φ x) i
+  φPathP = RingHomPathP _ _ _ _ _ _ λ i x → ·Rid (snd A) (fst φ x) i
 
 
  CommAlgRoundTrip : (A : CommAlgebra R ℓ) → toCommAlg (fromCommAlg A) ≡ A
