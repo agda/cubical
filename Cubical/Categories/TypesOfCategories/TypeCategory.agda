@@ -52,7 +52,7 @@ record isTypeCategory {ℓ ℓ' ℓ''} (C : Category ℓ ℓ')
        → π Γ' (reindex f A) ⋆ f ≡ q⟨ f , A ⟩ ⋆ π Γ A
 
     isPB : ∀ {Γ' Γ : ob} (f : C [ Γ' , Γ ]) (A : Ty[ Γ ])
-         → isPullback {C = C} (cospan Γ' Γ (Γ ⍮ A) f (π Γ A))
+         → isPullback C (cospan Γ' Γ (Γ ⍮ A) f (π Γ A))
                       (π Γ' (reindex f A)) (q⟨ f , A ⟩) (sq f A)
 
 -- presheaves are type contexts
@@ -132,7 +132,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (C : Category ℓ ℓ') where
           sqExt : ∀ (c : C .ob) → _
           sqExt c = funExt λ (δax , γax , eq) → sym eq
 
-      PSIsPB : isPullback {C = PreShv C ℓ''}
+      PSIsPB : isPullback (PreShv C ℓ'')
                  (cospan Δ Γ (fst (PSCext Γ A')) γ (snd (PSCext Γ A')))
                  (snd (PSCext Δ PSReindex)) PSq PSSq
       PSIsPB {Θ} p₁ p₂ sq = (α , eq) , unique

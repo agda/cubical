@@ -16,7 +16,7 @@ private
   variable
     ℓ ℓ' : Level
 
-module _ {C : Category ℓ ℓ'} where
+module _ (C : Category ℓ ℓ') where
 
   open Category C
   open Functor
@@ -50,11 +50,11 @@ module _ {C : Category ℓ ℓ'} where
 
   -- TODO: define accessor functions for the pullback arrow and its properties
 
-Pullbacks : (C : Category ℓ ℓ') → Type (ℓ-max ℓ ℓ')
-Pullbacks C = (cspn : Cospan) → Pullback {C = C} cspn
+  Pullbacks : Type (ℓ-max ℓ ℓ')
+  Pullbacks = (cspn : Cospan) → Pullback cspn
 
-hasPullbacks : (C : Category ℓ ℓ') → Type (ℓ-max ℓ ℓ')
-hasPullbacks C = ∥ Pullbacks C ∥
+  hasPullbacks : Type (ℓ-max ℓ ℓ')
+  hasPullbacks = ∥ Pullbacks ∥
 
 
 -- TODO: finish the following show that this definition of Pullback is equivalent to the Cospan limit
@@ -62,7 +62,7 @@ module _ {C : Category ℓ ℓ'} where
   open Category C
   open Functor
 
-  Cospan→Func : Cospan {C = C} → Functor CospanCat C
+  Cospan→Func : Cospan C → Functor CospanCat C
   Cospan→Func (cospan l m r f g) .F-ob ⓪ = l
   Cospan→Func (cospan l m r f g) .F-ob ① = m
   Cospan→Func (cospan l m r f g) .F-ob ② = r
@@ -81,5 +81,3 @@ module _ {C : Category ℓ ℓ'} where
   Cospan→Func (cospan l m r f g) .F-seq {②} {②} {②} φ ψ = sym (⋆IdL _)
   Cospan→Func (cospan l m r f g) .F-seq {②} {②} {①} φ ψ = sym (⋆IdL _)
   Cospan→Func (cospan l m r f g) .F-seq {②} {①} {①} φ ψ = sym (⋆IdR _)
-
-
