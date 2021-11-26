@@ -21,7 +21,7 @@ The GNU command `make` does not work on Windows out of the box. Here are the ste
 
 4.  Give your user account `Read & Execute` access to `C:\Windows\System32\pthread.dll`
 
-5.  Now, each time before you run `make`, run the following command in your terminal:
+5.  Now, **each time before you run `make`,** run the following command in your terminal:
     ```
     chcp.com 65001
     ```
