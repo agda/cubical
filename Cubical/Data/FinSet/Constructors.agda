@@ -12,16 +12,16 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 
-open import Cubical.HITs.PropositionalTruncation renaming (rec to TruncRec)
+open import Cubical.HITs.PropositionalTruncation as Prop
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
-open import Cubical.Data.Empty renaming (rec to EmptyRec)
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
-open import Cubical.Data.Fin
-open import Cubical.Data.SumFin renaming (Fin to SumFin)
+open import Cubical.Data.Fin.LehmerCode as LehmerCode
+open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.FiniteChoice
@@ -37,54 +37,45 @@ private
     ℓ ℓ' ℓ'' ℓ''' : Level
 
 module _
-  (X : Type ℓ)(p : ≃Fin X) where
+  (X : Type ℓ)(p : isFinOrd X) where
 
-  ≃Fin∥∥ : ≃Fin ∥ X ∥
-  ≃Fin∥∥ = ≃SumFin→Fin (_ , compEquiv (propTrunc≃ (≃Fin→SumFin p .snd)) (SumFin∥∥≃ _))
+  isFinOrd∥∥ : isFinOrd ∥ X ∥
+  isFinOrd∥∥ = _ , propTrunc≃ (p .snd) ⋆ SumFin∥∥≃ _
 
-module _
-  (X : Type ℓ )(p : ≃Fin X)
-  (Y : Type ℓ')(q : ≃Fin Y) where
-
-  ≃Fin⊎ : ≃Fin (X ⊎ Y)
-  ≃Fin⊎ = ≃SumFin→Fin (_ , compEquiv (⊎-equiv (≃Fin→SumFin p .snd) (≃Fin→SumFin q .snd)) (SumFin⊎≃ _ _))
-
-  ≃Fin× : ≃Fin (X × Y)
-  ≃Fin× = ≃SumFin→Fin (_ , compEquiv (Σ-cong-equiv (≃Fin→SumFin p .snd) (λ _ → ≃Fin→SumFin q .snd)) (SumFin×≃ _ _))
+  isFinOrd≃ : isFinOrd (X ≃ X)
+  isFinOrd≃ = _ , equivComp (p .snd) (p .snd) ⋆ SumFin≃≃ _
 
 module _
-  (X : Type ℓ )(p : ≃Fin X)
-  (Y : X → Type ℓ')(q : (x : X) → ≃Fin (Y x)) where
+  (X : Type ℓ )(p : isFinOrd X)
+  (Y : Type ℓ')(q : isFinOrd Y) where
+
+  isFinOrd⊎ : isFinOrd (X ⊎ Y)
+  isFinOrd⊎ = _ , ⊎-equiv (p .snd) (q .snd) ⋆ SumFin⊎≃ _ _
+
+  isFinOrd× : isFinOrd (X × Y)
+  isFinOrd× = _ , Σ-cong-equiv (p .snd) (λ _ → q .snd) ⋆ SumFin×≃ _ _
+
+module _
+  (X : Type ℓ )(p : isFinOrd X)
+  (Y : X → Type ℓ')(q : (x : X) → isFinOrd (Y x)) where
 
   private
-    p' = ≃Fin→SumFin p
-
-    m = p' .fst
-    e = p' .snd
-
-    q' : (x : X) → ≃SumFin (Y x)
-    q' x = ≃Fin→SumFin (q x)
+    e = p .snd
 
     f : (x : X) → ℕ
-    f x = q' x .fst
+    f x = q x .fst
 
-  ≃SumFinΣ : ≃SumFin (Σ X Y)
-  ≃SumFinΣ = _ ,
-      Σ-cong-equiv {B' = λ x → Y (invEq (p' .snd) x)} (p' .snd) (transpFamily p')
-    ⋆ Σ-cong-equiv-snd (λ x → q' (invEq e x) .snd)
+  isFinOrdΣ : isFinOrd (Σ X Y)
+  isFinOrdΣ = _ ,
+      Σ-cong-equiv {B' = λ x → Y (invEq e x)} e (transpFamily p)
+    ⋆ Σ-cong-equiv-snd (λ x → q (invEq e x) .snd)
     ⋆ SumFinΣ≃ _ _
 
-  ≃SumFinΠ : ≃SumFin ((x : X) → Y x)
-  ≃SumFinΠ = _ ,
-      equivΠ {B' = λ x → Y (invEq (p' .snd) x)} (p' .snd) (transpFamily p')
-    ⋆ equivΠCod (λ x → q' (invEq e x) .snd)
+  isFinOrdΠ : isFinOrd ((x : X) → Y x)
+  isFinOrdΠ = _ ,
+      equivΠ {B' = λ x → Y (invEq e x)} e (transpFamily p)
+    ⋆ equivΠCod (λ x → q (invEq e x) .snd)
     ⋆ SumFinΠ≃ _ _
-
-  ≃FinΣ : ≃Fin (Σ X Y)
-  ≃FinΣ = ≃SumFin→Fin ≃SumFinΣ
-
-  ≃FinΠ : ≃Fin ((x : X) → Y x)
-  ≃FinΠ = ≃SumFin→Fin ≃SumFinΠ
 
 -- closedness under several type constructors
 
@@ -95,14 +86,14 @@ module _
   isFinSetΣ : isFinSet (Σ (X .fst) (λ x → Y x .fst))
   isFinSetΣ =
     elim2 (λ _ _ → isPropIsFinSet {A = Σ (X .fst) (λ x → Y x .fst)})
-          (λ p q → ∣ ≃FinΣ (X .fst) p (λ x → Y x .fst) q ∣)
-          (X .snd) (choice X (λ x → ≃Fin (Y x .fst)) (λ x → Y x .snd))
+          (λ p q → isFinOrd→isFinSet (isFinOrdΣ (X .fst) (_ , p) (λ x → Y x .fst) q))
+          (X .snd .snd) (choice X (λ x → isFinOrd (Y x .fst)) (λ x → isFinSet→isFinSet' (Y x .snd)))
 
   isFinSetΠ : isFinSet ((x : X .fst) → Y x .fst)
   isFinSetΠ =
     elim2 (λ _ _ → isPropIsFinSet {A = ((x : X .fst) → Y x .fst)})
-          (λ p q → ∣ ≃FinΠ (X .fst) p (λ x → Y x .fst) q ∣)
-          (X .snd) (choice X (λ x → ≃Fin (Y x .fst)) (λ x → Y x .snd))
+          (λ p q → isFinOrd→isFinSet (isFinOrdΠ (X .fst) (_ , p) (λ x → Y x .fst) q))
+          (X .snd .snd) (choice X (λ x → isFinOrd (Y x .fst)) (λ x → isFinSet→isFinSet' (Y x .snd)))
 
 module _
   (X : FinSet ℓ)
@@ -128,7 +119,7 @@ module _
   isFinSet≡ a b = isDecProp→isFinSet (isFinSet→isSet (X .snd) a b) (isFinSet→Discrete (X .snd) a b)
 
   isFinSet∥∥ : isFinSet ∥ X .fst ∥
-  isFinSet∥∥ = TruncRec isPropIsFinSet (λ p → ∣ ≃Fin∥∥ (X .fst) p ∣) (X .snd)
+  isFinSet∥∥ = Prop.rec isPropIsFinSet (λ p → isFinOrd→isFinSet (isFinOrd∥∥ (X .fst) (_ , p))) (X .snd .snd)
 
   isFinSetIsContr : isFinSet (isContr (X .fst))
   isFinSetIsContr = isFinSetΣ X (λ x → _ , (isFinSetΠ X (λ y → _ , isFinSet≡ x y)))
@@ -155,10 +146,16 @@ module _
   (Y : FinSet ℓ') where
 
   isFinSet⊎ : isFinSet (X .fst ⊎ Y .fst)
-  isFinSet⊎ = elim2 (λ _ _ → isPropIsFinSet) (λ p q → ∣ ≃Fin⊎ (X .fst) p (Y .fst) q ∣) (X .snd) (Y .snd)
+  isFinSet⊎ = card X + card Y ,
+    elim2 (λ _ _ → isPropPropTrunc {A = _ ≃ Fin (card X + card Y)})
+      (λ p q → ∣ isFinOrd⊎ (X .fst) (_ , p) (Y .fst) (_ , q) .snd ∣)
+      (X .snd .snd) (Y .snd .snd)
 
   isFinSet× : isFinSet (X .fst × Y .fst)
-  isFinSet× = elim2 (λ _ _ → isPropIsFinSet) (λ p q → ∣ ≃Fin× (X .fst) p (Y .fst) q ∣) (X .snd) (Y .snd)
+  isFinSet× = card X · card Y ,
+    elim2 (λ _ _ → isPropPropTrunc {A = _ ≃ Fin (card X · card Y)})
+      (λ p q → ∣ isFinOrd× (X .fst) (_ , p) (Y .fst) (_ , q) .snd ∣)
+      (X .snd .snd) (Y .snd .snd)
 
   isFinSet→ : isFinSet (X .fst → Y .fst)
   isFinSet→ = isFinSetΠ X (λ _ → Y)
@@ -175,8 +172,20 @@ module _
 module _
   (X : FinSet ℓ) where
 
+  isFinSetAut : isFinSet (X .fst ≃ X .fst)
+  isFinSetAut = LehmerCode.factorial (card X) ,
+    Prop.elim (λ _ → isPropPropTrunc {A = _ ≃ Fin _})
+      (λ p → ∣ isFinOrd≃ (X .fst) (card X , p) .snd ∣)
+      (X .snd .snd)
+
+  isFinSetTypeAut : isFinSet (X .fst ≡ X .fst)
+  isFinSetTypeAut = EquivPresIsFinSet (invEquiv univalence) isFinSetAut
+
+module _
+  (X : FinSet ℓ) where
+
   isFinSet¬ : isFinSet (¬ (X .fst))
-  isFinSet¬ = isFinSet→ X (⊥ , ∣ 0 , uninhabEquiv (λ x → x) ¬Fin0 ∣)
+  isFinSet¬ = isFinSet→ X (Fin 0 , isFinSetFin)
 
 module _
   (X : FinSet ℓ) where
@@ -225,21 +234,5 @@ module _
   (Y : Type ℓ')(h : Discrete Y)
   (f : X. fst → Y) where
 
-  isFinSetFiberDec : (y : Y) → isFinSet (fiber f y)
-  isFinSetFiberDec y = isFinSetΣ X (λ x → _ , isDecProp→isFinSet (Discrete→isSet h _ _) (h (f x) y))
-
--- decidable predicate
-
-module _
-  (X : FinSet ℓ)
-  (P : X .fst → Type ℓ')
-  (h : (x : X .fst) → isProp (P x))
-  (dec : (x : X .fst) → Dec (P x)) where
-
-  DecΣ : Dec ∥ Σ (X .fst) P ∥
-  DecΣ = isFinSet→Dec∥∥ (isFinSetΣ X (λ x → _ , isDecProp→isFinSet (h x) (dec x)))
-
-  DecΠ : Dec ((x : X .fst) → P x)
-  DecΠ =
-    EquivPresDec (propTruncIdempotent≃ (isPropΠ h))
-                 (isFinSet→Dec∥∥ (isFinSetΠ X (λ x → _ , isDecProp→isFinSet (h x) (dec x))))
+  isFinSetFiberDisc : (y : Y) → isFinSet (fiber f y)
+  isFinSetFiberDisc y = isFinSetΣ X (λ x → _ , isDecProp→isFinSet (Discrete→isSet h _ _) (h (f x) y))

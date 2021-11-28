@@ -14,29 +14,66 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as Prop
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin renaming (Fin to Finℕ) hiding (isSetFin)
+open import Cubical.Data.SumFin
 open import Cubical.Data.Sigma
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' : Level
     A : Type ℓ
+
+-- operators to more conveniently compose equivalences
+module _
+  {A : Type ℓ}{B : Type ℓ'}{C : Type ℓ''} where
+
+  infixr 30 _⋆_
+
+  _⋆_ : A ≃ B → B ≃ C → A ≃ C
+  _⋆_ = compEquiv
 
 -- definition of (Bishop) finite sets
 
 isFinSet : Type ℓ → Type ℓ
-isFinSet A = ∃[ n ∈ ℕ ] A ≃ Fin n
+isFinSet A = Σ[ n ∈ ℕ ] ∥ A ≃ Fin n ∥
+
+isFinOrd : Type ℓ → Type ℓ
+isFinOrd A = Σ[ n ∈ ℕ ] A ≃ Fin n
+
+isFinOrd→isFinSet : isFinOrd A → isFinSet A
+isFinOrd→isFinSet (_ , p) = _ , ∣ p ∣
+
+-- another definition of isFinSet
+isFinSet' : Type ℓ → Type ℓ
+isFinSet' A = ∥ Σ[ n ∈ ℕ ] A ≃ Fin n ∥
+
+isFinSet→isFinSet' : isFinSet A → isFinSet' A
+isFinSet→isFinSet' (_ , p) = Prop.rec isPropPropTrunc (λ p → ∣ _ , p ∣) p
 
 -- finite sets are sets
 isFinSet→isSet : isFinSet A → isSet A
-isFinSet→isSet = rec isPropIsSet (λ (_ , p) → isOfHLevelRespectEquiv 2 (invEquiv p) isSetFin)
+isFinSet→isSet p = rec isPropIsSet (λ e → isOfHLevelRespectEquiv 2 (invEquiv e) isSetFin) (p .snd)
+
+-- isFinSet is proposition
+private
+  cardUniq : (m n : ℕ) → (p : A ≃ Fin m)(q : A ≃ Fin n) → m ≡ n
+  cardUniq _ _ p q = Fin-inj _ _ (ua (invEquiv (SumFin≃Fin _) ⋆ (invEquiv p) ⋆ q ⋆ SumFin≃Fin _))
 
 isPropIsFinSet : isProp (isFinSet A)
-isPropIsFinSet = isPropPropTrunc
+isPropIsFinSet p q = Σ≡PropEquiv (λ _ → isPropPropTrunc) .fst (
+  Prop.elim2
+    (λ _ _ → isSetℕ _ _)
+    (λ p q → cardUniq _ _ p q)
+    (p .snd) (q .snd))
+
+-- isFinSet is Set
+isSetIsFinOrd : isSet (isFinOrd A)
+isSetIsFinOrd = isOfHLevelΣ 2 isSetℕ (λ _ → isOfHLevel⁺≃ᵣ 1 isSetFin)
 
 -- the type of finite sets/propositions
 
@@ -45,6 +82,11 @@ FinSet ℓ = TypeWithStr _ isFinSet
 
 FinProp : (ℓ : Level) → Type (ℓ-suc ℓ)
 FinProp ℓ = Σ[ P ∈ FinSet ℓ ] isProp (P .fst)
+
+-- cardinality of finite sets
+
+card : FinSet ℓ → ℕ
+card X = X .snd .fst
 
 -- equality between finite sets/propositions
 

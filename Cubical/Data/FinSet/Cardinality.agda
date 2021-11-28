@@ -15,20 +15,20 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 
-open import Cubical.HITs.PropositionalTruncation hiding (elim')
-open import Cubical.HITs.SetTruncation renaming (rec to SetRec ; elim to SetElim) hiding (rec2)
+open import Cubical.HITs.PropositionalTruncation as Prop
+open import Cubical.HITs.SetTruncation as Set
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
-open import Cubical.Data.Empty renaming (rec to EmptyRec)
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Bool hiding (_≟_)
-open import Cubical.Data.Sum hiding (rec)
+open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
-open import Cubical.Data.Fin renaming (pigeonhole to pigeonholeFin ; toℕ to cardFin)
-open import Cubical.Data.Fin.LehmerCode
-open import Cubical.Data.SumFin renaming (Fin to SumFin)
+open import Cubical.Data.Fin using (Fin-inj)
+open import Cubical.Data.Fin.LehmerCode as LehmerCode
+open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.FiniteChoice
@@ -50,17 +50,15 @@ private
 
 -- cardinality of finite sets
 
-card : FinSet ℓ → ℕ
-card X = FinSet→FinSet' X .snd .fst
-
 ∣≃card∣ : (X : FinSet ℓ) → ∥ X .fst ≃ Fin (card X) ∥
-∣≃card∣ X = FinSet→FinSet' X .snd .snd
+∣≃card∣ X = X .snd .snd
 
 -- cardinality is invariant under equivalences
 
 cardEquiv : (X : FinSet ℓ)(Y : FinSet ℓ') → ∥ X .fst ≃ Y .fst ∥ → card X ≡ card Y
 cardEquiv X Y e =
-  rec (isSetℕ _ _) (λ p → Fin-inj _ _ (ua p)) (∣invEquiv∣ (∣≃card∣ X) ⋆̂ e ⋆̂ ∣≃card∣ Y)
+  Prop.rec (isSetℕ _ _) (λ p → Fin-inj _ _ (ua p))
+    (∣ invEquiv (SumFin≃Fin _) ∣ ⋆̂ ∣invEquiv∣ (∣≃card∣ X) ⋆̂ e ⋆̂ ∣≃card∣ Y ⋆̂ ∣ SumFin≃Fin _ ∣)
 
 cardInj : card X ≡ card Y → ∥ X .fst ≃ Y .fst ∥
 cardInj {X = X} {Y = Y} p =
@@ -80,31 +78,31 @@ module _
 
   card≡0→isEmpty : card X ≡ 0 → ¬ X .fst
   card≡0→isEmpty p x =
-    rec isProp⊥ (λ e → ¬Fin0 (transport (cong Fin p) (e .fst x))) (∣≃card∣ X)
+    Prop.rec isProp⊥ (λ e → (idfun _) (transport (cong Fin p) (e .fst x))) (∣≃card∣ X)
 
   card>0→isInhab : card X > 0 → ∥ X .fst ∥
   card>0→isInhab p =
-    rec isPropPropTrunc (λ e → ∣ invEq e (Fin>0 _ p) ∣) (∣≃card∣ X)
+    Prop.rec isPropPropTrunc (λ e → ∣ invEq e (Fin>0 _ p) ∣) (∣≃card∣ X)
 
   card>1→hasNonEqualTerm : card X > 1 → ∥ Σ[ a ∈ X .fst ] Σ[ b ∈ X .fst ] ¬ a ≡ b ∥
   card>1→hasNonEqualTerm p =
-    rec isPropPropTrunc
+    Prop.rec isPropPropTrunc
         (λ e → ∣ e .fst (Fin>1 _ p .fst) , e .fst (Fin>1 _ p .snd .fst) ,
                  Fin>1 _ p .snd .snd ∘ invEq (congEquiv e) ∣)
         (∣invEquiv∣ (∣≃card∣ X))
 
   card≡1→isContr : card X ≡ 1 → isContr (X .fst)
   card≡1→isContr p =
-    rec isPropIsContr
-        (λ e → isOfHLevelRespectEquiv 0 (invEquiv (e ⋆ pathToEquiv (cong Fin p))) isContrFin1) (∣≃card∣ X)
+    Prop.rec isPropIsContr
+        (λ e → isOfHLevelRespectEquiv 0 (invEquiv (e ⋆ pathToEquiv (cong Fin p))) isContrSumFin1) (∣≃card∣ X)
 
   card≤1→isProp : card X ≤ 1 → isProp (X .fst)
   card≤1→isProp p =
-    rec isPropIsProp (λ e → isOfHLevelRespectEquiv 1 (invEquiv e) (Fin≤1 (card X) p)) (∣≃card∣ X)
+    Prop.rec isPropIsProp (λ e → isOfHLevelRespectEquiv 1 (invEquiv e) (Fin≤1 (card X) p)) (∣≃card∣ X)
 
   card≡n : card X ≡ n → ∥ X ≡ 𝔽in n ∥
   card≡n {n = n} p =
-    rec isPropPropTrunc
+    Prop.rec isPropPropTrunc
         (λ e →
           ∣(λ i → ua e i ,
                   isProp→PathP {B = λ j → isFinSet (ua e j)}
@@ -127,34 +125,34 @@ module _
         1 (FinSet≡ X 𝟙)
           (isOfHLevel≡ 1
             (card≤1→isProp (subst (λ a → a ≤ 1) (sym p) (≤-solver 1 1))) (isPropUnit*))) .fst
-      (rec isPropPropTrunc (λ q → ∣ q ∙ 𝔽in1≡𝟙 ∣) (card≡n p))
+      (Prop.rec isPropPropTrunc (λ q → ∣ q ∙ 𝔽in1≡𝟙 ∣) (card≡n p))
 
 module _
   (X : FinSet ℓ) where
 
   isEmpty→card≡0 : ¬ X .fst → card X ≡ 0
   isEmpty→card≡0 p =
-    rec (isSetℕ _ _) (λ e → sym (emptyFin _ (p ∘ invEq e))) (∣≃card∣ X)
+    Prop.rec (isSetℕ _ _) (λ e → sym (emptyFin _ (p ∘ invEq e))) (∣≃card∣ X)
 
   isInhab→card>0 : ∥ X .fst ∥ → card X > 0
-  isInhab→card>0 = rec2 m≤n-isProp (λ p x → nonEmptyFin _ (p .fst x)) (∣≃card∣ X)
+  isInhab→card>0 = Prop.rec2 m≤n-isProp (λ p x → nonEmptyFin _ (p .fst x)) (∣≃card∣ X)
 
   hasNonEqualTerm→card>1 : {a b : X. fst} → ¬ a ≡ b → card X > 1
   hasNonEqualTerm→card>1 {a = a} {b = b} q =
-    rec m≤n-isProp (λ p → nonEqualTermFin _ (p .fst a) (p .fst b) (q ∘ invEq (congEquiv p))) (∣≃card∣ X)
+    Prop.rec m≤n-isProp (λ p → nonEqualTermFin _ (p .fst a) (p .fst b) (q ∘ invEq (congEquiv p))) (∣≃card∣ X)
 
   isContr→card≡1 : isContr (X .fst) → card X ≡ 1
   isContr→card≡1 p = cardEquiv X (_ , isFinSetUnit) ∣ isContr→≃Unit p ∣
 
   isProp→card≤1 : isProp (X .fst) → card X ≤ 1
-  isProp→card≤1 p = propFin (card X) (rec isPropIsProp (λ e → isOfHLevelRespectEquiv 1 e p) (∣≃card∣ X))
+  isProp→card≤1 p = propFin (card X) (Prop.rec isPropIsProp (λ e → isOfHLevelRespectEquiv 1 e p) (∣≃card∣ X))
 
 {- formulae about cardinality -}
 
--- results to be used in direct induction on FinSet
+-- results to be used in diProp.rect induction on FinSet
 
 card𝟘 : card (𝟘 {ℓ}) ≡ 0
-card𝟘 {ℓ = ℓ} = isEmpty→card≡0 (𝟘 {ℓ}) (rec*)
+card𝟘 {ℓ = ℓ} = isEmpty→card≡0 (𝟘 {ℓ}) Empty.rec*
 
 card𝟙 : card (𝟙 {ℓ}) ≡ 1
 card𝟙 {ℓ = ℓ} = isContr→card≡1 (𝟙 {ℓ}) isContrUnit*
@@ -169,18 +167,10 @@ module _
   (Y : FinSet ℓ') where
 
   card+ : card (_ , isFinSet⊎ X Y) ≡ card X + card Y
-  card+ =
-    cardEquiv (_ , isFinSet⊎ X Y) (Fin (card X + card Y) , isFinSetFin)
-              (rec2 isPropPropTrunc
-                    (λ e1 e2 → ∣ ⊎-equiv e1 e2 ⋆ invEquiv (isoToEquiv (Fin+≅Fin⊎Fin _ _)) ∣)
-              (∣≃card∣ X) (∣≃card∣ Y))
+  card+ = refl
 
   card× : card (_ , isFinSet× X Y) ≡ card X · card Y
-  card× =
-    cardEquiv (_ , isFinSet× X Y) (Fin (card X · card Y) , isFinSetFin)
-              (rec2 isPropPropTrunc
-                    (λ e1 e2 → ∣ Σ-cong-equiv e1 (λ _ → e2) ⋆ factorEquiv ∣)
-              (∣≃card∣ X) (∣≃card∣ Y))
+  card× = refl
 
 -- total summation/product of numerical functions from finite sets
 
@@ -251,10 +241,6 @@ module _
   prod𝔽in1+n : prod (𝔽in (1 + n)) f ≡ f (inl tt*) · prod (𝔽in n) (f ∘ inr)
   prod𝔽in1+n = prod⊎ 𝟙 (𝔽in n) f ∙ (λ i → prod𝟙 (f ∘ inl) i · prod (𝔽in n) (f ∘ inr))
 
-_^_ : ℕ → ℕ → ℕ
-m ^ 0 = 1
-m ^ (suc n) = m · m ^ n
-
 sumConst𝔽in : (n : ℕ)(f : 𝔽in {ℓ} n .fst → ℕ)(c : ℕ)(h : (x : 𝔽in n .fst) → f x ≡ c) → sum (𝔽in n) f ≡ c · n
 sumConst𝔽in 0 f c _ = sum𝟘 f ∙ 0≡m·0 c
 sumConst𝔽in (suc n) f c h =
@@ -300,7 +286,7 @@ sum≤𝔽in (suc n) f g h =
 
 sum<𝔽in : (n : ℕ)(f g : 𝔽in {ℓ} n .fst → ℕ)(t : ∥ 𝔽in {ℓ} n .fst ∥)(h : (x : 𝔽in n .fst) → f x < g x)
   → sum (𝔽in n) f < sum (𝔽in n) g
-sum<𝔽in {ℓ = ℓ} 0 _ _ t _ = EmptyRec (<→≢ (isInhab→card>0 (𝔽in 0) t) (card𝟘 {ℓ = ℓ}))
+sum<𝔽in {ℓ = ℓ} 0 _ _ t _ = Empty.rec (<→≢ (isInhab→card>0 (𝔽in 0) t) (card𝟘 {ℓ = ℓ}))
 sum<𝔽in (suc n) f g t h =
   ≡< (h (inl tt*)) (sum≤𝔽in n (f ∘ inr) (g ∘ inr) (<-weaken ∘ h ∘ inr)) (sum𝔽in1+n n f) (sum𝔽in1+n n g)
 
@@ -361,13 +347,13 @@ module _
   cardΣ : card (_ , isFinSetΣ X Y) ≡ sum X (λ x → card (Y x))
   cardΣ =
     cardEquiv (_ , isFinSetΣ X Y) (_ , isFinSetΣ X (λ x → Fin (card (Y x)) , isFinSetFin))
-              (rec isPropPropTrunc (λ e → ∣ Σ-cong-equiv-snd e ∣)
+              (Prop.rec isPropPropTrunc (λ e → ∣ Σ-cong-equiv-snd e ∣)
                    (choice X (λ x → Y x .fst ≃ Fin (card (Y x))) (λ x → ∣≃card∣ (Y x))))
 
   cardΠ : card (_ , isFinSetΠ X Y) ≡ prod X (λ x → card (Y x))
   cardΠ =
     cardEquiv (_ , isFinSetΠ X Y) (_ , isFinSetΠ X (λ x → Fin (card (Y x)) , isFinSetFin))
-              (rec isPropPropTrunc (λ e → ∣ equivΠCod e ∣)
+              (Prop.rec isPropPropTrunc (λ e → ∣ equivΠCod e ∣)
                    (choice X (λ x → Y x .fst ≃ Fin (card (Y x))) (λ x → ∣≃card∣ (Y x))))
 
 module _
@@ -377,12 +363,11 @@ module _
   card→ : card (_ , isFinSet→ X Y) ≡ card Y ^ card X
   card→ = cardΠ X (λ _ → Y) ∙ prodConst X (λ _ → card Y) (card Y) (λ _ → refl)
 
-  card≃ : card (_ , isFinSet≃ X X) ≡ factorial (card X)
-  card≃ =
-    cardEquiv (_ , isFinSet≃ X X) (Fin (factorial (card X)) , isFinSetFin)
-              (rec isPropPropTrunc
-                   (λ e → ∣ equivComp e e ⋆ lehmerEquiv ⋆ lehmerFinEquiv ∣)
-              (∣≃card∣ X))
+module _
+  (X : FinSet ℓ ) where
+
+  cardAut : card (_ , isFinSetAut X) ≡ LehmerCode.factorial (card X)
+  cardAut = refl
 
 module _
   (X : FinSet ℓ )
@@ -434,7 +419,7 @@ module _
 
   Σ∥P∥→∥ΣP∥ : Σ X (λ x → ∥ P x ∥) → ∥ Σ X P ∥
   Σ∥P∥→∥ΣP∥ (x , p) =
-    rec isPropPropTrunc (λ q → ∣ x , q ∣) p
+    Prop.rec isPropPropTrunc (λ q → ∣ x , q ∣) p
 
 module _
   (f : X .fst → Y .fst)
@@ -454,8 +439,8 @@ module _
 
   pigeonHole' : ∥ Σ[ x ∈ X .fst ] Σ[ x' ∈ X .fst ] (¬ x ≡ x') × (f x ≡ f x') ∥
   pigeonHole' =
-    rec isPropPropTrunc (λ p → ∣ nonInj p ∣)
-      (rec isPropPropTrunc fiberNonEqualTerm
+    Prop.rec isPropPropTrunc (λ p → ∣ nonInj p ∣)
+      (Prop.rec isPropPropTrunc fiberNonEqualTerm
         (pigeonHole {X = X} {Y = Y} f 1 (subst (λ a → _ > a) (sym (·-identityˡ _)) p)))
 
 -- cardinality and injection/surjection
@@ -485,10 +470,10 @@ module _
           (λ y → isInhab→card>0 (_ , isFinSetFiber X Y f y) (p y)))
 
   card↪Inequality : ∥ X .fst ↪ Y .fst ∥ → card X ≤ card Y
-  card↪Inequality = rec m≤n-isProp (λ (f , p) → card↪Inequality' f p)
+  card↪Inequality = Prop.rec m≤n-isProp (λ (f , p) → card↪Inequality' f p)
 
   card↠Inequality : ∥ X .fst ↠ Y .fst ∥ → card X ≥ card Y
-  card↠Inequality = rec m≤n-isProp (λ (f , p) → card↠Inequality' f p)
+  card↠Inequality = Prop.rec m≤n-isProp (λ (f , p) → card↠Inequality' f p)
 
 -- maximal value of numerical functions
 
@@ -539,7 +524,7 @@ module _
   ΣMax⊎-case (x , p) (y , q) (gt r) .snd (inr y') = ≤-trans (q y') (<-weaken r)
 
   ∃Max⊎ : ∃Max X (f ∘ inl) → ∃Max Y (f ∘ inr) → ∃Max (X ⊎ Y) f
-  ∃Max⊎ = rec2 isPropPropTrunc (λ p q → ∣ ΣMax⊎-case p q (_≟_ _ _) ∣)
+  ∃Max⊎ = Prop.rec2 isPropPropTrunc (λ p q → ∣ ΣMax⊎-case p q (_≟_ _ _) ∣)
 
 ΣMax𝟙 : (f : 𝟙 {ℓ} .fst → ℕ) → ΣMax _ f
 ΣMax𝟙 f .fst = tt*
@@ -549,7 +534,7 @@ module _
 ∃Max𝟙 f = ∣ ΣMax𝟙 f ∣
 
 ∃Max𝔽in : (n : ℕ)(f : 𝔽in {ℓ} n .fst → ℕ)(x : ∥ 𝔽in {ℓ} n .fst ∥) → ∃Max _ f
-∃Max𝔽in {ℓ = ℓ} 0 _ x = EmptyRec (<→≢ (isInhab→card>0 (𝔽in 0) x) (card𝟘 {ℓ = ℓ}))
+∃Max𝔽in {ℓ = ℓ} 0 _ x = Empty.rec (<→≢ (isInhab→card>0 (𝔽in 0) x) (card𝟘 {ℓ = ℓ}))
 ∃Max𝔽in 1 f _ =
   subst (λ X → (f : X .fst → ℕ) → ∃Max _ f) (sym 𝔽in1≡𝟙) ∃Max𝟙 f
 ∃Max𝔽in (suc (suc n)) f _ =
@@ -574,14 +559,14 @@ module _
 open Iso
 
 Iso-∥FinSet∥₂-ℕ : Iso ∥ FinSet ℓ ∥₂ ℕ
-Iso-∥FinSet∥₂-ℕ .fun = SetRec isSetℕ card
+Iso-∥FinSet∥₂-ℕ .fun = Set.rec isSetℕ card
 Iso-∥FinSet∥₂-ℕ .inv n = ∣ 𝔽in n ∣₂
 Iso-∥FinSet∥₂-ℕ .rightInv n = card𝔽in n
 Iso-∥FinSet∥₂-ℕ {ℓ = ℓ} .leftInv =
-  SetElim {B = λ X → ∣ 𝔽in (SetRec isSetℕ card X) ∣₂ ≡ X}
-          (λ X → isSetPathImplicit)
-          (elimProp (λ X → ∣ 𝔽in (card X) ∣₂ ≡ ∣ X ∣₂) (λ X → squash₂ _ _)
-                    (λ n i → ∣ 𝔽in (card𝔽in {ℓ = ℓ} n i) ∣₂))
+  Set.elim {B = λ X → ∣ 𝔽in (Set.rec isSetℕ card X) ∣₂ ≡ X}
+    (λ X → isSetPathImplicit)
+    (elimProp (λ X → ∣ 𝔽in (card X) ∣₂ ≡ ∣ X ∣₂) (λ X → squash₂ _ _)
+      (λ n i → ∣ 𝔽in (card𝔽in {ℓ = ℓ} n i) ∣₂))
 
 -- this is the definition of natural numbers you learned from school
 ∥FinSet∥₂≃ℕ : ∥ FinSet ℓ ∥₂ ≃ ℕ
@@ -596,8 +581,8 @@ Bool→FinProp false = 𝟘 , isProp⊥*
 injBool→FinProp : (x y : Bool) → Bool→FinProp {ℓ = ℓ} x ≡ Bool→FinProp y → x ≡ y
 injBool→FinProp true true _ = refl
 injBool→FinProp false false _ = refl
-injBool→FinProp true false p = EmptyRec (snotz (cong (card ∘ fst) p))
-injBool→FinProp false true p = EmptyRec (znots (cong (card ∘ fst) p))
+injBool→FinProp true false p = Empty.rec (snotz (cong (card ∘ fst) p))
+injBool→FinProp false true p = Empty.rec (znots (cong (card ∘ fst) p))
 
 isEmbeddingBool→FinProp : isEmbedding (Bool→FinProp {ℓ = ℓ})
 isEmbeddingBool→FinProp = injEmbedding isSetBool isSetFinProp (λ {x} {y} → injBool→FinProp x y)
@@ -606,7 +591,7 @@ card-case : (P : FinProp ℓ) → {n : ℕ} → card (P .fst) ≡ n → Σ[ x �
 card-case P {n = 0} p = false , FinProp≡ (𝟘 , isProp⊥*) P .fst (cong fst (sym (card≡0 {X = P .fst} p)))
 card-case P {n = 1} p = true , FinProp≡ (𝟙 , isPropUnit*) P .fst (cong fst (sym (card≡1 {X = P .fst} p)))
 card-case P {n = suc (suc n)} p =
-  EmptyRec (¬-<-zero (pred-≤-pred (subst (λ a → a ≤ 1) p (isProp→card≤1 (P .fst) (P .snd)))))
+  Empty.rec (¬-<-zero (pred-≤-pred (subst (λ a → a ≤ 1) p (isProp→card≤1 (P .fst) (P .snd)))))
 
 isSurjectionBool→FinProp : isSurjection (Bool→FinProp {ℓ = ℓ})
 isSurjectionBool→FinProp P = ∣ card-case P refl ∣
@@ -618,3 +603,28 @@ FinProp≃Bool =
 
 isFinSetFinProp : isFinSet (FinProp ℓ)
 isFinSetFinProp = EquivPresIsFinSet (invEquiv FinProp≃Bool) isFinSetBool
+
+-- a more efficient version of equivalence type
+
+module _
+  (X : FinSet ℓ )
+  (Y : FinSet ℓ') where
+
+  isFinSet≃Eff' : Dec (card X ≡ card Y) → isFinSet (X .fst ≃ Y .fst)
+  isFinSet≃Eff' (yes p) = factorial (card Y) ,
+    Prop.elim2 (λ _ _ → isPropPropTrunc {A = _ ≃ Fin _})
+      (λ p1 p2
+        → ∣ equivComp (p1 ⋆ pathToEquiv (cong Fin p) ⋆ SumFin≃Fin _) (p2 ⋆ SumFin≃Fin _)
+          ⋆ lehmerEquiv ⋆ lehmerFinEquiv
+          ⋆ invEquiv (SumFin≃Fin _) ∣)
+      (∣≃card∣ X) (∣≃card∣ Y)
+  isFinSet≃Eff' (no ¬p) = 0 , ∣ uninhabEquiv (¬p ∘ cardEquiv X Y ∘ ∣_∣) (idfun _) ∣
+
+  isFinSet≃Eff : isFinSet (X .fst ≃ Y .fst)
+  isFinSet≃Eff = isFinSet≃Eff' (discreteℕ _ _)
+
+module _
+  (X Y : FinSet ℓ) where
+
+  isFinSetType≡Eff : isFinSet (X .fst ≡ Y .fst)
+  isFinSetType≡Eff = EquivPresIsFinSet (invEquiv univalence) (isFinSet≃Eff X Y)

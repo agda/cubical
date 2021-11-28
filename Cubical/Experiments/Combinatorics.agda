@@ -12,15 +12,17 @@ open import Cubical.Foundations.Equiv renaming (_≃_ to _≃'_)
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Bool
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma renaming (_×_ to _×'_)
 open import Cubical.Data.Vec
 
-open import Cubical.Data.Fin renaming (Fin to Fin')
-open import Cubical.Data.SumFin renaming (Fin to SumFin) hiding (fzero)
-open import Cubical.Data.FinSet
+open import Cubical.Data.SumFin renaming (Fin to Fin')
+open import Cubical.Data.FinSet.Base
+open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Cardinality
+open import Cubical.Data.FinSet.Decidability
 open import Cubical.Data.FinSet.Quotients
 
 open import Cubical.HITs.PropositionalTruncation renaming (∥_∥ to ∥_∥')
@@ -115,9 +117,9 @@ a3,2 = refl
 
 -- construct numerical functions from list
 getFun : {n : ℕ} → Vec ℕ n → Fin n .fst → ℕ
-getFun {n = n} ns x = fun n ns (Fin→SumFin x)
+getFun {n = n} ns = fun n ns
   where
-    fun : (n : ℕ) → Vec ℕ n → SumFin n → ℕ
+    fun : (n : ℕ) → Vec ℕ n → Fin' n → ℕ
     fun 0 _ _ = 0
     fun (suc m) (n ∷ ns) (inl tt) = n
     fun (suc m) (n ∷ ns) (inr x) = fun m ns x
@@ -138,15 +140,15 @@ m : maxValue (Fin _) f ∣ fzero ∣ ≡ 9
 m = refl
 
 -- the number of numeral 1
-n1 : card (_ , isFinSetFiberDec (Fin _) ℕ discreteℕ f 1) ≡ 2
+n1 : card (_ , isFinSetFiberDisc (Fin _) ℕ discreteℕ f 1) ≡ 2
 n1 = refl
 
 -- a somewhat trivial equivalence relation making everything equivalent
 R : {n : ℕ} → Fin n .fst → Fin n .fst → Type
 R _ _ = Unit
 
-isDecR : {n : ℕ} → (x y : Fin n .fst) → Dec (R {n = n} x y)
-isDecR _ _ = yes tt
+isDecR : {n : ℕ} → (x y : Fin n .fst) → isDecProp (R {n = n} x y)
+isDecR _ _ = true , idEquiv _
 
 open BinaryRelation
 open isEquivRel

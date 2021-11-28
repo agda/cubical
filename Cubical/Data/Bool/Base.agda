@@ -64,6 +64,10 @@ Bool→Type : Bool → Type₀
 Bool→Type true = Unit
 Bool→Type false = ⊥
 
+Bool→Type* : Bool → Type ℓ
+Bool→Type* true = Unit*
+Bool→Type* false = ⊥*
+
 True : Dec A → Type₀
 True Q = Bool→Type (Dec→Bool Q)
 

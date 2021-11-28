@@ -10,16 +10,15 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as Prop
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
-open import Cubical.Data.Empty renaming (rec to EmptyRec)
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sigma
 
-open import Cubical.Data.Fin
-open import Cubical.Data.SumFin renaming (Fin to SumFin) hiding (discreteFin)
+open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 
 open import Cubical.Relation.Nullary
@@ -37,52 +36,48 @@ private
 module _
   {A : Type ℓ}{B : Type ℓ'}{C : Type ℓ''} where
 
-  infixr 30 _⋆_
   infixr 30 _⋆̂_
 
-  _⋆_ : A ≃ B → B ≃ C → A ≃ C
-  _⋆_ = compEquiv
-
   _⋆̂_ : ∥ A ≃ B ∥ → ∥ B ≃ C ∥ → ∥ A ≃ C ∥
-  _⋆̂_ = rec2 isPropPropTrunc (λ p q → ∣ p ⋆ q ∣)
+  _⋆̂_ = Prop.rec2 isPropPropTrunc (λ p q → ∣ p ⋆ q ∣)
 
 module _
   {A : Type ℓ}{B : Type ℓ'} where
 
   ∣invEquiv∣ : ∥ A ≃ B ∥ → ∥ B ≃ A ∥
-  ∣invEquiv∣ = rec isPropPropTrunc (λ p → ∣ invEquiv p ∣)
+  ∣invEquiv∣ = Prop.rec isPropPropTrunc (λ p → ∣ invEquiv p ∣)
 
 -- useful implications
 
 EquivPresIsFinSet : A ≃ B → isFinSet A → isFinSet B
-EquivPresIsFinSet e = rec isPropIsFinSet (λ (n , p) → ∣ n , compEquiv (invEquiv e) p ∣)
+EquivPresIsFinSet e (_ , p) = _ , ∣ invEquiv e ∣ ⋆̂ p
 
 isFinSetFin : {n : ℕ} → isFinSet (Fin n)
-isFinSetFin = ∣ _ , pathToEquiv refl ∣
+isFinSetFin = _ , ∣ idEquiv _ ∣
 
 isFinSetUnit : isFinSet Unit
-isFinSetUnit = ∣ 1 , Unit≃Fin1 ∣
+isFinSetUnit = 1 , ∣ invEquiv Fin1≃Unit ∣
 
 isFinSetBool : isFinSet Bool
-isFinSetBool = ∣ 2 , invEquiv (SumFin2≃Bool) ⋆ SumFin≃Fin 2 ∣
+isFinSetBool = 2 , ∣ invEquiv SumFin2≃Bool ∣
 
 isFinSet→Discrete : isFinSet A → Discrete A
-isFinSet→Discrete = rec isPropDiscrete (λ (_ , p) → EquivPresDiscrete (invEquiv p) discreteFin)
+isFinSet→Discrete h = Prop.rec isPropDiscrete (λ p → EquivPresDiscrete (invEquiv p) discreteFin) (h .snd)
 
 isContr→isFinSet : isContr A → isFinSet A
-isContr→isFinSet h = ∣ 1 , isContr→≃Unit* h ⋆ invEquiv (Unit≃Unit* ) ⋆ Unit≃Fin1 ∣
+isContr→isFinSet h = 1 , ∣ isContr→≃Unit* h ⋆ invEquiv Unit≃Unit* ⋆ invEquiv Fin1≃Unit ∣
 
 isDecProp→isFinSet : isProp A → Dec A → isFinSet A
 isDecProp→isFinSet h (yes p) = isContr→isFinSet (inhProp→isContr p h)
-isDecProp→isFinSet h (no ¬p) = ∣ 0 , uninhabEquiv ¬p ¬Fin0 ∣
+isDecProp→isFinSet h (no ¬p) = 0 , ∣ uninhabEquiv ¬p (idfun _) ∣
 
 isDec→isFinSet∥∥ : Dec A → isFinSet ∥ A ∥
 isDec→isFinSet∥∥ dec = isDecProp→isFinSet isPropPropTrunc (Dec∥∥ dec)
 
 isFinSet→Dec∥∥ : isFinSet A → Dec ∥ A ∥
-isFinSet→Dec∥∥ =
-  rec (isPropDec isPropPropTrunc)
-      (λ (_ , p) → EquivPresDec (propTrunc≃ (invEquiv p)) (∥Fin∥ _))
+isFinSet→Dec∥∥ h =
+  Prop.rec (isPropDec isPropPropTrunc)
+      (λ p → EquivPresDec (propTrunc≃ (invEquiv p)) (∥Fin∥ _)) (h .snd)
 
 isFinProp→Dec : isFinSet A → isProp A → Dec A
 isFinProp→Dec p h = subst Dec (propTruncIdempotent h) (isFinSet→Dec∥∥ p)
@@ -93,6 +88,14 @@ PeirceLaw∥∥ p = Dec→Stable (isFinSet→Dec∥∥ p)
 PeirceLaw : isFinSet A → NonEmpty A → ∥ A ∥
 PeirceLaw p q = PeirceLaw∥∥ p (λ f → q (λ x → f ∣ x ∣))
 
+-- transprot family towards Fin
+
+transpFamily :
+    {A : Type ℓ}{B : A → Type ℓ'}
+  → ((n , e) : isFinOrd A) → (x : A) → B x ≃ B (invEq e (e .fst x))
+transpFamily {B = B} (n , e) x = pathToEquiv (λ i → B (retEq e x (~ i)))
+
+{-
 {-
 
 Alternative definition of finite sets
@@ -115,9 +118,9 @@ isPropIsFinSet' {A = A} (n , equivn) (m , equivm) =
   Σ≡Prop (λ _ → isPropPropTrunc) n≡m
   where
     Fin-n≃Fin-m : ∥ Fin n ≃ Fin m ∥
-    Fin-n≃Fin-m = rec
+    Fin-n≃Fin-m = Prop.rec
       isPropPropTrunc
-      (rec
+      (Prop.rec
         (isPropΠ λ _ → isPropPropTrunc)
         (λ hm hn → ∣ Fin n ≃⟨ invEquiv hn ⟩ A ≃⟨ hm ⟩ Fin m ■ ∣)
         equivm
@@ -125,13 +128,13 @@ isPropIsFinSet' {A = A} (n , equivn) (m , equivm) =
       equivn
 
     Fin-n≡Fin-m : ∥ Fin n ≡ Fin m ∥
-    Fin-n≡Fin-m = rec isPropPropTrunc (∣_∣ ∘ ua) Fin-n≃Fin-m
+    Fin-n≡Fin-m = Prop.rec isPropPropTrunc (∣_∣ ∘ ua) Fin-n≃Fin-m
 
     ∥n≡m∥ : ∥ n ≡ m ∥
-    ∥n≡m∥ = rec isPropPropTrunc (∣_∣ ∘ Fin-inj n m) Fin-n≡Fin-m
+    ∥n≡m∥ = Prop.rec isPropPropTrunc (∣_∣ ∘ Fin-inj n m) Fin-n≡Fin-m
 
     n≡m : n ≡ m
-    n≡m = rec (isSetℕ n m) (λ p → p) ∥n≡m∥
+    n≡m = Prop.rec (isSetℕ n m) (λ p → p) ∥n≡m∥
 
 -- logical equivalence of two definitions
 
@@ -179,4 +182,4 @@ FinSet≡FinSet' = ua FinSet≃FinSet'
 transpFamily :
     {A : Type ℓ}{B : A → Type ℓ'}
   → ((n , e) : ≃SumFin A) → (x : A) → B x ≃ B (invEq e (e .fst x))
-transpFamily {B = B} (n , e) x = pathToEquiv (λ i → B (retEq e x (~ i)))
+transpFamily {B = B} (n , e) x = pathToEquiv (λ i → B (retEq e x (~ i))) -}

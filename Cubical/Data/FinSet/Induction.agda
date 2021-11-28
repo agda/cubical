@@ -13,16 +13,16 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
-open import Cubical.HITs.PropositionalTruncation renaming (rec to TruncRec) hiding (elim ; elim')
-open import Cubical.HITs.SetTruncation renaming (rec to SetRec ; elim to SetElim)
+open import Cubical.HITs.PropositionalTruncation as Prop
+open import Cubical.HITs.SetTruncation as Set
 
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_) hiding (elim)
+open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Unit
-open import Cubical.Data.Empty hiding (elim)
-open import Cubical.Data.Sum   hiding (elim)
+open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Sum   as Sum
 
-open import Cubical.Data.Fin hiding (elim)
-open import Cubical.Data.SumFin renaming (Fin to SumFin) hiding (elim)
+open import Cubical.Data.Fin renaming (Fin to Finℕ)
+open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.Constructors
@@ -37,7 +37,7 @@ module _
   {ℓ : Level} where
 
   𝟘 : FinSet ℓ
-  𝟘 = ⊥* , ∣ 0 , uninhabEquiv rec* ¬Fin0 ∣
+  𝟘 = ⊥* , 0 , ∣ uninhabEquiv Empty.rec* Empty.rec ∣
 
   𝟙 : FinSet ℓ
   𝟙 = Unit* , isContr→isFinSet (isContrUnit*)
@@ -61,12 +61,12 @@ module _
   * : {n : ℕ} → 𝔽in (suc n) .fst
   * = inl tt*
 
-  𝔽in≃SumFin : (n : ℕ) → 𝔽in n .fst ≃ SumFin n
-  𝔽in≃SumFin 0 = 𝟘≃Empty
-  𝔽in≃SumFin (suc n) = ⊎-equiv 𝟙≃Unit (𝔽in≃SumFin n)
-
   𝔽in≃Fin : (n : ℕ) → 𝔽in n .fst ≃ Fin n
-  𝔽in≃Fin n = 𝔽in≃SumFin n ⋆ SumFin≃Fin n
+  𝔽in≃Fin 0 = 𝟘≃Empty
+  𝔽in≃Fin (suc n) = ⊎-equiv 𝟙≃Unit (𝔽in≃Fin n)
+
+  𝔽in≃Finℕ : (n : ℕ) → 𝔽in n .fst ≃ Finℕ n
+  𝔽in≃Finℕ n = 𝔽in≃Fin n ⋆ SumFin≃Fin n
 
   -- 𝔽in preserves addition
 
@@ -92,9 +92,9 @@ module _
 -- every finite sets are merely equal to some 𝔽in
 
 ∣≡𝔽in∣ : (X : FinSet ℓ) → ∥ Σ[ n ∈ ℕ ] X ≡ 𝔽in n ∥
-∣≡𝔽in∣ X = TruncRec isPropPropTrunc (λ (n , p) → ∣ n , path X (n , p) ∣) (X .snd)
+∣≡𝔽in∣ X = Prop.rec isPropPropTrunc (λ (n , p) → ∣ n , path X (n , p) ∣) (isFinSet→isFinSet' (X .snd))
   where
-    path : (X : FinSet ℓ) → ((n , _) : ≃Fin (X .fst)) → X ≡ 𝔽in n
+    path : (X : FinSet ℓ) → ((n , _) : isFinOrd (X .fst)) → X ≡ 𝔽in n
     path X (n , p) i .fst = ua (p ⋆ invEquiv (𝔽in≃Fin n)) i
     path X (n , p) i .snd =
       isProp→PathP {B = λ i → isFinSet (path X (n , p) i .fst)}
@@ -110,7 +110,7 @@ module _
     (p : (n : ℕ) → P (𝔽in n)) where
 
     elimProp : (X : FinSet ℓ) → P X
-    elimProp X = TruncRec (h X) (λ (n , q) → transport (λ i → P (q (~ i))) (p n)) (∣≡𝔽in∣ X)
+    elimProp X = Prop.rec (h X) (λ (n , q) → transport (λ i → P (q (~ i))) (p n)) (∣≡𝔽in∣ X)
 
   module _
     (p0 : P 𝟘)

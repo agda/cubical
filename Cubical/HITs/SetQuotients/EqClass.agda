@@ -19,7 +19,7 @@ open import Cubical.Functions.Surjection
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 -- another definition using equivalence classes
 
@@ -45,15 +45,15 @@ module _
   isSetℙDec = isOfHLevelΣ 2 isSetℙ (λ P → isSetΠ (λ x → isProp→isSet (isPropDec (P x .snd))))
 
   module _
-    (R : X → X → Type ℓ') where
+    (R : X → X → Type ℓ'') where
 
-    isEqClass : ℙ → Type (ℓ-max ℓ (ℓ-suc ℓ'))
-    isEqClass P = ∥ Σ[ x ∈ X ] ((a : X) → P a .fst ≡ ∥ R a x ∥) ∥
+    isEqClass : ℙ → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+    isEqClass P = ∥ Σ[ x ∈ X ] ((a : X) → P a .fst ≃ ∥ R a x ∥) ∥
 
     isPropIsEqClass : (P : ℙ) → isProp (isEqClass P)
     isPropIsEqClass P = isPropPropTrunc
 
-    _∥_ : Type (ℓ-max ℓ (ℓ-suc ℓ'))
+    _∥_ : Type (ℓ-max (ℓ-max ℓ (ℓ-suc ℓ')) ℓ'')
     _∥_ = Σ[ P ∈ ℙ ] isEqClass P
 
     isSet∥ : isSet _∥_
@@ -62,12 +62,12 @@ module _
     module _
       (dec : (x x' : X) → Dec (R x x')) where
 
-      _∥Dec_ : Type (ℓ-max ℓ (ℓ-suc ℓ'))
+      _∥Dec_ : Type (ℓ-max (ℓ-max ℓ (ℓ-suc ℓ')) ℓ'')
       _∥Dec_ = Σ[ P ∈ ℙDec ] isEqClass (P .fst)
 
       isDecEqClass : (P : _∥_) → (x : X) → Dec (P .fst x .fst)
       isDecEqClass (P , h) a =
-        Prop.rec (isPropDec (P a .snd)) (λ (x , p) → subst Dec (sym (p a)) (Dec∥∥ (dec a x))) h
+        Prop.rec (isPropDec (P a .snd)) (λ (x , p) → EquivPresDec (invEquiv (p a)) (Dec∥∥ (dec a x))) h
 
       Iso-∥Dec-∥ : Iso _∥Dec_ _∥_
       Iso-∥Dec-∥ .fun P = P .fst .fst , P .snd
@@ -84,8 +84,9 @@ module _
       ∥Dec≃∥ = isoToEquiv Iso-∥Dec-∥
 
 module _
+  {ℓ ℓ' ℓ'' : Level}
   (X : Type ℓ)
-  (R : X → X → Type ℓ')
+  (R : X → X → Type ℓ'')
   (h : isEquivRel R) where
 
   ∥Rx∥Iso : (x x' : X)(r : R x x') → (a : X) → Iso ∥ R a x ∥ ∥ R a x' ∥
@@ -95,7 +96,7 @@ module _
   ∥Rx∥Iso x x' r a .rightInv _ = isPropPropTrunc _ _
 
   isEqClass∥Rx∥ : (x : X) → isEqClass X R (λ a → ∥ R a x ∥ , isPropPropTrunc)
-  isEqClass∥Rx∥ x = ∣ x , (λ _ → refl) ∣
+  isEqClass∥Rx∥ x = ∣ x , (λ _ → idEquiv _) ∣
 
   ∥R∥ : (x : X) → X ∥ R
   ∥R∥ x = (λ a → ∥ R a x ∥ , isPropPropTrunc) , isEqClass∥Rx∥ x
@@ -125,8 +126,8 @@ module _
   isEmbedding/→∥ : isEmbedding /→∥
   isEmbedding/→∥ = injEmbedding squash/ (isSet∥ X R) (λ {x} {y} → inj/→∥ x y)
 
-  surj/→∥ : (P : X ∥ R) → ((x , _) : Σ[ x ∈ X ] ((a : X) → P .fst a .fst ≡ ∥ R a x ∥)) → ∥R∥ x ≡ P
-  surj/→∥ P (x , p) i .fst a .fst = p a (~ i)
+  surj/→∥ : (P : X ∥ R) → ((x , _) : Σ[ x ∈ X ] ((a : X) → P .fst a .fst ≃ ∥ R a x ∥)) → ∥R∥ x ≡ P
+  surj/→∥ P (x , p) i .fst a .fst = ua (p a) (~ i)
   surj/→∥ P (x , p) i .fst a .snd =
     isProp→PathP {B = λ i → isProp (surj/→∥ P (x , p) i .fst a .fst)}
                  (λ i → isPropIsProp) isPropPropTrunc (P .fst a .snd) i

@@ -61,13 +61,9 @@ isPathConnectedFinSetOfCard {n = n} .snd =
 isFinTypeFinSetOfCard : isFinType 1 (FinSetOfCard ℓ n)
 isFinTypeFinSetOfCard .fst = isPathConnected→isFinType0 isPathConnectedFinSetOfCard
 isFinTypeFinSetOfCard .snd X Y =
-  isFinSet→isFinType _ (EquivPresIsFinSet (FinSet≡ _ _ ⋆ FinSetOfCard≡ _ _) (isFinSetType≡ (X .fst) (Y .fst)))
+  isFinSet→isFinType 0 (EquivPresIsFinSet (FinSet≡ _ _ ⋆ FinSetOfCard≡ _ _) (isFinSetType≡Eff (X .fst) (Y .fst)))
 
 isFinTypeFinSetWithStrOfCard : (ℓ : Level) (S : FinSet ℓ → FinSet ℓ') (n : ℕ)
   → isFinType 0 (FinSetWithStrOfCard ℓ S n)
 isFinTypeFinSetWithStrOfCard ℓ S n =
-  isFinTypeΣ (_ , isFinTypeFinSetOfCard) (λ X → _ , isFinSet→isFinType 0 (S (X .fst) .snd))
-
--- we can counting the number of finite sets of a given cardinal with certain structures
-cardFinSetWithStrOfCard : (ℓ : Level) (S : FinSet ℓ → FinSet ℓ') (n : ℕ) → ℕ
-cardFinSetWithStrOfCard ℓ S n = card (_ , isFinTypeFinSetWithStrOfCard ℓ S n)
+  isFinTypeΣ {n = 0} (_ , isFinTypeFinSetOfCard) (λ X → _ , isFinSet→isFinType 0 (S (X .fst) .snd))

@@ -31,6 +31,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
+open import Cubical.Data.FinSet.Decidability
 open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Quotients
 open import Cubical.Data.FinSet.Cardinality
@@ -74,7 +75,7 @@ isFinType→isFinType0 {n = suc n} p = p .fst
 isFinTypeSuc→isFinType1 : isFinType (suc n) X → isFinType 1 X
 isFinTypeSuc→isFinType1 {n = 0} p = p
 isFinTypeSuc→isFinType1 {n = suc n} p .fst = p .fst
-isFinTypeSuc→isFinType1 {n = suc n} p .snd a b = isFinType→isFinType0 (p .snd a b)
+isFinTypeSuc→isFinType1 {n = suc n} p .snd a b = isFinType→isFinType0 {n = suc n} (p .snd a b)
 
 -- useful properties
 
@@ -106,14 +107,13 @@ module _
   module _
     (y : Y) where
 
-    isDecFiberRel : (x x' : ∥ fiber f y ∥₂) → Dec (fiberRel2 _ _ f y x x')
-    isDecFiberRel x x' =
-      isFinSet→Dec∥∥ (isFinSetΣ (_ , h .snd y y) (λ _ → _ , isFinSet≡ (_ , q y) _ _))
+    isDecPropFiberRel : (x x' : ∥ fiber f y ∥₂) → isDecProp (fiberRel2 _ _ f y x x')
+    isDecPropFiberRel x x' = isDecProp∃ (_ , h .snd y y) (λ _ → _ , isDecProp≡ (_ , q y) _ _)
 
     isFinSetFiber∥∥₂' : isFinSet (fiber ∥f∥₂ ∣ y ∣₂)
     isFinSetFiber∥∥₂' =
       EquivPresIsFinSet (∥fiber∥₂/Rel≃fiber∥∥₂ _ _ f y)
-        (isFinSetQuot (_ , q y) (fiberRel2 _ _ _ _) (isEquivRelFiberRel _ _ _ _) isDecFiberRel)
+        (isFinSetQuot (_ , q y) (fiberRel2 _ _ _ _) (isEquivRelFiberRel _ _ _ _) isDecPropFiberRel)
 
   isFinSetFiber∥∥₂ : (y : ∥ Y ∥₂) → isFinSet (fiber ∥f∥₂ y)
   isFinSetFiber∥∥₂ = Set.elim (λ _ → isProp→isSet isPropIsFinSet) isFinSetFiber∥∥₂'
@@ -139,7 +139,8 @@ isFinTypeΣ :
   → isFinType n (Σ (X .fst) (λ x → Y x .fst))
 isFinTypeΣ {n = 0} = isFinType0Σ
 isFinTypeΣ {n = suc n} X Y .fst =
-  isFinType0Σ (_ , isFinTypeSuc→isFinType1 (X .snd)) (λ x → _ , isFinType→isFinType0 (Y x .snd))
+  isFinType0Σ (_ , isFinTypeSuc→isFinType1 {n = suc n} (X .snd))
+    (λ x → _ , isFinType→isFinType0 {n = suc n} (Y x .snd))
 isFinTypeΣ {n = suc n} X Y .snd a b =
   EquivPresIsFinType n (ΣPathTransport≃PathΣ a b)
     (isFinTypeΣ {n = n} (_ , X .snd .snd _ _) (λ _ → _ , Y _ .snd .snd _ _))
