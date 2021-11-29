@@ -554,6 +554,8 @@ module _
   maxValue : ℕ
   maxValue = ∃Max→maxValue _ _ ∃MaxFinSet
 
+{- some formal consequences of card -}
+
 -- card induces equivalence from set truncation of FinSet to natural numbers
 
 open Iso
@@ -604,7 +606,7 @@ FinProp≃Bool =
 isFinSetFinProp : isFinSet (FinProp ℓ)
 isFinSetFinProp = EquivPresIsFinSet (invEquiv FinProp≃Bool) isFinSetBool
 
--- a more efficient version of equivalence type
+-- a more computationally efficient version of equivalence type
 
 module _
   (X : FinSet ℓ )

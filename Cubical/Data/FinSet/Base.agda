@@ -29,6 +29,7 @@ private
     A : Type ℓ
 
 -- operators to more conveniently compose equivalences
+
 module _
   {A : Type ℓ}{B : Type ℓ'}{C : Type ℓ''} where
 
@@ -48,32 +49,39 @@ isFinOrd A = Σ[ n ∈ ℕ ] A ≃ Fin n
 isFinOrd→isFinSet : isFinOrd A → isFinSet A
 isFinOrd→isFinSet (_ , p) = _ , ∣ p ∣
 
--- another definition of isFinSet
+-- finite sets are sets
+
+isFinSet→isSet : isFinSet A → isSet A
+isFinSet→isSet p = rec isPropIsSet (λ e → isOfHLevelRespectEquiv 2 (invEquiv e) isSetFin) (p .snd)
+
+-- isFinSet is proposition
+
+isPropIsFinSet : isProp (isFinSet A)
+isPropIsFinSet p q = Σ≡PropEquiv (λ _ → isPropPropTrunc) .fst (
+  Prop.elim2
+    (λ _ _ → isSetℕ _ _)
+    (λ p q → Fin-inj _ _ (ua (invEquiv (SumFin≃Fin _) ⋆ (invEquiv p) ⋆ q ⋆ SumFin≃Fin _)))
+    (p .snd) (q .snd))
+
+-- isFinOrd is Set
+-- ordering can be seen as extra structures over finite sets
+
+isSetIsFinOrd : isSet (isFinOrd A)
+isSetIsFinOrd = isOfHLevelΣ 2 isSetℕ (λ _ → isOfHLevel⁺≃ᵣ 1 isSetFin)
+
+-- alternative definition of isFinSet
+
 isFinSet' : Type ℓ → Type ℓ
 isFinSet' A = ∥ Σ[ n ∈ ℕ ] A ≃ Fin n ∥
 
 isFinSet→isFinSet' : isFinSet A → isFinSet' A
 isFinSet→isFinSet' (_ , p) = Prop.rec isPropPropTrunc (λ p → ∣ _ , p ∣) p
 
--- finite sets are sets
-isFinSet→isSet : isFinSet A → isSet A
-isFinSet→isSet p = rec isPropIsSet (λ e → isOfHLevelRespectEquiv 2 (invEquiv e) isSetFin) (p .snd)
+isFinSet'→isFinSet : isFinSet' A → isFinSet A
+isFinSet'→isFinSet = Prop.rec isPropIsFinSet (λ (n , p) → _ , ∣ p ∣ )
 
--- isFinSet is proposition
-private
-  cardUniq : (m n : ℕ) → (p : A ≃ Fin m)(q : A ≃ Fin n) → m ≡ n
-  cardUniq _ _ p q = Fin-inj _ _ (ua (invEquiv (SumFin≃Fin _) ⋆ (invEquiv p) ⋆ q ⋆ SumFin≃Fin _))
-
-isPropIsFinSet : isProp (isFinSet A)
-isPropIsFinSet p q = Σ≡PropEquiv (λ _ → isPropPropTrunc) .fst (
-  Prop.elim2
-    (λ _ _ → isSetℕ _ _)
-    (λ p q → cardUniq _ _ p q)
-    (p .snd) (q .snd))
-
--- isFinSet is Set
-isSetIsFinOrd : isSet (isFinOrd A)
-isSetIsFinOrd = isOfHLevelΣ 2 isSetℕ (λ _ → isOfHLevel⁺≃ᵣ 1 isSetFin)
+isFinSet≡isFinSet' : isFinSet A ≡ isFinSet' A
+isFinSet≡isFinSet' = hPropExt isPropIsFinSet isPropPropTrunc isFinSet→isFinSet' isFinSet'→isFinSet
 
 -- the type of finite sets/propositions
 

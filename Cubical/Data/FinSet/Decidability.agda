@@ -34,12 +34,6 @@ isDecProp→isProp h = isOfHLevelRespectEquiv 1 (invEquiv (h .snd)) isPropBool�
 isDecProp→Dec : {P : Type ℓ} → isDecProp P → Dec P
 isDecProp→Dec h = EquivPresDec (invEquiv (h .snd)) DecBool→Prop
 
-helper : (P : Type ℓ) → (t : Bool) → isProp (P ≃ Bool→Type t)
-helper _ _ = isOfHLevel⁺≃ᵣ 0 isPropBool→Prop
-
-helper' : (P : Type ℓ) → (p q : isDecProp P) → (p .fst ≡ q .fst) ≃ (p ≡ q)
-helper' _ _ _ = Σ≡PropEquiv (helper _)
-
 isPropIsDecProp : {P : Type ℓ} → isProp (isDecProp P)
 isPropIsDecProp p q =
   Σ≡PropEquiv (λ _ → isOfHLevel⁺≃ᵣ 0 isPropBool→Prop) .fst
@@ -50,6 +44,9 @@ DecProp ℓ = Σ[ P ∈ Type ℓ ] isDecProp P
 
 module _
   (X : Type ℓ)(p : isFinOrd X) where
+
+  isDecProp¬' : isDecProp (¬ X)
+  isDecProp¬' = _ ,  invEquiv (preCompEquiv (p .snd)) ⋆ SumFin¬ _
 
   isDecProp∥∥' : isDecProp ∥ X ∥
   isDecProp∥∥' = _ , propTrunc≃ (p .snd) ⋆ SumFin∥∥DecProp _
@@ -153,10 +150,12 @@ module _
 
 module _
   (X : FinSet ℓ) where
-{-
+
   isDecProp¬ : isDecProp (¬ (X .fst))
-  isDecProp¬ .fst = {!!}
-  isDecProp¬ .snd = {!!} -}
+  isDecProp¬ =
+    Prop.rec isPropIsDecProp
+      (λ p → isDecProp¬' (X .fst) (_ , p))
+      (X .snd .snd)
 
   isDecProp∥∥ : isDecProp ∥ X .fst ∥
   isDecProp∥∥ =
