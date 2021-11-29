@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Data.FinSet.Quotients where
+module Cubical.Data.FinSet.Quotient where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -19,8 +19,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
-open import Cubical.Data.FinSet.Decidability
-open import Cubical.Data.FinSet.Constructors
+open import Cubical.Data.FinSet.DecidablePredicate
+open import Cubical.Data.FinSet.Constructor
 open import Cubical.Data.FinSet.Cardinality
 
 open import Cubical.Relation.Nullary

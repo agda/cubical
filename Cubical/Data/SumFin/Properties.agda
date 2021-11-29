@@ -109,6 +109,16 @@ SumFin∥∥DecProp : (n : ℕ) → ∥ Fin n ∥ ≃ Bool→Type (isNonZero n)
 SumFin∥∥DecProp 0 = uninhabEquiv (Prop.rec isProp⊥ ⊥.rec) ⊥.rec
 SumFin∥∥DecProp (suc n) = isContr→≃Unit (inhProp→isContr ∣ inl tt ∣ isPropPropTrunc)
 
+-- negation of SumFin
+
+isZero : ℕ → Bool
+isZero 0 = true
+isZero (suc n) = false
+
+SumFin¬ : (n : ℕ) → (¬ Fin n) ≃ Bool→Type (isZero n)
+SumFin¬ 0 = isContr→≃Unit isContr⊥→A
+SumFin¬ (suc n) = uninhabEquiv (λ f → f fzero) ⊥.rec
+
 -- SumFin 1 is equivalent to unit
 
 Fin1≃Unit : Fin 1 ≃ Unit

@@ -1,6 +1,11 @@
+{-
+
+This files contains lots of useful properties about decidable predicates on finite sets
+
+-}
 {-# OPTIONS --safe #-}
 
-module Cubical.Data.FinSet.Decidability where
+module Cubical.Data.FinSet.DecidablePredicate where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

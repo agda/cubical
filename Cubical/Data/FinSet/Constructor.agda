@@ -5,7 +5,7 @@ This files contains lots of useful properties about constructions on finite sets
 -}
 {-# OPTIONS --safe #-}
 
-module Cubical.Data.FinSet.Constructors where
+module Cubical.Data.FinSet.Constructor where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

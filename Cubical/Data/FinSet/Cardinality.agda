@@ -32,7 +32,7 @@ open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.FiniteChoice
-open import Cubical.Data.FinSet.Constructors
+open import Cubical.Data.FinSet.Constructor
 open import Cubical.Data.FinSet.Induction hiding (_+_)
 
 open import Cubical.Relation.Nullary

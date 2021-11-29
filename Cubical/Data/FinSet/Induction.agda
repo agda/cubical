@@ -25,7 +25,7 @@ open import Cubical.Data.Fin renaming (Fin to Finℕ)
 open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
-open import Cubical.Data.FinSet.Constructors
+open import Cubical.Data.FinSet.Constructor
 
 private
   variable
