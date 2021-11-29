@@ -75,12 +75,12 @@ FinGroupStr X .snd =
 
 -- two rather trivial numbers
 -- but the computation is essentially not that trivial
--- this one can be computed in half-a-minute
+-- Time: 5 ms
 a2 : ℕ
 a2 = card (_ , isFinStrCard TrivialStr 2)
 
 -- this is already hard to compute
--- it takes less than half-an-hour
+-- Time: 443 ms
 b2 : ℕ
 b2 = card (_ , isFinStrCard IdentityStr 2)
 
@@ -89,11 +89,11 @@ numberOfFinSemiGroups : ℕ → ℕ
 numberOfFinSemiGroups n = card (_ , isFinStrCard FinSemiGroupStr n)
 
 -- two trivial cases of semi-groups
--- in a flash
+-- Time: 29 ms
 n0 : ℕ
 n0 = numberOfFinSemiGroups 0
 
--- nearly one minute
+-- Time: 2,787ms
 n1 : ℕ
 n1 = numberOfFinSemiGroups 1
 
@@ -109,7 +109,7 @@ numberOfFinGroups : ℕ → ℕ
 numberOfFinGroups n = card (_ , isFinStrCard FinGroupStr n)
 
 -- group with one element
--- it takes about 21 minutes
+-- Time: 26,925ms
 g1 : ℕ
 g1 = numberOfFinGroups 1
 
@@ -117,89 +117,3 @@ g1 = numberOfFinGroups 1
 -- seemed to big to do an exhaustive search
 g4 : ℕ
 g4 = numberOfFinGroups 4
-
---------------- test -----------------
-
-open import Cubical.Data.SumFin
-
-k : ℕ
-k = card (FinSemiGroupStr (Fin 3 , isFinSetFin))
-
-EndoStr : FinSet ℓ → FinSet ℓ
-EndoStr X = (_ , isFinSetΠ2 X (λ _ → X) (λ _ _ → X))
-
-EndoStr' : FinSet ℓ → FinSet ℓ
-EndoStr' {ℓ = ℓ} X = (_ , isFinSetΣ (_ , isFinSetΠ2 X (λ _ → X) (λ _ _ → X)) (λ _ → 𝟙 {ℓ}))
-
-EndoStr'' : FinSet ℓ → FinSet ℓ
-EndoStr'' {ℓ = ℓ} X = (_ , isFinSetΣ (_ , isFinSetΠ2 X (λ _ → X) (λ _ _ → X)) (λ _ → (Fin 1 , isFinSetFin)))
-
-open import Cubical.Data.Unit
-open import Cubical.Relation.Nullary
-
-{-
-isDecPropUnit : isDecProp Unit
-isDecPropUnit .fst = isPropUnit
-isDecPropUnit .snd = yes tt
--}
-isDecPropUnit : isDecProp Unit
-isDecPropUnit .fst = true
-isDecPropUnit .snd = idEquiv _
-
-EndoStr''' : FinSet ℓ → FinSet ℓ
-EndoStr''' {ℓ = ℓ} X = (_ , isFinSetSub (_ , isFinSetΠ2 X (λ _ → X) (λ _ _ → X)) (λ _ → Unit , isDecPropUnit))
-
-l : ℕ
-l = card (EndoStr (Fin 3 , isFinSetFin))
-
-l' : ℕ
-l' = card (EndoStr' (Fin 3 , isFinSetFin))
-
-l'' : ℕ
-l'' = card (EndoStr'' (Fin 2 , isFinSetFin))
-
-l''' : ℕ
-l''' = card (EndoStr''' (Fin 3 , isFinSetFin))
-
-FinSemiGroupStr' : FinSet ℓ → FinSet ℓ
-FinSemiGroupStr' X .fst =
-  Σ[ p ∈ (X .fst → X .fst → X .fst) ] ((x y z : X .fst) → p (p x y) z ≡ p x (p y z))
-FinSemiGroupStr' X .snd =
-  isFinSetSub (_ , isFinSetΠ2 X (λ _ → X) (λ _ _ → X))
-    (λ p → _ , isDecProp∀3 X (λ _ → X) (λ _ _ → X) (λ _ _ _ → _ , isDecProp≡ X _ _))
-
-k' : ℕ
-k' = card (FinSemiGroupStr' (Fin 2 , isFinSetFin))
-
-k'' : ℕ
-k'' = card (FinSemiGroupStr (Fin 2 , isFinSetFin))
-
-FinGroupStr' : FinSet ℓ → FinSet ℓ
-FinGroupStr' X .fst =
-  Σ[ e ∈ X .fst ]
-    Σ[ inv ∈ (X .fst → X .fst) ]
-      Σ[ p ∈ (X .fst → X .fst → X .fst) ]
-          ((x y z : X .fst) → p (p x y) z ≡ p x (p y z))
-        × ((x : X .fst)
-            → (p x e ≡ x) × (p e x ≡ x) × (p (inv x) x ≡ e) × (p x (inv x) ≡ e))
-FinGroupStr' X .snd =
-  isFinSetΣ X (λ _ → _ ,
-    isFinSetΣ (_ , isFinSetΠ X (λ _ → X)) (λ _ → _ ,
-      isFinSetSub (_ , isFinSetΠ2 X (λ _ → X) (λ _ _ → X)) (λ _ → _ ,
-        isDecProp× (_ , isDecProp∀3 X (λ _ → X) (λ _ _ → X) (λ _ _ _ → _ , isDecProp≡ X _ _)) (_ ,
-          isDecProp∀ X (λ _ → _ ,
-            isDecProp× (_ , isDecProp≡ X _ _) (_ ,
-              isDecProp× (_ , isDecProp≡ X _ _) (_ ,
-                isDecProp× (_ , isDecProp≡ X _ _) (_ , isDecProp≡ X _ _))))))))
-
-r : ℕ
-r = card (FinGroupStr' (Fin 2 , isFinSetFin))
-
-r' : ℕ
-r' = card (FinGroupStr (Fin 2 , isFinSetFin))
-
-ff : ℕ → ℕ
-ff n = card (_ , isFinStrCard FinSemiGroupStr n)
-
-ff' : ℕ → ℕ
-ff' n = card (_ , isFinStrCard FinSemiGroupStr' n)
