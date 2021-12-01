@@ -22,8 +22,8 @@ module _ (C : Category ℓ ℓ') where
                   → (g g' : Hom[ y , z ]) → g ~ g'
                   → (f ⋆ g) ~ (f' ⋆ g')) where
 
-
-    Hom[_,_]/~ = λ (x y : ob) → Hom[ x , y ] / _~_
+    private
+      Hom[_,_]/~ = λ (x y : ob) → Hom[ x , y ] / _~_
 
     module _ {x y z : ob} where
       pre⋆/~ : Hom[ x , y ] → Hom[ y , z ]/~ → Hom[ x , z ]/~
