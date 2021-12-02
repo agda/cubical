@@ -16,6 +16,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 
+open import Cubical.Algebra.AbGroup.Base
 
 private
   variable
@@ -135,37 +136,39 @@ module _ (G : Group ℓ) where
                                                    η ((inv (c · b)) · (inv a))              ≡⟨ cong η (sym (invDistr a (c · b))) ⟩
                                                    η (inv (a · (c · b))) ∎)
 
+  assocAb : (x y z : Abelianization) → x ·Ab (y ·Ab z) ≡ (x ·Ab y) ·Ab z
+  assocAb = elimProp3 (λ x y z → isset (x ·Ab (y ·Ab z)) ((x ·Ab y) ·Ab z)) (λ x y z → cong η (assoc x y z))
+
   ridAb : (x : Abelianization) → x ·Ab 1Ab ≡ x
   ridAb = elimProp (λ x → isset (x ·Ab 1Ab) x) (λ x → cong η (rid x))
 
-  -- makeAbGroup
-  -- universelle Eigenschaft 
-  -- 
+  rinvAb : (x : Abelianization) → x ·Ab (invAb x) ≡ 1Ab
+  rinvAb = elimProp (λ x → isset (x ·Ab (invAb x)) 1Ab) (λ x → (η x) ·Ab (invAb (η x)) ≡⟨ refl ⟩
+                                                               (η x) ·Ab (η (inv x))   ≡⟨ refl ⟩
+                                                               η (x · (inv x))         ≡⟨ cong η (fst (inverse x)) ⟩
+                                                               η 1g                    ≡⟨ refl ⟩
+                                                               1Ab ∎)
 
-{-
-  _·Ab_ : Abelianization → Abelianization → Abelianization
-  -- (η a) ·Ab (η b) = η (a ·Ab b)
-  η g ·Ab η g₁ = η (g · g₁)
-  η g ·Ab comm a b c i = 
-    (η (g · (a · (b · c))) ≡⟨ cong η (assoc _ _ _) ⟩ 
-    η ((g · a) · (b · c)) ≡⟨ comm (g · a) b c ⟩ 
-    η ((g · a) · (c · b)) ≡⟨ cong η (sym (assoc _ _ _)) ⟩ 
-    η (g · (a · (c · b))) ∎) i
-  η g ·Ab isset x y p q i j = (isset ((η g) ·Ab x) ((η g) ·Ab y) ( λ i → (η g) ·Ab (p i)) (λ i → (η g) ·Ab (q i))) i j
-  comm a b c i ·Ab η g = eq i
-    where eq : η ((a · (b · c)) · g) ≡ η ((a · (c · b)) · g)
-          eq = η ((a · (b · c)) · g) ≡⟨ cong (λ x → (η (x · g))) (assoc _ _ _) ⟩
-               η (((a · b) · c) · g) ≡⟨ cong η (sym (assoc (a · b) c g)) ⟩
-               η ((a · b) · (c · g)) ≡⟨ comm (a · b) c g ⟩
-               η ((a · b) · (g · c)) ≡⟨ cong η (sym (assoc _ _ _)) ⟩
-               η (a · (b · (g · c))) ≡⟨ cong (λ x → (η (a · x))) (assoc _ _ _) ⟩
-               η (a · ((b · g) · c)) ≡⟨ comm a (b · g) c ⟩
-               η (a · (c · (b · g))) ≡⟨ cong (λ x → (η (a · x))) (assoc _ _ _) ⟩
-               η (a · ((c · b) · g)) ≡⟨ cong η (assoc a (c · b) g) ⟩
-               η ((a · (c · b)) · g) ∎
-  comm a b c i ·Ab comm d e f j = {!  !} i j
--- hier sollte ein quadrat stehen, nicht nur eine gleichung
+  commAb : (x y : Abelianization) → x ·Ab y ≡ y ·Ab x
+  commAb = elimProp2 (λ x y → isset (x ·Ab y) (y ·Ab x)) (λ x y → (η x) ·Ab (η y)  ≡⟨ refl ⟩
+                                                                  η (x · y)        ≡⟨ cong η (sym (lid (x · y))) ⟩
+                                                                  η (1g · (x · y)) ≡⟨ comm 1g x y ⟩
+                                                                  η (1g · (y · x)) ≡⟨ cong η (lid (y · x)) ⟩
+                                                                  η (y · x)        ≡⟨ refl ⟩
+                                                                  (η y) ·Ab (η x) ∎)
 
-  comm a b c i ·Ab isset x y p q j k = {!  !} i j k
-  isset x y p q i j ·Ab z = isset (x ·Ab z) (y ·Ab z) (λ i → (p i) ·Ab z) (λ i → (q i) ·Ab z) i j
--}
+  proofAbelianGroup : AbGroup ℓ
+  proofAbelianGroup = makeAbGroup 1Ab _·Ab_ invAb isset assocAb ridAb rinvAb commAb
+
+  {-
+  universalPropertyAb : (H : AbGroup ℓ)
+                      → (f : fst G → fst H)
+                      → Abelianization → fst H
+  universalPropertyAb H f = elimProp (λ x → {!   !}) (λ x → f x)
+ 
+  universalProperty2Ab : (H : AbGroup ℓ)
+                       → (f : fst G → fst H)
+                       → (pseudoUniversalPropertyAb : Abelianization → fst H)
+                       → pseudoUniversalPropertyAb ≡ (universalPropertyAb H f)
+  universalProperty2Ab H f pseudoUniversalPropertyAb = {!   !}
+  -}
