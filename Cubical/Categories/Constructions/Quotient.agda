@@ -4,6 +4,8 @@
 module Cubical.Categories.Constructions.Quotient where
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Limits.Terminal
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.SetQuotients renaming ([_] to ⟦_⟧)
@@ -15,9 +17,9 @@ private
 module _ (C : Category ℓ ℓ') where
   open Category C
 
-  module _  (_~_ : {x y : ob} (f g : Hom[ x , y ] ) → Type ℓq)
-            (~refl : {x y : ob} (f : Hom[ x , y ] ) → f ~ f)
-            (~cong : {x y z : ob}
+  module _ (_~_ : {x y : ob} (f g : Hom[ x , y ] ) → Type ℓq)
+           (~refl : {x y : ob} (f : Hom[ x , y ] ) → f ~ f)
+           (~cong : {x y z : ob}
                     (f f' : Hom[ x , y ]) → f ~ f'
                   → (g g' : Hom[ y , z ]) → g ~ g'
                   → (f ⋆ g) ~ (f' ⋆ g')) where
@@ -25,20 +27,20 @@ module _ (C : Category ℓ ℓ') where
     private
       Hom[_,_]/~ = λ (x y : ob) → Hom[ x , y ] / _~_
 
-    module _ {x y z : ob} where
+    private module _ {x y z : ob} where
       pre⋆/~ : Hom[ x , y ] → Hom[ y , z ]/~ → Hom[ x , z ]/~
       pre⋆/~ f = rec squash/ (λ g → ⟦ f ⋆ g ⟧)
-                     λ g g' g~g' → eq/ _ _ (~cong _ _ (~refl _) _ _ g~g')
+                    λ g g' g~g' → eq/ _ _ (~cong _ _ (~refl _) _ _ g~g')
 
       _⋆/~_ : Hom[ x , y ]/~ → Hom[ y , z ]/~ → Hom[ x , z ]/~
       _⋆/~_ = rec (isSetΠ λ _ → squash/)
                   (λ f → pre⋆/~ f)
                   λ f f' f~f' → funExt (elimProp
-                                       (λ ⟦g⟧ → squash/ (pre⋆/~ f ⟦g⟧) (pre⋆/~ f' ⟦g⟧))
-                                       λ g → eq/ _ _ (~cong _ _ f~f' _ _ (~refl _)))
+                                      (λ ⟦g⟧ → squash/ (pre⋆/~ f ⟦g⟧) (pre⋆/~ f' ⟦g⟧))
+                                      λ g → eq/ _ _ (~cong _ _ f~f' _ _ (~refl _)))
 
       ⋆/~WellDef : (f : Hom[ x , y ]) → (g : Hom[ y , z ])
-         → ⟦ f ⟧ ⋆/~ ⟦ g ⟧ ≡ ⟦ f ⋆ g ⟧
+        → ⟦ f ⟧ ⋆/~ ⟦ g ⟧ ≡ ⟦ f ⋆ g ⟧
       ⋆/~WellDef f g i = ⟦ refl {x = f ⋆ g} i ⟧
 
     module _ {x y : ob} where
@@ -56,13 +58,13 @@ module _ (C : Category ℓ ℓ') where
 
     module _ {x y z w : ob} where
       ⋆/~Assoc : (f : Hom[ x , y ]/~)
-                 (g : Hom[ y , z ]/~)
-                 (h : Hom[ z , w ]/~)
+                (g : Hom[ y , z ]/~)
+                (h : Hom[ z , w ]/~)
         → ((f ⋆/~ g) ⋆/~ h) ≡ (f ⋆/~ (g ⋆/~ h))
 
       ⋆/~Assoc = elimProp (λ ⟦f⟧ → isPropΠ2 (λ ⟦g⟧ ⟦h⟧ → squash/ _ _))
-                 λ f → elimProp (λ ⟦g⟧ → isPropΠ (λ ⟦h⟧ → squash/ _ _))
-                 λ g → elimProp (λ ⟦h⟧ → squash/ ((⟦ f ⟧ ⋆/~ ⟦ g ⟧) ⋆/~ ⟦h⟧)
+                λ f → elimProp (λ ⟦g⟧ → isPropΠ (λ ⟦h⟧ → squash/ _ _))
+                λ g → elimProp (λ ⟦h⟧ → squash/ ((⟦ f ⟧ ⋆/~ ⟦ g ⟧) ⋆/~ ⟦h⟧)
                           (⟦ f ⟧ ⋆/~ (⟦ g ⟧ ⋆/~ ⟦h⟧))) λ h →
 
           (⟦ f ⟧ ⋆/~ ⟦ g ⟧) ⋆/~ ⟦ h ⟧       ≡⟨ cong (λ k → ⟦ k ⟧ ⋆/~ ⟦ h ⟧) refl ⟩
@@ -83,3 +85,24 @@ module _ (C : Category ℓ ℓ') where
     QuotientCategory .⋆IdR = ⋆/~IdR
     QuotientCategory .⋆Assoc = ⋆/~Assoc
     QuotientCategory .isSetHom = squash/
+
+
+    private
+      C/~ = QuotientCategory
+
+    -- Quotient map
+    open Functor
+    QuoFunctor : Functor C C/~
+    QuoFunctor .F-ob x = x
+    QuoFunctor .F-hom = ⟦_⟧
+    QuoFunctor .F-id = refl
+    QuoFunctor .F-seq f g = refl
+
+    -- Quotients preserve initial / terminal objects
+    isInitial/~ : {z : ob C} → isInitial C z → isInitial C/~ z
+    isInitial/~ zInit x = ⟦ zInit x .fst ⟧ , elimProp (λ _ → squash/ _ _)
+        λ f → eq/ _ _ (subst (_~ f) (sym (zInit x .snd f)) (~refl _))
+
+    isFinal/~ : {z : ob C} → isFinal C z → isFinal C/~ z
+    isFinal/~ zFinal x = ⟦ zFinal x .fst ⟧ , elimProp (λ _ → squash/ _ _)
+        λ f → eq/ _ _ (subst (_~ f) (sym (zFinal x .snd f)) (~refl _))
