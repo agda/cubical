@@ -34,12 +34,17 @@ open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣�
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓR ℓR' ℓA₀ ℓR₀ ℓA₁ ℓR₁ ℓB ℓC ℓD ℓ' ℓ'' : Level
     A : Type ℓ
-    R R' : A → A → Type ℓ
-    B : A / R → Type ℓ
-    C : A / R → A / R → Type ℓ
-    D : A / R → A / R → A / R → Type ℓ
+    R : A → A → Type ℓR
+    R' : A → A → Type ℓR'
+    A₀ : Type ℓA₀
+    R₀ : A₀ → A₀ → Type ℓR₀
+    A₁ : Type ℓA₁
+    R₁ : A₁ → A₁ → Type ℓR₁
+    B : A / R → Type ℓB
+    C : A / R → A₀ / R₀ → Type ℓC
+    D : A / R → A₀ / R₀ → A₁ / R₁ → Type ℓD
 
 elimProp : ((x : A / R ) → isProp (B x))
          → ((a : A) → B ( [ a ]))
@@ -53,16 +58,16 @@ elimProp Bprop f (squash/ x y p q i j) =
     g = elimProp Bprop f
 elimProp Bprop f (eq/ a b r i) = isProp→PathP (λ i → Bprop ((eq/ a b r) i)) (f a) (f b) i
 
-elimProp2 : ((x y : A / R ) → isProp (C x y))
-          → ((a b : A) → C [ a ] [ b ])
-          → (x y : A / R)
+elimProp2 : ((x : A / R) (y : A₀ / R₀) → isProp (C x y))
+          → ((a : A) (b : A₀) → C [ a ] [ b ])
+          → (x : A / R) (y : A₀ / R₀)
           → C x y
 elimProp2 Cprop f = elimProp (λ x → isPropΠ (λ y → Cprop x y))
                              (λ x → elimProp (λ y → Cprop [ x ] y) (f x))
 
-elimProp3 : ((x y z : A / R ) → isProp (D x y z))
-          → ((a b c : A) → D [ a ] [ b ] [ c ])
-          → (x y z : A / R)
+elimProp3 : ((x : A / R) (y : A₀ / R₀) (z : A₁ / R₁) → isProp (D x y z))
+          → ((a : A) (b : A₀) (c : A₁) → D [ a ] [ b ] [ c ])
+          → (x : A / R) (y : A₀ / R₀) (z : A₁ / R₁)
           → D x y z
 elimProp3 Dprop f = elimProp (λ x → isPropΠ2 (λ y z → Dprop x y z))
                              (λ x → elimProp2 (λ y z → Dprop [ x ] y z) (f x))
@@ -73,8 +78,8 @@ elimContr : (∀ (a : A) → isContr (B [ a ]))
 elimContr Bcontr = elimProp (elimProp (λ _ → isPropIsProp) λ _ → isContr→isProp (Bcontr _))
                              λ _ → Bcontr _ .fst
 
-elimContr2 : (∀ (a b : A) → isContr (C [ a ] [ b ]))
-           → (x y : A / R) → C x y
+elimContr2 : (∀ (a : A) (b : A₀) → isContr (C [ a ] [ b ]))
+           → (x : A / R) (y : A₀ / R₀) → C x y
 elimContr2 Ccontr = elimContr λ _ → isOfHLevelΠ 0
                    (elimContr λ _ → inhProp→isContr (Ccontr _ _) isPropIsContr)
 
@@ -108,9 +113,9 @@ rec Bset f feq (squash/ x y p q i j) = Bset (g x) (g y) (cong g p) (cong g q) i 
   g = rec Bset f feq
 
 rec2 : {B : Type ℓ} (Bset : isSet B)
-       (f : A → A → B) (feql : (a b c : A) (r : R a b) → f a c ≡ f b c)
-                       (feqr : (a b c : A) (r : R b c) → f a b ≡ f a c)
-    → A / R → A / R → B
+       (f : A → A₀ → B) (feql : (a b : A) (c : A₀) (r : R a b) → f a c ≡ f b c)
+                       (feqr : (a : A) (b c : A₀) (r : R₀ b c) → f a b ≡ f a c)
+    → A / R → A₀ / R₀ → B
 rec2 Bset f feql feqr = rec (isSetΠ (λ _ → Bset))
                             (λ a → rec Bset (f a) (feqr a))
                             (λ a b r → funExt (elimProp (λ _ → Bset _ _)
