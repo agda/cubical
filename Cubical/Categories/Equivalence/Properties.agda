@@ -11,7 +11,7 @@ open import Cubical.Categories.Morphism
 open import Cubical.Categories.Equivalence.Base
 open import Cubical.HITs.PropositionalTruncation.Base
 
-open Precategory
+open Category
 open Functor
 open NatIso
 open CatIso
@@ -24,7 +24,7 @@ private
 
 -- Equivalence implies Full, Faithul, and Essentially Surjective
 
-module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   symEquiv : ∀ {F : Functor C D} → (e : isEquivalence F) → isEquivalence (e .invFunc)
   symEquiv {F} record { invFunc = G ; η = η ; ε = ε } = record { invFunc = F ; η = symNatIso ε ; ε = symNatIso η }
 
@@ -47,7 +47,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
       -- isomorphism between c' and GFc'
       c'Iso = isIso→CatIso (η .nIso c')
 
-module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   isEquiv→Full : ∀ {F : Functor C D} → isEquivalence F → isFull F
   isEquiv→Full {F} eq@record { invFunc = G
                              ; η = η
@@ -71,10 +71,10 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
       Gg≡ηhη : G ⟪ g ⟫ ≡ cIso .inv ⋆⟨ C ⟩ h ⋆⟨ C ⟩ c'Iso .mor
       Gg≡ηhη = invMoveL cAreInv move-c' ∙ sym (C .⋆Assoc _ _ _)
         where
-          cAreInv : areInv (cIso .mor) (cIso .inv)
+          cAreInv : areInv _ (cIso .mor) (cIso .inv)
           cAreInv = CatIso→areInv cIso
 
-          c'AreInv : areInv (c'Iso .mor) (c'Iso .inv)
+          c'AreInv : areInv _ (c'Iso .mor) (c'Iso .inv)
           c'AreInv = CatIso→areInv c'Iso
 
           move-c' : cIso .mor ⋆⟨ C ⟩ G ⟪ g ⟫ ≡ h ⋆⟨ C ⟩ c'Iso .mor

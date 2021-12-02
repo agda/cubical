@@ -228,16 +228,17 @@ setQuotBinOp isReflR isReflS _∗_ h =
 
 setQuotSymmBinOp : isRefl R → isTrans R
   → (_∗_ : A → A → A)
-  → (∀ a b → a ∗ b ≡ b ∗ a)
+  → (∀ a b → R (a ∗ b) (b ∗ a))
   → (∀ a a' b → R a a' → R (a ∗ b) (a' ∗ b))
   → (A / R → A / R → A / R)
-setQuotSymmBinOp {A = A} {R = R} isReflR isTransR _∗_ ∗-symm h =
+setQuotSymmBinOp {A = A} {R = R} isReflR isTransR _∗_ ∗Rsymm h =
   setQuotBinOp isReflR isReflR _∗_ h'
   where
   h' : ∀ a a' b b' → R a a' → R b b' → R (a ∗ b) (a' ∗ b')
   h' a a' b b' ra rb =
     isTransR _ _ _ (h a a' b ra)
-      (transport (λ i → R (∗-symm b a' i) (∗-symm b' a' i)) (h b b' a' rb))
+      (isTransR _ _ _ (∗Rsymm a' b)
+        (isTransR _ _ _ (h b b' a' rb) (∗Rsymm b' a')))
 
 effective : (Rprop : isPropValued R) (Requiv : isEquivRel R)
   → (a b : A) → [ a ] ≡ [ b ] → R a b
@@ -324,3 +325,10 @@ isEquivRel→TruncIso {A = A} {R = R} Req a b =
   reflexive ∥R∥eq a = ∣ reflexive Req a ∣
   symmetric ∥R∥eq a b = PropTrunc.map (symmetric Req a b)
   transitive ∥R∥eq a b c = PropTrunc.map2 (transitive Req a b c)
+
+-- quotienting by 'logically equivalent' relations gives the same quotient
+relBiimpl→TruncIso : ({a b : A} → R a b → S a b) → ({a b : A} → S a b → R a b) → Iso (A / R) (A / S)
+Iso.fun (relBiimpl→TruncIso R→S S→R) = rec squash/ [_] λ _ _ Rab → eq/ _ _ (R→S Rab)
+Iso.inv (relBiimpl→TruncIso R→S S→R) = rec squash/ [_] λ _ _ Sab → eq/ _ _ (S→R Sab)
+Iso.rightInv (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
+Iso.leftInv (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl

@@ -14,9 +14,9 @@ private
   variable
     ℓ ℓ' : Level
 
-module _ {C : Precategory ℓ ℓ'} where
+module _ {C : Category ℓ ℓ'} where
 
-  open Precategory C
+  open Category C
   open Functor
 
   record Cospan : Type (ℓ-max ℓ ℓ') where
@@ -62,9 +62,9 @@ module _ {C : Precategory ℓ ℓ'} where
   Cospan→Func (cospan l m r f g) .F-ob ② = r
   Cospan→Func (cospan l m r f g) .F-hom {⓪} {①} k = f
   Cospan→Func (cospan l m r f g) .F-hom {②} {①} k = g
-  Cospan→Func (cospan l m r f g) .F-hom {⓪} {⓪} k = id l
-  Cospan→Func (cospan l m r f g) .F-hom {①} {①} k = id m
-  Cospan→Func (cospan l m r f g) .F-hom {②} {②} k = id r
+  Cospan→Func (cospan l m r f g) .F-hom {⓪} {⓪} k = id
+  Cospan→Func (cospan l m r f g) .F-hom {①} {①} k = id
+  Cospan→Func (cospan l m r f g) .F-hom {②} {②} k = id
   Cospan→Func (cospan l m r f g) .F-id {⓪} = refl
   Cospan→Func (cospan l m r f g) .F-id {①} = refl
   Cospan→Func (cospan l m r f g) .F-id {②} = refl

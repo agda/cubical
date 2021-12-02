@@ -16,9 +16,9 @@ private
     ℓJ ℓJ' ℓC ℓC' : Level
     ℓ ℓ' ℓ'' : Level
 
-module _ {J : Precategory ℓJ ℓJ'}
-         {C : Precategory ℓC ℓC'} where
-  open Precategory
+module _ {J : Category ℓJ ℓJ'}
+         {C : Category ℓC ℓC'} where
+  open Category
   open Functor
   open NatTrans
 
@@ -26,7 +26,7 @@ module _ {J : Precategory ℓJ ℓJ'}
   -- morphisms to the identity
   constF : (c : C .ob) → Functor J C
   constF c .F-ob _ = c
-  constF c .F-hom _ = C .id c
+  constF c .F-hom _ = C .id
   constF c .F-id = refl
   constF c .F-seq _ _ = sym (C .⋆IdL _)
 
@@ -45,11 +45,11 @@ module _ {J : Precategory ℓJ ℓJ'}
         → Cone K d
     (f ◼ μ) .N-ob x = f ⋆⟨ C ⟩ μ ⟦ x ⟧
     (f ◼ μ) .N-hom {x = x} {y} k
-      = C .id _ ⋆⟨ C ⟩ (f ⋆⟨ C ⟩ μ ⟦ y ⟧)
+      = C .id ⋆⟨ C ⟩ (f ⋆⟨ C ⟩ μ ⟦ y ⟧)
       ≡⟨ C .⋆IdL _ ⟩
         f ⋆⟨ C ⟩ μ ⟦ y ⟧
       ≡⟨ cong (λ v → f ⋆⟨ C ⟩ v) (sym (C .⋆IdL _)) ⟩
-        f ⋆⟨ C ⟩ (C .id _ ⋆⟨ C ⟩ μ ⟦ y ⟧)
+        f ⋆⟨ C ⟩ (C .id ⋆⟨ C ⟩ μ ⟦ y ⟧)
       ≡⟨ cong (λ v → f ⋆⟨ C ⟩ v) (μ .N-hom k) ⟩
         f ⋆⟨ C ⟩ (μ ⟦ x ⟧ ⋆⟨ C ⟩ K ⟪ k ⟫)
       ≡⟨ sym (C .⋆Assoc _ _ _) ⟩
@@ -80,15 +80,15 @@ module _ {J : Precategory ℓJ ℓJ'}
         islim : isLimit head
 
 -- a Category is complete if it has all limits
-complete' : {ℓJ ℓJ' : Level} (C : Precategory ℓC ℓC') → Type _
-complete' {ℓJ = ℓJ} {ℓJ'} C = (J : Precategory ℓJ ℓJ') (K : Functor J C) → Limit K
+complete' : {ℓJ ℓJ' : Level} (C : Category ℓC ℓC') → Type _
+complete' {ℓJ = ℓJ} {ℓJ'} C = (J : Category ℓJ ℓJ') (K : Functor J C) → Limit K
 
-complete : (C : Precategory ℓC ℓC') → Typeω
+complete : (C : Category ℓC ℓC') → Typeω
 complete C = ∀ {ℓJ ℓJ'} → complete' {ℓJ = ℓJ} {ℓJ'} C
 
 open Limit
 open NatTrans
-open Precategory
+open Category
 
 
 

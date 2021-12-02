@@ -135,7 +135,29 @@ module Units (R' : CommRing ℓ) where
 _ˣ : (R' : CommRing ℓ) → ℙ (R' .fst)
 R' ˣ = Units.Rˣ R'
 
-module RingHomRespUnits {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
+module CommRingHoms where
+  open RingHoms
+
+  idCommRingHom : (R : CommRing ℓ) → CommRingHom R R
+  idCommRingHom R = idRingHom (CommRing→Ring R)
+
+  compCommRingHom : (R S T : CommRing ℓ)
+                  → CommRingHom R S → CommRingHom S T → CommRingHom R T
+  compCommRingHom R S T = compRingHom {R = CommRing→Ring R} {CommRing→Ring S} {CommRing→Ring T}
+
+  compIdCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S) → compCommRingHom R R S (idCommRingHom R) f ≡ f
+  compIdCommRingHom = compIdRingHom
+
+  idCompCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S) → compCommRingHom R S S f (idCommRingHom S) ≡ f
+  idCompCommRingHom = idCompRingHom
+
+  compAssocCommRingHom : {R S T U : CommRing ℓ} (f : CommRingHom R S) (g : CommRingHom S T) (h : CommRingHom T U) →
+                         compCommRingHom R T U (compCommRingHom R S T f g) h ≡
+                         compCommRingHom R S U f (compCommRingHom S T U g h)
+  compAssocCommRingHom = compAssocRingHom
+
+
+module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
  private A = fst A'
  open CommRingStr (snd A') renaming (_·_ to _·A_ ; 1r to 1a)

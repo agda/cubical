@@ -487,8 +487,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
 
      ϕ : R × S[fg] → R[1/f][1/g]
-     ϕ (r , s , |n,s≡fg^n|) = curriedϕ r s |n,s≡fg^n|
-     -- λ (r / (fg)ⁿ) → ((r / fⁿ) / gⁿ)
+     ϕ = uncurry2 curriedϕ -- λ (r / (fg)ⁿ) → ((r / fⁿ) / gⁿ)
 
      curriedϕcohΣ : (r s r' s' u : R) → (p : u · r · s' ≡ u · r' · s)
                                       → (α : Σ[ n ∈ ℕ ] s ≡ (f · g) ^ n)
