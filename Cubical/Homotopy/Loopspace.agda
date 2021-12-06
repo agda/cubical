@@ -137,7 +137,7 @@ EH-gen-r {A = A} n {x = x} {y = y} β i j z =
                   ; (z = i1) → y i1})
         (((λ j → refl ∙ β (j ∧ i)) ∙ λ j → refl ∙ β (i ∨ j)) j z)
 
-{- characerisations of EH α β when α or β is refl  -}
+{- characterisations of EH α β when α or β is refl  -}
 EH-α-refl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
              → (α : typ ((Ω^ (2 + n)) A))
              → EH n α refl ≡ sym (rUnit α) ∙ lUnit α

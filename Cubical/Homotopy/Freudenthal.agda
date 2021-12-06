@@ -133,3 +133,33 @@ FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
                 → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
                       (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
 FreudenthalIso n A iscon = connectedTruncIso _ (σ A) (isConnectedσ _ iscon)
+
+open import Cubical.HITs.Pushout
+open import Cubical.HITs.Wedge
+
+fold⋁ : ∀ {ℓ} {A : Pointed ℓ} → A ⋁ A → typ A
+fold⋁ (inl x) = x
+fold⋁ (inr x) = x
+fold⋁ {A = A} (push a i) = snd A
+
+σPush : ∀ {ℓ} (A : Pointed ℓ)
+      → Pushout {A = A ⋁ A} ⋁↪ fold⋁
+      → typ (Ω (Susp∙ (typ A)))
+σPush A (inl x) = σ A (fst x) ∙ σ A (snd x)
+σPush A (inr x) = σ A x
+σPush A (push (inl x) i) =
+   (cong (σ A x ∙_) (rCancel' (merid (pt A)))
+  ∙ sym (rUnit (σ A x))) i
+σPush A (push (inr x) i) =
+  (cong (_∙ σ A x) (rCancel' (merid (pt A)))
+  ∙ sym (lUnit (σ A x))) i
+σPush A (push (push tt j) i) =
+  help (σ A (pt A)) (sym (rCancel' (merid (pt A)))) j i
+  where
+  help : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) (q : refl ≡ p)
+      → cong (p ∙_) (sym q) ∙ sym (rUnit p)
+       ≡ cong (_∙ p) (sym q) ∙ sym (lUnit p)
+  help p =
+    J (λ p q → cong (p ∙_) (sym q) ∙ sym (rUnit p)
+              ≡ cong (_∙ p) (sym q) ∙ sym (lUnit p))
+      refl

@@ -633,3 +633,148 @@ fst (π'Gr≅πGr n A) = setTruncIso (IsoSphereMapΩ (suc n))
 snd (π'Gr≅πGr n A) =
   makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
     λ p q i → ∣ IsoSphereMapΩ-pres∙Π n p q i ∣₂)
+
+open import Cubical.HITs.Truncation renaming (rec to trRec ; elim to trElim ; elim2 to trElim2)
+hLevelTrunc∙ : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → Pointed ℓ
+fst (hLevelTrunc∙ n A) = hLevelTrunc n (typ A)
+snd (hLevelTrunc∙ zero A) = tt*
+snd (hLevelTrunc∙ (suc n) A) = ∣ pt A ∣ₕ
+
+open import Cubical.Data.Unit
+isOfHLevelΩ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isContr (typ ((Ω^ n) (hLevelTrunc∙ n A)))
+isOfHLevelΩ {A = A} zero = isContrUnit*
+isOfHLevelΩ {A = A} (suc n) = {!!}
+  where
+  help : {!!}
+  help = {!!}
+
+open import Cubical.Foundations.Transport
+lem' : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
+    → Iso (hLevelTrunc m (fst ((Ω^ n) A)))
+           ((typ ((Ω^ n) (hLevelTrunc∙ (m + n) A))))
+lem∙' : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
+    → Iso.fun (lem' {A = A} n m) (snd (hLevelTrunc∙ m ((Ω^ n) A)))
+             ≡ pt ((Ω^ n) (hLevelTrunc∙ (m + n) A))
+lem' {A = A} n zero = invIso (equivToIso (isContr→≃Unit* (isOfHLevelΩ n)))
+lem' {A = A} zero (suc m) =
+  equivToIso (transportEquiv (λ i → (hLevelTrunc (suc (+-comm zero m i)) (fst A))))
+lem' {A = A} (suc n) (suc m) =
+  compIso (invIso (PathIdTruncIso _))
+    (equivToIso
+      (Ω→ ({!Iso.fun (lem' n (suc (suc m)))!} , {!Ω→hom!}) .fst , {!!}))
+lem∙' {A = A} n m = {!!}
+
+Ω→pres∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
+        → ((p q : typ (Ω A)) → fst (Ω→ f) (p ∙ q) ≡ fst (Ω→ f) p ∙ fst (Ω→ f) q)
+Ω→pres∙ f p q i j =
+  hcomp (λ k → λ {(i = i1) → (doubleCompPath-filler (sym (snd f)) (cong (fst f) p) (snd f) k
+                             ∙ doubleCompPath-filler (sym (snd f)) (cong (fst f) q) (snd f) k) j
+                 ; (j = i0) → snd f k
+                 ; (j = i1) → snd f k})
+                 (cong-∙ (fst f) p q i j) 
+
+lem : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
+    → Iso (hLevelTrunc m (fst ((Ω^ n) A)))
+           ((typ ((Ω^ n) (hLevelTrunc∙ (n + m) A))))
+lem∙ : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
+    → Iso.fun (lem {A = A} n m) (snd (hLevelTrunc∙ m ((Ω^ n) A)))
+             ≡ pt ((Ω^ n) (hLevelTrunc∙ (n + m) A))
+lem {A = A} n zero =
+  equivToIso
+    (invEquiv
+      (isContr→≃Unit*
+        (subst isContr (λ i → (typ ((Ω^ n) (hLevelTrunc∙ (+-comm zero n i) A))))
+        (isOfHLevelΩ n))))
+lem {A = A} zero (suc m) = idIso
+lem {A = A} (suc n) (suc m) =
+  compIso (invIso (PathIdTruncIso _))
+   (equivToIso
+     ((Ω→ ((λ x → transport (λ i → fst ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))
+                             (Iso.fun (lem {A = A} n (suc (suc m))) x))
+         , cong (transport
+                 (λ i → fst ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))) (lem∙ n (suc (suc m)))
+               ∙ λ j → transp (λ i → fst ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) (i ∨ j)) A)))
+                             j (snd ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) j) A)))) .fst)
+         , isEquivΩ→ _ (compEquiv (isoToEquiv ((lem {A = A} n (suc (suc m)))))
+                                   (transportEquiv (λ i → typ ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))) .snd)))
+lem∙ {A = A} n zero =
+  isContr→isProp ((subst isContr (λ i → (typ ((Ω^ n) (hLevelTrunc∙ (+-comm zero n i) A))))
+        (isOfHLevelΩ n))) _ _
+lem∙ zero (suc m) = refl
+lem∙ {A = A} (suc n) (suc m) = ∙∙lCancel pp
+  where
+  pp = cong (transport
+                 (λ i → fst ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))) (lem∙ n (suc (suc m)))
+               ∙ λ j → transp (λ i → fst ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) (i ∨ j)) A)))
+                             j (snd ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) j) A)))
+open import Cubical.Foundations.Function
+lem-hom : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ) (p q : _)
+        → Iso.fun (lem {A = A} (suc n) (suc m)) ∣ p ∙ q ∣
+         ≡ Iso.fun (lem {A = A} (suc n) (suc m)) ∣ p ∣
+         ∙ Iso.fun (lem {A = A} (suc n) (suc m)) ∣ q ∣
+lem-hom {A = A} n m p q =
+    cong ((Ω→ ((λ x → transport (λ i → fst ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))
+                             (Iso.fun (lem {A = A} n (suc (suc m))) x))
+         , cong (transport
+                 (λ i → fst ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))) (lem∙ n (suc (suc m)))
+               ∙ λ j → transp (λ i → fst ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) (i ∨ j)) A)))
+                             j (snd ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) j) A)))) .fst))
+         (cong-∙ ∣_∣ₕ p q)
+  ∙ Ω→pres∙ _ (cong ∣_∣ₕ p) (cong ∣_∣ₕ q)
+
+lem₁ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+    → Iso (hLevelTrunc 2 (fst ((Ω^ n) A)))
+           (typ ((Ω^ n) (hLevelTrunc∙ (2 + n) A)))
+lem₁ zero = idIso
+lem₁ {A = A} (suc n) =
+  compIso
+   (lem (suc n) 2)
+   (pathToIso λ i → typ ((Ω^ suc n) (hLevelTrunc∙ (+-comm (suc n) 2 i) A)))
+
+hLevΩ : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
+      → isOfHLevel (m + n) (typ A) → isOfHLevel n (typ ((Ω^ m) A)) 
+hLevΩ n zero = λ p → p
+hLevΩ {A = A} zero (suc zero) p = refl , λ _ → isProp→isSet p _ _ _ _
+hLevΩ {A = A} zero (suc (suc zero)) p =
+  refl , λ y → isOfHLevelSuc 2 p _ _ _ _ refl y
+hLevΩ {A = A} zero (suc (suc (suc m))) p =
+  transport (λ i → isContr (typ (Ω (ua∙
+                 (isoToEquiv (flipΩIso {A = A} (suc m))) (flipΩrefl m) (~ i)))))
+            (hLevΩ {A = Ω A} zero (suc (suc m))
+              (subst (λ x → isOfHLevel x (typ (Ω A)))
+                     (+-comm zero (suc (suc m)))
+                     (h (pt A) (pt A))))
+  where
+  h : (isOfHLevel (3 + m) (typ A))
+  h = (subst (λ x → isOfHLevel x (typ A)) (λ i → suc (+-comm (2 + m) zero i)) p)
+hLevΩ {A = A} (suc n) (suc m) p =
+  subst (isOfHLevel (suc n))
+    (sym (ua (isoToEquiv (flipΩIso {A = A} m))))
+    (hLevΩ {A = Ω A} (suc n) m
+      (isOfHLevelPath' (m + suc n) p _ _))
+
+isOfHLevel2 : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → (isSet (typ (Ω ((Ω^ n) (hLevelTrunc∙ (suc (suc (suc n))) A)))))
+isOfHLevel2 {A = A} zero = isOfHLevelTrunc 3 _ _
+isOfHLevel2 {A = A} (suc n) =
+  hLevΩ 2 (suc (suc n))
+    (transport (λ i → isOfHLevel (+-comm 2 (2 + n) i) (hLevelTrunc (4 + n) (typ A)))
+    (isOfHLevelTrunc (suc (suc (suc (suc n))))))
+
+πTruncIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+             → Iso (π n A) (π n (hLevelTrunc∙ (2 + n) A))
+πTruncIso {A = A} zero =
+  compIso (invIso (setTruncIdempotentIso squash₂))
+                  (setTruncIso setTruncTrunc2Iso)
+πTruncIso {A = A} (suc n) =
+  compIso setTruncTrunc2Iso
+    (compIso
+     (lem₁ (suc n))
+     (invIso (setTruncIdempotentIso (isOfHLevel2 n))))
+
+πTruncGroupIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+             → GroupIso (πGr n A) (πGr n (hLevelTrunc∙ (3 + n) A))
+fst (πTruncGroupIso n) = πTruncIso (suc n)
+snd (πTruncGroupIso n) =
+  makeIsGroupHom
+    (sElim2 {!!} λ a b → {!!})
