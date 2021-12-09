@@ -47,7 +47,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     open NatTrans trans
 
     field
-      nIso : ∀ (x : C .ob) → isIsoC {C = D} (N-ob x)
+      nIso : ∀ (x : C .ob) → isIsoC D (N-ob x)
 
     open isIsoC
 

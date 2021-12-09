@@ -65,7 +65,7 @@ open Iso
 
 Iso→CatIso : ∀ {A B : (SET ℓ) .ob}
            → Iso (fst A) (fst B)
-           → CatIso {C = SET ℓ} A B
+           → CatIso (SET ℓ) A B
 Iso→CatIso is .mor = is .fun
 Iso→CatIso is .cInv = is .inv
 Iso→CatIso is .sec = funExt λ b → is .rightInv b -- is .rightInv
