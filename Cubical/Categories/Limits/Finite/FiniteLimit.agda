@@ -10,6 +10,7 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Empty
 open import Cubical.Data.FinData
 open import Cubical.Data.Sum
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -51,7 +52,7 @@ module _ (L' : DistLattice ℓ) where
  open DistLatticeStr (snd L')
  open Join L'
  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L'))
- open PosetStr (IndPoset .snd)
+ open PosetStr (IndPoset .snd) hiding (_≤_)
  open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L'))
       using (∧≤RCancel ; ∧≤LCancel)
  open Order (DistLattice→Lattice L')
@@ -73,13 +74,25 @@ module _ (L' : DistLattice ℓ) where
  F-id (FinVec→FinDiagram α) = is-prop-valued _ _ _ _
  F-seq (FinVec→FinDiagram α) _ _ = is-prop-valued _ _ _ _
 
- open isLimit
+
  open NatTrans
 
  joinIsFinLim : {n : ℕ} (α : FinVec L n) → isLimit (FinVec→FinDiagram α) (⋁ α)
- N-ob (cone (joinIsFinLim α)) (sing i) = {!!} -- αᵢ≤⋁α
- N-ob (cone (joinIsFinLim α)) (pair i j) = {!!} -- αᵢ∧αⱼ≤⋁α
- N-hom (cone (joinIsFinLim α)) _ = is-prop-valued _ _ _ _
- fst (fst (up (joinIsFinLim α) ν)) = ⋁IsMax α _ (λ i → ν .N-ob (sing i))
- snd (fst (up (joinIsFinLim α) ν)) = {!!}
- snd (up (joinIsFinLim α) ν) (v≥⋁α , νComp) = {!!}
+ joinIsFinLim α = islimit cone up
+  where
+  cone : Cone (FinVec→FinDiagram α) (⋁ α)
+  N-ob cone (sing i) = ind≤⋁ α i -- αᵢ≤⋁α
+  N-ob cone (pair i j) = is-trans _ (α i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α i) -- αᵢ∧αⱼ≤⋁α
+  N-hom cone _ = is-prop-valued _ _ _ _
+
+  up : {v : ob} (ν : Cone (FinVec→FinDiagram α) v) → cone uniquelyFactors ν
+  up {v = v} ν = (f , fFactors) , uniqueness
+   where
+   f : LCat [ v , (⋁ α) ] -- ⋁α≤v
+   f = ⋁IsMax α _ (λ i → ν .N-ob (sing i))
+
+   fFactors : ν ≡ (f ◼ cone) --precomposition
+   fFactors = makeNatTransPath (funExt (λ _ → is-prop-valued _ _ _ _))
+
+   uniqueness : (y : cone factors ν) → (f , fFactors) ≡ y
+   uniqueness _ = Σ≡Prop (λ _ → isSetNat _ _) (is-prop-valued _ _ _ _)
