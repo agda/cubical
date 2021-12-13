@@ -196,6 +196,12 @@ module _ {R : CommRing ℓ} where
                     f (0a + 0a) - f 0a    ≡⟨ cong (λ u → f u - f 0a) (+-lid 0a) ⟩
                     f 0a - f 0a           ≡⟨ +-rinv (f 0a) ⟩
                     0a ∎
+    isPropIsCommAlgebraHom : (f : fst M → fst N) → isProp (IsCommAlgebraHom (snd M) f (snd N))
+    isPropIsCommAlgebraHom f = isPropIsAlgebraHom
+                                 (CommRing→Ring R)
+                                 (snd (CommAlgebra→Algebra M))
+                                 f
+                                 (snd (CommAlgebra→Algebra N))
 
 isPropIsCommAlgebra : (R : CommRing ℓ) {A : Type ℓ'}
   (0a 1a : A)
