@@ -5,9 +5,9 @@ module Cubical.Categories.Limits.Finite.FiniteLimit where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat hiding (znots ; snotz)
 open import Cubical.Data.Unit
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.FinData
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
@@ -23,6 +23,7 @@ open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.DistLattice.BigOps
 
 open import Cubical.Categories.Limits.Base
+open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Finite.FiniteSystem
 
 open import Cubical.Relation.Binary.Poset
@@ -78,21 +79,101 @@ module _ (L' : DistLattice ℓ) where
  open NatTrans
 
  joinIsFinLim : {n : ℕ} (α : FinVec L n) → isLimit (FinVec→FinDiagram α) (⋁ α)
- joinIsFinLim α = islimit cone up
+ joinIsFinLim α = islimit joinCone joinUp
   where
-  cone : Cone (FinVec→FinDiagram α) (⋁ α)
-  N-ob cone (sing i) = ind≤⋁ α i -- αᵢ≤⋁α
-  N-ob cone (pair i j) = is-trans _ (α i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α i) -- αᵢ∧αⱼ≤⋁α
-  N-hom cone _ = is-prop-valued _ _ _ _
+  joinCone : Cone (FinVec→FinDiagram α) (⋁ α)
+  N-ob joinCone (sing i) = ind≤⋁ α i -- αᵢ≤⋁α
+  N-ob joinCone (pair i j) = is-trans _ (α i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α i) -- αᵢ∧αⱼ≤⋁α
+  N-hom joinCone _ = is-prop-valued _ _ _ _
 
-  up : {v : ob} (ν : Cone (FinVec→FinDiagram α) v) → cone uniquelyFactors ν
-  up {v = v} ν = (f , fFactors) , uniqueness
+  joinUp : {v : ob} (ν : Cone (FinVec→FinDiagram α) v) → joinCone uniquelyFactors ν
+  joinUp {v = v} ν = (f , fFactors) , uniqueness
    where
    f : LCat [ v , (⋁ α) ] -- ⋁α≤v
    f = ⋁IsMax α _ (λ i → ν .N-ob (sing i))
 
-   fFactors : ν ≡ (f ◼ cone) --precomposition
+   fFactors : ν ≡ (f ◼ joinCone) --precomposition
    fFactors = makeNatTransPath (funExt (λ _ → is-prop-valued _ _ _ _))
 
-   uniqueness : (y : cone factors ν) → (f , fFactors) ≡ y
+   uniqueness : (y : joinCone factors ν) → (f , fFactors) ≡ y
    uniqueness _ = Σ≡Prop (λ _ → isSetNat _ _) (is-prop-valued _ _ _ _)
+
+
+
+-- Pullbacks are (finite) limits
+module _ {C : Category ℓ ℓ'} (cspan : Cospan {C = C}) where
+ open Category C
+ open Functor
+ open Cospan ⦃...⦄
+ private
+  instance
+   _ = cspan
+
+ Cospan→FinDiagram : FinDiagram C 2
+ F-ob Cospan→FinDiagram (sing zero) = l
+ F-ob Cospan→FinDiagram (sing (suc zero)) = r
+ F-ob Cospan→FinDiagram (pair zero zero) = l
+ F-ob Cospan→FinDiagram (pair zero (suc zero)) = m
+ F-ob Cospan→FinDiagram (pair (suc zero) zero) = m
+ F-ob Cospan→FinDiagram (pair (suc zero) (suc zero)) = r
+
+ F-hom Cospan→FinDiagram {x = sing zero} {y = sing zero} _ = id
+ F-hom Cospan→FinDiagram {x = sing zero} {y = sing (suc zero)} p = ⊥.rec (znots p)
+ F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = sing zero} p = ⊥.rec (snotz p)
+ F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = sing (suc zero)} _ = id
+
+ F-hom Cospan→FinDiagram {x = sing zero} {y = pair zero zero} _ = id
+ F-hom Cospan→FinDiagram {x = sing zero} {y = pair zero (suc zero)} _ = s₁
+ F-hom Cospan→FinDiagram {x = sing zero} {y = pair (suc zero) zero} _ = s₁
+ F-hom Cospan→FinDiagram {x = sing zero} {y = pair (suc zero) (suc zero)} (inl x) = ⊥.rec (znots x)
+ F-hom Cospan→FinDiagram {x = sing zero} {y = pair (suc zero) (suc zero)} (inr x) = ⊥.rec (znots x)
+ F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair zero zero} (inl x) = ⊥.rec (snotz x)
+ F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair zero zero} (inr x) = ⊥.rec (snotz x)
+ F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair zero (suc zero)} _ = s₂
+ F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair (suc zero) zero} _ = s₂
+ F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair (suc zero) (suc zero)} _ = id
+
+ F-hom Cospan→FinDiagram {x = pair zero zero} {y = pair zero zero} _ = id
+ F-hom Cospan→FinDiagram {x = pair zero zero} {y = pair zero (suc zero)} (_ , q) = ⊥.rec (znots q)
+ F-hom Cospan→FinDiagram {x = pair zero zero} {y = pair (suc zero) _} (p , _) = ⊥.rec (znots p)
+ F-hom Cospan→FinDiagram {x = pair zero (suc zero)} {y = pair zero zero} (_ , q) = ⊥.rec (snotz q)
+ F-hom Cospan→FinDiagram {x = pair zero (suc zero)} {y = pair zero (suc zero)} _ = id
+ F-hom Cospan→FinDiagram {x = pair zero (suc zero)} {y = pair (suc zero) _} (p , _) = ⊥.rec (znots p)
+ F-hom Cospan→FinDiagram {x = pair (suc zero) zero} {y = pair zero _} (p , _) = ⊥.rec (snotz p)
+ F-hom Cospan→FinDiagram {x = pair (suc zero) zero} {y = pair (suc zero) zero} _ = id
+ F-hom Cospan→FinDiagram {x = pair (suc zero) zero} {y = pair (suc zero) (suc zero)} (_ , q) =
+                                                                                      ⊥.rec (znots q)
+ F-hom Cospan→FinDiagram {x = pair (suc zero) (suc zero)} {y = pair zero _} (p , _) = ⊥.rec (snotz p)
+ F-hom Cospan→FinDiagram {x = pair (suc zero) (suc zero)} {y = pair (suc zero) zero} (_ , q) =
+                                                                                      ⊥.rec (snotz q)
+ F-hom Cospan→FinDiagram {x = pair (suc zero) (suc zero)} {y = pair (suc zero) (suc zero)} _ = id
+
+ F-id Cospan→FinDiagram {x = sing zero} = refl
+ F-id Cospan→FinDiagram {x = sing (suc zero)} = refl
+ F-id Cospan→FinDiagram {x = pair zero zero} = refl
+ F-id Cospan→FinDiagram {x = pair zero (suc zero)} = refl
+ F-id Cospan→FinDiagram {x = pair (suc zero) zero} = refl
+ F-id Cospan→FinDiagram {x = pair (suc zero) (suc zero)} = refl
+
+ F-seq Cospan→FinDiagram {sing zero} {sing zero} {z} f g = {!!}
+  where
+  refl≡f : refl ≡ f
+  refl≡f = isSetFin _ _ _ _
+ -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {sing zero} _ _ = sym (⋆IdL _)
+ -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {sing (suc zero)} _ g = ⊥.rec (znots g)
+ -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {pair zero zero} _ _ = sym (⋆IdL _)
+ -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {pair zero (suc zero)} _ _ = sym (⋆IdL _)
+ -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {pair (suc zero) zero} _ _ = sym (⋆IdL _)
+ -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {pair (suc zero) (suc zero)} _ (inl x) =
+ --                                                                              ⊥.rec (znots x)
+ -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {pair (suc zero) (suc zero)} _ (inr x) =
+ --                                                                              ⊥.rec (znots x)
+ F-seq Cospan→FinDiagram {sing zero} {sing (suc zero)} {sing zero} f _ = ⊥.rec (znots f)
+ F-seq Cospan→FinDiagram {sing zero} {sing (suc zero)} {sing (suc zero)} = {!!}
+ F-seq Cospan→FinDiagram {sing zero} {sing (suc zero)} {pair x x₁} = {!!}
+ F-seq Cospan→FinDiagram {sing zero} {pair x x₁} {z} = {!!}
+ F-seq Cospan→FinDiagram {sing (suc zero)} {sing x} {sing x₁} = {!!}
+ F-seq Cospan→FinDiagram {sing (suc zero)} {sing x} {pair x₁ x₂} = {!!}
+ F-seq Cospan→FinDiagram {sing (suc zero)} {pair x x₁} {sing x₂} = {!!}
+ F-seq Cospan→FinDiagram {sing (suc zero)} {pair x x₁} {pair x₂ x₃} = {!!}
+ F-seq Cospan→FinDiagram {pair x x₁} {y} {z} = {!!}
