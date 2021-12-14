@@ -1,4 +1,5 @@
 -- Free category over a directed graph/quiver
+{-# OPTIONS #-}
 
 module Cubical.Categories.Constructions.Free where
 
@@ -7,18 +8,18 @@ open import Cubical.Data.Graph.Base
 open import Cubical.Data.Graph.Path
 open import Cubical.Foundations.Prelude hiding (Path)
 
-module _ {ℓv ℓe : Level}
-         (G : Graph ℓv ℓe)
-         (isSetEdge : ∀ v w → isSet (Hom G v w)) where
+module _ {ℓv ℓe : Level} (G : Graph ℓv ℓe)
+        --  (isSetEdge : ∀ v w → isSet (Edge G v w))
+         where
   open Category
 
-  FreeCat : Category ℓv (ℓ-max ℓv ℓe)
-  FreeCat .ob = Obj G
-  FreeCat .Hom[_,_] = Path G
-  FreeCat .id = pnil
-  FreeCat ._⋆_ = ccat G
-  FreeCat .⋆IdL = pnil++ G
-  FreeCat .⋆IdR P = refl
-  FreeCat .⋆Assoc = ++assoc G
+  FreeCategory : Category ℓv (ℓ-max ℓv ℓe)
+  FreeCategory .ob = Node G
+  FreeCategory .Hom[_,_] = Path G
+  FreeCategory .id = pnil
+  FreeCategory ._⋆_ = ccat G
+  FreeCategory .⋆IdL = pnil++ G
+  FreeCategory .⋆IdR P = refl
+  FreeCategory .⋆Assoc = ++assoc G
 
-  FreeCat .isSetHom = {!   !}
+  FreeCategory .isSetHom = isSetPath G _ _
