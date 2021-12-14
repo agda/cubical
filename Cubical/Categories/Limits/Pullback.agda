@@ -30,25 +30,59 @@ module _ (C : Category ℓ ℓ') where
 
   open Cospan
 
-  isPullback : (cspn : Cospan) → {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
-               (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) → Type (ℓ-max ℓ ℓ')
+  isPullback : (cspn : Cospan) →
+    {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
+    (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) → Type (ℓ-max ℓ ℓ')
   isPullback cspn {c} p₁ p₂ H =
-    ∀ {d} (h : C [ d , cspn .l ]) (k : C [ d , cspn .r ]) (H' : h ⋆ cspn .s₁ ≡ k ⋆ cspn .s₂)
+    ∀ {d} (h : C [ d , cspn .l ]) (k : C [ d , cspn .r ])
+          (H' : h ⋆ cspn .s₁ ≡ k ⋆ cspn .s₂)
     → ∃![ hk ∈ C [ d , c ] ] (h ≡ hk ⋆ p₁) × (k ≡ hk ⋆ p₂)
 
-  isPropIsPullback : (cspn : Cospan) → {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
+  isPropIsPullback : (cspn : Cospan) →
+    {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
     (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) → isProp (isPullback cspn p₁ p₂ H)
-  isPropIsPullback cspn p₁ p₂ H = isPropImplicitΠ (λ x → isPropΠ3 λ h k H' → isPropIsContr)
+  isPropIsPullback cspn p₁ p₂ H =
+    isPropImplicitΠ (λ x → isPropΠ3 λ h k H' → isPropIsContr)
 
   record Pullback (cspn : Cospan) : Type (ℓ-max ℓ ℓ') where
     field
       pbOb  : ob
-      pbPr1 : C [ pbOb , cspn .l ]
-      pbPr2 : C [ pbOb , cspn .r ]
-      pbCommutes : pbPr1 ⋆ cspn .s₁ ≡ pbPr2 ⋆ cspn .s₂
-      isPb : isPullback cspn pbPr1 pbPr2 pbCommutes
+      pbPr₁ : C [ pbOb , cspn .l ]
+      pbPr₂ : C [ pbOb , cspn .r ]
+      pbCommutes : pbPr₁ ⋆ cspn .s₁ ≡ pbPr₂ ⋆ cspn .s₂
+      isPb : isPullback cspn pbPr₁ pbPr₂ pbCommutes
 
-  -- TODO: define accessor functions for the pullback arrow and its properties
+  open Pullback
+
+  pullbackArrow :
+    {cspn : Cospan} (pb : Pullback cspn)
+    {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
+    (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) → C [ c , pb . pbOb ]
+  pullbackArrow pb p₁ p₂ H = pb .isPb p₁ p₂ H .fst .fst
+
+  pullbackArrowPr₁ :
+    {cspn : Cospan} (pb : Pullback cspn)
+    {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
+    (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) →
+    p₁ ≡ pullbackArrow pb p₁ p₂ H ⋆ pbPr₁ pb
+  pullbackArrowPr₁ pb p₁ p₂ H = pb .isPb p₁ p₂ H .fst .snd .fst
+
+  pullbackArrowPr₂ :
+    {cspn : Cospan} (pb : Pullback cspn)
+    {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
+    (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) →
+    p₂ ≡ pullbackArrow pb p₁ p₂ H ⋆ pbPr₂ pb
+  pullbackArrowPr₂ pb p₁ p₂ H = pb .isPb p₁ p₂ H .fst .snd .snd
+
+  pullbackArrowUnique :
+    {cspn : Cospan} (pb : Pullback cspn)
+    {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
+    (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂)
+    (pbArrow' : C [ c , pb .pbOb ])
+    (H₁ : p₁ ≡ pbArrow' ⋆ pbPr₁ pb) (H₂ : p₂ ≡ pbArrow' ⋆ pbPr₂ pb)
+    → pullbackArrow pb p₁ p₂ H ≡ pbArrow'
+  pullbackArrowUnique pb p₁ p₂ H pbArrow' H₁ H₂ =
+    cong fst (pb .isPb p₁ p₂ H .snd (pbArrow' , (H₁ , H₂)))
 
   Pullbacks : Type (ℓ-max ℓ ℓ')
   Pullbacks = (cspn : Cospan) → Pullback cspn
@@ -57,7 +91,8 @@ module _ (C : Category ℓ ℓ') where
   hasPullbacks = ∥ Pullbacks ∥
 
 
--- TODO: finish the following show that this definition of Pullback is equivalent to the Cospan limit
+-- TODO: finish the following show that this definition of Pullback
+-- is equivalent to the Cospan limit
 module _ {C : Category ℓ ℓ'} where
   open Category C
   open Functor
