@@ -453,16 +453,19 @@ inv join-comm = join-commFun
 rightInv join-comm = join-commFun²
 leftInv join-comm = join-commFun²
 
+join→ : ∀ {ℓ'' ℓ'''}
+     {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+  → (A → C) → (B → D) → join A B → join C D
+join→ f g (inl x) = inl (f x)
+join→ f g (inr x) = inr (g x)
+join→ f g (push a b i) = push (f a) (g b) i
+
 -- Applying Isos to joins (more efficient than transports)
 Iso→joinIso : ∀ {ℓ'' ℓ'''}
      {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
   → Iso A C → Iso B D → Iso (join A B) (join C D)
-fun (Iso→joinIso is1 is2) (inl x) = inl (fun is1 x)
-fun (Iso→joinIso is1 is2) (inr x) = inr (fun is2 x)
-fun (Iso→joinIso is1 is2) (push a b i) = push (fun is1 a) (fun is2 b) i
-inv (Iso→joinIso is1 is2) (inl x) = inl (inv is1 x)
-inv (Iso→joinIso is1 is2) (inr x) = inr (inv is2 x)
-inv (Iso→joinIso is1 is2) (push a b i) = push (inv is1 a) (inv is2 b) i
+fun (Iso→joinIso is1 is2) x = join→ (Iso.fun is1) (Iso.fun is2) x
+inv (Iso→joinIso is1 is2) x = join→ (Iso.inv is1) (Iso.inv is2) x
 rightInv (Iso→joinIso is1 is2) (inl x) i = inl (rightInv is1 x i)
 rightInv (Iso→joinIso is1 is2) (inr x) i = inr (rightInv is2 x i)
 rightInv (Iso→joinIso is1 is2) (push a b j) i =

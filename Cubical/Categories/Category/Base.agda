@@ -48,7 +48,7 @@ infixr 16 comp'
 syntax comp' C g f = g ∘⟨ C ⟩ f
 
 -- Isomorphisms and paths in categories
-record CatIso {C : Category ℓ ℓ'} (x y : C .ob) : Type ℓ' where
+record CatIso (C : Category ℓ ℓ') (x y : C .ob) : Type ℓ' where
   constructor catiso
   field
     mor : C [ x , y ]
@@ -56,8 +56,8 @@ record CatIso {C : Category ℓ ℓ'} (x y : C .ob) : Type ℓ' where
     sec : inv ⋆⟨ C ⟩ mor ≡ C .id
     ret : mor ⋆⟨ C ⟩ inv ≡ C .id
 
-pathToIso : {C : Category ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → CatIso {C = C} x y
-pathToIso {C = C} p = J (λ z _ → CatIso _ z) (catiso idx idx (C .⋆IdL idx) (C .⋆IdL idx)) p
+pathToIso : {C : Category ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → CatIso C x y
+pathToIso {C = C} p = J (λ z _ → CatIso _ _ z) (catiso idx idx (C .⋆IdL idx) (C .⋆IdL idx)) p
   where
     idx = C .id
 
@@ -67,11 +67,11 @@ record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
     univ : (x y : C .ob) → isEquiv (pathToIso {C = C} {x = x} {y = y})
 
   -- package up the univalence equivalence
-  univEquiv : ∀ (x y : C .ob) → (x ≡ y) ≃ (CatIso x y)
+  univEquiv : ∀ (x y : C .ob) → (x ≡ y) ≃ (CatIso _ x y)
   univEquiv x y = pathToIso , univ x y
 
   -- The function extracting paths from category-theoretic isomorphisms.
-  CatIsoToPath : {x y : C .ob} (p : CatIso x y) → x ≡ y
+  CatIsoToPath : {x y : C .ob} (p : CatIso _ x y) → x ≡ y
   CatIsoToPath {x = x} {y = y} p =
     equivFun (invEquiv (univEquiv x y)) p
 

@@ -174,3 +174,20 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
 
   IsoΩFunSuspFun : Iso (typ (Ω (A →∙ B ∙))) (Susp∙ (typ A) →∙ B)
   IsoΩFunSuspFun = compIso (ΩfunExtIso A B) ΩSuspAdjointIso
+
+-- inversion
+invSusp : ∀ {ℓ} {A : Type ℓ} → Susp A → Susp A
+invSusp north = south
+invSusp south = north
+invSusp (merid a i) = merid a (~ i)
+
+invSusp² : ∀ {ℓ} {A : Type ℓ} (x : Susp A) → invSusp (invSusp x) ≡ x
+invSusp² north = refl
+invSusp² south = refl
+invSusp² (merid a i) = refl
+
+invSuspIso : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (Susp A)
+fun invSuspIso = invSusp
+inv invSuspIso = invSusp
+rightInv invSuspIso = invSusp²
+leftInv invSuspIso = invSusp²
