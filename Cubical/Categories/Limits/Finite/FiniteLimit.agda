@@ -109,56 +109,102 @@ module _ {C : Category ℓ ℓ'} (cspan : Cospan {C = C}) where
   instance
    _ = cspan
 
+ FinSys2→Cospan : Functor (FinSysCat 2) CospanCat
+ F-ob FinSys2→Cospan (sing zero) = ⓪
+ F-ob FinSys2→Cospan (sing (suc zero)) = ②
+ F-ob FinSys2→Cospan (pair zero zero) = ⓪
+ F-ob FinSys2→Cospan (pair zero (suc zero)) = ①
+ F-ob FinSys2→Cospan (pair (suc zero) zero) = ①
+ F-ob FinSys2→Cospan (pair (suc zero) (suc zero)) = ②
+
+ F-hom FinSys2→Cospan {sing zero} {sing zero} _ = tt
+ F-hom FinSys2→Cospan {sing zero} {sing (suc zero)} = znots
+ F-hom FinSys2→Cospan {sing (suc zero)} {sing zero} = snotz
+ F-hom FinSys2→Cospan {sing (suc zero)} {sing (suc zero)} _ = tt
+
+ F-hom FinSys2→Cospan {sing zero} {pair zero zero} _ = tt
+ F-hom FinSys2→Cospan {sing zero} {pair zero (suc zero)} _ = tt
+ F-hom FinSys2→Cospan {sing zero} {pair (suc zero) zero} _ = tt
+ F-hom FinSys2→Cospan {sing zero} {pair (suc zero) (suc zero)} (inl x) = znots x
+ F-hom FinSys2→Cospan {sing zero} {pair (suc zero) (suc zero)} (inr x) = znots x
+
+ F-hom FinSys2→Cospan {sing (suc zero)} {pair zero zero} (inl x) = snotz x
+ F-hom FinSys2→Cospan {sing (suc zero)} {pair zero zero} (inr x) = snotz x
+ F-hom FinSys2→Cospan {sing (suc zero)} {pair zero (suc zero)} _ = tt
+ F-hom FinSys2→Cospan {sing (suc zero)} {pair (suc zero) zero} _ = tt
+ F-hom FinSys2→Cospan {sing (suc zero)} {pair (suc zero) (suc zero)} _ = tt
+
+ F-hom FinSys2→Cospan {pair _ _} {sing _} = ⊥.rec
+
+ F-hom FinSys2→Cospan {pair zero zero} {pair zero zero} _ = tt
+ F-hom FinSys2→Cospan {pair zero _} {pair (suc zero) _} (p , _) = ⊥.rec (znots p)
+ F-hom FinSys2→Cospan {pair (suc zero) _} {pair zero _} (p , _) = ⊥.rec (snotz p)
+ F-hom FinSys2→Cospan {pair zero (suc zero)} {pair zero (suc zero)} _ = tt
+ F-hom FinSys2→Cospan {pair (suc zero) zero} {pair (suc zero) zero} _ = tt
+ F-hom FinSys2→Cospan {pair _ zero} {pair _ (suc zero)} (_ , p) = ⊥.rec (znots p)
+ F-hom FinSys2→Cospan {pair _ (suc zero)} {pair _ zero} (_ , p) = ⊥.rec (snotz p)
+ F-hom FinSys2→Cospan {pair (suc zero) (suc zero)} {pair (suc zero) (suc zero)} _ = tt
+
+ F-id FinSys2→Cospan {sing zero} = refl
+ F-id FinSys2→Cospan {sing (suc zero)} = refl
+ F-id FinSys2→Cospan {pair zero zero} = refl
+ F-id FinSys2→Cospan {pair zero (suc zero)} = refl
+ F-id FinSys2→Cospan {pair (suc zero) zero} = refl
+ F-id FinSys2→Cospan {pair (suc zero) (suc zero)} = refl
+
+ F-seq FinSys2→Cospan {x = x} {z = z} _ _ = isPropHomCospanCat (F-ob FinSys2→Cospan x) (F-ob FinSys2→Cospan z) _ _
+
+
+
  Cospan→FinDiagram : FinDiagram C 2
- F-ob Cospan→FinDiagram (sing zero) = l
- F-ob Cospan→FinDiagram (sing (suc zero)) = r
- F-ob Cospan→FinDiagram (pair zero zero) = l
- F-ob Cospan→FinDiagram (pair zero (suc zero)) = m
- F-ob Cospan→FinDiagram (pair (suc zero) zero) = m
- F-ob Cospan→FinDiagram (pair (suc zero) (suc zero)) = r
+ Cospan→FinDiagram = funcComp (Cospan→Func cspan) FinSys2→Cospan
 
- F-hom Cospan→FinDiagram {x = sing zero} {y = sing zero} _ = id
- F-hom Cospan→FinDiagram {x = sing zero} {y = sing (suc zero)} p = ⊥.rec (znots p)
- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = sing zero} p = ⊥.rec (snotz p)
- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = sing (suc zero)} _ = id
+ -- going directly is a real pain...
+ -- F-ob Cospan→FinDiagram (sing zero) = l
+ -- F-ob Cospan→FinDiagram (sing (suc zero)) = r
+ -- F-ob Cospan→FinDiagram (pair zero zero) = l
+ -- F-ob Cospan→FinDiagram (pair zero (suc zero)) = m
+ -- F-ob Cospan→FinDiagram (pair (suc zero) zero) = m
+ -- F-ob Cospan→FinDiagram (pair (suc zero) (suc zero)) = r
 
- F-hom Cospan→FinDiagram {x = sing zero} {y = pair zero zero} _ = id
- F-hom Cospan→FinDiagram {x = sing zero} {y = pair zero (suc zero)} _ = s₁
- F-hom Cospan→FinDiagram {x = sing zero} {y = pair (suc zero) zero} _ = s₁
- F-hom Cospan→FinDiagram {x = sing zero} {y = pair (suc zero) (suc zero)} (inl x) = ⊥.rec (znots x)
- F-hom Cospan→FinDiagram {x = sing zero} {y = pair (suc zero) (suc zero)} (inr x) = ⊥.rec (znots x)
- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair zero zero} (inl x) = ⊥.rec (snotz x)
- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair zero zero} (inr x) = ⊥.rec (snotz x)
- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair zero (suc zero)} _ = s₂
- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair (suc zero) zero} _ = s₂
- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair (suc zero) (suc zero)} _ = id
+ -- F-hom Cospan→FinDiagram {x = sing zero} {y = sing zero} _ = id
+ -- F-hom Cospan→FinDiagram {x = sing zero} {y = sing (suc zero)} p = ⊥.rec (znots p)
+ -- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = sing zero} p = ⊥.rec (snotz p)
+ -- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = sing (suc zero)} _ = id
 
- F-hom Cospan→FinDiagram {x = pair zero zero} {y = pair zero zero} _ = id
- F-hom Cospan→FinDiagram {x = pair zero zero} {y = pair zero (suc zero)} (_ , q) = ⊥.rec (znots q)
- F-hom Cospan→FinDiagram {x = pair zero zero} {y = pair (suc zero) _} (p , _) = ⊥.rec (znots p)
- F-hom Cospan→FinDiagram {x = pair zero (suc zero)} {y = pair zero zero} (_ , q) = ⊥.rec (snotz q)
- F-hom Cospan→FinDiagram {x = pair zero (suc zero)} {y = pair zero (suc zero)} _ = id
- F-hom Cospan→FinDiagram {x = pair zero (suc zero)} {y = pair (suc zero) _} (p , _) = ⊥.rec (znots p)
- F-hom Cospan→FinDiagram {x = pair (suc zero) zero} {y = pair zero _} (p , _) = ⊥.rec (snotz p)
- F-hom Cospan→FinDiagram {x = pair (suc zero) zero} {y = pair (suc zero) zero} _ = id
- F-hom Cospan→FinDiagram {x = pair (suc zero) zero} {y = pair (suc zero) (suc zero)} (_ , q) =
-                                                                                      ⊥.rec (znots q)
- F-hom Cospan→FinDiagram {x = pair (suc zero) (suc zero)} {y = pair zero _} (p , _) = ⊥.rec (snotz p)
- F-hom Cospan→FinDiagram {x = pair (suc zero) (suc zero)} {y = pair (suc zero) zero} (_ , q) =
-                                                                                      ⊥.rec (snotz q)
- F-hom Cospan→FinDiagram {x = pair (suc zero) (suc zero)} {y = pair (suc zero) (suc zero)} _ = id
+ -- F-hom Cospan→FinDiagram {x = sing zero} {y = pair zero zero} _ = id
+ -- F-hom Cospan→FinDiagram {x = sing zero} {y = pair zero (suc zero)} _ = s₁
+ -- F-hom Cospan→FinDiagram {x = sing zero} {y = pair (suc zero) zero} _ = s₁
+ -- F-hom Cospan→FinDiagram {x = sing zero} {y = pair (suc zero) (suc zero)} (inl x) = ⊥.rec (znots x)
+ -- F-hom Cospan→FinDiagram {x = sing zero} {y = pair (suc zero) (suc zero)} (inr x) = ⊥.rec (znots x)
+ -- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair zero zero} (inl x) = ⊥.rec (snotz x)
+ -- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair zero zero} (inr x) = ⊥.rec (snotz x)
+ -- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair zero (suc zero)} _ = s₂
+ -- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair (suc zero) zero} _ = s₂
+ -- F-hom Cospan→FinDiagram {x = sing (suc zero)} {y = pair (suc zero) (suc zero)} _ = id
 
- F-id Cospan→FinDiagram {x = sing zero} = refl
- F-id Cospan→FinDiagram {x = sing (suc zero)} = refl
- F-id Cospan→FinDiagram {x = pair zero zero} = refl
- F-id Cospan→FinDiagram {x = pair zero (suc zero)} = refl
- F-id Cospan→FinDiagram {x = pair (suc zero) zero} = refl
- F-id Cospan→FinDiagram {x = pair (suc zero) (suc zero)} = refl
+ -- F-hom Cospan→FinDiagram {x = pair zero zero} {y = pair zero zero} _ = id
+ -- F-hom Cospan→FinDiagram {x = pair zero zero} {y = pair zero (suc zero)} (_ , q) = ⊥.rec (znots q)
+ -- F-hom Cospan→FinDiagram {x = pair zero zero} {y = pair (suc zero) _} (p , _) = ⊥.rec (znots p)
+ -- F-hom Cospan→FinDiagram {x = pair zero (suc zero)} {y = pair zero zero} (_ , q) = ⊥.rec (snotz q)
+ -- F-hom Cospan→FinDiagram {x = pair zero (suc zero)} {y = pair zero (suc zero)} _ = id
+ -- F-hom Cospan→FinDiagram {x = pair zero (suc zero)} {y = pair (suc zero) _} (p , _) = ⊥.rec (znots p)
+ -- F-hom Cospan→FinDiagram {x = pair (suc zero) zero} {y = pair zero _} (p , _) = ⊥.rec (snotz p)
+ -- F-hom Cospan→FinDiagram {x = pair (suc zero) zero} {y = pair (suc zero) zero} _ = id
+ -- F-hom Cospan→FinDiagram {x = pair (suc zero) zero} {y = pair (suc zero) (suc zero)} (_ , q) =
+ --                                                                                      ⊥.rec (znots q)
+ -- F-hom Cospan→FinDiagram {x = pair (suc zero) (suc zero)} {y = pair zero _} (p , _) = ⊥.rec (snotz p)
+ -- F-hom Cospan→FinDiagram {x = pair (suc zero) (suc zero)} {y = pair (suc zero) zero} (_ , q) =
+ --                                                                                      ⊥.rec (snotz q)
+ -- F-hom Cospan→FinDiagram {x = pair (suc zero) (suc zero)} {y = pair (suc zero) (suc zero)} _ = id
 
- F-seq Cospan→FinDiagram {sing zero} {sing zero} {z} f g = {!!}
-  where
-  refl≡f : refl ≡ f
-  refl≡f = isSetFin _ _ _ _
+ -- F-id Cospan→FinDiagram {x = sing zero} = refl
+ -- F-id Cospan→FinDiagram {x = sing (suc zero)} = refl
+ -- F-id Cospan→FinDiagram {x = pair zero zero} = refl
+ -- F-id Cospan→FinDiagram {x = pair zero (suc zero)} = refl
+ -- F-id Cospan→FinDiagram {x = pair (suc zero) zero} = refl
+ -- F-id Cospan→FinDiagram {x = pair (suc zero) (suc zero)} = refl
+
  -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {sing zero} _ _ = sym (⋆IdL _)
  -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {sing (suc zero)} _ g = ⊥.rec (znots g)
  -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {pair zero zero} _ _ = sym (⋆IdL _)
@@ -168,12 +214,13 @@ module _ {C : Category ℓ ℓ'} (cspan : Cospan {C = C}) where
  --                                                                              ⊥.rec (znots x)
  -- F-seq Cospan→FinDiagram {sing zero} {sing zero} {pair (suc zero) (suc zero)} _ (inr x) =
  --                                                                              ⊥.rec (znots x)
- F-seq Cospan→FinDiagram {sing zero} {sing (suc zero)} {sing zero} f _ = ⊥.rec (znots f)
- F-seq Cospan→FinDiagram {sing zero} {sing (suc zero)} {sing (suc zero)} = {!!}
- F-seq Cospan→FinDiagram {sing zero} {sing (suc zero)} {pair x x₁} = {!!}
- F-seq Cospan→FinDiagram {sing zero} {pair x x₁} {z} = {!!}
- F-seq Cospan→FinDiagram {sing (suc zero)} {sing x} {sing x₁} = {!!}
- F-seq Cospan→FinDiagram {sing (suc zero)} {sing x} {pair x₁ x₂} = {!!}
- F-seq Cospan→FinDiagram {sing (suc zero)} {pair x x₁} {sing x₂} = {!!}
- F-seq Cospan→FinDiagram {sing (suc zero)} {pair x x₁} {pair x₂ x₃} = {!!}
- F-seq Cospan→FinDiagram {pair x x₁} {y} {z} = {!!}
+ -- F-seq Cospan→FinDiagram {sing zero} {sing (suc zero)} {z} f _ = ⊥.rec (znots f)
+ -- F-seq Cospan→FinDiagram {sing zero} {pair _ _} {sing _} _ g = ⊥.rec g
+ -- F-seq Cospan→FinDiagram {sing zero} {pair x x₁} {pair x₂ x₃} (inl x₄) (fst₁ , snd₁) = {!!}
+ -- F-seq Cospan→FinDiagram {sing zero} {pair x x₁} {pair x₂ x₃} (inr x₄) g = {!!}
+ -- F-seq Cospan→FinDiagram {sing (suc zero)} {sing zero} {z} f _ = ⊥.rec (snotz f)
+ -- F-seq Cospan→FinDiagram {sing (suc zero)} {sing (suc zero)} {z} f g = {!!}
+ -- F-seq Cospan→FinDiagram {sing (suc zero)} {pair x x₁} {sing x₂} = {!!}
+ -- F-seq Cospan→FinDiagram {sing (suc zero)} {pair x x₁} {pair x₂ x₃} = {!!}
+ -- F-seq Cospan→FinDiagram {pair x x₁} {sing x₂} {z} = {!!}
+ -- F-seq Cospan→FinDiagram {pair x x₁} {pair x₂ x₃} {z} = {!!}
