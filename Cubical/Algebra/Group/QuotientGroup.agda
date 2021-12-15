@@ -49,7 +49,7 @@ module _ (G' : Group ℓ) (H' : Subgroup G') (Hnormal : isNormal H') where
   1/H = [ 1g ]
 
   _·/H_ : G/H → G/H → G/H
-  x ·/H y = setQuotBinOp isRefl~ _·_ rem x y
+  x ·/H y = setQuotBinOp isRefl~ isRefl~ _·_ rem x y
    where
    rem : (a a' b b' : G)
        → a · inv a' ∈ ⟪ H' ⟫
