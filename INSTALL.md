@@ -86,9 +86,7 @@ Once this works go to a suitable directory and run
 > make
 ```
 
-This should compile all of the agda/cubical files. (If you're on Windows, see [here](MAKEWINDOWS.md) for instructions on using `make`).
-
-To test that it
+This should compile all of the agda/cubical files. To test that it
 works in emacs run
 
 ```
@@ -120,8 +118,6 @@ in a cabal sandbox do the following:
 > cabal update
 > make
 ```
-
-(If you're on Windows, see [here](MAKEWINDOWS.md) for instructions on using `make`).
 
 If you have cabal v2 installed the sandbox command should be replaced
 by `cabal v1-sandbox init`.
@@ -171,9 +167,7 @@ Once this works go to a suitable directory and run
 > make
 ```
 
-This should compile all of the agda/cubical files. (If you're on Windows, see [here](MAKEWINDOWS.md) for instructions on using `make`).
-
-To test that it
+This should compile all of the agda/cubical files. To test that it
 works in emacs run
 
 ```
@@ -257,9 +251,7 @@ Once this works go to a suitable directory and run
 > make
 ```
 
-This should compile all of the agda/cubical files. (If you're on Windows, see [here](MAKEWINDOWS.md) for instructions on using `make`).
-
-To test that it
+This should compile all of the agda/cubical files. To test that it
 works in emacs run
 
 ```
