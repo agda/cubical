@@ -34,10 +34,10 @@ module _ (C : Category ℓ ℓ') where
     infix  8    -_
 
     field
-      distl : {x y z : ob} → (f : Hom[ x , y ]) → (g g' : Hom[ y , z ]) →
+      ⋆distl+ : {x y z : ob} → (f : Hom[ x , y ]) → (g g' : Hom[ y , z ]) →
           f ⋆ (g + g') ≡ (f ⋆ g) + (f ⋆ g')
 
-      distr : {x y z : ob} → (f f' : Hom[ x , y ]) → (g : Hom[ y , z ]) →
+      ⋆distr+ : {x y z : ob} → (f f' : Hom[ x , y ]) → (g : Hom[ y , z ]) →
           (f + f') ⋆ g ≡ (f ⋆ g) + (f' ⋆ g)
 
 
@@ -64,7 +64,7 @@ module _ (C : PreaddCategory ℓ ℓ') where
 
 
   -- Biproducts
-  record isBiproduct {x y x⊕y : ob}
+  record IsBiproduct {x y x⊕y : ob}
       (i₁ : Hom[ x , x⊕y ]) (i₂ : Hom[ y , x⊕y ])
       (π₁ : Hom[ x⊕y , x ]) (π₂ : Hom[ x⊕y , y ])
           : Type (ℓ-max ℓ ℓ') where
@@ -84,9 +84,9 @@ module _ (C : PreaddCategory ℓ ℓ') where
       i₂ : Hom[ y , x⊕y ]
       π₁ : Hom[ x⊕y , x ]
       π₂ : Hom[ x⊕y , y ]
-      isBipr : isBiproduct i₁ i₂ π₁ π₂
+      isBipr : IsBiproduct i₁ i₂ π₁ π₂
 
-    open isBiproduct isBipr public
+    open IsBiproduct isBipr public
 
 
   -- Additive categories

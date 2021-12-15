@@ -16,7 +16,7 @@ private
 -- Some useful lemmas about preadditive categories
 module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
   open PreaddCategory C
-  
+
   -- Pure group theory lemmas
   +idl = λ {x y} → AbGroupStr.lid (homAbStr x y)
   +idr = λ {x y} → AbGroupStr.rid (homAbStr x y)
@@ -47,7 +47,7 @@ module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
       0h ⋆ f                              ≡⟨ sym (+idr _) ⟩
       0h ⋆ f  +  0h                       ≡⟨ cong (0h ⋆ f +_) (sym (+invr _)) ⟩
       0h ⋆ f  +  (0h ⋆ f  ─  0h ⋆ f)      ≡⟨ +assoc _ _ _ ⟩
-      (0h ⋆ f  +  0h ⋆ f)  ─  0h ⋆ f      ≡⟨ cong (_─ 0h ⋆ f) (sym (distr _ _ _)) ⟩
+      (0h ⋆ f  +  0h ⋆ f)  ─  0h ⋆ f      ≡⟨ cong (_─ 0h ⋆ f) (sym (⋆distr+ _ _ _)) ⟩
       (0h + 0h) ⋆ f  ─  0h ⋆ f            ≡⟨ cong (λ a → a ⋆ f ─ 0h ⋆ f) (+idr _) ⟩
       0h ⋆ f  ─  0h ⋆ f                   ≡⟨ +invr _ ⟩
       0h                                  ∎
@@ -57,7 +57,7 @@ module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
       f ⋆ 0h                              ≡⟨ sym (+idr _) ⟩
       f ⋆ 0h  +  0h                       ≡⟨ cong (f ⋆ 0h +_) (sym (+invr _)) ⟩
       f ⋆ 0h  +  (f ⋆ 0h  ─  f ⋆ 0h)      ≡⟨ +assoc _ _ _ ⟩
-      (f ⋆ 0h  +  f ⋆ 0h)  ─  f ⋆ 0h      ≡⟨ cong (_─ f ⋆ 0h) (sym (distl _ _ _)) ⟩
+      (f ⋆ 0h  +  f ⋆ 0h)  ─  f ⋆ 0h      ≡⟨ cong (_─ f ⋆ 0h) (sym (⋆distl+ _ _ _)) ⟩
       f ⋆ (0h + 0h)  ─  f ⋆ 0h            ≡⟨ cong (λ a → f ⋆ a ─ f ⋆ 0h) (+idr _) ⟩
       f ⋆ 0h  ─  f ⋆ 0h                   ≡⟨ +invr _ ⟩
       0h                                  ∎
@@ -67,7 +67,7 @@ module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
   -distl⋆ {x} {y} {z} f g =
     let open GroupTheory (AbGroup→Group (Hom[ x , z ] , homAbStr x z)) in
     invUniqueR (
-      f ⋆ g + (- f) ⋆ g     ≡⟨ sym (distr _ _ _) ⟩
+      f ⋆ g + (- f) ⋆ g     ≡⟨ sym (⋆distr+ _ _ _) ⟩
       (f ─ f) ⋆ g           ≡⟨ cong (_⋆ g) (+invr _) ⟩
       0h ⋆ g                ≡⟨ ⋆0hl _ ⟩
       0h                    ∎
@@ -78,7 +78,7 @@ module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
   -distr⋆ {x} {y} {z} f g =
     let open GroupTheory (AbGroup→Group (Hom[ x , z ] , homAbStr x z)) in
     invUniqueR (
-      f ⋆ g + f ⋆ (- g)     ≡⟨ sym (distl _ _ _) ⟩
+      f ⋆ g + f ⋆ (- g)     ≡⟨ sym (⋆distl+ _ _ _) ⟩
       f ⋆ (g ─ g)           ≡⟨ cong (f ⋆_) (+invr _) ⟩
       f ⋆ 0h                ≡⟨ ⋆0hr _ ⟩
       0h                    ∎
@@ -131,14 +131,14 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
 
     exchange a b c d =
         (π₁ ⋆ a  +  π₂ ⋆ b) ⋆ i₁  +  (π₁ ⋆ c  +  π₂ ⋆ d) ⋆ i₂
-                ≡⟨ cong₂ _+_ (distr _ _ _) (distr _ _ _) ⟩
+                ≡⟨ cong₂ _+_ (⋆distr+ _ _ _) (⋆distr+ _ _ _) ⟩
         ((π₁ ⋆ a) ⋆ i₁  +  (π₂ ⋆ b) ⋆ i₁)  +  ((π₁ ⋆ c) ⋆ i₂  +  (π₂ ⋆ d) ⋆ i₂)
                 ≡⟨ +4comm _ _ _ _ ⟩
         ((π₁ ⋆ a) ⋆ i₁  +  (π₁ ⋆ c) ⋆ i₂)  +  ((π₂ ⋆ b) ⋆ i₁  +  (π₂ ⋆ d) ⋆ i₂)
                 ≡⟨ cong₂ _+_ (cong₂ _+_ (⋆Assoc _ _ _) (⋆Assoc _ _ _))
                             (cong₂ _+_ (⋆Assoc _ _ _) (⋆Assoc _ _ _)) ⟩
         (π₁ ⋆ (a ⋆ i₁)  +  π₁ ⋆ (c ⋆ i₂))  +  (π₂ ⋆ (b ⋆ i₁)  +  π₂ ⋆ (d ⋆ i₂))
-                ≡⟨ sym (cong₂ _+_ (distl _ _ _) (distl _ _ _)) ⟩
+                ≡⟨ sym (cong₂ _+_ (⋆distl+ _ _ _) (⋆distl+ _ _ _)) ⟩
         π₁ ⋆ (a ⋆ i₁  +  c ⋆ i₂)  +  π₂ ⋆ (b ⋆ i₁  +  d ⋆ i₂)
                 ∎
 
@@ -148,29 +148,29 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
 
       i₁⋆row :  i₁ ⋆ (a ` b)  ≡  a
       i₁⋆row =
-          i₁ ⋆ (π₁ ⋆ a  +  π₂ ⋆ b)      
-                  ≡⟨ distl _ _ _ ⟩
+          i₁ ⋆ (π₁ ⋆ a  +  π₂ ⋆ b)
+                  ≡⟨ ⋆distl+ _ _ _ ⟩
           i₁ ⋆ (π₁ ⋆ a)  +  i₁ ⋆ (π₂ ⋆ b)
                   ≡⟨ cong₂ _+_ (sym (⋆Assoc _ _ _)) (sym (⋆Assoc _ _ _)) ⟩
           (i₁ ⋆ π₁) ⋆ a  +  (i₁ ⋆ π₂) ⋆ b
                   ≡⟨ cong₂ (λ u v → u ⋆ a + v ⋆ b) i₁⋆π₁ i₁⋆π₂ ⟩
-          id ⋆ a  +  0h ⋆ b             
+          id ⋆ a  +  0h ⋆ b
                   ≡⟨ cong₂ _+_ (⋆IdL _) (⋆0hl _) ⟩
-          a  +  0h                      
+          a  +  0h
                   ≡⟨ +idr _ ⟩
           a       ∎
 
       i₂⋆row :  i₂ ⋆ (a ` b)  ≡  b
       i₂⋆row =
-          i₂ ⋆ (π₁ ⋆ a  +  π₂ ⋆ b)      
-                  ≡⟨ distl _ _ _ ⟩
+          i₂ ⋆ (π₁ ⋆ a  +  π₂ ⋆ b)
+                  ≡⟨ ⋆distl+ _ _ _ ⟩
           i₂ ⋆ (π₁ ⋆ a)  +  i₂ ⋆ (π₂ ⋆ b)
                   ≡⟨ cong₂ _+_ (sym (⋆Assoc _ _ _)) (sym (⋆Assoc _ _ _)) ⟩
           (i₂ ⋆ π₁) ⋆ a  +  (i₂ ⋆ π₂) ⋆ b
                   ≡⟨ cong₂ (λ u v → u ⋆ a + v ⋆ b) i₂⋆π₁ i₂⋆π₂ ⟩
-          0h ⋆ a  +  id ⋆ b             
+          0h ⋆ a  +  id ⋆ b
                   ≡⟨ cong₂ _+_ (⋆0hl _) (⋆IdL _) ⟩
-          0h  +  b                      
+          0h  +  b
                   ≡⟨ +idl _ ⟩
           b       ∎
 
@@ -181,7 +181,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
       col⋆π₁ :  (a ∣ b) ⋆ π₁  ≡  a
       col⋆π₁ =
           (a ⋆ i₁  +  b ⋆ i₂) ⋆ π₁
-                  ≡⟨ distr _ _ _ ⟩
+                  ≡⟨ ⋆distr+ _ _ _ ⟩
           (a ⋆ i₁) ⋆ π₁  +  (b ⋆ i₂) ⋆ π₁
                   ≡⟨ cong₂ _+_ (⋆Assoc _ _ _) (⋆Assoc _ _ _) ⟩
           a ⋆ (i₁ ⋆ π₁)  +  b ⋆ (i₂ ⋆ π₁)
@@ -195,7 +195,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
       col⋆π₂ :  (a ∣ b) ⋆ π₂  ≡  b
       col⋆π₂ =
           (a ⋆ i₁  +  b ⋆ i₂) ⋆ π₂
-                  ≡⟨ distr _ _ _ ⟩
+                  ≡⟨ ⋆distr+ _ _ _ ⟩
           (a ⋆ i₁) ⋆ π₂  +  (b ⋆ i₂) ⋆ π₂
                   ≡⟨ cong₂ _+_ (⋆Assoc _ _ _) (⋆Assoc _ _ _) ⟩
           a ⋆ (i₁ ⋆ π₂)  +  b ⋆ (i₂ ⋆ π₂)
@@ -208,7 +208,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
 
     -- iₖ / πₖ times a diagonal matrix
     module _ {x x' y y'} (a : Hom[ x , y ]) (b : Hom[ x' , y' ]) where
-    
+
       i₁⋆diag :  i₁ ⋆ (a ` 0h ∣ 0h ` b)  ≡  a ⋆ i₁
       i₁⋆diag =
           i₁ ⋆ (a ` 0h ∣ 0h ` b)          ≡⟨ cong (i₁ ⋆_) (exchange _ _ _ _) ⟩
@@ -216,7 +216,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
           (a ∣ 0h)                        ≡⟨ cong (a ⋆ i₁ +_) (⋆0hl _) ⟩
           a ⋆ i₁  +  0h                   ≡⟨ +idr _ ⟩
           a ⋆ i₁                          ∎
-    
+
       i₂⋆diag :  i₂ ⋆ (a ` 0h ∣ 0h ` b)  ≡  b ⋆ i₂
       i₂⋆diag =
           i₂ ⋆ (a ` 0h ∣ 0h ` b)          ≡⟨ cong (i₂ ⋆_) (exchange _ _ _ _) ⟩
@@ -238,7 +238,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
           0h ` b                      ≡⟨ cong (_+ π₂ ⋆ b) (⋆0hr _) ⟩
           0h  +  π₂ ⋆ b               ≡⟨ +idl _ ⟩
           π₂ ⋆ b                      ∎
-    
+
 
     -- Matrix addition
     addRow : ∀ {x y z}
@@ -249,7 +249,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
         (π₁ ⋆ f + π₂ ⋆ g) + (π₁ ⋆ f' + π₂ ⋆ g')
                 ≡⟨ +4comm _ _ _ _ ⟩
         (π₁ ⋆ f + π₁ ⋆ f') + (π₂ ⋆ g + π₂ ⋆ g')
-                ≡⟨ sym (cong₂ _+_ (distl _ _ _) (distl _ _ _)) ⟩
+                ≡⟨ sym (cong₂ _+_ (⋆distl+ _ _ _) (⋆distl+ _ _ _)) ⟩
         π₁ ⋆ (f + f') + π₂ ⋆ (g + g')
                 ∎
 
@@ -261,7 +261,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
         (f ⋆ i₁ + g ⋆ i₂) + (f' ⋆ i₁ + g' ⋆ i₂)
                 ≡⟨ +4comm _ _ _ _ ⟩
         (f ⋆ i₁ + f' ⋆ i₁) + (g ⋆ i₂ + g' ⋆ i₂)
-                ≡⟨ sym (cong₂ _+_ (distr _ _ _) (distr _ _ _)) ⟩
+                ≡⟨ sym (cong₂ _+_ (⋆distr+ _ _ _) (⋆distr+ _ _ _)) ⟩
         (f + f') ⋆ i₁ + (g + g') ⋆ i₂
                 ∎
 
@@ -285,9 +285,9 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
 
     innerProd f₁ g₁ f₂ g₂ =
         (f₁ ⋆ i₁ + f₂ ⋆ i₂) ⋆ (π₁ ⋆ g₁ + π₂ ⋆ g₂)
-                ≡⟨ distr _ _ _ ⟩
+                ≡⟨ ⋆distr+ _ _ _ ⟩
         (f₁ ⋆ i₁) ⋆ (π₁ ⋆ g₁ + π₂ ⋆ g₂)  +  (f₂ ⋆ i₂) ⋆ (π₁ ⋆ g₁ + π₂ ⋆ g₂)
-                ≡⟨ cong₂ _+_ (distl _ _ _) (distl _ _ _) ⟩
+                ≡⟨ cong₂ _+_ (⋆distl+ _ _ _) (⋆distl+ _ _ _) ⟩
         ((f₁ ⋆ i₁) ⋆ (π₁ ⋆ g₁)  +  (f₁ ⋆ i₁) ⋆ (π₂ ⋆ g₂))
             +  (f₂ ⋆ i₂) ⋆ (π₁ ⋆ g₁)  +  (f₂ ⋆ i₂) ⋆ (π₂ ⋆ g₂)
                 ≡⟨ cong₂ _+_ (cong₂ _+_ eq₁₁ eq₁₂) (cong₂ _+_ eq₂₁ eq₂₂) ⟩
@@ -327,7 +327,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
 
     outerProd {y = y} f₁ g₁ f₂ g₂ =
         (π₁ ⋆ f₁  +  π₂ ⋆ f₂) ⋆ (g₁ ⋆ i₁  +  g₂ ⋆ i₂)
-                ≡⟨ distl _ _ _ ⟩
+                ≡⟨ ⋆distl+ _ _ _ ⟩
         (π₁ ⋆ f₁  +  π₂ ⋆ f₂) ⋆ (g₁ ⋆ i₁)  +  (π₁ ⋆ f₁  +  π₂ ⋆ f₂) ⋆ (g₂ ⋆ i₂)
                 ≡⟨ cong₂ _+_ (eq g₁ i₁) (eq g₂ i₂) ⟩
            (π₁ ⋆ (f₁ ⋆ g₁)  +  π₂ ⋆ (f₂ ⋆ g₁)) ⋆ i₁
@@ -336,11 +336,11 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
      where
       eq = λ {z w} (g : Hom[ y , z ]) (i : Hom[ z , w ]) →
         (π₁ ⋆ f₁  +  π₂ ⋆ f₂) ⋆ (g ⋆ i)
-                ≡⟨ distr _ _ _ ⟩
+                ≡⟨ ⋆distr+ _ _ _ ⟩
         (π₁ ⋆ f₁) ⋆ (g ⋆ i)  +  (π₂ ⋆ f₂) ⋆ (g ⋆ i)
                 ≡⟨ cong₂ _+_ (⋆4assoc' _ _ _ _) (⋆4assoc' _ _ _ _) ⟩
         (π₁ ⋆ (f₁ ⋆ g)) ⋆ i  +  (π₂ ⋆ (f₂ ⋆ g)) ⋆ i
-                ≡⟨ sym (distr _ _ _) ⟩
+                ≡⟨ sym (⋆distr+ _ _ _) ⟩
         (π₁ ⋆ (f₁ ⋆ g)  +  π₂ ⋆ (f₂ ⋆ g)) ⋆ i
                     ∎
 

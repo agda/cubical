@@ -25,7 +25,7 @@ module _ (C : Category ℓ ℓ') (habstr : HomAbStr C) where
 
 
   module _ {x y : ob} (f : Hom[ x , y ]) where
-  
+
     -- Kernels
     record IsKernel {k : ob} (ker : Hom[ k , x ]) : Type (ℓ-max ℓ ℓ') where
       field
@@ -120,7 +120,7 @@ record AbelianCategory (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) wh
 
 module _ (A : AdditiveCategory ℓ ℓ') where
   open AdditiveCategory A
-  
+
   AddCat→AbelCat :
     (hasKernels : {x y : ob} → (f : Hom[ x , y ]) → Kernel cat f)
     (hasCokernels : {x y : ob} → (f : Hom[ x , y ]) → Cokernel cat f)
@@ -202,13 +202,13 @@ module _ {G H : Group ℓ} (f : GroupHom G H) where
 
   -- ∀ (w : ob) (t : Hom[ w , x ])
   --        → isZero (t ⋆ f) → ∃![ u ∈ Hom[ w , k ] ] (u ⋆ ker ≡ t)
-  
+
   module _ (J : Group ℓ) (t : GroupHom J G)
            (t⋆f : t ⋆ f ≡ zero)
            where
 
     u : GroupHom J kerf
-    u = (λ j → t .fst j , 
+    u = (λ j → t .fst j ,
           funExt⁻ (fst (PathPΣ t⋆f)) j
         ) , record {
           pres· = λ j j' → ΣPathP ({!   !} , {!   !}) ;
@@ -221,7 +221,7 @@ module _ {G H : Group ℓ} (f : GroupHom G H) where
     u-unq : ∀ v → (v ⋆ kerf-incl ≡ t) → (v ≡ u)
     u-unq v v⋆k = GroupHom≡ (funExt (λ j → {!   !}))
 
-  
+
   c = {! u  !}
 
 
