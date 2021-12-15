@@ -25,7 +25,7 @@ module _ {ℓv ℓe : Level} (G : Graph ℓv ℓe) where
   pnil++ : ∀ {v w} (P : Path v w) → pnil ++ P ≡ P
   pnil++ pnil = refl
   pnil++ (pcons P e) = cong (λ P → pcons P e) (pnil++ _)
-  
+
   ++assoc : ∀ {v w x y}
       (P : Path v w) (Q : Path w x) (R : Path x y)
     → (P ++ Q) ++ R ≡ P ++ (Q ++ R)
