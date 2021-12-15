@@ -133,15 +133,13 @@ module _ (A : AbGroup ℓ) (B : AbGroup ℓ') where
 
 
 -- Abelian group structure on AbGroupHom A B
-HomAbStr : (A : AbGroup ℓ) → (B : AbGroup ℓ') → AbGroupStr (AbGroupHom A B)
-HomAbStr A B = abgroupstr
-  (zero A B)
-  (HomAdd A B)
-  (HomInv A B)
-  (makeIsAbGroup
-    isSetGroupHom
-    (HomAdd-assoc A B)
-    (HomAdd-zero A B)
-    (HomInv-invr A B)
-    (HomAdd-comm A B)
-  )
+open AbGroupStr
+HomAbGroupStr : (A : AbGroup ℓ) → (B : AbGroup ℓ') → AbGroupStr (AbGroupHom A B)
+HomAbGroupStr A B .0g        = zero A B
+HomAbGroupStr A B ._+_       = HomAdd A B
+HomAbGroupStr A B .-_        = HomInv A B
+HomAbGroupStr A B .isAbGroup = makeIsAbGroup isSetGroupHom
+    (HomAdd-assoc A B) (HomAdd-zero A B) (HomInv-invr A B) (HomAdd-comm A B)
+
+HomAbGroup : (A : AbGroup ℓ) → (B : AbGroup ℓ') → AbGroup (ℓ-max ℓ ℓ')
+HomAbGroup A B = AbGroupHom A B , HomAbGroupStr A B
