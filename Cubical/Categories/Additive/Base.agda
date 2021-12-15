@@ -4,9 +4,8 @@
 module Cubical.Categories.Additive.Base where
 
 open import Cubical.Algebra.AbGroup.Base
--- open import Cubical.Algebra.Group.Properties
 open import Cubical.Categories.Category.Base
--- open import Cubical.Categories.Limits.Terminal
+open import Cubical.Categories.Limits.Terminal
 open import Cubical.Foundations.Prelude
 
 private
@@ -60,8 +59,8 @@ module _ (C : PreaddCategory ℓ ℓ') where
   record ZeroObject : Type (ℓ-max ℓ ℓ') where
     field
       z : ob
-      zInit : isInitial C z
-      zFinal : isFinal C z
+      zInit : isInitial cat z
+      zFinal : isFinal cat z
 
 
   -- Biproducts
@@ -93,11 +92,6 @@ module _ (C : PreaddCategory ℓ ℓ') where
   -- Additive categories
   record AdditiveCategoryStr : Type (ℓ-max ℓ (ℓ-suc ℓ')) where
     field
-      preadd : PreaddCategoryStr
-
-    open PreaddCategoryStr preadd public
-
-    field
       zero : ZeroObject
       biprod : ∀ x y → Biproduct x y
 
@@ -107,19 +101,10 @@ module _ (C : PreaddCategory ℓ ℓ') where
     infixr 6 _⊕_
 
 
-
-
 record AdditiveCategory (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   field
-    cat : Category ℓ ℓ'
-    addit : AdditiveCategoryStr cat
+    preaddcat : PreaddCategory ℓ ℓ'
+    addit : AdditiveCategoryStr preaddcat
 
-  open Category cat public
+  open PreaddCategory preaddcat public
   open AdditiveCategoryStr addit public
-
-
-AddCat→PreaddCat : AdditiveCategory ℓ ℓ' → PreaddCategory ℓ ℓ'
-AddCat→PreaddCat A = record {
-    cat = A .AdditiveCategory.cat;
-    preadd = A .AdditiveCategory.addit .AdditiveCategoryStr.preadd
-  }

@@ -89,6 +89,7 @@ module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
 -- in an additive category
 module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
     open AdditiveCategory A
+    open PreaddCategoryTheory preaddcat
 
     -- Polymorphic biproduct morphisms
     i₁ = λ {x y} → Biproduct.i₁ (biprod x y)
@@ -121,15 +122,6 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
            0h `  0h `  f    ∣
            f  ` - f `  0h   ∣
            0h `  f  ` f + f
-
-
-    -- ρ X ⋆ i₁ ≡ i₁ ⋆ (ρ X ` 0h ∣ 0h ` ρ Y)
-
-    -- i₁ ⋆ (a ` b ∣ c ` d)
-    -- i₁ ⋆ ((π₁ ⋆ a  +  π₂ ⋆ b) ⋆ i₁  +  (π₁ ⋆ c  +  π₂ ⋆ d) ⋆ i₂)
-    -- i₁ ⋆ ((π₁ ⋆ a  +  π₂ ⋆ b) ⋆ i₁  +  (π₁ ⋆ c  +  π₂ ⋆ d) ⋆ i₂)
-
-    -- i ⋆ (a ∣ c) ` (b ∣ d)
 
 
     -- Exchange law
@@ -179,7 +171,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
           0h ⋆ a  +  id ⋆ b             
                   ≡⟨ cong₂ _+_ (⋆0hl _) (⋆IdL _) ⟩
           0h  +  b                      
-                  ≡⟨ idl _ ⟩
+                  ≡⟨ +idl _ ⟩
           b       ∎
 
 
@@ -211,7 +203,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
           a ⋆ 0h  +  b ⋆ id
                   ≡⟨ cong₂ _+_ (⋆0hr _) (⋆IdR _) ⟩
           0h  +  b
-                  ≡⟨ idl _ ⟩
+                  ≡⟨ +idl _ ⟩
           b       ∎
 
     -- iₖ / πₖ times a diagonal matrix
@@ -230,7 +222,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
           i₂ ⋆ (a ` 0h ∣ 0h ` b)          ≡⟨ cong (i₂ ⋆_) (exchange _ _ _ _) ⟩
           i₂ ⋆ ((a ∣ 0h) ` (0h ∣ b))      ≡⟨ i₂⋆row _ _ ⟩
           (0h ∣ b)                        ≡⟨ cong (_+ b ⋆ i₂) (⋆0hl _) ⟩
-          0h  +  b ⋆ i₂                   ≡⟨ idl _ ⟩
+          0h  +  b ⋆ i₂                   ≡⟨ +idl _ ⟩
           b ⋆ i₂                          ∎
 
       diag⋆π₁ :  (a ` 0h ∣ 0h ` b) ⋆ π₁  ≡  π₁ ⋆ a
@@ -244,7 +236,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
       diag⋆π₂ =
           (a ` 0h ∣ 0h ` b) ⋆ π₂      ≡⟨ col⋆π₂ _ _ ⟩
           0h ` b                      ≡⟨ cong (_+ π₂ ⋆ b) (⋆0hr _) ⟩
-          0h  +  π₂ ⋆ b               ≡⟨ idl _ ⟩
+          0h  +  π₂ ⋆ b               ≡⟨ +idl _ ⟩
           π₂ ⋆ b                      ∎
     
 
@@ -300,7 +292,7 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
             +  (f₂ ⋆ i₂) ⋆ (π₁ ⋆ g₁)  +  (f₂ ⋆ i₂) ⋆ (π₂ ⋆ g₂)
                 ≡⟨ cong₂ _+_ (cong₂ _+_ eq₁₁ eq₁₂) (cong₂ _+_ eq₂₁ eq₂₂) ⟩
         (f₁ ⋆ g₁  +  0h)  +  0h  +  f₂ ⋆ g₂
-                ≡⟨ cong₂ _+_ (+idr _) (idl _) ⟩
+                ≡⟨ cong₂ _+_ (+idr _) (+idl _) ⟩
         (f₁ ⋆ g₁) + (f₂ ⋆ g₂)
                 ∎
      where
