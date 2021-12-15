@@ -13,6 +13,7 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Sum
+open import Cubical.Data.Sigma
 open import Cubical.Data.Int
   renaming (_·_ to _·ℤ_ ; _+_ to _+ℤ_)
 
@@ -20,6 +21,7 @@ open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.HopfInvariant.Homomorphism
 open import Cubical.Homotopy.HopfInvariant.HopfMap
+open import Cubical.Homotopy.Whitehead
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Foundations.Isomorphism
 
@@ -31,21 +33,20 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.ZAction
 
 
--- Some type abbreviations (unproved results)
-∃Whitehead : ∀ {ℓ} {X : Pointed ℓ} (n m : ℕ) → Type _
-∃Whitehead {X = X} n m = GroupHom (DirProd (π'Gr n X) (π'Gr m X))
-                                  (π'Gr (n + m) X)
+[_]× : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
+  → π' (suc n) X × π' (suc m) X → π' (suc (n + m)) X
+[_]× (f , g) = [ f ∣ g ]π'
 
+-- Some type abbreviations (unproved results)
 π₃S²-gen : Type
 π₃S²-gen = gen₁-by (π'Gr 2 (S₊∙ 2)) ∣ HopfMap ∣₂
 
-π₄S³≅ℤ/something : (ϕ : ∃Whitehead {X = S₊∙ 2} 1 1)
-                 → GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2))
+π₄S³≅ℤ/something : GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2))
                  → Type
-π₄S³≅ℤ/something ϕ eq =
+π₄S³≅ℤ/something eq =
   GroupIso (π'Gr 3 (S₊∙ 3))
            (ℤ/ abs (invEq (fst eq)
-             (fst ϕ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂))))
+             [ ∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂ ]×))
 
 miniLem₁ : Type
 miniLem₁ = (g : ℤ) → gen₁-by ℤGroup g → (g ≡ 1) ⊎ (g ≡ -1)
@@ -149,11 +150,10 @@ module π₄S³
   (mini-lem₂ : miniLem₂)
   (ℤ≅π₃S² : GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2)))
   (gen-by-HopfMap : π₃S²-gen)
-  (whitehead : ∃Whitehead {X = S₊∙ 2} 1 1)
-  (π₄S³≅ℤ/whitehead : π₄S³≅ℤ/something whitehead ℤ≅π₃S²)
+  (π₄S³≅ℤ/whitehead : π₄S³≅ℤ/something ℤ≅π₃S²)
   (hopfWhitehead :
        abs (HopfInvariant-π' 0
-             (fst whitehead (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂)))
+             ([ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂) ]×))
      ≡ 2)
   where
   π₄S³ = π'Gr 3 (S₊∙ 3)

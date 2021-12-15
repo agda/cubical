@@ -404,7 +404,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
        _ : fst φ s ∈ Aˣ
        _ = φS⊆Aˣ s s∈S'
        _ : fst φ s ⁻¹ ∈ Aˣ
-       _ = AˣInvClosed _
+       _ = AˣInvClosed (fst φ s)
 
       Σhelper : Σ[ s ∈ S ] (s .fst) · r ≡ 0r → [ r , s , s∈S' ] ≡ 0ₗ
       Σhelper ((u , u∈S') , q) = eq/ _ _ ((u , u∈S') , path)
