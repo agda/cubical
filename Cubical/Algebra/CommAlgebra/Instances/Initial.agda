@@ -1,8 +1,9 @@
-{-# OPTIONS --cubical --safe --no-import-sorts #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.Instances.Initial where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
@@ -16,10 +17,10 @@ private
   variable
     ℓ : Level
 
-module CommAlgebraExamples ((R , str) : CommRing ℓ) where
+module _ ((R , str) : CommRing ℓ) where
 
-  initial : CommAlgebra (R , str) ℓ
-  initial =
+  initialCAlg : CommAlgebra (R , str) ℓ
+  initialCAlg =
     let open CommRingStr str
     in  (R , commalgebrastr _ _ _ _ _ (λ r x → r · x)
                     (makeIsCommAlgebra (isSetRing (CommRing→Ring (R , str)))
@@ -32,18 +33,19 @@ module CommAlgebraExamples ((R , str) : CommRing ℓ) where
 
   module _ (A : CommAlgebra (R , str) ℓ) where
     open CommAlgebraStr ⦃... ⦄
-    instance
-      _ : CommAlgebraStr (R , str) (fst A)
-      _ = snd A
-      _ : CommAlgebraStr (R , str) R
-      _ = snd initial
+    private
+      instance
+        _ : CommAlgebraStr (R , str) (fst A)
+        _ = snd A
+        _ : CommAlgebraStr (R , str) R
+        _ = snd initialCAlg
 
     _*_ : R → (fst A) → (fst A)
     r * a = CommAlgebraStr._⋆_ (snd A) r a
 
-    initialMap : CommAlgebraHom initial A
+    initialMap : CommAlgebraHom initialCAlg A
     initialMap =
-      makeCommAlgebraHom {M = initial} {N = A}
+      makeCommAlgebraHom {M = initialCAlg} {N = A}
         (λ r → r * 1a)
         (⋆-lid _)
         (λ x y → ⋆-ldist x y 1a)
@@ -54,12 +56,12 @@ module CommAlgebraExamples ((R , str) : CommRing ℓ) where
         (λ r x → (r · x) * 1a   ≡⟨ ⋆-assoc _ _ _ ⟩
                          (r * (x * 1a)) ∎)
 
-    initialMapEq : (f : CommAlgebraHom initial A)
+    initialMapEq : (f : CommAlgebraHom initialCAlg A)
                    → f ≡ initialMap
     initialMapEq f =
       let open IsAlgebraHom (snd f)
       in Σ≡Prop
-           (isPropIsCommAlgebraHom {M = initial} {N = A})
+           (isPropIsCommAlgebraHom {M = initialCAlg} {N = A})
              λ i x →
                ((fst f) x                              ≡⟨ cong (fst f) (sym (·Rid _)) ⟩
                fst f (x · 1a)                          ≡⟨ pres⋆ x 1a ⟩
@@ -68,9 +70,11 @@ module CommAlgebraExamples ((R , str) : CommRing ℓ) where
                                                            pres1 ⟩
                (CommAlgebraStr._⋆_ (snd A) x 1a) ∎) i
 
-    isInitial : CommAlgebraHom initial A ≡ Unit*
-    isInitial =
-      isoToPath (iso (λ _ → tt*)
-                     (λ _ → initialMap)
-                     (λ {tt*x → refl})
-                     λ f → sym (initialMapEq f))
+    initialityIso : Iso (CommAlgebraHom initialCAlg A) (Unit* {ℓ = ℓ})
+    initialityIso = iso (λ _ → tt*)
+                        (λ _ → initialMap)
+                        (λ {tt*x → refl})
+                        λ f → sym (initialMapEq f)
+    
+    initialityPath : CommAlgebraHom initialCAlg A ≡ Unit*
+    initialityPath = isoToPath initialityIso
