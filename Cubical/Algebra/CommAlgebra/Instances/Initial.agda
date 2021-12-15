@@ -75,6 +75,6 @@ module _ ((R , str) : CommRing ℓ) where
                         (λ _ → initialMap)
                         (λ {tt*x → refl})
                         λ f → sym (initialMapEq f)
-    
+
     initialityPath : CommAlgebraHom initialCAlg A ≡ Unit*
     initialityPath = isoToPath initialityIso
