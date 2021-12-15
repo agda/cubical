@@ -13,13 +13,13 @@ open import Cubical.Foundations.Prelude
 module _ (ℓ ℓ' : Level) where
   open Precategory
 
-  Cat : Precategory (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
-  Cat .ob = Category ℓ ℓ'
-  Cat .Hom[_,_] = Functor
-  Cat .id = 𝟙⟨ _ ⟩
-  Cat ._⋆_ G H = H ∘F G
-  Cat .⋆IdL _ = F-lUnit
-  Cat .⋆IdR _ = F-rUnit
-  Cat .⋆Assoc _ _ _ = F-assoc
+  CatPrecategory : Precategory (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
+  CatPrecategory .ob = Category ℓ ℓ'
+  CatPrecategory .Hom[_,_] = Functor
+  CatPrecategory .id = 𝟙⟨ _ ⟩
+  CatPrecategory ._⋆_ G H = H ∘F G
+  CatPrecategory .⋆IdL _ = F-lUnit
+  CatPrecategory .⋆IdR _ = F-rUnit
+  CatPrecategory .⋆Assoc _ _ _ = F-assoc
 
 -- TODO: what is required for Functor C D to be a set?
