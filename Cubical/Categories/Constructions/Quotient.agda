@@ -6,6 +6,7 @@ module Cubical.Categories.Constructions.Quotient where
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Limits.Terminal
+open import Cubical.Categories.Limits.Initial
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.SetQuotients renaming ([_] to ⟦_⟧)
@@ -77,6 +78,6 @@ module _ (C : Category ℓ ℓ') where
     isInitial/~ zInit x = ⟦ zInit x .fst ⟧ , elimProp (λ _ → squash/ _ _)
         λ f → eq/ _ _ (subst (_~ f) (sym (zInit x .snd f)) (~refl _))
 
-    isFinal/~ : {z : ob C} → isFinal C z → isFinal C/~ z
-    isFinal/~ zFinal x = ⟦ zFinal x .fst ⟧ , elimProp (λ _ → squash/ _ _)
-        λ f → eq/ _ _ (subst (_~ f) (sym (zFinal x .snd f)) (~refl _))
+    isTerminal/~ : {z : ob C} → isTerminal C z → isTerminal C/~ z
+    isTerminal/~ zTerminal x = ⟦ zTerminal x .fst ⟧ , elimProp (λ _ → squash/ _ _)
+        λ f → eq/ _ _ (subst (_~ f) (sym (zTerminal x .snd f)) (~refl _))
