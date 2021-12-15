@@ -1,7 +1,7 @@
 -- Product of two categories
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Constructions.Product where
+module Cubical.Categories.Constructions.BinProduct where
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base

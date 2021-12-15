@@ -1,10 +1,10 @@
 -- Product of two functors
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Functor.Product where
+module Cubical.Categories.Functor.BinProduct where
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.Product
+open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor.Base
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Foundations.Prelude
