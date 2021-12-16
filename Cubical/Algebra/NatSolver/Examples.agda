@@ -26,8 +26,9 @@ module ReflectionSolving where
     is a term of a dependent function type as above:
   -}
   module _ (SomeType : Type ℓ-zero) where
-    complexSolverApplication : (someStuff : SomeType) → (x y : ℕ) → (moreStuff : SomeType)
-        → x + y ≡ y + x
+    complexSolverApplication :
+      (someStuff : SomeType) → (x y : ℕ) → (moreStuff : SomeType)
+      → x + y ≡ y + x
     complexSolverApplication someStuff x y moreStuff = useSolver x y
                               where useSolver : (x y : ℕ) → x + y ≡ y + x
                                     useSolver = solve
