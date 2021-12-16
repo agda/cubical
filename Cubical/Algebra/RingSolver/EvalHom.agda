@@ -170,9 +170,9 @@ module HomomorphismProperties (R : CommRing ℓ) where
                 → eval (r ⋆ (P ·X+ Q)) (x ∷ xs) ≡ eval ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs)
   combineCases⋆ x xs r P Q with isZero νR r ≟ true
   ... | yes p =
-    eval (r ⋆ (P ·X+ Q)) (x ∷ xs)                  ≡⟨ ⋆isZeroLeftAnnihilates r (P ·X+ Q) (x ∷ xs) p ⟩
-    0r                                                        ≡⟨ someCalculation R ⟩
-    0r · x + 0r                                               ≡⟨ step1 ⟩
+    eval (r ⋆ (P ·X+ Q)) (x ∷ xs)                ≡⟨ ⋆isZeroLeftAnnihilates r (P ·X+ Q) (x ∷ xs) p ⟩
+    0r                                           ≡⟨ someCalculation R ⟩
+    0r · x + 0r                                  ≡⟨ step1 ⟩
     eval (r ⋆ P) (x ∷ xs) · x + eval (r ·ₕ Q) xs  ≡⟨ sym (combineCasesEval R (r ⋆ P) (r ·ₕ Q) x xs) ⟩
     eval ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs) ∎
     where
@@ -183,12 +183,12 @@ module HomomorphismProperties (R : CommRing ℓ) where
   ...           | false = refl
 
   ⋆Homeval r 0H x xs =
-    eval (r ⋆ 0H) (x ∷ xs)         ≡⟨ refl ⟩
-    0r                                  ≡⟨ sym (0RightAnnihilates _) ⟩
-    eval r xs · 0r                         ≡⟨ refl ⟩
+    eval (r ⋆ 0H) (x ∷ xs)                ≡⟨ refl ⟩
+    0r                                    ≡⟨ sym (0RightAnnihilates _) ⟩
+    eval r xs · 0r                        ≡⟨ refl ⟩
     eval r xs · eval {A = νR} 0H (x ∷ xs) ∎
   ⋆Homeval r (P ·X+ Q) x xs =
-      eval (r ⋆ (P ·X+ Q)) (x ∷ xs)                    ≡⟨ combineCases⋆ x xs r P Q ⟩
+      eval (r ⋆ (P ·X+ Q)) (x ∷ xs)                ≡⟨ combineCases⋆ x xs r P Q ⟩
       eval ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs)
     ≡⟨ combineCasesEval R (r ⋆ P) (r ·ₕ Q) x xs ⟩
       (eval (r ⋆ P) (x ∷ xs)) · x + eval (r ·ₕ Q) xs
@@ -218,17 +218,17 @@ module HomomorphismProperties (R : CommRing ℓ) where
     → eval ((P ·X+ Q) ·ₕ S) xs ≡ eval (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) xs
   combineCases· Q P S (x ∷ xs) with isZero νR (P ·ₕ S) ≟ true
   ... | yes p =
-        eval ((P ·X+ Q) ·ₕ S) (x ∷ xs)                                     ≡⟨ lemmaForCombineCases· Q P S (x ∷ xs) p ⟩
-        eval (Q ⋆ S) (x ∷ xs)                                              ≡⟨ sym (+Lid _) ⟩
-        0r + eval (Q ⋆ S) (x ∷ xs)                                         ≡⟨ step1 ⟩
+        eval ((P ·X+ Q) ·ₕ S) (x ∷ xs)                          ≡⟨ lemmaForCombineCases· Q P S (x ∷ xs) p ⟩
+        eval (Q ⋆ S) (x ∷ xs)                                   ≡⟨ sym (+Lid _) ⟩
+        0r + eval (Q ⋆ S) (x ∷ xs)                              ≡⟨ step1 ⟩
         eval ((P ·ₕ S) ·X+ 0ₕ) (x ∷ xs) + eval (Q ⋆ S) (x ∷ xs)  ≡⟨ step2 ⟩
-        eval (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) (x ∷ xs)                        ∎
+        eval (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) (x ∷ xs)             ∎
         where
           lemma =
-            eval ((P ·ₕ S) ·X+ 0ₕ) (x ∷ xs)            ≡⟨ combineCasesEval R (P ·ₕ S) 0ₕ x xs ⟩
-            eval (P ·ₕ S) (x ∷ xs) · x + eval 0ₕ xs    ≡[ i ]⟨ evalIsZero R (P ·ₕ S) (x ∷ xs) p i · x + Eval0H xs i ⟩
-            0r · x + 0r                               ≡⟨ sym (someCalculation R) ⟩
-            0r                                        ∎
+            eval ((P ·ₕ S) ·X+ 0ₕ) (x ∷ xs)          ≡⟨ combineCasesEval R (P ·ₕ S) 0ₕ x xs ⟩
+            eval (P ·ₕ S) (x ∷ xs) · x + eval 0ₕ xs  ≡[ i ]⟨ evalIsZero R (P ·ₕ S) (x ∷ xs) p i · x + Eval0H xs i ⟩
+            0r · x + 0r                             ≡⟨ sym (someCalculation R) ⟩
+            0r                                      ∎
           step1 : _ ≡ _
           step1 i = lemma (~ i) + eval (Q ⋆ S) (x ∷ xs)
           step2 = sym (+Homeval ((P ·ₕ S) ·X+ 0ₕ) (Q ⋆ S) (x ∷ xs))
@@ -238,9 +238,9 @@ module HomomorphismProperties (R : CommRing ℓ) where
 
   ·Homeval (const x) (const y) [] = ·HomScalar R x y
   ·Homeval 0H Q xs =
-    eval (0H ·ₕ Q) xs        ≡⟨ Eval0H xs ⟩
-    0r                                 ≡⟨ sym (0LeftAnnihilates _) ⟩
-    0r · eval Q xs          ≡⟨ cong (λ u → u · eval Q xs) (sym (Eval0H xs)) ⟩
+    eval (0H ·ₕ Q) xs       ≡⟨ Eval0H xs ⟩
+    0r                     ≡⟨ sym (0LeftAnnihilates _) ⟩
+    0r · eval Q xs         ≡⟨ cong (λ u → u · eval Q xs) (sym (Eval0H xs)) ⟩
     eval 0H xs · eval Q xs ∎
   ·Homeval (P ·X+ Q) S (x ∷ xs) =
       eval ((P ·X+ Q) ·ₕ S) (x ∷ xs)
@@ -268,8 +268,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
       (eval P (x ∷ xs) · x) · eval S (x ∷ xs) + eval (Q ⋆ S) (x ∷ xs)
     ≡⟨ cong (λ u → (eval P (x ∷ xs) · x) · eval S (x ∷ xs) + u)
             (⋆Homeval Q S x xs) ⟩
-      (eval P (x ∷ xs) · x) · eval S (x ∷ xs)
-      + eval Q xs · eval S (x ∷ xs)
+      (eval P (x ∷ xs) · x) · eval S (x ∷ xs) + eval Q xs · eval S (x ∷ xs)
     ≡⟨ sym (·Ldist+ _ _ _) ⟩
       ((eval P (x ∷ xs) · x) + eval Q xs) · eval S (x ∷ xs)
     ≡⟨ cong (λ u → u · eval S (x ∷ xs)) (sym (combineCasesEval R P Q x xs)) ⟩

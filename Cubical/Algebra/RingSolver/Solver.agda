@@ -46,48 +46,42 @@ module EqualityToNormalform (R : CommRing ℓ) where
           → eval (normalize n e) xs ≡ ⟦ e ⟧ xs
   isEqualToNormalform ℕ.zero (K r) [] = refl
   isEqualToNormalform (ℕ.suc n) (K r) (x ∷ xs) =
-     eval (Constant (ℕ.suc n) νR r) (x ∷ xs)           ≡⟨ refl ⟩
-     eval (0ₕ ·X+ Constant n νR r) (x ∷ xs)             ≡⟨ combineCasesEval R 0ₕ (Constant n νR r) x xs ⟩
-     eval 0ₕ (x ∷ xs) · x + eval (Constant n νR r) xs
-    ≡⟨ cong (λ u → u · x + eval (Constant n νR r) xs) (Eval0H (x ∷ xs)) ⟩
-     0r · x + eval (Constant n νR r) xs
-    ≡⟨ cong (λ u → u + eval (Constant n νR r) xs) (0LeftAnnihilates _) ⟩
-     0r + eval (Constant n νR r) xs                             ≡⟨ +Lid _ ⟩
-     eval (Constant n νR r) xs                                  ≡⟨ isEqualToNormalform n (K r) xs ⟩
+     eval (Constant (ℕ.suc n) νR r) (x ∷ xs)         ≡⟨ refl ⟩
+     eval (0ₕ ·X+ Constant n νR r) (x ∷ xs)           ≡⟨ combineCasesEval R 0ₕ (Constant n νR r) x xs ⟩
+     eval 0ₕ (x ∷ xs) · x + eval (Constant n νR r) xs ≡⟨ cong (λ u → u · x + eval (Constant n νR r) xs)
+                                                             (Eval0H (x ∷ xs)) ⟩
+     0r · x + eval (Constant n νR r) xs               ≡⟨ cong
+                                                          (λ u → u + eval (Constant n νR r) xs)
+                                                          (0LeftAnnihilates _) ⟩
+     0r + eval (Constant n νR r) xs                   ≡⟨ +Lid _ ⟩
+     eval (Constant n νR r) xs                        ≡⟨ isEqualToNormalform n (K r) xs ⟩
      _ ∎
 
   isEqualToNormalform (ℕ.suc n) (∣ zero) (x ∷ xs) =
     eval (1ₕ ·X+ 0ₕ) (x ∷ xs)           ≡⟨ combineCasesEval R 1ₕ 0ₕ x xs ⟩
-    eval 1ₕ (x ∷ xs) · x + eval 0ₕ xs ≡⟨ cong (λ u → u · x + eval 0ₕ xs)
-                                                          (Eval1ₕ (x ∷ xs)) ⟩
-    1r · x + eval 0ₕ xs                         ≡⟨ cong (λ u → 1r · x + u ) (Eval0H xs) ⟩
-    1r · x + 0r                                   ≡⟨ +Rid _ ⟩
-    1r · x                                        ≡⟨ ·Lid _ ⟩
+    eval 1ₕ (x ∷ xs) · x + eval 0ₕ xs   ≡⟨ cong (λ u → u · x + eval 0ₕ xs)
+                                              (Eval1ₕ (x ∷ xs)) ⟩
+    1r · x + eval 0ₕ xs                 ≡⟨ cong (λ u → 1r · x + u ) (Eval0H xs) ⟩
+    1r · x + 0r                        ≡⟨ +Rid _ ⟩
+    1r · x                             ≡⟨ ·Lid _ ⟩
     x ∎
   isEqualToNormalform (ℕ.suc n) (∣ (suc k)) (x ∷ xs) =
-      eval (0ₕ ·X+ Variable n νR k) (x ∷ xs)             ≡⟨ combineCasesEval R 0ₕ (Variable n νR k) x xs ⟩
-      eval 0ₕ (x ∷ xs) · x + eval (Variable n νR k) xs
-    ≡⟨ cong (λ u → u · x + eval (Variable n νR k) xs) (Eval0H (x ∷ xs)) ⟩
-      0r · x + eval (Variable n νR k) xs
-    ≡⟨ cong (λ u → u + eval (Variable n νR k) xs) (0LeftAnnihilates _) ⟩
-      0r + eval (Variable n νR k) xs                             ≡⟨ +Lid _ ⟩
-      eval (Variable n νR k) xs
-    ≡⟨ isEqualToNormalform n (∣ k) xs ⟩
+      eval (0ₕ ·X+ Variable n νR k) (x ∷ xs)           ≡⟨ combineCasesEval R 0ₕ (Variable n νR k) x xs ⟩
+      eval 0ₕ (x ∷ xs) · x + eval (Variable n νR k) xs ≡⟨ cong (λ u → u · x + eval (Variable n νR k) xs)
+                                                              (Eval0H (x ∷ xs)) ⟩
+      0r · x + eval (Variable n νR k) xs              ≡⟨ cong (λ u → u + eval (Variable n νR k) xs)
+                                                              (0LeftAnnihilates _) ⟩
+      0r + eval (Variable n νR k) xs                  ≡⟨ +Lid _ ⟩
+      eval (Variable n νR k) xs                       ≡⟨ isEqualToNormalform n (∣ k) xs ⟩
       ⟦ ∣ (suc k) ⟧ (x ∷ xs) ∎
 
   isEqualToNormalform ℕ.zero (-' e) [] =
     eval (-ₕ (normalize ℕ.zero e)) []  ≡⟨ -EvalDist (normalize ℕ.zero e) [] ⟩
-    - eval (normalize ℕ.zero e) []    ≡⟨ cong -_
-                                              (isEqualToNormalform
-                                                ℕ.zero e [] ) ⟩
+    - eval (normalize ℕ.zero e) []    ≡⟨ cong -_ (isEqualToNormalform ℕ.zero e [] ) ⟩
     - ⟦ e ⟧ [] ∎
   isEqualToNormalform (ℕ.suc n) (-' e) (x ∷ xs) =
-    eval (-ₕ (normalize (ℕ.suc n) e)) (x ∷ xs) ≡⟨ -EvalDist (normalize
-                                                            (ℕ.suc n) e)
-                                                            (x ∷ xs) ⟩
-    - eval (normalize (ℕ.suc n) e) (x ∷ xs)    ≡⟨ cong -_
-                                                      (isEqualToNormalform
-                                                        (ℕ.suc n) e (x ∷ xs) ) ⟩
+    eval (-ₕ (normalize (ℕ.suc n) e)) (x ∷ xs) ≡⟨ -EvalDist (normalize (ℕ.suc n) e) (x ∷ xs) ⟩
+    - eval (normalize (ℕ.suc n) e) (x ∷ xs)    ≡⟨ cong -_ (isEqualToNormalform (ℕ.suc n) e (x ∷ xs) ) ⟩
     - ⟦ e ⟧ (x ∷ xs) ∎
 
   isEqualToNormalform ℕ.zero (e +' e₁) [] =
