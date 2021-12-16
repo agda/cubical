@@ -7,6 +7,8 @@ When preparing a PR here are some general guidelines:
 - To test your changes before submission, run `make` at the top level,
   which will generate all required `Everything` files in
   `Cubical/README.agda` and then typecheck the latter file.
+  If you're using Windows, [here](MAKEWINDOWS.md) are some instructions
+  to get the `make` command working.
 
 - Please read through and clean your code before making a PR. Clean
   code has reasonable line length (<100 characters), good indentation,
