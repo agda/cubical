@@ -283,13 +283,12 @@ module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
  lemma = elim (λ _ →  isPropPropTrunc) Σlemma
   where
   Σlemma : Σ[ α ∈ FinVec R 2 ] (1r ≡ linearCombination R' α fgVec) → 1r ∈ ⟨fⁿ,gⁿ⟩
-  Σlemma (α , p) = {!p!}
+  Σlemma (α , p) = subst-∈ ⟨fⁿ,gⁿ⟩ path ∑Binomial∈⟨fⁿ,gⁿ⟩
    where
    α₀f = α zero · f
    α₁g = α (suc zero) · g
 
    binomialCoeff∈⟨fⁿ,gⁿ⟩ : (i : Fin (ℕsuc (n +ℕ n))) → BinomialVec (n +ℕ n) α₀f α₁g i ∈ ⟨fⁿ,gⁿ⟩
-                     -- → ((n +ℕ n) choose toℕ i) · f ^ toℕ i · g ^ (n +ℕ n ∸ toℕ i) ∈ (⟨fⁿ,gⁿ⟩ n)
    binomialCoeff∈⟨fⁿ,gⁿ⟩ i with ≤-+-split n n (toℕ i) (pred-≤-pred (toℕ<n i))
    ... | inl n≤i = {!!}
    ... | inr m≤n+m-i = {!!}
@@ -298,7 +297,8 @@ module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
    ∑Binomial∈⟨fⁿ,gⁿ⟩ = ∑Closed ⟨fⁿ,gⁿ⟩ (BinomialVec (n +ℕ n) _ _) binomialCoeff∈⟨fⁿ,gⁿ⟩
 
    path : ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡ 1r
-   path = ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡⟨ {!!} ⟩
-          (α₀f + α₁g) ^ (n +ℕ n) ≡⟨ {!!} ⟩
-          1r ^ (n +ℕ n) ≡⟨ 1ⁿ≡1 _ ⟩
+   path = ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡⟨ sym (BinomialThm (n +ℕ n) α₀f α₁g) ⟩
+          (α₀f + α₁g) ^ (n +ℕ n)           ≡⟨ cong (_^ (n +ℕ n)) (sym (+Assoc _ _ _ ∙ +Rid _)) ⟩
+          (α₀f + (α₁g + 0r)) ^ (n +ℕ n)    ≡⟨ cong (_^ (n +ℕ n)) (sym p) ⟩
+          1r ^ (n +ℕ n)                    ≡⟨ 1ⁿ≡1 (n +ℕ n) ⟩
           1r ∎
