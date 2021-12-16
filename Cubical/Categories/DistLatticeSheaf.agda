@@ -134,11 +134,12 @@ module Lemma1 (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) (
   -- Alternatively we just prove the statement for C = CommRingsCategory
 
   -- TODO: is unique existence expressed like this what we want?
-  statement : (F' : DLBasisSheaf)
-            → ∃![ F ∈ DLSheaf L C T ] ((x : fst L) → (x ∈ L') → CatIso C (F-ob (fst F) x) (F-ob (fst F') x)) -- TODO: if C is univalent the CatIso could be ≡?
-  statement (F' , h1 , hPb) = ?
+  -- statement : (F' : DLBasisSheaf)
+  --           → ∃![ F ∈ DLSheaf L C T ] ((x : fst L) → (x ∈ L') → CatIso C (F-ob (fst F) x) (F-ob (fst F') x)) -- TODO: if C is univalent the CatIso could be ≡?
+  -- statement (F' , h1 , hPb) = ?
 
-
+  -- It might be easier to prove all of these if we use the definition
+  -- in terms of particular limits instead
 
 
 
