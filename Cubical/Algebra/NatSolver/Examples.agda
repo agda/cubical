@@ -23,7 +23,7 @@ module ReflectionSolving where
   {-
     If you want to use the solver in some more complex situation,
     you have to declare a helper variable (`useSolver` below) that
-    is a term of the a dependent function type as above:
+    is a term of a dependent function type as above:
   -}
   module _ (SomeType : Type ℓ-zero) where
     complexSolverApplication : (someStuff : SomeType) → (x y : ℕ) → (moreStuff : SomeType)
