@@ -123,11 +123,20 @@ module Lemma1 (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) (
   DLBasisSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
   DLBasisSheaf = Σ[ F ∈ DLPreSheaf L C T ] isDLBasisSheaf F
 
-  -- TODO: is unique existence expressed like this what we want? We
-  -- might have to assume that C is univalent for this to work.
+
+  -- To prove the statement we probably need that C is:
+  -- 1. univalent
+  -- 2. has finite limits (or pullbacks and a terminal object)
+  -- 3. isGroupoid (C .ob)
+  -- The last point is not strictly necessary, but we have to have some
+  -- control over the hLevel as we want to write F(x) in terms of its
+  -- basis cover which is information hidden under a prop truncation...
+  -- Alternatively we just prove the statement for C = CommRingsCategory
+
+  -- TODO: is unique existence expressed like this what we want?
   statement : (F' : DLBasisSheaf)
             → ∃![ F ∈ DLSheaf L C T ] ((x : fst L) → (x ∈ L') → CatIso C (F-ob (fst F) x) (F-ob (fst F') x)) -- TODO: if C is univalent the CatIso could be ≡?
-  statement (F' , h1 , hPb) = {!!}
+  statement (F' , h1 , hPb) = ?
 
 
 
