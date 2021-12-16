@@ -116,12 +116,12 @@ module Lemma1 (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) (
   open DistLatticeStr (snd L)
   open IsBasis hB
 
-  isBasisDLSheaf : (F : DLPreSheaf L C T) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  isBasisDLSheaf F = (F-ob F 0l ≡ 𝟙 L C T) -- This is not explicitly stated in the paper... Do we need it?
+  isDLBasisSheaf : (F : DLPreSheaf L C T) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+  isDLBasisSheaf F = (F-ob F 0l ≡ 𝟙 L C T)
                    × ((x y : L .fst) → x ∈ L' → y ∈ L' → isPullback C _ _ _ (Fsq L C T F x y))
 
   DLBasisSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  DLBasisSheaf = Σ[ F ∈ DLPreSheaf L C T ] isBasisDLSheaf F
+  DLBasisSheaf = Σ[ F ∈ DLPreSheaf L C T ] isDLBasisSheaf F
 
   -- TODO: is unique existence expressed like this what we want? We
   -- might have to assume that C is univalent for this to work.
