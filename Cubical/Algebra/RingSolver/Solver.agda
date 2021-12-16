@@ -92,7 +92,7 @@ module EqualityToNormalform (R : CommRing ℓ) where
 
   isEqualToNormalform ℕ.zero (e +' e₁) [] =
         eval (normalize ℕ.zero e +ₕ normalize ℕ.zero e₁) []
-      ≡⟨ +Homeval ℕ.zero (normalize ℕ.zero e) _ [] ⟩
+      ≡⟨ +Homeval (normalize ℕ.zero e) _ [] ⟩
         eval (normalize ℕ.zero e) []
         + eval (normalize ℕ.zero e₁) []
       ≡⟨ cong (λ u → u + eval (normalize ℕ.zero e₁) [])
@@ -104,7 +104,7 @@ module EqualityToNormalform (R : CommRing ℓ) where
   isEqualToNormalform (ℕ.suc n) (e +' e₁) (x ∷ xs) =
         eval (normalize (ℕ.suc n) e
                          +ₕ normalize (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ +Homeval (ℕ.suc n) (normalize (ℕ.suc n) e) _ (x ∷ xs) ⟩
+      ≡⟨ +Homeval (normalize (ℕ.suc n) e) _ (x ∷ xs) ⟩
         eval (normalize (ℕ.suc n) e) (x ∷ xs)
         + eval (normalize (ℕ.suc n) e₁) (x ∷ xs)
       ≡⟨ cong (λ u → u + eval (normalize (ℕ.suc n) e₁) (x ∷ xs))
@@ -117,7 +117,7 @@ module EqualityToNormalform (R : CommRing ℓ) where
 
   isEqualToNormalform ℕ.zero (e ·' e₁) [] =
         eval (normalize ℕ.zero e ·ₕ normalize ℕ.zero e₁) []
-      ≡⟨ ·Homeval ℕ.zero (normalize ℕ.zero e) _ [] ⟩
+      ≡⟨ ·Homeval (normalize ℕ.zero e) _ [] ⟩
         eval (normalize ℕ.zero e) [] · eval (normalize ℕ.zero e₁) []
       ≡⟨ cong (λ u → u · eval (normalize ℕ.zero e₁) [])
               (isEqualToNormalform ℕ.zero e []) ⟩
@@ -128,7 +128,7 @@ module EqualityToNormalform (R : CommRing ℓ) where
   isEqualToNormalform (ℕ.suc n) (e ·' e₁) (x ∷ xs) =
         eval (normalize (ℕ.suc n) e
                          ·ₕ normalize (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ ·Homeval (ℕ.suc n) (normalize (ℕ.suc n) e) _ (x ∷ xs) ⟩
+      ≡⟨ ·Homeval (normalize (ℕ.suc n) e) _ (x ∷ xs) ⟩
         eval (normalize (ℕ.suc n) e) (x ∷ xs)
         · eval (normalize (ℕ.suc n) e₁) (x ∷ xs)
       ≡⟨ cong (λ u → u · eval (normalize (ℕ.suc n) e₁) (x ∷ xs))
