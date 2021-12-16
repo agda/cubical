@@ -120,7 +120,7 @@ module AlgLoc (R' : CommRing ℓ)
     _⋆_  (snd B') r 1b ∎
 
 
- -- an immediate corrollary:
+ -- an immediate corollary:
  isContrHomS⁻¹RS⁻¹R : isContr (CommAlgebraHom S⁻¹RAsCommAlg S⁻¹RAsCommAlg)
  isContrHomS⁻¹RS⁻¹R = S⁻¹RHasAlgUniversalProp S⁻¹RAsCommAlg S⋆1⊆S⁻¹Rˣ
 

@@ -55,3 +55,17 @@ discreteFin fj fk with discreteℕ (toℕ fj) (toℕ fk)
 
 isSetFin : isSet (Fin k)
 isSetFin = Discrete→isSet discreteFin
+
+-- Summation and multiplication
+
+totalSum : {k : ℕ} → (f : Fin k → ℕ) → ℕ
+totalSum {k = 0} _ = 0
+totalSum {k = suc n} f = f (inl tt) + totalSum {k = n} (λ x → f (inr x))
+
+totalProd : {k : ℕ} → (f : Fin k → ℕ) → ℕ
+totalProd {k = 0} _ = 1
+totalProd {k = suc n} f = f (inl tt) · totalProd {k = n} (λ x → f (inr x))
+
+totalSumConst : {m : ℕ} → (n : ℕ) → totalSum {k = m} (λ _ → n) ≡ m · n
+totalSumConst {m = 0} _ = refl
+totalSumConst {m = suc m} n i = n + totalSumConst {m = m} n i
