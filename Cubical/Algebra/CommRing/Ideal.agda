@@ -53,7 +53,7 @@ module _ (Ring@(R , str) : CommRing ℓ) where
        ; ·-closedLeft = ·-closedLeft
        ; ·-closedRight = λ r x∈pI →
                        subst-∈p I
-                             (·-comm r _)
+                             (·Comm r _)
                              (·-closedLeft r x∈pI)
        })
        where useSolver : (x : R) → - 1r · x ≡ - x
@@ -77,7 +77,7 @@ module CommIdeal (R' : CommRing ℓ) where
    ·Closed : ∀ {x : R} (r : R) → x ∈p I → r · x ∈p I
 
   ·RClosed :  ∀ {x : R} (r : R) → x ∈p I → x · r ∈p I
-  ·RClosed r x∈pI = subst-∈p I (·-comm _ _) (·Closed r x∈pI)
+  ·RClosed r x∈pI = subst-∈p I (·Comm _ _) (·Closed r x∈pI)
 
  open isCommIdeal
  isPropIsCommIdeal : (I : ℙ R) → isProp (isCommIdeal I)
@@ -238,7 +238,7 @@ module CommIdeal (R' : CommRing ℓ) where
 
  ·iComm⊆ : ∀ (I J : CommIdeal) → (I ·i J) ⊆ (J ·i I)
  ·iComm⊆ I J x = map λ (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ)
-                      → (n , (β , α) , ∀βi∈J , ∀αi∈I , x≡∑αβ ∙ ∑Ext (λ i → ·-comm (α i) (β i)))
+                      → (n , (β , α) , ∀βi∈J , ∀αi∈I , x≡∑αβ ∙ ∑Ext (λ i → ·Comm (α i) (β i)))
 
  ·iComm : ∀ (I J : CommIdeal) → I ·i J ≡ J ·i I
  ·iComm I J = CommIdeal≡Char (·iComm⊆ I J) (·iComm⊆ J I)

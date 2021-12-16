@@ -194,7 +194,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
                                       (∈→∈√ I _ (·RClosed (I .snd) y x∈I))
    curriedHelper x y x∈I (suc l) y^l+1∈J = -- (xy)^l+1 ≡ x^l · x (∈I) · y^l+1 (∈J)
      ∣ suc l , subst-∈ (I ·i J) (sym (^-ldist-· _ _ (suc l)))
-     (prodInProd I J _ _ (subst-∈ I (·-comm _ _) (I .snd .·Closed (x ^ l) x∈I)) y^l+1∈J) ∣
+     (prodInProd I J _ _ (subst-∈ I (·Comm _ _) (I .snd .·Closed (x ^ l) x∈I)) y^l+1∈J) ∣
 
    prodHelper : ∀ i → β i ∈ √ J → α i · β i ∈ √ (I ·i J)
    prodHelper i = PT.elim (λ _ → isPropPropTrunc) (uncurry (curriedHelper (α i) (β i) (α∈I i)))
