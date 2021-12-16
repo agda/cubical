@@ -288,13 +288,55 @@ module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
    α₀f = α zero · f
    α₁g = α (suc zero) · g
 
-   binomialCoeff∈⟨fⁿ,gⁿ⟩ : (i : Fin (ℕsuc (n +ℕ n))) → BinomialVec (n +ℕ n) α₀f α₁g i ∈ ⟨fⁿ,gⁿ⟩
-   binomialCoeff∈⟨fⁿ,gⁿ⟩ i with ≤-+-split n n (toℕ i) (pred-≤-pred (toℕ<n i))
-   ... | inl n≤i = {!!}
-   ... | inr m≤n+m-i = {!!}
+   binomialSummand∈⟨fⁿ,gⁿ⟩ : (i : Fin (ℕsuc (n +ℕ n))) → BinomialVec (n +ℕ n) α₀f α₁g i ∈ ⟨fⁿ,gⁿ⟩
+   binomialSummand∈⟨fⁿ,gⁿ⟩ i with ≤-+-split n n (toℕ i) (pred-≤-pred (toℕ<n i))
+   ... | inl n≤i = subst-∈ ⟨fⁿ,gⁿ⟩ (sym path)
+                                   (⟨fⁿ,gⁿ⟩ .snd .·Closed _ (indInIdeal R' fⁿgⁿVec zero))
+    where
+    useSolver : ∀ a b c d e → a · (b · (c · d)) · e ≡ a · (b · c) · e · d
+    useSolver = solve R'
+
+    bc = (n +ℕ n) choose toℕ i
+    gPart = (α (suc zero) · g) ^ (n +ℕ n ∸ toℕ i)
+
+    path : bc · (α zero · f) ^ toℕ i · gPart
+         ≡ bc · ((α zero) ^ toℕ i · f ^ (toℕ i ∸ n)) · gPart · f ^ n
+    path =
+       bc · (α zero · f) ^ toℕ i · gPart
+     ≡⟨ cong (λ x → bc · x · gPart) (^-ldist-· (α zero) f (toℕ i)) ⟩
+       bc · (α zero ^ toℕ i · f ^ toℕ i) · gPart
+     ≡⟨ cong (λ k → bc · (α zero ^ toℕ i · f ^ k) · gPart) (sym (≤-∸-+-cancel n≤i)) ⟩
+       bc · (α zero ^ toℕ i · f ^ ((toℕ i ∸ n) +ℕ n)) · gPart
+     ≡⟨ cong (λ x → bc · (α zero ^ toℕ i · x) · gPart) (sym (·-of-^-is-^-of-+ f (toℕ i ∸ n) n)) ⟩
+       bc · (α zero ^ toℕ i · (f ^ (toℕ i ∸ n) · f ^ n)) · gPart
+     ≡⟨ useSolver _ _ _ _ _ ⟩
+       bc · ((α zero) ^ toℕ i · f ^ (toℕ i ∸ n)) · gPart · f ^ n ∎
+
+   ... | inr n≤2n-i = subst-∈ ⟨fⁿ,gⁿ⟩ (sym path)
+                                      (⟨fⁿ,gⁿ⟩ .snd .·Closed _ (indInIdeal R' fⁿgⁿVec (suc zero)))
+    where
+    useSolver : ∀ a b c d e → a · b · (c · (d · e)) ≡ a · b · (c · d) · e
+    useSolver = solve R'
+
+    bc = (n +ℕ n) choose toℕ i
+    fPart = (α zero · f) ^ toℕ i
+    2n-i = (n +ℕ n ∸ toℕ i)
+
+    path : bc · fPart · (α (suc zero) · g) ^ 2n-i
+         ≡ bc · fPart · (α (suc zero) ^ 2n-i · g ^ (2n-i ∸ n)) · g ^ n
+    path =
+       bc · fPart · (α (suc zero) · g) ^ 2n-i
+     ≡⟨ cong (bc · fPart ·_) (^-ldist-· (α (suc zero)) g 2n-i) ⟩
+       bc · fPart · (α (suc zero) ^ 2n-i · g ^ 2n-i)
+     ≡⟨ cong (λ k → bc · fPart · (α (suc zero) ^ 2n-i · g ^ k)) (sym (≤-∸-+-cancel n≤2n-i)) ⟩
+       bc · fPart · (α (suc zero) ^ 2n-i · g ^ ((2n-i ∸ n) +ℕ n))
+     ≡⟨ cong (λ x → bc · fPart · (α (suc zero) ^ 2n-i · x)) (sym (·-of-^-is-^-of-+ g (2n-i ∸ n) n)) ⟩
+       bc · fPart · (α (suc zero) ^ 2n-i · (g ^ (2n-i ∸ n) · g ^ n))
+     ≡⟨ useSolver _ _ _ _ _ ⟩
+       bc · fPart · (α (suc zero) ^ 2n-i · g ^ (2n-i ∸ n)) · g ^ n ∎
 
    ∑Binomial∈⟨fⁿ,gⁿ⟩ : ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ∈ ⟨fⁿ,gⁿ⟩
-   ∑Binomial∈⟨fⁿ,gⁿ⟩ = ∑Closed ⟨fⁿ,gⁿ⟩ (BinomialVec (n +ℕ n) _ _) binomialCoeff∈⟨fⁿ,gⁿ⟩
+   ∑Binomial∈⟨fⁿ,gⁿ⟩ = ∑Closed ⟨fⁿ,gⁿ⟩ (BinomialVec (n +ℕ n) _ _) binomialSummand∈⟨fⁿ,gⁿ⟩
 
    path : ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡ 1r
    path = ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡⟨ sym (BinomialThm (n +ℕ n) α₀f α₁g) ⟩
