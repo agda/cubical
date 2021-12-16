@@ -91,6 +91,12 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
 ×≡Prop : isProp A' → {u v : A × A'} → u .fst ≡ v .fst → u ≡ v
 ×≡Prop pB {u} {v} p i = (p i) , (pB (u .snd) (v .snd) i)
 
+-- Useful lemma to prove unique existence
+uniqueExists : (a : A) (b : B a) (h : (a' : A) → isProp (B a')) (H : (a' : A) → B a' → a ≡ a') → ∃![ a ∈ A ] B a
+fst (uniqueExists a b h H) = (a , b)
+snd (uniqueExists a b h H) (a' , b') = ΣPathP (H a' b' , isProp→PathP (λ i → h (H a' b' i)) b b')
+
+
 -- Characterization of dependent paths in Σ
 
 module _ {A : I → Type ℓ} {B : (i : I) → (a : A i) → Type ℓ'}
