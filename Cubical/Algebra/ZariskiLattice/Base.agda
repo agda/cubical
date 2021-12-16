@@ -39,7 +39,7 @@ open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Algebra.RingSolver.ReflectionSolving
+open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice

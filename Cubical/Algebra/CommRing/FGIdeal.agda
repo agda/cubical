@@ -26,7 +26,7 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.RingSolver.ReflectionSolving
+open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.Matrix
 
 private
