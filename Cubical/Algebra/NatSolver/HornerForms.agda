@@ -36,12 +36,12 @@ data IteratedHornerForms : ℕ → Type ℓ-zero where
   _·X+_ : {n : ℕ} → IteratedHornerForms (ℕ.suc n) → IteratedHornerForms n
                   → IteratedHornerForms (ℕ.suc n)
 
-eval : (n : ℕ) (P : IteratedHornerForms n)
+eval : {n : ℕ} (P : IteratedHornerForms n)
        → Vec ℕ n → ℕ
-eval ℕ.zero (const r) [] = r
-eval .(ℕ.suc _) 0H (_ ∷ _) = 0
-eval (ℕ.suc n) (P ·X+ Q) (x ∷ xs) =
-  (eval (ℕ.suc n) P (x ∷ xs)) · x + eval n Q xs
+eval {n = ℕ.zero} (const r) [] = r
+eval {n = .(ℕ.suc _)} 0H (_ ∷ _) = 0
+eval {n = (ℕ.suc n)} (P ·X+ Q) (x ∷ xs) =
+  (eval P (x ∷ xs)) · x + eval Q xs
 
 module IteratedHornerOperations where
 

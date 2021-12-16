@@ -47,10 +47,10 @@ module SolvingExplained where
   Two : ℕ[X₀,X₁]
   Two = Constant 2 2
 
-  _ : eval 2 X₀ (1 ∷ 0 ∷ []) ≡ 1
+  _ : eval X₀ (1 ∷ 0 ∷ []) ≡ 1
   _ = refl
 
-  _ : eval 2 X₁ (0 ∷ 1 ∷ []) ≡ 1
+  _ : eval X₁ (0 ∷ 1 ∷ []) ≡ 1
   _ = refl
 
   X : Expr 3
@@ -70,18 +70,18 @@ module SolvingExplained where
      can be checked by agda's unification (so refl is a proof)
 
    -}
-  _ : normalize 3 ((K 2) ·' X) ≡
-      normalize 3 (X +' X)
+  _ : normalize ((K 2) ·' X) ≡
+      normalize (X +' X)
   _ = refl
 
 
-  _ : normalize 3 ((K 2) ·' X) ≡ normalize 3 (X +' X)
+  _ : normalize ((K 2) ·' X) ≡ normalize (X +' X)
   _ = refl
 
-  _ : normalize 3 (((K 2) ·' X) ·' Y) ≡ normalize 3 (Y ·' (X +' X))
+  _ : normalize (((K 2) ·' X) ·' Y) ≡ normalize (Y ·' (X +' X))
   _ = refl
 
-  _ : normalize 3 (Z ·' (((K 2) ·' X) ·' Y)) ≡ normalize 3 (Z ·' (Y ·' (X +' X)))
+  _ : normalize (Z ·' (((K 2) ·' X) ·' Y)) ≡ normalize (Z ·' (Y ·' (X +' X)))
   _ = refl
 
 
@@ -91,9 +91,9 @@ module SolvingExplained where
     those actual ring elements are equal to a normal form:
   -}
   _ : (x y z : ℕ) →
-      eval 3 (normalize 3 ((K 2) ·' X ·' Y)) (x ∷ y ∷ z ∷ [])
+      eval (normalize ((K 2) ·' X ·' Y)) (x ∷ y ∷ z ∷ [])
       ≡ 2 · x · y
-  _ = λ x y z → isEqualToNormalform 3 ((K 2) ·' X ·' Y) (x ∷ y ∷ z ∷ [])
+  _ = λ x y z → isEqualToNormalform ((K 2) ·' X ·' Y) (x ∷ y ∷ z ∷ [])
 
   {-
     Now two of these proofs can be plugged together
@@ -106,11 +106,11 @@ module SolvingExplained where
         rhs = Y ·' Y +' X +' (K 1) +' (K 2)
       in (λ x y z →
           ⟦ lhs ⟧ (x ∷ y ∷ z ∷ [])
-        ≡⟨ sym (isEqualToNormalform 3 lhs (x ∷ y ∷ z ∷ [])) ⟩
-          eval 3 (normalize 3 lhs) (x ∷ y ∷ z ∷ [])
+        ≡⟨ sym (isEqualToNormalform lhs (x ∷ y ∷ z ∷ [])) ⟩
+          eval (normalize lhs) (x ∷ y ∷ z ∷ [])
         ≡⟨ refl ⟩
-          eval 3 (normalize 3 rhs) (x ∷ y ∷ z ∷ [])
-        ≡⟨ isEqualToNormalform 3 rhs (x ∷ y ∷ z ∷ []) ⟩
+          eval (normalize rhs) (x ∷ y ∷ z ∷ [])
+        ≡⟨ isEqualToNormalform rhs (x ∷ y ∷ z ∷ []) ⟩
           ⟦ rhs ⟧ (x ∷ y ∷ z ∷ []) ∎)
 
   {-

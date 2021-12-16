@@ -20,105 +20,104 @@ module EqualityToNormalform where
   open IteratedHornerOperations
   open HomomorphismProperties
 
-  normalize : (n : ℕ) → Expr n → IteratedHornerForms n
-  normalize n (K r) = Constant n r
-  normalize n (∣ k) = Variable n k
-  normalize n (x +' y) =
-    (normalize n x) +ₕ (normalize n y)
-  normalize n (x ·' y) =
-    (normalize n x) ·ₕ (normalize n y)
+  normalize : {n : ℕ} → Expr n → IteratedHornerForms n
+  normalize {n = n} (K r) = Constant n r
+  normalize {n = n} (∣ k) = Variable n k
+  normalize (x +' y) =
+    (normalize x) +ₕ (normalize y)
+  normalize (x ·' y) =
+    (normalize x) ·ₕ (normalize y)
 
   isEqualToNormalform :
-            (n : ℕ)
+            {n : ℕ}
             (e : Expr n) (xs : Vec ℕ n)
-          → eval n (normalize n e) xs ≡ ⟦ e ⟧ xs
-  isEqualToNormalform ℕ.zero (K r) [] = refl
-  isEqualToNormalform (ℕ.suc n) (K r) (x ∷ xs) =
-     eval (ℕ.suc n) (Constant (ℕ.suc n) r) (x ∷ xs)           ≡⟨ refl ⟩
-     eval (ℕ.suc n) (0ₕ ·X+ Constant n r) (x ∷ xs)             ≡⟨ refl ⟩
-     eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Constant n r) xs
-    ≡⟨ cong (λ u → u · x + eval n (Constant n r) xs) (eval0H _ (x ∷ xs)) ⟩
-     0 · x + eval n (Constant n r) xs
+          → eval (normalize e) xs ≡ ⟦ e ⟧ xs
+  isEqualToNormalform (K r) [] = refl
+  isEqualToNormalform {n = ℕ.suc n} (K r) (x ∷ xs) =
+     eval (Constant (ℕ.suc n) r) (x ∷ xs)           ≡⟨ refl ⟩
+     eval (0ₕ ·X+ Constant n r) (x ∷ xs)             ≡⟨ refl ⟩
+     eval 0ₕ (x ∷ xs) · x + eval (Constant n r) xs
+    ≡⟨ cong (λ u → u · x + eval (Constant n r) xs) (eval0H (x ∷ xs)) ⟩
+     0 · x + eval (Constant n r) xs
     ≡⟨ refl ⟩
-     eval n (Constant n r) xs
-    ≡⟨ isEqualToNormalform n (K r) xs ⟩
+     eval (Constant n r) xs
+    ≡⟨ isEqualToNormalform (K r) xs ⟩
      r ∎
 
-  isEqualToNormalform (ℕ.suc n) (∣ zero) (x ∷ xs) =
-    eval (ℕ.suc n) (1ₕ ·X+ 0ₕ) (x ∷ xs)           ≡⟨ refl ⟩
-    eval (ℕ.suc n) 1ₕ (x ∷ xs) · x + eval n 0ₕ xs ≡⟨ cong (λ u → u · x + eval n 0ₕ xs)
-                                                          (eval1ₕ _ (x ∷ xs)) ⟩
-    1 · x + eval n 0ₕ xs                         ≡⟨ cong (λ u → 1 · x + u ) (eval0H _ xs) ⟩
-    1 · x + 0                                   ≡⟨ +-zero _ ⟩
-    1 · x                                        ≡⟨ ·-identityˡ _ ⟩
+  isEqualToNormalform (∣ zero) (x ∷ xs) =
+    eval (1ₕ ·X+ 0ₕ) (x ∷ xs)           ≡⟨ refl ⟩
+    eval 1ₕ (x ∷ xs) · x + eval 0ₕ xs   ≡⟨ cong (λ u → u · x + eval 0ₕ xs)
+                                               (eval1ₕ (x ∷ xs)) ⟩
+    1 · x + eval 0ₕ xs                  ≡⟨ cong (λ u → 1 · x + u ) (eval0H xs) ⟩
+    1 · x + 0                          ≡⟨ +-zero _ ⟩
+    1 · x                               ≡⟨ ·-identityˡ _ ⟩
     x ∎
-  isEqualToNormalform (ℕ.suc n) (∣ (suc k)) (x ∷ xs) =
-      eval (ℕ.suc n) (0ₕ ·X+ Variable n k) (x ∷ xs)             ≡⟨ refl ⟩
-      eval (ℕ.suc n) 0ₕ (x ∷ xs) · x + eval n (Variable n k) xs
-    ≡⟨ cong (λ u → u · x + eval n (Variable n k) xs) (eval0H _ (x ∷ xs)) ⟩
-      0 · x + eval n (Variable n k) xs
+  isEqualToNormalform {n = ℕ.suc n} (∣ (suc k)) (x ∷ xs) =
+      eval (0ₕ ·X+ Variable n k) (x ∷ xs)             ≡⟨ refl ⟩
+      eval 0ₕ (x ∷ xs) · x + eval (Variable n k) xs
+    ≡⟨ cong (λ u → u · x + eval (Variable n k) xs) (eval0H (x ∷ xs)) ⟩
+      0 · x + eval (Variable n k) xs
     ≡⟨ refl ⟩
-      eval n (Variable n k) xs
-    ≡⟨ isEqualToNormalform n (∣ k) xs ⟩
+      eval (Variable n k) xs
+    ≡⟨ isEqualToNormalform (∣ k) xs ⟩
       ⟦ ∣ (suc k) ⟧ (x ∷ xs) ∎
 
-  isEqualToNormalform ℕ.zero (e +' e₁) [] =
-        eval ℕ.zero (normalize ℕ.zero e +ₕ normalize ℕ.zero e₁) []
-      ≡⟨ +Homeval ℕ.zero (normalize ℕ.zero e) _ [] ⟩
-        eval ℕ.zero (normalize ℕ.zero e) []
-        + eval ℕ.zero (normalize ℕ.zero e₁) []
-      ≡⟨ cong (λ u → u + eval ℕ.zero (normalize ℕ.zero e₁) [])
-              (isEqualToNormalform ℕ.zero e []) ⟩
+  isEqualToNormalform (e +' e₁) [] =
+        eval (normalize e +ₕ normalize e₁) []
+      ≡⟨ +Homeval (normalize e) _ [] ⟩
+        eval (normalize e) []
+        + eval (normalize e₁) []
+      ≡⟨ cong (λ u → u + eval (normalize e₁) [])
+              (isEqualToNormalform e []) ⟩
         ⟦ e ⟧ []
-        + eval ℕ.zero (normalize ℕ.zero e₁) []
-      ≡⟨ cong (λ u → ⟦ e ⟧ [] + u) (isEqualToNormalform ℕ.zero e₁ []) ⟩
+        + eval (normalize e₁) []
+      ≡⟨ cong (λ u → ⟦ e ⟧ [] + u) (isEqualToNormalform e₁ []) ⟩
         ⟦ e ⟧ [] + ⟦ e₁ ⟧ [] ∎
-  isEqualToNormalform (ℕ.suc n) (e +' e₁) (x ∷ xs) =
-        eval (ℕ.suc n) (normalize (ℕ.suc n) e
-                         +ₕ normalize (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ +Homeval (ℕ.suc n) (normalize (ℕ.suc n) e) _ (x ∷ xs) ⟩
-        eval (ℕ.suc n) (normalize (ℕ.suc n) e) (x ∷ xs)
-        + eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ cong (λ u → u + eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs))
-              (isEqualToNormalform (ℕ.suc n) e (x ∷ xs)) ⟩
+  isEqualToNormalform (e +' e₁) (x ∷ xs) =
+        eval (normalize e
+              +ₕ normalize e₁) (x ∷ xs)
+      ≡⟨ +Homeval (normalize e) _ (x ∷ xs) ⟩
+        eval (normalize e) (x ∷ xs)
+        + eval (normalize e₁) (x ∷ xs)
+      ≡⟨ cong (λ u → u + eval (normalize e₁) (x ∷ xs))
+              (isEqualToNormalform e (x ∷ xs)) ⟩
         ⟦ e ⟧ (x ∷ xs)
-        + eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs)
+        + eval (normalize e₁) (x ∷ xs)
       ≡⟨ cong (λ u → ⟦ e ⟧ (x ∷ xs) + u)
-              (isEqualToNormalform (ℕ.suc n) e₁ (x ∷ xs)) ⟩
+              (isEqualToNormalform e₁ (x ∷ xs)) ⟩
         ⟦ e ⟧ (x ∷ xs) + ⟦ e₁ ⟧ (x ∷ xs) ∎
 
-  isEqualToNormalform ℕ.zero (e ·' e₁) [] =
-        eval ℕ.zero (normalize ℕ.zero e ·ₕ normalize ℕ.zero e₁) []
-      ≡⟨ ·Homeval ℕ.zero (normalize ℕ.zero e) _ [] ⟩
-        eval ℕ.zero (normalize ℕ.zero e) []
-        · eval ℕ.zero (normalize ℕ.zero e₁) []
-      ≡⟨ cong (λ u → u · eval ℕ.zero (normalize ℕ.zero e₁) [])
-              (isEqualToNormalform ℕ.zero e []) ⟩
+  isEqualToNormalform (e ·' e₁) [] =
+        eval (normalize e ·ₕ normalize e₁) []
+      ≡⟨ ·Homeval (normalize e) _ [] ⟩
+        eval (normalize e) []
+        · eval (normalize e₁) []
+      ≡⟨ cong (λ u → u · eval (normalize e₁) [])
+              (isEqualToNormalform e []) ⟩
         ⟦ e ⟧ []
-        · eval ℕ.zero (normalize ℕ.zero e₁) []
-      ≡⟨ cong (λ u → ⟦ e ⟧ [] · u) (isEqualToNormalform ℕ.zero e₁ []) ⟩
+        · eval (normalize e₁) []
+      ≡⟨ cong (λ u → ⟦ e ⟧ [] · u) (isEqualToNormalform e₁ []) ⟩
         ⟦ e ⟧ [] · ⟦ e₁ ⟧ [] ∎
 
-  isEqualToNormalform (ℕ.suc n) (e ·' e₁) (x ∷ xs) =
-        eval (ℕ.suc n) (normalize (ℕ.suc n) e
-                         ·ₕ normalize (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ ·Homeval (ℕ.suc n) (normalize (ℕ.suc n) e) _ (x ∷ xs) ⟩
-        eval (ℕ.suc n) (normalize (ℕ.suc n) e) (x ∷ xs)
-        · eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs)
-      ≡⟨ cong (λ u → u · eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs))
-              (isEqualToNormalform (ℕ.suc n) e (x ∷ xs)) ⟩
+  isEqualToNormalform (e ·' e₁) (x ∷ xs) =
+        eval (normalize e ·ₕ normalize e₁) (x ∷ xs)
+      ≡⟨ ·Homeval (normalize e) _ (x ∷ xs) ⟩
+        eval (normalize e) (x ∷ xs)
+        · eval (normalize e₁) (x ∷ xs)
+      ≡⟨ cong (λ u → u · eval (normalize e₁) (x ∷ xs))
+              (isEqualToNormalform e (x ∷ xs)) ⟩
         ⟦ e ⟧ (x ∷ xs)
-        · eval (ℕ.suc n) (normalize (ℕ.suc n) e₁) (x ∷ xs)
+        · eval (normalize e₁) (x ∷ xs)
       ≡⟨ cong (λ u → ⟦ e ⟧ (x ∷ xs) · u)
-              (isEqualToNormalform (ℕ.suc n) e₁ (x ∷ xs)) ⟩
+              (isEqualToNormalform e₁ (x ∷ xs)) ⟩
         ⟦ e ⟧ (x ∷ xs) · ⟦ e₁ ⟧ (x ∷ xs) ∎
 
   solve :
     {n : ℕ} (e₁ e₂ : Expr n) (xs : Vec ℕ n)
-    (p : eval n (normalize n e₁) xs ≡ eval n (normalize n e₂) xs)
+    (p : eval (normalize e₁) xs ≡ eval (normalize e₂) xs)
     → ⟦ e₁ ⟧ xs ≡ ⟦ e₂ ⟧ xs
   solve e₁ e₂ xs p =
-    ⟦ e₁ ⟧ xs                  ≡⟨ sym (isEqualToNormalform _ e₁ xs) ⟩
-    eval _ (normalize _ e₁) xs ≡⟨ p ⟩
-    eval _ (normalize _ e₂) xs ≡⟨ isEqualToNormalform _ e₂ xs ⟩
+    ⟦ e₁ ⟧ xs                ≡⟨ sym (isEqualToNormalform e₁ xs) ⟩
+    eval (normalize e₁) xs ≡⟨ p ⟩
+    eval (normalize e₂) xs ≡⟨ isEqualToNormalform e₂ xs ⟩
     ⟦ e₂ ⟧ xs ∎
