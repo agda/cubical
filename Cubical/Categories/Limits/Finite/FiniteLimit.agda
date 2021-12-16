@@ -33,6 +33,7 @@ open import Cubical.Algebra.DistLattice.BigOps
 open import Cubical.Categories.Limits.Base
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Finite.FiniteSystem
+open import Cubical.Categories.Instances.Cospan
 
 open import Cubical.Relation.Binary.Poset
 
@@ -108,7 +109,7 @@ module _ (L' : DistLattice ℓ) where
 
 
 -- TODO: Pullbacks are (finite) limits
-module _ {C : Category ℓ ℓ'} (cspan : Cospan {C = C}) where
+module _ {C : Category ℓ ℓ'} (cspan : Cospan C) where
  open Category C
  open Functor
  open Cospan ⦃...⦄
