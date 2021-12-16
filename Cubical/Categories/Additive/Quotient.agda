@@ -96,7 +96,7 @@ module _ (A : AdditiveCategory ℓ ℓ') where
     zero/~ : ZeroObject A/~
     zero/~ .z = zero .z
     zero/~ .zInit = isInitial/~ cat _~_ ~refl ~cong⋆ (zInit zero)
-    zero/~ .zFinal = isFinal/~ cat _~_ ~refl ~cong⋆ (zFinal zero)
+    zero/~ .zTerm = isTerminal/~ cat _~_ ~refl ~cong⋆ (zTerm zero)
 
     -- Biproducts
     module _ (x y : ob) where

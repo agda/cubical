@@ -5,6 +5,7 @@ module Cubical.Categories.Additive.Base where
 
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Limits.Initial
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Foundations.Prelude
 
@@ -60,7 +61,7 @@ module _ (C : PreaddCategory ℓ ℓ') where
     field
       z : ob
       zInit : isInitial cat z
-      zFinal : isFinal cat z
+      zTerm : isTerminal cat z
 
 
   -- Biproducts
