@@ -167,7 +167,7 @@ module _ {R : CommRing ℓ} where
       instance
         _ = snd M
         _ = snd N
-        
+
     makeCommAlgebraHom : (f : fst M → fst N)
                            → (fPres1 : f 1a ≡ 1a)
                            → (fPres+ : (x y : fst M) → f (x + y) ≡ f x + f y)
