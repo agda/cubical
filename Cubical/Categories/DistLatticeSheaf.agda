@@ -3,6 +3,7 @@ module Cubical.Categories.DistLatticeSheaf where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Powerset
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary.Poset
@@ -12,6 +13,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
+open import Cubical.Algebra.DistLattice.Basis
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -105,3 +107,52 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   -- TODO: might be better to define this as a record
   DLSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
   DLSheaf = Σ[ F ∈ DLPreSheaf ] isDLSheaf F
+
+
+module Lemma1 (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) (L' : ℙ (fst L)) (hB : IsBasis L L') where
+
+  open Category hiding (_⋆_)
+  open Functor
+  open DistLatticeStr (snd L)
+  open IsBasis hB
+
+  isBasisDLSheaf : (F : DLPreSheaf L C T) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+  isBasisDLSheaf F = (F-ob F 0l ≡ 𝟙 L C T) -- This is not explicitly stated in the paper... Do we need it?
+                   × ((x y : L .fst) → x ∈ L' → y ∈ L' → isPullback C _ _ _ (Fsq L C T F x y))
+
+  DLBasisSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+  DLBasisSheaf = Σ[ F ∈ DLPreSheaf L C T ] isBasisDLSheaf F
+
+  -- TODO: is unique existence expressed like this what we want? We
+  -- might have to assume that C is univalent for this to work.
+  statement : (F' : DLBasisSheaf)
+            → ∃![ F ∈ DLSheaf L C T ] ((x : fst L) → (x ∈ L') → CatIso C (F-ob (fst F) x) (F-ob (fst F') x)) -- TODO: if C is univalent the CatIso could be ≡?
+  statement (F' , h1 , hPb) = {!!}
+
+
+
+
+
+
+
+  -- Scrap zone:
+
+  -- -- Sublattices: upstream later
+  -- record isSublattice (L' : ℙ (fst L)) : Type ℓ where
+  --   field
+  --     1l-closed  : 1l ∈ L'
+  --     0l-closed  : 0l ∈ L'
+  --     ∧l-closed  : {x y : fst L} → x ∈ L' → y ∈ L' → x ∧l y ∈ L'
+  --     ∨l-closed  : {x y : fst L} → x ∈ L' → y ∈ L' → x ∨l y ∈ L'
+
+  -- open isSublattice
+
+  -- Sublattice : Type (ℓ-suc ℓ)
+  -- Sublattice = Σ[ L' ∈ ℙ (fst L) ] isSublattice L'
+
+  -- restrictDLSheaf : DLSheaf → Sublattice → DLSheaf
+  -- F-ob (fst (restrictDLSheaf F (L' , HL'))) x = {!F-ob (fst F) x!} -- Hmm, not nice...
+  -- F-hom (fst (restrictDLSheaf F L')) = {!!}
+  -- F-id (fst (restrictDLSheaf F L')) = {!!}
+  -- F-seq (fst (restrictDLSheaf F L')) = {!!}
+  -- snd (restrictDLSheaf F L') = {!!}
