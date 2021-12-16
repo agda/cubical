@@ -13,16 +13,19 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum hiding (map ; elim ; rec)
 open import Cubical.Data.FinData hiding (elim ; rec)
 open import Cubical.Data.Nat renaming ( zero to ℕzero ; suc to ℕsuc
                                       ; _+_ to _+ℕ_ ; _·_ to _·ℕ_
                                       ; +-assoc to +ℕ-assoc ; +-comm to +ℕ-comm
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
-                             hiding (elim)
+                             hiding (elim ; _choose_)
+open import Cubical.Data.Nat.Order
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
@@ -247,3 +250,55 @@ module _ (R' : CommRing ℓ) where
  FGIdealMultLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ··Fin V ⟩ ≡ ⟨ U ⟩ ·i ⟨ V ⟩
  FGIdealMultLemma U V = CommIdeal≡Char (FGIdealMultLemmaLIncl U V) (FGIdealMultLemmaRIncl U V)
+
+
+
+
+-- A useful lemma for constructing the structure sheaf
+module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
+ open CommRingStr (snd R')
+ open RingTheory (CommRing→Ring R')
+ open Sum (CommRing→Ring R')
+ open KroneckerDelta (CommRing→Ring R')
+ open Exponentiation R'
+ open BinomialThm R'
+ open CommIdeal R'
+
+ private
+  R = fst R'
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+  fgVec : FinVec R 2
+  fgVec zero = f
+  fgVec (suc zero) = g
+  ⟨f,g⟩ = ⟨ fgVec ⟩
+
+  fⁿgⁿVec : FinVec R 2
+  fⁿgⁿVec zero = f ^ n
+  fⁿgⁿVec (suc zero) = g ^ n
+
+  ⟨fⁿ,gⁿ⟩ = ⟨ fⁿgⁿVec ⟩
+
+ lemma : 1r ∈ ⟨f,g⟩ → 1r ∈ ⟨fⁿ,gⁿ⟩
+ lemma = elim (λ _ →  isPropPropTrunc) Σlemma
+  where
+  Σlemma : Σ[ α ∈ FinVec R 2 ] (1r ≡ linearCombination R' α fgVec) → 1r ∈ ⟨fⁿ,gⁿ⟩
+  Σlemma (α , p) = {!p!}
+   where
+   α₀f = α zero · f
+   α₁g = α (suc zero) · g
+
+   binomialCoeff∈⟨fⁿ,gⁿ⟩ : (i : Fin (ℕsuc (n +ℕ n))) → BinomialVec (n +ℕ n) α₀f α₁g i ∈ ⟨fⁿ,gⁿ⟩
+                     -- → ((n +ℕ n) choose toℕ i) · f ^ toℕ i · g ^ (n +ℕ n ∸ toℕ i) ∈ (⟨fⁿ,gⁿ⟩ n)
+   binomialCoeff∈⟨fⁿ,gⁿ⟩ i with ≤-+-split n n (toℕ i) (pred-≤-pred (toℕ<n i))
+   ... | inl n≤i = {!!}
+   ... | inr m≤n+m-i = {!!}
+
+   ∑Binomial∈⟨fⁿ,gⁿ⟩ : ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ∈ ⟨fⁿ,gⁿ⟩
+   ∑Binomial∈⟨fⁿ,gⁿ⟩ = ∑Closed ⟨fⁿ,gⁿ⟩ (BinomialVec (n +ℕ n) _ _) binomialCoeff∈⟨fⁿ,gⁿ⟩
+
+   path : ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡ 1r
+   path = ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡⟨ {!!} ⟩
+          (α₀f + α₁g) ^ (n +ℕ n) ≡⟨ {!!} ⟩
+          1r ^ (n +ℕ n) ≡⟨ 1ⁿ≡1 _ ⟩
+          1r ∎
