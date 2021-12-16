@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.NatSolver.EvaluationHomomorphism where
+module Cubical.Algebra.NatSolver.EvalHom where
 
 open import Cubical.Foundations.Prelude
 

@@ -9,7 +9,7 @@ open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
 open import Cubical.Algebra.NatSolver.NatExpression
 open import Cubical.Algebra.NatSolver.HornerForms
-open import Cubical.Algebra.NatSolver.EvaluationHomomorphism
+open import Cubical.Algebra.NatSolver.EvalHom
 
 private
   variable
