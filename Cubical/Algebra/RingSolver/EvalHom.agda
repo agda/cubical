@@ -150,8 +150,8 @@ module HomomorphismProperties (R : CommRing ℓ) where
     → eval (0ₕ ·ₕ P) xs ≡ 0r
   ·0LeftAnnihilates (const x) xs =
     eval (const _) xs ≡⟨ Eval0H xs ⟩ 0r ∎
-  ·0LeftAnnihilates {n = .(ℕ.suc _)} 0H xs = Eval0H xs
-  ·0LeftAnnihilates {n = .(ℕ.suc _)} (P ·X+ P₁) xs = Eval0H xs
+  ·0LeftAnnihilates 0H xs = Eval0H xs
+  ·0LeftAnnihilates (P ·X+ P₁) xs = Eval0H xs
 
   ·isZeroLeftAnnihilates :
     {n : ℕ} (P Q : IteratedHornerForms νR n)

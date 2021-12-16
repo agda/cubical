@@ -38,9 +38,9 @@ data IteratedHornerForms : ℕ → Type ℓ-zero where
 
 eval : {n : ℕ} (P : IteratedHornerForms n)
        → Vec ℕ n → ℕ
-eval {n = ℕ.zero} (const r) [] = r
-eval {n = .(ℕ.suc _)} 0H (_ ∷ _) = 0
-eval {n = (ℕ.suc n)} (P ·X+ Q) (x ∷ xs) =
+eval (const r) [] = r
+eval 0H (_ ∷ _) = 0
+eval (P ·X+ Q) (x ∷ xs) =
   (eval P (x ∷ xs)) · x + eval Q xs
 
 module IteratedHornerOperations where

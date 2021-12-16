@@ -25,8 +25,8 @@ eval : {A : RawAlgebra ℤAsRawRing ℓ′}
        {n : ℕ} (P : IteratedHornerForms A n)
        → Vec ⟨ A ⟩ n → ⟨ A ⟩
 eval {A = A} (const r) [] = RawAlgebra.scalar A r
-eval {A = A} {n = .(ℕ.suc _)} 0H (_ ∷ _) = RawAlgebra.0r A
-eval {A = A} {n = ℕ.suc n} (P ·X+ Q) (x ∷ xs) =
+eval {A = A} 0H (_ ∷ _) = RawAlgebra.0r A
+eval {A = A} (P ·X+ Q) (x ∷ xs) =
      let open RawAlgebra A
          P' = (eval P (x ∷ xs))
          Q' = eval Q xs
