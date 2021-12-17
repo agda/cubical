@@ -80,6 +80,9 @@ isContrUnit* = tt* , λ _ → refl
 isPropUnit* : ∀ {ℓ} → isProp (Unit* {ℓ})
 isPropUnit* _ _ = refl
 
+isSetUnit* : ∀ {ℓ} → isSet (Unit* {ℓ})
+isSetUnit* _ _ _ _ = refl
+
 isOfHLevelUnit* : ∀ {ℓ} (n : HLevel) → isOfHLevel n (Unit* {ℓ})
 isOfHLevelUnit* zero = tt* , λ _ → refl
 isOfHLevelUnit* (suc zero) _ _ = refl
