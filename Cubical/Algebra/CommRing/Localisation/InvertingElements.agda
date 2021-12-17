@@ -51,7 +51,7 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
-module _(R' : CommRing ℓ) where
+module InvertingElementsBase (R' : CommRing ℓ) where
  open isMultClosedSubset
  private R = fst R'
  open CommRingStr (snd R')
@@ -116,6 +116,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
  open CommRingStr (snd R')
  open CommRingTheory R'
  open Exponentiation R'
+ open InvertingElementsBase
  open RingTheory (CommRing→Ring R')
  open CommRingStr (snd (R[1/_]AsCommRing R' f)) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ
                                                          ; _+_ to _+ᶠ_ ; 0r to 0ᶠ
