@@ -32,12 +32,14 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function hiding (const)
+open import Cubical.Foundations.Isomorphism
+
+open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
+open import Cubical.HITs.SetTruncation
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Ring        using ()
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.Algebra
-open import Cubical.HITs.SetTruncation
 
 private
   variable
@@ -416,15 +418,29 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
       module f = IsAlgebraHom (f .snd)
 
 
-evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
-             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A))
-             → (I → ⟨ A ⟩)
+evaluateAt : {R : CommRing ℓ} {X : Type ℓ'} (A : CommAlgebra R ℓ'')
+             (f : CommAlgebraHom (R [ X ]) A)
+             → (X → fst A)
 evaluateAt A f x = f $a (Construction.var x)
 
-inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
-             (φ : I → ⟨ A ⟩)
-             → AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+inducedHom : {R : CommRing ℓ} {X : Type ℓ'} (A : CommAlgebra R ℓ'')
+             (φ : X → fst A )
+             → CommAlgebraHom (R [ X ]) A
 inducedHom A φ = Theory.inducedHom A φ
+
+
+homMapIso : {R : CommRing ℓ} {X : Type ℓ} (A : CommAlgebra R ℓ')
+             → Iso (CommAlgebraHom (R [ X ]) A) (X → (fst A))
+Iso.fun (homMapIso A) = evaluateAt A
+Iso.inv (homMapIso A) = inducedHom A
+Iso.rightInv (homMapIso A) = λ ϕ → Theory.mapRetrievable A ϕ
+Iso.leftInv (homMapIso {R = R} {X = X} A) =
+  λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ X ]} {N = A} f)
+               (Theory.homRetrievable A f)
+
+homMapPath : {R : CommRing ℓ} {X : Type ℓ} (A : CommAlgebra R ℓ')
+             → CommAlgebraHom (R [ X ]) A ≡ (X → fst A)
+homMapPath A = isoToPath (homMapIso A)
 
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
   A′ = CommAlgebra→Algebra A
