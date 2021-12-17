@@ -443,29 +443,23 @@ homMapPath : {R : CommRing ℓ} {X : Type ℓ} (A : CommAlgebra R ℓ')
 homMapPath A = isoToPath (homMapIso A)
 
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
-  A′ = CommAlgebra→Algebra A
-  B′ = CommAlgebra→Algebra B
-  R′ = (CommRing→Ring R)
-  ν : AlgebraHom A′ B′ → (⟨ A ⟩ → ⟨ B ⟩)
-  ν φ = φ .fst
-
   {-
-    Hom(R[I],A) → (I → A)
+    Hom(R[X],A) → (X → A)
          ↓          ↓
-    Hom(R[I],B) → (I → B)
+    Hom(R[X],B) → (X → B)
   -}
-  naturalR : {I : Type ℓ'} (ψ : AlgebraHom A′ B′)
-             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) A′)
-             → (ν ψ) ∘ evaluateAt A f ≡ evaluateAt B (ψ ∘a f)
+  naturalR : {X : Type ℓ'} (ψ : CommAlgebraHom A B)
+             (f : CommAlgebraHom (R [ X ]) A)
+             → (fst ψ) ∘ evaluateAt A f ≡ evaluateAt B (ψ ∘a f)
   naturalR ψ f = refl
 
   {-
-    Hom(R[I],A) → (I → A)
+    Hom(R[X],A) → (X → A)
          ↓          ↓
-    Hom(R[J],A) → (J → A)
+    Hom(R[Y],A) → (Y → A)
   -}
-  naturalL : {I J : Type ℓ'} (φ : J → I)
-             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) A′)
+  naturalL : {X Y : Type ℓ'} (φ : Y → X)
+             (f : CommAlgebraHom (R [ X ]) A)
              → (evaluateAt A f) ∘ φ
-               ≡ evaluateAt A (f ∘a (inducedHom (R [ I ]) (λ x → Construction.var (φ x))))
+               ≡ evaluateAt A (f ∘a (inducedHom (R [ X ]) (λ x → Construction.var (φ x))))
   naturalL φ f = refl
