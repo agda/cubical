@@ -192,7 +192,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
     open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
     open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
 
-    Hom = AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+    Hom = CommAlgebraHom  (R [ I ]) A
     open IsAlgebraHom
 
     evaluateAt : Hom → I → ⟨ A ⟩
