@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.FreeCommAlgebra where
+module Cubical.Algebra.CommAlgebra.Instances.FreeCommAlgebra where
 {-
   The free commutative algebra over a commutative ring,
   or in other words the ring of polynomials with coefficients in a given ring.

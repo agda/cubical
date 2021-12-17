@@ -51,6 +51,24 @@ isHomogeneousPi : ∀ {ℓ ℓ'} {A : Type ℓ} {B∙ : A → Pointed ℓ'}
 isHomogeneousPi h f i .fst = ∀ a → typ (h a (f a) i)
 isHomogeneousPi h f i .snd a = pt (h a (f a) i)
 
+isHomogeneousΠ∙ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : typ A → Type ℓ')
+                  → (b₀ : B (pt A))
+                  → ((a : typ A) (x : B a) → isHomogeneous (B a , x))
+                  → (f : Π∙ A B b₀)
+                  → isHomogeneous (Π∙ A B b₀ , f)
+fst (isHomogeneousΠ∙ A B b₀ h f g i) =
+  Σ[ r ∈ ((a : typ A) → fst ((h a (fst f a) (fst g a)) i)) ]
+    r (pt A) ≡ hcomp (λ k → λ {(i = i0) → snd f k
+                              ; (i = i1) → snd g k})
+                     (snd (h (pt A) (fst f (pt A)) (fst g (pt A)) i))
+snd (isHomogeneousΠ∙ A B b₀ h f g i) =
+    (λ a → snd (h a (fst f a) (fst g a) i))
+  , λ j → hcomp (λ k → λ { (i = i0) → snd f (k ∧ j)
+                          ; (i = i1) → snd g (k ∧ j)
+                          ; (j = i0) → snd (h (pt A) (fst f (pt A))
+                                                      (fst g (pt A)) i)})
+                 (snd (h (pt A) (fst f (pt A)) (fst g (pt A)) i))
+
 isHomogeneous→∙ : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'}
   → isHomogeneous B∙ → isHomogeneous (A∙ →∙ B∙ ∙)
 isHomogeneous→∙ {A∙ = A∙} {B∙} h f∙ =
