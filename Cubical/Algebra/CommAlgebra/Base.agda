@@ -160,6 +160,52 @@ module _ {R : CommRing ℓ} where
   CommAlgebraHom : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
   CommAlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsCommAlgebraHom (M .snd) f (N .snd)
 
+  module _ {M N : CommAlgebra R ℓ'} where
+    open CommAlgebraStr {{...}}
+    open IsAlgebraHom
+    private
+      instance
+        _ = snd M
+        _ = snd N
+
+    makeCommAlgebraHom : (f : fst M → fst N)
+                           → (fPres1 : f 1a ≡ 1a)
+                           → (fPres+ : (x y : fst M) → f (x + y) ≡ f x + f y)
+                           → (fPres· : (x y : fst M) → f (x · y) ≡ f x · f y)
+                           → (fPres⋆ : (r : fst R) (x : fst M) → f (r ⋆ x) ≡ r ⋆ f x)
+                           → CommAlgebraHom M N
+    makeCommAlgebraHom f fPres1 fPres+ fPres· fPres⋆ = f , isHom
+      where fPres0 =
+                    f 0a                  ≡⟨ sym (+-rid _) ⟩
+                    f 0a + 0a             ≡⟨ cong (λ u → f 0a + u) (sym (+-rinv (f 0a))) ⟩
+                    f 0a + (f 0a - f 0a)  ≡⟨ +-assoc (f 0a) (f 0a) (- f 0a) ⟩
+                    (f 0a + f 0a) - f 0a  ≡⟨ cong (λ u → u - f 0a) (sym (fPres+ 0a 0a)) ⟩
+                    f (0a + 0a) - f 0a    ≡⟨ cong (λ u → f u - f 0a) (+-lid 0a) ⟩
+                    f 0a - f 0a           ≡⟨ +-rinv (f 0a) ⟩
+                    0a ∎
+
+            isHom : IsCommAlgebraHom (snd M) f (snd N)
+            pres0 isHom = fPres0
+            pres1 isHom = fPres1
+            pres+ isHom = fPres+
+            pres· isHom = fPres·
+            pres- isHom = (λ x →
+                               f (- x) ≡⟨ sym (+-rid _) ⟩
+                               (f (- x) + 0a) ≡⟨ cong (λ u → f (- x) + u) (sym (+-rinv (f x))) ⟩
+                               (f (- x) + (f x - f x)) ≡⟨ +-assoc _ _ _ ⟩
+                               ((f (- x) + f x) - f x) ≡⟨ cong (λ u → u - f x) (sym (fPres+ _ _)) ⟩
+                               (f ((- x) + x) - f x) ≡⟨ cong (λ u → f u - f x) (+-linv x) ⟩
+                               (f 0a - f x) ≡⟨ cong (λ u → u - f x) fPres0 ⟩
+                               (0a - f x) ≡⟨ +-lid _ ⟩ (- f x) ∎)
+            pres⋆ isHom = fPres⋆
+
+    isPropIsCommAlgebraHom : (f : fst M → fst N) → isProp (IsCommAlgebraHom (snd M) f (snd N))
+    isPropIsCommAlgebraHom f = isPropIsAlgebraHom
+                                 (CommRing→Ring R)
+                                 (snd (CommAlgebra→Algebra M))
+                                 f
+                                 (snd (CommAlgebra→Algebra N))
+
 isPropIsCommAlgebra : (R : CommRing ℓ) {A : Type ℓ'}
   (0a 1a : A)
   (_+_ _·_ : A → A → A)
