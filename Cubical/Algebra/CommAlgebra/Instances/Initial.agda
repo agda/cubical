@@ -10,7 +10,7 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
+open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; _∘a_; idAlgHom)
 open import Cubical.Algebra.CommAlgebra.Base
 
 private
@@ -29,7 +29,6 @@ module _ ((R , str) : CommRing ℓ) where
                        ·Ldist+ ·Comm
                         (λ x y z → sym (·Assoc x y z)) ·Ldist+ ·Rdist+ ·Lid
                          λ x y z → sym (·Assoc x y z)))
-
 
   module _ (A : CommAlgebra (R , str) ℓ) where
     open CommAlgebraStr ⦃... ⦄
@@ -78,3 +77,37 @@ module _ ((R , str) : CommRing ℓ) where
 
     initialityPath : CommAlgebraHom initialCAlg A ≡ Unit*
     initialityPath = isoToPath initialityIso
+
+    initialityContr : isContr (CommAlgebraHom initialCAlg A)
+    initialityContr = initialMap , λ ϕ → sym (initialMapEq ϕ)
+
+  {-
+    Show that any R-Algebra with the same universal property
+    as the initial R-Algebra, is isomorphic to the initial
+    R-Algebra.
+  -}
+  module _ (A : CommAlgebra (R , str) ℓ) where
+    equivByInitiality :
+      (isInitial : (B : CommAlgebra (R , str) ℓ) → isContr (CommAlgebraHom A B))
+      → CommAlgebraEquiv A (initialCAlg)
+    equivByInitiality isInitial = isoToEquiv asIso , snd to
+      where
+        to : CommAlgebraHom A initialCAlg
+        to = fst (isInitial initialCAlg)
+
+        from : CommAlgebraHom initialCAlg A
+        from = initialMap A
+
+        asIso : Iso (fst A) (fst initialCAlg)
+        Iso.fun asIso = fst to
+        Iso.inv asIso = fst from
+        Iso.rightInv asIso =
+          λ x i → cong
+                    fst
+                    (isContr→isProp (initialityContr initialCAlg) (to ∘a from) idAlgHom)
+                    i x
+        Iso.leftInv asIso =
+          λ x i → cong
+                    fst
+                    (isContr→isProp (isInitial A) (from ∘a to) idAlgHom)
+                    i x
