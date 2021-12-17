@@ -71,10 +71,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       Gg≡ηhη : G ⟪ g ⟫ ≡ cIso .inv ⋆⟨ C ⟩ h ⋆⟨ C ⟩ c'Iso .mor
       Gg≡ηhη = invMoveL cAreInv move-c' ∙ sym (C .⋆Assoc _ _ _)
         where
-          cAreInv : areInv (cIso .mor) (cIso .inv)
+          cAreInv : areInv _ (cIso .mor) (cIso .inv)
           cAreInv = CatIso→areInv cIso
 
-          c'AreInv : areInv (c'Iso .mor) (c'Iso .inv)
+          c'AreInv : areInv _ (c'Iso .mor) (c'Iso .inv)
           c'AreInv = CatIso→areInv c'Iso
 
           move-c' : cIso .mor ⋆⟨ C ⟩ G ⟪ g ⟫ ≡ h ⋆⟨ C ⟩ c'Iso .mor
