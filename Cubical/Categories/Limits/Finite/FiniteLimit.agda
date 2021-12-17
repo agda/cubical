@@ -167,3 +167,37 @@ module _ {C : Category ℓ ℓ'} (cspan : Cospan C) where
 
  Cospan→FinDiagram : FinDiagram C 2
  Cospan→FinDiagram = funcComp (Cospan→Func cspan) FinSys2→Cospan
+
+ open Limit
+ open isLimit
+ open Pullback
+ open NatTrans
+
+ Pullback→FinLim : Pullback C cspan → Limit Cospan→FinDiagram
+ head (Pullback→FinLim pb) = pb .pbOb
+
+ N-ob (cone (islim (Pullback→FinLim pb))) (sing zero) = pb .pbPr₁
+ N-ob (cone (islim (Pullback→FinLim pb))) (sing (suc zero)) = pb .pbPr₂
+ N-ob (cone (islim (Pullback→FinLim pb))) (pair zero zero) = pb .pbPr₁
+ N-ob (cone (islim (Pullback→FinLim pb))) (pair zero (suc zero)) = pb .pbPr₁ ⋆ cspan .s₁
+ N-ob (cone (islim (Pullback→FinLim pb))) (pair (suc zero) zero) = pb .pbPr₂ ⋆ cspan .s₂
+ N-ob (cone (islim (Pullback→FinLim pb))) (pair (suc zero) (suc zero)) = pb .pbPr₂
+
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing zero} {sing zero} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing zero} {sing (suc zero)} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing (suc zero)} {sing zero} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing (suc zero)} {sing (suc zero)} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing zero} {pair zero zero} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing zero} {pair zero (suc zero)} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing zero} {pair (suc zero) zero} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing zero} {pair (suc zero) (suc zero)} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing (suc zero)} {pair zero zero} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing (suc zero)} {pair zero (suc zero)} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing (suc zero)} {pair (suc zero) zero} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {sing (suc zero)} {pair (suc zero) (suc zero)} f = {!!}
+ N-hom (cone (islim (Pullback→FinLim pb))) {pair x x₁} {pair x₂ x₃} f = {!!}
+
+ up (islim (Pullback→FinLim pb)) {v = v} ν = {!!}
+  where
+  f : Hom[ v , pb .pbOb ]
+  f = pb .isPb (ν .N-ob (sing zero)) (ν .N-ob (sing (suc zero))) {!!} .fst .fst
