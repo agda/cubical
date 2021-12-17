@@ -15,7 +15,7 @@ module _ {ℓV ℓV' : Level} (V : MonoidalCategory ℓV ℓV') (ℓE : Level) w
     field
       ob : Type ℓE
       Hom[_,_] : ob → ob → obV
-      id : ∀ {x} → V[ i , Hom[ x , x ] ]
+      id : ∀ {x} → V[ unit , Hom[ x , x ] ]
       seq : ∀ x y z → V[ Hom[ x , y ] ⊗ Hom[ y , z ] , Hom[ x , z ] ]
 
       -- Axioms
@@ -26,4 +26,4 @@ module _ {ℓV ℓV' : Level} (V : MonoidalCategory ℓV ℓV') (ℓE : Level) w
                           ≡  (idV ⊗ₕ (seq y z w))  ⋆V  (seq x y w)
 
 
--- TODO: define underlying category using Hom[ x , y ] := V[ i , Hom[ x , y ] ]
+-- TODO: define underlying category using Hom[ x , y ] := V[ unit , Hom[ x , y ] ]

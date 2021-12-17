@@ -19,7 +19,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
     record TensorStr : Type (ℓ-max ℓ ℓ') where
       field
         ─⊗─ : Functor (C × C) C
-        i : ob
+        unit : ob
 
       open Functor
 
@@ -41,8 +41,8 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
     field
       -- Axioms - strict
       assoc : ∀ x y z →  x ⊗ (y ⊗ z) ≡ (x ⊗ y) ⊗ z
-      idl : ∀ x →  i ⊗ x ≡ x
-      idr : ∀ x →  x ⊗ i ≡ x
+      idl : ∀ x →  unit ⊗ x ≡ x
+      idr : ∀ x →  x ⊗ unit ≡ x
 
 
   record MonoidalStr : Type (ℓ-max ℓ ℓ') where
@@ -52,7 +52,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
     open TensorStr tenstr public
 
     private
-      -- Give some names to things
+      -- Private names to make the axioms below look nice
       x⊗[y⊗z] : Functor (C × C × C) C
       x⊗[y⊗z] = ─⊗─ ∘F (𝟙⟨ C ⟩ ×F ─⊗─)
 
@@ -60,14 +60,14 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
       [x⊗y]⊗z = ─⊗─ ∘F (─⊗─ ×F 𝟙⟨ C ⟩) ∘F (×C-assoc C C C)
 
       x = 𝟙⟨ C ⟩
-      i⊗x = ─⊗─ ∘F (rinj C C i)
-      x⊗i = ─⊗─ ∘F (linj C C i)
+      1⊗x = ─⊗─ ∘F (rinj C C unit)
+      x⊗1 = ─⊗─ ∘F (linj C C unit)
 
     field
       -- "Axioms" - up to natural isomorphism
       α : x⊗[y⊗z] ≅ᶜ [x⊗y]⊗z
-      η : i⊗x ≅ᶜ x
-      ρ : x⊗i ≅ᶜ x
+      η : 1⊗x ≅ᶜ x
+      ρ : x⊗1 ≅ᶜ x
 
     open NatIso
 
@@ -75,10 +75,10 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
     α⟨_,_,_⟩ : (x y z : ob) → Hom[ x ⊗ (y ⊗ z) , (x ⊗ y) ⊗ z ]
     α⟨ x , y , z ⟩ = α .trans ⟦ ( x , y , z ) ⟧
 
-    η⟨_⟩ : (x : ob) → Hom[ i ⊗ x , x ]
+    η⟨_⟩ : (x : ob) → Hom[ unit ⊗ x , x ]
     η⟨ x ⟩ = η .trans ⟦ x ⟧
 
-    ρ⟨_⟩ : (x : ob) → Hom[ x ⊗ i , x ]
+    ρ⟨_⟩ : (x : ob) → Hom[ x ⊗ unit , x ]
     ρ⟨ x ⟩ = ρ .trans ⟦ x ⟧
 
     field
@@ -88,7 +88,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
             ≡   α⟨ w , x , y ⊗ z ⟩  ⋆  α⟨ w ⊗ x , y , z ⟩
 
       triangle : ∀ x y →
-        α⟨ x , i , y ⟩  ⋆  ρ⟨ x ⟩ ⊗ₕ id  ≡  id ⊗ₕ η⟨ y ⟩
+        α⟨ x , unit , y ⟩  ⋆  ρ⟨ x ⟩ ⊗ₕ id  ≡  id ⊗ₕ η⟨ y ⟩
 
     open isIso
 
@@ -96,10 +96,10 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
     α⁻¹⟨_,_,_⟩ : (x y z : ob) → Hom[ (x ⊗ y) ⊗ z , x ⊗ (y ⊗ z) ]
     α⁻¹⟨ x , y , z ⟩ = α .nIso (x , y , z) .inv
 
-    η⁻¹⟨_⟩ : (x : ob) → Hom[ x , i ⊗ x ]
+    η⁻¹⟨_⟩ : (x : ob) → Hom[ x , unit ⊗ x ]
     η⁻¹⟨ x ⟩ = η .nIso (x) .inv
 
-    ρ⁻¹⟨_⟩ : (x : ob) → Hom[ x , x ⊗ i ]
+    ρ⁻¹⟨_⟩ : (x : ob) → Hom[ x , x ⊗ unit ]
     ρ⁻¹⟨ x ⟩ = ρ .nIso (x) .inv
 
 
