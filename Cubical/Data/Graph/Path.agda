@@ -1,10 +1,14 @@
 -- Paths in a graph
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --cumulativity #-}
 
 module Cubical.Data.Graph.Path where
 
 open import Cubical.Data.Graph.Base
 open import Cubical.Data.List.Base hiding (_++_)
+open import Cubical.Data.Nat.Base
+open import Cubical.Data.Nat.Properties
+open import Cubical.Data.Sigma.Base hiding (Path)
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude hiding (Path)
 
 module _ {ℓv ℓe : Level} (G : Graph ℓv ℓe) where
@@ -38,5 +42,34 @@ module _ {ℓv ℓe : Level} (G : Graph ℓv ℓe) where
   pathToList pnil = []
   pathToList (pcons P e) = (_ , _ , e) ∷ (pathToList P)
 
-  isSetPath : ∀ v w → isSet (Path v w)
-  isSetPath v w P Q eq1 eq2 = {!   !}
+  -- Path v w is a set
+  -- Lemma 4.2 of https://arxiv.org/abs/2112.06609
+  module _ (isSetNode : isSet (Node G))
+           (isSetEdge : ∀ v w → isSet (Edge G v w)) where
+
+    -- This is called ̂W (W-hat) in the paper
+    PathWithLen : ℕ → Node G → Node G → Type (ℓ-max ℓv ℓe)
+    PathWithLen 0 v w = (v ≡ w)
+    PathWithLen (suc n) v w = Σ[ k ∈ Node G ] (Edge G v k × PathWithLen n k w)
+
+    isSetPathWithLen : ∀ n v w → isSet (PathWithLen n v w)
+    isSetPathWithLen 0 v w = isProp→isSet (isSetNode _ _)
+    isSetPathWithLen (suc n) v w = isSetΣ isSetNode λ _ →
+        isSet× (isSetEdge _ _) (isSetPathWithLen _ _ _)
+
+    module _ (v w : Node G) where
+      isSet-ΣnPathWithLen : isSet (Σ[ n ∈ ℕ ] PathWithLen n v w)
+      isSet-ΣnPathWithLen = isSetΣ isSetℕ (λ _ → isSetPathWithLen _ _ _)
+
+      Path→PathWithLen : Path v w → Σ[ n ∈ ℕ ] PathWithLen n v w
+      Path→PathWithLen = {!   !}
+
+      PathWithLen→Path : Σ[ n ∈ ℕ ] PathWithLen n v w → Path v w
+      PathWithLen→Path = {!   !}
+
+      Path→PWL→Path : ∀ x → PathWithLen→Path (Path→PathWithLen x) ≡ x
+      Path→PWL→Path = {!   !}
+
+      isSetPath : isSet (Path v w)
+      isSetPath = isSetRetract Path→PathWithLen PathWithLen→Path
+                               Path→PWL→Path isSet-ΣnPathWithLen
