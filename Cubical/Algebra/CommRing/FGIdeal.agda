@@ -259,7 +259,6 @@ module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
  open CommRingStr (snd R')
  open RingTheory (CommRing→Ring R')
  open Sum (CommRing→Ring R')
- open KroneckerDelta (CommRing→Ring R')
  open Exponentiation R'
  open BinomialThm R'
  open CommIdeal R'

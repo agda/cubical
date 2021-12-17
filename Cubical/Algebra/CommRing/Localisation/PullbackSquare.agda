@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Powerset
+-- open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Transport
 open import Cubical.Functions.FunExtEquiv
 
@@ -32,6 +32,8 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Localisation.InvertingElements
+open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.RingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -49,12 +51,25 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
  open isMultClosedSubset
  open CommRingTheory R'
  open RingTheory (CommRing→Ring R')
+ open CommIdeal R'
  open Exponentiation R'
  open InvertingElementsBase R'
 
  open CommRingStr ⦃...⦄
  private
   R = R' .fst
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+  fgVec : FinVec R 2
+  fgVec zero = f
+  fgVec (suc zero) = g
+  ⟨f,g⟩ = ⟨ fgVec ⟩
+  fⁿgⁿVec : (n : ℕ) → FinVec R 2
+  fⁿgⁿVec n zero = f ^ n
+  fⁿgⁿVec n (suc zero) = g ^ n
+  ⟨fⁿ,gⁿ⟩ : (n : ℕ) → CommIdeal
+  ⟨fⁿ,gⁿ⟩ n = ⟨ (fⁿgⁿVec n) ⟩
+
   instance
    _ = R' .snd
    _ = R[1/ f ]AsCommRing .snd
@@ -68,5 +83,14 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
  open S⁻¹RUniversalProp R' [ (f · g) ⁿ|n≥0] (powersFormMultClosedSubset (f · g))
 
 
- injectivityLemma : ∀ (x : R) → x /1ᶠ ≡ 0r → x /1ᵍ ≡ 0r → x ≡ 0r
- injectivityLemma x = {!!}
+ module Σresults (α : FinVec R 2) (p : 1r ≡ linearCombination R' α fgVec) where
+  private
+   α₀ = α zero
+   α₁ = α (suc zero)
+
+  injectivity : ∀ (x : R) → x /1ᶠ ≡ 0r → x /1ᵍ ≡ 0r → x ≡ 0r
+  injectivity x = {!!}
+
+
+ injectivityLemma : 1r ∈ ⟨f,g⟩ → ∀ (x : R) → x /1ᶠ ≡ 0r → x /1ᵍ ≡ 0r → x ≡ 0r
+ injectivityLemma = PT.elim (λ _ → isPropΠ3 (λ _ _ _ → is-set _ _)) (uncurry Σresults.injectivity)
