@@ -35,9 +35,12 @@ module _ {R : CommRing ℓ} where
                   → CommAlgebra R ℓ
   makeFPAlgebra n l = freeAlgebra n / generatedIdeal (freeAlgebra n) l
 
+  finitePresentation : (A : CommAlgebra R ℓ) → Type _
+  finitePresentation A = Σ[ ((n , m) , l) ∈ Σ[ (n , m) ∈ ℕ × ℕ ] FinVec (fst (freeAlgebra n)) m ]
+                         CommAlgebraEquiv (makeFPAlgebra n l) A
+
   isFPAlgebra : (A : CommAlgebra R ℓ) → Type _
-  isFPAlgebra A = ∃[ ((n , m) , l) ∈ Σ[ (n , m) ∈ ℕ × ℕ ] FinVec (fst (freeAlgebra n)) m ]
-                   makeFPAlgebra n l ≡ A
+  isFPAlgebra A = ∥ finitePresentation A ∥
 
   isFPAlgebraIsProp : {A : CommAlgebra R ℓ} → isProp (isFPAlgebra A)
   isFPAlgebraIsProp = isPropPropTrunc
