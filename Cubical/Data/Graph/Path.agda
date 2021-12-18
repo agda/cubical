@@ -1,5 +1,5 @@
 -- Paths in a graph
-{-# OPTIONS --cumulativity #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.Graph.Path where
 
@@ -11,7 +11,13 @@ open import Cubical.Data.Sigma.Base hiding (Path)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude hiding (Path)
 
-module _ {ℓv ℓe : Level} (G : Graph ℓv ℓe) where
+private
+  variable
+    ℓv : Level
+
+ℓe = ℓv
+
+module _ (G : Graph ℓv ℓe) where
   data Path : (v w : Node G) → Type (ℓ-max ℓv ℓe) where
     pnil : ∀ {v} → Path v v
     pcons : ∀ {v w x} → Path v w → Edge G w x → Path v x
@@ -62,12 +68,14 @@ module _ {ℓv ℓe : Level} (G : Graph ℓv ℓe) where
       isSet-ΣnPathWithLen = isSetΣ isSetℕ (λ _ → isSetPathWithLen _ _ _)
 
       Path→PathWithLen : Path v w → Σ[ n ∈ ℕ ] PathWithLen n v w
-      Path→PathWithLen = {!   !}
+      Path→PathWithLen pnil = ( 0 , refl )
+      Path→PathWithLen (pcons P e) = fst (Path→PathWithLen P)
+                              , (e , snd (Path→PathWithLen P))
 
       PathWithLen→Path : Σ[ n ∈ ℕ ] PathWithLen n v w → Path v w
       PathWithLen→Path = {!   !}
 
-      Path→PWL→Path : ∀ x → PathWithLen→Path (Path→PathWithLen x) ≡ x
+      Path→PWL→Path : ∀ x → PathWithLen→Path (Path→PathWithLen P) ≡ P
       Path→PWL→Path = {!   !}
 
       isSetPath : isSet (Path v w)
