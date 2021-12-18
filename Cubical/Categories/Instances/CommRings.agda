@@ -58,4 +58,4 @@ pbOb (PullbackCommRing (cospan A C B α β)) = fiberedProduct A B C α β
 pbPr₁ (PullbackCommRing (cospan A C B α β)) = fiberedProductPr₁ A B C α β
 pbPr₂ (PullbackCommRing (cospan A C B α β)) = fiberedProductPr₂ A B C α β
 pbCommutes (PullbackCommRing (cospan A C B α β)) = fiberedProductPr₁₂Commutes A B C α β
-isPb (PullbackCommRing (cospan A C B α β)) {d = D} = fiberedProductUnivProp A B C α β D
+univProp (PullbackCommRing (cospan A C B α β)) {d = D} = fiberedProductUnivProp A B C α β D

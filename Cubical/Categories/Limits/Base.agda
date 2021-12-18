@@ -3,13 +3,9 @@
 module Cubical.Categories.Limits.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-open import Cubical.Data.Unit
-open import Cubical.Data.Sigma using (ΣPathP)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Instances.Sets
 
 private
   variable
@@ -85,76 +81,3 @@ complete' {ℓJ = ℓJ} {ℓJ'} C = (J : Category ℓJ ℓJ') (K : Functor J C) 
 
 complete : (C : Category ℓC ℓC') → Typeω
 complete C = ∀ {ℓJ ℓJ'} → complete' {ℓJ = ℓJ} {ℓJ'} C
-
-open Limit
-open NatTrans
-open Category
-
-
-
--- TODO:
-
--- 1. every diagram has limits isomorphic to the limit of an equalizer of products
-
--- 2. every equalizer can be made into a pullback
-
--- 3. every product can be made into an equalizer
-
--- 4. a category with all pullbacks and a terminal object has all limits
-
-
--- SET is complete
-
--- notes:
--- didn't need to restrict to *finite* diagrams , why is that required in Set theoretic?
--- didn't use coinduction here because Agda didn't like me referencing 'cone' frome 'up' (termination check)
-
-isCompleteSET : ∀ {ℓJ ℓJ'} → complete' {ℓJ = ℓJ} {ℓJ'} (SET (ℓ-max ℓJ ℓJ'))
-isCompleteSET J K = record
-                  { head = head'
-                  ; islim = record { cone = cone' ; up = up' } }
-  where
-    -- the limit is defined as the Set of all cones with head Unit
-    head' = Cone K (Unit* , isOfHLevelLift 2 isSetUnit) , isSetNat
-
-    -- the legs are defined by taking a cone to its component at j
-    cone' : Cone K head'
-    cone' .N-ob j μ = (μ ⟦ j ⟧) tt*
-    -- Naturality follows from naturality of the Unit cone
-    cone' .N-hom {x = i} {j} f
-      = funExt λ μ → (μ ⟦ j ⟧) tt*
-        ≡[ i ]⟨ (μ .N-hom f i) tt* ⟩
-          (K ⟪ f ⟫) ((μ ⟦ i ⟧) tt*)
-        ∎
-
-    -- Given another cone α, we want a unique function f from α → cone' which factors it
-    -- factorization property enforces that (cone' ⟦ j ⟧ ● f) ≡ α ⟦ j ⟧
-    -- but cone' ⟦ j ⟧ simply takes the jth component the output Cone K Unit from f
-    -- so this enforces that for all x ∈ A, (f x) ⟦ j ⟧ ≡ α ⟦ j ⟧ x
-    -- this determines the *only* possible factoring morphism
-    up' : ∀ {A} (α : Cone K A) → cone' uniquelyFactors α
-    up' {A} α = (f , fact) , unique
-      where
-        f : fst A → Cone K (Unit* , isOfHLevelLift 2 isSetUnit)
-        f x = natTrans (λ j _ → α .N-ob j x)
-                       (λ {m} {n} f → funExt λ μ i → α .N-hom f i x)
-
-        fact : α ≡ (f ◼ cone')
-        fact = makeNatTransPath refl -- I LOVE DEFINITIONAL EQUALITY
-
-        unique : (τ : cone' factors α) → (f , fact) ≡ τ
-        unique (f' , fact') = ΣPathP (f≡f' , fact≡fact')
-          where
-            f≡f' : f ≡ f'
-            f≡f' = funExt λ x → makeNatTransPath (funExt λ _ → sym eq2)
-              where
-                -- the factorization property enforces that f' must have the same behavior as f
-                eq1 : ∀ {x j} → ((cone' ⟦ j ⟧) (f' x)) ≡ (α ⟦ j ⟧) x
-                eq1 {x} {j} i = ((fact' (~ i)) ⟦ j ⟧) x
-
-                eq2 : ∀ {x j} → (f' x) ⟦ j ⟧ ≡ λ _ → (α ⟦ j ⟧) x -- = (f x) ⟦ j ⟧
-                eq2 {x} {j} = funExt λ _ → eq1
-
-            -- follows from Set having homsets
-            fact≡fact' : PathP (λ i → α ≡ ((f≡f' i) ◼ cone')) fact fact'
-            fact≡fact' = isOfHLevel→isOfHLevelDep 1 (λ β → isSetNat α β) fact fact' λ i → (f≡f' i) ◼ cone'

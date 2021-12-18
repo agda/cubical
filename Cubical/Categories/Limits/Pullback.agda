@@ -50,7 +50,7 @@ module _ (C : Category ℓ ℓ') where
       pbPr₁ : C [ pbOb , cspn .l ]
       pbPr₂ : C [ pbOb , cspn .r ]
       pbCommutes : pbPr₁ ⋆ cspn .s₁ ≡ pbPr₂ ⋆ cspn .s₂
-      isPb : isPullback cspn pbPr₁ pbPr₂ pbCommutes
+      univProp : isPullback cspn pbPr₁ pbPr₂ pbCommutes
 
   open Pullback
 
@@ -58,21 +58,21 @@ module _ (C : Category ℓ ℓ') where
     {cspn : Cospan} (pb : Pullback cspn)
     {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
     (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) → C [ c , pb . pbOb ]
-  pullbackArrow pb p₁ p₂ H = pb .isPb p₁ p₂ H .fst .fst
+  pullbackArrow pb p₁ p₂ H = pb .univProp p₁ p₂ H .fst .fst
 
   pullbackArrowPr₁ :
     {cspn : Cospan} (pb : Pullback cspn)
     {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
     (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) →
     p₁ ≡ pullbackArrow pb p₁ p₂ H ⋆ pbPr₁ pb
-  pullbackArrowPr₁ pb p₁ p₂ H = pb .isPb p₁ p₂ H .fst .snd .fst
+  pullbackArrowPr₁ pb p₁ p₂ H = pb .univProp p₁ p₂ H .fst .snd .fst
 
   pullbackArrowPr₂ :
     {cspn : Cospan} (pb : Pullback cspn)
     {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
     (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) →
     p₂ ≡ pullbackArrow pb p₁ p₂ H ⋆ pbPr₂ pb
-  pullbackArrowPr₂ pb p₁ p₂ H = pb .isPb p₁ p₂ H .fst .snd .snd
+  pullbackArrowPr₂ pb p₁ p₂ H = pb .univProp p₁ p₂ H .fst .snd .snd
 
   pullbackArrowUnique :
     {cspn : Cospan} (pb : Pullback cspn)
@@ -82,7 +82,7 @@ module _ (C : Category ℓ ℓ') where
     (H₁ : p₁ ≡ pbArrow' ⋆ pbPr₁ pb) (H₂ : p₂ ≡ pbArrow' ⋆ pbPr₂ pb)
     → pullbackArrow pb p₁ p₂ H ≡ pbArrow'
   pullbackArrowUnique pb p₁ p₂ H pbArrow' H₁ H₂ =
-    cong fst (pb .isPb p₁ p₂ H .snd (pbArrow' , (H₁ , H₂)))
+    cong fst (pb .univProp p₁ p₂ H .snd (pbArrow' , (H₁ , H₂)))
 
   Pullbacks : Type (ℓ-max ℓ ℓ')
   Pullbacks = (cspn : Cospan) → Pullback cspn

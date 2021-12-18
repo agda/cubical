@@ -31,9 +31,9 @@ module _ (C : Category ℓ ℓ') where
   record BinProduct (x y : ob) : Type (ℓ-max ℓ ℓ') where
     field
       binProdOb : ob
-      binProdProj₁ : Hom[ binProdOb , x ]
-      binProdProj₂ : Hom[ binProdOb , y ]
-      univProp : isBinProduct binProdProj₁ binProdProj₂
+      binProdPr₁ : Hom[ binProdOb , x ]
+      binProdPr₂ : Hom[ binProdOb , y ]
+      univProp : isBinProduct binProdPr₁ binProdPr₂
 
 
   BinProducts : Type (ℓ-max ℓ ℓ')
