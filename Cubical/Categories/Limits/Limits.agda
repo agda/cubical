@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Limits.Base where
+module Cubical.Categories.Limits.Limits where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category

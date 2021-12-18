@@ -7,7 +7,6 @@ open import Cubical.HITs.PropositionalTruncation.Base
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Limits.Base
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Cospan
