@@ -69,6 +69,7 @@ module _ {J : Category ℓJ ℓJ'}
 
     -- a Limit is a cone such that all cones are uniquely factored by it
     record isLimit (head : C .ob) : Type (ℓ-max (ℓ-max ℓJ ℓJ') (ℓ-max ℓC ℓC'))  where
+      constructor islimit
       field
         cone : Cone K head
         -- TODO: change this to terminal object in category of Cones?

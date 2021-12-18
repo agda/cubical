@@ -34,9 +34,12 @@ private
 module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   open Category hiding (_⋆_)
   open Functor
+  open Order (DistLattice→Lattice L)
   open DistLatticeStr (snd L)
+  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L))
   open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
-  open PosetStr (IndPoset .snd)
+      using (∧≤RCancel ; ∧≤LCancel)
+  open PosetStr (IndPoset .snd) hiding (_≤_)
 
   𝟙 : ob C
   𝟙 = terminalOb C T
@@ -51,30 +54,18 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   DLPreSheaf = Functor (DLCat ^op) C
 
   hom-∨₁ : (x y : L .fst) → DLCat [ x , x ∨l y ]
-  hom-∨₁ x y = goal
-    where
+  hom-∨₁ = ∨≤RCancel
     -- TODO: isn't the fixity of the operators a bit weird?
-    goal : x ∧l (x ∨l y) ≡ x
-    goal = ∧lAbsorb∨l x y
 
   hom-∨₂ : (x y : L .fst) → DLCat [ y , x ∨l y ]
-  hom-∨₂ x y = goal
-    where
-    -- TODO: upstream this kind of simple lemmas? Or are they already somewhere?
-    goal : y ∧l (x ∨l y) ≡ y
-    goal = cong (y ∧l_) (∨lComm x y) ∙ ∧lAbsorb∨l y x
+  hom-∨₂ = ∨≤LCancel
 
   hom-∧₁ : (x y : L .fst) → DLCat [ x ∧l y , x ]
-  hom-∧₁ x y = goal
-    where
-    goal : (x ∧l y) ∧l x ≡ x ∧l y
-    goal = ∧lComm (x ∧l y) x ∙ ∧lAssoc x x y ∙ cong (_∧l y) (∧lIdem x)
+  hom-∧₁ _ _ = (≤m→≤j _ _ (∧≤RCancel _ _))
 
   hom-∧₂ : (x y : L .fst) → DLCat [ x ∧l y , y ]
-  hom-∧₂ x y = goal
-    where
-    goal : (x ∧l y) ∧l y ≡ x ∧l y
-    goal = sym (∧lAssoc x y y) ∙ cong (x ∧l_) (∧lIdem y)
+  hom-∧₂ _ _ = (≤m→≤j _ _ (∧≤LCancel _ _))
+
 
   {-
      x ∧ y ----→   y
