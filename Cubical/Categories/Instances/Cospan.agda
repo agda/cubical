@@ -62,3 +62,16 @@ CospanCat .isSetHom {⓪} {①} = isSetUnit
 CospanCat .isSetHom {①} {①} = isSetUnit
 CospanCat .isSetHom {②} {①} = isSetUnit
 CospanCat .isSetHom {②} {②} = isSetUnit
+
+
+-- makes it easier to write functors into CospanCat
+isPropHomCospanCat : (x y : ob CospanCat) → isProp (CospanCat [ x , y ])
+isPropHomCospanCat ⓪ ⓪ = isPropUnit
+isPropHomCospanCat ⓪ ① = isPropUnit
+isPropHomCospanCat ⓪ ② = isProp⊥
+isPropHomCospanCat ① ⓪ = isProp⊥
+isPropHomCospanCat ① ① = isPropUnit
+isPropHomCospanCat ① ② = isProp⊥
+isPropHomCospanCat ② ⓪ = isProp⊥
+isPropHomCospanCat ② ① = isPropUnit
+isPropHomCospanCat ② ② = isPropUnit
