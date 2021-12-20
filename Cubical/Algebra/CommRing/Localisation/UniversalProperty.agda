@@ -95,12 +95,12 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
    B = fst B'
    open CommRingStr (snd B') renaming  ( is-set to Bset ; _·_ to _·B_ ; 1r to 1b
                                        ; _+_ to _+B_
-                                       ; ·Assoc to ·B-assoc ; ·-comm to ·B-comm
+                                       ; ·Assoc to ·B-assoc ; ·Comm to ·B-comm
                                        ; ·Lid to ·B-lid ; ·Rid to ·B-rid
                                        ; ·Ldist+ to ·B-ldist-+)
    open Units B' renaming (Rˣ to Bˣ ; RˣMultClosed to BˣMultClosed ; RˣContainsOne to BˣContainsOne)
    open RingTheory (CommRing→Ring B') renaming (·-assoc2 to ·B-assoc2)
-   open CommRingTheory B' renaming (·-commAssocl to ·B-commAssocl ; ·-commAssocSwap to ·B-commAssocSwap)
+   open CommRingTheory B' renaming (·CommAssocl to ·B-commAssocl ; ·CommAssocSwap to ·B-commAssocSwap)
 
    ψ₀ = fst ψ
    module ψ = IsRingHom (snd ψ)

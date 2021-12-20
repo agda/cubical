@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Limits where
 
-open import Cubical.Categories.Limits.Base public
+open import Cubical.Categories.Limits.Limits public
 open import Cubical.Categories.Limits.BinProduct public
 open import Cubical.Categories.Limits.BinCoproduct public
 open import Cubical.Categories.Limits.Initial public
