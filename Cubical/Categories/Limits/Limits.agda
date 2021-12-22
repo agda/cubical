@@ -96,7 +96,9 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
                      → limArrow c cc ⋆⟨ C ⟩ limOut u ≡ coneOut cc u
     limArrowCommutes c cc = univProp c cc .fst .snd
 
-    -- TODO: state uniqueness of limArrow
+    limArrowUnique : (c : ob C) → (cc : Cone D c) (k : C [ c , lim ])
+                   → isConeMor cc limCone k → limArrow c cc ≡ k
+    limArrowUnique c cc k hk = cong fst (univProp c cc .snd (k , hk))
 
   -- TODO: define limOfArrows
 
