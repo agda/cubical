@@ -81,7 +81,7 @@ module _ {F : Functor C D} where
     ∎
 
   -- functors preserve isomorphisms
-  preserveIsosF : ∀ {x y} → CatIso {C = C} x y → CatIso {C = D} (F ⟅ x ⟆) (F ⟅ y ⟆)
+  preserveIsosF : ∀ {x y} → CatIso C x y → CatIso D (F ⟅ x ⟆) (F ⟅ y ⟆)
   preserveIsosF {x} {y} (catiso f f⁻¹ sec' ret') =
     catiso
       g g⁻¹

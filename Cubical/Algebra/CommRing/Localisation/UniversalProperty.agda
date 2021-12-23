@@ -32,7 +32,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.RingSolver.ReflectionSolving
+open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
 
@@ -95,12 +95,12 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
    B = fst B'
    open CommRingStr (snd B') renaming  ( is-set to Bset ; _·_ to _·B_ ; 1r to 1b
                                        ; _+_ to _+B_
-                                       ; ·Assoc to ·B-assoc ; ·-comm to ·B-comm
+                                       ; ·Assoc to ·B-assoc ; ·Comm to ·B-comm
                                        ; ·Lid to ·B-lid ; ·Rid to ·B-rid
                                        ; ·Ldist+ to ·B-ldist-+)
    open Units B' renaming (Rˣ to Bˣ ; RˣMultClosed to BˣMultClosed ; RˣContainsOne to BˣContainsOne)
    open RingTheory (CommRing→Ring B') renaming (·-assoc2 to ·B-assoc2)
-   open CommRingTheory B' renaming (·-commAssocl to ·B-commAssocl ; ·-commAssocSwap to ·B-commAssocSwap)
+   open CommRingTheory B' renaming (·CommAssocl to ·B-commAssocl ; ·CommAssocSwap to ·B-commAssocSwap)
 
    ψ₀ = fst ψ
    module ψ = IsRingHom (snd ψ)
@@ -118,7 +118,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
                         ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦄
      ⦃ ψS⊆Bˣ (u · s) (SMultClosedSubset .multClosed u∈S' s∈S') ⦄
      where
-     -- only a few indidividual steps can be solved by the ring solver yet
+     -- only a few individual steps can be solved by the ring solver yet
      instancepath : ⦃ _ : ψ₀ s ∈ Bˣ ⦄ ⦃ _ : ψ₀ s' ∈ Bˣ ⦄
                     ⦃ _ : ψ₀ (u · s · s') ∈ Bˣ ⦄ ⦃ _ : ψ₀ (u · s) ·B ψ₀ s' ∈ Bˣ ⦄
                     ⦃ _ : ψ₀ (u · s) ∈ Bˣ ⦄
@@ -227,7 +227,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
      ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦃ ψS⊆Bˣ (s · s') (SMultClosedSubset .multClosed s∈S' s'∈S') ⦄
      ⦃ BˣMultClosed _ _ ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦄
      where
-     -- only a few indidividual steps can be solved by the ring solver yet
+     -- only a few individual steps can be solved by the ring solver yet
      instancepath : ⦃ _ : ψ₀ s ∈ Bˣ ⦄ ⦃ _ : ψ₀ s' ∈ Bˣ ⦄
                     ⦃ _ : ψ₀ (s · s') ∈ Bˣ ⦄ ⦃ _ : ψ₀ s ·B ψ₀ s' ∈ Bˣ ⦄
                 → ψ₀ (r · s' + r' · s) ·B ψ₀ (s · s') ⁻¹ ≡ ψ₀ r ·B ψ₀ s ⁻¹ +B ψ₀ r' ·B ψ₀ s' ⁻¹
@@ -265,7 +265,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
      ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦃ ψS⊆Bˣ (s · s') (SMultClosedSubset .multClosed s∈S' s'∈S') ⦄
      ⦃ BˣMultClosed _ _ ⦃ ψS⊆Bˣ s s∈S' ⦄ ⦃ ψS⊆Bˣ s' s'∈S' ⦄ ⦄
      where
-     -- only a indidividual steps can be solved by the ring solver yet
+     -- only a few individual steps can be solved by the ring solver yet
      instancepath : ⦃ _ : ψ₀ s ∈ Bˣ ⦄ ⦃ _ : ψ₀ s' ∈ Bˣ ⦄
                     ⦃ _ : ψ₀ (s · s') ∈ Bˣ ⦄ ⦃ _ : ψ₀ s ·B ψ₀ s' ∈ Bˣ ⦄
                   → ψ₀ (r · r') ·B ψ₀ (s · s') ⁻¹ ≡ (ψ₀ r ·B ψ₀ s ⁻¹) ·B (ψ₀ r' ·B ψ₀ s' ⁻¹)
@@ -404,7 +404,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
        _ : fst φ s ∈ Aˣ
        _ = φS⊆Aˣ s s∈S'
        _ : fst φ s ⁻¹ ∈ Aˣ
-       _ = AˣInvClosed _
+       _ = AˣInvClosed (fst φ s)
 
       Σhelper : Σ[ s ∈ S ] (s .fst) · r ≡ 0r → [ r , s , s∈S' ] ≡ 0ₗ
       Σhelper ((u , u∈S') , q) = eq/ _ _ ((u , u∈S') , path)

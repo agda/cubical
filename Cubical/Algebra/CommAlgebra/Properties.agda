@@ -47,7 +47,7 @@ module CommAlgChar (R : CommRing ℓ) where
   CommAlgebraStr.- ACommAlgStr = -_
   CommAlgebraStr._⋆_ ACommAlgStr r a = (φ r) · a
   CommAlgebraStr.isCommAlgebra ACommAlgStr = makeIsCommAlgebra
-   is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·-comm
+   is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·Comm
    (λ _ _ x → cong (λ y →  y · x) (pres· φIsHom _ _) ∙ sym (·Assoc _ _ _))
    (λ _ _ x → cong (λ y → y · x) (pres+ φIsHom _ _) ∙ ·Ldist+ _ _ _)
    (λ _ _ _ → ·Rdist+ _ _ _)

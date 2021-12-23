@@ -92,12 +92,12 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     open NatTransP
 
     -- if the target category has hom Sets, then any natural transformation is a set
-    isSetNat : ∀ {F G : Functor C D}
-             → isSet (NatTrans F G)
-    isSetNat {F} {G} α β p1 p2 i = comp (λ i → NTPath≡PathΣ {F = F} {G} {α} {β} (~ i))
-                                        (λ j → λ {(i = i0) → transport-filler NTPath≡PathΣ p1 (~ j) ;
-                                                  (i = i1) → transport-filler NTPath≡PathΣ p2 (~ j)})
-                                        (p1Σ≡p2Σ i)
+    isSetNatTrans : ∀ {F G : Functor C D}
+                  → isSet (NatTrans F G)
+    isSetNatTrans {F} {G} α β p1 p2 i = comp (λ i → NTPath≡PathΣ {F = F} {G} {α} {β} (~ i))
+                                             (λ j → λ {(i = i0) → transport-filler NTPath≡PathΣ p1 (~ j) ;
+                                                       (i = i1) → transport-filler NTPath≡PathΣ p2 (~ j)})
+                                             (p1Σ≡p2Σ i)
       where
         αOb = α .N-ob
         βOb = β .N-ob

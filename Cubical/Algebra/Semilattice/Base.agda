@@ -178,6 +178,12 @@ module JoinSemilattice (L' : Semilattice ℓ) where
                                                             ∙ cong₂ (_∨l_) x≤z y≤z
                                                             ∙ idem z
 
+ ∨≤LCancel : ∀ x y → y ≤ x ∨l y
+ ∨≤LCancel x y = commAssocl y x y ∙ cong (x ∨l_) (idem y)
+
+ ∨≤RCancel : ∀ x y → x ≤ x ∨l y
+ ∨≤RCancel x y = assoc _ _ _ ∙ cong (_∨l y) (idem x)
+
  ≤-∨Pres : ∀ x y u w → x ≤ y → u ≤ w → x ∨l u ≤ y ∨l w
  ≤-∨Pres x y u w x≤y u≤w = commAssocSwap x u y w ∙ cong₂ (_∨l_) x≤y u≤w
 
