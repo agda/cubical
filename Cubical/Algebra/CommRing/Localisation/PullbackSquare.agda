@@ -7,7 +7,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
--- open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Powerset renaming (_∈_ to _∈ₚ_)
 open import Cubical.Foundations.Transport
 open import Cubical.Functions.FunExtEquiv
 
@@ -34,6 +34,7 @@ open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
+open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.RingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -52,6 +53,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
  open CommRingTheory R'
  open RingTheory (CommRing→Ring R')
  open CommIdeal R'
+ open RadicalIdeal R'
  open Exponentiation R'
  open InvertingElementsBase R'
 
@@ -79,13 +81,32 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
  open Loc R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
       renaming (_≈_ to _≈ᶠ_ ; locIsEquivRel to locIsEquivRelᶠ ; S to Sᶠ)
  open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
-      renaming (_/1 to _/1ᶠ)
+      renaming ( _/1 to _/1ᶠ
+               ; S⁻¹RHasUniversalProp to R[1/f]HasUniversalProp)
  open Loc R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
       renaming (_≈_ to _≈ᵍ_ ; locIsEquivRel to locIsEquivRelᵍ ; S to Sᵍ)
  open S⁻¹RUniversalProp R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
-      renaming (_/1 to _/1ᵍ)
+      renaming ( _/1 to _/1ᵍ
+               ; S⁻¹RHasUniversalProp to R[1/g]HasUniversalProp)
+ open Loc R' [ (f · g) ⁿ|n≥0] (powersFormMultClosedSubset (f · g))
+      renaming (_≈_ to _≈ᶠᵍ_ ; locIsEquivRel to locIsEquivRelᶠᵍ ; S to Sᶠᵍ)
  open S⁻¹RUniversalProp R' [ (f · g) ⁿ|n≥0] (powersFormMultClosedSubset (f · g))
+      renaming ( _/1 to _/1ᶠᵍ ; /1AsCommRingHom to /1ᶠᵍAsCommRingHom)
 
+
+ -- module RadicalLemma (x y : R) where
+ --  open S⁻¹RUniversalProp R' [ x ⁿ|n≥0] (powersFormMultClosedSubset x)
+ --  radicalLemma : x ∈ √ ⟨ replicateFinVec 1 y ⟩ → (y /1) ∈ₚ R[1/ x ]AsCommRing ˣ
+ --  radicalLemma = PT.rec (Units.inverseUniqueness _ (y /1)) {!!}
+ -- private
+ --  χ₁ : CommRingHom R[1/ f ]AsCommRing R[1/ (f · g) ]AsCommRing
+ --  χ₁ = R[1/f]HasUniversalProp _ /1ᶠᵍAsCommRingHom unitHelper .fst .fst
+ --   where
+ --   unitHelper : ∀ s → s ∈ₚ [ f ⁿ|n≥0] → s /1ᶠᵍ ∈ₚ (R[1/ (f · g) ]AsCommRing) ˣ
+ --   unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᶠᵍ))
+ --                  λ n → [ g ^ n , (f · g) ^ n , ∣ n , refl ∣ ]
+ --                        , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
+ --                              , {!!})
 
 
  injectivityLemma : 1r ∈ ⟨f,g⟩ → ∀ (x : R) → x /1ᶠ ≡ 0r → x /1ᵍ ≡ 0r → x ≡ 0r
