@@ -600,6 +600,8 @@ thePushElim = ok
 DECODE : (x : hLevelTrunc 6 (Susp S²)) → CODER x → Path (hLevelTrunc 6 (Susp S²)) ∣ north ∣ x
 DECODE = trElim (λ _ → isOfHLevelΠ 6 λ _ → isOfHLevelPath 6 (isOfHLevelTrunc 6) _ _)
                 DEC
+pointed : DECODE ∣ north ∣ ∣ inl (base , base) ∣ ≡ refl
+pointed = cong (cong ∣_∣ₕ) (cong (λ x → x ∙ x) (rCancel (merid base)) ∙ sym (rUnit refl))
 
 ENCODE : (x : hLevelTrunc 6 (Susp S²)) → Path (hLevelTrunc 6 (Susp S²)) ∣ north ∣ x → CODER x
 ENCODE x p = subst CODER p ∣ inl (base , base) ∣
@@ -607,7 +609,7 @@ ENCODE x p = subst CODER p ∣ inl (base , base) ∣
 enc-dec : (x : hLevelTrunc 6 (Susp S²)) → (p : ∣ north ∣ ≡ x) → DECODE x (ENCODE x p) ≡ p
 enc-dec x = J (λ x p → DECODE x (ENCODE x p) ≡ p)
               (cong (DECODE ∣ north ∣) (transportRefl ∣ inl (base , base) ∣ₕ)
-             ∙ cong (cong ∣_∣ₕ) (cong (λ x → x ∙ x) (rCancel (merid base)) ∙ sym (rUnit refl)))
+             ∙ pointed)
 
 dec-enc : (p : CODER ∣ north ∣) → ENCODE ∣ north ∣ (DECODE ∣ north ∣ p) ≡ p
 dec-enc =
@@ -657,3 +659,37 @@ theIso = compIso (invIso (PathIdTruncIso _))
   inv is = DECODE ∣ north ∣
   rightInv is = dec-enc
   leftInv is = enc-dec ∣ north ∣
+
+ENCODE-refl : ENCODE ∣ north ∣ refl ≡ ∣ inl (base , base) ∣
+ENCODE-refl = transportRefl _
+
+∙≃→π≅ : ∀ {ℓ} {A B : Pointed ℓ} (n : ℕ)
+      → (e : typ A ≃ typ B)
+      → fst e (pt A) ≡ pt B
+      → GroupEquiv (πGr n A) (πGr n B)
+∙≃→π≅ {A = A} {B = B} n e =
+  EquivJ (λ A e → (a : A) → fst e a ≡ pt B → GroupEquiv (πGr n (A , a)) (πGr n B))
+    (λ b p → J (λ b p → GroupEquiv (πGr n (fst B , b)) (πGr n B))
+      idGroupEquiv (sym p))
+    e (pt A)
+
+π₄S³≅π₃PushS² :
+  GroupIso (πGr 3 (S₊∙ 3))
+           (πGr 2 (thePush' , inl (base , base)))
+π₄S³≅π₃PushS² =
+  compGroupIso
+    lem1
+    (compGroupIso
+     (invGroupIso (GrIso-πΩ-π 2))
+     (compGroupIso
+       (πTruncGroupIso 2)
+       (compGroupIso
+         (GroupEquiv→GroupIso
+          (∙≃→π≅ {B = _ , ∣ inl (base , base) ∣ₕ} 2 (isoToEquiv theIso) ENCODE-refl))
+         (invGroupIso (πTruncGroupIso 2)))))
+  where
+
+  lem1 : GroupIso (πGr 3 (S₊∙ 3)) (πGr 3 (Susp∙ S²))
+  lem1 =
+    GroupEquiv→GroupIso
+     (∙≃→π≅ 3 (compEquiv (isoToEquiv (invIso IsoS³S3)) S³≃SuspS²) refl)
