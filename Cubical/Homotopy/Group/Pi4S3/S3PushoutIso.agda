@@ -1,15 +1,17 @@
 {-# OPTIONS --safe #-}
-{- This file has been split in two due to slow type checking
+{-
+This file has been split in two due to slow type checking
 combined with insufficient reductions when the
 experimental-lossy-unification flag is included.
 Part 2: Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2
 
 The goal of these two files is to show that
-π₄(S³) ≅ π₃((S² × S²) ⊔ᴬ S²)
-where A = S² ∨ S². This is proved in Brunerie (2016)
-using the James construction. Here, we prove it directly
-via the encode-decode method. For the statement of the
-isomorphism, see part 2.
+π₄(S³) ≅ π₃((S² × S²) ⊔ᴬ S²) where A = S² ∨ S².
+This is proved in Brunerie (2016) using the James construction and
+via (S² × S²) ⊔ᴬ S² ≃ is J₂(S²).
+
+In this file, we prove it directly using the encode-decode method. For
+the statement of the isomorphism, see part 2.
 -}
 module Cubical.Homotopy.Group.Pi4S3.S3PushoutIso where
 

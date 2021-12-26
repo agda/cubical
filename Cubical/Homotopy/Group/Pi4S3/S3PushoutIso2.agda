@@ -21,10 +21,6 @@ open import Cubical.HITs.Truncation renaming
   (rec to trRec ; elim to trElim ; elim2 to trElim2 ; map to trMap)
 open import Cubical.HITs.S2
 
-
-encode∙ : encode ∣ north ∣ refl ≡ ∣ inl (base , base) ∣
-encode∙ = transportRefl _
-
 ≡→Pushout⋁↪fold⋁≡ : ∀ {ℓ} {A B : Pointed ℓ}
   → (A ≡ B) → Pushout⋁↪fold⋁∙ A ≡ Pushout⋁↪fold⋁∙ B
 ≡→Pushout⋁↪fold⋁≡ = cong Pushout⋁↪fold⋁∙
@@ -35,8 +31,9 @@ private
         → fst e (pt A) ≡ pt B
         → GroupEquiv (πGr n A) (πGr n B)
   ∙≃→π≅ {A = A} {B = B} n e =
-    EquivJ (λ A e → (a : A) → fst e a ≡ pt B → GroupEquiv (πGr n (A , a)) (πGr n B))
-      (λ b p → J (λ b p → GroupEquiv (πGr n (fst B , b)) (πGr n B))
+    EquivJ (λ A e → (a : A) → fst e a ≡ pt B
+                  → GroupEquiv (πGr n (A , a)) (πGr n B))
+      (λ b p → J (λ b p → GroupEquiv (πGr n (typ B , b)) (πGr n B))
         idGroupEquiv (sym p))
       e (pt A)
 
@@ -62,3 +59,6 @@ private
           (GroupEquiv→GroupIso (invEq (GroupPath _ _)
            (cong (πGr 2)
             (cong Pushout⋁↪fold⋁∙ (ua∙ S²≃SuspS¹ refl)))))))))
+  where
+  encode∙ : encode ∣ north ∣ refl ≡ ∣ inl (base , base) ∣
+  encode∙ = transportRefl _
