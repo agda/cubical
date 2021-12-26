@@ -94,19 +94,22 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
       renaming ( _/1 to _/1ᶠᵍ ; /1AsCommRingHom to /1ᶠᵍAsCommRingHom)
 
 
- -- module RadicalLemma (x y : R) where
- --  open S⁻¹RUniversalProp R' [ x ⁿ|n≥0] (powersFormMultClosedSubset x)
- --  radicalLemma : x ∈ √ ⟨ replicateFinVec 1 y ⟩ → (y /1) ∈ₚ R[1/ x ]AsCommRing ˣ
- --  radicalLemma = PT.rec (Units.inverseUniqueness _ (y /1)) {!!}
- -- private
- --  χ₁ : CommRingHom R[1/ f ]AsCommRing R[1/ (f · g) ]AsCommRing
- --  χ₁ = R[1/f]HasUniversalProp _ /1ᶠᵍAsCommRingHom unitHelper .fst .fst
- --   where
- --   unitHelper : ∀ s → s ∈ₚ [ f ⁿ|n≥0] → s /1ᶠᵍ ∈ₚ (R[1/ (f · g) ]AsCommRing) ˣ
- --   unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᶠᵍ))
- --                  λ n → [ g ^ n , (f · g) ^ n , ∣ n , refl ∣ ]
- --                        , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
- --                              , {!!})
+ private
+  χ₁ : CommRingHom R[1/ f ]AsCommRing R[1/ (f · g) ]AsCommRing
+  χ₁ = RadicalLemma.toHom _ _ _ fg∈√⟨f⟩
+   where
+   useSolver : ∀ x y → y · x · 1r ≡ x · y + 0r
+   useSolver = solve R'
+   fg∈√⟨f⟩ : (f · g) ∈ √ ⟨ replicateFinVec 1 f ⟩
+   fg∈√⟨f⟩ = ∣ 1 , ∣ (replicateFinVec 1 g) , useSolver _ _ ∣ ∣
+
+  χ₂ : CommRingHom R[1/ g ]AsCommRing R[1/ (f · g) ]AsCommRing
+  χ₂ = RadicalLemma.toHom _ _ _ fg∈√⟨g⟩
+   where
+   useSolver : ∀ x y → x · y · 1r ≡ x · y + 0r
+   useSolver = solve R'
+   fg∈√⟨g⟩ : (f · g) ∈ √ ⟨ replicateFinVec 1 g ⟩
+   fg∈√⟨g⟩ = ∣ 1 , ∣ (replicateFinVec 1 f) , useSolver _ _ ∣ ∣
 
 
  injectivityLemma : 1r ∈ ⟨f,g⟩ → ∀ (x : R) → x /1ᶠ ≡ 0r → x /1ᵍ ≡ 0r → x ≡ 0r

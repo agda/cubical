@@ -225,6 +225,13 @@ module Exponentiation (R' : CommRing ℓ) where
                         ∙∙ cong (f ^ m ·_) (^-rdist-·ℕ f n m)
                         ∙∙ sym  (^-ldist-· f (f ^ n) m)
 
+ -- interaction of exponentiation and units
+ open Units R'
+
+ ^-presUnit : ∀ (f : R) (n : ℕ) → f ∈ Rˣ → f ^ n ∈ Rˣ
+ ^-presUnit f zero f∈Rˣ = RˣContainsOne
+ ^-presUnit f (suc n) f∈Rˣ = RˣMultClosed f (f ^ n) ⦃ f∈Rˣ ⦄ ⦃ ^-presUnit f n f∈Rˣ ⦄
+
 
 -- like in Ring.Properties we provide helpful lemmas here
 module CommRingTheory (R' : CommRing ℓ) where
@@ -244,4 +251,3 @@ module CommRingTheory (R' : CommRing ℓ) where
  ·-commAssocSwap : (x y z w : R) → (x · y) · (z · w) ≡ (x · z) · (y · w)
  ·-commAssocSwap x y z w = ·Assoc (x · y) z w ∙∙ cong (_· w) (·-commAssocr x y z)
                                                ∙∙ sym (·Assoc (x · z) y w)
-

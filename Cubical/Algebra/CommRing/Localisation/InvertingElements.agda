@@ -39,6 +39,10 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
+open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.FGIdeal
+open import Cubical.Algebra.CommRing.RadicalIdeal
+
 open import Cubical.Algebra.RingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -109,6 +113,56 @@ module InvertingElementsBase (R' : CommRing ℓ) where
  powersPropElim {f = f} {P = P} PisProp base s =
                 PT.rec (PisProp s) λ (n , p) → subst P (sym p) (base n)
 
+
+module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
+ open IsRingHom
+ open isMultClosedSubset
+ open CommRingTheory R'
+ open RingTheory (CommRing→Ring R')
+ open CommIdeal R' hiding (subst-∈) renaming (_∈_ to _∈ᵢ_)
+ open RadicalIdeal R'
+ open Exponentiation R'
+ open InvertingElementsBase R'
+
+ open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+      hiding (S⁻¹RHasUniversalProp)
+ open S⁻¹RUniversalProp R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
+      hiding (_/1 ; /1AsCommRingHom)
+ open CommRingStr (R' .snd) --⦃...⦄
+ private
+  R = R' .fst
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+  -- instance
+  --  _ = R' .snd
+  --  _ = R[1/ f ]AsCommRing .snd
+
+ toUnit : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
+ toUnit = PT.rec isPropGoal (uncurry ℕhelper)
+  where
+  isPropGoal = Units.inverseUniqueness _ (g /1)
+
+  ℕhelper : (n : ℕ) → f ^ n ∈ᵢ ⟨ replicateFinVec 1 g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
+  ℕhelper n = PT.rec isPropGoal -- fⁿ≡αg → g⁻¹≡α/fⁿ
+       λ (α , p) → [ (α zero) , (f ^ n) , ∣ n , refl ∣ ]
+                 , eq/ _ _ ((1r , powersFormMultClosedSubset f .containsOne)
+                 , useSolver1 _ _ ∙ sym p ∙ useSolver2 _)
+   where
+   useSolver1 : ∀ x y → 1r · (x · y) · 1r ≡  y · x + 0r
+   useSolver1 = solve R'
+
+   useSolver2 : ∀ x → x ≡ 1r · 1r · (1r · x)
+   useSolver2 = solve R'
+
+ -- applying the universal property
+ toHom : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩
+       → CommRingHom R[1/ g ]AsCommRing R[1/ f ]AsCommRing
+ toHom f∈√⟨g⟩ = S⁻¹RHasUniversalProp _ /1AsCommRingHom unitHelper .fst .fst
+  where
+  unitHelper : ∀ s → s ∈ [ g ⁿ|n≥0] → (s /1) ∈ R[1/ f ]AsCommRing ˣ
+  unitHelper = powersPropElim (λ x → Units.inverseUniqueness _ (x /1))
+               λ n → subst-∈ (R[1/ f ]AsCommRing ˣ) (sym (^-respects-/1 n))
+                      (Exponentiation.^-presUnit _ _ n (toUnit f∈√⟨g⟩))
 
 
 module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
