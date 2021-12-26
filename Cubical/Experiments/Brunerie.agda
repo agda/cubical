@@ -19,7 +19,7 @@ open S¹Hopf
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
-Bool∙ S¹∙ S²∙ S³∙ : Pointed₀
+Bool∙ S¹∙ S³∙ : Pointed₀
 Bool∙ = (Bool , true)
 S¹∙ = (S¹ , base)
 S³∙ = (S³ , base)
