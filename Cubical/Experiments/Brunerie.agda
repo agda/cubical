@@ -22,7 +22,6 @@ open S¹Hopf
 Bool∙ S¹∙ S²∙ S³∙ : Pointed₀
 Bool∙ = (Bool , true)
 S¹∙ = (S¹ , base)
-S²∙ = (S² , base)
 S³∙ = (S³ , base)
 
 ∥_∥₃∙ ∥_∥₄∙ : Pointed₀ → Pointed₀
