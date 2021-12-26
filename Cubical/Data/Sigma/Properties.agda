@@ -30,6 +30,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Unit.Base
+open import Cubical.Data.Empty.Base
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -89,6 +90,12 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
 
 ×≡Prop : isProp A' → {u v : A × A'} → u .fst ≡ v .fst → u ≡ v
 ×≡Prop pB {u} {v} p i = (p i) , (pB (u .snd) (v .snd) i)
+
+-- Useful lemma to prove unique existence
+uniqueExists : (a : A) (b : B a) (h : (a' : A) → isProp (B a')) (H : (a' : A) → B a' → a ≡ a') → ∃![ a ∈ A ] B a
+fst (uniqueExists a b h H) = (a , b)
+snd (uniqueExists a b h H) (a' , b') = ΣPathP (H a' b' , isProp→PathP (λ i → h (H a' b' i)) b b')
+
 
 -- Characterization of dependent paths in Σ
 
@@ -263,16 +270,17 @@ PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
 ΣPathTransport≡PathΣ : (a b : Σ A B) → ΣPathTransport a b ≡ (a ≡ b)
 ΣPathTransport≡PathΣ a b = ua (ΣPathTransport≃PathΣ a b)
 
+Σ-contractFstIso : (c : isContr A) → Iso (Σ A B) (B (c .fst))
+fun (Σ-contractFstIso {B = B} c) p = subst B (sym (c .snd (fst p))) (snd p)
+inv (Σ-contractFstIso {B = B} c) b = _ , b
+rightInv (Σ-contractFstIso {B = B} c) b =
+  cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _) ∙ transportRefl _
+fst (leftInv (Σ-contractFstIso {B = B} c) p j) = c .snd (fst p) j
+snd (leftInv (Σ-contractFstIso {B = B} c) p j) =
+  transp (λ i → B (c .snd (fst p) (~ i ∨ j))) j (snd p)
+
 Σ-contractFst : (c : isContr A) → Σ A B ≃ B (c .fst)
-Σ-contractFst {B = B} c = isoToEquiv isom
-  where
-  isom : Iso _ _
-  isom .fun (a , b) = subst B (sym (c .snd a)) b
-  isom .inv b = (c .fst , b)
-  isom .rightInv b =
-    cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _) ∙ transportRefl _
-  isom .leftInv (a , b) =
-    ΣPathTransport≃PathΣ _ _ .fst (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)
+Σ-contractFst {B = B} c = isoToEquiv (Σ-contractFstIso c)
 
 -- a special case of the above
 module _ (A : Unit → Type ℓ) where
@@ -358,3 +366,14 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''}
   Iso.leftInv curryIso f = refl
 
   unquoteDecl curryEquiv = declStrictIsoToEquiv curryEquiv curryIso
+
+-- Sigma type with empty base
+module _ (A : ⊥ → Type ℓ) where
+
+  open Iso
+
+  ΣEmptyIso : Iso (Σ ⊥ A) ⊥
+  fun ΣEmptyIso (* , _) = *
+
+  ΣEmpty : Σ ⊥ A ≃ ⊥
+  ΣEmpty = isoToEquiv ΣEmptyIso

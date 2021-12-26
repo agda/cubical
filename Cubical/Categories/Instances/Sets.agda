@@ -5,43 +5,26 @@ module Cubical.Categories.Instances.Sets where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Data.Unit
+open import Cubical.Data.Sigma using (ΣPathP)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 
-open Precategory
+open import Cubical.Categories.Limits
+
+open Category
 
 module _ ℓ where
-  SET : Precategory (ℓ-suc ℓ) ℓ
-  SET .ob = Σ (Type ℓ) isSet
-  SET .Hom[_,_] (A , _) (B , _) = A → B
-  SET .id _  = λ x → x
-  SET ._⋆_ f g = λ x → g (f x)
-  SET .⋆IdL f = refl
-  SET .⋆IdR f = refl
-  SET .⋆Assoc f g h = refl
-
-module _ {ℓ} where
-  isSetExpIdeal : {A B : Type ℓ} → isSet B → isSet (A → B)
-  isSetExpIdeal B/set = isSetΠ λ _ → B/set
-
-  isSetLift : {A : Type ℓ} → isSet A → isSet (Lift {ℓ} {ℓ-suc ℓ} A)
-  isSetLift = isOfHLevelLift 2
-
-  module _ {A B : SET ℓ .ob} where
-    -- monic/surjectiveness
-    open import Cubical.Categories.Morphism
-    isSurjSET : (f : SET ℓ [ A , B ]) → Type _
-    isSurjSET f = ∀ (b : fst B) → Σ[ a ∈ fst A ] f a ≡ b
-
-    -- isMonic→isSurjSET : {f : SET ℓ [ A , B ]}
-    --                   → isEpic {C = SET ℓ} {x = A} {y = B} f
-    --                   → isSurjSET f
-    -- isMonic→isSurjSET ism b = {!!} , {!!}
-
-  instance
-    SET-category : isCategory (SET ℓ)
-    SET-category .isSetHom {_} {B , B/set} = isSetExpIdeal B/set
+  SET : Category (ℓ-suc ℓ) ℓ
+  ob SET = hSet ℓ
+  Hom[_,_] SET (A , _) (B , _) = A → B
+  id SET x = x
+  _⋆_ SET f g x = g (f x)
+  ⋆IdL SET f = refl
+  ⋆IdR SET f = refl
+  ⋆Assoc SET f g h = refl
+  isSetHom SET {A} {B} = isSetΠ (λ _ → snd B)
 
 private
   variable
@@ -50,19 +33,19 @@ private
 open Functor
 
 -- Hom functors
-_[-,_] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor (C ^op) (SET ℓ')
-(C [-, c ]) ⦃ isCat ⦄ .F-ob x = (C [ x , c ]) , isCat .isSetHom
-(C [-, c ])           .F-hom f k = f ⋆⟨ C ⟩ k
-(C [-, c ])           .F-id = funExt λ _ → C .⋆IdL _
-(C [-, c ])           .F-seq _ _ = funExt λ _ → C .⋆Assoc _ _ _
+_[-,_] : (C : Category ℓ ℓ') → (c : C .ob) → Functor (C ^op) (SET ℓ')
+(C [-, c ]) .F-ob x    = (C [ x , c ]) , C .isSetHom
+(C [-, c ]) .F-hom f k = f ⋆⟨ C ⟩ k
+(C [-, c ]) .F-id      = funExt λ _ → C .⋆IdL _
+(C [-, c ]) .F-seq _ _ = funExt λ _ → C .⋆Assoc _ _ _
 
-_[_,-] : (C : Precategory ℓ ℓ') → (c : C .ob) → ⦃ isCat : isCategory C ⦄ → Functor C (SET ℓ')
-(C [ c ,-]) ⦃ isCat ⦄ .F-ob x = (C [ c , x ]) , isCat .isSetHom
-(C [ c ,-])           .F-hom f k = k ⋆⟨ C ⟩ f
-(C [ c ,-])           .F-id = funExt λ _ → C .⋆IdR _
-(C [ c ,-])           .F-seq _ _ = funExt λ _ → sym (C .⋆Assoc _ _ _)
+_[_,-] : (C : Category ℓ ℓ') → (c : C .ob)→ Functor C (SET ℓ')
+(C [ c ,-]) .F-ob x    = (C [ c , x ]) , C .isSetHom
+(C [ c ,-]) .F-hom f k = k ⋆⟨ C ⟩ f
+(C [ c ,-]) .F-id      = funExt λ _ → C .⋆IdR _
+(C [ c ,-]) .F-seq _ _ = funExt λ _ → sym (C .⋆Assoc _ _ _)
 
-module _ {C : Precategory ℓ ℓ'} ⦃ _ : isCategory C ⦄ {F : Functor C (SET ℓ')} where
+module _ {C : Category ℓ ℓ'} {F : Functor C (SET ℓ')} where
   open NatTrans
 
   -- natural transformations by pre/post composition
@@ -86,21 +69,68 @@ open Iso
 
 Iso→CatIso : ∀ {A B : (SET ℓ) .ob}
            → Iso (fst A) (fst B)
-           → CatIso {C = SET ℓ} A B
+           → CatIso (SET ℓ) A B
 Iso→CatIso is .mor = is .fun
 Iso→CatIso is .cInv = is .inv
 Iso→CatIso is .sec = funExt λ b → is .rightInv b -- is .rightInv
 Iso→CatIso is .ret = funExt λ b → is .leftInv b -- is .rightInv
 
 
--- TYPE category is has all types as objects
--- kind of useless
-module _ ℓ where
-  TYPE : Precategory (ℓ-suc ℓ) ℓ
-  TYPE .ob = Type ℓ
-  TYPE .Hom[_,_] A B = A → B
-  TYPE .id A  = λ x → x
-  TYPE ._⋆_ f g = λ x → g (f x)
-  TYPE .⋆IdL f = refl
-  TYPE .⋆IdR f = refl
-  TYPE .⋆Assoc f g h = refl
+
+-- SET is complete
+
+-- notes:
+-- didn't need to restrict to *finite* diagrams , why is that required in Set theoretic?
+-- didn't use coinduction here because Agda didn't like me referencing 'cone' frome 'up' (termination check)
+
+open NatTrans
+
+isCompleteSET : ∀ {ℓJ ℓJ'} → complete' {ℓJ = ℓJ} {ℓJ'} (SET (ℓ-max ℓJ ℓJ'))
+isCompleteSET J K = record
+                  { head = head'
+                  ; islim = record { cone = cone' ; up = up' } }
+  where
+    -- the limit is defined as the Set of all cones with head Unit
+    head' = Cone K (Unit* , isOfHLevelLift 2 isSetUnit) , isSetNatTrans
+
+    -- the legs are defined by taking a cone to its component at j
+    cone' : Cone K head'
+    cone' .N-ob j μ = (μ ⟦ j ⟧) tt*
+    -- Naturality follows from naturality of the Unit cone
+    cone' .N-hom {x = i} {j} f
+      = funExt λ μ → (μ ⟦ j ⟧) tt*
+        ≡[ i ]⟨ (μ .N-hom f i) tt* ⟩
+          (K ⟪ f ⟫) ((μ ⟦ i ⟧) tt*)
+        ∎
+
+    -- Given another cone α, we want a unique function f from α → cone' which factors it
+    -- factorization property enforces that (cone' ⟦ j ⟧ ● f) ≡ α ⟦ j ⟧
+    -- but cone' ⟦ j ⟧ simply takes the jth component the output Cone K Unit from f
+    -- so this enforces that for all x ∈ A, (f x) ⟦ j ⟧ ≡ α ⟦ j ⟧ x
+    -- this determines the *only* possible factoring morphism
+    up' : ∀ {A} (α : Cone K A) → cone' uniquelyFactors α
+    up' {A} α = (f , fact) , unique
+      where
+        f : fst A → Cone K (Unit* , isOfHLevelLift 2 isSetUnit)
+        f x = natTrans (λ j _ → α .N-ob j x)
+                       (λ {m} {n} f → funExt λ μ i → α .N-hom f i x)
+
+        fact : α ≡ (f ◼ cone')
+        fact = makeNatTransPath refl -- I LOVE DEFINITIONAL EQUALITY
+
+        unique : (τ : cone' factors α) → (f , fact) ≡ τ
+        unique (f' , fact') = ΣPathP (f≡f' , fact≡fact')
+          where
+            f≡f' : f ≡ f'
+            f≡f' = funExt λ x → makeNatTransPath (funExt λ _ → sym eq2)
+              where
+                -- the factorization property enforces that f' must have the same behavior as f
+                eq1 : ∀ {x j} → ((cone' ⟦ j ⟧) (f' x)) ≡ (α ⟦ j ⟧) x
+                eq1 {x} {j} i = ((fact' (~ i)) ⟦ j ⟧) x
+
+                eq2 : ∀ {x j} → (f' x) ⟦ j ⟧ ≡ λ _ → (α ⟦ j ⟧) x -- = (f x) ⟦ j ⟧
+                eq2 {x} {j} = funExt λ _ → eq1
+
+            -- follows from Set having homsets
+            fact≡fact' : PathP (λ i → α ≡ ((f≡f' i) ◼ cone')) fact fact'
+            fact≡fact' = isOfHLevel→isOfHLevelDep 1 (λ β → isSetNatTrans α β) fact fact' λ i → (f≡f' i) ◼ cone'

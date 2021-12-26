@@ -27,14 +27,14 @@ private
 
 
 -- (PreShv C) / F ≃ᶜ PreShv (∫ᴾ F)
-module _ {ℓS : Level} (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓS)) where
-  open Precategory
+module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS)) where
+  open Category
   open Functor
   open _≃ᶜ_
   open isEquivalence
   open NatTrans
   open NatIso
-  open Slice (PreShv C ℓS) F ⦃ isCatPreShv {C = C} ⦄
+  open Slice (PreShv C ℓS) F
   open Elements {C = C}
 
   open Fibration.ForSets
@@ -138,28 +138,28 @@ module _ {ℓS : Level} (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓ
         = funExt idFunExt
           where
             idFunExt : ∀ (un : fst (LF-ob c))
-                      → (LF-hom (C .id c) un) ≡ un
+                      → (LF-hom (C .id) un) ≡ un
             idFunExt (x , X) = ΣPathP (leftEq , rightEq)
               where
-                leftEq : (F ⟪ C .id c ⟫) x ≡ x
+                leftEq : (F ⟪ C .id ⟫) x ≡ x
                 leftEq i = F .F-id i x
 
                 rightEq : PathP (λ i → fst (P ⟅ c , leftEq i ⟆))
-                          ((P ⟪ C .id c , refl ⟫) X) X
+                          ((P ⟪ C .id , refl ⟫) X) X
                 rightEq = left ▷ right
                   where
                     -- the id morphism in (∫ᴾ F)
-                    ∫id = C .id c , sym (funExt⁻ (F .F-id) x ∙ refl)
+                    ∫id = C .id , sym (funExt⁻ (F .F-id) x ∙ refl)
 
                     -- functoriality of P gives us close to what we want
                     right : (P ⟪ ∫id ⟫) X ≡ X
                     right i = P .F-id i X
 
-                    -- but need to do more work to show that (C .id c , refl) ≡ ∫id
+                    -- but need to do more work to show that (C .id , refl) ≡ ∫id
                     left : PathP (λ i → fst (P ⟅ c , leftEq i ⟆))
-                                  ((P ⟪ C .id c , refl ⟫) X)
+                                  ((P ⟪ C .id , refl ⟫) X)
                                   ((P ⟪ ∫id ⟫) X)
-                    left i = (P ⟪ ∫ᴾhomEq {F = F} (C .id c , refl) ∫id (λ i → (c , leftEq i)) refl refl i ⟫) X
+                    left i = (P ⟪ ∫ᴾhomEq {F = F} (C .id , refl) ∫id (λ i → (c , leftEq i)) refl refl i ⟫) X
       L-ob-ob .F-seq {x = c} {d} {e} f g
         = funExt seqFunEq
           where
@@ -272,11 +272,11 @@ module _ {ℓS : Level} (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓ
 
     -- isomorphism follows from typeSectionIso
     ηIso : ∀ (sob : SliceCat .ob)
-          → isIsoC {C = SliceCat} (ηTrans ⟦ sob ⟧)
+          → isIsoC SliceCat (ηTrans ⟦ sob ⟧)
     ηIso sob@(sliceob ϕ) = sliceIso _ _ (FUNCTORIso _ _ _ isIsoCf)
       where
         isIsoCf : ∀ (c : C .ob)
-                → isIsoC (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
+                → isIsoC _ (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
         isIsoCf c = CatIso→isIso (Iso→CatIso (typeSectionIso {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧)))
 
 
@@ -370,11 +370,11 @@ module _ {ℓS : Level} (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓ
                 eq'≡eq = snd (F ⟅ c ⟆) _ _ eq' eq
 
     εIso : ∀ (P : PreShv (∫ᴾ F) ℓS .ob)
-          → isIsoC {C = PreShv (∫ᴾ F) ℓS} (εTrans ⟦ P ⟧)
+          → isIsoC (PreShv (∫ᴾ F) ℓS) (εTrans ⟦ P ⟧)
     εIso P = FUNCTORIso _ _ _ isIsoC'
       where
         isIsoC' : ∀ (cx : (∫ᴾ F) .ob)
-                → isIsoC {C = SET _} ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
+                → isIsoC (SET _) ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
         isIsoC' cx@(c , _) = CatIso→isIso (Iso→CatIso (invIso (typeFiberIso {isSetA = snd (F ⟅ c ⟆)} _)))
 
 
