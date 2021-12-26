@@ -8,7 +8,7 @@ Part 2: Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2
 The goal of these two files is to show that
 π₄(S³) ≅ π₃((S² × S²) ⊔ᴬ S²) where A = S² ∨ S².
 This is proved in Brunerie (2016) using the James construction and
-via (S² × S²) ⊔ᴬ S² ≃ is J₂(S²).
+via (S² × S²) ⊔ᴬ S² ≃ is J₂(S²). S² × S² ← S² ∨ S² → S²
 
 In this file, we prove it directly using the encode-decode method. For
 the statement of the isomorphism, see part 2.

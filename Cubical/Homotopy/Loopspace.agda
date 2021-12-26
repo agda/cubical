@@ -69,7 +69,7 @@ snd (Ω→ {A = A} {B = B} (f , p)) = ∙∙lCancel p
             (sym (snd f)) (cong (fst f) q) (snd f) k) j
        ; (j = i0) → snd f k
        ; (j = i1) → snd f k})
-    (cong-∙ (fst f) p q i j) 
+    (cong-∙ (fst f) p q i j)
 
 isEquivΩ→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
            → (f : (A →∙ B))
