@@ -100,22 +100,32 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
  -- the pullback legs
  private
+  -- using RadicalLemma doesn't compute...
   χ₁ : CommRingHom R[1/ f ]AsCommRing R[1/ (f · g) ]AsCommRing
-  χ₁ = RadicalLemma.toHom _ _ _ fg∈√⟨f⟩
+  χ₁ = R[1/f]HasUniversalProp _ /1ᶠᵍAsCommRingHom unitHelper .fst .fst
    where
-   useSolver : ∀ x y → y · x · 1r ≡ x · y + 0r
-   useSolver = solve R'
-   fg∈√⟨f⟩ : (f · g) ∈ √ ⟨ replicateFinVec 1 f ⟩
-   fg∈√⟨f⟩ = ∣ 1 , ∣ (replicateFinVec 1 g) , useSolver _ _ ∣ ∣
+   unitHelper : ∀ s → s ∈ₚ [ f ⁿ|n≥0] → s /1ᶠᵍ ∈ₚ (R[1/ (f · g) ]AsCommRing) ˣ
+   unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᶠᵍ))
+                  λ n → [ g ^ n , (f · g) ^ n , ∣ n , refl ∣ ]
+                        , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
+                        , path n)
+    where
+    -- deal with this later
+    -- useSolver1 : ∀ (a b : R) → 1r · (a · b) · 1r
+    -- useSolver1 = solve R'
+    -- useSolver2 : ∀ a → (1r · 1r) · (1r · a)
+    -- useSolver2 = solve R'
+    path : (n : ℕ) → 1r · (f ^ n · g ^ n) · 1r ≡ (1r · 1r) · (1r · ((f · g) ^ n))
+    path = {!!}
 
   χ₂ : CommRingHom R[1/ g ]AsCommRing R[1/ (f · g) ]AsCommRing
-  χ₂ = RadicalLemma.toHom _ _ _ fg∈√⟨g⟩
+  χ₂ = R[1/g]HasUniversalProp _ /1ᶠᵍAsCommRingHom unitHelper .fst .fst
    where
-   useSolver : ∀ x y → x · y · 1r ≡ x · y + 0r
-   useSolver = solve R'
-   fg∈√⟨g⟩ : (f · g) ∈ √ ⟨ replicateFinVec 1 g ⟩
-   fg∈√⟨g⟩ = ∣ 1 , ∣ (replicateFinVec 1 f) , useSolver _ _ ∣ ∣
-
+   unitHelper : ∀ s → s ∈ₚ [ g ⁿ|n≥0] → s /1ᶠᵍ ∈ₚ (R[1/ (f · g) ]AsCommRing) ˣ
+   unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᶠᵍ))
+                  λ n → [ f ^ n , (f · g) ^ n , ∣ n , refl ∣ ]
+                        , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
+                              , {!!})
 
  injectivityLemma : 1r ∈ ⟨f,g⟩ → ∀ (x : R) → x /1ᶠ ≡ 0r → x /1ᵍ ≡ 0r → x ≡ 0r
  injectivityLemma 1∈⟨f,g⟩ x x≡0overF x≡0overG =
@@ -199,10 +209,12 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
            → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
                         × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
   baseCase x y n χ₁[x/fⁿ]≡χ₂[y/gⁿ] = {!!}
-   -- where
-   -- doesn't compute...
-   -- exAnnihilator : ∃[ s ∈ Sᶠᵍ ] (fst s · _ · _ ≡ fst s · _ · _)
-   -- exAnnihilator = isEquivRel→TruncIso locIsEquivRelᶠᵍ _ _ .fun χ₁[x/fⁿ]≡χ₂[y/gⁿ]
+   where
+   -- doesn't compute that well but at least it computes...
+   exAnnihilator : ∃[ s ∈ Sᶠᵍ ] -- s.t.
+     (fst s · (x · transp (λ _ → R) i0 (g ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n))
+    ≡ fst s · (y · transp (λ _ → R) i0 (f ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n)))
+   exAnnihilator = isEquivRel→TruncIso locIsEquivRelᶠᵍ _ _ .fun χ₁[x/fⁿ]≡χ₂[y/gⁿ]
 
 
  {-
