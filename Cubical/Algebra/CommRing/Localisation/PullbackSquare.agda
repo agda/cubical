@@ -192,7 +192,17 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                 → ∀ (x : R[1/ f ]) (y : R[1/ g ])
                 → χ₁ .fst x ≡ χ₂ .fst y
                 → ∃![ z ∈ R ] (z /1ᶠ ≡ x) × (z /1ᵍ ≡ y)
- equalizerLemma = {!!}
+ equalizerLemma 1∈⟨f,g⟩ = InvElPropElim2 (λ _ _ → isPropΠ (λ _ → isPropIsContr)) baseCase
+  where
+  baseCase : ∀ (x y : R) (n : ℕ)
+           → fst χ₁ ([ x , f ^ n , ∣ n , refl ∣ ]) ≡ fst χ₂ ([ y , g ^ n , ∣ n , refl ∣ ])
+           → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
+                        × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+  baseCase x y n χ₁[x/fⁿ]≡χ₂[y/gⁿ] = {!!}
+   -- where
+   -- doesn't compute...
+   -- exAnnihilator : ∃[ s ∈ Sᶠᵍ ] (fst s · _ · _ ≡ fst s · _ · _)
+   -- exAnnihilator = isEquivRel→TruncIso locIsEquivRelᶠᵍ _ _ .fun χ₁[x/fⁿ]≡χ₂[y/gⁿ]
 
 
  {-

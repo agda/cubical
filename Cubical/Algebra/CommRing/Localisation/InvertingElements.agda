@@ -104,6 +104,60 @@ module InvertingElementsBase (R' : CommRing ℓ) where
    Σhelper : Σ[ n ∈ ℕ ] s ≡ f ^ n → P [ r , s , s∈S[f] ]
    Σhelper (n , p) = subst P (cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym p)))) (base r n)
 
+ InvElPropElim2 : {f g : R} {P : R[1/ f ] → R[1/ g ] → Type ℓ'}
+                → (∀ x y →  isProp (P x y))
+                → (∀ (r s : R) (n : ℕ) → P [ r , (f ^ n) , PT.∣ n , refl ∣ ]
+                                           [ s , (g ^ n) , PT.∣ n , refl ∣ ])
+               ----------------------------------------------------------
+                → (∀ x y → P x y)
+ InvElPropElim2 {f = f} {g = g} {P = P} PisProp base =
+   InvElPropElim (λ _ → isPropΠ (λ _ → PisProp _ _)) reduce1
+   where
+   reduce1 : ∀ (r : R) (n : ℕ) (y : R[1/ g ]) → P [ r , f ^ n , ∣ n , refl ∣ ] y
+   reduce1 r n = InvElPropElim (λ _ → PisProp _ _) reduce2
+     where
+     reduce2 : (s : R) (m : ℕ) → P [ r , f ^ n , ∣ n , refl ∣ ] [ s , g ^ m , ∣ m , refl ∣ ]
+     reduce2 s m = subst2 P p q (base _ _ l)
+      where
+      l = max m n
+      x : R[1/ f ]
+      x = [ r , f ^ n , ∣ n , refl ∣ ]
+      y : R[1/ g ]
+      y = [ s , g ^ m , ∣ m , refl ∣ ]
+      x' : R[1/ f ]
+      x' = [ r · f ^ (l ∸ n) , f ^ l , ∣ l , refl ∣ ]
+      y' : R[1/ g ]
+      y' = [ s · g ^ (l ∸ m) , g ^ l , ∣ l , refl ∣ ]
+
+      p : x' ≡ x
+      p = eq/ _ _ ((1r , ∣ 0 , refl ∣) , path)
+       where
+       useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
+       useSolver1 = solve R'
+       useSolver2 : ∀ a b → a · b ≡ 1r · a · b
+       useSolver2 = solve R'
+       path : 1r · (r · f ^ (l ∸ n)) · f ^ n ≡ 1r · r · f ^ l
+       path = 1r · (r · f ^ (l ∸ n)) · f ^ n ≡⟨ useSolver1 _ _ _ ⟩
+              r · (f ^ (l ∸ n) · f ^ n)      ≡⟨ cong (r ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+              r · f ^ (l ∸ n +ℕ n)           ≡⟨ cong (λ k → r · f ^ k) (≤-∸-+-cancel right-≤-max) ⟩
+              r · f ^ l                      ≡⟨ useSolver2 _ _ ⟩
+              1r · r · f ^ l ∎
+
+      q : y' ≡ y
+      q = eq/ _ _ ((1r , ∣ 0 , refl ∣) , path)
+       where
+       useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
+       useSolver1 = solve R'
+       useSolver2 : ∀ a b → a · b ≡ 1r · a · b
+       useSolver2 = solve R'
+       path : 1r · (s · g ^ (l ∸ m)) · g ^ m ≡ 1r · s · g ^ l
+       path = 1r · (s · g ^ (l ∸ m)) · g ^ m ≡⟨ useSolver1 _ _ _ ⟩
+              s · (g ^ (l ∸ m) · g ^ m)      ≡⟨ cong (s ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+              s · g ^ (l ∸ m +ℕ m)           ≡⟨ cong (λ k → s · g ^ k) (≤-∸-+-cancel left-≤-max) ⟩
+              s · g ^ l                      ≡⟨ useSolver2 _ _ ⟩
+              1r · s · g ^ l ∎
+
+
  -- For predicates over the set of powers
  powersPropElim : {f : R} {P : R → Type ℓ'}
                 → (∀ x →  isProp (P x))
@@ -128,14 +182,12 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
       hiding (S⁻¹RHasUniversalProp)
  open S⁻¹RUniversalProp R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
       hiding (_/1 ; /1AsCommRingHom)
- open CommRingStr (R' .snd) --⦃...⦄
+ open CommRingStr (R' .snd)
+
  private
   R = R' .fst
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
-  -- instance
-  --  _ = R' .snd
-  --  _ = R[1/ f ]AsCommRing .snd
 
  toUnit : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
  toUnit = PT.rec isPropGoal (uncurry ℕhelper)
