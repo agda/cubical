@@ -119,7 +119,7 @@ module _
 
   inj/→∥ : (x y : X / R) → /→∥ x ≡ /→∥ y → x ≡ y
   inj/→∥ =
-    SetQuot.elimProp2 {C = λ x y → /→∥ x ≡ /→∥ y → x ≡ y}
+    SetQuot.elimProp2 {P = λ x y → /→∥ x ≡ /→∥ y → x ≡ y}
       (λ _ _ → isPropΠ (λ _ → squash/ _ _))
       (λ x y q → Prop.rec (squash/ _ _) (λ r → eq/ _ _ r) (inj/→∥' x y q))
 
