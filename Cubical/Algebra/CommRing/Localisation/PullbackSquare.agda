@@ -331,10 +331,63 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
       z = α₀ · x · f ^ (n +ℕ m) + α₁ · y · g ^ (n +ℕ m)
 
       z/1≡x/fⁿ : (z /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣ ]
-      z/1≡x/fⁿ = {!!}
+      z/1≡x/fⁿ = eq/ _ _ ((f ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣) , path)
+       where
+       useSolver1 : ∀ x y α₀ α₁ fⁿ⁺ᵐ gⁿ⁺ᵐ fⁿ
+                  → fⁿ⁺ᵐ · (α₀ · x · fⁿ⁺ᵐ + α₁ · y · gⁿ⁺ᵐ) · fⁿ
+                  ≡ fⁿ⁺ᵐ · (α₀ · x · (fⁿ · fⁿ⁺ᵐ)) + α₁ · (y · fⁿ · (fⁿ⁺ᵐ · gⁿ⁺ᵐ))
+       useSolver1 = solve R'
+
+       useSolver2 : ∀ x α₀ α₁ fⁿ⁺ᵐ g²ⁿ⁺ᵐ f²ⁿ⁺ᵐ
+                  → fⁿ⁺ᵐ · (α₀ · x · f²ⁿ⁺ᵐ) + α₁ · (x · fⁿ⁺ᵐ · g²ⁿ⁺ᵐ)
+                  ≡ fⁿ⁺ᵐ · x · (α₀ · f²ⁿ⁺ᵐ + α₁ · g²ⁿ⁺ᵐ)
+       useSolver2 = solve R'
+
+       path : f ^ (n +ℕ m) · z · f ^ n ≡ f ^ (n +ℕ m) · x · 1r
+       path =
+           f ^ (n +ℕ m) · z · f ^ n
+
+         ≡⟨ useSolver1 _ _ _ _ _ _ _ ⟩
+
+           f ^ (n +ℕ m) · (α₀ · x · (f ^ n · f ^ (n +ℕ m))) + α₁ · (y · f ^ n · (f ^ (n +ℕ m) · g ^ (n +ℕ m)))
+
+         ≡⟨ cong₂ (λ a b → f ^ (n +ℕ m) · (α₀ · x · a) + α₁ · ((y · f ^ n) · b))
+                  (·-of-^-is-^-of-+ _ _ _) (sym (^-ldist-· _ _ _)) ⟩
+
+           f ^ (n +ℕ m) · (α₀ · x · (f ^ 2n+m)) + α₁ · (y · f ^ n · (f · g) ^ (n +ℕ m))
+
+         ≡⟨ cong (λ a → f ^ (n +ℕ m) · (α₀ · x · f ^ 2n+m) + α₁ · a)
+                 (sym xgⁿ[fg]ⁿ⁺ᵐ≡yfⁿ[fg]ⁿ⁺ᵐ) ⟩
+
+           f ^ (n +ℕ m) · (α₀ · x · (f ^ 2n+m)) + α₁ · (x · g ^ n · (f · g) ^ (n +ℕ m))
+
+         ≡⟨ cong (λ a → f ^ (n +ℕ m) · (α₀ · x · (f ^ 2n+m)) + α₁ · (x · g ^ n · a)) (^-ldist-· _ _ _)  ⟩
+
+           f ^ (n +ℕ m) · (α₀ · x · (f ^ 2n+m)) + α₁ · (x · g ^ n · (f ^ (n +ℕ m) · g ^ (n +ℕ m)))
+
+         ≡⟨ cong (λ a → f ^ (n +ℕ m) · (α₀ · x · (f ^ 2n+m)) + α₁ · a) (·CommAssocSwap _ _ _ _) ⟩
+
+           f ^ (n +ℕ m) · (α₀ · x · (f ^ 2n+m)) + α₁ · (x · f ^ (n +ℕ m) · (g ^ n · g ^ (n +ℕ m)))
+
+         ≡⟨ cong (λ a → f ^ (n +ℕ m) · (α₀ · x · (f ^ 2n+m)) + α₁ · (x · f ^ (n +ℕ m) · a))
+                 (·-of-^-is-^-of-+ _ _ _) ⟩
+
+           f ^ (n +ℕ m) · (α₀ · x · (f ^ 2n+m)) + α₁ · (x · f ^ (n +ℕ m) · g ^ 2n+m)
+
+         ≡⟨ useSolver2 _ _ _ _ _ _ ⟩
+
+           f ^ (n +ℕ m) · x · (α₀ · f ^ 2n+m + α₁ · g ^ 2n+m)
+
+         ≡⟨ cong (f ^ (n +ℕ m) · x ·_) (sym 1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ) ⟩
+
+           f ^ (n +ℕ m) · x · 1r ∎
 
       z/1≡y/gⁿ : (z /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣ ]
-      z/1≡y/gⁿ = {!!}
+      z/1≡y/gⁿ = eq/ _ _ ((g ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣) , {!!})
+       where
+       1≡α₁g²ⁿ⁺ᵐ+α₀f²ⁿ⁺ᵐ : 1r ≡ α₁ · g ^ 2n+m + α₀ · f ^ 2n+m
+       1≡α₁g²ⁿ⁺ᵐ+α₀f²ⁿ⁺ᵐ = 1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ ∙ +Comm _ _
+
 
       uniqueness : ∀ a → ((a /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣ ])
                        × ((a /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣ ])
