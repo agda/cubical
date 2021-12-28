@@ -317,7 +317,9 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
      Σhelper : Σ[ α ∈ FinVec R 2 ] 1r ≡ linearCombination R' α (fⁿgⁿVec 2n+m)
              → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
                           × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
-     Σhelper (α , linCombi) = inhProp→isContr (z , {!!} , {!!}) {!!}
+     Σhelper (α , linCombi) = uniqueExists z (z/1≡x/fⁿ , z/1≡y/gⁿ)
+                                             (λ _ → isProp× (is-set _ _) (is-set _ _))
+                                             uniqueness
       where
       α₀ = α zero
       α₁ = α (suc zero)
@@ -328,9 +330,47 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
       -- definition of the element
       z = α₀ · x · f ^ (n +ℕ m) + α₁ · y · g ^ (n +ℕ m)
 
-      -- uniqueness : isProp (Σ[ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-      --                                × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ])))
-      -- uniqueness = {!isPropΣ!}
+      z/1≡x/fⁿ : (z /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣ ]
+      z/1≡x/fⁿ = {!!}
+
+      z/1≡y/gⁿ : (z /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣ ]
+      z/1≡y/gⁿ = {!!}
+
+      uniqueness : ∀ a → ((a /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣ ])
+                       × ((a /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣ ])
+                       → z ≡ a
+      uniqueness a (a/1≡x/fⁿ , a/1≡y/gⁿ) = equalByDifference _ _
+                   (injectivityLemma 1∈⟨f,g⟩ (z - a) [z-a]/1≡0overF [z-a]/1≡0overG)
+       where
+       [z-a]/1≡0overF : (z - a) /1ᶠ ≡ 0r
+       [z-a]/1≡0overF = (z - a) /1ᶠ
+
+                      ≡⟨ /1ᶠAsCommRingHom .snd .pres+ _ _ ⟩ -- (-a)/1=-(a/1) by refl!
+
+                        (z /1ᶠ) - (a /1ᶠ)
+
+                      ≡⟨ cong₂ _-_ z/1≡x/fⁿ a/1≡x/fⁿ ⟩
+
+                        [ x , f ^ n , ∣ n , refl ∣ ] - [ x , f ^ n , ∣ n , refl ∣ ]
+
+                      ≡⟨ +Rinv ([ x , f ^ n , ∣ n , refl ∣ ]) ⟩
+
+                        0r ∎
+
+       [z-a]/1≡0overG : (z - a) /1ᵍ ≡ 0r
+       [z-a]/1≡0overG = (z - a) /1ᵍ
+
+                      ≡⟨ /1ᵍAsCommRingHom .snd .pres+ _ _ ⟩ -- (-a)/1=-(a/1) by refl!
+
+                        (z /1ᵍ) - (a /1ᵍ)
+
+                      ≡⟨ cong₂ _-_ z/1≡y/gⁿ a/1≡y/gⁿ ⟩
+
+                        [ y , g ^ n , ∣ n , refl ∣ ] - [ y , g ^ n , ∣ n , refl ∣ ]
+
+                      ≡⟨ +Rinv ([ y , g ^ n , ∣ n , refl ∣ ]) ⟩
+
+                        0r ∎
 
 
  {-
