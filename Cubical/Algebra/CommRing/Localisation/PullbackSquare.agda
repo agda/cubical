@@ -35,6 +35,7 @@ open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
+
 open import Cubical.Algebra.RingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -51,7 +52,9 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
+
 module _ (R' : CommRing ℓ) (f g : (fst R')) where
+
  open IsRingHom
  open isMultClosedSubset
  open CommRingTheory R'
@@ -110,13 +113,13 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
                         , path n)
     where
-    -- deal with this later
-    -- useSolver1 : ∀ (a b : R) → 1r · (a · b) · 1r
-    -- useSolver1 = solve R'
-    -- useSolver2 : ∀ a → (1r · 1r) · (1r · a)
-    -- useSolver2 = solve R'
+    useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ a · b
+    useSolver1 = solve R'
+    useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
+    useSolver2 = solve R'
+
     path : (n : ℕ) → 1r · (f ^ n · g ^ n) · 1r ≡ (1r · 1r) · (1r · ((f · g) ^ n))
-    path = {!!}
+    path n = useSolver1 _ _ ∙ sym (^-ldist-· f g n) ∙ useSolver2 _
 
   χ₂ : CommRingHom R[1/ g ]AsCommRing R[1/ (f · g) ]AsCommRing
   χ₂ = R[1/g]HasUniversalProp _ /1ᶠᵍAsCommRingHom unitHelper .fst .fst
@@ -125,7 +128,17 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
    unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᶠᵍ))
                   λ n → [ f ^ n , (f · g) ^ n , ∣ n , refl ∣ ]
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
-                              , {!!})
+                              , path n)
+    where
+    useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ b · a
+    useSolver1 = solve R'
+    useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
+    useSolver2 = solve R'
+
+    path : (n : ℕ) → 1r · (g ^ n · f ^ n) · 1r ≡ (1r · 1r) · (1r · ((f · g) ^ n))
+    path n = useSolver1 _ _ ∙ sym (^-ldist-· f g n) ∙ useSolver2 _
+
+
 
  injectivityLemma : 1r ∈ ⟨f,g⟩ → ∀ (x : R) → x /1ᶠ ≡ 0r → x /1ᵍ ≡ 0r → x ≡ 0r
  injectivityLemma 1∈⟨f,g⟩ x x≡0overF x≡0overG =
@@ -208,7 +221,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
            → fst χ₁ ([ x , f ^ n , ∣ n , refl ∣ ]) ≡ fst χ₂ ([ y , g ^ n , ∣ n , refl ∣ ])
            → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
                         × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
-  baseCase x y n χ₁[x/fⁿ]≡χ₂[y/gⁿ] = {!!}
+  baseCase x y n χ₁[x/fⁿ]≡χ₂[y/gⁿ] = PT.rec isPropIsContr annihilatorHelper exAnnihilator
    where
    -- doesn't compute that well but at least it computes...
    exAnnihilator : ∃[ s ∈ Sᶠᵍ ] -- s.t.
@@ -216,9 +229,112 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
     ≡ fst s · (y · transp (λ _ → R) i0 (f ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n)))
    exAnnihilator = isEquivRel→TruncIso locIsEquivRelᶠᵍ _ _ .fun χ₁[x/fⁿ]≡χ₂[y/gⁿ]
 
+   annihilatorHelper : Σ[ s ∈ Sᶠᵍ ]
+     (fst s · (x · transp (λ _ → R) i0 (g ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n))
+    ≡ fst s · (y · transp (λ _ → R) i0 (f ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n)))
+    → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
+                 × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+   annihilatorHelper ((s , s∈[fgⁿ]) , p) = PT.rec isPropIsContr exponentHelper s∈[fgⁿ]
+    where
+    sxgⁿ[fg]ⁿ≡syfⁿ[fg]ⁿ : s · x · g ^ n · (f · g) ^ n ≡ s · y · f ^ n · (f · g) ^ n
+    sxgⁿ[fg]ⁿ≡syfⁿ[fg]ⁿ =
+       s · x · g ^ n · (f · g) ^ n
+
+      ≡⟨ transpHelper _ _ _ _ ⟩
+
+       s · x · transp (λ _ → R) i0 (g ^ n) · transp (λ _ → R) i0 ((f · g) ^ n)
+
+      ≡⟨ useSolver _ _ _ _ ⟩
+
+       s · (x · transp (λ _ → R) i0 (g ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n))
+
+      ≡⟨ p ⟩
+
+       s · (y · transp (λ _ → R) i0 (f ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n))
+
+      ≡⟨ sym (useSolver _ _ _ _) ⟩
+
+       s · y · transp (λ _ → R) i0 (f ^ n) · transp (λ _ → R) i0 ((f · g) ^ n)
+
+      ≡⟨ sym (transpHelper _ _ _ _) ⟩
+
+       s · y · f ^ n · (f · g) ^ n ∎
+
+      where
+      transpHelper : ∀ a b c d → a · b · c · d
+                               ≡ a · b · transp (λ _ → R) i0 c · transp (λ _ → R) i0 d
+      transpHelper a b c d i = a · b · transportRefl c (~ i) · transportRefl d (~ i)
+      useSolver : ∀ a b c d → a · b · c · d ≡ a · (b · c) · (1r · d)
+      useSolver = solve R'
+
+
+    exponentHelper : Σ[ m ∈ ℕ ] s ≡ (f · g) ^ m
+                   → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
+                                × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+    exponentHelper (m , s≡[fg]ᵐ) =
+       PT.rec isPropIsContr Σhelper (GeneratingExponents.lemma R' f g 2n+m 1∈⟨f,g⟩)
+     where
+     -- the path we'll actually work with
+     xgⁿ[fg]ⁿ⁺ᵐ≡yfⁿ[fg]ⁿ⁺ᵐ : x · g ^ n · (f · g) ^ (n +ℕ m) ≡ y · f ^ n · (f · g) ^ (n +ℕ m)
+     xgⁿ[fg]ⁿ⁺ᵐ≡yfⁿ[fg]ⁿ⁺ᵐ =
+        x · g ^ n · (f · g) ^ (n +ℕ m)
+
+       ≡⟨ cong (x · (g ^ n) ·_) (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
+
+        x · g ^ n · ((f · g) ^ n · (f · g) ^ m)
+
+       ≡⟨ useSolver _ _ _ _ ⟩
+
+         (f · g) ^ m · x · g ^ n · (f · g) ^ n
+
+       ≡⟨ cong (λ a → a · x · g ^ n · (f · g) ^ n) (sym s≡[fg]ᵐ) ⟩
+
+         s · x · g ^ n · (f · g) ^ n
+
+       ≡⟨ sxgⁿ[fg]ⁿ≡syfⁿ[fg]ⁿ ⟩
+
+         s · y · f ^ n · (f · g) ^ n
+
+       ≡⟨ cong (λ a → a · y · f ^ n · (f · g) ^ n) s≡[fg]ᵐ ⟩
+
+         (f · g) ^ m · y · f ^ n · (f · g) ^ n
+
+       ≡⟨ sym (useSolver _ _ _ _)  ⟩
+
+         y · f ^ n · ((f · g) ^ n · (f · g) ^ m)
+
+       ≡⟨ cong (y · (f ^ n) ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+
+        y · f ^ n · (f · g) ^ (n +ℕ m) ∎
+
+       where
+       useSolver : ∀ a b c d → a · b · (c · d) ≡ d · a · b · c
+       useSolver = solve R'
+
+     -- critical exponent
+     2n+m = n +ℕ (n +ℕ m)
+     -- extracting information from the fact that R=⟨f,g⟩
+     Σhelper : Σ[ α ∈ FinVec R 2 ] 1r ≡ linearCombination R' α (fⁿgⁿVec 2n+m)
+             → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
+                          × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+     Σhelper (α , linCombi) = inhProp→isContr (z , {!!} , {!!}) {!!}
+      where
+      α₀ = α zero
+      α₁ = α (suc zero)
+
+      1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ : 1r ≡ α₀ · f ^ 2n+m + α₁ · g ^ 2n+m
+      1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ = linCombi ∙ cong (α₀ · f ^ 2n+m +_) (+Rid _)
+
+      -- definition of the element
+      z = α₀ · x · f ^ (n +ℕ m) + α₁ · y · g ^ (n +ℕ m)
+
+      -- uniqueness : isProp (Σ[ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
+      --                                × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ])))
+      -- uniqueness = {!isPropΣ!}
+
 
  {-
- putting everything together with the pullback machinery
+ putting everything together with the pullback machinery:
  If ⟨f,g⟩ = R then we get a square
 
                  _/1ᶠ
