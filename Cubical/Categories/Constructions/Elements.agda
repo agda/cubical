@@ -4,7 +4,7 @@
 
 open import Cubical.Categories.Category
 
-module Cubical.Categories.Constructions.Elements {ℓ ℓ'} {C : Precategory ℓ ℓ'} where
+module Cubical.Categories.Constructions.Elements {ℓ ℓ'} {C : Category ℓ ℓ'} where
 
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Functor
@@ -17,16 +17,16 @@ import Cubical.Categories.Constructions.Slice as Slice
 
 -- some issues
 -- * always need to specify objects during composition because can't infer isSet
-open Precategory
+open Category
 open Functor
 
 
-getIsSet : ∀ {ℓS} {C : Precategory ℓ ℓ'} (F : Functor C (SET ℓS)) → (c : C .ob) → isSet (fst (F ⟅ c ⟆))
+getIsSet : ∀ {ℓS} {C : Category ℓ ℓ'} (F : Functor C (SET ℓS)) → (c : C .ob) → isSet (fst (F ⟅ c ⟆))
 getIsSet F c = snd (F ⟅ c ⟆)
 
 
 infix 50 ∫_
-∫_ : ∀ {ℓS} → Functor C (SET ℓS) → Precategory (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
+∫_ : ∀ {ℓS} → Functor C (SET ℓS) → Category (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
 -- objects are (c , x) pairs where c ∈ C and x ∈ F c
 (∫ F) .ob = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
 -- morphisms are f : c → c' which take x to x'
@@ -70,10 +70,10 @@ infix 50 ∫_
 
       p2 : x₃ ≡ (F ⟪ f ⋆⟨ C ⟩ (g ⋆⟨ C ⟩ h) ⟫) x
       p2 = snd ((∫ F) ._⋆_ f' ((∫ F) ._⋆_ {o1} {o2} {o3} g' h'))
-
+(∫ F) .isSetHom {x} {y} = isSetΣSndProp (C .isSetHom) λ _ → (F ⟅ fst y ⟆) .snd _ _
 
 -- same thing but for presheaves
-∫ᴾ_ : ∀ {ℓS} → Functor (C ^op) (SET ℓS) → Precategory (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
+∫ᴾ_ : ∀ {ℓS} → Functor (C ^op) (SET ℓS) → Category (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
 -- objects are (c , x) pairs where c ∈ C and x ∈ F c
 (∫ᴾ F) .ob = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
 -- morphisms are f : c → c' which take x to x'
@@ -117,6 +117,7 @@ infix 50 ∫_
 
       p2 : x ≡ (F ⟪ f ⋆⟨ C ⟩ (g ⋆⟨ C ⟩ h) ⟫) x₃
       p2 = snd ((∫ᴾ F) ._⋆_ f' ((∫ᴾ F) ._⋆_ {o1} {o2} {o3} g' h'))
+(∫ᴾ F) .isSetHom {x} = isSetΣSndProp (C .isSetHom) (λ _ → (F ⟅ fst x ⟆) .snd _ _)
 
 -- helpful results
 

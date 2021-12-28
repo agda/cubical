@@ -6,10 +6,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_ ; _-_ to _-ℤ_ ; +Assoc to +ℤAssoc ; +Comm to +ℤComm ; -DistL· to -ℤDistL·ℤ)
 
-open import Cubical.Algebra.RingSolver.AlmostRing hiding (⟨_⟩)
 open import Cubical.Algebra.RingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.RingSolver.IntAsRawRing
-open import Cubical.Algebra.RingSolver.CommRingAsAlmostRing
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 

@@ -34,7 +34,7 @@ open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Algebra.RingSolver.ReflectionSolving
+open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -50,7 +50,7 @@ private
 
 
 module Presheaf (A' : CommRing ℓ) where
- open CommRingStr (snd A') renaming (_·_ to _·r_ ; ·-comm to ·r-comm ; ·Assoc to ·rAssoc
+ open CommRingStr (snd A') renaming (_·_ to _·r_ ; ·Comm to ·r-comm ; ·Assoc to ·rAssoc
                                                  ; ·Lid to ·rLid ; ·Rid to ·rRid)
  open Exponentiation A'
  open CommRingTheory A'
@@ -206,7 +206,7 @@ module Presheaf (A' : CommRing ℓ) where
 
   x≼y→x≼xyΣ : Σ[ n ∈ ℕ ] Σ[ z ∈ A ] x ^ n ≡ z ·r y
             → Σ[ n ∈ ℕ ] Σ[ z ∈ A ] x ^ n ≡ z ·r (x ·r y)
-  x≼y→x≼xyΣ (n , z , p) = suc n , z , cong (x ·r_) p ∙ ·-commAssocl _ _ _
+  x≼y→x≼xyΣ (n , z , p) = suc n , z , cong (x ·r_) p ∙ ·CommAssocl _ _ _
 
   ≼To· : x ≼ y → R x ( x ·r y)
   ≼To· x≼y = PT.map x≼y→x≼xyΣ x≼y , PT.∣ 1 , y , ·rRid _ ∙ ·r-comm _ _ ∣

@@ -15,6 +15,7 @@ private
     D : (a : A) (b : B a) → C a b → Type ℓ
     E : (x : A) → (y : B x) → (z : C x y) → (w : D x y z) → Type ℓ
     F : (x : A) → (y : B x) → (z : C x y) → (w : D x y z) → (u : E x y z w) → Type ℓ
+
 -- The identity function
 idfun : (A : Type ℓ) → A → A
 idfun _ x = x

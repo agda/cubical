@@ -23,23 +23,13 @@ private
 
 -- THE YONEDA LEMMA
 
-open isCategory
 open NatTrans
 open NatTransP
 open Functor
 open Iso
 
-module _ (A B : Type ℓ) (f : A → B) where
-
-  isInj = ∀ (x y : A) → (f x ≡ f y) → x ≡ y
-  isSurj = ∀ (b : B) → Σ[ a ∈ A ] f a ≡ b
-
-  bijectionToIso : isInj × isSurj
-                 → isIso f
-  bijectionToIso (i , s) = (λ b → fst (s b)) , (λ b → snd (s b)) , λ a → i (fst (s (f a))) a (snd (s (f a)))
-
-module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
-  open Precategory
+module _ {C : Category ℓ ℓ'} where
+  open Category
 
   yoneda : (F : Functor C (SET ℓ'))
          → (c : C .ob)
@@ -92,11 +82,8 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
           αh≡βh : PathP (λ i → NHType (αo≡βo i)) αh βh -- αh βh
           αh≡βh = isPropHomP αh βh αo≡βo
             where
-              isProp-hom : ⦃ isCatSET : isCategory (SET ℓ') ⦄ → (ϕ : NOType) → isProp (NHType ϕ)
-              isProp-hom ⦃ isCatSET ⦄ γ = isPropImplicitΠ λ x
-                                        → isPropImplicitΠ λ y
-                                        → isPropΠ λ f
-                                        → isCatSET .isSetHom {x = (C [ c , x ]) , (isCatC .isSetHom)} {F ⟅ y ⟆} _ _
+              isProp-hom : (ϕ : NOType) → isProp (NHType ϕ)
+              isProp-hom γ = isPropImplicitΠ2 λ x y → isPropΠ λ f → isSetHom (SET _) {x = (C [ c , x ]) , C .isSetHom } {F ⟅ y ⟆} _ _
 
               isPropHomP : isOfHLevelDep 1 (λ ηo → NHType ηo)
               isPropHomP = isOfHLevel→isOfHLevelDep 1 λ a → isProp-hom a
@@ -135,14 +122,14 @@ module _ {C : Precategory ℓ ℓ'} ⦃ isCatC : isCategory C ⦄ where
 
 -- Yoneda embedding
 -- TODO: probably want to rename/refactor
-module _ {C : Precategory ℓ ℓ} ⦃ C-cat : isCategory C ⦄ where
+module _ {C : Category ℓ ℓ} where
   open Functor
   open NatTrans
-  open Precategory C
+  open Category C
 
   yo : ob → Functor (C ^op) (SET ℓ)
   yo x .F-ob y .fst = C [ y , x ]
-  yo x .F-ob y .snd = C-cat .isSetHom
+  yo x .F-ob y .snd = isSetHom
   yo x .F-hom f g = f ⋆⟨ C ⟩ g
   yo x .F-id i f = ⋆IdL f i
   yo x .F-seq f g i h = ⋆Assoc g f h i
