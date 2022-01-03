@@ -92,11 +92,14 @@ module _ (C : Category ℓ ℓ') where
   hasPullbacks = ∥ Pullbacks ∥
 
 
--- TODO: finish the following show that this definition of Pullback
--- is equivalent to the Cospan limit
+-- Pullbacks from limits
 module _ {C : Category ℓ ℓ'} where
   open Category C
   open Functor
+  open Pullback
+  open LimCone
+  open Cone
+  open Cospan
 
   Cospan→Func : Cospan C → Functor CospanCat C
   Cospan→Func (cospan l m r f g) .F-ob ⓪ = l
