@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Data.FinSet.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+
+<a id="25" class="Keyword">module</a> <a id="32" href="Cubical.Data.FinSet.Base.html" class="Module">Cubical.Data.FinSet.Base</a> <a id="57" class="Keyword">where</a>
+
+<a id="64" class="Keyword">open</a> <a id="69" class="Keyword">import</a> <a id="76" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="104" class="Keyword">open</a> <a id="109" class="Keyword">import</a> <a id="116" href="Cubical.Foundations.HLevels.html" class="Module">Cubical.Foundations.HLevels</a>
+<a id="144" class="Keyword">open</a> <a id="149" class="Keyword">import</a> <a id="156" href="Cubical.Foundations.Structure.html" class="Module">Cubical.Foundations.Structure</a>
+<a id="186" class="Keyword">open</a> <a id="191" class="Keyword">import</a> <a id="198" href="Cubical.Foundations.Equiv.html" class="Module">Cubical.Foundations.Equiv</a>
+
+<a id="225" class="Keyword">open</a> <a id="230" class="Keyword">import</a> <a id="237" href="Cubical.HITs.PropositionalTruncation.html" class="Module">Cubical.HITs.PropositionalTruncation</a>
+
+<a id="275" class="Keyword">open</a> <a id="280" class="Keyword">import</a> <a id="287" href="Cubical.Data.Nat.html" class="Module">Cubical.Data.Nat</a>
+<a id="304" class="Keyword">open</a> <a id="309" class="Keyword">import</a> <a id="316" href="Cubical.Data.Fin.html" class="Module">Cubical.Data.Fin</a>
+<a id="333" class="Keyword">open</a> <a id="338" class="Keyword">import</a> <a id="345" href="Cubical.Data.Sigma.html" class="Module">Cubical.Data.Sigma</a>
+
+<a id="365" class="Keyword">private</a>
+  <a id="375" class="Keyword">variable</a>
+    <a id="388" href="Cubical.Data.FinSet.Base.html#388" class="Generalizable">ℓ</a> <a id="390" class="Symbol">:</a> <a id="392" href="Agda.Primitive.html#597" class="Postulate">Level</a>
+    <a id="402" href="Cubical.Data.FinSet.Base.html#402" class="Generalizable">A</a> <a id="404" class="Symbol">:</a> <a id="406" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="411" href="Cubical.Data.FinSet.Base.html#388" class="Generalizable">ℓ</a>
+
+<a id="isFinSet"></a><a id="414" href="Cubical.Data.FinSet.Base.html#414" class="Function">isFinSet</a> <a id="423" class="Symbol">:</a> <a id="425" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="430" href="Cubical.Data.FinSet.Base.html#388" class="Generalizable">ℓ</a> <a id="432" class="Symbol">→</a> <a id="434" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="439" href="Cubical.Data.FinSet.Base.html#388" class="Generalizable">ℓ</a>
+<a id="441" href="Cubical.Data.FinSet.Base.html#414" class="Function">isFinSet</a> <a id="450" href="Cubical.Data.FinSet.Base.html#450" class="Bound">A</a> <a id="452" class="Symbol">=</a> <a id="454" href="Cubical.Data.Sigma.Base.html#681" class="Function">∃[</a> <a id="457" href="Cubical.Data.FinSet.Base.html#457" class="Bound">n</a> <a id="459" href="Cubical.Data.Sigma.Base.html#681" class="Function">∈</a> <a id="461" href="Agda.Builtin.Nat.html#192" class="Datatype">ℕ</a> <a id="463" href="Cubical.Data.Sigma.Base.html#681" class="Function">]</a> <a id="465" href="Cubical.Data.FinSet.Base.html#450" class="Bound">A</a> <a id="467" href="Agda.Builtin.Cubical.Glue.html#1051" class="Function Operator">≃</a> <a id="469" href="Cubical.Data.Fin.Base.html#810" class="Function">Fin</a> <a id="473" href="Cubical.Data.FinSet.Base.html#457" class="Bound">n</a>
+
+<a id="476" class="Comment">-- finite sets are sets</a>
+<a id="isFinSet→isSet"></a><a id="500" href="Cubical.Data.FinSet.Base.html#500" class="Function">isFinSet→isSet</a> <a id="515" class="Symbol">:</a> <a id="517" href="Cubical.Data.FinSet.Base.html#414" class="Function">isFinSet</a> <a id="526" href="Cubical.Data.FinSet.Base.html#402" class="Generalizable">A</a> <a id="528" class="Symbol">→</a> <a id="530" href="Cubical.Foundations.Prelude.html#11286" class="Function">isSet</a> <a id="536" href="Cubical.Data.FinSet.Base.html#402" class="Generalizable">A</a>
+<a id="538" href="Cubical.Data.FinSet.Base.html#500" class="Function">isFinSet→isSet</a> <a id="553" class="Symbol">=</a> <a id="555" href="Cubical.HITs.PropositionalTruncation.Properties.html#782" class="Function">rec</a> <a id="559" href="Cubical.Foundations.HLevels.html#4299" class="Function">isPropIsSet</a> <a id="571" class="Symbol">(λ</a> <a id="574" class="Symbol">(_</a> <a id="577" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="579" href="Cubical.Data.FinSet.Base.html#579" class="Bound">p</a><a id="580" class="Symbol">)</a> <a id="582" class="Symbol">→</a> <a id="584" href="Cubical.Foundations.HLevels.html#8930" class="Function">isOfHLevelRespectEquiv</a> <a id="607" class="Number">2</a> <a id="609" class="Symbol">(</a><a id="610" href="Cubical.Foundations.Equiv.html#3397" class="Function">invEquiv</a> <a id="619" href="Cubical.Data.FinSet.Base.html#579" class="Bound">p</a><a id="620" class="Symbol">)</a> <a id="622" href="Cubical.Data.Fin.Properties.html#1501" class="Function">isSetFin</a><a id="630" class="Symbol">)</a>
+
+<a id="isPropIsFinSet"></a><a id="633" href="Cubical.Data.FinSet.Base.html#633" class="Function">isPropIsFinSet</a> <a id="648" class="Symbol">:</a> <a id="650" href="Cubical.Foundations.Prelude.html#11231" class="Function">isProp</a> <a id="657" class="Symbol">(</a><a id="658" href="Cubical.Data.FinSet.Base.html#414" class="Function">isFinSet</a> <a id="667" href="Cubical.Data.FinSet.Base.html#402" class="Generalizable">A</a><a id="668" class="Symbol">)</a>
+<a id="670" href="Cubical.Data.FinSet.Base.html#633" class="Function">isPropIsFinSet</a> <a id="685" class="Symbol">=</a> <a id="687" href="Cubical.HITs.PropositionalTruncation.Properties.html#2255" class="Function">isPropPropTrunc</a>
+
+<a id="704" class="Comment">-- the type of finite sets</a>
+
+<a id="FinSet"></a><a id="732" href="Cubical.Data.FinSet.Base.html#732" class="Function">FinSet</a> <a id="739" class="Symbol">:</a> <a id="741" class="Symbol">(</a><a id="742" href="Cubical.Data.FinSet.Base.html#742" class="Bound">ℓ</a> <a id="744" class="Symbol">:</a> <a id="746" href="Agda.Primitive.html#597" class="Postulate">Level</a><a id="751" class="Symbol">)</a> <a id="753" class="Symbol">→</a> <a id="755" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="760" class="Symbol">(</a><a id="761" href="Agda.Primitive.html#780" class="Primitive">ℓ-suc</a> <a id="767" href="Cubical.Data.FinSet.Base.html#742" class="Bound">ℓ</a><a id="768" class="Symbol">)</a>
+<a id="770" href="Cubical.Data.FinSet.Base.html#732" class="Function">FinSet</a> <a id="777" href="Cubical.Data.FinSet.Base.html#777" class="Bound">ℓ</a> <a id="779" class="Symbol">=</a> <a id="781" href="Cubical.Foundations.Structure.html#428" class="Function">TypeWithStr</a> <a id="793" class="Symbol">_</a> <a id="795" href="Cubical.Data.FinSet.Base.html#414" class="Function">isFinSet</a>
+</pre></body></html>

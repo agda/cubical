@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Algebra.AbGroup.Instances.DiffInt</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">-- It is recommended to use Cubical.Algebra.CommRing.Instances.Int</a>
+<a id="68" class="Comment">-- instead of this file.</a>
+
+<a id="94" class="Symbol">{-#</a> <a id="98" class="Keyword">OPTIONS</a> <a id="106" class="Pragma">--safe</a> <a id="113" class="Symbol">#-}</a>
+<a id="117" class="Keyword">module</a> <a id="124" href="Cubical.Algebra.AbGroup.Instances.DiffInt.html" class="Module">Cubical.Algebra.AbGroup.Instances.DiffInt</a> <a id="166" class="Keyword">where</a>
+
+<a id="173" class="Keyword">open</a> <a id="178" class="Keyword">import</a> <a id="185" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="213" class="Keyword">open</a> <a id="218" class="Keyword">import</a> <a id="225" href="Cubical.HITs.SetQuotients.html" class="Module">Cubical.HITs.SetQuotients</a>
+
+<a id="252" class="Keyword">open</a> <a id="257" class="Keyword">import</a> <a id="264" href="Cubical.Algebra.AbGroup.Base.html" class="Module">Cubical.Algebra.AbGroup.Base</a>
+<a id="293" class="Keyword">open</a> <a id="298" class="Keyword">import</a> <a id="305" href="Cubical.Data.Int.MoreInts.DiffInt.html" class="Module">Cubical.Data.Int.MoreInts.DiffInt</a>
+  <a id="341" class="Keyword">renaming</a> <a id="350" class="Symbol">(</a>
+    <a id="356" href="Cubical.Data.Int.MoreInts.DiffInt.Properties.html#4958" class="Function Operator">_+_</a> <a id="360" class="Symbol">to</a> <a id="363" class="Function Operator">_+ℤ_</a>
+  <a id="370" class="Symbol">)</a>
+
+<a id="DiffℤasAbGroup"></a><a id="373" href="Cubical.Algebra.AbGroup.Instances.DiffInt.html#373" class="Function">DiffℤasAbGroup</a> <a id="388" class="Symbol">:</a> <a id="390" href="Cubical.Algebra.AbGroup.Base.html#1260" class="Function">AbGroup</a> <a id="398" href="Agda.Primitive.html#764" class="Primitive">ℓ-zero</a>
+<a id="405" href="Cubical.Algebra.AbGroup.Instances.DiffInt.html#373" class="Function">DiffℤasAbGroup</a> <a id="420" class="Symbol">=</a> <a id="422" href="Cubical.Algebra.AbGroup.Base.html#1833" class="Function">makeAbGroup</a> <a id="434" class="Symbol">{</a><a id="435" class="Argument">G</a> <a id="437" class="Symbol">=</a> <a id="439" href="Cubical.Data.Int.MoreInts.DiffInt.Base.html#467" class="Function">ℤ</a><a id="440" class="Symbol">}</a>
+                             <a id="471" href="Cubical.HITs.SetQuotients.Base.html#289" class="InductiveConstructor Operator">[</a> <a id="473" class="Symbol">(</a><a id="474" class="Number">0</a> <a id="476" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="478" class="Number">0</a><a id="479" class="Symbol">)</a> <a id="481" href="Cubical.HITs.SetQuotients.Base.html#289" class="InductiveConstructor Operator">]</a>
+                             <a id="512" href="Cubical.Algebra.AbGroup.Instances.DiffInt.html#363" class="Function Operator">_+ℤ_</a>
+                             <a id="546" href="Cubical.Data.Int.MoreInts.DiffInt.Properties.html#6592" class="Function Operator">-ℤ_</a>
+                             <a id="579" href="Cubical.Data.Int.MoreInts.DiffInt.Properties.html#4905" class="Function">ℤ-isSet</a>
+                             <a id="616" href="Cubical.Data.Int.MoreInts.DiffInt.Properties.html#8744" class="Function">+ℤ-assoc</a>
+                             <a id="654" class="Symbol">(λ</a> <a id="657" href="Cubical.Algebra.AbGroup.Instances.DiffInt.html#657" class="Bound">x</a> <a id="659" class="Symbol">→</a> <a id="661" href="Cubical.Data.Int.MoreInts.DiffInt.Properties.html#6275" class="Function">zero-identityʳ</a> <a id="676" class="Number">0</a> <a id="678" href="Cubical.Algebra.AbGroup.Instances.DiffInt.html#657" class="Bound">x</a><a id="679" class="Symbol">)</a>
+                             <a id="710" class="Symbol">(λ</a> <a id="713" href="Cubical.Algebra.AbGroup.Instances.DiffInt.html#713" class="Bound">x</a> <a id="715" class="Symbol">→</a> <a id="717" href="Cubical.Data.Int.MoreInts.DiffInt.Properties.html#8216" class="Function">-ℤ-invʳ</a> <a id="725" href="Cubical.Algebra.AbGroup.Instances.DiffInt.html#713" class="Bound">x</a><a id="726" class="Symbol">)</a>
+                             <a id="757" href="Cubical.Data.Int.MoreInts.DiffInt.Properties.html#8921" class="Function">+ℤ-comm</a>
+</pre></body></html>

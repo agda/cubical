@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Instances.Lattice</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Categories.Instances.Lattice.html" class="Module">Cubical.Categories.Instances.Lattice</a> <a id="68" class="Keyword">where</a>
+
+<a id="75" class="Keyword">open</a> <a id="80" class="Keyword">import</a> <a id="87" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+
+<a id="116" class="Keyword">open</a> <a id="121" class="Keyword">import</a> <a id="128" href="Cubical.Algebra.Lattice.html" class="Module">Cubical.Algebra.Lattice</a>
+
+<a id="153" class="Keyword">open</a> <a id="158" class="Keyword">import</a> <a id="165" href="Cubical.Categories.Category.html" class="Module">Cubical.Categories.Category</a>
+<a id="193" class="Keyword">open</a> <a id="198" class="Keyword">import</a> <a id="205" href="Cubical.Categories.Instances.Semilattice.html" class="Module">Cubical.Categories.Instances.Semilattice</a>
+
+<a id="247" class="Keyword">open</a> <a id="252" href="Cubical.Categories.Category.Base.html#262" class="Module">Category</a>
+
+<a id="LatticeCategory"></a><a id="262" href="Cubical.Categories.Instances.Lattice.html#262" class="Function">LatticeCategory</a> <a id="278" class="Symbol">:</a> <a id="280" class="Symbol">∀</a> <a id="282" class="Symbol">{</a><a id="283" href="Cubical.Categories.Instances.Lattice.html#283" class="Bound">ℓ</a><a id="284" class="Symbol">}</a> <a id="286" class="Symbol">(</a><a id="287" href="Cubical.Categories.Instances.Lattice.html#287" class="Bound">L</a> <a id="289" class="Symbol">:</a> <a id="291" href="Cubical.Algebra.Lattice.Base.html#2227" class="Function">Lattice</a> <a id="299" href="Cubical.Categories.Instances.Lattice.html#283" class="Bound">ℓ</a><a id="300" class="Symbol">)</a> <a id="302" class="Symbol">→</a> <a id="304" href="Cubical.Categories.Category.Base.html#262" class="Record">Category</a> <a id="313" href="Cubical.Categories.Instances.Lattice.html#283" class="Bound">ℓ</a> <a id="315" href="Cubical.Categories.Instances.Lattice.html#283" class="Bound">ℓ</a>
+<a id="317" href="Cubical.Categories.Instances.Lattice.html#262" class="Function">LatticeCategory</a> <a id="333" href="Cubical.Categories.Instances.Lattice.html#333" class="Bound">L</a> <a id="335" class="Symbol">=</a> <a id="337" href="Cubical.Categories.Instances.Semilattice.html#413" class="Function">SemilatticeCategory</a> <a id="357" class="Symbol">(</a><a id="358" href="Cubical.Algebra.Lattice.Base.html#7421" class="Function">Lattice→JoinSemilattice</a> <a id="382" href="Cubical.Categories.Instances.Lattice.html#333" class="Bound">L</a><a id="383" class="Symbol">)</a>
+</pre></body></html>

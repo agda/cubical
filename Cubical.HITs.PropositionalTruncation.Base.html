@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.HITs.PropositionalTruncation.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">{-
+
+This file contains:
+
+- Definition of propositional truncation
+
+-}</a>
+<a id="71" class="Symbol">{-#</a> <a id="75" class="Keyword">OPTIONS</a> <a id="83" class="Pragma">--safe</a> <a id="90" class="Symbol">#-}</a>
+<a id="94" class="Keyword">module</a> <a id="101" href="Cubical.HITs.PropositionalTruncation.Base.html" class="Module">Cubical.HITs.PropositionalTruncation.Base</a> <a id="143" class="Keyword">where</a>
+
+<a id="150" class="Keyword">open</a> <a id="155" class="Keyword">import</a> <a id="162" href="Cubical.Core.Primitives.html" class="Module">Cubical.Core.Primitives</a>
+
+<a id="187" class="Comment">-- Propositional truncation as a higher inductive type:</a>
+
+<a id="244" class="Keyword">data</a> <a id="∥_∥"></a><a id="249" href="Cubical.HITs.PropositionalTruncation.Base.html#249" class="Datatype Operator">∥_∥</a> <a id="253" class="Symbol">{</a><a id="254" href="Cubical.HITs.PropositionalTruncation.Base.html#254" class="Bound">ℓ</a><a id="255" class="Symbol">}</a> <a id="257" class="Symbol">(</a><a id="258" href="Cubical.HITs.PropositionalTruncation.Base.html#258" class="Bound">A</a> <a id="260" class="Symbol">:</a> <a id="262" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="267" href="Cubical.HITs.PropositionalTruncation.Base.html#254" class="Bound">ℓ</a><a id="268" class="Symbol">)</a> <a id="270" class="Symbol">:</a> <a id="272" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="277" href="Cubical.HITs.PropositionalTruncation.Base.html#254" class="Bound">ℓ</a> <a id="279" class="Keyword">where</a>
+  <a id="∥_∥.∣_∣"></a><a id="287" href="Cubical.HITs.PropositionalTruncation.Base.html#287" class="InductiveConstructor Operator">∣_∣</a> <a id="291" class="Symbol">:</a> <a id="293" href="Cubical.HITs.PropositionalTruncation.Base.html#258" class="Bound">A</a> <a id="295" class="Symbol">→</a> <a id="297" href="Cubical.HITs.PropositionalTruncation.Base.html#249" class="Datatype Operator">∥</a> <a id="299" href="Cubical.HITs.PropositionalTruncation.Base.html#258" class="Bound">A</a> <a id="301" href="Cubical.HITs.PropositionalTruncation.Base.html#249" class="Datatype Operator">∥</a>
+  <a id="∥_∥.squash"></a><a id="305" href="Cubical.HITs.PropositionalTruncation.Base.html#305" class="InductiveConstructor">squash</a> <a id="312" class="Symbol">:</a> <a id="314" class="Symbol">∀</a> <a id="316" class="Symbol">(</a><a id="317" href="Cubical.HITs.PropositionalTruncation.Base.html#317" class="Bound">x</a> <a id="319" href="Cubical.HITs.PropositionalTruncation.Base.html#319" class="Bound">y</a> <a id="321" class="Symbol">:</a> <a id="323" href="Cubical.HITs.PropositionalTruncation.Base.html#249" class="Datatype Operator">∥</a> <a id="325" href="Cubical.HITs.PropositionalTruncation.Base.html#258" class="Bound">A</a> <a id="327" href="Cubical.HITs.PropositionalTruncation.Base.html#249" class="Datatype Operator">∥</a><a id="328" class="Symbol">)</a> <a id="330" class="Symbol">→</a> <a id="332" href="Cubical.HITs.PropositionalTruncation.Base.html#317" class="Bound">x</a> <a id="334" href="Agda.Builtin.Cubical.Path.html#381" class="Function Operator">≡</a> <a id="336" href="Cubical.HITs.PropositionalTruncation.Base.html#319" class="Bound">y</a>
+</pre></body></html>

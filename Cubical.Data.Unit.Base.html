@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Data.Unit.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Data.Unit.Base.html" class="Module">Cubical.Data.Unit.Base</a> <a id="54" class="Keyword">where</a>
+<a id="60" class="Keyword">open</a> <a id="65" class="Keyword">import</a> <a id="72" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+
+<a id="101" class="Comment">-- Obtain Unit</a>
+<a id="116" class="Keyword">open</a> <a id="121" class="Keyword">import</a> <a id="128" href="Agda.Builtin.Unit.html" class="Module">Agda.Builtin.Unit</a> <a id="146" class="Keyword">public</a>
+  <a id="155" class="Keyword">renaming</a> <a id="164" class="Symbol">(</a> <a id="166" href="Agda.Builtin.Unit.html#164" class="Record">⊤</a> <a id="168" class="Symbol">to</a> <a id="171" class="Record">Unit</a> <a id="176" class="Symbol">)</a>
+
+<a id="179" class="Comment">-- Universe polymorphic version</a>
+<a id="Unit*"></a><a id="211" href="Cubical.Data.Unit.Base.html#211" class="Function">Unit*</a> <a id="217" class="Symbol">:</a> <a id="219" class="Symbol">{</a><a id="220" href="Cubical.Data.Unit.Base.html#220" class="Bound">ℓ</a> <a id="222" class="Symbol">:</a> <a id="224" href="Agda.Primitive.html#597" class="Postulate">Level</a><a id="229" class="Symbol">}</a> <a id="231" class="Symbol">→</a> <a id="233" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="238" href="Cubical.Data.Unit.Base.html#220" class="Bound">ℓ</a>
+<a id="240" href="Cubical.Data.Unit.Base.html#211" class="Function">Unit*</a> <a id="246" class="Symbol">=</a> <a id="248" href="Cubical.Foundations.Prelude.html#16057" class="Record">Lift</a> <a id="253" href="Cubical.Data.Unit.Base.html#171" class="Record">Unit</a>
+
+<a id="259" class="Keyword">pattern</a> <a id="tt*"></a><a id="267" href="Cubical.Data.Unit.Base.html#267" class="InductiveConstructor">tt*</a> <a id="271" class="Symbol">=</a> <a id="273" href="Cubical.Foundations.Prelude.html#16120" class="InductiveConstructor">lift</a> <a id="278" href="Agda.Builtin.Unit.html#201" class="InductiveConstructor">tt</a>
+
+<a id="282" class="Comment">-- Universe polymorphic version without definitional equality</a>
+<a id="344" class="Comment">-- Allows us to &quot;lock&quot; proofs. See &quot;Locking, unlocking&quot; in</a>
+<a id="403" class="Comment">-- https://coq.inria.fr/refman/proof-engine/ssreflect-proof-language.html</a>
+<a id="477" class="Keyword">data</a> <a id="lockUnit"></a><a id="482" href="Cubical.Data.Unit.Base.html#482" class="Datatype">lockUnit</a> <a id="491" class="Symbol">{</a><a id="492" href="Cubical.Data.Unit.Base.html#492" class="Bound">ℓ</a><a id="493" class="Symbol">}</a> <a id="495" class="Symbol">:</a> <a id="497" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="502" href="Cubical.Data.Unit.Base.html#492" class="Bound">ℓ</a> <a id="504" class="Keyword">where</a>
+  <a id="lockUnit.unlock"></a><a id="512" href="Cubical.Data.Unit.Base.html#512" class="InductiveConstructor">unlock</a> <a id="519" class="Symbol">:</a> <a id="521" href="Cubical.Data.Unit.Base.html#482" class="Datatype">lockUnit</a>
+</pre></body></html>

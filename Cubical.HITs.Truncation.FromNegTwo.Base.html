@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.HITs.Truncation.FromNegTwo.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.HITs.Truncation.FromNegTwo.Base.html" class="Module">Cubical.HITs.Truncation.FromNegTwo.Base</a> <a id="71" class="Keyword">where</a>
+
+<a id="78" class="Keyword">open</a> <a id="83" class="Keyword">import</a> <a id="90" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="118" class="Keyword">open</a> <a id="123" class="Keyword">import</a> <a id="130" href="Cubical.Foundations.HLevels.html" class="Module">Cubical.Foundations.HLevels</a>
+<a id="158" class="Keyword">open</a> <a id="163" class="Keyword">import</a> <a id="170" href="Cubical.Data.Nat.html" class="Module">Cubical.Data.Nat</a>
+<a id="187" class="Keyword">open</a> <a id="192" class="Keyword">import</a> <a id="199" href="Cubical.Data.NatMinusOne.html" class="Module">Cubical.Data.NatMinusOne</a>
+<a id="224" class="Keyword">open</a> <a id="229" class="Keyword">import</a> <a id="236" href="Cubical.HITs.Nullification.html" class="Module">Cubical.HITs.Nullification</a>
+<a id="263" class="Keyword">open</a> <a id="268" class="Keyword">import</a> <a id="275" href="Cubical.HITs.Sn.Base.html" class="Module">Cubical.HITs.Sn.Base</a>
+
+<a id="297" class="Comment">-- For the hub-and-spoke construction discussed in the HoTT book, which doesn&#39;t work in the base case</a>
+<a id="399" class="Comment">--  of contractibility, see `HITs.Truncation.Base`. The definition of truncation here contains</a>
+<a id="494" class="Comment">--  two more constructors which are redundant when n ≥ 1 but give contractibility when n = 0.</a>
+
+<a id="589" class="Comment">-- data hLevelTrunc {ℓ} (n : HLevel) (A : Type ℓ) : Type (ℓ-max ℓ ℓ&#39;) where</a>
+<a id="665" class="Comment">--   -- the hub-and-spoke definition in `Truncation.Base`</a>
+<a id="723" class="Comment">--   ∣_∣ : A → hLevelTrunc n A</a>
+<a id="754" class="Comment">--   hub   : (f : S (-1+ n) → hLevelTrunc n A) → hLevelTrunc n A</a>
+<a id="819" class="Comment">--   spoke : (f : S (-1+ n) → hLevelTrunc n A) (s : S) → hub f ≡ f s</a>
+<a id="888" class="Comment">--   -- two additional constructors needed to ensure that hLevelTrunc 0 A is contractible</a>
+<a id="978" class="Comment">--   ≡hub   : ∀ {x y} (p : S (-1+ n) → x ≡ y) → x ≡ y</a>
+<a id="1032" class="Comment">--   ≡spoke : ∀ {x y} (p : S (-1+ n) → x ≡ y) (s : S (-1+ n)) → ≡hub p ≡ p s</a>
+
+<a id="hLevelTrunc"></a><a id="1110" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1110" class="Function">hLevelTrunc</a> <a id="1122" class="Symbol">:</a> <a id="1124" class="Symbol">∀</a> <a id="1126" class="Symbol">{</a><a id="1127" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1127" class="Bound">ℓ</a><a id="1128" class="Symbol">}</a> <a id="1130" class="Symbol">→</a> <a id="1132" href="Cubical.Foundations.HLevels.html#810" class="Function">HLevel</a> <a id="1139" class="Symbol">→</a> <a id="1141" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="1146" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1127" class="Bound">ℓ</a> <a id="1148" class="Symbol">→</a> <a id="1150" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="1155" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1127" class="Bound">ℓ</a>
+<a id="1157" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1110" class="Function">hLevelTrunc</a> <a id="1169" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1169" class="Bound">n</a> <a id="1171" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1171" class="Bound">A</a> <a id="1173" class="Symbol">=</a> <a id="1175" href="Cubical.HITs.Nullification.Base.html#347" class="Datatype">Null</a> <a id="1180" class="Symbol">(</a><a id="1181" href="Cubical.HITs.Sn.Base.html#330" class="Function">S</a> <a id="1183" class="Symbol">(</a><a id="1184" href="Cubical.Data.NatMinusOne.Base.html#221" class="InductiveConstructor Operator">-1+</a> <a id="1188" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1169" class="Bound">n</a><a id="1189" class="Symbol">))</a> <a id="1192" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1171" class="Bound">A</a>
+
+<a id="1195" class="Comment">-- Note that relative to the HoTT book, this notation is off by +2</a>
+<a id="∥_∥_"></a><a id="1262" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1262" class="Function Operator">∥_∥_</a> <a id="1267" class="Symbol">:</a> <a id="1269" class="Symbol">∀</a> <a id="1271" class="Symbol">{</a><a id="1272" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1272" class="Bound">ℓ</a><a id="1273" class="Symbol">}</a> <a id="1275" class="Symbol">→</a> <a id="1277" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="1282" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1272" class="Bound">ℓ</a> <a id="1284" class="Symbol">→</a> <a id="1286" href="Cubical.Foundations.HLevels.html#810" class="Function">HLevel</a> <a id="1293" class="Symbol">→</a> <a id="1295" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="1300" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1272" class="Bound">ℓ</a>
+<a id="1302" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1262" class="Function Operator">∥</a> <a id="1304" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1304" class="Bound">A</a> <a id="1306" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1262" class="Function Operator">∥</a> <a id="1308" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1308" class="Bound">n</a> <a id="1310" class="Symbol">=</a> <a id="1312" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1110" class="Function">hLevelTrunc</a> <a id="1324" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1308" class="Bound">n</a> <a id="1326" href="Cubical.HITs.Truncation.FromNegTwo.Base.html#1304" class="Bound">A</a>
+</pre></body></html>

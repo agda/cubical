@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Homotopy.Spectrum</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Comment">{-
+  This uses ideas from Floris van Doorn&#39;s phd thesis and the code in
+  https://github.com/cmu-phil/Spectral/blob/master/spectrum/basic.hlean
+-}</a>
+<a id="171" class="Keyword">module</a> <a id="178" href="Cubical.Homotopy.Spectrum.html" class="Module">Cubical.Homotopy.Spectrum</a> <a id="204" class="Keyword">where</a>
+
+<a id="211" class="Keyword">open</a> <a id="216" class="Keyword">import</a> <a id="223" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="251" class="Keyword">open</a> <a id="256" class="Keyword">import</a> <a id="263" href="Cubical.Data.Unit.Pointed.html" class="Module">Cubical.Data.Unit.Pointed</a>
+<a id="289" class="Keyword">open</a> <a id="294" class="Keyword">import</a> <a id="301" href="Cubical.Foundations.Equiv.html" class="Module">Cubical.Foundations.Equiv</a>
+
+<a id="328" class="Keyword">open</a> <a id="333" class="Keyword">import</a> <a id="340" href="Cubical.Data.Int.html" class="Module">Cubical.Data.Int</a>
+
+<a id="358" class="Keyword">open</a> <a id="363" class="Keyword">import</a> <a id="370" href="Cubical.Homotopy.Prespectrum.html" class="Module">Cubical.Homotopy.Prespectrum</a>
+
+<a id="400" class="Keyword">private</a>
+  <a id="410" class="Keyword">variable</a>
+    <a id="423" href="Cubical.Homotopy.Spectrum.html#423" class="Generalizable">ℓ</a> <a id="425" class="Symbol">:</a> <a id="427" href="Agda.Primitive.html#597" class="Postulate">Level</a>
+
+<a id="Spectrum"></a><a id="434" href="Cubical.Homotopy.Spectrum.html#434" class="Function">Spectrum</a> <a id="443" class="Symbol">:</a> <a id="445" class="Symbol">(</a><a id="446" href="Cubical.Homotopy.Spectrum.html#446" class="Bound">ℓ</a> <a id="448" class="Symbol">:</a> <a id="450" href="Agda.Primitive.html#597" class="Postulate">Level</a><a id="455" class="Symbol">)</a> <a id="457" class="Symbol">→</a> <a id="459" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="464" class="Symbol">(</a><a id="465" href="Agda.Primitive.html#780" class="Primitive">ℓ-suc</a> <a id="471" href="Cubical.Homotopy.Spectrum.html#446" class="Bound">ℓ</a><a id="472" class="Symbol">)</a>
+<a id="474" href="Cubical.Homotopy.Spectrum.html#434" class="Function">Spectrum</a> <a id="483" href="Cubical.Homotopy.Spectrum.html#483" class="Bound">ℓ</a> <a id="485" class="Symbol">=</a> <a id="487" class="Keyword">let</a> <a id="491" class="Keyword">open</a> <a id="496" href="Cubical.Homotopy.Prespectrum.html#594" class="Module">GenericPrespectrum</a>
+             <a id="528" class="Keyword">in</a> <a id="531" href="Cubical.Core.Primitives.html#6274" class="Function">Σ[</a> <a id="534" href="Cubical.Homotopy.Spectrum.html#534" class="Bound">P</a> <a id="536" href="Cubical.Core.Primitives.html#6274" class="Function">∈</a> <a id="538" href="Cubical.Homotopy.Prespectrum.html#789" class="Function">Prespectrum</a> <a id="550" href="Cubical.Homotopy.Spectrum.html#483" class="Bound">ℓ</a> <a id="552" href="Cubical.Core.Primitives.html#6274" class="Function">]</a> <a id="554" class="Symbol">((</a><a id="556" href="Cubical.Homotopy.Spectrum.html#556" class="Bound">k</a> <a id="558" class="Symbol">:</a> <a id="560" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a><a id="561" class="Symbol">)</a> <a id="563" class="Symbol">→</a> <a id="565" href="Agda.Builtin.Cubical.Glue.html#868" class="Record">isEquiv</a> <a id="573" class="Symbol">(</a><a id="574" href="Agda.Builtin.Sigma.html#252" class="Field">fst</a> <a id="578" class="Symbol">(</a><a id="579" href="Cubical.Homotopy.Prespectrum.html#736" class="Field">map</a> <a id="583" href="Cubical.Homotopy.Spectrum.html#534" class="Bound">P</a> <a id="585" href="Cubical.Homotopy.Spectrum.html#556" class="Bound">k</a><a id="586" class="Symbol">)))</a>
+</pre></body></html>

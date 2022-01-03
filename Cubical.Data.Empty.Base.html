@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Data.Empty.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Data.Empty.Base.html" class="Module">Cubical.Data.Empty.Base</a> <a id="55" class="Keyword">where</a>
+
+<a id="62" class="Keyword">open</a> <a id="67" class="Keyword">import</a> <a id="74" href="Cubical.Core.Everything.html" class="Module">Cubical.Core.Everything</a>
+<a id="98" class="Keyword">open</a> <a id="103" class="Keyword">import</a> <a id="110" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+
+<a id="139" class="Keyword">private</a>
+  <a id="149" class="Keyword">variable</a>
+    <a id="162" href="Cubical.Data.Empty.Base.html#162" class="Generalizable">ℓ</a> <a id="164" class="Symbol">:</a> <a id="166" href="Agda.Primitive.html#597" class="Postulate">Level</a>
+
+<a id="173" class="Keyword">data</a> <a id="⊥"></a><a id="178" href="Cubical.Data.Empty.Base.html#178" class="Datatype">⊥</a> <a id="180" class="Symbol">:</a> <a id="182" href="Agda.Primitive.html#326" class="Primitive">Type₀</a> <a id="188" class="Keyword">where</a>
+
+<a id="⊥*"></a><a id="195" href="Cubical.Data.Empty.Base.html#195" class="Function">⊥*</a> <a id="198" class="Symbol">:</a> <a id="200" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="205" href="Cubical.Data.Empty.Base.html#162" class="Generalizable">ℓ</a>
+<a id="207" href="Cubical.Data.Empty.Base.html#195" class="Function">⊥*</a> <a id="210" class="Symbol">=</a> <a id="212" href="Cubical.Foundations.Prelude.html#16057" class="Record">Lift</a> <a id="217" href="Cubical.Data.Empty.Base.html#178" class="Datatype">⊥</a>
+
+<a id="rec"></a><a id="220" href="Cubical.Data.Empty.Base.html#220" class="Function">rec</a> <a id="224" class="Symbol">:</a> <a id="226" class="Symbol">{</a><a id="227" href="Cubical.Data.Empty.Base.html#227" class="Bound">A</a> <a id="229" class="Symbol">:</a> <a id="231" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="236" href="Cubical.Data.Empty.Base.html#162" class="Generalizable">ℓ</a><a id="237" class="Symbol">}</a> <a id="239" class="Symbol">→</a> <a id="241" href="Cubical.Data.Empty.Base.html#178" class="Datatype">⊥</a> <a id="243" class="Symbol">→</a> <a id="245" href="Cubical.Data.Empty.Base.html#227" class="Bound">A</a>
+<a id="247" href="Cubical.Data.Empty.Base.html#220" class="Function">rec</a> <a id="251" class="Symbol">()</a>
+
+<a id="elim"></a><a id="255" href="Cubical.Data.Empty.Base.html#255" class="Function">elim</a> <a id="260" class="Symbol">:</a> <a id="262" class="Symbol">{</a><a id="263" href="Cubical.Data.Empty.Base.html#263" class="Bound">A</a> <a id="265" class="Symbol">:</a> <a id="267" href="Cubical.Data.Empty.Base.html#178" class="Datatype">⊥</a> <a id="269" class="Symbol">→</a> <a id="271" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="276" href="Cubical.Data.Empty.Base.html#162" class="Generalizable">ℓ</a><a id="277" class="Symbol">}</a> <a id="279" class="Symbol">→</a> <a id="281" class="Symbol">(</a><a id="282" href="Cubical.Data.Empty.Base.html#282" class="Bound">x</a> <a id="284" class="Symbol">:</a> <a id="286" href="Cubical.Data.Empty.Base.html#178" class="Datatype">⊥</a><a id="287" class="Symbol">)</a> <a id="289" class="Symbol">→</a> <a id="291" href="Cubical.Data.Empty.Base.html#263" class="Bound">A</a> <a id="293" href="Cubical.Data.Empty.Base.html#282" class="Bound">x</a>
+<a id="295" href="Cubical.Data.Empty.Base.html#255" class="Function">elim</a> <a id="300" class="Symbol">()</a>
+</pre></body></html>

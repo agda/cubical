@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Experiments.NatMinusTwo</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">{-
+  This type ℕ₋₂ was originally used as the index to n-truncation in order to
+   be consistent with the notation in the HoTT book. However, ℕ was already
+   being used as an analogous index in Foundations.HLevels, and it became
+   clear that having two different indexing schemes for truncation levels was
+   very inconvenient. In the end, having slightly nicer notation was not worth
+   the hassle of having to use this type everywhere where truncation levels
+   were needed. So for this library, use the type `HLevel = ℕ` instead.
+
+  See the discussions below for more context:
+   - https://github.com/agda/cubical/issues/266
+   - https://github.com/agda/cubical/pull/238
+-}</a>
+<a id="680" class="Symbol">{-#</a> <a id="684" class="Keyword">OPTIONS</a> <a id="692" class="Pragma">--safe</a> <a id="699" class="Symbol">#-}</a>
+<a id="703" class="Keyword">module</a> <a id="710" href="Cubical.Experiments.NatMinusTwo.html" class="Module">Cubical.Experiments.NatMinusTwo</a> <a id="742" class="Keyword">where</a>
+
+<a id="749" class="Keyword">open</a> <a id="754" class="Keyword">import</a> <a id="761" href="Cubical.Experiments.NatMinusTwo.Base.html" class="Module">Cubical.Experiments.NatMinusTwo.Base</a> <a id="798" class="Keyword">public</a>
+
+<a id="806" class="Keyword">open</a> <a id="811" class="Keyword">import</a> <a id="818" href="Cubical.Experiments.NatMinusTwo.Properties.html" class="Module">Cubical.Experiments.NatMinusTwo.Properties</a> <a id="861" class="Keyword">public</a>
+
+<a id="869" class="Keyword">open</a> <a id="874" class="Keyword">import</a> <a id="881" href="Cubical.Experiments.NatMinusTwo.ToNatMinusOne.html" class="Module">Cubical.Experiments.NatMinusTwo.ToNatMinusOne</a> <a id="927" class="Keyword">using</a> <a id="933" class="Symbol">(</a><a id="934" href="Cubical.Experiments.NatMinusTwo.ToNatMinusOne.html#387" class="Function Operator">1+_</a><a id="937" class="Symbol">;</a> <a id="939" href="Cubical.Experiments.NatMinusTwo.ToNatMinusOne.html#427" class="Function">ℕ₋₁→ℕ₋₂</a><a id="946" class="Symbol">;</a> <a id="948" href="Cubical.Experiments.NatMinusTwo.ToNatMinusOne.html#495" class="Function">-1+Path</a><a id="955" class="Symbol">)</a> <a id="957" class="Keyword">public</a>
+</pre></body></html>

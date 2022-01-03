@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Instances.Semilattice</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Categories.Instances.Semilattice.html" class="Module">Cubical.Categories.Instances.Semilattice</a> <a id="72" class="Keyword">where</a>
+
+<a id="79" class="Keyword">open</a> <a id="84" class="Keyword">import</a> <a id="91" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+
+<a id="120" class="Keyword">open</a> <a id="125" class="Keyword">import</a> <a id="132" href="Cubical.Algebra.Semilattice.html" class="Module">Cubical.Algebra.Semilattice</a>
+
+<a id="161" class="Keyword">open</a> <a id="166" class="Keyword">import</a> <a id="173" href="Cubical.Categories.Category.html" class="Module">Cubical.Categories.Category</a>
+<a id="201" class="Keyword">open</a> <a id="206" class="Keyword">import</a> <a id="213" href="Cubical.Categories.Instances.Poset.html" class="Module">Cubical.Categories.Instances.Poset</a>
+
+<a id="249" class="Keyword">open</a> <a id="254" href="Cubical.Categories.Category.Base.html#262" class="Module">Category</a>
+
+<a id="264" class="Keyword">module</a> <a id="271" href="Cubical.Categories.Instances.Semilattice.html#271" class="Module">_</a> <a id="273" class="Symbol">{</a><a id="274" href="Cubical.Categories.Instances.Semilattice.html#274" class="Bound">ℓ</a><a id="275" class="Symbol">}</a> <a id="277" class="Symbol">(</a><a id="278" href="Cubical.Categories.Instances.Semilattice.html#278" class="Bound">L</a> <a id="280" class="Symbol">:</a> <a id="282" href="Cubical.Algebra.Semilattice.Base.html#1762" class="Function">Semilattice</a> <a id="294" href="Cubical.Categories.Instances.Semilattice.html#274" class="Bound">ℓ</a><a id="295" class="Symbol">)</a> <a id="297" class="Keyword">where</a>
+  <a id="305" class="Comment">-- more convenient than working with meet-semilattices</a>
+  <a id="362" class="Comment">-- as joins are limits</a>
+  <a id="387" class="Keyword">open</a> <a id="392" href="Cubical.Algebra.Semilattice.Base.html#5236" class="Module">JoinSemilattice</a> <a id="408" href="Cubical.Categories.Instances.Semilattice.html#278" class="Bound">L</a>
+
+  <a id="413" href="Cubical.Categories.Instances.Semilattice.html#413" class="Function">SemilatticeCategory</a> <a id="433" class="Symbol">:</a> <a id="435" href="Cubical.Categories.Category.Base.html#262" class="Record">Category</a> <a id="444" href="Cubical.Categories.Instances.Semilattice.html#274" class="Bound">ℓ</a> <a id="446" href="Cubical.Categories.Instances.Semilattice.html#274" class="Bound">ℓ</a>
+  <a id="450" href="Cubical.Categories.Instances.Semilattice.html#413" class="Function">SemilatticeCategory</a> <a id="470" class="Symbol">=</a> <a id="472" href="Cubical.Categories.Instances.Poset.html#310" class="Function">PosetCategory</a> <a id="486" href="Cubical.Algebra.Semilattice.Base.html#5473" class="Function">IndPoset</a>
+</pre></body></html>

@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Algebra.RingSolver.RawRing</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Algebra.RingSolver.RawRing.html" class="Module">Cubical.Algebra.RingSolver.RawRing</a> <a id="66" class="Keyword">where</a>
+
+<a id="73" class="Keyword">open</a> <a id="78" class="Keyword">import</a> <a id="85" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="113" class="Keyword">open</a> <a id="118" class="Keyword">import</a> <a id="125" href="Cubical.Data.Sigma.html" class="Module">Cubical.Data.Sigma</a>
+<a id="144" class="Keyword">open</a> <a id="149" class="Keyword">import</a> <a id="156" href="Cubical.Data.Nat.html" class="Module">Cubical.Data.Nat</a> <a id="173" class="Keyword">using</a> <a id="179" class="Symbol">(</a><a id="180" href="Agda.Builtin.Nat.html#192" class="Datatype">ℕ</a><a id="181" class="Symbol">)</a>
+
+<a id="184" class="Keyword">private</a>
+  <a id="194" class="Keyword">variable</a>
+    <a id="207" href="Cubical.Algebra.RingSolver.RawRing.html#207" class="Generalizable">ℓ</a> <a id="209" class="Symbol">:</a> <a id="211" href="Agda.Primitive.html#597" class="Postulate">Level</a>
+
+<a id="218" class="Keyword">record</a> <a id="RawRing"></a><a id="225" href="Cubical.Algebra.RingSolver.RawRing.html#225" class="Record">RawRing</a> <a id="233" href="Cubical.Algebra.RingSolver.RawRing.html#233" class="Bound">ℓ</a> <a id="235" class="Symbol">:</a> <a id="237" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="242" class="Symbol">(</a><a id="243" href="Agda.Primitive.html#780" class="Primitive">ℓ-suc</a> <a id="249" href="Cubical.Algebra.RingSolver.RawRing.html#233" class="Bound">ℓ</a><a id="250" class="Symbol">)</a> <a id="252" class="Keyword">where</a>
+
+  <a id="261" class="Keyword">constructor</a> <a id="rawring"></a><a id="273" href="Cubical.Algebra.RingSolver.RawRing.html#273" class="InductiveConstructor">rawring</a>
+
+  <a id="284" class="Keyword">field</a>
+    <a id="RawRing.Carrier"></a><a id="294" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a> <a id="302" class="Symbol">:</a> <a id="304" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="309" href="Cubical.Algebra.RingSolver.RawRing.html#233" class="Bound">ℓ</a>
+    <a id="RawRing.0r"></a><a id="315" href="Cubical.Algebra.RingSolver.RawRing.html#315" class="Field">0r</a>      <a id="323" class="Symbol">:</a> <a id="325" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a>
+    <a id="RawRing.1r"></a><a id="337" href="Cubical.Algebra.RingSolver.RawRing.html#337" class="Field">1r</a>      <a id="345" class="Symbol">:</a> <a id="347" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a>
+    <a id="RawRing._+_"></a><a id="359" href="Cubical.Algebra.RingSolver.RawRing.html#359" class="Field Operator">_+_</a>     <a id="367" class="Symbol">:</a> <a id="369" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a> <a id="377" class="Symbol">→</a> <a id="379" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a> <a id="387" class="Symbol">→</a> <a id="389" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a>
+    <a id="RawRing._·_"></a><a id="401" href="Cubical.Algebra.RingSolver.RawRing.html#401" class="Field Operator">_·_</a>     <a id="409" class="Symbol">:</a> <a id="411" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a> <a id="419" class="Symbol">→</a> <a id="421" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a> <a id="429" class="Symbol">→</a> <a id="431" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a>
+    <a id="RawRing.-_"></a><a id="443" href="Cubical.Algebra.RingSolver.RawRing.html#443" class="Field Operator">-_</a>      <a id="451" class="Symbol">:</a> <a id="453" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a> <a id="461" class="Symbol">→</a> <a id="463" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">Carrier</a>
+
+  <a id="474" class="Keyword">infixl</a> <a id="481" class="Number">8</a> _·_
+  <a id="489" class="Keyword">infixl</a> <a id="496" class="Number">7</a> -_
+  <a id="503" class="Keyword">infixl</a> <a id="510" class="Number">6</a> _+_
+
+<a id="⟨_⟩"></a><a id="517" href="Cubical.Algebra.RingSolver.RawRing.html#517" class="Function Operator">⟨_⟩</a> <a id="521" class="Symbol">:</a> <a id="523" href="Cubical.Algebra.RingSolver.RawRing.html#225" class="Record">RawRing</a> <a id="531" href="Cubical.Algebra.RingSolver.RawRing.html#207" class="Generalizable">ℓ</a> <a id="533" class="Symbol">→</a> <a id="535" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="540" href="Cubical.Algebra.RingSolver.RawRing.html#207" class="Generalizable">ℓ</a>
+<a id="542" href="Cubical.Algebra.RingSolver.RawRing.html#517" class="Function Operator">⟨_⟩</a> <a id="546" class="Symbol">=</a> <a id="548" href="Cubical.Algebra.RingSolver.RawRing.html#294" class="Field">RawRing.Carrier</a>
+</pre></body></html>
