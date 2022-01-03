@@ -123,3 +123,16 @@ jobs:
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             RUNHASKELL='~/.ghcup/bin/runhaskell'
+
+      - name: Htmlize cubical
+        run: |
+          make listings \
+            AGDA_EXEC='~/.cabal/bin/agda -W error' \
+            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
+            RUNHASKELL='~/.ghcup/bin/runhaskell'
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.8
+        with:
+          branch: gh-pages
+          folder: html
