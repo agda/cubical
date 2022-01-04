@@ -41,6 +41,7 @@ open import Cubical.HITs.S1
 
 open import Cubical.Algebra.Group renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.AbGroup.Instances.Unit renaming (Unit* to trivialAbGroup)
 
 open coHomTheory
 open Iso
