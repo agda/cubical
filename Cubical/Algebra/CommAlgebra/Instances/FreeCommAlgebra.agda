@@ -418,48 +418,48 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
       module f = IsAlgebraHom (f .snd)
 
 
-evaluateAt : {R : CommRing ℓ} {X : Type ℓ'} (A : CommAlgebra R ℓ'')
-             (f : CommAlgebraHom (R [ X ]) A)
-             → (X → fst A)
+evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
+             (f : CommAlgebraHom (R [ I ]) A)
+             → (I → fst A)
 evaluateAt A f x = f $a (Construction.var x)
 
-inducedHom : {R : CommRing ℓ} {X : Type ℓ'} (A : CommAlgebra R ℓ'')
-             (φ : X → fst A )
-             → CommAlgebraHom (R [ X ]) A
+inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
+             (φ : I → fst A )
+             → CommAlgebraHom (R [ I ]) A
 inducedHom A φ = Theory.inducedHom A φ
 
 
-homMapIso : {R : CommRing ℓ} {X : Type ℓ} (A : CommAlgebra R ℓ')
-             → Iso (CommAlgebraHom (R [ X ]) A) (X → (fst A))
+homMapIso : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
+             → Iso (CommAlgebraHom (R [ I ]) A) (I → (fst A))
 Iso.fun (homMapIso A) = evaluateAt A
 Iso.inv (homMapIso A) = inducedHom A
 Iso.rightInv (homMapIso A) = λ ϕ → Theory.mapRetrievable A ϕ
-Iso.leftInv (homMapIso {R = R} {X = X} A) =
-  λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ X ]} {N = A} f)
+Iso.leftInv (homMapIso {R = R} {I = I} A) =
+  λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
                (Theory.homRetrievable A f)
 
-homMapPath : {R : CommRing ℓ} {X : Type ℓ} (A : CommAlgebra R ℓ')
-             → CommAlgebraHom (R [ X ]) A ≡ (X → fst A)
+homMapPath : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
+             → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
 homMapPath A = isoToPath (homMapIso A)
 
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
   {-
-    Hom(R[X],A) → (X → A)
+    Hom(R[I],A) → (I → A)
          ↓          ↓
-    Hom(R[X],B) → (X → B)
+    Hom(R[I],B) → (I → B)
   -}
-  naturalR : {X : Type ℓ'} (ψ : CommAlgebraHom A B)
-             (f : CommAlgebraHom (R [ X ]) A)
+  naturalR : {I : Type ℓ'} (ψ : CommAlgebraHom A B)
+             (f : CommAlgebraHom (R [ I ]) A)
              → (fst ψ) ∘ evaluateAt A f ≡ evaluateAt B (ψ ∘a f)
   naturalR ψ f = refl
 
   {-
-    Hom(R[X],A) → (X → A)
+    Hom(R[I],A) → (I → A)
          ↓          ↓
-    Hom(R[Y],A) → (Y → A)
+    Hom(R[J],A) → (J → A)
   -}
-  naturalL : {X Y : Type ℓ'} (φ : Y → X)
-             (f : CommAlgebraHom (R [ X ]) A)
+  naturalL : {I J : Type ℓ'} (φ : J → I)
+             (f : CommAlgebraHom (R [ I ]) A)
              → (evaluateAt A f) ∘ φ
-               ≡ evaluateAt A (f ∘a (inducedHom (R [ X ]) (λ x → Construction.var (φ x))))
+               ≡ evaluateAt A (f ∘a (inducedHom (R [ I ]) (λ x → Construction.var (φ x))))
   naturalL φ f = refl
