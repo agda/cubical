@@ -35,9 +35,11 @@ module _ {R : CommRing ℓ} where
   freeAlgebra : (n : ℕ) → CommAlgebra R ℓ
   freeAlgebra n = R [ Fin n ]
 
-  makeFPAlgebra : {m : ℕ} (n : ℕ) (l : FinVec (fst (freeAlgebra n)) m)
-                  → CommAlgebra R ℓ
-  makeFPAlgebra n l = freeAlgebra n / generatedIdeal (freeAlgebra n) l
+  abstract
+    makeFPAlgebra : {m : ℕ} (n : ℕ) (l : FinVec (fst (freeAlgebra n)) m)
+                    → CommAlgebra R ℓ
+    makeFPAlgebra n l = freeAlgebra n / generatedIdeal (freeAlgebra n) l
+
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
       n : ℕ
