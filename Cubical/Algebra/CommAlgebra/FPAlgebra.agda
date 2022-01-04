@@ -10,6 +10,8 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.FPAlgebra where
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat
@@ -45,12 +47,7 @@ module _ {R : CommRing ℓ} where
       n : ℕ
       m : ℕ
       relations : FinVec (fst (freeAlgebra n)) m
-      equiv : CommAlgebraHom A (makeFPAlgebra n relations)
-{-
-
-finitePresentation : (A : CommAlgebra R ℓ) → Type _
-  finitePresentation A = Σ[ ((n , m) , l) ∈ Σ[ (n , m) ∈ ℕ × ℕ ] FinVec (fst (freeAlgebra n)) m ]
-                         CommAlgebraEquiv (makeFPAlgebra n l) A
+      equiv : CommAlgebraEquiv (makeFPAlgebra n relations) A
 
   isFPAlgebra : (A : CommAlgebra R ℓ) → Type _
   isFPAlgebra A = ∥ finitePresentation A ∥
@@ -59,19 +56,21 @@ finitePresentation : (A : CommAlgebra R ℓ) → Type _
   isFPAlgebraIsProp = isPropPropTrunc
 
 module Instances {R : CommRing ℓ} where
+  private
+    R[⊥] : CommAlgebra R ℓ
+    R[⊥] = R [ Fin 0 ]
+
+    emptyGen : FinVec (fst R[⊥]) 0
+    emptyGen = λ ()
+
+    R[⊥]/⟨0⟩ : CommAlgebra R ℓ
+    R[⊥]/⟨0⟩ = R[⊥] / (generatedIdeal R[⊥] emptyGen)
+
   initialFP : finitePresentation (initialCAlg R)
-  initialFP = {!!}
-  initialFP = ((0 , 0) , emptyGen) , equivByInitiality R R[⊥]/⟨0⟩ isInitial
+  finitePresentation.n initialFP = 0
+  finitePresentation.m initialFP = 0
+  finitePresentation.relations initialFP = emptyGen
+  finitePresentation.equiv initialFP = equivByInitiality R _ isInitial
     where
-      R[⊥] : CommAlgebra R ℓ
-      R[⊥] = R [ Fin 0 ]
-
-      emptyGen : FinVec (fst R[⊥]) 0
-      emptyGen = λ ()
-
-      R[⊥]/⟨0⟩ : CommAlgebra R ℓ
-      R[⊥]/⟨0⟩ = R[⊥] / (generatedIdeal R[⊥] emptyGen)
-
-      postulate
-        isInitial : (A : CommAlgebra R ℓ) → isContr (CommAlgebraHom R[⊥]/⟨0⟩ A)
--}
+      isInitial : (A : CommAlgebra R ℓ) → isContr (CommAlgebraHom _ A)
+      isInitial = {!!}
