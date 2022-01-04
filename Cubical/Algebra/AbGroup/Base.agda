@@ -178,15 +178,3 @@ dirProdAb A B =
   Group→AbGroup (DirProd (AbGroup→Group A) (AbGroup→Group B))
                  λ p q → ΣPathP (comm (isAbGroup (snd A)) _ _
                                 , comm (isAbGroup (snd B)) _ _)
-
-trivialAbGroup : ∀ {ℓ} → AbGroup ℓ
-fst trivialAbGroup = Unit*
-0g (snd trivialAbGroup) = tt*
-_+_ (snd trivialAbGroup) _ _ = tt*
-(- snd trivialAbGroup) _ = tt*
-is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) =
-  isProp→isSet isPropUnit*
-assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) _ _ _ = refl
-identity (isMonoid (isGroup (isAbGroup (snd trivialAbGroup)))) _ = refl , refl
-inverse (isGroup (isAbGroup (snd trivialAbGroup))) _ = refl , refl
-comm (isAbGroup (snd trivialAbGroup)) _ _ = refl
