@@ -6,7 +6,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
-open import Cubical.Data.Unit renaming (Unit to UnitType)
+open import Cubical.Data.Unit renaming (Unit to UnitType; Unit* to UnitType*)
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Morphisms
@@ -24,6 +24,12 @@ Unit : Group₀
 Unit = UnitType , groupstr tt (λ _ _ → tt) (λ _ → tt)
                       (makeIsGroup isSetUnit (λ _ _ _ → refl) (λ _ → refl) (λ _ → refl)
                                    (λ _ → refl) (λ _ → refl))
+
+Unit* : Group ℓ
+Unit* = UnitType* ,
+        groupstr tt* (λ _ _ → tt*) (λ _ → tt*)
+          (makeIsGroup (isOfHLevelUnit* 2) (λ _ _ _ → refl) (λ _ → refl) (λ _ → refl)
+                       (λ _ → refl) (λ _ → refl))
 
 open Iso
 
