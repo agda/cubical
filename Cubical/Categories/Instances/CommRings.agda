@@ -37,7 +37,7 @@ isSetHom CommRingsCategory               = isSetRingHom _ _
 
 TerminalCommRing : Terminal {ℓ-suc ℓ-zero} CommRingsCategory
 fst TerminalCommRing = UnitCommRing
-fst (fst (snd TerminalCommRing y)) _ = tt
+fst (fst (snd TerminalCommRing y)) _ = tt*
 snd (fst (snd TerminalCommRing y)) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
 snd (snd TerminalCommRing y) f = RingHom≡ (funExt (λ _ → refl))
 
