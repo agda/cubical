@@ -604,6 +604,36 @@ module ΩLES {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →�
         ∙ cong (fst (fst (Ω^Fibre≃∙ n f))) p
         ∙ snd (Ω^Fibre≃∙ n f))
 
+
+
+
+module setTruncLemmas {ℓ ℓ' ℓ'' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+  (n m l : ℕ)
+  (f : (Ω ((Ω^ n) A)) →∙ (Ω ((Ω^ m) B)))
+  (g : (Ω ((Ω^ m) B)) →∙ (Ω ((Ω^ l) C)))
+  (e₁ : IsGroupHom (snd (πGr n A)) (sMap (fst f)) (snd (πGr m B)))
+  (e₂ : IsGroupHom (snd (πGr m B)) (sMap (fst g)) (snd (πGr l C))) where
+
+  ker⊂im : ((x : typ (Ω ((Ω^ m) B))) → isInKer∙ g x → isInIm∙ f x)
+         → (x : π (suc m) B) → isInKer (_ , e₂) x → isInIm (_  , e₁) x
+  ker⊂im ind =
+    sElim (λ _ → isSetΠ λ _ → isProp→isSet squash)
+      λ p ker →
+        pRec squash
+        (λ ker∙ → ∣ ∣ ind p ker∙ .fst ∣₂ , cong ∣_∣₂ (ind p ker∙ .snd) ∣ )
+        (fun PathIdTrunc₀Iso ker)
+
+  im⊂ker : ((x : typ (Ω ((Ω^ m) B))) → isInIm∙ f x → isInKer∙ g x)
+        → (x : π (suc m) B) → isInIm (_  , e₁) x → isInKer (_ , e₂) x
+  im⊂ker ind =
+    sElim (λ _ → isSetΠ λ _ → isSetPathImplicit)
+      λ p →
+       pRec (squash₂ _ _)
+       (uncurry (sElim (λ _ → isSetΠ λ _ → isSetPathImplicit)
+         λ a q → pRec (squash₂ _ _)
+                       (λ q → cong ∣_∣₂ (ind p (a , q)))
+                       (fun PathIdTrunc₀Iso q)))
+
 module πLES {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
   module Ωs = ΩLES f 
   open Ωs renaming (A→B to A→B')
@@ -636,14 +666,34 @@ module πLES {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →�
     → isInKer (A→B n) x
     → isInIm (fib→A n) x
   Ker-A→B⊂Im-fib→A n =
-    sElim (λ _ → isSetΠ λ _ → isProp→isSet squash)
-      λ a p →
-        pRec squash
-          (λ inker → ∣ ∣ fst (kerA→B⊂fibf^→A (suc n) a inker) ∣₂
-                     , cong ∣_∣₂ (snd (kerA→B⊂fibf^→A (suc n) a inker)) ∣)
-          (fun PathIdTrunc₀Iso p)
+    setTruncLemmas.ker⊂im n n n
+      (fibf^→A (suc n)) (A→B' (suc n))
+      (snd (fib→A n)) (snd (A→B n))
+      (kerA→B⊂fibf^→A (suc n))
 
   Im-fib→A⊂Ker-A→B : (n : ℕ) (x : π (suc n) A)
     → isInIm (fib→A n) x
     → isInKer (A→B n) x
-  Im-fib→A⊂Ker-A→B n = {!!}
+  Im-fib→A⊂Ker-A→B n =
+    setTruncLemmas.im⊂ker n n n
+      (fibf^→A (suc n)) (A→B' (suc n))
+      (snd (fib→A n)) (snd (A→B n))
+      (fibf^→A⊂kerA→B' (suc n))
+
+  Ker-fib→A⊂Im-B→fib : (n : ℕ) (x : π (suc n) fib)
+    → isInKer (fib→A n) x
+    → isInIm (B→fib n) x
+  Ker-fib→A⊂Im-B→fib n =
+    setTruncLemmas.ker⊂im (suc n) n n
+      (ΩB→fibf^ (suc n)) (fibf^→A (suc n))
+      (snd (B→fib n)) (snd (fib→A n))
+      (kerfibf^→A⊂imΩB→fibf^ (suc n))
+
+  Im-B→fib⊂Ker-fib→A : (n : ℕ) (x : π (suc n) fib)
+    → isInIm (B→fib n) x
+    → isInKer (fib→A n) x
+  Im-B→fib⊂Ker-fib→A n =
+    setTruncLemmas.im⊂ker (suc n) n n
+      (ΩB→fibf^ (suc n)) (fibf^→A (suc n))
+      (snd (B→fib n)) (snd (fib→A n))
+      (imΩB→fibf^⊂kerfibf^→A (suc n))
