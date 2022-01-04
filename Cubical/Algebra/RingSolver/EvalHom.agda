@@ -260,7 +260,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
            ((eval P (x ∷ xs) · eval S (x ∷ xs)) · x)
          ≡⟨ sym (·Assoc _ _ _) ⟩
            (eval P (x ∷ xs) · (eval S (x ∷ xs) · x))
-         ≡⟨ cong (λ u → eval P (x ∷ xs) · u) (·-comm _ _) ⟩
+         ≡⟨ cong (λ u → eval P (x ∷ xs) · u) (·Comm _ _) ⟩
            (eval P (x ∷ xs) · (x · eval S (x ∷ xs)))
          ≡⟨ ·Assoc _ _ _ ⟩
            (eval P (x ∷ xs) · x) · eval S (x ∷ xs)

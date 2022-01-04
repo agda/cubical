@@ -120,7 +120,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
  open CommRingStr (snd (R[1/_]AsCommRing R' f)) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ
                                                          ; _+_ to _+ᶠ_ ; 0r to 0ᶠ
                                                          ; ·Lid to ·ᶠ-lid ; ·Rid to ·ᶠ-rid
-                                                         ; ·Assoc to ·ᶠ-assoc ; ·-comm to ·ᶠ-comm)
+                                                         ; ·Assoc to ·ᶠ-assoc ; ·Comm to ·ᶠ-comm)
  open IsRingHom
 
  private
@@ -306,7 +306,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
              f ^ (l ∸ m) · f ^ m · (g ^ (l ∸ n) · g ^ n) · r
 
-           ≡⟨ cong (_· r) (·-commAssocSwap _ _ _ _) ⟩
+           ≡⟨ cong (_· r) (·CommAssocSwap _ _ _ _) ⟩
 
              f ^ (l ∸ m) · g ^ (l ∸ n) · (f ^ m · g ^ n) · r
 
@@ -465,7 +465,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
               r · ((g · f) ^ m)
 
-            ≡⟨ cong (λ x → r · (x ^ m)) (·-comm _ _) ⟩
+            ≡⟨ cong (λ x → r · (x ^ m)) (·Comm _ _) ⟩
 
               r · ((f · g) ^ m)
 
@@ -473,7 +473,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
               r · ((f · g) ^ n)
 
-            ≡⟨ cong (λ x → r · (x ^ n)) (·-comm _ _) ⟩
+            ≡⟨ cong (λ x → r · (x ^ n)) (·Comm _ _) ⟩
 
               r · ((g · f) ^ n)
 
@@ -523,7 +523,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
              (f · g) ^ l · r · (g · f) ^ m
 
-           ≡⟨ cong (λ x → (f · g) ^ l · r · x ^ m) (·-comm _ _) ⟩
+           ≡⟨ cong (λ x → (f · g) ^ l · r · x ^ m) (·Comm _ _) ⟩
 
              (f · g) ^ l · r · (f · g) ^ m
 
@@ -539,7 +539,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
              (f · g) ^ l · r' · (f · g) ^ n
 
-           ≡⟨ cong (λ x → (f · g) ^ l · r' · x ^ n) (·-comm _ _) ⟩
+           ≡⟨ cong (λ x → (f · g) ^ l · r' · x ^ n) (·Comm _ _) ⟩
 
              (f · g) ^ l · r' · (g · f) ^ n
 

@@ -26,7 +26,7 @@ module _ ((R , str) : CommRing ℓ) where
                     (makeIsCommAlgebra (isSetRing (CommRing→Ring (R , str)))
                        +Assoc +Rid +Rinv +Comm
                        ·Assoc ·Lid
-                       ·Ldist+ ·-comm
+                       ·Ldist+ ·Comm
                         (λ x y z → sym (·Assoc x y z)) ·Ldist+ ·Rdist+ ·Lid
                          λ x y z → sym (·Assoc x y z)))
 
