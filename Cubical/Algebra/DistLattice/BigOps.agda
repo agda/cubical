@@ -102,6 +102,10 @@ module Join (L' : DistLattice ℓ) where
  open PosetReasoning IndPoset
  open PosetStr (IndPoset .snd) hiding (_≤_)
 
+ ind≤⋁ : {n : ℕ} (U : FinVec L n) (i : Fin n) → U i ≤ ⋁ U
+ ind≤⋁ {n = suc n} U zero = ∨≤RCancel _ _
+ ind≤⋁ {n = suc n} U (suc i) = is-trans _ (⋁ (U ∘ suc)) _ (ind≤⋁ (U ∘ suc) i) (∨≤LCancel _ _)
+
  ⋁IsMax : {n : ℕ} (U : FinVec L n) (x : L) → (∀ i → U i ≤ x) → ⋁ U ≤ x
  ⋁IsMax {n = zero} _ _ _ = ∨lLid _
  ⋁IsMax {n = suc n} U x U≤x =

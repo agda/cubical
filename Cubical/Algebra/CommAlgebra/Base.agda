@@ -138,7 +138,7 @@ module _ {R : CommRing ℓ} where
         → CommAlgebra R ℓ
     commAlgebraFromCommRing _⋆_ ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc· = fst S ,
       commalgebrastr 0r 1S _+_ _·_  -_ _⋆_
-        (makeIsCommAlgebra is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·-comm
+        (makeIsCommAlgebra is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·Comm
                                   ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc·)
 
 
