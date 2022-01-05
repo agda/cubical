@@ -132,6 +132,7 @@ jobs:
             RUNHASKELL='~/.ghcup/bin/runhaskell'
 
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref_name == 'master'
         uses: JamesIves/github-pages-deploy-action@4.1.8
         with:
           branch: gh-pages
