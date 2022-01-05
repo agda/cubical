@@ -18,6 +18,7 @@ open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.OrderedCommMonoid
 open import Cubical.Algebra.OrderedCommMonoid.PropCompletion
 open import Cubical.Algebra.OrderedCommMonoid.Instances
+open import Cubical.Algebra.CommSemiring
 
 open import Cubical.Data.Nat using (ℕ; ·-distribˡ)
 open import Cubical.Data.Nat.Order
@@ -52,14 +53,17 @@ module Construction where
 
   open OrderedCommMonoidStr (snd ℕ↑-+)
     using ()
-    renaming (_·_ to _+_; assoc to +Assoc; comm to +Comm; rid to +Rid)
+    renaming (assoc to +Assoc; comm to +Comm; rid to +Rid;
+              _·_ to _+_; 1m to 0↑)
 
   open OrderedCommMonoidStr (snd ℕ≤·)
    using (isLMonotone; isRMonotone)
 
   open OrderedCommMonoidStr (snd ℕ≤+)
    using ()
-   renaming (_·_ to _+ℕ_; isLMonotone to +isLMonotone; isRMonotone to +isRMonotone)
+   renaming (_·_ to _+ℕ_;
+             isLMonotone to +isLMonotone; isRMonotone to +isRMonotone;
+             comm to ℕ+Comm)
 
   open OrderedCommMonoidStr ⦃...⦄
     using (_·_)
@@ -135,3 +139,25 @@ module Construction where
                     ∣})
                   x·zb})
               x·ya}
+
+  0LAnnihil : (x : ℕ↑) → 0↑ · x ≡ 0↑
+  0LAnnihil x =
+    pathFromImplications (0↑ · x) 0↑ (⇒) ⇐
+    where
+     ⇒ : (n : ℕ) → typeAt n (0↑ · x) → typeAt n 0↑
+     ⇒ n _ = n , ℕ+Comm n 0
+     ⇐ : (n : ℕ) → typeAt n 0↑ → typeAt n (0↑ · x)
+     ⇐ n _ = ∣ (0 , n) , ≤-refl , ({!p!} , {!!}) ∣   -- x needs to be bounded for that to work
+
+  asCommSemiring : CommSemiring (ℓ-suc ℓ-zero)
+  fst asCommSemiring = ℕ↑
+  CommSemiringStr.0r (snd asCommSemiring) = 0↑
+  CommSemiringStr.1r (snd asCommSemiring) = OrderedCommMonoidStr.1m (snd ℕ↑-·)
+  CommSemiringStr._+_ (snd asCommSemiring) = _+_
+  CommSemiringStr._·_ (snd asCommSemiring) = _·_
+  IsCommSemiring.+IsCommMonoid (CommSemiringStr.isCommSemiring (snd asCommSemiring)) =
+    OrderedCommMonoidStr.isCommMonoid (snd ℕ↑-+)
+  IsCommSemiring.·IsCommMonoid (CommSemiringStr.isCommSemiring (snd asCommSemiring)) =
+    OrderedCommMonoidStr.isCommMonoid (snd ℕ↑-·)
+  IsCommSemiring.·LDist+ (CommSemiringStr.isCommSemiring (snd asCommSemiring)) = +LDist·
+  IsCommSemiring.0LAnnihil (CommSemiringStr.isCommSemiring (snd asCommSemiring)) = 0LAnnihil
