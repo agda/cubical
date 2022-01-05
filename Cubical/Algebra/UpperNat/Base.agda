@@ -39,9 +39,11 @@ private
    constructively (no proof of that is given here).
 
    Example Application:
-   The degree of a (constructive!) polynomial may be defined as an upper natural:
+   The degree of a polynomial may be defined as an upper natural:
 
      deg(∑_{i=0}^{n} aᵢ · Xⁱ) :≡ λ (k : ℕ) → ∀ (k+1 ≤ i ≤ n) aᵢ≡0
+
+   This works even if a constructive definition of polynomial is used.
 -}
 
 module Construction where
