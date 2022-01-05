@@ -124,6 +124,11 @@ substComposite : ∀ {ℓ ℓ′} {A : Type ℓ} → (B : A → Type ℓ′)
 substComposite B p q Bx i =
   transport (cong B (compPath-filler' p q (~ i))) (transport-fillerExt (cong B p) i Bx)
 
+-- transporting along a composite path is equivalent to transporting twice
+transportComposite : ∀ {ℓ} {A B C : Type ℓ} (p : A ≡ B) (q : B ≡ C) (x : A)
+                 → transport (p ∙ q) x ≡ transport q (transport p x)
+transportComposite = substComposite (λ D → D)
+
 -- substitution commutes with morphisms in slices
 substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
                    → (B C : A → Type ℓ′)

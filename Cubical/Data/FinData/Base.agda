@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Nat using (ℕ; zero; suc; _+_)
+open import Cubical.Data.Nat using (ℕ; zero; suc; _+_; _·_; +-assoc)
 open import Cubical.Data.Bool.Base
 open import Cubical.Relation.Nullary
 

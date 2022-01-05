@@ -281,3 +281,73 @@ congPathEquiv : ∀ {ℓ ℓ'} {A : I → Type ℓ} {B : I → Type ℓ'}
   (e : ∀ i → A i ≃ B i) {a₀ : A i0} {a₁ : A i1}
   → PathP A a₀ a₁ ≃ PathP B (e i0 .fst a₀) (e i1 .fst a₁)
 congPathEquiv e = isoToEquiv (congPathIso e)
+
+-- Characterizations of dependent paths in path types
+
+doubleCompPath-filler∙ : {a b c d : A} (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)
+  → PathP (λ i → p i ≡ r (~ i)) (p ∙ q ∙ r) q
+doubleCompPath-filler∙ {A = A} {b = b} p q r j i =
+  hcomp (λ k → λ { (i = i0) → p j
+                  ; (i = i1) → side j k
+                  ; (j = i1) → q (i ∧ k)})
+        (p (j ∨ i))
+  where
+  side : I → I → A
+  side i j =
+    hcomp (λ k → λ { (i = i1) → q j
+                    ; (j = i0) → b
+                    ; (j = i1) → r (~ i ∧ k)})
+          (q j)
+
+PathP→compPathL : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → PathP (λ i → p i ≡ q i) r s
+  → sym p ∙ r ∙ q ≡ s
+PathP→compPathL {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∨ k)
+                 ; (i = i1) → q (j ∨ k)
+                 ; (j = i0) → doubleCompPath-filler∙ (sym p) r q (~ k) i
+                 ; (j = i1) → s i })
+        (P j i)
+
+PathP→compPathR : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → PathP (λ i → p i ≡ q i) r s
+  → r ≡ p ∙ s ∙ sym q
+PathP→compPathR {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∧ (~ k))
+                 ; (i = i1) → q (j ∧ (~ k))
+                 ; (j = i0) → r i
+                 ; (j = i1) → doubleCompPath-filler∙ p s (sym q) (~ k) i})
+        (P j i)
+
+
+-- Other direction
+
+compPathL→PathP : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → sym p ∙ r ∙ q ≡ s
+  → PathP (λ i → p i ≡ q i) r s
+compPathL→PathP {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (~ k ∨ j)
+                 ; (i = i1) → q (~ k ∨ j)
+                 ; (j = i0) → doubleCompPath-filler∙ (sym p) r q k i
+                 ; (j = i1) → s i})
+        (P j i)
+
+compPathR→PathP : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → r ≡ p ∙ s ∙ sym q
+  → PathP (λ i → p i ≡ q i) r s
+compPathR→PathP {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                 ; (i = i1) → q (k ∧ j)
+                 ; (j = i0) → r i
+                 ; (j = i1) → doubleCompPath-filler∙  p s (sym q) k i})
+        (P j i)
+
+compPathR→PathP∙∙ : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → r ≡ p ∙∙ s ∙∙ sym q
+  → PathP (λ i → p i ≡ q i) r s
+compPathR→PathP∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
+    hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                   ; (i = i1) → q (k ∧ j)
+                   ; (j = i0) → r i
+                   ; (j = i1) → doubleCompPath-filler  p s (sym q) (~ k) i})
+          (P j i)

@@ -176,6 +176,11 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
            (d + suc m) · suc k               ≡⟨ cong (_· suc k) r ⟩
            n · suc k                         ∎
 
+∸-≤ : ∀ m n → m ∸ n ≤ m
+∸-≤ m zero = ≤-refl
+∸-≤ zero (suc n) = ≤-refl
+∸-≤ (suc m) (suc n) = ≤-trans (∸-≤ m n) (1 , refl)
+
 ≤-∸-+-cancel : m ≤ n → (n ∸ m) + m ≡ n
 ≤-∸-+-cancel {zero} {n} _ = +-zero _
 ≤-∸-+-cancel {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
@@ -205,6 +210,16 @@ min-≤-right : min m n ≤ n
 min-≤-right {zero} {n} = zero-≤
 min-≤-right {suc m} {zero} = ≤-refl
 min-≤-right {suc m} {suc n} = suc-≤-suc min-≤-right
+
+≤Dec : ∀ m n → Dec (m ≤ n)
+≤Dec zero n = yes (n , +-zero _)
+≤Dec (suc m) zero = no ¬-<-zero
+≤Dec (suc m) (suc n) with ≤Dec m n
+... | yes m≤n = yes (suc-≤-suc m≤n)
+... | no m≰n = no λ m+1≤n+1 → m≰n (pred-≤-pred m+1≤n+1 )
+
+<Dec : ∀ m n → Dec (m < n)
+<Dec m n = ≤Dec (suc m) n
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
@@ -345,3 +360,21 @@ module <-Reasoning where
 
   _<≡⟨_⟩_ : ∀ k → k < l → l ≡ m → k < m
   _ <≡⟨ p ⟩ q = _ ≤≡⟨ p ⟩ q
+
+
+-- Some lemmas about ∸
+suc∸-fst : (n m : ℕ) → m < n → suc (n ∸ m) ≡ (suc n) ∸ m
+suc∸-fst zero zero p = refl
+suc∸-fst zero (suc m) p = ⊥.rec (¬-<-zero p)
+suc∸-fst (suc n) zero p = refl
+suc∸-fst (suc n) (suc m) p = (suc∸-fst n m (pred-≤-pred p))
+
+n∸m≡0 : (n m : ℕ) → n < m → (n ∸ m) ≡ 0
+n∸m≡0 zero zero p = refl
+n∸m≡0 (suc n) zero p = ⊥.rec (¬-<-zero p)
+n∸m≡0 zero (suc m) p = refl
+n∸m≡0 (suc n) (suc m) p = n∸m≡0 n m (pred-≤-pred p)
+
+n∸n≡0 : (n : ℕ) → n ∸ n ≡ 0
+n∸n≡0 zero = refl
+n∸n≡0 (suc n) = n∸n≡0 n

@@ -69,6 +69,13 @@ elim3 Pprop g = elim2 (λ _ _ → isPropΠ (λ _ → Pprop _ _ _))
 isPropPropTrunc : isProp ∥ A ∥
 isPropPropTrunc x y = squash x y
 
+propTrunc≃ : A ≃ B → ∥ A ∥ ≃ ∥ B ∥
+propTrunc≃ e =
+  propBiimpl→Equiv
+    isPropPropTrunc isPropPropTrunc
+    (rec isPropPropTrunc (λ a → ∣ e .fst a ∣))
+    (rec isPropPropTrunc (λ b → ∣ invEq e b ∣))
+
 propTruncIdempotent≃ : isProp A → ∥ A ∥ ≃ A
 propTruncIdempotent≃ {A = A} hA = isoToEquiv f
   where
@@ -452,3 +459,12 @@ RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
 ∥∥-Idempotent-× {A = A} {A′} = ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡⟨ ∥∥-IdempotentR-× ⟩
                                ∥ ∥ A ∥ × A′ ∥     ≡⟨ ∥∥-IdempotentL-× ⟩
                                ∥ A × A′ ∥         ∎
+
+∥∥-Idempotent-×-≃ : {A : Type ℓ} {A′ : Type ℓ′} → ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≃ ∥ A × A′ ∥
+∥∥-Idempotent-×-≃ {A = A} {A′} = compEquiv ∥∥-IdempotentR-×-≃ ∥∥-IdempotentL-×-≃
+
+∥∥-×-≃ : {A : Type ℓ} {A′ : Type ℓ′} → ∥ A ∥ × ∥ A′ ∥ ≃ ∥ A × A′ ∥
+∥∥-×-≃ {A = A} {A′} = compEquiv (invEquiv (propTruncIdempotent≃ (isProp× isPropPropTrunc isPropPropTrunc))) ∥∥-Idempotent-×-≃
+
+∥∥-× : {A : Type ℓ} {A′ : Type ℓ′} → ∥ A ∥ × ∥ A′ ∥ ≡ ∥ A × A′ ∥
+∥∥-× = ua ∥∥-×-≃

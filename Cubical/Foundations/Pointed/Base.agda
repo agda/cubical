@@ -9,6 +9,7 @@ open import Cubical.Foundations.Structure using (typ) public
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Function
 
 Pointed : (ℓ : Level) → Type (ℓ-suc ℓ)
 Pointed ℓ = TypeWithStr ℓ (λ x → x)
@@ -35,6 +36,14 @@ ua∙ : ∀ {ℓ} {A B : Pointed ℓ} (e : fst A ≃ fst B)
                   → fst e (snd A) ≡ snd B → A ≡ B
 fst (ua∙ e p i) = ua e i
 snd (ua∙ {A = A} e p i) = ua-gluePath e p i
+
+{- J for pointed function types -}
+→∙J : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Type ℓ'}
+    → (P : (b₀ : B) (f : A →∙ (B , b₀)) → Type ℓ'')
+    → ((f : fst A → B) → P (f (pt A)) (f , refl))
+    → {b₀ : B} (f : A →∙ (B , b₀)) → P b₀ f
+→∙J {A = A} P ind =
+  uncurry λ f → J (λ b₀ y → P b₀ (f , y)) (ind f)
 
 {- HIT allowing for pattern matching on pointed types -}
 data Pointer {ℓ} (A : Pointed ℓ) : Type ℓ where

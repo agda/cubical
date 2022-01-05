@@ -287,3 +287,14 @@ composesToId→Equiv f g id iseqf =
                 ∙∙ cong (λ x → equiv-proof iseqf (f b) .fst .fst) id
                 ∙∙ λ i → equiv-proof iseqf (f b) .snd (b , refl) i .fst)
          λ a i → id i a)
+
+-- equivalence between isEquiv and isEquiv'
+
+isEquiv-isEquiv'-Iso : (f : A → B) → Iso (isEquiv f) (isEquiv' f)
+isEquiv-isEquiv'-Iso f .fun p = p .equiv-proof
+isEquiv-isEquiv'-Iso f .inv q .equiv-proof = q
+isEquiv-isEquiv'-Iso f .rightInv q = refl
+isEquiv-isEquiv'-Iso f .leftInv p i .equiv-proof = p .equiv-proof
+
+isEquiv≃isEquiv' : (f : A → B) → isEquiv f ≃ isEquiv' f
+isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)
