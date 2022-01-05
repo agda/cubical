@@ -15,12 +15,10 @@ record IsCommSemiring {R : Type ℓ}
                   (0r 1r : R) (_+_ _·_ : R → R → R) : Type ℓ where
 
   field
-    +IsCommMonoid : IsCommMonoid 0r _+_
-    ·IsMonoid  : IsMonoid 1r _·_
-    ·RDist+        : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
-    ·LDist+        : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
+    +IsCommMonoid  : IsCommMonoid 0r _+_
+    ·IsCommMonoid  : IsCommMonoid 1r _·_
+    ·LDist+        : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
     0LAnnihil      : (x : R) → 0r · x ≡ 0r
-    0RAnnihil      : (x : R) → x · 0r ≡ 0r
 
   open IsCommMonoid +IsCommMonoid public
     renaming
@@ -32,13 +30,15 @@ record IsCommSemiring {R : Type ℓ}
       ; isSemigroup to +IsSemigroup
       ; isMonoid    to +IsMonoid)
 
-  open IsMonoid ·IsMonoid public
+  open IsCommMonoid ·IsCommMonoid public
     renaming
       ( assoc       to ·Assoc
       ; identity    to ·Identity
       ; lid         to ·Lid
       ; rid         to ·Rid
-      ; isSemigroup to ·IsSemigroup )
+      ; comm        to ·Comm
+      ; isSemigroup to ·IsSemigroup
+      ; isMonoid    to ·IsMonoid)
     hiding
       ( is-set ) -- We only want to export one proof of this
 
