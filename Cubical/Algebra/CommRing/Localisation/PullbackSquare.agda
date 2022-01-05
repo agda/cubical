@@ -1,3 +1,24 @@
+{-
+
+ This file contains a proof of the following fact:
+ for a commutative ring R with elements f and g s.t.
+ ⟨f,g⟩ = R, we get a get a pullback square
+
+                 _/1
+            R   ----> R[1/f]
+              ⌟
+       _/1  |         | χ₁
+            v         v
+
+            R[1/g] -> R[1/fg]
+                   χ₂
+
+ where the morphisms χ are induced by the universal property
+ of localization.
+
+ -}
+
+
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.PullbackSquare where
 
@@ -215,26 +236,26 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                 → ∀ (x : R[1/ f ]) (y : R[1/ g ])
                 → χ₁ .fst x ≡ χ₂ .fst y
                 → ∃![ z ∈ R ] (z /1ᶠ ≡ x) × (z /1ᵍ ≡ y)
- equalizerLemma 1∈⟨f,g⟩ = InvElPropElim2 (λ _ _ → isPropΠ (λ _ → isPropIsContr)) baseCase
+ equalizerLemma 1∈⟨f,g⟩ = invElPropElim2 (λ _ _ → isPropΠ (λ _ → isProp∃!)) baseCase
   where
   baseCase : ∀ (x y : R) (n : ℕ)
            → fst χ₁ ([ x , f ^ n , ∣ n , refl ∣ ]) ≡ fst χ₂ ([ y , g ^ n , ∣ n , refl ∣ ])
            → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
                         × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
-  baseCase x y n χ₁[x/fⁿ]≡χ₂[y/gⁿ] = PT.rec isPropIsContr annihilatorHelper exAnnihilator
+  baseCase x y n χ₁[x/fⁿ]≡χ₂[y/gⁿ] = PT.rec isProp∃! annihilatorHelper exAnnihilator
    where
    -- doesn't compute that well but at least it computes...
    exAnnihilator : ∃[ s ∈ Sᶠᵍ ] -- s.t.
-     (fst s · (x · transp (λ _ → R) i0 (g ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n))
-    ≡ fst s · (y · transp (λ _ → R) i0 (f ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n)))
+     (fst s · (x · transport refl (g ^ n)) · (1r · transport refl ((f · g) ^ n))
+    ≡ fst s · (y · transport refl (f ^ n)) · (1r · transport refl ((f · g) ^ n)))
    exAnnihilator = isEquivRel→TruncIso locIsEquivRelᶠᵍ _ _ .fun χ₁[x/fⁿ]≡χ₂[y/gⁿ]
 
    annihilatorHelper : Σ[ s ∈ Sᶠᵍ ]
-     (fst s · (x · transp (λ _ → R) i0 (g ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n))
-    ≡ fst s · (y · transp (λ _ → R) i0 (f ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n)))
+     (fst s · (x · transport refl (g ^ n)) · (1r · transport refl ((f · g) ^ n))
+    ≡ fst s · (y · transport refl (f ^ n)) · (1r · transport refl ((f · g) ^ n)))
     → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
                  × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
-   annihilatorHelper ((s , s∈[fgⁿ]) , p) = PT.rec isPropIsContr exponentHelper s∈[fgⁿ]
+   annihilatorHelper ((s , s∈[fgⁿ]) , p) = PT.rec isProp∃! exponentHelper s∈[fgⁿ]
     where
     sxgⁿ[fg]ⁿ≡syfⁿ[fg]ⁿ : s · x · g ^ n · (f · g) ^ n ≡ s · y · f ^ n · (f · g) ^ n
     sxgⁿ[fg]ⁿ≡syfⁿ[fg]ⁿ =
@@ -242,19 +263,19 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
       ≡⟨ transpHelper _ _ _ _ ⟩
 
-       s · x · transp (λ _ → R) i0 (g ^ n) · transp (λ _ → R) i0 ((f · g) ^ n)
+       s · x · transport refl (g ^ n) · transport refl ((f · g) ^ n)
 
       ≡⟨ useSolver _ _ _ _ ⟩
 
-       s · (x · transp (λ _ → R) i0 (g ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n))
+       s · (x · transport refl (g ^ n)) · (1r · transport refl ((f · g) ^ n))
 
       ≡⟨ p ⟩
 
-       s · (y · transp (λ _ → R) i0 (f ^ n)) · (1r · transp (λ _ → R) i0 ((f · g) ^ n))
+       s · (y · transport refl (f ^ n)) · (1r · transport refl ((f · g) ^ n))
 
       ≡⟨ sym (useSolver _ _ _ _) ⟩
 
-       s · y · transp (λ _ → R) i0 (f ^ n) · transp (λ _ → R) i0 ((f · g) ^ n)
+       s · y · transport refl (f ^ n) · transport refl ((f · g) ^ n)
 
       ≡⟨ sym (transpHelper _ _ _ _) ⟩
 
@@ -262,7 +283,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
       where
       transpHelper : ∀ a b c d → a · b · c · d
-                               ≡ a · b · transp (λ _ → R) i0 c · transp (λ _ → R) i0 d
+                               ≡ a · b · transport refl c · transport refl d
       transpHelper a b c d i = a · b · transportRefl c (~ i) · transportRefl d (~ i)
       useSolver : ∀ a b c d → a · b · c · d ≡ a · (b · c) · (1r · d)
       useSolver = solve R'
@@ -272,7 +293,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                    → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
                                 × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
     exponentHelper (m , s≡[fg]ᵐ) =
-       PT.rec isPropIsContr Σhelper (GeneratingExponents.lemma R' f g 2n+m 1∈⟨f,g⟩)
+       PT.rec isProp∃! Σhelper (GeneratingExponents.lemma R' f g 2n+m 1∈⟨f,g⟩)
      where
      -- the path we'll actually work with
      xgⁿ[fg]ⁿ⁺ᵐ≡yfⁿ[fg]ⁿ⁺ᵐ : x · g ^ n · (f · g) ^ (n +ℕ m) ≡ y · f ^ n · (f · g) ^ (n +ℕ m)

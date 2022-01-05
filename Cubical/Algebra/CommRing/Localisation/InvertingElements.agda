@@ -90,12 +90,12 @@ module InvertingElementsBase (R' : CommRing ℓ) where
                            [ g , 1r , powersFormMultClosedSubset f .containsOne ]) (^-respects-/1 n)
 
  -- A slight improvement for eliminating into propositions
- InvElPropElim : {f : R} {P : R[1/ f ] → Type ℓ'}
+ invElPropElim : {f : R} {P : R[1/ f ] → Type ℓ'}
                → (∀ x →  isProp (P x))
                → (∀ (r : R) (n : ℕ) → P [ r , (f ^ n) , PT.∣ n , refl ∣ ])    -- ∀ r n → P (r/fⁿ)
               ----------------------------------------------------------
-               → (∀ x → P x)
- InvElPropElim {f = f} {P = P} PisProp base = elimProp (λ _ → PisProp _) []-case
+               → ∀ x → P x
+ invElPropElim {f = f} {P = P} PisProp base = elimProp (λ _ → PisProp _) []-case
   where
   S[f] = Loc.S R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
   []-case : (a : R × S[f]) → P [ a ]
@@ -104,17 +104,17 @@ module InvertingElementsBase (R' : CommRing ℓ) where
    Σhelper : Σ[ n ∈ ℕ ] s ≡ f ^ n → P [ r , s , s∈S[f] ]
    Σhelper (n , p) = subst P (cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym p)))) (base r n)
 
- InvElPropElim2 : {f g : R} {P : R[1/ f ] → R[1/ g ] → Type ℓ'}
+ invElPropElim2 : {f g : R} {P : R[1/ f ] → R[1/ g ] → Type ℓ'}
                 → (∀ x y →  isProp (P x y))
                 → (∀ (r s : R) (n : ℕ) → P [ r , (f ^ n) , PT.∣ n , refl ∣ ]
                                            [ s , (g ^ n) , PT.∣ n , refl ∣ ])
                ----------------------------------------------------------
-                → (∀ x y → P x y)
- InvElPropElim2 {f = f} {g = g} {P = P} PisProp base =
-   InvElPropElim (λ _ → isPropΠ (λ _ → PisProp _ _)) reduce1
+                → ∀ x y → P x y
+ invElPropElim2 {f = f} {g = g} {P = P} PisProp base =
+   invElPropElim (λ _ → isPropΠ (λ _ → PisProp _ _)) reduce1
    where
    reduce1 : ∀ (r : R) (n : ℕ) (y : R[1/ g ]) → P [ r , f ^ n , ∣ n , refl ∣ ] y
-   reduce1 r n = InvElPropElim (λ _ → PisProp _ _) reduce2
+   reduce1 r n = invElPropElim (λ _ → PisProp _ _) reduce2
      where
      reduce2 : (s : R) (m : ℕ) → P [ r , f ^ n , ∣ n , refl ∣ ] [ s , g ^ m , ∣ m , refl ∣ ]
      reduce2 s m = subst2 P p q (base _ _ l)
@@ -430,7 +430,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
              0r ∎
 
 
-  surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → isPropPropTrunc) toGoal
+  surχ pathtoR[1/fg] = invElPropElim _ (λ _ → isPropPropTrunc) toGoal
    where
    open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
                                                hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
@@ -513,7 +513,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
    indStep : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
          (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
-   indStep = InvElPropElim _ (λ _ → isPropΠ λ _ → isPropPropTrunc) base-^ᶠ-helper
+   indStep = invElPropElim _ (λ _ → isPropΠ λ _ → isPropPropTrunc) base-^ᶠ-helper
 
    toGoal : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
             (x .fst /1/1) ·R[1/f][1/g]
@@ -696,7 +696,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
    -- The definition of χ introduces a lot of (1r ·_). Perhaps most surprisingly,
    -- we have to give the path eq1 for the equality of the numerator of the numerator.
    φ≡χ : ∀ r → φ r ≡ χ r
-   φ≡χ = InvElPropElim _ (λ _ → squash/ _ _) ℕcase
+   φ≡χ = invElPropElim _ (λ _ → squash/ _ _) ℕcase
     where
     ℕcase : (r : R) (n : ℕ)
           → φ [ r , (f · g) ^ n , PT.∣ n , refl ∣ ] ≡ χ [ r , (f · g) ^ n , PT.∣ n , refl ∣ ]
