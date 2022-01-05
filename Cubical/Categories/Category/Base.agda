@@ -27,6 +27,9 @@ record Category ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   _∘_ : ∀ {x y z} (g : Hom[ y , z ]) (f : Hom[ x , y ]) → Hom[ x , z ]
   g ∘ f = f ⋆ g
 
+  infixr 9 _⋆_
+  infixr 9 _∘_
+
 open Category
 
 -- Helpful syntax/notation

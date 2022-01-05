@@ -35,7 +35,7 @@ record IsCommRing {R : Type ℓ}
 
   field
     isRing : IsRing 0r 1r _+_ _·_ -_
-    ·-comm : (x y : R) → x · y ≡ y · x
+    ·Comm : (x y : R) → x · y ≡ y · x
 
   open IsRing isRing public
 

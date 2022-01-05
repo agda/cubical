@@ -114,7 +114,7 @@ _[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
 module Theory {R : CommRing ℓ} {I : Type ℓ'} where
   open CommRingStr (snd R)
          using (0r; 1r)
-         renaming (_·_ to _·r_; _+_ to _+r_; ·-comm to ·r-comm; ·Rid to ·r-rid)
+         renaming (_·_ to _·r_; _+_ to _+r_; ·Comm to ·r-comm; ·Rid to ·r-rid)
 
   module _ (A : CommAlgebra R ℓ'') (φ : I → ⟨ A ⟩) where
     open CommAlgebraStr (A .snd)

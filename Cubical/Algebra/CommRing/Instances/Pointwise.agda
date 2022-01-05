@@ -33,4 +33,4 @@ pointwiseRing X R = (X → fst R) , str
            (λ f g h i x → ·Assoc (f x) (g x) (h x) i)
            (λ f i x → ·Rid (f x) i)
            (λ f g h i x → ·Rdist+ (f x) (g x) (h x) i)
-           λ f g i x → ·-comm (f x) (g x) i
+           λ f g i x → ·Comm (f x) (g x) i
