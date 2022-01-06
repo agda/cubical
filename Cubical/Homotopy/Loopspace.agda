@@ -158,6 +158,13 @@ isEquivΩ→ {B = (B , b)} =
       λ eqf → subst isEquiv (funExt (rUnit ∘ cong f))
                      (isoToIsEquiv (congIso (equivToIso (f , eqf))))
 
+isEquivΩ^→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+           → (f : A →∙ B)
+           → isEquiv (fst f)
+           → isEquiv (Ω^→ n f .fst)
+isEquivΩ^→ zero f iseq = iseq
+isEquivΩ^→ (suc n) f iseq = isEquivΩ→ (Ω^→ n f) (isEquivΩ^→ n f iseq)
+
 ΩfunExtIso : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
   → Iso (typ (Ω (A →∙ B ∙))) (A →∙ Ω B)
 fst (fun (ΩfunExtIso A B) p) x = funExt⁻ (cong fst p) x

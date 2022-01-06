@@ -256,7 +256,7 @@ leftInv (SphereMapΩIso (suc n)) = rightInv IsoΩFunSuspFun
 In order to show that Ω→SphereMap is an equivalence, we show that it factors
 
              Ω→SphereMapSplit₁               ΩSphereMap
-Ωⁿ⁺¹(Sⁿ →∙ A) ----------------> Ω (Sⁿ →∙ A) -----------> (Sⁿ⁺¹ →∙ A)
+Ωⁿ⁺¹A ----------------> Ω (Sⁿ →∙ A) -----------> (Sⁿ⁺¹ →∙ A)
 -}
 
 Ω→SphereMap-split : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) (p : typ ((Ω^ (suc n)) A))
@@ -772,15 +772,14 @@ hLevΩ+ {A = A} (suc n) (suc m) p =
     (hLevΩ+ {A = Ω A} (suc n) m
       (isOfHLevelPath' (m + suc n) p _ _))
 
-private
-  isSetΩ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-    → (isSet (typ (Ω ((Ω^ n) (hLevelTrunc∙ (suc (suc (suc n))) A)))))
-  isSetΩ {A = A} zero = isOfHLevelTrunc 3 _ _
-  isSetΩ {A = A} (suc n) =
-    hLevΩ+ 2 (suc (suc n))
-      (transport
-       (λ i → isOfHLevel (+-comm 2 (2 + n) i) (hLevelTrunc (4 + n) (typ A)))
-        (isOfHLevelTrunc (suc (suc (suc (suc n))))))
+isSetΩTrunc : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+  → (isSet (typ (Ω ((Ω^ n) (hLevelTrunc∙ (suc (suc (suc n))) A)))))
+isSetΩTrunc {A = A} zero = isOfHLevelTrunc 3 _ _
+isSetΩTrunc {A = A} (suc n) =
+  hLevΩ+ 2 (suc (suc n))
+    (transport
+     (λ i → isOfHLevel (+-comm 2 (2 + n) i) (hLevelTrunc (4 + n) (typ A)))
+      (isOfHLevelTrunc (suc (suc (suc (suc n))))))
 
 πTruncIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
              → Iso (π n A) (π n (hLevelTrunc∙ (2 + n) A))
@@ -791,7 +790,7 @@ private
   compIso setTruncTrunc2Iso
     (compIso
      (2TruncΩIso (suc n))
-     (invIso (setTruncIdempotentIso (isSetΩ n))))
+     (invIso (setTruncIdempotentIso (isSetΩTrunc n))))
 
 πTruncGroupIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
              → GroupIso (πGr n A) (πGr n (hLevelTrunc∙ (3 + n) A))
@@ -800,7 +799,7 @@ snd (πTruncGroupIso {A = A} n) =
   makeIsGroupHom
     (sElim2 (λ _ _ → isSetPathImplicit)
       λ a b
-      → cong (inv (setTruncIdempotentIso (isSetΩ n)))
+      → cong (inv (setTruncIdempotentIso (isSetΩTrunc n)))
          (cong
           (transport
            (λ i → typ ((Ω^ suc n) (hLevelTrunc∙ (+-comm (suc n) 2 i) A))))
