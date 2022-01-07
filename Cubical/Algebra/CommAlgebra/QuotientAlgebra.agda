@@ -7,6 +7,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_)
 
 open import Cubical.HITs.SetQuotients hiding (_/_)
+open import Cubical.Data.Unit
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.QuotientRing renaming (_/_ to _/CommRing_) hiding ([_]/)
@@ -15,6 +16,7 @@ open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.Kernel
+open import Cubical.Algebra.CommAlgebra.Instances.Terminal
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
@@ -120,6 +122,17 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   pres- (snd (inducedHom B ϕ kernel⊆I)) = elimProp (λ _ → isSetCommAlgebra B _ _) (pres- (snd ϕ))
   pres⋆ (snd (inducedHom B ϕ kernel⊆I)) = λ r → elimProp (λ _ → isSetCommAlgebra B _ _) (pres⋆ (snd ϕ) r)
 
+{- trivial quotient -}
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
+  open CommAlgebraStr (snd A)
+  oneIdealQuotient : CommAlgebraEquiv (A / (oneIdeal A)) (terminalCAlg R)
+  fst oneIdealQuotient =
+    isoToEquiv (iso (fst (terminalMap R (A / (oneIdeal A))))
+                    (λ _ → [ 0a ])
+                    (λ _ → isPropUnit* _ _)
+                    (elimProp (λ _ → squash/ _ _)
+                              λ a → eq/ 0a a tt*))
+  snd oneIdealQuotient = snd (terminalMap R (A / (oneIdeal A)))
 [_]/ : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
        → (a : fst A) → fst (A / I)
 [ a ]/ = [ a ]
