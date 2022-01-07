@@ -3,6 +3,7 @@ module Cubical.Algebra.CommAlgebra.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.HalfAdjoint
@@ -19,6 +20,8 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra.Base
+
+open import Cubical.Algebra.CommRing using (CommRing→Ring)
 
 private
   variable
@@ -105,9 +108,22 @@ module CommAlgChar (R : CommRing ℓ) where
     (λ i → isPropIsCommAlgebra _ _ _ _ _ _ (CommAlgebraStr._⋆_ (AlgStrPathP i)))
     (CommAlgebraStr.isCommAlgebra (snd (toCommAlg (fromCommAlg A)))) isCommAlgebra i
 
+  CommAlgIso : Iso (CommAlgebra R ℓ) CommRingWithHom
+  fun CommAlgIso = fromCommAlg
+  inv CommAlgIso = toCommAlg
+  rightInv CommAlgIso = CommRingWithHomRoundTrip
+  leftInv CommAlgIso = CommAlgRoundTrip
 
- CommAlgIso : Iso (CommAlgebra R ℓ) CommRingWithHom
- fun CommAlgIso = fromCommAlg
- inv CommAlgIso = toCommAlg
- rightInv CommAlgIso = CommRingWithHomRoundTrip
- leftInv CommAlgIso = CommAlgRoundTrip
+module _ {R : CommRing ℓ} where
+  CommAlgebra→Ring : CommAlgebra R ℓ → Ring ℓ
+  CommAlgebra→Ring = CommRing→Ring ∘ CommAlgebra→CommRing
+
+  open IsAlgebraHom
+  CommAlgebraHom→RingHom : {A B : CommAlgebra R ℓ}
+                          → CommAlgebraHom A B → RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B)
+  fst (CommAlgebraHom→RingHom ϕ) = fst ϕ
+  IsRingHom.pres0 (snd (CommAlgebraHom→RingHom ϕ)) = pres0 (snd ϕ)
+  IsRingHom.pres1 (snd (CommAlgebraHom→RingHom ϕ)) = pres1 (snd ϕ)
+  IsRingHom.pres+ (snd (CommAlgebraHom→RingHom ϕ)) = pres+ (snd ϕ)
+  IsRingHom.pres· (snd (CommAlgebraHom→RingHom ϕ)) = pres· (snd ϕ)
+  IsRingHom.pres- (snd (CommAlgebraHom→RingHom ϕ)) = pres- (snd ϕ)
