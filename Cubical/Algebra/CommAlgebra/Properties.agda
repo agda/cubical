@@ -114,16 +114,32 @@ module CommAlgChar (R : CommRing ℓ) where
   rightInv CommAlgIso = CommRingWithHomRoundTrip
   leftInv CommAlgIso = CommAlgRoundTrip
 
-module _ {R : CommRing ℓ} where
+module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ} where
+  open CommAlgebraStr ⦃...⦄
+  instance
+   _ = snd A
+   _ = snd B
+  open IsAlgebraHom
+
   CommAlgebra→Ring : CommAlgebra R ℓ → Ring ℓ
   CommAlgebra→Ring = CommRing→Ring ∘ CommAlgebra→CommRing
 
-  open IsAlgebraHom
-  CommAlgebraHom→RingHom : {A B : CommAlgebra R ℓ}
-                          → CommAlgebraHom A B → RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B)
+  CommAlgebraHom→RingHom : CommAlgebraHom A B → RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B)
   fst (CommAlgebraHom→RingHom ϕ) = fst ϕ
   IsRingHom.pres0 (snd (CommAlgebraHom→RingHom ϕ)) = pres0 (snd ϕ)
   IsRingHom.pres1 (snd (CommAlgebraHom→RingHom ϕ)) = pres1 (snd ϕ)
   IsRingHom.pres+ (snd (CommAlgebraHom→RingHom ϕ)) = pres+ (snd ϕ)
   IsRingHom.pres· (snd (CommAlgebraHom→RingHom ϕ)) = pres· (snd ϕ)
   IsRingHom.pres- (snd (CommAlgebraHom→RingHom ϕ)) = pres- (snd ϕ)
+
+  CommAlgebraHomFromRingHom :
+      (ϕ : RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B))
+    → ((r : fst R) (x : fst A) → (fst ϕ) (r ⋆ x)  ≡ r ⋆ (fst ϕ x))
+    → CommAlgebraHom A B
+  fst (CommAlgebraHomFromRingHom ϕ pres*) = fst ϕ
+  pres0 (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres0 (snd ϕ)
+  pres1 (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres1 (snd ϕ)
+  pres+ (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres+ (snd ϕ)
+  pres· (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres· (snd ϕ)
+  pres- (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres- (snd ϕ)
+  pres⋆ (snd (CommAlgebraHomFromRingHom ϕ pres*)) = pres*
