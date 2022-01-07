@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.CommAlgebra.Instances.FreeCommAlgebra.Properties where
+module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -10,7 +10,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function hiding (const)
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommAlgebra.Instances.FreeCommAlgebra.Base
+open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Base
 open import Cubical.Algebra.Ring        using ()
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
