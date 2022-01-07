@@ -15,7 +15,7 @@ private
   variable
     ℓ : Level
 
-module _ {{R S : Ring ℓ}} (f′ : RingHom R S) where
+module _ {R S : Ring ℓ} (f′ : RingHom R S) where
   open IsRingHom (f′ .snd)
   open RingStr ⦃...⦄
   open isIdeal
