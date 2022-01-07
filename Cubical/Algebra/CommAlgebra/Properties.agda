@@ -25,6 +25,15 @@ private
     ℓ ℓ′ : Level
 
 
+idCAlgHom : {R : CommRing ℓ} (A : CommAlgebra R ℓ) → CommAlgebraHom A A
+fst (idCAlgHom A) = λ x → x
+IsAlgebraHom.pres0 (snd (idCAlgHom A)) = refl
+IsAlgebraHom.pres1 (snd (idCAlgHom A)) = refl
+IsAlgebraHom.pres+ (snd (idCAlgHom A)) = λ _ _ → refl
+IsAlgebraHom.pres· (snd (idCAlgHom A)) = λ _ _ → refl
+IsAlgebraHom.pres- (snd (idCAlgHom A)) = λ _ → refl
+IsAlgebraHom.pres⋆ (snd (idCAlgHom A)) = λ _ _ → refl
+
 -- An R-algebra is the same as a CommRing A with a CommRingHom φ : R → A
 module CommAlgChar (R : CommRing ℓ) where
  open Iso
