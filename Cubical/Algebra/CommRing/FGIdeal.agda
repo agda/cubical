@@ -13,16 +13,19 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum hiding (map ; elim ; rec)
 open import Cubical.Data.FinData hiding (elim ; rec)
 open import Cubical.Data.Nat renaming ( zero to ℕzero ; suc to ℕsuc
                                       ; _+_ to _+ℕ_ ; _·_ to _·ℕ_
                                       ; +-assoc to +ℕ-assoc ; +-comm to +ℕ-comm
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
-                             hiding (elim)
+                             hiding (elim ; _choose_)
+open import Cubical.Data.Nat.Order
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
@@ -245,3 +248,96 @@ module _ (R' : CommRing ℓ) where
  FGIdealMultLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ··Fin V ⟩ ≡ ⟨ U ⟩ ·i ⟨ V ⟩
  FGIdealMultLemma U V = CommIdeal≡Char (FGIdealMultLemmaLIncl U V) (FGIdealMultLemmaRIncl U V)
+
+
+
+
+-- A useful lemma for constructing the structure sheaf
+module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
+ open CommRingStr (snd R')
+ open RingTheory (CommRing→Ring R')
+ open Sum (CommRing→Ring R')
+ open Exponentiation R'
+ open BinomialThm R'
+ open CommIdeal R'
+
+ private
+  R = fst R'
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+  fgVec : FinVec R 2
+  fgVec zero = f
+  fgVec (suc zero) = g
+  ⟨f,g⟩ = ⟨ fgVec ⟩
+
+  fⁿgⁿVec : FinVec R 2
+  fⁿgⁿVec zero = f ^ n
+  fⁿgⁿVec (suc zero) = g ^ n
+
+  ⟨fⁿ,gⁿ⟩ = ⟨ fⁿgⁿVec ⟩
+
+ lemma : 1r ∈ ⟨f,g⟩ → 1r ∈ ⟨fⁿ,gⁿ⟩
+ lemma = elim (λ _ →  isPropPropTrunc) Σlemma
+  where
+  Σlemma : Σ[ α ∈ FinVec R 2 ] (1r ≡ linearCombination R' α fgVec) → 1r ∈ ⟨fⁿ,gⁿ⟩
+  Σlemma (α , p) = subst-∈ ⟨fⁿ,gⁿ⟩ path ∑Binomial∈⟨fⁿ,gⁿ⟩
+   where
+   α₀f = α zero · f
+   α₁g = α (suc zero) · g
+
+   binomialSummand∈⟨fⁿ,gⁿ⟩ : (i : Fin (ℕsuc (n +ℕ n))) → BinomialVec (n +ℕ n) α₀f α₁g i ∈ ⟨fⁿ,gⁿ⟩
+   binomialSummand∈⟨fⁿ,gⁿ⟩ i with ≤-+-split n n (toℕ i) (pred-≤-pred (toℕ<n i))
+   ... | inl n≤i = subst-∈ ⟨fⁿ,gⁿ⟩ (sym path)
+                                   (⟨fⁿ,gⁿ⟩ .snd .·Closed _ (indInIdeal R' fⁿgⁿVec zero))
+    where
+    useSolver : ∀ a b c d e → a · (b · (c · d)) · e ≡ a · (b · c) · e · d
+    useSolver = solve R'
+
+    bc = (n +ℕ n) choose toℕ i
+    gPart = (α (suc zero) · g) ^ (n +ℕ n ∸ toℕ i)
+
+    path : bc · (α zero · f) ^ toℕ i · gPart
+         ≡ bc · ((α zero) ^ toℕ i · f ^ (toℕ i ∸ n)) · gPart · f ^ n
+    path =
+       bc · (α zero · f) ^ toℕ i · gPart
+     ≡⟨ cong (λ x → bc · x · gPart) (^-ldist-· (α zero) f (toℕ i)) ⟩
+       bc · (α zero ^ toℕ i · f ^ toℕ i) · gPart
+     ≡⟨ cong (λ k → bc · (α zero ^ toℕ i · f ^ k) · gPart) (sym (≤-∸-+-cancel n≤i)) ⟩
+       bc · (α zero ^ toℕ i · f ^ ((toℕ i ∸ n) +ℕ n)) · gPart
+     ≡⟨ cong (λ x → bc · (α zero ^ toℕ i · x) · gPart) (sym (·-of-^-is-^-of-+ f (toℕ i ∸ n) n)) ⟩
+       bc · (α zero ^ toℕ i · (f ^ (toℕ i ∸ n) · f ^ n)) · gPart
+     ≡⟨ useSolver _ _ _ _ _ ⟩
+       bc · ((α zero) ^ toℕ i · f ^ (toℕ i ∸ n)) · gPart · f ^ n ∎
+
+   ... | inr n≤2n-i = subst-∈ ⟨fⁿ,gⁿ⟩ (sym path)
+                                      (⟨fⁿ,gⁿ⟩ .snd .·Closed _ (indInIdeal R' fⁿgⁿVec (suc zero)))
+    where
+    useSolver : ∀ a b c d e → a · b · (c · (d · e)) ≡ a · b · (c · d) · e
+    useSolver = solve R'
+
+    bc = (n +ℕ n) choose toℕ i
+    fPart = (α zero · f) ^ toℕ i
+    2n-i = (n +ℕ n ∸ toℕ i)
+
+    path : bc · fPart · (α (suc zero) · g) ^ 2n-i
+         ≡ bc · fPart · (α (suc zero) ^ 2n-i · g ^ (2n-i ∸ n)) · g ^ n
+    path =
+       bc · fPart · (α (suc zero) · g) ^ 2n-i
+     ≡⟨ cong (bc · fPart ·_) (^-ldist-· (α (suc zero)) g 2n-i) ⟩
+       bc · fPart · (α (suc zero) ^ 2n-i · g ^ 2n-i)
+     ≡⟨ cong (λ k → bc · fPart · (α (suc zero) ^ 2n-i · g ^ k)) (sym (≤-∸-+-cancel n≤2n-i)) ⟩
+       bc · fPart · (α (suc zero) ^ 2n-i · g ^ ((2n-i ∸ n) +ℕ n))
+     ≡⟨ cong (λ x → bc · fPart · (α (suc zero) ^ 2n-i · x)) (sym (·-of-^-is-^-of-+ g (2n-i ∸ n) n)) ⟩
+       bc · fPart · (α (suc zero) ^ 2n-i · (g ^ (2n-i ∸ n) · g ^ n))
+     ≡⟨ useSolver _ _ _ _ _ ⟩
+       bc · fPart · (α (suc zero) ^ 2n-i · g ^ (2n-i ∸ n)) · g ^ n ∎
+
+   ∑Binomial∈⟨fⁿ,gⁿ⟩ : ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ∈ ⟨fⁿ,gⁿ⟩
+   ∑Binomial∈⟨fⁿ,gⁿ⟩ = ∑Closed ⟨fⁿ,gⁿ⟩ (BinomialVec (n +ℕ n) _ _) binomialSummand∈⟨fⁿ,gⁿ⟩
+
+   path : ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡ 1r
+   path = ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡⟨ sym (BinomialThm (n +ℕ n) α₀f α₁g) ⟩
+          (α₀f + α₁g) ^ (n +ℕ n)           ≡⟨ cong (_^ (n +ℕ n)) (sym (+Assoc _ _ _ ∙ +Rid _)) ⟩
+          (α₀f + (α₁g + 0r)) ^ (n +ℕ n)    ≡⟨ cong (_^ (n +ℕ n)) (sym p) ⟩
+          1r ^ (n +ℕ n)                    ≡⟨ 1ⁿ≡1 (n +ℕ n) ⟩
+          1r ∎
