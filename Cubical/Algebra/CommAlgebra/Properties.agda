@@ -114,15 +114,15 @@ module CommAlgChar (R : CommRing ℓ) where
   rightInv CommAlgIso = CommRingWithHomRoundTrip
   leftInv CommAlgIso = CommAlgRoundTrip
 
+CommAlgebra→Ring : {R : CommRing ℓ} → CommAlgebra R ℓ → Ring ℓ
+CommAlgebra→Ring = CommRing→Ring ∘ CommAlgebra→CommRing
+
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ} where
   open CommAlgebraStr ⦃...⦄
   instance
    _ = snd A
    _ = snd B
   open IsAlgebraHom
-
-  CommAlgebra→Ring : CommAlgebra R ℓ → Ring ℓ
-  CommAlgebra→Ring = CommRing→Ring ∘ CommAlgebra→CommRing
 
   CommAlgebraHom→RingHom : CommAlgebraHom A B → RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B)
   fst (CommAlgebraHom→RingHom ϕ) = fst ϕ
