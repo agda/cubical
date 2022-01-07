@@ -10,6 +10,8 @@ open import Cubical.Algebra.CommRing.Ideal renaming (IdealsIn to IdealsInCommRin
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.Ring
 
+open import Cubical.Data.Unit
+
 private
   variable
     ℓ : Level
@@ -36,3 +38,9 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   CommIdeal.isCommIdeal.·Closed (snd zeroIdeal) =
     let open RingTheory (CommAlgebra→Ring A)
     in λ r x≡0 → r · _ ≡⟨ cong (λ u → r · u) x≡0 ⟩ r · 0a ≡⟨ 0RightAnnihilates _ ⟩ 0a ∎
+
+  oneIdeal : IdealsIn
+  fst oneIdeal = λ _ → Unit* , isPropUnit*
+  CommIdeal.isCommIdeal.+Closed (snd oneIdeal) = λ _ _ → tt*
+  CommIdeal.isCommIdeal.contains0 (snd oneIdeal) = tt*
+  CommIdeal.isCommIdeal.·Closed (snd oneIdeal) = λ _ _ → tt*
