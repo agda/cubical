@@ -39,6 +39,10 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
+open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.FGIdeal
+open import Cubical.Algebra.CommRing.RadicalIdeal
+
 open import Cubical.Algebra.RingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -51,7 +55,7 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
-module _(R' : CommRing ℓ) where
+module InvertingElementsBase (R' : CommRing ℓ) where
  open isMultClosedSubset
  private R = fst R'
  open CommRingStr (snd R')
@@ -86,12 +90,12 @@ module _(R' : CommRing ℓ) where
                            [ g , 1r , powersFormMultClosedSubset f .containsOne ]) (^-respects-/1 n)
 
  -- A slight improvement for eliminating into propositions
- InvElPropElim : {f : R} {P : R[1/ f ] → Type ℓ'}
+ invElPropElim : {f : R} {P : R[1/ f ] → Type ℓ'}
                → (∀ x →  isProp (P x))
                → (∀ (r : R) (n : ℕ) → P [ r , (f ^ n) , PT.∣ n , refl ∣ ])    -- ∀ r n → P (r/fⁿ)
               ----------------------------------------------------------
-               → (∀ x → P x)
- InvElPropElim {f = f} {P = P} PisProp base = elimProp (λ _ → PisProp _) []-case
+               → ∀ x → P x
+ invElPropElim {f = f} {P = P} PisProp base = elimProp (λ _ → PisProp _) []-case
   where
   S[f] = Loc.S R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
   []-case : (a : R × S[f]) → P [ a ]
@@ -99,6 +103,60 @@ module _(R' : CommRing ℓ) where
    where
    Σhelper : Σ[ n ∈ ℕ ] s ≡ f ^ n → P [ r , s , s∈S[f] ]
    Σhelper (n , p) = subst P (cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym p)))) (base r n)
+
+ invElPropElim2 : {f g : R} {P : R[1/ f ] → R[1/ g ] → Type ℓ'}
+                → (∀ x y →  isProp (P x y))
+                → (∀ (r s : R) (n : ℕ) → P [ r , (f ^ n) , PT.∣ n , refl ∣ ]
+                                           [ s , (g ^ n) , PT.∣ n , refl ∣ ])
+               ----------------------------------------------------------
+                → ∀ x y → P x y
+ invElPropElim2 {f = f} {g = g} {P = P} PisProp base =
+   invElPropElim (λ _ → isPropΠ (λ _ → PisProp _ _)) reduce1
+   where
+   reduce1 : ∀ (r : R) (n : ℕ) (y : R[1/ g ]) → P [ r , f ^ n , ∣ n , refl ∣ ] y
+   reduce1 r n = invElPropElim (λ _ → PisProp _ _) reduce2
+     where
+     reduce2 : (s : R) (m : ℕ) → P [ r , f ^ n , ∣ n , refl ∣ ] [ s , g ^ m , ∣ m , refl ∣ ]
+     reduce2 s m = subst2 P p q (base _ _ l)
+      where
+      l = max m n
+      x : R[1/ f ]
+      x = [ r , f ^ n , ∣ n , refl ∣ ]
+      y : R[1/ g ]
+      y = [ s , g ^ m , ∣ m , refl ∣ ]
+      x' : R[1/ f ]
+      x' = [ r · f ^ (l ∸ n) , f ^ l , ∣ l , refl ∣ ]
+      y' : R[1/ g ]
+      y' = [ s · g ^ (l ∸ m) , g ^ l , ∣ l , refl ∣ ]
+
+      p : x' ≡ x
+      p = eq/ _ _ ((1r , ∣ 0 , refl ∣) , path)
+       where
+       useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
+       useSolver1 = solve R'
+       useSolver2 : ∀ a b → a · b ≡ 1r · a · b
+       useSolver2 = solve R'
+       path : 1r · (r · f ^ (l ∸ n)) · f ^ n ≡ 1r · r · f ^ l
+       path = 1r · (r · f ^ (l ∸ n)) · f ^ n ≡⟨ useSolver1 _ _ _ ⟩
+              r · (f ^ (l ∸ n) · f ^ n)      ≡⟨ cong (r ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+              r · f ^ (l ∸ n +ℕ n)           ≡⟨ cong (λ k → r · f ^ k) (≤-∸-+-cancel right-≤-max) ⟩
+              r · f ^ l                      ≡⟨ useSolver2 _ _ ⟩
+              1r · r · f ^ l ∎
+
+      q : y' ≡ y
+      q = eq/ _ _ ((1r , ∣ 0 , refl ∣) , path)
+       where
+       useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
+       useSolver1 = solve R'
+       useSolver2 : ∀ a b → a · b ≡ 1r · a · b
+       useSolver2 = solve R'
+       path : 1r · (s · g ^ (l ∸ m)) · g ^ m ≡ 1r · s · g ^ l
+       path = 1r · (s · g ^ (l ∸ m)) · g ^ m ≡⟨ useSolver1 _ _ _ ⟩
+              s · (g ^ (l ∸ m) · g ^ m)      ≡⟨ cong (s ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+              s · g ^ (l ∸ m +ℕ m)           ≡⟨ cong (λ k → s · g ^ k) (≤-∸-+-cancel left-≤-max) ⟩
+              s · g ^ l                      ≡⟨ useSolver2 _ _ ⟩
+              1r · s · g ^ l ∎
+
 
  -- For predicates over the set of powers
  powersPropElim : {f : R} {P : R → Type ℓ'}
@@ -110,12 +168,61 @@ module _(R' : CommRing ℓ) where
                 PT.rec (PisProp s) λ (n , p) → subst P (sym p) (base n)
 
 
+module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
+ open IsRingHom
+ open isMultClosedSubset
+ open CommRingTheory R'
+ open RingTheory (CommRing→Ring R')
+ open CommIdeal R' hiding (subst-∈) renaming (_∈_ to _∈ᵢ_)
+ open RadicalIdeal R'
+ open Exponentiation R'
+ open InvertingElementsBase R'
+
+ open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+      hiding (S⁻¹RHasUniversalProp)
+ open S⁻¹RUniversalProp R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
+      hiding (_/1 ; /1AsCommRingHom)
+ open CommRingStr (R' .snd)
+
+ private
+  R = R' .fst
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+
+ toUnit : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
+ toUnit = PT.rec isPropGoal (uncurry ℕhelper)
+  where
+  isPropGoal = Units.inverseUniqueness _ (g /1)
+
+  ℕhelper : (n : ℕ) → f ^ n ∈ᵢ ⟨ replicateFinVec 1 g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
+  ℕhelper n = PT.rec isPropGoal -- fⁿ≡αg → g⁻¹≡α/fⁿ
+       λ (α , p) → [ (α zero) , (f ^ n) , ∣ n , refl ∣ ]
+                 , eq/ _ _ ((1r , powersFormMultClosedSubset f .containsOne)
+                 , useSolver1 _ _ ∙ sym p ∙ useSolver2 _)
+   where
+   useSolver1 : ∀ x y → 1r · (x · y) · 1r ≡  y · x + 0r
+   useSolver1 = solve R'
+
+   useSolver2 : ∀ x → x ≡ 1r · 1r · (1r · x)
+   useSolver2 = solve R'
+
+ -- applying the universal property
+ toHom : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩
+       → CommRingHom R[1/ g ]AsCommRing R[1/ f ]AsCommRing
+ toHom f∈√⟨g⟩ = S⁻¹RHasUniversalProp _ /1AsCommRingHom unitHelper .fst .fst
+  where
+  unitHelper : ∀ s → s ∈ [ g ⁿ|n≥0] → (s /1) ∈ R[1/ f ]AsCommRing ˣ
+  unitHelper = powersPropElim (λ x → Units.inverseUniqueness _ (x /1))
+               λ n → subst-∈ (R[1/ f ]AsCommRing ˣ) (sym (^-respects-/1 n))
+                      (Exponentiation.^-presUnit _ _ n (toUnit f∈√⟨g⟩))
+
 
 module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
  open isMultClosedSubset
  open CommRingStr (snd R')
  open CommRingTheory R'
  open Exponentiation R'
+ open InvertingElementsBase
  open RingTheory (CommRing→Ring R')
  open CommRingStr (snd (R[1/_]AsCommRing R' f)) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ
                                                          ; _+_ to _+ᶠ_ ; 0r to 0ᶠ
@@ -323,7 +430,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
              0r ∎
 
 
-  surχ pathtoR[1/fg] = InvElPropElim _ (λ _ → isPropPropTrunc) toGoal
+  surχ pathtoR[1/fg] = invElPropElim _ (λ _ → isPropPropTrunc) toGoal
    where
    open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
                                                hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
@@ -406,7 +513,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
    indStep : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
          (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
-   indStep = InvElPropElim _ (λ _ → isPropΠ λ _ → isPropPropTrunc) base-^ᶠ-helper
+   indStep = invElPropElim _ (λ _ → isPropΠ λ _ → isPropPropTrunc) base-^ᶠ-helper
 
    toGoal : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
             (x .fst /1/1) ·R[1/f][1/g]
@@ -589,7 +696,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
    -- The definition of χ introduces a lot of (1r ·_). Perhaps most surprisingly,
    -- we have to give the path eq1 for the equality of the numerator of the numerator.
    φ≡χ : ∀ r → φ r ≡ χ r
-   φ≡χ = InvElPropElim _ (λ _ → squash/ _ _) ℕcase
+   φ≡χ = invElPropElim _ (λ _ → squash/ _ _) ℕcase
     where
     ℕcase : (r : R) (n : ℕ)
           → φ [ r , (f · g) ^ n , PT.∣ n , refl ∣ ] ≡ χ [ r , (f · g) ^ n , PT.∣ n , refl ∣ ]
