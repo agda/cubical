@@ -302,7 +302,7 @@ module CommIdeal (R' : CommRing ℓ) where
 
 
 IdealsIn : (R : CommRing ℓ) → Type _
-IdealsIn R = CommIdeal.CommIdeal R -- IdealsInRing (CommRing→Ring R)
+IdealsIn R = CommIdeal.CommIdeal R
 
 module _ {R : CommRing ℓ} where
   open CommRingStr (snd R)
