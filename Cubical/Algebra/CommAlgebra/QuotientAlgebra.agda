@@ -67,6 +67,15 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
                     r ⋆ x - r ⋆ y ∎ )
                   (isCommIdeal.·Closed (snd I) _ x-y∈I))
 
+  quotientMap : CommAlgebraHom A (_/_)
+  fst quotientMap = λ x → [ x ]
+  IsAlgebraHom.pres0 (snd quotientMap) = refl
+  IsAlgebraHom.pres1 (snd quotientMap) = refl
+  IsAlgebraHom.pres+ (snd quotientMap) = λ _ _ → refl
+  IsAlgebraHom.pres· (snd quotientMap) = λ _ _ → refl
+  IsAlgebraHom.pres- (snd quotientMap) = λ _ → refl
+  IsAlgebraHom.pres⋆ (snd quotientMap) = λ _ _ → refl
+
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   open CommRingStr {{...}} hiding (_-_; -_; dist; ·Lid; ·Rdist+) renaming (_·_ to _·R_; _+_ to _+R_)
   open CommAlgebraStr ⦃...⦄
@@ -125,6 +134,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
 {- trivial quotient -}
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open CommAlgebraStr (snd A)
+
   oneIdealQuotient : CommAlgebraEquiv (A / (oneIdeal A)) (terminalCAlg R)
   fst oneIdealQuotient =
     isoToEquiv (iso (fst (terminalMap R (A / (oneIdeal A))))
@@ -133,6 +143,17 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
                     (elimProp (λ _ → squash/ _ _)
                               λ a → eq/ 0a a tt*))
   snd oneIdealQuotient = snd (terminalMap R (A / (oneIdeal A)))
+
+  zeroIdealQuotient : CommAlgebraEquiv A (A / (zeroIdeal A))
+  fst zeroIdealQuotient =
+    let open RingTheory (CommRing→Ring (CommAlgebra→CommRing A))
+    in isoToEquiv (iso (fst (quotientMap A (zeroIdeal A)))
+                    (rec (isSetCommAlgebra A) (λ x → x) λ x y x-y≡0 → equalByDifference x y x-y≡0)
+                    (elimProp (λ _ → squash/ _ _) λ _ → refl)
+                    λ _ → refl)
+  snd zeroIdealQuotient = snd (quotientMap A (zeroIdeal A))
+
+
 [_]/ : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
        → (a : fst A) → fst (A / I)
 [ a ]/ = [ a ]
