@@ -34,8 +34,6 @@ private
   variable
     ℓ : Level
 
-
--- better?
 module CommIdeal (R' : CommRing ℓ) where
  private R = fst R'
  open CommRingStr (snd R')
