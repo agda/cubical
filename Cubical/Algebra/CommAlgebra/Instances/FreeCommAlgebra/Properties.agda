@@ -4,6 +4,7 @@ module Cubical.Algebra.CommAlgebra.Instances.FreeCommAlgebra.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function hiding (const)
@@ -17,6 +18,7 @@ open import Cubical.Algebra.Algebra
 open import Cubical.HITs.SetTruncation
 
 open import Cubical.Data.Empty
+open import Cubical.Data.Sigma
 
 private
   variable
@@ -364,3 +366,25 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
              → (evaluateAt A f) ∘ φ
                ≡ evaluateAt A (f ∘a (inducedHom (R [ I ]) (λ x → Construction.var (φ x))))
   naturalL φ f = refl
+
+module _ {R : CommRing ℓ} where
+  freeOn⊥ : CommAlgebraEquiv (R [ ⊥ ]) (initialCAlg R)
+  freeOn⊥ =
+     equivByInitiality
+        R (R [ ⊥ ])
+        λ B →  let to : CommAlgebraHom (R [ ⊥ ]) B → (⊥ → fst B)
+                   to = evaluateAt B
+
+                   from :  (⊥ → fst B) → CommAlgebraHom (R [ ⊥ ]) B
+                   from = inducedHom B
+
+                   from-to : (x : _) → from (to x) ≡ x
+                   from-to x =
+                     Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ ⊥ ]} {N = B} f)
+                            (Theory.homRetrievable B x)
+
+                   equiv : CommAlgebraHom (R [ ⊥ ]) B ≃ (⊥ → fst B)
+                   equiv =
+                     isoToEquiv
+                       (iso to from (λ x → isContr→isOfHLevel 1 isContr⊥→A _ _) from-to)
+               in isOfHLevelRespectEquiv 0 (invEquiv equiv) isContr⊥→A
