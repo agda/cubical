@@ -422,6 +422,12 @@ isSet' A =
   (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
   → Square a₀₋ a₁₋ a₋₀ a₋₁
 
+isSet→isSet' : isSet A → isSet' A
+isSet→isSet' Aset _ _ _ _ = toPathP (Aset _ _ _ _)
+
+isSet'→isSet : isSet' A → isSet A
+isSet'→isSet Aset' x y p q = Aset' p q refl refl
+
 isGroupoid' : Type ℓ → Type ℓ
 isGroupoid' A =
   {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}

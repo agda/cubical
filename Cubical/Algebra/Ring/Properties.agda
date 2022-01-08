@@ -187,7 +187,6 @@ module RingHoms where
                      compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
   compAssocRingHom _ _ _ = RingHom≡ refl
 
-
 module RingHomTheory {R S : Ring ℓ} (φ : RingHom R S) where
   open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
