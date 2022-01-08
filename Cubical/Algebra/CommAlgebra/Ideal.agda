@@ -30,17 +30,11 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   makeIdeal = makeIdealCommRing {R = CommAlgebra→CommRing A}
 
   zeroIdeal : IdealsIn
-  fst zeroIdeal = λ x → (x ≡ 0a) , (isSetCommAlgebra A x 0a)
-  CommIdeal.isCommIdeal.+Closed (snd zeroIdeal) = λ x≡0 y≡0 →  _ + _      ≡[ i ]⟨ x≡0 i + y≡0 i ⟩
-                                                               0a + 0a    ≡⟨ +-rid 0a ⟩
-                                                               0a ∎
-  CommIdeal.isCommIdeal.contains0 (snd zeroIdeal) = refl
-  CommIdeal.isCommIdeal.·Closed (snd zeroIdeal) =
-    let open RingTheory (CommAlgebra→Ring A)
-    in λ r x≡0 → r · _ ≡⟨ cong (λ u → r · u) x≡0 ⟩ r · 0a ≡⟨ 0RightAnnihilates _ ⟩ 0a ∎
+  zeroIdeal =
+    let open CommIdeal
+    in 0Ideal (CommAlgebra→CommRing A)
 
   oneIdeal : IdealsIn
-  fst oneIdeal = λ _ → Unit* , isPropUnit*
-  CommIdeal.isCommIdeal.+Closed (snd oneIdeal) = λ _ _ → tt*
-  CommIdeal.isCommIdeal.contains0 (snd oneIdeal) = tt*
-  CommIdeal.isCommIdeal.·Closed (snd oneIdeal) = λ _ _ → tt*
+  oneIdeal =
+    let open CommIdeal
+    in 1Ideal (CommAlgebra→CommRing A)
