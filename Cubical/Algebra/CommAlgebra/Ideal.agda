@@ -29,12 +29,8 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
               → IdealsIn
   makeIdeal = makeIdealCommRing {R = CommAlgebra→CommRing A}
 
-  zeroIdeal : IdealsIn
-  zeroIdeal =
-    let open CommIdeal
-    in 0Ideal (CommAlgebra→CommRing A)
+  0Ideal : IdealsIn
+  0Ideal = CommIdeal.0Ideal (CommAlgebra→CommRing A)
 
-  oneIdeal : IdealsIn
-  oneIdeal =
-    let open CommIdeal
-    in 1Ideal (CommAlgebra→CommRing A)
+  1Ideal : IdealsIn
+  1Ideal = CommIdeal.1Ideal (CommAlgebra→CommRing A)
