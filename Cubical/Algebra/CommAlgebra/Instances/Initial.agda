@@ -17,29 +17,29 @@ private
   variable
     ℓ : Level
 
-module _ ((R , str) : CommRing ℓ) where
+module _ (R : CommRing ℓ) where
 
-  initialCAlg : CommAlgebra (R , str) ℓ
+  initialCAlg : CommAlgebra R ℓ
   initialCAlg =
-    let open CommRingStr str
-    in  (R , commalgebrastr _ _ _ _ _ (λ r x → r · x)
-                    (makeIsCommAlgebra (isSetRing (CommRing→Ring (R , str)))
+    let open CommRingStr (snd R)
+    in  (fst R , commalgebrastr _ _ _ _ _ (λ r x → r · x)
+                    (makeIsCommAlgebra (isSetRing (CommRing→Ring R))
                        +Assoc +Rid +Rinv +Comm
                        ·Assoc ·Lid
                        ·Ldist+ ·Comm
                         (λ x y z → sym (·Assoc x y z)) ·Ldist+ ·Rdist+ ·Lid
                          λ x y z → sym (·Assoc x y z)))
 
-  module _ (A : CommAlgebra (R , str) ℓ) where
+  module _ (A : CommAlgebra R ℓ) where
     open CommAlgebraStr ⦃... ⦄
     private
       instance
-        _ : CommAlgebraStr (R , str) (fst A)
+        _ : CommAlgebraStr R (fst A)
         _ = snd A
-        _ : CommAlgebraStr (R , str) R
+        _ : CommAlgebraStr R (fst R)
         _ = snd initialCAlg
 
-    _*_ : R → (fst A) → (fst A)
+    _*_ : fst R → (fst A) → (fst A)
     r * a = CommAlgebraStr._⋆_ (snd A) r a
 
     initialMap : CommAlgebraHom initialCAlg A
@@ -69,6 +69,10 @@ module _ ((R , str) : CommRing ℓ) where
                                                            pres1 ⟩
                (CommAlgebraStr._⋆_ (snd A) x 1a) ∎) i
 
+    initialMapProp : (f g : CommAlgebraHom initialCAlg A)
+                     → f ≡ g
+    initialMapProp f g = initialMapEq f ∙ sym (initialMapEq g)
+
     initialityIso : Iso (CommAlgebraHom initialCAlg A) (Unit* {ℓ = ℓ})
     initialityIso = iso (λ _ → tt*)
                         (λ _ → initialMap)
@@ -86,9 +90,9 @@ module _ ((R , str) : CommRing ℓ) where
     as the initial R-Algebra, is isomorphic to the initial
     R-Algebra.
   -}
-  module _ (A : CommAlgebra (R , str) ℓ) where
+  module _ (A : CommAlgebra R ℓ) where
     equivByInitiality :
-      (isInitial : (B : CommAlgebra (R , str) ℓ) → isContr (CommAlgebraHom A B))
+      (isInitial : (B : CommAlgebra R ℓ) → isContr (CommAlgebraHom A B))
       → CommAlgebraEquiv A (initialCAlg)
     equivByInitiality isInitial = isoToEquiv asIso , snd to
       where
