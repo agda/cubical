@@ -135,23 +135,23 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open CommAlgebraStr (snd A)
 
-  oneIdealQuotient : CommAlgebraEquiv (A / (oneIdeal A)) (terminalCAlg R)
+  oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal A)) (terminalCAlg R)
   fst oneIdealQuotient =
-    isoToEquiv (iso (fst (terminalMap R (A / (oneIdeal A))))
+    isoToEquiv (iso (fst (terminalMap R (A / (1Ideal A))))
                     (λ _ → [ 0a ])
                     (λ _ → isPropUnit* _ _)
                     (elimProp (λ _ → squash/ _ _)
                               λ a → eq/ 0a a tt*))
-  snd oneIdealQuotient = snd (terminalMap R (A / (oneIdeal A)))
+  snd oneIdealQuotient = snd (terminalMap R (A / (1Ideal A)))
 
-  zeroIdealQuotient : CommAlgebraEquiv A (A / (zeroIdeal A))
+  zeroIdealQuotient : CommAlgebraEquiv A (A / (0Ideal A))
   fst zeroIdealQuotient =
     let open RingTheory (CommRing→Ring (CommAlgebra→CommRing A))
-    in isoToEquiv (iso (fst (quotientMap A (zeroIdeal A)))
+    in isoToEquiv (iso (fst (quotientMap A (0Ideal A)))
                     (rec (isSetCommAlgebra A) (λ x → x) λ x y x-y≡0 → equalByDifference x y x-y≡0)
                     (elimProp (λ _ → squash/ _ _) λ _ → refl)
                     λ _ → refl)
-  snd zeroIdealQuotient = snd (quotientMap A (zeroIdeal A))
+  snd zeroIdealQuotient = snd (quotientMap A (0Ideal A))
 
 
 [_]/ : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
