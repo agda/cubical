@@ -368,10 +368,16 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
   naturalL φ f = refl
 
 module _ {R : CommRing ℓ} where
+  {-
+    Prove that the FreeCommAlgebra over R on zero generators is
+    isomorphic to the initial R-Algebra - R itsself.
+  -}
   freeOn⊥ : CommAlgebraEquiv (R [ ⊥ ]) (initialCAlg R)
   freeOn⊥ =
      equivByInitiality
         R (R [ ⊥ ])
+          {- Show that R[⊥] has the universal property of the
+             initial R-Algbera and conclude that those are isomorphic -}
         λ B →  let to : CommAlgebraHom (R [ ⊥ ]) B → (⊥ → fst B)
                    to = evaluateAt B
 
