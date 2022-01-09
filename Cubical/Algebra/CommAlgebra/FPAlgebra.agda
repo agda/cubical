@@ -27,6 +27,7 @@ open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
+open import Cubical.Algebra.CommAlgebra.Instances.Initial
 
 private
   variable
@@ -38,8 +39,12 @@ module _ {R : CommRing ℓ} where
 
   abstract
     makeFPAlgebra : {m : ℕ} (n : ℕ) (l : FinVec (fst (freeAlgebra n)) m)
-                    → CommAlgebra R ℓ
+                  → CommAlgebra R ℓ
     makeFPAlgebra n l = freeAlgebra n / generatedIdeal (freeAlgebra n) l
+
+    expandFPDef : {m : ℕ} (n : ℕ) (l : FinVec (fst (freeAlgebra n)) m)
+                  → CommAlgebraEquiv (makeFPAlgebra n l) (freeAlgebra n / generatedIdeal (freeAlgebra n) l)
+    expandFPDef n l = idCAlgEquiv (makeFPAlgebra n l)
 
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
@@ -65,11 +70,11 @@ module Instances {R : CommRing ℓ} where
     R[⊥]/⟨0⟩ : CommAlgebra R ℓ
     R[⊥]/⟨0⟩ = R[⊥] / (generatedIdeal R[⊥] emptyGen)
 
-  initialFP : finitePresentation (initialCAlg R)
-  finitePresentation.n initialFP = 0
-  finitePresentation.m initialFP = 0
-  finitePresentation.relations initialFP = emptyGen
-  finitePresentation.equiv initialFP = equivByInitiality R _ isInitial
-    where
-      isInitial : (A : CommAlgebra R ℓ) → isContr (CommAlgebraHom _ A)
-      isInitial = {!!}
+  initialCAlgFP : finitePresentation (initialCAlg R)
+  finitePresentation.n initialCAlgFP = 0
+  finitePresentation.m initialCAlgFP = 0
+  finitePresentation.relations initialCAlgFP = emptyGen
+  finitePresentation.equiv initialCAlgFP =
+    makeFPAlgebra 0 emptyGen                                ≃CAlg⟨ expandFPDef 0 emptyGen ⟩
+    freeAlgebra 0 / generatedIdeal (freeAlgebra 0) emptyGen ≃CAlg⟨ {!!} ⟩
+    initialCAlg R ≃CAlg∎
