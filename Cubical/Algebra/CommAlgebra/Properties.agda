@@ -26,9 +26,24 @@ open import Cubical.Algebra.CommRing using (CommRing→Ring)
 private
   variable
     ℓ ℓ′ : Level
-
+    R : CommRing ℓ
 
 idCAlgHom = idAlgHom
+
+idCAlgEquiv : (A : CommAlgebra R ℓ) → CommAlgebraEquiv A A
+fst (idCAlgEquiv A) = idEquiv (fst A)
+snd (idCAlgEquiv A) = snd idCAlgHom
+
+infix  3 _≃CAlg∎
+infixr 2 _≃CAlg⟨_⟩_
+
+_≃CAlg∎ : (A : CommAlgebra R ℓ) → CommAlgebraEquiv A A
+A ≃CAlg∎ = idCAlgEquiv A
+
+_≃CAlg⟨_⟩_ : {B C : CommAlgebra R ℓ}
+             (A : CommAlgebra R ℓ) (f : CommAlgebraEquiv A B) (g : CommAlgebraEquiv B C)
+           → CommAlgebraEquiv A C
+A ≃CAlg⟨ f ⟩ g = g ∘≃a f
 
 -- An R-algebra is the same as a CommRing A with a CommRingHom φ : R → A
 module CommAlgChar (R : CommRing ℓ) where

@@ -256,6 +256,11 @@ _∘a_ : {R : Ring ℓ} {A : Algebra R ℓ'} {B : Algebra R ℓ''} {C : Algebra 
 _∘a_  g f .fst = g .fst ∘ f .fst
 _∘a_  g f .snd = compIsAlgebraHom (g .snd) (f .snd)
 
+_∘≃a_ : {R : Ring ℓ} {A B C : Algebra R ℓ'}
+       → AlgebraEquiv B C → AlgebraEquiv A B → AlgebraEquiv A C
+_∘≃a_  g f .fst = compEquiv (fst f) (fst g)
+_∘≃a_  g f .snd = compIsAlgebraHom (g .snd) (f .snd)
+
 module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
   open RingStr (snd R) renaming (_+_ to _+r_ ; _·_ to _·r_)
   open AlgebraStr (A .snd)
