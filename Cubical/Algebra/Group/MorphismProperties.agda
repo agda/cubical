@@ -199,22 +199,6 @@ compGroupEquiv : GroupEquiv F G → GroupEquiv G H → GroupEquiv F H
 fst (compGroupEquiv f g) = compEquiv (fst f) (fst g)
 snd (compGroupEquiv f g) = isGroupHomComp (_ , f .snd) (_ , g .snd)
 
-isGroupHomInv : (f : GroupEquiv G H) → IsGroupHom (H .snd) (invEq (fst f)) (G .snd)
-isGroupHomInv {G = G} {H = H} f = makeIsGroupHom λ h h' →
-  isInj-f _ _
-    (f' (g (h ⋆² h'))        ≡⟨ secEq (fst f) _ ⟩
-     (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (secEq (fst f) h) (secEq (fst f) h')) ⟩
-     (f' (g h) ⋆² f' (g h')) ≡⟨ sym (pres· (snd f) _ _) ⟩
-     f' (g h ⋆¹ g h') ∎)
-  where
-  f' = fst (fst f)
-  _⋆¹_ = _·_ (snd G)
-  _⋆²_ = _·_ (snd H)
-  g = invEq (fst f)
-
-  isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
-  isInj-f x y = invEq (_ , isEquiv→isEmbedding (snd (fst f)) x y)
-
 invGroupEquiv : GroupEquiv G H → GroupEquiv H G
 fst (invGroupEquiv f) = invEquiv (fst f)
 snd (invGroupEquiv f) = isGroupHomInv f
