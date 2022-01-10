@@ -148,7 +148,7 @@ module _
   euclid : (m n : ℤ) → Bézout m n
   euclid m n = euclid-helper m n (decEq0 _)
 
--- The Ring ℤ is Euclidean Domain
+-- The ring ℤ is an Euclidean domain
 
 dec-helper : {ℓ ℓ' : Level}{A : Type ℓ}{B : Type ℓ'} → Dec A → B → A ⊎ ((¬ A) × B)
 dec-helper (yes p) _ = inl p
