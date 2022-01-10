@@ -100,20 +100,91 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   DLSheaf = Σ[ F ∈ DLPreSheaf ] isDLSheaf F
 
 
-module Lemma1 (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) (L' : ℙ (fst L)) (hB : IsBasis L L') where
+module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C)
+                    (L' : ℙ (fst L)) (hB : IsBasis L L') where
 
-  open Category hiding (_⋆_)
-  open Functor
-  open DistLatticeStr (snd L)
-  open IsBasis hB
+ open Category
+ open Functor
 
-  isDLBasisSheaf : (F : DLPreSheaf L C T) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  isDLBasisSheaf F = (F-ob F 0l ≡ 𝟙 L C T)
-                   × ((x y : L .fst) → x ∈ L' → y ∈ L' → isPullback C _ _ _ (Fsq L C T F x y))
+ open DistLatticeStr ⦃...⦄
+ open SemilatticeStr ⦃...⦄
+ open PosetStr ⦃...⦄ hiding (_≤_)
+ open IsBasis hB
+
+ private
+  BasisCat = MeetSemilatticeCategory (Basis→MeetSemilattice L L' hB)
+  DLBasisPreSheaf = Functor (BasisCat ^op) C
+
+  -- to avoid writing 𝟙 L C T
+  1c : ob C
+  1c = terminalOb C T
+
+  instance
+   _ = snd L
+   _ = snd (Basis→MeetSemilattice L L' hB)
+
+
+ module condSquare (x y : ob BasisCat) (x∨y∈L' : fst x ∨l fst y ∈ L') where
+
+  open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
+       using (∧≤RCancel ; ∧≤LCancel)
+  open MeetSemilattice (Basis→MeetSemilattice L L' hB)
+       using (IndPoset)
+
+  instance
+   _ = snd IndPoset
+
+  x∨y : ob BasisCat -- = Σ[ x ∈ L ] (x ∈ L')
+  x∨y = fst x ∨l fst y , x∨y∈L'
+
+  Bhom-∨₁ : BasisCat [ x , x∨y ]
+  Bhom-∨₁ = Σ≡Prop (λ _ → L' _ .snd) (∧lAbsorb∨l _ _)
+
+  Bhom-∨₂ : BasisCat [ y , x∨y ]
+  Bhom-∨₂ = Σ≡Prop (λ _ → L' _ .snd) (cong (fst y ∧l_) (∨lComm _ _) ∙ ∧lAbsorb∨l _ _)
+
+  Bhom-∧₁ : BasisCat [ x · y , x ]
+  Bhom-∧₁ = Σ≡Prop (λ _ → L' _ .snd) (∧≤RCancel _ _)
+
+  Bhom-∧₂ : BasisCat [ x · y , y ]
+  Bhom-∧₂ =  Σ≡Prop (λ _ → L' _ .snd) (∧≤LCancel _ _)
+
+  {-
+     x ∧ y ----→   y
+       |           |
+       |    sq     |
+       V           V
+       x   ----→ x ∨ y
+  -}
+  Bsq : Bhom-∧₂ ⋆⟨ BasisCat ⟩ Bhom-∨₂ ≡ Bhom-∧₁ ⋆⟨ BasisCat ⟩ Bhom-∨₁
+  Bsq = is-prop-valued (x · y) x∨y (Bhom-∧₂ ⋆⟨ BasisCat ⟩ Bhom-∨₂) (Bhom-∧₁ ⋆⟨ BasisCat ⟩ Bhom-∨₁)
+
+  {-
+    F(x ∨ y) ----→ F(y)
+       |            |
+       |     Fsq    |
+       V            V
+      F(x) ------→ F(x ∧ y)
+  -}
+  BFsq : (F : DLBasisPreSheaf)
+       → F .F-hom Bhom-∨₂ ⋆⟨ C ⟩ F .F-hom Bhom-∧₂ ≡
+         F .F-hom Bhom-∨₁ ⋆⟨ C ⟩ F .F-hom Bhom-∧₁
+  BFsq F = sym (F-seq F Bhom-∨₂ Bhom-∧₂)
+           ∙∙ cong (F .F-hom) Bsq
+           ∙∙ F-seq F Bhom-∨₁ Bhom-∧₁
+
+
+ -- TODO: check that this is equivalent to the functor
+ -- preserving terminal objects and pullbacks
+ isDLBasisSheaf : DLBasisPreSheaf → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+ isDLBasisSheaf F = ((0∈L' : 0l ∈ L') → F .F-ob (0l , 0∈L') ≡ 1c)
+                  × ((x y : ob BasisCat) (x∨y∈L' : fst x ∨l fst y ∈ L')
+                  → isPullback C _ _ _ (BFsq x y x∨y∈L' F))
+  where
+  open condSquare
 
   DLBasisSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  DLBasisSheaf = Σ[ F ∈ DLPreSheaf L C T ] isDLBasisSheaf F
-
+  DLBasisSheaf = Σ[ F ∈ DLBasisPreSheaf ] isDLBasisSheaf F
 
   -- To prove the statement we probably need that C is:
   -- 1. univalent
