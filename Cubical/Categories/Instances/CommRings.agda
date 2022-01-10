@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
@@ -15,15 +16,19 @@ open import Cubical.Algebra.CommRing.FiberedProduct
 open import Cubical.Algebra.CommRing.Instances.Unit
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Pullback
+
+open import Cubical.HITs.PropositionalTruncation
 
 open Category hiding (_∘_)
 open CommRingHoms
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' : Level
 
 CommRingsCategory : Category (ℓ-suc ℓ) ℓ
 ob CommRingsCategory                     = CommRing _
@@ -59,3 +64,30 @@ pbPr₁ (PullbackCommRing (cospan A C B α β)) = fiberedProductPr₁ A B C α �
 pbPr₂ (PullbackCommRing (cospan A C B α β)) = fiberedProductPr₂ A B C α β
 pbCommutes (PullbackCommRing (cospan A C B α β)) = fiberedProductPr₁₂Commutes A B C α β
 univProp (PullbackCommRing (cospan A C B α β)) {d = D} = fiberedProductUnivProp A B C α β D
+
+
+-- techiques for constructing CommRing valued presheaves
+-- throuh universal properties
+CommRingValPShf : {ℓ : Level} → Category ℓ ℓ' → Category _ _
+CommRingValPShf {ℓ = ℓ} C = FUNCTOR (C ^op) (CommRingsCategory {ℓ = ℓ})
+
+module _ (C : Category ℓ ℓ') (P : ob C → Type ℓ)
+         (𝓕 : Σ (ob C) P → CommRing ℓ)
+         (Q : ∀ {x y} → CommRingHom (𝓕 x) (𝓕 y) → Type ℓ'')
+         (IsPropQ : ∀ {x y} (f : CommRingHom (𝓕 x) (𝓕 y)) → isProp (Q f))
+         -- (Qid : ∀ {x} → Q (idCommRingHom (𝓕 x)))
+         -- (Qcomp : ∀ {x y z} {f : CommRingHom (𝓕 x) (𝓕 y)} {g : CommRingHom (𝓕 y) (𝓕 z)}
+         --        → Q f → Q g → Q (compCommRingHom (𝓕 x) (𝓕 y) (𝓕 z) f g))
+         (uniqueQHom : ∀ x y → C [ fst x , fst y ] → ∃![ f ∈ CommRingHom (𝓕 y) (𝓕 x) ] Q f)
+         where
+
+ private
+  ∥P∥ : ℙ (ob C)
+  ∥P∥ x  = ∥ P x ∥ , isPropPropTrunc
+
+ open Functor
+ universalPShf : Functor (ΣPropCat C ∥P∥ ^op) (CommRingsCategory {ℓ = ℓ})
+ F-ob universalPShf = {!!}
+ F-hom universalPShf = {!!}
+ F-id universalPShf = {!!}
+ F-seq universalPShf = {!!}

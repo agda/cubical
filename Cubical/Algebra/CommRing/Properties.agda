@@ -146,24 +146,26 @@ module CommRingHoms where
   idCommRingHom : (R : CommRing ℓ) → CommRingHom R R
   idCommRingHom R = idRingHom (CommRing→Ring R)
 
-  compCommRingHom : (R S T : CommRing ℓ)
+  compCommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') (T : CommRing ℓ'')
                   → CommRingHom R S → CommRingHom S T → CommRingHom R T
   compCommRingHom R S T = compRingHom {R = CommRing→Ring R} {CommRing→Ring S} {CommRing→Ring T}
 
-  syntax compCommRingHom f g = g ∘cr f
+  _∘cr_ : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''}
+        → CommRingHom S T → CommRingHom R S → CommRingHom R T
+  g ∘cr f = compCommRingHom _ _ _ f g
 
   compIdCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S)
-                    → compCommRingHom R R S (idCommRingHom R) f ≡ f
+                    → compCommRingHom _ _ _ (idCommRingHom R) f ≡ f
   compIdCommRingHom = compIdRingHom
 
   idCompCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S)
-                    → compCommRingHom R S S f (idCommRingHom S) ≡ f
+                    → compCommRingHom _ _ _ f (idCommRingHom S) ≡ f
   idCompCommRingHom = idCompRingHom
 
   compAssocCommRingHom : {R S T U : CommRing ℓ}
                          (f : CommRingHom R S) (g : CommRingHom S T) (h : CommRingHom T U)
-                       → compCommRingHom R T U (compCommRingHom R S T f g) h
-                       ≡ compCommRingHom R S U f (compCommRingHom S T U g h)
+                       → compCommRingHom _ _ _ (compCommRingHom _ _ _ f g) h
+                       ≡ compCommRingHom _ _ _ f (compCommRingHom _ _ _ g h)
   compAssocCommRingHom = compAssocRingHom
 
 module CommRingEquivs where
@@ -323,7 +325,7 @@ module CommRingUAFunctoriality where
    cong ⟨_⟩ (uaCommRing f ∙ uaCommRing g) ∎)
 
 
-
+open CommRingHoms
 open CommRingEquivs
 open CommRingUAFunctoriality
 recPT→CommRing : {A : Type ℓ'} (𝓕  : A → CommRing ℓ)
@@ -335,3 +337,40 @@ recPT→CommRing 𝓕 σ compCoh = GpdElim.rec→Gpd isGroupoidCommRing 𝓕
   (3-ConstantCompChar 𝓕 (λ x y → uaCommRing (σ x y))
                           λ x y z → sym (  cong uaCommRing (compCoh x y z)
                                          ∙ uaCompCommRingEquiv (σ x y) (σ y z)))
+
+uniqueCommHom→uniqueCommEquiv :
+      {A : Type ℓ'} (σ : A → CommRing ℓ) (P : {x y : A} → CommRingHom (σ x) (σ y) → Type ℓ'')
+      (isPropP : {x y : A} (f : CommRingHom (σ x) (σ y)) → isProp (P f))
+      (Pid : {x : A} → P (idCommRingHom (σ x)))
+      (Pcomp : {x y z : A} {f : CommRingHom (σ x) (σ y)} {g : CommRingHom (σ y) (σ z)}
+             → P f → P g → P (g ∘cr f))
+      → (∀ x y → ∃![ f ∈ CommRingHom (σ x) (σ y) ] P f)
+      ----------------------------------------------------------------------------
+      → ∀ x y → ∃![ e ∈ CommRingEquiv (σ x) (σ y) ] P (CommRingEquiv→CommRingHom e)
+uniqueCommHom→uniqueCommEquiv σ P isPropP Pid Pcomp uniqueHom x y = (σEquiv , Pχ₁) ,
+  λ e → Σ≡Prop (λ _ → isPropP _)
+         (Σ≡Prop (λ _ → isPropIsRingHom _ _ _)
+           (Σ≡Prop isPropIsEquiv (cong (fst ∘ fst)
+             (uniqueHom _ _ .snd (CommRingEquiv→CommRingHom (e .fst) , e .snd)))))
+  where
+  open Iso
+  χ₁ = uniqueHom x y .fst .fst
+  Pχ₁ = uniqueHom x y .fst .snd
+  χ₂ = uniqueHom y x .fst .fst
+  Pχ₂ = uniqueHom y x .fst .snd
+  χ₁∘χ₂≡id : χ₁ ∘cr χ₂ ≡ idCommRingHom _
+  χ₁∘χ₂≡id = cong fst (isContr→isProp (uniqueHom _ _)
+                                      (χ₁ ∘cr χ₂ , Pcomp Pχ₂ Pχ₁) (idCommRingHom _ , Pid))
+  χ₂∘χ₁≡id : χ₂ ∘cr χ₁ ≡ idCommRingHom _
+  χ₂∘χ₁≡id = cong fst (isContr→isProp (uniqueHom _ _)
+                                      (χ₂ ∘cr χ₁ , Pcomp Pχ₁ Pχ₂) (idCommRingHom _ , Pid))
+
+  σIso : Iso ⟨ σ x ⟩ ⟨ σ y ⟩
+  fun σIso = fst χ₁
+  inv σIso = fst χ₂
+  rightInv σIso = funExt⁻ (cong fst χ₁∘χ₂≡id)
+  leftInv σIso = funExt⁻ (cong fst χ₂∘χ₁≡id)
+
+  σEquiv : CommRingEquiv (σ x) (σ y)
+  fst σEquiv = isoToEquiv σIso
+  snd σEquiv = snd χ₁
