@@ -71,13 +71,13 @@ univProp (PullbackCommRing (cospan A C B α β)) {d = D} = fiberedProductUnivPro
 CommRingValPShf : {ℓ : Level} → Category ℓ ℓ' → Category _ _
 CommRingValPShf {ℓ = ℓ} C = FUNCTOR (C ^op) (CommRingsCategory {ℓ = ℓ})
 
-module _ (C : Category ℓ ℓ') (P : ob C → Type ℓ)
+module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
          (𝓕 : Σ (ob C) P → CommRing ℓ)
          (Q : ∀ {x y} → CommRingHom (𝓕 x) (𝓕 y) → Type ℓ'')
-         (IsPropQ : ∀ {x y} (f : CommRingHom (𝓕 x) (𝓕 y)) → isProp (Q f))
-         -- (Qid : ∀ {x} → Q (idCommRingHom (𝓕 x)))
-         -- (Qcomp : ∀ {x y z} {f : CommRingHom (𝓕 x) (𝓕 y)} {g : CommRingHom (𝓕 y) (𝓕 z)}
-         --        → Q f → Q g → Q (compCommRingHom (𝓕 x) (𝓕 y) (𝓕 z) f g))
+         (isPropQ : ∀ {x y} (f : CommRingHom (𝓕 x) (𝓕 y)) → isProp (Q f))
+         (Qid : ∀ {x} → Q (idCommRingHom (𝓕 x)))
+         (Qcomp : ∀ {x y z} {f : CommRingHom (𝓕 x) (𝓕 y)} {g : CommRingHom (𝓕 y) (𝓕 z)}
+                → Q f → Q g → Q (compCommRingHom (𝓕 x) (𝓕 y) (𝓕 z) f g))
          (uniqueQHom : ∀ x y → C [ fst x , fst y ] → ∃![ f ∈ CommRingHom (𝓕 y) (𝓕 x) ] Q f)
          where
 
@@ -85,9 +85,26 @@ module _ (C : Category ℓ ℓ') (P : ob C → Type ℓ)
   ∥P∥ : ℙ (ob C)
   ∥P∥ x  = ∥ P x ∥ , isPropPropTrunc
 
+  ΣC∥P∥Cat = ΣPropCat C ∥P∥
+
  open Functor
- universalPShf : Functor (ΣPropCat C ∥P∥ ^op) (CommRingsCategory {ℓ = ℓ})
- F-ob universalPShf = {!!}
- F-hom universalPShf = {!!}
+ universalPShf : Functor (ΣC∥P∥Cat ^op) (CommRingsCategory {ℓ = ℓ})
+ F-ob universalPShf = uncurry theMap
+  where
+  theMap : (x : ob C) → ∥ P x ∥ → CommRing ℓ
+  theMap x = recPT→CommRing (curry 𝓕 x)
+    (λ p q → 𝓕UniqueEquiv p q .fst .fst)
+      λ p q r → cong fst (𝓕UniqueEquiv p r .snd (_ , Qcomp (𝓕UniqueEquiv p q .fst .snd)
+                                                            (𝓕UniqueEquiv q r .fst .snd)))
+   where
+   𝓕UniqueEquiv : (p q : P x)
+                 → ∃![ e ∈ CommRingEquiv (𝓕 (x , p)) (𝓕 (x , q)) ] Q (RingEquiv→RingHom e)
+   𝓕UniqueEquiv = uniqueCommHom→uniqueCommEquiv (curry 𝓕 x) Q isPropQ Qid Qcomp
+                                                     λ p q → uniqueQHom _ _ (id C)
+
+ F-hom universalPShf f = {!uniqueQHom _ _ f .fst!}
+  -- where
+  -- curriedAndExplicit : (x y : ob C) → ∥ P x ∥ → ∥ P y ∥ →
+
  F-id universalPShf = {!!}
  F-seq universalPShf = {!!}
