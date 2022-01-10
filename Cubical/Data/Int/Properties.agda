@@ -361,6 +361,12 @@ pos- (suc m) (suc n) =
 
 -- multiplication
 
+pos· : ∀ n m → pos (n ·ℕ m) ≡ pos n · pos m
+pos· zero m = refl
+pos· (suc n) m =
+    pos+ m (n ·ℕ m)
+  ∙ (λ i → pos m + pos· n m i)
+
 pos·negsuc : (n m : ℕ) → pos n · negsuc m ≡ - (pos n · pos (suc m))
 pos·negsuc zero m = refl
 pos·negsuc (suc n) m =
@@ -444,6 +450,9 @@ private
 -DistR· : (b c : ℤ) → - (b · c) ≡ b · - c
 -DistR· b c = cong (-_) (·Comm b c) ∙∙ -DistL· c b ∙∙ ·Comm (- c) b
 
+-DistLR· : (b c : ℤ) → b · c ≡ - b · - c
+-DistLR· b c = sym (-Involutive (b · c)) ∙ (λ i → - -DistL· b c i) ∙ -DistR· (- b) c
+
 ·Assoc : (a b c : ℤ) → (a · (b · c)) ≡ ((a · b) · c)
 ·Assoc (pos zero) b c = refl
 ·Assoc (pos (suc n)) b c =
@@ -460,6 +469,9 @@ private
 minus≡0- : (x : ℤ) → - x ≡ (0 - x)
 minus≡0- x = +Comm (- x) 0
 
+-Cancel' : ∀ z → - z + z ≡ 0
+-Cancel' z = (λ i → minus≡0- z i + z) ∙ minusPlus z 0
+
 -- Absolute values
 abs→⊎ : (x : ℤ) (n : ℕ) → abs x ≡ n → (x ≡ pos n) ⊎ (x ≡ - pos n)
 abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)
@@ -473,3 +485,8 @@ abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)
 ⊎→abs (negsuc n₁) n (inl x₁) = cong abs x₁
 ⊎→abs x zero (inr x₁) = cong abs x₁
 ⊎→abs x (suc n) (inr x₁) = cong abs x₁
+
+abs- : (x : ℤ) → abs (- x) ≡ abs x
+abs- (pos zero) = refl
+abs- (pos (suc n)) = refl
+abs- (negsuc n) = refl
