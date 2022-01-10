@@ -302,7 +302,6 @@ module RingUAFunctoriality where
 open RingHoms
 open RingEquivs
 open RingUAFunctoriality
--- A useful lemma when defining presheaves
 recPT→Ring : {A : Type ℓ'} (𝓕  : A → Ring ℓ)
            → (σ : ∀ x y → RingEquiv (𝓕 x) (𝓕 y))
            → (∀ x y z → σ x z ≡ compRingEquiv (σ x y) (σ y z))
@@ -318,7 +317,8 @@ recPT→Ring 𝓕 σ compCoh = rec→Gpd isGroupoidRing 𝓕 is3-Constant𝓕
  coh₁ is3-Constant𝓕 x y z = transport⁻ (PathP≡compPath _ _ _)
                               (sym (cong uaRing (compCoh x y z) ∙ uaCompRingEquiv (σ x y) (σ y z)))
 
-
+-- useful lemmas when defining presheaves through universal properties
+-- TODO find right place...
 uniqueHom→uniqueEquiv : {A : Type ℓ'} (σ : A → Ring ℓ) (P : {x y : A} → RingHom (σ x) (σ y) → Type ℓ'')
                         (isPropP : {x y : A} (f : RingHom (σ x) (σ y)) → isProp (P f))
                         (Pid : {x : A} → P (idRingHom (σ x)))

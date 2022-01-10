@@ -225,6 +225,7 @@ RingHom≡ = Σ≡Prop λ f → isPropIsRingHom _ f _
 
 RingPath : (R S : Ring ℓ) → RingEquiv R S ≃ (R ≡ S)
 RingPath = ∫ 𝒮ᴰ-Ring .UARel.ua
+
 uaRing : {A B : Ring ℓ} → RingEquiv A B → A ≡ B
 uaRing {A = A} {B = B} = equivFun (RingPath A B)
 
