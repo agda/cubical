@@ -12,12 +12,12 @@ data S² : Type₀ where
 S²∙ : Pointed ℓ-zero
 S²∙ = S² , base
 
-S²ToSetRec : ∀ {ℓ} {A : S² → Type ℓ}
+S²ToSetElim : ∀ {ℓ} {A : S² → Type ℓ}
            → ((x : S²) → isSet (A x))
            → A base
            → (x : S²) → A x
-S²ToSetRec set b base = b
-S²ToSetRec set b (surf i j) =
+S²ToSetElim set b base = b
+S²ToSetElim set b (surf i j) =
   isOfHLevel→isOfHLevelDep 2 set b b {a0 = refl} {a1 = refl} refl refl surf i j
 
 -- Wedge connectivity lemmas for S² (binary maps 2-groupoids)
@@ -34,7 +34,7 @@ wedgeconFunS² {P = P} hlev l r p (surf i i₁) y = help y i i₁
                      (λ _ → r y) (λ _ → r y)
                      (λ _ → r y) λ _ → r y
   help =
-    S²ToSetRec (λ _ → isOfHLevelPathP' 2 (isOfHLevelPathP' 3 (hlev _ _) _ _) _ _)
+    S²ToSetElim (λ _ → isOfHLevelPathP' 2 (isOfHLevelPathP' 3 (hlev _ _) _ _) _ _)
                λ w j → hcomp (λ k → λ { (j = i0) → p k
                                         ; (j = i1) → p k
                                         ; (w = i0) → p k

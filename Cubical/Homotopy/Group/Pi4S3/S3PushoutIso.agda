@@ -8,7 +8,7 @@ Part 2: Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2
 The goal of these two files is to show that
 π₄(S³) ≅ π₃((S² × S²) ⊔ᴬ S²) where A = S² ∨ S².
 This is proved in Brunerie (2016) using the James construction and
-via (S² × S²) ⊔ᴬ S² ≃ is J₂(S²). S² × S² ← S² ∨ S² → S²
+via (S² × S²) ⊔ᴬ S² ≃ J₂(S²).
 
 In this file, we prove it directly using the encode-decode method. For
 the statement of the isomorphism, see part 2.
@@ -79,18 +79,18 @@ module _ {ℓ : Level} {P : Pushout⋁↪fold⋁S² → Type ℓ}
          (b : P (inl (base , base))) where
   private
     ×fun : (x y : S²) → P (inl (x , y))
-    ×fun = S²ToSetRec (λ _ → isSetΠ (λ _ → hlev _))
-            (S²ToSetRec (λ _ → hlev _) b)
+    ×fun = S²ToSetElim (λ _ → isSetΠ (λ _ → hlev _))
+            (S²ToSetElim (λ _ → hlev _) b)
 
     inrfun : (x : S²) → P (inr x)
-    inrfun = S²ToSetRec (λ _ → hlev _) (subst P (push (inl base)) b)
+    inrfun = S²ToSetElim (λ _ → hlev _) (subst P (push (inl base)) b)
 
     inl-pp : (x : S²) → PathP (λ i → P (push (inl x) i)) (×fun x base) (inrfun x)
-    inl-pp = S²ToSetRec (λ _ → isOfHLevelPathP 2 (hlev _) _ _)
+    inl-pp = S²ToSetElim (λ _ → isOfHLevelPathP 2 (hlev _) _ _)
               λ j → transp (λ i → P (push (inl base) (i ∧ j))) (~ j) b
 
     inr-pp : (x : S²) → PathP (λ i → P (push (inr x) i)) (×fun base x) (inrfun x)
-    inr-pp = S²ToSetRec (λ _ → isOfHLevelPathP 2 (hlev _) _ _)
+    inr-pp = S²ToSetElim (λ _ → isOfHLevelPathP 2 (hlev _) _ _)
               (transport (λ j → PathP (λ i → P (push (push tt j) i)) (×fun base base)
                                        (inrfun base))
               (inl-pp base))
@@ -270,19 +270,20 @@ push-inl∙push-inr⁻ : (y : S²) → Path Pushout⋁↪fold⋁S² (inl (y , ba
 push-inl∙push-inr⁻ y i = (push (inl y) ∙ sym (push (inr y))) i
 
 push-inl∙push-inr⁻∙ : push-inl∙push-inr⁻ base ≡ refl
-push-inl∙push-inr⁻∙ = (λ k i → (push (inl base) ∙ sym (push (push tt (~ k)))) i)
-          ∙ rCancel (push (inl base))
+push-inl∙push-inr⁻∙ =
+    (λ k i → (push (inl base) ∙ sym (push (push tt (~ k)))) i)
+  ∙ rCancel (push (inl base))
 
 push-inl∙push-inr⁻-filler : I → I → I → I → Pushout⋁↪fold⋁S²
 push-inl∙push-inr⁻-filler r i j k =
   hfill (λ r → λ { (i = i0) → push-inl∙push-inr⁻∙ (~ r) k
-                               ; (i = i1) → push-inl∙push-inr⁻∙ (~ r) k
-                               ; (j = i0) → push-inl∙push-inr⁻∙ (~ r) k
-                               ; (j = i1) → push-inl∙push-inr⁻∙ (~ r) k
-                               ; (k = i0) → inl (surf i j , base)
-                               ; (k = i1) → inl (surf i j , base)})
-                     (inS (inl (surf i j , base)))
-                     r
+                  ; (i = i1) → push-inl∙push-inr⁻∙ (~ r) k
+                  ; (j = i0) → push-inl∙push-inr⁻∙ (~ r) k
+                  ; (j = i1) → push-inl∙push-inr⁻∙ (~ r) k
+                  ; (k = i0) → inl (surf i j , base)
+                  ; (k = i1) → inl (surf i j , base)})
+        (inS (inl (surf i j , base)))
+        r
 
 push-inl∙push-inr⁻-hLevFiller : (y : S²)
         → Cube {A = ∥Pushout⋁↪fold⋁S²∥₅}
@@ -293,7 +294,7 @@ push-inl∙push-inr⁻-hLevFiller : (y : S²)
                 (→Ω²∥Pushout⋁↪fold⋁S²∥₅ y (pt (S² , base)))
                 λ i j → ∣ inl (surf i j , y) ∣
 push-inl∙push-inr⁻-hLevFiller =
-  S²ToSetRec (λ _ → isOfHLevelPathP' 2
+  S²ToSetElim (λ _ → isOfHLevelPathP' 2
               (isOfHLevelPathP' 3
                 (isOfHLevelPathP' 4 (isOfHLevelTrunc 5) _ _) _ _) _ _)
    λ i j k → ∣ push-inl∙push-inr⁻-filler i1 i j k ∣ₕ
@@ -364,9 +365,10 @@ S²→Pushout⋁↪fold⋁S²↺'≡idfun (push (push a i) j) k =
 
 S²→Pushout⋁↪fold⋁S²↺ : (x : S²) → ∥Pushout⋁↪fold⋁S²∥₅ → ∥Pushout⋁↪fold⋁S²∥₅
 S²→Pushout⋁↪fold⋁S²↺ x = trRec (isOfHLevelTrunc 5) (S²→Pushout⋁↪fold⋁S²↺' x)
+
 isEq-S²→Pushout⋁↪fold⋁S²↺' : (x : _) → isEquiv (S²→Pushout⋁↪fold⋁S²↺ x)
 isEq-S²→Pushout⋁↪fold⋁S²↺' =
-  S²ToSetRec (λ _ → isProp→isSet (isPropIsEquiv _))
+  S²ToSetElim (λ _ → isProp→isSet (isPropIsEquiv _))
     (subst isEquiv (funExt id≡) (idIsEquiv _))
   where
   id≡ : (x : _) → x ≡ S²→Pushout⋁↪fold⋁S²↺ base x

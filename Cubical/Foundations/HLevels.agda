@@ -301,6 +301,9 @@ isGroupoid'→isGroupoid : isGroupoid' A → isGroupoid A
 isGroupoid'→isGroupoid Agpd' x y p q r s = Agpd' r s refl refl refl refl
 -- h-level of Σ-types
 
+isProp∃! : isProp (∃! A B)
+isProp∃! = isPropIsContr
+
 isContrΣ : isContr A → ((x : A) → isContr (B x)) → isContr (Σ A B)
 isContrΣ {A = A} {B = B} (a , p) q =
   let h : (x : A) (y : B x) → (q x) .fst ≡ y
