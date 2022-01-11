@@ -87,24 +87,37 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
 
   ΣC∥P∥Cat = ΣPropCat C ∥P∥
 
+ 𝓕UniqueEquiv : (x : ob C) (p q : P x)
+               → ∃![ e ∈ CommRingEquiv (𝓕 (x , p)) (𝓕 (x , q)) ] Q (RingEquiv→RingHom e)
+ 𝓕UniqueEquiv x = uniqueCommHom→uniqueCommEquiv (curry 𝓕 x) Q isPropQ Qid Qcomp
+                                                   λ p q → uniqueQHom _ _ (id C)
+
+ theMap : (x : ob C) → ∥ P x ∥ → CommRing ℓ
+ theMap x = recPT→CommRing (curry 𝓕 x)
+   (λ p q → 𝓕UniqueEquiv x p q .fst .fst)
+     λ p q r → cong fst (𝓕UniqueEquiv x p r .snd (_ , Qcomp (𝓕UniqueEquiv x p q .fst .snd)
+                                                             (𝓕UniqueEquiv x q r .fst .snd)))
+
+ theAction : (x y : ob C) → C [ x , y ]
+           → (p : ∥ P x ∥) (q : ∥ P y ∥) → CommRingHom (theMap y q) (theMap x p)
+ theAction x y f = elim2→Set (λ _ _ → isSetRingHom _ _)
+                  (λ _ _ → uniqueQHom _ _ f .fst .fst)
+                    (λ p p' q → congP (λ _ → fst) (isProp→PathP {!!} (uniqueQHom (x , p) (y , q) f .fst) (uniqueQHom (x , p') (y , q) f .fst))) {!!} {!!}
+
+ test : ∀ x p → theAction x x (id C) ∣ p ∣ ∣ p ∣ ≡ uniqueQHom (x , p) (x , p) (id C) .fst .fst
+ test x p = {!refl!} --why is this not refl???
+
+ presId : (x : ob C) (p : ∥ P x ∥) → theAction x x (id C) p p
+                                  ≡ idCommRingHom (theMap x p)
+ presId x = elim (λ _ → isSetRingHom _ _ _ _) λ p → {!!}
+ -- cong fst (uniqueQHom _ _ (id C) .snd (idQHom p)) doesn't work !!!
+  where
+  idQHom : (p : P x) → Σ[ f ∈ CommRingHom (𝓕 (x , p)) (𝓕 (x , p)) ] Q f
+  idQHom p = idCommRingHom (theMap x ∣ p ∣) , Qid
+
  open Functor
  universalPShf : Functor (ΣC∥P∥Cat ^op) (CommRingsCategory {ℓ = ℓ})
  F-ob universalPShf = uncurry theMap
-  where
-  theMap : (x : ob C) → ∥ P x ∥ → CommRing ℓ
-  theMap x = recPT→CommRing (curry 𝓕 x)
-    (λ p q → 𝓕UniqueEquiv p q .fst .fst)
-      λ p q r → cong fst (𝓕UniqueEquiv p r .snd (_ , Qcomp (𝓕UniqueEquiv p q .fst .snd)
-                                                            (𝓕UniqueEquiv q r .fst .snd)))
-   where
-   𝓕UniqueEquiv : (p q : P x)
-                 → ∃![ e ∈ CommRingEquiv (𝓕 (x , p)) (𝓕 (x , q)) ] Q (RingEquiv→RingHom e)
-   𝓕UniqueEquiv = uniqueCommHom→uniqueCommEquiv (curry 𝓕 x) Q isPropQ Qid Qcomp
-                                                     λ p q → uniqueQHom _ _ (id C)
-
- F-hom universalPShf f = {!uniqueQHom _ _ f .fst!}
-  -- where
-  -- curriedAndExplicit : (x y : ob C) → ∥ P x ∥ → ∥ P y ∥ →
-
- F-id universalPShf = {!!}
+ F-hom universalPShf {x = x} {y = y} f = theAction _ _ f (y .snd) (x. snd)
+ F-id universalPShf {x = x} = presId (x .fst) (x .snd)
  F-seq universalPShf = {!!}
