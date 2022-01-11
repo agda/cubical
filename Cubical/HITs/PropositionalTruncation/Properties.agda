@@ -209,6 +209,32 @@ elim→Set {A = A} {P = P} Pset f kf t
   gk : 2-Constant g
   gk x y i = transp (λ j → P (squash (squash ∣ x ∣ ∣ y ∣ i) t j)) i0 (kf x y i)
 
+-- wanna do something like the non-dep case...
+-- module _ {P : ∥ A ∥ → Type ℓ}
+--          (Pset : ∀ t → isSet (P t))
+--          (f : (x : A) → P ∣ x ∣)
+--          (kf : ∀ x y → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i)) (f x) (f y))
+--          where
+--  private
+--    Pset' : ∀ t → isSet' (P t)
+--    Pset' t = isSet→isSet' (Pset t)
+
+--  elim→Set : (t : ∥ A ∥) → P t
+
+--  elim→SetHelper : (t u : ∥ A ∥) → PathP (λ i → P (squash t u i)) (elim→Set t) (elim→Set u)
+
+--  elim→Set ∣ x ∣ = f x
+--  elim→Set (squash t u i) = elim→SetHelper t u i
+
+--  elim→SetHelper ∣ x ∣ ∣ y ∣ = kf x y
+--  elim→SetHelper (squash t u i) v = {!!}
+--  elim→SetHelper t (squash u v i) = {!!}
+--   -- helper f kf ∣ x ∣ ∣ y ∣ = kf x y
+--   -- helper f kf (squash t u i) v
+--   --   = Bset' (helper f kf t v) (helper f kf u v) (helper f kf t u) refl i
+--   -- helper f kf t (squash u v i)
+--   --   = Bset' (helper f kf t u) (helper f kf t v) refl (helper f kf u v) i
+
 elim2→Set :
     {P : ∥ A ∥ → ∥ B ∥ → Type ℓ}
   → (∀ t u → isSet (P t u))

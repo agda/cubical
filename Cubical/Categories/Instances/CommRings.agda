@@ -85,6 +85,9 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
   ∥P∥ : ℙ (ob C)
   ∥P∥ x  = ∥ P x ∥ , isPropPropTrunc
 
+  QHProp : ∀ {x y} → CommRingHom (𝓕 x) (𝓕 y) → hProp _
+  QHProp f = Q f , isPropQ f
+
   ΣC∥P∥Cat = ΣPropCat C ∥P∥
 
  𝓕UniqueEquiv : (x : ob C) (p q : P x)
@@ -102,10 +105,14 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
            → (p : ∥ P x ∥) (q : ∥ P y ∥) → CommRingHom (theMap y q) (theMap x p)
  theAction x y f = elim2→Set (λ _ _ → isSetRingHom _ _)
                   (λ _ _ → uniqueQHom _ _ f .fst .fst)
-                    (λ p p' q → congP (λ _ → fst) (isProp→PathP {!!} (uniqueQHom (x , p) (y , q) f .fst) (uniqueQHom (x , p') (y , q) f .fst))) {!!} {!!}
+                    -- (λ p p' q → congP (λ _ → fst) (isProp→PathP
+                                                          -- {!!}
+                                                          -- (uniqueQHom (x , p) (y , q) f .fst)
+                                                          -- (uniqueQHom (x , p') (y , q) f .fst)))
+                    {!!} {!!} {!!}
 
  test : ∀ x p → theAction x x (id C) ∣ p ∣ ∣ p ∣ ≡ uniqueQHom (x , p) (x , p) (id C) .fst .fst
- test x p = {!refl!} --why is this not refl???
+ test x p = {!refl!} -- maybe define elim→Set directly???
 
  presId : (x : ob C) (p : ∥ P x ∥) → theAction x x (id C) p p
                                   ≡ idCommRingHom (theMap x p)
