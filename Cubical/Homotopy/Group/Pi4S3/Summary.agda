@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Homotopy.Group.S3 where
+module Cubical.Homotopy.Group.Pi4S3.Summary where
 
 {-
 This file contains a summary of what remains for π₄S³≅ℤ/2 to be proved.
