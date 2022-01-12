@@ -710,7 +710,7 @@ private
 Ω^fibf→A≡ zero f = ΣPathP (refl , (sym (lUnit refl)))
 Ω^fibf→A≡ (suc n) f = Ω^fibf→A-ind n f ∙ cong Ω→ (Ω^fibf→A≡ n f)
 
--- The goal is not to show that Ωⁿ f : (Ωⁿ A → Ωⁿ B)
+-- The goal is now to show that Ωⁿ f : (Ωⁿ A → Ωⁿ B)
 -- is taken to post composition : (Sⁿ →∙ A) → (Sⁿ →∙ B)
 -- The following lemmas is not pretty but very helpful
 private
