@@ -22,6 +22,7 @@ module _ (C : PreaddCategory ℓ ℓ') where
 
     -- Kernels
     record IsKernel {k : ob} (ker : Hom[ k , x ]) : Type (ℓ-max ℓ ℓ') where
+      constructor isKernel
       field
         ker⋆f : ker ⋆ f ≡ 0h
         univ : ∀ (w : ob) (t : Hom[ w , x ])
@@ -39,12 +40,14 @@ module _ (C : PreaddCategory ℓ ℓ') where
 
     -- Cokernels
     record IsCokernel {c : ob} (coker : Hom[ y , c ]) : Type (ℓ-max ℓ ℓ') where
+      constructor isCokernel
       field
         f⋆coker : f ⋆ coker ≡ 0h
         univ : ∀ (w : ob) (t : Hom[ y , w ])
           → (f ⋆ t ≡ 0h) → ∃![ u ∈ Hom[ c , w ] ] (coker ⋆ u ≡ t)
 
     record Cokernel : Type (ℓ-max ℓ ℓ') where
+      constructor cokernel
       field
         c : ob
         coker : Hom[ y , c ]
