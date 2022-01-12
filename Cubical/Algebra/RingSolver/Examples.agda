@@ -6,7 +6,7 @@ open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_)
 open import Cubical.Data.List
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.RingSolver.ReflectionSolving
+open import Cubical.Algebra.RingSolver.Reflection
 
 private
   variable

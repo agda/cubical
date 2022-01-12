@@ -55,6 +55,22 @@ snd (Ω→ {A = A} {B = B} (f , p)) = ∙∙lCancel p
       })
     (g .fst (doubleCompPath-filler (sym (f .snd)) (cong (f .fst) p) (f .snd) k i))
 
+{- Ω→ is a homomorphism -}
+Ω→pres∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
+        → (p q : typ (Ω A))
+        → fst (Ω→ f) (p ∙ q) ≡ fst (Ω→ f) p ∙ fst (Ω→ f) q
+Ω→pres∙ f p q i j =
+  hcomp
+    (λ k → λ
+       { (i = i1) →
+          (doubleCompPath-filler
+            (sym (snd f)) (cong (fst f) p) (snd f) k
+         ∙ doubleCompPath-filler
+            (sym (snd f)) (cong (fst f) q) (snd f) k) j
+       ; (j = i0) → snd f k
+       ; (j = i1) → snd f k})
+    (cong-∙ (fst f) p q i j)
+
 isEquivΩ→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
            → (f : (A →∙ B))
            → isEquiv (fst f) → isEquiv (Ω→ f .fst)
@@ -137,7 +153,7 @@ EH-gen-r {A = A} n {x = x} {y = y} β i j z =
                   ; (z = i1) → y i1})
         (((λ j → refl ∙ β (j ∧ i)) ∙ λ j → refl ∙ β (i ∨ j)) j z)
 
-{- characerisations of EH α β when α or β is refl  -}
+{- characterisations of EH α β when α or β is refl  -}
 EH-α-refl : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
              → (α : typ ((Ω^ (2 + n)) A))
              → EH n α refl ≡ sym (rUnit α) ∙ lUnit α
