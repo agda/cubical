@@ -26,7 +26,7 @@ open import Cubical.Algebra.CommRing.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 module Units (R' : CommRing ℓ) where
  open CommRingStr (snd R')
@@ -135,7 +135,7 @@ module Units (R' : CommRing ℓ) where
 _ˣ : (R' : CommRing ℓ) → ℙ (R' .fst)
 R' ˣ = Units.Rˣ R'
 
-module CommRingHoms where
+module _ where
   open RingHoms
 
   idCommRingHom : (R : CommRing ℓ) → CommRingHom R R
@@ -155,6 +155,11 @@ module CommRingHoms where
                          compCommRingHom R T U (compCommRingHom R S T f g) h ≡
                          compCommRingHom R S U f (compCommRingHom S T U g h)
   compAssocCommRingHom = compAssocRingHom
+
+  open Iso
+
+  injCommRingIso : {R : CommRing ℓ} {S : CommRing ℓ'} (f : CommRingIso R S) → (x y : R .fst) → f .fst .fun x ≡ f .fst .fun y → x ≡ y
+  injCommRingIso f x y h = sym (f .fst .leftInv x) ∙∙ cong (f .fst .inv) h ∙∙ f .fst .leftInv y
 
 
 module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
