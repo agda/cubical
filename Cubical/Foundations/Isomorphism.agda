@@ -185,7 +185,10 @@ codomainIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ'
 codomainIso z = codomainIsoDep λ _ → z
 
 
-Iso≡Set : isSet A → isSet B → (f g : Iso A B) → ((x : A) → f .fun x ≡ g .fun x) → ((x : B) → f .inv x ≡ g .inv x) → f ≡ g
+Iso≡Set : isSet A → isSet B → (f g : Iso A B)
+        → ((x : A) → f .fun x ≡ g .fun x)
+        → ((x : B) → f .inv x ≡ g .inv x)
+        → f ≡ g
 fun (Iso≡Set hA hB f g hfun hinv i) x = hfun x i
 inv (Iso≡Set hA hB f g hfun hinv i) x = hinv x i
 rightInv (Iso≡Set hA hB f g hfun hinv i) x j =

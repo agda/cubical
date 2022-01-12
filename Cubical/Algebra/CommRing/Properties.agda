@@ -158,7 +158,8 @@ module _ where
 
   open Iso
 
-  injCommRingIso : {R : CommRing ℓ} {S : CommRing ℓ'} (f : CommRingIso R S) → (x y : R .fst) → f .fst .fun x ≡ f .fst .fun y → x ≡ y
+  injCommRingIso : {R : CommRing ℓ} {S : CommRing ℓ'} (f : CommRingIso R S)
+                 → (x y : R .fst) → f .fst .fun x ≡ f .fst .fun y → x ≡ y
   injCommRingIso f x y h = sym (f .fst .leftInv x) ∙∙ cong (f .fst .inv) h ∙∙ f .fst .leftInv y
 
 
