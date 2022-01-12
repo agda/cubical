@@ -36,21 +36,24 @@ private
   homContr : (x y : Category.ob {ℓ = ℓ} terminalCat) → isContr (terminalCat [ x , y ])
   homContr x y = isProp→isContrPath (isOfHLevelUnit* 1) x y
 
-terminal : AdditiveCategory ℓ ℓ
-cat (preaddcat terminal) = terminalCat
-homAbStr (preadd (preaddcat terminal)) =
+terminalPreAdd : PreaddCategory ℓ ℓ
+cat terminalPreAdd = terminalCat
+homAbStr (preadd terminalPreAdd) =
   λ x y →
     subst
       AbGroupStr
       (sym (isContr→≡Unit* (homContr x y)))
       terminalAbGroupStr
-⋆distl+ (preadd (preaddcat terminal)) = λ _ _ _ _ → refl
-⋆distr+ (preadd (preaddcat terminal)) = λ _ _ _ → refl
+⋆distl+ (preadd terminalPreAdd) = λ _ _ _ _ → refl
+⋆distr+ (preadd terminalPreAdd) = λ _ _ _ → refl
+
+terminal : AdditiveCategory ℓ ℓ
+preaddcat terminal = terminalPreAdd
 ZeroObject.z (zero (addit terminal)) = tt*
 ZeroObject.zInit (zero (addit terminal)) y = homContr _ _
 ZeroObject.zTerm (zero (addit terminal)) y = homContr _ _
 biprod (addit terminal) x y = trivProd
-  where trivProd : Biproduct (preaddcat terminal) x y
+  where trivProd : Biproduct terminalPreAdd x y
         Biproduct.x⊕y trivProd = tt*
         Biproduct.i₁ trivProd = refl
         Biproduct.i₂ trivProd = refl
