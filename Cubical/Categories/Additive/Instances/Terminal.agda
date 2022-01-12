@@ -36,16 +36,16 @@ private
   homContr : (x y : Category.ob {ℓ = ℓ} terminalCat) → isContr (terminalCat [ x , y ])
   homContr x y = isProp→isContrPath (isOfHLevelUnit* 1) x y
 
-terminalPreAdd : PreaddCategory ℓ ℓ
-cat terminalPreAdd = terminalCat
-homAbStr (preadd terminalPreAdd) =
-  λ x y →
-    subst
-      AbGroupStr
-      (sym (isContr→≡Unit* (homContr x y)))
-      terminalAbGroupStr
-⋆distl+ (preadd terminalPreAdd) = λ _ _ _ _ → refl
-⋆distr+ (preadd terminalPreAdd) = λ _ _ _ → refl
+  terminalPreAdd : PreaddCategory ℓ ℓ
+  cat terminalPreAdd = terminalCat
+  homAbStr (preadd terminalPreAdd) =
+    λ x y →
+      subst
+        AbGroupStr
+        (sym (isContr→≡Unit* (homContr x y)))
+        terminalAbGroupStr
+  ⋆distl+ (preadd terminalPreAdd) = λ _ _ _ _ → refl
+  ⋆distr+ (preadd terminalPreAdd) = λ _ _ _ → refl
 
 terminal : AdditiveCategory ℓ ℓ
 preaddcat terminal = terminalPreAdd
