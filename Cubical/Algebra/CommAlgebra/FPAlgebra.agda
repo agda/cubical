@@ -12,6 +12,7 @@ module Cubical.Algebra.CommAlgebra.FPAlgebra where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat
@@ -42,9 +43,11 @@ module _ {R : CommRing ℓ} where
                   → CommAlgebra R ℓ
     makeFPAlgebra n l = freeAlgebra n / generatedIdeal (freeAlgebra n) l
 
-    expandFPDef : {m : ℕ} (n : ℕ) (l : FinVec (fst (freeAlgebra n)) m)
-                  → CommAlgebraEquiv (makeFPAlgebra n l) (freeAlgebra n / generatedIdeal (freeAlgebra n) l)
-    expandFPDef n l = idCAlgEquiv (makeFPAlgebra n l)
+  private
+    useEquivFreeAlgebra : {m : ℕ} (n : ℕ) (l : FinVec (fst (freeAlgebra n)) m) (A : CommAlgebra R ℓ)
+               → (e : CommAlgebraEquiv (freeAlgebra n) A)
+               → CommAlgebraEquiv (makeFPAlgebra n l) (A / (generatedIdeal A (fst (fst e) ∘ l)))
+    useEquivFreeAlgebra n l A e = {!!}
 
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
@@ -75,6 +78,5 @@ module Instances {R : CommRing ℓ} where
   finitePresentation.m initialCAlgFP = 0
   finitePresentation.relations initialCAlgFP = emptyGen
   finitePresentation.equiv initialCAlgFP =
-    makeFPAlgebra 0 emptyGen                                ≃CAlg⟨ expandFPDef 0 emptyGen ⟩
-    freeAlgebra 0 / generatedIdeal (freeAlgebra 0) emptyGen ≃CAlg⟨ {!!} ⟩
+    makeFPAlgebra 0 emptyGen                                ≃CAlg⟨ {!!} ⟩
     initialCAlg R ≃CAlg∎
