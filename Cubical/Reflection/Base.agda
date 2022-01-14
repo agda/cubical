@@ -46,9 +46,9 @@ hlam str t = R.lam R.hidden (R.abs str t)
 
 newMeta = R.checkType R.unknown
 
-extend*Context : ∀ {ℓ} {A : Type ℓ} → List (R.Arg R.Type) → R.TC A → R.TC A
-extend*Context [] tac = tac
-extend*Context (a ∷ as) tac = R.extendContext a (extend*Context as tac)
+extend*Context : ∀ {ℓ} {A : Type ℓ} → R.Telescope → R.TC A → R.TC A
+extend*Context []             tac = tac
+extend*Context ((s , a) ∷ as) tac = R.extendContext s a (extend*Context as tac)
 
 makeAuxiliaryDef : String → R.Type → R.Term → R.TC R.Term
 makeAuxiliaryDef s ty term =
