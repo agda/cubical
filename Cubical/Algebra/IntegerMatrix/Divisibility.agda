@@ -30,7 +30,7 @@ private
 -- The Divisibility Relation
 -- Most definitions are the same as in Cubical.Data.Nat.Divisibility
 
-_∣_ : ℤ → ℤ → Type₀
+_∣_ : ℤ → ℤ → Type
 m ∣ n = ∃[ c ∈ ℤ ] c · m ≡ n
 
 isProp∣ : isProp (m ∣ n)
@@ -63,7 +63,7 @@ isProp∣ = squash
 
 -- Bézout and Euclidean Domain
 
-record Bézout (m n : ℤ) : Type₀ where
+record Bézout (m n : ℤ) : Type where
   constructor bezout
   field
     coef₁ : ℤ
@@ -114,7 +114,7 @@ bézoutReduction m d r b .isGCD .snd = ∣-+ (∣-right· {n = d} (b .isGCD .snd
 
 -- Quotient and Remainder
 
-record QuotRem (m n : ℤ) : Type₀ where
+record QuotRem (m n : ℤ) : Type where
   constructor quotrem
   field
     div : ℤ

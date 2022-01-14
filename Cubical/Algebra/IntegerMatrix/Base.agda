@@ -14,10 +14,10 @@ private
 
 -- Basic Definitions
 
-Vector : ℕ → Type₀
+Vector : ℕ → Type
 Vector n = Fin n → ℤ
 
-Matrix : ℕ → ℕ → Type₀
+Matrix : ℕ → ℕ → Type
 Matrix m n = Fin m → Fin n → ℤ
 
 isSetVector : isSet (Vector n)
