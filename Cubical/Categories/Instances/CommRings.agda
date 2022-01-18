@@ -73,7 +73,7 @@ CommRingValPShf {ℓ = ℓ} C = FUNCTOR (C ^op) (CommRingsCategory {ℓ = ℓ})
 
 module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
          (𝓕 : Σ (ob C) P → CommRing ℓ)
-         (Q : ∀ {x y} → CommRingHom (𝓕 x) (𝓕 y) → Type ℓ'')
+         (Q : ∀ {x y} → CommRingHom (𝓕 x) (𝓕 y) → Type ℓ)
          (isPropQ : ∀ {x y} (f : CommRingHom (𝓕 x) (𝓕 y)) → isProp (Q f))
          (Qid : ∀ {x} → Q (idCommRingHom (𝓕 x)))
          (Qcomp : ∀ {x y z} {f : CommRingHom (𝓕 x) (𝓕 y)} {g : CommRingHom (𝓕 y) (𝓕 z)}
@@ -84,9 +84,6 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
  private
   ∥P∥ : ℙ (ob C)
   ∥P∥ x  = ∥ P x ∥ , isPropPropTrunc
-
-  QHProp : ∀ {x y} → CommRingHom (𝓕 x) (𝓕 y) → hProp _
-  QHProp f = Q f , isPropQ f
 
   ΣC∥P∥Cat = ΣPropCat C ∥P∥
 
@@ -101,6 +98,24 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
      λ p q r → cong fst (𝓕UniqueEquiv x p r .snd (_ , Qcomp (𝓕UniqueEquiv x p q .fst .snd)
                                                              (𝓕UniqueEquiv x q r .fst .snd)))
 
+ -- something along the lines of:
+ -- RecHProp : (P : A → hProp ℓ) (kP : ∀ x y → x ∈ P → y ∈ P) → ∥ A ∥ → hProp ℓ
+ -- RecHProp P kP = rec→Set isSetHProp P kP
+ -- using
+ -- QHProp : ∀ {x y} → CommRingHom (𝓕 x) (𝓕 y) → hProp _
+ -- QHProp f = Q f , isPropQ f
+ Q' : (x y : ob C) (p : ∥ P x ∥) (q : ∥ P y ∥)
+              → CommRingHom (theMap x p) (theMap y q) → hProp ℓ
+
+ -- Q'unique : (x y : ob C) (f : C [ x , y ]) (p : ∥ P x ∥) (q : ∥ P y ∥)
+ --          → ∃![ φ ∈ CommRingHom (theMap x p) (theMap y q) ] (φ ∈ (Q' x y p q))
+
+ Q' x y = elim2→Set (λ _ _ → isSetΠ (λ _ → isSetHProp))
+                      (λ p q → λ f → Q f , isPropQ f)
+                       (λ p p' q → {!!}) {!!} {!!}
+
+ -- Q'unique x y f = elim2 (λ _ _ → isProp∃!) λ p q → {!uniqueQHom!}
+
  theAction : (x y : ob C) → C [ x , y ]
            → (p : ∥ P x ∥) (q : ∥ P y ∥) → CommRingHom (theMap y q) (theMap x p)
  theAction x y f = elim2→Set (λ _ _ → isSetRingHom _ _)
@@ -109,6 +124,11 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
                                                           -- {!!}
                                                           -- (uniqueQHom (x , p) (y , q) f .fst)
                                                           -- (uniqueQHom (x , p') (y , q) f .fst)))
+                    -- better use toPathP
+                    -- (λ p p' q → toPathP (sym (cong fst (uniqueQHom (x , p') (y , q) f .snd ((transp
+                    --                                                                           (λ i →
+                    --                                                                              CommRingHom (theMap y ∣ q ∣) (theMap x (squash ∣ p ∣ ∣ p' ∣ i)))
+                    --                                                                           i0 (uniqueQHom (x , p) (y , q) f .fst .fst)) , subst Q {!transport-filler!} (uniqueQHom (x , p') (y , q) f .fst .snd))))))
                     {!!} {!!} {!!}
 
  test : ∀ x p → theAction x x (id C) ∣ p ∣ ∣ p ∣ ≡ uniqueQHom (x , p) (x , p) (id C) .fst .fst
