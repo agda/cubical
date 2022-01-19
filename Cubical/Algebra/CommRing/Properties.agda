@@ -374,3 +374,30 @@ uniqueCommHom→uniqueCommEquiv σ P isPropP Pid Pcomp uniqueHom x y = (σEquiv 
   σEquiv : CommRingEquiv (σ x) (σ y)
   fst σEquiv = isoToEquiv σIso
   snd σEquiv = snd χ₁
+
+contrCommHom→contrCommEquiv : {A : Type ℓ'} (σ : A → CommRing ℓ)
+      → (∀ x y → isContr (CommRingHom (σ x) (σ y)))
+      ----------------------------------------------------------------------------
+      → ∀ x y → isContr (CommRingEquiv (σ x) (σ y))
+contrCommHom→contrCommEquiv σ contrHom x y = σEquiv ,
+  λ e → Σ≡Prop (λ _ → isPropIsRingHom _ _ _)
+           (Σ≡Prop isPropIsEquiv (cong fst (contrHom _ _ .snd (CommRingEquiv→CommRingHom e))))
+  where
+  open Iso
+  χ₁ = contrHom x y .fst
+  χ₂ = contrHom y x .fst
+  χ₁∘χ₂≡id : χ₁ ∘cr χ₂ ≡ idCommRingHom _
+  χ₁∘χ₂≡id = isContr→isProp (contrHom _ _) _ _
+
+  χ₂∘χ₁≡id : χ₂ ∘cr χ₁ ≡ idCommRingHom _
+  χ₂∘χ₁≡id = isContr→isProp (contrHom _ _) _ _
+
+  σIso : Iso ⟨ σ x ⟩ ⟨ σ y ⟩
+  fun σIso = fst χ₁
+  inv σIso = fst χ₂
+  rightInv σIso = funExt⁻ (cong fst χ₁∘χ₂≡id)
+  leftInv σIso = funExt⁻ (cong fst χ₂∘χ₁≡id)
+
+  σEquiv : CommRingEquiv (σ x) (σ y)
+  fst σEquiv = isoToEquiv σIso
+  snd σEquiv = snd χ₁
