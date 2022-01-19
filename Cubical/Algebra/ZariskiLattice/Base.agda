@@ -48,6 +48,12 @@ open import Cubical.Algebra.DistLattice.Basis
 open import Cubical.Algebra.DistLattice.BigOps
 open import Cubical.Algebra.Matrix
 
+open import Cubical.Categories.Category.Base hiding (_[_,_])
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.CommRings
+open import Cubical.Categories.Instances.DistLattice
+open import Cubical.Categories.Instances.Semilattice
+
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
 
