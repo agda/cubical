@@ -33,9 +33,11 @@ on:
 ########################################################################
 
 env:
-  GHC_VERSION: 8.6.5
-  CABAL_VERSION: 3.2.0.0
-  CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
+  GHC_VERSION: 8.10.7
+  CABAL_VERSION: latest
+  CABAL_BIN : $HOME/.local/bin
+  CABAL_INSTALL: cabal install --installdir=$HOME/.local/bin --overwrite-policy=always --ghc-options='+RTS -M6G -RTS'
+  AGDA_COMMIT: master
 
 jobs:
   test-cubical:
@@ -43,22 +45,8 @@ jobs:
     steps:
 
       ########################################################################
-      ## SETTINGS
-      ##
-      ## AGDA_COMMIT picks the version of Agda to use to build the library.
-      ## It can either be a hash of a specific commit (to target a bugfix for
-      ## instance) or a tag e.g. tags/v2.6.1.3 (to target a released version).
-      ########################################################################
-
-      - name: Initialise variables
-        run: |
-          # Pick Agda version
-          echo "AGDA_BRANCH=v2.6.2" >> $GITHUB_ENV
-
-      ########################################################################
       ## CACHING
       ########################################################################
-
       # This caching step allows us to save a lot of building time by only
       # downloading ghc and cabal and rebuilding Agda if absolutely necessary
       # i.e. if we change either the version of Agda, ghc, or cabal that we want
@@ -68,46 +56,45 @@ jobs:
         id: cache-cabal
         with:
           path: |
-            ~/.ghcup/bin
-            ~/.cabal/packages
-            ~/.cabal/store
-            ~/.cabal/bin
-          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
+            ${{ env.CABAL_BIN }}
+          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}
 
       ########################################################################
       ## INSTALLATION STEPS
       ########################################################################
+      #
 
       - name: Install cabal
         if: steps.cache-cabal.outputs.cache-hit != 'true'
-        uses: actions/setup-haskell@v1.1.3
+        uses: haskell/actions/setup@v1
         with:
           ghc-version: ${{ env.GHC_VERSION }}
           cabal-version: ${{ env.CABAL_VERSION }}
 
-      - name: Put cabal programs in PATH
-        run: echo "~/.cabal/bin" >> $GITHUB_PATH
-
-      - name: Cabal update
-        run: cabal update
-
-      - name: Download and install Agda from github
-        if: steps.cache-cabal.outputs.cache-hit != 'true'
+      - name: Create directory for binary
         run: |
-          git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
-          cd agda
-          mkdir -p doc
-          touch doc/user-manual.pdf
-          ${{ env.CABAL_INSTALL }}
-          cd ..
+          mkdir -p ${{ env.CABAL_BIN }}
+          echo ${{ env.CABAL_BIN }} >> $GITHUB_PATH
 
       - name: Download and install fix-whitespace
         if: steps.cache-cabal.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/agda/fix-whitespace --depth=1
-          cd fix-whitespace
-          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
-          cd ..
+          ${{ env.CABAL_INSTALL }} fix-whitespace
+          strip ${{ env.CABAL_BIN }}/fix-whitespace
+
+      - name: Check out Agda from GitHub
+        uses: actions/checkout@v2
+        with:
+          repository: agda/agda
+          ref: ${{ env.AGDA_COMMIT }}
+          path: agda
+
+      - name: Download and install Agda from github
+        if: steps.cache-cabal.outputs.cache-hit != 'true'
+        run: |
+          cd agda
+          ${{ env.CABAL_INSTALL }}
+          strip ${{ env.CABAL_BIN}}/agda
 
       ########################################################################
       ## TESTING
@@ -119,17 +106,11 @@ jobs:
 
       - name: Test cubical
         run: |
-          make test \
-            AGDA_EXEC='~/.cabal/bin/agda -W error' \
-            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
-            RUNHASKELL='~/.ghcup/bin/runhaskell'
+          make test
 
       - name: Htmlize cubical
         run: |
-          make listings \
-            AGDA_EXEC='~/.cabal/bin/agda -W error' \
-            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
-            RUNHASKELL='~/.ghcup/bin/runhaskell'
+          make listings
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref_name == 'master'
