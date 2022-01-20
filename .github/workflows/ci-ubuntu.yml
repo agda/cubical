@@ -53,7 +53,7 @@ jobs:
       # to use for the build.
       - name: Cache cabal packages
         uses: actions/cache@v2
-        id: cache-cabal
+        id: cache
         with:
           path: |
             $HOME/.local/bin
@@ -79,7 +79,7 @@ jobs:
           mkdir -p ${{ env.CABAL_BIN }}
           echo ${{ env.CABAL_BIN }} >> $GITHUB_PATH
 
-      - name: Download and install fix-whitespace
+      - name: Install fix-whitespace
         if: ${{ !steps.cache.outputs.cache-hit }}
         run: |
           ${{ env.CABAL_INSTALL }} fix-whitespace
@@ -92,7 +92,7 @@ jobs:
           ref: ${{ env.AGDA_COMMIT }}
           path: agda
 
-      - name: Download and install Agda from github
+      - name: Install Agda
         if: ${{ !steps.cache.outputs.cache-hit }}
         run: |
           cd agda
