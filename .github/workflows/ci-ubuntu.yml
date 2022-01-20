@@ -36,8 +36,8 @@ env:
   GHC_VERSION: 8.10.7
   CABAL_VERSION: latest
   CABAL_BIN : $HOME/.local/bin
-  CABAL_INSTALL: cabal install --installdir=$HOME/.local/bin --overwrite-policy=always --ghc-options='-O0 +RTS -M6G -RTS'
-  AGDA_COMMIT: 382861b1967b7ced0806343b8410709b2ce91df0 
+  CABAL_INSTALL: cabal install --installdir=$HOME/.local/bin --overwrite-policy=always --ghc-options='+RTS -M6G -RTS'
+  AGDA_COMMIT: 382861b1967b7ced0806343b8410709b2ce91df0
   AGDA_FLAGS: -W noNoEquivWhenSplitting -W error
 
 jobs:
@@ -65,8 +65,9 @@ jobs:
       ########################################################################
       #
 
-      - name: Install cabal
-        if: steps.cache-cabal.outputs.cache-hit != 'true'
+      - name: Set up the GHC environment
+        if: ${{ !steps.cache.outputs.cache-hit }}
+        id: ghc-setup
         uses: haskell/actions/setup@v1
         with:
           ghc-version: ${{ env.GHC_VERSION }}
@@ -78,7 +79,7 @@ jobs:
           echo ${{ env.CABAL_BIN }} >> $GITHUB_PATH
 
       - name: Download and install fix-whitespace
-        if: steps.cache-cabal.outputs.cache-hit != 'true'
+        if: ${{ !steps.cache.outputs.cache-hit }}
         run: |
           ${{ env.CABAL_INSTALL }} fix-whitespace
           strip ${{ env.CABAL_BIN }}/fix-whitespace
@@ -91,7 +92,7 @@ jobs:
           path: agda
 
       - name: Download and install Agda from github
-        if: steps.cache-cabal.outputs.cache-hit != 'true'
+        if: ${{ !steps.cache.outputs.cache-hit }}
         run: |
           cd agda
           ${{ env.CABAL_INSTALL }}
