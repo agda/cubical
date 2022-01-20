@@ -87,6 +87,7 @@ jobs:
 
       - name: Check out Agda from GitHub
         uses: actions/checkout@v2
+        if: ${{ !steps.cache.outputs.cache-hit }}
         with:
           repository: agda/agda
           ref: ${{ env.AGDA_COMMIT }}
