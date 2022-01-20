@@ -58,6 +58,7 @@ jobs:
           path: |
             $HOME/.local/bin
             ~/.local/bin
+            ~/.cabal/
           key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}
 
       ########################################################################
