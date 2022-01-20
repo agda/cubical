@@ -38,7 +38,6 @@ env:
   CABAL_BIN : $HOME/.local/bin
   CABAL_INSTALL: cabal install --installdir=$HOME/.local/bin --overwrite-policy=always --ghc-options='+RTS -M6G -RTS'
   AGDA_COMMIT: 382861b1967b7ced0806343b8410709b2ce91df0
-  AGDA_FLAGS: -W noNoEquivWhenSplitting -W error
 
 jobs:
   test-cubical:
@@ -108,7 +107,7 @@ jobs:
 
       - name: Test cubical
         run: |
-          make test AGDA_FLAGS=${{ env.AGDA_FLAGS }}
+          make test
 
       - name: Htmlize cubical
         run: |
