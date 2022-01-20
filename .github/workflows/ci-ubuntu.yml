@@ -36,8 +36,8 @@ env:
   GHC_VERSION: 8.10.7
   CABAL_VERSION: latest
   CABAL_BIN : $HOME/.local/bin
-  CABAL_INSTALL: cabal install --installdir=$HOME/.local/bin --overwrite-policy=always --ghc-options='+RTS -M6G -RTS'
-  AGDA_COMMIT: master
+  CABAL_INSTALL: cabal install --installdir=$HOME/.local/bin --overwrite-policy=always --ghc-options='-O0 +RTS -M6G -RTS'
+  AGDA_COMMIT: 382861b1967b7ced0806343b8410709b2ce91df0 
   AGDA_FLAGS: -W noNoEquivWhenSplitting -W error
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
         id: cache-cabal
         with:
           path: |
-            ${{ env.CABAL_BIN }}
+            ~/.local/bin
           key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}
 
       ########################################################################
@@ -95,7 +95,7 @@ jobs:
         run: |
           cd agda
           ${{ env.CABAL_INSTALL }}
-          strip ${{ env.CABAL_BIN}}/agda
+          strip ${{ env.CABAL_BIN }}/agda
 
       ########################################################################
       ## TESTING
