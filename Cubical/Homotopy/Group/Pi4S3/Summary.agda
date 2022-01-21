@@ -32,15 +32,14 @@ open import Cubical.Algebra.Group
   renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 open import Cubical.Algebra.Group.ZAction
 
+open import Cubical.Homotopy.Group.Pi3S2
+
 
 [_]× : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
   → π' (suc n) X × π' (suc m) X → π' (suc (n + m)) X
 [_]× (f , g) = [ f ∣ g ]π'
 
 -- Some type abbreviations (unproved results)
-π₃S²-gen : Type
-π₃S²-gen = gen₁-by (π'Gr 2 (S₊∙ 2)) ∣ HopfMap ∣₂
-
 π₄S³≅ℤ/something : GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2))
                  → Type
 π₄S³≅ℤ/something eq =
@@ -144,12 +143,13 @@ groupLem {G = G} s =
          → isEquiv (fst ϕ))
     (groupLem-help s)
 
+ℤ≅π₃S² : GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2))
+ℤ≅π₃S² = invGroupEquiv π₃S²≅ℤ
+
 -- summary
 module π₄S³
   (mini-lem₁ : miniLem₁)
   (mini-lem₂ : miniLem₂)
-  (ℤ≅π₃S² : GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2)))
-  (gen-by-HopfMap : π₃S²-gen)
   (π₄S³≅ℤ/whitehead : π₄S³≅ℤ/something ℤ≅π₃S²)
   (hopfWhitehead :
        abs (HopfInvariant-π' 0
@@ -162,7 +162,7 @@ module π₄S³
   fst (fst hopfInvariantEquiv) = HopfInvariant-π' 0
   snd (fst hopfInvariantEquiv) =
     groupLem mini-lem₁ ℤ≅π₃S² ∣ HopfMap ∣₂
-             gen-by-HopfMap
+             π₂S³-gen-by-HopfMap
              (GroupHom-HopfInvariant-π' 0)
              (abs→⊎ _ _ HopfInvariant-HopfMap)
   snd hopfInvariantEquiv = snd (GroupHom-HopfInvariant-π' 0)

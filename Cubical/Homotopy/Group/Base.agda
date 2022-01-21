@@ -819,3 +819,41 @@ snd (πTruncGroupIso {A = A} n) =
                ∙ subst (λ n → typ (Ω (A n))) r q)
       λ p q → transportRefl _ ∙ cong₂ _∙_
                 (sym (transportRefl p)) (sym (transportRefl q))
+
+π'fun : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+      → A ≃∙ B
+      → (π' (suc n) A) → π' (suc n) B
+π'fun n p = sMap ((fst (fst p) , snd p) ∘∙_)
+
+π'fun-idEquiv : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+              → π'fun n (idEquiv (fst A) , (λ _ → pt A))
+              ≡ idfun _
+π'fun-idEquiv n =
+  funExt (sElim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ (∘∙-idʳ f))
+
+π'funIsEquiv :
+  ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+      → (e : A ≃∙ B)
+      → isEquiv (π'fun n e)
+π'funIsEquiv {B = B} n =
+  Equiv∙J (λ A e → isEquiv (π'fun n e))
+    (subst isEquiv (sym (π'fun-idEquiv n))
+      (idIsEquiv (π' (suc n) B)))
+
+π'funIsHom : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+      → (e : A ≃∙ B)
+      → IsGroupHom (π'Gr n A .snd) (π'fun n e)
+                      (π'Gr n B .snd)
+π'funIsHom {B = B} n =
+  Equiv∙J (λ A e → IsGroupHom (π'Gr n A .snd) (π'fun n e) (π'Gr n B .snd))
+    (subst (λ x → IsGroupHom (π'Gr n B .snd) x (π'Gr n B .snd))
+      (sym (π'fun-idEquiv n))
+      (makeIsGroupHom λ _ _ → refl))
+
+π'Iso : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+      → A ≃∙ B
+      → GroupEquiv (π'Gr n A) (π'Gr n B)
+fst (fst (π'Iso n e)) = π'fun n e
+snd (fst (π'Iso n e)) = π'funIsEquiv n e
+snd (π'Iso n e) = π'funIsHom n e

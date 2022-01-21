@@ -52,67 +52,6 @@ open import Cubical.HITs.Wedge
 open import Cubical.Homotopy.Freudenthal hiding (Code ; encode)
 open import Cubical.Homotopy.Connected
 
-
--- move to SetTruncation
-∥_∥₂∙ : ∀ {ℓ} (A : Pointed ℓ) → Pointed ℓ
-fst ∥ A ∥₂∙ = ∥ fst A ∥₂
-snd ∥ A ∥₂∙ = ∣ pt A ∣₂
-
-map∙ : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
-       (f : A →∙ B) → ∥ A ∥₂∙ →∙ ∥ B ∥₂∙
-fst (map∙ f) = sMap (fst f)
-snd (map∙ f) = cong ∣_∣₂ (snd f)
-
--- move to pointed
-module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
-  isInIm∙ : (x : typ B) → Type (ℓ-max ℓ ℓ')
-  isInIm∙ x = Σ[ z ∈ typ A ] fst f z ≡ x
-
-  isInKer∙ : (x : fst A) → Type ℓ'
-  isInKer∙ x = fst f x ≡ snd B
-
--- Move to pointed or Equiv
-_≃∙_ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
-A ≃∙ B = Σ[ e ∈ fst A ≃ fst B ] fst e (pt A) ≡ pt B
-
-invEquiv∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → A ≃∙ B → B ≃∙ A
-fst (invEquiv∙ x) = invEquiv (fst x)
-snd (invEquiv∙ {A = A} x) =
-  sym (cong (fst (invEquiv (fst x))) (snd x)) ∙ retEq (fst x) (pt A)
-
-compEquiv∙ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
-  → A ≃∙ B → B ≃∙ C → A ≃∙ C
-fst (compEquiv∙ e1 e2) = compEquiv (fst e1) (fst e2)
-snd (compEquiv∙ e1 e2) = cong (fst (fst e2)) (snd e1) ∙ snd e2
-
--- Move to Loopspace
-ΩIso : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
-     → (e : A ≃∙ B)
-     → (Ω A) ≃∙ (Ω B)
-fst (fst (ΩIso e)) = fst (Ω→ (fst (fst e) , snd e))
-snd (fst (ΩIso e)) = isEquivΩ→ (fst (fst e) , snd e) (snd (fst e))
-snd (ΩIso e) = snd (Ω→ (fst (fst e) , snd e))
-
-ΩIsopres∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
-     → (e : A ≃∙ B)
-     → (p q : typ (Ω A))
-     → fst (fst (ΩIso e)) (p ∙ q)
-     ≡ fst (fst (ΩIso e)) p
-     ∙ fst (fst (ΩIso e)) q
-ΩIsopres∙ e p q = Ω→pres∙ (fst (fst e) , snd e) p q
-
-Ω^≃ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
-     → (e : A ≃∙ B)
-     → ((Ω^ n) A) ≃∙ ((Ω^ n) B)
-Ω^≃ zero e = e
-fst (fst (Ω^≃ (suc n) e)) =
-  fst (Ω→ (fst (fst (Ω^≃ n e)) , snd (Ω^≃ n e)))
-snd (fst (Ω^≃ (suc n) e)) =
-  isEquivΩ→ (fst (fst (Ω^≃ n e)) , snd (Ω^≃ n e)) (snd (fst (Ω^≃ n e)))
-snd (Ω^≃ (suc n) e) =
-  snd (Ω→ (fst (fst (Ω^≃ n e)) , snd (Ω^≃ n e)))
-
-
 -- We will need an explicitly defined equivalence
 -- (PathP (λ i → p i ≡ y) q q) ≃ (sym q ∙∙ p ∙∙ q ≡ refl)
 -- This is given by →∙∙lCancel below
@@ -321,7 +260,7 @@ snd (leftInv (ΩFibreIso f) p i j) k =
 Ω^Fibre≃∙ zero f =  (idEquiv _) , refl
 Ω^Fibre≃∙ (suc n) f =
   compEquiv∙
-    (ΩIso (Ω^Fibre≃∙ n f))
+    (Ω≃∙ (Ω^Fibre≃∙ n f))
     ((isoToEquiv (ΩFibreIso (Ω^→ n f))) , ΩFibreIso∙ (Ω^→ n f))
 
 {- Its inverse iso directly defined -}
@@ -335,7 +274,7 @@ snd (leftInv (ΩFibreIso f) p i j) k =
   compEquiv∙
     ((isoToEquiv (invIso (ΩFibreIso (Ω^→ n f))))
     , (ΩFibreIso⁻∙ (Ω^→ n f)))
-    (ΩIso (Ω^Fibre≃∙⁻ n f))
+    (Ω≃∙ (Ω^Fibre≃∙⁻ n f))
 
 isHomogeneousΩ^→fib : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
     (n : ℕ) (f : A →∙ B)
@@ -356,9 +295,9 @@ isHomogeneousΩ^→fib n f =
 Ω^Fibre≃∙sect (suc n) f =
   →∙Homogeneous≡ (isHomogeneousPath _ _)
     (funExt
-      λ p → cong (fst (fst (ΩIso (Ω^Fibre≃∙⁻ n f))))
+      λ p → cong (fst (fst (Ω≃∙ (Ω^Fibre≃∙⁻ n f))))
                    (leftInv (ΩFibreIso (Ω^→ n f))
-                     ((fst (fst (ΩIso (Ω^Fibre≃∙ n f))) p)))
+                     ((fst (fst (Ω≃∙ (Ω^Fibre≃∙ n f))) p)))
           ∙ sym (Ω→∘ (fst (fst (Ω^Fibre≃∙⁻ n f)) , snd (Ω^Fibre≃∙⁻ n f))
                  (fst (fst (Ω^Fibre≃∙ n f)) , snd (Ω^Fibre≃∙ n f)) p)
           ∙ (λ i → (Ω→ (Ω^Fibre≃∙sect n f i)) .fst p)
@@ -391,7 +330,7 @@ isHomogeneousΩ^→fib n f =
   ((isoToEquiv (ΩFibreIso (Ω^→ zero f))) , ΩFibreIso∙ (Ω^→ zero f))
 Ω^Fibre≃∙' (suc (suc n)) f =
   compEquiv∙
-    (ΩIso (Ω^Fibre≃∙ (suc n) f))
+    (Ω≃∙ (Ω^Fibre≃∙ (suc n) f))
     ((isoToEquiv (ΩFibreIso (Ω^→ (suc n) f))) , ΩFibreIso∙ (Ω^→ (suc n) f))
 
 -- The long exact sequence of loop spaces.
@@ -462,12 +401,12 @@ module ΩLES {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →�
   ΩB→Ω^fibf-pres∙ n p q =
       cong (fst (fst (Ω^Fibre≃∙⁻ (suc n) f)))
         refl
-    ∙ cong (fst (fst (ΩIso (Ω^Fibre≃∙⁻ n f))))
+    ∙ cong (fst (fst (Ω≃∙ (Ω^Fibre≃∙⁻ n f))))
         (cong (fun (invIso (ΩFibreIso (Ω^→ n f))))
           (λ _ → snd ((Ω^ suc n) A) , Ω^→ (suc n) f .snd ∙ p ∙ q))
-    ∙ cong (fst (fst (ΩIso (Ω^Fibre≃∙⁻ n f))))
+    ∙ cong (fst (fst (Ω≃∙ (Ω^Fibre≃∙⁻ n f))))
            (ΩFibreIso⁻pres∙snd (Ω^→ n f) p q)
-    ∙ ΩIsopres∙ (Ω^Fibre≃∙⁻ n f)
+    ∙ Ω≃∙pres∙ (Ω^Fibre≃∙⁻ n f)
         (inv (ΩFibreIso (Ω^→ n f)) (refl , Ω→ (Ω^→ n f) .snd ∙ p))
         (inv (ΩFibreIso (Ω^→ n f)) (refl , Ω→ (Ω^→ n f) .snd ∙ q))
 
