@@ -328,7 +328,7 @@ _◁_▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i
 (p ◁ P ▷ q) i =
   hcomp (λ j → λ {(i = i0) → p (~ j) ; (i = i1) → q j}) (P i)
 
-doubleWhiskFiller : 
+doubleWhiskFiller :
   ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
       → (p : a₀ ≡ a₀') (pq : PathP A a₀' a₁) (q : a₁ ≡ a₁')
       → PathP (λ i → PathP A (p (~ i)) (q i))
