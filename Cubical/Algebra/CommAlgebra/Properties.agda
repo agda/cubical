@@ -131,9 +131,9 @@ module CommAlgebraHoms {R : CommRing ℓ} where
   compCommAlgebraHom A B C = compAlgebraHom {A = CommAlgebra→Algebra A}
                                             {CommAlgebra→Algebra B} {CommAlgebra→Algebra C}
 
-  _∘cr_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
+  _∘ca_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
         → CommAlgebraHom B C → CommAlgebraHom A B → CommAlgebraHom A C
-  g ∘cr f = compCommAlgebraHom _ _ _ f g
+  g ∘ca f = compCommAlgebraHom _ _ _ f g
 
   compIdCommAlgebraHom : {A B : CommAlgebra R ℓ'} (f : CommAlgebraHom A B)
                     → compCommAlgebraHom _ _ _ (idCommAlgebraHom A) f ≡ f
@@ -241,10 +241,10 @@ contrCommAlgebraHom→contrCommAlgebraEquiv σ contrHom x y = σEquiv ,
   open Iso
   χ₁ = contrHom x y .fst
   χ₂ = contrHom y x .fst
-  χ₁∘χ₂≡id : χ₁ ∘cr χ₂ ≡ idCommAlgebraHom _
+  χ₁∘χ₂≡id : χ₁ ∘ca χ₂ ≡ idCommAlgebraHom _
   χ₁∘χ₂≡id = isContr→isProp (contrHom _ _) _ _
 
-  χ₂∘χ₁≡id : χ₂ ∘cr χ₁ ≡ idCommAlgebraHom _
+  χ₂∘χ₁≡id : χ₂ ∘ca χ₁ ≡ idCommAlgebraHom _
   χ₂∘χ₁≡id = isContr→isProp (contrHom _ _) _ _
 
   σIso : Iso ⟨ σ x ⟩ ⟨ σ y ⟩

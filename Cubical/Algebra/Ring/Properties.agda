@@ -299,7 +299,6 @@ module RingUAFunctoriality where
 
 
 
-open RingHoms
 open RingEquivs
 open RingUAFunctoriality
 recPT→Ring : {A : Type ℓ'} (𝓕  : A → Ring ℓ)
@@ -307,50 +306,7 @@ recPT→Ring : {A : Type ℓ'} (𝓕  : A → Ring ℓ)
            → (∀ x y z → σ x z ≡ compRingEquiv (σ x y) (σ y z))
           ------------------------------------------------------
            → ∥ A ∥ → Ring ℓ
-recPT→Ring 𝓕 σ compCoh = rec→Gpd isGroupoidRing 𝓕 is3-Constant𝓕
- where
- open 3-Constant
- open GpdElim
-
- is3-Constant𝓕 : 3-Constant 𝓕
- link is3-Constant𝓕 x y = uaRing (σ x y)
- coh₁ is3-Constant𝓕 x y z = transport⁻ (PathP≡compPath _ _ _)
-                              (sym (cong uaRing (compCoh x y z) ∙ uaCompRingEquiv (σ x y) (σ y z)))
-
--- useful lemmas when defining presheaves through universal properties
--- TODO find right place...
-uniqueHom→uniqueEquiv : {A : Type ℓ'} (σ : A → Ring ℓ) (P : {x y : A} → RingHom (σ x) (σ y) → Type ℓ'')
-                        (isPropP : {x y : A} (f : RingHom (σ x) (σ y)) → isProp (P f))
-                        (Pid : {x : A} → P (idRingHom (σ x)))
-                        (Pcomp : {x y z : A} {f : RingHom (σ x) (σ y)} {g : RingHom (σ y) (σ z)}
-                               → P f → P g → P (g ∘r f))
-                      → (∀ x y → ∃![ f ∈ RingHom (σ x) (σ y) ] P f)
-                     ----------------------------------------------------------------------------
-                      → ∀ x y → ∃![ e ∈ RingEquiv (σ x) (σ y) ] P (RingEquiv→RingHom e)
-uniqueHom→uniqueEquiv σ P isPropP Pid Pcomp uniqueHom x y = (σEquiv , Pχ₁) ,
-  λ e → Σ≡Prop (λ _ → isPropP _)
-         (Σ≡Prop (λ _ → isPropIsRingHom _ _ _)
-           (Σ≡Prop isPropIsEquiv (cong (fst ∘ fst)
-                                       (uniqueHom _ _ .snd (RingEquiv→RingHom (e .fst) , e .snd)))))
-  where
-  open Iso
-  χ₁ = uniqueHom x y .fst .fst
-  Pχ₁ = uniqueHom x y .fst .snd
-  χ₂ = uniqueHom y x .fst .fst
-  Pχ₂ = uniqueHom y x .fst .snd
-  χ₁∘χ₂≡id : χ₁ ∘r χ₂ ≡ idRingHom _
-  χ₁∘χ₂≡id = cong fst (isContr→isProp (uniqueHom _ _)
-                                      (χ₁ ∘r χ₂ , Pcomp Pχ₂ Pχ₁) (idRingHom _ , Pid))
-  χ₂∘χ₁≡id : χ₂ ∘r χ₁ ≡ idRingHom _
-  χ₂∘χ₁≡id = cong fst (isContr→isProp (uniqueHom _ _)
-                                      (χ₂ ∘r χ₁ , Pcomp Pχ₁ Pχ₂) (idRingHom _ , Pid))
-
-  σIso : Iso ⟨ σ x ⟩ ⟨ σ y ⟩
-  fun σIso = fst χ₁
-  inv σIso = fst χ₂
-  rightInv σIso = funExt⁻ (cong fst χ₁∘χ₂≡id)
-  leftInv σIso = funExt⁻ (cong fst χ₂∘χ₁≡id)
-
-  σEquiv : RingEquiv (σ x) (σ y)
-  fst σEquiv = isoToEquiv σIso
-  snd σEquiv = snd χ₁
+recPT→Ring 𝓕 σ compCoh = rec→Gpd isGroupoidRing 𝓕
+  (3-ConstantCompChar 𝓕 (λ x y → uaRing (σ x y))
+                          λ x y z → sym (  cong uaRing (compCoh x y z)
+                                         ∙ uaCompRingEquiv (σ x y) (σ y z)))

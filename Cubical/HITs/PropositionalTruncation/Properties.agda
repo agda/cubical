@@ -194,19 +194,6 @@ module SetElim (Bset : isSet B) where
 
 open SetElim public using (rec→Set; trunc→Set≃)
 
--- rec2→Set : {A B C : Type ℓ} → isSet C
---          → (f : A → B → C)
---          → (∀ (a a' : A) (b b' : B) → f a b ≡ f a' b')
---          → ∥ A ∥ → ∥ B ∥ → C
--- rec2→Set {A = A} {B = B} {C = C} isSetC f fconst =
---            rec→Set (isSetΠ (λ _ → isSetC)) mapHelper constHelper
---  where
---  mapHelper : A → ∥ B ∥ → C
---  mapHelper a = rec→Set isSetC (f a) λ b b' → fconst a a b b'
-
---  constHelper : (a a' : A) → rec→Set isSetC (f a) (fconst a a) ≡ rec→Set isSetC (f a') (fconst a' a')
---  constHelper a a' i = rec→Set isSetC (λ b → fconst a a' b b i) λ b b' → {!!}
-
 elim→Set
   : {P : ∥ A ∥ → Type ℓ}
   → (∀ t → isSet (P t))
@@ -222,33 +209,6 @@ elim→Set {A = A} {P = P} Pset f kf t
   gk : 2-Constant g
   gk x y i = transp (λ j → P (squash (squash ∣ x ∣ ∣ y ∣ i) t j)) i0 (kf x y i)
 
--- wanna do something like the non-dep case...
--- module _ {P : ∥ A ∥ → Type ℓ}
---          (Pset : ∀ t → isSet (P t))
---          (f : (x : A) → P ∣ x ∣)
---          (kf : ∀ x y → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i)) (f x) (f y))
---          where
---  private
---    Pset' : ∀ t → isSet' (P t)
---    Pset' t = isSet→isSet' (Pset t)
-
---  elim→Set : (t : ∥ A ∥) → P t
-
---  elim→SetHelper : (t u : ∥ A ∥) → PathP (λ i → P (squash t u i)) (elim→Set t) (elim→Set u)
-
---  elim→Set ∣ x ∣ = f x
---  elim→Set (squash t u i) = elim→SetHelper t u i
-
---  elim→SetHelper ∣ x ∣ ∣ y ∣ = kf x y
---  elim→SetHelper (squash t u i) v = {!!}
---  elim→SetHelper t (squash u v i) = {!!}
---   -- helper f kf ∣ x ∣ ∣ y ∣ = kf x y
---   -- helper f kf (squash t u i) v
---   --   = Bset' (helper f kf t v) (helper f kf u v) (helper f kf t u) refl i
---   -- helper f kf t (squash u v i)
---   --   = Bset' (helper f kf t u) (helper f kf t v) refl (helper f kf u v) i
-
--- use uncurry + ∥A∥×∥B∥ ≃ ∥A×B∥
 elim2→Set :
     {P : ∥ A ∥ → ∥ B ∥ → Type ℓ}
   → (∀ t u → isSet (P t u))
@@ -537,28 +497,3 @@ rec2→Set {A = A} {B = B} {C = C} Cset f fconst = curry (g ∘ ∥∥-×-≃ .f
  where
  g : ∥ A × B ∥ → C
  g = rec→Set Cset (uncurry f) λ x y → fconst (fst x) (fst y) (snd x) (snd y)
-
--- elim2→Set' :
---     {P : ∥ A ∥ → ∥ B ∥ → Type ℓ}
---   → (∀ t u → isSet (P t u))
---   → (f : (x : A) (y : B) → P ∣ x ∣ ∣ y ∣)
---   → (∀ x y v w → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i) (squash ∣ v ∣ ∣ w ∣ i)) (f x v) (f y w))
---   -- → (kf₁ : ∀ x y v → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i) ∣ v ∣) (f x v) (f y v))
---   -- → (kf₂ : ∀ x v w → PathP (λ i → P ∣ x ∣ (squash ∣ v ∣ ∣ w ∣ i)) (f x v) (f x w))
---   -- → (sf : ∀ x y v w → SquareP (λ i j → P (squash ∣ x ∣ ∣ y ∣ i) (squash ∣ v ∣ ∣ w ∣ j))
---   --                             (kf₂ x v w) (kf₂ y v w) (kf₁ x y v) (kf₁ x y w))
---   → (t : ∥ A ∥) → (u : ∥ B ∥) → P t u
--- elim2→Set' {A = A} {B = B} {P = P} Pset f fconst = curry {!!} --({!!} ∘ ∥∥-×-≃ .fst)
---  where
---  Q : ∥ A × B ∥ → Type _
---  Q = uncurry P ∘ invEquiv ∥∥-×-≃ .fst
-
---  Qhelper : (x : ∥ A × B ∥) → Q x
---  Qhelper = elim→Set (λ _ → Pset _ _) (λ x → f (fst x) (snd x)) λ x y i → {!!}
--- Q (squash ∣ x ∣ ∣ y ∣ i) gives us:
--- P (squash ∣ fst x ∣ ∣ fst y ∣ i)
--- (hcomp
---  (λ { j (i = i0) → ∣ snd x ∣
---     ; j (i = i1) → squash ∣ transp (λ i₁ → B) i0 (snd x) ∣ ∣ snd y ∣ j
---     })
---  ∣ transp (λ i₁ → B) (~ i) (snd x) ∣)
