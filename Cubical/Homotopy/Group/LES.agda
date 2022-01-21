@@ -3,7 +3,8 @@
 This file contains:
 1. The long exact sequence of loop spaces Ωⁿ (fib f) → Ωⁿ A → Ωⁿ B
 2. The long exact sequence of homotopy groups πₙ(fib f) → πₙ A → πₙ B
-3. Some lemmas relating the map in the sequence to maps
+3. Some lemmas relating the map in the sequence to maps using the
+   other definition of πₙ (maps from Sⁿ)
 -}
 module Cubical.Homotopy.Group.LES where
 
@@ -21,11 +22,17 @@ open Iso
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Functions.Morphism
+open import Cubical.Foundations.Function
 
 open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; rec2 to sRec2
           ; elim to sElim ; elim2 to sElim2 ; elim3 to sElim3
           ; map to sMap)
+open import Cubical.HITs.Truncation renaming
+  (rec to trRec ; elim to trElim ; elim2 to trElim2 ; map to trMap)
+open import Cubical.HITs.PropositionalTruncation
+  renaming (rec to pRec ; elim to pElim)
+open import Cubical.HITs.S2
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.S1 hiding (decode ; encode)
@@ -44,12 +51,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Wedge
 open import Cubical.Homotopy.Freudenthal hiding (Code ; encode)
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Truncation renaming
-  (rec to trRec ; elim to trElim ; elim2 to trElim2 ; map to trMap)
-open import Cubical.Foundations.Function
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim)
-open import Cubical.HITs.S2
+
 
 -- move to SetTruncation
 ∥_∥₂∙ : ∀ {ℓ} (A : Pointed ℓ) → Pointed ℓ
@@ -66,14 +68,8 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B
   isInIm∙ : (x : typ B) → Type (ℓ-max ℓ ℓ')
   isInIm∙ x = Σ[ z ∈ typ A ] fst f z ≡ x
 
-  ∥isInIm∙∥ : (x : typ B) → Type (ℓ-max ℓ ℓ')
-  ∥isInIm∙∥ x = ∃[ z ∈ typ A ] fst f z ≡ x
-
   isInKer∙ : (x : fst A) → Type ℓ'
   isInKer∙ x = fst f x ≡ snd B
-
-  ∥isInKer∙∥ : (x : fst A) → Type ℓ'
-  ∥isInKer∙∥ x = ∥ fst f x ≡ snd B ∥
 
 -- Move to pointed or Equiv
 _≃∙_ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
@@ -203,7 +199,8 @@ fst (inv (ΩFibreIso f) (p , q) i) = p i
 snd (inv (ΩFibreIso f) (p , q) i) = ←∙∙lCancel (cong (fst f) p) (snd f) q i
 rightInv (ΩFibreIso f) (p , q) = ΣPathP (refl , →∙∙lCancel←∙∙lCancel _ _ q)
 fst (leftInv (ΩFibreIso f) p i j) = fst (p j)
-snd (leftInv (ΩFibreIso f) p i j) k = ←∙∙lCancel→∙∙lCancel _ _ (cong snd p) i j k
+snd (leftInv (ΩFibreIso f) p i j) k =
+  ←∙∙lCancel→∙∙lCancel _ _ (cong snd p) i j k
 
 {- Some homomorphism properties of the above iso -}
 ΩFibreIsopres∙fst : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
@@ -234,15 +231,19 @@ snd (leftInv (ΩFibreIso f) p i j) k = ←∙∙lCancel→∙∙lCancel _ _ (con
       (inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ p))
       (inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ q)))) i j
   snd (ind f p q i j) k =
-    hcomp (λ r → λ {(i = i0) → ←∙∙lCancel-refl-refl (p ∙ q) (~ r) j k --
-                   ; (i = i1) →
-                     snd (compPath-filler
-                         (inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ p))
-                         (inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ q)) r j) k
-                   ; (j = i0) → f (snd A)
-                   ; (j = i1) → snd (inv (ΩFibreIso (f , refl)) (refl , sym (rUnit refl) ∙ q) (r ∨ ~ i)) k
-                   ; (k = i0) → main r i j
-                   ; (k = i1) → f (snd A)})
+    hcomp (λ r
+      → λ {(i = i0) → ←∙∙lCancel-refl-refl (p ∙ q) (~ r) j k --
+          ; (i = i1) →
+            snd (compPath-filler
+                (inv (ΩFibreIso (f , refl))
+                     (refl , sym (rUnit refl) ∙ p))
+                (inv (ΩFibreIso (f , refl))
+                     (refl , sym (rUnit refl) ∙ q)) r j) k
+          ; (j = i0) → f (snd A)
+          ; (j = i1) → snd (inv (ΩFibreIso (f , refl))
+                            (refl , sym (rUnit refl) ∙ q) (r ∨ ~ i)) k
+          ; (k = i0) → main r i j
+          ; (k = i1) → f (snd A)})
        (hcomp (λ r → λ {(i = i0) → (p ∙ q) k j
                    ; (i = i1) → ←∙∙lCancel-refl-refl p (~ r) j k
                    ; (j = i0) → f (snd A)
@@ -278,7 +279,8 @@ snd (leftInv (ΩFibreIso f) p i j) k = ←∙∙lCancel→∙∙lCancel _ _ (con
                      ; (j = i0) → f (snd A)
                      ; (j = i1) → f (snd A)
                      ; (r = i0) → f (fst (compPath-filler P Q i j))
-                     ; (r = i1) → f ((compPath-filler' (rUnit refl) (sym (cong-∙ fst P Q)) k) i j)})
+                     ; (r = i1) → f ((compPath-filler' (rUnit refl)
+                                     (sym (cong-∙ fst P Q)) k) i j)})
              (hcomp (λ k → λ {(i = i0) → f (rUnit (λ _ → pt A) (k ∧ r) j)
                      ; (i = i1) → f (fst (compPath-filler P Q k j))
                      ; (j = i0) → f (snd A)
@@ -293,12 +295,14 @@ snd (leftInv (ΩFibreIso f) p i j) k = ←∙∙lCancel→∙∙lCancel _ _ (con
   →∙J (λ b f → Iso.fun (ΩFibreIso f) refl ≡ (refl , (∙∙lCancel (snd f))))
     λ f → ΣPathP (refl , help f)
   where
-  help : (f : fst A → fst B) → →∙∙lCancel (λ i → f (snd A)) refl (λ i → refl) ≡
-       ∙∙lCancel refl
+  help : (f : fst A → fst B) →
+       →∙∙lCancel (λ i → f (snd A)) refl (λ i → refl)
+       ≡ ∙∙lCancel refl
   help f i j r =
-    hcomp (λ k → λ {(i = i0) → →∙∙lCancel-fill (λ i₁ → f (snd A)) refl refl k j r
-                   ; (i = i1) → ∙∙lCancel-fill (λ i₁ → f (snd A))  j r k
-                   ; (j = i0) → rUnit (λ i₁ → f (snd A)) k r
+    hcomp (λ k → λ {(i = i0) →
+                    →∙∙lCancel-fill (λ _ → f (snd A)) refl refl k j r
+                   ; (i = i1) → ∙∙lCancel-fill (λ _ → f (snd A))  j r k
+                   ; (j = i0) → rUnit (λ _ → f (snd A)) k r
                    ; (j = i1) → f (snd A)
                    ; (r = i1) → f (snd A)
                    ; (r = i0) → f (snd A)})
@@ -321,10 +325,11 @@ snd (leftInv (ΩFibreIso f) p i j) k = ←∙∙lCancel→∙∙lCancel _ _ (con
     ((isoToEquiv (ΩFibreIso (Ω^→ n f))) , ΩFibreIso∙ (Ω^→ n f))
 
 {- Its inverse iso directly defined -}
-Ω^Fibre≃∙⁻ : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
-             → ((fiber (Ω^→ n f .fst) (snd ((Ω^ n) (fst B , snd B))))
-                , (snd ((Ω^ n) (fst A , snd A))) , (Ω^→ n f .snd))
-             ≃∙ ((Ω^ n) (fiber (fst f) (pt B) , (pt A) , snd f))
+Ω^Fibre≃∙⁻ : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
+     (n : ℕ) (f : A →∙ B)
+  → ((fiber (Ω^→ n f .fst) (snd ((Ω^ n) (fst B , snd B))))
+     , (snd ((Ω^ n) (fst A , snd A))) , (Ω^→ n f .snd))
+  ≃∙ ((Ω^ n) (fiber (fst f) (pt B) , (pt A) , snd f))
 Ω^Fibre≃∙⁻ zero f = (idEquiv _) , refl
 Ω^Fibre≃∙⁻ (suc n) f =
   compEquiv∙
@@ -332,18 +337,21 @@ snd (leftInv (ΩFibreIso f) p i j) k = ←∙∙lCancel→∙∙lCancel _ _ (con
     , (ΩFibreIso⁻∙ (Ω^→ n f)))
     (ΩIso (Ω^Fibre≃∙⁻ n f))
 
-isHomogeneousΩ^→fib : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
-  → isHomogeneous (((fiber (Ω^→ (suc n) f .fst) (snd ((Ω^ (suc n)) (fst B , snd B))))
-                 , (snd ((Ω^ (suc n)) (fst A , snd A))) , (Ω^→ (suc n) f .snd)))
+isHomogeneousΩ^→fib : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
+    (n : ℕ) (f : A →∙ B)
+  → isHomogeneous
+    ((fiber (Ω^→ (suc n) f .fst) (snd ((Ω^ (suc n)) (fst B , snd B))))
+      , (snd ((Ω^ (suc n)) (fst A , snd A))) , (Ω^→ (suc n) f .snd))
 isHomogeneousΩ^→fib n f =
   subst isHomogeneous (ua∙ ((fst (Ω^Fibre≃∙ (suc n) f)))
                            (snd (Ω^Fibre≃∙ (suc n) f)))
                       (isHomogeneousPath _ _)
 
-Ω^Fibre≃∙sect : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
-        → ((fst (fst (Ω^Fibre≃∙⁻ n f)) , snd (Ω^Fibre≃∙⁻ n f)) ∘∙
-            (fst (fst (Ω^Fibre≃∙ n f)) , snd (Ω^Fibre≃∙ n f)))
-          ≡ idfun∙ _
+Ω^Fibre≃∙sect : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
+     (n : ℕ) (f : A →∙ B)
+  → ((fst (fst (Ω^Fibre≃∙⁻ n f)) , snd (Ω^Fibre≃∙⁻ n f)) ∘∙
+      (fst (fst (Ω^Fibre≃∙ n f)) , snd (Ω^Fibre≃∙ n f)))
+    ≡ idfun∙ _
 Ω^Fibre≃∙sect zero f = ΣPathP (refl , (sym (rUnit refl)))
 Ω^Fibre≃∙sect (suc n) f =
   →∙Homogeneous≡ (isHomogeneousPath _ _)
@@ -356,10 +364,11 @@ isHomogeneousΩ^→fib n f =
           ∙ (λ i → (Ω→ (Ω^Fibre≃∙sect n f i)) .fst p)
           ∙ sym (rUnit p))
 
-Ω^Fibre≃∙retr : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
-        → ((fst (fst (Ω^Fibre≃∙ n f)) , snd (Ω^Fibre≃∙ n f)) ∘∙
-           (fst (fst (Ω^Fibre≃∙⁻ n f)) , snd (Ω^Fibre≃∙⁻ n f)))
-          ≡ idfun∙ _
+Ω^Fibre≃∙retr : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
+     (n : ℕ) (f : A →∙ B)
+  → ((fst (fst (Ω^Fibre≃∙ n f)) , snd (Ω^Fibre≃∙ n f)) ∘∙
+     (fst (fst (Ω^Fibre≃∙⁻ n f)) , snd (Ω^Fibre≃∙⁻ n f)))
+    ≡ idfun∙ _
 Ω^Fibre≃∙retr zero f = ΣPathP (refl , (sym (rUnit refl)))
 Ω^Fibre≃∙retr (suc n) f =
     →∙Homogeneous≡ (isHomogeneousΩ^→fib n f)
@@ -372,12 +381,14 @@ isHomogeneousΩ^→fib n f =
          ∙ sym (rUnit (inv (ΩFibreIso (Ω^→ n f)) p)))
         ∙ rightInv (ΩFibreIso (Ω^→ n f)) p))
 
-Ω^Fibre≃∙' : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
-             → ((Ω^ n) (fiber (fst f) (pt B) , (pt A) , snd f))
-              ≃∙ ((fiber (Ω^→ n f .fst) (snd ((Ω^ n) (fst B , snd B))))
-                , (snd ((Ω^ n) (fst A , snd A))) , (Ω^→ n f .snd))
+Ω^Fibre≃∙' : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
+     (n : ℕ) (f : A →∙ B)
+  → ((Ω^ n) (fiber (fst f) (pt B) , (pt A) , snd f))
+   ≃∙ ((fiber (Ω^→ n f .fst) (snd ((Ω^ n) (fst B , snd B))))
+     , (snd ((Ω^ n) (fst A , snd A))) , (Ω^→ n f .snd))
 Ω^Fibre≃∙' zero f = idEquiv _ , refl
-Ω^Fibre≃∙' (suc zero) f = ((isoToEquiv (ΩFibreIso (Ω^→ zero f))) , ΩFibreIso∙ (Ω^→ zero f))
+Ω^Fibre≃∙' (suc zero) f =
+  ((isoToEquiv (ΩFibreIso (Ω^→ zero f))) , ΩFibreIso∙ (Ω^→ zero f))
 Ω^Fibre≃∙' (suc (suc n)) f =
   compEquiv∙
     (ΩIso (Ω^Fibre≃∙ (suc n) f))
@@ -464,8 +475,8 @@ module ΩLES {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →�
      ... → Ωⁿ⁺¹B → Ωⁿ(fib f) → Ωⁿ A → Ωⁿ B → ...  (*)
      We first prove the exactness properties for the helper functions
      ΩB→fibΩ^f and fibΩ^f→A, and then deduce exactness of the whole sequence
-     by noting that the functions in (*) are just ΩB→fibΩ^f, fibΩ^f→A but composed
-     with equivalences
+     by noting that the functions in (*) are just ΩB→fibΩ^f, fibΩ^f→A but
+     composed with equivalences
   -}
   private
     Im-fibΩ^f→A⊂Ker-A→B : (n : ℕ) (x : _)
@@ -481,10 +492,14 @@ module ΩLES {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →�
     Ker-fibΩ^f→A⊂Im-ΩB→fibΩ^f n x ker =
         (sym (Ω^→ n f .snd)
       ∙ cong (Ω^→ n f .fst) (sym ker) ∙ snd x) , ΣPathP ((sym ker) ,
-      ((∙assoc (Ω^→ n f .snd) (sym (Ω^→ n f .snd)) (sym (cong (Ω^→ n f .fst) ker) ∙ snd x)
-      ∙∙ cong (_∙ (sym (cong (Ω^→ n f .fst) ker) ∙ snd x)) (rCancel (Ω^→ n f .snd))
+      ((∙assoc (Ω^→ n f .snd)
+        (sym (Ω^→ n f .snd))
+        (sym (cong (Ω^→ n f .fst) ker) ∙ snd x)
+      ∙∙ cong (_∙ (sym (cong (Ω^→ n f .fst) ker) ∙ snd x))
+              (rCancel (Ω^→ n f .snd))
       ∙∙ sym (lUnit (sym (cong (Ω^→ n f .fst) ker) ∙ snd x)))
-      ◁ (λ i j → compPath-filler' (cong (Ω^→ n f .fst) (sym ker)) (snd x) (~ i) j)))
+      ◁ (λ i j → compPath-filler'
+                  (cong (Ω^→ n f .fst) (sym ker)) (snd x) (~ i) j)))
 
     Im-A→B⊂Ker-ΩB→fibΩ^f : (n : ℕ) (x : fst (((Ω^ (suc n)) B)))
                        → isInIm∙ (A→B (suc n)) x
@@ -497,7 +512,8 @@ module ΩLES {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →�
                              ∙∙ cong (Ω^→ n f .fst) p
                              ∙∙ Ω^→ n f .snd))
                       ∙ sym (lUnit (cong (Ω^→ n f .fst) p ∙ Ω^→ n f .snd)))
-                    ◁ λ i j → compPath-filler' (cong (Ω^→ n f .fst) p) (Ω^→ n f .snd) (~ i) j)))
+                    ◁ λ i j → compPath-filler'
+                       (cong (Ω^→ n f .fst) p) (Ω^→ n f .snd) (~ i) j)))
 
     Ker-ΩB→fibΩ^f⊂Im-A→B : (n : ℕ) (x : fst (((Ω^ (suc n)) B)))
                        → isInKer∙ (ΩB→fibΩ^f n) x
@@ -576,7 +592,8 @@ module ΩLES {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →�
 
 {- Some useful lemmas for converting the above sequence to on for
    homotopy groups -}
-module setTruncLemmas {ℓ ℓ' ℓ'' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+module setTruncLemmas {ℓ ℓ' ℓ'' : Level}
+  {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
   (n m l : ℕ)
   (f : (Ω ((Ω^ n) A)) →∙ (Ω ((Ω^ m) B)))
   (g : (Ω ((Ω^ m) B)) →∙ (Ω ((Ω^ l) C)))
@@ -697,13 +714,16 @@ private
   Ω^fibf→A-ind : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
         → ΩLES.Ω^fibf→A f (suc n) ≡ Ω→ (ΩLES.Ω^fibf→A f n)
   Ω^fibf→A-ind {A = A} {B = B} n f =
-      (λ _ → πLES.Ωs.fibΩ^f→A f (suc n) ∘∙ (fst (fst (Ω^Fibre≃∙ (suc n) f)) , snd (Ω^Fibre≃∙ (suc n) f)))
+      (λ _ → πLES.Ωs.fibΩ^f→A f (suc n)
+     ∘∙ (fst (fst (Ω^Fibre≃∙ (suc n) f)) , snd (Ω^Fibre≃∙ (suc n) f)))
     ∙ →∙Homogeneous≡ (isHomogeneousPath _ _)
-      (funExt λ p → (λ j → cong fst (Ω→ (fst (fst (Ω^Fibre≃∙ n f)) , snd (Ω^Fibre≃∙ n f)) .fst p))
-                  ∙ rUnit ((λ i →
-           fst
+      (funExt λ p →
+        (λ j → cong fst (Ω→ (fst (fst (Ω^Fibre≃∙ n f))
+              , snd (Ω^Fibre≃∙ n f)) .fst p))
+       ∙ rUnit ((λ i → fst
            (Ω→ (fst (fst (Ω^Fibre≃∙ n f)) , snd (Ω^Fibre≃∙ n f)) .fst p i)))
-                  ∙ sym (Ω→∘ (πLES.Ωs.fibΩ^f→A f n) ((fst (fst (Ω^Fibre≃∙ n f)) , snd (Ω^Fibre≃∙ n f))) p))
+      ∙ sym (Ω→∘ (πLES.Ωs.fibΩ^f→A f n)
+            ((fst (fst (Ω^Fibre≃∙ n f)) , snd (Ω^Fibre≃∙ n f))) p))
 
 Ω^fibf→A≡ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
       → ΩLES.Ω^fibf→A f n ≡ Ω^→ n (fst , refl)
@@ -743,10 +763,10 @@ private
           (C₁→C₂) ≡ (fst B₂→C₂ ∘ B₁→B₂) →
           (C₁→C₂) ≡ fst B₂→C₂ ∘ (fst A₂→B₂ ∘ A₁→A₂))
           (EquivJ (λ B₂ B₂→C₂ → (A₁→A₂ B₁→B₂ : C₁ → B₂) (C₁→C₂ : C₁ → C₂) →
-        B₁→B₂ ≡ A₁→A₂ →
-        C₁→C₂ ≡ (fst B₂→C₂ ∘ B₁→B₂) →
-        C₁→C₂ ≡ (fst B₂→C₂ ∘ A₁→A₂))
-          λ _ _ _ p q → q ∙ p)))
+            B₁→B₂ ≡ A₁→A₂ →
+            C₁→C₂ ≡ (fst B₂→C₂ ∘ B₁→B₂) →
+            C₁→C₂ ≡ (fst B₂→C₂ ∘ A₁→A₂))
+              λ _ _ _ p q → q ∙ p)))
 
 {-
 We want to show that the following square
@@ -761,19 +781,21 @@ v         f∘_      v
 -}
 
 Ω^→≈post∘∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
-                → (f : A →∙ B)
-                → Path ((Ω^ (suc n)) A →∙ (S₊∙ (suc n) →∙ B ∙))
-                        (post∘∙ (S₊∙ (suc n)) f ∘∙ Ω→SphereMap∙ (suc n))
-                        (Ω→SphereMap∙ (suc n) ∘∙ Ω^→ (suc n) f)
+  → (f : A →∙ B)
+  → Path ((Ω^ (suc n)) A →∙ (S₊∙ (suc n) →∙ B ∙))
+          (post∘∙ (S₊∙ (suc n)) f ∘∙ Ω→SphereMap∙ (suc n))
+          (Ω→SphereMap∙ (suc n) ∘∙ Ω^→ (suc n) f)
 Ω^→≈post∘∙ {A = A} {B = B} zero f =
     →∙Homogeneous≡
        (subst isHomogeneous
-        (ua∙ (Ω→SphereMap 1 , (isEquiv-Ω→SphereMap 1)) (Ω→SphereMap∙ 1 {A = B} .snd))
+        (ua∙ (Ω→SphereMap 1 , (isEquiv-Ω→SphereMap 1))
+             (Ω→SphereMap∙ 1 {A = B} .snd))
     (isHomogeneousPath _ _))
     (funExt λ p →
       ΣPathP ((funExt (λ { base → snd f
                         ; (loop i) j →
-                          doubleCompPath-filler (sym (snd f)) (cong (fst f) p) (snd f) j i}))
+                          doubleCompPath-filler
+                            (sym (snd f)) (cong (fst f) p) (snd f) j i}))
             , (sym (lUnit (snd f)) ◁ λ i j → snd f (i ∨ j))))
 Ω^→≈post∘∙ {A = A} {B = B} (suc n) f =
   →∙Homogeneous≡
@@ -783,22 +805,25 @@ v         f∘_      v
            (isHomogeneousPath _ _))
     ((funExt λ p
         → (λ i → post∘∙ (S₊∙ (2 + n)) f .fst (Ω→SphereMap-split (suc n) p i))
-        ∙∙ funExt⁻ (bigLemma
-                     (Ω→SphereMapSplit₁ (suc n) , isEquivΩ→ _ (isEquiv-Ω→SphereMap (suc n)))
-                     (ΩSphereMap (suc n) , isoToIsEquiv (invIso (SphereMapΩIso (suc n))))
-                     (Ω→SphereMapSplit₁ (suc n) , isEquivΩ→ _ (isEquiv-Ω→SphereMap (suc n)))
-                     (ΩSphereMap (suc n) , isoToIsEquiv (invIso (SphereMapΩIso (suc n))))
-                     (Ω^→ (2 + n) f .fst) (Ω→ (post∘∙ (S₊∙ (suc n)) f) .fst)
-                     (post∘∙ (S₊∙ (2 + n)) f .fst)
-                     (funExt topSquare)
-                     (sym (funExt (bottomSquare f))))
-                     p
+        ∙∙ funExt⁻
+          (bigLemma
+            (Ω→SphereMapSplit₁ (suc n)
+            , isEquivΩ→ _ (isEquiv-Ω→SphereMap (suc n)))
+            (ΩSphereMap (suc n) , isoToIsEquiv (invIso (SphereMapΩIso (suc n))))
+            (Ω→SphereMapSplit₁ (suc n)
+            , isEquivΩ→ _ (isEquiv-Ω→SphereMap (suc n)))
+            (ΩSphereMap (suc n) , isoToIsEquiv (invIso (SphereMapΩIso (suc n))))
+            (Ω^→ (2 + n) f .fst) (Ω→ (post∘∙ (S₊∙ (suc n)) f) .fst)
+            (post∘∙ (S₊∙ (2 + n)) f .fst)
+            (funExt topSquare)
+            (sym (funExt (bottomSquare f))))
+            p
         ∙∙ sym (Ω→SphereMap-split (suc n) (Ω^→ (2 + n) f .fst p))))
   where
   topSquare : (p : typ ((Ω^ (2 + n)) A))
-           → Path (typ (Ω ((S₊∙ (suc n)) →∙ B ∙)))
-                  ((Ω→ (post∘∙ (S₊∙ (suc n)) f) .fst ∘ Ω→ (Ω→SphereMap∙ (suc n)) .fst) p)
-                  (((Ω→ (Ω→SphereMap∙ (suc n))) .fst ∘ (Ω^→ (suc (suc n)) f .fst)) p)
+    → Path (typ (Ω ((S₊∙ (suc n)) →∙ B ∙)))
+        ((Ω→ (post∘∙ (S₊∙ (suc n)) f) .fst ∘ Ω→ (Ω→SphereMap∙ (suc n)) .fst) p)
+        (((Ω→ (Ω→SphereMap∙ (suc n))) .fst ∘ (Ω^→ (suc (suc n)) f .fst)) p)
   topSquare p = sym (Ω→∘ (post∘∙ (S₊∙ (suc n)) f) (Ω→SphereMap∙ (suc n)) p)
               ∙ (λ i → Ω→ (Ω^→≈post∘∙ {A = A} {B = B} n f i) .fst p)
               ∙ Ω→∘ (Ω→SphereMap∙ (suc n)) (Ω^→ (suc n) f) p
@@ -814,17 +839,20 @@ v         f∘_      v
             ((post∘∙ (S₊∙ (suc (suc n))) f .fst ∘ ΩSphereMap (suc n)) g))
            λ f g → ΣPathP ((funExt (λ { north → refl
                                        ; south → refl
-                                       ; (merid a i) j → h f g a j i}))
+                                       ; (merid a i) j → lem f g a j i}))
                         , lUnit refl)
     where
-    h : (f : typ A → typ B) (g : typ (Ω (S₊∙ (suc n) →∙ A ∙)))
+    lem : (f : typ A → typ B) (g : typ (Ω (S₊∙ (suc n) →∙ A ∙)))
       → (a : S₊ (suc n))
-      → cong (fst (ΩSphereMap (suc n) (Ω→ (post∘∙ (S₊∙ (suc n)) (f , refl)) .fst g))) (merid a)
+      → cong (fst (ΩSphereMap (suc n)
+               (Ω→ (post∘∙ (S₊∙ (suc n)) (f , refl)) .fst g)))
+             (merid a)
         ≡ cong (fst ((f , refl) ∘∙ ΩSphereMap (suc n) g)) (merid a)
-    h f g a =
-      (λ i → funExt⁻ (cong-∙∙ fst (sym (snd (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))))
-                                  (cong (fst (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))) g)
-                                  (snd (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))) i) a)
+    lem f g a =
+      (λ i → funExt⁻
+        (cong-∙∙ fst (sym (snd (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))))
+                 (cong (fst (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))) g)
+                 (snd (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))) i) a)
               ∙ sym (rUnit (λ i → f (fst (g i) a)))
 
 {- We can use this to define prove that post composition induces a homomorphism
@@ -834,7 +862,7 @@ v         f∘_      v
 π∘∙raw n f = sMap (f ∘∙_)
 
 GroupHomπ≅π'PathP : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (n : ℕ)
-                  → GroupHom (πGr n A) (πGr n B) ≡ GroupHom (π'Gr n A) (π'Gr n B)
+  → GroupHom (πGr n A) (πGr n B) ≡ GroupHom (π'Gr n A) (π'Gr n B)
 GroupHomπ≅π'PathP A B n i =
   GroupHom (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr n A)) (~ i))
            (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr n B)) (~ i))
@@ -854,7 +882,8 @@ private
         ((λ i → inv (IsoSphereMapΩ (suc n))
             (transportRefl (fst (πLES.Ωs.A→B f (suc n))
               (transportRefl (fun (IsoSphereMapΩ (suc n)) g) i)) i))
-       ∙ sym (funExt⁻ (cong fst (Ω^→≈post∘∙ n f)) (fun (IsoSphereMapΩ (suc n)) g))
+       ∙ sym (funExt⁻ (cong fst (Ω^→≈post∘∙ n f))
+                      (fun (IsoSphereMapΩ (suc n)) g))
        ∙ cong (f ∘∙_) (leftInv (IsoSphereMapΩ (suc n)) g)))
 
 π∘∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
@@ -874,7 +903,8 @@ snd (π∘∙ {A = A} {B = B} n f) = isHom∘∙
   → PathP (λ i → GroupHomπ≅π'PathP A B n i)
            (πLES.A→B f n)
            (π∘∙ n f)
-π∘∙A→B-PathP n f = toPathP (Σ≡Prop (λ _ → isPropIsGroupHom _ _) (π∘∙'≡π∘∙raw n f))
+π∘∙A→B-PathP n f =
+  toPathP (Σ≡Prop (λ _ → isPropIsGroupHom _ _) (π∘∙'≡π∘∙raw n f))
 
 π∘∙fib→A-PathP : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
   → PathP (λ i → GroupHomπ≅π'PathP (ΩLES.fibf f) A n i)

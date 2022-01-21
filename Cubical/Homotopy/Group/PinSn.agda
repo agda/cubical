@@ -40,12 +40,14 @@ open import Cubical.Algebra.Group.ZAction
 
 open Iso
 
--- The goal is to prove that πₙSⁿ. This is of course trivial, given that ΩⁿK(ℤ,n) ≅ ℤ
--- is already proved. However, we would like to do this for πₙSⁿ defined via
--- (Sⁿ →∙ Sⁿ) and prove that the generator of this group is idfun∙ : Sⁿ → Sⁿ.
+-- The goal is to prove that πₙSⁿ. This is of course trivial, given
+-- that ΩⁿK(ℤ,n) ≅ ℤ is already proved. However, we would like to do
+-- this for πₙSⁿ defined via (Sⁿ →∙ Sⁿ) and prove that the generator
+-- of this group is idfun∙ : Sⁿ → Sⁿ.
 
 private
-  suspMapS^ : (n : ℕ) → (S₊∙ (suc n) →∙ S₊∙ (suc n)) → S₊∙ (2 + n) →∙ S₊∙ (2 + n)
+  suspMapS^ : (n : ℕ) → (S₊∙ (suc n) →∙ S₊∙ (suc n))
+                        → S₊∙ (2 + n) →∙ S₊∙ (2 + n)
   suspMapS^ n = suspMap {A = S₊∙ (suc n)} n
 
 is2ConnectedSuspMap : (n : ℕ) → isConnectedFun 2 (suspMapS^ (suc n))
@@ -65,10 +67,13 @@ SphereSuspIso : (n : ℕ)
   → Iso (π' (2 + n) (S₊∙ (2 + n))) (π' (3 + n) (S₊∙ (3 + n)))
 SphereSuspIso n =
   compIso setTruncTrunc2Iso
-   (compIso (connectedTruncIso 2 (suspMap {A = S₊∙ (suc (suc n))} (suc n)) (is2ConnectedSuspMap n))
+   (compIso
+     (connectedTruncIso 2
+       (suspMap {A = S₊∙ (suc (suc n))} (suc n)) (is2ConnectedSuspMap n))
      (invIso (setTruncTrunc2Iso)))
 
-SphereSuspGrIso : (n : ℕ) → GroupIso (π'Gr (suc n) (S₊∙ (2 + n))) (π'Gr (2 + n) (S₊∙ (3 + n)))
+SphereSuspGrIso : (n : ℕ)
+  → GroupIso (π'Gr (suc n) (S₊∙ (2 + n))) (π'Gr (2 + n) (S₊∙ (3 + n)))
 fst (SphereSuspGrIso n) = SphereSuspIso n
 snd (SphereSuspGrIso n) =
   makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
@@ -119,26 +124,26 @@ fst π₂S²≅π₁S¹ =
 snd π₂S²≅π₁S¹ =
   makeIsGroupHom
     (sElim2 (λ _ _ → isSetPathImplicit)
-            λ f g →
-              cong (inv setTruncTrunc2Iso)
-                (cong (fun (PathIdTruncIso 2))
-                  (cong (cong (ΩKn+1→Kn 1))
-                    (cong (cong (inv (PathIdTruncIso 3)))
-                      (cong (inv (PathIdTruncIso 2))
-                        (refl {x = ∣ f ∙ g ∣})
-                     ∙ cong-∙ ∣_∣ₕ f g)
-                   ∙ cong-∙ (inv (PathIdTruncIso 3)) (cong ∣_∣ₕ f) (cong ∣_∣ₕ g))
-                 ∙ cong-∙ (ΩKn+1→Kn 1)
-                    (cong (inv (PathIdTruncIso 3)) (cong ∣_∣ₕ f))
-                    (cong (inv (PathIdTruncIso 3)) (cong ∣_∣ₕ g)))
-               ∙ PathIdTruncIsoFunct 1
-                  (cong (ΩKn+1→Kn 1) (λ i → inv (PathIdTruncIso 3) ∣ f i ∣ₕ))
-                  (cong (ΩKn+1→Kn 1) (λ i → inv (PathIdTruncIso 3) ∣ g i ∣ₕ)))
-               ∙ setTruncTrunc2IsoFunct
-                  ((fun (PathIdTruncIso 2))
-                   (cong (ΩKn+1→Kn 1) (λ i → inv (PathIdTruncIso 3) ∣ f i ∣ₕ)))
-                  ((fun (PathIdTruncIso 2))
-                   (cong (ΩKn+1→Kn 1) (λ i → inv (PathIdTruncIso 3) ∣ g i ∣ₕ))))
+      λ f g →
+        cong (inv setTruncTrunc2Iso)
+          (cong (fun (PathIdTruncIso 2))
+            (cong (cong (ΩKn+1→Kn 1))
+              (cong (cong (inv (PathIdTruncIso 3)))
+                (cong (inv (PathIdTruncIso 2))
+                  (refl {x = ∣ f ∙ g ∣})
+               ∙ cong-∙ ∣_∣ₕ f g)
+             ∙ cong-∙ (inv (PathIdTruncIso 3)) (cong ∣_∣ₕ f) (cong ∣_∣ₕ g))
+           ∙ cong-∙ (ΩKn+1→Kn 1)
+              (cong (inv (PathIdTruncIso 3)) (cong ∣_∣ₕ f))
+              (cong (inv (PathIdTruncIso 3)) (cong ∣_∣ₕ g)))
+         ∙ PathIdTruncIsoFunct 1
+            (cong (ΩKn+1→Kn 1) (λ i → inv (PathIdTruncIso 3) ∣ f i ∣ₕ))
+            (cong (ΩKn+1→Kn 1) (λ i → inv (PathIdTruncIso 3) ∣ g i ∣ₕ)))
+         ∙ setTruncTrunc2IsoFunct
+            ((fun (PathIdTruncIso 2))
+             (cong (ΩKn+1→Kn 1) (λ i → inv (PathIdTruncIso 3) ∣ f i ∣ₕ)))
+            ((fun (PathIdTruncIso 2))
+             (cong (ΩKn+1→Kn 1) (λ i → inv (PathIdTruncIso 3) ∣ g i ∣ₕ))))
   where
   setTruncTrunc2IsoFunct : ∀ {ℓ} {A : Type ℓ} {x : A}
     (p q : hLevelTrunc 2 (x ≡ x))
@@ -163,34 +168,45 @@ snd π₂S²≅π₁S¹ =
       , makeIsGroupHom (sElim2 (λ _ _ → isProp→isSet (isSetℤ _ _))
            winding-hom))
 πₙ'Sⁿ≅ℤ (suc zero) = compGroupIso π₂'S²≅π₁'S¹ (πₙ'Sⁿ≅ℤ zero)
-πₙ'Sⁿ≅ℤ (suc (suc n)) = compGroupIso (invGroupIso (SphereSuspGrIso n)) (πₙ'Sⁿ≅ℤ (suc n))
+πₙ'Sⁿ≅ℤ (suc (suc n)) =
+  compGroupIso (invGroupIso (SphereSuspGrIso n)) (πₙ'Sⁿ≅ℤ (suc n))
 
--- The goal now is to show that this iso takes idfun∙ : Sⁿ → Sⁿ to 1.
+-- Same thing for the loop space definition
+πₙSⁿ≅ℤ : (n : ℕ) → GroupIso (πGr n (S₊∙ (suc n))) ℤGroup
+πₙSⁿ≅ℤ n =
+  compGroupIso (invGroupIso (π'Gr≅πGr n (S₊∙ (suc n)))) (πₙ'Sⁿ≅ℤ n)
+
+-- The goal now is to show that πₙ'Sⁿ≅ℤ takes idfun∙ : Sⁿ → Sⁿ to 1.
 -- For this, we need a bunch of identities:
 private
+  Isoπ₁S¹ℤ = (compIso (setTruncIdempotentIso (isGroupoidS¹ _ _)) ΩS¹Isoℤ)
+
   π'₂S²≅π₂S²⁻-stLoop' : inv (fst (π'₂S²≅π₂S²)) stLoop₁flip ≡ ∣ idfun∙ _ ∣₂
   π'₂S²≅π₂S²⁻-stLoop' =
     cong ∣_∣₂ (ΣPathP ((funExt
       (λ { north → refl
          ; south → merid base
          ; (merid base i) j →
-           hcomp (λ k → λ {(i = i0) → north
-                          ; (i = i1) → merid base (j ∧ k)
-                          ; (j = i0) → rUnit (λ _ → north) k i
-                          ; (j = i1) → merid base (i ∧ k)})
+           hcomp (λ k
+             → λ {(i = i0) → north
+                 ; (i = i1) → merid base (j ∧ k)
+                 ; (j = i0) → rUnit (λ _ → north) k i
+                 ; (j = i1) → merid base (i ∧ k)})
                  north
          ; (merid (loop k) i) j
-                  → hcomp (λ r → λ {(i = i0) → north
-                             ; (i = i1) → merid base (j ∧ r)
-                             ; (j = i0) →
-                               rUnit (funExt⁻ (cong fst (cong (Ω→SphereMap 1)
-                                   (flipSquare ((λ i₁ → rCancel (merid base) (~ i₁)) ∙∙
-                                   (λ i₁ → merid (loop i₁) ∙ (λ i₂ → merid base (~ i₂))) ∙∙
-                                   rCancel (merid base))))) (loop k)) r i
-                             ; (j = i1) → pp r i k})
-                      ((((λ i₁ → rCancel (merid base) (~ i₁)) ∙∙
-                         (λ i₁ → merid (loop i₁) ∙ (λ i₂ → merid base (~ i₂))) ∙∙
-                         rCancel (merid base))) k i)})) , refl))
+                  → hcomp (λ r
+                    → λ {(i = i0) → north
+                        ; (i = i1) → merid base (j ∧ r)
+                        ; (j = i0) →
+                          rUnit (funExt⁻ (cong fst (cong (Ω→SphereMap 1)
+                              (flipSquare (sym (rCancel (merid base))
+                            ∙∙ (λ i₁ → merid (loop i₁)
+                             ∙ sym (merid base))
+                            ∙∙ rCancel (merid base))))) (loop k)) r i
+                        ; (j = i1) → pp r i k})
+                 (((sym (rCancel (merid base)) ∙∙
+                    (λ i₁ → merid (loop i₁) ∙ sym (merid base)) ∙∙
+                    rCancel (merid base))) k i)})) , refl))
     where
     genBot+side : ∀ {ℓ} {A : Type ℓ} {x y : A} (p : x ≡ y)
                 → Cube {A = A} (λ j r → x) (λ j r → p (~ j ∨ r))
@@ -217,15 +233,17 @@ private
     pp1 j i r =
       hcomp (λ k → λ {(i = i0) → north
                      ; (i = i1) → genBot+side (merid base) .snd k j r
-                     ; (j = i0) → compPath-filler (merid base) (sym (merid base)) k i
+                     ; (j = i0) → compPath-filler
+                                    (merid base) (sym (merid base)) k i
                      ; (j = i1) → merid base (i ∧ r)
                      ; (r = i0) → rCancel-filler (merid base) k j i
-                     ; (r = i1) → compPath-filler (merid base) (sym (merid base)) (~ j ∧ k) i})
+                     ; (r = i1) → compPath-filler
+                                   (merid base) (sym (merid base)) (~ j ∧ k) i})
             (genBot+side (merid base) .fst i j r)
 
-    pp : Cube (λ i k → (((λ i₁ → rCancel (merid base) (~ i₁)) ∙∙
-                         (λ i₁ → merid (loop i₁) ∙ (λ i₂ → merid base (~ i₂))) ∙∙
-                         rCancel (merid base))) k i) -- r i k
+    pp : Cube (λ i k → ((sym (rCancel (merid base))
+                      ∙∙ (λ i₁ → merid (loop i₁) ∙ sym (merid base))
+                      ∙∙ rCancel (merid base))) k i) -- r i k
               (λ i k → merid (loop k) i)
               (λ r k → north)
               (λ r k → merid base r)
@@ -238,24 +256,22 @@ private
                                     (sym (rCancel (merid base)))
                                     (λ i₁ → merid (loop i₁) ∙ sym (merid base))
                                     (rCancel (merid base)) j k i
-                     ; (r = i1) → compPath-filler (merid (loop k)) (sym (merid base)) (~ j) i
+                     ; (r = i1) → compPath-filler
+                                   (merid (loop k)) (sym (merid base)) (~ j) i
                      ; (k = i0) → pp1 j i r
                      ; (k = i1) → pp1 j i r})
             ((merid (loop k) ∙ sym (merid base)) i)
 
   π₂S²≅π₁S¹-stLoop : fun (fst π₂S²≅π₁S¹) stLoop₁ ≡ ∣ loop ∣₂
   π₂S²≅π₁S¹-stLoop =
-      sym (leftInv (compIso (setTruncIdempotentIso (isGroupoidS¹ _ _)) ΩS¹Isoℤ)
+      sym (leftInv Isoπ₁S¹ℤ
           (fun (fst π₂S²≅π₁S¹) stLoop₁))
-   ∙∙ cong (inv (compIso (setTruncIdempotentIso (isGroupoidS¹ _ _)) ΩS¹Isoℤ))
-           compute
+   ∙∙ cong (inv Isoπ₁S¹ℤ) compute
    ∙∙ leftInv (compIso (setTruncIdempotentIso (isGroupoidS¹ _ _)) ΩS¹Isoℤ)
               ∣ loop ∣₂
     where
-    compute : fun ((compIso (setTruncIdempotentIso (isGroupoidS¹ _ _)) ΩS¹Isoℤ))
-                  (fun (fst π₂S²≅π₁S¹) stLoop₁)
-             ≡ fun ((compIso (setTruncIdempotentIso (isGroupoidS¹ _ _)) ΩS¹Isoℤ))
-                  ∣ loop ∣₂
+    compute : fun Isoπ₁S¹ℤ (fun (fst π₂S²≅π₁S¹) stLoop₁)
+            ≡ fun Isoπ₁S¹ℤ ∣ loop ∣₂
     compute = refl
 
 
@@ -268,7 +284,8 @@ private
     where
     lem₁ : (x : _) (y : π 2 (S₊∙ 2))
        → (x ≡ inv (fst π'₂S²≅π₂S²) (fun (fst (flipSquareIso 0)) y))
-       → inv (fst (π'Gr≅πGr zero (S₊∙ 1))) (fun (fst π₂S²≅π₁S¹) y) ≡ ∣ idfun∙ _ ∣₂
+       → inv (fst (π'Gr≅πGr zero (S₊∙ 1))) (fun (fst π₂S²≅π₁S¹) y)
+          ≡ ∣ idfun∙ _ ∣₂
        → fun (fst π₂'S²≅π₁'S¹) x ≡ ∣ idfun∙ _ ∣₂
     lem₁ x y p q =
          cong (fun (fst π₂'S²≅π₁'S¹)) p
@@ -284,18 +301,21 @@ private
        ∙ q
 
     lem₂ : inv (fst (π'Gr≅πGr zero (S₊∙ 1))) ∣ loop ∣₂ ≡ ∣ idfun∙ _ ∣₂
-    lem₂ = cong ∣_∣₂ (ΣPathP (funExt (λ { base → refl ; (loop i) → refl}) , refl))
+    lem₂ =
+      cong ∣_∣₂ (ΣPathP (funExt (λ { base → refl ; (loop i) → refl}) , refl))
 
   suspPresIdfun : (n : ℕ) → suspMap n (idfun∙ (S₊∙ (suc n))) ≡ idfun∙ _
   suspPresIdfun n =
     ΣPathP ((funExt
       (λ { north → refl
          ; south → merid (ptSn (suc n))
-         ; (merid a i) j → compPath-filler (merid a) (sym (merid (ptSn (suc n)))) (~ j) i}))
+         ; (merid a i) j
+           → compPath-filler (merid a) (sym (merid (ptSn (suc n)))) (~ j) i}))
         , refl)
 
   suspPresIdfun2 : (n : ℕ)
-    → fun (fst (invGroupIso (SphereSuspGrIso n))) ∣ idfun∙ (S₊∙ (suc (suc (suc n)))) ∣₂
+    → fun (fst (invGroupIso (SphereSuspGrIso n)))
+        ∣ idfun∙ (S₊∙ (suc (suc (suc n)))) ∣₂
     ≡ ∣ idfun∙ _ ∣₂
   suspPresIdfun2 n =
       sym (cong (fun (fst (invGroupIso (SphereSuspGrIso n))))
@@ -303,7 +323,8 @@ private
     ∙ leftInv (SphereSuspIso n) ∣ idfun∙ _ ∣₂
 
 -- We finally have our results
-πₙ'Sⁿ≅ℤ-idfun∙ : (n : ℕ) → fun (fst (πₙ'Sⁿ≅ℤ n)) ∣ idfun∙ _ ∣₂ ≡ (pos (suc zero))
+πₙ'Sⁿ≅ℤ-idfun∙ : (n : ℕ)
+  → fun (fst (πₙ'Sⁿ≅ℤ n)) ∣ idfun∙ _ ∣₂ ≡ (pos (suc zero))
 πₙ'Sⁿ≅ℤ-idfun∙ zero = refl
 πₙ'Sⁿ≅ℤ-idfun∙ (suc zero) = speedUp ∣ idfun∙ _ ∣₂ π₂'S²≅π₁'S¹≡
   where
