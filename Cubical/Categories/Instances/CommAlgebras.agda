@@ -19,7 +19,7 @@ open CommAlgebraHoms
 
 private
  variable
-  ℓ ℓ' : Level
+  ℓ ℓ' ℓ'' : Level
 
 module _ (R : CommRing ℓ) where
   CommAlgebrasCategory : Category (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
@@ -34,7 +34,7 @@ module _ (R : CommRing ℓ) where
 
 
 module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
-         {R : CommRing ℓ} (𝓕 : Σ (ob C) P → CommAlgebra R ℓ)
+         {R : CommRing ℓ''} (𝓕 : Σ (ob C) P → CommAlgebra R ℓ'')
          (uniqueHom : ∀ x y → C [ fst x , fst y ] → isContr (CommAlgebraHom (𝓕 y) (𝓕 x)))
          where
 
@@ -46,7 +46,7 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
  𝓕UniqueEquiv : (x : ob C) (p q : P x) → isContr (CommAlgebraEquiv (𝓕 (x , p)) (𝓕 (x , q)))
  𝓕UniqueEquiv x = contrCommAlgebraHom→contrCommAlgebraEquiv (curry 𝓕 x) λ p q → uniqueHom _ _ (id C)
 
- theMap : (x : ob C) → ∥ P x ∥ → CommAlgebra R ℓ
+ theMap : (x : ob C) → ∥ P x ∥ → CommAlgebra R ℓ''
  theMap x = recPT→CommAlgebra (curry 𝓕 x) (λ p q → 𝓕UniqueEquiv x p q .fst)
                                          λ p q r → 𝓕UniqueEquiv x p r .snd _
 
@@ -55,7 +55,7 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
  theAction _ _ f = elim2 (λ _ _ → isPropIsContr) λ _ _ → uniqueHom _ _ f
 
  open Functor
- universalPShf : Functor (ΣC∥P∥Cat ^op) (CommAlgebrasCategory {ℓ = ℓ} R {ℓ' = ℓ})
+ universalPShf : Functor (ΣC∥P∥Cat ^op) (CommAlgebrasCategory {ℓ = ℓ''} R {ℓ' = ℓ''})
  F-ob universalPShf = uncurry theMap
  F-hom universalPShf {x = x} {y = y} f = theAction _ _ f (y .snd) (x. snd) .fst
  F-id universalPShf {x = x} = theAction (x .fst) (x .fst) (id C) (x .snd) (x .snd) .snd _
