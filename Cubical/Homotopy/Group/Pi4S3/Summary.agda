@@ -2,7 +2,7 @@
 module Cubical.Homotopy.Group.Pi4S3.Summary where
 
 {-
-This file contains a summary of what remains for π₄S³≅ℤ/2 to be proved.
+This file contains a summary of what remains for π₄(S³) ≅ ℤ/2ℤ to be proved.
 See the module π₄S³ at the end of this file.
 -}
 
@@ -17,7 +17,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Int
   renaming (_·_ to _·ℤ_ ; _+_ to _+ℤ_)
 
-open import Cubical.Homotopy.Group.Base
+open import Cubical.Homotopy.Group.Base hiding (π)
 open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.HopfInvariant.Homomorphism
 open import Cubical.Homotopy.HopfInvariant.HopfMap
@@ -26,41 +26,48 @@ open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.HITs.Sn
+open import Cubical.HITs.PropositionalTruncation
 open import Cubical.HITs.SetTruncation
 
 open import Cubical.Algebra.Group
   renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 open import Cubical.Algebra.Group.ZAction
 
+-- TODO: this should not be off by one in the definition
+π : {ℓ : Level} → ℕ → Pointed ℓ → Group ℓ
+π n X = π'Gr (predℕ n) X
+
+-- Nicer notation for spheres
+𝕊² = S₊∙ 2
+𝕊³ = S₊∙ 3
 
 [_]× : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-  → π' (suc n) X × π' (suc m) X → π' (suc (n + m)) X
+     → π' (suc n) X × π' (suc m) X → π' (suc (n + m)) X
 [_]× (f , g) = [ f ∣ g ]π'
 
 -- Some type abbreviations (unproved results)
 π₃S²-gen : Type
-π₃S²-gen = gen₁-by (π'Gr 2 (S₊∙ 2)) ∣ HopfMap ∣₂
+π₃S²-gen = gen₁-by (π 3 𝕊²) ∣ HopfMap ∣₂
 
-π₄S³≅ℤ/something : GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2))
-                 → Type
+π₄S³≅ℤ/something : GroupEquiv ℤGroup (π 3 𝕊²) → Type
 π₄S³≅ℤ/something eq =
-  GroupIso (π'Gr 3 (S₊∙ 3))
-           (ℤ/ abs (invEq (fst eq)
-             [ ∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂ ]×))
+  GroupIso (π 4 𝕊³)
+           (ℤ/ abs (invEq (fst eq) [ ∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂ ]×))
 
 miniLem₁ : Type
 miniLem₁ = (g : ℤ) → gen₁-by ℤGroup g → (g ≡ 1) ⊎ (g ≡ -1)
 
 miniLem₂ : Type
 miniLem₂ = (ϕ : GroupEquiv ℤGroup ℤGroup) (g : ℤ)
-      → (abs g ≡ abs (fst (fst ϕ) g))
+         → (abs g ≡ abs (fst (fst ϕ) g))
 
 -- some minor group lemmas
-groupLem-help : miniLem₁ → (g : ℤ) →
-      gen₁-by ℤGroup g →
-      (ϕ : GroupHom ℤGroup ℤGroup) →
-      (fst ϕ g ≡ pos 1) ⊎ (fst ϕ g ≡ negsuc 0)
-    → isEquiv (fst ϕ)
+groupLem-help : miniLem₁
+              → (g : ℤ)
+              → gen₁-by ℤGroup g
+              → (ϕ : GroupHom ℤGroup ℤGroup)
+              → (fst ϕ g ≡ pos 1) ⊎ (fst ϕ g ≡ negsuc 0)
+              → isEquiv (fst ϕ)
 groupLem-help grlem1 g gen ϕ = main (grlem1 g gen)
   where
   isEquiv- : isEquiv (-_)
@@ -136,6 +143,13 @@ groupLem : {G : Group₀}
          → (fst ϕ g ≡ 1) ⊎ (fst ϕ g ≡ -1)
          → isEquiv (fst ϕ)
 groupLem {G = G} s =
+
+-- snd (fst (BijectionIsoToGroupEquiv {G = G} {H = ℤGroup}
+--   (bijIso ϕ
+--   (isMono→isInjective ϕ (λ {x} {y} hxy → {!sym (cong (ϕ .fst) (hg x .snd)) ∙ hxy ∙ cong (ϕ .fst) (hg y .snd)!}))
+--   λ x → ∣ e .fst .fst x , {!hg (e .fst .fst x)!} ∣))) -- let boo : (a b : fst G) → invEq (e .fst) a ≡ invEq (e .fst) b → a ≡ b
+--            --     boo = {!!}
+--            -- in hg x .snd ∙ boo _ _ {!!}) {!!})))
   GroupEquivJ
     (λ G _ → (g : fst G)
          → gen₁-by G g
@@ -148,23 +162,18 @@ groupLem {G = G} s =
 module π₄S³
   (mini-lem₁ : miniLem₁)
   (mini-lem₂ : miniLem₂)
-  (ℤ≅π₃S² : GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2)))
+  (ℤ≅π₃S² : GroupEquiv ℤGroup (π 3 𝕊²))
   (gen-by-HopfMap : π₃S²-gen)
   (π₄S³≅ℤ/whitehead : π₄S³≅ℤ/something ℤ≅π₃S²)
-  (hopfWhitehead :
-       abs (HopfInvariant-π' 0
-             ([ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂) ]×))
-     ≡ 2)
+  (hopfWhitehead : abs (HopfInvariant-π' 0 ([ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂) ]×)) ≡ 2)
   where
-  π₄S³ = π'Gr 3 (S₊∙ 3)
-
-  hopfInvariantEquiv : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤGroup
+  hopfInvariantEquiv : GroupEquiv (π 3 𝕊²) ℤGroup
   fst (fst hopfInvariantEquiv) = HopfInvariant-π' 0
-  snd (fst hopfInvariantEquiv) =
-    groupLem mini-lem₁ ℤ≅π₃S² ∣ HopfMap ∣₂
-             gen-by-HopfMap
-             (GroupHom-HopfInvariant-π' 0)
-             (abs→⊎ _ _ HopfInvariant-HopfMap)
+  snd (fst hopfInvariantEquiv) = {!HopfInvariant-π' 0!}
+    -- groupLem mini-lem₁ ℤ≅π₃S² ∣ HopfMap ∣₂
+    --          gen-by-HopfMap
+    --          (GroupHom-HopfInvariant-π' 0)
+    --          (abs→⊎ _ _ HopfInvariant-HopfMap)
   snd hopfInvariantEquiv = snd (GroupHom-HopfInvariant-π' 0)
 
   lem : ∀ {G : Group₀} (ϕ ψ : GroupEquiv ℤGroup G) (g : fst G)
@@ -175,8 +184,7 @@ module π₄S³
       → abs (invEq (fst ϕ) g) ≡ abs (invEq (fst ψ) g))
       λ ψ → mini-lem₂ (invGroupEquiv ψ)
 
-  main : GroupIso π₄S³ (ℤ/ 2)
-  main = subst (GroupIso π₄S³)
-               (cong (ℤ/_) (lem ℤ≅π₃S² (invGroupEquiv (hopfInvariantEquiv)) _
-                               ∙ hopfWhitehead))
+  main : GroupIso (π 4 𝕊³) (ℤ/ 2)
+  main = subst (GroupIso (π 4 𝕊³))
+               (cong (ℤ/_) (lem ℤ≅π₃S² (invGroupEquiv (hopfInvariantEquiv)) _ ∙ hopfWhitehead))
                π₄S³≅ℤ/whitehead

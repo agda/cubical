@@ -161,7 +161,7 @@ GroupHomℤ→ℤPres· e a b =
 -- Todo : generalise
 gen₁-by : (G : Group ℓ) → (g : fst G) → Type _
 gen₁-by G g = (h : fst G)
-          → Σ[ a ∈ ℤ ] h ≡ (a ℤ[ G ]· g)
+            → Σ[ a ∈ ℤ ] h ≡ (a ℤ[ G ]· g)
 
 gen₂-by : ∀ {ℓ} (G : Group ℓ) → (g₁ g₂ : fst G) → Type _
 gen₂-by G g₁ g₂ =
