@@ -47,7 +47,7 @@ module CommAlgChar (R : CommRing ℓ) where
   CommAlgebraStr.- ACommAlgStr = -_
   CommAlgebraStr._⋆_ ACommAlgStr r a = (φ r) · a
   CommAlgebraStr.isCommAlgebra ACommAlgStr = makeIsCommAlgebra
-   is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·-comm
+   is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·Comm
    (λ _ _ x → cong (λ y →  y · x) (pres· φIsHom _ _) ∙ sym (·Assoc _ _ _))
    (λ _ _ x → cong (λ y → y · x) (pres+ φIsHom _ _) ∙ ·Ldist+ _ _ _)
    (λ _ _ _ → ·Rdist+ _ _ _)
@@ -85,7 +85,7 @@ module CommAlgChar (R : CommRing ℓ) where
 
   -- this only works because fst (APath i) = fst A definitionally!
   φPathP : PathP (λ i → CommRingHom R (APath i)) (snd (fromCommAlg (toCommAlg (A , φ)))) φ
-  φPathP = RingHomEqDep _ _ _ _ _ _ λ i x → ·Rid (snd A) (fst φ x) i
+  φPathP = RingHomPathP _ _ _ _ _ _ λ i x → ·Rid (snd A) (fst φ x) i
 
 
  CommAlgRoundTrip : (A : CommAlgebra R ℓ) → toCommAlg (fromCommAlg A) ≡ A

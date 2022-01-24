@@ -10,18 +10,18 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.HITs.Join
-open import Cubical.HITs.Hopf
 open import Cubical.HITs.SetTruncation as SetTrunc
 open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
 open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
 open import Cubical.Homotopy.Loopspace
+open import Cubical.Homotopy.Hopf
+open S¹Hopf
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
-Bool∙ S¹∙ S²∙ S³∙ : Pointed₀
+Bool∙ S¹∙ S³∙ : Pointed₀
 Bool∙ = (Bool , true)
 S¹∙ = (S¹ , base)
-S²∙ = (S² , base)
 S³∙ = (S³ , base)
 
 ∥_∥₃∙ ∥_∥₄∙ : Pointed₀ → Pointed₀

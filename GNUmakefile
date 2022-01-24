@@ -1,15 +1,21 @@
-AGDA_EXEC?=agda -W error
-FIX_WHITESPACE?=fix-whitespace
-RTS_OPTIONS=+RTS -H3G -RTS
-AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
-RUNHASKELL?=runhaskell
-EVERYTHINGS=$(RUNHASKELL) ./Everythings.hs
+AGDA_BIN    ?= agda
+AGDA_FLAGS  ?= -W noNoEquivWhenSplitting -W error
+AGDA_EXEC   ?= $(AGDA_BIN) $(AGDA_FLAGS)
+RTS_OPTIONS = +RTS -H3G -RTS
+AGDA        = $(AGDA_EXEC) $(RTS_OPTIONS)
+
+FIX_WHITESPACE ?= fix-whitespace
+RUNHASKELL     ?= runhaskell
+EVERYTHINGS    =  $(RUNHASKELL) ./Everythings.hs
 
 .PHONY : all
-all : check
+all : build
+
+.PHONY : build
+build : gen-everythings check
 
 .PHONY : test
-test: check-whitespace gen-and-check-everythings check-README check
+test : check-whitespace gen-and-check-everythings check-README check
 
 # checking and fixing whitespace
 
