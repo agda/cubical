@@ -44,7 +44,6 @@ isConnectedSubtr {A = A} n m iscon =
   helper zero iscon = isContrUnit*
   helper (suc n) iscon = ∣ iscon .fst ∣ , (Trunc.elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _) λ a → cong ∣_∣ (iscon .snd a))
 
-
 isConnectedFunSubtr : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n m : HLevel) (f : A → B)
                 → isConnectedFun (m + n) f
                 → isConnectedFun n f
@@ -60,7 +59,12 @@ private
   typeToFiber : ∀ {ℓ} (A : Type ℓ) → A ≡ fiber (λ (x : A) → tt) tt
   typeToFiber A = isoToPath (typeToFiberIso A)
 
-
+isOfHLevelIsConnectedStable : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+  → isOfHLevel n (isConnected n A)
+isOfHLevelIsConnectedStable {A = A} zero =
+  (tt* , (λ _ → refl)) , λ _ → refl
+isOfHLevelIsConnectedStable {A = A} (suc n) =
+  isProp→isOfHLevelSuc n isPropIsContr
 
 module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) where
   private

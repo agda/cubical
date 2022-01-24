@@ -130,6 +130,18 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
 
+lUnit×Iso : ∀ {ℓ} {A : Type ℓ} → Iso (Unit × A) A
+fun lUnit×Iso = snd
+inv lUnit×Iso = tt ,_
+rightInv lUnit×Iso _ = refl
+leftInv lUnit×Iso _ = refl
+
+rUnit×Iso : ∀ {ℓ} {A : Type ℓ} → Iso (A × Unit) A
+fun rUnit×Iso = fst
+inv rUnit×Iso = _, tt
+rightInv rUnit×Iso _ = refl
+leftInv rUnit×Iso _ = refl
+
 module _ {A : Type ℓ} {A' : Type ℓ'} where
   Σ-swap-Iso : Iso (A × A') (A' × A)
   fun Σ-swap-Iso (x , y) = (y , x)
