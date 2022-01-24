@@ -168,7 +168,8 @@ module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
 
  private
    f = fst φ
- open IsRingHom (φ .snd)
+ open IsRingHom
+ open IsRawRingHom (φ .snd .isRawRingHom)
 
  RingHomRespInv : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ → f r ∈ Bˣ
  RingHomRespInv r = f (r ⁻¹ᵃ) , (sym (pres· r (r ⁻¹ᵃ)) ∙∙ cong (f) (·A-rinv r) ∙∙ pres1)

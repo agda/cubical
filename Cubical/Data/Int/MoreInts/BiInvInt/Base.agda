@@ -7,9 +7,9 @@ Definition of the integers as a HIT ported from the redtt library:
 For the naive, but incorrect, way to define the integers as a HIT, see HITs.IsoInt
 
 This file contains:
-- definition of BiInvInt
-- proof that Int ≡ BiInvInt
-- [discreteBiInvInt] and [isSetBiInvInt]
+- definition of BiInvℤ
+- proof that Int ≡ BiInvℤ
+- [discreteBiInvℤ] and [isSetBiInvℤ]
 - versions of the point constructors of BiInvInt which satisfy the path constructors judgmentally
 
 -}
@@ -224,8 +224,14 @@ fwd-bwd (predl-suc z i) j
           (fwd-predSuc (bwd z) i j)
 
 
+ℤ≅BiInvℤ : Iso ℤ BiInvℤ
+ℤ≅BiInvℤ = iso fwd bwd fwd-bwd bwd-fwd
+
+ℤ≃BiInvℤ :  ℤ ≃ BiInvℤ
+ℤ≃BiInvℤ = isoToEquiv ℤ≅BiInvℤ
+
 ℤ≡BiInvℤ : ℤ ≡ BiInvℤ
-ℤ≡BiInvℤ = isoToPath (iso fwd bwd fwd-bwd bwd-fwd)
+ℤ≡BiInvℤ = isoToPath ℤ≅BiInvℤ
 
 discreteBiInvℤ : Discrete BiInvℤ
 discreteBiInvℤ = subst Discrete ℤ≡BiInvℤ discreteℤ

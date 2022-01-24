@@ -165,6 +165,7 @@ module RingTheory (R' : Ring ℓ) where
 
 
 module RingHoms where
+  open IsRawRingHom
   open IsRingHom
 
   idRingHom : (R : Ring ℓ) → RingHom R R
@@ -173,9 +174,10 @@ module RingHoms where
 
   compRingHom : {R S T : Ring ℓ} → RingHom R S → RingHom S T → RingHom R T
   fst (compRingHom f g) x = g .fst (f .fst x)
-  snd (compRingHom f g) = makeIsRingHom (cong (g .fst) (pres1 (snd f)) ∙ pres1 (snd g))
-                                        (λ x y → cong (g .fst) (pres+ (snd f) _ _) ∙ pres+ (snd g) _ _)
-                                        (λ x y → cong (g .fst) (pres· (snd f) _ _) ∙ pres· (snd g) _ _)
+  snd (compRingHom f g) =
+    makeIsRingHom (cong (g .fst) (pres1 ((snd f) .isRawRingHom)) ∙ pres1 ((snd g) .isRawRingHom))
+                  (λ x y → cong (g .fst) (pres+ ((snd f) .isRawRingHom) _ _) ∙ pres+ ((snd g) .isRawRingHom) _ _)
+                  (λ x y → cong (g .fst) (pres· ((snd f) .isRawRingHom) _ _) ∙ pres· ((snd g) .isRawRingHom) _ _)
 
   compIdRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
   compIdRingHom φ = RingHom≡ refl
@@ -191,7 +193,9 @@ module RingHoms where
 module RingHomTheory {R S : Ring ℓ} (φ : RingHom R S) where
   open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
-  open IsRingHom (φ .snd)
+  open IsRingHom
+  open IsRawRingHom ((φ .snd) .isRawRingHom)
+
   private
     instance
       _ = R

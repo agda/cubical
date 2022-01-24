@@ -29,31 +29,23 @@ private
     ℓ ℓ' : Level
 
 record IsCommRing {R : Type ℓ}
-                  (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
+                  (ringStr : RingStr R) : Type ℓ where
 
   constructor iscommring
 
+  open RawRingStr (RingStr.rawRingStr ringStr) public
+  open IsRing (RingStr.isRing ringStr) public
+  
   field
-    isRing : IsRing 0r 1r _+_ _·_ -_
     ·Comm : (x y : R) → x · y ≡ y · x
-
-  open IsRing isRing public
 
 record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
   constructor commringstr
 
   field
-    0r         : A
-    1r         : A
-    _+_        : A → A → A
-    _·_        : A → A → A
-    -_         : A → A
-    isCommRing : IsCommRing 0r 1r _+_ _·_ -_
-
-  infix  8 -_
-  infixl 7 _·_
-  infixl 6 _+_
+    ringStr : RingStr A
+    isCommRing : IsCommRing ringStr
 
   open IsCommRing isCommRing public
 
@@ -71,11 +63,11 @@ makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R 
                  (·-rid : (x : R) → x · 1r ≡ x)
                  (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
                  (·-comm : (x y : R) → x · y ≡ y · x)
-               → IsCommRing 0r 1r _+_ _·_ -_
-makeIsCommRing {_+_ = _+_} is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
-  iscommring (makeIsRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid
+               → IsCommRing (ringstr _ (makeIsRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid
                          (λ x → ·-comm _ _ ∙ ·-rid x) ·-rdist-+
-                         (λ x y z → ·-comm _ _ ∙∙ ·-rdist-+ z x y ∙∙ λ i → (·-comm z x i) + (·-comm z y i))) ·-comm
+                         (λ x y z → ·-comm _ _ ∙∙ ·-rdist-+ z x y ∙∙ λ i → (·-comm z x i) + (·-comm z y i))))
+makeIsCommRing {_+_ = _+_} is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
+  iscommring  ·-comm
 
 makeCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
                (is-setR : isSet R)
@@ -89,53 +81,48 @@ makeCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R →
                (·-comm : (x y : R) → x · y ≡ y · x)
              → CommRing ℓ
 makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
-  _ , commringstr _ _ _ _ _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
+  _ , commringstr _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
 
 CommRingStr→RingStr : {A : Type ℓ} → CommRingStr A → RingStr A
-CommRingStr→RingStr (commringstr _ _ _ _ _ H) = ringstr _ _ _ _ _ (IsCommRing.isRing H)
+CommRingStr→RingStr (commringstr r H) = r
 
 CommRing→Ring : CommRing ℓ → Ring ℓ
-CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
+CommRing→Ring (_ , commringstr r H) = _ , r
 
-CommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
+CommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ') 
 CommRingHom R S = RingHom (CommRing→Ring R) (CommRing→Ring S)
+
+record IsCommRingHom {A : Type ℓ} {B : Type ℓ'}
+  (R : CommRingStr A) (f : A → B) (S : CommRingStr B) : Type (ℓ-max ℓ ℓ') where
+  constructor iscommringhom
+  field
+    isRingHom : IsRingHom (CommRingStr→RingStr R) f (CommRingStr→RingStr S)
 
 IsCommRingEquiv : {A : Type ℓ} {B : Type ℓ'}
   (R : CommRingStr A) (e : A ≃ B) (S : CommRingStr B) → Type (ℓ-max ℓ ℓ')
-IsCommRingEquiv R e S = IsRingHom (CommRingStr→RingStr R) (e .fst) (CommRingStr→RingStr S)
+IsCommRingEquiv R e S = IsCommRingHom R (e .fst) S
 
 CommRingEquiv : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingEquiv R S = Σ[ e ∈ (R .fst ≃ S .fst) ] IsCommRingEquiv (R .snd) e (S .snd)
 
-isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
-             → isProp (IsCommRing 0r 1r _+_ _·_ -_)
-isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
-  λ i → iscommring (isPropIsRing _ _ _ _ _ RR SR i)
-                   (isPropComm RC SC i)
+isPropIsCommRing : {R : Type ℓ} (ringStr : RingStr R)
+             → isProp (IsCommRing ringStr)
+isPropIsCommRing ringStr (iscommring RC) (iscommring SC) =
+  λ i → iscommring (isPropComm RC SC i)
   where
-  isSetR : isSet _
-  isSetR = RR .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
-
-  isPropComm : isProp ((x y : _) → x · y ≡ y · x)
-  isPropComm = isPropΠ2 λ _ _ → isSetR _ _
+    open RingStr ringStr
+    isPropComm : isProp ((x y : _) → x · y ≡ y · x)
+    isPropComm = isPropΠ2 λ _ _ → isSetRing (_  , ringStr) _ _
 
 𝒮ᴰ-CommRing : DUARel (𝒮-Univ ℓ) CommRingStr ℓ
 𝒮ᴰ-CommRing =
   𝒮ᴰ-Record (𝒮-Univ _) IsCommRingEquiv
     (fields:
-      data[ 0r ∣ null ∣ pres0 ]
-      data[ 1r ∣ null ∣ pres1 ]
-      data[ _+_ ∣ bin ∣ pres+ ]
-      data[ _·_ ∣ bin ∣ pres· ]
-      data[ -_ ∣ autoDUARel _ _ ∣ pres- ]
-      prop[ isCommRing ∣ (λ _ _ → isPropIsCommRing _ _ _ _ _) ])
+      data[ ringStr ∣ 𝒮ᴰ-Ring ∣ isRingHom ]
+      prop[ isCommRing ∣ (λ _ _ → isPropIsCommRing _) ])
  where
   open CommRingStr
-  open IsRingHom
-
-  -- faster with some sharing
-  null = autoDUARel (𝒮-Univ _) (λ A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+  open IsCommRingHom
 
 CommRingPath : (R S : CommRing ℓ) → CommRingEquiv R S ≃ (R ≡ S)
 CommRingPath = ∫ 𝒮ᴰ-CommRing .UARel.ua

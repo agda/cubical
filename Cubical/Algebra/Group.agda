@@ -10,6 +10,3 @@ open import Cubical.Algebra.Group.MorphismProperties public
 open import Cubical.Algebra.Group.Subgroup public
 open import Cubical.Algebra.Group.QuotientGroup public
 open import Cubical.Algebra.Group.IsomorphismTheorems public
-open import Cubical.Algebra.Group.Instances.Unit public
-open import Cubical.Algebra.Group.Instances.Bool public
-open import Cubical.Algebra.Group.Instances.Int public

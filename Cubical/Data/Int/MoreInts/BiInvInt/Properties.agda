@@ -9,7 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat using (ℕ)
-import Cubical.Data.Int as ℤ
+import Cubical.Data.Int as Z
 open import Cubical.Data.Bool
 
 open import Cubical.Data.Int.MoreInts.BiInvInt.Base
@@ -156,7 +156,7 @@ neg (ℕ.suc n) = pred (neg n)
 --  bwd here! Any direct proof ends up doing the same work...)
 
 abs : BiInvℤ → ℕ
-abs n = ℤ.abs (bwd n)
+abs n = Z.abs (bwd n)
 
 Iso-n+ : (n : BiInvℤ) → Iso BiInvℤ BiInvℤ
 Iso.fun (Iso-n+ n) = n +_
