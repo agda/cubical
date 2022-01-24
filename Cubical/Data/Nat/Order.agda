@@ -70,6 +70,12 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 ≤-suc : m ≤ n → m ≤ suc n
 ≤-suc (k , p) = suc k , cong suc p
 
+suc-< : suc m < n → m < n
+suc-< p = pred-≤-pred (≤-suc p)
+
+≤-sucℕ : n ≤ suc n
+≤-sucℕ = ≤-suc ≤-refl
+
 ≤-predℕ : predℕ n ≤ n
 ≤-predℕ {zero} = ≤-refl
 ≤-predℕ {suc n} = ≤-suc ≤-refl
@@ -226,6 +232,15 @@ suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
 <-split {suc m} {suc n} = ⊎.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
+
+≤-split : m ≤ n → (m < n) ⊎ (m ≡ n)
+≤-split p = <-split (suc-≤-suc p)
+
+≤→< : m ≤ n → ¬ m ≡ n → m < n
+≤→< p q =
+  case (≤-split p) of
+    λ { (inl r) → r
+      ; (inr r) → ⊥.rec (q r) }
 
 ≤-+-split : ∀ n m k → k ≤ n + m → (n ≤ k) ⊎ (m ≤ (n + m) ∸ k)
 ≤-+-split n m k k≤n+m with n ≟ k

@@ -12,6 +12,7 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 import Cubical.Data.Fin as Fin
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.SumFin.Base as SumFin
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
@@ -52,6 +53,12 @@ SumFin≃Fin _ =
 
 SumFin≡Fin : ∀ k → Fin k ≡ Fin.Fin k
 SumFin≡Fin k = ua (SumFin≃Fin k)
+
+enum : (n : ℕ)(p : n < k) → Fin k
+enum n p = Fin→SumFin (n , p)
+
+enumElim : (P : Fin k → Type ℓ) → ((n : ℕ)(p : n < k) → P (enum _ p)) → (i : Fin k) → P i
+enumElim P f i = subst P (SumFin→Fin→SumFin i) (f (SumFin→Fin i .fst) (SumFin→Fin i .snd))
 
 -- Closure properties of SumFin under type constructors
 

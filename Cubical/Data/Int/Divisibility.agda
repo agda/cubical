@@ -4,9 +4,10 @@ Base facts about that the ring ℤ is Bézout domain
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.IntegerMatrix.Divisibility where
+module Cubical.Data.Int.Divisibility where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Nat
   hiding   (+-assoc ; +-comm ; ·-comm)
@@ -36,6 +37,36 @@ m ∣ n = ∃[ c ∈ ℤ ] c · m ≡ n
 isProp∣ : isProp (m ∣ n)
 isProp∣ = squash
 
+-- Untruncated divisiblility relation
+
+_∣'_ : ℤ → ℤ → Type
+pos 0  ∣' n = 0 ≡ n
+pos (suc m) ∣' n = Σ[ c ∈ ℤ ] c · (pos (suc m)) ≡ n
+(negsuc m)  ∣' n = Σ[ c ∈ ℤ ] c · (negsuc m)    ≡ n
+
+isProp∣' : isProp (m ∣' n)
+isProp∣' {m = pos 0} {n = n} = isSetℤ 0 n
+isProp∣' {m = pos (suc m)} {n = n} p q =
+  Σ≡Prop (λ _ → isSetℤ _ _) (·rCancel (pos (suc m)) _ _ (p .snd ∙ sym (q .snd)) (λ r → snotz (injPos r)))
+isProp∣' {m = negsuc m} {n = n} p q =
+  Σ≡Prop (λ _ → isSetℤ _ _) (·rCancel (negsuc m) _ _ (p .snd ∙ sym (q .snd)) (negsucNotpos _ 0))
+
+∣→∣' : (m n : ℤ) → m ∣ n → m ∣' n
+∣→∣' (pos 0) n ∣ c , p ∣ = ·Comm 0 c ∙ p
+∣→∣' (pos (suc m)) n ∣ p ∣ = p
+∣→∣' (negsuc m) n ∣ p ∣ = p
+∣→∣' m n (squash p q i) = isProp∣' (∣→∣' _ _ p) (∣→∣' _ _ q) i
+
+∣'→∣ : (m n : ℤ) → m ∣' n → m ∣ n
+∣'→∣ (pos 0) n p = ∣ 0 , p ∣
+∣'→∣ (pos (suc m)) n p = ∣ p ∣
+∣'→∣ (negsuc m) n p = ∣ p ∣
+
+∣≃∣' : (m n : ℤ) → (m ∣ n) ≃ (m ∣' n)
+∣≃∣' m n = propBiimpl→Equiv isProp∣ isProp∣' (∣→∣' _ _) (∣'→∣ _ _)
+
+-- Properties of divisibility
+
 ∣-left : m ∣ (m · k)
 ∣-left {k = k} = ∣ k , ·Comm k _ ∣
 
@@ -44,6 +75,9 @@ isProp∣ = squash
 
 ∣-refl : m ≡ n → m ∣ n
 ∣-refl p = ∣ 1 , p ∣
+
+∣-zeroˡ : 0 ∣ m → 0 ≡ m
+∣-zeroˡ = ∣→∣' _ _
 
 ∣-zeroʳ : m ∣ 0
 ∣-zeroʳ = ∣ 0 , refl ∣
@@ -60,6 +94,18 @@ isProp∣ = squash
 
 ∣-right· : k ∣ m → k ∣ (n · m)
 ∣-right· {k = k} {n = n} p = ∣-trans p (∣-right {k = n})
+
+-- Exact division
+
+divide : m ∣ n → ℤ
+divide {m = pos 0} _ = 0
+divide {m = pos (suc m)} p = ∣→∣' _ _ p .fst
+divide {m = negsuc m} p = ∣→∣' _ _ p .fst
+
+divideEq : (p : m ∣ n) → divide p · m ≡ n
+divideEq {m = pos 0} = ∣→∣' _ _
+divideEq {m = pos (suc m)} p = ∣→∣' _ _ p .snd
+divideEq {m = negsuc m} p = ∣→∣' _ _ p .snd
 
 -- Bézout and Euclidean Domain
 
@@ -111,6 +157,56 @@ bézoutReduction m d r b .gcd   = b .gcd
 bézoutReduction m d r b .identity = alg-helper (b .coef₁) (b .coef₂) m d r ∙ b .identity
 bézoutReduction m d r b .isGCD .fst = b .isGCD .snd
 bézoutReduction m d r b .isGCD .snd = ∣-+ (∣-right· {n = d} (b .isGCD .snd)) (b .isGCD .fst)
+
+-- Properties of Bézout identity
+
+module _
+  (b : Bézout m n) where
+
+  private
+    g = b .gcd
+
+  gcd≡0 : g ≡ 0 → (m ≡ 0) × (n ≡ 0)
+  gcd≡0 p .fst = sym (∣-zeroˡ (subst (λ a → a ∣ _) p (b .isGCD .fst)))
+  gcd≡0 p .snd = sym (∣-zeroˡ (subst (λ a → a ∣ _) p (b .isGCD .snd)))
+
+  ¬m≡0→¬gcd≡0 : ¬ m ≡ 0 → ¬ g ≡ 0
+  ¬m≡0→¬gcd≡0 p q = p (gcd≡0 q .fst)
+
+  div₁ div₂ : ℤ
+  div₁ = divide (b .isGCD .fst)
+  div₂ = divide (b .isGCD .snd)
+
+  div·-helper : g · (div₁ · n) ≡ g · (div₂ · m)
+  div·-helper =
+      ·Assoc g div₁ n
+    ∙ (λ i → ·Comm g div₁ i · n)
+    ∙ (λ i → divideEq (b .isGCD .fst) i · n)
+    ∙ ·Comm m n
+    ∙ (λ i → divideEq (b .isGCD .snd) (~ i) · m)
+    ∙ (λ i → ·Comm div₂ g i · m)
+    ∙ sym (·Assoc g div₂ m)
+
+  div·-g≠0 : ¬ g ≡ 0 → div₁ · n ≡ div₂ · m
+  div·-g≠0 p = ·lCancel _ _ _ div·-helper p
+
+  div·-g≡0 : g ≡ 0 → div₁ · n ≡ div₂ · m
+  div·-g≡0 p =
+      (λ i → div₁ · gcd≡0 p .snd i)
+    ∙ ·Comm div₁ 0
+    ∙ ·Comm 0 div₂
+    ∙ (λ i → div₂ · gcd≡0 p .fst (~ i))
+
+  div·-case : Dec (g ≡ 0) → div₁ · n ≡ div₂ · m
+  div·-case (yes p) = div·-g≡0  p
+  div·-case (no ¬p) = div·-g≠0 ¬p
+
+  div· : div₁ · n ≡ div₂ · m
+  div· = div·-case (discreteℤ g 0)
+
+  div·- : - div₂ · m + div₁ · n ≡ 0
+  div·- =   (λ i → -DistL· div₂ m (~ i) + div₁ · n)
+          ∙ subst (λ a → - a + div₁ · n ≡ 0) div· (-Cancel' (div₁ · n))
 
 -- Quotient and Remainder
 
