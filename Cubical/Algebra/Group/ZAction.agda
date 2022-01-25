@@ -189,10 +189,9 @@ snd (Iso-pres-gen₂ G H g₁ g₂ genG is h) =
           (homPresℤ· (_ , snd is) g₂ (snd (fst (genG (inv (fst is) h))))))
 
 
-private
-  intLem₁ : (n m : ℕ) → Σ[ a ∈ ℕ ] (negsuc n * pos (suc m)) ≡ negsuc a
-  intLem₁ n zero = n , ·Comm  (negsuc n) (pos 1)
-  intLem₁ n (suc m) = lem _ _ .fst ,
+intLem₁ : (n m : ℕ) → Σ[ a ∈ ℕ ] (negsuc n * pos (suc m)) ≡ negsuc a
+intLem₁ n zero = n , ·Comm  (negsuc n) (pos 1)
+intLem₁ n (suc m) = lem _ _ .fst ,
        (·Comm (negsuc n) (pos (suc (suc m)))
     ∙∙ cong (negsuc n +ℤ_) (·Comm (pos (suc m)) (negsuc n) ∙ (intLem₁ n m .snd))
     ∙∙ lem _ _ .snd)
@@ -205,10 +204,10 @@ private
        (lem (suc (suc x)) y .fst)
      , (predℤ+negsuc y (negsuc (suc x)) ∙ snd ((lem (suc (suc x))) y))
 
-  intLem₂ : (n x : ℕ)
-    → Σ[ a ∈ ℕ ] ((pos (suc x)) * pos (suc (suc n)) ≡ pos (suc (suc a)))
-  intLem₂ n zero = n , refl
-  intLem₂ n (suc x) = lem _ _ (intLem₂ n x)
+intLem₂ : (n x : ℕ)
+  → Σ[ a ∈ ℕ ] ((pos (suc x)) * pos (suc (suc n)) ≡ pos (suc (suc a)))
+intLem₂ n zero = n , refl
+intLem₂ n (suc x) = lem _ _ (intLem₂ n x)
     where
     lem : (x : ℤ) (n : ℕ) → Σ[ a ∈ ℕ ] (x ≡ pos (suc (suc a)))
                   → Σ[ a ∈ ℕ ] pos n +ℤ x ≡ pos (suc (suc a))
@@ -216,11 +215,11 @@ private
       , cong (pos n +ℤ_) p ∙ cong sucℤ (sucℤ+pos a (pos n))
          ∙ sucℤ+pos a (pos (suc n)) ∙ (sym (pos+ (suc (suc n)) a))
 
-  ¬1=x·suc-suc : (n : ℕ) (x : ℤ) → ¬ pos 1 ≡ x * pos (suc (suc n))
-  ¬1=x·suc-suc n (pos zero) p = snotz (injPos p)
-  ¬1=x·suc-suc n (pos (suc n₁)) p =
-    snotz (injPos (sym (cong predℤ (snd (intLem₂ n n₁))) ∙ sym (cong predℤ p)))
-  ¬1=x·suc-suc n (negsuc n₁) p = posNotnegsuc _ _ (p ∙ intLem₁ _ _ .snd)
+¬1=x·suc-suc : (n : ℕ) (x : ℤ) → ¬ pos 1 ≡ x * pos (suc (suc n))
+¬1=x·suc-suc n (pos zero) p = snotz (injPos p)
+¬1=x·suc-suc n (pos (suc n₁)) p =
+  snotz (injPos (sym (cong predℤ (snd (intLem₂ n n₁))) ∙ sym (cong predℤ p)))
+¬1=x·suc-suc n (negsuc n₁) p = posNotnegsuc _ _ (p ∙ intLem₁ _ _ .snd)
 
 GroupEquivℤ-pres1 : (e : GroupEquiv ℤGroup ℤGroup) (x : ℤ)
   → (fst (fst e) 1) ≡ x → abs (fst (fst e) 1) ≡ 1

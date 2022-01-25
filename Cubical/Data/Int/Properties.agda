@@ -473,3 +473,8 @@ abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)
 ⊎→abs (negsuc n₁) n (inl x₁) = cong abs x₁
 ⊎→abs x zero (inr x₁) = cong abs x₁
 ⊎→abs x (suc n) (inr x₁) = cong abs x₁
+
+abs- : (x : ℤ) → abs x ≡ abs (- x)
+abs- (pos zero) = refl
+abs- (pos (suc n)) = refl
+abs- (negsuc n) = refl
