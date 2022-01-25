@@ -121,7 +121,7 @@ foo ϕ g = ⊎-rec (λ h → inl (funExt⁻ (lem (_ , ϕ .snd) h) g))
 
 miniLem₂ : (ϕ : GroupEquiv ℤGroup ℤGroup) (g : ℤ)
          → (abs g ≡ abs (fst (fst ϕ) g))
-miniLem₂ ϕ g = ⊎-rec (λ h → sym (cong abs h)) (λ h → abs- _ ∙ sym (cong abs h)) (foo ϕ g)
+miniLem₂ ϕ g = ⊎-rec (λ h → sym (cong abs h)) (λ h → sym (abs- _) ∙ sym (cong abs h)) (foo ϕ g)
 
 -- some minor group lemmas
 groupLem-help : (g : ℤ)
