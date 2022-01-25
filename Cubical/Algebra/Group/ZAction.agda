@@ -1,8 +1,11 @@
 -- Left ℤ-multiplication on groups and some of its properties
+
+-- TODO: lots of the content here should be moved elsewhere
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Group.ZAction where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 
@@ -12,7 +15,8 @@ open import Cubical.Data.Int
 open import Cubical.Data.Nat
   hiding (_·_) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum renaming (rec to ⊎-rec)
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
@@ -20,6 +24,7 @@ open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.GroupPath
 
 open import Cubical.Relation.Nullary
 
@@ -158,7 +163,8 @@ GroupHomℤ→ℤPres· e a b =
   cong (fst e) (ℤ·≡· a b) ∙∙ homPresℤ· e b a ∙∙ sym (ℤ·≡· a (fst e b))
 
 -- Generators in terms of ℤ-multiplication
--- Todo : generalise
+
+-- TODO : generalise and develop theory of cyclic groups
 gen₁-by : (G : Group ℓ) → (g : fst G) → Type _
 gen₁-by G g = (h : fst G)
             → Σ[ a ∈ ℤ ] h ≡ (a ℤ[ G ]· g)
@@ -188,10 +194,27 @@ snd (Iso-pres-gen₂ G H g₁ g₂ genG is h) =
           (homPresℤ· (_ , snd is) g₁ (fst (fst (genG (inv (fst is) h)))))
           (homPresℤ· (_ , snd is) g₂ (snd (fst (genG (inv (fst is) h))))))
 
-
-intLem₁ : (n m : ℕ) → Σ[ a ∈ ℕ ] (negsuc n * pos (suc m)) ≡ negsuc a
-intLem₁ n zero = n , ·Comm  (negsuc n) (pos 1)
-intLem₁ n (suc m) = lem _ _ .fst ,
+-- TODO: upstream and express using divisibility?
+¬1=x·suc-suc : (n : ℕ) (x : ℤ) → ¬ pos 1 ≡ x * pos (suc (suc n))
+¬1=x·suc-suc n (pos zero) p = snotz (injPos p)
+¬1=x·suc-suc n (pos (suc n₁)) p =
+  snotz (injPos (sym (cong predℤ (snd (intLem₂ n n₁))) ∙ sym (cong predℤ p)))
+  where
+  intLem₂ : (n x : ℕ)
+    → Σ[ a ∈ ℕ ] ((pos (suc x)) * pos (suc (suc n)) ≡ pos (suc (suc a)))
+  intLem₂ n zero = n , refl
+  intLem₂ n (suc x) = lem _ _ (intLem₂ n x)
+    where
+    lem : (x : ℤ) (n : ℕ) → Σ[ a ∈ ℕ ] (x ≡ pos (suc (suc a)))
+                  → Σ[ a ∈ ℕ ] pos n +ℤ x ≡ pos (suc (suc a))
+    lem x n (a , p) = n +ℕ a
+      , cong (pos n +ℤ_) p ∙ cong sucℤ (sucℤ+pos a (pos n))
+         ∙ sucℤ+pos a (pos (suc n)) ∙ (sym (pos+ (suc (suc n)) a))
+¬1=x·suc-suc n (negsuc n₁) p = posNotnegsuc _ _ (p ∙ intLem₁ _ _ .snd)
+  where
+  intLem₁ : (n m : ℕ) → Σ[ a ∈ ℕ ] (negsuc n * pos (suc m)) ≡ negsuc a
+  intLem₁ n zero = n , ·Comm  (negsuc n) (pos 1)
+  intLem₁ n (suc m) = lem _ _ .fst ,
        (·Comm (negsuc n) (pos (suc (suc m)))
     ∙∙ cong (negsuc n +ℤ_) (·Comm (pos (suc m)) (negsuc n) ∙ (intLem₁ n m .snd))
     ∙∙ lem _ _ .snd)
@@ -203,23 +226,6 @@ intLem₁ n (suc m) = lem _ _ .fst ,
     lem (suc x) (suc y) =
        (lem (suc (suc x)) y .fst)
      , (predℤ+negsuc y (negsuc (suc x)) ∙ snd ((lem (suc (suc x))) y))
-
-intLem₂ : (n x : ℕ)
-  → Σ[ a ∈ ℕ ] ((pos (suc x)) * pos (suc (suc n)) ≡ pos (suc (suc a)))
-intLem₂ n zero = n , refl
-intLem₂ n (suc x) = lem _ _ (intLem₂ n x)
-    where
-    lem : (x : ℤ) (n : ℕ) → Σ[ a ∈ ℕ ] (x ≡ pos (suc (suc a)))
-                  → Σ[ a ∈ ℕ ] pos n +ℤ x ≡ pos (suc (suc a))
-    lem x n (a , p) = n +ℕ a
-      , cong (pos n +ℤ_) p ∙ cong sucℤ (sucℤ+pos a (pos n))
-         ∙ sucℤ+pos a (pos (suc n)) ∙ (sym (pos+ (suc (suc n)) a))
-
-¬1=x·suc-suc : (n : ℕ) (x : ℤ) → ¬ pos 1 ≡ x * pos (suc (suc n))
-¬1=x·suc-suc n (pos zero) p = snotz (injPos p)
-¬1=x·suc-suc n (pos (suc n₁)) p =
-  snotz (injPos (sym (cong predℤ (snd (intLem₂ n n₁))) ∙ sym (cong predℤ p)))
-¬1=x·suc-suc n (negsuc n₁) p = posNotnegsuc _ _ (p ∙ intLem₁ _ _ .snd)
 
 GroupEquivℤ-pres1 : (e : GroupEquiv ℤGroup ℤGroup) (x : ℤ)
   → (fst (fst e) 1) ≡ x → abs (fst (fst e) 1) ≡ 1
@@ -312,3 +318,121 @@ snd (gen₂ℤ×ℤ (x , y)) =
   distrLem x y (negsuc (suc n)) =
     cong₂ _+''_ (ΣPathP (sym (-lem x) , sym (-lem y)))
                 (distrLem x y (negsuc n))
+
+gen₁ℤGroup-⊎ : (g : ℤ) → gen₁-by ℤGroup g → (g ≡ 1) ⊎ (g ≡ -1)
+gen₁ℤGroup-⊎ (pos zero) h = ⊥-rec (negsucNotpos 0 0 (h (negsuc 0) .snd ∙ rUnitℤ· ℤGroup _))
+gen₁ℤGroup-⊎ (pos (suc zero)) h = inl refl
+gen₁ℤGroup-⊎ (pos (suc (suc n))) h = ⊥-rec (¬1=x·suc-suc n _ (rem (pos 1)))
+  where
+  rem : (x : ℤ) → x ≡ fst (h x) * pos (suc (suc n))
+  rem x = h x .snd ∙ sym (ℤ·≡· (fst (h x)) (pos (suc (suc n))))
+gen₁ℤGroup-⊎ (negsuc zero) h = inr refl
+gen₁ℤGroup-⊎ (negsuc (suc n)) h = ⊥-rec (¬1=x·suc-suc n _ (rem (pos 1) ∙ ℤ·negsuc (fst (h (pos 1))) (suc n) ∙ -DistL· _ _))
+  where
+  rem : (x : ℤ) → x ≡ fst (h x) * negsuc (suc n)
+  rem x = h x .snd ∙ sym (ℤ·≡· (fst (h x)) (negsuc (suc n)))
+
+open IsGroupHom
+
+-- Properties of homomorphisms of ℤ wrt generators (should be moved)
+module _ (ϕ : GroupHom ℤGroup ℤGroup) where
+  ℤHomId : fst ϕ 1 ≡ 1 → fst ϕ ≡ idfun _
+  ℤHomId p = funExt rem
+    where
+    remPos : (x : ℕ) → fst ϕ (pos x) ≡ idfun ℤ (pos x)
+    remPos zero = pres1 (snd ϕ)
+    remPos (suc zero) = p
+    remPos (suc (suc n)) =
+      pres· (snd ϕ) (pos (suc n)) 1 ∙ cong₂ _+ℤ_ (remPos (suc n)) p
+
+    rem : (x : ℤ) → fst ϕ x ≡ idfun ℤ x
+    rem (pos n) = remPos n
+    rem (negsuc zero) =
+      presinv (snd ϕ) 1 ∙ cong (λ x → 0 -ℤ x) p
+    rem (negsuc (suc n)) =
+        (cong (fst ϕ) (sym (+Comm 0 (negsuc (suc n))))
+      ∙ presinv (snd ϕ) (pos (suc (suc n))))
+      ∙ +Comm 0 _
+      ∙ cong (-_) (remPos (suc (suc n)))
+
+  ℤHomId- : fst ϕ -1 ≡ -1 → fst ϕ ≡ idfun _
+  ℤHomId- p = ℤHomId (presinv (snd ϕ) (negsuc 0) ∙ sym (minus≡0- _) ∙ cong -_ p)
+
+  ℤHom1- : fst ϕ 1 ≡ -1 → fst ϕ ≡ -_
+  ℤHom1- p = funExt rem
+    where
+    rem-1 : fst ϕ (negsuc zero) ≡ pos 1
+    rem-1 = presinv (snd ϕ) (pos 1) ∙ sym (minus≡0- (fst ϕ 1)) ∙ cong -_ p
+
+    rem : (n : ℤ) → fst ϕ n ≡ - n
+    rem (pos zero) = pres1 (snd ϕ)
+    rem (pos (suc zero)) = p
+    rem (pos (suc (suc n))) = pres· (snd ϕ) (pos (suc n)) (pos 1) ∙ cong₂ _+ℤ_ (rem (pos (suc n))) p
+    rem (negsuc zero) = rem-1
+    rem (negsuc (suc n)) = pres· (snd ϕ) (negsuc n) -1 ∙ cong₂ _+ℤ_ (rem (negsuc n)) rem-1
+
+  ℤHom-1 : fst ϕ -1 ≡ 1 → fst ϕ ≡ -_
+  ℤHom-1 p = ℤHom1- (presinv (snd ϕ) -1 ∙∙ +Comm 0 _ ∙∙ cong -_ p)
+
+
+-- Properties of equivalences of ℤ wrt generators (should be moved)
+module _ (ϕ : GroupEquiv ℤGroup ℤGroup) where
+  ℤEquiv1 : (groupEquivFun ϕ 1 ≡ 1) ⊎ (groupEquivFun ϕ 1 ≡ -1)
+  ℤEquiv1 =
+    groupEquivPresGen ℤGroup (compGroupEquiv ϕ (invGroupEquiv ϕ))
+                     (pos 1) (inl (funExt⁻ (cong fst (invEquiv-is-rinv (ϕ .fst))) (pos 1))) ϕ
+
+  ℤEquivIsIdOr- : (g : ℤ) → (groupEquivFun ϕ g ≡ g) ⊎ (groupEquivFun ϕ g ≡ - g)
+  ℤEquivIsIdOr- g =
+    ⊎-rec (λ h → inl (funExt⁻ (ℤHomId (_ , ϕ .snd) h) g))
+          (λ h → inr (funExt⁻ (ℤHom1- (_ , ϕ .snd) h) g))
+          ℤEquiv1
+
+  absℤEquiv : (g : ℤ) → abs g ≡ abs (fst (fst ϕ) g)
+  absℤEquiv g =
+    ⊎-rec (λ h → sym (cong abs h))
+          (λ h → sym (abs- _) ∙ sym (cong abs h))
+          (ℤEquivIsIdOr- g)
+
+
+-- A few consequences of the above lemmas
+
+absGroupEquivℤGroup : {G : Group₀} (ϕ ψ : GroupEquiv ℤGroup G) (g : fst G)
+                    → abs (invEq (fst ϕ) g) ≡ abs (invEq (fst ψ) g)
+absGroupEquivℤGroup =
+  GroupEquivJ (λ G ϕ → (ψ : GroupEquiv ℤGroup G) (g : fst G)
+                     → abs (invEq (fst ϕ) g) ≡ abs (invEq (fst ψ) g))
+              (λ ψ → absℤEquiv (invGroupEquiv ψ))
+
+
+GroupEquivℤ-isEquiv : {G : Group₀}
+         → GroupEquiv ℤGroup G
+         → (g : fst G)
+         → gen₁-by G g
+         → (ϕ : GroupHom G ℤGroup)
+         → (fst ϕ g ≡ 1) ⊎ (fst ϕ g ≡ -1)
+         → isEquiv (fst ϕ)
+GroupEquivℤ-isEquiv {G = G} =
+  GroupEquivJ
+    (λ G _ → (g : fst G)
+         → gen₁-by G g
+         → (ϕ : GroupHom G ℤGroup)
+         → (fst ϕ g ≡ 1) ⊎ (fst ϕ g ≡ -1)
+         → isEquiv (fst ϕ))
+    rem
+  where
+  rem : (g : ℤ)
+      → gen₁-by ℤGroup g
+      → (ϕ : GroupHom ℤGroup ℤGroup)
+      → (fst ϕ g ≡ 1) ⊎ (fst ϕ g ≡ -1)
+      → isEquiv (fst ϕ)
+  rem g gen ϕ (inl h₁) =
+    ⊎-rec (λ h₂ → subst isEquiv (sym (ℤHomId ϕ (sym (cong (fst ϕ) h₂) ∙ h₁))) (idIsEquiv _))
+          (λ h₂ → subst isEquiv (sym (ℤHom-1 ϕ (sym (cong (fst ϕ) h₂) ∙ h₁))) isEquiv-)
+          (gen₁ℤGroup-⊎ g gen)
+  rem g gen ϕ (inr h₁) =
+   ⊎-rec (λ h₂ → subst isEquiv (sym (ℤHom1- ϕ (sym (cong (fst ϕ) h₂) ∙ h₁))) isEquiv-)
+         (λ h₂ → subst isEquiv (sym (ℤHomId- ϕ (sym (cong (fst ϕ) h₂) ∙ h₁))) (idIsEquiv _))
+         (gen₁ℤGroup-⊎ g gen)
+
+
