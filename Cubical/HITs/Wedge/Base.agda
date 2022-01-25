@@ -44,3 +44,8 @@ snd isContr-Unit⋁Unit (push tt i) j = push tt (i ∧ j)
 ⋁↪ {B = B} (inl x) = x , pt B
 ⋁↪ {A = A} (inr x) = pt A , x
 ⋁↪ {A = A} {B = B} (push a i) = pt A , pt B
+
+fold⋁ : ∀ {ℓ} {A : Pointed ℓ} → A ⋁ A → typ A
+fold⋁ (inl x) = x
+fold⋁ (inr x) = x
+fold⋁ {A = A} (push a i) = snd A
