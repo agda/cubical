@@ -21,7 +21,7 @@ private
 
 -- induction principles
 
-module _ {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A) where
+module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) where
   open UARel 𝒮-A
   𝒮-J : {a : A}
         (P : (a' : A) → (p : a ≡ a') → Type ℓ)
@@ -44,7 +44,7 @@ module _ {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A) where
     = subst (λ r → P a' r) (Iso.leftInv (uaIso a a') p) g
     where
       g : P a' (≡→≅ (≅→≡ p))
-      g = J (λ y q → P y (≡→≅ q)) d (≅→≡ p)
+      g = 𝒮-J (λ y q → P y (≡→≅ q)) d p
 
 
 -- constructors
@@ -81,11 +81,9 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
     -- constructor that reduces univalence further to contractibility of relational singletons
 
     𝒮ᴰ-make-2 : (ρᴰ : {a : A} → isRefl _≅ᴰ⟨ ρ a ⟩_)
-                (contrTotal : (a : A) → contrRelSingl _≅ᴰ⟨ UARel.ρ 𝒮-A a ⟩_)
+                (contrTotal : (a : A) → contrRelSingl _≅ᴰ⟨ ρ a ⟩_)
                 → DUARel 𝒮-A B ℓ≅B
-    DUARel._≅ᴰ⟨_⟩_ (𝒮ᴰ-make-2 ρᴰ contrTotal) = _≅ᴰ⟨_⟩_
-    DUARel.uaᴰ (𝒮ᴰ-make-2 ρᴰ contrTotal)
-      = 𝒮ᴰ-make-aux (contrRelSingl→isUnivalent _ ρᴰ (contrTotal _))
+    𝒮ᴰ-make-2 ρᴰ contrTotal = 𝒮ᴰ-make-1 (contrRelSingl→isUnivalent _ ρᴰ (contrTotal _))
 
 -- relational isomorphisms
 
