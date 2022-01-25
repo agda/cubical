@@ -50,15 +50,15 @@ private
 [_]× (f , g) = [ f ∣ g ]π'
 
 -- Some type abbreviations (unproved results)
-π₄S³≅ℤ/something : GroupEquiv (π 3 𝕊²) ℤ → Type₁
-π₄S³≅ℤ/something eq =
+π₄S³≡ℤ/something : GroupEquiv (π 3 𝕊²) ℤ → Type₁
+π₄S³≡ℤ/something eq =
   π 4 𝕊³ ≡ ℤ/ abs (eq .fst .fst [ ∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂ ]×)
 
 -- Summary of the last steps of the proof
 module π₄S³
   (π₃S²≃ℤ           : GroupEquiv (π 3 𝕊²) ℤ)
   (gen-by-HopfMap   : gen₁-by (π 3 𝕊²) ∣ HopfMap ∣₂)
-  (π₄S³≅ℤ/whitehead : π₄S³≅ℤ/something π₃S²≃ℤ)
+  (π₄S³≡ℤ/whitehead : π₄S³≡ℤ/something π₃S²≃ℤ)
   (hopfWhitehead    : abs (HopfInvariant-π' 0 ([ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂) ]×)) ≡ 2)
   where
 
@@ -84,4 +84,4 @@ module π₄S³
 
   -- The final result then follows
   π₄S³≡ℤ : π 4 𝕊³ ≡ ℤ/ 2
-  π₄S³≡ℤ = π₄S³≅ℤ/whitehead ∙ cong (ℤ/_) remAbs₂
+  π₄S³≡ℤ = π₄S³≡ℤ/whitehead ∙ cong (ℤ/_) remAbs₂
