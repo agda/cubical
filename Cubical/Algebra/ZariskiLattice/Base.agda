@@ -9,7 +9,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Powerset using (⊆-refl-consequence)
+open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence)
+                                         renaming (_∈_ to _∈ₚ_ ; subst-∈ to subst-∈ₚ)
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
@@ -43,8 +44,15 @@ open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
+open import Cubical.Algebra.DistLattice.Basis
 open import Cubical.Algebra.DistLattice.BigOps
 open import Cubical.Algebra.Matrix
+
+open import Cubical.Categories.Category.Base hiding (_[_,_])
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.CommAlgebras
+open import Cubical.Categories.Instances.DistLattice
+open import Cubical.Categories.Instances.Semilattice
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -445,6 +453,14 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
        fst χ' [ suc n , α ] ∎
 
 
+ -- the map induced by applying the universal property to the Zariski lattice
+ -- itself is the identity hom
+ ZLUniversalPropCorollary : ZLHasUniversalProp ZariskiLattice D isZarMapD .fst .fst
+                          ≡ idDistLatticeHom ZariskiLattice
+ ZLUniversalPropCorollary = cong fst
+                              (ZLHasUniversalProp ZariskiLattice D isZarMapD .snd
+                                 (idDistLatticeHom ZariskiLattice , refl))
+
 
 -- An equivalent definition that doesn't bump up the unviverse level
 module SmallZarLat (R' : CommRing ℓ) where
@@ -485,3 +501,85 @@ module SmallZarLat (R' : CommRing ℓ) where
 
  ZL≃ZL' : ZL ≃ ZL'
  ZL≃ZL' = isoToEquiv IsoLarLatSmall
+
+
+module BasicOpens (R' : CommRing ℓ) where
+ open CommRingStr ⦃...⦄
+ open RingTheory (CommRing→Ring R')
+ open CommIdeal R'
+ open isCommIdeal
+
+ open ZarLat R'
+ open ZarLatUniversalProp R'
+ open IsZarMap
+
+ open Join ZariskiLattice
+ open IsBasis
+
+ private
+  R = fst R'
+  instance
+   _ = snd R'
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+
+ BasicOpens : ℙ ZL
+ BasicOpens 𝔞 = (∃[ f ∈ R ] (D f ≡ 𝔞)) , isPropPropTrunc
+
+ BO : Type (ℓ-suc ℓ)
+ BO = Σ[ 𝔞 ∈ ZL ] (𝔞 ∈ₚ BasicOpens)
+
+ basicOpensAreBasis : IsBasis ZariskiLattice BasicOpens
+ contains1 basicOpensAreBasis = ∣ 1r , isZarMapD .pres1 ∣
+ ∧lClosed basicOpensAreBasis 𝔞 𝔟 = map2
+            λ (f , Df≡𝔞) (g , Dg≡𝔟) → (f · g) , isZarMapD .·≡∧ f g ∙ cong₂ (_∧z_) Df≡𝔞 Dg≡𝔟
+ ⋁Basis basicOpensAreBasis = elimProp (λ _ → isPropPropTrunc) Σhelper
+  where
+  Σhelper : (a : Σ[ n ∈ ℕ ] FinVec R n)
+          → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec ZL n ] (∀ i → α i ∈ₚ BasicOpens) × (⋁ α ≡ [ a ])
+  Σhelper (n , α) = ∣ n , (D ∘ α) , (λ i → ∣ α i , refl ∣) , path ∣
+   where
+   path : ⋁ (D ∘ α) ≡ [ n , α ]
+   path = funExt⁻ (cong fst ZLUniversalPropCorollary) _
+
+
+ -- The structure presheaf on BO
+ BOCat : Category (ℓ-suc ℓ) (ℓ-suc ℓ)
+ BOCat = ΣPropCat (DistLatticeCategory ZariskiLattice) BasicOpens
+
+ BasisStructurePShf : Functor (BOCat ^op) (CommAlgebrasCategory R')
+ BasisStructurePShf = universalPShf (DistLatticeCategory ZariskiLattice)
+   (λ 𝔞 → Σ[ f ∈ R ] (D f ≡ 𝔞)) -- the untruncated defining prop
+     (λ (_ , f , _) → R[1/ f ]AsCommAlgebra) -- D(f) ↦ R[1/f]
+       λ (𝔞 , f , p) (𝔟 , g , q) → contrHoms 𝔞 𝔟 f g p q
+  where
+  open PreSheafFromUniversalProp
+  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice ZariskiLattice))
+  open InvertingElementsBase R'
+
+  contrHoms : (𝔞 𝔟 : ZL) (f g : R) (p : D f ≡ 𝔞) (q : D g ≡ 𝔟)
+            → 𝔞 ≤ 𝔟 → isContr (CommAlgebraHom R[1/ g ]AsCommAlgebra R[1/ f ]AsCommAlgebra)
+  contrHoms 𝔞 𝔟 f g p q 𝔞≤𝔟 = R[1/g]HasAlgUniversalProp R[1/ f ]AsCommAlgebra
+    λ s s∈[gⁿ|n≥0] → subst-∈ₚ (R[1/ f ]AsCommRing ˣ)
+      (sym (·Rid (s /1))) --can't apply the lemma directly as we get mult with 1 somewhere
+        (RadicalLemma.toUnit R' f g f∈√⟨g⟩ s s∈[gⁿ|n≥0])
+   where
+   open AlgLoc R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
+        renaming (S⁻¹RHasAlgUniversalProp to R[1/g]HasAlgUniversalProp)
+   open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f) using (_/1)
+   open RadicalIdeal R'
+
+   private
+    instance
+     _ = snd R[1/ f ]AsCommRing
+
+   Df≤Dg : D f ≤ D g
+   Df≤Dg = subst2 _≤_ (sym p) (sym q) 𝔞≤𝔟
+
+   radicalHelper : √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
+                 ≡ √ ⟨ replicateFinVec 1 g ⟩
+   radicalHelper =
+     isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun Df≤Dg
+
+   f∈√⟨g⟩ : f ∈ √ ⟨ replicateFinVec 1 g ⟩
+   f∈√⟨g⟩ = subst (f ∈_) radicalHelper (∈→∈√ _ _ (indInIdeal _ _ zero))

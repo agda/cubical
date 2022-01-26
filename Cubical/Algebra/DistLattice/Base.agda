@@ -226,6 +226,9 @@ DistLattice→Lattice (_ , distlatticestr _ _ _ _  H) =
 DistLatticeHom : (L : DistLattice ℓ) (M : DistLattice ℓ') → Type (ℓ-max ℓ ℓ')
 DistLatticeHom L M = LatticeHom (DistLattice→Lattice L) (DistLattice→Lattice M)
 
+idDistLatticeHom : (L : DistLattice ℓ) → DistLatticeHom L L
+idDistLatticeHom L = idLatticeHom (DistLattice→Lattice L)
+
 IsDistLatticeEquiv : {A : Type ℓ} {B : Type ℓ'}
   (L : DistLatticeStr A) (e : A ≃ B) (M : DistLatticeStr B) → Type (ℓ-max ℓ ℓ')
 IsDistLatticeEquiv L e M =
