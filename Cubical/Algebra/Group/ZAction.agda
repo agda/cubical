@@ -434,5 +434,3 @@ GroupEquivℤ-isEquiv {G = G} =
    ⊎-rec (λ h₂ → subst isEquiv (sym (ℤHom1- ϕ (sym (cong (fst ϕ) h₂) ∙ h₁))) isEquiv-)
          (λ h₂ → subst isEquiv (sym (ℤHomId- ϕ (sym (cong (fst ϕ) h₂) ∙ h₁))) (idIsEquiv _))
          (gen₁ℤGroup-⊎ g gen)
-
-
