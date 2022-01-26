@@ -22,10 +22,12 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
 open Iso
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv.HalfAdjoint
 
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
@@ -692,11 +694,12 @@ g |      X          |  inl
          inr
 
 where X is the pullback of inl and inr
-  (X := Σ[b ∈ B] Σ[ C ∈ C ] (inl b ≡ inr c)).
+  (X := Σ[ (b , c) ∈ B × C ] (inl b ≡ inr c)).
 
 If f in n-connected and g in m-connected, then the diagonal map
 A → X is (n+m)-connected
 -}
+
 
 private
   shuffleFibIso₁ :
@@ -725,15 +728,8 @@ module BlakersMassey□ {ℓ ℓ' ℓ'' : Level}
   (con-f : isConnectedFun (suc n) f)
   (con-g : isConnectedFun (suc m) g) where
 
-  {- The function in question -}
-  toPullback : A → Σ[ b ∈ B ] Σ[ c ∈ C ] Path (Pushout f g) (inl b) (inr c)
-  toPullback a = (f a) , ((g a) , (push a))
-
   {- Some abbreviations and connectivity -}
   private
-    Pushout→PushoutGen' = Pushout→PushoutGen f g
-    PushoutGen→Pushout' = PushoutGen→Pushout f g
-    IsoPushoutPushoutGen' = IsoPushoutPushoutGen f g
     fib = doubleFib f g
 
     B-con : (x : B) → isConnected (suc n) (Σ[ c ∈ C ] (fib x c))
@@ -756,148 +752,56 @@ module BlakersMassey□ {ℓ ℓ' ℓ'' : Level}
 
   open module BM-f-g = BlakersMassey B C fib {m = n} B-con {n = m} C-con
 
-  {- The main theorem -}
-  toPullbackConnected : isConnectedFun (n + m) toPullback
-  toPullbackConnected (b , c , y) =
-    rec (isOfHLevelIsConnectedStable (n + m))
-      (λ A → reparametrise (A . fst) y)
-      (BM-f-g.Excision b c (cong Pushout→PushoutGen' y) .fst)
-    where
-    reparametrise : fib b c →
-         (y : Path (Pushout f g) (inl b) (inr c))
-      → isConnected (n + m) (fiber toPullback (b , c , y))
-    reparametrise =
-      uncurry λ x → uncurry
-       (J (λ b _ → (_ : g x ≡ c)
-                 → (s : Path (Pushout f g) (inl b) (inr c))
-                 → isConnected (n + m) (fiber toPullback (b , c , s)))
-        (J (λ c _ → (s : Path (Pushout f g) (inl (f x)) (inr c))
-                  → isConnected (n + m) (fiber toPullback (f x , c , s)))
-         λ s → isConnectedRetract (n + m)
-                 (Pullback→Push x s)
-                 (Push→Pullback x s)
-                 (Pullback→Push→Pullback x s)
-                 (BM-f-g.Excision (f x) (g x)
-                    (cong (fun IsoPushoutPushoutGen') s))))
-      where
-        module _ (x : A) (s : Path (Pushout f g) (inl (f x)) (inr (g x))) where
-          fibre-push : Type _
-          fibre-push = fiber push (cong Pushout→PushoutGen' s)
+  fib× : (B × C) → Type _
+  fib× (b , c) = fib b c
 
-          fibre-toPullback : Type _
-          fibre-toPullback = fiber toPullback (f x , g x , s)
+  PushoutGenPath× : B × C → Type _
+  PushoutGenPath× (b , c) = Path (PushoutGen fib) (inl b) (inr c)
 
-          Push→Pullback : fibre-push → fibre-toPullback
-          Push→Pullback ((y , p , q) , P) =
-            y , ΣPathP (p , ΣPathP (q , lem y p q P))
-            where
-            lem : (y : A) (p : f y ≡ f x) (q : g y ≡ g x)
-              → push (y , p , q) ≡ cong Pushout→PushoutGen' s
-              → PathP (λ i → Path (Pushout f g) (inl (p i)) (inr (q i)))
-                       (push y) s
-            lem y p q P i j =
-              hcomp (λ k → λ {(i = i0) → push y j
-                             ; (i = i1) → leftInv IsoPushoutPushoutGen' (s j) k
-                             ; (j = i0) → inl (p i)
-                             ; (j = i1) → inr (q i)})
-                (hcomp (λ k → λ {(i = i0) → push y j
-                             ; (i = i1) → PushoutGen→Pushout' (P k j)
-                             ; (j = i0) → inl (p i)
-                             ; (j = i1) → inr (q i)})
-                       (doubleCompPath-filler
-                         (λ i → inl (p (~ i))) (push y) (λ i → inr (q i)) i j))
+  PushoutPath× : B × C → Type _
+  PushoutPath× (b , c) = Path (Pushout f g) (inl b) (inr c)
 
-          Pullback→Push-filler : (y : A) (P : toPullback y ≡ (f x , g x , s))
-            → I → I → I → PushoutQ
-          Pullback→Push-filler y P i j k =
-            hfill (λ k → λ { (i = i0) → push (y , ((λ i → fst (P (i ∧ k)))
-                                              , λ i → fst (snd (P (i ∧ k))))) j
-                            ; (i = i1) → Pushout→PushoutGen' (snd (snd (P k)) j)
-                            ; (j = i0) → inl (fst (P k))
-                            ; (j = i1) → inr (fst (snd (P k)))})
-                   (inS (push (y , refl , refl) j))
-                   k
+  {- The function in question -}
+  toPullback : A → Σ (B × C) PushoutPath×
+  toPullback a = (f a , g a) , push a
 
-          Pullback→Push :
-            fiber toPullback (f x , g x , s)
-               → fiber push (cong Pushout→PushoutGen' s)
-          Pullback→Push (y , P) =
-            (y , (cong fst P , (λ i → fst (snd (P i)))))
-                , (λ i j → Pullback→Push-filler y P i j i1)
+  {- We redescribe toPullback as a composition of three maps,
+     two of which are equivs and one of which is (n+m)-connected -}
+  Totalfib×→Total : Σ (B × C) fib× → Σ (B × C) PushoutGenPath×
+  Totalfib×→Total =
+    TotalFun {A = B × C} {B = fib×} {C = PushoutGenPath×} (λ a → push)
 
-          pathCharac : {b1 b2 : B} {c1 c2 : C}
-            {p1 : Path (Pushout f g) (inl b1) (inr c1)}
-            {p2 : Path (Pushout f g) (inl b2) (inr c2)}
-            → {P Q : Path (Σ[ b ∈ B ] (Σ[ c ∈ C ]
-                             Path (Pushout f g) (inl b) (inr c)))
-                           (b1 , c1 , p1)
-                           (b2 , c2 , p2)}
-            → (R : cong fst P ≡ cong fst Q)
-            → (S : Path (c1 ≡ c2)
-                     (λ i → fst (snd (P i)))
-                     (λ i → fst (snd (Q i))))
-            → SquareP (λ i j → Path (Pushout f g) (inl (R i j)) (inr (S i j)))
-                       (λ j → snd (snd (P j))) (λ j → snd (snd (Q j)))
-                       refl
-                       refl
-            → P ≡ Q
-          fst (pathCharac R S PP i j) = R i j
-          fst (snd (pathCharac R S PP i j)) = S i j
-          snd (snd (pathCharac R S PP i j)) = PP i j
+  isConnectedTotalFun : isConnectedFun (n + m) Totalfib×→Total
+  isConnectedTotalFun =
+    FunConnected→TotalFunConnected (λ _ → push) (n + m) (uncurry BM-f-g.Excision)
 
-          Pullback→Push→Pullback : (p : fiber toPullback (f x , g x , s))
-            → Push→Pullback (Pullback→Push p) ≡ p
-          Pullback→Push→Pullback (y , P) =
-            ΣPathP (refl , (pathCharac refl refl lem))
-            where
-            p : f y ≡ f x
-            p = cong fst P
+  TotalPathGen×Iso : Iso (Σ (B × C) PushoutGenPath×) (Σ (B × C) PushoutPath×)
+  TotalPathGen×Iso =
+    Σ-cong-iso-snd λ x
+      → congIso (invIso (IsoPushoutPushoutGen f g))
 
-            q : g y ≡ g x
-            q i = fst (snd (P i))
+  Totalfib×Iso : Iso (Σ (B × C) fib×) A
+  fun Totalfib×Iso ((b , c) , a , p) = a
+  inv Totalfib×Iso a = (f a , g a) , a , refl , refl
+  rightInv Totalfib×Iso _ = refl
+  leftInv Totalfib×Iso ((b , c) , a , (p , q)) i =
+    ((p i) , (q i)) , (a , ((λ j → p (i ∧ j)) , (λ j → q (i ∧ j))))
 
-            P' : I → I → Pushout f g
-            P' j k = snd (snd (P j)) k
+  toPullback' : A → Σ (B × C) PushoutPath×
+  toPullback' =
+    (fun TotalPathGen×Iso ∘ Totalfib×→Total) ∘ inv Totalfib×Iso
 
-            side : I → I → I → Pushout f g
-            side r j k =
-              hcomp (λ i
-                → λ { (r = i0) → ((λ i₁ → inl (p (~ i₁ ∧ i)))
-                                ∙∙ push y
-                                ∙∙ (λ i₁ → inr (q (i₁ ∧ i)))) k
-                     ; (r = i1) → PushoutGen→Pushout'
-                                    (Pushout→PushoutGen' (P' (i ∧ (j ∨ ~ r)) k))
-                     ; (j = i0) → ((λ i₁ → inl (p (~ i₁ ∧ (i ∧ ~ r))))
-                                ∙∙ push y
-                                ∙∙ λ i₁ → inr (q (i₁ ∧ (i ∧ ~ r)))) k
-                     ; (j = i1) → PushoutGen→Pushout'
-                                    (Pullback→Push-filler y P r k i)
-                     ; (k = i0) → inl (p (i ∧ (j ∨ ~ r)))
-                     ; (k = i1) → inr (q (i ∧ (j ∨ ~ r)))})
-               ((push y ∙ refl) k)
+  toPullback'≡toPullback : toPullback' ≡ toPullback
+  toPullback'≡toPullback =
+    funExt λ x → ΣPathP (refl , (sym (rUnit (push x))))
 
-            lem : SquareP (λ i j → Path (Pushout f g) (inl (p j)) (inr (q j)))
-                    (λ j → snd (snd (snd (Push→Pullback
-                             (Pullback→Push (y , P))) j)))
-                    (λ j k → P' j k)
-                    refl refl
-            lem i j k =
-              hcomp (λ r
-                → λ { (i = i1) → leftInv IsoPushoutPushoutGen' (P' j k) r
-                     ; (j = i0) → compPath-filler (push y) refl (~ r ∧ i) k
-                     ; (j = i1) → leftInv IsoPushoutPushoutGen' (s k) r
-                     ; (k = i0) → inl (p j)
-                     ; (k = i1) → inr (q j)})
-               (hcomp (λ r
-                 → λ { (i = i1) → side r j k
-                      ; (j = i0) → doubleCompPath-filler
-                                     (λ i → inl (p (~ r ∧ ~ i)))
-                                     (push y)
-                                     (λ i → inr (q (~ r ∧ i))) i k
-                      ; (j = i1) → PushoutGen→Pushout'
-                                     (Pullback→Push-filler y P r k i1)
-                      ; (k = i0) → inl (p (j ∨ (~ r  ∧ i)))
-                      ; (k = i1) → inr (q (j ∨ (~ r  ∧ i)))})
-                 (doubleCompPath-filler (λ i → inl (p (~ i)))
-                                    (push y)
-                                    (λ i → inr (q i)) (i ∨ j) k))
+  isConnected-toPullback : isConnectedFun (n + m) toPullback
+  isConnected-toPullback =
+    subst (isConnectedFun (n + m)) toPullback'≡toPullback
+      (isConnectedComp
+        (fun TotalPathGen×Iso ∘ Totalfib×→Total)
+        (inv Totalfib×Iso) (n + m)
+        (isConnectedComp (fun TotalPathGen×Iso) Totalfib×→Total (n + m)
+          (isEquiv→isConnected _ (isoToIsEquiv TotalPathGen×Iso) (n + m))
+          isConnectedTotalFun)
+        (isEquiv→isConnected _ (isoToIsEquiv (invIso Totalfib×Iso)) (n + m)))

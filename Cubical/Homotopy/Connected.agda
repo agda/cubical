@@ -168,6 +168,27 @@ indMapEquiv→conType {A = A} (suc n) BEq =
                                , λ a → equiv-proof (BEq (P tt)) a .fst .snd)
                                 tt)
 
+isConnectedComp : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+     (f : B → C) (g : A → B) (n : ℕ)
+   → isConnectedFun n f
+   → isConnectedFun n g
+   → isConnectedFun n (f ∘ g)
+isConnectedComp  {C = C} f g n con-f con-g =
+  elim.isConnectedPrecompose (f ∘ g) n
+    λ P →
+      isEquiv→hasSection
+        (compEquiv
+         (_ , elim.isEquivPrecompose f n P con-f)
+         (_ , elim.isEquivPrecompose g n (λ b → P (f b)) con-g) .snd)
+
+isEquiv→isConnected : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+    (f : A → B)
+  → isEquiv f
+  → (n : ℕ) → isConnectedFun n f
+isEquiv→isConnected f iseq n b =
+  isContr→isContr∥ n (equiv-proof iseq b)
+
+
 isConnectedPath : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isConnected (suc n) A
   → (a₀ a₁ : A) → isConnected n (a₀ ≡ a₁)
@@ -328,3 +349,57 @@ inrConnected {A = A} {B = B} {C = C} n f g iscon =
                     (~ i)
                     (equiv-proof (elim.isEquivPrecompose f n Q iscon)
                                  fun .fst .snd i a))
+
+{- Given two fibration B , C : A → Type and a family of maps on fibres
+   f : (a : A) → B a → C a, we have that f a is n-connected for all (a : A)
+   iff the induced map on totalspaces Σ A B → Σ A C is n-connected -}
+module _ {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : A → Type ℓ'} {C : A → Type ℓ''}
+  (f : ((a : A) → B a → C a))
+  where
+  open Iso
+
+  TotalFun : Σ A B → Σ A C
+  TotalFun (a , b) = a , f a b
+
+  fibTotalFun→fibFun : (x : Σ A C)
+    → Σ[ y ∈ Σ A B ] TotalFun y ≡ x
+    → Σ[ y ∈ B (fst x) ] f (fst x) y ≡ snd x
+  fibTotalFun→fibFun x =
+    uncurry
+      λ r → J (λ x _ → Σ[ y ∈ B (fst x) ] f (fst x) y ≡ snd x)
+               ((snd r) , refl)
+
+  fibFun→fibTotalFun : (x : Σ A C)
+    → Σ[ y ∈ B (fst x) ] f (fst x) y ≡ snd x
+    → Σ[ y ∈ Σ A B ] TotalFun y ≡ x
+  fibFun→fibTotalFun x (b , p) = (_ , b) , ΣPathP (refl , p)
+
+  Iso-fibTotalFun-fibFun : (x : Σ A C)
+    → Iso (Σ[ y ∈ Σ A B ] TotalFun y ≡ x)
+           (Σ[ y ∈ B (fst x) ] f (fst x) y ≡ snd x)
+  fun (Iso-fibTotalFun-fibFun x) = fibTotalFun→fibFun x
+  inv (Iso-fibTotalFun-fibFun x) = fibFun→fibTotalFun x
+  rightInv (Iso-fibTotalFun-fibFun x) (r , y) j =
+    transp (λ i → Σ[ b ∈ B (fst x) ] (f (fst x) b ≡ y (i ∨ j))) j
+           (r , λ i → y (i ∧ j))
+  leftInv (Iso-fibTotalFun-fibFun x) =
+    uncurry λ r
+      → J (λ x y → inv (Iso-fibTotalFun-fibFun x)
+                      (fun (Iso-fibTotalFun-fibFun x) (r , y))
+                   ≡ (r , y))
+           (cong (fibFun→fibTotalFun (TotalFun r))
+             (transportRefl (snd r , refl)))
+
+  TotalFunConnected→FunConnected : (n : ℕ)
+    → isConnectedFun n TotalFun
+    → ((a : A) → isConnectedFun n (f a))
+  TotalFunConnected→FunConnected n con a r =
+    isConnectedRetractFromIso n
+     (invIso (Iso-fibTotalFun-fibFun (a , r))) (con (a , r))
+
+  FunConnected→TotalFunConnected : (n : ℕ)
+    → ((a : A) → isConnectedFun n (f a))
+    → isConnectedFun n TotalFun
+  FunConnected→TotalFunConnected n con r =
+    isConnectedRetractFromIso n
+     (Iso-fibTotalFun-fibFun r) (con (fst r) (snd r))
