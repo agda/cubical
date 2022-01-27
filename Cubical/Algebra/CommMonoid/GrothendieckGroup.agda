@@ -74,6 +74,7 @@ module _ (M : CommMonoid ℓ) where
             lExp : ∀ {x y z} → x ≡ y → z · x ≡ z · y
             lExp r = cong₂ _·_ refl r
 
+            -- remove proof when MonoidSolver is done
             lemma : ∀ {k s a b c d} → (k · s) · ((a · b) · (c · d)) ≡ (k · (a · c)) · (s · (b · d))
             lemma = sym ass ∙ lExp (
                                    ass ∙ ass ∙ rExp (
