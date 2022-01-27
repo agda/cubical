@@ -85,6 +85,9 @@ isSetℤ = Discrete→isSet discreteℤ
 -Involutive (pos n)    = cong -_ (-pos n) ∙ -neg n
 -Involutive (negsuc n) = refl
 
+isEquiv- : isEquiv (-_)
+isEquiv- = isoToIsEquiv (iso -_ -_ -Involutive -Involutive)
+
 sucℤ+pos : ∀ n m → sucℤ (m +pos n) ≡ (sucℤ m) +pos n
 sucℤ+pos zero m = refl
 sucℤ+pos (suc n) m = cong sucℤ (sucℤ+pos n m)
@@ -459,6 +462,12 @@ private
 
 -DistLR· : (b c : ℤ) → b · c ≡ - b · - c
 -DistLR· b c = sym (-Involutive (b · c)) ∙ (λ i → - -DistL· b c i) ∙ -DistR· (- b) c
+
+
+ℤ·negsuc : (n : ℤ) (m : ℕ) → n · negsuc m ≡ - (n · pos (suc m))
+ℤ·negsuc (pos n) m = pos·negsuc n m
+ℤ·negsuc (negsuc n) m = negsuc·negsuc n m ∙ sym (-DistL· (negsuc n) (pos (suc m)))
+
 
 ·Assoc : (a b c : ℤ) → (a · (b · c)) ≡ ((a · b) · c)
 ·Assoc (pos zero) b c = refl

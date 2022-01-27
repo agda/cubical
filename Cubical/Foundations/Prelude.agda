@@ -457,7 +457,7 @@ isPropIsContr (c0 , h0) (c1 , h1) j .snd y i =
          c0
 
 isContr→isProp : isContr A → isProp A
-isContr→isProp (x , p) a b = sym (p a) ∙∙ refl ∙∙ p b
+isContr→isProp (x , p) a b = sym (p a) ∙ p b
 
 isProp→isSet : isProp A → isSet A
 isProp→isSet h a b p q j i =
