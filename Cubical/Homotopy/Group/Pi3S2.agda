@@ -10,55 +10,28 @@ open import Cubical.Homotopy.Loopspace
 
 open import Cubical.Homotopy.Group.LES
 open import Cubical.Homotopy.Group.PinSn
-
 open import Cubical.Homotopy.Group.Base
+open import Cubical.Homotopy.HopfInvariant.HopfMap
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
-open import Cubical.Foundations.Path
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
 open Iso
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
-open import Cubical.Functions.Morphism
 
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; rec2 to sRec2
-          ; elim to sElim ; elim2 to sElim2 ; elim3 to sElim3
-          ; map to sMap)
+open import Cubical.HITs.SetTruncation renaming (elim to sElim)
 open import Cubical.HITs.Sn
-open import Cubical.HITs.Susp renaming (toSusp to σ)
-open import Cubical.HITs.S1 hiding (decode ; encode)
+open import Cubical.HITs.Susp
+open import Cubical.HITs.S1
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
-open import Cubical.Data.Bool
 
 open import Cubical.Algebra.Group
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
-
 open import Cubical.Algebra.Group.ZAction
-
-
-open import Cubical.HITs.Join
-open import Cubical.HITs.Pushout
-open import Cubical.HITs.Wedge
-open import Cubical.Homotopy.Freudenthal hiding (Code ; encode)
-open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Truncation renaming
-  (rec to trRec ; elim to trElim ; elim2 to trElim2 ; map to trMap)
-open import Cubical.Foundations.Function
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim)
-open import Cubical.HITs.S2
-
-open import Cubical.Homotopy.Hopf
 open import Cubical.Algebra.Group.Exact
-open import Cubical.Homotopy.HopfInvariant.HopfMap
-open import Cubical.Algebra.Group.Instances.Unit renaming (Unit to UnitGr)
 
 TotalHopf→∙S² : (Σ (S₊ 2) S¹Hopf , north , base) →∙ S₊∙ 2
 fst TotalHopf→∙S² = fst
@@ -85,7 +58,7 @@ private
   transportGroupEquiv : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
       (n : ℕ) (f : A →∙ B)
     → isEquiv (fst (πLES.A→B f n))
-    → isEquiv (fst (π∘∙ n f))
+    → isEquiv (fst (π'∘∙Hom n f))
   transportGroupEquiv n f iseq =
     transport (λ i → isEquiv (fst (π∘∙A→B-PathP n f i))) iseq
 
@@ -112,10 +85,10 @@ snd π₃S²≅π₃TotalHopf = snd (πLES.A→B TotalHopf→∙S² 2)
 
 π'₃S²≅π'₃TotalHopf : GroupEquiv (π'Gr 2 (Σ (S₊ 2) S¹Hopf , north , base))
                                 (π'Gr 2 (S₊∙ 2))
-fst (fst π'₃S²≅π'₃TotalHopf) = fst (π∘∙ 2 TotalHopf→∙S²)
+fst (fst π'₃S²≅π'₃TotalHopf) = fst (π'∘∙Hom 2 TotalHopf→∙S²)
 snd (fst π'₃S²≅π'₃TotalHopf) =
   transportGroupEquiv 2 TotalHopf→∙S² (π₃S²≅π₃TotalHopf .fst .snd)
-snd π'₃S²≅π'₃TotalHopf = snd (π∘∙ 2 TotalHopf→∙S²)
+snd π'₃S²≅π'₃TotalHopf = snd (π'∘∙Hom 2 TotalHopf→∙S²)
 
 πS³≅πTotalHopf : (n : ℕ)
   → GroupEquiv (π'Gr n (S₊∙ 3)) (π'Gr n (Σ (S₊ 2) S¹Hopf , north , base))

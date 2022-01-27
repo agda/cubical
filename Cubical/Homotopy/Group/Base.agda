@@ -820,40 +820,227 @@ snd (πTruncGroupIso {A = A} n) =
       λ p q → transportRefl _ ∙ cong₂ _∙_
                 (sym (transportRefl p)) (sym (transportRefl q))
 
-π'fun : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+-- Often, we prefer thinking of Ωⁿ A as (Sⁿ →∙ A).
+-- The goal of the following lemmas is to show that the maps
+-- Ωⁿ A → Ωⁿ B and Ωⁿ (fib f) →∙ Ωⁿ A get sent to post composition
+-- under the equivalence Ωⁿ A as (Sⁿ →∙ A). This also gives a proof
+-- that post composition induces a homomorphism of homotopy groups.
+
+-- The following lemmas is not pretty but very helpful
+private
+  bigLemma : ∀ {ℓ ℓ'} {A₁ B₁ C₁ : Type ℓ} {A₂ B₂ C₂ : Type ℓ'}
+             (A₁→B₁ : A₁ ≃ B₁) (B₁→C₁ : B₁ ≃ C₁)
+             (A₂→B₂ : A₂ ≃ B₂) (B₂→C₂ : B₂ ≃ C₂)
+             (A₁→A₂ : A₁ → A₂)
+             (B₁→B₂ : B₁ → B₂)
+             (C₁→C₂ : C₁ → C₂)
+          → (B₁→B₂ ∘ (fst A₁→B₁)) ≡ (fst A₂→B₂ ∘ A₁→A₂)
+          → C₁→C₂ ∘ fst B₁→C₁ ≡ fst B₂→C₂ ∘ B₁→B₂
+          → C₁→C₂ ∘ fst B₁→C₁ ∘ fst A₁→B₁
+          ≡ fst B₂→C₂ ∘ fst A₂→B₂ ∘ A₁→A₂
+  bigLemma {B₁ = B₁} {C₁ = C₁} {A₂ = A₂} {B₂ = B₂} {C₂ = C₂} =
+    EquivJ
+      (λ A₁ A₁→B₁ → (B₁→C₁ : B₁ ≃ C₁) (A₂→B₂ : A₂ ≃ B₂)
+        (B₂→C₂ : B₂ ≃ C₂) (A₁→A₂ : A₁ → A₂) (B₁→B₂ : B₁ → B₂)
+        (C₁→C₂ : C₁ → C₂) →
+        B₁→B₂ ∘ fst A₁→B₁ ≡ fst A₂→B₂ ∘ A₁→A₂ →
+        C₁→C₂ ∘ fst B₁→C₁ ≡ fst B₂→C₂ ∘ B₁→B₂ →
+        C₁→C₂ ∘ fst B₁→C₁ ∘ fst A₁→B₁ ≡ fst B₂→C₂ ∘ fst A₂→B₂ ∘ A₁→A₂)
+      (EquivJ (λ B₁ B₁→C₁ → (A₂→B₂ : A₂ ≃ B₂) (B₂→C₂ : B₂ ≃ C₂)
+        (A₁→A₂ : B₁ → A₂) (B₁→B₂ : B₁ → B₂) (C₁→C₂ : C₁ → C₂) →
+        (B₁→B₂) ≡ (fst A₂→B₂ ∘ A₁→A₂) →
+        (C₁→C₂ ∘ (fst B₁→C₁)) ≡ (fst B₂→C₂ ∘ (B₁→B₂)) →
+        (C₁→C₂ ∘ (fst B₁→C₁)) ≡ (fst B₂→C₂ ∘ (fst A₂→B₂ ∘ A₁→A₂)))
+        (EquivJ (λ A₂ A₂→B₂ → (B₂→C₂ : B₂ ≃ C₂) (A₁→A₂ : C₁ → A₂)
+          (B₁→B₂ : C₁ → B₂) (C₁→C₂ : C₁ → C₂) →
+          B₁→B₂ ≡ (fst A₂→B₂ ∘ A₁→A₂) →
+          (C₁→C₂) ≡ (fst B₂→C₂ ∘ B₁→B₂) →
+          (C₁→C₂) ≡ fst B₂→C₂ ∘ (fst A₂→B₂ ∘ A₁→A₂))
+          (EquivJ (λ B₂ B₂→C₂ → (A₁→A₂ B₁→B₂ : C₁ → B₂) (C₁→C₂ : C₁ → C₂) →
+            B₁→B₂ ≡ A₁→A₂ →
+            C₁→C₂ ≡ (fst B₂→C₂ ∘ B₁→B₂) →
+            C₁→C₂ ≡ (fst B₂→C₂ ∘ A₁→A₂))
+              λ _ _ _ p q → q ∙ p)))
+
+{-
+We want to show that the following square
+commutes.
+
+       Ωⁿ f
+Ωⁿ A ----------→ Ωⁿ B
+|                  |
+|                  |
+v         f∘_      v
+(Sⁿ→∙A) ------> (Sⁿ→∙B)
+-}
+
+Ω^→≈post∘∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+  → (f : A →∙ B)
+  → Path ((Ω^ (suc n)) A →∙ (S₊∙ (suc n) →∙ B ∙))
+          (post∘∙ (S₊∙ (suc n)) f ∘∙ Ω→SphereMap∙ (suc n))
+          (Ω→SphereMap∙ (suc n) ∘∙ Ω^→ (suc n) f)
+Ω^→≈post∘∙ {A = A} {B = B} zero f =
+    →∙Homogeneous≡
+       (subst isHomogeneous
+        (ua∙ (Ω→SphereMap 1 , (isEquiv-Ω→SphereMap 1))
+             (Ω→SphereMap∙ 1 {A = B} .snd))
+    (isHomogeneousPath _ _))
+    (funExt λ p →
+      ΣPathP ((funExt (λ { base → snd f
+                        ; (loop i) j →
+                          doubleCompPath-filler
+                            (sym (snd f)) (cong (fst f) p) (snd f) j i}))
+            , (sym (lUnit (snd f)) ◁ λ i j → snd f (i ∨ j))))
+Ω^→≈post∘∙ {A = A} {B = B} (suc n) f =
+  →∙Homogeneous≡
+    (subst isHomogeneous
+      (ua∙ (Ω→SphereMap (2 + n) , (isEquiv-Ω→SphereMap (2 + n)))
+           (Ω→SphereMap∙ (2 + n) {A = B} .snd))
+           (isHomogeneousPath _ _))
+    ((funExt λ p
+        → (λ i → post∘∙ (S₊∙ (2 + n)) f .fst (Ω→SphereMap-split (suc n) p i))
+        ∙∙ funExt⁻
+          (bigLemma
+            (Ω→SphereMapSplit₁ (suc n)
+            , isEquivΩ→ _ (isEquiv-Ω→SphereMap (suc n)))
+            (ΩSphereMap (suc n) , isoToIsEquiv (invIso (SphereMapΩIso (suc n))))
+            (Ω→SphereMapSplit₁ (suc n)
+            , isEquivΩ→ _ (isEquiv-Ω→SphereMap (suc n)))
+            (ΩSphereMap (suc n) , isoToIsEquiv (invIso (SphereMapΩIso (suc n))))
+            (Ω^→ (2 + n) f .fst) (Ω→ (post∘∙ (S₊∙ (suc n)) f) .fst)
+            (post∘∙ (S₊∙ (2 + n)) f .fst)
+            (funExt topSquare)
+            (sym (funExt (bottomSquare f))))
+            p
+        ∙∙ sym (Ω→SphereMap-split (suc n) (Ω^→ (2 + n) f .fst p))))
+  where
+  topSquare : (p : typ ((Ω^ (2 + n)) A))
+    → Path (typ (Ω ((S₊∙ (suc n)) →∙ B ∙)))
+        ((Ω→ (post∘∙ (S₊∙ (suc n)) f) .fst ∘ Ω→ (Ω→SphereMap∙ (suc n)) .fst) p)
+        (((Ω→ (Ω→SphereMap∙ (suc n))) .fst ∘ (Ω^→ (suc (suc n)) f .fst)) p)
+  topSquare p = sym (Ω→∘ (post∘∙ (S₊∙ (suc n)) f) (Ω→SphereMap∙ (suc n)) p)
+              ∙ (λ i → Ω→ (Ω^→≈post∘∙ {A = A} {B = B} n f i) .fst p)
+              ∙ Ω→∘ (Ω→SphereMap∙ (suc n)) (Ω^→ (suc n) f) p
+
+  bottomSquare : (f : A →∙ B) (g : typ (Ω (S₊∙ (suc n) →∙ A ∙)))
+    → Path (S₊∙ (2 + n) →∙ B)
+            (ΩSphereMap (suc n) (Ω→ (post∘∙ (S₊∙ (suc n)) f) .fst g))
+            ((post∘∙ (S₊∙ (2 + n)) f .fst ∘ ΩSphereMap (suc n)) g)
+  bottomSquare =
+    →∙J (λ b₀ f → (g : typ (Ω (S₊∙ (suc n) →∙ A ∙)))
+            → Path (S₊∙ (suc (suc n)) →∙ (fst B , b₀))
+            (ΩSphereMap (suc n) (Ω→ (post∘∙ (S₊∙ (suc n)) f) .fst g))
+            ((post∘∙ (S₊∙ (suc (suc n))) f .fst ∘ ΩSphereMap (suc n)) g))
+           λ f g → ΣPathP ((funExt (λ { north → refl
+                                       ; south → refl
+                                       ; (merid a i) j → lem f g a j i}))
+                        , lUnit refl)
+    where
+    lem : (f : typ A → typ B) (g : typ (Ω (S₊∙ (suc n) →∙ A ∙)))
+      → (a : S₊ (suc n))
+      → cong (fst (ΩSphereMap (suc n)
+               (Ω→ (post∘∙ (S₊∙ (suc n)) (f , refl)) .fst g)))
+             (merid a)
+        ≡ cong (fst ((f , refl) ∘∙ ΩSphereMap (suc n) g)) (merid a)
+    lem f g a =
+      (λ i → funExt⁻
+        (cong-∙∙ fst (sym (snd (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))))
+                 (cong (fst (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))) g)
+                 (snd (post∘∙ (S₊∙ (suc n)) (f , (λ _ → f (snd A))))) i) a)
+              ∙ sym (rUnit (λ i → f (fst (g i) a)))
+
+{- We can use this to define prove that post composition induces a homomorphism
+πₙ A → πₙ B-}
+
+π'∘∙fun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
+        → π' (suc n) A → π' (suc n) B
+π'∘∙fun n f = sMap (f ∘∙_)
+
+GroupHomπ≅π'PathP : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') (n : ℕ)
+  → GroupHom (πGr n A) (πGr n B) ≡ GroupHom (π'Gr n A) (π'Gr n B)
+GroupHomπ≅π'PathP A B n i =
+  GroupHom (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr n A)) (~ i))
+           (fst (GroupPath _ _) (GroupIso→GroupEquiv (π'Gr≅πGr n B)) (~ i))
+
+πFun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
+     → π (suc n) A → π (suc n) B
+πFun n f = sMap (fst (Ω^→ (suc n) f))
+
+πHom : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
+     → GroupHom (πGr n A) (πGr n B)
+fst (πHom n f) = πFun n f
+snd (πHom n f) =
+  makeIsGroupHom
+    (sElim2 (λ _ _ → isSetPathImplicit)
+      λ p q → cong ∣_∣₂ (Ω^→pres∙ f n p q))
+
+π'∘∙Hom' : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
+        → GroupHom (π'Gr n A) (π'Gr n B)
+π'∘∙Hom' {A = A} {B = B} n f =
+  transport (λ i → GroupHomπ≅π'PathP A B n i)
+            (πHom n f)
+
+π'∘∙Hom'≡π'∘∙fun : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+  (n : ℕ) (f : A →∙ B) → π'∘∙Hom' n f .fst ≡ π'∘∙fun n f
+π'∘∙Hom'≡π'∘∙fun n f =
+  funExt (sElim (λ _ → isSetPathImplicit)
+    λ g → cong ∣_∣₂
+      ((λ i → inv (IsoSphereMapΩ (suc n))
+          (transportRefl (Ω^→ (suc n) f .fst
+            (transportRefl (fun (IsoSphereMapΩ (suc n)) g) i)) i))
+     ∙ sym (funExt⁻ (cong fst (Ω^→≈post∘∙ n f))
+                    (fun (IsoSphereMapΩ (suc n)) g))
+     ∙ cong (f ∘∙_) (leftInv (IsoSphereMapΩ (suc n)) g)))
+
+π'∘∙Hom : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ) (f : A →∙ B)
+       → GroupHom (π'Gr n A) (π'Gr n B)
+fst (π'∘∙Hom n f) = sMap (f ∘∙_)
+snd (π'∘∙Hom {A = A} {B = B} n f) = isHom∘∙
+  where
+  abstract
+    isHom∘∙ : IsGroupHom (π'Gr n A .snd) (fst (π'∘∙Hom n f)) (π'Gr n B .snd)
+    isHom∘∙ =
+      transport (λ i → IsGroupHom (π'Gr n A .snd)
+                                   (π'∘∙Hom'≡π'∘∙fun n f i)
+                                   (π'Gr n B .snd))
+                (π'∘∙Hom' n f .snd)
+
+-- post composition with an equivalence induces an
+-- isomorphism of homotopy groups
+π'eqFun : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
       → A ≃∙ B
       → (π' (suc n) A) → π' (suc n) B
-π'fun n p = sMap ((fst (fst p) , snd p) ∘∙_)
+π'eqFun n p = π'∘∙fun n (≃∙map p)
 
-π'fun-idEquiv : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
-              → π'fun n (idEquiv (fst A) , (λ _ → pt A))
-              ≡ idfun _
-π'fun-idEquiv n =
+π'eqFun-idEquiv : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
+              → π'eqFun n (idEquiv (fst A) , (λ _ → pt A))
+               ≡ idfun _
+π'eqFun-idEquiv n =
   funExt (sElim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (∘∙-idʳ f))
 
-π'funIsEquiv :
+π'eqFunIsEquiv :
   ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
       → (e : A ≃∙ B)
-      → isEquiv (π'fun n e)
-π'funIsEquiv {B = B} n =
-  Equiv∙J (λ A e → isEquiv (π'fun n e))
-    (subst isEquiv (sym (π'fun-idEquiv n))
+      → isEquiv (π'eqFun n e)
+π'eqFunIsEquiv {B = B} n =
+  Equiv∙J (λ A e → isEquiv (π'eqFun n e))
+    (subst isEquiv (sym (π'eqFun-idEquiv n))
       (idIsEquiv (π' (suc n) B)))
 
-π'funIsHom : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+π'eqFunIsHom : ∀ {ℓ} {A B : Pointed ℓ}(n : ℕ)
       → (e : A ≃∙ B)
-      → IsGroupHom (π'Gr n A .snd) (π'fun n e)
-                      (π'Gr n B .snd)
-π'funIsHom {B = B} n =
-  Equiv∙J (λ A e → IsGroupHom (π'Gr n A .snd) (π'fun n e) (π'Gr n B .snd))
+      → IsGroupHom (π'Gr n A .snd) (π'eqFun n e)
+                    (π'Gr n B .snd)
+π'eqFunIsHom {B = B} n =
+  Equiv∙J (λ A e → IsGroupHom (π'Gr n A .snd) (π'eqFun n e) (π'Gr n B .snd))
     (subst (λ x → IsGroupHom (π'Gr n B .snd) x (π'Gr n B .snd))
-      (sym (π'fun-idEquiv n))
+      (sym (π'eqFun-idEquiv n))
       (makeIsGroupHom λ _ _ → refl))
 
 π'Iso : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
       → A ≃∙ B
       → GroupEquiv (π'Gr n A) (π'Gr n B)
-fst (fst (π'Iso n e)) = π'fun n e
-snd (fst (π'Iso n e)) = π'funIsEquiv n e
-snd (π'Iso n e) = π'funIsHom n e
+fst (fst (π'Iso n e)) = π'eqFun n e
+snd (fst (π'Iso n e)) = π'eqFunIsEquiv n e
+snd (π'Iso n e) = π'eqFunIsHom n e

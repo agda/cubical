@@ -36,6 +36,11 @@ idfun∙ A .snd = refl
 _≃∙_ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
 A ≃∙ B = Σ[ e ∈ fst A ≃ fst B ] fst e (pt A) ≡ pt B
 
+{- Underlying pointed map of an equivalence -}
+≃∙map : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → A ≃∙ B → A →∙ B
+fst (≃∙map e) = fst (fst e)
+snd (≃∙map e) = snd e
+
 invEquiv∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → A ≃∙ B → B ≃∙ A
 fst (invEquiv∙ x) = invEquiv (fst x)
 snd (invEquiv∙ {A = A} x) =

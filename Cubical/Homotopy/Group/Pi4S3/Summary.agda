@@ -87,16 +87,25 @@ module π₄S³
   π₄S³≡ℤ : π 4 𝕊³ ≡ ℤ/ 2
   π₄S³≡ℤ = π₄S³≡ℤ/whitehead ∙ cong (ℤ/_) remAbs₂
 
-{- Hole 1 -}
-Hole₁ : GroupEquiv ℤ (π'Gr 2 (S₊∙ 2))
-Hole₁ = invGroupEquiv π₃S²≅ℤ
+-- In order to instantiate the module, we need the four following lemmas:
+-- Proved: 2/4
 
-{- Hole 2 -}
--- WIP
+{- Lemma 1 -}
+Lemma₁ : GroupEquiv ℤ (π'Gr 2 (S₊∙ 2))
+Lemma₁ = invGroupEquiv π₃S²≅ℤ
 
-{- Hole 3 -}
-Hole₂ : gen₁-by (π 3 𝕊²) ∣ HopfMap ∣₂
-Hole₂ = π₂S³-gen-by-HopfMap
+{- Lemma 2 -}
+Lemma₂ : gen₁-by (π 3 𝕊²) ∣ HopfMap ∣₂
+Lemma₂ = π₂S³-gen-by-HopfMap
 
-{- Hole 4 -}
--- WIP
+{- Lemma 3 (WIP) -}
+{-
+Lemma₃ : π₄S³≡ℤ/something (invGroupEquiv π₃S²≅ℤ)
+Lemma₃ = ?
+-}
+
+{- Lemma 4 (WIP) -}
+{-
+Lemma₄ : abs (HopfInvariant-π' 0 ([ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂) ]×)) ≡ 2)
+Lemma₄ = ?
+-}

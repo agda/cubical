@@ -40,7 +40,7 @@ open import Cubical.Algebra.Group.ZAction
 
 open Iso
 
--- The goal is to prove that πₙSⁿ. This is of course trivial, given
+-- The goal is to prove that πₙSⁿ ≅ ℤ. This is of course trivial, given
 -- that ΩⁿK(ℤ,n) ≅ ℤ is already proved. However, we would like to do
 -- this for πₙSⁿ defined via (Sⁿ →∙ Sⁿ) and prove that the generator
 -- of this group is idfun∙ : Sⁿ → Sⁿ.
@@ -203,7 +203,7 @@ private
                             ∙∙ (λ i₁ → merid (loop i₁)
                              ∙ sym (merid base))
                             ∙∙ rCancel (merid base))))) (loop k)) r i
-                        ; (j = i1) → pp r i k})
+                        ; (j = i1) → lem₂ r i k})
                  (((sym (rCancel (merid base)) ∙∙
                     (λ i₁ → merid (loop i₁) ∙ sym (merid base)) ∙∙
                     rCancel (merid base))) k i)})) , refl))
@@ -224,13 +224,8 @@ private
                                 (λ k j → p (~ k ∧ ~ j)) λ k j → p (j ∨ ~ k))
          (refl , refl)
 
-    pp1 : Cube {A = S₊ 2} (λ i _ → (merid base ∙ sym (merid base)) i)
-               (λ i r → merid base (i ∧ r))
-               (λ j r → north)
-               (λ j r → merid base (r ∧ j))
-               (λ j i → rCancel (merid base) j i)
-               λ j i → compPath-filler (merid base) (sym (merid base)) (~ j) i
-    pp1 j i r =
+    lem₁ : I → I → I → S₊ 2
+    lem₁ j i r =
       hcomp (λ k → λ {(i = i0) → north
                      ; (i = i1) → genBot+side (merid base) .snd k j r
                      ; (j = i0) → compPath-filler
@@ -241,15 +236,8 @@ private
                                    (merid base) (sym (merid base)) (~ j ∧ k) i})
             (genBot+side (merid base) .fst i j r)
 
-    pp : Cube (λ i k → ((sym (rCancel (merid base))
-                      ∙∙ (λ i₁ → merid (loop i₁) ∙ sym (merid base))
-                      ∙∙ rCancel (merid base))) k i) -- r i k
-              (λ i k → merid (loop k) i)
-              (λ r k → north)
-              (λ r k → merid base r)
-              (λ i j → merid base (i ∧ j))
-              λ i j → merid base (i ∧ j)
-    pp r i k =
+    lem₂ : I → I → I → S₊ 2
+    lem₂ r i k =
       hcomp (λ j → λ {(i = i0) → north
                      ; (i = i1) → merid base (r ∧ j)
                      ; (r = i0) → doubleCompPath-filler
@@ -258,8 +246,8 @@ private
                                     (rCancel (merid base)) j k i
                      ; (r = i1) → compPath-filler
                                    (merid (loop k)) (sym (merid base)) (~ j) i
-                     ; (k = i0) → pp1 j i r
-                     ; (k = i1) → pp1 j i r})
+                     ; (k = i0) → lem₁ j i r
+                     ; (k = i1) → lem₁ j i r})
             ((merid (loop k) ∙ sym (merid base)) i)
 
   π₂S²≅π₁S¹-stLoop : fun (fst π₂S²≅π₁S¹) stLoop₁ ≡ ∣ loop ∣₂
@@ -273,7 +261,6 @@ private
     compute : fun Isoπ₁S¹ℤ (fun (fst π₂S²≅π₁S¹) stLoop₁)
             ≡ fun Isoπ₁S¹ℤ ∣ loop ∣₂
     compute = refl
-
 
   π₂'S²≅π₁'S¹≡ : fun (fst π₂'S²≅π₁'S¹) ∣ idfun∙ _ ∣₂ ≡ ∣ idfun∙ _ ∣₂
   π₂'S²≅π₁'S¹≡ =
