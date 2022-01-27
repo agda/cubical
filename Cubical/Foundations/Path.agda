@@ -452,16 +452,3 @@ module SquareRotation
                λ _ → squareTwisting x l i j
                )
            (x i j)
-
-
-rotateSquare≃⁴-≡-idEquiv :
-  {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
-  {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
-  {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
-  → idEquiv (Square a₀₋ a₁₋ a₋₀ a₋₁) ≡ (
-      _ ≃⟨ SquareRotation.rotateSquare≃ ⟩
-      _ ≃⟨ SquareRotation.rotateSquare≃ ⟩
-      _ ≃⟨ SquareRotation.rotateSquare≃ ⟩
-      _ ≃⟨ SquareRotation.rotateSquare≃ ⟩ idEquiv _)
-
-rotateSquare≃⁴-≡-idEquiv = equivEq refl
