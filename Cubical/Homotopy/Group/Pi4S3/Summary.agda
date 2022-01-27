@@ -24,6 +24,7 @@ open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.HopfInvariant.Homomorphism
 open import Cubical.Homotopy.HopfInvariant.HopfMap
 open import Cubical.Homotopy.Whitehead
+open import Cubical.Homotopy.Group.Pi3S2
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Morphisms
@@ -85,3 +86,26 @@ module π₄S³
   -- The final result then follows
   π₄S³≡ℤ : π 4 𝕊³ ≡ ℤ/ 2
   π₄S³≡ℤ = π₄S³≡ℤ/whitehead ∙ cong (ℤ/_) remAbs₂
+
+-- In order to instantiate the module, we need the four following lemmas:
+-- Proved: 2/4
+
+{- Lemma 1 -}
+Lemma₁ : GroupEquiv ℤ (π'Gr 2 (S₊∙ 2))
+Lemma₁ = invGroupEquiv π₃S²≅ℤ
+
+{- Lemma 2 -}
+Lemma₂ : gen₁-by (π 3 𝕊²) ∣ HopfMap ∣₂
+Lemma₂ = π₂S³-gen-by-HopfMap
+
+{- Lemma 3 (WIP) -}
+{-
+Lemma₃ : π₄S³≡ℤ/something (invGroupEquiv π₃S²≅ℤ)
+Lemma₃ = ?
+-}
+
+{- Lemma 4 (WIP) -}
+{-
+Lemma₄ : abs (HopfInvariant-π' 0 ([ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂) ]×)) ≡ 2)
+Lemma₄ = ?
+-}
