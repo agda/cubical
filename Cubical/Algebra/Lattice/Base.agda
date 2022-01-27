@@ -104,20 +104,25 @@ makeIsLattice : {L : Type ℓ} {0l 1l : L} {_∨l_ _∧l_ : L → L → L}
              (∨l-rid : (x : L) → x ∨l 0l ≡ x)
              (∨l-lid : (x : L) → 0l ∨l x ≡ x)
              (∨l-comm : (x y : L) → x ∨l y ≡ y ∨l x)
-             (∨l-idem : (x : L) → x ∨l x ≡ x)
              (∧l-assoc : (x y z : L) → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l z)
              (∧l-rid : (x : L) → x ∧l 1l ≡ x)
              (∧l-lid : (x : L) → 1l ∧l x ≡ x)
              (∧l-comm : (x y : L) → x ∧l y ≡ y ∧l x)
-             (∧l-idem : (x : L) → x ∧l x ≡ x)
              (∨l-absorb-∧l : (x y : L) → x ∨l (x ∧l y) ≡ x)
              (∧l-absorb-∨l : (x y : L) → x ∧l (x ∨l y) ≡ x)
            → IsLattice 0l 1l _∨l_ _∧l_
-makeIsLattice is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem
-                      ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem ∨l-absorb-∧l ∧l-absorb-∨l =
+makeIsLattice {0l = 0l} {1l = 1l} {_∨l_ = _∨l_} {_∧l_ = _∧l_}
+              is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm
+                      ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∨l-absorb-∧l ∧l-absorb-∨l =
      islattice (makeIsSemilattice is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem)
                (makeIsSemilattice is-setL ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem)
                λ x y → ∨l-absorb-∧l x y , ∧l-absorb-∨l x y
+ where
+ ∨l-idem : ∀ x → x ∨l x ≡ x
+ ∨l-idem x = cong (x ∨l_) (sym (∧l-rid _)) ∙ ∨l-absorb-∧l _ _
+
+ ∧l-idem : ∀ x → x ∧l x ≡ x
+ ∧l-idem x = cong (x ∧l_) (sym (∨l-rid _)) ∙ ∧l-absorb-∨l _ _
 
 makeLattice : {L : Type ℓ} (0l 1l : L) (_∨l_ _∧l_ : L → L → L)
              (is-setL : isSet L)
@@ -137,8 +142,8 @@ makeLattice : {L : Type ℓ} (0l 1l : L) (_∨l_ _∧l_ : L → L → L)
 makeLattice 0l 1l _∨l_ _∧l_ is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem
             ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem ∨l-absorb-∧l ∧l-absorb-∨l =
    _ , latticestr 0l 1l _∨l_ _∧l_
-   (makeIsLattice is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm ∨l-idem
-                          ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∧l-idem ∨l-absorb-∧l ∧l-absorb-∨l)
+   (makeIsLattice is-setL ∨l-assoc ∨l-rid ∨l-lid ∨l-comm
+                          ∧l-assoc ∧l-rid ∧l-lid ∧l-comm ∨l-absorb-∧l ∧l-absorb-∨l)
 
 record IsLatticeHom {A : Type ℓ} {B : Type ℓ'} (L : LatticeStr A) (f : A → B) (M : LatticeStr B)
   : Type (ℓ-max ℓ ℓ')
@@ -161,6 +166,13 @@ unquoteDecl IsLatticeHomIsoΣ = declareRecordIsoΣ IsLatticeHomIsoΣ (quote IsLa
 LatticeHom : (L : Lattice ℓ) (M : Lattice ℓ') → Type (ℓ-max ℓ ℓ')
 LatticeHom L M = Σ[ f ∈ (⟨ L ⟩ → ⟨ M ⟩) ] IsLatticeHom (L .snd) f (M .snd)
 
+idLatticeHom : (L : Lattice ℓ) → LatticeHom L L
+fst (idLatticeHom L) x = x
+IsLatticeHom.pres0 (snd (idLatticeHom L)) = refl
+IsLatticeHom.pres1 (snd (idLatticeHom L)) = refl
+IsLatticeHom.pres∨l (snd (idLatticeHom L)) x y = refl
+IsLatticeHom.pres∧l (snd (idLatticeHom L)) x y = refl
+
 IsLatticeEquiv : {A : Type ℓ} {B : Type ℓ'} (M : LatticeStr A) (e : A ≃ B) (N : LatticeStr B)
   → Type (ℓ-max ℓ ℓ')
 IsLatticeEquiv M e N = IsLatticeHom M (e .fst) N
@@ -181,6 +193,14 @@ isPropIsLattice 0l 1l _∨l_ _∧l_ (islattice LJ LM LA) (islattice MJ MM MA) =
 
   isPropAbsorb : isProp ((x y : _) → (x ∨l (x ∧l y) ≡ x) × (x ∧l (x ∨l y) ≡ x))
   isPropAbsorb = isPropΠ2 λ _ _ → isProp× (isSetL _ _) (isSetL _ _)
+
+isPropIsLatticeHom : {A : Type ℓ} {B : Type ℓ'} (R : LatticeStr A) (f : A → B) (S : LatticeStr B)
+                   → isProp (IsLatticeHom R f S)
+isPropIsLatticeHom R f S = isOfHLevelRetractFromIso 1 IsLatticeHomIsoΣ
+                           (isProp×3 (isSetLattice (_ , S) _ _)
+                                     (isSetLattice (_ , S) _ _)
+                                     (isPropΠ2 λ _ _ → isSetLattice (_ , S) _ _)
+                                     (isPropΠ2 λ _ _ → isSetLattice (_ , S) _ _))
 
 
 𝒮ᴰ-Lattice : DUARel (𝒮-Univ ℓ) LatticeStr ℓ

@@ -29,7 +29,7 @@ open Iso
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 record IsRing {R : Type ℓ}
               (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
@@ -189,11 +189,20 @@ isPropIsRingHom R f S = isOfHLevelRetractFromIso 1 IsRingHomIsoΣ
                                   (isPropΠ2 λ _ _ → isSetRing (_ , S) _ _)
                                   (isPropΠ λ _ → isSetRing (_ , S) _ _))
 
-RingHomEqDep : (R S T : Ring ℓ) (p : S ≡ T) (φ : RingHom R S) (ψ : RingHom R T)
+isSetRingHom : (R : Ring ℓ) (S : Ring ℓ') → isSet (RingHom R S)
+isSetRingHom R S = isSetΣSndProp (isSetΠ (λ _ → isSetRing S)) (λ f → isPropIsRingHom (snd R) f (snd S))
+
+isSetRingEquiv : (A : Ring ℓ) (B : Ring ℓ') → isSet (RingEquiv A B)
+isSetRingEquiv A B = isSetΣSndProp (isOfHLevel≃ 2 (isSetRing A) (isSetRing B))
+                                   (λ e → isPropIsRingHom (snd A) (fst e) (snd B))
+
+RingHomPathP : (R S T : Ring ℓ) (p : S ≡ T) (φ : RingHom R S) (ψ : RingHom R T)
              → PathP (λ i → R .fst → p i .fst) (φ .fst) (ψ .fst)
              → PathP (λ i → RingHom R (p i)) φ ψ
-RingHomEqDep R S T p φ ψ q = ΣPathP (q , isProp→PathP (λ _ → isPropIsRingHom _ _ _) _ _)
+RingHomPathP R S T p φ ψ q = ΣPathP (q , isProp→PathP (λ _ → isPropIsRingHom _ _ _) _ _)
 
+RingHom≡ : {R S : Ring ℓ} {φ ψ : RingHom R S} → fst φ ≡ fst ψ → φ ≡ ψ
+RingHom≡ = Σ≡Prop λ f → isPropIsRingHom _ f _
 
 𝒮ᴰ-Ring : DUARel (𝒮-Univ ℓ) RingStr ℓ
 𝒮ᴰ-Ring =
@@ -217,6 +226,13 @@ RingHomEqDep R S T p φ ψ q = ΣPathP (q , isProp→PathP (λ _ → isPropIsRin
 RingPath : (R S : Ring ℓ) → RingEquiv R S ≃ (R ≡ S)
 RingPath = ∫ 𝒮ᴰ-Ring .UARel.ua
 
+uaRing : {A B : Ring ℓ} → RingEquiv A B → A ≡ B
+uaRing {A = A} {B = B} = equivFun (RingPath A B)
+
+isGroupoidRing : isGroupoid (Ring ℓ)
+isGroupoidRing _ _ = isOfHLevelRespectEquiv 2 (RingPath _ _) (isSetRingEquiv _ _)
+
+
 -- Rings have an abelian group and a monoid
 
 Ring→AbGroup : Ring ℓ → AbGroup ℓ
@@ -230,6 +246,7 @@ Ring→AddMonoid = Group→Monoid ∘ Ring→Group
 
 Ring→MultMonoid : Ring ℓ → Monoid ℓ
 Ring→MultMonoid (A , ringstr _ _ _ _ _ R) = monoid _ _ _ (IsRing.·IsMonoid R)
+
 
 -- Smart constructor for ring homomorphisms
 -- that infers the other equations from pres1, pres+, and pres·

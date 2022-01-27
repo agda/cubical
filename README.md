@@ -7,6 +7,8 @@ instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
 file.
 
+The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.README.html).
+
 If you want to use Agda 2.6.2 instead of the latest development version, you
 can check out the tag `v0.3` of this library.
 
@@ -19,7 +21,7 @@ can check out the tag `v0.1` of this library.
 For some introductory lecture notes see the material for the Cubical Agda course
 of the [EPIT 2021 spring school](https://github.com/HoTT/EPIT-2020/blob/main/04-cubical-type-theory/).
 
-For a paper on with detials about Cubical Agda, see [Cubical Agda: a dependently typed
+For a paper on with details about Cubical Agda, see [Cubical Agda: a dependently typed
 programming language with univalence and higher inductive
 types](https://dl.acm.org/doi/10.1145/3341691) by Andrea Vezzosi, Anders
 Mörtberg, and Andreas Abel.

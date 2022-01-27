@@ -21,6 +21,7 @@ open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
+open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra.Base
@@ -120,12 +121,17 @@ module AlgLoc (R' : CommRing ℓ)
     _⋆_  (snd B') r 1b ∎
 
 
- -- an immediate corrollary:
+ -- an immediate corollary:
  isContrHomS⁻¹RS⁻¹R : isContr (CommAlgebraHom S⁻¹RAsCommAlg S⁻¹RAsCommAlg)
  isContrHomS⁻¹RS⁻¹R = S⁻¹RHasAlgUniversalProp S⁻¹RAsCommAlg S⋆1⊆S⁻¹Rˣ
 
 
-
+-- the special case of localizing at a single element
+R[1/_]AsCommAlgebra : {R : CommRing ℓ} → ⟨ R ⟩ → CommAlgebra R ℓ
+R[1/_]AsCommAlgebra {R = R} f = S⁻¹RAsCommAlg [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+ where
+ open AlgLoc R
+ open InvertingElementsBase R
 
 module AlgLocTwoSubsets (R' : CommRing ℓ)
                         (S₁ : ℙ (fst R')) (S₁MultClosedSubset : isMultClosedSubset R' S₁)
@@ -147,6 +153,8 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
                                                ; isContrHomS⁻¹RS⁻¹R to isContrHomS₂⁻¹RS₂⁻¹R)
 
  open IsAlgebraHom
+ open AlgebraHoms
+ open CommAlgebraHoms
  open CommAlgebraStr ⦃...⦄
 
  private
@@ -171,10 +179,10 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
   χ₂ : CommAlgebraHom S₂⁻¹RAsCommAlg S₁⁻¹RAsCommAlg
   χ₂ = S₂⁻¹RHasAlgUniversalProp S₁⁻¹RAsCommAlg S₂⊆S₁⁻¹Rˣ .fst
 
-  χ₁∘χ₂≡id : χ₁ ∘a χ₂ ≡ idAlgHom
+  χ₁∘χ₂≡id : χ₁ ∘a χ₂ ≡ idCommAlgebraHom _
   χ₁∘χ₂≡id = isContr→isProp isContrHomS₂⁻¹RS₂⁻¹R _ _
 
-  χ₂∘χ₁≡id : χ₂ ∘a χ₁ ≡ idAlgHom
+  χ₂∘χ₁≡id : χ₂ ∘a χ₁ ≡ idCommAlgebraHom _
   χ₂∘χ₁≡id = isContr→isProp isContrHomS₁⁻¹RS₁⁻¹R _ _
 
   IsoS₁⁻¹RS₂⁻¹R : Iso S₁⁻¹R S₂⁻¹R

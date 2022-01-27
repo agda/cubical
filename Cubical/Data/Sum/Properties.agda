@@ -9,6 +9,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat
+open import Cubical.Data.Sigma
 
 open import Cubical.Data.Sum.Base
 
@@ -17,11 +18,12 @@ open Iso
 
 private
   variable
-    ℓa ℓb ℓc ℓd : Level
+    ℓa ℓb ℓc ℓd ℓe : Level
     A : Type ℓa
     B : Type ℓb
     C : Type ℓc
     D : Type ℓd
+    E : A ⊎ B → Type ℓe
 
 
 -- Path space of sum type
@@ -115,6 +117,9 @@ rightInv (⊎Iso iac ibd) (inr x) = cong inr (ibd .rightInv x)
 leftInv (⊎Iso iac ibd) (inl x)  = cong inl (iac .leftInv x)
 leftInv (⊎Iso iac ibd) (inr x)  = cong inr (ibd .leftInv x)
 
+⊎-equiv : A ≃ C → B ≃ D → (A ⊎ B) ≃ (C ⊎ D)
+⊎-equiv p q = isoToEquiv (⊎Iso (equivToIso p) (equivToIso q))
+
 ⊎-swap-Iso : Iso (A ⊎ B) (B ⊎ A)
 fun ⊎-swap-Iso (inl x) = inr x
 fun ⊎-swap-Iso (inr x) = inl x
@@ -153,3 +158,29 @@ leftInv ⊎-⊥-Iso (inl _) = refl
 
 ⊎-⊥-≃ : A ⊎ ⊥ ≃ A
 ⊎-⊥-≃ = isoToEquiv ⊎-⊥-Iso
+
+Π⊎Iso : Iso ((x : A ⊎ B) → E x) (((a : A) → E (inl a)) × ((b : B) → E (inr b)))
+fun Π⊎Iso f .fst a = f (inl a)
+fun Π⊎Iso f .snd b = f (inr b)
+inv Π⊎Iso (g1 , g2) (inl a) = g1 a
+inv Π⊎Iso (g1 , g2) (inr b) = g2 b
+rightInv Π⊎Iso (g1 , g2) i .fst a = g1 a
+rightInv Π⊎Iso (g1 , g2) i .snd b = g2 b
+leftInv Π⊎Iso f i (inl a) = f (inl a)
+leftInv Π⊎Iso f i (inr b) = f (inr b)
+
+Σ⊎Iso : Iso (Σ (A ⊎ B) E) ((Σ A (λ a → E (inl a))) ⊎ (Σ B (λ b → E (inr b))))
+fun Σ⊎Iso (inl a , ea) = inl (a , ea)
+fun Σ⊎Iso (inr b , eb) = inr (b , eb)
+inv Σ⊎Iso (inl (a , ea)) = (inl a , ea)
+inv Σ⊎Iso (inr (b , eb)) = (inr b , eb)
+rightInv Σ⊎Iso (inl (a , ea)) = refl
+rightInv Σ⊎Iso (inr (b , eb)) = refl
+leftInv Σ⊎Iso (inl a , ea) = refl
+leftInv Σ⊎Iso (inr b , eb) = refl
+
+Π⊎≃ : ((x : A ⊎ B) → E x) ≃ ((a : A) → E (inl a)) × ((b : B) → E (inr b))
+Π⊎≃ = isoToEquiv Π⊎Iso
+
+Σ⊎≃ : (Σ (A ⊎ B) E) ≃ ((Σ A (λ a → E (inl a))) ⊎ (Σ B (λ b → E (inr b))))
+Σ⊎≃ = isoToEquiv Σ⊎Iso

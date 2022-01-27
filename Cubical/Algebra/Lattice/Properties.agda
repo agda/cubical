@@ -55,20 +55,41 @@ module Order (L' : Lattice ℓ) where
  open JoinSemilattice (Lattice→JoinSemilattice L') renaming (_≤_ to _≤j_ ; IndPoset to JoinPoset)
  open MeetSemilattice (Lattice→MeetSemilattice L') renaming (_≤_ to _≤m_ ; IndPoset to MeetPoset)
 
- ≤Equiv : ∀ (x y : L) → (x ≤j y) ≃ (x ≤m y)
- ≤Equiv x y = propBiimpl→Equiv (isSetLattice L' _ _) (isSetLattice L' _ _) ≤j→≤m ≤m→≤j
-  where
-  ≤j→≤m : (x ≤j y) → (x ≤m y)
-  ≤j→≤m x∨ly≡y = x ∧l y         ≡⟨ cong (x ∧l_) (sym x∨ly≡y) ⟩
-                  x ∧l (x ∨l y) ≡⟨ ∧lAbsorb∨l _ _ ⟩
-                  x ∎
+ ≤j→≤m : ∀ x y → x ≤j y → x ≤m y
+ ≤j→≤m x y x∨ly≡y = x ∧l y         ≡⟨ cong (x ∧l_) (sym x∨ly≡y) ⟩
+                    x ∧l (x ∨l y) ≡⟨ ∧lAbsorb∨l _ _ ⟩
+                    x ∎
 
-  ≤m→≤j : (x ≤m y) → (x ≤j y)
-  ≤m→≤j x∧ly≡x = x ∨l y ≡⟨ ∨lComm _ _ ⟩
-                  y ∨l x ≡⟨ cong (y ∨l_) (sym x∧ly≡x) ⟩
-                  y ∨l (x ∧l y) ≡⟨ cong (y ∨l_) (∧lComm _ _) ⟩
-                  y ∨l (y ∧l x) ≡⟨ ∨lAbsorb∧l _ _ ⟩
-                  y ∎
+ ≤m→≤j : ∀ x y → x ≤m y → x ≤j y
+ ≤m→≤j x y x∧ly≡x = x ∨l y ≡⟨ ∨lComm _ _ ⟩
+                    y ∨l x ≡⟨ cong (y ∨l_) (sym x∧ly≡x) ⟩
+                    y ∨l (x ∧l y) ≡⟨ cong (y ∨l_) (∧lComm _ _) ⟩
+                    y ∨l (y ∧l x) ≡⟨ ∨lAbsorb∧l _ _ ⟩
+                    y ∎
+
+ ≤Equiv : ∀ (x y : L) → (x ≤j y) ≃ (x ≤m y)
+ ≤Equiv x y = propBiimpl→Equiv (isSetLattice L' _ _) (isSetLattice L' _ _) (≤j→≤m x y) (≤m→≤j x y)
 
  IndPosetPath : JoinPoset ≡ MeetPoset
  IndPosetPath = PosetPath _ _ .fst ((idEquiv _) , isposetequiv ≤Equiv )
+
+ -- transport inequalities from ≤m to ≤j
+ ∧lIsMinJoin : ∀ x y z → z ≤j x → z ≤j y → z ≤j x ∧l y
+ ∧lIsMinJoin _ _ _ z≤jx z≤jy = ≤m→≤j _ _ (∧lIsMin _ _ _ (≤j→≤m _ _ z≤jx) (≤j→≤m _ _ z≤jy))
+
+ ∧≤LCancelJoin : ∀ x y → x ∧l y ≤j y
+ ∧≤LCancelJoin x y = ≤m→≤j _ _ (∧≤LCancel x y)
+
+
+module _ {L M : Lattice ℓ} (φ ψ : LatticeHom L M) where
+ open LatticeStr ⦃...⦄
+ open IsLatticeHom
+ private
+   instance
+     _ = L
+     _ = M
+     _ = snd L
+     _ = snd M
+
+ LatticeHom≡f : fst φ ≡ fst ψ → φ ≡ ψ
+ LatticeHom≡f = Σ≡Prop λ f → isPropIsLatticeHom _ f _

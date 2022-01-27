@@ -472,3 +472,18 @@ pentagonIdentity {x = x} {y} p q r s =
     lemma₁₀ : ( i j : I) → _ ≡ _
     lemma₁₀ i j i₁ =
         (cube-comp₀₋₋ lemma₁₀-front (sym lemma₁₀-back')) i j i₁
+
+-- misc.
+∙∙lCancel-fill : ∀ {ℓ} {A : Type ℓ} {x y : A}
+         → (p : x ≡ y)
+         → I → I → I → A
+∙∙lCancel-fill p i j k =
+  hfill (λ k → λ { (i = i1) → p k
+                  ; (j = i0) → p k
+                  ; (j = i1) → p k})
+        (inS (p i0)) k
+
+∙∙lCancel : ∀ {ℓ} {A : Type ℓ} {x y : A}
+         → (p : x ≡ y)
+         → sym p ∙∙ refl ∙∙ p ≡ refl
+∙∙lCancel p i j = ∙∙lCancel-fill p i j i1
