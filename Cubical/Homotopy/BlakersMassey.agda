@@ -34,11 +34,10 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.HITs.Truncation renaming (hLevelTrunc to Trunc)
+open import Cubical.HITs.Pushout hiding (PushoutGenFib)
 
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
-
-open import Cubical.HITs.Pushout hiding (PushoutGenFib)
 
 module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
   (X : Type ℓ₁)(Y : Type ℓ₂)(Q : X → Y → Type ℓ₃)
@@ -680,18 +679,18 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
 {-
 We also give the following version of the theorem: Given a square
 
-          f
+          g
   A --------------> B
   |\              ↗ |
   |  \         ↗    |
   |    \    ↗       |
-g |      X          |  inl
+f |      X          |  inr
   |    /            |
   |   /             |
   |  /              |
   v /               v
-  C -----------> Pushout f g
-         inr
+  B -----------> Pushout f g
+         inl
 
 where X is the pullback of inl and inr
   (X := Σ[ (b , c) ∈ B × C ] (inl b ≡ inr c)).
@@ -707,10 +706,13 @@ private
        (f : A → B) (g : A → C) (b : B)
      → Iso (Σ[ c ∈ C ] Σ[ a ∈ A ] (f a ≡ b) × (g a ≡ c))
              (Σ[ a ∈ A ] ((Σ[ c ∈ C ] (g a ≡ c)) × (f a ≡ b)))
-  fun (shuffleFibIso₁ f g x) (c , a , p , q) = a , (c , q) , p
-  inv (shuffleFibIso₁ f g x) (a , (c , q) , p) = c , a , p , q
-  rightInv (shuffleFibIso₁ f g x) _ = refl
-  leftInv (shuffleFibIso₁ f g x) _ = refl
+  shuffleFibIso₁ f g b =
+    compIso (invIso Σ-assoc-Iso)
+     (compIso (Σ-cong-iso-fst Σ-swap-Iso)
+      (compIso
+       (Σ-cong-iso-snd (λ y → Σ-swap-Iso))
+       (compIso Σ-assoc-Iso
+         (Σ-cong-iso-snd λ a → invIso Σ-assoc-Iso))))
 
   shuffleFibIso₂ : {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
          (f : A → B) (g : A → C) (x : _)
