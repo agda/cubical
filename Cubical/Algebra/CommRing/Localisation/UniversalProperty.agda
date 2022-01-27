@@ -373,8 +373,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
  S⁻¹RChar : (A' : CommRing ℓ) (φ : CommRingHom R' A')
           → PathToS⁻¹R A' φ
           → S⁻¹RAsCommRing ≡ A'
- S⁻¹RChar A' φ cond = CommRingPath S⁻¹RAsCommRing A' .fst
-                    (S⁻¹R≃A , χ .snd)
+ S⁻¹RChar A' φ cond = uaCommRing (S⁻¹R≃A , χ .snd)
   where
   open CommRingStr (snd A') renaming ( is-set to Aset ; 0r to 0a ; _·_ to _·A_ ; 1r to 1a
                                       ; ·Rid to ·A-rid)
