@@ -4,6 +4,7 @@ module Cubical.Categories.Category.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Powerset
 
 private
   variable
@@ -88,3 +89,14 @@ _⋆_ (C ^op) f g      = g ⋆⟨ C ⟩ f
 ⋆IdR (C ^op)         = C .⋆IdL
 ⋆Assoc (C ^op) f g h = sym (C .⋆Assoc _ _ _)
 isSetHom (C ^op)     = C .isSetHom
+
+
+ΣPropCat : (C : Category ℓ ℓ') (P : ℙ (ob C)) → Category ℓ ℓ'
+ob (ΣPropCat C P) = Σ[ x ∈ ob C ] x ∈ P
+Hom[_,_] (ΣPropCat C P) x y = C [ fst x , fst y ]
+id (ΣPropCat C P) = id C
+_⋆_ (ΣPropCat C P) = _⋆_ C
+⋆IdL (ΣPropCat C P) = ⋆IdL C
+⋆IdR (ΣPropCat C P) = ⋆IdR C
+⋆Assoc (ΣPropCat C P) = ⋆Assoc C
+isSetHom (ΣPropCat C P) = isSetHom C

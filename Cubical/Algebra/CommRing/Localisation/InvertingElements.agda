@@ -189,8 +189,8 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
 
- toUnit : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
- toUnit = PT.rec isPropGoal (uncurry ℕhelper)
+ unitHelper : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
+ unitHelper = PT.rec isPropGoal (uncurry ℕhelper)
   where
   isPropGoal = Units.inverseUniqueness _ (g /1)
 
@@ -206,15 +206,11 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
    useSolver2 : ∀ x → x ≡ 1r · 1r · (1r · x)
    useSolver2 = solve R'
 
- -- applying the universal property
- toHom : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩
-       → CommRingHom R[1/ g ]AsCommRing R[1/ f ]AsCommRing
- toHom f∈√⟨g⟩ = S⁻¹RHasUniversalProp _ /1AsCommRingHom unitHelper .fst .fst
-  where
-  unitHelper : ∀ s → s ∈ [ g ⁿ|n≥0] → (s /1) ∈ R[1/ f ]AsCommRing ˣ
-  unitHelper = powersPropElim (λ x → Units.inverseUniqueness _ (x /1))
+ toUnit : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩
+       → ∀ s → s ∈ [ g ⁿ|n≥0] → (s /1) ∈ R[1/ f ]AsCommRing ˣ
+ toUnit f∈√⟨g⟩ = powersPropElim (λ x → Units.inverseUniqueness _ (x /1))
                λ n → subst-∈ (R[1/ f ]AsCommRing ˣ) (sym (^-respects-/1 n))
-                      (Exponentiation.^-presUnit _ _ n (toUnit f∈√⟨g⟩))
+                      (Exponentiation.^-presUnit _ _ n (unitHelper f∈√⟨g⟩))
 
 
 module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where

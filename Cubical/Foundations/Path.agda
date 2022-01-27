@@ -2,6 +2,7 @@
 module Cubical.Foundations.Path where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
@@ -84,6 +85,14 @@ PathP≃Path A x y = isoToEquiv (PathPIsoPath A x y)
 PathP≡compPath : ∀ {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) (r : x ≡ z)
                  → (PathP (λ i → x ≡ q i) p r) ≡ (p ∙ q ≡ r)
 PathP≡compPath p q r k = PathP (λ i → p i0 ≡ q (i ∨ k)) (λ j → compPath-filler p q k j) r
+
+-- a quick corollary for 3-constant functions
+3-ConstantCompChar : {A : Type ℓ} {B : Type ℓ'} (f : A → B) (link : 2-Constant f)
+                   → (∀ x y z → link x y ∙ link y z ≡ link x z)
+                   → 3-Constant f
+3-Constant.link (3-ConstantCompChar f link coh₂) = link
+3-Constant.coh₁ (3-ConstantCompChar f link coh₂) _ _ _ =
+   transport⁻ (PathP≡compPath _ _ _) (coh₂ _ _ _)
 
 PathP≡doubleCompPathˡ : ∀ {A : Type ℓ} {w x y z : A} (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
                         → (PathP (λ i → p i ≡ s i) q r) ≡ (p ⁻¹ ∙∙ q ∙∙ s ≡ r)

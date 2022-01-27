@@ -99,7 +99,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       Iso.rightInv i = J (λ y p → cong fst (h aρa (y , J Q (ρ a) p)) ≡ p)
                          (J (λ q _ → cong fst (h aρa (a , q)) ≡ refl)
                            (J (λ α _ → cong fst α ≡ refl) refl
-                             (isContr→isProp (isProp→isContrPath h aρa aρa) refl (h aρa aρa)))
+                             (isProp→isSet h _ _ refl (h _ _)))
                            (sym (JRefl Q (ρ a))))
       Iso.leftInv i r = J (λ w β → J Q (ρ a) (cong fst β) ≡ snd w)
                           (JRefl Q (ρ a)) (h aρa (a' , r))
