@@ -6,10 +6,20 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Homogeneous
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Bool
+open import Cubical.Data.Sigma
+
 open import Cubical.HITs.Join
 open import Cubical.HITs.Susp.Base
+open import Cubical.Homotopy.Loopspace
+
+private
+  variable
+    ℓ : Level
 
 open Iso
 
@@ -117,3 +127,67 @@ Iso.rightInv funSpaceSuspIso f = funExt λ {north → refl
                                              ; south → refl
                                              ; (merid a i) → refl}
 Iso.leftInv funSpaceSuspIso _ = refl
+
+toSusp : (A : Pointed ℓ) → typ A → typ (Ω (Susp∙ (typ A)))
+toSusp A x = merid x ∙ merid (pt A) ⁻¹
+
+toSuspPointed : (A : Pointed ℓ) → A →∙ Ω (Susp∙ (typ A))
+fst (toSuspPointed A) = toSusp A
+snd (toSuspPointed A) = rCancel (merid (pt A))
+
+module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} where
+  fromSusp→toΩ : Susp∙ (typ A) →∙ B → (A →∙ Ω B)
+  fst (fromSusp→toΩ f) x = sym (snd f) ∙∙ cong (fst f) (toSusp A x) ∙∙ snd f
+  snd (fromSusp→toΩ f) =
+    cong (sym (snd f) ∙∙_∙∙ (snd f))
+          (cong (cong (fst f))
+           (rCancel (merid (pt A))))
+       ∙ ∙∙lCancel (snd f)
+
+  toΩ→fromSusp : A →∙ Ω B → Susp∙ (typ A) →∙ B
+  fst (toΩ→fromSusp f) north = pt B
+  fst (toΩ→fromSusp f) south = pt B
+  fst (toΩ→fromSusp f) (merid a i) = fst f a i
+  snd (toΩ→fromSusp f) = refl
+
+  ΩSuspAdjointIso : Iso (A →∙ Ω B) (Susp∙ (typ A) →∙ B)
+  fun ΩSuspAdjointIso = toΩ→fromSusp
+  inv ΩSuspAdjointIso = fromSusp→toΩ
+  rightInv ΩSuspAdjointIso f =
+    ΣPathP (funExt
+      (λ { north → sym (snd f)
+         ; south → sym (snd f) ∙ cong (fst f) (merid (pt A))
+         ; (merid a i) j →
+           hcomp (λ k → λ { (i = i0) → snd f (~ j ∧ k)
+                           ; (i = i1) → compPath-filler'
+                                          (sym (snd f))
+                                          (cong (fst f) (merid (pt A))) k j
+                           ; (j = i1) → fst f (merid a i)})
+                 (fst f (compPath-filler (merid a) (sym (merid (pt A))) (~ j) i))})
+         , λ i j → snd f (~ i ∨ j))
+  leftInv ΩSuspAdjointIso f =
+    →∙Homogeneous≡ (isHomogeneousPath _ _)
+      (funExt λ x → sym (rUnit _)
+             ∙ cong-∙ (fst (toΩ→fromSusp f)) (merid x) (sym (merid (pt A)))
+             ∙ cong (fst f x ∙_) (cong sym (snd f))
+             ∙ sym (rUnit _))
+
+  IsoΩFunSuspFun : Iso (typ (Ω (A →∙ B ∙))) (Susp∙ (typ A) →∙ B)
+  IsoΩFunSuspFun = compIso (ΩfunExtIso A B) ΩSuspAdjointIso
+
+-- inversion
+invSusp : ∀ {ℓ} {A : Type ℓ} → Susp A → Susp A
+invSusp north = south
+invSusp south = north
+invSusp (merid a i) = merid a (~ i)
+
+invSusp² : ∀ {ℓ} {A : Type ℓ} (x : Susp A) → invSusp (invSusp x) ≡ x
+invSusp² north = refl
+invSusp² south = refl
+invSusp² (merid a i) = refl
+
+invSuspIso : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (Susp A)
+fun invSuspIso = invSusp
+inv invSuspIso = invSusp
+rightInv invSuspIso = invSusp²
+leftInv invSuspIso = invSusp²

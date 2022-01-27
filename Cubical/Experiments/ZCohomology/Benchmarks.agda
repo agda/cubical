@@ -5,8 +5,9 @@ necessary.
 
 This file contains benchmarks for the paper:
 
-Synthetic Cohomology Theory in Cubical Agda
-
+Synthetic Integral Cohomology in Cubical Agda
+Guillaume Brunerie, Axel Ljungström, Anders Mörtberg
+Computer Science Logic (CSL) 2022
 
 Command to run the benchmarks and get timings:
 
@@ -45,7 +46,8 @@ open import Cubical.HITs.KleinBottle
 open import Cubical.HITs.RPn.Base
 open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Hopf
+open import Cubical.Homotopy.Hopf
+open S¹Hopf
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1

@@ -7,6 +7,8 @@ When preparing a PR here are some general guidelines:
 - To test your changes before submission, run `make` at the top level,
   which will generate all required `Everything` files in
   `Cubical/README.agda` and then typecheck the latter file.
+  If you're using Windows, [here](MAKEWINDOWS.md) are some instructions
+  to get the `make` command working.
 
 - Please read through and clean your code before making a PR. Clean
   code has reasonable line length (<100 characters), good indentation,
@@ -22,8 +24,12 @@ When preparing a PR here are some general guidelines:
   instead have informative names and put pointers to the theorems and
   lemmas in comments above the definition.
 
-- At the moment there is no global naming scheme for the library, so
-  just use your best judgment when naming things.
+- No global naming scheme for the library was enforced in the past, but new
+  contributions should only use names in camel-case. Names of types should
+  start with a capital letter and names of terms which are not types should
+  start with a lower case letter. However, for names of types that encode a
+  property (e.g. `isSet`), we prefer lowercase names. But this is not a
+  hard-and-fast rule.
 
 - Use `private variable` to quantify over universe levels at the top
   of the file. All definitions should be maximally universe
@@ -64,7 +70,16 @@ When preparing a PR here are some general guidelines:
   editing files by adding `(setq-default show-trailing-whitespace t)`
   to `~/.emacs`. The command `M-x delete-trailing-whitespace` is also
   very useful. It is possible to add a hook that runs this command
-  automatically when saving Agda files.
+  automatically when saving Agda files, by adding the following to your
+  `~/.emacs`:
+  ```
+  ;; delete trailing whitespace before saving in agda-mode
+  (defun agda-mode-delete-whitespace-before-save ()
+    (when (eq major-mode 'agda2-mode)
+      (delete-trailing-whitespace)))
+
+  (add-hook 'before-save-hook #'agda-mode-delete-whitespace-before-save)
+  ```
 
 - Use copattern-matching when instantiating records for efficiency.
   This seems especially important when constructing Iso's.

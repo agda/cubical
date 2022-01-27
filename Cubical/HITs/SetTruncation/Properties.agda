@@ -26,6 +26,9 @@ private
     ℓ ℓ' ℓ'' : Level
     A B C D : Type ℓ
 
+isSetPathImplicit : {x y : ∥ A ∥₂} → isSet (x ≡ y)
+isSetPathImplicit = isOfHLevelPath 2 squash₂ _ _
+
 rec : isSet B → (A → B) → ∥ A ∥₂ → B
 rec Bset f ∣ x ∣₂ = f x
 rec Bset f (squash₂ x y p q i j) =
