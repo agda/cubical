@@ -60,10 +60,10 @@ module _ (M : CommMonoid ℓ) where
       isCongR (a₁ , b₁) (a₂ , b₂) (a₃ , b₃) (a₄ , b₄) (k , p) (s , q) = k · s , proof
         where
         proof =
-          (k · s) · (a₁ · a₃) · (b₂ · b₄)   ≡⟨ lemma ⟩
+          (k · s) · ((a₁ · a₃) · (b₂ · b₄))   ≡⟨ lemma ⟩
           (k · (a₁ · b₂)) · (s · (a₃ · b₄)) ≡⟨ cong₂ _·_ p q ⟩
           (k · (b₁ · a₂)) · (s · (b₃ · a₄)) ≡⟨ sym lemma ⟩
-          (k · s) · (b₁ · b₃) · (a₂ · a₄)   ∎
+          (k · s) · ((b₁ · b₃) · (a₂ · a₄))   ∎
             where
             ass : ∀ {x y z} → x · (y · z) ≡ (x · y) · z
             ass = assoc _ _ _
@@ -74,7 +74,7 @@ module _ (M : CommMonoid ℓ) where
             lExp : ∀ {x y z} → x ≡ y → z · x ≡ z · y
             lExp r = cong₂ _·_ refl r
 
-            lemma : ∀ {k s a b c d} → (k · s) · (a · b) · (c · d) ≡ (k · (a · c)) · (s · (b · d))
+            lemma : ∀ {k s a b c d} → (k · s) · ((a · b) · (c · d)) ≡ (k · (a · c)) · (s · (b · d))
             lemma = sym ass ∙ lExp (
                                    ass ∙ ass ∙ rExp (
                                        comm _ _ ∙ ass ∙ ass ∙ rExp (
@@ -100,7 +100,7 @@ module _ (M : CommMonoid ℓ) where
 
     rinv/R : (x : M²/R) → x +/ (-/ x) ≡ 0/R
     rinv/R = elimProp (λ x → squash/ _ _)
-                      (λ (a , b) →  eq/ _ _ (ε , cong (λ x → ε · x · ε) (comm _ _)))
+                      (λ (a , b) →  eq/ _ _ (ε , cong (λ x → ε · (x · ε)) (comm _ _)))
 
     comm/R : (x y : M²/R) → x +/ y ≡ y +/ x
     comm/R = elimProp2 (λ x y → squash/ _ _) (λ u v → cong [_] (comm _ _))
