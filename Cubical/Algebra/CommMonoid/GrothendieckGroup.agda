@@ -51,7 +51,7 @@ module _ (M : CommMonoid ℓ) where
 
   private
     _+/_ : M²/R → M²/R → M²/R
-    x +/ y = setQuotBinOp isReflR _·_ isCongR x y
+    x +/ y = setQuotBinOp isReflR isReflR _·_ isCongR x y
       where
       isReflR : isRefl R
       isReflR (a , b) = ε , cong (ε ·_) (comm a b)
