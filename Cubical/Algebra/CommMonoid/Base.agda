@@ -48,7 +48,7 @@ record CommMonoidStr (M : Type ℓ) : Type ℓ where
     _·_          : M → M → M
     isCommMonoid : IsCommMonoid ε _·_
 
-  infixr 7 _·_
+  infixl 7 _·_
 
   open IsCommMonoid isCommMonoid public
 
