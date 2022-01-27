@@ -9,6 +9,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Nat
@@ -489,10 +490,31 @@ abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)
 ⊎→abs x zero (inr x₁) = cong abs x₁
 ⊎→abs x (suc n) (inr x₁) = cong abs x₁
 
+abs≡0 : (x : ℤ) → abs x ≡ 0 → x ≡ 0
+abs≡0 x p =
+  case (abs→⊎ x 0 p)
+  return (λ _ → x ≡ 0) of
+    λ { (inl r) → r
+      ; (inr r) → r }
+
+¬x≡0→¬abs≡0 : {x : ℤ} → ¬ x ≡ 0 → ¬ abs x ≡ 0
+¬x≡0→¬abs≡0 p q = p (abs≡0 _ q)
+
 abs- : (x : ℤ) → abs (- x) ≡ abs x
 abs- (pos zero) = refl
 abs- (pos (suc n)) = refl
 abs- (negsuc n) = refl
+
+absPos·Pos : (m n : ℕ) → abs (pos m · pos n) ≡ abs (pos m) ·ℕ abs (pos n)
+absPos·Pos m n i = abs (pos· m n (~ i))
+
+abs· : (m n : ℤ) → abs (m · n) ≡ abs m ·ℕ abs n
+abs· (pos m) (pos n) = absPos·Pos m n
+abs· (pos m) (negsuc n) =
+  cong abs (pos·negsuc m n) ∙ abs- (pos m · pos (suc n)) ∙ absPos·Pos m (suc n)
+abs· (negsuc m) (pos n) =
+  cong abs (negsuc·pos m n) ∙ abs- (pos (suc m) · pos n) ∙ absPos·Pos (suc m) n
+abs· (negsuc m) (negsuc n) = cong abs (negsuc·negsuc m n) ∙ absPos·Pos (suc m) (suc n)
 
 -- ℤ is integral domain
 
