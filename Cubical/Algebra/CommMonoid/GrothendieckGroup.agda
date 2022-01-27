@@ -40,7 +40,6 @@ module _ (M : CommMonoid ℓ) where
       _ = snd M
       _ = snd M²
 
-
   R : ⟨ M² ⟩  → ⟨ M² ⟩ → Type _
   R (a₁ , b₁) (a₂ , b₂) =  Σ ⟨ M ⟩ (λ k → k · (a₁ · b₂) ≡ k · (b₁ · a₂))
 
@@ -122,14 +121,15 @@ AbGroup→CommMonoid (_ , abgroupstr  _ _ _ G) =
 
 
 module UniversalProperty (M : CommMonoid ℓ) where
-  open CommMonoidStr (snd M)
-
   module _ {A : AbGroup ℓ} (φ : CommMonoidHom M (AbGroup→CommMonoid A)) where
     open IsMonoidHom
     open IsGroupHom
 
-    open AbGroupStr (snd A)
-      renaming (rid to ridA; invr to invrA; comm to commA; assoc to assocA)
+    open CommMonoidStr ⦃...⦄
+    private
+      instance
+        _ = snd M
+        _ = snd (AbGroup→CommMonoid A)
 
     open GroupTheory (AbGroup→Group A)
 
@@ -139,20 +139,22 @@ module UniversalProperty (M : CommMonoid ℓ) where
 
     universalHom : CommMonoidHom M (AbGroup→CommMonoid (Groupification M))
     fst universalHom = λ m → [ m , ε ]
-    isHom (snd universalHom) = λ _ _ → eq/ _ _ (ε , cong (ε ·_)
-                                                         (comm _ _ ∙ cong₂ _·_ (rid ε) refl))
+    isHom (snd universalHom) =
+      λ _ _ → eq/ _ _ (ε , cong (ε ·_) (comm _ _ ∙ cong₂ _·_ (rid ε) refl))
     presε (snd universalHom) = refl
 
     private
       i = fst universalHom
-    
+
+    open AbGroupStr (snd A) using (-_; _-_; _+_; invr; invl)
+
     inducedHom : AbGroupHom (Groupification M) A
     fst inducedHom = elim (λ x → isSetAbGroup A) g proof
         where
         g = λ (a , b) → f a - f b
         proof : (u v : ⟨ M² M ⟩) (r : R M u v) → g u ≡ g v
         proof _ _ (k , p) = lemma (lemma₂ p)
-            where         
+            where
             lemma₂ : ∀ {k a b c d} → k · (a · d) ≡ k · (b · c) → f a + f d ≡ f b + f c
             lemma₂ {k} {a} {b} {c} {d} p =
               f a + f d   ≡⟨ sym (φ.isHom _ _) ⟩
@@ -162,8 +164,22 @@ module UniversalProperty (M : CommMonoid ℓ) where
 
             lemma : ∀ {a b c d} → f a + f d ≡ f b + f c → f a - f b ≡ f c - f d
             lemma {a} {b} {c} {d} p =
-              f a - f b ≡⟨ {!!} ⟩
-              f c - f d ∎
+              f a - f b
+                ≡⟨ cong (λ x → x - f b) (sym (rid _)) ⟩
+              f a + ε - f b
+                ≡⟨ cong (λ x → f a + x - f b) (sym (invr _)) ⟩
+              f a + (f d - f d) - f b
+                ≡⟨ cong (λ x → x - f b) (assoc _ _ _) ⟩
+              f a + f d - f d - f b
+                ≡⟨ cong (λ x → x - f d - f b) p ⟩
+              f b + f c - f d - f b
+                ≡⟨ comm _ _ ∙ assoc _ _ _ ⟩
+              (- f b + (f b + f c)) - f d
+                ≡⟨ cong (λ x → x - f d) (assoc _ _ _) ⟩
+              ((- f b + f b) + f c) - f d
+                ≡⟨ cong (λ x → (x + f c) - f d) (invl _) ∙ sym (assoc _ _ _) ∙ lid _ ⟩
+              f c - f d
+                ∎
 
     pres· (snd inducedHom) = elimProp2 (λ _ _ → isSetAbGroup A _ _) proof
       where
@@ -176,11 +192,13 @@ module UniversalProperty (M : CommMonoid ℓ) where
         proof : ((a , b) (c , d) : ⟨ M² M ⟩) → (f (a · c)) - (f (b · d)) ≡ (f a - f b) + (f c - f d)
         proof (a , b) (c , d) =
           f (a · c) - f (b · d)     ≡⟨ cong₂ _-_ (φ.isHom _ _) (φ.isHom _ _) ⟩
-          (f a + f c) - (f b + f d) ≡⟨ lExp (invDistr _ _ ∙ commA _ _) ∙ assocA _ _ _ ⟩
-          ((f a + f c) - f b) - f d ≡⟨ rExp (sym (assocA _ _ _) ∙ lExp (commA _ _) ∙ assocA _ _ _) ∙ sym (assocA _ _ _) ⟩
+          (f a + f c) - (f b + f d) ≡⟨ lExp (invDistr _ _ ∙ comm _ _) ∙ assoc _ _ _ ⟩
+          ((f a + f c) - f b) - f d ≡⟨ lemma ⟩
           (f a - f b) + (f c - f d) ∎
+          where
+            lemma = rExp (sym (assoc _ _ _) ∙ lExp (comm _ _) ∙ assoc _ _ _) ∙ sym (assoc _ _ _)
 
-    pres1 (snd inducedHom)   = invrA (f ε)
+    pres1 (snd inducedHom)   = invr _
     presinv (snd inducedHom) = elimProp (λ _ → isSetAbGroup A _ _)
                                         (λ _ → sym (invDistr _ _ ∙ cong₂ _-_ (invInv _) refl))
 
@@ -195,7 +213,7 @@ module UniversalProperty (M : CommMonoid ℓ) where
 -}
 
     solution : (m : ⟨ M ⟩) → (fst inducedHom) (i m) ≡ f m
-    solution m = cong ((f m)+_) ((cong (-_) φ.presε) ∙ inv1g) ∙ ridA _ 
+    solution m = cong ((f m)+_) ((cong (-_) φ.presε) ∙ inv1g) ∙ rid _ 
 
     private
       module G = AbGroupStr (snd (Groupification M)) using (_+_; _-_)
@@ -204,9 +222,9 @@ module UniversalProperty (M : CommMonoid ℓ) where
              → (ψIsSolution : (m : ⟨ M ⟩) → ψ .fst (i m) ≡ f m)
              → (u : ⟨ M² M ⟩) → ψ .fst [ u ] ≡ inducedHom .fst [ u ]
     unique ψ ψIsSolution (a , b) =
-       ψ .fst [ a , b ]                    ≡⟨ cong (ψ .fst)
-                                                   (eq/ _ _ (ε , cong (ε ·_)
-                                                                      (assoc _ _ _ ∙ comm _ _))) ⟩
+       ψ .fst [ a , b ]                    ≡⟨ lemma ⟩
        ψ .fst ([ a , ε ] G.- [ b , ε ])    ≡⟨ (snd ψ).pres· _ _ ∙ cong₂ _+_ refl ((snd ψ).presinv _) ⟩
        ψ .fst [ a , ε ] - ψ .fst [ b , ε ] ≡⟨ cong₂ _-_ (ψIsSolution a) (ψIsSolution b) ⟩
        f a - f b                           ∎
+       where
+         lemma = cong (ψ .fst) (eq/ _ _ (ε , cong (ε ·_) (assoc _ _ _ ∙ comm _ _)))

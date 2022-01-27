@@ -6,12 +6,8 @@ module Cubical.Algebra.CommMonoid.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
@@ -44,7 +40,7 @@ record IsCommMonoid {M : Type ℓ}
 
 unquoteDecl IsCommMonoidIsoΣ = declareRecordIsoΣ IsCommMonoidIsoΣ (quote IsCommMonoid)
 
-record CommMonoidStr (M : Type ℓ) : Type (ℓ-suc ℓ) where
+record CommMonoidStr (M : Type ℓ) : Type ℓ where
   constructor commmonoidstr
 
   field
@@ -68,20 +64,6 @@ makeIsCommMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
 makeIsCommMonoid is-setM assoc rid comm =
   iscommmonoid (makeIsMonoid is-setM assoc rid (λ x → comm _ _ ∙ rid x)) comm
 
-{-
--- Easier to use constructors
-makeIsCommMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
-               (is-setM : isSet M)
-               (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-               (rid : (x : M) → x · ε ≡ x)
-               (lid : (x : M) → ε · x ≡ x)
-               (comm : (x y : M) → x · y ≡ y · x)
-             → IsCommMonoid ε _·_
-IsCommMonoid.isMonoid (makeIsCommMonoid is-setM assoc rid lid comm) =
-                                        makeIsMonoid is-setM assoc rid lid
-IsCommMonoid.comm (makeIsCommMonoid is-setM assoc rid lid comm) = comm
--}
-
 makeCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
                (is-setM : isSet M)
                (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
@@ -91,21 +73,6 @@ makeCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
 makeCommMonoid ε _·_ is-setM assoc rid comm =
   _ , commmonoidstr ε _·_ (makeIsCommMonoid is-setM assoc rid comm)
 
-{-
-commmonoid : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsCommMonoid ε _·_) → CommMonoid ℓ
-commmonoid A ε _·_ h = A , commmonoidstr ε _·_ h
-
-makeCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
-             (is-setM : isSet M)
-             (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-             (rid : (x : M) → x · ε ≡ x)
-             (lid : (x : M) → ε · x ≡ x)
-             (comm : (x y : M) → x · y ≡ y · x)
-           → CommMonoid ℓ
-makeCommMonoid ε _·_ is-setM assoc rid lid comm =
-  commmonoid _ ε _·_ (makeIsCommMonoid is-setM assoc rid lid comm)
--}
-
 CommMonoidStr→MonoidStr : {A : Type ℓ} → CommMonoidStr A → MonoidStr A
 CommMonoidStr→MonoidStr (commmonoidstr _ _ H) = monoidstr _ _ (IsCommMonoid.isMonoid H)
 
@@ -114,24 +81,6 @@ CommMonoid→Monoid (_ , commmonoidstr  _ _ M) = _ , monoidstr _ _ (IsCommMonoid
 
 CommMonoidHom : (L : CommMonoid ℓ) (M : CommMonoid ℓ') → Type (ℓ-max ℓ ℓ')
 CommMonoidHom L M = MonoidHom (CommMonoid→Monoid L) (CommMonoid→Monoid M)
-
-{-
-record IsCommMonoidHom {A : Type ℓ} {B : Type ℓ'}
-                          (M : CommMonoidStr A) (f : A → B) (N : CommMonoidStr B)
-  : Type (ℓ-max ℓ ℓ')
-  where
-
-  private
-    module M = CommMonoidStr M
-    module N = CommMonoidStr N
-
-  field
-    pres-ε : f M.ε ≡ N.ε
-    pres· : (x y : A) → f (x M.· y) ≡ f x N.· f y
-
-CommMonoidHom : (M : CommMonoid ℓ) (N : CommMonoid ℓ') → Type (ℓ-max ℓ ℓ')
-CommMonoidHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsCommMonoidHom (M .snd) f (N .snd)
--}
 
 IsCommMonoidEquiv : {A : Type ℓ} {B : Type ℓ'}
   (M : CommMonoidStr A) (e : A ≃ B) (N : CommMonoidStr B) → Type (ℓ-max ℓ ℓ')
