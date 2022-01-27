@@ -61,8 +61,9 @@ makeIsCommMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
                  (rid     : (x : M) → x · ε ≡ x)
                  (comm    : (x y : M) → x · y ≡ y · x)
                → IsCommMonoid ε _·_
-makeIsCommMonoid is-setM assoc rid comm =
-  iscommmonoid (makeIsMonoid is-setM assoc rid (λ x → comm _ _ ∙ rid x)) comm
+IsCommMonoid.isMonoid (makeIsCommMonoid is-setM assoc rid comm) =
+  makeIsMonoid is-setM assoc rid (λ x → comm _ _ ∙ rid x)
+IsCommMonoid.comm (makeIsCommMonoid is-setM assoc rid comm) = comm
 
 makeCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
                (is-setM : isSet M)
@@ -70,8 +71,11 @@ makeCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
                (rid : (x : M) → x · ε ≡ x)
                (comm    : (x y : M) → x · y ≡ y · x)
              → CommMonoid ℓ
-makeCommMonoid ε _·_ is-setM assoc rid comm =
-  _ , commmonoidstr ε _·_ (makeIsCommMonoid is-setM assoc rid comm)
+fst (makeCommMonoid ε _·_ is-setM assoc rid comm) = _
+CommMonoidStr.ε (snd (makeCommMonoid ε _·_ is-setM assoc rid comm)) = ε
+CommMonoidStr._·_ (snd (makeCommMonoid ε _·_ is-setM assoc rid comm)) = _·_
+CommMonoidStr.isCommMonoid (snd (makeCommMonoid ε _·_ is-setM assoc rid comm)) =
+  makeIsCommMonoid is-setM assoc rid comm
 
 CommMonoidStr→MonoidStr : {A : Type ℓ} → CommMonoidStr A → MonoidStr A
 CommMonoidStr→MonoidStr (commmonoidstr _ _ H) = monoidstr _ _ (IsCommMonoid.isMonoid H)
