@@ -366,7 +366,7 @@ quotRemPosPos m n _ .quotEq =
   ∙ (λ t → pos· m (quotient n / m) t + pos (remainder n / m))
   ∙ (λ t → ·Comm (pos m) (pos (quotient n / m)) t + pos (remainder n / m))
 quotRemPosPos 0       n ¬z .normIneq = Empty.rec (¬z refl)
-quotRemPosPos (suc m) n ¬z .normIneq = dec-helper (discreteℤ _ 0) (mod< m n)
+quotRemPosPos (suc m) n _  .normIneq = dec-helper (discreteℤ _ 0) (mod< m n)
 
 quotRemNegPos : (m n : ℕ)(¬z : ¬ - pos m ≡ 0) → QuotRem (- pos m) (pos n)
 quotRemNegPos m n ¬z .div = - (quotRemPosPos m n (λ p → ¬z (λ t → - p t)) .div)
