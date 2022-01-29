@@ -212,7 +212,7 @@ smithReduction :
   → Smith M → Smith (a ⊕ M)
 smithReduction a M p div smithnorm =
   record
-    { sim = ⊕Sim a M (smithnorm .sim)
+    { sim = ⊕Sim a (smithnorm .sim)
     ; isnormal =
         consIsSmithNormal a _ p
           (sim∣ _ _ (smithnorm .sim) div)
@@ -230,4 +230,4 @@ smith {m = suc m} {n = suc n} M = helper (smithStep _)
     helper (inl stepM) =
       let sucM = sucMat (stepM .sim .result)
           smithM = smithReduction _ _ (stepM .nonZero) (stepM .div) (smith sucM)
-      in  simSmith (compSim (stepM .sim) (≡Sim _ _ (smithReduction-helper _ stepM))) smithM
+      in  simSmith (compSim (stepM .sim) (≡Sim (smithReduction-helper _ stepM))) smithM

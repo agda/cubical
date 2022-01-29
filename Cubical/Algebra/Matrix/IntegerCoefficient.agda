@@ -46,6 +46,7 @@ open Coefficient Ringℤ
 open LinearTransformation Ringℤ
 open Bézout
 
+open SimRel
 open Sim
 
 -- The elementary transformations needed
@@ -90,8 +91,9 @@ sim∣ :
   → ((i : Fin m)(j : Fin n) → a ∣ M i j)
   →  (i : Fin m)(j : Fin n) → a ∣ sim .result i j
 sim∣ a M sim div i j =
-  subst (a ∣_) (λ t → sim .transEq (~ t) i j)
-    (∣-left⋆ _ _ (sim .transMatR) (∣-right⋆ _ (sim .transMatL) _ div) i j)
+  subst (a ∣_) (λ t → sim .simrel .transEq (~ t) i j)
+    (∣-left⋆ _ _ (sim .simrel .transMatR)
+    (∣-right⋆ _ (sim .simrel .transMatL) _ div) i j)
 
 -- Operations used in the reduction step
 

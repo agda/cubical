@@ -120,15 +120,15 @@ module Coefficient (𝓡 : CommRing ℓ) where
   isPropIsInv : (M : Mat n n) → isProp (isInv M)
   isPropIsInv M p q = Σ≡Prop (λ _ → isPropIsInv' M _) (invUniq M _ _ (p .snd) (q .snd))
 
-  isInv⋆ : (M M' : Mat n n) → isInv M → isInv M' → isInv (M ⋆ M')
-  isInv⋆ M M' (N , p) (N' , q) .fst = N' ⋆ N
-  isInv⋆ M M' (N , p) (N' , q) .snd .fst =
+  isInv⋆ : {M M' : Mat n n} → isInv M → isInv M' → isInv (M ⋆ M')
+  isInv⋆ (N , p) (N' , q) .fst = N' ⋆ N
+  isInv⋆ {M = M} {M' = M'} (N , p) (N' , q) .snd .fst =
       sym (⋆Assoc M M' (N' ⋆ N))
     ∙ (λ i → M ⋆ ⋆Assoc M' N' N i)
     ∙ (λ i → M ⋆ (q .fst i ⋆ N))
     ∙ (λ i → M ⋆ ⋆lUnit N i)
     ∙ p .fst
-  isInv⋆ M M' (N , p) (N' , q) .snd .snd =
+  isInv⋆ {M = M} {M' = M'} (N , p) (N' , q) .snd .snd =
       sym (⋆Assoc N' N (M ⋆ M'))
     ∙ (λ i → N' ⋆ ⋆Assoc N M M' i)
     ∙ (λ i → N' ⋆ (p .snd i ⋆ M'))
@@ -232,38 +232,42 @@ module Coefficient (𝓡 : CommRing ℓ) where
   record Sim (M : Mat m n) : Type ℓ where
     field
       result : Mat m n
-
-      transMatL : Mat m m
-      transMatR : Mat n n
-      transEq : result ≡ transMatL ⋆ M ⋆ transMatR
-
-      isInvTransL : isInv transMatL
-      isInvTransR : isInv transMatR
+      simrel : SimRel M result
 
   open Sim
 
+  idSimRel : (M : Mat m n) → SimRel M M
+  idSimRel _ .transMatL = 𝟙
+  idSimRel _ .transMatR = 𝟙
+  idSimRel M .transEq = sym ((λ t → ⋆lUnit M t ⋆ 𝟙) ∙ ⋆rUnit _)
+  idSimRel _ .isInvTransL = isInv𝟙
+  idSimRel _ .isInvTransR = isInv𝟙
+
   idSim : (M : Mat m n) → Sim M
   idSim M .result = M
-  idSim _ .transMatL = 𝟙
-  idSim _ .transMatR = 𝟙
-  idSim M .transEq = sym ((λ t → ⋆lUnit M t ⋆ 𝟙) ∙ ⋆rUnit _)
-  idSim _ .isInvTransL = isInv𝟙
-  idSim _ .isInvTransR = isInv𝟙
+  idSim M .simrel = idSimRel M
 
-  ≡Sim : (M N : Mat m n) → M ≡ N → Sim M
-  ≡Sim M N p = record (idSim M) { result = N ; transEq = sym p ∙ idSim M .transEq }
+  ≡SimRel : {M N : Mat m n} → M ≡ N → SimRel M N
+  ≡SimRel p .transMatL = 𝟙
+  ≡SimRel p .transMatR = 𝟙
+  ≡SimRel {M = M} p .transEq = sym p ∙ sym ((λ t → ⋆lUnit M t ⋆ 𝟙) ∙ ⋆rUnit _)
+  ≡SimRel p .isInvTransL = isInv𝟙
+  ≡SimRel p .isInvTransR = isInv𝟙
 
-  compSim : {M : Mat m n}(simM : Sim M)(simN : Sim (simM .result)) → Sim M
-  compSim _ simN .result = simN .result
-  compSim simM simN .transMatL = simN .transMatL ⋆ simM .transMatL
-  compSim simM simN .transMatR = simM .transMatR ⋆ simN .transMatR
-  compSim {M = M} simM simN .transEq =
-      let L  = simM .transMatL
-          R  = simM .transMatR
-          L' = simN .transMatL
-          R' = simN .transMatR in
-      simN .transEq
-    ∙ (λ t → L' ⋆ simM .transEq t ⋆ R')
+  ≡Sim : {M N : Mat m n} → M ≡ N → Sim M
+  ≡Sim _ .result = _
+  ≡Sim p .simrel = ≡SimRel p
+
+  compSimRel : {M N K : Mat m n} → SimRel M N → SimRel N K → SimRel M K
+  compSimRel p q .transMatL = q .transMatL ⋆ p .transMatL
+  compSimRel p q .transMatR = p .transMatR ⋆ q .transMatR
+  compSimRel {M = M} p q .transEq =
+      let L  = p .transMatL
+          R  = p .transMatR
+          L' = q .transMatL
+          R' = q .transMatR in
+      q .transEq
+    ∙ (λ t → L' ⋆ p .transEq t ⋆ R')
     ∙ (λ t → L' ⋆ ⋆Assoc L M R (~ t) ⋆ R')
     ∙ (λ t → ⋆Assoc L' (L ⋆ (M ⋆ R)) R' (~ t))
     ∙ (λ t → L' ⋆ ⋆Assoc L (M ⋆ R) R' (~ t))
@@ -271,8 +275,12 @@ module Coefficient (𝓡 : CommRing ℓ) where
     ∙ (λ t → L' ⋆ ⋆Assoc L M (R ⋆ R') t)
     ∙ (λ t → ⋆Assoc L' (L ⋆ M) (R ⋆ R') t)
     ∙ (λ t → ⋆Assoc L' L M t ⋆ (R ⋆ R'))
-  compSim simM simN .isInvTransL = isInv⋆ _ _ (simN .isInvTransL) (simM .isInvTransL)
-  compSim simM simN .isInvTransR = isInv⋆ _ _ (simM .isInvTransR) (simN .isInvTransR)
+  compSimRel p q .isInvTransL = isInv⋆ (q .isInvTransL) (p .isInvTransL)
+  compSimRel p q .isInvTransR = isInv⋆ (p .isInvTransR) (q .isInvTransR)
+
+  compSim : {M : Mat m n}(p : Sim M)(q : Sim (p .result)) → Sim M
+  compSim p q .result = q .result
+  compSim p q .simrel = compSimRel (p .simrel) (q .simrel)
 
   -- Add a new element at upper-left corner
 
@@ -318,11 +326,10 @@ module Coefficient (𝓡 : CommRing ℓ) where
   isInv⊕ M isInvM .snd .fst = ⊕-⋆ _ _ _ _ ∙ (λ t → ·Lid 1r t ⊕ isInvM .snd .fst t) ∙ 1⊕𝟙
   isInv⊕ M isInvM .snd .snd = ⊕-⋆ _ _ _ _ ∙ (λ t → ·Rid 1r t ⊕ isInvM .snd .snd t) ∙ 1⊕𝟙
 
-  ⊕Sim : (a : R)(M : Mat m n) → (sim : Sim M) → Sim (a ⊕ M)
-  ⊕Sim a M sim .result = a ⊕ sim .result
-  ⊕Sim a M sim .transMatL = 1r ⊕ sim .transMatL
-  ⊕Sim a M sim .transMatR = 1r ⊕ sim .transMatR
-  ⊕Sim a M sim .transEq =
+  ⊕SimRel : (a : R){M N : Mat m n} → (sim : SimRel M N) → SimRel (a ⊕ M) (a ⊕ N)
+  ⊕SimRel _ sim .transMatL = 1r ⊕ sim .transMatL
+  ⊕SimRel _ sim .transMatR = 1r ⊕ sim .transMatR
+  ⊕SimRel a {M = M} sim .transEq =
     let P = sim .transMatL
         Q = sim .transMatR in
       (λ t → helper a t ⊕ sim .transEq t)
@@ -330,5 +337,10 @@ module Coefficient (𝓡 : CommRing ℓ) where
     ∙ (λ t → ⊕-⋆ 1r a P M (~ t) ⋆ (1r ⊕ Q))
     where helper : (a : R) → a ≡ (1r · a) · 1r
           helper = solve 𝓡
-  ⊕Sim a M sim .isInvTransL = isInv⊕ _ (sim .isInvTransL)
-  ⊕Sim a M sim .isInvTransR = isInv⊕ _ (sim .isInvTransR)
+  ⊕SimRel _ sim .isInvTransL = isInv⊕ _ (sim .isInvTransL)
+  ⊕SimRel _ sim .isInvTransR = isInv⊕ _ (sim .isInvTransR)
+
+  ⊕Sim : (a : R){M : Mat m n} → (sim : Sim M) → Sim (a ⊕ M)
+  ⊕Sim a sim .result = a ⊕ sim .result
+  ⊕Sim _ sim .simrel = ⊕SimRel _ (sim .simrel)
+

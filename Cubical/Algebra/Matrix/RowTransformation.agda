@@ -653,7 +653,7 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
       isInvComp : (M : Mat (suc m) (suc n)) → isInv (isLinearComp .transMat M)
       isInvComp M =
         let T₁M = isLinearT₁ .transMat M in
-        isInv⋆ (isLinearT₂ .transMat (T₁ _ M)) T₁M (isInvT₂ (T₁ _ M)) (isInvT₁ M)
+        isInv⋆ {M = isLinearT₂ .transMat (T₁ _ M)} {M' = T₁M} (isInvT₂ (T₁ _ M)) (isInvT₁ M)
 
     module _
       (P : FinVec R (suc n) → Type ℓ)
@@ -664,7 +664,7 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
       isInvCompInd : (M : Mat (suc m) (suc n)) → P (M zero) → isInv (isLinearComp .transMat M)
       isInvCompInd M p =
         let T₁M = isLinearT₁ .transMat M in
-        isInv⋆ (isLinearT₂ .transMat (T₁ _ M)) T₁M (isInvT₂ (T₁ _ M) (indP _ p)) (isInvT₁ M p)
+        isInv⋆ {M = isLinearT₂ .transMat (T₁ _ M)} {M' = T₁M} (isInvT₂ (T₁ _ M) (indP _ p)) (isInvT₁ M p)
 
 
   module _

@@ -43,6 +43,7 @@ module ElemTransformation (𝓡 : CommRing ℓ) where
   open Coefficient           𝓡
   open LinearTransformation  𝓡
 
+  open SimRel
   open Sim
 
   open isLinear
@@ -147,25 +148,25 @@ module ElemTransformation (𝓡 : CommRing ℓ) where
 
   swapFirstRow : (i : Fin m)(M : Mat (suc m) (suc n)) → SwapFirstRow i M
   swapFirstRow i M .sim .result    = swapRow i M
-  swapFirstRow i M .sim .transMatL = isLinearSwapRow i .transMat M
-  swapFirstRow i M .sim .transMatR = 𝟙
-  swapFirstRow i M .sim .transEq     = isLinearSwapRow i .transEq _ ∙ sym (⋆rUnit _)
-  swapFirstRow i M .sim .isInvTransL = isInvSwapMat i M
-  swapFirstRow i M .sim .isInvTransR = isInv𝟙
+  swapFirstRow i M .sim .simrel .transMatL = isLinearSwapRow i .transMat M
+  swapFirstRow i M .sim .simrel .transMatR = 𝟙
+  swapFirstRow i M .sim .simrel .transEq     = isLinearSwapRow i .transEq _ ∙ sym (⋆rUnit _)
+  swapFirstRow i M .sim .simrel .isInvTransL = isInvSwapMat i M
+  swapFirstRow i M .sim .simrel .isInvTransR = isInv𝟙
   swapFirstRow i M .swapEq j = refl
 
   swapFirstCol : (j : Fin n)(M : Mat (suc m) (suc n)) → SwapFirstCol j M
   swapFirstCol j M .sim .result    = (swapRow j (M ᵗ))ᵗ
-  swapFirstCol j M .sim .transMatL = 𝟙
-  swapFirstCol j M .sim .transMatR = (isLinearSwapRow j .transMat (M ᵗ))ᵗ
-  swapFirstCol j M .sim .transEq =
+  swapFirstCol j M .sim .simrel .transMatL = 𝟙
+  swapFirstCol j M .sim .simrel .transMatR = (isLinearSwapRow j .transMat (M ᵗ))ᵗ
+  swapFirstCol j M .sim .simrel .transEq =
     let P = isLinearSwapRow j .transMat (M ᵗ) in
       (λ t → (isLinearSwapRow j .transEq (M ᵗ) t)ᵗ)
     ∙ compᵗ P (M ᵗ)
     ∙ (λ t → idemᵗ M t ⋆ P ᵗ)
     ∙ (λ t → ⋆lUnit M (~ t) ⋆ P ᵗ)
-  swapFirstCol j M .sim .isInvTransL = isInv𝟙
-  swapFirstCol j M .sim .isInvTransR =
+  swapFirstCol j M .sim .simrel .isInvTransL = isInv𝟙
+  swapFirstCol j M .sim .simrel .isInvTransR =
     isInvᵗ {M = isLinearSwapRow j .transMat (M ᵗ)} (isInvSwapMat j (M ᵗ))
   swapFirstCol j M .swapEq i t = M i (suc j)
 
@@ -315,11 +316,11 @@ module ElemTransformation (𝓡 : CommRing ℓ) where
 
   addFirstRow : (M : Mat (suc m) (suc n)) → AddFirstRow M
   addFirstRow M .sim .result    = addRows M
-  addFirstRow M .sim .transMatL = isLinearAddRows .transMat M
-  addFirstRow M .sim .transMatR = 𝟙
-  addFirstRow M .sim .transEq     = isLinearAddRows .transEq _ ∙ sym (⋆rUnit _)
-  addFirstRow M .sim .isInvTransL = isInvAddRows M
-  addFirstRow M .sim .isInvTransR = isInv𝟙
+  addFirstRow M .sim .simrel .transMatL = isLinearAddRows .transMat M
+  addFirstRow M .sim .simrel .transMatR = 𝟙
+  addFirstRow M .sim .simrel .transEq     = isLinearAddRows .transEq _ ∙ sym (⋆rUnit _)
+  addFirstRow M .sim .simrel .isInvTransL = isInvAddRows M
+  addFirstRow M .sim .simrel .isInvTransR = isInv𝟙
   addFirstRow M .inv₀      = firstRowStayInvariant M
   addFirstRow M .addEq i j = actuallyAddRowsAddTheRows M i j
 
@@ -358,6 +359,7 @@ module ElemTransformationℤ where
   open LinearTransformation Ringℤ
   open Bézout
 
+  open SimRel
   open Sim
 
   open isLinear
@@ -527,27 +529,27 @@ module ElemTransformationℤ where
 
   improveRows : (M : Mat (suc m) (suc n))(p : ¬ M zero zero ≡ 0) → RowsImproved M
   improveRows M _ .sim .result   = bézoutRows M
-  improveRows M _ .sim .transMatL = isLinearBézoutRows .transMat M
-  improveRows _ _ .sim .transMatR = 𝟙
-  improveRows _ _ .sim .transEq   = isLinearBézoutRows .transEq _ ∙ sym (⋆rUnit _)
-  improveRows _ p .sim .isInvTransL = isInvBézout2Rows _ p
-  improveRows _ p .sim .isInvTransR = isInv𝟙
+  improveRows M _ .sim .simrel .transMatL = isLinearBézoutRows .transMat M
+  improveRows _ _ .sim .simrel .transMatR = 𝟙
+  improveRows _ _ .sim .simrel .transEq   = isLinearBézoutRows .transEq _ ∙ sym (⋆rUnit _)
+  improveRows _ p .sim .simrel .isInvTransL = isInvBézout2Rows _ p
+  improveRows _ p .sim .simrel .isInvTransR = isInv𝟙
   improveRows _ _ .div     = bézoutRows-div     _
   improveRows _ _ .vanish  = bézoutRows-vanish  _
   improveRows M p .nonZero = bézoutRows-nonZero M p
 
   improveCols : (M : Mat (suc m) (suc n))(p : ¬ M zero zero ≡ 0) → ColsImproved M
   improveCols M _ .sim .result    = (bézoutRows (M ᵗ))ᵗ
-  improveCols _ _ .sim .transMatL = 𝟙
-  improveCols M _ .sim .transMatR = (isLinearBézoutRows .transMat (M ᵗ))ᵗ
-  improveCols M _ .sim .transEq     =
+  improveCols _ _ .sim .simrel .transMatL = 𝟙
+  improveCols M _ .sim .simrel .transMatR = (isLinearBézoutRows .transMat (M ᵗ))ᵗ
+  improveCols M _ .sim .simrel .transEq     =
     let P = isLinearBézoutRows .transMat (M ᵗ) in
       (λ t → (isLinearBézoutRows .transEq (M ᵗ) t)ᵗ)
     ∙ compᵗ P (M ᵗ)
     ∙ (λ t → idemᵗ M t ⋆ P ᵗ)
     ∙ (λ t → ⋆lUnit M (~ t) ⋆ P ᵗ)
-  improveCols _ _ .sim .isInvTransL = isInv𝟙
-  improveCols M p .sim .isInvTransR =
+  improveCols _ _ .sim .simrel .isInvTransL = isInv𝟙
+  improveCols M p .sim .simrel .isInvTransR =
     isInvᵗ {M = isLinearBézoutRows .transMat (M ᵗ)} (isInvBézout2Rows (M ᵗ) p)
   improveCols _ _ .div     = bézoutRows-div     _
   improveCols _ _ .vanish  = bézoutRows-vanish  _
