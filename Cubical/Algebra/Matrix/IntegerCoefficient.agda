@@ -35,6 +35,8 @@ open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to Ringℤ)
 
+open import Cubical.Induction.WellFounded
+
 private
   variable
     m n k : ℕ
@@ -61,6 +63,11 @@ open AddFirstRow
 
 open RowsImproved
 open ColsImproved
+
+-- Using well-foundedness to do induction
+
+Norm : ℤ → Type
+Norm n = Acc _<_ (abs n)
 
 -- Divisibility of matrix elements
 
@@ -189,42 +196,45 @@ reducePivot-induction-helper M p j q =
             (m∣n→m≤n (¬x≡0→¬abs≡0 (improveColsM .nonZero)) (∣→∣ℕ (improveM .div zero)))
             (stDivIneq p q (improveColsM .div zero) (improveColsM .div (suc j))) }
 
-reducePivot-helper : (norm : ℕ)
-  → (M : Mat (suc m) (suc n))
-  → (p : ¬ M zero zero ≡ 0)(h : abs (M zero zero) < norm)
+reducePivot-helper :
+    (M : Mat (suc m) (suc n))
+  → (p : ¬ M zero zero ≡ 0)(h : Norm (M zero zero))
   → (cst : (i : Fin m) → M (suc i) zero ≡ M zero zero)
   → (pivot? : PivotOrNot (M zero zero) M)
   → PivotReduced M
-reducePivot-helper 0 _ _ h = Empty.rec (¬-<-zero h)
-reducePivot-helper (suc N) M _ _ _ (noPivot q) .sim = idSim M
-reducePivot-helper (suc N) _ p _ _ (noPivot q) .nonZero = p
-reducePivot-helper (suc N) _ _ _ _ (noPivot q) .div = q
-reducePivot-helper (suc N) _ _ _ _ (pivot zero zero q) =
+reducePivot-helper M _ _ _ (noPivot q) .sim     = idSim M
+reducePivot-helper _ p _ _ (noPivot q) .nonZero = p
+reducePivot-helper _ _ _ _ (noPivot q) .div     = q
+reducePivot-helper _ _ _ _ (pivot zero zero q) =
   Empty.rec (q (∣-refl refl))
-reducePivot-helper (suc N) M _ _ cst (pivot (suc i) zero q) =
+reducePivot-helper M _ _ cst (pivot (suc i) zero q) =
   Empty.rec (q (subst (λ a → (M zero zero) ∣ a) (sym (cst i)) (∣-refl refl)))
-reducePivot-helper (suc N) M p h _ (pivot zero (suc j) q) =
+reducePivot-helper M p (acc ind) _ (pivot zero (suc j) q) =
   let helperM = reducePivot-induction-helper M p j q
       reduceM =
-        reducePivot-helper N
+        reducePivot-helper
           (helperM .improved .sim .result)
           (helperM .improved .nonZero)
-          (<≤-trans (helperM .normIneq) (pred-≤-pred h))
+          (ind _ (helperM .normIneq))
           (helperM .improved .const) (findPivot _ _)
   in  simPivotReduced (helperM .improved .sim) reduceM
-reducePivot-helper (suc N) M p h cst (pivot (suc i) (suc j) q) =
+reducePivot-helper M p (acc ind) cst (pivot (suc i) (suc j) q) =
   let swapM = swapFirstRow i M
-      swapNorm    = subst (λ a → abs a < (suc N)) (sym (cst i) ∙ (swapM .swapEq zero)) h
+      --swapNorm    = subst (λ a → abs a < (suc N)) (sym (cst i) ∙ (swapM .swapEq zero)) h
       swapNonZero = (λ r → p (sym (cst i) ∙ (swapM .swapEq zero) ∙ r))
       swapDiv =
         (transport ((λ t → ¬ cst i (~ t) ∣ M (suc i) (suc j))
                   ∙ (λ t → ¬ swapM .swapEq zero t ∣ swapM .swapEq (suc j) t)) q)
-      helperM = reducePivot-induction-helper _ swapNonZero j swapDiv
-      reduceM =
-        reducePivot-helper N
+      helperM  = reducePivot-induction-helper _ swapNonZero j swapDiv
+      swapNorm =
+        subst (λ a → abs (helperM . improved .sim .result zero zero) < abs a)
+              (sym (sym (cst i) ∙ (swapM .swapEq zero))) (helperM .normIneq)
+      reduceM  =
+        reducePivot-helper
           (helperM .improved .sim .result)
           (helperM .improved .nonZero)
-          (<≤-trans (helperM .normIneq) (pred-≤-pred swapNorm))
+          (ind _ swapNorm)
+          --(<≤-trans (helperM .normIneq) (pred-≤-pred swapNorm))
           (helperM .improved .const) (findPivot _ _)
   in  simPivotReduced (compSim (swapM .sim) (helperM .improved .sim)) reduceM
 
@@ -234,10 +244,10 @@ reducePivot : (M : Mat (suc m) (suc n))(p : ¬ M zero zero ≡ 0) → PivotReduc
 reducePivot M p =
   let improveM = improveRowsTrick M p
       reduceM  =
-        reducePivot-helper _
+        reducePivot-helper
           (improveM .sim .result)
           (improveM .nonZero)
-           ≤-refl
+          (<-wellfounded _)
           (improveM .const) (findPivot _ _)
   in  simPivotReduced (improveM .sim) reduceM
 

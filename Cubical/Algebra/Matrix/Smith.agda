@@ -102,7 +102,6 @@ smithMat⊕ _ _ _ = refl
 -- Matrix with smith normality
 
 record isSmithNormal (M : Mat m n) : Type where
-  constructor issmithnormal
   field
     divs : ConsDivs
     rowNull : ℕ
@@ -135,36 +134,29 @@ isSmithNormal𝟘 : isSmithNormal (𝟘 {m = m} {n = n})
 isSmithNormal𝟘 {m = m} {n = n} =
   record
     { divs = [] , tt
-    ; rowNull = m
-    ; colNull = n
-    ; rowEq = refl
-    ; colEq = refl
-    ; matEq = refl }
+    ; rowNull = m   ; colNull = n
+    ; rowEq = refl  ; colEq = refl
+    ; matEq = refl  }
 
 isSmithNormalEmpty : (M : Mat 0 n) → isSmithNormal M
 isSmithNormalEmpty {n = n} M =
   record
     { divs = [] , tt
-    ; rowNull = 0
-    ; colNull = n
-    ; rowEq = refl
-    ; colEq = refl
+    ; rowNull = 0   ; colNull = n
+    ; rowEq = refl  ; colEq = refl
     ; matEq = isContr→isProp isContrEmpty _ _ }
 
 isSmithNormalEmptyᵗ : (M : Mat m 0) → isSmithNormal M
 isSmithNormalEmptyᵗ {m = m} M =
   record
     { divs = [] , tt
-    ; rowNull = m
-    ; colNull = 0
-    ; rowEq = refl
-    ; colEq = refl
+    ; rowNull = m   ; colNull = 0
+    ; rowEq = refl  ; colEq = refl
     ; matEq = isContr→isProp isContrEmptyᵗ _ _ }
 
 -- The Smith normalization
 
 record Smith (M : Mat m n) : Type where
-  constructor smithcons
   field
     sim : Sim M
     isnormal : isSmithNormal (sim .result)
@@ -218,7 +210,7 @@ smithReduction a M p div smithnorm =
           (sim∣ _ _ (smithnorm .sim) div)
           (smithnorm .isnormal) }
 
--- The existence of Smith normalization
+-- The Existence of Smith Normal Form
 
 smith : (M : Mat m n) → Smith M
 smith {m = 0} = smithEmpty
@@ -231,3 +223,5 @@ smith {m = suc m} {n = suc n} M = helper (smithStep _)
       let sucM = sucMat (stepM .sim .result)
           smithM = smithReduction _ _ (stepM .nonZero) (stepM .div) (smith sucM)
       in  simSmith (compSim (stepM .sim) (≡Sim (smithReduction-helper _ stepM))) smithM
+
+-- TODO: The uniqueness of Smith normal form up to units.

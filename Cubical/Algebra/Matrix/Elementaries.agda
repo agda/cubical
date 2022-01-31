@@ -38,6 +38,7 @@ module ElemTransformation (𝓡 : CommRing ℓ) where
     R = 𝓡 .fst
 
   open CommRingStr     (𝓡 .snd) renaming ( is-set to isSetR )
+  open KroneckerDelta  (CommRing→Ring 𝓡)
   open Sum             (CommRing→Ring 𝓡)
 
   open Coefficient           𝓡
@@ -47,8 +48,7 @@ module ElemTransformation (𝓡 : CommRing ℓ) where
   open Sim
 
   open isLinear
-  open isLinear2
-
+  open isLinear2×2
 
   -- Swapping the first row with another
 
@@ -85,45 +85,71 @@ module ElemTransformation (𝓡 : CommRing ℓ) where
   swapRow2 M zero = M one
   swapRow2 M one  = M zero
 
-  isLinear2SwapRow2 : isLinear2 (λ n → swapRow2)
-  isLinear2SwapRow2 .transMat _ = swapMat
-  isLinear2SwapRow2 .transEq M t zero j =
+  isLinear2×2SwapRow2 : isLinear2×2 {n = n} swapRow2
+  isLinear2×2SwapRow2 .transMat _ = swapMat
+  isLinear2×2SwapRow2 .transEq M t zero j =
     ((mul2 swapMat M zero j) ∙ helper _ _) (~ t)
     where helper : (a b : R) → 0r · a + 1r · b ≡ b
           helper = solve 𝓡
-  isLinear2SwapRow2 .transEq M t one  j =
+  isLinear2×2SwapRow2 .transEq M t one  j =
     ((mul2 swapMat M one  j) ∙ helper _ _) (~ t)
     where helper : (a b : R) → 1r · a + 0r · b ≡ a
           helper = solve 𝓡
 
-  module _
-    (i₀ : Fin m)(M : Mat (suc m) n) where
+  swapRow : (i₀ : Fin m)(M : Mat (suc m) n) → Mat (suc m) n
+  swapRow i M zero = M (suc i)
+  swapRow zero M one  = M zero
+  swapRow zero M (suc (suc i)) = M (suc (suc i))
+  swapRow (suc i₀) M one   = M one
+  swapRow (suc i₀) M (suc (suc i)) = swapRow i₀ (takeRowsᶜ M) (suc i)
 
-    swapRow-helper : (i : Fin m) → biEq i₀ i → FinVec R n
-    swapRow-helper i (eq  _) = M zero
-    swapRow-helper i (¬eq _) = M (suc i)
+  swapRowMat : (i₀ : Fin m) → Mat (suc m) (suc m)
+  swapRowMat = trans2RowsMat swapMat
 
-    swapRow : Mat (suc m) n
-    swapRow zero = M (suc i₀)
-    swapRow (suc i) = swapRow-helper i (biEq? _ _)
+  swapRowEq : (i₀ : Fin m)(M : Mat (suc m) n) → swapRow i₀ M ≡ swapRowMat i₀ ⋆ M
+  swapRowEq {m = suc m} zero M t zero j =
+      (helper1 _ _
+    ∙ (λ t → 0r · M zero j + ∑Mulr1 _ (λ i → M (suc i) j) zero (~ t))
+    ∙ (λ t → 0r · M zero j + ∑ (λ i → helper2 (δ i zero) (M (suc i) j) t))) t
+    where helper1 : (a b : R) → b ≡ 0r · a + b
+          helper1 = solve 𝓡
+          helper2 : (a b : R) → b · a ≡ (1r · a) · b
+          helper2 = solve 𝓡
+  swapRowEq {m = suc m} zero M t one  j =
+      (helper _
+    ∙ (λ t → (1r · 1r) · M zero j + ∑Mul0r (λ i → M (suc i) j) (~ t))) t
+    where helper : (a : R) → a ≡ (1r · 1r) · a + 0r
+          helper = solve 𝓡
+  swapRowEq {m = suc m} zero M t (suc (suc i)) j =
+      (helper _ _
+    ∙ (λ t → (1r · 0r) · M zero j + ∑Mul1r _ (λ l → M (suc l) j) (suc i) (~ t))) t
+    where helper : (a b : R) → b ≡ (1r · 0r) · a + b
+          helper = solve 𝓡
+  swapRowEq {m = suc m} (suc i₀) M t zero j =
+      (helper1 _ _
+    ∙ (λ t → 0r · M zero j + ∑Mul1r _ (λ i → M (suc i) j) (suc i₀) (~ t))
+    ∙ (λ t → 0r · M zero j + ∑ (λ l → helper2 (δ (suc i₀) l) (M (suc l) j) t))) t
+    where helper1 : (a b : R) → b ≡ 0r · a + b
+          helper1 = solve 𝓡
+          helper2 : (a b : R) → a · b ≡ (1r · a) · b
+          helper2 = solve 𝓡
+  swapRowEq {m = suc m} (suc i₀) M t one  j =
+        (helper _ _ --helper1 _ _
+      ∙ (λ t → (1r · 0r) · M zero j + ∑Mul1r _ (λ i → M (suc i) j) zero (~ t))) t
+    where helper : (a b : R) → b ≡ (1r · 0r) · a + b
+          helper = solve 𝓡
+  swapRowEq {m = suc m} (suc i₀) M t (suc (suc i)) j =
+     ((λ t → swapRowEq i₀ (takeRowsᶜ M) t (suc i) j)
+    ∙ helper _ (M one j) _) t
+    where helper : (a b c : R) → a + c ≡ a + (0r · b + c)
+          helper = solve 𝓡
 
-    swapRowEq-helper : (i : Fin m)(p : biEq i₀ i) → transOf2Rows-helper swapRow2 i₀ i p M ≡ swapRow-helper i p
-    swapRowEq-helper i (eq  _) = refl
-    swapRowEq-helper i (¬eq _) = refl
-
-  swapRowEq : (i₀ : Fin m)(M : Mat (suc m) n) → transOf2Rows swapRow2 M i₀ ≡ swapRow i₀ M
-  swapRowEq {m = suc m} i₀ M t zero = M (suc i₀)
-  swapRowEq {m = suc m} i₀ M t (suc i) = swapRowEq-helper i₀ M i (biEq? _ _) t
-
-  isLinearSwapRow : (i : Fin m) → isLinear (λ _ → swapRow i)
-  isLinearSwapRow i =
-    let isLinear = isLinearTransOf2Rows _ isLinear2SwapRow2 i
-    in  record
-          { transMat = isLinear .transMat
-          ; transEq  = (λ M → sym (swapRowEq i M) ∙ isLinear .transEq M) }
+  isLinearSwapRow : (i : Fin m) → isLinear (swapRow {n = n} i)
+  isLinearSwapRow i .transMat _ = swapRowMat i
+  isLinearSwapRow i .transEq    = swapRowEq  i
 
   isInvSwapMat : (i : Fin m)(M : Mat (suc m) (suc n)) → isInv (isLinearSwapRow i .transMat M)
-  isInvSwapMat = isInvTransOf2Rows _ isLinear2SwapRow2 (λ _ _ → isInvSwapMat2)
+  isInvSwapMat i _ = isInvTrans2RowsMat _ i isInvSwapMat2
 
   -- Similarity defined by swapping
 
@@ -240,7 +266,7 @@ module ElemTransformation (𝓡 : CommRing ℓ) where
   addRow2 M zero  = M zero
   addRow2 M one j = M zero j + M one j
 
-  isLinear2AddRow2 : isLinear2 (λ _ → addRow2)
+  isLinear2AddRow2 : isLinear2×2 {n = n} addRow2
   isLinear2AddRow2 .transMat _ = addMat
   isLinear2AddRow2 .transEq M t zero j =
     ((mul2 addMat M zero j) ∙ helper _ _) (~ t)
@@ -251,60 +277,32 @@ module ElemTransformation (𝓡 : CommRing ℓ) where
     where helper : (a b : R) → 1r · a + 1r · b ≡ a + b
           helper = solve 𝓡
 
-  module _
-    (i₀ : Fin m)(M : Mat (suc m) n) where
-
-    addRow-helper : (i : Fin m) → biEq i₀ i → FinVec R n
-    addRow-helper i (eq  _) j = M zero j + M (suc i₀) j
-    addRow-helper i (¬eq _) = M (suc i)
-
-    addRow : Mat (suc m) n
-    addRow zero = M zero
-    addRow (suc i) = addRow-helper i (biEq? _ _)
-
-    addRowEq-helper : (i : Fin m)(p : biEq i₀ i) → transOf2Rows-helper addRow2 i₀ i p M ≡ addRow-helper i p
-    addRowEq-helper i (eq  _) t j = M zero j + M (suc i₀) j
-    addRowEq-helper i (¬eq _) = refl
-
-  addRowEq : (i₀ : Fin m)(M : Mat (suc m) n) → transOf2Rows addRow2 M i₀ ≡ addRow i₀ M
-  addRowEq {m = suc m} i₀ M t zero = M zero
-  addRowEq {m = suc m} i₀ M t (suc i) = addRowEq-helper i₀ M i (biEq? _ _) t
-
-  isLinearAddRow : (i : Fin m) → isLinear (λ _ → addRow i)
-  isLinearAddRow i =
-    let isLinear = isLinearTransOf2Rows _ isLinear2AddRow2 i
-    in  record
-          { transMat = isLinear .transMat
-          ; transEq  = (λ M → sym (addRowEq i M) ∙ isLinear .transEq M) }
-
-  isInvAddMat : (i : Fin m)(M : Mat (suc m) (suc n)) → isInv (isLinearAddRow i .transMat M)
-  isInvAddMat = isInvTransOf2Rows _ isLinear2AddRow2 (λ _ _ → isInvAddMat2)
-
   -- Add the first row to all other rows
 
-  module _
-    (M : Mat (suc m) (suc n)) where
+  addRows : Mat (suc m) n → Mat (suc m) n
+  addRows M zero = M zero
+  addRows M (suc i) j = M zero j + M (suc i) j
 
-    addRows : Mat (suc m) (suc n)
-    addRows = transOfRows addRow2 M
+  private
+    firstRowStayInvariant : (M : Mat (suc m) n) → M zero ≡ transRows addRow2 M zero
+    firstRowStayInvariant = invRow₀ _ (λ _ → refl)
 
-  isLinearAddRows : isLinear {m = m} (λ n → addRows)
-  isLinearAddRows = isLinearTransOfRows _ isLinear2AddRow2
+  addRowsEq : (M : Mat (suc m) n) → transRows addRow2 M ≡ addRows M
+  addRowsEq M t zero = firstRowStayInvariant M (~ t)
+  addRowsEq M t one j = M zero j + M one j
+  addRowsEq M t (suc (suc i)) j = takeCombShufRows addRow2 (λ N → addRowsEq N t) M (suc (suc i)) j
+
+  isLinearAddRows : isLinear (addRows {m = m} {n = suc n})
+  isLinearAddRows =
+    let isLinear = isLinearTransRows _ isLinear2AddRow2 _
+    in  record
+          { transMat = isLinear .transMat
+          ; transEq  = (λ M → sym (addRowsEq M) ∙ isLinear .transEq M) }
 
   isInvAddRows : (M : Mat (suc m) (suc n)) → isInv (isLinearAddRows .transMat M)
-  isInvAddRows = isInvTransOfRows _ _ (λ _ _ → isInvAddMat2)
+  isInvAddRows = isInvTransRows _ _ (λ _ → isInvAddMat2)
 
-  actuallyAddRowsAddTheRows :
-      (M : Mat (suc m) (suc n))
-    → (i : Fin m)(j : Fin (suc n))
-    → M zero j + M (suc i) j ≡ addRows M (suc i) j
-  actuallyAddRowsAddTheRows {n = n} =
-    transOfRowsIndRel3 _ (λ U V W → ((j : Fin (suc n)) → U j + V j ≡ W j)) (λ _ → refl) (λ _ _ → refl)
-
-  firstRowStayInvariant : (M : Mat (suc m) (suc n)) → M zero ≡ addRows M zero
-  firstRowStayInvariant = invRow₀ _ (λ _ → refl)
-
-  -- Similarity defined by adding rows
+-- Similarity defined by adding rows
 
   record AddFirstRow (M : Mat (suc m) (suc n)) : Type ℓ where
     field
@@ -321,8 +319,9 @@ module ElemTransformation (𝓡 : CommRing ℓ) where
   addFirstRow M .sim .simrel .transEq     = isLinearAddRows .transEq _ ∙ sym (⋆rUnit _)
   addFirstRow M .sim .simrel .isInvTransL = isInvAddRows M
   addFirstRow M .sim .simrel .isInvTransR = isInv𝟙
-  addFirstRow M .inv₀      = firstRowStayInvariant M
-  addFirstRow M .addEq i j = actuallyAddRowsAddTheRows M i j
+  addFirstRow M .inv₀      = refl
+  addFirstRow M .addEq i j = refl
+
 
 -- Elementary transformation specific to coefficient ℤ
 
@@ -363,7 +362,7 @@ module ElemTransformationℤ where
   open Sim
 
   open isLinear
-  open isLinear2
+  open isLinear2×2
 
   -- The Bézout step to simplify one row
 
@@ -433,17 +432,17 @@ module ElemTransformationℤ where
     (M : Mat (suc m) (suc n)) where
 
     bézoutRows : Mat (suc m) (suc n)
-    bézoutRows = transOfRows bézout2Rows M
+    bézoutRows = transRows bézout2Rows M
 
     bézoutRows-vanish : (i : Fin m) → bézoutRows (suc i) zero ≡ 0
-    bézoutRows-vanish = transOfRowsIndP' _ (λ v → v zero ≡ 0) bézout2Rows-vanish M
+    bézoutRows-vanish = transRowsIndP' _ (λ v → v zero ≡ 0) bézout2Rows-vanish M
 
     bézoutRows-div₁-helper : (n : ℤ) → M zero zero ∣ n → bézoutRows zero zero ∣ n
-    bézoutRows-div₁-helper n = transOfRowsIndP _ (λ v → v zero ∣ n) (λ M → bézout2Rows-div₁ M n) M
+    bézoutRows-div₁-helper n = transRowsIndP _ (λ v → v zero ∣ n) (λ M → bézout2Rows-div₁ M n) M
 
     bézoutRows-div₂-helper : (n : ℤ) → (i : Fin m) → M (suc i) zero ∣ n → bézoutRows zero zero ∣ n
     bézoutRows-div₂-helper n =
-      transOfRowsIndPQ' _ (λ v → v zero ∣ n) (λ v → v zero ∣ n)
+      transRowsIndPQ' _ (λ v → v zero ∣ n) (λ v → v zero ∣ n)
         (λ M → bézout2Rows-div₁ M n) (λ M → bézout2Rows-div₂ M n) M
 
     bézoutRows-div : (i : Fin (suc m)) → bézoutRows zero zero ∣ M i zero
@@ -454,14 +453,14 @@ module ElemTransformationℤ where
     bézoutRows-nonZero p r = p (sym (∣-zeroˡ (subst (λ a → a ∣ M zero zero) r (bézoutRows-div zero))))
 
     bézoutRows-inv : ¬ M zero zero ≡ 0 → ((i : Fin m) → M zero zero ∣ M (suc i) zero) → M zero ≡ bézoutRows zero
-    bézoutRows-inv = transOfRowsIndPRelInv _ (λ V → ¬ V zero ≡ 0) (λ U V → U zero ∣ V zero) bézout2Rows-inv M
+    bézoutRows-inv = transRowsIndPRelInv _ (λ V → ¬ V zero ≡ 0) (λ U V → U zero ∣ V zero) bézout2Rows-inv M
 
     bézoutRows-commonDiv₀ : (a : ℤ)
       → ((j : Fin (suc n)) → a ∣ M zero j)
       → ((i : Fin m)(j : Fin (suc n)) → a ∣ M (suc i) j)
       →  (j : Fin (suc n)) → a ∣ bézoutRows zero j
     bézoutRows-commonDiv₀ a =
-      transOfRowsIndP₀ _ (λ V → ((j : Fin (suc n)) → a ∣ V j))
+      transRowsIndP₀ _ (λ V → ((j : Fin (suc n)) → a ∣ V j))
         (λ N s s' → bézout2Rows-commonDiv N a s s' zero)
         (λ N s s' → bézout2Rows-commonDiv N a s s' one) _
 
@@ -470,7 +469,7 @@ module ElemTransformationℤ where
       → ((i : Fin m)(j : Fin (suc n)) → a ∣ M (suc i) j)
       →  (i : Fin m)(j : Fin (suc n)) → a ∣ bézoutRows (suc i) j
     bézoutRows-commonDiv₁ a =
-      transOfRowsIndP₁ _ (λ V → ((j : Fin (suc n)) → a ∣ V j))
+      transRowsIndP₁ _ (λ V → ((j : Fin (suc n)) → a ∣ V j))
         (λ N s s' → bézout2Rows-commonDiv N a s s' zero)
         (λ N s s' → bézout2Rows-commonDiv N a s s' one) _
 
@@ -488,23 +487,19 @@ module ElemTransformationℤ where
       let inv = (λ t → bézoutRows-inv h (λ i → p (suc i) zero) t zero) in
       subst (_∣ bézoutRows i j) inv (bézoutRows-commonDiv p i j)
 
-
-  open isLinear
-  open isLinear2
-
-  isLinear2Bézout2Rows : isLinear2 (λ n M → bézout2Rows {n = n} M)
+  isLinear2Bézout2Rows : isLinear2×2 (bézout2Rows {n = n})
   isLinear2Bézout2Rows .transMat M = bézout2Mat _ _ (bézout (M zero zero) (M one zero))
   isLinear2Bézout2Rows .transEq  M t zero j = mul2 (isLinear2Bézout2Rows .transMat M) M zero j (~ t)
   isLinear2Bézout2Rows .transEq  M t one  j = mul2 (isLinear2Bézout2Rows .transMat M) M one  j (~ t)
 
-  isLinearBézoutRows : isLinear {m = m} (λ n → bézoutRows {n = n})
-  isLinearBézoutRows = isLinearTransOfRows _ isLinear2Bézout2Rows
+  isLinearBézoutRows : isLinear (bézoutRows {m = m} {n = n})
+  isLinearBézoutRows = isLinearTransRows _ isLinear2Bézout2Rows _
 
   isInv2Bézout2Rows : (M : Mat 2 (suc n))(p : ¬ M zero zero ≡ 0) → isInv (isLinear2Bézout2Rows .transMat M)
   isInv2Bézout2Rows _ p = isInvBézout2Mat _ _ _ p
 
   isInvBézout2Rows : (M : Mat (suc m) (suc n))(p : ¬ M zero zero ≡ 0) → isInv (isLinearBézoutRows .transMat M)
-  isInvBézout2Rows = isInvTransOfRowsInd _ _ (λ V → ¬ V zero ≡ 0) bézout2Rows-nonZero isInv2Bézout2Rows
+  isInvBézout2Rows = isInvTransRowsInd _ _ (λ V → ¬ V zero ≡ 0) bézout2Rows-nonZero isInv2Bézout2Rows
 
   -- Using Bézout identity to eliminate the first column/row
 

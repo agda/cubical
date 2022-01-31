@@ -40,8 +40,6 @@ module Coefficient (𝓡 : CommRing ℓ) where
 
   open CommRingStr       (𝓡 .snd) renaming ( is-set to isSetR )
 
-
-
   open Sum                𝑹
   open FinMatrixAbGroup
 
@@ -93,9 +91,9 @@ module Coefficient (𝓡 : CommRing ℓ) where
   compᵗ M N t i j = ∑ (λ l → ·Comm (M j l) (N l i) t)
 
   𝟙ᵗ : 𝟙 ᵗ ≡ 𝟙 {n = n}
-  𝟙ᵗ t zero zero = 1r
-  𝟙ᵗ t (suc i) zero = 0r
-  𝟙ᵗ t zero (suc j) = 0r
+  𝟙ᵗ t zero    zero    = 1r
+  𝟙ᵗ t (suc i) zero    = 0r
+  𝟙ᵗ t zero    (suc j) = 0r
   𝟙ᵗ t (suc i) (suc j) = 𝟙ᵗ t i j
 
   -- Invertible matrices
@@ -215,7 +213,6 @@ module Coefficient (𝓡 : CommRing ℓ) where
       where helper : (x y z w d : R) → (- z · d) · y + (x · d) · w ≡  (x · w - y · z) · d
             helper = solve 𝓡
 
-
   -- Similarity of matrices
 
   record SimRel (M N : Mat m n) : Type ℓ where
@@ -285,9 +282,9 @@ module Coefficient (𝓡 : CommRing ℓ) where
   -- Add a new element at upper-left corner
 
   _⊕_ : R → Mat m n → Mat (suc m) (suc n)
-  (a ⊕ M) zero zero = a
-  (a ⊕ M) zero (suc j) = 0r
-  (a ⊕ M) (suc i) zero = 0r
+  (a ⊕ M) zero    zero    = a
+  (a ⊕ M) (suc i) zero    = 0r
+  (a ⊕ M) zero    (suc j) = 0r
   (a ⊕ M) (suc i) (suc j) = M i j
 
   infixr 5 _⊕_
@@ -296,19 +293,20 @@ module Coefficient (𝓡 : CommRing ℓ) where
   sucMat M i j = M (suc i) (suc j)
 
   𝟙suc : (i j : Fin m) → 𝟙 i j ≡ sucMat 𝟙 i j
-  𝟙suc zero zero = refl
-  𝟙suc zero (suc j) = refl
-  𝟙suc (suc i) zero = refl
+  𝟙suc zero    zero    = refl
+  𝟙suc (suc i) zero    = refl
+  𝟙suc zero    (suc j) = refl
   𝟙suc (suc i) (suc j) = refl
 
   1⊕𝟙 : 1r ⊕ 𝟙 {n = n} ≡ 𝟙
-  1⊕𝟙 t zero zero = 1r
-  1⊕𝟙 t zero (suc j) = 0r
-  1⊕𝟙 t (suc i) zero = 0r
+  1⊕𝟙 t zero    zero    = 1r
+  1⊕𝟙 t (suc i) zero    = 0r
+  1⊕𝟙 t zero    (suc j) = 0r
   1⊕𝟙 t (suc i) (suc j) = 𝟙suc i j t
 
   ⊕-⋆ : (a b : R)(M : Mat m n)(N : Mat n k) → (a ⊕ M) ⋆ (b ⊕ N) ≡ (a · b) ⊕ (M ⋆ N)
-  ⊕-⋆ {n = n} a b M N t zero zero = ((λ t → a · b + ∑Mul0r {n = n} (λ i → 0r) t) ∙ helper _ _) t
+  ⊕-⋆ {n = n} a b M N t zero zero =
+    ((λ t → a · b + ∑Mul0r {n = n} (λ i → 0r) t) ∙ helper _ _) t
     where helper : (a b : R) → a · b + 0r ≡ a · b
           helper = solve 𝓡
   ⊕-⋆ a b M N t zero (suc j) = (helper a _ ∙ ∑Mul0r (λ i → N i j)) t
@@ -343,4 +341,3 @@ module Coefficient (𝓡 : CommRing ℓ) where
   ⊕Sim : (a : R){M : Mat m n} → (sim : Sim M) → Sim (a ⊕ M)
   ⊕Sim a sim .result = a ⊕ sim .result
   ⊕Sim _ sim .simrel = ⊕SimRel _ (sim .simrel)
-
