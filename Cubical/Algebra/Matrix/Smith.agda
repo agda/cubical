@@ -38,15 +38,15 @@ open import Cubical.Algebra.Matrix.IntegerCoefficient
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-  renaming (ℤ to Ringℤ)
+  renaming (ℤ to ℤRing)
 
 private
   variable
     m n k : ℕ
 
-open CommRingStr      (Ringℤ .snd)
+open CommRingStr      (ℤRing .snd)
 
-open Coefficient Ringℤ
+open Coefficient ℤRing
 open Sim
 open SmithStep
 

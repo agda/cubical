@@ -39,7 +39,7 @@ open import Cubical.Algebra.Matrix.Elementaries
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-  renaming (ℤ to Ringℤ)
+  renaming (ℤ to ℤRing)
 
 open import Cubical.Induction.WellFounded
 
@@ -47,12 +47,12 @@ private
   variable
     m n k : ℕ
 
-open CommRingStr      (Ringℤ .snd)
+open CommRingStr      (ℤRing .snd)
 
-open Coefficient Ringℤ
+open Coefficient ℤRing
 open Sim
 
-open ElemTransformation Ringℤ
+open ElemTransformation ℤRing
 open ElemTransformationℤ
 open SwapPivot
 open RowsImproved

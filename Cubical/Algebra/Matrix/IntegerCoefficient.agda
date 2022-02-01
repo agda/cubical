@@ -33,7 +33,7 @@ open import Cubical.Algebra.Matrix.Elementaries
 
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to Ringℤ)
+open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤRing)
 
 open import Cubical.Induction.WellFounded
 
@@ -41,11 +41,11 @@ private
   variable
     m n k : ℕ
 
-open CommRingStr      (Ringℤ .snd)
-open Sum              (CommRing→Ring Ringℤ)
+open CommRingStr      (ℤRing .snd)
+open Sum              (CommRing→Ring ℤRing)
 
-open Coefficient Ringℤ
-open LinearTransformation Ringℤ
+open Coefficient ℤRing
+open LinearTransformation ℤRing
 open Bézout
 
 open SimRel
@@ -53,7 +53,7 @@ open Sim
 
 -- The elementary transformations needed
 
-open ElemTransformation Ringℤ
+open ElemTransformation ℤRing
 open ElemTransformationℤ
 
 open SwapFirstRow
