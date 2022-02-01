@@ -20,7 +20,6 @@ open import Cubical.Relation.Nullary
 open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.RingSolver.Reflection
 
 open import Cubical.Algebra.Matrix
 open import Cubical.Algebra.Matrix.CommRingCoefficient
