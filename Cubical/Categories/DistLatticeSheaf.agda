@@ -87,9 +87,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   Fsq : (F : DLPreSheaf) (x y : L .fst)
       → F .F-hom (hom-∨₂ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₂ x y) ≡
         F .F-hom (hom-∨₁ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₁ x y)
-  Fsq F x y = sym (F-seq F (hom-∨₂ x y) (hom-∧₂ x y))
-           ∙∙ cong (F .F-hom) (sq x y)
-           ∙∙ F-seq F (hom-∨₁ x y) (hom-∧₁ x y)
+  Fsq F x y = F-square F (sq x y)
 
   isDLSheaf : (F : DLPreSheaf) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
   isDLSheaf F = (F-ob F 0l ≡ 𝟙)
@@ -169,9 +167,7 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
   BFsq : (F : DLBasisPreSheaf)
        → F .F-hom Bhom-∨₂ ⋆⟨ C ⟩ F .F-hom Bhom-∧₂ ≡
          F .F-hom Bhom-∨₁ ⋆⟨ C ⟩ F .F-hom Bhom-∧₁
-  BFsq F = sym (F-seq F Bhom-∨₂ Bhom-∧₂)
-           ∙∙ cong (F .F-hom) Bsq
-           ∙∙ F-seq F Bhom-∨₁ Bhom-∧₁
+  BFsq F = F-square F Bsq
 
 
  -- TODO: check that this is equivalent to the functor
