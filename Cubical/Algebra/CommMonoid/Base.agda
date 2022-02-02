@@ -109,7 +109,7 @@ isPropIsCommMonoid ε _·_ (iscommmonoid MM MC) (iscommmonoid SM SC) =
   𝒮ᴰ-Record (𝒮-Univ _) IsCommMonoidEquiv
     (fields:
       data[ ε ∣ autoDUARel _ _ ∣ presε ]
-      data[ _·_ ∣ autoDUARel _ _ ∣ isHom ]
+      data[ _·_ ∣ autoDUARel _ _ ∣ pres· ]
       prop[ isCommMonoid ∣ (λ _ _ → isPropIsCommMonoid _ _) ])
   where
   open CommMonoidStr

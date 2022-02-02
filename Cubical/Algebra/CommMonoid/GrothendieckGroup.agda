@@ -122,14 +122,27 @@ AbGroup→CommMonoid (_ , abgroupstr  _ _ _ G) =
 
 
 module UniversalProperty (M : CommMonoid ℓ) where
+  open IsMonoidHom
+  open CommMonoidStr ⦃...⦄
+
+  private
+    instance
+      _ = snd M
+  
+  universalHom : CommMonoidHom M (AbGroup→CommMonoid (Groupification M))
+  fst universalHom = λ m → [ m , ε ]
+  pres· (snd universalHom) =
+    λ _ _ → eq/ _ _ (ε , cong (ε ·_) (comm _ _ ∙ cong₂ _·_ (rid ε) refl))
+  presε (snd universalHom) = refl
+
+  private
+    i = fst universalHom
+
   module _ {A : AbGroup ℓ} (φ : CommMonoidHom M (AbGroup→CommMonoid A)) where
-    open IsMonoidHom
     open IsGroupHom
 
-    open CommMonoidStr ⦃...⦄
     private
       instance
-        _ = snd M
         _ = snd (AbGroup→CommMonoid A)
 
     open GroupTheory (AbGroup→Group A)
@@ -137,15 +150,6 @@ module UniversalProperty (M : CommMonoid ℓ) where
     private
       module φ = IsMonoidHom (snd φ)
       f = fst φ
-
-    universalHom : CommMonoidHom M (AbGroup→CommMonoid (Groupification M))
-    fst universalHom = λ m → [ m , ε ]
-    isHom (snd universalHom) =
-      λ _ _ → eq/ _ _ (ε , cong (ε ·_) (comm _ _ ∙ cong₂ _·_ (rid ε) refl))
-    presε (snd universalHom) = refl
-
-    private
-      i = fst universalHom
 
     open AbGroupStr (snd A) using (-_; _-_; _+_; invr; invl)
 
@@ -158,9 +162,9 @@ module UniversalProperty (M : CommMonoid ℓ) where
             where
             lemma₂ : ∀ {k a b c d} → k · (a · d) ≡ k · (b · c) → f a + f d ≡ f b + f c
             lemma₂ {k} {a} {b} {c} {d} p =
-              f a + f d   ≡⟨ sym (φ.isHom _ _) ⟩
-              f (a · d)   ≡⟨ ·CancelL _ (sym (φ.isHom _ _) ∙ (cong f p) ∙ φ.isHom _ _) ⟩
-              f (b · c)   ≡⟨ φ.isHom _ _ ⟩
+              f a + f d   ≡⟨ sym (φ.pres· _ _) ⟩
+              f (a · d)   ≡⟨ ·CancelL _ (sym (φ.pres· _ _) ∙ (cong f p) ∙ φ.pres· _ _) ⟩
+              f (b · c)   ≡⟨ φ.pres· _ _ ⟩
               f b + f c   ∎
 
             lemma : ∀ {a b c d} → f a + f d ≡ f b + f c → f a - f b ≡ f c - f d
@@ -192,7 +196,7 @@ module UniversalProperty (M : CommMonoid ℓ) where
 
         proof : ((a , b) (c , d) : ⟨ M² M ⟩) → (f (a · c)) - (f (b · d)) ≡ (f a - f b) + (f c - f d)
         proof (a , b) (c , d) =
-          f (a · c) - f (b · d)     ≡⟨ cong₂ _-_ (φ.isHom _ _) (φ.isHom _ _) ⟩
+          f (a · c) - f (b · d)     ≡⟨ cong₂ _-_ (φ.pres· _ _) (φ.pres· _ _) ⟩
           (f a + f c) - (f b + f d) ≡⟨ lExp (invDistr _ _ ∙ comm _ _) ∙ assoc _ _ _ ⟩
           ((f a + f c) - f b) - f d ≡⟨ lemma ⟩
           (f a - f b) + (f c - f d) ∎
