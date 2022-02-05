@@ -2,8 +2,12 @@
 module Cubical.Algebra.Group.Instances.Int where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Int renaming (ℤ to ℤType ; _+_ to _+ℤ_ ; _-_ to _-ℤ_; -_ to -ℤ_ ; _·_ to _·ℤ_)
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Data.Int
+  renaming (ℤ to ℤType ; _+_ to _+ℤ_ ; _-_ to _-ℤ_; -_ to -ℤ_ ; _·_ to _·ℤ_)
 open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 
 open GroupStr
 
@@ -19,3 +23,8 @@ isGroup (snd ℤ) = isGroupℤ
     isGroupℤ = makeIsGroup isSetℤ +Assoc (λ _ → refl) (+Comm 0)
                            (λ x → +Comm x (pos 0 -ℤ x) ∙ minusPlus x 0)
                            (λ x → minusPlus x 0)
+
+ℤHom : (n : ℤType) → GroupHom ℤ ℤ
+fst (ℤHom n) x = n ·ℤ x
+snd (ℤHom n) =
+  makeIsGroupHom λ x y → ·DistR+ n x y

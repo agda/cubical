@@ -12,6 +12,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients renaming (_/_ to _/s_ ; rec to recS ; elim to elimS)
 open import Cubical.HITs.PropositionalTruncation
@@ -35,13 +36,20 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
   open Iso
   open GroupTheory
 
+
+  kerϕ : NormalSubgroup G
+  kerϕ = kerSubgroup ϕ , isNormalKer ϕ
+
+  imϕ : Group ℓ
+  imϕ = imGroup ϕ
+
+  -- for completeness:
+  imϕnormal : ((x y : ⟨ H ⟩)
+    → GroupStr._·_ (snd H) x y ≡ GroupStr._·_ (snd H) y x)
+    → NormalSubgroup H
+  imϕnormal comm = imSubgroup ϕ , isNormalIm ϕ comm
+
   private
-    kerϕ : NormalSubgroup G
-    kerϕ = kerSubgroup ϕ , isNormalKer ϕ
-
-    imϕ : Group ℓ
-    imϕ = imGroup ϕ
-
     module G = GroupStr (snd G)
     module H = GroupStr (snd H)
     module imG = GroupStr (snd imϕ)
@@ -103,3 +111,17 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
   -- The SIP lets us turn the isomorphism theorem into a path
   pathThm1 : imϕ ≡ G / kerϕ
   pathThm1 = uaGroup (GroupIso→GroupEquiv isoThm1)
+
+  surjImIso : isSurjective ϕ → GroupIso imϕ H
+  surjImIso surj =
+    BijectionIso→GroupIso
+      (bijIso indHom
+              (uncurry
+                (λ h → elim (λ _ → isPropΠ (λ _ → imG.is-set _ _))
+                  (uncurry λ g y
+                    → λ inker → Σ≡Prop (λ _ → squash) inker)))
+              λ b → map (λ x → (b , ∣ x ∣) , refl) (surj b))
+    where
+    indHom : GroupHom imϕ H
+    fst indHom = fst
+    snd indHom = makeIsGroupHom λ _ _ → refl

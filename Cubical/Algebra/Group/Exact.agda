@@ -52,3 +52,15 @@ SES→isEquiv {R = R} {G = G} {H = H} =
            (λ s → sym (snd s) ∙ IsGroupHom.pres1 (snd lhom))
            (lexact _ inker)
     BijectionIso.surj bijIso' x = rexact x refl
+
+-- exact sequence of 4 groups. Useful for the proof of π₄S³
+record Exact4 {ℓ ℓ' ℓ'' ℓ''' : Level} (G : Group ℓ)
+  (H : Group ℓ') (L : Group ℓ'') (R : Group ℓ''')
+  (G→H : GroupHom G H) (H→L : GroupHom H L) (L→R : GroupHom L R)
+  : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ'''))) where
+  field
+    ImG→H⊂KerH→L : (x : fst H) → isInIm G→H x → isInKer H→L x
+    KerH→L⊂ImG→H : (x : fst H) → isInKer H→L x → isInIm G→H x
+
+    ImH→L⊂KerL→R : (x : fst L) → isInIm H→L x → isInKer L→R x
+    KerL→R⊂ImH→L : (x : fst L) → isInKer L→R x → isInIm H→L x

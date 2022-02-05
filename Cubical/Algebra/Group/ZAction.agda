@@ -8,23 +8,38 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int
-  renaming (_·_ to _*_ ; _+_ to _+ℤ_ ; _-_ to _-ℤ_)
-open import Cubical.Data.Nat
-  hiding (_·_) renaming (_+_ to _+ℕ_)
+  renaming
+    (_·_ to _*_ ; _+_ to _+ℤ_ ; _-_ to _-ℤ_ ; pos·pos to pos·)
+open import Cubical.Data.Nat renaming (_·_ to _·ℕ_ ; _+_ to _+ℕ_)
+open import Cubical.Data.Nat.Mod
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Sum renaming (rec to ⊎-rec)
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
+open import Cubical.Data.Unit
+open import Cubical.Data.Fin hiding (_/_)
+open import Cubical.Data.Fin.Arithmetic
+
+open import Cubical.HITs.SetQuotients renaming (_/_ to _/s_ ; rec to sRec ; elim to sElim)
+open import Cubical.HITs.PropositionalTruncation as Prop
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Unit renaming (Unit to UnitGroup)
+open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Subgroup
 open import Cubical.Algebra.Group.GroupPath
+open import Cubical.Algebra.Group.IsomorphismTheorems
+open import Cubical.Algebra.Group.QuotientGroup
+open import Cubical.Algebra.Group.Exact
 
 open import Cubical.Relation.Nullary
 
@@ -35,6 +50,7 @@ private
 open Iso
 open GroupStr
 open IsGroupHom
+open Exact4
 
 _ℤ[_]·_ : ℤ → (G : Group ℓ) → fst G → fst G
 pos zero ℤ[ G' ]· g = 1g (snd G')
@@ -175,20 +191,20 @@ gen₂-by G g₁ g₂ =
 
 Iso-pres-gen₁ : ∀ {ℓ ℓ'} (G : Group ℓ) (H : Group ℓ') (g : fst G)
   → gen₁-by G g → (e : GroupIso G H)
-  → gen₁-by H (Iso.fun (fst e) g)
+  → gen₁-by H (fun (fst e) g)
 Iso-pres-gen₁ G H g genG is h =
-    (fst (genG (Iso.inv (fst is) h)))
-  , (sym (Iso.rightInv (fst is) h)
-    ∙∙ cong (Iso.fun (fst is)) (snd (genG (Iso.inv (fst is) h)))
-    ∙∙ (homPresℤ· (_ , snd is) g (fst (genG (Iso.inv (fst is) h)))))
+    (fst (genG (inv (fst is) h)))
+  , (sym (rightInv (fst is) h)
+    ∙∙ cong (fun (fst is)) (snd (genG (inv (fst is) h)))
+    ∙∙ (homPresℤ· (_ , snd is) g (fst (genG (inv (fst is) h)))))
 
 Iso-pres-gen₂ : (G : Group ℓ) (H : Group ℓ') (g₁ g₂ : fst G)
   → gen₂-by G g₁ g₂ → (e : GroupIso G H)
-  → gen₂-by H (Iso.fun (fst e) g₁) (Iso.fun (fst e) g₂)
-fst (Iso-pres-gen₂ G H g₁ g₂ genG is h) = genG (Iso.inv (fst is) h) .fst
+  → gen₂-by H (fun (fst e) g₁) (fun (fst e) g₂)
+fst (Iso-pres-gen₂ G H g₁ g₂ genG is h) = genG (inv (fst is) h) .fst
 snd (Iso-pres-gen₂ G H g₁ g₂ genG is h) =
-     sym (Iso.rightInv (fst is) h)
-  ∙∙ cong (fun (fst is)) (snd (genG (Iso.inv (fst is) h)))
+     sym (rightInv (fst is) h)
+  ∙∙ cong (fun (fst is)) (snd (genG (inv (fst is) h)))
   ∙∙ (pres· (snd is) _ _
   ∙ cong₂ (_·_ (snd H))
           (homPresℤ· (_ , snd is) g₁ (fst (fst (genG (inv (fst is) h)))))
@@ -232,7 +248,7 @@ GroupEquivℤ-pres1 : (e : GroupEquiv ℤGroup ℤGroup) (x : ℤ)
 GroupEquivℤ-pres1 e (pos zero) p =
   ⊥-rec (snotz (injPos (sym (retEq (fst e) 1)
             ∙∙ (cong (fst (fst (invGroupEquiv e))) p)
-            ∙∙ IsGroupHom.pres1 (snd (invGroupEquiv e)))))
+            ∙∙ pres1 (snd (invGroupEquiv e)))))
 GroupEquivℤ-pres1 e (pos (suc zero)) p = cong abs p
 GroupEquivℤ-pres1 e (pos (suc (suc n))) p =
   ⊥-rec (¬1=x·suc-suc _ _ (h3 ∙ ·Comm (pos (suc (suc n))) (invEq (fst e) 1)))
@@ -275,7 +291,7 @@ groupEquivPresGen G (ϕeq , ϕhom) x (inl r) (ψeq , ψhom) =
 groupEquivPresGen G (ϕeq , ϕhom) x (inr r) (ψeq , ψhom) =
   abs→⊎ _ _
     (cong abs (cong (fst ψeq) (sym (retEq ϕeq x) ∙ cong (invEq ϕeq) r))
-    ∙ cong abs (IsGroupHom.presinv
+    ∙ cong abs (presinv
                 (snd (compGroupEquiv (invGroupEquiv (ϕeq , ϕhom))
                        (ψeq , ψhom))) 1)
     ∙ absLem _ (GroupEquivℤ-pres1
@@ -331,8 +347,6 @@ gen₁ℤGroup-⊎ (negsuc (suc n)) h = ⊥-rec (¬1=x·suc-suc n _ (rem (pos 1)
   where
   rem : (x : ℤ) → x ≡ fst (h x) * negsuc (suc n)
   rem x = h x .snd ∙ sym (ℤ·≡· (fst (h x)) (negsuc (suc n)))
-
-open IsGroupHom
 
 -- Properties of homomorphisms of ℤ wrt generators (should be moved)
 module _ (ϕ : GroupHom ℤGroup ℤGroup) where
@@ -394,12 +408,15 @@ module _ (ϕ : GroupEquiv ℤGroup ℤGroup) where
           (λ h → sym (abs- _) ∙ sym (cong abs h))
           (ℤEquivIsIdOr- g)
 
+-- A few consequences of the above lemmas
+
 -Equivℤ : GroupEquiv ℤGroup ℤGroup
 fst -Equivℤ =
-  isoToEquiv (iso (GroupStr.inv (snd ℤGroup))
-                  (GroupStr.inv (snd ℤGroup))
-                  (GroupTheory.invInv ℤGroup)
-                  (GroupTheory.invInv ℤGroup))
+  isoToEquiv
+    (iso (GroupStr.inv (snd ℤGroup))
+         (GroupStr.inv (snd ℤGroup))
+         (GroupTheory.invInv ℤGroup)
+         (GroupTheory.invInv ℤGroup))
 snd -Equivℤ =
   makeIsGroupHom λ x y
     → +Comm (pos 0) (- (x +ℤ y))
@@ -428,15 +445,12 @@ characℤ≅ℤ e =
                   ∙∙ +Comm (- x) 0))))
     (ℤEquiv1 e)
 
--- A few consequences of the above lemmas
-
 absGroupEquivℤGroup : {G : Group₀} (ϕ ψ : GroupEquiv ℤGroup G) (g : fst G)
                     → abs (invEq (fst ϕ) g) ≡ abs (invEq (fst ψ) g)
 absGroupEquivℤGroup =
   GroupEquivJ (λ G ϕ → (ψ : GroupEquiv ℤGroup G) (g : fst G)
                      → abs (invEq (fst ϕ) g) ≡ abs (invEq (fst ψ) g))
               (λ ψ → absℤEquiv (invGroupEquiv ψ))
-
 
 GroupEquivℤ-isEquiv : {G : Group₀}
          → GroupEquiv ℤGroup G
@@ -467,3 +481,192 @@ GroupEquivℤ-isEquiv {G = G} =
    ⊎-rec (λ h₂ → subst isEquiv (sym (ℤHom1- ϕ (sym (cong (fst ϕ) h₂) ∙ h₁))) isEquiv-)
          (λ h₂ → subst isEquiv (sym (ℤHomId- ϕ (sym (cong (fst ϕ) h₂) ∙ h₁))) (idIsEquiv _))
          (gen₁ℤGroup-⊎ g gen)
+
+-- Characterisation of ℤ→ℤ
+characGroupHomℤ : (e : GroupHom ℤGroup ℤGroup) → e ≡ ℤHom (fst e (pos 1))
+characGroupHomℤ e =
+  Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+    (funExt λ { (pos n) → lem n
+              ; (negsuc n)
+                → cong (fst e) (+Comm (- (pos (suc n))) 0)
+                ∙ presinv (snd e) (pos (suc n))
+                ∙ (+Comm 0 (- fst e (pos (suc n)))
+                 ∙ cong -_ (lem (suc n)))
+                ∙ sym (ℤ·negsuc (fst e 1) n)})
+  where
+  lem : (n : ℕ) → fst e (pos n) ≡ fst e 1 * (pos n)
+  lem zero = pres1 (snd e) ∙ ·Comm 0 (fst e 1)
+  lem (suc zero) = ·Comm 1 (fst e 1)
+  lem (suc (suc n)) =
+      pres· (snd e) (pos (suc n)) 1
+    ∙ cong (_+ℤ fst e 1) (lem (suc n))
+    ∙ cong (fst e (pos 1) * pos (suc n) +ℤ_) (·Comm 1 (fst e 1))
+    ∙ sym (·DistR+ (fst e 1) (pos (suc n)) 1)
+
+imℤHomSubGroup : (f : GroupHom ℤGroup ℤGroup) → NormalSubgroup ℤGroup
+imℤHomSubGroup f = imϕnormal f +Comm
+
+-- Equivalence between ℤ/ (abs (f 1)) and ℤ/ (im f) using the two different
+-- definitions of ℤ quotients. We start with the case f 1 ≥ 0.
+module _ (f : GroupHom ℤGroup ℤGroup) where
+  trivHom→ℤ≅ℤ/im : fst f 1 ≡ 0
+    → GroupIso ℤGroup (ℤGroup / imℤHomSubGroup f)
+  trivHom→ℤ≅ℤ/im q =
+    trivialRelIso
+      (imℤHomSubGroup f)
+      λ x y →  Prop.rec (isSetℤ _ _)
+        λ {(c , p) →
+          GroupTheory.invUniqueL ℤGroup
+             {g = x} {h = (GroupStr.inv (snd ℤGroup) y)}
+            (sym p ∙ (funExt⁻ (cong fst (characGroupHomℤ f ∙ cong ℤHom q)) c))
+        ∙ GroupTheory.invInv ℤGroup y}
+
+  ℤHom→ℤ/im≅ℤ/im1 : (n : ℕ) →  fst f 1 ≡ pos (suc n)
+    → BijectionIso (ℤGroup / imℤHomSubGroup f) (ℤ/ (suc n))
+  fst (BijectionIso.fun (ℤHom→ℤ/im≅ℤ/im1 n p)) =
+    sRec isSetFin (ℤ→Fin n) λ a b
+      → rec (isSetFin _ _) (uncurry λ x q
+        → cong (ℤ→Fin n)
+                (cancel-lem a b _
+                  (sym q
+                ∙ (funExt⁻ (cong fst (characGroupHomℤ f ∙ cong ℤHom p))) x))
+              ∙ pres· (isHomℤ→Fin n) (pos (suc n) * x) b
+              ∙ cong (_+ₘ ℤ→Fin n b) (lem x)
+              ∙ GroupStr.lid (snd (ℤ/ (suc n))) (ℤ→Fin n b))
+    where
+    lem : (x : ℤ) → ℤ→Fin n (pos (suc n) * x) ≡ 0
+    lem (pos x) = cong (ℤ→Fin n) (sym (pos· (suc n) x))
+                 ∙ Σ≡Prop (λ _ → m≤n-isProp)
+                    (cong (_mod (suc n)) (·-comm (suc n) x)
+                    ∙ zero-charac-gen (suc n) x)
+    lem (negsuc x) =
+         cong (ℤ→Fin n) (pos·negsuc (suc n) x
+                        ∙ cong -_ (sym (pos· (suc n) (suc x))))
+      ∙∙ cong -ₘ_ (Σ≡Prop (λ _ → m≤n-isProp)
+                    (cong (_mod (suc n)) (·-comm (suc n) (suc x))
+                    ∙ zero-charac-gen (suc n) (suc x)))
+      ∙∙ GroupTheory.inv1g (ℤ/ (suc n))
+
+    cancel-lem : (a b x : ℤ) → a +ℤ (0 -ℤ b) ≡ x → a ≡ x +ℤ b
+    cancel-lem a b x p =
+      sym (minusPlus b a)
+      ∙ (λ i → (a +ℤ (+Comm (- b) 0 i)) +ℤ b)
+      ∙ cong (_+ℤ b) p
+
+  snd (BijectionIso.fun (ℤHom→ℤ/im≅ℤ/im1 n p)) =
+    makeIsGroupHom (elimProp2 (λ _ _ → isSetFin _ _)
+      (pres· (isHomℤ→Fin n)))
+  BijectionIso.inj (ℤHom→ℤ/im≅ℤ/im1 n p) =
+    elimProp (λ _ → isPropΠ λ _ → squash/ _ _)
+     λ { (pos x) q
+       → eq/ (pos x) 0 ∣ (pos (quotient x / (suc n)))
+                       , funExt⁻ (cong fst (characGroupHomℤ f ∙ cong ℤHom p))
+                                  (pos (quotient x / (suc n)))
+                       ∙ sym (pos· (suc n) (quotient x / (suc n)))
+                       ∙ cong pos (λ i → q (~ i) .fst +ℕ suc n ·ℕ
+                                  (quotient x / suc n))
+                       ∙ cong pos (≡remainder+quotient (suc n) x) ∣
+       ; (negsuc x) q → eq/ (negsuc x) 0
+           ∣ (0 +ℤ (- pos (quotient suc x / (suc n))))
+          , (presinv (snd f) (pos (quotient suc x / (suc n)))
+          ∙ +Comm 0 (- _))
+          ∙ cong -_ (funExt⁻ (cong fst (characGroupHomℤ f ∙ cong ℤHom p))
+                      (pos (quotient (suc x) / (suc n))))
+         ∙∙ cong -_ (sym (pos· (suc n) (quotient suc x / (suc n)))
+                   ∙ (λ i → pos (fst ((sym (GroupTheory.invInv
+                                             (ℤ/ (suc n))
+                                 ((suc x mod suc n) , mod< n (suc x)))
+                                ∙ cong -ₘ_ q
+                                ∙ GroupTheory.inv1g (ℤ/ (suc n))) (~ i))
+                                +ℕ suc n ·ℕ quotient (suc x) / suc n)))
+         ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))) ∣}
+  BijectionIso.surj (ℤHom→ℤ/im≅ℤ/im1 n p) x =
+      ∣ [ pos (fst x) ]
+    , (Σ≡Prop (λ _ → m≤n-isProp) (modIndBase n (fst x) (snd x))) ∣
+
+-- main result
+ℤ/imIso : (f : GroupHom ℤGroup ℤGroup)
+  → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤ/ abs (fst f 1))
+ℤ/imIso f = helpIso _ refl
+  where
+  helpIso : (a : ℤ)
+       → fst f 1 ≡ a → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤ/ abs a)
+  helpIso (pos zero) p = invGroupIso (trivHom→ℤ≅ℤ/im f p)
+  helpIso (pos (suc n)) p = BijectionIso→GroupIso (ℤHom→ℤ/im≅ℤ/im1 f n p)
+  helpIso (negsuc n) p =
+    subst (λ x → GroupIso (ℤGroup / x) (ℤ/ abs (negsuc n)))
+          (sym lem1)
+          (BijectionIso→GroupIso
+            (ℤHom→ℤ/im≅ℤ/im1 extendHom n (+Comm (pos 0) (- (fst f (pos 1))) ∙ cong -_ p)))
+    where
+    extendHom : GroupHom ℤGroup ℤGroup
+    extendHom = compGroupHom f (fst (fst -Equivℤ) , snd -Equivℤ)
+
+    lem1 : imℤHomSubGroup f ≡ imℤHomSubGroup extendHom
+    lem1 = Σ≡Prop (λ _ → isPropIsNormal _)
+             (Σ≡Prop (λ _ → isPropIsSubgroup _ _)
+               (funExt λ x → Σ≡Prop (λ _ → isPropIsProp)
+                 (isoToPath
+                   (iso (Prop.map (λ {(x , q) → (pos 0 -ℤ x)
+                                               , cong (pos 0 -ℤ_)
+                                                  (presinv (snd f) x)
+                                               ∙ GroupTheory.invInv ℤGroup (fst f x)
+                                               ∙ q}))
+                        (Prop.map (λ {(x , q) → (pos 0 -ℤ x)
+                                               , (presinv (snd f) x
+                                               ∙ q)}))
+                     (λ _ → squash _ _) (λ _ → squash _ _)))))
+
+-- Goal: given G -ᶠ→ H → L → Unit exact, with G ≅ H ≅ ℤ, we get
+-- an iso ℤ/abs (f 1) ≅ H, where f 1 and 1 are viewed as integers
+-- via the isomorphisms. We start with the case when G = H = ℤ
+module _ (f : GroupHom ℤGroup ℤGroup) (G : Group₀)
+         (g : GroupHom ℤGroup G)
+         (ex : Exact4 ℤGroup ℤGroup G UnitGroup f g (→UnitHom G)) where
+
+  private
+    imf≡kerg : imℤHomSubGroup f ≡ kerϕ g
+    imf≡kerg =
+      Σ≡Prop (λ _ → isPropIsNormal _)
+        (Σ≡Prop (λ _ → isPropIsSubgroup _ _)
+          (funExt λ x → Σ≡Prop (λ _ → isPropIsProp)
+            (isoToPath
+              (isProp→Iso
+                (isPropIsInIm _ _)
+                (isPropIsInKer _ _)
+                (ImG→H⊂KerH→L ex x)
+                (KerH→L⊂ImG→H ex x)))))
+
+  ℤ/im≅ℤ/ker : GroupIso (ℤGroup / imℤHomSubGroup f) (ℤGroup / kerϕ g)
+  ℤ/im≅ℤ/ker =
+    GroupEquiv→GroupIso (invEq (GroupPath _ _) (cong (ℤGroup /_) imf≡kerg))
+
+  GroupIsoℤ/abs : GroupIso (ℤ/ abs (fst f (pos 1))) G
+  GroupIsoℤ/abs =
+    compGroupIso
+      (invGroupIso (ℤ/imIso f))
+      (compGroupIso
+        ℤ/im≅ℤ/ker
+        (compGroupIso
+          (invGroupIso (isoThm1 g))
+          (surjImIso g λ a → KerL→R⊂ImH→L ex a refl)))
+
+-- The general case
+GroupEquivℤ/abs-gen : (G H L : Group₀)
+  → (e : GroupEquiv ℤGroup G)
+  → (r : GroupEquiv ℤGroup H)
+  → (f : GroupHom G H) (g : GroupHom H L)
+  → Exact4 G H L UnitGroup f g (→UnitHom L)
+  → GroupEquiv (ℤ/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L
+GroupEquivℤ/abs-gen G H L =
+  GroupEquivJ (λ G e
+    → (r : GroupEquiv ℤGroup H)
+     → (f : GroupHom G H) (g : GroupHom H L)
+     → Exact4 G H L UnitGroup f g (→UnitHom L)
+     → GroupEquiv (ℤ/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L)
+    (GroupEquivJ (λ H r
+      → (f : GroupHom ℤGroup H) (g : GroupHom H L) →
+      Exact4 ℤGroup H L UnitGroup f g (→UnitHom L) →
+      GroupEquiv
+      (ℤ/ abs (invEq (fst r) (fst f 1))) L)
+      λ f g ex → GroupIso→GroupEquiv (GroupIsoℤ/abs f L g ex))
