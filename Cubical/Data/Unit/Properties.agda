@@ -7,6 +7,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit.Base
@@ -53,6 +54,12 @@ module _ (A : Unit → Type ℓ) where
 
   ΠUnit : ((x : Unit) → A x) ≃ A tt
   ΠUnit = isoToEquiv ΠUnitIso
+
+fiberUnitIso : {A : Type ℓ} → Iso (fiber (λ (a : A) → tt) tt) A
+Iso.fun fiberUnitIso = fst
+Iso.inv fiberUnitIso a = a , refl
+Iso.rightInv fiberUnitIso _ = refl
+Iso.leftInv fiberUnitIso _ = refl
 
 isContr→Iso2 : {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
 Iso.fun (isContr→Iso2 iscontr) f = f (fst iscontr)

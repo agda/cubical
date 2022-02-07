@@ -56,6 +56,11 @@ open import Cubical.HITs.PropositionalTruncation renaming (map to pMap ; rec to 
 
 -- abs (HopfInvariant-π' 0 [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π') ≡ 2
 
+thePushout : Type
+thePushout = Pushout (λ _ → tt) fold∘W
+
+thePushout∙ : Pointed₀
+thePushout∙ = thePushout , inl tt
 
 open import Cubical.Homotopy.Whitehead
 open import Cubical.HITs.S1
@@ -799,7 +804,7 @@ HopfInvariantLemfold∘W =
 Whitehead≡ : [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π' ≡ ∣ fold∘W , refl ∣₂
 Whitehead≡ =
     cong ∣_∣₂ ([]≡[]₂ (idfun∙ (S₊∙ 2)) (idfun∙ (S₊∙ 2)) )
-  ∙ sym Fold∘W
+  ∙ sym fold∘W≡Whitehead
   ∙ cong ∣_∣₂ (∘∙-idˡ (fold∘W , refl))
 
 HopfInvariantWhitehead :
