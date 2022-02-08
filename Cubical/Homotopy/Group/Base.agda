@@ -1044,3 +1044,14 @@ snd (π'∘∙Hom {A = A} {B = B} n f) = isHom∘∙
 fst (fst (π'Iso n e)) = π'eqFun n e
 snd (fst (π'Iso n e)) = π'eqFunIsEquiv n e
 snd (π'Iso n e) = π'eqFunIsHom n e
+
+πIso : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+        → (A ≃∙ B)
+        → (n : ℕ)
+        → GroupEquiv (πGr n A) (πGr n B)
+fst (fst (πIso e n)) = fst (πHom n (≃∙map e))
+snd (fst (πIso e n)) =
+  isoToIsEquiv
+    (setTruncIso
+      (equivToIso (_ , isEquivΩ^→ (suc n) (≃∙map e) (snd (fst e)))))
+snd (πIso e n) = snd (πHom n (≃∙map e))

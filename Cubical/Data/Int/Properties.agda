@@ -364,6 +364,10 @@ pos- (suc m) (suc n) =
 
 -- multiplication
 
+pos·pos : (n m : ℕ) → pos (n ·ℕ m) ≡ pos n · pos m
+pos·pos zero m = refl
+pos·pos (suc n) m = pos+ m (n ·ℕ m) ∙ cong (pos m +_) (pos·pos n m)
+
 pos·negsuc : (n m : ℕ) → pos n · negsuc m ≡ - (pos n · pos (suc m))
 pos·negsuc zero m = refl
 pos·negsuc (suc n) m =

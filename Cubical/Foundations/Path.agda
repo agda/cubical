@@ -230,8 +230,8 @@ sym≡cong-sym : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) ref
 sym≡cong-sym P = sym-cong-sym≡id (sym P)
 
 -- sym induces an equivalence on identity types of paths
-symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
-symIso p q = iso sym sym (λ _ → refl) λ _ → refl
+symIso : {a b : A} → Iso (a ≡ b) (b ≡ a)
+symIso = iso sym sym (λ _ → refl) λ _ → refl
 
 -- J is an equivalence
 Jequiv : {x : A} (P : ∀ y → x ≡ y → Type ℓ') → P x refl ≃ (∀ {y} (p : x ≡ y) → P y p)

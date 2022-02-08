@@ -335,6 +335,18 @@ isEmbeddingFstΣProp {B = B} pB {u = u} {v = v} .equiv-proof x = ctr , isCtr
        → (p : u .fst ≡ v .fst) → u ≡ v
 Σ≡Prop pB p = equivFun (Σ≡PropEquiv pB) p
 
+-- dependent version
+ΣPathPProp : ∀ {ℓ ℓ'} {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
+           → {u : Σ (A i0) (B i0)} {v : Σ (A i1) (B i1)}
+           → ((a : A (i1)) → isProp (B i1 a))
+           → PathP (λ i → A i) (fst u) (fst v)
+           → PathP (λ i → Σ (A i) (B i)) u v
+fst (ΣPathPProp {u = u} {v = v} pB p i) = p i
+snd (ΣPathPProp {B = B} {u = u} {v = v} pB p i) = lem i
+  where
+  lem : PathP (λ i → B i (p i)) (snd u) (snd v)
+  lem = toPathP (pB _ _ _)
+
 ≃-× : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} → A ≃ C → B ≃ D → A × B ≃ C × D
 ≃-× eq1 eq2 =
     map-× (fst eq1) (fst eq2)
