@@ -5,7 +5,7 @@ This file contains a summary of what remains for π₄(S³) ≡ ℤ/2ℤ to be p
 See the module π₄S³ at the end of this file.
 
 The --experimental-lossy-unification flag is used to speed up type checking.
-The file still type checks without it, but it's a lot slower.
+The file still type checks without it, but it's a lot slower (about 10 times).
 -}
 
 {-# OPTIONS --safe --experimental-lossy-unification #-}
