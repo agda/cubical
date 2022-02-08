@@ -125,6 +125,14 @@ module AlgLoc (R' : CommRing ℓ)
  isContrHomS⁻¹RS⁻¹R : isContr (CommAlgebraHom S⁻¹RAsCommAlg S⁻¹RAsCommAlg)
  isContrHomS⁻¹RS⁻¹R = S⁻¹RHasAlgUniversalProp S⁻¹RAsCommAlg S⋆1⊆S⁻¹Rˣ
 
+ S⁻¹RAlgCharEquiv : (A' : CommRing ℓ) (φ : CommRingHom R' A')
+                  → PathToS⁻¹R  R' S' SMultClosedSubset A' φ
+                  → CommAlgebraEquiv S⁻¹RAsCommAlg (toCommAlg (A' , φ))
+ S⁻¹RAlgCharEquiv A' φ cond = toCommAlgebraEquiv _ _
+                                (S⁻¹RCharEquiv R' S' SMultClosedSubset A' φ cond)
+                                (RingHom≡ (S⁻¹RHasUniversalProp A' φ (cond .φS⊆Aˣ) .fst .snd))
+  where open PathToS⁻¹R
+
 
 -- the special case of localizing at a single element
 R[1/_]AsCommAlgebra : {R : CommRing ℓ} → ⟨ R ⟩ → CommAlgebra R ℓ
@@ -132,6 +140,7 @@ R[1/_]AsCommAlgebra {R = R} f = S⁻¹RAsCommAlg [ f ⁿ|n≥0] (powersFormMultC
  where
  open AlgLoc R
  open InvertingElementsBase R
+
 
 module AlgLocTwoSubsets (R' : CommRing ℓ)
                         (S₁ : ℙ (fst R')) (S₁MultClosedSubset : isMultClosedSubset R' S₁)
@@ -223,3 +232,25 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
     S₂⊆S₁⁻¹Rˣ s₂ s₂∈S₂ =
       transport (λ i → _⋆_ ⦃ (sym S₁⁻¹R≡S₂⁻¹R) i .snd ⦄ s₂ (1a ⦃ (sym S₁⁻¹R≡S₂⁻¹R) i .snd ⦄)
                      ∈ (CommAlgebra→CommRing ((sym S₁⁻¹R≡S₂⁻¹R) i)) ˣ) (S₂⋆1⊆S₂⁻¹Rˣ s₂ s₂∈S₂)
+
+
+
+-- A crucial result for the construction of the structure sheaf
+module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
+ open InvertingElementsBase
+ open CommRingStr (snd R)
+ open isMultClosedSubset
+ open DoubleLoc R f g hiding (R[1/fg]≡R[1/f][1/g])
+ open CommAlgChar R
+ open AlgLoc R ([_ⁿ|n≥0] R (f · g)) (powersFormMultClosedSubset R (f · g))
+             renaming (S⁻¹RAlgCharEquiv to R[1/fg]AlgCharEquiv)
+
+ private
+  R[1/fg]AsCommRing = R[1/_]AsCommRing R (f · g)
+  R[1/fg]AsCommAlgebra = R[1/_]AsCommAlgebra {R = R} (f · g)
+  R[1/f][1/g]AsCommRing = R[1/_]AsCommRing (R[1/_]AsCommRing R f)
+                                [ g , 1r , powersFormMultClosedSubset R f .containsOne ]
+  R[1/f][1/g]AsCommAlgebra = toCommAlg (R[1/f][1/g]AsCommRing , /1/1AsCommRingHom)
+
+ R[1/fg]≡R[1/f][1/g] : R[1/fg]AsCommAlgebra ≡ R[1/f][1/g]AsCommAlgebra
+ R[1/fg]≡R[1/f][1/g] = uaCommAlgebra (R[1/fg]AlgCharEquiv _ _ pathtoR[1/fg])

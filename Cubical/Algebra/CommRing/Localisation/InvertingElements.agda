@@ -291,240 +291,241 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
           1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r)    ∎
 
 
+ open PathToS⁻¹R
+ pathtoR[1/fg] : PathToS⁻¹R R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
+                            R[1/f][1/g]AsCommRing /1/1AsCommRingHom
+ φS⊆Aˣ pathtoR[1/fg] = fⁿgⁿ/1/1∈R[1/f][1/g]ˣ
+
+ kerφ⊆annS pathtoR[1/fg] r p = toGoal helperR[1/f]
+  where
+  open RingTheory (CommRing→Ring R[1/f]AsCommRing) renaming ( 0RightAnnihilates to 0ᶠRightAnnihilates
+                                                        ; 0LeftAnnihilates to 0ᶠ-leftNullifies)
+  open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
+                                       hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
+
+  S[f] = Loc.S R' ([_ⁿ|n≥0] R' f) (powersFormMultClosedSubset R' f)
+  S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
+  g/1 : R[1/_] R' f
+  g/1 = [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
+  S[g/1] = Loc.S R[1/f]AsCommRing
+                 ([_ⁿ|n≥0] R[1/f]AsCommRing g/1)
+                 (powersFormMultClosedSubset R[1/f]AsCommRing g/1)
+  r/1 : R[1/_] R' f
+  r/1 = [ r , 1r , powersFormMultClosedSubset R' f .containsOne ]
+
+  -- this is the crucial step, modulo truncation we can take p to be generated
+  -- by the quotienting relation of localisation. Note that we wouldn't be able
+  -- to prove our goal if kerφ⊆annS was formulated with a Σ instead of a ∃
+  ∥r/1,1/1≈0/1,1/1∥ : ∃[ u ∈ S[g/1] ] fst u ·ᶠ r/1 ·ᶠ 1ᶠ ≡ fst u ·ᶠ 0ᶠ ·ᶠ 1ᶠ
+  ∥r/1,1/1≈0/1,1/1∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) p
+
+  helperR[1/f] : ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
+  helperR[1/f] = PT.rec isPropPropTrunc
+                 (uncurry (uncurry (powersPropElim R[1/f]AsCommRing
+                                   (λ _ → isPropΠ (λ _ → isPropPropTrunc)) baseCase)))
+                 ∥r/1,1/1≈0/1,1/1∥
+   where
+   baseCase : ∀ n → g/1 ^ᶠ n ·ᶠ r/1 ·ᶠ 1ᶠ ≡ g/1 ^ᶠ n ·ᶠ 0ᶠ ·ᶠ 1ᶠ
+                  → ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
+   baseCase n q = PT.∣ n , path ∣
+    where
+    path : [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
+    path = [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ]
+
+         ≡⟨ cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid _)))) ⟩
+
+           [ g ^ n , 1r , PT.∣ 0 , refl ∣ ] ·ᶠ r/1
+
+         ≡⟨ cong (_·ᶠ r/1) (^-respects-/1 _ n) ⟩
+
+           g/1 ^ᶠ n ·ᶠ r/1
+
+         ≡⟨ sym (·ᶠ-rid _) ⟩
+
+           g/1 ^ᶠ n ·ᶠ r/1 ·ᶠ 1ᶠ
+
+         ≡⟨ q ⟩
+
+           g/1 ^ᶠ n ·ᶠ 0ᶠ ·ᶠ 1ᶠ
+
+         ≡⟨ cong (_·ᶠ 1ᶠ) (0ᶠRightAnnihilates _) ∙ 0ᶠ-leftNullifies 1ᶠ ⟩
+
+           0ᶠ ∎
+
+
+  toGoal : ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
+         → ∃[ u ∈ S[fg] ] fst u · r ≡ 0r
+  toGoal = PT.rec isPropPropTrunc Σhelper
+   where
+   Σhelper : Σ[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
+           → ∃[ u ∈ S[fg] ] fst u · r ≡ 0r
+   Σhelper (n , q) = PT.map Σhelper2 helperR
+    where
+    -- now, repeat the above strategy with q
+    ∥gⁿr≈0∥ : ∃[ u ∈ S[f] ] fst u · (g ^ n · r) · 1r ≡ fst u · 0r · 1r
+    ∥gⁿr≈0∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) q
+
+    helperR : ∃[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
+    helperR = PT.rec isPropPropTrunc
+              (uncurry (uncurry (powersPropElim R'
+                                (λ _ → isPropΠ (λ _ → isPropPropTrunc)) baseCase)))
+              ∥gⁿr≈0∥
+     where
+     baseCase : (m : ℕ) → f ^ m · (g ^ n · r) · 1r ≡ f ^ m · 0r · 1r
+              → ∃[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
+     baseCase m q' = PT.∣ m , path ∣
+      where
+      path : f ^ m · g ^ n · r ≡ 0r
+      path = (λ i → ·Rid (·Assoc (f ^ m) (g ^ n) r (~ i)) (~ i))
+           ∙∙ q' ∙∙ (λ i → ·Rid (0RightAnnihilates (f ^ m) i) i)
+
+    Σhelper2 : Σ[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
+             → Σ[ u ∈ S[fg] ] fst u · r ≡ 0r
+    Σhelper2 (m , q') = (((f · g) ^ l) , PT.∣ l , refl ∣) , path
+     where
+     l = max m n
+
+     path : (f · g) ^ l · r ≡ 0r
+     path = (f · g) ^ l · r
+
+          ≡⟨ cong (_· r) (^-ldist-· _ _ _) ⟩
+
+            f ^ l · g ^ l · r
+
+          ≡⟨ cong₂ (λ x y → f ^ x · g ^ y · r) (sym (≤-∸-+-cancel {m = m} left-≤-max))
+                                               (sym (≤-∸-+-cancel {m = n} right-≤-max)) ⟩
+
+            f ^ (l ∸ m +ℕ m) · g ^ (l ∸ n +ℕ n) · r
+
+          ≡⟨ cong₂ (λ x y → x · y · r) (sym (·-of-^-is-^-of-+ _ _ _))
+                                       (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
+
+            f ^ (l ∸ m) · f ^ m · (g ^ (l ∸ n) · g ^ n) · r
+
+          ≡⟨ cong (_· r) (·CommAssocSwap _ _ _ _) ⟩
+
+            f ^ (l ∸ m) · g ^ (l ∸ n) · (f ^ m · g ^ n) · r
+
+          ≡⟨ sym (·Assoc _ _ _) ⟩
+
+            f ^ (l ∸ m) · g ^ (l ∸ n) · (f ^ m · g ^ n · r)
+
+          ≡⟨ cong (f ^ (l ∸ m) · g ^ (l ∸ n) ·_) q' ⟩
+
+            f ^ (l ∸ m) · g ^ (l ∸ n) · 0r
+
+          ≡⟨ 0RightAnnihilates _ ⟩
+
+            0r ∎
+
+
+ surχ pathtoR[1/fg] = invElPropElim _ (λ _ → isPropPropTrunc) toGoal
+  where
+  open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
+                                              hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
+  open CommRingStr (snd R[1/f][1/g]AsCommRing) renaming (_·_ to _·R[1/f][1/g]_)
+                   hiding (1r ; ·Lid ; ·Rid ; ·Assoc)
+  open Units R[1/f][1/g]AsCommRing
+  g/1 : R[1/_] R' f
+  g/1 = [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
+  S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
+
+  baseCase : (r : R) (m n : ℕ) → ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
+      ≡ [ [ r , f ^ m , PT.∣ m , refl ∣ ]
+        , [ g ^ n , 1r , PT.∣ 0 , refl ∣ ] , PT.∣ n , ^-respects-/1 _ n ∣ ]
+      ·R[1/f][1/g] (x .snd .fst /1/1)
+  baseCase r m n = PT.∣ ((r · f ^ (l ∸ m) · g ^ (l ∸ n)) -- x .fst
+              , (f · g) ^ l , PT.∣ l , refl ∣)      -- x .snd
+              , eq/ _ _ ((1ᶠ , PT.∣ 0 , refl ∣) , eq/ _ _ ((1r , PT.∣ 0 , refl ∣) , path)) ∣
+              -- reduce equality of double fractions into equality in R
+   where
+   eq1 : ∀ r flm gln gn fm
+       → 1r · (1r · (r · flm · gln) · (gn · 1r)) · (1r · (fm · 1r) · 1r)
+       ≡ r · flm · (gln · gn) · fm
+   eq1 = solve R'
+
+   eq2 : ∀ r flm gl fm → r · flm · gl · fm ≡  r · (flm · fm ) · gl
+   eq2 = solve R'
+
+   eq3 : ∀ r fgl → r · fgl ≡ 1r · (1r · (r · fgl) · 1r) · (1r · 1r · (1r · 1r))
+   eq3 = solve R'
+
+   l = max m n
+
+   path : 1r · (1r · (r · f ^ (l ∸ m) · g ^ (l ∸ n)) · (g ^ n · 1r)) · (1r · (f ^ m · 1r) · 1r)
+        ≡ 1r · (1r · (r · (f · g) ^ l) · 1r) · (1r · 1r · (1r · 1r))
+   path = 1r · (1r · (r · f ^ (l ∸ m) · g ^ (l ∸ n)) · (g ^ n · 1r)) · (1r · (f ^ m · 1r) · 1r)
+
+        ≡⟨ eq1 r  (f ^ (l ∸ m)) (g ^ (l ∸ n)) (g ^ n) (f ^ m) ⟩
+
+          r · f ^ (l ∸ m) · (g ^ (l ∸ n) · g ^ n) · f ^ m
+
+        ≡⟨ cong (λ x → r · f ^ (l ∸ m) · x · f ^ m) (·-of-^-is-^-of-+ _ _ _) ⟩
+
+          r · f ^ (l ∸ m) · g ^ (l ∸ n +ℕ n) · f ^ m
+
+        ≡⟨ cong (λ x → r · f ^ (l ∸ m) · g ^ x · f ^ m) (≤-∸-+-cancel right-≤-max) ⟩
+
+          r · f ^ (l ∸ m) · g ^ l · f ^ m
+
+        ≡⟨ eq2 r (f ^ (l ∸ m)) (g ^ l) (f ^ m) ⟩
+
+          r · (f ^ (l ∸ m) · f ^ m) · g ^ l
+
+        ≡⟨ cong (λ x → r · x · g ^ l) (·-of-^-is-^-of-+ _ _ _) ⟩
+
+          r · f ^ (l ∸ m +ℕ m) · g ^ l
+
+        ≡⟨ cong (λ x → r · f ^ x · g ^ l) (≤-∸-+-cancel left-≤-max) ⟩
+
+          r · f ^ l · g ^ l
+
+        ≡⟨ sym (·Assoc _ _ _) ⟩
+
+          r · (f ^ l · g ^ l)
+
+        ≡⟨ cong (r ·_) (sym (^-ldist-· _ _ _)) ⟩
+
+          r · (f · g) ^ l
+
+        ≡⟨ eq3 r ((f · g) ^ l) ⟩
+
+          1r · (1r · (r · (f · g) ^ l) · 1r) · (1r · 1r · (1r · 1r)) ∎
+
+
+  base-^ᶠ-helper : (r : R) (m n : ℕ) → ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
+      ≡ [ [ r , f ^ m , PT.∣ m , refl ∣ ]
+        , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
+  base-^ᶠ-helper r m n = subst (λ y →  ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
+                         ≡ [ [ r , f ^ m , PT.∣ m , refl ∣ ] , y ] ·R[1/f][1/g] (x .snd .fst /1/1))
+                    (Σ≡Prop (λ _ → isPropPropTrunc) (^-respects-/1 _ n)) (baseCase r m n)
+
+  indStep : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
+        (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
+  indStep = invElPropElim _ (λ _ → isPropΠ λ _ → isPropPropTrunc) base-^ᶠ-helper
+
+  toGoal : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
+           (x .fst /1/1) ·R[1/f][1/g]
+           ((x .snd .fst /1/1) ⁻¹) ⦃ φS⊆Aˣ pathtoR[1/fg] (x .snd .fst) (x .snd .snd) ⦄
+         ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ]
+  toGoal r n = PT.map Σhelper (indStep r n)
+   where
+   Σhelper : Σ[ x ∈ R × S[fg] ]
+              (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
+           → Σ[ x ∈ R × S[fg] ]
+              (x .fst /1/1) ·R[1/f][1/g] ((x .snd .fst /1/1) ⁻¹)
+              ⦃ φS⊆Aˣ pathtoR[1/fg] (x .snd .fst) (x .snd .snd) ⦄
+              ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ]
+   Σhelper ((r' , s , s∈S[fg]) , p) = (r' , s , s∈S[fg])
+                                    , ⁻¹-eq-elim ⦃ φS⊆Aˣ pathtoR[1/fg] s s∈S[fg] ⦄ p
+
  -- the main result: localising at one element and then at another is
  -- the same as localising at the product.
  -- takes forever to compute without experimental lossy unification
  R[1/fg]≡R[1/f][1/g] : R[1/fg]AsCommRing ≡ R[1/f][1/g]AsCommRing
  R[1/fg]≡R[1/f][1/g] = S⁻¹RChar R' ([_ⁿ|n≥0] R' (f · g))
                          (powersFormMultClosedSubset R' (f · g)) _ /1/1AsCommRingHom pathtoR[1/fg]
-  where
-  open PathToS⁻¹R
-  pathtoR[1/fg] : PathToS⁻¹R R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
-                             R[1/f][1/g]AsCommRing /1/1AsCommRingHom
-  φS⊆Aˣ pathtoR[1/fg] = fⁿgⁿ/1/1∈R[1/f][1/g]ˣ
 
-  kerφ⊆annS pathtoR[1/fg] r p = toGoal helperR[1/f]
-   where
-   open RingTheory (CommRing→Ring R[1/f]AsCommRing) renaming ( 0RightAnnihilates to 0ᶠRightAnnihilates
-                                                         ; 0LeftAnnihilates to 0ᶠ-leftNullifies)
-   open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
-                                        hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
-
-   S[f] = Loc.S R' ([_ⁿ|n≥0] R' f) (powersFormMultClosedSubset R' f)
-   S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
-   g/1 : R[1/_] R' f
-   g/1 = [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
-   S[g/1] = Loc.S R[1/f]AsCommRing
-                  ([_ⁿ|n≥0] R[1/f]AsCommRing g/1)
-                  (powersFormMultClosedSubset R[1/f]AsCommRing g/1)
-   r/1 : R[1/_] R' f
-   r/1 = [ r , 1r , powersFormMultClosedSubset R' f .containsOne ]
-
-   -- this is the crucial step, modulo truncation we can take p to be generated
-   -- by the quotienting relation of localisation. Note that we wouldn't be able
-   -- to prove our goal if kerφ⊆annS was formulated with a Σ instead of a ∃
-   ∥r/1,1/1≈0/1,1/1∥ : ∃[ u ∈ S[g/1] ] fst u ·ᶠ r/1 ·ᶠ 1ᶠ ≡ fst u ·ᶠ 0ᶠ ·ᶠ 1ᶠ
-   ∥r/1,1/1≈0/1,1/1∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) p
-
-   helperR[1/f] : ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
-   helperR[1/f] = PT.rec isPropPropTrunc
-                  (uncurry (uncurry (powersPropElim R[1/f]AsCommRing
-                                    (λ _ → isPropΠ (λ _ → isPropPropTrunc)) baseCase)))
-                  ∥r/1,1/1≈0/1,1/1∥
-    where
-    baseCase : ∀ n → g/1 ^ᶠ n ·ᶠ r/1 ·ᶠ 1ᶠ ≡ g/1 ^ᶠ n ·ᶠ 0ᶠ ·ᶠ 1ᶠ
-                   → ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
-    baseCase n q = PT.∣ n , path ∣
-     where
-     path : [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
-     path = [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ]
-
-          ≡⟨ cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid _)))) ⟩
-
-            [ g ^ n , 1r , PT.∣ 0 , refl ∣ ] ·ᶠ r/1
-
-          ≡⟨ cong (_·ᶠ r/1) (^-respects-/1 _ n) ⟩
-
-            g/1 ^ᶠ n ·ᶠ r/1
-
-          ≡⟨ sym (·ᶠ-rid _) ⟩
-
-            g/1 ^ᶠ n ·ᶠ r/1 ·ᶠ 1ᶠ
-
-          ≡⟨ q ⟩
-
-            g/1 ^ᶠ n ·ᶠ 0ᶠ ·ᶠ 1ᶠ
-
-          ≡⟨ cong (_·ᶠ 1ᶠ) (0ᶠRightAnnihilates _) ∙ 0ᶠ-leftNullifies 1ᶠ ⟩
-
-            0ᶠ ∎
-
-
-   toGoal : ∃[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
-          → ∃[ u ∈ S[fg] ] fst u · r ≡ 0r
-   toGoal = PT.rec isPropPropTrunc Σhelper
-    where
-    Σhelper : Σ[ n ∈ ℕ ] [ g ^ n · r , 1r , PT.∣ 0 , refl ∣ ] ≡ 0ᶠ
-            → ∃[ u ∈ S[fg] ] fst u · r ≡ 0r
-    Σhelper (n , q) = PT.map Σhelper2 helperR
-     where
-     -- now, repeat the above strategy with q
-     ∥gⁿr≈0∥ : ∃[ u ∈ S[f] ] fst u · (g ^ n · r) · 1r ≡ fst u · 0r · 1r
-     ∥gⁿr≈0∥ = Iso.fun (SQ.isEquivRel→TruncIso (Loc.locIsEquivRel _ _ _) _ _) q
-
-     helperR : ∃[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
-     helperR = PT.rec isPropPropTrunc
-               (uncurry (uncurry (powersPropElim R'
-                                 (λ _ → isPropΠ (λ _ → isPropPropTrunc)) baseCase)))
-               ∥gⁿr≈0∥
-      where
-      baseCase : (m : ℕ) → f ^ m · (g ^ n · r) · 1r ≡ f ^ m · 0r · 1r
-               → ∃[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
-      baseCase m q' = PT.∣ m , path ∣
-       where
-       path : f ^ m · g ^ n · r ≡ 0r
-       path = (λ i → ·Rid (·Assoc (f ^ m) (g ^ n) r (~ i)) (~ i))
-            ∙∙ q' ∙∙ (λ i → ·Rid (0RightAnnihilates (f ^ m) i) i)
-
-     Σhelper2 : Σ[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
-              → Σ[ u ∈ S[fg] ] fst u · r ≡ 0r
-     Σhelper2 (m , q') = (((f · g) ^ l) , PT.∣ l , refl ∣) , path
-      where
-      l = max m n
-
-      path : (f · g) ^ l · r ≡ 0r
-      path = (f · g) ^ l · r
-
-           ≡⟨ cong (_· r) (^-ldist-· _ _ _) ⟩
-
-             f ^ l · g ^ l · r
-
-           ≡⟨ cong₂ (λ x y → f ^ x · g ^ y · r) (sym (≤-∸-+-cancel {m = m} left-≤-max))
-                                                (sym (≤-∸-+-cancel {m = n} right-≤-max)) ⟩
-
-             f ^ (l ∸ m +ℕ m) · g ^ (l ∸ n +ℕ n) · r
-
-           ≡⟨ cong₂ (λ x y → x · y · r) (sym (·-of-^-is-^-of-+ _ _ _))
-                                        (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
-
-             f ^ (l ∸ m) · f ^ m · (g ^ (l ∸ n) · g ^ n) · r
-
-           ≡⟨ cong (_· r) (·CommAssocSwap _ _ _ _) ⟩
-
-             f ^ (l ∸ m) · g ^ (l ∸ n) · (f ^ m · g ^ n) · r
-
-           ≡⟨ sym (·Assoc _ _ _) ⟩
-
-             f ^ (l ∸ m) · g ^ (l ∸ n) · (f ^ m · g ^ n · r)
-
-           ≡⟨ cong (f ^ (l ∸ m) · g ^ (l ∸ n) ·_) q' ⟩
-
-             f ^ (l ∸ m) · g ^ (l ∸ n) · 0r
-
-           ≡⟨ 0RightAnnihilates _ ⟩
-
-             0r ∎
-
-
-  surχ pathtoR[1/fg] = invElPropElim _ (λ _ → isPropPropTrunc) toGoal
-   where
-   open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
-                                               hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
-   open CommRingStr (snd R[1/f][1/g]AsCommRing) renaming (_·_ to _·R[1/f][1/g]_)
-                    hiding (1r ; ·Lid ; ·Rid ; ·Assoc)
-   open Units R[1/f][1/g]AsCommRing
-   g/1 : R[1/_] R' f
-   g/1 = [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
-   S[fg] = Loc.S R' ([_ⁿ|n≥0] R' (f · g)) (powersFormMultClosedSubset R' (f · g))
-
-   baseCase : (r : R) (m n : ℕ) → ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
-       ≡ [ [ r , f ^ m , PT.∣ m , refl ∣ ]
-         , [ g ^ n , 1r , PT.∣ 0 , refl ∣ ] , PT.∣ n , ^-respects-/1 _ n ∣ ]
-       ·R[1/f][1/g] (x .snd .fst /1/1)
-   baseCase r m n = PT.∣ ((r · f ^ (l ∸ m) · g ^ (l ∸ n)) -- x .fst
-               , (f · g) ^ l , PT.∣ l , refl ∣)      -- x .snd
-               , eq/ _ _ ((1ᶠ , PT.∣ 0 , refl ∣) , eq/ _ _ ((1r , PT.∣ 0 , refl ∣) , path)) ∣
-               -- reduce equality of double fractions into equality in R
-    where
-    eq1 : ∀ r flm gln gn fm
-        → 1r · (1r · (r · flm · gln) · (gn · 1r)) · (1r · (fm · 1r) · 1r)
-        ≡ r · flm · (gln · gn) · fm
-    eq1 = solve R'
-
-    eq2 : ∀ r flm gl fm → r · flm · gl · fm ≡  r · (flm · fm ) · gl
-    eq2 = solve R'
-
-    eq3 : ∀ r fgl → r · fgl ≡ 1r · (1r · (r · fgl) · 1r) · (1r · 1r · (1r · 1r))
-    eq3 = solve R'
-
-    l = max m n
-
-    path : 1r · (1r · (r · f ^ (l ∸ m) · g ^ (l ∸ n)) · (g ^ n · 1r)) · (1r · (f ^ m · 1r) · 1r)
-         ≡ 1r · (1r · (r · (f · g) ^ l) · 1r) · (1r · 1r · (1r · 1r))
-    path = 1r · (1r · (r · f ^ (l ∸ m) · g ^ (l ∸ n)) · (g ^ n · 1r)) · (1r · (f ^ m · 1r) · 1r)
-
-         ≡⟨ eq1 r  (f ^ (l ∸ m)) (g ^ (l ∸ n)) (g ^ n) (f ^ m) ⟩
-
-           r · f ^ (l ∸ m) · (g ^ (l ∸ n) · g ^ n) · f ^ m
-
-         ≡⟨ cong (λ x → r · f ^ (l ∸ m) · x · f ^ m) (·-of-^-is-^-of-+ _ _ _) ⟩
-
-           r · f ^ (l ∸ m) · g ^ (l ∸ n +ℕ n) · f ^ m
-
-         ≡⟨ cong (λ x → r · f ^ (l ∸ m) · g ^ x · f ^ m) (≤-∸-+-cancel right-≤-max) ⟩
-
-           r · f ^ (l ∸ m) · g ^ l · f ^ m
-
-         ≡⟨ eq2 r (f ^ (l ∸ m)) (g ^ l) (f ^ m) ⟩
-
-           r · (f ^ (l ∸ m) · f ^ m) · g ^ l
-
-         ≡⟨ cong (λ x → r · x · g ^ l) (·-of-^-is-^-of-+ _ _ _) ⟩
-
-           r · f ^ (l ∸ m +ℕ m) · g ^ l
-
-         ≡⟨ cong (λ x → r · f ^ x · g ^ l) (≤-∸-+-cancel left-≤-max) ⟩
-
-           r · f ^ l · g ^ l
-
-         ≡⟨ sym (·Assoc _ _ _) ⟩
-
-           r · (f ^ l · g ^ l)
-
-         ≡⟨ cong (r ·_) (sym (^-ldist-· _ _ _)) ⟩
-
-           r · (f · g) ^ l
-
-         ≡⟨ eq3 r ((f · g) ^ l) ⟩
-
-           1r · (1r · (r · (f · g) ^ l) · 1r) · (1r · 1r · (1r · 1r)) ∎
-
-
-   base-^ᶠ-helper : (r : R) (m n : ℕ) → ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
-       ≡ [ [ r , f ^ m , PT.∣ m , refl ∣ ]
-         , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
-   base-^ᶠ-helper r m n = subst (λ y →  ∃[ x ∈ R × S[fg] ] (x .fst /1/1)
-                          ≡ [ [ r , f ^ m , PT.∣ m , refl ∣ ] , y ] ·R[1/f][1/g] (x .snd .fst /1/1))
-                     (Σ≡Prop (λ _ → isPropPropTrunc) (^-respects-/1 _ n)) (baseCase r m n)
-
-   indStep : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
-         (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
-   indStep = invElPropElim _ (λ _ → isPropΠ λ _ → isPropPropTrunc) base-^ᶠ-helper
-
-   toGoal : (r : R[1/_] R' f) (n : ℕ) → ∃[ x ∈ R × S[fg] ]
-            (x .fst /1/1) ·R[1/f][1/g]
-            ((x .snd .fst /1/1) ⁻¹) ⦃ φS⊆Aˣ pathtoR[1/fg] (x .snd .fst) (x .snd .snd) ⦄
-          ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ]
-   toGoal r n = PT.map Σhelper (indStep r n)
-    where
-    Σhelper : Σ[ x ∈ R × S[fg] ]
-               (x .fst /1/1) ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ] ·R[1/f][1/g] (x .snd .fst /1/1)
-            → Σ[ x ∈ R × S[fg] ]
-               (x .fst /1/1) ·R[1/f][1/g] ((x .snd .fst /1/1) ⁻¹)
-               ⦃ φS⊆Aˣ pathtoR[1/fg] (x .snd .fst) (x .snd .snd) ⦄
-               ≡ [ r , g/1 ^ᶠ n , PT.∣ n , refl ∣ ]
-    Σhelper ((r' , s , s∈S[fg]) , p) = (r' , s , s∈S[fg])
-                                     , ⁻¹-eq-elim ⦃ φS⊆Aˣ pathtoR[1/fg] s s∈S[fg] ⦄ p
 
 
  -- In this module we construct the map R[1/fg]→R[1/f][1/g] directly
