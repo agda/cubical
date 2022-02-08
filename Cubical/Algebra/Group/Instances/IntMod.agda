@@ -75,18 +75,20 @@ snd Bool≅ℤ/2 =
 ℤ/2≅Bool : GroupIso (ℤ/ 2) BoolGroup
 ℤ/2≅Bool = invGroupIso Bool≅ℤ/2
 
+-- Definition of the quotient map homomorphism ℤ → ℤ/ (suc n)
+-- as a group homomorphism.
 ℤ→Fin : (n : ℕ) → ℤType → Fin (suc n)
 ℤ→Fin n (pos x) = x mod (suc n) , mod< n _
 ℤ→Fin n (negsuc x) = -ₘ (suc x mod suc n , mod< n (suc x))
 
-Z→Fin-presinv : (n : ℕ) (x : ℤType) → ℤ→Fin n (- x) ≡ -ₘ ℤ→Fin n x
-Z→Fin-presinv n (pos zero) =
+ℤ→Fin-presinv : (n : ℕ) (x : ℤType) → ℤ→Fin n (- x) ≡ -ₘ ℤ→Fin n x
+ℤ→Fin-presinv n (pos zero) =
   Σ≡Prop (λ _ → m≤n-isProp) ((λ _ → zero) ∙ sym (cong fst help))
   where
   help : (-ₘ_ {n = n} 0) ≡ 0
   help = GroupTheory.inv1g (ℤ/ (suc n))
-Z→Fin-presinv n (pos (suc x)) = Σ≡Prop (λ _ → m≤n-isProp) refl
-Z→Fin-presinv n (negsuc x) =
+ℤ→Fin-presinv n (pos (suc x)) = Σ≡Prop (λ _ → m≤n-isProp) refl
+ℤ→Fin-presinv n (negsuc x) =
   sym (GroupTheory.invInv (ℤ/ (suc n)) _)
 
 
@@ -156,7 +158,7 @@ isHomℤ→Fin n =
           ∙∙ +ₘ-comm _ _
       ; (negsuc x) (negsuc y) →
            sym (cong (ℤ→Fin n) (-Dist+ (pos (suc x)) (pos (suc y))))
-        ∙∙ Z→Fin-presinv n (pos (suc x) +ℤ (pos (suc y)))
+        ∙∙ ℤ→Fin-presinv n (pos (suc x) +ℤ (pos (suc y)))
         ∙∙ cong -ₘ_ (pos+case (suc x) (pos (suc y)))
         ∙∙ GroupTheory.invDistr (ℤ/ (suc n))
              (modInd n (suc x)
@@ -181,7 +183,8 @@ isHomℤ→Fin n =
   pos+case : (x : ℕ) (y : ℤType)
     → ℤ→Fin n (pos x +ℤ y) ≡ ℤ→Fin n (pos x) +ₘ ℤ→Fin n y
   pos+case zero y =
-    cong (ℤ→Fin n) (+Comm 0 y) ∙ sym (GroupStr.lid (snd (ℤ/ (suc n))) (ℤ→Fin n y))
+      cong (ℤ→Fin n) (+Comm 0 y)
+    ∙ sym (GroupStr.lid (snd (ℤ/ (suc n))) (ℤ→Fin n y))
   pos+case (suc zero) y = +1case y
   pos+case (suc (suc x)) y =
        cong (ℤ→Fin n) (cong (_+ℤ y) (+Comm (pos (suc x)) 1)

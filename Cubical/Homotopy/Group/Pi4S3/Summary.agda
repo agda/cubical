@@ -4,6 +4,8 @@ This file contains a summary of what remains for π₄(S³) ≡ ℤ/2ℤ to be p
 
 See the module π₄S³ at the end of this file.
 
+The --experimental-lossy-unification flag is used to speed up type checking.
+The file still type checks without it, but it's a lot slower.
 -}
 
 {-# OPTIONS --safe --experimental-lossy-unification #-}
@@ -20,12 +22,12 @@ open import Cubical.Data.Int renaming (ℤ to Int) hiding (_+_)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.SetTruncation
 
-open import Cubical.Homotopy.Group.Base hiding (π)
 open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.HopfInvariant.Homomorphism
 open import Cubical.Homotopy.HopfInvariant.HopfMap
 open import Cubical.Homotopy.HopfInvariant.Brunerie
 open import Cubical.Homotopy.Whitehead
+open import Cubical.Homotopy.Group.Base hiding (π)
 open import Cubical.Homotopy.Group.PinSn
 open import Cubical.Homotopy.Group.Pi3S2
 open import Cubical.Homotopy.Group.Pi4S3.BrunerieIso
@@ -54,7 +56,8 @@ private
 𝕊³ = S₊∙ 3
 
 -- Whitehead product
-[_]× : {X : Pointed ℓ} {n m : ℕ} → π' (suc n) X × π' (suc m) X → π' (suc (n + m)) X
+[_]× : {X : Pointed ℓ} {n m : ℕ}
+     → π' (suc n) X × π' (suc m) X → π' (suc (n + m)) X
 [_]× (f , g) = [ f ∣ g ]π'
 
 -- Some type abbreviations (unproved results)
@@ -113,3 +116,10 @@ Lemma₄ = Brunerie≡2
 {- And we are done -}
 π₄S³≡ℤ/2 : π 4 𝕊³ ≡ (ℤ/ 2)
 π₄S³≡ℤ/2 = π₄S³.π₄S³≡ℤ Lemma₁ Lemma₂ Lemma₃ Lemma₄
+
+{- For completeness: π₄S³≡Bool -}
+π₄S³≡Bool : π 4 𝕊³ ≡ Bool
+π₄S³≡Bool =
+    π₄S³≡ℤ/2
+  ∙ GroupPath _ _ .fst
+     (GroupIso→GroupEquiv ℤ/2≅Bool)

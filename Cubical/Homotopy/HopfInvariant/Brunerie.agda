@@ -98,40 +98,41 @@ abstract
       fun (fst (Hⁿ-Sⁿ≅ℤ 1)) (leftInv (fst H²-S²≅H⁴-S²×S²) ∣ f ∣₂ i)
 
 -- Some abbreviations
-inl' : S₊ 2 × S₊ 2 → Pushout⋁↪fold⋁ (S₊∙ 2)
-inl' = inl
+private
+  inl' : S₊ 2 × S₊ 2 → Pushout⋁↪fold⋁ (S₊∙ 2)
+  inl' = inl
 
-qHom : GroupHom (coHomGr 4 (Pushout⋁↪fold⋁ (S₊∙ 2)))
-                (coHomGr 4 (S₊ 2 × S₊ 2))
-qHom = coHomMorph 4 inl'
+  qHom : GroupHom (coHomGr 4 (Pushout⋁↪fold⋁ (S₊∙ 2)))
+                  (coHomGr 4 (S₊ 2 × S₊ 2))
+  qHom = coHomMorph 4 inl'
 
-qHomGen : (n : ℕ) →
-       GroupHom (coHomGr n (Pushout⋁↪fold⋁ (S₊∙ 2)))
-                (coHomGr n (S₊ 2 × S₊ 2))
-qHomGen n = coHomMorph n inl'
+  qHomGen : (n : ℕ) →
+         GroupHom (coHomGr n (Pushout⋁↪fold⋁ (S₊∙ 2)))
+                  (coHomGr n (S₊ 2 × S₊ 2))
+  qHomGen n = coHomMorph n inl'
 
 -- The type C and generator α, β in dim 2 and 4 respectively
 -- Recall, the goal is to prove that α ⌣ α = ±2 β
-CHopf : Type
-CHopf = HopfInvariantPush 0 fold∘W
+  CHopf : Type
+  CHopf = HopfInvariantPush 0 fold∘W
 
-Hopfαfold∘W = Hopfα 0 (fold∘W , refl)
-Hopfβfold∘W = Hopfβ 0 (fold∘W , refl)
+  Hopfαfold∘W = Hopfα 0 (fold∘W , refl)
+  Hopfβfold∘W = Hopfβ 0 (fold∘W , refl)
 
 -- Rewriting CHopf as our favourite pushout
 -- S²×S² ← S²∨S² → S²
-CHopfIso : Iso CHopf (Pushout⋁↪fold⋁ (S₊∙ 2))
-CHopfIso =
-  compIso (invIso (equivToIso
-    (compEquiv (compEquiv pushoutSwitchEquiv
-      (isoToEquiv (PushoutDistr.PushoutDistrIso fold⋁ W λ _ → tt)))
-          pushoutSwitchEquiv)))
-          (equivToIso Pushout-coFibW-fold⋁≃Pushout⋁↪fold⋁)
+  CHopfIso : Iso CHopf (Pushout⋁↪fold⋁ (S₊∙ 2))
+  CHopfIso =
+    compIso (invIso (equivToIso
+      (compEquiv (compEquiv pushoutSwitchEquiv
+        (isoToEquiv (PushoutDistr.PushoutDistrIso fold⋁ W λ _ → tt)))
+            pushoutSwitchEquiv)))
+            (equivToIso Pushout-coFibW-fold⋁≃Pushout⋁↪fold⋁)
 
 -- Cohomology group version of the Iso
-coHomCHopfIso : (n : ℕ)
-  → GroupIso (coHomGr n CHopf) (coHomGr n (Pushout⋁↪fold⋁ (S₊∙ 2)))
-coHomCHopfIso n = invGroupIso (coHomIso n CHopfIso)
+  coHomCHopfIso : (n : ℕ)
+    → GroupIso (coHomGr n CHopf) (coHomGr n (Pushout⋁↪fold⋁ (S₊∙ 2)))
+  coHomCHopfIso n = invGroupIso (coHomIso n CHopfIso)
 
 
 -- We instantiate Mayer-Vietoris for the pushout
@@ -380,13 +381,13 @@ module BrunerieNumLem
   main = ⊎→abs _ 2 main⊎
 
 -- We instantiate the module
-mainfold∘W : abs (HopfInvariant 0 (fold∘W , refl)) ≡ 2
-mainfold∘W = BrunerieNumLem.main (Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ-abs 1 1) Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ-⌣
+Brunerie'≡2 : abs (HopfInvariant 0 (fold∘W , refl)) ≡ 2
+Brunerie'≡2 = BrunerieNumLem.main (Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ-abs 1 1) Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ-⌣
 
 -- We rewrite the it slightly, to get the definition of the Brunerie
 -- number in Brunerie (2016)
-Whitehead≡ : [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π' ≡ ∣ fold∘W , refl ∣₂
-Whitehead≡ =
+Brunerie'≡Brunerie : [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π' ≡ ∣ fold∘W , refl ∣₂
+Brunerie'≡Brunerie =
     cong ∣_∣₂ ([]≡[]₂ (idfun∙ (S₊∙ 2)) (idfun∙ (S₊∙ 2)) )
   ∙ sym fold∘W≡Whitehead
   ∙ cong ∣_∣₂ (∘∙-idˡ (fold∘W , refl))
@@ -394,5 +395,5 @@ Whitehead≡ =
 -- And we get the main result
 Brunerie≡2 : Brunerie ≡ 2
 Brunerie≡2 =
-  cong abs (cong (HopfInvariant-π' 0) Whitehead≡)
-  ∙ mainfold∘W
+  cong abs (cong (HopfInvariant-π' 0) Brunerie'≡Brunerie)
+  ∙ Brunerie'≡2
