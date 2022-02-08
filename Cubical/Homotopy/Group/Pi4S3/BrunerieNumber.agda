@@ -1,7 +1,10 @@
-{- The goal of this file is to prove the iso π₄S³≅ℤ/n
-where n is a natural number (aka "the Brunerie number",
-defined below).  -}
+{-
 
+The goal of this file is to prove the iso π₄S³≅ℤ/β
+where β is a natural number (aka "the Brunerie number",
+defined below).
+
+-}
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.BrunerieNumber where
 
