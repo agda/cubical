@@ -83,3 +83,12 @@ snd (isContr-HⁿRed-Unit n) =
   sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ {(f , p) → cong ∣_∣₂ (ΣPathP (funExt (λ _ → sym p)
                                      , λ i j → p (~ i ∨ j)))}
+
+×rUnitCohomIso : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+  → GroupIso (×coHomGr (suc n) A Unit) (coHomGr (suc n) A)
+Iso.fun (fst (×rUnitCohomIso n)) = fst
+Iso.inv (fst (×rUnitCohomIso n)) x = x , 0ₕ (suc n)
+Iso.rightInv (fst (×rUnitCohomIso n)) _ = refl
+Iso.leftInv (fst (×rUnitCohomIso n)) x =
+  ΣPathP (refl , isContr→isProp (isContrHⁿ-Unit n) (0ₕ (suc n)) (snd x))
+snd (×rUnitCohomIso n) = makeIsGroupHom λ _ _ → refl

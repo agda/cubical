@@ -1,72 +1,72 @@
+{-
+The goal of this file is to prove the iso
+π₄S³≅ℤ/n where
+n a natural number (the Brunerie number, defined below).
+-}
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Homotopy.Group.Pi4S3.Tricky where
+module Cubical.Homotopy.Group.Pi4S3.BrunerieIso where
 
 open import Cubical.Homotopy.Loopspace
-
 open import Cubical.Homotopy.Group.Base
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Pointed.Homogeneous
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Isomorphism
-open Iso
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
-open import Cubical.Functions.Morphism
-
-open import Cubical.Data.Unit
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; rec2 to sRec2
-          ; elim to sElim ; elim2 to sElim2 ; elim3 to sElim3
-          ; map to sMap)
-open import Cubical.HITs.Sn
-open import Cubical.HITs.Susp renaming (toSusp to σ)
-open import Cubical.HITs.S1 hiding (decode ; encode)
-
-open import Cubical.Data.Sigma
-open import Cubical.Data.Nat
-open import Cubical.Data.Bool
-
-open import Cubical.Algebra.Group renaming (Unit to UnitGr ; Bool to BoolGr)
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Group.Exact
-open import Cubical.Algebra.Group.ZAction
-
-open import Cubical.HITs.Join
-open import Cubical.HITs.Pushout
-open import Cubical.HITs.Wedge
-open import Cubical.Homotopy.Freudenthal hiding (Code ; encode)
+open import Cubical.Homotopy.HopfInvariant.Base
+open import Cubical.Homotopy.Group.Pi3S2
+open import Cubical.Homotopy.Group.PinSn
+open import Cubical.Homotopy.BlakersMassey
+open import Cubical.Homotopy.Whitehead
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Group.LES
 open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2
 open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso
-open import Cubical.HITs.Truncation renaming
-  (rec to trRec ; elim to trElim ; elim2 to trElim2 ; map to trMap)
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
-open import Cubical.HITs.S2
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
-open import Cubical.Homotopy.BlakersMassey
-open import Cubical.Homotopy.Whitehead
+open import Cubical.Data.Unit
+open import Cubical.Data.Sigma
+open import Cubical.Data.Nat
+open import Cubical.Data.Int
+  renaming (ℤ to Z ; _·_ to _·Z_ ; _+_ to _+Z_)
 
-open import Cubical.Relation.Nullary
-
+open import Cubical.HITs.S1
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp
+open import Cubical.HITs.Wedge
+open import Cubical.HITs.Pushout
 open import Cubical.HITs.PropositionalTruncation
   renaming (rec to pRec ; elim to pElim ; map to pMap)
+open import Cubical.HITs.SetTruncation
+  renaming (rec to sRec ; rec2 to sRec2
+          ; elim to sElim ; elim2 to sElim2 ; elim3 to sElim3
+          ; map to sMap)
+open import Cubical.HITs.Truncation renaming
+  (rec to trRec ; elim to trElim ; elim2 to trElim2 ; map to trMap)
 
--- Move to Base
-≃∙→πEquiv : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
-        → (A ≃∙ B)
-        → (n : ℕ) → GroupEquiv (πGr n A) (πGr n B)
-fst (fst (≃∙→πEquiv e n)) = fst (πHom n (≃∙map e))
-snd (fst (≃∙→πEquiv e n)) =
-  isoToIsEquiv
-    (setTruncIso
-      (equivToIso (_ , isEquivΩ^→ (suc n) (≃∙map e) (snd (fst e)))))
-snd (≃∙→πEquiv e n) = snd (πHom n (≃∙map e))
+open import Cubical.Algebra.Group
+  renaming (Unit to UnitGr)
+open import Cubical.Algebra.Group.Exact
+open import Cubical.Algebra.Group.ZAction
+open import Cubical.Algebra.Group.Instances.IntMod
+
+open Iso
+
+-- the Brunerie number (from his thesis)
+Brunerie : ℕ
+Brunerie =
+  abs (HopfInvariant-π' 0  [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π')
+
+-- First we need to define the following maps.
+W : S₊ 3 → (S₊∙ 2 ⋁ S₊∙ 2)
+W = joinTo⋁ {A = S₊∙ 1} {B = S₊∙ 1}
+   ∘ Iso.inv (IsoSphereJoin 1 1)
+
+fold∘W : S₊ 3 → S₊ 2
+fold∘W = fold⋁ ∘ W
 
 open Exact4
 
@@ -107,23 +107,24 @@ compSurjective G→H H→L surj1 surj2 l =
         (surj1 h)})
     (surj2 l)
 
-
--- We start off with this horrendous but useful lemma for transporting
--- exact sequences
-transportExact4' : {ℓ ℓ' ℓ'' : Level}
-                   (G G₂ : Group ℓ) (H H₂ : Group ℓ') (L L₂ : Group ℓ'') (R : Group₀)
-                → (G≡G₂ : G ≡ G₂) → (H≡H₂ : H ≡ H₂) (L≡L₂ : L ≡ L₂) (Unit≡R : UnitGr ≡ R)
+-- We start off with this horrendous looking but useful lemma for
+-- transporting exact sequences
+transportExact4 : {ℓ ℓ' ℓ'' : Level}
+                   {G G₂ : Group ℓ} {H H₂ : Group ℓ'} {L L₂ : Group ℓ''} {R : Group₀}
+                   (G≡G₂ : G ≡ G₂) (H≡H₂ : H ≡ H₂) (L≡L₂ : L ≡ L₂)
+                → UnitGr ≡ R
                 → (G→H : GroupHom G H) (G₂→H₂ : GroupHom G₂ H₂)
-                → (H→L : GroupHom H L) (H₂→L₂ : GroupHom H₂ L₂)
-                → (L→R : GroupHom L R)
+                   (H→L : GroupHom H L) (H₂→L₂ : GroupHom H₂ L₂)
+                   (L→R : GroupHom L R)
                 → Exact4 G H L R G→H H→L L→R
                 → PathP (λ i → GroupHom (G≡G₂ i) (H≡H₂ i)) G→H G₂→H₂
                 → PathP (λ i → GroupHom (H≡H₂ i) (L≡L₂ i)) H→L H₂→L₂
                 → Exact4 G₂ H₂ L₂ UnitGr G₂→H₂ H₂→L₂ (→UnitHom L₂)
-transportExact4' G G₂ H H₂ L L₂ R =
-  J4 (λ G₂ H₂ L₂ R G≡G₂ H≡H₂ L≡L₂ Unit≡R → (G→H : GroupHom G H) (G₂→H₂ : GroupHom G₂ H₂)
-                → (H→L : GroupHom H L) (H₂→L₂ : GroupHom H₂ L₂)
-                → (L→R : GroupHom L R)
+transportExact4 {G = G} {G₂ = G₂} {H = H} {H₂ = H₂} {L = L} {L₂ = L₂} {R = R} =
+  J4 (λ G₂ H₂ L₂ R G≡G₂ H≡H₂ L≡L₂ Unit≡R
+                → (G→H : GroupHom G H) (G₂→H₂ : GroupHom G₂ H₂)
+                   (H→L : GroupHom H L) (H₂→L₂ : GroupHom H₂ L₂)
+                   (L→R : GroupHom L R)
                 → Exact4 G H L R G→H H→L L→R
                 → PathP (λ i → GroupHom (G≡G₂ i) (H≡H₂ i)) G→H G₂→H₂
                 → PathP (λ i → GroupHom (H≡H₂ i) (L≡L₂ i)) H→L H₂→L₂
@@ -133,87 +134,59 @@ transportExact4' G G₂ H H₂ L L₂ R =
                  pp1 pp2 (_ : tt ≡ x) (_ : tt ≡ x)
              → Exact4 G H L UnitGr G₂→H₂ H₂→L₂ (→UnitHom L))
                ex G₂→H₂ H₂→L₂ tt tt pp1 pp2 refl refl )
-      G₂ H₂ L₂ R 
+      G₂ H₂ L₂ R
   where
-  abstract
-    J4 : ∀ {ℓ ℓ₂ ℓ₃ ℓ₄ ℓ'} {A : Type ℓ}
-         {A₂ : Type ℓ₂} {A₃ : Type ℓ₃} {A₄ : Type ℓ₄}
-         {x : A} {x₂ : A₂} {x₃ : A₃} {x₄ : A₄}
-         (B : (y : A) (z : A₂) (w : A₃) (u : A₄)
-         → x ≡ y → x₂ ≡ z → x₃ ≡ w → x₄ ≡ u → Type ℓ')
-      → B x x₂ x₃ x₄ refl refl refl refl
-      → (y : A) (z : A₂) (w : A₃) (u : A₄)
-         (p : x ≡ y) (q : x₂ ≡ z) (r : x₃ ≡ w) (s : x₄ ≡ u)
-      → B y z w u p q r s
-    J4 {x = x} {x₂ = x₂} {x₃ = x₃} {x₄ = x₄} B b y z w u =
-      J (λ y p → (q : x₂ ≡ z) (r : x₃ ≡ w) (s : x₄ ≡ u) →
-        B y z w u p q r s)
-        (J (λ z q → (r : x₃ ≡ w) (s : x₄ ≡ u) → B x z w u refl q r s)
-          (J (λ w r → (s : x₄ ≡ u) → B x x₂ w u refl refl r s)
-            (J (λ u s → B x x₂ x₃ u refl refl refl s) b)))
+  J4 : ∀ {ℓ ℓ₂ ℓ₃ ℓ₄ ℓ'} {A : Type ℓ}
+       {A₂ : Type ℓ₂} {A₃ : Type ℓ₃} {A₄ : Type ℓ₄}
+       {x : A} {x₂ : A₂} {x₃ : A₃} {x₄ : A₄}
+       (B : (y : A) (z : A₂) (w : A₃) (u : A₄)
+       → x ≡ y → x₂ ≡ z → x₃ ≡ w → x₄ ≡ u → Type ℓ')
+    → B x x₂ x₃ x₄ refl refl refl refl
+    → (y : A) (z : A₂) (w : A₃) (u : A₄)
+       (p : x ≡ y) (q : x₂ ≡ z) (r : x₃ ≡ w) (s : x₄ ≡ u)
+    → B y z w u p q r s
+  J4 {x = x} {x₂ = x₂} {x₃ = x₃} {x₄ = x₄} B b y z w u =
+    J (λ y p → (q : x₂ ≡ z) (r : x₃ ≡ w) (s : x₄ ≡ u) →
+      B y z w u p q r s)
+      (J (λ z q → (r : x₃ ≡ w) (s : x₄ ≡ u) → B x z w u refl q r s)
+        (J (λ w r → (s : x₄ ≡ u) → B x x₂ w u refl refl r s)
+          (J (λ u s → B x x₂ x₃ u refl refl refl s) b)))
 
-transportExact4 : {ℓ ℓ' ℓ'' ℓ''' : Level}
-                  (G G₂ : Group ℓ) (H H₂ : Group ℓ') (L L₂ : Group ℓ'') (R R₂ : Group ℓ''')
-               → (G≡G₂ : G ≡ G₂) → (H≡H₂ : H ≡ H₂) (L≡L₂ : L ≡ L₂) (R≡R₂ : R ≡ R₂)
-               → (G→H : GroupHom G H) (G₂→H₂ : GroupHom G₂ H₂)
-               → (H→L : GroupHom H L) (H₂→L₂ : GroupHom H₂ L₂)
-               → (L→R : GroupHom L R)
-               → Exact4 G H L R G→H H→L L→R
-               → PathP (λ i → GroupHom (G≡G₂ i) (H≡H₂ i)) G→H G₂→H₂
-               → PathP (λ i → GroupHom (H≡H₂ i) (L≡L₂ i)) H→L H₂→L₂
-               → Σ[ L₂→R₂ ∈ GroupHom L₂ R₂ ]
-                   Exact4 G₂ H₂ L₂ R₂ G₂→H₂ H₂→L₂ L₂→R₂
-transportExact4 G G₂ H H₂ L L₂ R R₂ =
-  J4 (λ G₂ H₂ L₂ R₂ G≡G₂ H≡H₂ L≡L₂ R≡R₂
-    → (G→H : GroupHom G H) (G₂→H₂ : GroupHom G₂ H₂)
-               → (H→L : GroupHom H L) (H₂→L₂ : GroupHom H₂ L₂)
-               → (L→R : GroupHom L R)
-               → Exact4 G H L R G→H H→L L→R
-               → PathP (λ i → GroupHom (G≡G₂ i) (H≡H₂ i)) G→H G₂→H₂
-               → PathP (λ i → GroupHom (H≡H₂ i) (L≡L₂ i)) H→L H₂→L₂
-               → Σ[ L₂→R₂ ∈ GroupHom L₂ R₂ ]
-                   Exact4 G₂ H₂ L₂ R₂ G₂→H₂ H₂→L₂ L₂→R₂)
-     (λ G→H G₂→H₂ H→L H₂→L₂ L→R ex
-       → J (λ G₂→H₂ _
-          → H→L ≡ H₂→L₂
-          → Σ[ L→R ∈ GroupHom L R ]
-                   Exact4 G H L R G₂→H₂ H₂→L₂ L→R)
-       (J (λ H₂→L₂ _ → Σ[ L→R ∈ GroupHom L R ]
-                   Exact4 G H L R G→H H₂→L₂ L→R)
-          (L→R , ex)))
-     G₂ H₂ L₂ R₂
-  where
-  abstract
-    J4 : ∀ {ℓ ℓ₂ ℓ₃ ℓ₄ ℓ'} {A : Type ℓ}
-         {A₂ : Type ℓ₂} {A₃ : Type ℓ₃} {A₄ : Type ℓ₄}
-         {x : A} {x₂ : A₂} {x₃ : A₃} {x₄ : A₄}
-         (B : (y : A) (z : A₂) (w : A₃) (u : A₄)
-         → x ≡ y → x₂ ≡ z → x₃ ≡ w → x₄ ≡ u → Type ℓ')
-      → B x x₂ x₃ x₄ refl refl refl refl
-      → (y : A) (z : A₂) (w : A₃) (u : A₄)
-         (p : x ≡ y) (q : x₂ ≡ z) (r : x₃ ≡ w) (s : x₄ ≡ u)
-      → B y z w u p q r s
-    J4 {x = x} {x₂ = x₂} {x₃ = x₃} {x₄ = x₄} B b y z w u =
-      J (λ y p → (q : x₂ ≡ z) (r : x₃ ≡ w) (s : x₄ ≡ u) →
-        B y z w u p q r s)
-        (J (λ z q → (r : x₃ ≡ w) (s : x₄ ≡ u) → B x z w u refl q r s)
-          (J (λ w r → (s : x₄ ≡ u) → B x x₂ w u refl refl r s)
-            (J (λ u s → B x x₂ x₃ u refl refl refl s) b)))
 
--- check if exists. Move to unit otherwise?
-fibreUnitMap : ∀ {ℓ} {A : Type ℓ} → Iso (fiber (λ (a : A) → tt) tt) A
-fun fibreUnitMap (x , p) = x
-inv fibreUnitMap a = a , refl
-rightInv fibreUnitMap _ = refl
-leftInv fibreUnitMap _ = refl
+{-
+We will now instantiate Blakers Massey to get a square:
 
-W : S₊ 3 → (S₊∙ 2 ⋁ S₊∙ 2)
-W = joinTo⋁ {A = S₊∙ 1} {B = S₊∙ 1}
-   ∘ Iso.inv (IsoSphereJoin 1 1)
+         fold∘W
+ S³ --------------> S²
+ |\              ↗ |
+ |  \         ↗    |
+ |    \    ↗       |
+ |      X           |  inr
+ |    /             |
+ |   /              |
+ |  /               |
+ v /                v
+ 1 -----------> coFib fold∘W
+         inl
 
-fold∘W : S₊ 3 → S₊ 2
-fold∘W = fold⋁ ∘ W
+where X is the pullback of inl and inr and the map S³ → X is
+surjective on π₃. This will give us a sequence
+π₃ S³ --ᶠ→ π₃ S² → π₃ (coFib fold∘W) → π₂ X ≅ 0, where f is
+the function induced by fold∘W. From this, we can deduce that
+π₃ (coFib fold∘W) ≅ ℤ/ f(1) where f(1) is interpreted as an
+integer via the isos π₃ S³ ≅ π₃ S² ≅ ℤ
 
+(Recall that π₃(coFib fold∘W) ≅ π₄S³)
+
+For clarity:
+X, above will have two names (via a trivial iso) below:
+
+TotalPushoutPath× (the version the falls out of BM)
+P = fiber inr (Same name as in Brunerie's prop 4.3.4.)
+-}
+
+
+-- Before instantiating, we need to show that
 -- any map S³ → S² is 0-connected
 isConnectedS3→S2 : (f : S₊ 3 → S₊ 2) → isConnectedFun 2 f
 isConnectedS3→S2 f p =
@@ -235,8 +208,10 @@ isConnectedS3→S2 f p =
     (fun (PathIdTruncIso 2)
       (isContr→isProp (sphereConnected 2) ∣ f north ∣ ∣ p ∣))
 
+-- We get our square
 module BM-inst =
-  BlakersMassey□ (λ _ → tt) fold∘W 3 1
+  BlakersMassey□
+   (λ _ → tt) fold∘W 3 1
    (λ _ → subst (isConnected 4)
             (isoToPath (invIso fiberUnitIso))
             (sphereConnected 3))
@@ -267,7 +242,7 @@ private
   snd inr∙ = sym (push north)
 
   fiberinr'Iso' : Iso (fiber inr' (inl tt))
-                     (Σ (Unit × S₊ 2) PushoutPath×)
+                      (Σ (Unit × S₊ 2) PushoutPath×)
   fiberinr'Iso' =
     compIso (Σ-cong-iso-snd (λ x → symIso))
             (Σ-cong-iso-fst (invIso lUnit×Iso))
@@ -290,7 +265,7 @@ snd (fst (π'P→π'TotalPath× n)) = π'eqFunIsEquiv n _
 snd (π'P→π'TotalPath× n) = π'eqFunIsHom n _
 
 -- Time to invoke the long exact sequence of homotopy groups on
--- inr∙ : S² →∙ coFib-fold∘W∙
+-- inr : S² → coFib-fold∘W
 module LESinst = πLES {A = S₊∙ 2} {B = coFib-fold∘W∙} inr∙
 
 -- We instantiate the sequence
@@ -316,7 +291,7 @@ Exact4.KerL→R⊂ImH→L P→S²→Pushout = LESinst.Ker-B→fib⊂Im-A→B 1
 
 -- Step 1: π₂ P is trivial
 π₂P≅0 : GroupEquiv (πGr 1 P) UnitGr
-π₂P≅0 = compGroupEquiv (≃∙→πEquiv (isoToEquiv fiberinr'Iso , refl) 1)
+π₂P≅0 = compGroupEquiv (πIso (isoToEquiv fiberinr'Iso , refl) 1)
          (GroupIso→GroupEquiv
            (contrGroupIsoUnit
              (isOfHLevelRetractFromIso 0 (invIso iso₂) isContrπ₂S³)))
@@ -354,7 +329,7 @@ P→S²→Pushout→P' :
          (π'∘∙Hom 2 inr∙)
          (→UnitHom _)
 P→S²→Pushout→P' =
-  transportExact4' _ _  _ _ _ _ _
+  transportExact4
   (sym (GroupPath _ _ .fst ((GroupIso→GroupEquiv (π'Gr≅πGr 2 P)))))
   (sym (GroupPath _ _ .fst ((GroupIso→GroupEquiv (π'Gr≅πGr 2 (S₊∙ 2))))))
   (sym (GroupPath _ _ .fst ((GroupIso→GroupEquiv (π'Gr≅πGr 2 coFib-fold∘W∙)))))
@@ -446,8 +421,63 @@ S³→S²→Pushout→Unit =
             tripleComp≡
    S³→S²→Pushout→Unit''
 
+-- We need to throw around some pushouts
+module _ where
+  Pushout-coFibW-fold⋁≃coFib-fold∘W :
+    Pushout {B = (Pushout W (λ _ → tt))} inl fold⋁ ≃ fst coFib-fold∘W∙
+  Pushout-coFibW-fold⋁≃coFib-fold∘W = compEquiv
+          (compEquiv pushoutSwitchEquiv
+            (isoToEquiv (PushoutDistr.PushoutDistrIso fold⋁ W λ _ → tt)))
+          pushoutSwitchEquiv
 
-fold∘W≡Whitehead : fst (π'∘∙Hom 2 (fold∘W , refl)) ∣ idfun∙ (S₊∙ 3) ∣₂
+  coFibW≅coFibW' : Pushout W (λ _ → tt) ≃ cofibW S¹ S¹ base base
+  coFibW≅coFibW' = pushoutEquiv W (λ _ → tt) joinTo⋁ (λ _ → tt)
+           (isoToEquiv (invIso (IsoSphereJoin 1 1)))
+           (idEquiv _)
+           (idEquiv _)
+           refl
+           refl
+
+  Pushout-coFibW-fold⋁≃Pushout⋁↪fold⋁ :
+      Pushout {B = (Pushout W (λ _ → tt))} inl fold⋁
+    ≃ fst (Pushout⋁↪fold⋁∙ (S₊∙ 2))
+  Pushout-coFibW-fold⋁≃Pushout⋁↪fold⋁ = pushoutEquiv inl _ ⋁↪ fold⋁
+          (idEquiv _)
+          (compEquiv coFibW≅coFibW'
+            (isoToEquiv (invIso (Iso-Susp×Susp-cofibJoinTo⋁ S¹ S¹ base base))))
+          (idEquiv _)
+          (Susp×Susp→cofibW≡ S¹ S¹ base base)
+          refl
+
+  Pushout-coFibW-fold⋁≃Pushout⋁↪fold⋁∙ :
+       (Pushout {B = (Pushout W (λ _ → tt))} inl fold⋁ , inr north)
+    ≃∙ (Pushout⋁↪fold⋁∙ (S₊∙ 2))
+  fst Pushout-coFibW-fold⋁≃Pushout⋁↪fold⋁∙ =
+    Pushout-coFibW-fold⋁≃Pushout⋁↪fold⋁
+  snd Pushout-coFibW-fold⋁≃Pushout⋁↪fold⋁∙ =
+    sym (push (inl north))
+
+π₄S³≅π₃coFib-fold∘W∙ : GroupEquiv (π'Gr 3 (S₊∙ 3)) (π'Gr 2 coFib-fold∘W∙)
+π₄S³≅π₃coFib-fold∘W∙ =
+  compGroupEquiv
+    (GroupIso→GroupEquiv
+      (compGroupIso
+        (π'Gr≅πGr 3 (S₊∙ 3))
+        (compGroupIso
+          π₄S³≅π₃PushS²
+          (invGroupIso (π'Gr≅πGr 2 (Pushout⋁↪fold⋁∙ (S₊∙ 2)))))))
+    (compGroupEquiv
+      (invGroupEquiv (π'Iso 2 Pushout-coFibW-fold⋁≃Pushout⋁↪fold⋁∙))
+      (π'Iso 2 (Pushout-coFibW-fold⋁≃coFib-fold∘W , sym (push north))))
+
+-- We get the iso
+-- For type checking reasong, let's first prove it for the abstract
+-- definition of ℤ/_
+
+-- To get everything on the same form as in Brunerie's thesis, we
+-- first need the following:
+fold∘W≡Whitehead :
+        fst (π'∘∙Hom 2 (fold∘W , refl)) ∣ idfun∙ (S₊∙ 3) ∣₂
       ≡ ∣ [ idfun∙ (S₊∙ 2) ∣ idfun∙ (S₊∙ 2) ]₂ ∣₂
 fold∘W≡Whitehead =
   pRec (squash₂ _ _)
@@ -464,51 +494,33 @@ fold∘W≡Whitehead =
       (isConnectedPathP 1 {A = (λ i → p i (snd A) ≡ north)}
         (isConnectedPathSⁿ 1 (fst g (pt A)) north) (snd f) (snd g) .fst )
 
-open import Cubical.Algebra.Group.Instances.IntMod
-open import Cubical.Data.Int renaming (ℤ to Z ; _·_ to _·Z_ ; _+_ to _+Z_)
-open import Cubical.Homotopy.HopfInvariant.Base
-open import Cubical.Homotopy.HopfInvariant.HopfMap
-open import Cubical.Homotopy.HopfInvariant.Homomorphism
-open import Cubical.Homotopy.Group.Pi3S2
-open import Cubical.Homotopy.Group.PinSn
-
-
-π₄S³≅π₃coFib-fold∘W∙ : GroupEquiv (π'Gr 3 (S₊∙ 3)) (π'Gr 2 coFib-fold∘W∙)
-π₄S³≅π₃coFib-fold∘W∙ =
-  compGroupEquiv
-    (GroupIso→GroupEquiv
-      (compGroupIso
-        (π'Gr≅πGr 3 (S₊∙ 3))
-        (compGroupIso
-          π₄S³≅π₃PushS²
-          (invGroupIso (π'Gr≅πGr 2 (Pushout⋁↪fold⋁∙ (S₊∙ 2)))))))
-    (compGroupEquiv (invGroupEquiv (π'Iso 2 lem∙))
-      (π'Iso 2 (lem₂ , sym (push north))))
+BrunerieIsoAbstract : GroupEquiv (π'Gr 3 (S₊∙ 3)) (abstractℤ/ Brunerie)
+BrunerieIsoAbstract =
+  compGroupEquiv π₄S³≅π₃coFib-fold∘W∙
+    (invGroupEquiv
+      (GroupEquiv-abstractℤ/abs-gen
+        (π'Gr 2 (S₊∙ 3)) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙)
+          (GroupIso→GroupEquiv (invGroupIso (πₙ'Sⁿ≅ℤ 2)))
+          (invGroupEquiv hopfInvariantEquiv)
+          (π'∘∙Hom 2 (fold∘W , refl))
+          _
+          S³→S²→Pushout→Unit Brunerie main))
   where
-  lem₂ : Pushout {B = (Pushout W (λ _ → tt))} inl fold⋁ ≃ fst coFib-fold∘W∙
-  lem₂ = compEquiv
-          (compEquiv pushoutSwitchEquiv
-            (isoToEquiv (PushoutDistr.PushoutDistrIso fold⋁ W λ _ → tt)))
-          pushoutSwitchEquiv
+  mainPath :
+    fst (π'∘∙Hom 2 (fold∘W , refl))
+         (Iso.inv (fst (πₙ'Sⁿ≅ℤ 2)) 1)
+     ≡ [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π'
+  mainPath =
+      cong (fst (π'∘∙Hom 2 (fold∘W , refl)))
+           (cong (Iso.inv (fst (πₙ'Sⁿ≅ℤ 2))) (sym (πₙ'Sⁿ≅ℤ-idfun∙ 2))
+           ∙ (Iso.leftInv (fst (πₙ'Sⁿ≅ℤ 2)) ∣ idfun∙ (S₊∙ 3) ∣₂))
+    ∙ fold∘W≡Whitehead
+    ∙ cong ∣_∣₂ (sym ([]≡[]₂ (idfun∙ (S₊∙ 2)) (idfun∙ (S₊∙ 2))))
 
-  lem₁ : Pushout W (λ _ → tt) ≃ cofibW S¹ S¹ base base
-  lem₁ = pushoutEquiv W (λ _ → tt) joinTo⋁ (λ _ → tt)
-           (isoToEquiv (invIso (IsoSphereJoin 1 1)))
-           (idEquiv _)
-           (idEquiv _)
-           refl
-           refl
+  main : _ ≡ Brunerie
+  main i = abs (HopfInvariant-π' 0 (mainPath i))
 
-  lem : Pushout {B = (Pushout W (λ _ → tt))} inl fold⋁
-      ≃ fst (Pushout⋁↪fold⋁∙ (S₊∙ 2))
-  lem = pushoutEquiv inl _ ⋁↪ fold⋁
-          (idEquiv _)
-          (compEquiv lem₁ (isoToEquiv (invIso (Iso-Susp×Susp-cofibJoinTo⋁ S¹ S¹ base base))))
-          (idEquiv _)
-          (Susp×Susp→cofibW≡ S¹ S¹ base base)
-          refl
-
-  lem∙ : (Pushout {B = (Pushout W (λ _ → tt))} inl fold⋁ , inr north)
-       ≃∙ (Pushout⋁↪fold⋁∙ (S₊∙ 2))
-  fst lem∙ = lem
-  snd lem∙ = sym (push (inl north))
+-- And, finally, we get the actual iso
+BrunerieIso : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤ/ Brunerie)
+BrunerieIso =
+  compGroupEquiv BrunerieIsoAbstract (abstractℤ/≅ℤ Brunerie)

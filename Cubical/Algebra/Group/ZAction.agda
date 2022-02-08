@@ -670,3 +670,31 @@ GroupEquivℤ/abs-gen G H L =
       GroupEquiv
       (ℤ/ abs (invEq (fst r) (fst f 1))) L)
       λ f g ex → GroupIso→GroupEquiv (GroupIsoℤ/abs f L g ex))
+
+-- for type checking reasons, let's also do it with an abstract type
+abstract
+  abstractℤ/_ : ℕ → Group₀
+  abstractℤ/_ n = ℤ/ n
+
+  abstractℤ/≡ℤ : abstractℤ/_ ≡ ℤ/_
+  abstractℤ/≡ℤ = refl
+
+  abstractℤ/≅ℤ : (n : ℕ) → GroupEquiv (abstractℤ/ n) (ℤ/ n)
+  abstractℤ/≅ℤ n = idGroupEquiv
+
+GroupEquiv-abstractℤ/abs-gen : (G H L : Group₀)
+  → (e : GroupEquiv ℤGroup G)
+  → (r : GroupEquiv ℤGroup H)
+  → (f : GroupHom G H) (g : GroupHom H L)
+  → Exact4 G H L UnitGroup f g (→UnitHom L)
+  → (n : ℕ)
+  → abs (invEq (fst r) (fst f (fst (fst e) 1))) ≡ n
+  → GroupEquiv (abstractℤ/ n) L
+GroupEquiv-abstractℤ/abs-gen G H L e r f g ex n p = main
+  where
+  abstract
+    main : GroupEquiv (abstractℤ/ n) L
+    main =
+      transport (λ i
+               → GroupEquiv (abstractℤ/≡ℤ (~ i) (p i)) L)
+             (GroupEquivℤ/abs-gen G H L e r f g ex)

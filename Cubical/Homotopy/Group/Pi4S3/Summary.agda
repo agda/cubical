@@ -24,11 +24,12 @@ open import Cubical.Homotopy.Group.Base hiding (π)
 open import Cubical.Homotopy.HopfInvariant.Base
 open import Cubical.Homotopy.HopfInvariant.Homomorphism
 open import Cubical.Homotopy.HopfInvariant.HopfMap
-open import Cubical.Homotopy.HopfInvariant.Whitehead
+open import Cubical.Homotopy.HopfInvariant.Brunerie
 open import Cubical.Homotopy.Whitehead
 open import Cubical.Homotopy.Group.PinSn
 open import Cubical.Homotopy.Group.Pi3S2
-open import Cubical.Homotopy.Group.Pi4S3.Tricky
+open import Cubical.Homotopy.Group.Pi4S3.BrunerieIso
+  renaming (Brunerie to β)
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Instances.Bool
@@ -55,11 +56,6 @@ private
 -- Whitehead product
 [_]× : {X : Pointed ℓ} {n m : ℕ} → π' (suc n) X × π' (suc m) X → π' (suc (n + m)) X
 [_]× (f , g) = [ f ∣ g ]π'
-
--- the Brunerie number
-Brunerie : ℕ
-Brunerie =
-  abs (HopfInvariant-π' 0  [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π')
 
 -- Some type abbreviations (unproved results)
 π₄S³≡ℤ/something : GroupEquiv (π 3 𝕊²) ℤ → Type₁
@@ -98,51 +94,6 @@ module π₄S³
   π₄S³≡ℤ : π 4 𝕊³ ≡ ℤ/ 2
   π₄S³≡ℤ = π₄S³≡ℤ/whitehead ∙ cong (ℤ/_) remAbs₂
 
--- We will now instantiate the module.
--- The "actual" construction which pops out from the sequence
--- π₃S³→π₃S²→π₄S³→0
-Brunerie' : ℕ
-Brunerie' =
-  abs (HopfInvariant-π' 0
-       (fst (π'∘∙Hom 2 (fold∘W , refl))
-         (Iso.inv (fst (πₙ'Sⁿ≅ℤ 2)) 1)))
-
--- Of course, they are equal
-Brunerie'≡Brunerie : Brunerie' ≡ Brunerie
-Brunerie'≡Brunerie = λ i → abs (HopfInvariant-π' 0 (h i))
-  where
-  h : fst (π'∘∙Hom 2 (fold∘W , refl))
-         (Iso.inv (fst (πₙ'Sⁿ≅ℤ 2)) 1)
-     ≡ [ ∣ idfun∙ (S₊∙ 2) ∣₂ ∣ ∣ idfun∙ (S₊∙ 2) ∣₂ ]π'
-  h = cong (fst (π'∘∙Hom 2 (fold∘W , refl)))
-           (cong (Iso.inv (fst (πₙ'Sⁿ≅ℤ 2))) (sym (πₙ'Sⁿ≅ℤ-idfun∙ 2))
-           ∙ (Iso.leftInv (fst (πₙ'Sⁿ≅ℤ 2)) ∣ idfun∙ (S₊∙ 3) ∣₂))
-    ∙ fold∘W≡Whitehead
-    ∙ cong ∣_∣₂ (sym ([]≡[]₂ (idfun∙ (S₊∙ 2)) (idfun∙ (S₊∙ 2))))
-
--- And we get an iso π₄S³≅ℤ/nℤ for some n.
-BrunerieIso : GroupEquiv (π 4 𝕊³) (ℤ/ Brunerie)
-BrunerieIso =
-  transport (λ i → GroupEquiv (GroupPath _ _ .fst π₄S³≅π₃coFib-fold∘W∙ (~ i))
-            (ℤ/ Brunerie'≡Brunerie i))
-            BrunerieIso₁
-  where
-  BrunerieIso₁ :
-    GroupEquiv (π'Gr 2 coFib-fold∘W∙)
-               (ℤ/ Brunerie')
-  BrunerieIso₁ =
-    (invGroupEquiv
-      (GroupEquivℤ/abs-gen
-        (π'Gr 2 (S₊∙ 3)) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙)
-          (GroupIso→GroupEquiv (invGroupIso (πₙ'Sⁿ≅ℤ 2)))
-          (invGroupEquiv hopfInvariantEquiv)
-          (π'∘∙Hom 2 (fold∘W , refl))
-          _
-          S³→S²→Pushout→Unit))
-
-Brunerie≡2 : Brunerie ≡ 2
-Brunerie≡2 = HopfInvariantWhitehead
-
 {- Lemma 1 -}
 Lemma₁ : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤ
 Lemma₁ = hopfInvariantEquiv
@@ -156,7 +107,7 @@ Lemma₃ : π₄S³≡ℤ/something hopfInvariantEquiv
 Lemma₃ = GroupPath _ _  .fst BrunerieIso
 
 {- Lemma 4 -}
-Lemma₄ : Brunerie ≡ 2
+Lemma₄ : β ≡ 2
 Lemma₄ = Brunerie≡2
 
 {- And we are done -}
