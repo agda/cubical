@@ -409,23 +409,8 @@ module _ (ϕ : GroupEquiv ℤGroup ℤGroup) where
           (ℤEquivIsIdOr- g)
 
 -- A few consequences of the above lemmas
-
--Equivℤ : GroupEquiv ℤGroup ℤGroup
-fst -Equivℤ =
-  isoToEquiv
-    (iso (GroupStr.inv (snd ℤGroup))
-         (GroupStr.inv (snd ℤGroup))
-         (GroupTheory.invInv ℤGroup)
-         (GroupTheory.invInv ℤGroup))
-snd -Equivℤ =
-  makeIsGroupHom λ x y
-    → +Comm (pos 0) (- (x +ℤ y))
-    ∙ -Dist+ _ _
-    ∙ cong₂ _+ℤ_ (+Comm (- x) (pos 0)) (+Comm (- y) (pos 0))
-
 characℤ≅ℤ : (e : GroupEquiv ℤGroup ℤGroup)
-          → (e ≡ idGroupEquiv)
-           ⊎ (e ≡ -Equivℤ)
+          → (e ≡ idGroupEquiv) ⊎ (e ≡ negEquivℤ)
 characℤ≅ℤ e =
   ⊎-rec
     (λ p → inl (Σ≡Prop (λ _ → isPropIsGroupHom _ _)
@@ -504,7 +489,7 @@ characGroupHomℤ e =
     ∙ sym (·DistR+ (fst e 1) (pos (suc n)) 1)
 
 imℤHomSubGroup : (f : GroupHom ℤGroup ℤGroup) → NormalSubgroup ℤGroup
-imℤHomSubGroup f = imϕnormal f +Comm
+imℤHomSubGroup f = imNormalSubgroup f +Comm
 
 -- Equivalence between ℤ/ (abs (f 1)) and ℤ/ (im f) using the two different
 -- definitions of ℤ quotients. We start with the case f 1 ≥ 0.
@@ -600,7 +585,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
             (ℤHom→ℤ/im≅ℤ/im1 extendHom n (+Comm (pos 0) (- (fst f (pos 1))) ∙ cong -_ p)))
     where
     extendHom : GroupHom ℤGroup ℤGroup
-    extendHom = compGroupHom f (fst (fst -Equivℤ) , snd -Equivℤ)
+    extendHom = compGroupHom f (fst (fst negEquivℤ) , snd negEquivℤ)
 
     lem1 : imℤHomSubGroup f ≡ imℤHomSubGroup extendHom
     lem1 = Σ≡Prop (λ _ → isPropIsNormal _)
@@ -625,7 +610,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) (G : Group₀)
          (ex : Exact4 ℤGroup ℤGroup G UnitGroup f g (→UnitHom G)) where
 
   private
-    imf≡kerg : imℤHomSubGroup f ≡ kerϕ g
+    imf≡kerg : imℤHomSubGroup f ≡ kerNormalSubgroup g
     imf≡kerg =
       Σ≡Prop (λ _ → isPropIsNormal _)
         (Σ≡Prop (λ _ → isPropIsSubgroup _ _)
@@ -637,7 +622,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) (G : Group₀)
                 (ImG→H⊂KerH→L ex x)
                 (KerH→L⊂ImG→H ex x)))))
 
-  ℤ/im≅ℤ/ker : GroupIso (ℤGroup / imℤHomSubGroup f) (ℤGroup / kerϕ g)
+  ℤ/im≅ℤ/ker : GroupIso (ℤGroup / imℤHomSubGroup f) (ℤGroup / kerNormalSubgroup g)
   ℤ/im≅ℤ/ker =
     GroupEquiv→GroupIso (invEq (GroupPath _ _) (cong (ℤGroup /_) imf≡kerg))
 

@@ -48,6 +48,8 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Homotopy.Loopspace
 
+open Iso
+
 private
   ¬lem : (n m : ℕ) → ¬ suc (n + m) ≡ m
   ¬lem n zero = snotz
@@ -77,7 +79,7 @@ private
        → ¬ (n ≡ m)
        → ∥ f ≡ (λ _ → 0ₖ (suc n)) ∥
 ∥HⁿSᵐPath∥ n m f p =
-  Iso.fun PathIdTrunc₀Iso
+  fun PathIdTrunc₀Iso
     (isContr→isProp
       (isOfHLevelRetractFromIso 0 (fst (Hⁿ-Sᵐ≅0 n m p)) isContrUnit)
         ∣ f ∣₂ (0ₕ _))
@@ -88,13 +90,13 @@ private
                   (S₊ (suc n) × S₊ (suc m)))
               (coHomGr (suc (suc ((suc n) + m)))
                   (S₊ (suc (suc n)) × S₊ (suc m)))
-Iso.fun (fst (×leftSuspensionIso n m)) =
+fun (fst (×leftSuspensionIso n m)) =
   sMap (uncurry ∘ ↑Sⁿ×Sᵐ→Kₙ₊ₘ n m ∘ curry)
-Iso.inv (fst (×leftSuspensionIso n m)) =
+inv (fst (×leftSuspensionIso n m)) =
   sMap ((uncurry ∘ ↓Sⁿ×Sᵐ→Kₙ₊ₘ n m ∘ curry))
-Iso.rightInv (fst (×leftSuspensionIso n m)) =
+rightInv (fst (×leftSuspensionIso n m)) =
   sElim (λ _ → isSetPathImplicit)
-    λ f → Iso.inv PathIdTrunc₀Iso
+    λ f → inv PathIdTrunc₀Iso
       (pRec squash
         (uncurry (λ g p
           → pMap (λ gid → funExt λ {(x , y)
@@ -148,7 +150,7 @@ Iso.rightInv (fst (×leftSuspensionIso n m)) =
          → typ (Ω (coHomK-ptd (suc (suc (suc n + m))))))
        → ∥ (g (ptSn _)) ≡ (λ _ → refl) ∥
   ∥Path∥ g =
-      Iso.fun PathIdTrunc₀Iso
+      fun PathIdTrunc₀Iso
         (isContr→isProp
           (isOfHLevelRetractFromIso 0
             ((invIso (fst (coHom≅coHomΩ _ (S₊ (suc m))))))
@@ -170,7 +172,7 @@ Iso.rightInv (fst (×leftSuspensionIso n m)) =
                     (↓Sⁿ×Sᵐ→Kₙ₊ₘ n m (curry (charac-fun g))))
                      (merid a i , y))
       ≡ g a y
-    helper = (λ i → Iso.rightInv (Iso-Kn-ΩKn+1 _)
+    helper = (λ i → rightInv (Iso-Kn-ΩKn+1 _)
                   ((sym (rCancel≡refl _ i)
            ∙∙ cong-∙ (λ x → rUnitₖ _ (charac-fun g (x , y)) i)
                 (merid a) (sym (merid (ptSn (suc n)))) i
@@ -178,7 +180,7 @@ Iso.rightInv (fst (×leftSuspensionIso n m)) =
         ∙∙ sym (rUnit _)
         ∙∙ (cong (g a y ∙_) (cong sym (funExt⁻ gid y))
           ∙ sym (rUnit (g a y)))
-Iso.leftInv (fst (×leftSuspensionIso n m)) =
+leftInv (fst (×leftSuspensionIso n m)) =
   sElim (λ _ → isSetPathImplicit)
         λ f → pRec (squash₂ _ _)
           (λ id
@@ -195,7 +197,7 @@ Iso.leftInv (fst (×leftSuspensionIso n m)) =
                        (cong sym (cong (Kn→ΩKn+1 _)
                                   (funExt⁻ id y) ∙ (Kn→ΩKn+10ₖ _)))
                          ∙ sym (rUnit _))
-                ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f (x , y))})))
+                ∙ leftInv (Iso-Kn-ΩKn+1 _) (f (x , y))})))
           (∥HⁿSᵐPath∥ (suc n + m) m (λ x → f (ptSn _ , x))
             (¬lem n m))
 snd (×leftSuspensionIso n m) =
@@ -230,11 +232,11 @@ Hⁿ-Sⁿ→Hⁿ-S¹×Sⁿ m f x =
 Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ : (m : ℕ)
   → GroupIso (coHomGr (suc m) (S₊ (suc m)))
               (coHomGr (suc (suc m)) (S₊ (suc zero) × S₊ (suc m)))
-Iso.fun (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = sMap (uncurry ∘ Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m)
-Iso.inv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = sMap (Hⁿ-Sⁿ→Hⁿ-S¹×Sⁿ m ∘ curry)
-Iso.rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
+fun (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = sMap (uncurry ∘ Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m)
+inv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = sMap (Hⁿ-Sⁿ→Hⁿ-S¹×Sⁿ m ∘ curry)
+rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
   sElim (λ _ → isSetPathImplicit)
-    λ f → Iso.inv PathIdTrunc₀Iso
+    λ f → inv PathIdTrunc₀Iso
       (pMap (uncurry (λ g p
         → funExt λ {(x , y)
           → (λ i → uncurry
@@ -259,7 +261,7 @@ Iso.rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
     help : cong (λ x → Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m
                          (Hⁿ-Sⁿ→Hⁿ-S¹×Sⁿ m (curry (characFun g))) x y) loop
          ≡ Kn→ΩKn+1 _ (g y)
-    help = Iso.rightInv (Iso-Kn-ΩKn+1 (suc m))
+    help = rightInv (Iso-Kn-ΩKn+1 (suc m))
                  (sym (rCancelₖ _ (0ₖ _))
               ∙∙ ((λ i → Kn→ΩKn+1 _ (g y) i -ₖ 0ₖ _))
               ∙∙ rCancelₖ _ (0ₖ _))
@@ -284,7 +286,7 @@ Iso.rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
                                   ; (i = i1) → funExt⁻ p x j
                                   ; (j = i0) → f (loop i , x)
                                   ; (j = i1) →
-                                      Iso.rightInv (Iso-Kn-ΩKn+1 (suc m))
+                                      rightInv (Iso-Kn-ΩKn+1 (suc m))
                                         (sym (funExt⁻ p x)
                                         ∙∙ (λ i → f (loop i , x))
                                         ∙∙ funExt⁻ p x) (~ k) i})
@@ -293,7 +295,7 @@ Iso.rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
                             (λ i → f (loop i , x))
                             (funExt⁻ p x) j i)})
      (∥HⁿSᵐPath∥ (suc m) m (λ x → f (base , x)) (lem m))
-Iso.leftInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
+leftInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
   sElim (λ _ → isSetPathImplicit)
     λ f
       → cong ∣_∣₂ (funExt λ x
@@ -301,7 +303,7 @@ Iso.leftInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
                ((λ i → sym (rCancel≡refl _ i)
                  ∙∙ cong (λ z → rUnitₖ _ (Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m f z x) i) loop
                  ∙∙ rCancel≡refl _ i) ∙ sym (rUnit (Kn→ΩKn+1 (suc m) (f x))))
-        ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f x))
+        ∙ leftInv (Iso-Kn-ΩKn+1 _) (f x))
 snd (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m) =
   makeIsGroupHom
     (sElim2
@@ -323,7 +325,7 @@ Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ (suc n) m =
           (invGroupIso (×leftSuspensionIso n m))
             (Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ n m)
 
--- Proof that ⌣ respects generator for H²×H²→H⁴
+-- Proof that ⌣ respects generators for H²×H²→H⁴
 -- Todo: generalise
 
 H²-S²×S²-genₗ : coHom 2 (S₊ 2 × S₊ 2)
@@ -336,7 +338,7 @@ H²-S²≅H⁴-S²×S² : GroupIso (coHomGr 2 (S₊ 2)) (coHomGr 4 (S₊ 2 × S�
 H²-S²≅H⁴-S²×S² = (compGroupIso (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ 1) (×leftSuspensionIso 0 1))
 
 H²-S²≅H⁴-S²×S²⌣ :
-  Iso.fun (fst (H²-S²≅H⁴-S²×S²)) ∣ ∣_∣ₕ ∣₂ ≡ H²-S²×S²-genₗ ⌣ H²-S²×S²-genᵣ
+  fun (fst (H²-S²≅H⁴-S²×S²)) ∣ ∣_∣ₕ ∣₂ ≡ H²-S²×S²-genₗ ⌣ H²-S²×S²-genᵣ
 H²-S²≅H⁴-S²×S²⌣ =
   cong ∣_∣₂ (funExt (uncurry
     (λ { north y → refl

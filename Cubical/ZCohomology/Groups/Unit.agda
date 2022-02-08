@@ -78,10 +78,10 @@ rightInv (fst (Hⁿ-contrType≅0 n contr)) _ = refl
 leftInv (fst (Hⁿ-contrType≅0 {A = A} n contr)) _ = isOfHLevelSuc 0 helper _ _
   where
   helper : isContr (coHom (suc n) A)
-  helper = (Iso.inv (Hⁿ-contrTypeIso n contr) (0ₕ (suc n)))
-          , λ y →  cong (Iso.inv (Hⁿ-contrTypeIso n contr))
-                         (isOfHLevelSuc 0 (isContrHⁿ-Unit n) (0ₕ (suc n)) (Iso.fun (Hⁿ-contrTypeIso n contr) y))
-                  ∙ Iso.leftInv (Hⁿ-contrTypeIso n contr) y
+  helper = (inv (Hⁿ-contrTypeIso n contr) (0ₕ (suc n)))
+          , λ y →  cong (inv (Hⁿ-contrTypeIso n contr))
+                         (isOfHLevelSuc 0 (isContrHⁿ-Unit n) (0ₕ (suc n)) (fun (Hⁿ-contrTypeIso n contr) y))
+                  ∙ leftInv (Hⁿ-contrTypeIso n contr) y
 snd (Hⁿ-contrType≅0 n contr) = makeIsGroupHom λ _ _ → refl
 
 isContr-HⁿRed-Unit : (n : ℕ) → isContr (coHomRed n (Unit , tt))
@@ -93,9 +93,9 @@ snd (isContr-HⁿRed-Unit n) =
 
 ×rUnitCohomIso : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
   → GroupIso (×coHomGr (suc n) A Unit) (coHomGr (suc n) A)
-Iso.fun (fst (×rUnitCohomIso n)) = fst
-Iso.inv (fst (×rUnitCohomIso n)) x = x , 0ₕ (suc n)
-Iso.rightInv (fst (×rUnitCohomIso n)) _ = refl
-Iso.leftInv (fst (×rUnitCohomIso n)) x =
+fun (fst (×rUnitCohomIso n)) = fst
+inv (fst (×rUnitCohomIso n)) x = x , 0ₕ (suc n)
+rightInv (fst (×rUnitCohomIso n)) _ = refl
+leftInv (fst (×rUnitCohomIso n)) x =
   ΣPathP (refl , isContr→isProp (isContrHⁿ-Unit n) (0ₕ (suc n)) (snd x))
 snd (×rUnitCohomIso n) = makeIsGroupHom λ _ _ → refl

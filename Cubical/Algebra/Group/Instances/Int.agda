@@ -8,6 +8,7 @@ open import Cubical.Data.Int
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Properties
 
 open GroupStr
 
@@ -28,3 +29,16 @@ isGroup (snd ℤ) = isGroupℤ
 fst (ℤHom n) x = n ·ℤ x
 snd (ℤHom n) =
   makeIsGroupHom λ x y → ·DistR+ n x y
+
+negEquivℤ : GroupEquiv ℤ ℤ
+fst negEquivℤ =
+  isoToEquiv
+    (iso (GroupStr.inv (snd ℤ))
+         (GroupStr.inv (snd ℤ))
+         (GroupTheory.invInv ℤ)
+         (GroupTheory.invInv ℤ))
+snd negEquivℤ =
+  makeIsGroupHom λ x y
+    → +Comm (pos 0) (-ℤ (x +ℤ y))
+    ∙ -Dist+ x y
+    ∙ cong₂ _+ℤ_ (+Comm (-ℤ x) (pos 0)) (+Comm (-ℤ y) (pos 0))

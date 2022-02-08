@@ -96,7 +96,7 @@ any? {n = suc n} {P = P} P? =
     ... | inl x≡0 = inl (subst P (sym x≡0) Px)
     ... | inr (k , x≡sk) = inr (k , subst P (sym x≡sk) Px)
 
-FinPath : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (x ≡ (y , p))
-FinPath {n = n} x y p =
+FinPathℕ : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (x ≡ (y , p))
+FinPathℕ {n = n} x y p =
     ((fst (snd x)) , (cong (λ y → fst (snd x) + y) (cong suc (sym p)) ∙ snd (snd x)))
   , (Σ≡Prop (λ _ → m≤n-isProp) p)

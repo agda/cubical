@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Instances.IntMod where
 
 open import Cubical.Foundations.Prelude
@@ -78,7 +78,7 @@ snd Bool≅ℤ/2 =
 -- Definition of the quotient map homomorphism ℤ → ℤ/ (suc n)
 -- as a group homomorphism.
 ℤ→Fin : (n : ℕ) → ℤType → Fin (suc n)
-ℤ→Fin n (pos x) = x mod (suc n) , mod< n _
+ℤ→Fin n (pos x) = x mod (suc n) , mod< n x
 ℤ→Fin n (negsuc x) = -ₘ (suc x mod suc n , mod< n (suc x))
 
 ℤ→Fin-presinv : (n : ℕ) (x : ℤType) → ℤ→Fin n (- x) ≡ -ₘ ℤ→Fin n x
@@ -93,11 +93,11 @@ snd Bool≅ℤ/2 =
 
 
 -ₘ1-id : (n : ℕ)
-      → Path (Fin (suc n)) (-ₘ (1 mod (suc n) , mod< n _))
-                            (n mod (suc n) , mod< n _)
+      → Path (Fin (suc n)) (-ₘ (1 mod (suc n) , mod< n 1))
+                            (n mod (suc n) , mod< n n)
 -ₘ1-id zero = refl
 -ₘ1-id (suc n) =
-     cong -ₘ_ (FinPath ((1 mod suc (suc n)) , mod< (suc n) 1) 1
+     cong -ₘ_ (FinPathℕ ((1 mod suc (suc n)) , mod< (suc n) 1) 1
                 (modIndBase (suc n) 1 (n , +-comm n 2)) .snd)
    ∙ Σ≡Prop (λ _ → m≤n-isProp)
       ((+inductionBase (suc n) _
@@ -105,7 +105,7 @@ snd Bool≅ℤ/2 =
         (n , (+-comm n 2)))
 
 suc-ₘ1 : (n y : ℕ)
-  → ((suc y mod suc n) , mod< n (suc y)) -ₘ (1 mod (suc n) , mod< n _)
+  → ((suc y mod suc n) , mod< n (suc y)) -ₘ (1 mod (suc n) , mod< n 1)
    ≡ (y mod suc n , mod< n y)
 suc-ₘ1 zero y =
   isContr→isProp
@@ -123,7 +123,8 @@ suc-ₘ1 (suc n) y =
       ∙∙ (mod-rCancel (suc (suc n)) ((1 mod suc (suc n))
                                      +ℕ (y mod suc (suc n))) (suc n)
           ∙ cong (_mod (suc (suc n)))
-           (cong (_+ℕ (suc n mod suc (suc n))) (+-comm _ _)
+           (cong (_+ℕ (suc n mod suc (suc n)))
+                 (+-comm (1 mod suc (suc n)) (y mod suc (suc n)))
            ∙ sym (+-assoc (y mod suc (suc n))
                   (1 mod suc (suc n)) (suc n mod suc (suc n))))
       ∙∙ mod-rCancel (suc (suc n)) (y mod suc (suc n))
@@ -136,7 +137,7 @@ suc-ₘ1 (suc n) y =
        ∙ mod-idempotent y)))
 
 1-ₘsuc : (n y : ℕ)
-  →     ((1 mod (suc n) , mod< n _)
+  →     ((1 mod (suc n) , mod< n 1)
      +ₘ (-ₘ (((suc y mod suc n) , mod< n (suc y)))))
        ≡ -ₘ ((y mod suc n) , mod< n y)
 1-ₘsuc n y =
@@ -155,7 +156,7 @@ isHomℤ→Fin n =
       ; (negsuc x) (pos y) →
              cong (ℤ→Fin n) (+Comm (negsuc x) (pos y))
           ∙∙ pos+case y (negsuc x)
-          ∙∙ +ₘ-comm _ _
+          ∙∙ +ₘ-comm (ℤ→Fin n (pos y)) (ℤ→Fin n (negsuc x))
       ; (negsuc x) (negsuc y) →
            sym (cong (ℤ→Fin n) (-Dist+ (pos (suc x)) (pos (suc y))))
         ∙∙ ℤ→Fin-presinv n (pos (suc x) +ℤ (pos (suc y)))
@@ -163,7 +164,7 @@ isHomℤ→Fin n =
         ∙∙ GroupTheory.invDistr (ℤ/ (suc n))
              (modInd n (suc x)
             , mod< n (suc x)) (modInd n (suc y) , mod< n (suc y))
-        ∙∙ +ₘ-comm _ _}
+        ∙∙ +ₘ-comm (ℤ→Fin n (negsuc y)) (ℤ→Fin n (negsuc x))}
   where
   +1case :  (y : ℤType) → ℤ→Fin n (1 +ℤ y) ≡ ℤ→Fin n 1 +ₘ ℤ→Fin n y
   +1case (pos zero) = sym (GroupStr.rid (snd (ℤ/ (suc n))) _)
@@ -171,13 +172,14 @@ isHomℤ→Fin n =
        cong (ℤ→Fin n) (+Comm 1 (pos (suc y)))
      ∙ Σ≡Prop (λ _ → m≤n-isProp) (mod+mod≡mod (suc n) 1 (suc y))
   +1case (negsuc zero) =
-    Σ≡Prop (λ _ → m≤n-isProp) refl ∙ sym (GroupStr.invr (snd (ℤ/ (suc n))) _)
+      Σ≡Prop (λ _ → m≤n-isProp) refl
+    ∙ sym (GroupStr.invr (snd (ℤ/ (suc n))) (modInd n 1 , mod< n 1))
   +1case (negsuc (suc y)) =
     Σ≡Prop (λ _ → m≤n-isProp)
       (cong fst (cong (ℤ→Fin n) (+Comm 1 (negsuc (suc y))))
       ∙∙ cong fst (cong -ₘ_ (refl {x = suc y mod suc n , mod< n (suc y)}))
       ∙∙ cong fst (sym (1-ₘsuc n (suc y)))
-       ∙ λ i → fst ((1 mod (suc n) , mod< n _)
+       ∙ λ i → fst ((1 mod (suc n) , mod< n 1)
          +ₘ (-ₘ (((suc (suc y) mod suc n) , mod< n (suc (suc y)))))))
 
   pos+case : (x : ℕ) (y : ℤType)
@@ -193,6 +195,10 @@ isHomℤ→Fin n =
     ∙∙ (cong ((modInd n 1 , mod< n 1) +ₘ_) (pos+case (suc x) y)
      ∙∙ sym (+ₘ-assoc (modInd n 1 , mod< n 1)
               (modInd n (suc x) , mod< n (suc x)) (ℤ→Fin n y))
-     ∙∙ cong (_+ₘ ℤ→Fin n y)
-         (Σ≡Prop (λ _ → m≤n-isProp)
-                 (sym (mod+mod≡mod (suc n) 1 (suc x)))))
+     ∙∙ cong (_+ₘ ℤ→Fin n y) (lem x))
+    where
+    lem : (x : ℕ)
+      → (modInd n 1 , mod< n 1) +ₘ (modInd n (suc x) , mod< n (suc x))
+        ≡ ℤ→Fin n (pos (suc (suc x)))
+    lem x =
+      Σ≡Prop (λ _ → m≤n-isProp) (sym (mod+mod≡mod (suc n) 1 (suc x)))

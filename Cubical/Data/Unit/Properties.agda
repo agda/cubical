@@ -19,6 +19,8 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Reflection.StrictEquiv
 
+open Iso
+
 private
   variable
     ℓ ℓ' : Level
@@ -56,16 +58,16 @@ module _ (A : Unit → Type ℓ) where
   ΠUnit = isoToEquiv ΠUnitIso
 
 fiberUnitIso : {A : Type ℓ} → Iso (fiber (λ (a : A) → tt) tt) A
-Iso.fun fiberUnitIso = fst
-Iso.inv fiberUnitIso a = a , refl
-Iso.rightInv fiberUnitIso _ = refl
-Iso.leftInv fiberUnitIso _ = refl
+fun fiberUnitIso = fst
+inv fiberUnitIso a = a , refl
+rightInv fiberUnitIso _ = refl
+leftInv fiberUnitIso _ = refl
 
 isContr→Iso2 : {A : Type ℓ} {B : Type ℓ'} → isContr A → Iso (A → B) B
-Iso.fun (isContr→Iso2 iscontr) f = f (fst iscontr)
-Iso.inv (isContr→Iso2 iscontr) b _ = b
-Iso.rightInv (isContr→Iso2 iscontr) _ = refl
-Iso.leftInv (isContr→Iso2 iscontr) f = funExt λ x → cong f (snd iscontr x)
+fun (isContr→Iso2 iscontr) f = f (fst iscontr)
+inv (isContr→Iso2 iscontr) b _ = b
+rightInv (isContr→Iso2 iscontr) _ = refl
+leftInv (isContr→Iso2 iscontr) f = funExt λ x → cong f (snd iscontr x)
 
 diagonal-unit : Unit ≡ Unit × Unit
 diagonal-unit = isoToPath (iso (λ x → tt , tt) (λ x → tt) (λ {(tt , tt) i → tt , tt}) λ {tt i → tt})

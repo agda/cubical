@@ -10,7 +10,7 @@ closely, but, for simplicity, considers only the case n = 2.
 module Cubical.Homotopy.HopfInvariant.Brunerie where
 
 open import Cubical.Homotopy.HopfInvariant.Base
-open import Cubical.Homotopy.Group.Pi4S3.BrunerieIso
+open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber
 open import Cubical.Homotopy.Group.Pi4S3.S3PushoutIso
 open import Cubical.Homotopy.Whitehead
 
