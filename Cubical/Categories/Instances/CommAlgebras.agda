@@ -12,11 +12,14 @@ open import Cubical.Algebra.CommAlgebra
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Limits.Pullback
+open import Cubical.Categories.Instances.CommRings
 
 open import Cubical.HITs.PropositionalTruncation
 
 open Category
 open CommAlgebraHoms
+open Cospan
+open Pullback
 
 private
  variable
@@ -32,6 +35,76 @@ module _ (R : CommRing ℓ) where
   ⋆IdR CommAlgebrasCategory {A} {B}           = idCompCommAlgebraHom {A = A} {B}
   ⋆Assoc CommAlgebrasCategory {A} {B} {C} {D} = compAssocCommAlgebraHom {A = A} {B} {C} {D}
   isSetHom CommAlgebrasCategory               = isSetAlgebraHom _ _
+
+
+module PullbackFromCommRing (R : CommRing ℓ)
+                            (commRingCospan : Cospan (CommRingsCategory {ℓ = ℓ}))
+                            (commRingPB : Pullback _ commRingCospan)
+                            (f₁ : CommRingHom R (commRingPB .pbOb))
+                            (f₂ : CommRingHom R (commRingCospan .r))
+                            (f₃ : CommRingHom R (commRingCospan .l))
+                            (f₄ : CommRingHom R (commRingCospan .m))
+                            where
+
+ open CommAlgChar R
+ private
+  CommAlgCat = CommAlgebrasCategory {ℓ = ℓ} R {ℓ' = ℓ}
+
+  A = commRingPB .pbOb
+  B = commRingCospan .r
+  C = commRingCospan .l
+  D = commRingCospan .m
+
+  g₁ = commRingPB .pbPr₂
+  g₂ = commRingPB .pbPr₁
+  g₃ = commRingCospan .s₂
+  g₄ = commRingCospan .s₁
+
+  {-
+              g₁
+           A  →  B
+             ⌟
+        g₂ ↓     ↓ g₃
+
+           C  →  D
+              g₄
+  -}
+
+
+ algCospan : (isRHom₁ : isCommRingWithHomHom (A , f₁) (B , f₂) g₁)
+             (isRHom₂ : isCommRingWithHomHom (A , f₁) (C , f₃) g₂)
+             (isRHom₃ : isCommRingWithHomHom (B , f₂) (D , f₄) g₃)
+             (isRHom₄ : isCommRingWithHomHom (C , f₃) (D , f₄) g₄)
+           → Cospan CommAlgCat
+ l (algCospan isRHom₁ isRHom₂ isRHom₃ isRHom₄) = toCommAlg (C , f₃)
+ m (algCospan isRHom₁ isRHom₂ isRHom₃ isRHom₄) = toCommAlg (D , f₄)
+ r (algCospan isRHom₁ isRHom₂ isRHom₃ isRHom₄) = toCommAlg (B , f₂)
+ s₁ (algCospan isRHom₁ isRHom₂ isRHom₃ isRHom₄) = toCommAlgebraHom _ _ g₄ isRHom₄
+ s₂ (algCospan isRHom₁ isRHom₂ isRHom₃ isRHom₄) = toCommAlgebraHom _ _ g₃ isRHom₃
+
+
+ algPullback : (isRHom₁ : isCommRingWithHomHom (A , f₁) (B , f₂) g₁)
+               (isRHom₂ : isCommRingWithHomHom (A , f₁) (C , f₃) g₂)
+               (isRHom₃ : isCommRingWithHomHom (B , f₂) (D , f₄) g₃)
+               (isRHom₄ : isCommRingWithHomHom (C , f₃) (D , f₄) g₄)
+             → Pullback CommAlgCat (algCospan isRHom₁ isRHom₂ isRHom₃ isRHom₄)
+ pbOb (algPullback isRHom₁ isRHom₂ isRHom₃ isRHom₄) = toCommAlg (A , f₁)
+ pbPr₁ (algPullback isRHom₁ isRHom₂ isRHom₃ isRHom₄) = toCommAlgebraHom _ _ g₂ isRHom₂
+ pbPr₂ (algPullback isRHom₁ isRHom₂ isRHom₃ isRHom₄) = toCommAlgebraHom _ _ g₁ isRHom₁
+ pbCommutes (algPullback isRHom₁ isRHom₂ isRHom₃ isRHom₄) =
+               AlgebraHom≡ (cong fst (pbCommutes commRingPB))
+ univProp (algPullback isRHom₁ isRHom₂ isRHom₃ isRHom₄) {d = F} h₂ h₁ g₄∘h₂≡g₃∘h₁ = (k , {!!}) , {!!}
+  where
+  E = fromCommAlg F .fst
+  f₅ = fromCommAlg F .snd
+
+  -- l = CommRingHom E A
+  -- l = univProp (commRingPB
+
+  k : CommAlgebraHom F (toCommAlg (A , f₁))
+  k = {!!}
+
+
 
 
 module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
@@ -65,8 +138,6 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
 
 
  -- a big transport to help verifying the sheaf property
- open Cospan
- open Pullback
  module toSheaf {x y u v : ob ΣC∥P∥Cat}
                 {f : C [ v .fst , y . fst ]} {g : C [ v .fst , u .fst ]}
                 {h : C [ u .fst , x . fst ]} {k : C [ y .fst , x .fst ]}

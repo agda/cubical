@@ -141,6 +141,20 @@ module CommAlgChar (R : CommRing ℓ) where
                 fst h (fst f r) · fst h x ≡⟨ cong (λ φ → fst φ r · fst h x) commDiag ⟩
                 fst g r · fst h x ∎
 
+ fromCommAlgebraHom : (A B : CommAlgebra R ℓ) → CommAlgebraHom A B
+                    → CommRingWithHomHom (fromCommAlg A) (fromCommAlg B)
+ fst (fst (fromCommAlgebraHom A B f)) = fst f
+ pres0 (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres0 (snd f)
+ pres1 (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres1 (snd f)
+ pres+ (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres+ (snd f)
+ pres· (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres· (snd f)
+ pres- (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres- (snd f)
+ snd (fromCommAlgebraHom A B f) =
+  RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd f) x 1a ∙ cong (x ⋆_) (IsAlgebraHom.pres1 (snd f))))
+  where
+  open CommAlgebraStr (snd A) using (1a)
+  open CommAlgebraStr (snd B) using (_⋆_)
+
  isCommRingWithHomEquiv : (A B : CommRingWithHom) → CommRingEquiv (fst A) (fst B) → Type ℓ
  isCommRingWithHomEquiv A B e = isCommRingWithHomHom A B (RingEquiv→RingHom e)
 
