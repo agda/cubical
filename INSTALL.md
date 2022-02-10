@@ -1,7 +1,7 @@
 Installation of agda/cubical
 ============================
 
-The cubical library should compile with the latest official release version
+The cubical library should compile on the latest official release version
 of Agda:
 
 https://github.com/agda/agda
