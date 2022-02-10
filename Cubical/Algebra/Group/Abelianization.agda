@@ -185,15 +185,9 @@ module _ (G : Group ℓ) where
   asAbelianGroup = makeAbGroup 1Ab _·Ab_ invAb isset assocAb ridAb rinvAb commAb
 
 
-  {-
+{-
   universalPropertyAb : (H : AbGroup ℓ)
-                      → (f : fst G → fst H)
-                      → Abelianization → fst H
+                      → (f : GroupHom G H)
+                      → GroupHom Abelianization H
   universalPropertyAb H f = elimProp (λ x → {!   !}) (λ x → f x)
-
-  universalProperty2Ab : (H : AbGroup ℓ)
-                       → (f : fst G → fst H)
-                       → (pseudoUniversalPropertyAb : Abelianization → fst H)
-                       → pseudoUniversalPropertyAb ≡ (universalPropertyAb H f)
-  universalProperty2Ab H f pseudoUniversalPropertyAb = {!   !}
-  -}
+-}
