@@ -1,7 +1,7 @@
 A standard library for Cubical Agda
 ===================================
 
-This library compiles with the latest official release version of
+This library compiles with the latest official release of
 [Agda](https://github.com/agda/agda/). For detailed install
 instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
