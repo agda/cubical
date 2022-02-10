@@ -272,11 +272,11 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
 
     -- isomorphism follows from typeSectionIso
     ηIso : ∀ (sob : SliceCat .ob)
-          → isIsoC {C = SliceCat} (ηTrans ⟦ sob ⟧)
+          → isIsoC SliceCat (ηTrans ⟦ sob ⟧)
     ηIso sob@(sliceob ϕ) = sliceIso _ _ (FUNCTORIso _ _ _ isIsoCf)
       where
         isIsoCf : ∀ (c : C .ob)
-                → isIsoC (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
+                → isIsoC _ (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
         isIsoCf c = CatIso→isIso (Iso→CatIso (typeSectionIso {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧)))
 
 
@@ -370,11 +370,11 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                 eq'≡eq = snd (F ⟅ c ⟆) _ _ eq' eq
 
     εIso : ∀ (P : PreShv (∫ᴾ F) ℓS .ob)
-          → isIsoC {C = PreShv (∫ᴾ F) ℓS} (εTrans ⟦ P ⟧)
+          → isIsoC (PreShv (∫ᴾ F) ℓS) (εTrans ⟦ P ⟧)
     εIso P = FUNCTORIso _ _ _ isIsoC'
       where
         isIsoC' : ∀ (cx : (∫ᴾ F) .ob)
-                → isIsoC {C = SET _} ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
+                → isIsoC (SET _) ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
         isIsoC' cx@(c , _) = CatIso→isIso (Iso→CatIso (invIso (typeFiberIso {isSetA = snd (F ⟅ c ⟆)} _)))
 
 

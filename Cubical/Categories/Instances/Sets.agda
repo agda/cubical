@@ -5,9 +5,13 @@ module Cubical.Categories.Instances.Sets where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Data.Unit
+open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
+
+open import Cubical.Categories.Limits
 
 open Category
 
@@ -65,8 +69,24 @@ open Iso
 
 Iso→CatIso : ∀ {A B : (SET ℓ) .ob}
            → Iso (fst A) (fst B)
-           → CatIso {C = SET ℓ} A B
+           → CatIso (SET ℓ) A B
 Iso→CatIso is .mor = is .fun
 Iso→CatIso is .cInv = is .inv
 Iso→CatIso is .sec = funExt λ b → is .rightInv b -- is .rightInv
 Iso→CatIso is .ret = funExt λ b → is .leftInv b -- is .rightInv
+
+-- SET is complete
+
+open LimCone
+open Cone
+
+completeSET : ∀ {ℓJ ℓJ'} → Limits {ℓJ} {ℓJ'} (SET (ℓ-max ℓJ ℓJ'))
+lim (completeSET J D) = Cone D (Unit* , isOfHLevelLift 2 isSetUnit) , isSetCone D _
+coneOut (limCone (completeSET J D)) j e = coneOut e j tt*
+coneOutCommutes (limCone (completeSET J D)) j i e = coneOutCommutes e j i tt*
+univProp (completeSET J D) c cc =
+  uniqueExists
+    (λ x → cone (λ v _ → coneOut cc v x) (λ e i _ → coneOutCommutes cc e i x))
+    (λ _ → funExt (λ _ → refl))
+    (λ x → isPropIsConeMor cc (limCone (completeSET J D)) x)
+    (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))

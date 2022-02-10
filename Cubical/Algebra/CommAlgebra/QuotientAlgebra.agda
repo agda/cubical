@@ -12,7 +12,6 @@ open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
-open import Cubical.Algebra.RingSolver.ReflectionSolving
 
 private
   variable

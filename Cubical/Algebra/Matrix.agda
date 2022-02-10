@@ -302,7 +302,7 @@ module ProdFin (R' : CommRing ℓ) where
  ·Dist··Fin : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m)
             → ∀ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j ≡ (α ··Fin β) j · (U ··Fin V) j
  ·Dist··Fin {n = n} {m = m} α U β V = equivΠ e (equivHelper α U β V ) .fst
-                                                λ _ → ·-commAssocSwap _ _ _ _
+                                                λ _ → ·CommAssocSwap _ _ _ _
      where
      e = (FinProdChar.Equiv n m)
      equivHelper : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (a : Fin n × Fin m) →
