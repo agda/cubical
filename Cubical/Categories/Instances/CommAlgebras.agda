@@ -4,7 +4,11 @@ module Cubical.Categories.Instances.CommAlgebras where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.HLevels
 
+open import Cubical.Data.Sigma
+
+open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra
@@ -95,11 +99,44 @@ module PullbackFromCommRing (R : CommRing ℓ)
                AlgebraHom≡ (cong fst (pbCommutes commRingPB))
  univProp (algPullback isRHom₁ isRHom₂ isRHom₃ isRHom₄) {d = F} h₂ h₁ g₄∘h₂≡g₃∘h₁ = (k , {!!}) , {!!}
   where
+  open RingHoms
+  univPropCommRingWithHomHom : (E,f₅ : CommRingWithHom)
+                               (h₂ : CommRingWithHomHom E,f₅ (C , f₃))
+                               (h₁ : CommRingWithHomHom E,f₅ (B , f₂))
+                             → g₄ ∘r fst h₂ ≡ g₃ ∘r fst h₁
+                             → ∃![ h₃ ∈ CommRingWithHomHom E,f₅ (A , f₁) ]
+                                  (fst h₂ ≡ g₂ ∘r fst h₃) × (fst h₁ ≡ g₁ ∘r fst h₃)
+  univPropCommRingWithHomHom (E , f₅) (h₂ , comm₂) (h₁ , comm₁) squareComm =
+   ((h₃ , h₃∘f₅≡f₁) , h₂≡g₂∘h₃ , h₁≡g₁∘h₃) , λ h₃' → Σ≡Prop (λ _ → isProp× (isSetRingHom _ _ _ _) (isSetRingHom _ _ _ _))
+                                                       (Σ≡Prop (λ _ → isSetRingHom _ _ _ _)
+                                                         (cong fst (commRingPB .univProp h₂ h₁ squareComm .snd
+                                                           (h₃' .fst .fst , h₃' .snd .fst , h₃' .snd .snd))))
+   where
+   h₃ : CommRingHom E A
+   h₃ = commRingPB .univProp h₂ h₁ squareComm .fst .fst
+   h₂≡g₂∘h₃ : h₂ ≡ g₂ ∘r h₃
+   h₂≡g₂∘h₃ = commRingPB .univProp h₂ h₁ squareComm .fst .snd .fst
+   h₁≡g₁∘h₃ : h₁ ≡ g₁ ∘r h₃
+   h₁≡g₁∘h₃ = commRingPB .univProp h₂ h₁ squareComm .fst .snd .snd
+
+   -- the crucial obervation:
+   -- we can apply the universal property to maps R → A
+   fgSquare : g₄ ∘r f₃ ≡ g₃ ∘r f₂
+   fgSquare = isRHom₄ ∙ sym isRHom₃
+
+   h₃∘f₅≡f₁ : h₃ ∘r f₅ ≡ f₁
+   h₃∘f₅≡f₁ = cong fst (isContr→isProp (commRingPB .univProp f₃ f₂ fgSquare)
+                         (h₃ ∘r f₅ , triangle1 , triangle2) (f₁ , (sym isRHom₂) , sym isRHom₁))
+     where
+     triangle1 : f₃ ≡ g₂ ∘r (h₃ ∘r f₅)
+     triangle1 = sym comm₂ ∙∙ cong (compRingHom f₅) h₂≡g₂∘h₃ ∙∙ sym (compAssocRingHom f₅ h₃ g₂)
+
+     triangle2 : f₂ ≡ g₁ ∘r (h₃ ∘r f₅)
+     triangle2 = sym comm₁ ∙∙ cong (compRingHom f₅) h₁≡g₁∘h₃ ∙∙ sym (compAssocRingHom f₅ h₃ g₁)
+
+
   E = fromCommAlg F .fst
   f₅ = fromCommAlg F .snd
-
-  -- l = CommRingHom E A
-  -- l = univProp (commRingPB
 
   k : CommAlgebraHom F (toCommAlg (A , f₁))
   k = {!!}
