@@ -141,28 +141,28 @@ private
   ∣ℕ→∣-helper _ _ c _ (inl _) (inl _) .fst = pos c
   ∣ℕ→∣-helper m n c h (inl p) (inl q) .snd =
       (λ t → pos c · p t)
-    ∙ sym (pos· c (abs m))
+    ∙ sym (pos·pos c (abs m))
     ∙ cong pos h
     ∙ sym q
   ∣ℕ→∣-helper _ _ c _ (inl _) (inr _) .fst = - pos c
   ∣ℕ→∣-helper m n c h (inl p) (inr q) .snd =
       (λ t → - pos c · p t)
     ∙ sym (-DistL· (pos c) (pos (abs m)))
-    ∙ (λ t → - pos· c (abs m) (~ t))
+    ∙ (λ t → - pos·pos c (abs m) (~ t))
     ∙ cong (-_) (cong pos h)
     ∙ sym q
   ∣ℕ→∣-helper _ _ c _ (inr _) (inl _) .fst = - pos c
   ∣ℕ→∣-helper m n c h (inr p) (inl q) .snd =
       (λ t → - pos c · p t)
     ∙ sym (-DistLR· (pos c) (pos (abs m)))
-    ∙ sym (pos· c (abs m))
+    ∙ sym (pos·pos c (abs m))
     ∙ cong pos h
     ∙ sym q
   ∣ℕ→∣-helper _ _ c _ (inr _) (inr _) .fst = pos c
   ∣ℕ→∣-helper m n c h (inr p) (inr q) .snd =
       (λ t → pos c · p t)
     ∙ sym (-DistR· (pos c) (pos (abs m)))
-    ∙ (λ t → - pos· c (abs m) (~ t))
+    ∙ (λ t → - pos·pos c (abs m) (~ t))
     ∙ cong (-_) (cong pos h)
     ∙ sym q
 
@@ -363,7 +363,7 @@ quotRemPosPos m n _ .quotEq =
     (λ t → pos (≡remainder+quotient m n (~ t)))
   ∙ pos+ (remainder n / m) (m ·ℕ (quotient n / m))
   ∙ +Comm (pos (remainder n / m)) (pos (m ·ℕ (quotient n / m)))
-  ∙ (λ t → pos· m (quotient n / m) t + pos (remainder n / m))
+  ∙ (λ t → pos·pos m (quotient n / m) t + pos (remainder n / m))
   ∙ (λ t → ·Comm (pos m) (pos (quotient n / m)) t + pos (remainder n / m))
 quotRemPosPos 0       n ¬z .normIneq = Empty.rec (¬z refl)
 quotRemPosPos (suc m) n ¬z .normIneq = dec-helper (discreteℤ _ 0) (mod< m n)

@@ -371,11 +371,9 @@ pos- (suc m) (suc n) =
 
 -- multiplication
 
-pos· : ∀ n m → pos (n ·ℕ m) ≡ pos n · pos m
-pos· zero m = refl
-pos· (suc n) m =
-    pos+ m (n ·ℕ m)
-  ∙ (λ i → pos m + pos· n m i)
+pos·pos : (n m : ℕ) → pos (n ·ℕ m) ≡ pos n · pos m
+pos·pos zero m = refl
+pos·pos (suc n) m = pos+ m (n ·ℕ m) ∙ cong (pos m +_) (pos·pos n m)
 
 pos·negsuc : (n m : ℕ) → pos n · negsuc m ≡ - (pos n · pos (suc m))
 pos·negsuc zero m = refl
@@ -515,7 +513,7 @@ abs- (pos (suc n)) = refl
 abs- (negsuc n) = refl
 
 absPos·Pos : (m n : ℕ) → abs (pos m · pos n) ≡ abs (pos m) ·ℕ abs (pos n)
-absPos·Pos m n i = abs (pos· m n (~ i))
+absPos·Pos m n i = abs (pos·pos m n (~ i))
 
 abs· : (m n : ℤ) → abs (m · n) ≡ abs m ·ℕ abs n
 abs· (pos m) (pos n) = absPos·Pos m n
@@ -530,7 +528,7 @@ abs· (negsuc m) (negsuc n) = cong abs (negsuc·negsuc m n) ∙ absPos·Pos (suc
 isIntegralℤPosPos : (c m : ℕ) → pos c · pos m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
 isIntegralℤPosPos 0 m _ q = Empty.rec (q refl)
 isIntegralℤPosPos (suc c) m p _ =
-  sym (0≡n·sm→0≡n {n = m} {m = c} (sym (injPos (pos· (suc c) m ∙ p)) ∙ ·ℕ-comm (suc c) m))
+  sym (0≡n·sm→0≡n {n = m} {m = c} (sym (injPos (pos·pos (suc c) m ∙ p)) ∙ ·ℕ-comm (suc c) m))
 
 isIntegralℤ : (c m : ℤ) → c · m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
 isIntegralℤ (pos c) (pos m) p h i = pos (isIntegralℤPosPos c m p (λ r → h (cong pos r)) i)
