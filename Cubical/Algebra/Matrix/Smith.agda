@@ -224,4 +224,4 @@ smith {m = suc m} {n = suc n} M = helper (smithStep _)
           smithM = smithReduction _ _ (stepM .nonZero) (stepM .div) (smith sucM)
       in  simSmith (compSim (stepM .sim) (≡Sim (smithReduction-helper _ stepM))) smithM
 
--- TODO: The uniqueness of Smith normal form up to units.
+-- TODO: The uniqueness of Smith normal form up to unit multiplication.

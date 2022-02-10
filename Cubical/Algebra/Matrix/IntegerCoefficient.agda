@@ -220,7 +220,6 @@ reducePivot-helper M p (acc ind) _ (pivot zero (suc j) q) =
   in  simPivotReduced (helperM .improved .sim) reduceM
 reducePivot-helper M p (acc ind) cst (pivot (suc i) (suc j) q) =
   let swapM = swapFirstRow i M
-      --swapNorm    = subst (λ a → abs a < (suc N)) (sym (cst i) ∙ (swapM .swapEq zero)) h
       swapNonZero = (λ r → p (sym (cst i) ∙ (swapM .swapEq zero) ∙ r))
       swapDiv =
         (transport ((λ t → ¬ cst i (~ t) ∣ M (suc i) (suc j))
@@ -234,7 +233,6 @@ reducePivot-helper M p (acc ind) cst (pivot (suc i) (suc j) q) =
           (helperM .improved .sim .result)
           (helperM .improved .nonZero)
           (ind _ swapNorm)
-          --(<≤-trans (helperM .normIneq) (pred-≤-pred swapNorm))
           (helperM .improved .const) (findPivot _ _)
   in  simPivotReduced (compSim (swapM .sim) (helperM .improved .sim)) reduceM
 
