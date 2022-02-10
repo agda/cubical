@@ -12,6 +12,8 @@ open import Cubical.Homotopy.Group.LES
 open import Cubical.Homotopy.Group.PinSn
 open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.HopfInvariant.HopfMap
+open import Cubical.Homotopy.HopfInvariant.Base
+open import Cubical.Homotopy.HopfInvariant.Homomorphism
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
@@ -28,6 +30,7 @@ open import Cubical.HITs.S1
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
+open import Cubical.Data.Int hiding (ℤ)
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.ZAction
@@ -152,3 +155,13 @@ snd π'₃S²≅π'₃TotalHopf = snd (π'∘∙Hom 2 TotalHopf→∙S²)
   subst (gen₁-by (π'Gr 2 (S₊∙ 2)))
         (cong ∣_∣₂ (sym hopfMap≡HopfMap'))
         π₂S³-gen-by-HopfMap'
+
+-- As a consequence, we also get that the Hopf invariant determines
+-- an iso π₃S²≅ℤ
+hopfInvariantEquiv : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤ
+fst (fst hopfInvariantEquiv) = HopfInvariant-π' 0
+snd (fst hopfInvariantEquiv) =
+  GroupEquivℤ-isEquiv (invGroupEquiv π₃S²≅ℤ) ∣ HopfMap ∣₂
+                      π₂S³-gen-by-HopfMap (GroupHom-HopfInvariant-π' 0)
+                      (abs→⊎ _ _ HopfInvariant-HopfMap)
+snd hopfInvariantEquiv = snd (GroupHom-HopfInvariant-π' 0)

@@ -103,3 +103,35 @@ G / H = asGroup G (H .fst) (H .snd)
 
 [_]/G : {G : Group ℓ} {H : NormalSubgroup G} → ⟨ G ⟩ → ⟨ G / H ⟩
 [ x ]/G = [ x ]
+
+-- Quotienting by a trivial subgroup
+module _ {G' : Group ℓ} (H' : NormalSubgroup G')
+         (contrH : (x y : fst G') → _~_ G' (fst H') (snd H') x y → x ≡ y) where
+  private
+    -- open isSubgroup (snd H')
+    open GroupStr (snd G')
+    open GroupTheory G'
+    G = fst G'
+    G/H' = fst (G' / H')
+
+    Code : (g : G) → G/H' → hProp ℓ
+    Code g =
+      elim (λ _ → isSetHProp)
+        (λ a → (g ≡ a) , is-set _ _)
+        λ a b r → Σ≡Prop (λ _ → isPropIsProp) (cong (g ≡_) (contrH a b r))
+
+    decode : (g : G) (x : G/H') → [ g ] ≡ x → Code g x .fst
+    decode g x = J (λ x _ → Code g x .fst) refl
+
+  trivialRel→elimPath : {g h : G} → Path G/H' [ g ] [ h ] → g ≡ h
+  trivialRel→elimPath {g = g} {h = h} = decode g [ h ]
+
+  trivialRelIso : GroupIso G' (G' / H')
+  Iso.fun (fst trivialRelIso) g = [ g ]
+  Iso.inv (fst trivialRelIso) =
+    rec is-set (λ g → g) contrH
+  Iso.rightInv (fst trivialRelIso) =
+    elimProp (λ _ → squash/ _ _) λ _ → refl
+  Iso.leftInv (fst trivialRelIso) _ = refl
+  snd trivialRelIso =
+    makeIsGroupHom λ _ _ → refl

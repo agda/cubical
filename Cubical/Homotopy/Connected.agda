@@ -223,6 +223,51 @@ isConnectedCong' {x = x} n f conf p =
                     → doubleCompPath-filler (sym p) (cong f q) p i))
     (isConnectedCong n f conf)
 
+isConnectedΩ→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+  → (f : A →∙ B)
+  → isConnectedFun (suc n) (fst f)
+  → isConnectedFun n (fst (Ω→ f))
+isConnectedΩ→ n f g =
+  transport (λ i → isConnectedFun n λ b
+                 → doubleCompPath-filler (sym (snd f)) (cong (fst f) b) (snd f) i)
+            (isConnectedCong n _ g)
+
+isConnectedΩ^→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n m : ℕ)
+  → (f : A →∙ B)
+  → isConnectedFun (suc n) (fst f)
+  → isConnectedFun ((suc n) ∸ m) (fst (Ω^→ m f))
+isConnectedΩ^→ n zero f conf = conf
+isConnectedΩ^→ n (suc zero) f conf = isConnectedΩ→ n f conf
+isConnectedΩ^→ {A = A} {B = B} n (suc (suc m)) f conf =
+  transport (λ i → isConnectedFun (suc n ∸ suc (suc m))
+    λ q → doubleCompPath-filler
+            (sym (snd (Ω^→ (suc m) f)))
+            (cong (fst (Ω^→ (suc m) f)) q)
+            (snd (Ω^→ (suc m) f)) i)
+    (main n m (isConnectedΩ^→ n (suc m) f conf))
+  where
+  open import Cubical.Data.Sum
+  lem : (n m : ℕ) → ((suc n ∸ m ≡ suc (n ∸ m))) ⊎ (suc n ∸ suc m ≡ 0)
+  lem n zero = inl refl
+  lem zero (suc m) = inr refl
+  lem (suc n) (suc m) = lem n m
+
+  main : (n m : ℕ)
+      → isConnectedFun (suc n ∸ suc m) (fst (Ω^→ (suc m) f))
+      → isConnectedFun (suc n ∸ suc (suc m))
+          {A = Path ((Ω^ (suc m)) (_ , pt A) .fst)
+          refl refl}
+          (cong (fst (Ω^→ (suc m) f)))
+  main n m conf with (lem n (suc m))
+  ... | (inl x) =
+    isConnectedCong (n ∸ suc m) (fst (Ω^→ (suc m) f))
+      (subst (λ x → isConnectedFun x (fst (Ω^→ (suc m) f))) x conf)
+  ... | (inr x) =
+    subst (λ x → isConnectedFun x (cong {x = refl} {y = refl}
+                   (fst (Ω^→ (suc m) f))))
+      (sym x)
+      λ b → tt* , λ _ → refl
+
 isConnectedRetract : ∀ {ℓ ℓ'} (n : HLevel)
   {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) (g : B → A)
