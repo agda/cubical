@@ -8,6 +8,7 @@ open import Cubical.Data.Nat
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.SetTruncation
@@ -55,21 +56,106 @@ snd (Ω→ {A = A} {B = B} (f , p)) = ∙∙lCancel p
       })
     (g .fst (doubleCompPath-filler (sym (f .snd)) (cong (f .fst) p) (f .snd) k i))
 
+Ω→∘∙ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+  (g : B →∙ C) (f : A →∙ B)
+  → Ω→ (g ∘∙ f) ≡ (Ω→ g ∘∙ Ω→ f)
+Ω→∘∙ g f = →∙Homogeneous≡ (isHomogeneousPath _ _) (funExt (Ω→∘ g f))
+
+Ω→const : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+          → Ω→ {A = A} {B = B} ((λ _ → pt B) , refl) ≡ ((λ _ → refl) , refl)
+Ω→const = →∙Homogeneous≡ (isHomogeneousPath _ _) (funExt λ _ → sym (rUnit _))
+
 {- Ω→ is a homomorphism -}
-Ω→pres∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
+Ω→pres∙filler : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
         → (p q : typ (Ω A))
-        → fst (Ω→ f) (p ∙ q) ≡ fst (Ω→ f) p ∙ fst (Ω→ f) q
-Ω→pres∙ f p q i j =
-  hcomp
+        → I → I → I → fst B
+Ω→pres∙filler f p q i j k =
+  hfill
     (λ k → λ
-       { (i = i1) →
+       { (i = i0) → doubleCompPath-filler (sym (snd f)) (cong (fst f) (p ∙ q)) (snd f) k j
+        ; (i = i1) →
           (doubleCompPath-filler
             (sym (snd f)) (cong (fst f) p) (snd f) k
          ∙ doubleCompPath-filler
             (sym (snd f)) (cong (fst f) q) (snd f) k) j
        ; (j = i0) → snd f k
        ; (j = i1) → snd f k})
-    (cong-∙ (fst f) p q i j)
+    (inS (cong-∙ (fst f) p q i j))
+    k
+
+Ω→pres∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
+        → (p q : typ (Ω A))
+        → fst (Ω→ f) (p ∙ q) ≡ fst (Ω→ f) p ∙ fst (Ω→ f) q
+Ω→pres∙ f p q i j = Ω→pres∙filler f p q i j i1
+
+Ω→pres∙reflrefl : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
+                  → Ω→pres∙ {A = A} {B = B} f refl refl
+                   ≡ cong (fst (Ω→ f)) (sym (rUnit refl))
+                   ∙ snd (Ω→ f)
+                   ∙ rUnit _
+                   ∙ cong₂ _∙_ (sym (snd (Ω→ f))) (sym (snd (Ω→ f)))
+Ω→pres∙reflrefl {A = A} {B = B} =
+  →∙J (λ b₀ f → Ω→pres∙ {A = A} {B = (fst B , b₀)} f refl refl
+                   ≡ cong (fst (Ω→ f)) (sym (rUnit refl))
+                   ∙ snd (Ω→ f)
+                   ∙ rUnit _
+                   ∙ cong₂ _∙_ (sym (snd (Ω→ f))) (sym (snd (Ω→ f))))
+       λ f → lem f
+         ∙ cong (cong (fst (Ω→ (f , refl))) (sym (rUnit refl)) ∙_)
+                (((lUnit (cong₂ _∙_ (sym (snd (Ω→ (f , refl))))
+                                    (sym (snd (Ω→ (f , refl))))))
+                ∙ cong (_∙ (cong₂ _∙_ (sym (snd (Ω→ (f , refl))))
+                                      (sym (snd (Ω→ (f , refl))))))
+                   (sym (rCancel (snd (Ω→ (f , refl))))))
+                ∙ sym (assoc (snd (Ω→ (f , refl)))
+                  (sym (snd (Ω→ (f , refl))))
+                    (cong₂ _∙_ (sym (snd (Ω→ (f , refl))))
+                               (sym (snd (Ω→ (f , refl)))))))
+  where
+  lem : (f : fst A → fst B) → Ω→pres∙ (f , refl) (λ _ → snd A) (λ _ → snd A) ≡
+      (λ i → fst (Ω→ (f , refl)) (rUnit (λ _ → snd A) (~ i))) ∙
+      (λ i → snd (Ω→ (f , refl)) (~ i) ∙ snd (Ω→ (f , refl)) (~ i))
+  lem f k i j =
+    hcomp (λ r → λ { (i = i0) → doubleCompPath-filler
+                                   refl (cong f ((λ _ → pt A) ∙ refl)) refl (r ∨ k) j
+                    ; (i = i1) → (∙∙lCancel (λ _ → f (pt A)) (~ r)
+                                 ∙ ∙∙lCancel (λ _ → f (pt A)) (~ r)) j
+                    ; (j = i0) → f (snd A)
+                    ; (j = i1) → f (snd A)
+                    ; (k = i0) → Ω→pres∙filler {A = A} {B = fst B , f (pt A)}
+                                   (f , refl) refl refl i j r
+                    ; (k = i1) → compPath-filler
+                                   ((λ i → fst (Ω→ (f , refl))
+                                                (rUnit (λ _ → snd A) (~ i))))
+                                   ((λ i → snd (Ω→ (f , refl)) (~ i)
+                                          ∙ snd (Ω→ (f , refl)) (~ i))) r i j})
+     (hcomp (λ r → λ { (i = i0) → doubleCompPath-filler refl (cong f (rUnit (λ _ → pt A) r)) refl k j
+                    ; (i = i1) → rUnit (λ _ → f (pt A)) (r ∨ k) j
+                    ; (j = i0) → f (snd A)
+                    ; (j = i1) → f (snd A)
+                    ; (k = i0) → cong-∙∙-filler f (λ _ → pt A) (λ _ → pt A) (λ _ → pt A) r i j
+                    ; (k = i1) → fst (Ω→ (f , refl)) (rUnit (λ _ → snd A) (~ i ∧ r)) j})
+             (rUnit (λ _ → f (pt A)) k j))
+
+{- Ω^→ is homomorphism -}
+Ω^→pres∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
+        → (n : ℕ)
+        → (p q : typ ((Ω^ (suc n)) A))
+        → fst (Ω^→ (suc n) f) (p ∙ q)
+         ≡ fst (Ω^→ (suc n) f) p ∙ fst (Ω^→ (suc n) f) q
+Ω^→pres∙ {A = A} {B = B} f n p q = Ω→pres∙ (Ω^→ n f) p q
+
+Ω^→∘∙ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} (n : ℕ)
+  (g : B →∙ C) (f : A →∙ B)
+  → Ω^→ n (g ∘∙ f) ≡ (Ω^→ n g ∘∙ Ω^→ n f)
+Ω^→∘∙ zero g f = refl
+Ω^→∘∙ (suc n) g f = cong Ω→ (Ω^→∘∙ n g f) ∙ Ω→∘∙ (Ω^→ n g) (Ω^→ n f)
+
+Ω^→const : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+          → Ω^→ {A = A} {B = B} n ((λ _ → pt B) , refl)
+          ≡ ((λ _ → snd ((Ω^ n) B)) , refl)
+Ω^→const zero = refl
+Ω^→const (suc n) = cong Ω→ (Ω^→const n) ∙ Ω→const
 
 isEquivΩ→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
            → (f : (A →∙ B))
@@ -80,6 +166,39 @@ isEquivΩ→ {B = (B , b)} =
              → isEquiv (λ q → (λ i → y (~ i)) ∙∙ (λ i → f (q i)) ∙∙ y))
       λ eqf → subst isEquiv (funExt (rUnit ∘ cong f))
                      (isoToIsEquiv (congIso (equivToIso (f , eqf))))
+
+isEquivΩ^→ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+           → (f : A →∙ B)
+           → isEquiv (fst f)
+           → isEquiv (Ω^→ n f .fst)
+isEquivΩ^→ zero f iseq = iseq
+isEquivΩ^→ (suc n) f iseq = isEquivΩ→ (Ω^→ n f) (isEquivΩ^→ n f iseq)
+
+Ω≃∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+     → (e : A ≃∙ B)
+     → (Ω A) ≃∙ (Ω B)
+fst (fst (Ω≃∙ e)) = fst (Ω→ (fst (fst e) , snd e))
+snd (fst (Ω≃∙ e)) = isEquivΩ→ (fst (fst e) , snd e) (snd (fst e))
+snd (Ω≃∙ e) = snd (Ω→ (fst (fst e) , snd e))
+
+Ω≃∙pres∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+     → (e : A ≃∙ B)
+     → (p q : typ (Ω A))
+     → fst (fst (Ω≃∙ e)) (p ∙ q)
+     ≡ fst (fst (Ω≃∙ e)) p
+     ∙ fst (fst (Ω≃∙ e)) q
+Ω≃∙pres∙ e p q = Ω→pres∙ (fst (fst e) , snd e) p q
+
+Ω^≃∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+     → (e : A ≃∙ B)
+     → ((Ω^ n) A) ≃∙ ((Ω^ n) B)
+Ω^≃∙ zero e = e
+fst (fst (Ω^≃∙ (suc n) e)) =
+  fst (Ω→ (fst (fst (Ω^≃∙ n e)) , snd (Ω^≃∙ n e)))
+snd (fst (Ω^≃∙ (suc n) e)) =
+  isEquivΩ→ (fst (fst (Ω^≃∙ n e)) , snd (Ω^≃∙ n e)) (snd (fst (Ω^≃∙ n e)))
+snd (Ω^≃∙ (suc n) e) =
+  snd (Ω→ (fst (fst (Ω^≃∙ n e)) , snd (Ω^≃∙ n e)))
 
 ΩfunExtIso : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ')
   → Iso (typ (Ω (A →∙ B ∙))) (A →∙ Ω B)
