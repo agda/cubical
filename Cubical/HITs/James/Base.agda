@@ -64,3 +64,7 @@ map : {X : Pointed ℓ}{Y : Pointed ℓ'} → (X →∙ Y) → James X → James
 map f [] = []
 map f (x ∷ xs) = f .fst x ∷ map f xs
 map f (unit xs i) = (unit (map f xs) ∙ (λ i → f .snd (~ i) ∷ map f xs)) i
+
+map∙ : {X : Pointed ℓ}{Y : Pointed ℓ'} → (X →∙ Y) → James∙ X →∙ James∙ Y
+map∙ f .fst = map f
+map∙ f .snd = refl
