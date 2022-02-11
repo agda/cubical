@@ -1,0 +1,64 @@
+{-
+
+Basic properties of James construction
+
+This file contains:
+  - The equivalence "James X₊ ≃ List X" for type X,
+      where X₊ denotes the type formed by freely adjoining a point to X.
+
+-}
+{-# OPTIONS --safe #-}
+module Cubical.HITs.James.Properties where
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Pointed
+
+open import Cubical.Data.Maybe
+open import Cubical.Data.List
+
+open import Cubical.HITs.James.Base
+
+private
+  variable
+    ℓ : Level
+
+-- Freely adjoining a point
+_₊ : Type ℓ → Pointed ℓ
+X ₊ = Maybe X , nothing
+
+module _
+  (X : Type ℓ) where
+
+  private
+    X₊ = X ₊
+
+  J₊→List : James X₊ → List X
+  J₊→List [] = []
+  J₊→List (just x  ∷ xs) = x ∷ J₊→List xs
+  J₊→List (nothing ∷ xs) = J₊→List xs
+  J₊→List (unit xs i) = J₊→List xs
+
+  List→J₊ : List X → James X₊
+  List→J₊ [] = []
+  List→J₊ (x ∷ xs) = just x ∷ List→J₊ xs
+
+  List→J₊→List : (xs : List X) → J₊→List (List→J₊ xs) ≡ xs
+  List→J₊→List [] = refl
+  List→J₊→List (x ∷ xs) i = x ∷ List→J₊→List xs i
+
+  J₊→List→J₊ : (xs : James X₊) → List→J₊ (J₊→List xs) ≡ xs
+  J₊→List→J₊ [] = refl
+  J₊→List→J₊ (just x  ∷ xs) i = just x ∷ J₊→List→J₊ xs i
+  J₊→List→J₊ (nothing ∷ xs) = J₊→List→J₊ xs ∙ unit xs
+  J₊→List→J₊ (unit xs i) j =
+    hcomp (λ k → λ
+      { (i = i0) → J₊→List→J₊ xs j
+      ; (i = i1) → compPath-filler (J₊→List→J₊ xs) (unit xs) k j
+      ; (j = i0) → List→J₊ (J₊→List xs)
+      ; (j = i1) → unit xs (i ∧ k) })
+    (J₊→List→J₊ xs j)
+
+  J₊≃List : James X₊ ≃ List X
+  J₊≃List = isoToEquiv (iso J₊→List List→J₊ List→J₊→List J₊→List→J₊)

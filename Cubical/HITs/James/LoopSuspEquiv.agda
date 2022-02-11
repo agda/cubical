@@ -1,3 +1,10 @@
+{-
+
+This file contains:
+  - The equivalence "James X ≃ Ω Σ X" for any connected pointed type X.
+    (KANG Rongji, Feb. 2022)
+
+-}
 {-# OPTIONS --safe #-}
 module Cubical.HITs.James.LoopSuspEquiv where
 
@@ -15,7 +22,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Pushout.Flattening
 open import Cubical.HITs.Susp
 open import Cubical.HITs.James.Base
-  renaming (James to JamesContruction)
+  renaming (James to JamesContruction ; James∙ to JamesContruction∙)
 open import Cubical.HITs.Truncation
 
 open import Cubical.Homotopy.Connected
@@ -29,7 +36,8 @@ module _
   ((X , x₀) : Pointed ℓ) where
 
   private
-    James =  JamesContruction (X , x₀)
+    James  =  JamesContruction  (X , x₀)
+    James∙ =  JamesContruction∙ (X , x₀)
 
   Total : Type ℓ
   Total = Pushout {A = X × James} snd (λ (x , xs) → x ∷ xs)
@@ -83,7 +91,7 @@ module _
       { (i = i0) → compPath-filler' (pathL xs) (λ i → square1 x xs i i1) (~ j) (~ k)
       ; (i = i1) → doubleCompPath-filler (pathL (x ∷ xs)) (push (x₀ , x ∷ xs)) (λ i → inr (unit (x ∷ xs) (~ i))) k j
       ; (j = i0) → pathL (x ∷ xs) (~ k)
-      ; (j = i1) → square1 x xs (~ k) (~ i)  })
+      ; (j = i1) → square1 x xs (~ k) (~ i) })
     (push (x₀ , x ∷ xs) (i ∧ j))
 
   module _
@@ -124,5 +132,14 @@ module _
     isContrΣCode : isContr (Σ _ Code)
     isContrΣCode = isOfHLevelRespectEquiv _ ΣCode≃ isContrTotal
 
+    ΩΣ≃J : Ω (Susp∙ X) .fst ≃ James
+    ΩΣ≃J = recognizeId Code [] isContrΣCode _
+
+    ΩΣ≃∙J : Ω (Susp∙ X) ≃∙ James∙
+    ΩΣ≃∙J = ΩΣ≃J , refl
+
     J≃ΩΣ : James ≃ Ω (Susp∙ X) .fst
-    J≃ΩΣ = invEquiv (recognizeId Code [] isContrΣCode _)
+    J≃ΩΣ = invEquiv ΩΣ≃J
+
+    J≃∙ΩΣ : James∙ ≃∙ Ω (Susp∙ X)
+    J≃∙ΩΣ = invEquiv∙ ΩΣ≃∙J
