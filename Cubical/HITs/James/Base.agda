@@ -37,7 +37,7 @@ module _
   James∙ : Pointed ℓ
   James∙ = James , []
 
-  -- Basic operations on James construction, imitated those in Cubical.Data.List.Base
+  -- Basic operations on James construction, imitating those in Cubical.Data.List.Base
 
   [_] : X → James
   [ x ] = x ∷ []
