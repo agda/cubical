@@ -20,7 +20,7 @@ open import Cubical.Categories.Instances.CommRings
 
 open import Cubical.HITs.PropositionalTruncation
 
-open Category renaming (_⋆_ to _⋆c_)
+open Category hiding (_∘_) renaming (_⋆_ to _⋆c_)
 open CommAlgebraHoms
 open Cospan
 open Pullback
@@ -50,6 +50,7 @@ module PullbackFromCommRing (R : CommRing ℓ)
                             (f₄ : CommRingHom R (commRingCospan .m))
                             where
 
+ open AlgebraHoms
  open CommAlgChar R
  open CommAlgebraStr ⦃...⦄
 
@@ -87,11 +88,13 @@ module PullbackFromCommRing (R : CommRing ℓ)
                             → g₄ ∘r fst h₂ ≡ g₃ ∘r fst h₁
                             → ∃![ h₃ ∈ CommRingWithHomHom E,f₅ (A , f₁) ]
                                  (fst h₂ ≡ g₂ ∘r fst h₃) × (fst h₁ ≡ g₁ ∘r fst h₃)
- univPropCommRingWithHomHom isRHom₁ isRHom₂ isRHom₃ isRHom₄ (E , f₅) (h₂ , comm₂) (h₁ , comm₁) squareComm =
-  ((h₃ , h₃∘f₅≡f₁) , h₂≡g₂∘h₃ , h₁≡g₁∘h₃) , λ h₃' → Σ≡Prop (λ _ → isProp× (isSetRingHom _ _ _ _) (isSetRingHom _ _ _ _))
-                                                      (Σ≡Prop (λ _ → isSetRingHom _ _ _ _)
-                                                        (cong fst (commRingPB .univProp h₂ h₁ squareComm .snd
-                                                          (h₃' .fst .fst , h₃' .snd .fst , h₃' .snd .snd))))
+ univPropCommRingWithHomHom isRHom₁ isRHom₂ isRHom₃ isRHom₄
+                             (E , f₅) (h₂ , comm₂) (h₁ , comm₁) squareComm =
+    ((h₃ , h₃∘f₅≡f₁) , h₂≡g₂∘h₃ , h₁≡g₁∘h₃)
+  , λ h₃' → Σ≡Prop (λ _ → isProp× (isSetRingHom _ _ _ _) (isSetRingHom _ _ _ _))
+                     (Σ≡Prop (λ _ → isSetRingHom _ _ _ _)
+                       (cong fst (commRingPB .univProp h₂ h₁ squareComm .snd
+                         (h₃' .fst .fst , h₃' .snd .fst , h₃' .snd .snd))))
   where
   h₃ : CommRingHom E A
   h₃ = commRingPB .univProp h₂ h₁ squareComm .fst .fst
@@ -140,8 +143,7 @@ module PullbackFromCommRing (R : CommRing ℓ)
  pbCommutes (algPullback isRHom₁ isRHom₂ isRHom₃ isRHom₄) =
                AlgebraHom≡ (cong fst (pbCommutes commRingPB))
  univProp (algPullback isRHom₁ isRHom₂ isRHom₃ isRHom₄) {d = F} h₂' h₁' g₄∘h₂'≡g₃∘h₁' =
-  (k , AlgebraHom≡ (cong fst (uniqueH₃ .fst .snd .fst)) , AlgebraHom≡ (cong fst (uniqueH₃ .fst .snd .snd)))
-     , λ y → Σ≡Prop (λ _ → isProp× (isSetAlgebraHom _ _ _ _) (isSetAlgebraHom _ _ _ _)) (AlgebraHom≡ (funExt {!uniqueH₃ .snd!}))
+  (k , kComm₂ , kComm₁) , uniqueness
   where
   E = fromCommAlg F .fst
   f₅ = fromCommAlg F .snd
@@ -199,16 +201,59 @@ module PullbackFromCommRing (R : CommRing ℓ)
   IsAlgebraHom.pres+ (snd k) = IsRingHom.pres+ (snd h₃)
   IsAlgebraHom.pres· (snd k) = IsRingHom.pres· (snd h₃)
   IsAlgebraHom.pres- (snd k) = IsRingHom.pres- (snd h₃)
-  IsAlgebraHom.pres⋆ (snd k) = λ r y → sym (fst f₁ r · fst h₃ y ≡⟨ cong (_· fst h₃ y) (sym (funExt⁻ (cong fst h₃comm) r)) ⟩
-                                             fst h₃ (fst f₅ r) · fst h₃ y ≡⟨ sym (IsRingHom.pres· (snd h₃) _ _) ⟩
-                                             fst h₃ (fst f₅ r · y) ≡⟨ refl ⟩
-                                             fst h₃ ((r ⋆ 1a) · y) ≡⟨ cong (fst h₃) (⋆-lassoc _ _ _) ⟩
-                                             fst h₃ (r ⋆ (1a · y)) ≡⟨ cong (λ x → fst h₃ (r ⋆ x)) (·Lid y) ⟩
-                                             fst h₃ (r ⋆ y) ∎)
+  IsAlgebraHom.pres⋆ (snd k) =
+    λ r y → sym (fst f₁ r · fst h₃ y ≡⟨ cong (_· fst h₃ y) (sym (funExt⁻ (cong fst h₃comm) r)) ⟩
+                 fst h₃ (fst f₅ r) · fst h₃ y ≡⟨ sym (IsRingHom.pres· (snd h₃) _ _) ⟩
+                 fst h₃ (fst f₅ r · y) ≡⟨ refl ⟩
+                 fst h₃ ((r ⋆ 1a) · y) ≡⟨ cong (fst h₃) (⋆-lassoc _ _ _) ⟩
+                 fst h₃ (r ⋆ (1a · y)) ≡⟨ cong (λ x → fst h₃ (r ⋆ x)) (·Lid y) ⟩
+                 fst h₃ (r ⋆ y) ∎)
    where
    instance
     _ = snd F
     _ = (toCommAlg (A , f₁) .snd)
+
+  kComm₂ : h₂' ≡ toCommAlgebraHom _ _ g₂ isRHom₂ ∘a k
+  kComm₂ = AlgebraHom≡ (cong fst (uniqueH₃ .fst .snd .fst))
+
+  kComm₁ : h₁' ≡ toCommAlgebraHom _ _ g₁ isRHom₁ ∘a k
+  kComm₁ = AlgebraHom≡ (cong fst (uniqueH₃ .fst .snd .snd))
+
+  uniqueness : (y : Σ[ k' ∈ CommAlgebraHom F (toCommAlg (A , f₁)) ]
+                       (h₂' ≡ toCommAlgebraHom _ _ g₂ isRHom₂ ∘a k')
+                     × (h₁' ≡ toCommAlgebraHom _ _ g₁ isRHom₁ ∘a k'))
+             → (k , kComm₂ , kComm₁) ≡ y
+  uniqueness (k' , k'Comm₂ , k'Comm₁) = Σ≡Prop (λ _ → isProp× (isSetAlgebraHom _ _ _ _)
+                                                              (isSetAlgebraHom _ _ _ _))
+                                               (AlgebraHom≡ (cong (fst ∘ fst ∘ fst) uniqHelper))
+   where
+   h₃' : CommRingHom E A
+   fst h₃' = fst k'
+   IsRingHom.pres0 (snd h₃') = IsAlgebraHom.pres0 (snd k')
+   IsRingHom.pres1 (snd h₃') = IsAlgebraHom.pres1 (snd k')
+   IsRingHom.pres+ (snd h₃') = IsAlgebraHom.pres+ (snd k')
+   IsRingHom.pres· (snd h₃') = IsAlgebraHom.pres· (snd k')
+   IsRingHom.pres- (snd h₃') = IsAlgebraHom.pres- (snd k')
+
+   h₃'IsRHom : h₃' ∘r f₅ ≡ f₁
+   h₃'IsRHom = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd k') x 1a
+                                     ∙ cong (fst f₁ x ·_) (IsAlgebraHom.pres1 (snd k'))
+                                     ∙ ·Rid (fst f₁ x)))
+    where
+    instance
+     _ = snd F
+     _ = (toCommAlg (A , f₁) .snd)
+
+   h₃'Comm₂ : h₂ ≡ g₂ ∘r h₃'
+   h₃'Comm₂ = RingHom≡ (cong fst k'Comm₂)
+
+   h₃'Comm₁ : h₁ ≡ g₁ ∘r h₃'
+   h₃'Comm₁ = RingHom≡ (cong fst k'Comm₁)
+
+   -- basically saying that h₃≡h₃' but we have to give all the commuting triangles
+   uniqHelper : uniqueH₃ .fst ≡ ((h₃' , h₃'IsRHom) , h₃'Comm₂ , h₃'Comm₁)
+   uniqHelper = uniqueH₃ .snd ((h₃' , h₃'IsRHom) , h₃'Comm₂ , h₃'Comm₁)
+
 
 
 module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
