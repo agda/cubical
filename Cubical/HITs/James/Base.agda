@@ -25,39 +25,45 @@ module _
   ((X , x₀) : Pointed ℓ) where
 
   infixr 5 _∷_
-  infixr 5 _++_
-  infixl 5 _∷ʳ_
 
   -- The James Construction
+
   data James : Type ℓ where
-    [] : James
-    _∷_ : X → James → James
+    []   : James
+    _∷_  : X → James → James
     unit : (xs : James) → xs ≡ x₀ ∷ xs
 
   James∙ : Pointed ℓ
   James∙ = James , []
 
-  -- Basic operations on James construction, imitating those in Cubical.Data.List.Base
 
-  [_] : X → James
+-- Basic operations on James construction, imitating those in Cubical.Data.List.Base
+
+module _
+  {X∙@(X , x₀) : Pointed ℓ} where
+
+  infixr 5 _++_
+  infixl 5 _∷ʳ_
+
+  [_] : X → James X∙
   [ x ] = x ∷ []
 
-  _++_ : James → James → James
+  _++_ : James X∙ → James X∙ → James X∙
   [] ++ ys = ys
   (x ∷ xs) ++ ys = x ∷ xs ++ ys
   (unit xs i) ++ ys = unit (xs ++ ys) i
 
-  ++₀ : (xs : James) → xs ≡ xs ++ [ x₀ ]
+  ++₀ : (xs : James X∙) → xs ≡ xs ++ [ x₀ ]
   ++₀ [] = unit []
   ++₀ (x ∷ xs) i = x ∷ ++₀ xs i
   ++₀ (unit xs i) j = unit (++₀ xs j) i
 
-  rev : James → James
+  rev : James X∙ → James X∙
   rev [] = []
   rev (x ∷ xs) = rev xs ++ [ x ]
   rev (unit xs i) = ++₀ (rev xs) i
 
-  _∷ʳ_ : James → X → James
+  _∷ʳ_ : James X∙ → X → James X∙
   xs ∷ʳ x = xs ++ x ∷ []
 
 map : {X : Pointed ℓ}{Y : Pointed ℓ'} → (X →∙ Y) → James X → James Y

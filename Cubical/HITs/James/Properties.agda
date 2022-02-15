@@ -3,6 +3,8 @@
 Basic properties of James construction
 
 This file contains:
+  - The type James X has h-monoid structure, namely being a monoid after set truncation.
+
   - The equivalence "James X₊ ≃ List X" for type X,
       where X₊ denotes the type formed by freely adjoining a point to X.
 
@@ -16,7 +18,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Maybe
-open import Cubical.Data.List
+open import Cubical.Data.List hiding (_++_)
 
 open import Cubical.HITs.James.Base
 
@@ -24,7 +26,27 @@ private
   variable
     ℓ : Level
 
+-- The h-monoid structure on James X
+
+module _
+  (X∙@(X , x₀) : Pointed ℓ) where
+
+  ++lUnit : (xs : James X∙) → xs ≡ [] ++ xs
+  ++lUnit _ = refl
+
+  ++rUnit : (xs : James X∙) → xs ≡ xs ++ []
+  ++rUnit [] = refl
+  ++rUnit (x ∷ xs) t = x ∷ ++rUnit xs t
+  ++rUnit (unit xs i) t = unit (++rUnit xs t) i
+
+  ++Assoc :  (xs ys zs : James X∙) → (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
+  ++Assoc [] _ _ = refl
+  ++Assoc (x ∷ xs) ys zs t = x ∷ ++Assoc xs ys zs t
+  ++Assoc (unit xs i) ys zs t = unit (++Assoc xs ys zs t) i
+
+
 -- Freely adjoining a point
+
 _₊ : Type ℓ → Pointed ℓ
 X ₊ = Maybe X , nothing
 
