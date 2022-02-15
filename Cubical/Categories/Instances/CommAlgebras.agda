@@ -6,15 +6,18 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Instances.CommRings
 
@@ -40,6 +43,12 @@ module _ (R : CommRing ℓ) where
   ⋆Assoc CommAlgebrasCategory {A} {B} {C} {D} = compAssocCommAlgebraHom {A = A} {B} {C} {D}
   isSetHom CommAlgebrasCategory               = isSetAlgebraHom _ _
 
+  TerminalCommAlgebra : Terminal (CommAlgebrasCategory {ℓ' = ℓ'})
+  fst TerminalCommAlgebra = UnitCommAlgebra R
+  fst (fst (snd TerminalCommAlgebra A)) = λ _ → tt*
+  snd (fst (snd TerminalCommAlgebra A)) = makeIsAlgebraHom
+                                            refl (λ _ _ → refl) (λ _ _ → refl) (λ _ _ → refl)
+  snd (snd TerminalCommAlgebra A) f = AlgebraHom≡ (funExt (λ _ → refl))
 
 module PullbackFromCommRing (R : CommRing ℓ)
                             (commRingCospan : Cospan (CommRingsCategory {ℓ = ℓ}))

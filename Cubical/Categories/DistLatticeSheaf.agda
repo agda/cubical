@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Categories.DistLatticeSheaf where
 
 open import Cubical.Foundations.Prelude
@@ -44,8 +44,9 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   𝟙 : ob C
   𝟙 = terminalOb C T
 
-  DLCat : Category ℓ ℓ
-  DLCat = DistLatticeCategory L
+  private
+   DLCat : Category ℓ ℓ
+   DLCat = DistLatticeCategory L
 
   open Category DLCat
 
@@ -106,11 +107,11 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
 
  open DistLatticeStr ⦃...⦄
  open SemilatticeStr ⦃...⦄
- open PosetStr ⦃...⦄ hiding (_≤_)
  open IsBasis hB
 
  private
-  BasisCat = MeetSemilatticeCategory (Basis→MeetSemilattice L L' hB)
+  DLCat = DistLatticeCategory L
+  BasisCat = ΣPropCat  DLCat L' -- MeetSemilatticeCategory (Basis→MeetSemilattice L L' hB)
   DLBasisPreSheaf = Functor (BasisCat ^op) C
 
   -- to avoid writing 𝟙 L C T
@@ -124,28 +125,9 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
 
  module condSquare (x y : ob BasisCat) (x∨y∈L' : fst x ∨l fst y ∈ L') where
 
-  open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
-       using (∧≤RCancel ; ∧≤LCancel)
-  open MeetSemilattice (Basis→MeetSemilattice L L' hB)
-       using (IndPoset)
-
-  instance
-   _ = snd IndPoset
-
-  x∨y : ob BasisCat -- = Σ[ x ∈ L ] (x ∈ L')
-  x∨y = fst x ∨l fst y , x∨y∈L'
-
-  Bhom-∨₁ : BasisCat [ x , x∨y ]
-  Bhom-∨₁ = Σ≡Prop (λ _ → L' _ .snd) (∧lAbsorb∨l _ _)
-
-  Bhom-∨₂ : BasisCat [ y , x∨y ]
-  Bhom-∨₂ = Σ≡Prop (λ _ → L' _ .snd) (cong (fst y ∧l_) (∨lComm _ _) ∙ ∧lAbsorb∨l _ _)
-
-  Bhom-∧₁ : BasisCat [ x · y , x ]
-  Bhom-∧₁ = Σ≡Prop (λ _ → L' _ .snd) (∧≤RCancel _ _)
-
-  Bhom-∧₂ : BasisCat [ x · y , y ]
-  Bhom-∧₂ =  Σ≡Prop (λ _ → L' _ .snd) (∧≤LCancel _ _)
+  private
+   x∨y : ob BasisCat -- = Σ[ x ∈ L ] (x ∈ L')
+   x∨y = fst x ∨l fst y , x∨y∈L'
 
   {-
      x ∧ y ----→   y
@@ -153,9 +135,14 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
        |    sq     |
        V           V
        x   ----→ x ∨ y
+
+     but as a square in BasisCat
   -}
-  Bsq : Bhom-∧₂ ⋆⟨ BasisCat ⟩ Bhom-∨₂ ≡ Bhom-∧₁ ⋆⟨ BasisCat ⟩ Bhom-∨₁
-  Bsq = is-prop-valued (x · y) x∨y (Bhom-∧₂ ⋆⟨ BasisCat ⟩ Bhom-∨₂) (Bhom-∧₁ ⋆⟨ BasisCat ⟩ Bhom-∨₁)
+  Bsq : seq' BasisCat {x = x · y} {y = y} {z = x∨y} (hom-∧₂ L C T (fst x) (fst y))
+                                                    (hom-∨₂ L C T (fst x) (fst y))
+      ≡ seq' BasisCat {x = x · y} {y = x} {z = x∨y} (hom-∧₁ L C T (fst x) (fst y))
+                                                    (hom-∨₁ L C T (fst x) (fst y))
+  Bsq = sq L C T (fst x) (fst y)
 
   {-
     F(x ∨ y) ----→ F(y)
@@ -163,10 +150,16 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
        |     Fsq    |
        V            V
       F(x) ------→ F(x ∧ y)
+
+    square in C but now F is only presheaf on BasisCat
   -}
   BFsq : (F : DLBasisPreSheaf)
-       → F .F-hom Bhom-∨₂ ⋆⟨ C ⟩ F .F-hom Bhom-∧₂ ≡
-         F .F-hom Bhom-∨₁ ⋆⟨ C ⟩ F .F-hom Bhom-∧₁
+       → seq' C {x = F .F-ob x∨y} {y = F .F-ob y} {z = F .F-ob (x · y)}
+                (F .F-hom (hom-∨₂ L C T (fst x) (fst y)))
+                (F .F-hom (hom-∧₂ L C T (fst x) (fst y)))
+       ≡ seq' C {x = F .F-ob x∨y} {y = F .F-ob x} {z = F .F-ob (x · y)}
+                (F .F-hom (hom-∨₁ L C T (fst x) (fst y)))
+                (F .F-hom (hom-∧₁ L C T (fst x) (fst y)))
   BFsq F = F-square F Bsq
 
 

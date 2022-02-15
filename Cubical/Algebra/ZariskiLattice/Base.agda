@@ -40,6 +40,7 @@ open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
+open import Cubical.Algebra.CommAlgebra.Unit
 open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
@@ -53,6 +54,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.CommAlgebras
 open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.Semilattice
+open import Cubical.Categories.DistLatticeSheaf
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -583,3 +585,39 @@ module BasicOpens (R' : CommRing ℓ) where
 
    f∈√⟨g⟩ : f ∈ √ ⟨ replicateFinVec 1 g ⟩
    f∈√⟨g⟩ = subst (f ∈_) radicalHelper (∈→∈√ _ _ (indInIdeal _ _ zero))
+
+
+ -- now prove the sheaf properties
+ open SheafOnBasis ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ})
+                   (TerminalCommAlgebra R') BasicOpens basicOpensAreBasis
+
+ isSheafBasisStructurePShf : isDLBasisSheaf BasisStructurePShf
+ fst isSheafBasisStructurePShf 0∈BO =
+   transport (λ i → F-ob (0z , canonical0∈BO≡0∈BO i) ≡ UnitCommAlgebra R') R[1/0]≡0
+   where
+   open Functor ⦃...⦄
+   instance
+    _ = BasisStructurePShf
+
+   canonical0∈BO : 0z ∈ₚ BasicOpens
+   canonical0∈BO = ∣ 0r , isZarMapD .pres0 ∣
+
+   canonical0∈BO≡0∈BO : canonical0∈BO ≡ 0∈BO
+   canonical0∈BO≡0∈BO = BasicOpens 0z .snd _ _
+
+   R[1/0]≡0 : R[1/ 0r ]AsCommAlgebra ≡ UnitCommAlgebra R'
+   R[1/0]≡0 = uaCommAlgebra ((fst terminalHom , terminalEquiv) , snd terminalHom)
+    where
+    isContrR[1/0] : isContr (fst R[1/ 0r ]AsCommAlgebra)
+    isContrR[1/0] = {!!}
+
+    terminalHom : CommAlgebraHom R[1/ 0r ]AsCommAlgebra (UnitCommAlgebra R')
+    terminalHom = TerminalCommAlgebra R' {ℓ' = ℓ} .snd R[1/ 0r ]AsCommAlgebra .fst
+
+    terminalEquiv : isEquiv (fst terminalHom)
+    equiv-proof terminalEquiv tt* = transport (λ i → isContr (fiberPath i)) isContrR[1/0]
+     where
+     fiberPath : (fst R[1/ 0r ]AsCommAlgebra) ≡ fiber (fst terminalHom) tt*
+     fiberPath = ua {!!}
+
+ snd isSheafBasisStructurePShf = {!!}
