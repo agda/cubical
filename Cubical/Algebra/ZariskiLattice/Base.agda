@@ -21,6 +21,7 @@ open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
+open import Cubical.Data.Unit
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 open import Cubical.Relation.Binary.Poset
@@ -606,18 +607,20 @@ module BasicOpens (R' : CommRing ℓ) where
    canonical0∈BO≡0∈BO = BasicOpens 0z .snd _ _
 
    R[1/0]≡0 : R[1/ 0r ]AsCommAlgebra ≡ UnitCommAlgebra R'
-   R[1/0]≡0 = uaCommAlgebra ((fst terminalHom , terminalEquiv) , snd terminalHom)
+   R[1/0]≡0 = uaCommAlgebra (e , eIsRHom)
     where
-    isContrR[1/0] : isContr (fst R[1/ 0r ]AsCommAlgebra)
-    isContrR[1/0] = {!!}
+    open InvertingElementsBase R' using (isContrR[1/0])
+    open IsAlgebraHom
 
-    terminalHom : CommAlgebraHom R[1/ 0r ]AsCommAlgebra (UnitCommAlgebra R')
-    terminalHom = TerminalCommAlgebra R' {ℓ' = ℓ} .snd R[1/ 0r ]AsCommAlgebra .fst
+    e : R[1/ 0r ]AsCommAlgebra .fst ≃ UnitCommAlgebra R' .fst
+    e = isContr→Equiv isContrR[1/0] isContrUnit*
 
-    terminalEquiv : isEquiv (fst terminalHom)
-    equiv-proof terminalEquiv tt* = transport (λ i → isContr (fiberPath i)) isContrR[1/0]
-     where
-     fiberPath : (fst R[1/ 0r ]AsCommAlgebra) ≡ fiber (fst terminalHom) tt*
-     fiberPath = ua {!!}
+    eIsRHom : IsCommAlgebraEquiv (R[1/ 0r ]AsCommAlgebra .snd) e (UnitCommAlgebra R' .snd)
+    pres0 eIsRHom = refl
+    pres1 eIsRHom = refl
+    pres+ eIsRHom _ _ = refl
+    pres· eIsRHom _ _ = refl
+    pres- eIsRHom _ = refl
+    pres⋆ eIsRHom _ _ = refl
 
  snd isSheafBasisStructurePShf = {!!}

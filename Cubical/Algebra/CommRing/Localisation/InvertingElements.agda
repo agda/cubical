@@ -60,6 +60,7 @@ module InvertingElementsBase (R' : CommRing ℓ) where
  private R = fst R'
  open CommRingStr (snd R')
  open Exponentiation R'
+ open RingTheory (CommRing→Ring R')
 
 
  [_ⁿ|n≥0] : R → ℙ R
@@ -76,6 +77,14 @@ module InvertingElementsBase (R' : CommRing ℓ) where
  R[1/_] : R → Type ℓ
  R[1/ f ] = Loc.S⁻¹R R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
+ -- a quick fact
+ isContrR[1/0] : isContr R[1/ 0r ]
+ fst isContrR[1/0] = [ 1r , 0r , ∣ 1 , sym (·Rid 0r) ∣ ] -- everything is equal to 1/0
+ snd isContrR[1/0] = elimProp (λ _ → squash/ _ _)
+                               λ _ → eq/ _ _ ((0r , ∣ 1 , sym (·Rid 0r) ∣) , useSolver _ _)
+  where
+  useSolver : ∀ s r → 0r · 1r · s ≡ 0r · r · 0r
+  useSolver = solve R'
 
  R[1/_]AsCommRing : R → CommRing ℓ
  R[1/ f ]AsCommRing = Loc.S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
