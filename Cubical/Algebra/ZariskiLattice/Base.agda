@@ -52,6 +52,7 @@ open import Cubical.Algebra.Matrix
 
 open import Cubical.Categories.Category.Base hiding (_[_,_])
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Instances.CommAlgebras
 open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.Semilattice
@@ -517,6 +518,7 @@ module BasicOpens (R' : CommRing ℓ) where
  open IsZarMap
 
  open Join ZariskiLattice
+ open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice ZariskiLattice))
  open IsBasis
 
  private
@@ -547,45 +549,54 @@ module BasicOpens (R' : CommRing ℓ) where
 
 
  -- The structure presheaf on BO
+ ZariskiCat = DistLatticeCategory ZariskiLattice
+
  BOCat : Category (ℓ-suc ℓ) (ℓ-suc ℓ)
- BOCat = ΣPropCat (DistLatticeCategory ZariskiLattice) BasicOpens
+ BOCat = ΣPropCat ZariskiCat BasicOpens
 
- BasisStructurePShf : Functor (BOCat ^op) (CommAlgebrasCategory R')
- BasisStructurePShf = universalPShf (DistLatticeCategory ZariskiLattice)
-   (λ 𝔞 → Σ[ f ∈ R ] (D f ≡ 𝔞)) -- the untruncated defining prop
-     (λ (_ , f , _) → R[1/ f ]AsCommAlgebra) -- D(f) ↦ R[1/f]
-       λ (𝔞 , f , p) (𝔟 , g , q) → contrHoms 𝔞 𝔟 f g p q
-  where
-  open PreSheafFromUniversalProp
-  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice ZariskiLattice))
-  open InvertingElementsBase R'
+ private
+  P : ZL → Type _
+  P 𝔞 = Σ[ f ∈ R ] (D f ≡ 𝔞) -- the untruncated defining property
 
-  contrHoms : (𝔞 𝔟 : ZL) (f g : R) (p : D f ≡ 𝔞) (q : D g ≡ 𝔟)
-            → 𝔞 ≤ 𝔟 → isContr (CommAlgebraHom R[1/ g ]AsCommAlgebra R[1/ f ]AsCommAlgebra)
-  contrHoms 𝔞 𝔟 f g p q 𝔞≤𝔟 = R[1/g]HasAlgUniversalProp R[1/ f ]AsCommAlgebra
-    λ s s∈[gⁿ|n≥0] → subst-∈ₚ (R[1/ f ]AsCommRing ˣ)
-      (sym (·Rid (s /1))) --can't apply the lemma directly as we get mult with 1 somewhere
-        (RadicalLemma.toUnit R' f g f∈√⟨g⟩ s s∈[gⁿ|n≥0])
+  𝓕 : Σ ZL P → CommAlgebra R' _
+  𝓕 (_ , f , _) = R[1/ f ]AsCommAlgebra -- D(f) ↦ R[1/f]
+
+  uniqueHom : ∀ (x y : Σ ZL P) → (fst x) ≤ (fst y) → isContr (CommAlgebraHom (𝓕 y) (𝓕 x))
+  uniqueHom (𝔞 , f , p) (𝔟 , g , q) = contrHoms 𝔞 𝔟 f g p q
    where
-   open AlgLoc R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
-        renaming (S⁻¹RHasAlgUniversalProp to R[1/g]HasAlgUniversalProp)
-   open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f) using (_/1)
-   open RadicalIdeal R'
+   open InvertingElementsBase R'
 
-   private
-    instance
-     _ = snd R[1/ f ]AsCommRing
+   contrHoms : (𝔞 𝔟 : ZL) (f g : R) (p : D f ≡ 𝔞) (q : D g ≡ 𝔟)
+             → 𝔞 ≤ 𝔟 → isContr (CommAlgebraHom R[1/ g ]AsCommAlgebra R[1/ f ]AsCommAlgebra)
+   contrHoms 𝔞 𝔟 f g p q 𝔞≤𝔟 = R[1/g]HasAlgUniversalProp R[1/ f ]AsCommAlgebra
+     λ s s∈[gⁿ|n≥0] → subst-∈ₚ (R[1/ f ]AsCommRing ˣ)
+       (sym (·Rid (s /1))) --can't apply the lemma directly as we get mult with 1 somewhere
+         (RadicalLemma.toUnit R' f g f∈√⟨g⟩ s s∈[gⁿ|n≥0])
+    where
+    open AlgLoc R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
+         renaming (S⁻¹RHasAlgUniversalProp to R[1/g]HasAlgUniversalProp)
+    open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f) using (_/1)
+    open RadicalIdeal R'
 
-   Df≤Dg : D f ≤ D g
-   Df≤Dg = subst2 _≤_ (sym p) (sym q) 𝔞≤𝔟
+    private
+     instance
+      _ = snd R[1/ f ]AsCommRing
 
-   radicalHelper : √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
-                 ≡ √ ⟨ replicateFinVec 1 g ⟩
-   radicalHelper =
-     isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun Df≤Dg
+    Df≤Dg : D f ≤ D g
+    Df≤Dg = subst2 _≤_ (sym p) (sym q) 𝔞≤𝔟
 
-   f∈√⟨g⟩ : f ∈ √ ⟨ replicateFinVec 1 g ⟩
-   f∈√⟨g⟩ = subst (f ∈_) radicalHelper (∈→∈√ _ _ (indInIdeal _ _ zero))
+    radicalHelper : √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
+                  ≡ √ ⟨ replicateFinVec 1 g ⟩
+    radicalHelper =
+      isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun Df≤Dg
+
+    f∈√⟨g⟩ : f ∈ √ ⟨ replicateFinVec 1 g ⟩
+    f∈√⟨g⟩ = subst (f ∈_) radicalHelper (∈→∈√ _ _ (indInIdeal _ _ zero))
+
+
+ open PreSheafFromUniversalProp ZariskiCat P 𝓕 uniqueHom
+ BasisStructurePShf : Functor (BOCat ^op) (CommAlgebrasCategory R')
+ BasisStructurePShf = universalPShf
 
 
  -- now prove the sheaf properties
@@ -623,4 +634,43 @@ module BasicOpens (R' : CommRing ℓ) where
     pres- eIsRHom _ = refl
     pres⋆ eIsRHom _ _ = refl
 
- snd isSheafBasisStructurePShf = {!!}
+ snd isSheafBasisStructurePShf (𝔞 , 𝔞∈BO) (𝔟 , 𝔟∈BO) 𝔞∨𝔟∈BO = curriedHelper 𝔞 𝔟 𝔞∈BO 𝔟∈BO 𝔞∨𝔟∈BO
+  where
+  open condSquare
+  {-
+     here:
+     BFsq (𝔞 , 𝔞∈BO) (𝔟 , 𝔟∈BO) 𝔞∨𝔟∈BO BasisStructurePShf =
+
+     𝓞 (𝔞∨𝔟) → 𝓞 (𝔞)
+
+       ↓         ↓
+
+     𝓞 (𝔟)  →  𝓞 (𝔞∧𝔟)
+
+  -}
+  curriedHelper : (𝔞 𝔟 : ZL) (𝔞∈BO : 𝔞 ∈ₚ BasicOpens) (𝔟∈BO : 𝔟 ∈ₚ BasicOpens)
+                  (𝔞∨𝔟∈BO : 𝔞 ∨z 𝔟 ∈ₚ BasicOpens)
+                → isPullback (CommAlgebrasCategory R') _ _ _
+                             (BFsq (𝔞 , 𝔞∈BO) (𝔟 , 𝔟∈BO) 𝔞∨𝔟∈BO BasisStructurePShf)
+  curriedHelper 𝔞 𝔟 = elim3 (λ 𝔞∈BO 𝔟∈BO 𝔞∨𝔟∈BO → isPropIsPullback _ _ _ _
+                            (BFsq (𝔞 , 𝔞∈BO) (𝔟 , 𝔟∈BO) 𝔞∨𝔟∈BO BasisStructurePShf))
+                            Σhelper
+   where
+   Σhelper : (a : Σ[ f ∈ R ] D f ≡ 𝔞) (b : Σ[ g ∈ R ] D g ≡ 𝔟) (c : Σ[ h ∈ R ] D h ≡ 𝔞 ∨z 𝔟)
+           → isPullback (CommAlgebrasCategory R') _ _ _
+                        (BFsq (𝔞 , ∣ a ∣) (𝔟 , ∣ b ∣) ∣ c ∣ BasisStructurePShf)
+   Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = {!toSheaf.lemma (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣) (𝔟 , ∣ g , Dg≡𝔟 ∣) ∣ h , Dh≡𝔞∨𝔟 ∣) ? ? ? ? ? ?!}
+   {-
+     write down ideal facts implied by √⟨h⟩≡√⟨f,g⟩
+     get pullbacksquare in CommRings (over R[1/h])
+     use PullbackFromCommRing
+     use toSheaf.lemma
+   -}
+    where
+    open RadicalIdeal R'
+
+    radicalPath : √ ⟨ replicateFinVec 1 h ⟩ ≡ √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
+    radicalPath = isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun DHelper
+     where
+     DHelper : D h ≡ D f ∨z D g
+     DHelper = Dh≡𝔞∨𝔟 ∙ cong₂ (_∨z_) (sym Df≡𝔞) (sym Dg≡𝔟)
