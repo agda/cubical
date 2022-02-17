@@ -141,17 +141,18 @@ module UniversalProperty (M : CommMonoid ℓ) where
   module _ {A : AbGroup ℓ} (φ : CommMonoidHom M (AbGroup→CommMonoid A)) where
     open IsGroupHom
 
+    open GroupTheory (AbGroup→Group A)
+
+    open AbGroupStr ⦃...⦄ using (-_; _-_; _+_; invr; invl)
     private
       instance
-        _ = snd (AbGroup→CommMonoid A)
-
-    open GroupTheory (AbGroup→Group A)
+        AAsGroup  = snd A
+        MAsGroup  = snd (Groupification M)
+        AAsMonoid = snd (AbGroup→CommMonoid A)
 
     private
       module φ = IsMonoidHom (snd φ)
       f = fst φ
-
-    open AbGroupStr (snd A) using (-_; _-_; _+_; invr; invl)
 
     inducedHom : AbGroupHom (Groupification M) A
     fst inducedHom = elim (λ x → isSetAbGroup A) g proof
@@ -219,16 +220,13 @@ module UniversalProperty (M : CommMonoid ℓ) where
 
     solution : (m : ⟨ M ⟩) → (fst inducedHom) (i m) ≡ f m
     solution m = cong ((f m)+_) ((cong (-_) φ.presε) ∙ inv1g) ∙ rid _ 
-
-    private
-      module G = AbGroupStr (snd (Groupification M)) using (_+_; _-_)
       
     unique : (ψ : AbGroupHom (Groupification M) A)
              → (ψIsSolution : (m : ⟨ M ⟩) → ψ .fst (i m) ≡ f m)
              → (u : ⟨ M² M ⟩) → ψ .fst [ u ] ≡ inducedHom .fst [ u ]
     unique ψ ψIsSolution (a , b) =
        ψ .fst [ a , b ]                    ≡⟨ lemma ⟩
-       ψ .fst ([ a , ε ] G.- [ b , ε ])    ≡⟨ (snd ψ).pres· _ _ ∙ cong₂ _+_ refl ((snd ψ).presinv _) ⟩
+       ψ .fst ([ a , ε ] - [ b , ε ])    ≡⟨ (snd ψ).pres· _ _ ∙ cong₂ _+_ refl ((snd ψ).presinv _) ⟩
        ψ .fst [ a , ε ] - ψ .fst [ b , ε ] ≡⟨ cong₂ _-_ (ψIsSolution a) (ψIsSolution b) ⟩
        f a - f b                           ∎
        where
