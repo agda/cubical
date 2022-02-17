@@ -1,6 +1,7 @@
 {-
 Module in which the Grothendieck Group ("Groupification") of a commutative monoid is defined.
 -}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommMonoid.GrothendieckGroup where
 
 open import Cubical.Algebra.CommMonoid.Base

@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommMonoid.CommMonoidProd where
 
 open import Cubical.Foundations.HLevels
