@@ -2,30 +2,30 @@
 
 module Cubical.HITs.FreeComMonoids.Properties where
 
--- open import Cubical.Foundations.Prelude
--- open import Cubical.Foundations.Function
 open import Cubical.Foundations.Everything hiding (assoc; ⟨_⟩)
 
 open import Cubical.Data.Nat hiding (_·_)
 
 open import Cubical.HITs.FreeComMonoids.Base as FCM
 open import Cubical.HITs.AssocList as AL
-open import Cubical.HITs.FreeComMonoids.AssocListFunctions
 
 private variable
   ℓ : Level
   A : Type ℓ
 
+multi-· : A → ℕ → FreeComMonoid A → FreeComMonoid A
+multi-· x zero xs = xs
+multi-· x (suc n) xs = ⟦ x ⟧ · multi-· x n xs
+
 _^_ : A → ℕ → FreeComMonoid A
-a ^ zero = ε
-a ^ suc n = ⟦ a ⟧ · (a ^ n)
+x ^ n = multi-· x n ε
 
 ^+≡ : ∀ (p : A) m n → ((p ^ m) · (p ^ n)) ≡ (p ^ (m + n))
 ^+≡ p zero n = identityᵣ _
 ^+≡ p (suc m) n = sym (assoc _ _ _) ∙ cong (_ ·_) (^+≡ _ _ _)
 
 to : AssocList A → FreeComMonoid A
-to = AL.Rec.f trunc ε (λ a n → (a ^ n) ·_)
+to = AL.Rec.f trunc ε (λ a n p → (a ^ n) · p)
   per* agg* (const identityᵣ)
   where
   per* : ∀ x y (mon : FreeComMonoid A) →
