@@ -24,8 +24,8 @@ x ^ n = multi-· x n ε
 ^+≡ p zero n = identityᵣ _
 ^+≡ p (suc m) n = sym (assoc _ _ _) ∙ cong (_ ·_) (^+≡ _ _ _)
 
-to : AssocList A → FreeComMonoid A
-to = AL.Rec.f trunc ε (λ a n p → (a ^ n) · p)
+AL→FCM : AssocList A → FreeComMonoid A
+AL→FCM = AL.Rec.f trunc ε (λ a n p → (a ^ n) · p)
   per* agg* (const identityᵣ)
   where
   per* : ∀ x y (mon : FreeComMonoid A) →
@@ -49,48 +49,48 @@ to = AL.Rec.f trunc ε (λ a n p → (a ^ n) · p)
     ≡⟨ cong (_· _) (^+≡ _ _ _) ⟩
     ((a ^ (m + n)) · mon) ∎
 
-from : FreeComMonoid A → AssocList A
-from = FCM.Rec.f trunc ⟨_⟩ ⟨⟩ _++_ comm-++ unitr-++ (λ _ → refl) assoc-++
+FCM→AL : FreeComMonoid A → AssocList A
+FCM→AL = FCM.Rec.f trunc ⟨_⟩ ⟨⟩ _++_ comm-++ unitr-++ (λ _ → refl) assoc-++
 
 ^-id : (x : A) (m : ℕ) (u : FreeComMonoid A)
-  → from ((x ^ m) · u) ≡ ⟨ x , m ⟩∷ from u
-^-id x zero u = cong from (identityᵣ u) ∙ sym (del _ _)
+  → FCM→AL ((x ^ m) · u) ≡ ⟨ x , m ⟩∷ FCM→AL u
+^-id x zero u = cong FCM→AL (identityᵣ u) ∙ sym (del _ _)
 ^-id x (suc m) u =
-  from ((⟦ x ⟧ · (x ^ m)) · u)
+  FCM→AL ((⟦ x ⟧ · (x ^ m)) · u)
   ≡⟨ cong ⟨ x , 1 ⟩∷_ (^-id x m u) ⟩
-  ⟨ x , 1 ⟩∷ ⟨ x , m ⟩∷ from u
+  ⟨ x , 1 ⟩∷ ⟨ x , m ⟩∷ FCM→AL u
   ≡⟨ agg _ _ _ _ ⟩
-  ⟨ x , suc m ⟩∷ from u ∎
+  ⟨ x , suc m ⟩∷ FCM→AL u ∎
 
 ++-· : (x y : AssocList A)
-  → to (x ++ y) ≡ to x · to y
+  → AL→FCM (x ++ y) ≡ AL→FCM x · AL→FCM y
 ++-· = AL.ElimProp.f
   (isPropΠ (λ _ → trunc _ _))
   (λ _ → sym (identityᵣ _))
   λ x n {xs} p ys →
-  to (((⟨ x , n ⟩∷ ⟨⟩) ++ xs) ++ ys)
-  ≡⟨ cong to (cong (_++ ys) (comm-++ (⟨ x , n ⟩∷ ⟨⟩) xs) ∙ sym (assoc-++ xs _ ys)) ⟩
-  to (xs ++ (⟨ x , n ⟩∷ ys))
+  AL→FCM (((⟨ x , n ⟩∷ ⟨⟩) ++ xs) ++ ys)
+  ≡⟨ cong AL→FCM (cong (_++ ys) (comm-++ (⟨ x , n ⟩∷ ⟨⟩) xs) ∙ sym (assoc-++ xs _ ys)) ⟩
+  AL→FCM (xs ++ (⟨ x , n ⟩∷ ys))
   ≡⟨ p _ ⟩
-  (to xs · ((x ^ n) · to ys))
-  ≡⟨ assoc (to xs) _ _ ⟩
-  ((to xs · (x ^ n)) · to ys)
-  ≡⟨ cong (_· to ys) (comm _ _) ⟩
-  ((x ^ n) · to xs) · to ys ∎
+  (AL→FCM xs · ((x ^ n) · AL→FCM ys))
+  ≡⟨ assoc (AL→FCM xs) _ _ ⟩
+  ((AL→FCM xs · (x ^ n)) · AL→FCM ys)
+  ≡⟨ cong (_· AL→FCM ys) (comm _ _) ⟩
+  ((x ^ n) · AL→FCM xs) · AL→FCM ys ∎
 
-to∘from : section {A = AssocList A} to from
-to∘from = FCM.ElimProp.f (trunc _ _) (λ x → identityₗ _ ∙ identityₗ _) refl
-  λ {x y} p q → ++-· (from x) (from y) ∙ cong₂ _·_ p q
+AL→FCM∘FCM→AL≡id : section {A = AssocList A} AL→FCM FCM→AL
+AL→FCM∘FCM→AL≡id = FCM.ElimProp.f (trunc _ _) (λ x → identityₗ _ ∙ identityₗ _) refl
+  λ {x y} p q → ++-· (FCM→AL x) (FCM→AL y) ∙ cong₂ _·_ p q
 
-from∘to : retract {A = AssocList A} to from
-from∘to = AL.ElimProp.f (trunc _ _) refl
-  λ x n {xs} p → ^-id x n (to xs) ∙ cong (⟨ _ , _ ⟩∷_) p
+FCM→AL∘AL→FCM≡id : retract {A = AssocList A} AL→FCM FCM→AL
+FCM→AL∘AL→FCM≡id = AL.ElimProp.f (trunc _ _) refl
+  λ x n {xs} p → ^-id x n (AL→FCM xs) ∙ cong (⟨ _ , _ ⟩∷_) p
 
 FCMon≃AssocList : AssocList A ≃ FreeComMonoid A
-FCMon≃AssocList = isoToEquiv (iso to from to∘from from∘to)
+FCMon≃AssocList = isoToEquiv (iso AL→FCM FCM→AL AL→FCM∘FCM→AL≡id FCM→AL∘AL→FCM≡id)
 
 AssocList≃FCMon : FreeComMonoid A ≃ AssocList A
-AssocList≃FCMon = isoToEquiv (iso from to from∘to to∘from)
+AssocList≃FCMon = isoToEquiv (iso FCM→AL AL→FCM FCM→AL∘AL→FCM≡id AL→FCM∘FCM→AL≡id)
 
 FCMon≡AssocList : AssocList A ≡ FreeComMonoid A
 FCMon≡AssocList = ua FCMon≃AssocList
