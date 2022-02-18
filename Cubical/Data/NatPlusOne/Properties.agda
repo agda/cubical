@@ -25,6 +25,10 @@ private
   ℕ₊₁→ℕ-·₊₁-comm : ∀ m n → ℕ₊₁→ℕ (m ·₊₁ n) ≡ (ℕ₊₁→ℕ m) · (ℕ₊₁→ℕ n)
   ℕ₊₁→ℕ-·₊₁-comm (1+ m) (1+ n) = refl
 
++₁-assoc : ∀ m n o → m +₁ (n +₁ o) ≡ (m +₁ n) +₁ o
++₁-assoc one n o = refl
++₁-assoc (2+ m) n o = cong suc₊₁ (+₁-assoc (1+ m) n o)
+
 ·₊₁-comm : ∀ m n → m ·₊₁ n ≡ n ·₊₁ m
 ·₊₁-comm (1+ m) (1+ n) = cong 1+_ (injSuc (·-comm (suc m) (suc n)))
 
