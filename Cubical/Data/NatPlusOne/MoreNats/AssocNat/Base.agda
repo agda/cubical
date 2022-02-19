@@ -37,7 +37,7 @@ module ElimProp {ℓ'} {B : ℕ₊₁ → Type ℓ'} (BProp : {n : ℕ₊₁} �
   f : (n : ℕ₊₁) → B n
   f = Elim.f {B = B} one* _+₁*_
         (λ {x} {y} {z} x' y' z' →
-          toPathP (BProp (transp (λ i → B (assoc x y z i)) i0
+          toPathP (BProp (transport (λ i → B (assoc x y z i))
           (x' +₁* (y' +₁* z'))) ((x' +₁* y') +₁* z')))
         λ n → isProp→isSet BProp
 
