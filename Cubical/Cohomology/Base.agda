@@ -18,6 +18,8 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Algebra.Group.Base using (Group; GroupStr)
 open import Cubical.Algebra.AbGroup.Base
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 
 open import Cubical.Data.Int.Base hiding (_·_)
 open import Cubical.Data.Nat.Base using (ℕ)
@@ -87,10 +89,17 @@ module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
     π₂AbGroup : AbGroup ℓ
     π₂AbGroup = Group→AbGroup CohomAsGroup isComm
 
+  Cohom'  :  ℤ → AbGroup ℓ
+  Cohom' k = abGroupStr.π₂AbGroup k
+
+  CohomType' : ℤ → Type ℓ
+  CohomType' k = fst (abGroupStr.π₂AbGroup k)
+
   Cohom : ℤ → AbGroup ℓ
   Cohom k = CohomType k , subst AbGroupStr (sym shiftΩPath) (snd (abGroupStr.π₂AbGroup k))
     where shiftΩPath : CohomType k ≡ fst (abGroupStr.π₂AbGroup k)
           shiftΩPath = cong ∥_∥₂ (ua (fst (commDegreeΩ k 2)))
+
 
 {-
   Functoriality in the type argument
@@ -103,6 +112,18 @@ module _ {Y X : Type ℓ} (f : Y → X) (A : (x : X) → Spectrum ℓ) where
   fA : (y : Y) → Spectrum ℓ
   fA y = A (f y)
 
+{-
+  cohomMap' : (k : ℤ) → AbGroupHom (Cohom' X A k) (Cohom' Y fA k)
+  cohomMap' k = asMap , {!!}
+            where
+             asMap : CohomType' X A k → CohomType' Y fA k
+             asMap = (rec isSetSetTrunc λ l → {!cong !})
+
   cohomMap : (k : ℤ) → AbGroupHom (Cohom X A k) (Cohom Y fA k)
-  cohomMap k = (rec isSetSetTrunc λ l → ∣ {! λ  y → l (f y)!} ∣₂) ,
-               {!!}
+  cohomMap k = asMap ,
+               makeIsGroupHom
+                 (elim2 (λ _ _ → isSetPathImplicit) λ x y → {!!})
+           where
+             asMap : CohomType X A k → CohomType Y fA k
+             asMap = (rec isSetSetTrunc λ l → ∣ ( λ  y → l (f y)) ∣₂)
+-}
