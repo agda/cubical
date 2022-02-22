@@ -13,6 +13,9 @@ open import Cubical.Homotopy.Loopspace
 
 open import Cubical.HITs.SetTruncation as SetTrunc
 
+{-
+  'π^ n' is the (n+1)-th homotopy group
+-}
 π^_ : ∀ {ℓ} → ℕ → Pointed ℓ → Group ℓ
 π^_ {ℓ} n p = makeGroup e _⨀_ _⁻¹ isSetSetTrunc assoc rUnit lUnit rCancel lCancel
   where
