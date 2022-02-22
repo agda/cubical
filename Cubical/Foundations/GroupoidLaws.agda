@@ -81,9 +81,18 @@ rCancel' p j k = rCancel-filler' p i0 j k
 lCancel : (p : x ≡ y) → p ⁻¹ ∙ p ≡ refl
 lCancel p = rCancel (p ⁻¹)
 
+
 assoc : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) →
   p ∙ q ∙ r ≡ (p ∙ q) ∙ r
 assoc p q r k = (compPath-filler p q k) ∙ compPath-filler' q r (~ k)
+
+lemma-r : (p : x ≡ y) (q : y ≡ z) (r : x ≡ z) → p ∙ q ≡ r → p ≡ r ∙ (sym q)
+lemma-r p q r s = 
+  (rUnit _ ∙ cong (p ∙_) (sym (rCancel _)))
+   ∙ assoc _ _ _ ∙ cong (_∙ (sym q)) s  
+
+lemma-r' : (p : x ≡ y) (q : y ≡ z) (r : x ≡ z) → p ≡ r ∙ (sym q) → p ∙ q ≡ r
+lemma-r' p q r s = cong (_∙ q) s ∙ sym (assoc _ _ _) ∙ sym (rUnit _ ∙ cong (r ∙_) (sym (rCancel (sym q))))
 
 
 -- heterogeneous groupoid laws

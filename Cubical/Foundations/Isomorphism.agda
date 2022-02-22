@@ -183,3 +183,4 @@ codomainIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ'
            → Iso B C
            → Iso (A → B) (A → C)
 codomainIso z = codomainIsoDep λ _ → z
+
