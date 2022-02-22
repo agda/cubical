@@ -24,24 +24,10 @@ variable
            → {u : (B a)}
            → (q : (a : A) → isProp (B a))
            → (ΣPathPProp  {A = λ x → A} {B = λ _ x → B x} {u = a , u} {v = a , u} q refl) ≡ refl
-fst (ΣPathPProp≡ {a = a} q i i₁) = a
-snd (ΣPathPProp≡ {B = B} {a = a} {u = u} q i i₁) =
-    hcomp (λ k →
-            λ { (i = i1) → u
-              ; (i₁ = i0) → u
-              ; (i₁ = i1) → q a (transp (λ i₂ → B a) i0 u) u (k ∨ i)
-              })
-           {!!}
-          -- (transportRefl u i)
-
--- i = i0 ⊢ hcomp
---          (λ { j (i₁ = i0) → u
---             ; j (i₁ = i1) → q a (transp (λ i₂ → B a) i0 u) u j
---             })
---          (transp (λ j → B a) (~ i₁) u)
--- i = i1 ⊢ u
--- i₁ = i0 ⊢ u
--- i₁ = i1 ⊢ u
+fst (ΣPathPProp≡ _ _ _) = _
+snd (ΣPathPProp≡ {a = a} {u = u} q i i₁) = 
+  isSet→SquareP (λ i j → isProp→isSet (q a))
+    (sym (transportRefl u) ∙ q a (transport refl u) u) (refl {x = u}) (refl {x = u}) (refl {x = u}) i i₁
 
 module _ (G : Group ℓ) where
 
