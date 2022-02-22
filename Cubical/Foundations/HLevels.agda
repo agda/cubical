@@ -30,7 +30,7 @@ HLevel = ℕ
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' ℓ'''' ℓ''''' : Level
-    A : Type ℓ
+    A A' : Type ℓ
     B : A → Type ℓ
     C : (x : A) → B x → Type ℓ
     D : (x : A) (y : B x) → C x y → Type ℓ
@@ -668,3 +668,61 @@ snd (ΣSquareSet {B = B} pB {p = p} {q = q} {r = r} {s = s} sq i j) = lem i j
   lem : SquareP (λ i j → B (sq i j))
           (cong snd p) (cong snd r) (cong snd s) (cong snd q)
   lem = toPathP (isOfHLevelPathP' 1 (pB _) _ _ _ _)
+
+isSet-SetsIso : isSet A → isSet A' → isSet (Iso A A')
+isSet-SetsIso {A = A} {A' = A'} isSet-A isSet-A' x y p₀ p₁ = h
+  where
+
+   module X = Iso x 
+   module Y = Iso y  
+
+   f-p : ∀ i₁ → (Iso.fun (p₀ i₁) , Iso.inv (p₀ i₁)) ≡
+               (Iso.fun (p₁ i₁) , Iso.inv (p₁ i₁))
+   fst (f-p i₁ i) a = isSet-A' (X.fun a) (Y.fun a) (cong _ p₀) (cong _ p₁) i i₁
+   snd (f-p i₁ i) a' = isSet-A (X.inv a') (Y.inv a') (cong _ p₀) (cong _ p₁) i i₁
+
+   s-p : ∀ b → _
+   s-p b =
+     isSet→SquareP (λ i j → isProp→isSet (isSet-A' _ _))
+       refl refl (λ i₁ → (Iso.rightInv (p₀ i₁) b)) (λ i₁ → (Iso.rightInv (p₁ i₁) b))
+
+   r-p : ∀ a → _
+   r-p a =
+     isSet→SquareP (λ i j → isProp→isSet (isSet-A _ _))
+       refl refl (λ i₁ → (Iso.leftInv (p₀ i₁) a)) (λ i₁ → (Iso.leftInv (p₁ i₁) a))
+
+
+   h : p₀ ≡ p₁
+   Iso.fun (h i i₁) = fst (f-p i₁ i) 
+   Iso.inv (h i i₁) = snd (f-p i₁ i)
+   Iso.rightInv (h i i₁) b = s-p b i₁ i 
+   Iso.leftInv (h i i₁) a = r-p a i₁ i 
+
+
+SetsIso≡-ext : isSet A → isSet A'
+          → ∀ {a b : Iso A A'}
+          → (∀ x → Iso.fun a x ≡ Iso.fun b x)
+          → (∀ x → Iso.inv a x ≡ Iso.inv b x)
+          → a ≡ b
+Iso.fun (SetsIso≡-ext isSet-A isSet-A' {a} {b} fun≡ inv≡ i) x = fun≡ x i
+Iso.inv (SetsIso≡-ext isSet-A isSet-A' {a} {b} fun≡ inv≡ i) x = inv≡ x i
+Iso.rightInv (SetsIso≡-ext isSet-A isSet-A' {a} {b} fun≡ inv≡ i) b₁ =
+   isSet→SquareP (λ _ _ → isSet-A')
+     (Iso.rightInv a b₁)
+     (Iso.rightInv b b₁)
+     (λ i → fun≡ (inv≡ b₁ i) i)
+     refl i
+Iso.leftInv (SetsIso≡-ext isSet-A isSet-A' {a} {b} fun≡ inv≡ i) a₁ =
+   isSet→SquareP (λ _ _ → isSet-A)
+     (Iso.leftInv a a₁)
+     (Iso.leftInv b a₁)
+     (λ i → inv≡ (fun≡ a₁ i) i )
+     refl i
+
+SetsIso≡ : isSet A → isSet A'
+          → ∀ {a b : Iso A A'}
+          → (Iso.fun a ≡ Iso.fun b)
+          → (Iso.inv a ≡ Iso.inv b)
+          → a ≡ b
+SetsIso≡ isSet-A isSet-A' p q =
+  SetsIso≡-ext isSet-A isSet-A' (funExt⁻ p) (funExt⁻ q)
