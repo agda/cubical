@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-
+  -- Path lemmas used in the colimit equivalence proof.
 
 -}
 {-# OPTIONS --safe #-}

@@ -1,6 +1,7 @@
 {-
 
-
+This file contains:
+  -- The basic inductive definition of James.
 
 -}
 {-# OPTIONS --safe #-}
@@ -9,17 +10,12 @@ module Cubical.HITs.James.Inductive.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Data.Nat
-open import Cubical.HITs.James.Base
-  renaming (James to JamesContruction)
 
 private
   variable
     ℓ : Level
 module _
   ((X , x₀) : Pointed ℓ) where
-
-  private
-    James = JamesContruction (X , x₀)
 
   data 𝕁ames : ℕ → Type ℓ where
     [] : 𝕁ames 0

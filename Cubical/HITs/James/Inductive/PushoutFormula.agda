@@ -1,6 +1,7 @@
 {-
 
-The Inductive Version of James Construction
+This file contains:
+  -- The inductive family 𝕁 can be constructed by iteratively applying pushouts.
 
 -}
 {-# OPTIONS --safe #-}

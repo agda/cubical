@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-
+  -- Some alternative inductive definitions of James, and they are all equivalent.
 
 -}
 {-# OPTIONS --safe #-}

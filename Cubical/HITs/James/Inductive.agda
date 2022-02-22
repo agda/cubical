@@ -1,8 +1,13 @@
 {-
 
+The Inductive Version of James Construction
+
 This file contains:
-  - The inductive construction of James and its equivalence to the non-inductive version.
+  - An inductive construction of James and its equivalence to the non-inductive version.
     (KANG Rongji, Feb. 2022)
+
+Actually this file is the summary of the main results,
+  the proof is divided into parts and placed in the fold Cubical.HITs.James.Inductive
 
 -}
 {-# OPTIONS --safe #-}
@@ -21,10 +26,8 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.James.Base
 open import Cubical.HITs.James.Inductive.Base
 open import Cubical.HITs.James.Inductive.PushoutFormula
-open import Cubical.HITs.James.Inductive.Reduced
-  hiding (𝕁 ; 𝕁∞)
+open import Cubical.HITs.James.Inductive.Reduced hiding (𝕁 ; 𝕁∞)
 open import Cubical.HITs.James.Inductive.ColimitEquivalence
-
 
 private
   variable
@@ -33,14 +36,23 @@ private
 module _
   ((X , x₀) : Pointed ℓ) where
 
+  -- The follwing 𝕁 n is equivalence to Brunerie's family J n, as will be shown latter.
+  -- Instead of his inductive procedure, 𝕁 is defined directly as an indexed HIT.
+
   𝕁 : ℕ → Type ℓ
   𝕁 = 𝕁ames (X , x₀)
+
+  -- The type 𝕁∞ is the direct colimit of 𝕁.
 
   𝕁∞ : Type ℓ
   𝕁∞ = 𝕁ames∞ (X , x₀)
 
+  -- And it is equivalent to James.
+
   J≃𝕁∞ : James (X , x₀) ≃ 𝕁∞
   J≃𝕁∞ = compEquiv (James≃𝕁Red∞ _) (invEquiv (𝕁ames∞≃𝕁Red∞ _))
+
+  -- Description of 𝕁 n for small n
 
   𝕁₀≃Unit : 𝕁 0 ≃ Unit
   𝕁₀≃Unit = 𝕁ames0≃ _
@@ -48,8 +60,12 @@ module _
   𝕁₁≃X : 𝕁 1 ≃ X
   𝕁₁≃X = 𝕁ames1≃ _
 
+  -- The following family is defined as pushouts of 𝕁 n.
+
   𝕁Push : ℕ → Type ℓ
   𝕁Push = Push𝕁ames (X , x₀)
+
+  -- Brunerie uses f and g to denote the following maps, so do I.
 
   module _
     {n : ℕ} where
@@ -60,6 +76,8 @@ module _
     g : 𝕁Push n → 𝕁 (1 + n)
     g = rightMap _
 
+  -- The following equivalence shows 𝕁(n+2) can be made as double pushouts invoving only X, 𝕁 n and 𝕁(n+1).
+  -- So our 𝕁 is exactly what Brunerie has defined.
+
   𝕁ₙ₊₂≃Pushout : (n : ℕ) → 𝕁 (2 + n) ≃ Pushout f g
   𝕁ₙ₊₂≃Pushout = 𝕁ames2+n≃ _
-
