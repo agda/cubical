@@ -35,32 +35,32 @@ private
 open Spectrum
 
 module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
-  CoHomClasses : ℤ → Pointed ℓ
-  CoHomClasses k = Πᵘ∙ X (λ x → space (A x) k)
+  CohomClasses : ℤ → Pointed ℓ
+  CohomClasses k = Πᵘ∙ X (λ x → space (A x) k)
   
-  CoHomType : ℤ → Type ℓ
-  CoHomType k = ∥  (fst (CoHomClasses k)) ∥₂
+  CohomType : ℤ → Type ℓ
+  CohomType k = ∥  (fst (CohomClasses k)) ∥₂
 
   private
-    commDegreeΩOnce : (k : ℤ) → (CoHomClasses k) ≃∙ Πᵘ∙ X (λ x → Ω (space (A x) (sucℤ k))) 
+    commDegreeΩOnce : (k : ℤ) → (CohomClasses k) ≃∙ Πᵘ∙ X (λ x → Ω (space (A x) (sucℤ k))) 
     commDegreeΩOnce k =
       (equivΠCod (λ x → fst (equivΩAt x))) ,
        λ i x → snd (equivΩAt x) i
       where equivΩAt : (x : X) → space (A x) k ≃∙ Ω (space (A x) (sucℤ k)) 
             equivΩAt x = (fst (map (A x) k) , equiv (A x) k) , snd (map (A x) k)
 
-    commDegreeΩOnce' : (k : ℤ) → (CoHomClasses k) ≃∙ Ω (CoHomClasses (sucℤ k))
+    commDegreeΩOnce' : (k : ℤ) → (CohomClasses k) ≃∙ Ω (CohomClasses (sucℤ k))
     commDegreeΩOnce' k =
       compEquiv∙ (commDegreeΩOnce k)
                  ((isoToEquiv (iso (λ f → (λ i x → f x i)) (λ f → (λ x i → f i x)) (λ _ → refl) λ _ → refl)) , refl)
                             
-  commDegreeΩ : (k : ℤ) (n : ℕ) → (CoHomClasses k) ≃∙ (Ω^ n) (CoHomClasses (k + (pos n)))
+  commDegreeΩ : (k : ℤ) (n : ℕ) → (CohomClasses k) ≃∙ (Ω^ n) (CohomClasses (k + (pos n)))
   commDegreeΩ k ℕ.zero = idEquiv∙ _
   commDegreeΩ k (ℕ.suc n) =
-    (CoHomClasses k)                                   ≃∙⟨ commDegreeΩ k n ⟩
-    (Ω^ n) (CoHomClasses (k + (pos n)))                ≃∙⟨ Ω^≃∙ n (commDegreeΩOnce' (k + pos n)) ⟩
-    (Ω^ n) (Ω (CoHomClasses (sucℤ (k + (pos n)))))     ≃∙⟨ invEquiv∙ (e n) ⟩
-    (Ω^ (ℕ.suc n)) (CoHomClasses (sucℤ (k + (pos n)))) ∎≃∙
+    (CohomClasses k)                                   ≃∙⟨ commDegreeΩ k n ⟩
+    (Ω^ n) (CohomClasses (k + (pos n)))                ≃∙⟨ Ω^≃∙ n (commDegreeΩOnce' (k + pos n)) ⟩
+    (Ω^ n) (Ω (CohomClasses (sucℤ (k + (pos n)))))     ≃∙⟨ invEquiv∙ (e n) ⟩
+    (Ω^ (ℕ.suc n)) (CohomClasses (sucℤ (k + (pos n)))) ∎≃∙
     where e : {A : Pointed ℓ} (n : ℕ) → (Ω^ (ℕ.suc n)) A ≃∙ (Ω^ n) (Ω A)
           e ℕ.zero = isoToEquiv (flipΩIso ℕ.zero) , transportRefl refl
           e (ℕ.suc n) = isoToEquiv (flipΩIso (ℕ.suc n)) , flipΩrefl n
@@ -73,18 +73,18 @@ module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
       Use an equivalent type, where the group structure is just
       given by the homotopy group functor
     -}
-    CoHomAsGroup : Group ℓ
-    CoHomAsGroup = (π^ 2) (Πᵘ∙ X  (λ x → (space (A x) (2 + k))))
+    CohomAsGroup : Group ℓ
+    CohomAsGroup = (π^ 2) (Πᵘ∙ X  (λ x → (space (A x) (2 + k))))
 
-    open GroupStr (snd CoHomAsGroup)
+    open GroupStr (snd CohomAsGroup)
 
-    isComm :  (a b : fst CoHomAsGroup) → a · b ≡ b · a
+    isComm :  (a b : fst CohomAsGroup) → a · b ≡ b · a
     isComm = elim2 (λ _ _ → isSetPathImplicit)
                    λ a b → ∣ a ∙ b ∣₂ ≡⟨ cong ∣_∣₂ (isCommΩ 0 a b) ⟩
                            ∣ b ∙ a ∣₂ ∎
 
-  CoHom : ℤ → AbGroup ℓ
-  CoHom k = Group→AbGroup (abGroupStr.CoHomAsGroup k) (abGroupStr.isComm k)
+  Cohom : ℤ → AbGroup ℓ
+  Cohom k = Group→AbGroup (abGroupStr.CohomAsGroup k) (abGroupStr.isComm k)
 
 {-
   Functoriality in the type argument
@@ -97,6 +97,6 @@ module _ {Y X : Type ℓ} (f : Y → X) (A : (x : X) → Spectrum ℓ) where
   fA : (y : Y) → Spectrum ℓ
   fA y = A (f y)
 
-  coHomMap : (k : ℤ) → AbGroupHom (CoHom X A k) (CoHom Y fA k)
-  coHomMap k = (rec isSetSetTrunc λ l → ∣ {! λ  y → l (f y)!} ∣₂) ,
+  cohomMap : (k : ℤ) → AbGroupHom (Cohom X A k) (Cohom Y fA k)
+  cohomMap k = (rec isSetSetTrunc λ l → ∣ {! λ  y → l (f y)!} ∣₂) ,
                {!!}
