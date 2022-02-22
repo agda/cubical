@@ -23,4 +23,3 @@ record Spectrum (ℓ : Level) : Type (ℓ-suc ℓ) where
     prespectrum : Prespectrum ℓ
     equiv : (k : ℤ) → isEquiv (fst (map prespectrum k))
   open GenericPrespectrum prespectrum public
-
