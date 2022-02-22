@@ -14,6 +14,7 @@ open import Cubical.Foundations.Pointed.Properties
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Algebra.Group.Base using (Group; GroupStr)
 open import Cubical.Algebra.AbGroup.Base
@@ -37,34 +38,34 @@ open Spectrum
 module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
   CohomClasses : ℤ → Pointed ℓ
   CohomClasses k = Πᵘ∙ X (λ x → space (A x) k)
-  
+
   CohomType : ℤ → Type ℓ
   CohomType k = ∥  (fst (CohomClasses k)) ∥₂
 
   private
-    commDegreeΩOnce : (k : ℤ) → (CohomClasses k) ≃∙ Πᵘ∙ X (λ x → Ω (space (A x) (sucℤ k))) 
+    commDegreeΩOnce : (k : ℤ) → (CohomClasses k) ≃∙ Πᵘ∙ X (λ x → Ω (space (A x) (sucℤ k)))
     commDegreeΩOnce k =
       (equivΠCod (λ x → fst (equivΩAt x))) ,
        λ i x → snd (equivΩAt x) i
-      where equivΩAt : (x : X) → space (A x) k ≃∙ Ω (space (A x) (sucℤ k)) 
+      where equivΩAt : (x : X) → space (A x) k ≃∙ Ω (space (A x) (sucℤ k))
             equivΩAt x = (fst (map (A x) k) , equiv (A x) k) , snd (map (A x) k)
 
     commDegreeΩOnce' : (k : ℤ) → (CohomClasses k) ≃∙ Ω (CohomClasses (sucℤ k))
     commDegreeΩOnce' k =
       compEquiv∙ (commDegreeΩOnce k)
                  ((isoToEquiv (iso (λ f → (λ i x → f x i)) (λ f → (λ x i → f i x)) (λ _ → refl) λ _ → refl)) , refl)
-                            
+
   commDegreeΩ : (k : ℤ) (n : ℕ) → (CohomClasses k) ≃∙ (Ω^ n) (CohomClasses (k + (pos n)))
   commDegreeΩ k ℕ.zero = idEquiv∙ _
   commDegreeΩ k (ℕ.suc n) =
-    (CohomClasses k)                                   ≃∙⟨ commDegreeΩ k n ⟩
+    CohomClasses k                                     ≃∙⟨ commDegreeΩ k n ⟩
     (Ω^ n) (CohomClasses (k + (pos n)))                ≃∙⟨ Ω^≃∙ n (commDegreeΩOnce' (k + pos n)) ⟩
     (Ω^ n) (Ω (CohomClasses (sucℤ (k + (pos n)))))     ≃∙⟨ invEquiv∙ (e n) ⟩
     (Ω^ (ℕ.suc n)) (CohomClasses (sucℤ (k + (pos n)))) ∎≃∙
     where e : {A : Pointed ℓ} (n : ℕ) → (Ω^ (ℕ.suc n)) A ≃∙ (Ω^ n) (Ω A)
           e ℕ.zero = isoToEquiv (flipΩIso ℕ.zero) , transportRefl refl
           e (ℕ.suc n) = isoToEquiv (flipΩIso (ℕ.suc n)) , flipΩrefl n
-    
+
   {-
     Abelian group structure
   -}
@@ -74,7 +75,7 @@ module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
       given by the homotopy group functor
     -}
     CohomAsGroup : Group ℓ
-    CohomAsGroup = (π^ 2) (Πᵘ∙ X  (λ x → (space (A x) (2 + k))))
+    CohomAsGroup = (π^ 1) (Πᵘ∙ X  (λ x → (space (A x) (k + 2))))
 
     open GroupStr (snd CohomAsGroup)
 
@@ -83,8 +84,13 @@ module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
                    λ a b → ∣ a ∙ b ∣₂ ≡⟨ cong ∣_∣₂ (isCommΩ 0 a b) ⟩
                            ∣ b ∙ a ∣₂ ∎
 
+    π₂AbGroup : AbGroup ℓ
+    π₂AbGroup = Group→AbGroup CohomAsGroup isComm
+
   Cohom : ℤ → AbGroup ℓ
-  Cohom k = Group→AbGroup (abGroupStr.CohomAsGroup k) (abGroupStr.isComm k)
+  Cohom k = CohomType k , subst AbGroupStr (sym shiftΩPath) (snd (abGroupStr.π₂AbGroup k))
+    where shiftΩPath : CohomType k ≡ fst (abGroupStr.π₂AbGroup k)
+          shiftΩPath = cong ∥_∥₂ (ua (fst (commDegreeΩ k 2)))
 
 {-
   Functoriality in the type argument
