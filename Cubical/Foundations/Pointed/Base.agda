@@ -36,6 +36,7 @@ idfun∙ : (A : Pointed ℓ) → A →∙ A
 idfun∙ A .fst x = x
 idfun∙ A .snd = refl
 
+infix 3 _≃∙_
 {-Pointed equivalences -}
 _≃∙_ : (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
 A ≃∙ B = Σ[ e ∈ fst A ≃ fst B ] fst e (pt A) ≡ pt B
