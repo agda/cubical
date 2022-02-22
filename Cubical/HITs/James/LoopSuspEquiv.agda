@@ -83,7 +83,7 @@ module _
       (pathL xs j)
 
   isContrTotal : isContr Total
-  isContrTotal .fst = inl []
+  isContrTotal .fst = center
   isContrTotal .snd (inl xs) = pathL xs
   isContrTotal .snd (inr xs) = pathL xs ∙∙ push (x₀ , xs) ∙∙ (λ i → inr (unit xs (~ i)))
   isContrTotal .snd (push (x , xs) i) j =
