@@ -1,6 +1,8 @@
 {-
 
-
+This file contains:
+  - The inductive construction of James and its equivalence to the non-inductive version.
+    (KANG Rongji, Feb. 2022)
 
 -}
 {-# OPTIONS --safe #-}
