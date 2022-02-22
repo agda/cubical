@@ -574,7 +574,7 @@ coh-cube-helper p q q' sqr = coh-cube-helper' _ p _ q q' sqr
 
 -- Awwwwwwwwwwww
 -- The following uses J rule TEN times iteratively.
--- Actually the proof is rather easy, if only one has regularity 
+-- Actually the proof is rather easy, if only one has regularity
 --  or at least some syntactic sugar to iteratively apply J rule.
 -- But no, so it is extremely long.
 -- Awwwwwwwwwwww
