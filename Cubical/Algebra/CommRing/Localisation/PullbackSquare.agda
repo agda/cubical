@@ -584,3 +584,13 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
       θtriple : ∀ a → Σ[ x ∈ R ] (x /1ᶠ ≡ fst φ a) × (x /1ᵍ ≡ fst ψ a)
       θtriple a = fst θ a , sym (cong (_$ a) (θCoh .fst))
                           , sym (cong (_$ a) (θCoh .snd))
+
+
+ -- packaging it all up
+ open Pullback
+ fgPullback : 1r ∈ ⟨f,g⟩ → Pullback _ fgCospan
+ pbOb (fgPullback 1r∈⟨f,g⟩) = _
+ pbPr₁ (fgPullback 1r∈⟨f,g⟩) = _
+ pbPr₂ (fgPullback 1r∈⟨f,g⟩) = _
+ pbCommutes (fgPullback 1r∈⟨f,g⟩) = /1χHomComm
+ univProp (fgPullback 1r∈⟨f,g⟩) = fgSquare 1r∈⟨f,g⟩

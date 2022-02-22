@@ -38,6 +38,7 @@ open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Localisation.InvertingElements
+open import Cubical.Algebra.CommRing.Localisation.PullbackSquare
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
@@ -528,6 +529,7 @@ module BasicOpens (R' : CommRing ℓ) where
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
 
+
  BasicOpens : ℙ ZL
  BasicOpens 𝔞 = (∃[ f ∈ R ] (D f ≡ 𝔞)) , isPropPropTrunc
 
@@ -659,7 +661,7 @@ module BasicOpens (R' : CommRing ℓ) where
    Σhelper : (a : Σ[ f ∈ R ] D f ≡ 𝔞) (b : Σ[ g ∈ R ] D g ≡ 𝔟) (c : Σ[ h ∈ R ] D h ≡ 𝔞 ∨z 𝔟)
            → isPullback (CommAlgebrasCategory R') _ _ _
                         (BFsq (𝔞 , ∣ a ∣) (𝔟 , ∣ b ∣) ∣ c ∣ BasisStructurePShf)
-   Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = {!toSheaf.lemma (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣) (𝔟 , ∣ g , Dg≡𝔟 ∣) ∣ h , Dh≡𝔞∨𝔟 ∣) ? ? ? ? ? ?!}
+   Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = {!toSheaf.lemma (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣) (𝔟 , ∣ g , Dg≡𝔟 ∣) ∣ h , Dh≡𝔞∨𝔟 ∣) theAlgebraCospan theAlgebraPullback refl ? ? ?!}
    {-
      write down ideal facts implied by √⟨h⟩≡√⟨f,g⟩
      get pullbacksquare in CommRings (over R[1/h])
@@ -667,10 +669,90 @@ module BasicOpens (R' : CommRing ℓ) where
      use toSheaf.lemma
    -}
     where
+    open Exponentiation R'
     open RadicalIdeal R'
+    open InvertingElementsBase R'
+    open DoubleLoc R' h
+    --open Loc R' [ h ⁿ|n≥0] (powersFormMultClosedSubset h)
+    open S⁻¹RUniversalProp R' [ h ⁿ|n≥0] (powersFormMultClosedSubset h)
+    open CommIdeal R[1/ h ]AsCommRing using () renaming (CommIdeal to CommIdealₕ ; _∈_ to _∈ₕ_)
+    --open RadicalIdeal R[1/ h ]AsCommRing using () renaming (√ to √ₕ)
+
+    instance
+     _ = snd R[1/ h ]AsCommRing
+
+    ⟨_⟩ₕ : {n : ℕ} → FinVec R[1/ h ] n → CommIdealₕ
+    ⟨ V ⟩ₕ = ⟨ V ⟩[ R[1/ h ]AsCommRing ]
 
     radicalPath : √ ⟨ replicateFinVec 1 h ⟩ ≡ √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
     radicalPath = isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun DHelper
      where
      DHelper : D h ≡ D f ∨z D g
      DHelper = Dh≡𝔞∨𝔟 ∙ cong₂ (_∨z_) (sym Df≡𝔞) (sym Dg≡𝔟)
+
+    1∈Radical : 1r ∈ₕ ⟨ replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1) ⟩ₕ
+    1∈Radical = helper1 (subst (h ∈_) radicalPath (∈→∈√ _ _ (indInIdeal _ _ zero)))
+     where
+     helper1 : h ∈ √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
+             → 1r ∈ₕ ⟨ replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1) ⟩ₕ
+     helper1 = PT.rec isPropPropTrunc (uncurry helper2)
+      where
+      helper2 : (n : ℕ)
+              → h ^ n ∈ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
+              → 1r ∈ₕ ⟨ replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1) ⟩ₕ
+      helper2 n = map helper3
+       where
+       helper3 : Σ[ α ∈ FinVec R 2 ]
+                  h ^ n ≡ linearCombination R' α (replicateFinVec 1 f ++Fin replicateFinVec 1 g)
+               → Σ[ β ∈ FinVec R[1/ h ] 2 ]
+                  1r ≡ linearCombination R[1/ h ]AsCommRing β
+                                         (replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1))
+       helper3 (α , p) = β , path
+        where
+        β : FinVec R[1/ h ] 2
+        β zero = [ α zero , h ^ n , ∣ n , refl ∣ ]
+        β (suc zero) = [ α (suc zero) , h ^ n , ∣ n , refl ∣ ]
+
+        path : 1r ≡ linearCombination R[1/ h ]AsCommRing β
+                                      (replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1))
+        path = eq/ _ _ ((1r , ∣ 0 , refl ∣) , bigPath)
+             ∙ cong (β zero · (f /1) +_) (sym (+Rid (β (suc zero) · (g /1))))
+         where
+         useSolver1 : ∀ hn → 1r · 1r · ((hn · 1r) · (hn · 1r)) ≡ hn · hn
+         useSolver1 = solve R'
+
+         useSolver2 : ∀ az f hn as g → hn · (az · f + (as · g + 0r))
+                                      ≡ 1r · (az · f · (hn · 1r) + as · g · (hn · 1r)) · 1r
+         useSolver2 = solve R'
+
+         bigPath : 1r · 1r · ((h ^ n · 1r) · (h ^ n · 1r))
+                 ≡ 1r · (α zero · f · (h ^ n · 1r) + α (suc zero) · g · (h ^ n · 1r)) · 1r
+         bigPath = useSolver1 (h ^ n) ∙ cong (h ^ n ·_) p ∙ useSolver2 _ _ _ _ _
+
+    -- we get a pullback square in comm rings that then gives us the desired
+    -- square in R-algebras that we want to transport
+    theRingCospan = fgCospan R[1/ h ]AsCommRing (f /1) (g /1)
+    theRingPBSquare = fgPullback R[1/ h ]AsCommRing (f /1) (g /1) 1∈Radical
+
+    R[1/h][1/fg] = InvertingElementsBase.R[1/_] R[1/ h ]AsCommRing ((f /1) · (g /1))
+    R[1/h][1/fg]AsCommRing = InvertingElementsBase.R[1/_]AsCommRing
+                               R[1/ h ]AsCommRing ((f /1) · (g /1))
+
+    open IsRingHom
+    /1/1AsCommRingHomFG : CommRingHom R' R[1/h][1/fg]AsCommRing
+    fst /1/1AsCommRingHomFG r = [ [ r , 1r , ∣ 0 , refl ∣ ] , 1r , ∣ 0 , refl ∣ ]
+    pres0 (snd /1/1AsCommRingHomFG) = refl
+    pres1 (snd /1/1AsCommRingHomFG) = refl
+    pres+ (snd /1/1AsCommRingHomFG) x y = {!!}
+      -- cong [_] (≡-× (cong [_] (≡-× (cong₂ _+_ (sym {!!}) {!!}) {!!})) {!!})
+    pres· (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-× refl
+                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r)))))
+                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r))))
+    pres- (snd /1/1AsCommRingHomFG) x = refl
+
+    --isRHomR[1/h]→R[1/h][1/f]
+
+    open PullbackFromCommRing R' theRingCospan theRingPBSquare
+         /1AsCommRingHom (/1/1AsCommRingHom g) (/1/1AsCommRingHom f) /1/1AsCommRingHomFG
+    -- theAlgebraCospan = algCospan {!!} {!!} {!!} {!!}
+    -- theAlgebraPullback = algPullback {!!} {!!} {!!} {!!}
