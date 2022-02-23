@@ -29,7 +29,7 @@ open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Data.Int.Base hiding (_·_)
 open import Cubical.Data.Nat.Base using (ℕ)
 open import Cubical.Data.Sigma
-open import Cubical.Data.HomotopyGroup.Base
+open import Cubical.Homotopy.Group.Base
 open import Cubical.HITs.SetTruncation hiding (map)
 
 open import Cubical.Homotopy.Spectrum
@@ -81,10 +81,11 @@ module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
     {-
       Use an equivalent type, where the group structure is just
       given by the homotopy group functor
-      (index of homotopy groups is off by one in the cubical library)
+      (index of homotopy groups is off by one below, we actually take π₂,
+      to get an abelian group)
     -}
     CohomAsGroup : Group ℓ
-    CohomAsGroup = (π^ 1) (Πᵘ∙ X  (λ x → (space (A x) (k + 2))))
+    CohomAsGroup = (πGr 1) (Πᵘ∙ X  (λ x → (space (A x) (k + 2))))
 
     open GroupStr (snd CohomAsGroup)
 
