@@ -32,7 +32,6 @@ open import Cubical.Data.NatMinusOne
 
 open import Cubical.HITs.Pushout
 open import Cubical.Data.Sum.Base
-open import Cubical.Data.HomotopyGroup
 
 open import Cubical.Experiments.ZCohomologyOld.KcompPrelims
 
