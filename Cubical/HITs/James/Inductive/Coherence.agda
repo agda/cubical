@@ -10,7 +10,7 @@ The length mainly thanks to:
 
   -- No pattern matching for J rule or any sytactically convenient way
      to apply it. So when you deal with complicated composite functions
-     it needs to many helper functions.
+     it needs too many helper functions.
 
 -}
 {-# OPTIONS --safe #-}
