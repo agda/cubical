@@ -28,6 +28,7 @@ open import Cubical.Algebra.Group.MorphismProperties
 
 open import Cubical.Data.Int.Base hiding (_·_)
 open import Cubical.Data.Nat.Base using (ℕ)
+open import Cubical.Data.Sigma
 open import Cubical.Data.HomotopyGroup.Base
 open import Cubical.HITs.SetTruncation hiding (map)
 
@@ -94,18 +95,25 @@ module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
     π₂AbGroup : AbGroup ℓ
     π₂AbGroup = Group→AbGroup CohomAsGroup isComm
 
-  Cohom'  :  ℤ → AbGroup ℓ
-  Cohom' k = abGroupStr.π₂AbGroup k
+  module _ (k : ℤ) where
+    Cohom' : AbGroup ℓ
+    Cohom' = abGroupStr.π₂AbGroup k
 
-  CohomType' : ℤ → Type ℓ
-  CohomType' k = fst (abGroupStr.π₂AbGroup k)
+    CohomType' : Type ℓ
+    CohomType' = fst (abGroupStr.π₂AbGroup k)
 
-  Cohom : ℤ → AbGroup ℓ
-  Cohom k = CohomType k , subst AbGroupStr (sym shiftΩPath) (snd (abGroupStr.π₂AbGroup k))
-    where shiftΩPath : CohomType k ≡ fst (abGroupStr.π₂AbGroup k)
-          shiftΩPath = cong ∥_∥₂ (ua (fst (commDegreeΩ k 2)))
+    private
+      shiftΩTwicePath : fst (abGroupStr.π₂AbGroup k) ≡ CohomType k
+      shiftΩTwicePath = sym (cong ∥_∥₂ (ua (fst (commDegreeΩ k 2))))
 
+    Cohom : AbGroup ℓ
+    Cohom = CohomType k , subst AbGroupStr shiftΩTwicePath (snd (abGroupStr.π₂AbGroup k))
 
+    CohomPath : Cohom' ≡ Cohom
+    CohomPath = ΣPathTransport→PathΣ Cohom' Cohom (shiftΩTwicePath , refl)
+
+    CohomEquiv : AbGroupEquiv Cohom' Cohom
+    CohomEquiv = fst (invEquiv (AbGroupPath Cohom' Cohom)) CohomPath
 {-
   Functoriality in the type argument
 -}
