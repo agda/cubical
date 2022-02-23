@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-  -- The alternative inductive definition gives the same type as James.
+  -- The reduced version gives the same type as James.
 
 -}
 {-# OPTIONS --safe #-}
@@ -31,6 +31,8 @@ module _
     𝕁ames = 𝕁amesConstruction (X , x₀)
     𝕁Red  =  𝕁RedConstruction (X , x₀)
 
+  -- Mimicking the constructors in each other
+
   unit' : (x : X)(xs : James) → Path James (x₀ ∷ x ∷ xs) (x ∷ x₀ ∷ xs)
   unit' x xs = sym (unit (x ∷ xs)) ∙∙ refl ∙∙ (λ i → x ∷ unit xs i)
 
@@ -51,6 +53,8 @@ module _
 
   infixr 5 _∷∞_
 
+  -- One side map
+
   𝕁→James-inl : 𝕁Red → James
   𝕁→James-inl [] = []
   𝕁→James-inl (x ∷ xs) = x ∷ 𝕁→James-inl xs
@@ -60,6 +64,8 @@ module _
   𝕁→James : 𝕁ames → James
   𝕁→James (inl xs) = 𝕁→James-inl xs
   𝕁→James (push xs i) = unit (𝕁→James-inl xs) i
+
+  -- Commutativity with pseudo-constructors
 
   𝕁→James-∷ : (x : X)(xs : 𝕁ames) → 𝕁→James (x ∷∞ xs) ≡ x ∷ 𝕁→James xs
   𝕁→James-∷ x (inl xs) = refl
@@ -82,6 +88,7 @@ module _
             (λ i → inl (unit x₀ xs i)) refl j i l })
     (push-coh-helper _ _ _ (λ i j → unit (unit (𝕁→James-inl xs) j) i) k i j)
 
+  -- The other-side map
 
   private
     push-square : (x : X)(xs : 𝕁Red)
@@ -104,6 +111,9 @@ module _
   J→𝕁ames [] = inl []
   J→𝕁ames (x ∷ xs) = x ∷∞ (J→𝕁ames xs)
   J→𝕁ames (unit xs i) = push∞ (J→𝕁ames xs) i
+
+  -- The following is the most complicated part.
+  -- It seems horrible but mainly it's due to correction of boudaries.
 
   𝕁→J→𝕁ames-inl : (xs : 𝕁Red) → J→𝕁ames (𝕁→James (inl xs)) ≡ inl xs
   𝕁→J→𝕁ames-inl [] = refl

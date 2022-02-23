@@ -5,6 +5,8 @@ This file contains:
 
   -- The special cases of 𝕁 n for n = 0, 1 and 2.
 
+  Easy, almost direct consequences of the very definition.
+
 -}
 {-# OPTIONS --safe #-}
 module Cubical.HITs.James.Inductive.PushoutFormula where

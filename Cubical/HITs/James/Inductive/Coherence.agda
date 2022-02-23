@@ -25,7 +25,7 @@ private
     ℓ ℓ' : Level
 
 
--- Lots of degenerate cubes for applying J rule
+-- Lots of degenerate cubes used as intial input to J rule
 
 private
   module _
@@ -124,7 +124,7 @@ private
       (f a)
 
 
--- Functions of which most are defined by J rule
+-- Cubes of which mostly are constructed by J rule
 
 coh-helper-refl : {A : Type ℓ}{a : A}(q' : a ≡ a)
   → refl ≡ q'
