@@ -658,16 +658,33 @@ module BasicOpens (R' : CommRing ℓ) where
                             (BFsq (𝔞 , 𝔞∈BO) (𝔟 , 𝔟∈BO) 𝔞∨𝔟∈BO BasisStructurePShf))
                             Σhelper
    where
+   -- write everything explicitly so things can type-check
+   thePShfCospan : (a : Σ[ f ∈ R ] D f ≡ 𝔞) (b : Σ[ g ∈ R ] D g ≡ 𝔟)
+                 → Cospan (CommAlgebrasCategory R')
+   Cospan.l (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-ob (𝔟 , ∣ g , Dg≡𝔟 ∣)
+   Cospan.m (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-ob
+            (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)
+   Cospan.r (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-ob (𝔞 , ∣ f , Df≡𝔞 ∣)
+   Cospan.s₁ (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-hom
+             {x = (𝔟 , ∣ g , Dg≡𝔟 ∣)}
+             {y = (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)}
+             (hom-∧₂  ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ}) (TerminalCommAlgebra R') 𝔞 𝔟)
+   Cospan.s₂ (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-hom
+             {x = (𝔞 , ∣ f , Df≡𝔞 ∣)}
+             {y = (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)}
+             (hom-∧₁  ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ}) (TerminalCommAlgebra R') 𝔞 𝔟)
+
+
    Σhelper : (a : Σ[ f ∈ R ] D f ≡ 𝔞) (b : Σ[ g ∈ R ] D g ≡ 𝔟) (c : Σ[ h ∈ R ] D h ≡ 𝔞 ∨z 𝔟)
-           → isPullback (CommAlgebrasCategory R') _ _ _
+           → isPullback (CommAlgebrasCategory R') (thePShfCospan a b) _ _
                         (BFsq (𝔞 , ∣ a ∣) (𝔟 , ∣ b ∣) ∣ c ∣ BasisStructurePShf)
-   Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = {!!} --toSheaf.lemma (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣) (𝔟 , ∣ g , Dg≡𝔟 ∣) ∣ h , Dh≡𝔞∨𝔟 ∣) theAlgebraCospan theAlgebraPullback refl fPath gPath fgPath
-   {-
-     write down ideal facts implied by √⟨h⟩≡√⟨f,g⟩
-     get pullbacksquare in CommRings (over R[1/h])
-     use PullbackFromCommRing
-     use toSheaf.lemma
-   -}
+   Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = toSheaf.lemma
+           (𝔞 ∨z 𝔟 , ∣ h , Dh≡𝔞∨𝔟 ∣)
+           (𝔟 , ∣ g , Dg≡𝔟 ∣)
+           (𝔞 , ∣ f , Df≡𝔞 ∣)
+           (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)
+           (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣) (𝔟 , ∣ g , Dg≡𝔟 ∣) ∣ h , Dh≡𝔞∨𝔟 ∣)
+           theAlgebraCospan theAlgebraPullback refl {!!} {!!} fgPath
     where
     open Exponentiation R'
     open RadicalIdeal R'

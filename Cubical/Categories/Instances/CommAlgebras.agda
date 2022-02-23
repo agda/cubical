@@ -296,10 +296,10 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
 
 
  -- a big transport to help verifying the sheaf property
- module toSheaf {x y u v : ob ΣC∥P∥Cat}
+ module toSheaf (x y u v : ob ΣC∥P∥Cat)
                 {f : C [ v .fst , y . fst ]} {g : C [ v .fst , u .fst ]}
                 {h : C [ u .fst , x . fst ]} {k : C [ y .fst , x .fst ]}
-                (Csquare : f ⋆⟨ C ⟩ k ≡ g ⋆⟨ C ⟩ h)
+                (Csquare : g ⋆⟨ C ⟩ h ≡ f ⋆⟨ C ⟩ k)
                 {-
                     v → y
                     ↓   ↓
@@ -307,20 +307,20 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
                 -}
                 (AlgCospan : Cospan CommAlgCat)
                 (AlgPB : Pullback _ AlgCospan)
-                (p₁ : AlgPB .pbOb ≡ F-ob universalPShf x) (p₂ : AlgCospan .l ≡ F-ob universalPShf y)
-                (p₃ : AlgCospan .r ≡ F-ob universalPShf u) (p₄ : AlgCospan .m ≡ F-ob universalPShf v)
+                (p₁ : AlgPB .pbOb ≡ F-ob universalPShf x) (p₂ : AlgCospan .l ≡ F-ob universalPShf u)
+                (p₃ : AlgCospan .r ≡ F-ob universalPShf y) (p₄ : AlgCospan .m ≡ F-ob universalPShf v)
                 where
 
   private
    -- just: 𝓕 k ⋆ 𝓕 f ≡ 𝓕 h ⋆ 𝓕 g
    inducedSquare : seq' CommAlgCat {x = F-ob universalPShf x}
-                                   {y = F-ob universalPShf y}
-                                   {z = F-ob universalPShf v}
-                                   (F-hom universalPShf k) (F-hom universalPShf f)
-                 ≡ seq' CommAlgCat {x = F-ob universalPShf x}
                                    {y = F-ob universalPShf u}
                                    {z = F-ob universalPShf v}
                                    (F-hom universalPShf h) (F-hom universalPShf g)
+                 ≡ seq' CommAlgCat {x = F-ob universalPShf x}
+                                   {y = F-ob universalPShf y}
+                                   {z = F-ob universalPShf v}
+                                   (F-hom universalPShf k) (F-hom universalPShf f)
    inducedSquare = F-square universalPShf Csquare
 
    f' = F-hom universalPShf {x = y} {y = v} f
@@ -328,37 +328,38 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
    h' = F-hom universalPShf {x = x} {y = u} h
    k' = F-hom universalPShf {x = x} {y = y} k
 
-   fPathP : PathP (λ i → CommAlgCat [ p₂ i , p₄ i ]) (AlgCospan .s₁) f'
-   fPathP = toPathP (sym (theAction _ _ f (v .snd) (y .snd) .snd _))
-
-   gPathP : PathP (λ i → CommAlgCat [ p₃ i , p₄ i ]) (AlgCospan .s₂) g'
+   gPathP : PathP (λ i → CommAlgCat [ p₂ i , p₄ i ]) (AlgCospan .s₁) g'
    gPathP = toPathP (sym (theAction _ _ g (v .snd) (u .snd) .snd _))
 
-   hPathP : PathP (λ i → CommAlgCat [ p₁ i , p₃ i ]) (AlgPB .pbPr₂) h'
-   hPathP = toPathP (sym (theAction _ _ h (u .snd) (x .snd) .snd _))
+   fPathP : PathP (λ i → CommAlgCat [ p₃ i , p₄ i ]) (AlgCospan .s₂) f'
+   fPathP = toPathP (sym (theAction _ _ f (v .snd) (y .snd) .snd _))
 
-   kPathP : PathP (λ i → CommAlgCat [ p₁ i , p₂ i ]) (AlgPB .pbPr₁) k'
+   kPathP : PathP (λ i → CommAlgCat [ p₁ i , p₃ i ]) (AlgPB .pbPr₂) k'
    kPathP = toPathP (sym (theAction _ _ k (y .snd) (x .snd) .snd _))
 
+   hPathP : PathP (λ i → CommAlgCat [ p₁ i , p₂ i ]) (AlgPB .pbPr₁) h'
+   hPathP = toPathP (sym (theAction _ _ h (u .snd) (x .snd) .snd _))
+
    fgCospan : Cospan CommAlgCat
-   l fgCospan = F-ob universalPShf y
+   l fgCospan = F-ob universalPShf u
    m fgCospan = F-ob universalPShf v
-   r fgCospan = F-ob universalPShf u
-   s₁ fgCospan = f'
-   s₂ fgCospan = g'
+   r fgCospan = F-ob universalPShf y
+   s₁ fgCospan = g'
+   s₂ fgCospan = f'
 
    cospanPath : AlgCospan ≡ fgCospan
    l (cospanPath i) = p₂ i
    m (cospanPath i) = p₄ i
    r (cospanPath i) = p₃ i
-   s₁ (cospanPath i) = fPathP i
-   s₂ (cospanPath i) = gPathP i
+   s₁ (cospanPath i) = gPathP i
+   s₂ (cospanPath i) = fPathP i
 
-   squarePathP : PathP (λ i → kPathP i ⋆⟨ CommAlgCat ⟩ fPathP i ≡ hPathP i ⋆⟨ CommAlgCat ⟩ gPathP i)
+   squarePathP : PathP (λ i → hPathP i ⋆⟨ CommAlgCat ⟩ gPathP i ≡ kPathP i ⋆⟨ CommAlgCat ⟩ fPathP i)
                       (AlgPB .pbCommutes) inducedSquare
    squarePathP = toPathP (CommAlgCat .isSetHom _ _ _ _)
 
-  lemma : isPullback CommAlgCat fgCospan {c = F-ob universalPShf x} k' h' inducedSquare
-  lemma = transport (λ i → isPullback CommAlgCat (cospanPath i) {c = p₁ i}
-                                                 (kPathP i) (hPathP i) (squarePathP i))
-                    (AlgPB .univProp)
+  abstract
+   lemma : isPullback CommAlgCat fgCospan {c = F-ob universalPShf x} h' k' inducedSquare
+   lemma = transport (λ i → isPullback CommAlgCat (cospanPath i) {c = p₁ i}
+                                                  (hPathP i) (kPathP i) (squarePathP i))
+                     (AlgPB .univProp)
