@@ -104,11 +104,11 @@ module _
   {-
 
     Notice that the definition of 𝕁 and 𝕁Alt are very similar.
-    The point is, the coherence condition incl∷ and coh are stated
-    for two different functions incl and x₀∷_ respectively.
-    But these two maps are continously connected by the path (λ i → unit _ i).
+    The point is, the coherence conditions incl∷ and coh are stated
+    for two different maps incl and x₀∷_ respectively.
+    But they are continously connected by the path (λ i → unit _ i).
     So if the following construction 𝕁Path works,
-    the type 𝕁 and 𝕁Alt are almost the same thing as its endpoints.
+    the type 𝕁 and 𝕁Alt are almost the same as its endpoints.
     Then the proof will be all refls together with one transport.
 
     data 𝕁Path (i : I) : Type ℓ where
