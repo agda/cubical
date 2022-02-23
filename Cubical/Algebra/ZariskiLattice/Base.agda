@@ -661,7 +661,7 @@ module BasicOpens (R' : CommRing ℓ) where
    Σhelper : (a : Σ[ f ∈ R ] D f ≡ 𝔞) (b : Σ[ g ∈ R ] D g ≡ 𝔟) (c : Σ[ h ∈ R ] D h ≡ 𝔞 ∨z 𝔟)
            → isPullback (CommAlgebrasCategory R') _ _ _
                         (BFsq (𝔞 , ∣ a ∣) (𝔟 , ∣ b ∣) ∣ c ∣ BasisStructurePShf)
-   Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = {!toSheaf.lemma (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣) (𝔟 , ∣ g , Dg≡𝔟 ∣) ∣ h , Dh≡𝔞∨𝔟 ∣) theAlgebraCospan theAlgebraPullback refl ? ? ?!}
+   Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = {!!} --toSheaf.lemma (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣) (𝔟 , ∣ g , Dg≡𝔟 ∣) ∣ h , Dh≡𝔞∨𝔟 ∣) theAlgebraCospan theAlgebraPullback refl fPath gPath fgPath
    {-
      write down ideal facts implied by √⟨h⟩≡√⟨f,g⟩
      get pullbacksquare in CommRings (over R[1/h])
@@ -673,7 +673,6 @@ module BasicOpens (R' : CommRing ℓ) where
     open RadicalIdeal R'
     open InvertingElementsBase R'
     open DoubleLoc R' h
-    --open Loc R' [ h ⁿ|n≥0] (powersFormMultClosedSubset h)
     open S⁻¹RUniversalProp R' [ h ⁿ|n≥0] (powersFormMultClosedSubset h)
     open CommIdeal R[1/ h ]AsCommRing using () renaming (CommIdeal to CommIdealₕ ; _∈_ to _∈ₕ_)
     --open RadicalIdeal R[1/ h ]AsCommRing using () renaming (√ to √ₕ)
@@ -684,14 +683,24 @@ module BasicOpens (R' : CommRing ℓ) where
     ⟨_⟩ₕ : {n : ℕ} → FinVec R[1/ h ] n → CommIdealₕ
     ⟨ V ⟩ₕ = ⟨ V ⟩[ R[1/ h ]AsCommRing ]
 
+    -- the crucial algebraic fact:
     radicalPath : √ ⟨ replicateFinVec 1 h ⟩ ≡ √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
     radicalPath = isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun DHelper
      where
      DHelper : D h ≡ D f ∨z D g
      DHelper = Dh≡𝔞∨𝔟 ∙ cong₂ (_∨z_) (sym Df≡𝔞) (sym Dg≡𝔟)
 
-    1∈Radical : 1r ∈ₕ ⟨ replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1) ⟩ₕ
-    1∈Radical = helper1 (subst (h ∈_) radicalPath (∈→∈√ _ _ (indInIdeal _ _ zero)))
+    f∈√⟨h⟩ : f ∈ √ ⟨ replicateFinVec 1 h ⟩
+    f∈√⟨h⟩ = subst (f ∈_) (sym radicalPath) (∈→∈√ _ _ (indInIdeal _ _ zero))
+
+    g∈√⟨h⟩ : g ∈ √ ⟨ replicateFinVec 1 h ⟩
+    g∈√⟨h⟩ = subst (g ∈_) (sym radicalPath) (∈→∈√ _ _ (indInIdeal _ _ (suc zero)))
+
+    fg∈√⟨h⟩ : (f · g) ∈ √ ⟨ replicateFinVec 1 h ⟩
+    fg∈√⟨h⟩ = √ ⟨ replicateFinVec 1 h ⟩ .snd .·Closed f g∈√⟨h⟩
+
+    1∈fgIdeal : 1r ∈ₕ ⟨ replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1) ⟩ₕ
+    1∈fgIdeal = helper1 (subst (h ∈_) radicalPath (∈→∈√ _ _ (indInIdeal _ _ zero)))
      where
      helper1 : h ∈ √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
              → 1r ∈ₕ ⟨ replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1) ⟩ₕ
@@ -732,8 +741,12 @@ module BasicOpens (R' : CommRing ℓ) where
     -- we get a pullback square in comm rings that then gives us the desired
     -- square in R-algebras that we want to transport
     theRingCospan = fgCospan R[1/ h ]AsCommRing (f /1) (g /1)
-    theRingPBSquare = fgPullback R[1/ h ]AsCommRing (f /1) (g /1) 1∈Radical
+    theRingPullback = fgPullback R[1/ h ]AsCommRing (f /1) (g /1) 1∈fgIdeal
 
+    R[1/h][1/f] = InvertingElementsBase.R[1/_] R[1/ h ]AsCommRing (f /1)
+    R[1/h][1/f]AsCommRing = InvertingElementsBase.R[1/_]AsCommRing R[1/ h ]AsCommRing (f /1)
+    R[1/h][1/g] = InvertingElementsBase.R[1/_] R[1/ h ]AsCommRing (g /1)
+    R[1/h][1/g]AsCommRing = InvertingElementsBase.R[1/_]AsCommRing R[1/ h ]AsCommRing (g /1)
     R[1/h][1/fg] = InvertingElementsBase.R[1/_] R[1/ h ]AsCommRing ((f /1) · (g /1))
     R[1/h][1/fg]AsCommRing = InvertingElementsBase.R[1/_]AsCommRing
                                R[1/ h ]AsCommRing ((f /1) · (g /1))
@@ -743,16 +756,69 @@ module BasicOpens (R' : CommRing ℓ) where
     fst /1/1AsCommRingHomFG r = [ [ r , 1r , ∣ 0 , refl ∣ ] , 1r , ∣ 0 , refl ∣ ]
     pres0 (snd /1/1AsCommRingHomFG) = refl
     pres1 (snd /1/1AsCommRingHomFG) = refl
-    pres+ (snd /1/1AsCommRingHomFG) x y = {!!}
-      -- cong [_] (≡-× (cong [_] (≡-× (cong₂ _+_ (sym {!!}) {!!}) {!!})) {!!})
+    pres+ (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-×
+                                         (cong₂ _+_ (useSolver x) (useSolver y))
+                                         (Σ≡Prop (λ _ → isPropPropTrunc) (useSolver 1r))))
+                                         (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r))))
+      where
+      useSolver : ∀ a → a ≡ a · 1r · (1r · 1r)
+      useSolver = solve R'
     pres· (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-× refl
                                             (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r)))))
                                             (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r))))
     pres- (snd /1/1AsCommRingHomFG) x = refl
 
-    --isRHomR[1/h]→R[1/h][1/f]
+    open Cospan
+    open Pullback
+    open RingHoms
+    isRHomR[1/h]→R[1/h][1/f] : theRingPullback .pbPr₁ ∘r /1AsCommRingHom ≡ /1/1AsCommRingHom f
+    isRHomR[1/h]→R[1/h][1/f] = RingHom≡ (funExt (λ x → refl))
 
-    open PullbackFromCommRing R' theRingCospan theRingPBSquare
+    isRHomR[1/h]→R[1/h][1/g] : theRingPullback .pbPr₂ ∘r /1AsCommRingHom ≡ /1/1AsCommRingHom g
+    isRHomR[1/h]→R[1/h][1/g] = RingHom≡ (funExt (λ x → refl))
+
+    isRHomR[1/h][1/f]→R[1/h][1/fg] : theRingCospan .s₁ ∘r /1/1AsCommRingHom f ≡ /1/1AsCommRingHomFG
+    isRHomR[1/h][1/f]→R[1/h][1/fg] = RingHom≡ (funExt
+      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·Rid x)
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r))))
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r)))))
+
+    isRHomR[1/h][1/g]→R[1/h][1/fg] : theRingCospan .s₂ ∘r /1/1AsCommRingHom g ≡ /1/1AsCommRingHomFG
+    isRHomR[1/h][1/g]→R[1/h][1/fg] = RingHom≡ (funExt
+      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·Rid x)
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r))))
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r)))))
+
+
+    open PullbackFromCommRing R' theRingCospan theRingPullback
          /1AsCommRingHom (/1/1AsCommRingHom g) (/1/1AsCommRingHom f) /1/1AsCommRingHomFG
-    -- theAlgebraCospan = algCospan {!!} {!!} {!!} {!!}
-    -- theAlgebraPullback = algPullback {!!} {!!} {!!} {!!}
+    theAlgebraCospan = algCospan isRHomR[1/h]→R[1/h][1/g]
+                                 isRHomR[1/h]→R[1/h][1/f]
+                                 isRHomR[1/h][1/g]→R[1/h][1/fg]
+                                 isRHomR[1/h][1/f]→R[1/h][1/fg]
+    theAlgebraPullback = algPullback isRHomR[1/h]→R[1/h][1/g]
+                                     isRHomR[1/h]→R[1/h][1/f]
+                                     isRHomR[1/h][1/g]→R[1/h][1/fg]
+                                     isRHomR[1/h][1/f]→R[1/h][1/fg]
+
+    --and the three remaining paths
+    fPath : theAlgebraCospan .l ≡ R[1/ f ]AsCommAlgebra
+    fPath = doubleLocCancel f∈√⟨h⟩
+     where
+     open DoubleAlgLoc R' h f
+    gPath : theAlgebraCospan .r ≡ R[1/ g ]AsCommAlgebra
+    gPath = doubleLocCancel g∈√⟨h⟩
+     where
+     open DoubleAlgLoc R' h g
+
+    fgPath : theAlgebraCospan .m ≡ R[1/ (f · g) ]AsCommAlgebra
+    fgPath = path ∙ doubleLocCancel fg∈√⟨h⟩
+     where
+     open DoubleAlgLoc R' h (f · g)
+     open CommAlgChar R'
+
+     R[1/h][1/fg]AsCommRing' = InvertingElementsBase.R[1/_]AsCommRing R[1/ h ]AsCommRing ((f · g) /1)
+
+     path : toCommAlg (R[1/h][1/fg]AsCommRing , /1/1AsCommRingHomFG)
+          ≡ toCommAlg (R[1/h][1/fg]AsCommRing' , /1/1AsCommRingHom (f · g))
+     path = {!!}
