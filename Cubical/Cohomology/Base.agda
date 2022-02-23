@@ -81,6 +81,7 @@ module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
     {-
       Use an equivalent type, where the group structure is just
       given by the homotopy group functor
+      (index of homotopy groups is off by one in the cubical library)
     -}
     CohomAsGroup : Group ℓ
     CohomAsGroup = (π^ 1) (Πᵘ∙ X  (λ x → (space (A x) (k + 2))))
@@ -114,6 +115,7 @@ module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
 
     CohomEquiv : AbGroupEquiv Cohom' Cohom
     CohomEquiv = fst (invEquiv (AbGroupPath Cohom' Cohom)) CohomPath
+
 {-
   Functoriality in the type argument
 -}
