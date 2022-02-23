@@ -675,7 +675,6 @@ module BasicOpens (R' : CommRing ℓ) where
     open DoubleLoc R' h
     open S⁻¹RUniversalProp R' [ h ⁿ|n≥0] (powersFormMultClosedSubset h)
     open CommIdeal R[1/ h ]AsCommRing using () renaming (CommIdeal to CommIdealₕ ; _∈_ to _∈ₕ_)
-    --open RadicalIdeal R[1/ h ]AsCommRing using () renaming (√ to √ₕ)
 
     instance
      _ = snd R[1/ h ]AsCommRing
@@ -821,4 +820,16 @@ module BasicOpens (R' : CommRing ℓ) where
 
      path : toCommAlg (R[1/h][1/fg]AsCommRing , /1/1AsCommRingHomFG)
           ≡ toCommAlg (R[1/h][1/fg]AsCommRing' , /1/1AsCommRingHom (f · g))
-     path = {!!}
+     path = cong toCommAlg (ΣPathP (p , q))
+      where
+      eqInR[1/h] : (f /1) · (g /1) ≡ (f · g) /1
+      eqInR[1/h] = sym (/1AsCommRingHom .snd .pres· f g)
+
+      p : R[1/h][1/fg]AsCommRing ≡ R[1/h][1/fg]AsCommRing'
+      p i = InvertingElementsBase.R[1/_]AsCommRing R[1/ h ]AsCommRing (eqInR[1/h] i)
+
+      q : PathP (λ i → CommRingHom R' (p i)) /1/1AsCommRingHomFG (/1/1AsCommRingHom (f · g))
+      q = toPathP (RingHom≡ (funExt (
+            λ x → cong [_] (≡-× (cong [_] (≡-× (transportRefl _ ∙ transportRefl x)
+                (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))
+                (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))))
