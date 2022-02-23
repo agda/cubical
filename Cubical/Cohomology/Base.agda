@@ -128,18 +128,16 @@ module _ {Y X : Type ℓ} (f : Y → X) (A : (x : X) → Spectrum ℓ) where
   fA : (y : Y) → Spectrum ℓ
   fA y = A (f y)
 
-{-
+
   cohomMap' : (k : ℤ) → AbGroupHom (Cohom' X A k) (Cohom' Y fA k)
-  cohomMap' k = asMap , {!!}
+  cohomMap' k = πHom 1 mapOnClasses  -- apply π₂ to a map on cohomology classes
             where
-             asMap : CohomType' X A k → CohomType' Y fA k
-             asMap = (rec isSetSetTrunc λ l → {!cong !})
+             mapOnClasses : CohomClasses X A (k + 2) →∙ CohomClasses Y fA (k + 2)
+             mapOnClasses = (λ l → (λ y → l (f y))) ,
+                            refl
 
   cohomMap : (k : ℤ) → AbGroupHom (Cohom X A k) (Cohom Y fA k)
-  cohomMap k = asMap ,
-               makeIsGroupHom
-                 (elim2 (λ _ _ → isSetPathImplicit) λ x y → {!!})
-           where
-             asMap : CohomType X A k → CohomType Y fA k
-             asMap = (rec isSetSetTrunc λ l → ∣ ( λ  y → l (f y)) ∣₂)
--}
+  cohomMap k = compGroupHom
+                 (compGroupHom (GroupEquiv→GroupHom (invGroupEquiv (CohomEquiv X A k)))
+                               (cohomMap' k))
+                 (GroupEquiv→GroupHom (CohomEquiv Y fA k))
