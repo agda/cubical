@@ -29,6 +29,27 @@ record GenericPrespectrum (S : SuccStr ℓ) (ℓ′ : Level) : Type (ℓ-max (�
     space : Index → Pointed ℓ′
     map : (i : Index) → (space i →∙ Ω (space (succ i)))
 
+
+{- Morphisms -}
+module _ {S : SuccStr ℓ} {A B : GenericPrespectrum S ℓ} where
+  open GenericPrespectrum
+  open SuccStr S
+  instance
+    _ = A
+    _ = B
+
+  {-
+      space A k  ──f─→∙ space A k
+          |                |
+         map              map
+          ↓                ↓
+     Ω space A k ─Ωf─→∙ Ω space B k
+  -}
+  record IsPrespectrumMor (f : (k : Index) → space A k →∙ space B k) : Type ℓ where
+    field
+      comm : (k : Index) → Ω→ (f (succ k)) ∘∙ (map A k) ≡ (map B k) ∘∙ (f k)
+
+
 Prespectrum = GenericPrespectrum ℤ+
 
 Unit∙→ΩUnit∙ : {ℓ : Level} → (Unit∙ {ℓ = ℓ}) →∙ Ω (Unit∙ {ℓ = ℓ})
