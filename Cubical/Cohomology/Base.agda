@@ -1,9 +1,14 @@
 {-
   This file defines cohomology of a type with
   coefficients in a dependent spectrum over it.
+  * Cohom and Cohom' are two versions of the cohomology groups
+    - the only difference is the carrier type.
+  * 'commDegreeΩ' commutes Ωs with degree shifts of the spectrum
+  * 'cohomMap' implement the application of the cohomology functors
+    to maps between types
 
-  This coincides with ZCohomology when the coefficients
-  are constantly the Eilenberg-MacLane spectrum for ℤ
+  This general cohomology coincides with ZCohomology when the coefficients
+  are constantly the Eilenberg-MacLane spectrum for ℤ (not proven here/yet)
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Cohomology.Base where
