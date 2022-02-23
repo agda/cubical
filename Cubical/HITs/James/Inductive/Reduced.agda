@@ -98,7 +98,31 @@ module _
   𝕁Alt≃𝕁Red : 𝕁Alt ≃ 𝕁Red
   𝕁Alt≃𝕁Red = isoToEquiv (iso 𝕁Alt→𝕁Red 𝕁Red→𝕁Alt 𝕁Red→𝕁Alt→𝕁Red 𝕁Alt→𝕁Red→𝕁Alt)
 
+
   -- The equivalence 𝕁 ≃ 𝕁Alt
+
+  {-
+
+    Notice that the definition of 𝕁 and 𝕁Alt are very similar.
+    The only difference is that, the coherence condition is stated for incl and x₀∷_ respectively.
+    However, these two maps are continously connected by the path (λ i → unit _ i).
+    So if the following construction 𝕁Path works, the type 𝕁 and 𝕁Alt are almost the same thing as
+    the endpoints of 𝕁Path. The proof will be all refls.
+
+    data 𝕁Path (i : I) : Type ℓ where
+      [] : 𝕁Path i
+      _∷_   : X → 𝕁Path i → 𝕁Path i
+      incl  : 𝕁Path i → 𝕁Path i
+      unit  : (xs : 𝕁Path i) → incl xs ≡ x₀ ∷ xs
+      incl∷ : (x : X)(xs : 𝕁Path i) → unit (x ∷ xs) i ≡ x ∷ unit xs i
+      coh   : (xs : 𝕁Path i) →
+        PathP (λ j → unit (unit xs i) i ≡ incl∷ x₀ xs i j)
+              (λ j → unit i (unit xs (i ∨ j)) i) (λ j → unit (unit xs i) (i ∨ j))
+
+    Unfortunately, it cannot pass the type-check.
+    However, same trick works for a simpler one, see 𝕁Path∞ below.
+
+  -}
 
   unitPath : Path (𝕁 → 𝕁) incl (x₀ ∷_)
   unitPath i xs = unit xs i
