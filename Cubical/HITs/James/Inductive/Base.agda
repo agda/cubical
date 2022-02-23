@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-  -- The inductive definition of James.
+  -- The inductive construction of James.
 
 -}
 {-# OPTIONS --safe #-}
@@ -14,6 +14,7 @@ open import Cubical.Data.Nat
 private
   variable
     ℓ : Level
+
 module _
   ((X , x₀) : Pointed ℓ) where
 

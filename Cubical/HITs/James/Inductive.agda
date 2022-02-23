@@ -34,7 +34,7 @@ private
   variable
     ℓ : Level
 
-module _
+module JamesInd
   (X∙@(X , x₀) : Pointed ℓ) where
 
   -- The follwing 𝕁 n is equivalence to Brunerie's family J n, as will be shown latter.

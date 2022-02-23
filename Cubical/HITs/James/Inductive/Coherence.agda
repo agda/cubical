@@ -3,6 +3,15 @@
 This file contains:
   -- Path lemmas used in the colimit equivalence proof.
 
+Very long, indeed. But should be simple.
+The length mainly thanks to:
+  -- Refls, lots of refls, and they lead to much degeneracy.
+     Maybe one has regularity or something could make them all trivial;
+
+  -- No pattern matching for J rule or any sytactically convenient way
+     to apply it. So when you deal with complicated composite functions
+     it needs to many helper functions.
+
 -}
 {-# OPTIONS --safe #-}
 module Cubical.HITs.James.Inductive.Coherence where
@@ -440,8 +449,8 @@ module _
       (λ i j → q i)
   push-coh-helper' _ =
     J push-coh-helper-ind1 (λ _ →
-        J push-coh-helper-ind2 (λ _ →
-          J push-coh-helper-ind3 push-coh-helper-refl))
+      J push-coh-helper-ind2 (λ _ →
+        J push-coh-helper-ind3 push-coh-helper-refl))
 
 push-coh-helper : {A : Type ℓ}{a b c : A}
     (p : a ≡ b)(q q' : b ≡ c)

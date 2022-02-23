@@ -3,6 +3,8 @@
 This file contains:
   -- Some alternative inductive definitions of James, and they are all equivalent.
 
+Somewhat long. But you can observe that much of the codes are refls, degeneracy and ctrl-c-ctrl-v recursions.
+
 -}
 {-# OPTIONS --safe #-}
 module Cubical.HITs.James.Inductive.Reduced where
