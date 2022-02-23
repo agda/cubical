@@ -104,10 +104,12 @@ module _
   {-
 
     Notice that the definition of 𝕁 and 𝕁Alt are very similar.
-    The only difference is that, the coherence condition is stated for incl and x₀∷_ respectively.
-    However, these two maps are continously connected by the path (λ i → unit _ i).
-    So if the following construction 𝕁Path works, the type 𝕁 and 𝕁Alt are almost the same thing as
-    the endpoints of 𝕁Path. The proof will be all refls.
+    The point is, the coherence condition incl∷ and coh are stated
+    for two different functions incl and x₀∷_ respectively.
+    But these two maps are continously connected by the path (λ i → unit _ i).
+    So if the following construction 𝕁Path works,
+    the type 𝕁 and 𝕁Alt are almost the same thing as its endpoints.
+    Then the proof will be all refls together with one transport.
 
     data 𝕁Path (i : I) : Type ℓ where
       [] : 𝕁Path i
@@ -121,6 +123,8 @@ module _
 
     Unfortunately, it cannot pass the type-check.
     However, same trick works for a simpler one, see 𝕁Path∞ below.
+    So maybe it hints the syntax of HITs could be extended in certain ways.
+    Or had I mistaken something?
 
   -}
 
@@ -296,7 +300,7 @@ module _
   𝕁≃𝕁Alt : 𝕁 ≃ 𝕁Alt
   𝕁≃𝕁Alt = isoToEquiv (iso 𝕁→𝕁Alt 𝕁Alt→𝕁 𝕁Alt→𝕁→𝕁Alt 𝕁→𝕁Alt→𝕁)
 
-  -- The equivalence of family : 𝕁 ≃ 𝕁Red
+  -- The equivalence of family 𝕁 ≃ 𝕁Red
 
   𝕁≃𝕁Red : 𝕁 ≃ 𝕁Red
   𝕁≃𝕁Red = compEquiv 𝕁≃𝕁Alt 𝕁Alt≃𝕁Red
