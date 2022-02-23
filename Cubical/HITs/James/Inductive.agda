@@ -21,6 +21,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 
+open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
 
 open import Cubical.HITs.James.Base
@@ -34,7 +35,7 @@ private
     ℓ : Level
 
 module _
-  ((X , x₀) : Pointed ℓ) where
+  (X∙@(X , x₀) : Pointed ℓ) where
 
   -- The follwing 𝕁 n is equivalence to Brunerie's family J n, as will be shown latter.
   -- Instead of his inductive procedure, 𝕁 is defined directly as an indexed HIT.
@@ -52,7 +53,7 @@ module _
   J≃𝕁∞ : James (X , x₀) ≃ 𝕁∞
   J≃𝕁∞ = compEquiv (James≃𝕁Red∞ _) (invEquiv (𝕁ames∞≃𝕁Red∞ _))
 
-  -- Description of 𝕁 n for small n
+  -- Description of 𝕁 n for n = 0, 1 and 2
 
   𝕁₀≃Unit : 𝕁 0 ≃ Unit
   𝕁₀≃Unit = 𝕁ames0≃ _
@@ -60,10 +61,13 @@ module _
   𝕁₁≃X : 𝕁 1 ≃ X
   𝕁₁≃X = 𝕁ames1≃ _
 
+  𝕁₂≃P[X×X←X⋁X→X] : 𝕁 2 ≃ Pushout ⋁↪ fold⋁
+  𝕁₂≃P[X×X←X⋁X→X] = 𝕁ames2≃ _
+
   -- The following family is defined as pushouts of 𝕁 n.
 
   𝕁Push : ℕ → Type ℓ
-  𝕁Push = Push𝕁ames (X , x₀)
+  𝕁Push = 𝕁amesPush (X , x₀)
 
   -- Brunerie uses f and g to denote the following maps, so do I.
 
