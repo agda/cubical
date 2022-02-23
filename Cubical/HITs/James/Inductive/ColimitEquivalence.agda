@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-  -- The alternative inductive definition gives the same tye as James.
+  -- The alternative inductive definition gives the same type as James.
 
 -}
 {-# OPTIONS --safe #-}

@@ -124,6 +124,8 @@ private
       (f a)
 
 
+-- Functions of which most are defined by J rule
+
 coh-helper-refl : {A : Type ℓ}{a : A}(q' : a ≡ a)
   → refl ≡ q'
   → refl ≡ refl ∙∙ refl ∙∙ q'
@@ -566,8 +568,8 @@ module _
       (λ i j → c) (λ i j → c)
   coh-cube-helper' _ =
     J coh-cube-helper-ind1 (λ _ →
-        J coh-cube-helper-ind2 (λ _ →
-          J coh-cube-helper-ind3 coh-cube-helper-refl))
+      J coh-cube-helper-ind2 (λ _ →
+        J coh-cube-helper-ind3 coh-cube-helper-refl))
 
 
 coh-cube-helper : {A : Type ℓ}{a b c : A} → (p : a ≡ b)(q : b ≡ c)(q' : c ≡ c)
@@ -838,9 +840,7 @@ private
         (λ i j → doubleCompPath-cong-filler f refl refl refl (λ i j → f a) (λ i j → f a) (λ i j → f a) j i i1)
         (λ i j → f a) (λ i j → f a)
 
-    ind10'→ind10 :
-        (∀ x y → ind10' x y)
-      → ∀ x y → ind10 x y
+    ind10'→ind10 : (∀ x y → ind10' x y) → ∀ x y → ind10 x y
     ind10'→ind10 f sqr' hsqr = f sqr' (λ i j k → hsqr j k i)
 
     coh-helper-cong' :

@@ -3,7 +3,12 @@
 This file contains:
   -- Some alternative inductive definitions of James, and they are all equivalent.
 
-Somewhat long. But you can observe that much of the codes are refls, degeneracy and ctrl-c-ctrl-v recursions.
+  Somewhat long. But you can observe that much of the codes
+  are refls, degeneracy and ctrl-c-ctrl-v recursions.
+
+  The main new one is called 𝕁Red because it is simpler than the original one.
+  It has fewer constructors, and its 2-dimensional constructor coh has a form
+  essentially more clearer. Also, it avoids indexes. It's a plain HIT.
 
 -}
 {-# OPTIONS --safe #-}
