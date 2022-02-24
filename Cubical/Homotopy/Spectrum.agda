@@ -65,6 +65,5 @@ module parametrized {X : Type ℓ} (A : X → Spectrum ℓ) where
             (λ g → λ x → inv (pointwiseIso k x) (λ i → g i x))
             (λ g → λ i j x → rightInv (pointwiseIso k x) (λ i → g i x) i j)
             λ f → λ i x → leftInv (pointwiseIso k x) (f x) i))
-
     where open Iso
 
