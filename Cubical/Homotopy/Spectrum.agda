@@ -42,14 +42,17 @@ A →ₛ B = Σ[ f ∈ ((k : ℤ) → space A k →∙ space B k) ]
   A dependent spectrum over a type is a mathematically quite interesting object -
   classicly called 'parametrized spectrum'.
 -}
-module parametrized {X : Type ℓ} (A : (x : X) → Spectrum ℓ) where
-  Πₛ : Spectrum ℓ
+module parametrized {X : Type ℓ} (A : X → Spectrum ℓ) where
   private
-    pointwiseMap : (k : ℤ) → space Πₛ k →∙ Ω (space Πₛ (sucℤ k))
-    pointwiseMap k = (λ ψ → λ i → {!!}) , {!!} {- (λ ψ → λ i x → fst (map (A x) k) (ψ x) i) ,
-                              λ i j x → snd (map (A x) k) i j -}
-
-  space (prespectrum Πₛ) k = Πᵘ∙ X (λ x → space (A x) k)
+    Πₛ-type : (k : ℤ) → Pointed ℓ
+    Πₛ-type k = Πᵘ∙ X (λ x → space (A x) k)
+    pointwiseMap : (k : ℤ) → Πₛ-type k →∙ Ω (Πₛ-type (sucℤ k))
+    pointwiseMap k = (λ ψ → λ i x → fst (map (A x) k) (ψ x) i) ,
+                            λ i j x → snd (map (A x) k) i j
+    
+  Πₛ : Spectrum ℓ
+  space (prespectrum Πₛ) k = Πₛ-type k
   map (prespectrum Πₛ) k = pointwiseMap k
   equiv Πₛ k =
     snd (isoToEquiv (iso {!!} {!!} {!!} {!!}))
+
