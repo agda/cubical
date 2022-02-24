@@ -21,6 +21,8 @@ open import Cubical.Data.Int
 open import Cubical.Homotopy.Prespectrum
 open import Cubical.Homotopy.Loopspace
 
+open import Cubical.Syntax.⟨⟩
+
 private
   variable
     ℓ : Level
@@ -49,10 +51,17 @@ module parametrized {X : Type ℓ} (A : X → Spectrum ℓ) where
     pointwiseMap : (k : ℤ) → Πₛ-type k →∙ Ω (Πₛ-type (sucℤ k))
     pointwiseMap k = (λ ψ → λ i x → fst (map (A x) k) (ψ x) i) ,
                             λ i j x → snd (map (A x) k) i j
+    pointewiseIso : (k : ℤ) → fst (Πₛ-type k) ≃ fst (Ω (Πₛ-type (sucℤ k)))
+    pointewiseIso k = {!!} 
     
   Πₛ : Spectrum ℓ
   space (prespectrum Πₛ) k = Πₛ-type k
   map (prespectrum Πₛ) k = pointwiseMap k
   equiv Πₛ k =
-    snd (isoToEquiv (iso {!!} {!!} {!!} {!!}))
+    snd (isoToEquiv
+          (iso
+            (fst (pointwiseMap k))
+            {!!}
+            {!!}
+            {!!}))
 
