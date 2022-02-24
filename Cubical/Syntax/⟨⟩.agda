@@ -5,8 +5,8 @@ open import Cubical.Core.Primitives
 
 -- A syntax typeclass for types which contain a "carrier" type in the
 -- sence of an algebraic structure.
-record has-⟨⟩ {ℓᵢ ℓc} (Instance : Type ℓᵢ) : Type (ℓ-max ℓᵢ (ℓ-suc ℓc)) where
+record has-⟨⟩ {ℓᵢ ℓ₂} (Instance : Type ℓᵢ) (Instance2 : Type ℓ₂) : Type (ℓ-max ℓᵢ (ℓ-suc ℓ₂)) where
   field
-    ⟨_⟩ : Instance → Type ℓc
+    ⟨_⟩ : Instance → Instance2
 
 open has-⟨⟩ ⦃ … ⦄ public
