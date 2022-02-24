@@ -21,6 +21,7 @@ open import Cubical.Data.Int
 open import Cubical.Homotopy.Prespectrum
 open import Cubical.Homotopy.Loopspace
 
+open import Cubical.Foundations.Structure
 open import Cubical.Syntax.⟨⟩
 
 private
@@ -51,8 +52,8 @@ module parametrized {X : Type ℓ} (A : X → Spectrum ℓ) where
     pointwiseMap : (k : ℤ) → Πₛ-type k →∙ Ω (Πₛ-type (sucℤ k))
     pointwiseMap k = (λ ψ → λ i x → fst (map (A x) k) (ψ x) i) ,
                             λ i j x → snd (map (A x) k) i j
-    pointewiseIso : (k : ℤ) → fst (Πₛ-type k) ≃ fst (Ω (Πₛ-type (sucℤ k)))
-    pointewiseIso k = {!!} 
+    pointwiseIso : (k : ℤ) (x : X) → Iso ⟨ space (A x) k ⟩ ⟨ Ω (space (A x) (sucℤ k)) ⟩
+    pointwiseIso k x = equivToIso (fst (map (A x) k) , equiv (A x) k)
     
   Πₛ : Spectrum ℓ
   space (prespectrum Πₛ) k = Πₛ-type k
@@ -60,8 +61,10 @@ module parametrized {X : Type ℓ} (A : X → Spectrum ℓ) where
   equiv Πₛ k =
     snd (isoToEquiv
           (iso
-            (fst (pointwiseMap k))
-            {!!}
-            {!!}
-            {!!}))
+            (λ f → λ i x → fun (pointwiseIso k x) (f x) i)
+            (λ g → λ x → inv (pointwiseIso k x) (λ i → g i x))
+            (λ g → λ i j x → rightInv (pointwiseIso k x) (λ i → g i x) i j)
+            λ f → λ i x → leftInv (pointwiseIso k x) (f x) i))
+
+    where open Iso
 
