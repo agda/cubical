@@ -69,21 +69,21 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
 
 
   {-
-     x ∧ y ----→   y
+     x ∧ y ----→   x
        |           |
        |    sq     |
        V           V
-       x   ----→ x ∨ y
+       y   ----→ x ∨ y
   -}
   sq : (x y : L .fst) → hom-∧₂ x y ⋆ hom-∨₂ x y ≡ hom-∧₁ x y ⋆ hom-∨₁ x y
   sq x y = is-prop-valued (x ∧l y) (x ∨l y) (hom-∧₂ x y ⋆ hom-∨₂ x y) (hom-∧₁ x y ⋆ hom-∨₁ x y)
 
   {-
-    F(x ∨ y) ----→ F(y)
+    F(x ∨ y) ----→ F(x)
        |            |
        |     Fsq    |
        V            V
-      F(x) ------→ F(x ∧ y)
+      F(y) ------→ F(x ∧ y)
   -}
   Fsq : (F : DLPreSheaf) (x y : L .fst)
       → F .F-hom (hom-∨₂ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₂ x y) ≡
@@ -130,11 +130,11 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
    x∨y = fst x ∨l fst y , x∨y∈L'
 
   {-
-     x ∧ y ----→   y
+     x ∧ y ----→   x
        |           |
        |    sq     |
        V           V
-       x   ----→ x ∨ y
+       y   ----→ x ∨ y
 
      but as a square in BasisCat
   -}
@@ -145,11 +145,11 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
   Bsq = sq L C T (fst x) (fst y)
 
   {-
-    F(x ∨ y) ----→ F(y)
+    F(x ∨ y) ----→ F(x)
        |            |
        |     Fsq    |
        V            V
-      F(x) ------→ F(x ∧ y)
+      F(y) ------→ F(x ∧ y)
 
     square in C but now F is only presheaf on BasisCat
   -}

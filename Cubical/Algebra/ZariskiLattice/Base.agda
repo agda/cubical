@@ -680,11 +680,11 @@ module BasicOpens (R' : CommRing ℓ) where
                         (BFsq (𝔞 , ∣ a ∣) (𝔟 , ∣ b ∣) ∣ c ∣ BasisStructurePShf)
    Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = toSheaf.lemma
            (𝔞 ∨z 𝔟 , ∣ h , Dh≡𝔞∨𝔟 ∣)
-           (𝔟 , ∣ g , Dg≡𝔟 ∣)
            (𝔞 , ∣ f , Df≡𝔞 ∣)
+           (𝔟 , ∣ g , Dg≡𝔟 ∣)
            (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)
            (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣) (𝔟 , ∣ g , Dg≡𝔟 ∣) ∣ h , Dh≡𝔞∨𝔟 ∣)
-           theAlgebraCospan theAlgebraPullback refl {!!} {!!} fgPath
+           theAlgebraCospan theAlgebraPullback refl gPath fPath fgPath
     where
     open Exponentiation R'
     open RadicalIdeal R'
@@ -787,19 +787,19 @@ module BasicOpens (R' : CommRing ℓ) where
     open Cospan
     open Pullback
     open RingHoms
-    isRHomR[1/h]→R[1/h][1/f] : theRingPullback .pbPr₁ ∘r /1AsCommRingHom ≡ /1/1AsCommRingHom f
+    isRHomR[1/h]→R[1/h][1/f] : theRingPullback .pbPr₂ ∘r /1AsCommRingHom ≡ /1/1AsCommRingHom f
     isRHomR[1/h]→R[1/h][1/f] = RingHom≡ (funExt (λ x → refl))
 
-    isRHomR[1/h]→R[1/h][1/g] : theRingPullback .pbPr₂ ∘r /1AsCommRingHom ≡ /1/1AsCommRingHom g
+    isRHomR[1/h]→R[1/h][1/g] : theRingPullback .pbPr₁ ∘r /1AsCommRingHom ≡ /1/1AsCommRingHom g
     isRHomR[1/h]→R[1/h][1/g] = RingHom≡ (funExt (λ x → refl))
 
-    isRHomR[1/h][1/f]→R[1/h][1/fg] : theRingCospan .s₁ ∘r /1/1AsCommRingHom f ≡ /1/1AsCommRingHomFG
+    isRHomR[1/h][1/f]→R[1/h][1/fg] : theRingCospan .s₂ ∘r /1/1AsCommRingHom f ≡ /1/1AsCommRingHomFG
     isRHomR[1/h][1/f]→R[1/h][1/fg] = RingHom≡ (funExt
       (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·Rid x)
           (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r))))
           (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r)))))
 
-    isRHomR[1/h][1/g]→R[1/h][1/fg] : theRingCospan .s₂ ∘r /1/1AsCommRingHom g ≡ /1/1AsCommRingHomFG
+    isRHomR[1/h][1/g]→R[1/h][1/fg] : theRingCospan .s₁ ∘r /1/1AsCommRingHom g ≡ /1/1AsCommRingHomFG
     isRHomR[1/h][1/g]→R[1/h][1/fg] = RingHom≡ (funExt
       (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·Rid x)
           (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r))))
@@ -807,22 +807,22 @@ module BasicOpens (R' : CommRing ℓ) where
 
 
     open PullbackFromCommRing R' theRingCospan theRingPullback
-         /1AsCommRingHom (/1/1AsCommRingHom g) (/1/1AsCommRingHom f) /1/1AsCommRingHomFG
-    theAlgebraCospan = algCospan isRHomR[1/h]→R[1/h][1/g]
-                                 isRHomR[1/h]→R[1/h][1/f]
-                                 isRHomR[1/h][1/g]→R[1/h][1/fg]
+         /1AsCommRingHom (/1/1AsCommRingHom f) (/1/1AsCommRingHom g) /1/1AsCommRingHomFG
+    theAlgebraCospan = algCospan isRHomR[1/h]→R[1/h][1/f]
+                                 isRHomR[1/h]→R[1/h][1/g]
                                  isRHomR[1/h][1/f]→R[1/h][1/fg]
-    theAlgebraPullback = algPullback isRHomR[1/h]→R[1/h][1/g]
-                                     isRHomR[1/h]→R[1/h][1/f]
-                                     isRHomR[1/h][1/g]→R[1/h][1/fg]
+                                 isRHomR[1/h][1/g]→R[1/h][1/fg]
+    theAlgebraPullback = algPullback isRHomR[1/h]→R[1/h][1/f]
+                                     isRHomR[1/h]→R[1/h][1/g]
                                      isRHomR[1/h][1/f]→R[1/h][1/fg]
+                                     isRHomR[1/h][1/g]→R[1/h][1/fg]
 
     --and the three remaining paths
-    fPath : theAlgebraCospan .l ≡ R[1/ f ]AsCommAlgebra
+    fPath : theAlgebraCospan .r ≡ R[1/ f ]AsCommAlgebra
     fPath = doubleLocCancel f∈√⟨h⟩
      where
      open DoubleAlgLoc R' h f
-    gPath : theAlgebraCospan .r ≡ R[1/ g ]AsCommAlgebra
+    gPath : theAlgebraCospan .l ≡ R[1/ g ]AsCommAlgebra
     gPath = doubleLocCancel g∈√⟨h⟩
      where
      open DoubleAlgLoc R' h g
