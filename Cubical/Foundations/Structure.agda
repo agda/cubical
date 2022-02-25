@@ -23,7 +23,7 @@ str : (A : TypeWithStr ℓ S) → S (typ A)
 str = snd
 
 instance
-  TypeWithStr-has-⟨⟩ : ∀ {ℓ S} → has-⟨⟩ (TypeWithStr {ℓ' = ℓ'} ℓ S)
+  TypeWithStr-has-⟨⟩ : ∀ {ℓ S} → has-⟨⟩ (TypeWithStr {ℓ' = ℓ'} ℓ S) (Type _)
   ⟨_⟩ ⦃ TypeWithStr-has-⟨⟩ ⦄ = typ
 
 -- Allow users to avoid importing the syntax module directly for
