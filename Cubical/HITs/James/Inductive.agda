@@ -9,7 +9,7 @@ This file contains:
   - Special cases of 𝕁 n for n = 0, 1 and 2;
   - Connectivity of inclusion maps.
 
-Actually this file only contains a summary of these results,
+Actually here is only a summary of these results,
 their proofs are divided into parts and placed in the fold Cubical.HITs.James.Inductive
 
 -}
