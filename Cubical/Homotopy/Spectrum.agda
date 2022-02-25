@@ -45,25 +45,39 @@ A →ₛ B = Σ[ f ∈ ((k : ℤ) → space A k →∙ space B k) ]
   A dependent spectrum over a type is a mathematically quite interesting object -
   classicly called 'parametrized spectrum'.
 -}
-module parametrized {X : Type ℓ} (A : X → Spectrum ℓ) where
-  private
-    Πₛ-type : (k : ℤ) → Pointed ℓ
-    Πₛ-type k = Πᵘ∙ X (λ x → space (A x) k)
-    pointwiseMap : (k : ℤ) → Πₛ-type k →∙ Ω (Πₛ-type (sucℤ k))
-    pointwiseMap k = (λ ψ → λ i x → fst (map (A x) k) (ψ x) i) ,
-                            λ i j x → snd (map (A x) k) i j
-    pointwiseIso : (k : ℤ) (x : X) → Iso ⟨ space (A x) k ⟩ ⟨ Ω (space (A x) (sucℤ k)) ⟩
-    pointwiseIso k x = equivToIso (fst (map (A x) k) , equiv (A x) k)
-    
-  Πₛ : Spectrum ℓ
-  space (prespectrum Πₛ) k = Πₛ-type k
-  map (prespectrum Πₛ) k = pointwiseMap k
-  equiv Πₛ k =
-    snd (isoToEquiv
-          (iso
-            (λ f → λ i x → fun (pointwiseIso k x) (f x) i)
-            (λ g → λ x → inv (pointwiseIso k x) (λ i → g i x))
-            (λ g → λ i j x → rightInv (pointwiseIso k x) (λ i → g i x) i j)
-            λ f → λ i x → leftInv (pointwiseIso k x) (f x) i))
-    where open Iso
+module parametrized {X : Type ℓ} where
+  {-
+    The following proofs about Π-types of spectra are really only
+    about applying function extensionality in various ways...
+  -}
+  module _  (A : X → Spectrum ℓ) where
+    private
+      Πₛ-type : (k : ℤ) → Pointed ℓ
+      Πₛ-type k = Πᵘ∙ X (λ x → space (A x) k)
+      pointwiseMap : (k : ℤ) → Πₛ-type k →∙ Ω (Πₛ-type (sucℤ k))
+      pointwiseMap k = (λ ψ → λ i x → fst (map (A x) k) (ψ x) i) ,
+                              λ i j x → snd (map (A x) k) i j
+      pointwiseIso : (k : ℤ) (x : X) → Iso ⟨ space (A x) k ⟩ ⟨ Ω (space (A x) (sucℤ k)) ⟩
+      pointwiseIso k x = equivToIso (fst (map (A x) k) , equiv (A x) k)
 
+    Πₛ : Spectrum ℓ
+    space (prespectrum Πₛ) k = Πₛ-type k
+    map (prespectrum Πₛ) k = pointwiseMap k
+    equiv Πₛ k =
+      snd (isoToEquiv
+            (iso
+              (λ f → λ i x → fun (pointwiseIso k x) (f x) i)
+              (λ g → λ x → inv (pointwiseIso k x) (λ i → g i x))
+              (λ g → λ i j x → rightInv (pointwiseIso k x) (λ i → g i x) i j)
+              λ f → λ i x → leftInv (pointwiseIso k x) (f x) i))
+      where open Iso
+
+  module _ {A B : X → Spectrum ℓ} (f : (x : X) → A x →ₛ B x) where
+    Π→ₛ : Πₛ A →ₛ Πₛ B 
+    Π→ₛ = Πf , isMor
+        where 
+          Πf = (λ k → (λ ϕ → λ x → fst (fst (f x) k) (ϕ x)) ,
+                λ i → λ x → snd (fst (f x) k) i)
+          isMor : IsPrespectrumMor {A = prespectrum (Πₛ A)} {B = prespectrum (Πₛ B)} Πf
+          isMor k i = (λ ϕ → λ j x → fst (snd (f x) k i) (ϕ x) j) ,
+                      λ l → λ j x → snd (snd (f x) k i) l j 
