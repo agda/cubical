@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-  -- Some alternative inductive definitions of James, and they are all equivalent.
+  - Some alternative inductive definitions of James, and they are all equivalent.
 
   Somewhat long. But you can observe that much of the codes
   are refls, degeneracy and ctrl-c-ctrl-v recursions.
@@ -21,6 +21,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
+open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.James.Inductive.Base
   renaming (𝕁ames to 𝕁amesConstruction ; 𝕁ames∞ to 𝕁ames∞Construction)
 

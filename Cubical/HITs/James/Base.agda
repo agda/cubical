@@ -3,7 +3,7 @@
 The James Construction,
   also known as James Reduced Product
 
-This is a very fundamental and useful construction in classical homotopy theory.
+This is a very fundamental and useful construction in homotopy theory.
 
 Referrence:
   Guillaume Brunerie,
