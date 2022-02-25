@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-  -- The reduced version gives the same type as James.
+  - The reduced version gives the same type as James.
 
 -}
 {-# OPTIONS --safe #-}
