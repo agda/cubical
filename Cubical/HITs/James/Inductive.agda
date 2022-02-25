@@ -104,12 +104,15 @@ module JamesInd
   module _
     (d : ℕ)(conn : isConnected (1 + d) X) where
 
-    -- If X is d-connected, the transition incl : 𝕁 n → 𝕁 (n+1) will be (n+1)d-connected.
+    -- Warning:
+    -- The connectivity is shifted by 2 from the convention of usual homotopy theory.
+
+    -- If X is (d+1)-connected, the transition incl : 𝕁 n → 𝕁 (n+1) will be (n+1)d-connected.
 
     inclConn : (n : ℕ) → isConnectedFun ((1 + n) · d) (incl {n = n})
     inclConn = isConnIncl X∙ d conn
 
-    -- If X is d-connected, the inclusion inl : 𝕁 n → 𝕁∞ will be (n+1)d-connected.
+    -- If X is (d+1)-connected, the inclusion inl : 𝕁 n → 𝕁∞ will be (n+1)d-connected.
 
     inl∞ : (n : ℕ) → 𝕁 n → 𝕁∞
     inl∞ _ = inl
