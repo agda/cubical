@@ -5,12 +5,12 @@ The Inductive Version of James Construction
 This file contains:
   - An inductive family 𝕁, and its direct colimit is equivalence to James;
     (KANG Rongji, Feb. 2022)
-  - The family 𝕁 can be iteratively constructed as pushout;
+  - The family 𝕁 can be iteratively constructed as pushouts;
   - Special cases of 𝕁 n for n = 0, 1 and 2;
   - Connectivity of inclusion maps.
 
-Actually this file is the summary of the main results,
-the proof is divided into parts and placed in the fold Cubical.HITs.James.Inductive
+Actually this file only contains a summary of these results,
+their proofs are divided into parts and placed in the fold Cubical.HITs.James.Inductive
 
 -}
 {-# OPTIONS --safe #-}
@@ -104,12 +104,12 @@ module JamesInd
   module _
     (d : ℕ)(conn : isConnected (1 + d) X) where
 
-    -- If X is d-connected, the transition incl : 𝕁 n → 𝕁 (n+1) will be ((n+1)·d)-connected.
+    -- If X is d-connected, the transition incl : 𝕁 n → 𝕁 (n+1) will be (n+1)d-connected.
 
     inclConn : (n : ℕ) → isConnectedFun ((1 + n) · d) (incl {n = n})
     inclConn = isConnIncl X∙ d conn
 
-    -- If X is d-connected, the inclusion inl : 𝕁 n → 𝕁∞ will be ((n+1)·d)-connected.
+    -- If X is d-connected, the inclusion inl : 𝕁 n → 𝕁∞ will be (n+1)d-connected.
 
     inl∞ : (n : ℕ) → 𝕁 n → 𝕁∞
     inl∞ _ = inl
