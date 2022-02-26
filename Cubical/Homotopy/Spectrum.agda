@@ -41,6 +41,13 @@ _→ₛ_ : (A B : Spectrum ℓ) → Type ℓ
 A →ₛ B = Σ[ f ∈ ((k : ℤ) → space A k →∙ space B k) ]
           IsPrespectrumMor {A = prespectrum A} {B = prespectrum B} f
 
+idₛ : (A : Spectrum ℓ) → (A →ₛ A)
+idₛ A = (λ k → idfun∙ (space A k)) , λ k → {!!}
+
+_∘ₛ_ : {A B C : Spectrum ℓ}
+     → (B →ₛ C) → (A →ₛ B) → (A →ₛ C)
+f ∘ₛ g = {!!}
+
 {-
   A dependent spectrum over a type is a mathematically quite interesting object -
   classicly called 'parametrized spectrum'.
@@ -73,11 +80,11 @@ module parametrized {X : Type ℓ} where
       where open Iso
 
   module _ {A B : X → Spectrum ℓ} (f : (x : X) → A x →ₛ B x) where
-    Π→ₛ : Πₛ A →ₛ Πₛ B 
+    Π→ₛ : Πₛ A →ₛ Πₛ B
     Π→ₛ = Πf , isMor
-        where 
+        where
           Πf = (λ k → (λ ϕ → λ x → fst (fst (f x) k) (ϕ x)) ,
                 λ i → λ x → snd (fst (f x) k) i)
           isMor : IsPrespectrumMor {A = prespectrum (Πₛ A)} {B = prespectrum (Πₛ B)} Πf
           isMor k i = (λ ϕ → λ j x → fst (snd (f x) k i) (ϕ x) j) ,
-                      λ l → λ j x → snd (snd (f x) k i) l j 
+                      λ l → λ j x → snd (snd (f x) k i) l j
