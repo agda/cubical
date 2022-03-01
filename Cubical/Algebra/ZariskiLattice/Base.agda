@@ -754,8 +754,35 @@ module BasicOpens (R' : CommRing ℓ) where
                  ≡ 1r · (α zero · f · (h ^ n · 1r) + α (suc zero) · g · (h ^ n · 1r)) · 1r
          bigPath = useSolver1 (h ^ n) ∙ cong (h ^ n ·_) p ∙ useSolver2 _ _ _ _ _
 
-    -- we get a pullback square in comm rings that then gives us the desired
-    -- square in R-algebras that we want to transport
+    {-
+
+      We get the following pullback square in CommRings
+
+        R[1/h]   →    R[1/h][1/f]
+              ⌟
+        ↓             ↓
+
+        R[1/h][1/g] → R[1/h][1/fg]
+
+      this lifts to a pullback in R-Algebras using PullbackFromCommRing
+      as all for rings have canonical morphisms coming from R
+      and all the triangles commute.
+
+      Then using toSheaf.lemma we get the desired square
+
+        R[1/h]  →  R[1/f]
+              ⌟
+        ↓          ↓
+
+        R[1/g]  →  R[1/fg]
+
+      by only providing paths between the corresponding vertices of the square.
+      These paths are constructed using S⁻¹RAlgCharEquiv, which gives
+      an equivalent characterization of the universal property of localization
+      that can be found in e.g. Cor 3.2 of Atiyah-MacDonald
+
+    -}
+
     theRingCospan = fgCospan R[1/ h ]AsCommRing (f /1) (g /1)
     theRingPullback = fgPullback R[1/ h ]AsCommRing (f /1) (g /1) 1∈fgIdeal
 
@@ -822,6 +849,7 @@ module BasicOpens (R' : CommRing ℓ) where
     fPath = doubleLocCancel f∈√⟨h⟩
      where
      open DoubleAlgLoc R' h f
+
     gPath : theAlgebraCospan .l ≡ R[1/ g ]AsCommAlgebra
     gPath = doubleLocCancel g∈√⟨h⟩
      where

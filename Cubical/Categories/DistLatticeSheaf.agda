@@ -111,7 +111,7 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
 
  private
   DLCat = DistLatticeCategory L
-  BasisCat = ΣPropCat  DLCat L' -- MeetSemilatticeCategory (Basis→MeetSemilattice L L' hB)
+  BasisCat = ΣPropCat  DLCat L'
   DLBasisPreSheaf = Functor (BasisCat ^op) C
 
   -- to avoid writing 𝟙 L C T
