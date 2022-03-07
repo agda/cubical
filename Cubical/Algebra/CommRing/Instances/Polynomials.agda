@@ -21,7 +21,7 @@ Poly R = (PolyMod.Poly R) , str
       _+_ str = PolyMod._Poly+_ R
       _·_ str = PolyMod._Poly*_ R
       - str = PolyMod.Poly- R
-      isCommRing str = makeIsCommRing (PolyMod.PolyIsSet R)
+      isCommRing str = makeIsCommRing (PolyMod.isSetPoly R)
                                       (PolyMod.Poly+Assoc R)
                                       (PolyMod.Poly+Rid R)
                                       (PolyMod.Poly+Inverses R)
