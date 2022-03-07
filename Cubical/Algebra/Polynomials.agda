@@ -9,7 +9,6 @@ Polynomials over commutative rings
 module Cubical.Algebra.Polynomials where
 
 open import Cubical.HITs.PropositionalTruncation
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
@@ -37,7 +36,8 @@ module PolyMod (R' : CommRing ℓ) where
 
 -------------------------------------------------------------------------------------------
 -- First definition of a polynomial.
--- A polynomial a₁ +  a₂x + ... + aⱼxʲ of order j is represented as a list [a₁, a₂, ...,aⱼ]
+-- A polynomial a₁ +  a₂x + ... + aⱼxʲ of degree j is represented as a list [a₁, a₂, ...,aⱼ]
+-- modulo trailing zeros.
 -------------------------------------------------------------------------------------------
 
   data Poly : Type ℓ where
@@ -74,7 +74,7 @@ module PolyMod (R' : CommRing ℓ) where
              ([]* : B)
              (cons* : R → B → B)
              (drop0* : cons* 0r []* ≡ []*)
-                          (Bset : isSet B) where
+             (Bset : isSet B) where
     f : Poly → B
     f = Elim.f (λ _ → B) []* (λ r p b → cons* r b) drop0*
 
@@ -91,7 +91,7 @@ module PolyMod (R' : CommRing ℓ) where
 -- Second definition of a polynomial. The purpose of this second definition is to
 -- facilitate the proof that the first definition is a set. The two definitions are
 -- then shown to be equivalent.
--- A polynomial a₀ +  a₁x + ... + aⱼxʲ of order j is represented as a function f
+-- A polynomial a₀ +  a₁x + ... + aⱼxʲ of degree j is represented as a function f
 -- such that for i ∈ ℕ we have  f(i) = aᵢ if i ≤ j, and 0 for i > j
 --------------------------------------------------------------------------------------------------
 
@@ -99,13 +99,8 @@ module PolyMod (R' : CommRing ℓ) where
   PolyFun = Σ[ p ∈ (ℕ → R) ] (∃[ n ∈ ℕ ] ((m : ℕ) → n ≤ m → p m ≡ 0r))
 
 
-  IsSetPolyFun : isSet PolyFun
-  IsSetPolyFun = isSetΣSndProp (isSetΠ (λ x → isSetCommRing R')) λ f x y → squash x y
-
-
-  IsZero : ℕ → Bool
-  IsZero zero = true
-  IsZero (suc n) = false
+  isSetPolyFun : isSet PolyFun
+  isSetPolyFun = isSetΣSndProp (isSetΠ (λ x → isSetCommRing R')) λ f x y → squash x y
 
 
   --construction of the function that represents the polynomial
@@ -196,40 +191,40 @@ module PolyMod (R' : CommRing ℓ) where
 
 
   PolyFun→Poly+ : (q : PolyFun) → Σ[ p ∈ Poly ] Poly→Fun p ≡ q .fst
-  PolyFun→Poly+ (f , pf) = rec lem (λ x → help f (x .fst) (x .snd) ,
-                                               funExt (bar f (fst x) (snd x))
+  PolyFun→Poly+ (f , pf) = rec lem (λ x → rem1 f (x .fst) (x .snd) ,
+                                               funExt (rem2 f (fst x) (snd x))
                                    ) pf
     where
     lem : isProp (Σ[ p ∈ Poly ] Poly→Fun p ≡ f)
     lem (p , α) (p' , α') =
       ΣPathP (polyEq p p' (α ∙ sym α'), isProp→PathP (λ i → (isSetΠ λ _ → is-set) _ _) _ _)
 
-    help : (p : ℕ → R) (n : ℕ) → ((m : ℕ) → n ≤ m → p m ≡ 0r) → Poly
-    help p zero h = []
-    help p (suc n) h = p 0 ∷ help (λ x → p (suc x)) n (λ m x → h (suc m) (suc-≤-suc x))
+    rem1 : (p : ℕ → R) (n : ℕ) → ((m : ℕ) → n ≤ m → p m ≡ 0r) → Poly
+    rem1 p zero h = []
+    rem1 p (suc n) h = p 0 ∷ rem1 (λ x → p (suc x)) n (λ m x → h (suc m) (suc-≤-suc x))
 
-    bar : (f : ℕ → R) (n : ℕ) → (h : (m : ℕ) → n ≤ m → f m ≡ 0r) (m : ℕ) →
-                                                                 Poly→Fun (help f n h) m ≡ f m
-    bar f zero h m = sym (h m zero-≤)
-    bar f (suc n) h zero = refl
-    bar f (suc n) h (suc m) = bar (λ x → f (suc x)) n (λ k p → h (suc k) (suc-≤-suc p)) m
+    rem2 : (f : ℕ → R) (n : ℕ) → (h : (m : ℕ) → n ≤ m → f m ≡ 0r) (m : ℕ) →
+                                                                 Poly→Fun (rem1 f n h) m ≡ f m
+    rem2 f zero h m = sym (h m zero-≤)
+    rem2 f (suc n) h zero = refl
+    rem2 f (suc n) h (suc m) = rem2 (λ x → f (suc x)) n (λ k p → h (suc k) (suc-≤-suc p)) m
 
   PolyFun→Poly : PolyFun → Poly
   PolyFun→Poly q = PolyFun→Poly+ q .fst
 
-  lemmaisSet : (p : Poly) → PolyFun→Poly (Poly→PolyFun p) ≡ p
-  lemmaisSet p = polyEq _ _ (PolyFun→Poly+ (Poly→PolyFun p) .snd)
+  PolyFun→Poly→PolyFun : (p : Poly) → PolyFun→Poly (Poly→PolyFun p) ≡ p
+  PolyFun→Poly→PolyFun p = polyEq _ _ (PolyFun→Poly+ (Poly→PolyFun p) .snd)
 
 
 
 --End of code by Mörtberg and Cavallo
 -------------------------------------
 
-  IsSetPoly : isSet Poly
-  IsSetPoly = isSetRetract Poly→PolyFun
+  isSetPoly : isSet Poly
+  isSetPoly = isSetRetract Poly→PolyFun
                            PolyFun→Poly
-                           (λ p → lemmaisSet p)
-                           IsSetPolyFun
+                           PolyFun→Poly→PolyFun
+                           isSetPolyFun
 
 
 -------------------------------------------------
@@ -244,12 +239,6 @@ module PolyMod (R' : CommRing ℓ) where
   pattern [_] x = x ∷ []
 
 
-  -- The proof that Poly is a set will be used in the propositional eliminations
-  -- for the last case in ElimProp
-  PolyIsSet : isSet Poly
-  PolyIsSet = IsSetPoly
-
-
 ---------------------------------------
 -- Definition
 -- Identity for addition of polynomials
@@ -259,15 +248,15 @@ module PolyMod (R' : CommRing ℓ) where
 
 
   --ReplicatePoly(n,p) returns 0 ∷ 0 ∷ ... ∷ [] (n zeros)
-  ReplicatePoly : (n : ℕ)  → Poly
-  ReplicatePoly zero  = 0P
-  ReplicatePoly (suc n) = 0r ∷ ReplicatePoly n
+  ReplicatePoly0 : (n : ℕ)  → Poly
+  ReplicatePoly0 zero  = 0P
+  ReplicatePoly0 (suc n) = 0r ∷ ReplicatePoly0 n
 
 
   --The empty polynomial has multiple equal representations on the form 0 + 0x + 0 x² + ...
-  ReplicatedZeros=[] : ∀ (n : ℕ) → ReplicatePoly n ≡ 0P
-  ReplicatedZeros=[] zero = refl
-  ReplicatedZeros=[] (suc n) = (cong (0r ∷_) (ReplicatedZeros=[] n)) ∙ drop0
+  replicatePoly0Is0P : ∀ (n : ℕ) → ReplicatePoly0 n ≡ 0P
+  replicatePoly0Is0P zero = refl
+  replicatePoly0Is0P (suc n) = (cong (0r ∷_) (replicatePoly0Is0P n)) ∙ drop0
 
 
 -----------------------------
@@ -280,12 +269,12 @@ module PolyMod (R' : CommRing ℓ) where
   Poly- (drop0 i) = (cong (_∷ []) (inv1g) ∙ drop0) i
 
   -- Double negation (of subtraction of polynomials) is the identity mapping
-  Poly-Poly-P=P : (p : Poly) → Poly- (Poly- p) ≡ p
-  Poly-Poly-P=P = ElimProp.f (λ x → Poly- (Poly- x) ≡ x)
-                             (refl)
-                             (λ a p e → cong (_∷ (Poly- (Poly- p)))
-                                             (-Idempotent a) ∙ cong (a ∷_ ) (e))
-                             (PolyIsSet _ _)
+  Poly-Poly- : (p : Poly) → Poly- (Poly- p) ≡ p
+  Poly-Poly- = ElimProp.f (λ x → Poly- (Poly- x) ≡ x)
+                          refl
+                          (λ a p e → cong (_∷ (Poly- (Poly- p)))
+                                          (-Idempotent a) ∙ cong (a ∷_ ) (e))
+                          (isSetPoly _ _)
 
 
 ---------------------------
@@ -303,23 +292,23 @@ module PolyMod (R' : CommRing ℓ) where
                                  lem = ElimProp.f (λ q → (0r + a) ∷ ([] Poly+ q) ≡ a ∷ q)
                                                   (λ i → (+Lid a i ∷ []))
                                                   (λ r p _ → λ i → +Lid a i ∷ r ∷ p )
-                                                  (PolyIsSet _ _)
-  (drop0 i) Poly+ (drop0 j) =  isSet→isSet' PolyIsSet  (cong ([_] ) (+Rid 0r)) drop0
+                                                  (isSetPoly _ _)
+  (drop0 i) Poly+ (drop0 j) =  isSet→isSet' isSetPoly  (cong ([_] ) (+Rid 0r)) drop0
                                                        (cong ([_] ) (+Lid 0r)) drop0 i j
 
 
   -- [] is the left identity for Poly+
   Poly+Lid : ∀ p → ([] Poly+ p ≡ p)
   Poly+Lid =  ElimProp.f (λ p → ([] Poly+ p ≡ p) )
-                         (refl)
+                         refl
                          (λ r p prf → refl)
-                         (λ x y → PolyIsSet _ _ x y)
+                         (λ x y → isSetPoly _ _ x y)
 
 
 
   -- [] is the right identity for Poly+
   Poly+Rid : ∀ p → (p Poly+ [] ≡ p)
-  Poly+Rid = λ p → refl
+  Poly+Rid p = refl
 
 
 
@@ -340,19 +329,19 @@ module PolyMod (R' : CommRing ℓ) where
                                                             (prf q r) ∙
                                                             (cong (_∷ ((p Poly+ q) Poly+ r))
                                                                   (+Assoc a b c)))
-                                         (PolyIsSet _ _))
-                                       λ x y i r → PolyIsSet (x r i0) (y r i1) (x r) (y r) i)
-                λ x y i q r  → PolyIsSet _ _ (x q r) (y q r) i
+                                         (isSetPoly _ _))
+                                       λ x y i r → isSetPoly (x r i0) (y r i1) (x r) (y r) i)
+                λ x y i q r  → isSetPoly _ _ (x q r) (y q r) i
 
 
 
   -- for any polynomial, p, the additive inverse is given by Poly- p
   Poly+Inverses : ∀ p → p Poly+ (Poly- p) ≡ []
   Poly+Inverses = ElimProp.f ( λ p → p Poly+ (Poly- p) ≡ [])
-                             (Poly+Lid (Poly- [])) --refl
+                             refl --(Poly+Lid (Poly- []))
                              (λ r p prf → cong (r + - r ∷_) prf ∙
                                           (cong (_∷ [])  (+Rinv r) ∙ drop0))
-                             (PolyIsSet _ _)
+                             (isSetPoly _ _)
 
 
 
@@ -364,9 +353,9 @@ module PolyMod (R' : CommRing ℓ) where
                                                  refl
                                                  (λ b q prf2 → cong (_∷ (p Poly+ q)) (+Comm a b) ∙
                                                                cong ((b + a) ∷_) (prf q))
-                                                 (PolyIsSet _ _)
+                                                 (isSetPoly _ _)
                          )
-                         (λ {p} → isPropΠ (λ q → PolyIsSet (p Poly+ q) (q Poly+ p)))
+                         (λ {p} → isPropΠ (λ q → isSetPoly (p Poly+ q) (q Poly+ p)))
 
 --------------------------------------------------------------
 -- Definition
@@ -389,7 +378,7 @@ module PolyMod (R' : CommRing ℓ) where
                                          (λ r p prf → cong ((0r · r) ∷_) prf ∙
                                                       cong (_∷ [ 0r ]) (0LeftAnnihilates r) ∙
                                                       cong (0r ∷_) drop0 )
-                                         λ x y → PolyIsSet _ _ x y
+                                         λ x y → isSetPoly _ _ x y
 
 
   -- For any polynomial p we have: 1 _PolyConst*_ p = p
@@ -397,7 +386,7 @@ module PolyMod (R' : CommRing ℓ) where
   PolyConst*Lid = ElimProp.f (λ q → 1r PolyConst* q ≡ q ) refl
                              (λ a p prf → cong (_∷ (1r PolyConst* p)) (·Lid a) ∙
                                           cong (a ∷_) (prf) )
-                             λ x y → PolyIsSet _ _ x y
+                             λ x y → isSetPoly _ _ x y
 
 
 --------------------------------
@@ -427,7 +416,7 @@ module PolyMod (R' : CommRing ℓ) where
   0PRightAnnihilates = ElimProp.f (λ q → 0P Poly* q ≡ 0P)
                                   refl
                                   (λ r p prf → prf)
-                                  λ x y → PolyIsSet _ _ x y
+                                  λ x y → isSetPoly _ _ x y
 
 
   -- For any polynomial p we have: [] Poly* p = []
@@ -435,7 +424,7 @@ module PolyMod (R' : CommRing ℓ) where
   0PLeftAnnihilates = ElimProp.f (λ p → p Poly* 0P ≡ 0P )
                                  refl
                                  (λ r p prf → cong (0r ∷_) prf ∙ drop0)
-                                 λ x y → PolyIsSet _ _ x y
+                                 λ x y → isSetPoly _ _ x y
 
 
   -- For any polynomial p we have: p Poly* [ 1r ] = p
@@ -444,7 +433,7 @@ module PolyMod (R' : CommRing ℓ) where
     ElimProp.f (λ q → 1P Poly* q ≡ q)
                drop0
                (λ r p prf → lemma r p)
-               (λ x y → PolyIsSet _ _ x y)
+               (λ x y → isSetPoly _ _ x y)
                  where
                  lemma : ∀ r p → 1r · r + 0r ∷ (1r PolyConst* p) ≡ r ∷ p
                  lemma =
@@ -466,8 +455,8 @@ module PolyMod (R' : CommRing ℓ) where
                                          ((0r ∷ a ∷ p) Poly+ (0r ∷ q)))
                                        (cong (_∷ a ∷ p ) (sym (+Lid 0r)))
                                        (λ b q prf2 → cong (_∷ a + b ∷ (p Poly+ q)) (sym (+Lid 0r)))
-                                       (λ x y i → PolyIsSet (x i0) (x i1) x y i))
-               (λ x y i q → PolyIsSet (x q i0) (x q i1) (x q) (y q) i)
+                                       (λ x y i → isSetPoly (x i0) (x i1) x y i))
+               (λ x y i q → isSetPoly (x q i0) (x q i1) (x q) (y q) i)
 
 
   -- Distribution of a constant ring element over added polynomials p, q: a (p + q) = ap + aq
@@ -484,8 +473,8 @@ module PolyMod (R' : CommRing ℓ) where
                                              (λ c q prf2  → cong (_∷ (a PolyConst* (p Poly+ q)))
                                                                  (·Rdist+ a b c) ∙
                                                             cong (a · b + a · c ∷_) (prf q))
-                                             (PolyIsSet _ _))
-                     (λ x y i q  → PolyIsSet (x q i0) (x q i1) (x q) (y q) i)
+                                             (isSetPoly _ _))
+                     (λ x y i q  → isSetPoly (x q i0) (x q i1) (x q) (y q) i)
 
 
 
@@ -547,7 +536,7 @@ module PolyMod (R' : CommRing ℓ) where
                                                      ⟩
       ((a PolyConst* q) Poly+ (0r ∷ (p Poly* q))) Poly+
         ((a PolyConst* r) Poly+ (0r ∷ (p Poly* r))) ∎)
-      (λ x y i q r → PolyIsSet _ _ (x q r) (y q r) i)
+      (λ x y i q r → isSetPoly _ _ (x q r) (y q r) i)
 
 
   -- The constant multiplication of a ring element, a, with a polynomial, p, can be
@@ -572,7 +561,7 @@ module PolyMod (R' : CommRing ℓ) where
                                                                  (sym (+Rid (r · a)))
                                                            ⟩
                        r · a + 0r ∷ ([] Poly+ (p Poly* [ a ])) ∎)
-                     ( λ x y i → PolyIsSet (x i0) (x i1) x y i)
+                     ( λ x y i → isSetPoly (x i0) (x i1) x y i)
 
 
   -- Connection between the constant multiplication and the multiplication in the ring
@@ -582,7 +571,7 @@ module PolyMod (R' : CommRing ℓ) where
                        refl
                        (λ c p prf → cong ((a · (b · c)) ∷_) prf ∙
                                     cong (_∷ ((a · b) PolyConst* p)) (·Assoc a b c))
-                       (PolyIsSet _ _)
+                       (isSetPoly _ _)
 
 
   -- We can move the indeterminate from left to outside: px * q = (p * q)x
@@ -593,7 +582,7 @@ module PolyMod (R' : CommRing ℓ) where
                       cong (_∷ []) (+Lid 0r))
                (λ r p b q → cong (_Poly+ (0r ∷ ((r PolyConst* q) Poly+ (0r ∷ (p Poly* q)))))
                                  ((0rLeftAnnihilatesPoly q) ∙ drop0))
-               (λ x y i q → PolyIsSet _ _ (x q) (y q) i)
+               (λ x y i q → isSetPoly _ _ (x q) (y q) i)
 
 
   --Associativity of constant multiplication in relation to polynomial multiplication
@@ -637,7 +626,7 @@ module PolyMod (R' : CommRing ℓ) where
                                                          ⟩
                      ((a · b) PolyConst* q) Poly+
                       (0r ∷ ((a PolyConst* p) Poly* q)) ∎)
-                     (λ x y i q → PolyIsSet (x q i0) (x q i1) (x q) (y q) i)
+                     (λ x y i q → isSetPoly (x q i0) (x q i1) (x q) (y q) i)
 
 
   -- We can move the indeterminate from left to outside: p * qx = (p * q)x
@@ -660,7 +649,7 @@ module PolyMod (R' : CommRing ℓ) where
                                       cong (_∷ ((a PolyConst* q) Poly+ (0r ∷ (p Poly* q))))
                                            (0RightAnnihilates a) ⟩
                0r ∷ ((a PolyConst* q) Poly+ (0r ∷ (p Poly* q))) ∎)
-               (λ x y i q  → PolyIsSet (x q i0) (x q i1) (x q) (y q) i)
+               (λ x y i q  → isSetPoly (x q i0) (x q i1) (x q) (y q) i)
 
 
   -- We can move the indeterminate around: px * q = p * qx
@@ -673,7 +662,7 @@ module PolyMod (R' : CommRing ℓ) where
                                         0r ∷ ((a ∷ p) Poly* q) ≡⟨ sym (0r∷RightAssoc (a ∷ p) q) ⟩
                                       ((a ∷ p) Poly* (0r ∷ q)) ∎
                        )
-                       λ x y i q → PolyIsSet (x q i0) (x q i1) (x q) (y q) i
+                       λ x y i q → isSetPoly (x q i0) (x q i1) (x q) (y q) i
 
 
 
@@ -710,7 +699,7 @@ module PolyMod (R' : CommRing ℓ) where
                                                 (cong (_∷ p) (+Lid a))
                                          ⟩
                (q Poly* (a ∷ p)) ∎)
-               (λ x y i q → PolyIsSet _ _ (x q ) (y q) i)
+               (λ x y i q → isSetPoly _ _ (x q ) (y q) i)
 
 
 
@@ -768,17 +757,4 @@ module PolyMod (R' : CommRing ℓ) where
                                                                            (0r ∷ (p Poly* q)) r)
                                                                            ⟩
                  ((((a ∷ p) Poly* q) Poly* r)) ∎)
-               (λ x y i q r  → PolyIsSet _ _ (x q r) (y q r) i)
-
-
-
------------------------------------
--- Main Theorem                  --
--- PolyMod is a Commutative Ring --
------------------------------------
-  PolyCommRing : CommRing ℓ
-  PolyCommRing = makeCommRing 0P 1P
-                              _Poly+_ _Poly*_ Poly-
-                              PolyIsSet
-                              Poly+Assoc Poly+Rid Poly+Inverses Poly+Comm
-                              Poly*Associative Poly*Rid Poly*LDistrPoly+ Poly*Commutative
+               (λ x y i q r  → isSetPoly _ _ (x q r) (y q r) i)
