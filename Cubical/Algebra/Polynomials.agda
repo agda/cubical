@@ -758,3 +758,9 @@ module PolyMod (R' : CommRing ℓ) where
                                                                            ⟩
                  ((((a ∷ p) Poly* q) Poly* r)) ∎)
                (λ x y i q r  → isSetPoly _ _ (x q r) (y q r) i)
+
+
+
+----------------------------------------------------------------------------------------------
+-- An instantiation of Polynomials as a commutative ring can be found in CommRing/Instances --
+----------------------------------------------------------------------------------------------
