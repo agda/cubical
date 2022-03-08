@@ -106,10 +106,10 @@ module PolyMod (R' : CommRing ℓ) where
   --construction of the function that represents the polynomial
   Poly→Fun : Poly → (ℕ → R)
   Poly→Fun [] = (λ _ → 0r)
-  Poly→Fun (a ∷ p) = (λ n → if IsZero n then a else Poly→Fun p (predℕ n))
+  Poly→Fun (a ∷ p) = (λ n → if isZero n then a else Poly→Fun p (predℕ n))
   Poly→Fun (drop0 i) = lemma i
     where
-    lemma : (λ n → if IsZero n then 0r else 0r) ≡ (λ _ → 0r)
+    lemma : (λ n → if isZero n then 0r else 0r) ≡ (λ _ → 0r)
     lemma i zero = 0r
     lemma i (suc n) = 0r
 
