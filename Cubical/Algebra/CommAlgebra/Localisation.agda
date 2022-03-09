@@ -258,8 +258,8 @@ module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
  open RadicalIdeal R
 
  private
-  ⟨_⟩ : {n : ℕ} → FinVec (fst R) n → CommIdeal
-  ⟨ V ⟩ = ⟨ V ⟩[ R ]
+  ⟨_⟩ : (fst R) → CommIdeal
+  ⟨ f ⟩ = ⟨ replicateFinVec 1 f ⟩[ R ]
 
   R[1/fg]AsCommAlgebra = R[1/_]AsCommAlgebra {R = R} (f · g)
   R[1/fg]ˣ = R[1/_]AsCommRing R (f · g) ˣ
@@ -274,7 +274,7 @@ module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
  R[1/fg]≡R[1/f][1/g] : R[1/fg]AsCommAlgebra ≡ R[1/f][1/g]AsCommAlgebra
  R[1/fg]≡R[1/f][1/g] = uaCommAlgebra (R[1/fg]AlgCharEquiv _ _ pathtoR[1/fg])
 
- doubleLocCancel : g ∈ᵢ √ ⟨ replicateFinVec 1 f ⟩ → R[1/f][1/g]AsCommAlgebra ≡ R[1/g]AsCommAlgebra
+ doubleLocCancel : g ∈ᵢ √ ⟨ f ⟩ → R[1/f][1/g]AsCommAlgebra ≡ R[1/g]AsCommAlgebra
  doubleLocCancel g∈√⟨f⟩ = sym R[1/fg]≡R[1/f][1/g] ∙ isContrR[1/fg]≡R[1/g] toUnit1 toUnit2 .fst
   where
   open S⁻¹RUniversalProp R ([_ⁿ|n≥0] R g) (powersFormMultClosedSubset R g)
@@ -293,15 +293,15 @@ module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
   toUnit1 s s∈[fgⁿ|n≥0] = subst-∈ R[1/g]ˣ (sym (·Rid (s /1ᵍ)))
                             (RadicalLemma.toUnit R g (f · g) (radHelper _ _ g∈√⟨f⟩) s s∈[fgⁿ|n≥0])
    where
-   radHelper : ∀ x y → x ∈ᵢ √ ⟨ replicateFinVec 1 y ⟩ → x ∈ᵢ √ ⟨ replicateFinVec 1 (y · x) ⟩
-   radHelper x y = PT.rec ((√ ⟨ replicateFinVec 1 (y · x) ⟩) .fst x .snd) (uncurry helper1)
+   radHelper : ∀ x y → x ∈ᵢ √ ⟨ y ⟩ → x ∈ᵢ √ ⟨ y · x ⟩
+   radHelper x y = PT.rec ((√ ⟨ y · x ⟩) .fst x .snd) (uncurry helper1)
     where
-    helper1 : (n : ℕ) → x ^ n ∈ᵢ ⟨ replicateFinVec 1 y ⟩ → x ∈ᵢ √ ⟨ replicateFinVec 1 (y · x) ⟩
-    helper1 n = PT.rec ((√ ⟨ replicateFinVec 1 (y · x) ⟩) .fst x .snd) (uncurry helper2)
+    helper1 : (n : ℕ) → x ^ n ∈ᵢ ⟨ y ⟩ → x ∈ᵢ √ ⟨ y · x ⟩
+    helper1 n = PT.rec ((√ ⟨ y · x ⟩) .fst x .snd) (uncurry helper2)
      where
      helper2 : (α : FinVec (fst R) 1)
              → x ^ n ≡ linearCombination R α (replicateFinVec 1 y)
-             → x ∈ᵢ √ ⟨ replicateFinVec 1 (y · x) ⟩
+             → x ∈ᵢ √ ⟨ y · x ⟩
      helper2 α p = ∣ (suc n) , ∣ α , cong (x ·_) p ∙ useSolver x y (α zero) ∣ ∣
       where
       useSolver : ∀ x y a → x · (a · y + 0r) ≡ a · (y · x) + 0r
@@ -311,5 +311,5 @@ module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
   toUnit2 s s∈[gⁿ|n≥0] = subst-∈ R[1/fg]ˣ (sym (·Rid (s /1ᶠᵍ)))
                            (RadicalLemma.toUnit R (f · g) g radHelper s s∈[gⁿ|n≥0])
    where
-   radHelper : (f · g) ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩
-   radHelper = ·Closed (snd (√ ⟨ replicateFinVec 1 g ⟩)) f (∈→∈√ _ _ (indInIdeal R _ zero))
+   radHelper : (f · g) ∈ᵢ √ ⟨ g ⟩
+   radHelper = ·Closed (snd (√ ⟨ g ⟩)) f (∈→∈√ _ _ (indInIdeal R _ zero))

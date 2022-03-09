@@ -195,15 +195,15 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
 
  private
   R = R' .fst
-  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
-  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+  ⟨_⟩ : R → CommIdeal
+  ⟨ f ⟩ = ⟨ replicateFinVec 1 f ⟩[ R' ]
 
- unitHelper : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
+ unitHelper : f ∈ᵢ √ ⟨ g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
  unitHelper = PT.rec isPropGoal (uncurry ℕhelper)
   where
   isPropGoal = Units.inverseUniqueness _ (g /1)
 
-  ℕhelper : (n : ℕ) → f ^ n ∈ᵢ ⟨ replicateFinVec 1 g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
+  ℕhelper : (n : ℕ) → f ^ n ∈ᵢ ⟨ g ⟩ → (g /1) ∈ R[1/ f ]AsCommRing ˣ
   ℕhelper n = PT.rec isPropGoal -- fⁿ≡αg → g⁻¹≡α/fⁿ
        λ (α , p) → [ (α zero) , (f ^ n) , ∣ n , refl ∣ ]
                  , eq/ _ _ ((1r , powersFormMultClosedSubset f .containsOne)
@@ -215,7 +215,7 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
    useSolver2 : ∀ x → x ≡ 1r · 1r · (1r · x)
    useSolver2 = solve R'
 
- toUnit : f ∈ᵢ √ ⟨ replicateFinVec 1 g ⟩
+ toUnit : f ∈ᵢ √ ⟨ g ⟩
        → ∀ s → s ∈ [ g ⁿ|n≥0] → (s /1) ∈ R[1/ f ]AsCommRing ˣ
  toUnit f∈√⟨g⟩ = powersPropElim (λ x → Units.inverseUniqueness _ (x /1))
                λ n → subst-∈ (R[1/ f ]AsCommRing ˣ) (sym (^-respects-/1 n))

@@ -526,8 +526,12 @@ module BasicOpens (R' : CommRing ℓ) where
   R = fst R'
   instance
    _ = snd R'
-  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
-  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+  -- ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  -- ⟨ V ⟩ᵢ = ⟨ V ⟩[ R' ]
+  ⟨_⟩ : R → CommIdeal
+  ⟨ f ⟩ = ⟨ replicateFinVec 1 f ⟩[ R' ]
+  ⟨_⟩ₚ : R × R → CommIdeal -- p is for pair
+  ⟨ f , g ⟩ₚ = ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩[ R' ]
 
 
  BasicOpens : ℙ ZL
@@ -587,12 +591,11 @@ module BasicOpens (R' : CommRing ℓ) where
     Df≤Dg : D f ≤ D g
     Df≤Dg = subst2 _≤_ (sym p) (sym q) 𝔞≤𝔟
 
-    radicalHelper : √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
-                  ≡ √ ⟨ replicateFinVec 1 g ⟩
+    radicalHelper : √ ⟨ f , g ⟩ₚ ≡ √ ⟨ g ⟩
     radicalHelper =
       isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun Df≤Dg
 
-    f∈√⟨g⟩ : f ∈ √ ⟨ replicateFinVec 1 g ⟩
+    f∈√⟨g⟩ : f ∈ √ ⟨ g ⟩
     f∈√⟨g⟩ = subst (f ∈_) radicalHelper (∈→∈√ _ _ (indInIdeal _ _ zero))
 
 
@@ -696,42 +699,42 @@ module BasicOpens (R' : CommRing ℓ) where
     instance
      _ = snd R[1/ h ]AsCommRing
 
-    ⟨_⟩ₕ : {n : ℕ} → FinVec R[1/ h ] n → CommIdealₕ
-    ⟨ V ⟩ₕ = ⟨ V ⟩[ R[1/ h ]AsCommRing ]
+    ⟨_⟩ₕ : R[1/ h ] × R[1/ h ] → CommIdealₕ
+    ⟨ x , y ⟩ₕ = ⟨ replicateFinVec 1 x ++Fin replicateFinVec 1 y ⟩[ R[1/ h ]AsCommRing ]
 
     -- the crucial algebraic fact:
-    radicalPath : √ ⟨ replicateFinVec 1 h ⟩ ≡ √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
+    radicalPath : √ ⟨ h ⟩ ≡ √ ⟨ f , g ⟩ₚ
     radicalPath = isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun DHelper
      where
      DHelper : D h ≡ D f ∨z D g
      DHelper = Dh≡𝔞∨𝔟 ∙ cong₂ (_∨z_) (sym Df≡𝔞) (sym Dg≡𝔟)
 
-    f∈√⟨h⟩ : f ∈ √ ⟨ replicateFinVec 1 h ⟩
+    f∈√⟨h⟩ : f ∈ √ ⟨ h ⟩
     f∈√⟨h⟩ = subst (f ∈_) (sym radicalPath) (∈→∈√ _ _ (indInIdeal _ _ zero))
 
-    g∈√⟨h⟩ : g ∈ √ ⟨ replicateFinVec 1 h ⟩
+    g∈√⟨h⟩ : g ∈ √ ⟨ h ⟩
     g∈√⟨h⟩ = subst (g ∈_) (sym radicalPath) (∈→∈√ _ _ (indInIdeal _ _ (suc zero)))
 
-    fg∈√⟨h⟩ : (f · g) ∈ √ ⟨ replicateFinVec 1 h ⟩
-    fg∈√⟨h⟩ = √ ⟨ replicateFinVec 1 h ⟩ .snd .·Closed f g∈√⟨h⟩
+    fg∈√⟨h⟩ : (f · g) ∈ √ ⟨ h ⟩
+    fg∈√⟨h⟩ = √ ⟨ h ⟩ .snd .·Closed f g∈√⟨h⟩
 
-    1∈fgIdeal : 1r ∈ₕ ⟨ replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1) ⟩ₕ
+    1∈fgIdeal : 1r ∈ₕ ⟨ (f /1) , (g /1) ⟩ₕ
     1∈fgIdeal = helper1 (subst (h ∈_) radicalPath (∈→∈√ _ _ (indInIdeal _ _ zero)))
      where
-     helper1 : h ∈ √ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
-             → 1r ∈ₕ ⟨ replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1) ⟩ₕ
+     helper1 : h ∈ √ ⟨ f , g ⟩ₚ
+             → 1r ∈ₕ ⟨ (f /1) , (g /1) ⟩ₕ
      helper1 = PT.rec isPropPropTrunc (uncurry helper2)
       where
       helper2 : (n : ℕ)
-              → h ^ n ∈ ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩
-              → 1r ∈ₕ ⟨ replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1) ⟩ₕ
+              → h ^ n ∈ ⟨ f , g ⟩ₚ
+              → 1r ∈ₕ ⟨ (f /1) , (g /1) ⟩ₕ
       helper2 n = map helper3
        where
        helper3 : Σ[ α ∈ FinVec R 2 ]
-                  h ^ n ≡ linearCombination R' α (replicateFinVec 1 f ++Fin replicateFinVec 1 g)
+                  h ^ n ≡ linearCombination R' α (λ { zero → f ; (suc zero) → g })
                → Σ[ β ∈ FinVec R[1/ h ] 2 ]
                   1r ≡ linearCombination R[1/ h ]AsCommRing β
-                                         (replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1))
+                                         λ { zero → f /1 ; (suc zero) → g /1 }
        helper3 (α , p) = β , path
         where
         β : FinVec R[1/ h ] 2
@@ -739,7 +742,7 @@ module BasicOpens (R' : CommRing ℓ) where
         β (suc zero) = [ α (suc zero) , h ^ n , ∣ n , refl ∣ ]
 
         path : 1r ≡ linearCombination R[1/ h ]AsCommRing β
-                                      (replicateFinVec 1 (f /1) ++Fin replicateFinVec 1 (g /1))
+                                      λ { zero → f /1 ; (suc zero) → g /1 }
         path = eq/ _ _ ((1r , ∣ 0 , refl ∣) , bigPath)
              ∙ cong (β zero · (f /1) +_) (sym (+Rid (β (suc zero) · (g /1))))
          where
