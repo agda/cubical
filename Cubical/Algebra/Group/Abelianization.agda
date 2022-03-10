@@ -15,6 +15,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties using (isPropIsGroupHom; compGroupHom)
 
 open import Cubical.Algebra.AbGroup.Base
 
@@ -23,8 +24,11 @@ private
     ℓ : Level
 
 module _ (G : Group ℓ) where
-  open GroupStr (snd G)
+  open GroupStr {{...}}
   open GroupTheory G
+  private
+    instance
+      _ = snd G
 
   data Abelianization : Type ℓ where
     η : (g : fst G) → Abelianization
@@ -184,10 +188,67 @@ module _ (G : Group ℓ) where
   asAbelianGroup : AbGroup ℓ
   asAbelianGroup = makeAbGroup 1Ab _·Ab_ invAb isset assocAb ridAb rinvAb commAb
 
+  ηasGroupHom : GroupHom G (AbGroup→Group asAbelianGroup)
+  ηasGroupHom = f , fIsHom
+    where
+    f = λ x → η x
+    fIsHom : IsGroupHom (snd G) f (snd (AbGroup→Group asAbelianGroup))
+    IsGroupHom.pres· fIsHom = λ x y → refl
+    IsGroupHom.pres1 fIsHom = refl
+    IsGroupHom.presinv fIsHom = λ x → refl
 
-{-
-  universalPropertyAb : (H : AbGroup ℓ)
-                      → (f : GroupHom G H)
-                      → GroupHom Abelianization H
-  universalPropertyAb H f = elimProp (λ x → {!   !}) (λ x → f x)
--}
+  inducedHom : (H : AbGroup ℓ)
+             → (f : GroupHom G (AbGroup→Group H))
+             → AbGroupHom asAbelianGroup H
+  inducedHom H f = g , gIsHom
+    where open IsGroupHom
+          instance
+            _ = snd (AbGroup→Group H)
+          f' = fst f
+          g = rec
+                (isSetAbGroup H)
+                (λ x → (f') x)
+                (λ a b c → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
+                           (f' a) · (f' (b · c))    ≡⟨ cong (λ x → (f' a) · x) ((snd f).pres· b c) ⟩
+                           (f' a) · (f' b) · (f' c) ≡⟨ cong (λ x → (f' a) · x) ((snd H).AbGroupStr.comm (f' b) (f' c))  ⟩
+                           (f' a) · (f' c) · (f' b) ≡⟨ cong (λ x → (f' a) · x) (sym ((snd f).pres· c b)) ⟩
+                           (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
+                           f' (a · c · b) ∎)
+          gIsHom : IsGroupHom (snd (AbGroup→Group asAbelianGroup)) g (snd (AbGroup→Group H))
+          pres· gIsHom =
+            elimProp2
+              (λ x y → isSetAbGroup H _ _)
+              ((snd f).pres·)
+          pres1 gIsHom = (snd f).pres1
+          presinv gIsHom =
+            elimProp
+              (λ x → isSetAbGroup H _ _)
+              ((snd f).presinv)
+
+  commutativity : (H : AbGroup ℓ)
+                → (f : GroupHom G (AbGroup→Group H))
+                → (compGroupHom ηasGroupHom (inducedHom H f) ≡ f)
+  commutativity H f =
+      Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x → q x i)
+    where q : (x : fst  G)
+              → fst (compGroupHom ηasGroupHom (inducedHom H f)) x ≡ fst f x
+          q = (λ x → refl)
+
+  uniqueness : (H : AbGroup ℓ)
+             → (f : GroupHom G (AbGroup→Group H))
+             → (g : AbGroupHom asAbelianGroup H)
+             → (p : compGroupHom ηasGroupHom g ≡ f)
+             → (g ≡ inducedHom H f)
+  uniqueness H f g p =
+      Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x →  q x i)
+    where q : (x : Abelianization)
+              →  fst g x ≡ fst (inducedHom H f) x
+          q = elimProp
+                (λ _ → isSetAbGroup H _ _)
+                (λ x → fst g (η x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
+                       (fst f) x ≡⟨ refl ⟩
+                       fst (inducedHom H f) (η x)∎)
