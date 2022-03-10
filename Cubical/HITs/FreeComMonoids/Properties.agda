@@ -92,5 +92,5 @@ FCMon≃AssocList = isoToEquiv (iso AL→FCM FCM→AL AL→FCM∘FCM→AL≡id F
 AssocList≃FCMon : FreeComMonoid A ≃ AssocList A
 AssocList≃FCMon = isoToEquiv (iso FCM→AL AL→FCM FCM→AL∘AL→FCM≡id AL→FCM∘FCM→AL≡id)
 
-FCMon≡AssocList : AssocList A ≡ FreeComMonoid A
-FCMon≡AssocList = ua FCMon≃AssocList
+AssocList≡FreeComMonoid : AssocList A ≡ FreeComMonoid A
+AssocList≡FreeComMonoid = ua FCMon≃AssocList
