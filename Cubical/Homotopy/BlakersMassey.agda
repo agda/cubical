@@ -22,13 +22,19 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
+open Iso
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv.HalfAdjoint
 
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.HITs.Truncation renaming (hLevelTrunc to Trunc)
+open import Cubical.HITs.Pushout hiding (PushoutGenFib)
 
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
@@ -48,18 +54,14 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
   rightFiber : Y → Type (ℓ-max ℓ₁ ℓ₃)
   rightFiber y = Σ[ x ∈ X ] Q x y
 
-  {- An alternative formulation of pushout with fewer parameters -}
+  {- We use the alternative formulation of pushout with fewer parameters -}
 
-  data Pushout : Type ℓ
-    where
-      inl : X → Pushout
-      inr : Y → Pushout
-      push : {x : X}{y : Y} → Q x y → inl x ≡ inr y
+  PushoutQ = PushoutGen Q
 
   {- Some preliminary definitions for convenience -}
 
   fiberSquare :
-      {x₀ x₁ : X}{y₀ : Y}{p : Pushout}(q₀₀ : Q x₀ y₀)(q₁₀ : Q x₁ y₀)
+      {x₀ x₁ : X}{y₀ : Y}{p : PushoutQ}(q₀₀ : Q x₀ y₀)(q₁₀ : Q x₁ y₀)
     → inl x₁ ≡ p → inl x₀ ≡ p → Type ℓ
   fiberSquare q₀₀ q₁₀ r' r = PathP (λ i → push q₀₀ (~ i) ≡ r' i) (sym (push q₁₀)) r
 
@@ -68,7 +70,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
     → inl x₀ ≡ inr y₁ → Type ℓ
   fiberSquarePush q₀₀ q₁₀ q₁₁ = fiberSquare q₀₀ q₁₀ (push q₁₁)
 
-  fiber' : {x₀ : X}{y₀ : Y}(q₀₀ : Q x₀ y₀){x₁ : X}{p : Pushout} → inl x₁ ≡ p → inl x₀ ≡ p → Type ℓ
+  fiber' : {x₀ : X}{y₀ : Y}(q₀₀ : Q x₀ y₀){x₁ : X}{p : PushoutQ} → inl x₁ ≡ p → inl x₀ ≡ p → Type ℓ
   fiber' {y₀ = y₀} q₀₀ {x₁ = x₁} r' r = Σ[ q₁₀ ∈ Q x₁ y₀ ] fiberSquare q₀₀ q₁₀ r' r
 
   fiber'Push : {x₀ x₁ : X}{y₀ y₁ : Y}(q₀₀ : Q x₀ y₀)(q₁₁ : Q x₁ y₁) → inl x₀ ≡ inr y₁ → Type ℓ
@@ -76,10 +78,10 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
 
   leftCodeExtended :
       {x₀ : X}{y₀ : Y}(q₀₀ : Q x₀ y₀)
-    → (x₁ : X){p : Pushout} → inl x₁ ≡ p → inl x₀ ≡ p → Type ℓ
+    → (x₁ : X){p : PushoutQ} → inl x₁ ≡ p → inl x₀ ≡ p → Type ℓ
   leftCodeExtended {y₀ = y₀} q₀₀ x₁ r' r = Trunc (m + n) (fiber' q₀₀ r' r)
 
-  rightCode : {x₀ : X}(y : Y) → inl x₀ ≡ inr y → Type ℓ
+  rightCode : {x₀ : X}(y : Y) → Path PushoutQ (inl x₀) (inr y) → Type ℓ
   rightCode y r = Trunc (m + n) (fiber push r)
 
   {- Bunch of coherence data that will be used to construct Code -}
@@ -95,7 +97,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (r : inl x₁ ≡ inr y₁)
       (p : fiberSquarePush q₁₀ q₁₀ q₁₁ r) where
 
-      fiber→[q₀₀=q₁₀]-filler : (i j k : I) → Pushout
+      fiber→[q₀₀=q₁₀]-filler : (i j k : I) → PushoutQ
       fiber→[q₀₀=q₁₀]-filler i j k' =
         hfill (λ k → λ { (i = i0) → push q₁₁ (j ∧ k)
                        ; (i = i1) → p k j
@@ -116,7 +118,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (r : inl x₀ ≡ inr y₀)
       (p : fiberSquarePush q₀₀ q₁₀ q₁₀ r) where
 
-      fiber→[q₁₁=q₁₀]-filler : (i j k : I) → Pushout
+      fiber→[q₁₁=q₁₀]-filler : (i j k : I) → PushoutQ
       fiber→[q₁₁=q₁₀]-filler i j k' =
         hfill (λ k → λ { (i = i0) → push q₀₀ (j ∨ ~ k)
                        ; (i = i1) → p k j
@@ -135,7 +137,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
     fiber→[q₀₀=q₁₀=q₁₁]-filler :
         (r : inl x₁ ≡ inr y₀)
       → (p : fiberSquarePush q₁₀ q₁₀ q₁₀ r)
-      → (i j k l : I) → Pushout
+      → (i j k l : I) → PushoutQ
     fiber→[q₀₀=q₁₀=q₁₁]-filler r p i j k l' =
       hfill (λ l → λ { (i = i0) → fiber→[q₀₀=q₁₀]-filler q₁₀ r p j k l
                      ; (i = i1) → fiber→[q₁₁=q₁₀]-filler q₁₀ r p j k l
@@ -163,7 +165,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (r : inl x₀ ≡ inr y₁)
       (p : push q₀₁ ≡ r) where
 
-      fiber←[q₁₁=q₀₁]-filler : (i j k : I) → Pushout
+      fiber←[q₁₁=q₀₁]-filler : (i j k : I) → PushoutQ
       fiber←[q₁₁=q₀₁]-filler i j k' =
         hfill (λ k → λ { (i = i0) → push q₀₀ (~ j ∧ k)
                        ; (i = i1) → p k j
@@ -184,7 +186,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (r : inl x₀ ≡ inr y₁)
       (p : push q₀₁ ≡ r) where
 
-      fiber←[q₀₀=q₀₁]-filler : (i j k : I) → Pushout
+      fiber←[q₀₀=q₀₁]-filler : (i j k : I) → PushoutQ
       fiber←[q₀₀=q₀₁]-filler i j k' =
         hfill (λ k → λ { (i = i0) → push q₁₁ (~ j ∨ ~ k)
                        ; (i = i1) → p k j
@@ -203,7 +205,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
     fiber←[q₀₀=q₀₁=q₁₁]-filler :
         (r : inl x₀ ≡ inr y₁)
       → (p : push q₀₁ ≡ r)
-      → (i j k l : I) → Pushout
+      → (i j k l : I) → PushoutQ
     fiber←[q₀₀=q₀₁=q₁₁]-filler r p i j k l' =
       hfill (λ l → λ { (i = i0) → fiber←[q₁₁=q₀₁]-filler q₀₁ r p j k l
                      ; (i = i1) → fiber←[q₀₀=q₀₁]-filler q₀₁ r p j k l
@@ -231,7 +233,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (r : inl x₁ ≡ inr y₁)
       (p : fiberSquarePush q₁₀ q₁₀ q₁₁ r) where
 
-      fiber→←[q₀₀=q₁₀]-filler : (i j k l : I) → Pushout
+      fiber→←[q₀₀=q₁₀]-filler : (i j k l : I) → PushoutQ
       fiber→←[q₀₀=q₁₀]-filler i j k l' =
         let p' = fiber→[q₀₀=q₁₀] q₁₀ q₁₁ r p .snd in
         hfill (λ l → λ { (i = i0) → fiber←[q₁₁=q₀₁]-filler q₁₁ q₁₀ r p' j k l
@@ -251,7 +253,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (r : inl x₀ ≡ inr y₀)
       (p : fiberSquarePush q₀₀ q₁₀ q₁₀ r) where
 
-      fiber→←[q₁₁=q₁₀]-filler : (i j k l : I) → Pushout
+      fiber→←[q₁₁=q₁₀]-filler : (i j k l : I) → PushoutQ
       fiber→←[q₁₁=q₁₀]-filler i j k l' =
         let p' = fiber→[q₁₁=q₁₀] q₁₀ q₀₀ r p .snd in
         hfill (λ l → λ { (i = i0) → fiber←[q₀₀=q₀₁]-filler q₀₀ q₁₀ r p' j k l
@@ -293,7 +295,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (r : inl x₀ ≡ inr y₁)
       (p : push q₀₁ ≡ r) where
 
-      fiber←→[q₁₁=q₀₁]-filler : (i j k l : I) → Pushout
+      fiber←→[q₁₁=q₀₁]-filler : (i j k l : I) → PushoutQ
       fiber←→[q₁₁=q₀₁]-filler i j k l' =
         let p' = fiber←[q₁₁=q₀₁] q₀₁ q₀₀ r p .snd in
         hfill (λ l → λ { (i = i0) → fiber→[q₀₀=q₁₀]-filler q₀₀ q₀₁ r p' j k l
@@ -313,7 +315,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       (r : inl x₀ ≡ inr y₁)
       (p : push q₀₁ ≡ r) where
 
-      fiber←→[q₀₀=q₀₁]-filler : (i j k l : I) → Pushout
+      fiber←→[q₀₀=q₀₁]-filler : (i j k l : I) → PushoutQ
       fiber←→[q₀₀=q₀₁]-filler i j k l' =
         let p' = fiber←[q₀₀=q₀₁] q₀₁ q₁₁ r p .snd in
         hfill (λ l → λ { (i = i0) → fiber→[q₁₁=q₁₀]-filler q₁₁ q₀₁ r p' j k l
@@ -551,7 +553,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
 
   module _ (x₀ : X)(y₀ : Y)(q₀₀ : Q x₀ y₀) where
 
-    leftCode' : (x : X){p : Pushout} → inl x ≡ p → inl x₀ ≡ p → Type ℓ
+    leftCode' : (x : X){p : PushoutQ} → inl x ≡ p → inl x₀ ≡ p → Type ℓ
     leftCode' x r' = leftCodeExtended q₀₀ x r'
 
     leftCode : (x : X) → inl x₀ ≡ inl x → Type ℓ
@@ -568,7 +570,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                      ; (i = i1) → fiberPath q j })
             (leftCode' _ (λ j → push q (i ∧ j)))
 
-    Code : (p : Pushout) → inl x₀ ≡ p → Type ℓ
+    Code : (p : PushoutQ) → inl x₀ ≡ p → Type ℓ
     Code (inl x) = leftCode  x
     Code (inr y) = rightCode y
     Code (push q i) = pushCode q i
@@ -585,7 +587,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
     transpPushCodeβ' y q q' i = transportRefl (left→rightCodeExtended _ _ _ (transpLeftCode y q (transportRefl q' i))) i
 
     module _
-      {p : Pushout}(r : inl x₀ ≡ p) where
+      {p : PushoutQ}(r : inl x₀ ≡ p) where
 
       fiber-filler : I → Type ℓ
       fiber-filler i = fiber' q₀₀ (λ j → r (i ∧ j)) (λ j → r (i ∧ j))
@@ -593,7 +595,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
       module _
         (q : fiberSquare q₀₀ q₀₀ refl refl) where
 
-        transpLeftCode-filler : (i j k : I) → Pushout
+        transpLeftCode-filler : (i j k : I) → PushoutQ
         transpLeftCode-filler i j k' =
           hfill (λ k → λ { (i = i0) → push q₀₀ (~ j)
                          ; (i = i1) → r (j ∧ k)
@@ -602,7 +604,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                 (inS (q i j)) k'
 
     transpLeftCodeβ' :
-        {p : Pushout} → (r : inl x₀ ≡ p) → (q : fiberSquare q₀₀ q₀₀ refl refl)
+        {p : PushoutQ} → (r : inl x₀ ≡ p) → (q : fiberSquare q₀₀ q₀₀ refl refl)
       → transport (λ i → fiber-filler r i) (q₀₀ , q) ≡ (q₀₀ , λ i j → transpLeftCode-filler r q i j i1)
     transpLeftCodeβ' r q =
       J (λ p r → transport (λ i → fiber-filler r i) (q₀₀ , q) ≡ (q₀₀ , λ i j → transpLeftCode-filler r q i j i1))
@@ -625,14 +627,14 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
 
     {- The contractibility of Code -}
 
-    centerCode : {p : Pushout} → (r : inl x₀ ≡ p) → Code p r
+    centerCode : {p : PushoutQ} → (r : inl x₀ ≡ p) → Code p r
     centerCode r =
       transport (λ i → Code _ (λ j → r (i ∧ j))) ∣ q₀₀ , (λ i j → push q₀₀ (~ i ∧ ~ j)) ∣ₕ
 
     module _
       (y : Y)(q : Q x₀ y) where
 
-      transp-filler : (i j k : I) → Pushout
+      transp-filler : (i j k : I) → PushoutQ
       transp-filler = transpLeftCode-filler (push q) (λ i' j' → push q₀₀ (~ i' ∧ ~ j'))
 
       transp-square : fiberSquare q₀₀ q₀₀ (push q) (push q)
@@ -672,3 +674,136 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
   {- The Main Result : Blakers-Massey Homotopy Excision Theorem -}
   Excision : (x : X)(y : Y) → isConnectedFun (m + n) (push {x = x} {y = y})
   Excision x y = excision-helper x (leftConn x .fst) y
+
+
+{-
+We also give the following version of the theorem: Given a square
+
+          g
+  A --------------> C
+  |\              ↗ |
+  |  \         ↗    |
+  |    \    ↗       |
+f |      X          |  inr
+  |    /            |
+  |   /             |
+  |  /              |
+  v /               v
+  B -----------> Pushout f g
+         inl
+
+where X is the pullback of inl and inr
+  (X := Σ[ (b , c) ∈ B × C ] (inl b ≡ inr c)).
+
+If f in n-connected and g in m-connected, then the diagonal map
+A → X is (n+m)-connected
+-}
+
+
+private
+  shuffleFibIso₁ :
+       {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+       (f : A → B) (g : A → C) (b : B)
+     → Iso (Σ[ c ∈ C ] Σ[ a ∈ A ] (f a ≡ b) × (g a ≡ c))
+             (Σ[ a ∈ A ] ((Σ[ c ∈ C ] (g a ≡ c)) × (f a ≡ b)))
+  shuffleFibIso₁ f g b =
+    compIso (invIso Σ-assoc-Iso)
+     (compIso (Σ-cong-iso-fst Σ-swap-Iso)
+      (compIso
+       (Σ-cong-iso-snd (λ y → Σ-swap-Iso))
+       (compIso Σ-assoc-Iso
+         (Σ-cong-iso-snd λ a → invIso Σ-assoc-Iso))))
+
+  shuffleFibIso₂ : {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+         (f : A → B) (g : A → C) (x : _)
+         → Iso (Σ[ a ∈ A ] ((Σ[ c ∈ C ] (g a ≡ c)) × (f a ≡ x)))
+                (fiber f x)
+  shuffleFibIso₂ f g x = Σ-cong-iso-snd
+        λ a → compIso (Σ-cong-iso-fst
+                        (isContr→Iso (isContrSingl (g a))
+                         isContrUnit))
+                       lUnit×Iso
+
+module BlakersMassey□ {ℓ ℓ' ℓ'' : Level}
+  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  (f : A → B) (g : A → C) (n m : ℕ)
+  (con-f : isConnectedFun (suc n) f)
+  (con-g : isConnectedFun (suc m) g) where
+
+  {- Some abbreviations and connectivity -}
+  private
+    fib = doubleFib f g
+
+    B-con : (x : B) → isConnected (suc n) (Σ[ c ∈ C ] (fib x c))
+    B-con x =
+      isConnectedRetractFromIso (suc n)
+        (compIso
+          (shuffleFibIso₁ f g x)
+          (shuffleFibIso₂ f g x))
+        (con-f x)
+
+    C-con : (c : C) → isConnected (suc m) (Σ[ b ∈ B ] (fib b c))
+    C-con c =
+      isConnectedRetractFromIso (suc m)
+        (compIso
+          (compIso (Σ-cong-iso-snd
+                    (λ _ → Σ-cong-iso-snd λ _ → Σ-swap-Iso))
+            (shuffleFibIso₁ g f c))
+            (shuffleFibIso₂ g f c))
+        (con-g c)
+
+  open module BM-f-g = BlakersMassey B C fib {m = n} B-con {n = m} C-con
+
+  fib× : (B × C) → Type _
+  fib× (b , c) = fib b c
+
+  PushoutGenPath× : B × C → Type _
+  PushoutGenPath× (b , c) = Path (PushoutGen fib) (inl b) (inr c)
+
+  PushoutPath× : B × C → Type _
+  PushoutPath× (b , c) = Path (Pushout f g) (inl b) (inr c)
+
+  {- The function in question -}
+  toPullback : A → Σ (B × C) PushoutPath×
+  toPullback a = (f a , g a) , push a
+
+  {- We redescribe toPullback as a composition of three maps,
+     two of which are equivs and one of which is (n+m)-connected -}
+  Totalfib×→Total : Σ (B × C) fib× → Σ (B × C) PushoutGenPath×
+  Totalfib×→Total =
+    TotalFun {A = B × C} {B = fib×} {C = PushoutGenPath×} (λ a → push)
+
+  isConnectedTotalFun : isConnectedFun (n + m) Totalfib×→Total
+  isConnectedTotalFun =
+    FunConnected→TotalFunConnected (λ _ → push) (n + m) (uncurry BM-f-g.Excision)
+
+  TotalPathGen×Iso : Iso (Σ (B × C) PushoutGenPath×) (Σ (B × C) PushoutPath×)
+  TotalPathGen×Iso =
+    Σ-cong-iso-snd λ x
+      → congIso (invIso (IsoPushoutPushoutGen f g))
+
+  Totalfib×Iso : Iso (Σ (B × C) fib×) A
+  fun Totalfib×Iso ((b , c) , a , p) = a
+  inv Totalfib×Iso a = (f a , g a) , a , refl , refl
+  rightInv Totalfib×Iso _ = refl
+  leftInv Totalfib×Iso ((b , c) , a , (p , q)) i =
+    ((p i) , (q i)) , (a , ((λ j → p (i ∧ j)) , (λ j → q (i ∧ j))))
+
+  toPullback' : A → Σ (B × C) PushoutPath×
+  toPullback' =
+    (fun TotalPathGen×Iso ∘ Totalfib×→Total) ∘ inv Totalfib×Iso
+
+  toPullback'≡toPullback : toPullback' ≡ toPullback
+  toPullback'≡toPullback =
+    funExt λ x → ΣPathP (refl , (sym (rUnit (push x))))
+
+  isConnected-toPullback : isConnectedFun (n + m) toPullback
+  isConnected-toPullback =
+    subst (isConnectedFun (n + m)) toPullback'≡toPullback
+      (isConnectedComp
+        (fun TotalPathGen×Iso ∘ Totalfib×→Total)
+        (inv Totalfib×Iso) (n + m)
+        (isConnectedComp (fun TotalPathGen×Iso) Totalfib×→Total (n + m)
+          (isEquiv→isConnected _ (isoToIsEquiv TotalPathGen×Iso) (n + m))
+          isConnectedTotalFun)
+        (isEquiv→isConnected _ (isoToIsEquiv (invIso Totalfib×Iso)) (n + m)))

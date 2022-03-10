@@ -90,6 +90,9 @@ module CommIdeal (R' : CommRing ℓ) where
  CommIdeal : Type (ℓ-suc ℓ)
  CommIdeal = Σ[ I ∈ ℙ R ] isCommIdeal I
 
+ isSetCommIdeal : isSet CommIdeal
+ isSetCommIdeal = isSetΣSndProp isSetℙ isPropIsCommIdeal
+
  --inclusion and containment of ideals
  _⊆_ : CommIdeal → CommIdeal → Type ℓ
  I ⊆ J = I .fst ⊆p J .fst

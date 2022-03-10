@@ -23,7 +23,7 @@ open import Cubical.Reflection.RecordEquiv
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
 record IsCommAlgebra (R : CommRing ℓ) {A : Type ℓ'}
                      (0a : A) (1a : A)
@@ -142,23 +142,37 @@ module _ {R : CommRing ℓ} where
                                   ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc·)
 
 
-  IsCommAlgebraEquiv : {A B : Type ℓ'}
+  IsCommAlgebraEquiv : {A : Type ℓ'} {B : Type ℓ''}
     (M : CommAlgebraStr R A) (e : A ≃ B) (N : CommAlgebraStr R B)
-    → Type (ℓ-max ℓ ℓ')
+    → Type _
   IsCommAlgebraEquiv M e N =
     IsAlgebraHom (CommAlgebraStr→AlgebraStr M) (e .fst) (CommAlgebraStr→AlgebraStr N)
 
-  CommAlgebraEquiv : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
+  CommAlgebraEquiv : (M : CommAlgebra R ℓ') (N : CommAlgebra R ℓ'') → Type _
   CommAlgebraEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsCommAlgebraEquiv (M .snd) e (N .snd)
 
-  IsCommAlgebraHom : {A B : Type ℓ'}
+  IsCommAlgebraHom : {A : Type ℓ'} {B : Type ℓ''}
     (M : CommAlgebraStr R A) (f : A → B) (N : CommAlgebraStr R B)
-    → Type (ℓ-max ℓ ℓ')
+    → Type _
   IsCommAlgebraHom M f N =
     IsAlgebraHom (CommAlgebraStr→AlgebraStr M) f (CommAlgebraStr→AlgebraStr N)
 
-  CommAlgebraHom : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
+  CommAlgebraHom : (M : CommAlgebra R ℓ') (N : CommAlgebra R ℓ'') → Type _
   CommAlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsCommAlgebraHom (M .snd) f (N .snd)
+
+  CommAlgebraEquiv→CommAlgebraHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+                                  → CommAlgebraEquiv A B → CommAlgebraHom A B
+  CommAlgebraEquiv→CommAlgebraHom (e , eIsHom) = e .fst , eIsHom
+
+  CommAlgebraHom→CommRingHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'')
+                              → CommAlgebraHom A B
+                              → CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
+  fst (CommAlgebraHom→CommRingHom A B f) = fst f
+  IsRingHom.pres0 (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres0 (snd f)
+  IsRingHom.pres1 (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres1 (snd f)
+  IsRingHom.pres+ (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres+ (snd f)
+  IsRingHom.pres· (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres· (snd f)
+  IsRingHom.pres- (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres- (snd f)
 
   module _ {M N : CommAlgebra R ℓ'} where
     open CommAlgebraStr {{...}}
@@ -238,6 +252,9 @@ isPropIsCommAlgebra R _ _ _ _ _ _ =
 
 CommAlgebraPath : (R : CommRing ℓ) → (A B : CommAlgebra R ℓ') → (CommAlgebraEquiv A B) ≃ (A ≡ B)
 CommAlgebraPath R = ∫ (𝒮ᴰ-CommAlgebra R) .UARel.ua
+
+uaCommAlgebra : {R : CommRing ℓ} {A B : CommAlgebra R ℓ'} → CommAlgebraEquiv A B → A ≡ B
+uaCommAlgebra {R = R} {A = A} {B = B} = equivFun (CommAlgebraPath R A B)
 
 isGroupoidCommAlgebra : {R : CommRing ℓ} → isGroupoid (CommAlgebra R ℓ')
 isGroupoidCommAlgebra A B = isOfHLevelRespectEquiv 2 (CommAlgebraPath _ _ _) (isSetAlgebraEquiv _ _)
