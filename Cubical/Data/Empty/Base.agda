@@ -1,7 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Empty.Base where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 
 private
