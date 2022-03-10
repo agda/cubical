@@ -41,7 +41,7 @@
 
 <a id="1547" class="Keyword">open</a> <a id="1552" class="Keyword">import</a> <a id="1559" href="Cubical.HITs.SetQuotients.html" class="Module">Cubical.HITs.SetQuotients</a> <a id="1585" class="Symbol">as</a> <a id="1588" class="Module">SQ</a>
 
-<a id="1592" class="Keyword">open</a> <a id="1597" href="Cubical.Foundations.Isomorphism.html#770" class="Module">Iso</a>
+<a id="1592" class="Keyword">open</a> <a id="1597" href="Cubical.Foundations.Isomorphism.html#728" class="Module">Iso</a>
 <a id="1601" class="Keyword">open</a> <a id="1606" href="Cubical.Relation.Binary.Base.html#1289" class="Module">BinaryRelation</a>
 <a id="1621" class="Keyword">open</a> <a id="1626" href="Cubical.Relation.Binary.Base.html#1647" class="Module">isEquivRel</a>
 
@@ -193,7 +193,7 @@
  <a id="7322" class="Keyword">open</a> <a id="7327" href="Cubical.Algebra.CommRing.RadicalIdeal.html#1173" class="Module">RadicalIdeal</a> <a id="7340" href="Cubical.Algebra.ZariskiLattice.Base.html#7252" class="Bound">R&#39;</a>
  <a id="7344" class="Keyword">open</a> <a id="7349" href="Cubical.Algebra.ZariskiLattice.Base.html#1683" class="Module">ZarLat</a> <a id="7356" href="Cubical.Algebra.ZariskiLattice.Base.html#7252" class="Bound">R&#39;</a>
 
- <a id="7361" class="Keyword">open</a> <a id="7366" href="Cubical.Foundations.Isomorphism.html#770" class="Module">Iso</a>
+ <a id="7361" class="Keyword">open</a> <a id="7366" href="Cubical.Foundations.Isomorphism.html#728" class="Module">Iso</a>
 
  <a id="7372" class="Keyword">private</a>
   <a id="SmallZarLat.R"></a><a id="7382" href="Cubical.Algebra.ZariskiLattice.Base.html#7382" class="Function">R</a> <a id="7384" class="Symbol">=</a> <a id="7386" href="Agda.Builtin.Sigma.html#252" class="Field">fst</a> <a id="7390" href="Cubical.Algebra.ZariskiLattice.Base.html#7252" class="Bound">R&#39;</a>
@@ -212,7 +212,7 @@
  <a id="7676" href="Cubical.Algebra.ZariskiLattice.Base.html#7662" class="Function">ZL&#39;</a> <a id="7680" class="Symbol">=</a> <a id="7682" href="Cubical.Algebra.ZariskiLattice.Base.html#7395" class="Function">A</a> <a id="7684" href="Cubical.HITs.SetQuotients.Base.html#215" class="Datatype Operator">/</a> <a id="7686" class="Symbol">(</a><a id="7687" href="Cubical.Algebra.ZariskiLattice.Base.html#7573" class="Function Operator">_∼&#39;_</a><a id="7691" class="Symbol">)</a>
 
 
- <a id="SmallZarLat.IsoLarLatSmall"></a><a id="7696" href="Cubical.Algebra.ZariskiLattice.Base.html#7696" class="Function">IsoLarLatSmall</a> <a id="7711" class="Symbol">:</a> <a id="7713" href="Cubical.Foundations.Isomorphism.html#770" class="Record">Iso</a> <a id="7717" href="Cubical.Algebra.ZariskiLattice.Base.html#2265" class="Function">ZL</a> <a id="7720" href="Cubical.Algebra.ZariskiLattice.Base.html#7662" class="Function">ZL&#39;</a>
+ <a id="SmallZarLat.IsoLarLatSmall"></a><a id="7696" href="Cubical.Algebra.ZariskiLattice.Base.html#7696" class="Function">IsoLarLatSmall</a> <a id="7711" class="Symbol">:</a> <a id="7713" href="Cubical.Foundations.Isomorphism.html#728" class="Record">Iso</a> <a id="7717" href="Cubical.Algebra.ZariskiLattice.Base.html#2265" class="Function">ZL</a> <a id="7720" href="Cubical.Algebra.ZariskiLattice.Base.html#7662" class="Function">ZL&#39;</a>
  <a id="7725" href="Cubical.Algebra.ZariskiLattice.Base.html#7696" class="Function">IsoLarLatSmall</a> <a id="7740" class="Symbol">=</a> <a id="7742" href="Cubical.HITs.SetQuotients.Properties.html#12138" class="Function">relBiimpl→TruncIso</a> <a id="7761" href="Cubical.Algebra.ZariskiLattice.Base.html#7781" class="Function">~→∼&#39;</a> <a id="7766" href="Cubical.Algebra.ZariskiLattice.Base.html#7968" class="Function">~&#39;→∼</a>
   <a id="7773" class="Keyword">where</a>
   <a id="7781" href="Cubical.Algebra.ZariskiLattice.Base.html#7781" class="Function">~→∼&#39;</a> <a id="7786" class="Symbol">:</a> <a id="7788" class="Symbol">∀</a> <a id="7790" class="Symbol">{</a><a id="7791" href="Cubical.Algebra.ZariskiLattice.Base.html#7791" class="Bound">a</a> <a id="7793" href="Cubical.Algebra.ZariskiLattice.Base.html#7793" class="Bound">b</a> <a id="7795" class="Symbol">:</a> <a id="7797" href="Cubical.Algebra.ZariskiLattice.Base.html#7395" class="Function">A</a><a id="7798" class="Symbol">}</a> <a id="7800" class="Symbol">→</a> <a id="7802" href="Cubical.Algebra.ZariskiLattice.Base.html#7791" class="Bound">a</a> <a id="7804" href="Cubical.Algebra.ZariskiLattice.Base.html#2069" class="Function Operator">∼</a> <a id="7806" href="Cubical.Algebra.ZariskiLattice.Base.html#7793" class="Bound">b</a> <a id="7808" class="Symbol">→</a> <a id="7810" href="Cubical.Algebra.ZariskiLattice.Base.html#7791" class="Bound">a</a> <a id="7812" href="Cubical.Algebra.ZariskiLattice.Base.html#7573" class="Function Operator">∼&#39;</a> <a id="7815" href="Cubical.Algebra.ZariskiLattice.Base.html#7793" class="Bound">b</a>
@@ -224,5 +224,5 @@
                           <a id="8092" class="Symbol">(</a><a id="8093" href="Cubical.Algebra.CommRing.RadicalIdeal.html#4723" class="Function">√FGIdealCharRImpl</a> <a id="8111" class="Symbol">_</a> <a id="8113" href="Cubical.Algebra.ZariskiLattice.Base.html#7425" class="Function Operator">⟨</a> <a id="8115" class="Symbol">_</a> <a id="8117" href="Cubical.Algebra.ZariskiLattice.Base.html#7425" class="Function Operator">⟩</a> <a id="8119" class="Symbol">(</a><a id="8120" href="Agda.Builtin.Sigma.html#264" class="Field">snd</a> <a id="8124" href="Cubical.Algebra.ZariskiLattice.Base.html#8011" class="Bound">r</a><a id="8125" class="Symbol">))</a>
 
  <a id="SmallZarLat.ZL≃ZL&#39;"></a><a id="8130" href="Cubical.Algebra.ZariskiLattice.Base.html#8130" class="Function">ZL≃ZL&#39;</a> <a id="8137" class="Symbol">:</a> <a id="8139" href="Cubical.Algebra.ZariskiLattice.Base.html#2265" class="Function">ZL</a> <a id="8142" href="Agda.Builtin.Cubical.Glue.html#1051" class="Function Operator">≃</a> <a id="8144" href="Cubical.Algebra.ZariskiLattice.Base.html#7662" class="Function">ZL&#39;</a>
- <a id="8149" href="Cubical.Algebra.ZariskiLattice.Base.html#8130" class="Function">ZL≃ZL&#39;</a> <a id="8156" class="Symbol">=</a> <a id="8158" href="Cubical.Foundations.Isomorphism.html#3124" class="Function">isoToEquiv</a> <a id="8169" href="Cubical.Algebra.ZariskiLattice.Base.html#7696" class="Function">IsoLarLatSmall</a>
+ <a id="8149" href="Cubical.Algebra.ZariskiLattice.Base.html#8130" class="Function">ZL≃ZL&#39;</a> <a id="8156" class="Symbol">=</a> <a id="8158" href="Cubical.Foundations.Isomorphism.html#3082" class="Function">isoToEquiv</a> <a id="8169" href="Cubical.Algebra.ZariskiLattice.Base.html#7696" class="Function">IsoLarLatSmall</a>
 </pre></body></html>
