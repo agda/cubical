@@ -21,12 +21,12 @@ _^_ : A → ℕ → FreeComMonoid A
 x ^ n = multi-· x n ε
 
 ^+≡ : ∀ (p : A) m n → ((p ^ m) · (p ^ n)) ≡ (p ^ (m + n))
-^+≡ p zero n = identityᵣ _
+^+≡ p zero n = identityₗ _
 ^+≡ p (suc m) n = sym (assoc _ _ _) ∙ cong (_ ·_) (^+≡ _ _ _)
 
 AL→FCM : AssocList A → FreeComMonoid A
 AL→FCM = AL.Rec.f trunc ε (λ a n p → (a ^ n) · p)
-  per* agg* (const identityᵣ)
+  per* agg* (const identityₗ)
   where
   per* : ∀ x y (mon : FreeComMonoid A) →
     ((⟦ x ⟧ · ε) · ((⟦ y ⟧ · ε) · mon)) ≡
@@ -54,7 +54,7 @@ FCM→AL = FCM.Rec.f trunc ⟨_⟩ ⟨⟩ _++_ comm-++ unitr-++ (λ _ → refl) 
 
 ^-id : (x : A) (m : ℕ) (u : FreeComMonoid A)
   → FCM→AL ((x ^ m) · u) ≡ ⟨ x , m ⟩∷ FCM→AL u
-^-id x zero u = cong FCM→AL (identityᵣ u) ∙ sym (del _ _)
+^-id x zero u = cong FCM→AL (identityₗ u) ∙ sym (del _ _)
 ^-id x (suc m) u =
   FCM→AL ((⟦ x ⟧ · (x ^ m)) · u)
   ≡⟨ cong ⟨ x , 1 ⟩∷_ (^-id x m u) ⟩
@@ -66,7 +66,7 @@ FCM→AL = FCM.Rec.f trunc ⟨_⟩ ⟨⟩ _++_ comm-++ unitr-++ (λ _ → refl) 
   → AL→FCM (x ++ y) ≡ AL→FCM x · AL→FCM y
 ++-· = AL.ElimProp.f
   (isPropΠ (λ _ → trunc _ _))
-  (λ _ → sym (identityᵣ _))
+  (λ _ → sym (identityₗ _))
   λ x n {xs} p ys →
   AL→FCM (((⟨ x , n ⟩∷ ⟨⟩) ++ xs) ++ ys)
   ≡⟨ cong AL→FCM (cong (_++ ys) (comm-++ (⟨ x , n ⟩∷ ⟨⟩) xs) ∙ sym (assoc-++ xs _ ys)) ⟩
@@ -79,7 +79,7 @@ FCM→AL = FCM.Rec.f trunc ⟨_⟩ ⟨⟩ _++_ comm-++ unitr-++ (λ _ → refl) 
   ((x ^ n) · AL→FCM xs) · AL→FCM ys ∎
 
 AL→FCM∘FCM→AL≡id : section {A = AssocList A} AL→FCM FCM→AL
-AL→FCM∘FCM→AL≡id = FCM.ElimProp.f (trunc _ _) (λ x → identityₗ _ ∙ identityₗ _) refl
+AL→FCM∘FCM→AL≡id = FCM.ElimProp.f (trunc _ _) (λ x → identityᵣ _ ∙ identityᵣ _) refl
   λ {x y} p q → ++-· (FCM→AL x) (FCM→AL y) ∙ cong₂ _·_ p q
 
 FCM→AL∘AL→FCM≡id : retract {A = AssocList A} AL→FCM FCM→AL
