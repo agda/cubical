@@ -59,3 +59,7 @@ isEvenT n = toType (isEven n)
 
 isOddT : ℕ → Type
 isOddT n = isEvenT (suc n)
+
+isZero : ℕ → Bool
+isZero zero = true
+isZero (suc n) = false
