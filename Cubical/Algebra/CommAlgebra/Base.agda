@@ -164,6 +164,16 @@ module _ {R : CommRing ℓ} where
                                   → CommAlgebraEquiv A B → CommAlgebraHom A B
   CommAlgebraEquiv→CommAlgebraHom (e , eIsHom) = e .fst , eIsHom
 
+  CommAlgebraHom→CommRingHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'')
+                              → CommAlgebraHom A B
+                              → CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
+  fst (CommAlgebraHom→CommRingHom A B f) = fst f
+  IsRingHom.pres0 (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres0 (snd f)
+  IsRingHom.pres1 (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres1 (snd f)
+  IsRingHom.pres+ (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres+ (snd f)
+  IsRingHom.pres· (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres· (snd f)
+  IsRingHom.pres- (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres- (snd f)
+
   module _ {M N : CommAlgebra R ℓ'} where
     open CommAlgebraStr {{...}}
     open IsAlgebraHom
