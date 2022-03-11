@@ -86,8 +86,8 @@ FCM→AL∘AL→FCM≡id : retract {A = AssocList A} AL→FCM FCM→AL
 FCM→AL∘AL→FCM≡id = AL.ElimProp.f (trunc _ _) refl
   λ x n {xs} p → ^-id x n (AL→FCM xs) ∙ cong (⟨ _ , _ ⟩∷_) p
 
-AssocList≃FCMon : AssocList A ≃ FreeComMonoid A
-AssocList≃FCMon = isoToEquiv (iso AL→FCM FCM→AL AL→FCM∘FCM→AL≡id FCM→AL∘AL→FCM≡id)
+AssocList≃FreeComMonoid : AssocList A ≃ FreeComMonoid A
+AssocList≃FreeComMonoid = isoToEquiv (iso AL→FCM FCM→AL AL→FCM∘FCM→AL≡id FCM→AL∘AL→FCM≡id)
 
 AssocList≡FreeComMonoid : AssocList A ≡ FreeComMonoid A
-AssocList≡FreeComMonoid = ua AssocList≃FCMon
+AssocList≡FreeComMonoid = ua AssocList≃FreeComMonoid
