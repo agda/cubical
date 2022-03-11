@@ -51,7 +51,7 @@ open import Cubical.Algebra.CommRing.Localisation.PullbackSquare
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Algebra.CommAlgebra.Unit
+open import Cubical.Algebra.CommAlgebra.Instances.Unit
 open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice

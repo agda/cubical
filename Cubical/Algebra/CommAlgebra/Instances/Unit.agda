@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommAlgebra.Unit where
+module Cubical.Algebra.CommAlgebra.Instances.Unit where
 
 open import Cubical.Foundations.Prelude
 
