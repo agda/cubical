@@ -3,6 +3,7 @@ module Cubical.Categories.DistLatticeSheaf where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 open import Cubical.Data.Sigma
 
@@ -20,6 +21,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Terminal
+open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Instances.Poset
@@ -30,6 +32,67 @@ open import Cubical.Categories.Instances.DistLattice
 private
   variable
     ℓ ℓ' ℓ'' : Level
+
+
+module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
+                         (limitC : ∀ {ℓJ ℓJ'} → Limits {ℓJ} {ℓJ'} C)
+                         (L' : ℙ (fst L))
+                         (F : Functor (ΣPropCat  (DistLatticeCategory L) L' ^op) C)
+                         where
+
+ open Category
+ open Functor
+ open Cone
+ open LimCone
+
+ open Order (DistLattice→Lattice L)
+ open DistLatticeStr (snd L)
+ open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L))
+ open PosetStr (IndPoset .snd) hiding (_≤_ ; is-set)
+
+ private
+  DLCat = DistLatticeCategory L
+  DLSubCat = ΣPropCat  DLCat L'
+  DLPreSheaf = Functor (DLCat ^op) C
+  DLSubPreSheaf = Functor (DLSubCat ^op) C
+
+ _↓ : fst L → ℙ (fst L)
+ fst ((x ↓) u) = (u ≤ x) × (u ∈ L')
+ snd ((x ↓) u) = isProp× (is-set _ _) (L' u .snd)
+
+ _↓Diag : fst L → Category ℓ ℓ
+ x ↓Diag = ΣPropCat DLCat (x ↓) ^op
+
+ private
+  inclInL' : (x : fst L) → Functor (x ↓Diag) (DLSubCat ^op)
+  F-ob (inclInL' x) u = u .fst , u .snd .snd
+  F-hom (inclInL' x) u≥v = u≥v
+  F-id (inclInL' x) = refl
+  F-seq (inclInL' x) _ _ = is-set _ _ _ _
+
+  -- precomposition of F with the inclusion x↓ ↪ L'
+  F* : (x : fst L) → Functor (x ↓Diag) C
+  F* x = funcComp F (inclInL' x)
+
+ -- the right Kan-extension for DistLattice categories
+  --limOfArrows _ _ (limitC (x ↓Diag) (F* x)) {!limitC (y ↓Diag) (F* y)!} {!!} {!!}
+ DLRan : DLPreSheaf
+ -- F-ob DLRan x = limitC (x ↓Diag) (F* x) .lim
+ -- F-hom DLRan {x} {y} y≤x = limOfArrows _ _ (limitC (x ↓Diag) (F* x)) {!!} {!!} {!!}
+ -- F-id DLRan = {!!}
+ -- F-seq DLRan = {!!}
+
+ -- the direct approach
+ F-ob DLRan x = limitC (x ↓Diag) (F* x) .lim
+ F-hom DLRan {x} {y} y≤x = limArrow (limitC (y ↓Diag) (F* y)) _ yxCone
+  where
+  yxCone : Cone (F* y) (F-ob DLRan x)
+  coneOut yxCone (v , v≤y , v∈L') = limOut (limitC (x ↓Diag) (F* x))
+                                           (v , is-trans _ _ _ v≤y y≤x , v∈L') -- y↓ ↪ x↓
+  coneOutCommutes yxCone = limOutCommutes (limitC (x ↓Diag) (F* x))
+ F-id DLRan {x = x} = limArrowUnique (limitC (x ↓Diag) (F* x)) _ _ _ λ v → (⋆IdL C _) ∙ {!!}
+ F-seq DLRan = {!!}
+
 
 module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   open Category hiding (_⋆_)
@@ -97,6 +160,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   -- TODO: might be better to define this as a record
   DLSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
   DLSheaf = Σ[ F ∈ DLPreSheaf ] isDLSheaf F
+
 
 
 module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C)
