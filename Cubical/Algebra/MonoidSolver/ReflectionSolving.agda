@@ -1,126 +1,233 @@
+{-# OPTIONS --safe #-}
+
 module Cubical.Algebra.MonoidSolver.ReflectionSolving where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Structure
-
+open import Cubical.Foundations.Prelude hiding (Type)
 open import Cubical.Functions.Logic
 
-open import Agda.Builtin.Reflection
-  hiding (Type) renaming (normalise to normalizeTerm)
---open import Agda.Builtin.String
+open import Agda.Builtin.Reflection hiding (Type)
+open import Agda.Builtin.String
 
 open import Cubical.Reflection.Base
 
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
-open import Cubical.Data.FinData using (Fin)
-open import Cubical.Data.Nat using (ℕ)
---open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.List
+open import Cubical.Data.Nat.Literals
+open import Cubical.Data.Nat
+open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Bool
-open import Cubical.Data.Vec using (Vec; lookup)
+open import Cubical.Data.Bool.SwitchStatement
+open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.MonoidSolver.NaiveSolving
+open import Cubical.Algebra.Monoid.Base
+open import Cubical.Algebra.MonoidSolver.NaiveSolving renaming (solve to naiveSolve)
 
 private
   variable
     ℓ : Level
 
-_==_ = primQNameEquality
-{-# INLINE _==_ #-}
+  _==_ = primQNameEquality
+  {-# INLINE _==_ #-}
 
-module _ (M : Monoid ℓ) where
-  open MonoidStr (snd M)
-
-  getArgs : Term → Maybe (Term × Term)
-  getArgs (def _ xs) = go xs
-    where
-    go : List (Arg Term) → Maybe (Term × Term)
-    go (varg x ∷ varg y ∷ []) = just (x , y)
-    go (x ∷ xs)               = go xs
-    go _                      = nothing
-  getArgs _ = nothing
-
-  record MonoidNames : Type where ---wirklich ohne ℓ ???
+  record VarInfo : Type ℓ-zero where
     field
-      is-· : Name → Bool
-      is-ε : Name → Bool
+      varName : String
+      varType : Arg Term
+      index : ℕ
 
-  buildMatcher : Name → Maybe Name → Name → Bool
-  buildMatcher n nothing  x = n == x
-  buildMatcher n (just m) x = n == x or m == x
+  {-
+    `getLastTwoArgsOf` maps a term 'def n (z₁ ∷ … ∷ zₙ ∷ x ∷ y ∷ [])' to the pair '(x,y)'
+    non-visible arguments are ignored.
+  -}
+  getLastTwoArgsOf : Name → Term → Maybe (Term × Term)
+  getLastTwoArgsOf n' (def n xs) =
+    if n == n'
+    then go xs
+    else nothing
+      where
+      go : List (Arg Term) → Maybe (Term × Term)
+      go (varg x ∷ varg y ∷ []) = just (x , y)
+      go (x ∷ xs)               = go xs
+      go _                      = nothing
+  getLastTwoArgsOf n' _ = nothing
 
-  findMonoidNames : Term → TC MonoidNames
-  findMonoidNames mon = do
-    ·-altName ← normalizeTerm (def (quote _·_) PrependingTwoArgs) --(2 ⋯⟅∷⟆ mon ⟨∷⟩ []))
-    ε-altName ← normalizeTerm (def (quote ε) PrependingTwoArgs) --(2 ⋯⟅∷⟆ mon ⟨∷⟩ []))
-    returnTC record
-      { is-· = buildMatcher (quote _·_) (getName ·-altName)
-      ; is-ε = buildMatcher (quote ε)   (getName ε-altName)
-      }
+  {-
+    `getArgs` maps a term 'x ≡ y' to the pair '(x,y)'
+  -}
+  getArgs : Term → Maybe (Term × Term)
+  getArgs = getLastTwoArgsOf (quote PathP)
+
+
+  firstVisibleArg : List (Arg Term) → Maybe Term
+  firstVisibleArg [] = nothing
+  firstVisibleArg (varg x ∷ l) = just x
+  firstVisibleArg (x ∷ l) = firstVisibleArg l
+
+  {-
+    If the solver needs to be applied during equational reasoning,
+    the right hand side of the equation to solve cannot be given to
+    the solver directly. The following function extracts this term y
+    from a more complex expression as in:
+      x ≡⟨ solve ... ⟩ (y ≡⟨ ... ⟩ z ∎)
+  -}
+  getRhs : Term → Maybe Term
+  getRhs reasoningToTheRight@(def n xs) =
+    if n == (quote _∎)
+    then firstVisibleArg xs
+    else (if n == (quote _≡⟨_⟩_)
+         then firstVisibleArg xs
+         else nothing)
+  getRhs _ = nothing
+
+
+  private
+    solverCallAsTerm : Term → Arg Term → Term → Term → Term
+    solverCallAsTerm M varList lhs rhs =
+      def
+         (quote naiveSolve)
+         (varg M ∷ varg lhs ∷ varg rhs
+           ∷ varList
+           ∷ varg (def (quote refl) []) ∷ [])
+
+  solverCallWithLambdas : ℕ → List VarInfo → Term → Term → Term → Term
+  solverCallWithLambdas n varInfos M lhs rhs =
+    encloseWithIteratedLambda
+      (map VarInfo.varName varInfos)
+      (solverCallAsTerm M (variableList (rev varInfos)) lhs rhs)
     where
-      PrependingTwoArgs = unknown h∷ unknown h∷ mon v∷ []
+      encloseWithIteratedLambda : List String → Term → Term
+      encloseWithIteratedLambda (varName ∷ xs) t = lam visible (abs varName (encloseWithIteratedLambda xs t))
+      encloseWithIteratedLambda [] t = t
 
-      getName : Term → Maybe Name
-      getName (con c args) = just c
-      getName (def f args) = just f
-      getName _            = nothing
+      variableList : List VarInfo → Arg Term
+      variableList [] = varg (con (quote emptyVec) [])
+      variableList (varInfo ∷ varInfos)
+        = varg (con (quote _∷vec_) (varg (var (VarInfo.index varInfo) []) ∷ (variableList varInfos) ∷ []))
 
-  module BuildingExpressions (names : MonoidNames) where
-    open MonoidNames names
+  solverCallByVarIndices : ℕ → List ℕ → Term → Term → Term → Term
+  solverCallByVarIndices n varIndices R lhs rhs =
+      solverCallAsTerm R (variableList (rev varIndices)) lhs rhs
+      where
+        variableList : List ℕ → Arg Term
+        variableList [] = varg (con (quote emptyVec) [])
+        variableList (varIndex ∷ varIndices)
+          = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
 
-    ″ε″ : Term
-    ″ε″ = con (quote ε⊗) [] --quote ε⊗ ⟨ con ⟩ []
 
-    V′ : Term → Term
-    V′ t = con (quote V) (t v∷ [])
+module _ (monoid : Term) where
 
-    mutual
-      ″·″ : List (Arg Term) → Term
-      ″·″ (x v∷ y v∷ []) = con (quote _⊗_) (buildExpr x v∷ buildExpr y v∷ [])
-      ″·″ (x ∷ xs)         = ″·″ xs
-      ″·″ _                = unknown
+  `ε⊗` : List (Arg Term) → Term
+  `ε⊗` [] = def (quote ε⊗) []
+  `ε⊗` (varg fstmonoid ∷ xs) = `ε⊗` xs
+  `ε⊗` (harg _ ∷ xs) = `ε⊗` xs
+  `ε⊗` _ = unknown
 
-      buildExpr : Term → Term
-      buildExpr t@(def n xs) =
-        if is-· n
-          then ″·″ xs
-        else if is-ε n
-          then ″ε″
-        else V′ t
-      buildExpr t@(con n xs) =
-        if is-· n
-          then ″·″ xs
-        else if is-ε n
-          then ″ε″
-        else V′ t
-      buildExpr t = con (quote V) (t v∷ [])
+  mutual
 
-{-
-  constructSolution : Term → MonoidNames → Term → Term → Term
-  constructSolution mon names lhs rhs =
-    quote Monoid.trans ⟨ def ⟩ 2 ⋯⟅∷⟆ mon ⟨∷⟩
-      (quote Monoid.sym ⟨ def ⟩ 2 ⋯⟅∷⟆ mon ⟨∷⟩
-        (quote homo ⟨ def ⟩ 2 ⋯⟅∷⟆ mon ⟨∷⟩ buildExpr names lhs ⟨∷⟩ []) ⟨∷⟩ [])
-      ⟨∷⟩
-      (quote homo ⟨ def ⟩ 2 ⋯⟅∷⟆ mon ⟨∷⟩ buildExpr names rhs ⟨∷⟩ []) ⟨∷⟩
-      []
+    `_⊗_` : List (Arg Term) → Term
+    `_⊗_` (harg _ ∷ xs) = `_⊗_` xs
+    `_⊗_` (varg x ∷ varg y ∷ []) =
+      con
+        (quote _⊗_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
+    `_⊗_` _ = unknown
 
-  ----------------------------------------------------------------------
-  -- Macro
-  ----------------------------------------------------------------------
+    finiteNumberAsTerm : ℕ → Term
+    finiteNumberAsTerm ℕ.zero = con (quote fzero) []
+    finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (varg (finiteNumberAsTerm n) ∷ [])
 
-  solve-macro : Term → Term → TC _
-  solve-macro mon hole = do
-    hole′ ← inferType hole >>= normalise
-    names ← findMonoidNames mon
-    just (lhs , rhs) ← returnTC (getArgs hole′)
-      where nothing → typeError (termErr hole′ ∷ [])
-    let soln = constructSoln mon names lhs rhs
-    unify hole soln
+    buildExpression : Term → Term
+    buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
+    buildExpression t@(def n xs) =
+      switch (n ==_) cases
+        case (quote MonoidStr._·_) ⇒ `_⊗_` xs   break
+        default⇒ (`ε⊗` xs)
+    buildExpression t@(con n xs) =
+      switch (n ==_) cases
+        case (quote MonoidStr._·_) ⇒ `_⊗_` xs   break
+        default⇒ (`ε⊗` xs)
+    buildExpression t = unknown
 
-  macro
-    solve : Term → Term → TC _
-    solve = solve-macro
--}
+  toMonoidExpression : Maybe (Term × Term) → Maybe (Term × Term)
+  toMonoidExpression nothing = nothing
+  toMonoidExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
+
+private
+  adjustDeBruijnIndex : (n : ℕ) → Term → Term
+  adjustDeBruijnIndex n (var k args) = var (k + n) args
+  adjustDeBruijnIndex n _ = unknown
+
+  extractVarIndices : Maybe (List Term) → Maybe (List ℕ)
+  extractVarIndices (just ((var index _) ∷ l)) with extractVarIndices (just l)
+  ... | just indices = just (index ∷ indices)
+  ... | nothing = nothing
+  extractVarIndices (just []) = just []
+  extractVarIndices _ = nothing
+
+  getVarsAndEquation : Term → Maybe (List VarInfo × Term)
+  getVarsAndEquation t =
+    let
+      (rawVars , equationTerm) = extractVars t
+      maybeVars = addIndices (length rawVars) rawVars
+    in map-Maybe (_, equationTerm) maybeVars
+    where
+          extractVars : Term → List (String × Arg Term) × Term
+          extractVars (pi argType (abs varName t)) with extractVars t
+          ...                                         | xs , equation
+                                                        = (varName , argType) ∷ xs , equation
+          extractVars equation = [] , equation
+
+          addIndices : ℕ → List (String × Arg Term) → Maybe (List VarInfo)
+          addIndices ℕ.zero         []        = just []
+          addIndices (ℕ.suc countVar) ((varName , argType) ∷ list) =
+            map-Maybe (λ varList → record { varName = varName ; varType = argType ; index = countVar }
+                                   ∷ varList)
+                      (addIndices countVar list)
+          addIndices _ _ = nothing
+
+  toListOfTerms : Term → Maybe (List Term)
+  toListOfTerms (con c []) = if (c == (quote [])) then just [] else nothing
+  toListOfTerms (con c (varg t ∷ varg s ∷ args)) with toListOfTerms s
+  ... | just terms = if (c == (quote _∷_)) then just (t ∷ terms) else nothing
+  ... | nothing = nothing
+  toListOfTerms (con c (harg t ∷ args)) = toListOfTerms (con c args)
+  toListOfTerms _ = nothing
+
+  solve-macro : Term → Term → TC Unit
+  solve-macro monoid hole =
+    do
+      hole′ ← inferType hole >>= normalise
+      just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
+        where
+          nothing
+            → typeError (strErr "Something went wrong when getting the variable names in "
+                           ∷ termErr hole′ ∷ [])
+      {-
+        The call to the monoid solver will be inside a lamba-expression.
+        That means, that we have to adjust the deBruijn-indices of the variables in 'monoid'
+      -}
+      adjustedMonoid ← returnTC (adjustDeBruijnIndex (length varInfos) monoid)
+      just (lhs , rhs) ← returnTC (toMonoidExpression adjustedMonoid (getArgs equation))
+        where
+          nothing
+            → typeError(
+                strErr "Error while trying to build ASTs for the equation " ∷
+                termErr equation ∷ [])
+      let solution = solverCallWithLambdas (length varInfos) varInfos adjustedMonoid lhs rhs
+      unify hole solution
+
+macro
+  solve : Term → Term → TC _
+  solve = solve-macro
+
+
+
+module test (M : Monoid ℓ) where
+  open MonoidStr (snd M) renaming (_·_ to _M·_)
+
+  _ : ε ≡ ε
+  _ = solve M
+
+  t : ε M· ε ≡ ε
+  t = solve M
+

@@ -65,7 +65,7 @@ module _ (M : Monoid ℓ) where
     ⟦ e₁ N⟧ (⟦ e₂ ⟧ · m)  ≡⟨ lemma e₁ _ ∙ assoc _ _ _ ⟩
     (⟦ e₁ ⟧ · ⟦ e₂ ⟧) · m ∎
 
-  isEqualToNormalform : (e : Expr ⟨ M ⟩) → ⟦ e N⟧ε ≡ ⟦ e ⟧
+  isEqualToNormalform : ∀ e → ⟦ e N⟧ε ≡ ⟦ e ⟧
   isEqualToNormalform e = lemma e ε ∙ rid _
 
 

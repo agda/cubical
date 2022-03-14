@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.MonoidSolver.NaiveSolving where
 
 open import Cubical.Foundations.Prelude
@@ -29,10 +30,11 @@ private
 infixl 7 _⊗_
 
 -- Expression in a type M with n variables
-data Expr {ℓ} (M : Type ℓ) (n : ℕ) : Type ℓ where
+data Expr (M : Type ℓ) (n : ℕ) : Type ℓ where
+  ∣   : Fin n → Expr M n
   ε⊗  : Expr M n
-  V   : Fin n → Expr M n
   _⊗_ : Expr M n → Expr M n → Expr M n
+
 
 module Eval (M : Monoid ℓ) where
   open MonoidStr (snd M)
@@ -41,17 +43,17 @@ module Eval (M : Monoid ℓ) where
   Env n = Vec ⟨ M ⟩ n
 
   -- evaluation of an expression (without normalization)
-  ⟦_⟧ : ∀ {n} → Expr ⟨ M ⟩ n → Env n → ⟨ M ⟩
+  ⟦_⟧ : ∀{n} → Expr ⟨ M ⟩ n → Env n → ⟨ M ⟩
   ⟦ ε⊗ ⟧ v = ε
-  ⟦ V i ⟧ v = lookup i v
+  ⟦ ∣ i ⟧ v = lookup i v
   ⟦ e₁ ⊗ e₂ ⟧ v = ⟦ e₁ ⟧ v · ⟦ e₂ ⟧ v
 
   NormalForm : ℕ → Type _
   NormalForm n = List (Fin n)
 
   -- normalization of an expression
-  normalize : ∀ {n} → Expr ⟨ M ⟩ n → NormalForm n
-  normalize (V i) = i ∷ []
+  normalize : ∀{n} → Expr ⟨ M ⟩ n → NormalForm n
+  normalize (∣ i) = i ∷ []
   normalize ε⊗ = []
   normalize (e₁ ⊗ e₂) = (normalize e₁) ++ (normalize e₂)
 
@@ -69,7 +71,7 @@ module _ (M : Monoid ℓ) where
                       → (e : Expr ⟨ M ⟩ n)
                       → (v : Env n)
                       → ⟦ (normalize e) ⇓⟧ v ≡ ⟦ e ⟧ v
-  isEqualToNormalform n (V i) v = rid _
+  isEqualToNormalform n (∣ i) v = rid _
   isEqualToNormalform n ε⊗ v = refl
   isEqualToNormalform n (e₁ ⊗ e₂) v =
     ⟦ (normalize e₁) ++ (normalize e₂) ⇓⟧ v
@@ -85,12 +87,12 @@ module _ (M : Monoid ℓ) where
       lemma (x ∷ xs) l₂ =
         cong (λ m → (lookup x v) · m) (lemma xs l₂) ∙ assoc _ _ _
 
-  naiveSolve : {n : ℕ}
-             → (e₁ e₂ : Expr ⟨ M ⟩ n)
-             → (v : Env n)
-             → (p : ⟦ (normalize e₁) ⇓⟧ v ≡ ⟦ (normalize e₂) ⇓⟧ v)
-             → ⟦ e₁ ⟧ v ≡ ⟦ e₂ ⟧ v
-  naiveSolve e₁ e₂ v p =
+  solve : {n : ℕ}
+        → (e₁ e₂ : Expr ⟨ M ⟩ n)
+        → (v : Env n)
+        → (p : ⟦ (normalize e₁) ⇓⟧ v ≡ ⟦ (normalize e₂) ⇓⟧ v)
+        → ⟦ e₁ ⟧ v ≡ ⟦ e₂ ⟧ v
+  solve e₁ e₂ v p =
     ⟦ e₁ ⟧ v              ≡⟨ sym (isEqualToNormalform _ e₁ v) ⟩
     ⟦ (normalize e₁) ⇓⟧ v ≡⟨ p ⟩
     ⟦ (normalize e₂) ⇓⟧ v ≡⟨ isEqualToNormalform _ e₂ v ⟩
