@@ -32,7 +32,7 @@ private
     Y : Type ℓ'''
 
 
--- The definition of pushput-product
+-- The definition of pushout-product
 
 PushProd : (f : X → A)(g : Y → B) → Type _
 PushProd f g = Pushout (map-× (idfun _) g) (map-× f (idfun _))

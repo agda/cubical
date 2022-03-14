@@ -93,7 +93,7 @@ module JamesInd
     g : 𝕁Push n → 𝕁 (1 + n)
     g = rightMap _
 
-  -- Here we show that 𝕁(n+2) can be made as double pushouts invoving only X, 𝕁 n and 𝕁 (n+1).
+  -- Here we show that 𝕁 (n+2) can be made as double pushouts invoving only X, 𝕁 n and 𝕁 (n+1).
   -- In particular, our 𝕁 is exactly what Brunerie had defined.
 
   𝕁ₙ₊₂≃Pushout : (n : ℕ) → 𝕁 (2 + n) ≃ Pushout f g
