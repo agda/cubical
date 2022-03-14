@@ -242,7 +242,7 @@ isGroupoidAlgebra _ _ = isOfHLevelRespectEquiv 2 (AlgebraPath _ _) (isSetAlgebra
 -- Smart constructor for ring homomorphisms
 -- that infers the other equations from pres1, pres+, and pres·
 
-module _  {R : Ring ℓ} {A : Algebra R ℓ} {B : Algebra R ℓ'} {f : ⟨ A ⟩ → ⟨ B ⟩} where
+module _  {R : Ring ℓ} {A : Algebra R ℓ'} {B : Algebra R ℓ''} {f : ⟨ A ⟩ → ⟨ B ⟩} where
 
   private
     module A = AlgebraStr (A .snd)

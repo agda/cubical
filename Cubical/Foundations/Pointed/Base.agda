@@ -32,6 +32,48 @@ idfun∙ : ∀ {ℓ} (A : Pointed ℓ) → A →∙ A
 idfun∙ A .fst x = x
 idfun∙ A .snd = refl
 
+{-Pointed equivalences -}
+_≃∙_ : ∀ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') → Type (ℓ-max ℓ ℓ')
+A ≃∙ B = Σ[ e ∈ fst A ≃ fst B ] fst e (pt A) ≡ pt B
+
+{- Underlying pointed map of an equivalence -}
+≃∙map : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → A ≃∙ B → A →∙ B
+fst (≃∙map e) = fst (fst e)
+snd (≃∙map e) = snd e
+
+invEquiv∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → A ≃∙ B → B ≃∙ A
+fst (invEquiv∙ x) = invEquiv (fst x)
+snd (invEquiv∙ {A = A} x) =
+  sym (cong (fst (invEquiv (fst x))) (snd x)) ∙ retEq (fst x) (pt A)
+
+compEquiv∙ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+  → A ≃∙ B → B ≃∙ C → A ≃∙ C
+fst (compEquiv∙ e1 e2) = compEquiv (fst e1) (fst e2)
+snd (compEquiv∙ e1 e2) = cong (fst (fst e2)) (snd e1) ∙ snd e2
+
+Equiv∙J : ∀ {ℓ ℓ'} {B : Pointed ℓ} (C : (A : Pointed ℓ) → A ≃∙ B → Type ℓ')
+          → C B (idEquiv (fst B) , refl)
+          → {A : _} (e : A ≃∙ B) → C A e
+Equiv∙J {ℓ} {ℓ'} {B = B} C ind {A = A} =
+  uncurry λ e p → help e (pt A) (pt B) p C ind
+  where
+  help : ∀ {A : Type ℓ} (e : A ≃ typ B) (a : A) (b : typ B)
+       → (p : fst e a ≡ b)
+       → (C : (A : Pointed ℓ) → A ≃∙ (fst B , b) → Type ℓ')
+       → C (fst B , b) (idEquiv (fst B) , refl)
+       → C (A , a)  (e , p)
+  help = EquivJ (λ A e → (a : A) (b : typ B)
+       → (p : fst e a ≡ b)
+       → (C : (A : Pointed ℓ) → A ≃∙ (fst B , b) → Type ℓ')
+       → C (fst B , b) (idEquiv (fst B) , refl)
+       → C (A , a)  (e , p))
+        λ a b → J (λ b p
+          → (C : (A : Pointed ℓ) → A ≃∙ (fst B , b) → Type ℓ')
+                → C (fst B , b)
+      (idEquiv (fst B) , refl) →
+      C (typ B , a) (idEquiv (typ B) , p))
+         λ _ p → p
+
 ua∙ : ∀ {ℓ} {A B : Pointed ℓ} (e : fst A ≃ fst B)
                   → fst e (snd A) ≡ snd B → A ≡ B
 fst (ua∙ e p i) = ua e i
