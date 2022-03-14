@@ -118,7 +118,7 @@ private
 module _ (monoid : Term) where
 
   `ε⊗` : List (Arg Term) → Term
-  `ε⊗` [] = def (quote ε⊗) []
+  `ε⊗` [] = con (quote ε⊗) []
   `ε⊗` (varg fstmonoid ∷ xs) = `ε⊗` xs
   `ε⊗` (harg _ ∷ xs) = `ε⊗` xs
   `ε⊗` _ = unknown
@@ -127,7 +127,7 @@ module _ (monoid : Term) where
 
     `_⊗_` : List (Arg Term) → Term
     `_⊗_` (harg _ ∷ xs) = `_⊗_` xs
-    `_⊗_` (varg x ∷ varg y ∷ []) =
+    `_⊗_` (varg x ∷ varg y ∷ _) =
       con
         (quote _⊗_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
     `_⊗_` _ = unknown
@@ -207,6 +207,12 @@ private
         That means, that we have to adjust the deBruijn-indices of the variables in 'monoid'
       -}
       adjustedMonoid ← returnTC (adjustDeBruijnIndex (length varInfos) monoid)
+{-      just (lhs' , rhs') ← returnTC (getArgs equation)
+        where
+          nothing
+            → typeError(
+                strErr "Error while trying to build ASTs for the equation " ∷
+                termErr equation ∷ []) -}
       just (lhs , rhs) ← returnTC (toMonoidExpression adjustedMonoid (getArgs equation))
         where
           nothing
@@ -219,15 +225,3 @@ private
 macro
   solve : Term → Term → TC _
   solve = solve-macro
-
-
-
-module test (M : Monoid ℓ) where
-  open MonoidStr (snd M) renaming (_·_ to _M·_)
-
-  _ : ε ≡ ε
-  _ = solve M
-
-  t : ε M· ε ≡ ε
-  t = solve M
-
