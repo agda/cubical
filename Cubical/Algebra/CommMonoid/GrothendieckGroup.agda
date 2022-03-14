@@ -114,14 +114,6 @@ Groupification : CommMonoid ℓ → AbGroup ℓ
 Groupification M = asAbGroup M
 
 
-
-
--- might be a better idea to move this into AbGroup.Base, but that file doesn't import CommMonoid.Base (yet?)
-AbGroup→CommMonoid : AbGroup ℓ → CommMonoid ℓ
-AbGroup→CommMonoid (_ , abgroupstr  _ _ _ G) =
-  _ , commmonoidstr _ _ (iscommmonoid (IsAbGroup.isMonoid G) (IsAbGroup.comm G))
-
-
 module UniversalProperty (M : CommMonoid ℓ) where
   open IsMonoidHom
   open CommMonoidStr ⦃...⦄
