@@ -1,6 +1,8 @@
 {-
 
-This files contains lots of useful properties about decidable predicates on finite sets
+This files contains:
+- An alternative formulation of decidable propositions;
+- Lots of useful properties about (this) decidable predicates on finite sets.
 
 -}
 {-# OPTIONS --safe #-}
