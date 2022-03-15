@@ -101,7 +101,6 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
     limArrowUnique c cc k hk = cong fst (univProp c cc .snd (k , hk))
 
   open LimCone
-  -- taken from https://github.com/UniMath/UniMath/blob/master/UniMath/CategoryTheory/limits/graphs/limits.v#L143
   limOfArrows : (D₁ D₂ : Functor J C)
                 (CC₁ : LimCone D₁) (CC₂ : LimCone D₂)
                 (f : (u : ob J) → C [ D₁ .F-ob u , D₂ .F-ob u ])

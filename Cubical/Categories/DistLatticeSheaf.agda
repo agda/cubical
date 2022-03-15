@@ -68,15 +68,31 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
   F-ob (inclInL' x) u = u .fst , u .snd .snd
   F-hom (inclInL' x) u≥v = u≥v
   F-id (inclInL' x) = refl
-  F-seq (inclInL' x) _ _ = is-set _ _ _ _
+  F-seq (inclInL' x) _ _ = is-prop-valued _ _ _ _
+
+  inclOf↓ : {x y : fst L} → y ≤ x → Functor (y ↓Diag) (x ↓Diag)
+  F-ob (inclOf↓ y≤x) (v , v≤y , v∈L') = (v , is-trans _ _ _ v≤y y≤x , v∈L')
+  F-hom (inclOf↓ y≤x) u≥v = u≥v
+  F-id (inclOf↓ y≤x) = refl
+  F-seq (inclOf↓ y≤x) _ _ = is-prop-valued _ _ _ _
 
   -- precomposition of F with the inclusion x↓ ↪ L'
   F* : (x : fst L) → Functor (x ↓Diag) C
   F* x = funcComp F (inclInL' x)
 
+  -- and with y↓ ↪ x↓ for y≤x
+  F** : {x y : fst L} → y ≤ x → Functor (y ↓Diag) C
+  F** y≤x = funcComp (F* _) (inclOf↓ y≤x)
+
+  *Functoriality : {x y : fst L} (y≤x : y ≤ x) → F* y ≡ F** y≤x
+  *Functoriality _ = Functor≡ (λ _ → refl) (λ _ → refl)
+
  -- the right Kan-extension for DistLattice categories
-  --limOfArrows _ _ (limitC (x ↓Diag) (F* x)) {!limitC (y ↓Diag) (F* y)!} {!!} {!!}
  DLRan : DLPreSheaf
+ -- F-ob DLRan x = limitC (x ↓Diag) (F* x) .lim
+ -- F-hom DLRan {x} {y} y≤x = limOfArrows {!!} {!!}  (limitC (y ↓Diag) (F* y)) {!limitC (y ↓Diag) (F** y≤x)!}  {!!} {!!}
+ -- F-id DLRan = {!!}
+ -- F-seq DLRan = {!!}
  -- F-ob DLRan x = limitC (x ↓Diag) (F* x) .lim
  -- F-hom DLRan {x} {y} y≤x = limOfArrows _ _ (limitC (x ↓Diag) (F* x)) {!!} {!!} {!!}
  -- F-id DLRan = {!!}
