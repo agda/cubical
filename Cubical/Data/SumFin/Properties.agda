@@ -2,7 +2,7 @@
 
 module Cubical.Data.SumFin.Properties where
 
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
@@ -56,11 +56,6 @@ SumFin≡Fin k = ua (SumFin≃Fin k)
 
 -- Closure properties of SumFin under type constructors
 
-private
-  _⋆_ = compEquiv
-
-infixr 30 _⋆_
-
 SumFin⊎≃ : (m n : ℕ) → (Fin m ⊎ Fin n) ≃ (Fin (m + n))
 SumFin⊎≃ 0 n = ⊎-swap-≃ ⋆ ⊎-⊥-≃
 SumFin⊎≃ (suc m) n = ⊎-assoc-≃ ⋆ ⊎-equiv (idEquiv ⊤) (SumFin⊎≃ m n)
@@ -93,18 +88,6 @@ SumFin∥∥≃ (suc n) =
   ⋆ isContr→≃Unit (isContrUnit) ⋆ invEquiv (⊎-⊥-≃)
 
 -- SumFin 2 is equivalent to Bool
-
-open Iso
-
-Iso-⊤⊎⊤-Bool : Iso (⊤ ⊎ ⊤) Bool
-Iso-⊤⊎⊤-Bool .fun (inl tt) = true
-Iso-⊤⊎⊤-Bool .fun (inr tt) = false
-Iso-⊤⊎⊤-Bool .inv true = inl tt
-Iso-⊤⊎⊤-Bool .inv false = inr tt
-Iso-⊤⊎⊤-Bool .leftInv (inl tt) = refl
-Iso-⊤⊎⊤-Bool .leftInv (inr tt) = refl
-Iso-⊤⊎⊤-Bool .rightInv true = refl
-Iso-⊤⊎⊤-Bool .rightInv false = refl
 
 SumFin2≃Bool : Fin 2 ≃ Bool
 SumFin2≃Bool = ⊎-equiv (idEquiv _) ⊎-⊥-≃ ⋆ isoToEquiv Iso-⊤⊎⊤-Bool

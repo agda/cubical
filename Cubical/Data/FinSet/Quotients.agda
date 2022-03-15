@@ -1,3 +1,9 @@
+{-
+
+This file contains:
+- The quotient of finite sets by decidable equivalence relation is still finite, by using equivalence class.
+
+-}
 {-# OPTIONS --safe #-}
 
 module Cubical.Data.FinSet.Quotients where
@@ -5,7 +11,7 @@ module Cubical.Data.FinSet.Quotients where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 
 open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.HITs.SetQuotients as SetQuot
@@ -19,6 +25,7 @@ open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Cardinality
 
 open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidablePropositions
 open import Cubical.Relation.Binary
 
 private
@@ -30,13 +37,7 @@ open Iso
 module _
   (ℓ : Level) where
 
-  DecProp : Type (ℓ-suc ℓ)
-  DecProp = Σ[ P ∈ hProp ℓ ] Dec (P .fst)
-
-  isSetDecProp : isSet DecProp
-  isSetDecProp = isOfHLevelΣ 2 isSetHProp (λ P → isProp→isSet (isPropDec (P .snd)))
-
-  Iso-DecProp-FinProp : Iso DecProp (FinProp ℓ)
+  Iso-DecProp-FinProp : Iso (DecProp ℓ) (FinProp ℓ)
   Iso-DecProp-FinProp .fun ((P , p) , dec) = (P , isDecProp→isFinSet p dec) , p
   Iso-DecProp-FinProp .inv ((P , h) , p) = (P , p) , isFinProp→Dec h p
   Iso-DecProp-FinProp .leftInv ((P , p) , dec) i .fst .fst = P

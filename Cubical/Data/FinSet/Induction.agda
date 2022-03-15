@@ -1,6 +1,6 @@
 {-
 
-Indutiive eliminators to directly prove properties of all finite sets
+Inductive eliminators to establish properties of all finite sets directly
 
 -}
 {-# OPTIONS --safe #-}
@@ -9,20 +9,21 @@ module Cubical.Data.FinSet.Induction where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
-open import Cubical.HITs.PropositionalTruncation renaming (rec to TruncRec) hiding (elim ; elim')
-open import Cubical.HITs.SetTruncation renaming (rec to SetRec ; elim to SetElim)
+open import Cubical.HITs.PropositionalTruncation as Prop
+open import Cubical.HITs.SetTruncation as Set
 
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_) hiding (elim)
+open import Cubical.Data.Nat
+  renaming (_+_ to _+ℕ_) hiding (elim)
 open import Cubical.Data.Unit
-open import Cubical.Data.Empty hiding (elim)
-open import Cubical.Data.Sum   hiding (elim)
+open import Cubical.Data.Empty
+open import Cubical.Data.Sum
 
-open import Cubical.Data.Fin hiding (elim)
-open import Cubical.Data.SumFin renaming (Fin to SumFin) hiding (elim)
+open import Cubical.Data.Fin
+open import Cubical.Data.SumFin renaming (Fin to SumFin)
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.Constructors
@@ -92,7 +93,7 @@ module _
 -- every finite sets are merely equal to some 𝔽in
 
 ∣≡𝔽in∣ : (X : FinSet ℓ) → ∥ Σ[ n ∈ ℕ ] X ≡ 𝔽in n ∥
-∣≡𝔽in∣ X = TruncRec isPropPropTrunc (λ (n , p) → ∣ n , path X (n , p) ∣) (X .snd)
+∣≡𝔽in∣ X = Prop.map (λ (n , p) → n , path X (n , p)) (X .snd)
   where
     path : (X : FinSet ℓ) → ((n , _) : ≃Fin (X .fst)) → X ≡ 𝔽in n
     path X (n , p) i .fst = ua (p ⋆ invEquiv (𝔽in≃Fin n)) i
@@ -110,7 +111,7 @@ module _
     (p : (n : ℕ) → P (𝔽in n)) where
 
     elimProp : (X : FinSet ℓ) → P X
-    elimProp X = TruncRec (h X) (λ (n , q) → transport (λ i → P (q (~ i))) (p n)) (∣≡𝔽in∣ X)
+    elimProp X = Prop.rec (h X) (λ (n , q) → transport (λ i → P (q (~ i))) (p n)) (∣≡𝔽in∣ X)
 
   module _
     (p0 : P 𝟘)
@@ -120,12 +121,12 @@ module _
     elimProp𝔽in 0 = p0
     elimProp𝔽in (suc n) = p1 (elimProp𝔽in n)
 
-    elimProp' : (X : FinSet ℓ) → P X
-    elimProp' = elimProp elimProp𝔽in
+    elimProp𝟙+ : (X : FinSet ℓ) → P X
+    elimProp𝟙+ = elimProp elimProp𝔽in
 
   module _
     (p0 : P 𝟘)(p1 : P 𝟙)
     (p+ : {X Y : FinSet ℓ} → P X → P Y → P (X + Y)) where
 
-    elimProp'' : (X : FinSet ℓ) → P X
-    elimProp'' = elimProp' p0 (λ p → p+ p1 p)
+    elimProp+ : (X : FinSet ℓ) → P X
+    elimProp+ = elimProp𝟙+ p0 (λ p → p+ p1 p)

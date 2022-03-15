@@ -1,8 +1,7 @@
 {-
 
 Axiom of Finite Choice
-
-Yep, it's a theorem actually.
+- Yep, it's a theorem actually.
 
 -}
 {-# OPTIONS --safe #-}
@@ -11,9 +10,9 @@ module Cubical.Data.FinSet.FiniteChoice where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 
-open import Cubical.HITs.PropositionalTruncation renaming (rec to TruncRec ; elim to TruncElim)
+open import Cubical.HITs.PropositionalTruncation as Prop
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
@@ -64,7 +63,7 @@ module _
 
   choice≃ : ((x : X) → ∥ Y x ∥) ≃ ∥ ((x : X) → Y x) ∥
   choice≃ =
-    TruncRec
+    Prop.rec
       (isOfHLevel≃ 1 (isPropΠ (λ x → isPropPropTrunc)) (isPropPropTrunc))
       (λ p → choice≃' X p Y) p
 

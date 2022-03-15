@@ -1,6 +1,7 @@
 {-
 
-This files contains lots of useful properties about constructions on finite sets
+This files contains:
+- Facts about constructions on finite sets, especially when they preserve finiteness.
 
 -}
 {-# OPTIONS --safe #-}
@@ -9,14 +10,14 @@ module Cubical.Data.FinSet.Constructors where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Univalence
 
-open import Cubical.HITs.PropositionalTruncation renaming (rec to TruncRec)
+open import Cubical.HITs.PropositionalTruncation as Prop
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
-open import Cubical.Data.Empty renaming (rec to EmptyRec)
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
@@ -128,7 +129,7 @@ module _
   isFinSet≡ a b = isDecProp→isFinSet (isFinSet→isSet (X .snd) a b) (isFinSet→Discrete (X .snd) a b)
 
   isFinSet∥∥ : isFinSet ∥ X .fst ∥
-  isFinSet∥∥ = TruncRec isPropIsFinSet (λ p → ∣ ≃Fin∥∥ (X .fst) p ∣) (X .snd)
+  isFinSet∥∥ = Prop.rec isPropIsFinSet (λ p → ∣ ≃Fin∥∥ (X .fst) p ∣) (X .snd)
 
   isFinSetIsContr : isFinSet (isContr (X .fst))
   isFinSetIsContr = isFinSetΣ X (λ x → _ , (isFinSetΠ X (λ y → _ , isFinSet≡ x y)))

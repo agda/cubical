@@ -3,7 +3,7 @@
 Definition of finite sets
 
 There are may different formulations of finite sets in constructive mathematics,
-and we will use Bishop finiteness as is called by some people in the literature.
+and we will use Bishop finiteness as is usually called in the literature.
 
 -}
 {-# OPTIONS --safe #-}
