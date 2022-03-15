@@ -15,7 +15,7 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 
 open import Cubical.Structures.Axioms

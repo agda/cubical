@@ -18,6 +18,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Functions.FunExtEquiv
 
