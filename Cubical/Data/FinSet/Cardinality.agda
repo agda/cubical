@@ -163,7 +163,7 @@ module _
 
 {- formulae about cardinality -}
 
--- results to be used in diProp.rect induction on FinSet
+-- results to be used in direct induction on FinSet
 
 card𝟘 : card (𝟘 {ℓ}) ≡ 0
 card𝟘 {ℓ = ℓ} = isEmpty→card≡0 (𝟘 {ℓ}) (Empty.rec*)
