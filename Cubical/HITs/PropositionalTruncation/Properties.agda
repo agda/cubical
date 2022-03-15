@@ -209,6 +209,25 @@ elim→Set {A = A} {P = P} Pset f kf t
   gk : 2-Constant g
   gk x y i = transp (λ j → P (squash (squash ∣ x ∣ ∣ y ∣ i) t j)) i0 (kf x y i)
 
+elim2→Set :
+    {P : ∥ A ∥ → ∥ B ∥ → Type ℓ}
+  → (∀ t u → isSet (P t u))
+  → (f : (x : A) (y : B) → P ∣ x ∣ ∣ y ∣)
+  → (kf₁ : ∀ x y v → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i) ∣ v ∣) (f x v) (f y v))
+  → (kf₂ : ∀ x v w → PathP (λ i → P ∣ x ∣ (squash ∣ v ∣ ∣ w ∣ i)) (f x v) (f x w))
+  → (sf : ∀ x y v w → SquareP (λ i j → P (squash ∣ x ∣ ∣ y ∣ i) (squash ∣ v ∣ ∣ w ∣ j))
+                              (kf₂ x v w) (kf₂ y v w) (kf₁ x y v) (kf₁ x y w))
+  → (t : ∥ A ∥) → (u : ∥ B ∥) → P t u
+elim2→Set {A = A} {B = B} {P = P} Pset f kf₁ kf₂ sf =
+  elim→Set (λ _ → isSetΠ (λ _ → Pset _ _)) mapHelper squareHelper
+  where
+  mapHelper : (x : A) (u : ∥ B ∥) → P ∣ x ∣ u
+  mapHelper x = elim→Set (λ _ → Pset _ _) (f x) (kf₂ x)
+
+  squareHelper : (x y : A)
+               → PathP (λ i → (u : ∥ B ∥) → P (squash ∣ x ∣ ∣ y ∣ i) u) (mapHelper x) (mapHelper y)
+  squareHelper x y i = elim→Set (λ _ → Pset _ _) (λ v → kf₁ x y v i) λ v w → sf x y v w i
+
 RecHProp : (P : A → hProp ℓ) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ → hProp ℓ
 RecHProp P kP = rec→Set isSetHProp P kP
 
@@ -468,3 +487,13 @@ RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
 
 ∥∥-× : {A : Type ℓ} {A′ : Type ℓ′} → ∥ A ∥ × ∥ A′ ∥ ≡ ∥ A × A′ ∥
 ∥∥-× = ua ∥∥-×-≃
+
+-- using this we get a convenient recursor/eliminator for binary functions into sets
+rec2→Set : {A B C : Type ℓ} (Cset : isSet C)
+         → (f : A → B → C)
+         → (∀ (a a' : A) (b b' : B) → f a b ≡ f a' b')
+         → ∥ A ∥ → ∥ B ∥ → C
+rec2→Set {A = A} {B = B} {C = C} Cset f fconst = curry (g ∘ ∥∥-×-≃ .fst)
+ where
+ g : ∥ A × B ∥ → C
+ g = rec→Set Cset (uncurry f) λ x y → fconst (fst x) (fst y) (snd x) (snd y)

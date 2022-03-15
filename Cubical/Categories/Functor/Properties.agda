@@ -11,9 +11,9 @@ open import Cubical.Categories.Functor.Base
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    B C D E : Precategory ℓ ℓ'
+    B C D E : Category ℓ ℓ'
 
-open Precategory
+open Category
 open Functor
 
 {-
@@ -81,7 +81,7 @@ module _ {F : Functor C D} where
     ∎
 
   -- functors preserve isomorphisms
-  preserveIsosF : ∀ {x y} → CatIso {C = C} x y → CatIso {C = D} (F ⟅ x ⟆) (F ⟅ y ⟆)
+  preserveIsosF : ∀ {x y} → CatIso C x y → CatIso D (F ⟅ x ⟆) (F ⟅ y ⟆)
   preserveIsosF {x} {y} (catiso f f⁻¹ sec' ret') =
     catiso
       g g⁻¹

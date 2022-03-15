@@ -1,87 +1,61 @@
 {-# OPTIONS --safe #-}
-
 module Cubical.Categories.Limits.Terminal where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Sigma
 open import Cubical.Foundations.HLevels
--- open import Cubical.Categories.Limits.Base
+open import Cubical.HITs.PropositionalTruncation.Base
+
+open import Cubical.Data.Sigma
+
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
 
 private
   variable
     ℓ ℓ' : Level
 
-module _ (C : Precategory ℓ ℓ') where
-  open Precategory C
+module _ (C : Category ℓ ℓ') where
+  open Category C
 
-  isInitial : (x : ob) → Type (ℓ-max ℓ ℓ')
-  isInitial x = ∀ (y : ob) → isContr (C [ x , y ])
+  isTerminal : (x : ob) → Type (ℓ-max ℓ ℓ')
+  isTerminal x = ∀ (y : ob) → isContr (C [ y , x ])
 
-  isFinal : (x : ob) → Type (ℓ-max ℓ ℓ')
-  isFinal x = ∀ (y : ob) → isContr (C [ y , x ])
+  Terminal : Type (ℓ-max ℓ ℓ')
+  Terminal = Σ[ x ∈ ob ] isTerminal x
 
-  hasInitialOb : Type (ℓ-max ℓ ℓ')
-  hasInitialOb = Σ[ x ∈ ob ] isInitial x
+  terminalOb : Terminal → ob
+  terminalOb = fst
 
-  hasFinalOb : Type (ℓ-max ℓ ℓ')
-  hasFinalOb = Σ[ x ∈ ob ] isFinal x
+  terminalArrow : (T : Terminal) (y : ob) → C [ y , terminalOb T ]
+  terminalArrow T y = T .snd y .fst
 
-  -- Initiality of an object is a proposition.
-  isPropIsInitial : (x : ob) → isProp (isInitial x)
-  isPropIsInitial x = isPropΠ λ y → isPropIsContr
+  terminalArrowUnique : {T : Terminal} {y : ob} (f : C [ y , terminalOb T ])
+                      → terminalArrow T y ≡ f
+  terminalArrowUnique {T} {y} f = T .snd y .snd f
+
+  terminalEndoIsId : (T : Terminal) (f : C [ terminalOb T , terminalOb T ])
+                   → f ≡ id
+  terminalEndoIsId T f = isContr→isProp (T .snd (terminalOb T)) f id
+
+  hasTerminal : Type (ℓ-max ℓ ℓ')
+  hasTerminal = ∥ Terminal ∥
+
+  -- Terminality of an object is a proposition.
+  isPropIsTerminal : (x : ob) → isProp (isTerminal x)
+  isPropIsTerminal _ = isPropΠ λ _ → isPropIsContr
+
+  open CatIso
 
   -- Objects that are initial are isomorphic.
-  isInitialToIso : {x y : ob} (hx : isInitial x) (hy : isInitial y) →
-    CatIso {C = C} x y
-  isInitialToIso {x = x} {y = y} hx hy =
-    let x→y : C [ x , y ]
-        x→y = fst (hx y) -- morphism forwards
-        y→x : C [ y , x ]
-        y→x = fst (hy x) -- morphism backwards
-        x→y→x : x→y ⋆⟨ C ⟩ y→x ≡ id
-        x→y→x = isContr→isProp (hx x) _ _ -- compose to id by uniqueness
-        y→x→y : y→x ⋆⟨ C ⟩ x→y ≡ id
-        y→x→y = isContr→isProp (hy y) _ _ -- similar.
-    in catiso x→y y→x y→x→y x→y→x
+  terminalToIso : (x y : Terminal) → CatIso C (terminalOb x) (terminalOb y)
+  mor (terminalToIso x y) = terminalArrow y (terminalOb x)
+  inv (terminalToIso x y) = terminalArrow x (terminalOb y)
+  sec (terminalToIso x y) = terminalEndoIsId y _
+  ret (terminalToIso x y) = terminalEndoIsId x _
 
   open isUnivalent
 
-  -- The type of initial objects of a univalent precategory is a proposition,
-  -- i.e. all initial objects are equal.
-  isPropInitial : (hC : isUnivalent C) → isProp (hasInitialOb)
-  isPropInitial hC x y =
-    -- Being initial is a prop ∴ Suffices equal as objects in C.
-    Σ≡Prop (isPropIsInitial)
-    -- C is univalent ∴ Suffices isomorphic as objects in C.
-    (CatIsoToPath hC (isInitialToIso (snd x) (snd y)))
-
-  -- Now the dual argument for final objects.
-
-  -- Finality of an object is a proposition.
-  isPropIsFinal : (x : ob) → isProp (isFinal x)
-  isPropIsFinal x = isPropΠ λ y → isPropIsContr
-
-  -- Objects that are initial are isomorphic.
-  isFinalToIso : {x y : ob} (hx : isFinal x) (hy : isFinal y) →
-    CatIso {C = C} x y
-  isFinalToIso {x = x} {y = y} hx hy =
-    let x→y : C [ x , y ]
-        x→y = fst (hy x) -- morphism forwards
-        y→x : C [ y , x ]
-        y→x = fst (hx y) -- morphism backwards
-        x→y→x : x→y ⋆⟨ C ⟩ y→x ≡ id
-        x→y→x = isContr→isProp (hx x) _ _ -- compose to id by uniqueness
-        y→x→y : y→x ⋆⟨ C ⟩ x→y ≡ id
-        y→x→y = isContr→isProp (hy y) _ _ -- similar.
-    in catiso x→y y→x y→x→y x→y→x
-
-  -- The type of final objects of a univalent precategory is a proposition,
-  -- i.e. all final objects are equal.
-  isPropFinal : (hC : isUnivalent C) → isProp (hasFinalOb)
-  isPropFinal hC x y =
-    -- Being final is a prop ∴ Suffices equal as objects in C.
-    Σ≡Prop (isPropIsFinal)
-    -- C is univalent ∴ Suffices isomorphic as objects in C.
-    (CatIsoToPath hC (isFinalToIso (snd x) (snd y)))
+  -- The type of terminal objects of a univalent category is a proposition,
+  -- i.e. all terminal objects are equal.
+  isPropTerminal : (hC : isUnivalent C) → isProp Terminal
+  isPropTerminal hC x y =
+    Σ≡Prop isPropIsTerminal (CatIsoToPath hC (terminalToIso x y))

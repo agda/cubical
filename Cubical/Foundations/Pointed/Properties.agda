@@ -90,3 +90,10 @@ const∙ _ B .snd = refl
         (cong h (cong g f∙) ∙ cong h g∙) ∙ h∙
         ≡⟨ cong (λ p → p ∙ h∙) ((cong-∙ h (cong g f∙) g∙) ⁻¹) ⟩
         (cong h (cong g f∙ ∙ g∙) ∙ h∙) ∎ )
+
+module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
+  isInIm∙ : (x : typ B) → Type (ℓ-max ℓ ℓ')
+  isInIm∙ x = Σ[ z ∈ typ A ] fst f z ≡ x
+
+  isInKer∙ : (x : fst A) → Type ℓ'
+  isInKer∙ x = fst f x ≡ snd B

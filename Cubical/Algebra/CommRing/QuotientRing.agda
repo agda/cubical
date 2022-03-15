@@ -25,7 +25,7 @@ R / I =
        _·/_ : fst asRing → fst asRing → fst asRing
        _·/_ = RingStr._·_ (snd asRing)
        commEq : (x y : fst R) → ([ x ] ·/ [ y ]) ≡ ([ y ] ·/ [ x ])
-       commEq x y i = [ CommRingStr.·-comm (snd R) x y i ]
+       commEq x y i = [ CommRingStr.·Comm (snd R) x y i ]
 
 [_]/ : {R : CommRing ℓ} {I : IdealsIn R} → (a : fst R) → fst (R / I)
 [ a ]/ = [ a ]

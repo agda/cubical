@@ -27,14 +27,14 @@ private
 
 
 -- (PreShv C) / F ≃ᶜ PreShv (∫ᴾ F)
-module _ {ℓS : Level} (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓS)) where
-  open Precategory
+module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS)) where
+  open Category
   open Functor
   open _≃ᶜ_
   open isEquivalence
   open NatTrans
   open NatIso
-  open Slice (PreShv C ℓS) F ⦃ isCatPreShv {C = C} ⦄
+  open Slice (PreShv C ℓS) F
   open Elements {C = C}
 
   open Fibration.ForSets
@@ -272,11 +272,11 @@ module _ {ℓS : Level} (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓ
 
     -- isomorphism follows from typeSectionIso
     ηIso : ∀ (sob : SliceCat .ob)
-          → isIsoC {C = SliceCat} (ηTrans ⟦ sob ⟧)
+          → isIsoC SliceCat (ηTrans ⟦ sob ⟧)
     ηIso sob@(sliceob ϕ) = sliceIso _ _ (FUNCTORIso _ _ _ isIsoCf)
       where
         isIsoCf : ∀ (c : C .ob)
-                → isIsoC (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
+                → isIsoC _ (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
         isIsoCf c = CatIso→isIso (Iso→CatIso (typeSectionIso {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧)))
 
 
@@ -370,11 +370,11 @@ module _ {ℓS : Level} (C : Precategory ℓ ℓ') (F : Functor (C ^op) (SET ℓ
                 eq'≡eq = snd (F ⟅ c ⟆) _ _ eq' eq
 
     εIso : ∀ (P : PreShv (∫ᴾ F) ℓS .ob)
-          → isIsoC {C = PreShv (∫ᴾ F) ℓS} (εTrans ⟦ P ⟧)
+          → isIsoC (PreShv (∫ᴾ F) ℓS) (εTrans ⟦ P ⟧)
     εIso P = FUNCTORIso _ _ _ isIsoC'
       where
         isIsoC' : ∀ (cx : (∫ᴾ F) .ob)
-                → isIsoC {C = SET _} ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
+                → isIsoC (SET _) ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
         isIsoC' cx@(c , _) = CatIso→isIso (Iso→CatIso (invIso (typeFiberIso {isSetA = snd (F ⟅ c ⟆)} _)))
 
 

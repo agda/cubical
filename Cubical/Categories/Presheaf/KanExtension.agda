@@ -27,7 +27,7 @@ open import Cubical.Categories.Instances.Sets
 -}
 
 module Lan {ℓC ℓC' ℓD ℓD'} ℓS
-  {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'}
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (F : Functor C D)
   where
 
@@ -35,8 +35,8 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   open NatTrans
 
   private
-    module C = Precategory C
-    module D = Precategory D
+    module C = Category C
+    module D = Category D
 
     {-
       We want the category SET ℓ we're mapping into to be large enough that the coend will take presheaves
@@ -197,7 +197,7 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
 -}
 
 module Ran {ℓC ℓC' ℓD ℓD'} ℓS
-  {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'}
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (F : Functor C D)
   where
 
@@ -205,8 +205,8 @@ module Ran {ℓC ℓC' ℓD ℓD'} ℓS
   open NatTrans
 
   private
-    module C = Precategory C
-    module D = Precategory D
+    module C = Category C
+    module D = Category D
 
     {-
       We want the category SET ℓ we're mapping into to be large enough that the coend will take presheaves
