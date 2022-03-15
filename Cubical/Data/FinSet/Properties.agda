@@ -48,7 +48,6 @@ module _
   ∣invEquiv∣ : ∥ A ≃ B ∥ → ∥ B ≃ A ∥
   ∣invEquiv∣ = Prop.map invEquiv
 
-
 -- useful implications
 
 EquivPresIsFinSet : A ≃ B → isFinSet A → isFinSet B
