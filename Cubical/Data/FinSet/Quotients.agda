@@ -31,6 +31,7 @@ open import Cubical.Data.FinSet.Constructor
 open import Cubical.Data.FinSet.Cardinality
 
 open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidablePropositions
 open import Cubical.Relation.Binary
 
 private
