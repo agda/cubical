@@ -125,7 +125,7 @@ module _ {R : CommRing ℓ} where
                    x · (r ⋆ y) ∎)
      ·-comm
 
-  module _ (S : CommRing ℓ) where
+  module _ (S : CommRing ℓ') where
     open CommRingStr (snd S) renaming (1r to 1S)
     open CommRingStr (snd R) using () renaming (_·_ to _·R_; _+_ to _+R_; 1r to 1R)
     commAlgebraFromCommRing :
@@ -135,7 +135,7 @@ module _ {R : CommRing ℓ} where
         → ((r : fst R) (x y : fst S) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
         → ((x : fst S) → 1R ⋆ x ≡ x)
         → ((r : fst R) (x y : fst S) → (r ⋆ x) · y ≡ r ⋆ (x · y))
-        → CommAlgebra R ℓ
+        → CommAlgebra R ℓ'
     commAlgebraFromCommRing _⋆_ ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc· = fst S ,
       commalgebrastr 0r 1S _+_ _·_  -_ _⋆_
         (makeIsCommAlgebra is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·Comm
