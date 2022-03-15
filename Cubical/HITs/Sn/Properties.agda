@@ -17,7 +17,6 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation
--- open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Join
 open import Cubical.Data.Bool
@@ -29,6 +28,11 @@ private
 IsoSucSphereSusp : (n : ℕ) → Iso (S₊ (suc n)) (Susp (S₊ n))
 IsoSucSphereSusp zero = S¹IsoSuspBool
 IsoSucSphereSusp (suc n) = idIso
+
+IsoSucSphereSusp∙ : (n : ℕ)
+  → Iso.inv (IsoSucSphereSusp n) north ≡ ptSn (suc n)
+IsoSucSphereSusp∙ zero = refl
+IsoSucSphereSusp∙ (suc n) = refl
 
 -- Elimination principles for spheres
 sphereElim : (n : ℕ) {A : (S₊ (suc n)) → Type ℓ} → ((x : S₊ (suc n)) → isOfHLevel (suc n) (A x))
@@ -325,8 +329,8 @@ IsoSphereJoin zero m =
              (invIso (IsoSucSphereSusp m)))
 IsoSphereJoin (suc n) m =
   compIso (Iso→joinIso
-            (subst (λ x → Iso (S₊ (suc x)) (join (S₊ n) Bool))
-                   (+-comm n 0) (invIso (IsoSphereJoin n 0)))
+            (compIso (pathToIso (cong S₊ (cong suc (+-comm zero n))))
+                     (invIso (IsoSphereJoin n 0)))
             idIso)
           (compIso (equivToIso joinAssocDirect)
             (compIso (Iso→joinIso idIso
@@ -336,6 +340,41 @@ IsoSphereJoin (suc n) m =
                 (compIso
                   (IsoSphereJoin n (suc m))
                     (pathToIso λ i → S₊ (suc (+-suc n m i))))))
+
+IsoSphereJoinPres∙ : (n m : ℕ)
+  → Iso.fun (IsoSphereJoin n m) (inl (ptSn n)) ≡ ptSn (suc (n + m))
+IsoSphereJoinPres∙ zero zero = refl
+IsoSphereJoinPres∙ zero (suc m) = refl
+IsoSphereJoinPres∙ (suc n) m =
+  cong (transport (λ i → S₊ (suc (+-suc n m i))))
+    (cong (Iso.fun (IsoSphereJoin n (suc m)))
+      (cong (join→ (idfun (S₊ n))
+      (λ x →
+         Iso.inv (IsoSucSphereSusp m)
+         (Iso.inv Susp-iso-joinBool (join-commFun x))))
+         (cong (joinAssocDirect {C = S₊ m} .fst)
+           (cong (inl ∘ (Iso.inv (IsoSphereJoin n 0)))
+             (transportS∙ (suc n) _ (cong suc (+-comm 0 n)))
+           ∙ cong inl (sym (cong (Iso.inv (IsoSphereJoin n 0))
+                           (IsoSphereJoinPres∙ n 0))
+                    ∙ Iso.leftInv (IsoSphereJoin n 0) (inl (ptSn _))))))
+    ∙ IsoSphereJoinPres∙ n (suc m))
+    ∙ transportS∙ _ _ (cong suc (+-suc n m))
+  where
+  transportS∙ : (n m : ℕ) (p : n ≡ m) → transport (λ i → S₊ (p i)) (ptSn n)
+              ≡ ptSn _
+  transportS∙ zero m =
+    J (λ m p → transport (λ i → S₊ (p i)) true ≡ ptSn m) refl
+  transportS∙ (suc zero) m =
+    J (λ m p → transport (λ i → S₊ (p i)) base ≡ ptSn m) refl
+  transportS∙ (suc (suc n)) m =
+    J (λ m p → transport (λ i → S₊ (p i)) north ≡ ptSn m) refl
+
+IsoSphereJoin⁻Pres∙ : (n m : ℕ)
+  → Iso.inv (IsoSphereJoin n m) (ptSn (suc (n + m))) ≡ inl (ptSn n)
+IsoSphereJoin⁻Pres∙ n m =
+     cong (Iso.inv (IsoSphereJoin n m)) (sym (IsoSphereJoinPres∙ n m))
+   ∙ Iso.leftInv (IsoSphereJoin n m) (inl (ptSn n))
 
 -- Some lemmas on the H
 rUnitS¹ : (x : S¹) → x * base ≡ x
