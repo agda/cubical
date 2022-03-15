@@ -1,6 +1,6 @@
 {-
 
-Indutiive eliminators to directly prove properties of all finite sets
+Inductive eliminators to establish properties of all finite sets directly
 
 -}
 {-# OPTIONS --safe #-}
@@ -9,17 +9,18 @@ module Cubical.Data.FinSet.Induction where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.HITs.SetTruncation as Set
 
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
+open import Cubical.Data.Nat
+  renaming (_+_ to _+ℕ_) hiding (elim)
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Sum   as Sum
+open import Cubical.Data.Sum
 
 open import Cubical.Data.Fin renaming (Fin to Finℕ)
 open import Cubical.Data.SumFin
@@ -120,12 +121,12 @@ module _
     elimProp𝔽in 0 = p0
     elimProp𝔽in (suc n) = p1 (elimProp𝔽in n)
 
-    elimProp' : (X : FinSet ℓ) → P X
-    elimProp' = elimProp elimProp𝔽in
+    elimProp𝟙+ : (X : FinSet ℓ) → P X
+    elimProp𝟙+ = elimProp elimProp𝔽in
 
   module _
     (p0 : P 𝟘)(p1 : P 𝟙)
     (p+ : {X Y : FinSet ℓ} → P X → P Y → P (X + Y)) where
 
-    elimProp'' : (X : FinSet ℓ) → P X
-    elimProp'' = elimProp' p0 (λ p → p+ p1 p)
+    elimProp+ : (X : FinSet ℓ) → P X
+    elimProp+ = elimProp𝟙+ p0 (λ p → p+ p1 p)

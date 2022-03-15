@@ -1,6 +1,7 @@
 {-
 
-This files contains lots of useful properties about constructions on finite sets
+This files contains:
+- Facts about constructions on finite sets, especially when they preserve finiteness.
 
 -}
 {-# OPTIONS --safe #-}
@@ -9,7 +10,7 @@ module Cubical.Data.FinSet.Constructor where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.PropositionalTruncation as Prop

@@ -1,11 +1,17 @@
+{-
+
+This file contains:
+- The quotient of finite sets by decidable equivalence relation is still finite, by using equivalence class.
+
+-}
 {-# OPTIONS --safe #-}
 
-module Cubical.Data.FinSet.Quotient where
+module Cubical.Data.FinSet.Quotients where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Univalence
 
@@ -13,6 +19,7 @@ open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.HITs.SetQuotients as SetQuot
 open import Cubical.HITs.SetQuotients.EqClass
 
+open import Cubical.Data.Nat
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 

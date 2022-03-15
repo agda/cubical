@@ -3,9 +3,9 @@
 module Cubical.Data.SumFin.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
@@ -61,11 +61,6 @@ SumFin≡Fin k = ua (SumFin≃Fin k)
 
 -- Closure properties of SumFin under type constructors
 
-private
-  _⋆_ = compEquiv
-
-infixr 30 _⋆_
-
 SumFin⊎≃ : (m n : ℕ) → (Fin m ⊎ Fin n) ≃ (Fin (m + n))
 SumFin⊎≃ 0 n = ⊎-swap-≃ ⋆ ⊎-⊥-≃
 SumFin⊎≃ (suc m) n = ⊎-assoc-≃ ⋆ ⊎-equiv (idEquiv ⊤) (SumFin⊎≃ m n)
@@ -111,10 +106,6 @@ SumFin∥∥DecProp (suc n) = isContr→≃Unit (inhProp→isContr ∣ inl tt �
 
 -- negation of SumFin
 
-isZero : ℕ → Bool
-isZero 0 = true
-isZero (suc n) = false
-
 SumFin¬ : (n : ℕ) → (¬ Fin n) ≃ Bool→Type (isZero n)
 SumFin¬ 0 = isContr→≃Unit isContr⊥→A
 SumFin¬ (suc n) = uninhabEquiv (λ f → f fzero) ⊥.rec
@@ -129,28 +120,12 @@ isContrSumFin1 = isOfHLevelRespectEquiv 0 (invEquiv Fin1≃Unit) isContrUnit
 
 -- SumFin 2 is equivalent to Bool
 
-open Iso
-
-Iso-⊤⊎⊤-Bool : Iso (⊤ ⊎ ⊤) Bool
-Iso-⊤⊎⊤-Bool .fun (inl tt) = true
-Iso-⊤⊎⊤-Bool .fun (inr tt) = false
-Iso-⊤⊎⊤-Bool .inv true = inl tt
-Iso-⊤⊎⊤-Bool .inv false = inr tt
-Iso-⊤⊎⊤-Bool .leftInv (inl tt) = refl
-Iso-⊤⊎⊤-Bool .leftInv (inr tt) = refl
-Iso-⊤⊎⊤-Bool .rightInv true = refl
-Iso-⊤⊎⊤-Bool .rightInv false = refl
-
 SumFin2≃Bool : Fin 2 ≃ Bool
 SumFin2≃Bool = ⊎-equiv (idEquiv _) ⊎-⊥-≃ ⋆ isoToEquiv Iso-⊤⊎⊤-Bool
 
 -- decidable predicate over SumFin
 
-_^_ : ℕ → ℕ → ℕ
-m ^ 0 = 1
-m ^ (suc n) = m · m ^ n
-
-SumFinℙ≃ : (n : ℕ) → (Fin n → Bool) ≃ Fin (2 ^ n)
+SumFinℙ≃ : (n : ℕ) → (Fin n → Bool) ≃ Fin (2 ^ n)
 SumFinℙ≃ 0 = isContr→≃Unit (isContrΠ⊥) ⋆ invEquiv (⊎-⊥-≃)
 SumFinℙ≃ (suc n) =
     Π⊎≃
@@ -237,46 +212,53 @@ SumFin≡≃ (suc n) (inr x) (inr y) = invEquiv (_ , isEmbedding-inr x y) ⋆ Su
 
 -- propositional truncation of Fin
 
-∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥
-∥Fin∥ 0 = no (Prop.rec isProp⊥ (idfun _))
-∥Fin∥ (suc n) = yes ∣ fzero ∣
+-- decidability of Fin
+
+DecFin : (n : ℕ) → Dec (Fin n)
+DecFin 0 = no (idfun _)
+DecFin (suc n) = yes fzero
+
+-- propositional truncation of Fin
+
+Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥
+Dec∥Fin∥ n = Dec∥∥ (DecFin n)
 
 -- some properties about cardinality
 
 fzero≠fone : {n : ℕ} → ¬ (fzero ≡ fsuc fzero)
 fzero≠fone {n = n} = SumFin≡≃ (suc (suc n)) fzero (fsuc fzero) .fst
 
-Fin>0 : (n : ℕ) → 0 < n → Fin n
-Fin>0 0 p = ⊥.rec (¬-<-zero p)
-Fin>0 (suc n) p = fzero
+Fin>0→isInhab : (n : ℕ) → 0 < n → Fin n
+Fin>0→isInhab 0 p = ⊥.rec (¬-<-zero p)
+Fin>0→isInhab (suc n) p = fzero
 
-Fin>1 : (n : ℕ) → 1 < n → Σ[ i ∈ Fin n ] Σ[ j ∈ Fin n ] ¬ i ≡ j
-Fin>1 0 p = ⊥.rec (snotz (≤0→≡0 p))
-Fin>1 1 p = ⊥.rec (snotz (≤0→≡0 (pred-≤-pred p)))
-Fin>1 (suc (suc n)) _ = fzero , fsuc fzero , fzero≠fone
+Fin>1→hasNonEqualTerm : (n : ℕ) → 1 < n → Σ[ i ∈ Fin n ] Σ[ j ∈ Fin n ] ¬ i ≡ j
+Fin>1→hasNonEqualTerm 0 p = ⊥.rec (snotz (≤0→≡0 p))
+Fin>1→hasNonEqualTerm 1 p = ⊥.rec (snotz (≤0→≡0 (pred-≤-pred p)))
+Fin>1→hasNonEqualTerm (suc (suc n)) _ = fzero , fsuc fzero , fzero≠fone
 
-emptyFin : (n : ℕ) → ¬ Fin n → 0 ≡ n
-emptyFin 0 _ = refl
-emptyFin (suc n) p = ⊥.rec (p fzero)
+isEmpty→Fin≡0 : (n : ℕ) → ¬ Fin n → 0 ≡ n
+isEmpty→Fin≡0 0 _ = refl
+isEmpty→Fin≡0 (suc n) p = ⊥.rec (p fzero)
 
-nonEmptyFin : (n : ℕ) → Fin n → 0 < n
-nonEmptyFin 0 i = ⊥.rec i
-nonEmptyFin (suc n) _ = suc-≤-suc zero-≤
+isInhab→Fin>0 : (n : ℕ) → Fin n → 0 < n
+isInhab→Fin>0 0 i = ⊥.rec i
+isInhab→Fin>0 (suc n) _ = suc-≤-suc zero-≤
 
-nonEqualTermFin : (n : ℕ) → (i j : Fin n) → ¬ i ≡ j → 1 < n
-nonEqualTermFin 0 i _ _ = ⊥.rec i
-nonEqualTermFin 1 i j p = ⊥.rec (p (isContr→isProp isContrSumFin1 i j))
-nonEqualTermFin (suc (suc n)) _ _ _ = suc-≤-suc (suc-≤-suc zero-≤)
+hasNonEqualTerm→Fin>1 : (n : ℕ) → (i j : Fin n) → ¬ i ≡ j → 1 < n
+hasNonEqualTerm→Fin>1 0 i _ _ = ⊥.rec i
+hasNonEqualTerm→Fin>1 1 i j p = ⊥.rec (p (isContr→isProp isContrSumFin1 i j))
+hasNonEqualTerm→Fin>1 (suc (suc n)) _ _ _ = suc-≤-suc (suc-≤-suc zero-≤)
 
-Fin≤1 : (n : ℕ) → n ≤ 1 → isProp (Fin n)
-Fin≤1 0 _ = isProp⊥
-Fin≤1 1 _ = isContr→isProp isContrSumFin1
-Fin≤1 (suc (suc n)) p = ⊥.rec (¬-<-zero (pred-≤-pred p))
+Fin≤1→isProp : (n : ℕ) → n ≤ 1 → isProp (Fin n)
+Fin≤1→isProp 0 _ = isProp⊥
+Fin≤1→isProp 1 _ = isContr→isProp isContrSumFin1
+Fin≤1→isProp (suc (suc n)) p = ⊥.rec (¬-<-zero (pred-≤-pred p))
 
-propFin : (n : ℕ) → isProp (Fin n) → n ≤ 1
-propFin 0 _ = ≤-solver 0 1
-propFin 1 _ = ≤-solver 1 1
-propFin (suc (suc n)) p = ⊥.rec (fzero≠fone (p fzero (fsuc fzero)))
+isProp→Fin≤1 : (n : ℕ) → isProp (Fin n) → n ≤ 1
+isProp→Fin≤1 0 _ = ≤-solver 0 1
+isProp→Fin≤1 1 _ = ≤-solver 1 1
+isProp→Fin≤1 (suc (suc n)) p = ⊥.rec (fzero≠fone (p fzero (fsuc fzero)))
 
 -- automorphisms of SumFin
 

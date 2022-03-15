@@ -110,34 +110,6 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
 -- SubstRel on a dependent function type
 -- from a SubstRel on the domain and SubstRel on the codomain
 
-equivΠ' : ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {A' : Type ℓA'}
-  {B : A → Type ℓB} {B' : A' → Type ℓB'}
-  (eA : A ≃ A')
-  (eB : {a : A} {a' : A'} → eA .fst a ≡ a' → B a ≃ B' a')
-  → ((a : A) → B a) ≃ ((a' : A') → B' a')
-equivΠ' {B' = B'} eA eB = isoToEquiv isom
-  where
-  open Iso
-
-  isom : Iso _ _
-  isom .fun f a' =
-    eB (secEq eA a') .fst (f (invEq eA a'))
-  isom .inv f' a =
-    invEq (eB refl) (f' (eA .fst a))
-  isom .rightInv f' =
-    funExt λ a' →
-    J (λ a'' p → eB p .fst (invEq (eB refl) (f' (p i0))) ≡ f' a'')
-      (secEq (eB refl) (f' (eA .fst (invEq eA a'))))
-      (secEq eA a')
-  isom .leftInv f =
-    funExt λ a →
-    subst
-      (λ p → invEq (eB refl) (eB p .fst (f (invEq eA (eA .fst a)))) ≡ f a)
-      (sym (commPathIsEq (eA .snd) a))
-      (J (λ a'' p → invEq (eB refl) (eB (cong (eA .fst) p) .fst (f (invEq eA (eA .fst a)))) ≡ f a'')
-        (retEq (eB refl) (f (invEq eA (eA .fst a))))
-        (retEq eA a))
-
 module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   {B : A → Type ℓB} (𝒮ˢ-B : SubstRel 𝒮-A B)
   {C : Σ A B → Type ℓC} (𝒮ˢ-C : SubstRel (∫ˢ 𝒮ˢ-B) C)

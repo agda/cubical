@@ -1,8 +1,7 @@
 {-
 
 Axiom of Finite Choice
-
-Yep, it's a theorem actually.
+- Yep, it's a theorem actually.
 
 -}
 {-# OPTIONS --safe #-}
@@ -11,7 +10,7 @@ module Cubical.Data.FinSet.FiniteChoice where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 
 open import Cubical.HITs.PropositionalTruncation as Prop
 

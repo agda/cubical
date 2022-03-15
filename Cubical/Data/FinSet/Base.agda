@@ -3,7 +3,7 @@
 Definition of finite sets
 
 There are may different formulations of finite sets in constructive mathematics,
-and we will use Bishop finiteness as is called by some people in the literature.
+and we will use Bishop finiteness as is usually called in the literature.
 
 -}
 {-# OPTIONS --safe #-}
@@ -13,7 +13,7 @@ module Cubical.Data.FinSet.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.PropositionalTruncation as Prop
@@ -27,16 +27,6 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
     A : Type ℓ
-
--- operators to more conveniently compose equivalences
-
-module _
-  {A : Type ℓ}{B : Type ℓ'}{C : Type ℓ''} where
-
-  infixr 30 _⋆_
-
-  _⋆_ : A ≃ B → B ≃ C → A ≃ C
-  _⋆_ = compEquiv
 
 -- definition of (Bishop) finite sets
 

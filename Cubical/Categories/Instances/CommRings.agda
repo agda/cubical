@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
@@ -15,15 +16,19 @@ open import Cubical.Algebra.CommRing.FiberedProduct
 open import Cubical.Algebra.CommRing.Instances.Unit
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Pullback
+
+open import Cubical.HITs.PropositionalTruncation
 
 open Category hiding (_∘_)
 open CommRingHoms
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' : Level
 
 CommRingsCategory : Category (ℓ-suc ℓ) ℓ
 ob CommRingsCategory                     = CommRing _
@@ -37,7 +42,7 @@ isSetHom CommRingsCategory               = isSetRingHom _ _
 
 TerminalCommRing : Terminal {ℓ-suc ℓ-zero} CommRingsCategory
 fst TerminalCommRing = UnitCommRing
-fst (fst (snd TerminalCommRing y)) _ = tt
+fst (fst (snd TerminalCommRing y)) _ = tt*
 snd (fst (snd TerminalCommRing y)) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
 snd (snd TerminalCommRing y) f = RingHom≡ (funExt (λ _ → refl))
 

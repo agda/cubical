@@ -10,7 +10,7 @@ module Cubical.Data.FinSet.DecidablePredicate where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Equiv.Properties
 
 open import Cubical.HITs.PropositionalTruncation as Prop

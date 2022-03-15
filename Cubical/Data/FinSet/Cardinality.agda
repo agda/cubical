@@ -1,6 +1,14 @@
 {-
 
-This file contains properties and formulae about cardinality.
+Properties and Formulae about Cardinality
+
+This file contains:
+- Relation between abstract properties and cardinality in special cases;
+- Combinatorial formulae, namely, cardinality of A+B, A×B, ΣAB, ΠAB, etc;
+- A general form of Pigeonhole Principle;
+- Maximal value of numerical function on finite sets;
+- Set truncation of FinSet is equivalent to ℕ;
+- FinProp is equivalent to Bool.
 
 -}
 {-# OPTIONS --safe #-}
@@ -12,7 +20,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Equiv.Properties
 
 open import Cubical.HITs.PropositionalTruncation as Prop
@@ -82,14 +90,16 @@ module _
 
   card>0→isInhab : card X > 0 → ∥ X .fst ∥
   card>0→isInhab p =
-    Prop.rec isPropPropTrunc (λ e → ∣ invEq e (Fin>0 _ p) ∣) (∣≃card∣ X)
+    Prop.map (λ e → invEq e (Fin>0→isInhab _ p)) (∣≃card∣ X)
 
   card>1→hasNonEqualTerm : card X > 1 → ∥ Σ[ a ∈ X .fst ] Σ[ b ∈ X .fst ] ¬ a ≡ b ∥
   card>1→hasNonEqualTerm p =
-    Prop.rec isPropPropTrunc
-        (λ e → ∣ e .fst (Fin>1 _ p .fst) , e .fst (Fin>1 _ p .snd .fst) ,
-                 Fin>1 _ p .snd .snd ∘ invEq (congEquiv e) ∣)
-        (∣invEquiv∣ (∣≃card∣ X))
+    Prop.map
+      (λ e →
+        e .fst (Fin>1→hasNonEqualTerm _ p .fst) ,
+        e .fst (Fin>1→hasNonEqualTerm _ p .snd .fst) ,
+        Fin>1→hasNonEqualTerm _ p .snd .snd ∘ invEq (congEquiv e))
+      (∣invEquiv∣ (∣≃card∣ X))
 
   card≡1→isContr : card X ≡ 1 → isContr (X .fst)
   card≡1→isContr p =
@@ -98,15 +108,16 @@ module _
 
   card≤1→isProp : card X ≤ 1 → isProp (X .fst)
   card≤1→isProp p =
-    Prop.rec isPropIsProp (λ e → isOfHLevelRespectEquiv 1 (invEquiv e) (Fin≤1 (card X) p)) (∣≃card∣ X)
+    Prop.rec isPropIsProp (λ e → isOfHLevelRespectEquiv 1 (invEquiv e) (Fin≤1→isProp (card X) p)) (∣≃card∣ X)
 
   card≡n : card X ≡ n → ∥ X ≡ 𝔽in n ∥
   card≡n {n = n} p =
-    Prop.rec isPropPropTrunc
+    Prop.map
         (λ e →
-          ∣(λ i → ua e i ,
-                  isProp→PathP {B = λ j → isFinSet (ua e j)}
-                               (λ _ → isPropIsFinSet) (X .snd) (𝔽in n .snd) i )∣)
+          (λ i →
+            ua e i ,
+            isProp→PathP {B = λ j → isFinSet (ua e j)}
+              (λ _ → isPropIsFinSet) (X .snd) (𝔽in n .snd) i ))
         (∣≃card∣ X ⋆̂ ∣ pathToEquiv (cong Fin p) ⋆ invEquiv (𝔽in≃Fin n) ∣)
 
   card≡0 : card X ≡ 0 → X ≡ 𝟘
@@ -125,34 +136,34 @@ module _
         1 (FinSet≡ X 𝟙)
           (isOfHLevel≡ 1
             (card≤1→isProp (subst (λ a → a ≤ 1) (sym p) (≤-solver 1 1))) (isPropUnit*))) .fst
-      (Prop.rec isPropPropTrunc (λ q → ∣ q ∙ 𝔽in1≡𝟙 ∣) (card≡n p))
+      (Prop.map (λ q → q ∙ 𝔽in1≡𝟙) (card≡n p))
 
 module _
   (X : FinSet ℓ) where
 
   isEmpty→card≡0 : ¬ X .fst → card X ≡ 0
   isEmpty→card≡0 p =
-    Prop.rec (isSetℕ _ _) (λ e → sym (emptyFin _ (p ∘ invEq e))) (∣≃card∣ X)
+    Prop.rec (isSetℕ _ _) (λ e → sym (isEmpty→Fin≡0 _ (p ∘ invEq e))) (∣≃card∣ X)
 
   isInhab→card>0 : ∥ X .fst ∥ → card X > 0
-  isInhab→card>0 = Prop.rec2 m≤n-isProp (λ p x → nonEmptyFin _ (p .fst x)) (∣≃card∣ X)
+  isInhab→card>0 = Prop.rec2 m≤n-isProp (λ p x → isInhab→Fin>0 _ (p .fst x)) (∣≃card∣ X)
 
   hasNonEqualTerm→card>1 : {a b : X. fst} → ¬ a ≡ b → card X > 1
   hasNonEqualTerm→card>1 {a = a} {b = b} q =
-    Prop.rec m≤n-isProp (λ p → nonEqualTermFin _ (p .fst a) (p .fst b) (q ∘ invEq (congEquiv p))) (∣≃card∣ X)
+    Prop.rec m≤n-isProp (λ p → hasNonEqualTerm→Fin>1 _ (p .fst a) (p .fst b) (q ∘ invEq (congEquiv p))) (∣≃card∣ X)
 
   isContr→card≡1 : isContr (X .fst) → card X ≡ 1
   isContr→card≡1 p = cardEquiv X (_ , isFinSetUnit) ∣ isContr→≃Unit p ∣
 
   isProp→card≤1 : isProp (X .fst) → card X ≤ 1
-  isProp→card≤1 p = propFin (card X) (Prop.rec isPropIsProp (λ e → isOfHLevelRespectEquiv 1 e p) (∣≃card∣ X))
+  isProp→card≤1 p = isProp→Fin≤1 (card X) (Prop.rec isPropIsProp (λ e → isOfHLevelRespectEquiv 1 e p) (∣≃card∣ X))
 
 {- formulae about cardinality -}
 
 -- results to be used in diProp.rect induction on FinSet
 
 card𝟘 : card (𝟘 {ℓ}) ≡ 0
-card𝟘 {ℓ = ℓ} = isEmpty→card≡0 (𝟘 {ℓ}) Empty.rec*
+card𝟘 {ℓ = ℓ} = isEmpty→card≡0 (𝟘 {ℓ}) (Empty.rec*)
 
 card𝟙 : card (𝟙 {ℓ}) ≡ 1
 card𝟙 {ℓ = ℓ} = isContr→card≡1 (𝟙 {ℓ}) isContrUnit*
@@ -273,11 +284,12 @@ module _
       (λ X → isPropΠ3 (λ _ _ _ → isSetℕ _ _))
       (λ n f c h → prodConst𝔽in n f c h ∙ (λ i → c ^ card𝔽in {ℓ = ℓ} n (~ i))) X f c h
 
-≡≤ : {m n l k r s : ℕ} → m ≤ n → l ≤ k → r ≡ m + l → s ≡ n + k → r ≤ s
-≡≤ {m = m} {l = l} {k = k} p q u v = subst2 (_≤_) (sym u) (sym v) (≤-+ p q)
+private
+  ≡≤ : {m n l k r s : ℕ} → m ≤ n → l ≤ k → r ≡ m + l → s ≡ n + k → r ≤ s
+  ≡≤ {m = m} {l = l} {k = k} p q u v = subst2 (_≤_) (sym u) (sym v) (≤-+-≤ p q)
 
-≡< : {m n l k r s : ℕ} → m < n → l ≤ k → r ≡ m + l → s ≡ n + k → r < s
-≡< {m = m} {l = l} {k = k} p q u v = subst2 (_<_) (sym u) (sym v) (<-+-≤ p q)
+  ≡< : {m n l k r s : ℕ} → m < n → l ≤ k → r ≡ m + l → s ≡ n + k → r < s
+  ≡< {m = m} {l = l} {k = k} p q u v = subst2 (_<_) (sym u) (sym v) (<-+-≤ p q)
 
 sum≤𝔽in : (n : ℕ)(f g : 𝔽in {ℓ} n .fst → ℕ)(h : (x : 𝔽in n .fst) → f x ≤ g x) → sum (𝔽in n) f ≤ sum (𝔽in n) g
 sum≤𝔽in 0 f g _ = subst2 (_≤_) (sym (sum𝟘 f)) (sym (sum𝟘 g)) ≤-refl
@@ -347,14 +359,14 @@ module _
   cardΣ : card (_ , isFinSetΣ X Y) ≡ sum X (λ x → card (Y x))
   cardΣ =
     cardEquiv (_ , isFinSetΣ X Y) (_ , isFinSetΣ X (λ x → Fin (card (Y x)) , isFinSetFin))
-              (Prop.rec isPropPropTrunc (λ e → ∣ Σ-cong-equiv-snd e ∣)
-                   (choice X (λ x → Y x .fst ≃ Fin (card (Y x))) (λ x → ∣≃card∣ (Y x))))
+              (Prop.map Σ-cong-equiv-snd
+                (choice X (λ x → Y x .fst ≃ Fin (card (Y x))) (λ x → ∣≃card∣ (Y x))))
 
   cardΠ : card (_ , isFinSetΠ X Y) ≡ prod X (λ x → card (Y x))
   cardΠ =
     cardEquiv (_ , isFinSetΠ X Y) (_ , isFinSetΠ X (λ x → Fin (card (Y x)) , isFinSetFin))
-              (Prop.rec isPropPropTrunc (λ e → ∣ equivΠCod e ∣)
-                   (choice X (λ x → Y x .fst ≃ Fin (card (Y x))) (λ x → ∣≃card∣ (Y x))))
+              (Prop.map equivΠCod
+                (choice X (λ x → Y x .fst ≃ Fin (card (Y x))) (λ x → ∣≃card∣ (Y x))))
 
 module _
   (X : FinSet ℓ )
@@ -382,14 +394,13 @@ module _
 -- the pigeonhole priniple
 
 -- a logical lemma
-module _
-  (X : Type ℓ)
-  (P : X → Type ℓ')
-  (Q : X → Type ℓ'')
-  (r : (x : X) → ¬ (P x) → Q x) where
-
-  ¬ΠQ→¬¬ΣP : ¬ ((x : X) → Q x) → ¬ ¬ (Σ X P)
-  ¬ΠQ→¬¬ΣP g f = g (λ x → r x (λ p → f (x , p)))
+private
+  ¬ΠQ→¬¬ΣP : (X : Type ℓ)
+      (P : X → Type ℓ' )
+      (Q : X → Type ℓ'')
+      (r : (x : X) → ¬ (P x) → Q x)
+    → ¬ ((x : X) → Q x) → ¬ ¬ (Σ X P)
+  ¬ΠQ→¬¬ΣP _ _ _ r g f = g (λ x → r x (λ p → f (x , p)))
 
 module _
   (f : X .fst → Y .fst)
@@ -412,14 +423,12 @@ module _
     pigeonHole = PeirceLaw (isFinSetΣ Y (λ _ → _ , isDecProp→isFinSet m≤n-isProp (≤Dec _ _))) ¬¬pigeonHole
 
 -- a special case, proved in Cubical.Data.Fin.Properties
--- a technical lemma
-module _
-  (X : Type ℓ)
-  (P : X → Type ℓ') where
 
-  Σ∥P∥→∥ΣP∥ : Σ X (λ x → ∥ P x ∥) → ∥ Σ X P ∥
-  Σ∥P∥→∥ΣP∥ (x , p) =
-    Prop.rec isPropPropTrunc (λ q → ∣ x , q ∣) p
+-- a technical lemma
+private
+  Σ∥P∥→∥ΣP∥ : (X : Type ℓ)(P : X → Type ℓ')
+    → Σ X (λ x → ∥ P x ∥) → ∥ Σ X P ∥
+  Σ∥P∥→∥ΣP∥ _ _ (x , p) = Prop.map (λ q → x , q) p
 
 module _
   (f : X .fst → Y .fst)
@@ -439,7 +448,7 @@ module _
 
   pigeonHole' : ∥ Σ[ x ∈ X .fst ] Σ[ x' ∈ X .fst ] (¬ x ≡ x') × (f x ≡ f x') ∥
   pigeonHole' =
-    Prop.rec isPropPropTrunc (λ p → ∣ nonInj p ∣)
+    Prop.map nonInj
       (Prop.rec isPropPropTrunc fiberNonEqualTerm
         (pigeonHole {X = X} {Y = Y} f 1 (subst (λ a → _ > a) (sym (·-identityˡ _)) p)))
 
@@ -524,7 +533,7 @@ module _
   ΣMax⊎-case (x , p) (y , q) (gt r) .snd (inr y') = ≤-trans (q y') (<-weaken r)
 
   ∃Max⊎ : ∃Max X (f ∘ inl) → ∃Max Y (f ∘ inr) → ∃Max (X ⊎ Y) f
-  ∃Max⊎ = Prop.rec2 isPropPropTrunc (λ p q → ∣ ΣMax⊎-case p q (_≟_ _ _) ∣)
+  ∃Max⊎ = Prop.map2 (λ p q → ΣMax⊎-case p q (_≟_ _ _))
 
 ΣMax𝟙 : (f : 𝟙 {ℓ} .fst → ℕ) → ΣMax _ f
 ΣMax𝟙 f .fst = tt*

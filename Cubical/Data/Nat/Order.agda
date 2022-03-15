@@ -98,8 +98,8 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
   l3 : 0 ≡ i
   l3 = sym (snd (m+n≡0→m≡0×n≡0 l2))
 
-≤-+ : m ≤ n → l ≤ k → m + l ≤ n + k
-≤-+ p q = ≤-trans (≤-+k p) (≤-k+ q)
+≤-+-≤ : m ≤ n → l ≤ k → m + l ≤ n + k
+≤-+-≤ p q = ≤-trans (≤-+k p) (≤-k+ q)
 
 ≤-k+-cancel : k + m ≤ k + n → m ≤ n
 ≤-k+-cancel {k} {m} (l , p) = l , inj-m+ (sub k m ∙ p)
@@ -163,8 +163,8 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-k+ : m < n → k + m < k + n
 <-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
 
-+-<-+ : m < n → k < l → m + k < n + l
-+-<-+  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
+<-+-< : m < n → k < l → m + k < n + l
+<-+-<  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
 
 <-+-≤ : m < n → k ≤ l → m + k < n + l
 <-+-≤ p q = <≤-trans (<-+k p) (≤-k+ q)
@@ -247,7 +247,7 @@ suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 ... | eq p = inr (0 , p)
 ... | lt m<n+m∸k = inr (<-weaken m<n+m∸k)
 ... | gt n+m∸k<m =
-      ⊥.rec (¬m<m (transport (λ i → ≤-∸-+-cancel k≤n+m i < +-comm m n i) (+-<-+ n+m∸k<m k<n)))
+      ⊥.rec (¬m<m (transport (λ i → ≤-∸-+-cancel k≤n+m i < +-comm m n i) (<-+-< n+m∸k<m k<n)))
 
 <-asym'-case : Trichotomy m n → ¬ m < n → n ≤ m
 <-asym'-case (lt p) q = ⊥.rec (q p)

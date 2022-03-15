@@ -33,7 +33,7 @@ open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.DecidablePredicate
 open import Cubical.Data.FinSet.Constructor
-open import Cubical.Data.FinSet.Quotient
+open import Cubical.Data.FinSet.Quotients
 open import Cubical.Data.FinSet.Cardinality
 
 open import Cubical.Relation.Nullary

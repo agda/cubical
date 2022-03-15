@@ -8,7 +8,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 
 open import Cubical.HITs.PropositionalTruncation as Prop
 
@@ -18,6 +18,7 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sigma
 
+open import Cubical.Data.Fin.Base renaming (Fin to Finℕ)
 open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 
@@ -39,13 +40,14 @@ module _
   infixr 30 _⋆̂_
 
   _⋆̂_ : ∥ A ≃ B ∥ → ∥ B ≃ C ∥ → ∥ A ≃ C ∥
-  _⋆̂_ = Prop.rec2 isPropPropTrunc (λ p q → ∣ p ⋆ q ∣)
+  _⋆̂_ = Prop.map2 (_⋆_)
 
 module _
   {A : Type ℓ}{B : Type ℓ'} where
 
   ∣invEquiv∣ : ∥ A ≃ B ∥ → ∥ B ≃ A ∥
-  ∣invEquiv∣ = Prop.rec isPropPropTrunc (λ p → ∣ invEquiv p ∣)
+  ∣invEquiv∣ = Prop.map invEquiv
+
 
 -- useful implications
 
@@ -77,7 +79,7 @@ isDec→isFinSet∥∥ dec = isDecProp→isFinSet isPropPropTrunc (Dec∥∥ dec
 isFinSet→Dec∥∥ : isFinSet A → Dec ∥ A ∥
 isFinSet→Dec∥∥ h =
   Prop.rec (isPropDec isPropPropTrunc)
-      (λ p → EquivPresDec (propTrunc≃ (invEquiv p)) (∥Fin∥ _)) (h .snd)
+      (λ p → EquivPresDec (propTrunc≃ (invEquiv p)) (Dec∥Fin∥ _)) (h .snd)
 
 isFinProp→Dec : isFinSet A → isProp A → Dec A
 isFinProp→Dec p h = subst Dec (propTruncIdempotent h) (isFinSet→Dec∥∥ p)
