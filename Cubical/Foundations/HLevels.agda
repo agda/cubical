@@ -607,11 +607,11 @@ isOfHLevel→isOfHLevelDep 0 h {a} =
   (h a .fst , λ b' p → isProp→PathP (λ i → isContr→isProp (h (p i))) (h a .fst) b')
 isOfHLevel→isOfHLevelDep 1 h = λ b0 b1 p → isProp→PathP (λ i → h (p i)) b0 b1
 isOfHLevel→isOfHLevelDep (suc (suc n)) {A = A} {B} h {a0} {a1} b0 b1 =
-  isOfHLevel→isOfHLevelDep (suc n) (λ p → helper a1 p b1)
+  isOfHLevel→isOfHLevelDep (suc n) (λ p → helper p)
   where
-  helper : (a1 : A) (p : a0 ≡ a1) (b1 : B a1) →
+  helper : (p : a0 ≡ a1) →
     isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1)
-  helper a1 p b1 = J (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
+  helper p = J (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
                      (λ _ → h _ _ _) p b1
 
 isContrDep→isPropDep : isOfHLevelDep 0 B → isOfHLevelDep 1 B
