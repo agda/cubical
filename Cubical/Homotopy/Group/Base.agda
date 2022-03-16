@@ -25,7 +25,8 @@ open import Cubical.HITs.Truncation
   renaming (rec to trRec ; elim to trElim ; elim2 to trElim2)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp renaming (toSusp to σ)
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 renaming (_·_ to _*_)
+open import Cubical.HITs.S3
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
@@ -1055,3 +1056,849 @@ snd (fst (πIso e n)) =
     (setTruncIso
       (equivToIso (_ , isEquivΩ^→ (suc n) (≃∙map e) (snd (fst e)))))
 snd (πIso e n) = snd (πHom n (≃∙map e))
+
+
+open import Cubical.HITs.Wedge
+open import Cubical.HITs.Join hiding (joinS¹S¹→S³)
+open import Cubical.HITs.Pushout
+
+
+{-
+Goal: join (Susp A) B
+———— Boundary ——————————————————————————————————————————————
+j = i0 ⊢ inl north
+j = i1 ⊢ inl north
+i = i0 ⊢ inl north
+i = i1 ⊢ inl north
+-}
+
+
+
+
+
+{-
+i = i0 ⊢ inl south
+i = i1 ⊢ push north b k
+k = i0 ⊢ suspJoinFiller (~ i) r i1 (pt A) b
+k = i1 ⊢ push south b i
+r = i0 ⊢ c1-filler b i k i1
+r = i1 ⊢ c1-filler b i k i1
+-}
+
+HopfM : join S¹ S¹ → S₊ 2
+HopfM (inl x) = north
+HopfM (inr x) = north
+HopfM (push a b i) = (merid (a * b) ∙ sym (merid base)) i
+
+∨map : join S¹ S¹ → (S₊∙ 2) ⋁ (S₊∙ 2)
+∨map (inl x) = inr north
+∨map (inr x) = inl north
+∨map (push a b i) = ((λ i → inr (σ (S₊∙ 1) b i)) ∙∙ sym (push tt) ∙∙ (λ i → inl (σ (S₊∙ 1) a i))) i
+
+
+_+join_ : (f g : (join S¹ S¹ , inl base) →∙ S₊∙ 2)
+       → (join S¹ S¹ , inl base) →∙ S₊∙ 2
+fst (f +join g) (inl x) = fst f (inl x)
+fst (f +join g) (inr x) = fst g (inr x)
+fst (f +join g) (push a b i) =
+  (cong (fst f) (push a b ∙ sym (push base b))
+  ∙∙ snd f ∙ sym (snd g)
+  ∙∙ cong (fst g) (push base base ∙∙ sym (push a base) ∙∙ push a b)) i
+snd (f +join g) = snd f
+
+{-
+S¹ × S¹ →∙ Ω S²
+-}
+
+join-fill : I → I → I → I → join S¹ S¹
+join-fill r i j k =
+  hfill (λ r → λ { (i = i0) → push (loop r) (loop (j ∨ r)) k
+                  ; (i = i1) → push base (loop (j ∨ r)) k --  (k ∧ ~ r)
+                  ; (j = i0) → push (loop (i ∨ r)) (loop r) k
+                  ; (j = i1) → push (loop (i ∨ r)) base k
+                  ; (k = i0) → inl (loop (i ∨ r)) -- inl (loop (i ∨ r))
+                  ; (k = i1) → inr (loop (j ∨ r))})
+        (inS (push (loop i) (loop j) k))
+        r
+
+{-
+S³→joinS¹S¹ : S³ → join S¹ S¹
+S³→joinS¹S¹ base = inl base
+S³→joinS¹S¹ (surf j k i) = border-contraction i j k i1
+-}
+
+S3→joinS¹S¹ : S₊ 3 → join S¹ S¹
+S3→joinS¹S¹ north = inl base
+S3→joinS¹S¹ south = inl base
+S3→joinS¹S¹ (merid north i) = inl base
+S3→joinS¹S¹ (merid south i) = inl base
+S3→joinS¹S¹ (merid (merid base i₁) i) = inl base
+S3→joinS¹S¹ (merid (merid (loop i) j) k) = border-contraction k i j i1
+
+-- S3→joinS¹S¹ : ?
+-- S3→joinS¹S¹ = ?
+
+tt123 = joinS¹S¹→S³
+{-
+S3→j→S3 : (x : S₊ 3) → joinS¹S¹→S³ (S3→joinS¹S¹ x) ≡ x
+S3→j→S3 north = refl
+S3→j→S3 south = merid north
+S3→j→S3 (merid north i) j = merid north (i ∧ j)
+S3→j→S3 (merid south i) j =
+  hcomp (λ k → λ {(i = i0) → north
+                 ; (i = i1) → merid north j
+                 ; (j = i0) → north
+                 ; (j = i1) → merid (merid base k) i})
+        (merid north (i ∧ j))
+S3→j→S3 (merid (merid base j) i) k =
+  {!!}
+S3→j→S3 (merid (merid (loop i) j) k) l =
+  {!j = i0 ⊢ merid north (i ∧ k)
+j = i1 ⊢ hcomp
+         (λ { k₁ (i = i0) → north
+            ; k₁ (i = i1) → merid north k
+            ; k₁ (k = i0) → north
+            ; k₁ (k = i1) → merid (merid base k₁) i
+            })
+         (merid north (i ∧ k))
+i = i0 ⊢ north
+i = i1 ⊢ merid north k
+k = i0 ⊢ north
+k = i1 ⊢ merid (merid base j) i!}
+{-
+  hcomp (λ r → λ { (i = i0) → {!join-fill r i j k -- joinS¹S¹→S³ (join-fill i1 i i0 k) -- joinS¹S¹→S³ (join-fill r i i0 k)!}
+                  ; (i = i1) → {!!} -- merid (merid base (l ∧ j)) k
+                  ; (j = i0) → {!joinS¹S¹→S³ (join-fill r i i0 k)!} -- joinS¹S¹→S³ (join-fill r i i0 k)
+                  ; (j = i1) → {!!} -- merid (merid base l) k -- merid (merid base l) k
+                  ; (k = i0) → {!!} -- north -- joinS¹S¹→S³ (push (loop r) (loop r) (k ∧ i))
+                  ; (k = i1) → {!!} -- south
+                  ; (l = i0) → ? -- joinS¹S¹→S³ (join-fill r i j k)
+                  ; (l = i1) → ?})
+        {!!} -}
+  where
+  help : PathP (λ r → Cube {A = S₊ 3} {!!} (λ k l → merid (merid base l) k)
+                            {!!} {!!}
+                            (λ j k → joinS¹S¹→S³ (push (loop r) (loop (j ∨ r)) k))
+                            {!!})
+                            {!!} {!!}
+  help = {!!}
+{-
+i = i0 ⊢ merid (merid base (l ∧ j)) k
+i = i1 ⊢ merid (merid base (l ∧ j)) k
+j = i0 ⊢ merid north k
+j = i1 ⊢ merid (merid base l) k
+k = i0 ⊢ north
+k = i1 ⊢ south
+l = i0 ⊢ joinS¹S¹→S³ (S3→joinS¹S¹ (merid (merid (loop i) j) k))
+l = i1 ⊢ merid (merid (loop i) j) k
+-}
+  
+  -- hcomp {!!}
+     --    {!!}
+
+-- open import Cubical.HITs.S3
+-- open import Cubical.HITs.S2
+σ₂ : (a b : S¹) → typ (Ω (S₊∙ 3))
+σ₂ base b = refl
+σ₂ (loop i) base = refl
+σ₂ (loop i) (loop j) k = {!!}
+
+
+
+
+
+
+_⌣ₛ_ : {n m : ℕ} → S₊ (suc n) → S₊ (suc m) → S₊ (suc (n + (suc m)))
+_⌣ₛ_ {n = zero} {m = zero} = S¹×S¹→S²
+_⌣ₛ_ {n = zero} {m = suc m} base y = north
+_⌣ₛ_ {n = zero} {m = suc m} (loop i) y = (merid y ∙ sym (merid north)) i
+_⌣ₛ_ {n = suc n} {m = m} north y = north
+_⌣ₛ_ {n = suc n} {m = m} south y = south
+_⌣ₛ_ {n = suc n} {m = m} (merid a i) y = merid (a ⌣ₛ y) i
+
+joinIso : (n m : ℕ) → join (S₊ (suc n)) (S₊ (suc m)) → S₊ (suc (suc n + suc m))
+joinIso zero zero = joinS¹S¹→S³
+joinIso zero (suc m) = {!!}
+joinIso (suc n) m x =
+  suspFun (joinIso n m) (joinSusp→suspJoin {A = (S₊∙ (suc n))} {B = (S₊∙ (suc m))} x)
+
+joinIso2 : (n m : ℕ) → join (S₊ (suc n)) (S₊ (suc m)) → S₊ (suc (suc n + suc m))
+joinIso2 n m (inl x) = north
+joinIso2 n m (inr x) = south
+joinIso2 n m (push a b i) = merid (a ⌣ₛ b) i
+
+joinIso2-ind : (n m : ℕ) (x : _)
+  → suspFun (joinIso2 n m) (S.joinSusp {A = S₊∙ (suc n)} {B = S₊∙ (suc m)} x)
+  ≡ joinIso2 (suc n) m x
+joinIso2-ind n m (inl north) = refl
+joinIso2-ind n m (inl south) = sym (merid north)
+joinIso2-ind n m (inl (merid a i)) j = merid north (i ∧ ~ j)
+joinIso2-ind n m (inr x) = (merid north)
+joinIso2-ind n m (push north b i) j = merid north (i ∧ j)
+joinIso2-ind n m (push south b i) j = {!merid north (~ i ∨ ~ j)!}
+joinIso2-ind n m (push (merid a k) b i) j = {!!}
+
+theEq : (n m : ℕ) (x : join (S₊ (suc n)) (S₊ (suc m))) → joinIso n m x ≡ joinIso2 n m x 
+theEq zero m x = {!!}
+theEq (suc n) m x =
+  (λ i → suspFun (funExt (theEq n m) i) (S.joinSusp x) )
+  ∙ joinIso2-ind n m x
+
+isEquivPostComp : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : y ≡ z)
+  → isEquiv (λ (q : x ≡ y) → q ∙ p)
+isEquivPostComp {z = z} =
+  J (λ z p → isEquiv (λ q → q ∙ p))
+    (subst isEquiv (funExt rUnit) (idIsEquiv _))
+
+
+TorusAct : S¹ → S¹ → (typ (Ω (S₊∙ 3))) ≃ (typ (Ω (S₊∙ 3)))
+fst (TorusAct a b) p = p ∙ merid (S¹×S¹→S² a b) ∙ sym (merid north)
+snd (TorusAct a b) = isEquivPostComp _
+
+
+CC : join S¹ S¹ → Type
+CC (inl x) = typ (Ω (S₊∙ 3))
+CC (inr x) = typ (Ω (S₊∙ 3))
+CC (push a b i) = ua (TorusAct a b) (~ i)
+
+
+s2 : {!!}
+s2 = {!!}
+
+dec : (x : join S¹ S¹) → CC x → inl base ≡ x
+dec (inl x) p = {!push base x ∙∙ ? ∙∙ ?!}
+dec (inr x) p = {!!}
+dec (push a b i) = {!!}
+  where
+  F : (x : S¹) → typ (Ω (S₊∙ 3)) → inl base ≡ inl x
+  F x = {!!}
+  
+  G : (x : S¹) → typ (Ω (S₊∙ 3)) → inl base ≡ inr x
+  G x = {!!}
+
+
+  s : PathP (λ i → ua (TorusAct a b) (~ i) → Path (join S¹ S¹) (inl base) (push a b i)) (F a) (G b)
+  s = toPathP (funExt (λ p → (λ j → transp (λ i → Path (join S¹ S¹) (inl base) (push a b (i ∨ j))) j
+                             (compPath-filler (F a (transportRefl p j
+                                                  ∙ merid (S¹×S¹→S² a b) ∙ sym (merid north))) (push a b) j))
+                             ∙ {!!}))
+
+
+{-
+S3→joinS¹S¹ : S₊ 3 → join S¹ S¹
+S3→joinS¹S¹ north = inl base
+S3→joinS¹S¹ south = inr base
+S3→joinS¹S¹ (merid north i) = push base base i
+S3→joinS¹S¹ (merid south i) = push base base i
+S3→joinS¹S¹ (merid (merid base i₁) i) = push base base i
+S3→joinS¹S¹ (merid (merid (loop k) j) i) =
+  {!hcomp ? push (loop i₂) (loop i₁) i!}
+
+S3→joinS¹S¹→S³ : (x : _) → S3→joinS¹S¹ (joinS¹S¹→S³ x) ≡ x
+S3→joinS¹S¹→S³ (inl x) = push base base ∙ sym (push x base)
+S3→joinS¹S¹→S³ (inr x) = {!!}
+S3→joinS¹S¹→S³ (push a b i) = {!!}
+-}
+
+-}
+
+HopF : S₊∙ 3 →∙ S₊∙ 2
+fst HopF x = HopfM (S3→joinS¹S¹ x)
+snd HopF = refl
+
+HopF2 : S₊∙ 3 →∙ S₊∙ 2
+fst HopF2 x = fold⋁ (∨map (S3→joinS¹S¹ x))
+snd HopF2 = refl
+
+deJoin : (join S¹ S¹ , inl base) →∙ S₊∙ 2 → S₊∙ 3 →∙ S₊∙ 2
+fst (deJoin f) x = fst f (Iso.inv (IsoSphereJoin 1 1) x)
+snd (deJoin f) = snd f
+
+joinify : S₊∙ 3 →∙ S₊∙ 2 → (join S¹ S¹ , inl base) →∙ S₊∙ 2
+fst (joinify f) x = fst f (joinS¹S¹→S³ x)
+snd (joinify f) = snd f
+
+
+
+{-
+IsoSphereJoin : (n m : ℕ)
+  → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
+IsoSphereJoin zero m =
+  compIso join-comm
+    (compIso (invIso Susp-iso-joinBool)
+             (invIso (IsoSucSphereSusp m)))
+IsoSphereJoin (suc n) m =
+  compIso (Iso→joinIso
+            (compIso (pathToIso (cong S₊ (cong suc (+-comm zero n))))
+                     (invIso (IsoSphereJoin n 0)))
+            idIso)
+          (compIso (equivToIso joinAssocDirect)
+            (compIso (Iso→joinIso idIso
+                      (compIso join-comm
+                       (compIso (invIso Susp-iso-joinBool)
+                                (invIso (IsoSucSphereSusp m)))))
+                (compIso
+                  (IsoSphereJoin n (suc m))
+                    (pathToIso λ i → S₊ (suc (+-suc n m i))))))
+-}
+
+open import Cubical.Data.Bool renaming (Bool to BoolT)
+
+
+joininfy-dejoin : (f : (join S¹ S¹ , inl base) →∙ S₊∙ 2) → joinify (deJoin f) ≡ f
+joininfy-dejoin x = {!!}
+
+dejoin-joinify : (f : S₊∙ 3 →∙ S₊∙ 2) → deJoin (joinify f) ≡ f
+dejoin-joinify = {!!}
+
+_+join≡_ : (f g : S₊∙ 3 →∙ S₊∙ 2)
+         → joinify (∙Π f g) -- deJoin (f +join g)
+         ≡ (joinify f +join joinify g) -- ∙Π (deJoin f) (deJoin g)
+_+join≡_ f g =
+  ΣPathP ((funExt (λ { (inl x) → sym (snd f)
+                     ; (inr x) → sym (snd g) ∙ cong (fst g) (merid north)
+                     ; (push a b i) j → h a b j i}))
+        , λ i j → snd f (j ∨ ~ i))
+  where
+  S¹×S¹→S²rUnit : (a : S¹) → S¹×S¹→S² a base ≡ north
+  S¹×S¹→S²rUnit base = refl
+  S¹×S¹→S²rUnit (loop i) = refl
+
+  l1 : (a b : S¹)
+    → cong (fst (joinify g)) (push base base ∙∙ sym (push a base) ∙∙ push a b)
+    ≡ cong (fst g) (merid (S¹×S¹→S² a b))
+  l1 a b = cong-∙∙ (fst (joinify g))
+       (push base base) (sym (push a base)) (push a b)
+       ∙ cong (cong (fst g) (merid north) ∙∙_∙∙ cong (fst g) (merid (S¹×S¹→S² a b)))
+              (cong (cong (fst g)) (cong sym (cong merid (S¹×S¹→S²rUnit a))))
+       ∙  ((λ i → (cong (fst g) (λ j → merid north (j ∧ ~ i)))
+       ∙∙ (cong (fst g) (λ j → merid north (~ j ∧ ~ i)))
+       ∙∙ cong (fst g) (merid (S¹×S¹→S² a b)))
+       ∙ sym (lUnit (cong (fst g) (merid (S¹×S¹→S² a b)))))
+
+  l2 : ∀ {ℓ} {A : Type ℓ} {x y z w u : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) (s : w ≡ u)
+    → (refl ∙∙ p ∙∙ q) ∙ (r ∙∙ s ∙∙ refl)
+     ≡ (p ∙∙ (q ∙ r) ∙∙ s)
+  l2 p q r s = (λ i → (p ∙ q) ∙ compPath≡compPath' r s (~ i))
+           ∙∙ sym (∙assoc p q (r ∙ s))
+           ∙∙ cong (p ∙_) (∙assoc q r s)
+            ∙ sym (doubleCompPath≡compPath p (q ∙ r) s)
+
+  pp : (a b : S¹)
+    → Square ((refl ∙∙ cong (fst f) (merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))) ∙∙ snd f)
+             ∙ (sym (snd g) ∙∙ cong (fst g) (merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))) ∙∙ refl))
+             (((cong (fst f) (merid (S¹×S¹→S² a b)) ∙ sym (cong (fst f) (merid north)))
+                                          ∙∙ (snd f ∙ sym (snd g))
+               ∙∙ cong (fst g) (merid (S¹×S¹→S² a b))))
+           (λ _ → fst f north)
+           (cong (fst g) (merid north))
+  pp a b = l2 (cong (fst f) (merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))))
+              (snd f) (sym (snd g)) (cong (fst g)
+              (merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))))
+         ◁ p
+    where
+    p : PathP (λ i → fst f north ≡ cong (fst g) (merid north) i)
+              ((λ i →
+                  fst f ((merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))) i))
+               ∙∙ snd f ∙ (λ i → snd g (~ i)) ∙∙
+               (λ i →
+                  fst g ((merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))) i)))
+              ((cong (fst f) (merid (S¹×S¹→S² a b)) ∙
+                sym (cong (fst f) (merid north)))
+               ∙∙ snd f ∙ sym (snd g) ∙∙ cong (fst g) (merid (S¹×S¹→S² a b)))
+    p i j =
+      hcomp (λ k → λ { (i = i0) → (cong-∙ (fst f) (merid (S¹×S¹→S² a b)) (sym (merid north)) (~ k)
+                                ∙∙ snd f ∙ (λ i₁ → snd g (~ i₁))
+                                ∙∙ (λ i₁ → fst g (compPath-filler (merid (S¹×S¹→S² a b)) (λ i₂ → merid north (~ i₂)) k i₁))) j
+                       ; (i = i1) → ((cong (fst f) (merid (S¹×S¹→S² a b)) ∙
+                                      sym (cong (fst f) (merid north)))
+                                     ∙∙ (snd f ∙ sym (snd g)) ∙∙ cong (fst g) (merid (S¹×S¹→S² a b)))
+                                    j
+                       ; (j = i0) → fst f north
+                       ; (j = i1) → fst g (merid north (~ k ∨ i))})
+            (((cong (fst f) (merid (S¹×S¹→S² a b)) ∙
+                                      sym (cong (fst f) (merid north)))
+                                     ∙∙ (snd f ∙ sym (snd g)) ∙∙ cong (fst g) (merid (S¹×S¹→S² a b)))
+                                    j)
+
+  h : (a b : S¹)
+    → PathP (λ i → snd f (~ i) ≡ (sym (snd g) ∙ cong (fst g) (merid north)) i)
+            ((sym (snd f) ∙∙ cong (fst f) (merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))) ∙∙ snd f)
+            ∙ (sym (snd g) ∙∙ cong (fst g) (merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))) ∙∙ snd g))
+            ((cong (fst (joinify f)) (push a b ∙ sym (push base b))
+          ∙∙ snd f ∙ sym (snd g)
+          ∙∙ cong (fst (joinify g)) (push base base ∙∙ sym (push a base) ∙∙ push a b)))
+  h a b =
+    ((λ i j → hcomp (λ k → λ {(i = i0) → (((λ j → snd f (~ j ∧ k)) ∙∙ cong (fst f) (merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))) ∙∙ snd f)
+                                         ∙ (sym (snd g) ∙∙ cong (fst g) (merid (S¹×S¹→S² a b) ∙ (λ i₂ → merid north (~ i₂))) ∙∙ λ j → snd g (j ∧ k))) j
+                              ; (i = i1) → ((cong (fst f) (merid (S¹×S¹→S² a b)) ∙ sym (cong (fst f) (merid north)))
+                                          ∙∙ snd f ∙ sym (snd g)
+                                          ∙∙ cong (fst g) (merid (S¹×S¹→S² a b))) j
+                              ; (j = i0) → snd f (~ i ∧ k)
+                              ; (j = i1) → compPath-filler' (sym (snd g)) (cong (fst g) (merid north)) k i})
+                     (pp a b i j))
+    ▷ (λ i → (cong (fst f) (merid (S¹×S¹→S² a b)) ∙ sym (cong (fst f) (merid north)))
+           ∙∙ snd f ∙ sym (snd g)
+           ∙∙ cong (fst g) (merid (S¹×S¹→S² a b))))
+    ▷ λ i →
+      cong-∙ (fst (joinify f)) (push a b) (sym (push base b)) (~ i)
+      ∙∙ snd f ∙ sym (snd g)
+      ∙∙ l1 a b (~ i)
+
+wedgeify : (f g : S₊∙ 3 →∙ S₊∙ 2) → S₊∙ 3 →∙ S₊∙ 2
+fst (wedgeify f g) x = {! x!}
+snd (wedgeify f g) = {!x!}
+
+HopF' : (join S¹ S¹ , inl base) →∙ S₊∙ 2
+fst HopF' = HopfM
+snd HopF' = refl
+
+HopF2' : (join S¹ S¹ , inl base) →∙ S₊∙ 2
+fst HopF2' = fold⋁ ∘ ∨map
+snd HopF2' = refl
+
+homotHom : ∥ (join S¹ S¹ , inl base) →∙ (join S¹ S¹ , inl base) ∥₂ → ∥ (join S¹ S¹ , inl base) →∙ S₊∙ 2 ∥₂ 
+homotHom = sMap λ f → HopfM ∘ fst f , cong HopfM (snd f)
+
+
+-- wedge+ : ∣ HopF2 ∣₂ ≡ ·π' 2 ∣ HopF ∣₂ ∣ HopF ∣₂
+-- wedge+ =
+--   cong ∣_∣₂
+--     ( {!id2!} ∙∙ cong deJoin ((id2 ∙ {!!}) ∙∙ cong (λ x → x +join x) (sym id1) ∙∙ sym (HopF +join≡ HopF)) ∙∙ dejoin-joinify (∙Π HopF HopF))
+
+
+--   where
+--   id1 : joinify HopF ≡ HopF'
+--   id1 = ΣPathP (funExt (λ x → cong HopfM (S3→joinS¹S¹→S³ x)) , flipSquare (cong (cong HopfM) (rCancel (push base base))))
+
+--   id2 : joinify HopF2 ≡ HopF2'
+--   id2 = ΣPathP (funExt (λ x → cong (fold⋁ ∘ ∨map) (S3→joinS¹S¹→S³ x)) , flipSquare ((cong (cong (fold⋁ ∘ ∨map)) (rCancel (push base base)))))
+
+--   main : (x : _) → fst HopF2' x ≡ fst (HopF' +join HopF') x
+--   main (inl x) = σ (S₊∙ 1) x
+--   main (inr x) = σ (S₊∙ 1) x
+--   main (push a b i) = {!!}
+--     where
+--     s1 : cong (fst HopF2') (push a b) ≡ {!cong fold⋁ ?!}
+--     s1 = cong-∙∙ fold⋁ (λ i → inr (σ (S₊∙ 1) b i)) (sym (push tt)) (λ i → inl (σ (S₊∙ 1) a i))
+--        ∙∙ {!!}
+--        ∙∙ {!!}
+
+--     σ' : S¹ → typ (Ω (S₊∙ 2))
+--     σ' base = refl
+--     σ' (loop i) j = (sym (rCancel (merid base)) ∙∙ (cong (σ (S₊∙ 1)) loop) ∙∙ rCancel (merid base)) i j
+
+--     σ'≡σ : (a : S¹) → σ (S₊∙ 1) a ≡ σ' a
+--     σ'≡σ base = rCancel (merid base)
+--     σ'≡σ (loop i) j k =
+--       doubleCompPath-filler (sym (rCancel (merid base))) (cong (σ (S₊∙ 1)) loop) (rCancel (merid base)) j i k
+
+--     σ'-sym : (a : S¹) → σ' (invLooper a) ≡ sym (σ' a)
+--     σ'-sym base = refl
+--     σ'-sym (loop i) j k = (sym≡cong-sym (λ i j → σ' (loop i) j)) j i k
+
+--     σ-sym : (a : S¹) → σ (S₊∙ 1) (invLooper a) ≡ sym (σ (S₊∙ 1) a)
+--     σ-sym a = σ'≡σ (invLooper a) ∙∙ σ'-sym a ∙∙ cong sym (sym (σ'≡σ a))
+
+--     σ'-morph : (a : S¹) → σ' (a * a) ≡ σ' a ∙ σ' a
+--     σ'-morph base = rUnit refl
+--     σ'-morph (loop i) j = help3 i j
+--       where
+--       help : cong σ' (cong₂ _*_ loop loop) ≡ cong σ' loop ∙ cong σ' loop
+--       help = cong (cong σ') (cong₂Funct _*_ loop loop)
+--           ∙∙ cong (cong σ') (λ i → cong (λ x → rUnitS¹ x i) loop ∙ loop)
+--           ∙∙ cong-∙ σ' loop loop
+
+--       help2 : cong₂ _∙_ (cong σ' loop) (cong σ' loop)
+--             ≡ cong (λ x → x ∙ refl) (cong σ' loop) ∙ cong (λ x → refl ∙ x) (cong σ' loop)
+--       help2 = cong₂Funct _∙_ (cong σ' loop) (cong σ' loop)
+
+--       help3 : Square (rUnit refl) (rUnit refl) (cong σ' (cong₂ _*_ loop loop)) (cong₂ _∙_ (cong σ' loop) (cong σ' loop))
+--       help3 =
+--         flipSquare (help
+--           ◁ ((λ i → cong (λ x → rUnit x i) (cong σ' loop) ∙ cong (λ x → lUnit x i) (cong σ' loop))
+--           ▷ sym help2))
+
+--     σ-morph : (a : S¹) → σ (S₊∙ 1) (a * a) ≡ σ (S₊∙ 1) a ∙ σ (S₊∙ 1) a
+--     σ-morph a = σ'≡σ (a * a) ∙∙ σ'-morph a ∙∙ cong (λ x → x ∙ x) (sym (σ'≡σ a))
+
+--     σ'3 : (a : S¹) → σ' a ∙∙ σ' a ∙∙ σ' a ≡ σ' ((a * a) * a)
+--     σ'3 base = sym (rUnit refl)
+--     σ'3 (loop i) = {!!}
+--       where
+--       h : cong₂ (λ x y → x ∙∙ x ∙∙ y) (cong σ' loop) (cong σ' loop) ≡ {!!} -- cong (λ x → (x * x) * x) loop
+--       h = cong₂Funct (λ x y → x ∙∙ x ∙∙ y) (cong σ' loop) (cong σ' loop)
+--         ∙∙ {!cong (!} ∙∙ {!!}
+
+--     σ'-comm : (a b : S¹) → σ' (a * b) ∙∙ (σ' (invLooper b) ∙ σ' (invLooper a)) ∙∙ σ' (a * b) ≡ σ' b ∙ σ' a
+--     σ'-comm base b = {!!} -- sym (lUnit (σ' b)) ∙∙ refl ∙∙ rUnit (σ' b)
+--     σ'-comm (loop i) b = {!!}
+
+--     {-
+--       (cong (fst f) (push a b ∙ sym (push base b))
+--   ∙∙ snd f ∙ sym (snd g)
+--   ∙∙ cong (fst g) (push base base ∙∙ sym (push a base) ∙∙ push a b)) i
+--     -}
+
+--     s3 : cong (fst (HopF' +join HopF')) (push a b)
+--        ≡ (σ (S₊∙ 1) (a * b) ∙ sym (σ (S₊∙ 1) b))
+--        ∙ (sym (σ (S₊∙ 1) a) ∙ σ (S₊∙ 1) (a * b))
+--     s3 = (λ i → cong-∙ (fst HopF') (push a b) (sym (push base b)) i
+--               ∙∙ rUnit refl (~ i)
+--               ∙∙ cong-∙∙ (fst HopF') (push base base) (sym (push a base)) (push a b) i)
+--       ∙∙ (λ i → (λ j → (σ (S₊∙ 1) (a * b) ∙ sym (σ (S₊∙ 1) b)) (~ i ∧ j))
+--               ∙∙ ((λ j → (σ (S₊∙ 1) (a * b) ∙ sym (σ (S₊∙ 1) b)) (~ i ∨ j)))
+--               ∙∙ (rCancel (merid base) i ∙∙ sym (σ (S₊∙ 1) (rUnitS¹ a i)) ∙∙ σ (S₊∙ 1) (a * b)))
+--       ∙∙ refl
+
+
+-- {- cong ∣_∣₂ (sym (dejoin-joinify {!!})
+--                     ∙∙ {!!} -- cong deJoin
+--                       ({!!}
+--                        ∙ {!!}
+--                       ∙∙ cong (λ x → x +join x) (sym id1)
+--                       ∙∙ sym (HopF +join≡ HopF))
+--                     ∙∙ dejoin-joinify (∙Π HopF HopF)) {- ((funExt (λ { north → refl
+--                                      ; south → refl
+--                                      ; (merid a i) j → help a j i})) -}
+--                         --  , refl)) -}
+
+
+
+-- --   where
+-- --   maini : HopF2' ≡ (HopF' +join HopF')
+-- --   maini = ΣPathP ((funExt (λ { (inl x) → refl
+-- --                              ; (inr x) → refl
+-- --                              ; (push a b i) j → h a b j i}))
+-- --                 , refl)
+-- --     where
+-- --     rotLoop' : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) → Square p p p p
+-- --     rotLoop' p i j =
+-- --       hcomp (λ k → λ { (i = i0) → p (j ∨ ~ k)
+-- --                  ; (i = i1) → p (j ∧ k)
+-- --                  ; (j = i0) → p (i ∨ ~ k)
+-- --                  ; (j = i1) → p (i ∧ k)})
+-- --               (p i0)
+
+-- --     rotLoop'-filler2 : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) → I → I → I → A
+-- --     rotLoop'-filler2 p k i j =
+-- --       hfill (λ k → λ { (i = i0) → {!!}
+-- --                  ; (i = i1) → {!p k!}
+-- --                  ; (j = i0) → p (i ∨ ~ k)
+-- --                  ; (j = i1) → p (i ∧ k)})
+-- --               (inS (p i0))
+-- --               k
+
+-- --     rotLoop'-filler : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) → I → I → I → A
+-- --     rotLoop'-filler p k i j =
+-- --       hfill (λ k → λ { (i = i0) → p (j ∨ ~ k)
+-- --                  ; (i = i1) → p (j ∧ k)
+-- --                  ; (j = i0) → p (i ∨ ~ k)
+-- --                  ; (j = i1) → p (i ∧ k)})
+-- --               (inS (p i0))
+-- --               k
+
+-- --     S¹-ind : ∀ {ℓ} {A : S¹ → S¹ → Type ℓ} (f g : (a b : S¹) → A a b)
+-- --           → (b : f base base ≡ g base base)
+-- --           → (l : PathP (λ i → f (loop i) base ≡ g (loop i) base) b b)
+-- --           → (r : PathP (λ i → f base (loop i) ≡ g base (loop i)) b b)
+-- --           → (x y : S¹) → f x y ≡ g x y
+-- --     S¹-ind f g b l r x y = {!!}
+-- --     help : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x)
+-- --          → refl ≡ p
+-- --          → (q : p ≡ p)
+-- --          → Σ[ b ∈ p ∙ p ≡ p ]
+-- --              Σ[ l ∈ PathP (λ i → b i ≡ b i) (cong (p ∙_) q) q ]
+-- --                Σ[ r ∈ PathP (λ i → b i ≡ b i) (cong (_∙ p) q) q ]
+-- --                  (Cube (λ k j → l k j) (λ k j → l k j)
+-- --                        (λ i j → q i ∙ q j) (λ i j → rotLoop' q i j)
+-- --                        (λ k j → r j k) (λ k j → r j k))
+-- --     help {x = x} p =
+-- --       J (λ p _ → (q : p ≡ p)
+-- --          → Σ[ b ∈ p ∙ p ≡ p ]
+-- --              Σ[ l ∈ PathP (λ i → b i ≡ b i) (cong (p ∙_) q) q ]
+-- --                Σ[ r ∈ PathP (λ i → b i ≡ b i) (cong (_∙ p) q) q ]
+-- --                  (Cube (λ k j → l k j) (λ k j → l k j)
+-- --                        (λ i j → q i ∙ q j) (λ i j → rotLoop' q i j)
+-- --                        (λ k j → r j k) (λ k j → r j k)))
+-- --           λ q → (sym (rUnit refl)) , ((λ i j → lUnit (q j) (~ i)) , (((λ i j → rUnit (q j) (~ i)))
+-- --             , h q {!!}))
+-- --       where
+-- --       fill1 : (q : refl {x = x} ≡ refl) -- i j r
+-- --         → Cube (λ j r s → q j s) (λ j r s → q j s)
+-- --                 (λ i r → q i) (λ i r → q i)
+-- --                 (rotLoop' q) (rotLoop' q)
+-- --       fill1 = {!!}
+
+-- --       h : (q : refl {x = x} ≡ refl) → (rotLoop' q ≡ flipSquare (rotLoop' q))
+-- --         →  Cube (λ k j → lUnit (q j) (~ k)) (λ k j → lUnit (q j) (~ k))
+-- --                 (λ i j → q i ∙ q j) (λ i j → rotLoop' q i j)
+-- --                 (λ k j → rUnit (q k) (~ j)) (λ k j → rUnit (q k) (~ j))
+-- --       h q fl i k j s =
+-- --         hcomp (λ r → λ { (i = i0) → lUnit (q (j ∨ ~ r)) (~ k) s -- lUnit-filler (q j) r (~ k) s
+-- --                         ; (i = i1) → lUnit (q (j ∧ r)) (~ k) s -- lUnit-filler (q j) r (~ k) s
+-- --                         ; (j = i0) → {!rUnit (q (i ∨ ~ r)) (~ k) s!} -- rUnit (q i) (~ k ∧ r) s
+-- --                         ; (j = i1) → {!!} -- rUnit (q i) (~ k ∧ r) s
+-- --                         ; (k = i0) → {!!} -- compPath-filler (q i) (q j) r s
+-- --                         ; (k = i1) → rotLoop'-filler q r i j s -- rotLoop' q i j s
+-- --                         ; (s = i0) → {!!} -- x
+-- --                         ; (s = i1) → {!!} }) -- q j (k ∨ r)})
+-- --               (
+-- --          hcomp (λ r → λ { (i = i0) → {!!}
+-- --                         ; (i = i1) → {!!}
+-- --                         ; (j = i0) → {!!}
+-- --                         ; (j = i1) → {!!}
+-- --                         ; (k = i0) → {!!}
+-- --                         ; (k = i1) → {!lUnit (q (j ∨ ~ r)) (~ k) s -- rotLoop'-filler q r i0 j s!} -- rotLoop'-filler q r i j s -- rotLoop' q j i s -- rotLoop' q i j s
+-- --                         ; (s = i0) → {!!}
+-- --                         ; (s = i1) → {!!}}) -- q j k})
+-- --               (hcomp (λ r → λ { (i = i0) → {!!} -- q (j ∨ ~ r) (k ∧ s)
+-- --                         ; (i = i1) → {!!} -- q (j ∧ r) (k ∧ s)
+-- --                         ; (j = i0) → {!q (~ r ∨ i) (~ k ∨ s)!}
+-- --                         ; (j = i1) → {!!}
+-- --                         ; (k = i0) → {!!}
+-- --                         ; (k = i1) → {!!}
+-- --                         ; (s = i0) → {!!}
+-- --                         ; (s = i1) → {!!}})
+-- --                      {!!}))
+-- --       {-
+-- -- lUnit-filler : {x y : A} (p : x ≡ y) → I → I → I → A
+-- -- lUnit-filler {x = x} p j k i =
+-- --   hfill (λ j → λ { (i = i0) → x
+-- --                   ; (i = i1) → p (~ k ∨ j )
+-- --                   ; (k = i0) → p i
+-- --                -- ; (k = i1) → compPath-filler refl p j i
+-- --                   }) (inS (p (~ k ∧ i ))) j
+
+-- -- i = i0 ⊢ lUnit (q j) (~ k)
+-- -- i = i1 ⊢ lUnit (q j) (~ k)
+-- -- k = i0 ⊢ q i ∙ q j
+-- -- k = i1 ⊢ rotLoop' q i j
+-- -- j = i0 ⊢ rUnit (q i) (~ k)
+-- -- j = i1 ⊢ rUnit (q i) (~ k)
+-- -- -}
+-- --       {-
+-- --       hcomp (λ k → λ { (i = i0) → p (j ∨ ~ k)
+-- --                  ; (i = i1) → p (j ∧ k)
+-- --                  ; (j = i0) → p (i ∨ ~ k)
+-- --                  ; (j = i1) → p (i ∧ k)})
+-- --               (p i0)
+
+
+-- --       i = i0 ⊢ lUnit (q j) (~ k)
+-- -- i = i1 ⊢ lUnit (q j) (~ k)
+-- -- j = i0 ⊢ rUnit (q i) (~ k)
+-- -- j = i1 ⊢ rUnit (q i) (~ k)
+-- -- k = i0 ⊢ q i ∙ q j
+-- -- k = i1 ⊢ rotLoop' q i j
+-- --       -}
+
+
+
+-- --     rotLoop'-funct : ∀ {ℓ} {A : Type ℓ} {B : Type ℓ} {x : A} (p : x ≡ x) (f : A → B)
+-- --       → rotLoop' (cong f p) ≡ λ i j → f (rotLoop' p i j)
+-- --     rotLoop'-funct p f k i j = {!!}
+
+-- --     inst-help = help (σ (S₊∙ (suc zero)) base) (sym (rCancel (merid base))) (cong (σ (S₊∙ (suc zero))) loop)
+
+-- --     E : typ ((Ω^ 2) (S₊∙ 2))
+-- --     E i = (sym (rCancel (merid base)) ∙∙ (λ i → (merid (loop i) ∙ sym (merid base))) ∙∙ rCancel (merid base)) i
+
+-- --     -- S¹ × S¹ → ΩS²
+
+-- --     σ' : S¹ → typ (Ω (S₊∙ 2))
+-- --     σ' base = refl
+-- --     σ' (loop i) = E i
+
+-- --     negi : {!S¹ → S¹!}
+-- --     negi = {!!}
+
+-- --     a+a : (a : S¹) → σ' (a * a) ≡ refl
+-- --     a+a base = refl
+-- --     a+a (loop i) j =
+-- --       hcomp (λ r → λ {(i = i0) → σ' (loop (~ r))
+-- --                      ; (i = i1) → σ' (loop (r ∨ j))
+-- --                      ; (j = i0) → σ' (rotLoop'-filler loop r i i)
+-- --                      ; (j = i1) → σ' (loop (~ r ∧ ~ i))})
+-- --             {!i₁ = i0 ⊢ lCancel (E i) j
+-- -- i₁ = i1 ⊢ lCancel (E i) j
+-- -- i = i0 ⊢ lUnit (E i₁) (~ j)
+-- -- i = i1 ⊢ lUnit (E i₁) (~ j)
+-- -- j = i0 ⊢ sym (σ' (loop i)) ∙ σ' (loop i * loop i₁)
+-- -- j = i1 ⊢ σ' (loop i₁)!}
+
+-- --     lUnit' : ∀ {ℓ} {A : Type ℓ} {x y : A} → (p : x ≡ y) → p ≡ refl ∙ p
+-- --     lUnit' = λ p → compPath-filler' refl p
+
+-- --     ff : I → I → I → snd (S₊∙ 2) ≡ snd (S₊∙ 2)
+-- --     ff r i j =
+-- --       hfill (λ r → λ {(i = i0) → lUnit' (E (~ r)) (~ j) -- rUnit refl (~ r) j s -- compPath-filler' (E r) refl (~ j) s
+-- --                      ; (i = i1) → rUnit (E (~ r)) (~ j) -- rUnit refl (~ r) j s -- compPath-filler' {!!} {!!} (~ j) s
+-- --                      ; (j = i0) → E (~ i ∨ ~ r) ∙ E (i ∨ ~ r)
+-- --                      ; (j = i1) → E (~ r)}) -- north
+-- --              (inS (rUnit refl (~ j))) --  (compPath-filler' refl (~ j)))
+-- --              r
+
+-- --     σ'aa : (a b : S¹) → (σ' (invLooper b) ∙ σ' (b * a)) ≡ σ' a
+-- --     σ'aa a base = sym (lUnit' _) -- sym (compPath-filler' refl _)
+-- --     σ'aa base (loop i) j =
+-- --       ff i1 i j
+-- --     σ'aa (loop i) (loop j)  k s =
+-- --       hcomp (λ r → λ {(i = i0) → PP r j k s -- ff r j k
+-- --                      ; (i = i1) → PP r j k s -- ff r j k
+-- --                      ; (j = i0) → lUnit' (σ' (loop i)) (r ∧ ~ k) s
+-- --                      ; (j = i1) → lUnit' (σ' (loop i)) (r ∧ ~ k) s
+-- --                      ; (k = i0) → compPath-filler' (σ' (loop (~ j))) (σ' (loop j * loop i)) r s -- 
+-- --                      ; (k = i1) → E i s -- E i s
+-- --                      ; (s = i0) → σ' (loop (~ j)) (~ r ∧ ~ k) -- E (~ j) (~ r ∧ ~ k) -- E (~ j) (~ r)
+-- --                      ; (s = i1) → north})
+-- --         (hcomp (λ r → λ {(i = i0) → {!!}
+-- --                      ; (i = i1) → {!!}
+-- --                      ; (j = i0) → {!!}
+-- --                      ; (j = i1) → {!!}
+-- --                      ; (k = i0) → {!!}
+-- --                      ; (k = i1) → {!!}
+-- --                      ; (s = i0) → {!!}
+-- --                      ; (s = i1) → {!!}})
+-- --                {!!})
+-- --     {-
+-- -- Goal: snd (S₊∙ 2) ≡ snd (S₊∙ 2)
+-- -- ———— Boundary ——————————————————————————————————————————————
+-- -- i = i0 ⊢ ff i1 j k
+-- -- i = i1 ⊢ ff i1 j k
+-- -- j = i0 ⊢ lUnit (E i) (~ k)
+-- -- j = i1 ⊢ lUnit (E i) (~ k)
+-- -- k = i0 ⊢ σ' (invLooper (loop j)) ∙ σ' (loop j * loop i)
+-- -- k = i1 ⊢ E i-}
+-- --       where -- j k s
+-- --       PP3 : Cube (λ j s → north) (λ j s → north)
+-- --                  (λ j₂ s₂ → E j₂ s₂) (λ j s → north)
+-- --                  (λ j₂ k₂ → E (~ j₂) (~ k₂)) (λ j s → north)
+-- --       PP3 j k s =
+-- --         hcomp (λ r → λ {(j = i0) → E r (~ k)
+-- --                        ; (j = i1) → E r (s ∧ ~ k) -- E (k ∨ r) (s)
+-- --                        ; (k = i0) → E (j ∧ r) s
+-- --                        ; (k = i1) → north
+-- --                        ; (s = i0) → E (~ j ∧ r) (~ k)
+-- --                        ; (s = i1) → E r (~ k)})
+-- --                north
+
+-- --       PP :
+-- --         PathP (λ r → Cube (λ k s → lUnit' (σ' base) (r ∧ ~ k) s) (λ k s → lUnit' (σ' base) (r ∧ ~ k) s)
+-- --                            (λ j s → compPath-filler' (σ' (loop (~ j))) (σ' (loop j)) r s)
+-- --                            (λ j s → north)
+-- --                            (λ j k → σ' (loop (~ j)) (~ r ∧ ~ k))
+-- --                            λ j k → north)
+-- --                  PP3
+-- --               λ j k s → ff i1 j k s
+-- --       PP =
+-- --         {!i = i0 ⊢ ff i1 j k
+-- -- i = i1 ⊢ ff i1 j k
+-- -- j = i0 ⊢ lUnit (E i) (~ k)
+-- -- j = i1 ⊢ lUnit (E i) (~ k)
+-- -- k = i0 ⊢ σ' (invLooper (loop j)) ∙ σ' (loop j * loop i)
+-- -- k = i1 ⊢ E i!}
+
+-- --       help2 : (a : S¹) → PathP (λ i →  cong₂ _∙_ (cong σ' (sym loop)) (cong σ' (rotLoop a)) i ≡ σ' a)
+-- --                    (sym (lUnit (σ' a))) (sym (lUnit (σ' a)))  -- (σ' a) 
+-- --       help2 a = flipSquare (({!congFunct σ' (cong (_* a) loop)!}
+-- --                          ∙ {!!})
+-- --                          ◁ {!!})
+
+-- --     bazonga : (a b : S¹) → (σ' a ∙∙ refl ∙∙ (σ' b))
+-- --                     ≡ σ' (a * b)
+-- --     bazonga base base = sym (rUnit refl)
+-- --     bazonga base (loop i) = sym (lUnit (E i))
+-- --     bazonga (loop i) base j k = {!doubleCompPath-filler (E i) refl refl (~ j)!}
+-- --     bazonga (loop i) (loop i₁) = {!!}
+
+-- --     σp : (a b : S¹) → (σ' a ∙ (σ' b))
+-- --                     ≡ σ' (a * b)
+-- --     σp base base = sym (rUnit refl) -- inst-help .fst
+-- --     σp base (loop j) = sym (lUnit (E j)) -- inst-help .snd .fst j
+-- --     σp (loop i) base =  (sym (rUnit (E i))) -- inst-help .snd .snd .fst i
+-- --     σp (loop i) (loop j) k s =
+-- --       hcomp (λ r → λ { (i = i0) → lUnit-filler (E j) r (~ k) s
+-- --                         ; (i = i1) → lUnit-filler (E j) r (~ k) s
+-- --                         ; (j = i0) → rUnit (E i) (~ k ∧ r) s
+-- --                         ; (j = i1) → rUnit (E i) (~ k ∧ r) s
+-- --                         ; (k = i0) → compPath-filler (E i) (E j) r s
+-- --                         ; (k = i1) → σ' (loop i * loop j) s
+-- --                         ; (s = i0) → north
+-- --                         ; (s = i1) → E j (k ∨ r)})
+-- --             (hcomp (λ r → λ { (i = i0) → σ' (loop j) (k ∧ (s ∨ ~ r)) -- σ' (loop j) (k ∧ (s ∨ ~ r)) -- σ' (loop j) ((k ∨ ~ r) ∧ s) -- σ' (loop j) (k ∧ s)
+-- --                         ; (i = i1) → σ' (loop j) (k ∧ (s ∨ ~ r)) -- σ' (loop j) (s ∧ (k ∨ ~ r)) -- σ' (loop j) (k ∧ (s ∨ ~ r)) -- σ' (loop j) ((k ∨ ~ r) ∧ s) -- σ' (loop j) ((k) ∧ s)
+-- --                         ; (j = i0) → {!σ' (loop i) s!} -- σ' (loop i) s -- σ' (loop i) (s ∧ r) -- σ' (loop i) s
+-- --                         ; (j = i1) → {!!} -- σ' (loop i) s -- σ' (loop i) (s ∧ r)
+-- --                         ; (k = i0) → {!!} -- σ' (loop i) s
+-- --                         ; (k = i1) → {!!} -- σ' (loop i * loop j) (s ∨ ~ r) -- σ' (loop i * loop j) (s ∧ r) -- σ' (loop i * loop j) s -- σ' (loop i * loop j) s -- rotLoop' q i j s
+-- --                         ; (s = i0) → σ' (loop j) (k ∧ ~ r) -- σ' base s -- σ' base s -- north
+-- --                         ; (s = i1) → E j k}) --  σ' (loop j) k})
+-- --                    {!σ' ? (k ∧ s)!})
+-- --      where
+-- --      ss : {!!}
+-- --      ss = {!!}
+-- --     {-
+-- -- i = i0 ⊢ σp base (loop j) k s
+-- -- i = i1 ⊢ σp base (loop j) k s
+-- -- j = i0 ⊢ σp (loop i) base k s
+-- -- j = i1 ⊢ σp (loop i) base k s
+-- -- k = i0 ⊢ (σ' (loop i) ∙ σ' (loop j)) s
+-- -- k = i1 ⊢ σ' (loop i * loop j) s
+-- -- s = i0 ⊢ snd (S₊∙ 2)
+-- -- s = i1 ⊢ snd (S₊∙ 2) -}
+
+
+-- --     lem : (a b : S¹) → (σ (S₊∙ 1) (a * b) ∙ sym (σ (S₊∙ 1) b)) ∙ (sym (σ (S₊∙ 1) a ∙ σ (S₊∙ 1) (a * b)))
+-- --                       ≡ {!!}
+-- --     lem a b = {!i = i0 ⊢ inst-help .snd .fst j k
+-- -- i = i1 ⊢ inst-help .snd .fst j k
+-- -- j = i0 ⊢ inst-help .snd .snd .fst i k
+-- -- j = i1 ⊢ inst-help .snd .snd .fst i k
+-- -- k = i0 ⊢ σ (S₊∙ 1) (loop i) ∙ σ (S₊∙ 1) (loop j)
+-- -- k = i1 ⊢ σ (S₊∙ 1)
+-- --          (hcomp
+-- --           (λ { k₁ (j = i0) → loop (i ∨ ~ k₁)
+-- --              ; k₁ (j = i1) → loop (i ∧ k₁)
+-- --              ; k₁ (i = i0) → loop (j ∨ ~ k₁)
+-- --              ; k₁ (i = i1) → loop (j ∧ k₁)
+-- --              })
+-- --           base)!}
+
+-- --     h : (a b : S¹) → cong (fst HopF2') (push a b)
+-- --                    ≡ ((cong (fst HopF') (push a b ∙ sym (push base b))
+-- --                    ∙∙ refl ∙ refl
+-- --                    ∙∙ cong (fst HopF') (push base base ∙∙ sym (push a base) ∙∙ push a b)))
+-- --     h a b = cong-∙∙ fold⋁ ((λ i → inr (σ (S₊∙ 1) b i))) (sym (push tt)) (λ i → inl (σ (S₊∙ 1) a i))
+-- --           ∙ (λ _ → σ (S₊∙ 1) b ∙∙ refl ∙∙ σ (S₊∙ 1) a)
+-- --           ∙ ({!!}
+-- --           ∙∙ {!sym (σ (S₊∙ 1)  (a * base))!}
+-- --           ∙∙ {!σ (S₊∙ 1) base!})
+-- --           ∙ (λ i → (σ (S₊∙ 1) (a * b) ∙ sym (σ (S₊∙ 1) b))
+-- --                  ∙∙ refl
+-- --                  ∙∙ (rCancel (merid base) (~ i) ∙∙ sym (σ (S₊∙ 1)  (rUnitS¹ a (~ i))) ∙∙ σ (S₊∙ 1) (a * b)))
+-- --           ∙ λ i → cong-∙ HopfM (push a b) (sym (push base b)) (~ i)
+-- --                 ∙∙ rUnit refl i
+-- --                 ∙∙ cong-∙∙ HopfM (push base base) (sym (push a base)) (push a b) (~ i)
+  
+-- --   id1 : joinify HopF ≡ HopF'
+-- --   id1 = ΣPathP (funExt (λ x → cong HopfM (S3→joinS¹S¹→S³ x)) , flipSquare (cong (cong HopfM) (rCancel (push base base))))
+
+-- --   id2 : joinify HopF2 ≡ HopF2'
+-- --   id2 = ΣPathP (funExt (λ x → cong (fold⋁ ∘ ∨map) (S3→joinS¹S¹→S³ x)) , flipSquare ((cong (cong (fold⋁ ∘ ∨map)) (rCancel (push base base)))))
+
+-- --   l : cong (λ x → HopfM (S3→joinS¹S¹ x)) (merid north) ≡ refl
+-- --   l = rCancel (merid base)
+
+-- --   main : {!rUnit!}
+-- --   main = {!!}
+
+-- --   help : (a : S₊ 2) → cong (fst HopF2) (merid a) ≡ cong (fst (∙Π HopF HopF)) (merid a)
+-- --   help a = {!cong (λ x → fold⋁ (∨map (S3→joinS¹S¹ x))) (merid a)!}
+-- --         ∙∙ {!!}
+-- --         ∙∙ {!!}
+-- --         ∙∙ cong (λ x → x ∙ x) (rUnit (cong (fst HopF) (merid a))
+-- --                          ∙ cong (cong (fst HopF) (merid a) ∙_) (cong sym (sym l))
+-- --                          ∙ sym (cong-∙ (fst HopF) (merid a) (sym (merid north))))
+-- --         ∙∙ λ i → rUnit (cong (fst HopF) (merid a ∙ sym (merid (ptSn 2)))) i
+-- --          ∙ rUnit (cong (fst HopF) (merid a ∙ sym (merid (ptSn 2)))) i

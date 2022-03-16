@@ -12,18 +12,23 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.HITs.S1 renaming (_·_ to _*_)
+open import Cubical.HITs.S2
+open import Cubical.HITs.S3
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Sn.Base
-open import Cubical.HITs.Susp
+open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Join
+open import Cubical.HITs.Join renaming (joinS¹S¹→S³ to joinS¹S¹→S3)
 open import Cubical.Data.Bool
+
 
 private
   variable
     ℓ : Level
+
+open Iso
 
 IsoSucSphereSusp : (n : ℕ) → Iso (S₊ (suc n)) (Susp (S₊ n))
 IsoSucSphereSusp zero = S¹IsoSuspBool
@@ -319,64 +324,7 @@ isConnectedPathSⁿ n x y =
      ((isContr→isProp (sphereConnected (suc n)) ∣ x ∣ ∣ y ∣)
       , isProp→isSet (isContr→isProp (sphereConnected (suc n))) _ _ _)
 
-
--- Equivalence Sⁿ*Sᵐ≃Sⁿ⁺ᵐ⁺¹
-IsoSphereJoin : (n m : ℕ)
-  → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
-IsoSphereJoin zero m =
-  compIso join-comm
-    (compIso (invIso Susp-iso-joinBool)
-             (invIso (IsoSucSphereSusp m)))
-IsoSphereJoin (suc n) m =
-  compIso (Iso→joinIso
-            (compIso (pathToIso (cong S₊ (cong suc (+-comm zero n))))
-                     (invIso (IsoSphereJoin n 0)))
-            idIso)
-          (compIso (equivToIso joinAssocDirect)
-            (compIso (Iso→joinIso idIso
-                      (compIso join-comm
-                       (compIso (invIso Susp-iso-joinBool)
-                                (invIso (IsoSucSphereSusp m)))))
-                (compIso
-                  (IsoSphereJoin n (suc m))
-                    (pathToIso λ i → S₊ (suc (+-suc n m i))))))
-
-IsoSphereJoinPres∙ : (n m : ℕ)
-  → Iso.fun (IsoSphereJoin n m) (inl (ptSn n)) ≡ ptSn (suc (n + m))
-IsoSphereJoinPres∙ zero zero = refl
-IsoSphereJoinPres∙ zero (suc m) = refl
-IsoSphereJoinPres∙ (suc n) m =
-  cong (transport (λ i → S₊ (suc (+-suc n m i))))
-    (cong (Iso.fun (IsoSphereJoin n (suc m)))
-      (cong (join→ (idfun (S₊ n))
-      (λ x →
-         Iso.inv (IsoSucSphereSusp m)
-         (Iso.inv Susp-iso-joinBool (join-commFun x))))
-         (cong (joinAssocDirect {C = S₊ m} .fst)
-           (cong (inl ∘ (Iso.inv (IsoSphereJoin n 0)))
-             (transportS∙ (suc n) _ (cong suc (+-comm 0 n)))
-           ∙ cong inl (sym (cong (Iso.inv (IsoSphereJoin n 0))
-                           (IsoSphereJoinPres∙ n 0))
-                    ∙ Iso.leftInv (IsoSphereJoin n 0) (inl (ptSn _))))))
-    ∙ IsoSphereJoinPres∙ n (suc m))
-    ∙ transportS∙ _ _ (cong suc (+-suc n m))
-  where
-  transportS∙ : (n m : ℕ) (p : n ≡ m) → transport (λ i → S₊ (p i)) (ptSn n)
-              ≡ ptSn _
-  transportS∙ zero m =
-    J (λ m p → transport (λ i → S₊ (p i)) true ≡ ptSn m) refl
-  transportS∙ (suc zero) m =
-    J (λ m p → transport (λ i → S₊ (p i)) base ≡ ptSn m) refl
-  transportS∙ (suc (suc n)) m =
-    J (λ m p → transport (λ i → S₊ (p i)) north ≡ ptSn m) refl
-
-IsoSphereJoin⁻Pres∙ : (n m : ℕ)
-  → Iso.inv (IsoSphereJoin n m) (ptSn (suc (n + m))) ≡ inl (ptSn n)
-IsoSphereJoin⁻Pres∙ n m =
-     cong (Iso.inv (IsoSphereJoin n m)) (sym (IsoSphereJoinPres∙ n m))
-   ∙ Iso.leftInv (IsoSphereJoin n m) (inl (ptSn n))
-
--- Some lemmas on the H
+-- Some lemmas on the H space structure on S¹
 rUnitS¹ : (x : S¹) → x * base ≡ x
 rUnitS¹ base = refl
 rUnitS¹ (loop i₁) = refl
@@ -389,18 +337,18 @@ commS¹ = wedgeconFun _ _ (λ _ _ → isGroupoidS¹ _ _)
 
 SuspS¹-hom : (a x : S¹)
   → Path (Path (hLevelTrunc 4 (S₊ 2)) _ _)
-          (cong ∣_∣ₕ (merid (a * x) ∙ sym (merid base)))
-          (cong ∣_∣ₕ (merid a ∙ sym (merid base))
-        ∙ (cong ∣_∣ₕ (merid x ∙ sym (merid base))))
+          (cong ∣_∣ₕ (σ (S₊∙ 1) (a * x)))
+          (cong ∣_∣ₕ (σ (S₊∙ 1) a)
+        ∙ (cong ∣_∣ₕ (σ (S₊∙ 1) x)))
 SuspS¹-hom = wedgeconFun _ _ (λ _ _ → isOfHLevelTrunc 4 _ _ _ _)
            (λ x → lUnit _
-                 ∙ cong (_∙ cong ∣_∣ₕ (merid x ∙ sym (merid base)))
+                 ∙ cong (_∙ cong ∣_∣ₕ (σ (S₊∙ 1) x))
                         (cong (cong ∣_∣ₕ) (sym (rCancel (merid base)))))
-           (λ x → (λ i → cong ∣_∣ₕ (merid (rUnitS¹ x i) ∙ sym (merid base)))
+           (λ x → (λ i → cong ∣_∣ₕ (σ (S₊∙ 1) (rUnitS¹ x i)))
                ∙∙ rUnit _
-               ∙∙ cong (cong ∣_∣ₕ (merid x ∙ sym (merid base)) ∙_)
+               ∙∙ cong (cong ∣_∣ₕ (σ (S₊∙ 1) x) ∙_)
                        (cong (cong ∣_∣ₕ) (sym (rCancel (merid base)))))
-           (sym (l (cong ∣_∣ₕ (merid base ∙ sym (merid base)))
+           (sym (l (cong ∣_∣ₕ (σ (S₊∙ 1) base))
                 (cong (cong ∣_∣ₕ) (sym (rCancel (merid base))))))
   where
   l : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) (P : refl ≡ p)
@@ -414,22 +362,193 @@ rCancelS¹ (loop i) j =
         base
 
 SuspS¹-inv : (x : S¹) → Path (Path (hLevelTrunc 4 (S₊ 2)) _ _)
-                         (cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base)))
-                         (cong ∣_∣ₕ (sym (merid x ∙ sym (merid base))))
+                         (cong ∣_∣ₕ (σ (S₊∙ 1) (invLooper x)))
+                         (cong ∣_∣ₕ (sym (σ (S₊∙ 1) x)))
 SuspS¹-inv x = (lUnit _
-       ∙∙ cong (_∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base)))
-               (sym (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base)))))
+       ∙∙ cong (_∙ cong ∣_∣ₕ (σ (S₊∙ 1) (invLooper x)))
+               (sym (lCancel (cong ∣_∣ₕ (σ (S₊∙ 1) x))))
                   ∙∙ sym (assoc _ _ _))
-       ∙∙ cong (sym (cong ∣_∣ₕ (merid x ∙ sym (merid base))) ∙_) lem
+       ∙∙ cong (sym (cong ∣_∣ₕ (σ (S₊∙ 1) x)) ∙_) lem
        ∙∙ (assoc _ _ _
-       ∙∙ cong (_∙ (cong ∣_∣ₕ (sym (merid x ∙ sym (merid base)))))
-               (lCancel (cong ∣_∣ₕ (merid x ∙ sym (merid base))))
+       ∙∙ cong (_∙ (cong ∣_∣ₕ (sym (σ (S₊∙ 1) x))))
+               (lCancel (cong ∣_∣ₕ (σ (S₊∙ 1) x)))
        ∙∙ sym (lUnit _))
   where
-  lem : cong ∣_∣ₕ (merid x ∙ sym (merid base))
-      ∙ cong ∣_∣ₕ (merid (invLooper x) ∙ sym (merid base))
-     ≡ cong ∣_∣ₕ (merid x ∙ sym (merid base))
-     ∙ cong ∣_∣ₕ (sym (merid x ∙ sym (merid base)))
+  lem : cong ∣_∣ₕ (σ (S₊∙ 1) x)
+      ∙ cong ∣_∣ₕ (σ (S₊∙ 1) (invLooper x))
+     ≡ cong ∣_∣ₕ (σ (S₊∙ 1) x)
+     ∙ cong ∣_∣ₕ (sym (σ (S₊∙ 1) x))
   lem = sym (SuspS¹-hom x (invLooper x))
-     ∙ ((λ i → cong ∣_∣ₕ (merid (rCancelS¹ x (~ i)) ∙ sym (merid base)))
+     ∙ ((λ i → cong ∣_∣ₕ (σ (S₊∙ 1) (rCancelS¹ x (~ i))))
      ∙ cong (cong ∣_∣ₕ) (rCancel (merid base))) ∙ sym (rCancel _)
+
+
+
+-------------------- join Sⁿ Sᵐ ≃ Sⁿ⁺¹ᵐ -------------------------
+{-
+This section contains a proof that join Sⁿ Sᵐ ≃ Sⁿ⁺ᵐ⁺¹. This is easy using
+various properties proved in HITs.Join. However, we would like the map
+join Sⁿ Sᵐ → Sⁿ⁺ᵐ⁺¹
+to be nice, in particular when n = m = 1. Therefore, we put in some extra work into
+the equivalence.
+-}
+
+
+{- We begin with join S¹ S¹ ≃ S³. The iso is induced by: -}
+S¹×S¹→S² : S¹ → S¹ → S₊ 2
+S¹×S¹→S² base y = north
+S¹×S¹→S² (loop i) base = north
+S¹×S¹→S² (loop i) (loop j) =
+  (sym (rCancel (merid base))
+  ∙∙ (λ i → merid (loop i) ∙ sym (merid base))
+  ∙∙ rCancel (merid base)) i j
+
+joinS¹S¹→S³ : join S¹ S¹ → S₊ 3
+joinS¹S¹→S³ (inl x) = north
+joinS¹S¹→S³ (inr x) = south
+joinS¹S¹→S³ (push a b i) = merid (S¹×S¹→S² a b) i
+
+{- Proving that this is an equivalence directly is painful,
+  so we simply prove that it is equal to the old definition of
+  the equivalence join S¹ S¹ ≃ S³ ≃ S₊ 3
+  To this end, we start by rephrasing the map -}
+private
+  3cell : (r i j k : I) → S₊ 3
+  3cell r i j k =
+    hfill (λ r → λ {(i = i0) → merid (merid base j) (k ∧ ~ r)
+                   ; (i = i1) → merid (merid base j) (k ∧ ~ r)
+                   ; (j = i0) → merid north (k ∧ ~ r)
+                   ; (j = i1) → merid south (k ∧ ~ r)
+                   ; (k = i0) → north
+                   ; (k = i1) → merid (merid base j) (~ r)})
+          (inS (merid (merid (loop i) j) k))
+          r
+
+joinS¹S¹→S³' : join S¹ S¹ → S₊ 3
+joinS¹S¹→S³' (inl x) = north
+joinS¹S¹→S³' (inr x) = north
+joinS¹S¹→S³' (push base b i) = north
+joinS¹S¹→S³' (push (loop i₁) base i) = north
+joinS¹S¹→S³' (push (loop i₁) (loop i₂) i) = 3cell i1 i₁ i₂ i
+
+{- These two maps are equal -}
+joinS¹S¹→S³'≡joinS¹S¹→S³' : (x : _) → joinS¹S¹→S³ x ≡ joinS¹S¹→S³' x
+joinS¹S¹→S³'≡joinS¹S¹→S³' (inl base) = refl
+joinS¹S¹→S³'≡joinS¹S¹→S³' (inl (loop i)) = refl
+joinS¹S¹→S³'≡joinS¹S¹→S³' (inr base) = sym (merid north)
+joinS¹S¹→S³'≡joinS¹S¹→S³' (inr (loop i)) = sym (merid north)
+joinS¹S¹→S³'≡joinS¹S¹→S³' (push base base i) k = merid north (~ k ∧ i)
+joinS¹S¹→S³'≡joinS¹S¹→S³' (push base (loop i₁) i) k  = merid north (~ k ∧ i)
+joinS¹S¹→S³'≡joinS¹S¹→S³' (push (loop i₁) base i) k =  (merid north) (~ k ∧ i)
+joinS¹S¹→S³'≡joinS¹S¹→S³' (push (loop i) (loop j) k) l =
+  hcomp (λ r → λ {(i = i0) → merid (sym (rCancel (merid base)) (~ r) j) (~ l ∧ k)
+                   ; (i = i1) → merid (sym (rCancel (merid base)) (~ r) j) (~ l ∧ k)
+                   ; (j = i0) → merid north (~ l ∧ k)
+                   ; (j = i1) → merid north (~ l ∧ k)
+                   ; (k = i0) → north
+                   ; (k = i1) → merid (sym (rCancel (merid base)) (~ r) j) (~ l)
+                   ; (l = i0) → merid (doubleCompPath-filler
+                                       (sym (rCancel (merid base))) (cong (σ (S₊∙ 1)) loop)
+                                       (rCancel (merid base)) r i j) k
+                   ; (l = i1) → 3cell i1 i j k})
+    (hcomp (λ r → λ {(i = i0) → merid (compPath-filler (merid base) (sym (merid base)) r j) (k ∧ ~ l)
+                   ; (i = i1) → merid (compPath-filler (merid base) (sym (merid base)) r j) (k ∧ ~ l)
+                   ; (j = i0) → merid north (~ l ∧ k)
+                   ; (j = i1) → merid (merid base (~ r)) (~ l ∧ k)
+                   ; (k = i0) → north
+                   ; (k = i1) → merid (compPath-filler (merid base) (sym (merid base)) r j) (~ l)
+                   ; (l = i0) → merid (compPath-filler (merid (loop i)) (sym (merid base)) r j) k
+                   ; (l = i1) → 3cell i1 i j k})
+       (hcomp (λ r → λ {(i = i0) → merid (merid base j) (k ∧ (~ r ∨ ~ l))
+                   ; (i = i1) → merid (merid base j) (k ∧ (~ r ∨ ~ l))
+                   ; (j = i0) → merid north (k ∧ (~ l ∨ ~ r))
+                   ; (j = i1) → merid south (k ∧ (~ l ∨ ~ r))
+                   ; (k = i0) → north
+                   ; (k = i1) → merid (merid base j) (~ r ∨ ~ l)
+                   ; (l = i0) → merid (merid (loop i) j) k
+                   ; (l = i1) → 3cell r i j k})
+              (merid (merid (loop i) j) k)))
+
+
+{- joinS¹S¹→S³' is equal to the original
+  equivalence (modulo a flipping of interval variables) -}
+joinS¹S¹→S³'Id : (x : join S¹ S¹)
+  → joinS¹S¹→S³' x ≡ (Iso.fun IsoS³S3 ∘ flip₀₂S³ ∘ joinS¹S¹→S3) x
+joinS¹S¹→S³'Id (inl x) = refl
+joinS¹S¹→S³'Id (inr x) = refl
+joinS¹S¹→S³'Id (push base base i) = refl
+joinS¹S¹→S³'Id (push base (loop i₁) i) = refl
+joinS¹S¹→S³'Id (push (loop i₁) base i) = refl
+joinS¹S¹→S³'Id (push (loop i) (loop j) k) l =
+  hcomp (λ r → λ {(i = i0) → merid (merid base (j ∧ ~ l)) (~ r ∧ k)
+                 ; (i = i1) → merid (merid base (j ∧ ~ l)) (~ r ∧ k)
+                 ; (j = i0) → merid north (k ∧ ~ r)
+                 ; (j = i1) → merid (merid base (~ l)) (~ r ∧ k)
+                 ; (k = i0) → north
+                 ; (k = i1) → merid (merid base (j ∧ ~ l)) (~ r)
+                 ; (l = i0) → 3cell r i j k
+                 ; (l = i1) → Iso.fun (IsoType→IsoSusp S²IsoSuspS¹)
+                                       (meridian-contraction-2 k j i r)})
+        (merid (S²Cube i j l) k)
+  where
+  S²Cube : Cube {A = S₊ 2} (λ j l → merid base (j ∧ ~ l))
+                             (λ j l → merid base (j ∧ ~ l))
+                             (λ i l → north)
+                             (λ i l → merid base (~ l))
+                             (λ i j → merid (loop i) j)
+                             λ i j → fun S²IsoSuspS¹ (surf j i)
+  S²Cube i j l =
+    hcomp (λ r → λ {(i = i0) → merid base (j ∧ (~ l ∨ ~ r))
+                 ; (i = i1) → merid base (j ∧ (~ l ∨ ~ r))
+                 ; (j = i0) → north
+                 ; (j = i1) → merid base (~ l ∨ ~ r)
+                 ; (l = i0) → merid (loop i) j
+                 ; (l = i1) → meridian-contraction j i r})
+           (merid (loop i) j)
+
+{-So, finally our map joinS¹S¹→S³ is an iso. We state its inverse explicitly. -}
+Iso-joinS¹S¹-S³ : Iso (join S¹ S¹) (S₊ 3)
+fun Iso-joinS¹S¹-S³ = joinS¹S¹→S³
+inv Iso-joinS¹S¹-S³ = S³→joinS¹S¹ ∘ flip₀₂S³ ∘ Iso.inv IsoS³S3
+rightInv Iso-joinS¹S¹-S³ x =
+     joinS¹S¹→S³'≡joinS¹S¹→S³'
+       ((S³→joinS¹S¹ ∘ flip₀₂S³ ∘ Iso.inv IsoS³S3) x)
+  ∙∙ joinS¹S¹→S³'Id ((S³→joinS¹S¹ ∘ flip₀₂S³ ∘ Iso.inv IsoS³S3) x)
+  ∙∙ Iso.leftInv (compIso (invIso IsoS³S3)
+                  (compIso flip₀₂S³Iso (S³IsojoinS¹S¹))) x
+leftInv Iso-joinS¹S¹-S³ x =
+     cong (S³→joinS¹S¹ ∘ flip₀₂S³ ∘ inv IsoS³S3)
+          (joinS¹S¹→S³'≡joinS¹S¹→S³' x ∙ joinS¹S¹→S³'Id x)
+   ∙ Iso.rightInv (compIso (invIso IsoS³S3) (compIso flip₀₂S³Iso (S³IsojoinS¹S¹))) x
+
+{- We now get the full iso Sⁿ * Sᵐ ≃ Sⁿ⁺ᵐ⁺¹ -}
+IsoSphereJoin : (n m : ℕ)
+  → Iso (join (S₊ n) (S₊ m)) (S₊ (suc (n + m)))
+IsoSphereJoin zero zero = compIso (invIso Susp-iso-joinBool) (invIso S¹IsoSuspBool)
+IsoSphereJoin zero (suc m) = compIso join-comm (invIso Susp-iso-joinBool)
+IsoSphereJoin (suc zero) zero = (invIso Susp-iso-joinBool)
+IsoSphereJoin (suc zero) (suc zero) = Iso-joinS¹S¹-S³
+IsoSphereJoin (suc zero) (suc (suc m)) =
+  compIso join-comm
+    (compIso (compIso (Iso-joinSusp-suspJoin {A = S₊∙ (suc m)} {B = S₊∙ (suc zero)})
+      (congSuspIso join-comm))
+      (congSuspIso (IsoSphereJoin (suc zero) (suc m))))
+IsoSphereJoin (suc (suc n)) m =
+  compIso (Iso-joinSusp-suspJoin {A = S₊∙ (suc n)} {B = S₊∙ m}) (congSuspIso (IsoSphereJoin (suc n) m))
+
+{- Pointedness holds by refl.
+  This is due to the explicit definition of Iso-joinSusp-suspJoin  -}
+IsoSphereJoinPres∙ : (n m : ℕ)
+  → Iso.fun (IsoSphereJoin n m) (inl (ptSn n)) ≡ ptSn (suc (n + m))
+IsoSphereJoinPres∙ zero zero = refl
+IsoSphereJoinPres∙ zero (suc m) = refl
+IsoSphereJoinPres∙ (suc zero) zero = refl
+IsoSphereJoinPres∙ (suc zero) (suc zero) = refl
+IsoSphereJoinPres∙ (suc zero) (suc (suc m)) = refl
+IsoSphereJoinPres∙ (suc (suc n)) m = refl
+
+IsoSphereJoin⁻Pres∙ : (n m : ℕ)
+  → Iso.inv (IsoSphereJoin n m) (ptSn (suc (n + m))) ≡ inl (ptSn n)
+IsoSphereJoin⁻Pres∙ n m =
+     cong (Iso.inv (IsoSphereJoin n m)) (sym (IsoSphereJoinPres∙ n m))
+   ∙ Iso.leftInv (IsoSphereJoin n m) (inl (ptSn n))
