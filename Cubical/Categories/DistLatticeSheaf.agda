@@ -64,67 +64,76 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
  x ↓Diag = ΣPropCat DLCat (x ↓) ^op
 
  private
+  -- x↓ ↪ L'
   inclInL' : (x : fst L) → Functor (x ↓Diag) (DLSubCat ^op)
   F-ob (inclInL' x) u = u .fst , u .snd .snd
   F-hom (inclInL' x) u≥v = u≥v
   F-id (inclInL' x) = refl
   F-seq (inclInL' x) _ _ = is-prop-valued _ _ _ _
 
+  -- and y↓ ↪ x↓ for y≤x, but we don't care about functoriality
   ↓Incl : {x y : fst L} → y ≤ x
         → Σ[ u ∈ fst L ] u ∈ (y ↓)
         → Σ[ u ∈ fst L ] u ∈ (x ↓)
   ↓Incl y≤x (v , v≤y , v∈L') = (v , is-trans _ _ _ v≤y y≤x , v∈L')
 
-  inclOf↓ : {x y : fst L} → y ≤ x → Functor (y ↓Diag) (x ↓Diag)
-  F-ob (inclOf↓ y≤x) = ↓Incl y≤x
-  F-hom (inclOf↓ y≤x) u≥v = u≥v
-  F-id (inclOf↓ y≤x) = refl
-  F-seq (inclOf↓ y≤x) _ _ = is-prop-valued _ _ _ _
-
   -- precomposition of F with the inclusion x↓ ↪ L'
   F* : (x : fst L) → Functor (x ↓Diag) C
   F* x = funcComp F (inclInL' x)
 
-  -- and with y↓ ↪ x↓ for y≤x
-  F** : {x y : fst L} → y ≤ x → Functor (y ↓Diag) C
-  F** y≤x = funcComp (F* _) (inclOf↓ y≤x)
-
-  *Functoriality : {x y : fst L} (y≤x : y ≤ x) → F* y ≡ F** y≤x
-  *Functoriality _ = Functor≡ (λ _ → refl) (λ _ → refl)
-
+  -- the right Kan-extension on objects:
+  -- laking the limit over maps F(u)→F(v) for v≤u≤x
   RanOb : fst L → ob C
   RanOb x = limitC (x ↓Diag) (F* x) .lim
 
+  -- If y≤x we get a cone (i.e. commuting triangles) for v≤u≤y≤x:
+  --
+  -- lim { F(u)→F(v) | v≤u≤x } → F(v)
+  --                          ↓   /
+  --                          F(u)
   RanCone : {x y : fst L} → y ≤ x → Cone (F* y) (RanOb x)
   coneOut (RanCone {x = x} y≤x) v =
-    limOut (limitC (x ↓Diag) (F* x)) (↓Incl y≤x v) -- y↓ ↪ x↓
+    limOut (limitC (x ↓Diag) (F* x)) (↓Incl y≤x v)
   coneOutCommutes (RanCone {x = x} y≤x) = limOutCommutes (limitC (x ↓Diag) (F* x))
 
-  RanConeId : ∀ {x} v → limOut (limitC (x ↓Diag) (F* x)) v
-                      ≡ limOut (limitC (x ↓Diag) (F* x)) (↓Incl (is-refl x) v)
-  RanConeId {x = x} v = cong (λ p → limOut (limitC (x ↓Diag) (F* x)) (v .fst , p , v .snd .snd))
-                             (is-prop-valued _ _ _ _)
+  -- technical lemmas for proving functoriality
+  RanConeRefl : ∀ {x} v →
+                limOut (limitC (x ↓Diag) (F* x)) v
+              ≡ limOut (limitC (x ↓Diag) (F* x)) (↓Incl (is-refl x) v)
+  RanConeRefl {x = x} v =
+    cong (λ p → limOut (limitC (x ↓Diag) (F* x)) (v .fst , p , v .snd .snd))
+         (is-prop-valued _ _ _ _)
+
+  RanConeTrans : ∀ {x y z} (y≤x : y ≤ x) (z≤y : z ≤ y) v →
+                 limOut (limitC (x ↓Diag) (F* x)) (↓Incl y≤x (↓Incl z≤y v))
+               ≡ limOut (limitC (x ↓Diag) (F* x)) (↓Incl (is-trans _ _ _ z≤y y≤x) v)
+  RanConeTrans {x = x} {y = y} {z = z} y≤x z≤y v =
+    cong (λ p → limOut (limitC (x ↓Diag) (F* x)) (v .fst , p , v .snd .snd))
+         (is-prop-valued _ _ _ _)
 
 
  -- the right Kan-extension for DistLattice categories
  DLRan : DLPreSheaf
- -- F-ob DLRan x = limitC (x ↓Diag) (F* x) .lim
- -- F-hom DLRan {x} {y} y≤x = limOfArrows {!!} {!!}  (limitC (y ↓Diag) (F* y)) {!limitC (y ↓Diag) (F** y≤x)!}  {!!} {!!}
- -- F-id DLRan = {!!}
- -- F-seq DLRan = {!!}
- -- F-ob DLRan x = limitC (x ↓Diag) (F* x) .lim
- -- F-hom DLRan {x} {y} y≤x = limOfArrows _ _ (limitC (x ↓Diag) (F* x)) {!!} {!!} {!!}
- -- F-id DLRan = {!!}
- -- F-seq DLRan = {!!}
-
- -- the direct approach
  F-ob DLRan = RanOb
  F-hom DLRan {y = y} y≤x = limArrow (limitC (y ↓Diag) (F* y)) _ (RanCone y≤x)
- F-id DLRan {x = x} = limArrowUnique (limitC (x ↓Diag) (F* x)) _ _ _
-                       λ v → (⋆IdL C _) ∙ RanConeId v
+ F-id DLRan {x = x} =
+  limArrowUnique (limitC (x ↓Diag) (F* x)) _ _ _ (λ v → (⋆IdL C _) ∙ RanConeRefl v)
+ F-seq DLRan {x = x} {y = y} {z = z} y≤x z≤y =
+  limArrowUnique (limitC (z ↓Diag) (F* z)) _ _ _ path
+  where
+  path : ∀ v →
+         (F-hom DLRan y≤x) ⋆⟨ C ⟩ (F-hom DLRan z≤y) ⋆⟨ C ⟩ (limOut (limitC (z ↓Diag) (F* z)) v)
+       ≡ coneOut (RanCone (is-trans _ _ _ z≤y y≤x)) v
+  path v = (F-hom DLRan y≤x) ⋆⟨ C ⟩ (F-hom DLRan z≤y) ⋆⟨ C ⟩ (limOut (limitC (z ↓Diag) (F* z)) v)
+         ≡⟨ ⋆Assoc C _ _ _ ⟩
+           (F-hom DLRan y≤x) ⋆⟨ C ⟩ ((F-hom DLRan z≤y) ⋆⟨ C ⟩ (limOut (limitC (z ↓Diag) (F* z)) v))
+         ≡⟨ cong (seq' C (F-hom DLRan y≤x)) (limArrowCommutes _ _ _ _) ⟩
+           (F-hom DLRan y≤x) ⋆⟨ C ⟩ limOut (limitC (y ↓Diag) (F* y)) (↓Incl z≤y v)
+         ≡⟨ limArrowCommutes _ _ _ _ ⟩
+           limOut (limitC (x ↓Diag) (F* x)) (↓Incl y≤x (↓Incl z≤y v))
+         ≡⟨ RanConeTrans y≤x z≤y v ⟩
+           coneOut (RanCone (is-trans _ _ _ z≤y y≤x)) v ∎
 
- F-seq DLRan {z = z} y≤x z≤y = limArrowUnique (limitC (z ↓Diag) (F* z)) _ _ _
-                                λ v → {!!}
 
 
 module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
