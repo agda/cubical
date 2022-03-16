@@ -1,7 +1,13 @@
 {-
 
-Definition and properties of finite sets equipped with finite structures,
-namely the type of structures over a given finte set is a finite set.
+Finite Structures over Finite Set
+
+In short, the type of structures should be finite set itself.
+
+This file contains:
+- Definition and properties of finite sets equipped with finite structures;
+- The type of finitely-structured finite sets is Rijke finite,
+  so that we can count their number up to equivalence/isomorphism.
 
 -}
 {-# OPTIONS --safe #-}
@@ -36,7 +42,7 @@ private
 FinSetWithStr : (ℓ : Level) (S : FinSet ℓ → FinSet ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
 FinSetWithStr ℓ S = Σ[ X ∈ FinSet ℓ ] S X .fst
 
--- type finite sets of a given cardinal
+-- type of finite sets with a fixed cardinal
 
 FinSetOfCard : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
 FinSetOfCard ℓ n = Σ[ X ∈ FinSet ℓ ] (card X ≡ n)
@@ -62,6 +68,9 @@ isFinTypeFinSetOfCard : isFinType 1 (FinSetOfCard ℓ n)
 isFinTypeFinSetOfCard .fst = isPathConnected→isFinType0 isPathConnectedFinSetOfCard
 isFinTypeFinSetOfCard .snd X Y =
   isFinSet→isFinType 0 (EquivPresIsFinSet (FinSet≡ _ _ ⋆ FinSetOfCard≡ _ _) (isFinSetType≡Eff (X .fst) (Y .fst)))
+
+-- the type of finitely-structured finite sets is Rijke finite
+-- in particular, we can count the number of them up to equivalence
 
 isFinTypeFinSetWithStrOfCard : (ℓ : Level) (S : FinSet ℓ → FinSet ℓ') (n : ℕ)
   → isFinType 0 (FinSetWithStrOfCard ℓ S n)

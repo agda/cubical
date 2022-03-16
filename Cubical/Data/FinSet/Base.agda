@@ -30,6 +30,7 @@ private
 
 -- definition of (Bishop) finite sets
 
+-- this definition makes cardinality computation more efficient
 isFinSet : Type ℓ → Type ℓ
 isFinSet A = Σ[ n ∈ ℕ ] ∥ A ≃ Fin n ∥
 

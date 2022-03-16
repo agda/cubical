@@ -1,12 +1,18 @@
 {-
 
-Definition and properties of finite types
+Finite Types
 
-This file formalize the notion of Rijke finite type, which is a direct generalization
-of Bishop finite set. Basically, a type is (Rijke) n-finite if all its i-th order
+This file formalize the notion of Rijke finite type,
+which is a direct generalization of Bishop finite set.
+Basically, a type is (Rijke) n-finite if its i-th order
 homotopy groups πᵢ for i ≤ n are Bishop finite.
 
-https://github.com/EgbertRijke/OEIS-A000001
+Referrences:
+  https://github.com/EgbertRijke/OEIS-A000001
+
+This file contains:
+- The definition and basic properties of Rijke finite types;
+- Rijke finiteness is closed under forming Σ-type.
 
 -}
 {-# OPTIONS --safe #-}
