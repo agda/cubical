@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 data ⊥ : Type₀ where
 
@@ -14,6 +14,9 @@ data ⊥ : Type₀ where
 
 rec : {A : Type ℓ} → ⊥ → A
 rec ()
+
+rec* : {A : Type ℓ} → ⊥* {ℓ = ℓ'} → A
+rec* ()
 
 elim : {A : ⊥ → Type ℓ} → (x : ⊥) → A x
 elim ()

@@ -4,7 +4,7 @@ module Cubical.HITs.FreeComMonoids.Properties where
 
 open import Cubical.Foundations.Everything hiding (assoc; ⟨_⟩)
 
-open import Cubical.Data.Nat hiding (_·_)
+open import Cubical.Data.Nat hiding (_·_ ; _^_)
 
 open import Cubical.HITs.FreeComMonoids.Base as FCM
 open import Cubical.HITs.AssocList as AL

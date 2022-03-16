@@ -83,10 +83,9 @@ Once this works go to a suitable directory and run
 ```
 > git clone https://github.com/agda/cubical
 > cd cubical
-> make
 ```
 
-This should compile all of the agda/cubical files. To test that it
+You can additionally run `make` to typecheck all of the agda/cubical files, otherwise they will be checked as needed. To test that it
 works in emacs run
 
 ```
@@ -164,10 +163,9 @@ Once this works go to a suitable directory and run
 ```
 > git clone https://github.com/agda/cubical
 > cd cubical
-> make
 ```
 
-This should compile all of the agda/cubical files. To test that it
+You can additionally run `make` to typecheck all of the agda/cubical files, otherwise they will be checked as needed. To test that it
 works in emacs run
 
 ```
@@ -248,10 +246,9 @@ Once this works go to a suitable directory and run
 ```
 > git clone https://github.com/agda/cubical
 > cd cubical
-> make
 ```
 
-This should compile all of the agda/cubical files. To test that it
+You can additionally run `make` to typecheck all of the agda/cubical files, otherwise they will be checked as needed. To test that it
 works in emacs run
 
 ```
