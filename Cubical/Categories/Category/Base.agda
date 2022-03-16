@@ -60,8 +60,8 @@ record CatIso (C : Category ℓ ℓ') (x y : C .ob) : Type ℓ' where
     sec : inv ⋆⟨ C ⟩ mor ≡ C .id
     ret : mor ⋆⟨ C ⟩ inv ≡ C .id
 
-CatIdIso : {C : Category ℓ ℓ'} {x : C .ob} → CatIso C x x
-CatIdIso {C = C} = (catiso (C .id) (C .id) (C .⋆IdL (C .id)) (C .⋆IdL (C .id)))
+idCatIso : {C : Category ℓ ℓ'} {x : C .ob} → CatIso C x x
+idCatIso {C = C} = (catiso (C .id) (C .id) (C .⋆IdL (C .id)) (C .⋆IdL (C .id)))
 
 isSet-CatIso : {C : Category ℓ ℓ'} → ∀ x y → isSet (CatIso C x y)
 isSet-CatIso {C = C} x y F G p q = w
@@ -80,10 +80,10 @@ isSet-CatIso {C = C} x y F G p q = w
 
 
 pathToIso : {C : Category ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → CatIso C x y
-pathToIso {C = C} p = J (λ z _ → CatIso _ _ z) CatIdIso p
+pathToIso {C = C} p = J (λ z _ → CatIso _ _ z) idCatIso p
 
-pathToIso-refl : {C : Category ℓ ℓ'} {x : C .ob} → pathToIso {C = C} {x} refl ≡ CatIdIso
-pathToIso-refl {C = C} {x} = JRefl (λ z _ → CatIso C x z) (CatIdIso)
+pathToIso-refl : {C : Category ℓ ℓ'} {x : C .ob} → pathToIso {C = C} {x} refl ≡ idCatIso
+pathToIso-refl {C = C} {x} = JRefl (λ z _ → CatIso C x z) (idCatIso)
 
 -- Univalent Categories
 record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
@@ -99,8 +99,8 @@ record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   CatIsoToPath {x = x} {y = y} p =
     equivFun (invEquiv (univEquiv x y)) p
 
-  isGroupoid-ob-C : isGroupoid (C .ob)
-  isGroupoid-ob-C = isOfHLevelPath'⁻ 2 (λ _ _ → isOfHLevelRespectEquiv 2 (invEquiv (univEquiv _ _)) (isSet-CatIso _ _))
+  isGroupoid-ob : isGroupoid (C .ob)
+  isGroupoid-ob = isOfHLevelPath'⁻ 2 (λ _ _ → isOfHLevelRespectEquiv 2 (invEquiv (univEquiv _ _)) (isSet-CatIso _ _))
 
 -- Opposite category
 _^op : Category ℓ ℓ' → Category ℓ ℓ'

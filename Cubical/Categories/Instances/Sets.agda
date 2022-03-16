@@ -105,17 +105,14 @@ isUnivalentSET : isUnivalent {ℓ' = ℓ} (SET _)
 isUnivalent.univ isUnivalentSET (A , isSet-A) (B , isSet-B)  =
    precomposesToId→Equiv
       pathToIso _ (funExt w) (isoToIsEquiv Iso-CatIso-≡)
-
    where
-
      w : _
      w ci =
        invEq
          (congEquiv (isoToEquiv (invIso Iso-Iso-CatIso)))
          (SetsIso≡-ext isSet-A isSet-B
             (λ x i → transp (λ _ → B) i (ci .mor  (transp (λ _ → A) i x)))
-            (λ x i → transp (λ _ → A) i (ci .cInv (transp (λ _ → B) i x)))
-            )
+            (λ x i → transp (λ _ → A) i (ci .cInv (transp (λ _ → B) i x))))
 
 -- SET is complete
 
