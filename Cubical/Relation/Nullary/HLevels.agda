@@ -33,3 +33,6 @@ isPropCollapsible≡ {A = A} f = (isPropΠ2 λ x y → isPropCollapsiblePointwis
     isProp2-Constant k = isPropΠ2 λ r s → gA x y (endoFunction k r) (endoFunction k s)
     endoFunctionIsConstant : PathP (λ i → 2-Constant (endoFunction i)) ca cb
     endoFunctionIsConstant = isProp→PathP isProp2-Constant ca cb
+
+isPropDiscrete : isProp (Discrete A)
+isPropDiscrete p q = isPropΠ2 (λ x y → isPropDec (Discrete→isSet p x y)) p q

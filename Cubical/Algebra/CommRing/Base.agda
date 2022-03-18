@@ -35,7 +35,7 @@ record IsCommRing {R : Type ℓ}
 
   field
     isRing : IsRing 0r 1r _+_ _·_ -_
-    ·-comm : (x y : R) → x · y ≡ y · x
+    ·Comm : (x y : R) → x · y ≡ y · x
 
   open IsRing isRing public
 
@@ -107,6 +107,9 @@ IsCommRingEquiv R e S = IsRingHom (CommRingStr→RingStr R) (e .fst) (CommRingSt
 CommRingEquiv : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingEquiv R S = Σ[ e ∈ (R .fst ≃ S .fst) ] IsCommRingEquiv (R .snd) e (S .snd)
 
+CommRingEquiv→CommRingHom : {A : CommRing ℓ} {B : CommRing ℓ'} → CommRingEquiv A B → CommRingHom A B
+CommRingEquiv→CommRingHom (e , eIsHom) = e .fst , eIsHom
+
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsCommRing 0r 1r _+_ _·_ -_)
 isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
@@ -140,5 +143,11 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
 CommRingPath : (R S : CommRing ℓ) → CommRingEquiv R S ≃ (R ≡ S)
 CommRingPath = ∫ 𝒮ᴰ-CommRing .UARel.ua
 
+uaCommRing : {A B : CommRing ℓ} → CommRingEquiv A B → A ≡ B
+uaCommRing {A = A} {B = B} = equivFun (CommRingPath A B)
+
 isSetCommRing : ((R , str) : CommRing ℓ) → isSet R
 isSetCommRing (R , str) = str .CommRingStr.is-set
+
+isGroupoidCommRing : isGroupoid (CommRing ℓ)
+isGroupoidCommRing _ _ = isOfHLevelRespectEquiv 2 (CommRingPath _ _) (isSetRingEquiv _ _)

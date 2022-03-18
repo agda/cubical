@@ -32,7 +32,6 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Hopf
 open import Cubical.HITs.Join
 open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; map to sMap)
@@ -41,6 +40,9 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.HITs.Truncation
 
 open import Cubical.Relation.Nullary
+
+open import Cubical.Homotopy.Hopf
+open S¹Hopf
 
 open IsGroupHom
 open Iso

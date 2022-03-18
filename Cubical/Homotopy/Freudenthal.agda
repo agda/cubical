@@ -7,9 +7,10 @@ Freudenthal suspension theorem
 module Cubical.Homotopy.Freudenthal where
 
 open import Cubical.Foundations.Everything
--- open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec ; elim to trElim)
@@ -22,7 +23,6 @@ open import Cubical.HITs.S1 hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
-open import Cubical.Foundations.Equiv.HalfAdjoint
 
 module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n)) (typ A)) where
 

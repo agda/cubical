@@ -279,7 +279,8 @@ open import Cubical.HITs.Pushout
 
 -- We also defined the Hopf fibration and proved that its total space
 -- is S³ in about 300LOC:
-open import Cubical.HITs.Hopf
+open import Cubical.Homotopy.Hopf
+open S¹Hopf
 
 -- There is also some integer cohomology:
 open import Cubical.ZCohomology.Everything

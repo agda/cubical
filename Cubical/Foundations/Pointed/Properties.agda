@@ -49,6 +49,15 @@ _∘∙_ : {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC}
 ((g , g∙) ∘∙ (f , f∙)) .fst x = g (f  x)
 ((g , g∙) ∘∙ (f , f∙)) .snd = (cong g f∙) ∙ g∙
 
+-- post composition
+post∘∙ : ∀ {ℓX ℓ ℓ'} (X : Pointed ℓX) {A : Pointed ℓ} {B : Pointed ℓ'}
+  → (A →∙ B) → ((X →∙ A ∙) →∙ (X →∙ B ∙))
+post∘∙ X f .fst g = f ∘∙ g
+post∘∙ X f .snd =
+  ΣPathP
+    ( (funExt λ _ → f .snd)
+    , (sym (lUnit (f .snd)) ◁ λ i j → f .snd (i ∨ j)))
+
 -- pointed identity
 id∙ : (A : Pointed ℓA) → (A →∙ A)
 id∙ A .fst x = x
@@ -81,3 +90,10 @@ const∙ _ B .snd = refl
         (cong h (cong g f∙) ∙ cong h g∙) ∙ h∙
         ≡⟨ cong (λ p → p ∙ h∙) ((cong-∙ h (cong g f∙) g∙) ⁻¹) ⟩
         (cong h (cong g f∙ ∙ g∙) ∙ h∙) ∎ )
+
+module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
+  isInIm∙ : (x : typ B) → Type (ℓ-max ℓ ℓ')
+  isInIm∙ x = Σ[ z ∈ typ A ] fst f z ≡ x
+
+  isInKer∙ : (x : fst A) → Type ℓ'
+  isInKer∙ x = fst f x ≡ snd B

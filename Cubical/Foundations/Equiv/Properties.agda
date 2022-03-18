@@ -196,8 +196,5 @@ isEquivFromIsContr : {A : Type ℓ} {B : Type ℓ′}
                    → (f : A → B) → isContr A → isContr B
                    → isEquiv f
 isEquivFromIsContr f isContrA isContrB =
-  isoToIsEquiv
-    (iso f
-         (λ _ → fst isContrA)
-         (λ x → isContr→isProp isContrB (f (fst isContrA)) x)
-         λ y → isContr→isProp isContrA (fst isContrA) y)
+  subst isEquiv (λ i x → isContr→isProp isContrB (fst B≃A x) (f x) i) (snd B≃A)
+  where B≃A = isContr→Equiv isContrA isContrB
