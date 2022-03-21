@@ -84,7 +84,7 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
                cong (λ p → limOut (limitA (x ↓Diag) (T* x)) (v , p)) (sym (⋆Assoc C f g h))
 
 
- -- the right Kan-extension for DistLattice categories
+ -- the right Kan-extension
  Ran : Functor C A
  F-ob Ran = RanOb
  F-hom Ran {y = y} f = limArrow (limitA (y ↓Diag) (T* y)) _ (RanCone f)
