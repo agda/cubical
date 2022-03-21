@@ -15,12 +15,12 @@ open import Cubical.Categories.Limits.Limits
 
 
 module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
-         (C : Category ℓC ℓC')
-         (M : Category ℓM ℓM')
-         (A : Category ℓA ℓA')
+         {C : Category ℓC ℓC'}
+         {M : Category ℓM ℓM'}
+         {A : Category ℓA ℓA'}
          (limitA : Limits {ℓ-max ℓC' ℓM} {ℓ-max ℓC' ℓM'} A)
-         (T : Functor M A)
          (K : Functor M C)
+         (T : Functor M A)
          where
 
  open Category
@@ -43,45 +43,45 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
  ⋆Assoc (x ↓Diag) _ _ _ = Σ≡Prop (λ _ → isSetHom C _ _) (⋆Assoc M _ _ _)
  isSetHom (x ↓Diag) = isSetΣSndProp (isSetHom M) λ _ → isSetHom C _ _
 
- -- need:
- i : (x : ob C) → Functor (x ↓Diag) M
- F-ob (i x) = fst
- F-hom (i x) = fst
- F-id (i x) = refl
- F-seq (i x) _ _ = refl
+ private
+  i : (x : ob C) → Functor (x ↓Diag) M
+  F-ob (i x) = fst
+  F-hom (i x) = fst
+  F-id (i x) = refl
+  F-seq (i x) _ _ = refl
 
- j : {x y : ob C} (f : C [ x , y ]) → Functor (y ↓Diag) (x ↓Diag)
- F-ob (j f) (u , g) = u , f ⋆⟨ C ⟩ g
- F-hom (j f) (h , hComm) = h , ⋆Assoc C _ _ _ ∙ cong (seq' C f) hComm
- F-id (j f) = Σ≡Prop (λ _ → isSetHom C _ _) refl
- F-seq (j f) _ _ = Σ≡Prop (λ _ → isSetHom C _ _) refl
-
-
- T* : (x : ob C) → Functor (x ↓Diag) A
- T* x = funcComp T (i x)
-
- RanOb : ob C → ob A
- RanOb x = limitA (x ↓Diag) (T* x) .lim
+  j : {x y : ob C} (f : C [ x , y ]) → Functor (y ↓Diag) (x ↓Diag)
+  F-ob (j f) (u , g) = u , f ⋆⟨ C ⟩ g
+  F-hom (j f) (h , hComm) = h , ⋆Assoc C _ _ _ ∙ cong (seq' C f) hComm
+  F-id (j f) = Σ≡Prop (λ _ → isSetHom C _ _) refl
+  F-seq (j f) _ _ = Σ≡Prop (λ _ → isSetHom C _ _) refl
 
 
- RanCone : {x y : ob C} → C [ x , y ] → Cone (T* y) (RanOb x)
- coneOut (RanCone {x = x} f) v =
-   limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob v)
- coneOutCommutes (RanCone {x = x} f) h = limOutCommutes (limitA (x ↓Diag) (T* x)) (j f .F-hom h)
+  T* : (x : ob C) → Functor (x ↓Diag) A
+  T* x = funcComp T (i x)
+
+  RanOb : ob C → ob A
+  RanOb x = limitA (x ↓Diag) (T* x) .lim
 
 
-  -- technical lemmas for proving functoriality
- RanConeRefl : ∀ {x} v →
-               limOut (limitA (x ↓Diag) (T* x)) v
-             ≡ limOut (limitA (x ↓Diag) (T* x)) (j (id C) .F-ob v)
- RanConeRefl {x = x} (v , f) =
-             cong (λ p → limOut (limitA (x ↓Diag) (T* x)) (v , p)) (sym (⋆IdL C f))
+  RanCone : {x y : ob C} → C [ x , y ] → Cone (T* y) (RanOb x)
+  coneOut (RanCone {x = x} f) v =
+    limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob v)
+  coneOutCommutes (RanCone {x = x} f) h = limOutCommutes (limitA (x ↓Diag) (T* x)) (j f .F-hom h)
 
- RanConeTrans : ∀ {x y z} (f : C [ x , y ]) (g : C [ y , z ]) v →
-                limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob (j g .F-ob v))
-              ≡ limOut (limitA (x ↓Diag) (T* x)) (j (f ⋆⟨ C ⟩ g) .F-ob v)
- RanConeTrans {x = x} {y = y} {z = z} f g  (v , h) =
-              cong (λ p → limOut (limitA (x ↓Diag) (T* x)) (v , p)) (sym (⋆Assoc C f g h))
+
+   -- technical lemmas for proving functoriality
+  RanConeRefl : ∀ {x} v →
+                limOut (limitA (x ↓Diag) (T* x)) v
+              ≡ limOut (limitA (x ↓Diag) (T* x)) (j (id C) .F-ob v)
+  RanConeRefl {x = x} (v , f) =
+              cong (λ p → limOut (limitA (x ↓Diag) (T* x)) (v , p)) (sym (⋆IdL C f))
+
+  RanConeTrans : ∀ {x y z} (f : C [ x , y ]) (g : C [ y , z ]) v →
+                 limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob (j g .F-ob v))
+               ≡ limOut (limitA (x ↓Diag) (T* x)) (j (f ⋆⟨ C ⟩ g) .F-ob v)
+  RanConeTrans {x = x} {y = y} {z = z} f g  (v , h) =
+               cong (λ p → limOut (limitA (x ↓Diag) (T* x)) (v , p)) (sym (⋆Assoc C f g h))
 
 
  -- the right Kan-extension for DistLattice categories
