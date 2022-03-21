@@ -335,6 +335,12 @@ commS¹ = wedgeconFun _ _ (λ _ _ → isGroupoidS¹ _ _)
          rUnitS¹
          refl
 
+assocS¹ : (x y z : S¹) → x * (y * z) ≡ (x * y) * z
+assocS¹ = wedgeconFun _ _ (λ _ _ → isSetΠ λ _ → isGroupoidS¹ _ _)
+          (λ _ _ → refl)
+          (λ x z i → (rUnitS¹ x (~ i)) * z)
+          refl
+
 SuspS¹-hom : (a x : S¹)
   → Path (Path (hLevelTrunc 4 (S₊ 2)) _ _)
           (cong ∣_∣ₕ (σ (S₊∙ 1) (a * x)))
