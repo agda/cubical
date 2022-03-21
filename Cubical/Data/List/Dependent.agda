@@ -51,4 +51,4 @@ isOfHLevelSucSuc-ListP : ∀ {ℓA ℓB} (n : HLevel)
   → {as : List A}
   → isOfHLevel (suc (suc n)) (ListP B as)
 isOfHLevelSucSuc-ListP n {A} {B} isHB {as} =
-  transport⁻ (λ i → isOfHLevel (suc (suc n)) (pathRepListP B as i)) (isOfHLevelSucSuc-RepListP n isHB as)
+  subst⁻ (isOfHLevel (suc (suc n))) (pathRepListP B as) (isOfHLevelSucSuc-RepListP n isHB as)
