@@ -3,7 +3,7 @@
 open import Cubical.Foundations.Everything renaming (Iso to _≅_)
 open import Cubical.Data.List
 open import Cubical.Data.Unit
-open import Cubical.Data.Prod
+open import Cubical.Data.Prod hiding (map)
 open import Cubical.Data.Nat
 
 module Cubical.Data.List.Dependent where
@@ -51,3 +51,26 @@ isOfHLevelSucSuc-ListP : ∀ {ℓA ℓB} (n : HLevel)
   → isOfHLevel (suc (suc n)) (ListP B as)
 isOfHLevelSucSuc-ListP n {A} {B} isHB {as} =
   subst⁻ (isOfHLevel (suc (suc n))) (pathRepListP B as) (isOfHLevelSucSuc-RepListP n isHB as)
+
+--------------------------
+
+mapP : ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {A' : Type ℓA'} {B : A → Type ℓB} {B' : A' → Type ℓB'}
+  (f : A → A') (g : (a : A) → B a → B' (f a)) → ∀ as → ListP B as → ListP B' (map f as)
+mapP f g [] [] = []
+mapP f g (a ∷ as) (b ∷ bs) = g _ b ∷ mapP f g as bs
+
+mapOverIdfun : ∀ {ℓA ℓB ℓB'} {A : Type ℓA} {B : A → Type ℓB} {B' : A → Type ℓB'}
+  (g : (a : A) → B a → B' a) → ∀ as → ListP B as → ListP B' as
+mapOverIdfun g [] [] = []
+mapOverIdfun g (a ∷ as) (b ∷ bs) = g a b ∷ mapOverIdfun g as bs
+
+mapOverIdfun-idfun : ∀ {ℓA ℓB} {A : Type ℓA} {B : A → Type ℓB} as → mapOverIdfun (λ a → idfun _) as ≡ (idfun (ListP B as))
+mapOverIdfun-idfun [] i [] = []
+mapOverIdfun-idfun (a ∷ as) i (b ∷ bs) = b ∷ mapOverIdfun-idfun as i bs
+
+mapOverIdfun-∘ : ∀ {ℓA ℓB ℓB' ℓB''} {A : Type ℓA} {B : A → Type ℓB} {B' : A → Type ℓB'} {B'' : A → Type ℓB''}
+  (h : (a : A) → B' a → B'' a) (g : (a : A) → B a → B' a) → ∀ as
+  → mapOverIdfun (λ a → h a ∘ g a) as ≡ mapOverIdfun h as ∘ mapOverIdfun g as
+mapOverIdfun-∘ h g [] i [] = []
+mapOverIdfun-∘ h g (a ∷ as) i (b ∷ bs) = h a (g a b) ∷ mapOverIdfun-∘ h g as i bs
+
