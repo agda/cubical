@@ -18,3 +18,8 @@ module test (M : Monoid ℓ) where
 
   _ : ε · ε ≡ ε
   _ = solve M
+
+  --test : ∀ x → ε · x  ≡ x
+  --test = solve M
+
+

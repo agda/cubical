@@ -127,7 +127,7 @@ module _ (monoid : Term) where
 
     `_⊗_` : List (Arg Term) → Term
     `_⊗_` (harg _ ∷ xs) = `_⊗_` xs
-    `_⊗_` (varg x ∷ varg y ∷ _) =
+    `_⊗_` (varg x ∷ varg y ∷ []) =
       con
         (quote _⊗_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
     `_⊗_` _ = unknown
@@ -139,14 +139,14 @@ module _ (monoid : Term) where
     buildExpression : Term → Term
     buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
     buildExpression t@(def n xs) =
-      switch (n ==_) cases
-        case (quote MonoidStr._·_) ⇒ `_⊗_` xs   break
-        default⇒ (`ε⊗` xs)
-    buildExpression t@(con n xs) =
-      switch (n ==_) cases
-        case (quote MonoidStr._·_) ⇒ `_⊗_` xs   break
-        default⇒ (`ε⊗` xs)
+      if (n == (quote MonoidStr._·_))
+        then `_⊗_` xs
+      else if (n == (quote MonoidStr.ε))
+        then `ε⊗` xs
+      else
+        unknown
     buildExpression t = unknown
+
 
   toMonoidExpression : Maybe (Term × Term) → Maybe (Term × Term)
   toMonoidExpression nothing = nothing
