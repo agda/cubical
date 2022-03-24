@@ -341,6 +341,12 @@ assocS¹ = wedgeconFun _ _ (λ _ _ → isSetΠ λ _ → isGroupoidS¹ _ _)
           (λ x z i → (rUnitS¹ x (~ i)) * z)
           refl
 
+invLooperDistr : (x y : S¹) → invLooper (x * y) ≡ invLooper x * invLooper y
+invLooperDistr =
+  wedgeconFun 0 0 (λ _ _ → isGroupoidS¹ _ _) (λ _ → refl)
+    (λ x → cong invLooper (rUnitS¹ x) ∙ sym (rUnitS¹ (invLooper x)))
+    (sym (rUnit refl))
+
 SuspS¹-hom : (a x : S¹)
   → Path (Path (hLevelTrunc 4 (S₊ 2)) _ _)
           (cong ∣_∣ₕ (σ (S₊∙ 1) (a * x)))
@@ -387,6 +393,9 @@ SuspS¹-inv x = (lUnit _
   lem = sym (SuspS¹-hom x (invLooper x))
      ∙ ((λ i → cong ∣_∣ₕ (σ (S₊∙ 1) (rCancelS¹ x (~ i))))
      ∙ cong (cong ∣_∣ₕ) (rCancel (merid base))) ∙ sym (rCancel _)
+
+
+-- inversion on Sⁿ
 
 
 
@@ -558,3 +567,129 @@ IsoSphereJoin⁻Pres∙ : (n m : ℕ)
 IsoSphereJoin⁻Pres∙ n m =
      cong (Iso.inv (IsoSphereJoin n m)) (sym (IsoSphereJoinPres∙ n m))
    ∙ Iso.leftInv (IsoSphereJoin n m) (inl (ptSn n))
+
+
+
+-- Inversion on spheres
+invSphere : {n : ℕ} → S₊ n → S₊ n
+invSphere {n = zero} = not
+invSphere {n = (suc zero)} = invLooper
+invSphere {n = (suc (suc n))} = invSusp
+
+invSphere² : (n : ℕ) (x : S₊ n) → invSphere (invSphere x) ≡ x
+invSphere² zero = notnot
+invSphere² (suc zero) base = refl
+invSphere² (suc zero) (loop i) = refl
+invSphere² (suc (suc n)) = invSusp²
+
+-- Interaction between σ and invSphere
+σ-invSphere : (n : ℕ) (x : S₊ (suc n))
+                 → σ (S₊∙ (suc n)) (invSphere x)
+                 ≡ sym (σ (S₊∙ (suc n)) x)
+σ-invSphere zero base =
+  rCancel (merid base) ∙∙ refl ∙∙ cong sym (sym (rCancel (merid base)))
+σ-invSphere zero (loop i) j =
+  hcomp (λ k → λ { (j = i0) → doubleCompPath-filler
+                                 (sym (rCancel (merid base)))
+                                 (λ i → (σ (S₊∙ 1) (loop (~ i))))
+                                 (rCancel (merid base)) (~ k) i
+                  ; (j = i1) → doubleCompPath-filler
+                                  (sym (cong sym (rCancel (merid base))))
+                                  (λ i → sym (σ (S₊∙ 1) (loop i)))
+                                  (cong sym (rCancel (merid base))) (~ k) i})
+        (sym≡cong-sym  (sym (rCancel (merid base))
+                    ∙∙ (λ i → (σ (S₊∙ 1) (loop i)))
+                    ∙∙ (rCancel (merid base))) j i)
+σ-invSphere (suc n) x = toSusp-invSusp (S₊∙ (suc n)) x
+
+
+-- Some facts about the map S¹×S¹→S²
+-- Todo: generalise to Sⁿ×Sᵐ→Sⁿ⁺ᵐ
+S¹×S¹→S²rUnit : (a : S¹) → S¹×S¹→S² a base ≡ north
+S¹×S¹→S²rUnit base = refl
+S¹×S¹→S²rUnit (loop i) = refl
+
+S¹×S¹→S²x+x : (x : S¹) → S¹×S¹→S² x x ≡ north
+S¹×S¹→S²x+x base = refl
+S¹×S¹→S²x+x (loop i) k = lem k i
+  where
+  lem : cong₂ S¹×S¹→S² loop loop ≡ refl
+  lem = cong₂Funct S¹×S¹→S² loop loop
+    ∙ (λ i → rUnit (cong (λ x → S¹×S¹→S²rUnit x i) loop) (~ i))
+
+S¹×S¹→S²-antiComm : (a b : S¹) → S¹×S¹→S² a b ≡ S¹×S¹→S² b (invLooper a)
+S¹×S¹→S²-antiComm base base = refl
+S¹×S¹→S²-antiComm base (loop i) = refl
+S¹×S¹→S²-antiComm (loop i) base = refl
+S¹×S¹→S²-antiComm (loop i) (loop j) k =
+  sym≡flipSquare (λ j i → S¹×S¹→S² (loop i) (loop j)) (~ k) i j
+
+private
+  S¹×S¹→S²-Distr-filler : (i : I)
+    → cong₂ (λ b c → S¹×S¹→S² ((loop i) * b) c) loop loop
+    ≡ cong (S¹×S¹→S² (loop i)) loop
+  S¹×S¹→S²-Distr-filler i =
+    cong₂Funct (λ b c → S¹×S¹→S² ((loop i) * b) c) loop loop
+     ∙∙ (λ j → cong (λ x → S¹×S¹→S²rUnit (rotLoop x i) j) loop ∙
+                cong (λ c → S¹×S¹→S² (loop i) c) loop)
+     ∙∙ sym (lUnit _)
+
+S¹×S¹→S²-Distr : (a b : S¹) → S¹×S¹→S² (a * b) b ≡ S¹×S¹→S² a b
+S¹×S¹→S²-Distr a base j = S¹×S¹→S² (rUnitS¹ a j) base
+S¹×S¹→S²-Distr base (loop i) k = S¹×S¹→S²-Distr-filler i0 k i
+S¹×S¹→S²-Distr (loop i₁) (loop i) k = S¹×S¹→S²-Distr-filler i₁ k i
+
+invSusp∘S¹×S¹→S² : (a b : S¹)
+  → S¹×S¹→S² a (invLooper b) ≡ invSusp (S¹×S¹→S² a b)
+invSusp∘S¹×S¹→S² base b = merid base
+invSusp∘S¹×S¹→S² (loop i) base = merid base
+invSusp∘S¹×S¹→S² (loop i) (loop j) k =
+  hcomp (λ r → λ {(i = i0) → i-Boundary₂ r j k
+                 ; (i = i1) → i-Boundary₂ r j k
+                 ; (j = i0) → m-b k
+                 ; (j = i1) → m-b k
+                 ; (k = i0) → doubleCompPath-filler
+                                rCancel-mb⁻¹ (cong σ₁ loop) rCancel-mb r i (~ j)
+                 ; (k = i1)
+                    → invSusp (doubleCompPath-filler
+                                 rCancel-mb⁻¹ (cong σ₁ loop) rCancel-mb r i j)})
+   (hcomp (λ r → λ {(i = i0) → i-Boundary r (~ j) k
+                   ; (i = i1) → i-Boundary r (~ j) k
+                   ; (j = i0) → merid base (~ r ∨ k)
+                   ; (j = i1) → merid base (r ∧ k)
+                   ; (k = i0) → cp-filler (loop i) r (~ j)
+                   ; (k = i1) → invSusp (cp-filler (loop i) r j)})
+           (merid (loop i) (~ j)))
+  where
+  σ₁ = σ (S₊∙ 1)
+  m-b = merid base
+  rCancel-mb = rCancel m-b
+  rCancel-mb⁻¹ = sym (rCancel m-b)
+
+  cp-filler : (a : S¹) (i j : I) → S₊ 2
+  cp-filler a i j = compPath-filler (merid a) (sym (merid base)) i j
+
+  i-Boundary : I → I → I → S₊ 2
+  i-Boundary r j k =
+    hfill (λ r → λ{(j = i0) → m-b (k ∧ r)
+                  ; (j = i1) → m-b (~ r ∨ k)
+                  ; (k = i0) → cp-filler base r j
+                  ; (k = i1) → invSusp (cp-filler base r (~ j))})
+          (inS (m-b j))
+          r
+
+  i-Boundary₂ : I → I → I → S₊ 2
+  i-Boundary₂ r j k =
+    hcomp (λ i → λ {(r = i0) → i-Boundary i (~ j) k
+                 ; (r = i1) → m-b k
+                 ; (j = i0) → m-b (k ∨ (~ i ∧ ~ r))
+                 ; (j = i1) → m-b (k ∧ (i ∨ r))
+                 ; (k = i0) → rCancel-filler m-b i r (~ j)
+                 ; (k = i1) → invSusp (rCancel-filler m-b i r j) })
+     (hcomp (λ i → λ {(r = i0) → m-b (~ j ∨ (~ i ∧ k))
+                 ; (r = i1) → m-b (k ∨ (~ i ∧ ~ j))
+                 ; (j = i0) → m-b (k ∨ (~ r ∨ ~ i))
+                 ; (j = i1) → m-b (k ∧ (~ i ∨ r))
+                 ; (k = i0) → m-b (~ j ∧ (~ r ∨ ~ i))
+                 ; (k = i1) → m-b ((~ j ∨ ~ i) ∨ r) })
+            (m-b (~ j ∨ k)))

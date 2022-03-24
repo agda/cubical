@@ -322,3 +322,41 @@ module _ {A B : Pointed ℓ} where
   Iso.inv Iso-joinSusp-suspJoin = suspJoin→joinSusp
   Iso.rightInv Iso-joinSusp-suspJoin = suspJoin→joinSusp→suspJoin
   Iso.leftInv Iso-joinSusp-suspJoin = joinSusp→suspJoin→joinSusp
+
+-- interaction between invSusp and toSusp
+toSusp-invSusp : (A : Pointed ℓ) (x : Susp (typ A))
+  → toSusp (Susp∙ (typ A)) (invSusp x) ≡ sym (toSusp (Susp∙ (typ A)) x)
+toSusp-invSusp A north =
+  cong (toSusp (Susp∙ (typ A))) (sym (merid (snd A)))
+                  ∙∙ rCancel (merid north)
+                  ∙∙ cong sym (sym (rCancel (merid north)))
+toSusp-invSusp A south =
+     rCancel (merid north)
+   ∙∙ cong sym (sym (rCancel (merid north)))
+   ∙∙ cong sym (cong (toSusp (Susp∙ (typ A))) (merid (pt A)))
+toSusp-invSusp A (merid a i) j =
+  lem (toSusp (Susp∙ (typ A)) north) (toSusp (Susp∙ (typ A)) south)
+         (sym (rCancel (merid north)))
+         (cong (toSusp (Susp∙ (typ A))) ((merid (pt A))))
+         (cong (toSusp (Susp∙ (typ A))) (merid a)) (~ j) i
+  where
+  lem : {A : Type ℓ} {x : A} (p q : x ≡ x) (l : refl ≡ p)
+        (coh r : p ≡ q)
+      → PathP (λ i → (cong sym (sym l) ∙∙ l ∙∙ coh) i
+                     ≡ (cong sym (sym coh) ∙∙ cong sym (sym l) ∙∙ l) i)
+               (cong sym r)
+               (sym r)
+  lem p q =
+    J (λ p l → (coh r : p ≡ q)
+            → PathP (λ i → (cong sym (sym l) ∙∙ l ∙∙ coh) i
+                           ≡ (cong sym (sym coh) ∙∙ cong sym (sym l) ∙∙ l) i)
+                     (cong sym r)
+                     (sym r))
+       (J (λ q coh → (r : refl ≡ q)
+                   → PathP (λ i → (refl ∙ coh) i
+                           ≡ (cong sym (sym coh) ∙∙ refl ∙∙ refl) i)
+                     (cong sym r)
+                     (sym r))
+          λ r → flipSquare (sym (rUnit refl)
+                ◁ (flipSquare (sym (sym≡cong-sym r))
+                ▷ rUnit refl)))
