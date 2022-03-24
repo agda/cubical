@@ -394,11 +394,6 @@ SuspS¹-inv x = (lUnit _
      ∙ ((λ i → cong ∣_∣ₕ (σ (S₊∙ 1) (rCancelS¹ x (~ i))))
      ∙ cong (cong ∣_∣ₕ) (rCancel (merid base))) ∙ sym (rCancel _)
 
-
--- inversion on Sⁿ
-
-
-
 -------------------- join Sⁿ Sᵐ ≃ Sⁿ⁺¹ᵐ -------------------------
 {-
 This section contains a proof that join Sⁿ Sᵐ ≃ Sⁿ⁺ᵐ⁺¹. This is easy using
@@ -456,23 +451,26 @@ joinS¹S¹→S³'≡joinS¹S¹→S³' (push base base i) k = merid north (~ k �
 joinS¹S¹→S³'≡joinS¹S¹→S³' (push base (loop i₁) i) k  = merid north (~ k ∧ i)
 joinS¹S¹→S³'≡joinS¹S¹→S³' (push (loop i₁) base i) k =  (merid north) (~ k ∧ i)
 joinS¹S¹→S³'≡joinS¹S¹→S³' (push (loop i) (loop j) k) l =
-  hcomp (λ r → λ {(i = i0) → merid (sym (rCancel (merid base)) (~ r) j) (~ l ∧ k)
-                   ; (i = i1) → merid (sym (rCancel (merid base)) (~ r) j) (~ l ∧ k)
-                   ; (j = i0) → merid north (~ l ∧ k)
-                   ; (j = i1) → merid north (~ l ∧ k)
-                   ; (k = i0) → north
-                   ; (k = i1) → merid (sym (rCancel (merid base)) (~ r) j) (~ l)
-                   ; (l = i0) → merid (doubleCompPath-filler
-                                       (sym (rCancel (merid base))) (cong (σ (S₊∙ 1)) loop)
-                                       (rCancel (merid base)) r i j) k
-                   ; (l = i1) → 3cell i1 i j k})
-    (hcomp (λ r → λ {(i = i0) → merid (compPath-filler (merid base) (sym (merid base)) r j) (k ∧ ~ l)
-                   ; (i = i1) → merid (compPath-filler (merid base) (sym (merid base)) r j) (k ∧ ~ l)
+  hcomp (λ r → λ { (i = i0) → merid (sym (rCancel (merid base)) (~ r) j)
+                                      (~ l ∧ k)
+                  ; (i = i1) → merid (sym (rCancel (merid base)) (~ r) j)
+                                      (~ l ∧ k)
+                  ; (j = i0) → merid north (~ l ∧ k)
+                  ; (j = i1) → merid north (~ l ∧ k)
+                  ; (k = i0) → north
+                  ; (k = i1) → merid (sym (rCancel (merid base)) (~ r) j) (~ l)
+                  ; (l = i0) → merid (doubleCompPath-filler
+                                      (sym (rCancel (merid base)))
+                                      (cong (σ (S₊∙ 1)) loop)
+                                      (rCancel (merid base)) r i j) k
+                  ; (l = i1) → 3cell i1 i j k})
+    (hcomp (λ r → λ {(i = i0) → merid (cp-fill base r j) (k ∧ ~ l)
+                   ; (i = i1) → merid (cp-fill base r j) (k ∧ ~ l)
                    ; (j = i0) → merid north (~ l ∧ k)
                    ; (j = i1) → merid (merid base (~ r)) (~ l ∧ k)
                    ; (k = i0) → north
-                   ; (k = i1) → merid (compPath-filler (merid base) (sym (merid base)) r j) (~ l)
-                   ; (l = i0) → merid (compPath-filler (merid (loop i)) (sym (merid base)) r j) k
+                   ; (k = i1) → merid (cp-fill base r j) (~ l)
+                   ; (l = i0) → merid (cp-fill (loop i) r j) k
                    ; (l = i1) → 3cell i1 i j k})
        (hcomp (λ r → λ {(i = i0) → merid (merid base j) (k ∧ (~ r ∨ ~ l))
                    ; (i = i1) → merid (merid base j) (k ∧ (~ r ∨ ~ l))
@@ -483,7 +481,9 @@ joinS¹S¹→S³'≡joinS¹S¹→S³' (push (loop i) (loop j) k) l =
                    ; (l = i0) → merid (merid (loop i) j) k
                    ; (l = i1) → 3cell r i j k})
               (merid (merid (loop i) j) k)))
-
+  where
+  cp-fill : (a : S¹) → _
+  cp-fill a = compPath-filler (merid a) (sym (merid base))
 
 {- joinS¹S¹→S³' is equal to the original
   equivalence (modulo a flipping of interval variables) -}
@@ -567,8 +567,6 @@ IsoSphereJoin⁻Pres∙ : (n m : ℕ)
 IsoSphereJoin⁻Pres∙ n m =
      cong (Iso.inv (IsoSphereJoin n m)) (sym (IsoSphereJoinPres∙ n m))
    ∙ Iso.leftInv (IsoSphereJoin n m) (inl (ptSn n))
-
-
 
 -- Inversion on spheres
 invSphere : {n : ℕ} → S₊ n → S₊ n

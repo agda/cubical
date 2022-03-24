@@ -23,8 +23,6 @@ private
     ℓ ℓ' : Level
     A B C D : Pointed ℓ
 
-
-
 Smash-map : (f : A →∙ C) (g : B →∙ D) → Smash A B → Smash C D
 Smash-map f g basel = basel
 Smash-map f g baser = baser
