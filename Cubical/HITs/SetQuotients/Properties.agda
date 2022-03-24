@@ -18,6 +18,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Functions.FunExtEquiv
 
@@ -35,8 +36,8 @@ open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣�
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A B C : Type ℓ
-    R S T : A → A → Type ℓ
+    A B C Q : Type ℓ
+    R S T W : A → A → Type ℓ
 
 elimProp : {P : A / R → Type ℓ}
   → (∀ x → isProp (P x))
@@ -66,6 +67,14 @@ elimProp3 : {P : A / R → B / S → C / T → Type ℓ}
 elimProp3 prop f =
   elimProp (λ x → isPropΠ2 (prop x)) λ a →
   elimProp2 (prop [ a ]) (f a)
+
+elimProp4 : {P : A / R → B / S → C / T → Q / W → Type ℓ}
+  → (∀ x y z t → isProp (P x y z t))
+  → (∀ a b c d → P [ a ] [ b ] [ c ] [ d ])
+  → ∀ x y z t → P x y z t
+elimProp4 prop f =
+  elimProp (λ x → isPropΠ3 (prop x)) λ a →
+  elimProp3 (prop [ a ]) (f a)
 
 -- sometimes more convenient:
 elimContr : {P : A / R → Type ℓ}

@@ -12,8 +12,10 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Pointed
 
+open import Cubical.Data.Unit renaming (tt to tt')
+open import Cubical.Data.Sum
 open import Cubical.Data.Bool.Base
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
@@ -68,10 +70,10 @@ false≢true p = subst (λ b → if b then ⊥ else Bool) p true
 
 ¬true→false : (x : Bool) → ¬ x ≡ true → x ≡ false
 ¬true→false false _ = refl
-¬true→false true p = rec (p refl)
+¬true→false true p = Empty.rec (p refl)
 
 ¬false→true : (x : Bool) → ¬ x ≡ false → x ≡ true
-¬false→true false p = rec (p refl)
+¬false→true false p = Empty.rec (p refl)
 ¬false→true true _ = refl
 
 not≢const : ∀ x → ¬ not x ≡ x
@@ -189,9 +191,9 @@ module BoolReflection where
   categorize P | inspect true false p q
     = subst (λ b → transport P ≡ transport (⊕-Path b)) (sym p) (notLemma P p q)
   categorize P | inspect false false p q
-    = rec (¬transportNot P false (q ∙ sym p))
+    = Empty.rec (¬transportNot P false (q ∙ sym p))
   categorize P | inspect true true p q
-    = rec (¬transportNot P false (q ∙ sym p))
+    = Empty.rec (¬transportNot P false (q ∙ sym p))
 
   ⊕-complete : ∀ P → P ≡ ⊕-Path (transport P false)
   ⊕-complete P = isInjectiveTransport (categorize P)
@@ -219,3 +221,15 @@ Iso.rightInv IsoBool→∙ a = refl
 Iso.leftInv IsoBool→∙ (f , p) =
   ΣPathP ((funExt (λ { false → refl ; true → sym p}))
         , λ i j → p (~ i ∨ j))
+
+open Iso
+
+Iso-⊤⊎⊤-Bool : Iso (Unit ⊎ Unit) Bool
+Iso-⊤⊎⊤-Bool .fun (inl tt') = true
+Iso-⊤⊎⊤-Bool .fun (inr tt') = false
+Iso-⊤⊎⊤-Bool .inv true = inl tt'
+Iso-⊤⊎⊤-Bool .inv false = inr tt'
+Iso-⊤⊎⊤-Bool .leftInv (inl tt') = refl
+Iso-⊤⊎⊤-Bool .leftInv (inr tt') = refl
+Iso-⊤⊎⊤-Bool .rightInv true = refl
+Iso-⊤⊎⊤-Bool .rightInv false = refl
