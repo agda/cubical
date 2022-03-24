@@ -4,7 +4,7 @@ module Cubical.Algebra.CommRing.Instances.Polynomials where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Polynomials
+open import Cubical.Algebra.Polynomials.Polynomials
 
 private
   variable

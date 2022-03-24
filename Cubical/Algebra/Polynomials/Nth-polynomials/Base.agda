@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Work.Nth-polynomials.Base where
+module Cubical.Algebra.Polynomials.Nth-polynomials.Base where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.HLevels
@@ -11,7 +11,6 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Polynomials
 
 private variable
   l l' : Level

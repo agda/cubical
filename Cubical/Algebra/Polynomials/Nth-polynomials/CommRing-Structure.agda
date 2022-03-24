@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Work.Nth-polynomials.CommRing-Structure where
+module Cubical.Algebra.Polynomials.Nth-polynomials.CommRing-Structure where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.HLevels
@@ -14,7 +14,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
-open import Cubical.Work.Nth-polynomials.Base
+open import Cubical.Algebra.Polynomials.Nth-polynomials.Base
 
 private variable
   l l' : Level
@@ -114,7 +114,7 @@ module Nth-Pol-CommRing (A' : CommRing l) (n : ℕ) where
   _Poly*_ : Poly n → Poly n → Poly n
   _Poly*_ = -- Induction Left Argument
             Poly-Rec-Set.f n (Poly n → Poly n)
-            (λ f g p q i j P → trunc (f P) (g P) (λ i → p i P ) (λ i → q i P) i j)
+            (λ f g p q i j Q → trunc (f Q) (g Q) (λ X → p X Q) (λ X → q X Q) i j )
             (λ Q    → 0P)
             (λ v a  → -- Induction Right Argument
                        Poly-Rec-Set.f n (Poly n) trunc
