@@ -74,11 +74,6 @@ module AlgebraHoms {R : Ring ℓ} where
   compIsAlgebraHom {g = g} {f} gh fh .pres- x = cong g (fh .pres- x) ∙ gh .pres- (f x)
   compIsAlgebraHom {g = g} {f} gh fh .pres⋆ r x = cong g (fh .pres⋆ r x) ∙ gh .pres⋆ r (f x)
 
-  _∘a_ : {A : Algebra R ℓ'} {B : Algebra R ℓ''} {C : Algebra R ℓ'''}
-         → AlgebraHom B C → AlgebraHom A B → AlgebraHom A C
-  _∘a_  g f .fst = g .fst ∘ f .fst
-  _∘a_  g f .snd = compIsAlgebraHom (g .snd) (f .snd)
-
   _∘≃a_ : {A B C : Algebra R ℓ'}
          → AlgebraEquiv B C → AlgebraEquiv A B → AlgebraEquiv A C
   _∘≃a_  g f .fst = compEquiv (fst f) (fst g)
