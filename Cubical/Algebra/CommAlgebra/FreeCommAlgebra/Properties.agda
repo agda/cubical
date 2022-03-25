@@ -343,7 +343,7 @@ inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
 inducedHom A φ = Theory.inducedHom A φ
 
 
-homMapIso : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
+homMapIso : {R : CommRing ℓ} {I : Type ℓ''} (A : CommAlgebra R ℓ')
              → Iso (CommAlgebraHom (R [ I ]) A) (I → (fst A))
 Iso.fun (homMapIso A) = evaluateAt A
 Iso.inv (homMapIso A) = inducedHom A
