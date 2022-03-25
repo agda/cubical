@@ -48,19 +48,23 @@ module _ {R : CommRing ℓ} where
 
   module _ {m : ℕ} (n : ℕ) (relation : FinVec ⟨ Polynomials n ⟩ m) where
     open CommAlgebraStr using (0a)
+    open Construction using (var)
 
     relationsIdeal = generatedIdeal (Polynomials n) relation
 
     FPAlgebra : CommAlgebra R ℓ
     FPAlgebra = Polynomials n / relationsIdeal
 
+    generator : (i : Fin n) → ⟨ FPAlgebra ⟩
+    generator i =
+      elementInQuotientCAlg
+        R (Polynomials n) relationsIdeal (var i)
+
     module universalProperty
       {A : CommAlgebra R ℓ}
       (values : FinVec ⟨ A ⟩ n)
       (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
       where
-
-      open Construction using (var)
 
       inducedHom : CommAlgebraHom FPAlgebra A
       inducedHom =
@@ -79,11 +83,6 @@ module _ {R : CommRing ℓ} where
                          relation
                          (kernel (Polynomials n) A freeHom)
                          relationsHold
-
-      generator : (i : Fin n) → ⟨ FPAlgebra ⟩
-      generator i =
-        elementInQuotientCAlg
-          R (Polynomials n) relationsIdeal (var i)
 
       unique : (f : CommAlgebraHom FPAlgebra A)
              → ((i : Fin n) → fst f (generator i)  ≡ values i)
