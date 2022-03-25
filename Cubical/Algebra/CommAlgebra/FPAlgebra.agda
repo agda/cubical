@@ -32,6 +32,8 @@ open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
 open import Cubical.Algebra.CommAlgebra.Kernel
 
+import Cubical.Algebra.Algebra.Properties
+
 
 open import Cubical.Foundations.Structure
 
@@ -65,6 +67,7 @@ module _ {R : CommRing ℓ} where
       (values : FinVec ⟨ A ⟩ n)
       (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
       where
+      open Cubical.Algebra.Algebra.Properties.AlgebraHoms
 
       inducedHom : CommAlgebraHom FPAlgebra A
       inducedHom =
@@ -83,11 +86,34 @@ module _ {R : CommRing ℓ} where
                          relation
                          (kernel (Polynomials n) A freeHom)
                          relationsHold
-
       unique : (f : CommAlgebraHom FPAlgebra A)
-             → ((i : Fin n) → fst f (generator i)  ≡ values i)
+             → ((i : Fin n) → fst f (generator i) ≡ values i)
              → f ≡ inducedHom
-      unique = {!!}
+      unique f hasCorrectValues =
+        injectivePrecomp
+          (Polynomials n)
+          relationsIdeal
+          A
+          f
+          inducedHom
+          (f'     ≡⟨ sym (inv f') ⟩
+           freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A) (funExt hasCorrectValues) ⟩
+           freeInducedHom A values               ≡⟨ cong (freeInducedHom A) refl ⟩
+           freeInducedHom A (evaluateAt A iHom') ≡⟨ inv iHom' ⟩
+           iHom' ∎)
+        where
+          {-
+                     Poly n
+                      |    \
+                      q    f'
+                      ↓      ↘ 
+                 FPAlgebra ─f→ A 
+          -}
+          q = quotientMap (Polynomials n) relationsIdeal
+          f' iHom' : CommAlgebraHom (Polynomials n) A
+          f' = compAlgebraHom q f
+          iHom' = compAlgebraHom q inducedHom
+          inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
 
 {-
 
