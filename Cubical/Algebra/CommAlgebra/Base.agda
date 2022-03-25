@@ -23,7 +23,7 @@ open import Cubical.Reflection.RecordEquiv
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ″ : Level
 
 record IsCommAlgebra (R : CommRing ℓ) {A : Type ℓ'}
                      (0a : A) (1a : A)
@@ -151,16 +151,16 @@ module _ {R : CommRing ℓ} where
   CommAlgebraEquiv : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
   CommAlgebraEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsCommAlgebraEquiv (M .snd) e (N .snd)
 
-  IsCommAlgebraHom : {A B : Type ℓ'}
+  IsCommAlgebraHom : {A : Type ℓ'} {B : Type ℓ″}
     (M : CommAlgebraStr R A) (f : A → B) (N : CommAlgebraStr R B)
-    → Type (ℓ-max ℓ ℓ')
+    → Type (ℓ-max ℓ (ℓ-max ℓ' ℓ″))
   IsCommAlgebraHom M f N =
     IsAlgebraHom (CommAlgebraStr→AlgebraStr M) f (CommAlgebraStr→AlgebraStr N)
 
-  CommAlgebraHom : (M N : CommAlgebra R ℓ') → Type (ℓ-max ℓ ℓ')
+  CommAlgebraHom : (M : CommAlgebra R ℓ') → (M : CommAlgebra R ℓ″) → Type (ℓ-max ℓ (ℓ-max ℓ' ℓ″))
   CommAlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsCommAlgebraHom (M .snd) f (N .snd)
 
-  module _ {M N : CommAlgebra R ℓ'} where
+  module _ {M : CommAlgebra R ℓ'} {N : CommAlgebra R ℓ″} where
     open CommAlgebraStr {{...}}
     open IsAlgebraHom
     private
