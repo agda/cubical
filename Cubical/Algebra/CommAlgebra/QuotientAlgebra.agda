@@ -107,7 +107,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
 
   open IsAlgebraHom
   inducedHom : (B : CommAlgebra R ℓ) (ϕ : CommAlgebraHom A B)
-               → (fst I) ⊆ (fst (kernel {A = A} {B = B} ϕ))
+               → (fst I) ⊆ (fst (kernel A B ϕ))
                → CommAlgebraHom (A / I) B
   fst (inducedHom B ϕ I⊆kernel) =
     let open RingTheory (CommRing→Ring (CommAlgebra→CommRing B))

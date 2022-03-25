@@ -12,6 +12,7 @@ module Cubical.Algebra.CommAlgebra.FPAlgebra where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat
@@ -22,12 +23,15 @@ open import Cubical.Data.Empty
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra renaming (inducedHom to freeInducedHom)
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra renaming (inducedHom to quotientInducedHom)
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
+open import Cubical.Algebra.CommAlgebra.Kernel
+
 
 open import Cubical.Foundations.Structure
 
@@ -47,14 +51,28 @@ module _ {R : CommRing ℓ} where
 
     make : CommAlgebra R ℓ
     make = Polynomials n / generatedIdeal (Polynomials n) relation
-{-
 
     inducedHom : {A : CommAlgebra R ℓ}
                → (values : FinVec ⟨ A ⟩ n)
                → ((i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
                → CommAlgebraHom make A
-    inducedHom {A} values f =
-      {!quotientInducedHom (Polynomials n) (generatedIdeal (Polynomials n) relation) A (freeInducedHom A values)!}
+    inducedHom {A} values relationsHold =
+      quotientInducedHom
+        (Polynomials n)
+        (generatedIdeal (Polynomials n) relation)
+        A
+        freeHom
+        isInKernel
+      where
+        freeHom = freeInducedHom A values
+        isInKernel :   fst (generatedIdeal (Polynomials n) relation)
+                     ⊆ fst (kernel (Polynomials n) A freeHom)
+        isInKernel = inclOfFGIdeal
+                       (CommAlgebra→CommRing (Polynomials n))
+                       relation
+                       (kernel (Polynomials n) A freeHom)
+                       relationsHold
+{-
 
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
