@@ -23,37 +23,45 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
-open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
+open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra renaming (inducedHom to freeInducedHom)
+open import Cubical.Algebra.CommAlgebra.QuotientAlgebra renaming (inducedHom to quotientInducedHom)
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
+
+open import Cubical.Foundations.Structure
 
 private
   variable
     ℓ : Level
 
 module _ {R : CommRing ℓ} where
-  abstract
-    freeAlgebraType : (n : ℕ) → Type ℓ
-    freeAlgebraType n = fst (R [ Fin n ])
-    freeAlgebraStr : (n : ℕ) → CommAlgebraStr R (freeAlgebraType n)
-    freeAlgebraStr n = snd (R [ Fin n ])
+  Polynomials : (n : ℕ) → CommAlgebra R ℓ
+  Polynomials n = R [ Fin n ]
 
-  freeAlgebra : (n : ℕ) → CommAlgebra R ℓ
-  freeAlgebra n = freeAlgebraType n , freeAlgebraStr n
+  evPoly : {n : ℕ} (A : CommAlgebra R ℓ) → ⟨ Polynomials n ⟩ → FinVec ⟨ A ⟩ n → ⟨ A ⟩
+  evPoly A P values = fst (freeInducedHom A values) P 
 
-  abstract
-    makeFPAlgebra : {m : ℕ} (n : ℕ) (l : FinVec (fst (freeAlgebra n)) m)
-                  → CommAlgebra R ℓ
-    makeFPAlgebra n l = freeAlgebra n / generatedIdeal (freeAlgebra n) l
+  module FPAlgebra {m : ℕ} (n : ℕ) (relation : FinVec ⟨ Polynomials n ⟩ m) where
+    open CommAlgebraStr using (0a)
+
+    make : CommAlgebra R ℓ
+    make = Polynomials n / generatedIdeal (Polynomials n) relation
+
+    inducedHom : {A : CommAlgebra R ℓ}
+               → (values : FinVec ⟨ A ⟩ n)
+               → ((i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
+               → CommAlgebraHom make A
+    inducedHom {A} values f =
+      {!quotientInducedHom (Polynomials n) (generatedIdeal _ relation) A (freeInducedHom A values) ?!}
+{-
 
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
       n : ℕ
       m : ℕ
-      relations : FinVec (fst (freeAlgebra n)) m
-      equiv : CommAlgebraEquiv (makeFPAlgebra n relations) A
+      relations : FinVec ⟨ Polynomials n ⟩ m
+      equiv : CommAlgebraEquiv (FPAlgebra.make n relations) A
 
   isFPAlgebra : (A : CommAlgebra R ℓ) → Type _
   isFPAlgebra A = ∥ finitePresentation A ∥
@@ -64,7 +72,7 @@ module _ {R : CommRing ℓ} where
 module Instances {R : CommRing ℓ} where
   private
     R[⊥] : CommAlgebra R ℓ
-    R[⊥] = freeAlgebra 0
+    R[⊥] = Polynomials 0
 
     emptyGen : FinVec (fst R[⊥]) 0
     emptyGen = λ ()
@@ -78,5 +86,6 @@ module Instances {R : CommRing ℓ} where
   finitePresentation.relations initialCAlgFP = emptyGen
   finitePresentation.equiv initialCAlgFP =
     makeFPAlgebra 0 emptyGen                                ≃CAlg⟨ {!idCAlgEquiv _!} ⟩
-    freeAlgebra 0 / generatedIdeal (freeAlgebra 0) emptyGen ≃CAlg⟨ {!!} ⟩
+    Polynomials 0 / generatedIdeal (Polynomials 0) emptyGen ≃CAlg⟨ {!!} ⟩
     initialCAlg R                                           ≃CAlg∎
+-}
