@@ -34,17 +34,19 @@ private
     ℓ : Level
 
 module _ {R : CommRing ℓ} where
+  abstract
+    freeAlgebraType : (n : ℕ) → Type ℓ
+    freeAlgebraType n = fst (R [ Fin n ])
+    freeAlgebraStr : (n : ℕ) → CommAlgebraStr R (freeAlgebraType n)
+    freeAlgebraStr n = snd (R [ Fin n ])
+
   freeAlgebra : (n : ℕ) → CommAlgebra R ℓ
-  freeAlgebra n = R [ Fin n ]
+  freeAlgebra n = freeAlgebraType n , freeAlgebraStr n
 
   abstract
     makeFPAlgebra : {m : ℕ} (n : ℕ) (l : FinVec (fst (freeAlgebra n)) m)
                   → CommAlgebra R ℓ
     makeFPAlgebra n l = freeAlgebra n / generatedIdeal (freeAlgebra n) l
-
-    expandFPDef : {m : ℕ} (n : ℕ) (l : FinVec (fst (freeAlgebra n)) m)
-                  → CommAlgebraEquiv (makeFPAlgebra n l) (freeAlgebra n / generatedIdeal (freeAlgebra n) l)
-    expandFPDef n l = idCAlgEquiv (makeFPAlgebra n l)
 
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
@@ -62,7 +64,7 @@ module _ {R : CommRing ℓ} where
 module Instances {R : CommRing ℓ} where
   private
     R[⊥] : CommAlgebra R ℓ
-    R[⊥] = R [ Fin 0 ]
+    R[⊥] = freeAlgebra 0
 
     emptyGen : FinVec (fst R[⊥]) 0
     emptyGen = λ ()
@@ -75,6 +77,6 @@ module Instances {R : CommRing ℓ} where
   finitePresentation.m initialCAlgFP = 0
   finitePresentation.relations initialCAlgFP = emptyGen
   finitePresentation.equiv initialCAlgFP =
-    makeFPAlgebra 0 emptyGen                                ≃CAlg⟨ expandFPDef 0 emptyGen ⟩
+    makeFPAlgebra 0 emptyGen                                ≃CAlg⟨ {!idCAlgEquiv _!} ⟩
     freeAlgebra 0 / generatedIdeal (freeAlgebra 0) emptyGen ≃CAlg⟨ {!!} ⟩
-    initialCAlg R ≃CAlg∎
+    initialCAlg R                                           ≃CAlg∎
