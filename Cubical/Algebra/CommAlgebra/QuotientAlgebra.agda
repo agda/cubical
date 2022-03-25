@@ -153,7 +153,11 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
                     λ _ → refl)
   snd zeroIdealQuotient = snd (quotientMap A (0Ideal A))
 
-
 [_]/ : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
        → (a : fst A) → fst (A / I)
 [ a ]/ = [ a ]
+
+elementInQuotientCAlg :
+  (R : CommRing ℓ) (A : CommAlgebra R ℓ) (I : IdealsIn A)
+  → (a : fst A) → fst (A / I)
+elementInQuotientCAlg R A I a = [_]/ {R = R} {A = A} {I = I} a

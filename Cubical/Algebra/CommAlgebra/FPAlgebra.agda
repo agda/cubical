@@ -46,32 +46,50 @@ module _ {R : CommRing ℓ} where
   evPoly : {n : ℕ} (A : CommAlgebra R ℓ) → ⟨ Polynomials n ⟩ → FinVec ⟨ A ⟩ n → ⟨ A ⟩
   evPoly A P values = fst (freeInducedHom A values) P 
 
-  module FPAlgebra {m : ℕ} (n : ℕ) (relation : FinVec ⟨ Polynomials n ⟩ m) where
+  module _ {m : ℕ} (n : ℕ) (relation : FinVec ⟨ Polynomials n ⟩ m) where
     open CommAlgebraStr using (0a)
 
-    make : CommAlgebra R ℓ
-    make = Polynomials n / generatedIdeal (Polynomials n) relation
+    relationsIdeal = generatedIdeal (Polynomials n) relation
 
-    inducedHom : {A : CommAlgebra R ℓ}
-               → (values : FinVec ⟨ A ⟩ n)
-               → ((i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
-               → CommAlgebraHom make A
-    inducedHom {A} values relationsHold =
-      quotientInducedHom
-        (Polynomials n)
-        (generatedIdeal (Polynomials n) relation)
-        A
-        freeHom
-        isInKernel
+    FPAlgebra : CommAlgebra R ℓ
+    FPAlgebra = Polynomials n / relationsIdeal
+
+    module universalProperty
+      {A : CommAlgebra R ℓ}
+      (values : FinVec ⟨ A ⟩ n)
+      (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
       where
-        freeHom = freeInducedHom A values
-        isInKernel :   fst (generatedIdeal (Polynomials n) relation)
-                     ⊆ fst (kernel (Polynomials n) A freeHom)
-        isInKernel = inclOfFGIdeal
-                       (CommAlgebra→CommRing (Polynomials n))
-                       relation
-                       (kernel (Polynomials n) A freeHom)
-                       relationsHold
+
+      open Construction using (var)
+
+      inducedHom : CommAlgebraHom FPAlgebra A
+      inducedHom =
+        quotientInducedHom
+          (Polynomials n)
+          relationsIdeal
+          A
+          freeHom
+          isInKernel
+        where
+          freeHom = freeInducedHom A values
+          isInKernel :   fst (generatedIdeal (Polynomials n) relation)
+                       ⊆ fst (kernel (Polynomials n) A freeHom)
+          isInKernel = inclOfFGIdeal
+                         (CommAlgebra→CommRing (Polynomials n))
+                         relation
+                         (kernel (Polynomials n) A freeHom)
+                         relationsHold
+
+      generator : (i : Fin n) → ⟨ FPAlgebra ⟩
+      generator i =
+        elementInQuotientCAlg
+          R (Polynomials n) relationsIdeal (var i)
+
+      unique : (f : CommAlgebraHom FPAlgebra A)
+             → ((i : Fin n) → fst f (generator i)  ≡ values i)
+             → f ≡ inducedHom
+      unique = {!!}
+
 {-
 
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
