@@ -15,12 +15,13 @@ open import Cubical.Algebra.CommRing
 private variable
   l l' : Level
 
-module PolyHIT (A' : CommRing l) where
+module _ (A' : CommRing l) where
   private
     A = fst A'
-  open CommRingStr (snd A') 
+  open CommRingStr (snd A')
 
 -----------------------------------------------------------------------------
+-- Definition
 
   data Poly (n : ℕ) : Type l where
     -- elements
@@ -38,22 +39,28 @@ module PolyHIT (A' : CommRing l) where
     trunc : isSet(Poly n)
 
 -----------------------------------------------------------------------------
+-- Induction and Recursion
+
+module _ (A' : CommRing l) where
+  private
+    A = fst A'
+  open CommRingStr (snd A')
 
   module Poly-Ind-Set
     -- types
     (n : ℕ)
-    (F : (P : Poly n) → Type l')
-    (issd : (P : Poly n) → isSet (F P))
+    (F : (P : Poly A' n) → Type l')
+    (issd : (P : Poly A' n) → isSet (F P))
     -- elements
     (0P* : F 0P)
     (base* : (v : Vec ℕ n) → (a : A) → F (base v a))
-    (_Poly+*_ : {P Q : Poly n} → (PS : F P) → (QS : F Q) → F (P Poly+ Q))
+    (_Poly+*_ : {P Q : Poly A' n} → (PS : F P) → (QS : F Q) → F (P Poly+ Q))
     -- AbGroup eq
-    (Poly+-assoc* : {P Q R : Poly n} → (PS : F P) → (QS : F Q) → (RS : F R)
+    (Poly+-assoc* : {P Q R : Poly A' n} → (PS : F P) → (QS : F Q) → (RS : F R)
                     → PathP (λ i → F (Poly+-assoc P Q R i)) (PS Poly+* (QS Poly+* RS)) ((PS Poly+* QS) Poly+* RS))
-    (Poly+-Rid*   : {P : Poly n} → (PS : F P) →
+    (Poly+-Rid*   : {P : Poly A' n} → (PS : F P) →
                    PathP (λ i → F (Poly+-Rid P i)) (PS Poly+* 0P*) PS)
-    (Poly+-comm*  : {P Q : Poly n} → (PS : F P) → (QS : F Q) 
+    (Poly+-comm*  : {P Q : Poly A' n} → (PS : F P) → (QS : F Q) 
                     → PathP (λ i → F (Poly+-comm P Q i)) (PS Poly+* QS) (QS Poly+* PS))
     -- Base eq
     (base-0P* : (v : Vec ℕ n) → PathP (λ i → F (base-0P v i)) (base* v 0r) 0P*)
@@ -61,7 +68,7 @@ module PolyHIT (A' : CommRing l) where
                      → PathP (λ i → F (base-Poly+ v a b i)) ((base* v a) Poly+* (base* v b)) (base* v (a + b)))
     where
 
-    f : (P : Poly n) → F P
+    f : (P : Poly A' n) → F P
     f 0P = 0P*
     f (base v a) = base* v a
     f (P Poly+ Q) = (f P) Poly+* (f Q)
@@ -91,22 +98,22 @@ module PolyHIT (A' : CommRing l) where
     (base-Poly+*     : (v : Vec ℕ n) → (a b : A) → ((base* v a) Poly+* (base* v b)) ≡ (base* v (a + b)))
     where
   
-    f : Poly n → B
+    f : Poly A' n → B
     f = Poly-Ind-Set.f n (λ _ → B) (λ _ → iss) 0P* base* _Poly+*_ Poly+-assoc* Poly+-Rid* Poly+-comm* base-0P* base-Poly+*
 
 
   module Poly-Ind-Prop
     -- types
     (n : ℕ)
-    (F : (P : Poly n) → Type l')
-    (ispd : (P : Poly n) → isProp (F P))
+    (F : (P : Poly A' n) → Type l')
+    (ispd : (P : Poly A' n) → isProp (F P))
     -- elements
     (0P* : F 0P)
     (base* : (v : Vec ℕ n) → (a : A) → F (base v a))
-    (_Poly+*_ : {P Q : Poly n} → (PS : F P) → (QS : F Q) → F (P Poly+ Q))
+    (_Poly+*_ : {P Q : Poly A' n} → (PS : F P) → (QS : F Q) → F (P Poly+ Q))
     where
 
-    f : (P : Poly n) → F P
+    f : (P : Poly A' n) → F P
     f = Poly-Ind-Set.f n F (λ P → isProp→isSet (ispd P)) 0P* base* _Poly+*_ 
           (λ {P Q R} PS QS RQ → toPathP (ispd _ (transport (λ i → F (Poly+-assoc P Q R i)) _) _))
           (λ {P} PS           → toPathP (ispd _ (transport (λ i → F (Poly+-Rid P i))       _) _))
@@ -126,5 +133,5 @@ module PolyHIT (A' : CommRing l) where
     (_Poly+*_ : B → B → B)
     where
 
-    f : Poly n → B
+    f : Poly A' n → B
     f = Poly-Ind-Prop.f n (λ _ → B) (λ _ → isp) 0P* base* _Poly+*_

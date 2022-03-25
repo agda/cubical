@@ -26,15 +26,14 @@ module Equiv-Poly0-A (A' : CommRing l) where
   cra = snd A'
 
   open CommRingStr cra renaming (is-set to isSetA)
-  open PolyHIT A'
-  open Nth-Pol-CommRing A' 0
+  open Nth-Poly-structure A' 0
 
 
 -----------------------------------------------------------------------------
 -- Equivalence
 
-  Poly0→A : Poly 0 → A
-  Poly0→A = Poly-Rec-Set.f 0 A isSetA 
+  Poly0→A : Poly A' 0 → A
+  Poly0→A = Poly-Rec-Set.f A' 0 A isSetA 
              0r
              (λ v a → a)
              _+_
@@ -44,14 +43,14 @@ module Equiv-Poly0-A (A' : CommRing l) where
              (λ _ → refl)
              λ _ a b → refl
 
-  A→Poly0 : A → Poly 0
+  A→Poly0 : A → Poly A' 0
   A→Poly0 a = base [] a
 
   e_sect : (a : A) → Poly0→A (A→Poly0 a) ≡ a
   e_sect a = refl
 
-  e_retr : (P : Poly 0) → A→Poly0 (Poly0→A P) ≡ P
-  e_retr = Poly-Ind-Prop.f 0
+  e_retr : (P : Poly A' 0) → A→Poly0 (Poly0→A P) ≡ P
+  e_retr = Poly-Ind-Prop.f A' 0
            (λ P → A→Poly0 (Poly0→A P) ≡ P)
            (λ _ → trunc _ _)
            (base-0P [])
@@ -65,21 +64,45 @@ module Equiv-Poly0-A (A' : CommRing l) where
   map-0P : Poly0→A 0P ≡ 0r
   map-0P = refl
 
-  Poly0→A-gmorph : (P Q : Poly 0) → Poly0→A ( P Poly+ Q) ≡ Poly0→A P + Poly0→A Q
+  Poly0→A-gmorph : (P Q : Poly A' 0) → Poly0→A ( P Poly+ Q) ≡ Poly0→A P + Poly0→A Q
   Poly0→A-gmorph P Q = refl
 
   map-1P : Poly0→A 1P ≡ 1r
   map-1P = refl
   
-  Poly0→A-rmorph : (P Q : Poly 0) → Poly0→A ( P Poly* Q) ≡ Poly0→A P · Poly0→A Q
-  Poly0→A-rmorph = Poly-Ind-Prop.f 0
-                    (λ P → (Q : Poly 0) → Poly0→A (P Poly* Q) ≡ Poly0→A P · Poly0→A Q)
+  Poly0→A-rmorph : (P Q : Poly A' 0) → Poly0→A ( P Poly* Q) ≡ Poly0→A P · Poly0→A Q
+  Poly0→A-rmorph = Poly-Ind-Prop.f A' 0
+                    (λ P → (Q : Poly A' 0) → Poly0→A (P Poly* Q) ≡ Poly0→A P · Poly0→A Q)
                     (λ P p q i Q j → isSetA (Poly0→A (P Poly* Q)) (Poly0→A P · Poly0→A Q) (p Q) (q Q) i j)
                     (λ Q → sym (RingTheory.0LeftAnnihilates (CommRing→Ring A') (Poly0→A Q)))
-                    (λ v a → Poly-Ind-Prop.f 0
+                    (λ v a → Poly-Ind-Prop.f A' 0
                               (λ P → Poly0→A (base v a Poly* P) ≡ Poly0→A (base v a) · Poly0→A P)
                               (λ _ → isSetA _ _)
                               (sym (RingTheory.0RightAnnihilates (CommRing→Ring A') (Poly0→A (base v a))))
                               (λ v' a' → refl)
                               λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V) ∙ (sym (·Rdist+ _ _ _)))
                     λ {U V} ind-U ind-V Q → (cong₂ _+_ (ind-U Q) (ind-V Q)) ∙ (sym (·Ldist+ _ _ _))
+
+
+  Poly0-A-morphinv : (P : Poly A' 0) → Poly0→A (Poly-inv P) ≡ - (Poly0→A P) 
+  Poly0-A-morphinv = homInv (snd (Ring→Group (CommRing→Ring (PolyCommRing A' 0))))
+                             Poly0→A
+                             (snd (Ring→Group (CommRing→Ring A')))
+                             Poly0→A-gmorph
+                             
+
+-----------------------------------------------------------------------------
+-- Ring Equivalence
+
+module _ (A' : CommRing l) where
+
+  open Equiv-Poly0-A A'
+  
+  CRE-Poly0-A : CommRingEquiv (PolyCommRing A' 0) A'
+  CRE-Poly0-A = isoToEquiv (iso Poly0→A A→Poly0 e_sect e_retr) ,
+                record
+                  { pres0 = refl ;
+                    pres1 = refl ;
+                    pres+ = Poly0→A-gmorph ;
+                    pres· = Poly0→A-rmorph ;
+                    pres- = Poly0-A-morphinv }
