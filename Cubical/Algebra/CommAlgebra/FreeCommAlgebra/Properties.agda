@@ -357,6 +357,13 @@ homMapPath : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
 homMapPath A = isoToPath (homMapIso A)
 
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
+  open AlgebraHoms
+  A′ = CommAlgebra→Algebra A
+  B′ = CommAlgebra→Algebra B
+  R′ = (CommRing→Ring R)
+  ν : AlgebraHom A′ B′ → (⟨ A ⟩ → ⟨ B ⟩)
+  ν φ = φ .fst
+
   {-
     Hom(R[I],A) → (I → A)
          ↓          ↓

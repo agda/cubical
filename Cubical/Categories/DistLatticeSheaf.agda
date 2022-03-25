@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Categories.DistLatticeSheaf where
 
 open import Cubical.Foundations.Prelude
@@ -44,8 +44,9 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   𝟙 : ob C
   𝟙 = terminalOb C T
 
-  DLCat : Category ℓ ℓ
-  DLCat = DistLatticeCategory L
+  private
+   DLCat : Category ℓ ℓ
+   DLCat = DistLatticeCategory L
 
   open Category DLCat
 
@@ -68,28 +69,26 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
 
 
   {-
-     x ∧ y ----→   y
+     x ∧ y ----→   x
        |           |
        |    sq     |
        V           V
-       x   ----→ x ∨ y
+       y   ----→ x ∨ y
   -}
   sq : (x y : L .fst) → hom-∧₂ x y ⋆ hom-∨₂ x y ≡ hom-∧₁ x y ⋆ hom-∨₁ x y
   sq x y = is-prop-valued (x ∧l y) (x ∨l y) (hom-∧₂ x y ⋆ hom-∨₂ x y) (hom-∧₁ x y ⋆ hom-∨₁ x y)
 
   {-
-    F(x ∨ y) ----→ F(y)
+    F(x ∨ y) ----→ F(x)
        |            |
        |     Fsq    |
        V            V
-      F(x) ------→ F(x ∧ y)
+      F(y) ------→ F(x ∧ y)
   -}
   Fsq : (F : DLPreSheaf) (x y : L .fst)
       → F .F-hom (hom-∨₂ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₂ x y) ≡
         F .F-hom (hom-∨₁ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₁ x y)
-  Fsq F x y = sym (F-seq F (hom-∨₂ x y) (hom-∧₂ x y))
-           ∙∙ cong (F .F-hom) (sq x y)
-           ∙∙ F-seq F (hom-∨₁ x y) (hom-∧₁ x y)
+  Fsq F x y = F-square F (sq x y)
 
   isDLSheaf : (F : DLPreSheaf) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
   isDLSheaf F = (F-ob F 0l ≡ 𝟙)
@@ -100,20 +99,81 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   DLSheaf = Σ[ F ∈ DLPreSheaf ] isDLSheaf F
 
 
-module Lemma1 (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) (L' : ℙ (fst L)) (hB : IsBasis L L') where
+module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C)
+                    (L' : ℙ (fst L)) (hB : IsBasis L L') where
 
-  open Category hiding (_⋆_)
-  open Functor
-  open DistLatticeStr (snd L)
-  open IsBasis hB
+ open Category
+ open Functor
 
-  isDLBasisSheaf : (F : DLPreSheaf L C T) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  isDLBasisSheaf F = (F-ob F 0l ≡ 𝟙 L C T)
-                   × ((x y : L .fst) → x ∈ L' → y ∈ L' → isPullback C _ _ _ (Fsq L C T F x y))
+ open DistLatticeStr ⦃...⦄
+ open SemilatticeStr ⦃...⦄
+ open IsBasis hB
+
+ private
+  DLCat = DistLatticeCategory L
+  BasisCat = ΣPropCat  DLCat L'
+  DLBasisPreSheaf = Functor (BasisCat ^op) C
+
+  -- to avoid writing 𝟙 L C T
+  1c : ob C
+  1c = terminalOb C T
+
+  instance
+   _ = snd L
+   _ = snd (Basis→MeetSemilattice L L' hB)
+
+
+ module condSquare (x y : ob BasisCat) (x∨y∈L' : fst x ∨l fst y ∈ L') where
+
+  private
+   x∨y : ob BasisCat -- = Σ[ x ∈ L ] (x ∈ L')
+   x∨y = fst x ∨l fst y , x∨y∈L'
+
+  {-
+     x ∧ y ----→   x
+       |           |
+       |    sq     |
+       V           V
+       y   ----→ x ∨ y
+
+     but as a square in BasisCat
+  -}
+  Bsq : seq' BasisCat {x = x · y} {y = y} {z = x∨y} (hom-∧₂ L C T (fst x) (fst y))
+                                                    (hom-∨₂ L C T (fst x) (fst y))
+      ≡ seq' BasisCat {x = x · y} {y = x} {z = x∨y} (hom-∧₁ L C T (fst x) (fst y))
+                                                    (hom-∨₁ L C T (fst x) (fst y))
+  Bsq = sq L C T (fst x) (fst y)
+
+  {-
+    F(x ∨ y) ----→ F(x)
+       |            |
+       |     Fsq    |
+       V            V
+      F(y) ------→ F(x ∧ y)
+
+    square in C but now F is only presheaf on BasisCat
+  -}
+  BFsq : (F : DLBasisPreSheaf)
+       → seq' C {x = F .F-ob x∨y} {y = F .F-ob y} {z = F .F-ob (x · y)}
+                (F .F-hom (hom-∨₂ L C T (fst x) (fst y)))
+                (F .F-hom (hom-∧₂ L C T (fst x) (fst y)))
+       ≡ seq' C {x = F .F-ob x∨y} {y = F .F-ob x} {z = F .F-ob (x · y)}
+                (F .F-hom (hom-∨₁ L C T (fst x) (fst y)))
+                (F .F-hom (hom-∧₁ L C T (fst x) (fst y)))
+  BFsq F = F-square F Bsq
+
+
+ -- TODO: check that this is equivalent to the functor
+ -- preserving terminal objects and pullbacks
+ isDLBasisSheaf : DLBasisPreSheaf → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+ isDLBasisSheaf F = ((0∈L' : 0l ∈ L') → F .F-ob (0l , 0∈L') ≡ 1c)
+                  × ((x y : ob BasisCat) (x∨y∈L' : fst x ∨l fst y ∈ L')
+                  → isPullback C _ _ _ (BFsq x y x∨y∈L' F))
+  where
+  open condSquare
 
   DLBasisSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  DLBasisSheaf = Σ[ F ∈ DLPreSheaf L C T ] isDLBasisSheaf F
-
+  DLBasisSheaf = Σ[ F ∈ DLBasisPreSheaf ] isDLBasisSheaf F
 
   -- To prove the statement we probably need that C is:
   -- 1. univalent

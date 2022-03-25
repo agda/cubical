@@ -8,17 +8,19 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as Prop
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
-open import Cubical.Data.Empty renaming (rec to EmptyRec)
+open import Cubical.Data.Bool
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sigma
 
 open import Cubical.Data.Fin
-open import Cubical.Data.SumFin renaming (Fin to SumFin) hiding (discreteFin)
+open import Cubical.Data.SumFin
+  renaming (Fin to SumFin) hiding (discreteFin)
 open import Cubical.Data.FinSet.Base
 
 open import Cubical.Relation.Nullary
@@ -31,16 +33,26 @@ private
     A : Type ℓ
     B : Type ℓ'
 
--- infix operator to more conveniently compose equivalences
+-- operators to more conveniently compose equivalences
 
-_⋆_ = compEquiv
+module _
+  {A : Type ℓ}{B : Type ℓ'}{C : Type ℓ''} where
 
-infixr 30 _⋆_
+  infixr 30 _⋆̂_
+
+  _⋆̂_ : ∥ A ≃ B ∥ → ∥ B ≃ C ∥ → ∥ A ≃ C ∥
+  _⋆̂_ = Prop.map2 (_⋆_)
+
+module _
+  {A : Type ℓ}{B : Type ℓ'} where
+
+  ∣invEquiv∣ : ∥ A ≃ B ∥ → ∥ B ≃ A ∥
+  ∣invEquiv∣ = Prop.map invEquiv
 
 -- useful implications
 
 EquivPresIsFinSet : A ≃ B → isFinSet A → isFinSet B
-EquivPresIsFinSet e = rec isPropIsFinSet (λ (n , p) → ∣ n , compEquiv (invEquiv e) p ∣)
+EquivPresIsFinSet e = Prop.rec isPropIsFinSet (λ (n , p) → ∣ n , compEquiv (invEquiv e) p ∣)
 
 isFinSetFin : {n : ℕ} → isFinSet (Fin n)
 isFinSetFin = ∣ _ , pathToEquiv refl ∣
@@ -48,8 +60,11 @@ isFinSetFin = ∣ _ , pathToEquiv refl ∣
 isFinSetUnit : isFinSet Unit
 isFinSetUnit = ∣ 1 , Unit≃Fin1 ∣
 
+isFinSetBool : isFinSet Bool
+isFinSetBool = ∣ 2 , invEquiv (SumFin2≃Bool) ⋆ SumFin≃Fin 2 ∣
+
 isFinSet→Discrete : isFinSet A → Discrete A
-isFinSet→Discrete = rec isPropDiscrete (λ (_ , p) → EquivPresDiscrete (invEquiv p) discreteFin)
+isFinSet→Discrete = Prop.rec isPropDiscrete (λ (_ , p) → EquivPresDiscrete (invEquiv p) discreteFin)
 
 isContr→isFinSet : isContr A → isFinSet A
 isContr→isFinSet h = ∣ 1 , isContr→≃Unit* h ⋆ invEquiv (Unit≃Unit* ) ⋆ Unit≃Fin1 ∣
@@ -57,6 +72,23 @@ isContr→isFinSet h = ∣ 1 , isContr→≃Unit* h ⋆ invEquiv (Unit≃Unit* )
 isDecProp→isFinSet : isProp A → Dec A → isFinSet A
 isDecProp→isFinSet h (yes p) = isContr→isFinSet (inhProp→isContr p h)
 isDecProp→isFinSet h (no ¬p) = ∣ 0 , uninhabEquiv ¬p ¬Fin0 ∣
+
+isDec→isFinSet∥∥ : Dec A → isFinSet ∥ A ∥
+isDec→isFinSet∥∥ dec = isDecProp→isFinSet isPropPropTrunc (Dec∥∥ dec)
+
+isFinSet→Dec∥∥ : isFinSet A → Dec ∥ A ∥
+isFinSet→Dec∥∥ =
+  Prop.rec (isPropDec isPropPropTrunc)
+    (λ (_ , p) → EquivPresDec (propTrunc≃ (invEquiv p)) (Dec∥Fin∥ _))
+
+isFinProp→Dec : isFinSet A → isProp A → Dec A
+isFinProp→Dec p h = subst Dec (propTruncIdempotent h) (isFinSet→Dec∥∥ p)
+
+PeirceLaw∥∥ : isFinSet A → NonEmpty ∥ A ∥ → ∥ A ∥
+PeirceLaw∥∥ p = Dec→Stable (isFinSet→Dec∥∥ p)
+
+PeirceLaw : isFinSet A → NonEmpty A → ∥ A ∥
+PeirceLaw p q = PeirceLaw∥∥ p (λ f → q (λ x → f ∣ x ∣))
 
 {-
 
@@ -80,9 +112,9 @@ isPropIsFinSet' {A = A} (n , equivn) (m , equivm) =
   Σ≡Prop (λ _ → isPropPropTrunc) n≡m
   where
     Fin-n≃Fin-m : ∥ Fin n ≃ Fin m ∥
-    Fin-n≃Fin-m = rec
+    Fin-n≃Fin-m = Prop.rec
       isPropPropTrunc
-      (rec
+      (Prop.rec
         (isPropΠ λ _ → isPropPropTrunc)
         (λ hm hn → ∣ Fin n ≃⟨ invEquiv hn ⟩ A ≃⟨ hm ⟩ Fin m ■ ∣)
         equivm
@@ -90,13 +122,13 @@ isPropIsFinSet' {A = A} (n , equivn) (m , equivm) =
       equivn
 
     Fin-n≡Fin-m : ∥ Fin n ≡ Fin m ∥
-    Fin-n≡Fin-m = rec isPropPropTrunc (∣_∣ ∘ ua) Fin-n≃Fin-m
+    Fin-n≡Fin-m = Prop.map ua Fin-n≃Fin-m
 
     ∥n≡m∥ : ∥ n ≡ m ∥
-    ∥n≡m∥ = rec isPropPropTrunc (∣_∣ ∘ Fin-inj n m) Fin-n≡Fin-m
+    ∥n≡m∥ = Prop.map (Fin-inj n m) Fin-n≡Fin-m
 
     n≡m : n ≡ m
-    n≡m = rec (isSetℕ n m) (λ p → p) ∥n≡m∥
+    n≡m = Prop.rec (isSetℕ n m) (λ p → p) ∥n≡m∥
 
 -- logical equivalence of two definitions
 
@@ -126,11 +158,6 @@ FinSet≃FinSet' =
 
 FinSet≡FinSet' : FinSet ℓ ≡ FinSet' ℓ
 FinSet≡FinSet' = ua FinSet≃FinSet'
-
--- cardinality of finite sets
-
-card : FinSet ℓ → ℕ
-card = fst ∘ snd ∘ FinSet→FinSet'
 
 -- definitions to reduce problems about FinSet to SumFin
 

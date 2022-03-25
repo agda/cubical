@@ -22,6 +22,10 @@ isContrΠ⊥ : ∀ {ℓ} {A : ⊥ → Type ℓ} → isContr ((x : ⊥) → A x)
 fst isContrΠ⊥ ()
 snd isContrΠ⊥ f i ()
 
+isContrΠ⊥* : ∀ {ℓ ℓ'} {A : ⊥* {ℓ} → Type ℓ'} → isContr ((x : ⊥*) → A x)
+fst isContrΠ⊥* ()
+snd isContrΠ⊥* f i ()
+
 uninhabEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → (A → ⊥) → (B → ⊥) → A ≃ B
 uninhabEquiv ¬a ¬b = isoToEquiv isom

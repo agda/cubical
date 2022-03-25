@@ -53,7 +53,7 @@ module _ {R : CommRing ℓ} where
                → ((i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
                → CommAlgebraHom make A
     inducedHom {A} values f =
-      {!quotientInducedHom (Polynomials n) (generatedIdeal _ relation) A (freeInducedHom A values) ?!}
+      {!quotientInducedHom (Polynomials n) (generatedIdeal (Polynomials n) relation) A (freeInducedHom A values)!}
 {-
 
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
