@@ -49,6 +49,10 @@ isPropIsDecProp p q =
 DecProp : (ℓ : Level) → Type (ℓ-suc ℓ)
 DecProp ℓ = Σ[ P ∈ Type ℓ ] isDecProp P
 
+isDecPropRespectEquiv : {P : Type ℓ} {Q : Type ℓ'}
+  → P ≃ Q → isDecProp Q → isDecProp P
+isDecPropRespectEquiv e (t , e') = t , e ⋆ e'
+
 module _
   (X : Type ℓ)(p : isFinOrd X) where
 

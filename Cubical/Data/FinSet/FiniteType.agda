@@ -20,6 +20,7 @@ This file contains:
 module Cubical.Data.FinSet.FiniteType where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
@@ -103,7 +104,7 @@ isPathConnected→isFinType0 p = isContr→isFinSet p
 
 module _
   (X : Type ℓ )
-  (Y : Type ℓ')(h : isFinType 1 Y)
+  (Y : Type ℓ') (h : isFinType 1 Y)
   (f : X → Y)
   (q : (y : Y) → isFinType 0 (fiber f y)) where
 
@@ -113,19 +114,21 @@ module _
   module _
     (y : Y) where
 
-    isDecPropFiberRel : (x x' : ∥ fiber f y ∥₂) → isDecProp (fiberRel2 _ _ f y x x')
-    isDecPropFiberRel x x' = isDecProp∃ (_ , h .snd y y) (λ _ → _ , isDecProp≡ (_ , q y) _ _)
+    isDecPropFiberRel : (x x' : ∥ fiber f y ∥₂) → isDecProp (fiberRel f y x x')
+    isDecPropFiberRel x x' =
+      isDecPropRespectEquiv (fiberRel1≃2 f y x x')
+        (isDecProp∃ (_ , h .snd y y) (λ _ → _ , isDecProp≡ (_ , q y) _ _))
 
     isFinSetFiber∥∥₂' : isFinSet (fiber ∥f∥₂ ∣ y ∣₂)
     isFinSetFiber∥∥₂' =
-      EquivPresIsFinSet (∥fiber∥₂/Rel≃fiber∥∥₂ _ _ f y)
-        (isFinSetQuot (_ , q y) (fiberRel2 _ _ _ _) (isEquivRelFiberRel _ _ _ _) isDecPropFiberRel)
+      EquivPresIsFinSet (∥fiber∥₂/R≃fiber∥∥₂ f y)
+        (isFinSetQuot (_ , q y) (fiberRel f y) (isEquivRelFiberRel f y) isDecPropFiberRel)
 
   isFinSetFiber∥∥₂ : (y : ∥ Y ∥₂) → isFinSet (fiber ∥f∥₂ y)
   isFinSetFiber∥∥₂ = Set.elim (λ _ → isProp→isSet isPropIsFinSet) isFinSetFiber∥∥₂'
 
   isFinType0Total : isFinType 0 X
-  isFinType0Total = isFinSetTotal _ (_ , h .fst) ∥f∥₂ isFinSetFiber∥∥₂
+  isFinType0Total = isFinSetTotal ∥ X ∥₂ (∥ Y ∥₂ , h .fst) ∥f∥₂ isFinSetFiber∥∥₂
 
 module _
   (X : FinType ℓ 1)
