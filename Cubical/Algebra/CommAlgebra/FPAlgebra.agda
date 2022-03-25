@@ -47,6 +47,7 @@ module _ {R : CommRing ℓ} where
 
     make : CommAlgebra R ℓ
     make = Polynomials n / generatedIdeal (Polynomials n) relation
+{-
 
     inducedHom : {A : CommAlgebra R ℓ}
                → (values : FinVec ⟨ A ⟩ n)
@@ -54,7 +55,6 @@ module _ {R : CommRing ℓ} where
                → CommAlgebraHom make A
     inducedHom {A} values f =
       {!quotientInducedHom (Polynomials n) (generatedIdeal (Polynomials n) relation) A (freeInducedHom A values)!}
-{-
 
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
