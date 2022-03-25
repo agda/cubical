@@ -8,6 +8,7 @@ open import Cubical.Foundations.Powerset using (_∈_; _⊆_)
 
 open import Cubical.HITs.SetQuotients hiding (_/_)
 open import Cubical.Data.Unit
+open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.QuotientRing renaming (_/_ to _/CommRing_) hiding ([_]/)
@@ -17,9 +18,11 @@ open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.Kernel
 open import Cubical.Algebra.CommAlgebra.Instances.Terminal
-open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
+open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
+open import Cubical.Algebra.Algebra.Properties
+open AlgebraHoms using () renaming (compAlgebraHom to compCAlgHom)
 
 private
   variable
@@ -130,6 +133,16 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   pres· (snd (inducedHom B ϕ kernel⊆I)) = elimProp2 (λ _ _ → isSetCommAlgebra B _ _) (pres· (snd ϕ))
   pres- (snd (inducedHom B ϕ kernel⊆I)) = elimProp (λ _ → isSetCommAlgebra B _ _) (pres- (snd ϕ))
   pres⋆ (snd (inducedHom B ϕ kernel⊆I)) = λ r → elimProp (λ _ → isSetCommAlgebra B _ _) (pres⋆ (snd ϕ) r)
+
+  injectivePrecomp : (B : CommAlgebra R ℓ) (f g : CommAlgebraHom (A / I) B)
+                     → compCAlgHom (quotientMap A I) f ≡ compCAlgHom (quotientMap A I) g
+                     → f ≡ g
+  injectivePrecomp B f g p =
+    Σ≡Prop
+      (λ h → isPropIsAlgebraHom (CommRing→Ring R) (snd (CommAlgebra→Algebra (A / I))) h (snd (CommAlgebra→Algebra B)))
+      (descendMapPath (fst f) (fst g) (isSetCommAlgebra B)
+                      λ x → λ i → fst (p i) x)
+
 
 {- trivial quotient -}
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
