@@ -7,6 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (Iso to _≅_)
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Transport
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
@@ -176,6 +177,12 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
       fst (pxww' i) ,
       PathPIsoPath (λ i → W S P outX inX (fst (pxww' i))) (node s subtree ) w  .leftInv (λ i → fst (snd (pxww' i))) j i ,
       PathPIsoPath (λ i → W S P outX inX (fst (pxww' i))) (node s subtree') w' .leftInv (λ i → snd (snd (pxww' i))) j i
+
+  equivRepCoverFib : (x : X) → (w w' : W S P outX inX x) → CoverFib x w w' ≃ RepCoverFib x w w'
+  equivRepCoverFib x w w' = isoToEquiv (isoRepCoverFib x w w')
+
+  pathRepCoverFib : (x : X) → (w w' : W S P outX inX x) → CoverFib x w w' ≡ RepCoverFib x w w'
+  pathRepCoverFib x w w' = ua (equivRepCoverFib x w w')
   
 module _ {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} {inX : ∀ s → P s → X} where
 
@@ -199,9 +206,9 @@ isOfHLevelSuc-W : ∀ {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {out
   → ∀ x → isOfHLevel (suc n) (W S P outX inX x)
 isOfHLevelSuc-W {ℓX = ℓX} {ℓS = ℓS} {ℓP = ℓP} {X = X} {S} {P} {outX} {inX} zero isHS x w w' = isPropW isHS x w w'
 isOfHLevelSuc-W {ℓX = ℓX} {ℓS = ℓS} {ℓP = ℓP} {X = X} {S} {P} {outX} {inX} (suc n) isHS x w w' =
-  subst (isOfHLevel (suc n)) (sym (encodePath w w'))
-    (isOfHLevelSuc-W n isHCoverFib {!!})
+  subst (isOfHLevel (suc n)) (sym (encodePath w w')) (isOfHLevelSuc-W n isHCoverFib (x , w , w'))
   where
     open WPathType S P outX inX
     isHCoverFib : ((x , w , w') : Σ[ y ∈ X ] W S P outX inX y × W S P outX inX y) → isOfHLevel (suc n) (CoverFib x w w')
-    isHCoverFib (x , w , w') = {!!}
+    isHCoverFib (x , w , w') = subst⁻ (isOfHLevel (suc n)) (pathRepCoverFib x w w')
+      (isOfHLevelΣ (suc n) {!isHS x!} {!!})
