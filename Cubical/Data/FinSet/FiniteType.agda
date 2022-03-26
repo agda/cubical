@@ -108,8 +108,9 @@ module _
   (f : X → Y)
   (q : (y : Y) → isFinType 0 (fiber f y)) where
 
-  ∥f∥₂ : ∥ X ∥₂ → ∥ Y ∥₂
-  ∥f∥₂ = Set.map f
+  private
+    ∥f∥₂ : ∥ X ∥₂ → ∥ Y ∥₂
+    ∥f∥₂ = Set.map f
 
   module _ (y : Y) where
 

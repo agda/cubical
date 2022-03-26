@@ -85,16 +85,14 @@ module _
   (Y : X .fst → FinSet ℓ') where
 
   isFinSetΣ : isFinSet (Σ (X .fst) (λ x → Y x .fst))
-  isFinSetΣ =
-    elim2 (λ _ _ → isPropIsFinSet {A = Σ (X .fst) (λ x → Y x .fst)})
-          (λ p q → isFinOrd→isFinSet (isFinOrdΣ (X .fst) (_ , p) (λ x → Y x .fst) q))
-          (X .snd .snd) (choice X (λ x → isFinOrd (Y x .fst)) (λ x → isFinSet→isFinSet' (Y x .snd)))
+  isFinSetΣ = rec2 isPropIsFinSet
+    (λ p q → isFinOrd→isFinSet (isFinOrdΣ (X .fst) (_ , p) (λ x → Y x .fst) q))
+    (X .snd .snd) (choice X (λ x → isFinOrd (Y x .fst)) (λ x → isFinSet→isFinSet' (Y x .snd)))
 
   isFinSetΠ : isFinSet ((x : X .fst) → Y x .fst)
-  isFinSetΠ =
-    elim2 (λ _ _ → isPropIsFinSet {A = ((x : X .fst) → Y x .fst)})
-          (λ p q → isFinOrd→isFinSet (isFinOrdΠ (X .fst) (_ , p) (λ x → Y x .fst) q))
-          (X .snd .snd) (choice X (λ x → isFinOrd (Y x .fst)) (λ x → isFinSet→isFinSet' (Y x .snd)))
+  isFinSetΠ = rec2 isPropIsFinSet
+    (λ p q → isFinOrd→isFinSet (isFinOrdΠ (X .fst) (_ , p) (λ x → Y x .fst) q))
+    (X .snd .snd) (choice X (λ x → isFinOrd (Y x .fst)) (λ x → isFinSet→isFinSet' (Y x .snd)))
 
 module _
   (X : FinSet ℓ)
@@ -148,15 +146,11 @@ module _
 
   isFinSet⊎ : isFinSet (X .fst ⊎ Y .fst)
   isFinSet⊎ = card X + card Y ,
-    elim2 (λ _ _ → isPropPropTrunc {A = _ ≃ Fin (card X + card Y)})
-      (λ p q → ∣ isFinOrd⊎ (X .fst) (_ , p) (Y .fst) (_ , q) .snd ∣)
-      (X .snd .snd) (Y .snd .snd)
+    map2 (λ p q → isFinOrd⊎ (X .fst) (_ , p) (Y .fst) (_ , q) .snd) (X .snd .snd) (Y .snd .snd)
 
   isFinSet× : isFinSet (X .fst × Y .fst)
   isFinSet× = card X · card Y ,
-    elim2 (λ _ _ → isPropPropTrunc {A = _ ≃ Fin (card X · card Y)})
-      (λ p q → ∣ isFinOrd× (X .fst) (_ , p) (Y .fst) (_ , q) .snd ∣)
-      (X .snd .snd) (Y .snd .snd)
+    map2 (λ p q → isFinOrd× (X .fst) (_ , p) (Y .fst) (_ , q) .snd) (X .snd .snd) (Y .snd .snd)
 
   isFinSet→ : isFinSet (X .fst → Y .fst)
   isFinSet→ = isFinSetΠ X (λ _ → Y)
@@ -175,9 +169,7 @@ module _
 
   isFinSetAut : isFinSet (X .fst ≃ X .fst)
   isFinSetAut = LehmerCode.factorial (card X) ,
-    Prop.elim (λ _ → isPropPropTrunc {A = _ ≃ Fin _})
-      (λ p → ∣ isFinOrd≃ (X .fst) (card X , p) .snd ∣)
-      (X .snd .snd)
+    Prop.map (λ p → isFinOrd≃ (X .fst) (card X , p) .snd) (X .snd .snd)
 
   isFinSetTypeAut : isFinSet (X .fst ≡ X .fst)
   isFinSetTypeAut = EquivPresIsFinSet (invEquiv univalence) isFinSetAut

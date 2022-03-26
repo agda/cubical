@@ -235,33 +235,33 @@ BoolProp≃BoolProp* : {a : Bool} → Bool→Type a ≃ Bool→Type* {ℓ} a
 BoolProp≃BoolProp* {a = true} = Unit≃Unit*
 BoolProp≃BoolProp* {a = false} = uninhabEquiv Empty.rec Empty.rec*
 
-Bool→PropInj : (a b : Bool) → Bool→Type a ≃ Bool→Type b → a ≡ b
-Bool→PropInj true true _ = refl
-Bool→PropInj true false p = Empty.rec (p .fst tt)
-Bool→PropInj false true p = Empty.rec (invEq p tt)
-Bool→PropInj false false _ = refl
+Bool→TypeInj : (a b : Bool) → Bool→Type a ≃ Bool→Type b → a ≡ b
+Bool→TypeInj true true _ = refl
+Bool→TypeInj true false p = Empty.rec (p .fst tt)
+Bool→TypeInj false true p = Empty.rec (invEq p tt)
+Bool→TypeInj false false _ = refl
 
-Bool→PropInj* : (a b : Bool) → Bool→Type* {ℓ} a ≃ Bool→Type* {ℓ} b → a ≡ b
-Bool→PropInj* true true _ = refl
-Bool→PropInj* true false p = Empty.rec* (p .fst tt*)
-Bool→PropInj* false true p = Empty.rec* (invEq p tt*)
-Bool→PropInj* false false _ = refl
+Bool→TypeInj* : (a b : Bool) → Bool→Type* {ℓ} a ≃ Bool→Type* {ℓ} b → a ≡ b
+Bool→TypeInj* true true _ = refl
+Bool→TypeInj* true false p = Empty.rec* (p .fst tt*)
+Bool→TypeInj* false true p = Empty.rec* (invEq p tt*)
+Bool→TypeInj* false false _ = refl
 
-isPropBool→Prop : {a : Bool} → isProp (Bool→Type a)
-isPropBool→Prop {a = true} = isPropUnit
-isPropBool→Prop {a = false} = isProp⊥
+isPropBool→Type : {a : Bool} → isProp (Bool→Type a)
+isPropBool→Type {a = true} = isPropUnit
+isPropBool→Type {a = false} = isProp⊥
 
-isPropBool→Prop* : {a : Bool} → isProp (Bool→Type* {ℓ} a)
-isPropBool→Prop* {a = true} = isPropUnit*
-isPropBool→Prop* {a = false} = isProp⊥*
+isPropBool→Type* : {a : Bool} → isProp (Bool→Type* {ℓ} a)
+isPropBool→Type* {a = true} = isPropUnit*
+isPropBool→Type* {a = false} = isProp⊥*
 
-DecBool→Prop : {a : Bool} → Dec (Bool→Type a)
-DecBool→Prop {a = true} = yes tt
-DecBool→Prop {a = false} = no (λ x → x)
+DecBool→Type : {a : Bool} → Dec (Bool→Type a)
+DecBool→Type {a = true} = yes tt
+DecBool→Type {a = false} = no (λ x → x)
 
-DecBool→Prop* : {a : Bool} → Dec (Bool→Type* {ℓ} a)
-DecBool→Prop* {a = true} = yes tt*
-DecBool→Prop* {a = false} = no (λ (lift x) → x)
+DecBool→Type* : {a : Bool} → Dec (Bool→Type* {ℓ} a)
+DecBool→Type* {a = true} = yes tt*
+DecBool→Type* {a = false} = no (λ (lift x) → x)
 
 Dec→DecBool : {P : Type ℓ} → (dec : Dec P) → P → Bool→Type (Dec→Bool dec)
 Dec→DecBool (yes p) _ = tt
@@ -271,9 +271,9 @@ DecBool→Dec : {P : Type ℓ} → (dec : Dec P) → Bool→Type (Dec→Bool dec
 DecBool→Dec (yes p) _ = p
 
 Dec≃DecBool : {P : Type ℓ} → (h : isProp P)(dec : Dec P) → P ≃ Bool→Type (Dec→Bool dec)
-Dec≃DecBool h dec = propBiimpl→Equiv h isPropBool→Prop (Dec→DecBool dec) (DecBool→Dec dec)
+Dec≃DecBool h dec = propBiimpl→Equiv h isPropBool→Type (Dec→DecBool dec) (DecBool→Dec dec)
 
-Bool≡BoolDec : {a : Bool} → a ≡ Dec→Bool (DecBool→Prop {a = a})
+Bool≡BoolDec : {a : Bool} → a ≡ Dec→Bool (DecBool→Type {a = a})
 Bool≡BoolDec {a = true} = refl
 Bool≡BoolDec {a = false} = refl
 
@@ -285,41 +285,41 @@ DecBool→Dec* : {P : Type ℓ} → (dec : Dec P) → Bool→Type* {ℓ} (Dec→
 DecBool→Dec* (yes p) _ = p
 
 Dec≃DecBool* : {P : Type ℓ} → (h : isProp P)(dec : Dec P) → P ≃ Bool→Type* {ℓ} (Dec→Bool dec)
-Dec≃DecBool* h dec = propBiimpl→Equiv h isPropBool→Prop* (Dec→DecBool* dec) (DecBool→Dec* dec)
+Dec≃DecBool* h dec = propBiimpl→Equiv h isPropBool→Type* (Dec→DecBool* dec) (DecBool→Dec* dec)
 
-Bool≡BoolDec* : {a : Bool} → a ≡ Dec→Bool (DecBool→Prop* {ℓ} {a = a})
+Bool≡BoolDec* : {a : Bool} → a ≡ Dec→Bool (DecBool→Type* {ℓ} {a = a})
 Bool≡BoolDec* {a = true} = refl
 Bool≡BoolDec* {a = false} = refl
 
-Bool→Prop× : (a b : Bool) → Bool→Type (a and b) → Bool→Type a × Bool→Type b
-Bool→Prop× true true _ = tt , tt
-Bool→Prop× true false p = Empty.rec p
-Bool→Prop× false true p = Empty.rec p
-Bool→Prop× false false p = Empty.rec p
+Bool→Type× : (a b : Bool) → Bool→Type (a and b) → Bool→Type a × Bool→Type b
+Bool→Type× true true _ = tt , tt
+Bool→Type× true false p = Empty.rec p
+Bool→Type× false true p = Empty.rec p
+Bool→Type× false false p = Empty.rec p
 
-Bool→Prop×' : (a b : Bool) → Bool→Type a × Bool→Type b → Bool→Type (a and b)
-Bool→Prop×' true true _ = tt
-Bool→Prop×' true false (_ , p) = Empty.rec p
-Bool→Prop×' false true (p , _) = Empty.rec p
-Bool→Prop×' false false (p , _) = Empty.rec p
+Bool→Type×' : (a b : Bool) → Bool→Type a × Bool→Type b → Bool→Type (a and b)
+Bool→Type×' true true _ = tt
+Bool→Type×' true false (_ , p) = Empty.rec p
+Bool→Type×' false true (p , _) = Empty.rec p
+Bool→Type×' false false (p , _) = Empty.rec p
 
-Bool→Prop≃ : (a b : Bool) → Bool→Type a × Bool→Type b ≃ Bool→Type (a and b)
-Bool→Prop≃ a b =
-  propBiimpl→Equiv (isProp× isPropBool→Prop isPropBool→Prop) isPropBool→Prop
-    (Bool→Prop×' a b) (Bool→Prop× a b)
+Bool→Type×≃ : (a b : Bool) → Bool→Type a × Bool→Type b ≃ Bool→Type (a and b)
+Bool→Type×≃ a b =
+  propBiimpl→Equiv (isProp× isPropBool→Type isPropBool→Type) isPropBool→Type
+    (Bool→Type×' a b) (Bool→Type× a b)
 
-Bool→Prop⊎ : (a b : Bool) → Bool→Type (a or b) → Bool→Type a ⊎ Bool→Type b
-Bool→Prop⊎ true true _ = inl tt
-Bool→Prop⊎ true false _ = inl tt
-Bool→Prop⊎ false true _ = inr tt
-Bool→Prop⊎ false false p = Empty.rec p
+Bool→Type⊎ : (a b : Bool) → Bool→Type (a or b) → Bool→Type a ⊎ Bool→Type b
+Bool→Type⊎ true true _ = inl tt
+Bool→Type⊎ true false _ = inl tt
+Bool→Type⊎ false true _ = inr tt
+Bool→Type⊎ false false p = Empty.rec p
 
-Bool→Prop⊎' : (a b : Bool) → Bool→Type a ⊎ Bool→Type b → Bool→Type (a or b)
-Bool→Prop⊎' true true _ = tt
-Bool→Prop⊎' true false _ = tt
-Bool→Prop⊎' false true _ = tt
-Bool→Prop⊎' false false (inl p) = Empty.rec p
-Bool→Prop⊎' false false (inr p) = Empty.rec p
+Bool→Type⊎' : (a b : Bool) → Bool→Type a ⊎ Bool→Type b → Bool→Type (a or b)
+Bool→Type⊎' true true _ = tt
+Bool→Type⊎' true false _ = tt
+Bool→Type⊎' false true _ = tt
+Bool→Type⊎' false false (inl p) = Empty.rec p
+Bool→Type⊎' false false (inr p) = Empty.rec p
 
 PropBoolP→P : (dec : Dec A) → Bool→Type (Dec→Bool dec) → A
 PropBoolP→P (yes p) _ = p

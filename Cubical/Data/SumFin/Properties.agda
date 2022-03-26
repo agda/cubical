@@ -96,11 +96,11 @@ SumFin∥∥Dec : (n : ℕ) → Dec ∥ Fin n ∥
 SumFin∥∥Dec 0 = no (Prop.rec isProp⊥ (idfun _))
 SumFin∥∥Dec (suc n) = yes ∣ inl tt ∣
 
-isNonZero : ℕ → Bool
-isNonZero 0 = false
-isNonZero (suc n) = true
+ℕ→Bool : ℕ → Bool
+ℕ→Bool 0 = false
+ℕ→Bool (suc n) = true
 
-SumFin∥∥DecProp : (n : ℕ) → ∥ Fin n ∥ ≃ Bool→Type (isNonZero n)
+SumFin∥∥DecProp : (n : ℕ) → ∥ Fin n ∥ ≃ Bool→Type (ℕ→Bool n)
 SumFin∥∥DecProp 0 = uninhabEquiv (Prop.rec isProp⊥ ⊥.rec) ⊥.rec
 SumFin∥∥DecProp (suc n) = isContr→≃Unit (inhProp→isContr ∣ inl tt ∣ isPropPropTrunc)
 
@@ -166,7 +166,7 @@ trueForAll (suc n) f = f (inl tt) and trueForAll n (f ∘ inr)
 SumFin∃→ : (n : ℕ)(f : Fin n → Bool) → Σ _ (Bool→Type ∘ f) → Bool→Type (trueForSome n f)
 SumFin∃→ 0 _ = ΣEmpty _ .fst
 SumFin∃→ (suc n) f =
-    Bool→Prop⊎' _ _
+    Bool→Type⊎' _ _
   ∘ map-⊎ (ΣUnit (Bool→Type ∘ f ∘ inl) .fst) (SumFin∃→ n (f ∘ inr))
   ∘ Σ⊎≃ .fst
 
@@ -175,12 +175,12 @@ SumFin∃← 0 _ = ⊥.rec
 SumFin∃← (suc n) f =
     invEq Σ⊎≃
   ∘ map-⊎ (invEq (ΣUnit (Bool→Type ∘ f ∘ inl))) (SumFin∃← n (f ∘ inr))
-  ∘ Bool→Prop⊎ _ _
+  ∘ Bool→Type⊎ _ _
 
 SumFin∃≃ : (n : ℕ)(f : Fin n → Bool) → ∥ Σ (Fin n) (Bool→Type ∘ f) ∥ ≃ Bool→Type (trueForSome n f)
 SumFin∃≃ n f =
-  propBiimpl→Equiv isPropPropTrunc isPropBool→Prop
-    (Prop.rec isPropBool→Prop (SumFin∃→ n f))
+  propBiimpl→Equiv isPropPropTrunc isPropBool→Type
+    (Prop.rec isPropBool→Type (SumFin∃→ n f))
     (∣_∣ ∘ SumFin∃← n f)
 
 SumFin∀≃ : (n : ℕ)(f : Fin n → Bool) → ((x : Fin n) → Bool→Type (f x)) ≃ Bool→Type (trueForAll n f)
@@ -188,7 +188,7 @@ SumFin∀≃ 0 _ = isContr→≃Unit (isContrΠ⊥)
 SumFin∀≃ (suc n) f =
     Π⊎≃
   ⋆ Σ-cong-equiv (ΠUnit (Bool→Type ∘ f ∘ inl)) (λ _ → SumFin∀≃ n (f ∘ inr))
-  ⋆ Bool→Prop≃ _ _
+  ⋆ Bool→Type×≃ _ _
 
 -- internal equality
 

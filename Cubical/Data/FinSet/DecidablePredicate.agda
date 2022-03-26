@@ -36,15 +36,15 @@ isDecProp : Type ℓ → Type ℓ
 isDecProp P = Σ[ t ∈ Bool ] P ≃ Bool→Type t
 
 isDecProp→isProp : {P : Type ℓ} → isDecProp P → isProp P
-isDecProp→isProp h = isOfHLevelRespectEquiv 1 (invEquiv (h .snd)) isPropBool→Prop
+isDecProp→isProp h = isOfHLevelRespectEquiv 1 (invEquiv (h .snd)) isPropBool→Type
 
 isDecProp→Dec : {P : Type ℓ} → isDecProp P → Dec P
-isDecProp→Dec h = EquivPresDec (invEquiv (h .snd)) DecBool→Prop
+isDecProp→Dec h = EquivPresDec (invEquiv (h .snd)) DecBool→Type
 
 isPropIsDecProp : {P : Type ℓ} → isProp (isDecProp P)
 isPropIsDecProp p q =
-  Σ≡PropEquiv (λ _ → isOfHLevel⁺≃ᵣ 0 isPropBool→Prop) .fst
-    (Bool→PropInj _ _ (invEquiv (p .snd) ⋆ q .snd))
+  Σ≡PropEquiv (λ _ → isOfHLevel⁺≃ᵣ 0 isPropBool→Type) .fst
+    (Bool→TypeInj _ _ (invEquiv (p .snd) ⋆ q .snd))
 
 DecProp : (ℓ : Level) → Type (ℓ-suc ℓ)
 DecProp ℓ = Σ[ P ∈ Type ℓ ] isDecProp P
@@ -157,7 +157,7 @@ module _
 
   isDecProp× : isDecProp (P .fst × Q .fst)
   isDecProp× .fst = P .snd .fst and Q .snd .fst
-  isDecProp× .snd = Σ-cong-equiv (P .snd .snd) (λ _ → Q .snd .snd) ⋆ Bool→Prop≃ _ _
+  isDecProp× .snd = Σ-cong-equiv (P .snd .snd) (λ _ → Q .snd .snd) ⋆ Bool→Type×≃ _ _
 
 module _
   (X : FinSet ℓ) where

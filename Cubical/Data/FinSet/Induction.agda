@@ -93,7 +93,7 @@ module _
 -- every finite sets are merely equal to some 𝔽in
 
 ∣≡𝔽in∣ : (X : FinSet ℓ) → ∥ Σ[ n ∈ ℕ ] X ≡ 𝔽in n ∥
-∣≡𝔽in∣ X = Prop.rec isPropPropTrunc (λ (n , p) → ∣ n , path X (n , p) ∣) (isFinSet→isFinSet' (X .snd))
+∣≡𝔽in∣ X = Prop.map (λ (n , p) → n , path X (n , p)) (isFinSet→isFinSet' (X .snd))
   where
     path : (X : FinSet ℓ) → ((n , _) : isFinOrd (X .fst)) → X ≡ 𝔽in n
     path X (n , p) i .fst = ua (p ⋆ invEquiv (𝔽in≃Fin n)) i

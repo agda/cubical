@@ -53,8 +53,8 @@ module _
   isSetℙEff = isSetΠ (λ _ → isSetBool)
 
   ℙEff→ℙDec : ℙEff → ℙDec {ℓ' = ℓ'} X
-  ℙEff→ℙDec f .fst x = Bool→Type* (f x) , isPropBool→Prop*
-  ℙEff→ℙDec f .snd x = DecBool→Prop*
+  ℙEff→ℙDec f .fst x = Bool→Type* (f x) , isPropBool→Type*
+  ℙEff→ℙDec f .snd x = DecBool→Type*
 
   Iso-ℙEff-ℙDec : Iso ℙEff (ℙDec {ℓ' = ℓ'} X)
   Iso-ℙEff-ℙDec .fun = ℙEff→ℙDec
@@ -114,11 +114,11 @@ module _
     → ((a : X .fst) → Bool→Type* {ℓ = ℓ'} (f a) ≃ ∥ R a x ∥)
     → (a : X .fst) → f a ≡ dec a x .fst
   isEqClass→isEqClassEff' f x h a =
-    Bool→PropInj* _ _
+    Bool→TypeInj* _ _
         (h a ⋆ propTruncIdempotent≃ (isDecProp→isProp (dec a x)) ⋆ LiftDecProp (dec a x))
 
-  isEqClassRff→isEqClass : (f : ℙEff (X .fst)) → isEqClassEff f ≃ isEqClass {ℓ' = ℓ'} _ R (ℙEff→ℙDec  _ f .fst)
-  isEqClassRff→isEqClass f =
+  isEqClassEff→isEqClass : (f : ℙEff (X .fst)) → isEqClassEff f ≃ isEqClass {ℓ' = ℓ'} _ R (ℙEff→ℙDec  _ f .fst)
+  isEqClassEff→isEqClass f =
     propBiimpl→Equiv isPropPropTrunc isPropPropTrunc
       (Prop.map (λ (x , p) → x , isEqClassEff→isEqClass' f x p))
       (Prop.map (λ (x , p) → x , isEqClass→isEqClassEff' f x p))
@@ -127,7 +127,7 @@ module _
   _∥Eff_ = Σ[ f ∈ ℙEff (X .fst) ] isEqClassEff f
 
   ∥Eff≃∥Dec : _∥Eff_ ≃ _∥Dec_ (X .fst) R (λ x x' → isDecProp→Dec (dec x x'))
-  ∥Eff≃∥Dec = Σ-cong-equiv (ℙEff≃ℙDec (X .fst)) isEqClassRff→isEqClass
+  ∥Eff≃∥Dec = Σ-cong-equiv (ℙEff≃ℙDec (X .fst)) isEqClassEff→isEqClass
 
   isFinSet∥Eff : isFinSet _∥Eff_
   isFinSet∥Eff = isFinSetSub (_ , isFinSetℙEff X) (λ _ → _ , isDecPropIsEqClassEff)

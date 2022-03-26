@@ -22,6 +22,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Transport
 
 open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.HITs.SetTruncation as Set
@@ -86,7 +87,7 @@ module _
 
   card≡0→isEmpty : card X ≡ 0 → ¬ X .fst
   card≡0→isEmpty p x =
-    Prop.rec isProp⊥ (λ e → (idfun _) (transport (cong Fin p) (e .fst x))) (∣≃card∣ X)
+    Prop.rec isProp⊥ (λ e → subst Fin p (e .fst x)) (∣≃card∣ X)
 
   card>0→isInhab : card X > 0 → ∥ X .fst ∥
   card>0→isInhab p =
@@ -104,7 +105,7 @@ module _
   card≡1→isContr : card X ≡ 1 → isContr (X .fst)
   card≡1→isContr p =
     Prop.rec isPropIsContr
-        (λ e → isOfHLevelRespectEquiv 0 (invEquiv (e ⋆ pathToEquiv (cong Fin p))) isContrSumFin1) (∣≃card∣ X)
+        (λ e → isOfHLevelRespectEquiv 0 (invEquiv (e ⋆ substEquiv Fin p)) isContrSumFin1) (∣≃card∣ X)
 
   card≤1→isProp : card X ≤ 1 → isProp (X .fst)
   card≤1→isProp p =
