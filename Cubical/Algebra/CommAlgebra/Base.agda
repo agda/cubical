@@ -125,7 +125,7 @@ module _ {R : CommRing ℓ} where
                    x · (r ⋆ y) ∎)
      ·-comm
 
-  module _ (S : CommRing ℓ) where
+  module _ (S : CommRing ℓ') where
     open CommRingStr (snd S) renaming (1r to 1S)
     open CommRingStr (snd R) using () renaming (_·_ to _·R_; _+_ to _+R_; 1r to 1R)
     commAlgebraFromCommRing :
@@ -135,7 +135,7 @@ module _ {R : CommRing ℓ} where
         → ((r : fst R) (x y : fst S) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
         → ((x : fst S) → 1R ⋆ x ≡ x)
         → ((r : fst R) (x y : fst S) → (r ⋆ x) · y ≡ r ⋆ (x · y))
-        → CommAlgebra R ℓ
+        → CommAlgebra R ℓ'
     commAlgebraFromCommRing _⋆_ ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc· = fst S ,
       commalgebrastr 0r 1S _+_ _·_  -_ _⋆_
         (makeIsCommAlgebra is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·Comm
@@ -163,6 +163,16 @@ module _ {R : CommRing ℓ} where
   CommAlgebraEquiv→CommAlgebraHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
                                   → CommAlgebraEquiv A B → CommAlgebraHom A B
   CommAlgebraEquiv→CommAlgebraHom (e , eIsHom) = e .fst , eIsHom
+
+  CommAlgebraHom→CommRingHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'')
+                              → CommAlgebraHom A B
+                              → CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
+  fst (CommAlgebraHom→CommRingHom A B f) = fst f
+  IsRingHom.pres0 (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres0 (snd f)
+  IsRingHom.pres1 (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres1 (snd f)
+  IsRingHom.pres+ (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres+ (snd f)
+  IsRingHom.pres· (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres· (snd f)
+  IsRingHom.pres- (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres- (snd f)
 
   module _ {M N : CommAlgebra R ℓ'} where
     open CommAlgebraStr {{...}}
