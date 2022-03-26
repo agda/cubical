@@ -13,13 +13,19 @@ private
 module test (M : Monoid ℓ) where
   open MonoidStr (snd M)
 
-  --_ : ε ≡ ε
-  --_ = solve M
-
-  _ : ε · ε ≡ ε
+  _ : ε ≡ ε
   _ = solve M
 
-  --test : ∀ x → ε · x  ≡ x
-  --test = solve M
+  _ : ε · ε · ε ≡ ε
+  _ = solve M
+
+  _ : ∀ x → ε · x  ≡ x
+  _ = solve M
+
+  _ : ∀ x y z → (x · y) · z ≡ x · (y · z)
+  _ = solve M
+
+  _ : ∀ x y z → z · (x · y) · ε · z ≡ z · x · (y · z)
+  _ = solve M
 
 

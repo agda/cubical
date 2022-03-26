@@ -58,11 +58,11 @@ module Eval (M : Monoid ℓ) where
   normalize (e₁ ⊗ e₂) = (normalize e₁) ++ (normalize e₂)
 
   -- evaluation of normalization
-  ⟦_⇓⟧ : ∀ {n} → NormalForm n → Env n → ⟨ M ⟩
-  ⟦ [] ⇓⟧ v = ε
-  ⟦ x ∷ xs ⇓⟧ v = (lookup x v) · ⟦ xs ⇓⟧ v
+  eval : ∀ {n} → NormalForm n → Env n → ⟨ M ⟩
+  eval [] v = ε
+  eval (x ∷ xs) v = (lookup x v) · (eval xs v)
 
-module _ (M : Monoid ℓ) where
+module EqualityToNormalform (M : Monoid ℓ) where
   open Eval M
   open MonoidStr (snd M)
 
@@ -70,19 +70,19 @@ module _ (M : Monoid ℓ) where
   isEqualToNormalform : (n : ℕ)
                       → (e : Expr ⟨ M ⟩ n)
                       → (v : Env n)
-                      → ⟦ (normalize e) ⇓⟧ v ≡ ⟦ e ⟧ v
+                      → eval (normalize e) v ≡ ⟦ e ⟧ v
   isEqualToNormalform n (∣ i) v = rid _
   isEqualToNormalform n ε⊗ v = refl
   isEqualToNormalform n (e₁ ⊗ e₂) v =
-    ⟦ (normalize e₁) ++ (normalize e₂) ⇓⟧ v
+    eval ((normalize e₁) ++ (normalize e₂)) v
       ≡⟨ lemma (normalize e₁) (normalize e₂) ⟩
-    ⟦ (normalize e₁) ⇓⟧ v · ⟦ (normalize e₂) ⇓⟧ v
+    (eval (normalize e₁) v) · (eval (normalize e₂) v)
       ≡⟨ cong₂ _·_ (isEqualToNormalform n e₁ v) (isEqualToNormalform n e₂ v) ⟩
     ⟦ e₁ ⟧ v · ⟦ e₂ ⟧ v
       ∎
     where
       lemma : (l₁ l₂ : NormalForm n)
-            → ⟦ l₁ ++ l₂ ⇓⟧ v ≡  ⟦ l₁ ⇓⟧ v · ⟦ l₂ ⇓⟧ v
+            → eval (l₁ ++ l₂) v ≡  eval l₁ v · eval l₂ v
       lemma [] l₂ = sym (lid _)
       lemma (x ∷ xs) l₂ =
         cong (λ m → (lookup x v) · m) (lemma xs l₂) ∙ assoc _ _ _
@@ -90,10 +90,16 @@ module _ (M : Monoid ℓ) where
   solve : {n : ℕ}
         → (e₁ e₂ : Expr ⟨ M ⟩ n)
         → (v : Env n)
-        → (p : ⟦ (normalize e₁) ⇓⟧ v ≡ ⟦ (normalize e₂) ⇓⟧ v)
+        → (p : eval (normalize e₁) v ≡ eval (normalize e₂) v)
         → ⟦ e₁ ⟧ v ≡ ⟦ e₂ ⟧ v
   solve e₁ e₂ v p =
     ⟦ e₁ ⟧ v              ≡⟨ sym (isEqualToNormalform _ e₁ v) ⟩
-    ⟦ (normalize e₁) ⇓⟧ v ≡⟨ p ⟩
-    ⟦ (normalize e₂) ⇓⟧ v ≡⟨ isEqualToNormalform _ e₂ v ⟩
+    eval (normalize e₁) v ≡⟨ p ⟩
+    eval (normalize e₂) v ≡⟨ isEqualToNormalform _ e₂ v ⟩
     ⟦ e₂ ⟧ v              ∎
+
+solve : (M : Monoid ℓ)
+        {n : ℕ} (e₁ e₂ : Expr ⟨ M ⟩ n) (v : Eval.Env M n)
+        (p :  Eval.eval M (Eval.normalize M e₁) v ≡ Eval.eval M (Eval.normalize M e₂) v)
+        → _
+solve M = EqualityToNormalform.solve M

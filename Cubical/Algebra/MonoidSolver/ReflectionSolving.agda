@@ -127,7 +127,7 @@ module _ (monoid : Term) where
 
     `_⊗_` : List (Arg Term) → Term
     `_⊗_` (harg _ ∷ xs) = `_⊗_` xs
-    `_⊗_` (varg x ∷ varg y ∷ []) =
+    `_⊗_` (varg _ ∷ varg x ∷ varg y ∷ []) =
       con
         (quote _⊗_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
     `_⊗_` _ = unknown
@@ -207,12 +207,6 @@ private
         That means, that we have to adjust the deBruijn-indices of the variables in 'monoid'
       -}
       adjustedMonoid ← returnTC (adjustDeBruijnIndex (length varInfos) monoid)
-{-      just (lhs' , rhs') ← returnTC (getArgs equation)
-        where
-          nothing
-            → typeError(
-                strErr "Error while trying to build ASTs for the equation " ∷
-                termErr equation ∷ []) -}
       just (lhs , rhs) ← returnTC (toMonoidExpression adjustedMonoid (getArgs equation))
         where
           nothing
