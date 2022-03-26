@@ -27,7 +27,6 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidablePropositions
   hiding (DecProp) renaming (DecProp' to DecProp)
 
-{- finite types are closed under forming Σ-types -}
 private
   variable
     ℓ ℓ' : Level
@@ -69,7 +68,7 @@ module _
     isFinType0Total (Σ (X .fst) (λ x → Y x .fst)) (X .fst) (X .snd) fst
       (λ x → EquivPresIsFinType 0 (fiberProjEquiv _ _ x) (Y x .snd))
 
--- the closedness result
+-- the main result
 
 isFinTypeΣ : {n : ℕ}
   (X : FinType ℓ (1 + n))
