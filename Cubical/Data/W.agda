@@ -77,7 +77,8 @@ module WPathType {X : Type ℓX} (S : Type ℓS) (P : S → Type ℓP) (outX : S
     w
       
   RepCoverFib : (x : X) → (w w' : W S P outX inX x) → Type (ℓ-max ℓX ℓS)
-  RepCoverFib x w w' = PathP (λ _ → fiber outX x) (fibShape w) (fibShape w')
+  --RepCoverFib x w w' = PathP (λ _ → fiber outX x) (fibShape w) (fibShape w')
+  RepCoverFib x w w' = Σ[ sfib ∈ fiber outX x ] (fibShape w ≡ sfib) × (fibShape w' ≡ sfib)
   --RepCoverFib : (x : X) → (w w' : W S P outX inX x) → Type (ℓ-max (ℓ-max ℓX ℓS) ℓP)
   --RepCoverFib x w w' = Σ[ sfib ∈ fiber outX x ] SubtreeFib x sfib w × SubtreeFib x sfib w'
 
@@ -171,6 +172,14 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
   encodePath w w' = ua (encodeEquiv w w')
   
   isoRepCoverFib : (x : X) → (w w' : W S P outX inX x) → CoverFib x w w' ≅ RepCoverFib x w w'
+  fun (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww') = subst
+    (λ (x , w , w') → RepCoverFib x w w')
+    pxww'
+    ((s , refl) , refl , refl)
+  inv (isoRepCoverFib x w w') (s , psfib , psfib') = {!!}
+  rightInv (isoRepCoverFib x w w') = {!!}
+  leftInv (isoRepCoverFib x w w') = {!!}
+{-
   fun (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww') =
     transport
       (λ j → PathP (λ i → fiber outX (fst (pxww' j)))
@@ -188,7 +197,7 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
             λ j i → outShape w (i ∧ j)
           ) refl)
           (wExt _ _ (outShape w) _ w' (congP₂ (λ _ → _,_)
-            {!cong fst psfib!}
+            (cong fst psfib)
             {!!}
           ) {!!})
         )
@@ -259,4 +268,5 @@ isOfHLevelSuc-W {ℓX = ℓX} {ℓS = ℓS} {ℓP = ℓP} {X = X} {S} {P} {outX}
     isHCoverFib : ((x , w , w') : Σ[ y ∈ X ] W S P outX inX y × W S P outX inX y) → isOfHLevel (suc n) (CoverFib x w w')
     isHCoverFib (x , w , w') = subst⁻ (isOfHLevel (suc n)) (pathRepCoverFib x w w')
       (isOfHLevelΣ (suc n) {!isHS x!} {!!})
+-}
 -}
