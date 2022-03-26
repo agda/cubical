@@ -32,7 +32,7 @@ private
     ℓ ℓ' : Level
 
 module _
-  {X : Type ℓ}
+  {X : Type ℓ }
   {Y : Type ℓ'}
   (f : X → Y) where
 

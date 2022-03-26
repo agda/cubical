@@ -27,7 +27,7 @@ open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.DecidablePredicate
-open import Cubical.Data.FinSet.Constructor
+open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Cardinality
 
 open import Cubical.Relation.Nullary
@@ -143,7 +143,7 @@ module _
   isFinSetQuot : isFinSet (X .fst / R)
   isFinSetQuot =
     EquivPresIsFinSet
-      (   ∥Eff≃∥Dec X _ dec
-        ⋆ ∥Dec≃∥ _ _ (λ x x' → isDecProp→Dec (dec x x'))
-        ⋆ invEquiv (equivQuot {ℓ' = ℓ'} _ _ h))
+      ( ∥Eff≃∥Dec X _ dec
+      ⋆ ∥Dec≃∥ _ _ (λ x x' → isDecProp→Dec (dec x x'))
+      ⋆ invEquiv (equivQuot {ℓ' = ℓ'} _ _ h))
       (isFinSet∥Eff X _ dec)

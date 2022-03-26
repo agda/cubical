@@ -1,8 +1,7 @@
 {-
 
 Finite Structures over Finite Set
-
-In short, the type of structures should be finite set itself.
+  In short, the type of structures should be finite set itself.
 
 This file contains:
 - Definition and properties of finite sets equipped with finite structures;
@@ -27,7 +26,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.Induction
-open import Cubical.Data.FinSet.Constructor
+open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Cardinality
 open import Cubical.Data.FinSet.FiniteType
 
@@ -39,16 +38,16 @@ private
 
 -- type of finite sets with finite structure
 
-FinSetWithStr : (ℓ : Level) (S : FinSet ℓ → FinSet ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
-FinSetWithStr ℓ S = Σ[ X ∈ FinSet ℓ ] S X .fst
+FinSetWithStr : (S : FinSet ℓ → FinSet ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
+FinSetWithStr {ℓ = ℓ} S = Σ[ X ∈ FinSet ℓ ] S X .fst
 
 -- type of finite sets with a fixed cardinal
 
 FinSetOfCard : (ℓ : Level) (n : ℕ) → Type (ℓ-suc ℓ)
 FinSetOfCard ℓ n = Σ[ X ∈ FinSet ℓ ] (card X ≡ n)
 
-FinSetWithStrOfCard : (ℓ : Level) (S : FinSet ℓ → FinSet ℓ') (n : ℕ) → Type (ℓ-max (ℓ-suc ℓ) ℓ')
-FinSetWithStrOfCard ℓ S n = Σ[ X ∈ FinSetOfCard ℓ n ] S (X .fst) .fst
+FinSetWithStrOfCard : (S : FinSet ℓ → FinSet ℓ') (n : ℕ) → Type (ℓ-max (ℓ-suc ℓ) ℓ')
+FinSetWithStrOfCard {ℓ = ℓ} S n = Σ[ X ∈ FinSetOfCard ℓ n ] S (X .fst) .fst
 
 FinSetOfCard≡ : (X Y : FinSetOfCard ℓ n) → (X .fst ≡ Y .fst) ≃ (X ≡ Y)
 FinSetOfCard≡ _ _ = Σ≡PropEquiv (λ _ → isSetℕ _ _)
@@ -70,9 +69,10 @@ isFinTypeFinSetOfCard .snd X Y =
   isFinSet→isFinType 0 (EquivPresIsFinSet (FinSet≡ _ _ ⋆ FinSetOfCard≡ _ _) (isFinSetType≡Eff (X .fst) (Y .fst)))
 
 -- the type of finitely-structured finite sets is Rijke finite
--- in particular, we can count the number of them up to equivalence
+-- in particular, we can count their number up to equivalence
 
-isFinTypeFinSetWithStrOfCard : (ℓ : Level) (S : FinSet ℓ → FinSet ℓ') (n : ℕ)
-  → isFinType 0 (FinSetWithStrOfCard ℓ S n)
-isFinTypeFinSetWithStrOfCard ℓ S n =
+isFinTypeFinSetWithStrOfCard :
+  (S : FinSet ℓ → FinSet ℓ') (n : ℕ)
+  → isFinType 0 (FinSetWithStrOfCard S n)
+isFinTypeFinSetWithStrOfCard S n =
   isFinTypeΣ {n = 0} (_ , isFinTypeFinSetOfCard) (λ X → _ , isFinSet→isFinType 0 (S (X .fst) .snd))

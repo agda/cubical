@@ -6,7 +6,7 @@ This files contains:
 -}
 {-# OPTIONS --safe #-}
 
-module Cubical.Data.FinSet.Constructor where
+module Cubical.Data.FinSet.Constructors where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

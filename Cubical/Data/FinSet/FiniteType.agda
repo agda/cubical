@@ -5,7 +5,7 @@ Finite Types
 This file formalize the notion of Rijke finite type,
 which is a direct generalization of Bishop finite set.
 Basically, a type is (Rijke) n-finite if its i-th order
-homotopy groups πᵢ for i ≤ n are Bishop finite.
+homotopy groups πᵢ are Bishop finite for i ≤ n.
 
 Referrences:
   https://github.com/EgbertRijke/OEIS-A000001
@@ -31,7 +31,7 @@ open import Cubical.Foundations.Path
 open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.HITs.SetTruncation as Set
 open import Cubical.HITs.SetTruncation.Fibers
-open import Cubical.HITs.SetQuotients as SetQuot
+open import Cubical.HITs.SetQuotients  as SetQuot
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
@@ -39,7 +39,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.DecidablePredicate
-open import Cubical.Data.FinSet.Constructor
+open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Quotients
 open import Cubical.Data.FinSet.Cardinality
 
@@ -111,8 +111,7 @@ module _
   ∥f∥₂ : ∥ X ∥₂ → ∥ Y ∥₂
   ∥f∥₂ = Set.map f
 
-  module _
-    (y : Y) where
+  module _ (y : Y) where
 
     isDecPropFiberRel : (x x' : ∥ fiber f y ∥₂) → isDecProp (fiberRel f y x x')
     isDecPropFiberRel x x' =
@@ -136,13 +135,12 @@ module _
 
   isFinType0Σ : isFinType 0 (Σ (X .fst) (λ x → Y x .fst))
   isFinType0Σ =
-    isFinType0Total (Σ (X .fst) (λ x → Y x .fst)) (X .fst) (X .snd)
-      (λ (x , y) → x) (λ x → EquivPresIsFinType 0 (fiberProjEquiv _ _ x) (Y x .snd))
+    isFinType0Total (Σ (X .fst) (λ x → Y x .fst)) (X .fst) (X .snd) fst
+      (λ x → EquivPresIsFinType 0 (fiberProjEquiv _ _ x) (Y x .snd))
 
 -- the closedness result
 
-isFinTypeΣ :
-  {n : ℕ}
+isFinTypeΣ : {n : ℕ}
   (X : FinType ℓ (1 + n))
   (Y : X .fst → FinType ℓ' n)
   → isFinType n (Σ (X .fst) (λ x → Y x .fst))

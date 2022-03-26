@@ -20,7 +20,7 @@ open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.DecidablePredicate
 open import Cubical.Data.FinSet.Induction
-open import Cubical.Data.FinSet.Constructor
+open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Cardinality
 open import Cubical.Data.FinSet.FiniteType
 open import Cubical.Data.FinSet.FiniteStructure
@@ -31,8 +31,8 @@ private
 
 -- convenient abbreviation
 
-isFinStrCard : (S : FinSet ℓ-zero → FinSet ℓ) (n : ℕ) → isFinType 0 (FinSetWithStrOfCard ℓ-zero S n)
-isFinStrCard S n = isFinTypeFinSetWithStrOfCard ℓ-zero S n
+isFinStrCard : (S : FinSet ℓ-zero → FinSet ℓ) (n : ℕ) → isFinType 0 (FinSetWithStrOfCard S n)
+isFinStrCard S n = isFinTypeFinSetWithStrOfCard S n
 
 -- structure that there is no structure
 
