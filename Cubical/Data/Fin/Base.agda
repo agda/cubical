@@ -68,6 +68,9 @@ fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
 inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 inject< m<n (k , k<m) = k , <-trans k<m m<n
 
+flast : Fin (suc k)
+flast {k = k} = k , suc-≤-suc ≤-refl
+
 -- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0
 ¬Fin0 (k , k<0) = ¬-<-zero k<0
