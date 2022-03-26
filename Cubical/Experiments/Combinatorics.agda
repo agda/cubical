@@ -20,14 +20,16 @@ open import Cubical.Data.Vec
 open import Cubical.Data.SumFin renaming (Fin to Fin')
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
-open import Cubical.Data.FinSet.Constructor
+open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Cardinality
 open import Cubical.Data.FinSet.DecidablePredicate
-open import Cubical.Data.FinSet.Quotient
+open import Cubical.Data.FinSet.Quotients
 
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidablePropositions
+  hiding (DecProp) renaming (DecProp' to DecProp)
 open import Cubical.Relation.Binary
 
 open import Cubical.Functions.Embedding

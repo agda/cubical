@@ -44,6 +44,8 @@ open import Cubical.Data.FinSet.Quotients
 open import Cubical.Data.FinSet.Cardinality
 
 open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidablePropositions
+  hiding (DecProp) renaming (DecProp' to DecProp)
 open import Cubical.Relation.Binary
 
 private

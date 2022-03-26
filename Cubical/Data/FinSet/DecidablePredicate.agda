@@ -1,8 +1,8 @@
 {-
 
 This files contains:
-- An alternative formulation of decidable propositions;
 - Lots of useful properties about (this) decidable predicates on finite sets.
+  (P.S. We use the alternative definition of decidability for computational effectivity.)
 
 -}
 {-# OPTIONS --safe #-}
@@ -27,31 +27,12 @@ open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 
 open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary.DecidablePropositions
+  hiding (DecProp) renaming (DecProp' to DecProp)
 
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
-
-isDecProp : Type ℓ → Type ℓ
-isDecProp P = Σ[ t ∈ Bool ] P ≃ Bool→Type t
-
-isDecProp→isProp : {P : Type ℓ} → isDecProp P → isProp P
-isDecProp→isProp h = isOfHLevelRespectEquiv 1 (invEquiv (h .snd)) isPropBool→Type
-
-isDecProp→Dec : {P : Type ℓ} → isDecProp P → Dec P
-isDecProp→Dec h = EquivPresDec (invEquiv (h .snd)) DecBool→Type
-
-isPropIsDecProp : {P : Type ℓ} → isProp (isDecProp P)
-isPropIsDecProp p q =
-  Σ≡PropEquiv (λ _ → isOfHLevel⁺≃ᵣ 0 isPropBool→Type) .fst
-    (Bool→TypeInj _ _ (invEquiv (p .snd) ⋆ q .snd))
-
-DecProp : (ℓ : Level) → Type (ℓ-suc ℓ)
-DecProp ℓ = Σ[ P ∈ Type ℓ ] isDecProp P
-
-isDecPropRespectEquiv : {P : Type ℓ} {Q : Type ℓ'}
-  → P ≃ Q → isDecProp Q → isDecProp P
-isDecPropRespectEquiv e (t , e') = t , e ⋆ e'
 
 module _
   (X : Type ℓ)(p : isFinOrd X) where
@@ -105,25 +86,17 @@ module _
   (P : X .fst → DecProp ℓ') where
 
   isFinSetSub : isFinSet (Σ (X .fst) (λ x → P x .fst))
-  isFinSetSub =
-    Prop.elim
-      (λ _ → isPropIsFinSet)
-      (λ p → isFinOrd→isFinSet (isFinOrdSub (X .fst) (_ , p) (λ x → P x .fst) (λ x → P x .snd)))
-      (X .snd .snd)
+  isFinSetSub = Prop.rec isPropIsFinSet
+    (λ p → isFinOrd→isFinSet (isFinOrdSub (X .fst) (_ , p) (λ x → P x .fst) (λ x → P x .snd)))
+    (X .snd .snd)
 
   isDecProp∃ : isDecProp ∥ Σ (X .fst) (λ x → P x .fst) ∥
-  isDecProp∃ =
-    Prop.elim
-      (λ _ → isPropIsDecProp)
-      (λ p → isDecProp∃' (X .fst) (_ , p) (λ x → P x .fst) (λ x → P x .snd))
-      (X .snd .snd)
+  isDecProp∃ = Prop.rec isPropIsDecProp
+    (λ p → isDecProp∃' (X .fst) (_ , p) (λ x → P x .fst) (λ x → P x .snd)) (X .snd .snd)
 
   isDecProp∀ : isDecProp ((x : X .fst) → P x .fst)
-  isDecProp∀ =
-    Prop.elim
-      (λ _ → isPropIsDecProp)
-      (λ p → isDecProp∀' (X .fst) (_ , p) (λ x → P x .fst) (λ x → P x .snd))
-      (X .snd .snd)
+  isDecProp∀ = Prop.rec isPropIsDecProp
+    (λ p → isDecProp∀' (X .fst) (_ , p) (λ x → P x .fst) (λ x → P x .snd)) (X .snd .snd)
 
 module _
   (X : FinSet ℓ)
@@ -146,10 +119,8 @@ module _
   (X : FinSet ℓ) where
 
   isDecProp≡ : (a b : X .fst) → isDecProp (a ≡ b)
-  isDecProp≡ a b =
-    Prop.rec isPropIsDecProp
-      (λ p → isDecProp≡' (X .fst) (_ , p) a b)
-      (X .snd .snd)
+  isDecProp≡ a b = Prop.rec isPropIsDecProp
+    (λ p → isDecProp≡' (X .fst) (_ , p) a b) (X .snd .snd)
 
 module _
   (P : DecProp ℓ )
@@ -163,13 +134,9 @@ module _
   (X : FinSet ℓ) where
 
   isDecProp¬ : isDecProp (¬ (X .fst))
-  isDecProp¬ =
-    Prop.rec isPropIsDecProp
-      (λ p → isDecProp¬' (X .fst) (_ , p))
-      (X .snd .snd)
+  isDecProp¬ = Prop.rec isPropIsDecProp
+    (λ p → isDecProp¬' (X .fst) (_ , p)) (X .snd .snd)
 
   isDecProp∥∥ : isDecProp ∥ X .fst ∥
-  isDecProp∥∥ =
-    Prop.rec isPropIsDecProp
-      (λ p → isDecProp∥∥' (X .fst) (_ , p))
-      (X .snd .snd)
+  isDecProp∥∥ = Prop.rec isPropIsDecProp
+    (λ p → isDecProp∥∥' (X .fst) (_ , p)) (X .snd .snd)
