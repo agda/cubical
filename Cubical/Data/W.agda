@@ -20,8 +20,12 @@ private
   variable
     ℓX ℓS ℓP : Level
 
-data W {X : Type ℓX} (S : Type ℓS) (P : S → Type ℓP) (outX : S → X) (inX : ∀ s → P s → X) : X → Type (ℓ-max ℓX (ℓ-max ℓS ℓP)) where
-  node : (s : S) → (subtree : (p : P s) → W S P outX inX (inX s p)) → W S P outX inX (outX s)
+module _ {X : Type ℓX} (S : Type ℓS) (P : S → Type ℓP) (outX : S → X) (inX : ∀ s → P s → X) where
+  data W : X → Type (ℓ-max ℓX (ℓ-max ℓS ℓP)) where
+    node : (s : S) → (subtree : (p : P s) → W (inX s p)) → W (outX s)
+    
+  Subtree : S → Type (ℓ-max (ℓ-max ℓX ℓS) ℓP)
+  Subtree s = (p : P s) → W (inX s p)
   
 module _ {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} {inX : ∀ s → P s → X} where
   getShape : ∀ {x} → W S P outX inX x → S
@@ -35,6 +39,13 @@ module _ {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} 
 
   fibShape : ∀ {x} → (w : W S P outX inX x) → fiber outX x
   fibShape w = getShape w , outShape w
+  
+  wExt : ∀ x x' → (px : x ≡ x') → (w : W S P outX inX x) → (w' : W S P outX inX x')
+    → (psfib : PathP (λ i → fiber outX (px i)) (fibShape w) (fibShape w'))
+    → PathP (λ i → (p : P (fst (psfib i))) → W S P outX inX (inX _ p)) (getSubtree w) (getSubtree w')
+    → PathP (λ i → W S P outX inX (px i)) w w'
+  wExt .(outX s) .(outX s') px (node s subtree) (node s' subtree') psfib psubtree i =
+    transp (λ j → W S P outX inX (snd (psfib i) j)) (i ∨ ~ i) (node (fst (psfib i)) (psubtree i)) -- ppx j i
 
 module WPathType {X : Type ℓX} (S : Type ℓS) (P : S → Type ℓP) (outX : S → X) (inX : ∀ s → P s → X) where
 
@@ -65,8 +76,10 @@ module WPathType {X : Type ℓX} (S : Type ℓS) (P : S → Type ℓP) (outX : S
     (λ subtree → subst (W S P outX inX) px (node s subtree))
     w
       
-  RepCoverFib : (x : X) → (w w' : W S P outX inX x) → Type (ℓ-max (ℓ-max ℓX ℓS) ℓP)
-  RepCoverFib x w w' = Σ[ sfib ∈ fiber outX x ] SubtreeFib x sfib w × SubtreeFib x sfib w'
+  RepCoverFib : (x : X) → (w w' : W S P outX inX x) → Type (ℓ-max ℓX ℓS)
+  RepCoverFib x w w' = PathP (λ _ → fiber outX x) (fibShape w) (fibShape w')
+  --RepCoverFib : (x : X) → (w w' : W S P outX inX x) → Type (ℓ-max (ℓ-max ℓX ℓS) ℓP)
+  --RepCoverFib x w w' = Σ[ sfib ∈ fiber outX x ] SubtreeFib x sfib w × SubtreeFib x sfib w'
 
 module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} {inX : ∀ s → P s → X} where
   -- inspired by https://github.com/jashug/IWTypes
@@ -159,6 +172,48 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
   
   isoRepCoverFib : (x : X) → (w w' : W S P outX inX x) → CoverFib x w w' ≅ RepCoverFib x w w'
   fun (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww') =
+    transport
+      (λ j → PathP (λ i → fiber outX (fst (pxww' j)))
+        (fibShape (fst (snd (pxww' j))))
+        (fibShape (snd (snd (pxww' j))))
+      )
+      refl
+  inv (isoRepCoverFib x w w'@(node s' subtree')) psfib =
+    J (λ s' _ → (subtree' : Subtree S P outX inX s') → Σ[ (s* , subtree* , subtree*' ) ∈ ShapeCover ]
+        (outX s* , node s* subtree* , node s* subtree*') ≡ (x , w , w'))
+      (λ subtree' → (getShape w , getSubtree w , subtree') , cong₂ _,_ (outShape w)
+        (congP₂ (λ _ → _,_)
+          (wExt _ _ (outShape w) _ w (congP₂ (λ _ → _,_)
+            refl
+            λ j i → outShape w (i ∧ j)
+          ) refl)
+          (wExt _ _ (outShape w) _ w' (congP₂ (λ _ → _,_)
+            {!cong fst psfib!}
+            {!!}
+          ) {!!})
+        )
+      )
+        -- subst (Subtree S P outX inX) (sym (cong fst psfib)) subtree'
+      (cong fst psfib) subtree'
+    {-
+    (getShape w' , subst (Subtree S P outX inX) (cong fst psfib) (getSubtree w) , getSubtree w') ,
+    cong₂ _,_ (outShape w') (congP₂ (λ _ → _,_)
+      (wExt _ _ (outShape w') _ w  (congP₂ (λ _ → _,_)
+        (sym (cong fst psfib))
+        {!!}
+      ) {!!})
+      (wExt _ _ (outShape w') _ w' (congP₂ (λ _ → _,_)
+        refl
+        (λ j i → outShape w' (i ∧ j))
+      ) refl)
+    )
+    -}
+  rightInv (isoRepCoverFib x w w') = {!!}
+  leftInv (isoRepCoverFib x w w') = {!!}
+  
+{-
+  isoRepCoverFib : (x : X) → (w w' : W S P outX inX x) → CoverFib x w w' ≅ RepCoverFib x w w'
+  fun (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww') =
     (s , cong fst pxww') ,
     (subtree  , fromPathP (λ i → fst (snd (pxww' i)))) ,
     (subtree' , fromPathP (λ i → snd (snd (pxww' i))))
@@ -186,14 +241,6 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
   
 module _ {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} {inX : ∀ s → P s → X} where
 
-  private
-    wExt : ∀ x x' → (px : x ≡ x') → (w : W S P outX inX x) → (w' : W S P outX inX x')
-      → (psfib : PathP (λ α → fiber outX (px α)) (fibShape w) (fibShape w'))
-      → PathP (λ i → (p : P (fst (psfib i))) → W S P outX inX (inX _ p)) (getSubtree w) (getSubtree w')
-      → PathP (λ i → W S P outX inX (px i)) w w'
-    wExt .(outX s) .(outX s') px (node s subtree) (node s' subtree') psfib psubtree i =
-      transp (λ j → W S P outX inX (snd (psfib i) j)) (i ∨ ~ i) (node (fst (psfib i)) (psubtree i)) -- ppx j i
-
   isPropW : ∀ (isPropS : ∀ x → isProp (fiber outX x)) → ∀ x → isProp (W S P outX inX x)
   isPropW isPropS x w w'@(node s' subtree') = wExt x x refl w w'
     (isPropS x (fibShape w) (fibShape w'))
@@ -212,3 +259,4 @@ isOfHLevelSuc-W {ℓX = ℓX} {ℓS = ℓS} {ℓP = ℓP} {X = X} {S} {P} {outX}
     isHCoverFib : ((x , w , w') : Σ[ y ∈ X ] W S P outX inX y × W S P outX inX y) → isOfHLevel (suc n) (CoverFib x w w')
     isHCoverFib (x , w , w') = subst⁻ (isOfHLevel (suc n)) (pathRepCoverFib x w w')
       (isOfHLevelΣ (suc n) {!isHS x!} {!!})
+-}
