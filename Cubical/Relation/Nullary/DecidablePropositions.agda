@@ -21,7 +21,7 @@ DecProp ℓ = Σ[ P ∈ hProp ℓ ] Dec (P .fst)
 isSetDecProp : isSet (DecProp ℓ)
 isSetDecProp = isOfHLevelΣ 2 isSetHProp (λ P → isProp→isSet (isPropDec (P .snd)))
 
--- the following is an alternative formulation of decidable equality
+-- the following is an alternative formulation of decidable propositions
 -- it separates the boolean value from more proof-relevant part
 -- so it performs better when doing computation
 
