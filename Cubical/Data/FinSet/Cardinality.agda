@@ -22,6 +22,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
 open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Transport
 
 open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.HITs.SetTruncation as Set
@@ -34,10 +35,9 @@ open import Cubical.Data.Bool hiding (_≟_)
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
-open import Cubical.Data.Fin
-  renaming (pigeonhole to pigeonholeFin ; toℕ to cardFin)
-open import Cubical.Data.Fin.LehmerCode
-open import Cubical.Data.SumFin renaming (Fin to SumFin)
+open import Cubical.Data.Fin using (Fin-inj)
+open import Cubical.Data.Fin.LehmerCode as LehmerCode
+open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
 open import Cubical.Data.FinSet.FiniteChoice
@@ -59,17 +59,15 @@ private
 
 -- cardinality of finite sets
 
-card : FinSet ℓ → ℕ
-card X = FinSet→FinSet' X .snd .fst
-
 ∣≃card∣ : (X : FinSet ℓ) → ∥ X .fst ≃ Fin (card X) ∥
-∣≃card∣ X = FinSet→FinSet' X .snd .snd
+∣≃card∣ X = X .snd .snd
 
 -- cardinality is invariant under equivalences
 
 cardEquiv : (X : FinSet ℓ)(Y : FinSet ℓ') → ∥ X .fst ≃ Y .fst ∥ → card X ≡ card Y
 cardEquiv X Y e =
-  Prop.rec (isSetℕ _ _) (λ p → Fin-inj _ _ (ua p)) (∣invEquiv∣ (∣≃card∣ X) ⋆̂ e ⋆̂ ∣≃card∣ Y)
+  Prop.rec (isSetℕ _ _) (λ p → Fin-inj _ _ (ua p))
+    (∣ invEquiv (SumFin≃Fin _) ∣ ⋆̂ ∣invEquiv∣ (∣≃card∣ X) ⋆̂ e ⋆̂ ∣≃card∣ Y ⋆̂ ∣ SumFin≃Fin _ ∣)
 
 cardInj : card X ≡ card Y → ∥ X .fst ≃ Y .fst ∥
 cardInj {X = X} {Y = Y} p =
@@ -89,7 +87,7 @@ module _
 
   card≡0→isEmpty : card X ≡ 0 → ¬ X .fst
   card≡0→isEmpty p x =
-    Prop.rec isProp⊥ (λ e → ¬Fin0 (transport (cong Fin p) (e .fst x))) (∣≃card∣ X)
+    Prop.rec isProp⊥ (λ e → subst Fin p (e .fst x)) (∣≃card∣ X)
 
   card>0→isInhab : card X > 0 → ∥ X .fst ∥
   card>0→isInhab p =
@@ -107,7 +105,7 @@ module _
   card≡1→isContr : card X ≡ 1 → isContr (X .fst)
   card≡1→isContr p =
     Prop.rec isPropIsContr
-        (λ e → isOfHLevelRespectEquiv 0 (invEquiv (e ⋆ pathToEquiv (cong Fin p))) isContrFin1) (∣≃card∣ X)
+        (λ e → isOfHLevelRespectEquiv 0 (invEquiv (e ⋆ substEquiv Fin p)) isContrSumFin1) (∣≃card∣ X)
 
   card≤1→isProp : card X ≤ 1 → isProp (X .fst)
   card≤1→isProp p =
@@ -181,18 +179,10 @@ module _
   (Y : FinSet ℓ') where
 
   card+ : card (_ , isFinSet⊎ X Y) ≡ card X + card Y
-  card+ =
-    cardEquiv (_ , isFinSet⊎ X Y) (Fin (card X + card Y) , isFinSetFin)
-              (Prop.map2
-                (λ e1 e2 → ⊎-equiv e1 e2 ⋆ invEquiv (isoToEquiv (Fin+≅Fin⊎Fin _ _)))
-              (∣≃card∣ X) (∣≃card∣ Y))
+  card+ = refl
 
   card× : card (_ , isFinSet× X Y) ≡ card X · card Y
-  card× =
-    cardEquiv (_ , isFinSet× X Y) (Fin (card X · card Y) , isFinSetFin)
-              (Prop.map2
-                (λ e1 e2 → Σ-cong-equiv e1 (λ _ → e2) ⋆ factorEquiv)
-              (∣≃card∣ X) (∣≃card∣ Y))
+  card× = refl
 
 -- total summation/product of numerical functions from finite sets
 
@@ -386,12 +376,11 @@ module _
   card→ : card (_ , isFinSet→ X Y) ≡ card Y ^ card X
   card→ = cardΠ X (λ _ → Y) ∙ prodConst X (λ _ → card Y) (card Y) (λ _ → refl)
 
-  card≃ : card (_ , isFinSet≃ X X) ≡ factorial (card X)
-  card≃ =
-    cardEquiv (_ , isFinSet≃ X X) (Fin (factorial (card X)) , isFinSetFin)
-              (Prop.map
-                (λ e → equivComp e e ⋆ lehmerEquiv ⋆ lehmerFinEquiv)
-              (∣≃card∣ X))
+module _
+  (X : FinSet ℓ ) where
+
+  cardAut : card (_ , isFinSetAut X) ≡ LehmerCode.factorial (card X)
+  cardAut = refl
 
 module _
   (X : FinSet ℓ )
@@ -575,6 +564,8 @@ module _
   maxValue : ℕ
   maxValue = ∃Max→maxValue _ _ ∃MaxFinSet
 
+{- some formal consequences of card -}
+
 -- card induces equivalence from set truncation of FinSet to natural numbers
 
 open Iso
@@ -587,7 +578,7 @@ Iso-∥FinSet∥₂-ℕ {ℓ = ℓ} .leftInv =
   Set.elim {B = λ X → ∣ 𝔽in (Set.rec isSetℕ card X) ∣₂ ≡ X}
     (λ X → isSetPathImplicit)
     (elimProp (λ X → ∣ 𝔽in (card X) ∣₂ ≡ ∣ X ∣₂) (λ X → squash₂ _ _)
-              (λ n i → ∣ 𝔽in (card𝔽in {ℓ = ℓ} n i) ∣₂))
+      (λ n i → ∣ 𝔽in (card𝔽in {ℓ = ℓ} n i) ∣₂))
 
 -- this is the definition of natural numbers you learned from school
 ∥FinSet∥₂≃ℕ : ∥ FinSet ℓ ∥₂ ≃ ℕ
@@ -624,3 +615,28 @@ FinProp≃Bool =
 
 isFinSetFinProp : isFinSet (FinProp ℓ)
 isFinSetFinProp = EquivPresIsFinSet (invEquiv FinProp≃Bool) isFinSetBool
+
+-- a more computationally efficient version of equivalence type
+
+module _
+  (X : FinSet ℓ )
+  (Y : FinSet ℓ') where
+
+  isFinSet≃Eff' : Dec (card X ≡ card Y) → isFinSet (X .fst ≃ Y .fst)
+  isFinSet≃Eff' (yes p) = factorial (card Y) ,
+    Prop.elim2 (λ _ _ → isPropPropTrunc {A = _ ≃ Fin _})
+      (λ p1 p2
+        → ∣ equivComp (p1 ⋆ pathToEquiv (cong Fin p) ⋆ SumFin≃Fin _) (p2 ⋆ SumFin≃Fin _)
+          ⋆ lehmerEquiv ⋆ lehmerFinEquiv
+          ⋆ invEquiv (SumFin≃Fin _) ∣)
+      (∣≃card∣ X) (∣≃card∣ Y)
+  isFinSet≃Eff' (no ¬p) = 0 , ∣ uninhabEquiv (¬p ∘ cardEquiv X Y ∘ ∣_∣) (idfun _) ∣
+
+  isFinSet≃Eff : isFinSet (X .fst ≃ Y .fst)
+  isFinSet≃Eff = isFinSet≃Eff' (discreteℕ _ _)
+
+module _
+  (X Y : FinSet ℓ) where
+
+  isFinSetType≡Eff : isFinSet (X .fst ≡ Y .fst)
+  isFinSetType≡Eff = EquivPresIsFinSet (invEquiv univalence) (isFinSet≃Eff X Y)

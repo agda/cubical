@@ -12,15 +12,21 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv renaming (_∙ₑ_ to _⋆_)
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Univalence
 
 open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.HITs.SetQuotients as SetQuot
 open import Cubical.HITs.SetQuotients.EqClass
 
+open import Cubical.Data.Nat
+open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 
+open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 open import Cubical.Data.FinSet.Properties
+open import Cubical.Data.FinSet.DecidablePredicate
 open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Cardinality
 
@@ -32,96 +38,112 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
+LiftDecProp : {ℓ ℓ' : Level}{P : Type ℓ} → (p : isDecProp P) → P ≃ Bool→Type* {ℓ'} (p .fst)
+LiftDecProp p = p .snd ⋆ BoolProp≃BoolProp*
+
 open Iso
 
 module _
-  (ℓ : Level) where
+  (X : Type ℓ) where
 
-  Iso-DecProp-FinProp : Iso (DecProp ℓ) (FinProp ℓ)
-  Iso-DecProp-FinProp .fun ((P , p) , dec) = (P , isDecProp→isFinSet p dec) , p
-  Iso-DecProp-FinProp .inv ((P , h) , p) = (P , p) , isFinProp→Dec h p
-  Iso-DecProp-FinProp .leftInv ((P , p) , dec) i .fst .fst = P
-  Iso-DecProp-FinProp .leftInv ((P , p) , dec) i .fst .snd = p
-  Iso-DecProp-FinProp .leftInv ((P , p) , dec) i .snd =
-    isProp→PathP {B = λ i → Dec P}
-      (λ i → isPropDec (Iso-DecProp-FinProp .leftInv ((P , p) , dec) i .fst .snd))
-      (Iso-DecProp-FinProp .inv (Iso-DecProp-FinProp .fun ((P , p) , dec)) .snd) dec i
-  Iso-DecProp-FinProp .rightInv ((P , h) , p) i .fst .fst = P
-  Iso-DecProp-FinProp .rightInv ((P , h) , p) i .fst .snd =
-    isProp→PathP {B = λ i → isFinSet P} (λ i → isPropIsFinSet)
-      (Iso-DecProp-FinProp .fun (Iso-DecProp-FinProp .inv ((P , h) , p)) .fst .snd) h i
-  Iso-DecProp-FinProp .rightInv ((P , h) , p) i .snd = p
+  ℙEff : Type ℓ
+  ℙEff = X → Bool
+
+  isSetℙEff : isSet ℙEff
+  isSetℙEff = isSetΠ (λ _ → isSetBool)
+
+  ℙEff→ℙDec : ℙEff → ℙDec {ℓ' = ℓ'} X
+  ℙEff→ℙDec f .fst x = Bool→Type* (f x) , isPropBool→Type*
+  ℙEff→ℙDec f .snd x = DecBool→Type*
+
+  Iso-ℙEff-ℙDec : Iso ℙEff (ℙDec {ℓ' = ℓ'} X)
+  Iso-ℙEff-ℙDec .fun = ℙEff→ℙDec
+  Iso-ℙEff-ℙDec .inv (P , dec) x = Dec→Bool (dec x)
+  Iso-ℙEff-ℙDec {ℓ' = ℓ'} .leftInv f i x = Bool≡BoolDec* {ℓ = ℓ'} {a = f x} (~ i)
+  Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .fst = ua (Dec≃DecBool* (P x .snd) (dec x)) (~ i)
+  Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .snd =
+    isProp→PathP {B = λ i → isProp (Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .fst)}
+      (λ i → isPropIsProp)
+      (Iso-ℙEff-ℙDec .fun (Iso-ℙEff-ℙDec .inv (P , dec)) .fst x .snd) (P x .snd) i
+  Iso-ℙEff-ℙDec .rightInv (P , dec) i .snd x =
+    isProp→PathP {B = λ i → Dec (Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .fst)}
+      (λ i → isPropDec (Iso-ℙEff-ℙDec .rightInv (P , dec) i .fst x .snd))
+      (Iso-ℙEff-ℙDec .fun (Iso-ℙEff-ℙDec .inv (P , dec)) .snd x) (dec x) i
+
+  ℙEff≃ℙDec : ℙEff ≃ (ℙDec {ℓ' = ℓ'} X)
+  ℙEff≃ℙDec = isoToEquiv Iso-ℙEff-ℙDec
 
 module _
-    {ℓ ℓ' : Level}
-    (X : Type ℓ) where
+  (X : Type ℓ)(p : isFinOrd X) where
 
-    ℙFin : Type (ℓ-max ℓ (ℓ-suc ℓ'))
-    ℙFin = X → FinProp ℓ'
+  private
+    e = p .snd
 
-    isSetℙFin : isSet ℙFin
-    isSetℙFin = isSetΠ (λ _ → isSetFinProp)
-
-    ℙFin→ℙDec :  ℙFin → ℙDec {ℓ' = ℓ'} X
-    ℙFin→ℙDec P .fst x = P x .fst .fst , P x .snd
-    ℙFin→ℙDec P .snd x = isFinProp→Dec (P x .fst .snd) (P x .snd)
-
-    Iso-ℙFin-ℙDec : Iso ℙFin (ℙDec {ℓ' = ℓ'} X)
-    Iso-ℙFin-ℙDec .fun = ℙFin→ℙDec
-    Iso-ℙFin-ℙDec .inv (P , dec) x .fst .fst = P x .fst
-    Iso-ℙFin-ℙDec .inv (P , dec) x .fst .snd = isDecProp→isFinSet (P x .snd) (dec x)
-    Iso-ℙFin-ℙDec .inv (P , dec) x .snd = P x .snd
-    Iso-ℙFin-ℙDec .leftInv P i x .fst .fst = P x .fst .fst
-    Iso-ℙFin-ℙDec .leftInv P i x .fst .snd =
-      isProp→PathP {B = λ i → isFinSet (P x .fst .fst)} (λ i → isPropIsFinSet)
-        (isDecProp→isFinSet (P x .snd) (ℙFin→ℙDec P .snd x)) (P x .fst .snd) i
-    Iso-ℙFin-ℙDec .leftInv P i x .snd = P x .snd
-    Iso-ℙFin-ℙDec .rightInv (P , dec) i .fst x = P x .fst , P x .snd
-    Iso-ℙFin-ℙDec .rightInv (P , dec) i .snd x =
-      isProp→PathP {B = λ i → Dec (P x .fst)} (λ i → isPropDec (P x .snd))
-        (Iso-ℙFin-ℙDec .fun (Iso-ℙFin-ℙDec .inv (P , dec)) .snd x) (dec x) i
-
-    ℙFin≃ℙDec : ℙFin ≃ (ℙDec {ℓ' = ℓ'} X)
-    ℙFin≃ℙDec = isoToEquiv Iso-ℙFin-ℙDec
+  isFinOrdℙEff : isFinOrd (ℙEff X)
+  isFinOrdℙEff = _ , preCompEquiv (invEquiv e) ⋆ SumFinℙ≃ _
 
 module _
   (X : FinSet ℓ) where
 
-  isFinSetℙFin : isFinSet (ℙFin {ℓ' = ℓ'} (X .fst))
-  isFinSetℙFin = isFinSet→ X (_ , isFinSetFinProp)
+  isFinSetℙEff : isFinSet (ℙEff (X .fst))
+  isFinSetℙEff = 2 ^ (card X) ,
+    Prop.elim (λ _ → isPropPropTrunc {A = _ ≃ Fin _})
+      (λ p → ∣ isFinOrdℙEff (X .fst) (_ , p) .snd ∣)
+      (X .snd .snd)
+
+module _
+  (X : FinSet ℓ)
+  (R : X .fst → X .fst → Type ℓ')
+  (dec : (x x' : X .fst) → isDecProp (R x x')) where
+
+  isEqClassEff : ℙEff (X .fst) → Type ℓ
+  isEqClassEff f = ∥ Σ[ x ∈ X .fst ] ((a : X .fst) → f a ≡ dec a x .fst) ∥
+
+  isDecPropIsEqClassEff : {f : ℙEff (X .fst)} → isDecProp (isEqClassEff f)
+  isDecPropIsEqClassEff = isDecProp∃ X (λ _ → _ , isDecProp∀ X (λ _ → _ , _ , Bool≡≃ _ _))
+
+  isEqClassEff→isEqClass' : (f : ℙEff (X .fst))(x : X .fst)
+    → ((a : X .fst) → f a ≡ dec a x .fst)
+    → (a : X .fst) → Bool→Type* {ℓ = ℓ'} (f a) ≃ ∥ R a x ∥
+  isEqClassEff→isEqClass' f x h a =
+      pathToEquiv (cong Bool→Type* (h a))
+    ⋆ invEquiv (LiftDecProp (dec a x))
+    ⋆ invEquiv (propTruncIdempotent≃ (isDecProp→isProp (dec a x)))
+
+  isEqClass→isEqClassEff' : (f : ℙEff (X .fst))(x : X .fst)
+    → ((a : X .fst) → Bool→Type* {ℓ = ℓ'} (f a) ≃ ∥ R a x ∥)
+    → (a : X .fst) → f a ≡ dec a x .fst
+  isEqClass→isEqClassEff' f x h a =
+    Bool→TypeInj* _ _
+        (h a ⋆ propTruncIdempotent≃ (isDecProp→isProp (dec a x)) ⋆ LiftDecProp (dec a x))
+
+  isEqClassEff→isEqClass : (f : ℙEff (X .fst)) → isEqClassEff f ≃ isEqClass {ℓ' = ℓ'} _ R (ℙEff→ℙDec  _ f .fst)
+  isEqClassEff→isEqClass f =
+    propBiimpl→Equiv isPropPropTrunc isPropPropTrunc
+      (Prop.map (λ (x , p) → x , isEqClassEff→isEqClass' f x p))
+      (Prop.map (λ (x , p) → x , isEqClass→isEqClassEff' f x p))
+
+  _∥Eff_ : Type ℓ
+  _∥Eff_ = Σ[ f ∈ ℙEff (X .fst) ] isEqClassEff f
+
+  ∥Eff≃∥Dec : _∥Eff_ ≃ _∥Dec_ (X .fst) R (λ x x' → isDecProp→Dec (dec x x'))
+  ∥Eff≃∥Dec = Σ-cong-equiv (ℙEff≃ℙDec (X .fst)) isEqClassEff→isEqClass
+
+  isFinSet∥Eff : isFinSet _∥Eff_
+  isFinSet∥Eff = isFinSetSub (_ , isFinSetℙEff X) (λ _ → _ , isDecPropIsEqClassEff)
 
 open BinaryRelation
 
 module _
   (X : FinSet ℓ)
   (R : X .fst → X .fst → Type ℓ')
-  (dec : (x x' : X .fst) → Dec (R x x')) where
-
-  _∥Fin_ : Type (ℓ-max ℓ (ℓ-suc ℓ'))
-  _∥Fin_ = Σ[ P ∈ ℙFin {ℓ' = ℓ'} (X .fst) ] isEqClass (X .fst) R (ℙFin→ℙDec (X .fst) P .fst)
-
-  isFinSetIsEqClass : (P : ℙFin {ℓ' = ℓ'} (X .fst))
-    → isFinSet (isEqClass (X .fst) R (ℙFin→ℙDec (X .fst) P .fst))
-  isFinSetIsEqClass P =
-    isFinSet∥∥ (_ , isFinSetΣ X (λ x → _ ,
-      isFinSetΠ X (λ a → _ ,
-        isFinSetType≡ (_ , P a .fst .snd) (_ ,
-          isDec→isFinSet∥∥ (dec a x)))))
-
-  ∥Fin≃∥Dec : _∥Fin_ ≃ _∥Dec_ (X .fst) R dec
-  ∥Fin≃∥Dec = Σ-cong-equiv-fst (ℙFin≃ℙDec (X .fst))
-
-  isFinSet∥Fin : isFinSet _∥Fin_
-  isFinSet∥Fin = isFinSetΣ (_ , isFinSetℙFin X) (λ P → _ , isFinSetIsEqClass P)
-
-module _
-  (X : FinSet ℓ)
-  (R : X .fst → X .fst → Type ℓ')
   (h : isEquivRel R)
-  (dec : (x x' : X .fst) → Dec (R x x')) where
+  (dec : (x x' : X .fst) → isDecProp (R x x')) where
 
-  -- the quotient of finite set by decidable equivalence relation is still finite set
   isFinSetQuot : isFinSet (X .fst / R)
   isFinSetQuot =
     EquivPresIsFinSet
-      (∥Fin≃∥Dec X _ dec ⋆ ∥Dec≃∥ _ _ dec ⋆ invEquiv (equivQuot _ _ h)) (isFinSet∥Fin X _ dec)
+      ( ∥Eff≃∥Dec X _ dec
+      ⋆ ∥Dec≃∥ _ _ (λ x x' → isDecProp→Dec (dec x x'))
+      ⋆ invEquiv (equivQuot {ℓ' = ℓ'} _ _ h))
+      (isFinSet∥Eff X _ dec)
