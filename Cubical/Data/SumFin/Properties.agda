@@ -92,10 +92,6 @@ SumFin∥∥≃ (suc n) =
     isContr→≃Unit (inhProp→isContr ∣ inl tt ∣ isPropPropTrunc)
   ⋆ isContr→≃Unit (isContrUnit) ⋆ invEquiv (⊎-⊥-≃)
 
-SumFin∥∥Dec : (n : ℕ) → Dec ∥ Fin n ∥
-SumFin∥∥Dec 0 = no (Prop.rec isProp⊥ (idfun _))
-SumFin∥∥Dec (suc n) = yes ∣ inl tt ∣
-
 ℕ→Bool : ℕ → Bool
 ℕ→Bool 0 = false
 ℕ→Bool (suc n) = true
