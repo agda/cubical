@@ -16,14 +16,11 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 
-open import Cubical.Data.FinSet.Base
-open import Cubical.Data.FinSet.Properties
-open import Cubical.Data.FinSet.DecidablePredicate
+open import Cubical.Data.FinSet
 open import Cubical.Data.FinSet.Induction
 open import Cubical.Data.FinSet.Constructors
-open import Cubical.Data.FinSet.Cardinality
-open import Cubical.Data.FinSet.FiniteType
-open import Cubical.Data.FinSet.FiniteStructure
+open import Cubical.Data.FinType
+open import Cubical.Data.FinType.FiniteStructure
 
 private
   variable

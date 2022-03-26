@@ -11,7 +11,7 @@ This file contains:
 -}
 {-# OPTIONS --safe #-}
 
-module Cubical.Data.FinSet.FiniteStructure where
+module Cubical.Data.FinType.FiniteStructure where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -23,12 +23,11 @@ open import Cubical.HITs.SetTruncation as Set
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
-open import Cubical.Data.FinSet.Base
-open import Cubical.Data.FinSet.Properties
+open import Cubical.Data.FinSet
 open import Cubical.Data.FinSet.Induction
-open import Cubical.Data.FinSet.Constructors
 open import Cubical.Data.FinSet.Cardinality
-open import Cubical.Data.FinSet.FiniteType
+open import Cubical.Data.FinType
+open import Cubical.Data.FinType.Sigma
 
 private
   variable
