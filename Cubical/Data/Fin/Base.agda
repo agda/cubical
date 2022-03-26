@@ -7,7 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Nat using (ℕ; zero; suc; _+_)
+open import Cubical.Data.Nat using (ℕ ; zero ; suc ; _+_ ; znots)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Order.Recursive using () renaming (_≤_ to _≤′_)
 open import Cubical.Data.Sigma
@@ -32,6 +32,12 @@ private
 
 fzero : Fin (suc k)
 fzero = (0 , suc-≤-suc zero-≤)
+
+fone : Fin (suc (suc k))
+fone = (1 , suc-≤-suc (suc-≤-suc zero-≤))
+
+fzero≠fone : ¬ fzero {k = suc k} ≡ fone
+fzero≠fone p = znots (cong fst p)
 
 -- It is easy, using this representation, to take the successor of a
 -- number as a number in the next largest finite type.
@@ -61,6 +67,9 @@ fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
 
 inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 inject< m<n (k , k<m) = k , <-trans k<m m<n
+
+flast : Fin (suc k)
+flast {k = k} = k , suc-≤-suc ≤-refl
 
 -- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0

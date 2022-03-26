@@ -6,7 +6,6 @@ module Cubical.Functions.Morphism where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Function
 
 open Iso
 module ax {ℓ : Level} (A : Type ℓ) (_+A_ : A → A → A) (a₀ : A) where
