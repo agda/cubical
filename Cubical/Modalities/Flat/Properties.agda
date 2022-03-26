@@ -73,5 +73,6 @@ module ♭Equalities {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ}  where
   ≡♭≃♭≡ : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → (u ^♭ ≡ v ^♭) ≃ ♭ (u ≡ v)
   ≡♭≃♭≡ u v = compEquiv (≡'≃≡ (u ^♭) (v ^♭)) (compEquiv (≡'♭≃♭≡' u v) (invEquiv (♭≡'≃♭≡ u v) ))
 
-♭≡Comm : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → (u ^♭ ≡ v ^♭) ≃ ♭ (u ≡ v)
+♭≡Comm : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A)
+          → (u ^♭ ≡ v ^♭) ≃ ♭ (u ≡ v)
 ♭≡Comm {A = A} = ♭Equalities.≡♭≃♭≡ {A = A}
