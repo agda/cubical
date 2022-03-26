@@ -1,11 +1,19 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --cubical --safe #-}
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism renaming (Iso to _≅_)
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Path
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 
 module Cubical.Data.W where
+
+open _≅_
 
 private
   variable
@@ -23,6 +31,9 @@ module _ {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} 
 
   outShape : ∀ {x} → (w : W S P outX inX x) → (outX (getShape w) ≡ x)
   outShape (node s subtree) = refl
+
+  fibShape : ∀ {x} → (w : W S P outX inX x) → fiber outX x
+  fibShape w = getShape w , outShape w
 
 module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} {inX : ∀ s → P s → X} where
   -- inspired by https://github.com/jashug/IWTypes
@@ -61,23 +72,123 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
         ≡⟨ decodeRefl w ⟩
       refl ∎
     )
+
+  encodeDecode : ∀ {x} → (w w' : W S P outX inX x) → (cw : Cover w w') → encode w w' (decode w w' cw) ≡ cw
+  encodeDecode {x} w@(node s subtree) w'@(node s subtree') cw@(node (s , subtree , subtree') csubtree) j =
+    transp (λ k → Cover w (pathOfLemmaRefl k j)) (j ∨ ~ j) (snd (lemma j))
+    where
+      psubtree : subtree ≡ subtree'
+      psubtree = funExt (λ p → decode _ _ (csubtree p))
+      pw : w ≡ w'
+      pw i = node s (psubtree i)
+      pcsubtree1 : ∀ (p : P s) → PathP (λ i → Cover (subtree p) (psubtree i p))
+        (encode _ _ refl)
+        (encode _ _ (decode _ _ (csubtree p)))
+      pcsubtree1 p i = encode _ _ λ j → decode _ _ (csubtree p) (i ∧ j)
+      pcsubtree : ∀ (p : P s) → PathP (λ i → Cover (subtree p) (psubtree i p))
+        (reflCode _)
+        (csubtree p)
+      pcsubtree p = transp
+        (λ j → PathP (λ i → Cover (subtree p) (psubtree i p))
+          (encodeRefl (subtree p) j)
+          (encodeDecode _ _ (csubtree p) j)
+        )
+        i0
+        (pcsubtree1 p)
+      lemma : PathP (λ _ → Σ[ v ∈ W S P outX inX x ] Cover w v)
+        (w' , encode w w' (λ i → node s (λ p → decode (subtree p) (subtree' p) (csubtree p) i)))
+        (w' , node (s , subtree , subtree') csubtree)
+      lemma =
+        w' , encode w w' (λ i → node s (λ p → decode (subtree p) (subtree' p) (csubtree p) i))
+          ≡⟨ sym (λ j → pw j , encode w (pw j) (λ i → node s (λ p →
+            decode (subtree p) (psubtree j p) (pcsubtree p j) i
+          ))) ⟩
+        w , encode w w  (λ i → node s (λ p → decode (subtree p) (subtree  p) (reflCode _) i))
+          ≡⟨ (λ j → w , encode w w (λ i → node s (λ p → decodeRefl (subtree p) j i))) ⟩
+        w , encode w w  (λ i → node s (λ p → subtree p))
+          ≡⟨⟩
+        w , encode w w refl
+          ≡⟨ (λ j → w , encodeRefl w j) ⟩
+        w , reflCode w
+          ≡⟨⟩
+        w , node (s , subtree , subtree) (λ p → reflCode (subtree p))
+          ≡⟨ (λ j → pw j , node (s , subtree , psubtree j) (λ p → pcsubtree p j)) ⟩
+        w' , node (s , subtree , subtree') csubtree ∎
+      pathOfLemma : w' ≡ w'
+      pathOfLemma = cong fst lemma
+      pathOfLemmaRefl : pathOfLemma ≡ refl
+      pathOfLemmaRefl = {!!} -- I don't know how to do this. It seems fst doesn't commute definitionally with _∙_
+
+  encodeIso : ∀ {x} → (w w' : W S P outX inX x) → (w ≡ w') ≅ (Cover w w')
+  fun (encodeIso w w') = encode w w'
+  inv (encodeIso w w') = decode w w'
+  rightInv (encodeIso w w') cw = encodeDecode w w' cw
+  leftInv (encodeIso w w') pw = decodeEncode w w' pw
+
+  encodeEquiv : ∀ {x} → (w w' : W S P outX inX x) → (w ≡ w') ≃ (Cover w w')
+  encodeEquiv w w' = isoToEquiv (encodeIso w w')
+
+  encodePath : ∀ {x} → (w w' : W S P outX inX x) → (w ≡ w') ≡ (Cover w w')
+  encodePath w w' = ua (encodeEquiv w w')
   
 module _ {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} {inX : ∀ s → P s → X} where
 
   private
     wExt : ∀ x x' → (px : x ≡ x') → (w : W S P outX inX x) → (w' : W S P outX inX x')
-      → (ps : getShape w ≡ getShape w')
-      → (ppx : PathP (λ j → outShape w j ≡ outShape w' j) (cong outX ps) px)
-      → PathP (λ i → (p : P (ps i)) → W S P outX inX (inX _ p)) (getSubtree w) (getSubtree w')
+      → (psfib : PathP (λ α → fiber outX (px α)) (fibShape w) (fibShape w'))
+      → PathP (λ i → (p : P (fst (psfib i))) → W S P outX inX (inX _ p)) (getSubtree w) (getSubtree w')
       → PathP (λ i → W S P outX inX (px i)) w w'
-    wExt .(outX s) .(outX s') px (node s subtree) (node s' subtree') ps ppx psubtree i =
-      transp (λ j → W S P outX inX (ppx j i)) (i ∨ ~ i) (node (ps i) (psubtree i))
+    wExt .(outX s) .(outX s') px (node s subtree) (node s' subtree') psfib psubtree i =
+      transp (λ j → W S P outX inX (snd (psfib i) j)) (i ∨ ~ i) (node (fst (psfib i)) (psubtree i)) -- ppx j i
 
-  isOfHLevelSuc-W : ∀ (n : HLevel) (isHS : ∀ x → isOfHLevel (suc n) (fiber outX x))
-    → ∀ x → isOfHLevel (suc n) (W S P outX inX x)
-  isOfHLevelSuc-W zero isHS x w w' = wExt x x refl w w'
-    (cong fst (isHS x (getShape w , outShape w) (getShape w' , outShape w')))
-    {!!} -- use snd of the fiber
-    {!!} -- PathP from Path, then recursion
-  isOfHLevelSuc-W (suc n) isHS x = {!!}
-    -- by induction on n
+  isPropW : ∀ (isPropS : ∀ x → isProp (fiber outX x)) → ∀ x → isProp (W S P outX inX x)
+  isPropW isPropS x w w'@(node s' subtree') = wExt x x refl w w'
+    (isPropS x (fibShape w) (fibShape w'))
+    (toPathP (funExt λ p → isPropW isPropS _ _ (subtree' p)))
+
+open WPath
+
+isOfHLevelSuc-W : ∀ {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} {inX : ∀ s → P s → X} →
+  ∀ (n : HLevel) (isHS : ∀ x → isOfHLevel (suc n) (fiber outX x))
+  → ∀ x → isOfHLevel (suc n) (W S P outX inX x)
+isOfHLevelSuc-W {ℓX = ℓX} {ℓS = ℓS} {ℓP = ℓP} {X = X} {S} {P} {outX} {inX} zero isHS x w w' = isPropW isHS x w w'
+isOfHLevelSuc-W {ℓX = ℓX} {ℓS = ℓS} {ℓP = ℓP} {X = X} {S} {P} {outX} {inX} (suc n) isHS x w w' =
+  subst (isOfHLevel (suc n)) (sym (encodePath w w'))
+    (isOfHLevelSuc-W n isHCoverFib {!!})
+  where
+    CoverFib : (x : X) → (w w' : W S P outX inX x) → Type (ℓ-max (ℓ-max ℓX ℓS) ℓP)
+    CoverFib x w w' = fiber (λ (s , subtrees , subtrees') → outX s , node s subtrees , node s subtrees') (x , w , w')
+    
+    SubtreeFib : (x : X) → (sfib : fiber outX x) → (w : W S P outX inX x) → Type (ℓ-max (ℓ-max ℓX ℓS) ℓP)
+    SubtreeFib x (s , px) w = fiber
+      {A = (p : P s) → W S P outX inX (inX s p)}
+      (λ subtree → subst (W S P outX inX) px (node s subtree))
+      w
+      
+    RepCoverFib : (x : X) → (w w' : W S P outX inX x) → Type (ℓ-max (ℓ-max ℓX ℓS) ℓP)
+    RepCoverFib x w w' = Σ[ sfib ∈ fiber outX x ] SubtreeFib x sfib w × SubtreeFib x sfib w'
+    
+    isoRepCoverFib : (x : X) → (w w' : W S P outX inX x) → CoverFib x w w' ≅ RepCoverFib x w w'
+    fun (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww') =
+      (s , cong fst pxww') ,
+      (subtree  , fromPathP (λ i → fst (snd (pxww' i)))) ,
+      (subtree' , fromPathP (λ i → snd (snd (pxww' i))))
+    inv (isoRepCoverFib x w w') ((s , px) , (subtree , pw) , (subtree' , pw')) =
+      (s , subtree , subtree') , cong₂ _,_ px (congP₂ (λ i → _,_) (toPathP pw) (toPathP pw'))
+    rightInv (isoRepCoverFib x w w') ((s , px) , (subtree , pw) , (subtree' , pw')) j =
+      (s , px) ,
+      (subtree  , PathPIsoPath (λ i → W S P outX inX (px i)) (node s subtree ) w  .rightInv pw  j) ,
+      (subtree' , PathPIsoPath (λ i → W S P outX inX (px i)) (node s subtree') w' .rightInv pw' j)
+      --cong ((s , px) ,_) (cong₂ _,_
+      --  (cong (subtree  ,_) (PathPIsoPath (λ i → W S P outX inX (px i)) (node s subtree ) w  .rightInv pw ))
+      --  (cong (subtree' ,_) (PathPIsoPath (λ i → W S P outX inX (px i)) (node s subtree') w' .rightInv pw'))
+      --)
+    leftInv (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww') j =
+      (s , subtree , subtree') , λ i →
+        fst (pxww' i) ,
+        PathPIsoPath (λ i → W S P outX inX (fst (pxww' i))) (node s subtree ) w  .leftInv (λ i → fst (snd (pxww' i))) j i ,
+        PathPIsoPath (λ i → W S P outX inX (fst (pxww' i))) (node s subtree') w' .leftInv (λ i → snd (snd (pxww' i))) j i
+    isHCoverFib : ((x , w , w') : Σ[ y ∈ X ] W S P outX inX y × W S P outX inX y) → isOfHLevel (suc n) (CoverFib x w w')
+    isHCoverFib (x , w , w') = {!!}
+
+    

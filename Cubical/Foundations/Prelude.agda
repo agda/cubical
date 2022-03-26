@@ -28,7 +28,7 @@ open import Cubical.Core.Primitives public
 infixr 30 _∙_
 infixr 30 _∙₂_
 infix  3 _∎
-infixr 2 _≡⟨_⟩_
+infixr 2 _≡⟨_⟩_ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
 
 -- Basic theory about paths. These proofs should typically be
@@ -218,6 +218,9 @@ compPathP'-filler {B = B} {x' = x'} {p = p} {q = q} P Q j i =
        j
 
 -- Syntax for chains of equational reasoning
+
+_≡⟨⟩_ : (x : A) → x ≡ y → x ≡ y
+_ ≡⟨⟩ x≡y = x≡y
 
 _≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
 _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
