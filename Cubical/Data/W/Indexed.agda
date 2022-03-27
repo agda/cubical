@@ -62,13 +62,6 @@ module _ {X : Type ℓX} {S : X → Type ℓS} {P : ∀ x → S x → Type ℓP}
   isPropIW isPropS x (node s subtree) (node s' subtree') =
     cong₂ node (isPropS x s s') (toPathP (funExt λ p → isPropIW isPropS _ _ (subtree' p)))
 
-{-
-  isOfHLevelSuc-IW : (n : HLevel) → (∀ x → isOfHLevel (suc n) (S x)) → ∀ x → isOfHLevel (suc n) (IW S P inX x)
-  isOfHLevelSuc-IW zero isHS x = isPropIW isHS x
-  isOfHLevelSuc-IW (suc n) isHS x = subst (isOfHLevel (2 + n)) (sym (pathRepIW x))
-    λ rw@(s , subtree) rw'@(s' , subtree') → subst (isOfHLevel (suc n)) (ΣPathTransport≡PathΣ rw rw') {!This doesn't help.!}
--}
-
 module IWPathTypes {X : Type ℓX} (S : X → Type ℓS) (P : ∀ x → S x → Type ℓP) (inX : ∀ x (s : S x) → P x s → X) where
 
   --somewhat inspired by https://github.com/jashug/IWTypes , but different.
@@ -90,9 +83,6 @@ module IWPathTypes {X : Type ℓX} (S : X → Type ℓS) (P : ∀ x → S x → 
 
 module IWPath {X : Type ℓX} {S : X → Type ℓS} {P : ∀ x → S x → Type ℓP} {inX : ∀ x (s : S x) → P x s → X} where
   open IWPathTypes S P inX
-
-  --reflCode : ∀ {x} (w : IW S P inX x) → Cover w w
-  --reflCode (node s subtree) = node refl (λ p → {!!})
 
   isoEncode : ∀ {x} (w w' : IW S P inX x) → (w ≡ w') ≅ Cover w w'
   isoEncodeSubtree : ∀ {x} (w w' : IW S P inX x) (ps : ShapeCover (x , w , w'))
