@@ -176,9 +176,64 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
     (λ (x , w , w') → RepCoverFib x w w')
     pxww'
     ((s , refl) , refl , refl)
-  inv (isoRepCoverFib x w w') (s , psfib , psfib') = {!!}
+  inv (isoRepCoverFib x w w') ((s , px) , psfib , psfib') = (s ,
+      subst (Subtree S P outX inX) (cong fst psfib ) (getSubtree w ) ,
+      subst (Subtree S P outX inX) (cong fst psfib') (getSubtree w')
+    ) , cong₂ _,_ px (congP₂ (λ _ → _,_)
+      (wExt _ _ px _ _ (congP₂ (λ _ → _,_)
+        (sym (cong fst psfib))
+        (λ i → transp
+          (λ j → outX (
+            fst (psfib (~ i))) -- flat square composed above
+            ≡
+            cong snd psfib (~ i ∨ j) i -- one triangular half of (cong snd psfib) folded open and composed below
+          )
+          (i ∨ ~ i) -- the sides of the thing composed below, are reflexive
+          λ j → cong snd psfib (~ i) (i ∧ j) -- the other triangular half of (cong snd psfib) folded open and put in the middle
+        )
+      ) (symP (toPathP refl)))
+      (wExt _ _ px _ _ (congP₂ (λ _ → _,_)
+        (sym (cong fst psfib'))
+        (λ i → transp
+          (λ j → outX (
+            fst (psfib' (~ i))) -- flat square composed above
+            ≡
+            cong snd psfib' (~ i ∨ j) i -- one triangular half of (cong snd psfib) folded open and composed below
+          )
+          (i ∨ ~ i) -- the sides of the thing composed below, are reflexive
+          λ j → cong snd psfib' (~ i) (i ∧ j) -- the other triangular half of (cong snd psfib) folded open and put in the middle
+        )
+      ) (symP (toPathP refl)))
+    )
   rightInv (isoRepCoverFib x w w') = {!!}
-  leftInv (isoRepCoverFib x w w') = {!!}
+  leftInv (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww') =
+    J (λ (x , w , w') pxww' →
+        inv (isoRepCoverFib x w w') (fun (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww'))
+        ≡ ((s , subtree , subtree') , pxww')
+      )
+      (let x  = outX s
+           w  = node s subtree
+           w' = node s subtree'
+       in  inv (isoRepCoverFib x w w') (fun (isoRepCoverFib x w w') ((s , subtree , subtree') , refl))
+             ≡⟨ (λ i → (inv (isoRepCoverFib x w w')) (substRefl {B = λ (x , w , w') → RepCoverFib x w w'} ((s , refl) , refl , refl) i)) ⟩
+             --≡⟨ cong (inv (isoRepCoverFib x w w')) (substRefl {B = λ (x , w , w') → RepCoverFib x w w'} ((s , refl) , refl , refl)) ⟩
+           inv (isoRepCoverFib x w w') ((s , refl) , refl , refl)
+             ≡⟨ cong₂ _,_
+                  (cong₂ _,_ refl (congP₂ (λ _ → _,_)
+                    (substRefl {B = Subtree S P outX inX} subtree )
+                    (substRefl {B = Subtree S P outX inX} subtree')
+                  ))
+                  (flipSquare λ j → cong₂ _,_
+                    refl
+                    (congP₂ (λ _ → _,_)
+                      {!!}
+                      {!!}
+                    )
+                  )
+             ⟩
+           (s , subtree , subtree') , refl ∎
+      )
+      pxww'
 {-
   fun (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww') =
     transport
