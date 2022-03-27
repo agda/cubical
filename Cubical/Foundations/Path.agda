@@ -30,6 +30,13 @@ PathP≡Path⁻ : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
              PathP P p q ≡ Path (P i0) p (transport⁻ (λ i → P i) q)
 PathP≡Path⁻ P p q i = PathP (λ j → P (~ i ∧ j)) p (transport⁻-filler (λ j → P j) q i)
 
+module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
+  toPathP⁻ : x ≡ transport⁻ (λ i → A i) y → PathP A x y
+  toPathP⁻ p = symP (toPathP (sym p))
+  
+  fromPathP⁻ : PathP A x y → x ≡ transport⁻ (λ i → A i) y
+  fromPathP⁻ p = sym (fromPathP {A = λ i → A (~ i)} (symP p))
+
 PathPIsoPath : ∀ (A : I → Type ℓ) (x : A i0) (y : A i1) → Iso (PathP A x y) (transport (λ i → A i) x ≡ y)
 PathPIsoPath A x y .Iso.fun = fromPathP
 PathPIsoPath A x y .Iso.inv = toPathP

@@ -42,10 +42,16 @@ module _ {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S → X} 
   
   wExt : ∀ x x' → (px : x ≡ x') → (w : W S P outX inX x) → (w' : W S P outX inX x')
     → (psfib : PathP (λ i → fiber outX (px i)) (fibShape w) (fibShape w'))
-    → PathP (λ i → (p : P (fst (psfib i))) → W S P outX inX (inX _ p)) (getSubtree w) (getSubtree w')
+    → PathP (λ i → Subtree S P outX inX (fst (psfib i))) (getSubtree w) (getSubtree w')
     → PathP (λ i → W S P outX inX (px i)) w w'
   wExt .(outX s) .(outX s') px (node s subtree) (node s' subtree') psfib psubtree i =
     transp (λ j → W S P outX inX (snd (psfib i) j)) (i ∨ ~ i) (node (fst (psfib i)) (psubtree i)) -- ppx j i
+
+  wExtRefl : ∀ x → (w : W S P outX inX x) → wExt x x refl w w refl refl ≡ refl {x = w}
+  wExtRefl x (node s subtree) =
+    (λ i → transp (λ j → W S P outX inX (outX s)) (i ∨ ~ i) (node s subtree))
+      ≡⟨ (λ k i → transp (λ j → W S P outX inX (outX s)) (i ∨ ~ i ∨ k) (node s subtree)) ⟩
+    (λ i → node s subtree) ∎
 
 module WPathType {X : Type ℓX} (S : Type ℓS) (P : S → Type ℓP) (outX : S → X) (inX : ∀ s → P s → X) where
 
@@ -180,30 +186,36 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
       subst (Subtree S P outX inX) (cong fst psfib ) (getSubtree w ) ,
       subst (Subtree S P outX inX) (cong fst psfib') (getSubtree w')
     ) , cong₂ _,_ px (congP₂ (λ _ → _,_)
-      (wExt _ _ px _ _ (congP₂ (λ _ → _,_)
-        (sym (cong fst psfib))
-        (λ i → transp
-          (λ j → outX (
-            fst (psfib (~ i))) -- flat square composed above
-            ≡
-            cong snd psfib (~ i ∨ j) i -- one triangular half of (cong snd psfib) folded open and composed below
+      (wExt _ _ px _ _
+        (congP₂ (λ _ → _,_)
+          (sym (cong fst psfib))
+          (λ i → transp
+            (λ j → outX (
+              fst (psfib (~ i))) -- flat square composed above
+              ≡
+              cong snd psfib (~ i ∨ j) i -- one triangular half of (cong snd psfib) folded open and composed below
+            )
+            (i ∨ ~ i) -- the sides of the thing composed below, are reflexive
+            λ j → cong snd psfib (~ i) (i ∧ j) -- the other triangular half of (cong snd psfib) folded open and put in the middle
           )
-          (i ∨ ~ i) -- the sides of the thing composed below, are reflexive
-          λ j → cong snd psfib (~ i) (i ∧ j) -- the other triangular half of (cong snd psfib) folded open and put in the middle
         )
-      ) (symP (toPathP refl)))
-      (wExt _ _ px _ _ (congP₂ (λ _ → _,_)
-        (sym (cong fst psfib'))
-        (λ i → transp
-          (λ j → outX (
-            fst (psfib' (~ i))) -- flat square composed above
-            ≡
-            cong snd psfib' (~ i ∨ j) i -- one triangular half of (cong snd psfib) folded open and composed below
+        (symP (subst-filler (Subtree S P outX inX) (cong fst psfib ) (getSubtree w )))
+      )
+      (wExt _ _ px _ _
+        (congP₂ (λ _ → _,_)
+          (sym (cong fst psfib'))
+          (λ i → transp
+            (λ j → outX (
+              fst (psfib' (~ i))) -- flat square composed above
+              ≡
+              cong snd psfib' (~ i ∨ j) i -- one triangular half of (cong snd psfib) folded open and composed below
+            )
+            (i ∨ ~ i) -- the sides of the thing composed below, are reflexive
+            λ j → cong snd psfib' (~ i) (i ∧ j) -- the other triangular half of (cong snd psfib) folded open and put in the middle
           )
-          (i ∨ ~ i) -- the sides of the thing composed below, are reflexive
-          λ j → cong snd psfib' (~ i) (i ∧ j) -- the other triangular half of (cong snd psfib) folded open and put in the middle
         )
-      ) (symP (toPathP refl)))
+        (symP (subst-filler (Subtree S P outX inX) (cong fst psfib') (getSubtree w')))
+      )
     )
   rightInv (isoRepCoverFib x w w') = {!!}
   leftInv (isoRepCoverFib x w w') ((s , subtree , subtree') , pxww') =
@@ -215,7 +227,9 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
            w  = node s subtree
            w' = node s subtree'
        in  inv (isoRepCoverFib x w w') (fun (isoRepCoverFib x w w') ((s , subtree , subtree') , refl))
-             ≡⟨ (λ i → (inv (isoRepCoverFib x w w')) (substRefl {B = λ (x , w , w') → RepCoverFib x w w'} ((s , refl) , refl , refl) i)) ⟩
+             ≡⟨ (λ i → (inv (isoRepCoverFib x w w'))
+                   (substRefl {A = IndexCover} {B = λ (x , w , w') → RepCoverFib x w w'} {x = x , w , w'} ((s , refl) , refl , refl) i)
+             ) ⟩
              --≡⟨ cong (inv (isoRepCoverFib x w w')) (substRefl {B = λ (x , w , w') → RepCoverFib x w w'} ((s , refl) , refl , refl)) ⟩
            inv (isoRepCoverFib x w w') ((s , refl) , refl , refl)
              ≡⟨ cong₂ _,_
@@ -223,15 +237,47 @@ module WPath {X : Type ℓX} {S : Type ℓS} {P : S → Type ℓP} {outX : S →
                     (substRefl {B = Subtree S P outX inX} subtree )
                     (substRefl {B = Subtree S P outX inX} subtree')
                   ))
-                  (flipSquare λ j → cong₂ _,_
+                  {!flipSquare λ j → cong₂ _,_
                     refl
                     (congP₂ (λ _ → _,_)
-                      {!!}
+                      (
+                        wExt (outX s) (outX s) (λ _ → outX s)
+                          (node s (subst (Subtree S P outX inX) (λ i → s) subtree))
+                          (node s subtree)
+                          (λ i → s , transp (λ j₁ → outX s ≡ outX s) (i ∨ ~ i) (λ j₁ → outX s))
+                          (symP (subst-filler (Subtree S P outX inX) (λ _ → s) subtree))
+                          j
+                          ≡⟨⟩
+                        wExt (outX s) (outX s) (λ _ → outX s)
+                          (node s (subst (Subtree S P outX inX) (λ i → s) subtree))
+                          (node s subtree)
+                          (λ i → s , transp (λ j₁ → outX s ≡ outX s) (i ∨ ~ i) (λ j₁ → outX s))
+                          (substRefl {B = Subtree S P outX inX} subtree)
+                          j
+                          ≡⟨ (λ k →
+                            wExt (outX s) (outX s) (λ _ → outX s)
+                              (node s (substRefl {B = Subtree S P outX inX} subtree k))
+                              (node s subtree)
+                              (λ i → s , transp (λ _ → outX s ≡ outX s) (i ∨ ~ i ∨ k) (λ _ → outX s))
+                              (λ i → substRefl {B = Subtree S P outX inX} subtree (i ∨ k))
+                              j
+                          ) ⟩
+                        wExt (outX s) (outX s) (λ _ → outX s)
+                          (node s subtree)
+                          (node s subtree)
+                          (λ i → s , λ _ → outX s)
+                          (λ i → subtree)
+                          j
+                          ≡⟨ (λ k → wExtRefl (outX s) (node s subtree) k j) ⟩
+                        wExtRefl (outX s) (node s subtree) i1 j
+                          ≡⟨ {!λ k → node s subtree!} ⟩
+                        node s subtree ∎
+                      )
                       {!!}
                     )
-                  )
+                  !}
              ⟩
-           (s , subtree , subtree') , refl ∎
+           (s , subtree , subtree') , refl {x = outX s , node s subtree , node s subtree'} ∎
       )
       pxww'
 {-
