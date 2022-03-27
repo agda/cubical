@@ -4,18 +4,8 @@ module Cubical.Algebra.MonoidSolver.CommSolver where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 
-open import Cubical.Functions.Logic
-
-open import Agda.Builtin.Reflection
-  hiding (Type) renaming (normalise to normalizeTerm)
-
-open import Cubical.Reflection.Base
-
-open import Cubical.Data.Maybe
-open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ; _+_; iter)
-open import Cubical.Data.Bool
 open import Cubical.Data.Vec
 
 open import Cubical.Algebra.CommMonoid
@@ -95,7 +85,7 @@ module Eval (M : CommMonoid ℓ) where
             → iter (x + y) (v ·_) a ≡ iter x (v ·_) b · iter y (v ·_) c
       lemma 0 0 p = p
       lemma 0 (ℕ.suc y) p = (cong₂ _·_ refl (lemma 0 y p)) ∙ commAssocl _ _ _
-      lemma (ℕ.suc x) y p = (cong₂ _·_ refl (lemma x y p)) ∙ assoc v _ _
+      lemma (ℕ.suc x) y p = (cong₂ _·_ refl (lemma x y p)) ∙ assoc _ _ _
 
 
 module EqualityToNormalform (M : CommMonoid ℓ) where

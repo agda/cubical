@@ -4,21 +4,9 @@ module Cubical.Algebra.MonoidSolver.Solver where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 
-open import Cubical.Functions.Logic
-
-open import Agda.Builtin.Reflection
-  hiding (Type) renaming (normalise to normalizeTerm)
---open import Agda.Builtin.String
-
-open import Cubical.Reflection.Base
-
-open import Cubical.Data.Maybe
-open import Cubical.Data.Sigma
 open import Cubical.Data.FinData using (Fin)
 open import Cubical.Data.Nat using (ℕ)
---open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.List
-open import Cubical.Data.Bool
 open import Cubical.Data.Vec using (Vec; lookup)
 
 open import Cubical.Algebra.Monoid
@@ -57,7 +45,7 @@ module Eval (M : Monoid ℓ) where
   normalize ε⊗        = []
   normalize (e₁ ⊗ e₂) = (normalize e₁) ++ (normalize e₂)
 
-  -- evaluation of normalization
+  -- evaluation of normalform
   eval : ∀ {n} → NormalForm n → Env n → ⟨ M ⟩
   eval [] v       = ε
   eval (x ∷ xs) v = (lookup x v) · (eval xs v)
