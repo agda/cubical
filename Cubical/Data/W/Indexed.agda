@@ -129,7 +129,7 @@ module IWPath {X : Type ℓX} {S : X → Type ℓS} {P : ∀ x → S x → Type 
 
   encodeDecode : ∀ {x} (w w' : IW S P inX x) → (cw : Cover w w') → encode w w' (decode w w' cw) ≡ cw
   encodeDecode w w' = rightInv (isoEncode w w')
-  
+
   equivEncode : ∀ {x} (w w' : IW S P inX x) → (w ≡ w') ≃ Cover w w'
   equivEncode w w' = isoToEquiv (isoEncode w w')
 
