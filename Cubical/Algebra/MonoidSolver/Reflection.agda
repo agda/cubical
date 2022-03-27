@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.MonoidSolver.ReflectionSolving where
+module Cubical.Algebra.MonoidSolver.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)
 open import Cubical.Functions.Logic
@@ -21,7 +21,7 @@ open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
 open import Cubical.Algebra.Monoid.Base
-open import Cubical.Algebra.MonoidSolver.NaiveSolving renaming (solve to naiveSolve)
+open import Cubical.Algebra.MonoidSolver.Solver renaming (solve to naiveSolve)
 
 private
   variable
@@ -117,12 +117,9 @@ private
 
 module _ (monoid : Term) where
 
-  `ε⊗` : List (Arg Term) → Term
-  `ε⊗` [] = con (quote ε⊗) []
-  `ε⊗` (varg fstmonoid ∷ xs) = `ε⊗` xs
-  `ε⊗` (harg _ ∷ xs) = `ε⊗` xs
-  `ε⊗` _ = unknown
-
+  `ε⊗` : Term
+  `ε⊗` = con (quote ε⊗) []
+  
   mutual
 
     `_⊗_` : List (Arg Term) → Term
@@ -142,7 +139,7 @@ module _ (monoid : Term) where
       if (n == (quote MonoidStr._·_))
         then `_⊗_` xs
       else if (n == (quote MonoidStr.ε))
-        then `ε⊗` xs
+        then `ε⊗`
       else
         unknown
     buildExpression t = unknown

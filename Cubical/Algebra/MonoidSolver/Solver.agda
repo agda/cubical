@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.MonoidSolver.NaiveSolving where
+module Cubical.Algebra.MonoidSolver.Solver where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
@@ -62,6 +62,13 @@ module Eval (M : Monoid ℓ) where
   eval [] v = ε
   eval (x ∷ xs) v = (lookup x v) · (eval xs v)
 
+  -- some calculation
+  evalIsHom : ∀ {n} (x y : NormalForm n) (v : Env n)
+            → eval (x ++ y) v ≡ eval x v · eval y v
+  evalIsHom [] y v = sym (lid _)
+  evalIsHom (x ∷ xs) y v =
+    cong (λ m → (lookup x v) · m) (evalIsHom xs y v) ∙ assoc _ _ _
+
 module EqualityToNormalform (M : Monoid ℓ) where
   open Eval M
   open MonoidStr (snd M)
@@ -75,17 +82,11 @@ module EqualityToNormalform (M : Monoid ℓ) where
   isEqualToNormalform n ε⊗ v = refl
   isEqualToNormalform n (e₁ ⊗ e₂) v =
     eval ((normalize e₁) ++ (normalize e₂)) v
-      ≡⟨ lemma (normalize e₁) (normalize e₂) ⟩
+      ≡⟨ evalIsHom (normalize e₁) (normalize e₂) v ⟩
     (eval (normalize e₁) v) · (eval (normalize e₂) v)
       ≡⟨ cong₂ _·_ (isEqualToNormalform n e₁ v) (isEqualToNormalform n e₂ v) ⟩
     ⟦ e₁ ⟧ v · ⟦ e₂ ⟧ v
       ∎
-    where
-      lemma : (l₁ l₂ : NormalForm n)
-            → eval (l₁ ++ l₂) v ≡  eval l₁ v · eval l₂ v
-      lemma [] l₂ = sym (lid _)
-      lemma (x ∷ xs) l₂ =
-        cong (λ m → (lookup x v) · m) (lemma xs l₂) ∙ assoc _ _ _
 
   solve : {n : ℕ}
         → (e₁ e₂ : Expr ⟨ M ⟩ n)
