@@ -25,7 +25,7 @@ open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 
-open import Cubical.HITs.PropositionalTruncation hiding (map)
+open import Cubical.HITs.PropositionalTruncation renaming (map to pMap)
 
 private
   variable
@@ -174,6 +174,17 @@ snd (GroupHom≡ {G = G} {H = H} {f = f} {g = g} p i) = p-hom i
   p-hom : PathP (λ i → IsGroupHom (G .snd) (p i) (H .snd)) (f .snd) (g .snd)
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
+-- The composition of surjective maps is surjective
+compSurjective : ∀ {ℓ ℓ' ℓ''} {G : Group ℓ} {H : Group ℓ'} {L : Group ℓ''}
+         → (G→H : GroupHom G H) (H→L : GroupHom H L)
+         → isSurjective G→H → isSurjective H→L
+         → isSurjective (compGroupHom G→H H→L)
+compSurjective G→H H→L surj1 surj2 l =
+  rec squash
+    (λ {(h , p)
+      → pMap (λ {(g , q) → g , (cong (fst H→L) q ∙ p)})
+        (surj1 h)})
+    (surj2 l)
 
 -- GroupEquiv identity, composition and inversion
 idGroupEquiv : GroupEquiv G G
@@ -184,25 +195,25 @@ compGroupEquiv : GroupEquiv F G → GroupEquiv G H → GroupEquiv F H
 fst (compGroupEquiv f g) = compEquiv (fst f) (fst g)
 snd (compGroupEquiv f g) = isGroupHomComp (_ , f .snd) (_ , g .snd)
 
+isGroupHomInv : (f : GroupEquiv G H) → IsGroupHom (H .snd) (invEq (fst f)) (G .snd)
+isGroupHomInv {G = G} {H = H} f = makeIsGroupHom λ h h' →
+  isInj-f _ _
+    (f' (g (h ⋆² h'))        ≡⟨ secEq (fst f) _ ⟩
+     (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (secEq (fst f) h) (secEq (fst f) h')) ⟩
+     (f' (g h) ⋆² f' (g h')) ≡⟨ sym (pres· (snd f) _ _) ⟩
+     f' (g h ⋆¹ g h') ∎)
+  where
+  f' = fst (fst f)
+  _⋆¹_ = _·_ (snd G)
+  _⋆²_ = _·_ (snd H)
+  g = invEq (fst f)
+
+  isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
+  isInj-f x y = invEq (_ , isEquiv→isEmbedding (snd (fst f)) x y)
+
 invGroupEquiv : GroupEquiv G H → GroupEquiv H G
 fst (invGroupEquiv f) = invEquiv (fst f)
 snd (invGroupEquiv f) = isGroupHomInv f
-  where
-  isGroupHomInv : (f : GroupEquiv G H) → IsGroupHom (H .snd) (invEq (fst f)) (G .snd)
-  isGroupHomInv {G = G} {H = H} f = makeIsGroupHom λ h h' →
-    isInj-f _ _
-      (f' (g (h ⋆² h'))        ≡⟨ secEq (fst f) _ ⟩
-       (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (secEq (fst f) h) (secEq (fst f) h')) ⟩
-       (f' (g h) ⋆² f' (g h')) ≡⟨ sym (pres· (snd f) _ _) ⟩
-       f' (g h ⋆¹ g h') ∎)
-    where
-    f' = fst (fst f)
-    _⋆¹_ = _·_ (snd G)
-    _⋆²_ = _·_ (snd H)
-    g = invEq (fst f)
-
-    isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
-    isInj-f x y = invEq (_ , isEquiv→isEmbedding (snd (fst f)) x y)
 
 GroupEquivDirProd : {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} {D : Group ℓ'''}
                   → GroupEquiv A C → GroupEquiv B D
@@ -229,23 +240,7 @@ snd (compGroupIso iso1 iso2) = isGroupHomComp (_ , snd iso1) (_ , snd iso2)
 
 invGroupIso : GroupIso G H → GroupIso H G
 fst (invGroupIso iso1) = invIso (fst iso1)
-snd (invGroupIso iso1) = isGroupHomInv iso1
-  where
-  isGroupHomInv : (f : GroupIso G H) → IsGroupHom (H .snd) (inv (fst f)) (G .snd)
-  isGroupHomInv {G = G} {H = H}  f = makeIsGroupHom λ h h' →
-    isInj-f _ _
-      (f' (g (h ⋆² h')) ≡⟨ (rightInv (fst f)) _ ⟩
-       (h ⋆² h') ≡⟨ sym (cong₂ _⋆²_ (rightInv (fst f) h) (rightInv (fst f) h')) ⟩
-       (f' (g h) ⋆² f' (g h')) ≡⟨ sym (f .snd .pres· _ _) ⟩
-       f' (g h ⋆¹ g h') ∎)
-    where
-    f' = fun (fst f)
-    _⋆¹_ = GroupStr._·_ (snd G)
-    _⋆²_ = GroupStr._·_ (snd H)
-    g = inv (fst f)
-
-    isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
-    isInj-f x y p = sym (leftInv (fst f) _) ∙∙ cong g p ∙∙ leftInv (fst f) _
+snd (invGroupIso iso1) = isGroupHomInv (isoToEquiv (fst iso1) , snd iso1)
 
 GroupIsoDirProd : {G : Group ℓ} {H : Group ℓ'} {A : Group ℓ''} {B : Group ℓ'''}
                 → GroupIso G H → GroupIso A B → GroupIso (DirProd G A) (DirProd H B)

@@ -12,6 +12,7 @@ module Cubical.HITs.Truncation.Base where
 open import Cubical.Data.NatMinusOne
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Pointed
 open import Cubical.HITs.Sn.Base
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Unit.Base
@@ -34,3 +35,9 @@ hLevelTrunc (suc n) A = HubAndSpoke A n
 ∣_∣ₕ : ∀ {ℓ} {A : Type ℓ} {n : ℕ} → A → ∥ A ∥ n
 ∣_∣ₕ {n = zero} a = tt*
 ∣_∣ₕ {n = suc n} a = ∣ a ∣
+
+-- Pointed version
+hLevelTrunc∙ : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → Pointed ℓ
+fst (hLevelTrunc∙ n A) = hLevelTrunc n (typ A)
+snd (hLevelTrunc∙ zero A) = tt*
+snd (hLevelTrunc∙ (suc n) A) = ∣ pt A ∣ₕ

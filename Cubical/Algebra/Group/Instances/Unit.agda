@@ -4,11 +4,14 @@ module Cubical.Algebra.Group.Instances.Unit where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
 open import Cubical.Data.Unit renaming (Unit to UnitType)
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.GroupPath
 
 open GroupStr
 open IsGroupHom
@@ -54,3 +57,18 @@ snd (contrGroupIsoUnit contr) = makeIsGroupHom λ _ _ → refl
 
 contrGroupEquivUnit : {G : Group ℓ} → isContr ⟨ G ⟩ → GroupEquiv G Unit
 contrGroupEquivUnit contr = GroupIso→GroupEquiv (contrGroupIsoUnit contr)
+
+isContr→≡UnitGroup : {G : Group ℓ-zero} → isContr (fst G) → Unit ≡ G
+isContr→≡UnitGroup c =
+  fst (GroupPath _ _)
+    (invGroupEquiv ((isContr→≃Unit c)
+                  , (makeIsGroupHom (λ _ _ → refl))))
+
+GroupIsoUnitGroup→isContr : {G : Group ℓ-zero}
+                           → GroupIso Unit G → isContr (fst G)
+GroupIsoUnitGroup→isContr is =
+  isOfHLevelRetractFromIso 0 (invIso (fst is)) isContrUnit
+
+→UnitHom : ∀ {ℓ} (G : Group ℓ) → GroupHom G Unit
+fst (→UnitHom G) _ = tt
+snd (→UnitHom G) = makeIsGroupHom λ _ _ → refl

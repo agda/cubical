@@ -1,4 +1,4 @@
-{-# OPTIONS --postfix-projections --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Categories.TypesOfCategories.TypeCategory where
 
@@ -18,12 +18,11 @@ open import Cubical.Categories.Instances.Sets
 
 open Fibration.ForSets
 
-record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
+record isTypeCategory {ℓ ℓ' ℓ''} (C : Category ℓ ℓ')
        : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc ℓ''))) where
-  open Precategory C
+  open Category C
   open Cospan
-  open PullbackLegs
-  open isPullback
+
   field
     -- a Type of types over a context
     Ty[_] : ob → Type ℓ''
@@ -49,25 +48,29 @@ record isTypeCategory {ℓ ℓ' ℓ''} (C : Precategory ℓ ℓ')
            → (A : Ty[ Γ ])
            → C [ Γ' ⍮ (reindex f A) , Γ ⍮ A ]
 
+    sq : ∀ {Γ' Γ : ob} (f : C [ Γ' , Γ ]) (A : Ty[ Γ ])
+       → π Γ' (reindex f A) ⋆ f ≡ q⟨ f , A ⟩ ⋆ π Γ A
+
     isPB : ∀ {Γ' Γ : ob} (f : C [ Γ' , Γ ]) (A : Ty[ Γ ])
-         → isPullback {C = C} (cospan Γ' Γ (Γ ⍮ A) f (π Γ A))
-                      (pblegs (π Γ' (reindex f A)) q⟨ f , A ⟩)
+         → isPullback C (cospan Γ' Γ (Γ ⍮ A) f (π Γ A))
+                      (π Γ' (reindex f A)) (q⟨ f , A ⟩) (sq f A)
 
 -- presheaves are type contexts
-module _ {ℓ ℓ' ℓ'' : Level} (C : Precategory ℓ ℓ') where
+module _ {ℓ ℓ' ℓ'' : Level} (C : Category ℓ ℓ') where
   open isTypeCategory
-  open Precategory
+  open Category
   open Functor
   open NatTrans
-  open isPullback
 
   private
+    isSurjSET : ∀ {ℓ} {A B : SET ℓ .ob} → (f : SET ℓ [ A , B ]) → Type _
+    isSurjSET {A = A} {B} f = ∀ (b : fst B) → Σ[ a ∈ fst A ] f a ≡ b
+
     -- types over Γ are types with a "projection" (aka surjection) to Γ
     PSTy[_] : PreShv C ℓ'' .ob → Type _
     PSTy[ Γ ] = Σ[ ΓA ∈ PreShv C ℓ'' .ob ]
                    Σ[ π ∈ ΓA ⇒ Γ ]
-                     (∀ (c : C .ob)
-                     → isSurjSET {A = ΓA ⟅ c ⟆} {Γ ⟅ c ⟆} (π ⟦ c ⟧))
+                     (∀ (c : C .ob) → isSurjSET {A = ΓA ⟅ c ⟆} {Γ ⟅ c ⟆} (π ⟦ c ⟧))
 
     -- just directly use types from above as context extensions
     PSCext : (Γ : _) → PSTy[ Γ ] → Σ[ ΓA ∈ PreShv C ℓ'' .ob ] ΓA ⇒ Γ
@@ -122,17 +125,17 @@ module _ {ℓ ℓ' ℓ'' : Level} (C : Precategory ℓ ℓ') where
       PSq .N-ob c (δax , γax , eq) = γax
       PSq .N-hom {c} {d} f = funExt λ (δax , γax , eq) → refl
 
-      PSIsPB : isPullback {C = PreShv C ℓ''}
-                 (cospan Δ Γ (fst (PSCext Γ A')) γ (snd (PSCext Γ A')))
-                 (pblegs (snd (PSCext Δ PSReindex)) (PSq))
-      PSIsPB .sq = makeNatTransPath (funExt sqExt)
+      PSSq : (PreShv C ℓ'' ⋆ snd (PSCext Δ (PSReindex))) γ ≡
+             (PreShv C ℓ'' ⋆ PSq) (snd (PSCext Γ A'))
+      PSSq = makeNatTransPath (funExt sqExt)
         where
           sqExt : ∀ (c : C .ob) → _
           sqExt c = funExt λ (δax , γax , eq) → sym eq
 
-      PSIsPB .up {Θ} (cone (pblegs p₁ p₂) sq)
-        = ((α , eq)
-          , unique)
+      PSIsPB : isPullback (PreShv C ℓ'')
+                 (cospan Δ Γ (fst (PSCext Γ A')) γ (snd (PSCext Γ A')))
+                 (snd (PSCext Δ PSReindex)) PSq PSSq
+      PSIsPB {Θ} p₁ p₂ sq = (α , eq) , unique
         where
           α : Θ ⇒ ΔA
           α .N-ob c t = ((p₁ ⟦ c ⟧) t)
@@ -173,10 +176,10 @@ module _ {ℓ ℓ' ℓ'' : Level} (C : Precategory ℓ ℓ') where
                               , isPropNatP2 (eq .snd) (eqβ .snd) α≡β)
                 where
                   isPropNatP1 : isOfHLevelDep 1 (λ γ → p₁ ≡ γ ●ᵛ π')
-                  isPropNatP1 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNat _ _)
+                  isPropNatP1 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNatTrans _ _)
 
                   isPropNatP2 : isOfHLevelDep 1 (λ γ → p₂ ≡ γ ●ᵛ PSq)
-                  isPropNatP2 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNat _ _)
+                  isPropNatP2 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNatTrans _ _)
 
   -- putting everything together
   isTypeCategoryPresheaf : isTypeCategory (PreShv C ℓ'')
@@ -184,4 +187,5 @@ module _ {ℓ ℓ' ℓ'' : Level} (C : Precategory ℓ ℓ') where
   isTypeCategoryPresheaf .cext = PSCext
   isTypeCategoryPresheaf .reindex = PSReindex
   isTypeCategoryPresheaf .q⟨_,_⟩ = PSq
+  isTypeCategoryPresheaf .sq = PSSq
   isTypeCategoryPresheaf .isPB = PSIsPB

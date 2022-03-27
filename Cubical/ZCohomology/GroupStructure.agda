@@ -10,6 +10,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed hiding (id)
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.Data.Sigma
@@ -668,6 +669,16 @@ snd (coHomMorph n f) = makeIsGroupHom (helper n)
   helper zero = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
   helper (suc zero) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
   helper (suc (suc n)) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
+
+coHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) → Iso A B
+  → GroupIso (coHomGr n B) (coHomGr n A)
+fun (fst (coHomIso n is)) = fst (coHomMorph n (fun is))
+inv' (fst (coHomIso n is)) = fst (coHomMorph n (inv' is))
+rightInv (fst (coHomIso n is)) =
+  sElim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (leftInv is x))
+leftInv (fst (coHomIso n is)) =
+  sElim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (rightInv is x))
+snd (coHomIso n is) = snd (coHomMorph n (fun is))
 
 -- Alternative definition of cohomology using ΩKₙ instead. Useful for breaking proofs of group isos
 -- up into smaller parts
