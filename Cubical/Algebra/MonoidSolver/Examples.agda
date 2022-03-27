@@ -27,5 +27,3 @@ module test (M : Monoid ℓ) where
 
   _ : ∀ x y z → z · (x · y) · ε · z ≡ z · x · (y · z)
   _ = solve M
-
-

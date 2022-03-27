@@ -44,8 +44,8 @@ module Eval (M : Monoid ℓ) where
 
   -- evaluation of an expression (without normalization)
   ⟦_⟧ : ∀{n} → Expr ⟨ M ⟩ n → Env n → ⟨ M ⟩
-  ⟦ ε⊗ ⟧ v = ε
-  ⟦ ∣ i ⟧ v = lookup i v
+  ⟦ ε⊗ ⟧ v      = ε
+  ⟦ ∣ i ⟧ v     = lookup i v
   ⟦ e₁ ⊗ e₂ ⟧ v = ⟦ e₁ ⟧ v · ⟦ e₂ ⟧ v
 
   NormalForm : ℕ → Type _
@@ -53,19 +53,19 @@ module Eval (M : Monoid ℓ) where
 
   -- normalization of an expression
   normalize : ∀{n} → Expr ⟨ M ⟩ n → NormalForm n
-  normalize (∣ i) = i ∷ []
-  normalize ε⊗ = []
+  normalize (∣ i)     = i ∷ []
+  normalize ε⊗        = []
   normalize (e₁ ⊗ e₂) = (normalize e₁) ++ (normalize e₂)
 
   -- evaluation of normalization
   eval : ∀ {n} → NormalForm n → Env n → ⟨ M ⟩
-  eval [] v = ε
+  eval [] v       = ε
   eval (x ∷ xs) v = (lookup x v) · (eval xs v)
 
   -- some calculation
   evalIsHom : ∀ {n} (x y : NormalForm n) (v : Env n)
             → eval (x ++ y) v ≡ eval x v · eval y v
-  evalIsHom [] y v = sym (lid _)
+  evalIsHom [] y v       = sym (lid _)
   evalIsHom (x ∷ xs) y v =
     cong (λ m → (lookup x v) · m) (evalIsHom xs y v) ∙ assoc _ _ _
 
@@ -78,15 +78,12 @@ module EqualityToNormalform (M : Monoid ℓ) where
                       → (e : Expr ⟨ M ⟩ n)
                       → (v : Env n)
                       → eval (normalize e) v ≡ ⟦ e ⟧ v
-  isEqualToNormalform n (∣ i) v = rid _
-  isEqualToNormalform n ε⊗ v = refl
+  isEqualToNormalform n (∣ i) v     = rid _
+  isEqualToNormalform n ε⊗ v        = refl
   isEqualToNormalform n (e₁ ⊗ e₂) v =
-    eval ((normalize e₁) ++ (normalize e₂)) v
-      ≡⟨ evalIsHom (normalize e₁) (normalize e₂) v ⟩
-    (eval (normalize e₁) v) · (eval (normalize e₂) v)
-      ≡⟨ cong₂ _·_ (isEqualToNormalform n e₁ v) (isEqualToNormalform n e₂ v) ⟩
-    ⟦ e₁ ⟧ v · ⟦ e₂ ⟧ v
-      ∎
+    eval ((normalize e₁) ++ (normalize e₂)) v         ≡⟨ evalIsHom (normalize e₁) (normalize e₂) v ⟩
+    (eval (normalize e₁) v) · (eval (normalize e₂) v) ≡⟨ cong₂ _·_ (isEqualToNormalform n e₁ v) (isEqualToNormalform n e₂ v) ⟩
+    ⟦ e₁ ⟧ v · ⟦ e₂ ⟧ v                               ∎
 
   solve : {n : ℕ}
         → (e₁ e₂ : Expr ⟨ M ⟩ n)

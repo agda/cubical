@@ -80,9 +80,9 @@ module Eval (M : CommMonoid ℓ) where
 
   UnitVecEvaluatesToVar : ∀{n} (i : Fin n) (v : Env n) →  eval e[ i ] v ≡ lookup i v
   UnitVecEvaluatesToVar zero (v ∷ vs) =
-    v · eval emptyForm vs  ≡⟨ cong₂ _·_ refl (emptyFormEvaluatesToε vs) ⟩
-    v · ε ≡⟨ rid _ ⟩
-    v ∎
+    v · eval emptyForm vs ≡⟨ cong₂ _·_ refl (emptyFormEvaluatesToε vs) ⟩
+    v · ε                 ≡⟨ rid _ ⟩
+    v                     ∎
   UnitVecEvaluatesToVar (suc i) (v ∷ vs) = UnitVecEvaluatesToVar i vs
 
   evalIsHom : ∀ {n} (x y : NormalForm n) (v : Env n)
@@ -110,11 +110,9 @@ module EqualityToNormalform (M : CommMonoid ℓ) where
   isEqualToNormalform ε⊗ v = emptyFormEvaluatesToε v
   isEqualToNormalform (∣ i) v = UnitVecEvaluatesToVar i v
   isEqualToNormalform (e₁ ⊗ e₂) v =
-    eval ((normalize e₁) ⊞ (normalize e₂)) v
-      ≡⟨ evalIsHom (normalize e₁) (normalize e₂) v ⟩
-    (eval (normalize e₁) v) · (eval (normalize e₂) v)
-      ≡⟨ cong₂ _·_ (isEqualToNormalform e₁ v) (isEqualToNormalform e₂ v) ⟩
-    ⟦ e₁ ⟧ v · ⟦ e₂ ⟧ v ∎
+    eval ((normalize e₁) ⊞ (normalize e₂)) v          ≡⟨ evalIsHom (normalize e₁) (normalize e₂) v ⟩
+    (eval (normalize e₁) v) · (eval (normalize e₂) v) ≡⟨ cong₂ _·_ (isEqualToNormalform e₁ v) (isEqualToNormalform e₂ v) ⟩
+    ⟦ e₁ ⟧ v · ⟦ e₂ ⟧ v                               ∎
 
   solve : {n : ℕ}
         → (e₁ e₂ : Expr ⟨ M ⟩ n)
