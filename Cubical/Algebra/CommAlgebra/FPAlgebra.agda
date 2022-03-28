@@ -13,6 +13,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat
@@ -32,7 +33,7 @@ open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
 open import Cubical.Algebra.CommAlgebra.Kernel
 
-import Cubical.Algebra.Algebra.Properties
+open import Cubical.Algebra.Algebra.Properties
 
 
 open import Cubical.Foundations.Structure
@@ -42,15 +43,29 @@ private
     ℓ : Level
 
 module _ {R : CommRing ℓ} where
+  open Construction using (var)
   Polynomials : (n : ℕ) → CommAlgebra R ℓ
   Polynomials n = R [ Fin n ]
 
   evPoly : {n : ℕ} (A : CommAlgebra R ℓ) → ⟨ Polynomials n ⟩ → FinVec ⟨ A ⟩ n → ⟨ A ⟩
   evPoly A P values = fst (freeInducedHom A values) P
 
+  evPolyPoly : {n : ℕ} (P : ⟨ Polynomials n ⟩) → evPoly (Polynomials n) P var ≡ P
+  evPolyPoly {n = n} P = cong (λ u → fst u P) (inducedHomVar R (Fin n))
+
+  evPolyHomomorphic : {n : ℕ} (A B : CommAlgebra R ℓ) (f : CommAlgebraHom A B)
+                     → (P : ⟨ Polynomials n ⟩) → (values : FinVec ⟨ A ⟩ n)
+                     → (fst f) (evPoly A P values) ≡ evPoly B P (fst f ∘ values)
+  evPolyHomomorphic A B f P values =
+    (fst f) (evPoly A P values)                         ≡⟨ refl ⟩
+    (fst f) (fst (freeInducedHom A values) P)           ≡⟨ refl ⟩
+    fst (f ∘a freeInducedHom A values) P                ≡⟨ cong (λ u → fst u P) (natIndHomR f values) ⟩
+    fst (freeInducedHom B (fst f ∘ values)) P           ≡⟨ refl ⟩
+    evPoly B P (fst f ∘ values) ∎
+    where open AlgebraHoms
+
   module _ {m : ℕ} (n : ℕ) (relation : FinVec ⟨ Polynomials n ⟩ m) where
     open CommAlgebraStr using (0a)
-    open Construction using (var)
     open Cubical.Algebra.Algebra.Properties.AlgebraHoms
 
     relationsIdeal = generatedIdeal (Polynomials n) relation
@@ -64,11 +79,25 @@ module _ {R : CommRing ℓ} where
       FPAlgebra : CommAlgebra R ℓ
       FPAlgebra = Polynomials n / relationsIdeal
 
-      generator : (i : Fin n) → ⟨ FPAlgebra ⟩
-      generator i =
-        elementInQuotientCAlg
-          R (Polynomials n) relationsIdeal (var i)
+      modRelations : CommAlgebraHom (Polynomials n) (Polynomials n / relationsIdeal)
+      modRelations = quotientMap (Polynomials n) relationsIdeal
 
+      generator : (i : Fin n) → ⟨ FPAlgebra ⟩
+      generator = fst modRelations ∘ var
+
+      relationsHold : (i : Fin m) → evPoly FPAlgebra (relation i) generator ≡ 0a (snd FPAlgebra)
+      relationsHold i =
+        evPoly FPAlgebra (relation i) generator
+        ≡⟨ sym (evPolyHomomorphic (Polynomials n) FPAlgebra modRelations (relation i) var) ⟩
+        fst modRelations (evPoly (Polynomials n) (relation i) var)
+        ≡⟨ cong (λ u → fst modRelations u) (evPolyPoly (relation i)) ⟩
+        fst modRelations (relation i)
+        ≡⟨ isZeroFromIdeal {R = R}
+                           {A = (Polynomials n)}
+                           {I = relationsIdeal}
+                           (relation i)
+                           (incInIdeal (Polynomials n) relation i ) ⟩
+        0a (snd FPAlgebra) ∎
       inducedHom :
         {A : CommAlgebra R ℓ}
         (values : FinVec ⟨ A ⟩ n)
@@ -116,16 +145,13 @@ module _ {R : CommRing ℓ} where
           {-
                      Poly n
                       |    \
-                      q    f'
+            modRelations    f'
                       ↓      ↘
                  FPAlgebra ─f→ A
           -}
-          q : CommAlgebraHom (Polynomials n) (Polynomials n / relationsIdeal)
-          q = quotientMap (Polynomials n) relationsIdeal
-
           f' iHom' : CommAlgebraHom (Polynomials n) A
-          f' = compAlgebraHom q f
-          iHom' = compAlgebraHom q (inducedHom {A = A} values relationsHold)
+          f' = compAlgebraHom modRelations f
+          iHom' = compAlgebraHom modRelations (inducedHom {A = A} values relationsHold)
 
           inv : retract (Iso.fun (homMapIso {I = Fin n} A)) (Iso.inv (homMapIso A))
           inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
@@ -144,6 +170,9 @@ module _ {R : CommRing ℓ} where
   isFPAlgebraIsProp = isPropPropTrunc
 
 module Instances {R : CommRing ℓ} where
+  {- Multivariate polynomials are finitely presented ... -}
+
+  {- The initial R-algebra is finitely presented -}
   private
     R[⊥] : CommAlgebra R ℓ
     R[⊥] = Polynomials 0

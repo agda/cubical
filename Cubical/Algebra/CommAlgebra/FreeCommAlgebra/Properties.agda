@@ -356,7 +356,7 @@ homMapPath : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
              → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
 homMapPath A = isoToPath (homMapIso A)
 
--- The homomorphism induced by the variables is identity.
+-- The homomorphism induced by the variables is the identity.
 inducedHomVar : (R : CommRing ℓ) (I : Type ℓ')
               → inducedHom (R [ I ]) Construction.var ≡ idCAlgHom (R [ I ])
 inducedHomVar R I = isoFunInjective (homMapIso (R [ I ])) _ _ refl

@@ -5,6 +5,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_)
+open import Cubical.Foundations.Structure
 
 open import Cubical.HITs.SetQuotients hiding (_/_)
 open import Cubical.Data.Unit
@@ -21,6 +22,7 @@ open import Cubical.Algebra.CommAlgebra.Instances.Terminal
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
+open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.Algebra.Properties
 open AlgebraHoms using () renaming (compAlgebraHom to compCAlgHom)
 
@@ -170,7 +172,19 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
        → (a : fst A) → fst (A / I)
 [ a ]/ = [ a ]
 
-elementInQuotientCAlg :
-  (R : CommRing ℓ) (A : CommAlgebra R ℓ) (I : IdealsIn A)
-  → (a : fst A) → fst (A / I)
-elementInQuotientCAlg R A I a = [_]/ {R = R} {A = A} {I = I} a
+private
+  module _ (R : CommRing ℓ) where
+    open CommRingStr (snd R)
+    lemma : (y : (fst R)) → y ≡ y - 0r
+    lemma = solve R
+
+
+isZeroFromIdeal : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
+                  → (x : ⟨ A ⟩) → x ∈ (fst I) → fst (quotientMap A I) x ≡ CommAlgebraStr.0a (snd (A / I))
+isZeroFromIdeal {A = A} {I = I} x x∈I = eq/ x 0a (subst (λ y → y ∈ (fst I)) step x∈I )
+  where
+    open CommAlgebraStr (snd A)
+    step : x ≡ x - 0a
+    step = lemma (CommAlgebra→CommRing A) x
+    0' : ⟨ A / I ⟩
+    0' = fst (quotientMap A I) 0a
