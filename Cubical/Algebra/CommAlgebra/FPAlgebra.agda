@@ -51,26 +51,30 @@ module _ {R : CommRing ℓ} where
   module _ {m : ℕ} (n : ℕ) (relation : FinVec ⟨ Polynomials n ⟩ m) where
     open CommAlgebraStr using (0a)
     open Construction using (var)
+    open Cubical.Algebra.Algebra.Properties.AlgebraHoms
 
     relationsIdeal = generatedIdeal (Polynomials n) relation
 
-    FPAlgebra : CommAlgebra R ℓ
-    FPAlgebra = Polynomials n / relationsIdeal
+    abstract
+      {-
+        The following four definitions are abstract because of type checking speed
+        problems - complete unfolding of FPAlgebra is triggered otherwise.
+        This also means, the where blocks contain more type declarations than usual.
+      -}
+      FPAlgebra : CommAlgebra R ℓ
+      FPAlgebra = Polynomials n / relationsIdeal
 
-    generator : (i : Fin n) → ⟨ FPAlgebra ⟩
-    generator i =
-      elementInQuotientCAlg
-        R (Polynomials n) relationsIdeal (var i)
+      generator : (i : Fin n) → ⟨ FPAlgebra ⟩
+      generator i =
+        elementInQuotientCAlg
+          R (Polynomials n) relationsIdeal (var i)
 
-    module universalProperty
-      {A : CommAlgebra R ℓ}
-      (values : FinVec ⟨ A ⟩ n)
-      (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
-      where
-      open Cubical.Algebra.Algebra.Properties.AlgebraHoms
-
-      inducedHom : CommAlgebraHom FPAlgebra A
-      inducedHom =
+      inducedHom :
+        {A : CommAlgebra R ℓ}
+        (values : FinVec ⟨ A ⟩ n)
+        (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
+        → CommAlgebraHom FPAlgebra A
+      inducedHom {A = A} values relationsHold =
         quotientInducedHom
           (Polynomials n)
           relationsIdeal
@@ -78,6 +82,7 @@ module _ {R : CommRing ℓ} where
           freeHom
           isInKernel
         where
+          freeHom : CommAlgebraHom (Polynomials n) A 
           freeHom = freeInducedHom A values
           isInKernel :   fst (generatedIdeal (Polynomials n) relation)
                        ⊆ fst (kernel (Polynomials n) A freeHom)
@@ -86,21 +91,27 @@ module _ {R : CommRing ℓ} where
                          relation
                          (kernel (Polynomials n) A freeHom)
                          relationsHold
-      unique : (f : CommAlgebraHom FPAlgebra A)
+
+      unique :
+             {A : CommAlgebra R ℓ}
+             (values : FinVec ⟨ A ⟩ n)
+             (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
+             (f : CommAlgebraHom FPAlgebra A)
              → ((i : Fin n) → fst f (generator i) ≡ values i)
-             → f ≡ inducedHom
-      unique f hasCorrectValues =
+             → inducedHom {A = A} values relationsHold ≡ f
+      unique {A = A} values relationsHold f hasCorrectValues =
         injectivePrecomp
           (Polynomials n)
           relationsIdeal
           A
+          (inducedHom {A = A} values relationsHold)
           f
-          inducedHom
-          (f'     ≡⟨ sym (inv f') ⟩
+          (sym (
+           f'     ≡⟨ sym (inv f') ⟩
            freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A) (funExt hasCorrectValues) ⟩
            freeInducedHom A values               ≡⟨ cong (freeInducedHom A) refl ⟩
            freeInducedHom A (evaluateAt A iHom') ≡⟨ inv iHom' ⟩
-           iHom' ∎)
+           iHom' ∎))
         where
           {-
                      Poly n
@@ -109,20 +120,22 @@ module _ {R : CommRing ℓ} where
                       ↓      ↘ 
                  FPAlgebra ─f→ A 
           -}
+          q : CommAlgebraHom (Polynomials n) (Polynomials n / relationsIdeal)
           q = quotientMap (Polynomials n) relationsIdeal
+          
           f' iHom' : CommAlgebraHom (Polynomials n) A
           f' = compAlgebraHom q f
-          iHom' = compAlgebraHom q inducedHom
+          iHom' = compAlgebraHom q (inducedHom {A = A} values relationsHold)
+          
+          inv : retract (Iso.fun (homMapIso {I = Fin n} A)) (Iso.inv (homMapIso A))
           inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
-
-{-
 
   record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
       n : ℕ
       m : ℕ
       relations : FinVec ⟨ Polynomials n ⟩ m
-      equiv : CommAlgebraEquiv (FPAlgebra.make n relations) A
+      equiv : CommAlgebraEquiv (FPAlgebra n relations) A
 
   isFPAlgebra : (A : CommAlgebra R ℓ) → Type _
   isFPAlgebra A = ∥ finitePresentation A ∥
@@ -138,15 +151,22 @@ module Instances {R : CommRing ℓ} where
     emptyGen : FinVec (fst R[⊥]) 0
     emptyGen = λ ()
 
-    R[⊥]/⟨0⟩ : CommAlgebra R ℓ
-    R[⊥]/⟨0⟩ = R[⊥] / (generatedIdeal R[⊥] emptyGen)
+  R[⊥]/⟨0⟩ : CommAlgebra R ℓ
+  R[⊥]/⟨0⟩ = FPAlgebra 0 emptyGen
+
+  contractibility : (B : CommAlgebra R ℓ)
+                    → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
+  contractibility B = iHom , uniqueness
+    where
+      iHom : CommAlgebraHom R[⊥]/⟨0⟩ B
+      iHom = inducedHom 0 emptyGen {A = B} (λ ()) (λ ())
+      uniqueness : (f : CommAlgebraHom R[⊥]/⟨0⟩ B) →
+                   iHom ≡ f
+      uniqueness f = unique 0 emptyGen {A = B} (λ ()) (λ ()) f (λ ())
 
   initialCAlgFP : finitePresentation (initialCAlg R)
   finitePresentation.n initialCAlgFP = 0
   finitePresentation.m initialCAlgFP = 0
   finitePresentation.relations initialCAlgFP = emptyGen
   finitePresentation.equiv initialCAlgFP =
-    makeFPAlgebra 0 emptyGen                                ≃CAlg⟨ {!idCAlgEquiv _!} ⟩
-    Polynomials 0 / generatedIdeal (Polynomials 0) emptyGen ≃CAlg⟨ {!!} ⟩
-    initialCAlg R                                           ≃CAlg∎
--}
+    equivByInitiality R (FPAlgebra 0 emptyGen) contractibility
