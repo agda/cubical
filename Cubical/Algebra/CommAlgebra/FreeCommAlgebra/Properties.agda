@@ -356,6 +356,11 @@ homMapPath : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
              → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
 homMapPath A = isoToPath (homMapIso A)
 
+-- The homomorphism induced by the variables is identity.
+inducedHomVar : (R : CommRing ℓ) (I : Type ℓ')
+              → inducedHom (R [ I ]) Construction.var ≡ idCAlgHom (R [ I ])
+inducedHomVar R I = isoFunInjective (homMapIso (R [ I ])) _ _ refl
+
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
   open AlgebraHoms
   A′ = CommAlgebra→Algebra A
@@ -382,17 +387,11 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
   natIndHomR : {I : Type ℓ'} (ψ : CommAlgebraHom A B)
                (ϕ : I → ⟨ A ⟩)
                → ψ ∘a inducedHom A ϕ ≡ inducedHom B (fst ψ ∘ ϕ)
-  natIndHomR ψ ϕ =
-    ψ ∘a (inducedHom A ϕ)                                    ≡⟨ sym (Iso.leftInv (homMapIso B) _) ⟩
-    inducedHom B (evaluateAt B (ψ ∘a (inducedHom A ϕ)))      ≡⟨ cong (inducedHom B)
-
+  natIndHomR ψ ϕ = isoFunInjective (homMapIso B) _ _
                 (evaluateAt B (ψ ∘a (inducedHom A ϕ))        ≡⟨ refl ⟩
                  fst ψ ∘ evaluateAt A (inducedHom A ϕ)       ≡⟨ refl ⟩
                  fst ψ ∘ ϕ                                   ≡⟨ Iso.rightInv (homMapIso B) _ ⟩
                  evaluateAt B (inducedHom B (fst ψ ∘ ϕ))     ∎)
-     ⟩
-    inducedHom B (evaluateAt B (inducedHom B (fst ψ ∘ ϕ)))   ≡⟨ Iso.leftInv (homMapIso B) _ ⟩
-    inducedHom B (fst ψ ∘ ϕ) ∎ --
 
   {-
     Hom(R[I],A) → (I → A)
