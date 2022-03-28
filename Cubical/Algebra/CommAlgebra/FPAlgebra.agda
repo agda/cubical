@@ -46,7 +46,7 @@ module _ {R : CommRing ℓ} where
   Polynomials n = R [ Fin n ]
 
   evPoly : {n : ℕ} (A : CommAlgebra R ℓ) → ⟨ Polynomials n ⟩ → FinVec ⟨ A ⟩ n → ⟨ A ⟩
-  evPoly A P values = fst (freeInducedHom A values) P 
+  evPoly A P values = fst (freeInducedHom A values) P
 
   module _ {m : ℕ} (n : ℕ) (relation : FinVec ⟨ Polynomials n ⟩ m) where
     open CommAlgebraStr using (0a)
@@ -82,7 +82,7 @@ module _ {R : CommRing ℓ} where
           freeHom
           isInKernel
         where
-          freeHom : CommAlgebraHom (Polynomials n) A 
+          freeHom : CommAlgebraHom (Polynomials n) A
           freeHom = freeInducedHom A values
           isInKernel :   fst (generatedIdeal (Polynomials n) relation)
                        ⊆ fst (kernel (Polynomials n) A freeHom)
@@ -117,16 +117,16 @@ module _ {R : CommRing ℓ} where
                      Poly n
                       |    \
                       q    f'
-                      ↓      ↘ 
-                 FPAlgebra ─f→ A 
+                      ↓      ↘
+                 FPAlgebra ─f→ A
           -}
           q : CommAlgebraHom (Polynomials n) (Polynomials n / relationsIdeal)
           q = quotientMap (Polynomials n) relationsIdeal
-          
+
           f' iHom' : CommAlgebraHom (Polynomials n) A
           f' = compAlgebraHom q f
           iHom' = compAlgebraHom q (inducedHom {A = A} values relationsHold)
-          
+
           inv : retract (Iso.fun (homMapIso {I = Fin n} A)) (Iso.inv (homMapIso A))
           inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
 
