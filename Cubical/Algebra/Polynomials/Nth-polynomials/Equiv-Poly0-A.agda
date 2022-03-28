@@ -46,11 +46,11 @@ module Equiv-Poly0-A (A' : CommRing l) where
   A→Poly0 : A → Poly A' 0
   A→Poly0 a = base [] a
 
-  e_sect : (a : A) → Poly0→A (A→Poly0 a) ≡ a
-  e_sect a = refl
+  e-sect : (a : A) → Poly0→A (A→Poly0 a) ≡ a
+  e-sect a = refl
 
-  e_retr : (P : Poly A' 0) → A→Poly0 (Poly0→A P) ≡ P
-  e_retr = Poly-Ind-Prop.f A' 0
+  e-retr : (P : Poly A' 0) → A→Poly0 (Poly0→A P) ≡ P
+  e-retr = Poly-Ind-Prop.f A' 0
            (λ P → A→Poly0 (Poly0→A P) ≡ P)
            (λ _ → trunc _ _)
            (base-0P [])
@@ -91,6 +91,16 @@ module _ (A' : CommRing l) where
 
   open Equiv-Poly0-A A'
   
+  -- CRE-Poly0-A : CommRingEquiv (PolyCommRing A' 0) A'
+  -- CRE-Poly0-A = isoToEquiv (iso Poly0→A A→Poly0 e_sect e_retr) ,
+  --               makeIsRingHom map-1P Poly0→A-gmorph Poly0→A-rmorph
+
   CRE-Poly0-A : CommRingEquiv (PolyCommRing A' 0) A'
-  CRE-Poly0-A = isoToEquiv (iso Poly0→A A→Poly0 e_sect e_retr) ,
-                makeIsRingHom map-1P Poly0→A-gmorph Poly0→A-rmorph
+  fst CRE-Poly0-A = isoToEquiv is
+    where
+    is : Iso (Poly A' 0) (A' .fst)
+    Iso.fun is = Poly0→A
+    Iso.inv is = A→Poly0
+    Iso.rightInv is = e-sect
+    Iso.leftInv is = e-retr
+  snd CRE-Poly0-A = makeIsRingHom map-1P Poly0→A-gmorph Poly0→A-rmorph
