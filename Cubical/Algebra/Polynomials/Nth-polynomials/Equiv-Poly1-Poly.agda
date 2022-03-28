@@ -230,12 +230,6 @@ module Equiv-Poly1-Poly: (A' : CommRing l) where
   
 
 
-  Poly1→Poly:-morphinv : (P : Poly A' 1) → Poly1→Poly: (Poly-inv P) ≡ Poly:- (Poly1→Poly: P) 
-  Poly1→Poly:-morphinv = homInv (snd (Ring→Group (CommRing→Ring (PolyCommRing A' 1))))
-                             Poly1→Poly:
-                             (snd (Ring→Group (CommRing→Ring (Poly:-CommRing A'))))
-                             Poly1→Poly:-gmorph
-
 -- -----------------------------------------------------------------------------
 -- -- Ring Equivalences
 
@@ -245,9 +239,4 @@ module _ (A' : CommRing l) where
 
   CRE-Poly1-Poly: : CommRingEquiv (PolyCommRing A' 1) (Poly:-CommRing A')
   CRE-Poly1-Poly: = (isoToEquiv (iso Poly1→Poly: Poly:→Poly1 e-sect e-retr)) ,
-                                record
-                                  { pres0 = refl ;
-                                    pres1 = refl ;
-                                    pres+ = Poly1→Poly:-gmorph ;
-                                    pres· = Poly1→Poly:-rmorph ;
-                                    pres- = Poly1→Poly:-morphinv }
+                                makeIsRingHom map-1P Poly1→Poly:-gmorph Poly1→Poly:-rmorph

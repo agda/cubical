@@ -177,13 +177,6 @@ module Comp-Poly-nm (A' : CommRing l) (n m : ℕ) where
            -- End Ind base P
      λ {U V} ind-U ind-V Q → cong₂ _Poly+_ (ind-U Q) (ind-V Q)
      -- End Ind P
-
-
-  N∘M→N+M-morphinv : (P : Poly (PolyCommRing A' m) n) → N∘M→N+M (N∘Mr.Poly-inv P) ≡ N+Mr.Poly-inv (N∘M→N+M P) 
-  N∘M→N+M-morphinv = homInv (snd (Ring→Group (CommRing→Ring (PolyCommRing (PolyCommRing A' m) n))))
-                             N∘M→N+M
-                             (snd (Ring→Group (CommRing→Ring (PolyCommRing A' (n +n m)))))
-                             N∘M→N+M-gmorph
                              
 
 -----------------------------------------------------------------------------
@@ -194,10 +187,6 @@ module _ (A' : CommRing l) (n m : ℕ) where
   open Comp-Poly-nm A' n m
 
   CRE-PolyN∘M-PolyN+M : CommRingEquiv (PolyCommRing (PolyCommRing A' m) n) (PolyCommRing A' (n +n m))
-  CRE-PolyN∘M-PolyN+M = isoToEquiv (iso N∘M→N+M N+M→N∘M e-sect e-retr) , 
-                      record
-                        { pres0 = map-0P ;
-                          pres1 = map-1P ;
-                          pres+ = N∘M→N+M-gmorph ;
-                          pres· = N∘M→N+M-rmorph ;
-                          pres- = N∘M→N+M-morphinv }
+  CRE-PolyN∘M-PolyN+M = isoToEquiv (iso N∘M→N+M N+M→N∘M e-sect e-retr) ,
+                        makeIsRingHom map-1P N∘M→N+M-gmorph N∘M→N+M-rmorph
+
