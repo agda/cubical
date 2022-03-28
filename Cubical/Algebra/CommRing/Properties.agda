@@ -179,7 +179,7 @@ module CommRingEquivs where
 
  invCommRingEquiv : (A B : CommRing ℓ) → CommRingEquiv A B → CommRingEquiv B A
  fst (invCommRingEquiv A B e) = invEquiv (fst e)
- snd (invCommRingEquiv A B e) = isRingHomInv (CommRing→Ring A) (CommRing→Ring B) e
+ snd (invCommRingEquiv A B e) = isRingHomInv e
 
 module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)

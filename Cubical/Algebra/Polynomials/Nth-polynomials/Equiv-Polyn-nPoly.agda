@@ -19,10 +19,10 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials renaming (Poly to Pol
 
 open import Cubical.Algebra.Polynomials.Nth-polynomials.Base
 open import Cubical.Algebra.Polynomials.Nth-polynomials.CommRing-Structure
-open import Cubical.Algebra.Polynomials.Nth-polynomials.Equiv-Poly0-A
-open import Cubical.Algebra.Polynomials.Nth-polynomials.Equiv-Poly1-Poly
-open import Cubical.Algebra.Polynomials.Nth-polynomials.Comp-Poly
-open import Cubical.Algebra.Polynomials.Nth-polynomials.Polyn-Equiv
+open import Cubical.Algebra.Polynomials.Nth-polynomials.Equiv.Poly0-A
+open import Cubical.Algebra.Polynomials.Nth-polynomials.Equiv.Poly1-Poly
+open import Cubical.Algebra.Polynomials.Nth-polynomials.Equiv.Comp-Poly
+open import Cubical.Algebra.Polynomials.Nth-polynomials.Equiv.Induced-Poly
 
 
 open Nth-Poly-structure

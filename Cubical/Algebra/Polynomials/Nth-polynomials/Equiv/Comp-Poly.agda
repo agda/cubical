@@ -1,5 +1,5 @@
-{-# OPTIONS --safe #-}
-module Cubical.Algebra.Polynomials.Nth-polynomials.Comp-Poly where
+{-# OPTIONS --safe --experimental-lossy-unification #-}
+module Cubical.Algebra.Polynomials.Nth-polynomials.Equiv.Comp-Poly where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.HLevels
@@ -187,6 +187,13 @@ module _ (A' : CommRing l) (n m : ℕ) where
   open Comp-Poly-nm A' n m
 
   CRE-PolyN∘M-PolyN+M : CommRingEquiv (PolyCommRing (PolyCommRing A' m) n) (PolyCommRing A' (n +n m))
-  CRE-PolyN∘M-PolyN+M = isoToEquiv (iso N∘M→N+M N+M→N∘M e-sect e-retr) ,
-                        makeIsRingHom map-1P N∘M→N+M-gmorph N∘M→N+M-rmorph
+  fst CRE-PolyN∘M-PolyN+M = isoToEquiv is
+    where
+    is : Iso _ _
+    Iso.fun is = N∘M→N+M
+    Iso.inv is = N+M→N∘M
+    Iso.rightInv is = e-sect
+    Iso.leftInv is = e-retr
+    
+  snd CRE-PolyN∘M-PolyN+M = makeIsRingHom map-1P N∘M→N+M-gmorph N∘M→N+M-rmorph
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Polynomials.Nth-polynomials.CommRing-Structure where
 
 open import Cubical.Foundations.Everything

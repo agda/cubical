@@ -1,5 +1,5 @@
-{-# OPTIONS --safe #-}
-module Cubical.Algebra.Polynomials.Nth-polynomials.Equiv-Poly0-A where
+{-# OPTIONS --safe --experimental-lossy-unification #-}
+module Cubical.Algebra.Polynomials.Nth-polynomials.Equiv.Poly0-A where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.HLevels
@@ -90,10 +90,6 @@ module Equiv-Poly0-A (A' : CommRing l) where
 module _ (A' : CommRing l) where
 
   open Equiv-Poly0-A A'
-  
-  -- CRE-Poly0-A : CommRingEquiv (PolyCommRing A' 0) A'
-  -- CRE-Poly0-A = isoToEquiv (iso Poly0→A A→Poly0 e_sect e_retr) ,
-  --               makeIsRingHom map-1P Poly0→A-gmorph Poly0→A-rmorph
 
   CRE-Poly0-A : CommRingEquiv (PolyCommRing A' 0) A'
   fst CRE-Poly0-A = isoToEquiv is

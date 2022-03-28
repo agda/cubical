@@ -1,5 +1,5 @@
-{-# OPTIONS --safe #-}
-module Cubical.Algebra.Polynomials.Nth-polynomials.Polyn-Equiv where
+{-# OPTIONS --safe --experimental-lossy-unification #-}
+module Cubical.Algebra.Polynomials.Nth-polynomials.Equiv.Induced-Poly where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.HLevels
@@ -58,22 +58,25 @@ snd (lift-poly A' B' (f , fcrhom) n) = makeIsRingHom
 open RingEquivs
 
 lift-equiv-poly : (A' B' : CommRing l) → (e : CommRingEquiv A' B') → (n : ℕ) → CommRingEquiv (PolyCommRing A' n) (PolyCommRing B' n)
-lift-equiv-poly A' B' e n = isoToEquiv (iso
-                                        (fst (lift-poly A' B' (f , fcrh) n))
-                                        (fst (lift-poly B' A' (g , gcrh) n))
-                                        (Poly-Ind-Prop.f B' n _ (λ _ → trunc _ _)
-                                          refl
-                                          (λ v a → cong (base v) (secEq et a))
-                                          λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U ind-V)
-                                        (Poly-Ind-Prop.f A' n _ (λ _ → trunc _ _)
-                                          refl
-                                          (λ v a → cong (base v) (retEq et a))
-                                          λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U ind-V))
-                            , snd (lift-poly A' B' (f , fcrh) n)
-  where
-  et = fst e
-  fcrh = snd e
-  f = fst et
-  g = invEq et
-  gcrh : IsRingHom (snd (CommRing→Ring B')) g (snd (CommRing→Ring A')) 
-  gcrh = isRingHomInv (CommRing→Ring A') (CommRing→Ring B') (et , fcrh)
+fst (lift-equiv-poly A' B' e n) = isoToEquiv is
+  where 
+    et = fst e
+    fcrh = snd e
+    f = fst et
+    g = invEq et
+    gcrh : IsRingHom (snd (CommRing→Ring B')) g (snd (CommRing→Ring A')) 
+    gcrh = isRingHomInv (et , fcrh)
+    
+    is : Iso _ _
+    Iso.fun is = fst (lift-poly A' B' (f , fcrh) n)
+    Iso.inv is = fst (lift-poly B' A' (g , gcrh) n)
+    Iso.rightInv is = (Poly-Ind-Prop.f B' n _ (λ _ → trunc _ _)
+                      refl
+                      (λ v a → cong (base v) (secEq et a))
+                      λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U ind-V)
+    Iso.leftInv is = (Poly-Ind-Prop.f A' n _ (λ _ → trunc _ _)
+                     refl
+                     (λ v a → cong (base v) (retEq et a))
+                     λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U ind-V)
+snd (lift-equiv-poly A' B' e n) = snd (lift-poly A' B' (fst (fst e) , snd e) n)
+
