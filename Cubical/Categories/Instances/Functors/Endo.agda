@@ -1,4 +1,3 @@
--- Endofunctor category is monoidal
 {-# OPTIONS --safe #-}
 
 open import Cubical.Foundations.Prelude
@@ -10,7 +9,7 @@ open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.NaturalTransformation.Properties
 
 module Cubical.Categories.Instances.Functors.Endo {ℓC ℓC'} (C : Category ℓC ℓC') where
-  
+
   open Category
   open NatTrans
   open Functor
@@ -19,6 +18,3 @@ module Cubical.Categories.Instances.Functors.Endo {ℓC ℓC'} (C : Category ℓ
 
   EndofunctorCategory : Category (ℓ-max ℓC ℓC') (ℓ-max ℓC ℓC')
   EndofunctorCategory = FUNCTOR C C
-
-  isMonEndofunctorCategory : MonoidalStr EndofunctorCategory
-  isMonEndofunctorCategory = {!!}
