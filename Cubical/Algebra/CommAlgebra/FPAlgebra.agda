@@ -31,6 +31,7 @@ open import Cubical.Algebra.CommAlgebra.QuotientAlgebra renaming (inducedHom to 
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
+open import Cubical.Algebra.CommAlgebra.Instances.Terminal
 open import Cubical.Algebra.CommAlgebra.Kernel
 
 open import Cubical.Algebra.Algebra.Properties
@@ -156,7 +157,7 @@ module _ {R : CommRing ℓ} where
           inv : retract (Iso.fun (homMapIso {I = Fin n} A)) (Iso.inv (homMapIso A))
           inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
 
-  record finitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
+  record FinitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
       n : ℕ
       m : ℕ
@@ -164,12 +165,14 @@ module _ {R : CommRing ℓ} where
       equiv : CommAlgebraEquiv (FPAlgebra n relations) A
 
   isFPAlgebra : (A : CommAlgebra R ℓ) → Type _
-  isFPAlgebra A = ∥ finitePresentation A ∥
+  isFPAlgebra A = ∥ FinitePresentation A ∥
 
   isFPAlgebraIsProp : {A : CommAlgebra R ℓ} → isProp (isFPAlgebra A)
   isFPAlgebraIsProp = isPropPropTrunc
 
 module Instances {R : CommRing ℓ} where
+  open FinitePresentation
+
   {- Multivariate polynomials are finitely presented ... -}
 
   {- The initial R-algebra is finitely presented -}
@@ -180,8 +183,8 @@ module Instances {R : CommRing ℓ} where
     emptyGen : FinVec (fst R[⊥]) 0
     emptyGen = λ ()
 
-  R[⊥]/⟨0⟩ : CommAlgebra R ℓ
-  R[⊥]/⟨0⟩ = FPAlgebra 0 emptyGen
+    R[⊥]/⟨0⟩ : CommAlgebra R ℓ
+    R[⊥]/⟨0⟩ = FPAlgebra 0 emptyGen
 
   contractibility : (B : CommAlgebra R ℓ)
                     → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
@@ -193,9 +196,24 @@ module Instances {R : CommRing ℓ} where
                    iHom ≡ f
       uniqueness f = unique 0 emptyGen {A = B} (λ ()) (λ ()) f (λ ())
 
-  initialCAlgFP : finitePresentation (initialCAlg R)
-  finitePresentation.n initialCAlgFP = 0
-  finitePresentation.m initialCAlgFP = 0
-  finitePresentation.relations initialCAlgFP = emptyGen
-  finitePresentation.equiv initialCAlgFP =
+  initialCAlgFP : FinitePresentation (initialCAlg R)
+  n initialCAlgFP = 0
+  m initialCAlgFP = 0
+  relations initialCAlgFP = emptyGen
+  equiv initialCAlgFP =
     equivByInitiality R (FPAlgebra 0 emptyGen) contractibility
+
+  {- The terminal R-algebra is finitely presented -}
+  private
+    unitGen : FinVec (fst R[⊥]) 1
+    unitGen zero = 1a
+      where open CommAlgebraStr (snd R[⊥])
+
+    R[⊥]/⟨1⟩ : CommAlgebra R ℓ
+    R[⊥]/⟨1⟩ = FPAlgebra 0 unitGen
+
+  terminalCAlgFP : FinitePresentation (terminalCAlg R)
+  n terminalCAlgFP = 0
+  m terminalCAlgFP = 1
+  relations terminalCAlgFP = unitGen
+  equiv terminalCAlgFP = {!!}
