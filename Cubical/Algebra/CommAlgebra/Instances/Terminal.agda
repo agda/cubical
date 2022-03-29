@@ -40,3 +40,20 @@ module _ (R : CommRing ℓ) where
       where path : (ϕ : CommAlgebraHom A terminalCAlg) → terminalMap ≡ ϕ
             path ϕ = Σ≡Prop (isPropIsCommAlgebraHom {M = A} {N = terminalCAlg})
                             λ i _ → isPropUnit* _ _ i
+
+    open CommAlgebraStr (snd A)
+    module _ (1≡0 : 1a ≡ 0a) where
+
+      isContrFrom1≡0 : isContr (fst A )
+      isContrFrom1≡0 = 0a , λ a →
+        0a      ≡⟨ {!!} ⟩
+        a · 0a  ≡⟨ cong (λ b → a · b) (sym 1≡0) ⟩
+        a · 1a  ≡⟨ {!!} ⟩
+        a       ∎
+--        where open isCommAlgebra
+
+--      terminalMapIsEquiv : isEquiv (fst terminalMap)
+--      terminalMapIsEquiv = {!!}
+
+      equivFrom1≡0 : CommAlgebraEquiv A terminalCAlg
+      equivFrom1≡0 = (fst terminalMap , {!terminalMapIsEquiv!}) , snd terminalMap
