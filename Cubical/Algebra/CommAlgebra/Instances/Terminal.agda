@@ -2,6 +2,7 @@
 module Cubical.Algebra.CommAlgebra.Instances.Terminal where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
@@ -10,6 +11,8 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
 open import Cubical.Algebra.CommRing.Instances.Unit
+
+open import Cubical.Algebra.RingSolver.Reflection
 
 private
   variable
@@ -44,16 +47,23 @@ module _ (R : CommRing ℓ) where
     open CommAlgebraStr (snd A)
     module _ (1≡0 : 1a ≡ 0a) where
 
-      isContrFrom1≡0 : isContr (fst A )
-      isContrFrom1≡0 = 0a , λ a →
-        0a      ≡⟨ {!!} ⟩
+      postulate
+        1≡0→isContr : isContr (fst A )
+{-      isContrFrom1≡0 = 0a , λ a →
+        0a      ≡⟨ step1 a ⟩
         a · 0a  ≡⟨ cong (λ b → a · b) (sym 1≡0) ⟩
-        a · 1a  ≡⟨ {!!} ⟩
+        a · 1a  ≡⟨ step2 a ⟩
         a       ∎
---        where open isCommAlgebra
-
+          where S = CommAlgebra→CommRing A
+                open CommRingStr (snd S) renaming (_·_ to _·s_)
+                step1 : (x : fst S) → 0r ≡ x ·s 0r
+                step1 = solve S
+                step2 : (x : fst S) → x ·s 1r ≡ x
+                step2 = solve S
+-}
 --      terminalMapIsEquiv : isEquiv (fst terminalMap)
 --      terminalMapIsEquiv = {!!}
 
       equivFrom1≡0 : CommAlgebraEquiv A terminalCAlg
-      equivFrom1≡0 = (fst terminalMap , {!terminalMapIsEquiv!}) , snd terminalMap
+      equivFrom1≡0 = isContr→Equiv 1≡0→isContr isContrUnit*  ,
+                     snd terminalMap
