@@ -227,12 +227,12 @@ module _ (cring : Term) (names : RingNames) where
         case is- ⇒ `-_` xs    break
         default⇒ (K' xs)
     buildExpression t@(con n xs) =
-      switch (n ==_) cases
-        case (quote CommRingStr.0r)  ⇒ `0` xs     break
-        case (quote CommRingStr.1r)  ⇒ `1` xs     break
-        case (quote CommRingStr._·_) ⇒ `_·_` xs   break
-        case (quote CommRingStr._+_) ⇒ `_+_` xs   break
-        case (quote (CommRingStr.-_))  ⇒ `-_` xs    break
+      switch (λ f → f n) cases
+        case is0 ⇒ `0` xs     break
+        case is1 ⇒ `1` xs     break
+        case is· ⇒ `_·_` xs   break
+        case is+ ⇒ `_+_` xs   break
+        case is- ⇒ `-_` xs    break
         default⇒ (K' xs)
     buildExpression t = unknown
 
@@ -241,9 +241,16 @@ module _ (cring : Term) (names : RingNames) where
   toAlgebraExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
 
 private
-  adjustDeBruijnIndex : (n : ℕ) → Term → Term
-  adjustDeBruijnIndex n (var k args) = var (k +ℕ n) args
-  adjustDeBruijnIndex n _ = unknown
+  mutual
+  {- this covers just some common cases and should be refined -}
+    adjustDeBruijnIndex : (n : ℕ) → Term → Term
+    adjustDeBruijnIndex n (var k args) = var (k +ℕ n) args
+    adjustDeBruijnIndex n (def m l) = def m (map (adjustDeBruijnArg n) l)
+    adjustDeBruijnIndex n _ = unknown
+
+    adjustDeBruijnArg  : (n : ℕ) → Arg Term → Arg Term
+    adjustDeBruijnArg n (arg i (var k args)) = arg i (var (k +ℕ n) args)
+    adjustDeBruijnArg n (arg i x) = arg i x
 
   extractVarIndices : Maybe (List Term) → Maybe (List ℕ)
   extractVarIndices (just ((var index _) ∷ l)) with extractVarIndices (just l)

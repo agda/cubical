@@ -2,17 +2,20 @@
 module Cubical.Algebra.RingSolver.Examples where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
+
 open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_)
 open import Cubical.Data.List
 
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.RingSolver.Reflection
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
-
+{-
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)
 
@@ -65,6 +68,19 @@ module Test (R : CommRing ℓ) where
   _ : (x y : (fst R)) → x ≡ y
   _ = solve R
   -}
+-}
+module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
+  open CommAlgebraStr {{...}}
+  private
+    instance
+      _ = (snd A)
+  {-
+    The ring solver should also be able to deal with more complicated arguments
+    and operations with that are not given as the exact names in CommRingStr.
+  -}
+  _ : (x y : ⟨ A ⟩) → x + y ≡ y + x
+  _ = solve (CommAlgebra→CommRing A)
+
 
 module TestInPlaceSolving (R : CommRing ℓ) where
    open CommRingStr (snd R)
