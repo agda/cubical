@@ -70,9 +70,52 @@ module ♭Equalities {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ}  where
     ♭≡'≃♭≡ : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → ♭ (u ≡ v) ≃ ♭ (u ≡' v)
     ♭≡'≃♭≡ u v = ♭≃ (≡'≃≡ u v)
 
+
+    crispIdInduction' : {@♭ ♭ℓ ♭ℓ′ : Level} {@♭ B : Type ♭ℓ}
+                        (@♭ C : (@♭ u v : B) (@♭ p : u ≡' v) → Type ♭ℓ′)
+                      → (@♭ d : (@♭ u : B) → C u u refl')
+                      → (@♭ u v : B) (@♭ p : u ≡' v)
+                      → C u v p
+    crispIdInduction' C d u _ refl' = d u
+
+    crispIdInduction : {@♭ ♭ℓ ♭ℓ′ : Level} {@♭ B : Type ♭ℓ}
+                       (@♭ C : (@♭ u v : B) (@♭ p : u ≡ v) → Type ♭ℓ′)
+                       → (@♭ d : (@♭ u : B) → C u u refl)
+                       → (@♭ u v : B) (@♭ p : u ≡ v)
+                       → C u v p
+    crispIdInduction {B = B} C d = {!crispIdInduction' C'!}
+      where ≡'→≡ : {@♭ u v : B} (@♭ p : u ≡' v) → u ≡ v
+            ≡'→≡ {u = u} {v = v} p = fst (invEquiv (≡'≃≡ u v)) p
+            ≡→≡' : {@♭ u v : B} (@♭ p : u ≡ v) → u ≡' v
+            ≡→≡' {u = u} {v = v} p = fst (≡'≃≡ u v) p
+
+            C' : (@♭ u v : B) (@♭ p : u ≡' v) → Type _
+            C' u v p = C u v (fst (invEquiv (≡'≃≡ u v)) p)
+
+            C'→C : (@♭ u v : B) (@♭ p : u ≡' v) → C' u v p → C u v (≡'→≡ p)
+            C'→C u v p c' = c'
+
+            C→C' : (@♭ u v : B) (@♭ p : u ≡' v) → C u v (≡'→≡ p) → C' u v p
+            C→C' u v p c = c
+
+            d' : (@♭ u : B) → C' u u refl'
+            d' u = {!≡'→≡ refl'!}
+
   ≡♭≃♭≡ : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A) → (u ^♭ ≡ v ^♭) ≃ ♭ (u ≡ v)
   ≡♭≃♭≡ u v = compEquiv (≡'≃≡ (u ^♭) (v ^♭)) (compEquiv (≡'♭≃♭≡' u v) (invEquiv (♭≡'≃♭≡ u v) ))
 
 ♭≡Comm : {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ} (@♭ u v : A)
           → (u ^♭ ≡ v ^♭) ≃ ♭ (u ≡ v)
 ♭≡Comm {A = A} = ♭Equalities.≡♭≃♭≡ {A = A}
+
+{-
+  From Theorem 5.6 in Michael Shulman's real cohesion article.
+-}
+crispIdentityInduction : {@♭ ♭ℓ ♭ℓ′ : Level} {@♭ B : Type ♭ℓ}
+  (@♭ C : (@♭ u v : B) (@♭ p : u ≡ v) → Type ♭ℓ′)
+  → (@♭ d : (@♭ u : B) → C u u refl)
+  → (@♭ u v : B) (@♭ p : u ≡ v)
+  → C u v p
+crispIdentityInduction {B = B} C d = {!!}
+  where C♭ : {@♭ u v : B} → u ^♭ ≡ v ^♭ → Type _
+        C♭ p = C _ _ {!J!}
