@@ -53,15 +53,12 @@ module _ (R : CommRing ℓ) where
         a · 0a  ≡⟨ cong (λ b → a · b) (sym 1≡0) ⟩
         a · 1a  ≡⟨ step2 a ⟩
         a       ∎
-          where
-                open CommRingStr (snd (CommAlgebra→CommRing A)) renaming (_·_ to _·s_)
+          where S = CommAlgebra→CommRing A
+                open CommRingStr (snd S) renaming (_·_ to _·s_)
                 step1 : (x : fst A) → 0r ≡ x ·s 0r
-                step1 = solve (CommAlgebra→CommRing A)
+                step1 = solve S
                 step2 : (x : fst A) → x ·s 1r ≡ x
-                step2 = solve (CommAlgebra→CommRing A)
-
---      terminalMapIsEquiv : isEquiv (fst terminalMap)
---      terminalMapIsEquiv = {!!}
+                step2 = solve S
 
       equivFrom1≡0 : CommAlgebraEquiv A terminalCAlg
       equivFrom1≡0 = isContr→Equiv 1≡0→isContr isContrUnit*  ,
