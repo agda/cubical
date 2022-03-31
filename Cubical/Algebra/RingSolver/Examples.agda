@@ -15,7 +15,7 @@ private
   variable
     ℓ ℓ' : Level
 
-{-
+
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)
 
@@ -68,7 +68,7 @@ module Test (R : CommRing ℓ) where
   _ : (x y : (fst R)) → x ≡ y
   _ = solve R
   -}
--}
+
 module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
   open CommAlgebraStr {{...}}
   private
