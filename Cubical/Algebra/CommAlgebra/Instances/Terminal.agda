@@ -3,6 +3,7 @@ module Cubical.Algebra.CommAlgebra.Instances.Terminal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
@@ -47,7 +48,7 @@ module _ (R : CommRing ℓ) where
     open CommAlgebraStr (snd A)
     module _ (1≡0 : 1a ≡ 0a) where
 
-      1≡0→isContr : isContr (fst A )
+      1≡0→isContr : isContr ⟨ A ⟩
       1≡0→isContr = 0a , λ a →
         0a      ≡⟨ step1 a ⟩
         a · 0a  ≡⟨ cong (λ b → a · b) (sym 1≡0) ⟩
@@ -55,9 +56,9 @@ module _ (R : CommRing ℓ) where
         a       ∎
           where S = CommAlgebra→CommRing A
                 open CommRingStr (snd S) renaming (_·_ to _·s_)
-                step1 : (x : fst A) → 0r ≡ x ·s 0r
+                step1 : (x : ⟨ A ⟩) → 0r ≡ x ·s 0r
                 step1 = solve S
-                step2 : (x : fst A) → x ·s 1r ≡ x
+                step2 : (x : ⟨ A ⟩) → x ·s 1r ≡ x
                 step2 = solve S
 
       equivFrom1≡0 : CommAlgebraEquiv A terminalCAlg
