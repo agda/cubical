@@ -41,6 +41,40 @@ private
   _==_ = primQNameEquality
   {-# INLINE _==_ #-}
 
+  record RingNames : Type where
+    field
+      is0 : Name → Bool
+      is1 : Name → Bool
+      is· : Name → Bool
+      is+ : Name → Bool
+      is- : Name → Bool
+
+  getName : Term → Maybe Name
+  getName (con c args) = just c
+  getName (def f args) = just f
+  getName _            = nothing
+
+  buildMatcher : Name → Maybe Name → Name → Bool
+  buildMatcher n nothing  x = n == x
+  buildMatcher n (just m) x = n == x or m == x
+
+  findRingNames : Term → TC RingNames
+  findRingNames cring =
+    let cringStr = varg (def (quote snd) (varg cring ∷ [])) ∷ []
+    in do
+      0altName ← normalise (def (quote CommRingStr.0r) cringStr)
+      1altName ← normalise (def (quote CommRingStr.1r) cringStr)
+      ·altName ← normalise (def (quote CommRingStr._·_) cringStr)
+      +altName ← normalise (def (quote CommRingStr._+_) cringStr)
+      -altName ← normalise (def (quote (CommRingStr.-_)) cringStr)
+      returnTC record {
+          is0 = buildMatcher (quote CommRingStr.0r) (getName 0altName) ;
+          is1 = buildMatcher (quote CommRingStr.1r) (getName 1altName) ;
+          is· = buildMatcher (quote CommRingStr._·_) (getName ·altName) ;
+          is+ = buildMatcher (quote CommRingStr._+_) (getName +altName) ;
+          is- = buildMatcher (quote (CommRingStr.-_)) (getName -altName)
+        }
+
   record VarInfo : Type ℓ-zero where
     field
       varName : String
@@ -83,7 +117,7 @@ private
       x ≡⟨ solve ... ⟩ (y ≡⟨ ... ⟩ z ∎)
   -}
   getRhs : Term → Maybe Term
-  getRhs reasoningToTheRight@(def n xs) =
+  getRhs (def n xs) =
     if n == (quote _∎)
     then firstVisibleArg xs
     else (if n == (quote _≡⟨_⟩_)
@@ -136,8 +170,9 @@ module pr (R : CommRing ℓ) {n : ℕ} where
   1' : Expr ℤAsRawRing (fst R) n
   1' = K 1
 
-module _ (cring : Term) where
+module _ (cring : Term) (names : RingNames) where
   open pr
+  open RingNames names
 
   `0` : List (Arg Term) → Term
   `0` [] = def (quote 0') (varg cring ∷ [])
@@ -184,20 +219,20 @@ module _ (cring : Term) where
     buildExpression : Term → Term
     buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
     buildExpression t@(def n xs) =
-      switch (n ==_) cases
-        case (quote CommRingStr.0r)  ⇒ `0` xs     break
-        case (quote CommRingStr.1r)  ⇒ `1` xs     break
-        case (quote CommRingStr._·_) ⇒ `_·_` xs   break
-        case (quote CommRingStr._+_) ⇒ `_+_` xs   break
-        case (quote (CommRingStr.-_))  ⇒ `-_` xs    break
+      switch (λ f → f n) cases
+        case is0 ⇒ `0` xs     break
+        case is1 ⇒ `1` xs     break
+        case is· ⇒ `_·_` xs   break
+        case is+ ⇒ `_+_` xs   break
+        case is- ⇒ `-_` xs    break
         default⇒ (K' xs)
     buildExpression t@(con n xs) =
-      switch (n ==_) cases
-        case (quote CommRingStr.0r)  ⇒ `0` xs     break
-        case (quote CommRingStr.1r)  ⇒ `1` xs     break
-        case (quote CommRingStr._·_) ⇒ `_·_` xs   break
-        case (quote CommRingStr._+_) ⇒ `_+_` xs   break
-        case (quote (CommRingStr.-_))  ⇒ `-_` xs    break
+      switch (λ f → f n) cases
+        case is0 ⇒ `0` xs     break
+        case is1 ⇒ `1` xs     break
+        case is· ⇒ `_·_` xs   break
+        case is+ ⇒ `_+_` xs   break
+        case is- ⇒ `-_` xs    break
         default⇒ (K' xs)
     buildExpression t = unknown
 
@@ -206,9 +241,16 @@ module _ (cring : Term) where
   toAlgebraExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
 
 private
-  adjustDeBruijnIndex : (n : ℕ) → Term → Term
-  adjustDeBruijnIndex n (var k args) = var (k +ℕ n) args
-  adjustDeBruijnIndex n _ = unknown
+  mutual
+  {- this covers just some common cases and should be refined -}
+    adjustDeBruijnIndex : (n : ℕ) → Term → Term
+    adjustDeBruijnIndex n (var k args) = var (k +ℕ n) args
+    adjustDeBruijnIndex n (def m l) = def m (map (adjustDeBruijnArg n) l)
+    adjustDeBruijnIndex n _ = unknown
+
+    adjustDeBruijnArg  : (n : ℕ) → Arg Term → Arg Term
+    adjustDeBruijnArg n (arg i (var k args)) = arg i (var (k +ℕ n) args)
+    adjustDeBruijnArg n (arg i x) = arg i x
 
   extractVarIndices : Maybe (List Term) → Maybe (List ℕ)
   extractVarIndices (just ((var index _) ∷ l)) with extractVarIndices (just l)
@@ -250,6 +292,7 @@ private
   solve-macro cring hole =
     do
       hole′ ← inferType hole >>= normalise
+      names ← findRingNames cring
       just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
         where
           nothing
@@ -260,7 +303,7 @@ private
         That means, that we have to adjust the deBruijn-indices of the variables in 'cring'
       -}
       adjustedCring ← returnTC (adjustDeBruijnIndex (length varInfos) cring)
-      just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCring (getArgs equation))
+      just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCring names (getArgs equation))
         where
           nothing
             → typeError(
@@ -273,13 +316,14 @@ private
   solveInPlace-macro cring varsToSolve hole =
     do
       equation ← inferType hole >>= normalise
+      names ← findRingNames cring
       just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
         where
           nothing
             → typeError(
                 strErr "Error reading variables to solve " ∷
                 termErr varsToSolve ∷ [])
-      just (lhs , rhs) ← returnTC (toAlgebraExpression cring (getArgs equation))
+      just (lhs , rhs) ← returnTC (toAlgebraExpression cring names (getArgs equation))
         where
           nothing
             → typeError(
@@ -291,6 +335,7 @@ private
   solveEqReasoning-macro : Term → Term → Term → Term → Term → TC Unit
   solveEqReasoning-macro lhs cring varsToSolve reasoningToTheRight hole =
     do
+      names ← findRingNames cring
       just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
         where
           nothing
@@ -303,7 +348,7 @@ private
             → typeError(
                 strErr "Failed to extract right hand side of equation to solve from " ∷
                 termErr reasoningToTheRight ∷ [])
-      just (lhsAST , rhsAST) ← returnTC (toAlgebraExpression cring (just (lhs , rhs)))
+      just (lhsAST , rhsAST) ← returnTC (toAlgebraExpression cring names (just (lhs , rhs)))
         where
           nothing
             → typeError(
