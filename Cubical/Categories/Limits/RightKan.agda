@@ -8,6 +8,7 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.Limits
@@ -65,8 +66,7 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
 
 
   RanCone : {x y : ob C} → C [ x , y ] → Cone (T* y) (RanOb x)
-  coneOut (RanCone {x = x} f) v =
-    limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob v)
+  coneOut (RanCone {x = x} f) v = limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob v)
   coneOutCommutes (RanCone {x = x} f) h = limOutCommutes (limitA (x ↓Diag) (T* x)) (j f .F-hom h)
 
 
@@ -88,7 +88,8 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
  Ran : Functor C A
  F-ob Ran = RanOb
  F-hom Ran {y = y} f = limArrow (limitA (y ↓Diag) (T* y)) _ (RanCone f)
- F-id Ran {x = x} = limArrowUnique (limitA (x ↓Diag) (T* x)) _ _ _ (λ v → (⋆IdL A _) ∙ RanConeRefl v)
+ F-id Ran {x = x} =
+  limArrowUnique (limitA (x ↓Diag) (T* x)) _ _ _ (λ v → (⋆IdL A _) ∙ RanConeRefl v)
  F-seq Ran {x = x} {y = y} {z = z} f g =
   limArrowUnique (limitA (z ↓Diag) (T* z)) _ _ _ path
   where
@@ -104,3 +105,14 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
            limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob (j g .F-ob v))
          ≡⟨ RanConeTrans f g v ⟩
            coneOut (RanCone (f ⋆⟨ C ⟩ g)) v ∎
+
+
+ open NatTrans
+ RanNatTrans : NatTrans (funcComp Ran K) T
+ N-ob RanNatTrans u = coneOut (RanCone (id C)) (u , id C)
+ N-hom RanNatTrans {x = u} {y = v} f =
+     Ran .F-hom (K .F-hom f) ⋆⟨ A ⟩ coneOut (RanCone (id C)) (v , id C)
+   ≡⟨ {!!} ⟩
+     limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (v , (K .F-hom f))
+   ≡⟨ {!!} ⟩
+     coneOut (RanCone (id C)) (u , id C) ⋆⟨ A ⟩ T .F-hom f ∎
