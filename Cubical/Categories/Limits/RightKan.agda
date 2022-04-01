@@ -113,6 +113,9 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
  N-hom RanNatTrans {x = u} {y = v} f =
      Ran .F-hom (K .F-hom f) ⋆⟨ A ⟩ coneOut (RanCone (id C)) (v , id C)
    ≡⟨ {!!} ⟩
-     limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (v , (K .F-hom f))
+     coneOut (RanCone (K .F-hom f)) (v , id C)
+   --   --limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (v , (K .F-hom f))
    ≡⟨ {!!} ⟩
+     coneOut (RanCone (id C)) (v , K .F-hom f)
+   ≡⟨ sym (coneOutCommutes (RanCone (id C)) (f , ⋆IdL C _)) ⟩
      coneOut (RanCone (id C)) (u , id C) ⋆⟨ A ⟩ T .F-hom f ∎
