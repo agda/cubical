@@ -1,10 +1,9 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Direct-Sum.Base where
 
-open import Cubical.Foundations.Everything
-open import Cubical.Data.Nat renaming(_+_ to _+n_)
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Algebra.Group
+
 open import Cubical.Algebra.AbGroup
 
 
@@ -16,107 +15,105 @@ open import Cubical.Algebra.AbGroup
 
 
 private variable
-  l l' : Level
+  ℓ ℓ' : Level
 
 
-data ⊕ (I : Type l) (P : I → Type l) (AGP : (r : I) → AbGroupStr (P r)) : Type l  where
+data ⊕ (Idx : Type ℓ) (P : Idx → Type ℓ) (AGP : (r : Idx) → AbGroupStr (P r)) : Type ℓ  where
   -- elements
-  neutral      : ⊕ I P AGP
-  base         : (r : I) → (P r) → ⊕ I P AGP
-  _add_        : ⊕ I P AGP → ⊕ I P AGP → ⊕ I P AGP 
+  neutral      : ⊕ Idx P AGP
+  base         : (r : Idx) → (P r) → ⊕ Idx P AGP
+  _add_        : ⊕ Idx P AGP → ⊕ Idx P AGP → ⊕ Idx P AGP
   -- eq group
-  add-assoc    : (x y z : ⊕ I P AGP) → x add (y add z) ≡ (x add y) add z
-  add-neutral  : (x : ⊕ I P AGP)     → x add neutral ≡ x
-  add-com      : (x y : ⊕ I P AGP)   → x add y ≡ y add x 
-  -- eq base 
-  base-neutral : (r : I) → base r (AbGroupStr.0g (AGP r)) ≡ neutral
-  base-add     : (r : I) → (a b : P r) → (base r a) add (base r b) ≡ base r (AbGroupStr._+_ (AGP r) a b)
+  addAssoc     : (x y z : ⊕ Idx P AGP) → x add (y add z) ≡ (x add y) add z
+  addRid       : (x : ⊕ Idx P AGP)     → x add neutral ≡ x
+  addComm      : (x y : ⊕ Idx P AGP)   → x add y ≡ y add x
+  -- eq base
+  base-neutral : (r : Idx)                → base r (AbGroupStr.0g (AGP r)) ≡ neutral
+  base-add     : (r : Idx) → (a b : P r) → (base r a) add (base r b) ≡ base r (AbGroupStr._+_ (AGP r) a b)
   -- set
-  trunc        : isSet (⊕ I P AGP) 
+  trunc        : isSet (⊕ Idx P AGP)
 
-  
 
-module _ (I : Type l) (P : I → Type l) (AGP : (r : I) → AbGroupStr (P r)) where
 
-  module DS-Ind-Set 
-    (Q            : (x : ⊕ I P AGP) → Type l')
-    (issd         : (x : ⊕ I P AGP) → isSet (Q x))
+module _ (Idx : Type ℓ) (P : Idx → Type ℓ) (AGP : (r : Idx) → AbGroupStr (P r)) where
+
+  module DS-Ind-Set
+    (Q            : (x : ⊕ Idx P AGP) → Type ℓ')
+    (issd         : (x : ⊕ Idx P AGP) → isSet (Q x))
     -- elements
-    (ne           : Q neutral)
-    (nb           : (r : I) → (a : P r) → Q (base r a))
-    (_na_         : {x y : ⊕ I P AGP} → Q x → Q y → Q (x add y)) 
+    (neutral*     : Q neutral)
+    (base*        : (r : Idx) → (a : P r) → Q (base r a))
+    (_add*_       : {x y : ⊕ Idx P AGP} → Q x → Q y → Q (x add y))
     -- eq group
-    (add-assoc*   : {x y z : ⊕ I P AGP} → (xs : Q x) → (ys : Q y) → (zs : Q z)
-                  → PathP ( λ i →  Q ( add-assoc x y z i)) (xs na (ys na zs)) ((xs na ys) na zs))
-    (add-neutral* : {x : ⊕ I P AGP} → (xs : Q x) →
-                    PathP (λ i → Q (add-neutral x i)) (xs na ne) xs ) 
-    (add-com*     : {x y : ⊕ I P AGP} → (xs : Q x) → (ys : Q y)
-                    → PathP (λ i → Q (add-com x y i)) (xs na ys) (ys na xs)) 
+    (addAssoc*    : {x y z : ⊕ Idx P AGP} → (xs : Q x) → (ys : Q y) → (zs : Q z)
+                    → PathP ( λ i →  Q ( addAssoc x y z i)) (xs add* (ys add* zs)) ((xs add* ys) add* zs))
+    (addRid*      : {x : ⊕ Idx P AGP} → (xs : Q x)
+                    → PathP (λ i → Q (addRid x i)) (xs add* neutral*) xs )
+    (addComm*     : {x y : ⊕ Idx P AGP} → (xs : Q x) → (ys : Q y)
+                    → PathP (λ i → Q (addComm x y i)) (xs add* ys) (ys add* xs))
     -- -- eq base
-    (base-neutral* : (r : I) →
-                     PathP (λ i → Q (base-neutral r i)) (nb r (AbGroupStr.0g (AGP r))) ne) 
-    (base-add*     : (r : I) → (a b : P r) →
-                    PathP (λ i → Q (base-add r a b i)) ((nb r a) na (nb r b)) (nb r (AbGroupStr._+_ (AGP r) a b)))
+    (base-neutral* : (r : Idx)
+                     → PathP (λ i → Q (base-neutral r i)) (base* r (AbGroupStr.0g (AGP r))) neutral*)
+    (base-add*     : (r : Idx) → (a b : P r)
+                     → PathP (λ i → Q (base-add r a b i)) ((base* r a) add* (base* r b)) (base* r (AbGroupStr._+_ (AGP r) a b)))
     where
 
-    f : (x : ⊕ I P AGP) → Q x
-    f neutral    = ne
-    f (base r a) = nb r a
-    f (x add y)  = (f x) na (f y)
-    f (add-assoc x y z i) = add-assoc* (f x) (f y) (f z) i
-    f (add-neutral x i)   = add-neutral* (f x) i
-    f (add-com x y i)     = add-com* (f x) (f y) i
+    f : (x : ⊕ Idx P AGP) → Q x
+    f neutral    = neutral*
+    f (base r a) = base* r a
+    f (x add y)  = (f x) add* (f y)
+    f (addAssoc x y z i)  = addAssoc* (f x) (f y) (f z) i
+    f (addRid x i)        = addRid* (f x) i
+    f (addComm x y i)     = addComm* (f x) (f y) i
     f (base-neutral r i)  = base-neutral* r i
     f (base-add r a b i)  = base-add* r a b i
     f (trunc x y p q i j) = isOfHLevel→isOfHLevelDep 2 (issd)  (f x) (f y) (cong f p) (cong f q) (trunc x y p q) i j
 
 
   module DS-Rec-Set
-    (B : Type l')
+    (B : Type ℓ')
     (iss : isSet(B))
-    (ne : B)
-    (nb : (r : I) → P r → B)
-    (_na_ : B → B → B)
-    (add-assoc* : (xs ys zs : B) → (xs na (ys na zs)) ≡ ((xs na ys) na zs))
-    (add-neutral* : (xs : B) → xs na ne ≡ xs)
-    (add-com* : (xs ys : B) → xs na ys ≡ ys na xs)
-    (base-neutral* : (r : I) → nb r (AbGroupStr.0g (AGP r)) ≡ ne)
-    (base-add* : (r : I) → (a b : P r) → (nb r a) na (nb r b) ≡ nb r (AbGroupStr._+_ (AGP r) a b)) 
+    (neutral* : B)
+    (base*    : (r : Idx) → P r → B)
+    (_add*_   : B → B → B)
+    (addAssoc*     : (xs ys zs : B) → (xs add* (ys add* zs)) ≡ ((xs add* ys) add* zs))
+    (addRid*       : (xs : B)       → xs add* neutral* ≡ xs)
+    (addComm*      : (xs ys : B)    → xs add* ys ≡ ys add* xs)
+    (base-neutral* : (r : Idx)                → base* r (AbGroupStr.0g (AGP r)) ≡ neutral*)
+    (base-add*     : (r : Idx) → (a b : P r) → (base* r a) add* (base* r b) ≡ base* r (AbGroupStr._+_ (AGP r) a b))
     where
 
-    f : ⊕ I P AGP → B
-    f z = DS-Ind-Set.f (λ _ → B) (λ _ → iss) ne nb _na_ add-assoc* add-neutral* add-com* base-neutral* base-add* z
+    f : ⊕ Idx P AGP → B
+    f z = DS-Ind-Set.f (λ _ → B) (λ _ → iss) neutral* base* _add*_ addAssoc* addRid* addComm* base-neutral* base-add* z
 
 
 
-  module DS-Ind-Prop 
-    (Q            : (x : ⊕ I P AGP) → Type l')
-    (ispd         : (x : ⊕ I P AGP) → isProp (Q x))
+  module DS-Ind-Prop
+    (Q            : (x : ⊕ Idx P AGP) → Type ℓ')
+    (ispd         : (x : ⊕ Idx P AGP) → isProp (Q x))
     -- elements
-    (ne           : Q neutral)
-    (nb           : (r : I) → (a : P r) → Q (base r a))
-    (_na_         : {x y : ⊕ I P AGP} → Q x → Q y → Q (x add y))
+    (neutral*     : Q neutral)
+    (base*        : (r : Idx) → (a : P r) → Q (base r a))
+    (_add*_       : {x y : ⊕ Idx P AGP} → Q x → Q y → Q (x add y))
     where
 
-    f : (x : ⊕ I P AGP) → Q x
-    f x = DS-Ind-Set.f Q (λ x → isProp→isSet (ispd x)) ne nb _na_
-          (λ {x} {y} {z} xs ys zs → toPathP (ispd _ (transport (λ i → Q (add-assoc x y z i)) (xs na (ys na zs))) ((xs na ys) na zs)))
-          (λ {x} xs               → toPathP (ispd _ (transport (λ i → Q (add-neutral x i))   (xs na ne)) xs))
-          (λ {x} {y} xs ys        → toPathP (ispd _ (transport (λ i → Q (add-com x y i))     (xs na ys)) (ys na xs)))
-          (λ r                    → toPathP (ispd _ (transport (λ i → Q (base-neutral r i))  (nb r (AbGroupStr.0g (AGP r)))) ne))
-          (λ r a b                → toPathP (ispd _ (transport (λ i → Q (base-add r a b i))  ((nb r a) na (nb r b))) (nb r (AbGroupStr._+_ (AGP r) a b)  )))
+    f : (x : ⊕ Idx P AGP) → Q x
+    f x = DS-Ind-Set.f Q (λ x → isProp→isSet (ispd x)) neutral* base* _add*_
+          (λ {x} {y} {z} xs ys zs → toPathP (ispd _ (transport (λ i → Q (addAssoc x y z i)) (xs add* (ys add* zs))) ((xs add* ys) add* zs)))
+          (λ {x} xs               → toPathP (ispd _ (transport (λ i → Q (addRid x i))       (xs add* neutral*)) xs))
+          (λ {x} {y} xs ys        → toPathP (ispd _ (transport (λ i → Q (addComm x y i))    (xs add* ys)) (ys add* xs)))
+          (λ r                    → toPathP (ispd _ (transport (λ i → Q (base-neutral r i)) (base* r (AbGroupStr.0g (AGP r)))) neutral*))
+          (λ r a b                → toPathP (ispd _ (transport (λ i → Q (base-add r a b i)) ((base* r a) add* (base* r b))) (base* r (AbGroupStr._+_ (AGP r) a b)  )))
           x
 
 
-  module DS-Rec-Prop 
-    (B : Type l')
-    (isp : isProp B)
-    (ne : B)
-    (nb : (r : I) → P r → B)
-    (_na_ : B → B → B)
+  module DS-Rec-Prop
+    (B        : Type ℓ')
+    (isp      : isProp B)
+    (neutral* : B)
+    (base*    : (r : Idx) → P r → B)
+    (_add*_   : B → B → B)
     where
 
-    f : ⊕ I P AGP → B
-    f x = DS-Ind-Prop.f (λ _ → B) (λ _ → isp) ne nb _na_ x
-
-
+    f : ⊕ Idx P AGP → B
+    f x = DS-Ind-Prop.f (λ _ → B) (λ _ → isp) neutral* base* _add*_ x
