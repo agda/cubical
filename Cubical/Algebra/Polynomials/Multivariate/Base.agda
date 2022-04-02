@@ -1,21 +1,19 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Polynomials.Multivariate.Base where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_)
 open import Cubical.Data.Vec
 
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
 private variable
-  l l' : Level
+  ℓ ℓ' : Level
 
-module _ (A' : CommRing l) where
+module _ (A' : CommRing ℓ) where
   private
     A = fst A'
   open CommRingStr (snd A')
@@ -23,7 +21,7 @@ module _ (A' : CommRing l) where
 -----------------------------------------------------------------------------
 -- Definition
 
-  data Poly (n : ℕ) : Type l where
+  data Poly (n : ℕ) : Type ℓ where
     -- elements
     0P     : Poly n
     base   : (v : Vec ℕ n) → (a : A) → Poly n
@@ -41,7 +39,7 @@ module _ (A' : CommRing l) where
 -----------------------------------------------------------------------------
 -- Induction and Recursion
 
-module _ (A' : CommRing l) where
+module _ (A' : CommRing ℓ) where
   private
     A = fst A'
   open CommRingStr (snd A')
@@ -49,7 +47,7 @@ module _ (A' : CommRing l) where
   module Poly-Ind-Set
     -- types
     (n : ℕ)
-    (F : (P : Poly A' n) → Type l')
+    (F : (P : Poly A' n) → Type ℓ')
     (issd : (P : Poly A' n) → isSet (F P))
     -- elements
     (0P* : F 0P)
@@ -83,7 +81,7 @@ module _ (A' : CommRing l) where
   module Poly-Rec-Set
     -- types
     (n  : ℕ)
-    (B  : Type l')
+    (B  : Type ℓ')
     (iss : isSet B)
     -- elements
     (0P*      : B)
@@ -105,7 +103,7 @@ module _ (A' : CommRing l) where
   module Poly-Ind-Prop
     -- types
     (n : ℕ)
-    (F : (P : Poly A' n) → Type l')
+    (F : (P : Poly A' n) → Type ℓ')
     (ispd : (P : Poly A' n) → isProp (F P))
     -- elements
     (0P* : F 0P)
@@ -125,7 +123,7 @@ module _ (A' : CommRing l) where
   module Poly-Rec-Prop
     -- types
     (n : ℕ)
-    (B : Type l')
+    (B : Type ℓ')
     (isp : isProp B)
     -- elements
     (0P* : B)

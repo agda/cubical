@@ -1,28 +1,25 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.Equiv.Comp-Poly where
 
-open import Cubical.Foundations.Everything
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma
 
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+
 open import Cubical.Algebra.Polynomials.Univariate.Base
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure
 
 private variable
-  l l' : Level
+  ℓ ℓ' : Level
 
-module Comp-Poly-nm (A' : CommRing l) (n m : ℕ) where
+module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
   private
     A = fst A'
   open CommRingStr (snd A')
@@ -50,11 +47,13 @@ module Comp-Poly-nm (A' : CommRing l) (n m : ℕ) where
   sep-vec-id zero l v = refl
   sep-vec-id (suc k) l (x ∷ v) = cong (λ X → x ∷ X) (sep-vec-id k l v)
 
-  rep-concat : (k l : ℕ) → {B : Type l'} → (b : B) → replicate {_} {k} {B} b ++ replicate {_} {l} {B} b ≡ replicate {_} {k +n l} {B} b
+  rep-concat : (k l : ℕ) → {B : Type ℓ'} → (b : B) →
+               replicate {_} {k} {B} b ++ replicate {_} {l} {B} b ≡ replicate {_} {k +n l} {B} b
   rep-concat zero l b = refl
   rep-concat (suc k) l b = cong (λ X → b ∷ X) (rep-concat k l b)
 
-  +n-vec-concat : (k l : ℕ) → (v w : Vec ℕ k) → (v' w' : Vec ℕ l) → (v Mr.+n-vec w) ++ (v' Mr.+n-vec w') ≡ (v ++ v') Mr.+n-vec (w ++ w')
+  +n-vec-concat : (k l : ℕ) → (v w : Vec ℕ k) → (v' w' : Vec ℕ l)
+                  → (v Mr.+n-vec w) ++ (v' Mr.+n-vec w') ≡ (v ++ v') Mr.+n-vec (w ++ w')
   +n-vec-concat zero l [] [] v' w' = refl
   +n-vec-concat (suc k) l (x ∷ v) (y ∷ w) v' w' = cong (λ X → x +n y ∷ X) (+n-vec-concat k l v w v' w')
 
@@ -182,7 +181,7 @@ module Comp-Poly-nm (A' : CommRing l) (n m : ℕ) where
 -----------------------------------------------------------------------------
 -- Ring Equivalence
 
-module _ (A' : CommRing l) (n m : ℕ) where
+module _ (A' : CommRing ℓ) (n m : ℕ) where
 
   open Comp-Poly-nm A' n m
 

@@ -1,25 +1,20 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure where
 
-open import Cubical.Foundations.Everything
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat renaming(_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Vec
 
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 
 private variable
-  l l' : Level
+  ℓ ℓ' : Level
 
-module Nth-Poly-structure (A' : CommRing l) (n : ℕ) where
+module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
   
   private
     A = fst A'
@@ -116,7 +111,7 @@ module Nth-Poly-structure (A' : CommRing l) (n : ℕ) where
                        Poly-Rec-Set.f A' n (Poly A' n) trunc
                        0P
                        (λ v' a' → base (v +n-vec v') (a · a'))
-                       (λ PS QS → PS Poly+ QS)
+                       _Poly+_
                        Poly+-assoc
                        Poly+-Rid
                        Poly+-comm
@@ -213,38 +208,32 @@ module Nth-Poly-structure (A' : CommRing l) (n : ℕ) where
 
 -----------------------------------------------------------------------------
 
-module _ (A' : CommRing l) (n : ℕ) where
+module _ (A' : CommRing ℓ) (n : ℕ) where
 
   private
     A = fst A'
     Ar = CommRing→Ring A'
 
-  open IsSemigroup
-  open IsMonoid
-  open IsGroup
-  open IsAbGroup
-  open AbGroupStr
-  open RingStr
   open CommRingStr
   open RingTheory Ar
   open Nth-Poly-structure A' n
 
-  PolyCommRing : CommRing l
+  PolyCommRing : CommRing ℓ
   fst PolyCommRing = Poly A' n
   0r (snd PolyCommRing) = 0P
   1r (snd PolyCommRing) = 1P
   _+_ (snd PolyCommRing) = _Poly+_
   _·_ (snd PolyCommRing) = _Poly*_
   - snd PolyCommRing = Poly-inv
-  is-set (isSemigroup (isMonoid (isGroup (IsRing.+IsAbGroup (IsCommRing.isRing (isCommRing (snd PolyCommRing))))))) = trunc
-  IsSemigroup.assoc (isSemigroup (isMonoid (isGroup (IsRing.+IsAbGroup (IsCommRing.isRing (isCommRing (snd PolyCommRing))))))) = Poly+-assoc
-  identity (isMonoid (isGroup (IsRing.+IsAbGroup (IsCommRing.isRing (isCommRing (snd PolyCommRing)))))) P = (Poly+-Rid P) , (Poly+-Lid P)
-  inverse (isGroup (IsRing.+IsAbGroup (IsCommRing.isRing (isCommRing (snd PolyCommRing))))) = λ P → Poly+-rinv P , Poly+-linv P
-  comm (IsRing.+IsAbGroup (IsCommRing.isRing (isCommRing (snd PolyCommRing)))) = Poly+-comm
-  is-set (isSemigroup (IsRing.·IsMonoid (IsCommRing.isRing (isCommRing (snd PolyCommRing))))) = trunc
-  IsSemigroup.assoc (isSemigroup (IsRing.·IsMonoid (IsCommRing.isRing (isCommRing (snd PolyCommRing))))) = Poly*-assoc
-  identity (IsRing.·IsMonoid (IsCommRing.isRing (isCommRing (snd PolyCommRing)))) P = (Poly*-Rid P) , (Poly*-Lid P)
-  IsRing.dist (IsCommRing.isRing (isCommRing (snd PolyCommRing))) P Q R = Poly*-Rdist P Q R , Poly*-Ldist P Q R
-  IsCommRing.·Comm (isCommRing (snd PolyCommRing)) = Poly*-comm
+  isCommRing (snd PolyCommRing) = makeIsCommRing
+                                  trunc
+                                  Poly+-assoc
+                                  Poly+-Rid
+                                  Poly+-rinv
+                                  Poly+-comm
+                                  Poly*-assoc
+                                  Poly*-Rid
+                                  Poly*-Rdist
+                                  Poly*-comm
 
   

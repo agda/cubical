@@ -1,27 +1,24 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.Equiv.Poly0-A where
 
-open import Cubical.Foundations.Everything
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Vec 
 
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+
 open import Cubical.Algebra.Polynomials.Univariate.Base
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure
 
 private variable
-  l l' : Level
+  ℓ : Level
 
-module Equiv-Poly0-A (A' : CommRing l) where
+module Equiv-Poly0-A (A' : CommRing ℓ) where
   A = fst A'
   cra = snd A'
 
@@ -87,7 +84,7 @@ module Equiv-Poly0-A (A' : CommRing l) where
 -----------------------------------------------------------------------------
 -- Ring Equivalence
 
-module _ (A' : CommRing l) where
+module _ (A' : CommRing ℓ) where
 
   open Equiv-Poly0-A A'
 

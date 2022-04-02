@@ -1,18 +1,15 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.Equiv.Poly1-Poly where
 
-open import Cubical.Foundations.Everything
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Vec renaming ( [] to <> ; _∷_ to _::_)
 
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+
 open import Cubical.Algebra.Polynomials.Univariate.Base
 open import Cubical.Algebra.CommRing.Instances.Polynomials renaming (Poly to Poly:-CommRing)
 
@@ -20,9 +17,9 @@ open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure
 
 private variable
-  l l' : Level
+  ℓ : Level
 
-module Equiv-Poly1-Poly: (A' : CommRing l) where  
+module Equiv-Poly1-Poly: (A' : CommRing ℓ) where  
   private
     A = fst A'
     
@@ -233,7 +230,7 @@ module Equiv-Poly1-Poly: (A' : CommRing l) where
 -- -----------------------------------------------------------------------------
 -- -- Ring Equivalences
 
-module _ (A' : CommRing l) where
+module _ (A' : CommRing ℓ) where
 
   open Equiv-Poly1-Poly: A'
 

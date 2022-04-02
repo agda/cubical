@@ -8,12 +8,9 @@ open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma
 
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+
 open import Cubical.Algebra.Polynomials.Univariate.Base
 open import Cubical.Algebra.CommRing.Instances.Polynomials renaming (Poly to Poly:)
 
@@ -29,17 +26,17 @@ open Nth-Poly-structure
 open CommRingEquivs renaming (compCommRingEquiv to _∘-ecr_ ; invCommRingEquiv to inv-ecr)
 
 private variable
-  l l' : Level
+  ℓ : Level
 
 
 -----------------------------------------------------------------------------
 -- Definition
 
-nPoly : (A' : CommRing l) → (n : ℕ) → CommRing l
+nPoly : (A' : CommRing ℓ) → (n : ℕ) → CommRing ℓ
 nPoly A' zero = A'
 nPoly A' (suc n) = Poly: (nPoly A' n)
 
-Equiv-Polyn-nPoly : (A' : CommRing l) → (n : ℕ) → CommRingEquiv (PolyCommRing A' n) (nPoly A' n)
+Equiv-Polyn-nPoly : (A' : CommRing ℓ) → (n : ℕ) → CommRingEquiv (PolyCommRing A' n) (nPoly A' n)
 Equiv-Polyn-nPoly A' zero = CRE-Poly0-A A'
 Equiv-Polyn-nPoly A' (suc n) = inv-ecr _ _ (CRE-PolyN∘M-PolyN+M A' 1 n)
                                ∘-ecr (lift-equiv-poly _ _ (Equiv-Polyn-nPoly A' n) 1
