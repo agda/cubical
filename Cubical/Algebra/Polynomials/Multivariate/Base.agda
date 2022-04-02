@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.Polynomials.Nth-polynomials.Base where
+module Cubical.Algebra.Polynomials.Multivariate.Base where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.HLevels

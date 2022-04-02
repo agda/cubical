@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Nth-polynomials.Equiv.Poly0-A where
+module Cubical.Algebra.Polynomials.Multivariate.Equiv.Poly0-A where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.HLevels
@@ -13,10 +13,10 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Polynomials.Polynomials
+open import Cubical.Algebra.Polynomials.Univariate.Base
 
-open import Cubical.Algebra.Polynomials.Nth-polynomials.Base
-open import Cubical.Algebra.Polynomials.Nth-polynomials.CommRing-Structure
+open import Cubical.Algebra.Polynomials.Multivariate.Base
+open import Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure
 
 private variable
   l l' : Level

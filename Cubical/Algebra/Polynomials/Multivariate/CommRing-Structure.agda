@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Nth-polynomials.CommRing-Structure where
+module Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure where
 
 open import Cubical.Foundations.Everything
 open import Cubical.Foundations.HLevels
@@ -14,7 +14,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
-open import Cubical.Algebra.Polynomials.Nth-polynomials.Base
+open import Cubical.Algebra.Polynomials.Multivariate.Base
 
 private variable
   l l' : Level

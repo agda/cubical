@@ -6,7 +6,7 @@ Polynomials over commutative rings
 
 ----------------------------------
 
-module Cubical.Algebra.Polynomials.Polynomials where
+module Cubical.Algebra.Polynomials.Univariate.Base where
 
 open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Foundations.Prelude
