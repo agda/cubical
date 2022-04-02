@@ -11,6 +11,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
 open import Cubical.Algebra.Polynomials.Univariate.Base
+open import Cubical.Algebra.Polynomials.Univariate.Properties
 open import Cubical.Algebra.CommRing.Instances.UnivariatePoly
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
@@ -28,7 +29,11 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
     renaming
     ( Poly               to Poly:
     ; isSetPoly          to isSetPoly:
-    ; 0P                 to 0P:
+    )
+    
+  open PolyModTheory A'
+    renaming
+    ( 0P                 to 0P:
     ; Poly-              to Poly:-
     ; _Poly+_            to _Poly:+_
     ; Poly+Lid           to Poly:+Lid
@@ -44,6 +49,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
     ; Poly*Rid           to Poly:*Rid
     ; Poly*Associative   to Poly:*Assoc
     ; Poly*Commutative   to Poly:*Comm
+    ; prod-Xn-0P         to prod-Xn-0P:
     )
 
   open Nth-Poly-structure A' 1
@@ -51,48 +57,6 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
 -- Notation P, Q, R... for Poly 1
 -- x, y, w... for Poly:
 -- a,b,c... for A
-
-
-
------------------------------------------------------------------------------
--- lemma translation Xn
-  prod-Xn : (n : ℕ) → Poly: → Poly:
-  prod-Xn zero x = x
-  prod-Xn (suc n) x = 0r ∷ (prod-Xn n x)
-
-  prod-Xn-0P: : (n : ℕ) → prod-Xn n 0P: ≡ 0P:
-  prod-Xn-0P: zero = refl
-  prod-Xn-0P: (suc n) = cong (λ X → 0r ∷ X) (prod-Xn-0P: n) ∙ drop0
-
-  prod-Xn-sum : (n : ℕ) → (x y : Poly:) → (prod-Xn n x) Poly:+ (prod-Xn n y) ≡ prod-Xn n (x Poly:+ y)
-  prod-Xn-sum zero x y = refl
-  prod-Xn-sum (suc n) x y = cong₂ _∷_ (+Rid 0r) (prod-Xn-sum n x y)
-
-  prod-Xn-comp : (n m : ℕ) → (x : Poly:) → prod-Xn n (prod-Xn m x) ≡ prod-Xn (n +n m) x
-  prod-Xn-comp zero m x = refl
-  prod-Xn-comp (suc n) m x = cong (λ X → 0r ∷ X) (prod-Xn-comp n m x)
-
-  prod-Xn-∷ : (n : ℕ) → (a : A) → (x : Poly:) → (prod-Xn n (a ∷ [])) Poly:+ (0r ∷ prod-Xn n x) ≡ prod-Xn n (a ∷ x)
-  prod-Xn-∷ zero a x = cong₂ _∷_ (+Rid a) (Poly:+Lid x)
-  prod-Xn-∷ (suc n) a x = cong₂ _∷_ (+Lid 0r) (prod-Xn-∷ n a x)
-
-  prod-Xn-prod-0 : (m : ℕ) → (x y : Poly:) → x Poly:* (prod-Xn m y) ≡ prod-Xn m (x Poly:* y)
-  prod-Xn-prod-0 zero x y = refl
-  prod-Xn-prod-0 (suc m) x y = ((x Poly:* (0r ∷ prod-Xn m y)))
-                                   ≡⟨ Poly:*Comm x (prod-Xn (suc m) y) ⟩
-                               ((0r PolyConst* x) Poly:+ (0r ∷ (prod-Xn m y Poly:* x)))
-                                  ≡⟨ cong (λ X → X Poly:+ (0r ∷ ((prod-Xn m y) Poly:* x))) ((0rLeftAnnihilatesPoly x) ∙ drop0) ⟩
-                               ((0r ∷ (prod-Xn m y Poly:* x)))
-                                  ≡⟨ cong (λ X → 0r ∷ X) (Poly:*Comm (prod-Xn m y) x) ⟩
-                               (0r ∷ (x Poly:* prod-Xn m y))
-                                  ≡⟨ cong (λ X → 0r ∷ X) (prod-Xn-prod-0 m x y) ⟩
-                               (0r ∷ prod-Xn m (x Poly:* y))  ∎
-
-
-  prod-Xn-prod : (n m : ℕ) → (x y : Poly:) → (prod-Xn n x) Poly:* (prod-Xn m y) ≡ prod-Xn (n +n m) (x Poly:* y)
-  prod-Xn-prod zero m x y = prod-Xn-prod-0 m x y
-  prod-Xn-prod (suc n) m x y = cong₂ _Poly:+_ ((0rLeftAnnihilatesPoly (prod-Xn m y)) ∙ drop0) (cong (λ X → 0r ∷ X) (prod-Xn-prod n m x y))
-
 
 
 -----------------------------------------------------------------------------
