@@ -30,7 +30,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
     ( Poly               to Poly:
     ; isSetPoly          to isSetPoly:
     )
-    
+
   open PolyModTheory A'
     renaming
     ( 0P                 to 0P:

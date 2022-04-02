@@ -225,4 +225,3 @@ module PolyMod (R' : CommRing ℓ) where
                            PolyFun→Poly
                            PolyFun→Poly→PolyFun
                            isSetPolyFun
-
