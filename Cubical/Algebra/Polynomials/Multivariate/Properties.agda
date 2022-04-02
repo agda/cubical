@@ -206,34 +206,6 @@ module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
                λ {U V} ind-U ind-V Q → ((cong₂ _Poly+_ (ind-U Q) (ind-V Q)) ∙ sym (Poly*-Rdist Q U V))
 
 
------------------------------------------------------------------------------
 
-module _ (A' : CommRing ℓ) (n : ℕ) where
-
-  private
-    A = fst A'
-    Ar = CommRing→Ring A'
-
-  open CommRingStr
-  open RingTheory Ar
-  open Nth-Poly-structure A' n
-
-  PolyCommRing : CommRing ℓ
-  fst PolyCommRing = Poly A' n
-  0r (snd PolyCommRing) = 0P
-  1r (snd PolyCommRing) = 1P
-  _+_ (snd PolyCommRing) = _Poly+_
-  _·_ (snd PolyCommRing) = _Poly*_
-  - snd PolyCommRing = Poly-inv
-  isCommRing (snd PolyCommRing) = makeIsCommRing
-                                  trunc
-                                  Poly+-assoc
-                                  Poly+-Rid
-                                  Poly+-rinv
-                                  Poly+-comm
-                                  Poly*-assoc
-                                  Poly*-Rid
-                                  Poly*-Rdist
-                                  Poly*-comm
 
   
