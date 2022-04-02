@@ -11,10 +11,10 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
 open import Cubical.Algebra.Polynomials.Univariate.Base
-open import Cubical.Algebra.CommRing.Instances.Polynomials renaming (Poly to Poly:-CommRing)
+open import Cubical.Algebra.CommRing.Instances.UnivariatePoly
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
-open import Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure
+open import Cubical.Algebra.Polynomials.Multivariate.Properties
 
 private variable
   ℓ : Level
@@ -234,7 +234,7 @@ module _ (A' : CommRing ℓ) where
 
   open Equiv-Poly1-Poly: A'
 
-  CRE-Poly1-Poly: : CommRingEquiv (PolyCommRing A' 1) (Poly:-CommRing A')
+  CRE-Poly1-Poly: : CommRingEquiv (PolyCommRing A' 1) (UnivariatePoly A')
   fst CRE-Poly1-Poly: = isoToEquiv is
     where
     is : Iso _ _

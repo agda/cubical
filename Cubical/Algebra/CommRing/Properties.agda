@@ -177,7 +177,7 @@ module CommRingEquivs where
                                                            {B = CommRing→Ring B}
                                                            {C = CommRing→Ring C}
 
- invCommRingEquiv : (A B : CommRing ℓ) → CommRingEquiv A B → CommRingEquiv B A
+ invCommRingEquiv : (A : CommRing ℓ) → (B : CommRing ℓ') → CommRingEquiv A B → CommRingEquiv B A
  fst (invCommRingEquiv A B e) = invEquiv (fst e)
  snd (invCommRingEquiv A B e) = isRingHomInv e
 

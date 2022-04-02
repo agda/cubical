@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure where
+module Cubical.Algebra.Polynomials.Multivariate.Properties where
 
 open import Cubical.Foundations.Prelude
 

@@ -222,24 +222,24 @@ module RingEquivs where
   fst (compRingEquiv f g) = compEquiv (f .fst) (g .fst)
   snd (compRingEquiv f g) = compIsRingEquiv {g = g .fst} {f = f .fst} (g .snd) (f .snd)
 
-  isRingHomInv : {A' B' : Ring ℓ} → (e : RingEquiv A' B') → IsRingHom (snd B') (invEq (fst e)) (snd A')
-  isRingHomInv {A' = A'} {B' = B'} e = makeIsRingHom 
-                         ((cong g (sym (pres1 fcrh))) ∙ retEq et (1r (snd A')))
-                         (λ x y → g (snd B' ._+_ x y)                 ≡⟨ cong g (sym (cong₂ (snd B' ._+_) (secEq et x) (secEq et y))) ⟩
-                                   g (snd B' ._+_ (f (g x)) (f (g y))) ≡⟨ cong g (sym (pres+ fcrh (g x) (g y))) ⟩
-                                   g (f (snd A' ._+_ (g x) (g y)))     ≡⟨ retEq et (snd A' ._+_ (g x) (g y)) ⟩
-                                   snd A' ._+_ (g x) (g y)  ∎)
-                         (λ x y → g (snd B' ._·_ x y)                 ≡⟨ cong g (sym (cong₂ (snd B' ._·_) (secEq et x) (secEq et y))) ⟩
-                                   g (snd B' ._·_ (f (g x)) (f (g y))) ≡⟨ cong g (sym (pres· fcrh (g x) (g y))) ⟩
-                                   g (f (snd A' ._·_ (g x) (g y)))     ≡⟨ retEq et (snd A' ._·_ (g x) (g y)) ⟩
-                                   snd A' ._·_ (g x) (g y)  ∎)
+  isRingHomInv : {A : Ring ℓ} → {B : Ring ℓ'} → (e : RingEquiv A B) → IsRingHom (snd B) (invEq (fst e)) (snd A)
+  isRingHomInv {A = A} {B = B} e = makeIsRingHom 
+                         ((cong g (sym (pres1 fcrh))) ∙ retEq et (1r (snd A)))
+                         (λ x y → g (snd B ._+_ x y)                 ≡⟨ cong g (sym (cong₂ (snd B ._+_) (secEq et x) (secEq et y))) ⟩
+                                   g (snd B ._+_ (f (g x)) (f (g y))) ≡⟨ cong g (sym (pres+ fcrh (g x) (g y))) ⟩
+                                   g (f (snd A ._+_ (g x) (g y)))     ≡⟨ retEq et (snd A ._+_ (g x) (g y)) ⟩
+                                   snd A ._+_ (g x) (g y)  ∎)
+                         (λ x y → g (snd B ._·_ x y)                 ≡⟨ cong g (sym (cong₂ (snd B ._·_) (secEq et x) (secEq et y))) ⟩
+                                   g (snd B ._·_ (f (g x)) (f (g y))) ≡⟨ cong g (sym (pres· fcrh (g x) (g y))) ⟩
+                                   g (f (snd A ._·_ (g x) (g y)))     ≡⟨ retEq et (snd A ._·_ (g x) (g y)) ⟩
+                                   snd A ._·_ (g x) (g y)  ∎)
                where
                et = fst e
                f = fst et
                fcrh = snd e
                g = invEq et
 
-  invEquivRing : {A B : Ring ℓ} → RingEquiv A B → RingEquiv B A
+  invEquivRing : {A : Ring ℓ} → {B : Ring ℓ'} → RingEquiv A B → RingEquiv B A
   fst (invEquivRing e) = invEquiv (fst e)
   snd (invEquivRing e) = isRingHomInv e
 

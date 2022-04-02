@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.CommRing.Instances.Polynomials where
+module Cubical.Algebra.CommRing.Instances.UnivariatePoly where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Algebra.CommRing
@@ -11,8 +11,8 @@ private
     ℓ : Level
 
 
-Poly : (CommRing ℓ) → CommRing ℓ
-Poly R = (PolyMod.Poly R) , str
+UnivariatePoly : (CommRing ℓ) → CommRing ℓ
+UnivariatePoly R = (PolyMod.Poly R) , str
     where
       open CommRingStr --(snd R)
       str : CommRingStr (PolyMod.Poly R)

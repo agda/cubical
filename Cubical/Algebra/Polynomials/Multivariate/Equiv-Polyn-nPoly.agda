@@ -12,10 +12,10 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
 open import Cubical.Algebra.Polynomials.Univariate.Base
-open import Cubical.Algebra.CommRing.Instances.Polynomials renaming (Poly to Poly:)
+open import Cubical.Algebra.CommRing.Instances.UnivariatePoly 
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
-open import Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure
+open import Cubical.Algebra.Polynomials.Multivariate.Properties
 open import Cubical.Algebra.Polynomials.Multivariate.Equiv.Poly0-A
 open import Cubical.Algebra.Polynomials.Multivariate.Equiv.Poly1-Poly
 open import Cubical.Algebra.Polynomials.Multivariate.Equiv.Comp-Poly
@@ -34,7 +34,7 @@ private variable
 
 nPoly : (A' : CommRing ℓ) → (n : ℕ) → CommRing ℓ
 nPoly A' zero = A'
-nPoly A' (suc n) = Poly: (nPoly A' n)
+nPoly A' (suc n) = UnivariatePoly (nPoly A' n)
 
 Equiv-Polyn-nPoly : (A' : CommRing ℓ) → (n : ℕ) → CommRingEquiv (PolyCommRing A' n) (nPoly A' n)
 Equiv-Polyn-nPoly A' zero = CRE-Poly0-A A'

@@ -15,7 +15,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Polynomials.Univariate.Base
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
-open import Cubical.Algebra.Polynomials.Multivariate.CommRing-Structure
+open import Cubical.Algebra.Polynomials.Multivariate.Properties
 open Nth-Poly-structure
 
 private variable
