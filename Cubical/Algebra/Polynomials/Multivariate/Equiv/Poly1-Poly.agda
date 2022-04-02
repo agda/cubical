@@ -207,7 +207,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
   map-1P : Poly1→Poly: 1P ≡ 1P:
   map-1P = refl
 
-  trad-base-prod : (v v' : Vec ℕ 1) → (a a' : A) → trad-base ((A' Nth-Poly-structure.+n-vec 1) v v') (a · a') ≡
+  trad-base-prod : (v v' : Vec ℕ 1) → (a a' : A) → trad-base (v +n-vec v') (a · a') ≡
                                                       (trad-base v a Poly:* trad-base v' a')
   trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l  [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+Rid (a · a')))
 

@@ -45,7 +45,7 @@ snd (makeCommRingHomPoly A' B' (f , fcrhom) n) = makeIsRingHom
                           (λ Q → refl)
                           (λ v a → Poly-Ind-Prop.f A' n _ (λ _ → trunc _ _)
                                     refl
-                                    (λ v' a' → cong (base ((B' Nth-Poly-structure.+n-vec n) v v')) (pres· fcrhom a a'))
+                                    (λ v' a' → cong (base (v +n-vec v')) (pres· fcrhom a a'))
                                     λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U  ind-V)
                            λ {U V} ind-U ind-V Q → cong₂ _Poly+_ (ind-U Q) (ind-V Q))
 

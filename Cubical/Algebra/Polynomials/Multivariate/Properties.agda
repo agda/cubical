@@ -77,30 +77,6 @@ module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
 
 
 -----------------------------------------------------------------------------
--- Some lemma for Poly*
-
-  _+n-vec_ : {m : ℕ} → Vec ℕ m → Vec ℕ m → Vec ℕ m
-  _+n-vec_ {.zero} [] [] = []
-  _+n-vec_ {.(suc _)} (k ∷ v) (l ∷ v') = (k +n l) ∷ (v +n-vec v')
-
-  +n-vec-lid : {m : ℕ} → (v : Vec ℕ m) → replicate 0 +n-vec v ≡ v
-  +n-vec-lid {.zero} [] = refl
-  +n-vec-lid {.(suc _)} (k ∷ v) = cong (_∷_ k) (+n-vec-lid v)
-
-  +n-vec-rid : {m : ℕ} → (v : Vec ℕ m) → v +n-vec replicate 0 ≡ v
-  +n-vec-rid {.zero} [] = refl
-  +n-vec-rid {.(suc _)} (k ∷ v) = cong₂ _∷_ (+-zero k) (+n-vec-rid v)
-
-  +n-vec-assoc : {m : ℕ} → (v v' v'' : Vec ℕ m) → v +n-vec (v' +n-vec v'') ≡ (v +n-vec v') +n-vec v''
-  +n-vec-assoc [] [] [] = refl
-  +n-vec-assoc (k ∷ v) (l ∷ v') (p ∷ v'') = cong₂ _∷_ (+-assoc k l p) (+n-vec-assoc v v' v'')
-
-  +n-vec-comm : {m : ℕ} → (v v' : Vec ℕ m) → v +n-vec v' ≡ v' +n-vec v
-  +n-vec-comm {.zero} [] [] = refl
-  +n-vec-comm {.(suc _)} (k ∷ v) (l ∷ v') = cong₂ _∷_ (+-comm k l) (+n-vec-comm v v')
-
-
------------------------------------------------------------------------------
 
   _Poly*_ : Poly A' n → Poly A' n → Poly A' n
   _Poly*_ = -- Induction Left Argument

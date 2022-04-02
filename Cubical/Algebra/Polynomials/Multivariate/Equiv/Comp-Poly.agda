@@ -29,34 +29,6 @@ module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
   module N+Mr = Nth-Poly-structure A' (n +n m)
   module N∘Mr  = Nth-Poly-structure (PolyCommRing A' m) n
 
------------------------------------------------------------------------------
--- Some lemma for the traduction
-
-  sep-vec : (k l : ℕ) → Vec ℕ (k +n l) → (Vec ℕ k) ×  (Vec ℕ l )
-  sep-vec zero l v = [] , v
-  sep-vec (suc k) l (x ∷ v) = (x ∷ fst (sep-vec k l v)) , (snd (sep-vec k l v))
-
-  sep-vec-fst : (k l : ℕ) → (v : Vec ℕ k) → (v' : Vec ℕ l) → fst (sep-vec k l (v ++ v')) ≡ v
-  sep-vec-fst zero l [] v' = refl
-  sep-vec-fst (suc k) l (x ∷ v) v' = cong (λ X → x ∷ X) (sep-vec-fst k l v v')
-
-  sep-vec-snd : (k l : ℕ) → (v : Vec ℕ k) → (v' : Vec ℕ l) → snd (sep-vec k l (v ++ v')) ≡ v'
-  sep-vec-snd zero l [] v' = refl
-  sep-vec-snd (suc k) l (x ∷ v) v' = sep-vec-snd k l v v'
-
-  sep-vec-id : (k l : ℕ) → (v : Vec ℕ (k +n l)) → fst (sep-vec k l v) ++ snd (sep-vec k l v) ≡ v
-  sep-vec-id zero l v = refl
-  sep-vec-id (suc k) l (x ∷ v) = cong (λ X → x ∷ X) (sep-vec-id k l v)
-
-  rep-concat : (k l : ℕ) → {B : Type ℓ'} → (b : B) →
-               replicate {_} {k} {B} b ++ replicate {_} {l} {B} b ≡ replicate {_} {k +n l} {B} b
-  rep-concat zero l b = refl
-  rep-concat (suc k) l b = cong (λ X → b ∷ X) (rep-concat k l b)
-
-  +n-vec-concat : (k l : ℕ) → (v w : Vec ℕ k) → (v' w' : Vec ℕ l)
-                  → (v Mr.+n-vec w) ++ (v' Mr.+n-vec w') ≡ (v ++ v') Mr.+n-vec (w ++ w')
-  +n-vec-concat zero l [] [] v' w' = refl
-  +n-vec-concat (suc k) l (x ∷ v) (y ∷ w) v' w' = cong (λ X → x +n y ∷ X) (+n-vec-concat k l v w v' w')
 
 -----------------------------------------------------------------------------
 -- direct sens
