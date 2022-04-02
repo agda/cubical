@@ -15,14 +15,15 @@ open import Cubical.Algebra.CommRing.Instances.UnivariatePoly
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Properties
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 
 private variable
   ℓ : Level
 
-module Equiv-Poly1-Poly: (A' : CommRing ℓ) where  
+module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
   private
     A = fst A'
-    
+
   open PolyMod A'
     renaming
     ( Poly               to Poly:
@@ -63,7 +64,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
   prod-Xn-0P: zero = refl
   prod-Xn-0P: (suc n) = cong (λ X → 0r ∷ X) (prod-Xn-0P: n) ∙ drop0
 
-  prod-Xn-sum : (n : ℕ) → (x y : Poly:) → (prod-Xn n x) Poly:+ (prod-Xn n y) ≡ prod-Xn n (x Poly:+ y) 
+  prod-Xn-sum : (n : ℕ) → (x y : Poly:) → (prod-Xn n x) Poly:+ (prod-Xn n y) ≡ prod-Xn n (x Poly:+ y)
   prod-Xn-sum zero x y = refl
   prod-Xn-sum (suc n) x y = cong₂ _∷_ (+Rid 0r) (prod-Xn-sum n x y)
 
@@ -105,7 +106,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
 
   trad-base-add : (v : Vec ℕ 1) → (a b : A) → (trad-base v a) Poly:+ (trad-base v b) ≡ trad-base v (a + b)
   trad-base-add (n :: <>) a b = prod-Xn-sum n (a ∷ []) (b ∷ [])
-  
+
   Poly1→Poly: : Poly A' 1 → Poly:
   Poly1→Poly: = Poly-Rec-Set.f A' 1 Poly: isSetPoly:
                  []
@@ -128,7 +129,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
   Poly:→Poly1-int : (n : ℕ) → Poly: → Poly A' 1
   Poly:→Poly1-int n [] = 0P
   Poly:→Poly1-int n (a ∷ x) = (base (n :: <>) a) Poly+ Poly:→Poly1-int (suc n) x
-  Poly:→Poly1-int n (drop0 i) = ((cong (λ X → X Poly+ 0P) (base-0P (n :: <>))) ∙ (Poly+-Rid 0P)) i 
+  Poly:→Poly1-int n (drop0 i) = ((cong (λ X → X Poly+ 0P) (base-0P (n :: <>))) ∙ (Poly+-Rid 0P)) i
 
   Poly:→Poly1 : Poly: → Poly A' 1
   Poly:→Poly1 x = Poly:→Poly1-int 0 x
@@ -139,7 +140,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
                         (λ y n → (cong (Poly:→Poly1-int n) (Poly:+Lid y)) ∙ (sym (Poly+-Lid (Poly:→Poly1-int n y))))
                         (λ a x ind-x → ElimProp.f
                                         (λ y → (n : ℕ) → Poly:→Poly1-int n ((a ∷ x) Poly:+ y) ≡ (Poly:→Poly1-int n (a ∷ x) Poly+ Poly:→Poly1-int n y))
-                                        (λ n → sym (Poly+-Rid (Poly:→Poly1-int n (a ∷ x)))) 
+                                        (λ n → sym (Poly+-Rid (Poly:→Poly1-int n (a ∷ x))))
                                         (λ b y ind-y n → sym (
                                                           (Poly-com-adv (base (n :: <>) a) (Poly:→Poly1-int (suc n) x) (base (n :: <>) b) (Poly:→Poly1-int (suc n) y))
                                                           ∙
@@ -151,7 +152,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
                         λ {x} p q i y n j → trunc (Poly:→Poly1-int n (x Poly:+ y)) (Poly:→Poly1-int n x Poly+ Poly:→Poly1-int n y) (p y n) (q y n) i j
 
   Poly:→Poly1-gmorph : (x y : Poly:) → Poly:→Poly1 (x Poly:+ y) ≡ (Poly:→Poly1 x) Poly+ (Poly:→Poly1 y)
-  Poly:→Poly1-gmorph x y = Poly:→Poly1-int-gmorph x y 0 
+  Poly:→Poly1-gmorph x y = Poly:→Poly1-int-gmorph x y 0
 
 -----------------------------------------------------------------------------
 -- section
@@ -184,7 +185,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
 
   idde-v : (v : Vec ℕ 1) → (a : A) → Poly:→Poly1-int 0 (trad-base v a) ≡ base v a
   idde-v (n :: <>) a = (idde n 0 a)
-                       
+
 
   e-retr : (P : Poly A' 1) → Poly:→Poly1 (Poly1→Poly: P) ≡ P
   e-retr = Poly-Ind-Prop.f A' 1
@@ -209,7 +210,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
   trad-base-prod : (v v' : Vec ℕ 1) → (a a' : A) → trad-base ((A' Nth-Poly-structure.+n-vec 1) v v') (a · a') ≡
                                                       (trad-base v a Poly:* trad-base v' a')
   trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l  [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+Rid (a · a')))
-  
+
   Poly1→Poly:-rmorph : (P Q : Poly A' 1) → Poly1→Poly: (P Poly* Q) ≡ (Poly1→Poly: P) Poly:* (Poly1→Poly: Q)
   Poly1→Poly:-rmorph = Poly-Ind-Prop.f A' 1
                         (λ P → (Q : Poly A' 1) → Poly1→Poly: (P Poly* Q) ≡ (Poly1→Poly: P Poly:* Poly1→Poly: Q))
@@ -224,7 +225,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
                                                          ∙ sym (Poly*LDistrPoly+ (Poly1→Poly: (base v a)) (Poly1→Poly: U) (Poly1→Poly: V)))
                         λ {U V} ind-U ind-V Q → (cong₂ _Poly:+_ (ind-U Q) (ind-V Q))
                                                  ∙ sym (Poly*RDistrPoly+ (Poly1→Poly: U) (Poly1→Poly: V) (Poly1→Poly: Q))
-  
+
 
 
 -- -----------------------------------------------------------------------------

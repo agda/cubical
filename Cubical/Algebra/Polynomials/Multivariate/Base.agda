@@ -58,7 +58,7 @@ module _ (A' : CommRing ℓ) where
                     → PathP (λ i → F (Poly+-assoc P Q R i)) (PS Poly+* (QS Poly+* RS)) ((PS Poly+* QS) Poly+* RS))
     (Poly+-Rid*   : {P : Poly A' n} → (PS : F P) →
                    PathP (λ i → F (Poly+-Rid P i)) (PS Poly+* 0P*) PS)
-    (Poly+-comm*  : {P Q : Poly A' n} → (PS : F P) → (QS : F Q) 
+    (Poly+-comm*  : {P Q : Poly A' n} → (PS : F P) → (QS : F Q)
                     → PathP (λ i → F (Poly+-comm P Q i)) (PS Poly+* QS) (QS Poly+* PS))
     -- Base eq
     (base-0P* : (v : Vec ℕ n) → PathP (λ i → F (base-0P v i)) (base* v 0r) 0P*)
@@ -95,7 +95,7 @@ module _ (A' : CommRing ℓ) where
     (base-0P* : (v : Vec ℕ n) → (base* v 0r) ≡  0P*)
     (base-Poly+*     : (v : Vec ℕ n) → (a b : A) → ((base* v a) Poly+* (base* v b)) ≡ (base* v (a + b)))
     where
-  
+
     f : Poly A' n → B
     f = Poly-Ind-Set.f n (λ _ → B) (λ _ → iss) 0P* base* _Poly+*_ Poly+-assoc* Poly+-Rid* Poly+-comm* base-0P* base-Poly+*
 
@@ -112,7 +112,7 @@ module _ (A' : CommRing ℓ) where
     where
 
     f : (P : Poly A' n) → F P
-    f = Poly-Ind-Set.f n F (λ P → isProp→isSet (ispd P)) 0P* base* _Poly+*_ 
+    f = Poly-Ind-Set.f n F (λ P → isProp→isSet (ispd P)) 0P* base* _Poly+*_
           (λ {P Q R} PS QS RQ → toPathP (ispd _ (transport (λ i → F (Poly+-assoc P Q R i)) _) _))
           (λ {P} PS           → toPathP (ispd _ (transport (λ i → F (Poly+-Rid P i))       _) _))
           (λ {P Q} PS QS      → toPathP (ispd _ (transport (λ i → F (Poly+-comm P Q i))    _) _))

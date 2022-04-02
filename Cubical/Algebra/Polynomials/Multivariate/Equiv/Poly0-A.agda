@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_)
-open import Cubical.Data.Vec 
+open import Cubical.Data.Vec
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
@@ -14,6 +14,7 @@ open import Cubical.Algebra.Polynomials.Univariate.Base
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Properties
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 
 private variable
   ℓ : Level
@@ -30,7 +31,7 @@ module Equiv-Poly0-A (A' : CommRing ℓ) where
 -- Equivalence
 
   Poly0→A : Poly A' 0 → A
-  Poly0→A = Poly-Rec-Set.f A' 0 A isSetA 
+  Poly0→A = Poly-Rec-Set.f A' 0 A isSetA
              0r
              (λ v a → a)
              _+_
@@ -66,7 +67,7 @@ module Equiv-Poly0-A (A' : CommRing ℓ) where
 
   map-1P : Poly0→A 1P ≡ 1r
   map-1P = refl
-  
+
   Poly0→A-rmorph : (P Q : Poly A' 0) → Poly0→A ( P Poly* Q) ≡ Poly0→A P · Poly0→A Q
   Poly0→A-rmorph = Poly-Ind-Prop.f A' 0
                     (λ P → (Q : Poly A' 0) → Poly0→A (P Poly* Q) ≡ Poly0→A P · Poly0→A Q)
@@ -80,7 +81,7 @@ module Equiv-Poly0-A (A' : CommRing ℓ) where
                               λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V) ∙ (sym (·Rdist+ _ _ _)))
                     λ {U V} ind-U ind-V Q → (cong₂ _+_ (ind-U Q) (ind-V Q)) ∙ (sym (·Ldist+ _ _ _))
 
-                             
+
 -----------------------------------------------------------------------------
 -- Ring Equivalence
 

@@ -15,6 +15,7 @@ open import Cubical.Algebra.Polynomials.Univariate.Base
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Properties
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 
 private variable
   ℓ ℓ' : Level
@@ -101,8 +102,8 @@ module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
 
 
 -----------------------------------------------------------------------------
--- Section 
-  
+-- Section
+
   e-sect : (P : Poly A' (n +n m)) → N∘M→N+M (N+M→N∘M P) ≡ P
   e-sect = Poly-Ind-Prop.f A' (n +n m)
            (λ P → N∘M→N+M (N+M→N∘M P) ≡ P)
@@ -149,10 +150,10 @@ module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
     (λ P p q i Q j → trunc _ _ (p Q) (q Q) i j)
     (λ Q → refl)
     (λ v → -- Ind Base P
-           Poly-Ind-Prop.f A' m 
+           Poly-Ind-Prop.f A' m
            (λ P → (Q : Poly (PolyCommRing A' m) n) → N∘M→N+M (base v P N∘Mr.Poly* Q) ≡ (N∘M→N+M (base v P) N+Mr.Poly* N∘M→N+M Q))
            (λ P p q i Q j → trunc _ _ (p Q) (q Q) i j)
-           (λ Q → cong (λ X → N∘M→N+M (X N∘Mr.Poly* Q)) (base-0P v)) 
+           (λ Q → cong (λ X → N∘M→N+M (X N∘Mr.Poly* Q)) (base-0P v))
            (λ v' a → -- Ind Q
                       Poly-Ind-Prop.f (PolyCommRing A' m) n
                       (λ Q → N∘M→N+M (base v (base v' a) N∘Mr.Poly* Q) ≡ (N∘M→N+M (base v (base v' a)) N+Mr.Poly* N∘M→N+M Q))
@@ -176,7 +177,7 @@ module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
            -- End Ind base P
      λ {U V} ind-U ind-V Q → cong₂ _Poly+_ (ind-U Q) (ind-V Q)
      -- End Ind P
-                             
+
 
 -----------------------------------------------------------------------------
 -- Ring Equivalence
@@ -193,6 +194,5 @@ module _ (A' : CommRing ℓ) (n m : ℕ) where
     Iso.inv is = N+M→N∘M
     Iso.rightInv is = e-sect
     Iso.leftInv is = e-retr
-    
-  snd CRE-PolyN∘M-PolyN+M = makeIsRingHom map-1P N∘M→N+M-gmorph N∘M→N+M-rmorph
 
+  snd CRE-PolyN∘M-PolyN+M = makeIsRingHom map-1P N∘M→N+M-gmorph N∘M→N+M-rmorph

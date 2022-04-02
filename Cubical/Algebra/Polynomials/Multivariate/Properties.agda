@@ -15,14 +15,14 @@ private variable
   ℓ ℓ' : Level
 
 module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
-  
+
   private
     A = fst A'
     Ar = CommRing→Ring A'
 
   open CommRingStr (snd A')
   open RingTheory Ar
-  
+
 -----------------------------------------------------------------------------
 
   Poly-com-adv : (P Q R S : Poly A' n) →  ((P Poly+ Q) Poly+ (R Poly+ S) ≡ (P Poly+ R) Poly+ (Q Poly+ S))
@@ -204,8 +204,3 @@ module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
                           (λ v' a' → cong₂ base (+n-vec-comm v v') (·Comm a a'))
                           (λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U ind-V))
                λ {U V} ind-U ind-V Q → ((cong₂ _Poly+_ (ind-U Q) (ind-V Q)) ∙ sym (Poly*-Rdist Q U V))
-
-
-
-
-  

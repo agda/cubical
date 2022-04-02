@@ -16,6 +16,7 @@ open import Cubical.Algebra.Polynomials.Univariate.Base
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Properties
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open Nth-Poly-structure
 
 private variable
@@ -57,14 +58,14 @@ open RingEquivs
 
 lift-equiv-poly : (A' B' : CommRing ℓ) → (e : CommRingEquiv A' B') → (n : ℕ) → CommRingEquiv (PolyCommRing A' n) (PolyCommRing B' n)
 fst (lift-equiv-poly A' B' e n) = isoToEquiv is
-  where 
+  where
     et = fst e
     fcrh = snd e
     f = fst et
     g = invEq et
-    gcrh : IsRingHom (snd (CommRing→Ring B')) g (snd (CommRing→Ring A')) 
+    gcrh : IsRingHom (snd (CommRing→Ring B')) g (snd (CommRing→Ring A'))
     gcrh = isRingHomInv (et , fcrh)
-    
+
     is : Iso _ _
     Iso.fun is = fst (makeCommRingHomPoly A' B' (f , fcrh) n)
     Iso.inv is = fst (makeCommRingHomPoly B' A' (g , gcrh) n)
@@ -77,4 +78,3 @@ fst (lift-equiv-poly A' B' e n) = isoToEquiv is
                      (λ v a → cong (base v) (retEq et a))
                      λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U ind-V)
 snd (lift-equiv-poly A' B' e n) = snd (makeCommRingHomPoly A' B' (fst (fst e) , snd e) n)
-

@@ -14,7 +14,7 @@ open import Cubical.Algebra.Polynomials.Multivariate.Properties
 
 private variable
   ℓ ℓ' : Level
-  
+
 
 module _ (A' : CommRing ℓ) (n : ℕ) where
 
