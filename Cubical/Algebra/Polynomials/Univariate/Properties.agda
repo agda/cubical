@@ -36,9 +36,9 @@ module PolyModTheory (R' : CommRing ℓ) where
   open CommRingTheory R'
   open RingTheory (CommRing→Ring R')
   open GroupTheory (Ring→Group (CommRing→Ring R'))
-  
+
   pattern [_] x = x ∷ []
-  
+
 ---------------------------------------
 -- Definition
 -- Identity for addition of polynomials
