@@ -199,7 +199,7 @@ record Bézout (m n : ℤ) : Type where
     coef₂ : ℤ
     gcd   : ℤ
     identity : coef₁ · m + coef₂ · n ≡ gcd
-    isCD : (gcd ∣ m) × (gcd ∣ n)
+    isCD  : (gcd ∣ m) × (gcd ∣ n)
 
 open Bézout
 
