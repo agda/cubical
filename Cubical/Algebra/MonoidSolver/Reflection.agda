@@ -21,11 +21,16 @@ open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
 open import Cubical.Algebra.Monoid.Base
+open import Cubical.Algebra.CommMonoid.Base
 open import Cubical.Algebra.MonoidSolver.Solver renaming (solve to naiveSolve)
+open import Cubical.Algebra.MonoidSolver.CommSolver renaming (solve to naiveCommSolve)
+open import Cubical.Algebra.MonoidSolver.Expression
 
 private
   variable
     ℓ : Level
+
+module ReflectionSolver (op unit solver : Name) where
 
   _==_ = primQNameEquality
   {-# INLINE _==_ #-}
@@ -85,7 +90,7 @@ private
     solverCallAsTerm : Term → Arg Term → Term → Term → Term
     solverCallAsTerm M varList lhs rhs =
       def
-         (quote naiveSolve)
+         solver
          (varg M ∷ varg lhs ∷ varg rhs
            ∷ varList
            ∷ varg (def (quote refl) []) ∷ [])
@@ -114,42 +119,40 @@ private
         variableList (varIndex ∷ varIndices)
           = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
 
+  module _ (monoid : Term) where
 
-module _ (monoid : Term) where
+    `ε⊗` : Term
+    `ε⊗` = con (quote ε⊗) []
 
-  `ε⊗` : Term
-  `ε⊗` = con (quote ε⊗) []
-  
-  mutual
+    mutual
 
-    `_⊗_` : List (Arg Term) → Term
-    `_⊗_` (harg _ ∷ xs) = `_⊗_` xs
-    `_⊗_` (varg _ ∷ varg x ∷ varg y ∷ []) =
-      con
-        (quote _⊗_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
-    `_⊗_` _ = unknown
+      `_⊗_` : List (Arg Term) → Term
+      `_⊗_` (harg _ ∷ xs) = `_⊗_` xs
+      `_⊗_` (varg _ ∷ varg x ∷ varg y ∷ []) =
+        con
+          (quote _⊗_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
+      `_⊗_` _ = unknown
 
-    finiteNumberAsTerm : ℕ → Term
-    finiteNumberAsTerm ℕ.zero = con (quote fzero) []
-    finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (varg (finiteNumberAsTerm n) ∷ [])
+      finiteNumberAsTerm : ℕ → Term
+      finiteNumberAsTerm ℕ.zero = con (quote fzero) []
+      finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (varg (finiteNumberAsTerm n) ∷ [])
 
-    buildExpression : Term → Term
-    buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
-    buildExpression t@(def n xs) =
-      if (n == (quote MonoidStr._·_))
-        then `_⊗_` xs
-      else if (n == (quote MonoidStr.ε))
-        then `ε⊗`
-      else
-        unknown
-    buildExpression t = unknown
+      buildExpression : Term → Term
+      buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
+      buildExpression t@(def n xs) =
+        if (n == op)
+          then `_⊗_` xs
+        else if (n == unit)
+          then `ε⊗`
+        else
+          unknown
+      buildExpression t = unknown
 
 
-  toMonoidExpression : Maybe (Term × Term) → Maybe (Term × Term)
-  toMonoidExpression nothing = nothing
-  toMonoidExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
+    toMonoidExpression : Maybe (Term × Term) → Maybe (Term × Term)
+    toMonoidExpression nothing = nothing
+    toMonoidExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
 
-private
   adjustDeBruijnIndex : (n : ℕ) → Term → Term
   adjustDeBruijnIndex n (var k args) = var (k + n) args
   adjustDeBruijnIndex n _ = unknown
@@ -214,5 +217,8 @@ private
       unify hole solution
 
 macro
-  solve : Term → Term → TC _
-  solve = solve-macro
+  solveMonoid : Term → Term → TC _
+  solveMonoid = ReflectionSolver.solve-macro (quote MonoidStr._·_) (quote MonoidStr.ε) (quote naiveSolve)
+
+  solveCommMonoid : Term → Term → TC _
+  solveCommMonoid = ReflectionSolver.solve-macro (quote CommMonoidStr._·_) (quote CommMonoidStr.ε) (quote naiveCommSolve)

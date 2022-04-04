@@ -4,26 +4,45 @@ module Cubical.Algebra.MonoidSolver.Examples where
 
 open import Cubical.Foundations.Prelude hiding (Type)
 open import Cubical.Algebra.Monoid.Base
-open import Cubical.Algebra.MonoidSolver.ReflectionSolving
+open import Cubical.Algebra.CommMonoid.Base
+open import Cubical.Algebra.MonoidSolver.Reflection
 
 private
   variable
     ℓ : Level
 
-module test (M : Monoid ℓ) where
+module ExamplesMonoid (M : Monoid ℓ) where
   open MonoidStr (snd M)
 
   _ : ε ≡ ε
-  _ = solve M
+  _ = solveMonoid M
 
   _ : ε · ε · ε ≡ ε
-  _ = solve M
+  _ = solveMonoid M
 
   _ : ∀ x → ε · x  ≡ x
-  _ = solve M
+  _ = solveMonoid M
 
   _ : ∀ x y z → (x · y) · z ≡ x · (y · z)
-  _ = solve M
+  _ = solveMonoid M
 
   _ : ∀ x y z → z · (x · y) · ε · z ≡ z · x · (y · z)
-  _ = solve M
+  _ = solveMonoid M
+
+module ExamplesCommMonoid (M : CommMonoid ℓ) where
+  open CommMonoidStr (snd M)
+
+  _ : ε ≡ ε
+  _ = solveCommMonoid M
+
+  _ : ε · ε · ε ≡ ε
+  _ = solveCommMonoid M
+
+  _ : ∀ x → ε · x  ≡ x
+  _ = solveCommMonoid M
+
+  _ : ∀ x y z → (x · z) · y ≡ x · (y · z)
+  _ = solveCommMonoid M
+
+  _ : ∀ x y  → (x · y) · y · x · (x · y) ≡ x · x · x · (y · y · y)
+  _ = solveCommMonoid M

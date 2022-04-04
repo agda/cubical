@@ -10,17 +10,11 @@ open import Cubical.Data.Vec
 
 open import Cubical.Algebra.CommMonoid
 
+open import Cubical.Algebra.MonoidSolver.Expression
+
 private
   variable
     ℓ : Level
-
-infixl 7 _⊗_
-
--- Expression in a type M with n variables
-data Expr (M : Type ℓ) (n : ℕ) : Type ℓ where
-  ∣   : Fin n → Expr M n
-  ε⊗  : Expr M n
-  _⊗_ : Expr M n → Expr M n → Expr M n
 
 
 module Eval (M : CommMonoid ℓ) where
@@ -86,7 +80,6 @@ module Eval (M : CommMonoid ℓ) where
       lemma 0 0 p = p
       lemma 0 (ℕ.suc y) p = (cong₂ _·_ refl (lemma 0 y p)) ∙ commAssocl _ _ _
       lemma (ℕ.suc x) y p = (cong₂ _·_ refl (lemma x y p)) ∙ assoc _ _ _
-
 
 module EqualityToNormalform (M : CommMonoid ℓ) where
   open Eval M
