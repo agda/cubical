@@ -17,13 +17,19 @@ open import Cubical.Induction.WellFounded
 
 open import Cubical.Relation.Nullary
 
-infix 4 _≤_ _<_
+infix 4 _≤_ _<_ _≥_ _>_
 
 _≤_ : ℕ → ℕ → Type₀
 m ≤ n = Σ[ k ∈ ℕ ] k + m ≡ n
 
 _<_ : ℕ → ℕ → Type₀
 m < n = suc m ≤ n
+
+_≥_ : ℕ → ℕ → Type₀
+m ≥ n = n ≤ m
+
+_>_ : ℕ → ℕ → Type₀
+m > n = n < m
 
 data Trichotomy (m n : ℕ) : Type₀ where
   lt : m < n → Trichotomy m n
@@ -92,6 +98,9 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
   l3 : 0 ≡ i
   l3 = sym (snd (m+n≡0→m≡0×n≡0 l2))
 
+≤-+-≤ : m ≤ n → l ≤ k → m + l ≤ n + k
+≤-+-≤ p q = ≤-trans (≤-+k p) (≤-k+ q)
+
 ≤-k+-cancel : k + m ≤ k + n → m ≤ n
 ≤-k+-cancel {k} {m} (l , p) = l , inj-m+ (sub k m ∙ p)
  where
@@ -154,8 +163,11 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-k+ : m < n → k + m < k + n
 <-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
 
-+-<-+ : m < n → k < l → m + k < n + l
-+-<-+  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
+<-+-< : m < n → k < l → m + k < n + l
+<-+-<  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
+
+<-+-≤ : m < n → k ≤ l → m + k < n + l
+<-+-≤ p q = <≤-trans (<-+k p) (≤-k+ q)
 
 <-·sk : m < n → m · suc k < n · suc k
 <-·sk {m} {n} {k} (d , r) = (d · suc k + k) , reason where
@@ -235,8 +247,15 @@ suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 ... | eq p = inr (0 , p)
 ... | lt m<n+m∸k = inr (<-weaken m<n+m∸k)
 ... | gt n+m∸k<m =
-      ⊥.rec (¬m<m (transport (λ i → ≤-∸-+-cancel k≤n+m i < +-comm m n i) (+-<-+ n+m∸k<m k<n)))
+      ⊥.rec (¬m<m (transport (λ i → ≤-∸-+-cancel k≤n+m i < +-comm m n i) (<-+-< n+m∸k<m k<n)))
 
+<-asym'-case : Trichotomy m n → ¬ m < n → n ≤ m
+<-asym'-case (lt p) q = ⊥.rec (q p)
+<-asym'-case (eq p) _ = _ , sym p
+<-asym'-case (gt p) _ = <-weaken p
+
+<-asym' : ¬ m < n → n ≤ m
+<-asym' = <-asym'-case (_≟_ _ _)
 
 private
   acc-suc : Acc _<_ n → Acc _<_ (suc n)
@@ -360,3 +379,18 @@ n∸m≡0 (suc n) (suc m) p = n∸m≡0 n m (pred-≤-pred p)
 n∸n≡0 : (n : ℕ) → n ∸ n ≡ 0
 n∸n≡0 zero = refl
 n∸n≡0 (suc n) = n∸n≡0 n
+
+-- automation
+
+≤-solver-type : (m n : ℕ) → Trichotomy m n → Type
+≤-solver-type m n (lt p) = m ≤ n
+≤-solver-type m n (eq p) = m ≤ n
+≤-solver-type m n (gt p) = n < m
+
+≤-solver-case : (m n : ℕ) → (p : Trichotomy m n) → ≤-solver-type m n p
+≤-solver-case m n (lt p) = <-weaken p
+≤-solver-case m n (eq p) = _ , p
+≤-solver-case m n (gt p) = p
+
+≤-solver : (m n : ℕ) → ≤-solver-type m n (m ≟ n)
+≤-solver m n = ≤-solver-case m n (m ≟ n)

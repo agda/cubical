@@ -16,8 +16,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Base
 
-open import Cubical.Foundations.Function
-
 private
   variable
     ℓ ℓ' : Level

@@ -7,6 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
@@ -19,9 +20,12 @@ open import Cubical.Algebra.CommRing.Instances.Unit
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Limits
+
+open import Cubical.HITs.PropositionalTruncation
 
 open Category hiding (_∘_)
 open isUnivalent
@@ -33,7 +37,7 @@ open IsRingHom
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 CommRingsCategory : Category (ℓ-suc ℓ) ℓ
 ob CommRingsCategory                     = CommRing _
@@ -96,11 +100,10 @@ univ isUnivalentCommRingsCategory R S = subst isEquiv (funExt rem) (≡≃CatIso
                  (RingHom≡ (funExt (λ x → sym (transportRefl _))))
 
 TerminalCommRing : Terminal {ℓ-suc ℓ-zero} CommRingsCategory
-fst TerminalCommRing                 = UnitCommRing
-fst (fst (snd TerminalCommRing y)) _ = tt
-snd (fst (snd TerminalCommRing y))   = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
-snd (snd TerminalCommRing y) f       = RingHom≡ (funExt (λ _ → refl))
-
+fst TerminalCommRing = UnitCommRing
+fst (fst (snd TerminalCommRing y)) _ = tt*
+snd (fst (snd TerminalCommRing y)) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+snd (snd TerminalCommRing y) f = RingHom≡ (funExt (λ _ → refl))
 
 open Pullback
 
