@@ -465,6 +465,7 @@ private
 ℤ·negsuc (pos n) m = pos·negsuc n m
 ℤ·negsuc (negsuc n) m = negsuc·negsuc n m ∙ sym (-DistL· (negsuc n) (pos (suc m)))
 
+
 ·Assoc : (a b c : ℤ) → (a · (b · c)) ≡ ((a · b) · c)
 ·Assoc (pos zero) b c = refl
 ·Assoc (pos (suc n)) b c =
