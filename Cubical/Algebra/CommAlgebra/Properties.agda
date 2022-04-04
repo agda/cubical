@@ -32,8 +32,6 @@ private
     ℓ ℓ' ℓ'' ℓ''' : Level
 
 
-idCAlgHom = idAlgHom
-
 -- An R-algebra is the same as a CommRing A with a CommRingHom φ : R → A
 module CommAlgChar (R : CommRing ℓ) where
  open Iso
