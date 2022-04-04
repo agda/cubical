@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.ZariskiLattice.BasicOpens where
+module Cubical.Experiments.ZariskiLatticeBasicOpens where
 
 
 open import Cubical.Foundations.Prelude
@@ -15,7 +15,7 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Sigma.Base
@@ -54,13 +54,14 @@ module Presheaf (A' : CommRing ℓ) where
                                                  ; ·Lid to ·rLid ; ·Rid to ·rRid)
  open Exponentiation A'
  open CommRingTheory A'
+ open InvertingElementsBase A'
  open isMultClosedSubset
  open CommAlgebraStr ⦃...⦄
  private
   A = fst A'
 
   A[1/_] : A → CommAlgebra A' ℓ
-  A[1/ x ] = AlgLoc.S⁻¹RAsCommAlg A' ([_ⁿ|n≥0] A' x) (powersFormMultClosedSubset _ _)
+  A[1/ x ] = AlgLoc.S⁻¹RAsCommAlg A' [ x ⁿ|n≥0] (powersFormMultClosedSubset _)
 
   A[1/_]ˣ : (x : A) → ℙ (fst A[1/ x ])
   A[1/ x ]ˣ = (CommAlgebra→CommRing A[1/ x ]) ˣ
@@ -102,7 +103,7 @@ module Presheaf (A' : CommRing ℓ) where
  RpropValued : isPropValued R
  RpropValued x y = isProp× isPropPropTrunc isPropPropTrunc
 
- powerIs≽ : (x a : A) → x ∈ ([_ⁿ|n≥0] A' a) → a ≼ x
+ powerIs≽ : (x a : A) → x ∈ [ a ⁿ|n≥0] → a ≼ x
  powerIs≽ x a = map powerIs≽Σ
   where
   powerIs≽Σ : Σ[ n ∈ ℕ ] (x ≡ a ^ n) → Σ[ n ∈ ℕ ] Σ[ z ∈ A ] (a ^ n ≡ z ·r x)
@@ -123,12 +124,12 @@ module Presheaf (A' : CommRing ℓ) where
 
    lemmaΣ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r y → y ⋆ 1a ∈ A[1/ x ]ˣ
    lemmaΣ (n , z , p) = [ z , (x ^ n) ,  PT.∣ n , refl ∣ ] -- xⁿ≡zy → y⁻¹ ≡ z/xⁿ
-                      , eq/ _ _ ((1r , powersFormMultClosedSubset _ _ .containsOne)
+                      , eq/ _ _ ((1r , powersFormMultClosedSubset _ .containsOne)
                       , (path1 _ _ ∙∙ sym p ∙∙ path2 _))
 
  module ≼PowerToLoc (x y : A) (x≼y : x ≼ y) where
   private
-   [yⁿ|n≥0] = [_ⁿ|n≥0] A' y
+   [yⁿ|n≥0] = [ y ⁿ|n≥0]
    instance
     _ = snd A[1/ x ]
   lemma : ∀ (s : A) → s ∈ [yⁿ|n≥0] → s ⋆ 1a ∈ A[1/ x ]ˣ
@@ -143,14 +144,14 @@ module Presheaf (A' : CommRing ℓ) where
     RCoh a b (a≼b , b≼a) = fst (isContrS₁⁻¹R≡S₂⁻¹R (≼PowerToLoc.lemma _ _ b≼a)
                                                    (≼PowerToLoc.lemma _ _ a≼b))
      where
-     open AlgLocTwoSubsets A' ([_ⁿ|n≥0] A' a) (powersFormMultClosedSubset _ _)
-                              ([_ⁿ|n≥0] A' b) (powersFormMultClosedSubset _ _)
+     open AlgLocTwoSubsets A' [ a ⁿ|n≥0] (powersFormMultClosedSubset _)
+                              [ b ⁿ|n≥0] (powersFormMultClosedSubset _)
 
     LocPathProp : ∀ a b → isProp (A[1/ a ] ≡ A[1/ b ])
     LocPathProp a b = isPropS₁⁻¹R≡S₂⁻¹R
      where
-     open AlgLocTwoSubsets A' ([_ⁿ|n≥0] A' a) (powersFormMultClosedSubset _ _)
-                              ([_ⁿ|n≥0] A' b) (powersFormMultClosedSubset _ _)
+     open AlgLocTwoSubsets A' [ a ⁿ|n≥0] (powersFormMultClosedSubset _)
+                              [ b ⁿ|n≥0] (powersFormMultClosedSubset _)
 
 
  -- The quotient A/R corresponds to the basic opens of the Zariski topology.
@@ -223,7 +224,7 @@ module Presheaf (A' : CommRing ℓ) where
  ρᴰᴬ : (a b : A) → a ≼ b → isContr (CommAlgebraHom A[1/ b ] A[1/ a ])
  ρᴰᴬ _ b a≼b = A[1/b]HasUniversalProp _ (≼PowerToLoc.lemma _ _ a≼b)
   where
-  open AlgLoc A' ([_ⁿ|n≥0] A' b) (powersFormMultClosedSubset _ _)
+  open AlgLoc A' [ b ⁿ|n≥0] (powersFormMultClosedSubset _)
        renaming (S⁻¹RHasAlgUniversalProp to A[1/b]HasUniversalProp)
 
  ρᴰᴬId : ∀ (a : A) (r : a ≼ a) → ρᴰᴬ a a r .fst ≡ idAlgHom
