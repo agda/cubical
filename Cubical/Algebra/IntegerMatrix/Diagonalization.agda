@@ -175,42 +175,43 @@ simDiagStep simM diag =
          ; firstRowClean = diag .firstRowClean
          ; nonZero = diag .nonZero }
 
-diagStep-helper :
-    (M : Mat (suc m) (suc n))
-  → (p : ¬ M zero zero ≡ 0)(h : Norm (M zero zero))
-  → (div? : DivStatus (M zero zero) M)
-  → DiagStep M
-diagStep-helper M p (acc ind) (badCol i q) =
-  let improved = improveRows M p
-      normIneq =
-        ind _ (stDivIneq p q (improved .div zero) (improved .div (suc i)))
-  in  simDiagStep (improved .sim)
-                  (diagStep-helper _ (improved .nonZero) normIneq (divStatus _ _))
-diagStep-helper M p (acc ind) (badRow j q) =
-  let improved = improveCols M p
-      normIneq =
-        ind _ (stDivIneq p q (improved .div zero) (improved .div (suc j)))
-  in  simDiagStep (improved .sim)
-                  (diagStep-helper _ (improved .nonZero) normIneq (divStatus _ _))
-diagStep-helper M p (acc ind) (allDone div₁ div₂) =
-  let improveColM = improveCols M p
-      invCol = bézoutRows-inv _ p div₂
-      divCol = (λ i → transport (λ t → invCol t zero ∣ invCol t (suc i)) (div₁ i))
-      improveRowM = improveRows (improveColM .sim .result) (improveColM .nonZero)
-      invCol = bézoutRows-inv _ (improveColM .nonZero) divCol
-  in  record
+private
+  diagStep-helper :
+      (M : Mat (suc m) (suc n))
+    → (p : ¬ M zero zero ≡ 0)(h : Norm (M zero zero))
+    → (div? : DivStatus (M zero zero) M)
+    → DiagStep M
+  diagStep-helper M p (acc ind) (badCol i q) =
+    let improved = improveRows M p
+        normIneq =
+          ind _ (stDivIneq p q (improved .div zero) (improved .div (suc i)))
+    in  simDiagStep (improved .sim)
+                    (diagStep-helper _ (improved .nonZero) normIneq (divStatus _ _))
+  diagStep-helper M p (acc ind) (badRow j q) =
+    let improved = improveCols M p
+        normIneq =
+          ind _ (stDivIneq p q (improved .div zero) (improved .div (suc j)))
+    in  simDiagStep (improved .sim)
+                    (diagStep-helper _ (improved .nonZero) normIneq (divStatus _ _))
+  diagStep-helper M p (acc ind) (allDone div₁ div₂) =
+    let improveColM = improveCols M p
+        invCol = bézoutRows-inv _ p div₂
+        divCol = (λ i → transport (λ t → invCol t zero ∣ invCol t (suc i)) (div₁ i))
+        improveRowM = improveRows (improveColM .sim .result) (improveColM .nonZero)
+        invCol = bézoutRows-inv _ (improveColM .nonZero) divCol
+    in  record
         { sim = compSim (improveColM .sim) (improveRowM .sim)
         ; firstColClean = improveRowM .vanish
         ; firstRowClean = (λ j → (λ t → invCol (~ t) (suc j)) ∙ improveColM .vanish j)
         ; nonZero = improveRowM .nonZero }
 
-diagStep-getStart : (M : Mat (suc m) (suc n)) → NonZeroOrNot M → DiagStep M ⊎ (M ≡ 𝟘)
-diagStep-getStart _ (allZero p) = inr p
-diagStep-getStart M (hereIs i j p) =
-  let swapM = swapPivot i j M
-      swapNonZero = (λ r → p (swapM .swapEq ∙ r))
-      diagM = diagStep-helper _ swapNonZero (<-wellfounded _) (divStatus _ _)
-  in  inl (simDiagStep (swapM .sim) diagM)
+  diagStep-getStart : (M : Mat (suc m) (suc n)) → NonZeroOrNot M → DiagStep M ⊎ (M ≡ 𝟘)
+  diagStep-getStart _ (allZero p) = inr p
+  diagStep-getStart M (hereIs i j p) =
+    let swapM = swapPivot i j M
+        swapNonZero = (λ r → p (swapM .swapEq ∙ r))
+        diagM = diagStep-helper _ swapNonZero (<-wellfounded _) (divStatus _ _)
+    in  inl (simDiagStep (swapM .sim) diagM)
 
 diagStep : (M : Mat (suc m) (suc n)) → DiagStep M ⊎ (M ≡ 𝟘)
 diagStep _ = diagStep-getStart _ (findNonZero _)
@@ -274,9 +275,9 @@ diagonalize {m = 0} = diagEmpty
 diagonalize {m = suc m} {n = 0} = diagEmptyᵗ
 diagonalize {m = suc m} {n = suc n} M = helper (diagStep _)
   where
-    helper : DiagStep M ⊎ (M ≡ 𝟘) → Diag M
-    helper (inr p) = subst Diag (sym p) diag𝟘
-    helper (inl stepM) =
-      let sucM = sucMat (stepM .sim .result)
-          diagM = diagReduction _ _ (stepM .nonZero) (diagonalize sucM)
-      in  simDiag (compSim (stepM .sim) (≡Sim (decompDiagStep _ stepM))) diagM
+  helper : DiagStep M ⊎ (M ≡ 𝟘) → Diag M
+  helper (inr p) = subst Diag (sym p) diag𝟘
+  helper (inl stepM) =
+    let sucM = sucMat (stepM .sim .result)
+        diagM = diagReduction _ _ (stepM .nonZero) (diagonalize sucM)
+    in  simDiag (compSim (stepM .sim) (≡Sim (decompDiagStep _ stepM))) diagM

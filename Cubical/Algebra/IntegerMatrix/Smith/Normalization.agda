@@ -118,65 +118,66 @@ record InductionHelper (M : Mat (suc m) (suc n)) : Type where
 
 open InductionHelper
 
-reducePivot-induction-helper :
-    (M : Mat (suc m) (suc n))
-  → (p : ¬ M zero zero ≡ 0)
-  → (j : Fin n)(q : ¬ M zero zero ∣ M zero (suc j))
-  → InductionHelper M
-reducePivot-induction-helper M p j q =
-  let improveColsM = improveCols M p
-      improveM = improveRowsTrick (improveColsM .sim .result) (improveColsM .nonZero)
-  in  record
-      { improved =
+
+private
+  reducePivot-induction-helper :
+      (M : Mat (suc m) (suc n))
+    → (p : ¬ M zero zero ≡ 0)
+    → (j : Fin n)(q : ¬ M zero zero ∣ M zero (suc j))
+    → InductionHelper M
+  reducePivot-induction-helper M p j q =
+    let improveColsM = improveCols M p
+        improveM = improveRowsTrick (improveColsM .sim .result) (improveColsM .nonZero)
+    in  record
+        { improved =
           record
-            { sim = compSim (improveColsM .sim) (improveM .sim)
-            ; const   = improveM .const
-            ; nonZero = improveM .nonZero }
-      ; normIneq =
+          { sim = compSim (improveColsM .sim) (improveM .sim)
+          ; const   = improveM .const
+          ; nonZero = improveM .nonZero }
+        ; normIneq =
           ≤<-trans
             (m∣n→m≤n (¬x≡0→¬abs≡0 (improveColsM .nonZero)) (∣→∣ℕ (improveM .div zero)))
             (stDivIneq p q (improveColsM .div zero) (improveColsM .div (suc j))) }
 
-reducePivot-helper :
-    (M : Mat (suc m) (suc n))
-  → (p : ¬ M zero zero ≡ 0)(h : Norm (M zero zero))
-  → (cst : (i : Fin m) → M (suc i) zero ≡ M zero zero)
-  → (pivot? : PivotOrNot (M zero zero) M)
-  → PivotReduced M
-reducePivot-helper M _ _ _ (noPivot q) .sim     = idSim M
-reducePivot-helper _ p _ _ (noPivot q) .nonZero = p
-reducePivot-helper _ _ _ _ (noPivot q) .div     = q
-reducePivot-helper _ _ _ _ (pivot zero zero q) =
-  Empty.rec (q (∣-refl refl))
-reducePivot-helper M _ _ cst (pivot (suc i) zero q) =
-  Empty.rec (q (subst (λ a → (M zero zero) ∣ a) (sym (cst i)) (∣-refl refl)))
-reducePivot-helper M p (acc ind) _ (pivot zero (suc j) q) =
-  let helperM = reducePivot-induction-helper M p j q
-      reduceM =
-        reducePivot-helper
-          (helperM .improved .sim .result)
-          (helperM .improved .nonZero)
-          (ind _ (helperM .normIneq))
-          (helperM .improved .const) (findPivot _ _)
-  in  simPivotReduced (helperM .improved .sim) reduceM
-reducePivot-helper M p (acc ind) cst (pivot (suc i) (suc j) q) =
-  let swapM = swapFirstRow i M
-      swapNonZero = (λ r → p (sym (cst i) ∙ (swapM .swapEq zero) ∙ r))
-      swapDiv =
-        (transport ((λ t → ¬ cst i (~ t) ∣ M (suc i) (suc j))
-                  ∙ (λ t → ¬ swapM .swapEq zero t ∣ swapM .swapEq (suc j) t)) q)
-      helperM  = reducePivot-induction-helper _ swapNonZero j swapDiv
-      swapNorm =
-        subst (λ a → abs (helperM . improved .sim .result zero zero) < abs a)
-              (sym (sym (cst i) ∙ (swapM .swapEq zero))) (helperM .normIneq)
-      reduceM  =
-        reducePivot-helper
-          (helperM .improved .sim .result)
-          (helperM .improved .nonZero)
-          (ind _ swapNorm)
-          (helperM .improved .const) (findPivot _ _)
-  in  simPivotReduced (compSim (swapM .sim) (helperM .improved .sim)) reduceM
-
+  reducePivot-helper :
+      (M : Mat (suc m) (suc n))
+    → (p : ¬ M zero zero ≡ 0)(h : Norm (M zero zero))
+    → (cst : (i : Fin m) → M (suc i) zero ≡ M zero zero)
+    → (pivot? : PivotOrNot (M zero zero) M)
+    → PivotReduced M
+  reducePivot-helper M _ _ _ (noPivot q) .sim     = idSim M
+  reducePivot-helper _ p _ _ (noPivot q) .nonZero = p
+  reducePivot-helper _ _ _ _ (noPivot q) .div     = q
+  reducePivot-helper _ _ _ _ (pivot zero zero q) =
+    Empty.rec (q (∣-refl refl))
+  reducePivot-helper M _ _ cst (pivot (suc i) zero q) =
+    Empty.rec (q (subst (λ a → (M zero zero) ∣ a) (sym (cst i)) (∣-refl refl)))
+  reducePivot-helper M p (acc ind) _ (pivot zero (suc j) q) =
+    let helperM = reducePivot-induction-helper M p j q
+        reduceM =
+          reducePivot-helper
+            (helperM .improved .sim .result)
+            (helperM .improved .nonZero)
+            (ind _ (helperM .normIneq))
+            (helperM .improved .const) (findPivot _ _)
+    in  simPivotReduced (helperM .improved .sim) reduceM
+  reducePivot-helper M p (acc ind) cst (pivot (suc i) (suc j) q) =
+    let swapM = swapFirstRow i M
+        swapNonZero = (λ r → p (sym (cst i) ∙ (swapM .swapEq zero) ∙ r))
+        swapDiv =
+          (transport ((λ t → ¬ cst i (~ t) ∣ M (suc i) (suc j))
+                    ∙ (λ t → ¬ swapM .swapEq zero t ∣ swapM .swapEq (suc j) t)) q)
+        helperM  = reducePivot-induction-helper _ swapNonZero j swapDiv
+        swapNorm =
+          subst (λ a → abs (helperM . improved .sim .result zero zero) < abs a)
+                (sym (sym (cst i) ∙ (swapM .swapEq zero))) (helperM .normIneq)
+        reduceM  =
+          reducePivot-helper
+            (helperM .improved .sim .result)
+            (helperM .improved .nonZero)
+            (ind _ swapNorm)
+            (helperM .improved .const) (findPivot _ _)
+    in  simPivotReduced (compSim (swapM .sim) (helperM .improved .sim)) reduceM
 
 -- The reduction of pivot
 
@@ -209,17 +210,18 @@ record SmithStep (M : Mat (suc m) (suc n)) : Type where
 
 open SmithStep
 
-smithStep-helper : (M : Mat (suc m) (suc n)) → NonZeroOrNot M → SmithStep M ⊎ (M ≡ 𝟘)
-smithStep-helper _ (allZero p) = inr p
-smithStep-helper M (hereIs i j p) =
-  let swapM = swapPivot i j M
-      swapNonZero = (λ r → p (swapM .swapEq ∙ r))
-      reduceM = reducePivot (swapM .sim .result) swapNonZero
-      improveColM = improveCols (reduceM .sim .result) (reduceM .nonZero)
-      divCol = (λ i j → bézoutRows-commonDivInv _ (reduceM .nonZero) (λ i j → reduceM .div j i) j i)
-      improveRowM = improveRows (improveColM .sim .result) (improveColM .nonZero)
-      invCol = bézoutRows-inv _ (improveColM .nonZero) (λ i → divCol (suc i) zero)
-  in  inl record
+private
+  smithStep-helper : (M : Mat (suc m) (suc n)) → NonZeroOrNot M → SmithStep M ⊎ (M ≡ 𝟘)
+  smithStep-helper _ (allZero p) = inr p
+  smithStep-helper M (hereIs i j p) =
+    let swapM = swapPivot i j M
+        swapNonZero = (λ r → p (swapM .swapEq ∙ r))
+        reduceM = reducePivot (swapM .sim .result) swapNonZero
+        improveColM = improveCols (reduceM .sim .result) (reduceM .nonZero)
+        divCol = (λ i j → bézoutRows-commonDivInv _ (reduceM .nonZero) (λ i j → reduceM .div j i) j i)
+        improveRowM = improveRows (improveColM .sim .result) (improveColM .nonZero)
+        invCol = bézoutRows-inv _ (improveColM .nonZero) (λ i → divCol (suc i) zero)
+    in  inl record
         { sim = compSim (swapM .sim) (compSim (reduceM .sim) (compSim (improveColM .sim) (improveRowM .sim)))
         ; firstColClean = improveRowM .vanish
         ; firstRowClean = (λ j → (λ t → invCol (~ t) (suc j)) ∙ improveColM .vanish j)
@@ -232,13 +234,14 @@ smithStep M = smithStep-helper M (findNonZero _)
 
 -- The main procedure
 
-smithReduction-helper :
-    (M : Mat (suc m) (suc n))(step : SmithStep M)
-  → step .sim .result ≡ step .sim .result zero zero ⊕ sucMat (step .sim .result)
-smithReduction-helper M step t zero zero = step .sim .result zero zero
-smithReduction-helper M step t zero (suc j) = step .firstRowClean j t
-smithReduction-helper M step t (suc i) zero = step .firstColClean i t
-smithReduction-helper M step t (suc i) (suc j) = step .sim .result (suc i) (suc j)
+private
+  smithReduction-helper :
+      (M : Mat (suc m) (suc n))(step : SmithStep M)
+    → step .sim .result ≡ step .sim .result zero zero ⊕ sucMat (step .sim .result)
+  smithReduction-helper M step t zero zero = step .sim .result zero zero
+  smithReduction-helper M step t zero (suc j) = step .firstRowClean j t
+  smithReduction-helper M step t (suc i) zero = step .firstColClean i t
+  smithReduction-helper M step t (suc i) (suc j) = step .sim .result (suc i) (suc j)
 
 consIsSmithNormal :
     (a : ℤ)(M : Mat m n)
@@ -274,11 +277,11 @@ smith {m = 0} = smithEmpty
 smith {m = suc m} {n = 0} = smithEmptyᵗ
 smith {m = suc m} {n = suc n} M = helper (smithStep _)
   where
-    helper : SmithStep M ⊎ (M ≡ 𝟘) → Smith M
-    helper (inr p) = subst Smith (sym p) smith𝟘
-    helper (inl stepM) =
-      let sucM = sucMat (stepM .sim .result)
-          smithM = smithReduction _ _ (stepM .nonZero) (stepM .div) (smith sucM)
-      in  simSmith (compSim (stepM .sim) (≡Sim (smithReduction-helper _ stepM))) smithM
+  helper : SmithStep M ⊎ (M ≡ 𝟘) → Smith M
+  helper (inr p) = subst Smith (sym p) smith𝟘
+  helper (inl stepM) =
+    let sucM = sucMat (stepM .sim .result)
+        smithM = smithReduction _ _ (stepM .nonZero) (stepM .div) (smith sucM)
+    in  simSmith (compSim (stepM .sim) (≡Sim (smithReduction-helper _ stepM))) smithM
 
 -- TODO: The uniqueness of Smith normal form up to unit multiplication.
