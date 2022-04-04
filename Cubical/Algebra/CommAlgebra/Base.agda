@@ -174,7 +174,7 @@ module _ {R : CommRing ℓ} where
   IsRingHom.pres· (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres· (snd f)
   IsRingHom.pres- (snd (CommAlgebraHom→CommRingHom A B f)) = IsAlgebraHom.pres- (snd f)
 
-  module _ {M N : CommAlgebra R ℓ'} where
+  module _ {M : CommAlgebra R ℓ'} {N : CommAlgebra R ℓ''} where
     open CommAlgebraStr {{...}}
     open IsAlgebraHom
     private

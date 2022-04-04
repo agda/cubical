@@ -90,12 +90,10 @@ module _ (Ring@(R , str) : CommRing ℓ) where
                                                             ∙∙ ∑Ext λ i → ·Assoc r (α .fst i) (V i)
 
   generatedIdeal : {n : ℕ} → FinVec R n → IdealsIn Ring
-  generatedIdeal V = makeIdeal Ring
-                               (λ x → isLinearCombination V x , isPropPropTrunc)
-                               (isLinearCombination+ V)
-                               (isLinearCombination0 V)
-                               λ r → isLinearCombinationL· V r
-
+  fst (generatedIdeal V) = λ x → isLinearCombination V x , isPropPropTrunc
+  CommIdeal.isCommIdeal.+Closed (snd (generatedIdeal V)) = isLinearCombination+ V
+  CommIdeal.isCommIdeal.contains0 (snd (generatedIdeal V)) = isLinearCombination0 V
+  CommIdeal.isCommIdeal.·Closed (snd (generatedIdeal V)) = λ r → isLinearCombinationL· V r
 
 open CommIdeal.isCommIdeal
 genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal.CommIdeal R
