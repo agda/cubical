@@ -340,6 +340,7 @@ inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
 inducedHom A φ = Theory.inducedHom A φ
 
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
+  open AlgebraHoms
   A′ = CommAlgebra→Algebra A
   B′ = CommAlgebra→Algebra B
   R′ = (CommRing→Ring R)
