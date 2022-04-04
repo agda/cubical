@@ -3,7 +3,6 @@
 module Cubical.Algebra.MonoidSolver.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)
-open import Cubical.Functions.Logic
 
 open import Agda.Builtin.Reflection hiding (Type)
 open import Agda.Builtin.String
@@ -13,18 +12,16 @@ open import Cubical.Reflection.Base
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
-open import Cubical.Data.Nat.Literals
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Bool
-open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.CommMonoid.Base
 open import Cubical.Algebra.MonoidSolver.Solver renaming (solve to naiveSolve)
 open import Cubical.Algebra.MonoidSolver.CommSolver renaming (solve to naiveCommSolve)
-open import Cubical.Algebra.MonoidSolver.Expression
+open import Cubical.Algebra.MonoidSolver.MonoidExpression
 
 private
   variable

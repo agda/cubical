@@ -11,7 +11,7 @@ open import Cubical.Data.Vec using (Vec; lookup)
 
 open import Cubical.Algebra.Monoid
 
-open import Cubical.Algebra.MonoidSolver.Expression
+open import Cubical.Algebra.MonoidSolver.MonoidExpression
 
 
 private

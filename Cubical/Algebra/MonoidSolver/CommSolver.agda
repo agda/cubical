@@ -10,7 +10,7 @@ open import Cubical.Data.Vec
 
 open import Cubical.Algebra.CommMonoid
 
-open import Cubical.Algebra.MonoidSolver.Expression
+open import Cubical.Algebra.MonoidSolver.MonoidExpression
 
 private
   variable

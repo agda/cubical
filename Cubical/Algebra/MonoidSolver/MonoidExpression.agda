@@ -1,11 +1,10 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.MonoidSolver.Expression where
+module Cubical.Algebra.MonoidSolver.MonoidExpression where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Structure
 
 open import Cubical.Data.FinData
-open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat
 open import Cubical.Data.Vec
 
 open import Cubical.Algebra.CommMonoid

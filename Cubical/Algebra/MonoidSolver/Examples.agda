@@ -2,7 +2,8 @@
 
 module Cubical.Algebra.MonoidSolver.Examples where
 
-open import Cubical.Foundations.Prelude hiding (Type)
+open import Cubical.Foundations.Prelude
+
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.CommMonoid.Base
 open import Cubical.Algebra.MonoidSolver.Reflection
