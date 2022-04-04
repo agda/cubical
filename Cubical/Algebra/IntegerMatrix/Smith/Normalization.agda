@@ -2,14 +2,6 @@
 
 The Existence of Smith Normal Form for Integer Matrices (KANG Rongji, Jan. 2022)
 
-The so-called Smith normal form forms the foundation to study finitely presented abelian groups constructively.
-This file contains the final step to show its existence, and other files have the preliminary results needed.
-
-Referrences:
-  Guillaume Cano, Cyril Cohen, Maxime Dénès, Anders Mörtberg, Vincent Siles,
-  "Formalized linear algebra over Elementary Divisor Rings in Coq"
-  (https://arxiv.org/abs/1601.07472)
-
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.IntegerMatrix.Smith.Normalization where
