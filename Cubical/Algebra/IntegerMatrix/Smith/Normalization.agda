@@ -1,106 +1,69 @@
 {-
 
-Matrix with coefficients in integers
+The Existence of Smith Normal Form for Integer Matrices (KANG Rongji, Jan. 2022)
+
+The so-called Smith normal form forms the foundation to study finitely presented abelian groups constructively.
+This file contains the final step to show its existence, and other files have the preliminary results needed.
+
+Referrences:
+  Guillaume Cano, Cyril Cohen, Maxime Dénès, Anders Mörtberg, Vincent Siles,
+  "Formalized linear algebra over Elementary Divisor Rings in Coq"
+  (https://arxiv.org/abs/1601.07472)
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.Matrix.IntegerCoefficient where
+module Cubical.Algebra.IntegerMatrix.Smith.Normalization where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function hiding (const)
-open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Nat hiding (_·_) renaming (_+_ to _+ℕ_ ; +-assoc to +Assocℕ)
+open import Cubical.Data.Nat
+  hiding   (_·_)
+  renaming (_+_ to _+ℕ_ ; +-assoc to +Assocℕ)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Divisibility
   using    (m∣n→m≤n)
   renaming (∣-trans to ∣ℕ-trans)
-open import Cubical.Data.Int hiding (_+_ ; _·_ ; _-_ ; -_ ; addEq)
+open import Cubical.Data.Int
+  hiding   (_+_ ; _·_ ; _-_ ; -_ ; addEq)
 open import Cubical.Data.Int.Divisibility
 open import Cubical.Data.FinData
-
 open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Unit  as Unit
 open import Cubical.Data.Sum
-open import Cubical.Data.Sigma
-
-open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.Matrix
-open import Cubical.Algebra.Matrix.RowTransformation
 open import Cubical.Algebra.Matrix.CommRingCoefficient
 open import Cubical.Algebra.Matrix.Elementaries
+open import Cubical.Algebra.IntegerMatrix.Base
+open import Cubical.Algebra.IntegerMatrix.Elementaries
+open import Cubical.Algebra.IntegerMatrix.Smith.NormalForm
 
-open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤRing)
+open import Cubical.Algebra.CommRing.Instances.Int
+  renaming (ℤ to ℤRing)
 
+open import Cubical.Relation.Nullary
 open import Cubical.Induction.WellFounded
 
 private
   variable
     m n k : ℕ
 
-open CommRingStr      (ℤRing .snd)
-open Sum              (CommRing→Ring ℤRing)
-
-open Coefficient ℤRing
-open LinearTransformation ℤRing
-open Bézout
-
-open SimRel
+open CommRingStr (ℤRing .snd)
+open Coefficient  ℤRing
 open Sim
+
 
 -- The elementary transformations needed
 
 open ElemTransformation ℤRing
 open ElemTransformationℤ
-
 open SwapFirstRow
 open SwapPivot
-
 open AddFirstRow
-
 open RowsImproved
 open ColsImproved
 
--- Using well-foundedness to do induction
-
-Norm : ℤ → Type
-Norm n = Acc _<_ (abs n)
-
--- Divisibility of matrix elements
-
-∣-sum :
-    (a : ℤ)(V : FinVec ℤ n)
-  → ((i : Fin n) → a ∣ V i)
-  → a ∣ ∑ V
-∣-sum {n = 0} _ _ _ = ∣-zeroʳ
-∣-sum {n = suc n} _ _ p = ∣-+ (p zero) (∣-sum _ _ (p ∘ suc))
-
-∣-left⋆ :
-    (a : ℤ)(M : Mat m n)(N : Mat n k)
-  → ((i : Fin m)(j : Fin n) → a ∣ M i j)
-  →  (i : Fin m)(j : Fin k) → a ∣ (M ⋆ N) i j
-∣-left⋆ a M N div i j =
-  ∣-sum a (λ l → M i l · N l j) (λ l → ∣-left· (div i l))
-
-∣-right⋆ :
-    (a : ℤ)(M : Mat m n)(N : Mat n k)
-  → ((i : Fin n)(j : Fin k) → a ∣ N i j)
-  →  (i : Fin m)(j : Fin k) → a ∣ (M ⋆ N) i j
-∣-right⋆ a M N div i j =
-  ∣-sum a (λ l → M i l · N l j) (λ l → ∣-right· {n = M i l} (div l j))
-
-sim∣ :
-    (a : ℤ)(M : Mat m n)
-  → (sim : Sim M)
-  → ((i : Fin m)(j : Fin n) → a ∣ M i j)
-  →  (i : Fin m)(j : Fin n) → a ∣ sim .result i j
-sim∣ a M sim div i j =
-  subst (a ∣_) (λ t → sim .simrel .transEq (~ t) i j)
-    (∣-left⋆ _ _ (sim .simrel .transMatR)
-    (∣-right⋆ _ (sim .simrel .transMatL) _ div) i j)
 
 -- Operations used in the reduction step
 
@@ -128,20 +91,6 @@ improveRowsTrick M p =
             ∙ +Rid _ ∙ inv₀₀)
         ; nonZero = (λ r → improveM .nonZero (inv₀₀ ∙ r)) }
 
-
--- Find a pivot to begin reduction
-
-data PivotOrNot (a : ℤ)(M : Mat (suc m) (suc n)) : Type where
-  pivot   : (i : Fin (suc m))(j : Fin (suc n))(p : ¬ a ∣ M i j) → PivotOrNot a M
-  noPivot : ((i : Fin (suc m))(j : Fin (suc n)) → a ∣ M i j) → PivotOrNot a M
-
-findPivot : (a : ℤ)(M : Mat (suc m) (suc n)) → PivotOrNot a M
-findPivot a M =
-  let  pivot? = ∀Dec2 (λ i j → a ∣ M i j) (λ _ _ → dec∣ _ _) in
-  case pivot?
-  return (λ _ → PivotOrNot a M) of
-    λ { (inl p) → noPivot p
-      ; (inr p) → pivot  (p .fst) (p .snd .fst) (p . snd .snd) }
 
 -- Reduce the pivot
 
@@ -236,7 +185,8 @@ reducePivot-helper M p (acc ind) cst (pivot (suc i) (suc j) q) =
           (helperM .improved .const) (findPivot _ _)
   in  simPivotReduced (compSim (swapM .sim) (helperM .improved .sim)) reduceM
 
--- The reduction step
+
+-- The reduction of pivot
 
 reducePivot : (M : Mat (suc m) (suc n))(p : ¬ M zero zero ≡ 0) → PivotReduced M
 reducePivot M p =
@@ -249,21 +199,11 @@ reducePivot M p =
           (improveM .const) (findPivot _ _)
   in  simPivotReduced (improveM .sim) reduceM
 
--- Find an non-zero element
-
-data NonZeroOrNot (M : Mat (suc m) (suc n)) : Type where
-  hereIs  : (i : Fin (suc m))(j : Fin (suc n))(p : ¬ M i j ≡ 0) → NonZeroOrNot M
-  allZero : M ≡ 𝟘 → NonZeroOrNot M
-
-findNonZero : (M : Mat (suc m) (suc n)) → NonZeroOrNot M
-findNonZero M =
-  let  nonZero? = ∀Dec2 (λ i j → M i j ≡ 0) (λ _ _ → discreteℤ _ 0) in
-  case nonZero?
-  return (λ _ → NonZeroOrNot M) of
-    λ { (inl p) → allZero (λ t i j → p i j t)
-      ; (inr p) → hereIs  (p .fst) (p .snd .fst) (p . snd .snd) }
 
 -- One induction step towards Smith normal form
+
+open isSmithNormal
+open Smith
 
 record SmithStep (M : Mat (suc m) (suc n)) : Type where
   field
@@ -296,3 +236,57 @@ smithStep-helper M (hereIs i j p) =
 
 smithStep : (M : Mat (suc m) (suc n)) → SmithStep M ⊎ (M ≡ 𝟘)
 smithStep M = smithStep-helper M (findNonZero _)
+
+
+-- The main procedure
+
+smithReduction-helper :
+    (M : Mat (suc m) (suc n))(step : SmithStep M)
+  → step .sim .result ≡ step .sim .result zero zero ⊕ sucMat (step .sim .result)
+smithReduction-helper M step t zero zero = step .sim .result zero zero
+smithReduction-helper M step t zero (suc j) = step .firstRowClean j t
+smithReduction-helper M step t (suc i) zero = step .firstColClean i t
+smithReduction-helper M step t (suc i) (suc j) = step .sim .result (suc i) (suc j)
+
+consIsSmithNormal :
+    (a : ℤ)(M : Mat m n)
+  → (p : ¬ a ≡ 0)
+  → (div : (i : Fin m)(j : Fin n) → a ∣ M i j)
+  → isSmithNormal M → isSmithNormal (a ⊕ M)
+consIsSmithNormal a M p div isNorm =
+  record
+    { divs = cons a (isNorm .divs) (smith∣ a isNorm p div)
+    ; rowNull = isNorm .rowNull
+    ; colNull = isNorm .colNull
+    ; rowEq = (λ t → suc (isNorm .rowEq t))
+    ; colEq = (λ t → suc (isNorm .colEq t))
+    ; matEq = (λ t → a ⊕ isNorm .matEq t) }
+
+smithReduction :
+    (a : ℤ)(M : Mat m n)
+  → (p : ¬ a ≡ 0)
+  → (div : (i : Fin m)(j : Fin n) → a ∣ M i j)
+  → Smith M → Smith (a ⊕ M)
+smithReduction a M p div smithnorm =
+  record
+    { sim = ⊕Sim a (smithnorm .sim)
+    ; isnormal =
+        consIsSmithNormal a _ p
+          (sim∣ _ _ (smithnorm .sim) div)
+          (smithnorm .isnormal) }
+
+-- The Existence of Smith Normal Form
+
+smith : (M : Mat m n) → Smith M
+smith {m = 0} = smithEmpty
+smith {m = suc m} {n = 0} = smithEmptyᵗ
+smith {m = suc m} {n = suc n} M = helper (smithStep _)
+  where
+    helper : SmithStep M ⊎ (M ≡ 𝟘) → Smith M
+    helper (inr p) = subst Smith (sym p) smith𝟘
+    helper (inl stepM) =
+      let sucM = sucMat (stepM .sim .result)
+          smithM = smithReduction _ _ (stepM .nonZero) (stepM .div) (smith sucM)
+      in  simSmith (compSim (stepM .sim) (≡Sim (smithReduction-helper _ stepM))) smithM
+
+-- TODO: The uniqueness of Smith normal form up to unit multiplication.

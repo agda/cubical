@@ -6,7 +6,7 @@ Also, it can be computed much more efficiently (than Smith, only).
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.Matrix.Diagonalization where
+module Cubical.Algebra.IntegerMatrix.Diagonalization where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -33,9 +33,10 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.Matrix
 open import Cubical.Algebra.Matrix.CommRingCoefficient
-open import Cubical.Algebra.Matrix.IntegerCoefficient
 open import Cubical.Algebra.Matrix.RowTransformation
 open import Cubical.Algebra.Matrix.Elementaries
+open import Cubical.Algebra.IntegerMatrix.Base
+open import Cubical.Algebra.IntegerMatrix.Elementaries
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
@@ -148,13 +149,13 @@ divStatus a M =
   let  col? = ∀Dec (λ i → a ∣ M (suc i) zero) (λ _ → dec∣ _ _)
        row? = ∀Dec (λ j → a ∣ M zero (suc j)) (λ _ → dec∣ _ _) in
   case col?
-  return (λ _ → DivStatus a M) of
-    λ { (inr p) → badCol (p .fst) (p .snd)
-      ; (inl p) →
-          case row?
-          return (λ _ → DivStatus a M) of
-            λ { (inr q) → badRow (q .fst) (q .snd)
-              ; (inl q) → allDone p q }}
+  return (λ _ → DivStatus a M) of λ
+  { (inr p) → badCol (p .fst) (p .snd)
+  ; (inl p) →
+      case row?
+      return (λ _ → DivStatus a M) of λ
+      { (inr q) → badRow (q .fst) (q .snd)
+      ; (inl q) → allDone p q }}
 
 record DiagStep (M : Mat (suc m) (suc n)) : Type where
   field

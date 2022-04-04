@@ -1,41 +1,30 @@
 {-
 
-The Existence of Smith Normal Form for Integer Matrices (KANG Rongji, Jan. 2022)
-
-The so-called Smith normal form forms the foundation to study finitely presented abelian groups constructively.
-This file contains the final step to show its existence, and other files have the preliminary results needed.
-
-Referrences:
-  Guillaume Cano, Cyril Cohen, Maxime Dénès, Anders Mörtberg, Vincent Siles,
-  "Formalized linear algebra over Elementary Divisor Rings in Coq"
-  (https://arxiv.org/abs/1601.07472)
+Definition of and facts about Smith normal form
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.Matrix.Smith where
+module Cubical.Algebra.IntegerMatrix.Smith.NormalForm where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat
-  hiding (_·_) renaming (_+_ to _+ℕ_ ; +-assoc to +Assocℕ)
+  hiding   (_·_)
+  renaming (_+_ to _+ℕ_ ; +-assoc to +Assocℕ)
 open import Cubical.Data.Int
-  hiding (_+_ ; _·_ ; _-_ ; -_ ; addEq)
+  hiding   (_+_ ; _·_ ; _-_ ; -_ ; addEq)
 open import Cubical.Data.Int.Divisibility
 open import Cubical.Data.FinData
 
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit  as Unit
-open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
 
 open import Cubical.Relation.Nullary
 
-open import Cubical.Algebra.Matrix
 open import Cubical.Algebra.Matrix.CommRingCoefficient
-open import Cubical.Algebra.Matrix.IntegerCoefficient
-
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
   renaming (ℤ to ℤRing)
@@ -44,11 +33,8 @@ private
   variable
     m n k : ℕ
 
-open CommRingStr      (ℤRing .snd)
+open Coefficient  ℤRing
 
-open Coefficient ℤRing
-open Sim
-open SmithStep
 
 -- Sequence of consecutively divisible integers
 
@@ -76,6 +62,7 @@ cons n (xs , _) _ .fst = n ∷ xs
 cons n ([] , _) p .snd = p , tt
 cons n (x ∷ xs , q) p .snd = p , q
 
+
 -- Smith normal matrix
 
 _+length_ : ConsDivs → ℕ → ℕ
@@ -98,6 +85,7 @@ smithMat⊕ :
   → (div : a ∣all xs .fst)
   → a ⊕ smithMat (xs .fst) m n ≡ smithMat (cons a xs div .fst) m n
 smithMat⊕ _ _ _ = refl
+
 
 -- Matrix with smith normality
 
@@ -130,6 +118,24 @@ smith∣ a isNorm p h =
             (subst-filler Fin (isNorm .colEq) j (~ t))) (h _ _) }
   in  smithMat∣ _ (isNorm .divs) p a∣smith
 
+
+-- Similarity to a normal form
+
+open Sim
+
+record Smith (M : Mat m n) : Type where
+  field
+    sim : Sim M
+    isnormal : isSmithNormal (sim .result)
+
+open Smith
+
+simSmith : {M : Mat m n}(sim : Sim M) → Smith (sim .result) → Smith M
+simSmith simM smith = record { sim = compSim simM (smith .sim) ; isnormal = smith .isnormal }
+
+
+-- Simple special cases of normal matrices
+
 isSmithNormal𝟘 : isSmithNormal (𝟘 {m = m} {n = n})
 isSmithNormal𝟘 {m = m} {n = n} =
   record
@@ -154,18 +160,6 @@ isSmithNormalEmptyᵗ {m = m} M =
     ; rowEq = refl  ; colEq = refl
     ; matEq = isContr→isProp isContrEmptyᵗ _ _ }
 
--- The Smith normalization
-
-record Smith (M : Mat m n) : Type where
-  field
-    sim : Sim M
-    isnormal : isSmithNormal (sim .result)
-
-open Smith
-
-simSmith : {M : Mat m n}(sim : Sim M) → Smith (sim .result) → Smith M
-simSmith simM smith = record { sim = compSim simM (smith .sim) ; isnormal = smith .isnormal }
-
 smith𝟘 : Smith (𝟘 {m = m} {n = n})
 smith𝟘 = record { sim = idSim _ ; isnormal = isSmithNormal𝟘 }
 
@@ -174,54 +168,3 @@ smithEmpty M = record { sim = idSim _ ; isnormal = isSmithNormalEmpty M }
 
 smithEmptyᵗ : (M : Mat m 0) → Smith M
 smithEmptyᵗ M = record { sim = idSim _ ; isnormal = isSmithNormalEmptyᵗ M }
-
-smithReduction-helper :
-    (M : Mat (suc m) (suc n))(step : SmithStep M)
-  → step .sim .result ≡ step .sim .result zero zero ⊕ sucMat (step .sim .result)
-smithReduction-helper M step t zero zero = step .sim .result zero zero
-smithReduction-helper M step t zero (suc j) = step .firstRowClean j t
-smithReduction-helper M step t (suc i) zero = step .firstColClean i t
-smithReduction-helper M step t (suc i) (suc j) = step .sim .result (suc i) (suc j)
-
-consIsSmithNormal :
-    (a : ℤ)(M : Mat m n)
-  → (p : ¬ a ≡ 0)
-  → (div : (i : Fin m)(j : Fin n) → a ∣ M i j)
-  → isSmithNormal M → isSmithNormal (a ⊕ M)
-consIsSmithNormal a M p div isNorm =
-  record
-    { divs = cons a (isNorm .divs) (smith∣ a isNorm p div)
-    ; rowNull = isNorm .rowNull
-    ; colNull = isNorm .colNull
-    ; rowEq = (λ t → suc (isNorm .rowEq t))
-    ; colEq = (λ t → suc (isNorm .colEq t))
-    ; matEq = (λ t → a ⊕ isNorm .matEq t) }
-
-smithReduction :
-    (a : ℤ)(M : Mat m n)
-  → (p : ¬ a ≡ 0)
-  → (div : (i : Fin m)(j : Fin n) → a ∣ M i j)
-  → Smith M → Smith (a ⊕ M)
-smithReduction a M p div smithnorm =
-  record
-    { sim = ⊕Sim a (smithnorm .sim)
-    ; isnormal =
-        consIsSmithNormal a _ p
-          (sim∣ _ _ (smithnorm .sim) div)
-          (smithnorm .isnormal) }
-
--- The Existence of Smith Normal Form
-
-smith : (M : Mat m n) → Smith M
-smith {m = 0} = smithEmpty
-smith {m = suc m} {n = 0} = smithEmptyᵗ
-smith {m = suc m} {n = suc n} M = helper (smithStep _)
-  where
-    helper : SmithStep M ⊎ (M ≡ 𝟘) → Smith M
-    helper (inr p) = subst Smith (sym p) smith𝟘
-    helper (inl stepM) =
-      let sucM = sucMat (stepM .sim .result)
-          smithM = smithReduction _ _ (stepM .nonZero) (stepM .div) (smith sucM)
-      in  simSmith (compSim (stepM .sim) (≡Sim (smithReduction-helper _ stepM))) smithM
-
--- TODO: The uniqueness of Smith normal form up to unit multiplication.
