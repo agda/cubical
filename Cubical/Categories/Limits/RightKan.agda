@@ -112,10 +112,15 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
  N-ob RanNatTrans u = coneOut (RanCone (id C)) (u , id C)
  N-hom RanNatTrans {x = u} {y = v} f =
      Ran .F-hom (K .F-hom f) ⋆⟨ A ⟩ coneOut (RanCone (id C)) (v , id C)
-   ≡⟨ {!!} ⟩
+   ≡⟨ cong (λ g → Ran .F-hom (K .F-hom f) ⋆⟨ A ⟩ g) (sym (RanConeRefl (v , id C))) ⟩
+     Ran .F-hom (K .F-hom f) ⋆⟨ A ⟩ limOut (limitA ((K .F-ob v) ↓Diag) (T* (K .F-ob v))) (v , id C)
+   ≡⟨ limArrowCommutes _ _ _ _ ⟩
      coneOut (RanCone (K .F-hom f)) (v , id C)
-   --   --limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (v , (K .F-hom f))
-   ≡⟨ {!!} ⟩
+   ≡⟨ cong (λ g → limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (v , g))
+                         (⋆IdR C (K .F-hom f) ∙ sym (⋆IdL C (K .F-hom f))) ⟩
      coneOut (RanCone (id C)) (v , K .F-hom f)
    ≡⟨ sym (coneOutCommutes (RanCone (id C)) (f , ⋆IdL C _)) ⟩
      coneOut (RanCone (id C)) (u , id C) ⋆⟨ A ⟩ T .F-hom f ∎
+
+ -- TODO: show that this nat. trans. is a "universal arrow" and that is a nat. iso.
+ -- if K is full and faithful...
