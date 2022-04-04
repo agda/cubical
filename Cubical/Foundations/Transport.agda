@@ -152,3 +152,49 @@ overPathFunct : ∀ {ℓ} {A : Type ℓ} {x y : A} (p q : x ≡ x) (P : x ≡ y)
 overPathFunct p q =
   J (λ y P → transport (λ i → P i ≡ P i) (p ∙ q) ≡ transport (λ i → P i ≡ P i) p ∙ transport (λ i → P i ≡ P i) q)
     (transportRefl (p ∙ q) ∙ cong₂ _∙_ (sym (transportRefl p)) (sym (transportRefl q)))
+
+-- substituting over a composition (P ∘ f) along p is equivalent to
+-- substituting over P along (cong f)
+-- lemma 2.3.10 in The Book
+substFunComp : ∀ {ℓ ℓ'} {A B : Type ℓ} {a a' : A}
+                 → (f : A → B) → (P : B → Type ℓ') → (p : a ≡ a') → (u : P (f a))
+                 → subst (P ∘ f) p u ≡ subst P (cong f p) u
+substFunComp f P p u = J (λ x q → (subst (P ∘ f) q u) ≡ (subst P (cong f q) u))
+  (substRefl {B = P ∘ f} u ∙ sym (substRefl {B = P} u)) p
+
+
+-- substition over families of paths
+-- theorem 2.11.3 in The Book
+substInPaths : ∀ {ℓ} {A B : Type ℓ} {a a' : A}
+                 → (f g : A → B) → (p : a ≡ a') (q : f a ≡ g a)
+                 → subst (λ x → f x ≡ g x) p q ≡ sym (cong f p) ∙ q ∙ cong g p
+substInPaths {a = a} f g p q =
+  J (λ x p' → (subst (λ y → f y ≡ g y) p' q) ≡ (sym (cong f p') ∙ q ∙ cong g p'))
+    p=refl p
+    where
+    p=refl : subst (λ y → f y ≡ g y) refl q
+           ≡ (λ i → f (refl {x = a} (~ i))) ∙ q ∙ (λ i → g (refl {x = a} i))
+    p=refl = subst (λ y → f y ≡ g y) refl q
+           ≡⟨ substRefl {B = (λ y → f y ≡ g y)} q ⟩ q
+           ≡⟨ (rUnit q) ∙ lUnit (q ∙ refl) ⟩ refl {x = f a} ∙ q ∙ refl {x = g a} ∎
+
+-- special cases of substInPaths from lemma 2.11.2 in The Book
+module _ {ℓ : Level} {A : Type ℓ} {a x1 x2 : A} (p : x1 ≡ x2) where
+  a=x : (q : a ≡ x1) → subst (λ x → a ≡ x) p q ≡ q ∙ p
+  a=x q = subst (λ x → a ≡ x) p q
+    ≡⟨ substInPaths (λ _ → a) (λ x → x) p q ⟩
+      sym (cong (λ _ → a) p) ∙ q ∙ cong (λ x → x) p
+    ≡⟨ assoc (λ _ → a) q p ⟩
+      (refl ∙ q) ∙ p
+    ≡⟨ cong (_∙ p) (sym (lUnit q)) ⟩ q ∙ p ∎
+
+  x=a : (q : x1 ≡ a) → subst (λ x → x ≡ a) p q ≡ sym p ∙ q
+  x=a q = subst (λ x → x ≡ a) p q
+    ≡⟨ substInPaths (λ x → x) (λ _ → a) p q ⟩
+      sym (cong (λ x → x) p) ∙ q ∙ cong (λ _ → a) p
+    ≡⟨ assoc (sym p) q refl ⟩
+      (sym p ∙ q) ∙ refl
+    ≡⟨ sym (rUnit (sym p ∙ q))⟩ sym p ∙ q ∎
+
+  x=x : (q : x1 ≡ x1) → subst (λ x → x ≡ x) p q ≡ sym p ∙ q ∙ p
+  x=x q = substInPaths (λ x → x) (λ x → x) p q
