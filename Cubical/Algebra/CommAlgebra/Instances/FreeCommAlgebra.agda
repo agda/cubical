@@ -32,12 +32,14 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function hiding (const)
+open import Cubical.Foundations.Isomorphism
+
+open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
+open import Cubical.HITs.SetTruncation
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Ring        using ()
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.Algebra
-open import Cubical.HITs.SetTruncation
 
 private
   variable
@@ -190,7 +192,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
     open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
     open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
 
-    Hom = AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+    Hom = CommAlgebraHom  (R [ I ]) A
     open IsAlgebraHom
 
     evaluateAt : Hom → I → ⟨ A ⟩
@@ -417,14 +419,28 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
 
 
 evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
-             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A))
-             → (I → ⟨ A ⟩)
+             (f : CommAlgebraHom (R [ I ]) A)
+             → (I → fst A)
 evaluateAt A f x = f $a (Construction.var x)
 
 inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
-             (φ : I → ⟨ A ⟩)
-             → AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+             (φ : I → fst A )
+             → CommAlgebraHom (R [ I ]) A
 inducedHom A φ = Theory.inducedHom A φ
+
+
+homMapIso : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
+             → Iso (CommAlgebraHom (R [ I ]) A) (I → (fst A))
+Iso.fun (homMapIso A) = evaluateAt A
+Iso.inv (homMapIso A) = inducedHom A
+Iso.rightInv (homMapIso A) = λ ϕ → Theory.mapRetrievable A ϕ
+Iso.leftInv (homMapIso {R = R} {I = I} A) =
+  λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
+               (Theory.homRetrievable A f)
+
+homMapPath : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
+             → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
+homMapPath A = isoToPath (homMapIso A)
 
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
   open AlgebraHoms
@@ -439,9 +455,9 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
          ↓          ↓
     Hom(R[I],B) → (I → B)
   -}
-  naturalR : {I : Type ℓ'} (ψ : AlgebraHom A′ B′)
-             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) A′)
-             → (ν ψ) ∘ evaluateAt A f ≡ evaluateAt B (ψ ∘a f)
+  naturalR : {I : Type ℓ'} (ψ : CommAlgebraHom A B)
+             (f : CommAlgebraHom (R [ I ]) A)
+             → (fst ψ) ∘ evaluateAt A f ≡ evaluateAt B (ψ ∘a f)
   naturalR ψ f = refl
 
   {-
@@ -450,7 +466,7 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
     Hom(R[J],A) → (J → A)
   -}
   naturalL : {I J : Type ℓ'} (φ : J → I)
-             (f : AlgebraHom (CommAlgebra→Algebra (R [ I ])) A′)
+             (f : CommAlgebraHom (R [ I ]) A)
              → (evaluateAt A f) ∘ φ
                ≡ evaluateAt A (f ∘a (inducedHom (R [ I ]) (λ x → Construction.var (φ x))))
   naturalL φ f = refl
