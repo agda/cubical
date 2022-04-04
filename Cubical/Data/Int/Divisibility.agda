@@ -15,17 +15,18 @@ open import Cubical.Data.Nat
   hiding   (+-assoc ; +-comm ; ·-comm)
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Nat.Divisibility using (m∣n→m≤n)
+open import Cubical.Data.Nat.Divisibility
+  using    (m∣n→m≤n)
   renaming (_∣_ to _∣ℕ_ ; isProp∣ to isProp∣ℕ ; stDivIneq to stDivIneqℕ)
 open import Cubical.Data.Nat.Mod
-open import Cubical.Data.Int hiding (_+_ ; _·_ ; _-_ ; -_ ; addEq ; ·Comm ; ·Assoc ; +Comm ; +Assoc)
+open import Cubical.Data.Int
+  hiding   (_+_ ; _·_ ; _-_ ; -_ ; addEq ; ·Comm ; ·Assoc ; +Comm ; +Assoc)
 
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as Prop
-
 open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommRing
@@ -198,7 +199,7 @@ record Bézout (m n : ℤ) : Type where
     coef₂ : ℤ
     gcd   : ℤ
     identity : coef₁ · m + coef₂ · n ≡ gcd
-    isGCD : (gcd ∣ m) × (gcd ∣ n)
+    isCD : (gcd ∣ m) × (gcd ∣ n)
 
 open Bézout
 
@@ -207,15 +208,15 @@ Bézout0 n .coef₁ = 0
 Bézout0 n .coef₂ = 1
 Bézout0 n .gcd   = n
 Bézout0 n .identity = +Comm 0 n
-Bézout0 n .isGCD = ∣-zeroʳ , ∣-refl refl
+Bézout0 n .isCD = ∣-zeroʳ , ∣-refl refl
 
 bézoutReduction : (m d r : ℤ) → Bézout r m → Bézout m (d · m + r)
 bézoutReduction m d r b .coef₁ = - b .coef₁ · d + b .coef₂
 bézoutReduction m d r b .coef₂ = b .coef₁
 bézoutReduction m d r b .gcd   = b .gcd
 bézoutReduction m d r b .identity = helper1 (b .coef₁) (b .coef₂) m d r ∙ b .identity
-bézoutReduction m d r b .isGCD .fst = b .isGCD .snd
-bézoutReduction m d r b .isGCD .snd = ∣-+ (∣-right· {n = d} (b .isGCD .snd)) (b .isGCD .fst)
+bézoutReduction m d r b .isCD .fst = b .isCD .snd
+bézoutReduction m d r b .isCD .snd = ∣-+ (∣-right· {n = d} (b .isCD .snd)) (b .isCD .fst)
 
 -- Properties of Bézout identity
 
@@ -230,23 +231,23 @@ module _
     subst (k ∣_) (b .identity) (∣-+ (∣-right· {n = b .coef₁} p) (∣-right· {n = b .coef₂} q))
 
   gcd≡0 : g ≡ 0 → (m ≡ 0) × (n ≡ 0)
-  gcd≡0 p .fst = sym (∣-zeroˡ (subst (λ a → a ∣ _) p (b .isGCD .fst)))
-  gcd≡0 p .snd = sym (∣-zeroˡ (subst (λ a → a ∣ _) p (b .isGCD .snd)))
+  gcd≡0 p .fst = sym (∣-zeroˡ (subst (λ a → a ∣ _) p (b .isCD .fst)))
+  gcd≡0 p .snd = sym (∣-zeroˡ (subst (λ a → a ∣ _) p (b .isCD .snd)))
 
   ¬m≡0→¬gcd≡0 : ¬ m ≡ 0 → ¬ g ≡ 0
   ¬m≡0→¬gcd≡0 p q = p (gcd≡0 q .fst)
 
   div₁ div₂ : ℤ
-  div₁ = divide (b .isGCD .fst)
-  div₂ = divide (b .isGCD .snd)
+  div₁ = divide (b .isCD .fst)
+  div₂ = divide (b .isCD .snd)
 
   div·-helper : g · (div₁ · n) ≡ g · (div₂ · m)
   div·-helper =
       ·Assoc g div₁ n
     ∙ (λ i → ·Comm g div₁ i · n)
-    ∙ (λ i → divideEq (b .isGCD .fst) i · n)
+    ∙ (λ i → divideEq (b .isCD .fst) i · n)
     ∙ ·Comm m n
-    ∙ (λ i → divideEq (b .isGCD .snd) (~ i) · m)
+    ∙ (λ i → divideEq (b .isCD .snd) (~ i) · m)
     ∙ (λ i → ·Comm div₂ g i · m)
     ∙ sym (·Assoc g div₂ m)
 
