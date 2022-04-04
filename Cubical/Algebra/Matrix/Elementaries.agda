@@ -383,7 +383,7 @@ module ElemTransformationℤ where
         detEq : det2×2 bézout2Mat · b .gcd ≡ b .gcd
         detEq =
             helper1 (b .coef₁) (b .coef₂) _ _ _
-          ∙ (λ t → b .coef₁ · divideEq (b .isGCD .fst) t + b .coef₂ · divideEq (b .isGCD .snd) t)
+          ∙ (λ t → b .coef₁ · divideEq (b .isCD .fst) t + b .coef₂ · divideEq (b .isCD .snd) t)
           ∙ b .identity
 
         det≡1 : det2×2 bézout2Mat ≡ 1
@@ -406,10 +406,10 @@ module ElemTransformationℤ where
     bézout2Rows-vanish = div·- b
 
     bézout2Rows-div₁ : (n : ℤ) → M zero zero ∣ n → bézout2Rows zero zero ∣ n
-    bézout2Rows-div₁ n p = subst (λ a → a ∣ n) (sym (b .identity)) (∣-trans (b .isGCD .fst) p)
+    bézout2Rows-div₁ n p = subst (λ a → a ∣ n) (sym (b .identity)) (∣-trans (b .isCD .fst) p)
 
     bézout2Rows-div₂ : (n : ℤ) → M one  zero ∣ n → bézout2Rows zero zero ∣ n
-    bézout2Rows-div₂ n p = subst (λ a → a ∣ n) (sym (b .identity)) (∣-trans (b .isGCD .snd) p)
+    bézout2Rows-div₂ n p = subst (λ a → a ∣ n) (sym (b .identity)) (∣-trans (b .isCD .snd) p)
 
     bézout2Rows-nonZero : ¬ M zero zero ≡ 0 → ¬ bézout2Rows zero zero ≡ 0
     bézout2Rows-nonZero p r =
