@@ -184,3 +184,7 @@ leftInv Σ⊎Iso (inr b , eb) = refl
 
 Σ⊎≃ : (Σ (A ⊎ B) E) ≃ ((Σ A (λ a → E (inl a))) ⊎ (Σ B (λ b → E (inr b))))
 Σ⊎≃ = isoToEquiv Σ⊎Iso
+
+map-⊎ : (A → C) → (B → D) → A ⊎ B → C ⊎ D
+map-⊎ f _ (inl a) = inl (f a)
+map-⊎ _ g (inr b) = inr (g b)

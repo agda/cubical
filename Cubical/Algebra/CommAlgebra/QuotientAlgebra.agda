@@ -5,9 +5,11 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_)
+open import Cubical.Foundations.Structure
 
 open import Cubical.HITs.SetQuotients hiding (_/_)
 open import Cubical.Data.Unit
+open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.QuotientRing renaming (_/_ to _/CommRing_) hiding ([_]/)
@@ -17,9 +19,12 @@ open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.Kernel
 open import Cubical.Algebra.CommAlgebra.Instances.Terminal
-open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
+open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
+open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.Algebra.Properties
+open AlgebraHoms using () renaming (compAlgebraHom to compCAlgHom)
 
 private
   variable
@@ -107,7 +112,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
 
   open IsAlgebraHom
   inducedHom : (B : CommAlgebra R ℓ) (ϕ : CommAlgebraHom A B)
-               → (fst I) ⊆ (fst (kernel {A = A} {B = B} ϕ))
+               → (fst I) ⊆ (fst (kernel A B ϕ))
                → CommAlgebraHom (A / I) B
   fst (inducedHom B ϕ I⊆kernel) =
     let open RingTheory (CommRing→Ring (CommAlgebra→CommRing B))
@@ -131,6 +136,16 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   pres- (snd (inducedHom B ϕ kernel⊆I)) = elimProp (λ _ → isSetCommAlgebra B _ _) (pres- (snd ϕ))
   pres⋆ (snd (inducedHom B ϕ kernel⊆I)) = λ r → elimProp (λ _ → isSetCommAlgebra B _ _) (pres⋆ (snd ϕ) r)
 
+  injectivePrecomp : (B : CommAlgebra R ℓ) (f g : CommAlgebraHom (A / I) B)
+                     → compCAlgHom (quotientMap A I) f ≡ compCAlgHom (quotientMap A I) g
+                     → f ≡ g
+  injectivePrecomp B f g p =
+    Σ≡Prop
+      (λ h → isPropIsAlgebraHom (CommRing→Ring R) (snd (CommAlgebra→Algebra (A / I))) h (snd (CommAlgebra→Algebra B)))
+      (descendMapPath (fst f) (fst g) (isSetCommAlgebra B)
+                      λ x → λ i → fst (p i) x)
+
+
 {- trivial quotient -}
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open CommAlgebraStr (snd A)
@@ -153,7 +168,23 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
                     λ _ → refl)
   snd zeroIdealQuotient = snd (quotientMap A (0Ideal A))
 
-
 [_]/ : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
        → (a : fst A) → fst (A / I)
 [ a ]/ = [ a ]
+
+private
+  module _ (R : CommRing ℓ) where
+    open CommRingStr (snd R)
+    lemma : (y : (fst R)) → y ≡ y - 0r
+    lemma = solve R
+
+
+isZeroFromIdeal : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
+                  → (x : ⟨ A ⟩) → x ∈ (fst I) → fst (quotientMap A I) x ≡ CommAlgebraStr.0a (snd (A / I))
+isZeroFromIdeal {A = A} {I = I} x x∈I = eq/ x 0a (subst (λ y → y ∈ (fst I)) step x∈I )
+  where
+    open CommAlgebraStr (snd A)
+    step : x ≡ x - 0a
+    step = lemma (CommAlgebra→CommRing A) x
+    0' : ⟨ A / I ⟩
+    0' = fst (quotientMap A I) 0a

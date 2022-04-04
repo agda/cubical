@@ -2,6 +2,8 @@
 module Cubical.Algebra.CommAlgebra.Instances.Terminal where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
@@ -10,6 +12,8 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
 open import Cubical.Algebra.CommRing.Instances.Unit
+
+open import Cubical.Algebra.RingSolver.Reflection
 
 private
   variable
@@ -40,3 +44,23 @@ module _ (R : CommRing ℓ) where
       where path : (ϕ : CommAlgebraHom A terminalCAlg) → terminalMap ≡ ϕ
             path ϕ = Σ≡Prop (isPropIsCommAlgebraHom {M = A} {N = terminalCAlg})
                             λ i _ → isPropUnit* _ _ i
+
+    open CommAlgebraStr (snd A)
+    module _ (1≡0 : 1a ≡ 0a) where
+
+      1≡0→isContr : isContr ⟨ A ⟩
+      1≡0→isContr = 0a , λ a →
+        0a      ≡⟨ step1 a ⟩
+        a · 0a  ≡⟨ cong (λ b → a · b) (sym 1≡0) ⟩
+        a · 1a  ≡⟨ step2 a ⟩
+        a       ∎
+          where S = CommAlgebra→CommRing A
+                open CommRingStr (snd S) renaming (_·_ to _·s_)
+                step1 : (x : ⟨ A ⟩) → 0r ≡ x ·s 0r
+                step1 = solve S
+                step2 : (x : ⟨ A ⟩) → x ·s 1r ≡ x
+                step2 = solve S
+
+      equivFrom1≡0 : CommAlgebraEquiv A terminalCAlg
+      equivFrom1≡0 = isContr→Equiv 1≡0→isContr isContrUnit*  ,
+                     snd terminalMap

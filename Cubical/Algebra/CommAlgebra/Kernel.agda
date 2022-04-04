@@ -15,7 +15,7 @@ private
   variable
     ℓ : Level
 
-module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ} (ϕ : CommAlgebraHom A B) where
+module _ {R : CommRing ℓ} (A B : CommAlgebra R ℓ) (ϕ : CommAlgebraHom A B) where
 
   kernel : IdealsIn A
   kernel = Ideal→CommIdeal (ringKernel (CommAlgebraHom→RingHom {A = A} {B = B} ϕ))

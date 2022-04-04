@@ -21,6 +21,7 @@ module Cubical.HITs.Pushout.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.GroupoidLaws
@@ -507,3 +508,33 @@ module _ {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
 
   pushoutEquiv : Pushout f₁ g₁ ≃ Pushout f₂ g₂
   pushoutEquiv = isoToEquiv pushoutIso
+
+module PushoutDistr {ℓ ℓ' ℓ'' ℓ''' : Level}
+  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+  (f : B → A) (g : C → B) (h : C → D) where
+  PushoutDistrFun : Pushout {C = Pushout g h} f inl → Pushout (f ∘ g) h
+  PushoutDistrFun (inl x) = inl x
+  PushoutDistrFun (inr (inl x)) = inl (f x)
+  PushoutDistrFun (inr (inr x)) = inr x
+  PushoutDistrFun (inr (push a i)) = push a i
+  PushoutDistrFun (push a i) = inl (f a)
+
+  PushoutDistrInv : Pushout (f ∘ g) h → Pushout {C = Pushout g h} f inl
+  PushoutDistrInv (inl x) = inl x
+  PushoutDistrInv (inr x) = inr (inr x)
+  PushoutDistrInv (push c i) = (push (g c) ∙ λ j → inr (push c j)) i
+
+  PushoutDistrIso : Iso (Pushout {C = Pushout g h} f inl) (Pushout (f ∘ g) h)
+  fun PushoutDistrIso = PushoutDistrFun
+  inv PushoutDistrIso = PushoutDistrInv
+  rightInv PushoutDistrIso (inl x) = refl
+  rightInv PushoutDistrIso (inr x) = refl
+  rightInv PushoutDistrIso (push a i) j =
+      (cong-∙ (fun PushoutDistrIso) (push (g a)) (λ j → inr (push a j))
+    ∙ sym (lUnit _)) j i
+  leftInv PushoutDistrIso (inl x) = refl
+  leftInv PushoutDistrIso (inr (inl x)) = push x
+  leftInv PushoutDistrIso (inr (inr x)) = refl
+  leftInv PushoutDistrIso (inr (push a i)) j =
+    compPath-filler' (push (g a)) (λ j → inr (push a j)) (~ j) i
+  leftInv PushoutDistrIso (push a i) j = push a (i ∧ j)

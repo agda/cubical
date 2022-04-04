@@ -59,7 +59,21 @@ module _ (L' : DistLattice ℓ) where
   constructor
    isbasis
   field
-   contains0 : 0l ∈ S
+   contains1 : 1l ∈ S
    ∧lClosed : ∀ (x y : L) → x ∈ S → y ∈ S → x ∧l y ∈ S
    ⋁Basis : ∀ (x : L) → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec L n ] (∀ i → α i ∈ S) × (⋁ α ≡ x)
 
+ open IsBasis
+ open SemilatticeStr
+ Basis→MeetSemilattice : (S : ℙ L) → IsBasis S → Semilattice ℓ
+ fst (Basis→MeetSemilattice S isBasisS) = Σ[ l ∈ L ] (l ∈ S)
+ ε (snd (Basis→MeetSemilattice S isBasisS)) = 1l , isBasisS .contains1
+ _·_ (snd (Basis→MeetSemilattice S isBasisS)) x y = fst x ∧l fst y
+                                                  , isBasisS .∧lClosed _ _ (snd x) (snd y)
+ isSemilattice (snd (Basis→MeetSemilattice S isBasisS)) = makeIsSemilattice
+   (isSetΣ (isSetDistLattice L') λ _ → isProp→isSet (S _ .snd))
+     (λ _ _ _ → Σ≡Prop (λ _ → S _ .snd) (∧lAssoc _ _ _))
+       (λ _ → Σ≡Prop (λ _ → S _ .snd) (∧lRid _))
+         (λ _ → Σ≡Prop (λ _ → S _ .snd) (∧lLid _))
+           (λ _ _ → Σ≡Prop (λ _ → S _ .snd) (∧lComm _ _))
+             λ _ → Σ≡Prop (λ _ → S _ .snd) (∧lIdem _)

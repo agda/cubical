@@ -27,7 +27,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
 open import Cubical.HITs.TypeQuotients as TypeQuot using (_/ₜ_ ; [_] ; eq/)
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥ ; ∣_∣ ; squash)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥ ; ∣_∣ ; squash) renaming (rec to propRec)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣₂ ; squash₂
                                                               ; isSetSetTrunc)
 
@@ -35,8 +35,8 @@ open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣�
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A B C : Type ℓ
-    R S T : A → A → Type ℓ
+    A B C Q : Type ℓ
+    R S T W : A → A → Type ℓ
 
 elimProp : {P : A / R → Type ℓ}
   → (∀ x → isProp (P x))
@@ -66,6 +66,14 @@ elimProp3 : {P : A / R → B / S → C / T → Type ℓ}
 elimProp3 prop f =
   elimProp (λ x → isPropΠ2 (prop x)) λ a →
   elimProp2 (prop [ a ]) (f a)
+
+elimProp4 : {P : A / R → B / S → C / T → Q / W → Type ℓ}
+  → (∀ x y z t → isProp (P x y z t))
+  → (∀ a b c d → P [ a ] [ b ] [ c ] [ d ])
+  → ∀ x y z t → P x y z t
+elimProp4 prop f =
+  elimProp (λ x → isPropΠ3 (prop x)) λ a →
+  elimProp3 (prop [ a ]) (f a)
 
 -- sometimes more convenient:
 elimContr : {P : A / R → Type ℓ}
@@ -332,3 +340,17 @@ Iso.fun (relBiimpl→TruncIso R→S S→R) = rec squash/ [_] λ _ _ Rab → eq/ 
 Iso.inv (relBiimpl→TruncIso R→S S→R) = rec squash/ [_] λ _ _ Sab → eq/ _ _ (S→R Sab)
 Iso.rightInv (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
 Iso.leftInv (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
+
+descendMapPath : {M : Type ℓ} (f g : A / R → M) (isSetM : isSet M)
+               → ((x : A) → f [ x ] ≡ g [ x ])
+               → f ≡ g
+descendMapPath f g isSetM path i x =
+  propRec
+    (isSetM (f x) (g x))
+    (λ {(x' , p) →
+                        f x        ≡⟨ cong f (sym p) ⟩
+                        f [ x' ]   ≡⟨ path x' ⟩
+                        g [ x' ]   ≡⟨ cong g p ⟩
+                        g x   ∎ })
+    ([]surjective x)
+    i
