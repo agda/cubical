@@ -15,6 +15,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Int
 
@@ -41,8 +42,16 @@ _→ₛ_ : (A B : Spectrum ℓ) → Type ℓ
 A →ₛ B = Σ[ f ∈ ((k : ℤ) → space A k →∙ space B k) ]
           IsPrespectrumMor {A = prespectrum A} {B = prespectrum B} f
 
-idₛ : (A : Spectrum ℓ) → (A →ₛ A)
-idₛ A = (λ k → idfun∙ (space A k)) , λ k → {!!}
+idₛ : (A : Spectrum ℓ) → A →ₛ A
+idₛ A = (λ k → id∙ (space A k)) , λ k → {!!}
+    where commΩid : (k : _) → Ω→ (id∙ (space (prespectrum A) (sucℤ k))) ≡ id∙ (Ω (space (prespectrum A) (sucℤ k)))
+          commΩid k i = (λ p → eq p i) , {!!}
+            where eq : (p : _ ≡ _) → sym refl ∙∙ p ∙∙ refl ≡ p
+                  eq p = sym refl ∙∙ p ∙∙ refl ≡⟨ doubleCompPath-elim (sym refl) p refl ⟩
+                         (sym refl ∙ p) ∙ refl ≡⟨ sym (rUnit _) ⟩
+                         sym refl ∙ p          ≡⟨ cong (λ u → u ∙ p) (sym symRefl) ⟩
+                         refl ∙ p              ≡⟨ sym (lUnit p) ⟩
+                         p ∎
 
 _∘ₛ_ : {A B C : Spectrum ℓ}
      → (B →ₛ C) → (A →ₛ B) → (A →ₛ C)
