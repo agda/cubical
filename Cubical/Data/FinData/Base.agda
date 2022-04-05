@@ -20,6 +20,7 @@ data Fin : ℕ → Type₀ where
 
 -- useful pattern
 pattern one = suc zero
+pattern two = suc one
 
 toℕ : ∀ {n} → Fin n → ℕ
 toℕ zero    = 0
