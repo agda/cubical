@@ -360,18 +360,26 @@ module GeneratingPowersGeneral (R' : CommRing ℓ) (n : ℕ) where
   _ⁿ : {m : ℕ} → FinVec R m → FinVec R m
   U ⁿ = λ i → U i ^ n
 
- lemma : (m : ℕ) (α U : FinVec R m)
-        → 1r ∈ ⟨ U ⟩
-        → (linearCombination R' α U) ^ (m ·ℕ n) ∈ ⟨ U ⁿ ⟩
- lemma ℕzero _ _ 1∈⟨U⟩ = 1∈⟨U⟩
- lemma (ℕsuc m) α U 1∈⟨U⟩ = subst-∈ ⟨ U ⁿ ⟩ (sym (BinomialThm (n +ℕ m ·ℕ n) x y)) ∑Binomial∈⟨Uⁿ⟩
+
+ lemma : (m : ℕ) (α U : FinVec R (ℕsuc m))
+       → (linearCombination R' α U) ^ ((ℕsuc m) ·ℕ n) ∈ ⟨ U ⁿ ⟩
+ lemma ℕzero α U = ∣ α ⁿ , path ∣
+  where
+  path : (α zero · U zero + 0r) ^ (n +ℕ 0) ≡ α zero ^ n · U zero ^ n + 0r
+  path = (α zero · U zero + 0r) ^ (n +ℕ 0) ≡⟨ cong (_^ (n +ℕ 0)) (+Rid _) ⟩
+         (α zero · U zero) ^ (n +ℕ 0)      ≡⟨ cong ((α zero · U zero) ^_) (+-zero n) ⟩
+         (α zero · U zero) ^ n             ≡⟨ ^-ldist-· _ _ n ⟩
+         α zero ^ n · U zero ^ n           ≡⟨ sym (+Rid _) ⟩
+         α zero ^ n · U zero ^ n + 0r ∎
+
+ lemma (ℕsuc m) α U = subst-∈ ⟨ U ⁿ ⟩ (sym (BinomialThm (n +ℕ (ℕsuc m) ·ℕ n) x y)) ∑Binomial∈⟨Uⁿ⟩
   where
   x = α zero · U zero
   y = linearCombination R' (α ∘ suc) (U ∘ suc)
   -- refl : x + y ≡ linearCombination R' α U
 
-  binomialSummand∈⟨Uⁿ⟩ : ∀ (i : Fin _) → BinomialVec (n +ℕ m ·ℕ n) x y i ∈ ⟨ U ⁿ ⟩
-  binomialSummand∈⟨Uⁿ⟩ i with ≤-+-split n (m ·ℕ n) (toℕ i) (pred-≤-pred (toℕ<n i))
+  binomialSummand∈⟨Uⁿ⟩ : ∀ (i : Fin _) → BinomialVec (n +ℕ (ℕsuc m) ·ℕ n) x y i ∈ ⟨ U ⁿ ⟩
+  binomialSummand∈⟨Uⁿ⟩ i with ≤-+-split n ((ℕsuc m) ·ℕ n) (toℕ i) (pred-≤-pred (toℕ<n i))
   ... | inl n≤i = subst-∈ ⟨ U ⁿ ⟩ (·CommAssocr _ _ (x ^ (toℕ i)))
                                   (⟨ U ⁿ ⟩ .snd .·Closed _ (xHelper (toℕ i) n≤i))
    where
@@ -389,27 +397,37 @@ module GeneratingPowersGeneral (R' : CommRing ℓ) (n : ℕ) where
          ≡⟨ sym (^-ldist-· (α zero) (U zero) k) ⟩
            x ^ k ∎
 
-  ... | inr mn≤n+mn-i = ⟨ U ⁿ ⟩ .snd .·Closed _ (yHelper (toℕ i) mn≤n+mn-i)
+  ... | inr [m+1]n≤n+[m+1]n-i = ⟨ U ⁿ ⟩ .snd .·Closed _ (yHelper (toℕ i) [m+1]n≤n+[m+1]n-i)
    where
-   inductiveStep : y ^ (m ·ℕ n) ∈ ⟨ (U ∘ suc) ⁿ ⟩
-   inductiveStep = lemma m (α ∘ suc) (U ∘ suc) {!!}
+   powSucIncl : ⟨ (U ∘ suc) ⁿ ⟩ ⊆ ⟨ U ⁿ ⟩
+   powSucIncl = inclOfFGIdeal R' ((U ∘ suc) ⁿ) ⟨ U ⁿ ⟩ (λ i → indInIdeal R' (U ⁿ) (suc i))
 
-   yHelper : ∀ k → m ·ℕ n ≤ n +ℕ m ·ℕ n ∸ k → y ^ (n +ℕ m ·ℕ n ∸ k) ∈ ⟨ U ⁿ ⟩
-   yHelper k mn≤n+mn-k = {!!}
+   inductiveStep : y ^ ((ℕsuc m) ·ℕ n) ∈ ⟨ U ⁿ ⟩
+   inductiveStep = powSucIncl _ (lemma m (α ∘ suc) (U ∘ suc))
 
-  ∑Binomial∈⟨Uⁿ⟩ : ∑ (BinomialVec (n +ℕ m ·ℕ n) x y) ∈ ⟨ U ⁿ ⟩
+   yHelper : ∀ k → (ℕsuc m) ·ℕ n ≤ n +ℕ (ℕsuc m) ·ℕ n ∸ k → y ^ (n +ℕ (ℕsuc m) ·ℕ n ∸ k) ∈ ⟨ U ⁿ ⟩
+   yHelper k [m+1]n≤n+[m+1]n-k = subst-∈ ⟨ U ⁿ ⟩ path (⟨ U ⁿ ⟩ .snd .·Closed _ inductiveStep)
+    where
+    n+[m+1]n-k = n +ℕ (ℕsuc m) ·ℕ n ∸ k
+    [m+1]n = (ℕsuc m) ·ℕ n
+    path : y ^ (n+[m+1]n-k ∸ [m+1]n) · y ^ [m+1]n ≡ y ^ n+[m+1]n-k
+    path = y ^ (n+[m+1]n-k ∸ [m+1]n) · y ^ [m+1]n ≡⟨ ·-of-^-is-^-of-+ y (n+[m+1]n-k ∸ [m+1]n) [m+1]n ⟩
+           y ^ ((n+[m+1]n-k ∸ [m+1]n) +ℕ [m+1]n)  ≡⟨ cong (y ^_) (≤-∸-+-cancel [m+1]n≤n+[m+1]n-k) ⟩
+           y ^ n+[m+1]n-k ∎
+
+  ∑Binomial∈⟨Uⁿ⟩ : ∑ (BinomialVec (n +ℕ (ℕsuc m) ·ℕ n) x y) ∈ ⟨ U ⁿ ⟩
   ∑Binomial∈⟨Uⁿ⟩ = ∑Closed ⟨ U ⁿ ⟩ _ binomialSummand∈⟨Uⁿ⟩
 
 
-
- thm : (m : ℕ) (U : FinVec R m) → 1r ∈ ⟨ U ⟩ → 1r ∈ ⟨ U ⁿ ⟩
- thm m U = elim (λ _ → isPropPropTrunc) Σhelper
+ thm : ∀ (m : ℕ) (U : FinVec R m) → 1r ∈ ⟨ U ⟩ → 1r ∈ ⟨ U ⁿ ⟩
+ thm ℕzero U 1∈⟨U⟩ = 1∈⟨U⟩
+ thm (ℕsuc m) U = elim (λ _ → isPropPropTrunc) Σhelper
   where
-  Σhelper : Σ[ α ∈ FinVec R m ] 1r ≡ linearCombination R' α U
+  Σhelper : Σ[ α ∈ FinVec R (ℕsuc m) ] 1r ≡ linearCombination R' α U
           → 1r ∈ ⟨ U ⁿ ⟩
-  Σhelper (α , p) = subst-∈ ⟨ U ⁿ ⟩ path (lemma m α U ∣ α , p ∣)
+  Σhelper (α , p) = subst-∈ ⟨ U ⁿ ⟩ path (lemma m α U)
    where
-   path : linearCombination R' α U ^ (m ·ℕ n) ≡ 1r
-   path = linearCombination R' α U ^ (m ·ℕ n) ≡⟨ cong (_^ (m ·ℕ n)) (sym p) ⟩
-          1r ^ (m ·ℕ n)                       ≡⟨ 1ⁿ≡1 (m ·ℕ n) ⟩
+   path : linearCombination R' α U ^ ((ℕsuc m) ·ℕ n) ≡ 1r
+   path = linearCombination R' α U ^ ((ℕsuc m) ·ℕ n) ≡⟨ cong (_^ ((ℕsuc m) ·ℕ n)) (sym p) ⟩
+          1r ^ ((ℕsuc m) ·ℕ n)                       ≡⟨ 1ⁿ≡1 ((ℕsuc m) ·ℕ n) ⟩
           1r ∎
