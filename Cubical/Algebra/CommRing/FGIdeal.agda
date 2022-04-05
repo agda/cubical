@@ -346,6 +346,7 @@ module GeneratingPowers (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
 -- and a more general version of the above result
 module GeneratingPowersGeneral (R' : CommRing ℓ) (n : ℕ) where
  open CommRingStr (snd R')
+ open CommRingTheory R'
  open RingTheory (CommRing→Ring R')
  open Sum (CommRing→Ring R')
  open Exponentiation R'
@@ -359,15 +360,56 @@ module GeneratingPowersGeneral (R' : CommRing ℓ) (n : ℕ) where
   _ⁿ : {m : ℕ} → FinVec R m → FinVec R m
   U ⁿ = λ i → U i ^ n
 
- principalIdealLemma : (U : FinVec R 1) → 1r ∈ ⟨ U ⟩ → 1r ∈ ⟨ U ⁿ ⟩
- principalIdealLemma U = map {!!}
-
- lemma1 : (m : ℕ) (α U : FinVec R (ℕsuc m))
+ lemma : (m : ℕ) (α U : FinVec R m)
         → 1r ∈ ⟨ U ⟩
         → (linearCombination R' α U) ^ (m ·ℕ n) ∈ ⟨ U ⁿ ⟩
- lemma1 ℕzero _ U 1∈⟨U⟩ = principalIdealLemma U 1∈⟨U⟩
- lemma1 (ℕsuc m) α U 1∈⟨U⟩ = {!!}
+ lemma ℕzero _ _ 1∈⟨U⟩ = 1∈⟨U⟩
+ lemma (ℕsuc m) α U 1∈⟨U⟩ = subst-∈ ⟨ U ⁿ ⟩ (sym (BinomialThm (n +ℕ m ·ℕ n) x y)) ∑Binomial∈⟨Uⁿ⟩
   where
   x = α zero · U zero
   y = linearCombination R' (α ∘ suc) (U ∘ suc)
   -- refl : x + y ≡ linearCombination R' α U
+
+  binomialSummand∈⟨Uⁿ⟩ : ∀ (i : Fin _) → BinomialVec (n +ℕ m ·ℕ n) x y i ∈ ⟨ U ⁿ ⟩
+  binomialSummand∈⟨Uⁿ⟩ i with ≤-+-split n (m ·ℕ n) (toℕ i) (pred-≤-pred (toℕ<n i))
+  ... | inl n≤i = subst-∈ ⟨ U ⁿ ⟩ (·CommAssocr _ _ (x ^ (toℕ i)))
+                                  (⟨ U ⁿ ⟩ .snd .·Closed _ (xHelper (toℕ i) n≤i))
+   where
+   xHelper : ∀ k → n ≤ k → x ^ k ∈ ⟨ U ⁿ ⟩
+   xHelper k n≤k = subst-∈ ⟨ U ⁿ ⟩ path (⟨ U ⁿ ⟩ .snd .·Closed _ (indInIdeal R' (U ⁿ) zero))
+    where
+    path : α zero ^ k · U zero ^ (k ∸ n) · U zero ^ n ≡ x ^ k
+    path = α zero ^ k · U zero ^ (k ∸ n) · U zero ^ n
+         ≡⟨ sym (·Assoc _ _ _) ⟩
+           α zero ^ k · (U zero ^ (k ∸ n) · U zero ^ n)
+         ≡⟨ cong ((α zero ^ k) ·_) (·-of-^-is-^-of-+ (U zero) (k ∸ n) n) ⟩
+           α zero ^ k · U zero ^ ((k ∸ n) +ℕ n)
+         ≡⟨ cong (λ l → (α zero ^ k) · (U zero ^ l)) (≤-∸-+-cancel n≤k) ⟩
+           α zero ^ k · U zero ^ k
+         ≡⟨ sym (^-ldist-· (α zero) (U zero) k) ⟩
+           x ^ k ∎
+
+  ... | inr mn≤n+mn-i = ⟨ U ⁿ ⟩ .snd .·Closed _ (yHelper (toℕ i) mn≤n+mn-i)
+   where
+   inductiveStep : y ^ (m ·ℕ n) ∈ ⟨ (U ∘ suc) ⁿ ⟩
+   inductiveStep = lemma m (α ∘ suc) (U ∘ suc) {!!}
+
+   yHelper : ∀ k → m ·ℕ n ≤ n +ℕ m ·ℕ n ∸ k → y ^ (n +ℕ m ·ℕ n ∸ k) ∈ ⟨ U ⁿ ⟩
+   yHelper k mn≤n+mn-k = {!!}
+
+  ∑Binomial∈⟨Uⁿ⟩ : ∑ (BinomialVec (n +ℕ m ·ℕ n) x y) ∈ ⟨ U ⁿ ⟩
+  ∑Binomial∈⟨Uⁿ⟩ = ∑Closed ⟨ U ⁿ ⟩ _ binomialSummand∈⟨Uⁿ⟩
+
+
+
+ thm : (m : ℕ) (U : FinVec R m) → 1r ∈ ⟨ U ⟩ → 1r ∈ ⟨ U ⁿ ⟩
+ thm m U = elim (λ _ → isPropPropTrunc) Σhelper
+  where
+  Σhelper : Σ[ α ∈ FinVec R m ] 1r ≡ linearCombination R' α U
+          → 1r ∈ ⟨ U ⁿ ⟩
+  Σhelper (α , p) = subst-∈ ⟨ U ⁿ ⟩ path (lemma m α U ∣ α , p ∣)
+   where
+   path : linearCombination R' α U ^ (m ·ℕ n) ≡ 1r
+   path = linearCombination R' α U ^ (m ·ℕ n) ≡⟨ cong (_^ (m ·ℕ n)) (sym p) ⟩
+          1r ^ (m ·ℕ n)                       ≡⟨ 1ⁿ≡1 (m ·ℕ n) ⟩
+          1r ∎
