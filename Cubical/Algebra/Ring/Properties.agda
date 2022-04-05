@@ -204,7 +204,6 @@ module RingHoms where
                      compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
   compAssocRingHom _ _ _ = RingHom≡ refl
 
-
 module RingEquivs where
   open RingStr
   open IsRingHom
@@ -242,8 +241,6 @@ module RingEquivs where
   invEquivRing : {A : Ring ℓ} → {B : Ring ℓ'} → RingEquiv A B → RingEquiv B A
   fst (invEquivRing e) = invEquiv (fst e)
   snd (invEquivRing e) = isRingHomInv e
-
-
 
 module RingHomTheory {R S : Ring ℓ} (φ : RingHom R S) where
   open RingTheory ⦃...⦄
