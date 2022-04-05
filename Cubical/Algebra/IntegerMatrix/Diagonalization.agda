@@ -1,6 +1,8 @@
 {-
 
-This files contains a diagonalization precedure simpler than Smith normalization.
+This files contains a diagonalization procedure simpler than Smith normalization.
+For any matrix M, it provides two invertible matrix P, Q, one diagonal matrix D and an equality M = P·D·Q.
+The only difference from Smith is, the numbers in D are allowed to be arbitrary, instead of being consecutively divisible.
 But it is enough to establish important properties of finitely presented abelian groups.
 Also, it can be computed much more efficiently (than Smith, only).
 
@@ -112,28 +114,28 @@ row isNorm = isNorm .divs +length isNorm .rowNull
 col isNorm = isNorm .divs +length isNorm .colNull
 
 isDiagonal𝟘 : isDiagonal (𝟘 {m = m} {n = n})
-isDiagonal𝟘 {m = m} {n = n} =
-  record
-    { divs = [] , tt
-    ; rowNull = m   ; colNull = n
-    ; rowEq = refl  ; colEq = refl
-    ; matEq = refl  }
+isDiagonal𝟘 .divs = [] , tt
+isDiagonal𝟘 {m = m} .rowNull = m
+isDiagonal𝟘 {n = n} .colNull = n
+isDiagonal𝟘 .rowEq = refl
+isDiagonal𝟘 .colEq = refl
+isDiagonal𝟘 .matEq = refl
 
 isDiagonalEmpty : (M : Mat 0 n) → isDiagonal M
-isDiagonalEmpty {n = n} M =
-  record
-    { divs = [] , tt
-    ; rowNull = 0   ; colNull = n
-    ; rowEq = refl  ; colEq = refl
-    ; matEq = isContr→isProp isContrEmpty _ _ }
+isDiagonalEmpty _ .divs = [] , tt
+isDiagonalEmpty _ .rowNull = 0
+isDiagonalEmpty {n = n} _ .colNull = n
+isDiagonalEmpty _ .rowEq = refl
+isDiagonalEmpty _ .colEq = refl
+isDiagonalEmpty _ .matEq = isContr→isProp isContrEmpty _ _
 
 isDiagonalEmptyᵗ : (M : Mat m 0) → isDiagonal M
-isDiagonalEmptyᵗ {m = m} M =
-  record
-    { divs = [] , tt
-    ; rowNull = m   ; colNull = 0
-    ; rowEq = refl  ; colEq = refl
-    ; matEq = isContr→isProp isContrEmptyᵗ _ _ }
+isDiagonalEmptyᵗ _ .divs = [] , tt
+isDiagonalEmptyᵗ {m = m} _ .rowNull = m
+isDiagonalEmptyᵗ _ .colNull = 0
+isDiagonalEmptyᵗ _ .rowEq = refl
+isDiagonalEmptyᵗ _ .colEq = refl
+isDiagonalEmptyᵗ _ .matEq = isContr→isProp isContrEmptyᵗ _ _
 
 
 -- Induction step towards diagonalization
@@ -169,11 +171,10 @@ record DiagStep (M : Mat (suc m) (suc n)) : Type where
 open DiagStep
 
 simDiagStep : {M : Mat (suc m) (suc n)}(sim : Sim M) → DiagStep (sim .result) → DiagStep M
-simDiagStep simM diag =
-  record { sim = compSim simM (diag .sim)
-         ; firstColClean = diag .firstColClean
-         ; firstRowClean = diag .firstRowClean
-         ; nonZero = diag .nonZero }
+simDiagStep simM diag .sim = compSim simM (diag .sim)
+simDiagStep _    diag .firstColClean = diag .firstColClean
+simDiagStep _    diag .firstRowClean = diag .firstRowClean
+simDiagStep _    diag .nonZero = diag .nonZero
 
 private
   diagStep-helper :
@@ -227,16 +228,20 @@ record Diag (M : Mat m n) : Type where
 open Diag
 
 simDiag : {M : Mat m n}(sim : Sim M) → Diag (sim .result) → Diag M
-simDiag simM diag = record { sim = compSim simM (diag .sim) ; isdiag = diag .isdiag }
+simDiag simM diag .sim = compSim simM (diag .sim)
+simDiag _ diag .isdiag = diag .isdiag
 
 diag𝟘 : Diag (𝟘 {m = m} {n = n})
-diag𝟘 = record { sim = idSim _ ; isdiag = isDiagonal𝟘 }
+diag𝟘 .sim    = idSim _
+diag𝟘 .isdiag = isDiagonal𝟘
 
-diagEmpty  : (M : Mat 0 n) → Diag M
-diagEmpty  M = record { sim = idSim _ ; isdiag = isDiagonalEmpty M }
+diagEmpty : (M : Mat 0 n) → Diag M
+diagEmpty _ .sim    = idSim _
+diagEmpty M .isdiag = isDiagonalEmpty M
 
 diagEmptyᵗ : (M : Mat m 0) → Diag M
-diagEmptyᵗ M = record { sim = idSim _ ; isdiag = isDiagonalEmptyᵗ M }
+diagEmptyᵗ _ .sim    = idSim _
+diagEmptyᵗ M .isdiag = isDiagonalEmptyᵗ M
 
 decompDiagStep :
     (M : Mat (suc m) (suc n))(step : DiagStep M)
@@ -250,23 +255,20 @@ consIsDiagonal :
     (a : ℤ)(M : Mat m n)
   → (p : ¬ a ≡ 0)
   → isDiagonal M → isDiagonal (a ⊕ M)
-consIsDiagonal a M p diag =
-  record
-    { divs = cons a (diag .divs) p
-    ; rowNull = diag .rowNull
-    ; colNull = diag .colNull
-    ; rowEq = (λ t → suc (diag .rowEq t))
-    ; colEq = (λ t → suc (diag .colEq t))
-    ; matEq = (λ t → a ⊕ diag .matEq t) }
+consIsDiagonal a _ p diag .divs = cons a (diag .divs) p
+consIsDiagonal _ _ _ diag .rowNull = diag .rowNull
+consIsDiagonal _ _ _ diag .colNull = diag .colNull
+consIsDiagonal _ _ _ diag .rowEq = (λ t → suc (diag .rowEq t))
+consIsDiagonal _ _ _ diag .colEq = (λ t → suc (diag .colEq t))
+consIsDiagonal a _ _ diag .matEq = (λ t → a ⊕ diag .matEq t)
 
 diagReduction :
     (a : ℤ)(M : Mat m n)
   → (p : ¬ a ≡ 0)
   → Diag M → Diag (a ⊕ M)
-diagReduction a M p diag =
-  record
-    { sim = ⊕Sim a (diag .sim)
-    ; isdiag = consIsDiagonal a _ p (diag .isdiag) }
+diagReduction a _ _ diag .sim = ⊕Sim a (diag .sim)
+diagReduction a _ p diag .isdiag = consIsDiagonal a _ p (diag .isdiag)
+
 
 -- The Existence of Diagonalization
 

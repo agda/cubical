@@ -36,8 +36,6 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
-pattern one = suc zero
-
 -- Equivalence between Vec matrix and Fin function matrix
 
 FinMatrix : (A : Type ℓ) (m n : ℕ) → Type ℓ

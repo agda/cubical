@@ -21,6 +21,12 @@ open import Cubical.Relation.Nullary
 open import Cubical.Algebra.Matrix
 open import Cubical.Algebra.RingSolver.Reflection
 
+open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.BigOps
+open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.Matrix.CommRingCoefficient
+
 private
   variable
     ℓ : Level
@@ -215,13 +221,8 @@ module _
     transRowsIndP₁ {m = suc m} _ p q zero    = indP₁ _ p (q zero)
     transRowsIndP₁ {m = suc m} M p q (suc i) = transRowsIndP₁ _ (indP₀ _ p (q zero)) (q ∘ suc) i
 
--- Row transformation of linear coefficient matrices
 
-open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.RingSolver.Reflection
-open import Cubical.Algebra.Matrix.CommRingCoefficient
+-- Row transformation of linear coefficient matrices
 
 module LinearTransformation (𝓡 : CommRing ℓ) where
 

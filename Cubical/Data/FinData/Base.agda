@@ -18,6 +18,9 @@ data Fin : ℕ → Type₀ where
   zero : {n : ℕ} → Fin (suc n)
   suc  : {n : ℕ} (i : Fin n) → Fin (suc n)
 
+-- useful pattern
+pattern one = suc zero
+
 toℕ : ∀ {n} → Fin n → ℕ
 toℕ zero    = 0
 toℕ (suc i) = suc (toℕ i)

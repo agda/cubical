@@ -248,27 +248,22 @@ consIsSmithNormal :
   → (p : ¬ a ≡ 0)
   → (div : (i : Fin m)(j : Fin n) → a ∣ M i j)
   → isSmithNormal M → isSmithNormal (a ⊕ M)
-consIsSmithNormal a M p div isNorm =
-  record
-    { divs = cons a (isNorm .divs) (smith∣ a isNorm p div)
-    ; rowNull = isNorm .rowNull
-    ; colNull = isNorm .colNull
-    ; rowEq = (λ t → suc (isNorm .rowEq t))
-    ; colEq = (λ t → suc (isNorm .colEq t))
-    ; matEq = (λ t → a ⊕ isNorm .matEq t) }
+consIsSmithNormal a _ p d isNorm .divs = cons a (isNorm .divs) (smith∣ a isNorm p d)
+consIsSmithNormal _ _ _ _ isNorm .rowNull = isNorm .rowNull
+consIsSmithNormal _ _ _ _ isNorm .colNull = isNorm .colNull
+consIsSmithNormal _ _ _ _ isNorm .rowEq = (λ t → suc (isNorm .rowEq t))
+consIsSmithNormal _ _ _ _ isNorm .colEq = (λ t → suc (isNorm .colEq t))
+consIsSmithNormal a _ _ _ isNorm .matEq = (λ t → a ⊕ isNorm .matEq t)
 
 smithReduction :
     (a : ℤ)(M : Mat m n)
   → (p : ¬ a ≡ 0)
   → (div : (i : Fin m)(j : Fin n) → a ∣ M i j)
   → Smith M → Smith (a ⊕ M)
-smithReduction a M p div smithnorm =
-  record
-    { sim = ⊕Sim a (smithnorm .sim)
-    ; isnormal =
-        consIsSmithNormal a _ p
-          (sim∣ _ _ (smithnorm .sim) div)
-          (smithnorm .isnormal) }
+smithReduction a _ _ _ smithnorm .sim = ⊕Sim a (smithnorm .sim)
+smithReduction a _ p d smithnorm .isnormal =
+  consIsSmithNormal a _ p (sim∣ _ _ (smithnorm .sim) d) (smithnorm .isnormal)
+
 
 -- The Existence of Smith Normal Form
 

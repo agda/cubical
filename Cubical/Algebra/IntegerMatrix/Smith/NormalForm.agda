@@ -131,40 +131,44 @@ record Smith (M : Mat m n) : Type where
 open Smith
 
 simSmith : {M : Mat m n}(sim : Sim M) → Smith (sim .result) → Smith M
-simSmith simM smith = record { sim = compSim simM (smith .sim) ; isnormal = smith .isnormal }
+simSmith simM smith .sim      = compSim simM (smith .sim)
+simSmith _    smith .isnormal = smith .isnormal
 
 
 -- Simple special cases of normal matrices
 
 isSmithNormal𝟘 : isSmithNormal (𝟘 {m = m} {n = n})
-isSmithNormal𝟘 {m = m} {n = n} =
-  record
-    { divs = [] , tt
-    ; rowNull = m   ; colNull = n
-    ; rowEq = refl  ; colEq = refl
-    ; matEq = refl  }
+isSmithNormal𝟘 .divs = [] , tt
+isSmithNormal𝟘 {m = m} .rowNull = m
+isSmithNormal𝟘 {n = n} .colNull = n
+isSmithNormal𝟘 .rowEq = refl
+isSmithNormal𝟘 .colEq = refl
+isSmithNormal𝟘 .matEq = refl
 
 isSmithNormalEmpty : (M : Mat 0 n) → isSmithNormal M
-isSmithNormalEmpty {n = n} M =
-  record
-    { divs = [] , tt
-    ; rowNull = 0   ; colNull = n
-    ; rowEq = refl  ; colEq = refl
-    ; matEq = isContr→isProp isContrEmpty _ _ }
+isSmithNormalEmpty _ .divs = [] , tt
+isSmithNormalEmpty _ .rowNull = 0
+isSmithNormalEmpty {n = n} _ .colNull = n
+isSmithNormalEmpty _ .rowEq = refl
+isSmithNormalEmpty _ .colEq = refl
+isSmithNormalEmpty _ .matEq = isContr→isProp isContrEmpty _ _
 
 isSmithNormalEmptyᵗ : (M : Mat m 0) → isSmithNormal M
-isSmithNormalEmptyᵗ {m = m} M =
-  record
-    { divs = [] , tt
-    ; rowNull = m   ; colNull = 0
-    ; rowEq = refl  ; colEq = refl
-    ; matEq = isContr→isProp isContrEmptyᵗ _ _ }
+isSmithNormalEmptyᵗ _ .divs = [] , tt
+isSmithNormalEmptyᵗ {m = m} _ .rowNull = m
+isSmithNormalEmptyᵗ _ .colNull = 0
+isSmithNormalEmptyᵗ _ .rowEq = refl
+isSmithNormalEmptyᵗ _ .colEq = refl
+isSmithNormalEmptyᵗ _ .matEq = isContr→isProp isContrEmptyᵗ _ _
 
 smith𝟘 : Smith (𝟘 {m = m} {n = n})
-smith𝟘 = record { sim = idSim _ ; isnormal = isSmithNormal𝟘 }
+smith𝟘 .sim      = idSim _
+smith𝟘 .isnormal = isSmithNormal𝟘
 
 smithEmpty : (M : Mat 0 n) → Smith M
-smithEmpty M = record { sim = idSim _ ; isnormal = isSmithNormalEmpty M }
+smithEmpty _ .sim      = idSim _
+smithEmpty M .isnormal = isSmithNormalEmpty M
 
 smithEmptyᵗ : (M : Mat m 0) → Smith M
-smithEmptyᵗ M = record { sim = idSim _ ; isnormal = isSmithNormalEmptyᵗ M }
+smithEmptyᵗ _ .sim      = idSim _
+smithEmptyᵗ M .isnormal = isSmithNormalEmptyᵗ M

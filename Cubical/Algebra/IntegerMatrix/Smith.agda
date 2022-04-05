@@ -12,4 +12,4 @@ Referrences:
 module Cubical.Algebra.IntegerMatrix.Smith where
 
 open import Cubical.Algebra.IntegerMatrix.Smith.NormalForm public
-open import Cubical.Algebra.IntegerMatrix.Smith.Normalization public
+open import Cubical.Algebra.IntegerMatrix.Smith.Normalization public using (smith)
