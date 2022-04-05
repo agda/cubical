@@ -13,7 +13,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Unit
+open import Cubical.Algebra.CommAlgebra.Instances.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base

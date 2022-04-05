@@ -63,3 +63,9 @@ isOddT n = isEvenT (suc n)
 isZero : ℕ → Bool
 isZero zero = true
 isZero (suc n) = false
+
+-- exponential
+
+_^_ : ℕ → ℕ → ℕ
+m ^ 0 = 1
+m ^ (suc n) = m · m ^ n

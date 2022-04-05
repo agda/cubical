@@ -23,7 +23,7 @@ open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence)
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
                                       ; ·-identityʳ to ·ℕ-rid)
@@ -51,7 +51,7 @@ open import Cubical.Algebra.CommRing.Localisation.PullbackSquare
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Algebra.CommAlgebra.Unit
+open import Cubical.Algebra.CommAlgebra.Instances.Unit
 open import Cubical.Algebra.RingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
