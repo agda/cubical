@@ -253,7 +253,7 @@ module _ (R' : CommRing ℓ) where
 
 
 -- A useful lemma for constructing the structure sheaf
-module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
+module GeneratingPowers (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
  open CommRingStr (snd R')
  open RingTheory (CommRing→Ring R')
  open Sum (CommRing→Ring R')
@@ -341,3 +341,33 @@ module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
           (α₀f + (α₁g + 0r)) ^ (n +ℕ n)    ≡⟨ cong (_^ (n +ℕ n)) (sym p) ⟩
           1r ^ (n +ℕ n)                    ≡⟨ 1ⁿ≡1 (n +ℕ n) ⟩
           1r ∎
+
+
+-- and a more general version of the above result
+module GeneratingPowersGeneral (R' : CommRing ℓ) (n : ℕ) where
+ open CommRingStr (snd R')
+ open RingTheory (CommRing→Ring R')
+ open Sum (CommRing→Ring R')
+ open Exponentiation R'
+ open BinomialThm R'
+ open CommIdeal R'
+
+ private
+  R = fst R'
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+  _ⁿ : {m : ℕ} → FinVec R m → FinVec R m
+  U ⁿ = λ i → U i ^ n
+
+ principalIdealLemma : (U : FinVec R 1) → 1r ∈ ⟨ U ⟩ → 1r ∈ ⟨ U ⁿ ⟩
+ principalIdealLemma U = map {!!}
+
+ lemma1 : (m : ℕ) (α U : FinVec R (ℕsuc m))
+        → 1r ∈ ⟨ U ⟩
+        → (linearCombination R' α U) ^ (m ·ℕ n) ∈ ⟨ U ⁿ ⟩
+ lemma1 ℕzero _ U 1∈⟨U⟩ = principalIdealLemma U 1∈⟨U⟩
+ lemma1 (ℕsuc m) α U 1∈⟨U⟩ = {!!}
+  where
+  x = α zero · U zero
+  y = linearCombination R' (α ∘ suc) (U ∘ suc)
+  -- refl : x + y ≡ linearCombination R' α U
