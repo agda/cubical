@@ -45,7 +45,6 @@ open CommRingStr (ℤRing .snd)
 open Coefficient  ℤRing
 open Sim
 
-
 -- The elementary transformations needed
 
 open ElemTransformation ℤRing
@@ -193,7 +192,7 @@ reducePivot M p =
   in  simPivotReduced (improveM .sim) reduceM
 
 
--- One induction step towards Smith normal form
+-- One induction step towards normal form
 
 open isSmithNormal
 open Smith

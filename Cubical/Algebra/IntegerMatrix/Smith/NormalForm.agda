@@ -62,7 +62,6 @@ cons n (xs , _) _ .fst = n ∷ xs
 cons n ([] , _) p .snd = p , tt
 cons n (x ∷ xs , q) p .snd = p , q
 
-
 -- Smith normal matrix
 
 _+length_ : ConsDivs → ℕ → ℕ

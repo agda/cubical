@@ -45,11 +45,11 @@ open CommRingStr (ℤRing .snd)
 open Coefficient  ℤRing
 open Sum         (CommRing→Ring ℤRing)
 
-
 -- Using well-foundedness to do induction
 
 Norm : ℤ → Type
 Norm n = Acc _<_ (abs n)
+
 
 -- Divisibility of matrix elements
 
@@ -86,6 +86,7 @@ sim∣ a M sim div i j =
   subst (a ∣_) (λ t → sim .simrel .transEq (~ t) i j)
     (∣-left⋆ _ _ (sim .simrel .transMatR)
     (∣-right⋆ _ (sim .simrel .transMatL) _ div) i j)
+
 
 -- Find a pivot to begin reduction
 
