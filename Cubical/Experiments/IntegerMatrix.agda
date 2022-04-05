@@ -63,17 +63,18 @@ makeMat3×3 _ _ _ _ _ _ _ _ a22 two  two  = a22
 
 -- The Tests
 
--- One can add flag "-vprofile.interactive:10",
--- then C-c C-n to run these tests and get the time.
+-- One can add flag "-vprofile.interactive:10" to this file,
+-- then C-c C-n to run these tests and also get the time.
 
--- It turns out that, smith is much slower than diagonalize
+-- It turns out that, "smith" is much slower than "diagonalize"
 -- and it doesn't work even for simple 3×3-matrices.
--- The diagonalization works only for very simple 3×3-matrices.
+-- The "diagonalize" works only for very simple 3×3-matrices.
 -- One subtle point is, if one only do one-step in Smith normalization
 -- and simply add the time cost in each steps,
--- the result is far less than running the whole function.
--- So the recursive procedure slow down the procedure for some reason I don't fully understand.
--- Also, the performance of smith is very bad at some trivial cases,
+-- the result is far less than running the whole function "smith".
+-- So the recursive procedure slows down the procedure
+-- for some reasons I don't fully understand.
+-- Also, the performance of "smith" is very bad at certain trivial cases,
 -- much worse than some non-trivial cases.
 
 mat1 = makeMat2×2

@@ -1,7 +1,7 @@
 {-
 
-This files contains a diagonalization procedure simpler than Smith normalization.
-For any matrix M, it provides two invertible matrix P, Q, one diagonal matrix D and an equality M = P·D·Q.
+This file contains a diagonalization procedure simpler than Smith normalization.
+For any matrix M, it provides two invertible matrices P, Q, one diagonal matrix D and an equality M = P·D·Q.
 The only difference from Smith is, the numbers in D are allowed to be arbitrary, instead of being consecutively divisible.
 But it is enough to establish important properties of finitely presented abelian groups.
 Also, it can be computed much more efficiently (than Smith, only).
