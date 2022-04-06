@@ -67,7 +67,7 @@ open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Instances.CommAlgebras
 open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.Semilattice
-open import Cubical.Categories.DistLatticeSheaf
+open import Cubical.Categories.DistLatticeSheaf.Base
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT

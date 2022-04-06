@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Categories.DistLatticeSheaf where
+module Cubical.Categories.DistLatticeSheaf.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
