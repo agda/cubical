@@ -285,7 +285,6 @@ module GeneratingPowers (R' : CommRing ℓ) (n : ℕ) where
   where
   x = α zero · U zero
   y = linearCombination R' (α ∘ suc) (U ∘ suc)
-  -- x + y = linearCombination R' α U
 
   binomialSummand∈⟨Uⁿ⟩ : ∀ (i : Fin _) → BinomialVec (n +ℕ (ℕsuc m) ·ℕ n) x y i ∈ ⟨ U ⁿ ⟩
   binomialSummand∈⟨Uⁿ⟩ i with ≤-+-split n ((ℕsuc m) ·ℕ n) (toℕ i) (pred-≤-pred (toℕ<n i))
