@@ -461,7 +461,6 @@ private
 -DistLR· : (b c : ℤ) → b · c ≡ - b · - c
 -DistLR· b c = sym (-Involutive (b · c)) ∙ (λ i → - -DistL· b c i) ∙ -DistR· (- b) c
 
-
 ℤ·negsuc : (n : ℤ) (m : ℕ) → n · negsuc m ≡ - (n · pos (suc m))
 ℤ·negsuc (pos n) m = pos·negsuc n m
 ℤ·negsuc (negsuc n) m = negsuc·negsuc n m ∙ sym (-DistL· (negsuc n) (pos (suc m)))
@@ -541,11 +540,12 @@ isIntegralℤ (negsuc c) (pos m) p _ i =
 isIntegralℤ (negsuc c) (negsuc m) p _ =
   Empty.rec (snotz (isIntegralℤPosPos (suc c) (suc m) (sym (negsuc·negsuc c m) ∙ p) snotz))
 
-·lCancel-helper : (c m n : ℤ) → c · m ≡ c · n → c · (m - n) ≡ 0
-·lCancel-helper c m n p =
-    ·DistR+ c m (- n)
-  ∙ (λ i → c · m + -DistR· c n (~ i))
-  ∙ subst (λ a → c · m - a ≡ 0) p (-Cancel (c · m))
+private
+  ·lCancel-helper : (c m n : ℤ) → c · m ≡ c · n → c · (m - n) ≡ 0
+  ·lCancel-helper c m n p =
+      ·DistR+ c m (- n)
+    ∙ (λ i → c · m + -DistR· c n (~ i))
+    ∙ subst (λ a → c · m - a ≡ 0) p (-Cancel (c · m))
 
 ·lCancel : (c m n : ℤ) → c · m ≡ c · n → ¬ c ≡ 0 → m ≡ n
 ·lCancel c m n p h = -≡0 _ _ (isIntegralℤ c (m - n) (·lCancel-helper c m n p) h)
