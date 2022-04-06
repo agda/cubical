@@ -5,7 +5,6 @@ open import Cubical.Foundations.Everything
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
-open import Cubical.Data.HomotopyGroup
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3

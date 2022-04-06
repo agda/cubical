@@ -268,12 +268,6 @@ isOfHLevelPathP {A = A} n h x y =
 
 -- Fillers for cubes from h-level
 
-isSet→isSet' : isSet A → isSet' A
-isSet→isSet' Aset _ _ _ _ = toPathP (Aset _ _ _ _)
-
-isSet'→isSet : isSet' A → isSet A
-isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
-
 isSet→SquareP :
   {A : I → I → Type ℓ}
   (isSet : (i j : I) → isSet (A i j))
@@ -453,6 +447,9 @@ isProp→ pB = isPropΠ λ _ → pB
 
 isSetΠ : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetΠ = isOfHLevelΠ 2
+
+isSetImplicitΠ : (h : (x : A) → isSet (B x)) → isSet ({x : A} → B x)
+isSetImplicitΠ h f g F G i j {x} = h x (f {x}) (g {x}) (λ i → F i {x}) (λ i → G i {x}) i j
 
 isSetΠ2 : (h : (x : A) (y : B x) → isSet (C x y))
         → isSet ((x : A) (y : B x) → C x y)
