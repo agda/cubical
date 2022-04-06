@@ -16,8 +16,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Base
 
-open import Cubical.Foundations.Function
-
 private
   variable
     ℓ ℓ' : Level
@@ -102,7 +100,7 @@ module _ (i : Iso A B) where
 
 
 isoToEquiv : Iso A B → A ≃ B
-isoToEquiv i .fst = _
+isoToEquiv i .fst = i .Iso.fun
 isoToEquiv i .snd = isoToIsEquiv i
 
 isoToPath : Iso A B → A ≡ B
@@ -174,12 +172,24 @@ infix   1 _∎Iso
 codomainIsoDep : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : A → Type ℓ'} {C : A → Type ℓ''}
                  → ((a : A) → Iso (B a) (C a))
                  → Iso ((a : A) → B a) ((a : A) → C a)
-Iso.fun (codomainIsoDep is) f a = Iso.fun (is a) (f a)
-Iso.inv (codomainIsoDep is) f a = Iso.inv (is a) (f a)
-Iso.rightInv (codomainIsoDep is) f = funExt λ a → Iso.rightInv (is a) (f a)
-Iso.leftInv (codomainIsoDep is) f = funExt λ a → Iso.leftInv (is a) (f a)
+fun (codomainIsoDep is) f a = fun (is a) (f a)
+inv (codomainIsoDep is) f a = inv (is a) (f a)
+rightInv (codomainIsoDep is) f = funExt λ a → rightInv (is a) (f a)
+leftInv (codomainIsoDep is) f = funExt λ a → leftInv (is a) (f a)
 
 codomainIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
            → Iso B C
            → Iso (A → B) (A → C)
 codomainIso z = codomainIsoDep λ _ → z
+
+
+Iso≡Set : isSet A → isSet B → (f g : Iso A B)
+        → ((x : A) → f .fun x ≡ g .fun x)
+        → ((x : B) → f .inv x ≡ g .inv x)
+        → f ≡ g
+fun (Iso≡Set hA hB f g hfun hinv i) x = hfun x i
+inv (Iso≡Set hA hB f g hfun hinv i) x = hinv x i
+rightInv (Iso≡Set hA hB f g hfun hinv i) x j =
+  isSet→isSet' hB (rightInv f x) (rightInv g x) (λ i → hfun (hinv x i) i) refl i j
+leftInv (Iso≡Set hA hB f g hfun hinv i) x j =
+  isSet→isSet' hA (leftInv f x) (leftInv g x) (λ i → hinv (hfun x i) i) refl i j

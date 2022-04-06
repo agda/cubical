@@ -321,16 +321,31 @@ module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
 -- Whiskering a dependent path by a path
+-- Double whiskering
+_◁_▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
+      → a₀ ≡ a₀' → PathP A a₀' a₁ → a₁ ≡ a₁'
+      → PathP A a₀ a₁'
+(p ◁ P ▷ q) i =
+  hcomp (λ j → λ {(i = i0) → p (~ j) ; (i = i1) → q j}) (P i)
+
+doubleWhiskFiller :
+  ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
+      → (p : a₀ ≡ a₀') (pq : PathP A a₀' a₁) (q : a₁ ≡ a₁')
+      → PathP (λ i → PathP A (p (~ i)) (q i))
+               pq
+               (p ◁ pq ▷ q)
+doubleWhiskFiller p pq q k i =
+  hfill (λ j → λ {(i = i0) → p (~ j) ; (i = i1) → q j})
+        (inS (pq i))
+        k
 
 _◁_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ : A i1}
   → a₀ ≡ a₀' → PathP A a₀' a₁ → PathP A a₀ a₁
-(p ◁ q) i =
-  hcomp (λ j → λ {(i = i0) → p (~ j); (i = i1) → q i1}) (q i)
+(p ◁ q) = p ◁ q ▷ refl
 
 _▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ : A i0} {a₁ a₁' : A i1}
   → PathP A a₀ a₁ → a₁ ≡ a₁' → PathP A a₀ a₁'
-(p ▷ q) i =
-  hcomp (λ j → λ {(i = i0) → p i0; (i = i1) → q j}) (p i)
+p ▷ q  = refl ◁ p ▷ q
 
 -- Direct definitions of lower h-levels
 
@@ -421,6 +436,12 @@ isSet' A =
   {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
   (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
   → Square a₀₋ a₁₋ a₋₀ a₋₁
+
+isSet→isSet' : isSet A → isSet' A
+isSet→isSet' Aset _ _ _ _ = toPathP (Aset _ _ _ _)
+
+isSet'→isSet : isSet' A → isSet A
+isSet'→isSet Aset' x y p q = Aset' p q refl refl
 
 isGroupoid' : Type ℓ → Type ℓ
 isGroupoid' A =
