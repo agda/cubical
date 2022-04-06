@@ -1,7 +1,9 @@
 {-
 
 This file contains:
-    - the abelianization of groups
+    - the abelianization of groups as a HIT as proposed in https://arxiv.org/abs/2007.05833
+
+The definition of the abelianiation is not as a set-quotient, since the relation of abelianization is weird to work with constructibly
 
 -}
 {-# OPTIONS --safe #-}
@@ -30,21 +32,16 @@ module _ (G : Group ℓ) where
     instance
       _ = snd G
 
+  {-
+    The definition of the abelianization of a group as a higher inductive type.
+    The generality of the comm relation will be needed to define the group structure on the abelianization.
+  -}
   data Abelianization : Type ℓ where
     η : (g : fst G) → Abelianization
     comm : (a b c : fst G) → η (a · (b · c)) ≡ η (a · (c · b))
     isset : (x y : Abelianization) → (p q : x ≡ y) → p ≡ q
 
-  -- proofabelian : (a b : fst G) → η (a · b) ≡ η (b · a)
-  -- proofabelian a b = {! comm .1g a b  !} -- Diese Codezeilen haben einen Bug erzeugt, wenn man das Loch refinen möchte
-
-  {-
-  Abelianization2 : Type ℓ
-  Abelianization2 = (fst G) / λ g h → Σ[ a ∈ (fst G) ]
-                                      Σ[ b ∈ (fst G) ]
-                                      Σ[ c ∈ (fst G) ] (g ≡ (a · (b · c))) × (h ≡ (a · (c · b)))
-  -}
-
+  -- Some helpful lemmas, similar to those in Cubical/HITs/SetQuotients/Properties.agda
   elimProp : {B : Abelianization → Type ℓ}
         → (Bprop : (x : Abelianization) → isProp (B x))
         → (f : (g : fst G) → B (η g))
@@ -110,7 +107,7 @@ module _ (G : Group ℓ) where
       (λ a b c → funExt (elimProp (λ _ → Mset _ _) (λ d → fcomml a b c d)))
 
 
--- Definition der Gruppenstruktur auf der Abelisierung
+  -- Definition of the group structure on the abelianization. Here the generality of the comm relation is used.
   _·Ab_ : Abelianization → Abelianization → Abelianization
   _·Ab_ =
     rec2
@@ -185,11 +182,13 @@ module _ (G : Group ℓ) where
                η (y · x)        ≡⟨ refl ⟩
                (η y) ·Ab (η x) ∎)
 
+  -- The proof that that the abelianization is in fact an abelian group.
   asAbelianGroup : AbGroup ℓ
   asAbelianGroup = makeAbGroup 1Ab _·Ab_ invAb isset assocAb ridAb rinvAb commAb
 
-  ηasGroupHom : GroupHom G (AbGroup→Group asAbelianGroup)
-  ηasGroupHom = f , fIsHom
+  -- The proof that η can be seen as a group homomorphism
+  ηAsGroupHom : GroupHom G (AbGroup→Group asAbelianGroup)
+  ηAsGroupHom = f , fIsHom
     where
     f = λ x → η x
     fIsHom : IsGroupHom (snd G) f (snd (AbGroup→Group asAbelianGroup))
@@ -197,6 +196,17 @@ module _ (G : Group ℓ) where
     IsGroupHom.pres1 fIsHom = refl
     IsGroupHom.presinv fIsHom = λ x → refl
 
+  {- The proof of the universal property of the abelianization.
+
+  G --η--> Abelianization
+   \         .
+     \       .
+       f   ∃! inducedHom
+         \   .
+           \ .
+             H
+  commuting diagram
+  -}
   inducedHom : (H : AbGroup ℓ)
              → (f : GroupHom G (AbGroup→Group H))
              → AbGroupHom asAbelianGroup H
@@ -227,19 +237,19 @@ module _ (G : Group ℓ) where
 
   commutativity : (H : AbGroup ℓ)
                 → (f : GroupHom G (AbGroup→Group H))
-                → (compGroupHom ηasGroupHom (inducedHom H f) ≡ f)
+                → (compGroupHom ηAsGroupHom (inducedHom H f) ≡ f)
   commutativity H f =
       Σ≡Prop
         (λ _ → isPropIsGroupHom _ _)
         (λ i x → q x i)
     where q : (x : fst  G)
-              → fst (compGroupHom ηasGroupHom (inducedHom H f)) x ≡ fst f x
+              → fst (compGroupHom ηAsGroupHom (inducedHom H f)) x ≡ fst f x
           q = (λ x → refl)
 
   uniqueness : (H : AbGroup ℓ)
              → (f : GroupHom G (AbGroup→Group H))
              → (g : AbGroupHom asAbelianGroup H)
-             → (p : compGroupHom ηasGroupHom g ≡ f)
+             → (p : compGroupHom ηAsGroupHom g ≡ f)
              → (g ≡ inducedHom H f)
   uniqueness H f g p =
       Σ≡Prop
