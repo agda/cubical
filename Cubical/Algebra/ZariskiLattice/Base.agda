@@ -12,7 +12,7 @@ open import Cubical.Foundations.Transport
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
                                       ; ·-identityʳ to ·ℕ-rid)
