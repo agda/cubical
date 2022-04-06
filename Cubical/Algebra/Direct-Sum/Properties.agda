@@ -9,9 +9,9 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Direct-Sum.Base
 
 private variable
-  ℓ : Level
+  ℓ ℓ' : Level
 
-module _ (Idx : Type ℓ) (P : Idx → Type ℓ) (AGP : (r : Idx) → AbGroupStr (P r)) where
+module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupStr (P r)) where
 
   inv : ⊕ Idx P AGP → ⊕ Idx P AGP
   inv = DS-Rec-Set.f Idx P AGP (⊕ Idx P AGP) trunc
