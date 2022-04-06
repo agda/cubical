@@ -15,13 +15,14 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat
-  hiding (_·_) renaming (_+_ to _+ℕ_ ; +-assoc to +Assocℕ)
+  hiding   (_·_)
+  renaming (_+_ to _+ℕ_ ; +-assoc to +Assocℕ)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Divisibility
   using    (m∣n→m≤n)
   renaming (∣-trans to ∣ℕ-trans ; ∣-refl to ∣-reflℕ)
 open import Cubical.Data.Int
-  hiding (_+_ ; _·_ ; _-_ ; -_ ; addEq)
+  hiding   (_+_ ; _·_ ; _-_ ; -_ ; addEq)
 open import Cubical.Data.Int.Divisibility
 open import Cubical.Data.FinData
 
@@ -31,11 +32,8 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
 
-open import Cubical.Relation.Nullary
-
 open import Cubical.Algebra.Matrix
 open import Cubical.Algebra.Matrix.CommRingCoefficient
-open import Cubical.Algebra.Matrix.RowTransformation
 open import Cubical.Algebra.Matrix.Elementaries
 open import Cubical.Algebra.IntegerMatrix.Base
 open import Cubical.Algebra.IntegerMatrix.Elementaries
@@ -44,6 +42,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
   renaming (ℤ to ℤRing)
 
+open import Cubical.Relation.Nullary
 open import Cubical.Induction.WellFounded
 
 private
