@@ -4,9 +4,9 @@
 module Cubical.Categories.Monoidal.Base where
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.Product
+open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functor.Product
+open import Cubical.Categories.Functor.BinProduct
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Foundations.Prelude
