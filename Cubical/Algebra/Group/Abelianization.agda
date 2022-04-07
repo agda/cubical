@@ -3,7 +3,7 @@
 This file contains:
     - the abelianization of groups as a HIT as proposed in https://arxiv.org/abs/2007.05833
 
-The definition of the abelianiation is not as a set-quotient, since the relation of abelianization is weird to work with constructibly
+The definition of the abelianization is not as a set-quotient, since the relation of abelianization is cumbersome to work with.
 
 -}
 {-# OPTIONS --safe #-}
@@ -48,10 +48,13 @@ module _ (G : Group ℓ) where
         → (x : Abelianization)
         → B x
   elimProp Bprop f (η g) = f g
-  elimProp {B = B} Bprop f (comm a b c i) = isProp→PathP (λ i → Bprop (comm a b c i)) (f (a · (b · c))) (f (a · (c · b))) i
-  elimProp Bprop f (isset x y p q i j) = isOfHLevel→isOfHLevelDep 2 (λ x → isProp→isSet (Bprop x)) (g x) (g y) (cong g p) (cong g q) (isset x y p q) i j
-                                        where
-                                        g = elimProp Bprop f
+  elimProp {B = B} Bprop f (comm a b c i) =
+    isProp→PathP (λ i → Bprop (comm a b c i)) (f (a · (b · c))) (f (a · (c · b))) i
+  elimProp Bprop f (isset x y p q i j) =
+    isOfHLevel→isOfHLevelDep
+      2 (λ x → isProp→isSet (Bprop x)) (g x) (g y) (cong g p) (cong g q) (isset x y p q) i j
+    where
+    g = elimProp Bprop f
 
   elimProp2 : {C : Abelianization → Abelianization → Type ℓ}
         → (Cprop : (x y : Abelianization) → isProp (C x y))
@@ -220,7 +223,7 @@ module _ (G : Group ℓ) where
                 (λ x → (f') x)
                 (λ a b c → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
                            (f' a) · (f' (b · c))    ≡⟨ cong (λ x → (f' a) · x) ((snd f).pres· b c) ⟩
-                           (f' a) · (f' b) · (f' c) ≡⟨ cong (λ x → (f' a) · x) ((snd H).AbGroupStr.comm (f' b) (f' c))  ⟩
+                           (f' a) · (f' b) · (f' c) ≡⟨ cong (λ x → (f' a) · x) ((snd H).AbGroupStr.comm (f' b) (f' c)) ⟩
                            (f' a) · (f' c) · (f' b) ≡⟨ cong (λ x → (f' a) · x) (sym ((snd f).pres· c b)) ⟩
                            (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
                            f' (a · c · b) ∎)
