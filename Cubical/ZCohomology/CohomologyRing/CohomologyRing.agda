@@ -143,7 +143,7 @@ module CupRingProperties (A : Type ℓ) where
   gradCommRing : (n m : ℕ) → (a : coHom n A) → (b : coHom m A) →
                  (base n a) cup (base m b) ≡ (-^ n · m) ((base m b) cup (base n a))
   gradCommRing n m a b = base (n +' m) (a ⌣ b)
-                                 ≡⟨ cong (base (n +' m)) (gradedComm'-⌣ n m a b) ⟩
+                                 ≡⟨ cong (base (n +' m)) (gradedComm-⌣ n m a b) ⟩
                         base (n +' m) ((-ₕ^ n · m) (subst (λ n₁ → coHom n₁ A) (+'-comm m n) (b ⌣ a)))
                                  ≡⟨ sym (-^-base n m (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a))) ⟩
                         (-^ n · m)  (base (n +' m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))

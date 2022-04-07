@@ -647,12 +647,12 @@ private
                 (cong-ₖ'-gen-inr (suc (suc (suc n))) (suc zero) x tt (Kn→ΩKn+1 (suc (suc n)) ∣ a ∣ₕ) (~ k)))) k)
 
 -- ∣ a ∣ ⌣ₖ ∣ b ∣ ≡ -ₖ'ⁿ*ᵐ (∣ b ∣ ⌣ₖ ∣ a ∣) for n ≥ 1, m = 1
-gradedComm-elimCase-left : (n : ℕ) (p : _) (q : _) (a : S₊ (suc n)) (b : S¹) →
+gradedComm'-elimCase-left : (n : ℕ) (p : _) (q : _) (a : S₊ (suc n)) (b : S¹) →
       (_⌣ₖ_  {n = suc n} {m = (suc zero)} ∣ a ∣ₕ ∣ b ∣ₕ)
     ≡ (-ₖ'-gen (suc n) (suc zero) p q)
        (subst coHomK (+'-comm (suc zero) (suc n))
         (_⌣ₖ_  {n = suc zero} {m = suc n} ∣ b ∣ₕ ∣ a ∣ₕ))
-gradedComm-elimCase-left zero (inr tt) (inr tt) a b =
+gradedComm'-elimCase-left zero (inr tt) (inr tt) a b =
     proof a b
   ∙ cong (-ₖ'-gen 1 1 (inr tt) (inr tt))
          (sym (transportRefl ((_⌣ₖ_ {n = suc zero} {m = suc zero} ∣ b ∣ ∣ a ∣))))
@@ -684,15 +684,15 @@ gradedComm-elimCase-left zero (inr tt) (inr tt) a b =
                                      (λ i j → _⌣ₖ_ {n = suc zero} {m = suc zero} ∣ loop j ∣ₕ ∣ loop i ∣ₕ)
                                      (Kn→ΩKn+10ₖ _) (~ r) i j))})
           (help k i j)
-gradedComm-elimCase-left (suc n) p q north b =
+gradedComm'-elimCase-left (suc n) p q north b =
   cong (-ₖ'-gen (suc (suc n)) 1 p q ∘
             (subst coHomK (+'-comm 1 (suc (suc n)))))
               (sym (⌣ₖ-0ₖ _ (suc (suc n)) ∣ b ∣ₕ))
-gradedComm-elimCase-left (suc n) p q south b =
+gradedComm'-elimCase-left (suc n) p q south b =
   cong (-ₖ'-gen (suc (suc n)) 1 p q ∘
             (subst coHomK (+'-comm 1 (suc (suc n)))))
               ((sym (⌣ₖ-0ₖ _ (suc (suc n)) ∣ b ∣ₕ)) ∙ λ i → ∣ b ∣ ⌣ₖ ∣ merid (ptSn (suc n)) i ∣ₕ)
-gradedComm-elimCase-left (suc n) p q (merid a i) base k =
+gradedComm'-elimCase-left (suc n) p q (merid a i) base k =
   hcomp (λ j → λ {(i = i0) → (-ₖ'-gen (suc (suc n)) 1 p q ∘
                                   (subst coHomK (+'-comm 1 (suc (suc n)))))
                                     (0ₖ _)
@@ -708,11 +708,11 @@ gradedComm-elimCase-left (suc n) p q (merid a i) base k =
                         ; (i = i1) → ∣ north ∣
                         ; (k = i0) → (sym (Kn→ΩKn+10ₖ _)
                                     ∙ (λ j → Kn→ΩKn+1 _
-                                         (sym (gradedComm-elimCase-left n (evenOrOdd (suc n)) (inr tt) a base
+                                         (sym (gradedComm'-elimCase-left n (evenOrOdd (suc n)) (inr tt) a base
                                         ∙ cong (-ₖ'-gen (suc n) 1 (evenOrOdd (suc n)) (inr tt)) (transp0₁ n)) j))) j i
                         ; (k = i1) → ∣ north ∣})
                ∣ north ∣)
-gradedComm-elimCase-left (suc n) p q (merid a i) (loop j) k =
+gradedComm'-elimCase-left (suc n) p q (merid a i) (loop j) k =
   hcomp (λ r →
     λ { (i = i0) → (-ₖ'-gen (suc (suc n)) 1 p q ∘
                       (subst coHomK (+'-comm 1 (suc (suc n)))))
@@ -746,7 +746,7 @@ gradedComm-elimCase-left (suc n) p q (merid a i) (loop j) k =
     P : Path _ (Kn→ΩKn+1 (suc (suc (n + 0))) (0ₖ _))
                (Kn→ΩKn+1 (suc (suc (n + 0))) (_⌣ₖ_ {n = (suc n)} {m = suc zero} ∣ a ∣ ∣ base ∣))
     P i = Kn→ΩKn+1 (suc (suc (n + 0)))
-            ((sym (gradedComm-elimCase-left n (evenOrOdd (suc n)) (inr tt) a base
+            ((sym (gradedComm'-elimCase-left n (evenOrOdd (suc n)) (inr tt) a base
               ∙ cong (-ₖ'-gen (suc n) 1 (evenOrOdd (suc n)) (inr tt)) (transp0₁ n)) i))
 
     help₁ : (P ∙∙ ((λ i j → _⌣ₖ_ {n = suc (suc n)} {m = suc zero} ∣ merid a j ∣ₕ ∣ loop i ∣ₕ)) ∙∙ sym P)
@@ -759,14 +759,14 @@ gradedComm-elimCase-left (suc n) p q (merid a i) (loop j) k =
     help₁ k i j =
         ((λ i → (Kn→ΩKn+1 (suc (suc (n + 0))))
                   (compPath-filler'
-                    ((gradedComm-elimCase-left n (evenOrOdd (suc n)) (inr tt) a base))
+                    ((gradedComm'-elimCase-left n (evenOrOdd (suc n)) (inr tt) a base))
                    (cong (-ₖ'-gen (suc n) 1 (evenOrOdd (suc n)) (inr tt))
                     (transp0₁ n)) (~ k) (~ i)))
        ∙∙ (λ i j → (Kn→ΩKn+1 _
-                     (gradedComm-elimCase-left n (evenOrOdd (suc n)) (inr tt) a (loop i) k) j))
+                     (gradedComm'-elimCase-left n (evenOrOdd (suc n)) (inr tt) a (loop i) k) j))
        ∙∙ λ i → (Kn→ΩKn+1 (suc (suc (n + 0))))
                    (compPath-filler'
-                     ((gradedComm-elimCase-left n (evenOrOdd (suc n)) (inr tt) a base))
+                     ((gradedComm'-elimCase-left n (evenOrOdd (suc n)) (inr tt) a base))
                     (cong (-ₖ'-gen (suc n) 1 (evenOrOdd (suc n)) (inr tt))
                      (transp0₁ n)) (~ k) i)) i j
 
@@ -833,17 +833,17 @@ gradedComm-elimCase-left (suc n) p q (merid a i) (loop j) k =
                                          (lem₇ n a p q i1 j i))))
 
 -- ∣ a ∣ ⌣ₖ ∣ b ∣ ≡ -ₖ'ⁿ*ᵐ (∣ b ∣ ⌣ₖ ∣ a ∣) for all n, m ≥ 1
-gradedComm-elimCase : (k n m : ℕ) (term : n + m ≡ k) (p : _) (q : _) (a : _) (b : _) →
+gradedComm'-elimCase : (k n m : ℕ) (term : n + m ≡ k) (p : _) (q : _) (a : _) (b : _) →
       (_⌣ₖ_  {n = suc n} {m = (suc m)} ∣ a ∣ₕ ∣ b ∣ₕ)
     ≡ (-ₖ'-gen (suc n) (suc m) p q)
        (subst coHomK (+'-comm (suc m) (suc n))
         (_⌣ₖ_  {n = suc m} {m = suc n} ∣ b ∣ₕ ∣ a ∣ₕ))
-gradedComm-elimCase k zero zero term p q a b = gradedComm-elimCase-left zero p q a b
-gradedComm-elimCase k zero (suc m) term (inr tt) q a b =
+gradedComm'-elimCase k zero zero term p q a b = gradedComm'-elimCase-left zero p q a b
+gradedComm'-elimCase k zero (suc m) term (inr tt) q a b =
     help q
   ∙ sym (cong (-ₖ'-gen 1 (suc (suc m)) (inr tt) q
              ∘ (subst coHomK (+'-comm (suc (suc m)) 1)))
-        (gradedComm-elimCase-left (suc m) q (inr tt) b a))
+        (gradedComm'-elimCase-left (suc m) q (inr tt) b a))
   where
   help : (q : _) → ∣ a ∣ₕ ⌣ₖ ∣ b ∣ₕ ≡
             -ₖ'-gen 1 (suc (suc m)) (inr tt) q
@@ -875,57 +875,57 @@ gradedComm-elimCase k zero (suc m) term (inr tt) q a b =
                     (-ₖ'-gen (suc (suc m)) 1 (inr x) (inr tt)
                       (transp (λ j → coHomK ((+'-comm (suc (suc m)) 1) (j ∧ ~ i))) i
                               ((subst coHomK (+'-comm 1 (suc (suc m))) (∣ a ∣ₕ ⌣ₖ ∣ b ∣ₕ)))))))
-gradedComm-elimCase k (suc n) zero term p q a b =
-  gradedComm-elimCase-left (suc n) p q a b
-gradedComm-elimCase zero (suc n) (suc m) term p q a b =
+gradedComm'-elimCase k (suc n) zero term p q a b =
+  gradedComm'-elimCase-left (suc n) p q a b
+gradedComm'-elimCase zero (suc n) (suc m) term p q a b =
   ⊥-rec (snotz (sym (+-suc n m) ∙ cong predℕ term))
-gradedComm-elimCase (suc zero) (suc n) (suc m) term p q a b =
+gradedComm'-elimCase (suc zero) (suc n) (suc m) term p q a b =
   ⊥-rec (snotz (sym (+-suc n m) ∙ cong predℕ term))
-gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q north north = refl
-gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q north south = refl
-gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q north (merid a i) r =
+gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q north north = refl
+gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q north south = refl
+gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q north (merid a i) r =
   -ₖ'-gen (suc (suc n)) (suc (suc m)) p q (
     (subst coHomK (+'-comm (suc (suc m)) (suc (suc n))))
       ((sym (Kn→ΩKn+10ₖ _)
       ∙ cong (Kn→ΩKn+1 _)
           (cong (-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p) (sym (transp0₂ n m))
-                 ∙ sym (gradedComm-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
+                 ∙ sym (gradedComm'-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
              (evenOrOdd (suc m)) p a north))) r i))
-gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q south north = refl
-gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q south south = refl
-gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q south (merid a i) r =
+gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q south north = refl
+gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q south south = refl
+gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q south (merid a i) r =
   -ₖ'-gen (suc (suc n)) (suc (suc m)) p q (
     (subst coHomK (+'-comm (suc (suc m)) (suc (suc n))))
       ((sym (Kn→ΩKn+10ₖ _)
       ∙ cong (Kn→ΩKn+1 _)
           (cong (-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p) (sym (transp0₂ n m))
-                  ∙ sym (gradedComm-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
+                  ∙ sym (gradedComm'-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
              (evenOrOdd (suc m)) p a south))) r i))
-gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) north r =
+gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) north r =
     (cong (Kn→ΩKn+1 (suc (suc (n + suc m))))
-      (gradedComm-elimCase (suc k) n (suc m) (cong predℕ term) (evenOrOdd (suc n)) q a north
+      (gradedComm'-elimCase (suc k) n (suc m) (cong predℕ term) (evenOrOdd (suc n)) q a north
        ∙ cong (-ₖ'-gen (suc n) (suc (suc m)) (evenOrOdd (suc n)) q) (transp0₂ m n))
    ∙' Kn→ΩKn+10ₖ _) r i
-gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) south r =
+gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) south r =
     (cong (Kn→ΩKn+1 (suc (suc (n + suc m))))
-      (gradedComm-elimCase (suc k) n (suc m) (cong predℕ term) (evenOrOdd (suc n)) q a south
+      (gradedComm'-elimCase (suc k) n (suc m) (cong predℕ term) (evenOrOdd (suc n)) q a south
        ∙ cong (-ₖ'-gen (suc n) (suc (suc m)) (evenOrOdd (suc n)) q) (transp0₂ m n))
    ∙' Kn→ΩKn+10ₖ _) r i
-gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b j) r =
+gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b j) r =
   hcomp (λ l →
     λ { (i = i0) → -ₖ'-gen (suc (suc n)) (suc (suc m)) p q (
                      (subst coHomK (+'-comm (suc (suc m)) (suc (suc n))))
                        ((compPath-filler (sym (Kn→ΩKn+10ₖ _))
                         (cong (Kn→ΩKn+1 _)
                           (cong (-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p) (sym (transp0₂ n m))
-                                   ∙ sym (gradedComm-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
+                                   ∙ sym (gradedComm'-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
                                (evenOrOdd (suc m)) p b north))) l r j)))
        ; (i = i1) → -ₖ'-gen (suc (suc n)) (suc (suc m)) p q (
                      (subst coHomK (+'-comm (suc (suc m)) (suc (suc n))))
                        ((compPath-filler (sym (Kn→ΩKn+10ₖ _))
                         (cong (Kn→ΩKn+1 _)
                           (cong (-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p) (sym (transp0₂ n m))
-                                  ∙ sym (gradedComm-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
+                                  ∙ sym (gradedComm'-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
                               (evenOrOdd (suc m)) p b south))) l r j)))
        ; (r = i0) → help₂ l i j
        ; (r = i1) → -ₖ'-gen (suc (suc n)) (suc (suc m)) p q
@@ -970,7 +970,7 @@ gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b 
                 ; (r = i1) → Kn→Ω²Kn+2 (-ₖ'-gen (suc (suc n)) (suc (suc m)) p q
                                             (-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p
                                               (subst coHomK (cong suc (sym (+-suc n m)))
-                                                (gradedComm-elimCase k n m
+                                                (gradedComm'-elimCase k n m
                                                   (+-comm n m ∙∙ cong predℕ (+-comm (suc m) n) ∙∙ cong (predℕ ∘ predℕ) term)
                                                   (evenOrOdd (suc n)) (evenOrOdd (suc m)) a b (~ l))))) i j})
                 (lem₆ n m p q a b r i j))))
@@ -980,10 +980,10 @@ gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b 
     Kn→ΩKn+1 _
       (hcomp (λ r
         → λ { (i = i0) → compPath-filler' (cong ((-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p)) (sym (transp0₂ n m)))
-                            (sym (gradedComm-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
+                            (sym (gradedComm'-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
                                                         (evenOrOdd (suc m)) p b north)) r l
               ; (i = i1) → compPath-filler' (cong ((-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p)) (sym (transp0₂ n m)))
-                             (sym (gradedComm-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
+                             (sym (gradedComm'-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
                                                         (evenOrOdd (suc m)) p b south)) r l
               ; (l = i0) → doubleCompPath-filler (sym (cong (-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p) (transp0₂ n m)))
                                                   (λ i → -ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p
@@ -991,7 +991,7 @@ gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b 
                                                              (_⌣ₖ_ {n = suc (suc n)} {m = suc m} ∣ merid a i ∣ₕ ∣ b ∣ₕ)))
                                                   (cong (-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p) (transp0₂ n m)) r i
               ; (l = i1) → _⌣ₖ_ {n = suc m} {m = suc (suc n)} ∣ b ∣ₕ ∣ merid a i ∣ₕ})
-          (gradedComm-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
+          (gradedComm'-elimCase (suc k) m (suc n) (+-suc m n ∙ +-comm (suc m) n ∙ cong predℕ term)
             (evenOrOdd (suc m)) p b (merid a i) (~ l))) j
 
   help₂ : I → I → I → coHomK _
@@ -1001,12 +1001,12 @@ gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b 
          ; (i = i1) → ∣ north ∣
          ; (j = i0) →
            Kn→ΩKn+1 (suc (suc (n + suc m)))
-                (compPath-filler (gradedComm-elimCase (suc k) n (suc m)
+                (compPath-filler (gradedComm'-elimCase (suc k) n (suc m)
                                   (cong predℕ term) (evenOrOdd (suc n)) q a north)
                   (cong (-ₖ'-gen (suc n) (suc (suc m)) (evenOrOdd (suc n)) q)  (transp0₂ m n)) r (~ l)) i
          ; (j = i1) →
               Kn→ΩKn+1 (suc (suc (n + suc m)))
-                (compPath-filler (gradedComm-elimCase (suc k) n (suc m)
+                (compPath-filler (gradedComm'-elimCase (suc k) n (suc m)
                                  (cong predℕ term) (evenOrOdd (suc n)) q a south)
                   (cong (-ₖ'-gen (suc n) (suc (suc m)) (evenOrOdd (suc n)) q) (transp0₂ m n)) r (~ l)) i
          ; (l = i0) →
@@ -1021,18 +1021,18 @@ gradedComm-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b 
             λ { (i = i0) → ∣ north ∣
               ; (i = i1) → ∣ north ∣
               ; (j = i0) → Kn→ΩKn+1 (suc (suc (n + suc m)))
-                             (gradedComm-elimCase (suc k) n (suc m)
+                             (gradedComm'-elimCase (suc k) n (suc m)
                                (cong predℕ term) (evenOrOdd (suc n)) q a north (~ l ∨ ~ r)) i
               ; (j = i1) → Kn→ΩKn+1 (suc (suc (n + suc m)))
-                             (gradedComm-elimCase (suc k) n (suc m)
+                             (gradedComm'-elimCase (suc k) n (suc m)
                                (cong predℕ term) (evenOrOdd (suc n)) q a south (~ l ∨ ~ r)) i
               ; (l = i0) → Kn→ΩKn+1 (suc (suc (n + suc m)))
-                             (gradedComm-elimCase (suc k) n (suc m)
+                             (gradedComm'-elimCase (suc k) n (suc m)
                                (cong predℕ term) (evenOrOdd (suc n)) q a (merid b j) i1) i
-              ; (l = i1) → Kn→ΩKn+1 _ (gradedComm-elimCase (suc k) n (suc m) (cong predℕ term)
+              ; (l = i1) → Kn→ΩKn+1 _ (gradedComm'-elimCase (suc k) n (suc m) (cong predℕ term)
                                           (evenOrOdd (suc n)) q a (merid b j) (~ r)) i})
                (Kn→ΩKn+1 (suc (suc (n + suc m)))
-                 (gradedComm-elimCase (suc k) n (suc m) (cong predℕ term)
+                 (gradedComm'-elimCase (suc k) n (suc m) (cong predℕ term)
                    (evenOrOdd (suc n)) q a (merid b j) i1) i))
 
 private
@@ -1044,14 +1044,14 @@ private
   coherence-transp (suc n) zero p q = refl
   coherence-transp (suc n) (suc m) p q = refl
 
-gradedComm-⌣ₖ∙ : (n m : ℕ) (p : _) (q : _) (a : _)
+gradedComm'-⌣ₖ∙ : (n m : ℕ) (p : _) (q : _) (a : _)
     → ⌣ₖ∙ (suc n) (suc m) a
   ≡ ((λ b → -ₖ'-gen (suc n) (suc m) p q (subst coHomK (+'-comm (suc m) (suc n)) (b ⌣ₖ a)))
     , (cong (-ₖ'-gen (suc n) (suc m) p q)
        (cong (subst coHomK (+'-comm (suc m) (suc n)))
         (0ₖ-⌣ₖ (suc m) (suc n) a))
    ∙ coherence-transp n m p q))
-gradedComm-⌣ₖ∙ n m p q =
+gradedComm'-⌣ₖ∙ n m p q =
   trElim (λ _ → isOfHLevelPath (3 + n) ((isOfHLevel↑∙ (suc n) m)) _ _)
     λ a → →∙Homogeneous≡ (isHomogeneousKn _) (funExt λ b → funExt⁻ (cong fst (f₁≡f₂ b)) a)
   where
@@ -1076,33 +1076,33 @@ gradedComm-⌣ₖ∙ n m p q =
                      (λ i → S₊∙ (suc n) →∙ coHomK-ptd (+'-comm (suc n) (suc m) (~ i)))
                       (isOfHLevel↑∙' (suc m) n)) _ _)
      λ b → →∙Homogeneous≡ (isHomogeneousKn _)
-             (funExt λ a → gradedComm-elimCase (n + m) n m refl p q a b)
+             (funExt λ a → gradedComm'-elimCase (n + m) n m refl p q a b)
 
 -- Finally, graded commutativity:
-gradedComm-⌣ₖ : (n m : ℕ) (a : coHomK n) (b : coHomK m)
+gradedComm'-⌣ₖ : (n m : ℕ) (a : coHomK n) (b : coHomK m)
   → a ⌣ₖ b ≡ (-ₖ'^ n · m) (subst coHomK (+'-comm m n) (b ⌣ₖ a))
-gradedComm-⌣ₖ zero zero a b = sym (transportRefl _) ∙ cong (transport refl) (comm-·₀ a b)
-gradedComm-⌣ₖ zero (suc m) a b =
+gradedComm'-⌣ₖ zero zero a b = sym (transportRefl _) ∙ cong (transport refl) (comm-·₀ a b)
+gradedComm'-⌣ₖ zero (suc m) a b =
       sym (transportRefl _)
   ∙∙ (λ k → subst coHomK (isSetℕ _ _ refl (+'-comm (suc m) zero) k) (b ⌣ₖ a))
   ∙∙ sym (-ₖ'-gen-inl-left zero (suc m) tt (evenOrOdd (suc m))
           (subst coHomK (+'-comm (suc m) zero) (b ⌣ₖ a)))
-gradedComm-⌣ₖ (suc n) zero a b =
+gradedComm'-⌣ₖ (suc n) zero a b =
      sym (transportRefl _)
   ∙∙ ((λ k → subst coHomK (isSetℕ _ _ refl (+'-comm zero (suc n)) k) (b ⌣ₖ a)))
   ∙∙ sym (-ₖ'-gen-inl-right (suc n) zero (evenOrOdd (suc n)) tt
           (subst coHomK (+'-comm zero (suc n)) (b ⌣ₖ a)))
-gradedComm-⌣ₖ (suc n) (suc m) a b =
-  funExt⁻ (cong fst (gradedComm-⌣ₖ∙ n m (evenOrOdd (suc n)) (evenOrOdd (suc m)) a)) b
+gradedComm'-⌣ₖ (suc n) (suc m) a b =
+  funExt⁻ (cong fst (gradedComm'-⌣ₖ∙ n m (evenOrOdd (suc n)) (evenOrOdd (suc m)) a)) b
 
 
-gradedComm-⌣ : {A : Type ℓ} (n m : ℕ) (a : coHom n A) (b : coHom m A)
+gradedComm'-⌣ : {A : Type ℓ} (n m : ℕ) (a : coHom n A) (b : coHom m A)
   → a ⌣ b ≡ (-ₕ'^ n · m) (subst (λ n → coHom n A) (+'-comm m n) (b ⌣ a))
-gradedComm-⌣ n m =
+gradedComm'-⌣ n m =
   sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
     λ f g →
       cong ∣_∣₂ (funExt (λ x →
-        gradedComm-⌣ₖ n m (f x) (g x)
+        gradedComm'-⌣ₖ n m (f x) (g x)
       ∙ cong ((-ₖ'^ n · m) ∘ (subst coHomK (+'-comm m n)))
          λ i → g (transportRefl x (~ i)) ⌣ₖ f (transportRefl x (~ i))))
 
@@ -1133,6 +1133,6 @@ gradedComm-⌣ n m =
              → (-ₕ^ n · m) a  ≡ (-ₕ'^ n · m) a
 -ₕ^-eq n m a = -ₕ^-gen-eq n m (evenOrOdd n) (evenOrOdd m) a
 
-gradedComm'-⌣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (a : coHom n A) (b : coHom m A)
+gradedComm-⌣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (a : coHom n A) (b : coHom m A)
   → a ⌣ b ≡ (-ₕ^ n · m) (subst (λ n → coHom n A) (+'-comm m n) (b ⌣ a))
-gradedComm'-⌣ n m a b = (gradedComm-⌣ n m a b) ∙ (sym (-ₕ^-eq n m (subst (λ n₁ → coHom n₁ _) (+'-comm m n) (b ⌣ a))))
+gradedComm-⌣ n m a b = (gradedComm'-⌣ n m a b) ∙ (sym (-ₕ^-eq n m (subst (λ n₁ → coHom n₁ _) (+'-comm m n) (b ⌣ a))))
