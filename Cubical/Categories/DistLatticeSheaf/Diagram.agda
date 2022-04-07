@@ -12,6 +12,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat
+open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
 
@@ -41,15 +42,72 @@ data DLShfDiagHom (n : ℕ) : DLShfDiagOb n → DLShfDiagOb n → Type where
   singPair : {i j : Fin n} → DLShfDiagHom n (sing i) (pair i j)
 
 
+module test (A : Type) where
+  variable
+   x y : A
 
--- DLShfDiagHom n (sing i) (sing j) is retract of i≡j
--- DLShfDiagHom n (sing i) (pair j k) is retract of i≡j
+  data myId : A → A → Type where
+    myrefl : ∀ {a} → myId a a
 
-encode : {n : ℕ} (x y : DLShfDiagOb n) → Type
-encode (sing x) (sing x₁) = x ≡ x₁
-encode (sing x) (pair x₁ x₂) = {!!}
-encode (pair x x₁) (sing x₂) = {!!}
-encode (pair x x₁) (pair x₂ x₃) = {!!}
+  module _ (P : ∀ y → myId x y → Type) (d : P x myrefl) where
+    myJ : (p : myId x y) → P y p
+    myJ myrefl = d
+
+  myId→≡ : ∀ x y → myId x y → x ≡ y
+  myId→≡ x _ = myJ (λ y _ → x ≡ y) refl
+
+  ≡→myId : ∀ x y → x ≡ y → myId x y
+  ≡→myId x _ = J (λ y _ → myId x y) myrefl
+
+  ≡→myId→≡ : ∀ x y p → myId→≡ x y (≡→myId x y p) ≡ p
+  ≡→myId→≡ x _ = J (λ y p → myId→≡ x y (≡→myId x y p) ≡ p)
+                   (cong (λ p → myJ (λ y _ → x ≡ y) (λ _ → x) p)
+                   (JRefl (λ y _ → myId x y) myrefl))
+
+  myId→≡→myId : ∀ x y p → ≡→myId x y (myId→≡ x y p) ≡ p
+  myId→≡→myId x _ = myJ (λ y p → ≡→myId x y (myId→≡ x y p) ≡ p)
+                        (transportRefl myrefl)
+
+variable
+ n : ℕ
+ x y : DLShfDiagOb n
+ f g : DLShfDiagHom n x y
+ i j k : Fin n
+module _ (P : ∀ {x} y → DLShfDiagHom n x y → Type) (d : P x idAr)
+         (e : ∀ {i j} → P {x = (sing i)} (pair i j) singPair) where
+  Jish : ∀ {y} (f : DLShfDiagHom n x y) → P y f
+  Jish {y = y} idAr = d
+  Jish {y = .(pair _ _)} singPair = e
+
+
+-- DLShfDiagHom n x y is a retract of Cover x y
+Cover : ∀ (x y : DLShfDiagOb n) → Type
+Cover (sing i) (sing j) = i ≡ j
+Cover (sing i) (pair j k) = i ≡ j
+Cover (pair i j) (sing k) = ⊥
+Cover (pair i j) (pair k l) = (i ≡ k) × (j ≡ l)
+
+-- module DLShfDiagHomPath {n : ℕ} where
+--   Cover : (x y : DLShfDiagOb n) → DLShfDiagHom n x y → DLShfDiagHom n x y → Type
+--   Cover (sing x) (sing .x) idAr g = Unit
+--   Cover (sing x) (pair .x x₂) singPair g = Unit
+--   Cover (pair x x₁) (sing x₂) ()
+--   Cover (pair x x₁) (pair .x .x₁) idAr g = Unit
+
+--   reflCode : (x y : DLShfDiagOb n) (f : DLShfDiagHom n x y) → Cover x y f f
+--   reflCode (sing x) (sing .x) idAr = tt
+--   reflCode (sing x) (pair .x x₁) singPair = tt
+--   reflCode (pair x x₁) (sing x₂) ()
+--   reflCode (pair x x₁) (pair .x .x₁) idAr = tt
+
+--   encode : (x y : DLShfDiagOb n) (f g : DLShfDiagHom n x y)
+--          → f ≡ g → Cover x y f g
+--   encode x y f _ = J (λ g _ → Cover x y f g) (reflCode x y f)
+
+--   decode : (x y : DLShfDiagOb n) (f g : DLShfDiagHom n x y)
+--          → Cover x y f g → f ≡ g
+--   decode x .x idAr g c = {!g!}
+--   decode .(sing _) .(pair _ _) singPair g c = {!!}
 
 discreteDLShfDiagHom : {n : ℕ} (x y : DLShfDiagOb n) → Discrete (DLShfDiagHom n x y)
 discreteDLShfDiagHom = {!!}
