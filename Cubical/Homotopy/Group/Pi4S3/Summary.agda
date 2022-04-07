@@ -11,7 +11,6 @@ module Cubical.Homotopy.Group.Pi4S3.Summary where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma.Base

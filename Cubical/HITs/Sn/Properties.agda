@@ -394,7 +394,7 @@ SuspS¹-inv x = (lUnit _
      ∙ ((λ i → cong ∣_∣ₕ (σ (S₊∙ 1) (rCancelS¹ x (~ i))))
      ∙ cong (cong ∣_∣ₕ) (rCancel (merid base))) ∙ sym (rCancel _)
 
--------------------- join Sⁿ Sᵐ ≃ Sⁿ⁺¹ᵐ -------------------------
+-------------------- join Sⁿ Sᵐ ≃ Sⁿ⁺¹⁺ᵐ -------------------------
 {-
 This section contains a proof that join Sⁿ Sᵐ ≃ Sⁿ⁺ᵐ⁺¹. This is easy using
 various properties proved in HITs.Join. However, we would like the map

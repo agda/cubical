@@ -82,6 +82,10 @@ open S¹Hopf
 open Iso
 open GroupStr
 
+private
+  variable
+    ℓ : Level
+    A B : Pointed ℓ
 
 -- Some abbreviations and simple lemmas
 private
@@ -91,7 +95,7 @@ private
   σ-filler : ∀ {ℓ} {A : Type ℓ} (x y : A) (i j : I) → Susp A
   σ-filler x y i j = compPath-filler (merid x) (sym (merid y)) i j
 
-  to3ConnectedId : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} {f g : A →∙ B}
+  to3ConnectedId : {f g : A →∙ B}
     → (isConnected 3 (typ B)) → fst f ≡ fst g → ∣ f ∣₂ ≡ ∣ g ∣₂
   to3ConnectedId {f = f} {g = g} con p =
     trRec (squash₂ _ _)
@@ -114,7 +118,7 @@ private
 
 {- Step 1. Define an addition on π₃*(A) := ∥ S¹ * S¹ →∙ A ∥₀ -}
 -- On the underlying function spaces.
-_+join_ : ∀ {ℓ} {A : Pointed ℓ} (f g : (join S¹ S¹ , inl base) →∙ A)
+_+join_ : (f g : (join S¹ S¹ , inl base) →∙ A)
        → (join S¹ S¹ , inl base) →∙ A
 fst (f +join g) (inl x) = fst f (inl x)
 fst (f +join g) (inr x) = fst g (inr x)
@@ -131,18 +135,17 @@ _π₃*+_ = sRec2 squash₂ λ x y → ∣ x +join y ∣₂
 
 -- transferring between π₃ and π₃*
 -- (homotopy groups defined in terms of S¹ * S¹)
-module _ {ℓ : Level} {A : Pointed ℓ} where
-  joinify :  S₊∙ 3 →∙ A → (join S¹ S¹ , inl base) →∙ A
-  fst (joinify f) x = fst f (joinS¹S¹→S³ x)
-  snd (joinify f) = snd f
+joinify :  S₊∙ 3 →∙ A → (join S¹ S¹ , inl base) →∙ A
+fst (joinify f) x = fst f (joinS¹S¹→S³ x)
+snd (joinify f) = snd f
 
-  disjoin : (join S¹ S¹ , inl base) →∙ A → S₊∙ 3 →∙ A
-  fst (disjoin f) = λ x → fst f (Iso.inv (IsoSphereJoin 1 1) x)
-  snd (disjoin f) = snd f
+disjoin : (join S¹ S¹ , inl base) →∙ A → S₊∙ 3 →∙ A
+fst (disjoin f) = λ x → fst f (Iso.inv (IsoSphereJoin 1 1) x)
+snd (disjoin f) = snd f
 
 
 -- joinify is structure preserving
-+join≡∙Π : ∀ {ℓ} {A : Pointed ℓ} (f g : S₊∙ 3 →∙ A)
++join≡∙Π : (f g : S₊∙ 3 →∙ A)
          → joinify (∙Π f g)
          ≡ (joinify f +join joinify g)
 +join≡∙Π f' g' =
@@ -249,7 +252,7 @@ module _ {ℓ : Level} {A : Pointed ℓ} where
 
 -- Group structure on π₃*
 -- todo: remove connectivity assumption
-module _ {ℓ : Level} (A : Pointed ℓ) (con : (isConnected 3 (typ A))) where
+module _ (A : Pointed ℓ) (con : (isConnected 3 (typ A))) where
   π₃*Iso : Iso (typ (π'Gr 2 A)) ∥ (join S¹ S¹ , inl base) →∙ A ∥₂
   fun π₃*Iso = sMap joinify
   inv π₃*Iso = sMap disjoin
@@ -275,8 +278,7 @@ module _ {ℓ : Level} (A : Pointed ℓ) (con : (isConnected 3 (typ A))) where
 
 -- Induced homomorphisms (A →∙ B) → (π₃*(A) → π₃*(B))
 -- todo: remove connectivity assumptions
-module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
-         (conA : (isConnected 3 (typ A))) (conB : (isConnected 3 (typ B)))
+module _ (conA : (isConnected 3 (typ A))) (conB : (isConnected 3 (typ B)))
          (f : A →∙ B) where
   postCompπ₃* : GroupHom (π₃* A conA) (π₃* B conB)
   fst postCompπ₃* = sMap (f ∘∙_)
@@ -305,8 +307,7 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
 
 -- Induced iso (A ≃∙ B) → π₃*(A) ≅ π₃*(B)
 -- todo: remove connectivity assumptions
-module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
-         (conA : (isConnected 3 (typ A))) (conB : (isConnected 3 (typ B)))
+module _ (conA : (isConnected 3 (typ A))) (conB : (isConnected 3 (typ B)))
          (f : A ≃∙ B) where
   postCompπ₃*Equiv : GroupEquiv (π₃* A conA) (π₃* B conB)
   fst postCompπ₃*Equiv = isoToEquiv h
