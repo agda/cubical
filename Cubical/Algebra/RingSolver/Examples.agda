@@ -15,7 +15,20 @@ private
   variable
     ℓ ℓ' : Level
 
-{-
+module TestErrors (R : CommRing ℓ) where
+  open CommRingStr (snd R)
+
+  {-
+    The following should give an type checking error,
+    making the user aware that the problem is, that 'Type₀'
+    is not a CommRing.
+  -}
+  {-
+  _ : 0r ≡ 0r
+  _ = solve Type₀
+  -}
+
+
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)
 
@@ -68,7 +81,7 @@ module Test (R : CommRing ℓ) where
   _ : (x y : (fst R)) → x ≡ y
   _ = solve R
   -}
--}
+
 module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
   open CommAlgebraStr {{...}}
   private

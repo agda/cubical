@@ -288,9 +288,14 @@ private
   toListOfTerms (con c (harg t ∷ args)) = toListOfTerms (con c args)
   toListOfTerms _ = nothing
 
+  checkIsRing : Term → TC Term
+  checkIsRing ring = checkType ring (def (quote CommRing) (varg unknown ∷ []))
+
+
   solve-macro : Term → Term → TC Unit
-  solve-macro cring hole =
+  solve-macro `cring hole =
     do
+      cring ← checkIsRing `cring
       hole′ ← inferType hole >>= normalise
       names ← findRingNames cring
       just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
