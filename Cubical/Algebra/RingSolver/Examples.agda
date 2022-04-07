@@ -4,10 +4,11 @@ module Cubical.Algebra.RingSolver.Examples where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_)
+open import Cubical.Data.Int.Base hiding (ℤ; _+_ ; _·_ ; _-_)
 open import Cubical.Data.List
 
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Instances.Int
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.RingSolver.Reflection
 
@@ -28,6 +29,11 @@ module TestErrors (R : CommRing ℓ) where
   _ = solve Type₀
   -}
 
+module TestWithℤ where
+  open CommRingStr (ℤ .snd)
+
+  _ : (a b : fst ℤ) → a + b ≡ b + a
+  _ = solve ℤ
 
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)

@@ -30,6 +30,7 @@ open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷
 
 open import Cubical.Algebra.RingSolver.AlgebraExpression
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Instances.Int using () renaming (ℤ to ℤRing)
 open import Cubical.Algebra.RingSolver.RawAlgebra
 open import Cubical.Algebra.RingSolver.IntAsRawRing
 open import Cubical.Algebra.RingSolver.Solver renaming (solve to ringSolve)
@@ -187,26 +188,30 @@ module _ (cring : Term) (names : RingNames) where
   `1` _ = unknown
 
   mutual
+    private
+      op2 : Name → Term → Term → Term
+      op2 op x y = con op (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
+
+      op1 : Name → Term → Term
+      op1 op x = con op (varg (buildExpression x) ∷ [])
 
     `_·_` : List (Arg Term) → Term
     `_·_` (harg _ ∷ xs) = `_·_` xs
-    `_·_` (varg _ ∷ varg x ∷ varg y ∷ []) =
-      con
-        (quote _·'_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
+    `_·_` (varg x ∷ varg y ∷ []) = op2 (quote _·'_) x y
+    `_·_` (varg _ ∷ varg x ∷ varg y ∷ []) = op2 (quote _·'_) x y
     `_·_` _ = unknown
 
     `_+_` : List (Arg Term) → Term
     `_+_` (harg _ ∷ xs) = `_+_` xs
-    `_+_` (varg _ ∷ varg x ∷ varg y ∷ []) =
-      con
-        (quote _+'_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
+    `_+_` (varg _ ∷ varg x ∷ varg y ∷ []) = op2 (quote _+'_) x y
+    `_+_` (varg x ∷ varg y ∷ []) = op2 (quote _+'_) x y
     `_+_` _ = unknown
 
     `-_` : List (Arg Term) → Term
     `-_` (harg _ ∷ xs) = `-_` xs
-    `-_` (varg _ ∷ varg x ∷ []) =
-      con
-        (quote -'_) (varg (buildExpression x) ∷ [])
+    `-_` (varg x ∷ []) = op1 (quote -'_) x
+    `-_` (varg _ ∷ varg x ∷ []) = op1 (quote -'_) x
+
     `-_` _ = unknown
 
     K' : List (Arg Term) → Term
