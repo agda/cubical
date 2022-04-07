@@ -343,5 +343,3 @@ module MatrixNotation (A : AdditiveCategory ℓ ℓ') where
                 ≡⟨ sym (⋆distr+ _ _ _) ⟩
         (π₁ ⋆ (f₁ ⋆ g)  +  π₂ ⋆ (f₂ ⋆ g)) ⋆ i
                     ∎
-
-    -- Can we multiply an m×n matrix with an n×k matrix?
