@@ -132,11 +132,19 @@ transportComposite = substComposite (λ D → D)
 -- substitution commutes with morphisms in slices
 substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
                    → (B C : A → Type ℓ′)
-                   → (F : ∀ i → B i → C i)
+                   → (F : ∀ a → B a → C a)
                    → {x y : A} (p : x ≡ y) (u : B x)
                    → subst C p (F x u) ≡ F y (subst B p u)
-substCommSlice B C F p Bx i =
-  transport-fillerExt⁻ (cong C p) i (F _ (transport-fillerExt (cong B p) i Bx))
+substCommSlice B C F p Bx a =
+  transport-fillerExt⁻ (cong C p) a (F _ (transport-fillerExt (cong B p) a Bx))
+
+ConstsubstCommSlice : ∀ {ℓ ℓ'} {A : Type ℓ}
+                   → (B : A → Type ℓ')
+                   → (C : Type ℓ')
+                   → (F : ∀ a → B a → C)
+                   → {x y : A} (p : x ≡ y) (u : B x)
+                   →  (F x u) ≡ F y (subst B p u)
+ConstsubstCommSlice B C F p Bx = (sym (transportRefl (F _ Bx)) ∙ substCommSlice B (λ _ → C) F p Bx)
 
 -- transporting over (λ i → B (p i) → C (p i)) divides the transport into
 -- transports over (λ i → C (p i)) and (λ i → B (p (~ i)))

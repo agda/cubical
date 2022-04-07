@@ -14,6 +14,10 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
 
+open import Cubical.HITs.SetTruncation
+  renaming (rec to sRec ; rec2 to sRec2
+          ; elim to sElim ; elim2 to sElim2 ; map to sMap)
+
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
@@ -23,17 +27,6 @@ open import Cubical.ZCohomology.RingStructure.GradedCommutativity
 private variable
   ℓ ℓ' ℓ'' ℓ''' : Level
 
-
------------------------------------------------------------------------------
--- Lemma
-
-ConstsubstCommSlice : {A : Type ℓ}
-                   → (B : A → Type ℓ')
-                   → (C : Type ℓ')
-                   → (F : ∀ a → B a → C)
-                   → {x y : A} (p : x ≡ y) (u : B x)
-                   →  (F x u) ≡ F y (subst B p u)
-ConstsubstCommSlice B C F p Bx = (sym (transportRefl (F _ Bx)) ∙ substCommSlice B (λ _ → C) F p Bx) 
 
 -----------------------------------------------------------------------------
 -- Definition Cohomology Ring
@@ -127,55 +120,36 @@ module CupRingProperties (A : Type ℓ) where
 -----------------------------------------------------------------------------
 -- Graded Comutative Ring
 
-  -- A well behave -ₕ^
-  -ₕ^'pq : {k : ℕ} → (n m : ℕ) → (p : isEvenT n ⊎ isOddT n) → (q : isEvenT m ⊎ isOddT m)
-           → coHom k A → coHom k A
-  -ₕ^'pq n m (inl p) (inl q) a = a
-  -ₕ^'pq n m (inl p) (inr q) a = a
-  -ₕ^'pq n m (inr p) (inl q) a = a
-  -ₕ^'pq n m (inr p) (inr q) a = -ₕ a
-
-  -ₕ^' : {k : ℕ} → (n m : ℕ) → coHom k A → coHom k A
-  -ₕ^' n m a = -ₕ^'pq n m (evenOrOdd n) (evenOrOdd m) a
-
-  -- -ₕ^eq : {k : ℕ} → (n m : ℕ) → (a : coHom k A) → -ₕ^' n m a ≡ (-ₕ^ n · m) a
-  -- -ₕ^eq {zero} n m a = {!refl!}
-  -- -ₕ^eq {suc k} n m a = {!!}
-
-
   -- def + commutation with base
-  -^pq : (n m : ℕ) → (p : isEvenT n ⊎ isOddT n) → (q : isEvenT m ⊎ isOddT m)
+  -^-gen : (n m : ℕ) → (p : isEvenT n ⊎ isOddT n) → (q : isEvenT m ⊎ isOddT m)
           → H* A → H* A
-  -^pq n m (inl p) (inl q) x = x
-  -^pq n m (inl p) (inr q) x = x
-  -^pq n m (inr p) (inl q) x = x
-  -^pq n m (inr p) (inr q) x = - x
+  -^-gen n m (inl p)      q  x = x
+  -^-gen n m (inr p) (inl q) x = x
+  -^-gen n m (inr p) (inr q) x = - x
 
-  -^ : (n m : ℕ) → H* A → H* A
-  -^ n m x = -^pq n m (evenOrOdd n) (evenOrOdd m) x
+  -^_·_ : (n m : ℕ) → H* A → H* A
+  -^_·_ n m x = -^-gen n m (evenOrOdd n) (evenOrOdd m) x
 
-  -^pq-Base : {k : ℕ} → (n m : ℕ) → (p : isEvenT n ⊎ isOddT n) → (q : isEvenT m ⊎ isOddT m)
-              (a : coHom k A) → -^pq n m p q (base k a) ≡ base k (-ₕ^'pq n m p q a)
-  -^pq-Base n m (inl p) (inl q) a = refl
-  -^pq-Base n m (inl p) (inr q) a = refl
-  -^pq-Base n m (inr p) (inl q) a = refl
-  -^pq-Base n m (inr p) (inr q) a = refl
+  -^-gen-base : {k : ℕ} → (n m : ℕ) → (p : isEvenT n ⊎ isOddT n) → (q : isEvenT m ⊎ isOddT m)
+              (a : coHom k A) → -^-gen n m p q (base k a) ≡ base k (-ₕ^-gen n m p q a)
+  -^-gen-base n m (inl p) q a = refl
+  -^-gen-base n m (inr p) (inl q) a = refl
+  -^-gen-base n m (inr p) (inr q) a = refl
 
-  -^-base : {k : ℕ} → (n m : ℕ) → (a : coHom k A) → -^ n m (base k a) ≡ base k (-ₕ^' n m a)
-  -^-base n m a = -^pq-Base n m (evenOrOdd n) (evenOrOdd m) a
+  -^-base : {k : ℕ} → (n m : ℕ) → (a : coHom k A) → (-^ n · m) (base k a) ≡ base k ((-ₕ^ n · m) a)
+  -^-base n m a = -^-gen-base n m (evenOrOdd n) (evenOrOdd m) a
 
   -- proof 
-  -- gradCommRing : (n m : ℕ) → (a : coHom n A) → (b : coHom m A) →
-  --                (base n a) cup (base m b) ≡ -^ n m ((base m b) cup (base n a))
-  -- gradCommRing n m a b = base (n +' m) (a ⌣ b)
-  --                                ≡⟨ cong (base (n +' m)) (gradedComm-⌣ n m a b) ⟩
-  --                        base (n +' m) ((-ₕ^ n · m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
-  --                                ≡⟨ {!!}  ⟩
-  --                        base (n +' m) (-ₕ^' n m (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
-  --                                ≡⟨ sym (-^-base n m (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a))) ⟩
-  --                        -^ n m (base (n +' m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
-  --                                ≡⟨ cong (-^ n m) (sym (ConstsubstCommSlice (λ k → coHom k A) (H* A) base (+'-comm m n) (b ⌣ a))) ⟩
-  --                        -^ n m (base (m +' n) (b ⌣ a)) ∎
+  gradCommRing : (n m : ℕ) → (a : coHom n A) → (b : coHom m A) →
+                 (base n a) cup (base m b) ≡ (-^ n · m) ((base m b) cup (base n a))
+  gradCommRing n m a b = base (n +' m) (a ⌣ b)
+                                 ≡⟨ cong (base (n +' m)) (gradedComm'-⌣ n m a b) ⟩
+                        base (n +' m) ((-ₕ^ n · m) (subst (λ n₁ → coHom n₁ A) (+'-comm m n) (b ⌣ a)))
+                                 ≡⟨ sym (-^-base n m (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a))) ⟩
+                        (-^ n · m)  (base (n +' m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
+                                 ≡⟨ cong (-^ n · m) (sym (ConstsubstCommSlice (λ k → coHom k A) (H* A) base (+'-comm m n) (b ⌣ a))) ⟩
+                         (-^ n · m) (base (m +' n) (b ⌣ a)) ∎
+                         
 
 module _ (A : Type ℓ) where
   open intermediate-def renaming (H* to H*')
