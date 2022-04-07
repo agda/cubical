@@ -6,6 +6,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
+open import Cubical.Data.Sum
 
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Properties
@@ -140,10 +141,53 @@ module _ (A : Type ℓ) where
 -----------------------------------------------------------------------------
 -- Graded Comutative Ring
 
--- def -1^(nm) using Even or Odd
--- then transporting the proofs
--- +lemma get -1^ out 
+  -- A well behave -ₕ^
+  -ₕ^'pq : {k : ℕ} → (n m : ℕ) → (p : isEvenT n ⊎ isOddT n) → (q : isEvenT m ⊎ isOddT m)
+           → coHom k A → coHom k A
+  -ₕ^'pq n m (inl p) (inl q) a = a
+  -ₕ^'pq n m (inl p) (inr q) a = a
+  -ₕ^'pq n m (inr p) (inl q) a = a
+  -ₕ^'pq n m (inr p) (inr q) a = -ₕ a
 
-  gradCommRing : (n m : ℕ) → (a : coHom n A) → (b : coHom m A) → (base n a) cup (base m b) ≡ (base m b) cup (base n a)
-  gradCommRing = {!!}
+  -ₕ^' : {k : ℕ} → (n m : ℕ) → coHom k A → coHom k A
+  -ₕ^' n m a = -ₕ^'pq n m (evenOrOdd n) (evenOrOdd m) a
+
+  -- -ₕ^eq : {k : ℕ} → (n m : ℕ) → (a : coHom k A) → -ₕ^' n m a ≡ (-ₕ^ n · m) a
+  -- -ₕ^eq {zero} n m a = {!refl!}
+  -- -ₕ^eq {suc k} n m a = {!!}
+
+
+  -- def + commutation with base
+  -^pq : (n m : ℕ) → (p : isEvenT n ⊎ isOddT n) → (q : isEvenT m ⊎ isOddT m)
+          → H* A → H* A
+  -^pq n m (inl p) (inl q) x = x
+  -^pq n m (inl p) (inr q) x = x
+  -^pq n m (inr p) (inl q) x = x
+  -^pq n m (inr p) (inr q) x = - x
+
+  -^ : (n m : ℕ) → H* A → H* A
+  -^ n m x = -^pq n m (evenOrOdd n) (evenOrOdd m) x
+
+  -^pq-Base : {k : ℕ} → (n m : ℕ) → (p : isEvenT n ⊎ isOddT n) → (q : isEvenT m ⊎ isOddT m)
+              (a : coHom k A) → -^pq n m p q (base k a) ≡ base k (-ₕ^'pq n m p q a)
+  -^pq-Base n m (inl p) (inl q) a = refl
+  -^pq-Base n m (inl p) (inr q) a = refl
+  -^pq-Base n m (inr p) (inl q) a = refl
+  -^pq-Base n m (inr p) (inr q) a = refl
+
+  -^-base : {k : ℕ} → (n m : ℕ) → (a : coHom k A) → -^ n m (base k a) ≡ base k (-ₕ^' n m a)
+  -^-base n m a = -^pq-Base n m (evenOrOdd n) (evenOrOdd m) a
+
+  -- proof 
+  -- gradCommRing : (n m : ℕ) → (a : coHom n A) → (b : coHom m A) →
+  --                (base n a) cup (base m b) ≡ -^ n m ((base m b) cup (base n a))
+  -- gradCommRing n m a b = base (n +' m) (a ⌣ b)
+  --                                ≡⟨ cong (base (n +' m)) (gradedComm-⌣ n m a b) ⟩
+  --                        base (n +' m) ((-ₕ^ n · m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
+  --                                ≡⟨ {!!}  ⟩
+  --                        base (n +' m) (-ₕ^' n m (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
+  --                                ≡⟨ sym (-^-base n m (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a))) ⟩
+  --                        -^ n m (base (n +' m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
+  --                                ≡⟨ cong (-^ n m) (sym (ConstsubstCommSlice (λ k → coHom k A) (H* A) base (+'-comm m n) (b ⌣ a))) ⟩
+  --                        -^ n m (base (m +' n) (b ⌣ a)) ∎
 
