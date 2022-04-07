@@ -346,11 +346,8 @@ private
     do
       names ← findRingNames cring
       just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
-        where
-          nothing
-            → typeError(
-                strErr "Error reading variables to solve " ∷
-                termErr varsToSolve ∷ [])
+        where nothing → variableExtractionError varsToSolve
+
       just rhs ← returnTC (getRhs reasoningToTheRight)
         where
           nothing
