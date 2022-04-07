@@ -293,11 +293,11 @@ private
 
 
   solve-macro : Term → Term → TC Unit
-  solve-macro `cring hole =
+  solve-macro uncheckedCommRing hole =
     do
-      cring ← checkIsRing `cring
+      commRing ← checkIsRing uncheckedCommRing
       hole′ ← inferType hole >>= normalise
-      names ← findRingNames cring
+      names ← findRingNames commRing
       just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
         where
           nothing
@@ -307,14 +307,14 @@ private
         The call to the ring solver will be inside a lamba-expression.
         That means, that we have to adjust the deBruijn-indices of the variables in 'cring'
       -}
-      adjustedCring ← returnTC (adjustDeBruijnIndex (length varInfos) cring)
-      just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCring names (getArgs equation))
+      adjustedCommRing ← returnTC (adjustDeBruijnIndex (length varInfos) commRing)
+      just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCommRing names (getArgs equation))
         where
           nothing
             → typeError(
                 strErr "Error while trying to build ASTs for the equation " ∷
                 termErr equation ∷ [])
-      let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCring lhs rhs
+      let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCommRing lhs rhs
       unify hole solution
 
   solveInPlace-macro : Term → Term → Term → TC Unit
