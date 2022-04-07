@@ -9,17 +9,13 @@ open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
 open import Cubical.Data.Sum
 
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.AbGroup.Properties
 open import Cubical.Algebra.Ring
 
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
-open import Cubical.Algebra.Polynomials.Multivariate.Base
-open import Cubical.Algebra.Polynomials.Multivariate.Properties
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.GradedCommutativity
@@ -43,14 +39,15 @@ ConstsubstCommSlice B C F p Bx = (sym (transportRefl (F _ Bx)) ∙ substCommSlic
 -- Definition Cohomology Ring
 
 
-H*AbGr : (A : Type ℓ) → AbGroup ℓ
-H*AbGr A = ⊕-AbGr ℕ (λ n → coHom n A) (λ n → snd (coHomGroup n A))
+module intermediate-def where 
+  H*AbGr : (A : Type ℓ) → AbGroup ℓ
+  H*AbGr A = ⊕-AbGr ℕ (λ n → coHom n A) (λ n → snd (coHomGroup n A))
 
-H* : (A : Type ℓ) → Type ℓ
-H* A = fst (H*AbGr A)
+  H* : (A : Type ℓ) → Type ℓ
+  H* A = fst (H*AbGr A)
 
-module _ (A : Type ℓ) where
-
+module CupRingProperties (A : Type ℓ) where
+  open intermediate-def
   open AbGroupStr (snd (H*AbGr A))
   open AbGroupTheory (H*AbGr A)
   
@@ -127,17 +124,6 @@ module _ (A : Type ℓ) where
   cup-ldistr : (x y z : H* A) → (x + y) cup z ≡ (x cup z) + (y cup z)
   cup-ldistr = λ x y z → refl
 
-  H*R : Ring ℓ
-  fst H*R = H* A
-  RingStr.0r (snd H*R) = 0g
-  RingStr.1r (snd H*R) = 1H*
-  RingStr._+_ (snd H*R) = _+_
-  RingStr._·_ (snd H*R) = _cup_
-  RingStr.- snd H*R = -_
-  RingStr.isRing (snd H*R) = makeIsRing is-set
-                                        assoc rid (λ x → fst (inverse x)) comm
-                                        cup-assoc cup-rid cup-lid cup-rdistr cup-ldistr
-
 -----------------------------------------------------------------------------
 -- Graded Comutative Ring
 
@@ -190,4 +176,25 @@ module _ (A : Type ℓ) where
   --                        -^ n m (base (n +' m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
   --                                ≡⟨ cong (-^ n m) (sym (ConstsubstCommSlice (λ k → coHom k A) (H* A) base (+'-comm m n) (b ⌣ a))) ⟩
   --                        -^ n m (base (m +' n) (b ⌣ a)) ∎
+
+module _ (A : Type ℓ) where
+  open intermediate-def renaming (H* to H*')
+  open CupRingProperties A
+  open AbGroupStr (snd (H*AbGr A))
+  open AbGroupTheory (H*AbGr A)
+
+  H*R : Ring ℓ
+  fst H*R = H*' A
+  RingStr.0r (snd H*R) = 0g
+  RingStr.1r (snd H*R) = 1H*
+  RingStr._+_ (snd H*R) = _+_
+  RingStr._·_ (snd H*R) = _cup_
+  RingStr.- snd H*R = -_
+  RingStr.isRing (snd H*R) = makeIsRing is-set
+                                        assoc rid (λ x → fst (inverse x)) comm
+                                        cup-assoc cup-rid cup-lid cup-rdistr cup-ldistr
+
+
+  H* : Type ℓ
+  H* = fst H*R
 

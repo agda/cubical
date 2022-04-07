@@ -3,9 +3,8 @@ module Cubical.Algebra.AbGroup.Properties where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.AbGroup.Base
 
-open import Cubical.Algebra.Polynomials.Multivariate.Properties
 
 private variable
   ℓ : Level
