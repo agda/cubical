@@ -268,12 +268,6 @@ isOfHLevelPathP {A = A} n h x y =
 
 -- Fillers for cubes from h-level
 
-isSet→isSet' : isSet A → isSet' A
-isSet→isSet' Aset _ _ _ _ = toPathP (Aset _ _ _ _)
-
-isSet'→isSet : isSet' A → isSet A
-isSet'→isSet {A = A} Aset' x y p q = Aset' p q refl refl
-
 isSet→SquareP :
   {A : I → I → Type ℓ}
   (isSet : (i j : I) → isSet (A i j))
@@ -300,6 +294,9 @@ isGroupoid→isGroupoid' {A = A} Agpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁�
 isGroupoid'→isGroupoid : isGroupoid' A → isGroupoid A
 isGroupoid'→isGroupoid Agpd' x y p q r s = Agpd' r s refl refl refl refl
 -- h-level of Σ-types
+
+isProp∃! : isProp (∃! A B)
+isProp∃! = isPropIsContr
 
 isContrΣ : isContr A → ((x : A) → isContr (B x)) → isContr (Σ A B)
 isContrΣ {A = A} {B = B} (a , p) q =
@@ -451,6 +448,9 @@ isProp→ pB = isPropΠ λ _ → pB
 isSetΠ : ((x : A) → isSet (B x)) → isSet ((x : A) → B x)
 isSetΠ = isOfHLevelΠ 2
 
+isSetImplicitΠ : (h : (x : A) → isSet (B x)) → isSet ({x : A} → B x)
+isSetImplicitΠ h f g F G i j {x} = h x (f {x}) (g {x}) (λ i → F i {x}) (λ i → G i {x}) i j
+
 isSetΠ2 : (h : (x : A) (y : B x) → isSet (C x y))
         → isSet ((x : A) (y : B x) → C x y)
 isSetΠ2 h = isSetΠ λ x → isSetΠ λ y → h x y
@@ -593,11 +593,11 @@ isOfHLevel→isOfHLevelDep 0 h {a} =
   (h a .fst , λ b' p → isProp→PathP (λ i → isContr→isProp (h (p i))) (h a .fst) b')
 isOfHLevel→isOfHLevelDep 1 h = λ b0 b1 p → isProp→PathP (λ i → h (p i)) b0 b1
 isOfHLevel→isOfHLevelDep (suc (suc n)) {A = A} {B} h {a0} {a1} b0 b1 =
-  isOfHLevel→isOfHLevelDep (suc n) (λ p → helper a1 p b1)
+  isOfHLevel→isOfHLevelDep (suc n) (λ p → helper p)
   where
-  helper : (a1 : A) (p : a0 ≡ a1) (b1 : B a1) →
+  helper : (p : a0 ≡ a1) →
     isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1)
-  helper a1 p b1 = J (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
+  helper p = J (λ a1 p → ∀ b1 → isOfHLevel (suc n) (PathP (λ i → B (p i)) b0 b1))
                      (λ _ → h _ _ _) p b1
 
 isContrDep→isPropDep : isOfHLevelDep 0 B → isOfHLevelDep 1 B
@@ -653,3 +653,15 @@ isOfHLevelΣ' {A = A} {B = B} (suc (suc n)) Alvl Blvl (w , y) (x , z)
       ΣPathP
       (λ x → refl)
       (isOfHLevelΣ' (suc n) (Alvl w x) (Blvl y z))
+
+ΣSquareSet : ((x : A) → isSet (B x)) → {u v w x : Σ A B}
+          → {p : u ≡ v} {q : v ≡ w} {r : x ≡ w} {s : u ≡ x}
+          → Square (cong fst p) (cong fst r)
+                    (cong fst s) (cong fst q)
+          → Square p r s q
+fst (ΣSquareSet pB sq i j) = sq i j
+snd (ΣSquareSet {B = B} pB {p = p} {q = q} {r = r} {s = s} sq i j) = lem i j
+  where
+  lem : SquareP (λ i j → B (sq i j))
+          (cong snd p) (cong snd r) (cong snd s) (cong snd q)
+  lem = toPathP (isOfHLevelPathP' 1 (pB _) _ _ _ _)

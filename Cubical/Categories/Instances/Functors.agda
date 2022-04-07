@@ -26,7 +26,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   ⋆IdL FUNCTOR α       = makeNatTransPath λ i x → D .⋆IdL (α .N-ob x) i
   ⋆IdR FUNCTOR α       = makeNatTransPath λ i x → D .⋆IdR (α .N-ob x) i
   ⋆Assoc FUNCTOR α β γ = makeNatTransPath λ i x → D .⋆Assoc (α .N-ob x) (β .N-ob x) (γ .N-ob x) i
-  isSetHom FUNCTOR     = isSetNat
+  isSetHom FUNCTOR     = isSetNatTrans
 
   open isIsoC renaming (inv to invC)
   -- componentwise iso is an iso in Functor

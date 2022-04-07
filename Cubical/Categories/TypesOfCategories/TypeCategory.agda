@@ -176,10 +176,10 @@ module _ {ℓ ℓ' ℓ'' : Level} (C : Category ℓ ℓ') where
                               , isPropNatP2 (eq .snd) (eqβ .snd) α≡β)
                 where
                   isPropNatP1 : isOfHLevelDep 1 (λ γ → p₁ ≡ γ ●ᵛ π')
-                  isPropNatP1 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNat _ _)
+                  isPropNatP1 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNatTrans _ _)
 
                   isPropNatP2 : isOfHLevelDep 1 (λ γ → p₂ ≡ γ ●ᵛ PSq)
-                  isPropNatP2 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNat _ _)
+                  isPropNatP2 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNatTrans _ _)
 
   -- putting everything together
   isTypeCategoryPresheaf : isTypeCategory (PreShv C ℓ'')
