@@ -291,6 +291,21 @@ private
   checkIsRing : Term → TC Term
   checkIsRing ring = checkType ring (def (quote CommRing) (varg unknown ∷ []))
 
+  holeMalformedError : {A : Type ℓ} → Term → TC A
+  holeMalformedError hole′ = typeError
+    (strErr "Something went wrong when getting the variable names in "
+     ∷ termErr hole′ ∷ [])
+
+  astExtractionError : {A : Type ℓ} → Term → TC A
+  astExtractionError equation = typeError
+    (strErr "Error while trying to build ASTs for the equation " ∷
+     termErr equation ∷ [])
+
+  variableExtractionError : {A : Type ℓ} → Term → TC A
+  variableExtractionError varsToSolve = typeError
+    (strErr "Error reading variables to solve " ∷
+     termErr varsToSolve ∷
+     [])
 
   solve-macro : Term → Term → TC Unit
   solve-macro uncheckedCommRing hole =
@@ -299,21 +314,16 @@ private
       hole′ ← inferType hole >>= normalise
       names ← findRingNames commRing
       just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
-        where
-          nothing
-            → typeError (strErr "Something went wrong when getting the variable names in "
-                           ∷ termErr hole′ ∷ [])
+        where nothing → holeMalformedError hole′
+
       {-
         The call to the ring solver will be inside a lamba-expression.
         That means, that we have to adjust the deBruijn-indices of the variables in 'cring'
       -}
       adjustedCommRing ← returnTC (adjustDeBruijnIndex (length varInfos) commRing)
       just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCommRing names (getArgs equation))
-        where
-          nothing
-            → typeError(
-                strErr "Error while trying to build ASTs for the equation " ∷
-                termErr equation ∷ [])
+        where nothing → astExtractionError equation
+
       let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCommRing lhs rhs
       unify hole solution
 
@@ -323,17 +333,11 @@ private
       equation ← inferType hole >>= normalise
       names ← findRingNames cring
       just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
-        where
-          nothing
-            → typeError(
-                strErr "Error reading variables to solve " ∷
-                termErr varsToSolve ∷ [])
+        where nothing → variableExtractionError varsToSolve
+
       just (lhs , rhs) ← returnTC (toAlgebraExpression cring names (getArgs equation))
-        where
-          nothing
-            → typeError(
-                strErr "Error while trying to build ASTs for the equation " ∷
-                termErr equation ∷ [])
+        where nothing → astExtractionError equation
+
       let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
 
