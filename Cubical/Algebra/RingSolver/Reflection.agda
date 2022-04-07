@@ -36,7 +36,7 @@ open import Cubical.Algebra.RingSolver.Solver renaming (solve to ringSolve)
 
 private
   variable
-    ℓ ℓ′ ℓ″ : Level
+    ℓ : Level
 
   _==_ = primQNameEquality
   {-# INLINE _==_ #-}
@@ -277,15 +277,15 @@ private
   extractVarIndices (just []) = just []
   extractVarIndices _ = nothing
 
-  getVarsAndEquation : Term → TC (List VarInfo × Term)
+  listToVec : {A : Type ℓ} → (l : List A) → Vec A (length l)
+  listToVec [] = emptyVec
+  listToVec (x ∷ l) = x ∷vec listToVec l
+
+  getVarsAndEquation : Term → List VarInfo × Term
   getVarsAndEquation t =
-    let
-      (rawVars , equationTerm) = extractVars t
-      maybeVars = addIndices (length rawVars) rawVars
-    in do
-          just (varInfos , equation) ← returnTC (map-Maybe (_, equationTerm) maybeVars)
-            where nothing → holeMalformedError t
-          returnTC (varInfos , equation)
+    let (rawVars , equationTerm) = extractVars t
+        vars = addIndices (length rawVars) (listToVec rawVars)
+    in (vars , equationTerm)
     where
           extractVars : Term → List (String × Arg Term) × Term
           extractVars (pi argType (abs varName t)) with extractVars t
@@ -293,13 +293,11 @@ private
                                                         = (varName , argType) ∷ xs , equation
           extractVars equation = [] , equation
 
-          addIndices : ℕ → List (String × Arg Term) → Maybe (List VarInfo)
-          addIndices ℕ.zero         []        = just []
-          addIndices (ℕ.suc countVar) ((varName , argType) ∷ list) =
-            map-Maybe (λ varList → record { varName = varName ; varType = argType ; index = countVar }
-                                   ∷ varList)
-                      (addIndices countVar list)
-          addIndices _ _ = nothing
+          addIndices : (n : ℕ) → Vec (String × Arg Term) n → List VarInfo
+          addIndices ℕ.zero         emptyVec        = []
+          addIndices (ℕ.suc countVar) ((varName , argType) ∷vec list) =
+            record { varName = varName ; varType = argType ; index = countVar }
+            ∷ (addIndices countVar list)
 
   toListOfTerms : Term → Maybe (List Term)
   toListOfTerms (con c []) = if (c == (quote [])) then just [] else nothing
@@ -318,7 +316,7 @@ private
       commRing ← checkIsRing uncheckedCommRing
       hole′ ← inferType hole >>= normalise
       names ← findRingNames commRing
-      (varInfos , equation) ← getVarsAndEquation hole′
+      (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
 
       {-
         The call to the ring solver will be inside a lamba-expression.
