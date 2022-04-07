@@ -36,7 +36,7 @@ open import Cubical.Algebra.RingSolver.Solver renaming (solve to ringSolve)
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ′ ℓ″ : Level
 
   _==_ = primQNameEquality
   {-# INLINE _==_ #-}
@@ -241,6 +241,24 @@ module _ (cring : Term) (names : RingNames) where
   toAlgebraExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
 
 private
+
+  holeMalformedError : {A : Type ℓ} → Term → TC A
+  holeMalformedError hole′ = typeError
+    (strErr "Something went wrong when getting the variable names in "
+     ∷ termErr hole′ ∷ [])
+
+  astExtractionError : {A : Type ℓ} → Term → TC A
+  astExtractionError equation = typeError
+    (strErr "Error while trying to build ASTs for the equation " ∷
+     termErr equation ∷ [])
+
+  variableExtractionError : {A : Type ℓ} → Term → TC A
+  variableExtractionError varsToSolve = typeError
+    (strErr "Error reading variables to solve " ∷
+     termErr varsToSolve ∷
+     [])
+
+
   mutual
   {- this covers just some common cases and should be refined -}
     adjustDeBruijnIndex : (n : ℕ) → Term → Term
@@ -259,12 +277,15 @@ private
   extractVarIndices (just []) = just []
   extractVarIndices _ = nothing
 
-  getVarsAndEquation : Term → Maybe (List VarInfo × Term)
+  getVarsAndEquation : Term → TC (List VarInfo × Term)
   getVarsAndEquation t =
     let
       (rawVars , equationTerm) = extractVars t
       maybeVars = addIndices (length rawVars) rawVars
-    in map-Maybe (_, equationTerm) maybeVars
+    in do
+          just (varInfos , equation) ← returnTC (map-Maybe (_, equationTerm) maybeVars)
+            where nothing → holeMalformedError t
+          returnTC (varInfos , equation)
     where
           extractVars : Term → List (String × Arg Term) × Term
           extractVars (pi argType (abs varName t)) with extractVars t
@@ -291,30 +312,13 @@ private
   checkIsRing : Term → TC Term
   checkIsRing ring = checkType ring (def (quote CommRing) (varg unknown ∷ []))
 
-  holeMalformedError : {A : Type ℓ} → Term → TC A
-  holeMalformedError hole′ = typeError
-    (strErr "Something went wrong when getting the variable names in "
-     ∷ termErr hole′ ∷ [])
-
-  astExtractionError : {A : Type ℓ} → Term → TC A
-  astExtractionError equation = typeError
-    (strErr "Error while trying to build ASTs for the equation " ∷
-     termErr equation ∷ [])
-
-  variableExtractionError : {A : Type ℓ} → Term → TC A
-  variableExtractionError varsToSolve = typeError
-    (strErr "Error reading variables to solve " ∷
-     termErr varsToSolve ∷
-     [])
-
   solve-macro : Term → Term → TC Unit
   solve-macro uncheckedCommRing hole =
     do
       commRing ← checkIsRing uncheckedCommRing
       hole′ ← inferType hole >>= normalise
       names ← findRingNames commRing
-      just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
-        where nothing → holeMalformedError hole′
+      (varInfos , equation) ← getVarsAndEquation hole′
 
       {-
         The call to the ring solver will be inside a lamba-expression.
