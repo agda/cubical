@@ -27,11 +27,11 @@ module _ (C : Category ℓ ℓ') where
     -_ = λ {x} {y} → AbGroupStr.-_ (homAbStr x y)
     _+_ = λ {x} {y} → AbGroupStr._+_ (homAbStr x y)
 
-    _─_ : ∀ {x y} (f g : Hom[ x , y ]) → Hom[ x , y ]
-    f ─ g = f + (- g)
+    _-_ : ∀ {x y} (f g : Hom[ x , y ]) → Hom[ x , y ]
+    f - g = f + (- g)
 
     infixr 7   _+_
-    infixl 7.5 _─_
+    infixl 7.5 _-_
     infix  8    -_
 
     field

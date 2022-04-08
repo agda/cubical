@@ -46,20 +46,20 @@ module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
   ⋆0hl f =
       0h ⋆ f                              ≡⟨ sym (+idr _) ⟩
       0h ⋆ f  +  0h                       ≡⟨ cong (0h ⋆ f +_) (sym (+invr _)) ⟩
-      0h ⋆ f  +  (0h ⋆ f  ─  0h ⋆ f)      ≡⟨ +assoc _ _ _ ⟩
-      (0h ⋆ f  +  0h ⋆ f)  ─  0h ⋆ f      ≡⟨ cong (_─ 0h ⋆ f) (sym (⋆distr+ _ _ _)) ⟩
-      (0h + 0h) ⋆ f  ─  0h ⋆ f            ≡⟨ cong (λ a → a ⋆ f ─ 0h ⋆ f) (+idr _) ⟩
-      0h ⋆ f  ─  0h ⋆ f                   ≡⟨ +invr _ ⟩
+      0h ⋆ f  +  (0h ⋆ f  -  0h ⋆ f)      ≡⟨ +assoc _ _ _ ⟩
+      (0h ⋆ f  +  0h ⋆ f)  -  0h ⋆ f      ≡⟨ cong (_- 0h ⋆ f) (sym (⋆distr+ _ _ _)) ⟩
+      (0h + 0h) ⋆ f  -  0h ⋆ f            ≡⟨ cong (λ a → a ⋆ f - 0h ⋆ f) (+idr _) ⟩
+      0h ⋆ f  -  0h ⋆ f                   ≡⟨ +invr _ ⟩
       0h                                  ∎
 
   ⋆0hr : ∀ {x y z} (f : Hom[ x , y ]) → f ⋆ 0h ≡ 0h {x} {z}
   ⋆0hr f =
       f ⋆ 0h                              ≡⟨ sym (+idr _) ⟩
       f ⋆ 0h  +  0h                       ≡⟨ cong (f ⋆ 0h +_) (sym (+invr _)) ⟩
-      f ⋆ 0h  +  (f ⋆ 0h  ─  f ⋆ 0h)      ≡⟨ +assoc _ _ _ ⟩
-      (f ⋆ 0h  +  f ⋆ 0h)  ─  f ⋆ 0h      ≡⟨ cong (_─ f ⋆ 0h) (sym (⋆distl+ _ _ _)) ⟩
-      f ⋆ (0h + 0h)  ─  f ⋆ 0h            ≡⟨ cong (λ a → f ⋆ a ─ f ⋆ 0h) (+idr _) ⟩
-      f ⋆ 0h  ─  f ⋆ 0h                   ≡⟨ +invr _ ⟩
+      f ⋆ 0h  +  (f ⋆ 0h  -  f ⋆ 0h)      ≡⟨ +assoc _ _ _ ⟩
+      (f ⋆ 0h  +  f ⋆ 0h)  -  f ⋆ 0h      ≡⟨ cong (_- f ⋆ 0h) (sym (⋆distl+ _ _ _)) ⟩
+      f ⋆ (0h + 0h)  -  f ⋆ 0h            ≡⟨ cong (λ a → f ⋆ a - f ⋆ 0h) (+idr _) ⟩
+      f ⋆ 0h  -  f ⋆ 0h                   ≡⟨ +invr _ ⟩
       0h                                  ∎
 
   -distl⋆ : ∀ {x y z} (f : Hom[ x , y ]) (g : Hom[ y , z ])
@@ -68,7 +68,7 @@ module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
     let open GroupTheory (AbGroup→Group (Hom[ x , z ] , homAbStr x z)) in
     invUniqueR (
       f ⋆ g + (- f) ⋆ g     ≡⟨ sym (⋆distr+ _ _ _) ⟩
-      (f ─ f) ⋆ g           ≡⟨ cong (_⋆ g) (+invr _) ⟩
+      (f - f) ⋆ g           ≡⟨ cong (_⋆ g) (+invr _) ⟩
       0h ⋆ g                ≡⟨ ⋆0hl _ ⟩
       0h                    ∎
     )
@@ -79,7 +79,7 @@ module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
     let open GroupTheory (AbGroup→Group (Hom[ x , z ] , homAbStr x z)) in
     invUniqueR (
       f ⋆ g + f ⋆ (- g)     ≡⟨ sym (⋆distl+ _ _ _) ⟩
-      f ⋆ (g ─ g)           ≡⟨ cong (f ⋆_) (+invr _) ⟩
+      f ⋆ (g - g)           ≡⟨ cong (f ⋆_) (+invr _) ⟩
       f ⋆ 0h                ≡⟨ ⋆0hr _ ⟩
       0h                    ∎
     )

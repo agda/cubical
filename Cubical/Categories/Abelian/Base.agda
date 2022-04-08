@@ -65,18 +65,18 @@ record PreabCategoryStr (C : AdditiveCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ'
   coker = λ {x y} (f : Hom[ x , y ]) → hasCokernels f .Cokernel.coker
 
 
-record PreabCategory (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
+record PreAbCategory (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   field
-    additcat : AdditiveCategory ℓ ℓ'
-    preab : PreabCategoryStr additcat
+    additive : AdditiveCategory ℓ ℓ'
+    preAbStr : PreabCategoryStr additive
 
-  open AdditiveCategory additcat public
-  open PreabCategoryStr preab public
+  open AdditiveCategory additive public
+  open PreabCategoryStr preAbStr public
 
 
 -- Abelian categories
-record AbelianCategoryStr (C : PreabCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
-  open PreabCategory C
+record AbelianCategoryStr (C : PreAbCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
+  open PreAbCategory C
 
   private
     _=ker_ : ∀ {k x y} → Hom[ k , x ] → Hom[ x , y ] → Type (ℓ-max ℓ ℓ')
@@ -95,8 +95,8 @@ record AbelianCategoryStr (C : PreabCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ')
 
 record AbelianCategory (ℓ ℓ' : Level): Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   field
-    preabcat : PreabCategory ℓ ℓ'
-    abeli : AbelianCategoryStr preabcat
+    preAb : PreAbCategory ℓ ℓ'
+    abelianStr : AbelianCategoryStr preAb
 
-  open PreabCategory preabcat public
-  open AbelianCategoryStr abeli public
+  open PreAbCategory preAb public
+  open AbelianCategoryStr abelianStr public
