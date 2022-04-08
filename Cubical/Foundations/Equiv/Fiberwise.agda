@@ -83,3 +83,11 @@ fundamentalTheoremOfId {A = A} Eq eqRefl eqContr x y = (fiberMap x y) , (isEquiv
 
     isEquivFiberMap : (x y : A) → isEquiv (fiberMap x y)
     isEquivFiberMap x = fiberEquiv (λ y → x ≡ y) (Eq x) (fiberMap x) (equivOnSigma x)
+
+fundamentalTheoremOfIdβ :
+  {A : Type ℓ} (Eq : A → A → Type ℓ')
+  → (eqRefl : (x : A) → Eq x x)
+  → (eqContr : (x : A) → isContr (Σ[ y ∈ A ] Eq x y))
+  → (x : A)
+  → fst (fundamentalTheoremOfId Eq eqRefl eqContr x x) refl ≡ eqRefl x
+fundamentalTheoremOfIdβ Eq eqRefl eqContr x = JRefl (λ y p → Eq x y) (eqRefl x)
