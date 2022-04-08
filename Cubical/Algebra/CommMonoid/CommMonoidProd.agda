@@ -2,6 +2,7 @@
 module Cubical.Algebra.CommMonoid.CommMonoidProd where
 
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Sigma
 
@@ -24,14 +25,20 @@ private
 CommMonoidProd : CommMonoid ℓ → CommMonoid ℓ' → CommMonoid (ℓ-max ℓ ℓ')
 CommMonoidProd M N = makeCommMonoid ε× _·×_ is-set× assoc× rid× comm×
   where
+  ε× : (fst M) × (fst N)
   ε× = (ε (snd M)) , (ε (snd N))
-  
-  _·×_ = λ x y → _·_ (snd M) (fst x) (fst y) , _·_ (snd N) (snd x) (snd y)
-  
+
+  _·×_ : (fst M) × (fst N) → (fst M) × (fst N) → (fst M) × (fst N)
+  (x₁ , x₂) ·× (y₁ , y₂) = (_·_ (snd M) x₁ y₁) , (_·_ (snd N) x₂ y₂)
+
+  is-set× : isSet ((fst M) × (fst N))
   is-set× = isSet× (is-set (snd M)) (is-set (snd N))
-  
-  assoc× = λ x y z i →  assoc (snd M) (fst x) (fst y) (fst z) i , assoc (snd N) (snd x) (snd y) (snd z) i
-  
-  rid× = λ x i → rid (snd M) (fst x) i , rid (snd N) (snd x) i
- 
-  comm× = λ x y i → comm (snd M) (fst x) (fst y) i , comm (snd N) (snd x) (snd y) i
+
+  assoc× : ∀ x y z → x ·× (y ·× z) ≡ (x ·× y) ·× z
+  assoc× _ _ _ = cong₂ (_,_) (assoc (snd M) _ _ _) (assoc (snd N) _ _ _)
+
+  rid× : ∀ x → x ·× ε× ≡ x
+  rid× _ =  cong₂ (_,_) (rid (snd M) _) (rid (snd N) _)
+
+  comm× : ∀ x y → x ·× y ≡ y ·× x
+  comm× _ _ = cong₂ (_,_) (comm (snd M) _ _) (comm (snd N) _ _)
