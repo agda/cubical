@@ -203,8 +203,8 @@ module _ (cring : Term) (names : RingNames) where
 
     `_+_` : List (Arg Term) → Term
     `_+_` (harg _ ∷ xs) = `_+_` xs
-    `_+_` (varg _ ∷ varg x ∷ varg y ∷ []) = op2 (quote _+'_) x y
     `_+_` (varg x ∷ varg y ∷ []) = op2 (quote _+'_) x y
+    `_+_` (varg _ ∷ varg x ∷ varg y ∷ []) = op2 (quote _+'_) x y
     `_+_` _ = unknown
 
     `-_` : List (Arg Term) → Term
