@@ -123,7 +123,7 @@ module UniversalProperty (M : CommMonoid ℓ) where
       _ = snd M
 
 {-
-The "groupification" of a monoid comes with a universal morphism and a universal property: 
+The "groupification" of a monoid comes with a universal morphism and a universal property:
 
             M ----- ∀φ -----> A
              \               Λ
