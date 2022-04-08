@@ -99,12 +99,13 @@ module _ {R : CommRing ℓ} where
                            (relation i)
                            (incInIdeal (Polynomials n) relation i ) ⟩
         0a (snd FPAlgebra) ∎
+
       inducedHom :
-        {A : CommAlgebra R ℓ}
+        (A : CommAlgebra R ℓ)
         (values : FinVec ⟨ A ⟩ n)
         (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
         → CommAlgebraHom FPAlgebra A
-      inducedHom {A = A} values relationsHold =
+      inducedHom A values relationsHold =
         quotientInducedHom
           (Polynomials n)
           relationsIdeal
@@ -128,13 +129,13 @@ module _ {R : CommRing ℓ} where
              (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
              (f : CommAlgebraHom FPAlgebra A)
              → ((i : Fin n) → fst f (generator i) ≡ values i)
-             → inducedHom {A = A} values relationsHold ≡ f
+             → inducedHom A values relationsHold ≡ f
       unique {A = A} values relationsHold f hasCorrectValues =
         injectivePrecomp
           (Polynomials n)
           relationsIdeal
           A
-          (inducedHom {A = A} values relationsHold)
+          (inducedHom A values relationsHold)
           f
           (sym (
            f'     ≡⟨ sym (inv f') ⟩
@@ -152,7 +153,7 @@ module _ {R : CommRing ℓ} where
           -}
           f' iHom' : CommAlgebraHom (Polynomials n) A
           f' = compAlgebraHom modRelations f
-          iHom' = compAlgebraHom modRelations (inducedHom {A = A} values relationsHold)
+          iHom' = compAlgebraHom modRelations (inducedHom A values relationsHold)
 
           inv : retract (Iso.fun (homMapIso {I = Fin n} A)) (Iso.inv (homMapIso A))
           inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
@@ -191,7 +192,7 @@ module Instances {R : CommRing ℓ} where
   R[⊥]/⟨0⟩IsInitial B = iHom , uniqueness
     where
       iHom : CommAlgebraHom R[⊥]/⟨0⟩ B
-      iHom = inducedHom 0 emptyGen {A = B} (λ ()) (λ ())
+      iHom = inducedHom 0 emptyGen B (λ ()) (λ ())
       uniqueness : (f : CommAlgebraHom R[⊥]/⟨0⟩ B) →
                    iHom ≡ f
       uniqueness f = unique 0 emptyGen {A = B} (λ ()) (λ ()) f (λ ())
