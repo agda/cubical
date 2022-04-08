@@ -25,7 +25,7 @@ open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.GradedCommutativity
 
 private variable
-  ℓ ℓ' ℓ'' ℓ''' : Level
+  ℓ : Level
 
 
 -----------------------------------------------------------------------------
