@@ -43,39 +43,13 @@ data DLShfDiagHom (n : ℕ) : DLShfDiagOb n → DLShfDiagOb n → Type where
   singPair : {i j : Fin n} → DLShfDiagHom n (sing i) (pair i j)
 
 
-module test (A : Type) where
-  variable
-   x y : A
-
-  data myId : A → A → Type where
-    myrefl : ∀ {a} → myId a a
-
-  module _ (P : ∀ y → myId x y → Type) (d : P x myrefl) where
-    myJ : (p : myId x y) → P y p
-    myJ myrefl = d
-
-  myId→≡ : ∀ x y → myId x y → x ≡ y
-  myId→≡ x _ = myJ (λ y _ → x ≡ y) refl
-
-  ≡→myId : ∀ x y → x ≡ y → myId x y
-  ≡→myId x _ = J (λ y _ → myId x y) myrefl
-
-  ≡→myId→≡ : ∀ x y p → myId→≡ x y (≡→myId x y p) ≡ p
-  ≡→myId→≡ x _ = J (λ y p → myId→≡ x y (≡→myId x y p) ≡ p)
-                   (cong (λ p → myJ (λ y _ → x ≡ y) (λ _ → x) p)
-                   (JRefl (λ y _ → myId x y) myrefl))
-
-  myId→≡→myId : ∀ x y p → ≡→myId x y (myId→≡ x y p) ≡ p
-  myId→≡→myId x _ = myJ (λ y p → ≡→myId x y (myId→≡ x y p) ≡ p)
-                        (transportRefl myrefl)
-
 
 module DLShfDiagHomPath where
   variable
    n : ℕ
    x y : DLShfDiagOb n
    f g : DLShfDiagHom n x y
-   i j k : Fin n
+   i j k l : Fin n
 
   module _ (P : ∀ x y → DLShfDiagHom n x y → Type)
            (d1 : ∀ {i} → P (sing i) (sing i) idAr)
