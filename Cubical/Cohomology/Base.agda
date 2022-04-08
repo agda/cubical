@@ -16,10 +16,12 @@ module Cubical.Cohomology.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Pointed.Properties
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism using (isoToEquiv)
+open import Cubical.Foundations.Function    using (_∘_)
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Univalence  using (ua)
+
+open import Cubical.Functions.FunExtEquiv using (funExtEquiv)
 
 open import Cubical.Algebra.Group.Base using (Group; GroupStr)
 open import Cubical.Algebra.AbGroup.Base
@@ -33,7 +35,6 @@ open import Cubical.Homotopy.Group.Base
 open import Cubical.HITs.SetTruncation hiding (map)
 
 open import Cubical.Homotopy.Spectrum
-open import Cubical.Homotopy.Prespectrum
 open import Cubical.Homotopy.Loopspace renaming (EH to isCommΩ)
 open import Cubical.Structures.Successor
 
@@ -61,7 +62,7 @@ module _ (X : Type ℓ) (A : (x : X) → Spectrum ℓ) where
     commDegreeΩOnce' : (k : ℤ) → (CohomClasses k) ≃∙ Ω (CohomClasses (sucℤ k))
     commDegreeΩOnce' k =
       compEquiv∙ (commDegreeΩOnce k)
-                 ((isoToEquiv (iso (λ f → (λ i x → f x i)) (λ f → (λ x i → f i x)) (λ _ → refl) λ _ → refl)) , refl)
+                 (funExtEquiv , refl)
 
   commDegreeΩ : (k : ℤ) (n : ℕ) → (CohomClasses k) ≃∙ (Ω^ n) (CohomClasses (k + (pos n)))
   commDegreeΩ k ℕ.zero = idEquiv∙ _
