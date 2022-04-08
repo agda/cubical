@@ -66,8 +66,8 @@ module _ (M : CommMonoid ℓ) where
           (k · (b₁ · a₂)) · (s · (b₃ · a₄)) ≡⟨ sym lemma ⟩
           (k · s) · ((b₁ · b₃) · (a₂ · a₄)) ∎
             where
-            ass : ∀ {x y z} → x · (y · z) ≡ (x · y) · z
-            ass = assoc _ _ _
+            Assoc : ∀ {x y z} → x · (y · z) ≡ (x · y) · z
+            Assoc = assoc _ _ _
 
             rExp : ∀ {x y z} → x ≡ y → x · z ≡ y · z
             rExp r = cong₂ _·_ r refl
@@ -77,13 +77,13 @@ module _ (M : CommMonoid ℓ) where
 
             -- remove proof when MonoidSolver is done
             lemma : ∀ {k s a b c d} → (k · s) · ((a · b) · (c · d)) ≡ (k · (a · c)) · (s · (b · d))
-            lemma = sym ass ∙ lExp (
-                                   ass ∙ ass ∙ rExp (
-                                       comm _ _ ∙ ass ∙ ass ∙ rExp (
-                                            comm _ _ ∙ ass
-                                       ) ∙ sym ass
-                                   ) ∙ sym ass ∙ lExp (sym ass)
-                              ) ∙ ass
+            lemma = sym Assoc ∙ lExp (
+                                   Assoc ∙ Assoc ∙ rExp (
+                                       comm _ _ ∙ Assoc ∙ Assoc ∙ rExp (
+                                            comm _ _ ∙ Assoc
+                                       ) ∙ sym Assoc
+                                   ) ∙ sym Assoc ∙ lExp (sym Assoc)
+                              ) ∙ Assoc
 
     -/_ : M²/R → M²/R
     -/_ = setQuotUnaryOp swap h
