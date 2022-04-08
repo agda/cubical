@@ -121,7 +121,7 @@ module UniversalProperty (M : CommMonoid ℓ) where
   private
     instance
       _ = snd M
-  
+
   universalHom : CommMonoidHom M (AbGroup→CommMonoid (Groupification M))
   fst universalHom = λ m → [ m , ε ]
   pres· (snd universalHom) =
@@ -212,8 +212,8 @@ module UniversalProperty (M : CommMonoid ℓ) where
 -}
 
     solution : (m : ⟨ M ⟩) → (fst inducedHom) (i m) ≡ f m
-    solution m = cong ((f m)+_) ((cong (-_) φ.presε) ∙ inv1g) ∙ rid _ 
-      
+    solution m = cong ((f m)+_) ((cong (-_) φ.presε) ∙ inv1g) ∙ rid _
+
     unique : (ψ : AbGroupHom (Groupification M) A)
              → (ψIsSolution : (m : ⟨ M ⟩) → ψ .fst (i m) ≡ f m)
              → (u : ⟨ M² M ⟩) → ψ .fst [ u ] ≡ inducedHom .fst [ u ]
