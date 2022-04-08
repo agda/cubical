@@ -123,6 +123,14 @@ module _ {R : CommRing ℓ} where
                          (kernel (Polynomials n) A freeHom)
                          relationsHold
 
+      inducedHomOnGenerators :
+        (A : CommAlgebra R ℓ)
+        (values : FinVec ⟨ A ⟩ n)
+        (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
+        (i : Fin n)
+        → fst (inducedHom A values relationsHold) (generator i) ≡ values i
+      inducedHomOnGenerators _ _ _ _ = refl
+
       unique :
              {A : CommAlgebra R ℓ}
              (values : FinVec ⟨ A ⟩ n)
