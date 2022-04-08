@@ -182,7 +182,50 @@ module _ {R : CommRing ℓ} where
 module Instances {R : CommRing ℓ} where
   open FinitePresentation
 
-  {- Multivariate polynomials are finitely presented ... -}
+  {- Every (multivariate) polynomial algebra is finitely presented -}
+  module _ (n : ℕ) where
+    private
+      A : CommAlgebra R ℓ
+      A = Polynomials n
+
+      emptyGen : FinVec (fst A) 0
+      emptyGen = λ ()
+
+      B : CommAlgebra R ℓ
+      B = FPAlgebra n emptyGen
+
+    polynomialAlgFP : FinitePresentation A
+    FinitePresentation.n polynomialAlgFP = n
+    m polynomialAlgFP = 0
+    relations polynomialAlgFP = emptyGen
+    equiv polynomialAlgFP =
+      -- Idea: A and B enjoy the same universal property.
+      toAAsEquiv , snd toA
+      where
+        toA : CommAlgebraHom B A
+        toA = inducedHom n emptyGen A Construction.var (λ ())
+        fromA : CommAlgebraHom A B
+        fromA = freeInducedHom B (generator _ _)
+        open AlgebraHoms
+        inverse1 : fromA ∘a toA ≡ idAlgebraHom _
+        inverse1 =
+          fromA ∘a toA
+            ≡⟨ sym (unique _ _ _ _ _ (λ i → cong (fst fromA) (
+                 fst toA (generator n emptyGen i)
+                   ≡⟨ inducedHomOnGenerators _ _ _ _ _ _ ⟩
+                 Construction.var i
+                   ∎))) ⟩
+          inducedHom n emptyGen B (generator _ _) (relationsHold _ _)
+            ≡⟨ unique _ _ _ _ _ (λ i → refl) ⟩
+          idAlgebraHom _
+            ∎
+        inverse2 : toA ∘a fromA ≡ idAlgebraHom _
+        inverse2 = {!!}
+        toAAsEquiv : ⟨ B ⟩ ≃ ⟨ A ⟩
+        toAAsEquiv = isoToEquiv (iso (fst toA)
+                                     (fst fromA)
+                                     (λ a i → fst (inverse2 i) a)
+                                     (λ b i → fst (inverse1 i) b))
 
   {- The initial R-algebra is finitely presented -}
   private
