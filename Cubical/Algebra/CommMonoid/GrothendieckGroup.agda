@@ -61,10 +61,10 @@ module _ (M : CommMonoid ℓ) where
       isCongR (a₁ , b₁) (a₂ , b₂) (a₃ , b₃) (a₄ , b₄) (k , p) (s , q) = k · s , proof
         where
         proof =
-          (k · s) · ((a₁ · a₃) · (b₂ · b₄))   ≡⟨ lemma ⟩
+          (k · s) · ((a₁ · a₃) · (b₂ · b₄)) ≡⟨ lemma ⟩
           (k · (a₁ · b₂)) · (s · (a₃ · b₄)) ≡⟨ cong₂ _·_ p q ⟩
           (k · (b₁ · a₂)) · (s · (b₃ · a₄)) ≡⟨ sym lemma ⟩
-          (k · s) · ((b₁ · b₃) · (a₂ · a₄))   ∎
+          (k · s) · ((b₁ · b₃) · (a₂ · a₄)) ∎
             where
             ass : ∀ {x y z} → x · (y · z) ≡ (x · y) · z
             ass = assoc _ _ _
@@ -121,6 +121,18 @@ module UniversalProperty (M : CommMonoid ℓ) where
   private
     instance
       _ = snd M
+
+{-
+The "groupification" of a monoid comes with a universal morphism and a universal property: 
+
+            M ----- ∀φ -----> A
+             \               Λ
+              \             /
+       universalHom    ∃! inducedHom
+                \         /
+                 V       /
+             Groupification M
+-}
 
   universalHom : CommMonoidHom M (AbGroup→CommMonoid (Groupification M))
   fst universalHom = λ m → [ m , ε ]
@@ -201,16 +213,6 @@ module UniversalProperty (M : CommMonoid ℓ) where
     presinv (snd inducedHom) = elimProp (λ _ → isSetAbGroup A _ _)
                                         (λ _ → sym (invDistr _ _ ∙ cong₂ _-_ (invInv _) refl))
 
-{-
-            M ------φ------> A
-             \               Λ
-              \             /
-       universalHom    ∃! inducedHom
-                \         /
-                 V       /
-             Groupification M
--}
-
     solution : (m : ⟨ M ⟩) → (fst inducedHom) (i m) ≡ f m
     solution m = cong ((f m)+_) ((cong (-_) φ.presε) ∙ inv1g) ∙ rid _
 
@@ -219,7 +221,7 @@ module UniversalProperty (M : CommMonoid ℓ) where
              → (u : ⟨ M² M ⟩) → ψ .fst [ u ] ≡ inducedHom .fst [ u ]
     unique ψ ψIsSolution (a , b) =
        ψ .fst [ a , b ]                    ≡⟨ lemma ⟩
-       ψ .fst ([ a , ε ] - [ b , ε ])    ≡⟨ (snd ψ).pres· _ _ ∙ cong₂ _+_ refl ((snd ψ).presinv _) ⟩
+       ψ .fst ([ a , ε ] - [ b , ε ])      ≡⟨ (snd ψ).pres· _ _ ∙ cong₂ _+_ refl ((snd ψ).presinv _) ⟩
        ψ .fst [ a , ε ] - ψ .fst [ b , ε ] ≡⟨ cong₂ _-_ (ψIsSolution a) (ψIsSolution b) ⟩
        f a - f b                           ∎
        where
