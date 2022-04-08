@@ -118,8 +118,8 @@ module _ {F : Functor C D} where
         g⁻¹ = F ⟪ f⁻¹ ⟫
 
 
-isSet-Functor : isSet (D .ob) → isSet (Functor C D)
-isSet-Functor {D = D} {C = C} isSet-D-ob F G p q = w
+isSetFunctor : isSet (D .ob) → isSet (Functor C D)
+isSetFunctor {D = D} {C = C} isSet-D-ob F G p q = w
   where
     w : _
     F-ob (w i i₁) = isSetΠ (λ _ → isSet-D-ob) _ _ (cong F-ob p) (cong F-ob q) i i₁
