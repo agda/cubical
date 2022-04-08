@@ -73,7 +73,7 @@ module _ {R : CommRing ℓ} where
 
     abstract
       {-
-        The following four definitions are abstract because of type checking speed
+        The following definitions are abstract because of type checking speed
         problems - complete unfolding of FPAlgebra is triggered otherwise.
         This also means, the where blocks contain more type declarations than usual.
       -}
