@@ -186,9 +186,9 @@ module Instances {R : CommRing ℓ} where
     R[⊥]/⟨0⟩ : CommAlgebra R ℓ
     R[⊥]/⟨0⟩ = FPAlgebra 0 emptyGen
 
-  contractibility : (B : CommAlgebra R ℓ)
-                    → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
-  contractibility B = iHom , uniqueness
+  R[⊥]/⟨0⟩IsInitial : (B : CommAlgebra R ℓ)
+                     → isContr (CommAlgebraHom R[⊥]/⟨0⟩ B)
+  R[⊥]/⟨0⟩IsInitial B = iHom , uniqueness
     where
       iHom : CommAlgebraHom R[⊥]/⟨0⟩ B
       iHom = inducedHom 0 emptyGen {A = B} (λ ()) (λ ())
@@ -201,7 +201,7 @@ module Instances {R : CommRing ℓ} where
   m initialCAlgFP = 0
   relations initialCAlgFP = emptyGen
   equiv initialCAlgFP =
-    equivByInitiality R (FPAlgebra 0 emptyGen) contractibility
+    equivByInitiality R R[⊥]/⟨0⟩ R[⊥]/⟨0⟩IsInitial
 
   {- The terminal R-algebra is finitely presented -}
   private
