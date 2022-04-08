@@ -42,7 +42,7 @@ module _ (M : CommMonoid ℓ) where
       _ = snd M²
 
   R : ⟨ M² ⟩  → ⟨ M² ⟩ → Type _
-  R (a₁ , b₁) (a₂ , b₂) =  Σ ⟨ M ⟩ (λ k → k · (a₁ · b₂) ≡ k · (b₁ · a₂))
+  R (a₁ , b₁) (a₂ , b₂) =  Σ[ k ∈ ⟨ M ⟩ ] k · (a₁ · b₂) ≡ k · (b₁ · a₂)
 
   M²/R : Type _
   M²/R = ⟨ M² ⟩ / R
