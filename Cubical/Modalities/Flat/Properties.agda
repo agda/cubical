@@ -39,6 +39,8 @@ module ♭Equalities {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ}  where
      - done with a hack to avoid non-crisp interval variables
     I think, it should be justified semantically to use interval variables always as if they were crisp.
     If this is ever supported by agda, the following should be changed.
+
+    The final proof of the theorem '♭≡Comm' is below this module.
   -}
 
   private
