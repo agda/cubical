@@ -140,7 +140,7 @@ module Units (R' : CommRing ℓ) where
 _ˣ : (R' : CommRing ℓ) → ℙ (R' .fst)
 R' ˣ = Units.Rˣ R'
 
-module CommRingHoms where
+module _ where
   open RingHoms
 
   idCommRingHom : (R : CommRing ℓ) → CommRingHom R R
@@ -168,6 +168,12 @@ module CommRingHoms where
                        ≡ compCommRingHom _ _ _ f (compCommRingHom _ _ _ g h)
   compAssocCommRingHom = compAssocRingHom
 
+  open Iso
+
+  injCommRingIso : {R : CommRing ℓ} {S : CommRing ℓ'} (f : CommRingIso R S)
+                 → (x y : R .fst) → f .fst .fun x ≡ f .fst .fun y → x ≡ y
+  injCommRingIso f x y h = sym (f .fst .leftInv x) ∙∙ cong (f .fst .inv) h ∙∙ f .fst .leftInv y
+
 module CommRingEquivs where
  open RingEquivs
 
@@ -176,6 +182,10 @@ module CommRingEquivs where
  compCommRingEquiv {A = A} {B = B} {C = C} = compRingEquiv {A = CommRing→Ring A}
                                                            {B = CommRing→Ring B}
                                                            {C = CommRing→Ring C}
+
+ invCommRingEquiv : (A : CommRing ℓ) → (B : CommRing ℓ') → CommRingEquiv A B → CommRingEquiv B A
+ fst (invCommRingEquiv A B e) = invEquiv (fst e)
+ snd (invCommRingEquiv A B e) = isRingHomInv e
 
 module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
