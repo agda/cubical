@@ -418,7 +418,7 @@ open HⁿℂP² using (H²CP²≅ℤ ;  H⁴CP²≅ℤ)
 -- Uncomment and give it a minute. The proof is currently not running very fast.
 
 {-
-open ⌣Comm using (-ₖ^_·_ )
+open ⌣Comm using (-ₖ'^_·_ )
 n=m=1 : (a b : S¹)
     → _⌣ₖ_ {n = 1} {m = 1} ∣ a ∣ ∣ b ∣
      ≡ (-ₖ (_⌣ₖ_ {n = 1} {m = 1} ∣ b ∣ ∣ a ∣))
@@ -496,7 +496,7 @@ open Properties using (isHomogeneousKn)
 open Path using (sym≡flipSquare ; sym-cong-sym≡id ; sym≡cong-sym)
 
 -- Lemma 31
-open ⌣Comm using (cong-ₖ-gen-inr)
+open ⌣Comm using (cong-ₖ'-gen-inr)
 
 
 -- A.3 Proofs for Section 5
