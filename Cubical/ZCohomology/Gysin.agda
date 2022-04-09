@@ -224,13 +224,13 @@ module g-base where
     lem (suc i) (suc n) = refl
 
     F : S₊∙ n →∙ coHomK-ptd (i +' n) → S₊∙ n →∙ coHomK-ptd (i +' n)
-    fst (F f) x = (-ₖ^ i · n) (fst f x)
-    snd (F f) = cong (-ₖ^ i · n) (snd f) ∙ lem i n
+    fst (F f) x = (-ₖ'^ i · n) (fst f x)
+    snd (F f) = cong (-ₖ'^ i · n) (snd f) ∙ lem i n
 
     FF : (x : _) → F (F x) ≡ x
     FF x =
       →∙Homogeneous≡ (isHomogeneousKn _)
-        (funExt λ y → -ₖ-gen² i n _ _ (fst x y))
+        (funExt λ y → -ₖ'-gen² i n _ _ (fst x y))
 
   transpPres0ₖ : ∀ {k m : ℕ} (p : k ≡ m) → subst coHomK p (0ₖ k) ≡ 0ₖ m
   transpPres0ₖ {k = k} =
@@ -254,9 +254,9 @@ module g-base where
 
   -- g is a composition of G and our two previous equivs.
   g≡ : (n : ℕ) (i : ℕ) → g n i ≡ λ x
-    → fst (compEquiv (indexSwap n i) (-ₖ^-Iso n i)) ((G n i) x)
+    → fst (compEquiv (indexSwap n i) (-ₖ'^-Iso n i)) ((G n i) x)
   g≡ n i = funExt (λ f → →∙Homogeneous≡ (isHomogeneousKn _)
-             (funExt λ y → gradedComm-⌣ₖ _ _ f (genFunSpace n .fst y)))
+             (funExt λ y → gradedComm'-⌣ₖ _ _ f (genFunSpace n .fst y)))
 
   -- We need a third Iso.
 
@@ -514,7 +514,7 @@ module g-base where
   isEquiv-g n i =
     subst isEquiv (sym (g≡ n i))
       (compEquiv (G n i , isEquivG n i)
-        (compEquiv (indexSwap n i) (-ₖ^-Iso n i)) .snd)
+        (compEquiv (indexSwap n i) (-ₖ'^-Iso n i)) .snd)
 
 -- We now generealise the equivalence g to also apply to arbitrary fibrations (Q : B → Type)
 -- satisfying (Q * ≃∙ Sⁿ)
