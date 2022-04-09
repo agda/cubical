@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.ZCohomology.CohomologyRing.Unit-Direct-carac-bis where
+module Cubical.ZCohomology.CohomologyRing.Unit-Direct-Carac where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Transport
@@ -7,7 +7,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
-open import Cubical.Data.Int 
+open import Cubical.Data.Int
 open import Cubical.Data.Sum
 
 open import Cubical.Algebra.Group hiding (Unit ; ℤ; Bool)
@@ -43,11 +43,11 @@ private variable
 
 open RingStr (snd (H*R Unit))
   renaming
-  ( 0r        to 0H*    
-  ; 1r        to 1H*   
-  ; _+_       to _+H*_ 
-  ; -_        to -H*_   
-  ; _·_       to _cup_ 
+  ( 0r        to 0H*
+  ; 1r        to 1H*
+  ; _+_       to _+H*_
+  ; -_        to -H*_
+  ; _·_       to _cup_
   ; +Assoc    to +H*Assoc
   ; +Identity to +H*Identity
   ; +Lid      to +H*Lid
@@ -66,11 +66,11 @@ open RingStr (snd (H*R Unit))
 
 open RingStr (snd ℤR)
   renaming
-  ( 0r        to 0z    
-  ; 1r        to 1z    
-  ; _+_       to _+z_ 
-  ; -_        to -z_   
-  ; _·_       to _·z_ 
+  ( 0r        to 0z
+  ; 1r        to 1z
+  ; _+_       to _+z_
+  ; -_        to -z_
+  ; _·_       to _·z_
   ; +Assoc    to +zAssoc
   ; +Identity to +zIdentity
   ; +Lid      to +zLid
@@ -150,7 +150,7 @@ H*-Unit→ℤ-gmorph x y = refl
                  where
                  gmorph : _
                  gmorph = IsGroupHom.pres· (snd (invGroupIso H⁰-Unit≅ℤ))
-                        
+
 
 ℤ→H*-Unit-rmorph : (x y : ℤ) → ℤ→H*-Unit ( x ·z y) ≡ ℤ→H*-Unit x cup ℤ→H*-Unit y
 ℤ→H*-Unit-rmorph x y = cong {ℓ-zero} {coHom 0 Unit} {ℓ-zero} {λ _ → H* Unit} (base 0)
@@ -175,11 +175,11 @@ e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _ )
          λ {U V} ind-U ind-V → ℤ→H*-Unit-gmorph (H*-Unit→ℤ U) (H*-Unit→ℤ V) ∙ cong₂ _+H*_ ind-U ind-V
   where
   eq-base : (n : ℕ) (a : coHom n Unit) → ℤ→H*-Unit (H*-Unit→ℤ (base n a)) ≡ base n a
-  eq-base zero a = cong {ℓ-zero} {coHom 0 Unit} {ℓ-zero} {λ _ → H* Unit} 
+  eq-base zero a = cong {ℓ-zero} {coHom 0 Unit} {ℓ-zero} {λ _ → H* Unit}
                    (base 0) (Iso.leftInv (fst H⁰-Unit≅ℤ) a)
                     -- the others groups are trivial
   eq-base (suc n) a = base-neutral 0 ∙ sym (base-neutral (suc n))
-                      ∙ cong {ℓ-zero} {coHom (suc n) Unit} {ℓ-zero} {λ _ → H* Unit} 
+                      ∙ cong {ℓ-zero} {coHom (suc n) Unit} {ℓ-zero} {λ _ → H* Unit}
                         (base (suc n)) (isContr→isProp (isContrHⁿ-Unit n) _ a)
 
 
@@ -196,7 +196,7 @@ H*-Unit≅ℤ : RingEquiv ℤR (H*R Unit)
 fst H*-Unit≅ℤ = isoToEquiv is
   where
   is : Iso _ _
-  Iso.fun is = ℤ→H*-Unit 
+  Iso.fun is = ℤ→H*-Unit
   Iso.inv is = H*-Unit→ℤ
   Iso.rightInv is = e-sect
   Iso.leftInv is = e-retr

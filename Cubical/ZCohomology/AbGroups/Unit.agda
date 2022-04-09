@@ -38,7 +38,7 @@ open IsGroupHom
 open Iso
 
 
--- Computation H⁰(Unit) 
+-- Computation H⁰(Unit)
 H⁰-Unit≅ℤ : AbGroupIso (coHomGroup 0 Unit) ℤAbG
 fun (fst H⁰-Unit≅ℤ) = sRec isSetℤ (λ f → f tt)
 inv (fst H⁰-Unit≅ℤ) a = ∣ (λ _ → a) ∣₂

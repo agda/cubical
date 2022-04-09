@@ -32,5 +32,3 @@ private variable
 
 H*Sn : Type ℓ-zero
 H*Sn = H* (S (-1+ 12))
-
-

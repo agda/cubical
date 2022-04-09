@@ -32,7 +32,7 @@ private variable
 -- Definition Cohomology Ring
 
 
-module intermediate-def where 
+module intermediate-def where
   H*AbGr : (A : Type ℓ) → AbGroup ℓ
   H*AbGr A = ⊕-AbGr ℕ (λ n → coHom n A) (λ n → snd (coHomGroup n A))
 
@@ -43,7 +43,7 @@ module CupRingProperties (A : Type ℓ) where
   open intermediate-def
   open AbGroupStr (snd (H*AbGr A))
   open AbGroupTheory (H*AbGr A)
-  
+
   _cup_ : H* A → H* A → H* A
   _cup_ = DS-Rec-Set.f ℕ (λ n → coHom n A) (λ n → snd (coHomGroup n A))
           (H* A → H* A)
@@ -139,7 +139,7 @@ module CupRingProperties (A : Type ℓ) where
   -^-base : {k : ℕ} → (n m : ℕ) → (a : coHom k A) → (-^ n · m) (base k a) ≡ base k ((-ₕ^ n · m) a)
   -^-base n m a = -^-gen-base n m (evenOrOdd n) (evenOrOdd m) a
 
-  -- proof 
+  -- proof
   gradCommRing : (n m : ℕ) → (a : coHom n A) → (b : coHom m A) →
                  (base n a) cup (base m b) ≡ (-^ n · m) ((base m b) cup (base n a))
   gradCommRing n m a b = base (n +' m) (a ⌣ b)
@@ -149,7 +149,7 @@ module CupRingProperties (A : Type ℓ) where
                         (-^ n · m)  (base (n +' m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
                                  ≡⟨ cong (-^ n · m) (sym (ConstsubstCommSlice (λ k → coHom k A) (H* A) base (+'-comm m n) (b ⌣ a))) ⟩
                          (-^ n · m) (base (m +' n) (b ⌣ a)) ∎
-                         
+
 
 module _ (A : Type ℓ) where
   open intermediate-def renaming (H* to H*')
@@ -171,4 +171,3 @@ module _ (A : Type ℓ) where
 
   H* : Type ℓ
   H* = fst H*R
-

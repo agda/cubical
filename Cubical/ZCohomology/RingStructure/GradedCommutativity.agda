@@ -1121,7 +1121,7 @@ gradedComm'-⌣ n m =
 -ₕ^_·_ : {k : ℕ} → {A : Type ℓ} → (n m : ℕ) → (a : coHom k A) → coHom k A
 -ₕ^_·_ n m a = -ₕ^-gen n m (evenOrOdd n) (evenOrOdd m) a
 
--ₕ^-gen-eq : ∀ {ℓ} {k : ℕ} {A : Type ℓ} (n m : ℕ) 
+-ₕ^-gen-eq : ∀ {ℓ} {k : ℕ} {A : Type ℓ} (n m : ℕ)
   → (p : isEvenT n ⊎ isOddT n) (q : isEvenT m ⊎ isOddT m)
   → (x : coHom k A)
   → -ₕ^-gen n m p q x  ≡ (sMap λ f x → (-ₖ'-gen n m p q) (f x)) x
