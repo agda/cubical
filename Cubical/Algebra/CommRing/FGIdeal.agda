@@ -23,6 +23,7 @@ open import Cubical.Data.Nat renaming ( zero to ℕzero ; suc to ℕsuc
 open import Cubical.Data.Nat.Order
 open import Cubical.HITs.PropositionalTruncation
 
+open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.BinomialThm
@@ -34,7 +35,7 @@ open import Cubical.Algebra.Matrix
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 module _ (Ring@(R , str) : CommRing ℓ) where
   infixr 5 _holds
@@ -94,6 +95,48 @@ module _ (Ring@(R , str) : CommRing ℓ) where
   CommIdeal.isCommIdeal.+Closed (snd (generatedIdeal V)) = isLinearCombination+ V
   CommIdeal.isCommIdeal.contains0 (snd (generatedIdeal V)) = isLinearCombination0 V
   CommIdeal.isCommIdeal.·Closed (snd (generatedIdeal V)) = λ r → isLinearCombinationL· V r
+
+module _
+  (A'@(A , Ar) : CommRing ℓ)
+  (B'@(B , Br) : CommRing ℓ')
+  (f'@(f , fr) : CommRingHom A' B')
+  where
+
+  open CommRingStr Ar using ()
+    renaming
+    ( 0r        to 0A
+    ; 1r        to 1A
+    ; _+_       to _+A_
+    ; -_        to -A_
+    ; _·_       to _·A_ )
+
+  open CommRingStr (snd B') using ()
+    renaming
+    ( 0r        to 0B
+    ; 1r        to 1B
+    ; _+_       to _+B_
+    ; -_        to -B_
+    ; _·_       to _·B_ )
+
+  open CommRingStr
+  open IsRingHom
+
+  cancel-linear-combinaison : (n : ℕ) → (a v : FinVec A n) → (fnull : (k : Fin n) → f (v k) ≡ 0B)
+                               → f (linearCombination A' a v) ≡ 0B
+  cancel-linear-combinaison (ℕzero) a v fnull = pres0 fr
+  cancel-linear-combinaison (ℕsuc n) a v fnull = f ((a zero ·A v zero) +A rec-call)
+                                                ≡⟨ pres+ fr _ _ ⟩
+                                          ((f (a zero ·A v zero)) +B (f rec-call))
+                                                ≡⟨ cong₂ _+B_ (pres· fr _ _) (cancel-linear-combinaison n (a ∘ suc) (v ∘ suc) (fnull ∘ suc)) ⟩
+                                          (f (a zero) ·B f (v zero) +B 0B)
+                                               ≡⟨ +Rid Br _ ⟩
+                                          (f (a zero) ·B f (v zero))
+                                               ≡⟨ cong (λ X → (f (a zero)) ·B X) (fnull zero) ⟩
+                                          (f (a zero) ·B 0B) ≡⟨ RingTheory.0RightAnnihilates (CommRing→Ring B') _ ⟩
+                                          0B ∎
+
+    where
+    rec-call = foldrFin _+A_ 0A (λ x → a (suc x) ·A v (suc x))
 
 open CommIdeal.isCommIdeal
 genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal.CommIdeal R
