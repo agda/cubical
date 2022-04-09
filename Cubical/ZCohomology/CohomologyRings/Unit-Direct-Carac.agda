@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.ZCohomology.CohomologyRing.Unit-Direct-Carac where
+module Cubical.ZCohomology.CohomologyRings.Unit-Direct-Carac where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Transport
