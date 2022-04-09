@@ -211,11 +211,11 @@ module g-base where
   fst (G n i x) y = (genFunSpace n) .fst y ⌣ₖ x
   snd (G n i x) = cong (_⌣ₖ x) ((genFunSpace n) .snd) ∙ 0ₖ-⌣ₖ n i x
 
-  -ₖ^-Iso : (n : ℕ) (i : ℕ)
+  -ₖ'^-Iso : (n : ℕ) (i : ℕ)
     → (S₊∙ n →∙ coHomK-ptd (i +' n)) ≃ (S₊∙ n →∙ coHomK-ptd (i +' n))
-  -ₖ^-Iso n i = isoToEquiv (iso F F FF FF)
+  -ₖ'^-Iso n i = isoToEquiv (iso F F FF FF)
     where
-    lem : (i n : ℕ) → (-ₖ^ i · n) (snd (coHomK-ptd (i +' n))) ≡ 0ₖ _
+    lem : (i n : ℕ) → (-ₖ'^ i · n) (snd (coHomK-ptd (i +' n))) ≡ 0ₖ _
     lem zero zero = refl
     lem zero (suc zero) = refl
     lem zero (suc (suc n)) = refl
