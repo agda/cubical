@@ -43,7 +43,7 @@ module Rec-Quotient-FGideal
   (B'@(B , Br) : CommRing ℓ')
   (g'@(g , gr) : CommRingHom A' B')
   where
-  
+
   open CommRingStr Ar using ()
     renaming
     ( 0r        to 0A
@@ -51,7 +51,7 @@ module Rec-Quotient-FGideal
     ; _+_       to _+A_
     ; -_        to -A_
     ; _·_       to _·A_ )
-    
+
   open CommRingStr Br using ()
     renaming
     ( 0r        to 0B
@@ -69,7 +69,7 @@ module Rec-Quotient-FGideal
     (v : FinVec A n)
     (gnull : (k : Fin n) → g ( v k) ≡ 0B)
     where
-        
+
     f : CommRingHom (A' / (generatedIdeal _ v)) B'
     fst f = rec-sq (is-set Br)
             g

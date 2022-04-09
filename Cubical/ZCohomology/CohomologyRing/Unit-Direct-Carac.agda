@@ -31,7 +31,7 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
-open import Cubical.ZCohomology.CohomologyRing.CohomologyRing
+open import Cubical.ZCohomology.RingStructure.CohomologyRing
 
 open import Cubical.Data.Unit
 open import Cubical.ZCohomology.AbGroups.Unit

@@ -19,7 +19,7 @@ open import Cubical.Algebra.Polynomials.Multivariate.Properties
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
-open import Cubical.ZCohomology.CohomologyRing.CohomologyRing
+open import Cubical.ZCohomology.RingStructure.CohomologyRing
 
 open import Cubical.HITs.Sn
 open import Cubical.ZCohomology.Groups.Sn
