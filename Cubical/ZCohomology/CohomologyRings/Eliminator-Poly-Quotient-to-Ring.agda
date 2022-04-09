@@ -78,8 +78,8 @@ module Rec-Quotient-FGIdeal-Ring
 
 
   open IsRingHom
-  
-  cancel-linear-combi'' : (n : ℕ) → (a v : FinVec A n) → (fnull : (k : Fin n) → f (v k) ≡ 0B)  
+
+  cancel-linear-combi'' : (n : ℕ) → (a v : FinVec A n) → (fnull : (k : Fin n) → f (v k) ≡ 0B)
                         → f (linearCombination A' a v) ≡ 0B
   cancel-linear-combi'' zero a v fnull = pres0 fr
   cancel-linear-combi'' (suc n) a v fnull = f ((a zero ·A v zero) +A rec-call)
@@ -95,7 +95,7 @@ module Rec-Quotient-FGIdeal-Ring
 
     where
     rec-call = foldrFin _+A_ 0A (λ x → a (suc x) ·A v (suc x))
-                      
+
 
   module _
     {n : ℕ}
@@ -123,6 +123,3 @@ module Rec-Quotient-FGIdeal-Ring
             (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
                       λ a → elimProp (λ _ → isSetB _ _)
                              λ a' → pres· fr a a')
-
-
-
