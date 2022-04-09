@@ -369,14 +369,14 @@ open ⌣Ring using (assocer-helpFun≡)
 open ⌣Ring using (assoc-⌣ₖ)
 
 -- Proposition 18
-open ⌣Comm using (gradedComm-⌣ₖ)
+open ⌣Comm using (gradedComm'-⌣ₖ)
 
 -- Ring structure on ⌣
 open ⌣Ring using (leftDistr-⌣ ; rightDistr-⌣
                 ; assoc-⌣ ; 1⌣
                 ; rUnit⌣ ; lUnit⌣
                 ; ⌣0 ; 0⌣)
-open ⌣Comm using (gradedComm-⌣)
+open ⌣Comm using (gradedComm'-⌣)
 
 ----- 5. CHARACTERIZING INTEGRAL COHOMOLOGY GROUPS -----
 
