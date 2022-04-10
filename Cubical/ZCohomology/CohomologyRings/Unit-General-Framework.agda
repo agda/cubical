@@ -24,10 +24,10 @@ open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
--- open import Cubical.Algebra.Polynomials.Multivariate.Properties
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 
 open import Cubical.HITs.Truncation
+open import Cubical.HITs.SetQuotients renaming (rec to rec-sq ; _/_ to _/sq_)
 open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation
@@ -37,6 +37,7 @@ open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
+open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
 
 open import Cubical.Data.Unit
 open import Cubical.ZCohomology.AbGroups.Unit
@@ -124,20 +125,18 @@ open CommRingStr (snd ℤ[X]) using ()
 -----------------------------------------------------------------------------
 -- Definitions
 
-X : FinVec ℤ[x] 1
-X zero = baseP (1 ∷ []) (CommRingStr.1r (snd ℤCR))
+<X> : FinVec ℤ[x] 1
+<X> zero = baseP (1 ∷ []) (CommRingStr.1r (snd ℤCR))
 
-
--- finVec et pas du vec !
 ℤ[X]/X : CommRing ℓ-zero
-ℤ[X]/X = ℤ[X] / genIdeal ℤ[X] X
+ℤ[X]/X = ℤ[X] / genIdeal ℤ[X] <X>
 
 ℤ[x]/x : Type ℓ-zero
 ℤ[x]/x = fst ℤ[X]/X
 
 
 -----------------------------------------------------------------------------
--- Converse Sens
+-- Direct Sens on ℤ[x]
 
 -- define it on the upper level, all properties on the upper level
 -- cancel on I in both sens => goes throught the quotient
@@ -209,8 +208,18 @@ X zero = baseP (1 ∷ []) (CommRingStr.1r (snd ℤCR))
                base-case' (suc n ∷ []) b = refl
 
 
+ℤ[x]→H*-Unit-cancelX : (k : Fin 1) → ℤ[x]→H*-Unit (<X> k) ≡ 0H*
+ℤ[x]→H*-Unit-cancelX zero = refl
+
+ℤ[X]→H*-Unit : RingHom (CommRing→Ring ℤ[X]) (H*R Unit)
+fst ℤ[X]→H*-Unit = ℤ[x]→H*-Unit
+snd ℤ[X]→H*-Unit = makeIsRingHom ℤ[x]→H*-Unit-map1Pℤ ℤ[x]→H*-Unit-gmorph ℤ[x]→H*-Unit-rmorph
+
+ℤ[X]/X→H*R-Unit : RingHom (CommRing→Ring ℤ[X]/X) (H*R Unit)
+ℤ[X]/X→H*R-Unit = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R Unit) ℤ[X]→H*-Unit <X> ℤ[x]→H*-Unit-cancelX
+
 -----------------------------------------------------------------------------
--- Direct-Sens
+-- Converse Sens on ℤ[X]
 
 H*-Unit→ℤ[x] : H* Unit → ℤ[x]
 H*-Unit→ℤ[x] = DS-Rec-Set.f _ _ _ _ isSetPℤ
@@ -240,4 +249,4 @@ H*-Unit→ℤ[x]-gmorph : (x y : H* Unit) → H*-Unit→ℤ[x] ( x +H* y) ≡ H*
 H*-Unit→ℤ[x]-gmorph x y = refl
 
 H*-Unit→ℤ[x]/x : H* Unit → ℤ[x]/x
-H*-Unit→ℤ[x]/x = [_]/ ∘ H*-Unit→ℤ[x]
+H*-Unit→ℤ[x]/x = [_] ∘ H*-Unit→ℤ[x]

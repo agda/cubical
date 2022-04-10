@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
 
-open import Cubical.HITs.SetQuotients renaming (rec to rec-sq) hiding (_/_)
+open import Cubical.HITs.SetQuotients renaming (rec to rec-sq ; _/_ to _/sq_)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to rec-prop)
 
 open import Cubical.Algebra.CommRing

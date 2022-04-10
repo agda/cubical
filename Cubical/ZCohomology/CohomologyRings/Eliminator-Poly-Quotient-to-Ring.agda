@@ -26,7 +26,7 @@ private variable
 module Rec-Quotient-FGIdeal-Ring
   (A'@(A , Ar) : CommRing ℓ)
   (B'@(B , Br) : Ring ℓ)
-  (f'@(f , fr) : RingHom (CommRing→Ring A') B')
+  (g'@(g , gr) : RingHom (CommRing→Ring A') B')
   where
 
   open CommRingStr (snd A')
@@ -79,18 +79,18 @@ module Rec-Quotient-FGIdeal-Ring
 
   open IsRingHom
 
-  cancel-linear-combi'' : (n : ℕ) → (a v : FinVec A n) → (fnull : (k : Fin n) → f (v k) ≡ 0B)
-                        → f (linearCombination A' a v) ≡ 0B
-  cancel-linear-combi'' zero a v fnull = pres0 fr
-  cancel-linear-combi'' (suc n) a v fnull = f ((a zero ·A v zero) +A rec-call)
-                                                ≡⟨ pres+ fr _ _ ⟩
-                                          ((f (a zero ·A v zero)) +B (f rec-call))
-                                                ≡⟨ cong₂ _+B_ (pres· fr _ _) (cancel-linear-combi'' n (a ∘ suc) (v ∘ suc) (fnull ∘ suc)) ⟩
-                                          (f (a zero) ·B f (v zero) +B 0B)
+  cancel-linear-combi-ring : (n : ℕ) → (a v : FinVec A n) → (gnull : (k : Fin n) → g (v k) ≡ 0B)
+                        → g (linearCombination A' a v) ≡ 0B
+  cancel-linear-combi-ring zero a v gnull = pres0 gr
+  cancel-linear-combi-ring (suc n) a v gnull = g ((a zero ·A v zero) +A rec-call)
+                                                ≡⟨ pres+ gr _ _ ⟩
+                                          ((g (a zero ·A v zero)) +B (g rec-call))
+                                                ≡⟨ cong₂ _+B_ (pres· gr _ _) (cancel-linear-combi-ring n (a ∘ suc) (v ∘ suc) (gnull ∘ suc)) ⟩
+                                          (g (a zero) ·B g (v zero) +B 0B)
                                                ≡⟨ +BRid _ ⟩
-                                          (f (a zero) ·B f (v zero))
-                                               ≡⟨ cong (λ X → (f (a zero)) ·B X) (fnull zero) ⟩
-                                          (f (a zero) ·B 0B) ≡⟨ RingTheory.0RightAnnihilates B' _ ⟩
+                                          (g (a zero) ·B g (v zero))
+                                               ≡⟨ cong (λ X → (g (a zero)) ·B X) (gnull zero) ⟩
+                                          (g (a zero) ·B 0B) ≡⟨ RingTheory.0RightAnnihilates B' _ ⟩
                                           0B ∎
 
     where
@@ -100,26 +100,26 @@ module Rec-Quotient-FGIdeal-Ring
   module _
     {n : ℕ}
     (v : FinVec A n)
-    (fnull : (k : Fin n) → f ( v k) ≡ 0B)
+    (gnull : (k : Fin n) → g ( v k) ≡ 0B)
     where
 
-    g : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
-    fst g = rec-sq isSetB
-            f
+    f : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
+    fst f = rec-sq isSetB
+            g
             λ a b → rec-prop (isSetB _ _)
-                     λ x → f a                                   ≡⟨ cong f (sym (+ARid a)) ⟩
-                     f (a +A 0A)                                  ≡⟨ cong (λ X → f (a +A X)) (sym (snd (+AInv b))) ⟩
-                     f (a +A ((-A b) +A b))                       ≡⟨ cong f (+AAssoc a (-A b) b) ⟩
-                     f ((a +A -A b) +A b)                         ≡⟨ pres+ fr (a +A -A b) b ⟩
-                     (f(a +A -A b) +B f b)                        ≡⟨ cong (λ X → f X +B f b) (snd x) ⟩
-                     (f (linearCombination A' (fst x) v) +B f b)  ≡⟨ cong (λ X → X +B f b) (cancel-linear-combi'' n (fst x) v fnull) ⟩
-                     0B +B f b                                    ≡⟨ +BLid (f b) ⟩
-                     f b ∎
-    snd g = makeIsRingHom
-            (pres1 fr)
+                     λ x → g a                                   ≡⟨ cong g (sym (+ARid a)) ⟩
+                     g (a +A 0A)                                  ≡⟨ cong (λ X → g (a +A X)) (sym (snd (+AInv b))) ⟩
+                     g (a +A ((-A b) +A b))                       ≡⟨ cong g (+AAssoc a (-A b) b) ⟩
+                     g ((a +A -A b) +A b)                         ≡⟨ pres+ gr (a +A -A b) b ⟩
+                     (g(a +A -A b) +B g b)                        ≡⟨ cong (λ X → g X +B g b) (snd x) ⟩
+                     (g (linearCombination A' (fst x) v) +B g b)  ≡⟨ cong (λ X → X +B g b) (cancel-linear-combi-ring n (fst x) v gnull) ⟩
+                     0B +B g b                                    ≡⟨ +BLid (g b) ⟩
+                     g b ∎
+    snd f = makeIsRingHom
+            (pres1 gr)
             (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
                       λ a → elimProp (λ _ → isSetB _ _)
-                             λ a' → pres+ fr a a')
+                             λ a' → pres+ gr a a')
             (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
                       λ a → elimProp (λ _ → isSetB _ _)
-                             λ a' → pres· fr a a')
+                             λ a' → pres· gr a a')
