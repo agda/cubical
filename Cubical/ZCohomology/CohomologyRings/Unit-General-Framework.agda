@@ -284,7 +284,7 @@ H*-Unit→ℤ[x]/x-gmorph x y = cong [_] (H*-Unit→ℤ[x]-gmorph x y)
 -----------------------------------------------------------------------------
 -- Section
 
--- e-sect-ℤ[x] : (x : ℤ[x]) → H*-Unit→ℤ[x] (ℤ[x]/x→H*-Unit [ x ]) ≡ x
+-- e-sect-ℤ[x] : (x : ℤ[x]) → H*-Unit→ℤ[x] (ℤ[x]→H*-Unit x ) ≡ x
 -- e-sect-ℤ[x] = Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤ _ _)
 --               refl
 --               base-case
@@ -295,8 +295,25 @@ H*-Unit→ℤ[x]/x-gmorph x y = cong [_] (H*-Unit→ℤ[x]-gmorph x y)
 --               base-case (suc x ∷ []) a = (sym (base-0P (suc x ∷ [])))
 --                                           ∙ (cong (baseP (suc x ∷ [])) {!!})
 
--- e-sect : (x : ℤ[x]/x) → H*-Unit→ℤ[x]/x (ℤ[x]/x→H*-Unit x) ≡ x
--- e-sect = elimProp-sq (λ _ → isSetPℤI _ _) λ a → cong [_] (e-sect-ℤ[x] a)
+e-sect : (x : ℤ[x]/x) → H*-Unit→ℤ[x]/x (ℤ[x]/x→H*-Unit x) ≡ x
+e-sect = elimProp-sq (λ _ → isSetPℤI _ _)
+         (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
+         refl
+         base-case
+         λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
+         where
+         base-case : _
+         base-case (zero ∷ []) a = refl
+         base-case (suc n ∷ []) a = eq/ 0Pℤ (baseP (suc n ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , foo) ∣₋₁
+           where
+           foo : (0P Poly+ baseP (suc n ∷ []) (- a)) ≡ (baseP (n +n 1 ∷ []) (- a · pos 1) Poly+ 0P)
+           foo = (0P Poly+ baseP (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
+                 baseP (suc n ∷ []) (- a) ≡⟨ cong₂ baseP (cong (λ X → X ∷ []) (sym ((+-suc n 0)
+                                            ∙ (cong suc (+-zero n))))) (sym (·ℤRid _)) ⟩
+                 baseP (n +n suc 0 ∷ []) (- a ·ℤ 1ℤ) ≡⟨ refl ⟩
+                 baseP (n +n 1 ∷ []) (- a · pos 1) ≡⟨ sym (+PℤRid _) ⟩
+                 (baseP (n +n 1 ∷ []) (- a · pos 1) Poly+ 0P) ∎
+
 
 
 -----------------------------------------------------------------------------
