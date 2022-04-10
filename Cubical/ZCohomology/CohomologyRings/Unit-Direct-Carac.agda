@@ -18,10 +18,7 @@ open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
-open import Cubical.Algebra.Polynomials.Multivariate.Base
-open import Cubical.Algebra.Polynomials.Multivariate.Properties
 
-open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
@@ -144,8 +141,7 @@ H*-Unit→ℤ-gmorph x y = refl
 
 -- gmorph is not needed but it is better to have it
 ℤ→H*-Unit-gmorph : (x y : ℤ) → ℤ→H*-Unit ( x +z y) ≡ ℤ→H*-Unit x +H* ℤ→H*-Unit y
-ℤ→H*-Unit-gmorph x y = cong {ℓ-zero} {coHom 0 Unit} {ℓ-zero} {λ _ → H* Unit} -- ask anders
-                        (base 0) (gmorph x y)
+ℤ→H*-Unit-gmorph x y = cong (base 0) (gmorph x y)
                         ∙ sym (base-add 0 (Iso.inv (fst H⁰-Unit≅ℤ) x) (Iso.inv (fst H⁰-Unit≅ℤ) y))
                  where
                  gmorph : _
@@ -153,8 +149,7 @@ H*-Unit→ℤ-gmorph x y = refl
 
 
 ℤ→H*-Unit-rmorph : (x y : ℤ) → ℤ→H*-Unit ( x ·z y) ≡ ℤ→H*-Unit x cup ℤ→H*-Unit y
-ℤ→H*-Unit-rmorph x y = cong {ℓ-zero} {coHom 0 Unit} {ℓ-zero} {λ _ → H* Unit} (base 0)
-                        (cong ∣_∣₂ (did x y))
+ℤ→H*-Unit-rmorph x y = cong (base 0) (cong ∣_∣₂ (did x y))
                  where
                  did : (x y : ℤ) → (λ _ → x ·z y) ≡ (λ x₁ → x ·₀ y)
                  did (pos zero) y = refl
@@ -175,12 +170,10 @@ e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _ )
          λ {U V} ind-U ind-V → ℤ→H*-Unit-gmorph (H*-Unit→ℤ U) (H*-Unit→ℤ V) ∙ cong₂ _+H*_ ind-U ind-V
   where
   eq-base : (n : ℕ) (a : coHom n Unit) → ℤ→H*-Unit (H*-Unit→ℤ (base n a)) ≡ base n a
-  eq-base zero a = cong {ℓ-zero} {coHom 0 Unit} {ℓ-zero} {λ _ → H* Unit}
-                   (base 0) (Iso.leftInv (fst H⁰-Unit≅ℤ) a)
+  eq-base zero a = cong (base 0) (Iso.leftInv (fst H⁰-Unit≅ℤ) a)
                     -- the others groups are trivial
   eq-base (suc n) a = base-neutral 0 ∙ sym (base-neutral (suc n))
-                      ∙ cong {ℓ-zero} {coHom (suc n) Unit} {ℓ-zero} {λ _ → H* Unit}
-                        (base (suc n)) (isContr→isProp (isContrHⁿ-Unit n) _ a)
+                      ∙ cong (base (suc n)) (isContr→isProp (isContrHⁿ-Unit n) _ a)
 
 
 -----------------------------------------------------------------------------
