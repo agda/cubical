@@ -284,19 +284,19 @@ H*-Unit→ℤ[x]/x-gmorph x y = cong [_] (H*-Unit→ℤ[x]-gmorph x y)
 -----------------------------------------------------------------------------
 -- Section
 
-e-sect-ℤ[x] : (x : ℤ[x]) → H*-Unit→ℤ[x] (ℤ[x]/x→H*-Unit [ x ]) ≡ x
-e-sect-ℤ[x] = Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤ _ _)
-              refl
-              base-case
-              (λ {U V} ind-U ind-V → cong₂ _+Pℤ_ ind-U ind-V)
-              where
-              base-case : _
-              base-case (zero ∷ []) a = refl
-              base-case (suc x ∷ []) a = (sym (base-0P (suc x ∷ [])))
-                                          ∙ (cong (baseP (suc x ∷ [])) {!!})
+-- e-sect-ℤ[x] : (x : ℤ[x]) → H*-Unit→ℤ[x] (ℤ[x]/x→H*-Unit [ x ]) ≡ x
+-- e-sect-ℤ[x] = Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤ _ _)
+--               refl
+--               base-case
+--               (λ {U V} ind-U ind-V → cong₂ _+Pℤ_ ind-U ind-V)
+--               where
+--               base-case : _
+--               base-case (zero ∷ []) a = refl
+--               base-case (suc x ∷ []) a = (sym (base-0P (suc x ∷ [])))
+--                                           ∙ (cong (baseP (suc x ∷ [])) {!!})
 
-e-sect : (x : ℤ[x]/x) → H*-Unit→ℤ[x]/x (ℤ[x]/x→H*-Unit x) ≡ x
-e-sect = elimProp-sq (λ _ → isSetPℤI _ _) λ a → cong [_] (e-sect-ℤ[x] a)
+-- e-sect : (x : ℤ[x]/x) → H*-Unit→ℤ[x]/x (ℤ[x]/x→H*-Unit x) ≡ x
+-- e-sect = elimProp-sq (λ _ → isSetPℤI _ _) λ a → cong [_] (e-sect-ℤ[x] a)
 
 
 -----------------------------------------------------------------------------
