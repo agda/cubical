@@ -52,7 +52,7 @@ open CommRingStr (snd ℤCR) using ()
   ; 1r        to 1ℤ
   ; _+_       to _+ℤ_
   ; -_        to -ℤ_
-  ; _·_       to _cup_
+  ; _·_       to _·ℤ_
   ; +Assoc    to +ℤAssoc
   ; +Identity to +ℤIdentity
   ; +Lid      to +ℤLid
@@ -104,7 +104,7 @@ open CommRingStr (snd ℤ[X]) using ()
   ; 1r        to 1Pℤ
   ; _+_       to _+Pℤ_
   ; -_        to -Pℤ_
-  ; _·_       to _cup_
+  ; _·_       to _·Pℤ_
   ; +Assoc    to +PℤAssoc
   ; +Identity to +PℤIdentity
   ; +Lid      to +PℤLid
@@ -167,7 +167,46 @@ X zero = baseP (1 ∷ []) (CommRingStr.1r (snd ℤCR))
                                             ∙ cong (base 0) (sym (IsGroupHom.pres· (snd (invGroupIso H⁰-Unit≅ℤ)) a b))
              base-add-eq (suc n ∷ []) a b = +H*Rid _
 
+ℤ[x]→H*-Unit-map1Pℤ : ℤ[x]→H*-Unit (1Pℤ) ≡ 1H*
+ℤ[x]→H*-Unit-map1Pℤ = refl
 
+ℤ[x]→H*-Unit-gmorph : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x +Pℤ y) ≡ ℤ[x]→H*-Unit x +H* ℤ[x]→H*-Unit y
+ℤ[x]→H*-Unit-gmorph x y = refl
+
+ℤ[x]→H*-Unit-rmorph : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x ·Pℤ y) ≡ ℤ[x]→H*-Unit x cup ℤ[x]→H*-Unit y
+ℤ[x]→H*-Unit-rmorph =
+      Poly-Ind-Prop.f _ _ _
+         (λ P p q i y j → isSetH* _ _ (p y) (q y) i j)
+         (λ y → refl)
+         base-case
+         λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
+           where
+           base-case : _
+           base-case (zero ∷ []) a =
+             Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
+             refl
+             base-case'
+             (λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V)
+               where
+               base-case' : _
+               base-case' (zero ∷ []) b = cong (base 0) (cong  ∣_∣₂ (same a b))
+                 where
+                 same : (x y : ℤ) → (λ _ → x ·ℤ y) ≡ (λ x₁ → x ·₀ y)
+                 same (pos zero) y = refl
+                 same (pos (suc n)) y = funExt (λ z → cong (y +ℤ_) λ i → same (pos n) y i z)
+                 same (negsuc zero) y = funExt (λ z  → sym (+ℤLid (negsuc zero ·ℤ y)))
+                 same (negsuc (suc n)) y = funExt (λ z → (+ℤComm _ _)
+                                           ∙ cong₂ _+ℤ_ (λ i → same (negsuc n) y i z) (sym (+ℤLid (negsuc zero ·ℤ y))))
+               base-case' (suc x ∷ []) b = refl
+           base-case (suc n ∷ []) a =
+             Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
+             refl
+             base-case'
+             (λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V ∙ +H*Rid _)
+               where
+               base-case' : _
+               base-case' (zero ∷ []) b = refl
+               base-case' (suc n ∷ []) b = refl
 
 
 -----------------------------------------------------------------------------
@@ -197,6 +236,8 @@ H*-Unit→ℤ[x] = DS-Rec-Set.f _ _ _ _ isSetPℤ
                                     ∙ cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd H⁰-Unit≅ℤ) a b))
              base-add-eq (suc n) a b = +PℤRid _
 
+H*-Unit→ℤ[x]-gmorph : (x y : H* Unit) → H*-Unit→ℤ[x] ( x +H* y) ≡ H*-Unit→ℤ[x] x +Pℤ H*-Unit→ℤ[x] y
+H*-Unit→ℤ[x]-gmorph x y = refl
 
 H*-Unit→ℤ[x]/x : H* Unit → ℤ[x]/x
 H*-Unit→ℤ[x]/x = [_]/ ∘ H*-Unit→ℤ[x]
