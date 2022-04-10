@@ -27,7 +27,7 @@ open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to base
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 
 open import Cubical.HITs.Truncation
-open import Cubical.HITs.SetQuotients renaming (rec to rec-sq ; _/_ to _/sq_)
+open import Cubical.HITs.SetQuotients renaming (elimProp to elimProp-sq ; rec to rec-sq ; _/_ to _/sq_)
 open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation
@@ -122,6 +122,8 @@ open CommRingStr (snd ℤ[X]) using ()
   ; ·Ldist+   to ·PℤLdist+
   ; is-set    to isSetPℤ     )
 
+
+
 -----------------------------------------------------------------------------
 -- Definitions
 
@@ -134,13 +136,31 @@ open CommRingStr (snd ℤ[X]) using ()
 ℤ[x]/x : Type ℓ-zero
 ℤ[x]/x = fst ℤ[X]/X
 
+open CommRingStr (snd ℤ[X]/X) using ()
+  renaming
+  ( 0r        to 0PℤI
+  ; 1r        to 1PℤI
+  ; _+_       to _+PℤI_
+  ; -_        to -PℤI_
+  ; _·_       to _·PℤI_
+  ; +Assoc    to +PℤIAssoc
+  ; +Identity to +PℤIIdentity
+  ; +Lid      to +PℤILid
+  ; +Rid      to +PℤIRid
+  ; +Inv      to +PℤIInv
+  ; +Linv     to +PℤILinv
+  ; +Rinv     to +PℤIRinv
+  ; +Comm     to +PℤIComm
+  ; ·Assoc    to ·PℤIAssoc
+  ; ·Identity to ·PℤIIdentity
+  ; ·Lid      to ·PℤILid
+  ; ·Rid      to ·PℤIRid
+  ; ·Rdist+   to ·PℤIRdist+
+  ; ·Ldist+   to ·PℤILdist+
+  ; is-set    to isSetPℤI     )
 
 -----------------------------------------------------------------------------
 -- Direct Sens on ℤ[x]
-
--- define it on the upper level, all properties on the upper level
--- cancel on I in both sens => goes throught the quotient
--- issue one side was hard to work with !
 
 ℤ[x]→H*-Unit : ℤ[x] → H* Unit
 ℤ[x]→H*-Unit = Poly-Rec-Set.f _ _ _ isSetH*
@@ -218,6 +238,11 @@ snd ℤ[X]→H*-Unit = makeIsRingHom ℤ[x]→H*-Unit-map1Pℤ ℤ[x]→H*-Unit-
 ℤ[X]/X→H*R-Unit : RingHom (CommRing→Ring ℤ[X]/X) (H*R Unit)
 ℤ[X]/X→H*R-Unit = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R Unit) ℤ[X]→H*-Unit <X> ℤ[x]→H*-Unit-cancelX
 
+ℤ[x]/x→H*-Unit : ℤ[x]/x → H* Unit
+ℤ[x]/x→H*-Unit = fst ℤ[X]/X→H*R-Unit
+
+
+
 -----------------------------------------------------------------------------
 -- Converse Sens on ℤ[X]
 
@@ -250,3 +275,42 @@ H*-Unit→ℤ[x]-gmorph x y = refl
 
 H*-Unit→ℤ[x]/x : H* Unit → ℤ[x]/x
 H*-Unit→ℤ[x]/x = [_] ∘ H*-Unit→ℤ[x]
+
+H*-Unit→ℤ[x]/x-gmorph : (x y : H* Unit) → H*-Unit→ℤ[x]/x (x +H* y) ≡ (H*-Unit→ℤ[x]/x x) +PℤI (H*-Unit→ℤ[x]/x y)
+H*-Unit→ℤ[x]/x-gmorph x y = cong [_] (H*-Unit→ℤ[x]-gmorph x y)
+
+
+
+-----------------------------------------------------------------------------
+-- Section
+
+e-sect-ℤ[x] : (x : ℤ[x]) → H*-Unit→ℤ[x] (ℤ[x]/x→H*-Unit [ x ]) ≡ x
+e-sect-ℤ[x] = Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤ _ _)
+              refl
+              base-case
+              (λ {U V} ind-U ind-V → cong₂ _+Pℤ_ ind-U ind-V)
+              where
+              base-case : _
+              base-case (zero ∷ []) a = refl
+              base-case (suc x ∷ []) a = (sym (base-0P (suc x ∷ [])))
+                                          ∙ (cong (baseP (suc x ∷ [])) {!!})
+
+e-sect : (x : ℤ[x]/x) → H*-Unit→ℤ[x]/x (ℤ[x]/x→H*-Unit x) ≡ x
+e-sect = elimProp-sq (λ _ → isSetPℤI _ _) λ a → cong [_] (e-sect-ℤ[x] a)
+
+
+-----------------------------------------------------------------------------
+-- Retraction
+
+e-retr : (x : H* Unit) → ℤ[x]/x→H*-Unit (H*-Unit→ℤ[x]/x x) ≡ x
+e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+         refl
+         base-case
+         λ {U V} ind-U ind-V → cong ℤ[x]/x→H*-Unit (H*-Unit→ℤ[x]/x-gmorph U V)
+                                ∙ IsRingHom.pres+ (snd ℤ[X]/X→H*R-Unit) (H*-Unit→ℤ[x]/x U) (H*-Unit→ℤ[x]/x V)
+                                ∙ cong₂ _+H*_ ind-U ind-V
+         where
+         base-case : _
+         base-case zero a = cong (base 0) (leftInv (fst H⁰-Unit≅ℤ) a)
+         base-case (suc n) a = (sym (base-neutral (suc n)))
+                               ∙ (cong (base (suc n)) ((isContr→isProp (isContrHⁿ-Unit n) _ a)))

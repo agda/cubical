@@ -139,7 +139,6 @@ H*-Unit→ℤ-gmorph x y = refl
 ℤ→H*-Unit-map1 : ℤ→H*-Unit 1z ≡ 1H*
 ℤ→H*-Unit-map1 = refl
 
--- gmorph is not needed but it is better to have it
 ℤ→H*-Unit-gmorph : (x y : ℤ) → ℤ→H*-Unit ( x +z y) ≡ ℤ→H*-Unit x +H* ℤ→H*-Unit y
 ℤ→H*-Unit-gmorph x y = cong (base 0) (gmorph x y)
                         ∙ sym (base-add 0 (Iso.inv (fst H⁰-Unit≅ℤ) x) (Iso.inv (fst H⁰-Unit≅ℤ) y))
