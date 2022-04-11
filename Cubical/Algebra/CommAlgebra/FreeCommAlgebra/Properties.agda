@@ -89,7 +89,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
     module _ where
       open IsAlgebraHom
 
-      inducedHom : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+      inducedHom : CommAlgebraHom (R [ I ]) A
       inducedHom .fst = inducedMap
       inducedHom .snd .pres0 = 0-actsNullifying _
       inducedHom .snd .pres1 = imageOf1Works

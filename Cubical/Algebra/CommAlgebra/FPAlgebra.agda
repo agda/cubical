@@ -220,7 +220,11 @@ module Instances {R : CommRing ℓ} where
           idAlgebraHom _
             ∎
         inverse2 : toA ∘a fromA ≡ idAlgebraHom _
-        inverse2 = {!!}
+        inverse2 = isoFunInjective (homMapIso A) _ _ (
+          evaluateAt A (toA ∘a fromA)   ≡⟨ sym (naturalEvR {A = B} {B = A} toA fromA) ⟩
+          fst toA ∘ evaluateAt B fromA  ≡⟨ refl ⟩
+          fst toA ∘ generator _ _       ≡⟨ funExt (inducedHomOnGenerators _ _ _ _ _)⟩
+          Construction.var              ∎)
         toAAsEquiv : ⟨ B ⟩ ≃ ⟨ A ⟩
         toAAsEquiv = isoToEquiv (iso (fst toA)
                                      (fst fromA)
