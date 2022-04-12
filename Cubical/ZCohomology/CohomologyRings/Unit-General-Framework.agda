@@ -40,7 +40,7 @@ open import Cubical.ZCohomology.RingStructure.CohomologyRing
 open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
 
 open import Cubical.Data.Unit
-open import Cubical.ZCohomology.AbGroups.Unit
+open import Cubical.ZCohomology.Groups.Unit
 
 private variable
   ℓ : Level
