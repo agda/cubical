@@ -20,9 +20,8 @@ private
     ℓ ℓ' : Level
 
 module ♭Sigma {@♭ ♭ℓ ♭ℓ' : Level} (@♭ A : Type ♭ℓ) (@♭ C : A → Type ♭ℓ') where
-  private
-    ♭C : ♭ A → Type ♭ℓ'
-    ♭C (u ^♭) = ♭ (C u)
+  ♭C : ♭ A → Type ♭ℓ'
+  ♭C (u ^♭) = ♭ (C u)
 
   Σ♭ : Type _
   Σ♭ = Σ (♭ A) ♭C
@@ -37,6 +36,7 @@ module ♭Sigma {@♭ ♭ℓ ♭ℓ' : Level} (@♭ A : Type ♭ℓ) (@♭ C : A
   Σ♭≃♭Σ = isoToEquiv (iso Σ♭→♭Σ ♭Σ→Σ♭
           (λ { ((u , v) ^♭) → refl}) λ { ((u ^♭) , (v ^♭)) → refl})
 
+♭Family = ♭Sigma.♭C
 Σ♭ = ♭Sigma.Σ♭
 Σ♭≃♭Σ = ♭Sigma.Σ♭≃♭Σ
 
@@ -119,10 +119,42 @@ Fiber♭ f u = fiber (♭map f) (u ^♭)
   {@♭ ♭ℓ ♭ℓ' : Level}
   {@♭ A : Type ♭ℓ} {@♭ B : Type ♭ℓ'} (@♭ f : A → B) (@♭ u : B)
   → (Fiber♭ f u) ≃ (♭Fiber f u)
-♭PreservesFiber f u = {!!}
+♭PreservesFiber {♭ℓ' = ♭ℓ'} {A = A} f u =
+  Fiber♭ f u                             ≃⟨ idEquiv _ ⟩
+  Σ (♭ A) (λ y → (♭map f) y ≡ (u ^♭))   ≃⟨ patternMatchIn♭A ⟩
+  Σ (♭ A) Path♭                         ≃⟨ _ , totalEquiv Path♭ ♭Path ♭≡CommMap ♭≡CommIsEquiv  ⟩
+  Σ♭ _ (λ y → f y ≡ u)                   ≃⟨ Σ♭≃♭Σ _ (λ y → f y ≡ u) ⟩
+  ♭Fiber f u ■
   where
+    ♭Path : (x : ♭ A) → Type ♭ℓ'
+    ♭Path = ♭Family A (λ v → (f v ≡ u))
+
+    Path♭ : (x : ♭ A) → Type ♭ℓ'
+    Path♭ (v ^♭) = (f v) ^♭ ≡ u ^♭
+
+    ♭≡CommMap : (x : ♭ A) → Path♭ x → ♭Path x
+    ♭≡CommMap (v ^♭) = fst (♭≡Comm (f v) u)
+
+    ♭≡CommIsEquiv : (x : ♭ A) → isEquiv (♭≡CommMap x)
+    ♭≡CommIsEquiv (v ^♭) = snd (♭≡Comm (f v) u)
+
     ♭Fiber→Fiber♭ : ♭Fiber f u → Fiber♭ f u
     ♭Fiber→Fiber♭ ((x , p) ^♭) = (x ^♭) , fst (invEquiv (♭≡Comm (f x) u)) (p ^♭)
 
     Fiber♭→♭Fiber : Fiber♭ f u → ♭Fiber f u
     Fiber♭→♭Fiber ((x ^♭) , p) = fst (Σ♭≃♭Σ _ (λ y → f y ≡ u)) ((x ^♭) , (fst (♭≡Comm (f x) u) p))
+
+    patternMatchIn♭A : Σ (♭ A) (λ y → (♭map f) y ≡ (u ^♭)) ≃ Σ (♭ A) Path♭
+    patternMatchIn♭A = isoToEquiv (iso to from toFrom fromTo)
+      where
+        to : Σ (♭ A) (λ y → (♭map f) y ≡ (u ^♭)) → Σ (♭ A) Path♭
+        to ((v ^♭) , p) = (v ^♭) , p
+
+        from : Σ (♭ A) Path♭ → Σ (♭ A) (λ y → (♭map f) y ≡ (u ^♭))
+        from ((v ^♭) , p) = (v ^♭) , p
+
+        toFrom : (x : _) → to (from x) ≡ x
+        toFrom ((v ^♭) , p) = refl
+
+        fromTo : (x : _) → from (to x) ≡ x
+        fromTo ((v ^♭) , p) = refl
