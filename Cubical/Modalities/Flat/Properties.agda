@@ -104,14 +104,25 @@ module ♭Equalities {@♭ ♭ℓ : Level} {@♭ A : Type ♭ℓ}  where
           → (u ^♭ ≡ v ^♭) ≃ ♭ (u ≡ v)
 ♭≡Comm {A = A} = ♭Equalities.≡♭≃♭≡ {A = A}
 
-{-
-  From Theorem 5.6 in Michael Shulman's real cohesion article.
--}
-crispIdentityInduction : {@♭ ♭ℓ ♭ℓ′ : Level} {@♭ B : Type ♭ℓ}
-  (@♭ C : (@♭ u v : B) (@♭ p : u ≡ v) → Type ♭ℓ′)
-  → (@♭ d : (@♭ u : B) → C u u refl)
-  → (@♭ u v : B) (@♭ p : u ≡ v)
-  → C u v p
-crispIdentityInduction {B = B} C d = {!!}
-  where C♭ : {@♭ u v : B} → u ^♭ ≡ v ^♭ → Type _
-        C♭ p = C _ _ {!J!}
+
+Fiber♭ : {@♭ ♭ℓ ♭ℓ' : Level}
+        {@♭ A : Type ♭ℓ} {@♭ B : Type ♭ℓ'} (@♭ f : A → B) (@♭ u : B)
+        → Type _
+Fiber♭ f u = fiber (♭map f) (u ^♭)
+
+♭Fiber : {@♭ ♭ℓ ♭ℓ' : Level}
+        {@♭ A : Type ♭ℓ} {@♭ B : Type ♭ℓ'} (@♭ f : A → B) (@♭ u : B)
+        → Type _
+♭Fiber f u = ♭ (fiber f u)
+
+♭PreservesFiber :
+  {@♭ ♭ℓ ♭ℓ' : Level}
+  {@♭ A : Type ♭ℓ} {@♭ B : Type ♭ℓ'} (@♭ f : A → B) (@♭ u : B)
+  → (Fiber♭ f u) ≃ (♭Fiber f u)
+♭PreservesFiber f u = {!!}
+  where
+    ♭Fiber→Fiber♭ : ♭Fiber f u → Fiber♭ f u
+    ♭Fiber→Fiber♭ ((x , p) ^♭) = (x ^♭) , fst (invEquiv (♭≡Comm (f x) u)) (p ^♭)
+
+    Fiber♭→♭Fiber : Fiber♭ f u → ♭Fiber f u
+    Fiber♭→♭Fiber ((x ^♭) , p) = fst (Σ♭≃♭Σ _ (λ y → f y ≡ u)) ((x ^♭) , (fst (♭≡Comm (f x) u) p))
