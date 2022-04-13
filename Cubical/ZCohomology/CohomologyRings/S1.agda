@@ -228,7 +228,7 @@ rmorph-base-case-vec (n ∷ []) a (m ∷ []) b = rmorph-base-case-int n a m b
   base-case (n ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
                          (sym (RingTheory.0RightAnnihilates (H*R (S₊ 1)) _))
                          (λ v' b → rmorph-base-case-vec (n ∷ []) a v' b)
-                         λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)  
+                         λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
 
 
 ℤ[x]→H*-S¹-cancelX : (k : Fin 1) → ℤ[x]→H*-S¹ (<X²> k) ≡ 0H*
@@ -284,33 +284,27 @@ H*-S¹→ℤ[x]/x² : H* (S₊ 1) → ℤ[x]/x²
 H*-S¹→ℤ[x]/x² = [_] ∘ H*-S¹→ℤ[x]
 
 H*-S¹→ℤ[x]/x²-gmorph : (x y : H* (S₊ 1)) → H*-S¹→ℤ[x]/x² (x +H* y) ≡ (H*-S¹→ℤ[x]/x² x) +PℤI (H*-S¹→ℤ[x]/x² y)
-H*-S¹→ℤ[x]/x²-gmorph x y = cong [_] (H*-S¹→ℤ[x]-gmorph x y)
+H*-S¹→ℤ[x]/x²-gmorph x y = refl
 
 
 
 -- -----------------------------------------------------------------------------
 -- -- Section
 
--- e-sect : (x : ℤ[x]/x) → H*-Unit→ℤ[x]/x (ℤ[x]/x→H*-Unit x) ≡ x
--- e-sect = elimProp-sq (λ _ → isSetPℤI _ _)
---          (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
---          refl
---          base-case
---          λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
---          where
---          base-case : _
---          base-case (zero ∷ []) a = refl
---          base-case (suc n ∷ []) a = eq/ 0Pℤ (baseP (suc n ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , foo) ∣₋₁
---            where
---            foo : (0P Poly+ baseP (suc n ∷ []) (- a)) ≡ (baseP (n +n 1 ∷ []) (- a · pos 1) Poly+ 0P)
---            foo = (0P Poly+ baseP (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
---                  baseP (suc n ∷ []) (- a) ≡⟨ cong₂ baseP (cong (λ X → X ∷ []) (sym ((+-suc n 0)
---                                             ∙ (cong suc (+-zero n))))) (sym (·ℤRid _)) ⟩
---                  baseP (n +n suc 0 ∷ []) (- a ·ℤ 1ℤ) ≡⟨ refl ⟩
---                  baseP (n +n 1 ∷ []) (- a · pos 1) ≡⟨ sym (+PℤRid _) ⟩
---                  (baseP (n +n 1 ∷ []) (- a · pos 1) Poly+ 0P) ∎
-
-
+e-sect : (x : ℤ[x]/x²) → H*-S¹→ℤ[x]/x² (ℤ[x]/x²→H*-S¹ x) ≡ x
+e-sect = elimProp-sq (λ _ → isSetPℤI _ _)
+         (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
+         refl
+         base-case
+         λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
+         where
+         base-case : _
+         base-case (zero ∷ [])        a = cong [_] (cong (baseP (0 ∷ [])) (rightInv (fst (H⁰-Sⁿ≅ℤ 0)) a))
+         base-case (one ∷ [])         a = cong [_] (cong (baseP (1 ∷ [])) (rightInv (fst coHom1S1≃ℤ) a))
+         base-case (suc (suc n) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc n) ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , helper) ∣₋₁
+           where
+           helper : _
+           helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+-comm n 2))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))
 
 -- -----------------------------------------------------------------------------
 -- -- Retraction
@@ -319,9 +313,7 @@ e-retr : (x : H* (S₊ 1)) → ℤ[x]/x²→H*-S¹ (H*-S¹→ℤ[x]/x² x) ≡ x
 e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
          refl
          base-case
-         λ {U V} ind-U ind-V → cong ℤ[x]/x²→H*-S¹ (H*-S¹→ℤ[x]/x²-gmorph U V)
-                                ∙ IsRingHom.pres+ (snd ℤ[X]/X²→H*R-S¹) (H*-S¹→ℤ[x]/x² U) (H*-S¹→ℤ[x]/x² V)
-                                ∙ cong₂ _+H*_ ind-U ind-V
+         λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
          where
          base-case : _
          base-case zero          a = cong (base 0) (leftInv (fst (H⁰-Sⁿ≅ℤ 0)) a)
