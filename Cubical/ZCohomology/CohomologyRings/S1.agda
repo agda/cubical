@@ -7,7 +7,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
+open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Int
 open import Cubical.Data.Sum
 open import Cubical.Data.Vec
@@ -39,6 +39,7 @@ open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
 open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
 
+open import Cubical.Data.Unit
 open import Cubical.HITs.Sn
 open import Cubical.ZCohomology.Groups.Sn
 
@@ -194,55 +195,54 @@ open CommRingStr (snd ℤ[X]/X²) using ()
 ℤ[x]→H*-S¹-gmorph : (x y : ℤ[x]) → ℤ[x]→H*-S¹ (x +Pℤ y) ≡ ℤ[x]→H*-S¹ x +H* ℤ[x]→H*-S¹ y
 ℤ[x]→H*-S¹-gmorph x y = refl
 
--- Complicated proof to specialised
--- ℤ[x]→H*-Unit-rmorph : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x ·Pℤ y) ≡ ℤ[x]→H*-Unit x cup ℤ[x]→H*-Unit y
--- ℤ[x]→H*-Unit-rmorph =
---       Poly-Ind-Prop.f _ _ _
---          (λ P p q i y j → isSetH* _ _ (p y) (q y) i j)
---          (λ y → refl)
---          base-case
---          λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
---            where
---            base-case : _
---            base-case (zero ∷ []) a =
---              Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
---              refl
---              base-case'
---              (λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V)
---                where
---                base-case' : _
---                base-case' (zero ∷ []) b = cong (base 0) (cong  ∣_∣₂ (same a b))
---                  where
---                  same : (x y : ℤ) → (λ _ → x ·ℤ y) ≡ (λ x₁ → x ·₀ y)
---                  same (pos zero) y = refl
---                  same (pos (suc n)) y = funExt (λ z → cong (y +ℤ_) λ i → same (pos n) y i z)
---                  same (negsuc zero) y = funExt (λ z  → sym (+ℤLid (negsuc zero ·ℤ y)))
---                  same (negsuc (suc n)) y = funExt (λ z → (+ℤComm _ _)
---                                            ∙ cong₂ _+ℤ_ (λ i → same (negsuc n) y i z) (sym (+ℤLid (negsuc zero ·ℤ y))))
---                base-case' (suc x ∷ []) b = refl
---            base-case (suc n ∷ []) a =
---              Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
---              refl
---              base-case'
---              (λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V ∙ +H*Rid _)
---                where
---                base-case' : _
---                base-case' (zero ∷ []) b = refl
---                base-case' (suc n ∷ []) b = refl
+
+rmorph-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
+              ℤ[x]→H*-S¹ (baseP (n ∷ []) a ·Pℤ baseP (m ∷ []) b)
+            ≡ ℤ[x]→H*-S¹ (baseP (n ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (m ∷ []) b)
+rmorph-base-case-int zero          a zero          b = {!!}
+rmorph-base-case-int zero          a one           b = {!!}
+rmorph-base-case-int zero          a (suc (suc m)) b = refl
+rmorph-base-case-int one           a zero          b = {!!}
+rmorph-base-case-int one           a one           b = sym (base-neutral 2) ∙
+                                            cong (base 2) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 1 0 nsnotz)) isPropUnit _ _)
+rmorph-base-case-int one           a (suc (suc m)) b = refl
+rmorph-base-case-int (suc (suc n)) a zero          b = refl
+rmorph-base-case-int (suc (suc n)) a one           b = refl
+rmorph-base-case-int (suc (suc n)) a (suc (suc m)) b = refl
+
+
+rmorph-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
+              ℤ[x]→H*-S¹ (baseP v a ·Pℤ baseP v' b)
+            ≡ ℤ[x]→H*-S¹ (baseP v a) cup ℤ[x]→H*-S¹ (baseP v' b)
+rmorph-base-case-vec (n ∷ []) a (m ∷ []) b = rmorph-base-case-int n a m b
+
+
+ℤ[x]→H*-S¹-rmorph : (x y : ℤ[x]) → ℤ[x]→H*-S¹ (x ·Pℤ y) ≡ ℤ[x]→H*-S¹ x cup ℤ[x]→H*-S¹ y
+ℤ[x]→H*-S¹-rmorph = Poly-Ind-Prop.f _ _ _
+                       (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
+                       (λ y → refl)
+                       base-case
+                       λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
+  where
+  base-case : _
+  base-case (n ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
+                         (sym (RingTheory.0RightAnnihilates (H*R (S₊ 1)) _))
+                         (λ v' b → rmorph-base-case-vec (n ∷ []) a v' b)
+                         λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)  
 
 
 ℤ[x]→H*-S¹-cancelX : (k : Fin 1) → ℤ[x]→H*-S¹ (<X²> k) ≡ 0H*
 ℤ[x]→H*-S¹-cancelX zero = refl
 
--- ℤ[X]→H*-S¹ : RingHom (CommRing→Ring ℤ[X]) (H*R S¹)
--- fst ℤ[X]→H*-S¹ = ℤ[x]→H*-S¹
--- snd ℤ[X]→H*-S¹ = makeIsRingHom ℤ[x]→H*-S¹-map1Pℤ ℤ[x]→H*-S¹-gmorph ℤ[x]→H*-S¹-rmorph
+ℤ[X]→H*-S¹ : RingHom (CommRing→Ring ℤ[X]) (H*R (S₊ 1))
+fst ℤ[X]→H*-S¹ = ℤ[x]→H*-S¹
+snd ℤ[X]→H*-S¹ = makeIsRingHom ℤ[x]→H*-S¹-map1Pℤ ℤ[x]→H*-S¹-gmorph ℤ[x]→H*-S¹-rmorph
 
--- ℤ[X]/X→H*R-S¹ : RingHom (CommRing→Ring ℤ[X]/X) (H*R S¹)
--- ℤ[X]/X→H*R-S¹ = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R S¹) ℤ[X]→H*-S¹ <X²> ℤ[x]→H*-S¹-cancelX
+ℤ[X]/X²→H*R-S¹ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
+ℤ[X]/X²→H*R-S¹ = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R (S₊ 1)) ℤ[X]→H*-S¹ <X²> ℤ[x]→H*-S¹-cancelX
 
--- ℤ[x]/x→H*-S¹ : ℤ[x]/x → H* S¹
--- ℤ[x]/x→H*-S¹ = fst ℤ[X]/X→H*R-S¹
+ℤ[x]/x²→H*-S¹ : ℤ[x]/x² → H* (S₊ 1)
+ℤ[x]/x²→H*-S¹ = fst ℤ[X]/X²→H*R-S¹
 
 
 
@@ -315,15 +315,16 @@ H*-S¹→ℤ[x]/x²-gmorph x y = cong [_] (H*-S¹→ℤ[x]-gmorph x y)
 -- -----------------------------------------------------------------------------
 -- -- Retraction
 
--- e-retr : (x : H* Unit) → ℤ[x]/x→H*-Unit (H*-Unit→ℤ[x]/x x) ≡ x
--- e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
---          refl
---          base-case
---          λ {U V} ind-U ind-V → cong ℤ[x]/x→H*-Unit (H*-Unit→ℤ[x]/x-gmorph U V)
---                                 ∙ IsRingHom.pres+ (snd ℤ[X]/X→H*R-Unit) (H*-Unit→ℤ[x]/x U) (H*-Unit→ℤ[x]/x V)
---                                 ∙ cong₂ _+H*_ ind-U ind-V
---          where
---          base-case : _
---          base-case zero a = cong (base 0) (leftInv (fst H⁰-Unit≅ℤ) a)
---          base-case (suc n) a = (sym (base-neutral (suc n)))
---                                ∙ (cong (base (suc n)) ((isContr→isProp (isContrHⁿ-Unit n) _ a)))
+e-retr : (x : H* (S₊ 1)) → ℤ[x]/x²→H*-S¹ (H*-S¹→ℤ[x]/x² x) ≡ x
+e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+         refl
+         base-case
+         λ {U V} ind-U ind-V → cong ℤ[x]/x²→H*-S¹ (H*-S¹→ℤ[x]/x²-gmorph U V)
+                                ∙ IsRingHom.pres+ (snd ℤ[X]/X²→H*R-S¹) (H*-S¹→ℤ[x]/x² U) (H*-S¹→ℤ[x]/x² V)
+                                ∙ cong₂ _+H*_ ind-U ind-V
+         where
+         base-case : _
+         base-case zero          a = cong (base 0) (leftInv (fst (H⁰-Sⁿ≅ℤ 0)) a)
+         base-case one           a = cong (base 1) (leftInv (fst coHom1S1≃ℤ) a)
+         base-case (suc (suc n)) a = (sym (base-neutral (suc (suc n))))
+                                     ∙ cong (base (suc (suc n))) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 (suc n) 0 nsnotz)) isPropUnit _ _)
