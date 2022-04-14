@@ -40,11 +40,13 @@ open import Cubical.ZCohomology.RingStructure.CohomologyRing
 open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
 
 open import Cubical.Data.Unit
+open import Cubical.HITs.S1 using () renaming (base to baseS1 ; loop to loopS1 ; toPropElim to S1-Ind-Prop)
 open import Cubical.HITs.Sn
+open import Cubical.ZCohomology.Groups.Prelims
 open import Cubical.ZCohomology.Groups.Sn
 
 private variable
-  ℓ : Level
+  ℓ ℓ' : Level
 
 open Iso
 
@@ -119,6 +121,7 @@ open CommRingStr (snd ℤ[X]) using ()
   ; ·Identity to ·PℤIdentity
   ; ·Lid      to ·PℤLid
   ; ·Rid      to ·PℤRid
+  ; ·Comm     to ·PℤComm
   ; ·Rdist+   to ·PℤRdist+
   ; ·Ldist+   to ·PℤLdist+
   ; is-set    to isSetPℤ     )
@@ -196,20 +199,71 @@ open CommRingStr (snd ℤ[X]/X²) using ()
 ℤ[x]→H*-S¹-gmorph x y = refl
 
 
+-- Ring Morphism : need to define the functions on the quotient ring
+-- rmorph-base-case-00 : (a : ℤ) → (b : ℤ) → a · b ≡ a ·₀ b
+-- rmorph-base-case-00 (pos zero) b = {!!}
+-- rmorph-base-case-00 (pos (suc n)) b = {!!}
+-- rmorph-base-case-00 (negsuc zero) b = {!!}
+-- rmorph-base-case-00 (negsuc (suc n)) b = {!!}
+
+rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
+              ℤ[x]→H*-S¹ (baseP (0 ∷ []) a ·Pℤ baseP (0 ∷ []) b)
+            ≡ ℤ[x]→H*-S¹ (baseP (0 ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (0 ∷ []) b)
+rmorph-base-case-00 a b = cong (base 0) (cong ∣_∣₂ (funExt (λ _ → same a b)))
+  where
+  same : (a b : ℤ) → a · b ≡ _·₀_ {0} a b
+  same (pos zero)       b = refl
+  same (pos (suc n))    b = cong (_+ℤ_ b) (same (pos n) b)
+  same (negsuc zero)    b = sym (+ℤLid (-ℤ b))
+  same (negsuc (suc n)) b = (+ℤComm _ _) ∙ (cong₂ _+ℤ_ (same _ _) (sym (+ℤLid _)))
+
+
+
+
+
+same : (a b : ℤ) → (s : (S₊ 1)) →
+      inv S¹→S¹≡S¹×ℤ (baseS1 , a · b) s ≡ a ·₀ inv S¹→S¹≡S¹×ℤ (baseS1 , b) s
+same a b baseS1 = {!!}
+same a b (loopS1 i) = {!!}
+
+--   where
+--   baseS1-case : (a : ℤ) → ∣ baseS1 ∣ ≡ a ·₀ ∣ baseS1 ∣
+--   baseS1-case (pos zero)       = refl
+--   baseS1-case (pos (suc n))    = sym (cong (λ X → ∣ baseS1 ∣ +ₖ X) (sym (baseS1-case (pos n))))
+--   baseS1-case (negsuc zero)    = refl
+--   baseS1-case (negsuc (suc n)) = sym (cong (λ X → X -ₖ ∣ baseS1 ∣) (sym (baseS1-case (negsuc n))))
+-- same b (loopS1 i) = loopS1-case
+--   where
+--   loopS1-case : _
+--   loopS1-case = {!!}
+
+
+
+rmorph-base-case-01 : (a : ℤ) → (b : ℤ) →
+              ℤ[x]→H*-S¹ (baseP (0 ∷ []) a ·Pℤ baseP (1 ∷ []) b)
+            ≡ ℤ[x]→H*-S¹ (baseP (0 ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (1 ∷ []) b)
+rmorph-base-case-01 a b = cong (base 1) (cong ∣_∣₂ (funExt (λ X → {!!})))
+
+
+
+
+
+
+
+
 rmorph-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
               ℤ[x]→H*-S¹ (baseP (n ∷ []) a ·Pℤ baseP (m ∷ []) b)
             ≡ ℤ[x]→H*-S¹ (baseP (n ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (m ∷ []) b)
-rmorph-base-case-int zero          a zero          b = {!!}
-rmorph-base-case-int zero          a one           b = {!!}
+rmorph-base-case-int zero          a zero          b = rmorph-base-case-00 a b
+rmorph-base-case-int zero          a one           b = rmorph-base-case-01 a b
 rmorph-base-case-int zero          a (suc (suc m)) b = refl
-rmorph-base-case-int one           a zero          b = {!!}
+rmorph-base-case-int one           a zero          b = cong ℤ[x]→H*-S¹ (·PℤComm (baseP (1 ∷ []) a) (baseP (zero ∷ []) b))
+                                                       ∙ rmorph-base-case-int 0 b 1 a
+                                                       ∙ gradCommRing (S₊ 1) 0 1 (inv (fst (H⁰-Sⁿ≅ℤ 0)) b) (inv (fst coHom1S1≃ℤ) a)
 rmorph-base-case-int one           a one           b = sym (base-neutral 2) ∙
-                                            cong (base 2) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 1 0 nsnotz)) isPropUnit _ _)
+                                                       cong (base 2) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 1 0 nsnotz)) isPropUnit _ _)
 rmorph-base-case-int one           a (suc (suc m)) b = refl
-rmorph-base-case-int (suc (suc n)) a zero          b = refl
-rmorph-base-case-int (suc (suc n)) a one           b = refl
-rmorph-base-case-int (suc (suc n)) a (suc (suc m)) b = refl
-
+rmorph-base-case-int (suc (suc n)) a m             b = refl
 
 rmorph-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
               ℤ[x]→H*-S¹ (baseP v a ·Pℤ baseP v' b)
@@ -231,6 +285,7 @@ rmorph-base-case-vec (n ∷ []) a (m ∷ []) b = rmorph-base-case-int n a m b
                          λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
 
 
+-- Defining on the quotient
 ℤ[x]→H*-S¹-cancelX : (k : Fin 1) → ℤ[x]→H*-S¹ (<X²> k) ≡ 0H*
 ℤ[x]→H*-S¹-cancelX zero = refl
 

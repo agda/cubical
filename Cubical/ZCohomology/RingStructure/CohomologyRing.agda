@@ -139,17 +139,6 @@ module CupRingProperties (A : Type ℓ) where
   -^-base : {k : ℕ} → (n m : ℕ) → (a : coHom k A) → (-^ n · m) (base k a) ≡ base k ((-ₕ^ n · m) a)
   -^-base n m a = -^-gen-base n m (evenOrOdd n) (evenOrOdd m) a
 
-  -- proof
-  gradCommRing : (n m : ℕ) → (a : coHom n A) → (b : coHom m A) →
-                 (base n a) cup (base m b) ≡ (-^ n · m) ((base m b) cup (base n a))
-  gradCommRing n m a b = base (n +' m) (a ⌣ b)
-                                 ≡⟨ cong (base (n +' m)) (gradedComm-⌣ n m a b) ⟩
-                        base (n +' m) ((-ₕ^ n · m) (subst (λ n₁ → coHom n₁ A) (+'-comm m n) (b ⌣ a)))
-                                 ≡⟨ sym (-^-base n m (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a))) ⟩
-                        (-^ n · m)  (base (n +' m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
-                                 ≡⟨ cong (-^ n · m) (sym (ConstsubstCommSlice (λ k → coHom k A) (H* A) base (+'-comm m n) (b ⌣ a))) ⟩
-                         (-^ n · m) (base (m +' n) (b ⌣ a)) ∎
-
 
 module _ (A : Type ℓ) where
   open intermediate-def renaming (H* to H*')
@@ -171,3 +160,13 @@ module _ (A : Type ℓ) where
 
   H* : Type ℓ
   H* = fst H*R
+
+  gradCommRing : (n m : ℕ) → (a : coHom n A) → (b : coHom m A) →
+                 (base n a) cup (base m b) ≡ (-^ n · m) ((base m b) cup (base n a))
+  gradCommRing n m a b = base (n +' m) (a ⌣ b)
+                                 ≡⟨ cong (base (n +' m)) (gradedComm-⌣ n m a b) ⟩
+                        base (n +' m) ((-ₕ^ n · m) (subst (λ n₁ → coHom n₁ A) (+'-comm m n) (b ⌣ a)))
+                                 ≡⟨ sym (-^-base n m (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a))) ⟩
+                        (-^ n · m)  (base (n +' m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
+                                 ≡⟨ cong (-^ n · m) (sym (ConstsubstCommSlice (λ k → coHom k A) H* base (+'-comm m n) (b ⌣ a))) ⟩
+                         (-^ n · m) (base (m +' n) (b ⌣ a)) ∎
