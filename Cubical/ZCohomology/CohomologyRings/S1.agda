@@ -200,43 +200,53 @@ open CommRingStr (snd ℤ[X]/X²) using ()
 
 
 -- Ring Morphism : need to define the functions on the quotient ring
-rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
-              ℤ[x]→H*-S¹ (baseP (0 ∷ []) a ·Pℤ baseP (0 ∷ []) b)
-            ≡ ℤ[x]→H*-S¹ (baseP (0 ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (0 ∷ []) b)
-rmorph-base-case-00 a b = cong (base 0) (cong ∣_∣₂ (funExt (λ _ → same a b)))
-  where
-  same : (a b : ℤ) → a · b ≡ _·₀_ {0} a b
-  same (pos zero)       b = refl
-  same (pos (suc n))    b = cong (_+ℤ_ b) (same (pos n) b)
-  same (negsuc zero)    b = sym (+ℤLid (-ℤ b))
-  same (negsuc (suc n)) b = (+ℤComm _ _) ∙ (cong₂ _+ℤ_ (same _ _) (sym (+ℤLid _)))
 
 T0 : (z : ℤ) → coHom 0 (S₊ 1)
 T0 = λ z → inv (fst (H⁰-Sⁿ≅ℤ 0)) z
 
+T0g : IsGroupHom (Cubical.Algebra.Group.ℤ .snd) (fst (invGroupIso (H⁰-Sⁿ≅ℤ 0)) .fun) (coHomGr 0 (S₊ (suc 0)) .snd)
+T0g = snd (invGroupIso (H⁰-Sⁿ≅ℤ 0))
+
+  -- idea : control of the unfolding + simplification of T0 on the left
+rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
+                      T0 (a ·ℤ b) ≡ (T0 a) ⌣ (T0 b)
+rmorph-base-case-00 (pos zero)       b = (IsGroupHom.pres1 T0g)
+rmorph-base-case-00 (pos (suc n))    b = ((IsGroupHom.pres· T0g b (pos n ·ℤ b)))
+                                         ∙ (cong (λ X → (T0 b) +ₕ X) (rmorph-base-case-00 (pos n) b))
+rmorph-base-case-00 (negsuc zero)    b = cong T0 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
+                                         ∙ IsGroupHom.presinv T0g b
+
+rmorph-base-case-00 (negsuc (suc n)) b = cong T0 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
+                                         ∙ IsGroupHom.pres· T0g (negsuc n ·ℤ b) (-ℤ b)
+                                          ∙ cong₂ _+ₕ_ (rmorph-base-case-00 (negsuc n) b)
+                                                       (cong T0 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T0g b)
+
 T1 : (z : ℤ) → coHom 1 (S₊ 1)
 T1 = λ z → inv (fst coHom1S1≃ℤ) z
 
--- idea : use the fact that T1 is an morphism, that T0 simplifies + control on the level of unfolding
+  -- idea : control of the unfolding + simplification of T0 on the left
+T1g : IsGroupHom (Cubical.Algebra.Group.ℤ .snd) (fst (invGroupIso coHom1S1≃ℤ) .fun) (coHomGr 1 (S₊ 1) .snd)
+T1g = snd (invGroupIso coHom1S1≃ℤ)
+
 rmorph-base-case-01 : (a : ℤ) → (b : ℤ) →
-        T1 (a ·ℤ b) ≡ (T0 a) ⌣ (T1 b)
-rmorph-base-case-01 (pos zero)      b  = (IsGroupHom.pres1 (snd (invGroupIso coHom1S1≃ℤ)))
-rmorph-base-case-01 (pos (suc n))    b = ((IsGroupHom.pres· (snd (invGroupIso coHom1S1≃ℤ)) b (pos n ·ℤ b)))
+                      T1 (a ·ℤ b) ≡ (T0 a) ⌣ (T1 b)
+rmorph-base-case-01 (pos zero)       b = (IsGroupHom.pres1 T1g)
+rmorph-base-case-01 (pos (suc n))    b = ((IsGroupHom.pres· T1g b (pos n ·ℤ b)))
                                          ∙ (cong (λ X → (T1 b) +ₕ X) (rmorph-base-case-01 (pos n) b))
 rmorph-base-case-01 (negsuc zero)    b = cong T1 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
-                                         ∙ IsGroupHom.presinv (snd (invGroupIso coHom1S1≃ℤ)) b
+                                         ∙ IsGroupHom.presinv T1g b
 
-rmorph-base-case-01 (negsuc (suc n)) b = cong T1 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined symetrically !
-                                         ∙ IsGroupHom.pres· (snd (invGroupIso coHom1S1≃ℤ)) (negsuc n ·ℤ b) (-ℤ b)
+rmorph-base-case-01 (negsuc (suc n)) b = cong T1 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
+                                         ∙ IsGroupHom.pres· T1g (negsuc n ·ℤ b) (-ℤ b)
                                           ∙ cong₂ _+ₕ_ (rmorph-base-case-01 (negsuc n) b)
-                                                       (cong T1 (sym (+ℤLid (-ℤ b)))
-                                                          ∙ IsGroupHom.presinv (snd (invGroupIso coHom1S1≃ℤ)) b)
+                                                       (cong T1 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T1g b)
+
 
 
 rmorph-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
               ℤ[x]→H*-S¹ (baseP (n ∷ []) a ·Pℤ baseP (m ∷ []) b)
             ≡ ℤ[x]→H*-S¹ (baseP (n ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (m ∷ []) b)
-rmorph-base-case-int zero          a zero          b = rmorph-base-case-00 a b
+rmorph-base-case-int zero          a zero          b = cong (base 0) (rmorph-base-case-00 a b)
 rmorph-base-case-int zero          a one           b = cong (base 1) (rmorph-base-case-01 a b)
 rmorph-base-case-int zero          a (suc (suc m)) b = refl
 rmorph-base-case-int one           a zero          b = cong ℤ[x]→H*-S¹ (·PℤComm (baseP (1 ∷ []) a) (baseP (zero ∷ []) b))

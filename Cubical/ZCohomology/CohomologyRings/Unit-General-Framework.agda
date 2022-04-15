@@ -191,42 +191,60 @@ open CommRingStr (snd ℤ[X]/X) using ()
 ℤ[x]→H*-Unit-gmorph : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x +Pℤ y) ≡ ℤ[x]→H*-Unit x +H* ℤ[x]→H*-Unit y
 ℤ[x]→H*-Unit-gmorph x y = refl
 
+
+-- Proving the morphism on the cup product
+
+T0 : (z : ℤ) → coHom 0 Unit
+T0 = λ z → inv (fst H⁰-Unit≅ℤ) z
+
+T0g : IsGroupHom (Cubical.Algebra.Group.ℤ .snd) (fst (invGroupIso H⁰-Unit≅ℤ) .fun) (coHomGr 0 Unit .snd)
+T0g = snd (invGroupIso H⁰-Unit≅ℤ)
+
+
+  -- idea : control of the unfolding + simplification of T0 on the left
+rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
+                      T0 (a ·ℤ b) ≡ (T0 a) ⌣ (T0 b)
+rmorph-base-case-00 (pos zero)       b = (IsGroupHom.pres1 T0g)
+rmorph-base-case-00 (pos (suc n))    b = ((IsGroupHom.pres· T0g b (pos n ·ℤ b)))
+                                         ∙ (cong (λ X → (T0 b) +ₕ X) (rmorph-base-case-00 (pos n) b))
+rmorph-base-case-00 (negsuc zero)    b = cong T0 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
+                                         ∙ IsGroupHom.presinv T0g b
+
+rmorph-base-case-00 (negsuc (suc n)) b = cong T0 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
+                                         ∙ IsGroupHom.pres· T0g (negsuc n ·ℤ b) (-ℤ b)
+                                          ∙ cong₂ _+ₕ_ (rmorph-base-case-00 (negsuc n) b)
+                                                       (cong T0 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T0g b)
+
+
+rmorph-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
+              ℤ[x]→H*-Unit (baseP (n ∷ []) a ·Pℤ baseP (m ∷ []) b)
+            ≡ ℤ[x]→H*-Unit (baseP (n ∷ []) a) cup ℤ[x]→H*-Unit (baseP (m ∷ []) b)
+rmorph-base-case-int zero    a zero    b = cong (base 0) (rmorph-base-case-00 a b)
+rmorph-base-case-int zero    a (suc m) b = refl
+rmorph-base-case-int (suc n) a m       b = refl
+
+rmorph-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
+              ℤ[x]→H*-Unit (baseP v a ·Pℤ baseP v' b)
+            ≡ ℤ[x]→H*-Unit (baseP v a) cup ℤ[x]→H*-Unit (baseP v' b)
+rmorph-base-case-vec (n ∷ []) a (m ∷ []) b = rmorph-base-case-int n a m b
+
+
+
 ℤ[x]→H*-Unit-rmorph : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x ·Pℤ y) ≡ ℤ[x]→H*-Unit x cup ℤ[x]→H*-Unit y
-ℤ[x]→H*-Unit-rmorph =
-      Poly-Ind-Prop.f _ _ _
-         (λ P p q i y j → isSetH* _ _ (p y) (q y) i j)
-         (λ y → refl)
-         base-case
-         λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
-           where
-           base-case : _
-           base-case (zero ∷ []) a =
-             Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
-             refl
-             base-case'
-             (λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V)
-               where
-               base-case' : _
-               base-case' (zero ∷ []) b = cong (base 0) (cong  ∣_∣₂ (same a b))
-                 where
-                 same : (x y : ℤ) → (λ _ → x ·ℤ y) ≡ (λ x₁ → x ·₀ y)
-                 same (pos zero) y = refl
-                 same (pos (suc n)) y = funExt (λ z → cong (y +ℤ_) λ i → same (pos n) y i z)
-                 same (negsuc zero) y = funExt (λ z  → sym (+ℤLid (negsuc zero ·ℤ y)))
-                 same (negsuc (suc n)) y = funExt (λ z → (+ℤComm _ _)
-                                           ∙ cong₂ _+ℤ_ (λ i → same (negsuc n) y i z) (sym (+ℤLid (negsuc zero ·ℤ y))))
-               base-case' (suc x ∷ []) b = refl
-           base-case (suc n ∷ []) a =
-             Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
-             refl
-             base-case'
-             (λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V ∙ +H*Rid _)
-               where
-               base-case' : _
-               base-case' (zero ∷ []) b = refl
-               base-case' (suc n ∷ []) b = refl
+ℤ[x]→H*-Unit-rmorph = Poly-Ind-Prop.f _ _ _
+                       (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
+                       (λ y → refl)
+                       base-case
+                       λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
+  where
+  base-case : _
+  base-case (n ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
+                         (sym (RingTheory.0RightAnnihilates (H*R Unit) _))
+                         (λ v' b → rmorph-base-case-vec (n ∷ []) a v' b)
+                         λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
 
 
+  -- raising to the product
 ℤ[x]→H*-Unit-cancelX : (k : Fin 1) → ℤ[x]→H*-Unit (<X> k) ≡ 0H*
 ℤ[x]→H*-Unit-cancelX zero = refl
 
