@@ -200,12 +200,6 @@ open CommRingStr (snd ℤ[X]/X²) using ()
 
 
 -- Ring Morphism : need to define the functions on the quotient ring
--- rmorph-base-case-00 : (a : ℤ) → (b : ℤ) → a · b ≡ a ·₀ b
--- rmorph-base-case-00 (pos zero) b = {!!}
--- rmorph-base-case-00 (pos (suc n)) b = {!!}
--- rmorph-base-case-00 (negsuc zero) b = {!!}
--- rmorph-base-case-00 (negsuc (suc n)) b = {!!}
-
 rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
               ℤ[x]→H*-S¹ (baseP (0 ∷ []) a ·Pℤ baseP (0 ∷ []) b)
             ≡ ℤ[x]→H*-S¹ (baseP (0 ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (0 ∷ []) b)
@@ -217,60 +211,33 @@ rmorph-base-case-00 a b = cong (base 0) (cong ∣_∣₂ (funExt (λ _ → same 
   same (negsuc zero)    b = sym (+ℤLid (-ℤ b))
   same (negsuc (suc n)) b = (+ℤComm _ _) ∙ (cong₂ _+ℤ_ (same _ _) (sym (+ℤLid _)))
 
-T : (z : ℤ) → (s : S₊ 1) → HubAndSpoke Cubical.HITs.S1.S¹ 2
-T = λ z s → inv S¹→S¹≡S¹×ℤ (baseS1 , z) s
+T0 : (z : ℤ) → coHom 0 (S₊ 1)
+T0 = λ z → inv (fst (H⁰-Sⁿ≅ℤ 0)) z
 
--- T-morph0 : (s : S₊ 1) → T 0ℤ s ≡ {!!}
--- T-morph0 = {!!}
+T1 : (z : ℤ) → coHom 1 (S₊ 1)
+T1 = λ z → inv (fst coHom1S1≃ℤ) z
 
-proof-rmorph : (a b : ℤ) → (s : S₊ 1)
-               →  T (a +ℤ b) s ≡ (T b s) +ₖ (T a s)
-proof-rmorph a b s = {!!}
-
-
-same : (a b : ℤ) → (s : S₊ 1) →
-      inv S¹→S¹≡S¹×ℤ (baseS1 , a · b) s ≡ a ·₀ inv S¹→S¹≡S¹×ℤ (baseS1 , b) s
--- on base
-same (pos zero)       b baseS1 = refl
-same (pos (suc n))    b baseS1 = sym (cong (λ X → ∣ baseS1 ∣ +ₖ X) (sym (same (pos n) b baseS1)))
-same (negsuc zero)    b baseS1 = refl
-same (negsuc (suc n)) b baseS1 = sym (cong (λ X → X -ₖ ∣ baseS1 ∣) (sym (same (negsuc n) b baseS1)))
--- on the loop
-same (pos zero)       b (loopS1 i) = refl
-same (pos (suc n))    b (loopS1 i) = {!!}
-same (negsuc zero)    b (loopS1 i) = {!!}
-same (negsuc (suc n)) b (loopS1 i) = {!!}
-
---   where
---   baseS1-case : (a : ℤ) → ∣ baseS1 ∣ ≡ a ·₀ ∣ baseS1 ∣
---   baseS1-case (pos zero)       = refl
---   baseS1-case (pos (suc n))    = sym (cong (λ X → ∣ baseS1 ∣ +ₖ X) (sym (baseS1-case (pos n))))
---   baseS1-case (negsuc zero)    = refl
---   baseS1-case (negsuc (suc n)) =
--- same b (loopS1 i) = loopS1-case
---   where
---   loopS1-case : _
---   loopS1-case = {!!}
-
-
-
+-- idea : use the fact that T1 is an morphism, that T0 simplifies + control on the level of unfolding
 rmorph-base-case-01 : (a : ℤ) → (b : ℤ) →
-              ℤ[x]→H*-S¹ (baseP (0 ∷ []) a ·Pℤ baseP (1 ∷ []) b)
-            ≡ ℤ[x]→H*-S¹ (baseP (0 ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (1 ∷ []) b)
-rmorph-base-case-01 a b = cong (base 1) (cong ∣_∣₂ (funExt (λ X → {!!})))
+        T1 (a ·ℤ b) ≡ (T0 a) ⌣ (T1 b)
+rmorph-base-case-01 (pos zero)      b  = (IsGroupHom.pres1 (snd (invGroupIso coHom1S1≃ℤ)))
+rmorph-base-case-01 (pos (suc n))    b = ((IsGroupHom.pres· (snd (invGroupIso coHom1S1≃ℤ)) b (pos n ·ℤ b)))
+                                         ∙ (cong (λ X → (T1 b) +ₕ X) (rmorph-base-case-01 (pos n) b))
+rmorph-base-case-01 (negsuc zero)    b = cong T1 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
+                                         ∙ IsGroupHom.presinv (snd (invGroupIso coHom1S1≃ℤ)) b
 
-
-
-
-
-
+rmorph-base-case-01 (negsuc (suc n)) b = cong T1 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined symetrically !
+                                         ∙ IsGroupHom.pres· (snd (invGroupIso coHom1S1≃ℤ)) (negsuc n ·ℤ b) (-ℤ b)
+                                          ∙ cong₂ _+ₕ_ (rmorph-base-case-01 (negsuc n) b)
+                                                       (cong T1 (sym (+ℤLid (-ℤ b)))
+                                                          ∙ IsGroupHom.presinv (snd (invGroupIso coHom1S1≃ℤ)) b)
 
 
 rmorph-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
               ℤ[x]→H*-S¹ (baseP (n ∷ []) a ·Pℤ baseP (m ∷ []) b)
             ≡ ℤ[x]→H*-S¹ (baseP (n ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (m ∷ []) b)
 rmorph-base-case-int zero          a zero          b = rmorph-base-case-00 a b
-rmorph-base-case-int zero          a one           b = rmorph-base-case-01 a b
+rmorph-base-case-int zero          a one           b = cong (base 1) (rmorph-base-case-01 a b)
 rmorph-base-case-int zero          a (suc (suc m)) b = refl
 rmorph-base-case-int one           a zero          b = cong ℤ[x]→H*-S¹ (·PℤComm (baseP (1 ∷ []) a) (baseP (zero ∷ []) b))
                                                        ∙ rmorph-base-case-int 0 b 1 a
