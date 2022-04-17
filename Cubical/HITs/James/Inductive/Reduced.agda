@@ -65,7 +65,7 @@ module _
   -- If you expand the very definition at end points,
   -- you will find that `𝕁Red` is almost a deformation retraction of `𝕁0`,
   -- and `𝕁0` is almost the same as the original inductive definition of James.
-  -- That explains why the isomorphisms given bellow are mainly refls.
+  -- That explains why the isomorphisms given bellow are mainly of c-c, c-v and refls.
   𝕁0 = 𝕁Path i0
   𝕁1 = 𝕁Path i1
 
