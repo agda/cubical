@@ -27,7 +27,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.James.Base
 open import Cubical.HITs.James.Inductive.Base
 open import Cubical.HITs.James.Inductive.PushoutFormula
-open import Cubical.HITs.James.Inductive.Reduced hiding (𝕁 ; 𝕁∞)
+open import Cubical.HITs.James.Inductive.Reduced
 open import Cubical.HITs.James.Inductive.ColimitEquivalence
 
 private

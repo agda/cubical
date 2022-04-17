@@ -1,16 +1,16 @@
 {-
 
 This file contains:
-  -- Path lemmas used in the colimit equivalence proof.
+  - Path lemmas used in the colimit equivalence proof.
 
 Very long, indeed. But should be simple.
 The length mainly thanks to:
-  -- Refls, lots of refls, and they lead to much degeneracy.
-     Maybe one has regularity or something could make them all trivial;
+  - Refls, lots of refls, and they lead to much degeneracy.
+    Maybe one has regularity or something could make them all trivial;
 
-  -- No pattern matching for J rule or any sytactically convenient way
-     to apply it. So when you deal with complicated composite functions
-     it needs too many helper functions.
+  - No pattern matching for J rule or any sytactically convenient way
+    to apply it. So when you deal with complicated composite functions
+    it needs too many helper functions.
 
 -}
 {-# OPTIONS --safe #-}

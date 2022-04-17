@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-  -- The inductive construction of James.
+  - The inductive construction of James.
 
 -}
 {-# OPTIONS --safe #-}

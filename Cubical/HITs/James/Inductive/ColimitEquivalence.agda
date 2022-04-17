@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-  -- The reduced version gives the same type as James.
+  - The reduced version gives the same type as James.
 
 -}
 {-# OPTIONS --safe #-}
@@ -15,7 +15,6 @@ open import Cubical.Foundations.Pointed
 open import Cubical.HITs.James.Base
   renaming (James to JamesConstruction)
 open import Cubical.HITs.James.Inductive.Reduced
-  hiding   (coh')
   renaming (𝕁Red to 𝕁RedConstruction ; 𝕁Red∞ to 𝕁amesConstruction)
 open import Cubical.HITs.James.Inductive.Coherence
 

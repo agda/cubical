@@ -1,9 +1,8 @@
 {-
 
 This file contains:
-  -- The inductive family 𝕁 can be constructed by iteratively applying pushouts;
-
-  -- The special cases of 𝕁 n for n = 0, 1 and 2.
+  - The inductive family 𝕁 can be constructed by iteratively applying pushouts;
+  - The special cases of 𝕁 n for n = 0, 1 and 2.
 
   Easy, almost direct consequences of the very definition.
 
