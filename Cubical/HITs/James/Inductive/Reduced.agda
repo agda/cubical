@@ -58,12 +58,12 @@ module _
       PathP (λ k → unit (unit xs (i ∨ k)) i ≡ unit (unit xs i) (i ∨ j ∨ k))
             (λ k → unit (unit xs i) (i ∨ j ∧ k)) (incl∷ x₀ xs)
 
-  -- What we need is its diagonal.
+  -- What we need actually is its diagonal.
   𝕁Path : I → Type ℓ
   𝕁Path i = 𝕁Square i (~ i)
 
   -- If you expand the very definition at end points,
-  -- you will find that `𝕁Red` is almost a deformation retraction of `𝕁0`,
+  -- you will find that `𝕁Red` is almost a deformation retraction of `𝕁1`,
   -- and `𝕁0` is almost the same as the original inductive definition of James.
   -- That explains why the isomorphisms given bellow are mainly of c-c, c-v and refls.
   𝕁0 = 𝕁Path i0
