@@ -1,8 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Bool.Base where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty
@@ -10,7 +8,6 @@ open import Cubical.Data.Sum.Base
 open import Cubical.Data.Unit.Base
 
 open import Cubical.Relation.Nullary.Base
-open import Cubical.Relation.Nullary.DecidableEq
 
 -- Obtain the booleans
 open import Agda.Builtin.Bool public
@@ -63,6 +60,10 @@ Dec→Bool (no ¬p) = false
 Bool→Type : Bool → Type₀
 Bool→Type true = Unit
 Bool→Type false = ⊥
+
+Bool→Type* : Bool → Type ℓ
+Bool→Type* true = Unit*
+Bool→Type* false = ⊥*
 
 True : Dec A → Type₀
 True Q = Bool→Type (Dec→Bool Q)

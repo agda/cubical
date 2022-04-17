@@ -166,6 +166,12 @@ _$_ : {R S : Ring ℓ} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
 RingEquiv→RingHom : {A B : Ring ℓ} → RingEquiv A B → RingHom A B
 RingEquiv→RingHom (e , eIsHom) = e .fst , eIsHom
 
+RingHomIsEquiv→RingEquiv : {A B : Ring ℓ} (f : RingHom A B)
+                         → isEquiv (fst f) → RingEquiv A B
+fst (fst (RingHomIsEquiv→RingEquiv f fIsEquiv)) = fst f
+snd (fst (RingHomIsEquiv→RingEquiv f fIsEquiv)) = fIsEquiv
+snd (RingHomIsEquiv→RingEquiv f fIsEquiv) = snd f
+
 isPropIsRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsRing 0r 1r _+_ _·_ -_)
 isPropIsRing 0r 1r _+_ _·_ -_ (isring RG RM RD) (isring SG SM SD) =

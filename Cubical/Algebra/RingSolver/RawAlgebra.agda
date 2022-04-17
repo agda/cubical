@@ -2,7 +2,6 @@
 module Cubical.Algebra.RingSolver.RawAlgebra where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_ ; _-_ to _-ℤ_ ; +Assoc to +ℤAssoc ; +Comm to +ℤComm ; -DistL· to -ℤDistL·ℤ)
 
