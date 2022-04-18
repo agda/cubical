@@ -61,14 +61,14 @@ module _
     ; ·Ldist+   to ·BLdist+
     ; is-set    to isSetB     )
 
-  DirectProd : Ring (ℓ-max ℓ ℓ')
-  fst DirectProd = A × B
-  RingStr.0r (snd DirectProd) = 0A , 0B
-  RingStr.1r (snd DirectProd) = 1A , 1B
-  (snd DirectProd RingStr.+ (a , b)) (a' , b') = (a +A a') , (b +B b')
-  (snd DirectProd RingStr.· (a , b)) (a' , b') = (a ·A a') , (b ·B b')
-  (RingStr.- snd DirectProd) (a , b) = (-A a) , (-B b)
-  RingStr.isRing (snd DirectProd) =
+  DirectProd-Ring : Ring (ℓ-max ℓ ℓ')
+  fst DirectProd-Ring = A × B
+  RingStr.0r (snd DirectProd-Ring) = 0A , 0B
+  RingStr.1r (snd DirectProd-Ring) = 1A , 1B
+  (snd DirectProd-Ring RingStr.+ (a , b)) (a' , b') = (a +A a') , (b +B b')
+  (snd DirectProd-Ring RingStr.· (a , b)) (a' , b') = (a ·A a') , (b ·B b')
+  (RingStr.- snd DirectProd-Ring) (a , b) = (-A a) , (-B b)
+  RingStr.isRing (snd DirectProd-Ring) =
     makeIsRing (isSet× isSetA isSetB)
     (λ x y z i → +AAssoc (fst x) (fst y) (fst z) i , +BAssoc (snd x) (snd y) (snd z) i)
     (λ x i → (+ARid (fst x) i) , (+BRid (snd x) i))
