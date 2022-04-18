@@ -4,8 +4,8 @@ This file contains:
   - Some alternative inductive definitions of James, and they give the same results.
 
   The most relevant one is called `𝕁Red` because it is much simpler.
-  It has fewer constructors, among which the 2-dimensional constructor coh
-  has a form essentially more clearer, and it avoids indexes. It's a plain HIT.
+  It has fewer constructors, among which the 2-dimensional constructor `coh`
+  has a form essentially more clearer, and it avoids indexes.
 
 -}
 {-# OPTIONS --safe #-}
@@ -214,3 +214,14 @@ module _
 
   𝕁ames∞≃𝕁Red∞ : 𝕁ames∞ ≃ 𝕁Red∞
   𝕁ames∞≃𝕁Red∞ = compEquiv 𝕁ames∞≃𝕁0∞ (compEquiv (pathToEquiv (λ i → 𝕁Path∞ i)) 𝕁1∞≃𝕁Red∞)
+
+
+  -- Test of canonicity
+  private
+    -- It's good for [].
+    eq1 : 𝕁ames∞≃𝕁Red∞ .fst (inl []) ≡ inl []
+    eq1 = refl
+
+    -- Without regularity, "obvious" equality doesn't hold definitionally.
+    eq2 : (x : X) → 𝕁ames∞≃𝕁Red∞ .fst (inl (x ∷ [])) ≡ inl (x ∷ [])
+    eq2 _ = transportRefl _
