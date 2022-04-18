@@ -29,7 +29,7 @@ open import Cubical.Functions.FunExtEquiv
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ′ ℓ′′ : Level
     A B C : Type ℓ
 
 isEquivInvEquiv : isEquiv (λ (e : A ≃ B) → invEquiv e)
@@ -198,3 +198,16 @@ isEquivFromIsContr : {A : Type ℓ} {B : Type ℓ′}
 isEquivFromIsContr f isContrA isContrB =
   subst isEquiv (λ i x → isContr→isProp isContrB (fst B≃A x) (f x) i) (snd B≃A)
   where B≃A = isContr→Equiv isContrA isContrB
+
+isEquiv[f∘equivFunA≃B]→isEquiv[f] : {A : Type ℓ} {B : Type ℓ′} {C : Type ℓ′′}
+                 → (f : B → C) (A≃B : A ≃ B)
+                 → isEquiv (f ∘ equivFun A≃B)
+                 → isEquiv f
+isEquiv[f∘equivFunA≃B]→isEquiv[f] f (g , gIsEquiv) f∘gIsEquiv  =
+  precomposesToId→Equiv f _ w w'
+    where
+      w : f ∘ g ∘ equivFun (invEquiv (_ , f∘gIsEquiv)) ≡ idfun _
+      w = (cong fst (invEquiv-is-linv (_ , f∘gIsEquiv)))
+
+      w' : isEquiv (g ∘ equivFun (invEquiv (_ , f∘gIsEquiv)))
+      w' = (snd (compEquiv (invEquiv (_ , f∘gIsEquiv) ) (_ , gIsEquiv)))
