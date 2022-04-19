@@ -36,6 +36,10 @@ open import Cubical.Algebra.CommAlgebra.Kernel
 
 open import Cubical.Algebra.Algebra.Properties
 
+-- New imports
+open import Cubical.Algebra.Algebra.Base
+open import Cubical.Foundations.HLevels
+-- End New imports
 
 open import Cubical.Foundations.Structure
 
@@ -156,7 +160,71 @@ module _ {R : CommRing ℓ} where
 
           inv : retract (Iso.fun (homMapIso {I = Fin n} A)) (Iso.inv (homMapIso A))
           inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
+      
+      {- ∀ A : Comm-R-Algebra,
+         ∀ J : Finitely-generated-Ideal,
+         Hom(R[I]/J,A) is isomorphic to the Set of roots of the generators of J 
+      -}
 
+      Spec : (A : CommAlgebra R ℓ) → Type ℓ
+      Spec A = Σ (FinVec ⟨ A ⟩ n) (λ v → (i : Fin m) → evPoly A (relation i) v ≡ 0a (snd A))
+
+      inducedHomFP : {A : CommAlgebra R ℓ} → 
+                      Spec A → CommAlgebraHom FPAlgebra A
+      inducedHomFP d = inducedHom (fst d) (snd d)
+
+      evaluateAtFP : {A : CommAlgebra R ℓ} → 
+                      CommAlgebraHom FPAlgebra A → Spec A
+      evaluateAtFP {A} f = value , 
+                      λ i →  evPoly A (relation i) value
+                              ≡⟨ sym (evPolyHomomorphic (Polynomials n) A compHom (relation i) var) ⟩
+                              fst compHom (evPoly (Polynomials n) (relation i) var)
+                              ≡⟨ refl ⟩
+                              (fst f) ((fst modRelations) (evPoly (Polynomials n) (relation i) var))
+                              ≡⟨ cong (fst f) 
+                                      (evPolyHomomorphic 
+                                        (Polynomials n) 
+                                        FPAlgebra 
+                                        modRelations 
+                                        (relation i) 
+                                        var) ⟩
+                              (fst f) (evPoly FPAlgebra (relation i) generator)
+                              ≡⟨ cong (fst f) (relationsHold i) ⟩
+                              (fst f) (0a (snd FPAlgebra))
+                              ≡⟨ IsAlgebraHom.pres0 (snd f) ⟩
+                              0a (snd A) ∎
+        where
+          compHom : CommAlgebraHom (Polynomials n) A
+          compHom = CommAlgebraHoms.compCommAlgebraHom (Polynomials n) FPAlgebra A modRelations f
+          value : FinVec ⟨ A ⟩ n
+          value = (Iso.fun (homMapIso A)) compHom
+
+      FPHomIso : {A : CommAlgebra R ℓ} → 
+                  Iso (CommAlgebraHom FPAlgebra A) (Spec A)
+      Iso.fun FPHomIso = evaluateAtFP
+      Iso.inv FPHomIso = inducedHomFP
+      Iso.rightInv (FPHomIso {A}) = λ b → Σ≡Prop 
+                                            (λ x → isPropΠ 
+                                              (λ i → isSetCommAlgebra A 
+                                                      (evPoly A (relation i) x) 
+                                                      (0a (snd A)))) 
+                                            refl
+      Iso.leftInv (FPHomIso {A}) = λ a → Σ≡Prop (λ f → isPropIsCommAlgebraHom {ℓ} {R} {ℓ} {ℓ} {FPAlgebra} {A} f) 
+                                                λ i → fst (unique {A} 
+                                                            (fst (evaluateAtFP {A} a)) 
+                                                            (snd (evaluateAtFP a)) 
+                                                            a 
+                                                            (λ j → refl) 
+                                                            i)
+      homMapPathFP : (A : CommAlgebra R ℓ)→ CommAlgebraHom FPAlgebra A ≡ Spec A
+      homMapPathFP A = isoToPath (FPHomIso {A})
+
+      isSetSpec : (A : CommAlgebra R ℓ) → isSet (Spec A)
+      isSetSpec A =  J (λ y _ → isSet y) 
+                       (isSetAlgebraHom (CommAlgebra→Algebra FPAlgebra) (CommAlgebra→Algebra A)) 
+                       (homMapPathFP A)
+
+                       
   record FinitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
     field
       n : ℕ
@@ -218,3 +286,4 @@ module Instances {R : CommRing ℓ} where
   relations terminalCAlgFP = unitGen
   equiv terminalCAlgFP = equivFrom1≡0 R R[⊥]/⟨1⟩ (sym (⋆-lid 1a) ∙ relationsHold 0 unitGen zero)
     where open CommAlgebraStr (snd R[⊥]/⟨1⟩)
+                 
