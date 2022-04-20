@@ -298,6 +298,14 @@ composesToId→Equiv f g id iseqf =
                 ∙∙ λ i → equiv-proof iseqf (f b) .snd (b , refl) i .fst)
          λ a i → id i a)
 
+precomposesToId→Equiv : (f : A → B) (g : B → A) → f ∘ g ≡ idfun B → isEquiv g → isEquiv f
+precomposesToId→Equiv f g id iseqg =  subst isEquiv (sym f-≡-g⁻) (snd (invEquiv (_ , iseqg)))
+  where
+     g⁻ = invEq (g , iseqg)
+
+     f-≡-g⁻ : _
+     f-≡-g⁻ = cong (f ∘_ ) (cong fst (sym (invEquiv-is-linv (g , iseqg)))) ∙ cong (_∘ g⁻) id
+
 -- equivalence between isEquiv and isEquiv'
 
 isEquiv-isEquiv'-Iso : (f : A → B) → Iso (isEquiv f) (isEquiv' f)

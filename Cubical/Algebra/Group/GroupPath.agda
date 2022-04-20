@@ -79,8 +79,12 @@ module _ (G : Group ℓ) {A : Type ℓ} (m : A → A → A)
   InducedGroup .snd .inv = inducedΣ .snd .fst
   InducedGroup .snd .isGroup = inducedΣ .snd .snd
 
+  InducedGroupEquiv : GroupEquiv G InducedGroup
+  fst InducedGroupEquiv = e
+  snd InducedGroupEquiv = makeIsGroupHom p·
+
   InducedGroupPath : G ≡ InducedGroup
-  InducedGroupPath = GroupPath _ _ .fst (e , makeIsGroupHom p·)
+  InducedGroupPath = GroupPath _ _ .fst InducedGroupEquiv
 
 uaGroup : {G H : Group ℓ} → GroupEquiv G H → G ≡ H
 uaGroup {G = G} {H = H} = equivFun (GroupPath G H)

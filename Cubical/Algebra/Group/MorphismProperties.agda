@@ -257,6 +257,9 @@ snd (GroupIsoDirProd iso1 iso2) = makeIsGroupHom λ a b →
 
 
 -- Conversion functions between different notions of group morphisms
+GroupEquiv→GroupHom : GroupEquiv G H → GroupHom G H
+fst (GroupEquiv→GroupHom ((f , _) , _)) = f
+snd (GroupEquiv→GroupHom (_ , isHom)) = isHom
 
 GroupIso→GroupEquiv : GroupIso G H → GroupEquiv G H
 fst (GroupIso→GroupEquiv i) = isoToEquiv (fst i)

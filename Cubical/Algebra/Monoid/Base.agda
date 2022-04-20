@@ -97,7 +97,7 @@ record IsMonoidHom {A : Type ℓ} {B : Type ℓ'}
 
   field
     presε : f M.ε ≡ N.ε
-    isHom : (x y : A) → f (x M.· y) ≡ f x N.· f y
+    pres· : (x y : A) → f (x M.· y) ≡ f x N.· f y
 
 MonoidHom : (L : Monoid ℓ) (M : Monoid ℓ') → Type (ℓ-max ℓ ℓ')
 MonoidHom L M = Σ[ f ∈ (⟨ L ⟩ → ⟨ M ⟩) ] IsMonoidHom (L .snd) f (M .snd)
@@ -125,7 +125,7 @@ isPropIsMonoid ε _·_ =
   𝒮ᴰ-Record (𝒮-Univ _) IsMonoidEquiv
     (fields:
       data[ ε ∣ autoDUARel _ _ ∣ presε ]
-      data[ _·_ ∣ autoDUARel _ _ ∣ isHom ]
+      data[ _·_ ∣ autoDUARel _ _ ∣ pres· ]
       prop[ isMonoid ∣ (λ _ _ → isPropIsMonoid _ _) ])
   where
   open MonoidStr
