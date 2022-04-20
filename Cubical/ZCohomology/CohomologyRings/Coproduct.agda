@@ -270,6 +270,25 @@ module _
 -----------------------------------------------------------------------------
 -- Section Sens
 
+  e-sectX : (x : H* X) → H*-X⊎Y→H*-X×H*-Y (H*-X→H*-X⊎Y x) ≡ (x , 0H*Y)
+  e-sectX = DS-Ind-Prop.f _ _ _ _ (λ _ → isSet× isSetH*X isSetH*Y _ _)
+            refl
+            (λ n a → ≡-× (cong (base n) (cong fst (rightInv (fst mor) (a , 0ₕ n))))
+                          (cong (base n) (cong snd (rightInv (fst mor) (a , 0ₕ n))))
+                     ∙ ≡-× refl (base-neutral n))
+            λ {U V} ind-U ind-V → cong₂ _+×_ ind-U ind-V ∙ ≡-× refl (+H*YRid _)
+
+  e-sectY : (y : H* Y) → (H*-X⊎Y→H*-X×H*-Y (H*-Y→H*-X⊎Y y)) ≡ (0H*X , y)
+  e-sectY = DS-Ind-Prop.f _ _ _ _ (λ _ → isSet× isSetH*X isSetH*Y _ _)
+            refl
+            (λ m b → ≡-× (cong (base m) (cong fst (rightInv (fst mor) (0ₕ m , b))))
+                          (cong (base m) (cong snd (rightInv (fst mor) (0ₕ m , b))))
+                     ∙ ≡-× (base-neutral m) refl)
+            λ {U V} ind-U ind-V → cong₂ _+×_ ind-U ind-V ∙ ≡-× (+H*XRid _) refl
+
+  e-sect : (z : H*(X) × H*(Y)) → H*-X⊎Y→H*-X×H*-Y (H*-X×H*-Y→H*-X⊎Y z) ≡ z
+  e-sect (x , y) = cong₂ _+×_ (e-sectX x) (e-sectY y) ∙ ≡-× (+H*XRid x) (+H*YLid y)
+
 
 
 -----------------------------------------------------------------------------
