@@ -309,23 +309,6 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
       (λ j → compPath-filler p q (i ∨ ~ k) j)) (~ k)
       (J (λ j → compPath-filler p q (~ k) j))
 
--- A variant of J that is more suitable to be nested
-
-module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
-  explicitJ : ∀ y → (p : x ≡ y) → P y p
-  explicitJ _ p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
-
-  explicitJRefl : explicitJ _ refl ≡ d
-  explicitJRefl = transportRefl d
-
-  explicitJ-∙ : (p : x ≡ y) (q : y ≡ z)
-    → explicitJ _ (p ∙ q) ≡ transport (λ i → P (q i) (λ j → compPath-filler p q i j)) (explicitJ _ p)
-  explicitJ-∙ p q k =
-    transp
-      (λ i → P (q (i ∨ ~ k))
-      (λ j → compPath-filler p q (i ∨ ~ k) j)) (~ k)
-      (explicitJ _ (λ j → compPath-filler p q (~ k) j))
-
 -- A prefix operator version of J that is more suitable to be nested
 
 module _ {P : ∀ y → x ≡ y → Type ℓ'} (d : P x refl) where
