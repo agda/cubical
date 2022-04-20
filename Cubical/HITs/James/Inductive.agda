@@ -6,8 +6,8 @@ This file contains:
   - An inductive construction of James and its equivalence to the non-inductive version.
     (KANG Rongji, Feb. 2022)
 
-Actually this file is the summary of the main results,
-  the proof is divided into parts and placed in the fold Cubical.HITs.James.Inductive
+This file is the summary of the main results.
+The proof is divided into parts and put inside the fold Cubical.HITs.James.Inductive
 
 -}
 {-# OPTIONS --safe #-}

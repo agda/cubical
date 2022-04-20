@@ -6,7 +6,7 @@ This file contains:
   - The type James X has h-monoid structure, namely being a monoid in "homotopy category".
 
   - The equivalence "James X₊ ≃ List X" for type X,
-      where X₊ denotes the type formed by freely adjoining a point to X.
+    where X₊ denotes the type formed by freely adjoining a base point to X.
 
 -}
 {-# OPTIONS --safe #-}

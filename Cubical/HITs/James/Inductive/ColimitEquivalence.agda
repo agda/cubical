@@ -3,6 +3,8 @@
 This file contains:
   - The reduced version gives the same type as James.
 
+Warning: This file type-checks a bit slowly, and I don't know why.
+
 -}
 {-# OPTIONS --safe #-}
 module Cubical.HITs.James.Inductive.ColimitEquivalence where
