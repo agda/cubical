@@ -42,8 +42,8 @@ open IsGroupHom
 open GroupStr
 
 module _
-  (X : Type ℓ)
-  (Y : Type ℓ')
+  {X : Type ℓ}
+  {Y : Type ℓ'}
   where
 
   open RingStr (snd (H*R X)) using ()
@@ -356,3 +356,16 @@ module _
          helperY = sElim (λ x → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i )
                    λ g → sElim (λ _ → isProp→isSet (squash₂ _ _))
                    (λ h → refl)
+
+
+module _ where
+
+  Equiv-Coproduct : (X : Type ℓ) → (Y : Type ℓ') → RingEquiv (H*R(X ⊎ Y)) (DirectProd-Ring (H*R X) (H*R Y))
+  fst (Equiv-Coproduct X Y) = isoToEquiv is
+    where
+    is : Iso (H* (X ⊎ Y)) (H* X × H* Y)
+    fun is = H*-X⊎Y→H*-X×H*-Y
+    inv is = H*-X×H*-Y→H*-X⊎Y
+    rightInv is = e-sect
+    leftInv is = e-retr
+  snd (Equiv-Coproduct X Y) = makeIsRingHom map1 map+ map·
