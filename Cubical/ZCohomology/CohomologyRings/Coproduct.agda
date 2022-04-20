@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_ ; snotz to nsnotz)
-open import Cubical.Data.Int
+open import Cubical.Data.Int hiding (_+'_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum renaming (elim to elim-sum ; rec to rec-sum)
 open import Cubical.Data.Vec
@@ -320,4 +320,39 @@ module _
            helper1 : (A : Type ℓ) → (B : Type ℓ') → (x : A × B) → (fst x , snd x) ≡ x
            helper1 A B (fst₁ , snd₁) = refl
 
+-----------------------------------------------------------------------------
+-- Ring morphism
 
+  map1 : H*-X⊎Y→H*-X×H*-Y 1H*X⊎Y ≡ (1H*X , 1H*Y)
+  map1 = refl
+
+  map+ : (x y : H* (X ⊎ Y)) → H*-X⊎Y→H*-X×H*-Y ( x +H*X⊎Y y) ≡ H*-X⊎Y→H*-X×H*-Y x +H*X×Y H*-X⊎Y→H*-X×H*-Y y
+  map+ x y = refl
+
+  map· : (x y : H* (X ⊎ Y)) → H*-X⊎Y→H*-X×H*-Y ( x cupX⊎Y y) ≡ H*-X⊎Y→H*-X×H*-Y x cupX×Y H*-X⊎Y→H*-X×H*-Y y
+  map· = DS-Ind-Prop.f _ _ _ _ (λ x p q i y → isSetH*X×Y _ _ (p y) (q y) i)
+         (λ y → refl)
+         (λ n a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X×Y _ _)
+                   refl
+                   (λ m b → (base (n +' m) (fst (T (a ⌣ b)))) , base (n +' m) (snd (T (a ⌣ b)))
+                                  ≡⟨ ≡-× (cong (base (n +' m)) (helperX a b))
+                                         (cong (base (n +' m)) (helperY a b)) ⟩
+                             (base (n +' m) ((fst (T a)) ⌣ (fst (T b)))) , base (n +' m) ((snd (T a)) ⌣ (snd (T b))) ∎ )
+                   λ {U V} ind-U ind-V → cong₂ _+H*X×Y_ ind-U ind-V)
+         (λ {U V} ind-U ind-V y → cong₂ _+H*X×Y_ (ind-U y) (ind-V y))
+
+         where
+         T : {n : ℕ} → coHom n (X ⊎ Y) → coHom n X × coHom n Y
+         T {n} = fun (fst (mor {n}))
+
+         helperX : {n : ℕ} → {m : ℕ} → (a : coHom n (X ⊎ Y)) → (b : coHom m (X ⊎ Y))
+                    → fst (T (a ⌣ b)) ≡ (fst (T a)) ⌣ (fst (T b))
+         helperX = sElim (λ x → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i )
+                   λ g → sElim (λ _ → isProp→isSet (squash₂ _ _))
+                   (λ h → refl)
+
+         helperY : {n : ℕ} → {m : ℕ} → (a : coHom n (X ⊎ Y)) → (b : coHom m (X ⊎ Y))
+                   → snd (T (a ⌣ b)) ≡ (snd (T a)) ⌣ (snd (T b))
+         helperY = sElim (λ x → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i )
+                   λ g → sElim (λ _ → isProp→isSet (squash₂ _ _))
+                   (λ h → refl)
