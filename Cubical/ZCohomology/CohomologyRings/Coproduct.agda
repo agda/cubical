@@ -314,13 +314,14 @@ module _
 
   open Equiv-Coproduct-Properties
   open Iso
+  open RingEquivs
 
-  Cohomology-Ring-Coproduct : RingEquiv (H*R(X ⊎ Y)) (DirectProd-Ring (H*R X) (H*R Y))
-  fst (Cohomology-Ring-Coproduct) = isoToEquiv is
+  CohomologyRing-Coproduct : RingEquiv (H*R(X ⊎ Y)) (DirectProd-Ring (H*R X) (H*R Y))
+  fst (CohomologyRing-Coproduct) = isoToEquiv is
     where
     is : Iso (H* (X ⊎ Y)) (H* X × H* Y)
     fun is = H*-X⊎Y→H*-X×H*-Y
     inv is = H*-X×H*-Y→H*-X⊎Y
     rightInv is = e-sect
     leftInv is = e-retr
-  snd (Cohomology-Ring-Coproduct) = makeIsRingHom map1 map+ map·
+  snd (CohomologyRing-Coproduct) = makeIsRingHom map1 map+ map·
