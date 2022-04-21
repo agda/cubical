@@ -339,12 +339,15 @@ module _ where
 
   open Equiv-Unit-Properties
 
-  Cohomology-Ring-Unit : RingEquiv (CommRing→Ring ℤ[X]/X) (H*R Unit)
-  fst Cohomology-Ring-Unit = isoToEquiv is
+  Unit-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X) (H*R Unit)
+  fst Unit-CohomologyRing = isoToEquiv is
     where
     is : Iso ℤ[x]/x (H* Unit)
     fun is = ℤ[x]/x→H*-Unit
     inv is = H*-Unit→ℤ[x]/x
     rightInv is = e-sect
     leftInv is = e-retr
-  snd Cohomology-Ring-Unit = snd ℤ[X]/X→H*R-Unit
+  snd Unit-CohomologyRing = snd ℤ[X]/X→H*R-Unit
+
+  CohomologyRing-Unit : RingEquiv (H*R Unit) (CommRing→Ring ℤ[X]/X)
+  CohomologyRing-Unit = RingEquivs.invEquivRing Unit-CohomologyRing

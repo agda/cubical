@@ -2,13 +2,16 @@
 module Cubical.Algebra.Ring.DirectProd where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Algebra.Ring.Base
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
 module _
   (A'@(A , Ar) : Ring ℓ)
@@ -79,3 +82,39 @@ module _
     (λ x i → (·ALid (fst x) i) , (·BLid (snd x) i))
     (λ x y z i → (·ARdist+ (fst x) (fst y) (fst z) i) , (·BRdist+ (snd x) (snd y) (snd z) i))
     (λ x y z i → (·ALdist+ (fst x) (fst y) (fst z) i) , (·BLdist+ (snd x) (snd y) (snd z) i))
+
+module Coproduct-Equiv
+  {Xr@(X , Xstr) : Ring ℓ}
+  {Yr@(Y , Ystr) : Ring ℓ'}
+  {X'r@(X' , X'str) : Ring ℓ''}
+  {Y'r@(Y' , Y'str) : Ring ℓ'''}
+  where
+
+  open Iso
+  open IsRingHom
+
+  Coproduct-Equiv-12 : (re : RingEquiv Xr Yr) → (re' : RingEquiv X'r Y'r) →
+                        RingEquiv (DirectProd-Ring Xr X'r) (DirectProd-Ring Yr Y'r)
+  fst (Coproduct-Equiv-12 re re') = isoToEquiv is
+    where
+    e : _
+    e = equivToIso (fst re)
+
+    e' : _
+    e' = equivToIso (fst re')
+
+    is : Iso (X × X') (Y × Y')
+    fun is (x , x') = (fun e x) , (fun e' x')
+    inv is (y , y') = (inv e y) , inv e' y'
+    rightInv is (x , x') = ≡-× (rightInv e x) (rightInv e' x')
+    leftInv is (y , y') = ≡-× (leftInv e y) (leftInv e' y')
+  snd (Coproduct-Equiv-12 e e') = makeIsRingHom map1 map+ map·
+    where
+    map1 : _
+    map1 = ≡-× (pres1 (snd e)) (pres1 (snd e'))
+
+    map+ : _
+    map+ (x1 , x'1) (x2 , x'2) = ≡-× (pres+ (snd e) x1 x2) (pres+ (snd e') x'1 x'2)
+
+    map· : _
+    map· (x1 , x'1) (x2 , x'2) = ≡-× (pres· (snd e) x1 x2) (pres· (snd e') x'1 x'2)

@@ -68,19 +68,10 @@ open Iso
 -----------------------------------------------------------------------------
 -- Computation of the cohomology ring
 
-Equiv-CohomologyRing-eq : (X Y : Type ℓ) → (X ≡ Y) → H*R(X) ≡ H*R(Y)
-Equiv-CohomologyRing-eq X Y p = J (λ Y p →  H*R(X) ≡ H*R(Y)) refl p
 
 open RingEquivs
 
 Cohomology-Ring-S⁰ : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤ[X]/X))
-Cohomology-Ring-S⁰ = compRingEquiv helper1 (compRingEquiv (CohomologyRing-Coproduct Unit Unit) {!!})
-                   where
-                   helper1 : RingEquiv (H*R (S₊ 0)) (H*R (Unit ⊎ Unit))
-                   helper1 = inv (equivToIso (RingPath (H*R (S₊ 0)) (H*R (Unit ⊎ Unit))))
-                             (Equiv-CohomologyRing-eq (S₊ 0) (Unit ⊎ Unit) (ua (invEquiv (isoToEquiv Iso-⊤⊎⊤-Bool))))
-
-                   helper2 : (X X' Y Y' : Ring ℓ) → (p : RingEquiv X Y) → (q : RingEquiv X' Y') →
-                             RingEquiv (DirectProd-Ring X X') (DirectProd-Ring Y Y')
-                   helper2 X X' Y Y' p q = inv (equivToIso (RingPath (DirectProd-Ring X X') (DirectProd-Ring Y Y')))
-                             (cong₂ DirectProd-Ring (uaRing p) (uaRing q))
+Cohomology-Ring-S⁰ = compRingEquiv (CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool))
+                    (compRingEquiv (CohomologyRing-Coproduct Unit Unit)
+                                    (Coproduct-Equiv.Coproduct-Equiv-12 {!CohomologyRing-Unit!} {!CohomologyRing-Unit!}))
