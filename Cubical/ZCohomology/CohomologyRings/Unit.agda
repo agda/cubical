@@ -46,6 +46,22 @@ private variable
 
 open Iso
 
+
+ℤ[X] : CommRing ℓ-zero
+ℤ[X] = PolyCommRing ℤCR 1
+
+ℤ[x] : Type ℓ-zero
+ℤ[x] = fst ℤ[X]
+
+<X> : FinVec ℤ[x] 1
+<X> zero = baseP (1 ∷ []) (CommRingStr.1r (snd ℤCR))
+
+ℤ[X]/X : CommRing ℓ-zero
+ℤ[X]/X = ℤ[X] / genIdeal ℤ[X] <X>
+
+ℤ[x]/x : Type ℓ-zero
+ℤ[x]/x = fst ℤ[X]/X
+
 module Equiv-Unit-Properties where
 
   open CommRingStr (snd ℤCR) using ()
@@ -94,12 +110,6 @@ module Equiv-Unit-Properties where
     ; ·Ldist+   to ·H*Ldist+
     ; is-set    to isSetH*     )
 
-  ℤ[X] : CommRing ℓ-zero
-  ℤ[X] = PolyCommRing ℤCR 1
-
-  ℤ[x] : Type ℓ-zero
-  ℤ[x] = fst ℤ[X]
-
   open CommRingStr (snd ℤ[X]) using ()
     renaming
     ( 0r        to 0Pℤ
@@ -122,15 +132,6 @@ module Equiv-Unit-Properties where
     ; ·Rdist+   to ·PℤRdist+
     ; ·Ldist+   to ·PℤLdist+
     ; is-set    to isSetPℤ     )
-
-  <X> : FinVec ℤ[x] 1
-  <X> zero = baseP (1 ∷ []) (CommRingStr.1r (snd ℤCR))
-
-  ℤ[X]/X : CommRing ℓ-zero
-  ℤ[X]/X = ℤ[X] / genIdeal ℤ[X] <X>
-
-  ℤ[x]/x : Type ℓ-zero
-  ℤ[x]/x = fst ℤ[X]/X
 
   open CommRingStr (snd ℤ[X]/X) using ()
     renaming
@@ -342,17 +343,15 @@ module _ where
 
   open Equiv-Unit-Properties
 
-  abstract
+  Unit-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X) (H*R Unit)
+  fst Unit-CohomologyRing = isoToEquiv is
+    where
+    is : Iso ℤ[x]/x (H* Unit)
+    fun is = ℤ[x]/x→H*-Unit
+    inv is = H*-Unit→ℤ[x]/x
+    rightInv is = e-sect
+    leftInv is = e-retr
+  snd Unit-CohomologyRing = snd ℤ[X]/X→H*R-Unit
 
-    Unit-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X) (H*R Unit)
-    fst Unit-CohomologyRing = isoToEquiv is
-      where
-      is : Iso ℤ[x]/x (H* Unit)
-      fun is = ℤ[x]/x→H*-Unit
-      inv is = H*-Unit→ℤ[x]/x
-      rightInv is = e-sect
-      leftInv is = e-retr
-    snd Unit-CohomologyRing = snd ℤ[X]/X→H*R-Unit
-
-    CohomologyRing-Unit : RingEquiv (H*R Unit) (CommRing→Ring ℤ[X]/X)
-    CohomologyRing-Unit = RingEquivs.invEquivRing Unit-CohomologyRing
+  CohomologyRing-Unit : RingEquiv (H*R Unit) (CommRing→Ring ℤ[X]/X)
+  CohomologyRing-Unit = RingEquivs.invEquivRing Unit-CohomologyRing

@@ -49,40 +49,13 @@ open Iso
 -- Beware that H*(X ⊔ Y) ≅ H*(X) × H*(Y)
 -- Which would apply for H*(Unit ⊔ Unit)
 
-ℤ[X] : CommRing ℓ-zero
-ℤ[X] = PolyCommRing ℤCR 1
-
-ℤ[x] : Type ℓ-zero
-ℤ[x] = fst ℤ[X]
-
-<X> : FinVec ℤ[x] 1
-<X> zero = baseP (1 ∷ []) (CommRingStr.1r (snd ℤCR))
-
-ℤ[X]/X : CommRing ℓ-zero
-ℤ[X]/X = ℤ[X] / genIdeal ℤ[X] <X>
-
-ℤ[x]/x : Type ℓ-zero
-ℤ[x]/x = fst ℤ[X]/X
-
 
 -----------------------------------------------------------------------------
 -- Computation of the cohomology ring
 
-
 open RingEquivs
 
--- Cohomology-Ring-S⁰ : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤ[X]/X))
--- Cohomology-Ring-S⁰ = {!!}
-
---                    where
---                    e1 : RingEquiv (H*R (S₊ 0)) (H*R (Unit ⊎ Unit))
---                    e1 = CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool)
-
---                    e2 : RingEquiv (H*R (Unit ⊎ Unit)) (DirectProd-Ring (H*R Unit) (H*R Unit))
---                    e2 = CohomologyRing-Coproduct Unit Unit
-
-                   -- e3 : RingEquiv (H*R Unit) (CommRing→Ring ℤ[X]/X)  THE BUG IS HERE
-                   -- e3 = {!CohomologyRing-Unit!}
-
-                   -- e4 : RingEquiv (DirectProd-Ring (H*R Unit) (H*R Unit)) (DirectProd-Ring (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤ[X]/X))
-                   -- e4 = Coproduct-Equiv.Coproduct-Equiv-12 CohomologyRing-Unit CohomologyRing-Unit
+Cohomology-Ring-S⁰ : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤ[X]/X))
+Cohomology-Ring-S⁰ =  compRingEquiv (CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool))
+                     (compRingEquiv (CohomologyRing-Coproduct Unit Unit)
+                                    (Coproduct-Equiv.Coproduct-Equiv-12 CohomologyRing-Unit CohomologyRing-Unit))
