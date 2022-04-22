@@ -21,6 +21,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
@@ -100,12 +101,6 @@ module Equiv-S1-Properties where
     ; ·Ldist+   to ·H*Ldist+
     ; is-set    to isSetH*     )
 
-  ℤ[X] : CommRing ℓ-zero
-  ℤ[X] = PolyCommRing ℤCR 1
-
-  ℤ[x] : Type ℓ-zero
-  ℤ[x] = fst ℤ[X]
-
   open CommRingStr (snd ℤ[X]) using ()
     renaming
     ( 0r        to 0Pℤ
@@ -129,15 +124,6 @@ module Equiv-S1-Properties where
     ; ·Rdist+   to ·PℤRdist+
     ; ·Ldist+   to ·PℤLdist+
     ; is-set    to isSetPℤ     )
-
-  <X²> : FinVec ℤ[x] 1
-  <X²> zero = baseP (2 ∷ []) (CommRingStr.1r (snd ℤCR))
-
-  ℤ[X]/X² : CommRing ℓ-zero
-  ℤ[X]/X² = ℤ[X] / genIdeal ℤ[X] <X²>
-
-  ℤ[x]/x² : Type ℓ-zero
-  ℤ[x]/x² = fst ℤ[X]/X²
 
   open CommRingStr (snd ℤ[X]/X²) using ()
     renaming

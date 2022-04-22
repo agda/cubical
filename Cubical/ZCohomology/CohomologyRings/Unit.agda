@@ -24,6 +24,7 @@ open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients renaming (elimProp to elimProp-sq ; rec to rec-sq ; _/_ to _/sq_)
@@ -45,22 +46,6 @@ private variable
   ℓ : Level
 
 open Iso
-
-
-ℤ[X] : CommRing ℓ-zero
-ℤ[X] = PolyCommRing ℤCR 1
-
-ℤ[x] : Type ℓ-zero
-ℤ[x] = fst ℤ[X]
-
-<X> : FinVec ℤ[x] 1
-<X> zero = baseP (1 ∷ []) (CommRingStr.1r (snd ℤCR))
-
-ℤ[X]/X : CommRing ℓ-zero
-ℤ[X]/X = ℤ[X] / genIdeal ℤ[X] <X>
-
-ℤ[x]/x : Type ℓ-zero
-ℤ[x]/x = fst ℤ[X]/X
 
 module Equiv-Unit-Properties where
 

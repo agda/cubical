@@ -29,6 +29,7 @@ open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
 

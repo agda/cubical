@@ -8,26 +8,30 @@ open import Cubical.Data.Vec
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Instances.Int
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Properties
 
 private variable
-  ℓ ℓ' : Level
+  ℓ : Level
 
 
-module _ (A' : CommRing ℓ) (n : ℕ) where
 
-  private
-    A = fst A'
-    Ar = CommRing→Ring A'
+-----------------------------------------------------------------------------
+-- General Nth polynome
+
+module _
+  (A : CommRing ℓ)
+  (n : ℕ)
+  where
 
   open CommRingStr
-  open RingTheory Ar
-  open Nth-Poly-structure A' n
+  open RingTheory (CommRing→Ring A)
+  open Nth-Poly-structure A n
 
   PolyCommRing : CommRing ℓ
-  fst PolyCommRing = Poly A' n
+  fst PolyCommRing = Poly A n
   0r (snd PolyCommRing) = 0P
   1r (snd PolyCommRing) = 1P
   _+_ (snd PolyCommRing) = _Poly+_
@@ -43,3 +47,26 @@ module _ (A' : CommRing ℓ) (n : ℕ) where
                                   Poly*-Rid
                                   Poly*-Rdist
                                   Poly*-comm
+
+
+
+-----------------------------------------------------------------------------
+-- Notation and syntax in the case 1,2,3 and ℤ
+
+ℤ[X] : CommRing ℓ-zero
+ℤ[X] = PolyCommRing ℤ 1
+
+ℤ[x] : Type ℓ-zero
+ℤ[x] = fst ℤ[X]
+
+ℤ[X,Y] : CommRing ℓ-zero
+ℤ[X,Y] = PolyCommRing ℤ 2
+
+ℤ[x,y] : Type ℓ-zero
+ℤ[x,y] = fst ℤ[X,Y]
+
+ℤ[X,Y,Z] : CommRing ℓ-zero
+ℤ[X,Y,Z] = PolyCommRing ℤ 3
+
+ℤ[x,y,z] : Type ℓ-zero
+ℤ[x,y,z] = fst ℤ[X,Y,Z]
