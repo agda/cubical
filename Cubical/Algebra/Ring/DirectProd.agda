@@ -92,29 +92,33 @@ module Coproduct-Equiv
 
   open Iso
   open IsRingHom
+  open RingStr
+
+  _+X×X'_ : X × X' → X × X' → X × X'
+  _+X×X'_ = _+_ (snd (DirectProd-Ring Xr X'r))
+
+  _+Y×Y'_ : Y × Y' → Y × Y' → Y × Y'
+  _+Y×Y'_ = _+_ (snd (DirectProd-Ring Yr Y'r))
+
+  _·X×X'_ : X × X' → X × X' → X × X'
+  _·X×X'_ = _·_ (snd (DirectProd-Ring Xr X'r))
+
+  _·Y×Y'_ : Y × Y' → Y × Y' → Y × Y'
+  _·Y×Y'_ = _·_ (snd (DirectProd-Ring Yr Y'r))
+
+  re×re' : (re : RingEquiv Xr Yr) → (re' : RingEquiv X'r Y'r) → (X × X') ≃ (Y × Y')
+  re×re' re re' = isoToEquiv (prodIso (equivToIso (fst re)) (equivToIso (fst re')))
 
   Coproduct-Equiv-12 : (re : RingEquiv Xr Yr) → (re' : RingEquiv X'r Y'r) →
                         RingEquiv (DirectProd-Ring Xr X'r) (DirectProd-Ring Yr Y'r)
-  fst (Coproduct-Equiv-12 re re') = isoToEquiv is
+  fst (Coproduct-Equiv-12 re re') = re×re' re re'
+  snd (Coproduct-Equiv-12 re re') = makeIsRingHom map1 map+ map·
     where
-    e : _
-    e = equivToIso (fst re)
+    map1 : (fst (re×re' re re')) (1r Xstr , 1r X'str) ≡ (1r (Yr .snd) , 1r (Y'r .snd))
+    map1 = ≡-× (pres1 (snd re)) (pres1 (snd re'))
 
-    e' : _
-    e' = equivToIso (fst re')
+    map+ : (x1 x2 : X × X') → (fst (re×re' re re')) (x1 +X×X' x2) ≡ (( (fst (re×re' re re')) x1) +Y×Y' ( (fst (re×re' re re')) x2))
+    map+ (x1 , x'1) (x2 , x'2) = ≡-× (pres+ (snd re) x1 x2) (pres+ (snd re') x'1 x'2)
 
-    is : Iso (X × X') (Y × Y')
-    fun is (x , x') = (fun e x) , (fun e' x')
-    inv is (y , y') = (inv e y) , inv e' y'
-    rightInv is (x , x') = ≡-× (rightInv e x) (rightInv e' x')
-    leftInv is (y , y') = ≡-× (leftInv e y) (leftInv e' y')
-  snd (Coproduct-Equiv-12 e e') = makeIsRingHom map1 map+ map·
-    where
-    map1 : _
-    map1 = ≡-× (pres1 (snd e)) (pres1 (snd e'))
-
-    map+ : _
-    map+ (x1 , x'1) (x2 , x'2) = ≡-× (pres+ (snd e) x1 x2) (pres+ (snd e') x'1 x'2)
-
-    map· : _
-    map· (x1 , x'1) (x2 , x'2) = ≡-× (pres· (snd e) x1 x2) (pres· (snd e') x'1 x'2)
+    map· : (x1 x2 : X × X') → (fst (re×re' re re')) (x1 ·X×X' x2) ≡ (( (fst (re×re' re re')) x1) ·Y×Y' ( (fst (re×re' re re')) x2))
+    map· (x1 , x'1) (x2 , x'2) = ≡-× (pres· (snd re) x1 x2) (pres· (snd re') x'1 x'2)
