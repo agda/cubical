@@ -176,19 +176,22 @@ module Equiv-S1-Properties where
                   base-neutral-eq
                   base-add-eq
                where
+               e : _
+               e = Hᵐ-Sⁿ
+
                base-trad : _
-               base-trad (zero ∷ [])        a = base 0 (inv (fst (H⁰-Sⁿ≅ℤ 0)) a)
-               base-trad (one ∷ [])         a = base 1 (inv (fst coHom1S1≃ℤ) a)
+               base-trad (zero ∷ [])        a = base 0 (inv (fst (Hᵐ-Sⁿ 0 1)) a)
+               base-trad (one ∷ [])         a = base 1 (inv (fst (Hᵐ-Sⁿ 1 1)) a)
                base-trad (suc (suc n) ∷ []) a = 0H*
 
                base-neutral-eq :  _
-               base-neutral-eq (zero ∷ [])        = cong (base 0) (IsGroupHom.pres1 (snd (invGroupIso (H⁰-Sⁿ≅ℤ 0)))) ∙ base-neutral _
-               base-neutral-eq (one ∷ [])         = cong (base 1) (IsGroupHom.pres1 (snd (invGroupIso coHom1S1≃ℤ))) ∙ base-neutral _
+               base-neutral-eq (zero ∷ [])        = cong (base 0) (IsGroupHom.pres1 (snd (invGroupIso (Hᵐ-Sⁿ 0 1)))) ∙ base-neutral _
+               base-neutral-eq (one ∷ [])         = cong (base 1) (IsGroupHom.pres1 (snd (invGroupIso (Hᵐ-Sⁿ 1 1)))) ∙ base-neutral _
                base-neutral-eq (suc (suc n) ∷ []) = refl
 
                base-add-eq : _
-               base-add-eq (zero ∷ []) a b        = (base-add _ _ _) ∙ (cong (base 0) (sym (IsGroupHom.pres· (snd (invGroupIso (H⁰-Sⁿ≅ℤ 0))) a b)))
-               base-add-eq (one ∷ []) a b         = (base-add _ _ _) ∙ (cong (base 1) (sym (IsGroupHom.pres· (snd (invGroupIso coHom1S1≃ℤ)) a b)))
+               base-add-eq (zero ∷ []) a b        = (base-add _ _ _) ∙ (cong (base 0) (sym (IsGroupHom.pres· (snd (invGroupIso (Hᵐ-Sⁿ 0 1))) a b)))
+               base-add-eq (one ∷ []) a b         = (base-add _ _ _) ∙ (cong (base 1) (sym (IsGroupHom.pres· (snd (invGroupIso (Hᵐ-Sⁿ 1 1))) a b)))
                base-add-eq (suc (suc n) ∷ []) a b = +H*Rid _
 
 -----------------------------------------------------------------------------
@@ -202,10 +205,10 @@ module Equiv-S1-Properties where
 
 -- cup product on H⁰ → H⁰ → H⁰
   T0 : (z : ℤ) → coHom 0 (S₊ 1)
-  T0 = λ z → inv (fst (H⁰-Sⁿ≅ℤ 0)) z
+  T0 = λ z → inv (fst (Hᵐ-Sⁿ 0 1)) z
 
-  T0g : IsGroupHom (Cubical.Algebra.Group.ℤ .snd) (fst (invGroupIso (H⁰-Sⁿ≅ℤ 0)) .fun) (coHomGr 0 (S₊ (suc 0)) .snd)
-  T0g = snd (invGroupIso (H⁰-Sⁿ≅ℤ 0))
+  T0g : IsGroupHom (Cubical.Algebra.Group.ℤ .snd) (fst (invGroupIso (Hᵐ-Sⁿ 0 1)) .fun) (coHomGr 0 (S₊ (suc 0)) .snd)
+  T0g = snd (invGroupIso (Hᵐ-Sⁿ 0 1))
 
   -- idea : control of the unfolding + simplification of T0 on the left
   rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
@@ -222,11 +225,11 @@ module Equiv-S1-Properties where
                                                          (cong T0 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T0g b)
 -- cup product on H⁰ → H¹ → H¹
   T1 : (z : ℤ) → coHom 1 (S₊ 1)
-  T1 = λ z → inv (fst coHom1S1≃ℤ) z
+  T1 = λ z → inv (fst (Hᵐ-Sⁿ 1 1)) z
 
   -- idea : control of the unfolding + simplification of T0 on the left
-  T1g : IsGroupHom (Cubical.Algebra.Group.ℤ .snd) (fst (invGroupIso coHom1S1≃ℤ) .fun) (coHomGr 1 (S₊ 1) .snd)
-  T1g = snd (invGroupIso coHom1S1≃ℤ)
+  T1g : IsGroupHom (Cubical.Algebra.Group.ℤ .snd) (fst (invGroupIso (Hᵐ-Sⁿ 1 1)) .fun) (coHomGr 1 (S₊ 1) .snd)
+  T1g = snd (invGroupIso (Hᵐ-Sⁿ 1 1))
 
   rmorph-base-case-01 : (a : ℤ) → (b : ℤ) →
                         T1 (a ·ℤ b) ≡ (T0 a) ⌣ (T1 b)
@@ -251,7 +254,7 @@ module Equiv-S1-Properties where
   rmorph-base-case-int zero          a (suc (suc m)) b = refl
   rmorph-base-case-int one           a zero          b = cong ℤ[x]→H*-S¹ (·PℤComm (baseP (1 ∷ []) a) (baseP (zero ∷ []) b))
                                                          ∙ rmorph-base-case-int 0 b 1 a
-                                                         ∙ gradCommRing (S₊ 1) 0 1 (inv (fst (H⁰-Sⁿ≅ℤ 0)) b) (inv (fst coHom1S1≃ℤ) a)
+                                                         ∙ gradCommRing (S₊ 1) 0 1 (inv (fst (Hᵐ-Sⁿ 0 1)) b) (inv (fst (Hᵐ-Sⁿ 1 1)) a)
   rmorph-base-case-int one           a one           b = sym (base-neutral 2) ∙
                                                          cong (base 2) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 1 0 nsnotz)) isPropUnit _ _)
   rmorph-base-case-int one           a (suc (suc m)) b = refl
@@ -311,18 +314,18 @@ module Equiv-S1-Properties where
                   base-add-eq
                where
                base-trad : _
-               base-trad zero a          = baseP (0 ∷ []) (fun (fst (H⁰-Sⁿ≅ℤ 0)) a)
-               base-trad one a           = baseP (1 ∷ []) (fun (fst coHom1S1≃ℤ) a)
+               base-trad zero a          = baseP (0 ∷ []) (fun (fst (Hᵐ-Sⁿ 0 1)) a)
+               base-trad one a           = baseP (1 ∷ []) (fun (fst (Hᵐ-Sⁿ 1 1)) a)
                base-trad (suc (suc n)) a = 0Pℤ
 
                base-neutral-eq : _
-               base-neutral-eq zero          = cong (baseP (0 ∷ [])) (IsGroupHom.pres1 (snd (H⁰-Sⁿ≅ℤ 0))) ∙ base-0P _
-               base-neutral-eq one           = cong (baseP (1 ∷ [])) (IsGroupHom.pres1 (snd coHom1S1≃ℤ)) ∙ base-0P _
+               base-neutral-eq zero          = cong (baseP (0 ∷ [])) (IsGroupHom.pres1 (snd (Hᵐ-Sⁿ 0 1))) ∙ base-0P _
+               base-neutral-eq one           = cong (baseP (1 ∷ [])) (IsGroupHom.pres1 (snd (Hᵐ-Sⁿ 1 1))) ∙ base-0P _
                base-neutral-eq (suc (suc n)) = refl
 
                base-add-eq : _
-               base-add-eq zero a b        = (base-Poly+ _ _ _) ∙ (cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd (H⁰-Sⁿ≅ℤ 0)) a b)))
-               base-add-eq one a b         = (base-Poly+ _ _ _) ∙ (cong (baseP (1 ∷ [])) (sym (IsGroupHom.pres· (snd coHom1S1≃ℤ) a b)))
+               base-add-eq zero a b        = (base-Poly+ _ _ _) ∙ (cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 0 1)) a b)))
+               base-add-eq one a b         = (base-Poly+ _ _ _) ∙ (cong (baseP (1 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 1 1)) a b)))
                base-add-eq (suc (suc n)) a b = +PℤRid _
 
   H*-S¹→ℤ[x]-gmorph : (x y : H* (S₊ 1)) → H*-S¹→ℤ[x] ( x +H* y) ≡ H*-S¹→ℤ[x] x +Pℤ H*-S¹→ℤ[x] y
@@ -346,8 +349,8 @@ module Equiv-S1-Properties where
            λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
            where
            base-case : _
-           base-case zero          a = cong (base 0) (leftInv (fst (H⁰-Sⁿ≅ℤ 0)) a)
-           base-case one           a = cong (base 1) (leftInv (fst coHom1S1≃ℤ) a)
+           base-case zero          a = cong (base 0) (leftInv (fst (Hᵐ-Sⁿ 0 1)) a)
+           base-case one           a = cong (base 1) (leftInv (fst (Hᵐ-Sⁿ 1 1)) a)
            base-case (suc (suc n)) a = (sym (base-neutral (suc (suc n))))
                                        ∙ cong (base (suc (suc n))) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 (suc n) 0 nsnotz)) isPropUnit _ _)
 
@@ -363,8 +366,8 @@ module Equiv-S1-Properties where
            λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
            where
            base-case : _
-           base-case (zero ∷ [])        a = cong [_] (cong (baseP (0 ∷ [])) (rightInv (fst (H⁰-Sⁿ≅ℤ 0)) a))
-           base-case (one ∷ [])         a = cong [_] (cong (baseP (1 ∷ [])) (rightInv (fst coHom1S1≃ℤ) a))
+           base-case (zero ∷ [])        a = cong [_] (cong (baseP (0 ∷ [])) (rightInv (fst (Hᵐ-Sⁿ 0 1)) a))
+           base-case (one ∷ [])         a = cong [_] (cong (baseP (1 ∷ [])) (rightInv (fst (Hᵐ-Sⁿ 1 1)) a))
            base-case (suc (suc n) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc n) ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , helper) ∣₋₁
              where
              helper : _
