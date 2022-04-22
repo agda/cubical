@@ -35,7 +35,7 @@ open import Cubical.ZCohomology.RingStructure.CohomologyRing
 open import Cubical.Data.Unit
 open import Cubical.HITs.Sn
 open import Cubical.ZCohomology.CohomologyRings.Coproduct
-open import Cubical.ZCohomology.CohomologyRings.Unit-General-Framework
+open import Cubical.ZCohomology.CohomologyRings.Unit
 
 private variable
   ℓ ℓ' : Level
@@ -71,7 +71,7 @@ open Iso
 
 open RingEquivs
 
-Cohomology-Ring-S⁰ : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤ[X]/X))
-Cohomology-Ring-S⁰ = compRingEquiv (CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool))
-                    (compRingEquiv (CohomologyRing-Coproduct Unit Unit)
-                                    (Coproduct-Equiv.Coproduct-Equiv-12 {!CohomologyRing-Unit!} {!CohomologyRing-Unit!}))
+-- Cohomology-Ring-S⁰ : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤ[X]/X))
+-- Cohomology-Ring-S⁰ = compRingEquiv (CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool))
+--                     (compRingEquiv (CohomologyRing-Coproduct Unit Unit)
+--                                     (Coproduct-Equiv.Coproduct-Equiv-12 {!CohomologyRing-Unit!} {!CohomologyRing-Unit!}))

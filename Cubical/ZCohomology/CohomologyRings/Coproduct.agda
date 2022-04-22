@@ -307,6 +307,10 @@ module Equiv-Coproduct-Properties
                    (λ h → refl)
 
 
+
+-----------------------------------------------------------------------------
+-- Computation of the Cohomology Ring
+
 module _
   (X : Type ℓ)
   (Y : Type ℓ')

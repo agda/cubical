@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.ZCohomology.CohomologyRings.Unit-General-Framework where
+module Cubical.ZCohomology.CohomologyRings.Unit where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -22,7 +22,6 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 
 open import Cubical.Algebra.Direct-Sum.Base
-open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 
@@ -334,6 +333,10 @@ module Equiv-Unit-Properties where
                    baseP (n +n 1 ∷ []) (- a · pos 1) ≡⟨ sym (+PℤRid _) ⟩
                    (baseP (n +n 1 ∷ []) (- a · pos 1) Poly+ 0P) ∎
 
+
+
+-----------------------------------------------------------------------------
+-- Computation of the Cohomology Ring
 
 module _ where
 
