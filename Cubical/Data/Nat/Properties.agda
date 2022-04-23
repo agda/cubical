@@ -150,6 +150,11 @@ inj-·sm {suc l} {m} {suc n} p = cong suc (inj-·sm (inj-m+ {m = suc m} p))
 inj-sm· : suc m · l ≡ suc m · n → l ≡ n
 inj-sm· {m} {l} {n} p = inj-·sm (·-comm l (suc m) ∙ p ∙ ·-comm (suc m) n)
 
+integral-domain-· : {k l : ℕ} → (k ≡ 0 → ⊥) → (l ≡ 0 → ⊥) → (k · l ≡ 0 → ⊥)
+integral-domain-· {zero} {l} ¬p ¬q r = ¬p refl
+integral-domain-· {suc k} {zero} ¬p ¬q r = ¬q refl
+integral-domain-· {suc k} {suc l} ¬p ¬q r = snotz r
+
 -- Arithmetic facts about ∸
 
 zero∸ : ∀ n → zero ∸ n ≡ zero
