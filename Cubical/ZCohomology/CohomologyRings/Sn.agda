@@ -1,4 +1,4 @@
-{-# OPTIONS --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.CohomologyRings.Sn where
 
 open import Cubical.Foundations.Prelude
@@ -10,7 +10,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Empty renaming (rec to rec-⊥ ; elim to elim-⊥)
-open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_ ; snotz to nsnotz)
+open import Cubical.Data.Nat renaming (_+_ to _+n_ ; +-comm to +n-comm ; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Int hiding (_+'_)
 open import Cubical.Data.Sigma
@@ -44,6 +44,7 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
+open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
 open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
 
@@ -165,9 +166,6 @@ module Equiv-Sn-Properties (n : ℕ) where
     isEq        : (k ≡ 0 → ⊥) × (k ≡ (suc n)) → partℕ k
     isAbove     : (k ≡ 0 → ⊥) × ((suc n) < k) → partℕ k
 
-  postulate
-    isPropPartℕ : (k : ℕ) → isProp (partℕ k)
-
   part : (k : ℕ) → partℕ k
   part k with (discreteℕ k 0)
   ... | yes p = is0 p
@@ -175,13 +173,6 @@ module Equiv-Sn-Properties (n : ℕ) where
   ...         | lt x = isInBetween (¬p , x)
   ...         | eq x = isEq (¬p , x)
   ...         | gt x = isAbove (¬p , x)
-
-  _part+_ : {k l : ℕ} → (xk : partℕ k) → (xl : partℕ l) → partℕ (k +n l)
-  _part+_ {k} {l} xk xl = {!!}
-
-  eq-part-part+ : (k l : ℕ) → part (k +n l) ≡ (part k) part+ (part l)
-  eq-part-part+ k l = isPropPartℕ (k +n l) _ _ 
-
 
 
 
@@ -217,127 +208,134 @@ module Equiv-Sn-Properties (n : ℕ) where
 -----------------------------------------------------------------------------
 -- Direct Sens on ℤ[x]
 
-  base-trad-ℤ : (k : ℕ) → (a : ℤ) → (x : partℕ k) → H* (S₊ (suc n))
-  base-trad-ℤ k a (is0 x)         = base 0 (inv (fst (H⁰-Sⁿ≅ℤ  n)) a)
-  base-trad-ℤ k a (isInBetween x) = 0H*
-  base-trad-ℤ k a (isEq x)        = base (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)
-  base-trad-ℤ k a (isAbove x)     = 0H*
-
   ℤ[x]→H*-Sⁿ : ℤ[x] → H* (S₊ (suc n))
   ℤ[x]→H*-Sⁿ = Poly-Rec-Set.f _ _ _ isSetH*
        0H*
-       (λ { (k ∷ []) a → base-trad-ℤ k a (part k)})
+       base-trad
        _+H*_
        +H*Assoc
        +H*Rid
        +H*Comm
-       (λ { (k ∷ []) → base-neutral-eq k (part k)})
-       λ { (k ∷ []) a b → base-add-eq k a b (part k)}
+       base-neutral-eq
+       base-add-eq
     where
 
-    base-neutral-eq : (k : ℕ) → (x : partℕ k) → base-trad-ℤ k 0ℤ x ≡ 0H*
-    base-neutral-eq k (is0 x)         = cong (base 0) (pres1 (snd (invGroupIso (H⁰-Sⁿ≅ℤ n)))) ∙ base-neutral _
-    base-neutral-eq k (isInBetween x) = refl
-    base-neutral-eq k (isEq x)        = cong (base (suc n)) (pres1 (snd (invGroupIso (Hⁿ-Sⁿ≅ℤ n)))) ∙ base-neutral _
-    base-neutral-eq k (isAbove x)     = refl
+    base-trad : _
+    base-trad (zero ∷ []) a = base 0 (inv (fst (H⁰-Sⁿ≅ℤ n)) a)
+    base-trad (one ∷ []) a = base (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)
+    base-trad (suc (suc k) ∷ []) a = 0H*
 
-    base-add-eq : (k : ℕ) → (a b : ℤ) → (x : partℕ k)
-                  → base-trad-ℤ k a x +H* base-trad-ℤ k b x ≡ base-trad-ℤ k (a +ℤ b) x
-    base-add-eq k a b (is0 x)         = base-add _ _ _ ∙ cong (base 0) (sym (pres· (snd (invGroupIso (H⁰-Sⁿ≅ℤ n))) a b))
-    base-add-eq k a b (isInBetween x) = +H*Rid _
-    base-add-eq k a b (isEq x)        = base-add _ _ _ ∙ cong (base (suc n)) (sym (pres· (snd (invGroupIso (Hⁿ-Sⁿ≅ℤ n))) a b))
-    base-add-eq k a b (isAbove x)     = +H*Rid _
+    base-neutral-eq : _
+    base-neutral-eq (zero ∷ []) = cong (base 0) (pres1 (snd (invGroupIso (H⁰-Sⁿ≅ℤ n)))) ∙ base-neutral _
+    base-neutral-eq (one ∷ []) = cong (base (suc n)) (pres1 (snd (invGroupIso (Hⁿ-Sⁿ≅ℤ n)))) ∙ base-neutral _
+    base-neutral-eq (suc (suc k) ∷ []) = refl
+
+    base-add-eq : _
+    base-add-eq (zero ∷ []) a b = base-add _ _ _ ∙ cong (base 0) (sym (pres· (snd (invGroupIso (H⁰-Sⁿ≅ℤ n))) a b))
+    base-add-eq (one ∷ []) a b = base-add _ _ _ ∙ cong (base (suc n)) (sym (pres· (snd (invGroupIso (Hⁿ-Sⁿ≅ℤ n))) a b))
+    base-add-eq (suc (suc k) ∷ []) a b = +H*Rid _
+
 
 -----------------------------------------------------------------------------
 -- Morphism on ℤ[x]
 
   -- doesn't compute without an abstract value !
-  -- ℤ[x]→H*-Sⁿ-map1 : ℤ[x]→H*-Sⁿ (1Pℤ) ≡ 1H*
-  -- ℤ[x]→H*-Sⁿ-map1 = cong (base 0) {!!}
+  ℤ[x]→H*-Sⁿ-map1 : ℤ[x]→H*-Sⁿ (1Pℤ) ≡ 1H*
+  ℤ[x]→H*-Sⁿ-map1 = {!!}
 
   ℤ[x]→H*-Sⁿ-map+ : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x +Pℤ y) ≡ ℤ[x]→H*-Sⁿ x +H* ℤ[x]→H*-Sⁿ y
   ℤ[x]→H*-Sⁿ-map+ x y = refl
 
 -- cup product on H⁰ → H⁰ → H⁰
-  -- T0 : (z : ℤ) → coHom 0 (S₊ (suc n))
-  -- T0 = inv (fst (H⁰-Sⁿ≅ℤ n))
+  T0 : (z : ℤ) → coHom 0 (S₊ (suc n))
+  T0 = inv (fst (H⁰-Sⁿ≅ℤ n))
 
-  -- T0g : IsGroupHom (snd ℤG) T0 (coHomGr 0 (S₊ (suc n)) .snd)
-  -- T0g = snd (invGroupIso (H⁰-Sⁿ≅ℤ n))
-
---   -- idea : control of the unfolding + simplification of T0 on the left
---   rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
---                         T0 (a ·ℤ b) ≡ (T0 a) ⌣ (T0 b)
---   rmorph-base-case-00 (pos zero)       b = (IsGroupHom.pres1 T0g)
---   rmorph-base-case-00 (pos (suc n))    b = ((IsGroupHom.pres· T0g b (pos n ·ℤ b)))
---                                            ∙ (cong (λ X → (T0 b) +ₕ X) (rmorph-base-case-00 (pos n) b))
---   rmorph-base-case-00 (negsuc zero)    b = cong T0 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
---                                            ∙ IsGroupHom.presinv T0g b
-
---   rmorph-base-case-00 (negsuc (suc n)) b = cong T0 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
---                                            ∙ IsGroupHom.pres· T0g (negsuc n ·ℤ b) (-ℤ b)
---                                             ∙ cong₂ _+ₕ_ (rmorph-base-case-00 (negsuc n) b)
---                                                          (cong T0 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T0g b)
--- -- cup product on H⁰ → Hⁿ → Hⁿ
---   T1 : (z : ℤ) → coHom 1 (S₊ 1)
---   T1 = λ z → inv (fst (Hᵐ-Sⁿ 1 1)) z
-
---   -- idea : control of the unfolding + simplification of T0 on the left
---   T1g : IsGroupHom (Cubical.Algebra.Group.ℤ .snd) (fst (invGroupIso (Hᵐ-Sⁿ 1 1)) .fun) (coHomGr 1 (S₊ 1) .snd)
---   T1g = snd (invGroupIso (Hᵐ-Sⁿ 1 1))
-
---   rmorph-base-case-01 : (a : ℤ) → (b : ℤ) →
---                         T1 (a ·ℤ b) ≡ (T0 a) ⌣ (T1 b)
---   rmorph-base-case-01 (pos zero)       b = (IsGroupHom.pres1 T1g)
---   rmorph-base-case-01 (pos (suc n))    b = ((IsGroupHom.pres· T1g b (pos n ·ℤ b)))
---                                            ∙ (cong (λ X → (T1 b) +ₕ X) (rmorph-base-case-01 (pos n) b))
---   rmorph-base-case-01 (negsuc zero)    b = cong T1 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
---                                            ∙ IsGroupHom.presinv T1g b
-
---   rmorph-base-case-01 (negsuc (suc n)) b = cong T1 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
---                                            ∙ IsGroupHom.pres· T1g (negsuc n ·ℤ b) (-ℤ b)
---                                             ∙ cong₂ _+ₕ_ (rmorph-base-case-01 (negsuc n) b)
---                                                          (cong T1 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T1g b)
+  T0g : IsGroupHom (snd ℤG) T0 (coHomGr 0 (S₊ (suc n)) .snd)
+  T0g = snd (invGroupIso (H⁰-Sⁿ≅ℤ n))
 
 
--- Nice packaging of the proof
-  -- basically just have to do 0 0 / 0 (S n)
-  -- => have good computation rule for part+
-  rmorph-base-case-part : (k : ℕ) → (a : ℤ) → (xk : partℕ k) →
-                          (l : ℕ) → (b : ℤ) → (xl : partℕ l) →
-                           base-trad-ℤ (k +n l) (a ·ℤ b) (xk part+ xl)
-                              ≡ base-trad-ℤ k a xk cup base-trad-ℤ l b xl
-  rmorph-base-case-part k a (is0 xk) l b (is0 xl)         = {!todo!}
-  rmorph-base-case-part k a (is0 xk) l b (isInBetween xl) = {!inBetween => Unit!}
-  rmorph-base-case-part k a (is0 xk) l b (isEq xl)        = {!todo!}
-  rmorph-base-case-part k a (is0 xk) l b (isAbove xl)     = {!Above => Unit!}
-  rmorph-base-case-part k a (isInBetween xk) l b (is0 xl)         = {!inBetween => Unit!}
-  rmorph-base-case-part k a (isInBetween xk) l b (isInBetween xl) with ((k +n l) ≟ (suc n))
-  ... | lt x = {!InBetween => Unit!}
-  ... | eq x = {!IMPOSSIBLE!}
-        -- Is is even possible ???
-        -- Or do it in the other sens and get it automatically because 0 < k < S n => coHom k (S₊ (suc n)) ≅ UnitG
-  ... | gt x = {!above => Unit!}
-  rmorph-base-case-part k a (isInBetween xk) l b (isEq xl)        = {!above => Unit!}
-  rmorph-base-case-part k a (isInBetween xk) l b (isAbove xl)     = {!above => Unit!}
-  rmorph-base-case-part k a (isEq xk) l b (is0 x)         = {!gradedComm + case 0 k!}
-  rmorph-base-case-part k a (isEq xk) l b (isInBetween x) = {!above => Unit!}
-  rmorph-base-case-part k a (isEq xk) l b (isEq x)        = {!above => Unit!}
-  rmorph-base-case-part k a (isEq xk) l b (isAbove x)     = {!above => Unit!}
-  rmorph-base-case-part k a (isAbove xk) l b xl = {!above => Unit!}
+  -- pbl T0 b is not in a computed form because n is a variable
+  -- => need to prove that the rules still holds but propositionally ie
+  -- the rules of ·₀ :
+
+  T0-pos0 : {l : ℕ} → (x : coHom l (S₊ (suc n))) → T0 (pos zero) ⌣ x ≡ 0ₕ l
+  T0-pos0 x = {!!}
+
+  T0-posS : (k : ℕ) → {l : ℕ} → (x : coHom l (S₊ (suc n)))
+            → T0 (pos (suc k)) ⌣ x ≡ x +ₕ (T0 (pos k) ⌣ x)
+  T0-posS k x = {!!}
+
+  T0-neg0 : {l : ℕ} → (x : coHom l (S₊ (suc n))) → T0 (negsuc zero) ⌣ x ≡ -ₕ x
+  T0-neg0 x = {!!}
+
+  T0-negS : (k : ℕ) → {l : ℕ} → (x : coHom l (S₊ (suc n)))
+            → T0 (negsuc (suc k)) ⌣ x ≡ (T0 (negsuc k) ⌣ x) +ₕ (-ₕ x)
+  T0-negS k b = {!!}
+
+  -- idea : control of the unfolding + simplification of T0 on the left
+  rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
+                        T0 (a ·ℤ b) ≡ (T0 a) ⌣ (T0 b)
+  rmorph-base-case-00 (pos zero)       b = pres1 T0g
+                                           ∙ sym (T0-pos0 (T0 b))
+  rmorph-base-case-00 (pos (suc k))    b = pres· T0g b (pos k ·ℤ b)
+                                           ∙ cong (λ X → (T0 b) +ₕ X) (rmorph-base-case-00 (pos k) b)
+                                           ∙ sym (T0-posS k (T0 b))
+  rmorph-base-case-00 (negsuc zero)    b = cong T0 (sym (+ℤLid (-ℤ b)))
+                                           ∙ presinv T0g b
+                                           ∙ sym (T0-neg0 (T0 b))
+  rmorph-base-case-00 (negsuc (suc k)) b = cong T0 (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
+                                           ∙ pres· T0g (negsuc k ·ℤ b) (-ℤ b)
+                                           ∙ cong₂ _+ₕ_ (rmorph-base-case-00 (negsuc k) b) (cong T0 (sym (+ℤLid (-ℤ b))) ∙ presinv T0g b)
+                                           ∙ sym (T0-negS k (T0 b))
 
 
 
+-- cup product on H⁰ → Hⁿ → Hⁿ
+  Tn : (z : ℤ) → coHom (suc n) (S₊ (suc n))
+  Tn = inv (fst (Hⁿ-Sⁿ≅ℤ n))
+
+  -- idea : control of the unfolding + simplification of T0 on the left
+  Tng : IsGroupHom (ℤG .snd) (inv (fst (Hⁿ-Sⁿ≅ℤ n))) (coHomGr (suc n) (S₊ (suc n)) .snd)
+  Tng = snd (invGroupIso (Hⁿ-Sⁿ≅ℤ n))
+
+  rmorph-base-case-0n : (a : ℤ) → (b : ℤ) →
+                        Tn (a ·ℤ b) ≡ (T0 a) ⌣ (Tn b)
+  rmorph-base-case-0n (pos zero)       b = pres1 Tng
+                                           ∙ sym (T0-pos0 (Tn b))
+  rmorph-base-case-0n (pos (suc k))    b = pres· Tng b (pos k ·ℤ b)
+                                           ∙ cong (λ X → (Tn b) +ₕ X) (rmorph-base-case-0n (pos k) b)
+                                           ∙ sym (T0-posS k (Tn b))
+  rmorph-base-case-0n (negsuc zero)    b = cong Tn (sym (+ℤLid (-ℤ b)))
+                                           ∙ presinv Tng b
+                                           ∙ sym (T0-neg0 (Tn b))
+  rmorph-base-case-0n (negsuc (suc k)) b = cong Tn (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
+                                           ∙ pres· Tng (negsuc k ·ℤ b) (-ℤ b)
+                                           ∙ cong₂ _+ₕ_ (rmorph-base-case-0n (negsuc k) b) (cong Tn (sym (+ℤLid (-ℤ b))) ∙ presinv Tng b)
+                                           ∙ sym (T0-negS k (Tn b))
+
+
+-- Nice packging of the proof
   rmorph-base-case-int : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
-                         -- ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
-                         -- ≡ ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a) cup ℤ[x]→H*-Sⁿ (baseP (l ∷ []) b)
-                         base-trad-ℤ (k +n l) (a ·ℤ b) (part (k +n l))
-                         ≡ (base-trad-ℤ k a (part k)) cup (base-trad-ℤ l b (part l))
-                         -- need a coherence condition otherwise a match on xk xl won't do anything !
-                         -- replacing part (k +n l) by an addition on part k / part l named part+
-                         -- otherwise impossible to do in the general case 
-  rmorph-base-case-int k a l b = cong (λ X → base-trad-ℤ (k +n l) (a ·ℤ b) X) (eq-part-part+ k l)
-                                 ∙ rmorph-base-case-part k a (part k) l b (part l) 
+                         ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
+                         ≡ ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a) cup ℤ[x]→H*-Sⁿ (baseP (l ∷ []) b)
+  rmorph-base-case-int zero          a zero          b = cong (base 0) (rmorph-base-case-00 a b)
+  rmorph-base-case-int zero          a one           b = cong (base (suc n)) (rmorph-base-case-0n a b)
+  rmorph-base-case-int zero          a (suc (suc l)) b = refl
+  rmorph-base-case-int one           a zero          b = cong ℤ[x]→H*-Sⁿ (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
+                                                         ∙ rmorph-base-case-int zero b one a
+                                                         ∙ gradCommRing (S₊ (suc n)) 0 (suc n) (inv (fst (H⁰-Sⁿ≅ℤ n)) b) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)
+  rmorph-base-case-int one           a one           b = sym (base-neutral (suc n +' suc n))
+                                                         ∙ cong (base (suc n +' suc n))
+                                                           (isOfHLevelRetractFromIso
+                                                                1
+                                                                (fst (Hⁿ-Sᵐ≅0 (suc (n +n n)) n λ p → <→≢ (n , (+n-comm n (suc n))) (sym p)))
+                                                                isPropUnit _ _)
+  rmorph-base-case-int one           a (suc (suc l)) b = refl
+  rmorph-base-case-int (suc (suc k)) a             l b = refl
+
+
+
+
 
   rmorph-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
                 ℤ[x]→H*-Sⁿ (baseP v a ·Pℤ baseP v' b)
@@ -362,18 +360,18 @@ module Equiv-Sn-Properties (n : ℕ) where
 -----------------------------------------------------------------------------
 -- Function on ℤ[x]/x + morphism
 
-  -- ℤ[x]→H*-Sⁿ-cancelX : (k : Fin 1) → ℤ[x]→H*-Sⁿ (<X²> k) ≡ 0H*
-  -- ℤ[x]→H*-Sⁿ-cancelX zero = {!!}
+  ℤ[x]→H*-Sⁿ-cancelX : (k : Fin 1) → ℤ[x]→H*-Sⁿ (<X²> k) ≡ 0H*
+  ℤ[x]→H*-Sⁿ-cancelX zero = {!!}
 
---   ℤ[X]→H*-Sⁿ : RingHom (CommRing→Ring ℤ[X]) (H*R (S₊ 1))
---   fst ℤ[X]→H*-Sⁿ = ℤ[x]→H*-Sⁿ
---   snd ℤ[X]→H*-Sⁿ = makeIsRingHom ℤ[x]→H*-Sⁿ-map1Pℤ ℤ[x]→H*-Sⁿ-gmorph ℤ[x]→H*-Sⁿ-rmorph
+  ℤ[X]→H*-Sⁿ : RingHom (CommRing→Ring ℤ[X]) (H*R (S₊ (suc n)))
+  fst ℤ[X]→H*-Sⁿ = ℤ[x]→H*-Sⁿ
+  snd ℤ[X]→H*-Sⁿ = makeIsRingHom ℤ[x]→H*-Sⁿ-map1 ℤ[x]→H*-Sⁿ-map+ ℤ[x]→H*-Sⁿ-rmorph
 
---   ℤ[X]/X²→H*R-Sⁿ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
---   ℤ[X]/X²→H*R-Sⁿ = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R (S₊ 1)) ℤ[X]→H*-Sⁿ <X²> ℤ[x]→H*-Sⁿ-cancelX
+  ℤ[X]/X²→H*R-Sⁿ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ (suc n)))
+  ℤ[X]/X²→H*R-Sⁿ = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R (S₊ (suc n))) ℤ[X]→H*-Sⁿ <X²> ℤ[x]→H*-Sⁿ-cancelX
 
---   ℤ[x]/x²→H*-Sⁿ : ℤ[x]/x² → H* (S₊ 1)
---   ℤ[x]/x²→H*-Sⁿ = fst ℤ[X]/X²→H*R-Sⁿ
+  ℤ[x]/x²→H*-Sⁿ : ℤ[x]/x² → H* (S₊ (suc n))
+  ℤ[x]/x²→H*-Sⁿ = fst ℤ[X]/X²→H*R-Sⁿ
 
 
 
