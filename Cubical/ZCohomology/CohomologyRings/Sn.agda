@@ -172,32 +172,14 @@ module Equiv-Sn-Properties (n : ℕ) where
   ... |            yes q = isSn q
   ... |            no ¬q = else (¬p , ¬q)
 
-  isProp-⊎ : {A : Type ℓ} → {B : Type ℓ'} → isProp A → isProp B → isProp (A ⊎ B)
-  isProp-⊎ = {!×-prop!}
 
-  isProp-Σ : {A : Type ℓ} → {B : (x : A) → Type ℓ'}
-             → isProp A → ((x : A) → isProp (B x)) → isProp (Σ A B)
-  isProp-Σ = {!!}
+  part0 : part 0 ≡ is0 refl
+  part0 = refl
 
-  isProp-partℕ : (k : ℕ) → isProp (partℕ k)
-  isProp-partℕ k = isPropRetract f g e-retr isPropB
-    where
-    f : _
-    f (is0 x) = inl x
-    f (isSn x) = inr (inl x)
-    f (else x) = inr (inr x)
-    g : _
-    g (inl x) = is0 x
-    g (inr (inl x)) = isSn x
-    g (inr (inr x)) = else x
-    e-retr : _
-    e-retr (is0 x) = refl
-    e-retr (isSn x) = refl
-    e-retr (else x) = refl
-    isPropB : _
-    isPropB = isProp-⊎ (isSetℕ _ _)
-              (isProp-⊎ (isSetℕ _ _)
-                         (isProp-Σ (λ x y i p → isProp⊥ (x p) (y p) i) λ _ x y i p → isProp⊥ (x p) (y p) i))
+  partSn : (x : partℕ (suc n)) → x ≡ isSn refl
+  partSn (is0 x)  = rec-⊥ (nsnotz x)
+  partSn (isSn x) = cong isSn (isSetℕ _ _ _ _)
+  partSn (else x) = rec-⊥ (snd x refl)
 
 
 
@@ -488,13 +470,11 @@ module Equiv-Sn-Properties (n : ℕ) where
            λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
            where
            base-case : _
-           base-case (zero ∷ []) a = cong [_] (cong (base-trad-H* 0 (inv (fst (H⁰-Sⁿ≅ℤ n)) a))
-                                                    (isProp-partℕ 0 (part 0) (is0 refl)))
+           base-case (zero ∷ []) a = cong [_] (cong (base-trad-H* 0 (inv (fst (H⁰-Sⁿ≅ℤ n)) a)) part0)
                                      ∙ cong [_] (cong (baseP (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n)))
                                                                              (SubstReflCoHom (inv (fst (H⁰-Sⁿ≅ℤ n)) a))))
                                      ∙ cong [_] (cong (baseP (0 ∷ [])) (rightInv (fst (H⁰-Sⁿ≅ℤ n)) a))
-           base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a))
-                                                           (isProp-partℕ (suc n) (part (suc n)) (isSn refl)))
+           base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)) (partSn (part (suc n))))
                                      ∙ cong [_] (cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n)))
                                                                              (SubstReflCoHom (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a))))
                                      ∙ cong [_] (cong (baseP (1 ∷ [])) (rightInv (fst (Hⁿ-Sⁿ≅ℤ n)) a))
