@@ -22,6 +22,13 @@ cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
 cong′ f = cong f
 {-# INLINE cong′ #-}
 
+module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
+  toPathP⁻ : x ≡ transport⁻ (λ i → A i) y → PathP A x y
+  toPathP⁻ p = symP (toPathP (sym p))
+
+  fromPathP⁻ : PathP A x y → x ≡ transport⁻ (λ i → A i) y
+  fromPathP⁻ p = sym (fromPathP {A = λ i → A (~ i)} (symP p))
+
 PathP≡Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
              PathP P p q ≡ Path (P i1) (transport (λ i → P i) p) q
 PathP≡Path P p q i = PathP (λ j → P (i ∨ j)) (transport-filler (λ j → P j) p i) q

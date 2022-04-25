@@ -50,8 +50,8 @@ sym : x ≡ y → y ≡ x
 sym p i = p (~ i)
 {-# INLINE sym #-}
 
-symP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} →
-       (p : PathP A x y) → PathP (λ i → A (~ i)) y x
+symP : {A : I → Type ℓ} → {x : A i1} → {y : A i0} →
+       (p : PathP (λ i → A (~ i)) x y) → PathP A y x
 symP p j = p (~ j)
 
 cong : (f : (a : A) → B a) (p : x ≡ y) →
@@ -261,7 +261,7 @@ subst2 : ∀ {ℓ' ℓ''} {B : Type ℓ'} {z w : B} (C : A → B → Type ℓ'')
         (p : x ≡ y) (q : z ≡ w) → C x z → C y w
 subst2 B p q b = transport (λ i → B (p i) (q i)) b
 
-substRefl : (px : B x) → subst B refl px ≡ px
+substRefl : ∀ {B : A → Type ℓ} {x} → (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
 subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
