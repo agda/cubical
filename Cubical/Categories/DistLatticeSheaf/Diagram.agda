@@ -53,18 +53,6 @@ module DLShfDiagHomPath where
    f g : DLShfDiagHom n x y
    i j k l : Fin n
 
-  module _ (P : ∀ x y → DLShfDiagHom n x y → Type)
-           (d1 : ∀ {i} → P (sing i) (sing i) idAr)
-           (d2 : ∀ {i j} → P (pair i j) (pair i j) idAr)
-           (d3 : ∀ {i j} → P (sing i) (pair i j) singPairL)
-           (d4 : ∀ {i j} → P (sing i) (pair j i) singPairR) where
-    homJ : ∀ x y f → P x y f
-    homJ (sing i) .(sing i) idAr = d1
-    homJ (pair i j) .(pair i j) idAr = d2
-    homJ (sing i) .(pair i _) singPairL = d3
-    homJ (sing i) .(pair _ i) singPairR = d4
-
-
   -- DLShfDiagHom n x y is a retract of Code x y
   Code : (x y : DLShfDiagOb n) → Type
   Code (sing i) (sing j) = i ≡ j
@@ -96,9 +84,10 @@ module DLShfDiagHomPath where
 
   codeRetract : ∀ (x y : DLShfDiagOb n) (f : DLShfDiagHom n x y)
               → decode x y (encode x y f) ≡ f
-  codeRetract = homJ (λ x y f → decode x y (encode x y f) ≡ f)
-                  (transportRefl idAr) (transportRefl idAr)
-                  (transportRefl singPairL) (transportRefl singPairR)
+  codeRetract (sing _) .(sing _) idAr = transportRefl idAr
+  codeRetract (pair _ _) .(pair _ _) idAr = transportRefl idAr
+  codeRetract .(sing _) .(pair _ _) singPairL = transportRefl singPairL
+  codeRetract .(sing _) .(pair _ _) singPairR = transportRefl singPairR
 
   isSetDLShfDiagHom : ∀ (x y : DLShfDiagOb n) → isSet (DLShfDiagHom n x y)
   isSetDLShfDiagHom x y = isSetRetract (encode x y) (decode x y)
