@@ -57,12 +57,50 @@ private variable
 
 open Iso
 
-module Equiv-Sn-Properties (n : ℕ) where
 
-  open IsGroupHom
+-----------------------------------------------------------------------------
+-- Somme properties over H⁰-Sⁿ≅ℤ
+module Properties-H⁰-Sⁿ≅ℤ where
+
+  open RingStr
+
+  T0m : (m : ℕ) → (z : ℤ) → coHom 0 (S₊ (suc m))
+  T0m m = inv (fst (H⁰-Sⁿ≅ℤ m))
+
+  T0mg : (m : ℕ) → IsGroupHom (snd ℤG) (T0m m) (coHomGr 0 (S₊ (suc m)) .snd)
+  T0mg m = snd (invGroupIso (H⁰-Sⁿ≅ℤ m))
+
+  T0m-map1 : (m : ℕ) → base 0 ((T0m m) 1) ≡ 1r (snd (H*R (S₊ (suc m))))
+  T0m-map1 zero = refl
+  T0m-map1 (suc m) = refl
+
+  T0m-pos0 : (m : ℕ) → {l : ℕ} → (x : coHom l (S₊ (suc m))) → (T0m m) (pos zero) ⌣ x ≡ 0ₕ l
+  T0m-pos0 zero = sElim (λ x  → isProp→isSet (squash₂ _ _)) λ x → refl
+  T0m-pos0 (suc m) = sElim (λ x  → isProp→isSet (squash₂ _ _)) λ x → refl
+
+  T0m-posS : (m : ℕ) → {l : ℕ} → (k : ℕ) → (x : coHom l (S₊ (suc m)))
+            → T0m m (pos (suc k)) ⌣ x ≡ x +ₕ (T0m m (pos k) ⌣ x)
+  T0m-posS zero k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0m-posS (suc m) k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+
+  T0m-neg0 : (m : ℕ) → {l : ℕ} → (x : coHom l (S₊ (suc m))) → T0m m (negsuc zero) ⌣ x ≡ -ₕ x
+  T0m-neg0 zero = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0m-neg0 (suc m) = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+
+  T0m-negS : (m : ℕ) → {l : ℕ} → (k : ℕ) → (x : coHom l (S₊ (suc m)))
+            → T0m m (negsuc (suc k)) ⌣ x ≡ (T0m m (negsuc k) ⌣ x) +ₕ (-ₕ x)
+  T0m-negS zero k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0m-negS (suc m) k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+
+
 
 -----------------------------------------------------------------------------
 -- Definitions
+
+module Equiv-Sn-Properties (n : ℕ) where
+
+  open IsGroupHom
+  open Properties-H⁰-Sⁿ≅ℤ
 
   open CommRingStr (snd ℤCR) using ()
     renaming
@@ -248,85 +286,50 @@ module Equiv-Sn-Properties (n : ℕ) where
 
   -- doesn't compute without an abstract value !
   ℤ[x]→H*-Sⁿ-map1 : ℤ[x]→H*-Sⁿ (1Pℤ) ≡ 1H*
-  ℤ[x]→H*-Sⁿ-map1 = {!!}
+  ℤ[x]→H*-Sⁿ-map1 = T0m-map1 n
 
   ℤ[x]→H*-Sⁿ-map+ : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x +Pℤ y) ≡ ℤ[x]→H*-Sⁿ x +H* ℤ[x]→H*-Sⁿ y
   ℤ[x]→H*-Sⁿ-map+ x y = refl
 
--- cup product on H⁰ → H⁰ → H⁰
-  T0 : (z : ℤ) → coHom 0 (S₊ (suc n))
-  T0 = inv (fst (H⁰-Sⁿ≅ℤ n))
-
-  T0g : IsGroupHom (snd ℤG) T0 (coHomGr 0 (S₊ (suc n)) .snd)
-  T0g = snd (invGroupIso (H⁰-Sⁿ≅ℤ n))
-
-
-  -- pbl T0 b is not in a computed form because n is a variable
-  -- => need to prove that the rules still holds but propositionally ie the rules of ·₀ / normal form ?
-  -- those are ture for all real value and so should be true for n
-
-  T0-pos0 : {l : ℕ} → (x : coHom l (S₊ (suc n))) → T0 (pos zero) ⌣ x ≡ 0ₕ l
-  T0-pos0 x = {!!}
-
-  T0-posS : (k : ℕ) → {l : ℕ} → (x : coHom l (S₊ (suc n)))
-            → T0 (pos (suc k)) ⌣ x ≡ x +ₕ (T0 (pos k) ⌣ x)
-  T0-posS k x = {!!}
-
-  T0-neg0 : {l : ℕ} → (x : coHom l (S₊ (suc n))) → T0 (negsuc zero) ⌣ x ≡ -ₕ x
-  T0-neg0 x = {!!}
-
-  T0-negS : (k : ℕ) → {l : ℕ} → (x : coHom l (S₊ (suc n)))
-            → T0 (negsuc (suc k)) ⌣ x ≡ (T0 (negsuc k) ⌣ x) +ₕ (-ₕ x)
-  T0-negS k b = {!!}
-
-  -- idea : control of the unfolding + simplification of T0 on the left
-  rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
-                        T0 (a ·ℤ b) ≡ (T0 a) ⌣ (T0 b)
-  rmorph-base-case-00 (pos zero)       b = pres1 T0g
-                                           ∙ sym (T0-pos0 (T0 b))
-  rmorph-base-case-00 (pos (suc k))    b = pres· T0g b (pos k ·ℤ b)
-                                           ∙ cong (λ X → (T0 b) +ₕ X) (rmorph-base-case-00 (pos k) b)
-                                           ∙ sym (T0-posS k (T0 b))
-  rmorph-base-case-00 (negsuc zero)    b = cong T0 (sym (+ℤLid (-ℤ b)))
-                                           ∙ presinv T0g b
-                                           ∙ sym (T0-neg0 (T0 b))
-  rmorph-base-case-00 (negsuc (suc k)) b = cong T0 (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
-                                           ∙ pres· T0g (negsuc k ·ℤ b) (-ℤ b)
-                                           ∙ cong₂ _+ₕ_ (rmorph-base-case-00 (negsuc k) b) (cong T0 (sym (+ℤLid (-ℤ b))) ∙ presinv T0g b)
-                                           ∙ sym (T0-negS k (T0 b))
-
-
+  T0 = T0m n
+  T0g = T0mg n
+  T0-pos0 = T0m-pos0 n
+  T0-posS = T0m-posS n
+  T0-neg0 = T0m-neg0 n
+  T0-negS = T0m-negS n
 
 -- cup product on H⁰ → Hⁿ → Hⁿ
-  Tn : (z : ℤ) → coHom (suc n) (S₊ (suc n))
-  Tn = inv (fst (Hⁿ-Sⁿ≅ℤ n))
+  module _
+    (l : ℕ)
+    (Tl : (z : ℤ) → coHom l (S₊ (suc n)))
+    (Tlg : IsGroupHom (ℤG .snd) Tl (coHomGr l (S₊ (suc n)) .snd))
+    where
 
-  -- idea : control of the unfolding + simplification of T0 on the left
-  Tng : IsGroupHom (ℤG .snd) (inv (fst (Hⁿ-Sⁿ≅ℤ n))) (coHomGr (suc n) (S₊ (suc n)) .snd)
-  Tng = snd (invGroupIso (Hⁿ-Sⁿ≅ℤ n))
-
-  rmorph-base-case-0n : (a : ℤ) → (b : ℤ) →
-                        Tn (a ·ℤ b) ≡ (T0 a) ⌣ (Tn b)
-  rmorph-base-case-0n (pos zero)       b = pres1 Tng
-                                           ∙ sym (T0-pos0 (Tn b))
-  rmorph-base-case-0n (pos (suc k))    b = pres· Tng b (pos k ·ℤ b)
-                                           ∙ cong (λ X → (Tn b) +ₕ X) (rmorph-base-case-0n (pos k) b)
-                                           ∙ sym (T0-posS k (Tn b))
-  rmorph-base-case-0n (negsuc zero)    b = cong Tn (sym (+ℤLid (-ℤ b)))
-                                           ∙ presinv Tng b
-                                           ∙ sym (T0-neg0 (Tn b))
-  rmorph-base-case-0n (negsuc (suc k)) b = cong Tn (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
-                                           ∙ pres· Tng (negsuc k ·ℤ b) (-ℤ b)
-                                           ∙ cong₂ _+ₕ_ (rmorph-base-case-0n (negsuc k) b) (cong Tn (sym (+ℤLid (-ℤ b))) ∙ presinv Tng b)
-                                           ∙ sym (T0-negS k (Tn b))
+      rmorph-base-case-0l : (a : ℤ) → (b : ℤ) →
+                            Tl (a ·ℤ b) ≡ (T0 a) ⌣ (Tl b)
+      rmorph-base-case-0l (pos zero)       b = pres1 Tlg
+                                               ∙ sym (T0-pos0 (Tl b))
+      rmorph-base-case-0l (pos (suc k))    b = pres· Tlg b (pos k ·ℤ b)
+                                               ∙ cong (λ X → (Tl b) +ₕ X) (rmorph-base-case-0l (pos k) b)
+                                               ∙ sym (T0-posS k (Tl b))
+      rmorph-base-case-0l (negsuc zero)    b = cong Tl (sym (+ℤLid (-ℤ b)))
+                                               ∙ presinv Tlg b
+                                               ∙ sym (T0-neg0 (Tl b))
+      rmorph-base-case-0l (negsuc (suc k)) b = cong Tl (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
+                                               ∙ pres· Tlg (negsuc k ·ℤ b) (-ℤ b)
+                                               ∙ cong₂ _+ₕ_ (rmorph-base-case-0l (negsuc k) b)
+                                                            (cong Tl (sym (+ℤLid (-ℤ b))) ∙ presinv Tlg b)
+                                               ∙ sym (T0-negS k (Tl b))
 
 
 -- Nice packging of the proof
   rmorph-base-case-int : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
                          ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
                          ≡ ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a) cup ℤ[x]→H*-Sⁿ (baseP (l ∷ []) b)
-  rmorph-base-case-int zero          a zero          b = cong (base 0) (rmorph-base-case-00 a b)
-  rmorph-base-case-int zero          a one           b = cong (base (suc n)) (rmorph-base-case-0n a b)
+  rmorph-base-case-int zero          a zero          b = cong (base 0) (rmorph-base-case-0l 0 (inv (fst (H⁰-Sⁿ≅ℤ n)))
+                                                                                              (snd (invGroupIso (H⁰-Sⁿ≅ℤ n))) a b)
+  rmorph-base-case-int zero          a one           b = cong (base (suc n)) (rmorph-base-case-0l (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)))
+                                                                                                  (snd (invGroupIso (Hⁿ-Sⁿ≅ℤ n))) a b)
   rmorph-base-case-int zero          a (suc (suc l)) b = refl
   rmorph-base-case-int one           a zero          b = cong ℤ[x]→H*-Sⁿ (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
                                                          ∙ rmorph-base-case-int zero b one a
