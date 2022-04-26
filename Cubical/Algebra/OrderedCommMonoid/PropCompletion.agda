@@ -21,7 +21,7 @@ open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Sigma
 
-open import Cubical.HITs.PropositionalTruncation renaming (rec to propTruncRec)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to propTruncRec; rec2 to propTruncRec2)
 
 open import Cubical.Algebra.CommMonoid.Base
 open import Cubical.Algebra.OrderedCommMonoid.Base
@@ -57,7 +57,10 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
   n isUpperBoundOf s = fst (fst s n)
 
   isBounded : (s : M↑) → Type _
-  isBounded s = Σ[ m ∈ (fst M) ] (m isUpperBoundOf s)
+  isBounded s = ∃[ m ∈ (fst M) ] (m isUpperBoundOf s)
+
+  isPropIsBounded : (s : M↑) → isProp (isBounded s)
+  isPropIsBounded s = isPropPropTrunc
 
   _^↑ : fst M → M↑
   n ^↑ = n ≤p_ , isUpwardClosed≤
@@ -66,7 +69,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
       isUpwardClosed≤ = λ {_ _ n≤k m≤n → is-trans _ _ _ m≤n n≤k}
 
   isBounded^ : (m : fst M) → isBounded (m ^↑)
-  isBounded^ m = m , (is-refl m)
+  isBounded^ m = ∣ m , (is-refl m) ∣
 
   1↑ : M↑
   1↑ = 1m ^↑
@@ -84,7 +87,12 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                λ {((a , b) , wa , (wb , a·b≤n)) → ∣ (a , b) , wa , (wb , is-trans _ _ _ a·b≤n n≤m) ∣}
 
   ·presBounded : (s l : M↑) (bs : isBounded s) (bl : isBounded l) → isBounded (s ·↑ l)
-  ·presBounded s l (m , s≤m) (k , l≤k) = (m · k) , ∣ (m , k) , (s≤m , (l≤k , (is-refl (m · k)))) ∣
+  ·presBounded s l =
+    propTruncRec2
+      isPropPropTrunc
+      λ {(m , s≤m) (k , l≤k)
+          → ∣ (m · k) , ∣ (m , k) , (s≤m , (l≤k , (is-refl (m · k)))) ∣ ∣
+        }
 
   {- convenience functions for the proof that ·↑ is the multiplication of a monoid -}
   typeAt : fst M → M↑ → Type _
