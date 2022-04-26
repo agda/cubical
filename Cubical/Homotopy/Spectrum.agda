@@ -17,6 +17,9 @@ private
   variable
     ℓ : Level
 
-Spectrum : (ℓ : Level) → Type (ℓ-suc ℓ)
-Spectrum ℓ = let open GenericPrespectrum
-             in Σ[ P ∈ Prespectrum ℓ ] ((k : ℤ) → isEquiv (fst (map P k)))
+record Spectrum (ℓ : Level) : Type (ℓ-suc ℓ) where
+  open GenericPrespectrum
+  field
+    prespectrum : Prespectrum ℓ
+    equiv : (k : ℤ) → isEquiv (fst (map prespectrum k))
+  open GenericPrespectrum prespectrum public

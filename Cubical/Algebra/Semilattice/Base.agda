@@ -80,7 +80,7 @@ makeIsSemilattice : {L : Type ℓ} {ε : L} {_·_ : L → L → L}
                (idem : (x : L) → x · x ≡ x)
              → IsSemilattice ε _·_
 IsSemilattice.isCommMonoid (makeIsSemilattice is-setL assoc rid lid comm idem) =
-                                        makeIsCommMonoid is-setL assoc rid lid comm
+                                        makeIsCommMonoid is-setL assoc rid comm
 IsSemilattice.idem (makeIsSemilattice is-setL assoc rid lid comm idem) = idem
 
 makeSemilattice : {L : Type ℓ} (ε : L) (_·_ : L → L → L)
@@ -134,7 +134,7 @@ isPropIsSemilattice ε _·_ (issemilattice LL LC) (issemilattice SL SC) =
   𝒮ᴰ-Record (𝒮-Univ _) IsSemilatticeEquiv
     (fields:
       data[ ε ∣ autoDUARel _ _ ∣ presε ]
-      data[ _·_ ∣ autoDUARel _ _ ∣ isHom ]
+      data[ _·_ ∣ autoDUARel _ _ ∣ pres· ]
       prop[ isSemilattice ∣ (λ _ _ → isPropIsSemilattice _ _) ])
   where
   open SemilatticeStr
