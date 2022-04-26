@@ -49,7 +49,7 @@ PolyCommRing-Quotient A {n} {m} v = PolyCommRing A n / genIdeal (PolyCommRing A 
 ℤ[x]/x² = fst ℤ[X]/X²
 
 <X³> : FinVec ℤ[x] 1
-<X³> zero = base (2 ∷ []) (CommRingStr.1r (snd ℤ))
+<X³> zero = base (3 ∷ []) (CommRingStr.1r (snd ℤ))
 
 ℤ[X]/X³ : CommRing ℓ-zero
 ℤ[X]/X³ = ℤ[X] / genIdeal ℤ[X] <X³>

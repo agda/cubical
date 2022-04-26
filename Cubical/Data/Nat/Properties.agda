@@ -48,6 +48,18 @@ snotz eq = subst (caseNat ⊥ ℕ) eq 0
 injSuc : suc m ≡ suc n → m ≡ n
 injSuc p = cong predℕ p
 
+codeℕ : (n m : ℕ) → Type ℓ-zero
+codeℕ zero zero = Unit
+codeℕ zero (suc m) = ⊥
+codeℕ (suc n) zero = ⊥
+codeℕ (suc n) (suc m) = codeℕ n m
+
+compute-eqℕ : (n m : ℕ) → (n ≡ m ) → codeℕ n m
+compute-eqℕ zero zero p = tt
+compute-eqℕ zero (suc m) p = znots p
+compute-eqℕ (suc n) zero p = snotz p
+compute-eqℕ (suc n) (suc m) p = compute-eqℕ n m (injSuc p)
+
 discreteℕ : Discrete ℕ
 discreteℕ zero zero = yes refl
 discreteℕ zero (suc n) = no znots
