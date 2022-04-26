@@ -19,7 +19,7 @@ There are three parts of the appraoch to prove x=y:
 * map the expressions to polynomials in horner form (normalize)
 * let agda compare the results with unification
 
-There are two versions of the solver, one which works for natural numbers and one which works for commutatitive rings (CommRing). Only the CommRingSolver has a reflection interface and the NatSolver has some additional problems, but it could still be useful.
+To see how the ring solver might be used, check out `Examples.agda`.
 
-To see how the ring solver might be used, check out 'Examples.agda'. To understand how it works, it is probably good to have a look at 'NatExamples.agda' and 'CommRingExamples.agda'.
-
+There is another version of the solver, for natural numbers instead of commutatitive rings, in `Cubical/Algebra/NatSolver`.
+To understand how both solvers work, it is probably good to have a look at `Cubical/Algebra/NatSolver/Examples.agda`.
