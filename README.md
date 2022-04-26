@@ -1,21 +1,21 @@
 A standard library for Cubical Agda
 ===================================
 
-This library compiles with the master branch of the development
-version of [Agda](https://github.com/agda/agda/). For detailed install
+This library compiles with the latest official release of
+[Agda](https://github.com/agda/agda/). For detailed install
 instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
 file.
 
 The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.README.html).
 
-If you want to use Agda 2.6.2 instead of the latest development version, you
+If you want to use Agda 2.6.2 instead of the latest release version, you
 can check out the tag `v0.3` of this library.
 
-If you want to use Agda 2.6.1.3 instead of the latest development version, you
+If you want to use Agda 2.6.1.3 instead of the latest release version, you
 can check out the tag `v0.2` of this library.
 
-If you want to use Agda 2.6.0.1 instead of the latest development version, you
+If you want to use Agda 2.6.0.1 instead of the latest release version, you
 can check out the tag `v0.1` of this library.
 
 For some introductory lecture notes see the material for the Cubical Agda course

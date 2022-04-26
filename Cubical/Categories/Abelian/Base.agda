@@ -22,7 +22,6 @@ module _ (C : PreaddCategory ℓ ℓ') where
 
     -- Kernels
     record IsKernel {k : ob} (ker : Hom[ k , x ]) : Type (ℓ-max ℓ ℓ') where
-      constructor isKernel
       field
         ker⋆f : ker ⋆ f ≡ 0h
         univ : ∀ (w : ob) (t : Hom[ w , x ])
@@ -40,14 +39,12 @@ module _ (C : PreaddCategory ℓ ℓ') where
 
     -- Cokernels
     record IsCokernel {c : ob} (coker : Hom[ y , c ]) : Type (ℓ-max ℓ ℓ') where
-      constructor isCokernel
       field
         f⋆coker : f ⋆ coker ≡ 0h
         univ : ∀ (w : ob) (t : Hom[ y , w ])
           → (f ⋆ t ≡ 0h) → ∃![ u ∈ Hom[ c , w ] ] (coker ⋆ u ≡ t)
 
     record Cokernel : Type (ℓ-max ℓ ℓ') where
-      constructor cokernel
       field
         c : ob
         coker : Hom[ y , c ]
@@ -57,7 +54,7 @@ module _ (C : PreaddCategory ℓ ℓ') where
 
 
 -- Preabelian categories
-record PreabCategoryStr (C : AdditiveCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
+record PreAbCategoryStr (C : AdditiveCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   open AdditiveCategory C
   field
     hasKernels : {x y : ob} → (f : Hom[ x , y ]) → Kernel preaddcat f
@@ -68,18 +65,18 @@ record PreabCategoryStr (C : AdditiveCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ'
   coker = λ {x y} (f : Hom[ x , y ]) → hasCokernels f .Cokernel.coker
 
 
-record PreabCategory (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
+record PreAbCategory (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   field
-    additcat : AdditiveCategory ℓ ℓ'
-    preab : PreabCategoryStr additcat
+    additive : AdditiveCategory ℓ ℓ'
+    preAbStr : PreAbCategoryStr additive
 
-  open AdditiveCategory additcat public
-  open PreabCategoryStr preab public
+  open AdditiveCategory additive public
+  open PreAbCategoryStr preAbStr public
 
 
 -- Abelian categories
-record AbelianCategoryStr (C : PreabCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
-  open PreabCategory C
+record AbelianCategoryStr (C : PreAbCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
+  open PreAbCategory C
 
   private
     _=ker_ : ∀ {k x y} → Hom[ k , x ] → Hom[ x , y ] → Type (ℓ-max ℓ ℓ')
@@ -98,8 +95,8 @@ record AbelianCategoryStr (C : PreabCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ')
 
 record AbelianCategory (ℓ ℓ' : Level): Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   field
-    preabcat : PreabCategory ℓ ℓ'
-    abeli : AbelianCategoryStr preabcat
+    preAb : PreAbCategory ℓ ℓ'
+    abelianStr : AbelianCategoryStr preAb
 
-  open PreabCategory preabcat public
-  open AbelianCategoryStr abeli public
+  open PreAbCategory preAb public
+  open AbelianCategoryStr abelianStr public

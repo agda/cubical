@@ -13,20 +13,34 @@ private
     ℓ : Level
 
 private
-  open PreabCategory
-  open PreabCategoryStr
+  open PreAbCategory
+  open PreAbCategoryStr
 
-  terminalPreAb : PreabCategory ℓ ℓ
-  PreabCategory.additcat terminalPreAb = terminalAdd
-  hasKernels (preab terminalPreAb) f =
-    kernel tt* refl (isKernel refl (λ _ _ _ → (refl , refl) , λ _ → refl))
-  hasCokernels (preab terminalPreAb) f =
-    cokernel tt* refl (isCokernel refl (λ _ _ _ → (refl , refl) , λ _ → refl))
+  terminalPreAb : PreAbCategory ℓ ℓ
+  PreAbCategory.additive terminalPreAb = terminalAdd
+
+  Kernel.k (hasKernels (preAbStr terminalPreAb) f) = tt*
+  Kernel.ker (hasKernels (preAbStr terminalPreAb) f) = refl
+  IsKernel.ker⋆f (Kernel.isKer (hasKernels (preAbStr terminalPreAb) f)) = refl
+  IsKernel.univ (Kernel.isKer (hasKernels (preAbStr terminalPreAb) f)) = λ _ _ _ → (refl , refl) , λ _ → refl
+
+  Cokernel.c (hasCokernels (preAbStr terminalPreAb) f) = tt*
+  Cokernel.coker (hasCokernels (preAbStr terminalPreAb) f) = refl
+  IsCokernel.f⋆coker (Cokernel.isCoker (hasCokernels (preAbStr terminalPreAb) f)) = refl
+  IsCokernel.univ (Cokernel.isCoker (hasCokernels (preAbStr terminalPreAb) f)) = λ _ _ _ → (refl , refl) , λ _ → refl
 
 open AbelianCategory
 open AbelianCategoryStr
 
 terminal : AbelianCategory ℓ ℓ
-preabcat terminal = terminalPreAb
-monNormal (abeli terminal) m _ = tt* , (m , (isKernel refl λ _ _ _ → (refl , refl) , (λ _ → refl)))
-epiNormal (abeli terminal) e _ = tt* , (e , (isCokernel refl (λ _ _ _ → (refl , refl) , (λ _ → refl))))
+preAb terminal = terminalPreAb
+
+fst (monNormal (abelianStr terminal) m _) = tt*
+fst (snd (monNormal (abelianStr terminal) m _)) = m
+IsKernel.ker⋆f (snd (snd (monNormal (abelianStr terminal) m _))) = refl
+IsKernel.univ (snd (snd (monNormal (abelianStr terminal) m _))) = λ _ _ _ → (refl , refl) , (λ _ → refl)
+
+fst (epiNormal (abelianStr terminal) e _) = tt*
+fst (snd (epiNormal (abelianStr terminal) e _)) = e
+IsCokernel.f⋆coker (snd (snd (epiNormal (abelianStr terminal) e _))) = refl
+IsCokernel.univ (snd (snd (epiNormal (abelianStr terminal) e _))) = λ _ _ _ → (refl , refl) , (λ _ → refl)

@@ -18,7 +18,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Instances.FreeCommAlgebra
+open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal

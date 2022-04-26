@@ -34,7 +34,7 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Nat.Order
@@ -187,7 +187,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                   → Σ[ n ∈ ℕ ] v ≡ g ^ n
                   → x ≡ 0r
    exponentHelper (n , u≡fⁿ) (m , v≡gᵐ) =
-                   PT.rec (is-set _ _) Σhelper (GeneratingExponents.lemma R' f g l 1∈⟨f,g⟩)
+                   PT.rec (is-set _ _) Σhelper (GeneratingPowers.thm R' l _ fgVec 1∈⟨f,g⟩)
     where
     l = max n m
 
@@ -293,7 +293,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                    → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
                                 × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
     exponentHelper (m , s≡[fg]ᵐ) =
-       PT.rec isProp∃! Σhelper (GeneratingExponents.lemma R' f g 2n+m 1∈⟨f,g⟩)
+       PT.rec isProp∃! Σhelper (GeneratingPowers.thm R' 2n+m _ fgVec 1∈⟨f,g⟩)
      where
      -- the path we'll actually work with
      xgⁿ[fg]ⁿ⁺ᵐ≡yfⁿ[fg]ⁿ⁺ᵐ : x · g ^ n · (f · g) ^ (n +ℕ m) ≡ y · f ^ n · (f · g) ^ (n +ℕ m)
@@ -511,30 +511,30 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
  open Cospan
 
  fgCospan : Cospan CommRingsCategory
- l fgCospan = R[1/ f ]AsCommRing
+ l fgCospan = R[1/ g ]AsCommRing
  m fgCospan = R[1/ (f · g) ]AsCommRing
- r fgCospan = R[1/ g ]AsCommRing
- s₁ fgCospan = χ₁
- s₂ fgCospan = χ₂
+ r fgCospan = R[1/ f ]AsCommRing
+ s₁ fgCospan = χ₂
+ s₂ fgCospan = χ₁
 
  -- the commutative square
  private
-  /1χComm : ∀ (x : R) → χ₁ .fst (x /1ᶠ) ≡ χ₂ .fst (x /1ᵍ)
+  /1χComm : ∀ (x : R) → χ₂ .fst (x /1ᵍ) ≡ χ₁ .fst (x /1ᶠ)
   /1χComm x = eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne) , refl)
 
-  /1χHomComm : /1ᶠAsCommRingHom ⋆ χ₁ ≡ /1ᵍAsCommRingHom ⋆ χ₂
+  /1χHomComm : /1ᵍAsCommRingHom ⋆ χ₂ ≡ /1ᶠAsCommRingHom ⋆ χ₁
   /1χHomComm = RingHom≡ (funExt /1χComm)
 
  fgSquare : 1r ∈ ⟨f,g⟩
-          → isPullback _ fgCospan /1ᶠAsCommRingHom /1ᵍAsCommRingHom /1χHomComm
- fgSquare 1∈⟨f,g⟩ {d = A} φ ψ φχ₁≡ψχ₂ = (χ , χCoh) , χUniqueness
+          → isPullback _ fgCospan /1ᵍAsCommRingHom /1ᶠAsCommRingHom /1χHomComm
+ fgSquare 1∈⟨f,g⟩ {d = A} ψ φ ψχ₂≡φχ₁ = (χ , χCoh) , χUniqueness
   where
   instance
    _ = snd A
 
   applyEqualizerLemma : ∀ a → ∃![ χa ∈ R ] (χa /1ᶠ ≡ fst φ a) × (χa /1ᵍ ≡ fst ψ a)
   applyEqualizerLemma a =
-    equalizerLemma 1∈⟨f,g⟩ (fst φ a) (fst ψ a) (cong (_$ a) φχ₁≡ψχ₂)
+    equalizerLemma 1∈⟨f,g⟩ (fst φ a) (fst ψ a) (cong (_$ a) (sym ψχ₂≡φχ₁))
 
   χ : CommRingHom A R'
   fst χ a = applyEqualizerLemma a .fst .fst
@@ -570,17 +570,27 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                   ∙∙ sym (ψ .snd .pres· x y)
 
 
-  χCoh : (φ ≡ χ ⋆ /1ᶠAsCommRingHom) × (ψ ≡ χ ⋆ /1ᵍAsCommRingHom)
-  fst χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .fst)))
-  snd χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .snd)))
+  χCoh : (ψ ≡ χ ⋆ /1ᵍAsCommRingHom) × (φ ≡ χ ⋆ /1ᶠAsCommRingHom)
+  fst χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .snd)))
+  snd χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .fst)))
 
   χUniqueness : (y : Σ[ θ ∈ CommRingHom A R' ]
-                       (φ ≡ θ ⋆ /1ᶠAsCommRingHom) × (ψ ≡ θ ⋆ /1ᵍAsCommRingHom))
+                       (ψ ≡ θ ⋆ /1ᵍAsCommRingHom) × (φ ≡ θ ⋆ /1ᶠAsCommRingHom))
               → (χ , χCoh) ≡ y
   χUniqueness (θ , θCoh) = Σ≡Prop (λ _ → isProp× (isSetRingHom _ _ _ _)
                                                  (isSetRingHom _ _ _ _))
     (RingHom≡ (funExt (λ a → cong fst (applyEqualizerLemma a .snd (θtriple a)))))
       where
       θtriple : ∀ a → Σ[ x ∈ R ] (x /1ᶠ ≡ fst φ a) × (x /1ᵍ ≡ fst ψ a)
-      θtriple a = fst θ a , sym (cong (_$ a) (θCoh .fst))
-                          , sym (cong (_$ a) (θCoh .snd))
+      θtriple a = fst θ a , sym (cong (_$ a) (θCoh .snd))
+                          , sym (cong (_$ a) (θCoh .fst))
+
+
+ -- packaging it all up
+ open Pullback
+ fgPullback : 1r ∈ ⟨f,g⟩ → Pullback _ fgCospan
+ pbOb (fgPullback 1r∈⟨f,g⟩) = _
+ pbPr₁ (fgPullback 1r∈⟨f,g⟩) = _
+ pbPr₂ (fgPullback 1r∈⟨f,g⟩) = _
+ pbCommutes (fgPullback 1r∈⟨f,g⟩) = /1χHomComm
+ univProp (fgPullback 1r∈⟨f,g⟩) = fgSquare 1r∈⟨f,g⟩
