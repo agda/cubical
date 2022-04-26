@@ -171,7 +171,6 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
                             ; (i = i1) → right j })
                    (β .N-hom f i)
 
-
   module _ {F G : Functor C D} {α β : NatTrans F G} where
     open Category
     open Functor
@@ -214,3 +213,7 @@ module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} {D : Category ℓD 
        → NatTrans (K ∘F G) (K ∘F H)
   (_∘ʳ_ K {G} {H} β) .N-ob x = K ⟪ β ⟦ x ⟧ ⟫
   (_∘ʳ_ K {G} {H} β) .N-hom f = preserveCommF {C = C} {D = D} {K} (β .N-hom f)
+
+  whiskerTrans : {F F' : Functor B C} {G G' : Functor C D} (β : NatTrans G G') (α : NatTrans F F')
+    → NatTrans (G ∘F F) (G' ∘F F')
+  whiskerTrans {F}{F'}{G}{G'} β α = compTrans (β ∘ˡ F') (G ∘ʳ α)
