@@ -55,7 +55,7 @@ module _ where
                  (lmonotone : (x y z : M) → x ≤ y → (z · x) ≤ (z · y))
                → IsOrderedCommMonoid _·_ 1m _≤_
   isCommMonoid (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
-    makeIsCommMonoid is-setM assoc rid lid comm
+    makeIsCommMonoid is-setM assoc rid comm
   isPoset (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
     isposet is-setM isProp≤ isRefl isTrans isAntisym
   isRMonotone (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =

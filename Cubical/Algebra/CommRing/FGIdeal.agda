@@ -13,16 +13,19 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum hiding (map ; elim ; rec)
 open import Cubical.Data.FinData hiding (elim ; rec)
 open import Cubical.Data.Nat renaming ( zero to ℕzero ; suc to ℕsuc
-                                      ; _+_ to _+ℕ_ ; _·_ to _·ℕ_
+                                      ; _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-assoc to +ℕ-assoc ; +-comm to +ℕ-comm
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
-                             hiding (elim)
+                             hiding (elim ; _choose_)
+open import Cubical.Data.Nat.Order
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
@@ -87,12 +90,10 @@ module _ (Ring@(R , str) : CommRing ℓ) where
                                                             ∙∙ ∑Ext λ i → ·Assoc r (α .fst i) (V i)
 
   generatedIdeal : {n : ℕ} → FinVec R n → IdealsIn Ring
-  generatedIdeal V = makeIdeal Ring
-                               (λ x → isLinearCombination V x , isPropPropTrunc)
-                               (isLinearCombination+ V)
-                               (isLinearCombination0 V)
-                               λ r → isLinearCombinationL· V r
-
+  fst (generatedIdeal V) = λ x → isLinearCombination V x , isPropPropTrunc
+  CommIdeal.isCommIdeal.+Closed (snd (generatedIdeal V)) = isLinearCombination+ V
+  CommIdeal.isCommIdeal.contains0 (snd (generatedIdeal V)) = isLinearCombination0 V
+  CommIdeal.isCommIdeal.·Closed (snd (generatedIdeal V)) = λ r → isLinearCombinationL· V r
 
 open CommIdeal.isCommIdeal
 genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal.CommIdeal R
@@ -247,3 +248,97 @@ module _ (R' : CommRing ℓ) where
  FGIdealMultLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ··Fin V ⟩ ≡ ⟨ U ⟩ ·i ⟨ V ⟩
  FGIdealMultLemma U V = CommIdeal≡Char (FGIdealMultLemmaLIncl U V) (FGIdealMultLemmaRIncl U V)
+
+
+
+
+-- A useful lemma for constructing the structure sheaf
+module GeneratingPowers (R' : CommRing ℓ) (n : ℕ) where
+ open CommRingStr (snd R')
+ open CommRingTheory R'
+ open RingTheory (CommRing→Ring R')
+ open Sum (CommRing→Ring R')
+ open Exponentiation R'
+ open BinomialThm R'
+ open CommIdeal R'
+
+ private
+  R = fst R'
+  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
+  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
+  _ⁿ : {m : ℕ} → FinVec R m → FinVec R m
+  U ⁿ = λ i → U i ^ n
+
+
+ lemma : (m : ℕ) (α U : FinVec R (ℕsuc m))
+       → (linearCombination R' α U) ^ ((ℕsuc m) ·ℕ n) ∈ ⟨ U ⁿ ⟩
+ lemma ℕzero α U = ∣ α ⁿ , path ∣
+  where
+  path : (α zero · U zero + 0r) ^ (n +ℕ 0) ≡ α zero ^ n · U zero ^ n + 0r
+  path = (α zero · U zero + 0r) ^ (n +ℕ 0) ≡⟨ cong (_^ (n +ℕ 0)) (+Rid _) ⟩
+         (α zero · U zero) ^ (n +ℕ 0)      ≡⟨ cong ((α zero · U zero) ^_) (+-zero n) ⟩
+         (α zero · U zero) ^ n             ≡⟨ ^-ldist-· _ _ n ⟩
+         α zero ^ n · U zero ^ n           ≡⟨ sym (+Rid _) ⟩
+         α zero ^ n · U zero ^ n + 0r ∎
+
+ lemma (ℕsuc m) α U = subst-∈ ⟨ U ⁿ ⟩ (sym (BinomialThm (n +ℕ (ℕsuc m) ·ℕ n) x y)) ∑Binomial∈⟨Uⁿ⟩
+  where
+  x = α zero · U zero
+  y = linearCombination R' (α ∘ suc) (U ∘ suc)
+
+  binomialSummand∈⟨Uⁿ⟩ : ∀ (i : Fin _) → BinomialVec (n +ℕ (ℕsuc m) ·ℕ n) x y i ∈ ⟨ U ⁿ ⟩
+  binomialSummand∈⟨Uⁿ⟩ i with ≤-+-split n ((ℕsuc m) ·ℕ n) (toℕ i) (pred-≤-pred (toℕ<n i))
+  ... | inl n≤i = subst-∈ ⟨ U ⁿ ⟩ (·CommAssocr _ _ (x ^ (toℕ i)))
+                                  (⟨ U ⁿ ⟩ .snd .·Closed _ (xHelper (toℕ i) n≤i))
+   where
+   xHelper : ∀ k → n ≤ k → x ^ k ∈ ⟨ U ⁿ ⟩
+   xHelper k n≤k = subst-∈ ⟨ U ⁿ ⟩ path (⟨ U ⁿ ⟩ .snd .·Closed _ (indInIdeal R' (U ⁿ) zero))
+    where
+    path : α zero ^ k · U zero ^ (k ∸ n) · U zero ^ n ≡ x ^ k
+    path = α zero ^ k · U zero ^ (k ∸ n) · U zero ^ n
+         ≡⟨ sym (·Assoc _ _ _) ⟩
+           α zero ^ k · (U zero ^ (k ∸ n) · U zero ^ n)
+         ≡⟨ cong ((α zero ^ k) ·_) (·-of-^-is-^-of-+ (U zero) (k ∸ n) n) ⟩
+           α zero ^ k · U zero ^ ((k ∸ n) +ℕ n)
+         ≡⟨ cong (λ l → (α zero ^ k) · (U zero ^ l)) (≤-∸-+-cancel n≤k) ⟩
+           α zero ^ k · U zero ^ k
+         ≡⟨ sym (^-ldist-· (α zero) (U zero) k) ⟩
+           x ^ k ∎
+
+  ... | inr [m+1]n≤n+[m+1]n-i = ⟨ U ⁿ ⟩ .snd .·Closed _ (yHelper (toℕ i) [m+1]n≤n+[m+1]n-i)
+   where
+   powSucIncl : ⟨ (U ∘ suc) ⁿ ⟩ ⊆ ⟨ U ⁿ ⟩
+   powSucIncl = inclOfFGIdeal R' ((U ∘ suc) ⁿ) ⟨ U ⁿ ⟩ (λ i → indInIdeal R' (U ⁿ) (suc i))
+
+   inductiveStep : y ^ ((ℕsuc m) ·ℕ n) ∈ ⟨ U ⁿ ⟩
+   inductiveStep = powSucIncl _ (lemma m (α ∘ suc) (U ∘ suc))
+
+   yHelper : ∀ k
+           → (ℕsuc m) ·ℕ n ≤ n +ℕ (ℕsuc m) ·ℕ n ∸ k
+           → y ^ (n +ℕ (ℕsuc m) ·ℕ n ∸ k) ∈ ⟨ U ⁿ ⟩
+   yHelper k [m+1]n≤n+[m+1]n-k = subst-∈ ⟨ U ⁿ ⟩ path (⟨ U ⁿ ⟩ .snd .·Closed _ inductiveStep)
+    where
+    n+[m+1]n-k = n +ℕ (ℕsuc m) ·ℕ n ∸ k
+    [m+1]n = (ℕsuc m) ·ℕ n
+    path : y ^ (n+[m+1]n-k ∸ [m+1]n) · y ^ [m+1]n ≡ y ^ n+[m+1]n-k
+    path =
+      y ^ (n+[m+1]n-k ∸ [m+1]n) · y ^ [m+1]n ≡⟨ ·-of-^-is-^-of-+ y (n+[m+1]n-k ∸ [m+1]n) [m+1]n ⟩
+      y ^ ((n+[m+1]n-k ∸ [m+1]n) +ℕ [m+1]n)  ≡⟨ cong (y ^_) (≤-∸-+-cancel [m+1]n≤n+[m+1]n-k) ⟩
+      y ^ n+[m+1]n-k ∎
+
+  ∑Binomial∈⟨Uⁿ⟩ : ∑ (BinomialVec (n +ℕ (ℕsuc m) ·ℕ n) x y) ∈ ⟨ U ⁿ ⟩
+  ∑Binomial∈⟨Uⁿ⟩ = ∑Closed ⟨ U ⁿ ⟩ _ binomialSummand∈⟨Uⁿ⟩
+
+
+ thm : ∀ (m : ℕ) (U : FinVec R m) → 1r ∈ ⟨ U ⟩ → 1r ∈ ⟨ U ⁿ ⟩
+ thm ℕzero U 1∈⟨U⟩ = 1∈⟨U⟩
+ thm (ℕsuc m) U = elim (λ _ → isPropPropTrunc) Σhelper
+  where
+  Σhelper : Σ[ α ∈ FinVec R (ℕsuc m) ] 1r ≡ linearCombination R' α U
+          → 1r ∈ ⟨ U ⁿ ⟩
+  Σhelper (α , p) = subst-∈ ⟨ U ⁿ ⟩ path (lemma m α U)
+   where
+   path : linearCombination R' α U ^ ((ℕsuc m) ·ℕ n) ≡ 1r
+   path = linearCombination R' α U ^ ((ℕsuc m) ·ℕ n) ≡⟨ cong (_^ ((ℕsuc m) ·ℕ n)) (sym p) ⟩
+          1r ^ ((ℕsuc m) ·ℕ n)                       ≡⟨ 1ⁿ≡1 ((ℕsuc m) ·ℕ n) ⟩
+          1r ∎

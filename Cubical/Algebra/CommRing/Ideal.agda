@@ -34,33 +34,6 @@ private
   variable
     ℓ : Level
 
-IdealsIn : (R : CommRing ℓ) → Type _
-IdealsIn R = IdealsInRing (CommRing→Ring R)
-
-module _ (Ring@(R , str) : CommRing ℓ) where
-  open CommRingStr str
-  makeIdeal : (I : R → hProp ℓ)
-              → (+-closed : {x y : R} → x ∈p I → y ∈p I → (x + y) ∈p I)
-              → (0r-closed : 0r ∈p I)
-              → (·-closedLeft : {x : R} → (r : R) → x ∈p I → r · x ∈p I)
-              → IdealsIn (R , str)
-  makeIdeal I +-closed 0r-closed ·-closedLeft = I ,
-    (record
-       { +-closed = +-closed
-       ; -closed = λ x∈pI → subst-∈p I (useSolver _)
-                             (·-closedLeft (- 1r) x∈pI)
-       ; 0r-closed = 0r-closed
-       ; ·-closedLeft = ·-closedLeft
-       ; ·-closedRight = λ r x∈pI →
-                       subst-∈p I
-                             (·Comm r _)
-                             (·-closedLeft r x∈pI)
-       })
-       where useSolver : (x : R) → - 1r · x ≡ - x
-             useSolver = solve Ring
-
-
--- better?
 module CommIdeal (R' : CommRing ℓ) where
  private R = fst R'
  open CommRingStr (snd R')
@@ -89,6 +62,9 @@ module CommIdeal (R' : CommRing ℓ) where
 
  CommIdeal : Type (ℓ-suc ℓ)
  CommIdeal = Σ[ I ∈ ℙ R ] isCommIdeal I
+
+ isSetCommIdeal : isSet CommIdeal
+ isSetCommIdeal = isSetΣSndProp isSetℙ isPropIsCommIdeal
 
  --inclusion and containment of ideals
  _⊆_ : CommIdeal → CommIdeal → Type ℓ
@@ -326,3 +302,37 @@ module CommIdeal (R' : CommRing ℓ) where
 
  ·iAbsorb+i : ∀ (I J : CommIdeal) → I +i (I ·i J) ≡ I
  ·iAbsorb+i I J = CommIdeal≡Char (·iAbsorb+iLIncl I J) (·iAbsorb+iRIncl I J)
+
+
+IdealsIn : (R : CommRing ℓ) → Type _
+IdealsIn R = CommIdeal.CommIdeal R
+
+module _ {R : CommRing ℓ} where
+  open CommRingStr (snd R)
+  open isIdeal
+  open CommIdeal R
+  open isCommIdeal
+  makeIdeal : (I : fst R → hProp ℓ)
+              → (+-closed : {x y : fst R} → x ∈p I → y ∈p I → (x + y) ∈p I)
+              → (0r-closed : 0r ∈p I)
+              → (·-closedLeft : {x : fst R} → (r : fst R) → x ∈p I → r · x ∈p I)
+              → IdealsIn R
+  fst (makeIdeal I +-closed 0r-closed ·-closedLeft) = I
+  +Closed (snd (makeIdeal I +-closed 0r-closed ·-closedLeft)) = +-closed
+  contains0 (snd (makeIdeal I +-closed 0r-closed ·-closedLeft)) = 0r-closed
+  ·Closed (snd (makeIdeal I +-closed 0r-closed ·-closedLeft)) = ·-closedLeft
+
+
+  CommIdeal→Ideal : IdealsIn R → IdealsInRing (CommRing→Ring R)
+  fst (CommIdeal→Ideal I) = fst I
+  +-closed (snd (CommIdeal→Ideal I)) = +Closed (snd I)
+  -closed (snd (CommIdeal→Ideal I)) =  λ x∈pI → subst-∈p (fst I) (useSolver _)
+                                                           (·Closed (snd I) (- 1r) x∈pI)
+                                         where useSolver : (x : fst R) → - 1r · x ≡ - x
+                                               useSolver = solve R
+  0r-closed (snd (CommIdeal→Ideal I)) = contains0 (snd I)
+  ·-closedLeft (snd (CommIdeal→Ideal I)) = ·Closed (snd I)
+  ·-closedRight (snd (CommIdeal→Ideal I)) = λ r x∈pI →
+                                             subst-∈p (fst I)
+                                                   (·Comm r _)
+                                                   (·Closed (snd I) r x∈pI)
