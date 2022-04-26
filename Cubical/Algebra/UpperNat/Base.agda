@@ -45,6 +45,11 @@ private
      deg(∑_{i=0}^{n} aᵢ · Xⁱ) :≡ λ (k : ℕ) → ∀ (k+1 ≤ i ≤ n) aᵢ≡0
 
    This works even if a constructive definition of polynomial is used.
+
+   However the upper naturals are a bit too unconstraint and do not even form a semiring,
+   since they include 'infinity' elements like the proposition that is always false.
+
+   This is different for the subtype of *bounded* upper naturals ℕ↑ᵇ.
 -}
 
 module Construction where
