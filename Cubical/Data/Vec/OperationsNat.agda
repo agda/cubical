@@ -4,12 +4,25 @@ module Cubical.Data.Vec.OperationsNat where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat renaming(_+_ to _+n_; _·_ to _·n_)
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Vec.Base
 open import Cubical.Data.Sigma
+
+open import Cubical.Relation.Nullary
 
 private variable
   ℓ : Level
 
+
+-- generating vectors
+OnekZeroElse : (n : ℕ) → (k : ℕ) → Vec ℕ n
+OnekZeroElse zero k = []
+OnekZeroElse (suc n) k with (discreteℕ k (suc n))
+... | yes p = 1 ∷ (OnekZeroElse n k)
+... | no ¬p = 0 ∷ (OnekZeroElse n k)
+
+
+-- pointwise add
 _+n-vec_ : {m : ℕ} → Vec ℕ m → Vec ℕ m → Vec ℕ m
 _+n-vec_ {.zero} [] [] = []
 _+n-vec_ {.(suc _)} (k ∷ v) (l ∷ v') = (k +n l) ∷ (v +n-vec v')
@@ -30,6 +43,7 @@ _+n-vec_ {.(suc _)} (k ∷ v) (l ∷ v') = (k +n l) ∷ (v +n-vec v')
 +n-vec-comm {.zero} [] [] = refl
 +n-vec-comm {.(suc _)} (k ∷ v) (l ∷ v') = cong₂ _∷_ (+-comm k l) (+n-vec-comm v v')
 
+-- split + concat vec results
 sep-vec : (k l : ℕ) → Vec ℕ (k +n l) → (Vec ℕ k) ×  (Vec ℕ l )
 sep-vec zero l v = [] , v
 sep-vec (suc k) l (x ∷ v) = (x ∷ fst (sep-vec k l v)) , (snd (sep-vec k l v))

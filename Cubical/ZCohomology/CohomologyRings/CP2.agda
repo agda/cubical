@@ -314,6 +314,16 @@ module Equiv-CP2-Properties where
                                                             (cong Tl (sym (+ℤLid (-ℤ b))) ∙ presinv Tlg b)
                                                ∙ sym (T0-negS k (Tl b))
 
+  rmorph-base-case-11 : (a b : ℤ) → inv (fst H⁴CP²≅ℤ) (a ·ℤ b) ≡  inv (fst H²CP²≅ℤ) a ⌣ inv (fst H²CP²≅ℤ) b
+  rmorph-base-case-11 (pos zero) (pos zero) = refl
+  rmorph-base-case-11 (pos zero) (pos (suc n₁)) = {!!}
+  rmorph-base-case-11 (pos (suc n)) (pos zero) = {!!}
+  rmorph-base-case-11 (pos (suc n)) (pos (suc n₁)) = {!!}
+  rmorph-base-case-11 (pos n) (negsuc n₁) = {!!}
+  rmorph-base-case-11 (negsuc n) (pos n₁) = {!!}
+  rmorph-base-case-11 (negsuc n) (negsuc n₁) = {!!}
+
+
 
 -- Nice packging of the proof
 
@@ -327,7 +337,7 @@ module Equiv-CP2-Properties where
   rmorph-base-case-int one a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
                                       ∙ rmorph-base-case-int zero b one a
                                        ∙ gradCommRing CP² _ _ _ _
-  rmorph-base-case-int one a one b  = cong (base 4) {!!}
+  rmorph-base-case-int one a one b  = cong (base 4) (rmorph-base-case-11 a b)
   rmorph-base-case-int one a two b  = sym (base-neutral _)
                                       ∙ cong (base 6) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-CP²≅0 5 (compute-eqℕ _ _) (compute-eqℕ _ _))) isPropUnit _ _)
   rmorph-base-case-int one a (suc (suc (suc l))) b = refl

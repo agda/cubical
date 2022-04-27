@@ -4,8 +4,11 @@ module Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat renaming(_+_ to _+n_; _·_ to _·n_)
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Vec
 open import Cubical.Data.FinData
+
+open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
@@ -15,7 +18,6 @@ open import Cubical.Algebra.CommRing.Instances.Int
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
--- open import Cubical.ZCohomology.CohomologyRings.Unit
 
 private variable
   ℓ : Level
@@ -62,3 +64,23 @@ PolyCommRing-Quotient A {n} {m} v = PolyCommRing A n / genIdeal (PolyCommRing A 
 
 ℤ[X]/Xᵏ : (k : ℕ) → CommRing ℓ-zero
 ℤ[X]/Xᵏ k = ℤ[X] / genIdeal ℤ[X] (<Xᵏ> k)
+
+module _
+  (Ar@(A , Astr) : CommRing ℓ)
+  (n : ℕ)
+  where
+
+  <X1,···,Xn> : FinVec (A[x1,···,xn] Ar n) n
+  <X1,···,Xn> = λ k → base (OnekZeroElse n (toℕ k)) (CommRingStr.1r Astr)
+
+  A[X1,···,Xn]/<X1,···,Xn> : CommRing ℓ
+  A[X1,···,Xn]/<X1,···,Xn> = (A[X1,···,Xn] Ar n) / (genIdeal ((A[X1,···,Xn] Ar n)) <X1,···,Xn>)
+
+  A[x1,···,xn]/<x1,···,xn> : Type ℓ
+  A[x1,···,xn]/<x1,···,xn> = fst A[X1,···,Xn]/<X1,···,Xn>
+
+ℤ[X1,···,Xn]/<X1,···,Xn> : (n : ℕ) → CommRing ℓ-zero
+ℤ[X1,···,Xn]/<X1,···,Xn> n = A[X1,···,Xn]/<X1,···,Xn> ℤ n
+
+ℤ[x1,···,xn]/<x1,···,xn> : (n : ℕ) → Type ℓ-zero
+ℤ[x1,···,xn]/<x1,···,xn> n = fst (ℤ[X1,···,Xn]/<X1,···,Xn> n)

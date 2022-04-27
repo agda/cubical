@@ -70,3 +70,20 @@ module _
 
 ℤ[x,y,z] : Type ℓ-zero
 ℤ[x,y,z] = fst ℤ[X,Y,Z]
+
+module _
+  (Ar@(A , Astr) : CommRing ℓ)
+  (n : ℕ)
+  where
+
+  A[X1,···,Xn] : CommRing ℓ
+  A[X1,···,Xn] = PolyCommRing Ar n
+
+  A[x1,···,xn] : Type ℓ
+  A[x1,···,xn] = fst (A[X1,···,Xn])
+
+ℤ[X1,···,Xn] : (n : ℕ) → CommRing ℓ-zero
+ℤ[X1,···,Xn] n = A[X1,···,Xn] ℤ n
+
+ℤ[x1,···,xn] : (n : ℕ) → Type ℓ-zero
+ℤ[x1,···,xn] n = fst (ℤ[X1,···,Xn] n)
