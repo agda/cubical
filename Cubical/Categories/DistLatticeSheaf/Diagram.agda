@@ -41,6 +41,10 @@ data DLShfDiagOb (n : ℕ) : Type where
   sing : Fin n → DLShfDiagOb n
   pair : {i j : Fin n} → i <Fin j → DLShfDiagOb n
 
+-- Another idea: ob= Σ[ (i , j) ∈ Fin n × Fin n ] i≤j
+-- Hom (i,j) (k,l) = (1) i≡k × j≡l
+--                   (2) i≡j × k<l × (i≡k ⊎ i≡l)
+
 data DLShfDiagHom (n : ℕ) : DLShfDiagOb n → DLShfDiagOb n → Type where
   idAr : {x : DLShfDiagOb n} → DLShfDiagHom n x x
   singPairL : {i j : Fin n} {i<j : i <Fin j}  → DLShfDiagHom n (sing i) (pair i<j)
