@@ -1,11 +1,16 @@
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Instances.FunctorAlgebras where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism renaming (Iso to _≅_)
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+
+open _≅_
 
 private
   variable ℓC ℓC' : Level
@@ -15,19 +20,37 @@ module _ {C : Category ℓC ℓC'} (F : Functor C C) where
   open Category
   open Functor
 
+  IsAlgebra : ob C → Type ℓC'
+  IsAlgebra x = C [ F-ob F x , x ]
+
   record Algebra : Type (ℓ-max ℓC ℓC') where
     constructor algebra
     field
       carrier : ob C
-      str : C [ F-ob F carrier , carrier ]
+      str : IsAlgebra carrier
   open Algebra
+
+  IsAlgebraHom : (algA algB : Algebra) → C [ carrier algA , carrier algB ] → Type ℓC'
+  IsAlgebraHom algA algB f = (f ∘⟨ C ⟩ str algA) ≡ (str algB ∘⟨ C ⟩ F-hom F f)
 
   record AlgebraHom (algA algB : Algebra) : Type ℓC' where
     constructor algebraHom
     field
       carrierHom : C [ carrier algA , carrier algB ]
-      strHom : (carrierHom ∘⟨ C ⟩ str algA) ≡ (str algB ∘⟨ C ⟩ F-hom F carrierHom)
+      strHom : IsAlgebraHom algA algB carrierHom
   open AlgebraHom
+
+  RepAlgebraHom : (algA algB : Algebra) → Type ℓC'
+  RepAlgebraHom algA algB = Σ[ f ∈ C [ carrier algA , carrier algB ] ] IsAlgebraHom algA algB f
+
+  isoRepAlgebraHom : (algA algB : Algebra) → AlgebraHom algA algB ≅ RepAlgebraHom algA algB
+  fun (isoRepAlgebraHom algA algB) (algebraHom f isalgF) = f , isalgF
+  inv (isoRepAlgebraHom algA algB) (f , isalgF) = algebraHom f isalgF
+  rightInv (isoRepAlgebraHom algA algB) (f , isalgF) = refl
+  leftInv (isoRepAlgebraHom algA algB) (algebraHom f isalgF)= refl
+
+  pathRepAlgebraHom : (algA algB : Algebra) → AlgebraHom algA algB ≡ RepAlgebraHom algA algB
+  pathRepAlgebraHom algA algB = ua (isoToEquiv (isoRepAlgebraHom algA algB))
 
   AlgebraHom≡ : {algA algB : Algebra} {algF algG : AlgebraHom algA algB} → (carrierHom algF ≡ carrierHom algG) → algF ≡ algG
   carrierHom (AlgebraHom≡ {algA} {algB} {algF} {algG} p i) = p i
@@ -60,7 +83,7 @@ module _ {C : Category ℓC ℓC'} (F : Functor C C) where
       ≡⟨ cong (λ φ → φ ⋆⟨ C ⟩ str algC) (sym (F-seq F (carrierHom algF) (carrierHom algG))) ⟩
     F-hom F (carrierHom algF ⋆⟨ C ⟩ carrierHom algG) ⋆⟨ C ⟩ str algC ∎
 
-  AlgebrasCategory : Category {!!} {!!}
+  AlgebrasCategory : Category (ℓ-max ℓC ℓC') ℓC'
   ob AlgebrasCategory = Algebra
   Hom[_,_] AlgebrasCategory = AlgebraHom
   id AlgebrasCategory = idAlgebraHom
@@ -68,4 +91,5 @@ module _ {C : Category ℓC ℓC'} (F : Functor C C) where
   ⋆IdL AlgebrasCategory algF = AlgebraHom≡ (⋆IdL C (carrierHom algF))
   ⋆IdR AlgebrasCategory algF = AlgebraHom≡ (⋆IdR C (carrierHom algF))
   ⋆Assoc AlgebrasCategory algF algG algH = AlgebraHom≡ (⋆Assoc C (carrierHom algF) (carrierHom algG) (carrierHom algH))
-  isSetHom AlgebrasCategory algA algB p q = {!AlgebraHom≡!}
+  isSetHom AlgebrasCategory = subst isSet (sym (pathRepAlgebraHom _ _))
+    (isSetΣ (isSetHom C) (λ f → isProp→isSet (isSetHom C _ _)))
