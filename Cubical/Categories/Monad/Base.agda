@@ -44,3 +44,9 @@ module _ {C : Category ℓ ℓ'} (M : Functor C C) where
       (((F-hom M f ⋆ F-hom M g) ⋆ N-ob μ y) ⋆ F-hom M h)
         ≡⟨ cong (_⋆ F-hom M h) (⋆Assoc (F-hom M f) (F-hom M g) (N-ob μ y)) ⟩
       ((M .F-hom f ⋆ (F-hom M g ⋆ N-ob μ y)) ⋆ F-hom M h) ∎
+
+  -- Define comonads as monads on the opposite category?
+
+module _ (C : Category ℓ ℓ') where
+  Monad : Type (ℓ-max ℓ ℓ')
+  Monad = Σ[ M ∈ Functor C C ] IsMonad M

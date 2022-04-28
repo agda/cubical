@@ -93,3 +93,9 @@ module _ {C : Category ℓC ℓC'} (F : Functor C C) where
   ⋆Assoc AlgebrasCategory algF algG algH = AlgebraHom≡ (⋆Assoc C (carrierHom algF) (carrierHom algG) (carrierHom algH))
   isSetHom AlgebrasCategory = subst isSet (sym (pathRepAlgebraHom _ _))
     (isSetΣ (isSetHom C) (λ f → isProp→isSet (isSetHom C _ _)))
+
+  ForgetAlgebra : Functor AlgebrasCategory C
+  F-ob ForgetAlgebra = carrier
+  F-hom ForgetAlgebra = carrierHom
+  F-id ForgetAlgebra = refl
+  F-seq ForgetAlgebra algF algG = refl
