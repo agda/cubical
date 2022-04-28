@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat renaming(_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Vec.Base
+open import Cubical.Data.Vec.Properties
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Nullary
@@ -20,7 +21,6 @@ OnekZeroElse zero k = []
 OnekZeroElse (suc n) k with (discreteℕ k (suc n))
 ... | yes p = 1 ∷ (OnekZeroElse n k)
 ... | no ¬p = 0 ∷ (OnekZeroElse n k)
-
 
 -- pointwise add
 _+n-vec_ : {m : ℕ} → Vec ℕ m → Vec ℕ m → Vec ℕ m
@@ -42,6 +42,13 @@ _+n-vec_ {.(suc _)} (k ∷ v) (l ∷ v') = (k +n l) ∷ (v +n-vec v')
 +n-vec-comm : {m : ℕ} → (v v' : Vec ℕ m) → v +n-vec v' ≡ v' +n-vec v
 +n-vec-comm {.zero} [] [] = refl
 +n-vec-comm {.(suc _)} (k ∷ v) (l ∷ v') = cong₂ _∷_ (+-comm k l) (+n-vec-comm v v')
+
+v+n-vecv'≡0→v≡0×v'≡0 : {m : ℕ} → (v v' : Vec ℕ m) → (v +n-vec v') ≡ replicate 0
+                        → (v ≡ replicate 0) × (v' ≡ replicate 0)
+v+n-vecv'≡0→v≡0×v'≡0 [] [] p = refl , refl
+v+n-vecv'≡0→v≡0×v'≡0 (k ∷ v) (l ∷ v') p with VecPath.encode ((k +n l) ∷ (v +n-vec v')) (replicate 0) p
+... | pkl , pvv' = (cong₂ _∷_ (fst (m+n≡0→m≡0×n≡0 pkl)) (fst (v+n-vecv'≡0→v≡0×v'≡0 v v' pvv'))) ,
+                   (cong₂ _∷_ (snd (m+n≡0→m≡0×n≡0 pkl)) (snd (v+n-vecv'≡0→v≡0×v'≡0 v v' pvv')))
 
 -- split + concat vec results
 sep-vec : (k l : ℕ) → Vec ℕ (k +n l) → (Vec ℕ k) ×  (Vec ℕ l )
