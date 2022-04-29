@@ -24,9 +24,9 @@ open import Cubical.HITs.PropositionalTruncation.Base
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
     A B C : Type ℓ
-    A′ : Type ℓ′
+    A′ : Type ℓ'
 
 ∥∥-isPropDep : (P : A → Type ℓ) → isOfHLevelDep 1 (λ x → ∥ P x ∥)
 ∥∥-isPropDep P = isOfHLevel→isOfHLevelDep 1 (λ _ → squash)
@@ -439,7 +439,7 @@ RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
 ∥∥-IdempotentR-⊎ : ∥ A ⊎ ∥ A′ ∥ ∥ ≡ ∥ A ⊎ A′ ∥
 ∥∥-IdempotentR-⊎ = ua ∥∥-IdempotentR-⊎-≃
 
-∥∥-Idempotent-⊎ : {A : Type ℓ} {A′ : Type ℓ′} → ∥ ∥ A ∥ ⊎ ∥ A′ ∥ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-Idempotent-⊎ : {A : Type ℓ} {A′ : Type ℓ'} → ∥ ∥ A ∥ ⊎ ∥ A′ ∥ ∥ ≡ ∥ A ⊎ A′ ∥
 ∥∥-Idempotent-⊎ {A = A} {A′} = ∥ ∥ A ∥ ⊎ ∥ A′ ∥ ∥ ≡⟨ ∥∥-IdempotentR-⊎ ⟩
                                ∥ ∥ A ∥ ⊎ A′ ∥     ≡⟨ ∥∥-IdempotentL-⊎ ⟩
                                ∥ A ⊎ A′ ∥         ∎
@@ -474,18 +474,18 @@ RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
 ∥∥-IdempotentR-× : ∥ A × ∥ A′ ∥ ∥ ≡ ∥ A × A′ ∥
 ∥∥-IdempotentR-× = ua ∥∥-IdempotentR-×-≃
 
-∥∥-Idempotent-× : {A : Type ℓ} {A′ : Type ℓ′} → ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡ ∥ A × A′ ∥
+∥∥-Idempotent-× : {A : Type ℓ} {A′ : Type ℓ'} → ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡ ∥ A × A′ ∥
 ∥∥-Idempotent-× {A = A} {A′} = ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡⟨ ∥∥-IdempotentR-× ⟩
                                ∥ ∥ A ∥ × A′ ∥     ≡⟨ ∥∥-IdempotentL-× ⟩
                                ∥ A × A′ ∥         ∎
 
-∥∥-Idempotent-×-≃ : {A : Type ℓ} {A′ : Type ℓ′} → ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≃ ∥ A × A′ ∥
+∥∥-Idempotent-×-≃ : {A : Type ℓ} {A′ : Type ℓ'} → ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≃ ∥ A × A′ ∥
 ∥∥-Idempotent-×-≃ {A = A} {A′} = compEquiv ∥∥-IdempotentR-×-≃ ∥∥-IdempotentL-×-≃
 
-∥∥-×-≃ : {A : Type ℓ} {A′ : Type ℓ′} → ∥ A ∥ × ∥ A′ ∥ ≃ ∥ A × A′ ∥
+∥∥-×-≃ : {A : Type ℓ} {A′ : Type ℓ'} → ∥ A ∥ × ∥ A′ ∥ ≃ ∥ A × A′ ∥
 ∥∥-×-≃ {A = A} {A′} = compEquiv (invEquiv (propTruncIdempotent≃ (isProp× isPropPropTrunc isPropPropTrunc))) ∥∥-Idempotent-×-≃
 
-∥∥-× : {A : Type ℓ} {A′ : Type ℓ′} → ∥ A ∥ × ∥ A′ ∥ ≡ ∥ A × A′ ∥
+∥∥-× : {A : Type ℓ} {A′ : Type ℓ'} → ∥ A ∥ × ∥ A′ ∥ ≡ ∥ A × A′ ∥
 ∥∥-× = ua ∥∥-×-≃
 
 -- using this we get a convenient recursor/eliminator for binary functions into sets
