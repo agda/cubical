@@ -21,7 +21,27 @@ open import Cubical.Algebra.CommMonoid.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
+
+module _
+    (M : CommMonoid ℓ)
+    (P : ⟨ M ⟩ → hProp ℓ')
+    where
+  open CommMonoidStr (snd M)
+  module _
+    (·Closed : (x y : ⟨ M ⟩) → ⟨ P x ⟩ → ⟨ P y ⟩ → ⟨ P (x · y) ⟩)
+    (εContained : ⟨ P ε ⟩)
+    where
+    private
+      subtype = Σ[ x ∈ ⟨ M ⟩ ] ⟨ P x ⟩
+
+    makeSubCommMonoid : CommMonoid _
+    fst makeSubCommMonoid = subtype
+    CommMonoidStr.ε (snd makeSubCommMonoid) = ε , εContained
+    CommMonoidStr._·_ (snd makeSubCommMonoid) (x , xContained) (y , yContained) =
+      (x · y) , ·Closed x y xContained yContained
+    IsCommMonoid.isMonoid (CommMonoidStr.isCommMonoid (snd makeSubCommMonoid)) = ?
+    IsCommMonoid.comm (CommMonoidStr.isCommMonoid (snd makeSubCommMonoid)) = ?
 
 module CommMonoidTheory (M' : CommMonoid ℓ) where
  open CommMonoidStr (snd M')
