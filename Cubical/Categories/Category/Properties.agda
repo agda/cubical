@@ -40,8 +40,8 @@ module _ {C : Category ℓ ℓ'} where
     isSet→isSet' (isSetHom C) (λ i → seq' C (p i) (q i)) (λ _ → C .id) (ret f) (ret g) j i
 
 -- opposite of opposite is definitionally equal to itself
-involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
-involutiveOp = refl
+--involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
+--involutiveOp = refl
 
 module _ {C : Category ℓ ℓ'} where
   -- Other useful operations on categories
