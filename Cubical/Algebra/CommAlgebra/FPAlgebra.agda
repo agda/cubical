@@ -167,30 +167,30 @@ module _ {R : CommRing ℓ} where
 
           inv : retract (Iso.fun (homMapIso {I = Fin n} A)) (Iso.inv (homMapIso A))
           inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
-      
+
       {- ∀ A : Comm-R-Algebra,
          ∀ J : Finitely-generated-Ideal,
-         Hom(R[I]/J,A) is isomorphic to the Set of roots of the generators of J 
+         Hom(R[I]/J,A) is isomorphic to the Set of roots of the generators of J
       -}
 
       zeroLocus : (A : CommAlgebra R ℓ) → Type ℓ
-      zeroLocus A = Σ (FinVec ⟨ A ⟩ n) (λ v → (i : Fin m) → evPoly A (relation i) v ≡ 0a (snd A))
+      zeroLocus A = Σ[ v ∈ FinVec ⟨ A ⟩ n ] ((i : Fin m) → evPoly A (relation i) v ≡ 0a (snd A))
 
-      inducedHomFP : {A : CommAlgebra R ℓ} → 
+      inducedHomFP : (A : CommAlgebra R ℓ) →
                       zeroLocus A → CommAlgebraHom FPAlgebra A
-      inducedHomFP d = inducedHom (fst d) (snd d)
+      inducedHomFP A d = inducedHom A (fst d) (snd d)
 
-      evaluateAtFP : {A : CommAlgebra R ℓ} → 
+      evaluateAtFP : {A : CommAlgebra R ℓ} →
                       CommAlgebraHom FPAlgebra A → zeroLocus A
-      evaluateAtFP {A} f = value , 
+      evaluateAtFP {A} f = value ,
                       λ i →  evPoly A (relation i) value                            ≡⟨ step1 (relation i) ⟩
                              fst compHom (evPoly (Polynomials n) (relation i) var)  ≡⟨ refl ⟩
-                             (fst f) ((fst modRelations) 
-                                        (evPoly (Polynomials n) (relation i) var))  ≡⟨ cong (fst f) 
-                                                                                            (evPolyHomomorphic 
-                                                                                              (Polynomials n) 
-                                                                                              FPAlgebra 
-                                                                                              modRelations 
+                             (fst f) ((fst modRelations)
+                                        (evPoly (Polynomials n) (relation i) var))  ≡⟨ cong (fst f)
+                                                                                            (evPolyHomomorphic
+                                                                                              (Polynomials n)
+                                                                                              FPAlgebra
+                                                                                              modRelations
                                                                                               (relation i) var) ⟩
                              (fst f) (evPoly FPAlgebra (relation i) generator)      ≡⟨ cong (fst f) (relationsHold i) ⟩
                              (fst f) (0a (snd FPAlgebra))                           ≡⟨ IsAlgebraHom.pres0 (snd f) ⟩
@@ -203,29 +203,32 @@ module _ {R : CommRing ℓ} where
           step1 : (x : ⟨ Polynomials n ⟩) → evPoly A x value ≡ fst compHom (evPoly (Polynomials n) x var)
           step1 x = sym (evPolyHomomorphic (Polynomials n) A compHom x var)
 
-      FPHomIso : {A : CommAlgebra R ℓ} → 
+      FPHomIso : {A : CommAlgebra R ℓ} →
                   Iso (CommAlgebraHom FPAlgebra A) (zeroLocus A)
       Iso.fun FPHomIso = evaluateAtFP
-      Iso.inv FPHomIso = inducedHomFP
-      Iso.rightInv (FPHomIso {A}) = λ b → Σ≡Prop 
-                                            (λ x → isPropΠ 
-                                              (λ i → isSetCommAlgebra A 
-                                                      (evPoly A (relation i) x) 
-                                                      (0a (snd A)))) 
-                                            refl
-      Iso.leftInv (FPHomIso {A}) = λ a → Σ≡Prop (λ f → isPropIsCommAlgebraHom {ℓ} {R} {ℓ} {ℓ} {FPAlgebra} {A} f) 
-                                                λ i → fst (unique {A} 
-                                                            (fst (evaluateAtFP {A} a)) 
-                                                            (snd (evaluateAtFP a)) 
-                                                            a 
-                                                            (λ j → refl) 
-                                                            i)
+      Iso.inv FPHomIso = inducedHomFP _
+      Iso.rightInv (FPHomIso {A}) =
+        λ b → Σ≡Prop
+                (λ x → isPropΠ
+                  (λ i → isSetCommAlgebra A
+                          (evPoly A (relation i) x)
+                          (0a (snd A))))
+                refl
+      Iso.leftInv (FPHomIso {A}) =
+        λ a → Σ≡Prop (λ f → isPropIsCommAlgebraHom {ℓ} {R} {ℓ} {ℓ} {FPAlgebra} {A} f)
+                 λ i → fst (unique {A}
+                             (fst (evaluateAtFP {A} a))
+                             (snd (evaluateAtFP a))
+                             a
+                             (λ j → refl)
+                             i)
+
       homMapPathFP : (A : CommAlgebra R ℓ)→ CommAlgebraHom FPAlgebra A ≡ zeroLocus A
       homMapPathFP A = isoToPath (FPHomIso {A})
 
-      isSetzeroLocus : (A : CommAlgebra R ℓ) → isSet (zeroLocus A)
-      isSetzeroLocus A =  J (λ y _ → isSet y) 
-                       (isSetAlgebraHom (CommAlgebra→Algebra FPAlgebra) (CommAlgebra→Algebra A)) 
+      isSetZeroLocus : (A : CommAlgebra R ℓ) → isSet (zeroLocus A)
+      isSetZeroLocus A =  J (λ y _ → isSet y)
+                       (isSetAlgebraHom (CommAlgebra→Algebra FPAlgebra) (CommAlgebra→Algebra A))
                        (homMapPathFP A)
 
   record FinitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
