@@ -100,10 +100,43 @@ module DLShfDiagHomPath where
 
   codeRetract : ∀ (x y : DLShfDiagOb n) (f : DLShfDiagHom n x y)
               → decode x y (encode x y f) ≡ f
-  codeRetract (sing x) .(sing x) idAr = transportRefl idAr
-  codeRetract (pair x) .(pair x) idAr = {!transportRefl idAr!}
-  codeRetract .(sing _) .(pair _) singPairL = {!!}
-  codeRetract .(sing _) .(pair _) singPairR = {!!}
+  codeRetract (sing i) (sing .i) idAr = transportRefl idAr
+  codeRetract (sing i) (pair {.i} {k} i<k) singPairL ι₁ =
+    transp (λ ι₂ → DLShfDiagHom _ (sing i) (pair (depPath (ι₁ ∨ ι₂)))) ι₁ singPairL
+      where
+      i<k' : i <Fin k
+      i<k' = subst (_<Fin k) refl i<k
+      depPath : PathP (λ _ → i <Fin k) i<k' i<k
+      depPath = isProp→PathP (λ _ → ≤FinIsPropValued _ _) _ _
+
+  codeRetract (sing i) (pair {j} {.i} j<i) singPairR ι₁ =
+    transp (λ ι₂ → DLShfDiagHom _ (sing i) (pair (depPath (ι₁ ∨ ι₂)))) ι₁ singPairR
+      where
+      j<i' : j <Fin i
+      j<i' = subst (j <Fin_) refl j<i
+      depPath : PathP (λ ι → j <Fin i) j<i' j<i
+      depPath = isProp→PathP (λ _ → ≤FinIsPropValued _ _) _ _
+
+  codeRetract (pair {i} {j} i<j) (pair {.i} {.j} .i<j) idAr ι₁ = --hcomp {!!} {!!}
+    transp (λ ι₂ → DLShfDiagHom _ (pair i<j) (pair (depPath (ι₁ ∨ ι₂)))) ι₁ {!!}
+      where
+      depPath : PathP (λ _ → i <Fin j) i<j i<j
+      depPath = isProp→PathP (λ _ → ≤FinIsPropValued _ _) _ _
+
+      partialInEq : i <Fin j
+      partialInEq =
+        (hcomp
+        (λ { ι₂ (ι₁ = i0) → i<j
+           ; ι₂ (ι₁ = i1)
+               → ≤FinIsPropValued _ _ (transport (λ _ → i <Fin j) i<j) i<j ι₂
+           })
+        (transp (λ _ → i <Fin j) (~ ι₁) i<j))
+
+  -- codeRetract (sing x) .(sing x) idAr = transportRefl idAr
+  -- codeRetract (pair x) .(pair x) idAr = {!transportRefl idAr!}
+  -- codeRetract .(sing _) .(pair _) singPairL ι = transp (λ ι2 → DLShfDiagHom _ (sing _)
+  --        (pair (isProp→PathP (λ _ → ≤FinIsPropValued _ _) _ _ (ι ∨ ι2)))) ι singPairL
+  -- codeRetract .(sing _) .(pair _) singPairR = {!!}
 --   codeRetract (sing _) .(sing _) idAr = transportRefl idAr
 --   codeRetract (pair _ _) .(pair _ _) idAr = transportRefl idAr
 --   codeRetract .(sing _) .(pair _ _) singPairL = transportRefl singPairL
