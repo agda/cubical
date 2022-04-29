@@ -13,6 +13,9 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
 open import Cubical.Algebra.Algebra.Properties
 open import Cubical.Algebra.CommAlgebra
+import Cubical.Algebra.Algebra.Properties
+
+open AlgebraHoms
 
 private
   variable
@@ -97,7 +100,7 @@ module _ (R : CommRing ℓ) where
       → CommAlgebraEquiv A (initialCAlg)
     equivByInitiality isInitial = isoToEquiv asIso , snd to
       where
-        open AlgebraHoms
+        open CommAlgebraHoms
         to : CommAlgebraHom A initialCAlg
         to = fst (isInitial initialCAlg)
 

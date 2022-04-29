@@ -32,7 +32,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 private
   variable
-    ℓ ℓ′ ℓ' ℓ'' ℓ''' : Level
+    ℓ ℓ′ ℓ″ ℓ‴ ℓ' ℓ'' ℓ''' : Level
     R : CommRing ℓ
 
 open AlgebraHoms

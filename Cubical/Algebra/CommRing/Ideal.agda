@@ -303,6 +303,7 @@ module CommIdeal (R' : CommRing ℓ) where
  ·iAbsorb+i : ∀ (I J : CommIdeal) → I +i (I ·i J) ≡ I
  ·iAbsorb+i I J = CommIdeal≡Char (·iAbsorb+iLIncl I J) (·iAbsorb+iRIncl I J)
 
+
 IdealsIn : (R : CommRing ℓ) → Type _
 IdealsIn R = CommIdeal.CommIdeal R
 
