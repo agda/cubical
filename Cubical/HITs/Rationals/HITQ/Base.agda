@@ -54,7 +54,26 @@ module Rec {ℓ} {B : Type ℓ} {BType : isSet B}
   f : ℚ → B
   f = Elim.f con* path* λ _ → BType
 
--- Natural number and negative integer literals for ℚ
+module Rec2 {ℓ} {B : Type ℓ} {BType : isSet B}
+  (con* : ∀ u a (p : ¬ (a ≡ pos 0)) v b (q : ¬ (b ≡ pos 0)) → B)
+  (path*₁ : ∀ u₁ a₁ {p₁}
+    u₂ a₂ v₂ b₂ {p₂ q₂}
+    (eq₁ : (u₁ · b₂) ≡ (v₂ · a₁))
+    → con* u₁ a₁ p₁ u₂ a₂ p₂ ≡ con* v₂ b₂ q₂ u₂ a₂ p₂)
+  (path*₂ : ∀ u₁ a₁ {p₁}
+    u₂ a₂ v₂ b₂ {p₂ q₂}
+    (eq₂ : (u₂ · b₂) ≡ (v₂ · a₂))
+    → con* u₁ a₁ p₁ u₂ a₂ p₂ ≡ con* u₁ a₁ p₁ v₂ b₂ q₂)
+  where
+
+  f : ℚ → ℚ → B
+  f = Rec.f {BType = λ x y p q i j w → BType (x w) (y w) (λ k → p k w) (λ k → q k w) i j}
+    (λ u a p → Rec.f {BType = BType} (con* u a p) (path*₂ u a {p}))
+    λ u a v b eq → funExt (ElimProp.f {BProp = BType _ _}
+      λ u₂ a₂ p₂ → path*₁ _ _ _ _ _ _ eq)
+
+
+--- Natural number and negative integer literals for ℚ
 
 open import Cubical.Data.Nat.Literals public
 
