@@ -60,7 +60,8 @@ module DLShfDiagHomPath where
   Code (sing i) (sing j) = i ≡ j
   Code (sing i) (pair {j} {k} _) = (i ≡ j) ⊎ (i ≡ k)
   Code (pair i<j) (sing k) = ⊥
-  Code (pair {i} {j} _) (pair {k} {l} _) = (i ≡ k) × (j ≡ l)
+  Code (pair {i} {j} i<j) (pair {k} {l} k<l) =
+    Σ[ p ∈ (i ≡ k) × (j ≡ l) ] PathP (λ ι → fst p ι <Fin snd p ι) i<j k<l
 
   isSetCode : ∀ (x y : DLShfDiagOb n) → isSet (Code x y)
   isSetCode (sing i) (sing j) = isProp→isSet (isSetFin _ _)
@@ -68,11 +69,13 @@ module DLShfDiagHomPath where
     isSet⊎ (isProp→isSet (isSetFin _ _)) (isProp→isSet (isSetFin _ _))
   isSetCode (pair i<j) (sing k) = isProp→isSet isProp⊥
   isSetCode (pair i<j) (pair k<l) =
-    isSet× (isProp→isSet (isSetFin _ _)) (isProp→isSet (isSetFin _ _))
+    isSetΣ
+      (isSet× (isProp→isSet (isSetFin _ _)) (isProp→isSet (isSetFin _ _)))
+        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤FinIsPropValued _ _)) _ _
 
   encode : (x y : DLShfDiagOb n) → DLShfDiagHom n x y → Code x y
   encode (sing _) .(sing _) idAr = refl
-  encode (pair _) .(pair _) idAr = refl , refl
+  encode (pair _) .(pair _) idAr = (refl , refl) , refl
   encode .(sing _) .(pair _) singPairL = inl refl
   encode .(sing _) .(pair _) singPairR = inr refl
 
@@ -92,11 +95,8 @@ module DLShfDiagHomPath where
       k<i = subst (k <Fin_) (sym p) k<j
       depPath : PathP (λ ι → k <Fin p ι) k<i k<j
       depPath = isProp→PathP (λ _ → ≤FinIsPropValued _ _) _ _
-  decode (pair {i} {j} i<j) (pair {k} {l} k<l) (p , q) =
-    transp (λ ι → DLShfDiagHom _ (pair i<j) (pair (depPath ι))) i0 idAr
-      where
-      depPath : PathP (λ ι → p ι <Fin q ι) i<j k<l
-      depPath = isProp→PathP (λ _ → ≤FinIsPropValued _ _) _ _
+  decode (pair {i} {j} i<j) (pair {k} {l} k<l) (_ , p) =
+    transp (λ ι → DLShfDiagHom _ (pair i<j) (pair (p ι))) i0 idAr
 
   codeRetract : ∀ (x y : DLShfDiagOb n) (f : DLShfDiagHom n x y)
               → decode x y (encode x y f) ≡ f
@@ -117,176 +117,156 @@ module DLShfDiagHomPath where
       depPath : PathP (λ ι → j <Fin i) j<i' j<i
       depPath = isProp→PathP (λ _ → ≤FinIsPropValued _ _) _ _
 
-  codeRetract (pair {i} {j} i<j) (pair {.i} {.j} .i<j) idAr ι₁ = --hcomp {!!} {!!}
-    transp (λ ι₂ → DLShfDiagHom _ (pair i<j) (pair (depPath (ι₁ ∨ ι₂)))) ι₁ {!!}
-      where
-      depPath : PathP (λ _ → i <Fin j) i<j i<j
-      depPath = isProp→PathP (λ _ → ≤FinIsPropValued _ _) _ _
+  codeRetract (pair {i} {j} i<j) (pair {.i} {.j} .i<j) idAr = transportRefl idAr
 
-      partialInEq : i <Fin j
-      partialInEq =
-        (hcomp
-        (λ { ι₂ (ι₁ = i0) → i<j
-           ; ι₂ (ι₁ = i1)
-               → ≤FinIsPropValued _ _ (transport (λ _ → i <Fin j) i<j) i<j ι₂
-           })
-        (transp (λ _ → i <Fin j) (~ ι₁) i<j))
-
-  -- codeRetract (sing x) .(sing x) idAr = transportRefl idAr
-  -- codeRetract (pair x) .(pair x) idAr = {!transportRefl idAr!}
-  -- codeRetract .(sing _) .(pair _) singPairL ι = transp (λ ι2 → DLShfDiagHom _ (sing _)
-  --        (pair (isProp→PathP (λ _ → ≤FinIsPropValued _ _) _ _ (ι ∨ ι2)))) ι singPairL
-  -- codeRetract .(sing _) .(pair _) singPairR = {!!}
---   codeRetract (sing _) .(sing _) idAr = transportRefl idAr
---   codeRetract (pair _ _) .(pair _ _) idAr = transportRefl idAr
---   codeRetract .(sing _) .(pair _ _) singPairL = transportRefl singPairL
---   codeRetract .(sing _) .(pair _ _) singPairR = transportRefl singPairR
-
---   isSetDLShfDiagHom : ∀ (x y : DLShfDiagOb n) → isSet (DLShfDiagHom n x y)
---   isSetDLShfDiagHom x y = isSetRetract (encode x y) (decode x y)
---                                          (codeRetract x y) (isSetCode x y)
+  isSetDLShfDiagHom : ∀ (x y : DLShfDiagOb n) → isSet (DLShfDiagHom n x y)
+  isSetDLShfDiagHom x y = isSetRetract (encode x y) (decode x y)
+                                         (codeRetract x y) (isSetCode x y)
 
 
 
--- open Category
--- DLShfDiag : ℕ → Category ℓ-zero ℓ-zero
--- ob (DLShfDiag n) = DLShfDiagOb n
--- Hom[_,_] (DLShfDiag n) = DLShfDiagHom n
--- id (DLShfDiag n) = idAr
--- _⋆_ (DLShfDiag n) idAr f = f
--- _⋆_ (DLShfDiag n) singPairL idAr = singPairL
--- _⋆_ (DLShfDiag n) singPairR idAr = singPairR
--- ⋆IdL (DLShfDiag n) _ = refl
--- ⋆IdR (DLShfDiag n) idAr = refl
--- ⋆IdR (DLShfDiag n) singPairL = refl
--- ⋆IdR (DLShfDiag n) singPairR = refl
--- ⋆Assoc (DLShfDiag n) idAr _ _ = refl
--- ⋆Assoc (DLShfDiag n) singPairL idAr _ = refl
--- ⋆Assoc (DLShfDiag n) singPairR idAr _ = refl
--- isSetHom (DLShfDiag n) = let open DLShfDiagHomPath in (isSetDLShfDiagHom _ _)
+open Category
+DLShfDiag : ℕ → Category ℓ-zero ℓ-zero
+ob (DLShfDiag n) = DLShfDiagOb n
+Hom[_,_] (DLShfDiag n) = DLShfDiagHom n
+id (DLShfDiag n) = idAr
+_⋆_ (DLShfDiag n) idAr f = f
+_⋆_ (DLShfDiag n) singPairL idAr = singPairL
+_⋆_ (DLShfDiag n) singPairR idAr = singPairR
+⋆IdL (DLShfDiag n) _ = refl
+⋆IdR (DLShfDiag n) idAr = refl
+⋆IdR (DLShfDiag n) singPairL = refl
+⋆IdR (DLShfDiag n) singPairR = refl
+⋆Assoc (DLShfDiag n) idAr _ _ = refl
+⋆Assoc (DLShfDiag n) singPairL idAr _ = refl
+⋆Assoc (DLShfDiag n) singPairR idAr _ = refl
+isSetHom (DLShfDiag n) = let open DLShfDiagHomPath in (isSetDLShfDiagHom _ _)
 
 
--- module _ (L' : DistLattice ℓ) where
---  private
---   L = fst L'
---   LCat = (DistLatticeCategory L') ^op
---   instance
---    _ = snd L'
+module _ (L' : DistLattice ℓ) where
+ private
+  L = fst L'
+  LCat = (DistLatticeCategory L') ^op
+  instance
+   _ = snd L'
 
---  open DistLatticeStr ⦃...⦄
---  open Join L'
---  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L'))
---  open PosetStr (IndPoset .snd) hiding (_≤_)
---  open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L'))
---       using (∧≤RCancel ; ∧≤LCancel)
---  open Order (DistLattice→Lattice L')
+ open DistLatticeStr ⦃...⦄
+ open Join L'
+ open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L'))
+ open PosetStr (IndPoset .snd) hiding (_≤_)
+ open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L'))
+      using (∧≤RCancel ; ∧≤LCancel)
+ open Order (DistLattice→Lattice L')
 
---  open Category LCat
---  open Functor
---  open Cone
-
-
---  FinVec→Diag : {n : ℕ} → FinVec L n → Functor (DLShfDiag n) LCat
---  F-ob (FinVec→Diag α) (sing i) = α i
---  F-ob (FinVec→Diag α) (pair i j) = α i ∧l α j
---  F-hom (FinVec→Diag α) idAr = is-refl _
---  F-hom (FinVec→Diag α) singPairL = ≤m→≤j _ _ (∧≤RCancel _ _)
---  F-hom (FinVec→Diag α) singPairR = ≤m→≤j _ _ (∧≤LCancel _ _)
---  F-id (FinVec→Diag α) = is-prop-valued _ _ _ _
---  F-seq (FinVec→Diag α) _ _ = is-prop-valued _ _ _ _
-
---  ⋁Cone : {n : ℕ} (α : FinVec L n) → Cone (FinVec→Diag α) (⋁ α)
---  coneOut (⋁Cone α) (sing i) = ind≤⋁ α i
---  coneOut (⋁Cone α) (pair i j) = is-trans _ (α i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α i)
---  coneOutCommutes (⋁Cone α) _ = is-prop-valued _ _ _ _
-
---  isLimCone⋁Cone : {n : ℕ} (α : FinVec L n) → isLimCone (FinVec→Diag α) (⋁ α) (⋁Cone α)
---  fst (fst (isLimCone⋁Cone α u uCone)) = ⋁IsMax α _ λ i → uCone .coneOut (sing i)
---  snd (fst (isLimCone⋁Cone α u uCone)) _ = is-prop-valued _ _ _ _
---  snd (isLimCone⋁Cone α _ uCone) _ = Σ≡Prop (λ _ → isPropIsConeMor uCone (⋁Cone α) _)
---                                            (is-prop-valued _ _ _ _)
+ open Category LCat
+ open Functor
+ open Cone
 
 
--- module PullbacksAsDLShfDiags (C : Category ℓ ℓ')
---                              (cspan : Cospan C)
---                              (pback : Pullback C cspan) where
+ FinVec→Diag : {n : ℕ} → FinVec L n → Functor (DLShfDiag n) LCat
+ F-ob (FinVec→Diag α) (sing i) = α i
+ F-ob (FinVec→Diag α) (pair {i} {j} _) = α i ∧l α j
+ F-hom (FinVec→Diag α) idAr = is-refl _
+ F-hom (FinVec→Diag α) singPairL = ≤m→≤j _ _ (∧≤RCancel _ _)
+ F-hom (FinVec→Diag α) singPairR = ≤m→≤j _ _ (∧≤LCancel _ _)
+ F-id (FinVec→Diag α) = is-prop-valued _ _ _ _
+ F-seq (FinVec→Diag α) _ _ = is-prop-valued _ _ _ _
 
---  open Functor
---  open Cone
---  open Cospan ⦃...⦄
---  open Pullback ⦃...⦄
---  instance
---   _ = cspan
---   _ = pback
+ ⋁Cone : {n : ℕ} (α : FinVec L n) → Cone (FinVec→Diag α) (⋁ α)
+ coneOut (⋁Cone α) (sing i) = ind≤⋁ α i
+ coneOut (⋁Cone α) (pair {i} _) = is-trans _ (α i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α i)
+ coneOutCommutes (⋁Cone α) _ = is-prop-valued _ _ _ _
 
---  cospanAsDiag : Functor (DLShfDiag 2) C
---  F-ob cospanAsDiag (sing zero) = l
---  F-ob cospanAsDiag (sing (suc zero)) = r
---  F-ob cospanAsDiag (pair _ _) = m
---  F-hom cospanAsDiag idAr = id C
---  F-hom cospanAsDiag {x = sing zero} singPairL = s₁
---  F-hom cospanAsDiag {x = sing (suc zero)} singPairL = s₂
---  F-hom cospanAsDiag {x = sing zero} singPairR = s₁
---  F-hom cospanAsDiag {x = sing (suc zero)} singPairR = s₂
---  F-id cospanAsDiag = refl
---  F-seq cospanAsDiag idAr idAr = sym (⋆IdL C _)
---  F-seq cospanAsDiag idAr singPairL = sym (⋆IdL C _)
---  F-seq cospanAsDiag idAr singPairR = sym (⋆IdL C _)
---  F-seq cospanAsDiag singPairL idAr = sym (⋆IdR C _)
---  F-seq cospanAsDiag singPairR idAr = sym (⋆IdR C _)
+ isLimCone⋁Cone : {n : ℕ} (α : FinVec L n) → isLimCone (FinVec→Diag α) (⋁ α) (⋁Cone α)
+ fst (fst (isLimCone⋁Cone α u uCone)) = ⋁IsMax α _ λ i → uCone .coneOut (sing i)
+ snd (fst (isLimCone⋁Cone α u uCone)) _ = is-prop-valued _ _ _ _
+ snd (isLimCone⋁Cone α _ uCone) _ = Σ≡Prop (λ _ → isPropIsConeMor uCone (⋁Cone α) _)
+                                           (is-prop-valued _ _ _ _)
 
---  pbPrAsCone : Cone cospanAsDiag pbOb
---  coneOut pbPrAsCone (sing zero) = pbPr₁
---  coneOut pbPrAsCone (sing (suc zero)) = pbPr₂
---  coneOut pbPrAsCone (pair _ _) = pbPr₁ ⋆⟨ C ⟩ s₁
---  coneOutCommutes pbPrAsCone idAr = ⋆IdR C _
---  coneOutCommutes pbPrAsCone (singPairL {zero}) = refl
---  coneOutCommutes pbPrAsCone (singPairL {suc zero}) = sym pbCommutes
---  coneOutCommutes pbPrAsCone (singPairR {zero}) = refl
---  coneOutCommutes pbPrAsCone (singPairR {suc zero}) = sym pbCommutes
 
---  pbAsLimit : isLimCone cospanAsDiag pbOb pbPrAsCone
---  pbAsLimit c cc = uniqueExists (fromPBUnivProp .fst .fst)
---                                toConeMor
---                                (λ _ → isPropIsConeMor cc pbPrAsCone _)
---                                (λ f cf → cong fst (fromPBUnivProp .snd (f , fromConeMor cf)))
---   where
---   fromPBUnivProp : ∃![ hk ∈ C [ c , Pullback.pbOb pback ] ]
---                       (coneOut cc (sing zero) ≡ hk ⋆⟨ C ⟩ pbPr₁) ×
---                       (coneOut cc (sing (suc zero)) ≡ hk ⋆⟨ C ⟩ pbPr₂)
---   fromPBUnivProp = univProp
---           (cc .coneOut (sing zero)) (cc .coneOut (sing (suc zero)))
---           (cc .coneOutCommutes singPairL ∙ sym (cc .coneOutCommutes singPairR))
+module PullbacksAsDLShfDiags (C : Category ℓ ℓ')
+                             (cspan : Cospan C)
+                             (pback : Pullback C cspan) where
 
---   toConeMor : isConeMor cc pbPrAsCone (fromPBUnivProp .fst .fst)
---   toConeMor (sing zero) = sym (fromPBUnivProp .fst .snd .fst)
---   toConeMor (sing (suc zero)) = sym (fromPBUnivProp .fst .snd .snd)
---   toConeMor (pair zero j) = path
---    where
---    path : fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₁ ⋆⟨ C ⟩ s₁) ≡ cc .coneOut (pair zero j)
---    path = fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₁ ⋆⟨ C ⟩ s₁)
---         ≡⟨ sym (⋆Assoc C _ _ _) ⟩
---           (fromPBUnivProp .fst .fst ⋆⟨ C ⟩ pbPr₁) ⋆⟨ C ⟩ s₁
---         ≡⟨ cong (λ f → f ⋆⟨ C ⟩ s₁) (sym (fromPBUnivProp .fst .snd .fst)) ⟩
---           cc .coneOut (sing zero) ⋆⟨ C ⟩ s₁
---         ≡⟨ cc .coneOutCommutes singPairL ⟩
---           cc .coneOut (pair zero j) ∎
---   toConeMor (pair (suc zero) j) = path
---    where
---    path : fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₁ ⋆⟨ C ⟩ s₁) ≡ cc .coneOut (pair (suc zero) j)
---    path = fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₁ ⋆⟨ C ⟩ s₁)
---         ≡⟨ cong (λ f → fromPBUnivProp .fst .fst ⋆⟨ C ⟩ f) pbCommutes ⟩
---           fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₂ ⋆⟨ C ⟩ s₂)
---         ≡⟨ sym (⋆Assoc C _ _ _) ⟩
---           (fromPBUnivProp .fst .fst ⋆⟨ C ⟩ pbPr₂) ⋆⟨ C ⟩ s₂
---         ≡⟨ cong (λ f → f ⋆⟨ C ⟩ s₂) (sym (fromPBUnivProp .fst .snd .snd)) ⟩
---           cc .coneOut (sing (suc zero)) ⋆⟨ C ⟩ s₂
---         ≡⟨ cc .coneOutCommutes singPairL ⟩
---           cc .coneOut (pair (suc zero) j) ∎
+ open Functor
+ open Cone
+ open Cospan ⦃...⦄
+ open Pullback ⦃...⦄
+ instance
+  _ = cspan
+  _ = pback
 
---   fromConeMor : {f : C [ c , pbOb ]}
---               → isConeMor cc pbPrAsCone f
---               → (coneOut cc (sing zero) ≡ f ⋆⟨ C ⟩ pbPr₁) ×
---                 (coneOut cc (sing (suc zero)) ≡ f ⋆⟨ C ⟩ pbPr₂)
---   fst (fromConeMor cf) = sym (cf (sing zero))
---   snd (fromConeMor cf) = sym (cf (sing (suc zero)))
+ cospanAsDiag : Functor (DLShfDiag 2) C
+ F-ob cospanAsDiag (sing zero) = l
+ F-ob cospanAsDiag (sing (suc zero)) = r
+ F-ob cospanAsDiag (pair _) = m
+ F-hom cospanAsDiag idAr = id C
+ F-hom cospanAsDiag {x = sing zero} singPairL = s₁
+ F-hom cospanAsDiag {x = sing (suc zero)} singPairL = s₂
+ F-hom cospanAsDiag {x = sing zero} singPairR = s₁
+ F-hom cospanAsDiag {x = sing (suc zero)} singPairR = s₂
+ F-id cospanAsDiag = refl
+ F-seq cospanAsDiag idAr idAr = sym (⋆IdL C _)
+ F-seq cospanAsDiag idAr singPairL = sym (⋆IdL C _)
+ F-seq cospanAsDiag idAr singPairR = sym (⋆IdL C _)
+ F-seq cospanAsDiag singPairL idAr = sym (⋆IdR C _)
+ F-seq cospanAsDiag singPairR idAr = sym (⋆IdR C _)
+
+ pbPrAsCone : Cone cospanAsDiag pbOb
+ coneOut pbPrAsCone (sing zero) = pbPr₁
+ coneOut pbPrAsCone (sing (suc zero)) = pbPr₂
+ coneOut pbPrAsCone (pair _) = pbPr₁ ⋆⟨ C ⟩ s₁
+ coneOutCommutes pbPrAsCone idAr = ⋆IdR C _
+ coneOutCommutes pbPrAsCone (singPairL {zero}) = refl
+ coneOutCommutes pbPrAsCone (singPairL {suc zero}) = sym pbCommutes
+ coneOutCommutes pbPrAsCone (singPairR {zero} {zero}) = refl
+ coneOutCommutes pbPrAsCone (singPairR {zero} {suc zero}) = sym pbCommutes
+ coneOutCommutes pbPrAsCone (singPairR {suc zero} {zero}) = refl
+ coneOutCommutes pbPrAsCone (singPairR {suc zero} {suc zero}) = sym pbCommutes
+
+ pbAsLimit : isLimCone cospanAsDiag pbOb pbPrAsCone
+ pbAsLimit c cc = uniqueExists (fromPBUnivProp .fst .fst)
+                               toConeMor
+                               (λ _ → isPropIsConeMor cc pbPrAsCone _)
+                               (λ f cf → cong fst (fromPBUnivProp .snd (f , fromConeMor cf)))
+  where
+  fromPBUnivProp : ∃![ hk ∈ C [ c , Pullback.pbOb pback ] ]
+                      (coneOut cc (sing zero) ≡ hk ⋆⟨ C ⟩ pbPr₁) ×
+                      (coneOut cc (sing (suc zero)) ≡ hk ⋆⟨ C ⟩ pbPr₂)
+  fromPBUnivProp = univProp
+     (cc .coneOut (sing zero)) (cc .coneOut (sing (suc zero)))
+     (cc .coneOutCommutes (singPairL {i<j = 0 , refl}) ∙ sym (cc .coneOutCommutes singPairR))
+
+  toConeMor : isConeMor cc pbPrAsCone (fromPBUnivProp .fst .fst)
+  toConeMor (sing zero) = sym (fromPBUnivProp .fst .snd .fst)
+  toConeMor (sing (suc zero)) = sym (fromPBUnivProp .fst .snd .snd)
+  toConeMor (pair {i = zero} {j} _) = path
+   where
+   path : fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₁ ⋆⟨ C ⟩ s₁) ≡ cc .coneOut (pair {i = zero} {j} _)
+   path = fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₁ ⋆⟨ C ⟩ s₁)
+        ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+          (fromPBUnivProp .fst .fst ⋆⟨ C ⟩ pbPr₁) ⋆⟨ C ⟩ s₁
+        ≡⟨ cong (λ f → f ⋆⟨ C ⟩ s₁) (sym (fromPBUnivProp .fst .snd .fst)) ⟩
+          cc .coneOut (sing zero) ⋆⟨ C ⟩ s₁
+        ≡⟨ cc .coneOutCommutes singPairL ⟩
+          cc .coneOut (pair {i = zero} {j} _) ∎
+  toConeMor (pair {i = (suc zero)} {j} _) = path
+   where
+   path : fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₁ ⋆⟨ C ⟩ s₁)
+        ≡ cc .coneOut (pair {i = (suc zero)} {j} _)
+   path = fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₁ ⋆⟨ C ⟩ s₁)
+        ≡⟨ cong (λ f → fromPBUnivProp .fst .fst ⋆⟨ C ⟩ f) pbCommutes ⟩
+          fromPBUnivProp .fst .fst ⋆⟨ C ⟩ (pbPr₂ ⋆⟨ C ⟩ s₂)
+        ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+          (fromPBUnivProp .fst .fst ⋆⟨ C ⟩ pbPr₂) ⋆⟨ C ⟩ s₂
+        ≡⟨ cong (λ f → f ⋆⟨ C ⟩ s₂) (sym (fromPBUnivProp .fst .snd .snd)) ⟩
+          cc .coneOut (sing (suc zero)) ⋆⟨ C ⟩ s₂
+        ≡⟨ cc .coneOutCommutes singPairL ⟩
+          cc .coneOut (pair {i = (suc zero)} {j} _) ∎
+
+  fromConeMor : {f : C [ c , pbOb ]}
+              → isConeMor cc pbPrAsCone f
+              → (coneOut cc (sing zero) ≡ f ⋆⟨ C ⟩ pbPr₁) ×
+                (coneOut cc (sing (suc zero)) ≡ f ⋆⟨ C ⟩ pbPr₂)
+  fst (fromConeMor cf) = sym (cf (sing zero))
+  snd (fromConeMor cf) = sym (cf (sing (suc zero)))
