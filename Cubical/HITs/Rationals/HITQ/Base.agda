@@ -16,7 +16,7 @@ open import Cubical.Data.Sigma
 -- ℚ as a higher inductive type
 
 data ℚ : Type₀ where
-  con : (u : ℤ) (a : ℤ) → ¬ (a ≡ pos 0) → ℚ
+  con : (u : ℤ) (a : ℤ) → ¬ (a ≡ 0) → ℚ
   path : ∀ u a v b {p q} → (u · b) ≡ (v · a) → con u a p ≡ con v b q
   trunc : isSet ℚ
 
@@ -24,7 +24,7 @@ data ℚ : Type₀ where
 [ a , 1+ b ] = con a (pos (suc b)) (ℕ.snotz ∘ cong abs)
 
 module Elim {ℓ} {B : ℚ → Type ℓ}
-  (con* : ∀ u a (p : ¬ (a ≡ pos 0)) → B (con u a p))
+  (con* : ∀ u a (p : ¬ (a ≡ 0)) → B (con u a p))
   (path* : ∀ u a v b {p q} (eq : (u · b) ≡ (v · a))
     → PathP (λ i → B (path u a v b {p} {q} eq i)) (con* u a p) (con* v b q))
   (trunc* : (q : ℚ) → isSet (B q))
@@ -37,7 +37,7 @@ module Elim {ℓ} {B : ℚ → Type ℓ}
     isOfHLevel→isOfHLevelDep 2 trunc*  (f xs) (f ys) (cong f p) (cong f q) (trunc xs ys p q) i j
 
 module ElimProp {ℓ} {B : ℚ → Type ℓ} {BProp : {q : ℚ} → isProp (B q)}
-  (con* : ∀ u a (p : ¬ (a ≡ pos 0)) → B (con u a p))
+  (con* : ∀ u a (p : ¬ (a ≡ 0)) → B (con u a p))
   where
 
   f : (q : ℚ) → B q
@@ -47,7 +47,7 @@ module ElimProp {ℓ} {B : ℚ → Type ℓ} {BProp : {q : ℚ} → isProp (B q)
     λ q → isProp→isSet BProp
 
 module Rec {ℓ} {B : Type ℓ} {BType : isSet B}
-  (con* : ∀ u a (p : ¬ (a ≡ pos 0)) → B)
+  (con* : ∀ u a (p : ¬ (a ≡ 0)) → B)
   (path* : ∀ u a v b {p q} (eq : (u · b) ≡ (v · a))
     → con* u a p ≡ con* v b q) where
 
@@ -55,7 +55,7 @@ module Rec {ℓ} {B : Type ℓ} {BType : isSet B}
   f = Elim.f con* path* λ _ → BType
 
 module Rec2 {ℓ} {B : Type ℓ} {BType : isSet B}
-  (con* : ∀ u a (p : ¬ (a ≡ pos 0)) v b (q : ¬ (b ≡ pos 0)) → B)
+  (con* : ∀ u a (p : ¬ (a ≡ 0)) v b (q : ¬ (b ≡ 0)) → B)
   (path*₁ : ∀ u₁ a₁ {p₁}
     u₂ a₂ v₂ b₂ {p₂ q₂}
     (eq₁ : (u₁ · b₂) ≡ (v₂ · a₁))
