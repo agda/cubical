@@ -7,10 +7,10 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Empty
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 open import Cubical.Data.Vec.Base
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
@@ -121,3 +121,11 @@ module VecPath {A : Type ℓ}
   ... | yes p | no ¬q = no (λ r → ¬q (snd (fun (≡Vec≃codeVec (a ∷ v) (a' ∷ v')) r)))
   ... | no ¬p | yes q = no (λ r → ¬p (fst (fun (≡Vec≃codeVec (a ∷ v) (a' ∷ v')) r)))
   ... | no ¬p | no ¬q = no (λ r → ¬q (snd (fun (≡Vec≃codeVec (a ∷ v) (a' ∷ v')) r)))
+
+  ≢-∷ : {m : ℕ} → (Discrete A) → (a : A) → (v : Vec A m) → (a' : A) → (v' : Vec A m) →
+         (a ∷ v ≡ a' ∷ v' → ⊥.⊥) → (a ≡ a' → ⊥.⊥) ⊎ (v ≡ v' → ⊥.⊥)
+  ≢-∷ {m} discreteA a v a' v' ¬r with (discreteA a a')
+                        | (discreteA→discreteVecA discreteA m v v')
+  ... | yes p | yes q = ⊥.rec (¬r (cong₂ _∷_ p q))
+  ... | yes p | no ¬q = inr ¬q
+  ... | no ¬p | y = inl ¬p

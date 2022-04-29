@@ -11,6 +11,7 @@ open import Cubical.Data.Empty renaming (rec to rec-⊥ ; elim to elim-⊥)
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.QuotientRing
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
@@ -126,6 +127,9 @@ module Properties-Equiv-QuotientXn-A
   A→PA-map· : (a a' : A) → A→PA (a ·A a') ≡ (A→PA a) ·PA (A→PA a')
   A→PA-map· a a' = cong (λ X → base X (a ·A a')) (sym (+n-vec-rid _))
 
+  A→PAI : A → (A[x1,···,xn]/<x1,···,xn> Ar n)
+  A→PAI = [_] ∘ A→PA
+
 -----------------------------------------------------------------------------
 -- Converse sens
   PA→A : A[x1,···,xn] Ar n → A
@@ -185,20 +189,55 @@ module Properties-Equiv-QuotientXn-A
                ... | no ¬r | no ¬p | yes q = sym (0LeftAnnihilates (CommRing→Ring Ar) _)
                ... | no ¬r | no ¬p | no ¬q = sym (0RightAnnihilates (CommRing→Ring Ar) _)
 
-  -- PA→A-cancel : (k : Fin n) → PA→A (<X1,···,Xn> Ar n k) ≡ 0A
-  -- PA→A-cancel k with (discreteVecℕn (OnekZeroElse n (toℕ k)) (replicate 0))
-  -- ... | yes p = {!!} -- so annoying
-  -- ... | no ¬p = refl
+  PA→A-cancel : (k : Fin n) → PA→A (<X1,···,Xn> Ar n k) ≡ 0A
+  PA→A-cancel k with (discreteVecℕn (1k0 n (toℕ k)) (replicate 0))
+  ... | yes p = {!!} -- so annoying -> case analysis on n ?
+  ... | no ¬p = refl
 
-  -- ℤ[x]→H*-Sⁿ-cancelX : (k : Fin 1) → ℤ[x]→H*-Sⁿ (<X²> k) ≡ 0H*
-  -- ℤ[x]→H*-Sⁿ-cancelX zero = refl
+  PAr→Ar : RingHom (CommRing→Ring (A[X1,···,Xn] Ar n)) (CommRing→Ring Ar)
+  fst PAr→Ar = PA→A
+  snd PAr→Ar = makeIsRingHom PA→A-map1 PA→A-map+ PA→A-map·
 
-  -- ℤ[X]→H*-Sⁿ : RingHom (CommRing→Ring ℤ[X]) (H*R (S₊ (suc n)))
-  -- fst ℤ[X]→H*-Sⁿ = ℤ[x]→H*-Sⁿ
-  -- snd ℤ[X]→H*-Sⁿ = makeIsRingHom ℤ[x]→H*-Sⁿ-map1 ℤ[x]→H*-Sⁿ-map+ ℤ[x]→H*-Sⁿ-rmorph
+  PAIr→Ar : RingHom (CommRing→Ring (A[X1,···,Xn]/<X1,···,Xn> Ar n)) (CommRing→Ring Ar)
+  PAIr→Ar = Rec-Quotient-FGideal.f (A[X1,···,Xn] Ar n) Ar PAr→Ar (<X1,···,Xn> Ar n) PA→A-cancel
 
-  -- ℤ[X]/X²→H*R-Sⁿ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ (suc n)))
-  -- ℤ[X]/X²→H*R-Sⁿ = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R (S₊ (suc n))) ℤ[X]→H*-Sⁿ <X²> ℤ[x]→H*-Sⁿ-cancelX
+  PAI→A : A[x1,···,xn]/<x1,···,xn> Ar n → A
+  PAI→A = fst PAIr→Ar
 
-  -- ℤ[x]/x²→H*-Sⁿ : ℤ[x]/x² → H* (S₊ (suc n))
-  -- ℤ[x]/x²→H*-Sⁿ = fst ℤ[X]/X²→H*R-Sⁿ
+-----------------------------------------------------------------------------
+-- Section
+
+  e-sect : (x : A[x1,···,xn]/<x1,···,xn> Ar n) → A→PAI (PAI→A x) ≡ x
+  e-sect = elimProp-sq (λ _ → isSetPAI _ _)
+           (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPAI _ _)
+           base0-eq
+           base-eq
+           λ {U V} ind-U ind-V → cong [_] (A→PA-map+ _ _) ∙ cong₂ _+PAI_ ind-U ind-V)
+           where
+           base0-eq : A→PAI (PAI→A [ 0P ]) ≡ [ 0P ]
+           base0-eq = cong [_] (base-0P (replicate 0))
+
+           base-eq : (v : Vec ℕ n) → (a : A ) → [ A→PA (PA→A (base v a)) ] ≡ [ base v a ]
+           base-eq v a with (discreteVecℕn v (replicate 0))
+           ... | yes p = cong [_] (cong (λ X → base X a) (sym p))
+           ... | no ¬p = eq/ (base (replicate 0) 0A) (base v a) ∣ {!!} ∣₋₁
+
+           -- montrer que quoi ?
+           -- v différent de 0 => v = v' + 1k0
+             -- induction longueur
+             -- a :: v -> a = 0 -> v | a = S n -> ok
+           -- donne un élément de la base de quotient pour le produit
+
+             -- eq/ 0Pℤ (baseP (suc (suc k) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₋₁
+             -- where
+             -- helper : _
+             -- helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))
+
+
+-----------------------------------------------------------------------------
+-- Retraction
+
+  e-retr : (a : A) → PAI→A (A→PAI a) ≡ a
+  e-retr a with (discreteVecℕn (replicate 0) (replicate 0))
+  ... | yes p = refl
+  ... | no ¬p = rec-⊥ (¬p refl)

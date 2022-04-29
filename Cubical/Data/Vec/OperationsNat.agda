@@ -3,11 +3,13 @@ module Cubical.Data.Vec.OperationsNat where
 
 open import Cubical.Foundations.Prelude
 
+open import Cubical.Data.Empty renaming (rec to rec-⊥ ; elim to elim-⊥)
 open import Cubical.Data.Nat renaming(_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Vec.Base
 open import Cubical.Data.Vec.Properties
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
 
@@ -15,14 +17,24 @@ private variable
   ℓ : Level
 
 
--- generating vectors
-OnekZeroElse : (n : ℕ) → (k : ℕ) → Vec ℕ n
-OnekZeroElse zero k = []
-OnekZeroElse (suc n) k with (discreteℕ k (suc n))
-... | yes p = 1 ∷ (OnekZeroElse n k)
-... | no ¬p = 0 ∷ (OnekZeroElse n k)
+-----------------------------------------------------------------------------
+-- Generating Vector
+1k0 : (m : ℕ) → (k : ℕ) → Vec ℕ m
+1k0 zero k = []
+1k0 (suc m) k with (discreteℕ k (suc m))
+... | yes p = 1 ∷ (1k0 m k)
+... | no ¬p = 0 ∷ (1k0 m k)
 
--- pointwise add
+1k0-≤→≡ : (m k : ℕ) → (m < k) → 1k0 m k ≡ replicate 0
+1k0-≤→≡ zero k r = refl
+1k0-≤→≡ (suc m) k r with (discreteℕ k (suc m))
+... | yes p = rec-⊥ (<→≢ r (sym p))
+... | no ¬p = cong₂ _∷_ refl (1k0-≤→≡ m k ((suc (fst r)) , (sym (+-suc _ _) ∙ snd r)))
+
+
+
+-----------------------------------------------------------------------------
+-- Point wise add
 _+n-vec_ : {m : ℕ} → Vec ℕ m → Vec ℕ m → Vec ℕ m
 _+n-vec_ {.zero} [] [] = []
 _+n-vec_ {.(suc _)} (k ∷ v) (l ∷ v') = (k +n l) ∷ (v +n-vec v')
@@ -43,12 +55,44 @@ _+n-vec_ {.(suc _)} (k ∷ v) (l ∷ v') = (k +n l) ∷ (v +n-vec v')
 +n-vec-comm {.zero} [] [] = refl
 +n-vec-comm {.(suc _)} (k ∷ v) (l ∷ v') = cong₂ _∷_ (+-comm k l) (+n-vec-comm v v')
 
+
+
+-----------------------------------------------------------------------------
+-- Equlity on Vec ℕ
 v+n-vecv'≡0→v≡0×v'≡0 : {m : ℕ} → (v v' : Vec ℕ m) → (v +n-vec v') ≡ replicate 0
                         → (v ≡ replicate 0) × (v' ≡ replicate 0)
 v+n-vecv'≡0→v≡0×v'≡0 [] [] p = refl , refl
 v+n-vecv'≡0→v≡0×v'≡0 (k ∷ v) (l ∷ v') p with VecPath.encode ((k +n l) ∷ (v +n-vec v')) (replicate 0) p
 ... | pkl , pvv' = (cong₂ _∷_ (fst (m+n≡0→m≡0×n≡0 pkl)) (fst (v+n-vecv'≡0→v≡0×v'≡0 v v' pvv'))) ,
                    (cong₂ _∷_ (snd (m+n≡0→m≡0×n≡0 pkl)) (snd (v+n-vecv'≡0→v≡0×v'≡0 v v' pvv')))
+
+
+pred-vec-≢0 : {m : ℕ} → (v : Vec ℕ m) → (v ≡ replicate 0 → ⊥)
+              → Σ ℕ λ k → Σ (Vec ℕ m) (λ v' → (k ≤ m) × (v ≡ v' +n-vec 1k0 m k))
+pred-vec-≢0 {zero}  []      ¬r = rec-⊥ (¬r refl)
+pred-vec-≢0 {suc m} (l ∷ v) ¬r with (discreteℕ l 0)
+... | yes p = helper
+  where
+  helper : _
+  helper with (pred-vec-≢0 v λ r → ¬r (cong₂ _∷_ p r))
+  ... | k , v' , infkn , r with (discreteℕ k (suc m))
+  ... | yes q = rec-⊥ (<→≢ (fst infkn , +-suc _ _ ∙ cong suc (snd infkn)) q)
+  ... | no ¬q = k , ((l ∷ v') , (((suc (fst infkn)) , (cong suc (snd infkn))) , helper2))
+    where
+    helper2 : l ∷ v ≡ ((l ∷ v') +n-vec (1k0 (suc m) k))
+    helper2 with (discreteℕ k (suc m))
+    ... | yes pp = rec-⊥ (¬q pp)
+    ... | no ¬pp = cong₂ _∷_ (sym (+-zero l)) r
+
+... | no ¬p = (suc m) , ((predℕ l ∷ v) , (0 , refl) , helper)
+  where
+  helper : _
+  helper with (discreteℕ (suc m) (suc m))
+  ... | yes q = cong₂ _∷_ (sym (+-suc (predℕ l) 0 ∙ cong suc (+-zero (predℕ l)) ∙ sym (suc-predℕ l ¬p)))
+                          (sym (+n-vec-rid v) ∙ cong (λ X → v +n-vec X) (sym (1k0-≤→≡ m (suc m) (0 , refl))))
+  ... | no ¬q = rec-⊥ (¬q refl)
+
+
 
 -- split + concat vec results
 sep-vec : (k l : ℕ) → Vec ℕ (k +n l) → (Vec ℕ k) ×  (Vec ℕ l )
