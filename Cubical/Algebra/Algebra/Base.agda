@@ -236,7 +236,6 @@ AlgebraPath {R = R} = ∫ (𝒮ᴰ-Algebra R) .UARel.ua
 uaAlgebra : {R : Ring ℓ} {A B : Algebra R ℓ'} → AlgebraEquiv A B → A ≡ B
 uaAlgebra {A = A} {B = B} = equivFun (AlgebraPath A B)
 
-
 isGroupoidAlgebra : {R : Ring ℓ} → isGroupoid (Algebra R ℓ')
 isGroupoidAlgebra _ _ = isOfHLevelRespectEquiv 2 (AlgebraPath _ _) (isSetAlgebraEquiv _ _)
 
