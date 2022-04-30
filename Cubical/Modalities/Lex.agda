@@ -138,10 +138,10 @@ module LiftFamExtra {A : Type ℓ} {B : A → Type ℓ'} where
 module Combinators where
   private
     variable
-      ℓ'′ : Level
+      ℓ'' : Level
       A A′ : Type ℓ
       B : A → Type ℓ'
-      C : Σ A B → Type ℓ'′
+      C : Σ A B → Type ℓ''
 
   λ/coe⟨_⟩_ : (p : A ≡ A′) → ((x : A′) → B (coe1→0 (λ i → p i) x)) → ((x : A) → B x)
   λ/coe⟨_⟩_ {B = B} p f = coe1→0 (λ i → (x : p i) → B (coei→0 (λ j → p j) i x)) f
