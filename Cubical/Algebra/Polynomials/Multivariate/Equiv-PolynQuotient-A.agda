@@ -4,6 +4,7 @@ module Cubical.Algebra.Polynomials.Multivariate.Equiv-PolynQuotient-A where
 open import Cubical.Foundations.Everything
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_)
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
@@ -189,9 +190,16 @@ module Properties-Equiv-QuotientXn-A
                ... | no ¬r | no ¬p | yes q = sym (0LeftAnnihilates (CommRing→Ring Ar) _)
                ... | no ¬r | no ¬p | no ¬q = sym (0RightAnnihilates (CommRing→Ring Ar) _)
 
+  -- need to look if the vec are equal to replicate 0 for PA→A to compute
+  -- first case, if n = 0 absurd because no constructor for Fin 0
+  -- else different vector so ok
+
   PA→A-cancel : (k : Fin n) → PA→A (<X1,···,Xn> Ar n k) ≡ 0A
-  PA→A-cancel k with (discreteVecℕn (1k0 n (toℕ k)) (replicate 0))
-  ... | yes p = {!!} -- so annoying -> case analysis on n ?
+  PA→A-cancel k with (discreteVecℕn (1k0 n (suc (toℕ k))) (replicate 0))
+  ... | yes p = rec-⊥ (helper n k p)
+    where
+    helper : (n : ℕ) → (k : Fin n) → 1k0 n (suc (toℕ k)) ≡ replicate 0 → ⊥
+    helper (suc n) k p = 1k0-k≤Sn→≢ n (suc (toℕ k)) (≤-trans (toℕ<n k) ≤-refl) p
   ... | no ¬p = refl
 
   PAr→Ar : RingHom (CommRing→Ring (A[X1,···,Xn] Ar n)) (CommRing→Ring Ar)
@@ -220,8 +228,9 @@ module Properties-Equiv-QuotientXn-A
            base-eq : (v : Vec ℕ n) → (a : A ) → [ A→PA (PA→A (base v a)) ] ≡ [ base v a ]
            base-eq v a with (discreteVecℕn v (replicate 0))
            ... | yes p = cong [_] (cong (λ X → base X a) (sym p))
-           ... | no ¬p = eq/ (base (replicate 0) 0A) (base v a) ∣ {!!} ∣₋₁
+           ... | no ¬p = eq/ (base (replicate 0) 0A) (base v a) ∣ {!!} , {!!} ∣₋₁
 
+           -- pred-vec-≢
            -- montrer que quoi ?
            -- v différent de 0 => v = v' + 1k0
              -- induction longueur

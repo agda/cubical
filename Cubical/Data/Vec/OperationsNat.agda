@@ -25,13 +25,23 @@ private variable
 ... | yes p = 1 ∷ (1k0 m k)
 ... | no ¬p = 0 ∷ (1k0 m k)
 
-1k0-≤→≡ : (m k : ℕ) → (m < k) → 1k0 m k ≡ replicate 0
-1k0-≤→≡ zero k r = refl
-1k0-≤→≡ (suc m) k r with (discreteℕ k (suc m))
+1k0-n<k→≡ : (m k : ℕ) → (m < k) → 1k0 m k ≡ replicate 0
+1k0-n<k→≡ zero k r = refl
+1k0-n<k→≡ (suc m) k r with (discreteℕ k (suc m))
 ... | yes p = rec-⊥ (<→≢ r (sym p))
-... | no ¬p = cong₂ _∷_ refl (1k0-≤→≡ m k ((suc (fst r)) , (sym (+-suc _ _) ∙ snd r)))
+... | no ¬p = cong₂ _∷_ refl (1k0-n<k→≡ m k ((suc (fst r)) , (sym (+-suc _ _) ∙ snd r)))
 
-
+-- pbl terminaison -> ind n
+1k0-k≤Sn→≢ : (m k : ℕ) → ((k ≡ 0) → ⊥) → (k ≤ suc m) → (1k0 (suc m) k ≡ replicate 0 → ⊥)
+1k0-k≤Sn→≢ m zero x x₁ x₂ = x refl
+1k0-k≤Sn→≢ m (suc k) x x₁ x₂ with (discreteℕ (suc k) (suc m))
+... | yes p = compute-eqℕ 1 0 (fst (VecPath.encode _ _ x₂))
+... | no ¬p = 1k0-k≤Sn→≢ m (suc k) x {!!} {!!}
+-- 
+--
+--
+--
+--
 
 -----------------------------------------------------------------------------
 -- Point wise add
@@ -89,7 +99,7 @@ pred-vec-≢0 {suc m} (l ∷ v) ¬r with (discreteℕ l 0)
   helper : _
   helper with (discreteℕ (suc m) (suc m))
   ... | yes q = cong₂ _∷_ (sym (+-suc (predℕ l) 0 ∙ cong suc (+-zero (predℕ l)) ∙ sym (suc-predℕ l ¬p)))
-                          (sym (+n-vec-rid v) ∙ cong (λ X → v +n-vec X) (sym (1k0-≤→≡ m (suc m) (0 , refl))))
+                          (sym (+n-vec-rid v) ∙ cong (λ X → v +n-vec X) (sym (1k0-n<k→≡ m (suc m) (0 , refl))))
   ... | no ¬q = rec-⊥ (¬q refl)
 
 
