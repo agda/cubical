@@ -32,16 +32,13 @@ private variable
 ... | no ¬p = cong₂ _∷_ refl (1k0-n<k→≡ m k ((suc (fst r)) , (sym (+-suc _ _) ∙ snd r)))
 
 -- pbl terminaison -> ind n
-1k0-k≤Sn→≢ : (m k : ℕ) → ((k ≡ 0) → ⊥) → (k ≤ suc m) → (1k0 (suc m) k ≡ replicate 0 → ⊥)
-1k0-k≤Sn→≢ m zero x x₁ x₂ = x refl
-1k0-k≤Sn→≢ m (suc k) x x₁ x₂ with (discreteℕ (suc k) (suc m))
-... | yes p = compute-eqℕ 1 0 (fst (VecPath.encode _ _ x₂))
-... | no ¬p = 1k0-k≤Sn→≢ m (suc k) x {!!} {!!}
--- 
---
---
---
---
+1k0-k≤Sn→≢ : (m k : ℕ) → ((k ≡ 0) → ⊥) → (k ≤ m) → (1k0 m k ≡ replicate 0 → ⊥)
+1k0-k≤Sn→≢   zero       k  k≢0 k≤m q = k≢0 (≤0→≡0 k≤m)
+1k0-k≤Sn→≢ (suc m)   zero  k≢0 k≤m q = k≢0 refl
+1k0-k≤Sn→≢ (suc m) (suc k) k≢0 k≤m q with (discreteℕ (suc k) (suc m)) | (≤-split k≤m)
+... | yes p | x = compute-eqℕ 1 0 (fst (VecPath.encode _ _ q))
+... | no ¬p | inl x = 1k0-k≤Sn→≢ m (suc k) k≢0 (pred-≤-pred x) (snd (VecPath.encode _ _ q))
+... | no ¬p | inr x = ¬p x
 
 -----------------------------------------------------------------------------
 -- Point wise add

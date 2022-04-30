@@ -3,7 +3,7 @@ module Cubical.Algebra.Polynomials.Multivariate.Equiv-PolynQuotient-A where
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_)
+open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma
@@ -199,7 +199,7 @@ module Properties-Equiv-QuotientXn-A
   ... | yes p = rec-⊥ (helper n k p)
     where
     helper : (n : ℕ) → (k : Fin n) → 1k0 n (suc (toℕ k)) ≡ replicate 0 → ⊥
-    helper (suc n) k p = 1k0-k≤Sn→≢ n (suc (toℕ k)) (≤-trans (toℕ<n k) ≤-refl) p
+    helper (suc n) k p = 1k0-k≤Sn→≢ (suc n) (suc (toℕ k)) nsnotz (≤-trans (toℕ<n k) ≤-refl) p
   ... | no ¬p = refl
 
   PAr→Ar : RingHom (CommRing→Ring (A[X1,···,Xn] Ar n)) (CommRing→Ring Ar)
