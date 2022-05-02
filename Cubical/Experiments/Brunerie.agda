@@ -5,23 +5,22 @@ open import Cubical.Foundations.Everything
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
-open import Cubical.Data.HomotopyGroup
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.HITs.Join
-open import Cubical.HITs.Hopf
 open import Cubical.HITs.SetTruncation as SetTrunc
 open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
 open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
 open import Cubical.Homotopy.Loopspace
+open import Cubical.Homotopy.Hopf
+open S¹Hopf
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
-Bool∙ S¹∙ S²∙ S³∙ : Pointed₀
+Bool∙ S¹∙ S³∙ : Pointed₀
 Bool∙ = (Bool , true)
 S¹∙ = (S¹ , base)
-S²∙ = (S² , base)
 S³∙ = (S³ , base)
 
 ∥_∥₃∙ ∥_∥₄∙ : Pointed₀ → Pointed₀
@@ -216,7 +215,7 @@ codeS¹ s = ∥ helix s ∥₂ , squash₂
 codeTruncS¹ : ∥ S¹ ∥₃ → hSet _
 codeTruncS¹ = GroupoidTrunc.rec (isOfHLevelTypeOfHLevel 2) codeS¹
 
-encodeTruncS¹ : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ Int ∥₂
+encodeTruncS¹ : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ ℤ ∥₂
 encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₂
 
 
@@ -240,19 +239,19 @@ f7 = π₃S³
 g8 : Ω² ∥ S²∙ ∥₄∙ .fst → Ω ∥ S¹∙ ∥₃∙ .fst
 g8 = mapΩrefl encodeTruncS²
 
-g9 : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ Int ∥₂
+g9 : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ ℤ ∥₂
 g9 = encodeTruncS¹
 
-g10 : ∥ Int ∥₂ → Int
-g10 = SetTrunc.rec isSetInt (idfun Int)
+g10 : ∥ ℤ ∥₂ → ℤ
+g10 = SetTrunc.rec isSetℤ (idfun ℤ)
 
 -- don't run me
-brunerie : Int
+brunerie : ℤ
 brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
 
 -- simpler tests
 
-test63 : ℕ → Int
+test63 : ℕ → ℤ
 test63 n = g10 (g9 (g8 (f7 (63n n))))
   where
   63n : ℕ → Ω³ S³∙ .fst
@@ -294,5 +293,5 @@ sorghum i j k =
         })
       (surf k i))
 
-goo : Ω³ S²∙ .fst → Int
+goo : Ω³ S²∙ .fst → ℤ
 goo x = g10 (g9 (g8 (f7 (f6 (f5 x)))))

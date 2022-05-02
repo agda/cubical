@@ -17,14 +17,14 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Wedge
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; isSetSetTrunc to §)
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_) hiding (-_)
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3) hiding (map2)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
-open import Cubical.Algebra.Group renaming (Unit to trivialGroup ; Int to IntGroup)
+open import Cubical.Algebra.Group renaming (Unit to trivialGroup ; ℤ to ℤGroup)
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint
@@ -32,7 +32,6 @@ open import Cubical.Data.NatMinusOne
 
 open import Cubical.HITs.Pushout
 open import Cubical.Data.Sum.Base
-open import Cubical.Data.HomotopyGroup
 
 open import Cubical.Experiments.ZCohomologyOld.KcompPrelims
 
@@ -266,29 +265,29 @@ cancelₖ (suc (suc (suc (suc (suc n))))) x = cong (ΩKn+1→Kn (5 + n)) (rCance
 abstract
   isCommΩK1 : (n : ℕ) → isComm∙ ((Ω^ n) (coHomK-ptd 1))
   isCommΩK1 zero = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹
-  isCommΩK1 (suc n) = Eckmann-Hilton n
+  isCommΩK1 (suc n) = EH n
 
   open Iso renaming (inv to inv')
   isCommΩK : (n : ℕ) → isComm∙ (coHomK-ptd n)
-  isCommΩK zero p q = isSetInt _ _ (p ∙ q) (q ∙ p)
+  isCommΩK zero p q = isSetℤ _ _ (p ∙ q) (q ∙ p)
   isCommΩK (suc zero) = isCommA→isCommTrunc 2 comm-ΩS¹ isGroupoidS¹
-  isCommΩK (suc (suc n)) = subst isComm∙ (λ i → coHomK (2 + n) , ΩKn+1→Kn-refl (2 + n) i) (ptdIso→comm {A = (_ , _)} (invIso (Iso-Kn-ΩKn+1 (2 + n))) (Eckmann-Hilton 0))
+  isCommΩK (suc (suc n)) = subst isComm∙ (λ i → coHomK (2 + n) , ΩKn+1→Kn-refl (2 + n) i) (ptdIso→comm {A = (_ , _)} (invIso (Iso-Kn-ΩKn+1 (2 + n))) (EH 0))
 
 commₖ : (n : ℕ) (x y : coHomK n) → (x +[ n ]ₖ y) ≡ (y +[ n ]ₖ x)
 commₖ 0 x y i = ΩKn+1→Kn 0 (isCommΩK1 0 (Kn→ΩKn+1 0 x) (Kn→ΩKn+1 0 y) i)
 commₖ 1 x y i = ΩKn+1→Kn 1 (ptdIso→comm {A = ((∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (coHomK 3 , ∣ north ∣)))}
                                         {B = coHomK 2}
-                                        (invIso (Iso-Kn-ΩKn+1 2)) (Eckmann-Hilton 0) (Kn→ΩKn+1 1 x) (Kn→ΩKn+1 1 y) i)
+                                        (invIso (Iso-Kn-ΩKn+1 2)) (EH 0) (Kn→ΩKn+1 1 x) (Kn→ΩKn+1 1 y) i)
 commₖ 2 x y i = ΩKn+1→Kn 2 (ptdIso→comm {A = (∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (coHomK 4 , ∣ north ∣))}
                                         {B = coHomK 3}
-                                        (invIso (Iso-Kn-ΩKn+1 3)) (Eckmann-Hilton 0) (Kn→ΩKn+1 2 x) (Kn→ΩKn+1 2 y) i)
+                                        (invIso (Iso-Kn-ΩKn+1 3)) (EH 0) (Kn→ΩKn+1 2 x) (Kn→ΩKn+1 2 y) i)
 commₖ 3 x y i = ΩKn+1→Kn 3 (ptdIso→comm {A = (∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (coHomK 5 , ∣ north ∣))}
                                         {B = coHomK 4}
-                                        (invIso (Iso-Kn-ΩKn+1 4)) (Eckmann-Hilton 0) (Kn→ΩKn+1 3 x) (Kn→ΩKn+1 3 y) i)
+                                        (invIso (Iso-Kn-ΩKn+1 4)) (EH 0) (Kn→ΩKn+1 3 x) (Kn→ΩKn+1 3 y) i)
 commₖ (suc (suc (suc (suc n)))) x y i =
   ΩKn+1→Kn (4 + n) (ptdIso→comm {A = (∣ north ∣ ≡ ∣ north ∣) , snd ((Ω^ 1) (coHomK (6 + n) , ∣ north ∣))}
                                 {B = coHomK (5 + n)}
-                                (invIso (Iso-Kn-ΩKn+1 (5 + n))) (Eckmann-Hilton 0) (Kn→ΩKn+1 (4 + n) x) (Kn→ΩKn+1 (4 + n) y) i)
+                                (invIso (Iso-Kn-ΩKn+1 (5 + n))) (EH 0) (Kn→ΩKn+1 (4 + n) x) (Kn→ΩKn+1 (4 + n) y) i)
 
 
 rUnitₖ' : (n : ℕ) (x : coHomK n) → x +[ n ]ₖ (0ₖ n) ≡ x
@@ -480,7 +479,7 @@ rightInv (addIso n x) y = -+cancelₖ n y x
 leftInv (addIso n x) y = -cancelRₖ n x y
 
 isCommΩK-based : (n : ℕ) (x : coHomK n) → isComm∙ (coHomK n , x)
-isCommΩK-based zero x p q = isSetInt _ _ (p ∙ q) (q ∙ p)
+isCommΩK-based zero x p q = isSetℤ _ _ (p ∙ q) (q ∙ p)
 isCommΩK-based (suc zero) x =
   subst isComm∙ (λ i → coHomK 1 , lUnitₖ 1 x i)
                 (ptdIso→comm {A = (_ , 0ₖ 1)} (addIso 1 x)
@@ -490,7 +489,7 @@ isCommΩK-based (suc (suc n)) x =
                 (ptdIso→comm {A = (_ , 0ₖ (suc (suc n)))} (addIso (suc (suc n)) x)
                               (isCommΩK (suc (suc n))))
 
-addLemma : (a b : Int) → a +[ 0 ]ₖ b ≡ (a ℤ+ b)
+addLemma : (a b : ℤ) → a +[ 0 ]ₖ b ≡ (a ℤ+ b)
 addLemma a b = (cong (ΩKn+1→Kn 0) (sym (congFunct ∣_∣ (intLoop a) (intLoop b))))
             ∙∙ (λ i → ΩKn+1→Kn 0 (cong ∣_∣ (intLoop-hom a b i)))
             ∙∙ Iso.leftInv (Iso-Kn-ΩKn+1 0) (a ℤ+ b)

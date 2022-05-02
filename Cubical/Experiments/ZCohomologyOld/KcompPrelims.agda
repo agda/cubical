@@ -3,7 +3,8 @@ module Cubical.Experiments.ZCohomologyOld.KcompPrelims where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Hopf
+open import Cubical.Homotopy.Hopf
+open S¹Hopf
 -- open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
@@ -203,7 +204,7 @@ Iso∥ϕ₁∥ : Iso (coHomK 1) (∥ Path (S₊ 2) north north ∥ 3)
 Iso∥ϕ₁∥ = composesToId→Iso d-Iso (trMap (ϕ base)) d-mapId2
 
 Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹IsoInt)
+Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹Isoℤ)
 Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∥ϕ₁∥ (invIso (PathIdTruncIso 3))
 Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (stabSpheres-n≥2 n)
                                      (invIso (PathIdTruncIso (4 + n)))

@@ -102,7 +102,7 @@ invTransportStr : {S : Type ℓ → Type ℓ₂} (α : EquivAction S) (τ : Tran
 invTransportStr {S = S} α τ e t =
   sym (transport⁻Transport (cong S (ua e)) (invEq (α e) t))
   ∙∙ sym (cong (subst⁻ S (ua e)) (τ e (invEq (α e) t)))
-  ∙∙ cong (subst⁻ S (ua e)) (retEq (α e) t)
+  ∙∙ cong (subst⁻ S (ua e)) (secEq (α e) t)
 
 
 --- We can now define an invertible function

@@ -97,8 +97,8 @@ isInjectiveTransport : ∀ {ℓ : Level} {A B : Type ℓ} {p q : A ≡ B}
 isInjectiveTransport {p = p} {q} α i =
   hcomp
     (λ j → λ
-      { (i = i0) → secEq univalence p j
-      ; (i = i1) → secEq univalence q j
+      { (i = i0) → retEq univalence p j
+      ; (i = i1) → retEq univalence q j
       })
     (invEq univalence ((λ a → α i a) , t i))
   where
@@ -111,22 +111,27 @@ transportUaInv e = cong transport (uaInvEquiv e)
 -- refl for the case of idEquiv:
 -- transportUaInv e = EquivJ (λ _ e → transport (ua (invEquiv e)) ≡ transport (sym (ua e))) refl e
 
-isSet-subst : ∀ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′}
+isSet-subst : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'}
                 → (isSet-A : isSet A)
                 → ∀ {a : A}
                 → (p : a ≡ a) → (x : B a) → subst B p x ≡ x
 isSet-subst {B = B} isSet-A p x = subst (λ p′ → subst B p′ x ≡ x) (isSet-A _ _ refl p) (substRefl {B = B} x)
 
 -- substituting along a composite path is equivalent to substituting twice
-substComposite : ∀ {ℓ ℓ′} {A : Type ℓ} → (B : A → Type ℓ′)
+substComposite : ∀ {ℓ ℓ'} {A : Type ℓ} → (B : A → Type ℓ')
                  → {x y z : A} (p : x ≡ y) (q : y ≡ z) (u : B x)
                  → subst B (p ∙ q) u ≡ subst B q (subst B p u)
 substComposite B p q Bx i =
   transport (cong B (compPath-filler' p q (~ i))) (transport-fillerExt (cong B p) i Bx)
 
+-- transporting along a composite path is equivalent to transporting twice
+transportComposite : ∀ {ℓ} {A B C : Type ℓ} (p : A ≡ B) (q : B ≡ C) (x : A)
+                 → transport (p ∙ q) x ≡ transport q (transport p x)
+transportComposite = substComposite (λ D → D)
+
 -- substitution commutes with morphisms in slices
-substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
-                   → (B C : A → Type ℓ′)
+substCommSlice : ∀ {ℓ ℓ'} {A : Type ℓ}
+                   → (B C : A → Type ℓ')
                    → (F : ∀ i → B i → C i)
                    → {x y : A} (p : x ≡ y) (u : B x)
                    → subst C p (F x u) ≡ F y (subst B p u)

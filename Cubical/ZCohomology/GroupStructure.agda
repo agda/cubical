@@ -10,16 +10,17 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed hiding (id)
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; setTruncIsSet to §)
-open import Cubical.Data.Int hiding (-_) renaming (Int to ℤ ; _+_ to _ℤ+_)
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; isSetSetTrunc to §)
+open import Cubical.Data.Int renaming (_+_ to _ℤ+_ ; -_ to -ℤ_)
 open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3 ; map2 to trMap2)
 open import Cubical.Homotopy.Loopspace
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
@@ -158,9 +159,35 @@ syntax +ₖ-syntax n x y = x +[ n ]ₖ y
 syntax -ₖ-syntax n x = -[ n ]ₖ x
 syntax -'ₖ-syntax n x y = x -[ n ]ₖ y
 
+-ₖ^2 : {n : ℕ} → (x : coHomK n) → (-ₖ (-ₖ x)) ≡ x
+-ₖ^2 {n = zero} x =
+  +Comm (pos zero) (-ℤ (pos zero ℤ+ (-ℤ x))) ∙∙ -Dist+  (pos zero) (-ℤ x)
+     ∙∙ (+Comm (pos zero) (-ℤ (-ℤ x)) ∙ -Involutive x)
+-ₖ^2 {n = suc zero} =
+  trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ { base → refl ; (loop i) → refl}
+-ₖ^2 {n = suc (suc n)} =
+  trElim (λ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
+              λ { north → refl
+                ; south j → ∣ merid (ptSn _) j ∣ₕ
+                ; (merid a i) j
+                  → hcomp (λ k → λ { (i = i0) → ∣ north ∣
+                                     ; (i = i1) → ∣ compPath-filler' (merid a) (sym (merid (ptSn _))) (~ k) (~ j) ∣ₕ
+                                     ; (j = i0) → help a (~ k) i
+                                     ; (j = i1) → ∣ merid a (i ∧ k) ∣})
+                            ∣ (merid a ∙ sym (merid (ptSn _))) (i ∧ ~ j) ∣ₕ}
+  where
+  help : (a : _) → cong (-ₖ_ ∘ (-ₖ_ {n = suc (suc n)})) (cong ∣_∣ₕ (merid a))
+       ≡ cong ∣_∣ₕ (merid a ∙ sym (merid (ptSn _)))
+  help a = cong (cong ((-ₖ_ {n = suc (suc n)}))) (cong-∙ ∣_∣ₕ (merid (ptSn (suc n))) (sym (merid a)))
+        ∙∙ cong-∙ (-ₖ_ {n = suc (suc n)}) (cong ∣_∣ₕ (merid (ptSn (suc n)))) (cong ∣_∣ₕ (sym (merid a)))
+        ∙∙ (λ i → (λ j → ∣ rCancel (merid (ptSn (suc n))) i j ∣ₕ)
+                 ∙ λ j → ∣ symDistr (merid (ptSn (suc n))) (sym (merid a)) i j ∣ₕ)
+         ∙ sym (lUnit _)
+
+
 ------- Groupoid Laws for Kₙ ---------
 commₖ : (n : ℕ) → (x y : coHomK n) → x +[ n ]ₖ y ≡ y +[ n ]ₖ x
-commₖ zero = +-comm
+commₖ zero = +Comm
 commₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeconFun _ _
@@ -235,7 +262,7 @@ lCancelₖ (suc (suc n)) =
     ∙∙ λ i → sym (s x) ∙ rUnit (cong ∣_∣ (sym (merid (ptSn (suc n)))))  i)
 
 rCancelₖ : (n : ℕ) → (x : coHomK n) → x +ₖ (-ₖ_ {n = n} x) ≡ coHom-pt n
-rCancelₖ zero x = +-comm x (pos 0 - x) ∙ minusPlus x 0 -- +-comm x (pos 0 - x) ∙ minusPlus x 0
+rCancelₖ zero x = +Comm x (pos 0 - x) ∙ minusPlus x 0 -- +-comm x (pos 0 - x) ∙ minusPlus x 0
 rCancelₖ (suc zero) = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
                               λ {base → refl ; (loop i) j → help j i}
   where
@@ -247,7 +274,7 @@ rCancel≡refl : (n : ℕ) → rCancelₖ (2 + n) (0ₖ _) ≡ refl
 rCancel≡refl n i = rUnit (rUnit refl (~ i)) (~ i)
 
 assocₖ : (n : ℕ) → (x y z : coHomK n) → x +[ n ]ₖ (y +[ n ]ₖ z) ≡ (x +[ n ]ₖ y) +[ n ]ₖ z
-assocₖ zero = +-assoc
+assocₖ zero = +Assoc
 assocₖ (suc zero) =
   trElim3 (λ _ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
           λ x → wedgeconFun _ _
@@ -298,7 +325,7 @@ assocₖ (suc (suc n)) =
 
 
 lUnitₖ≡rUnitₖ : (n : ℕ) → lUnitₖ n (coHom-pt n) ≡ rUnitₖ n (coHom-pt n)
-lUnitₖ≡rUnitₖ zero = isSetInt _ _ _ _
+lUnitₖ≡rUnitₖ zero = isSetℤ _ _ _ _
 lUnitₖ≡rUnitₖ (suc zero) = refl
 lUnitₖ≡rUnitₖ (suc (suc n)) = refl
 
@@ -324,7 +351,7 @@ cong+ₖ-comm (suc n) p q =
     ∙ sym (rUnit (cong₂ _+ₖ_ q p)))
 
 isCommΩK : (n : ℕ) → isComm∙ (coHomK-ptd n)
-isCommΩK zero p q = isSetInt _ _ (p ∙ q) (q ∙ p)
+isCommΩK zero p q = isSetℤ _ _ (p ∙ q) (q ∙ p)
 isCommΩK (suc zero) p q = ∙≡+₁ p q ∙∙ cong+ₖ-comm 0 p q ∙∙ sym (∙≡+₁ q p)
 isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q ∙∙ sym (∙≡+₂ n q p)
 
@@ -335,7 +362,7 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
 -0ₖ {n = suc (suc n)} = refl
 
 -distrₖ : (n : ℕ) (x y : coHomK n) → -[ n ]ₖ (x +[ n ]ₖ y) ≡ (-[ n ]ₖ x) +[ n ]ₖ (-[ n ]ₖ y)
--distrₖ zero x y = GroupTheory.invDistr Int x y ∙ +-comm (0 - y) (0 - x)
+-distrₖ zero x y = GroupTheory.invDistr ℤGroup x y ∙ +Comm (0 - y) (0 - x)
 -distrₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeconFun _ _ (λ _ _ → isOfHLevelTrunc 3 _ _)
@@ -350,8 +377,8 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
                         (sym (rUnit refl)))
 
 -cancelRₖ : (n : ℕ) (x y : coHomK n) → (y +[ n ]ₖ x) -[ n ]ₖ x ≡ y
--cancelRₖ zero x y = sym (+-assoc y x (0 - x))
-                  ∙∙ cong (y ℤ+_) (+-comm x (0 - x))
+-cancelRₖ zero x y = sym (+Assoc y x (0 - x))
+                  ∙∙ cong (y ℤ+_) (+Comm x (0 - x))
                   ∙∙ cong (y ℤ+_) (minusPlus x (pos 0))
 -cancelRₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
@@ -370,7 +397,7 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
 -cancelLₖ n x y = cong (λ z → z -[ n ]ₖ x) (commₖ n x y) ∙ -cancelRₖ n x y
 
 -+cancelₖ : (n : ℕ) (x y : coHomK n) → (x -[ n ]ₖ y) +[ n ]ₖ y ≡ x
--+cancelₖ zero x y = sym (+-assoc x (0 - y) y) ∙ cong (x ℤ+_) (minusPlus y (pos 0))
+-+cancelₖ zero x y = sym (+Assoc x (0 - y) y) ∙ cong (x ℤ+_) (minusPlus y (pos 0))
 -+cancelₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeconFun _ _ (λ _ _ → wedgeConHLevPath 0 _ _)
@@ -487,7 +514,7 @@ commₕ∙ : {A : Pointed ℓ} (n : ℕ) (x y : coHomRed n A) → x +[ n ]ₕ∙
 commₕ∙ zero =
   sElim2 (λ _ _ → isOfHLevelPath 2 § _ _)
          λ {(f , p) (g , q)
-           → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) λ i x → commₖ 0 (f x) (g x) i)}
+           → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) λ i x → commₖ 0 (f x) (g x) i)}
 commₕ∙ (suc zero) =
   sElim2 (λ _ _ → isOfHLevelPath 2 § _ _)
          λ {(f , p) (g , q)
@@ -506,7 +533,7 @@ commₕ∙ {A = A} (suc (suc n)) =
 rUnitₕ∙ : {A : Pointed ℓ} (n : ℕ) (x : coHomRed n A) → x +[ n ]ₕ∙ 0ₕ∙ n ≡ x
 rUnitₕ∙ zero =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
-        λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) λ i x → rUnitₖ zero (f x) i)}
+        λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) λ i x → rUnitₖ zero (f x) i)}
 rUnitₕ∙ (suc zero) =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
          λ {(f , p) → cong ∣_∣₂ (ΣPathP ((λ i x → rUnitₖ 1 (f x) i) , λ i j → rUnitₖ 1 (p j) i))}
@@ -517,7 +544,7 @@ rUnitₕ∙ (suc (suc n)) =
 lUnitₕ∙ : {A : Pointed ℓ} (n : ℕ) (x : coHomRed n A) → 0ₕ∙ n +[ n ]ₕ∙ x ≡ x
 lUnitₕ∙ zero =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
-        λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) λ i x → lUnitₖ zero (f x) i)}
+        λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) λ i x → lUnitₖ zero (f x) i)}
 lUnitₕ∙ (suc zero) =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
          λ {(f , p) → cong ∣_∣₂ (ΣPathP ((λ i x → lUnitₖ 1 (f x) i) , λ i j → lUnitₖ 1 (p j) i))}
@@ -541,7 +568,7 @@ private
 rCancelₕ∙ : {A : Pointed ℓ} (n : ℕ) (x : coHomRed n A) → x +[ n ]ₕ∙ (-[ n ]ₕ∙ x) ≡ 0ₕ∙ n
 rCancelₕ∙ zero =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
-        λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) λ i x → rCancelₖ zero (f x) i)}
+        λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) λ i x → rCancelₖ zero (f x) i)}
 rCancelₕ∙ {A = A} (suc zero) =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
          λ {(f , p) → cong ∣_∣₂ (ΣPathP ((λ i x → rCancelₖ 1 (f x) i) , λ i j → rCancelₖ 1 (p j) i))}
@@ -554,7 +581,7 @@ rCancelₕ∙ {A = A} (suc (suc n)) =
 lCancelₕ∙ : {A : Pointed ℓ} (n : ℕ) (x : coHomRed n A) → (-[ n ]ₕ∙ x) +[ n ]ₕ∙ x ≡ 0ₕ∙ n
 lCancelₕ∙ zero =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
-         λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) λ i x → lCancelₖ zero (f x) i)}
+         λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) λ i x → lCancelₖ zero (f x) i)}
 lCancelₕ∙ {A = A} (suc zero) =
   sElim (λ _ → isOfHLevelPath 2 § _ _)
          λ {(f , p)
@@ -571,7 +598,7 @@ assocₕ∙ : {A : Pointed ℓ} (n : ℕ) (x y z : coHomRed n A)
 assocₕ∙ zero =
   elim3 (λ _ _ _ → isOfHLevelPath 2 § _ _)
         λ {(f , p) (g , q) (h , r)
-          → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _)
+          → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                               (λ i x → assocₖ zero (f x) (g x) (h x) i))}
 assocₕ∙ (suc zero) =
   elim3 (λ _ _ _ → isOfHLevelPath 2 § _ _)
@@ -643,6 +670,16 @@ snd (coHomMorph n f) = makeIsGroupHom (helper n)
   helper (suc zero) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
   helper (suc (suc n)) = sElim2 (λ _ _ → isOfHLevelPath 2 § _ _) λ _ _ → refl
 
+coHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) → Iso A B
+  → GroupIso (coHomGr n B) (coHomGr n A)
+fun (fst (coHomIso n is)) = fst (coHomMorph n (fun is))
+inv' (fst (coHomIso n is)) = fst (coHomMorph n (inv' is))
+rightInv (fst (coHomIso n is)) =
+  sElim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (leftInv is x))
+leftInv (fst (coHomIso n is)) =
+  sElim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (rightInv is x))
+snd (coHomIso n is) = snd (coHomMorph n (fun is))
+
 -- Alternative definition of cohomology using ΩKₙ instead. Useful for breaking proofs of group isos
 -- up into smaller parts
 coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group ℓ
@@ -672,8 +709,63 @@ inv' (addIso n x) y = y -[ n ]ₖ x
 rightInv (addIso n x) y = -+cancelₖ n y x
 leftInv (addIso n x) y = -cancelRₖ n x y
 
+baseChange : (n : ℕ) (x : coHomK (suc n)) → (0ₖ (suc n) ≡ 0ₖ (suc n)) ≃ (x ≡ x)
+baseChange n x = isoToEquiv is
+  where
+  f : (n : ℕ) (x : coHomK (suc n)) → (0ₖ (suc n) ≡ 0ₖ (suc n)) → (x ≡ x)
+  f n x p = sym (rUnitₖ _ x) ∙∙ cong (x +ₖ_) p ∙∙ rUnitₖ _ x
+
+  g : (n : ℕ) (x : coHomK (suc n)) → (x ≡ x) → (0ₖ (suc n) ≡ 0ₖ (suc n))
+  g n x p = sym (rCancelₖ _ x) ∙∙ cong (λ y → y -ₖ x) p ∙∙ rCancelₖ _ x
+
+  f-g : (n : ℕ) (x : coHomK (suc n)) (p : x ≡ x) → f n x (g n x p) ≡ p
+  f-g n =
+    trElim (λ _ → isOfHLevelΠ (3 + n) λ _ → isOfHLevelPath (3 + n)
+      (isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _) _ _)
+        (ind n)
+    where
+    ind : (n : ℕ) (a : S₊ (suc n)) (p : ∣ a ∣ₕ ≡ ∣ a ∣ₕ) → f n ∣ a ∣ₕ (g n ∣ a ∣ₕ p) ≡ p
+    ind zero =
+      toPropElim (λ _ → isPropΠ λ _ → isOfHLevelTrunc 3 _ _ _ _)
+        λ p → cong (f zero (0ₖ 1)) (sym (rUnit _) ∙ (λ k i → rUnitₖ _ (p i) k))
+            ∙∙ sym (rUnit _)
+            ∙∙ λ k i → lUnitₖ _ (p i) k
+    ind (suc n) =
+      sphereElim (suc n) (λ _ → isOfHLevelΠ (2 + n) λ _ → isOfHLevelTrunc (4 + n) _ _ _ _)
+        λ p → cong (f (suc n) (0ₖ (2 + n)))
+                ((λ k → (sym (rUnit (refl ∙ refl)) ∙ sym (rUnit refl)) k
+                     ∙∙ (λ i → p i +ₖ 0ₖ (2 + n)) ∙∙ (sym (rUnit (refl ∙ refl)) ∙ sym (rUnit refl)) k)
+              ∙ (λ k → rUnit (λ i → rUnitₖ _ (p i) k) (~ k)))
+              ∙ λ k → rUnit (λ i → lUnitₖ _ (p i) k) (~ k)
+
+  g-f : (n : ℕ) (x : coHomK (suc n)) (p : 0ₖ _ ≡ 0ₖ _) → g n x (f n x p) ≡ p
+  g-f n =
+    trElim (λ _ → isOfHLevelΠ (3 + n) λ _ → isOfHLevelPath (3 + n)
+      (isOfHLevelPath (3 + n) (isOfHLevelTrunc (3 + n)) _ _) _ _)
+        (ind n)
+    where
+    ind : (n : ℕ) (a : S₊ (suc n)) (p : 0ₖ (suc n) ≡ 0ₖ (suc n)) → g n ∣ a ∣ₕ (f n ∣ a ∣ₕ p) ≡ p
+    ind zero =
+      toPropElim (λ _ → isPropΠ λ _ → isOfHLevelTrunc 3 _ _ _ _)
+        λ p → cong (g zero (0ₖ 1)) (λ k → rUnit (λ i → lUnitₖ _ (p i) k) (~ k))
+            ∙ (λ k → rUnit (λ i → rUnitₖ _ (p i) k) (~ k))
+    ind (suc n) =
+      sphereElim (suc n) (λ _ → isOfHLevelΠ (2 + n) λ _ → isOfHLevelTrunc (4 + n) _ _ _ _)
+        λ p → cong (g (suc n) (0ₖ (2 + n)))
+                (λ k → rUnit (λ i → lUnitₖ _ (p i) k) (~ k))
+            ∙∙ (λ k → (sym (rUnit (refl ∙ refl)) ∙ sym (rUnit refl)) k
+                    ∙∙ (λ i → p i +ₖ 0ₖ (2 + n))
+                    ∙∙ (sym (rUnit (refl ∙ refl)) ∙ sym (rUnit refl)) k)
+            ∙∙ λ k → rUnit (λ i → rUnitₖ _ (p i) k) (~ k)
+
+  is : Iso _ _
+  fun is = f n x
+  inv' is = g n x
+  rightInv is = f-g n x
+  leftInv is = g-f n x
+
 isCommΩK-based : (n : ℕ) (x : coHomK n) → isComm∙ (coHomK n , x)
-isCommΩK-based zero x p q = isSetInt _ _ (p ∙ q) (q ∙ p)
+isCommΩK-based zero x p q = isSetℤ _ _ (p ∙ q) (q ∙ p)
 isCommΩK-based (suc zero) x =
   subst isComm∙ (λ i → coHomK 1 , lUnitₖ 1 x i)
                 (ptdIso→comm {A = (_ , 0ₖ 1)} (addIso 1 x)

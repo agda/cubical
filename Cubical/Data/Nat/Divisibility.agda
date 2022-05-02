@@ -8,6 +8,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
@@ -15,6 +16,8 @@ open import Cubical.HITs.PropositionalTruncation as PropTrunc
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Nat.Order
+
+open import Cubical.Relation.Nullary
 
 private
   variable
@@ -94,6 +97,12 @@ m∣sn→m≤sn {m} {n} = f ∘ ∣s-untrunc
   where f : Σ[ c ∈ ℕ ] (suc c) · m ≡ suc n → Σ[ c ∈ ℕ ] c + m ≡ suc n
         f (c , p) = (c · m) , (+-comm (c · m) m ∙ p)
 
+m∣n→m≤n : {m n : ℕ} → ¬ n ≡ 0 → m ∣ n → m ≤ n
+m∣n→m≤n {m = m} {n = n} p q =
+  let n≡sd = suc-predℕ _ p
+      m≤sd = m∣sn→m≤sn (subst (λ a → m ∣ a) n≡sd q)
+  in  subst (λ a → m ≤ a) (sym n≡sd) m≤sd
+
 m∣sn→z<m : m ∣ suc n → zero < m
 m∣sn→z<m {zero} p = ⊥.rec (znots (∣-zeroˡ p))
 m∣sn→z<m {suc m} p = suc-≤-suc zero-≤
@@ -102,3 +111,14 @@ antisym∣ : ∀ {m n} → m ∣ n → n ∣ m → m ≡ n
 antisym∣ {zero} {n} z∣n _ = ∣-zeroˡ z∣n
 antisym∣ {m} {zero} _ z∣m = sym (∣-zeroˡ z∣m)
 antisym∣ {suc m} {suc n} p q = ≤-antisym (m∣sn→m≤sn p) (m∣sn→m≤sn q)
+
+-- Inequality for strict divisibility
+
+stDivIneq : ¬ m ≡ 0 → ¬ m ∣ n → l ∣ m → l ∣ n → l < m
+stDivIneq {m = 0} p = ⊥.rec (p refl)
+stDivIneq {n = 0} _ q = ⊥.rec (q (∣-zeroʳ _))
+stDivIneq {m = suc m} {n = n} {l = l} _ q h h' =
+  case (≤-split (m∣sn→m≤sn h))
+  return (λ _ → l < suc m) of
+    λ { (inl r) → r
+      ; (inr r) → ⊥.rec (q (subst (λ a → a ∣ n) r h')) }

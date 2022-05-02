@@ -7,8 +7,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Data.Nat as ℕ using (discreteℕ)
 open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Sigma
+open import Cubical.Data.Int.MoreInts.QuoInt
 
-open import Cubical.HITs.Ints.QuoInt
 open import Cubical.HITs.SetQuotients as SetQuotient
   using ([_]; eq/; discreteSetQuotients) renaming (_/_ to _//_) public
 

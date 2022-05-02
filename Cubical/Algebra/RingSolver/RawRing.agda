@@ -2,10 +2,6 @@
 module Cubical.Algebra.RingSolver.RawRing where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Sigma
-open import Cubical.Data.Nat using (ℕ)
-
-open import Cubical.Algebra.RingSolver.AlmostRing hiding (⟨_⟩)
 
 private
   variable
@@ -29,7 +25,3 @@ record RawRing ℓ : Type (ℓ-suc ℓ) where
 
 ⟨_⟩ : RawRing ℓ → Type ℓ
 ⟨_⟩ = RawRing.Carrier
-
-AlmostRing→RawRing : AlmostRing ℓ → RawRing ℓ
-AlmostRing→RawRing (almostring Carrier 0r 1r _+_ _·_ -_ isAlmostRing) =
-                   rawring Carrier 0r 1r _+_ _·_ -_

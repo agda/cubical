@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyOld.Base where
 
-open import Cubical.Data.Int.Base
+open import Cubical.Data.Int.Base hiding (_+_)
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma
 
@@ -23,7 +23,7 @@ private
 
 {- EM-spaces Kₙ from Brunerie 2016 -}
 coHomK : (n : ℕ) → Type₀
-coHomK zero = Int
+coHomK zero = ℤ
 coHomK (suc n) = ∥ S₊ (suc n) ∥ (2 + suc n)
 
 {- Cohomology -}

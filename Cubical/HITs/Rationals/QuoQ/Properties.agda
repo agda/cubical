@@ -3,7 +3,7 @@ module Cubical.HITs.Rationals.QuoQ.Properties where
 
 open import Cubical.Foundations.Everything hiding (_⁻¹)
 
-open import Cubical.HITs.Ints.QuoInt as ℤ using (ℤ; Sign; signed; pos; neg; posneg; sign)
+open import Cubical.Data.Int.MoreInts.QuoInt as ℤ using (ℤ; Sign; signed; pos; neg; posneg; sign)
 open import Cubical.HITs.SetQuotients as SetQuotient using () renaming (_/_ to _//_)
 
 open import Cubical.Data.Nat as ℕ using (ℕ; zero; suc)

@@ -53,6 +53,7 @@ open import Cubical.HITs.PropositionalTruncation public
            ; rec to recPropTruncPath
            ; elim to elimPropTruncPath )
 open import Cubical.Core.Id public
+  using (Id; ⟨_,_⟩; faceId; pathId; elimId; _≡_)
 
 private
   variable

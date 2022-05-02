@@ -9,7 +9,7 @@
 -- 2. "sorting" finite multisets by converting into sorted lists.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 
 module Cubical.Data.DescendingList.Examples where
 

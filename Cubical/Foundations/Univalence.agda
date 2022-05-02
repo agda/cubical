@@ -249,7 +249,7 @@ ua→ {e = e} {f₀ = f₀} {f₁} h i a =
     (h (transp (λ j → ua e (~ j ∧ i)) (~ i) a) i)
   where
   lem : ∀ a₁ → e .fst (transport (sym (ua e)) a₁) ≡ a₁
-  lem a₁ = retEq e _ ∙ transportRefl _
+  lem a₁ = secEq e _ ∙ transportRefl _
 
 ua→⁻ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
   {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
@@ -262,6 +262,14 @@ ua→⁻ {e = e} {f₀ = f₀} {f₁} p a i =
       ; (i = i1) → f₁ (uaβ e a k)
       })
     (p i (transp (λ j → ua e (j ∧ i)) (~ i) a))
+
+ua→2 : ∀ {ℓ ℓ' ℓ''} {A₀ A₁ : Type ℓ} {e₁ : A₀ ≃ A₁}
+  {B₀ B₁ : Type ℓ'} {e₂ : B₀ ≃ B₁}
+  {C : (i : I) → Type ℓ''}
+  {f₀ : A₀ → B₀ → C i0} {f₁ : A₁ → B₁ → C i1}
+  → (∀ a b → PathP C (f₀ a b) (f₁ (e₁ .fst a) (e₂ .fst b)))
+  → PathP (λ i → ua e₁ i → ua e₂ i → C i) f₀ f₁
+ua→2 h = ua→ (ua→ ∘ h)
 
 -- Useful lemma for unfolding a transported function over ua
 -- If we would have regularity this would be refl

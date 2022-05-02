@@ -37,7 +37,7 @@ record SubstRel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A) (B 
   uaˢ⁻ : {a a' : A} (p : a ≅ a') (b : B a') → subst B (sym (≅→≡ p)) b ≡ invEq (act p) b
   uaˢ⁻ p b =
     subst B (sym (≅→≡ p)) b
-      ≡⟨ cong (subst B (sym (≅→≡ p))) (sym (retEq (act p) b)) ⟩
+      ≡⟨ cong (subst B (sym (≅→≡ p))) (sym (secEq (act p) b)) ⟩
     subst B (sym (≅→≡ p)) (equivFun (act p) (invEq (act p) b))
       ≡⟨ cong (subst B (sym (≅→≡ p))) (sym (uaˢ p (invEq (act p) b))) ⟩
     subst B (sym (≅→≡ p)) (subst B (≅→≡ p) (invEq (act p) b))
@@ -54,7 +54,7 @@ DUARel.uaᴰ (Subst→DUA {𝒮-A = 𝒮-A} {B = B} 𝒮ˢ-B) b p b' =
     ≃⟨ invEquiv (compPathlEquiv (sym (SubstRel.uaˢ 𝒮ˢ-B p b))) ⟩
   subst B (≅→≡ p) b ≡ b'
     ≃⟨ invEquiv (PathP≃Path (λ i → B (≅→≡ p i)) b b') ⟩
-  PathP (λ i → B (UARel.≅→≡ 𝒮-A p i)) b b'
+  PathP (λ i → B (≅→≡ p i)) b b'
   ■
   where
   open UARel 𝒮-A

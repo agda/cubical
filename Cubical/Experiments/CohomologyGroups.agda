@@ -72,7 +72,7 @@ diagonalIso {A = A} B {C = C} ψ ϕ issurj ker→diag diag→ker = BijectionIsoT
                                            ∙ cong snd (sym (leftInv ψ (a' , a')) ∙∙ cong ψ⁻ (sym id) ∙∙ leftInv ψ (a , GroupStr.0g (snd A)))})
                              (ker→diag _ inker)
   surj bijIso c =
-    pRec propTruncIsProp
+    pRec isPropPropTrunc
          (λ { (b , id) → ∣ (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)))
                           , ((sym (GroupStr.rid (snd C) _)
                            ∙∙ cong ((fun ϕ) ((fun (map ψ)) (fst (ψ⁻ b) A.+ (A.- snd (ψ⁻ b)) , GroupStr.0g (snd A))) C.+_)
@@ -96,14 +96,14 @@ H¹-S¹≅ℤ =
                 (λ x → K.Ker-i⊂Im-d 0 x
                                      (ΣPathP (isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _
                                             , isOfHLevelSuc 0 (isContrHⁿ-Unit 0) _ _)))
-                ((sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                ((sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 isPropPropTrunc)
                         (λ x inker
-                            → pRec propTruncIsProp
+                            → pRec isPropPropTrunc
                                     (λ {((f , g) , id') → helper x f g id' inker})
                                     ((K.Ker-d⊂Im-Δ 0 ∣ x ∣₂ inker)))))
-                ((sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
+                ((sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
                          λ F surj
-                           → pRec (setTruncIsSet _ _)
+                           → pRec (isSetSetTrunc _ _)
                                    (λ { (x , id) → K.Im-Δ⊂Ker-d 0 ∣ F ∣₂
                                                       ∣ (∣ (λ _ → x) ∣₂ , ∣ (λ _ → 0) ∣₂) ,
                                                        (cong ∣_∣₂ (funExt (surjHelper x))) ∙ sym id ∣₁ })
@@ -124,12 +124,12 @@ H¹-S¹≅ℤ =
                     ∣ F ∣₂
          → ∃[ x ∈ Int ] ∣ F ∣₂ ≡ inv H⁰-S⁰≅ℤ×ℤ (x , x)
   helper F =
-    sElim2 (λ _ _ → isOfHLevelΠ 2 λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
+    sElim2 (λ _ _ → isOfHLevelΠ 2 λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 isPropPropTrunc)
            λ f g id inker
-             → pRec propTruncIsProp
+             → pRec isPropPropTrunc
                      (λ ((a , b) , id2)
                         → sElim2 {C = λ f g → GroupHom.fun (K.Δ 0) (f , g) ≡ ∣ F ∣₂ → _ }
-                                  (λ _ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 propTruncIsProp)
+                                  (λ _ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 isPropPropTrunc)
                                   (λ f g id → ∣ (helper2 f g .fst) , (sym id ∙ sym (helper2 f g .snd)) ∣₁)
                                   a b id2)
                      (MV.Ker-d⊂Im-Δ _ _ (S₊ 0) (λ _ → tt) (λ _ → tt) 0 ∣ F ∣₂ inker)

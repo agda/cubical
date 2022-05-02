@@ -33,10 +33,10 @@ module _ where
     comp (λ _ → S¹) (\ i → u i) (outS u0) ≡ hcomp u (outS u0)
   compS1 φ u u0 = refl
 
--- ΩS¹ ≡ Int
+-- ΩS¹ ≡ ℤ
 helix : S¹ → Type₀
-helix base     = Int
-helix (loop i) = sucPathInt i
+helix base     = ℤ
+helix (loop i) = sucPathℤ i
 
 ΩS¹ : Type₀
 ΩS¹ = base ≡ base
@@ -44,16 +44,16 @@ helix (loop i) = sucPathInt i
 encode : ∀ x → base ≡ x → helix x
 encode x p = subst helix p (pos zero)
 
-winding : ΩS¹ → Int
+winding : ΩS¹ → ℤ
 winding = encode base
 
-intLoop : Int → ΩS¹
+intLoop : ℤ → ΩS¹
 intLoop (pos zero)       = refl
 intLoop (pos (suc n))    = intLoop (pos n) ∙ loop
 intLoop (negsuc zero)    = sym loop
 intLoop (negsuc (suc n)) = intLoop (negsuc n) ∙ sym loop
 
-decodeSquare : (n : Int) → PathP (λ i → base ≡ loop i) (intLoop (predInt n)) (intLoop n)
+decodeSquare : (n : ℤ) → PathP (λ i → base ≡ loop i) (intLoop (predℤ n)) (intLoop n)
 decodeSquare (pos zero) i j    = loop (i ∨ ~ j)
 decodeSquare (pos (suc n)) i j = hfill (λ k → λ { (j = i0) → base
                                                 ; (j = i1) → loop k } )
@@ -65,7 +65,7 @@ decodeSquare (negsuc n) i j = hfill (λ k → λ { (j = i0) → base
 decode : (x : S¹) → helix x → base ≡ x
 decode base         = intLoop
 decode (loop i) y j =
-  let n : Int
+  let n : ℤ
       n = unglue (i ∨ ~ i) y
   in hcomp (λ k → λ { (i = i0) → intLoop (predSuc y k) j
                     ; (i = i1) → intLoop y j
@@ -82,66 +82,66 @@ isSetΩS¹ p q r s j i =
                  ; (i = i1) → decodeEncode base q k
                  ; (j = i0) → decodeEncode base (r i) k
                  ; (j = i1) → decodeEncode base (s i) k })
-        (decode base (isSetInt (winding p) (winding q) (cong winding r) (cong winding s) j i))
+        (decode base (isSetℤ (winding p) (winding q) (cong winding r) (cong winding s) j i))
 
 -- This proof does not rely on rewriting hcomp with empty systems in
--- Int as ghcomp has been implemented!
-windingIntLoop : (n : Int) → winding (intLoop n) ≡ n
-windingIntLoop (pos zero)       = refl
-windingIntLoop (pos (suc n))    = cong sucInt (windingIntLoop (pos n))
-windingIntLoop (negsuc zero)    = refl
-windingIntLoop (negsuc (suc n)) = cong predInt (windingIntLoop (negsuc n))
+-- ℤ as ghcomp has been implemented!
+windingℤLoop : (n : ℤ) → winding (intLoop n) ≡ n
+windingℤLoop (pos zero)       = refl
+windingℤLoop (pos (suc n))    = cong sucℤ (windingℤLoop (pos n))
+windingℤLoop (negsuc zero)    = refl
+windingℤLoop (negsuc (suc n)) = cong predℤ (windingℤLoop (negsuc n))
 
-ΩS¹IsoInt : Iso ΩS¹ Int
-Iso.fun ΩS¹IsoInt      = winding
-Iso.inv ΩS¹IsoInt      = intLoop
-Iso.rightInv ΩS¹IsoInt = windingIntLoop
-Iso.leftInv ΩS¹IsoInt  = decodeEncode base
+ΩS¹Isoℤ : Iso ΩS¹ ℤ
+Iso.fun ΩS¹Isoℤ      = winding
+Iso.inv ΩS¹Isoℤ      = intLoop
+Iso.rightInv ΩS¹Isoℤ = windingℤLoop
+Iso.leftInv ΩS¹Isoℤ  = decodeEncode base
 
-ΩS¹≡Int : ΩS¹ ≡ Int
-ΩS¹≡Int = isoToPath ΩS¹IsoInt
+ΩS¹≡ℤ : ΩS¹ ≡ ℤ
+ΩS¹≡ℤ = isoToPath ΩS¹Isoℤ
 
 -- intLoop and winding are group homomorphisms
 private
-  intLoop-sucInt : (z : Int) → intLoop (sucInt z) ≡ intLoop z ∙ loop
-  intLoop-sucInt (pos n)          = refl
-  intLoop-sucInt (negsuc zero)    = sym (lCancel loop)
-  intLoop-sucInt (negsuc (suc n)) =
+  intLoop-sucℤ : (z : ℤ) → intLoop (sucℤ z) ≡ intLoop z ∙ loop
+  intLoop-sucℤ (pos n)          = refl
+  intLoop-sucℤ (negsuc zero)    = sym (lCancel loop)
+  intLoop-sucℤ (negsuc (suc n)) =
       rUnit (intLoop (negsuc n))
     ∙ (λ i → intLoop (negsuc n) ∙ lCancel loop (~ i))
     ∙ assoc (intLoop (negsuc n)) (sym loop) loop
 
-  intLoop-predInt : (z : Int) → intLoop (predInt z) ≡ intLoop z ∙ sym loop
-  intLoop-predInt (pos zero)    = lUnit (sym loop)
-  intLoop-predInt (pos (suc n)) =
+  intLoop-predℤ : (z : ℤ) → intLoop (predℤ z) ≡ intLoop z ∙ sym loop
+  intLoop-predℤ (pos zero)    = lUnit (sym loop)
+  intLoop-predℤ (pos (suc n)) =
       rUnit (intLoop (pos n))
     ∙ (λ i → intLoop (pos n) ∙ (rCancel loop (~ i)))
     ∙ assoc (intLoop (pos n)) loop (sym loop)
-  intLoop-predInt (negsuc n)    = refl
+  intLoop-predℤ (negsuc n)    = refl
 
-intLoop-hom : (a b : Int) → (intLoop a) ∙ (intLoop b) ≡ intLoop (a + b)
+intLoop-hom : (a b : ℤ) → (intLoop a) ∙ (intLoop b) ≡ intLoop (a + b)
 intLoop-hom a (pos zero)       = sym (rUnit (intLoop a))
 intLoop-hom a (pos (suc n))    =
     assoc (intLoop a) (intLoop (pos n)) loop
   ∙ (λ i → (intLoop-hom a (pos n) i) ∙ loop)
-  ∙ sym (intLoop-sucInt (a + pos n))
-intLoop-hom a (negsuc zero)    = sym (intLoop-predInt a)
+  ∙ sym (intLoop-sucℤ (a + pos n))
+intLoop-hom a (negsuc zero)    = sym (intLoop-predℤ a)
 intLoop-hom a (negsuc (suc n)) =
     assoc (intLoop a) (intLoop (negsuc n)) (sym loop)
   ∙ (λ i → (intLoop-hom a (negsuc n) i) ∙ (sym loop))
-  ∙ sym (intLoop-predInt (a + negsuc n))
+  ∙ sym (intLoop-predℤ (a + negsuc n))
 
 winding-hom : (a b : ΩS¹) → winding (a ∙ b) ≡ (winding a) + (winding b)
 winding-hom a b i =
   hcomp (λ t → λ { (i = i0) → winding (decodeEncode base a t ∙ decodeEncode base b t)
-                 ; (i = i1) → windingIntLoop (winding a + winding b) t })
+                 ; (i = i1) → windingℤLoop (winding a + winding b) t })
         (winding (intLoop-hom (winding a) (winding b) i))
 
 -- Commutativity
 comm-ΩS¹ : (p q : ΩS¹) → p ∙ q ≡ q ∙ p
 comm-ΩS¹ p q = sym (cong₂ (_∙_) (decodeEncode base p) (decodeEncode base q))
              ∙ intLoop-hom (winding p) (winding q)
-             ∙ cong intLoop (+-comm (winding p) (winding q))
+             ∙ cong intLoop (+Comm (winding p) (winding q))
              ∙ sym (intLoop-hom (winding q) (winding p))
              ∙ (cong₂ (_∙_) (decodeEncode base q) (decodeEncode base p))
 
@@ -213,10 +213,10 @@ private
     ∙ (λ t → intLoop (winding-hom (intLoop (pos (suc zero)) ∙ x)
                                   (intLoop (negsuc zero)) t))
     ∙ (λ t → intLoop ((winding-hom (intLoop (pos (suc zero))) x t)
-                      + (windingIntLoop (negsuc zero) t)))
-    ∙ (λ t → intLoop (((windingIntLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
-    ∙ (λ t → intLoop ((+-comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
-    ∙ (λ t → intLoop (+-assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
+                      + (windingℤLoop (negsuc zero) t)))
+    ∙ (λ t → intLoop (((windingℤLoop (pos (suc zero)) t) + (winding x)) + (negsuc zero)))
+    ∙ (λ t → intLoop ((+Comm (pos (suc zero)) (winding x) t) + (negsuc zero)))
+    ∙ (λ t → intLoop (+Assoc (winding x) (pos (suc zero)) (negsuc zero) (~ t)))
     ∙ (decodeEncode base x)) i
 
   refl-conjugation : basedΩS¹→ΩS¹ i0 ≡ λ x → x
@@ -257,8 +257,8 @@ private
   basedΩS¹≡ΩS¹' : (x : S¹) → basedΩS¹ x ≡ ΩS¹
   basedΩS¹≡ΩS¹' x = ua (basechange x , basechange-isequiv x)
 
-  basedΩS¹≡Int' : (x : S¹) → basedΩS¹ x ≡ Int
-  basedΩS¹≡Int' x = (basedΩS¹≡ΩS¹' x) ∙ ΩS¹≡Int
+  basedΩS¹≡ℤ' : (x : S¹) → basedΩS¹ x ≡ ℤ
+  basedΩS¹≡ℤ' x = (basedΩS¹≡ΩS¹' x) ∙ ΩS¹≡ℤ
 
 
 ---- Alternative proof of the same thing -----
@@ -336,11 +336,11 @@ Iso.inv (Iso-basedΩS¹-ΩS¹ x) = basechange2 x
 Iso.rightInv (Iso-basedΩS¹-ΩS¹ x) = basechange2-retr x
 Iso.leftInv (Iso-basedΩS¹-ΩS¹ x) = basechange2-sect x
 
-Iso-basedΩS¹-Int : (x : S¹) → Iso (basedΩS¹ x) Int
-Iso-basedΩS¹-Int x = compIso (Iso-basedΩS¹-ΩS¹ x) ΩS¹IsoInt
+Iso-basedΩS¹-ℤ : (x : S¹) → Iso (basedΩS¹ x) ℤ
+Iso-basedΩS¹-ℤ x = compIso (Iso-basedΩS¹-ΩS¹ x) ΩS¹Isoℤ
 
-basedΩS¹≡Int : (x : S¹) → basedΩS¹ x ≡ Int
-basedΩS¹≡Int x = isoToPath (Iso-basedΩS¹-Int x)
+basedΩS¹≡ℤ : (x : S¹) → basedΩS¹ x ≡ ℤ
+basedΩS¹≡ℤ x = isoToPath (Iso-basedΩS¹-ℤ x)
 
 -- baschange2⁻ is a morphism
 

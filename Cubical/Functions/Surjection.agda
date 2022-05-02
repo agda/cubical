@@ -28,8 +28,8 @@ A ↠ B = Σ[ f ∈ (A → B) ] isSurjection f
 section→isSurjection : {g : B → A} → section f g → isSurjection f
 section→isSurjection {g = g} s b = ∣ g b , s b ∣
 
-isSurjectionIsProp : isProp (isSurjection f)
-isSurjectionIsProp = isPropΠ λ _ → squash
+isPropIsSurjection : isProp (isSurjection f)
+isPropIsSurjection = isPropΠ λ _ → squash
 
 isEquiv→isSurjection : isEquiv f → isSurjection f
 isEquiv→isSurjection e b = ∣ fst (equiv-proof e b) ∣
@@ -54,11 +54,8 @@ isEquiv≃isEmbedding×isSurjection : isEquiv f ≃ isEmbedding f × isSurjectio
 isEquiv≃isEmbedding×isSurjection = isoToEquiv (iso
   isEquiv→isEmbedding×isSurjection
   isEmbedding×isSurjection→isEquiv
-  (λ _ → isOfHLevelΣ 1 isEmbeddingIsProp (\ _ → isSurjectionIsProp) _ _)
+  (λ _ → isOfHLevelΣ 1 isPropIsEmbedding (\ _ → isPropIsSurjection) _ _)
   (λ _ → isPropIsEquiv _ _ _))
-
-isPropIsSurjection : isProp (isSurjection f)
-isPropIsSurjection = isPropΠ λ _ → propTruncIsProp
 
 -- obs: for epi⇒surjective to go through we require a stronger
 -- hypothesis that one would expect:
@@ -75,7 +72,7 @@ epi⇒surjective f rc y = transport (fact₂ y) tt*
 
           fact₁ : ∀ x → Unit* ≡ hasPreimage f (f x)
           fact₁ x = hPropExt isPropUnit*
-                             propTruncIsProp
+                             isPropPropTrunc
                              (λ _ → ∣ (x , refl) ∣)
                              (λ _ → tt*)
 

@@ -6,16 +6,27 @@ open import Cubical.Core.Everything
 open import Cubical.Functions.Involution
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Pointed
 
+open import Cubical.Data.Sum
 open import Cubical.Data.Bool.Base
-open import Cubical.Data.Empty
+open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Sigma
+
+open import Cubical.HITs.PropositionalTruncation hiding (rec)
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
+
+private
+  variable
+    ℓ : Level
+    A : Type ℓ
 
 notnot : ∀ x → not (not x) ≡ x
 notnot true  = refl
@@ -37,9 +48,6 @@ notEq : Bool ≡ Bool
 notEq = involPath {f = not} notnot
 
 private
-  variable
-    ℓ : Level
-
   -- This computes to false as expected
   nfalse : Bool
   nfalse = transp (λ i → notEq i) i0 true
@@ -66,10 +74,10 @@ false≢true p = subst (λ b → if b then ⊥ else Bool) p true
 
 ¬true→false : (x : Bool) → ¬ x ≡ true → x ≡ false
 ¬true→false false _ = refl
-¬true→false true p = rec (p refl)
+¬true→false true p = Empty.rec (p refl)
 
 ¬false→true : (x : Bool) → ¬ x ≡ false → x ≡ true
-¬false→true false p = rec (p refl)
+¬false→true false p = Empty.rec (p refl)
 ¬false→true true _ = refl
 
 not≢const : ∀ x → ¬ not x ≡ x
@@ -187,9 +195,9 @@ module BoolReflection where
   categorize P | inspect true false p q
     = subst (λ b → transport P ≡ transport (⊕-Path b)) (sym p) (notLemma P p q)
   categorize P | inspect false false p q
-    = rec (¬transportNot P false (q ∙ sym p))
+    = Empty.rec (¬transportNot P false (q ∙ sym p))
   categorize P | inspect true true p q
-    = rec (¬transportNot P false (q ∙ sym p))
+    = Empty.rec (¬transportNot P false (q ∙ sym p))
 
   ⊕-complete : ∀ P → P ≡ ⊕-Path (transport P false)
   ⊕-complete P = isInjectiveTransport (categorize P)
@@ -207,3 +215,140 @@ module BoolReflection where
 
   reflectEquiv : Bool ≃ (Bool ≡ Bool)
   reflectEquiv = isoToEquiv reflectIso
+
+IsoBool→∙ : ∀ {ℓ} {A : Pointed ℓ} → Iso ((Bool , true) →∙ A) (typ A)
+Iso.fun IsoBool→∙ f = fst f false
+fst (Iso.inv IsoBool→∙ a) false = a
+fst (Iso.inv (IsoBool→∙ {A = A}) a) true = pt A
+snd (Iso.inv IsoBool→∙ a) = refl
+Iso.rightInv IsoBool→∙ a = refl
+Iso.leftInv IsoBool→∙ (f , p) =
+  ΣPathP ((funExt (λ { false → refl ; true → sym p}))
+        , λ i j → p (~ i ∨ j))
+
+-- import here to avoid conflicts
+open import Cubical.Data.Unit
+
+-- relation to hProp
+
+BoolProp≃BoolProp* : {a : Bool} → Bool→Type a ≃ Bool→Type* {ℓ} a
+BoolProp≃BoolProp* {a = true} = Unit≃Unit*
+BoolProp≃BoolProp* {a = false} = uninhabEquiv Empty.rec Empty.rec*
+
+Bool→TypeInj : (a b : Bool) → Bool→Type a ≃ Bool→Type b → a ≡ b
+Bool→TypeInj true true _ = refl
+Bool→TypeInj true false p = Empty.rec (p .fst tt)
+Bool→TypeInj false true p = Empty.rec (invEq p tt)
+Bool→TypeInj false false _ = refl
+
+Bool→TypeInj* : (a b : Bool) → Bool→Type* {ℓ} a ≃ Bool→Type* {ℓ} b → a ≡ b
+Bool→TypeInj* true true _ = refl
+Bool→TypeInj* true false p = Empty.rec* (p .fst tt*)
+Bool→TypeInj* false true p = Empty.rec* (invEq p tt*)
+Bool→TypeInj* false false _ = refl
+
+isPropBool→Type : {a : Bool} → isProp (Bool→Type a)
+isPropBool→Type {a = true} = isPropUnit
+isPropBool→Type {a = false} = isProp⊥
+
+isPropBool→Type* : {a : Bool} → isProp (Bool→Type* {ℓ} a)
+isPropBool→Type* {a = true} = isPropUnit*
+isPropBool→Type* {a = false} = isProp⊥*
+
+DecBool→Type : {a : Bool} → Dec (Bool→Type a)
+DecBool→Type {a = true} = yes tt
+DecBool→Type {a = false} = no (λ x → x)
+
+DecBool→Type* : {a : Bool} → Dec (Bool→Type* {ℓ} a)
+DecBool→Type* {a = true} = yes tt*
+DecBool→Type* {a = false} = no (λ (lift x) → x)
+
+Dec→DecBool : {P : Type ℓ} → (dec : Dec P) → P → Bool→Type (Dec→Bool dec)
+Dec→DecBool (yes p) _ = tt
+Dec→DecBool (no ¬p) q = Empty.rec (¬p q)
+
+DecBool→Dec : {P : Type ℓ} → (dec : Dec P) → Bool→Type (Dec→Bool dec) → P
+DecBool→Dec (yes p) _ = p
+
+Dec≃DecBool : {P : Type ℓ} → (h : isProp P)(dec : Dec P) → P ≃ Bool→Type (Dec→Bool dec)
+Dec≃DecBool h dec = propBiimpl→Equiv h isPropBool→Type (Dec→DecBool dec) (DecBool→Dec dec)
+
+Bool≡BoolDec : {a : Bool} → a ≡ Dec→Bool (DecBool→Type {a = a})
+Bool≡BoolDec {a = true} = refl
+Bool≡BoolDec {a = false} = refl
+
+Dec→DecBool* : {P : Type ℓ} → (dec : Dec P) → P → Bool→Type* {ℓ} (Dec→Bool dec)
+Dec→DecBool* (yes p) _ = tt*
+Dec→DecBool* (no ¬p) q = Empty.rec (¬p q)
+
+DecBool→Dec* : {P : Type ℓ} → (dec : Dec P) → Bool→Type* {ℓ} (Dec→Bool dec) → P
+DecBool→Dec* (yes p) _ = p
+
+Dec≃DecBool* : {P : Type ℓ} → (h : isProp P)(dec : Dec P) → P ≃ Bool→Type* {ℓ} (Dec→Bool dec)
+Dec≃DecBool* h dec = propBiimpl→Equiv h isPropBool→Type* (Dec→DecBool* dec) (DecBool→Dec* dec)
+
+Bool≡BoolDec* : {a : Bool} → a ≡ Dec→Bool (DecBool→Type* {ℓ} {a = a})
+Bool≡BoolDec* {a = true} = refl
+Bool≡BoolDec* {a = false} = refl
+
+Bool→Type× : (a b : Bool) → Bool→Type (a and b) → Bool→Type a × Bool→Type b
+Bool→Type× true true _ = tt , tt
+Bool→Type× true false p = Empty.rec p
+Bool→Type× false true p = Empty.rec p
+Bool→Type× false false p = Empty.rec p
+
+Bool→Type×' : (a b : Bool) → Bool→Type a × Bool→Type b → Bool→Type (a and b)
+Bool→Type×' true true _ = tt
+Bool→Type×' true false (_ , p) = Empty.rec p
+Bool→Type×' false true (p , _) = Empty.rec p
+Bool→Type×' false false (p , _) = Empty.rec p
+
+Bool→Type×≃ : (a b : Bool) → Bool→Type a × Bool→Type b ≃ Bool→Type (a and b)
+Bool→Type×≃ a b =
+  propBiimpl→Equiv (isProp× isPropBool→Type isPropBool→Type) isPropBool→Type
+    (Bool→Type×' a b) (Bool→Type× a b)
+
+Bool→Type⊎ : (a b : Bool) → Bool→Type (a or b) → Bool→Type a ⊎ Bool→Type b
+Bool→Type⊎ true true _ = inl tt
+Bool→Type⊎ true false _ = inl tt
+Bool→Type⊎ false true _ = inr tt
+Bool→Type⊎ false false p = Empty.rec p
+
+Bool→Type⊎' : (a b : Bool) → Bool→Type a ⊎ Bool→Type b → Bool→Type (a or b)
+Bool→Type⊎' true true _ = tt
+Bool→Type⊎' true false _ = tt
+Bool→Type⊎' false true _ = tt
+Bool→Type⊎' false false (inl p) = Empty.rec p
+Bool→Type⊎' false false (inr p) = Empty.rec p
+
+PropBoolP→P : (dec : Dec A) → Bool→Type (Dec→Bool dec) → A
+PropBoolP→P (yes p) _ = p
+
+P→PropBoolP : (dec : Dec A) → A → Bool→Type (Dec→Bool dec)
+P→PropBoolP (yes p) _ = tt
+P→PropBoolP (no ¬p) = ¬p
+
+Bool≡ : Bool → Bool → Bool
+Bool≡ true true = true
+Bool≡ true false = false
+Bool≡ false true = false
+Bool≡ false false = true
+
+Bool≡≃ : (a b : Bool) → (a ≡ b) ≃ Bool→Type (Bool≡ a b)
+Bool≡≃ true true = isContr→≃Unit (inhProp→isContr refl (isSetBool _ _))
+Bool≡≃ true false = uninhabEquiv true≢false Empty.rec
+Bool≡≃ false true = uninhabEquiv false≢true Empty.rec
+Bool≡≃ false false = isContr→≃Unit (inhProp→isContr refl (isSetBool _ _))
+open Iso
+
+-- Bool is equivalent to bi-point type
+
+Iso-⊤⊎⊤-Bool : Iso (Unit ⊎ Unit) Bool
+Iso-⊤⊎⊤-Bool .fun (inl tt) = true
+Iso-⊤⊎⊤-Bool .fun (inr tt) = false
+Iso-⊤⊎⊤-Bool .inv true = inl tt
+Iso-⊤⊎⊤-Bool .inv false = inr tt
+Iso-⊤⊎⊤-Bool .leftInv (inl tt) = refl
+Iso-⊤⊎⊤-Bool .leftInv (inr tt) = refl
+Iso-⊤⊎⊤-Bool .rightInv true = refl
+Iso-⊤⊎⊤-Bool .rightInv false = refl

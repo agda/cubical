@@ -26,7 +26,7 @@ open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
   constructor ismonoid
@@ -83,9 +83,9 @@ makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
 makeMonoid ε _·_ is-setM assoc rid lid =
   monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
 
-record IsMonoidEquiv {A : Type ℓ} {B : Type ℓ}
-  (M : MonoidStr A) (e : A ≃ B) (N : MonoidStr B)
-  : Type ℓ
+record IsMonoidHom {A : Type ℓ} {B : Type ℓ'}
+  (M : MonoidStr A) (f : A → B) (N : MonoidStr B)
+  : Type (ℓ-max ℓ ℓ')
   where
 
   constructor monoidequiv
@@ -96,10 +96,17 @@ record IsMonoidEquiv {A : Type ℓ} {B : Type ℓ}
     module N = MonoidStr N
 
   field
-    presε : equivFun e M.ε ≡ N.ε
-    isHom : (x y : A) → equivFun e (x M.· y) ≡ equivFun e x N.· equivFun e y
+    presε : f M.ε ≡ N.ε
+    pres· : (x y : A) → f (x M.· y) ≡ f x N.· f y
 
-MonoidEquiv : (M N : Monoid ℓ) → Type ℓ
+MonoidHom : (L : Monoid ℓ) (M : Monoid ℓ') → Type (ℓ-max ℓ ℓ')
+MonoidHom L M = Σ[ f ∈ (⟨ L ⟩ → ⟨ M ⟩) ] IsMonoidHom (L .snd) f (M .snd)
+
+IsMonoidEquiv : {A : Type ℓ} {B : Type ℓ'} (M : MonoidStr A) (e : A ≃ B) (N : MonoidStr B)
+  → Type (ℓ-max ℓ ℓ')
+IsMonoidEquiv M e N = IsMonoidHom M (e .fst) N
+
+MonoidEquiv : (M : Monoid ℓ) (N : Monoid ℓ') → Type (ℓ-max ℓ ℓ')
 MonoidEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsMonoidEquiv (M .snd) e (N .snd)
 
 -- We now extract the important results from the above module
@@ -118,11 +125,11 @@ isPropIsMonoid ε _·_ =
   𝒮ᴰ-Record (𝒮-Univ _) IsMonoidEquiv
     (fields:
       data[ ε ∣ autoDUARel _ _ ∣ presε ]
-      data[ _·_ ∣ autoDUARel _ _ ∣ isHom ]
+      data[ _·_ ∣ autoDUARel _ _ ∣ pres· ]
       prop[ isMonoid ∣ (λ _ _ → isPropIsMonoid _ _) ])
   where
   open MonoidStr
-  open IsMonoidEquiv
+  open IsMonoidHom
 
 MonoidPath : (M N : Monoid ℓ) → MonoidEquiv M N ≃ (M ≡ N)
 MonoidPath = ∫ 𝒮ᴰ-Monoid .UARel.ua

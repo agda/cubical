@@ -2,6 +2,7 @@
 module Cubical.Foundations.Path where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
@@ -20,6 +21,13 @@ cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
       → Path B (f x) (f y)
 cong′ f = cong f
 {-# INLINE cong′ #-}
+
+module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
+  toPathP⁻ : x ≡ transport⁻ (λ i → A i) y → PathP A x y
+  toPathP⁻ p = symP (toPathP (sym p))
+
+  fromPathP⁻ : PathP A x y → x ≡ transport⁻ (λ i → A i) y
+  fromPathP⁻ p = sym (fromPathP {A = λ i → A (~ i)} (symP p))
 
 PathP≡Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
              PathP P p q ≡ Path (P i1) (transport (λ i → P i) p) q
@@ -84,6 +92,14 @@ PathP≃Path A x y = isoToEquiv (PathPIsoPath A x y)
 PathP≡compPath : ∀ {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) (r : x ≡ z)
                  → (PathP (λ i → x ≡ q i) p r) ≡ (p ∙ q ≡ r)
 PathP≡compPath p q r k = PathP (λ i → p i0 ≡ q (i ∨ k)) (λ j → compPath-filler p q k j) r
+
+-- a quick corollary for 3-constant functions
+3-ConstantCompChar : {A : Type ℓ} {B : Type ℓ'} (f : A → B) (link : 2-Constant f)
+                   → (∀ x y z → link x y ∙ link y z ≡ link x z)
+                   → 3-Constant f
+3-Constant.link (3-ConstantCompChar f link coh₂) = link
+3-Constant.coh₁ (3-ConstantCompChar f link coh₂) _ _ _ =
+   transport⁻ (PathP≡compPath _ _ _) (coh₂ _ _ _)
 
 PathP≡doubleCompPathˡ : ∀ {A : Type ℓ} {w x y z : A} (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
                         → (PathP (λ i → p i ≡ s i) q r) ≡ (p ⁻¹ ∙∙ q ∙∙ s ≡ r)
@@ -188,9 +204,41 @@ Square≃doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
                     → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ (a₋₀ ⁻¹ ∙∙ a₀₋ ∙∙ a₋₁ ≡ a₁₋)
 Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
 
+-- Flipping a square in Ω²A is the same as inverting it
+sym≡flipSquare : {x : A} (P : Square (refl {x = x}) refl refl refl)
+  → sym P ≡ flipSquare P
+sym≡flipSquare {x = x} P = sym (main refl P)
+  where
+  B : (q : x ≡ x) → I → Type _
+  B q i = PathP (λ j → x ≡ q (i ∨ j)) (λ k → q (i ∧ k)) refl
+
+  main : (q : x ≡ x) (p : refl ≡ q) → PathP (λ i → B q i) (λ i j → p j i) (sym p)
+  main q = J (λ q p → PathP (λ i → B q i) (λ i j → p j i) (sym p)) refl
+
+-- Inverting both interval arguments of a square in Ω²A is the same as doing nothing
+sym-cong-sym≡id : {x : A} (P : Square (refl {x = x}) refl refl refl)
+  → P ≡ λ i j → P (~ i) (~ j)
+sym-cong-sym≡id {x = x} P = sym (main refl P)
+  where
+  B : (q : x ≡ x) → I → Type _
+  B q i = Path (x ≡ q i) (λ j → q (i ∨ ~ j)) λ j → q (i ∧ j)
+
+  main : (q : x ≡ x) (p : refl ≡ q) → PathP (λ i → B q i) (λ i j → p (~ i) (~ j)) p
+  main q = J (λ q p → PathP (λ i → B q i) (λ i j → p (~ i) (~ j)) p) refl
+
+-- Applying cong sym is the same as flipping a square in Ω²A
+flipSquare≡cong-sym : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) refl refl refl)
+  → flipSquare P ≡ λ i j → P i (~ j)
+flipSquare≡cong-sym P = sym (sym≡flipSquare P) ∙ sym (sym-cong-sym≡id (cong sym P))
+
+-- Applying cong sym is the same as inverting a square in Ω²A
+sym≡cong-sym : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) refl refl refl)
+  → sym P ≡ cong sym P
+sym≡cong-sym P = sym-cong-sym≡id (sym P)
+
 -- sym induces an equivalence on identity types of paths
-symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
-symIso p q = iso sym sym (λ _ → refl) λ _ → refl
+symIso : {a b : A} → Iso (a ≡ b) (b ≡ a)
+symIso = iso sym sym (λ _ → refl) λ _ → refl
 
 -- J is an equivalence
 Jequiv : {x : A} (P : ∀ y → x ≡ y → Type ℓ') → P x refl ≃ (∀ {y} (p : x ≡ y) → P y p)
@@ -214,8 +262,8 @@ congPathIso {A = A} {B} e {a₀} {a₁} .Iso.fun p i = e i .fst (p i)
 congPathIso {A = A} {B} e {a₀} {a₁} .Iso.inv q i =
   hcomp
     (λ j → λ
-      { (i = i0) → secEq (e i0) a₀ j
-      ; (i = i1) → secEq (e i1) a₁ j
+      { (i = i0) → retEq (e i0) a₀ j
+      ; (i = i1) → retEq (e i1) a₁ j
       })
     (invEq (e i) (q i))
 congPathIso {A = A} {B} e {a₀} {a₁} .Iso.rightInv q k i =
@@ -227,25 +275,95 @@ congPathIso {A = A} {B} e {a₀} {a₁} .Iso.rightInv q k i =
         e i .fst
           (hfill
             (λ j → λ
-              { (i = i0) → secEq (e i0) a₀ j
-              ; (i = i1) → secEq (e i1) a₁ j
+              { (i = i0) → retEq (e i0) a₀ j
+              ; (i = i1) → retEq (e i1) a₁ j
               })
             (inS (invEq (e i) (q i)))
             j)
       ; (k = i1) → q i
       })
-    (retEq (e i) (q i) k)
+    (secEq (e i) (q i) k)
     where b = commSqIsEq
 congPathIso {A = A} {B} e {a₀} {a₁} .Iso.leftInv p k i =
   hcomp
     (λ j → λ
-      { (i = i0) → secEq (e i0) a₀ (j ∨ k)
-      ; (i = i1) → secEq (e i1) a₁ (j ∨ k)
+      { (i = i0) → retEq (e i0) a₀ (j ∨ k)
+      ; (i = i1) → retEq (e i1) a₁ (j ∨ k)
       ; (k = i1) → p i
       })
-    (secEq (e i) (p i) k)
+    (retEq (e i) (p i) k)
 
 congPathEquiv : ∀ {ℓ ℓ'} {A : I → Type ℓ} {B : I → Type ℓ'}
   (e : ∀ i → A i ≃ B i) {a₀ : A i0} {a₁ : A i1}
   → PathP A a₀ a₁ ≃ PathP B (e i0 .fst a₀) (e i1 .fst a₁)
 congPathEquiv e = isoToEquiv (congPathIso e)
+
+-- Characterizations of dependent paths in path types
+
+doubleCompPath-filler∙ : {a b c d : A} (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)
+  → PathP (λ i → p i ≡ r (~ i)) (p ∙ q ∙ r) q
+doubleCompPath-filler∙ {A = A} {b = b} p q r j i =
+  hcomp (λ k → λ { (i = i0) → p j
+                  ; (i = i1) → side j k
+                  ; (j = i1) → q (i ∧ k)})
+        (p (j ∨ i))
+  where
+  side : I → I → A
+  side i j =
+    hcomp (λ k → λ { (i = i1) → q j
+                    ; (j = i0) → b
+                    ; (j = i1) → r (~ i ∧ k)})
+          (q j)
+
+PathP→compPathL : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → PathP (λ i → p i ≡ q i) r s
+  → sym p ∙ r ∙ q ≡ s
+PathP→compPathL {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∨ k)
+                 ; (i = i1) → q (j ∨ k)
+                 ; (j = i0) → doubleCompPath-filler∙ (sym p) r q (~ k) i
+                 ; (j = i1) → s i })
+        (P j i)
+
+PathP→compPathR : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → PathP (λ i → p i ≡ q i) r s
+  → r ≡ p ∙ s ∙ sym q
+PathP→compPathR {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (j ∧ (~ k))
+                 ; (i = i1) → q (j ∧ (~ k))
+                 ; (j = i0) → r i
+                 ; (j = i1) → doubleCompPath-filler∙ p s (sym q) (~ k) i})
+        (P j i)
+
+
+-- Other direction
+
+compPathL→PathP : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → sym p ∙ r ∙ q ≡ s
+  → PathP (λ i → p i ≡ q i) r s
+compPathL→PathP {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (~ k ∨ j)
+                 ; (i = i1) → q (~ k ∨ j)
+                 ; (j = i0) → doubleCompPath-filler∙ (sym p) r q k i
+                 ; (j = i1) → s i})
+        (P j i)
+
+compPathR→PathP : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → r ≡ p ∙ s ∙ sym q
+  → PathP (λ i → p i ≡ q i) r s
+compPathR→PathP {p = p} {q = q} {r = r} {s = s} P j i =
+  hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                 ; (i = i1) → q (k ∧ j)
+                 ; (j = i0) → r i
+                 ; (j = i1) → doubleCompPath-filler∙  p s (sym q) k i})
+        (P j i)
+
+compPathR→PathP∙∙ : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → r ≡ p ∙∙ s ∙∙ sym q
+  → PathP (λ i → p i ≡ q i) r s
+compPathR→PathP∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
+    hcomp (λ k → λ { (i = i0) → p (k ∧ j)
+                   ; (i = i1) → q (k ∧ j)
+                   ; (j = i0) → r i
+                   ; (j = i1) → doubleCompPath-filler  p s (sym q) (~ k) i})
+          (P j i)

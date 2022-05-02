@@ -7,7 +7,6 @@ module Cubical.Functions.Fixpoint where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Path
 
 private
   variable
