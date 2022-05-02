@@ -47,12 +47,12 @@ private
   ⋆distl+ (preadd terminalPreAdd) = λ _ _ _ _ → refl
   ⋆distr+ (preadd terminalPreAdd) = λ _ _ _ → refl
 
-terminal : AdditiveCategory ℓ ℓ
-preaddcat terminal = terminalPreAdd
-ZeroObject.z (zero (addit terminal)) = tt*
-ZeroObject.zInit (zero (addit terminal)) y = homContr _ _
-ZeroObject.zTerm (zero (addit terminal)) y = homContr _ _
-biprod (addit terminal) x y = trivProd
+terminalAdditiveCategory : AdditiveCategory ℓ ℓ
+preaddcat terminalAdditiveCategory = terminalPreAdd
+ZeroObject.z (zero (addit terminalAdditiveCategory)) = tt*
+ZeroObject.zInit (zero (addit terminalAdditiveCategory)) y = homContr _ _
+ZeroObject.zTerm (zero (addit terminalAdditiveCategory)) y = homContr _ _
+biprod (addit terminalAdditiveCategory) x y = trivProd
   where trivProd : Biproduct terminalPreAdd x y
         Biproduct.x⊕y trivProd = tt*
         Biproduct.i₁ trivProd = refl
