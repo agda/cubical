@@ -152,3 +152,36 @@ overPathFunct : ∀ {ℓ} {A : Type ℓ} {x y : A} (p q : x ≡ x) (P : x ≡ y)
 overPathFunct p q =
   J (λ y P → transport (λ i → P i ≡ P i) (p ∙ q) ≡ transport (λ i → P i ≡ P i) p ∙ transport (λ i → P i ≡ P i) q)
     (transportRefl (p ∙ q) ∙ cong₂ _∙_ (sym (transportRefl p)) (sym (transportRefl q)))
+
+-- substition over families of paths
+-- theorem 2.11.3 in The Book
+substInPaths : ∀ {ℓ} {A B : Type ℓ} {a a' : A}
+                 → (f g : A → B) → (p : a ≡ a') (q : f a ≡ g a)
+                 → subst (λ x → f x ≡ g x) p q ≡ sym (cong f p) ∙ q ∙ cong g p
+substInPaths {a = a} f g p q =
+  J (λ x p' → (subst (λ y → f y ≡ g y) p' q) ≡ (sym (cong f p') ∙ q ∙ cong g p'))
+    p=refl p
+    where
+    p=refl : subst (λ y → f y ≡ g y) refl q
+           ≡ refl ∙ q ∙ refl
+    p=refl = subst (λ y → f y ≡ g y) refl q
+           ≡⟨ substRefl {B = (λ y → f y ≡ g y)} q ⟩ q
+           ≡⟨ (rUnit q) ∙ lUnit (q ∙ refl) ⟩ refl ∙ q ∙ refl ∎
+
+-- special cases of substInPaths from lemma 2.11.2 in The Book
+module _ {ℓ : Level} {A : Type ℓ} {a x1 x2 : A} (p : x1 ≡ x2) where
+  substInPathsL : (q : a ≡ x1) → subst (λ x → a ≡ x) p q ≡ q ∙ p
+  substInPathsL q = subst (λ x → a ≡ x) p q
+    ≡⟨ substInPaths (λ _ → a) (λ x → x) p q ⟩
+      sym (cong (λ _ → a) p) ∙ q ∙ cong (λ x → x) p
+    ≡⟨ assoc (λ _ → a) q p ⟩
+      (refl ∙ q) ∙ p
+    ≡⟨ cong (_∙ p) (sym (lUnit q)) ⟩ q ∙ p ∎
+
+  substInPathsR : (q : x1 ≡ a) → subst (λ x → x ≡ a) p q ≡ sym p ∙ q
+  substInPathsR q = subst (λ x → x ≡ a) p q
+    ≡⟨ substInPaths (λ x → x) (λ _ → a) p q ⟩
+      sym (cong (λ x → x) p) ∙ q ∙ cong (λ _ → a) p
+    ≡⟨ assoc (sym p) q refl ⟩
+      (sym p ∙ q) ∙ refl
+    ≡⟨ sym (rUnit (sym p ∙ q))⟩ sym p ∙ q ∎
