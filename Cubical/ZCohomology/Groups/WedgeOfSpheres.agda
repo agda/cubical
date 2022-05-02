@@ -27,7 +27,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Truncation renaming (elim to trElim) hiding (map ; elim2)
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim)
 
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup)
 
 
 S¹⋁S¹ : Type₀
@@ -66,7 +66,7 @@ H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) ℤGroup
 H²-S²⋁S¹⋁S¹ =
   compGroupIso
   (Hⁿ-⋁ _ _ 1)
-  (GroupIsoDirProd {B = UnitGroup}
+  (GroupIsoDirProd {B = UnitGroup₀}
     (Hⁿ-Sⁿ≅ℤ 1)
     ((Hⁿ-⋁ _ _ 1)  □ GroupIsoDirProd (Hⁿ-S¹≅0 0) (Hⁿ-S¹≅0 0) □ rUnitGroupIso)
   □ rUnitGroupIso)

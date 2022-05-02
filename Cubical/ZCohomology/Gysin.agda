@@ -40,7 +40,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
 open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup ; Unit to UnitGroup) hiding (Bool)
+  renaming (ℤ to ℤGroup) hiding (Bool)
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.AbGroup
 
