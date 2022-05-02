@@ -3,9 +3,11 @@
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Monoidal.Base
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
 open import Cubical.Categories.Functor.Base
+open import Cubical.Reflection.RecordEquiv hiding (unit)
 
 module Cubical.Categories.Monoidal.Strict.Monoid {ℓ ℓ' : Level} (C : StrictMonCategory ℓ ℓ') where
 
@@ -88,4 +90,8 @@ nat-μ (_⋆_ monoidCategory {monA} {monB} {monC} f g) =
 ⋆IdR monoidCategory {monA} f = monoidHomExt _ _ (C.⋆IdR (carrierHom f))
 ⋆Assoc monoidCategory {monA} {monB} {monC} {monD} f g h =
   monoidHomExt _ _ (C.⋆Assoc (carrierHom f) (carrierHom g) (carrierHom h))
-isSetHom monoidCategory {monA} {monB} f g p q = {!!?!}
+isSetHom monoidCategory {monA} {monB} =
+  isOfHLevelRetractFromIso 2 isoToΣ
+    (isSetΣ C.isSetHom λ _ → isProp→isSet (isProp× (C.isSetHom _ _) (C.isSetHom _ _)))
+  where
+  unquoteDecl isoToΣ = declareRecordIsoΣ isoToΣ (quote Monoid[_,_])
