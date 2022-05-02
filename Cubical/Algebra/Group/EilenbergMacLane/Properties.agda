@@ -147,8 +147,7 @@ module _ (Ĝ : Group ℓ) where
                     ua (rightEquiv (g · h)) ∎)
 
       REComp : (g h : G) → Square (RE g) (RE (g · h)) refl (RE h)
-      REComp g h = Σ≡Set (λ _ → isProp→isSet isPropIsSet)
-                         (RE g) (RE (g · h)) refl (RE h) (lemma₁ g h)
+      REComp g h = ΣSquareSet (λ _ → isProp→isSet isPropIsSet) (lemma₁ g h)
   Codes : EM₁ Ĝ → Type ℓ
   Codes x = CodesSet x .fst
 
