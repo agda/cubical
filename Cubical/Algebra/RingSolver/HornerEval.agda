@@ -19,9 +19,9 @@ open import Cubical.Algebra.Ring
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
 
-eval : {A : RawAlgebra ℤAsRawRing ℓ′}
+eval : {A : RawAlgebra ℤAsRawRing ℓ'}
        {n : ℕ} (P : IteratedHornerForms A n)
        → Vec ⟨ A ⟩ n → ⟨ A ⟩
 eval {A = A} (const r) [] = RawAlgebra.scalar A r
