@@ -191,6 +191,16 @@ identity (isMonoid (isGroup (isAbGroup (snd trivialAbGroup)))) _ = refl , refl
 inverse (isGroup (isAbGroup (snd trivialAbGroup))) _ = refl , refl
 comm (isAbGroup (snd trivialAbGroup)) _ _ = refl
 
+-- useful lemma
+move4 : ∀ {ℓ} {A : Type ℓ} (x y z w : A) (_+_ : A → A → A)
+       → ((x y z : A) → x + (y + z) ≡ (x + y) + z)
+       → ((x y : A) → x + y ≡ y + x)
+      → (x + y) + (z + w) ≡ ((x + z) + (y + w))
+move4 x y z w _+_ assoc comm =
+     sym (assoc x y (z + w))
+  ∙∙ cong (x +_) (assoc y z w ∙∙ cong (_+ w) (comm y z) ∙∙ sym (assoc z y w))
+  ∙∙ assoc x z (y + w)
+
 ---- The type of homomorphisms A → B is an AbGroup if B is -----
 module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
   private

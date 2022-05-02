@@ -20,7 +20,6 @@ open import Cubical.Foundations.Path
 
 open import Cubical.Homotopy.Loopspace
 
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Truncation
   renaming (elim to trElim ; rec to trRec ; rec2 to trRec2)
@@ -49,39 +48,31 @@ module _ {G : AbGroup ℓ} where
       → PathP (λ i → Path (EM₁ (AbGroup→Group G))
                (emloop h i) (emloop h i)) (emloop g) (emloop g)
     helper g h =
-      compPathL→PathP
-        (cong (sym (emloop h) ∙_)
-             (sym (emloop-comp _ g h)
-          ∙∙ cong emloop (comm g h)
-          ∙∙ emloop-comp _ h g)
-     ∙∙ ∙assoc _ _ _
-     ∙∙ cong (_∙ emloop g) (lCancel _)
-      ∙ sym (lUnit _))
+      comm→PathP
+        ((sym (emloop-comp _ h g)
+          ∙∙ cong emloop (comm h g)
+          ∙∙ emloop-comp _ g h))
 
   _+ₖ_ : {n : ℕ} → EM G n → EM G n → EM G n
   _+ₖ_ {n = zero} = _+G_
   _+ₖ_ {n = suc zero} =
     rec _ (isGroupoidΠ (λ _ → emsquash))
       (λ x → x)
-      looper
+      (λ x → funExt (looper x))
       λ g h i j x → el g h x i j
     where
-    looper : fst G → (λ x → x) ≡ (λ x → x)
-    looper g = funExt (elimSet _ (λ _ → emsquash _ _)
+    looper : fst G → (x : _) → x ≡ x
+    looper g = (elimSet _ (λ _ → emsquash _ _)
                      (emloop g)
                      (helper g))
 
-    lol : (g h : fst G)
-      → Square (emloop g) (emloop (g +G h)) refl (emloop h)
-    lol g h = compPath-filler (emloop g) (emloop h) ▷ sym (emloop-comp _ g h)
-
     el : (g h : fst G) (x : EM₁ (AbGroup→Group G))
-      → Square (λ j → looper g j x)
-                (λ j → looper ((snd (AbGroup→Group G) GroupStr.· g) h) j x)
-                refl λ j → looper h j x
+      → Square (looper g x)
+                (looper (g +G h) x)
+                refl (looper h x)
     el g h =
       elimProp _ (λ _ → isOfHLevelPathP' 1 (emsquash _ _) _ _)
-        (lol g h)
+        (emcomp g h)
 
   _+ₖ_ {n = suc (suc n)} =
     trRec2 (isOfHLevelTrunc (4 + n))
@@ -89,8 +80,8 @@ module _ {G : AbGroup ℓ} where
         (λ _ _ → hLevHelp n)
         ∣_∣ ∣_∣ refl)
 
-  σ-EM : (n : ℕ) → EM-raw G (suc n) → Path (EM-raw G (2 + n)) ptS ptS
-  σ-EM n x i = (merid x ∙ sym (merid ptS)) i
+  σ-EM : (n : ℕ) → EM-raw G (suc n) → Path (EM-raw G (2 + n)) ptEM-raw ptEM-raw
+  σ-EM n x = merid x ∙ sym (merid ptEM-raw)
 
   -ₖ_ : {n : ℕ} → EM G n → EM G n
   -ₖ_ {n = zero} x = -G x
@@ -215,20 +206,20 @@ module _ {G : AbGroup ℓ} where
     pp : (a : _)
       → PathP (λ i → 0ₖ (suc (suc n)) ≡ ∣ merid a i ∣ₕ → ∣ merid a i ∣ₕ ≡ 0ₖ (2 + n))
                (cong (λ x → -[ 2 + n ]ₖ x))
-               λ p → cong ∣_∣ₕ (sym (merid ptS)) ∙ cong (λ x → -[ 2 + n ]ₖ x) p
+               λ p → cong ∣_∣ₕ (sym (merid ptEM-raw)) ∙ cong (λ x → -[ 2 + n ]ₖ x) p
     pp a =
       toPathP
         (funExt λ x →
-          (λ k → transp (λ i → Path (EM G (2 + n)) ∣ merid a (i ∨ k) ∣ ∣ ptS ∣) k
+          (λ k → transp (λ i → Path (EM G (2 + n)) ∣ merid a (i ∨ k) ∣ ∣ ptEM-raw ∣) k
                          (compPath-filler' (cong ∣_∣ₕ (sym (merid a)))
                           (cong (-ₖ-syntax (suc (suc n)))
-                           (transp (λ j → Path (EM G (2 + n)) ∣ ptS ∣ ∣ merid a (~ j ∧ ~ k) ∣) k
+                           (transp (λ j → Path (EM G (2 + n)) ∣ ptEM-raw ∣ ∣ merid a (~ j ∧ ~ k) ∣) k
                             (compPath-filler x (sym (cong ∣_∣ₕ (merid a))) k))) k))
                ∙∙ cong (cong ∣_∣ₕ (sym (merid a)) ∙_)
                        (cong-∙ (λ x → -[ 2 + n ]ₖ x) x (sym (cong ∣_∣ₕ (merid a)))
                       ∙ isCommΩEM (suc n) (cong (λ x → -[ 2 + n ]ₖ x) x) (cong ∣_∣ₕ (σ-EM n a)))
                ∙∙ (λ k → (λ i → ∣ merid a (~ i ∨ k) ∣)
-                        ∙ (λ i → ∣ compPath-filler' (merid a) (sym (merid ptS)) (~ k) i ∣)
+                        ∙ (λ i → ∣ compPath-filler' (merid a) (sym (merid ptEM-raw)) (~ k) i ∣)
                         ∙ cong (λ x → -ₖ-syntax (suc (suc n)) x) x)
                 ∙ sym (lUnit _))
 
@@ -236,8 +227,8 @@ module _ {G : AbGroup ℓ} where
             → 0ₖ (2 + n) ≡ x → x ≡ 0ₖ (2 + n)
     decoder =
       trElim (λ _ → isOfHLevelΠ (4 + n) λ _ → isOfHLevelTruncPath {n = 4 + n})
-             λ { north → pp ptS i0
-               ; south → pp ptS i1
+             λ { north → pp ptEM-raw i0
+               ; south → pp ptEM-raw i1
                ; (merid a i) → pp a i}
 
     main : (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x) → decoder x p ≡ sym p
@@ -253,13 +244,13 @@ module _ {G : AbGroup ℓ} where
   rCancelₖ (suc (suc n)) =
     trElim (λ _ → isOfHLevelTruncPath {n = 4 + n})
       λ { north → refl
-        ; south i → +ₖ-syntax (suc (suc n)) ∣ merid ptS (~ i) ∣
-                      (-ₖ-syntax (suc (suc n)) ∣ merid ptS (~ i) ∣)
+        ; south i → +ₖ-syntax (suc (suc n)) ∣ merid ptEM-raw (~ i) ∣
+                      (-ₖ-syntax (suc (suc n)) ∣ merid ptEM-raw (~ i) ∣)
         ; (merid a i) j
           → hcomp (λ r → λ { (i = i0) → 0ₖ (2 + n)
-                             ; (i = i1) → ∣ merid ptS (~ j ∧ r) ∣ₕ -[ 2 + n ]ₖ ∣ merid ptS (~ j ∧ r) ∣
-                             ; (j = i0) → ∣ compPath-filler (merid a) (sym (merid ptS)) (~ r) i ∣
-                                        -[ 2 + n ]ₖ ∣ compPath-filler (merid a) (sym (merid ptS)) (~ r) i ∣
+                             ; (i = i1) → ∣ merid ptEM-raw (~ j ∧ r) ∣ₕ -[ 2 + n ]ₖ ∣ merid ptEM-raw (~ j ∧ r) ∣
+                             ; (j = i0) → ∣ compPath-filler (merid a) (sym (merid ptEM-raw)) (~ r) i ∣
+                                        -[ 2 + n ]ₖ ∣ compPath-filler (merid a) (sym (merid ptEM-raw)) (~ r) i ∣
                              ; (j = i1) → 0ₖ (2 + n)})
                    (help' a j i) }
     where
@@ -298,27 +289,27 @@ module _ {G : AbGroup ℓ} where
                     ≡ (∣ a ∣ₕ +[ suc (suc n) ]ₖ ∣ b ∣ₕ) +[ suc (suc n) ]ₖ ∣ merid c i ∣ₕ))
                (cong (λ x → ∣ a ∣ₕ +[ suc (suc n) ]ₖ x) (rUnitₖ (suc (suc n)) ∣ b ∣)
                    ∙ sym (rUnitₖ (suc (suc n)) (∣ a ∣ₕ +[ suc (suc n) ]ₖ ∣ b ∣ₕ)))
-               ((λ i → ∣ a ∣ₕ +[ suc (suc n) ]ₖ (∣ b ∣ₕ +[ suc (suc n) ]ₖ ∣ merid ptS (~ i) ∣ₕ))
+               ((λ i → ∣ a ∣ₕ +[ suc (suc n) ]ₖ (∣ b ∣ₕ +[ suc (suc n) ]ₖ ∣ merid ptEM-raw (~ i) ∣ₕ))
              ∙∙ cong (λ x → ∣ a ∣ₕ +[ suc (suc n) ]ₖ x) (rUnitₖ (suc (suc n)) ∣ b ∣)
                  ∙ sym (rUnitₖ (suc (suc n)) (∣ a ∣ₕ +[ suc (suc n) ]ₖ ∣ b ∣ₕ))
-             ∙∙ λ i → (∣ a ∣ₕ +[ suc (suc n) ]ₖ ∣ b ∣ₕ) +[ suc (suc n) ]ₖ ∣ merid ptS i ∣ₕ)
+             ∙∙ λ i → (∣ a ∣ₕ +[ suc (suc n) ]ₖ ∣ b ∣ₕ) +[ suc (suc n) ]ₖ ∣ merid ptEM-raw i ∣ₕ)
     lem c =
-      EM-raw-elim G (suc n)
+      raw-elim G (suc n)
         (λ _ → isOfHLevelΠ (2 + n)
           (λ _ → isOfHLevelPathP' (2 + n) (isOfHLevelTrunc (4 + n) _ _) _ _))
-           (EM-raw-elim G (suc n)
+           (raw-elim G (suc n)
             (λ _ → isOfHLevelPathP' (2 + n) (isOfHLevelTrunc (4 + n) _ _) _ _)
              ((sym (rUnit refl)
              ◁ λ _ → refl)
-             ▷ (sym (lCancel (cong ∣_∣ₕ (merid ptS)))
-             ∙ λ i → (λ j → ∣ merid ptS (~ j ∨ ~ i) ∣ₕ)
-                   ∙∙ lUnit (λ j → ∣ merid ptS (~ j ∧ ~ i) ∣ₕ) i
-                   ∙∙ cong ∣_∣ₕ (merid ptS))))
+             ▷ (sym (lCancel (cong ∣_∣ₕ (merid ptEM-raw)))
+             ∙ λ i → (λ j → ∣ merid ptEM-raw (~ j ∨ ~ i) ∣ₕ)
+                   ∙∙ lUnit (λ j → ∣ merid ptEM-raw (~ j ∧ ~ i) ∣ₕ) i
+                   ∙∙ cong ∣_∣ₕ (merid ptEM-raw))))
     main : (c a b : _)
       → (∣ a ∣ₕ +[ suc (suc n) ]ₖ (∣ b ∣ₕ +[ suc (suc n) ]ₖ ∣ c ∣ₕ)
        ≡ (∣ a ∣ₕ +[ suc (suc n) ]ₖ ∣ b ∣ₕ) +[ suc (suc n) ]ₖ ∣ c ∣ₕ)
-    main north a b = lem ptS a b i0
-    main south a b = lem ptS a b i1
+    main north a b = lem ptEM-raw a b i0
+    main south a b = lem ptEM-raw a b i1
     main (merid c i) a b = lem c a b i
 
   σ-EM' : (n : ℕ) (x : EM G (suc n))
@@ -331,14 +322,15 @@ module _ {G : AbGroup ℓ} where
       λ x → cong ∣_∣ₕ (σ-EM (suc n) x)
 
   σ-EM'-0ₖ : (n : ℕ) → σ-EM' n (0ₖ (suc n)) ≡ refl
-  σ-EM'-0ₖ zero = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
-  σ-EM'-0ₖ (suc n) = cong (cong ∣_∣ₕ) (rCancel (merid ptS))
+  σ-EM'-0ₖ zero = cong (cong ∣_∣ₕ) (rCancel (merid ptEM-raw))
+  σ-EM'-0ₖ (suc n) = cong (cong ∣_∣ₕ) (rCancel (merid ptEM-raw))
 
   private
-    P : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) (r : refl ≡ p)
+    lUnit-rUnit-coh : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) (r : refl ≡ p)
         → lUnit p ∙ cong (_∙ p) r
          ≡ rUnit p ∙ cong (p ∙_) r
-    P p = J (λ p r → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r) refl
+    lUnit-rUnit-coh p =
+      J (λ p r → lUnit p ∙ cong (_∙ p) r ≡ rUnit p ∙ cong (p ∙_) r) refl
 
   σ-EM'-hom : (n : ℕ) → (a b : _) → σ-EM' n (a +ₖ b) ≡ σ-EM' n a ∙ σ-EM' n b
   σ-EM'-hom zero =
@@ -356,7 +348,7 @@ module _ {G : AbGroup ℓ} where
       ∙∙ cong (σ-EM' zero x ∙_) (sym (σ-EM'-0ₖ zero))
 
     p : _
-    p = P (σ-EM' zero embase) (sym (σ-EM'-0ₖ zero))
+    p = lUnit-rUnit-coh (σ-EM' zero embase) (sym (σ-EM'-0ₖ zero))
   σ-EM'-hom (suc n) =
     elim2 (λ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (5 + n) _ _) _ _)
       (wedgeConEM.fun G G _ _
@@ -372,7 +364,7 @@ module _ {G : AbGroup ℓ} where
         (λ x → cong (σ-EM' (suc n)) (rUnitₖ (2 + n) ∣ x ∣)
       ∙∙ rUnit (σ-EM' (suc n) ∣ x ∣)
       ∙∙ cong (σ-EM' (suc n) ∣ x ∣ ∙_) (sym (σ-EM'-0ₖ (suc n))))
-        (P (σ-EM' (suc n) (0ₖ (2 + n))) (sym (σ-EM'-0ₖ (suc n)))))
+        (lUnit-rUnit-coh (σ-EM' (suc n) (0ₖ (2 + n))) (sym (σ-EM'-0ₖ (suc n)))))
 
   σ-EM'-ₖ : (n : ℕ) → (a : _) → σ-EM' n (-ₖ a) ≡ sym (σ-EM' n a)
   σ-EM'-ₖ n =
@@ -395,7 +387,7 @@ module _ {G : AbGroup ℓ} where
     r : _
     r x = cong (λ z → -[ 1 ]ₖ z) (rUnitₖ 1 x) ∙ sym (rUnitₖ 1 (-[ 1 ]ₖ x))
 
-    p : r ptS ≡ l ptS
+    p : r ptEM-raw ≡ l ptEM-raw
     p = sym (rUnit refl)
 
     k = wedgeConEM.fun G G 0 0 (λ _ _ → emsquash _ _) l r (sym p)

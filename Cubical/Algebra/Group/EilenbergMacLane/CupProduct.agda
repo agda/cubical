@@ -2,7 +2,7 @@
 
 module Cubical.Algebra.Group.EilenbergMacLane.CupProduct where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base
+open import Cubical.Algebra.Group.EilenbergMacLane.Base renaming (elim to EM-elim)
 open import Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity
 open import Cubical.Algebra.Group.EilenbergMacLane.GroupStructure
 open import Cubical.Algebra.Group.EilenbergMacLane.Properties
@@ -31,7 +31,7 @@ open import Cubical.Data.Empty
   renaming (rec to ⊥-rec)
 open import Cubical.HITs.Truncation
   renaming (elim to trElim ; rec to trRec ; rec2 to trRec2)
-open import Cubical.Data.Nat hiding (_·_)
+open import Cubical.Data.Nat hiding (_·_) renaming (elim to ℕelim)
 open import Cubical.HITs.Susp
 
 open import Cubical.Algebra.AbGroup.TensorProduct
@@ -46,52 +46,14 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
-private
-  -- ℕ induction. For some reason, this helps the termination checker
-  ind' : ∀ {ℓ} {A : ℕ → Type ℓ} → A 0
-            → ((n : ℕ) → (A n → A (suc n)))
-            → (n : ℕ) → A n
-  ind' a0 ind zero = a0
-  ind' a0 ind (suc n) = ind n (ind' a0 ind n)
-
-  ind+2 : ∀ {ℓ} {A : ℕ → Type ℓ} → A 0 → A 1
-            → ((n : ℕ) → (A (suc n) → A (suc (suc n))))
-            → (n : ℕ) → A n
-  ind+2 a0 a1 ind zero = a0
-  ind+2 a0 a1 ind (suc zero) = a1
-  ind+2 {A = A} a0 a1 ind (suc (suc n)) =
-    ind n (ind+2 {A = A} a0 a1 ind (suc n))
-
--- A homomorphism φ : G → H of AbGroups induces a homomorphism
--- φ' : K(G,n) → K(H,n)
-inducedFun-EM-raw : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
-                     → AbGroupHom G' H'
-                     → ∀ n
-                     → EM-raw G' n → EM-raw H' n
-inducedFun-EM-raw f =
-  ind+2 (fst f)
-    (EMrec _ emsquash embase
-     (λ g → emloop (fst f g))
-      λ g h → compPathR→PathP (sym
-                (sym (lUnit _)
-              ∙∙ cong (_∙ (sym (emloop (fst f h))))
-                      (cong emloop (IsGroupHom.pres· (snd f) g h)
-                          ∙ emloop-comp _ (fst f g) (fst f h))
-              ∙∙ sym (∙assoc _ _ _)
-              ∙∙ cong (emloop (fst f g) ∙_) (rCancel _)
-              ∙∙ sym (rUnit _))))
-    (λ n ind → λ { north → north
-                  ; south → south
-                  ; (merid a i) → merid (ind a) i} )
-
 -- Lemma for distributativity of cup product (used later)
 pathType : ∀ {ℓ} {G : AbGroup ℓ} (n : ℕ) (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x) → Type ℓ
 pathType n x p = sym (rUnitₖ (2 + n) x) ∙ (λ i → x +ₖ p i)
                ≡ sym (lUnitₖ (2 + n) x) ∙ λ i → p i +ₖ x
 
-lem : ∀ {ℓ} {G : AbGroup ℓ} (n : ℕ) (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x)
+pathTypeMake : ∀ {ℓ} {G : AbGroup ℓ} (n : ℕ) (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x)
     → pathType n x p
-lem n x = J (λ x p → pathType n x p) refl
+pathTypeMake n x = J (λ x p → pathType n x p) refl
 
 
 -- Definition of cup product (⌣ₖ, given by ·₀ when first argument is in K(G,0))
@@ -114,7 +76,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
 
    ·₀' : H → (m : ℕ) → EM G' m → EM (G' ⨂ H') m
    ·₀' h =
-     ind+2
+     elim+2
        (_⊗ h)
        (elimGroupoid _ (λ _ → emsquash)
          embase
@@ -132,7 +94,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
 
    ·₀ : G → (m : ℕ) → EM H' m → EM (G' ⨂ H') m
    ·₀ g =
-     ind+2 (λ h → g ⊗ h)
+     elim+2 (λ h → g ⊗ h)
                (elimGroupoid _ (λ _ → emsquash)
                  embase
                  (λ h → emloop (g ⊗ h))
@@ -148,7 +110,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
 
    ·₀-distr : (g h : G) → (m : ℕ)  (x : EM H' m) → ·₀ (g +G h) m x ≡ ·₀ g m x +ₖ ·₀ h m x
    ·₀-distr g h =
-     ind+2
+     elim+2
        (linl g h)
        (elimSet _ (λ _ → emsquash _ _)
          refl
@@ -188,7 +150,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
 
    0·₀ : (m : ℕ) → (x : _) → ·₀ 0G m x ≡ 0ₖ m
    0·₀ =
-     ind+2 lCancelPrim
+     elim+2 lCancelPrim
        (elimSet _ (λ _ → emsquash _ _)
          refl
          λ g → compPathR→PathP ((sym (emloop-1g _)
@@ -203,7 +165,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
 
    0·₀' : (m : ℕ) (g : _) → ·₀' 0H m g ≡ 0ₖ m
    0·₀' =
-     ind+2
+     elim+2
        rCancelPrim
        (elimSet _ (λ _ → emsquash _ _)
          refl
@@ -221,10 +183,10 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
 -- Definition of the cup product
    cup∙ : ∀ n m → EM G' n → EM∙ H' m →∙ EM∙ (G' ⨂ H') (n +' m)
    cup∙ =
-     ind'
+     ℕelim
        (λ m g → (·₀ g m) , ·₀0 m g)
          λ n f →
-           ind'
+           ℕelim
              (λ g → (λ h → ·₀' h (suc n) g) , 0·₀' (suc n) g)
              λ m _ → main n m f
 
@@ -261,10 +223,8 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
        trElim (λ _ → isOfHLevel↑∙ (2 + n) m)
          λ { north → (λ _ → 0ₖ (3 + (n + m))) , refl
            ; south → (λ _ → 0ₖ (3 + (n + m))) , refl
-           ; (merid a i) → (λ x → EM→ΩEM+1 _ (ind _ (EM-raw→EM _ _ a) .fst x) i)
-                          , λ j → (cong (EM→ΩEM+1 (suc (suc (n + m))))
-                                         (ind (suc m) (EM-raw→EM G' (suc n) a) .snd)
-                                 ∙ EM→ΩEM+1-0ₖ _) j i}
+           ; (merid a i) → Iso.inv (ΩfunExtIso _ _)
+                             (EM→ΩEM+1∙ _ ∘∙ ind (suc m) (EM-raw→EM _ _ a)) i}
 
    _⌣ₖ_ : {n m : ℕ} (x : EM G' n) (y : EM H' m) → EM (G' ⨂ H') (n +' m)
    _⌣ₖ_ x y = cup∙ _ _ x .fst y
@@ -323,7 +283,7 @@ module LeftDistributivity {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
             ∙∙ λ i → (z ⌣ₖ y) +ₖ (⌣ₖ-0ₖ (suc n) (suc zero) z (~ i))
 
      l≡r : (z : EM G' (suc n)) → l embase z ≡ r embase z
-     l≡r z = sym (lem _ _ (sym (⌣ₖ-0ₖ (suc n) (suc zero) z)))
+     l≡r z = sym (pathTypeMake _ _ (sym (⌣ₖ-0ₖ (suc n) (suc zero) z)))
 
    mainDistrL n (suc m) =
      elim2 (λ _ _ → isOfHLevelPath (4 + m) (hLevLem _ _) _ _)
@@ -354,7 +314,7 @@ module LeftDistributivity {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
          ∙∙ λ i → (z ⌣ₖ ∣ x ∣) +ₖ (⌣ₖ-0ₖ (suc n) (suc (suc m)) z (~ i))
 
     l≡r : (z : EM G' (suc n)) → l north z ≡ r north z
-    l≡r z = sym (lem _ _ (sym (⌣ₖ-0ₖ (suc n) (suc (suc m)) z)))
+    l≡r z = sym (pathTypeMake _ _ (sym (⌣ₖ-0ₖ (suc n) (suc (suc m)) z)))
 
 module RightDistributivity {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
    private
@@ -407,7 +367,7 @@ module RightDistributivity {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
        ∙∙ λ i → (_⌣ₖ_ {n = 1} {m = suc m} x z) +ₖ 0ₖ-⌣ₖ (suc zero) (suc m) z (~ i)
 
      l≡r : (z : _) → l embase z ≡ r embase z
-     l≡r z = lem _ _ _
+     l≡r z = pathTypeMake _ _ _
 
    mainDistrR (suc n) m =
      elim2 (λ _ _ → isOfHLevelPath (4 + n)
@@ -438,54 +398,8 @@ module RightDistributivity {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
            ∙∙ λ i → (∣ x ∣ ⌣ₖ z) +ₖ 0ₖ-⌣ₖ _ _ z (~ i)
 
      r≡l : (z : _) → l north z ≡ r north z
-     r≡l z = lem _ _ _
+     r≡l z = pathTypeMake _ _ _
 
 -- TODO: Summarise distributivity proofs
 -- TODO: Associativity and graded commutativity, following Cubical.ZCohomology.RingStructure
 -- The following lemmas will be needed to make the types match up.
-
-inducedFun-EM-rawIso : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
-                     → AbGroupEquiv G' H'
-                     → ∀ n → Iso (EM-raw G' n) (EM-raw H' n)
-Iso.fun (inducedFun-EM-rawIso e n) = inducedFun-EM-raw (_ , (snd e)) n
-Iso.inv (inducedFun-EM-rawIso e n) = inducedFun-EM-raw (_ , isGroupHomInv e) n
-Iso.rightInv (inducedFun-EM-rawIso e n) = h n
-  where
-  h : (n : ℕ) → section (inducedFun-EM-raw (fst e .fst , snd e) n)
-      (inducedFun-EM-raw (invEq (fst e) , isGroupHomInv e) n)
-  h = ind+2
-    (secEq (fst e))
-    (elimSet _ (λ _ → emsquash _ _) refl
-                       (λ g → compPathR→PathP
-                          ((sym (cong₂ _∙_ (cong emloop (secEq (fst e) g)) (sym (lUnit _))
-                               ∙ rCancel _)))))
-    λ n p → λ { north → refl
-               ; south → refl
-               ; (merid a i) k → merid (p a k) i}
-Iso.leftInv (inducedFun-EM-rawIso e n) = h n
-  where
-  h : (n : ℕ) → retract (Iso.fun (inducedFun-EM-rawIso e n))
-                          (Iso.inv (inducedFun-EM-rawIso e n))
-  h = ind+2
-    (retEq (fst e))
-    (elimSet _ (λ _ → emsquash _ _) refl
-                       (λ g → compPathR→PathP
-                          ((sym (cong₂ _∙_ (cong emloop (retEq (fst e) g)) (sym (lUnit _))
-                               ∙ rCancel _)))))
-    λ n p → λ { north → refl
-               ; south → refl
-               ; (merid a i) k → merid (p a k) i}
-
-Iso→EMIso : {G : AbGroup ℓ} {H : AbGroup ℓ'}
-  → AbGroupEquiv G H → ∀ n → Iso (EM G n) (EM H n)
-Iso→EMIso is zero = inducedFun-EM-rawIso is zero
-Iso→EMIso is (suc zero) = inducedFun-EM-rawIso is 1
-Iso→EMIso is (suc (suc n)) = mapCompIso (inducedFun-EM-rawIso is (suc (suc n)))
-
-EM⊗-commFun : {G : AbGroup ℓ} {H : AbGroup ℓ'}
-  → ∀ n →  Iso (EM (G ⨂ H) n) (EM (H ⨂ G) n)
-EM⊗-commFun {G = G} {H = H} = Iso→EMIso (GroupIso→GroupEquiv ⨂-commIso)
-
-EM⊗-assocIso : {G : AbGroup ℓ} {H : AbGroup ℓ'} {L : AbGroup ℓ''}
-  → ∀ n → Iso (EM (G ⨂ (H ⨂ L)) n) (EM ((G ⨂ H) ⨂ L) n)
-EM⊗-assocIso = Iso→EMIso (GroupIso→GroupEquiv (GroupEquiv→GroupIso ⨂assoc))

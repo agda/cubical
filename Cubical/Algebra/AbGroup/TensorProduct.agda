@@ -144,34 +144,34 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
   -------------------------------------------------------------------------------
   -- Useful induction principle, which lets us view elements of A ⨂ B as lists
   -- over (A × B). Used for the right cancellation law
-  listify : List (A × B) → AGr ⨂₁ BGr
-  listify [] = 0A ⊗ 0B
-  listify (x ∷ x₁) = (fst x ⊗ snd x) +⊗ listify x₁
+  unlist : List (A × B) → AGr ⨂₁ BGr
+  unlist [] = 0A ⊗ 0B
+  unlist (x ∷ x₁) = (fst x ⊗ snd x) +⊗ unlist x₁
 
-  listify++ : (x y : List (A × B))
-            → listify (x ++ y) ≡ (listify x +⊗ listify y)
-  listify++ [] y = sym (⊗lUnit (listify y))
-  listify++ (x ∷ x₁) y =
-       (λ i → (fst x ⊗ snd x) +⊗ (listify++ x₁ y i))
-     ∙ ⊗assoc (fst x ⊗ snd x) (listify x₁) (listify y)
+  unlist++ : (x y : List (A × B))
+            → unlist (x ++ y) ≡ (unlist x +⊗ unlist y)
+  unlist++ [] y = sym (⊗lUnit (unlist y))
+  unlist++ (x ∷ x₁) y =
+       (λ i → (fst x ⊗ snd x) +⊗ (unlist++ x₁ y i))
+     ∙ ⊗assoc (fst x ⊗ snd x) (unlist x₁) (unlist y)
 
-  ∃List : (x : AGr ⨂₁ BGr) → ∃[ l ∈ List (A × B) ] (listify l ≡ x)
+  ∃List : (x : AGr ⨂₁ BGr) → ∃[ l ∈ List (A × B) ] (unlist l ≡ x)
   ∃List =
     ⊗elimProp (λ _ → squash)
       (λ a b → ∣ [ a , b ] , ⊗rUnit (a ⊗ b) ∣)
       λ x y → rec2 squash λ {(l1 , p) (l2 , q)
-                          → ∣ (l1 ++ l2) , listify++ l1 l2 ∙ cong₂ _+⊗_ p q ∣}
+                          → ∣ (l1 ++ l2) , unlist++ l1 l2 ∙ cong₂ _+⊗_ p q ∣}
 
-  ⊗elimPropListify : ∀ {ℓ} {C : AGr ⨂₁ BGr → Type ℓ}
+  ⊗elimPropUnlist : ∀ {ℓ} {C : AGr ⨂₁ BGr → Type ℓ}
            → ((x : _) → isProp (C x))
-           → ((x : _) → C (listify x))
+           → ((x : _) → C (unlist x))
            → (x : _) → C x
-  ⊗elimPropListify {C = C} p f =
+  ⊗elimPropUnlist {C = C} p f =
     ⊗elimProp p (λ x y → subst C (⊗rUnit (x ⊗ y)) (f [ x , y ]))
       λ x y → pRec (isPropΠ2 λ _ _ → p _)
                     (pRec (isPropΠ3 λ _ _ _ → p _)
                       (λ {(l1 , p) (l2 , q) ind1 ind2
-                        → subst C (listify++ l2 l1 ∙ cong₂ _+⊗_ q p) (f (l2 ++ l1))})
+                        → subst C (unlist++ l2 l1 ∙ cong₂ _+⊗_ q p) (f (l2 ++ l1))})
                       (∃List y))
                     (∃List x)
   -----------------------------------------------------------------------------------
@@ -220,13 +220,13 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
 
   ⊗rCancel : (x : AGr ⨂₁ BGr) → (x +⊗ -⊗ x) ≡ 0⊗
   ⊗rCancel =
-    ⊗elimPropListify (λ _ → ⊗squash _ _) h
+    ⊗elimPropUnlist (λ _ → ⊗squash _ _) h
     where
-    h : (x : List (A × B)) → (listify x +⊗ -⊗ (listify x)) ≡ 0⊗
+    h : (x : List (A × B)) → (unlist x +⊗ -⊗ (unlist x)) ≡ 0⊗
     h [] = sym (linl 0A (-A 0A) (0B))
          ∙ cong (λ x →  _⊗_ {AGr = AGr} {BGr = BGr} x 0B) (invr strA 0A)
     h (x ∷ x₁) =
-      move4 (fst x ⊗ snd x) (listify x₁) ((-A fst x) ⊗ snd x) (-⊗ (listify x₁))
+      move4 (fst x ⊗ snd x) (unlist x₁) ((-A fst x) ⊗ snd x) (-⊗ (unlist x₁))
             _+⊗_ ⊗assoc ⊗comm
       ∙∙ cong₂ _+⊗_ (sym (linl (fst x) (-A (fst x)) (snd x))
                    ∙∙ (λ i → invr strA (fst x) i ⊗ (snd x))
