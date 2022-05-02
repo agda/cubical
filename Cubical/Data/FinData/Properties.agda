@@ -98,6 +98,18 @@ toFin0≡0 {ℕzero} (ℕsuc k , p) = Empty.rec (ℕsnotz (+-comm 1 k ∙ (cong 
 toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
          subst (λ x → weakenFin x ≡ zero) (sym (toFin0≡0 (k , cong predℕ p))) refl
 
+akbFinVec : (n k : ℕ) → (a b : A) → FinVec A n
+akbFinVec (ℕsuc n) ℕzero a b zero = a
+akbFinVec (ℕsuc n) ℕzero a b (suc x) = b
+akbFinVec (ℕsuc n) (ℕsuc k) a b zero = b
+akbFinVec (ℕsuc n) (ℕsuc k) a b (suc x) = akbFinVec n k a b x
+
+-- WARNING : do not use -> very hard to prove things one
+akbFinVec' : (n k : ℕ) → (a b : A) → FinVec A n
+akbFinVec' n k a b x with discreteℕ (toℕ x) k
+... | yes p = a
+... | no ¬p = b
+
 -- doing induction on toFin is awkward, so the following alternative
 enum : (m : ℕ) → m < n → Fin n
 enum {n = ℕzero} _ m<0 = Empty.rec (¬-<-zero m<0)

@@ -12,6 +12,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Data.Empty renaming (elim to elim-⊥ ; rec to rec-⊥)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum hiding (map ; elim ; rec)
 open import Cubical.Data.FinData hiding (elim ; rec)
@@ -23,7 +24,10 @@ open import Cubical.Data.Nat renaming ( zero to ℕzero ; suc to ℕsuc
 open import Cubical.Data.Nat.Order
 open import Cubical.HITs.PropositionalTruncation
 
+open import Cubical.Relation.Nullary
+
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.BinomialThm
@@ -96,6 +100,7 @@ module _ (Ring@(R , str) : CommRing ℓ) where
   CommIdeal.isCommIdeal.contains0 (snd (generatedIdeal V)) = isLinearCombination0 V
   CommIdeal.isCommIdeal.·Closed (snd (generatedIdeal V)) = λ r → isLinearCombinationL· V r
 
+-- two lemma for computing linear combination
 module _
   (A'@(A , Ar) : CommRing ℓ)
   (B'@(B , Br) : CommRing ℓ')
@@ -137,6 +142,42 @@ module _
 
     where
     rec-call = foldrFin _+A_ 0A (λ x → a (suc x) ·A v (suc x))
+
+module _
+  (A'@(A , Astr) : CommRing ℓ)
+  where
+
+  Ar : Ring ℓ
+  Ar = CommRing→Ring A'
+
+  open CommRingStr Astr
+  open RingTheory
+
+  cbn-akbFinVec-linear-combi : (n : ℕ) → (k : Fin n) → (a : A) → (v : FinVec A n)
+                               → linearCombination A' (akbFinVec n (toℕ k) a 0r) v ≡ (a · (v k))
+  cbn-akbFinVec-linear-combi ℕzero () a v
+  cbn-akbFinVec-linear-combi (ℕsuc n) zero a v = cong (λ X → a · (v zero) + X) (cong (λ X → foldrFin _+_ 0r X)
+                                                       (funExt (λ x → 0LeftAnnihilates Ar (v (suc x)))))
+
+                                                 ∙ cong (λ X → (a · v zero) + X) (Sum.∑0r Ar n)
+                                                 ∙ +Rid _
+  cbn-akbFinVec-linear-combi (ℕsuc n) (suc k) a v = cong (λ X → X + foldrFin _+_ 0r (λ x → akbFinVec n (toℕ k) a 0r x · v (suc x)))
+                                                          (0LeftAnnihilates Ar _)
+                                                    ∙ +Lid _
+                                                    ∙ cbn-akbFinVec-linear-combi n k a (λ z → v (suc z))
+
+  -- fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
+  -- fromℕ' ℕzero k infkn = rec-⊥ (¬-<-zero infkn)
+  -- fromℕ' (ℕsuc n) ℕzero infkn = zero
+  -- fromℕ' (ℕsuc n) (ℕsuc k) infkn = suc (fromℕ' n k (pred-≤-pred infkn))
+
+  -- cbn-akbFinVec-linear-combi' : (n k : ℕ) → (k ≡ 0 → ⊥) → (infkn : k ≤ n) → (a : A) → (v : FinVec A n)
+  --                              → linearCombination A' (akbFinVec n k a 0r) v
+  --                                 ≡ (a · (v (fromℕ' n (predℕ k) ((fst infkn) , {!!} ))))
+  -- cbn-akbFinVec-linear-combi' ℕzero k infkn a v = rec-⊥ (¬-<-zero {!!})
+  -- cbn-akbFinVec-linear-combi' (ℕsuc n) ℕzero infkn a v = {!!}
+  -- cbn-akbFinVec-linear-combi' (ℕsuc n) (ℕsuc k) infkn a v = {!!}
+
 
 open CommIdeal.isCommIdeal
 genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal.CommIdeal R

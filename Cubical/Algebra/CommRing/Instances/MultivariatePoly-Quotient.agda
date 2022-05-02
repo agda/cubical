@@ -71,7 +71,7 @@ module _
   where
 
   <X1,···,Xn> : FinVec (A[x1,···,xn] Ar n) n
-  <X1,···,Xn> = λ k → base (1k0 n (suc (toℕ k))) (CommRingStr.1r Astr)
+  <X1,···,Xn> = λ k → base (1k0 n (toℕ k)) (CommRingStr.1r Astr)
 
   A[X1,···,Xn]/<X1,···,Xn> : CommRing ℓ
   A[X1,···,Xn]/<X1,···,Xn> = (A[X1,···,Xn] Ar n) / (genIdeal ((A[X1,···,Xn] Ar n)) <X1,···,Xn>)

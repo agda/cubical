@@ -12,6 +12,7 @@ open import Cubical.Data.Empty renaming (rec to rec-⊥ ; elim to elim-⊥)
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
@@ -215,6 +216,9 @@ module Properties-Equiv-QuotientXn-A
 -----------------------------------------------------------------------------
 -- Section
 
+  open RingStr
+  open IsRing
+
   e-sect : (x : A[x1,···,xn]/<x1,···,xn> Ar n) → A→PAI (PAI→A x) ≡ x
   e-sect = elimProp-sq (λ _ → isSetPAI _ _)
            (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPAI _ _)
@@ -228,19 +232,33 @@ module Properties-Equiv-QuotientXn-A
            base-eq : (v : Vec ℕ n) → (a : A ) → [ A→PA (PA→A (base v a)) ] ≡ [ base v a ]
            base-eq v a with (discreteVecℕn v (replicate 0))
            ... | yes p = cong [_] (cong (λ X → base X a) (sym p))
-           ... | no ¬p = eq/ (base (replicate 0) 0A) (base v a) ∣ {!!} , {!!} ∣₋₁
+           ... | no ¬p = eq/ (base (replicate 0) 0A)
+                             (base v a)
+                             ∣ akbFinVec n k (base v' (-A a)) 0PA ,
+                               cong (λ X → X Poly+ base v (-A a)) (base-0P (replicate 0))
+                               ∙ +PALid (base v (-A a))
+                               ∙ {!!} ∣₋₁
+             where
+             k : ℕ
+             k = fst (pred-vec-≢0 v ¬p)
+             v' : _
+             v' = fst (snd (pred-vec-≢0 v ¬p))
+             pr : _
+             pr = snd (snd (pred-vec-≢0 v ¬p))
+             -- pbl : un bon lemme pour simplifier ?
+             -- peut etre un lemme plus restreint genre directement
+             cbn : (m l : ℕ) → (infkn : l ≤ n) → (P : A[x1,···,xn] Ar m) →
+                   linearCombination (A[X1,···,Xn] Ar m) (akbFinVec m l P (CommRingStr.1r (snd (A[X1,···,Xn] Ar m)))) (<X1,···,Xn> Ar m)
+                   ≡ ((snd (A[X1,···,Xn] Ar m)) CommRingStr.· P) (base (1k0 m (suc l)) (CommRingStr.1r Astr))
+             cbn zero zero infkn P = {!!}
+             cbn zero (suc l) infkn P = {!!}
+             cbn (suc m) zero infkn P = {!!}
+             cbn (suc m) (suc l) infkn P = {!!}
+             -- remplacer 
+             
+             try : _
+             try = cbn-akbFinVec-linear-combi
 
-           -- pred-vec-≢
-           -- montrer que quoi ?
-           -- v différent de 0 => v = v' + 1k0
-             -- induction longueur
-             -- a :: v -> a = 0 -> v | a = S n -> ok
-           -- donne un élément de la base de quotient pour le produit
-
-             -- eq/ 0Pℤ (baseP (suc (suc k) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₋₁
-             -- where
-             -- helper : _
-             -- helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))
 
 
 -----------------------------------------------------------------------------
