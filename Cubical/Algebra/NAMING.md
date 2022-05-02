@@ -75,6 +75,9 @@ This file provides a guide for naming definitions in the Algebra folder.
     ```
     ∧Idem : x ∧ x ≡ x
     ```
-* TODO morphism preservation naming
 
-* TODO what should specific things like the unit group be called (eg UnitGroup?)
+* The fact that a homomorphism preserves a specific operation
+  should be named `pres·` where `·` is the operation.
+
+* An instance of an algebraic structure should include the
+  name of the structure. For example `UnitGroup` and `ℤGroup`.
