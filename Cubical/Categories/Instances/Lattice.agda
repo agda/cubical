@@ -10,5 +10,6 @@ open import Cubical.Categories.Instances.Semilattice
 
 open Category
 
+
 LatticeCategory : ∀ {ℓ} (L : Lattice ℓ) → Category ℓ ℓ
-LatticeCategory L = SemilatticeCategory (Lattice→JoinSemilattice L)
+LatticeCategory L = JoinSemilatticeCategory (Lattice→JoinSemilattice L)

@@ -68,3 +68,7 @@ GroupIsoUnitGroup→isContr : {G : Group ℓ-zero}
                            → GroupIso Unit G → isContr (fst G)
 GroupIsoUnitGroup→isContr is =
   isOfHLevelRetractFromIso 0 (invIso (fst is)) isContrUnit
+
+→UnitHom : ∀ {ℓ} (G : Group ℓ) → GroupHom G Unit
+fst (→UnitHom G) _ = tt
+snd (→UnitHom G) = makeIsGroupHom λ _ _ → refl

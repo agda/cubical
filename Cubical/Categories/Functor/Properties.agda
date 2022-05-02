@@ -5,8 +5,10 @@ module Cubical.Categories.Functor.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function renaming (_∘_ to _◍_)
 open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
+open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
+
 
 private
   variable
@@ -114,3 +116,25 @@ module _ {F : Functor C D} where
         g = F ⟪ f ⟫
         g⁻¹ : D [ y' , x' ]
         g⁻¹ = F ⟪ f⁻¹ ⟫
+
+
+isSetFunctor : isSet (D .ob) → isSet (Functor C D)
+isSetFunctor {D = D} {C = C} isSet-D-ob F G p q = w
+  where
+    w : _
+    F-ob (w i i₁) = isSetΠ (λ _ → isSet-D-ob) _ _ (cong F-ob p) (cong F-ob q) i i₁
+    F-hom (w i i₁) z =
+     isSet→SquareP
+       (λ i i₁ → D .isSetHom {(F-ob (w i i₁) _)} {(F-ob (w i i₁) _)})
+        (λ i₁ → F-hom (p i₁) z) (λ i₁ → F-hom (q i₁) z) refl refl i i₁
+
+    F-id (w i i₁) =
+       isSet→SquareP
+       (λ i i₁ → isProp→isSet (D .isSetHom (F-hom (w i i₁) _) (D .id)))
+       (λ i₁ → F-id (p i₁)) (λ i₁ → F-id (q i₁)) refl refl i i₁
+
+    F-seq (w i i₁) _ _ =
+     isSet→SquareP
+       (λ i i₁ → isProp→isSet (D .isSetHom (F-hom (w i i₁) _) ((F-hom (w i i₁) _) ⋆⟨ D ⟩ (F-hom (w i i₁) _))))
+       (λ i₁ → F-seq (p i₁) _ _) (λ i₁ → F-seq (q i₁) _ _) refl refl i i₁
+

@@ -2,8 +2,6 @@
 module Cubical.Algebra.RingSolver.RawRing where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Sigma
-open import Cubical.Data.Nat using (ℕ)
 
 private
   variable

@@ -62,6 +62,9 @@ IsGroupEquiv M e N = IsGroupHom M (e .fst) N
 GroupEquiv : (G : Group ℓ) (H : Group ℓ') → Type (ℓ-max ℓ ℓ')
 GroupEquiv G H = Σ[ e ∈ (G .fst ≃ H .fst) ] IsGroupEquiv (G .snd) e (H .snd)
 
+groupEquivFun : {G : Group ℓ} {H : Group ℓ'} → GroupEquiv G H → G .fst → H .fst
+groupEquivFun e = e .fst .fst
+
 -- Image, kernel, surjective, injective, and bijections
 
 open IsGroupHom

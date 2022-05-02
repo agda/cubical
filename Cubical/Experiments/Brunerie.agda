@@ -5,24 +5,24 @@ open import Cubical.Foundations.Everything
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
-open import Cubical.Data.HomotopyGroup
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 hiding (encode)
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.HITs.Join
 open import Cubical.HITs.SetTruncation as SetTrunc
 open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
 open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
+open import Cubical.HITs.Truncation as Trunc
+open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Hopf
 open S¹Hopf
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
-Bool∙ S¹∙ S²∙ S³∙ : Pointed₀
+Bool∙ S¹∙ S³∙ : Pointed₀
 Bool∙ = (Bool , true)
 S¹∙ = (S¹ , base)
-S²∙ = (S² , base)
 S³∙ = (S³ , base)
 
 ∥_∥₃∙ ∥_∥₄∙ : Pointed₀ → Pointed₀
@@ -297,3 +297,69 @@ sorghum i j k =
 
 goo : Ω³ S²∙ .fst → ℤ
 goo x = g10 (g9 (g8 (f7 (f6 (f5 x)))))
+
+
+{- Computation of an alternative definition of the Brunerie number
+based on https://github.com/agda/cubical/pull/741. One should note
+that this computation by no means is comparable to the one of the term
+"brunerie" defined above. This computation starts in π₃S³ rather than
+π₃S². -}
+
+-- The brunerie element can be shown to correspond to the following map
+η₃ : (join S¹ S¹ , inl base) →∙ (Susp S² , north)
+fst η₃ (inl x) = north
+fst η₃ (inr x) = north
+fst η₃ (push a b i) =
+  (σ (S² , base) (S¹×S¹→S² a b) ∙ σ (S² , base) (S¹×S¹→S² a b)) i
+  where
+  S¹×S¹→S² : S¹ → S¹ → S²
+  S¹×S¹→S² base y = base
+  S¹×S¹→S² (loop i) base = base
+  S¹×S¹→S² (loop i) (loop j) = surf i j
+snd η₃ = refl
+
+K₂ = ∥ S² ∥₄
+-- We will need a map Ω (Susp S²) → K₂. It turns out that the
+-- following map is fast. It need a bit of work, however. It's
+-- esentially the same map as you find in ZCohomology from ΩKₙ₊₁ to
+-- Kₙ. This gives another definition of f7 which appears to work better.
+
+module f7stuff where
+  _+₂_ : K₂ → K₂ → K₂
+  _+₂_ = 2GroupoidTrunc.elim (λ _ → isOfHLevelΠ 4 λ _ → squash₄)
+          λ { base x → x
+          ; (surf i j) x → surfc x i j}
+    where
+    surfc : (x : K₂) → typ ((Ω^ 2) (K₂ , x))
+    surfc =
+      2GroupoidTrunc.elim
+        (λ _ → isOfHLevelPath 4 (isOfHLevelPath 4 squash₄ _ _) _ _)
+        (S²ToSetElim (λ _ → squash₄ _ _ _ _) λ i j → ∣ surf i j ∣₄)
+
+  K₂≃K₂ : (x : S²) → K₂ ≃ K₂
+  fst (K₂≃K₂ x) y = ∣ x ∣₄ +₂ y
+  snd (K₂≃K₂ x) = help x
+    where
+    help : (x : _) → isEquiv (λ y → ∣ x ∣₄ +₂ y)
+    help = S²ToSetElim (λ _ → isProp→isSet (isPropIsEquiv _))
+                       (idEquiv _ .snd)
+
+  Code : Susp S² → Type ℓ-zero
+  Code north = K₂
+  Code south = K₂
+  Code (merid a i) = ua (K₂≃K₂ a) i
+
+  encode : (x : Susp S²) →  north ≡ x → Code x
+  encode x = J (λ x p → Code x) ∣ base ∣₄
+
+-- We now get an alternative definition of f7
+f7' : typ (Ω (Susp∙ S²)) → K₂
+f7' = f7stuff.encode north
+
+-- We can define the Brunerie number by
+brunerie' : ℤ
+brunerie' = g10 (g9 (g8 λ i j → f7' λ k → η₃ .fst (push (loop i) (loop j) k)))
+
+-- Computing it takes ~1s
+brunerie'≡-2 : brunerie' ≡ -2
+brunerie'≡-2 = refl

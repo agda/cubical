@@ -166,6 +166,13 @@ unquoteDecl IsLatticeHomIsoΣ = declareRecordIsoΣ IsLatticeHomIsoΣ (quote IsLa
 LatticeHom : (L : Lattice ℓ) (M : Lattice ℓ') → Type (ℓ-max ℓ ℓ')
 LatticeHom L M = Σ[ f ∈ (⟨ L ⟩ → ⟨ M ⟩) ] IsLatticeHom (L .snd) f (M .snd)
 
+idLatticeHom : (L : Lattice ℓ) → LatticeHom L L
+fst (idLatticeHom L) x = x
+IsLatticeHom.pres0 (snd (idLatticeHom L)) = refl
+IsLatticeHom.pres1 (snd (idLatticeHom L)) = refl
+IsLatticeHom.pres∨l (snd (idLatticeHom L)) x y = refl
+IsLatticeHom.pres∧l (snd (idLatticeHom L)) x y = refl
+
 IsLatticeEquiv : {A : Type ℓ} {B : Type ℓ'} (M : LatticeStr A) (e : A ≃ B) (N : LatticeStr B)
   → Type (ℓ-max ℓ ℓ')
 IsLatticeEquiv M e N = IsLatticeHom M (e .fst) N

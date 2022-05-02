@@ -28,6 +28,14 @@ record Functor (C : Category ℓC ℓC') (D : Category ℓD ℓD') :
   isFaithful = (x y : _) (f g : C [ x , y ]) → F-hom f ≡ F-hom g → f ≡ g
   isEssentiallySurj = (d : D .ob) → Σ[ c ∈ C .ob ] CatIso D (F-ob c) d
 
+  F-square : {x y u v : C .ob}
+             {f : C [ x , y ]} {g : C [ x , u ]}
+             {h : C [ u , v ]} {k : C [ y , v ]}
+           → f ⋆⟨ C ⟩ k ≡ g ⋆⟨ C ⟩ h
+           → (F-hom f) ⋆⟨ D ⟩ (F-hom k) ≡ (F-hom g) ⋆⟨ D ⟩ (F-hom h)
+  F-square Csquare = sym (F-seq _ _) ∙∙ cong F-hom Csquare ∙∙ F-seq _ _
+
+
 private
   variable
     ℓ ℓ' : Level
@@ -35,6 +43,19 @@ private
 
 open Category
 open Functor
+
+Functor≡ : {F G : Functor C D}
+         → (h : ∀ (c : ob C) → F-ob F c ≡ F-ob G c)
+         → (∀ {c c' : ob C} (f : C [ c , c' ]) → PathP (λ i → D [ h c i , h c' i ]) (F-hom F f) (F-hom G f))
+         → F ≡ G
+F-ob (Functor≡ hOb hHom i) c = hOb c i
+F-hom (Functor≡ hOb hHom i) f = hHom f i
+F-id (Functor≡ {C = C} {D = D} {F = F} {G = G} hOb hHom i) =
+  isProp→PathP (λ j → isSetHom D (hHom (C .id) j) (D .id)) (F-id F) (F-id G) i
+F-seq (Functor≡ {C = C} {D = D} {F = F} {G = G} hOb hHom i) f g =
+  isProp→PathP (λ j → isSetHom D (hHom (f ⋆⟨ C ⟩ g) j) ((hHom f j) ⋆⟨ D ⟩ (hHom g j))) (F-seq F f g) (F-seq G f g) i
+
+
 
 -- Helpful notation
 

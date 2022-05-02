@@ -24,7 +24,6 @@ module _ (A B C : CommRing ℓ) (α : CommRingHom A C) (β : CommRingHom B C) wh
     module β = IsRingHom (snd β)
 
   open CommRingStr
-  open CommRingHoms
   open IsRingHom
 
   fbT : Type ℓ
@@ -98,4 +97,3 @@ module _ (A B C : CommRing ℓ) (α : CommRingHom A C) (β : CommRingHom B C) wh
     snd f = makeIsRingHom (fbT≡ (hh .pres1) (hk .pres1))
                           (λ _ _ → fbT≡ (hh .pres+ _ _) (hk .pres+ _ _))
                           (λ _ _ → fbT≡ (hh .pres· _ _) (hk .pres· _ _))
-

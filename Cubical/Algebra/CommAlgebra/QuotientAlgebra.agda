@@ -8,6 +8,7 @@ open import Cubical.HITs.SetQuotients hiding (_/_)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.QuotientRing renaming (_/_ to _/Ring_) hiding ([_]/)
+open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.Ring
@@ -47,6 +48,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
                                        r ⋆ (x · y) ∎) i ]
 
           where
+                open CommIdeal using (isCommIdeal)
                 eq : (r : fst R) (x y : fst A) → x - y ∈ (fst I) →  [ r ⋆ x ] ≡ [ r ⋆ y ]
                 eq r x y x-y∈I = eq/ _ _
                   (subst (λ u → u ∈ fst I)
@@ -56,7 +58,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
                                                             - ⋆-lassoc r 1a y i ⟩
                     r ⋆ (1a · x) - r ⋆ (1a · y)     ≡[ i ]⟨ r ⋆ (·Lid x i) - r ⋆ (·Lid y i) ⟩
                     r ⋆ x - r ⋆ y ∎ )
-                  (isIdeal.·-closedLeft (snd I) _ x-y∈I))
+                  (isCommIdeal.·Closed (snd I) _ x-y∈I))
 
 
 [_]/ : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}

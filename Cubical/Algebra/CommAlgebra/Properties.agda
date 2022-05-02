@@ -2,11 +2,16 @@
 module Cubical.Algebra.CommAlgebra.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
 
@@ -20,9 +25,11 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra.Base
 
+open import Cubical.HITs.PropositionalTruncation
+
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
 
 -- An R-algebra is the same as a CommRing A with a CommRingHom φ : R → A
@@ -111,3 +118,190 @@ module CommAlgChar (R : CommRing ℓ) where
  inv CommAlgIso = toCommAlg
  rightInv CommAlgIso = CommRingWithHomRoundTrip
  leftInv CommAlgIso = CommAlgRoundTrip
+
+ open RingHoms
+ isCommRingWithHomHom : (A B : CommRingWithHom) → CommRingHom (fst A) (fst B) → Type ℓ
+ isCommRingWithHomHom (_ , f) (_ , g) h = h ∘r f ≡ g
+
+ CommRingWithHomHom : CommRingWithHom → CommRingWithHom → Type ℓ
+ CommRingWithHomHom (A , f) (B , g) = Σ[ h ∈ CommRingHom A B ] h ∘r f ≡ g
+
+ toCommAlgebraHom : (A B : CommRingWithHom) (h : CommRingHom (fst A) (fst B))
+                  → isCommRingWithHomHom A B h
+                  → CommAlgebraHom (toCommAlg A) (toCommAlg B)
+ toCommAlgebraHom (A , f) (B , g) h commDiag =
+   makeCommAlgebraHom (fst h) (pres1 (snd h)) (pres+ (snd h)) (pres· (snd h)) pres⋆h
+   where
+   open CommRingStr ⦃...⦄
+   instance
+    _ = snd A
+    _ = snd B
+   pres⋆h : ∀ r x → fst h (fst f r · x) ≡ fst g r · fst h x
+   pres⋆h r x = fst h (fst f r · x)       ≡⟨ pres· (snd h) _ _ ⟩
+                fst h (fst f r) · fst h x ≡⟨ cong (λ φ → fst φ r · fst h x) commDiag ⟩
+                fst g r · fst h x ∎
+
+ fromCommAlgebraHom : (A B : CommAlgebra R ℓ) → CommAlgebraHom A B
+                    → CommRingWithHomHom (fromCommAlg A) (fromCommAlg B)
+ fst (fst (fromCommAlgebraHom A B f)) = fst f
+ pres0 (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres0 (snd f)
+ pres1 (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres1 (snd f)
+ pres+ (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres+ (snd f)
+ pres· (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres· (snd f)
+ pres- (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres- (snd f)
+ snd (fromCommAlgebraHom A B f) =
+  RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd f) x 1a ∙ cong (x ⋆_) (IsAlgebraHom.pres1 (snd f))))
+  where
+  open CommAlgebraStr (snd A) using (1a)
+  open CommAlgebraStr (snd B) using (_⋆_)
+
+ isCommRingWithHomEquiv : (A B : CommRingWithHom) → CommRingEquiv (fst A) (fst B) → Type ℓ
+ isCommRingWithHomEquiv A B e = isCommRingWithHomHom A B (RingEquiv→RingHom e)
+
+ CommRingWithHomEquiv : CommRingWithHom → CommRingWithHom → Type ℓ
+ CommRingWithHomEquiv A B = Σ[ e ∈ CommRingEquiv (fst A) (fst B) ] isCommRingWithHomEquiv A B e
+
+ toCommAlgebraEquiv : (A B : CommRingWithHom) (e : CommRingEquiv (fst A) (fst B))
+                    → isCommRingWithHomEquiv A B e
+                    → CommAlgebraEquiv (toCommAlg A) (toCommAlg B)
+ fst (toCommAlgebraEquiv A B e eCommDiag) = e .fst
+ snd (toCommAlgebraEquiv A B e eCommDiag) = toCommAlgebraHom A B _ eCommDiag .snd
+
+
+
+module CommAlgebraHoms {R : CommRing ℓ} where
+  open AlgebraHoms
+
+  idCommAlgebraHom : (A : CommAlgebra R ℓ') → CommAlgebraHom A A
+  idCommAlgebraHom A = idAlgebraHom (CommAlgebra→Algebra A)
+
+  compCommAlgebraHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') (C : CommAlgebra R ℓ''')
+                  → CommAlgebraHom A B → CommAlgebraHom B C → CommAlgebraHom A C
+  compCommAlgebraHom A B C = compAlgebraHom {A = CommAlgebra→Algebra A}
+                                            {CommAlgebra→Algebra B} {CommAlgebra→Algebra C}
+
+  _∘ca_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
+        → CommAlgebraHom B C → CommAlgebraHom A B → CommAlgebraHom A C
+  g ∘ca f = compCommAlgebraHom _ _ _ f g
+
+  compIdCommAlgebraHom : {A B : CommAlgebra R ℓ'} (f : CommAlgebraHom A B)
+                    → compCommAlgebraHom _ _ _ (idCommAlgebraHom A) f ≡ f
+  compIdCommAlgebraHom = compIdAlgebraHom
+
+  idCompCommAlgebraHom : {A B : CommAlgebra R ℓ'} (f : CommAlgebraHom A B)
+                    → compCommAlgebraHom _ _ _ f (idCommAlgebraHom B) ≡ f
+  idCompCommAlgebraHom = idCompAlgebraHom
+
+  compAssocCommAlgebraHom : {A B C D : CommAlgebra R ℓ'}
+                         (f : CommAlgebraHom A B) (g : CommAlgebraHom B C) (h : CommAlgebraHom C D)
+                       → compCommAlgebraHom _ _ _ (compCommAlgebraHom _ _ _ f g) h
+                       ≡ compCommAlgebraHom _ _ _ f (compCommAlgebraHom _ _ _ g h)
+  compAssocCommAlgebraHom = compAssocAlgebraHom
+
+module CommAlgebraEquivs {R : CommRing ℓ} where
+ open AlgebraEquivs
+
+ compCommAlgebraEquiv : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
+                   → CommAlgebraEquiv A B → CommAlgebraEquiv B C → CommAlgebraEquiv A C
+ compCommAlgebraEquiv {A = A} {B = B} {C = C} = compAlgebraEquiv {A = CommAlgebra→Algebra A}
+                                                           {B = CommAlgebra→Algebra B}
+                                                           {C = CommAlgebra→Algebra C}
+
+
+-- the CommAlgebra version of uaCompEquiv
+module CommAlgebraUAFunctoriality {R : CommRing ℓ} where
+ open CommAlgebraStr
+ open CommAlgebraEquivs
+
+ CommAlgebra≡ : (A B : CommAlgebra R ℓ') → (
+   Σ[ p ∈ ⟨ A ⟩ ≡ ⟨ B ⟩ ]
+   Σ[ q0 ∈ PathP (λ i → p i) (0a (snd A)) (0a (snd B)) ]
+   Σ[ q1 ∈ PathP (λ i → p i) (1a (snd A)) (1a (snd B)) ]
+   Σ[ r+ ∈ PathP (λ i → p i → p i → p i) (_+_ (snd A)) (_+_ (snd B)) ]
+   Σ[ r· ∈ PathP (λ i → p i → p i → p i) (_·_ (snd A)) (_·_ (snd B)) ]
+   Σ[ s- ∈ PathP (λ i → p i → p i) (-_ (snd A)) (-_ (snd B)) ]
+   Σ[ s⋆ ∈ PathP (λ i → ⟨ R ⟩ → p i → p i) (_⋆_ (snd A)) (_⋆_ (snd B)) ]
+   PathP (λ i → IsCommAlgebra R (q0 i) (q1 i) (r+ i) (r· i) (s- i) (s⋆ i)) (isCommAlgebra (snd A))
+                                                                           (isCommAlgebra (snd B)))
+   ≃ (A ≡ B)
+ CommAlgebra≡ A B = isoToEquiv theIso
+   where
+   open Iso
+   theIso : Iso _ _
+   fun theIso (p , q0 , q1 , r+ , r· , s- , s⋆ , t) i = p i
+                 , commalgebrastr (q0 i) (q1 i) (r+ i) (r· i) (s- i) (s⋆ i) (t i)
+   inv theIso x = cong ⟨_⟩ x , cong (0a ∘ snd) x , cong (1a ∘ snd) x
+                , cong (_+_ ∘ snd) x , cong (_·_ ∘ snd) x , cong (-_ ∘ snd) x , cong (_⋆_ ∘ snd) x
+                , cong (isCommAlgebra ∘ snd) x
+   rightInv theIso _ = refl
+   leftInv theIso _ = refl
+
+ caracCommAlgebra≡ : {A B : CommAlgebra R ℓ'} (p q : A ≡ B) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
+ caracCommAlgebra≡ {A = A} {B = B} p q P =
+   sym (transportTransport⁻ (ua (CommAlgebra≡ A B)) p)
+                                    ∙∙ cong (transport (ua (CommAlgebra≡ A B))) helper
+                                    ∙∙ transportTransport⁻ (ua (CommAlgebra≡ A B)) q
+     where
+     helper : transport (sym (ua (CommAlgebra≡ A B))) p ≡ transport (sym (ua (CommAlgebra≡ A B))) q
+     helper = Σ≡Prop
+                (λ _ → isPropΣ
+                          (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
+                          λ _ → isPropΣ (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
+                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
+                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
+                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ λ _ → is-set (snd B)) _ _)
+                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
+                          λ _ → isOfHLevelPathP 1 (isPropIsCommAlgebra _ _ _ _ _ _ _) _ _)
+               (transportRefl (cong ⟨_⟩ p) ∙ P ∙ sym (transportRefl (cong ⟨_⟩ q)))
+
+ uaCompCommAlgebraEquiv : {A B C : CommAlgebra R ℓ'} (f : CommAlgebraEquiv A B) (g : CommAlgebraEquiv B C)
+                  → uaCommAlgebra (compCommAlgebraEquiv f g) ≡ uaCommAlgebra f ∙ uaCommAlgebra g
+ uaCompCommAlgebraEquiv f g = caracCommAlgebra≡ _ _ (
+   cong ⟨_⟩ (uaCommAlgebra (compCommAlgebraEquiv f g))
+     ≡⟨ uaCompEquiv _ _ ⟩
+   cong ⟨_⟩ (uaCommAlgebra f) ∙ cong ⟨_⟩ (uaCommAlgebra g)
+     ≡⟨ sym (cong-∙ ⟨_⟩ (uaCommAlgebra f) (uaCommAlgebra g)) ⟩
+   cong ⟨_⟩ (uaCommAlgebra f ∙ uaCommAlgebra g) ∎)
+
+
+open CommAlgebraHoms
+open CommAlgebraEquivs
+open CommAlgebraUAFunctoriality
+recPT→CommAlgebra : {R : CommRing ℓ} {A : Type ℓ'} (𝓕  : A → CommAlgebra R ℓ'')
+           → (σ : ∀ x y → CommAlgebraEquiv (𝓕 x) (𝓕 y))
+           → (∀ x y z → σ x z ≡ compCommAlgebraEquiv (σ x y) (σ y z))
+          ------------------------------------------------------
+           → ∥ A ∥ → CommAlgebra R ℓ''
+recPT→CommAlgebra 𝓕 σ compCoh = GpdElim.rec→Gpd isGroupoidCommAlgebra 𝓕
+  (3-ConstantCompChar 𝓕 (λ x y → uaCommAlgebra (σ x y))
+                          λ x y z → sym (  cong uaCommAlgebra (compCoh x y z)
+                                         ∙ uaCompCommAlgebraEquiv (σ x y) (σ y z)))
+
+
+contrCommAlgebraHom→contrCommAlgebraEquiv : {R : CommRing ℓ} {A : Type ℓ'}
+        (σ : A → CommAlgebra R ℓ'')
+      → (∀ x y → isContr (CommAlgebraHom (σ x) (σ y)))
+      ----------------------------------------------------------------------------
+      → ∀ x y → isContr (CommAlgebraEquiv (σ x) (σ y))
+contrCommAlgebraHom→contrCommAlgebraEquiv σ contrHom x y = σEquiv ,
+  λ e → Σ≡Prop (λ _ → isPropIsAlgebraHom _ _ _ _)
+           (Σ≡Prop isPropIsEquiv (cong fst (contrHom _ _ .snd (CommAlgebraEquiv→CommAlgebraHom e))))
+  where
+  open Iso
+  χ₁ = contrHom x y .fst
+  χ₂ = contrHom y x .fst
+  χ₁∘χ₂≡id : χ₁ ∘ca χ₂ ≡ idCommAlgebraHom _
+  χ₁∘χ₂≡id = isContr→isProp (contrHom _ _) _ _
+
+  χ₂∘χ₁≡id : χ₂ ∘ca χ₁ ≡ idCommAlgebraHom _
+  χ₂∘χ₁≡id = isContr→isProp (contrHom _ _) _ _
+
+  σIso : Iso ⟨ σ x ⟩ ⟨ σ y ⟩
+  fun σIso = fst χ₁
+  inv σIso = fst χ₂
+  rightInv σIso = funExt⁻ (cong fst χ₁∘χ₂≡id)
+  leftInv σIso = funExt⁻ (cong fst χ₂∘χ₁≡id)
+
+  σEquiv : CommAlgebraEquiv (σ x) (σ y)
+  fst σEquiv = isoToEquiv σIso
+  snd σEquiv = snd χ₁

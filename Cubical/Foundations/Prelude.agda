@@ -28,7 +28,7 @@ open import Cubical.Core.Primitives public
 infixr 30 _∙_
 infixr 30 _∙₂_
 infix  3 _∎
-infixr 2 _≡⟨_⟩_
+infixr 2 _≡⟨_⟩_ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
 
 -- Basic theory about paths. These proofs should typically be
@@ -50,8 +50,8 @@ sym : x ≡ y → y ≡ x
 sym p i = p (~ i)
 {-# INLINE sym #-}
 
-symP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} →
-       (p : PathP A x y) → PathP (λ i → A (~ i)) y x
+symP : {A : I → Type ℓ} → {x : A i1} → {y : A i0} →
+       (p : PathP (λ i → A (~ i)) x y) → PathP A y x
 symP p j = p (~ j)
 
 cong : (f : (a : A) → B a) (p : x ≡ y) →
@@ -227,6 +227,9 @@ _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 infixr 2 ≡⟨⟩-syntax
 syntax ≡⟨⟩-syntax x (λ i → B) y = x ≡[ i ]⟨ B ⟩ y
 
+_≡⟨⟩_ : (x : A) → x ≡ y → x ≡ y
+_ ≡⟨⟩ x≡y = x≡y
+
 ≡⟨⟩⟨⟩-syntax : (x y : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
 ≡⟨⟩⟨⟩-syntax x y p q r = p ∙∙ q ∙∙ r
 infixr 3 ≡⟨⟩⟨⟩-syntax
@@ -261,7 +264,7 @@ subst2 : ∀ {ℓ' ℓ''} {B : Type ℓ'} {z w : B} (C : A → B → Type ℓ'')
         (p : x ≡ y) (q : z ≡ w) → C x z → C y w
 subst2 B p q b = transport (λ i → B (p i) (q i)) b
 
-substRefl : (px : B x) → subst B refl px ≡ px
+substRefl : ∀ {B : A → Type ℓ} {x} → (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
 subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
@@ -321,16 +324,31 @@ module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
   fromPathP p i = transp (λ j → A (i ∨ j)) i (p i)
 
 -- Whiskering a dependent path by a path
+-- Double whiskering
+_◁_▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
+      → a₀ ≡ a₀' → PathP A a₀' a₁ → a₁ ≡ a₁'
+      → PathP A a₀ a₁'
+(p ◁ P ▷ q) i =
+  hcomp (λ j → λ {(i = i0) → p (~ j) ; (i = i1) → q j}) (P i)
+
+doubleWhiskFiller :
+  ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ a₁' : A i1}
+      → (p : a₀ ≡ a₀') (pq : PathP A a₀' a₁) (q : a₁ ≡ a₁')
+      → PathP (λ i → PathP A (p (~ i)) (q i))
+               pq
+               (p ◁ pq ▷ q)
+doubleWhiskFiller p pq q k i =
+  hfill (λ j → λ {(i = i0) → p (~ j) ; (i = i1) → q j})
+        (inS (pq i))
+        k
 
 _◁_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ : A i1}
   → a₀ ≡ a₀' → PathP A a₀' a₁ → PathP A a₀ a₁
-(p ◁ q) i =
-  hcomp (λ j → λ {(i = i0) → p (~ j); (i = i1) → q i1}) (q i)
+(p ◁ q) = p ◁ q ▷ refl
 
 _▷_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ : A i0} {a₁ a₁' : A i1}
   → PathP A a₀ a₁ → a₁ ≡ a₁' → PathP A a₀ a₁'
-(p ▷ q) i =
-  hcomp (λ j → λ {(i = i0) → p i0; (i = i1) → q j}) (p i)
+p ▷ q  = refl ◁ p ▷ q
 
 -- Direct definitions of lower h-levels
 
@@ -422,6 +440,12 @@ isSet' A =
   (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
   → Square a₀₋ a₁₋ a₋₀ a₋₁
 
+isSet→isSet' : isSet A → isSet' A
+isSet→isSet' Aset _ _ _ _ = toPathP (Aset _ _ _ _)
+
+isSet'→isSet : isSet' A → isSet A
+isSet'→isSet Aset' x y p q = Aset' p q refl refl
+
 isGroupoid' : Type ℓ → Type ℓ
 isGroupoid' A =
   {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
@@ -457,7 +481,7 @@ isPropIsContr (c0 , h0) (c1 , h1) j .snd y i =
          c0
 
 isContr→isProp : isContr A → isProp A
-isContr→isProp (x , p) a b = sym (p a) ∙∙ refl ∙∙ p b
+isContr→isProp (x , p) a b = sym (p a) ∙ p b
 
 isProp→isSet : isProp A → isSet A
 isProp→isSet h a b p q j i =

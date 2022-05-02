@@ -25,7 +25,7 @@ open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 
-open import Cubical.HITs.PropositionalTruncation hiding (map)
+open import Cubical.HITs.PropositionalTruncation renaming (map to pMap)
 
 private
   variable
@@ -189,6 +189,17 @@ snd (GroupHom≡ {G = G} {H = H} {f = f} {g = g} p i) = p-hom i
   p-hom : PathP (λ i → IsGroupHom (G .snd) (p i) (H .snd)) (f .snd) (g .snd)
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
+-- The composition of surjective maps is surjective
+compSurjective : ∀ {ℓ ℓ' ℓ''} {G : Group ℓ} {H : Group ℓ'} {L : Group ℓ''}
+         → (G→H : GroupHom G H) (H→L : GroupHom H L)
+         → isSurjective G→H → isSurjective H→L
+         → isSurjective (compGroupHom G→H H→L)
+compSurjective G→H H→L surj1 surj2 l =
+  rec squash
+    (λ {(h , p)
+      → pMap (λ {(g , q) → g , (cong (fst H→L) q ∙ p)})
+        (surj1 h)})
+    (surj2 l)
 
 -- GroupEquiv identity, composition and inversion
 idGroupEquiv : GroupEquiv G G
@@ -245,6 +256,9 @@ snd (GroupIsoDirProd iso1 iso2) = makeIsGroupHom λ a b →
 
 
 -- Conversion functions between different notions of group morphisms
+GroupEquiv→GroupHom : GroupEquiv G H → GroupHom G H
+fst (GroupEquiv→GroupHom ((f , _) , _)) = f
+snd (GroupEquiv→GroupHom (_ , isHom)) = isHom
 
 GroupIso→GroupEquiv : GroupIso G H → GroupEquiv G H
 fst (GroupIso→GroupEquiv i) = isoToEquiv (fst i)

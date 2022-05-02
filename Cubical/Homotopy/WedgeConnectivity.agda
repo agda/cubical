@@ -2,10 +2,8 @@
 module Cubical.Homotopy.WedgeConnectivity where
 
 open import Cubical.Foundations.Everything
-open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
-open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation as Trunc
 open import Cubical.Homotopy.Connected

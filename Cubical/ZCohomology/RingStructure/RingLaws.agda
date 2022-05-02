@@ -1,5 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.RingStructure.RingLaws where
+
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties
@@ -670,5 +671,20 @@ rUnit⌣ (suc n) =
 -ₕDistᵣ n m =
   sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
     λ f g → cong ∣_∣₂ (funExt λ x → -Distᵣ n m (f x) (g x))
+
+-ₕDistₗ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
+  (x : coHom n A) (y : coHom m A) → (-ₕ (x ⌣ y)) ≡ (-ₕ x) ⌣ y
+-ₕDistₗ n m =
+  sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    λ f g → cong ∣_∣₂ (funExt λ x → -Distₗ n m (f x) (g x))
+
+-ₕDistₗᵣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
+  (x : coHom n A) (y : coHom m A) → (-ₕ x) ⌣ (-ₕ y) ≡ x ⌣ y
+-ₕDistₗᵣ n m x y =
+     sym (-ₕDistₗ n m x (-ₕ y))
+  ∙∙ cong -ₕ_ (sym (-ₕDistᵣ n m x y))
+  ∙∙ sElim2 {C = λ x y → (-ₕ (-ₕ (x ⌣ y))) ≡ x ⌣ y}
+            (λ _ _ → isSetPathImplicit)
+            (λ f g → cong ∣_∣₂ (funExt λ _ → -ₖ^2 _)) x y
 
 -- TODO : Graded ring structure

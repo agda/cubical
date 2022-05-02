@@ -2,7 +2,6 @@
 module Cubical.Algebra.RingSolver.RawAlgebra where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_ ; _-_ to _-ℤ_ ; +Assoc to +ℤAssoc ; +Comm to +ℤComm ; -DistL· to -ℤDistL·ℤ)
 
@@ -13,14 +12,14 @@ open import Cubical.Algebra.Ring
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
 
-record RawAlgebra (R : RawRing ℓ) (ℓ′ : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ′)) where
+record RawAlgebra (R : RawRing ℓ) (ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
 
   constructor rawalgebra
 
   field
-    Carrier : Type ℓ′
+    Carrier : Type ℓ'
     scalar  : ⟨ R ⟩ᵣ → Carrier
     0r      : Carrier
     1r      : Carrier
@@ -32,7 +31,7 @@ record RawAlgebra (R : RawRing ℓ) (ℓ′ : Level) : Type (ℓ-suc (ℓ-max �
   infixl 7 -_
   infixl 6 _+_
 
-⟨_⟩ : {R : RawRing ℓ} → RawAlgebra R ℓ′ → Type ℓ′
+⟨_⟩ : {R : RawRing ℓ} → RawAlgebra R ℓ' → Type ℓ'
 ⟨_⟩ = RawAlgebra.Carrier
 
 {-

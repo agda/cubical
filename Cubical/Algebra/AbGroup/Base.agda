@@ -13,6 +13,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Group
 
 open import Cubical.Displayed.Base
@@ -96,6 +97,10 @@ AbGroupStr._+_ (snd (Group→AbGroup G comm)) = _·_ (snd G)
 AbGroupStr.- snd (Group→AbGroup G comm) = inv (snd G)
 IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = isGroup (snd G)
 IsAbGroup.comm (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = comm
+
+AbGroup→CommMonoid : AbGroup ℓ → CommMonoid ℓ
+AbGroup→CommMonoid (_ , abgroupstr  _ _ _ G) =
+  _ , commmonoidstr _ _ (iscommmonoid (IsAbGroup.isMonoid G) (IsAbGroup.comm G))
 
 isSetAbGroup : (A : AbGroup ℓ) → isSet ⟨ A ⟩
 isSetAbGroup A = isSetGroup (AbGroup→Group A)

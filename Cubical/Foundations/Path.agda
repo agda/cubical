@@ -2,6 +2,7 @@
 module Cubical.Foundations.Path where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
@@ -20,6 +21,13 @@ cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
       → Path B (f x) (f y)
 cong′ f = cong f
 {-# INLINE cong′ #-}
+
+module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
+  toPathP⁻ : x ≡ transport⁻ (λ i → A i) y → PathP A x y
+  toPathP⁻ p = symP (toPathP (sym p))
+
+  fromPathP⁻ : PathP A x y → x ≡ transport⁻ (λ i → A i) y
+  fromPathP⁻ p = sym (fromPathP {A = λ i → A (~ i)} (symP p))
 
 PathP≡Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
              PathP P p q ≡ Path (P i1) (transport (λ i → P i) p) q
@@ -84,6 +92,14 @@ PathP≃Path A x y = isoToEquiv (PathPIsoPath A x y)
 PathP≡compPath : ∀ {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z) (r : x ≡ z)
                  → (PathP (λ i → x ≡ q i) p r) ≡ (p ∙ q ≡ r)
 PathP≡compPath p q r k = PathP (λ i → p i0 ≡ q (i ∨ k)) (λ j → compPath-filler p q k j) r
+
+-- a quick corollary for 3-constant functions
+3-ConstantCompChar : {A : Type ℓ} {B : Type ℓ'} (f : A → B) (link : 2-Constant f)
+                   → (∀ x y z → link x y ∙ link y z ≡ link x z)
+                   → 3-Constant f
+3-Constant.link (3-ConstantCompChar f link coh₂) = link
+3-Constant.coh₁ (3-ConstantCompChar f link coh₂) _ _ _ =
+   transport⁻ (PathP≡compPath _ _ _) (coh₂ _ _ _)
 
 PathP≡doubleCompPathˡ : ∀ {A : Type ℓ} {w x y z : A} (p : w ≡ y) (q : w ≡ x) (r : y ≡ z) (s : x ≡ z)
                         → (PathP (λ i → p i ≡ s i) q r) ≡ (p ⁻¹ ∙∙ q ∙∙ s ≡ r)
@@ -221,8 +237,8 @@ sym≡cong-sym : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) ref
 sym≡cong-sym P = sym-cong-sym≡id (sym P)
 
 -- sym induces an equivalence on identity types of paths
-symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
-symIso p q = iso sym sym (λ _ → refl) λ _ → refl
+symIso : {a b : A} → Iso (a ≡ b) (b ≡ a)
+symIso = iso sym sym (λ _ → refl) λ _ → refl
 
 -- J is an equivalence
 Jequiv : {x : A} (P : ∀ y → x ≡ y → Type ℓ') → P x refl ≃ (∀ {y} (p : x ≡ y) → P y p)

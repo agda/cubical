@@ -24,4 +24,4 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
               → (0-closed : 0a ∈ I)
               → (·-closedLeft : {x : fst A} → (r : fst A) → x ∈ I → r · x ∈ I)
               → IdealsIn
-  makeIdeal = makeIdealCommRing (CommAlgebra→CommRing A)
+  makeIdeal = makeIdealCommRing {R = CommAlgebra→CommRing A}

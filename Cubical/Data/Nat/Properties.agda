@@ -156,9 +156,19 @@ zero∸ : ∀ n → zero ∸ n ≡ zero
 zero∸ zero = refl
 zero∸ (suc _) = refl
 
+
+n∸n : (n : ℕ) → n ∸ n ≡ 0
+n∸n zero = refl
+n∸n (suc n) = n∸n n
+
 ∸-cancelˡ : ∀ k m n → (k + m) ∸ (k + n) ≡ m ∸ n
 ∸-cancelˡ zero    = λ _ _ → refl
 ∸-cancelˡ (suc k) = ∸-cancelˡ k
+
++∸ : ∀ k n → (k + n) ∸ n ≡ k
++∸ zero n = n∸n n
++∸ (suc k) zero = cong suc (+-comm k zero)
++∸ (suc k) (suc n) = cong (_∸ n) (+-suc k n) ∙ +∸ (suc k) n
 
 ∸-cancelʳ : ∀ m n k → (m + k) ∸ (n + k) ≡ m ∸ n
 ∸-cancelʳ m n k = (λ i → +-comm m k i ∸ +-comm n k i) ∙ ∸-cancelˡ k m n

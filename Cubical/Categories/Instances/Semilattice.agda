@@ -10,10 +10,16 @@ open import Cubical.Categories.Instances.Poset
 
 open Category
 
+
 module _ {ℓ} (L : Semilattice ℓ) where
-  -- more convenient than working with meet-semilattices
-  -- as joins are limits
   open JoinSemilattice L
 
-  SemilatticeCategory : Category ℓ ℓ
-  SemilatticeCategory = PosetCategory IndPoset
+  JoinSemilatticeCategory : Category ℓ ℓ
+  JoinSemilatticeCategory = PosetCategory IndPoset
+
+
+module _ {ℓ} (L : Semilattice ℓ) where
+  open MeetSemilattice L
+
+  MeetSemilatticeCategory : Category ℓ ℓ
+  MeetSemilatticeCategory = PosetCategory IndPoset

@@ -21,7 +21,7 @@ R / I =
                              (elimProp2 (λ _ _ → squash/ _ _)
                                         commEq))
    where
-       asRing = (CommRing→Ring R) /Ring I
+       asRing = (CommRing→Ring R) /Ring (CommIdeal→Ideal I)
        _·/_ : fst asRing → fst asRing → fst asRing
        _·/_ = RingStr._·_ (snd asRing)
        commEq : (x y : fst R) → ([ x ] ·/ [ y ]) ≡ ([ y ] ·/ [ x ])
