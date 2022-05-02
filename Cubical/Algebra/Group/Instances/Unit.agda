@@ -25,11 +25,15 @@ Unit = UnitType , groupstr tt (λ _ _ → tt) (λ _ → tt)
                       (makeIsGroup isSetUnit (λ _ _ _ → refl) (λ _ → refl) (λ _ → refl)
                                    (λ _ → refl) (λ _ → refl))
 
-Unit* : Group ℓ
-Unit* = UnitType* ,
-        groupstr tt* (λ _ _ → tt*) (λ _ → tt*)
-          (makeIsGroup (isOfHLevelUnit* 2) (λ _ _ _ → refl) (λ _ → refl) (λ _ → refl)
-                       (λ _ → refl) (λ _ → refl))
+UnitGroup : Group ℓ
+fst UnitGroup = UnitType*
+1g (snd UnitGroup) = tt*
+_·_ (snd UnitGroup) = λ _ _ → tt*
+inv (snd UnitGroup) = λ _ → tt*
+isGroup (snd UnitGroup) =
+  makeIsGroup (isOfHLevelUnit* 2)
+              (λ _ _ _ → refl) (λ _ → refl) (λ _ → refl)
+              (λ _ → refl) (λ _ → refl)
 
 open Iso
 

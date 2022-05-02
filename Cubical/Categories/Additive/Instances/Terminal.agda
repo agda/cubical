@@ -10,7 +10,7 @@ open import Cubical.Categories.Additive.Base
 open import Cubical.Categories.Instances.Discrete
 
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.AbGroup.Instances.Unit renaming (Unit* to UnitAbGroup)
+open import Cubical.Algebra.AbGroup.Instances.Unit
 
 open import Cubical.Data.Unit
 
