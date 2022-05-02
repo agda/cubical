@@ -4,6 +4,9 @@ NAMING
 This file provides a guide for how to name things. Note that many
 files in the library do not currently follow these guidelines.
 
+For naming conventions specific to the Algebra subfolder, see
+[Cubical/Algebra/NAMING.md](https://github.com/agda/cubical/blob/master/Cubical/Algebra/NAMING.md).
+
 * Use either descriptive names for universe levels or
   ```
   ℓ ℓ' ℓ'' ℓ''' ...
