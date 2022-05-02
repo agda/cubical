@@ -86,25 +86,12 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
   N-hom emCounit {algebra A α , isEMA} {algebra B β , isEMB} (algebraHom f isalgF) =
     AlgebraHom≡ M (sym (isalgF))
 
-  {-
-  open UnitCounit
-  private
-    module A = _⊣_
-
-  emAdjunction : FreeEMAlgebra ⊣ ForgetEMAlgebra
-  A.η emAdjunction = subst (NatTrans (funcId C)) (sym ForgetFreeEMAlgebra) η
-  A.ε emAdjunction = emCounit
-  A.Δ₁ emAdjunction = {!!}
-    {-makeNatTransPathP (λ i → F-lUnit i) (λ i → F-rUnit i)
-    (funExt λ x → AlgebraHom≡ M {!!})-}
-  A.Δ₂ emAdjunction = {!!}
-  -}
-
   open NaturalBijection
   open _⊣_
   open _≅_
 
-  emBijection : ∀ a emB → (EMCategory [ FreeEMAlgebra ⟅ a ⟆ , emB ]) ≅ (C [ a , ForgetEMAlgebra ⟅ emB ⟆ ])
+  emBijection : ∀ a emB →
+    (EMCategory [ FreeEMAlgebra ⟅ a ⟆ , emB ]) ≅ (C [ a , ForgetEMAlgebra ⟅ emB ⟆ ])
   fun (emBijection a (algebra b β , isEMB)) (algebraHom f isalgF) = f C.∘ N-ob η a
   carrierHom (inv (emBijection a (algebra b β , isEMB)) f) = β C.∘ F-hom M f
   strHom (inv (emBijection a (algebra b β , isEMB)) f) =
@@ -151,7 +138,8 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
 
   emAdjunction : FreeEMAlgebra ⊣ ForgetEMAlgebra
   adjIso emAdjunction {a} {algebra b β , isEMB} = emBijection a (algebra b β , isEMB)
-  adjNatInD emAdjunction {a} {algebra b β , isEMB} {algebra c γ , isEMC} (algebraHom f isalgF) (algebraHom g isalgG) =
+  adjNatInD emAdjunction {a} {algebra b β , isEMB} {algebra c γ , isEMC}
+    (algebraHom f isalgF) (algebraHom g isalgG) =
     sym (C.⋆Assoc _ _ _)
   adjNatInC emAdjunction {a} {b} {algebra c γ , isEMC} f g = AlgebraHom≡ M (
     (F-hom M (g C.⋆ f) C.⋆ γ)
