@@ -53,10 +53,14 @@ module _ {C : Category ℓC ℓC'} (F : Functor C C) where
   pathRepAlgebraHom : (algA algB : Algebra) → AlgebraHom algA algB ≡ RepAlgebraHom algA algB
   pathRepAlgebraHom algA algB = ua (isoToEquiv (isoRepAlgebraHom algA algB))
 
-  AlgebraHom≡ : {algA algB : Algebra} {algF algG : AlgebraHom algA algB} → (carrierHom algF ≡ carrierHom algG) → algF ≡ algG
+  AlgebraHom≡ : {algA algB : Algebra} {algF algG : AlgebraHom algA algB}
+    → (carrierHom algF ≡ carrierHom algG) → algF ≡ algG
   carrierHom (AlgebraHom≡ {algA} {algB} {algF} {algG} p i) = p i
   strHom (AlgebraHom≡ {algA} {algB} {algF} {algG} p i) = idfun
-    (PathP (λ j → (p j ∘⟨ C ⟩ str algA) ≡ (str algB ∘⟨ C ⟩ F-hom F (p j))) (strHom algF) (strHom algG))
+    (PathP (λ j → (p j ∘⟨ C ⟩ str algA) ≡ (str algB ∘⟨ C ⟩ F-hom F (p j)))
+      (strHom algF)
+      (strHom algG)
+    )
     (fst (idfun (isContr _) (isOfHLevelPathP' 0
         (isOfHLevelPath' 1 (isSetHom C) _ _)
       (strHom algF) (strHom algG))))
@@ -67,7 +71,9 @@ module _ {C : Category ℓC ℓC'} (F : Functor C C) where
   strHom (idAlgebraHom {algA}) =
     ⋆IdR C (str algA) ∙∙ sym (⋆IdL C (str algA)) ∙∙ cong (λ φ → φ ⋆⟨ C ⟩ str algA) (sym (F-id F))
 
-  seqAlgebraHom : {algA algB algC : Algebra} (algF : AlgebraHom algA algB) (algG : AlgebraHom algB algC) → AlgebraHom algA algC
+  seqAlgebraHom : {algA algB algC : Algebra}
+    (algF : AlgebraHom algA algB) (algG : AlgebraHom algB algC)
+    → AlgebraHom algA algC
   carrierHom (seqAlgebraHom {algA} {algB} {algC} algF algG) = carrierHom algF ⋆⟨ C ⟩ carrierHom algG
   strHom (seqAlgebraHom {algA} {algB} {algC} algF algG) =
     str algA ⋆⟨ C ⟩ (carrierHom algF ⋆⟨ C ⟩ carrierHom algG)
@@ -91,7 +97,8 @@ module _ {C : Category ℓC ℓC'} (F : Functor C C) where
   _⋆_ AlgebrasCategory = seqAlgebraHom
   ⋆IdL AlgebrasCategory algF = AlgebraHom≡ (⋆IdL C (carrierHom algF))
   ⋆IdR AlgebrasCategory algF = AlgebraHom≡ (⋆IdR C (carrierHom algF))
-  ⋆Assoc AlgebrasCategory algF algG algH = AlgebraHom≡ (⋆Assoc C (carrierHom algF) (carrierHom algG) (carrierHom algH))
+  ⋆Assoc AlgebrasCategory algF algG algH =
+    AlgebraHom≡ (⋆Assoc C (carrierHom algF) (carrierHom algG) (carrierHom algH))
   isSetHom AlgebrasCategory = subst isSet (sym (pathRepAlgebraHom _ _))
     (isSetΣ (isSetHom C) (λ f → isProp→isSet (isSetHom C _ _)))
 

@@ -25,7 +25,9 @@ module _ {C : Category ℓ ℓ'} (M : Functor C C) where
       μ : NatTrans (funcComp M M) M
       idl-μ : PathP (λ i → NatTrans (F-rUnit {F = M} i) M) (compTrans μ (η ∘ˡ M)) (idTrans M)
       idr-μ : PathP (λ i → NatTrans (F-lUnit {F = M} i) M) (compTrans μ (M ∘ʳ η)) (idTrans M)
-      assoc-μ : PathP (λ i → NatTrans (F-assoc {F = M} {G = M} {H = M} i) M) (compTrans μ (M ∘ʳ μ)) (compTrans μ (μ ∘ˡ M))
+      assoc-μ : PathP (λ i → NatTrans (F-assoc {F = M} {G = M} {H = M} i) M)
+        (compTrans μ (M ∘ʳ μ))
+        (compTrans μ (μ ∘ˡ M))
 
     -- bind : Hom[-,M-] -> Hom[M-,M-]
     bind : NatTrans (funcComp (HomFunctor C) ((funcId C ^opF) ×F M)) (funcComp (HomFunctor C) ((M ^opF) ×F M))
