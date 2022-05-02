@@ -24,20 +24,20 @@ open AdditiveCategory
 open AdditiveCategoryStr
 
 private
-  terminalCat : Category ℓ ℓ
-  terminalCat = DiscreteCategory (Unit* , isOfHLevelUnit* 3)
+  terminalCategory : Category ℓ ℓ
+  terminalCategory = DiscreteCategory (Unit* , isOfHLevelUnit* 3)
 
   terminalAbGroupStr : AbGroupStr {ℓ = ℓ} Unit*
   terminalAbGroupStr = snd UnitAbGroup
 
-  homProp : (x y : Category.ob {ℓ = ℓ} terminalCat) → isProp (terminalCat [ x , y ])
+  homProp : (x y : Category.ob {ℓ = ℓ} terminalCategory) → isProp (terminalCategory [ x , y ])
   homProp x y = isOfHLevelUnit* 2 x y
 
-  homContr : (x y : Category.ob {ℓ = ℓ} terminalCat) → isContr (terminalCat [ x , y ])
+  homContr : (x y : Category.ob {ℓ = ℓ} terminalCategory) → isContr (terminalCategory [ x , y ])
   homContr x y = isProp→isContrPath (isOfHLevelUnit* 1) x y
 
   terminalPreAdd : PreaddCategory ℓ ℓ
-  cat terminalPreAdd = terminalCat
+  cat terminalPreAdd = terminalCategory
   homAbStr (preadd terminalPreAdd) =
     λ x y →
       subst
