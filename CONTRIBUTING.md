@@ -31,11 +31,6 @@ When preparing a PR here are some general guidelines:
   of the file. All definitions should be maximally universe
   polymorphic.
 
-- Use either descriptive names for universe levels or
-  ```
-  ℓ ℓ' ℓ'' ℓ''' ...
-  ```
-
 - Make reasonably many arguments implicit. If you find yourself having
   to provide some argument explicitly most of the time then it should
   not be implicit. The same applies the other way around, if some argument
@@ -108,6 +103,15 @@ When preparing a PR here are some general guidelines:
   `Experiments` package you don't need to add it manually to the
   `Everything` file as it is automatically generated when running
   `make`.
+
+- For folders with `Base` and `Properties` submodules, the `Base` file
+  can contain some basic consequences of the main definition, but
+  shouldn't include theorems that would require additional imports.
+
+- Avoid importing `Foundations.Everything`; import only the modules in
+  `Foundations` you are using. Be reasonably specific in general when
+  importing. For example, only import the `Base` or `Properties`
+  module from a folder in `Data` if this is all you need.
 
 - The `Experiments` folder contains various experiments and nothing in
   the library should depend on something from this folder.
