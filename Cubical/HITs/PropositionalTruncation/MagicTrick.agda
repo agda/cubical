@@ -11,7 +11,7 @@ Also see the follow-up post by Jason Gross:
   https://homotopytypetheory.org/2014/02/24/composition-is-not-what-you-think-it-is-why-nearly-invertible-isnt/
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.HITs.PropositionalTruncation.MagicTrick where
 
@@ -30,7 +30,7 @@ module Recover {ℓ} (A∙ : Pointed ℓ) (h : isHomogeneous A∙) where
     a = pt A∙
 
   toEquivPtd : ∥ A ∥ → Σ[ B∙ ∈ Pointed ℓ ] (A , a) ≡ B∙
-  toEquivPtd = rec (isContr→isProp (isContrSingl _)) (λ x → (A , x) , h x)
+  toEquivPtd = rec isPropSingl (λ x → (A , x) , h x)
   private
     B∙ : ∥ A ∥ → Pointed ℓ
     B∙ tx = fst (toEquivPtd tx)

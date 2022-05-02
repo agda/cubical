@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Rationals.SigmaQ.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -7,10 +7,10 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.HITs.Ints.QuoInt
+open import Cubical.Data.Int.MoreInts.QuoInt
 import Cubical.HITs.SetQuotients as SetQuotient
 
-open import Cubical.Data.Nat as ℕ hiding (_*_)
+open import Cubical.Data.Nat as ℕ hiding (_·_)
 open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Sigma
 
@@ -24,21 +24,21 @@ import Cubical.HITs.Rationals.SigmaQ.Base as Sigma
 reduce : Quo.ℚ → Sigma.ℚ
 reduce = SetQuotient.rec Sigma.isSetℚ Sigma.[_]
   (λ { (a , b) (c , d) p →   sym (Sigma.[]-cancelʳ (a , b) d)
-                           ∙ (λ i → Sigma.[ p i , *₊₁-comm b d i ])
+                           ∙ (λ i → Sigma.[ p i , ·₊₁-comm b d i ])
                            ∙ Sigma.[]-cancelʳ (c , d) b })
 
 private
   toCoprime-eq₁ : ∀ s ((a , b) : ℕ × ℕ₊₁)
-                  → signed s (toCoprime (a , b) .fst) * ℕ₊₁→ℤ b
-                  ≡ signed s a * ℕ₊₁→ℤ (toCoprime (a , b) .snd)
+                  → signed s (toCoprime (a , b) .fst) · ℕ₊₁→ℤ b
+                  ≡ signed s a · ℕ₊₁→ℤ (toCoprime (a , b) .snd)
   toCoprime-eq₁ s (a , b) =
-    signed s c₁ * ℕ₊₁→ℤ b              ≡⟨ *-signed-pos c₁ (ℕ₊₁→ℕ b) ⟩
-    signed s (c₁ ℕ.* ℕ₊₁→ℕ b)          ≡[ i ]⟨ signed s (c₁ ℕ.* p₂ (~ i)) ⟩
-    signed s (c₁ ℕ.* (ℕ₊₁→ℕ c₂ ℕ.* d)) ≡[ i ]⟨ signed s (c₁ ℕ.* ℕ.*-comm (ℕ₊₁→ℕ c₂) d i) ⟩
-    signed s (c₁ ℕ.* (d ℕ.* ℕ₊₁→ℕ c₂)) ≡[ i ]⟨ signed s (ℕ.*-assoc c₁ d (ℕ₊₁→ℕ c₂) i) ⟩
-    signed s ((c₁ ℕ.* d) ℕ.* ℕ₊₁→ℕ c₂) ≡[ i ]⟨ signed s (p₁ i ℕ.* ℕ₊₁→ℕ c₂) ⟩
-    signed s (a ℕ.* ℕ₊₁→ℕ c₂)          ≡⟨ sym (*-signed-pos a (ℕ₊₁→ℕ c₂)) ⟩
-    signed s a * ℕ₊₁→ℤ c₂ ∎
+    signed s c₁ · ℕ₊₁→ℤ b              ≡⟨ ·-signed-pos c₁ (ℕ₊₁→ℕ b) ⟩
+    signed s (c₁ ℕ.· ℕ₊₁→ℕ b)          ≡[ i ]⟨ signed s (c₁ ℕ.· p₂ (~ i)) ⟩
+    signed s (c₁ ℕ.· (ℕ₊₁→ℕ c₂ ℕ.· d)) ≡[ i ]⟨ signed s (c₁ ℕ.· ℕ.·-comm (ℕ₊₁→ℕ c₂) d i) ⟩
+    signed s (c₁ ℕ.· (d ℕ.· ℕ₊₁→ℕ c₂)) ≡[ i ]⟨ signed s (ℕ.·-assoc c₁ d (ℕ₊₁→ℕ c₂) i) ⟩
+    signed s ((c₁ ℕ.· d) ℕ.· ℕ₊₁→ℕ c₂) ≡[ i ]⟨ signed s (p₁ i ℕ.· ℕ₊₁→ℕ c₂) ⟩
+    signed s (a ℕ.· ℕ₊₁→ℕ c₂)          ≡⟨ sym (·-signed-pos a (ℕ₊₁→ℕ c₂)) ⟩
+    signed s a · ℕ₊₁→ℤ c₂ ∎
     where open ToCoprime (a , b)
 
 []-reduce : ∀ x → Quo.[ reduce x .fst ] ≡ x

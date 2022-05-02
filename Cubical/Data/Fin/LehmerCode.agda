@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 {-
 This module develops Lehmer codes, i.e. an encoding of permutations as finite integers.
 
@@ -157,7 +157,7 @@ lehmerEquiv {suc n} =
       Fin (suc n)
         ≃⟨ invEquiv projectionEquiv ⟩
       Unit ⊎ FinExcept fzero
-        ≃⟨ isoToEquiv (Sum.sumIso idIso (equivToIso f)) ⟩
+        ≃⟨ isoToEquiv (Sum.⊎Iso idIso (equivToIso f)) ⟩
       Unit ⊎ FinExcept k
         ≃⟨ projectionEquiv ⟩
       Fin (suc n)
@@ -194,7 +194,7 @@ decode = invEq lehmerEquiv
 
 factorial : ℕ → ℕ
 factorial zero = 1
-factorial (suc n) = suc n * factorial n
+factorial (suc n) = suc n · factorial n
 
 lehmerFinEquiv : LehmerCode n ≃ Fin (factorial n)
 lehmerFinEquiv {zero} = isContr→Equiv isContrLehmerZero isContrFin1

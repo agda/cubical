@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.Fin.Base where
 
@@ -7,8 +7,9 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Nat using (ℕ; zero; suc)
+open import Cubical.Data.Nat using (ℕ ; zero ; suc ; _+_ ; znots)
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Recursive using () renaming (_≤_ to _≤′_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum using (_⊎_; _⊎?_; inl; inr)
 
@@ -32,6 +33,12 @@ private
 fzero : Fin (suc k)
 fzero = (0 , suc-≤-suc zero-≤)
 
+fone : Fin (suc (suc k))
+fone = (1 , suc-≤-suc (suc-≤-suc zero-≤))
+
+fzero≠fone : ¬ fzero {k = suc k} ≡ fone
+fzero≠fone p = znots (cong fst p)
+
 -- It is easy, using this representation, to take the successor of a
 -- number as a number in the next largest finite type.
 fsuc : Fin k → Fin (suc k)
@@ -45,6 +52,12 @@ toℕ = fst
 toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
 toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → m≤n-isProp)
 
+-- Conversion from ℕ with a recursive definition of ≤
+
+fromℕ≤ : (m n : ℕ) → m ≤′ n → Fin (suc n)
+fromℕ≤ zero    _       _    = fzero
+fromℕ≤ (suc m) (suc n) m≤n = fsuc (fromℕ≤ m n m≤n)
+
 -- A case analysis helper for induction.
 fsplit
   : ∀(fj : Fin (suc k))
@@ -54,6 +67,9 @@ fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
 
 inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 inject< m<n (k , k<m) = k , <-trans k<m m<n
+
+flast : Fin (suc k)
+flast {k = k} = k , suc-≤-suc ≤-refl
 
 -- Fin 0 is empty
 ¬Fin0 : ¬ Fin 0
@@ -88,3 +104,8 @@ any? {n = suc n} {P = P} P? =
     helper (x , Px) with fsplit x
     ... | inl x≡0 = inl (subst P (sym x≡0) Px)
     ... | inr (k , x≡sk) = inr (k , subst P (sym x≡sk) Px)
+
+FinPathℕ : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (x ≡ (y , p))
+FinPathℕ {n = n} x y p =
+    ((fst (snd x)) , (cong (λ y → fst (snd x) + y) (cong suc (sym p)) ∙ snd (snd x)))
+  , (Σ≡Prop (λ _ → m≤n-isProp) p)

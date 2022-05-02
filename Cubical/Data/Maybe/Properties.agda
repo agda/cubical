@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Maybe.Properties where
 
 open import Cubical.Core.Everything
@@ -153,6 +153,6 @@ congMaybeEquiv e = isoToEquiv isom
   isom .fun = map-Maybe (equivFun e)
   isom .inv = map-Maybe (invEq e)
   isom .rightInv nothing = refl
-  isom .rightInv (just b) = cong just (retEq e b)
+  isom .rightInv (just b) = cong just (secEq e b)
   isom .leftInv nothing = refl
-  isom .leftInv (just a) = cong just (secEq e a)
+  isom .leftInv (just a) = cong just (retEq e a)

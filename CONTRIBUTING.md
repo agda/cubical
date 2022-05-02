@@ -6,7 +6,9 @@ When preparing a PR here are some general guidelines:
 
 - To test your changes before submission, run `make` at the top level,
   which will generate all required `Everything` files in
-  `Cubical/README.agda` and then typecheck it.
+  `Cubical/README.agda` and then typecheck the latter file.
+  If you're using Windows, [here](MAKEWINDOWS.md) are some instructions
+  to get the `make` command working.
 
 - Please read through and clean your code before making a PR. Clean
   code has reasonable line length (<100 characters), good indentation,
@@ -29,6 +31,11 @@ When preparing a PR here are some general guidelines:
   of the file. All definitions should be maximally universe
   polymorphic.
 
+- Use either descriptive names for universe levels or
+  ```
+  ℓ ℓ' ℓ'' ℓ''' ...
+  ```
+
 - Make reasonably many arguments implicit. If you find yourself having
   to provide some argument explicitly most of the time then it should
   not be implicit. The same applies the other way around, if some argument
@@ -39,9 +46,10 @@ When preparing a PR here are some general guidelines:
 
 - All files should start with
 
-  `{-# OPTIONS --cubical --no-import-sorts --safe #-}`
+  `{-# OPTIONS --safe #-}`
 
-  unless there is a good reason for it not to.
+  unless there is a good reason for it not to. The `--cubical` and
+  `--no-import-sorts` flags are added in the `cubical.agda-lib` file.
 
 - It is much easier for us to review and merge smaller and
   self-contained PRs. If a PR changes a lot of files all over the
@@ -63,7 +71,16 @@ When preparing a PR here are some general guidelines:
   editing files by adding `(setq-default show-trailing-whitespace t)`
   to `~/.emacs`. The command `M-x delete-trailing-whitespace` is also
   very useful. It is possible to add a hook that runs this command
-  automatically when saving Agda files.
+  automatically when saving Agda files, by adding the following to your
+  `~/.emacs`:
+  ```
+  ;; delete trailing whitespace before saving in agda-mode
+  (defun agda-mode-delete-whitespace-before-save ()
+    (when (eq major-mode 'agda2-mode)
+      (delete-trailing-whitespace)))
+
+  (add-hook 'before-save-hook #'agda-mode-delete-whitespace-before-save)
+  ```
 
 - Use copattern-matching when instantiating records for efficiency.
   This seems especially important when constructing Iso's.

@@ -5,7 +5,7 @@ This file contains:
 - Definition of groupoid truncations
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.GroupoidTruncation.Base where
 
 open import Cubical.Core.Primitives

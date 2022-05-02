@@ -6,7 +6,7 @@
            (2017) https://arxiv.org/abs/1704.05770
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.RPn.Base where
 
 open import Cubical.Foundations.Prelude
@@ -40,6 +40,12 @@ open import Cubical.HITs.Pushout.Flattening
 private
   variable
     ℓ ℓ' ℓ'' : Level
+
+-- PR² as a HIT
+data RP² : Type₀ where
+  point : RP²
+  line : point ≡ point
+  square : line ≡ sym line
 
 -- Definition II.1 in [BR17], see also Cubical.Functions.Bundle
 

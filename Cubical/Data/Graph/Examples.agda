@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Graph.Examples where
 
 open import Cubical.Foundations.Prelude
@@ -20,22 +20,22 @@ open import Cubical.Data.Graph.Base
 -- Some small graphs of common shape
 
 ⇒⇐ : Graph ℓ-zero ℓ-zero
-Obj ⇒⇐ = Fin 3
-Hom ⇒⇐ fzero               (fsuc fzero) = ⊤
-Hom ⇒⇐ (fsuc (fsuc fzero)) (fsuc fzero) = ⊤
-Hom ⇒⇐ _ _ = ⊥
+Node ⇒⇐ = Fin 3
+Edge ⇒⇐ fzero               (fsuc fzero) = ⊤
+Edge ⇒⇐ (fsuc (fsuc fzero)) (fsuc fzero) = ⊤
+Edge ⇒⇐ _ _ = ⊥
 
 ⇐⇒ : Graph ℓ-zero ℓ-zero
-Obj ⇐⇒ = Fin 3
-Hom ⇐⇒ (fsuc fzero) fzero               = ⊤
-Hom ⇐⇒ (fsuc fzero) (fsuc (fsuc fzero)) = ⊤
-Hom ⇐⇒ _ _ = ⊥
+Node ⇐⇒ = Fin 3
+Edge ⇐⇒ (fsuc fzero) fzero               = ⊤
+Edge ⇐⇒ (fsuc fzero) (fsuc (fsuc fzero)) = ⊤
+Edge ⇐⇒ _ _ = ⊥
 
 -- paralell pair graph
 ⇉ : Graph ℓ-zero ℓ-zero
-Obj ⇉ = Fin 2
-Hom ⇉ fzero (fsuc fzero) = Fin 2
-Hom ⇉ _ _ = ⊥
+Node ⇉ = Fin 2
+Edge ⇉ fzero (fsuc fzero) = Fin 2
+Edge ⇉ _ _ = ⊥
 
 
 -- The graph ω = 0 → 1 → 2 → ···
@@ -53,20 +53,20 @@ areAdj (suc m) (suc n)    = mapDec (λ { (adj .m) → adj (suc m) })
                                    (areAdj m n)
 
 ωGr : Graph ℓ-zero ℓ-zero
-Obj ωGr = ℕ
-Hom ωGr m n with areAdj m n
+Node ωGr = ℕ
+Edge ωGr m n with areAdj m n
 ... | yes _ = ⊤ -- if n ≡ (suc m)
 ... | no  _ = ⊥ -- otherwise
 
 record ωDiag ℓ : Type (ℓ-suc ℓ) where
   field
-    ωObj : ℕ → Type ℓ
-    ωHom : ∀ n → ωObj n → ωObj (suc n)
+    ωNode : ℕ → Type ℓ
+    ωEdge : ∀ n → ωNode n → ωNode (suc n)
 
   asDiag : Diag ℓ ωGr
-  asDiag $ n = ωObj n
+  asDiag $ n = ωNode n
   _<$>_ asDiag {m} {n} f with areAdj m n
-  asDiag <$> tt | yes (adj m) = ωHom m
+  asDiag <$> tt | yes (adj m) = ωEdge m
 
 
 -- The finite connected subgraphs of ω: 𝟘,𝟙,𝟚,𝟛,...
@@ -87,8 +87,8 @@ areAdjFin {suc k}       (fsuc m) (fsuc n)     = mapDec (λ { (adj m) → adj (fs
                                                        (areAdjFin {k} m n)
 
 [_]Gr : ℕ → Graph ℓ-zero ℓ-zero
-Obj [ k ]Gr = Fin k
-Hom [ k ]Gr m n with areAdjFin m n
+Node [ k ]Gr = Fin k
+Edge [ k ]Gr m n with areAdjFin m n
 ... | yes _ = ⊤ -- if n ≡ (suc m)
 ... | no  _ = ⊥ -- otherwise
 
@@ -97,13 +97,13 @@ Hom [ k ]Gr m n with areAdjFin m n
 
 record [_]Diag ℓ (k : ℕ) : Type (ℓ-suc ℓ) where
   field
-    []Obj : Fin (suc k) → Type ℓ
-    []Hom : ∀ (n : Fin k) → []Obj (finj n) → []Obj (fsuc n)
+    []Node : Fin (suc k) → Type ℓ
+    []Edge : ∀ (n : Fin k) → []Node (finj n) → []Node (fsuc n)
 
   asDiag : Diag ℓ [ suc k ]Gr
-  asDiag $ n = []Obj n
+  asDiag $ n = []Node n
   _<$>_ asDiag {m} {n} f with areAdjFin m n
-  _<$>_ asDiag {.(finj n)} {fsuc n} f | yes (adj .n) = []Hom n
+  _<$>_ asDiag {.(finj n)} {fsuc n} f | yes (adj .n) = []Edge n
 
 
 -- Disjoint union of graphs
@@ -111,22 +111,22 @@ record [_]Diag ℓ (k : ℕ) : Type (ℓ-suc ℓ) where
 module _ {ℓv ℓe ℓv' ℓe'} where
 
   _⊎Gr_ : ∀ (G : Graph ℓv ℓe) (G' : Graph ℓv' ℓe') → Graph (ℓ-max ℓv ℓv') (ℓ-max ℓe ℓe')
-  Obj (G ⊎Gr G') = Obj G ⊎ Obj G'
-  Hom (G ⊎Gr G') (inl x) (inl y) = Lift {j = ℓe'} (Hom G x y)
-  Hom (G ⊎Gr G') (inr x) (inr y) = Lift {j = ℓe } (Hom G' x y)
-  Hom (G ⊎Gr G') _ _ = Lift ⊥
+  Node (G ⊎Gr G') = Node G ⊎ Node G'
+  Edge (G ⊎Gr G') (inl x) (inl y) = Lift {j = ℓe'} (Edge G x y)
+  Edge (G ⊎Gr G') (inr x) (inr y) = Lift {j = ℓe } (Edge G' x y)
+  Edge (G ⊎Gr G') _ _ = Lift ⊥
 
   record ⊎Diag ℓ (G : Graph ℓv ℓe) (G' : Graph ℓv' ℓe')
                : Type (ℓ-max (ℓ-suc ℓ) (ℓ-max (ℓ-max ℓv ℓv') (ℓ-max ℓe ℓe'))) where
     field
-      ⊎Obj : Obj G ⊎ Obj G' → Type ℓ
-      ⊎Homl : ∀ {x y} → Hom G  x y → ⊎Obj (inl x) → ⊎Obj (inl y)
-      ⊎Homr : ∀ {x y} → Hom G' x y → ⊎Obj (inr x) → ⊎Obj (inr y)
+      ⊎Node : Node G ⊎ Node G' → Type ℓ
+      ⊎Edgel : ∀ {x y} → Edge G  x y → ⊎Node (inl x) → ⊎Node (inl y)
+      ⊎Edger : ∀ {x y} → Edge G' x y → ⊎Node (inr x) → ⊎Node (inr y)
 
     asDiag : Diag ℓ (G ⊎Gr G')
-    asDiag $ x = ⊎Obj x
-    _<$>_ asDiag {inl x} {inl y} f = ⊎Homl (lower f)
-    _<$>_ asDiag {inr x} {inr y} f = ⊎Homr (lower f)
+    asDiag $ x = ⊎Node x
+    _<$>_ asDiag {inl x} {inl y} f = ⊎Edgel (lower f)
+    _<$>_ asDiag {inr x} {inr y} f = ⊎Edger (lower f)
 
 
 -- Cartesian product of graphs
@@ -135,27 +135,27 @@ module _ {ℓv ℓe ℓv' ℓe'} where
 
   -- We need decidable equality in order to define the cartesian product
   DecGraph : ∀ ℓv ℓe → Type (ℓ-suc (ℓ-max ℓv ℓe))
-  DecGraph ℓv ℓe = Σ[ G ∈ Graph ℓv ℓe ] Discrete (Obj G)
+  DecGraph ℓv ℓe = Σ[ G ∈ Graph ℓv ℓe ] Discrete (Node G)
 
   _×Gr_ : (G : DecGraph ℓv ℓe) (G' : DecGraph ℓv' ℓe') → Graph (ℓ-max ℓv ℓv') (ℓ-max ℓe ℓe')
-  Obj (G ×Gr G') = Obj (fst G) × Obj (fst G')
-  Hom (G ×Gr G') (x , x') (y , y') with snd G x y | snd G' x' y'
-  ... | yes _ | yes _ = Hom (fst G) x y ⊎ Hom (fst G') x' y'
-  ... | yes _ | no  _ = Lift {j = ℓe } (Hom (fst G') x' y')
-  ... | no  _ | yes _ = Lift {j = ℓe'} (Hom (fst G) x y)
+  Node (G ×Gr G') = Node (fst G) × Node (fst G')
+  Edge (G ×Gr G') (x , x') (y , y') with snd G x y | snd G' x' y'
+  ... | yes _ | yes _ = Edge (fst G) x y ⊎ Edge (fst G') x' y'
+  ... | yes _ | no  _ = Lift {j = ℓe } (Edge (fst G') x' y')
+  ... | no  _ | yes _ = Lift {j = ℓe'} (Edge (fst G) x y)
   ... | no  _ | no  _ = Lift ⊥
 
   record ×Diag ℓ (G : DecGraph ℓv ℓe) (G' : DecGraph ℓv' ℓe')
                : Type (ℓ-max (ℓ-suc ℓ) (ℓ-max (ℓ-max ℓv ℓv') (ℓ-max ℓe ℓe'))) where
     field
-      ×Obj : Obj (fst G) × Obj (fst G') → Type ℓ
-      ×Hom₁ : ∀ {x y} (f : Hom (fst G) x y) (x' : Obj (fst G'))    → ×Obj (x , x') → ×Obj (y , x')
-      ×Hom₂ : ∀ (x : Obj (fst G)) {x' y'} (f : Hom (fst G') x' y') → ×Obj (x , x') → ×Obj (x , y')
+      ×Node : Node (fst G) × Node (fst G') → Type ℓ
+      ×Edge₁ : ∀ {x y} (f : Edge (fst G) x y) (x' : Node (fst G'))    → ×Node (x , x') → ×Node (y , x')
+      ×Edge₂ : ∀ (x : Node (fst G)) {x' y'} (f : Edge (fst G') x' y') → ×Node (x , x') → ×Node (x , y')
 
     asDiag : Diag ℓ (G ×Gr G')
-    asDiag $ x = ×Obj x
+    asDiag $ x = ×Node x
     _<$>_ asDiag {x , x'} {y , y'} f with snd G x y | snd G' x' y'
-    _<$>_ asDiag {x , x'} {y , y'} (inl f) | yes _ | yes p' = subst _ p' (×Hom₁ f x')
-    _<$>_ asDiag {x , x'} {y , y'} (inr f) | yes p | yes _  = subst _ p  (×Hom₂ x f )
-    _<$>_ asDiag {x , x'} {y , y'} f | yes p | no  _  = subst _ p  (×Hom₂ x (lower f) )
-    _<$>_ asDiag {x , x'} {y , y'} f | no  _ | yes p' = subst _ p' (×Hom₁ (lower f) x')
+    _<$>_ asDiag {x , x'} {y , y'} (inl f) | yes _ | yes p' = subst _ p' (×Edge₁ f x')
+    _<$>_ asDiag {x , x'} {y , y'} (inr f) | yes p | yes _  = subst _ p  (×Edge₂ x f )
+    _<$>_ asDiag {x , x'} {y , y'} f | yes p | no  _  = subst _ p  (×Edge₂ x (lower f) )
+    _<$>_ asDiag {x , x'} {y , y'} f | no  _ | yes p' = subst _ p' (×Edge₁ (lower f) x')

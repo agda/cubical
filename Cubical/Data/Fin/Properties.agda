@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.Fin.Properties where
 
@@ -14,6 +14,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 
+open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥∥rec)
+
 open import Cubical.Data.Fin.Base as Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
@@ -21,6 +23,7 @@ open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
+open import Cubical.Data.FinData.Base renaming (Fin to FinData) hiding (¬Fin0 ; toℕ)
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -109,10 +112,10 @@ expand : ℕ → ℕ → ℕ → ℕ
 expand 0 k m = m
 expand (suc o) k m = k + expand o k m
 
-expand≡ : ∀ k m o → expand o k m ≡ o * k + m
+expand≡ : ∀ k m o → expand o k m ≡ o · k + m
 expand≡ k m zero = refl
 expand≡ k m (suc o)
-  = cong (k +_) (expand≡ k m o) ∙ +-assoc k (o * k) m
+  = cong (k +_) (expand≡ k m o) ∙ +-assoc k (o · k) m
 
 -- Expand a pair. This is useful because the whole function is
 -- injective.
@@ -240,11 +243,11 @@ _/_ : ℕ → ℕ → ℕ
 n / zero = zero
 n / (suc k) = reduce k n .fst .snd
 
-moddiv : ∀ n k → (n / k) * k + n % k ≡ n
+moddiv : ∀ n k → (n / k) · k + n % k ≡ n
 moddiv n zero = refl
 moddiv n (suc k) = sym (expand≡ _ _ (n / suc k)) ∙ reduce k n .snd
 
-n%k≡n[modk] : ∀ n k → Σ[ o ∈ ℕ ] o * k + n % k ≡ n
+n%k≡n[modk] : ∀ n k → Σ[ o ∈ ℕ ] o · k + n % k ≡ n
 n%k≡n[modk] n k = (n / k) , moddiv n k
 
 n%sk<sk : (n k : ℕ) → (n % suc k) < suc k
@@ -436,53 +439,53 @@ Fin-inj n m p with n ≟ m
 ... | lt n<m = Empty.rec (Fin-inj′ n<m (sym p))
 ... | gt n>m = Empty.rec (Fin-inj′ n>m p)
 
-≤-*sk-cancel : ∀ {m} {k} {n} → m * suc k ≤ n * suc k → m ≤ n
-≤-*sk-cancel {m} {k} {n} (d , p) = o , inj-*sm {m = k} goal where
+≤-·sk-cancel : ∀ {m} {k} {n} → m · suc k ≤ n · suc k → m ≤ n
+≤-·sk-cancel {m} {k} {n} (d , p) = o , inj-·sm {m = k} goal where
   r = d % suc k
   o = d / suc k
-  resn*k : Residue (suc k) (n * suc k)
-  resn*k = ((r , n%sk<sk d k) , (o + m)) , reason where
+  resn·k : Residue (suc k) (n · suc k)
+  resn·k = ((r , n%sk<sk d k) , (o + m)) , reason where
    reason = expand× ((r , n%sk<sk d k) , o + m) ≡⟨ expand≡ (suc k) r (o + m) ⟩
-            (o + m) * suc k + r                 ≡[ i ]⟨ +-comm (*-distribʳ o m (suc k) (~ i)) r i ⟩
-            r + (o * suc k + m * suc k)         ≡⟨ +-assoc r (o * suc k) (m * suc k) ⟩
-            (r + o * suc k) + m * suc k         ≡⟨ cong (_+ m * suc k) (+-comm r (o * suc k) ∙ moddiv d (suc k)) ⟩
-            d + m * suc k                       ≡⟨ p ⟩
-            n * suc k ∎
+            (o + m) · suc k + r                 ≡[ i ]⟨ +-comm (·-distribʳ o m (suc k) (~ i)) r i ⟩
+            r + (o · suc k + m · suc k)         ≡⟨ +-assoc r (o · suc k) (m · suc k) ⟩
+            (r + o · suc k) + m · suc k         ≡⟨ cong (_+ m · suc k) (+-comm r (o · suc k) ∙ moddiv d (suc k)) ⟩
+            d + m · suc k                       ≡⟨ p ⟩
+            n · suc k ∎
 
-  residuek*n : ∀ k n → (r : Residue (suc k) (n * suc k)) → ((fzero , n) , expand≡ (suc k) 0 n ∙ +-zero _) ≡ r
-  residuek*n _ _ = isContr→isProp isContrResidue _
+  residuek·n : ∀ k n → (r : Residue (suc k) (n · suc k)) → ((fzero , n) , expand≡ (suc k) 0 n ∙ +-zero _) ≡ r
+  residuek·n _ _ = isContr→isProp isContrResidue _
 
   r≡0 : r ≡ 0
-  r≡0 = cong (toℕ ∘ extract) (sym (residuek*n k n resn*k))
-  d≡o*sk : d ≡ o * suc k
-  d≡o*sk = sym (moddiv d (suc k)) ∙∙ cong (o * suc k +_) r≡0 ∙∙ +-zero _
-  goal : (o + m) * suc k ≡ n * suc k
-  goal = sym (*-distribʳ o m (suc k)) ∙∙ cong (_+ m * suc k) (sym d≡o*sk) ∙∙ p
+  r≡0 = cong (toℕ ∘ extract) (sym (residuek·n k n resn·k))
+  d≡o·sk : d ≡ o · suc k
+  d≡o·sk = sym (moddiv d (suc k)) ∙∙ cong (o · suc k +_) r≡0 ∙∙ +-zero _
+  goal : (o + m) · suc k ≡ n · suc k
+  goal = sym (·-distribʳ o m (suc k)) ∙∙ cong (_+ m · suc k) (sym d≡o·sk) ∙∙ p
 
-<-*sk-cancel : ∀ {m} {k} {n} → m * suc k < n * suc k → m < n
-<-*sk-cancel {m} {k} {n} p = goal where
+<-·sk-cancel : ∀ {m} {k} {n} → m · suc k < n · suc k → m < n
+<-·sk-cancel {m} {k} {n} p = goal where
   ≤-helper : m ≤ n
-  ≤-helper = ≤-*sk-cancel (pred-≤-pred (<≤-trans p (≤-suc ≤-refl)))
+  ≤-helper = ≤-·sk-cancel (pred-≤-pred (<≤-trans p (≤-suc ≤-refl)))
   goal : m < n
   goal = case <-split (suc-≤-suc ≤-helper) of λ
     { (inl g) → g
-    ; (inr e) → Empty.rec (¬m<m (subst (λ m → m * suc k < n * suc k) e p))
+    ; (inr e) → Empty.rec (¬m<m (subst (λ m → m · suc k < n · suc k) e p))
     }
 
-factorEquiv : ∀ {n} {m} → Fin n × Fin m ≃ Fin (n * m)
+factorEquiv : ∀ {n} {m} → Fin n × Fin m ≃ Fin (n · m)
 factorEquiv {zero} {m} = uninhabEquiv (¬Fin0 ∘ fst) ¬Fin0
 factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddingIntro , isSurjectionIntro) where
-  intro : Fin (suc n) × Fin m → Fin (suc n * m)
-  intro (nn , mm) = nm , subst (λ nm₁ → nm₁ < suc n * m) (sym (expand≡ _ (toℕ nn) (toℕ mm))) nm<n*m where
+  intro : Fin (suc n) × Fin m → Fin (suc n · m)
+  intro (nn , mm) = nm , subst (λ nm₁ → nm₁ < suc n · m) (sym (expand≡ _ (toℕ nn) (toℕ mm))) nm<n·m where
     nm : ℕ
     nm = expand× (nn , toℕ mm)
-    nm<n*m : toℕ mm * suc n + toℕ nn < suc n * m
-    nm<n*m =
-      toℕ mm * suc n + toℕ nn <≤⟨ <-k+ (snd nn) ⟩
-      toℕ mm * suc n + suc n  ≡≤⟨ +-comm _ (suc n) ⟩
-      suc (toℕ mm) * suc n    ≤≡⟨ ≤-*k (snd mm) ⟩
-      m * suc n               ≡⟨ *-comm _ (suc n) ⟩
-      suc n * m               ∎ where open <-Reasoning
+    nm<n·m : toℕ mm · suc n + toℕ nn < suc n · m
+    nm<n·m =
+      toℕ mm · suc n + toℕ nn <≤⟨ <-k+ (snd nn) ⟩
+      toℕ mm · suc n + suc n  ≡≤⟨ +-comm _ (suc n) ⟩
+      suc (toℕ mm) · suc n    ≤≡⟨ ≤-·k (snd mm) ⟩
+      m · suc n               ≡⟨ ·-comm _ (suc n) ⟩
+      suc n · m               ∎ where open <-Reasoning
 
   intro-injective : ∀ {o} {p} → intro o ≡ intro p → o ≡ p
   intro-injective {o} {p} io≡ip = λ i → io′≡ip′ i .fst , toℕ-injective {fj = snd o} {fk = snd p} (cong snd io′≡ip′) i where
@@ -496,21 +499,185 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
     mm = toℕ nm / suc n
     nn = toℕ nm % suc n
 
-    nmmoddiv : mm * suc n + nn ≡ toℕ nm
+    nmmoddiv : mm · suc n + nn ≡ toℕ nm
     nmmoddiv = moddiv _ (suc n)
     nn<n : nn < suc n
     nn<n = n%sk<sk (toℕ nm) _
 
-    nmsnd : mm * suc n + nn < suc n * m
-    nmsnd = subst (λ l → l < suc n * m) (sym nmmoddiv) (snd nm)
-    mm*sn<m*sn : mm * suc n < m * suc n
-    mm*sn<m*sn =
-      mm * suc n      ≤<⟨ nn , +-comm nn (mm * suc n) ⟩
-      mm * suc n + nn <≡⟨ nmsnd ⟩
-      suc n * m       ≡⟨ *-comm (suc n) m ⟩
-      m * suc n       ∎ where open <-Reasoning
+    nmsnd : mm · suc n + nn < suc n · m
+    nmsnd = subst (λ l → l < suc n · m) (sym nmmoddiv) (snd nm)
+    mm·sn<m·sn : mm · suc n < m · suc n
+    mm·sn<m·sn =
+      mm · suc n      ≤<⟨ nn , +-comm nn (mm · suc n) ⟩
+      mm · suc n + nn <≡⟨ nmsnd ⟩
+      suc n · m       ≡⟨ ·-comm (suc n) m ⟩
+      m · suc n       ∎ where open <-Reasoning
     mm<m : mm < m
-    mm<m = <-*sk-cancel mm*sn<m*sn
+    mm<m = <-·sk-cancel mm·sn<m·sn
 
   isSurjectionIntro : isSurjection intro
   isSurjectionIntro = ∣_∣ ∘ elimF
+
+-- Fin (m + n) ≡ Fin m ⊎ Fin n
+-- ===========================
+
+o<m→o<m+n : (m n o : ℕ) → o < m → o < (m + n)
+o<m→o<m+n m n o (k , p) = (n + k) , (n + k + suc o    ≡⟨ sym (+-assoc n k _)  ⟩
+                                     n + (k + suc o)  ≡⟨ cong (λ - → n + -) p ⟩
+                                     n + m            ≡⟨ +-comm n m           ⟩
+                                     m + n            ∎)
+
+∸-<-lemma : (m n o : ℕ) → o < m + n → m ≤ o → o ∸ m < n
+∸-<-lemma zero    n o       o<m+n m<o = o<m+n
+∸-<-lemma (suc m) n zero    o<m+n m<o = Empty.rec (¬-<-zero m<o)
+∸-<-lemma (suc m) n (suc o) o<m+n m<o =
+  ∸-<-lemma m n o (pred-≤-pred o<m+n) (pred-≤-pred m<o)
+
+-- A convenient wrapper on top of trichotomy, as we will be interested in
+-- whether `m < n` or `n ≤ m`.
+_≤?_ : (m n : ℕ) → (m < n) ⊎ (n ≤ m)
+_≤?_ m n with m ≟ n
+_≤?_ m n | lt m<n = inl m<n
+_≤?_ m n | eq m=n = inr (subst (λ - → - ≤ m) m=n ≤-refl)
+_≤?_ m n | gt n<m = inr (<-weaken n<m)
+
+¬-<-and-≥ : {m n : ℕ} → m < n → ¬ n ≤ m
+¬-<-and-≥ {m}     {zero}  m<n n≤m = ¬-<-zero m<n
+¬-<-and-≥ {zero}  {suc n} m<n n≤m = ¬-<-zero n≤m
+¬-<-and-≥ {suc m} {suc n} m<n n≤m = ¬-<-and-≥ (pred-≤-pred m<n) (pred-≤-pred n≤m)
+
+m+n∸n=m : (n m : ℕ) → (m + n) ∸ n ≡ m
+m+n∸n=m zero    k = +-zero k
+m+n∸n=m (suc m) k = (k + suc m) ∸ suc m   ≡⟨ cong (λ - → - ∸ suc m) (+-suc k m) ⟩
+                    suc (k + m) ∸ (suc m) ≡⟨ refl                               ⟩
+                    (k + m) ∸ m           ≡⟨ m+n∸n=m m k                        ⟩
+                    k                     ∎
+
+∸-lemma : {m n : ℕ} → m ≤ n → m + (n ∸ m) ≡ n
+∸-lemma {zero}  {k}     _   = refl {x = k}
+∸-lemma {suc m} {zero}  m≤k = Empty.rec (¬-<-and-≥ (suc-≤-suc zero-≤) m≤k)
+∸-lemma {suc m} {suc k} m≤k =
+  suc m + (suc k ∸ suc m)   ≡⟨ refl                                 ⟩
+  suc (m + (suc k ∸ suc m)) ≡⟨ refl                                 ⟩
+  suc (m + (k ∸ m))         ≡⟨ cong suc (∸-lemma (pred-≤-pred m≤k)) ⟩
+  suc k                     ∎
+
+Fin+≅Fin⊎Fin : (m n : ℕ) → Iso (Fin (m + n)) (Fin m ⊎ Fin n)
+Iso.fun (Fin+≅Fin⊎Fin m n) = f
+  where
+    f : Fin (m + n) → Fin m ⊎ Fin n
+    f (k , k<m+n) with k ≤? m
+    f (k , k<m+n) | inl k<m = inl (k , k<m)
+    f (k , k<m+n) | inr k≥m = inr (k ∸ m , ∸-<-lemma m n k k<m+n k≥m)
+Iso.inv (Fin+≅Fin⊎Fin m n) = g
+  where
+    g :  Fin m  ⊎  Fin n  →  Fin (m + n)
+    g (inl (k , k<m)) = k     , o<m→o<m+n m n k k<m
+    g (inr (k , k<n)) = m + k , <-k+ k<n
+Iso.rightInv (Fin+≅Fin⊎Fin m n) = sec-f-g
+  where
+    sec-f-g : _
+    sec-f-g (inl (k , k<m)) with k ≤? m
+    sec-f-g (inl (k , k<m)) | inl _   = cong inl (Σ≡Prop (λ _ → m≤n-isProp) refl)
+    sec-f-g (inl (k , k<m)) | inr m≤k = Empty.rec (¬-<-and-≥ k<m m≤k)
+    sec-f-g (inr (k , k<n)) with (m + k) ≤? m
+    sec-f-g (inr (k , k<n)) | inl p   = Empty.rec (¬m+n<m {m} {k} p)
+    sec-f-g (inr (k , k<n)) | inr k≥m = cong inr (Σ≡Prop (λ _ → m≤n-isProp) rem)
+      where
+        rem : (m + k) ∸ m ≡ k
+        rem = subst (λ - → - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
+Iso.leftInv  (Fin+≅Fin⊎Fin m n) = ret-f-g
+  where
+    ret-f-g : _
+    ret-f-g (k , k<m+n) with k ≤? m
+    ret-f-g (k , k<m+n) | inl _   = Σ≡Prop (λ _ → m≤n-isProp) refl
+    ret-f-g (k , k<m+n) | inr m≥k = Σ≡Prop (λ _ → m≤n-isProp) (∸-lemma m≥k)
+
+Fin+≡Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ Fin m ⊎ Fin n
+Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
+
+-- Equivalence between FinData and Fin
+
+sucFin : {N : ℕ} → Fin N → Fin (suc N)
+sucFin (k , n , p) = suc k , n , (+-suc _ _ ∙ cong suc p)
+
+FinData→Fin : (N : ℕ) → FinData N → Fin N
+FinData→Fin zero ()
+FinData→Fin (suc N) zero = 0 , suc-≤-suc zero-≤
+FinData→Fin (suc N) (suc k) = sucFin (FinData→Fin N k)
+
+Fin→FinData : (N : ℕ) → Fin N → FinData N
+Fin→FinData zero (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
+Fin→FinData (suc N) (0 , n , p) = zero
+Fin→FinData (suc N) ((suc k) , n , p) = suc (Fin→FinData N (k , n , p')) where
+  p' : n + suc k ≡ N
+  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
+
+secFin : (n : ℕ) → section (FinData→Fin n) (Fin→FinData n)
+secFin 0 (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
+secFin (suc N) (0 , n , p) = Fin-fst-≡ refl
+secFin (suc N) (suc k , n , p) = Fin-fst-≡ (cong suc (cong fst (secFin N (k , n , p')))) where
+  p' : n + suc k ≡ N
+  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
+
+retFin : (n : ℕ) → retract (FinData→Fin n) (Fin→FinData n)
+retFin 0 ()
+retFin (suc N) zero = refl
+retFin (suc N) (suc k) = cong FinData.suc (cong (Fin→FinData N) (Fin-fst-≡ refl) ∙ retFin N k)
+
+FinDataIsoFin : (N : ℕ) → Iso (FinData N) (Fin N)
+Iso.fun (FinDataIsoFin N) = FinData→Fin N
+Iso.inv (FinDataIsoFin N) = Fin→FinData N
+Iso.rightInv (FinDataIsoFin N) = secFin N
+Iso.leftInv (FinDataIsoFin N) = retFin N
+
+FinData≃Fin : (N : ℕ) → FinData N ≃ Fin N
+FinData≃Fin N = isoToEquiv (FinDataIsoFin N)
+
+FinData≡Fin : (N : ℕ) → FinData N ≡ Fin N
+FinData≡Fin N = ua (FinData≃Fin N)
+
+-- decidability of Fin
+
+DecFin : (n : ℕ) → Dec (Fin n)
+DecFin 0 = no ¬Fin0
+DecFin (suc n) = yes fzero
+
+-- propositional truncation of Fin
+
+Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥
+Dec∥Fin∥ n = Dec∥∥ (DecFin n)
+
+-- some properties about cardinality
+
+Fin>0→isInhab : (n : ℕ) → 0 < n → Fin n
+Fin>0→isInhab 0 p = Empty.rec (¬-<-zero p)
+Fin>0→isInhab (suc n) p = fzero
+
+Fin>1→hasNonEqualTerm : (n : ℕ) → 1 < n → Σ[ i ∈ Fin n ] Σ[ j ∈ Fin n ] ¬ i ≡ j
+Fin>1→hasNonEqualTerm 0 p = Empty.rec (snotz (≤0→≡0 p))
+Fin>1→hasNonEqualTerm 1 p = Empty.rec (snotz (≤0→≡0 (pred-≤-pred p)))
+Fin>1→hasNonEqualTerm (suc (suc n)) _ = fzero , fone , fzero≠fone
+
+isEmpty→Fin≡0 : (n : ℕ) → ¬ Fin n → 0 ≡ n
+isEmpty→Fin≡0 0 _ = refl
+isEmpty→Fin≡0 (suc n) p = Empty.rec (p fzero)
+
+isInhab→Fin>0 : (n : ℕ) → Fin n → 0 < n
+isInhab→Fin>0 0 i = Empty.rec (¬Fin0 i)
+isInhab→Fin>0 (suc n) _ = suc-≤-suc zero-≤
+
+hasNonEqualTerm→Fin>1 : (n : ℕ) → (i j : Fin n) → ¬ i ≡ j → 1 < n
+hasNonEqualTerm→Fin>1 0 i _ _ = Empty.rec (¬Fin0 i)
+hasNonEqualTerm→Fin>1 1 i j p = Empty.rec (p (isContr→isProp isContrFin1 i j))
+hasNonEqualTerm→Fin>1 (suc (suc n)) _ _ _ = suc-≤-suc (suc-≤-suc zero-≤)
+
+Fin≤1→isProp : (n : ℕ) → n ≤ 1 → isProp (Fin n)
+Fin≤1→isProp 0 _ = isPropFin0
+Fin≤1→isProp 1 _ = isContr→isProp isContrFin1
+Fin≤1→isProp (suc (suc n)) p = Empty.rec (¬-<-zero (pred-≤-pred p))
+
+isProp→Fin≤1 : (n : ℕ) → isProp (Fin n) → n ≤ 1
+isProp→Fin≤1 0 _ = ≤-solver 0 1
+isProp→Fin≤1 1 _ = ≤-solver 1 1
+isProp→Fin≤1 (suc (suc n)) p = Empty.rec (fzero≠fone (p fzero fone))

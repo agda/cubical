@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --postfix-projections #-}
+{-# OPTIONS --safe --postfix-projections #-}
 
 open import Cubical.Foundations.Everything renaming (uncurry to λ⟨,⟩_)
 open import Cubical.Data.Sigma.Properties
@@ -8,11 +8,11 @@ module Cubical.Modalities.Lex
   (◯ : ∀ {ℓ} → Type ℓ → Type ℓ)
   (η : ∀ {ℓ} {A : Type ℓ} → A → ◯ A)
   (isModal : ∀ {ℓ} → Type ℓ → Type ℓ)
-  (let isModalFam = λ {ℓ ℓ′ : Level} {A : Type ℓ} (B : A → Type ℓ′) → (x : A) → isModal (B x))
+  (let isModalFam = λ {ℓ ℓ' : Level} {A : Type ℓ} (B : A → Type ℓ') → (x : A) → isModal (B x))
   (idemp : ∀ {ℓ} {A : Type ℓ} → isModal (◯ A))
   (≡-modal : ∀ {ℓ} {A : Type ℓ} {x y : A} (A-mod : isModal A) → isModal (x ≡ y))
-  (◯-ind : ∀ {ℓ ℓ′} {A : Type ℓ} {B : ◯ A → Type ℓ′} (B-mod : isModalFam B) (f : (x : A) → B (η x)) → ([x] : ◯ A) → B [x])
-  (◯-ind-β : ∀ {ℓ ℓ′} {A : Type ℓ} {B : ◯ A → Type ℓ′} (B-mod : isModalFam B) (f : (x : A) → B (η x)) (x : A) → ◯-ind B-mod f (η x) ≡ f x)
+  (◯-ind : ∀ {ℓ ℓ'} {A : Type ℓ} {B : ◯ A → Type ℓ'} (B-mod : isModalFam B) (f : (x : A) → B (η x)) → ([x] : ◯ A) → B [x])
+  (◯-ind-β : ∀ {ℓ ℓ'} {A : Type ℓ} {B : ◯ A → Type ℓ'} (B-mod : isModalFam B) (f : (x : A) → B (η x)) (x : A) → ◯-ind B-mod f (η x) ≡ f x)
   (let Type◯ = λ (ℓ : Level) → Σ (Type ℓ) isModal)
   (◯-lex : ∀ {ℓ} → isModal (Type◯ ℓ))
   where
@@ -20,7 +20,7 @@ module Cubical.Modalities.Lex
 
 private
   variable
-     ℓ ℓ′ : Level
+     ℓ ℓ' : Level
 
 η-at : (A : Type ℓ) → A → ◯ A
 η-at _ = η
@@ -29,7 +29,7 @@ module _ where
   private
     variable
       A : Type ℓ
-      B : Type ℓ′
+      B : Type ℓ'
 
 
   module ◯-rec (B-mod : isModal B) (f : A → B) where
@@ -79,7 +79,7 @@ abstract
   unit-is-equiv-to-is-modal p = transport (cong isModal (sym (ua (η , p)))) idemp
 
   retract-is-modal
-    : {A : Type ℓ} {B : Type ℓ′}
+    : {A : Type ℓ} {B : Type ℓ'}
     → (A-mod : isModal A) (f : A → B) (g : B → A) (r : retract g f)
     → isModal B
   retract-is-modal {A = A} {B = B} A-mod f g r =
@@ -95,14 +95,14 @@ abstract
       η-section = ◯-ind (λ _ → ≡-modal idemp) (cong η ∘ η-retract)
 
 
-module LiftFam {A : Type ℓ} (B : A → Type ℓ′) where
-  module M = IsModalToUnitIsEquiv (Type◯ ℓ′) ◯-lex
+module LiftFam {A : Type ℓ} (B : A → Type ℓ') where
+  module M = IsModalToUnitIsEquiv (Type◯ ℓ') ◯-lex
 
   abstract
-    ◯-lift-fam : ◯ A → Type◯ ℓ′
+    ◯-lift-fam : ◯ A → Type◯ ℓ'
     ◯-lift-fam = M.inv ∘ ◯-map (λ a → ◯ (B a) , idemp)
 
-    ⟨◯⟩ : ◯ A → Type ℓ′
+    ⟨◯⟩ : ◯ A → Type ℓ'
     ⟨◯⟩ [a] = ◯-lift-fam [a] .fst
 
     ⟨◯⟩-modal : isModalFam ⟨◯⟩
@@ -120,7 +120,7 @@ module LiftFam {A : Type ℓ} (B : A → Type ℓ′) where
 
 open LiftFam using (⟨◯⟩; ⟨◯⟩-modal; ⟨◯⟩-compute)
 
-module LiftFamExtra {A : Type ℓ} {B : A → Type ℓ′} where
+module LiftFamExtra {A : Type ℓ} {B : A → Type ℓ'} where
   ⟨◯⟩←◯ : ∀ {a} → ◯ (B a) → ⟨◯⟩ B (η a)
   ⟨◯⟩←◯ = transport (sym (⟨◯⟩-compute B _))
 
@@ -138,10 +138,10 @@ module LiftFamExtra {A : Type ℓ} {B : A → Type ℓ′} where
 module Combinators where
   private
     variable
-      ℓ′′ : Level
+      ℓ'' : Level
       A A′ : Type ℓ
-      B : A → Type ℓ′
-      C : Σ A B → Type ℓ′′
+      B : A → Type ℓ'
+      C : Σ A B → Type ℓ''
 
   λ/coe⟨_⟩_ : (p : A ≡ A′) → ((x : A′) → B (coe1→0 (λ i → p i) x)) → ((x : A) → B x)
   λ/coe⟨_⟩_ {B = B} p f = coe1→0 (λ i → (x : p i) → B (coei→0 (λ j → p j) i x)) f
@@ -149,7 +149,7 @@ module Combinators where
 open Combinators
 
 
-module _ {A : Type ℓ} {B : A → Type ℓ′} where
+module _ {A : Type ℓ} {B : A → Type ℓ'} where
   abstract
     Π-modal : isModalFam B → isModal ((x : A) → B x)
     Π-modal B-mod = retract-is-modal idemp η-inv η retr
@@ -184,7 +184,7 @@ module _ {A : Type ℓ} {B : A → Type ℓ′} where
           p ∎
 
 
-module Σ-commute {A : Type ℓ} (B : A → Type ℓ′) where
+module Σ-commute {A : Type ℓ} (B : A → Type ℓ') where
   open LiftFamExtra
 
   ◯Σ = ◯ (Σ A B)

@@ -5,7 +5,7 @@ Add axioms (i.e., propositions) to a structure S without changing the definition
 X ↦ Σ[ s ∈ S X ] (P X s) where (P X s) is a proposition for all X and s.
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Structures.Axioms where
 
 open import Cubical.Foundations.Prelude
@@ -48,12 +48,22 @@ axiomsUnivalentStr {S = S} ι {axioms = axioms} axioms-are-Props θ {X , s , a} 
   PathP (λ i → AxiomsStructure S axioms (ua e i)) (s , a) (t , b)
   ■
 
-transferAxioms : {S : Type ℓ → Type ℓ₁}
+inducedStructure : {S : Type ℓ → Type ℓ₁}
   {ι : (A B : TypeWithStr ℓ S) → A .fst ≃ B .fst → Type ℓ₁'}
   (θ : UnivalentStr S ι)
   {axioms : (X : Type ℓ) → S X → Type ℓ₂}
   (A : TypeWithStr ℓ (AxiomsStructure S axioms)) (B : TypeWithStr ℓ S)
   → (typ A , str A .fst) ≃[ ι ] B
   → TypeWithStr ℓ (AxiomsStructure S axioms)
-transferAxioms θ {axioms} A B eqv =
+inducedStructure θ {axioms} A B eqv =
   B .fst , B .snd , subst (uncurry axioms) (sip θ _ _ eqv) (A .snd .snd)
+
+transferAxioms : {S : Type ℓ → Type ℓ₁}
+  {ι : (A B : TypeWithStr ℓ S) → A .fst ≃ B .fst → Type ℓ₁'}
+  (θ : UnivalentStr S ι)
+  {axioms : (X : Type ℓ) → S X → Type ℓ₂}
+  (A : TypeWithStr ℓ (AxiomsStructure S axioms)) (B : TypeWithStr ℓ S)
+  → (typ A , str A .fst) ≃[ ι ] B
+  → axioms (fst B) (snd B)
+transferAxioms θ {axioms} A B eqv =
+  subst (uncurry axioms) (sip θ _ _ eqv) (A .snd .snd)

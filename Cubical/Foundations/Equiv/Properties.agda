@@ -9,7 +9,7 @@ A couple of general facts about equivalences:
 - isHAEquiv is a proposition [isPropIsHAEquiv]
 (these are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda))
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.Properties where
 
 open import Cubical.Core.Everything
@@ -29,48 +29,46 @@ open import Cubical.Functions.FunExtEquiv
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' ℓ'' : Level
     A B C : Type ℓ
 
-isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (e .fst) p)
+isEquivInvEquiv : isEquiv (λ (e : A ≃ B) → invEquiv e)
+isEquivInvEquiv = isoToIsEquiv goal where
+  open Iso
+  goal : Iso (A ≃ B) (B ≃ A)
+  goal .fun = invEquiv
+  goal .inv = invEquiv
+  goal .rightInv g = equivEq refl
+  goal .leftInv f = equivEq refl
+
+invEquivEquiv : (A ≃ B) ≃ (B ≃ A)
+invEquivEquiv = _ , isEquivInvEquiv
+
+isEquivCong : {x y : A} (e : A ≃ B) → isEquiv (λ (p : x ≡ y) → cong (equivFun e) p)
 isEquivCong e = isoToIsEquiv (congIso (equivToIso e))
 
-congEquiv : {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (e .fst x ≡ e .fst y)
+congEquiv : {x y : A} (e : A ≃ B) → (x ≡ y) ≃ (equivFun e x ≡ equivFun e y)
 congEquiv e = isoToEquiv (congIso (equivToIso e))
 
 equivAdjointEquiv : (e : A ≃ B) → ∀ {a b} → (a ≡ invEq e b) ≃ (equivFun e a ≡ b)
-equivAdjointEquiv e = compEquiv (congEquiv e) (compPathrEquiv (retEq e _))
+equivAdjointEquiv e = compEquiv (congEquiv e) (compPathrEquiv (secEq e _))
 
 invEq≡→equivFun≡ : (e : A ≃ B) → ∀ {a b} → invEq e b ≡ a → equivFun e a ≡ b
-invEq≡→equivFun≡ e = equivAdjointEquiv e .fst ∘ sym
+invEq≡→equivFun≡ e = equivFun (equivAdjointEquiv e) ∘ sym
 
-isEquivPreComp : {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
-               → isEquiv (λ (φ : B → C) → φ ∘ e .fst)
-isEquivPreComp {A = A} {B} {C} e = EquivJ
-                  (λ (A : Type _) (e' : A ≃ B) → isEquiv (λ (φ : B → C) → φ ∘ e' .fst))
-                  (idIsEquiv (B → C)) e
+isEquivPreComp : (e : A ≃ B) → isEquiv (λ (φ : B → C) → φ ∘ equivFun e)
+isEquivPreComp e = snd (equiv→ (invEquiv e) (idEquiv _))
 
-preCompEquiv : {A B : Type ℓ} {C : Type ℓ′} (e : A ≃ B)
-             → (B → C) ≃ (A → C)
+preCompEquiv : (e : A ≃ B) → (B → C) ≃ (A → C)
 preCompEquiv e = (λ φ → φ ∘ fst e) , isEquivPreComp e
 
-depPostCompEquiv : {A : C → Type ℓ} {B : C → Type ℓ′} (e : ∀ c → A c ≃ B c)
-                 → (∀ c → A c) ≃ (∀ c → B c)
-depPostCompEquiv {A = A} {B} e = isoToEquiv pcIso where
-  eIso : ∀ c → Iso (A c) (B c)
-  eIso c = equivToIso (e c)
-
-  pcIso : Iso (∀ c → A c) (∀ c → B c)
-  Iso.fun pcIso f c = Iso.fun (eIso c) (f c)
-  Iso.inv pcIso g c = Iso.inv (eIso c) (g c)
-  Iso.rightInv pcIso f i c = Iso.rightInv (eIso c) (f c) i
-  Iso.leftInv pcIso g i c = Iso.leftInv (eIso c) (g c) i
-
-isEquivPostComp :(e : A ≃ B) → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
-isEquivPostComp {A = A} {B} {C} e = snd (depPostCompEquiv (λ _ → e))
+isEquivPostComp : (e : A ≃ B) → isEquiv (λ (φ : C → A) → e .fst ∘ φ)
+isEquivPostComp e = snd (equivΠCod (λ _ → e))
 
 postCompEquiv : (e : A ≃ B) → (C → A) ≃ (C → B)
 postCompEquiv e = _ , isEquivPostComp e
+
+-- see also: equivΠCod for a dependent version of postCompEquiv
 
 hasSection : (A → B) → Type _
 hasSection {A = A} {B = B} f = Σ[ g ∈ (B → A) ] section f g
@@ -128,27 +126,13 @@ isEquiv→hasRetract = fst ∘ isEquiv→isContrHasRetract
 isContr-hasRetract : (e : A ≃ B) → isContr (hasRetract (fst e))
 isContr-hasRetract e = isEquiv→isContrHasRetract (snd e)
 
--- there is a (much slower) alternate proof that also works for retract
-
-isContr-hasSection' : {A B : Type ℓ} (e : A ≃ B) → isContr (hasSection (fst e))
-isContr-hasSection' {_} {A} {B} e = transport (λ i → ∃![ g ∈ (B → A) ] eq g i)
-                                              (equiv-proof (isEquivPostComp e) (idfun _))
-  where eq : ∀ (g : B → A) → ((fst e) ∘ g ≡ idfun _) ≡ (section (fst e) g)
-        eq g = sym (funExtPath {f = (fst e) ∘ g} {g = idfun _})
-
-isContr-hasRetract' : {A B : Type ℓ} (e : A ≃ B) → isContr (hasRetract (fst e))
-isContr-hasRetract' {_} {A} {B} e = transport (λ i → ∃![ g ∈ (B → A) ] eq g i)
-                                              (equiv-proof (isEquivPreComp e) (idfun _))
-  where eq : ∀ (g : B → A) → (g ∘ (fst e) ≡ idfun _) ≡ (retract (fst e) g)
-        eq g = sym (funExtPath {f = g ∘ (fst e)} {g = idfun _})
-
-cong≃ : (F : Type ℓ → Type ℓ′) → (A ≃ B) → F A ≃ F B
+cong≃ : (F : Type ℓ → Type ℓ') → (A ≃ B) → F A ≃ F B
 cong≃ F e = pathToEquiv (cong F (ua e))
 
-cong≃-char : (F : Type ℓ → Type ℓ′) {A B : Type ℓ} (e : A ≃ B) → ua (cong≃ F e) ≡ cong F (ua e)
+cong≃-char : (F : Type ℓ → Type ℓ') {A B : Type ℓ} (e : A ≃ B) → ua (cong≃ F e) ≡ cong F (ua e)
 cong≃-char F e = ua-pathToEquiv (cong F (ua e))
 
-cong≃-idEquiv : (F : Type ℓ → Type ℓ′) (A : Type ℓ) → cong≃ F (idEquiv A) ≡ idEquiv (F A)
+cong≃-idEquiv : (F : Type ℓ → Type ℓ') (A : Type ℓ) → cong≃ F (idEquiv A) ≡ idEquiv (F A)
 cong≃-idEquiv F A = cong≃ F (idEquiv A) ≡⟨ cong (λ p → pathToEquiv (cong F p)) uaIdEquiv  ⟩
                     pathToEquiv refl    ≡⟨ pathToEquivRefl ⟩
                     idEquiv (F A)       ∎
@@ -181,12 +165,12 @@ isPropIsHAEquiv {f = f} ishaef = goal ishaef where
     Σ _ rCoh1
       -- secondly, convert the path into a dependent path for later convenience
       ≃⟨  Σ-cong-equiv-snd (λ s → Σ-cong-equiv-snd
-                             λ η → depPostCompEquiv
+                             λ η → equivΠCod
                                λ x → compEquiv (flipSquareEquiv {a₀₀ = f x}) (invEquiv slideSquareEquiv)) ⟩
     Σ _ rCoh2
       ≃⟨ Σ-cong-equiv-snd (λ s → invEquiv Σ-Π-≃) ⟩
     Σ _ rCoh3
-      ≃⟨ Σ-cong-equiv-snd (λ s → depPostCompEquiv λ x → ΣPath≃PathΣ) ⟩
+      ≃⟨ Σ-cong-equiv-snd (λ s → equivΠCod λ x → ΣPath≃PathΣ) ⟩
     Σ _ rCoh4
       ■
     where open isHAEquiv
@@ -196,6 +180,10 @@ isPropIsHAEquiv {f = f} ishaef = goal ishaef where
     (isPropΣ (isContr→isProp (isEquiv→isContrHasSection equivF))
              λ s → isPropΠ λ x → isProp→isSet (isContr→isProp (equivF .equiv-proof (f x))) _ _)
 
+-- loop spaces connected by a path are equivalent
+conjugatePathEquiv : {A : Type ℓ} {a b : A} (p : a ≡ b) → (a ≡ a) ≃ (b ≡ b)
+conjugatePathEquiv p = compEquiv (compPathrEquiv p) (compPathlEquiv (sym p))
+
 -- composition on the right induces an equivalence of path types
 compr≡Equiv : {A : Type ℓ} {a b c : A} (p q : a ≡ b) (r : b ≡ c) → (p ≡ q) ≃ (p ∙ r ≡ q ∙ r)
 compr≡Equiv p q r = congEquiv ((λ s → s ∙ r) , compPathr-isEquiv r)
@@ -203,3 +191,23 @@ compr≡Equiv p q r = congEquiv ((λ s → s ∙ r) , compPathr-isEquiv r)
 -- composition on the left induces an equivalence of path types
 compl≡Equiv : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q r : b ≡ c) → (q ≡ r) ≃ (p ∙ q ≡ p ∙ r)
 compl≡Equiv p q r = congEquiv ((λ s → p ∙ s) , (compPathl-isEquiv p))
+
+isEquivFromIsContr : {A : Type ℓ} {B : Type ℓ'}
+                   → (f : A → B) → isContr A → isContr B
+                   → isEquiv f
+isEquivFromIsContr f isContrA isContrB =
+  subst isEquiv (λ i x → isContr→isProp isContrB (fst B≃A x) (f x) i) (snd B≃A)
+  where B≃A = isContr→Equiv isContrA isContrB
+
+isEquiv[f∘equivFunA≃B]→isEquiv[f] : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+                 → (f : B → C) (A≃B : A ≃ B)
+                 → isEquiv (f ∘ equivFun A≃B)
+                 → isEquiv f
+isEquiv[f∘equivFunA≃B]→isEquiv[f] f (g , gIsEquiv) f∘gIsEquiv  =
+  precomposesToId→Equiv f _ w w'
+    where
+      w : f ∘ g ∘ equivFun (invEquiv (_ , f∘gIsEquiv)) ≡ idfun _
+      w = (cong fst (invEquiv-is-linv (_ , f∘gIsEquiv)))
+
+      w' : isEquiv (g ∘ equivFun (invEquiv (_ , f∘gIsEquiv)))
+      w' = (snd (compEquiv (invEquiv (_ , f∘gIsEquiv) ) (_ , gIsEquiv)))

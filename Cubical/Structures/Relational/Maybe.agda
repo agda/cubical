@@ -3,7 +3,7 @@
 Maybe structure: X ↦ Maybe (S X)
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Structures.Relational.Maybe where
 
 open import Cubical.Foundations.Prelude
@@ -107,7 +107,7 @@ maybePositiveRel {S = S} {ρ = ρ} {θ = θ} σ .quo {X} R =
   isom .inv = bwd
   isom .rightInv nothing = refl
   isom .rightInv (just x) =
-    elimProp {B = λ x → fwd (bwd (just x)) ≡ just x}
+    elimProp {P = λ x → fwd (bwd (just x)) ≡ just x}
       (λ _ → isOfHLevelMaybe 0 squash/ _ _)
       (λ _ → refl)
       x

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Functions.FunExtEquiv where
 
 open import Cubical.Foundations.Prelude
@@ -8,8 +8,11 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
-open import Cubical.Data.Vec
+open import Cubical.Data.Vec.Base
+open import Cubical.Data.Vec.NAry
 open import Cubical.Data.Nat
+
+open import Cubical.Reflection.StrictEquiv
 
 private
   variable
@@ -19,18 +22,8 @@ private
 module _ {A : Type ℓ} {B : A → I → Type ℓ₁}
   {f : (x : A) → B x i0} {g : (x : A) → B x i1} where
 
-  private
-    fib : (p : PathP (λ i → ∀ x → B x i) f g) → fiber funExt p
-    fib p = (funExt⁻ p , refl)
-
-    funExt-fiber-isContr : ∀ p → (fi : fiber funExt p) → fib p ≡ fi
-    funExt-fiber-isContr p (h , eq) i = (funExt⁻ (eq (~ i)) , λ j → eq (~ i ∨ j))
-
-  funExt-isEquiv : isEquiv funExt
-  equiv-proof funExt-isEquiv p = (fib p , funExt-fiber-isContr p)
-
   funExtEquiv : (∀ x → PathP (B x) (f x) (g x)) ≃ PathP (λ i → ∀ x → B x i) f g
-  funExtEquiv = (funExt , funExt-isEquiv)
+  unquoteDef funExtEquiv = defStrictEquiv funExtEquiv funExt funExt⁻
 
   funExtPath : (∀ x → PathP (B x) (f x) (g x)) ≡ PathP (λ i → ∀ x → B x i) f g
   funExtPath = ua funExtEquiv
@@ -54,17 +47,8 @@ module _ {A : Type ℓ} {B : A → Type ℓ₁} {C : (x : A) → B x → I → T
     appl₂ : PathP (λ i → ∀ x y → C x y i) f g → ∀ x y → PathP (C x y) (f x y) (g x y)
     appl₂ eq x y i = eq i x y
 
-    fib : (p : PathP (λ i → ∀ x y → C x y i) f g) → fiber funExt₂ p
-    fib p = (appl₂ p , refl)
-
-    funExt₂-fiber-isContr : ∀ p → (fi : fiber funExt₂ p) → fib p ≡ fi
-    funExt₂-fiber-isContr p (h , eq) i = (appl₂ (eq (~ i)) , λ j → eq (~ i ∨ j))
-
-  funExt₂-isEquiv : isEquiv funExt₂
-  equiv-proof funExt₂-isEquiv p = (fib p , funExt₂-fiber-isContr p)
-
   funExt₂Equiv : (∀ x y → PathP (C x y) (f x y) (g x y)) ≃ (PathP (λ i → ∀ x y → C x y i) f g)
-  funExt₂Equiv = (funExt₂ , funExt₂-isEquiv)
+  unquoteDef funExt₂Equiv = defStrictEquiv funExt₂Equiv funExt₂ appl₂
 
   funExt₂Path : (∀ x y → PathP (C x y) (f x y) (g x y)) ≡ (PathP (λ i → ∀ x y → C x y i) f g)
   funExt₂Path = ua funExt₂Equiv
@@ -88,17 +72,8 @@ module _ {A : Type ℓ} {B : A → Type ℓ₁} {C : (x : A) → B x → Type �
     appl₃ : PathP (λ i → ∀ x y z → D x y z i) f g → ∀ x y z → PathP (D x y z) (f x y z) (g x y z)
     appl₃ eq x y z i = eq i x y z
 
-    fib : (p : PathP (λ i → ∀ x y z → D x y z i) f g) → fiber funExt₃ p
-    fib p = (appl₃ p , refl)
-
-    funExt₃-fiber-isContr : ∀ p → (fi : fiber funExt₃ p) → fib p ≡ fi
-    funExt₃-fiber-isContr p (h , eq) i = (appl₃ (eq (~ i)) , λ j → eq (~ i ∨ j))
-
-  funExt₃-isEquiv : isEquiv funExt₃
-  equiv-proof funExt₃-isEquiv p = (fib p , funExt₃-fiber-isContr p)
-
   funExt₃Equiv : (∀ x y z → PathP (D x y z) (f x y z) (g x y z)) ≃ (PathP (λ i → ∀ x y z → D x y z i) f g)
-  funExt₃Equiv = (funExt₃ , funExt₃-isEquiv)
+  unquoteDef funExt₃Equiv = defStrictEquiv funExt₃Equiv funExt₃ appl₃
 
   funExt₃Path : (∀ x y z → PathP (D x y z) (f x y z) (g x y z)) ≡ (PathP (λ i → ∀ x y z → D x y z i) f g)
   funExt₃Path = ua funExt₃Equiv
@@ -207,7 +182,7 @@ heteroHomotopy≃Homotopy {A = A} {B} {f} {g} = isoToEquiv isom
     subst (λ fib → PathP B (f x₀) (g (fib .fst))) (isContrSinglP A x₀ .snd (x₁ , p)) (k x₀)
   isom .rightInv k = funExt λ x₀ →
     cong (λ α → subst (λ fib → PathP B (f x₀) (g (fib .fst))) α (k x₀))
-      (isProp→isSet (isContr→isProp (isContrSinglP A x₀)) (isContrSinglP A x₀ .fst) _
+      (isProp→isSet isPropSinglP (isContrSinglP A x₀ .fst) _
         (isContrSinglP A x₀ .snd (isContrSinglP A x₀ .fst))
         refl)
     ∙ transportRefl (k x₀)

@@ -3,7 +3,7 @@
 Definition of what it means to be a notion of relational structure
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.RelationalStructure where
 
 open import Cubical.Foundations.Prelude
@@ -258,12 +258,11 @@ structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .rel =
                 ∙ E.relToFwd≡ r)
                 ∙ py})
               qr}))
-        (elimProp {B = λ qx → E.Thm .fst qx ≡ qy → [R] .fst qx qy}
+        (elimProp {P = λ qx → E.Thm .fst qx ≡ qy → [R] .fst qx qy}
           (λ _ → isPropΠ λ _ → squash)
           (λ x →
-            elimProp {B = λ qy → E.Thm .fst [ x ] ≡ qy → [R] .fst [ x ] qy}
+            elimProp {P = λ qy → E.Thm .fst [ x ] ≡ qy → [R] .fst [ x ] qy}
               (λ _ → isPropΠ λ _ → squash)
               (λ y p → ∣ _ , ∣ _ , refl , E.fwd≡ToRel p ∣ , refl ∣)
               qy)
           qx))
-

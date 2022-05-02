@@ -1,13 +1,12 @@
 {-
   Definition of function fixpoint and Kraus' lemma
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Functions.Fixpoint where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Path
 
 private
   variable

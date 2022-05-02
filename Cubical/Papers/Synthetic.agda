@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Papers.Synthetic where
 
 -- Cubical synthetic homotopy theory
@@ -39,7 +39,7 @@ import Cubical.HITs.Pushout.Properties        as PushProp
 import Cubical.HITs.Join                      as Join
 import Cubical.HITs.Join.Properties           as JoinProp
 -- 5.
-import Cubical.HITs.Hopf                      as Hopf
+import Cubical.Homotopy.Hopf                  as Hopf
 
 --------------------------------------------------------------------------------
 -- 2.  Cubical Agda
@@ -89,8 +89,8 @@ open T2 using ( Torus ; point ; line1 ; line2 ; square
 -- 3.1 The Loop Spaces of the Circle and Torus
 open S1 using (ΩS¹) public
 open T2 using (ΩTorus) public
-open Int using (Int ; pos ; negsuc) public
-open IntProp using (sucPathInt) public
+open Int using (pos ; negsuc) renaming (ℤ to Int) public
+open IntProp using (sucPathℤ) public
 open S1 using (helix ; winding) public
 
 -- Examples computing the winding numbers of the circle
@@ -101,8 +101,8 @@ _ : winding ((loop ⁻¹) ∙ loop ∙ (loop ⁻¹)) ≡ negsuc 0
 _ = refl
 
 open S1 renaming (intLoop to loopn) public
-open S1 renaming (windingIntLoop to winding-loopn) public
-open S1 using (encode ; decode ; decodeEncode ; ΩS¹≡Int) public
+open S1 renaming (windingℤLoop to winding-loopn) public
+open S1 using (encode ; decode ; decodeEncode ; ΩS¹≡ℤ) public
 open Isomorphism using (isoToPath ; iso) public
 
 -- Notation of the paper, current notation under ΩS¹≡Int
@@ -110,7 +110,7 @@ open Isomorphism using (isoToPath ; iso) public
 ΩS¹≡Int' = isoToPath (iso winding loopn
                       winding-loopn (decodeEncode base))
 
-open T2 using (ΩTorus≡Int×Int ; windingTorus) public
+open T2 using (ΩTorus≡ℤ×ℤ ; windingTorus) public
 
 -- Examples at the end of section 3.
 _ : windingTorus (line1 ∙ line2) ≡ (pos 1 , pos 1)
@@ -205,10 +205,10 @@ open JoinProp using (join-assoc) public
 -- 5.  The Hopf Fibration
 --------------------------------------------------------------------------------
 
--- rot in the paper is substituted by a rot and rotLoop in S1
-open S1 using (rot ; rotLoop) public
-open Hopf renaming ( HopfSuspS¹ to Hopf
-                   ; JoinS¹S¹→TotalHopf to j2h
-                   ; TotalHopf→JoinS¹S¹ to h2j)
-          using (HopfS²) public
+-- rot (denoted by _·_ here) in the paper is substituted by a rot and rotLoop in S1
+open S1 using (_·_ ; rotLoop) public
+open Hopf.S¹Hopf renaming ( HopfSuspS¹ to Hopf
+                          ; JoinS¹S¹→TotalHopf to j2h
+                          ; TotalHopf→JoinS¹S¹ to h2j)
+                 using (HopfS²) public
 open S1 renaming (rotInv-1 to lem-rot-inv) public

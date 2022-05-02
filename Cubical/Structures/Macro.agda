@@ -3,7 +3,7 @@
 Descriptor language for easily defining structures
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Structures.Macro where
 
 open import Cubical.Foundations.Prelude
@@ -15,6 +15,7 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 open import Cubical.Data.Maybe
 
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Constant
 open import Cubical.Structures.Function
 open import Cubical.Structures.Maybe
@@ -22,52 +23,24 @@ open import Cubical.Structures.Parameterized
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.Product
 
-data TranspDesc (ℓ : Level) : Typeω where
-  -- constant structure: X ↦ A
-  constant : ∀ {ℓ'} (A : Type ℓ') → TranspDesc ℓ
-  -- pointed structure: X ↦ X
-  var : TranspDesc ℓ
-  -- product of structures S,T : X ↦ (S X × T X)
-  _,_ : (d₀ : TranspDesc ℓ) (d₁ : TranspDesc ℓ) → TranspDesc ℓ
-  -- functions between structures S,T: X ↦ (S X → T X)
-  function : (d₀ : TranspDesc ℓ) (d₁ : TranspDesc ℓ) → TranspDesc ℓ
-  -- Maybe on a structure S: X ↦ Maybe (S X)
-  maybe : TranspDesc ℓ → TranspDesc ℓ
-  -- arbitrary transport structure
-  foreign : ∀ {ℓ'} {S : Type ℓ → Type ℓ'} (α : EquivAction S) → TransportStr α → TranspDesc ℓ
-
-data Desc (ℓ : Level) : Typeω where
-  -- constant structure: X ↦ A
-  constant : ∀ {ℓ'} (A : Type ℓ') → Desc ℓ
-  -- pointed structure: X ↦ X
-  var : Desc ℓ
-  -- product of structures S,T : X ↦ (S X × T X)
-  _,_ : (d₀ : Desc ℓ) (d₁ : Desc ℓ) → Desc ℓ
-  -- functions between structures S,T : X ↦ (S X → T X)
-  function : (d₀ : Desc ℓ) (d₁ : Desc ℓ) → Desc ℓ
-  -- functions between structures S,T where S is functorial : X ↦ (S X → T X)
-  function+ : (d₀ : TranspDesc ℓ) (d₁ : Desc ℓ) → Desc ℓ
-  -- Maybe on a structure S: X ↦ Maybe (S X)
-  maybe : Desc ℓ → Desc ℓ
-  -- univalent structure from transport structure
-  transpDesc : TranspDesc ℓ → Desc ℓ
-  -- arbitrary univalent notion of structure
-  foreign : ∀ {ℓ' ℓ''} {S : Type ℓ → Type ℓ'} (ι : StrEquiv S ℓ'') → UnivalentStr S ι → Desc ℓ
-
-infixr 4 _,_
-
 {- Transport structures -}
 
-transpMacroLevel : ∀ {ℓ} → TranspDesc ℓ → Level
-transpMacroLevel (constant {ℓ'} x) = ℓ'
-transpMacroLevel {ℓ} var = ℓ
-transpMacroLevel {ℓ} (d₀ , d₁) = ℓ-max (transpMacroLevel d₀) (transpMacroLevel d₁)
-transpMacroLevel (function d₀ d₁) = ℓ-max (transpMacroLevel d₀) (transpMacroLevel d₁)
-transpMacroLevel (maybe d) = transpMacroLevel d
-transpMacroLevel (foreign {ℓ'} α τ) = ℓ'
+data TranspDesc (ℓ : Level) : Level → Typeω where
+  -- constant structure: X ↦ A
+  constant : ∀ {ℓ₁} (A : Type ℓ₁) → TranspDesc ℓ ℓ₁
+  -- pointed structure: X ↦ X
+  var : TranspDesc ℓ ℓ
+  -- product of structures S,T : X ↦ (S X × T X)
+  _,_ : ∀ {ℓ₁ ℓ₂} (d₀ : TranspDesc ℓ ℓ₁) (d₁ : TranspDesc ℓ ℓ₂) → TranspDesc ℓ (ℓ-max ℓ₁ ℓ₂)
+  -- functions between structures S,T: X ↦ (S X → T X)
+  function : ∀ {ℓ₁ ℓ₂} (d₀ : TranspDesc ℓ ℓ₁) (d₁ : TranspDesc ℓ ℓ₂) → TranspDesc ℓ (ℓ-max ℓ₁ ℓ₂)
+  -- Maybe on a structure S: X ↦ Maybe (S X)
+  maybe : ∀ {ℓ₁} → TranspDesc ℓ ℓ₁ → TranspDesc ℓ ℓ₁
+  -- arbitrary transport structure
+  foreign : ∀ {ℓ₁} {S : Type ℓ → Type ℓ₁} (α : EquivAction S) → TransportStr α → TranspDesc ℓ ℓ₁
 
 -- Structure defined by a transport descriptor
-TranspMacroStructure : ∀ {ℓ} (d : TranspDesc ℓ) → Type ℓ → Type (transpMacroLevel d)
+TranspMacroStructure : ∀ {ℓ ℓ₁} → TranspDesc ℓ ℓ₁ → Type ℓ → Type ℓ₁
 TranspMacroStructure (constant A) X = A
 TranspMacroStructure var X = X
 TranspMacroStructure (d₀ , d₁) X = TranspMacroStructure d₀ X × TranspMacroStructure d₁ X
@@ -76,7 +49,7 @@ TranspMacroStructure (maybe d) = MaybeStructure (TranspMacroStructure d)
 TranspMacroStructure (foreign {S = S} α τ) = S
 
 -- Action defined by a transport descriptor
-transpMacroAction : ∀ {ℓ} (d : TranspDesc ℓ) → EquivAction (TranspMacroStructure d)
+transpMacroAction : ∀ {ℓ ℓ₁} (d : TranspDesc ℓ ℓ₁) → EquivAction (TranspMacroStructure d)
 transpMacroAction (constant A) = constantEquivAction A
 transpMacroAction var = pointedEquivAction
 transpMacroAction (d₀ , d₁) = productEquivAction (transpMacroAction d₀) (transpMacroAction d₁)
@@ -86,7 +59,7 @@ transpMacroAction (maybe d) = maybeEquivAction (transpMacroAction d)
 transpMacroAction (foreign α _) = α
 
 -- Action defines a transport structure
-transpMacroTransportStr : ∀ {ℓ} (d : TranspDesc ℓ) → TransportStr (transpMacroAction d)
+transpMacroTransportStr : ∀ {ℓ ℓ₁} (d : TranspDesc ℓ ℓ₁) → TransportStr (transpMacroAction d)
 transpMacroTransportStr (constant A) = constantTransportStr A
 transpMacroTransportStr var = pointedTransportStr
 transpMacroTransportStr (d₀ , d₁) =
@@ -103,50 +76,59 @@ transpMacroTransportStr (foreign α τ) = τ
 
 {- General structures -}
 
-macroStrLevel : ∀ {ℓ} → Desc ℓ → Level
-macroStrLevel (constant {ℓ'} x) = ℓ'
-macroStrLevel {ℓ} var = ℓ
-macroStrLevel {ℓ} (d₀ , d₁) = ℓ-max (macroStrLevel d₀) (macroStrLevel d₁)
-macroStrLevel {ℓ} (function+ d₀ d₁) = ℓ-max (transpMacroLevel d₀) (macroStrLevel d₁)
-macroStrLevel (function d₀ d₁) = ℓ-max (macroStrLevel d₀) (macroStrLevel d₁)
-macroStrLevel (maybe d) = macroStrLevel d
-macroStrLevel (transpDesc d) = transpMacroLevel d
-macroStrLevel (foreign {ℓ'} _ _) = ℓ'
+mutual
+  data Desc (ℓ : Level) : Level → Level → Typeω where
+    -- constant structure: X ↦ A
+    constant : ∀ {ℓ₁} (A : Type ℓ₁) → Desc ℓ ℓ₁ ℓ₁
+    -- pointed structure: X ↦ X
+    var : Desc ℓ ℓ ℓ
+    -- product of structures S,T : X ↦ (S X × T X)
+    _,_ : ∀ {ℓ₁ ℓ₁' ℓ₂ ℓ₂'} (d₀ : Desc ℓ ℓ₁ ℓ₁') (d₁ : Desc ℓ ℓ₂ ℓ₂')
+      → Desc ℓ (ℓ-max ℓ₁ ℓ₂) (ℓ-max ℓ₁' ℓ₂')
+    -- functions between structures S,T : X ↦ (S X → T X)
+    function : ∀ {ℓ₁ ℓ₁' ℓ₂ ℓ₂'} (d₀ : Desc ℓ ℓ₁ ℓ₁') (d₁ : Desc ℓ ℓ₂ ℓ₂')
+      → Desc ℓ (ℓ-max ℓ₁ ℓ₂) (ℓ-max ℓ₁ (ℓ-max ℓ₁' ℓ₂'))
+    -- functions between structures S,T where S is functorial : X ↦ (S X → T X)
+    function+ : ∀ {ℓ₁ ℓ₂ ℓ₂'} (d₀ : TranspDesc ℓ ℓ₁) (d₁ : Desc ℓ ℓ₂ ℓ₂') → Desc ℓ (ℓ-max ℓ₁ ℓ₂) (ℓ-max ℓ₁ ℓ₂')
+    -- Maybe on a structure S: X ↦ Maybe (S X)
+    maybe : ∀ {ℓ₁ ℓ₁'} → Desc ℓ ℓ₁ ℓ₁' → Desc ℓ ℓ₁ ℓ₁'
+    -- add axioms to a structure
+    axioms : ∀ {ℓ₁ ℓ₁' ℓ₂} (d : Desc ℓ ℓ₁ ℓ₁') (ax : ∀ X → MacroStructure d X → Type ℓ₂)
+      → (∀ X s → isProp (ax X s))
+      → Desc ℓ (ℓ-max ℓ₁ ℓ₂) ℓ₁'
+    -- univalent structure from transport structure
+    transpDesc : ∀ {ℓ₁} → TranspDesc ℓ ℓ₁ → Desc ℓ ℓ₁ ℓ₁
+    -- arbitrary univalent notion of structure
+    foreign : ∀ {ℓ₁ ℓ₁'} {S : Type ℓ → Type ℓ₁} (ι : StrEquiv S ℓ₁') → UnivalentStr S ι → Desc ℓ ℓ₁ ℓ₁'
 
-macroEquivLevel : ∀ {ℓ} → Desc ℓ → Level
-macroEquivLevel (constant {ℓ'} x) = ℓ'
-macroEquivLevel {ℓ} var = ℓ
-macroEquivLevel (d₀ , d₁) = ℓ-max (macroEquivLevel d₀) (macroEquivLevel d₁)
-macroEquivLevel {ℓ} (function+ d₀ d₁) = ℓ-max (transpMacroLevel d₀) (macroEquivLevel d₁)
-macroEquivLevel (function d₀ d₁) = ℓ-max (macroStrLevel d₀) (ℓ-max (macroEquivLevel d₀) (macroEquivLevel d₁))
-macroEquivLevel (maybe d) = macroEquivLevel d
-macroEquivLevel (transpDesc d) = transpMacroLevel d
-macroEquivLevel (foreign {ℓ'' = ℓ''} _ _) = ℓ''
+  infixr 4 _,_
 
--- Structure defined by a descriptor
-MacroStructure : ∀ {ℓ} (d : Desc ℓ) → Type ℓ → Type (macroStrLevel d)
-MacroStructure (constant A) X = A
-MacroStructure var X = X
-MacroStructure (d₀ , d₁) X = MacroStructure d₀ X × MacroStructure d₁ X
-MacroStructure (function+ d₀ d₁) X = TranspMacroStructure d₀ X → MacroStructure d₁ X
-MacroStructure (function d₀ d₁) X = MacroStructure d₀ X → MacroStructure d₁ X
-MacroStructure (maybe d) = MaybeStructure (MacroStructure d)
-MacroStructure (transpDesc d) = TranspMacroStructure d
-MacroStructure (foreign {S = S} _ _) = S
+  -- Structure defined by a descriptor
+  MacroStructure : ∀ {ℓ ℓ₁ ℓ₁'} → Desc ℓ ℓ₁ ℓ₁' → Type ℓ → Type ℓ₁
+  MacroStructure (constant A) X = A
+  MacroStructure var X = X
+  MacroStructure (d₀ , d₁) X = MacroStructure d₀ X × MacroStructure d₁ X
+  MacroStructure (function+ d₀ d₁) X = TranspMacroStructure d₀ X → MacroStructure d₁ X
+  MacroStructure (function d₀ d₁) X = MacroStructure d₀ X → MacroStructure d₁ X
+  MacroStructure (maybe d) = MaybeStructure (MacroStructure d)
+  MacroStructure (axioms d ax _) = AxiomsStructure (MacroStructure d) ax
+  MacroStructure (transpDesc d) = TranspMacroStructure d
+  MacroStructure (foreign {S = S} _ _) = S
 
 -- Notion of structured equivalence defined by a descriptor
-MacroEquivStr : ∀ {ℓ} → (d : Desc ℓ) → StrEquiv {ℓ} (MacroStructure d) (macroEquivLevel d)
+MacroEquivStr : ∀ {ℓ ℓ₁ ℓ₁'} → (d : Desc ℓ ℓ₁ ℓ₁') → StrEquiv (MacroStructure d) ℓ₁'
 MacroEquivStr (constant A) = ConstantEquivStr A
 MacroEquivStr var = PointedEquivStr
 MacroEquivStr (d₀ , d₁) = ProductEquivStr (MacroEquivStr d₀) (MacroEquivStr d₁)
 MacroEquivStr (function+ d₀ d₁) = FunctionEquivStr+ (transpMacroAction d₀) (MacroEquivStr d₁)
 MacroEquivStr (function d₀ d₁) = FunctionEquivStr (MacroEquivStr d₀) (MacroEquivStr d₁)
 MacroEquivStr (maybe d) = MaybeEquivStr (MacroEquivStr d)
+MacroEquivStr (axioms d ax _) = AxiomsEquivStr (MacroEquivStr d) ax
 MacroEquivStr (transpDesc d) = EquivAction→StrEquiv (transpMacroAction d)
 MacroEquivStr (foreign ι _) = ι
 
 -- Proof that structure induced by descriptor is univalent
-MacroUnivalentStr : ∀ {ℓ} → (d : Desc ℓ) → UnivalentStr (MacroStructure d) (MacroEquivStr d)
+MacroUnivalentStr : ∀ {ℓ ℓ₁ ℓ₁'} → (d : Desc ℓ ℓ₁ ℓ₁') → UnivalentStr (MacroStructure d) (MacroEquivStr d)
 MacroUnivalentStr (constant A) = constantUnivalentStr A
 MacroUnivalentStr var = pointedUnivalentStr
 MacroUnivalentStr (d₀ , d₁) =
@@ -162,12 +144,13 @@ MacroUnivalentStr (function d₀ d₁) =
     (MacroEquivStr d₀) (MacroUnivalentStr d₀)
     (MacroEquivStr d₁) (MacroUnivalentStr d₁)
 MacroUnivalentStr (maybe d) = maybeUnivalentStr (MacroEquivStr d) (MacroUnivalentStr d)
+MacroUnivalentStr (axioms d _ isPropAx) = axiomsUnivalentStr (MacroEquivStr d) isPropAx (MacroUnivalentStr d)
 MacroUnivalentStr (transpDesc d) =
   TransportStr→UnivalentStr (transpMacroAction d) (transpMacroTransportStr d)
 MacroUnivalentStr (foreign _ θ) = θ
 
 -- Module for easy importing
-module Macro ℓ (d : Desc ℓ) where
+module Macro ℓ {ℓ₁ ℓ₁'} (d : Desc ℓ ℓ₁ ℓ₁') where
 
   structure = MacroStructure d
   equiv = MacroEquivStr d

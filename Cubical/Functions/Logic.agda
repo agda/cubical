@@ -8,7 +8,7 @@
 -- isProp proofs making it easier to just give them explicitly instead
 -- of having them bundled up with the type.
 --
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Functions.Logic where
 
 open import Cubical.Foundations.Prelude
@@ -60,7 +60,7 @@ infix 2 ⇒∶_⇐∶_
 infix 2 ⇐∶_⇒∶_
 
 ∥_∥ₚ : Type ℓ → hProp ℓ
-∥ A ∥ₚ = ∥ A ∥ , propTruncIsProp
+∥ A ∥ₚ = ∥ A ∥ , isPropPropTrunc
 
 _≡ₚ_ : (x y : A) → hProp _
 x ≡ₚ y = ∥ x ≡ y ∥ₚ
@@ -104,8 +104,8 @@ substₚ {x = x} {y = y} B = PropTrunc.elim (λ _ → isPropΠ λ _ → isProp�
 ⊥ : hProp _
 ⊥ = ⊥.⊥ , λ ()
 
-⊤ : hProp _
-⊤ = Unit , (λ _ _ _ → tt)
+⊤ : ∀ {ℓ} → hProp ℓ
+⊤ = Unit* , (λ _ _ _ → tt*)
 
 --------------------------------------------------------------------------------
 -- Pseudo-complement of mere propositions
@@ -152,6 +152,9 @@ A ⊓ B = ⟨ A ⟩ ⊓′ ⟨ B ⟩ , isOfHLevelΣ 1 (isProp⟨⟩ A) (\ _ → 
 
 _⇔_ : hProp ℓ → hProp ℓ' → hProp _
 A ⇔ B = (A ⇒ B) ⊓ (B ⇒ A)
+
+⇔-id : (P : hProp ℓ) → ⟨ P ⇔ P ⟩
+⇔-id P = (idfun ⟨ P ⟩) , (idfun ⟨ P ⟩)
 
 --------------------------------------------------------------------------------
 -- Universal Quantifier
@@ -209,8 +212,8 @@ Decₚ P = Dec ⟨ P ⟩ , isPropDec (isProp⟨⟩ P)
     assoc2 ∣ ⊎.inr a ∣              = ∣ ⊎.inr ∣ ⊎.inr a ∣ ∣
     assoc2 ∣ ⊎.inl ∣ ⊎.inr b ∣ ∣  = ∣ ⊎.inr ∣ ⊎.inl b ∣ ∣
     assoc2 ∣ ⊎.inl ∣ ⊎.inl c ∣ ∣  = ∣ ⊎.inl c ∣
-    assoc2 ∣ ⊎.inl (squash x y i) ∣ = propTruncIsProp (assoc2 ∣ ⊎.inl x ∣) (assoc2 ∣ ⊎.inl y ∣) i
-    assoc2 (squash x y i)             = propTruncIsProp (assoc2 x) (assoc2 y) i
+    assoc2 ∣ ⊎.inl (squash x y i) ∣ = isPropPropTrunc (assoc2 ∣ ⊎.inl x ∣) (assoc2 ∣ ⊎.inl y ∣) i
+    assoc2 (squash x y i)             = isPropPropTrunc (assoc2 x) (assoc2 y) i
 
 ⊔-idem : (P : hProp ℓ) → P ⊔ P ≡ P
 ⊔-idem P =
@@ -245,11 +248,11 @@ Decₚ P = Dec ⟨ P ⟩ , isPropDec (isProp⟨⟩ P)
 ⊓-idem : (P : hProp ℓ) → P ⊓ P ≡ P
 ⊓-idem _ = ⇔toPath fst (λ x → x , x)
 
-⊓-identityˡ : (P : hProp ℓ) → ⊤ ⊓ P ≡ P
-⊓-identityˡ _ = ⇔toPath snd λ x → tt , x
+⊓-identityˡ : (P : hProp ℓ) → ⊤ {ℓ} ⊓ P ≡ P
+⊓-identityˡ _ = ⇔toPath snd λ x → tt* , x
 
-⊓-identityʳ : (P : hProp ℓ) → P ⊓ ⊤ ≡ P
-⊓-identityʳ _ = ⇔toPath fst λ x → x , tt
+⊓-identityʳ : (P : hProp ℓ) → P ⊓ ⊤ {ℓ} ≡ P
+⊓-identityʳ _ = ⇔toPath fst λ x → x , tt*
 
 --------------------------------------------------------------------------------
 -- Distributive laws

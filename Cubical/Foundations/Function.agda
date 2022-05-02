@@ -1,7 +1,7 @@
 {-
   Definitions for functions
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Function where
 
 open import Cubical.Foundations.Prelude
@@ -13,6 +13,8 @@ private
     B : A → Type ℓ
     C : (a : A) → B a → Type ℓ
     D : (a : A) (b : B a) → C a b → Type ℓ
+    E : (x : A) → (y : B x) → (z : C x y) → (w : D x y z) → Type ℓ
+    F : (x : A) → (y : B x) → (z : C x y) → (w : D x y z) → (u : E x y z w) → Type ℓ
 
 -- The identity function
 idfun : (A : Type ℓ) → A → A
@@ -55,6 +57,24 @@ case x return P of f = f x
 
 uncurry : ((x : A) → (y : B x) → C x y) → (p : Σ A B) → C (fst p) (snd p)
 uncurry f (x , y) = f x y
+
+uncurry2 : ((x : A) → (y : B x) → (z : C x y) → D x y z)
+         → (p : Σ A (λ x → Σ (B x) (C x))) → D (p .fst) (p .snd .fst) (p .snd .snd)
+uncurry2 f (x , y , z) = f x y z
+
+uncurry3 : ((x : A) → (y : B x) → (z : C x y) → (w : D x y z) → E x y z w)
+         → (p : Σ A (λ x → Σ (B x) (λ y → Σ (C x y) (D x y))))
+         → E (p .fst) (p .snd .fst) (p .snd .snd .fst) (p .snd .snd .snd)
+uncurry3 f (x , y , z , w) = f x y z w
+
+uncurry4 : ((x : A) → (y : B x) → (z : C x y) → (w : D x y z) → (u : E x y z w) → F x y z w u)
+         → (p : Σ A (λ x → Σ (B x) (λ y → Σ (C x y) (λ z → Σ (D x y z) (E x y z)))))
+         → F (p .fst) (p .snd .fst) (p .snd .snd .fst) (p .snd .snd .snd .fst) (p .snd .snd .snd .snd)
+uncurry4 f (x , y , z , w , u) = f x y z w u
+
+
+curry : ((p : Σ A B) → C (fst p) (snd p)) → (x : A) → (y : B x) → C x y
+curry f x y = f (x , y)
 
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   -- Notions of 'coherently constant' functions for low dimensions.

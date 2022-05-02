@@ -12,7 +12,7 @@ is [constant (ℕ → ℕ)] rather than [function (constant ℕ) (constant ℕ)]
 Writing [auto* (λ X → ⋯)] doesn't seem to work, but [auto* (λ (X : Type ℓ) → ⋯)] does.
 
 -}
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Structures.Auto where
 
 open import Cubical.Foundations.Prelude
@@ -42,11 +42,11 @@ private
   tType : R.Term → R.Term
   tType ℓ = R.def (quote Type) [ varg ℓ ]
 
-  tTranspDesc : R.Term → R.Term
-  tTranspDesc ℓ = R.def (quote TranspDesc) [ varg ℓ ]
+  tTranspDesc : R.Term → R.Term → R.Term
+  tTranspDesc ℓ ℓ' = R.def (quote TranspDesc) (ℓ v∷ ℓ' v∷ [])
 
-  tDesc : R.Term → R.Term
-  tDesc ℓ = R.def (quote Desc) [ varg ℓ ]
+  tDesc : R.Term → R.Term → R.Term → R.Term
+  tDesc ℓ ℓ₁ ℓ₁' = R.def (quote Desc) (ℓ v∷ ℓ₁ v∷ ℓ₁' v∷ [])
 
   func : (ℓ ℓ' : Level) → Type (ℓ-suc (ℓ-max ℓ ℓ'))
   func ℓ ℓ' = Type ℓ → Type ℓ'
@@ -135,7 +135,7 @@ private
     R.inferType hole >>= λ H →
     newMeta tLevel >>= λ ℓ →
     newMeta tLevel >>= λ ℓ' →
-    R.unify (tTranspDesc ℓ) H >>
+    R.unify (tTranspDesc ℓ ℓ') H >>
     R.checkType t (tStruct ℓ ℓ') >>
     buildTranspDesc FUEL ℓ ℓ' t >>= R.unify hole
 
@@ -200,7 +200,7 @@ autoDesc' t hole =
   R.inferType hole >>= λ H →
   newMeta tLevel >>= λ ℓ →
   newMeta tLevel >>= λ ℓ' →
-  R.unify (tDesc ℓ) H >>
+  R.unify (tDesc ℓ ℓ' R.unknown) H >>
   R.checkType t (tStruct ℓ ℓ') >>
   buildDesc FUEL ℓ ℓ' t >>= R.unify hole
 
@@ -212,14 +212,14 @@ macro
   -- (S : Type ℓ → Type ℓ₁) → EquivAction (AutoStructure S)
   autoEquivAction : R.Term → R.Term → R.TC Unit
   autoEquivAction t hole =
-    newMeta (tTranspDesc R.unknown) >>= λ d →
+    newMeta (tTranspDesc R.unknown R.unknown) >>= λ d →
     R.unify hole (R.def (quote transpMacroAction) [ varg d ]) >>
     autoTranspDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → TransportStr (autoEquivAction S)
   autoTransportStr : R.Term → R.Term → R.TC Unit
   autoTransportStr t hole =
-    newMeta (tTranspDesc R.unknown) >>= λ d →
+    newMeta (tTranspDesc R.unknown R.unknown) >>= λ d →
     R.unify hole (R.def (quote transpMacroTransportStr) [ varg d ]) >>
     autoTranspDesc' t d
 
@@ -231,20 +231,20 @@ macro
   -- Removes Transp[_] annotations
   AutoStructure : R.Term → R.Term → R.TC Unit
   AutoStructure t hole =
-    newMeta (tDesc R.unknown) >>= λ d →
+    newMeta (tDesc R.unknown R.unknown R.unknown) >>= λ d →
     R.unify hole (R.def (quote MacroStructure) [ varg d ]) >>
     autoDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → StrEquiv (AutoStructure S) _
   AutoEquivStr : R.Term → R.Term → R.TC Unit
   AutoEquivStr t hole =
-    newMeta (tDesc R.unknown) >>= λ d →
+    newMeta (tDesc R.unknown R.unknown R.unknown) >>= λ d →
     R.unify hole (R.def (quote MacroEquivStr) [ varg d ]) >>
     autoDesc' t d
 
   -- (S : Type ℓ → Type ℓ₁) → UnivalentStr (AutoStructure S) (AutoEquivStr S)
   autoUnivalentStr : R.Term → R.Term → R.TC Unit
   autoUnivalentStr t hole =
-    newMeta (tDesc R.unknown) >>= λ d →
+    newMeta (tDesc R.unknown R.unknown R.unknown) >>= λ d →
     R.unify hole (R.def (quote MacroUnivalentStr) [ varg d ]) >>
     autoDesc' t d

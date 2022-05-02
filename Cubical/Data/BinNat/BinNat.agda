@@ -31,7 +31,7 @@ definitions and examples are:
   principle where we transport a property that is infeasible to prove
   by computation for ℕ ([propDoubleℕ]):
 
-      2^20 * 2^10 = 2^5 * (2^15 * 2^10)
+      2^20 · 2^10 = 2^5 · (2^15 · 2^10)
 
   from the corresponding result on Binℕ which is proved instantly by
   refl ([propDoubleBinℕ]).
@@ -58,7 +58,7 @@ but it has the virtue of being a bit simpler to prove equivalent to
 http://www.cs.bham.ac.uk/~mhe/agda-new/BinaryNaturals.html
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.BinNat.BinNat where
 
 open import Cubical.Foundations.Prelude
@@ -318,13 +318,13 @@ s (NatImplℕ≡Binℕ i) =
 -- Doubling structures
 record Double {ℓ} (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
-    -- doubling function computing 2 * x
+    -- doubling function computing 2 · x
     double : A → A
     -- element to double
     elt : A
 open Double
 
--- Compute: 2^n * x
+-- Compute: 2^n · x
 doubles : ∀ {ℓ} {A : Type ℓ} (D : Double A) → ℕ → A → A
 doubles D n x = iter n (double D) x
 
@@ -332,7 +332,7 @@ Doubleℕ : Double ℕ
 double Doubleℕ = doubleℕ
 elt Doubleℕ    = n1024
   where
-  -- 1024 = 2^8 * 2^2 = 2^10
+  -- 1024 = 2^8 · 2^2 = 2^10
   n1024 : ℕ
   n1024 = doublesℕ 8 4
 
@@ -375,7 +375,7 @@ elt (DoubleBinℕ≡Doubleℕ i) = transp (λ j → Binℕ≡ℕ (i ∨ ~ j)) i 
 -- as a record so that Agda does not try to unfold it eagerly.
 record propDouble {ℓ} {A : Type ℓ} (D : Double A) : Type ℓ where
   field
-  -- 2^20 * e = 2^5 * (2^15 * e)
+  -- 2^20 · e = 2^5 · (2^15 · e)
     proof : doubles D 20 (elt D) ≡ doubles D 5 (doubles D 15 (elt D))
 open propDouble
 
@@ -404,8 +404,8 @@ propDoubleℕ = transport (λ i → propDouble (DoubleBinℕ≡Doubleℕ i)) pro
 
 data binnat : Type₀ where
   zero     : binnat            -- 0
-  consOdd  : binnat → binnat   -- 2*n + 1
-  consEven : binnat → binnat   -- 2*{n+1}
+  consOdd  : binnat → binnat   -- 2·n + 1
+  consEven : binnat → binnat   -- 2·{n+1}
 
 binnat→ℕ : binnat → ℕ
 binnat→ℕ zero         = 0
