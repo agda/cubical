@@ -6,11 +6,12 @@ open import Cubical.Foundations.HLevels
 open import Cubical.HITs.PropositionalTruncation.Base
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
-open import Cubical.Categories.Limits.Base
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Cospan
+open import Cubical.Categories.Limits.Limits
 
 private
   variable
@@ -50,7 +51,7 @@ module _ (C : Category ℓ ℓ') where
       pbPr₁ : C [ pbOb , cspn .l ]
       pbPr₂ : C [ pbOb , cspn .r ]
       pbCommutes : pbPr₁ ⋆ cspn .s₁ ≡ pbPr₂ ⋆ cspn .s₂
-      isPb : isPullback cspn pbPr₁ pbPr₂ pbCommutes
+      univProp : isPullback cspn pbPr₁ pbPr₂ pbCommutes
 
   open Pullback
 
@@ -58,21 +59,21 @@ module _ (C : Category ℓ ℓ') where
     {cspn : Cospan} (pb : Pullback cspn)
     {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
     (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) → C [ c , pb . pbOb ]
-  pullbackArrow pb p₁ p₂ H = pb .isPb p₁ p₂ H .fst .fst
+  pullbackArrow pb p₁ p₂ H = pb .univProp p₁ p₂ H .fst .fst
 
   pullbackArrowPr₁ :
     {cspn : Cospan} (pb : Pullback cspn)
     {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
     (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) →
     p₁ ≡ pullbackArrow pb p₁ p₂ H ⋆ pbPr₁ pb
-  pullbackArrowPr₁ pb p₁ p₂ H = pb .isPb p₁ p₂ H .fst .snd .fst
+  pullbackArrowPr₁ pb p₁ p₂ H = pb .univProp p₁ p₂ H .fst .snd .fst
 
   pullbackArrowPr₂ :
     {cspn : Cospan} (pb : Pullback cspn)
     {c : ob} (p₁ : C [ c , cspn .l ]) (p₂ : C [ c , cspn .r ])
     (H : p₁ ⋆ cspn .s₁ ≡ p₂ ⋆ cspn .s₂) →
     p₂ ≡ pullbackArrow pb p₁ p₂ H ⋆ pbPr₂ pb
-  pullbackArrowPr₂ pb p₁ p₂ H = pb .isPb p₁ p₂ H .fst .snd .snd
+  pullbackArrowPr₂ pb p₁ p₂ H = pb .univProp p₁ p₂ H .fst .snd .snd
 
   pullbackArrowUnique :
     {cspn : Cospan} (pb : Pullback cspn)
@@ -82,7 +83,7 @@ module _ (C : Category ℓ ℓ') where
     (H₁ : p₁ ≡ pbArrow' ⋆ pbPr₁ pb) (H₂ : p₂ ≡ pbArrow' ⋆ pbPr₂ pb)
     → pullbackArrow pb p₁ p₂ H ≡ pbArrow'
   pullbackArrowUnique pb p₁ p₂ H pbArrow' H₁ H₂ =
-    cong fst (pb .isPb p₁ p₂ H .snd (pbArrow' , (H₁ , H₂)))
+    cong fst (pb .univProp p₁ p₂ H .snd (pbArrow' , (H₁ , H₂)))
 
   Pullbacks : Type (ℓ-max ℓ ℓ')
   Pullbacks = (cspn : Cospan) → Pullback cspn
@@ -91,11 +92,14 @@ module _ (C : Category ℓ ℓ') where
   hasPullbacks = ∥ Pullbacks ∥
 
 
--- TODO: finish the following show that this definition of Pullback
--- is equivalent to the Cospan limit
+-- Pullbacks from limits
 module _ {C : Category ℓ ℓ'} where
   open Category C
   open Functor
+  open Pullback
+  open LimCone
+  open Cone
+  open Cospan
 
   Cospan→Func : Cospan C → Functor CospanCat C
   Cospan→Func (cospan l m r f g) .F-ob ⓪ = l
@@ -116,3 +120,34 @@ module _ {C : Category ℓ ℓ'} where
   Cospan→Func (cospan l m r f g) .F-seq {②} {②} {②} φ ψ = sym (⋆IdL _)
   Cospan→Func (cospan l m r f g) .F-seq {②} {②} {①} φ ψ = sym (⋆IdL _)
   Cospan→Func (cospan l m r f g) .F-seq {②} {①} {①} φ ψ = sym (⋆IdR _)
+
+  LimitsOfShapeCospanCat→Pullbacks : LimitsOfShape CospanCat C → Pullbacks C
+  pbOb (LimitsOfShapeCospanCat→Pullbacks H cspn) = lim (H (Cospan→Func cspn))
+  pbPr₁ (LimitsOfShapeCospanCat→Pullbacks H cspn) = limOut (H (Cospan→Func cspn)) ⓪
+  pbPr₂ (LimitsOfShapeCospanCat→Pullbacks H cspn) = limOut (H (Cospan→Func cspn)) ②
+  pbCommutes (LimitsOfShapeCospanCat→Pullbacks H cspn) = limOutCommutes (H (Cospan→Func cspn)) {v = ①} tt
+                          ∙ sym (limOutCommutes (H (Cospan→Func cspn)) tt)
+  univProp (LimitsOfShapeCospanCat→Pullbacks H cspn) {d = d} h k H' =
+    uniqueExists (limArrow (H (Cospan→Func cspn)) d cc)
+                 ( sym (limArrowCommutes (H (Cospan→Func cspn)) d cc ⓪)
+                 , sym (limArrowCommutes (H (Cospan→Func cspn)) d cc ②))
+                 (λ _ → isProp× (isSetHom _ _) (isSetHom _ _))
+                 λ a' ha' → limArrowUnique (H (Cospan→Func cspn)) d cc a'
+                               (λ { ⓪ → sym (ha' .fst)
+                                  ; ① → cong (a' ⋆_) (sym (limOutCommutes (H (Cospan→Func cspn)) {⓪} {①} tt))
+                                      ∙∙ sym (⋆Assoc _ _ _)
+                                      ∙∙ cong (_⋆ cspn .s₁) (sym (ha' .fst))
+                                  ; ② → sym (ha' .snd) })
+    where
+    cc : Cone (Cospan→Func cspn) d
+    coneOut cc ⓪ = h
+    coneOut cc ① = h ⋆ cspn .s₁
+    coneOut cc ② = k
+    coneOutCommutes cc {⓪} {⓪} e = ⋆IdR h
+    coneOutCommutes cc {⓪} {①} e = refl
+    coneOutCommutes cc {①} {①} e = ⋆IdR _
+    coneOutCommutes cc {②} {①} e = sym H'
+    coneOutCommutes cc {②} {②} e = ⋆IdR k
+
+  Limits→Pullbacks : Limits C → Pullbacks C
+  Limits→Pullbacks H = LimitsOfShapeCospanCat→Pullbacks (H CospanCat)

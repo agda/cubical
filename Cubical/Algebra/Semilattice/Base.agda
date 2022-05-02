@@ -80,7 +80,7 @@ makeIsSemilattice : {L : Type ℓ} {ε : L} {_·_ : L → L → L}
                (idem : (x : L) → x · x ≡ x)
              → IsSemilattice ε _·_
 IsSemilattice.isCommMonoid (makeIsSemilattice is-setL assoc rid lid comm idem) =
-                                        makeIsCommMonoid is-setL assoc rid lid comm
+                                        makeIsCommMonoid is-setL assoc rid comm
 IsSemilattice.idem (makeIsSemilattice is-setL assoc rid lid comm idem) = idem
 
 makeSemilattice : {L : Type ℓ} (ε : L) (_·_ : L → L → L)
@@ -134,7 +134,7 @@ isPropIsSemilattice ε _·_ (issemilattice LL LC) (issemilattice SL SC) =
   𝒮ᴰ-Record (𝒮-Univ _) IsSemilatticeEquiv
     (fields:
       data[ ε ∣ autoDUARel _ _ ∣ presε ]
-      data[ _·_ ∣ autoDUARel _ _ ∣ isHom ]
+      data[ _·_ ∣ autoDUARel _ _ ∣ pres· ]
       prop[ isSemilattice ∣ (λ _ _ → isPropIsSemilattice _ _) ])
   where
   open SemilatticeStr
@@ -177,6 +177,12 @@ module JoinSemilattice (L' : Semilattice ℓ) where
  ∨lIsMax x y z x≤z y≤z = cong ((x ∨l y) ∨l_) (sym (idem z)) ∙ commAssocSwap x y z z
                                                             ∙ cong₂ (_∨l_) x≤z y≤z
                                                             ∙ idem z
+
+ ∨≤LCancel : ∀ x y → y ≤ x ∨l y
+ ∨≤LCancel x y = commAssocl y x y ∙ cong (x ∨l_) (idem y)
+
+ ∨≤RCancel : ∀ x y → x ≤ x ∨l y
+ ∨≤RCancel x y = assoc _ _ _ ∙ cong (_∨l y) (idem x)
 
  ≤-∨Pres : ∀ x y u w → x ≤ y → u ≤ w → x ∨l u ≤ y ∨l w
  ≤-∨Pres x y u w x≤y u≤w = commAssocSwap x u y w ∙ cong₂ (_∨l_) x≤y u≤w

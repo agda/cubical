@@ -5,7 +5,6 @@ open import Cubical.Foundations.Everything
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
-open import Cubical.Data.HomotopyGroup
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
@@ -19,10 +18,9 @@ open S¹Hopf
 
 -- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
 
-Bool∙ S¹∙ S²∙ S³∙ : Pointed₀
+Bool∙ S¹∙ S³∙ : Pointed₀
 Bool∙ = (Bool , true)
 S¹∙ = (S¹ , base)
-S²∙ = (S² , base)
 S³∙ = (S³ , base)
 
 ∥_∥₃∙ ∥_∥₄∙ : Pointed₀ → Pointed₀

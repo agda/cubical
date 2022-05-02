@@ -10,7 +10,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum hiding (map)
 open import Cubical.Data.FinData hiding (elim)
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
                                       ; _choose_ to _ℕchoose_ ; snotz to ℕsnotz)
@@ -23,7 +23,7 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.RingSolver.ReflectionSolving
+open import Cubical.Algebra.RingSolver.Reflection
 
 private
   variable
@@ -194,7 +194,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
                                       (∈→∈√ I _ (·RClosed (I .snd) y x∈I))
    curriedHelper x y x∈I (suc l) y^l+1∈J = -- (xy)^l+1 ≡ x^l · x (∈I) · y^l+1 (∈J)
      ∣ suc l , subst-∈ (I ·i J) (sym (^-ldist-· _ _ (suc l)))
-     (prodInProd I J _ _ (subst-∈ I (·-comm _ _) (I .snd .·Closed (x ^ l) x∈I)) y^l+1∈J) ∣
+     (prodInProd I J _ _ (subst-∈ I (·Comm _ _) (I .snd .·Closed (x ^ l) x∈I)) y^l+1∈J) ∣
 
    prodHelper : ∀ i → β i ∈ √ J → α i · β i ∈ √ (I ·i J)
    prodHelper i = PT.elim (λ _ → isPropPropTrunc) (uncurry (curriedHelper (α i) (β i) (α∈I i)))

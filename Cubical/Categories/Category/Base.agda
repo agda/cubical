@@ -4,6 +4,7 @@ module Cubical.Categories.Category.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Powerset
 
 private
   variable
@@ -59,10 +60,30 @@ record CatIso (C : Category ℓ ℓ') (x y : C .ob) : Type ℓ' where
     sec : inv ⋆⟨ C ⟩ mor ≡ C .id
     ret : mor ⋆⟨ C ⟩ inv ≡ C .id
 
-pathToIso : {C : Category ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → CatIso C x y
-pathToIso {C = C} p = J (λ z _ → CatIso _ _ z) (catiso idx idx (C .⋆IdL idx) (C .⋆IdL idx)) p
+idCatIso : {C : Category ℓ ℓ'} {x : C .ob} → CatIso C x x
+idCatIso {C = C} = (catiso (C .id) (C .id) (C .⋆IdL (C .id)) (C .⋆IdL (C .id)))
+
+isSet-CatIso : {C : Category ℓ ℓ'} → ∀ x y → isSet (CatIso C x y)
+isSet-CatIso {C = C} x y F G p q = w
   where
-    idx = C .id
+    w : _
+    CatIso.mor (w i j) = isSetHom C _ _ (cong CatIso.mor p) (cong CatIso.mor q) i j
+    CatIso.inv (w i j) = isSetHom C _ _ (cong CatIso.inv p) (cong CatIso.inv q) i j
+    CatIso.sec (w i j) =
+       isSet→SquareP
+       (λ i j → isProp→isSet {A = CatIso.inv (w i j) ⋆⟨ C ⟩ CatIso.mor (w i j) ≡ C .id} (isSetHom C _ _))
+       (cong CatIso.sec p) (cong CatIso.sec q) (λ _ → CatIso.sec F) (λ _ → CatIso.sec G) i j
+    CatIso.ret (w i j) =
+       isSet→SquareP
+       (λ i j → isProp→isSet {A = CatIso.mor (w i j) ⋆⟨ C ⟩ CatIso.inv (w i j) ≡ C .id} (isSetHom C _ _))
+       (cong CatIso.ret p) (cong CatIso.ret q) (λ _ → CatIso.ret F) (λ _ → CatIso.ret G) i j
+
+
+pathToIso : {C : Category ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → CatIso C x y
+pathToIso {C = C} p = J (λ z _ → CatIso _ _ z) idCatIso p
+
+pathToIso-refl : {C : Category ℓ ℓ'} {x : C .ob} → pathToIso {C = C} {x} refl ≡ idCatIso
+pathToIso-refl {C = C} {x} = JRefl (λ z _ → CatIso C x z) (idCatIso)
 
 -- Univalent Categories
 record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
@@ -78,6 +99,9 @@ record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   CatIsoToPath {x = x} {y = y} p =
     equivFun (invEquiv (univEquiv x y)) p
 
+  isGroupoid-ob : isGroupoid (C .ob)
+  isGroupoid-ob = isOfHLevelPath'⁻ 2 (λ _ _ → isOfHLevelRespectEquiv 2 (invEquiv (univEquiv _ _)) (isSet-CatIso _ _))
+
 -- Opposite category
 _^op : Category ℓ ℓ' → Category ℓ ℓ'
 ob (C ^op)           = ob C
@@ -88,3 +112,14 @@ _⋆_ (C ^op) f g      = g ⋆⟨ C ⟩ f
 ⋆IdR (C ^op)         = C .⋆IdL
 ⋆Assoc (C ^op) f g h = sym (C .⋆Assoc _ _ _)
 isSetHom (C ^op)     = C .isSetHom
+
+
+ΣPropCat : (C : Category ℓ ℓ') (P : ℙ (ob C)) → Category ℓ ℓ'
+ob (ΣPropCat C P) = Σ[ x ∈ ob C ] x ∈ P
+Hom[_,_] (ΣPropCat C P) x y = C [ fst x , fst y ]
+id (ΣPropCat C P) = id C
+_⋆_ (ΣPropCat C P) = _⋆_ C
+⋆IdL (ΣPropCat C P) = ⋆IdL C
+⋆IdR (ΣPropCat C P) = ⋆IdR C
+⋆Assoc (ΣPropCat C P) = ⋆Assoc C
+isSetHom (ΣPropCat C P) = isSetHom C
