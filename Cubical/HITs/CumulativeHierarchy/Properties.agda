@@ -18,7 +18,6 @@ open import Cubical.Functions.Embedding
 open import Cubical.Functions.Logic as L
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as P hiding (elim; elim2)
-open import Cubical.HITs.Pushout as Pu
 open import Cubical.HITs.SetQuotients as Q using (_/_; setQuotUniversal; eq/; squash/)
 
 open import Cubical.HITs.CumulativeHierarchy.Base
