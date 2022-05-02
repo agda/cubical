@@ -111,14 +111,14 @@ transportUaInv e = cong transport (uaInvEquiv e)
 -- refl for the case of idEquiv:
 -- transportUaInv e = EquivJ (λ _ e → transport (ua (invEquiv e)) ≡ transport (sym (ua e))) refl e
 
-isSet-subst : ∀ {ℓ ℓ′} {A : Type ℓ} {B : A → Type ℓ′}
+isSet-subst : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'}
                 → (isSet-A : isSet A)
                 → ∀ {a : A}
                 → (p : a ≡ a) → (x : B a) → subst B p x ≡ x
 isSet-subst {B = B} isSet-A p x = subst (λ p′ → subst B p′ x ≡ x) (isSet-A _ _ refl p) (substRefl {B = B} x)
 
 -- substituting along a composite path is equivalent to substituting twice
-substComposite : ∀ {ℓ ℓ′} {A : Type ℓ} → (B : A → Type ℓ′)
+substComposite : ∀ {ℓ ℓ'} {A : Type ℓ} → (B : A → Type ℓ')
                  → {x y z : A} (p : x ≡ y) (q : y ≡ z) (u : B x)
                  → subst B (p ∙ q) u ≡ subst B q (subst B p u)
 substComposite B p q Bx i =
@@ -130,8 +130,8 @@ transportComposite : ∀ {ℓ} {A B C : Type ℓ} (p : A ≡ B) (q : B ≡ C) (x
 transportComposite = substComposite (λ D → D)
 
 -- substitution commutes with morphisms in slices
-substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
-                   → (B C : A → Type ℓ′)
+substCommSlice : ∀ {ℓ ℓ'} {A : Type ℓ}
+                   → (B C : A → Type ℓ')
                    → (F : ∀ i → B i → C i)
                    → {x y : A} (p : x ≡ y) (u : B x)
                    → subst C p (F x u) ≡ F y (subst B p u)
