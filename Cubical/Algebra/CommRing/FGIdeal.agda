@@ -153,30 +153,32 @@ module _
   open CommRingStr Astr
   open RingTheory
 
-  cbn-akbFinVec-linear-combi : (n : ℕ) → (k : Fin n) → (a : A) → (v : FinVec A n)
+  cbn-akbFin-linear-combi : (n : ℕ) → (k : Fin n) → (a : A) → (v : FinVec A n)
                                → linearCombination A' (akbFinVec n (toℕ k) a 0r) v ≡ (a · (v k))
-  cbn-akbFinVec-linear-combi ℕzero () a v
-  cbn-akbFinVec-linear-combi (ℕsuc n) zero a v = cong (λ X → a · (v zero) + X) (cong (λ X → foldrFin _+_ 0r X)
+  cbn-akbFin-linear-combi ℕzero () a v
+  cbn-akbFin-linear-combi (ℕsuc n) zero a v = cong (λ X → a · (v zero) + X) (cong (λ X → foldrFin _+_ 0r X)
                                                        (funExt (λ x → 0LeftAnnihilates Ar (v (suc x)))))
 
                                                  ∙ cong (λ X → (a · v zero) + X) (Sum.∑0r Ar n)
                                                  ∙ +Rid _
-  cbn-akbFinVec-linear-combi (ℕsuc n) (suc k) a v = cong (λ X → X + foldrFin _+_ 0r (λ x → akbFinVec n (toℕ k) a 0r x · v (suc x)))
+  cbn-akbFin-linear-combi (ℕsuc n) (suc k) a v = cong (λ X → X + foldrFin _+_ 0r (λ x → akbFinVec n (toℕ k) a 0r x · v (suc x)))
                                                           (0LeftAnnihilates Ar _)
                                                     ∙ +Lid _
-                                                    ∙ cbn-akbFinVec-linear-combi n k a (λ z → v (suc z))
+                                                    ∙ cbn-akbFin-linear-combi n k a (λ z → v (suc z))
 
-  -- fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
-  -- fromℕ' ℕzero k infkn = rec-⊥ (¬-<-zero infkn)
-  -- fromℕ' (ℕsuc n) ℕzero infkn = zero
-  -- fromℕ' (ℕsuc n) (ℕsuc k) infkn = suc (fromℕ' n k (pred-≤-pred infkn))
+  cbn-akbℕ-linear-combi : (n k : ℕ) → (infkn : k < n) → (a : A) → (v : FinVec A n)
+                           → linearCombination A' (akbFinVec n k a 0r) v ≡ (a · (v (fromℕ' n k infkn)))
+  cbn-akbℕ-linear-combi ℕzero k infkn a v = rec-⊥ (¬-<-zero infkn)
+  cbn-akbℕ-linear-combi (ℕsuc n) ℕzero infkn a v = cong (λ X → a · (v zero) + X) (cong (λ X → foldrFin _+_ 0r X)
+                                                       (funExt (λ x → 0LeftAnnihilates Ar (v (suc x)))))
 
-  -- cbn-akbFinVec-linear-combi' : (n k : ℕ) → (k ≡ 0 → ⊥) → (infkn : k ≤ n) → (a : A) → (v : FinVec A n)
-  --                              → linearCombination A' (akbFinVec n k a 0r) v
-  --                                 ≡ (a · (v (fromℕ' n (predℕ k) ((fst infkn) , {!!} ))))
-  -- cbn-akbFinVec-linear-combi' ℕzero k infkn a v = rec-⊥ (¬-<-zero {!!})
-  -- cbn-akbFinVec-linear-combi' (ℕsuc n) ℕzero infkn a v = {!!}
-  -- cbn-akbFinVec-linear-combi' (ℕsuc n) (ℕsuc k) infkn a v = {!!}
+                                                      ∙ cong (λ X → (a · v zero) + X) (Sum.∑0r Ar n)
+                                                      ∙ +Rid _
+  cbn-akbℕ-linear-combi (ℕsuc n) (ℕsuc k) infkn a v = cong (λ X → X + foldrFin _+_ 0r (λ x → akbFinVec n k a 0r x · v (suc x)))
+                                                              ((0LeftAnnihilates Ar _))
+                                                          ∙ +Lid _
+                                                          ∙ cbn-akbℕ-linear-combi n k (pred-≤-pred infkn) a (λ z → v (suc z))
+
 
 
 open CommIdeal.isCommIdeal

@@ -196,11 +196,8 @@ module Properties-Equiv-QuotientXn-A
   -- else different vector so ok
 
   PA→A-cancel : (k : Fin n) → PA→A (<X1,···,Xn> Ar n k) ≡ 0A
-  PA→A-cancel k with (discreteVecℕn (1k0 n (suc (toℕ k))) (replicate 0))
-  ... | yes p = rec-⊥ (helper n k p)
-    where
-    helper : (n : ℕ) → (k : Fin n) → 1k0 n (suc (toℕ k)) ≡ replicate 0 → ⊥
-    helper (suc n) k p = 1k0-k≤Sn→≢ (suc n) (suc (toℕ k)) nsnotz (≤-trans (toℕ<n k) ≤-refl) p
+  PA→A-cancel k with (discreteVecℕn (1k0 n (toℕ k)) (replicate 0))
+  ... | yes p = rec-⊥ (1k0-k<n→≢ n (toℕ k) (toℕ<n k) p)
   ... | no ¬p = refl
 
   PAr→Ar : RingHom (CommRing→Ring (A[X1,···,Xn] Ar n)) (CommRing→Ring Ar)
@@ -232,34 +229,17 @@ module Properties-Equiv-QuotientXn-A
            base-eq : (v : Vec ℕ n) → (a : A ) → [ A→PA (PA→A (base v a)) ] ≡ [ base v a ]
            base-eq v a with (discreteVecℕn v (replicate 0))
            ... | yes p = cong [_] (cong (λ X → base X a) (sym p))
-           ... | no ¬p = eq/ (base (replicate 0) 0A)
-                             (base v a)
-                             ∣ akbFinVec n k (base v' (-A a)) 0PA ,
-                               cong (λ X → X Poly+ base v (-A a)) (base-0P (replicate 0))
-                               ∙ +PALid (base v (-A a))
-                               ∙ {!!} ∣₋₁
-             where
-             k : ℕ
-             k = fst (pred-vec-≢0 v ¬p)
-             v' : _
-             v' = fst (snd (pred-vec-≢0 v ¬p))
-             pr : _
-             pr = snd (snd (pred-vec-≢0 v ¬p))
-             -- pbl : un bon lemme pour simplifier ?
-             -- peut etre un lemme plus restreint genre directement
-             cbn : (m l : ℕ) → (infkn : l ≤ n) → (P : A[x1,···,xn] Ar m) →
-                   linearCombination (A[X1,···,Xn] Ar m) (akbFinVec m l P (CommRingStr.1r (snd (A[X1,···,Xn] Ar m)))) (<X1,···,Xn> Ar m)
-                   ≡ ((snd (A[X1,···,Xn] Ar m)) CommRingStr.· P) (base (1k0 m (suc l)) (CommRingStr.1r Astr))
-             cbn zero zero infkn P = {!!}
-             cbn zero (suc l) infkn P = {!!}
-             cbn (suc m) zero infkn P = {!!}
-             cbn (suc m) (suc l) infkn P = {!!}
-             -- remplacer 
-             
-             try : _
-             try = cbn-akbFinVec-linear-combi
-
-
+           ... | no ¬p with (pred-vec-≢0 v ¬p)
+           ... | k , v' , infkn , eqvv' = eq/ (base (replicate 0) 0A)
+                                             (base v a) ∣ ((akbFinVec n k (base v' (-A a)) 0PA) , helper) ∣₋₁
+               where
+               helper : _
+               helper = cong (λ X → X Poly+ base v (-A a)) (base-0P (replicate 0))
+                        ∙ +PALid (base v (-A a))
+                        ∙ sym (
+                          cbn-akbℕ-linear-combi ((A[X1,···,Xn] Ar n)) n k infkn (base v' (-A a)) (<X1,···,Xn> Ar n)
+                          ∙ cong₂ base (cong (λ X → v' +n-vec 1k0 n X) (toFromId' n k infkn)) (·ARid _)
+                          ∙ cong (λ X → base X (-A a)) (sym eqvv'))
 
 -----------------------------------------------------------------------------
 -- Retraction

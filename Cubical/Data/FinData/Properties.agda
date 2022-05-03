@@ -25,6 +25,16 @@ private
    A : Type ℓ
    m n k : ℕ
 
+-- alternative from
+fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
+fromℕ' ℕzero k infkn = Empty.rec (¬-<-zero infkn)
+fromℕ' (ℕsuc n) ℕzero infkn = zero
+fromℕ' (ℕsuc n) (ℕsuc k) infkn = suc (fromℕ' n k (pred-≤-pred infkn))
+
+toFromId' : (n : ℕ) → (k : ℕ) → (infkn : k < n) → toℕ (fromℕ' n k infkn) ≡ k
+toFromId' ℕzero k infkn = Empty.rec (¬-<-zero infkn)
+toFromId' (ℕsuc n) ℕzero infkn = refl
+toFromId' (ℕsuc n) (ℕsuc k) infkn = cong ℕsuc (toFromId' n k (pred-≤-pred infkn))
 
 znots : ∀{k} {m : Fin k} → ¬ (zero ≡ (suc m))
 znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
