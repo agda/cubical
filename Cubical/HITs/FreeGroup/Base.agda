@@ -17,12 +17,12 @@ private
 
 data FreeGroup (A : Type ℓ) : Type ℓ where
   η     : A → FreeGroup A
-  m     : FreeGroup A → FreeGroup A → FreeGroup A
-  e     : FreeGroup A
+  _·_   : FreeGroup A → FreeGroup A → FreeGroup A
+  ε     : FreeGroup A
   inv   : FreeGroup A → FreeGroup A
-  assoc : ∀ x y z → m x (m y z) ≡ m (m x y) z
-  idr   : ∀ x → x ≡ m x e
-  idl   : ∀ x → x ≡  m e x
-  invr  : ∀ x → m x (inv x) ≡ e
-  invl  : ∀ x → m (inv x) x ≡ e
-  trunc : ∀ x y → ∀ (p q : x ≡ y) → p ≡ q
+  assoc : ∀ x y z → x · (y · z) ≡ (x · y) · z
+  idr   : ∀ x → x ≡ x · ε
+  idl   : ∀ x → x ≡ ε · x
+  invr  : ∀ x → x · (inv x) ≡ ε
+  invl  : ∀ x → (inv x) · x ≡ ε
+  trunc : isSet (FreeGroup A)

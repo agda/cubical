@@ -30,7 +30,7 @@ open import Cubical.Homotopy.Loopspace
 
 open import Cubical.HITs.Bouquet.Base
 open import Cubical.HITs.FreeGroup.Base
-open import Cubical.HITs.Bouquet.FreeGroupoid
+open import Cubical.HITs.FreeGroupoid
 
 private
   variable
@@ -43,14 +43,14 @@ private
 ΩBouquet {A = A} = Ω (Bouquet∙ A)
 
 FreeGroupoid∙ : {A : Type ℓ} → Pointed ℓ
-FreeGroupoid∙ {A = A} = FreeGroupoid A , e
+FreeGroupoid∙ {A = A} = FreeGroupoid A , ε
 
 -- Functions without using the truncated forms of types
 
 looping : FreeGroupoid A → typ ΩBouquet
 looping (η a)              = loop a
-looping (m g1 g2)          = looping g1 ∙ looping g2
-looping e                  = refl
+looping (g1 · g2)          = looping g1 ∙ looping g2
+looping ε                  = refl
 looping (inv g)            = sym (looping g)
 looping (assoc g1 g2 g3 i) = pathAssoc (looping g1) (looping g2) (looping g3) i
 looping (idr g i)          = rUnit (looping g) i
@@ -66,7 +66,7 @@ code {A = A} base = (FreeGroupoid A)
 code (loop a i)   = pathsInU (η a) i
 
 winding : typ ΩBouquet → FreeGroupoid A
-winding l = subst code l e
+winding l = subst code l ε
 
 winding∙ : ΩBouquet →∙ FreeGroupoid∙ {A = A}
 winding∙ = winding , refl
@@ -114,19 +114,15 @@ substFunctions {B = B} {C = C} {x = x} p f =  J P d p where
     subst (λ z → (B z → C z)) refl f
     ≡⟨ substRefl {B = λ z → (B z → C z)} f ⟩
     f
-    ≡⟨ refl ⟩
-    idfun (C x) ∘ f ∘ idfun (B x)
     ≡⟨ cong (λ h → h ∘ f ∘ idfun (B x)) auxC ⟩
     subst C refl ∘ f ∘ idfun (B x)
     ≡⟨ cong (λ h → subst C refl ∘ f ∘ h) auxB ⟩
-    subst C refl ∘ f ∘ subst B refl
-    ≡⟨ refl ⟩
     subst C refl ∘ f ∘ subst B (sym refl) ∎
 
 -- Definition of the encode - decode functions over the family of types Π(x : W A) → code x
 
 encode : (x : Bouquet A) → base ≡ x → code x
-encode x l = subst code l e
+encode x l = subst code l ε
 
 decode : {A : Type ℓ}(x : Bouquet A) → code x → base ≡ x
 decode {A = A} base       = looping
@@ -138,17 +134,13 @@ decode {A = A} (loop a i) = path i where
     homotopy : ∀ (g : FreeGroupoid A) → subst code (sym (loop a)) g ≡ action (inv (η a)) g
     homotopy g =
       subst code (sym (loop a)) g
-      ≡⟨ refl ⟩
-      transport (sym (pathsInU (η a))) g
       ≡⟨ cong (λ x → transport x g) (sym (invPathsInUNaturality (η a))) ⟩
       transport (pathsInU (inv (η a))) g
       ≡⟨ uaβ  (equivs (inv (η a))) g ⟩
       action (inv (η a)) g ∎
-  calculations : ∀ (a : A) → ∀ g → looping (m g (inv (η a))) ∙ loop a ≡ looping g
+  calculations : ∀ (a : A) → ∀ g → looping (g · (inv (η a))) ∙ loop a ≡ looping g
   calculations a g =
-    looping (m g (inv (η a))) ∙ loop a
-    ≡⟨ refl ⟩
-    (looping g ∙ (sym (loop a))) ∙ loop a
+    looping (g · (inv (η a))) ∙ loop a
     ≡⟨ sym (pathAssoc (looping g) (sym (loop a)) (loop a)) ⟩
     looping g ∙ (sym (loop a) ∙ loop a)
     ≡⟨ cong (λ x → looping g ∙ x) (lCancel (loop a)) ⟩
@@ -164,15 +156,7 @@ decode {A = A} (loop a i) = path i where
     (λ p → p ∙ loop a) ∘ looping ∘ subst code (sym (loop a))
     ≡⟨ cong (λ x → (λ p → p ∙ loop a) ∘ looping ∘ x) (aux a) ⟩
     (λ p → p ∙ loop a) ∘ looping ∘ action (inv (η a))
-    ≡⟨ refl ⟩
-    (λ p → p ∙ loop a) ∘ looping ∘ (λ g → m g (inv (η a)))
-    ≡⟨ refl ⟩
-    (λ p → p ∙ loop a) ∘ (λ g → looping (m g (inv (η a))))
-    ≡⟨ refl ⟩
-    (λ g → looping (m g (inv (η a))) ∙ loop a)
     ≡⟨ funExt (calculations a) ⟩
-    (λ g → looping g)
-    ≡⟨ refl ⟩
     looping ∎
   path'' : PathP (λ i → code ((loop a ∙ refl) i) → base ≡ ((loop a ∙ refl) i)) looping looping
   path'' = compPathP' {A = Bouquet A} {B = λ z → code z → base ≡ z} pathover path'
@@ -191,13 +175,7 @@ decodeEncode x p = J P d p where
   d : P base refl
   d =
     decode base (encode base refl)
-    ≡⟨ refl ⟩
-    looping (subst code (refl {x = base}) e)
-    ≡⟨ refl ⟩
-    looping (transport (cong code (refl {x = base})) e)
-    ≡⟨ cong (λ e' → looping e') (transportRefl e) ⟩
-    looping e
-    ≡⟨ refl ⟩
+    ≡⟨ cong (λ e' → looping e') (transportRefl ε) ⟩
     refl ∎
 
 left-homotopy : ∀ (l : typ (ΩBouquet {A = A})) → looping (winding l) ≡ l
@@ -209,8 +187,8 @@ truncatedPathEquality : (g : FreeGroupoid A) → ∥ cong code (looping g) ≡ u
 truncatedPathEquality = elimProp
             Bprop
             (λ a → ∣ η-ind a ∣)
-            (λ g1 g2 → λ ∣ind1∣ ∣ind2∣ → rec2 squash (λ ind1 ind2 → ∣ m-ind g1 g2 ind1 ind2 ∣) ∣ind1∣ ∣ind2∣)
-            ∣ e-ind ∣
+            (λ g1 g2 → λ ∣ind1∣ ∣ind2∣ → rec2 squash (λ ind1 ind2 → ∣ ·-ind g1 g2 ind1 ind2 ∣) ∣ind1∣ ∣ind2∣)
+            ∣ ε-ind ∣
             (λ g → λ ∣ind∣ → propRec squash (λ ind → ∣ inv-ind g ind ∣) ∣ind∣) where
   B : ∀ g → Type _
   B g = cong code (looping g) ≡ ua (equivs g)
@@ -218,29 +196,23 @@ truncatedPathEquality = elimProp
   Bprop g = squash
   η-ind : ∀ a → B (η a)
   η-ind a = refl
-  m-ind : ∀ g1 g2 → B g1 → B g2 → B (m g1 g2)
-  m-ind g1 g2 ind1 ind2 =
-    cong code (looping (m g1 g2))
-    ≡⟨ refl ⟩
-    cong code (looping g1) ∙ cong code (looping g2)
+  ·-ind : ∀ g1 g2 → B g1 → B g2 → B (g1 · g2)
+  ·-ind g1 g2 ind1 ind2 =
+    cong code (looping (g1 · g2))
     ≡⟨ cong (λ x → x ∙ cong code (looping g2)) ind1 ⟩
     pathsInU g1 ∙ cong code (looping g2)
     ≡⟨ cong (λ x → pathsInU g1 ∙ x) ind2 ⟩
     pathsInU g1 ∙ pathsInU g2
     ≡⟨ sym (multPathsInUNaturality g1 g2) ⟩
-    pathsInU (m g1 g2) ∎
-  e-ind : B e
-  e-ind =
-    cong code (looping e)
-    ≡⟨ refl ⟩
-    refl
+    pathsInU (g1 · g2) ∎
+  ε-ind : B ε
+  ε-ind =
+    cong code (looping ε)
     ≡⟨ sym idPathsInUNaturality ⟩
-    pathsInU e ∎
+    pathsInU ε ∎
   inv-ind : ∀ g → B g → B (inv g)
   inv-ind g ind =
     cong code (looping (inv g))
-    ≡⟨ refl ⟩
-    sym (cong code (looping g))
     ≡⟨ cong sym ind ⟩
     sym (pathsInU g)
     ≡⟨ sym (invPathsInUNaturality g) ⟩
@@ -253,14 +225,10 @@ truncatedRight-homotopy g = propRec squash recursion (truncatedPathEquality g) w
     aux : winding (looping g) ≡ g
     aux =
       winding (looping g)
-      ≡⟨ refl ⟩
-      subst code (looping g) e
-      ≡⟨ refl ⟩
-      transport (cong code (looping g)) e
-      ≡⟨ cong (λ x → transport x e) hyp ⟩
-      transport (ua (equivs g)) e
-      ≡⟨ uaβ  (equivs g) e ⟩
-      m e g
+      ≡⟨ cong (λ x → transport x ε) hyp ⟩
+      transport (ua (equivs g)) ε
+      ≡⟨ uaβ  (equivs g) ε ⟩
+      ε · g
       ≡⟨ sym (idl g) ⟩
       g ∎
 

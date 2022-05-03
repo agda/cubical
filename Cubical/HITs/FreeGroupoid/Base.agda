@@ -9,7 +9,7 @@ This file contains:
 -}
 {-# OPTIONS --safe #-}
 
-module Cubical.HITs.Bouquet.FreeGroupoid.Base where
+module Cubical.HITs.FreeGroupoid.Base where
 
 open import Cubical.Foundations.Prelude
 
@@ -19,11 +19,11 @@ private
 
 data FreeGroupoid (A : Type ℓ) : Type ℓ where
   η     : A → FreeGroupoid A
-  m     : FreeGroupoid A → FreeGroupoid A → FreeGroupoid A
-  e     : FreeGroupoid A
+  _·_     : FreeGroupoid A → FreeGroupoid A → FreeGroupoid A
+  ε     : FreeGroupoid A
   inv   : FreeGroupoid A → FreeGroupoid A
-  assoc : ∀ x y z → m x (m y z) ≡ m (m x y) z
-  idr   : ∀ x → x ≡ m x e
-  idl   : ∀ x → x ≡  m e x
-  invr  : ∀ x → m x (inv x) ≡ e
-  invl  : ∀ x → m (inv x) x ≡ e
+  assoc : ∀ x y z → x · (y · z) ≡ (x · y) · z
+  idr   : ∀ x → x ≡ x · ε
+  idl   : ∀ x → x ≡ ε · x
+  invr  : ∀ x → x · (inv x) ≡ ε
+  invl  : ∀ x → (inv x) · x ≡ ε
