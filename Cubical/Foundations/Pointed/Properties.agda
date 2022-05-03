@@ -6,6 +6,7 @@ open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 
@@ -97,3 +98,71 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B
 
   isInKer∙ : (x : fst A) → Type ℓ'
   isInKer∙ x = fst f x ≡ snd B
+
+pre∘∙equiv : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B C : Pointed ℓ'}
+ → (B ≃∙ C) → Iso (A →∙ B) (A →∙ C)
+pre∘∙equiv {A = A} {B = B} {C = C} eq = main
+  where
+  module _ {ℓ ℓ' : Level} (A : Pointed ℓ) (B C : Pointed ℓ')
+           (eq : (B ≃∙ C)) where
+    to : (A →∙ B) → (A →∙ C)
+    to = ≃∙map eq ∘∙_
+
+    from : (A →∙ C) → (A →∙ B)
+    from = ≃∙map (invEquiv∙ eq) ∘∙_
+
+  lem : {ℓ  : Level} {B : Pointed ℓ}
+    → ≃∙map (invEquiv∙ {A = B} ((idEquiv (fst B)) , refl)) ≡ id∙ B
+  lem = ΣPathP (refl , (sym (lUnit _)))
+
+  J-lem : {ℓ ℓ' : Level} {A : Pointed ℓ} {B C : Pointed ℓ'}
+             → (eq : (B ≃∙ C))
+             → retract (to A B C eq) (from _ _ _ eq)
+              × section (to A B C eq) (from _ _ _ eq)
+  J-lem {A = A} {B = B} {C = C} =
+    Equiv∙J (λ B eq → retract (to A B C eq) (from _ _ _ eq)
+              × section (to A B C eq) (from _ _ _ eq))
+            ((λ f → ((λ i → (lem i ∘∙ (id∙ C ∘∙ f)))
+                  ∙ λ i → ∘∙-idʳ (∘∙-idʳ f i) i))
+            , λ f → ((λ i → (id∙ C ∘∙ (lem i ∘∙ f)))
+                  ∙ λ i → ∘∙-idʳ (∘∙-idʳ f i) i))
+
+  main : Iso (A →∙ B) (A →∙ C)
+  Iso.fun main = to A B C eq
+  Iso.inv main = from A B C eq
+  Iso.rightInv main = J-lem eq .snd
+  Iso.leftInv main = J-lem eq .fst
+
+post∘∙equiv : ∀ {ℓ ℓC} {A B : Pointed ℓ} {C : Pointed ℓC}
+  → (A ≃∙ B) → Iso (A →∙ C) (B →∙ C)
+post∘∙equiv {A = A} {B = B} {C = C} eq = main
+  where
+  module _ {ℓ ℓC : Level} (A B : Pointed ℓ) (C : Pointed ℓC)
+           (eq : (A ≃∙ B)) where
+    to : (A →∙ C) → (B →∙ C)
+    to = _∘∙ ≃∙map (invEquiv∙ eq)
+
+    from : (B →∙ C) → (A →∙ C)
+    from = _∘∙ ≃∙map eq
+
+  lem : {ℓ  : Level} {B : Pointed ℓ}
+    → ≃∙map (invEquiv∙ {A = B} ((idEquiv (fst B)) , refl)) ≡ id∙ B
+  lem = ΣPathP (refl , (sym (lUnit _)))
+
+  J-lem : {ℓ ℓC : Level} {A B : Pointed ℓ} {C : Pointed ℓC}
+             → (eq : (A ≃∙ B))
+             → retract (to A B C eq) (from _ _ _ eq)
+              × section (to A B C eq) (from _ _ _ eq)
+  J-lem {B = B} {C = C} =
+    Equiv∙J (λ A eq → retract (to A B C eq) (from _ _ _ eq)
+              × section (to A B C eq) (from _ _ _ eq))
+            ((λ f → ((λ i → (f ∘∙ lem i) ∘∙ id∙ B)
+                  ∙ λ i → ∘∙-idˡ (∘∙-idˡ f i) i))
+           , λ f → (λ i → (f ∘∙ id∙ B) ∘∙ lem i)
+                  ∙ λ i → ∘∙-idˡ (∘∙-idˡ f i) i)
+
+  main : Iso (A →∙ C) (B →∙ C)
+  Iso.fun main = to A B C eq
+  Iso.inv main = from A B C eq
+  Iso.rightInv main = J-lem eq .snd
+  Iso.leftInv main = J-lem eq .fst

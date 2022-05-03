@@ -9,7 +9,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.Semigroup.Base
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (isProp≤)
 open import Cubical.Data.Fin
 open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; ℤ to ℤType)
@@ -20,7 +20,6 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Algebra.Group.Instances.Int
   renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.Group.Instances.Unit
-  renaming (Unit to UnitGroup)
 open import Cubical.Algebra.Group.Instances.Bool
   renaming (Bool to BoolGroup)
 open import Cubical.Algebra.Group.MorphismProperties
@@ -48,7 +47,7 @@ snd (identity (isMonoid (isGroup (snd (ℤ/ suc n)))) x) = +ₘ-lUnit x
 fst (inverse (isGroup (snd (ℤ/ suc n))) x) = +ₘ-rCancel x
 snd (inverse (isGroup (snd (ℤ/ suc n))) x) = +ₘ-lCancel x
 
-ℤ/1≅Unit : GroupIso (ℤ/ 1) UnitGroup
+ℤ/1≅Unit : GroupIso (ℤ/ 1) UnitGroup₀
 ℤ/1≅Unit = contrGroupIsoUnit isContrFin1
 
 Bool≅ℤ/2 : GroupIso BoolGroup (ℤ/ 2)
@@ -59,9 +58,9 @@ Iso.inv (fst Bool≅ℤ/2) (suc zero , p) = false
 Iso.inv (fst Bool≅ℤ/2) (suc (suc x) , p) =
   ⊥-rec (¬-<-zero (predℕ-≤-predℕ (predℕ-≤-predℕ p)))
 Iso.rightInv (fst Bool≅ℤ/2) (zero , p) =
-  Σ≡Prop (λ _ → m≤n-isProp) refl
+  Σ≡Prop (λ _ → isProp≤) refl
 Iso.rightInv (fst Bool≅ℤ/2) (suc zero , p) =
-  Σ≡Prop (λ _ → m≤n-isProp) refl
+  Σ≡Prop (λ _ → isProp≤) refl
 Iso.rightInv (fst Bool≅ℤ/2) (suc (suc x) , p) =
   ⊥-rec (¬-<-zero (predℕ-≤-predℕ (predℕ-≤-predℕ p)))
 Iso.leftInv (fst Bool≅ℤ/2) false = refl
@@ -83,11 +82,11 @@ snd Bool≅ℤ/2 =
 
 ℤ→Fin-presinv : (n : ℕ) (x : ℤType) → ℤ→Fin n (- x) ≡ -ₘ ℤ→Fin n x
 ℤ→Fin-presinv n (pos zero) =
-  Σ≡Prop (λ _ → m≤n-isProp) ((λ _ → zero) ∙ sym (cong fst help))
+  Σ≡Prop (λ _ → isProp≤) ((λ _ → zero) ∙ sym (cong fst help))
   where
   help : (-ₘ_ {n = n} 0) ≡ 0
   help = GroupTheory.inv1g (ℤ/ (suc n))
-ℤ→Fin-presinv n (pos (suc x)) = Σ≡Prop (λ _ → m≤n-isProp) refl
+ℤ→Fin-presinv n (pos (suc x)) = Σ≡Prop (λ _ → isProp≤) refl
 ℤ→Fin-presinv n (negsuc x) =
   sym (GroupTheory.invInv (ℤ/ (suc n)) _)
 
@@ -99,7 +98,7 @@ snd Bool≅ℤ/2 =
 -ₘ1-id (suc n) =
      cong -ₘ_ (FinPathℕ ((1 mod suc (suc n)) , mod< (suc n) 1) 1
                 (modIndBase (suc n) 1 (n , +-comm n 2)) .snd)
-   ∙ Σ≡Prop (λ _ → m≤n-isProp)
+   ∙ Σ≡Prop (λ _ → isProp≤)
       ((+inductionBase (suc n) _
         (λ x _ → ((suc (suc n)) ∸ x) mod (suc (suc n))) λ _ x → x) 1
         (n , (+-comm n 2)))
@@ -113,7 +112,7 @@ suc-ₘ1 zero y =
 suc-ₘ1 (suc n) y =
      (λ i → ((suc y mod suc (suc n)) , mod< (suc n) (suc y))
          +ₘ (-ₘ1-id (suc n) i))
-   ∙ Σ≡Prop (λ _ → m≤n-isProp)
+   ∙ Σ≡Prop (λ _ → isProp≤)
       (cong (_mod (2 +ℕ n))
          (cong (_+ℕ (suc n) mod (2 +ℕ n))
            (mod+mod≡mod (suc (suc n)) 1 y))
@@ -170,12 +169,12 @@ isHomℤ→Fin n =
   +1case (pos zero) = sym (GroupStr.rid (snd (ℤ/ (suc n))) _)
   +1case (pos (suc y)) =
        cong (ℤ→Fin n) (+Comm 1 (pos (suc y)))
-     ∙ Σ≡Prop (λ _ → m≤n-isProp) (mod+mod≡mod (suc n) 1 (suc y))
+     ∙ Σ≡Prop (λ _ → isProp≤) (mod+mod≡mod (suc n) 1 (suc y))
   +1case (negsuc zero) =
-      Σ≡Prop (λ _ → m≤n-isProp) refl
+      Σ≡Prop (λ _ → isProp≤) refl
     ∙ sym (GroupStr.invr (snd (ℤ/ (suc n))) (modInd n 1 , mod< n 1))
   +1case (negsuc (suc y)) =
-    Σ≡Prop (λ _ → m≤n-isProp)
+    Σ≡Prop (λ _ → isProp≤)
       (cong fst (cong (ℤ→Fin n) (+Comm 1 (negsuc (suc y))))
       ∙∙ cong fst (cong -ₘ_ (refl {x = suc y mod suc n , mod< n (suc y)}))
       ∙∙ cong fst (sym (1-ₘsuc n (suc y)))
@@ -201,4 +200,4 @@ isHomℤ→Fin n =
       → (modInd n 1 , mod< n 1) +ₘ (modInd n (suc x) , mod< n (suc x))
         ≡ ℤ→Fin n (pos (suc (suc x)))
     lem x =
-      Σ≡Prop (λ _ → m≤n-isProp) (sym (mod+mod≡mod (suc n) 1 (suc x)))
+      Σ≡Prop (λ _ → isProp≤) (sym (mod+mod≡mod (suc n) 1 (suc x)))

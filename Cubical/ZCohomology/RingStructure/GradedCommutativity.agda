@@ -45,17 +45,13 @@ natTranspLem : ∀ {ℓ} {A B : ℕ → Type ℓ} {n m : ℕ} (a : A n)
   → f m (subst A p a) ≡ subst B p (f n a)
 natTranspLem {A = A} {B = B} a f p = sym (substCommSlice A B f p a)
 
-+'-comm : (n m : ℕ) → n +' m ≡ m +' n
-+'-comm n m = +'≡+ n m ∙∙ +-comm n m ∙∙ sym (+'≡+ m n)
+transp0₁ : (n : ℕ) → subst coHomK (+'-comm 1 (suc n)) (0ₖ _) ≡ 0ₖ _
+transp0₁ zero = refl
+transp0₁ (suc n) = refl
 
-private
-  transp0₁ : (n : ℕ) → subst coHomK (+'-comm 1 (suc n)) (0ₖ _) ≡ 0ₖ _
-  transp0₁ zero = refl
-  transp0₁ (suc n) = refl
-
-  transp0₂ : (n m : ℕ) → subst coHomK (+'-comm (suc (suc n)) (suc m)) (0ₖ _) ≡ 0ₖ _
-  transp0₂ n zero = refl
-  transp0₂ n (suc m) = refl
+transp0₂ : (n m : ℕ) → subst coHomK (+'-comm (suc (suc n)) (suc m)) (0ₖ _) ≡ 0ₖ _
+transp0₂ n zero = refl
+transp0₂ n (suc m) = refl
 
 -- Recurring expressions
 private

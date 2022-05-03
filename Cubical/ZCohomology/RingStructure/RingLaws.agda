@@ -102,12 +102,14 @@ private
   snd (⌣ₖ-distrFun2 n m x y) =
     cong₂ _+ₖ_ (0ₖ-⌣ₖ m n x) (0ₖ-⌣ₖ m n y) ∙ rUnitₖ _ _
 
-  leftDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n)) → ⌣ₖ-distrFun (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2 (suc n) (suc m) x y
+  leftDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n))
+    → ⌣ₖ-distrFun (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2 (suc n) (suc m) x y
   leftDistr-⌣ₖ· n m =
     elim2 (λ _ _ → isOfHLevelSuc (2 + n) (hLevHelp n m _ _))
           main
     where
-    hLevHelp : (n m : ℕ) (x y : _) → isOfHLevel (2 + n) ( ⌣ₖ-distrFun (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2 (suc n) (suc m) x y)
+    hLevHelp : (n m : ℕ) (x y : _)
+      → isOfHLevel (2 + n) ( ⌣ₖ-distrFun (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2 (suc n) (suc m) x y)
     hLevHelp n m x y =
       (subst (isOfHLevel (3 + n))
         (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (+-comm n m i)))))
@@ -230,7 +232,8 @@ private
   snd (⌣ₖ-distrFun2-r n m x y) =
     cong₂ _+ₖ_ (⌣ₖ-0ₖ n m x) (⌣ₖ-0ₖ n m y) ∙ rUnitₖ _ _
 
-  rightDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n)) → ⌣ₖ-distrFun-r (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2-r (suc n) (suc m) x y
+  rightDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n))
+    → ⌣ₖ-distrFun-r (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2-r (suc n) (suc m) x y
   rightDistr-⌣ₖ· n m =
     elim2 (λ _ _ → isOfHLevelPath (3 + n) (isOfHLevel↑∙ (suc n) m) _ _)
           main

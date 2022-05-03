@@ -191,3 +191,172 @@ fun invSuspIso = invSusp
 inv invSuspIso = invSusp
 rightInv invSuspIso = invSusp²
 leftInv invSuspIso = invSusp²
+
+
+-- Explicit definition of the iso
+-- join (Susp A) B ≃ Susp (join A B)
+-- for pointed types A and B. This is useful for obtaining a ``nice'' iso
+-- join Sⁿ Sᵐ ≃ Sⁿ⁺ᵐ⁺¹
+module _ {A B : Pointed ℓ} where
+
+  private -- some useful fillers
+    rinv-filler : (b : typ B) → I → I → I → join (Susp (typ A)) (typ B)
+    rinv-filler b i j k =
+      hfill (λ k → λ {(i = i0) → push south b (~ k)
+                     ; (i = i1) → push north b (~ k ∨ j)
+                     ; (j = i0) → push (merid (pt A) (~ i)) b (~ k)
+                     ; (j = i1) → push south b (~ k ∨ i)})
+            (inS (inr b))
+            k
+
+    suspJoin→joinSuspFiller :
+      I → I → I → (a : typ A) (b : typ B) → join (Susp (typ A)) (typ B)
+    suspJoin→joinSuspFiller i j k a b =
+      hfill (λ k → λ {(i = i0) → push north b (~ k)
+                     ; (i = i1) → push south b (~ k)
+                     ; (j = i0) → push (merid a i) b (~ k)
+                     ; (j = i1) → push (merid (pt A) i) b (~ k)})
+            (inS (inr b))
+            k
+
+    joinSuspFiller :
+      I → I → I → (a : typ A) (b : typ B) → Susp (join (typ A) (typ B))
+    joinSuspFiller i j k a b =
+      hfill (λ k → λ {(i = i0) → merid (push a b (~ k)) j
+                     ; (i = i1) → north
+                     ; (j = i0) → north
+                     ; (j = i1) → merid (push (pt A) b (~ k)) (~ i)})
+            (inS (merid (inr b) (~ i ∧ j)))
+            k
+
+  suspJoin→joinSusp : Susp (join (typ A) (typ B)) → join (Susp (typ A)) (typ B)
+  suspJoin→joinSusp north = inl north
+  suspJoin→joinSusp south = inl south
+  suspJoin→joinSusp (merid (inl x) i) = inl ((merid x) i)
+  suspJoin→joinSusp  (merid (inr x) i) = inl (merid (pt A) i)
+  suspJoin→joinSusp  (merid (push a b j) i) = suspJoin→joinSuspFiller i j i1 a b
+
+  joinSusp→suspJoin : join (Susp (typ A)) (typ B) → Susp (join (typ A) (typ B))
+  joinSusp→suspJoin (inl north) = north
+  joinSusp→suspJoin (inl south) = south
+  joinSusp→suspJoin (inl (merid a i)) = merid (inl a) i
+  joinSusp→suspJoin (inr x) = north
+  joinSusp→suspJoin (push north b i) = north
+  joinSusp→suspJoin (push south b i) = merid (inl (pt A)) (~ i)
+  joinSusp→suspJoin (push (merid a j) b i) = joinSuspFiller i j i1 a b
+
+
+  suspJoin→joinSusp→suspJoin : (x : Susp (join (typ A) (typ B)))
+    → joinSusp→suspJoin (suspJoin→joinSusp x) ≡ x
+  suspJoin→joinSusp→suspJoin north = refl
+  suspJoin→joinSusp→suspJoin south = refl
+  suspJoin→joinSusp→suspJoin (merid (inl x) i) = refl
+  suspJoin→joinSusp→suspJoin (merid (inr x) i) j = merid (push (pt A) x j) i
+  suspJoin→joinSusp→suspJoin (merid (push a b j) i) k =
+    hcomp (λ r → λ {(i = i0) → north
+                   ; (i = i1) → merid (push (snd A) b (k ∧ (~ r ∨ j))) r
+                   ; (j = i0) → joinSuspFiller (~ r) i (~ k ∨ r) a b
+                   ; (j = i1) → joinSuspFiller (~ r) i (~ k) (pt A) b
+                   ; (k = i0) → joinSusp→suspJoin (suspJoin→joinSuspFiller i j r a b)
+                   ; (k = i1) → k=i1 i j r})
+          north
+     where
+     k=i1 :
+       Cube
+         (λ j r → north)
+         (λ j r → merid (push (snd A) b (~ r ∨ j)) r)
+         (λ i r → joinSuspFiller (~ r) i r a b)
+         (λ i r → merid (inr b) (r ∧ i))
+         refl
+         λ i j → merid (push a b j) i
+     k=i1 i j r =
+       hcomp (λ k → λ {(i = i0) → north
+                      ; (i = i1) → merid (push (snd A) b (~ r ∨ ~ k ∨ j)) r
+                      ; (j = i0) → joinSuspFiller (~ r) i (r ∧ k) a b
+                      ; (j = i1) → merid (inr b) (r ∧ i)
+                      ; (r = i0) → north
+                      ; (r = i1) → merid (push a b (~ k ∨ j)) i})
+             (merid (inr b) (i ∧ r))
+
+  joinSusp→suspJoin→joinSusp : (x : join (Susp (typ A)) (typ B))
+    → suspJoin→joinSusp (joinSusp→suspJoin x) ≡ x
+  joinSusp→suspJoin→joinSusp (inl north) = refl
+  joinSusp→suspJoin→joinSusp (inl south) = refl
+  joinSusp→suspJoin→joinSusp (inl (merid a i)) = refl
+  joinSusp→suspJoin→joinSusp (inr x) = push north x
+  joinSusp→suspJoin→joinSusp (push north b i) j = push north b (j ∧ i)
+  joinSusp→suspJoin→joinSusp (push south b i) j = rinv-filler b i j i1
+  joinSusp→suspJoin→joinSusp (push (merid a j) b i) k =
+    hcomp (λ r → λ { (j = i0) → push north b (k ∧ i)
+                     ; (j = i1) → lem i k r
+                     ; (i = i0) → suspJoin→joinSuspFiller j (~ r ∧ ~ k) i1 a b
+                     ; (i = i1) → push north b k
+                     ; (k = i0) → suspJoin→joinSusp (joinSuspFiller i j r a b)
+                     ; (k = i1) → push (merid a j) b i})
+          (hcomp (λ r → λ { (j = i0) → push north b (~ r ∨ (k ∧ i))
+                     ; (j = i1) → rinv-filler b i k r
+                     ; (i = i0) → suspJoin→joinSuspFiller j (~ k) r a b
+                     ; (i = i1) → push north b (~ r ∨ k)
+                     ; (k = i0) → push (merid (snd A) (~ i ∧ j)) b (~ r)
+                     ; (k = i1) → push (merid a j) b (~ r ∨ i)})
+                 (inr b))
+    where
+    lem : Cube (λ k r → inl south)
+               (λ k r → push north b k)
+               (λ i r → suspJoin→joinSuspFiller (~ i) r i1 (pt A) b)
+               (λ i r → push south b i)
+               (λ i k → rinv-filler b i k i1)
+               λ i k → rinv-filler b i k i1
+    lem i k r =
+      hcomp (λ j → λ { (r = i0) → rinv-filler b i k j
+                     ; (r = i1) → rinv-filler b i k j
+                     ; (i = i0) → push south b (~ j)
+                     ; (i = i1) → push north b (k ∨ ~ j)
+                     ; (k = i0) → suspJoin→joinSuspFiller (~ i) r j (pt A) b
+                     ; (k = i1) → push south b (i ∨ ~ j)})
+                 (inr b)
+
+  Iso-joinSusp-suspJoin :
+    Iso (join (Susp (typ A)) (typ B)) (Susp (join (typ A) (typ B)))
+  Iso.fun Iso-joinSusp-suspJoin = joinSusp→suspJoin
+  Iso.inv Iso-joinSusp-suspJoin = suspJoin→joinSusp
+  Iso.rightInv Iso-joinSusp-suspJoin = suspJoin→joinSusp→suspJoin
+  Iso.leftInv Iso-joinSusp-suspJoin = joinSusp→suspJoin→joinSusp
+
+-- interaction between invSusp and toSusp
+toSusp-invSusp : (A : Pointed ℓ) (x : Susp (typ A))
+  → toSusp (Susp∙ (typ A)) (invSusp x) ≡ sym (toSusp (Susp∙ (typ A)) x)
+toSusp-invSusp A north =
+  cong (toSusp (Susp∙ (typ A))) (sym (merid (snd A)))
+                  ∙∙ rCancel (merid north)
+                  ∙∙ cong sym (sym (rCancel (merid north)))
+toSusp-invSusp A south =
+     rCancel (merid north)
+   ∙∙ cong sym (sym (rCancel (merid north)))
+   ∙∙ cong sym (cong (toSusp (Susp∙ (typ A))) (merid (pt A)))
+toSusp-invSusp A (merid a i) j =
+  lem (toSusp (Susp∙ (typ A)) north) (toSusp (Susp∙ (typ A)) south)
+         (sym (rCancel (merid north)))
+         (cong (toSusp (Susp∙ (typ A))) ((merid (pt A))))
+         (cong (toSusp (Susp∙ (typ A))) (merid a)) (~ j) i
+  where
+  lem : {A : Type ℓ} {x : A} (p q : x ≡ x) (l : refl ≡ p)
+        (coh r : p ≡ q)
+      → PathP (λ i → (cong sym (sym l) ∙∙ l ∙∙ coh) i
+                     ≡ (cong sym (sym coh) ∙∙ cong sym (sym l) ∙∙ l) i)
+               (cong sym r)
+               (sym r)
+  lem p q =
+    J (λ p l → (coh r : p ≡ q)
+            → PathP (λ i → (cong sym (sym l) ∙∙ l ∙∙ coh) i
+                           ≡ (cong sym (sym coh) ∙∙ cong sym (sym l) ∙∙ l) i)
+                     (cong sym r)
+                     (sym r))
+       (J (λ q coh → (r : refl ≡ q)
+                   → PathP (λ i → (refl ∙ coh) i
+                           ≡ (cong sym (sym coh) ∙∙ refl ∙∙ refl) i)
+                     (cong sym r)
+                     (sym r))
+          λ r → flipSquare (sym (rUnit refl)
+                ◁ (flipSquare (sym (sym≡cong-sym r))
+                ▷ rUnit refl)))

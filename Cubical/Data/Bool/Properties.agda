@@ -8,6 +8,7 @@ open import Cubical.Functions.Involution
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
@@ -15,8 +16,10 @@ open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Sum
 open import Cubical.Data.Bool.Base
+open import Cubical.Data.Empty
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit using (Unit; isPropUnit)
 
 open import Cubical.HITs.PropositionalTruncation hiding (rec)
 
@@ -215,6 +218,33 @@ module BoolReflection where
 
   reflectEquiv : Bool ≃ (Bool ≡ Bool)
   reflectEquiv = isoToEquiv reflectIso
+
+_≤_ : Bool → Bool → Type
+true ≤ false = ⊥
+_ ≤ _ = Unit
+
+_≥_ : Bool → Bool → Type
+false ≥ true = ⊥
+_ ≥ _ = Unit
+
+isProp≤ : ∀ b c → isProp (b ≤ c)
+isProp≤  true false = isProp⊥
+isProp≤  true  true = isPropUnit
+isProp≤ false false = isPropUnit
+isProp≤ false  true = isPropUnit
+
+isProp≥ : ∀ b c → isProp (b ≥ c)
+isProp≥ false  true = isProp⊥
+isProp≥  true  true = isPropUnit
+isProp≥ false false = isPropUnit
+isProp≥  true false = isPropUnit
+
+isProp-Bool→Type : ∀ b → isProp (Bool→Type b)
+isProp-Bool→Type false = isProp⊥
+isProp-Bool→Type true = isPropUnit
+
+isPropDep-Bool→Type : isPropDep Bool→Type
+isPropDep-Bool→Type = isOfHLevel→isOfHLevelDep 1 isProp-Bool→Type
 
 IsoBool→∙ : ∀ {ℓ} {A : Pointed ℓ} → Iso ((Bool , true) →∙ A) (typ A)
 Iso.fun IsoBool→∙ f = fst f false
