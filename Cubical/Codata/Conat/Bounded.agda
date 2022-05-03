@@ -5,7 +5,6 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Path
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
@@ -22,7 +21,6 @@ open import Cubical.Data.Unit
 open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Nat as Nat
-open import Cubical.Data.Nat.Order.Recursive as Nat
 import Cubical.Data.Fin.Recursive as Fin
 
 private variable ℓ : Level
@@ -65,11 +63,11 @@ private
   apart→≢ zero (suc j) _ = znots
   apart→≢ (suc i) (suc j) i#j = apart→≢ i j i#j ∘ cong predℕ
 
-  apart-isProp : ∀ m n → isProp (apart m n)
-  apart-isProp 0 0 = isProp⊥
-  apart-isProp (suc m) (suc n) = apart-isProp m n
-  apart-isProp (suc _) 0 = isPropUnit
-  apart-isProp 0 (suc _) = isPropUnit
+  isPropApart : ∀ m n → isProp (apart m n)
+  isPropApart 0 0 = isProp⊥
+  isPropApart (suc m) (suc n) = isPropApart m n
+  isPropApart (suc _) 0 = isPropUnit
+  isPropApart 0 (suc _) = isPropUnit
 
 _#_ : ∀{P : ℕ → Type ℓ} → (l r : Σ ℕ P) → Type
 (m , _) # (n , _) = apart m n
@@ -77,11 +75,11 @@ _#_ : ∀{P : ℕ → Type ℓ} → (l r : Σ ℕ P) → Type
 #→≢ : ∀{P : ℕ → Type ℓ} → (l r : Σ ℕ P) → l # r → ¬ l ≡ r
 #→≢ (i , _) (j , _) d = apart→≢ i j d ∘ cong fst
 
-#-isProp : ∀{P : ℕ → Type ℓ} (l r : Σ ℕ P) → isProp (l # r)
-#-isProp (m , _) (n , _) = apart-isProp m n
+isProp# : ∀{P : ℕ → Type ℓ} (l r : Σ ℕ P) → isProp (l # r)
+isProp# (m , _) (n , _) = isPropApart m n
 
-#-isPropDepᵣ : ∀{P : ℕ → Type ℓ} (r : Σ ℕ P) → isPropDep (_# r)
-#-isPropDepᵣ r = isOfHLevel→isOfHLevelDep 1 (λ l → #-isProp l r) {_} {_}
+isProp#Depᵣ : ∀{P : ℕ → Type ℓ} (r : Σ ℕ P) → isPropDep (_# r)
+isProp#Depᵣ r = isOfHLevel→isOfHLevelDep 1 (λ l → isProp# l r) {_} {_}
 
 Bounded : Conat → Type
 Bounded m = Σ[ n ∈ ℕ ] n ≺ m

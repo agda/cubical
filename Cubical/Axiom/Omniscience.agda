@@ -32,8 +32,8 @@ LLPO A
   → (∀ x y → ⟨ P x ⟩ → ⟨ Q y ⟩ → ⊥)
   → ∥ (∀ x → ¬ ⟨ P x ⟩) ⊎ (∀ y → ¬ ⟨ Q y ⟩) ∥
 
-LLPO-isProp : isProp (LLPO A)
-LLPO-isProp = isPropΠ3 λ _ _ _ → squash
+isPropLLPO : isProp (LLPO A)
+isPropLLPO = isPropΠ3 λ _ _ _ → squash
 
 -- As above, but without ensuring propositionality
 LLPO∞ : Type ℓ → Type ℓ
@@ -54,11 +54,11 @@ WLPO A = ∀(P : A → 𝟚) → Dec (∀ x → ¬ ⟨ P x ⟩)
 WLPO' : Type ℓ → Type ℓ
 WLPO' A = ∀(P : A → 𝟚) → Dec (P ≡ const false)
 
-WLPO-isProp : isProp (WLPO A)
-WLPO-isProp = isPropΠ λ P → isPropDec (isPropΠ λ x → isProp¬ ⟨ P x ⟩)
+isPropWLPO : isProp (WLPO A)
+isPropWLPO = isPropΠ λ P → isPropDec (isPropΠ λ x → isProp¬ ⟨ P x ⟩)
 
-WLPO'-isProp : isProp (WLPO' A)
-WLPO'-isProp = isPropΠ λ P → isPropDec (isSet→ isSetBool P (const false))
+isPropWLPO' : isProp (WLPO' A)
+isPropWLPO' = isPropΠ λ P → isPropDec (isSet→ isSetBool P (const false))
 
 module WLPO≃ where
   points : (P : A → 𝟚) → P ≡ const false → ∀ x → ¬ ⟨ P x ⟩
@@ -79,15 +79,7 @@ module WLPO≃ where
     .leftInv α≡f → isSet→ isSetBool P (const false) _ α≡f
 
 WLPO≡WLPO' : WLPO A ≡ WLPO' A
-WLPO≡WLPO' {A = A} = isoToPath λ where
-    .fun wlpo  P → subst⁻ Dec (WLPO≃.total≡points P) (wlpo P)
-    .inv wlpo' P → subst Dec (WLPO≃.total≡points P) (wlpo' P)
-    .rightInv wlpo i P →
-        transport⁻Transport (cong Dec (WLPO≃.total≡points P)) (wlpo P) i
-    .leftInv wlpo' i P →
-        transportTransport⁻ (cong Dec (WLPO≃.total≡points P)) (wlpo' P) i
-  where
-  open Iso
+WLPO≡WLPO' {A = A} i = (P : A → 𝟚) → Dec (WLPO≃.total≡points P (~ i))
 
 WLPO→LLPO∞ : WLPO A → LLPO∞ A
 WLPO→LLPO∞ {A = A} womn P Q ¬both with womn P

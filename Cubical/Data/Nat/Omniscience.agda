@@ -27,13 +27,8 @@ module _ where
   never-least→never : (∀ m → ¬ Least F m) → (∀ m → ¬ F m)
   never-least→never ¬LF = wf-elim (flip ∘ curry ∘ ¬LF)
 
-  never-least≡never : (∀ m → ¬ Least F m) ≡ (∀ m → ¬ F m)
-  never-least≡never
-    = hPropExt
-        (isPropΠ (λ m → isProp¬ _))
-        (isPropΠ (λ m → isProp¬ _))
-        never-least→never
-        λ{ ¬F m (Fm , _) → ¬F m Fm }
+  never→never-least : (∀ m → ¬ F m) → (∀ m → ¬ Least F m)
+  never→never-least ¬F m (Fm , _) = ¬F m Fm
 
   ¬least-wlpo : (∀(P : ℕ → 𝟚) → Dec (∀ x → ¬ Least (⟨_⟩ ∘ P) x)) → WLPO ℕ
-  ¬least-wlpo lwlpo P = subst Dec never-least≡never (lwlpo P)
+  ¬least-wlpo lwlpo P = mapDec never-least→never (_∘ never→never-least) (lwlpo P)

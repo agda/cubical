@@ -45,10 +45,10 @@ private
     P : ℕ → Type ℓ
     k l m n : ℕ
 
-m≤n-isProp : isProp (m ≤ n)
-m≤n-isProp {zero} = isPropUnit
-m≤n-isProp {suc m} {zero}  = isProp⊥
-m≤n-isProp {suc m} {suc n} = m≤n-isProp {m} {n}
+isProp≤ : isProp (m ≤ n)
+isProp≤ {zero} = isPropUnit
+isProp≤ {suc m} {zero}  = isProp⊥
+isProp≤ {suc m} {suc n} = isProp≤ {m} {n}
 
 ≤-k+ : m ≤ n → k + m ≤ k + n
 ≤-k+ {k = zero}  m≤n = m≤n

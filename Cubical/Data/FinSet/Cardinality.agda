@@ -147,11 +147,11 @@ module _
     Prop.rec (isSetℕ _ _) (λ e → sym (isEmpty→Fin≡0 _ (p ∘ invEq e))) (∣≃card∣ X)
 
   isInhab→card>0 : ∥ X .fst ∥ → card X > 0
-  isInhab→card>0 = Prop.rec2 m≤n-isProp (λ p x → isInhab→Fin>0 _ (p .fst x)) (∣≃card∣ X)
+  isInhab→card>0 = Prop.rec2 isProp≤ (λ p x → isInhab→Fin>0 _ (p .fst x)) (∣≃card∣ X)
 
   hasNonEqualTerm→card>1 : {a b : X. fst} → ¬ a ≡ b → card X > 1
   hasNonEqualTerm→card>1 {a = a} {b = b} q =
-    Prop.rec m≤n-isProp (λ p → hasNonEqualTerm→Fin>1 _ (p .fst a) (p .fst b) (q ∘ invEq (congEquiv p))) (∣≃card∣ X)
+    Prop.rec isProp≤ (λ p → hasNonEqualTerm→Fin>1 _ (p .fst a) (p .fst b) (q ∘ invEq (congEquiv p))) (∣≃card∣ X)
 
   isContr→card≡1 : isContr (X .fst) → card X ≡ 1
   isContr→card≡1 p = cardEquiv X (_ , isFinSetUnit) ∣ isContr→≃Unit p ∣
@@ -323,7 +323,7 @@ module _
       sum≤ =
         elimProp
           (λ X → (f g : X .fst → ℕ)(h : (x : X .fst) → f x ≤ g x) → sum X f ≤ sum X g)
-          (λ X → isPropΠ3 (λ _ _ _ → m≤n-isProp)) sum≤𝔽in X f g h
+          (λ X → isPropΠ3 (λ _ _ _ → isProp≤)) sum≤𝔽in X f g h
 
     module _
       (t : ∥ X .fst ∥)
@@ -333,7 +333,7 @@ module _
       sum< =
         elimProp
           (λ X → (f g : X .fst → ℕ)(t : ∥ X .fst ∥)(h : (x : X .fst) → f x < g x) → sum X f < sum X g)
-          (λ X → isPropΠ4 (λ _ _ _ _ → m≤n-isProp)) sum<𝔽in X f g t h
+          (λ X → isPropΠ4 (λ _ _ _ _ → isProp≤)) sum<𝔽in X f g t h
 
 module _
   (X : FinSet ℓ)
@@ -421,7 +421,7 @@ module _
                (λ y → <-asym') (λ h → <-asym p (fiberCount h))
 
     pigeonHole : ∥ Σ[ y ∈ Y .fst ] card (_ , isFinSetFiber X Y f y) > n ∥
-    pigeonHole = PeirceLaw (isFinSetΣ Y (λ _ → _ , isDecProp→isFinSet m≤n-isProp (≤Dec _ _))) ¬¬pigeonHole
+    pigeonHole = PeirceLaw (isFinSetΣ Y (λ _ → _ , isDecProp→isFinSet isProp≤ (≤Dec _ _))) ¬¬pigeonHole
 
 -- a special case, proved in Cubical.Data.Fin.Properties
 
@@ -480,10 +480,10 @@ module _
           (λ y → isInhab→card>0 (_ , isFinSetFiber X Y f y) (p y)))
 
   card↪Inequality : ∥ X .fst ↪ Y .fst ∥ → card X ≤ card Y
-  card↪Inequality = Prop.rec m≤n-isProp (λ (f , p) → card↪Inequality' f p)
+  card↪Inequality = Prop.rec isProp≤ (λ (f , p) → card↪Inequality' f p)
 
   card↠Inequality : ∥ X .fst ↠ Y .fst ∥ → card X ≥ card Y
-  card↠Inequality = Prop.rec m≤n-isProp (λ (f , p) → card↠Inequality' f p)
+  card↠Inequality = Prop.rec isProp≤ (λ (f , p) → card↠Inequality' f p)
 
 -- maximal value of numerical functions
 
@@ -498,7 +498,7 @@ module _
     isMax = (x' : X) → f x' ≤ f x
 
     isPropIsMax : isProp isMax
-    isPropIsMax = isPropΠ (λ _ → m≤n-isProp)
+    isPropIsMax = isPropΠ (λ _ → isProp≤)
 
   uniqMax : (x x' : X) → isMax x → isMax x' → f x ≡ f x'
   uniqMax x x' p q = ≤-antisym (q x) (p x')

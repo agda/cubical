@@ -26,19 +26,19 @@ private
     A B : Type ℓ
 
 -- Functions with a section preserve discreteness.
-SectionDiscrete
+sectionDiscrete
   : (f : A → B) (g : B → A) → section f g → Discrete A → Discrete B
-SectionDiscrete f g sect dA x y with dA (g x) (g y)
+sectionDiscrete f g sect dA x y with dA (g x) (g y)
 ... | yes p = yes (sym (sect x) ∙∙ cong f p ∙∙ sect y)
 ... | no ¬p = no (λ p → ¬p (cong g p))
 
-IsoPresDiscrete : Iso A B → Discrete A → Discrete B
-IsoPresDiscrete e = SectionDiscrete fun inv rightInv
+isoPresDiscrete : Iso A B → Discrete A → Discrete B
+isoPresDiscrete e = sectionDiscrete fun inv rightInv
   where open Iso e
 
 EquivPresDiscrete : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B
                → Discrete A → Discrete B
-EquivPresDiscrete e = IsoPresDiscrete (equivToIso e)
+EquivPresDiscrete e = isoPresDiscrete (equivToIso e)
 
 isProp¬ : (A : Type ℓ) → isProp (¬ A)
 isProp¬ A p q i x = isProp⊥ (p x) (q x) i

@@ -227,17 +227,17 @@ _≥_ : Bool → Bool → Type
 false ≥ true = ⊥
 _ ≥ _ = Unit
 
-≤-isProp : ∀ b c → isProp (b ≤ c)
-≤-isProp  true false = isProp⊥
-≤-isProp  true  true = isPropUnit
-≤-isProp false false = isPropUnit
-≤-isProp false  true = isPropUnit
+isProp≤ : ∀ b c → isProp (b ≤ c)
+isProp≤  true false = isProp⊥
+isProp≤  true  true = isPropUnit
+isProp≤ false false = isPropUnit
+isProp≤ false  true = isPropUnit
 
-≥-isProp : ∀ b c → isProp (b ≥ c)
-≥-isProp false  true = isProp⊥
-≥-isProp  true  true = isPropUnit
-≥-isProp false false = isPropUnit
-≥-isProp  true false = isPropUnit
+isProp≥ : ∀ b c → isProp (b ≥ c)
+isProp≥ false  true = isProp⊥
+isProp≥  true  true = isPropUnit
+isProp≥ false false = isPropUnit
+isProp≥  true false = isPropUnit
 
 isProp-Bool→Type : ∀ b → isProp (Bool→Type b)
 isProp-Bool→Type false = isProp⊥

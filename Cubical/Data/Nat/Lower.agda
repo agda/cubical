@@ -20,25 +20,25 @@ open import Cubical.Data.Unit
 
 open import Cubical.Relation.Nullary
 
-isMono : (ℕ → Bool) → Type
-isMono f = ∀ n → f n ≥ f (suc n)
+isMonotone : (ℕ → Bool) → Type
+isMonotone f = ∀ n → f n ≥ f (suc n)
 
-isMonoIsProp : ∀ f → isProp (isMono f)
-isMonoIsProp f = isPropΠ λ n → ≥-isProp (f n) (f (suc n))
+isPropIsMonotone : ∀ f → isProp (isMonotone f)
+isPropIsMonotone f = isPropΠ λ n → isProp≥ (f n) (f (suc n))
 
-isMonoIsPropDep : isPropDep isMono
-isMonoIsPropDep = isOfHLevel→isOfHLevelDep 1 isMonoIsProp {_}
+isPropDepIsMonotone : isPropDep isMonotone
+isPropDepIsMonotone = isOfHLevel→isOfHLevelDep 1 isPropIsMonotone {_}
 
-Mono : Type
-Mono = Σ _ isMono
+Monotone : Type
+Monotone = Σ _ isMonotone
 
-MonoIsSet : isSet Mono
-MonoIsSet = isSetΣ (isSet→ isSetBool) (isProp→isSet ∘ isMonoIsProp)
+isSetMonotone : isSet Monotone
+isSetMonotone = isSetΣ (isSet→ isSetBool) (isProp→isSet ∘ isPropIsMonotone)
 
 private
   variable
     ℓ : Level
-    m n : Mono
+    m n : Monotone
 
 private
   mz : ℕ → Bool
@@ -48,7 +48,7 @@ private
   ms _ zero = true
   ms f (suc m) = f m
 
-  msm : ∀{f} → isMono f → isMono (ms f)
+  msm : ∀{f} → isMonotone f → isMonotone (ms f)
   msm _ zero = _
   msm mf (suc m) = mf m
 
@@ -59,7 +59,7 @@ private
   ms-mp f p i 0 = p (~ i)
   ms-mp f p i (suc k) = f (suc k)
 
-  mz-lemma : ∀ f → isMono f → f 0 ≡ false → ∀ k → false ≡ f k
+  mz-lemma : ∀ f → isMonotone f → f 0 ≡ false → ∀ k → false ≡ f k
   mz-lemma f  _ p zero = sym p
   mz-lemma f mf p (suc k)
     with f 1
@@ -68,31 +68,31 @@ private
   ... | false | [ q ]ᵢ | _ = mz-lemma (mp f) (mf ∘ suc) q k
 
 
-msuc : Mono → Mono
+msuc : Monotone → Monotone
 msuc m .fst = ms (fst m)
 msuc m .snd = msm (snd m)
 
-mpred : Mono → Mono
+mpred : Monotone → Monotone
 mpred f .fst k = f .fst (suc k)
 mpred f .snd k = f .snd (suc k)
 
-data MView (m : ℕ → Bool) : Type where
-  mzv : mz ≡ m → MView m
-  msv : ∀ n → ms n ≡ m → MView m
+data MView : (ℕ → Bool) → Type where
+  mzv : MView mz
+  msv : ∀ n → MView (ms n)
 
-mview : ∀ f → isMono f → MView f
+mview : ∀ f → isMonotone f → MView f
 mview f mf with f 0 | inspect f 0
-... |  true | [ p ]ᵢ = msv (mp f) (ms-mp f p)
-... | false | [ p ]ᵢ = mzv λ i k → mz-lemma f mf p k i
+... |  true | [ p ]ᵢ = subst MView (ms-mp f p) (msv (mp f))
+... | false | [ p ]ᵢ = subst MView (funExt (mz-lemma f mf p)) mzv
 
-∞ : Mono
+∞ : Monotone
 ∞ .fst _ = true
 ∞ .snd _ = _
 
 Detached : (ℕ → Bool) → Type
 Detached p = Σ[ n ∈ ℕ ] Bool→Type (p n)
 
-Lower : Mono → Type
+Lower : Monotone → Type
 Lower m = Detached (fst m)
 
 Detached-ext
@@ -125,11 +125,11 @@ private
   apart→≢ zero (suc _) _ = znots
   apart→≢ (suc i) (suc j) i#j = apart→≢ i j i#j ∘ cong predℕ
 
-  apart-isProp : ∀ i j → isProp (apart i j)
-  apart-isProp 0 0 = isProp⊥
-  apart-isProp (suc i) (suc j) = apart-isProp i j
-  apart-isProp 0 (suc _) = isPropUnit
-  apart-isProp (suc _) 0 = isPropUnit
+  isPropApart : ∀ i j → isProp (apart i j)
+  isPropApart 0 0 = isProp⊥
+  isPropApart (suc i) (suc j) = isPropApart i j
+  isPropApart 0 (suc _) = isPropUnit
+  isPropApart (suc _) 0 = isPropUnit
 
 _#_ : ∀{P : ℕ → Type ℓ} → Σ ℕ P → Σ ℕ P → Type
 u # v = apart (fst u) (fst v)
@@ -145,11 +145,11 @@ u #? v = decide (fst u) (fst v) where
 #→≢ : ∀{P : ℕ → Type ℓ} (u v : Σ ℕ P) → u # v → ¬ u ≡ v
 #→≢ u v d = apart→≢ (fst u) (fst v) d ∘ cong fst
 
-#-isProp : ∀{P : ℕ → Type ℓ} (u v : Σ ℕ P) → isProp (u # v)
-#-isProp u v = apart-isProp (fst u) (fst v)
+isProp# : ∀{P : ℕ → Type ℓ} (u v : Σ ℕ P) → isProp (u # v)
+isProp# u v = isPropApart (fst u) (fst v)
 
-#-isPropDepᵣ : ∀{P : ℕ → Type ℓ} (v : Σ ℕ P) → isPropDep (λ u → u # v)
-#-isPropDepᵣ v = isOfHLevel→isOfHLevelDep 1 (λ u → #-isProp u v) {_} {_}
+isProp#Depᵣ : ∀{P : ℕ → Type ℓ} (v : Σ ℕ P) → isPropDep (λ u → u # v)
+isProp#Depᵣ v = isOfHLevel→isOfHLevelDep 1 (λ u → isProp# u v) {_} {_}
 
 ≢→# : ∀{p} (u v : Detached p) → ¬ u ≡ v → u # v
 ≢→# u v ¬p = ≢→apart (fst u) (fst v) (¬p ∘ Detached-ext u v)
@@ -246,45 +246,23 @@ iso-pred
 iso-pred i = Untangle.iso- fun inv rightInv leftInv
   where open Iso i
 
-Lower-lemma
-  : ∀ α β → isMono α → isMono β
-  → Iso (Detached α) (Detached β)
-  → α ≡ β
-Lower-lemma α β mα mβ I i k with mview α mα | mview β mβ
-... | mzv p | mzv q = transport (λ i → p i k ≡ q i k) refl i
-Lower-lemma α β mα mβ I i 0 | msv _ p | msv _ q
-  = transport (λ i → p i 0 ≡ q i 0) refl i
-Lower-lemma α β mα mβ I i (suc k) | msv α' p | msv β' q
-  = hcomp (λ τ → λ where
-        (i = i0) → p τ (suc k)
-        (i = i1) → q τ (suc k))
-      (ind i k)
+isInjectiveLower : Lower m ≡ Lower n → m ≡ n
+isInjectiveLower {m} {n} P =
+  curry ΣPathP
+    (lemma (m .fst) (n .fst) (m .snd) (n .snd) (pathToIso P))
+    (isPropDepIsMonotone (m .snd) (n .snd) _)
   where
-  I' : Iso (Detached (ms α')) (Detached (ms β'))
-  I' = transport (λ i → Iso (Detached (p (~ i))) (Detached (q (~ i)))) I
-
-  mα' : isMono α'
-  mα' k = subst⁻ isMono p mα (suc k)
-  mβ' : isMono β'
-  mβ' k = subst⁻ isMono q mβ (suc k)
-
-  ind : α' ≡ β'
-  ind = Lower-lemma α' β' mα' mβ' (iso-pred I')
-  {-# INLINE ind #-}
-
-Lower-lemma α β mα mβ I i k | mzv p | msv β' q
-  = Empty.rec {A = α k ≡ β k} (subst⁻ Detached p (Iso.inv I v) .snd) i
-  where
-  v : Detached β
-  v = subst Detached q dzero
-Lower-lemma α β mα mβ I i k | msv _ p | mzv q
-  = Empty.rec {A = α k ≡ β k} (subst⁻ Detached q (Iso.fun I v) .snd) i
-  where
-  v : Detached α
-  v = subst Detached p dzero
-
-Lower-inj : Lower m ≡ Lower n → m ≡ n
-Lower-inj {m} {n} P
-  = curry ΣPathP
-      (Lower-lemma (m .fst) (n .fst) (m .snd) (n .snd) (pathToIso P))
-      (isMonoIsPropDep (m .snd) (n .snd) _)
+  lemma
+    : ∀ α β → isMonotone α → isMonotone β
+    → Iso (Detached α) (Detached β)
+    → α ≡ β
+  lemma α β mα mβ I i k with mview α mα | mview β mβ
+  ... | mzv | mzv = mz k
+  lemma α β mα mβ I i 0 | msv _ | msv _
+    = true
+  lemma α β mα mβ I i (suc k) | msv α' | msv β'
+    = lemma α' β' (mα ∘ suc) (mβ ∘ suc) (iso-pred I) i k
+  lemma α β mα mβ I i k | mzv | msv β'
+    = Empty.rec {A = α k ≡ β k} (Iso.inv I dzero .snd) i
+  lemma α β mα mβ I i k | msv _ | mzv
+    = Empty.rec {A = α k ≡ β k} (Iso.fun I dzero .snd) i
