@@ -126,14 +126,14 @@ embed Nat.zero .force = zero
 embed (Nat.suc n) .force = suc (embed n)
 
 embed-inj : ∀ m n → embed m ≡ embed n → m ≡ n
-embed-inj m n p with SumPath.encode _ _ (cong force p)
+embed-inj m n p with ⊎Path.encode _ _ (cong force p)
 embed-inj Nat.zero Nat.zero _ | _ = refl
 embed-inj (Nat.suc m) (Nat.suc n) _ | lift q
   = cong Nat.suc (embed-inj m n q)
 
 embed≢∞ : ∀ n → embed n ≡ ∞ → ⊥
-embed≢∞ Nat.zero = lower ∘ SumPath.encode _ _ ∘ cong force
-embed≢∞ (Nat.suc n) = embed≢∞ n ∘ lower ∘ SumPath.encode _ _ ∘ cong force
+embed≢∞ Nat.zero = lower ∘ ⊎Path.encode _ _ ∘ cong force
+embed≢∞ (Nat.suc n) = embed≢∞ n ∘ lower ∘ ⊎Path.encode _ _ ∘ cong force
 
 cover : Nat.ℕ → Conat
 cover Nat.zero = ∞
@@ -245,15 +245,15 @@ module WLPO where
   search-lemma : ∀ α n → search α ≡ ∞ → α n ≡ false
   search-lemma α Nat.zero p with α 0 | cong force p
   ... | false | q = refl
-  ... | true | q = ⊥.rec (SumPath.encode zero (suc ∞) q .lower)
+  ... | true | q = ⊥.rec (⊎Path.encode zero (suc ∞) q .lower)
   search-lemma α (Nat.suc n) p with α 0 | cong force p
   ... | false | q = search-lemma (α ∘ Nat.suc) n (cong wrap q)
-  ... |  true | q = ⊥.rec (SumPath.encode zero (suc ∞) q .lower)
+  ... |  true | q = ⊥.rec (⊎Path.encode zero (suc ∞) q .lower)
 
   search-n : ∀ α n → search α ≡ embed n → α n ≡ true
-  search-n α Nat.zero p with α 0 | SumPath.encode _ _ (cong force p)
+  search-n α Nat.zero p with α 0 | ⊎Path.encode _ _ (cong force p)
   ... |  true | _ = refl
-  search-n α (Nat.suc n) p with α 0 | SumPath.encode _ _ (cong force p)
+  search-n α (Nat.suc n) p with α 0 | ⊎Path.encode _ _ (cong force p)
   ... | false | q = search-n (α ∘ Nat.suc) n (q .lower)
 
 
@@ -281,7 +281,7 @@ module LPO where
     -- So, surjectivity of `cover` implies LPO, since `cover` has
     -- already been shown injective, and surjectivity would make it an
     -- equivalence (as ℕ and Conat are sets).
-    lpo' : Omni.LPO' Nat.ℕ
+    lpo' : Omni.LPO∞ Nat.ℕ
     lpo' α = disc (uncover (search α)) refl where
       disc : ∀ n → uncover (search α) ≡ n → _
       disc Nat.zero p = inl λ n → subst ⟨_⟩ (search-0 α p n)

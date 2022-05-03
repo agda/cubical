@@ -36,14 +36,14 @@ LLPO-isProp : isProp (LLPO A)
 LLPO-isProp = isPropΠ3 λ _ _ _ → squash
 
 -- As above, but without ensuring propositionality
-LLPO' : Type ℓ → Type ℓ
-LLPO' A
+LLPO∞ : Type ℓ → Type ℓ
+LLPO∞ A
   = ∀(P Q : A → 𝟚)
   → (∀ x y → ⟨ P x ⟩ → ⟨ Q y ⟩ → ⊥)
   → (∀ x → ¬ ⟨ P x ⟩) ⊎ (∀ y → ¬ ⟨ Q y ⟩)
 
-LLPO'→LLPO : LLPO' A → LLPO A
-LLPO'→LLPO llpo' P Q ¬both = ∣ llpo' P Q ¬both ∣
+LLPO∞→LLPO : LLPO∞ A → LLPO A
+LLPO∞→LLPO llpo' P Q ¬both = ∣ llpo' P Q ¬both ∣
 
 -- Weak limited principle of omniscience
 --
@@ -89,8 +89,8 @@ WLPO≡WLPO' {A = A} = isoToPath λ where
   where
   open Iso
 
-WLPO→LLPO' : WLPO A → LLPO' A
-WLPO→LLPO' {A = A} womn P Q ¬both with womn P
+WLPO→LLPO∞ : WLPO A → LLPO∞ A
+WLPO→LLPO∞ {A = A} womn P Q ¬both with womn P
 ... | yes ∀¬P = inl ∀¬P
 ... | no ¬∀¬P = inr ∀¬Q where
   ∀¬Q : ∀ y → ¬ ⟨ Q y ⟩
@@ -108,9 +108,8 @@ LPO→WLPO omn P with omn P
 ... | inr ∃P  = no λ ∀¬P → PT.rec isProp⊥ (uncurry ∀¬P) ∃P
 
 -- As above, but without truncation.
-LPO' : Type ℓ → Type ℓ
-LPO' A = ∀(P : A → 𝟚) → (∀ x → ¬ ⟨ P x ⟩) ⊎ (Σ[ x ∈ A ] ⟨ P x ⟩)
+LPO∞ : Type ℓ → Type ℓ
+LPO∞ A = ∀(P : A → 𝟚) → (∀ x → ¬ ⟨ P x ⟩) ⊎ (Σ[ x ∈ A ] ⟨ P x ⟩)
 
-LPO'→LPO : LPO' A → LPO A
-LPO'→LPO omn P = Sum.map (idfun _) ∣_∣ (omn P)
-
+LPO∞→LPO : LPO∞ A → LPO A
+LPO∞→LPO omn P = Sum.map (idfun _) ∣_∣ (omn P)
