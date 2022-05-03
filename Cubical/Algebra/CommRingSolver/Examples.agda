@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.Examples where
+module Cubical.Algebra.CommRingSolver.Examples where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
@@ -10,7 +10,7 @@ open import Cubical.Data.List
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 
 private
   variable
