@@ -13,7 +13,10 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat hiding (_+_ ; _·_; +-comm ; +-assoc; ·-assoc)
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+                                       ; +-comm to +ℕ-comm
+                                       ; +-assoc to +ℕ-assoc
+                                       ; ·-assoc to ·ℕ-assoc)
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.FinData
@@ -24,12 +27,13 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
+open import Cubical.Algebra.CommRing
 
 open Iso
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
 
 -- Equivalence between Vec matrix and Fin function matrix
@@ -247,3 +251,86 @@ module _ (R' : Ring ℓ) where
              addFinMatrix0r addFinMatrixNegMatrixr addFinMatrixComm
              mulFinMatrixAssoc mulFinMatrixr1 mulFinMatrix1r
              mulFinMatrixrDistrAddFinMatrix mulFinMatrixlDistrAddFinMatrix
+
+
+-- Generators of product of two ideals
+
+flatten : {n m : ℕ} → FinMatrix A n m → FinVec A (n ·ℕ m)
+flatten {n = zero} _ ()
+flatten {n = suc n} M = M zero ++Fin flatten (M ∘ suc)
+
+
+flattenElim : {P : A → Type ℓ'} {n m : ℕ} (M : FinMatrix A n m)
+          → (∀ i j → P (M i j))
+          → (∀ i → P (flatten M i))
+flattenElim {n = zero} M PMHyp ()
+flattenElim {n = suc n} {m = zero} M PMHyp ind =
+  ⊥.rec (¬Fin0 (transport (λ i → Fin (0≡m·0 n (~ i))) ind))
+flattenElim {n = suc n} {m = suc m} M PMHyp zero = PMHyp zero zero
+flattenElim {P = P} {n = suc n} {m = suc m} M PMHyp (suc i) =
+  ++FinElim {P = P} (M zero ∘ suc) (flatten (M ∘ suc)) (PMHyp zero ∘ suc)
+    (flattenElim {P = P} (M ∘ suc) (PMHyp ∘ suc)) i
+
+module ProdFin (R' : CommRing ℓ) where
+ private R = fst R'
+ open CommRingStr (snd R') renaming ( is-set to isSetR )
+ open CommRingTheory R'
+ open RingTheory (CommRing→Ring R')
+ open KroneckerDelta (CommRing→Ring R')
+ open Sum (CommRing→Ring R')
+
+ toMatrix : {n m : ℕ} → FinVec R n → FinVec R m → FinMatrix R n m
+ toMatrix V W i j = V i · W j
+
+ _··Fin_ : {n m : ℕ} → FinVec R n → FinVec R m → FinVec R (n ·ℕ m)
+ V ··Fin W = flatten (toMatrix V W)
+
+ Length1··Fin : ∀ (x y : R)
+              → replicateFinVec 1 (x · y) ≡ (replicateFinVec 1 x) ··Fin (replicateFinVec 1 y)
+ Length1··Fin x y = sym (++FinRid (replicateFinVec 1 (x · y)) _)
+
+ ∑Dist··Fin : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
+            → (∑ U) · (∑ V) ≡ ∑ (U ··Fin V)
+ ∑Dist··Fin {n = zero} U V = 0LeftAnnihilates _
+ ∑Dist··Fin {n = suc n} U V =
+  (U zero + ∑ (U ∘ suc)) · (∑ V) ≡⟨ ·Ldist+ _ _ _ ⟩
+  U zero · (∑ V) + (∑ (U ∘ suc)) · (∑ V) ≡⟨ cong₂ (_+_) (∑Mulrdist _ V) (∑Dist··Fin (U ∘ suc) V) ⟩
+  ∑ (λ j → U zero · V j) + ∑ ((U ∘ suc) ··Fin V) ≡⟨ sym (∑Split++ (λ j → U zero · V j) _) ⟩
+  ∑ ((λ j → U zero · V j) ++Fin ((U ∘ suc) ··Fin V)) ∎
+
+
+ ·Dist··Fin : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m)
+            → ∀ j → ((λ i → α i · U i) ··Fin (λ i → β i · V i)) j ≡ (α ··Fin β) j · (U ··Fin V) j
+ ·Dist··Fin {n = n} {m = m} α U β V = equivΠ e (equivHelper α U β V ) .fst
+                                                λ _ → ·CommAssocSwap _ _ _ _
+     where
+     e = (FinProdChar.Equiv n m)
+     equivHelper : {n m : ℕ} (α U : FinVec R n) (β V : FinVec R m) (a : Fin n × Fin m) →
+        (α (fst a) · U (fst a) · (β (snd a) · V (snd a))
+       ≡ α (fst a) · β (snd a) · (U (fst a) · V (snd a)))
+      ≃ (((λ i → α i · U i) ··Fin (λ i → β i · V i)) (FinProdChar.Equiv n m .fst a)
+       ≡ (α ··Fin β) (FinProdChar.Equiv n m .fst a) · (U ··Fin V) (FinProdChar.Equiv n m .fst a))
+     equivHelper {n = suc n} {m = suc m} α U β V (zero , zero) = idEquiv _
+     equivHelper {n = suc n} {m = suc m} α U β V (zero , suc j) = transport
+      (λ 𝕚 → (α zero · U zero · (β (suc j) · V (suc j)) ≡ α zero · β (suc j) · (U zero · V (suc j)))
+           ≃ (FinSumChar.++FinInl m (n ·ℕ suc m)
+               (λ x → α zero · U zero · (β (suc x) · V (suc x)))
+               (flatten (λ x y → α (suc x) · U (suc x) · (β y · V y))) j 𝕚
+           ≡ (FinSumChar.++FinInl m (n ·ℕ suc m)
+               (λ x → α zero · β (suc x)) (flatten (λ x y → α (suc x) · β y)) j 𝕚)
+           · (FinSumChar.++FinInl m (n ·ℕ suc m)
+               (λ x → U zero · V (suc x)) (flatten (λ x y → U (suc x) · V y)) j 𝕚)))
+      (idEquiv _)
+     equivHelper {n = suc n} {m = suc m} α U β V (suc i , j) = transport
+      (λ 𝕚 → (α (suc i) · U (suc i) · (β j · V j) ≡ α (suc i) · β j · (U (suc i) · V j))
+           ≃ (FinSumChar.++FinInr m (n ·ℕ suc m)
+               (λ x → α zero · U zero · (β (suc x) · V (suc x)))
+               (flatten (λ x y → α (suc x) · U (suc x) · (β y · V y)))
+               (FinProdChar.Equiv n (suc m) .fst (i , j)) 𝕚
+           ≡ (FinSumChar.++FinInr m (n ·ℕ suc m)
+               (λ x → α zero · β (suc x)) (flatten (λ x y → α (suc x) · β y))
+               (FinProdChar.Equiv n (suc m) .fst (i , j)) 𝕚)
+           · (FinSumChar.++FinInr m (n ·ℕ suc m)
+               (λ x → U zero · V (suc x)) (flatten (λ x y → U (suc x) · V y))
+               (FinProdChar.Equiv n (suc m) .fst (i , j)) 𝕚)))
+       (equivHelper (α ∘ suc) (U ∘ suc) β V _)

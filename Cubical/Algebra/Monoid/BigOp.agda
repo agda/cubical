@@ -52,3 +52,8 @@ module MonoidBigOp (M' : Monoid ℓ) where
   ≡⟨ assoc _ _ _ ⟩
     V zero · bigOp (V ∘ suc) · (W zero · bigOp (W ∘ suc)) ∎
 
+ bigOpSplit++ : (∀ x y → x · y ≡ y · x)
+              → {n m : ℕ} → (V : FinVec M n) → (W : FinVec M m)
+              → bigOp (V ++Fin W) ≡ bigOp V · bigOp W
+ bigOpSplit++ comm {n = zero} V W = sym (lid _)
+ bigOpSplit++ comm {n = suc n} V W = cong (V zero ·_) (bigOpSplit++ comm (V ∘ suc) W) ∙ assoc _ _ _

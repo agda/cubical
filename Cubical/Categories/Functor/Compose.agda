@@ -11,8 +11,7 @@ open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Instances.Functors
 
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
-  {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'}
-  (E : Precategory ℓE ℓE') ⦃ isCatE : isCategory E ⦄
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (E : Category ℓE ℓE')
   (F : Functor C D)
   where
 
@@ -27,9 +26,7 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   precomposeF .F-seq f g = refl
 
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
-  (C : Precategory ℓC ℓC')
-  {D : Precategory ℓD ℓD'} ⦃ isCatD : isCategory D ⦄
-  {E : Precategory ℓE ℓE'} ⦃ isCatE : isCategory E ⦄
+  (C : Category ℓC ℓC') {D : Category ℓD ℓD'} {E : Category ℓE ℓE'}
   (G : Functor D E)
   where
 

@@ -1,7 +1,8 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Ring.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
@@ -9,8 +10,11 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
+open import Cubical.Relation.Binary.Poset
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
@@ -20,9 +24,11 @@ open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring.Base
 
+open import Cubical.HITs.PropositionalTruncation
+
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' ℓ''' ℓ'''' : Level
 
 {-
   some basic calculations (used for example in QuotientRing.agda),
@@ -163,17 +169,90 @@ module RingTheory (R' : Ring ℓ) where
   ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
 
 
-module HomTheory {R S : Ring ℓ} (f′ : RingHom  R S) where
+module RingHoms where
+  open IsRingHom
+
+  idRingHom : (R : Ring ℓ) → RingHom R R
+  fst (idRingHom R) = idfun (fst R)
+  snd (idRingHom R) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+
+  compIsRingHom : {A : Ring ℓ} {B : Ring ℓ'} {C : Ring ℓ''}
+    {g : ⟨ B ⟩ → ⟨ C ⟩} {f : ⟨ A ⟩ → ⟨ B ⟩}
+    → IsRingHom (B .snd) g (C .snd)
+    → IsRingHom (A .snd) f (B .snd)
+    → IsRingHom (A .snd) (g ∘ f) (C .snd)
+  compIsRingHom {g = g} {f} gh fh .pres0 = cong g (fh .pres0) ∙ gh .pres0
+  compIsRingHom {g = g} {f} gh fh .pres1 = cong g (fh .pres1) ∙ gh .pres1
+  compIsRingHom {g = g} {f} gh fh .pres+ x y = cong g (fh .pres+ x y) ∙ gh .pres+ (f x) (f y)
+  compIsRingHom {g = g} {f} gh fh .pres· x y = cong g (fh .pres· x y) ∙ gh .pres· (f x) (f y)
+  compIsRingHom {g = g} {f} gh fh .pres- x = cong g (fh .pres- x) ∙ gh .pres- (f x)
+
+  compRingHom : {R : Ring ℓ} {S : Ring ℓ'} {T : Ring ℓ''}
+              → RingHom R S → RingHom S T → RingHom R T
+  fst (compRingHom f g) x = g .fst (f .fst x)
+  snd (compRingHom f g) = compIsRingHom (g .snd) (f .snd)
+
+  syntax compRingHom f g = g ∘r f
+
+  compIdRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
+  compIdRingHom φ = RingHom≡ refl
+
+  idCompRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom φ (idRingHom S) ≡ φ
+  idCompRingHom φ = RingHom≡ refl
+
+  compAssocRingHom : {R S T U : Ring ℓ} (φ : RingHom R S) (ψ : RingHom S T) (χ : RingHom T U) →
+                     compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
+  compAssocRingHom _ _ _ = RingHom≡ refl
+
+module RingEquivs where
+  open RingStr
+  open IsRingHom
+  open RingHoms
+
+  compIsRingEquiv : {A : Ring ℓ} {B : Ring ℓ'} {C : Ring ℓ''}
+    {g : ⟨ B ⟩ ≃ ⟨ C ⟩} {f : ⟨ A ⟩ ≃ ⟨ B ⟩}
+    → IsRingEquiv (B .snd) g (C .snd)
+    → IsRingEquiv (A .snd) f (B .snd)
+    → IsRingEquiv (A .snd) (compEquiv f g) (C .snd)
+  compIsRingEquiv {g = g} {f} gh fh = compIsRingHom {g = g .fst} {f .fst} gh fh
+
+  compRingEquiv : {A : Ring ℓ} {B : Ring ℓ'} {C : Ring ℓ''}
+                → RingEquiv A B → RingEquiv B C → RingEquiv A C
+  fst (compRingEquiv f g) = compEquiv (f .fst) (g .fst)
+  snd (compRingEquiv f g) = compIsRingEquiv {g = g .fst} {f = f .fst} (g .snd) (f .snd)
+
+  isRingHomInv : {A : Ring ℓ} → {B : Ring ℓ'} → (e : RingEquiv A B) → IsRingHom (snd B) (invEq (fst e)) (snd A)
+  isRingHomInv {A = A} {B = B} e = makeIsRingHom
+                         ((cong g (sym (pres1 fcrh))) ∙ retEq et (1r (snd A)))
+                         (λ x y → g (snd B ._+_ x y)                 ≡⟨ cong g (sym (cong₂ (snd B ._+_) (secEq et x) (secEq et y))) ⟩
+                                   g (snd B ._+_ (f (g x)) (f (g y))) ≡⟨ cong g (sym (pres+ fcrh (g x) (g y))) ⟩
+                                   g (f (snd A ._+_ (g x) (g y)))     ≡⟨ retEq et (snd A ._+_ (g x) (g y)) ⟩
+                                   snd A ._+_ (g x) (g y)  ∎)
+                         (λ x y → g (snd B ._·_ x y)                 ≡⟨ cong g (sym (cong₂ (snd B ._·_) (secEq et x) (secEq et y))) ⟩
+                                   g (snd B ._·_ (f (g x)) (f (g y))) ≡⟨ cong g (sym (pres· fcrh (g x) (g y))) ⟩
+                                   g (f (snd A ._·_ (g x) (g y)))     ≡⟨ retEq et (snd A ._·_ (g x) (g y)) ⟩
+                                   snd A ._·_ (g x) (g y)  ∎)
+               where
+               et = fst e
+               f = fst et
+               fcrh = snd e
+               g = invEq et
+
+  invEquivRing : {A : Ring ℓ} → {B : Ring ℓ'} → RingEquiv A B → RingEquiv B A
+  fst (invEquivRing e) = invEquiv (fst e)
+  snd (invEquivRing e) = isRingHomInv e
+
+module RingHomTheory {R S : Ring ℓ} (φ : RingHom R S) where
   open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
-  open IsRingHom (f′ .snd)
+  open IsRingHom (φ .snd)
   private
     instance
       _ = R
       _ = S
       _ = snd R
       _ = snd S
-    f = fst f′
+    f = fst φ
 
   ker≡0→inj : ({x : ⟨ R ⟩} → f x ≡ 0r → x ≡ 0r)
             → ({x y : ⟨ R ⟩} → f x ≡ f y → x ≡ y)
@@ -187,15 +266,67 @@ module HomTheory {R S : Ring ℓ} (f′ : RingHom  R S) where
           0r            ∎
 
 
-module _{R S : Ring ℓ} (φ ψ : RingHom R S) where
- open RingStr ⦃...⦄
- open IsRingHom
- private
-   instance
-     _ = R
-     _ = S
-     _ = snd R
-     _ = snd S
+-- the Ring version of uaCompEquiv
+module RingUAFunctoriality where
+ open RingStr
+ open RingEquivs
 
- RingHom≡f : fst φ ≡ fst ψ → φ ≡ ψ
- RingHom≡f = Σ≡Prop λ f → isPropIsRingHom _ f _
+ Ring≡ : (A B : Ring ℓ) → (
+   Σ[ p ∈ ⟨ A ⟩ ≡ ⟨ B ⟩ ]
+   Σ[ q0 ∈ PathP (λ i → p i) (0r (snd A)) (0r (snd B)) ]
+   Σ[ q1 ∈ PathP (λ i → p i) (1r (snd A)) (1r (snd B)) ]
+   Σ[ r+ ∈ PathP (λ i → p i → p i → p i) (_+_ (snd A)) (_+_ (snd B)) ]
+   Σ[ r· ∈ PathP (λ i → p i → p i → p i) (_·_ (snd A)) (_·_ (snd B)) ]
+   Σ[ s ∈ PathP (λ i → p i → p i) (-_ (snd A)) (-_ (snd B)) ]
+   PathP (λ i → IsRing (q0 i) (q1 i) (r+ i) (r· i) (s i)) (isRing (snd A)) (isRing (snd B)))
+   ≃ (A ≡ B)
+ Ring≡ A B = isoToEquiv theIso
+   where
+   open Iso
+   theIso : Iso _ _
+   fun theIso (p , q0 , q1 , r+ , r· , s , t) i = p i
+                                                , ringstr (q0 i) (q1 i) (r+ i) (r· i) (s i) (t i)
+   inv theIso x = cong ⟨_⟩ x , cong (0r ∘ snd) x , cong (1r ∘ snd) x
+                , cong (_+_ ∘ snd) x , cong (_·_ ∘ snd) x , cong (-_ ∘ snd) x , cong (isRing ∘ snd) x
+   rightInv theIso _ = refl
+   leftInv theIso _ = refl
+
+ caracRing≡ : {A B : Ring ℓ} (p q : A ≡ B) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
+ caracRing≡ {A = A} {B = B} p q P =
+   sym (transportTransport⁻ (ua (Ring≡ A B)) p)
+                                    ∙∙ cong (transport (ua (Ring≡ A B))) helper
+                                    ∙∙ transportTransport⁻ (ua (Ring≡ A B)) q
+     where
+     helper : transport (sym (ua (Ring≡ A B))) p ≡ transport (sym (ua (Ring≡ A B))) q
+     helper = Σ≡Prop
+                (λ _ → isPropΣ
+                          (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
+                          λ _ → isPropΣ (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
+                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
+                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
+                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ λ _ → is-set (snd B)) _ _)
+                          λ _ → isOfHLevelPathP 1 (isPropIsRing _ _ _ _ _) _ _)
+               (transportRefl (cong ⟨_⟩ p) ∙ P ∙ sym (transportRefl (cong ⟨_⟩ q)))
+
+ uaCompRingEquiv : {A B C : Ring ℓ} (f : RingEquiv A B) (g : RingEquiv B C)
+                  → uaRing (compRingEquiv f g) ≡ uaRing f ∙ uaRing g
+ uaCompRingEquiv f g = caracRing≡ _ _ (
+   cong ⟨_⟩ (uaRing (compRingEquiv f g))
+     ≡⟨ uaCompEquiv _ _ ⟩
+   cong ⟨_⟩ (uaRing f) ∙ cong ⟨_⟩ (uaRing g)
+     ≡⟨ sym (cong-∙ ⟨_⟩ (uaRing f) (uaRing g)) ⟩
+   cong ⟨_⟩ (uaRing f ∙ uaRing g) ∎)
+
+
+
+open RingEquivs
+open RingUAFunctoriality
+recPT→Ring : {A : Type ℓ'} (𝓕  : A → Ring ℓ)
+           → (σ : ∀ x y → RingEquiv (𝓕 x) (𝓕 y))
+           → (∀ x y z → σ x z ≡ compRingEquiv (σ x y) (σ y z))
+          ------------------------------------------------------
+           → ∥ A ∥ → Ring ℓ
+recPT→Ring 𝓕 σ compCoh = rec→Gpd isGroupoidRing 𝓕
+  (3-ConstantCompChar 𝓕 (λ x y → uaRing (σ x y))
+                          λ x y z → sym (  cong uaRing (compCoh x y z)
+                                         ∙ uaCompRingEquiv (σ x y) (σ y z)))

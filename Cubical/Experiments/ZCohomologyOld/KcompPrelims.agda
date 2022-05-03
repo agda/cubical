@@ -3,7 +3,8 @@ module Cubical.Experiments.ZCohomologyOld.KcompPrelims where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Hopf
+open import Cubical.Homotopy.Hopf
+open S¹Hopf
 -- open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1

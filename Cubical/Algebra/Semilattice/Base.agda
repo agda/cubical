@@ -80,7 +80,7 @@ makeIsSemilattice : {L : Type ℓ} {ε : L} {_·_ : L → L → L}
                (idem : (x : L) → x · x ≡ x)
              → IsSemilattice ε _·_
 IsSemilattice.isCommMonoid (makeIsSemilattice is-setL assoc rid lid comm idem) =
-                                        makeIsCommMonoid is-setL assoc rid lid comm
+                                        makeIsCommMonoid is-setL assoc rid comm
 IsSemilattice.idem (makeIsSemilattice is-setL assoc rid lid comm idem) = idem
 
 makeSemilattice : {L : Type ℓ} (ε : L) (_·_ : L → L → L)
@@ -103,6 +103,9 @@ Semilattice→Monoid : Semilattice ℓ → Monoid ℓ
 Semilattice→Monoid (_ , semilatticestr _ _ H) =
                     _ , monoidstr _ _ (H .IsSemilattice.isCommMonoid .IsCommMonoid.isMonoid)
 
+Semilattice→CommMonoid : Semilattice ℓ → CommMonoid ℓ
+Semilattice→CommMonoid (_ , semilatticestr _ _ H) =
+                        _ , commmonoidstr _ _ (H .IsSemilattice.isCommMonoid)
 
 SemilatticeHom : (L : Semilattice ℓ) (M : Semilattice ℓ') → Type (ℓ-max ℓ ℓ')
 SemilatticeHom L M = MonoidHom (Semilattice→Monoid L) (Semilattice→Monoid M)
@@ -131,7 +134,7 @@ isPropIsSemilattice ε _·_ (issemilattice LL LC) (issemilattice SL SC) =
   𝒮ᴰ-Record (𝒮-Univ _) IsSemilatticeEquiv
     (fields:
       data[ ε ∣ autoDUARel _ _ ∣ presε ]
-      data[ _·_ ∣ autoDUARel _ _ ∣ isHom ]
+      data[ _·_ ∣ autoDUARel _ _ ∣ pres· ]
       prop[ isSemilattice ∣ (λ _ _ → isPropIsSemilattice _ _) ])
   where
   open SemilatticeStr
@@ -145,9 +148,13 @@ SemilatticePath = ∫ 𝒮ᴰ-Semilattice .UARel.ua
 module JoinSemilattice (L' : Semilattice ℓ) where
  private L = fst L'
  open SemilatticeStr (snd L') renaming (_·_ to _∨l_ ; ε to 1l)
+ open CommMonoidTheory (Semilattice→CommMonoid L')
+
 
  _≤_ : L → L → Type ℓ
  x ≤ y = x ∨l y ≡ y
+
+ infix 4 _≤_
 
  IndPoset : Poset ℓ ℓ
  fst IndPoset = L
@@ -166,13 +173,33 @@ module JoinSemilattice (L' : Semilattice ℓ) where
  IsPoset.is-antisym (PosetStr.isPoset (snd IndPoset)) =
    λ _ _ a∨b≡b b∨a≡a → sym b∨a≡a ∙∙ comm _ _ ∙∙ a∨b≡b
 
+ ∨lIsMax : ∀ x y z → x ≤ z → y ≤ z → x ∨l y ≤ z
+ ∨lIsMax x y z x≤z y≤z = cong ((x ∨l y) ∨l_) (sym (idem z)) ∙ commAssocSwap x y z z
+                                                            ∙ cong₂ (_∨l_) x≤z y≤z
+                                                            ∙ idem z
+
+ ∨≤LCancel : ∀ x y → y ≤ x ∨l y
+ ∨≤LCancel x y = commAssocl y x y ∙ cong (x ∨l_) (idem y)
+
+ ∨≤RCancel : ∀ x y → x ≤ x ∨l y
+ ∨≤RCancel x y = assoc _ _ _ ∙ cong (_∨l y) (idem x)
+
+ ≤-∨Pres : ∀ x y u w → x ≤ y → u ≤ w → x ∨l u ≤ y ∨l w
+ ≤-∨Pres x y u w x≤y u≤w = commAssocSwap x u y w ∙ cong₂ (_∨l_) x≤y u≤w
+
+ ≤-∨LPres : ∀ x y z → x ≤ y → z ∨l x ≤ z ∨l y
+ ≤-∨LPres x y z x≤y = ≤-∨Pres _ _ _ _ (idem z) x≤y
+
 
 module MeetSemilattice (L' : Semilattice ℓ) where
  private L = fst L'
  open SemilatticeStr (snd L') renaming (_·_ to _∧l_ ; ε to 0l)
+ open CommMonoidTheory (Semilattice→CommMonoid L')
 
  _≤_ : L → L → Type ℓ
  x ≤ y = x ∧l y ≡ x
+
+ infix 4 _≤_
 
  IndPoset : Poset ℓ ℓ
  fst IndPoset = L
@@ -190,3 +217,17 @@ module MeetSemilattice (L' : Semilattice ℓ) where
                             a ∎
  IsPoset.is-antisym (PosetStr.isPoset (snd IndPoset)) =
    λ _ _ a∧b≡a b∧a≡b → sym a∧b≡a ∙∙ comm _ _ ∙∙ b∧a≡b
+
+ ≤-∧LPres : ∀ x y z → x ≤ y → z ∧l x ≤ z ∧l y
+ ≤-∧LPres x y z x≤y = commAssocSwap z x z y ∙∙ cong (_∧l (x ∧l y)) (idem z) ∙∙ cong (z ∧l_) x≤y
+
+ ∧≤LCancel : ∀ x y → x ∧l y ≤ y
+ ∧≤LCancel x y = sym (assoc _ _ _) ∙ cong (x ∧l_) (idem y)
+
+ ∧≤RCancel : ∀ x y → x ∧l y ≤ x
+ ∧≤RCancel x y = commAssocr x y x ∙ cong (_∧l y) (idem x)
+
+ ∧lIsMin : ∀ x y z → z ≤ x → z ≤ y → z ≤ x ∧l y
+ ∧lIsMin x y z z≤x z≤y = cong (_∧l (x ∧l y)) (sym (idem z)) ∙ commAssocSwap z z x y
+                                                            ∙ cong₂ (_∧l_) z≤x z≤y
+                                                            ∙ idem z

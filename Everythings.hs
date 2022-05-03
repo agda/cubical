@@ -85,7 +85,7 @@ genEverythings =
   mapM_ (\dir -> do
     let fp = addToFP ["Cubical"] dir
     files <- getMissingFiles fp Nothing
-    let ls = ["{-# OPTIONS --safe --guardedness #-}",
+    let ls = ["{-# OPTIONS --safe #-}",
               "module " ++ showFP '.' (addToFP fp "Everything") ++ " where",[]]
              ++ sort (fmap (\file -> "import " ++ showFP '.' file)
                            (delete (addToFP fp "Everything") files))

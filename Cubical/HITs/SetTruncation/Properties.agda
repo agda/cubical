@@ -17,6 +17,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Pointed.Base
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation
   renaming (rec to pRec ; elim to pElim) hiding (elim2 ; elim3 ; rec2 ; map)
@@ -25,6 +26,9 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
     A B C D : Type ℓ
+
+isSetPathImplicit : {x y : ∥ A ∥₂} → isSet (x ≡ y)
+isSetPathImplicit = isOfHLevelPath 2 squash₂ _ _
 
 rec : isSet B → (A → B) → ∥ A ∥₂ → B
 rec Bset f ∣ x ∣₂ = f x
@@ -199,6 +203,11 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
 
 map : (A → B) → ∥ A ∥₂ → ∥ B ∥₂
 map f = rec squash₂ λ x → ∣ f x ∣₂
+
+map∙ : {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'}
+       (f : A →∙ B) → ∥ A ∥₂∙ →∙ ∥ B ∥₂∙
+fst (map∙ f) = map (fst f)
+snd (map∙ f) = cong ∣_∣₂ (snd f)
 
 setTruncUniversal : isSet B → (∥ A ∥₂ → B) ≃ (A → B)
 setTruncUniversal {B = B} Bset =

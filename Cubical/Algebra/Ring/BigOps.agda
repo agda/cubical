@@ -59,6 +59,10 @@ module Sum (R' : Ring ℓ) where
  ∑Split : ∀ {n} → (V W : FinVec R n) → ∑ (λ i → V i + W i) ≡ ∑ V + ∑ W
  ∑Split = bigOpSplit +Comm
 
+ ∑Split++ : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
+          → ∑ (V ++Fin W) ≡ ∑ V + ∑ W
+ ∑Split++ = bigOpSplit++ +Comm
+
  ∑Mulrdist : ∀ {n} → (x : R) → (V : FinVec R n)
                 → x · ∑ V ≡ ∑ λ i → x · V i
  ∑Mulrdist {n = zero}  x _ = 0RightAnnihilates x

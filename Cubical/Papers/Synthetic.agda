@@ -39,7 +39,7 @@ import Cubical.HITs.Pushout.Properties        as PushProp
 import Cubical.HITs.Join                      as Join
 import Cubical.HITs.Join.Properties           as JoinProp
 -- 5.
-import Cubical.HITs.Hopf                      as Hopf
+import Cubical.Homotopy.Hopf                  as Hopf
 
 --------------------------------------------------------------------------------
 -- 2.  Cubical Agda
@@ -207,8 +207,8 @@ open JoinProp using (join-assoc) public
 
 -- rot (denoted by _·_ here) in the paper is substituted by a rot and rotLoop in S1
 open S1 using (_·_ ; rotLoop) public
-open Hopf renaming ( HopfSuspS¹ to Hopf
-                   ; JoinS¹S¹→TotalHopf to j2h
-                   ; TotalHopf→JoinS¹S¹ to h2j)
-          using (HopfS²) public
+open Hopf.S¹Hopf renaming ( HopfSuspS¹ to Hopf
+                          ; JoinS¹S¹→TotalHopf to j2h
+                          ; TotalHopf→JoinS¹S¹ to h2j)
+                 using (HopfS²) public
 open S1 renaming (rotInv-1 to lem-rot-inv) public

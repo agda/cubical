@@ -22,6 +22,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
@@ -39,23 +40,18 @@ private
   variable
     ℓ : Level
 
-private
-  natTranspLem : ∀ {A B : ℕ → Type} {n m : ℕ} (a : A n)
-    (f : (n : ℕ) → (a : A n) → B n) (p : n ≡ m)
-    → f m (subst A p a) ≡ subst B p (f n a)
-  natTranspLem {A = A} {B = B} a f p = sym (substCommSlice A B f p a)
+natTranspLem : ∀ {ℓ} {A B : ℕ → Type ℓ} {n m : ℕ} (a : A n)
+  (f : (n : ℕ) → (a : A n) → B n) (p : n ≡ m)
+  → f m (subst A p a) ≡ subst B p (f n a)
+natTranspLem {A = A} {B = B} a f p = sym (substCommSlice A B f p a)
 
-+'-comm : (n m : ℕ) → n +' m ≡ m +' n
-+'-comm n m = +'≡+ n m ∙∙ +-comm n m ∙∙ sym (+'≡+ m n)
+transp0₁ : (n : ℕ) → subst coHomK (+'-comm 1 (suc n)) (0ₖ _) ≡ 0ₖ _
+transp0₁ zero = refl
+transp0₁ (suc n) = refl
 
-private
-  transp0₁ : (n : ℕ) → subst coHomK (+'-comm 1 (suc n)) (0ₖ _) ≡ 0ₖ _
-  transp0₁ zero = refl
-  transp0₁ (suc n) = refl
-
-  transp0₂ : (n m : ℕ) → subst coHomK (+'-comm (suc (suc n)) (suc m)) (0ₖ _) ≡ 0ₖ _
-  transp0₂ n zero = refl
-  transp0₂ n (suc m) = refl
+transp0₂ : (n m : ℕ) → subst coHomK (+'-comm (suc (suc n)) (suc m)) (0ₖ _) ≡ 0ₖ _
+transp0₂ n zero = refl
+transp0₂ n (suc m) = refl
 
 -- Recurring expressions
 private
@@ -97,8 +93,7 @@ private
 
 -- -ₖⁿ̇*ᵐ
 -ₖ^_·_ : {k : ℕ} (n m : ℕ) → coHomK k → coHomK k
--ₖ^_·_ {k = zero} n m = -ₖ-helper {k = zero} n m (evenOrOdd n) (evenOrOdd m)
--ₖ^_·_ {k = suc k} n m = trMap (-ₖ-helper n m (evenOrOdd n) (evenOrOdd m))
+-ₖ^_·_ {k = k} n m = -ₖ-gen n m (evenOrOdd n) (evenOrOdd m)
 
 -- cohomology version
 -ₕ^_·_ : {k : ℕ} {A : Type ℓ} (n m : ℕ) → coHom k A → coHom k A
@@ -152,6 +147,37 @@ private
          λ { north → refl
            ; south → cong ∣_∣ₕ (merid (ptSn _))
            ; (merid a i) k → ∣ compPath-filler (merid a) (sym (merid (ptSn _))) (~ k) i  ∣ₕ}
+
+-ₖ-gen² : {k : ℕ} (n m : ℕ)
+         (p : isEvenT n ⊎ isOddT n)
+         (q : isEvenT m ⊎ isOddT m)
+         → (x : coHomK k) → -ₖ-gen n m p q (-ₖ-gen n m p q x) ≡ x
+-ₖ-gen² {k = zero} n m (inl x₁) q x = refl
+-ₖ-gen² {k = zero} n m (inr x₁) (inl x₂) x = refl
+-ₖ-gen² {k = zero} n m (inr x₁) (inr x₂) x =
+     cong (pos 0 -_) (-AntiComm (pos 0) x)
+  ∙∙ -AntiComm (pos 0) (-ℤ (x - pos 0))
+  ∙∙ h x
+  where
+  h : (x : _) →  -ℤ (-ℤ (x - pos 0) - pos 0) ≡ x
+  h (pos zero) = refl
+  h (pos (suc n)) = refl
+  h (negsuc n) = refl
+-ₖ-gen² {k = suc k} n m (inl x₁) q x i =
+  -ₖ-gen-inl-left n m x₁ q (-ₖ-gen-inl-left n m x₁ q x i) i
+-ₖ-gen² {k = suc k} n m (inr x₁) (inl x₂) x i =
+  -ₖ-gen-inl-right n m (inr x₁) x₂ (-ₖ-gen-inl-right n m (inr x₁) x₂ x i) i
+-ₖ-gen² {k = suc k} n m (inr x₁) (inr x₂) x =
+  (λ i → -ₖ-gen-inr≡-ₖ n m x₁ x₂ (-ₖ-gen-inr≡-ₖ n m x₁ x₂ x i) i) ∙ -ₖ^2 x
+
+-ₖ-genIso : {k : ℕ} (n m : ℕ)
+         (p : isEvenT n ⊎ isOddT n)
+         (q : isEvenT m ⊎ isOddT m)
+       → Iso (coHomK k) (coHomK k)
+Iso.fun (-ₖ-genIso {k = k} n m p q) = -ₖ-gen n m p q
+Iso.inv (-ₖ-genIso {k = k} n m p q) = -ₖ-gen n m p q
+Iso.rightInv (-ₖ-genIso {k = k} n m p q) = -ₖ-gen² n m p q
+Iso.leftInv (-ₖ-genIso {k = k} n m p q) = -ₖ-gen² n m p q
 
 -- action of cong on -ₖⁿ̇*ᵐ
 cong-ₖ-gen-inr : {k : ℕ} (n m : ℕ)  (p : _) (q : _) (P : Path (coHomK (2 + k)) (0ₖ _) (0ₖ _))

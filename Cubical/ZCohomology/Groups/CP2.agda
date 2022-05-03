@@ -25,14 +25,12 @@ open import Cubical.Data.Int
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
-open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup ; Unit to UnitGroup)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup)
 
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Hopf
 open import Cubical.HITs.Join
 open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; map to sMap)
@@ -41,6 +39,9 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.HITs.Truncation
 
 open import Cubical.Relation.Nullary
+
+open import Cubical.Homotopy.Hopf
+open S¹Hopf
 
 open IsGroupHom
 open Iso
@@ -149,7 +150,7 @@ private
           → B (transp (λ j → isoToPath IsoS³TotalHopf (i ∨ ~ j)) i (north , base)) → (x : _) → B x)
           λ B hLev elim-TotalHopf → sphereElim _ (λ _ → hLev _) elim-TotalHopf
 
-H¹-CP²≅0 : GroupIso (coHomGr 1 CP²) UnitGroup
+H¹-CP²≅0 : GroupIso (coHomGr 1 CP²) UnitGroup₀
 H¹-CP²≅0 =
   contrGroupIsoUnit
     (isOfHLevelRetractFromIso 0 (setTruncIso characFunSpaceCP²)
@@ -194,7 +195,7 @@ H¹-CP²≅0 =
                  λ k → transp (λ i → y (north , base) (~ i ∧ ~ k) ≡ ∣ base ∣) k
                                 λ j → y (north , base) (~ k ∨ j))
 
-Hⁿ-CP²≅0-higher : (n : ℕ) → ¬ (n ≡ 1) → GroupIso (coHomGr (3 +ℕ n) CP²) UnitGroup
+Hⁿ-CP²≅0-higher : (n : ℕ) → ¬ (n ≡ 1) → GroupIso (coHomGr (3 +ℕ n) CP²) UnitGroup₀
 Hⁿ-CP²≅0-higher n p = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (main x)))
   where
   h : GroupHom (coHomGr (2 +ℕ n) TotalHopf) (coHomGr (3 +ℕ n) CP²)
@@ -223,7 +224,7 @@ Hⁿ-CP²≅0-higher n p = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (main x))
 
 -- All trivial groups:
 Hⁿ-CP²≅0 : (n : ℕ) → ¬ suc n ≡ 2 → ¬ suc n ≡ 4
-       → GroupIso (coHomGr (suc n) CP²) UnitGroup
+       → GroupIso (coHomGr (suc n) CP²) UnitGroup₀
 Hⁿ-CP²≅0 zero p q = H¹-CP²≅0
 Hⁿ-CP²≅0 (suc zero) p q = ⊥-rec (p refl)
 Hⁿ-CP²≅0 (suc (suc zero)) p q = Hⁿ-CP²≅0-higher 0 λ p → snotz (sym p)

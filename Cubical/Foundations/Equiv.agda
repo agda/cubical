@@ -20,7 +20,6 @@ module Cubical.Foundations.Equiv where
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Foundations.Equiv.Base public
 open import Cubical.Data.Sigma.Base
@@ -29,6 +28,8 @@ private
   variable
     ℓ ℓ' ℓ''  : Level
     A B C D : Type ℓ
+
+infixr 30 _∙ₑ_
 
 equivIsEquiv : (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = snd e
@@ -150,6 +151,8 @@ compEquiv {A = A} {C = C} f g .snd .equiv-proof c = contr
           })
         (g .fst (f .snd .equiv-proof (f .fst a) .snd (a , refl) k .snd j))
 
+_∙ₑ_ = compEquiv
+
 compEquivIdEquiv : (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
 compEquivIdEquiv e = equivEq refl
 
@@ -230,35 +233,42 @@ equiv→Iso h k .Iso.leftInv f = funExt λ a → retEq k _ ∙ cong f (retEq h a
 equiv→ : (A ≃ B) → (C ≃ D) → (A → C) ≃ (B → D)
 equiv→ h k = isoToEquiv (equiv→Iso h k)
 
-equivΠ : ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {A' : Type ℓA'}
+
+equivΠ' : ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {A' : Type ℓA'}
   {B : A → Type ℓB} {B' : A' → Type ℓB'}
   (eA : A ≃ A')
-  (eB : (a : A) → B a ≃ B' (eA .fst a))
+  (eB : {a : A} {a' : A'} → eA .fst a ≡ a' → B a ≃ B' a')
   → ((a : A) → B a) ≃ ((a' : A') → B' a')
-equivΠ {B' = B'} eA eB = isoToEquiv isom
+equivΠ' {B' = B'} eA eB = isoToEquiv isom
   where
   open Iso
 
   isom : Iso _ _
   isom .fun f a' =
-    subst B' (secEq eA a') (eB _ .fst (f (invEq eA a')))
+    eB (secEq eA a') .fst (f (invEq eA a'))
   isom .inv f' a =
-    invEq (eB _) (f' (eA .fst a))
+    invEq (eB refl) (f' (eA .fst a))
   isom .rightInv f' =
     funExt λ a' →
-    cong (subst B' (secEq eA a')) (secEq (eB _) _)
-    ∙ fromPathP (cong f' (secEq eA a'))
+    J (λ a'' p → eB p .fst (invEq (eB refl) (f' (p i0))) ≡ f' a'')
+      (secEq (eB refl) (f' (eA .fst (invEq eA a'))))
+      (secEq eA a')
   isom .leftInv f =
     funExt λ a →
-    invEq (eB a) (subst B' (secEq eA _) (eB _ .fst (f (invEq eA (eA .fst a)))))
-      ≡⟨ cong (λ t → invEq (eB a) (subst B' t (eB _ .fst (f (invEq eA (eA .fst a))))))
-           (commPathIsEq (snd eA) a) ⟩
-    invEq (eB a) (subst B' (cong (eA .fst) (retEq eA a)) (eB _ .fst (f (invEq eA (eA .fst a)))))
-      ≡⟨ cong (invEq (eB a)) (fromPathP (λ i → eB _ .fst (f (retEq eA a i)))) ⟩
-    invEq (eB a) (eB a .fst (f a))
-      ≡⟨ retEq (eB _) (f a) ⟩
-    f a
-    ∎
+    subst
+      (λ p → invEq (eB refl) (eB p .fst (f (invEq eA (eA .fst a)))) ≡ f a)
+      (sym (commPathIsEq (eA .snd) a))
+      (J (λ a'' p → invEq (eB refl) (eB (cong (eA .fst) p) .fst (f (invEq eA (eA .fst a)))) ≡ f a'')
+        (retEq (eB refl) (f (invEq eA (eA .fst a))))
+        (retEq eA a))
+
+equivΠ : ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {A' : Type ℓA'}
+  {B : A → Type ℓB} {B' : A' → Type ℓB'}
+  (eA : A ≃ A')
+  (eB : (a : A) → B a ≃ B' (eA .fst a))
+  → ((a : A) → B a) ≃ ((a' : A') → B' a')
+equivΠ {B = B} {B' = B'} eA eB = equivΠ' eA (λ {a = a} p → J (λ a' p → B a ≃ B' a') (eB a) p)
+
 
 equivCompIso : (A ≃ B) → (C ≃ D) → Iso (A ≃ C) (B ≃ D)
 equivCompIso h k .Iso.fun f = compEquiv (compEquiv (invEquiv h) f) k
@@ -287,3 +297,22 @@ composesToId→Equiv f g id iseqf =
                 ∙∙ cong (λ x → equiv-proof iseqf (f b) .fst .fst) id
                 ∙∙ λ i → equiv-proof iseqf (f b) .snd (b , refl) i .fst)
          λ a i → id i a)
+
+precomposesToId→Equiv : (f : A → B) (g : B → A) → f ∘ g ≡ idfun B → isEquiv g → isEquiv f
+precomposesToId→Equiv f g id iseqg =  subst isEquiv (sym f-≡-g⁻) (snd (invEquiv (_ , iseqg)))
+  where
+     g⁻ = invEq (g , iseqg)
+
+     f-≡-g⁻ : _
+     f-≡-g⁻ = cong (f ∘_ ) (cong fst (sym (invEquiv-is-linv (g , iseqg)))) ∙ cong (_∘ g⁻) id
+
+-- equivalence between isEquiv and isEquiv'
+
+isEquiv-isEquiv'-Iso : (f : A → B) → Iso (isEquiv f) (isEquiv' f)
+isEquiv-isEquiv'-Iso f .fun p = p .equiv-proof
+isEquiv-isEquiv'-Iso f .inv q .equiv-proof = q
+isEquiv-isEquiv'-Iso f .rightInv q = refl
+isEquiv-isEquiv'-Iso f .leftInv p i .equiv-proof = p .equiv-proof
+
+isEquiv≃isEquiv' : (f : A → B) → isEquiv f ≃ isEquiv' f
+isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)

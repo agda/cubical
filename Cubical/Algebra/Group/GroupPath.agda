@@ -79,8 +79,12 @@ module _ (G : Group ℓ) {A : Type ℓ} (m : A → A → A)
   InducedGroup .snd .inv = inducedΣ .snd .fst
   InducedGroup .snd .isGroup = inducedΣ .snd .snd
 
+  InducedGroupEquiv : GroupEquiv G InducedGroup
+  fst InducedGroupEquiv = e
+  snd InducedGroupEquiv = makeIsGroupHom p·
+
   InducedGroupPath : G ≡ InducedGroup
-  InducedGroupPath = GroupPath _ _ .fst (e , makeIsGroupHom p·)
+  InducedGroupPath = GroupPath _ _ .fst InducedGroupEquiv
 
 uaGroup : {G H : Group ℓ} → GroupEquiv G H → G ≡ H
 uaGroup {G = G} {H = H} = equivFun (GroupPath G H)
@@ -127,3 +131,20 @@ uaCompGroupEquiv f g = caracGroup≡ _ _ (
   cong ⟨_⟩ (uaGroup f) ∙ cong ⟨_⟩ (uaGroup g)
     ≡⟨ sym (cong-∙ ⟨_⟩ (uaGroup f) (uaGroup g)) ⟩
   cong ⟨_⟩ (uaGroup f ∙ uaGroup g) ∎)
+
+-- J-rule for GroupEquivs
+GroupEquivJ : {G : Group ℓ} (P : (H : Group ℓ) → GroupEquiv G H → Type ℓ')
+            → P G idGroupEquiv
+            → ∀ {H} e → P H e
+GroupEquivJ {G = G} P p {H} e =
+  transport (λ i → P (GroupPath G H .fst e i)
+    (transp (λ j → GroupEquiv G (GroupPath G H .fst e (i ∨ ~ j))) i e))
+      (subst (P G) (sym lem) p)
+  where
+  lem : transport (λ j → GroupEquiv G (GroupPath G H .fst e (~ j))) e
+       ≡ idGroupEquiv
+  lem = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+       (Σ≡Prop (λ _ → isPropIsEquiv _)
+         (funExt λ x → (λ i → fst (fst (fst e .snd .equiv-proof
+                          (transportRefl (fst (fst e) (transportRefl x i)) i))))
+                         ∙ retEq (fst e) x))

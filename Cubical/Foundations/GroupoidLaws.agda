@@ -199,12 +199,20 @@ doubleCompPath-elim' : {ℓ : Level} {A : Type ℓ} {w x y z : A} (p : w ≡ x) 
                        (r : y ≡ z) → (p ∙∙ q ∙∙ r) ≡ p ∙ (q ∙ r)
 doubleCompPath-elim' p q r = (split-leftright' p q r) ∙ (sym (leftright p (q ∙ r)))
 
+cong-∙∙-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x y z w : A}
+     (f : A → B) (p : w ≡ x) (q : x ≡ y) (r : y ≡ z)
+  → I → I → I → B
+cong-∙∙-filler {A = A} f p q r k j i =
+  hfill ((λ k → λ { (j = i1) → doubleCompPath-filler (cong f p) (cong f q) (cong f r) k i
+                   ; (j = i0) → f (doubleCompPath-filler p q r k i)
+                   ; (i = i0) → f (p (~ k))
+                   ; (i = i1) → f (r k) }))
+    (inS (f (q i)))
+    k
+
 cong-∙∙ : ∀ {B : Type ℓ} (f : A → B) (p : w ≡ x) (q : x ≡ y) (r : y ≡ z)
           → cong f (p ∙∙ q ∙∙ r) ≡ (cong f p) ∙∙ (cong f q) ∙∙ (cong f r)
-cong-∙∙ f p q r j i = hcomp (λ k → λ { (j = i0) → f (doubleCompPath-filler p q r k i)
-                                     ; (i = i0) → f (p (~ k))
-                                     ; (i = i1) → f (r k) })
-                            (f (q i))
+cong-∙∙ f p q r j i = cong-∙∙-filler f p q r i1 j i
 
 cong-∙ : ∀ {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z)
          → cong f (p ∙ q) ≡ (cong f p) ∙ (cong f q)
@@ -481,3 +489,18 @@ pentagonIdentity {x = x} {y} p q r s =
     lemma₁₀ : ( i j : I) → _ ≡ _
     lemma₁₀ i j i₁ =
         (cube-comp₀₋₋ lemma₁₀-front (sym lemma₁₀-back')) i j i₁
+
+-- misc.
+∙∙lCancel-fill : ∀ {ℓ} {A : Type ℓ} {x y : A}
+         → (p : x ≡ y)
+         → I → I → I → A
+∙∙lCancel-fill p i j k =
+  hfill (λ k → λ { (i = i1) → p k
+                  ; (j = i0) → p k
+                  ; (j = i1) → p k})
+        (inS (p i0)) k
+
+∙∙lCancel : ∀ {ℓ} {A : Type ℓ} {x y : A}
+         → (p : x ≡ y)
+         → sym p ∙∙ refl ∙∙ p ≡ refl
+∙∙lCancel p i j = ∙∙lCancel-fill p i j i1

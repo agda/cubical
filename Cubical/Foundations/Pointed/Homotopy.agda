@@ -61,7 +61,7 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
       s = g₂
       P≡Q : P ≡ Q
       P≡Q = p ≡ r ∙ s ⁻¹
-              ≡⟨ isoToPath (symIso p (r ∙ s ⁻¹)) ⟩
+              ≡⟨ isoToPath symIso ⟩
             r ∙ s ⁻¹ ≡ p
               ≡⟨ cong (r ∙ s ⁻¹ ≡_) (rUnit p ∙∙ cong (p ∙_) (sym (rCancel s)) ∙∙ assoc p s (s ⁻¹)) ⟩
             r ∙ s ⁻¹ ≡ (p ∙ s) ∙ s ⁻¹

@@ -37,7 +37,7 @@ open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; map2 to trMap2; rec to trRec ; elim3 to trElim3)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
-open import Cubical.Algebra.Group hiding (Unit ; ℤ)
+open import Cubical.Algebra.Group hiding (ℤ)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
@@ -644,11 +644,33 @@ isOfHLevel↑∙∙ n m (suc l) =
       (λ i → coHomK-ptd (suc n) →∙ →∙KnPath (coHomK-ptd (suc m)) (suc (suc (l + n + m))) (~ i))
       (isOfHLevel↑∙∙ n m l)
 
--- Misc.
-isoType→isoCohom : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ)
+----------- Misc. ------------
+isoType→isoCohom : {A : Type ℓ} {B : Type ℓ'} (n : ℕ)
   → Iso A B
   → GroupIso (coHomGr n A) (coHomGr n B)
 fst (isoType→isoCohom n is) = setTruncIso (domIso is)
 snd (isoType→isoCohom n is) =
   makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
     (λ _ _ → refl))
+
+-- Explicit index swapping for cohomology groups
+transportCohomIso :  {A : Type ℓ} {n m : ℕ}
+                  → (p : n ≡ m)
+                  → GroupIso (coHomGr n A) (coHomGr m A)
+Iso.fun (fst (transportCohomIso {A = A} p)) = subst (λ n → coHom n A) p
+Iso.inv (fst (transportCohomIso {A = A} p)) = subst (λ n → coHom n A) (sym p)
+Iso.rightInv (fst (transportCohomIso p)) =
+  transportTransport⁻ (cong (\ n → coHomGr n _ .fst) p)
+Iso.leftInv (fst (transportCohomIso p)) =
+  transportTransport⁻ (cong (\ n → coHomGr n _ .fst) (sym p))
+snd (transportCohomIso {A = A} {n = n} {m = m} p) =
+  makeIsGroupHom (λ x y → help x y p)
+  where
+  help : (x y : coHom n A) (p : n ≡ m)
+    → subst (λ n → coHom n A) p (x +ₕ y)
+     ≡ subst (λ n → coHom n A) p x +ₕ subst (λ n → coHom n A) p y
+  help x y =
+    J (λ m p → subst (λ n → coHom n A) p (x +ₕ y)
+              ≡ subst (λ n → coHom n A) p x +ₕ subst (λ n → coHom n A) p y)
+      (transportRefl (x +ₕ y)
+      ∙ cong₂ _+ₕ_ (sym (transportRefl x)) (sym (transportRefl y)))

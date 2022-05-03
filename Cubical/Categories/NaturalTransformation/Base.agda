@@ -1,5 +1,4 @@
 {-# OPTIONS --safe #-}
-
 module Cubical.Categories.NaturalTransformation.Base where
 
 open import Cubical.Foundations.Prelude
@@ -15,16 +14,16 @@ open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' : Level
+    ℓA ℓA' ℓB ℓB' ℓC ℓC' ℓD ℓD' : Level
 
-module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   -- syntax for sequencing in category D
   infixl 15 _⋆ᴰ_
   private
     _⋆ᴰ_ : ∀ {x y z} (f : D [ x , y ]) (g : D [ y , z ]) → D [ x , z ]
     f ⋆ᴰ g = f ⋆⟨ D ⟩ g
 
-  open Precategory
+  open Category
   open Functor
 
   -- type aliases because it gets tedious typing it out all the time
@@ -48,7 +47,7 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
     open NatTrans trans
 
     field
-      nIso : ∀ (x : C .ob) → isIsoC {C = D} (N-ob x)
+      nIso : ∀ (x : C .ob) → isIsoC D (N-ob x)
 
     open isIsoC
 
@@ -79,17 +78,17 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
 
   -- component of a natural transformation
   infix 30 _⟦_⟧
-  _⟦_⟧ : ∀ {F G : Functor C D} → (F ⇒ G) → (x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]
+  _⟦_⟧ : ∀ {F G : Functor C D} → F ⇒ G → (x : C .ob) → D [ F .F-ob x , G .F-ob x ]
   _⟦_⟧ = N-ob
 
   idTrans : (F : Functor C D) → NatTrans F F
-  idTrans F .N-ob x = D .id (F .F-ob x)
+  idTrans F .N-ob x  = D .id
   idTrans F .N-hom f =
       (F .F-hom f) ⋆ᴰ (idTrans F .N-ob _)
     ≡⟨ D .⋆IdR _ ⟩
       F .F-hom f
     ≡⟨ sym (D .⋆IdL _) ⟩
-      (D .id (F .F-ob _)) ⋆ᴰ (F .F-hom f)
+      (D .id) ⋆ᴰ (F .F-hom f)
     ∎
 
   syntax idTrans F = 1[ F ]
@@ -172,9 +171,8 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
                             ; (i = i1) → right j })
                    (β .N-hom f i)
 
-
-  module _  ⦃ isCatD : isCategory D ⦄ {F G : Functor C D} {α β : NatTrans F G} where
-    open Precategory
+  module _ {F G : Functor C D} {α β : NatTrans F G} where
+    open Category
     open Functor
     open NatTrans
 
@@ -182,31 +180,26 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
     makeNatTransPath p i .N-ob = p i
     makeNatTransPath p i .N-hom f = rem i
       where
-        rem : PathP (λ i → (F .F-hom f) ⋆ᴰ (p i _) ≡ (p i _) ⋆ᴰ (G .F-hom f)) (α .N-hom f) (β .N-hom f)
-        rem = toPathP (isCatD .isSetHom _ _ _ _)
+        rem : PathP (λ i → (F .F-hom f) ⋆ᴰ (p i _) ≡ (p i _) ⋆ᴰ (G .F-hom f))
+                    (α .N-hom f) (β .N-hom f)
+        rem = toPathP (D .isSetHom _ _ _ _)
 
-  module _  ⦃ isCatD : isCategory D ⦄ {F F' G G' : Functor C D}
-            {α : NatTrans F G}
-            {β : NatTrans F' G'} where
-    open Precategory
+  module _  {F F' G G' : Functor C D} {α : NatTrans F G} {β : NatTrans F' G'} where
+    open Category
     open Functor
     open NatTrans
     makeNatTransPathP : ∀ (p : F ≡ F') (q : G ≡ G')
-                      → PathP (λ i → (x : C .ob) → D [ (p i) .F-ob x , (q i) .F-ob x ]) (α .N-ob) (β .N-ob)
+                      → PathP (λ i → (x : C .ob) → D [ (p i) .F-ob x , (q i) .F-ob x ])
+                              (α .N-ob) (β .N-ob)
                       → PathP (λ i → NatTrans (p i) (q i)) α β
     makeNatTransPathP p q P i .N-ob = P i
     makeNatTransPathP p q P i .N-hom f = rem i
       where
-        rem : PathP (λ i → ((p i) .F-hom f) ⋆ᴰ (P i _) ≡ (P i _) ⋆ᴰ ((q i) .F-hom f)) (α .N-hom f) (β .N-hom f)
-        rem = toPathP (isCatD .isSetHom _ _ _ _)
+        rem : PathP (λ i → ((p i) .F-hom f) ⋆ᴰ (P i _) ≡ (P i _) ⋆ᴰ ((q i) .F-hom f))
+                    (α .N-hom f) (β .N-hom f)
+        rem = toPathP (D .isSetHom _ _ _ _)
 
-
-
-private
-  variable
-    ℓA ℓA' ℓB ℓB' : Level
-
-module _ {B : Precategory ℓB ℓB'} {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
+module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   open NatTrans
   -- whiskering
   -- αF
@@ -220,3 +213,7 @@ module _ {B : Precategory ℓB ℓB'} {C : Precategory ℓC ℓC'} {D : Precateg
        → NatTrans (K ∘F G) (K ∘F H)
   (_∘ʳ_ K {G} {H} β) .N-ob x = K ⟪ β ⟦ x ⟧ ⟫
   (_∘ʳ_ K {G} {H} β) .N-hom f = preserveCommF {C = C} {D = D} {K} (β .N-hom f)
+
+  whiskerTrans : {F F' : Functor B C} {G G' : Functor C D} (β : NatTrans G G') (α : NatTrans F F')
+    → NatTrans (G ∘F F) (G' ∘F F')
+  whiskerTrans {F}{F'}{G}{G'} β α = compTrans (β ∘ˡ F') (G ∘ʳ α)

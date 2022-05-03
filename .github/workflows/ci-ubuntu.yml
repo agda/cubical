@@ -53,7 +53,7 @@ jobs:
       - name: Initialise variables
         run: |
           # Pick Agda version
-          echo "AGDA_BRANCH=v2.6.2" >> $GITHUB_ENV
+          echo "AGDA_BRANCH=v2.6.2.2" >> $GITHUB_ENV
 
       ########################################################################
       ## CACHING
@@ -123,3 +123,17 @@ jobs:
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             RUNHASKELL='~/.ghcup/bin/runhaskell'
+
+      - name: Htmlize cubical
+        run: |
+          make listings \
+            AGDA_EXEC='~/.cabal/bin/agda -W error' \
+            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
+            RUNHASKELL='~/.ghcup/bin/runhaskell'
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref_name == 'master'
+        uses: JamesIves/github-pages-deploy-action@4.1.8
+        with:
+          branch: gh-pages
+          folder: html

@@ -32,7 +32,7 @@ v : ℕ → R.Term
 v n = R.var n []
 
 pattern varg t = R.arg (R.arg-info R.visible (R.modality R.relevant R.quantity-ω)) t
-pattern harg t = R.arg (R.arg-info R.hidden (R.modality R.relevant R.quantity-ω)) t
+pattern harg {q = q} t = R.arg (R.arg-info R.hidden (R.modality R.relevant q)) t
 pattern _v∷_ a l = varg a ∷ l
 pattern _h∷_ a l = harg a ∷ l
 
@@ -45,10 +45,6 @@ hlam : String → R.Term → R.Term
 hlam str t = R.lam R.hidden (R.abs str t)
 
 newMeta = R.checkType R.unknown
-
-extend*Context : ∀ {ℓ} {A : Type ℓ} → List (R.Arg R.Type) → R.TC A → R.TC A
-extend*Context [] tac = tac
-extend*Context (a ∷ as) tac = R.extendContext a (extend*Context as tac)
 
 makeAuxiliaryDef : String → R.Type → R.Term → R.TC R.Term
 makeAuxiliaryDef s ty term =

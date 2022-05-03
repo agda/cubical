@@ -17,7 +17,7 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Vec
@@ -29,7 +29,7 @@ open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.RingSolver.ReflectionSolving
+open import Cubical.Algebra.RingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -102,7 +102,8 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
  isEquivRel.transitive locIsEquivRel = locTrans
 
  _+ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
- _+ₗ_ = setQuotSymmBinOp locRefl locTrans _+ₚ_ +ₚ-symm θ
+ _+ₗ_ = setQuotSymmBinOp locRefl locTrans _+ₚ_
+         (λ a b → subst (λ x → (a +ₚ b) ≈ x) (+ₚ-symm a b) (locRefl (a +ₚ b))) θ
   where
   _+ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) +ₚ (r₂ , s₂ , s₂∈S) =
@@ -110,7 +111,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
 
   +ₚ-symm : (a b : R × S) → (a +ₚ b) ≡ (b +ₚ a)
   +ₚ-symm (r₁ , s₁ , s₁∈S) (r₂ , s₂ , s₂∈S) =
-          ΣPathP (+Comm _ _ , Σ≡Prop (λ x → S' x .snd) (·-comm _ _))
+          ΣPathP (+Comm _ _ , Σ≡Prop (λ x → S' x .snd) (·Comm _ _))
 
   θ : (a a' b : R × S) → a ≈ a' → (a +ₚ b) ≈ (a' +ₚ b)
   θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) ((s , s∈S) , p) = (s , s∈S) , path
@@ -201,12 +202,13 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
   where
   +ₗ-comm[] : (a b : R × S) → ([ a ] +ₗ [ b ]) ≡ ([ b ] +ₗ [ a ])
   +ₗ-comm[] (r , s , s∈S) (r' , s' , s'∈S) =
-            cong [_] (ΣPathP ((+Comm _ _) , Σ≡Prop (λ x → ∈-isProp S' x) (·-comm _ _)))
+            cong [_] (ΣPathP ((+Comm _ _) , Σ≡Prop (λ x → ∈-isProp S' x) (·Comm _ _)))
 
 
  -- Now for multiplication
  _·ₗ_ : S⁻¹R → S⁻¹R → S⁻¹R
- _·ₗ_ = setQuotSymmBinOp locRefl locTrans _·ₚ_ ·ₚ-symm θ
+ _·ₗ_ = setQuotSymmBinOp locRefl locTrans _·ₚ_
+         (λ a b → subst (λ x → (a ·ₚ b) ≈ x) (·ₚ-symm a b) (locRefl (a ·ₚ b))) θ
   where
   _·ₚ_ : R × S → R × S → R × S
   (r₁ , s₁ , s₁∈S) ·ₚ (r₂ , s₂ , s₂∈S) =
@@ -214,7 +216,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
 
   ·ₚ-symm : (a b : R × S) → (a ·ₚ b) ≡ (b ·ₚ a)
   ·ₚ-symm (r₁ , s₁ , s₁∈S) (r₂ , s₂ , s₂∈S) =
-          ΣPathP (·-comm _ _ , Σ≡Prop (λ x → S' x .snd) (·-comm _ _))
+          ΣPathP (·Comm _ _ , Σ≡Prop (λ x → S' x .snd) (·Comm _ _))
 
   θ : (a a' b : R × S) → a ≈ a' → (a ·ₚ b) ≈ (a' ·ₚ b)
   θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) ((s , s∈S) , p) = (s , s∈S) , path
@@ -267,7 +269,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
    where
    ·ₗ-comm[] : (a b : R × S) → [ a ] ·ₗ [ b ] ≡ [ b ] ·ₗ [ a ]
    ·ₗ-comm[] (r , s , s∈S) (r' , s' , s'∈S) =
-             cong [_] (ΣPathP ((·-comm _ _) , Σ≡Prop (λ x → ∈-isProp S' x) (·-comm _ _)))
+             cong [_] (ΣPathP ((·Comm _ _) , Σ≡Prop (λ x → ∈-isProp S' x) (·Comm _ _)))
 
 
 

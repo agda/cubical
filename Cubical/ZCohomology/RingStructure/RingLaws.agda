@@ -1,5 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.RingStructure.RingLaws where
+
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties
@@ -15,6 +16,7 @@ open import Cubical.HITs.Truncation renaming (elim to trElim)
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
@@ -100,12 +102,14 @@ private
   snd (⌣ₖ-distrFun2 n m x y) =
     cong₂ _+ₖ_ (0ₖ-⌣ₖ m n x) (0ₖ-⌣ₖ m n y) ∙ rUnitₖ _ _
 
-  leftDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n)) → ⌣ₖ-distrFun (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2 (suc n) (suc m) x y
+  leftDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n))
+    → ⌣ₖ-distrFun (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2 (suc n) (suc m) x y
   leftDistr-⌣ₖ· n m =
     elim2 (λ _ _ → isOfHLevelSuc (2 + n) (hLevHelp n m _ _))
           main
     where
-    hLevHelp : (n m : ℕ) (x y : _) → isOfHLevel (2 + n) ( ⌣ₖ-distrFun (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2 (suc n) (suc m) x y)
+    hLevHelp : (n m : ℕ) (x y : _)
+      → isOfHLevel (2 + n) ( ⌣ₖ-distrFun (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2 (suc n) (suc m) x y)
     hLevHelp n m x y =
       (subst (isOfHLevel (3 + n))
         (λ i → (coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (+-comm n m i)))))
@@ -228,7 +232,8 @@ private
   snd (⌣ₖ-distrFun2-r n m x y) =
     cong₂ _+ₖ_ (⌣ₖ-0ₖ n m x) (⌣ₖ-0ₖ n m y) ∙ rUnitₖ _ _
 
-  rightDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n)) → ⌣ₖ-distrFun-r (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2-r (suc n) (suc m) x y
+  rightDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n))
+    → ⌣ₖ-distrFun-r (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2-r (suc n) (suc m) x y
   rightDistr-⌣ₖ· n m =
     elim2 (λ _ _ → isOfHLevelPath (3 + n) (isOfHLevel↑∙ (suc n) m) _ _)
           main
@@ -588,13 +593,16 @@ assoc-⌣ₖ (suc n) (suc m) (suc k) x y z =
 -- Ring laws for ⌣
 module _ {A : Type ℓ} (n m : ℕ) where
   ⌣-0ₕ : (f : coHom n A) → (f ⌣ 0ₕ m) ≡ 0ₕ _
-  ⌣-0ₕ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _) λ f → cong ∣_∣₂ (funExt λ x → ⌣ₖ-0ₖ n m (f x))
+  ⌣-0ₕ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+                λ f → cong ∣_∣₂ (funExt λ x → ⌣ₖ-0ₖ n m (f x))
 
   0ₕ-⌣ : (f : coHom m A) → (0ₕ n ⌣ f) ≡ 0ₕ _
-  0ₕ-⌣ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _) λ f → cong ∣_∣₂ (funExt λ x → 0ₖ-⌣ₖ n m (f x))
+  0ₕ-⌣ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+                λ f → cong ∣_∣₂ (funExt λ x → 0ₖ-⌣ₖ n m (f x))
 
 
-  leftDistr-⌣ : (f : coHom n A) (g h : coHom m A) → f ⌣ (g +ₕ h) ≡ f ⌣ g +ₕ f ⌣ h
+  leftDistr-⌣ : (f : coHom n A) (g h : coHom m A)
+              → f ⌣ (g +ₕ h) ≡ f ⌣ g +ₕ f ⌣ h
   leftDistr-⌣ =
     sElim (λ _ → isSetΠ2 λ _ _ → isOfHLevelPath 2 squash₂ _ _)
       λ f → sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
@@ -637,6 +645,10 @@ private
   n+'0 zero = refl
   n+'0 (suc n) = refl
 
+lUnit⌣ₖ : (n : ℕ) (x : coHomK n) → _⌣ₖ_ {n = 0} (pos 1) x ≡ x
+lUnit⌣ₖ zero = λ _ → refl
+lUnit⌣ₖ (suc n) x = rUnitₖ _ x
+
 lUnit⌣ : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (x : coHom n A)
   → x ⌣ 1⌣ ≡ subst (λ n → coHom n A) (sym (n+'0 n)) x
 lUnit⌣ zero = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
@@ -653,5 +665,26 @@ rUnit⌣ zero = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
 rUnit⌣ (suc n) =
   sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
                λ f → cong ∣_∣₂ (funExt λ x → rUnitₖ _ (f x))
+
+-ₕDistᵣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
+  (x : coHom n A) (y : coHom m A) → (-ₕ (x ⌣ y)) ≡ x ⌣ (-ₕ y)
+-ₕDistᵣ n m =
+  sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    λ f g → cong ∣_∣₂ (funExt λ x → -Distᵣ n m (f x) (g x))
+
+-ₕDistₗ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
+  (x : coHom n A) (y : coHom m A) → (-ₕ (x ⌣ y)) ≡ (-ₕ x) ⌣ y
+-ₕDistₗ n m =
+  sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    λ f g → cong ∣_∣₂ (funExt λ x → -Distₗ n m (f x) (g x))
+
+-ₕDistₗᵣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
+  (x : coHom n A) (y : coHom m A) → (-ₕ x) ⌣ (-ₕ y) ≡ x ⌣ y
+-ₕDistₗᵣ n m x y =
+     sym (-ₕDistₗ n m x (-ₕ y))
+  ∙∙ cong -ₕ_ (sym (-ₕDistᵣ n m x y))
+  ∙∙ sElim2 {C = λ x y → (-ₕ (-ₕ (x ⌣ y))) ≡ x ⌣ y}
+            (λ _ _ → isSetPathImplicit)
+            (λ f g → cong ∣_∣₂ (funExt λ _ → -ₖ^2 _)) x y
 
 -- TODO : Graded ring structure

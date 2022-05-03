@@ -1,21 +1,22 @@
 {-# OPTIONS --safe #-}
 
-open import Cubical.Categories.Category
-open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open Iso
 open import Cubical.Foundations.HLevels
-open Precategory
-open import Cubical.Core.Glue
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport using (transpFill)
 
-module Cubical.Categories.Constructions.Slice {ℓ ℓ' : Level} (C : Precategory ℓ ℓ') (c : C .ob) {{isC : isCategory C}} where
+open import Cubical.Categories.Category
+open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
 
 open import Cubical.Data.Sigma
 
+open Category
+open isUnivalent
+open Iso
+
+module Cubical.Categories.Constructions.Slice {ℓ ℓ' : Level} (C : Category ℓ ℓ') (c : C .ob) where
 
 -- just a helper to prevent redundency
 TypeC : Type (ℓ-suc (ℓ-max ℓ ℓ'))
@@ -87,7 +88,7 @@ SliceHom-≡-intro' : ∀ {a b} {f g : C [ a .S-ob , b .S-ob ]} {c₁} {c₂}
 SliceHom-≡-intro' {a} {b} {f} {g} {c₁} {c₂} p i = slicehom (p i) (c₁≡c₂ i)
   where
     c₁≡c₂ : PathP (λ i → (p i) ⋆⟨ C ⟩ (b .S-arr) ≡ a .S-arr) c₁ c₂
-    c₁≡c₂ = isOfHLevel→isOfHLevelDep 1 (λ _ → isC .isSetHom _ _) c₁ c₂ p
+    c₁≡c₂ = isOfHLevel→isOfHLevelDep 1 (λ _ → C .isSetHom _ _) c₁ c₂ p
 
 -- SliceHom is isomorphic to the Sigma type with the same components
 SliceHom-Σ-Iso : ∀ {a b}
@@ -98,13 +99,13 @@ SliceHom-Σ-Iso .rightInv = λ x → refl
 SliceHom-Σ-Iso .leftInv = λ x → refl
 
 
--- Precategory definition
+-- Category definition
 
-SliceCat : Precategory _ _
-SliceCat .ob = SliceOb
-SliceCat .Hom[_,_] = SliceHom
-SliceCat .id (sliceob {x} f) = slicehom (C .id x) (C .⋆IdL _)
-SliceCat ._⋆_ {sliceob j} {sliceob k} {sliceob l} (slicehom f p) (slicehom g p') =
+SliceCat : Category (ℓ-max ℓ ℓ') ℓ'
+ob SliceCat = SliceOb
+Hom[_,_] SliceCat = SliceHom
+id SliceCat = slicehom (C .id) (C .⋆IdL _)
+_⋆_ SliceCat {sliceob j} {sliceob k} {sliceob l} (slicehom f p) (slicehom g p') =
   slicehom
     (f ⋆⟨ C ⟩ g)
     ( f ⋆⟨ C ⟩ g ⋆⟨ C ⟩ l
@@ -115,19 +116,13 @@ SliceCat ._⋆_ {sliceob j} {sliceob k} {sliceob l} (slicehom f p) (slicehom g p
     ≡⟨ p ⟩
       j
     ∎)
-SliceCat .⋆IdL (slicehom S-hom S-comm) =
-  SliceHom-≡-intro (⋆IdL C _) (toPathP (isC .isSetHom _ _ _ _))
-SliceCat .⋆IdR (slicehom S-hom S-comm) =
-  SliceHom-≡-intro (⋆IdR C _) (toPathP (isC .isSetHom _ _ _ _))
-SliceCat .⋆Assoc f g h =
-  SliceHom-≡-intro (⋆Assoc C _ _ _) (toPathP (isC .isSetHom _ _ _ _))
-
-
--- SliceCat is a Category
-
-instance
-  isCatSlice : isCategory SliceCat
-  isCatSlice .isSetHom {a} {b} (slicehom f c₁) (slicehom g c₂) p q = cong isoP p'≡q'
+⋆IdL SliceCat (slicehom S-hom S-comm) =
+  SliceHom-≡-intro (⋆IdL C _) (toPathP (C .isSetHom _ _ _ _))
+⋆IdR SliceCat (slicehom S-hom S-comm) =
+  SliceHom-≡-intro (⋆IdR C _) (toPathP (C .isSetHom _ _ _ _))
+⋆Assoc SliceCat f g h =
+  SliceHom-≡-intro (⋆Assoc C _ _ _) (toPathP (C .isSetHom _ _ _ _))
+isSetHom SliceCat {a} {b} (slicehom f c₁) (slicehom g c₂) p q = cong isoP p'≡q'
     where
       -- paths between SliceHoms are equivalent to the projection paths
       p' : Σ[ p ∈ f ≡ g ] PathP (λ i → (p i) ⋆⟨ C ⟩ (S-arr b) ≡ S-arr a) c₁ c₂
@@ -140,11 +135,11 @@ instance
 
       -- need the groupoidness for dependent paths
       isGroupoidDepHom : isOfHLevelDep 2 B
-      isGroupoidDepHom = isOfHLevel→isOfHLevelDep 2 (λ v x y → isSet→isGroupoid (isC .isSetHom) _ _ x y)
+      isGroupoidDepHom = isOfHLevel→isOfHLevelDep 2 (λ v x y → isSet→isGroupoid (C .isSetHom) _ _ x y)
 
       -- we first prove that the projected paths are equal
       p'≡q' : p' ≡ q'
-      p'≡q' = ΣPathP ((isC .isSetHom _ _ _ _) , toPathP (isGroupoidDepHom _ _ _ _ _))
+      p'≡q' = ΣPathP (C .isSetHom _ _ _ _ , toPathP (isGroupoidDepHom _ _ _ _ _))
 
       -- and then we can use equivalence to lift these paths up
       -- to actual SliceHom paths
@@ -163,18 +158,18 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
     -- names for the equivalences/isos
 
-    pathIsoEquiv : (x ≡ y) ≃ (CatIso x y)
+    pathIsoEquiv : (x ≡ y) ≃ (CatIso _ x y)
     pathIsoEquiv = univEquiv isU x y
 
-    isoPathEquiv : (CatIso x y) ≃ (x ≡ y)
+    isoPathEquiv : (CatIso _ x y) ≃ (x ≡ y)
     isoPathEquiv = invEquiv pathIsoEquiv
 
-    pToIIso' : Iso (x ≡ y) (CatIso x y)
+    pToIIso' : Iso (x ≡ y) (CatIso _ x y)
     pToIIso' = equivToIso pathIsoEquiv
 
     -- the iso in SliceCat we're given induces an iso in C between x and y
-    module _ ( cIso@(catiso kc lc s r) : CatIso {C = SliceCat} xf yg ) where
-      extractIso' : CatIso {C = C} x y
+    module _ ( cIso@(catiso kc lc s r) : CatIso SliceCat xf yg ) where
+      extractIso' : CatIso C x y
       extractIso' .mor = kc .S-hom
       extractIso' .inv = lc .S-hom
       extractIso' .sec i = (s i) .S-hom
@@ -186,12 +181,12 @@ module _ ⦃ isU : isUnivalent C ⦄ where
     preservesUnivalenceSlice .univ xf@(sliceob {x} f) yg@(sliceob {y} g) = isoToIsEquiv sIso
       where
         -- this is just here because the type checker can't seem to infer xf and yg
-        pToIIso : Iso (x ≡ y) (CatIso x y)
+        pToIIso : Iso (x ≡ y) (CatIso _ x y)
         pToIIso = pToIIso' {xf = xf} {yg}
 
         -- the meat of the proof
-        sIso : Iso (xf ≡ yg) (CatIso xf yg)
-        sIso .fun p = pathToIso xf yg p -- we use the normal pathToIso via path induction to get an isomorphism
+        sIso : Iso (xf ≡ yg) (CatIso _ xf yg)
+        sIso .fun p = pathToIso p -- we use the normal pathToIso via path induction to get an isomorphism
         sIso .inv is@(catiso kc lc s r) = SliceOb-≡-intro x≡y (symP (sym (lc .S-comm) ◁ lf≡f))
           where
             -- we get a path between xf and yg by combining paths between
@@ -206,7 +201,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             l = lc .S-hom
 
             -- extract out the iso between x and y
-            extractIso : CatIso {C = C} x y
+            extractIso : CatIso C x y
             extractIso = extractIso' is
 
             -- and we can use univalence of C to get x ≡ y
@@ -215,19 +210,19 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
             -- to show that f ≡ g, we show that l ≡ id
             -- by using C's isomorphism
-            pToI≡id : PathP (λ i → C [ x≡y (~ i) , x ]) (pathToIso {C = C} x y x≡y .inv) (C .id x)
-            pToI≡id = J (λ y p → PathP (λ i → C [ p (~ i) , x ]) (pathToIso {C = C} x y p .inv) (C .id x))
+            pToI≡id : PathP (λ i → C [ x≡y (~ i) , x ]) (pathToIso {C = C} x≡y .inv) (C .id)
+            pToI≡id = J (λ y p → PathP (λ i → C [ p (~ i) , x ]) (pathToIso {C = C} p .inv) (C .id))
                         (λ j → JRefl pToIFam pToIBase j .inv)
                         x≡y
               where
-                idx = C .id x
-                pToIFam = (λ z _ → CatIso {C = C} x z)
-                pToIBase = catiso (C .id x) idx (C .⋆IdL idx) (C .⋆IdL idx)
+                idx = C .id
+                pToIFam = (λ z _ → CatIso C x z)
+                pToIBase = catiso (C .id) idx (C .⋆IdL idx) (C .⋆IdL idx)
 
-            l≡pToI : l ≡ pathToIso {C = C} x y x≡y .inv
+            l≡pToI : l ≡ pathToIso {C = C} x≡y .inv
             l≡pToI i = pToIIso .rightInv extractIso (~ i) .inv
 
-            l≡id : PathP (λ i → C [ x≡y (~ i) , x ]) l (C .id x)
+            l≡id : PathP (λ i → C [ x≡y (~ i) , x ]) l (C .id)
             l≡id = l≡pToI ◁ pToI≡id
 
             lf≡f : PathP (λ i → C [ x≡y (~ i) , c ]) (l ⋆⟨ C ⟩ f) f
@@ -243,7 +238,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             k = kc .S-hom
             l = lc .S-hom
 
-            extractIso : CatIso {C = C} x y
+            extractIso : CatIso C x y
             extractIso = extractIso' is
 
             -- we do the equality component wise
@@ -254,8 +249,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             k'≡k i = (pToIIso .rightInv extractIso) i .mor
 
             kcom'≡kcom : PathP (λ j → (k'≡k j) ⋆⟨ C ⟩ g ≡ f) (kc' .S-comm) (kc .S-comm)
-            kcom'≡kcom = isSetHomP1 _ _ λ i → (k'≡k i) ⋆⟨ C ⟩ g
-
+            kcom'≡kcom = isSetHomP1 {C = C} _ _ λ i → (k'≡k i) ⋆⟨ C ⟩ g
             kc'≡kc : kc' ≡ kc
             kc'≡kc i = slicehom (k'≡k i) (kcom'≡kcom i)
 
@@ -265,7 +259,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             l'≡l i = (pToIIso .rightInv extractIso) i .inv
 
             lcom'≡lcom : PathP (λ j → (l'≡l j) ⋆⟨ C ⟩ f ≡ g) (lc' .S-comm) (lc .S-comm)
-            lcom'≡lcom = isSetHomP1 _ _ λ i → (l'≡l i) ⋆⟨ C ⟩ f
+            lcom'≡lcom = isSetHomP1 {C = C} _ _ λ i → (l'≡l i) ⋆⟨ C ⟩ f
 
             lc'≡lc : lc' ≡ lc
             lc'≡lc i = slicehom (l'≡l i) (lcom'≡lcom i)
@@ -273,14 +267,14 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             -- sec
 
             s' = (sIso .fun) (sIso .inv is) .sec
-            s'≡s : PathP (λ i → lc'≡lc i ⋆⟨ SliceCat ⟩ kc'≡kc i ≡ SliceCat .id _) s' s
-            s'≡s = isSetHomP1 _ _ λ i → lc'≡lc i ⋆⟨ SliceCat ⟩ kc'≡kc i
+            s'≡s : PathP (λ i → lc'≡lc i ⋆⟨ SliceCat ⟩ kc'≡kc i ≡ SliceCat .id) s' s
+            s'≡s = isSetHomP1 {C = SliceCat} _ _ λ i → lc'≡lc i ⋆⟨ SliceCat ⟩ kc'≡kc i
 
             -- ret
 
             r' = (sIso .fun) (sIso .inv is) .ret
-            r'≡r : PathP (λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i ≡ SliceCat .id _) r' r
-            r'≡r = isSetHomP1 _ _ λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i
+            r'≡r : PathP (λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i ≡ SliceCat .id) r' r
+            r'≡r = isSetHomP1 {C = SliceCat} _ _ λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i
 
         sIso .leftInv p = p'≡p
           -- to show that the round trip is equivalent to the identity
@@ -306,17 +300,17 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
             -- we first show that it's equivalent to use sIso first then extract, or to extract first than use pToIIso
             extractCom : extractIso' (sIso .fun p) ≡ pToIIso .fun pOb
-            extractCom = J (λ yg' p̃ → extractIso' (pathToIso xf yg' p̃) ≡ pToIIso' {xf = xf} {yg'} .fun (λ i → (p̃ i) .S-ob))
+            extractCom = J (λ yg' p̃ → extractIso' (pathToIso p̃) ≡ pToIIso' {xf = xf} {yg'} .fun (λ i → (p̃ i) .S-ob))
                            (cong extractIso' (JRefl pToIFam' pToIBase') ∙ sym (JRefl pToIFam pToIBase))
                            p
                where
-                 idx = C .id x
-                 pToIFam = (λ z _ → CatIso {C = C} x z)
-                 pToIBase = catiso (C .id x) idx (C .⋆IdL idx) (C .⋆IdL idx)
+                 idx = C .id
+                 pToIFam = (λ z _ → CatIso C x z)
+                 pToIBase = catiso (C .id) idx (C .⋆IdL idx) (C .⋆IdL idx)
 
-                 idxf = SliceCat .id xf
-                 pToIFam' = (λ z _ → CatIso {C = SliceCat} xf z)
-                 pToIBase' = catiso (SliceCat .id xf) idxf (SliceCat .⋆IdL idxf) (SliceCat .⋆IdL idxf)
+                 idxf = SliceCat .id
+                 pToIFam' = (λ z _ → CatIso SliceCat xf z)
+                 pToIBase' = catiso (SliceCat .id) idxf (SliceCat .⋆IdL idxf) (SliceCat .⋆IdL idxf)
 
             -- why does this not follow definitionally?
             -- from extractCom, we get that performing the roundtrip on pOb gives us back p'Ob
@@ -330,7 +324,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
             -- isSetHom gives us the second component, path between morphisms
             p'Mor≡pMor : PathP (λ j → PathP (λ i → C [ (p'Ob≡pOb j) i , c ]) f g) p'Mor pMor
-            p'Mor≡pMor = isSetHomP2l _ _ p'Mor pMor p'Ob≡pOb
+            p'Mor≡pMor = isSetHomP2l {C = C} _ _ p'Mor pMor p'Ob≡pOb
 
             -- we can use the above paths to show that p' ≡ p
             p'≡p : p' ≡ p
@@ -376,8 +370,8 @@ open isIsoC renaming (inv to invC)
 
 -- make a slice isomorphism from just the hom
 sliceIso : ∀ {a b} (f : C [ a .S-ob , b .S-ob ]) (c : (f ⋆⟨ C ⟩ b .S-arr) ≡ a .S-arr)
-         → isIsoC {C = C} f
-         → isIsoC {C = SliceCat} (slicehom f c)
+         → isIsoC C f
+         → isIsoC SliceCat (slicehom f c)
 sliceIso f c isof .invC = slicehom (isof .invC) (sym (invMoveL (isIso→areInv isof) c))
 sliceIso f c isof .sec = SliceHom-≡-intro' (isof .sec)
 sliceIso f c isof .ret = SliceHom-≡-intro' (isof .ret)

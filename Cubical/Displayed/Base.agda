@@ -40,12 +40,12 @@ record UARel (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc ℓ
 open BinaryRelation
 
 -- another constructor for UARel using contractibility of relational singletons
-make-𝒮 : {A : Type ℓA} {ℓ≅A : Level} {_≅_ : A → A → Type ℓ≅A}
+make-𝒮 : {A : Type ℓA} {_≅_ : A → A → Type ℓ≅A}
           (ρ : isRefl _≅_) (contrTotal : contrRelSingl _≅_) → UARel A ℓ≅A
 UARel._≅_ (make-𝒮 {_≅_ = _≅_} _ _) = _≅_
 UARel.ua (make-𝒮 {_≅_ = _≅_} ρ c) = contrRelSingl→isUnivalent _≅_ ρ c
 
-record DUARel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A)
+record DUARel {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
               (B : A → Type ℓB) (ℓ≅B : Level) : Type (ℓ-max (ℓ-max ℓA ℓB) (ℓ-max ℓ≅A (ℓ-suc ℓ≅B))) where
   no-eta-equality
   constructor duarel
@@ -70,7 +70,7 @@ record DUARel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A)
 
 -- total UARel induced by a DUARel
 
-module _ {A : Type ℓA} {ℓ≅A : Level} {𝒮-A : UARel A ℓ≅A}
+module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   {B : A → Type ℓB} {ℓ≅B : Level}
   (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
   where

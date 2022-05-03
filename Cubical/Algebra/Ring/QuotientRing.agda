@@ -198,7 +198,7 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
 
   module _ {S : Ring ℓ} (φ : RingHom R S) where
     open IsRingHom
-    open HomTheory φ
+    open RingHomTheory φ
     private
       instance
         _ = S

@@ -54,7 +54,7 @@ DUARel.uaᴰ (Subst→DUA {𝒮-A = 𝒮-A} {B = B} 𝒮ˢ-B) b p b' =
     ≃⟨ invEquiv (compPathlEquiv (sym (SubstRel.uaˢ 𝒮ˢ-B p b))) ⟩
   subst B (≅→≡ p) b ≡ b'
     ≃⟨ invEquiv (PathP≃Path (λ i → B (≅→≡ p i)) b b') ⟩
-  PathP (λ i → B (UARel.≅→≡ 𝒮-A p i)) b b'
+  PathP (λ i → B (≅→≡ p i)) b b'
   ■
   where
   open UARel 𝒮-A

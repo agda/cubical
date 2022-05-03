@@ -107,7 +107,7 @@ maybePositiveRel {S = S} {ρ = ρ} {θ = θ} σ .quo {X} R =
   isom .inv = bwd
   isom .rightInv nothing = refl
   isom .rightInv (just x) =
-    elimProp {B = λ x → fwd (bwd (just x)) ≡ just x}
+    elimProp {P = λ x → fwd (bwd (just x)) ≡ just x}
       (λ _ → isOfHLevelMaybe 0 squash/ _ _)
       (λ _ → refl)
       x

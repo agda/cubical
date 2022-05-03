@@ -10,7 +10,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Pointed
 open import Cubical.Data.Unit.Pointed
 
-open import Cubical.Data.SuccStr
+open import Cubical.Structures.Successor
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
@@ -21,13 +21,13 @@ open import Cubical.Homotopy.Loopspace
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
 
-record GenericPrespectrum (S : SuccStr ℓ) (ℓ′ : Level) : Type (ℓ-max (ℓ-suc ℓ′) ℓ) where
+record GenericPrespectrum (S : SuccStr ℓ) (ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ') ℓ) where
   open SuccStr S
   field
-    space : index → Pointed ℓ′
-    map : (i : index) → (space i →∙ Ω (space (succ i)))
+    space : Index → Pointed ℓ'
+    map : (i : Index) → (space i →∙ Ω (space (succ i)))
 
 Prespectrum = GenericPrespectrum ℤ+
 
@@ -51,4 +51,4 @@ SuspensionPrespectrum A = makeℤPrespectrum space map
             space (suc n) = Susp∙ (typ (space n))
 
             map : (n : ℕ) → _
-            map n = (λ a → merid a ∙ merid (pt (space n)) ⁻¹) , rCancel (merid (pt (space n)))
+            map n = toSuspPointed (space n)

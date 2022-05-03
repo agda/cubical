@@ -30,6 +30,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Unit.Base
+open import Cubical.Data.Empty.Base
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -90,6 +91,12 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
 ×≡Prop : isProp A' → {u v : A × A'} → u .fst ≡ v .fst → u ≡ v
 ×≡Prop pB {u} {v} p i = (p i) , (pB (u .snd) (v .snd) i)
 
+-- Useful lemma to prove unique existence
+uniqueExists : (a : A) (b : B a) (h : (a' : A) → isProp (B a')) (H : (a' : A) → B a' → a ≡ a') → ∃![ a ∈ A ] B a
+fst (uniqueExists a b h H) = (a , b)
+snd (uniqueExists a b h H) (a' , b') = ΣPathP (H a' b' , isProp→PathP (λ i → h (H a' b' i)) b b')
+
+
 -- Characterization of dependent paths in Σ
 
 module _ {A : I → Type ℓ} {B : (i : I) → (a : A i) → Type ℓ'}
@@ -122,6 +129,18 @@ discreteΣ {B = B} Adis Bdis (a0 , b0) (a1 , b1) = discreteΣ' (Adis a0 a1)
         ... | (yes q) = yes (transport ΣPath≡PathΣ (refl , q))
         ... | (no ¬q) = no (λ r → ¬q (subst (λ X → PathP (λ i → B (X i)) b0 b1) (Discrete→isSet Adis a0 a0 (cong fst r) refl) (cong snd r)))
     discreteΣ' (no ¬p) = no (λ r → ¬p (cong fst r))
+
+lUnit×Iso : Iso (Unit × A) A
+fun lUnit×Iso = snd
+inv lUnit×Iso = tt ,_
+rightInv lUnit×Iso _ = refl
+leftInv lUnit×Iso _ = refl
+
+rUnit×Iso : Iso (A × Unit) A
+fun rUnit×Iso = fst
+inv rUnit×Iso = _, tt
+rightInv rUnit×Iso _ = refl
+leftInv rUnit×Iso _ = refl
 
 module _ {A : Type ℓ} {A' : Type ℓ'} where
   Σ-swap-Iso : Iso (A × A') (A' × A)
@@ -263,16 +282,17 @@ PathΣ→ΣPathTransport a b = Iso.inv (IsoΣPathTransportPathΣ a b)
 ΣPathTransport≡PathΣ : (a b : Σ A B) → ΣPathTransport a b ≡ (a ≡ b)
 ΣPathTransport≡PathΣ a b = ua (ΣPathTransport≃PathΣ a b)
 
+Σ-contractFstIso : (c : isContr A) → Iso (Σ A B) (B (c .fst))
+fun (Σ-contractFstIso {B = B} c) p = subst B (sym (c .snd (fst p))) (snd p)
+inv (Σ-contractFstIso {B = B} c) b = _ , b
+rightInv (Σ-contractFstIso {B = B} c) b =
+  cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _) ∙ transportRefl _
+fst (leftInv (Σ-contractFstIso {B = B} c) p j) = c .snd (fst p) j
+snd (leftInv (Σ-contractFstIso {B = B} c) p j) =
+  transp (λ i → B (c .snd (fst p) (~ i ∨ j))) j (snd p)
+
 Σ-contractFst : (c : isContr A) → Σ A B ≃ B (c .fst)
-Σ-contractFst {B = B} c = isoToEquiv isom
-  where
-  isom : Iso _ _
-  isom .fun (a , b) = subst B (sym (c .snd a)) b
-  isom .inv b = (c .fst , b)
-  isom .rightInv b =
-    cong (λ p → subst B p b) (isProp→isSet (isContr→isProp c) _ _ _ _) ∙ transportRefl _
-  isom .leftInv (a , b) =
-    ΣPathTransport≃PathΣ _ _ .fst (c .snd a , transportTransport⁻ (cong B (c .snd a)) _)
+Σ-contractFst {B = B} c = isoToEquiv (Σ-contractFstIso c)
 
 -- a special case of the above
 module _ (A : Unit → Type ℓ) where
@@ -314,6 +334,18 @@ isEmbeddingFstΣProp {B = B} pB {u = u} {v = v} .equiv-proof x = ctr , isCtr
 Σ≡Prop : ((x : A) → isProp (B x)) → {u v : Σ A B}
        → (p : u .fst ≡ v .fst) → u ≡ v
 Σ≡Prop pB p = equivFun (Σ≡PropEquiv pB) p
+
+-- dependent version
+ΣPathPProp : ∀ {ℓ ℓ'} {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
+           → {u : Σ (A i0) (B i0)} {v : Σ (A i1) (B i1)}
+           → ((a : A (i1)) → isProp (B i1 a))
+           → PathP (λ i → A i) (fst u) (fst v)
+           → PathP (λ i → Σ (A i) (B i)) u v
+fst (ΣPathPProp {u = u} {v = v} pB p i) = p i
+snd (ΣPathPProp {B = B} {u = u} {v = v} pB p i) = lem i
+  where
+  lem : PathP (λ i → B i (p i)) (snd u) (snd v)
+  lem = toPathP (pB _ _ _)
 
 ≃-× : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} → A ≃ C → B ≃ D → A × B ≃ C × D
 ≃-× eq1 eq2 =
@@ -358,3 +390,41 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''}
   Iso.leftInv curryIso f = refl
 
   unquoteDecl curryEquiv = declStrictIsoToEquiv curryEquiv curryIso
+
+-- Sigma type with empty base
+
+module _ (A : ⊥ → Type ℓ) where
+
+  open Iso
+
+  ΣEmptyIso : Iso (Σ ⊥ A) ⊥
+  fun ΣEmptyIso (* , _) = *
+
+  ΣEmpty : Σ ⊥ A ≃ ⊥
+  ΣEmpty = isoToEquiv ΣEmptyIso
+
+-- fiber of projection map
+
+module _
+  (A : Type ℓ)
+  (B : A → Type ℓ') where
+
+  private
+    proj : Σ A B → A
+    proj (a , b) = a
+
+  module _
+    (a : A) where
+
+    open Iso
+
+    fiberProjIso : Iso (B a) (fiber proj a)
+    fiberProjIso .fun b = (a , b) , refl
+    fiberProjIso .inv ((a' , b') , p) = subst B p b'
+    fiberProjIso .leftInv b i = substRefl {B = B} b i
+    fiberProjIso .rightInv (_ , p) i .fst .fst = p (~ i)
+    fiberProjIso .rightInv ((_ , b') , p) i .fst .snd = subst-filler B p b' (~ i)
+    fiberProjIso .rightInv (_ , p) i .snd j = p (~ i ∨ j)
+
+    fiberProjEquiv : B a ≃ fiber proj a
+    fiberProjEquiv = isoToEquiv fiberProjIso

@@ -10,7 +10,9 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.HITs.Join
-open import Cubical.HITs.Hopf
+open import Cubical.Homotopy.Hopf
+
+open S¹Hopf
 
 ptType : Type _
 ptType = Σ Type₀ \ A → A

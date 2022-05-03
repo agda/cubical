@@ -49,7 +49,7 @@ record PosetStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc ℓ')
   constructor posetstr
 
   field
-    _≤_         : A → A → Type ℓ'
+    _≤_     : A → A → Type ℓ'
     isPoset : IsPoset _≤_
 
   infixl 7 _≤_

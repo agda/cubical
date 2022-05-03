@@ -25,3 +25,7 @@ idIsEquiv A .equiv-proof = strictContrFibers (idfun A)
 idEquiv : ∀ {ℓ} (A : Type ℓ) → A ≃ A
 idEquiv A .fst = idfun A
 idEquiv A .snd = idIsEquiv A
+
+-- the definition using Π-type
+isEquiv' : ∀ {ℓ}{ℓ'}{A : Type ℓ}{B : Type ℓ'} → (A → B) → Type (ℓ-max ℓ ℓ')
+isEquiv' {B = B} f = (y : B) → isContr (fiber f y)

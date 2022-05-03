@@ -12,6 +12,7 @@ module Cubical.Relation.Nullary.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Fixpoint
 
 open import Cubical.Data.Empty as ⊥
@@ -22,17 +23,22 @@ open import Cubical.HITs.PropositionalTruncation.Base
 private
   variable
     ℓ : Level
-    A : Type ℓ
+    A B : Type ℓ
 
-IsoPresDiscrete : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → Iso A B
+-- Functions with a section preserve discreteness.
+sectionDiscrete
+  : (f : A → B) (g : B → A) → section f g → Discrete A → Discrete B
+sectionDiscrete f g sect dA x y with dA (g x) (g y)
+... | yes p = yes (sym (sect x) ∙∙ cong f p ∙∙ sect y)
+... | no ¬p = no (λ p → ¬p (cong g p))
+
+isoPresDiscrete : Iso A B → Discrete A → Discrete B
+isoPresDiscrete e = sectionDiscrete fun inv rightInv
+  where open Iso e
+
+EquivPresDiscrete : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B
                → Discrete A → Discrete B
-IsoPresDiscrete e dA x y with dA (Iso.inv e x) (Iso.inv e y)
-... | yes p = subst Dec (λ i → Iso.rightInv e x i ≡ Iso.rightInv e y i)
-                        (yes (cong (Iso.fun e) p))
-... | no p = subst Dec (λ i → Iso.rightInv e x i ≡ Iso.rightInv e y i)
-                   (no λ q → p (sym (Iso.leftInv e (Iso.inv e x))
-                     ∙∙ cong (Iso.inv e) q
-                     ∙∙ Iso.leftInv e (Iso.inv e y)))
+EquivPresDiscrete e = isoPresDiscrete (equivToIso e)
 
 isProp¬ : (A : Type ℓ) → isProp (¬ A)
 isProp¬ A p q i x = isProp⊥ (p x) (q x) i
@@ -65,6 +71,17 @@ isPropDec {A = A} Aprop (no ¬a) (no ¬a') = cong no (isProp¬ A ¬a ¬a')
 mapDec : ∀ {B : Type ℓ} → (A → B) → (¬ A → ¬ B) → Dec A → Dec B
 mapDec f _ (yes p) = yes (f p)
 mapDec _ f (no ¬p) = no (f ¬p)
+
+EquivPresDec : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B
+          → Dec A → Dec B
+EquivPresDec p = mapDec (p .fst) (λ f → f ∘ invEq p)
+
+¬→¬∥∥ : ¬ A → ¬ ∥ A ∥
+¬→¬∥∥ ¬p ∣ a ∣ = ¬p a
+¬→¬∥∥ ¬p (squash x y i) = isProp⊥ (¬→¬∥∥ ¬p x) (¬→¬∥∥ ¬p y) i
+
+Dec∥∥ : Dec A → Dec ∥ A ∥
+Dec∥∥ = mapDec ∣_∣ ¬→¬∥∥
 
 -- we have the following implications
 -- X ── ∣_∣ ─→ ∥ X ∥

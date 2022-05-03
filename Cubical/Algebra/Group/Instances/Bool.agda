@@ -25,8 +25,7 @@ fst Bool = BoolType
 (snd Bool GroupStr.· false) false = true
 (snd Bool GroupStr.· false) true = false
 (snd Bool GroupStr.· true) y = y
-(inv (snd Bool)) false = false
-(inv (snd Bool)) true = true
+(inv (snd Bool)) x = x
 is-set (isSemigroup (isMonoid (isGroup (snd Bool)))) = isSetBool
 assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) false false false = refl
 assoc' (isSemigroup (isMonoid (isGroup (snd Bool)))) false false true = refl
@@ -49,7 +48,7 @@ open GroupStr renaming (assoc to assocG)
 module _ {ℓ : Level} {A : Group ℓ} (e : Iso (fst A) BoolType) where
   private
     discreteA : Discrete (typ A)
-    discreteA = IsoPresDiscrete (invIso e) _≟_
+    discreteA = isoPresDiscrete (invIso e) _≟_
 
     _·A_ = GroupStr._·_ (snd A)
     -A_ = GroupStr.inv (snd A)
