@@ -31,11 +31,6 @@ When preparing a PR here are some general guidelines:
   of the file. All definitions should be maximally universe
   polymorphic.
 
-- Use either descriptive names for universe levels or
-  ```
-  ℓ ℓ' ℓ'' ℓ''' ...
-  ```
-
 - Make reasonably many arguments implicit. If you find yourself having
   to provide some argument explicitly most of the time then it should
   not be implicit. The same applies the other way around, if some argument
