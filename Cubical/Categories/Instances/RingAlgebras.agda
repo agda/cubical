@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Instances.Algebras where
+module Cubical.Categories.Instances.RingAlgebras where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
