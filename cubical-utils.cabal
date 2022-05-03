@@ -11,3 +11,4 @@ executable Everythings
   main-is:          Everythings.hs
   default-language: Haskell2010
   build-depends:      base      >= 4.9.0.0 && < 4.17
+                    , directory >= 1.0.0.0 && < 1.4
