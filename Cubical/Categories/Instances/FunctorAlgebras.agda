@@ -9,6 +9,7 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation.Base
 
 open _≅_
 
@@ -106,3 +107,29 @@ module _ {C : Category ℓC ℓC'} (F : Functor C C) where
   F-hom ForgetAlgebra = carrierHom
   F-id ForgetAlgebra = refl
   F-seq ForgetAlgebra algF algG = refl
+
+module _ {C : Category ℓC ℓC'} {F G : Functor C C} (τ : NatTrans F G) where
+
+  private
+    module C = Category C
+  open Functor
+  open NatTrans
+  open AlgebraHom
+
+  AlgebrasFunctor : Functor (AlgebrasCategory G) (AlgebrasCategory F)
+  F-ob AlgebrasFunctor (algebra a α) = algebra a (α C.∘ N-ob τ a)
+  carrierHom (F-hom AlgebrasFunctor (algebraHom f isalgF)) = f
+  strHom (F-hom AlgebrasFunctor {algebra a α} {algebra b β} (algebraHom f isalgF)) =
+    (N-ob τ a C.⋆ α) C.⋆ f
+      ≡⟨ C.⋆Assoc (N-ob τ a) α f ⟩
+    N-ob τ a C.⋆ (α C.⋆ f)
+      ≡⟨ cong (N-ob τ a C.⋆_) isalgF ⟩
+    N-ob τ a C.⋆ (F-hom G f C.⋆ β)
+      ≡⟨ sym (C.⋆Assoc _ _ _) ⟩
+    (N-ob τ a C.⋆ F-hom G f) C.⋆ β
+      ≡⟨ cong (C._⋆ β) (sym (N-hom τ f)) ⟩
+    (F-hom F f C.⋆ N-ob τ b) C.⋆ β
+      ≡⟨ C.⋆Assoc _ _ _ ⟩
+    F-hom F f C.⋆ (N-ob τ b C.⋆ β) ∎
+  F-id AlgebrasFunctor = AlgebraHom≡ F refl
+  F-seq AlgebrasFunctor algΦ algΨ = AlgebraHom≡ F refl
