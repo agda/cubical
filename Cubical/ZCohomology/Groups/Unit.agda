@@ -25,7 +25,7 @@ open import Cubical.Data.Unit
 open import Cubical.Homotopy.Connected
 
 open import Cubical.Data.Sigma
-open import Cubical.Algebra.Group renaming (Unit to UnitGroup)
+open import Cubical.Algebra.Group
 
 -- H⁰(Unit)
 open IsGroupHom
@@ -55,7 +55,7 @@ isContrHⁿ-Unit n = subst isContr (λ i → ∥ UnitToTypePath (coHomK (suc n))
     helper2 zero = 0 , refl
     helper2 (suc n) = (suc n) , λ i → suc (+-comm n 2 i)
 
-Hⁿ-Unit≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) Unit) UnitGroup
+Hⁿ-Unit≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) Unit) UnitGroup₀
 fun (fst (Hⁿ-Unit≅0 n)) _ = _
 inv (fst (Hⁿ-Unit≅0 n)) _ = 0ₕ (suc n)
 rightInv (fst (Hⁿ-Unit≅0 n)) _ = refl
@@ -71,7 +71,7 @@ private
                                     (setTruncIso (invIso (isContr→Iso2 isContrUnit)))
 
 Hⁿ-contrType≅0 : ∀ {ℓ} {A : Type ℓ} (n : ℕ) → isContr A
-              → GroupIso (coHomGr (suc n) A) UnitGroup
+              → GroupIso (coHomGr (suc n) A) UnitGroup₀
 fun (fst (Hⁿ-contrType≅0 n contr)) _ = _
 inv (fst (Hⁿ-contrType≅0 n contr)) _ = 0ₕ (suc n)
 rightInv (fst (Hⁿ-contrType≅0 n contr)) _ = refl

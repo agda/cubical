@@ -17,7 +17,7 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat using (ℕ ; zero ; suc)
 open import Cubical.Data.FinData
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (_≤_)
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto

@@ -236,9 +236,20 @@ sym≡cong-sym : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) ref
   → sym P ≡ cong sym P
 sym≡cong-sym P = sym-cong-sym≡id (sym P)
 
--- sym induces an equivalence on identity types of paths
+-- sym induces an equivalence on path types
 symIso : {a b : A} → Iso (a ≡ b) (b ≡ a)
 symIso = iso sym sym (λ _ → refl) λ _ → refl
+
+-- Inspect
+
+module _ {A : Type ℓ} {B : Type ℓ'} where
+
+  record Reveal_·_is_ (f : A → B) (x : A) (y : B) : Type (ℓ-max ℓ ℓ') where
+    constructor [_]ᵢ
+    field path : f x ≡ y
+
+  inspect : (f : A → B) (x : A) → Reveal f · x is f x
+  inspect f x .Reveal_·_is_.path = refl
 
 -- J is an equivalence
 Jequiv : {x : A} (P : ∀ y → x ≡ y → Type ℓ') → P x refl ≃ (∀ {y} (p : x ≡ y) → P y p)
