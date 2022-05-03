@@ -8,9 +8,7 @@ open import Cubical.Data.Graph.Base
 open import Cubical.Data.Graph.Path
 open import Cubical.Foundations.Prelude hiding (Path)
 
-module _ {ℓv : Level} where
-  private
-    ℓe = ℓv
+module _ {ℓv ℓe : Level} where
 
   module _ (G : Graph ℓv ℓe)
           (isSetNode : isSet (Node G))

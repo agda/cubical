@@ -12,10 +12,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude hiding (Path)
 
 
-module _ {ℓv : Level} where
-  private
-    ℓe = ℓv
-  
+module _ {ℓv ℓe : Level} where
+
   module _ (G : Graph ℓv ℓe) where
     data Path : (v w : Node G) → Type (ℓ-max ℓv ℓe) where
       pnil : ∀ {v} → Path v v
@@ -54,11 +52,11 @@ module _ {ℓv : Level} where
 
       -- This is called ̂W (W-hat) in the paper
       PathWithLen : ℕ → Node G → Node G → Type (ℓ-max ℓv ℓe)
-      PathWithLen 0 v w = (v ≡ w)
+      PathWithLen 0 v w = Lift {j = ℓe} (v ≡ w)
       PathWithLen (suc n) v w = Σ[ k ∈ Node G ] (PathWithLen n v k × Edge G k w)
 
       isSetPathWithLen : ∀ n v w → isSet (PathWithLen n v w)
-      isSetPathWithLen 0 _ _ = isProp→isSet (isSetNode _ _)
+      isSetPathWithLen 0 _ _ = isOfHLevelLift 2 (isProp→isSet (isSetNode _ _))
       isSetPathWithLen (suc n) _ _ = isSetΣ isSetNode λ _ →
           isSet× (isSetPathWithLen _ _ _) (isSetEdge _ _)
 
@@ -66,12 +64,12 @@ module _ {ℓv : Level} where
       isSet-ΣnPathWithLen = isSetΣ isSetℕ (λ _ → isSetPathWithLen _ _ _)
 
       Path→PathWithLen : ∀ {v w} → Path v w → Σ[ n ∈ ℕ ] PathWithLen n v w
-      Path→PathWithLen pnil = 0 , refl
+      Path→PathWithLen pnil = 0 , lift refl
       Path→PathWithLen (pcons P e) = suc (Path→PathWithLen P .fst) ,
                                           _ , Path→PathWithLen P .snd , e
 
       PathWithLen→Path : ∀ {v w} → Σ[ n ∈ ℕ ] PathWithLen n v w → Path v w
-      PathWithLen→Path (0 , eq) = subst (Path _) eq pnil
+      PathWithLen→Path (0 , q) = subst (Path _) (q .lower) pnil
       PathWithLen→Path (suc n , _ , pwl , e) = pcons (PathWithLen→Path (n , pwl)) e
 
       Path→PWL→Path : ∀ {v w} P → PathWithLen→Path {v} {w} (Path→PathWithLen P) ≡ P
