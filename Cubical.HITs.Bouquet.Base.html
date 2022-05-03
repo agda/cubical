@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.HITs.Bouquet.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">{-
+
+This file contains:
+
+- Definition of the Bouquet of circles of a type aka wedge of A circles
+
+-}</a>
+<a id="102" class="Symbol">{-#</a> <a id="106" class="Keyword">OPTIONS</a> <a id="114" class="Pragma">--safe</a> <a id="121" class="Symbol">#-}</a>
+
+<a id="126" class="Keyword">module</a> <a id="133" href="Cubical.HITs.Bouquet.Base.html" class="Module">Cubical.HITs.Bouquet.Base</a> <a id="159" class="Keyword">where</a>
+
+<a id="166" class="Keyword">open</a> <a id="171" class="Keyword">import</a> <a id="178" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="206" class="Keyword">open</a> <a id="211" class="Keyword">import</a> <a id="218" href="Cubical.Foundations.Pointed.html" class="Module">Cubical.Foundations.Pointed</a>
+
+<a id="247" class="Keyword">private</a>
+  <a id="257" class="Keyword">variable</a>
+    <a id="270" href="Cubical.HITs.Bouquet.Base.html#270" class="Generalizable">ℓ</a> <a id="272" class="Symbol">:</a> <a id="274" href="Agda.Primitive.html#597" class="Postulate">Level</a>
+
+<a id="281" class="Keyword">data</a> <a id="Bouquet"></a><a id="286" href="Cubical.HITs.Bouquet.Base.html#286" class="Datatype">Bouquet</a> <a id="294" class="Symbol">(</a><a id="295" href="Cubical.HITs.Bouquet.Base.html#295" class="Bound">A</a> <a id="297" class="Symbol">:</a> <a id="299" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="304" href="Cubical.HITs.Bouquet.Base.html#270" class="Generalizable">ℓ</a><a id="305" class="Symbol">)</a> <a id="307" class="Symbol">:</a> <a id="309" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="314" href="Cubical.HITs.Bouquet.Base.html#304" class="Bound">ℓ</a> <a id="316" class="Keyword">where</a>
+  <a id="Bouquet.base"></a><a id="324" href="Cubical.HITs.Bouquet.Base.html#324" class="InductiveConstructor">base</a> <a id="329" class="Symbol">:</a> <a id="331" href="Cubical.HITs.Bouquet.Base.html#286" class="Datatype">Bouquet</a> <a id="339" href="Cubical.HITs.Bouquet.Base.html#295" class="Bound">A</a>
+  <a id="Bouquet.loop"></a><a id="343" href="Cubical.HITs.Bouquet.Base.html#343" class="InductiveConstructor">loop</a> <a id="348" class="Symbol">:</a> <a id="350" href="Cubical.HITs.Bouquet.Base.html#295" class="Bound">A</a> <a id="352" class="Symbol">→</a> <a id="354" href="Cubical.HITs.Bouquet.Base.html#324" class="InductiveConstructor">base</a> <a id="359" href="Agda.Builtin.Cubical.Path.html#388" class="Function Operator">≡</a> <a id="361" href="Cubical.HITs.Bouquet.Base.html#324" class="InductiveConstructor">base</a>
+
+<a id="Bouquet∙"></a><a id="367" href="Cubical.HITs.Bouquet.Base.html#367" class="Function">Bouquet∙</a> <a id="376" class="Symbol">:</a> <a id="378" href="Agda.Primitive.html#326" class="Primitive">Type</a> <a id="383" href="Cubical.HITs.Bouquet.Base.html#270" class="Generalizable">ℓ</a> <a id="385" class="Symbol">→</a> <a id="387" href="Cubical.Foundations.Pointed.Base.html#464" class="Function">Pointed</a> <a id="395" href="Cubical.HITs.Bouquet.Base.html#270" class="Generalizable">ℓ</a>
+<a id="397" href="Cubical.HITs.Bouquet.Base.html#367" class="Function">Bouquet∙</a> <a id="406" href="Cubical.HITs.Bouquet.Base.html#406" class="Bound">A</a> <a id="408" class="Symbol">=</a> <a id="410" href="Cubical.HITs.Bouquet.Base.html#286" class="Datatype">Bouquet</a> <a id="418" href="Cubical.HITs.Bouquet.Base.html#406" class="Bound">A</a> <a id="420" href="Agda.Builtin.Sigma.html#236" class="InductiveConstructor Operator">,</a> <a id="422" href="Cubical.HITs.Bouquet.Base.html#324" class="InductiveConstructor">base</a>
+</pre></body></html>
