@@ -32,7 +32,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 private
   variable
-    ℓ ℓ′ ℓ″ ℓ‴ ℓ' ℓ'' ℓ''' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
     R : CommRing ℓ
 
 open AlgebraHoms
@@ -201,10 +201,10 @@ module CommAlgChar (R : CommRing ℓ) where
 module CommAlgebraHoms {R : CommRing ℓ} where
   open AlgebraHoms
 
-  idCommAlgebraHom : (A : CommAlgebra R ℓ′) → CommAlgebraHom A A
+  idCommAlgebraHom : (A : CommAlgebra R ℓ') → CommAlgebraHom A A
   idCommAlgebraHom A = idAlgebraHom (CommAlgebra→Algebra A)
 
-  compCommAlgebraHom : (A : CommAlgebra R ℓ′) (B : CommAlgebra R ℓ'') (C : CommAlgebra R ℓ''')
+  compCommAlgebraHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') (C : CommAlgebra R ℓ''')
                   → CommAlgebraHom A B → CommAlgebraHom B C → CommAlgebraHom A C
   compCommAlgebraHom A B C = compAlgebraHom {A = CommAlgebra→Algebra A}
                                             {CommAlgebra→Algebra B} {CommAlgebra→Algebra C}
