@@ -51,7 +51,7 @@ open import Cubical.HITs.PropositionalTruncation
   renaming (map to pMap ; rec to pRec)
 
 open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup ; Unit to UnitGroup)
+  renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
 

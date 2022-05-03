@@ -32,7 +32,7 @@ open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
 open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup ; Unit to UnitGroup)
+  renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
 

@@ -12,7 +12,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim) hiding (map)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup)
 
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Transport
@@ -89,7 +89,7 @@ snd isContr-H¹-RP²-helper =
                                                                                 ∙ cong (ΩKn+1→Kn 0) nilp)))
                                        ∙∙ Iso.rightInv (Iso-Kn-ΩKn+1 0) p)))})))
 
-H¹-RP²≅0 : GroupIso (coHomGr 1 RP²) UnitGroup
+H¹-RP²≅0 : GroupIso (coHomGr 1 RP²) UnitGroup₀
 H¹-RP²≅0 =
   contrGroupIsoUnit
     (isOfHLevelRetractFromIso 0

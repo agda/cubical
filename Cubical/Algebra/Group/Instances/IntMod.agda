@@ -20,7 +20,6 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Algebra.Group.Instances.Int
   renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.Group.Instances.Unit
-  renaming (Unit to UnitGroup)
 open import Cubical.Algebra.Group.Instances.Bool
   renaming (Bool to BoolGroup)
 open import Cubical.Algebra.Group.MorphismProperties
@@ -48,7 +47,7 @@ snd (identity (isMonoid (isGroup (snd (ℤ/ suc n)))) x) = +ₘ-lUnit x
 fst (inverse (isGroup (snd (ℤ/ suc n))) x) = +ₘ-rCancel x
 snd (inverse (isGroup (snd (ℤ/ suc n))) x) = +ₘ-lCancel x
 
-ℤ/1≅Unit : GroupIso (ℤ/ 1) UnitGroup
+ℤ/1≅Unit : GroupIso (ℤ/ 1) UnitGroup₀
 ℤ/1≅Unit = contrGroupIsoUnit isContrFin1
 
 Bool≅ℤ/2 : GroupIso BoolGroup (ℤ/ 2)

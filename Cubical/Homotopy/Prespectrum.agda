@@ -21,12 +21,12 @@ open import Cubical.Homotopy.Loopspace
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
 
-record GenericPrespectrum (S : SuccStr ℓ) (ℓ′ : Level) : Type (ℓ-max (ℓ-suc ℓ′) ℓ) where
+record GenericPrespectrum (S : SuccStr ℓ) (ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ') ℓ) where
   open SuccStr S
   field
-    space : Index → Pointed ℓ′
+    space : Index → Pointed ℓ'
     map : (i : Index) → (space i →∙ Ω (space (succ i)))
 
 Prespectrum = GenericPrespectrum ℤ+
