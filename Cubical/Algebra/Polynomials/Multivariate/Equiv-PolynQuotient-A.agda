@@ -115,25 +115,10 @@ module Properties-Equiv-QuotientXn-A
   discreteVecℕn = VecPath.discreteA→discreteVecA discreteℕ n
 
 
+
 -----------------------------------------------------------------------------
 -- Direct sens
-  A→PA : A → A[x1,···,xn] Ar n
-  A→PA a = (base (replicate 0) a)
 
-  A→PA-map1 : A→PA 1A ≡ 1PA
-  A→PA-map1 = refl
-
-  A→PA-map+ : (a a' : A) → A→PA (a +A a') ≡ (A→PA a) +PA (A→PA a')
-  A→PA-map+ a a' = sym (base-Poly+ _ _ _)
-
-  A→PA-map· : (a a' : A) → A→PA (a ·A a') ≡ (A→PA a) ·PA (A→PA a')
-  A→PA-map· a a' = cong (λ X → base X (a ·A a')) (sym (+n-vec-rid _))
-
-  A→PAI : A → (A[x1,···,xn]/<x1,···,xn> Ar n)
-  A→PAI = [_] ∘ A→PA
-
------------------------------------------------------------------------------
--- Converse sens
   PA→A : A[x1,···,xn] Ar n → A
   PA→A = Poly-Rec-Set.f Ar n _ isSetA
           0A
@@ -210,14 +195,46 @@ module Properties-Equiv-QuotientXn-A
   PAI→A : A[x1,···,xn]/<x1,···,xn> Ar n → A
   PAI→A = fst PAIr→Ar
 
+
+
+-----------------------------------------------------------------------------
+-- Converse sens
+
+  A→PA : A → A[x1,···,xn] Ar n
+  A→PA a = (base (replicate 0) a)
+
+  A→PA-map1 : A→PA 1A ≡ 1PA
+  A→PA-map1 = refl
+
+  A→PA-map+ : (a a' : A) → A→PA (a +A a') ≡ (A→PA a) +PA (A→PA a')
+  A→PA-map+ a a' = sym (base-Poly+ _ _ _)
+
+  A→PA-map· : (a a' : A) → A→PA (a ·A a') ≡ (A→PA a) ·PA (A→PA a')
+  A→PA-map· a a' = cong (λ X → base X (a ·A a')) (sym (+n-vec-rid _))
+
+  A→PAI : A → (A[x1,···,xn]/<x1,···,xn> Ar n)
+  A→PAI = [_] ∘ A→PA
+
+
+
 -----------------------------------------------------------------------------
 -- Section
+
+  e-sect : (a : A) → PAI→A (A→PAI a) ≡ a
+  e-sect a with (discreteVecℕn (replicate 0) (replicate 0))
+  ... | yes p = refl
+  ... | no ¬p = rec-⊥ (¬p refl)
+
+
+
+-----------------------------------------------------------------------------
+-- Retraction
 
   open RingStr
   open IsRing
 
-  e-sect : (x : A[x1,···,xn]/<x1,···,xn> Ar n) → A→PAI (PAI→A x) ≡ x
-  e-sect = elimProp-sq (λ _ → isSetPAI _ _)
+  e-retr : (x : A[x1,···,xn]/<x1,···,xn> Ar n) → A→PAI (PAI→A x) ≡ x
+  e-retr = elimProp-sq (λ _ → isSetPAI _ _)
            (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPAI _ _)
            base0-eq
            base-eq
@@ -241,10 +258,25 @@ module Properties-Equiv-QuotientXn-A
                           ∙ cong₂ base (cong (λ X → v' +n-vec 1k0 n X) (toFromId' n k infkn)) (·ARid _)
                           ∙ cong (λ X → base X (-A a)) (sym eqvv'))
 
------------------------------------------------------------------------------
--- Retraction
 
-  e-retr : (a : A) → PAI→A (A→PAI a) ≡ a
-  e-retr a with (discreteVecℕn (replicate 0) (replicate 0))
-  ... | yes p = refl
-  ... | no ¬p = rec-⊥ (¬p refl)
+
+-----------------------------------------------------------------------------
+-- Equiv
+
+module _
+  (Ar@(A , Astr) : CommRing ℓ)
+  (n : ℕ)
+  where
+
+  open Iso
+  open Properties-Equiv-QuotientXn-A Ar n
+
+  Equiv-QuotientX-A : RingEquiv (CommRing→Ring (A[X1,···,Xn]/<X1,···,Xn> Ar n)) (CommRing→Ring Ar)
+  fst Equiv-QuotientX-A = isoToEquiv is
+    where
+    is : Iso (A[x1,···,xn]/<x1,···,xn> Ar n) A
+    fun is = PAI→A
+    inv is = A→PAI
+    rightInv is = e-sect
+    leftInv is = e-retr
+  snd Equiv-QuotientX-A = snd PAIr→Ar
