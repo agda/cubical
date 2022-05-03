@@ -32,7 +32,7 @@ open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
-open import Cubical.Algebra.Group.Instances.Unit renaming (Unit to UnitGroup)
+open import Cubical.Algebra.Group.Instances.Unit
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Subgroup
@@ -607,7 +607,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
 -- via the isomorphisms. We start with the case when G = H = ℤ
 module _ (f : GroupHom ℤGroup ℤGroup) (G : Group₀)
          (g : GroupHom ℤGroup G)
-         (ex : Exact4 ℤGroup ℤGroup G UnitGroup f g (→UnitHom G)) where
+         (ex : Exact4 ℤGroup ℤGroup G UnitGroup₀ f g (→UnitHom G)) where
 
   private
     imf≡kerg : imℤHomSubGroup f ≡ kerNormalSubgroup g
@@ -641,17 +641,17 @@ GroupEquivℤ/abs-gen : (G H L : Group₀)
   → (e : GroupEquiv ℤGroup G)
   → (r : GroupEquiv ℤGroup H)
   → (f : GroupHom G H) (g : GroupHom H L)
-  → Exact4 G H L UnitGroup f g (→UnitHom L)
+  → Exact4 G H L UnitGroup₀ f g (→UnitHom L)
   → GroupEquiv (ℤ/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L
 GroupEquivℤ/abs-gen G H L =
   GroupEquivJ (λ G e
     → (r : GroupEquiv ℤGroup H)
      → (f : GroupHom G H) (g : GroupHom H L)
-     → Exact4 G H L UnitGroup f g (→UnitHom L)
+     → Exact4 G H L UnitGroup₀ f g (→UnitHom L)
      → GroupEquiv (ℤ/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L)
     (GroupEquivJ (λ H r
       → (f : GroupHom ℤGroup H) (g : GroupHom H L) →
-      Exact4 ℤGroup H L UnitGroup f g (→UnitHom L) →
+      Exact4 ℤGroup H L UnitGroup₀ f g (→UnitHom L) →
       GroupEquiv
       (ℤ/ abs (invEq (fst r) (fst f 1))) L)
       λ f g ex → GroupIso→GroupEquiv (GroupIsoℤ/abs f L g ex))
@@ -671,7 +671,7 @@ GroupEquiv-abstractℤ/abs-gen : (G H L : Group₀)
   → (e : GroupEquiv ℤGroup G)
   → (r : GroupEquiv ℤGroup H)
   → (f : GroupHom G H) (g : GroupHom H L)
-  → Exact4 G H L UnitGroup f g (→UnitHom L)
+  → Exact4 G H L UnitGroup₀ f g (→UnitHom L)
   → (n : ℕ)
   → abs (invEq (fst r) (fst f (fst (fst e) 1))) ≡ n
   → GroupEquiv (abstractℤ/ n) L
