@@ -4,6 +4,9 @@ NAMING
 This file provides a guide for how to name things. Note that many
 files in the library do not currently follow these guidelines.
 
+For naming conventions specific to the Algebra subfolder, see
+[Cubical/Algebra/NAMING.md](https://github.com/agda/cubical/blob/master/Cubical/Algebra/NAMING.md).
+
 * Use either descriptive names for universe levels or
   ```
   ℓ ℓ' ℓ'' ℓ''' ...
@@ -22,6 +25,9 @@ files in the library do not currently follow these guidelines.
 * Use camelCase as much as possible, also for properties/lemmas
   related to operations. For example: `+Assoc`, `·DistR+`.
 
+* Avoid referring to variable names in the names of definitions.
+  For example, prefer `+Comm` to something like `m+n≡n+m`.
+
 * Use Equiv or `≃` to refer to equivalences of types or structures.
 
 * Use Iso or `≅` to refer to isomorphisms of types or structures.
@@ -38,4 +44,3 @@ files in the library do not currently follow these guidelines.
   should appear in the order they appear in the type (like
   `isContrUnit`). For functions things can either be separated by `→`
   (like `isProp→isSet`) or `To` (like `isoToEquiv`).
-
