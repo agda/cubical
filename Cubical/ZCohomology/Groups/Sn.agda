@@ -181,9 +181,8 @@ private
                                   (λ _ _ → isProp→isOfHLevelSuc (4 + n) (isSetSetTrunc _ _))
                                   (suspToPropElim2 north (λ _ _ → isSetSetTrunc _ _) refl) (fst y) (snd y)
 
-H¹-S⁰≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ 0)) UnitGroup₀
-H¹-S⁰≅0 n = contrGroupIsoUnit (isContrHⁿ-S0 n)
-
+Hⁿ-S⁰≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ 0)) UnitGroup₀
+Hⁿ-S⁰≅0 n = contrGroupIsoUnit (isContrHⁿ-S0 n)
 
 ------------------------- Hⁿ(S¹) ≅ 0 , for n ≥ 2  -------------------------------
 
@@ -306,10 +305,10 @@ Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
 code : (m n : ℕ) → Type ℓ-zero
 code zero     zero   = GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
 code zero    (suc n) = GroupIso (coHomGr 0 (S₊ (suc n))) ℤGroup
-code (suc m)  zero   = GroupIso (coHomGr (suc m) (S₊ 0)) UnitGroup
+code (suc m)  zero   = GroupIso (coHomGr (suc m) (S₊ 0)) UnitGroup₀
 code (suc m) (suc n) with (discreteℕ m n)
 ... | yes p = GroupIso (coHomGr (suc n) (S₊ (suc n))) ℤGroup
-... | no ¬p = GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup
+... | no ¬p = GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup₀
 
 Hᵐ-Sⁿ : (m n : ℕ) → code m n
 Hᵐ-Sⁿ zero     zero   = H⁰-S⁰≅ℤ×ℤ

@@ -16,7 +16,7 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Vec
 open import Cubical.Data.FinData
 
-open import Cubical.Algebra.Group hiding (Unit ; ℤ; Bool ; _/_ )
+open import Cubical.Algebra.Group hiding (UnitGroup₀ ; ℤ ; Bool )
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.DirectProd

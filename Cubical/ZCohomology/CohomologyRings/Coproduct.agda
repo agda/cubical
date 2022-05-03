@@ -10,7 +10,7 @@ open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_ ; snotz to ns
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum renaming (elim to elim-sum ; rec to rec-sum)
 
-open import Cubical.Algebra.Group hiding (Unit ; ℤ; Bool ; _/_ )
+open import Cubical.Algebra.Group hiding (UnitGroup₀ ; ℤ; Bool ; _/_ )
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.DirectProd
