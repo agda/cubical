@@ -1,4 +1,5 @@
-{-# OPTIONS --cubical --no-import-sorts #-}
+{-# OPTIONS --guardedness #-}
+
 module Cubical.README where
 
 ------------------------------------------------------------------------
@@ -54,6 +55,11 @@ import Cubical.Experiments.Everything
 -- Other modules (TODO: add descriptions)
 import Cubical.Induction.Everything
 import Cubical.Structures.Everything
+
+-- general definition of cohomology
+import Cubical.Cohomology.Everything
+
+-- cohomology with constant Integer coefficients
 import Cubical.ZCohomology.Everything
 
 -- Algebra library (in development)
@@ -68,5 +74,8 @@ import Cubical.Reflection.Everything
 -- Displayed univalent graphs
 import Cubical.Displayed.Everything
 
--- Various axioms and with consequences
+-- Various axioms and consequences
 import Cubical.Axiom.Everything
+
+-- Syntax typeclasses
+import Cubical.Syntax.Everything

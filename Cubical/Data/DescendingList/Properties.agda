@@ -10,7 +10,7 @@
 -- properties by transporting those on finite multisets.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 open import Cubical.Foundations.Everything
 

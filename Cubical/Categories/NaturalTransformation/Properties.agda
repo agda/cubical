@@ -1,5 +1,5 @@
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Categories.NaturalTransformation.Properties where
 
@@ -9,7 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
 open import Cubical.Categories.NaturalTransformation.Base
 
@@ -20,10 +20,11 @@ private
 open isIsoC
 open NatIso
 open NatTrans
-open Precategory
+open Category
 open Functor
+open Iso
 
-module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   private
     _⋆ᴰ_ : ∀ {x y z} (f : D [ x , y ]) (g : D [ y , z ]) → D [ x , z ]
     f ⋆ᴰ g = f ⋆⟨ D ⟩ g
@@ -44,9 +45,9 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
   module NatTransP where
 
     module _ {F G : Functor C D} where
-      open Iso
 
       -- same as Sigma version
+      NatTransΣ : Type (ℓ-max (ℓ-max ℓC ℓC') ℓD')
       NatTransΣ = Σ[ ob ∈ ((x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]) ]
                      ({x y : _ } (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (ob y) ≡ (ob x) ⋆ᴰ (G .F-hom f))
 
@@ -56,7 +57,8 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
       NatTransIsoΣ .rightInv _ = refl
       NatTransIsoΣ .leftInv _ = refl
 
-      NatTrans≡Σ = ua (isoToEquiv NatTransIsoΣ)
+      NatTrans≡Σ : NatTrans F G ≡ NatTransΣ
+      NatTrans≡Σ = isoToPath NatTransIsoΣ
 
       -- introducing paths
       NatTrans-≡-intro : ∀ {αo βo : N-ob-Type F G}
@@ -66,7 +68,8 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
                        → PathP (λ i → ({x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (p i y) ≡ (p i x) ⋆ᴰ (G .F-hom f))) αh βh
                        → natTrans {F = F} {G} αo αh ≡ natTrans βo βh
       NatTrans-≡-intro p q i = natTrans (p i) (q i)
-    module _ {F G : Functor C D} {α β : NatTrans F G} where
+
+  module _ {F G : Functor C D} {α β : NatTrans F G} where
       open Iso
       private
         αOb = α .N-ob
@@ -88,59 +91,12 @@ module _ {C : Precategory ℓC ℓC'} {D : Precategory ℓD ℓD'} where
 
       NTPath≡PathΣ = ua NTPath≃PathΣ
 
-  module _ ⦃ isCatD : isCategory D ⦄ where
+  module _ where
     open NatTransP
 
     -- if the target category has hom Sets, then any natural transformation is a set
-    isSetNat : ∀ {F G : Functor C D}
-             → isSet (NatTrans F G)
-    isSetNat {F} {G} α β p1 p2 i = comp (λ i → NTPath≡PathΣ {F = F} {G} {α} {β} (~ i))
-                                        (λ j → λ {(i = i0) → transport-filler NTPath≡PathΣ p1 (~ j) ;
-                                                  (i = i1) → transport-filler NTPath≡PathΣ p2 (~ j)})
-                                        (p1Σ≡p2Σ i)
-      where
-        αOb = α .N-ob
-        βOb = β .N-ob
-        αHom = α .N-hom
-        βHom = β .N-hom
-
-        -- convert to sigmas so we can reason about constituent paths separately
-        p1Σ : Σ[ p ∈ (αOb ≡ βOb) ]
-                (PathP (λ i → ({x y : _} (f : _) → F ⟪ f ⟫ ⋆ᴰ (p i y) ≡ (p i x) ⋆ᴰ G ⟪ f ⟫))
-                      αHom
-                      βHom)
-        p1Σ = transport NTPath≡PathΣ p1
-
-        p2Σ : Σ[ p ∈ (αOb ≡ βOb) ]
-                (PathP (λ i → ({x y : _} (f : _) → F ⟪ f ⟫ ⋆ᴰ (p i y) ≡ (p i x) ⋆ᴰ G ⟪ f ⟫))
-                       αHom
-                       βHom)
-        p2Σ = transport NTPath≡PathΣ p2
-
-        -- type aliases
-        typeN-ob = (x : C .ob) → D [(F .F-ob x) , (G .F-ob x)]
-        typeN-hom : typeN-ob → Type _
-        typeN-hom ϕ = {x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (ϕ y) ≡ (ϕ x) ⋆ᴰ (G .F-hom f)
-
-        -- the Ob function is a set
-        isSetN-ob : isSet ((x : C .ob) → D [(F .F-ob x) , (G .F-ob x)])
-        isSetN-ob = isOfHLevelΠ 2 λ _ → isCatD .isSetHom
-
-        -- the Hom function is a set
-        isSetN-hom : (ϕ : typeN-ob) → isSet (typeN-hom ϕ)
-        isSetN-hom γ = isProp→isSet (isPropImplicitΠ λ x → isPropImplicitΠ λ y → isPropΠ λ f → isCatD .isSetHom _ _)
-
-        -- in fact it's a dependent Set, which we need because N-hom depends on N-ob
-        isSetN-homP : isOfHLevelDep 2 (λ γ → {x y : C .ob} (f : C [ x , y ]) → (F .F-hom f) ⋆ᴰ (γ y) ≡ (γ x) ⋆ᴰ (G .F-hom f))
-        isSetN-homP = isOfHLevel→isOfHLevelDep 2 isSetN-hom
-
-        -- components of the equality
-        p1Ob≡p2Ob : fst p1Σ ≡ fst p2Σ
-        p1Ob≡p2Ob = isSetN-ob _ _ (fst p1Σ) (fst p2Σ)
-
-        p1Hom≡p2Hom : PathP (λ i → PathP (λ j → typeN-hom (p1Ob≡p2Ob i j)) αHom βHom)
-                            (snd p1Σ) (snd p2Σ)
-        p1Hom≡p2Hom = isSetN-homP _ _ (snd p1Σ) (snd p2Σ) p1Ob≡p2Ob
-
-        p1Σ≡p2Σ : p1Σ ≡ p2Σ
-        p1Σ≡p2Σ = ΣPathP (p1Ob≡p2Ob , p1Hom≡p2Hom)
+    isSetNatTrans : {F G : Functor C D} → isSet (NatTrans F G)
+    isSetNatTrans =
+      isSetRetract (fun NatTransIsoΣ) (inv NatTransIsoΣ) (leftInv NatTransIsoΣ)
+                   (isSetΣSndProp (isSetΠ (λ _ → isSetHom D))
+                                  (λ _ → isPropImplicitΠ2 (λ _ _ → isPropΠ (λ _ → isSetHom D _ _))))

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Ring.QuotientRing where
 
 open import Cubical.Foundations.Prelude
@@ -11,16 +11,18 @@ open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
 
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.Ideal
+open import Cubical.Algebra.Ring.Kernel
 
 private
   variable
     ℓ : Level
 
-module _ (R' : Ring {ℓ}) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R' I) where
+module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R' I) where
   open RingStr (snd R')
   private R = ⟨ R' ⟩
   open isIdeal I-isIdeal
-  open Theory R'
+  open RingTheory R'
 
   R/I : Type ℓ
   R/I = R /ₛ (λ x y → x - y ∈ I)
@@ -173,50 +175,56 @@ module _ (R' : Ring {ℓ}) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal 
         eq : (x y z : R) → [ x ] ·/I ([ y ] +/I [ z ]) ≡ ([ x ] ·/I [ y ]) +/I ([ x ] ·/I [ z ])
         eq x y z i = [ ·Rdist+ x y z i ]
 
-  asRing : Ring {ℓ}
+  asRing : Ring ℓ
   asRing = makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
                     +/I-assoc +/I-rid +/I-rinv +/I-comm
                     ·/I-assoc ·/I-rid ·/I-lid /I-rdist /I-ldist
 
-_/_ : (R : Ring {ℓ}) → (I : IdealsIn R) → Ring {ℓ}
+_/_ : (R : Ring ℓ) → (I : IdealsIn R) → Ring ℓ
 R / (I , IisIdeal) = asRing R I IisIdeal
 
-[_]/I : {R : Ring {ℓ}} {I : IdealsIn R} → (a : ⟨ R ⟩) → ⟨ R / I ⟩
+[_]/I : {R : Ring ℓ} {I : IdealsIn R} → (a : ⟨ R ⟩) → ⟨ R / I ⟩
 [ a ]/I = [ a ]
 
 
-module UniversalProperty (R : Ring {ℓ}) (I : IdealsIn R) where
+module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
   open RingStr ⦃...⦄
-  open Theory ⦃...⦄
+  open RingTheory ⦃...⦄
   Iₛ = fst I
   private
     instance
       _ = R
       _ = snd R
 
-  module _ {S : Ring {ℓ}} (φ : RingHom R S) where
-    open RingHom φ
-    open HomTheory φ
+  module _ {S : Ring ℓ} (φ : RingHom R S) where
+    open IsRingHom
+    open RingHomTheory φ
     private
       instance
         _ = S
         _ = snd S
+      f = fst φ
+      module φ = IsRingHom (snd φ)
 
 
     inducedHom : Iₛ ⊆ kernel φ → RingHom (R / I) S
-    f (inducedHom Iₛ⊆kernel) = elim
-                                 (λ _ → isSetRing S)
-                                 f
-                                 λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
-                                   (f r₁ - f r₂     ≡⟨ cong (λ u → f r₁ + u) (sym (-commutesWithHom _)) ⟩
-                                    f r₁ + f (- r₂) ≡⟨ sym (isHom+ _ _) ⟩
-                                    f (r₁ - r₂)     ≡⟨ Iₛ⊆kernel (r₁ - r₂) r₁-r₂∈I ⟩
-                                    0r ∎)
-    pres1 (inducedHom Iₛ⊆kernel) = pres1
-    isHom+ (inducedHom Iₛ⊆kernel) =
-      elimProp2 (λ _ _ → isSetRing S _ _) isHom+
-    isHom· (inducedHom Iₛ⊆kernel) =
-      elimProp2 (λ _ _ → isSetRing S _ _) isHom·
+    fst (inducedHom Iₛ⊆kernel) =
+      elim
+        (λ _ → isSetRing S)
+        f
+        λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
+          (f r₁ - f r₂     ≡⟨ cong (λ u → f r₁ + u) (sym (φ.pres- _)) ⟩
+           f r₁ + f (- r₂) ≡⟨ sym (φ.pres+ _ _) ⟩
+           f (r₁ - r₂)     ≡⟨ Iₛ⊆kernel (r₁ - r₂) r₁-r₂∈I ⟩
+           0r ∎)
+    pres0 (snd (inducedHom Iₛ⊆kernel)) = φ.pres0
+    pres1 (snd (inducedHom Iₛ⊆kernel)) = φ.pres1
+    pres+ (snd (inducedHom Iₛ⊆kernel)) =
+      elimProp2 (λ _ _ → isSetRing S _ _) φ.pres+
+    pres· (snd (inducedHom Iₛ⊆kernel)) =
+      elimProp2 (λ _ _ → isSetRing S _ _) φ.pres·
+    pres- (snd (inducedHom Iₛ⊆kernel)) =
+      elimProp (λ _ → isSetRing S _ _) φ.pres-
 
     solution : (p : Iₛ ⊆ kernel φ)
                → (x : ⟨ R ⟩) → inducedHom p $ [ x ] ≡ φ $ x

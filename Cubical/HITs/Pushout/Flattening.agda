@@ -7,7 +7,7 @@
     entirely from definitional equalities involving glue/unglue.
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Pushout.Flattening where
 
 open import Cubical.Foundations.Prelude

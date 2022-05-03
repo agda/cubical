@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --guardedness --safe #-}
+{-# OPTIONS --guardedness --safe #-}
 
 -- Construction of M-types from
 -- https://arxiv.org/pdf/1504.02949.pdf

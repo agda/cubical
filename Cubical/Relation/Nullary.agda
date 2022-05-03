@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Relation.Nullary where
 
 open import Cubical.Relation.Nullary.Base public

@@ -10,15 +10,16 @@ Every subfinite set is guaranteed to be a set and discrete.
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.SubFinSet where
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin
+open import Cubical.Data.SumFin
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinSet
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Functions.Embedding
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -34,8 +35,8 @@ isSubFinSet A = ∃[ n ∈ ℕ ] A ↪ Fin n
 
 isFinSet→isSubFinSet : isFinSet A → isSubFinSet A
 isFinSet→isSubFinSet = PT.map
-  λ (n , f , isEquiv-f) →
-    n , f , isEquiv→isEmbedding isEquiv-f
+  (λ (n , f , isEquiv-f) →
+      n , f , isEquiv→isEmbedding isEquiv-f) ∘ isFinSet→isFinSet'
 
 isSubFinSet→isSet : isSubFinSet A → isSet A
 isSubFinSet→isSet = PT.rec

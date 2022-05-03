@@ -6,12 +6,13 @@ Note that this uses the HoTT book's indexing, so it will be off
  from `∥_∥_` in HITs.Truncation.Base by -2
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Truncation.Base where
 
-open import Cubical.Data.NatMinusOne renaming (suc₋₁ to suc)
+open import Cubical.Data.NatMinusOne
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Pointed
 open import Cubical.HITs.Sn.Base
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Unit.Base
@@ -34,3 +35,9 @@ hLevelTrunc (suc n) A = HubAndSpoke A n
 ∣_∣ₕ : ∀ {ℓ} {A : Type ℓ} {n : ℕ} → A → ∥ A ∥ n
 ∣_∣ₕ {n = zero} a = tt*
 ∣_∣ₕ {n = suc n} a = ∣ a ∣
+
+-- Pointed version
+hLevelTrunc∙ : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → Pointed ℓ
+fst (hLevelTrunc∙ n A) = hLevelTrunc n (typ A)
+snd (hLevelTrunc∙ zero A) = tt*
+snd (hLevelTrunc∙ (suc n) A) = ∣ pt A ∣ₕ

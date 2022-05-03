@@ -3,7 +3,7 @@
 Transferring properties of terms between equivalent structures
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Structures.Transfer where
 
 open import Cubical.Foundations.Prelude
@@ -29,7 +29,7 @@ transfer P α τ ι θ {X} {Y} {s} {t} e h =
       (productUnivalentStr ι θ (EquivAction→StrEquiv α)  (TransportStr→UnivalentStr α τ))
       (X , s , invEq (α (e .fst)) h)
       (Y , t , h)
-      (e .fst , e .snd , retEq (α (e .fst)) h))
+      (e .fst , e .snd , secEq (α (e .fst)) h))
 
 transfer⁻ : {ℓ₂' ℓ₀ : Level} {S : Type ℓ → Type ℓ₁} {H : Type ℓ → Type ℓ₂}
   (P : ∀ X → S X → H X → Type ℓ₀)

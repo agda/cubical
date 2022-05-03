@@ -3,7 +3,7 @@
 Pointed structure: X ↦ X
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Structures.Relational.Pointed where
 
 open import Cubical.Foundations.Prelude

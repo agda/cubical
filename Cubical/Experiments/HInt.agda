@@ -17,7 +17,6 @@ https://github.com/RedPRL/redtt/blob/master/library/cool/biinv-int.red
 It might be interesting to port that example one day.
 
 -}
-{-# OPTIONS --cubical --no-import-sorts #-}
 module Cubical.Experiments.HInt where
 
 open import Cubical.Foundations.Prelude

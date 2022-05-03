@@ -1,5 +1,5 @@
 -- An example of something where normalization is surprisingly slow
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.Problem where
 
 open import Cubical.Foundations.Prelude
@@ -10,7 +10,9 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.HITs.Join
-open import Cubical.HITs.Hopf
+open import Cubical.Homotopy.Hopf
+
+open S¹Hopf
 
 ptType : Type _
 ptType = Σ Type₀ \ A → A
@@ -71,78 +73,78 @@ problem i = transp (λ j → helix (innerpath i j)) i0 (pos 0)
 
 -- Lots of tests: (thanks Evan!)
 
-winding2 : Path (Path S² base base) refl refl → Int
+winding2 : Path (Path S² base base) refl refl → ℤ
 winding2 p = winding (λ j → transp (λ i → HopfS² (p i j)) i0 base)
 
-test0 : Int
+test0 : ℤ
 test0 = winding2 (λ i j → surf i j)
 
-test1 : Int
+test1 : ℤ
 test1 = winding2 (λ i j → surf j i)
 
-test2 : Int
+test2 : ℤ
 test2 = winding2 (λ i j → hcomp (λ _ → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))
 
-test3 : Int
+test3 : ℤ
 test3 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
 
-test4 : Int
+test4 : ℤ
 test4 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
 
-test5 : Int
+test5 : ℤ
 test5 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) base)
 
-test6 : Int
+test6 : ℤ
 test6 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) base)
 
-test7 : Int
+test7 : ℤ
 test7 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → surf j k ; (j = i0) → base ; (j = i1) → base}) (surf i j))
 
-test8 : Int
+test8 : ℤ
 test8 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) (surf i j))
 
-test9 : Int
+test9 : ℤ
 test9 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) (surf i j))
 
-test10 : Int
+test10 : ℤ
 test10 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))
 
 
 
 -- Tests using HopfS²'
 
-winding2' : Path (Path S² base base) refl refl → Int
+winding2' : Path (Path S² base base) refl refl → ℤ
 winding2' p = winding (λ j → transp (λ i → HopfS²' (p i j)) i0 base)
 
-test0' : Int
+test0' : ℤ
 test0' = winding2' (λ i j → surf i j)
 
-test1' : Int
+test1' : ℤ
 test1' = winding2' (λ i j → surf j i)
 
-test2' : Int
+test2' : ℤ
 test2' = winding2' (λ i j → hcomp (λ _ → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))
 
-test3' : Int
+test3' : ℤ
 test3' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
 
-test4' : Int
+test4' : ℤ
 test4' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
 
-test5' : Int
+test5' : ℤ
 test5' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) base)
 
-test6' : Int
+test6' : ℤ
 test6' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) base)
 
-test7' : Int
+test7' : ℤ
 test7' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → surf j k ; (j = i0) → base ; (j = i1) → base}) (surf i j))
 
-test8' : Int
+test8' : ℤ
 test8' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) (surf i j))
 
-test9' : Int
+test9' : ℤ
 test9' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) (surf i j))
 
-test10' : Int
+test10' : ℤ
 test10' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))

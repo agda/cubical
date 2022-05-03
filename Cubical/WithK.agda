@@ -9,7 +9,7 @@ incompatible flags.
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --with-K #-}
+{-# OPTIONS --with-K #-}
 
 module Cubical.WithK where
 

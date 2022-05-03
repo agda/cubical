@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.Nat.Order where
 
 open import Cubical.Foundations.Prelude
@@ -17,13 +17,19 @@ open import Cubical.Induction.WellFounded
 
 open import Cubical.Relation.Nullary
 
-infix 4 _≤_ _<_
+infix 4 _≤_ _<_ _≥_ _>_
 
 _≤_ : ℕ → ℕ → Type₀
 m ≤ n = Σ[ k ∈ ℕ ] k + m ≡ n
 
 _<_ : ℕ → ℕ → Type₀
 m < n = suc m ≤ n
+
+_≥_ : ℕ → ℕ → Type₀
+m ≥ n = n ≤ m
+
+_>_ : ℕ → ℕ → Type₀
+m > n = n < m
 
 data Trichotomy (m n : ℕ) : Type₀ where
   lt : m < n → Trichotomy m n
@@ -70,6 +76,12 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
 ≤-suc : m ≤ n → m ≤ suc n
 ≤-suc (k , p) = suc k , cong suc p
 
+suc-< : suc m < n → m < n
+suc-< p = pred-≤-pred (≤-suc p)
+
+≤-sucℕ : n ≤ suc n
+≤-sucℕ = ≤-suc ≤-refl
+
 ≤-predℕ : predℕ n ≤ n
 ≤-predℕ {zero} = ≤-refl
 ≤-predℕ {suc n} = ≤-suc ≤-refl
@@ -91,6 +103,9 @@ pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
   l2 = m+n≡n→m≡0 l1
   l3 : 0 ≡ i
   l3 = sym (snd (m+n≡0→m≡0×n≡0 l2))
+
+≤-+-≤ : m ≤ n → l ≤ k → m + l ≤ n + k
+≤-+-≤ p q = ≤-trans (≤-+k p) (≤-k+ q)
 
 ≤-k+-cancel : k + m ≤ k + n → m ≤ n
 ≤-k+-cancel {k} {m} (l , p) = l , inj-m+ (sub k m ∙ p)
@@ -154,6 +169,12 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-k+ : m < n → k + m < k + n
 <-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
 
+<-+-< : m < n → k < l → m + k < n + l
+<-+-<  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
+
+<-+-≤ : m < n → k ≤ l → m + k < n + l
+<-+-≤ p q = <≤-trans (<-+k p) (≤-k+ q)
+
 <-·sk : m < n → m · suc k < n · suc k
 <-·sk {m} {n} {k} (d , r) = (d · suc k + k) , reason where
   reason : (d · suc k + k) + suc (m · suc k) ≡ n · suc k
@@ -163,10 +184,20 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
            (d + suc m) · suc k               ≡⟨ cong (_· suc k) r ⟩
            n · suc k                         ∎
 
+∸-≤ : ∀ m n → m ∸ n ≤ m
+∸-≤ m zero = ≤-refl
+∸-≤ zero (suc n) = ≤-refl
+∸-≤ (suc m) (suc n) = ≤-trans (∸-≤ m n) (1 , refl)
+
 ≤-∸-+-cancel : m ≤ n → (n ∸ m) + m ≡ n
 ≤-∸-+-cancel {zero} {n} _ = +-zero _
 ≤-∸-+-cancel {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
 ≤-∸-+-cancel {suc m} {suc n} m+1≤n+1 = +-suc _ _ ∙ cong suc (≤-∸-+-cancel (pred-≤-pred m+1≤n+1))
+
+≤-∸-suc : m ≤ n → suc (n ∸ m) ≡ suc n ∸ m
+≤-∸-suc {zero} {n} m≤n = refl
+≤-∸-suc {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
+≤-∸-suc {suc m} {suc n} m+1≤n+1 = ≤-∸-suc (pred-≤-pred m+1≤n+1)
 
 left-≤-max : m ≤ max m n
 left-≤-max {zero} {n} = zero-≤
@@ -188,6 +219,16 @@ min-≤-right {zero} {n} = zero-≤
 min-≤-right {suc m} {zero} = ≤-refl
 min-≤-right {suc m} {suc n} = suc-≤-suc min-≤-right
 
+≤Dec : ∀ m n → Dec (m ≤ n)
+≤Dec zero n = yes (n , +-zero _)
+≤Dec (suc m) zero = no ¬-<-zero
+≤Dec (suc m) (suc n) with ≤Dec m n
+... | yes m≤n = yes (suc-≤-suc m≤n)
+... | no m≰n = no λ m+1≤n+1 → m≰n (pred-≤-pred m+1≤n+1 )
+
+<Dec : ∀ m n → Dec (m < n)
+<Dec m n = ≤Dec (suc m) n
+
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)
 Trichotomy-suc (eq m=n) = eq (cong suc m=n)
@@ -203,6 +244,33 @@ suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
 <-split {suc m} {suc n} = ⊎.map suc-≤-suc (cong suc) ∘ <-split ∘ pred-≤-pred
+
+≤-split : m ≤ n → (m < n) ⊎ (m ≡ n)
+≤-split p = <-split (suc-≤-suc p)
+
+≤→< : m ≤ n → ¬ m ≡ n → m < n
+≤→< p q =
+  case (≤-split p) of
+    λ { (inl r) → r
+      ; (inr r) → ⊥.rec (q r) }
+
+≤-+-split : ∀ n m k → k ≤ n + m → (n ≤ k) ⊎ (m ≤ (n + m) ∸ k)
+≤-+-split n m k k≤n+m with n ≟ k
+... | eq p = inl (0 , p)
+... | lt n<k = inl (<-weaken n<k)
+... | gt k<n with m ≟ ((n + m) ∸ k)
+... | eq p = inr (0 , p)
+... | lt m<n+m∸k = inr (<-weaken m<n+m∸k)
+... | gt n+m∸k<m =
+      ⊥.rec (¬m<m (transport (λ i → ≤-∸-+-cancel k≤n+m i < +-comm m n i) (<-+-< n+m∸k<m k<n)))
+
+<-asym'-case : Trichotomy m n → ¬ m < n → n ≤ m
+<-asym'-case (lt p) q = ⊥.rec (q p)
+<-asym'-case (eq p) _ = _ , sym p
+<-asym'-case (gt p) _ = <-weaken p
+
+<-asym' : ¬ m < n → n ≤ m
+<-asym' = <-asym'-case (_≟_ _ _)
 
 private
   acc-suc : Acc _<_ n → Acc _<_ (suc n)
@@ -308,3 +376,36 @@ module <-Reasoning where
 
   _<≡⟨_⟩_ : ∀ k → k < l → l ≡ m → k < m
   _ <≡⟨ p ⟩ q = _ ≤≡⟨ p ⟩ q
+
+
+-- Some lemmas about ∸
+suc∸-fst : (n m : ℕ) → m < n → suc (n ∸ m) ≡ (suc n) ∸ m
+suc∸-fst zero zero p = refl
+suc∸-fst zero (suc m) p = ⊥.rec (¬-<-zero p)
+suc∸-fst (suc n) zero p = refl
+suc∸-fst (suc n) (suc m) p = (suc∸-fst n m (pred-≤-pred p))
+
+n∸m≡0 : (n m : ℕ) → n < m → (n ∸ m) ≡ 0
+n∸m≡0 zero zero p = refl
+n∸m≡0 (suc n) zero p = ⊥.rec (¬-<-zero p)
+n∸m≡0 zero (suc m) p = refl
+n∸m≡0 (suc n) (suc m) p = n∸m≡0 n m (pred-≤-pred p)
+
+n∸n≡0 : (n : ℕ) → n ∸ n ≡ 0
+n∸n≡0 zero = refl
+n∸n≡0 (suc n) = n∸n≡0 n
+
+-- automation
+
+≤-solver-type : (m n : ℕ) → Trichotomy m n → Type
+≤-solver-type m n (lt p) = m ≤ n
+≤-solver-type m n (eq p) = m ≤ n
+≤-solver-type m n (gt p) = n < m
+
+≤-solver-case : (m n : ℕ) → (p : Trichotomy m n) → ≤-solver-type m n p
+≤-solver-case m n (lt p) = <-weaken p
+≤-solver-case m n (eq p) = _ , p
+≤-solver-case m n (gt p) = p
+
+≤-solver : (m n : ℕ) → ≤-solver-type m n (m ≟ n)
+≤-solver m n = ≤-solver-case m n (m ≟ n)

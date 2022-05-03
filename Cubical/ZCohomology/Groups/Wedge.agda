@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.Wedge where
 
 open import Cubical.ZCohomology.Base
@@ -30,9 +30,8 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.Equiv
 
-open GroupIso renaming (map to map')
-open GroupHom
-
+open IsGroupHom
+open Iso
 {-
 This module proves that Hⁿ(A ⋁ B) ≅ Hⁿ(A) × Hⁿ(B) for n ≥ 1 directly (rather than by means of Mayer-Vietoris).
 It also proves that Ĥⁿ(A ⋁ B) ≅ Ĥ⁰(A) × Ĥ⁰(B) (reduced groups)
@@ -107,23 +106,21 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     wedgeFun⁻ n f g (push a i) = f (pt A) +ₖ g (pt B)
 
   Hⁿ-⋁ : (n : ℕ) → GroupIso (coHomGr (suc n) (A ⋁ B)) (×coHomGr (suc n) (typ A) (typ B))
-  fun (map' (Hⁿ-⋁ zero)) =
-    sElim (λ _ → isSet× setTruncIsSet setTruncIsSet)
+  fun (fst (Hⁿ-⋁ zero)) =
+    sElim (λ _ → isSet× isSetSetTrunc isSetSetTrunc)
            λ f → ∣ (λ x → f (inl x)) ∣₂ , ∣ (λ x → f (inr x)) ∣₂
-  isHom (map' (Hⁿ-⋁ zero)) =
-    sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
-            λ _ _ → refl
-  inv (Hⁿ-⋁ zero) = uncurry (sElim2 (λ _ _ → setTruncIsSet)
-                             λ f g → ∣ wedgeFun⁻ 0 f g ∣₂)
-  rightInv (Hⁿ-⋁ zero) =
+  inv (fst (Hⁿ-⋁ zero)) =
+    uncurry (sElim2 (λ _ _ → isSetSetTrunc)
+             λ f g → ∣ wedgeFun⁻ 0 f g ∣₂)
+  rightInv (fst (Hⁿ-⋁ zero)) =
     uncurry
-    (coHomPointedElim _ (pt A) (λ _ → isPropΠ λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
-      λ f fId → coHomPointedElim _ (pt B) (λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+    (coHomPointedElim _ (pt A) (λ _ → isPropΠ λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
+      λ f fId → coHomPointedElim _ (pt B) (λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
         λ g gId → ΣPathP ((cong ∣_∣₂ (funExt (λ x → cong (f x +ₖ_) gId ∙ rUnitₖ 1 (f x))))
                           , cong ∣_∣₂ (funExt (λ x → cong (_+ₖ g x) fId ∙ lUnitₖ 1 (g x)))))
-  leftInv (Hⁿ-⋁ zero) =
-    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-      (λ f → pRec (setTruncIsSet _ _)
+  leftInv (fst (Hⁿ-⋁ zero)) =
+    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+      (λ f → pRec (isSetSetTrunc _ _)
                    (λ fId → cong ∣_∣₂ (sym fId))
                    (helper f _ refl))
     where
@@ -131,8 +128,8 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
           → f (inl (pt A)) ≡ x
           → ∥ f ≡ wedgeFun⁻ 0 (λ x → f (inl x)) (λ x → f (inr x)) ∥
     helper f =
-      trElim (λ _ → isProp→isOfHLevelSuc 2 (isPropΠ λ _ → propTruncIsProp))
-        (sphereElim 0 (λ _ → isPropΠ λ _ → propTruncIsProp)
+      trElim (λ _ → isProp→isOfHLevelSuc 2 (isPropΠ λ _ → isPropPropTrunc))
+        (sphereElim 0 (λ _ → isPropΠ λ _ → isPropPropTrunc)
          λ inlId → ∣ funExt (λ { (inl x) → sym (rUnitₖ 1 (f (inl x)))
                                          ∙∙ cong ((f (inl x)) +ₖ_) (sym inlId)
                                          ∙∙ cong ((f (inl x)) +ₖ_) (cong f (push tt))
@@ -153,24 +150,25 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                                     ≡ (sym (lUnitₖ 1 y) ∙ refl) j)
                                              p refl)
                                λ i _ → (refl ∙ (λ _ → 0ₖ 1)) i
-  fun (map' (Hⁿ-⋁ (suc n))) =
-    sElim (λ _ → isSet× setTruncIsSet setTruncIsSet)
+  snd (Hⁿ-⋁ zero) =
+    makeIsGroupHom
+      (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
+        λ _ _ → refl)
+  fun (fst (Hⁿ-⋁ (suc n))) =
+    sElim (λ _ → isSet× isSetSetTrunc isSetSetTrunc)
            λ f → ∣ (λ x → f (inl x)) ∣₂ , ∣ (λ x → f (inr x)) ∣₂
-  isHom (map' (Hⁿ-⋁ (suc n))) =
-    sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
-            λ _ _ → refl
-  inv (Hⁿ-⋁ (suc n)) =
-    uncurry (sElim2 (λ _ _ → setTruncIsSet)
+  inv (fst (Hⁿ-⋁ (suc n))) =
+    uncurry (sElim2 (λ _ _ → isSetSetTrunc)
                      λ f g → ∣ wedgeFun⁻ (suc n) f g ∣₂)
-  rightInv (Hⁿ-⋁ (suc n)) =
+  rightInv (fst (Hⁿ-⋁ (suc n))) =
    uncurry
-    (coHomPointedElim _ (pt A) (λ _ → isPropΠ λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
-      λ f fId → coHomPointedElim _ (pt B) (λ _ → isSet× setTruncIsSet setTruncIsSet _ _)
+    (coHomPointedElim _ (pt A) (λ _ → isPropΠ λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
+      λ f fId → coHomPointedElim _ (pt B) (λ _ → isSet× isSetSetTrunc isSetSetTrunc _ _)
         λ g gId → ΣPathP ((cong ∣_∣₂ (funExt (λ x → cong (f x +ₖ_) gId ∙ rUnitₖ (2 + n) (f x))))
                           , cong ∣_∣₂ (funExt (λ x → cong (_+ₖ g x) fId ∙ lUnitₖ (2 + n) (g x)))))
-  leftInv (Hⁿ-⋁ (suc n)) =
-    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-      (λ f → pRec (setTruncIsSet _ _)
+  leftInv (fst (Hⁿ-⋁ (suc n))) =
+    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+      (λ f → pRec (isSetSetTrunc _ _)
                    (λ fId → cong ∣_∣₂ (sym fId))
                    (helper f _ refl))
     where
@@ -178,8 +176,8 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
           → f (inl (pt A)) ≡ x
           → ∥ f ≡ wedgeFun⁻ (suc n) (λ x → f (inl x)) (λ x → f (inr x)) ∥
     helper f =
-      trElim (λ _ → isProp→isOfHLevelSuc (3 + n) (isPropΠ λ _ → propTruncIsProp))
-        (sphereToPropElim (suc n) (λ _ → isPropΠ λ _ → propTruncIsProp)
+      trElim (λ _ → isProp→isOfHLevelSuc (3 + n) (isPropΠ λ _ → isPropPropTrunc))
+        (sphereToPropElim (suc n) (λ _ → isPropΠ λ _ → isPropPropTrunc)
           λ inlId → (∣ funExt (λ { (inl x) → sym (rUnitₖ (2 + n) (f (inl x)))
                                            ∙∙ cong ((f (inl x)) +ₖ_) (sym inlId)
                                            ∙∙ cong ((f (inl x)) +ₖ_) (cong f (push tt))
@@ -200,31 +198,31 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                                     ≡ (sym (lUnitₖ (2 + n) y) ∙ refl) j)
                                              p refl)
                               λ i j → ((λ _ → ∣ north ∣) ∙ refl) i
+  snd (Hⁿ-⋁ (suc n)) =
+    makeIsGroupHom
+      (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
+        λ _ _ → refl)
 
   H⁰Red-⋁ : GroupIso (coHomRedGrDir 0 (A ⋁ B , inl (pt A)))
-                      (dirProd (coHomRedGrDir 0 A) (coHomRedGrDir 0 B))
-  fun (GroupIso.map H⁰Red-⋁) =
-    sRec (isSet× setTruncIsSet setTruncIsSet)
+                      (DirProd (coHomRedGrDir 0 A) (coHomRedGrDir 0 B))
+  fun (fst H⁰Red-⋁) =
+    sRec (isSet× isSetSetTrunc isSetSetTrunc)
          λ {(f , p) → ∣ (f ∘ inl) , p ∣₂
                      , ∣ (f ∘ inr) , cong f (sym (push tt)) ∙ p ∣₂}
-  isHom (GroupIso.map H⁰Red-⋁) =
-    sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
-           λ {(f , p) (g , q) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
-                                       , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))}
-  inv H⁰Red-⋁ =
-    uncurry (sRec2 setTruncIsSet
+  inv (fst H⁰Red-⋁) =
+    uncurry (sRec2 isSetSetTrunc
               λ {(f , p) (g , q) → ∣ (λ {(inl a) → f a
                                        ; (inr b) → g b
                                        ; (push tt i) → (p ∙ sym q) i})
                                        , p ∣₂})
-  rightInv H⁰Red-⋁ =
+  rightInv (fst H⁰Red-⋁) =
     uncurry
-      (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× setTruncIsSet setTruncIsSet) _ _)
-        λ {(_ , _) (_ , _) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl)
-                                    , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _) refl))})
-  leftInv H⁰Red-⋁ =
-    sElim (λ _ → isOfHLevelPath 2 setTruncIsSet _ _)
-      λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetInt _ _)
+      (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
+        λ {(_ , _) (_ , _) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl)
+                                    , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl))})
+  leftInv (fst H⁰Red-⋁) =
+    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+      λ {(f , p) → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                                  (funExt λ {(inl a) → refl
                                           ; (inr b) → refl
                                           ; (push tt i) j → (cong (p ∙_) (symDistr (cong f (sym (push tt))) p)
@@ -232,9 +230,14 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
                                                            ∙∙ cong (_∙ (cong f (push tt))) (rCancel p)
                                                             ∙ sym (lUnit (cong f (push tt)))) j i}))}
                                           -- Alt. use isOfHLevel→isOfHLevelDep
+  snd H⁰Red-⋁ =
+    makeIsGroupHom
+      (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
+              λ {(f , p) (g , q) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl)
+                                          , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl))})
 
   wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → (x : A ⋁ B) → ∥ inl (pt A) ≡ x ∥
   wedgeConnected conA conB =
-    PushoutToProp (λ _ → propTruncIsProp)
-                  (λ a → pRec propTruncIsProp (λ p → ∣ cong inl p ∣₁) (conA a))
-                   λ b → pRec propTruncIsProp (λ p → ∣ push tt ∙ cong inr p ∣₁) (conB b)
+    PushoutToProp (λ _ → isPropPropTrunc)
+                  (λ a → pRec isPropPropTrunc (λ p → ∣ cong inl p ∣₁) (conA a))
+                   λ b → pRec isPropPropTrunc (λ p → ∣ push tt ∙ cong inr p ∣₁) (conB b)

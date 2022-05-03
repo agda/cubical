@@ -17,7 +17,7 @@ This file contains:
 - Propositional truncation and its elimination principle
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Id where
 
 open import Cubical.Foundations.Prelude public
@@ -53,6 +53,7 @@ open import Cubical.HITs.PropositionalTruncation public
            ; rec to recPropTruncPath
            ; elim to elimPropTruncPath )
 open import Cubical.Core.Id public
+  using (Id; ⟨_,_⟩; faceId; pathId; elimId; _≡_)
 
 private
   variable

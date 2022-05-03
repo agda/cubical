@@ -4,7 +4,7 @@ Definition of the torus as a HIT together with a proof that it is
 equivalent to two circles
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Torus.Base where
 
 open import Cubical.Foundations.Prelude
@@ -71,18 +71,18 @@ lemPathAnd t u = isoToPath (iso (λ tu → (λ i → tu i .fst) , λ i → tu i 
                                  (λ y → refl)
                                  (λ x → refl))
 
-ΩTorus≡Int×Int : ΩTorus ≡ Int × Int
-ΩTorus≡Int×Int =
+ΩTorus≡ℤ×ℤ : ΩTorus ≡ ℤ × ℤ
+ΩTorus≡ℤ×ℤ =
   ΩTorus
     ≡⟨ (λ i → Loop (point-path i)) ⟩
   Loop (base , base)
     ≡⟨ lemPathAnd (base , base) (base , base) ⟩
   ΩS¹ × ΩS¹
-    ≡⟨ (λ i → ΩS¹≡Int i × ΩS¹≡Int i) ⟩
-  Int × Int ∎
+    ≡⟨ (λ i → ΩS¹≡ℤ i × ΩS¹≡ℤ i) ⟩
+  ℤ × ℤ ∎
 
 -- Computing the winding numbers on the torus
-windingTorus : ΩTorus → Int × Int
+windingTorus : ΩTorus → ℤ × ℤ
 windingTorus l = ( winding (λ i → t2c (l i) .fst)
                  , winding (λ i → t2c (l i) .snd))
 

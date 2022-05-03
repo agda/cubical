@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 
 {-
 
@@ -26,6 +26,7 @@ open import Cubical.Foundations.Isomorphism
   hiding (section)
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
+open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Data.Nat.Base
 
@@ -113,8 +114,11 @@ module AlgebraHInd→HInit {N : NatAlgebra ℓ'} (ind : isNatInductive N ℓ) (M
   section→morph : NatSection ConstFiberM → NatMorphism N M
   section→morph x = record { morph = section ; comm-zero = sec-comm-zero ; comm-suc = λ n i → sec-comm-suc i n }
     where open NatSection x
+
   Morph≡Section : NatSection ConstFiberM ≡ NatMorphism N M
-  Morph≡Section = isoToPath (iso section→morph morph→section (λ _ → refl) (λ _ → refl))
+  Morph≡Section = ua e
+    where
+    unquoteDecl e = declStrictEquiv e section→morph morph→section
 
   isContrMorph : isContr (NatMorphism N M)
   isContrMorph = subst isContr Morph≡Section (inhProp→isContr (ind ConstFiberM) (AlgebraPropositionality.SectionProp.S≡T ind))

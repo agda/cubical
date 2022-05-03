@@ -5,7 +5,7 @@ This file contains:
 - Properties of 2-groupoid truncations
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.2GroupoidTruncation.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -52,8 +52,8 @@ elim3 : {B : (x y z : ∥ A ∥₄) → Type ℓ}
 elim3 gB g = elim2 (λ _ _ → is2GroupoidΠ (λ _ → gB _ _ _))
                    (λ a b → elim (λ _ → gB _ _ _) (g a b))
 
-2GroupoidTruncIs2Groupoid : is2Groupoid ∥ A ∥₄
-2GroupoidTruncIs2Groupoid a b p q r s = squash₄ a b p q r s
+is2Groupoid2GroupoidTrunc : is2Groupoid ∥ A ∥₄
+is2Groupoid2GroupoidTrunc a b p q r s = squash₄ a b p q r s
 
 2GroupoidTruncIdempotent≃ : is2Groupoid A → ∥ A ∥₄ ≃ A
 2GroupoidTruncIdempotent≃ {A = A} hA = isoToEquiv f
@@ -62,7 +62,7 @@ elim3 gB g = elim2 (λ _ _ → is2GroupoidΠ (λ _ → gB _ _ _))
   Iso.fun f = rec hA (idfun A)
   Iso.inv f x = ∣ x ∣₄
   Iso.rightInv f _ = refl
-  Iso.leftInv f = elim (λ _ → isOfHLevelSuc 4 2GroupoidTruncIs2Groupoid _ _) (λ _ → refl)
+  Iso.leftInv f = elim (λ _ → isOfHLevelSuc 4 is2Groupoid2GroupoidTrunc _ _) (λ _ → refl)
 
 2GroupoidTruncIdempotent : is2Groupoid A → ∥ A ∥₄ ≡ A
 2GroupoidTruncIdempotent hA = ua (2GroupoidTruncIdempotent≃ hA)

@@ -5,7 +5,7 @@ Add axioms (i.e., propositions) to a structure S without changing the definition
 X ↦ Σ[ s ∈ S X ] (P X s) where (P X s) is a proposition for all X and s.
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Structures.Axioms where
 
 open import Cubical.Foundations.Prelude

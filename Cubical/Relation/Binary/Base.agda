@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Base where
 
 open import Cubical.Core.Everything
@@ -46,6 +46,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isSym : Type (ℓ-max ℓ ℓ')
   isSym = (a b : A) → R a b → R b a
 
+  isAntisym : Type (ℓ-max ℓ ℓ')
+  isAntisym = (a b : A) → R a b → R b a → a ≡ b
+
   isTrans : Type (ℓ-max ℓ ℓ')
   isTrans = (a b c : A)  → R a b → R b c → R a c
 
@@ -58,6 +61,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   isPropValued : Type (ℓ-max ℓ ℓ')
   isPropValued = (a b : A) → isProp (R a b)
+
+  isSetValued : Type (ℓ-max ℓ ℓ')
+  isSetValued = (a b : A) → isSet (R a b)
 
   isEffective : Type (ℓ-max ℓ ℓ')
   isEffective =
@@ -93,7 +99,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       Iso.rightInv i = J (λ y p → cong fst (h aρa (y , J Q (ρ a) p)) ≡ p)
                          (J (λ q _ → cong fst (h aρa (a , q)) ≡ refl)
                            (J (λ α _ → cong fst α ≡ refl) refl
-                             (isContr→isProp (isProp→isContrPath h aρa aρa) refl (h aρa aρa)))
+                             (isProp→isSet h _ _ refl (h _ _)))
                            (sym (JRefl Q (ρ a))))
       Iso.leftInv i r = J (λ w β → J Q (ρ a) (cong fst β) ≡ snd w)
                           (JRefl Q (ρ a)) (h aρa (a' , r))

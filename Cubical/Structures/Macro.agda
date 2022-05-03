@@ -3,7 +3,7 @@
 Descriptor language for easily defining structures
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Structures.Macro where
 
 open import Cubical.Foundations.Prelude

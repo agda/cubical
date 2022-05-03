@@ -7,7 +7,7 @@ Half adjoint equivalences ([HAEquiv])
 - Cong is an equivalence ([congEquiv])
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.HalfAdjoint where
 
 open import Cubical.Foundations.Prelude
@@ -31,40 +31,15 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
     rinv : ∀ b → f (g b) ≡ b
     com : ∀ a → cong f (linv a) ≡ rinv (f a)
 
-  -- from redtt's ha-equiv/symm
   com-op : ∀ b → cong g (rinv b) ≡ linv (g b)
-  com-op b j i = hcomp (λ k → λ { (i = i0) → linv (g b) (j ∧ (~ k))
-                                ; (j = i0) → g (rinv b i)
-                                ; (j = i1) → linv (g b) (i ∨ (~ k))
-                                ; (i = i1) → g b })
-                       (cap1 j i)
-
-    where cap0 : Square {- (j = i0) -} (λ i → f (g (rinv b i)))
-                        {- (j = i1) -} (λ i → rinv b i)
-                        {- (i = i0) -} (λ j → f (linv (g b) j))
-                        {- (i = i1) -} (λ j → rinv b j)
-
-          cap0 j i = hcomp (λ k → λ { (i = i0) → com (g b) (~ k) j
-                                    ; (j = i0) → f (g (rinv b i))
-                                    ; (j = i1) → rinv b i
-                                    ; (i = i1) → rinv b j })
-                           (rinv (rinv b i) j)
-
-          filler : I → I → A
-          filler j i = hfill (λ k → λ { (i = i0) → g (rinv b k)
-                                      ; (i = i1) → g b })
-                             (inS (linv (g b) i)) j
-
-          cap1 : Square {- (j = i0) -} (λ i → g (rinv b i))
-                        {- (j = i1) -} (λ i → g b)
-                        {- (i = i0) -} (λ j → linv (g b) j)
-                        {- (i = i1) -} (λ j → g b)
-
-          cap1 j i = hcomp (λ k → λ { (i = i0) → linv (linv (g b) j) k
-                                    ; (j = i0) → linv (g (rinv b i)) k
-                                    ; (j = i1) → filler i k
-                                    ; (i = i1) → filler j k })
-                           (g (cap0 j i))
+  com-op b = subst (λ b → cong g (rinv b) ≡ linv (g b)) (rinv b) (helper (g b))
+    where
+    helper : ∀ a → cong g (rinv (f a)) ≡ linv (g (f a))
+    helper a i j = hcomp (λ k → λ { (i = i0) → g (rinv (f a) (j ∨ ~ k))
+                                  ; (i = i1) → linv (linv a (~ k)) j
+                                  ; (j = i0) → g (com a (~ i) (~ k))
+                                  ; (j = i1) → linv a (i ∧ ~ k) })
+                         (linv a (i ∧ j))
 
   isHAEquiv→Iso : Iso A B
   Iso.fun isHAEquiv→Iso = f
@@ -126,7 +101,7 @@ equiv→HAEquiv e = e .fst , λ where
   .isHAEquiv.g → invIsEq (snd e)
   .isHAEquiv.linv → retIsEq (snd e)
   .isHAEquiv.rinv → secIsEq (snd e)
-  .isHAEquiv.com a → flipSquare (slideSquare (commSqIsEq (snd e) a))
+  .isHAEquiv.com a → sym (commPathIsEq (snd e) a)
 
 congIso : {x y : A} (e : Iso A B) → Iso (x ≡ y) (Iso.fun e x ≡ Iso.fun e y)
 congIso {x = x} {y} e = goal

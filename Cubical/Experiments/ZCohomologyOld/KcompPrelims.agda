@@ -1,9 +1,10 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyOld.KcompPrelims where
 
 open import Cubical.ZCohomology.Base
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Hopf
+open import Cubical.Homotopy.Hopf
+open S¹Hopf
 -- open import Cubical.Homotopy.Freudenthal hiding (encode)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
@@ -70,10 +71,10 @@ module miniFreudenthal (n : HLevel) where
                    ∙ λ i → ∣ north , lUnit r (~ i) ∣
 
     totalFun : (a b : S2+n) → P a b
-    totalFun =  wedgeConSn (suc n) (suc n) hLevelP rightFun leftFun funsAgree .fst
+    totalFun =  wedgeconFun (suc n) (suc n) hLevelP rightFun leftFun funsAgree
 
     leftId : (λ x → totalFun x north) ≡ leftFun
-    leftId x i = wedgeConSn (suc n) (suc n) hLevelP rightFun leftFun funsAgree .snd .snd i x
+    leftId x i = wedgeconRight (suc n) (suc n) hLevelP rightFun leftFun funsAgree i x
 
   fwd : (p : north ≡ north) (a : S2+n)
     → hLevelTrunc 4n+2 (fiber σ p)
@@ -203,7 +204,7 @@ Iso∥ϕ₁∥ : Iso (coHomK 1) (∥ Path (S₊ 2) north north ∥ 3)
 Iso∥ϕ₁∥ = composesToId→Iso d-Iso (trMap (ϕ base)) d-mapId2
 
 Iso-Kn-ΩKn+1 : (n : HLevel) → Iso (coHomK n) (typ (Ω (coHomK-ptd (suc n))))
-Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹IsoInt)
+Iso-Kn-ΩKn+1 zero = invIso (compIso (congIso (truncIdempotentIso _ isGroupoidS¹)) ΩS¹Isoℤ)
 Iso-Kn-ΩKn+1 (suc zero) = compIso Iso∥ϕ₁∥ (invIso (PathIdTruncIso 3))
 Iso-Kn-ΩKn+1 (suc (suc n)) = compIso (stabSpheres-n≥2 n)
                                      (invIso (PathIdTruncIso (4 + n)))

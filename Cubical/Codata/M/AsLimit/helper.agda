@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --guardedness --safe #-}
+{-# OPTIONS --guardedness --safe #-}
 
 module Cubical.Codata.M.AsLimit.helper where
 

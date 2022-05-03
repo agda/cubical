@@ -1,13 +1,17 @@
-{-# OPTIONS --cubical --no-import-sorts --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.NatPlusOne.Properties where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Univalence
 open import Cubical.Data.Nat
 open import Cubical.Data.NatPlusOne.Base
 
+open import Cubical.Reflection.StrictEquiv
+
 1+Path : ℕ ≡ ℕ₊₁
-1+Path = isoToPath (iso 1+_ -1+_ (λ _ → refl) (λ _ → refl))
+1+Path = ua e
+  where
+  unquoteDecl e = declStrictEquiv e 1+_ -1+_
 
 ℕ₊₁→ℕ-inj : ∀ {m n} → ℕ₊₁→ℕ m ≡ ℕ₊₁→ℕ n → m ≡ n
 ℕ₊₁→ℕ-inj p i = 1+ (injSuc p i)
@@ -20,6 +24,10 @@ _·₊₁_ : ℕ₊₁ → ℕ₊₁ → ℕ₊₁
 private
   ℕ₊₁→ℕ-·₊₁-comm : ∀ m n → ℕ₊₁→ℕ (m ·₊₁ n) ≡ (ℕ₊₁→ℕ m) · (ℕ₊₁→ℕ n)
   ℕ₊₁→ℕ-·₊₁-comm (1+ m) (1+ n) = refl
+
++₁-assoc : ∀ m n o → m +₁ (n +₁ o) ≡ (m +₁ n) +₁ o
++₁-assoc one n o = refl
++₁-assoc (2+ m) n o = cong suc₊₁ (+₁-assoc (1+ m) n o)
 
 ·₊₁-comm : ∀ m n → m ·₊₁ n ≡ n ·₊₁ m
 ·₊₁-comm (1+ m) (1+ n) = cong 1+_ (injSuc (·-comm (suc m) (suc n)))

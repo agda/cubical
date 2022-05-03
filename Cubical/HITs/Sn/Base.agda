@@ -1,7 +1,7 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Sn.Base where
 
-open import Cubical.HITs.Susp
+open import Cubical.HITs.Susp.Base
 open import Cubical.Foundations.Pointed
 open import Cubical.Data.Nat
 open import Cubical.Data.NatMinusOne

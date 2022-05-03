@@ -1,36 +1,61 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
-
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Functor.Base where
 
 open import Cubical.Foundations.Prelude
+
 open import Cubical.Data.Sigma
+
 open import Cubical.Categories.Category
 
 private
   variable
     ℓC ℓC' ℓD ℓD' : Level
 
-record Functor (C : Precategory ℓC ℓC') (D : Precategory ℓD ℓD') : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
+record Functor (C : Category ℓC ℓC') (D : Category ℓD ℓD') :
+         Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
   no-eta-equality
-  open Precategory
+
+  open Category
 
   field
-    F-ob : C .ob → D .ob
-    F-hom : {x y : C .ob} → C [ x , y ] → D [(F-ob x) , (F-ob y)]
-    F-id : {x : C .ob} → F-hom (C .id x) ≡ D .id (F-ob x)
-    F-seq : {x y z : C .ob} (f : C [ x , y ]) (g : C [ y , z ]) → F-hom (f ⋆⟨ C ⟩ g) ≡ (F-hom f) ⋆⟨ D ⟩ (F-hom g)
+    F-ob  : C .ob → D .ob
+    F-hom : {x y : C .ob} → C [ x , y ] → D [ F-ob x , F-ob y ]
+    F-id  : {x : C .ob} → F-hom (C .id) ≡ D .id {x = F-ob x}
+    F-seq : {x y z : C .ob} (f : C [ x , y ]) (g : C [ y , z ])
+          → F-hom (f ⋆⟨ C ⟩ g) ≡ (F-hom f) ⋆⟨ D ⟩ (F-hom g)
 
-  isFull = (x y : _) (F[f] : D [(F-ob x) , (F-ob y)]) → ∃ (C [ x , y ]) (λ f → F-hom f ≡ F[f])
+  isFull = (x y : _) (F[f] : D [ F-ob x , F-ob y ]) → ∃[ f ∈ C [ x , y ] ] F-hom f ≡ F[f]
   isFaithful = (x y : _) (f g : C [ x , y ]) → F-hom f ≡ F-hom g → f ≡ g
-  isEssentiallySurj = ∀ (d : D .ob) → Σ[ c ∈ C .ob ] CatIso {C = D} (F-ob c) d
+  isEssentiallySurj = (d : D .ob) → Σ[ c ∈ C .ob ] CatIso D (F-ob c) d
+
+  F-square : {x y u v : C .ob}
+             {f : C [ x , y ]} {g : C [ x , u ]}
+             {h : C [ u , v ]} {k : C [ y , v ]}
+           → f ⋆⟨ C ⟩ k ≡ g ⋆⟨ C ⟩ h
+           → (F-hom f) ⋆⟨ D ⟩ (F-hom k) ≡ (F-hom g) ⋆⟨ D ⟩ (F-hom h)
+  F-square Csquare = sym (F-seq _ _) ∙∙ cong F-hom Csquare ∙∙ F-seq _ _
+
 
 private
   variable
     ℓ ℓ' : Level
-    C D E : Precategory ℓ ℓ'
+    C D E : Category ℓ ℓ'
 
-open Precategory
+open Category
 open Functor
+
+Functor≡ : {F G : Functor C D}
+         → (h : ∀ (c : ob C) → F-ob F c ≡ F-ob G c)
+         → (∀ {c c' : ob C} (f : C [ c , c' ]) → PathP (λ i → D [ h c i , h c' i ]) (F-hom F f) (F-hom G f))
+         → F ≡ G
+F-ob (Functor≡ hOb hHom i) c = hOb c i
+F-hom (Functor≡ hOb hHom i) f = hHom f i
+F-id (Functor≡ {C = C} {D = D} {F = F} {G = G} hOb hHom i) =
+  isProp→PathP (λ j → isSetHom D (hHom (C .id) j) (D .id)) (F-id F) (F-id G) i
+F-seq (Functor≡ {C = C} {D = D} {F = F} {G = G} hOb hHom i) f g =
+  isProp→PathP (λ j → isSetHom D (hHom (f ⋆⟨ C ⟩ g) j) ((hHom f j) ⋆⟨ D ⟩ (hHom g j))) (F-seq F f g) (F-seq G f g) i
+
+
 
 -- Helpful notation
 
@@ -52,33 +77,24 @@ _⟪_⟫ = F-hom
 
 -- Functor constructions
 
-𝟙⟨_⟩ : ∀ (C : Precategory ℓ ℓ') → Functor C C
-𝟙⟨ C ⟩ .F-ob x = x
-𝟙⟨ C ⟩ .F-hom f = f
-𝟙⟨ C ⟩ .F-id = refl
+𝟙⟨_⟩ : ∀ (C : Category ℓ ℓ') → Functor C C
+𝟙⟨ C ⟩ .F-ob x    = x
+𝟙⟨ C ⟩ .F-hom f   = f
+𝟙⟨ C ⟩ .F-id      = refl
 𝟙⟨ C ⟩ .F-seq _ _ = refl
 
 -- functor composition
 funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
-(funcComp G F) .F-ob c = G ⟅ F ⟅ c ⟆ ⟆
-(funcComp G F) .F-hom f = G ⟪ F ⟪ f ⟫ ⟫
-(funcComp {D = D} {E = E} {C = C} G F) .F-id {c}
-  = (G ⟪ F ⟪ C .id c ⟫ ⟫)
-  ≡⟨ cong (G ⟪_⟫) (F .F-id) ⟩
-    G .F-id
-  --   (G ⟪ D .id (F ⟅ c ⟆) ⟫) -- deleted this cause the extra refl composition was annoying
-  -- ≡⟨ G .F-id ⟩
-  --   E .id (G ⟅ F ⟅ c ⟆ ⟆)
-  -- ∎
-(funcComp {D = D} {E = E} {C = C} G F) .F-seq {x} {y} {z} f g
-  = (G ⟪ F ⟪ f ⋆⟨ C ⟩ g ⟫ ⟫)
-  ≡⟨ cong (G ⟪_⟫) (F .F-seq _ _) ⟩
-    G .F-seq _ _
-  --   (G ⟪ (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ⟫) -- deleted for same reason as above
-  -- ≡⟨ G .F-seq _ _ ⟩
-  --   (G ⟪ F ⟪ f ⟫ ⟫) ⋆⟨ E ⟩ (G ⟪ F ⟪ g ⟫ ⟫)
-  -- ∎
+(funcComp G F) .F-ob c    = G ⟅ F ⟅ c ⟆ ⟆
+(funcComp G F) .F-hom f   = G ⟪ F ⟪ f ⟫ ⟫
+(funcComp G F) .F-id      = cong (G ⟪_⟫) (F .F-id) ∙ G .F-id
+(funcComp G F) .F-seq f g = cong (G ⟪_⟫) (F .F-seq _ _) ∙ G .F-seq _ _
 
 infixr 30 funcComp
 syntax funcComp G F = G ∘F F
 
+_^opF : Functor C D → Functor (C ^op) (D ^op)
+(F ^opF) .F-ob      = F .F-ob
+(F ^opF) .F-hom     = F .F-hom
+(F ^opF) .F-id      = F .F-id
+(F ^opF) .F-seq f g = F .F-seq g f

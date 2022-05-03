@@ -3,7 +3,7 @@
   Homotopy colimits of graphs
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Colimit.Base where
 
 open import Cubical.Foundations.Prelude
@@ -19,8 +19,8 @@ open import Cubical.Data.Graph
 record Cocone ℓ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} (F : Diag ℓd I) (X : Type ℓ)
               : Type (ℓ-suc (ℓ-max ℓ (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc ℓd)))) where
   field
-    leg : ∀ (j : Obj I) → F $ j → X
-    com : ∀ {j k} (f : Hom I j k) → leg k ∘ F <$> f ≡ leg j
+    leg : ∀ (j : Node I) → F $ j → X
+    com : ∀ {j k} (f : Edge I j k) → leg k ∘ F <$> f ≡ leg j
 
   postcomp : ∀ {ℓ'} {Y : Type ℓ'} → (X → Y) → Cocone ℓ' F Y
   leg (postcomp h) j = h ∘ leg j
@@ -81,7 +81,7 @@ module _ {ℓ ℓ' ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : 
   postcomp⁻¹ cl = invEq (_ , univ cl _ Y)
 
   postcomp⁻¹-inv : (cl : isColimit F X) (D : Cocone ℓ' F Y) → (postcomp (cone cl) (postcomp⁻¹ cl D)) ≡ D
-  postcomp⁻¹-inv cl D = retEq (_ , univ cl _ Y) D
+  postcomp⁻¹-inv cl D = secEq (_ , univ cl _ Y) D
 
   postcomp⁻¹-mor : (cl : isColimit F X) (D : Cocone ℓ' F Y) → CoconeMor (X , cone cl) (Y , D)
   postcomp⁻¹-mor cl D = (postcomp⁻¹ cl D) , (postcomp⁻¹-inv cl D)
@@ -107,8 +107,8 @@ module _ {ℓ ℓ' ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : 
 -- Colimits always exist
 
 data colim {ℓd ℓe ℓv} {I : Graph ℓv ℓe} (F : Diag ℓd I) : Type (ℓ-suc (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc ℓd))) where
-  colim-leg : ∀ (j : Obj I) → F $ j → colim F
-  colim-com : ∀ {j k} (f : Hom I j k) → colim-leg k ∘ F <$> f ≡ colim-leg j
+  colim-leg : ∀ (j : Node I) → F $ j → colim F
+  colim-com : ∀ {j k} (f : Edge I j k) → colim-leg k ∘ F <$> f ≡ colim-leg j
 
 module _ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} where
 

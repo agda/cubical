@@ -1,13 +1,15 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-
+
+  Definition of univalent and displayed univalent relations
+
+-}
+{-# OPTIONS --safe #-}
 module Cubical.Displayed.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
-
-open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Sigma
 
@@ -38,12 +40,12 @@ record UARel (A : Type ℓA) (ℓ≅A : Level) : Type (ℓ-max ℓA (ℓ-suc ℓ
 open BinaryRelation
 
 -- another constructor for UARel using contractibility of relational singletons
-make-𝒮 : {A : Type ℓA} {ℓ≅A : Level} {_≅_ : A → A → Type ℓ≅A}
+make-𝒮 : {A : Type ℓA} {_≅_ : A → A → Type ℓ≅A}
           (ρ : isRefl _≅_) (contrTotal : contrRelSingl _≅_) → UARel A ℓ≅A
 UARel._≅_ (make-𝒮 {_≅_ = _≅_} _ _) = _≅_
 UARel.ua (make-𝒮 {_≅_ = _≅_} ρ c) = contrRelSingl→isUnivalent _≅_ ρ c
 
-record DUARel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A)
+record DUARel {A : Type ℓA} (𝒮-A : UARel A ℓ≅A)
               (B : A → Type ℓB) (ℓ≅B : Level) : Type (ℓ-max (ℓ-max ℓA ℓB) (ℓ-max ℓ≅A (ℓ-suc ℓ≅B))) where
   no-eta-equality
   constructor duarel
@@ -60,8 +62,26 @@ record DUARel {A : Type ℓA} {ℓ≅A : Level} (𝒮-A : UARel A ℓ≅A)
   uaᴰρ {a} b b' =
     compEquiv
       (uaᴰ b (ρ _) b')
-      (substEquiv (λ q → PathP (λ i → B (q i)) b b') (retEq (ua a a) refl))
+      (substEquiv (λ q → PathP (λ i → B (q i)) b b') (secEq (ua a a) refl))
 
   ρᴰ : {a : A} → (b : B a) → b ≅ᴰ⟨ ρ a ⟩ b
   ρᴰ {a} b = invEq (uaᴰρ b b) refl
+
+
+-- total UARel induced by a DUARel
+
+module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+  {B : A → Type ℓB} {ℓ≅B : Level}
+  (𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B)
+  where
+
+  open UARel 𝒮-A
+  open DUARel 𝒮ᴰ-B
+
+  ∫ : UARel (Σ A B) (ℓ-max ℓ≅A ℓ≅B)
+  UARel._≅_ ∫ (a , b) (a' , b') = Σ[ p ∈ a ≅ a' ] (b ≅ᴰ⟨ p ⟩ b')
+  UARel.ua ∫ (a , b) (a' , b') =
+    compEquiv
+      (Σ-cong-equiv (ua a a') (λ p → uaᴰ b p b'))
+      ΣPath≃PathΣ
 

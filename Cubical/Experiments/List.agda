@@ -8,7 +8,7 @@ Note that Agda doesn't care about the order of constructors so we
 can't do exactly the same example.
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Experiments.List where
 
 open import Cubical.Foundations.Prelude

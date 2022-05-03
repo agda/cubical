@@ -3,7 +3,7 @@
 Index a structure T a positive structure S: X ↦ S X → T X
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Structures.Relational.Function where
 
 open import Cubical.Foundations.Prelude

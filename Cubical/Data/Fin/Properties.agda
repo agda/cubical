@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.Fin.Properties where
 
@@ -14,6 +14,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 
+open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥∥rec)
+
 open import Cubical.Data.Fin.Base as Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
@@ -21,6 +23,7 @@ open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
+open import Cubical.Data.FinData.Base renaming (Fin to FinData) hiding (¬Fin0 ; toℕ)
 
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
@@ -592,3 +595,89 @@ Iso.leftInv  (Fin+≅Fin⊎Fin m n) = ret-f-g
 
 Fin+≡Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ Fin m ⊎ Fin n
 Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
+
+-- Equivalence between FinData and Fin
+
+sucFin : {N : ℕ} → Fin N → Fin (suc N)
+sucFin (k , n , p) = suc k , n , (+-suc _ _ ∙ cong suc p)
+
+FinData→Fin : (N : ℕ) → FinData N → Fin N
+FinData→Fin zero ()
+FinData→Fin (suc N) zero = 0 , suc-≤-suc zero-≤
+FinData→Fin (suc N) (suc k) = sucFin (FinData→Fin N k)
+
+Fin→FinData : (N : ℕ) → Fin N → FinData N
+Fin→FinData zero (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
+Fin→FinData (suc N) (0 , n , p) = zero
+Fin→FinData (suc N) ((suc k) , n , p) = suc (Fin→FinData N (k , n , p')) where
+  p' : n + suc k ≡ N
+  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
+
+secFin : (n : ℕ) → section (FinData→Fin n) (Fin→FinData n)
+secFin 0 (k , n , p) = Empty.rec (snotz (sym (+-suc n k) ∙ p))
+secFin (suc N) (0 , n , p) = Fin-fst-≡ refl
+secFin (suc N) (suc k , n , p) = Fin-fst-≡ (cong suc (cong fst (secFin N (k , n , p')))) where
+  p' : n + suc k ≡ N
+  p' = injSuc (sym (+-suc n (suc k)) ∙ p)
+
+retFin : (n : ℕ) → retract (FinData→Fin n) (Fin→FinData n)
+retFin 0 ()
+retFin (suc N) zero = refl
+retFin (suc N) (suc k) = cong FinData.suc (cong (Fin→FinData N) (Fin-fst-≡ refl) ∙ retFin N k)
+
+FinDataIsoFin : (N : ℕ) → Iso (FinData N) (Fin N)
+Iso.fun (FinDataIsoFin N) = FinData→Fin N
+Iso.inv (FinDataIsoFin N) = Fin→FinData N
+Iso.rightInv (FinDataIsoFin N) = secFin N
+Iso.leftInv (FinDataIsoFin N) = retFin N
+
+FinData≃Fin : (N : ℕ) → FinData N ≃ Fin N
+FinData≃Fin N = isoToEquiv (FinDataIsoFin N)
+
+FinData≡Fin : (N : ℕ) → FinData N ≡ Fin N
+FinData≡Fin N = ua (FinData≃Fin N)
+
+-- decidability of Fin
+
+DecFin : (n : ℕ) → Dec (Fin n)
+DecFin 0 = no ¬Fin0
+DecFin (suc n) = yes fzero
+
+-- propositional truncation of Fin
+
+Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥
+Dec∥Fin∥ n = Dec∥∥ (DecFin n)
+
+-- some properties about cardinality
+
+Fin>0→isInhab : (n : ℕ) → 0 < n → Fin n
+Fin>0→isInhab 0 p = Empty.rec (¬-<-zero p)
+Fin>0→isInhab (suc n) p = fzero
+
+Fin>1→hasNonEqualTerm : (n : ℕ) → 1 < n → Σ[ i ∈ Fin n ] Σ[ j ∈ Fin n ] ¬ i ≡ j
+Fin>1→hasNonEqualTerm 0 p = Empty.rec (snotz (≤0→≡0 p))
+Fin>1→hasNonEqualTerm 1 p = Empty.rec (snotz (≤0→≡0 (pred-≤-pred p)))
+Fin>1→hasNonEqualTerm (suc (suc n)) _ = fzero , fone , fzero≠fone
+
+isEmpty→Fin≡0 : (n : ℕ) → ¬ Fin n → 0 ≡ n
+isEmpty→Fin≡0 0 _ = refl
+isEmpty→Fin≡0 (suc n) p = Empty.rec (p fzero)
+
+isInhab→Fin>0 : (n : ℕ) → Fin n → 0 < n
+isInhab→Fin>0 0 i = Empty.rec (¬Fin0 i)
+isInhab→Fin>0 (suc n) _ = suc-≤-suc zero-≤
+
+hasNonEqualTerm→Fin>1 : (n : ℕ) → (i j : Fin n) → ¬ i ≡ j → 1 < n
+hasNonEqualTerm→Fin>1 0 i _ _ = Empty.rec (¬Fin0 i)
+hasNonEqualTerm→Fin>1 1 i j p = Empty.rec (p (isContr→isProp isContrFin1 i j))
+hasNonEqualTerm→Fin>1 (suc (suc n)) _ _ _ = suc-≤-suc (suc-≤-suc zero-≤)
+
+Fin≤1→isProp : (n : ℕ) → n ≤ 1 → isProp (Fin n)
+Fin≤1→isProp 0 _ = isPropFin0
+Fin≤1→isProp 1 _ = isContr→isProp isContrFin1
+Fin≤1→isProp (suc (suc n)) p = Empty.rec (¬-<-zero (pred-≤-pred p))
+
+isProp→Fin≤1 : (n : ℕ) → isProp (Fin n) → n ≤ 1
+isProp→Fin≤1 0 _ = ≤-solver 0 1
+isProp→Fin≤1 1 _ = ≤-solver 1 1
+isProp→Fin≤1 (suc (suc n)) p = Empty.rec (fzero≠fone (p fzero fone))

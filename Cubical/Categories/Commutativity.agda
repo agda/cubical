@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Commutativity where
 
@@ -9,8 +9,8 @@ private
   variable
     ℓ ℓ' : Level
 
-module _ {C : Precategory ℓ ℓ'} where
-  open Precategory C
+module _ {C : Category ℓ ℓ'} where
+  open Category C
 
   compSq : ∀ {x y z w u v} {f : C [ x , y ]} {g h} {k : C [ z , w ]} {l} {m} {n : C [ u , v ]}
        -- square 1

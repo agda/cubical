@@ -7,6 +7,8 @@ When preparing a PR here are some general guidelines:
 - To test your changes before submission, run `make` at the top level,
   which will generate all required `Everything` files in
   `Cubical/README.agda` and then typecheck the latter file.
+  If you're using Windows, [here](MAKEWINDOWS.md) are some instructions
+  to get the `make` command working.
 
 - Please read through and clean your code before making a PR. Clean
   code has reasonable line length (<100 characters), good indentation,
@@ -22,8 +24,8 @@ When preparing a PR here are some general guidelines:
   instead have informative names and put pointers to the theorems and
   lemmas in comments above the definition.
 
-- At the moment there is no global naming scheme for the library, so
-  just use your best judgment when naming things.
+- For guidelines how to name things see
+  [NAMING.md](https://github.com/agda/cubical/blob/master/NAMING.md).
 
 - Use `private variable` to quantify over universe levels at the top
   of the file. All definitions should be maximally universe
@@ -39,9 +41,10 @@ When preparing a PR here are some general guidelines:
 
 - All files should start with
 
-  `{-# OPTIONS --cubical --no-import-sorts --safe #-}`
+  `{-# OPTIONS --safe #-}`
 
-  unless there is a good reason for it not to.
+  unless there is a good reason for it not to. The `--cubical` and
+  `--no-import-sorts` flags are added in the `cubical.agda-lib` file.
 
 - It is much easier for us to review and merge smaller and
   self-contained PRs. If a PR changes a lot of files all over the
@@ -63,7 +66,16 @@ When preparing a PR here are some general guidelines:
   editing files by adding `(setq-default show-trailing-whitespace t)`
   to `~/.emacs`. The command `M-x delete-trailing-whitespace` is also
   very useful. It is possible to add a hook that runs this command
-  automatically when saving Agda files.
+  automatically when saving Agda files, by adding the following to your
+  `~/.emacs`:
+  ```
+  ;; delete trailing whitespace before saving in agda-mode
+  (defun agda-mode-delete-whitespace-before-save ()
+    (when (eq major-mode 'agda2-mode)
+      (delete-trailing-whitespace)))
+
+  (add-hook 'before-save-hook #'agda-mode-delete-whitespace-before-save)
+  ```
 
 - Use copattern-matching when instantiating records for efficiency.
   This seems especially important when constructing Iso's.
@@ -91,6 +103,15 @@ When preparing a PR here are some general guidelines:
   `Experiments` package you don't need to add it manually to the
   `Everything` file as it is automatically generated when running
   `make`.
+
+- For folders with `Base` and `Properties` submodules, the `Base` file
+  can contain some basic consequences of the main definition, but
+  shouldn't include theorems that would require additional imports.
+
+- Avoid importing `Foundations.Everything`; import only the modules in
+  `Foundations` you are using. Be reasonably specific in general when
+  importing. For example, only import the `Base` or `Properties`
+  module from a folder in `Data` if this is all you need.
 
 - The `Experiments` folder contains various experiments and nothing in
   the library should depend on something from this folder.

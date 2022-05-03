@@ -1,10 +1,10 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.List.Base where
 
-open import Agda.Builtin.List        public
+open import Agda.Builtin.List public
 open import Cubical.Core.Everything
-open import Cubical.Data.Maybe
-open import Cubical.Data.Nat
+open import Cubical.Data.Maybe.Base as Maybe
+open import Cubical.Data.Nat.Base
 
 module _ {ℓ} {A : Type ℓ} where
 
@@ -38,6 +38,10 @@ module _ {ℓ} {A : Type ℓ} where
   map2 f [] _ = []
   map2 f _ [] = []
   map2 f (x ∷ xs) (y ∷ ys) = f x y ∷ map2 f xs ys
+
+  filterMap : ∀ {ℓ'} {B : Type ℓ'} → (A → Maybe B) → List A → List B
+  filterMap f [] = []
+  filterMap f (x ∷ xs) = Maybe.rec (filterMap f xs) (_∷ filterMap f xs) (f x)
 
   foldr : ∀ {ℓ'} {B : Type ℓ'} → (A → B → B) → B → List A → B
   foldr f b [] = b

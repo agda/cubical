@@ -1,25 +1,61 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
-
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Limits.Terminal where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+open import Cubical.HITs.PropositionalTruncation.Base
+
 open import Cubical.Data.Sigma
--- open import Cubical.Categories.Limits.Base
+
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
 
 private
   variable
     ℓ ℓ' : Level
 
-module _ (C : Precategory ℓ ℓ') where
-  open Precategory C
+module _ (C : Category ℓ ℓ') where
+  open Category C
 
-  isInitial : (x : ob) → Type (ℓ-max ℓ ℓ')
-  isInitial x = ∀ (y : ob) → isContr (C [ x , y ])
+  isTerminal : (x : ob) → Type (ℓ-max ℓ ℓ')
+  isTerminal x = ∀ (y : ob) → isContr (C [ y , x ])
 
-  isFinal : (x : ob) → Type (ℓ-max ℓ ℓ')
-  isFinal x = ∀ (y : ob) → isContr (C [ y , x ])
+  Terminal : Type (ℓ-max ℓ ℓ')
+  Terminal = Σ[ x ∈ ob ] isTerminal x
 
-  hasFinalOb : Type (ℓ-max ℓ ℓ')
-  hasFinalOb = Σ[ x ∈ ob ] isFinal x
+  terminalOb : Terminal → ob
+  terminalOb = fst
+
+  terminalArrow : (T : Terminal) (y : ob) → C [ y , terminalOb T ]
+  terminalArrow T y = T .snd y .fst
+
+  terminalArrowUnique : {T : Terminal} {y : ob} (f : C [ y , terminalOb T ])
+                      → terminalArrow T y ≡ f
+  terminalArrowUnique {T} {y} f = T .snd y .snd f
+
+  terminalEndoIsId : (T : Terminal) (f : C [ terminalOb T , terminalOb T ])
+                   → f ≡ id
+  terminalEndoIsId T f = isContr→isProp (T .snd (terminalOb T)) f id
+
+  hasTerminal : Type (ℓ-max ℓ ℓ')
+  hasTerminal = ∥ Terminal ∥
+
+  -- Terminality of an object is a proposition.
+  isPropIsTerminal : (x : ob) → isProp (isTerminal x)
+  isPropIsTerminal _ = isPropΠ λ _ → isPropIsContr
+
+  open CatIso
+
+  -- Objects that are initial are isomorphic.
+  terminalToIso : (x y : Terminal) → CatIso C (terminalOb x) (terminalOb y)
+  mor (terminalToIso x y) = terminalArrow y (terminalOb x)
+  inv (terminalToIso x y) = terminalArrow x (terminalOb y)
+  sec (terminalToIso x y) = terminalEndoIsId y _
+  ret (terminalToIso x y) = terminalEndoIsId x _
+
+  open isUnivalent
+
+  -- The type of terminal objects of a univalent category is a proposition,
+  -- i.e. all terminal objects are equal.
+  isPropTerminal : (hC : isUnivalent C) → isProp Terminal
+  isPropTerminal hC x y =
+    Σ≡Prop isPropIsTerminal (CatIsoToPath hC (terminalToIso x y))

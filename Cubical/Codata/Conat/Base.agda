@@ -18,7 +18,7 @@ The first approach is chosen to exploit guarded recursion and to avoid the use
 of Sized Types.
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe --guardedness #-}
+{-# OPTIONS --safe --guardedness #-}
 module Cubical.Codata.Conat.Base where
 
 open import Cubical.Data.Unit

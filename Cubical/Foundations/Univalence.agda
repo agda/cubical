@@ -12,7 +12,7 @@ various consequences of univalence
 - Isomorphism induction ([elimIso])
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Univalence where
 
 open import Cubical.Foundations.Prelude
@@ -25,6 +25,8 @@ open import Cubical.Data.Sigma.Base
 
 open import Cubical.Core.Glue public
   using ( Glue ; glue ; unglue ; lineToEquiv )
+
+open import Cubical.Reflection.StrictEquiv
 
 private
   variable
@@ -53,22 +55,19 @@ ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : Partial (~ i) A)
           → ua e i {- [ _ ↦ (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) ] -}
 ua-glue e i x y = glue {φ = i ∨ ~ i} (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) (outS y)
 
--- sometimes more useful are versions of these functions with the (i : I) factored in
+module _ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B} where
+  -- sometimes more useful are versions of these functions with the (i : I) factored in
 
-ua-ungluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
-                → PathP (λ i → ua e i) x y
-                → e .fst x ≡ y
-ua-ungluePath e p i = ua-unglue e i (p i)
+  ua-ungluePath : PathP (λ i → ua e i) x y → e .fst x ≡ y
+  ua-ungluePath p i = ua-unglue e i (p i)
 
-ua-gluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
-              → e .fst x ≡ y
-              → PathP (λ i → ua e i) x y
-ua-gluePath e {x} p i = ua-glue e i (λ { (i = i0) → x }) (inS (p i))
+  ua-gluePath : e .fst x ≡ y → PathP (λ i → ua e i) x y
+  ua-gluePath p i = ua-glue e i (λ { (i = i0) → x }) (inS (p i))
 
--- ua-ungluePath and ua-gluePath are definitional inverses
-ua-ungluePath-Equiv : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
-                      → (PathP (λ i → ua e i) x y) ≃ (e .fst x ≡ y)
-ua-ungluePath-Equiv e = isoToEquiv (iso (ua-ungluePath e) (ua-gluePath e) (λ _ → refl) (λ _ → refl))
+  -- ua-ungluePath and ua-gluePath are definitional inverses
+  ua-ungluePath-Equiv : (PathP (λ i → ua e i) x y) ≃ (e .fst x ≡ y)
+  unquoteDef ua-ungluePath-Equiv =
+    defStrictEquiv ua-ungluePath-Equiv ua-ungluePath ua-gluePath
 
 -- ua-unglue and ua-glue are also definitional inverses, in a way
 -- strengthening the types of ua-unglue and ua-glue gives a nicer formulation of this, see below
@@ -250,7 +249,7 @@ ua→ {e = e} {f₀ = f₀} {f₁} h i a =
     (h (transp (λ j → ua e (~ j ∧ i)) (~ i) a) i)
   where
   lem : ∀ a₁ → e .fst (transport (sym (ua e)) a₁) ≡ a₁
-  lem a₁ = retEq e _ ∙ transportRefl _
+  lem a₁ = secEq e _ ∙ transportRefl _
 
 ua→⁻ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
   {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
@@ -263,6 +262,14 @@ ua→⁻ {e = e} {f₀ = f₀} {f₁} p a i =
       ; (i = i1) → f₁ (uaβ e a k)
       })
     (p i (transp (λ j → ua e (j ∧ i)) (~ i) a))
+
+ua→2 : ∀ {ℓ ℓ' ℓ''} {A₀ A₁ : Type ℓ} {e₁ : A₀ ≃ A₁}
+  {B₀ B₁ : Type ℓ'} {e₂ : B₀ ≃ B₁}
+  {C : (i : I) → Type ℓ''}
+  {f₀ : A₀ → B₀ → C i0} {f₁ : A₁ → B₁ → C i1}
+  → (∀ a b → PathP C (f₀ a b) (f₁ (e₁ .fst a) (e₂ .fst b)))
+  → PathP (λ i → ua e₁ i → ua e₂ i → C i) f₀ f₁
+ua→2 h = ua→ (ua→ ∘ h)
 
 -- Useful lemma for unfolding a transported function over ua
 -- If we would have regularity this would be refl

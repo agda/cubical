@@ -3,7 +3,7 @@
 Product of structures S and T: X ↦ S X × T X
 
 -}
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Structures.Relational.Product where
 
 open import Cubical.Foundations.Prelude

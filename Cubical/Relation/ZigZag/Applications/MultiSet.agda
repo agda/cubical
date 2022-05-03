@@ -1,5 +1,5 @@
 -- We apply the theory of quasi equivalence relations (QERs) to finite multisets and association lists.
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Relation.ZigZag.Applications.MultiSet where
 
 open import Cubical.Core.Everything

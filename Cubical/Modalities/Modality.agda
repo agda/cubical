@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Modalities.Modality where
 
 {-
@@ -11,7 +11,7 @@ open import Cubical.Foundations.Everything
 record Modality ℓ : Type (ℓ-suc ℓ) where
   field
     isModal : Type ℓ → Type ℓ
-    isModalIsProp : {A : Type ℓ} → isProp (isModal A)
+    isPropIsModal : {A : Type ℓ} → isProp (isModal A)
 
     ◯ : Type ℓ → Type ℓ                                  -- \ciO
     ◯-isModal : {A : Type ℓ} → isModal (◯ A)
