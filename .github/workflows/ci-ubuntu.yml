@@ -45,9 +45,7 @@ jobs:
       ########################################################################
       ## SETTINGS
       ##
-      ## AGDA_COMMIT picks the version of Agda to use to build the library.
-      ## It can either be a hash of a specific commit (to target a bugfix for
-      ## instance) or a tag e.g. tags/v2.6.1.3 (to target a released version).
+      ## AGDA_BRANCH picks the branch of Agda to use to build the library.
       ########################################################################
 
       - name: Initialise variables
@@ -64,7 +62,7 @@ jobs:
       # i.e. if we change either the version of Agda, ghc, or cabal that we want
       # to use for the build.
       - name: Cache cabal packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache-cabal
         with:
           path: |
@@ -73,13 +71,24 @@ jobs:
             ~/.cabal/bin
           key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
 
+      # This caching step lets us avoid rechecking files in the library that
+      # haven't changed
+      - name: Cache library
+        uses: actions/cache@v2
+        id: cache-library
+        with:
+          path: ~/Cubical-build
+          key: cubical-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Cubical/**') }}
+          restore-keys: |
+            cubical-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
+
       ########################################################################
       ## INSTALLATION STEPS
       ########################################################################
 
       - name: Install cabal
         if: steps.cache-cabal.outputs.cache-hit != 'true'
-        uses: actions/setup-haskell@v1.1.3
+        uses: haskell/actions/setup@v2
         with:
           ghc-version: ${{ env.GHC_VERSION }}
           cabal-version: ${{ env.CABAL_VERSION }}
@@ -114,7 +123,11 @@ jobs:
 
       # By default github actions do not pull the repo
       - name: Checkout cubical
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Retrieve cached library
+        if: steps.cache-library.outputs.cache-hit == 'true'
+        run: cp -f -R ~/Cubical-build/* $GITHUB_WORKSPACE/Cubical
 
       - name: Test cubical
         run: |
@@ -122,6 +135,7 @@ jobs:
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             RUNHASKELL='cabal run'
+          cp -f -R Cubical/ ~/Cubical-build/
 
       - name: Htmlize cubical
         run: |
