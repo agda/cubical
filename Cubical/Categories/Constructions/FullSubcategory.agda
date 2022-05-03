@@ -12,8 +12,6 @@ private
   variable
     ℓC ℓC' ℓP : Level
 
---open Category
-
 module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
   private
     module C = Category C
