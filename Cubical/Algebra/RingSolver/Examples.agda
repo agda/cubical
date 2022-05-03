@@ -4,10 +4,11 @@ module Cubical.Algebra.RingSolver.Examples where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Int.Base hiding (_+_ ; _·_ ; _-_)
+open import Cubical.Data.Int.Base hiding (ℤ; _+_ ; _·_ ; _-_)
 open import Cubical.Data.List
 
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Instances.Int
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.RingSolver.Reflection
 
@@ -15,6 +16,24 @@ private
   variable
     ℓ ℓ' : Level
 
+module TestErrors (R : CommRing ℓ) where
+  open CommRingStr (snd R)
+
+  {-
+    The following should give an type checking error,
+    making the user aware that the problem is, that 'Type₀'
+    is not a CommRing.
+  -}
+  {-
+  _ : 0r ≡ 0r
+  _ = solve Type₀
+  -}
+
+module TestWithℤ where
+  open CommRingStr (ℤ .snd)
+
+  _ : (a b : fst ℤ) → a + b ≡ b + a
+  _ = solve ℤ
 
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)

@@ -24,12 +24,8 @@ When preparing a PR here are some general guidelines:
   instead have informative names and put pointers to the theorems and
   lemmas in comments above the definition.
 
-- No global naming scheme for the library was enforced in the past, but new
-  contributions should only use names in camel-case. Names of types should
-  start with a capital letter and names of terms which are not types should
-  start with a lower case letter. However, for names of types that encode a
-  property (e.g. `isSet`), we prefer lowercase names. But this is not a
-  hard-and-fast rule.
+- For guidelines how to name things see
+  [NAMING.md](https://github.com/agda/cubical/blob/master/NAMING.md).
 
 - Use `private variable` to quantify over universe levels at the top
   of the file. All definitions should be maximally universe
@@ -112,6 +108,15 @@ When preparing a PR here are some general guidelines:
   `Experiments` package you don't need to add it manually to the
   `Everything` file as it is automatically generated when running
   `make`.
+
+- For folders with `Base` and `Properties` submodules, the `Base` file
+  can contain some basic consequences of the main definition, but
+  shouldn't include theorems that would require additional imports.
+
+- Avoid importing `Foundations.Everything`; import only the modules in
+  `Foundations` you are using. Be reasonably specific in general when
+  importing. For example, only import the `Base` or `Properties`
+  module from a folder in `Data` if this is all you need.
 
 - The `Experiments` folder contains various experiments and nothing in
   the library should depend on something from this folder.
