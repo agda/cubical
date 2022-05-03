@@ -31,7 +31,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Bool hiding (_≟_)
+open import Cubical.Data.Bool hiding (_≟_; _≤_; _≥_; isProp≤)
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 

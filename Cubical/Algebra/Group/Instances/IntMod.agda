@@ -9,7 +9,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.Semigroup.Base
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (isProp≤)
 open import Cubical.Data.Fin
 open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; ℤ to ℤType)
