@@ -23,7 +23,7 @@ open import Cubical.Reflection.RecordEquiv
 
 private
   variable
-    ℓ ℓ' ℓ″ ℓ'' : Level
+    ℓ ℓ' ℓ'' : Level
 
 record IsCommAlgebra (R : CommRing ℓ) {A : Type ℓ'}
                      (0a : A) (1a : A)

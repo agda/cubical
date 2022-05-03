@@ -31,7 +31,7 @@ open import Cubical.Algebra.CommAlgebra.QuotientAlgebra renaming (inducedHom to 
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
-open import Cubical.Algebra.CommAlgebra.Instances.Terminal
+open import Cubical.Algebra.CommAlgebra.Instances.Unit renaming (UnitCommAlgebra to TerminalCAlg)
 open import Cubical.Algebra.CommAlgebra.Kernel
 
 open import Cubical.Algebra.Algebra.Properties
@@ -333,7 +333,7 @@ module Instances {R : CommRing ℓ} where
     R[⊥]/⟨1⟩ : CommAlgebra R ℓ
     R[⊥]/⟨1⟩ = FPAlgebra 0 unitGen
 
-  terminalCAlgFP : FinitePresentation (terminalCAlg R)
+  terminalCAlgFP : FinitePresentation (TerminalCAlg R)
   n terminalCAlgFP = 0
   m terminalCAlgFP = 1
   relations terminalCAlgFP = unitGen

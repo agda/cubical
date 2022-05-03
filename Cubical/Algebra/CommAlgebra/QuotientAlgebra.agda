@@ -18,7 +18,7 @@ open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.Kernel
-open import Cubical.Algebra.CommAlgebra.Instances.Terminal
+open import Cubical.Algebra.CommAlgebra.Instances.Unit
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
@@ -150,7 +150,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open CommAlgebraStr (snd A)
 
-  oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal A)) (terminalCAlg R)
+  oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal A)) (UnitCommAlgebra R)
   fst oneIdealQuotient =
     isoToEquiv (iso (fst (terminalMap R (A / (1Ideal A))))
                     (λ _ → [ 0a ])
