@@ -128,7 +128,7 @@ jobs:
           make listings \
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
-            RUNHASKELL='cabal rurn'
+            RUNHASKELL='cabal run'
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref_name == 'master'
