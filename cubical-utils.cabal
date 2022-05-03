@@ -6,7 +6,7 @@ description:     Helper programs.
 license:         MIT
 tested-with:     GHC == 8.6.5
 
-executable GenerateEverything
+executable Everythings
   hs-source-dirs:   .
   main-is:          Everythings.hs
   default-language: Haskell2010
