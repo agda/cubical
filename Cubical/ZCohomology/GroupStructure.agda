@@ -3,7 +3,7 @@ module Cubical.ZCohomology.GroupStructure where
 
 open import Cubical.ZCohomology.Base
 
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 hiding (rec ; elim ; ind)
 open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function

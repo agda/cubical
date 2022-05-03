@@ -21,7 +21,9 @@ then it should be removed before the above command is run.
 {-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomology.Benchmarks where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat
 open import Cubical.Data.Bool
 open import Cubical.Data.Int
@@ -50,8 +52,7 @@ open import Cubical.Homotopy.Hopf
 open S¹Hopf
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.Susp
-open import Cubical.HITs.S1
-
+open import Cubical.HITs.S1 hiding (rec ; elim ; ind)
 
 open IsGroupHom
 open Iso
