@@ -36,10 +36,9 @@ open import Cubical.HITs.PropositionalTruncation public
            ; rec to recPropTruncPath
            ; elim to elimPropTruncPath )
 open import Cubical.HITs.S1 as S1
-  renaming (loop to loopPath )
-  hiding (helix ; winding ; ΩS¹ ; encode ; intLoop ; windingIntLoop ; decode ; decodeEncode)
+  renaming (loop to loopPath)
+  hiding (helix ; winding ; ΩS¹ ; encode ; intLoop ; decode ; decodeEncode)
 open import Cubical.Data.Nat
-  hiding (_+_ ; _*_ ; +-assoc ; +-comm)
 open import Cubical.Data.Int
 
 -- Import the builtin equality type defined as an inductive family
@@ -47,7 +46,7 @@ open import Agda.Builtin.Equality public
 
 private
  variable
-  ℓ : Level
+  ℓ ℓ' : Level
   A B : Type ℓ
   x y z : A
 
@@ -288,7 +287,7 @@ S¹-recβ b l =
   l ∎
 
 
--- This seems hard to prove?
+-- TODO: see https://github.com/agda/cubical/pull/309#discussion_r424664465
 -- S¹-elimβ : (C : S¹ → Type ℓ) (b : C base) (l : transport C loop b ≡ b) → apd (S¹-elim C b l) loop ≡ l
 -- S¹-elimβ C b l =
   -- apd (S¹-elim C b l) (pathToEq loopPath) ≡⟨ {!!} ⟩
@@ -299,7 +298,7 @@ S¹-recβ b l =
 -- We now compute some winding numbers to check that everything computes as expected
 
 Cover : S¹ → Type₀
-Cover = S¹-rec Int (pathToEq sucPathInt)
+Cover = S¹-rec ℤ (pathToEq sucPathℤ)
 
 ΩS¹ : Type₀
 ΩS¹ = base ≡ base
@@ -307,10 +306,10 @@ Cover = S¹-rec Int (pathToEq sucPathInt)
 encode : {x : S¹} → base ≡ x → Cover x
 encode p = transport Cover p (pos zero)
 
-winding : ΩS¹ → Int
+winding : ΩS¹ → ℤ
 winding = encode {base}
 
-loop^ : Int → ΩS¹
+loop^ : ℤ → ΩS¹
 loop^ (pos zero)       = refl
 loop^ (pos (suc n))    = loop^ (pos n) ∙ loop
 loop^ (negsuc zero)    = sym loop
