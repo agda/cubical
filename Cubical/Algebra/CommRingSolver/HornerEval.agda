@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.HornerEval where
+module Cubical.Algebra.CommRingSolver.HornerEval where
 
 open import Cubical.Foundations.Prelude
 
@@ -10,10 +10,10 @@ open import Cubical.Data.Bool
 
 open import Cubical.Relation.Nullary.Base using (¬_; yes; no)
 
-open import Cubical.Algebra.RingSolver.Utility
-open import Cubical.Algebra.RingSolver.RawAlgebra
-open import Cubical.Algebra.RingSolver.IntAsRawRing
-open import Cubical.Algebra.RingSolver.HornerForms
+open import Cubical.Algebra.CommRingSolver.Utility
+open import Cubical.Algebra.CommRingSolver.RawAlgebra
+open import Cubical.Algebra.CommRingSolver.IntAsRawRing
+open import Cubical.Algebra.CommRingSolver.HornerForms
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 
