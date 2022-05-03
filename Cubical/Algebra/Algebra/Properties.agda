@@ -31,9 +31,6 @@ private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
 
-
-
-
 module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
   open RingStr (snd R) renaming (_+_ to _+r_ ; _·_ to _·r_)
   open AlgebraStr (A .snd)
@@ -76,6 +73,11 @@ module AlgebraHoms {R : Ring ℓ} where
   compIsAlgebraHom {g = g} {f} gh fh .pres· x y = cong g (fh .pres· x y) ∙ gh .pres· (f x) (f y)
   compIsAlgebraHom {g = g} {f} gh fh .pres- x = cong g (fh .pres- x) ∙ gh .pres- (f x)
   compIsAlgebraHom {g = g} {f} gh fh .pres⋆ r x = cong g (fh .pres⋆ r x) ∙ gh .pres⋆ r (f x)
+
+  _∘≃a_ : {A B C : Algebra R ℓ'}
+         → AlgebraEquiv B C → AlgebraEquiv A B → AlgebraEquiv A C
+  _∘≃a_  g f .fst = compEquiv (fst f) (fst g)
+  _∘≃a_  g f .snd = compIsAlgebraHom (g .snd) (f .snd)
 
   compAlgebraHom : {A : Algebra R ℓ'} {B : Algebra R ℓ''} {C : Algebra R ℓ'''}
               → AlgebraHom A B → AlgebraHom B C → AlgebraHom A C

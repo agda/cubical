@@ -20,7 +20,7 @@ open import Cubical.Algebra.RingSolver.AlgebraExpression public
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
 
 {-
   This defines the type of multivariate Polynomials over the RawRing R.
@@ -176,9 +176,9 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   RawRing._·_ (asRawRing n) = _·ₕ_
   RawRing.- (asRawRing n) =  -ₕ
 
-Variable : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ′) (k : Fin n) → IteratedHornerForms R n
+Variable : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ') (k : Fin n) → IteratedHornerForms R n
 Variable n R k = IteratedHornerOperations.X R n k
 
-Constant : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ′) (r : ℤ) → IteratedHornerForms R n
+Constant : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ') (r : ℤ) → IteratedHornerForms R n
 Constant ℕ.zero R r = const r
 Constant (ℕ.suc n) R r = IteratedHornerOperations.0ₕ R ·X+ Constant n R r

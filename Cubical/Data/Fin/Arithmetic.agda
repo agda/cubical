@@ -44,7 +44,7 @@ snd (_·ₘ_ {n = n} x y) = mod< n (fst x · fst y)
 +ₘ-assoc : {n : ℕ} (x y z : Fin (suc n))
   → (x +ₘ y) +ₘ z ≡ (x +ₘ (y +ₘ z))
 +ₘ-assoc {n = n} x y z =
-  Σ≡Prop (λ _ → m≤n-isProp)
+  Σ≡Prop (λ _ → isProp≤)
        ((mod-rCancel (suc n) ((fst x + fst y) mod (suc n)) (fst z))
     ∙∙ sym (mod+mod≡mod (suc n) (fst x + fst y) (fst z))
     ∙∙ cong (_mod suc n) (sym (+-assoc (fst x) (fst y) (fst z)))
@@ -53,12 +53,12 @@ snd (_·ₘ_ {n = n} x y) = mod< n (fst x · fst y)
 
 +ₘ-comm : {n : ℕ} (x y : Fin (suc n)) → (x +ₘ y) ≡ (y +ₘ x)
 +ₘ-comm {n = n} x y =
-  Σ≡Prop (λ _ → m≤n-isProp)
+  Σ≡Prop (λ _ → isProp≤)
     (cong (_mod suc n) (+-comm (fst x) (fst y)))
 
 +ₘ-lUnit : {n : ℕ} (x : Fin (suc n)) → 0 +ₘ x ≡ x
 +ₘ-lUnit {n = n} (x , p) =
-  Σ≡Prop (λ _ → m≤n-isProp)
+  Σ≡Prop (λ _ → isProp≤)
     (+inductionBase n _ _ _ x p)
 
 +ₘ-rUnit : {n : ℕ} (x : Fin (suc n)) → x +ₘ 0 ≡ x
@@ -66,7 +66,7 @@ snd (_·ₘ_ {n = n} x y) = mod< n (fst x · fst y)
 
 +ₘ-rCancel : {n : ℕ} (x : Fin (suc n)) → x -ₘ x ≡ 0
 +ₘ-rCancel {n = n} x =
-  Σ≡Prop (λ _ → m≤n-isProp)
+  Σ≡Prop (λ _ → isProp≤)
       (cong (λ z → (fst x + z) mod (suc n))
             (+inductionBase n _ _ _ (fst x) (snd x))
     ∙∙ sym (mod-rCancel (suc n) (fst x) ((suc n) ∸ (fst x)))
