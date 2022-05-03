@@ -46,10 +46,10 @@ module _
   ++Assoc (unit xs i) ys zs t = unit (++Assoc xs ys zs t) i
 
 
+-- Freely adjoining a point
+
 module _
   (X : Type ℓ) where
-  
-  -- Freely adjoining a point
 
   private
     X₊ = Maybe∙ X

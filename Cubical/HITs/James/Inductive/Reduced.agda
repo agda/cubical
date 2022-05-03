@@ -45,7 +45,7 @@ module _
 
   -- Auxiliary constructions
   -- The following square of types is defined as HIT over I × I.
-  -- Notice that the constructors `incl∷` can be seen parametrized by i, `coh` by both i j,
+  -- Notice that the constructor `incl∷` can be seen parametrized by i, `coh` by both i j,
   -- and other constructors are constant.
 
   data 𝕁Square (i j : I) : Type ℓ where
