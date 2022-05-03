@@ -127,15 +127,18 @@ jobs:
 
       - name: Retrieve cached library
         if: steps.cache-library.outputs.cache-hit == 'true'
-        run: cp -f -p -R ~/Cubical-build/* $GITHUB_WORKSPACE/Cubical
+        run: cp -f -R ~/Cubical-build/* $GITHUB_WORKSPACE/Cubical
 
       - name: Test cubical
+        if: steps.cache-library.outputs.cache-hit == 'true'
         run: |
+          cp -f -R ~/Cubical-build/_build $GITHUB_WORKSPACE/Cubical/_build
+          rm -r ~/Cubical-build
           make test \
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
-          cp -f -p -R Cubical/ ~/Cubical-build/
+          cp -f -R Cubical/ ~/Cubical-build/
 
       - name: Htmlize cubical
         run: |
