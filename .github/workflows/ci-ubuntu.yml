@@ -68,7 +68,6 @@ jobs:
         id: cache-cabal
         with:
           path: |
-            ~/.ghcup/bin
             ~/.cabal/packages
             ~/.cabal/store
             ~/.cabal/bin
@@ -122,14 +121,14 @@ jobs:
           make test \
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
-            RUNHASKELL='~/.ghcup/bin/runhaskell'
+            RUNHASKELL='cabal run'
 
       - name: Htmlize cubical
         run: |
           make listings \
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
-            RUNHASKELL='~/.ghcup/bin/runhaskell'
+            RUNHASKELL='cabal rurn'
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref_name == 'master'
