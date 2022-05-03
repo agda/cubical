@@ -763,4 +763,3 @@ isSet→Iso-Iso-≡ isSet-A isSet-A′ = ww
 
 hSet-Iso-Iso-≡ : (A : hSet ℓ) → (A' : hSet ℓ) → Iso (Iso (fst A) (fst A')) (A ≡ A')
 hSet-Iso-Iso-≡ A A' = compIso (isSet→Iso-Iso-≡ (snd A) (snd A')) (equivToIso (_ , isEquiv-Σ≡Prop λ _ → isPropIsSet))
-
