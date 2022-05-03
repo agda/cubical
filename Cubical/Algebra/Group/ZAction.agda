@@ -521,13 +521,13 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
     where
     lem : (x : ℤ) → ℤ→Fin n (pos (suc n) * x) ≡ 0
     lem (pos x) = cong (ℤ→Fin n) (sym (pos· (suc n) x))
-                 ∙ Σ≡Prop (λ _ → m≤n-isProp)
+                 ∙ Σ≡Prop (λ _ → isProp≤)
                     (cong (_mod (suc n)) (·-comm (suc n) x)
                     ∙ zero-charac-gen (suc n) x)
     lem (negsuc x) =
          cong (ℤ→Fin n) (pos·negsuc (suc n) x
                         ∙ cong -_ (sym (pos· (suc n) (suc x))))
-      ∙∙ cong -ₘ_ (Σ≡Prop (λ _ → m≤n-isProp)
+      ∙∙ cong -ₘ_ (Σ≡Prop (λ _ → isProp≤)
                     (cong (_mod (suc n)) (·-comm (suc n) (suc x))
                     ∙ zero-charac-gen (suc n) (suc x)))
       ∙∙ GroupTheory.inv1g (ℤ/ (suc n))
@@ -567,7 +567,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
          ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))) ∣}
   BijectionIso.surj (ℤHom→ℤ/im≅ℤ/im1 n p) x =
       ∣ [ pos (fst x) ]
-    , (Σ≡Prop (λ _ → m≤n-isProp) (modIndBase n (fst x) (snd x))) ∣
+    , (Σ≡Prop (λ _ → isProp≤) (modIndBase n (fst x) (snd x))) ∣
 
 -- main result
 ℤ/imIso : (f : GroupHom ℤGroup ℤGroup)
