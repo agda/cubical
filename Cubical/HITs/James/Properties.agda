@@ -44,17 +44,11 @@ module _
   ++Assoc (x ∷ xs) ys zs t = x ∷ ++Assoc xs ys zs t
   ++Assoc (unit xs i) ys zs t = unit (++Assoc xs ys zs t) i
 
-
--- Freely adjoining a point
-
-_₊ : Type ℓ → Pointed ℓ
-X ₊ = Maybe X , nothing
-
 module _
   (X : Type ℓ) where
 
   private
-    X₊ = X ₊
+    X₊ = Maybe∙ X
 
   J₊→List : James X₊ → List X
   J₊→List [] = []
