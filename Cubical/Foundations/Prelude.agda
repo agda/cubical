@@ -28,7 +28,7 @@ open import Cubical.Core.Primitives public
 infixr 30 _∙_
 infixr 30 _∙₂_
 infix  3 _∎
-infixr 2 _≡⟨_⟩_
+infixr 2 _≡⟨_⟩_ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
 
 -- Basic theory about paths. These proofs should typically be
@@ -232,6 +232,9 @@ _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 ≡⟨⟩-syntax = _≡⟨_⟩_
 infixr 2 ≡⟨⟩-syntax
 syntax ≡⟨⟩-syntax x (λ i → B) y = x ≡[ i ]⟨ B ⟩ y
+
+_≡⟨⟩_ : (x : A) → x ≡ y → x ≡ y
+_ ≡⟨⟩ x≡y = x≡y
 
 ≡⟨⟩⟨⟩-syntax : (x y : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
 ≡⟨⟩⟨⟩-syntax x y p q r = p ∙∙ q ∙∙ r

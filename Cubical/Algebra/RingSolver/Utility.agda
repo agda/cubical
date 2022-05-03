@@ -11,7 +11,7 @@ open import Cubical.Relation.Nullary.Base
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
 byBoolAbsurdity : {Anything : Type ℓ} → false ≡ true → Anything
 byBoolAbsurdity p = recEmpty (false≢true p)
 

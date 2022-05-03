@@ -50,7 +50,6 @@ open import Cubical.HITs.Truncation renaming
   (rec to trRec ; elim to trElim ; elim2 to trElim2 ; map to trMap)
 
 open import Cubical.Algebra.Group
-  renaming (Unit to UnitGr)
 open import Cubical.Algebra.Group.Exact
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Instances.IntMod
@@ -207,7 +206,7 @@ Exact4.KerL→R⊂ImH→L P→S²→Pushout = LESinst.Ker-B→fib⊂Im-A→B 1
 -- (3) proving that this new composition is indeed the appropriate map
 
 -- Step 1: π₂ P is trivial
-π₂P≅0 : GroupEquiv (πGr 1 P) UnitGr
+π₂P≅0 : GroupEquiv (πGr 1 P) UnitGroup₀
 π₂P≅0 = compGroupEquiv (πIso (isoToEquiv fiberinr'Iso , refl) 1)
          (GroupIso→GroupEquiv
            (contrGroupIsoUnit
@@ -241,7 +240,7 @@ Exact4.KerL→R⊂ImH→L P→S²→Pushout = LESinst.Ker-B→fib⊂Im-A→B 1
 -- replaced by the trivial group:
 -- π₃ P → π₃ S² → π₃ coFib-fold∘W∙ → 0
 P→S²→Pushout→P' :
-  Exact4 (π'Gr 2 P) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙) UnitGr
+  Exact4 (π'Gr 2 P) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙) UnitGroup₀
          (π'∘∙Hom 2 (fst , refl))
          (π'∘∙Hom 2 inr∙)
          (→UnitHom _)
@@ -293,7 +292,7 @@ isSurjective-π₃S³→π₃TotalPushoutPath× =
 
 -- We get a sequence on the right form π₃S³ → π₃S² → π₃ Pushout → Unit
 S³→S²→Pushout→Unit'' :
-  Exact4 (π'Gr 2 (S₊∙ 3)) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙) UnitGr
+  Exact4 (π'Gr 2 (S₊∙ 3)) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙) UnitGroup₀
         (compGroupHom π₃S³→π₃P
           (compGroupHom
             (π'∘∙Hom 2 TotalPushoutPath×∙→P) (π'∘∙Hom 2 (fst , refl))))
@@ -326,13 +325,13 @@ tripleComp≡ =
 
 -- We finally get the correct sequence
 S³→S²→Pushout→Unit :
-  Exact4 (π'Gr 2 (S₊∙ 3)) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙) UnitGr
+  Exact4 (π'Gr 2 (S₊∙ 3)) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙) UnitGroup₀
         (π'∘∙Hom 2 (fold∘W , refl))
         (π'∘∙Hom 2 inr∙)
         (→UnitHom (π'Gr 2 coFib-fold∘W∙))
 S³→S²→Pushout→Unit =
   subst
-   (λ F → Exact4 (π'Gr 2 (S₊∙ 3)) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙) UnitGr
+   (λ F → Exact4 (π'Gr 2 (S₊∙ 3)) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙) UnitGroup₀
             F (π'∘∙Hom 2 inr∙)
             (→UnitHom (π'Gr 2 coFib-fold∘W∙)))
             tripleComp≡

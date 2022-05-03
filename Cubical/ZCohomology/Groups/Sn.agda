@@ -37,7 +37,7 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; re
 
 open import Cubical.Homotopy.Connected
 
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Unit to UnitGroup) hiding (Bool)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup) hiding (Bool)
 
 infixr 31 _□_
 _□_ : _
@@ -177,12 +177,12 @@ private
                                   (λ _ _ → isProp→isOfHLevelSuc (4 + n) (isSetSetTrunc _ _))
                                   (suspToPropElim2 north (λ _ _ → isSetSetTrunc _ _) refl) (fst y) (snd y)
 
-H¹-S⁰≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ 0)) UnitGroup
+H¹-S⁰≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ 0)) UnitGroup₀
 H¹-S⁰≅0 n = contrGroupIsoUnit (isContrHⁿ-S0 n)
 
 ------------------------- H²(S¹) ≅ 0 -------------------------------
 
-Hⁿ-S¹≅0 : (n : ℕ) → GroupIso (coHomGr (2 + n) (S₊ 1)) UnitGroup
+Hⁿ-S¹≅0 : (n : ℕ) → GroupIso (coHomGr (2 + n) (S₊ 1)) UnitGroup₀
 Hⁿ-S¹≅0 n = contrGroupIsoUnit
             (isOfHLevelRetractFromIso 0 helper
               (_ , helper2))
@@ -210,7 +210,7 @@ Hⁿ-S¹≅0 n = contrGroupIsoUnit
 
 -- --------------- H¹(Sⁿ), n ≥ 1 --------------------------------------------
 
-H¹-Sⁿ≅0 : (n : ℕ) → GroupIso (coHomGr 1 (S₊ (2 + n))) UnitGroup
+H¹-Sⁿ≅0 : (n : ℕ) → GroupIso (coHomGr 1 (S₊ (2 + n))) UnitGroup₀
 H¹-Sⁿ≅0 zero = contrGroupIsoUnit isContrH¹S²
   where
   isContrH¹S² : isContr ⟨ coHomGr 1 (S₊ 2) ⟩
@@ -286,7 +286,7 @@ Hⁿ-Sⁿ≅ℤ zero = coHom1S1≃ℤ
 Hⁿ-Sⁿ≅ℤ (suc n) = suspensionAx-Sn n n □ Hⁿ-Sⁿ≅ℤ n
 
 -------------- Hⁿ(Sᵐ) ≅ ℤ for n , m ≥ 1 with n ≠ m ----------------
-Hⁿ-Sᵐ≅0 : (n m : ℕ) → ¬ (n ≡ m) → GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup
+Hⁿ-Sᵐ≅0 : (n m : ℕ) → ¬ (n ≡ m) → GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup₀
 Hⁿ-Sᵐ≅0 zero zero pf = ⊥-rec (pf refl)
 Hⁿ-Sᵐ≅0 zero (suc m) pf = H¹-Sⁿ≅0 m
 Hⁿ-Sᵐ≅0 (suc n) zero pf = Hⁿ-S¹≅0 n
