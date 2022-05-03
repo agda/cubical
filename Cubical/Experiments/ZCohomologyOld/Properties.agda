@@ -24,7 +24,7 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; re
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
-open import Cubical.Algebra.Group renaming (Unit to trivialGroup ; ℤ to ℤGroup)
+open import Cubical.Algebra.Group renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Foundations.Equiv.HalfAdjoint

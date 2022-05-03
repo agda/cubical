@@ -89,7 +89,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
     module _ where
       open IsAlgebraHom
 
-      inducedHom : AlgebraHom (CommAlgebra→Algebra (R [ I ])) (CommAlgebra→Algebra A)
+      inducedHom : CommAlgebraHom (R [ I ]) A
       inducedHom .fst = inducedMap
       inducedHom .snd .pres0 = 0-actsNullifying _
       inducedHom .snd .pres1 = imageOf1Works
@@ -343,7 +343,7 @@ inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
 inducedHom A φ = Theory.inducedHom A φ
 
 
-homMapIso : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
+homMapIso : {R : CommRing ℓ} {I : Type ℓ''} (A : CommAlgebra R ℓ')
              → Iso (CommAlgebraHom (R [ I ]) A) (I → (fst A))
 Iso.fun (homMapIso A) = evaluateAt A
 Iso.inv (homMapIso A) = inducedHom A
@@ -356,6 +356,11 @@ homMapPath : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
              → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
 homMapPath A = isoToPath (homMapIso A)
 
+-- The homomorphism induced by the variables is the identity.
+inducedHomVar : (R : CommRing ℓ) (I : Type ℓ')
+              → inducedHom (R [ I ]) Construction.var ≡ idCAlgHom (R [ I ])
+inducedHomVar R I = isoFunInjective (homMapIso (R [ I ])) _ _ refl
+
 module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
   open AlgebraHoms
   A′ = CommAlgebra→Algebra A
@@ -366,24 +371,38 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
 
   {-
     Hom(R[I],A) → (I → A)
-         ↓          ↓
+         ↓          ↓ψ
     Hom(R[I],B) → (I → B)
   -}
-  naturalR : {I : Type ℓ'} (ψ : CommAlgebraHom A B)
+  naturalEvR : {I : Type ℓ'} (ψ : CommAlgebraHom A B)
              (f : CommAlgebraHom (R [ I ]) A)
              → (fst ψ) ∘ evaluateAt A f ≡ evaluateAt B (ψ ∘a f)
-  naturalR ψ f = refl
+  naturalEvR ψ f = refl
+
+  {-
+    Hom(R[I],A) ← (I → A)
+         ↓          ↓ψ
+    Hom(R[I],B) ← (I → B)
+  -}
+  natIndHomR : {I : Type ℓ'} (ψ : CommAlgebraHom A B)
+               (ϕ : I → ⟨ A ⟩)
+               → ψ ∘a inducedHom A ϕ ≡ inducedHom B (fst ψ ∘ ϕ)
+  natIndHomR ψ ϕ = isoFunInjective (homMapIso B) _ _
+                (evaluateAt B (ψ ∘a (inducedHom A ϕ))        ≡⟨ refl ⟩
+                 fst ψ ∘ evaluateAt A (inducedHom A ϕ)       ≡⟨ refl ⟩
+                 fst ψ ∘ ϕ                                   ≡⟨ Iso.rightInv (homMapIso B) _ ⟩
+                 evaluateAt B (inducedHom B (fst ψ ∘ ϕ))     ∎)
 
   {-
     Hom(R[I],A) → (I → A)
          ↓          ↓
     Hom(R[J],A) → (J → A)
   -}
-  naturalL : {I J : Type ℓ'} (φ : J → I)
+  naturalEvL : {I J : Type ℓ'} (φ : J → I)
              (f : CommAlgebraHom (R [ I ]) A)
              → (evaluateAt A f) ∘ φ
                ≡ evaluateAt A (f ∘a (inducedHom (R [ I ]) (λ x → Construction.var (φ x))))
-  naturalL φ f = refl
+  naturalEvL φ f = refl
 
 module _ {R : CommRing ℓ} where
   {-

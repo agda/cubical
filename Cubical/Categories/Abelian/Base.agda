@@ -54,7 +54,7 @@ module _ (C : PreaddCategory ℓ ℓ') where
 
 
 -- Preabelian categories
-record PreabCategoryStr (C : AdditiveCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
+record PreAbCategoryStr (C : AdditiveCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   open AdditiveCategory C
   field
     hasKernels : {x y : ob} → (f : Hom[ x , y ]) → Kernel preaddcat f
@@ -68,10 +68,10 @@ record PreabCategoryStr (C : AdditiveCategory ℓ ℓ') : Type (ℓ-max ℓ ℓ'
 record PreAbCategory (ℓ ℓ' : Level) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   field
     additive : AdditiveCategory ℓ ℓ'
-    preAbStr : PreabCategoryStr additive
+    preAbStr : PreAbCategoryStr additive
 
   open AdditiveCategory additive public
-  open PreabCategoryStr preAbStr public
+  open PreAbCategoryStr preAbStr public
 
 
 -- Abelian categories

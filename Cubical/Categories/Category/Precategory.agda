@@ -43,6 +43,15 @@ comp' = _∘_
 infixr 16 comp'
 syntax comp' C g f = g ∘⟨ C ⟩ f
 
+-- Isomorphisms and paths in precategories
+record PrecatIso (C : Precategory ℓ ℓ') (x y : C .ob) : Type ℓ' where
+  constructor precatiso
+  field
+    mor : C [ x , y ]
+    inv : C [ y , x ]
+    sec : inv ⋆⟨ C ⟩ mor ≡ C .id
+    ret : mor ⋆⟨ C ⟩ inv ≡ C .id
+
 -- Opposite precategory
 _^op : Precategory ℓ ℓ' → Precategory ℓ ℓ'
 (C ^op) .ob = C .ob
