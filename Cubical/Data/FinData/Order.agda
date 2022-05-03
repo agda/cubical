@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Nat using (ℕ; zero; suc; _+_; _·_; +-assoc)
+open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Bool.Base
 open import Cubical.Relation.Nullary
@@ -30,3 +30,15 @@ i <Fin j = (suc i) ≤Fin (weakenFin j)
 open BinaryRelation
 ≤FinIsPropValued : ∀ {n : ℕ} → isPropValued (_≤Fin_ {n})
 ≤FinIsPropValued _ _ = m≤n-isProp
+
+
+-- inductive version
+_≤'Fin_ : {n : ℕ} → Fin n → Fin n → Type
+i ≤'Fin j = (toℕ i) ≤' (toℕ j)
+
+_<'Fin_ : {n : ℕ} → Fin n → Fin n → Type
+i <'Fin j = (suc i) ≤'Fin (weakenFin j)
+
+open BinaryRelation
+≤'FinIsPropValued : ∀ {n : ℕ} → isPropValued (_≤'Fin_ {n})
+≤'FinIsPropValued _ _ = ≤'IsPropValued _ _

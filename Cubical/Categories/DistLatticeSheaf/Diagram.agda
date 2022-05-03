@@ -13,6 +13,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
@@ -39,7 +40,7 @@ private
 
 data DLShfDiagOb (n : ℕ) : Type where
   sing : Fin n → DLShfDiagOb n
-  pair : (i j : Fin n) → i <Fin j → DLShfDiagOb n
+  pair : (i j : Fin n) → i <'Fin j → DLShfDiagOb n
 
 -- Another idea: ob= Σ[ (i , j) ∈ Fin n × Fin n ] i≤j
 -- Hom (i,j) (k,l) = (1) i≡k × j≡l
@@ -47,8 +48,8 @@ data DLShfDiagOb (n : ℕ) : Type where
 
 data DLShfDiagHom (n : ℕ) : DLShfDiagOb n → DLShfDiagOb n → Type where
   idAr : {x : DLShfDiagOb n} → DLShfDiagHom n x x
-  singPairL : {i j : Fin n} {i<j : i <Fin j}  → DLShfDiagHom n (sing i) (pair i j i<j)
-  singPairR : {i j : Fin n} {i<j : i <Fin j}→ DLShfDiagHom n (sing j) (pair i j i<j)
+  singPairL : {i j : Fin n} {i<j : i <'Fin j}  → DLShfDiagHom n (sing i) (pair i j i<j)
+  singPairR : {i j : Fin n} {i<j : i <'Fin j}→ DLShfDiagHom n (sing j) (pair i j i<j)
 
 
 module DLShfDiagHomPath where
@@ -59,27 +60,27 @@ module DLShfDiagHomPath where
   Code : (x y : DLShfDiagOb n) → Type
   Code (sing i) (sing j) = i ≡ j
   Code (sing i) (pair j k j<k) =
-      (Σ[ p ∈ (i ≡ j) ] Σ[ i<k ∈ i <Fin k ] PathP (λ ι → p ι <Fin k) i<k j<k)
-    ⊎ (Σ[ p ∈ (i ≡ k) ] Σ[ j<i ∈ j <Fin i ] PathP (λ ι → j <Fin p ι) j<i j<k)
+      (Σ[ p ∈ (i ≡ j) ] Σ[ i<k ∈ i <'Fin k ] PathP (λ ι → p ι <'Fin k) i<k j<k)
+    ⊎ (Σ[ p ∈ (i ≡ k) ] Σ[ j<i ∈ j <'Fin i ] PathP (λ ι → j <'Fin p ι) j<i j<k)
   Code (pair i j i<j) (sing k) = ⊥
   Code (pair i j i<j) (pair k l k<l) =
-    Σ[ p ∈ (i ≡ k) × (j ≡ l) ] PathP (λ ι → fst p ι <Fin snd p ι) i<j k<l
+    Σ[ p ∈ (i ≡ k) × (j ≡ l) ] PathP (λ ι → fst p ι <'Fin snd p ι) i<j k<l
 
   isSetCode : ∀ (x y : DLShfDiagOb n) → isSet (Code x y)
   isSetCode (sing _) (sing _) = isProp→isSet (isSetFin _ _)
   isSetCode (sing i) (pair j k j<k) =
     isSet⊎
       (isSetΣ (isProp→isSet (isSetFin _ _))
-        λ _ → isSetΣ (isProp→isSet (≤FinIsPropValued _ _))
-        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤FinIsPropValued _ _)) _ _)
+        λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued _ _))
+        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _)
       (isSetΣ (isProp→isSet (isSetFin _ _))
-        λ _ → isSetΣ (isProp→isSet (≤FinIsPropValued _ _))
-        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤FinIsPropValued _ _)) _ _)
+        λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued _ _))
+        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _)
   isSetCode (pair _ _ _) (sing _) = isProp→isSet isProp⊥
   isSetCode (pair _ _ _) (pair _ _ _) =
     isSetΣ
       (isSet× (isProp→isSet (isSetFin _ _)) (isProp→isSet (isSetFin _ _)))
-        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤FinIsPropValued _ _)) _ _
+        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _
 
   encode : (x y : DLShfDiagOb n) → DLShfDiagHom n x y → Code x y
   encode (sing i) (sing .i) idAr = refl
@@ -219,7 +220,7 @@ module PullbacksAsDLShfDiags (C : Category ℓ ℓ')
                       (coneOut cc (sing (suc zero)) ≡ hk ⋆⟨ C ⟩ pbPr₂)
   fromPBUnivProp = univProp
      (cc .coneOut (sing zero)) (cc .coneOut (sing (suc zero)))
-     (cc .coneOutCommutes (singPairL {i<j = 0 , refl}) ∙ sym (cc .coneOutCommutes singPairR))
+     (cc .coneOutCommutes (singPairL {i<j = s≤s z≤}) ∙ sym (cc .coneOutCommutes singPairR))
 
   toConeMor : isConeMor cc pbPrAsCone (fromPBUnivProp .fst .fst)
   toConeMor (sing zero) = sym (fromPBUnivProp .fst .snd .fst)
@@ -276,7 +277,7 @@ module DLShfDiagsAsPullback (C : Category ℓ ℓ')
 
  DiagAsCospan : Cospan C
  l DiagAsCospan = F-ob (sing zero)
- m DiagAsCospan = F-ob (pair zero (suc zero) (0 , refl))
+ m DiagAsCospan = F-ob (pair zero (suc zero) (s≤s z≤))
  r DiagAsCospan = F-ob (sing (suc zero))
  s₁ DiagAsCospan = F-hom singPairL
  s₂ DiagAsCospan = F-hom singPairR
@@ -286,15 +287,44 @@ module DLShfDiagsAsPullback (C : Category ℓ ℓ')
  pbPr₁ LimAsPullback = coneOut (sing zero)
  pbPr₂ LimAsPullback = coneOut (sing (suc zero))
  pbCommutes LimAsPullback = coneOutCommutes singPairL ∙ sym (coneOutCommutes singPairR)
- univProp LimAsPullback {d = d} f g f⋆F[0→0,1]≡g⋆F[1→0,1] = uniqueExists {!!} {!!} {!!} {!!}
+ univProp LimAsPullback {d = d} f g cSq =
+  uniqueExists
+    (fromUnivProp .fst .fst)
+      (sym (fromUnivProp .fst .snd (sing zero)) , sym (fromUnivProp .fst .snd (sing (suc zero))))
+        (λ _ → isProp× (isSetHom C _ _) (isSetHom C _ _))
+          λ h' trs → cong fst (fromUnivProp .snd (h' , toConeMor h' trs))
   where
-  toConeMor : (h : C [ d , F-ob (sing zero) ]) (k : C [ d , F-ob (sing (suc zero)) ])
-            → h ⋆⟨ C ⟩ s₁ DiagAsCospan ≡ k ⋆⟨ C ⟩ s₂ DiagAsCospan
-            → Cone F d
-  Cone.coneOut (toConeMor h k commSquare) (sing zero) = h
-  Cone.coneOut (toConeMor h k commSquare) (sing (suc zero)) = k
-  Cone.coneOut (toConeMor h k commSquare) (pair zero zero 0<0) = {!!}
-  Cone.coneOut (toConeMor h k commSquare) (pair zero (suc zero) 0<1) = {!h ⋆⟨ C ⟩ s₁ DiagAsCospan!}
-  Cone.coneOut (toConeMor h k commSquare) (pair (suc zero) zero x) = {!!}
-  Cone.coneOut (toConeMor h k commSquare) (pair (suc zero) (suc zero) x) = {!!}
-  Cone.coneOutCommutes (toConeMor h k commSquare) = {!!}
+  theCone : Cone F d
+  Cone.coneOut theCone (sing zero) = f
+  Cone.coneOut theCone (sing (suc zero)) = g
+  Cone.coneOut theCone (pair zero zero ())
+  Cone.coneOut theCone (pair zero (suc zero) (s≤s z≤)) = f ⋆⟨ C ⟩ DiagAsCospan .s₁
+  Cone.coneOut theCone (pair (suc zero) zero ())
+  Cone.coneOut theCone (pair (suc zero) (suc zero) (s≤s ()))
+  Cone.coneOutCommutes theCone {u} idAr = cong (seq' C (Cone.coneOut theCone u)) F-id
+                                        ∙ ⋆IdR C (Cone.coneOut theCone u)
+  Cone.coneOutCommutes theCone {sing zero} {pair ._ (suc zero) (s≤s z≤)} singPairL = refl
+  Cone.coneOutCommutes theCone {sing (suc zero)} {pair ._ (suc zero) (s≤s ())} singPairL
+  Cone.coneOutCommutes theCone {sing (suc zero)} {pair zero ._ (s≤s z≤)} singPairR = sym cSq
+  Cone.coneOutCommutes theCone {sing (suc zero)} {pair (suc zero) ._ (s≤s ())} singPairR
+
+  fromUnivProp : ∃![ h ∈ C [ d , lim ] ] isConeMor theCone limCone h
+  fromUnivProp = LimCone.univProp limF d theCone
+
+  toConeMor : ∀ (h' : C [ d , lim ])
+            → (f ≡ h' ⋆⟨ C ⟩ coneOut (sing zero)) × (g ≡ h' ⋆⟨ C ⟩ coneOut (sing (suc zero)))
+            → isConeMor theCone limCone h'
+  toConeMor h' (tr₁ , tr₂) (sing zero) = sym tr₁
+  toConeMor h' (tr₁ , tr₂) (sing (suc zero)) = sym tr₂
+  toConeMor h' (tr₁ , tr₂) (pair zero (suc zero) (s≤s z≤)) = path
+    where
+    path : h' ⋆⟨ C ⟩ coneOut (pair zero (suc zero) (s≤s z≤))
+         ≡ f ⋆⟨ C ⟩ F-hom singPairL
+    path = h' ⋆⟨ C ⟩ coneOut (pair zero (suc zero) (s≤s z≤))
+         ≡⟨ cong (seq' C h') (sym (coneOutCommutes singPairL)) ⟩
+           h' ⋆⟨ C ⟩ (coneOut (sing zero) ⋆⟨ C ⟩ F-hom singPairL)
+         ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+           (h' ⋆⟨ C ⟩ coneOut (sing zero)) ⋆⟨ C ⟩ F-hom singPairL
+         ≡⟨ cong (λ x → seq' C x (F-hom singPairL)) (sym tr₁) ⟩
+           f ⋆⟨ C ⟩ F-hom singPairL ∎
+  toConeMor h' (tr₁ , tr₂) (pair (suc zero) (suc zero) (s≤s ()))
