@@ -71,17 +71,6 @@ jobs:
             ~/.cabal/bin
           key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
 
-      # This caching step lets us avoid rechecking files in the library that
-      # haven't changed
-      - name: Cache library
-        uses: actions/cache@v2
-        id: cache-library
-        with:
-          path: ~/_build
-          key: cubical-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Cubical/**') }}
-          restore-keys: |
-            cubical-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
-
       ########################################################################
       ## INSTALLATION STEPS
       ########################################################################
