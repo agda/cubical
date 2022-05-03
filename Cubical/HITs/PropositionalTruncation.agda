@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.PropositionalTruncation where
 
 open import Cubical.HITs.PropositionalTruncation.Base public

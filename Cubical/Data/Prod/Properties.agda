@@ -1,10 +1,10 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Prod.Properties where
 
 open import Cubical.Core.Everything
 
 open import Cubical.Data.Prod.Base
-open import Cubical.Data.Sigma renaming (_×_ to _×Σ_)
+open import Cubical.Data.Sigma renaming (_×_ to _×Σ_) hiding (prodIso ; toProdIso ; curryIso)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -19,6 +19,9 @@ private
     B : Type ℓ'
 
 -- Swapping is an equivalence
+
+×≡ : {a b : A × B} → proj₁ a ≡ proj₁ b → proj₂ a ≡ proj₂ b → a ≡ b
+×≡ {a = (a1 , b1)} {b = (a2 , b2)} id1 id2 i = (id1 i) , (id2 i)
 
 swap : A × B → B × A
 swap (x , y) = (y , x)
@@ -58,7 +61,7 @@ A×B≡A×ΣB : A × B ≡ A ×Σ B
 A×B≡A×ΣB = ua A×B≃A×ΣB
 
 -- truncation for products
-isOfHLevelProd : (n : ℕ) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
+isOfHLevelProd : (n : HLevel) → isOfHLevel n A → isOfHLevel n B → isOfHLevel n (A × B)
 isOfHLevelProd {A = A} {B = B} n h1 h2 =
   let h : isOfHLevel n (A ×Σ B)
       h = isOfHLevelΣ n h1 (λ _ → h2)
@@ -76,7 +79,33 @@ isOfHLevelProd {A = A} {B = B} n h1 h2 =
     ψ (c , d) = equivFun (invEquiv f) c , equivFun (invEquiv g) d
 
     η : section φ ψ
-    η (c , d) i = retEq f c i , retEq g d i
+    η (c , d) i = secEq f c i , secEq g d i
 
     ε : retract φ ψ
-    ε (a , b) i = secEq f a i , secEq g b i
+    ε (a , b) i = retEq f a i , retEq g b i
+
+
+{- Some simple ismorphisms -}
+
+prodIso : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+       → Iso A C
+       → Iso B D
+       → Iso (A × B) (C × D)
+Iso.fun (prodIso iAC iBD) (a , b) = (Iso.fun iAC a) , Iso.fun iBD b
+Iso.inv (prodIso iAC iBD) (c , d) = (Iso.inv iAC c) , Iso.inv iBD d
+Iso.rightInv (prodIso iAC iBD) (c , d) = ×≡ (Iso.rightInv iAC c) (Iso.rightInv iBD d)
+Iso.leftInv (prodIso iAC iBD) (a , b) = ×≡ (Iso.leftInv iAC a) (Iso.leftInv iBD b)
+
+toProdIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+         → Iso (A → B × C) ((A → B) × (A → C))
+Iso.fun toProdIso = λ f → (λ a → proj₁ (f a)) , (λ a → proj₂ (f a))
+Iso.inv toProdIso (f , g) = λ a → (f a) , (g a)
+Iso.rightInv toProdIso (f , g) = refl
+Iso.leftInv toProdIso b = funExt λ a → sym (×-η _)
+
+curryIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+         → Iso (A × B → C) (A → B → C)
+Iso.fun curryIso f a b = f (a , b)
+Iso.inv curryIso f (a , b) = f a b
+Iso.rightInv curryIso a = refl
+Iso.leftInv curryIso f = funExt λ {(a , b) → refl}

@@ -1,29 +1,43 @@
-{-# OPTIONS --cubical --safe #-}
+{-
+
+A simpler definition of truncation ∥ A ∥ n from n ≥ -1
+
+Note that this uses the HoTT book's indexing, so it will be off
+ from `∥_∥_` in HITs.Truncation.Base by -2
+
+-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Truncation.Base where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Data.Nat
 open import Cubical.Data.NatMinusOne
-open import Cubical.Data.NatMinusTwo hiding (-1+_)
-open import Cubical.HITs.Nullification
-open import Cubical.HITs.Sn
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Pointed
+open import Cubical.HITs.Sn.Base
+open import Cubical.Data.Nat.Base
+open import Cubical.Data.Unit.Base
+open import Cubical.Data.Empty
 
--- For the hub-and-spoke construction discussed in the HoTT book, which doesn't work in the base case
---  of contractibility, see `HITs.Truncation.FromNegOne`. The definition of truncation here contains
---  two more constructors which are redundant when n ≥ 1 but give contractibility when n = 0.
+-- this definition is off by one. Use hLevelTrunc or ∥_∥ for truncations
+-- (off by 2 w.r.t. the HoTT-book)
+data HubAndSpoke {ℓ} (A : Type ℓ) (n : ℕ) : Type ℓ where
+  ∣_∣ : A → HubAndSpoke A n
+  hub : (f : S₊ n → HubAndSpoke A n) → HubAndSpoke A n
+  spoke : (f : S₊ n → HubAndSpoke A n) (x : S₊ n) → hub f ≡ f x
 
--- data hLevelTrunc {ℓ} (n : ℕ) (A : Type ℓ) : Type (ℓ-max ℓ ℓ') where
---   -- the hub-and-spoke definition in `Truncation.FromNegOne`
---   ∣_∣ : A → hLevelTrunc n A
---   hub   : (f : S (-1+ n) → hLevelTrunc n A) → hLevelTrunc n A
---   spoke : (f : S (-1+ n) → hLevelTrunc n A) (s : S) → hub f ≡ f s
---   -- two additional constructors needed to ensure that hLevelTrunc 0 A is contractible
---   ≡hub   : ∀ {x y} (p : S (-1+ n) → x ≡ y) → x ≡ y
---   ≡spoke : ∀ {x y} (p : S (-1+ n) → x ≡ y) (s : S (-1+ n)) → ≡hub p ≡ p s
+hLevelTrunc : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Type ℓ
+hLevelTrunc zero A = Unit*
+hLevelTrunc (suc n) A = HubAndSpoke A n
 
-hLevelTrunc : ∀ {ℓ} → ℕ → Type ℓ → Type ℓ
-hLevelTrunc n A = Null (S (-1+ n)) A
+∥_∥_ : ∀ {ℓ} (A : Type ℓ) (n : ℕ) → Type ℓ
+∥ A ∥ n = hLevelTrunc n A
 
--- a re-indexing of `hLevelTrunc` which is consistent with the HoTT book
-∥_∥_ : ∀ {ℓ} → Type ℓ → ℕ₋₂ → Type ℓ
-∥ A ∥ n = hLevelTrunc (2+ n) A -- ≡ Null (S (1+ n)) A
+∣_∣ₕ : ∀ {ℓ} {A : Type ℓ} {n : ℕ} → A → ∥ A ∥ n
+∣_∣ₕ {n = zero} a = tt*
+∣_∣ₕ {n = suc n} a = ∣ a ∣
+
+-- Pointed version
+hLevelTrunc∙ : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → Pointed ℓ
+fst (hLevelTrunc∙ n A) = hLevelTrunc n (typ A)
+snd (hLevelTrunc∙ zero A) = tt*
+snd (hLevelTrunc∙ (suc n) A) = ∣ pt A ∣ₕ

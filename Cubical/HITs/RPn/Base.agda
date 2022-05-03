@@ -6,7 +6,7 @@
            (2017) https://arxiv.org/abs/1704.05770
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.RPn.Base where
 
 open import Cubical.Foundations.Prelude
@@ -41,6 +41,12 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
+-- PR² as a HIT
+data RP² : Type₀ where
+  point : RP²
+  line : point ≡ point
+  square : line ≡ sym line
+
 -- Definition II.1 in [BR17], see also Cubical.Functions.Bundle
 
 2-EltType₀    = TypeEqvTo    ℓ-zero Bool -- Σ[ X ∈ Type₀ ] ∥ X ≃ Bool ∥
@@ -53,17 +59,17 @@ Bool* = Bool , ∣ idEquiv _ ∣
 -- Our first goal is to 'lift' `_⊕_ : Bool → Bool ≃ Bool` to a function `_⊕_ : A → A ≃ Bool`
 --  for any 2-element type (A, ∣e∣).
 
--- `isContr-BoolPointedIso` and `isContr-2-EltPointed-iso` are contained in the proof
---  of Lemma II.2 in [BR17], though we prove `isContr-BoolPointedIso` more directly
+-- `isContrBoolPointedEquiv` and `isContr-2-EltPointedEquiv` are contained in the proof
+--  of Lemma II.2 in [BR17], though we prove `isContr-BoolPointedEquiv` more directly
 --  with ⊕ -- [BR17] proves it for just the x = false case and uses notEquiv to get
 --  the x = true case.
 
 -- (λ y → x ⊕ y) is the unqiue pointed isomorphism (Bool , false) ≃ (Bool , x)
-isContr-BoolPointedIso : ∀ x → isContr ((Bool , false) ≃[ pointed-iso ] (Bool , x))
-fst (isContr-BoolPointedIso x) = ((λ y → x ⊕ y) , isEquiv-⊕ x) , ⊕-comm x false
-snd (isContr-BoolPointedIso x) (e , p)
-  = ΣProp≡ (λ e → isSetBool (equivFun e false) x)
-           (ΣProp≡ isPropIsEquiv (funExt λ { false → ⊕-comm x false ∙ sym p
+isContrBoolPointedEquiv : ∀ x → isContr ((Bool , false) ≃[ PointedEquivStr ] (Bool , x))
+fst (isContrBoolPointedEquiv x) = ((λ y → x ⊕ y) , isEquiv-⊕ x) , ⊕-comm x false
+snd (isContrBoolPointedEquiv x) (e , p)
+  = Σ≡Prop (λ e → isSetBool (equivFun e false) x)
+           (Σ≡Prop isPropIsEquiv (funExt λ { false → ⊕-comm x false ∙ sym p
                                            ; true  → ⊕-comm x true  ∙ sym q }))
   where q : e .fst true ≡ not x
         q with dichotomyBool (invEq e (not x))
@@ -73,12 +79,12 @@ snd (isContr-BoolPointedIso x) (e , p)
 -- Since isContr is a mere proposition, we can eliminate a witness ∣e∣ : ∥ X ≃ Bool ∥ to get
 --  that there is therefore a unique pointed isomorphism (Bool , false) ≃ (X , x) for any
 --  2-element pointed type (X , x, ∣e∣).
-isContr-2-EltPointed-iso : (X∙ : 2-EltPointed₀)
-                         → isContr ((Bool , false , ∣ idEquiv Bool ∣) ≃[ PointedEqvTo-iso Bool ] X∙)
-isContr-2-EltPointed-iso (X , x , ∣e∣)
+isContr-2-EltPointedEquiv : (X∙ : 2-EltPointed₀)
+                         → isContr ((Bool , false , ∣ idEquiv Bool ∣) ≃[ PointedEqvToEquivStr Bool ] X∙)
+isContr-2-EltPointedEquiv (X , x , ∣e∣)
   = PropTrunc.rec isPropIsContr
-                  (λ e → J (λ X∙ _ → isContr ((Bool , false) ≃[ pointed-iso ] X∙))
-                           (isContr-BoolPointedIso (e .fst x))
+                  (λ e → J (λ X∙ _ → isContr ((Bool , false) ≃[ PointedEquivStr ] X∙))
+                           (isContrBoolPointedEquiv (e .fst x))
                            (sym (pointed-sip _ _ (e , refl))))
                   ∣e∣
 
@@ -87,28 +93,28 @@ isContr-2-EltPointed-iso (X , x , ∣e∣)
 module ⊕* (X : 2-EltType₀) where
 
   _⊕*_ : typ X → typ X → Bool
-  y ⊕* z = invEquiv (fst (fst (isContr-2-EltPointed-iso (fst X , y , snd X)))) .fst z
+  y ⊕* z = invEquiv (fst (fst (isContr-2-EltPointedEquiv (fst X , y , snd X)))) .fst z
 
   -- we've already shown that this map is an equivalence on the right
 
   isEquivʳ : (y : typ X) → isEquiv (y ⊕*_)
-  isEquivʳ y = invEquiv (fst (fst (isContr-2-EltPointed-iso (fst X , y , snd X)))) .snd
+  isEquivʳ y = invEquiv (fst (fst (isContr-2-EltPointedEquiv (fst X , y , snd X)))) .snd
 
   Equivʳ : typ X → typ X ≃ Bool
   Equivʳ y = (y ⊕*_) , isEquivʳ y
 
   -- any mere proposition that holds for (Bool, _⊕_) holds for (typ X, _⊕*_)
-  -- this amounts to just carefully unfolding the PropTrunc.elim and J in isContr-2-EltPointed-iso
+  -- this amounts to just carefully unfolding the PropTrunc.elim and J in isContr-2-EltPointedEquiv
   elim : ∀ {ℓ'} (P : (A : Type₀) (_⊕'_ : A → A → Bool) → Type ℓ') (propP : ∀ A _⊕'_ → isProp (P A _⊕'_))
          → P Bool _⊕_ → P (typ X) _⊕*_
   elim {ℓ'} P propP r = PropTrunc.elim {P = λ ∣e∣ → P (typ X) (R₁ ∣e∣)} (λ _ → propP _ _)
                                        (λ e → EquivJ (λ A e → P A (R₂ A e)) r e)
                                        (snd X)
     where R₁ : ∥ fst X ≃ Bool ∥ → typ X → typ X → Bool
-          R₁ ∣e∣ y = invEq (fst (fst (isContr-2-EltPointed-iso (fst X , y , ∣e∣))))
+          R₁ ∣e∣ y = invEq (fst (fst (isContr-2-EltPointedEquiv (fst X , y , ∣e∣))))
           R₂ : (B : Type₀) → B ≃ Bool → B → B → Bool
-          R₂ A e y = invEq (fst (fst (J (λ A∙ _ → isContr ((Bool , false) ≃[ pointed-iso ] A∙))
-                                        (isContr-BoolPointedIso (e .fst y))
+          R₂ A e y = invEq (fst (fst (J (λ A∙ _ → isContr ((Bool , false) ≃[ PointedEquivStr ] A∙))
+                                        (isContrBoolPointedEquiv (e .fst y))
                                         (sym (pointed-sip (A , y) (Bool , e .fst y) (e , refl))))))
 
   -- as a consequence, we get that ⊕* is commutative, and is therefore also an equivalence on the left
@@ -128,7 +134,7 @@ module ⊕* (X : 2-EltType₀) where
 -- Note: Lemma II.3 is `pointed-sip`, used in `PointedEqvTo-sip`
 isContr-2-EltPointed : isContr (2-EltPointed₀)
 fst isContr-2-EltPointed = (Bool , false , ∣ idEquiv Bool ∣)
-snd isContr-2-EltPointed A∙ = PointedEqvTo-sip Bool _ A∙ (fst (isContr-2-EltPointed-iso A∙))
+snd isContr-2-EltPointed A∙ = PointedEqvTo-sip Bool _ A∙ (fst (isContr-2-EltPointedEquiv A∙))
 
 
 --------------------------------------------------------------------------------
@@ -227,7 +233,7 @@ TotalCov≃Sn (ℕ→ℕ₋₁ n) =
       where open ⊕* (cov⁻¹ (-1+ n) x)
 
     i : Total (cov⁻¹ (ℕ→ℕ₋₁ n)) ≃ Pushout Σf Σg
-    i = (Σ[ x ∈ RP (ℕ→ℕ₋₁ n) ] typ (cov⁻¹ (ℕ→ℕ₋₁ n) x)) ≃⟨ congΣEquiv cov⁻¹≃E ⟩
+    i = (Σ[ x ∈ RP (ℕ→ℕ₋₁ n) ] typ (cov⁻¹ (ℕ→ℕ₋₁ n) x)) ≃⟨ Σ-cong-equiv-snd cov⁻¹≃E ⟩
         (Σ[ x ∈ RP (ℕ→ℕ₋₁ n) ] E x)                     ≃⟨ flatten ⟩
         Pushout Σf Σg                                   ■
 {-
@@ -252,11 +258,12 @@ TotalCov≃Sn (ℕ→ℕ₋₁ n) =
     This was proved above by ⊕*.isEquivˡ.
 -}
     u : ∀ {n} → (Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))) ≃ (Total (cov⁻¹ n) × Bool)
-    u {n} = Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))      ≃⟨ assocΣ ⟩
-            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → swapΣEquiv _ _) ⟩
-            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ congΣEquiv (λ x → congΣEquiv (λ y →
-                                                                             ⊕*.Equivˡ (cov⁻¹ n x) y)) ⟩
-            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × Bool              ≃⟨ invEquiv assocΣ ⟩
+    u {n} = Σ[ x ∈ Total (cov⁻¹ n) ] typ (cov⁻¹ n (fst x))      ≃⟨ Σ-assoc-≃ ⟩
+            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ Σ-cong-equiv-snd (λ x → Σ-swap-≃) ⟩
+            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × (typ (cov⁻¹ n x)) ≃⟨ Σ-cong-equiv-snd
+                                                                   (λ x → Σ-cong-equiv-snd
+                                                                     (λ y → ⊕*.Equivˡ (cov⁻¹ n x) y)) ⟩
+            Σ[ x ∈ RP n ] (typ (cov⁻¹ n x)) × Bool              ≃⟨ invEquiv Σ-assoc-≃ ⟩
             Total (cov⁻¹ n) × Bool                              ■
 
     H : ∀ x → u .fst x ≡ (Σf x , snd (Σg x))

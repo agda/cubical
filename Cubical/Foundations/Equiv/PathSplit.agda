@@ -15,7 +15,7 @@ The module starts with a couple of general facts about equivalences:
 
 (those are not in 'Equiv.agda' because they need Univalence.agda (which imports Equiv.agda))
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.PathSplit where
 
 open import Cubical.Foundations.Prelude
@@ -25,6 +25,8 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Foundations.Equiv.Properties
+
+open import Cubical.Data.Sigma
 
 record isPathSplitEquiv {ℓ ℓ'} {A : Type  ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
@@ -37,37 +39,36 @@ PathSplitEquiv A B = Σ[ f ∈ (A → B) ] isPathSplitEquiv f
 open isPathSplitEquiv
 
 idIsPathSplitEquiv : ∀ {ℓ} {A : Type ℓ} → isPathSplitEquiv (λ (x : A) → x)
-sec idIsPathSplitEquiv = (λ x → x) , (λ x → refl)
-secCong idIsPathSplitEquiv = λ x y → (λ p → p) , λ p _ → p
+sec idIsPathSplitEquiv     = (λ x → x) , (λ _ → refl)
+secCong idIsPathSplitEquiv = λ _ _ → (λ p → p) , λ p _ → p
 
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
+
+  open Iso
+
+  toIso : (f : A → B) → isPathSplitEquiv f → Iso A B
+  fun (toIso f _) = f
+  inv (toIso _ p) = p .sec .fst
+  rightInv (toIso _ p)  = p .sec .snd
+  leftInv (toIso f p) x = p .secCong (p .sec .fst (f x)) x .fst (p .sec .snd (f x))
+
   toIsEquiv : (f : A → B) → isPathSplitEquiv f → isEquiv f
-  toIsEquiv f record { sec = sec ; secCong = secCong } =
-    (isoToEquiv (iso f (fst sec) (snd sec) (λ x → (secCong (fst sec (f x)) x).fst (snd sec (f x))))) .snd
+  toIsEquiv f p = isoToIsEquiv (toIso f p)
 
   sectionOfEquiv' : (f : A → B) → isEquiv f → B → A
-  sectionOfEquiv' f isEqv x =
-    let all-fibers-contractible = isEqv .equiv-proof
-    in  all-fibers-contractible x .fst .fst
+  sectionOfEquiv' f isEqv x = isEqv .equiv-proof x .fst .fst
 
   isSec : (f : A → B) → (pf : isEquiv f) → section f (sectionOfEquiv' f pf)
-  isSec f isEqv x =
-    let all-fibers-contractible = isEqv .equiv-proof
-    in  all-fibers-contractible x .fst .snd
+  isSec f isEqv x = isEqv .equiv-proof x .fst .snd
 
   sectionOfEquiv : (f : A → B) → isEquiv f → hasSection f
   sectionOfEquiv f e = sectionOfEquiv' f e , isSec f e
 
 module _ {ℓ} {A B : Type ℓ} where
-  abstract
-    fromIsEquiv : (f : A → B) → isEquiv f → isPathSplitEquiv f
-    sec (fromIsEquiv f pf) = sectionOfEquiv' f pf , isSec f pf
-    secCong (fromIsEquiv f pf) x y = sectionOfEquiv cong-f eq-cong
-            where
-            cong-f : x ≡ y → f x ≡ f y
-            cong-f = λ (p : x ≡ y) → cong f p
-            eq-cong : isEquiv cong-f
-            eq-cong = isEquivCong (f , pf)
+
+  fromIsEquiv : (f : A → B) → isEquiv f → isPathSplitEquiv f
+  sec (fromIsEquiv f pf) = sectionOfEquiv' f pf , isSec f pf
+  secCong (fromIsEquiv f pf) x y = sectionOfEquiv (cong f) (isEquivCong (f , pf))
 
   pathSplitToEquiv : PathSplitEquiv A B → A ≃ B
   fst (pathSplitToEquiv (f , _)) = f
@@ -77,28 +78,22 @@ module _ {ℓ} {A B : Type ℓ} where
   fst (equivToPathSplit (f , _)) = f
   snd (equivToPathSplit (_ , e)) = fromIsEquiv _ e
 
-  equivHasUniqueSection : (f : A → B)
-    → isEquiv f → isContr (Σ (B → A) (section f))
+  equivHasUniqueSection : (f : A → B) → isEquiv f → ∃![ g ∈ (B → A) ] section f g
   equivHasUniqueSection f eq = helper'
     where
-      idB = λ (x : B) → x
-      abstract
-        helper : isContr (fiber (λ (φ : B → A) → f ∘ φ) idB)
-        helper = (equiv-proof (snd (postCompEquiv (f , eq)))) idB
-      helper' : isContr (Σ[ φ ∈ (B → A) ] ((x : B) → f (φ x) ≡ x))
-      fst helper' = (φ , λ x i → η i x)
-        where φ = fst (fst helper)
-              η : f ∘ φ ≡ idB
-              η = snd (fst helper)
-      (snd helper') y i = (fst (η i) , λ b j → snd (η i) j b)
-        where η = (snd helper) (fst y , λ i b → snd y b i)
+    helper : isContr (fiber (λ (φ : B → A) → f ∘ φ) (idfun B))
+    helper = (equiv-proof (snd (postCompEquiv (f , eq)))) (idfun B)
+
+    helper' : ∃![ φ ∈ (B → A) ] ((x : B) → f (φ x) ≡ x)
+    fst helper' = (helper .fst .fst , λ x i → helper .fst .snd i x)
+    snd helper' y i = (fst (η i) , λ b j → snd (η i) j b)
+      where η = helper .snd (fst y , λ i b → snd y b i)
 
 {-
   PathSplitEquiv is a proposition and the type
   of path split equivs is equivalent to the type of equivalences
 -}
-isPropIsPathSplitEquiv : ∀ {ℓ} {A B : Type ℓ} (f : A → B)
-     → isProp (isPathSplitEquiv f)
+isPropIsPathSplitEquiv : ∀ {ℓ} {A B : Type ℓ} (f : A → B) → isProp (isPathSplitEquiv f)
 isPropIsPathSplitEquiv {_} {A} {B} f
   record { sec = sec-φ ; secCong = secCong-φ }
   record { sec = sec-ψ ; secCong = secCong-ψ } i

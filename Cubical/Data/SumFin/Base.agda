@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.SumFin.Base where
 
 open import Cubical.Foundations.Prelude
@@ -37,6 +37,10 @@ finj : Fin k → Fin (suc k)
 finj {suc k} fzero    = fzero
 finj {suc k} (fsuc n) = fsuc (finj {k} n)
 
+flast : Fin (suc k)
+flast {k = 0} = fzero
+flast {k = suc k} = fsuc flast
+
 toℕ : Fin k → ℕ
 toℕ {suc k} (inl tt) = zero
 toℕ {suc k} (inr x)  = suc (toℕ {k} x)
@@ -47,6 +51,11 @@ toℕ-injective {suc k} {fzero}  {fsuc x} p = ⊥.rec (znots p)
 toℕ-injective {suc k} {fsuc m} {fzero}  p = ⊥.rec (snotz p)
 toℕ-injective {suc k} {fsuc m} {fsuc x} p = cong fsuc (toℕ-injective (injSuc p))
 
+fromℕ : (n : ℕ) → Fin (suc k)
+fromℕ {k = 0} _ = fzero
+fromℕ {k = suc k} 0 = fzero
+fromℕ {k = suc k} (suc n) = fsuc (fromℕ n)
+
 -- Thus, Fin k is discrete
 discreteFin : Discrete (Fin k)
 discreteFin fj fk with discreteℕ (toℕ fj) (toℕ fk)
@@ -55,3 +64,17 @@ discreteFin fj fk with discreteℕ (toℕ fj) (toℕ fk)
 
 isSetFin : isSet (Fin k)
 isSetFin = Discrete→isSet discreteFin
+
+-- Summation and multiplication
+
+totalSum : {k : ℕ} → (f : Fin k → ℕ) → ℕ
+totalSum {k = 0} _ = 0
+totalSum {k = suc n} f = f (inl tt) + totalSum {k = n} (λ x → f (inr x))
+
+totalProd : {k : ℕ} → (f : Fin k → ℕ) → ℕ
+totalProd {k = 0} _ = 1
+totalProd {k = suc n} f = f (inl tt) · totalProd {k = n} (λ x → f (inr x))
+
+totalSumConst : {m : ℕ} → (n : ℕ) → totalSum {k = m} (λ _ → n) ≡ m · n
+totalSumConst {m = 0} _ = refl
+totalSumConst {m = suc m} n i = n + totalSumConst {m = m} n i

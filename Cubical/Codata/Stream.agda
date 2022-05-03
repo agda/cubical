@@ -1,4 +1,5 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --guardedness #-}
+
 module Cubical.Codata.Stream where
 
 open import Cubical.Codata.Stream.Base public

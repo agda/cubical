@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.S1.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -38,3 +38,9 @@ isGroupoidS¹ s t =
           (isConnectedS¹ t)))
     (isConnectedS¹ s)
 
+IsoFunSpaceS¹ : ∀ {ℓ} {A : Type ℓ} → Iso (S¹ → A) (Σ[ x ∈ A ] x ≡ x)
+Iso.fun IsoFunSpaceS¹ f = (f base) , (cong f loop)
+Iso.inv IsoFunSpaceS¹ (x , p) base = x
+Iso.inv IsoFunSpaceS¹ (x , p) (loop i) = p i
+Iso.rightInv IsoFunSpaceS¹ (x , p) = refl
+Iso.leftInv IsoFunSpaceS¹ f = funExt λ {base → refl ; (loop i) → refl}

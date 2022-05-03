@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 
 {-
 
@@ -25,6 +25,8 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
   hiding (section)
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence
+open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Data.Nat.Base
 
@@ -112,8 +114,11 @@ module AlgebraHInd→HInit {N : NatAlgebra ℓ'} (ind : isNatInductive N ℓ) (M
   section→morph : NatSection ConstFiberM → NatMorphism N M
   section→morph x = record { morph = section ; comm-zero = sec-comm-zero ; comm-suc = λ n i → sec-comm-suc i n }
     where open NatSection x
+
   Morph≡Section : NatSection ConstFiberM ≡ NatMorphism N M
-  Morph≡Section = isoToPath (iso section→morph morph→section (λ _ → refl) (λ _ → refl))
+  Morph≡Section = ua e
+    where
+    unquoteDecl e = declStrictEquiv e section→morph morph→section
 
   isContrMorph : isContr (NatMorphism N M)
   isContrMorph = subst isContr Morph≡Section (inhProp→isContr (ind ConstFiberM) (AlgebraPropositionality.SectionProp.S≡T ind))
@@ -222,9 +227,7 @@ module AlgebraHInit→Ind (N : NatAlgebra ℓ') ℓ (hinit : isNatHInitial N (�
 
 isNatInductive≡isNatHInitial : {N : NatAlgebra ℓ'} (ℓ : Level)
                              → isNatInductive N (ℓ-max ℓ' ℓ) ≡ isNatHInitial N (ℓ-max ℓ' ℓ)
-isNatInductive≡isNatHInitial {ℓ'} {N} ℓ =
-  isoToPath (equivToIso (PropEquiv→Equiv isPropIsNatInductive isPropIsNatHInitial ind→init init→ind)) where
-  open import Cubical.Foundations.Equiv
+isNatInductive≡isNatHInitial {_} {N} ℓ = hPropExt isPropIsNatInductive isPropIsNatHInitial ind→init init→ind where
   open AlgebraPropositionality
   open AlgebraHInit→Ind N ℓ renaming (Fsection to init→ind)
   open AlgebraHInd→HInit renaming (isContrMorph to ind→init)

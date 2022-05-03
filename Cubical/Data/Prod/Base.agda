@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Prod.Base where
 
 open import Cubical.Core.Everything
@@ -45,3 +45,7 @@ intro f g a = f a , g a
 map : {B : Type ℓ} {D : B → Type ℓ'}
    → (∀ a → C a) → (∀ b → D b) → (x : A × B) → C (proj₁ x) × D (proj₂ x)
 map f g = intro (f ∘ proj₁) (g ∘ proj₂)
+
+
+×-η : {A : Type ℓ} {B : Type ℓ'} (x : A × B) → x ≡ ((proj₁ x) , (proj₂ x))
+×-η (x , x₁) = refl

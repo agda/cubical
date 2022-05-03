@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Modalities.Modality where
 
 {-
@@ -11,7 +11,7 @@ open import Cubical.Foundations.Everything
 record Modality ℓ : Type (ℓ-suc ℓ) where
   field
     isModal : Type ℓ → Type ℓ
-    isModalIsProp : {A : Type ℓ} → isProp (isModal A)
+    isPropIsModal : {A : Type ℓ} → isProp (isModal A)
 
     ◯ : Type ℓ → Type ℓ                                  -- \ciO
     ◯-isModal : {A : Type ℓ} → isModal (◯ A)
@@ -80,18 +80,14 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
 
   {- modal types and [η] being an equivalence -}
 
+  isModalToIso : {A : Type ℓ} → isModal A → Iso A (◯ A)
+  Iso.fun (isModalToIso _) = η
+  Iso.inv (isModalToIso w) = ◯-rec w (idfun _)
+  Iso.rightInv (isModalToIso w) = ◯-elim (λ _ → ◯-=-isModal _ _) (λ a₀ → cong η (◯-rec-β w (idfun _) a₀))
+  Iso.leftInv (isModalToIso w) = ◯-rec-β w (idfun _)
+
   isModalToIsEquiv : {A : Type ℓ} → isModal A → isEquiv (η {A})
-  isModalToIsEquiv {A} w =  isoToIsEquiv (iso (η {A}) η-inv inv-l inv-r)
-       where η-inv : ◯ A → A
-             η-inv = ◯-rec w (idfun A)
-
-             inv-r : (a : A) → η-inv (η a) ≡ a
-             inv-r = ◯-rec-β w (idfun A)
-
-             inv-l : (a : ◯ A) → η (η-inv a) ≡ a
-             inv-l = ◯-elim (λ a₀ → ◯-=-isModal _ _)
-                            (λ a₀ → cong η (inv-r a₀))
-
+  isModalToIsEquiv {A} w = isoToIsEquiv (isModalToIso w)
 
   isEquivToIsModal : {A : Type ℓ} → isEquiv (η {A}) → isModal A
   isEquivToIsModal {A} eq = equivPreservesIsModal (invEquiv (η , eq)) ◯-isModal

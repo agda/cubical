@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Join.Base where
 
 open import Cubical.Foundations.Prelude
@@ -76,5 +76,12 @@ joinS¹S¹→S³→joinS¹S¹ (push base (loop k) i) l = push base (loop k) (i �
 joinS¹S¹→S³→joinS¹S¹ (push (loop k) base i) l = facek01 (~ i) k (~ l)
 joinS¹S¹→S³→joinS¹S¹ (push (loop j) (loop k) i) l = border-contraction i j k (~ l)
 
+S³IsojoinS¹S¹ : Iso S³ (join S¹ S¹)
+Iso.fun S³IsojoinS¹S¹ = S³→joinS¹S¹
+Iso.inv S³IsojoinS¹S¹ = joinS¹S¹→S³
+Iso.rightInv S³IsojoinS¹S¹ = joinS¹S¹→S³→joinS¹S¹
+Iso.leftInv S³IsojoinS¹S¹ = S³→joinS¹S¹→S³
+
+
 S³≡joinS¹S¹ : S³ ≡ join S¹ S¹
-S³≡joinS¹S¹ = isoToPath (iso S³→joinS¹S¹ joinS¹S¹→S³ joinS¹S¹→S³→joinS¹S¹ S³→joinS¹S¹→S³)
+S³≡joinS¹S¹ = isoToPath S³IsojoinS¹S¹

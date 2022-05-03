@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Nullification where
 
 open import Cubical.HITs.Nullification.Base public

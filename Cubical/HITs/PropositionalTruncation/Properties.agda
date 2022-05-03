@@ -5,7 +5,7 @@ This file contains:
 - Eliminator for propositional truncation
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.PropositionalTruncation.Properties where
 
 open import Cubical.Core.Everything
@@ -18,45 +18,63 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum hiding (rec ; elim ; map)
 
 open import Cubical.HITs.PropositionalTruncation.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A B C : Type ℓ
+    A′ : Type ℓ'
 
-rec : ∀ {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
+∥∥-isPropDep : (P : A → Type ℓ) → isOfHLevelDep 1 (λ x → ∥ P x ∥)
+∥∥-isPropDep P = isOfHLevel→isOfHLevelDep 1 (λ _ → squash)
+
+rec : {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
 rec Pprop f ∣ x ∣ = f x
 rec Pprop f (squash x y i) = Pprop (rec Pprop f x) (rec Pprop f y) i
 
-rec2 : ∀ {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
-rec2 Pprop f = rec (isPropΠ (λ _ → Pprop))
-                   (λ a → rec Pprop (f a))
+rec2 : {P : Type ℓ} → isProp P → (A → B → P) → ∥ A ∥ → ∥ B ∥ → P
+rec2 Pprop f ∣ x ∣ ∣ y ∣ = f x y
+rec2 Pprop f ∣ x ∣ (squash y z i) = Pprop (rec2 Pprop f ∣ x ∣ y) (rec2 Pprop f ∣ x ∣ z) i
+rec2 Pprop f (squash x y i) z = Pprop (rec2 Pprop f x z) (rec2 Pprop f y z) i
 
-elim : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a))
+-- Old version
+-- rec2 : ∀ {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
+-- rec2 Pprop f = rec (isProp→ Pprop) (λ a → rec Pprop (f a))
+
+elim : {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a))
      → ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
 elim Pprop f ∣ x ∣ = f x
 elim Pprop f (squash x y i) =
   isOfHLevel→isOfHLevelDep 1 Pprop
     (elim Pprop f x) (elim Pprop f y) (squash x y) i
 
-elim2 : {P : ∥ A ∥ → ∥ A ∥ → Type ℓ}
-        (Bset : ((x y : ∥ A ∥) → isProp (P x y)))
-        (g : (a b : A) → P ∣ a ∣ ∣ b ∣)
-        (x y : ∥ A ∥) → P x y
-elim2 Pprop g = elim (λ _ → isPropΠ (λ _ → Pprop _ _))
-                     (λ a → elim (λ _ → Pprop _ _) (g a))
+elim2 : {P : ∥ A ∥ → ∥ B ∥ → Type ℓ}
+        (Pprop : (x : ∥ A ∥) (y : ∥ B ∥) → isProp (P x y))
+        (f : (a : A) (b : B) → P ∣ a ∣ ∣ b ∣)
+        (x : ∥ A ∥) (y : ∥ B ∥) → P x y
+elim2 Pprop f =
+  elim (λ _ → isPropΠ (λ _ → Pprop _ _))
+                       (λ a → elim (λ _ → Pprop _ _) (f a))
 
-elim3 : {P : ∥ A ∥ → ∥ A ∥ → ∥ A ∥ → Type ℓ}
-        (Bset : ((x y z : ∥ A ∥) → isProp (P x y z)))
-        (g : (a b c : A) → P (∣ a ∣) ∣ b ∣ ∣ c ∣)
-        (x y z : ∥ A ∥) → P x y z
+elim3 : {P : ∥ A ∥ → ∥ B ∥ → ∥ C ∥ → Type ℓ}
+        (Pprop : ((x : ∥ A ∥) (y : ∥ B ∥) (z : ∥ C ∥) → isProp (P x y z)))
+        (g : (a : A) (b : B) (c : C) → P (∣ a ∣) ∣ b ∣ ∣ c ∣)
+        (x : ∥ A ∥) (y : ∥ B ∥) (z : ∥ C ∥) → P x y z
 elim3 Pprop g = elim2 (λ _ _ → isPropΠ (λ _ → Pprop _ _ _))
                       (λ a b → elim (λ _ → Pprop _ _ _) (g a b))
 
-propTruncIsProp : isProp ∥ A ∥
-propTruncIsProp x y = squash x y
+isPropPropTrunc : isProp ∥ A ∥
+isPropPropTrunc x y = squash x y
+
+propTrunc≃ : A ≃ B → ∥ A ∥ ≃ ∥ B ∥
+propTrunc≃ e =
+  propBiimpl→Equiv
+    isPropPropTrunc isPropPropTrunc
+    (rec isPropPropTrunc (λ a → ∣ e .fst a ∣))
+    (rec isPropPropTrunc (λ b → ∣ invEq e b ∣))
 
 propTruncIdempotent≃ : isProp A → ∥ A ∥ ≃ A
 propTruncIdempotent≃ {A = A} hA = isoToEquiv f
@@ -65,14 +83,14 @@ propTruncIdempotent≃ {A = A} hA = isoToEquiv f
   Iso.fun f        = rec hA (idfun A)
   Iso.inv f x      = ∣ x ∣
   Iso.rightInv f _ = refl
-  Iso.leftInv f    = elim (λ _ → isProp→isSet propTruncIsProp _ _) (λ _ → refl)
+  Iso.leftInv f    = elim (λ _ → isProp→isSet isPropPropTrunc _ _) (λ _ → refl)
 
 propTruncIdempotent : isProp A → ∥ A ∥ ≡ A
 propTruncIdempotent hA = ua (propTruncIdempotent≃ hA)
 
 -- We could also define the eliminator using the recursor
-elim' : ∀ {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
-          ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
+elim' : {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
+        ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
 elim' {P = P} Pprop f a =
   rec (Pprop a) (λ x → transp (λ i → P (squash ∣ x ∣ a i)) i0 (f x)) a
 
@@ -104,7 +122,7 @@ module SetElim (Bset : isSet B) where
   helper f kf t (squash u v i)
     = Bset' (helper f kf t u) (helper f kf t v) refl (helper f kf u v) i
 
-  kcomp : ∀(f : ∥ A ∥ → B) → 2-Constant (f ∘ ∣_∣)
+  kcomp : (f : ∥ A ∥ → B) → 2-Constant (f ∘ ∣_∣)
   kcomp f x y = cong f (squash ∣ x ∣ ∣ y ∣)
 
   Fset : isSet (A → B)
@@ -126,10 +144,9 @@ module SetElim (Bset : isSet B) where
   fib : (g : Σ (A → B) 2-Constant) → fiber mkKmap g
   fib (g , kg) = rec→Set g kg , refl
 
-  eqv : (g : Σ (A → B) 2-Constant)
-      → ∀ fi → fib g ≡ fi
+  eqv : (g : Σ (A → B) 2-Constant) → ∀ fi → fib g ≡ fi
   eqv g (f , p) =
-    ΣProp≡ (λ f → isOfHLevelΣ 2 Fset Kset _ _)
+    Σ≡Prop (λ f → isOfHLevelΣ 2 Fset Kset _ _)
       (cong (uncurry rec→Set) (sym p) ∙ setRecLemma f)
 
   trunc→Set≃ : (∥ A ∥ → B) ≃ (Σ (A → B) 2-Constant)
@@ -173,12 +190,12 @@ module SetElim (Bset : isSet B) where
           i
 
   trunc→Set≃₂ : (∥ A ∥ → B) ≃ Σ (A → B) 2-Constant
-  trunc→Set≃₂ = compEquiv (equivPi preEquiv₁) preEquiv₂
+  trunc→Set≃₂ = compEquiv (equivΠCod preEquiv₁) preEquiv₂
 
 open SetElim public using (rec→Set; trunc→Set≃)
 
 elim→Set
-  : {P : ∥ A ∥ → Set ℓ}
+  : {P : ∥ A ∥ → Type ℓ}
   → (∀ t → isSet (P t))
   → (f : (x : A) → P ∣ x ∣)
   → (kf : ∀ x y → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i)) (f x) (f y))
@@ -191,6 +208,25 @@ elim→Set {A = A} {P = P} Pset f kf t
 
   gk : 2-Constant g
   gk x y i = transp (λ j → P (squash (squash ∣ x ∣ ∣ y ∣ i) t j)) i0 (kf x y i)
+
+elim2→Set :
+    {P : ∥ A ∥ → ∥ B ∥ → Type ℓ}
+  → (∀ t u → isSet (P t u))
+  → (f : (x : A) (y : B) → P ∣ x ∣ ∣ y ∣)
+  → (kf₁ : ∀ x y v → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i) ∣ v ∣) (f x v) (f y v))
+  → (kf₂ : ∀ x v w → PathP (λ i → P ∣ x ∣ (squash ∣ v ∣ ∣ w ∣ i)) (f x v) (f x w))
+  → (sf : ∀ x y v w → SquareP (λ i j → P (squash ∣ x ∣ ∣ y ∣ i) (squash ∣ v ∣ ∣ w ∣ j))
+                              (kf₂ x v w) (kf₂ y v w) (kf₁ x y v) (kf₁ x y w))
+  → (t : ∥ A ∥) → (u : ∥ B ∥) → P t u
+elim2→Set {A = A} {B = B} {P = P} Pset f kf₁ kf₂ sf =
+  elim→Set (λ _ → isSetΠ (λ _ → Pset _ _)) mapHelper squareHelper
+  where
+  mapHelper : (x : A) (u : ∥ B ∥) → P ∣ x ∣ u
+  mapHelper x = elim→Set (λ _ → Pset _ _) (f x) (kf₂ x)
+
+  squareHelper : (x y : A)
+               → PathP (λ i → (u : ∥ B ∥) → P (squash ∣ x ∣ ∣ y ∣ i) u) (mapHelper x) (mapHelper y)
+  squareHelper x y i = elim→Set (λ _ → Pset _ _) (λ v → kf₁ x y v i) λ v w → sf x y v w i
 
 RecHProp : (P : A → hProp ℓ) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥ → hProp ℓ
 RecHProp P kP = rec→Set isSetHProp P kP
@@ -336,9 +372,128 @@ module GpdElim (Bgpd : isGroupoid B) where
   preEquiv₂ t = e , rec (isPropIsEquiv e) e-isEquiv t
 
   trunc→Gpd≃ : (∥ A ∥ → B) ≃ Σ (A → B) 3-Constant
-  trunc→Gpd≃ = compEquiv (equivPi preEquiv₂) preEquiv₁
+  trunc→Gpd≃ = compEquiv (equivΠCod preEquiv₂) preEquiv₁
 
 open GpdElim using (rec→Gpd; trunc→Gpd≃) public
 
-RecHSet : (P : A → HLevel ℓ 2) → 3-Constant P → ∥ A ∥ → HLevel ℓ 2
-RecHSet P 3kP = rec→Gpd (isOfHLevelHLevel 2) P 3kP
+squashᵗ
+  : ∀(x y z : A)
+  → Square (squash ∣ x ∣ ∣ y ∣) (squash ∣ x ∣ ∣ z ∣) refl (squash ∣ y ∣ ∣ z ∣)
+squashᵗ x y z i = squash ∣ x ∣ (squash ∣ y ∣ ∣ z ∣ i)
+
+elim→Gpd
+  : (P : ∥ A ∥ → Type ℓ)
+  → (∀ t → isGroupoid (P t))
+  → (f : (x : A) → P ∣ x ∣)
+  → (kf : ∀ x y → PathP (λ i → P (squash ∣ x ∣ ∣ y ∣ i)) (f x) (f y))
+  → (3kf : ∀ x y z
+         → SquareP (λ i j → P (squashᵗ x y z i j)) (kf x y) (kf x z) refl (kf y z))
+  → (t : ∥ A ∥) → P t
+elim→Gpd {A = A} P Pgpd f kf 3kf t = rec→Gpd (Pgpd t) g 3kg t
+  where
+  g : A → P t
+  g x = transp (λ i → P (squash ∣ x ∣ t i)) i0 (f x)
+
+  open 3-Constant
+
+  3kg : 3-Constant g
+  3kg .link x y i
+    = transp (λ j → P (squash (squash ∣ x ∣ ∣ y ∣ i) t j)) i0 (kf x y i)
+  3kg .coh₁ x y z i j
+    = transp (λ k → P (squash (squashᵗ x y z i j) t k)) i0 (3kf x y z i j)
+
+RecHSet : (P : A → TypeOfHLevel ℓ 2) → 3-Constant P → ∥ A ∥ → TypeOfHLevel ℓ 2
+RecHSet P 3kP = rec→Gpd (isOfHLevelTypeOfHLevel 2) P 3kP
+
+∥∥-IdempotentL-⊎-≃ : ∥ ∥ A ∥ ⊎ A′ ∥ ≃ ∥ A ⊎ A′ ∥
+∥∥-IdempotentL-⊎-≃ = isoToEquiv ∥∥-IdempotentL-⊎-Iso
+  where ∥∥-IdempotentL-⊎-Iso : Iso (∥ ∥ A ∥ ⊎ A′ ∥)  (∥ A ⊎ A′ ∥)
+        Iso.fun ∥∥-IdempotentL-⊎-Iso x = rec squash lem x
+          where lem : ∥ A ∥ ⊎ A′ → ∥ A ⊎ A′ ∥
+                lem (inl x) = map (λ a → inl a) x
+                lem (inr x) = ∣ inr x ∣
+        Iso.inv ∥∥-IdempotentL-⊎-Iso x = map lem x
+          where lem : A ⊎ A′ → ∥ A ∥ ⊎ A′
+                lem (inl x) = inl ∣ x ∣
+                lem (inr x) = inr x
+        Iso.rightInv ∥∥-IdempotentL-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentL-⊎-Iso (Iso.inv ∥∥-IdempotentL-⊎-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentL-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentL-⊎-Iso (Iso.fun ∥∥-IdempotentL-⊎-Iso x)) x
+
+∥∥-IdempotentL-⊎ : ∥ ∥ A ∥ ⊎ A′ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-IdempotentL-⊎ = ua ∥∥-IdempotentL-⊎-≃
+
+∥∥-IdempotentR-⊎-≃ : ∥ A ⊎ ∥ A′ ∥ ∥ ≃ ∥ A ⊎ A′ ∥
+∥∥-IdempotentR-⊎-≃ = isoToEquiv ∥∥-IdempotentR-⊎-Iso
+  where ∥∥-IdempotentR-⊎-Iso : Iso (∥ A ⊎ ∥ A′ ∥ ∥) (∥ A ⊎ A′ ∥)
+        Iso.fun ∥∥-IdempotentR-⊎-Iso x = rec squash lem x
+          where lem : A ⊎ ∥ A′ ∥ → ∥ A ⊎ A′ ∥
+                lem (inl x) = ∣ inl x ∣
+                lem (inr x) = map (λ a → inr a) x
+        Iso.inv ∥∥-IdempotentR-⊎-Iso x = map lem x
+          where lem : A ⊎ A′ → A ⊎ ∥ A′ ∥
+                lem (inl x) = inl x
+                lem (inr x) = inr ∣ x ∣
+        Iso.rightInv ∥∥-IdempotentR-⊎-Iso x = squash (Iso.fun ∥∥-IdempotentR-⊎-Iso (Iso.inv ∥∥-IdempotentR-⊎-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentR-⊎-Iso x  = squash (Iso.inv ∥∥-IdempotentR-⊎-Iso (Iso.fun ∥∥-IdempotentR-⊎-Iso x)) x
+
+∥∥-IdempotentR-⊎ : ∥ A ⊎ ∥ A′ ∥ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-IdempotentR-⊎ = ua ∥∥-IdempotentR-⊎-≃
+
+∥∥-Idempotent-⊎ : {A : Type ℓ} {A′ : Type ℓ'} → ∥ ∥ A ∥ ⊎ ∥ A′ ∥ ∥ ≡ ∥ A ⊎ A′ ∥
+∥∥-Idempotent-⊎ {A = A} {A′} = ∥ ∥ A ∥ ⊎ ∥ A′ ∥ ∥ ≡⟨ ∥∥-IdempotentR-⊎ ⟩
+                               ∥ ∥ A ∥ ⊎ A′ ∥     ≡⟨ ∥∥-IdempotentL-⊎ ⟩
+                               ∥ A ⊎ A′ ∥         ∎
+
+∥∥-IdempotentL-×-≃ : ∥ ∥ A ∥ × A′ ∥ ≃ ∥ A × A′ ∥
+∥∥-IdempotentL-×-≃ = isoToEquiv ∥∥-IdempotentL-×-Iso
+  where ∥∥-IdempotentL-×-Iso : Iso (∥ ∥ A ∥ × A′ ∥) (∥ A × A′ ∥)
+        Iso.fun ∥∥-IdempotentL-×-Iso x = rec squash lem x
+          where lem : ∥ A ∥ × A′ → ∥ A × A′ ∥
+                lem (a , a′) = map2 (λ a a′ → a , a′) a ∣ a′ ∣
+        Iso.inv ∥∥-IdempotentL-×-Iso x = map lem x
+          where lem : A × A′ → ∥ A ∥ × A′
+                lem (a , a′) = ∣ a ∣ , a′
+        Iso.rightInv ∥∥-IdempotentL-×-Iso x = squash (Iso.fun ∥∥-IdempotentL-×-Iso (Iso.inv ∥∥-IdempotentL-×-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentL-×-Iso x  = squash (Iso.inv ∥∥-IdempotentL-×-Iso (Iso.fun ∥∥-IdempotentL-×-Iso x)) x
+
+∥∥-IdempotentL-× : ∥ ∥ A ∥ × A′ ∥ ≡ ∥ A × A′ ∥
+∥∥-IdempotentL-× = ua ∥∥-IdempotentL-×-≃
+
+∥∥-IdempotentR-×-≃ : ∥ A × ∥ A′ ∥ ∥ ≃ ∥ A × A′ ∥
+∥∥-IdempotentR-×-≃ = isoToEquiv ∥∥-IdempotentR-×-Iso
+  where ∥∥-IdempotentR-×-Iso : Iso (∥ A × ∥ A′ ∥ ∥) (∥ A × A′ ∥)
+        Iso.fun ∥∥-IdempotentR-×-Iso x = rec squash lem x
+          where lem : A × ∥ A′ ∥ → ∥ A × A′ ∥
+                lem (a , a′) = map2 (λ a a′ → a , a′) ∣ a ∣ a′
+        Iso.inv ∥∥-IdempotentR-×-Iso x = map lem x
+          where lem : A × A′ → A × ∥ A′ ∥
+                lem (a , a′) = a , ∣ a′ ∣
+        Iso.rightInv ∥∥-IdempotentR-×-Iso x = squash (Iso.fun ∥∥-IdempotentR-×-Iso (Iso.inv ∥∥-IdempotentR-×-Iso x)) x
+        Iso.leftInv ∥∥-IdempotentR-×-Iso x  = squash (Iso.inv ∥∥-IdempotentR-×-Iso (Iso.fun ∥∥-IdempotentR-×-Iso x)) x
+
+∥∥-IdempotentR-× : ∥ A × ∥ A′ ∥ ∥ ≡ ∥ A × A′ ∥
+∥∥-IdempotentR-× = ua ∥∥-IdempotentR-×-≃
+
+∥∥-Idempotent-× : {A : Type ℓ} {A′ : Type ℓ'} → ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡ ∥ A × A′ ∥
+∥∥-Idempotent-× {A = A} {A′} = ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≡⟨ ∥∥-IdempotentR-× ⟩
+                               ∥ ∥ A ∥ × A′ ∥     ≡⟨ ∥∥-IdempotentL-× ⟩
+                               ∥ A × A′ ∥         ∎
+
+∥∥-Idempotent-×-≃ : {A : Type ℓ} {A′ : Type ℓ'} → ∥ ∥ A ∥ × ∥ A′ ∥ ∥ ≃ ∥ A × A′ ∥
+∥∥-Idempotent-×-≃ {A = A} {A′} = compEquiv ∥∥-IdempotentR-×-≃ ∥∥-IdempotentL-×-≃
+
+∥∥-×-≃ : {A : Type ℓ} {A′ : Type ℓ'} → ∥ A ∥ × ∥ A′ ∥ ≃ ∥ A × A′ ∥
+∥∥-×-≃ {A = A} {A′} = compEquiv (invEquiv (propTruncIdempotent≃ (isProp× isPropPropTrunc isPropPropTrunc))) ∥∥-Idempotent-×-≃
+
+∥∥-× : {A : Type ℓ} {A′ : Type ℓ'} → ∥ A ∥ × ∥ A′ ∥ ≡ ∥ A × A′ ∥
+∥∥-× = ua ∥∥-×-≃
+
+-- using this we get a convenient recursor/eliminator for binary functions into sets
+rec2→Set : {A B C : Type ℓ} (Cset : isSet C)
+         → (f : A → B → C)
+         → (∀ (a a' : A) (b b' : B) → f a b ≡ f a' b')
+         → ∥ A ∥ → ∥ B ∥ → C
+rec2→Set {A = A} {B = B} {C = C} Cset f fconst = curry (g ∘ ∥∥-×-≃ .fst)
+ where
+ g : ∥ A × B ∥ → C
+ g = rec→Set Cset (uncurry f) λ x y → fconst (fst x) (fst y) (snd x) (snd y)

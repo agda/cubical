@@ -1,7 +1,7 @@
 Installation of agda/cubical
 ============================
 
-The cubical library should compile on the latest development version
+The cubical library should compile on the latest official release
 of Agda:
 
 https://github.com/agda/agda
@@ -13,7 +13,7 @@ these instructions, but this hasn't been tested.
 There are three main ways of installing the development version of Agda:
 
 1. Using cabal `v2-build`: https://www.haskell.org/cabal/
-2. Using cabal *sandboxes*: https://www.haskell.org/cabal/
+2. Using cabal sandboxes: https://www.haskell.org/cabal/
 3. Using stack: https://docs.haskellstack.org/
 
 We recommend whichever approach that works for you. This INSTALL file
@@ -83,10 +83,9 @@ Once this works go to a suitable directory and run
 ```
 > git clone https://github.com/agda/cubical
 > cd cubical
-> make
 ```
 
-This should compile all of the agda/cubical files. To test that it
+You can additionally run `make` to typecheck all of the agda/cubical files, otherwise they will be checked as needed. To test that it
 works in emacs run
 
 ```
@@ -119,12 +118,14 @@ in a cabal sandbox do the following:
 > make
 ```
 
-This should put the agda and agda-mode executables in the folder
-`agda/.cabal-sandbox/bin`.
+If you have cabal v2 installed the sandbox command should be replaced
+by `cabal v1-sandbox init`.
 
-In order to be able to access these on your system you need to add
-them to your `$PATH` environment variable. On a typical Linux/Mac
-installation (using Bash or Zsh as the shell) this can be done by adding
+If the above commands succeed this the agda and agda-mode executables
+will be in the folder `agda/.cabal-sandbox/bin`. In order to be able
+to access these on your system you need to add them to your `$PATH`
+environment variable. On a typical Linux/Mac installation (using Bash
+or Zsh as the shell) this can be done by adding
 
 ```
 export PATH=/path/to/agda/.cabal-sandbox/bin:$PATH
@@ -162,10 +163,9 @@ Once this works go to a suitable directory and run
 ```
 > git clone https://github.com/agda/cubical
 > cd cubical
-> make
 ```
 
-This should compile all of the agda/cubical files. To test that it
+You can additionally run `make` to typecheck all of the agda/cubical files, otherwise they will be checked as needed. To test that it
 works in emacs run
 
 ```
@@ -219,7 +219,16 @@ or
 > source ~/.bash_profile
 ```
 
-or restart the terminal. You should now be able to run:
+or restart the terminal.
+
+You can also run
+
+```
+> stack install
+```
+
+which will copy `agda` and `agda-mode` to your `~/.local/bin` folder.
+Once these executables are in your PATH you should be able to run:
 
 ```
 > agda --version
@@ -237,10 +246,9 @@ Once this works go to a suitable directory and run
 ```
 > git clone https://github.com/agda/cubical
 > cd cubical
-> make
 ```
 
-This should compile all of the agda/cubical files. To test that it
+You can additionally run `make` to typecheck all of the agda/cubical files, otherwise they will be checked as needed. To test that it
 works in emacs run
 
 ```
@@ -250,7 +258,21 @@ works in emacs run
 and then type `C-c C-l`. This should now load the file and you can
 start developing your own cubical files.
 
+Registering the cubical library
+===============================
+
 You can also register cubical as a library to depend on it in your own
 Agda developments:
 
 https://agda.readthedocs.io/en/latest/tools/package-system.html
+
+On a Linux/Mac installation you need the following files (where
+`/path/to/cubical.agda-lib` has been replaced by the path to the
+`cubical.agda-lib` file):
+
+```
+$ cat .agda/defaults
+cubical
+$ cat .agda/libraries
+/path/to/cubical.agda-lib
+```

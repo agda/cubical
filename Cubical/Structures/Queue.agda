@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Structures.Queue where
 
 open import Cubical.Foundations.Prelude
@@ -6,110 +6,110 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 
-open import Cubical.Structures.Pointed
+open import Cubical.Structures.Axioms
+open import Cubical.Structures.Macro
+open import Cubical.Structures.Auto
 
 open import Cubical.Data.Unit
-open import Cubical.Data.Sum
+open import Cubical.Data.Maybe as Maybe
 open import Cubical.Data.Sigma
+open import Cubical.Data.List
 
 
 -- Developing Queues as a standard notion of structure, see
 -- https://github.com/ecavallo/cubical/blob/queue/Cubical/Experiments/Queue.agda
 -- for the original development
 
-variable
- ℓ ℓ' : Level
-
-
+private
+  variable
+   ℓ ℓ' : Level
 
 -- We start fixing a set A on which we define what it means for a type Q to have
 -- a Queue structure (wrt. A)
 module Queues-on (A : Type ℓ) (Aset : isSet A) where
- -- A Queue structure has three components, the empty Queue, a push function and a pop function
- -- We first deal with push and pop as separate structures
- left-action-structure : Type ℓ → Type ℓ
- left-action-structure X = A → X → X
+ -- A Queue structure has three components, the empty Queue, an enqueue function and a dequeue function
+ -- We first deal with enq and deq as separate structures
 
- Left-Action : Type (ℓ-suc ℓ)
- Left-Action = TypeWithStr ℓ left-action-structure
-
- left-action-iso : StrIso left-action-structure ℓ
- left-action-iso (X , l) (Y , m) e = ∀ a x → e .fst (l a x) ≡ m a (e .fst x)
-
- Left-Action-is-SNS : SNS {ℓ} left-action-structure left-action-iso
- Left-Action-is-SNS = SNS-≡→SNS-PathP left-action-iso ((λ _ _ → funExt₂Equiv))
-
-
- -- Now for the pop-map as a structure
+ -- deq as a structure
  -- First, a few preliminary results that we will need later
- pop-map-forward : {X Y : Type ℓ} → (X → Y)
-                  →  Unit ⊎ (X × A) → Unit ⊎ (Y × A)
- pop-map-forward f (inl tt) = inl tt
- pop-map-forward f (inr (x , a)) = inr (f x , a)
+ deqMap : {X Y : Type ℓ} → (X → Y) → Maybe (X × A) → Maybe (Y × A)
+ deqMap = map-Maybe ∘ map-fst
 
+ deqMapId : {X : Type ℓ} → ∀ r → deqMap (idfun X) r ≡ r
+ deqMapId = map-Maybe-id
 
- pop-map-forward-∘ :{B C D : Type ℓ}
+ deqMap-∘ :{B C D : Type ℓ}
   (g : C → D) (f : B → C)
-  → ∀ r → pop-map-forward {X = C} g (pop-map-forward f r) ≡ pop-map-forward (λ b → g (f b)) r
- pop-map-forward-∘ g f (inl tt) = refl
- pop-map-forward-∘ g f (inr (b , a)) = refl
-
-
- pop-map-lemma : {X : Type ℓ} → idfun (Unit ⊎ (X × A)) ≡ pop-map-forward (idfun X)
- pop-map-lemma {X = X} = funExt γ
-  where
-   γ : ∀ z → z ≡ pop-map-forward (idfun X) z
-   γ (inl tt) = refl
-   γ (inr xa) = refl
-
-
-
- pop-structure : Type ℓ → Type ℓ
- pop-structure X = X → Unit ⊎ (X × A)
-
- Pop : Type (ℓ-suc ℓ)
- Pop = TypeWithStr ℓ pop-structure
-
- pop-iso : StrIso pop-structure ℓ
- pop-iso (X , p) (Y , q) e = ∀ x → pop-map-forward (e .fst) (p x) ≡ q (e .fst x)
-
- Pop-is-SNS : SNS {ℓ} pop-structure pop-iso
- Pop-is-SNS = SNS-≡→SNS-PathP pop-iso (λ p q → (subst (λ f → (∀ x → f (p x) ≡ q x) ≃ (p ≡ q)) pop-map-lemma funExtEquiv))
-
-
+  → ∀ r → deqMap {X = C} g (deqMap f r) ≡ deqMap (λ b → g (f b)) r
+ deqMap-∘ g f nothing = refl
+ deqMap-∘ g f (just (b , a)) = refl
 
  -- Now we can do Queues:
- queue-structure : Type ℓ → Type ℓ
- queue-structure Q = Q × (A → Q → Q) × (Q → Unit ⊎ (Q × A))
+ rawQueueDesc =
+   autoDesc (λ (X : Type ℓ) → X × (A → X → X) × (X → Transp[ Maybe (X × A) ]))
+
+ open Macro ℓ rawQueueDesc public renaming
+   ( structure to RawQueueStructure
+   ; equiv to RawQueueEquivStr
+   ; univalent to rawQueueUnivalentStr
+   )
+
+ RawQueue : Type (ℓ-suc ℓ)
+ RawQueue = TypeWithStr ℓ RawQueueStructure
+
+ returnOrEnq : {Q : Type ℓ}
+  → RawQueueStructure Q → A → Maybe (Q × A) → Q × A
+ returnOrEnq (emp , enq , _) a qr =
+   Maybe.rec (emp , a) (λ {(q , b) → enq a q , b}) qr
+
+ QueueAxioms : (Q : Type ℓ) → RawQueueStructure Q → Type ℓ
+ QueueAxioms Q S@(emp , enq , deq) =
+   (isSet Q)
+   × (deq emp ≡ nothing)
+   × (∀ a q → deq (enq a q) ≡ just (returnOrEnq S a (deq q)))
+   × (∀ a a' q q' → enq a q ≡ enq a' q' → (a ≡ a') × (q ≡ q'))
+   × (∀ q q' → deq q ≡ deq q' → q ≡ q')
+
+ isPropQueueAxioms : ∀ Q S → isProp (QueueAxioms Q S)
+ isPropQueueAxioms Q S =
+   isPropΣ isPropIsSet
+           (λ Qset → isProp×3 (isOfHLevelDeq Qset _ _)
+                              (isPropΠ2 λ _ _ → isOfHLevelDeq Qset _ _)
+                              (isPropΠ3 λ _ _ _ → isPropΠ2 λ _ _ → isProp× (Aset _ _) (Qset _ _))
+                              (isPropΠ3 λ _ _ _ → Qset _ _))
+   where
+   isOfHLevelDeq : isSet Q → isOfHLevel 2 (Maybe (Q × A))
+   isOfHLevelDeq Qset = isOfHLevelMaybe 0 (isSet× Qset Aset)
+
+ QueueStructure : Type ℓ → Type ℓ
+ QueueStructure = AxiomsStructure RawQueueStructure QueueAxioms
 
  Queue : Type (ℓ-suc ℓ)
- Queue = TypeWithStr ℓ queue-structure
+ Queue = TypeWithStr ℓ QueueStructure
 
- queue-iso : StrIso queue-structure ℓ
- queue-iso (Q₁ , emp₁ , push₁ , pop₁) (Q₂ , emp₂ , push₂ , pop₂) e =
-            (e .fst emp₁ ≡ emp₂)
-          × (∀ a q → e .fst (push₁ a q) ≡ push₂ a (e .fst q))
-          × (∀ q → pop-map-forward (e .fst) (pop₁ q) ≡ pop₂ (e .fst q))
+ QueueEquivStr : StrEquiv QueueStructure ℓ
+ QueueEquivStr = AxiomsEquivStr RawQueueEquivStr QueueAxioms
 
-
-
- Queue-is-SNS : SNS {ℓ₁ = ℓ} queue-structure queue-iso
- Queue-is-SNS =
-   join-SNS pointed-iso pointed-is-SNS
-            {S₂ = λ X → (left-action-structure X) × (pop-structure X)}
-            (λ B C e → (∀ a q → e .fst (B .snd .fst a q) ≡ C .snd .fst a (e .fst q))
-                     × (∀ q → pop-map-forward (e .fst) (B .snd .snd q) ≡ C .snd .snd (e .fst q)))
-            (join-SNS left-action-iso Left-Action-is-SNS pop-iso Pop-is-SNS)
+ queueUnivalentStr : UnivalentStr QueueStructure QueueEquivStr
+ queueUnivalentStr = axiomsUnivalentStr RawQueueEquivStr isPropQueueAxioms rawQueueUnivalentStr
 
 
+ FiniteQueueAxioms : (Q : Type ℓ) → QueueStructure Q → Type ℓ
+ FiniteQueueAxioms Q ((emp , enq , _) , _) = isEquiv (foldr enq emp)
 
+ isPropFiniteQueueAxioms : ∀ Q S → isProp (FiniteQueueAxioms Q S)
+ isPropFiniteQueueAxioms Q S = isPropIsEquiv _
 
- -- Should we add further axioms for Queues?
- -- Some suggestions:
- queue-axioms : (Q : Type ℓ) → queue-structure Q → Type ℓ
- queue-axioms Q (emp , push , pop) =   (isSet Q)
-                                     × (pop emp ≡ inl tt)
-                                     × ∀ a q → pop (push a q) ≡ inr (q , a)
-                                     -- etc.
+ FiniteQueueStructure : Type ℓ → Type ℓ
+ FiniteQueueStructure = AxiomsStructure QueueStructure FiniteQueueAxioms
+
+ FiniteQueue : Type (ℓ-suc ℓ)
+ FiniteQueue = TypeWithStr ℓ FiniteQueueStructure
+
+ FiniteQueueEquivStr : StrEquiv FiniteQueueStructure ℓ
+ FiniteQueueEquivStr = AxiomsEquivStr QueueEquivStr FiniteQueueAxioms
+
+ finiteQueueUnivalentStr : UnivalentStr FiniteQueueStructure FiniteQueueEquivStr
+ finiteQueueUnivalentStr = axiomsUnivalentStr QueueEquivStr isPropFiniteQueueAxioms queueUnivalentStr

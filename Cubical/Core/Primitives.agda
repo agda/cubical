@@ -4,7 +4,7 @@ This file document and export the main primitives of Cubical Agda. It
 also defines some basic derived operations (composition and filling).
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Core.Primitives where
 
 open import Agda.Builtin.Cubical.Path public
@@ -34,17 +34,9 @@ open import Agda.Primitive public
   renaming ( lzero to ℓ-zero
            ; lsuc  to ℓ-suc
            ; _⊔_   to ℓ-max
+           ; Set   to Type
            ; Setω  to Typeω )
 open import Agda.Builtin.Sigma public
-
-Type : (ℓ : Level) → Set (ℓ-suc ℓ)
-Type ℓ = Set ℓ
-
-Type₀ : Type (ℓ-suc ℓ-zero)
-Type₀ = Type ℓ-zero
-
-Type₁ : Type (ℓ-suc (ℓ-suc ℓ-zero))
-Type₁ = Type (ℓ-suc ℓ-zero)
 
 -- This file document the Cubical Agda primitives. The primitives
 -- themselves are bound by the Agda files imported above.
@@ -128,7 +120,7 @@ private
 -- * There are cubical subtypes as in CCHM. Note that these are not
 -- fibrant (hence in Typeω):
 
-_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → Typeω
+_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → _
 A [ φ ↦ u ] = Sub A φ u
 
 infix 4 _[_↦_]
@@ -170,7 +162,7 @@ infix 4 _[_↦_]
 private
   variable
     ℓ  : Level
-    ℓ′ : I → Level
+    ℓ' : I → Level
 
 -- Homogeneous filling
 hfill : {A : Type ℓ}
@@ -187,7 +179,7 @@ hfill {φ = φ} u u0 i =
 -- Heterogeneous composition can defined as in CHM, however we use the
 -- builtin one as it doesn't require u0 to be a cubical subtype. This
 -- reduces the number of inS's a lot.
--- comp : (A : ∀ i → Type (ℓ′ i))
+-- comp : (A : ∀ i → Type (ℓ' i))
 --        {φ : I}
 --        (u : ∀ i → Partial φ (A i))
 --        (u0 : A i0 [ φ ↦ u i0 ])
@@ -198,7 +190,7 @@ hfill {φ = φ} u u0 i =
 --         (transp A i0 (outS u0))
 
 -- Heterogeneous filling defined using comp
-fill : (A : ∀ i → Type (ℓ′ i))
+fill : (A : ∀ i → Type (ℓ' i))
        {φ : I}
        (u : ∀ i → Partial φ (A i))
        (u0 : A i0 [ φ ↦ u i0 ])

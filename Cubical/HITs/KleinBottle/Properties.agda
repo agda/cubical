@@ -3,7 +3,7 @@
 Definition of the Klein bottle as a HIT
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.KleinBottle.Properties where
 
 open import Cubical.Core.Everything
@@ -15,8 +15,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
-open import Cubical.Data.Nat
-open import Cubical.Data.Int public renaming (_+_ to _+Int_ ; +-assoc to +Int-assoc; +-comm to +Int-comm)
+open import Cubical.Data.Int
 open import Cubical.Data.Sigma
 open import Cubical.HITs.S1
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
@@ -27,16 +26,16 @@ loop1 : S¹ → KleinBottle
 loop1 base = point
 loop1 (loop i) = line1 i
 
-invS¹Loop : S¹ → Set
+invS¹Loop : S¹ → Type
 invS¹Loop base = S¹
 invS¹Loop (loop i) = invS¹Path i
 
-loop1Inv : (s : S¹) → loop1 (inv s) ≡ loop1 s
+loop1Inv : (s : S¹) → loop1 (invLooper s) ≡ loop1 s
 loop1Inv base = line2
 loop1Inv (loop i) = square i
 
-twist : (s : S¹) → PathP (λ i → invS¹Path i) s (inv s)
-twist s i = glue (λ {(i = i0) → s; (i = i1) → inv s}) (inv s)
+twist : (s : S¹) → PathP (λ i → invS¹Path i) s (invLooper s)
+twist s i = glue (λ {(i = i0) → s; (i = i1) → invLooper s}) (invLooper s)
 
 twistBaseLoop : (s : S¹) → invS¹Loop s
 twistBaseLoop base = base
@@ -76,7 +75,7 @@ kleinBottle≃Σ = isoToEquiv (iso fro to froTo toFro)
   froLoop1 (loop i) = refl
 
   froLoop1Inv :
-    PathP (λ k → (s : S¹) → froLoop1 (inv s) k ≡ froLoop1 s k)
+    PathP (λ k → (s : S¹) → froLoop1 (invLooper s) k ≡ froLoop1 s k)
       (λ s l → fro (loop1Inv s l))
       (λ s l → loop (~ l) , twist s (~ l))
   froLoop1Inv k base l = loop (~ l) , twist base (~ l)
@@ -115,33 +114,33 @@ isGroupoidKleinBottle =
 
 -- Transport across the following is too slow :(
 
-ΩKlein≡Int² : Path KleinBottle point point ≡ Int × Int
-ΩKlein≡Int² =
+ΩKlein≡ℤ² : Path KleinBottle point point ≡ ℤ × ℤ
+ΩKlein≡ℤ² =
   Path KleinBottle point point
     ≡⟨ (λ i → basePath i ≡ basePath i) ⟩
   Path (Σ S¹ invS¹Loop) (base , base) (base , base)
-    ≡⟨ sym (ua Σ≡) ⟩
+    ≡⟨ sym ΣPath≡PathΣ ⟩
   Σ ΩS¹ (λ p → PathP (λ j → invS¹Loop (p j)) base base)
     ≡⟨ (λ i → Σ ΩS¹ (λ p → PathP (λ j → invS¹Loop (p (j ∨ i))) (twistBaseLoop (p i)) base)) ⟩
   ΩS¹ × ΩS¹
-    ≡⟨ (λ i → ΩS¹≡Int i × ΩS¹≡Int i) ⟩
-  Int × Int ∎
+    ≡⟨ (λ i → ΩS¹≡ℤ i × ΩS¹≡ℤ i) ⟩
+  ℤ × ℤ ∎
   where
   basePath : PathP (λ i → ua kleinBottle≃Σ i) point (base , base)
   basePath i = glue (λ {(i = i0) → point; (i = i1) → base , base}) (base , base)
 
 -- We can at least define the winding function directly and get results on small examples
 
-windingKlein : Path KleinBottle point point → Int × Int
+windingKlein : Path KleinBottle point point → ℤ × ℤ
 windingKlein p = (z₀ , z₁)
   where
   step₀ : Path (Σ S¹ invS¹Loop) (base , base) (base , base)
   step₀ = (λ i → kleinBottle≃Σ .fst (p i))
 
-  z₀ : Int
+  z₀ : ℤ
   z₀ = winding (λ i → kleinBottle≃Σ .fst (p i) .fst)
 
-  z₁ : Int
+  z₁ : ℤ
   z₁ = winding
     (transport
       (λ i → PathP (λ j → invS¹Loop (step₀ (j ∨ i) .fst)) (twistBaseLoop (step₀ i .fst)) base)

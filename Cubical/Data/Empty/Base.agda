@@ -1,12 +1,22 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Empty.Base where
 
-open import Cubical.Core.Everything
+open import Cubical.Foundations.Prelude
+
+private
+  variable
+    ℓ ℓ' : Level
 
 data ⊥ : Type₀ where
 
-rec : ∀ {ℓ} {A : Type ℓ} → ⊥ → A
+⊥* : Type ℓ
+⊥* = Lift ⊥
+
+rec : {A : Type ℓ} → ⊥ → A
 rec ()
 
-elim : ∀ {ℓ} {A : ⊥ → Type ℓ} → (x : ⊥) → A x
+rec* : {A : Type ℓ} → ⊥* {ℓ = ℓ'} → A
+rec* ()
+
+elim : {A : ⊥ → Type ℓ} → (x : ⊥) → A x
 elim ()

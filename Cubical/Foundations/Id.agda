@@ -17,7 +17,7 @@ This file contains:
 - Propositional truncation and its elimination principle
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Id where
 
 open import Cubical.Foundations.Prelude public
@@ -53,6 +53,7 @@ open import Cubical.HITs.PropositionalTruncation public
            ; rec to recPropTruncPath
            ; elim to elimPropTruncPath )
 open import Cubical.Core.Id public
+  using (Id; ⟨_,_⟩; faceId; pathId; elimId; _≡_)
 
 private
   variable
@@ -206,14 +207,14 @@ isPropToIsPropPath H x y i = idToPath (H x y) i
 -- isContrPath and isContr:
 
 helper1 : ∀ {A B : Type ℓ} (f : A → B) (g : B → A)
-            (h : ∀ y → Path _ (f (g y)) y) → isContrPath A → isContr B
+            (h : (y : B) → Path B (f (g y)) y) → isContrPath A → isContr B
 helper1 f g h (x , p) =
   (f x , λ y → pathToId (λ i → hcomp (λ j → λ { (i = i0) → f x
                                               ; (i = i1) → h y j })
                                      (f (p (g y) i))))
 
 helper2 : ∀ {A B : Type ℓ} (f : A → B) (g : B → A)
-            (h : ∀ y → Path _ (g (f y)) y) → isContr B → isContrPath A
+            (h : (y : A) → Path A (g (f y)) y) → isContr B → isContrPath A
 helper2 {A = A} f g h (x , p) = (g x , λ y → idToPath (rem y))
   where
   rem : ∀ (y : A) → g x ≡ y
@@ -260,17 +261,16 @@ equivToEquiv (f , p) i =
 
 -- We can finally prove univalence with Id everywhere from the one for Path
 EquivContr : ∀ (A : Type ℓ) → isContr (Σ[ T ∈ Type ℓ ] (T ≃ A))
-EquivContr A = helper1 f1 f2 f12 (EquivContrPath A)
+EquivContr {ℓ = ℓ} A = helper1 f1 f2 f12 (EquivContrPath A)
   where
-  f1 : ∀ {ℓ} {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (EquivPath T A) → Σ[ T ∈ Type ℓ ] (T ≃ A)
+  f1 : {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (EquivPath T A) → Σ[ T ∈ Type ℓ ] (T ≃ A)
   f1 (x , p) = x , equivPathToEquiv p
 
-  f2 : ∀ {ℓ} {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (T ≃ A) → Σ[ T ∈ Type ℓ ] (EquivPath T A)
+  f2 : {A : Type ℓ} → Σ[ T ∈ Type ℓ ] (T ≃ A) → Σ[ T ∈ Type ℓ ] (EquivPath T A)
   f2 (x , p) = x , equivToEquivPath p
 
-  f12 : ∀ {ℓ} {A : Type ℓ} → (y : Σ[ T ∈ Type ℓ ] (T ≃ A)) → Path _ (f1 (f2 y)) y
-  f12 (x , p) = λ i → x , equivToEquiv p i
-
+  f12 : (y : Σ[ T ∈ Type ℓ ] (T ≃ A)) → Path (Σ[ T ∈ Type ℓ ] (T ≃ A)) (f1 (f2 y)) y
+  f12 (x , p) i = x , equivToEquiv {A = x} {B = A} p i
 
 -- Propositional truncation
 

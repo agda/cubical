@@ -1,8 +1,9 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.List.Properties where
 
 open import Agda.Builtin.List
 open import Cubical.Core.Everything
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Empty as ⊥
@@ -23,6 +24,10 @@ module _ {ℓ} {A : Type ℓ} where
   ++-assoc [] ys zs = refl
   ++-assoc (x ∷ xs) ys zs = cong (_∷_ x) (++-assoc xs ys zs)
 
+  rev-snoc : (xs : List A) (y : A) → rev (xs ++ [ y ]) ≡ y ∷ rev xs
+  rev-snoc [] y = refl
+  rev-snoc (x ∷ xs) y = cong (_++ [ x ]) (rev-snoc xs y)
+
   rev-++ : (xs ys : List A) → rev (xs ++ ys) ≡ rev ys ++ rev xs
   rev-++ [] ys = sym (++-unit-r (rev ys))
   rev-++ (x ∷ xs) ys =
@@ -31,7 +36,30 @@ module _ {ℓ} {A : Type ℓ} where
 
   rev-rev : (xs : List A) → rev (rev xs) ≡ xs
   rev-rev [] = refl
-  rev-rev (x ∷ xs) = rev-++ (rev xs) [ x ] ∙ cong (_∷_ x) (rev-rev xs)
+  rev-rev (x ∷ xs) = rev-snoc (rev xs) x ∙ cong (_∷_ x) (rev-rev xs)
+
+  rev-rev-snoc : (xs : List A) (y : A) →
+    Square (rev-rev (xs ++ [ y ])) (cong (_++ [ y ]) (rev-rev xs)) (cong rev (rev-snoc xs y)) refl
+  rev-rev-snoc [] y = sym (lUnit refl)
+  rev-rev-snoc (x ∷ xs) y i j =
+    hcomp
+      (λ k → λ
+        { (i = i1) → compPath-filler (rev-snoc (rev xs) x) (cong (x ∷_) (rev-rev xs)) k j ++ [ y ]
+        ; (j = i0) → rev (rev-snoc xs y i ++ [ x ])
+        ; (j = i1) → x ∷ rev-rev-snoc xs y i k
+        })
+      (rev-snoc (rev-snoc xs y i) x j)
+
+  data SnocView : List A → Type ℓ where
+    nil : SnocView []
+    snoc : (x : A) → (xs : List A) → (sx : SnocView xs) → SnocView (xs ∷ʳ x)
+
+  snocView : (xs : List A) → SnocView xs
+  snocView xs = helper nil xs
+    where
+    helper : {l : List A} -> SnocView l -> (r : List A) -> SnocView (l ++ r)
+    helper {l} sl [] = subst SnocView (sym (++-unit-r l)) sl
+    helper {l} sl (x ∷ r) = subst SnocView (++-assoc l (x ∷ []) r) (helper (snoc x l sl) r)
 
 -- Path space of list type
 module ListPath {ℓ} {A : Type ℓ} where
@@ -67,7 +95,7 @@ module ListPath {ℓ} {A : Type ℓ} where
     J (λ ys p → decode xs ys (encode xs ys p) ≡ p)
       (cong (decode xs xs) (encodeRefl xs) ∙ decodeRefl xs)
 
-  isOfHLevelCover : (n : ℕ) (p : isOfHLevel (suc (suc n)) A)
+  isOfHLevelCover : (n : HLevel) (p : isOfHLevel (suc (suc n)) A)
     (xs ys : List A) → isOfHLevel (suc n) (Cover xs ys)
   isOfHLevelCover n p [] [] =
     isOfHLevelLift (suc n) (isProp→isOfHLevelSuc n isPropUnit)
@@ -78,7 +106,7 @@ module ListPath {ℓ} {A : Type ℓ} where
   isOfHLevelCover n p (x ∷ xs) (y ∷ ys) =
     isOfHLevelΣ (suc n) (p x y) (\ _ → isOfHLevelCover n p xs ys)
 
-isOfHLevelList : ∀ {ℓ} (n : ℕ) {A : Type ℓ}
+isOfHLevelList : ∀ {ℓ} (n : HLevel) {A : Type ℓ}
   → isOfHLevel (suc (suc n)) A → isOfHLevel (suc (suc n)) (List A)
 isOfHLevelList n ofLevel xs ys =
   isOfHLevelRetract (suc n)
@@ -127,12 +155,12 @@ cons≡rev-snoc : (x : A) → (xs : List A) → x ∷ rev xs ≡ rev (xs ∷ʳ x
 cons≡rev-snoc _ [] = refl
 cons≡rev-snoc x (y ∷ ys) = λ i → cons≡rev-snoc x ys i ++ y ∷ []
 
-nil≡nil-isContr : isContr (Path (List A) [] [])
-nil≡nil-isContr = refl , ListPath.decodeEncode [] []
+isContr[]≡[] : isContr (Path (List A) [] [])
+isContr[]≡[] = refl , ListPath.decodeEncode [] []
 
-list≡nil-isProp : {xs : List A} → isProp (xs ≡ [])
-list≡nil-isProp {xs = []} = isOfHLevelSuc 0 nil≡nil-isContr
-list≡nil-isProp {xs = x ∷ xs} = λ p _ → ⊥.rec (¬cons≡nil p)
+isPropXs≡[] : {xs : List A} → isProp (xs ≡ [])
+isPropXs≡[] {xs = []} = isOfHLevelSuc 0 isContr[]≡[]
+isPropXs≡[] {xs = x ∷ xs} = λ p _ → ⊥.rec (¬cons≡nil p)
 
 discreteList : Discrete A → Discrete (List A)
 discreteList eqA []       []       = yes refl
@@ -142,3 +170,7 @@ discreteList eqA (x ∷ xs) (y ∷ ys) with eqA x y | discreteList eqA xs ys
 ... | yes p | yes q = yes (λ i → p i ∷ q i)
 ... | yes _ | no ¬q = no (λ p → ¬q (cons-inj₂ p))
 ... | no ¬p | _     = no (λ q → ¬p (cons-inj₁ q))
+
+foldrCons : (xs : List A) → foldr _∷_ [] xs ≡ xs
+foldrCons [] = refl
+foldrCons (x ∷ xs) = cong (x ∷_) (foldrCons xs)

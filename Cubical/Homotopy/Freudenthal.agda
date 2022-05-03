@@ -3,25 +3,28 @@
 Freudenthal suspension theorem
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Homotopy.Freudenthal where
 
 open import Cubical.Foundations.Everything
-open import Cubical.Data.HomotopyGroup
 open import Cubical.Data.Nat
-import Cubical.Data.NatMinusTwo as ℕ₋₂
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
+open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.HITs.Nullification
-open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation as Trunc
+open import Cubical.HITs.Susp renaming (toSusp to σ)
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec ; elim to trElim)
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
+open import Cubical.HITs.SmashProduct
 
-module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc n)) (typ A)) where
+open import Cubical.HITs.S1 hiding (encode)
+open import Cubical.HITs.Sn
+open import Cubical.HITs.S2
+open import Cubical.HITs.S3
 
-  σ : typ A → typ (Ω (∙Susp (typ A)))
-  σ a = merid a ∙ merid (pt A) ⁻¹
+module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n)) (typ A)) where
 
   private
     2n+2 = suc n + suc n
@@ -29,7 +32,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
     module WC (p : north ≡ north) =
       WedgeConnectivity (suc n) (suc n) A connA A connA
         (λ a b →
-          ( (σ b ≡ p → hLevelTrunc 2n+2 (fiber (λ x → merid x ∙ merid a ⁻¹) p))
+          ( (σ A b ≡ p → hLevelTrunc 2n+2 (fiber (λ x → merid x ∙ merid a ⁻¹) p))
           , isOfHLevelΠ 2n+2 λ _ → isOfHLevelTrunc 2n+2
           ))
         (λ a r → ∣ a , (rCancel' (merid a) ∙ rCancel' (merid (pt A)) ⁻¹) ∙ r ∣)
@@ -40,23 +43,23 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
               ∙ lUnit r ⁻¹))
 
     fwd : (p : north ≡ north) (a : typ A)
-      → hLevelTrunc 2n+2 (fiber σ p)
+      → hLevelTrunc 2n+2 (fiber (σ A) p)
       → hLevelTrunc 2n+2 (fiber (λ x → merid x ∙ merid a ⁻¹) p)
     fwd p a = Trunc.rec (isOfHLevelTrunc 2n+2) (uncurry (WC.extension p a))
 
     isEquivFwd : (p : north ≡ north) (a : typ A) → isEquiv (fwd p a)
     isEquivFwd p a .equiv-proof =
-      isEquivPrecomposeConnected (suc n)
+      elim.isEquivPrecompose (λ _ → pt A) (suc n)
         (λ a →
           ( (∀ t → isContr (fiber (fwd p a) t))
           , isProp→isOfHLevelSuc n (isPropΠ λ _ → isPropIsContr)
           ))
-        (λ _ → pt A)
-        (isHLevelConnectedPoint (suc n) connA (pt A))
+
+        (isConnectedPoint (suc n) connA (pt A))
         .equiv-proof
         (λ _ → Trunc.elim
           (λ _ → isProp→isOfHLevelSuc (n + suc n) isPropIsContr)
-          (λ fib →
+         (λ fib →
             subst (λ k → isContr (fiber k ∣ fib ∣))
               (cong (Trunc.rec (isOfHLevelTrunc 2n+2) ∘ uncurry)
                 (funExt (WC.right p) ⁻¹))
@@ -64,7 +67,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
                 (funExt (Trunc.mapId) ⁻¹)
                 (idIsEquiv _)
                 .equiv-proof ∣ fib ∣)
-            ))
+             ))
         .fst .fst a
 
     interpolate : (a : typ A)
@@ -72,7 +75,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
     interpolate a i x j = compPath-filler (merid x) (merid a ⁻¹) (~ i) j
 
   Code : (y : Susp (typ A)) → north ≡ y → Type ℓ
-  Code north p = hLevelTrunc 2n+2 (fiber σ p)
+  Code north p = hLevelTrunc 2n+2 (fiber (σ A) p)
   Code south q = hLevelTrunc 2n+2 (fiber merid q)
   Code (merid a i) p =
     Glue
@@ -88,7 +91,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
   encodeMerid : (a : typ A) → encode south (merid a) ≡ ∣ a , refl ∣
   encodeMerid a =
     cong (transport (λ i → gluePath i))
-      (funExt⁻ (WC.left refl a) _ ∙ cong ∣_∣ (cong (a ,_) (lem _ _)))
+      (funExt⁻ (WC.left refl a) _ ∙ λ i → ∣ a , lem (rCancel' (merid a)) (rCancel' (merid (pt A))) i ∣)
     ∙ transport (PathP≡Path gluePath _ _)
       (λ i → ∣ a , (λ j k → rCancel-filler' (merid a) i j k) ∣)
     where
@@ -96,7 +99,7 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
     gluePath i = hLevelTrunc 2n+2 (fiber (interpolate a i) (λ j → merid a (i ∧ j)))
 
     lem : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : z ≡ y) → (p ∙ q ⁻¹) ∙ q ≡ p
-    lem p q = assoc p (q ⁻¹) q ⁻¹ ∙ cong (p ∙_) (lCancel q) ∙ rUnit p ⁻¹
+    lem p q = assoc p (q ⁻¹) q ⁻¹ ∙∙ cong (p ∙_) (lCancel q) ∙∙ rUnit p ⁻¹
 
   contractCodeSouth : (p : north ≡ south) (c : Code south p) → encode south p ≡ c
   contractCodeSouth p =
@@ -105,9 +108,28 @@ module _ {ℓ} (n : ℕ) {A : Pointed ℓ} (connA : isHLevelConnected (suc (suc 
       (uncurry λ a →
         J (λ p r → encode south p ≡ ∣ a , r ∣) (encodeMerid a))
 
-  isConnectedMerid : isHLevelConnectedFun 2n+2 (merid {A = typ A})
+  isConnectedMerid : isConnectedFun 2n+2 (merid {A = typ A})
   isConnectedMerid p = encode south p , contractCodeSouth p
 
-  isConnectedσ : isHLevelConnectedFun 2n+2 σ
+  isConnectedσ : isConnectedFun 2n+2 (σ A)
   isConnectedσ =
-    transport (λ i → isHLevelConnectedFun 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid
+    transport (λ i → isConnectedFun 2n+2 (interpolate (pt A) (~ i))) isConnectedMerid
+
+isConn→isConnSusp : ∀ {ℓ} {A : Pointed ℓ} → isConnected 2 (typ A) → isConnected 2 (Susp (typ A))
+isConn→isConnSusp {A = A} iscon = ∣ north ∣
+                                , trElim (λ _ → isOfHLevelSuc 1 (isOfHLevelTrunc 2 _ _))
+                                         (suspToPropElim (pt A) (λ _ → isOfHLevelTrunc 2 _ _)
+                                         refl)
+
+FreudenthalEquiv : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
+                → isConnected (2 + n) (typ A)
+                → hLevelTrunc ((suc n) + (suc n)) (typ A)
+                 ≃ hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north)))
+FreudenthalEquiv n A iscon = connectedTruncEquiv _
+                                                 (σ A)
+                                                 (isConnectedσ _ iscon)
+FreudenthalIso : ∀ {ℓ} (n : HLevel) (A : Pointed ℓ)
+                → isConnected (2 + n) (typ A)
+                → Iso (hLevelTrunc ((suc n) + (suc n)) (typ A))
+                      (hLevelTrunc ((suc n) + (suc n)) (typ (Ω (Susp (typ A) , north))))
+FreudenthalIso n A iscon = connectedTruncIso _ (σ A) (isConnectedσ _ iscon)

@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Data.Vec.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -27,10 +27,6 @@ private
 
 
 -- Equivalence between Fin n → A and Vec A n
-
-FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
-FinVec A n = Fin n → A
-
 FinVec→Vec : {n : ℕ} → FinVec A n → Vec A n
 FinVec→Vec {n = zero}  xs = []
 FinVec→Vec {n = suc _} xs = xs zero ∷ FinVec→Vec (λ x → xs (suc x))
@@ -60,3 +56,5 @@ FinVec≃Vec n = isoToEquiv (FinVecIsoVec n)
 FinVec≡Vec : (n : ℕ) → FinVec A n ≡ Vec A n
 FinVec≡Vec n = ua (FinVec≃Vec n)
 
+isContrVec0 : isContr (Vec A 0)
+isContrVec0 = [] , λ { [] → refl }

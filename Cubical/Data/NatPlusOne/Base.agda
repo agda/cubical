@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.NatPlusOne.Base where
 
 open import Cubical.Core.Primitives
@@ -21,6 +21,9 @@ pattern 2+_ n = 1+ (suc n)
 
 suc₊₁ : ℕ₊₁ → ℕ₊₁
 suc₊₁ (1+ n) = 1+ (suc n)
+
+_+₁_ : ℕ₊₁ → ℕ₊₁ → ℕ₊₁
+(1+ m) +₁ (1+ n) = 1+ (suc (m + n))
 
 -- Natural number literals for ℕ₊₁
 

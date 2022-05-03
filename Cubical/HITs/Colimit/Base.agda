@@ -3,7 +3,7 @@
   Homotopy colimits of graphs
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.HITs.Colimit.Base where
 
 open import Cubical.Foundations.Prelude
@@ -14,14 +14,13 @@ open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Graph
 
-
 -- Cones under a diagram
 
 record Cocone ℓ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} (F : Diag ℓd I) (X : Type ℓ)
               : Type (ℓ-suc (ℓ-max ℓ (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc ℓd)))) where
   field
-    leg : ∀ (j : Obj I) → F $ j → X
-    com : ∀ {j k} (f : Hom I j k) → leg k ∘ F <$> f ≡ leg j
+    leg : ∀ (j : Node I) → F $ j → X
+    com : ∀ {j k} (f : Edge I j k) → leg k ∘ F <$> f ≡ leg j
 
   postcomp : ∀ {ℓ'} {Y : Type ℓ'} → (X → Y) → Cocone ℓ' F Y
   leg (postcomp h) j = h ∘ leg j
@@ -58,7 +57,7 @@ module _ {ℓ ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : Type 
   isUniversalAt : ∀ ℓq → Cocone ℓ F X → Type (ℓ-max ℓ (ℓ-suc (ℓ-max ℓq (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc ℓd)))))
   isUniversalAt ℓq C = ∀ (Y : Type ℓq) → isEquiv {A = (X → Y)} {B = Cocone ℓq F Y} (postcomp C)
                   -- (unfolding isEquiv, this ^ is equivalent to what one might expect:)
-                  -- ∀ (Y : Type ℓ) (D : Cocone ℓ F Y) → isContr (Σ[ h ∈ (X → Y) ] (h *) C ≡ D)
+                  -- ∀ (Y : Type ℓ) (D : Cocone ℓ F Y) → ∃![ h ∈ (X → Y) ] (h *) C ≡ D
                   --                                  (≡ isContr (CoconeMor (X , C) (Y , D)))
 
   isPropIsUniversalAt : ∀ ℓq (C : Cocone ℓ F X) → isProp (isUniversalAt ℓq C)
@@ -82,7 +81,7 @@ module _ {ℓ ℓ' ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : 
   postcomp⁻¹ cl = invEq (_ , univ cl _ Y)
 
   postcomp⁻¹-inv : (cl : isColimit F X) (D : Cocone ℓ' F Y) → (postcomp (cone cl) (postcomp⁻¹ cl D)) ≡ D
-  postcomp⁻¹-inv cl D = retEq (_ , univ cl _ Y) D
+  postcomp⁻¹-inv cl D = secEq (_ , univ cl _ Y) D
 
   postcomp⁻¹-mor : (cl : isColimit F X) (D : Cocone ℓ' F Y) → CoconeMor (X , cone cl) (Y , D)
   postcomp⁻¹-mor cl D = (postcomp⁻¹ cl D) , (postcomp⁻¹-inv cl D)
@@ -108,8 +107,8 @@ module _ {ℓ ℓ' ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : 
 -- Colimits always exist
 
 data colim {ℓd ℓe ℓv} {I : Graph ℓv ℓe} (F : Diag ℓd I) : Type (ℓ-suc (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc ℓd))) where
-  colim-leg : ∀ (j : Obj I) → F $ j → colim F
-  colim-com : ∀ {j k} (f : Hom I j k) → colim-leg k ∘ F <$> f ≡ colim-leg j
+  colim-leg : ∀ (j : Node I) → F $ j → colim F
+  colim-com : ∀ {j k} (f : Edge I j k) → colim-leg k ∘ F <$> f ≡ colim-leg j
 
 module _ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} where
 
@@ -131,4 +130,3 @@ module _ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} where
     where eq : ∀ h (x : colim _) → rec (postcomp colimCone h) x ≡ h x
           eq h (colim-leg j A)   = refl
           eq h (colim-com f i A) = refl
-

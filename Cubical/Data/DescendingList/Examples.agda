@@ -9,7 +9,7 @@
 -- 2. "sorting" finite multisets by converting into sorted lists.
 ------------------------------------------------------------------------
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 
 module Cubical.Data.DescendingList.Examples where
 
@@ -31,11 +31,11 @@ open import Cubical.HITs.FiniteMultiset
 
 infix 4 _≤_ _≥_
 
-data _≤_ : ℕ → ℕ → Set where
+data _≤_ : ℕ → ℕ → Type where
  z≤n : ∀ {n}                 → zero  ≤ n
  s≤s : ∀ {m n} (m≤n : m ≤ n) → suc m ≤ suc n
 
-_≥_ : ℕ → ℕ → Set
+_≥_ : ℕ → ℕ → Type
 m ≥ n = n ≤ m
 
 ≤pred : {n m : ℕ} → suc n ≤ suc m → n ≤ m
@@ -91,13 +91,14 @@ ValueOfl3 = refl
 l3=l2++l1 : l3 ≡ l2 ++ᴰᴸ l1
 l3=l2++l1 = refl
 
-LongerExample :   l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1 ++ᴰᴸ l2
-                ≡ l2 ++ᴰᴸ l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1
-LongerExample = refl
+-- Commented as it was the slowest definition in the whole library :-)
+-- LongerExample :   l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1 ++ᴰᴸ l2
+--                 ≡ l2 ++ᴰᴸ l1 ++ᴰᴸ l2 ++ᴰᴸ l1 ++ᴰᴸ l1
+-- LongerExample = refl
 
 
-------------------------------------------------------------------------
--- A simple example of sorting finite multisets
+-- ------------------------------------------------------------------------
+-- -- A simple example of sorting finite multisets
 
 m1 : FMSet ℕ
 m1 = 13 ∷ 9 ∷ 78 ∷ 31 ∷ 86 ∷ 3 ∷ 0 ∷ 99 ∷ []

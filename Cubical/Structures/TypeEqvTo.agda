@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Structures.TypeEqvTo where
 
 open import Cubical.Foundations.Prelude
@@ -7,8 +7,9 @@ open import Cubical.Foundations.Equiv
 open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Data.Sigma
 
-open import Cubical.Foundations.SIP renaming (SNS-PathP to SNS)
+open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Pointed
+open import Cubical.Structures.Axioms
 open import Cubical.Structures.Pointed
 
 private
@@ -23,18 +24,18 @@ PointedEqvTo ℓ X = TypeWithStr ℓ (λ Y → Y × ∥ Y ≃ X ∥)
 
 module _ (X : Type ℓ') where
 
-  PointedEqvTo-structure : Type ℓ → Type (ℓ-max ℓ ℓ')
-  PointedEqvTo-structure = add-to-structure pointed-structure (λ Y _ → ∥ Y ≃ X ∥)
+  PointedEqvToStructure : Type ℓ → Type (ℓ-max ℓ ℓ')
+  PointedEqvToStructure = AxiomsStructure PointedStructure (λ Y _ → ∥ Y ≃ X ∥)
 
-  PointedEqvTo-iso : StrIso PointedEqvTo-structure ℓ''
-  PointedEqvTo-iso = add-to-iso pointed-iso (λ Y _ → ∥ Y ≃ X ∥)
+  PointedEqvToEquivStr : StrEquiv PointedEqvToStructure ℓ''
+  PointedEqvToEquivStr = AxiomsEquivStr PointedEquivStr (λ Y _ → ∥ Y ≃ X ∥)
 
-  PointedEqvTo-is-SNS : SNS {ℓ} PointedEqvTo-structure PointedEqvTo-iso
-  PointedEqvTo-is-SNS = add-axioms-SNS pointed-iso {axioms = λ Y _ → ∥ Y ≃ X ∥}
-                                       (λ _ _ → squash) pointed-is-SNS
+  pointedEqvToUnivalentStr : UnivalentStr {ℓ} PointedEqvToStructure PointedEqvToEquivStr
+  pointedEqvToUnivalentStr = axiomsUnivalentStr PointedEquivStr {axioms = λ Y _ → ∥ Y ≃ X ∥}
+                                          (λ _ _ → squash) pointedUnivalentStr
 
-  PointedEqvTo-SIP : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvTo-iso ] B ≃ (A ≡ B)
-  PointedEqvTo-SIP = SIP PointedEqvTo-is-SNS
+  PointedEqvToSIP : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvToEquivStr ] B ≃ (A ≡ B)
+  PointedEqvToSIP = SIP pointedEqvToUnivalentStr
 
-  PointedEqvTo-sip : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvTo-iso ] B → (A ≡ B)
-  PointedEqvTo-sip A B = equivFun (PointedEqvTo-SIP A B)
+  PointedEqvTo-sip : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvToEquivStr ] B → (A ≡ B)
+  PointedEqvTo-sip A B = equivFun (PointedEqvToSIP A B)

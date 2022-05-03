@@ -4,7 +4,7 @@ This module converts between the path types and the inductively
 defined equality types.
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Data.Equality where
 
@@ -47,9 +47,9 @@ open import Agda.Builtin.Equality public
 
 private
  variable
-  ℓ ℓ' : Level
-  A : Type ℓ
-  B : Type ℓ'
+  ℓ : Level
+  A B : Type ℓ
+  x y z : A
 
 infix  3 _∎
 infixr 2 _≡⟨_⟩_

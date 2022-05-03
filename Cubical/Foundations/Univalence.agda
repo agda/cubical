@@ -12,7 +12,7 @@ various consequences of univalence
 - Isomorphism induction ([elimIso])
 
 -}
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 module Cubical.Foundations.Univalence where
 
 open import Cubical.Foundations.Prelude
@@ -21,8 +21,12 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
 
+open import Cubical.Data.Sigma.Base
+
 open import Cubical.Core.Glue public
   using ( Glue ; glue ; unglue ; lineToEquiv )
+
+open import Cubical.Reflection.StrictEquiv
 
 private
   variable
@@ -36,6 +40,10 @@ ua {A = A} {B = B} e i = Glue B (λ { (i = i0) → (A , e)
 uaIdEquiv : {A : Type ℓ} → ua (idEquiv A) ≡ refl
 uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
 
+-- Propositional extensionality
+hPropExt : {A B : Type ℓ} → isProp A → isProp B → (A → B) → (B → A) → A ≡ B
+hPropExt Aprop Bprop f g = ua (propBiimpl→Equiv Aprop Bprop f g)
+
 -- the unglue and glue primitives specialized to the case of ua
 
 ua-unglue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : ua e i)
@@ -47,22 +55,19 @@ ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : Partial (~ i) A)
           → ua e i {- [ _ ↦ (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) ] -}
 ua-glue e i x y = glue {φ = i ∨ ~ i} (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) (outS y)
 
--- sometimes more useful are versions of these functions with the (i : I) factored in
+module _ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B} where
+  -- sometimes more useful are versions of these functions with the (i : I) factored in
 
-ua-ungluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
-                → PathP (λ i → ua e i) x y
-                → e .fst x ≡ y
-ua-ungluePath e p i = ua-unglue e i (p i)
+  ua-ungluePath : PathP (λ i → ua e i) x y → e .fst x ≡ y
+  ua-ungluePath p i = ua-unglue e i (p i)
 
-ua-gluePath : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
-              → e .fst x ≡ y
-              → PathP (λ i → ua e i) x y
-ua-gluePath e {x} p i = ua-glue e i (λ { (i = i0) → x }) (inS (p i))
+  ua-gluePath : e .fst x ≡ y → PathP (λ i → ua e i) x y
+  ua-gluePath p i = ua-glue e i (λ { (i = i0) → x }) (inS (p i))
 
--- ua-ungluePath and ua-gluePath are definitional inverses
-ua-ungluePath-Equiv : ∀ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B}
-                      → (PathP (λ i → ua e i) x y) ≃ (e .fst x ≡ y)
-ua-ungluePath-Equiv e = isoToEquiv (iso (ua-ungluePath e) (ua-gluePath e) (λ _ → refl) (λ _ → refl))
+  -- ua-ungluePath and ua-gluePath are definitional inverses
+  ua-ungluePath-Equiv : (PathP (λ i → ua e i) x y) ≃ (e .fst x ≡ y)
+  unquoteDef ua-ungluePath-Equiv =
+    defStrictEquiv ua-ungluePath-Equiv ua-ungluePath ua-gluePath
 
 -- ua-unglue and ua-glue are also definitional inverses, in a way
 -- strengthening the types of ua-unglue and ua-glue gives a nicer formulation of this, see below
@@ -142,7 +147,7 @@ unglueEquiv A φ f = ( unglue φ , unglueIsEquiv A φ f )
 -- unglue is an equivalence. The standard formulation can be found in
 -- Cubical/Basics/Univalence.
 --
-EquivContr : ∀ (A : Type ℓ) → isContr (Σ[ T ∈ Type ℓ ] T ≃ A)
+EquivContr : ∀ (A : Type ℓ) → ∃![ T ∈ Type ℓ ] (T ≃ A)
 EquivContr {ℓ = ℓ} A =
   ( (A , idEquiv A)
   , idEquiv≡ )
@@ -177,14 +182,20 @@ module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
   au-ua {B = B} = EquivJ (λ _ f → au (ua f) ≡ f)
                          (subst (λ r → au r ≡ idEquiv _) (sym uaIdEquiv) (aurefl {B = B}))
 
+  isoThm : ∀ {ℓ} {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
+  isoThm .Iso.fun = au
+  isoThm .Iso.inv = ua
+  isoThm .Iso.rightInv = au-ua
+  isoThm .Iso.leftInv = ua-au
+
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
-  thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} (iso au ua au-ua ua-au)
+  thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} isoThm
 
 pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
 pathToEquiv p = lineToEquiv (λ i → p i)
 
 pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
-pathToEquivRefl {A = A} = equivEq _ _ (λ i x → transp (λ _ → A) i x)
+pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)
 
 pathToEquiv-ua : {A B : Type ℓ} (e : A ≃ B) → pathToEquiv (ua e) ≡ e
 pathToEquiv-ua = Univalence.au-ua pathToEquiv pathToEquivRefl
@@ -193,6 +204,9 @@ ua-pathToEquiv : {A B : Type ℓ} (p : A ≡ B) → ua (pathToEquiv p) ≡ p
 ua-pathToEquiv = Univalence.ua-au pathToEquiv pathToEquivRefl
 
 -- Univalence
+univalenceIso : {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
+univalenceIso = Univalence.isoThm pathToEquiv pathToEquivRefl
+
 univalence : {A B : Type ℓ} → (A ≡ B) ≃ (A ≃ B)
 univalence = ( pathToEquiv , Univalence.thm pathToEquiv pathToEquivRefl  )
 
@@ -220,6 +234,42 @@ uaβ e x = transportRefl (equivFun e x)
 
 uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
 uaη = J (λ _ q → ua (pathToEquiv q) ≡ q) (cong ua pathToEquivRefl ∙ uaIdEquiv)
+
+-- Lemmas for constructing and destructing dependent paths in a function type where the domain is ua.
+ua→ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
+  {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
+  → ((a : A₀) → PathP B (f₀ a) (f₁ (e .fst a)))
+  → PathP (λ i → ua e i → B i) f₀ f₁
+ua→ {e = e} {f₀ = f₀} {f₁} h i a =
+  hcomp
+    (λ j → λ
+      { (i = i0) → f₀ a
+      ; (i = i1) → f₁ (lem a j)
+      })
+    (h (transp (λ j → ua e (~ j ∧ i)) (~ i) a) i)
+  where
+  lem : ∀ a₁ → e .fst (transport (sym (ua e)) a₁) ≡ a₁
+  lem a₁ = secEq e _ ∙ transportRefl _
+
+ua→⁻ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
+  {f₀ : A₀ → B i0} {f₁ : A₁ → B i1}
+  → PathP (λ i → ua e i → B i) f₀ f₁
+  → ((a : A₀) → PathP B (f₀ a) (f₁ (e .fst a)))
+ua→⁻ {e = e} {f₀ = f₀} {f₁} p a i =
+  hcomp
+    (λ k → λ
+      { (i = i0) → f₀ a
+      ; (i = i1) → f₁ (uaβ e a k)
+      })
+    (p i (transp (λ j → ua e (j ∧ i)) (~ i) a))
+
+ua→2 : ∀ {ℓ ℓ' ℓ''} {A₀ A₁ : Type ℓ} {e₁ : A₀ ≃ A₁}
+  {B₀ B₁ : Type ℓ'} {e₂ : B₀ ≃ B₁}
+  {C : (i : I) → Type ℓ''}
+  {f₀ : A₀ → B₀ → C i0} {f₁ : A₁ → B₁ → C i1}
+  → (∀ a b → PathP C (f₀ a b) (f₁ (e₁ .fst a) (e₂ .fst b)))
+  → PathP (λ i → ua e₁ i → ua e₂ i → C i) f₀ f₁
+ua→2 h = ua→ (ua→ ∘ h)
 
 -- Useful lemma for unfolding a transported function over ua
 -- If we would have regularity this would be refl

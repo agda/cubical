@@ -1,3 +1,4 @@
-name: cubical
+name: cubical-0.4
 include: .
 depend:
+flags: --cubical --no-import-sorts
