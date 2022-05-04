@@ -3,8 +3,6 @@ module Cubical.ZCohomology.GroupStructure where
 
 open import Cubical.ZCohomology.Base
 
-open import Cubical.HITs.S1 hiding (rec ; elim ; ind)
-open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
@@ -13,14 +11,24 @@ open import Cubical.Foundations.Pointed hiding (id)
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
+
 open import Cubical.Data.Sigma
-open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; isSetSetTrunc to §)
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_ ; -_ to -ℤ_)
 open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
+
+open import Cubical.HITs.S1 hiding (rec ; elim ; ind)
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp
+open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; isSetSetTrunc to §)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3 ; map2 to trMap2)
+
 open import Cubical.Homotopy.Loopspace
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup)
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
