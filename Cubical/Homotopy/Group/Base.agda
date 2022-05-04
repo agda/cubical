@@ -701,7 +701,7 @@ mutual
     (equivToIso
      (Ω→ (ΩTruncSwitchFun n m) .fst
     , isEquivΩ→ _ (compEquiv (isoToEquiv (ΩTruncSwitch {A = A} n (suc (suc m))))
-       (transportEquiv
+       (pathToEquiv
          (λ i → typ ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))) .snd)))
 
   ΩTruncSwitch : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)

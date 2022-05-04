@@ -56,7 +56,7 @@ UnivalentStr→SNS S ι θ {X = X} s t =
   ι (X , s) (X , t) (idEquiv X)
     ≃⟨ θ (idEquiv X) ⟩
   PathP (λ i → S (ua (idEquiv X) i)) s t
-    ≃⟨ transportEquiv (λ j → PathP (λ i → S (uaIdEquiv {A = X} j i)) s t) ⟩
+    ≃⟨ pathToEquiv (λ j → PathP (λ i → S (uaIdEquiv {A = X} j i)) s t) ⟩
   s ≡ t
   ■
 
@@ -74,7 +74,7 @@ SNS→UnivalentStr {S = S} ι θ {A = A} {B = B} e = EquivJ P C e (str A) (str B
     ι (Y , s) (Y , t) (idEquiv Y)
       ≃⟨ θ s t ⟩
     s ≡ t
-      ≃⟨ transportEquiv (λ j → PathP (λ i → S (uaIdEquiv {A = Y} (~ j) i)) s t) ⟩
+      ≃⟨ pathToEquiv (λ j → PathP (λ i → S (uaIdEquiv {A = Y} (~ j) i)) s t) ⟩
     PathP (λ i → S (ua (idEquiv Y) i)) s t
     ■
 
