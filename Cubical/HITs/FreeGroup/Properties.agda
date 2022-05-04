@@ -23,6 +23,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.BiInvertible
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.Semigroup.Base
 

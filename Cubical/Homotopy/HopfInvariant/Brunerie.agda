@@ -51,10 +51,12 @@ open import Cubical.HITs.PropositionalTruncation
   renaming (map to pMap ; rec to pRec)
 
 open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
-
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Unit
 
 open Iso
 open IsGroupHom
