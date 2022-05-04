@@ -181,8 +181,8 @@ module Properties-Equiv-QuotientXn-A
   -- else different vector so ok
 
   PA→A-cancel : (k : Fin n) → PA→A (<X1,···,Xn> Ar n k) ≡ 0A
-  PA→A-cancel k with (discreteVecℕn (1k0 n (toℕ k)) (replicate 0))
-  ... | yes p = rec-⊥ (1k0-k<n→≢ n (toℕ k) (toℕ<n k) p)
+  PA→A-cancel k with (discreteVecℕn (1k0Vec n (toℕ k)) (replicate 0))
+  ... | yes p = rec-⊥ (1k0Vec-k<n→≢ n (toℕ k) (toℕ<n k) p)
   ... | no ¬p = refl
 
   PAr→Ar : RingHom (CommRing→Ring (A[X1,···,Xn] Ar n)) (CommRing→Ring Ar)
@@ -255,7 +255,7 @@ module Properties-Equiv-QuotientXn-A
                         ∙ +PALid (base v (-A a))
                         ∙ sym (
                           cbn-akbℕ-linear-combi ((A[X1,···,Xn] Ar n)) n k infkn (base v' (-A a)) (<X1,···,Xn> Ar n)
-                          ∙ cong₂ base (cong (λ X → v' +n-vec 1k0 n X) (toFromId' n k infkn)) (·ARid _)
+                          ∙ cong₂ base (cong (λ X → v' +n-vec 1k0Vec n X) (toFromId' n k infkn)) (·ARid _)
                           ∙ cong (λ X → base X (-A a)) (sym eqvv'))
 
 
@@ -280,3 +280,6 @@ module _
     rightInv is = e-sect
     leftInv is = e-retr
   snd Equiv-QuotientX-A = snd PAIr→Ar
+
+-- Warning this doesn't prove Z[X]/X ≅ ℤ because you get two definition,
+-- see notation Multivariate-Quotient-notationZ

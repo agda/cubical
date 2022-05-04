@@ -20,23 +20,27 @@ private variable
 -----------------------------------------------------------------------------
 -- Generating Vector
 
-1k0 : (m : ℕ) → (k : ℕ) → Vec ℕ m
-1k0 zero k = []
-1k0 (suc m) k with (discreteℕ k m)
-... | yes p = 1 ∷ replicate 0
-... | no ¬p = 0 ∷ (1k0 m k)
+akbVec : {A : Type ℓ} → (m k : ℕ) → (a b : A) → Vec A m
+akbVec zero k a b = []
+akbVec (suc m) k a b  with (discreteℕ k m)
+... | yes p = a ∷ replicate b
+... | no ¬p = b ∷ (akbVec m k a b)
 
-1k0-n≤k→≡ : (m k : ℕ) → (m ≤ k) → 1k0 m k ≡ replicate 0
-1k0-n≤k→≡ zero k r = refl
-1k0-n≤k→≡ (suc m) k r with (discreteℕ k m)
+-- some results are easier / false without general a and b
+1k0Vec : (m : ℕ) → (k : ℕ) → Vec ℕ m
+1k0Vec m k = akbVec m k 1 0
+
+1k0Vec-n≤k→≡ : (m k : ℕ) → (m ≤ k) → 1k0Vec m k ≡ replicate 0
+1k0Vec-n≤k→≡ zero k r = refl
+1k0Vec-n≤k→≡ (suc m) k r with (discreteℕ k m)
 ... | yes p = rec-⊥ (<→≢ r (sym p))
-... | no ¬p = cong (λ X → 0 ∷ X) (1k0-n≤k→≡ m k (≤-trans ≤-sucℕ r))
+... | no ¬p = cong (λ X → 0 ∷ X) (1k0Vec-n≤k→≡ m k (≤-trans ≤-sucℕ r))
 
-1k0-k<n→≢ : (m k : ℕ) → (k < m) → (1k0 m k ≡ replicate 0 → ⊥)
-1k0-k<n→≢ zero k r = rec-⊥ (¬-<-zero r)
-1k0-k<n→≢ (suc m) k r q with (discreteℕ k m) | (≤-split r)
+1k0Vec-k<n→≢ : (m k : ℕ) → (k < m) → (1k0Vec m k ≡ replicate 0 → ⊥)
+1k0Vec-k<n→≢ zero k r = rec-⊥ (¬-<-zero r)
+1k0Vec-k<n→≢ (suc m) k r q with (discreteℕ k m) | (≤-split r)
 ... | yes p | z = compute-eqℕ 1 0 (fst (VecPath.encode _ _ q))
-... | no ¬p | inl x = 1k0-k<n→≢ m k (pred-≤-pred x) (snd (VecPath.encode _ _ q))
+... | no ¬p | inl x = 1k0Vec-k<n→≢ m k (pred-≤-pred x) (snd (VecPath.encode _ _ q))
 ... | no ¬p | inr x = ¬p (injSuc x)
 
 -----------------------------------------------------------------------------
@@ -74,7 +78,7 @@ v+n-vecv'≡0→v≡0×v'≡0 (k ∷ v) (l ∷ v') p with VecPath.encode ((k +n 
 
 
 pred-vec-≢0 : {m : ℕ} → (v : Vec ℕ m) → (v ≡ replicate 0 → ⊥)
-              → Σ[ k ∈ ℕ ] (Σ[ v' ∈ Vec ℕ m ] ( Σ[ r ∈ (k < m) ] v ≡ v' +n-vec (1k0 m k)))
+              → Σ[ k ∈ ℕ ] (Σ[ v' ∈ Vec ℕ m ] ( Σ[ r ∈ (k < m) ] v ≡ v' +n-vec (1k0Vec m k)))
 pred-vec-≢0 {zero} [] ¬q = rec-⊥ (¬q refl)
 pred-vec-≢0 {(suc m)} (l ∷ v) ¬q with (discreteℕ l 0)
 -- case l ≡ 0

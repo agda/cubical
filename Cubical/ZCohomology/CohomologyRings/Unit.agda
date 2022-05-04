@@ -20,11 +20,13 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
 
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
 
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients renaming (elimProp to elimProp-sq ; rec to rec-sq ; _/_ to _/sq_)
