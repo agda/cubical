@@ -255,3 +255,6 @@ module _
     rightInv is = e-sect
     leftInv is = e-retr
   snd Equiv-A[X]/X-A = snd A[X]/X→A
+
+Equiv-ℤ[X]/X-ℤ : RingEquiv (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤCR)
+Equiv-ℤ[X]/X-ℤ = Equiv-A[X]/X-A ℤCR

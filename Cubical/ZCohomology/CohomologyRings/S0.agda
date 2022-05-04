@@ -57,7 +57,12 @@ open Iso
 
 open RingEquivs
 
-Cohomology-Ring-S⁰ : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤ[X]/X))
-Cohomology-Ring-S⁰ =  compRingEquiv (CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool))
+Cohomology-Ring-S⁰P : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤ[X]/X))
+Cohomology-Ring-S⁰P =  compRingEquiv (CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool))
                      (compRingEquiv (CohomologyRing-Coproduct Unit Unit)
-                                    (Coproduct-Equiv.Coproduct-Equiv-12 CohomologyRing-Unit CohomologyRing-Unit))
+                                    (Coproduct-Equiv.Coproduct-Equiv-12 CohomologyRing-UnitP CohomologyRing-UnitP))
+
+Cohomology-Ring-S⁰ℤ : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→Ring ℤCR) (CommRing→Ring ℤCR))
+Cohomology-Ring-S⁰ℤ =  compRingEquiv (CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool))
+                     (compRingEquiv (CohomologyRing-Coproduct Unit Unit)
+                                    (Coproduct-Equiv.Coproduct-Equiv-12 CohomologyRing-Unitℤ CohomologyRing-Unitℤ))

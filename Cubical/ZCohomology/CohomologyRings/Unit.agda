@@ -24,6 +24,7 @@ open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notatio
 
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
+open import Cubical.Algebra.Polynomials.Multivariate.Equiv-A[X]X-A
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
@@ -329,16 +330,23 @@ module Equiv-Unit-Properties where
 module _ where
 
   open Equiv-Unit-Properties
+  open RingEquivs
 
-  Unit-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X) (H*R Unit)
-  fst Unit-CohomologyRing = isoToEquiv is
+  Unit-CohomologyRingP : RingEquiv (CommRing→Ring ℤ[X]/X) (H*R Unit)
+  fst Unit-CohomologyRingP = isoToEquiv is
     where
     is : Iso ℤ[x]/x (H* Unit)
     fun is = ℤ[x]/x→H*-Unit
     inv is = H*-Unit→ℤ[x]/x
     rightInv is = e-sect
     leftInv is = e-retr
-  snd Unit-CohomologyRing = snd ℤ[X]/X→H*R-Unit
+  snd Unit-CohomologyRingP = snd ℤ[X]/X→H*R-Unit
 
-  CohomologyRing-Unit : RingEquiv (H*R Unit) (CommRing→Ring ℤ[X]/X)
-  CohomologyRing-Unit = RingEquivs.invEquivRing Unit-CohomologyRing
+  CohomologyRing-UnitP : RingEquiv (H*R Unit) (CommRing→Ring ℤ[X]/X)
+  CohomologyRing-UnitP = invEquivRing Unit-CohomologyRingP
+
+  Unit-CohomologyRingℤ : RingEquiv (CommRing→Ring ℤCR) (H*R Unit)
+  Unit-CohomologyRingℤ = compRingEquiv (invEquivRing Equiv-ℤ[X]/X-ℤ) Unit-CohomologyRingP
+
+  CohomologyRing-Unitℤ : RingEquiv (H*R Unit) (CommRing→Ring ℤCR)
+  CohomologyRing-Unitℤ = compRingEquiv CohomologyRing-UnitP Equiv-ℤ[X]/X-ℤ
