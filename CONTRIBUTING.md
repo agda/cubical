@@ -110,8 +110,10 @@ When preparing a PR here are some general guidelines:
 
 - Avoid importing `Foundations.Everything`; import only the modules in
   `Foundations` you are using. Be reasonably specific in general when
-  importing. For example, only import the `Base` or `Properties`
-  module from a folder in `Data` if this is all you need.
+  importing.
+  
+- Avoid `public` imports, except in modules that are specifically meant
+  to collect and re-export results from several modules.
 
 - The `Experiments` folder contains various experiments and nothing in
   the library should depend on something from this folder.
