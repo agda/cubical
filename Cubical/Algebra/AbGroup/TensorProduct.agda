@@ -21,7 +21,7 @@ open import Cubical.Data.Sum hiding (map)
 open import Cubical.HITs.PropositionalTruncation
   renaming (map to pMap ; rec to pRec ; elim to pElim ; elim2 to pElim2)
 
-open import Cubical.Algebra.Group hiding (ℤ)
+open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Monoid

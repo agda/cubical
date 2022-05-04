@@ -18,7 +18,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty.Base renaming (rec to ⊥rec )
 open import Cubical.Data.Bool hiding (_≤_)
 
-open import Cubical.Algebra.Group hiding (Bool)
+open import Cubical.Algebra.Group
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
