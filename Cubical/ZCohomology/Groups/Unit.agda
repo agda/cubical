@@ -10,7 +10,6 @@ open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure
 
 open import Cubical.HITs.Sn
-
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetTruncation
@@ -21,11 +20,16 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Data.Int hiding (ℤ ; _+_ ; +Comm)
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
+open import Cubical.Data.Sigma
 
 open import Cubical.Homotopy.Connected
 
-open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int
+open import Cubical.Algebra.Group.Instances.Unit
+
 
 -- H⁰(Unit)
 open IsGroupHom

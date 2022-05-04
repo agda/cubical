@@ -1,10 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.ZCohomology.MayerVietorisUnreduced where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.GroupStructure
-
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
@@ -19,9 +15,20 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
-open import Cubical.Data.Nat
-open import Cubical.Algebra.Group
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
+open import Cubical.Data.Nat
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Bool renaming (Bool to BoolGroup)
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Unit
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
 
 open IsGroupHom
 
