@@ -1,7 +1,7 @@
 {- Basic theory about transport:
 
 - transport is invertible
-- transport is an equivalence ([transportEquiv])
+- transport is an equivalence ([pathToEquiv])
 
 -}
 {-# OPTIONS --safe #-}
@@ -59,14 +59,6 @@ transportTransport⁻ : ∀ {ℓ} {A B : Type ℓ} → (p : A ≡ B) → (b : B)
                         transport p (transport⁻ p b) ≡ b
 transportTransport⁻ p b j = transport-fillerExt⁻ p j (transport⁻-fillerExt⁻ p j b)
 
--- Transport is an equivalence
-isEquivTransport : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B) → isEquiv (transport p)
-isEquivTransport {A = A} {B = B} p =
-  transport (λ i → isEquiv (transport-fillerExt p i)) (idIsEquiv A)
-
-transportEquiv : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B
-transportEquiv p = (transport p , isEquivTransport p)
-
 substEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {a a' : A} (P : A → Type ℓ') (p : a ≡ a') → P a ≃ P a'
 substEquiv P p = (subst P p , isEquivTransport (λ i → P (p i)))
 
@@ -79,10 +71,10 @@ transpEquiv P i .snd
   = transp (λ k → isEquiv (transp (λ j → P (i ∨ (j ∧ k))) (i ∨ ~ k)))
       i (idIsEquiv (P i))
 
-uaTransportη : ∀ {ℓ} {A B : Type ℓ} (P : A ≡ B) → ua (transportEquiv P) ≡ P
+uaTransportη : ∀ {ℓ} {A B : Type ℓ} (P : A ≡ B) → ua (pathToEquiv P) ≡ P
 uaTransportη P i j
   = Glue (P i1) λ where
-      (j = i0) → P i0 , transportEquiv P
+      (j = i0) → P i0 , pathToEquiv P
       (i = i1) → P j , transpEquiv P j
       (j = i1) → P i1 , idEquiv (P i1)
 
