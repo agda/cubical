@@ -1,12 +1,12 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.IntAsRawRing where
+module Cubical.Algebra.CommRingSolver.IntAsRawRing where
 
 open import Cubical.Data.Nat hiding (_+_; _·_)
 open import Cubical.Data.Int
 open import Cubical.Data.Int.Base
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Algebra.RingSolver.RawRing
+open import Cubical.Algebra.CommRingSolver.RawRing
 
 ℤAsRawRing : RawRing ℓ-zero
 ℤAsRawRing = rawring ℤ (pos zero) (pos (suc zero)) _+_ _·_ (λ k → - k)

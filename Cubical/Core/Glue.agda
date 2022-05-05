@@ -36,8 +36,6 @@ open import Agda.Builtin.Cubical.Glue public
   renaming ( prim^glue   to glue         -- ∀ {ℓ ℓ'} {A : Type ℓ} {φ : I} {T : Partial φ (Type ℓ')}
                                          -- → {e : PartialP φ (λ o → T o ≃ A)}
                                          -- → PartialP φ T → A → primGlue A T e
-
-           ; pathToEquiv to lineToEquiv  -- ∀ {ℓ : I → Level} (P : (i : I) → Type (ℓ i)) → P i0 ≃ P i1
            )
 
 private

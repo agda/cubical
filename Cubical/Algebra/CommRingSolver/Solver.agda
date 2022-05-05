@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.RingSolver.Solver where
+module Cubical.Algebra.CommRingSolver.Solver where
 
 open import Cubical.Foundations.Prelude
 
@@ -9,12 +9,12 @@ open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.RingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.RingSolver.AlgebraExpression
-open import Cubical.Algebra.RingSolver.IntAsRawRing
-open import Cubical.Algebra.RingSolver.HornerForms
-open import Cubical.Algebra.RingSolver.EvalHom
-open import Cubical.Algebra.RingSolver.HornerEval
+open import Cubical.Algebra.CommRingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Algebra.CommRingSolver.AlgebraExpression
+open import Cubical.Algebra.CommRingSolver.IntAsRawRing
+open import Cubical.Algebra.CommRingSolver.HornerForms
+open import Cubical.Algebra.CommRingSolver.EvalHom
+open import Cubical.Algebra.CommRingSolver.HornerEval
 
 private
   variable

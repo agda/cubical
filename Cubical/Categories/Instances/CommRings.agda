@@ -96,8 +96,8 @@ univ isUnivalentCommRingsCategory R S = subst isEquiv (funExt rem) (≡≃CatIso
 
   rem : ∀ p → ≡≃CatIso .fst p ≡ pathToIso p
   rem p = CatIso≡ _ _
-                 (RingHom≡ (funExt (λ x → cong (transport (λ i → fst (p i))) (sym (transportRefl x)))))
-                 (RingHom≡ (funExt (λ x → sym (transportRefl _))))
+    (RingHom≡ (funExt λ x → cong (transport (cong fst p)) (sym (transportRefl x))))
+    (RingHom≡ refl)
 
 TerminalCommRing : Terminal {ℓ-suc ℓ-zero} CommRingsCategory
 fst TerminalCommRing = UnitCommRing

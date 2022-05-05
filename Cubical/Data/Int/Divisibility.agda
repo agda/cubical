@@ -32,7 +32,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
   renaming (ℤ to Ringℤ)
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 
 private
   variable

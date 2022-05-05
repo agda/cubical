@@ -94,7 +94,7 @@ module _ {A : Pointed ℓ} {B : typ A → Type ℓ'} {ptB : B (pt A)} where
 
   -- Proof that ∙∼ and ∙∼P are equivalent using the fiberwise equivalence φ
   ∙∼≃∙∼P : (f g : Π∙ A B ptB) → (f ∙∼ g) ≃ (f ∙∼P g)
-  ∙∼≃∙∼P f g = Σ-cong-equiv-snd (λ H → transportEquiv (P≡Q f g H))
+  ∙∼≃∙∼P f g = Σ-cong-equiv-snd (λ H → pathToEquiv (P≡Q f g H))
 
   -- inverse of ∙∼→∙∼P extracted from the equivalence
   ∙∼P→∙∼ : {f g : Π∙ A B ptB} → f ∙∼P g → f ∙∼ g

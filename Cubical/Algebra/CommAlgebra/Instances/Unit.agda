@@ -10,10 +10,9 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra.Base
-open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
 open import Cubical.Algebra.CommRing.Instances.Unit
-
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
+open import Cubical.Algebra.CommRingSolver.Reflection
 
 private
   variable

@@ -27,7 +27,9 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int
 
-open import Cubical.Algebra.Group hiding (ℤ ; Bool)
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
 
 record coHomTheory {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup ℓ') : Type (ℓ-suc (ℓ-max ℓ ℓ'))

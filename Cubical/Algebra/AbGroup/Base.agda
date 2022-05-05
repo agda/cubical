@@ -9,12 +9,17 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.DirProd
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Auto
