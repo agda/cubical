@@ -276,14 +276,14 @@ module CohomologyRing-Equiv
            (λ n a → cong (base n) (leftInv (fst coHomGr-Iso) a))
            (λ {U V} ind-U ind-V → cong₂ _+H*X_ ind-U ind-V)
 
-  map1 : H*-X→H*-Y 1H*X ≡ 1H*Y
-  map1 = refl
+  H*-X→H*-Y-pres1 : H*-X→H*-Y 1H*X ≡ 1H*Y
+  H*-X→H*-Y-pres1 = refl
 
-  map+ : (x x' : H* X) → H*-X→H*-Y (x +H*X x') ≡ H*-X→H*-Y x +H*Y H*-X→H*-Y x'
-  map+ x x' = refl
+  H*-X→H*-Y-pres+ : (x x' : H* X) → H*-X→H*-Y (x +H*X x') ≡ H*-X→H*-Y x +H*Y H*-X→H*-Y x'
+  H*-X→H*-Y-pres+ x x' = refl
 
-  map· : (x x' : H* X) → H*-X→H*-Y (x cupX x') ≡ H*-X→H*-Y x cupY H*-X→H*-Y x'
-  map· = DS-Ind-Prop.f _ _ _ _ (λ x u v i y → isSetH*Y _ _ (u y) (v y) i)
+  H*-X→H*-Y-pres· : (x x' : H* X) → H*-X→H*-Y (x cupX x') ≡ H*-X→H*-Y x cupY H*-X→H*-Y x'
+  H*-X→H*-Y-pres· = DS-Ind-Prop.f _ _ _ _ (λ x u v i y → isSetH*Y _ _ (u y) (v y) i)
          (λ _ → refl)
          (λ n → ST.elim (λ x → isProp→isSet λ u v i y → isSetH*Y _ _ (u y) (v y) i)
                 (λ f → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*Y _ _)
@@ -310,4 +310,4 @@ module _
     inv is = H*-Y→H*-X
     rightInv is = e-sect
     leftInv is = e-retr
-  snd CohomologyRing-Equiv = makeIsRingHom map1 map+ map·
+  snd CohomologyRing-Equiv = makeIsRingHom H*-X→H*-Y-pres1 H*-X→H*-Y-pres+ H*-X→H*-Y-pres·

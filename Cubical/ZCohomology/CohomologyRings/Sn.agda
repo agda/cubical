@@ -62,9 +62,9 @@ module Properties-H⁰-Sⁿ≅ℤ where
   T0mg : (m : ℕ) → IsGroupHom (snd ℤG) (T0m m) (coHomGr 0 (S₊ (suc m)) .snd)
   T0mg m = snd (invGroupIso (H⁰-Sⁿ≅ℤ m))
 
-  T0m-map1 : (m : ℕ) → base 0 ((T0m m) 1) ≡ 1r (snd (H*R (S₊ (suc m))))
-  T0m-map1 zero = refl
-  T0m-map1 (suc m) = refl
+  T0m-pres1 : (m : ℕ) → base 0 ((T0m m) 1) ≡ 1r (snd (H*R (S₊ (suc m))))
+  T0m-pres1 zero = refl
+  T0m-pres1 (suc m) = refl
 
   T0m-pos0 : (m : ℕ) → {l : ℕ} → (x : coHom l (S₊ (suc m))) → (T0m m) (pos zero) ⌣ x ≡ 0ₕ l
   T0m-pos0 zero = ST.elim (λ x  → isProp→isSet (squash₂ _ _)) λ x → refl
@@ -277,11 +277,11 @@ module Equiv-Sn-Properties (n : ℕ) where
 -- Morphism on ℤ[x]
 
   -- doesn't compute without an abstract value !
-  ℤ[x]→H*-Sⁿ-map1 : ℤ[x]→H*-Sⁿ (1Pℤ) ≡ 1H*
-  ℤ[x]→H*-Sⁿ-map1 = T0m-map1 n
+  ℤ[x]→H*-Sⁿ-pres1 : ℤ[x]→H*-Sⁿ (1Pℤ) ≡ 1H*
+  ℤ[x]→H*-Sⁿ-pres1 = T0m-pres1 n
 
-  ℤ[x]→H*-Sⁿ-map+ : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x +Pℤ y) ≡ ℤ[x]→H*-Sⁿ x +H* ℤ[x]→H*-Sⁿ y
-  ℤ[x]→H*-Sⁿ-map+ x y = refl
+  ℤ[x]→H*-Sⁿ-pres+ : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x +Pℤ y) ≡ ℤ[x]→H*-Sⁿ x +H* ℤ[x]→H*-Sⁿ y
+  ℤ[x]→H*-Sⁿ-pres+ x y = refl
 
   T0 = T0m n
   T0g = T0mg n
@@ -297,56 +297,56 @@ module Equiv-Sn-Properties (n : ℕ) where
     (Tlg : IsGroupHom (ℤG .snd) Tl (coHomGr l (S₊ (suc n)) .snd))
     where
 
-      rmorph-base-case-0l : (a : ℤ) → (b : ℤ) →
+      pres·-base-case-0l : (a : ℤ) → (b : ℤ) →
                             Tl (a ·ℤ b) ≡ (T0 a) ⌣ (Tl b)
-      rmorph-base-case-0l (pos zero)       b = pres1 Tlg
+      pres·-base-case-0l (pos zero)       b = pres1 Tlg
                                                ∙ sym (T0-pos0 (Tl b))
-      rmorph-base-case-0l (pos (suc k))    b = pres· Tlg b (pos k ·ℤ b)
-                                               ∙ cong (λ X → (Tl b) +ₕ X) (rmorph-base-case-0l (pos k) b)
+      pres·-base-case-0l (pos (suc k))    b = pres· Tlg b (pos k ·ℤ b)
+                                               ∙ cong (λ X → (Tl b) +ₕ X) (pres·-base-case-0l (pos k) b)
                                                ∙ sym (T0-posS k (Tl b))
-      rmorph-base-case-0l (negsuc zero)    b = cong Tl (sym (+ℤLid (-ℤ b)))
+      pres·-base-case-0l (negsuc zero)    b = cong Tl (sym (+ℤLid (-ℤ b)))
                                                ∙ presinv Tlg b
                                                ∙ sym (T0-neg0 (Tl b))
-      rmorph-base-case-0l (negsuc (suc k)) b = cong Tl (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
+      pres·-base-case-0l (negsuc (suc k)) b = cong Tl (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
                                                ∙ pres· Tlg (negsuc k ·ℤ b) (-ℤ b)
-                                               ∙ cong₂ _+ₕ_ (rmorph-base-case-0l (negsuc k) b)
+                                               ∙ cong₂ _+ₕ_ (pres·-base-case-0l (negsuc k) b)
                                                             (cong Tl (sym (+ℤLid (-ℤ b))) ∙ presinv Tlg b)
                                                ∙ sym (T0-negS k (Tl b))
 
 
 -- Nice packging of the proof
-  rmorph-base-case-int : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
+  pres·-base-case-int : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
                          ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
                          ≡ ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a) cup ℤ[x]→H*-Sⁿ (baseP (l ∷ []) b)
-  rmorph-base-case-int zero          a zero          b = cong (base 0) (rmorph-base-case-0l 0 (inv (fst (H⁰-Sⁿ≅ℤ n)))
+  pres·-base-case-int zero          a zero          b = cong (base 0) (pres·-base-case-0l 0 (inv (fst (H⁰-Sⁿ≅ℤ n)))
                                                                                               (snd (invGroupIso (H⁰-Sⁿ≅ℤ n))) a b)
-  rmorph-base-case-int zero          a one           b = cong (base (suc n)) (rmorph-base-case-0l (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)))
+  pres·-base-case-int zero          a one           b = cong (base (suc n)) (pres·-base-case-0l (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)))
                                                                                                   (snd (invGroupIso (Hⁿ-Sⁿ≅ℤ n))) a b)
-  rmorph-base-case-int zero          a (suc (suc l)) b = refl
-  rmorph-base-case-int one           a zero          b = cong ℤ[x]→H*-Sⁿ (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
-                                                         ∙ rmorph-base-case-int zero b one a
+  pres·-base-case-int zero          a (suc (suc l)) b = refl
+  pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-Sⁿ (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
+                                                         ∙ pres·-base-case-int zero b one a
                                                          ∙ gradCommRing (S₊ (suc n)) 0 (suc n) (inv (fst (H⁰-Sⁿ≅ℤ n)) b) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)
-  rmorph-base-case-int one           a one           b = sym (base-neutral (suc n +' suc n))
+  pres·-base-case-int one           a one           b = sym (base-neutral (suc n +' suc n))
                                                          ∙ cong (base (suc n +' suc n))
                                                            (isOfHLevelRetractFromIso
                                                                 1
                                                                 (fst (Hⁿ-Sᵐ≅0 (suc (n +n n)) n (λ p → <→≢ (n , (+n-comm n (suc n))) (sym p))))
                                                                 isPropUnit _ _)
-  rmorph-base-case-int one           a (suc (suc l)) b = refl
-  rmorph-base-case-int (suc (suc k)) a             l b = refl
+  pres·-base-case-int one           a (suc (suc l)) b = refl
+  pres·-base-case-int (suc (suc k)) a             l b = refl
 
 
 
 
 
-  rmorph-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
+  pres·-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
                 ℤ[x]→H*-Sⁿ (baseP v a ·Pℤ baseP v' b)
               ≡ ℤ[x]→H*-Sⁿ (baseP v a) cup ℤ[x]→H*-Sⁿ (baseP v' b)
-  rmorph-base-case-vec (k ∷ []) a (l ∷ []) b = rmorph-base-case-int k a l b
+  pres·-base-case-vec (k ∷ []) a (l ∷ []) b = pres·-base-case-int k a l b
 
   -- proof of the morphism
-  ℤ[x]→H*-Sⁿ-rmorph : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x ·Pℤ y) ≡ ℤ[x]→H*-Sⁿ x cup ℤ[x]→H*-Sⁿ y
-  ℤ[x]→H*-Sⁿ-rmorph = Poly-Ind-Prop.f _ _ _
+  ℤ[x]→H*-Sⁿ-pres· : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x ·Pℤ y) ≡ ℤ[x]→H*-Sⁿ x cup ℤ[x]→H*-Sⁿ y
+  ℤ[x]→H*-Sⁿ-pres· = Poly-Ind-Prop.f _ _ _
                          (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                          (λ y → refl)
                          base-case
@@ -355,7 +355,7 @@ module Equiv-Sn-Properties (n : ℕ) where
     base-case : _
     base-case (k ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R (S₊ (suc n))) _))
-                           (λ v' b → rmorph-base-case-vec (k ∷ []) a v' b)
+                           (λ v' b → pres·-base-case-vec (k ∷ []) a v' b)
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
 
 
@@ -367,7 +367,7 @@ module Equiv-Sn-Properties (n : ℕ) where
 
   ℤ[X]→H*-Sⁿ : RingHom (CommRing→Ring ℤ[X]) (H*R (S₊ (suc n)))
   fst ℤ[X]→H*-Sⁿ = ℤ[x]→H*-Sⁿ
-  snd ℤ[X]→H*-Sⁿ = makeIsRingHom ℤ[x]→H*-Sⁿ-map1 ℤ[x]→H*-Sⁿ-map+ ℤ[x]→H*-Sⁿ-rmorph
+  snd ℤ[X]→H*-Sⁿ = makeIsRingHom ℤ[x]→H*-Sⁿ-pres1 ℤ[x]→H*-Sⁿ-pres+ ℤ[x]→H*-Sⁿ-pres·
 
   ℤ[X]/X²→H*R-Sⁿ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ (suc n)))
   ℤ[X]/X²→H*R-Sⁿ = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R (S₊ (suc n))) ℤ[X]→H*-Sⁿ <X²> ℤ[x]→H*-Sⁿ-cancelX

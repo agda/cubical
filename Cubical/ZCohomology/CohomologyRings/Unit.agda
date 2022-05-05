@@ -162,11 +162,11 @@ module Equiv-Unit-Properties where
                base-add-eq (zero ∷ []) a b = base-add _ _ _
                base-add-eq (suc n ∷ []) a b = +H*Rid _
 
-  ℤ[x]→H*-Unit-map1Pℤ : ℤ[x]→H*-Unit (1Pℤ) ≡ 1H*
-  ℤ[x]→H*-Unit-map1Pℤ = refl
+  ℤ[x]→H*-Unit-pres1Pℤ : ℤ[x]→H*-Unit (1Pℤ) ≡ 1H*
+  ℤ[x]→H*-Unit-pres1Pℤ = refl
 
-  ℤ[x]→H*-Unit-gmorph : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x +Pℤ y) ≡ ℤ[x]→H*-Unit x +H* ℤ[x]→H*-Unit y
-  ℤ[x]→H*-Unit-gmorph x y = refl
+  ℤ[x]→H*-Unit-pres+ : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x +Pℤ y) ≡ ℤ[x]→H*-Unit x +H* ℤ[x]→H*-Unit y
+  ℤ[x]→H*-Unit-pres+ x y = refl
 
 
 -- Proving the morphism on the cup product
@@ -179,36 +179,36 @@ module Equiv-Unit-Properties where
 
 
     -- idea : control of the unfolding + simplification of T0 on the left
-  rmorph-base-case-00 : (a : ℤ) → (b : ℤ) →
+  pres·-base-case-00 : (a : ℤ) → (b : ℤ) →
                         T0 (a ·ℤ b) ≡ (T0 a) ⌣ (T0 b)
-  rmorph-base-case-00 (pos zero)       b = (IsGroupHom.pres1 T0g)
-  rmorph-base-case-00 (pos (suc n))    b = ((IsGroupHom.pres· T0g b (pos n ·ℤ b)))
-                                           ∙ (cong (λ X → (T0 b) +ₕ X) (rmorph-base-case-00 (pos n) b))
-  rmorph-base-case-00 (negsuc zero)    b = cong T0 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
+  pres·-base-case-00 (pos zero)       b = (IsGroupHom.pres1 T0g)
+  pres·-base-case-00 (pos (suc n))    b = ((IsGroupHom.pres· T0g b (pos n ·ℤ b)))
+                                           ∙ (cong (λ X → (T0 b) +ₕ X) (pres·-base-case-00 (pos n) b))
+  pres·-base-case-00 (negsuc zero)    b = cong T0 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
                                            ∙ IsGroupHom.presinv T0g b
 
-  rmorph-base-case-00 (negsuc (suc n)) b = cong T0 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
+  pres·-base-case-00 (negsuc (suc n)) b = cong T0 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
                                            ∙ IsGroupHom.pres· T0g (negsuc n ·ℤ b) (-ℤ b)
-                                            ∙ cong₂ _+ₕ_ (rmorph-base-case-00 (negsuc n) b)
+                                            ∙ cong₂ _+ₕ_ (pres·-base-case-00 (negsuc n) b)
                                                          (cong T0 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T0g b)
 
 
-  rmorph-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
+  pres·-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
                 ℤ[x]→H*-Unit (baseP (n ∷ []) a ·Pℤ baseP (m ∷ []) b)
               ≡ ℤ[x]→H*-Unit (baseP (n ∷ []) a) cup ℤ[x]→H*-Unit (baseP (m ∷ []) b)
-  rmorph-base-case-int zero    a zero    b = cong (base 0) (rmorph-base-case-00 a b)
-  rmorph-base-case-int zero    a (suc m) b = refl
-  rmorph-base-case-int (suc n) a m       b = refl
+  pres·-base-case-int zero    a zero    b = cong (base 0) (pres·-base-case-00 a b)
+  pres·-base-case-int zero    a (suc m) b = refl
+  pres·-base-case-int (suc n) a m       b = refl
 
-  rmorph-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
+  pres·-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
                 ℤ[x]→H*-Unit (baseP v a ·Pℤ baseP v' b)
               ≡ ℤ[x]→H*-Unit (baseP v a) cup ℤ[x]→H*-Unit (baseP v' b)
-  rmorph-base-case-vec (n ∷ []) a (m ∷ []) b = rmorph-base-case-int n a m b
+  pres·-base-case-vec (n ∷ []) a (m ∷ []) b = pres·-base-case-int n a m b
 
 
 
-  ℤ[x]→H*-Unit-rmorph : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x ·Pℤ y) ≡ ℤ[x]→H*-Unit x cup ℤ[x]→H*-Unit y
-  ℤ[x]→H*-Unit-rmorph = Poly-Ind-Prop.f _ _ _
+  ℤ[x]→H*-Unit-pres· : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x ·Pℤ y) ≡ ℤ[x]→H*-Unit x cup ℤ[x]→H*-Unit y
+  ℤ[x]→H*-Unit-pres· = Poly-Ind-Prop.f _ _ _
                          (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                          (λ y → refl)
                          base-case
@@ -217,7 +217,7 @@ module Equiv-Unit-Properties where
     base-case : _
     base-case (n ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R Unit) _))
-                           (λ v' b → rmorph-base-case-vec (n ∷ []) a v' b)
+                           (λ v' b → pres·-base-case-vec (n ∷ []) a v' b)
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
 
 
@@ -227,7 +227,7 @@ module Equiv-Unit-Properties where
 
   ℤ[X]→H*-Unit : RingHom (CommRing→Ring ℤ[X]) (H*R Unit)
   fst ℤ[X]→H*-Unit = ℤ[x]→H*-Unit
-  snd ℤ[X]→H*-Unit = makeIsRingHom ℤ[x]→H*-Unit-map1Pℤ ℤ[x]→H*-Unit-gmorph ℤ[x]→H*-Unit-rmorph
+  snd ℤ[X]→H*-Unit = makeIsRingHom ℤ[x]→H*-Unit-pres1Pℤ ℤ[x]→H*-Unit-pres+ ℤ[x]→H*-Unit-pres·
 
   ℤ[X]/X→H*R-Unit : RingHom (CommRing→Ring ℤ[X]/X) (H*R Unit)
   ℤ[X]/X→H*R-Unit = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R Unit) ℤ[X]→H*-Unit <X> ℤ[x]→H*-Unit-cancelX
@@ -264,14 +264,14 @@ module Equiv-Unit-Properties where
                                       ∙ cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd H⁰-Unit≅ℤ) a b))
                base-add-eq (suc n) a b = +PℤRid _
 
-  H*-Unit→ℤ[x]-gmorph : (x y : H* Unit) → H*-Unit→ℤ[x] ( x +H* y) ≡ H*-Unit→ℤ[x] x +Pℤ H*-Unit→ℤ[x] y
-  H*-Unit→ℤ[x]-gmorph x y = refl
+  H*-Unit→ℤ[x]-pres+ : (x y : H* Unit) → H*-Unit→ℤ[x] ( x +H* y) ≡ H*-Unit→ℤ[x] x +Pℤ H*-Unit→ℤ[x] y
+  H*-Unit→ℤ[x]-pres+ x y = refl
 
   H*-Unit→ℤ[x]/x : H* Unit → ℤ[x]/x
   H*-Unit→ℤ[x]/x = [_] ∘ H*-Unit→ℤ[x]
 
-  H*-Unit→ℤ[x]/x-gmorph : (x y : H* Unit) → H*-Unit→ℤ[x]/x (x +H* y) ≡ (H*-Unit→ℤ[x]/x x) +PℤI (H*-Unit→ℤ[x]/x y)
-  H*-Unit→ℤ[x]/x-gmorph x y = cong [_] (H*-Unit→ℤ[x]-gmorph x y)
+  H*-Unit→ℤ[x]/x-pres+ : (x y : H* Unit) → H*-Unit→ℤ[x]/x (x +H* y) ≡ (H*-Unit→ℤ[x]/x x) +PℤI (H*-Unit→ℤ[x]/x y)
+  H*-Unit→ℤ[x]/x-pres+ x y = cong [_] (H*-Unit→ℤ[x]-pres+ x y)
 
 
 
@@ -282,7 +282,7 @@ module Equiv-Unit-Properties where
   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
            refl
            base-case
-           λ {U V} ind-U ind-V → cong ℤ[x]/x→H*-Unit (H*-Unit→ℤ[x]/x-gmorph U V)
+           λ {U V} ind-U ind-V → cong ℤ[x]/x→H*-Unit (H*-Unit→ℤ[x]/x-pres+ U V)
                                   ∙ IsRingHom.pres+ (snd ℤ[X]/X→H*R-Unit) (H*-Unit→ℤ[x]/x U) (H*-Unit→ℤ[x]/x V)
                                   ∙ cong₂ _+H*_ ind-U ind-V
            where

@@ -149,14 +149,14 @@ module Properties-Equiv-QuotientXn-A
        base-add-eq (zero ∷ []) a b = refl
        base-add-eq (suc k ∷ []) a b = +ARid _
 
-  A[x]→A-map1 : A[x]→A 1PA ≡ 1A
-  A[x]→A-map1 = refl
+  A[x]→A-pres1 : A[x]→A 1PA ≡ 1A
+  A[x]→A-pres1 = refl
 
-  A[x]→A-map+ : (x y : A[x]) → (A[x]→A (x +PA y)) ≡ A[x]→A x +A A[x]→A y
-  A[x]→A-map+ x y = refl
+  A[x]→A-pres+ : (x y : A[x]) → (A[x]→A (x +PA y)) ≡ A[x]→A x +A A[x]→A y
+  A[x]→A-pres+ x y = refl
 
-  A[x]→A-map· : (x y : A[x]) → (A[x]→A (x ·PA y)) ≡ A[x]→A x ·A A[x]→A y
-  A[x]→A-map· = Poly-Ind-Prop.f _ _ _
+  A[x]→A-pres· : (x y : A[x]) → (A[x]→A (x ·PA y)) ≡ A[x]→A x ·A A[x]→A y
+  A[x]→A-pres· = Poly-Ind-Prop.f _ _ _
                (λ x u v i y → isSetA _ _ (u y) (v y) i)
                (λ y → sym (0LeftAnnihilates (CommRing→Ring Ar) _))
                (λ v a → Poly-Ind-Prop.f _ _ _ (λ _ → isSetA _ _)
@@ -172,7 +172,7 @@ module Properties-Equiv-QuotientXn-A
 
   A[X]→A : RingHom (CommRing→Ring A[X]) (CommRing→Ring Ar)
   fst A[X]→A = A[x]→A
-  snd A[X]→A = makeIsRingHom A[x]→A-map1 A[x]→A-map+ A[x]→A-map·
+  snd A[X]→A = makeIsRingHom A[x]→A-pres1 A[x]→A-pres+ A[x]→A-pres·
 
   A[x]→A-cancel : (k : Fin 1) → A[x]→A (<Xkʲ> Ar 1 0 1 k) ≡ 0A
   A[x]→A-cancel zero = refl
@@ -191,14 +191,14 @@ module Properties-Equiv-QuotientXn-A
   A→A[x] : A → A[x]
   A→A[x] a = base (0 ∷ []) a
 
-  A→A[x]-map+ : (a a' : A) → A→A[x] (a +A a') ≡ A→A[x] a +PA A→A[x] a'
-  A→A[x]-map+ a a' = sym (base-Poly+ (0 ∷ []) a a')
+  A→A[x]-pres+ : (a a' : A) → A→A[x] (a +A a') ≡ A→A[x] a +PA A→A[x] a'
+  A→A[x]-pres+ a a' = sym (base-Poly+ (0 ∷ []) a a')
 
   A→A[x]/x : A → A[x]/x
   A→A[x]/x = [_] ∘ A→A[x]
 
-  A→A[x]/x-map+ : (a a' : A) → A→A[x]/x (a +A a') ≡ A→A[x]/x a +PAI A→A[x]/x a'
-  A→A[x]/x-map+ a a' = cong [_] (A→A[x]-map+ a a')
+  A→A[x]/x-pres+ : (a a' : A) → A→A[x]/x (a +A a') ≡ A→A[x]/x a +PAI A→A[x]/x a'
+  A→A[x]/x-pres+ a a' = cong [_] (A→A[x]-pres+ a a')
 
 
 -----------------------------------------------------------------------------
@@ -218,7 +218,7 @@ module Properties-Equiv-QuotientXn-A
            (Poly-Ind-Prop.f _ _ _ (λ x → isSetPAI _ _)
            (cong [_] (base-0P _))
            (λ v a → base-eq a v)
-           λ {U V} ind-U ind-V → cong [_] ((A→A[x]-map+ _ _)) ∙ cong₂ _+PAI_ ind-U ind-V)
+           λ {U V} ind-U ind-V → cong [_] ((A→A[x]-pres+ _ _)) ∙ cong₂ _+PAI_ ind-U ind-V)
 
          where
          base-eq : (a : A) → (v : Vec ℕ 1) → A→A[x]/x (A[x]/x→A [ (base v a) ]) ≡ [ (base v a) ]

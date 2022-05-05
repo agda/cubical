@@ -273,14 +273,18 @@ module Equiv-Coproduct-Properties
 -----------------------------------------------------------------------------
 -- Ring Equiv-Coproduct-CoHomphism
 
-  map1 : H*-X⊎Y→H*-X×H*-Y 1H*X⊎Y ≡ (1H*X , 1H*Y)
-  map1 = refl
+  H*-X⊎Y→H*-X×H*-Y-pres1 : H*-X⊎Y→H*-X×H*-Y 1H*X⊎Y ≡ (1H*X , 1H*Y)
+  H*-X⊎Y→H*-X×H*-Y-pres1 = refl
 
-  map+ : (x y : H* (X ⊎ Y)) → H*-X⊎Y→H*-X×H*-Y ( x +H*X⊎Y y) ≡ H*-X⊎Y→H*-X×H*-Y x +H*X×Y H*-X⊎Y→H*-X×H*-Y y
-  map+ x y = refl
+  H*-X⊎Y→H*-X×H*-Y-pres+ : (x y : H* (X ⊎ Y)) →
+                              H*-X⊎Y→H*-X×H*-Y ( x +H*X⊎Y y)
+                            ≡ H*-X⊎Y→H*-X×H*-Y x +H*X×Y H*-X⊎Y→H*-X×H*-Y y
+  H*-X⊎Y→H*-X×H*-Y-pres+ x y = refl
 
-  map· : (x y : H* (X ⊎ Y)) → H*-X⊎Y→H*-X×H*-Y ( x cupX⊎Y y) ≡ H*-X⊎Y→H*-X×H*-Y x cupX×Y H*-X⊎Y→H*-X×H*-Y y
-  map· = DS-Ind-Prop.f _ _ _ _ (λ x p q i y → isSetH*X×Y _ _ (p y) (q y) i)
+  H*-X⊎Y→H*-X×H*-Y-pres· : (x y : H* (X ⊎ Y)) →
+                              H*-X⊎Y→H*-X×H*-Y ( x cupX⊎Y y)
+                            ≡ H*-X⊎Y→H*-X×H*-Y x cupX×Y H*-X⊎Y→H*-X×H*-Y y
+  H*-X⊎Y→H*-X×H*-Y-pres· = DS-Ind-Prop.f _ _ _ _ (λ x p q i y → isSetH*X×Y _ _ (p y) (q y) i)
          (λ y → refl)
          (λ n a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X×Y _ _)
                    refl
@@ -329,4 +333,7 @@ module _
     inv is = H*-X×H*-Y→H*-X⊎Y
     rightInv is = e-sect
     leftInv is = e-retr
-  snd (CohomologyRing-Coproduct) = makeIsRingHom map1 map+ map·
+  snd (CohomologyRing-Coproduct) = makeIsRingHom
+                                   H*-X⊎Y→H*-X×H*-Y-pres1
+                                   H*-X⊎Y→H*-X×H*-Y-pres+
+                                   H*-X⊎Y→H*-X×H*-Y-pres·
