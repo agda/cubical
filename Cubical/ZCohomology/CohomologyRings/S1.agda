@@ -4,13 +4,11 @@ module Cubical.ZCohomology.CohomologyRings.S1 where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Int
-open import Cubical.Data.Sum
 open import Cubical.Data.Vec
 open import Cubical.Data.FinData
 
@@ -18,26 +16,20 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤG)
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
-
-open import Cubical.Algebra.Direct-Sum.Base
-open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
+open import Cubical.Algebra.Direct-Sum.Base
 
 open import Cubical.HITs.Truncation
-open import Cubical.HITs.SetQuotients renaming (elimProp to elimProp-sq ; rec to rec-sq ; _/_ to _/sq_)
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
+open import Cubical.HITs.PropositionalTruncation as PT renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
@@ -48,9 +40,6 @@ open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
 open import Cubical.Data.Unit
 open import Cubical.HITs.Sn
 open import Cubical.ZCohomology.Groups.Sn
-
-private variable
-  ℓ ℓ' : Level
 
 open Iso
 
@@ -349,7 +338,7 @@ module Equiv-S1-Properties where
 -- Retraction
 
   e-retr : (x : ℤ[x]/x²) → H*-S¹→ℤ[x]/x² (ℤ[x]/x²→H*-S¹ x) ≡ x
-  e-retr = elimProp-sq (λ _ → isSetPℤI _ _)
+  e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
            (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
            refl
            base-case

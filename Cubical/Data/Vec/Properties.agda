@@ -114,6 +114,7 @@ module VecPath {A : Type ℓ}
       retr v v' p = J (λ v' p → decode v v' (encode v v' p) ≡ p)
                     (cong (decode v v) (encodeRefl v) ∙ decodeRefl v) p
 
+
   discreteA→discreteVecA : Discrete A → (n : ℕ) → Discrete (Vec A n)
   discreteA→discreteVecA DA zero [] [] = yes refl
   discreteA→discreteVecA DA (suc n) (a ∷ v) (a' ∷ v') with (DA a a') | (discreteA→discreteVecA DA n v v')

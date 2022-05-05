@@ -8,7 +8,7 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum renaming (elim to elim-sum ; rec to rec-sum)
+open import Cubical.Data.Sum
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
@@ -17,11 +17,9 @@ open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.DirectProd
-
 open import Cubical.Algebra.Direct-Sum.Base
 
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
+open import Cubical.HITs.SetTruncation as ST
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
@@ -183,7 +181,7 @@ module Equiv-Coproduct-Properties
 -- One need to convert seperatly the X an Y
 -- Otherwise the traduction fails in the case base n a , 0
 -- because one need then to lift x + 0 ≡ 0
--- which Doesn't work because the + being lifter is on H*(Y) and not H*(X)×H*(Y)
+-- which doesn't work because the + being lifted is on H*(Y) and not H*(X)×H*(Y)
 
   H*-X→H*-X⊎Y : H*(X) → H*(X ⊎ Y)
   H*-X→H*-X⊎Y = DS-Rec-Set.f _ _ _ _ isSetH*X⊎Y
@@ -299,14 +297,14 @@ module Equiv-Coproduct-Properties
 
          helperX : {n : ℕ} → {m : ℕ} → (a : coHom n (X ⊎ Y)) → (b : coHom m (X ⊎ Y))
                     → fst (T (a ⌣ b)) ≡ (fst (T a)) ⌣ (fst (T b))
-         helperX = sElim (λ x → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i )
-                   λ g → sElim (λ _ → isProp→isSet (squash₂ _ _))
+         helperX = ST.elim (λ x → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i )
+                   λ g → ST.elim (λ _ → isProp→isSet (squash₂ _ _))
                    (λ h → refl)
 
          helperY : {n : ℕ} → {m : ℕ} → (a : coHom n (X ⊎ Y)) → (b : coHom m (X ⊎ Y))
                    → snd (T (a ⌣ b)) ≡ (snd (T a)) ⌣ (snd (T b))
-         helperY = sElim (λ x → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i )
-                   λ g → sElim (λ _ → isProp→isSet (squash₂ _ _))
+         helperY = ST.elim (λ x → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i )
+                   λ g → ST.elim (λ _ → isProp→isSet (squash₂ _ _))
                    (λ h → refl)
 
 

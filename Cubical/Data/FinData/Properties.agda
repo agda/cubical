@@ -114,7 +114,7 @@ akbFinVec (ℕsuc n) ℕzero a b (suc x) = b
 akbFinVec (ℕsuc n) (ℕsuc k) a b zero = b
 akbFinVec (ℕsuc n) (ℕsuc k) a b (suc x) = akbFinVec n k a b x
 
--- WARNING : do not use -> very hard to prove things one
+-- WARNING : harder to prove things about
 akbFinVec' : (n k : ℕ) → (a b : A) → FinVec A n
 akbFinVec' n k a b x with discreteℕ (toℕ x) k
 ... | yes p = a

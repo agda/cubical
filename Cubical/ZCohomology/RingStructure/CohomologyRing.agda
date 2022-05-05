@@ -2,13 +2,8 @@
 module Cubical.ZCohomology.RingStructure.CohomologyRing where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.HLevels
-
-open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
 open import Cubical.Data.Sum
@@ -22,9 +17,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
 
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; rec2 to sRec2
-          ; elim to sElim ; elim2 to sElim2 ; map to sMap)
+open import Cubical.HITs.SetTruncation as ST 
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
@@ -240,13 +233,13 @@ module CohomologyRing-Equiv
   fst (coHomGr-Iso {n}) = is
     where
     is : Iso (coHom n X) (coHom n Y)
-    fun is = sRec squash₂ (λ f → ∣ (λ y → f (inv e y)) ∣₂)
-    inv is = sRec squash₂ (λ g → ∣ (λ x → g (fun e x)) ∣₂)
-    rightInv is = sElim (λ _ → isProp→isSet (squash₂ _ _)) (λ f → cong ∣_∣₂ (funExt (λ y → cong f (rightInv e y))))
-    leftInv is = sElim (λ _ → isProp→isSet (squash₂ _ _)) (λ g → cong ∣_∣₂ (funExt (λ x → cong g (leftInv e x))))
+    fun is = ST.rec squash₂ (λ f → ∣ (λ y → f (inv e y)) ∣₂)
+    inv is = ST.rec squash₂ (λ g → ∣ (λ x → g (fun e x)) ∣₂)
+    rightInv is = ST.elim (λ _ → isProp→isSet (squash₂ _ _)) (λ f → cong ∣_∣₂ (funExt (λ y → cong f (rightInv e y))))
+    leftInv is = ST.elim (λ _ → isProp→isSet (squash₂ _ _)) (λ g → cong ∣_∣₂ (funExt (λ x → cong g (leftInv e x))))
   snd (coHomGr-Iso {n}) = makeIsGroupHom
-                                        (sElim (λ _ → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i)
-                                        (λ f → sElim (λ _ → isProp→isSet (squash₂ _ _))
+                                        (ST.elim (λ _ → isProp→isSet λ u v i y → squash₂ _ _ (u y) (v y) i)
+                                        (λ f → ST.elim (λ _ → isProp→isSet (squash₂ _ _))
                                         (λ f' → refl)))
 
   H*-X→H*-Y : H* X → H* Y
@@ -292,10 +285,10 @@ module CohomologyRing-Equiv
   map· : (x x' : H* X) → H*-X→H*-Y (x cupX x') ≡ H*-X→H*-Y x cupY H*-X→H*-Y x'
   map· = DS-Ind-Prop.f _ _ _ _ (λ x u v i y → isSetH*Y _ _ (u y) (v y) i)
          (λ _ → refl)
-         (λ n → sElim (λ x → isProp→isSet λ u v i y → isSetH*Y _ _ (u y) (v y) i)
+         (λ n → ST.elim (λ x → isProp→isSet λ u v i y → isSetH*Y _ _ (u y) (v y) i)
                 (λ f → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*Y _ _)
                         refl
-                        (λ m → sElim (λ _ → isProp→isSet (isSetH*Y _ _))
+                        (λ m → ST.elim (λ _ → isProp→isSet (isSetH*Y _ _))
                                 (λ g → refl))
                         λ {U V} ind-U ind-V → cong₂ _+H*Y_ ind-U ind-V) )
          (λ {U V} ind-U ind-V y → cong₂ _+H*Y_ (ind-U y) (ind-V y))

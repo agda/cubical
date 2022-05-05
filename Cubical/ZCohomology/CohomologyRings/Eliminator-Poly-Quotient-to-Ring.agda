@@ -1,11 +1,10 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat renaming(_+_ to _+n_; _·_ to _·n_)
-open import Cubical.Data.Vec
-open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Ring
@@ -14,8 +13,8 @@ open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.CommRing.FGIdeal
 
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/sq_)
-open import Cubical.HITs.SetQuotients.Properties renaming (rec to rec-sq)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to rec-prop)
+open import Cubical.HITs.SetQuotients.Properties as SQ
+open import Cubical.HITs.PropositionalTruncation as PT
 
 private variable
   ℓ ℓ' : Level
@@ -104,9 +103,9 @@ module Rec-Quotient-FGIdeal-Ring
     where
 
     f : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
-    fst f = rec-sq isSetB
+    fst f = SQ.rec isSetB
             g
-            λ a b → rec-prop (isSetB _ _)
+            λ a b → PT.rec (isSetB _ _)
                      λ x → g a                                   ≡⟨ cong g (sym (+ARid a)) ⟩
                      g (a +A 0A)                                  ≡⟨ cong (λ X → g (a +A X)) (sym (snd (+AInv b))) ⟩
                      g (a +A ((-A b) +A b))                       ≡⟨ cong g (+AAssoc a (-A b) b) ⟩

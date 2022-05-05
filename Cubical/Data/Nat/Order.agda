@@ -163,9 +163,6 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-asym : m < n → ¬ n ≤ m
 <-asym m<n = ¬m<m ∘ <≤-trans m<n
 
-<→≤ : m < n → m ≤ suc n
-<→≤ m<n = ≤-trans (<-weaken m<n) ≤-sucℕ
-
 <-+k : m < n → m + k < n + k
 <-+k p = ≤-+k p
 

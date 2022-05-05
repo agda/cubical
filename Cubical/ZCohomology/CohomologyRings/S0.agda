@@ -2,24 +2,16 @@
 module Cubical.ZCohomology.CohomologyRings.S0 where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_ ; snotz to nsnotz)
-open import Cubical.Data.Int
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
-open import Cubical.Data.Vec
-open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.DirectProd
 open import Cubical.Algebra.CommRing
@@ -36,15 +28,9 @@ open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
 
-open import Cubical.Data.Unit
 open import Cubical.HITs.Sn
 open import Cubical.ZCohomology.CohomologyRings.Coproduct
 open import Cubical.ZCohomology.CohomologyRings.Unit
-
-private variable
-  ℓ ℓ' : Level
-
-open Iso
 
 -----------------------------------------------------------------------------
 -- Warning

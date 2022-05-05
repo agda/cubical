@@ -4,17 +4,14 @@ module Cubical.ZCohomology.CohomologyRings.Sn where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Empty renaming (rec to rec-⊥ ; elim to elim-⊥)
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; +-comm to +n-comm ; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Int hiding (_+'_)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum
 open import Cubical.Data.Vec
 open import Cubical.Data.FinData
 
@@ -24,26 +21,21 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤG)
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
-
-open import Cubical.Algebra.Direct-Sum.Base
-open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
+open import Cubical.Algebra.Direct-Sum.Base
 
 open import Cubical.HITs.Truncation
-open import Cubical.HITs.SetQuotients renaming (elimProp to elimProp-sq ; rec to rec-sq ; _/_ to _/sq_)
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.PropositionalTruncation as PT renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
@@ -56,11 +48,7 @@ open import Cubical.Data.Unit
 open import Cubical.HITs.Sn
 open import Cubical.ZCohomology.Groups.Sn
 
-private variable
-  ℓ ℓ' : Level
-
 open Iso
-
 
 -----------------------------------------------------------------------------
 -- Somme properties over H⁰-Sⁿ≅ℤ
@@ -79,22 +67,22 @@ module Properties-H⁰-Sⁿ≅ℤ where
   T0m-map1 (suc m) = refl
 
   T0m-pos0 : (m : ℕ) → {l : ℕ} → (x : coHom l (S₊ (suc m))) → (T0m m) (pos zero) ⌣ x ≡ 0ₕ l
-  T0m-pos0 zero = sElim (λ x  → isProp→isSet (squash₂ _ _)) λ x → refl
-  T0m-pos0 (suc m) = sElim (λ x  → isProp→isSet (squash₂ _ _)) λ x → refl
+  T0m-pos0 zero = ST.elim (λ x  → isProp→isSet (squash₂ _ _)) λ x → refl
+  T0m-pos0 (suc m) = ST.elim (λ x  → isProp→isSet (squash₂ _ _)) λ x → refl
 
   T0m-posS : (m : ℕ) → {l : ℕ} → (k : ℕ) → (x : coHom l (S₊ (suc m)))
             → T0m m (pos (suc k)) ⌣ x ≡ x +ₕ (T0m m (pos k) ⌣ x)
-  T0m-posS zero k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
-  T0m-posS (suc m) k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0m-posS zero k = ST.elim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0m-posS (suc m) k = ST.elim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
 
   T0m-neg0 : (m : ℕ) → {l : ℕ} → (x : coHom l (S₊ (suc m))) → T0m m (negsuc zero) ⌣ x ≡ -ₕ x
-  T0m-neg0 zero = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
-  T0m-neg0 (suc m) = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0m-neg0 zero = ST.elim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0m-neg0 (suc m) = ST.elim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
 
   T0m-negS : (m : ℕ) → {l : ℕ} → (k : ℕ) → (x : coHom l (S₊ (suc m)))
             → T0m m (negsuc (suc k)) ⌣ x ≡ (T0m m (negsuc k) ⌣ x) +ₕ (-ₕ x)
-  T0m-negS zero k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
-  T0m-negS (suc m) k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0m-negS zero k = ST.elim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0m-negS (suc m) k = ST.elim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
 
 
 
@@ -219,9 +207,9 @@ module Equiv-Sn-Properties (n : ℕ) where
   part0 = refl
 
   partSn : (x : partℕ (suc n)) → x ≡ isSn refl
-  partSn (is0 x)  = rec-⊥ (nsnotz x)
+  partSn (is0 x)  = ⊥.rec (nsnotz x)
   partSn (isSn x) = cong isSn (isSetℕ _ _ _ _)
-  partSn (else x) = rec-⊥ (snd x refl)
+  partSn (else x) = ⊥.rec (snd x refl)
 
 
 
@@ -470,7 +458,7 @@ module Equiv-Sn-Properties (n : ℕ) where
 -- Retraction
 
   e-retr : (x : ℤ[x]/x²) → H*-Sⁿ→ℤ[x]/x² (ℤ[x]/x²→H*-Sⁿ x) ≡ x
-  e-retr = elimProp-sq (λ _ → isSetPℤI _ _)
+  e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
            (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
            refl
            base-case
