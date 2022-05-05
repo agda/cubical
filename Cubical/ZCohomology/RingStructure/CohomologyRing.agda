@@ -17,7 +17,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
 
-open import Cubical.HITs.SetTruncation as ST 
+open import Cubical.HITs.SetTruncation as ST
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure

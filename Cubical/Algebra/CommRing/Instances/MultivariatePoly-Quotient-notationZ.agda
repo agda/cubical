@@ -18,11 +18,6 @@ open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 
-private variable
-  ℓ : Level
-
--- good notation in case A = ℤ
-
 
 -- in the general case
 
@@ -62,7 +57,8 @@ private variable
 ℤ[x1,···,xn]/<x1,···,xn> : (n : ℕ) → Type ℓ-zero
 ℤ[x1,···,xn]/<x1,···,xn> n = fst (ℤ[X1,···,Xn]/<X1,···,Xn> n)
 
--- Warning there is now two possible definition of ℤ[X]
+-- Warning there is two possible definitions of ℤ[X]
+-- they only holds up to a path
 
 ℤ'[X]/X : CommRing ℓ-zero
 ℤ'[X]/X = A[X1,···,Xn]/<X1,···,Xn> ℤCR 1
