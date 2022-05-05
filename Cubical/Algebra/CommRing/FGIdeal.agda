@@ -12,17 +12,16 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Empty renaming (elim to elim-⊥ ; rec to rec-⊥)
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum hiding (map ; elim ; rec)
-open import Cubical.Data.FinData hiding (elim ; rec)
+open import Cubical.Data.Sum
+open import Cubical.Data.FinData
 open import Cubical.Data.Nat renaming ( zero to ℕzero ; suc to ℕsuc
                                       ; _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-assoc to +ℕ-assoc ; +-comm to +ℕ-comm
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
-                             hiding (elim ; _choose_)
 open import Cubical.Data.Nat.Order
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Relation.Nullary
 
@@ -73,14 +72,14 @@ module _ (Ring@(R , str) : CommRing ℓ) where
                          → isLinearCombination V x
                          → isLinearCombination V y
                          → isLinearCombination V (x + y)
-  isLinearCombination+ V = map2 λ α β → (λ i → α .fst i + β .fst i)
+  isLinearCombination+ V = PT.map2 λ α β → (λ i → α .fst i + β .fst i)
                                        , cong₂ (_+_) (α .snd) (β .snd) ∙ sym (sumDist+ _ _ V)
 
   {- If x is a linear combinations of l, then -x is
      a linear combination. -}
   isLinearCombination- : {n : ℕ} {x : R} (V : FinVec R n)
                        → isLinearCombination V x → isLinearCombination V (- x)
-  isLinearCombination- V = map λ α → (λ i → - α .fst i) , cong (-_) (α .snd) ∙ sym (dist- _ V)
+  isLinearCombination- V = PT.map λ α → (λ i → - α .fst i) , cong (-_) (α .snd) ∙ sym (dist- _ V)
 
   {- 0r is the trivial linear Combination -}
   isLinearCombination0 : {n : ℕ} (V : FinVec R n)
@@ -90,7 +89,7 @@ module _ (Ring@(R , str) : CommRing ℓ) where
   {- Linear combinations are stable under left multiplication -}
   isLinearCombinationL· : {n : ℕ} (V : FinVec R n) (r : R) {x : R}
                         → isLinearCombination V x → isLinearCombination V (r · x)
-  isLinearCombinationL· V r = map λ α → (λ i → r · α .fst i) , cong (r ·_) (α .snd)
+  isLinearCombinationL· V r = PT.map λ α → (λ i → r · α .fst i) , cong (r ·_) (α .snd)
                                                             ∙∙ ∑Mulrdist r (λ i → α .fst i · V i)
                                                             ∙∙ ∑Ext λ i → ·Assoc r (α .fst i) (V i)
 
@@ -168,7 +167,7 @@ module _
 
   cbn-akbℕ-linear-combi : (n k : ℕ) → (infkn : k < n) → (a : A) → (v : FinVec A n)
                            → linearCombination A' (akbFinVec n k a 0r) v ≡ (a · (v (fromℕ' n k infkn)))
-  cbn-akbℕ-linear-combi ℕzero k infkn a v = rec-⊥ (¬-<-zero infkn)
+  cbn-akbℕ-linear-combi ℕzero k infkn a v = ⊥.rec (¬-<-zero infkn)
   cbn-akbℕ-linear-combi (ℕsuc n) ℕzero infkn a v = cong (λ X → a · (v zero) + X) (cong (λ X → foldrFin _+_ 0r X)
                                                        (funExt (λ x → 0LeftAnnihilates Ar (v (suc x)))))
 
@@ -209,7 +208,7 @@ module _ (R' : CommRing ℓ) where
 
  inclOfFGIdeal : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
      → (∀ i → V i ∈ I) → ⟨ V ⟩ ⊆ I
- inclOfFGIdeal V I ∀i→Vi∈I x = elim (λ _ → I .fst x .snd) inclOfFGIdealΣ
+ inclOfFGIdeal V I ∀i→Vi∈I x = PT.elim (λ _ → I .fst x .snd) inclOfFGIdealΣ
   where
   inclOfFGIdealΣ : Σ[ α ∈ FinVec R _ ] x ≡ linearCombination R' α V → x ∈ I
   inclOfFGIdealΣ (α , x≡α·V) = subst-∈ I (sym x≡α·V) (∑Closed I (λ i → α i · V i)
@@ -219,17 +218,17 @@ module _ (R' : CommRing ℓ) where
  indInIdeal U i = ∣ (δ i) , sym (∑Mul1r _ U i) ∣
 
  sucIncl : ∀ {n : ℕ} (U : FinVec R (ℕsuc n)) → ⟨ U ∘ suc ⟩ ⊆ ⟨ U ⟩
- sucIncl U x = map λ (α , x≡∑αUsuc) → (λ { zero → 0r ; (suc i) → α i }) , x≡∑αUsuc ∙ path _ _
+ sucIncl U x = PT.map λ (α , x≡∑αUsuc) → (λ { zero → 0r ; (suc i) → α i }) , x≡∑αUsuc ∙ path _ _
   where
   path : ∀ s u₀ → s ≡ 0r · u₀ + s
   path = solve R'
 
  emptyFGIdeal : ∀ (V : FinVec R 0) → ⟨ V ⟩ ≡ 0Ideal
- emptyFGIdeal V = CommIdeal≡Char (λ _ →  rec (is-set _ _) snd)
+ emptyFGIdeal V = CommIdeal≡Char (λ _ →  PT.rec (is-set _ _) snd)
                                  (λ _ x≡0 → ∣ (λ ()) , x≡0 ∣)
 
  0FGIdealLIncl : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩ ⊆ 0Ideal
- 0FGIdealLIncl x = elim (λ _ → is-set _ _)
+ 0FGIdealLIncl x = PT.elim (λ _ → is-set _ _)
          λ (α , x≡∑α0) → subst-∈ 0Ideal (sym x≡∑α0) (∑Closed 0Ideal (λ i → α i · 0r)
          λ i → subst-∈ 0Ideal (sym (0RightAnnihilates _)) refl)
 
@@ -244,7 +243,7 @@ module _ (R' : CommRing ℓ) where
                       → ⟨ U ++Fin V ⟩ ⊆ (⟨ U ⟩ +i ⟨ V ⟩)
  FGIdealAddLemmaLIncl {n = ℕzero} U V x x∈⟨V⟩ =
                                   ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+Lid x) ∣
- FGIdealAddLemmaLIncl {n = ℕsuc n} U V x = rec isPropPropTrunc helperΣ
+ FGIdealAddLemmaLIncl {n = ℕsuc n} U V x = PT.rec isPropPropTrunc helperΣ
    where
    helperΣ : Σ[ α ∈ FinVec R _ ] (x ≡ ∑ λ i → α i · (U ++Fin V) i) → x ∈ (⟨ U ⟩ +i ⟨ V ⟩)
    helperΣ (α , p) = subst-∈ (⟨ U ⟩ +i ⟨ V ⟩) (sym p)
@@ -261,7 +260,7 @@ module _ (R' : CommRing ℓ) where
 
  FGIdealAddLemmaRIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                       → (⟨ U ⟩ +i ⟨ V ⟩) ⊆ ⟨ U ++Fin V ⟩
- FGIdealAddLemmaRIncl U V x = rec isPropPropTrunc (uncurry3 helper)
+ FGIdealAddLemmaRIncl U V x = PT.rec isPropPropTrunc (uncurry3 helper)
    where
    helperΣ : ((y , z) : R × R)
            → Σ[ α ∈ FinVec R _ ] (y ≡ ∑ λ i → α i · U i)
@@ -282,7 +281,7 @@ module _ (R' : CommRing ℓ) where
           → ∃[ β ∈ FinVec R _ ] (z ≡ ∑ λ i → β i · V i)
           → x ≡ y + z
           → x ∈ ⟨ U ++Fin V ⟩
-   helper _ = rec2 (isPropΠ (λ _ → isPropPropTrunc)) (helperΣ _)
+   helper _ = PT.rec2 (isPropΠ (λ _ → isPropPropTrunc)) (helperΣ _)
 
  FGIdealAddLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ++Fin V ⟩ ≡ ⟨ U ⟩ +i ⟨ V ⟩
@@ -303,7 +302,7 @@ module _ (R' : CommRing ℓ) where
  open ProdFin R'
  prodIn··Ideal : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) (x y : R)
           → (x ∈ ⟨ U ⟩) → (y ∈ ⟨ V ⟩) → (x · y) ∈ ⟨ U ··Fin V ⟩
- prodIn··Ideal {n = n} {m = m} U V x y = map2 Σhelper
+ prodIn··Ideal {n = n} {m = m} U V x y = PT.map2 Σhelper
   where
   Σhelper : Σ[ α ∈ FinVec R n ] x ≡ linearCombination R' α U
           → Σ[ β ∈ FinVec R m ] y ≡ linearCombination R' β V
@@ -318,7 +317,7 @@ module _ (R' : CommRing ℓ) where
 
  FGIdealMultLemmaLIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                        → ⟨ U ··Fin V ⟩ ⊆ (⟨ U ⟩ ·i ⟨ V ⟩)
- FGIdealMultLemmaLIncl U V x = elim (λ _ → isPropPropTrunc)
+ FGIdealMultLemmaLIncl U V x = PT.elim (λ _ → isPropPropTrunc)
    λ (α , x≡∑αUV) → subst-∈ (⟨ U ⟩ ·i ⟨ V ⟩)  (sym x≡∑αUV) --replace x by ∑αᵢⱼUᵢVⱼ
      (∑Closed (⟨ U ⟩ ·i ⟨ V ⟩) (λ i → α i · (U ··Fin V) i) --show that each αᵢ(U··V)ᵢ is in product
        λ i → (⟨ U ⟩ ·i ⟨ V ⟩) .snd .·Closed (α i) --drop the α's
@@ -327,7 +326,7 @@ module _ (R' : CommRing ℓ) where
 
  FGIdealMultLemmaRIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                        → (⟨ U ⟩ ·i ⟨ V ⟩) ⊆ ⟨ U ··Fin V ⟩
- FGIdealMultLemmaRIncl U V x = elim (λ _ → isPropPropTrunc)
+ FGIdealMultLemmaRIncl U V x = PT.elim (λ _ → isPropPropTrunc)
    λ (_ , (α , β) , ∀α∈⟨U⟩ , ∀β∈⟨V⟩ , x≡∑αβ) → subst-∈ ⟨ U ··Fin V ⟩ (sym x≡∑αβ)
      (∑Closed ⟨ U ··Fin V ⟩ _ (λ i → prodIn··Ideal U V (α i) (β i) (∀α∈⟨U⟩ i) (∀β∈⟨V⟩ i)))
 
@@ -418,7 +417,7 @@ module GeneratingPowers (R' : CommRing ℓ) (n : ℕ) where
 
  thm : ∀ (m : ℕ) (U : FinVec R m) → 1r ∈ ⟨ U ⟩ → 1r ∈ ⟨ U ⁿ ⟩
  thm ℕzero U 1∈⟨U⟩ = 1∈⟨U⟩
- thm (ℕsuc m) U = elim (λ _ → isPropPropTrunc) Σhelper
+ thm (ℕsuc m) U = PT.elim (λ _ → isPropPropTrunc) Σhelper
   where
   Σhelper : Σ[ α ∈ FinVec R (ℕsuc m) ] 1r ≡ linearCombination R' α U
           → 1r ∈ ⟨ U ⁿ ⟩

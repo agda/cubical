@@ -6,8 +6,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
 
-open import Cubical.HITs.SetQuotients renaming (rec to rec-sq ; _/_ to _/sq_)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to rec-prop)
+open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
@@ -71,9 +71,9 @@ module Rec-Quotient-FGideal
     where
 
     f : CommRingHom (A' / (generatedIdeal _ v)) B'
-    fst f = rec-sq (is-set Br)
+    fst f = SQ.rec (is-set Br)
             g
-            λ a b → rec-prop (is-set Br _ _)
+            λ a b → PT.rec (is-set Br _ _)
                      λ x → g a                                   ≡⟨ cong g (sym (+Rid Ar a)) ⟩
                      g (a +A 0A)                                  ≡⟨ cong (λ X → g (a +A X)) (sym (snd (+Inv Ar b))) ⟩
                      g (a +A ((-A b) +A b))                       ≡⟨ cong g (+Assoc Ar a (-A b) b) ⟩

@@ -3,9 +3,7 @@ module Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Nat renaming(_+_ to _+n_; _·_ to _·n_)
-open import Cubical.Data.Nat.Order
-open import Cubical.Data.Int hiding (ℤ)
+open import Cubical.Data.Nat
 open import Cubical.Data.Vec
 open import Cubical.Data.Vec.OperationsNat
 open import Cubical.Data.FinData

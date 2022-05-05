@@ -3,12 +3,10 @@ module Cubical.Algebra.Polynomials.Multivariate.Equiv-A[X]X-A where
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_ ; snotz to nsnotz)
-open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat
 open import Cubical.Data.Vec
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
-open import Cubical.Data.Empty renaming (rec to rec-⊥ ; elim to elim-⊥)
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
@@ -23,12 +21,9 @@ open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notatio
 
 open import Cubical.Relation.Nullary
 
-open import Cubical.HITs.Truncation
-open import Cubical.HITs.SetQuotients renaming (elimProp to elimProp-sq ; rec to rec-sq ; _/_ to _/sq_)
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.SetQuotients as SQ
+open import Cubical.HITs.PropositionalTruncation as PT
+  renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
 
 private variable
   ℓ : Level
@@ -219,7 +214,7 @@ module Properties-Equiv-QuotientXn-A
   open IsRing
 
   e-retr : (x : A[x]/x) → A→A[x]/x (A[x]/x→A x) ≡ x
-  e-retr = elimProp-sq (λ x → isSetPAI _ _)
+  e-retr = SQ.elimProp (λ x → isSetPAI _ _)
            (Poly-Ind-Prop.f _ _ _ (λ x → isSetPAI _ _)
            (cong [_] (base-0P _))
            (λ v a → base-eq a v)

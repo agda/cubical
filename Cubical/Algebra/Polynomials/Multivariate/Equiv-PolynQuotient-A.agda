@@ -3,13 +3,13 @@ module Cubical.Algebra.Polynomials.Multivariate.Equiv-PolynQuotient-A where
 
 open import Cubical.Foundations.Everything
 
-open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_ ; snotz to nsnotz)
+open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Vec
 open import Cubical.Data.Vec.OperationsNat
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
-open import Cubical.Data.Empty renaming (rec to rec-⊥ ; elim to elim-⊥)
+open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
@@ -23,12 +23,9 @@ open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 
 open import Cubical.Relation.Nullary
 
-open import Cubical.HITs.Truncation
-open import Cubical.HITs.SetQuotients renaming (elimProp to elimProp-sq ; rec to rec-sq ; _/_ to _/sq_)
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.SetQuotients as SQ
+open import Cubical.HITs.PropositionalTruncation as PT
+  renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
 
 private variable
   ℓ : Level
@@ -40,6 +37,7 @@ module Properties-Equiv-QuotientXn-A
   (Ar@(A , Astr) : CommRing ℓ)
   (n : ℕ)
   where
+
 
   open CommRingStr Astr using ()
     renaming
@@ -149,7 +147,7 @@ module Properties-Equiv-QuotientXn-A
   PA→A-map1 :  PA→A 1PA ≡ 1A
   PA→A-map1 with (discreteVecℕn (replicate 0) (replicate 0))
   ... | yes p = refl
-  ... | no ¬p = rec-⊥ (¬p refl)
+  ... | no ¬p = ⊥.rec (¬p refl)
 
   PA→A-map+ : (P Q : A[x1,···,xn] Ar n) → PA→A (P +PA Q) ≡ PA→A P +A PA→A Q
   PA→A-map+ P Q = refl
@@ -170,20 +168,16 @@ module Properties-Equiv-QuotientXn-A
                                            | (discreteVecℕn v (replicate 0))
                                            | (discreteVecℕn v' (replicate 0))
                ... | yes r | yes p | yes e = refl
-               ... | yes r | yes p | no ¬q = rec-⊥ (¬q (snd (v+n-vecv'≡0→v≡0×v'≡0 v v' r)))
-               ... | yes r | no ¬p | q     = rec-⊥ (¬p (fst (v+n-vecv'≡0→v≡0×v'≡0 v v' r)))
-               ... | no ¬r | yes p | yes q = rec-⊥ (¬r (cong₂ _+n-vec_ p q ∙ +n-vec-rid _))
+               ... | yes r | yes p | no ¬q = ⊥.rec (¬q (snd (v+n-vecv'≡0→v≡0×v'≡0 v v' r)))
+               ... | yes r | no ¬p | q     = ⊥.rec (¬p (fst (v+n-vecv'≡0→v≡0×v'≡0 v v' r)))
+               ... | no ¬r | yes p | yes q = ⊥.rec (¬r (cong₂ _+n-vec_ p q ∙ +n-vec-rid _))
                ... | no ¬r | yes p | no ¬q = sym (0RightAnnihilates (CommRing→Ring Ar) _)
                ... | no ¬r | no ¬p | yes q = sym (0LeftAnnihilates (CommRing→Ring Ar) _)
                ... | no ¬r | no ¬p | no ¬q = sym (0RightAnnihilates (CommRing→Ring Ar) _)
 
-  -- need to look if the vec are equal to replicate 0 for PA→A to compute
-  -- first case, if n = 0 absurd because no constructor for Fin 0
-  -- else different vector so ok
-
   PA→A-cancel : (k : Fin n) → PA→A (<X1,···,Xn> Ar n k) ≡ 0A
   PA→A-cancel k with (discreteVecℕn (1k0Vec n (toℕ k)) (replicate 0))
-  ... | yes p = rec-⊥ (1k0Vec-k<n→≢ n (toℕ k) (toℕ<n k) p)
+  ... | yes p = ⊥.rec (1k0Vec-k<n→≢ n (toℕ k) (toℕ<n k) p)
   ... | no ¬p = refl
 
   PAr→Ar : RingHom (CommRing→Ring (A[X1,···,Xn] Ar n)) (CommRing→Ring Ar)
@@ -224,7 +218,7 @@ module Properties-Equiv-QuotientXn-A
   e-sect : (a : A) → PAI→A (A→PAI a) ≡ a
   e-sect a with (discreteVecℕn (replicate 0) (replicate 0))
   ... | yes p = refl
-  ... | no ¬p = rec-⊥ (¬p refl)
+  ... | no ¬p = ⊥.rec (¬p refl)
 
 
 
@@ -235,7 +229,7 @@ module Properties-Equiv-QuotientXn-A
   open IsRing
 
   e-retr : (x : A[x1,···,xn]/<x1,···,xn> Ar n) → A→PAI (PAI→A x) ≡ x
-  e-retr = elimProp-sq (λ _ → isSetPAI _ _)
+  e-retr = SQ.elimProp (λ _ → isSetPAI _ _)
            (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPAI _ _)
            base0-eq
            base-eq
@@ -283,4 +277,4 @@ module _
   snd Equiv-QuotientX-A = snd PAIr→Ar
 
 -- Warning this doesn't prove Z[X]/X ≅ ℤ because you get two definition,
--- see notation Multivariate-Quotient-notationZ
+-- see notation Multivariate-Quotient-notationZ for more details

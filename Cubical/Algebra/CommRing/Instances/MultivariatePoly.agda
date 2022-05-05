@@ -4,7 +4,6 @@ module Cubical.Algebra.CommRing.Instances.MultivariatePoly where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat renaming(_+_ to _+n_; _·_ to _·n_)
-open import Cubical.Data.Vec
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
@@ -15,8 +14,6 @@ open import Cubical.Algebra.Polynomials.Multivariate.Properties
 
 private variable
   ℓ : Level
-
-
 
 -----------------------------------------------------------------------------
 -- General Nth polynome

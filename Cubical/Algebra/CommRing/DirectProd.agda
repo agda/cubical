@@ -2,7 +2,6 @@
 module Cubical.Algebra.CommRing.DirectProd where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.DirectProd
