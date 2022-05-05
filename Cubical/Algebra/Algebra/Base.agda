@@ -22,6 +22,8 @@ open import Cubical.Algebra.Module
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Monoid
 
 open Iso

@@ -24,7 +24,13 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup)
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Bool renaming (Bool to BoolGroup)
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
 
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.S1

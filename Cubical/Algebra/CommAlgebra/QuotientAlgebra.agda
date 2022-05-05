@@ -22,7 +22,7 @@ open import Cubical.Algebra.CommAlgebra.Instances.Unit
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 open import Cubical.Algebra.Algebra.Properties
 open AlgebraHoms using () renaming (compAlgebraHom to compCAlgHom)
 

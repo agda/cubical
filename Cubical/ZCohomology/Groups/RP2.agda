@@ -1,38 +1,43 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.RP2 where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.Groups.KleinBottle
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim) hiding (map)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup)
-
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Transport
-
-open import Cubical.ZCohomology.Groups.Connected
-
-open import Cubical.Data.Sigma
-
-open import Cubical.Foundations.Isomorphism
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
-open import Cubical.Foundations.Equiv
-open import Cubical.Homotopy.Connected
 open import Cubical.HITs.RPn.Base
 
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Bool renaming (Bool to BoolGroup)
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Unit
+
+open import Cubical.Data.Sigma
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Bool
 open import Cubical.Data.Int
 
-open import Cubical.Foundations.Path
+open import Cubical.Homotopy.Connected
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.Groups.KleinBottle
+open import Cubical.ZCohomology.Groups.Connected
 
 private
   variable
