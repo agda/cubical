@@ -22,6 +22,8 @@ open import Cubical.Foundations.Univalence using (ua)
 open import Cubical.HITs.SetTruncation renaming (rec to recTrunc)
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.Semigroup.Base
 

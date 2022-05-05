@@ -39,9 +39,13 @@ open import Cubical.HITs.Wedge
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Unit
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Unit
 
 open coHomTheory
 open Iso

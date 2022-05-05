@@ -37,7 +37,12 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; re
 
 open import Cubical.Homotopy.Connected
 
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup) hiding (Bool)
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Unit
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
 
 infixr 31 _□_
 _□_ : _

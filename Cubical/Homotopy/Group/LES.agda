@@ -33,6 +33,9 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.GroupPath
 
 -- We will need an explicitly defined equivalence
 -- (PathP (λ i → p i ≡ y) q q) ≃ (sym q ∙∙ p ∙∙ q ≡ refl)

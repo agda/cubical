@@ -13,7 +13,14 @@ open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; e
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
 open import Cubical.Data.Nat hiding (isEven)
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup)
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Bool renaming (Bool to BoolGroup)
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Unit
 
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Transport
