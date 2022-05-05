@@ -6,6 +6,7 @@ open import Cubical.Foundations.Everything
 open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Vec
+open import Cubical.Data.Vec.OperationsNat
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
 open import Cubical.Data.Empty renaming (rec to rec-⊥ ; elim to elim-⊥)
