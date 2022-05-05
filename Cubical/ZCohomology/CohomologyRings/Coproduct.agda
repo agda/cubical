@@ -214,8 +214,8 @@ module Equiv-Coproduct-Properties
   H*-X×H*-Y→H*-X⊎Y : H*(X) × H*(Y) → H*(X ⊎ Y)
   H*-X×H*-Y→H*-X⊎Y (x , y) = (H*-X→H*-X⊎Y x) +H*X⊎Y (H*-Y→H*-X⊎Y y)
 
-  H*-X×H*-Y→H*-X⊎Y-gmorph : (x y : H*(X) × H*(Y)) → H*-X×H*-Y→H*-X⊎Y (x +H*X×Y y) ≡ ((H*-X×H*-Y→H*-X⊎Y x) +H*X⊎Y (H*-X×H*-Y→H*-X⊎Y y))
-  H*-X×H*-Y→H*-X⊎Y-gmorph (x , y) (x' , y') = RingTheory.+ShufflePairs (H*R (X ⊎ Y)) _ _ _ _
+  H*-X×H*-Y→H*-X⊎Y-pres+ : (x y : H*(X) × H*(Y)) → H*-X×H*-Y→H*-X⊎Y (x +H*X×Y y) ≡ ((H*-X×H*-Y→H*-X⊎Y x) +H*X⊎Y (H*-X×H*-Y→H*-X⊎Y y))
+  H*-X×H*-Y→H*-X⊎Y-pres+ (x , y) (x' , y') = RingTheory.+ShufflePairs (H*R (X ⊎ Y)) _ _ _ _
 
 -----------------------------------------------------------------------------
 -- Section Sens
@@ -258,7 +258,7 @@ module Equiv-Coproduct-Properties
                      base n (T⁻ (T a))
                            ≡⟨ cong (base n) (leftInv (fst Equiv-Coproduct-CoHom) a) ⟩
                      base n a ∎)
-           λ {U V} ind-U ind-V → (H*-X×H*-Y→H*-X⊎Y-gmorph _ _) ∙ (cong₂ _+H*X⊎Y_ ind-U ind-V)
+           λ {U V} ind-U ind-V → (H*-X×H*-Y→H*-X⊎Y-pres+ _ _) ∙ (cong₂ _+H*X⊎Y_ ind-U ind-V)
 
            where
            T : {n : ℕ} → coHom n (X ⊎ Y) → coHom n X × coHom n Y
