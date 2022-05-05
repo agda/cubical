@@ -2,7 +2,6 @@
 module Cubical.Algebra.Ring.DirectProd where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
@@ -112,13 +111,13 @@ module Coproduct-Equiv
   Coproduct-Equiv-12 : (re : RingEquiv Xr Yr) → (re' : RingEquiv X'r Y'r) →
                         RingEquiv (DirectProd-Ring Xr X'r) (DirectProd-Ring Yr Y'r)
   fst (Coproduct-Equiv-12 re re') = re×re' re re'
-  snd (Coproduct-Equiv-12 re re') = makeIsRingHom map1 map+ map·
+  snd (Coproduct-Equiv-12 re re') = makeIsRingHom fun-pres1 fun-pres+ fun-pres·
     where
-    map1 : (fst (re×re' re re')) (1r Xstr , 1r X'str) ≡ (1r (Yr .snd) , 1r (Y'r .snd))
-    map1 = ≡-× (pres1 (snd re)) (pres1 (snd re'))
+    fun-pres1 : (fst (re×re' re re')) (1r Xstr , 1r X'str) ≡ (1r (Yr .snd) , 1r (Y'r .snd))
+    fun-pres1 = ≡-× (pres1 (snd re)) (pres1 (snd re'))
 
-    map+ : (x1 x2 : X × X') → (fst (re×re' re re')) (x1 +X×X' x2) ≡ (( (fst (re×re' re re')) x1) +Y×Y' ( (fst (re×re' re re')) x2))
-    map+ (x1 , x'1) (x2 , x'2) = ≡-× (pres+ (snd re) x1 x2) (pres+ (snd re') x'1 x'2)
+    fun-pres+ : (x1 x2 : X × X') → (fst (re×re' re re')) (x1 +X×X' x2) ≡ (( (fst (re×re' re re')) x1) +Y×Y' ( (fst (re×re' re re')) x2))
+    fun-pres+ (x1 , x'1) (x2 , x'2) = ≡-× (pres+ (snd re) x1 x2) (pres+ (snd re') x'1 x'2)
 
-    map· : (x1 x2 : X × X') → (fst (re×re' re re')) (x1 ·X×X' x2) ≡ (( (fst (re×re' re re')) x1) ·Y×Y' ( (fst (re×re' re re')) x2))
-    map· (x1 , x'1) (x2 , x'2) = ≡-× (pres· (snd re) x1 x2) (pres· (snd re') x'1 x'2)
+    fun-pres· : (x1 x2 : X × X') → (fst (re×re' re re')) (x1 ·X×X' x2) ≡ (( (fst (re×re' re re')) x1) ·Y×Y' ( (fst (re×re' re re')) x2))
+    fun-pres· (x1 , x'1) (x2 , x'2) = ≡-× (pres· (snd re) x1 x2) (pres· (snd re') x'1 x'2)
