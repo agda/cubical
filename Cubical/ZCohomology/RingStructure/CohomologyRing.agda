@@ -82,8 +82,8 @@ module CupRingProperties (A : Type ℓ) where
   1H* : H* A
   1H* = base 0 1⌣
 
-  cup-assoc : (x y z : H* A) → x cup (y cup z) ≡ (x cup y) cup z
-  cup-assoc = DS-Ind-Prop.f ℕ _ _ _
+  cupAssoc : (x y z : H* A) → x cup (y cup z) ≡ (x cup y) cup z
+  cupAssoc = DS-Ind-Prop.f ℕ _ _ _
               (λ x p q i y z j → is-set _ _ (p y z) (q y z) i j)
               (λ y z → refl)
               (λ n a → DS-Ind-Prop.f ℕ _ _ _
@@ -97,27 +97,27 @@ module CupRingProperties (A : Type ℓ) where
                         λ {U V} ind-U ind-V z → cong₂ _+_ (ind-U z) (ind-V z))
               λ {U V} ind-U ind-V y z → cong₂ _+_ (ind-U y z) (ind-V y z)
 
-  cup-rid : (x : H* A) → x cup 1H* ≡ x
-  cup-rid = DS-Ind-Prop.f ℕ _ _ _ (λ _ → is-set _ _)
+  cupIdR : (x : H* A) → x cup 1H* ≡ x
+  cupIdR = DS-Ind-Prop.f ℕ _ _ _ (λ _ → is-set _ _)
             refl
             (λ n a → (cong (base (n +' 0)) (lUnit⌣ n a)) ∙ sym (ConstsubstCommSlice (λ n → coHom n A) (H* A) base (sym (n+'0 n)) a))
             λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V)
 
-  cup-lid : (x : H* A) → 1H* cup x ≡ x
-  cup-lid = DS-Ind-Prop.f ℕ _ _ _ (λ _ → is-set _ _)
+  cupIdL : (x : H* A) → 1H* cup x ≡ x
+  cupIdL = DS-Ind-Prop.f ℕ _ _ _ (λ _ → is-set _ _)
             refl
             (λ n a → cong (base n) (rUnit⌣ n a))
             (λ {U V} ind-U ind-V → cong₂ _+_ ind-U ind-V)
 
-  cup-rdistr : (x y z : H* A) → x cup (y + z) ≡ (x cup y) + (x cup z)
-  cup-rdistr = DS-Ind-Prop.f ℕ _ _ _
+  cupDistR : (x y z : H* A) → x cup (y + z) ≡ (x cup y) + (x cup z)
+  cupDistR = DS-Ind-Prop.f ℕ _ _ _
                (λ x p q i y z j → is-set _ _ (p y z) (q y z) i j)
                (λ y z → sym (rid 0g))
                (λ n a y z → refl)
                λ {U V} ind-U ind-V y z → cong₂ _+_ (ind-U y z) (ind-V y z) ∙ comm-4 (U cup y) (U cup z) (V cup y) (V cup z)
 
-  cup-ldistr : (x y z : H* A) → (x + y) cup z ≡ (x cup z) + (y cup z)
-  cup-ldistr = λ x y z → refl
+  cupDistL : (x y z : H* A) → (x + y) cup z ≡ (x cup z) + (y cup z)
+  cupDistL = λ x y z → refl
 
 -----------------------------------------------------------------------------
 -- Graded Comutative Ring
@@ -157,7 +157,7 @@ module _ (A : Type ℓ) where
   RingStr.- snd H*R = -_
   RingStr.isRing (snd H*R) = makeIsRing is-set
                                         assoc rid (λ x → fst (inverse x)) comm
-                                        cup-assoc cup-rid cup-lid cup-rdistr cup-ldistr
+                                        cupAssoc cupIdR cupIdL cupDistR cupDistL
 
 
   H* : Type ℓ
@@ -173,6 +173,10 @@ module _ (A : Type ℓ) where
                                  ≡⟨ cong (-^ n · m) (sym (ConstsubstCommSlice (λ k → coHom k A) H* base (+'-comm m n) (b ⌣ a))) ⟩
                          (-^ n · m) (base (m +' n) (b ⌣ a)) ∎
 
+
+
+-----------------------------------------------------------------------------
+-- Equivalence of Type implies equivalence of Cohomology Ring
 
 module CohomologyRing-Equiv
   {X : Type ℓ}
