@@ -20,7 +20,10 @@ open import Cubical.Data.FinData
 
 open import Cubical.Relation.Nullary
 
-open import Cubical.Algebra.Group hiding (UnitGroup₀ ; Bool ; _/_ ) renaming (ℤ to ℤG)
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤG)
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing

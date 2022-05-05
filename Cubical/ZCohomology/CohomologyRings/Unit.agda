@@ -13,7 +13,10 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Vec
 open import Cubical.Data.FinData
 
-open import Cubical.Algebra.Group hiding (UnitGroup₀ ; ℤ; Bool ; _/_ )
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤG)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
@@ -182,7 +185,7 @@ module Equiv-Unit-Properties where
   T0 : (z : ℤ) → coHom 0 Unit
   T0 = λ z → inv (fst H⁰-Unit≅ℤ) z
 
-  T0g : IsGroupHom (Cubical.Algebra.Group.ℤ .snd) (fst (invGroupIso H⁰-Unit≅ℤ) .fun) (coHomGr 0 Unit .snd)
+  T0g : IsGroupHom (ℤG .snd) (fst (invGroupIso H⁰-Unit≅ℤ) .fun) (coHomGr 0 Unit .snd)
   T0g = snd (invGroupIso H⁰-Unit≅ℤ)
 
 
