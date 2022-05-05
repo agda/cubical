@@ -24,7 +24,7 @@ The file still type checks without it, but it&#39;s a lot slower (about 10 times
 <a id="658" class="Keyword">open</a> <a id="663" class="Keyword">import</a> <a id="670" href="Cubical.Homotopy.HopfInvariant.HopfMap.html" class="Module">Cubical.Homotopy.HopfInvariant.HopfMap</a>
 <a id="709" class="Keyword">open</a> <a id="714" class="Keyword">import</a> <a id="721" href="Cubical.Homotopy.HopfInvariant.Brunerie.html" class="Module">Cubical.Homotopy.HopfInvariant.Brunerie</a>
 <a id="761" class="Keyword">open</a> <a id="766" class="Keyword">import</a> <a id="773" href="Cubical.Homotopy.Whitehead.html" class="Module">Cubical.Homotopy.Whitehead</a>
-<a id="800" class="Keyword">open</a> <a id="805" class="Keyword">import</a> <a id="812" href="Cubical.Homotopy.Group.Base.html" class="Module">Cubical.Homotopy.Group.Base</a> <a id="840" class="Keyword">hiding</a> <a id="847" class="Symbol">(</a><a id="848" href="Cubical.Homotopy.Group.Base.html#1411" class="Function">π</a><a id="849" class="Symbol">)</a>
+<a id="800" class="Keyword">open</a> <a id="805" class="Keyword">import</a> <a id="812" href="Cubical.Homotopy.Group.Base.html" class="Module">Cubical.Homotopy.Group.Base</a> <a id="840" class="Keyword">hiding</a> <a id="847" class="Symbol">(</a><a id="848" href="Cubical.Homotopy.Group.Base.html#1552" class="Function">π</a><a id="849" class="Symbol">)</a>
 <a id="851" class="Keyword">open</a> <a id="856" class="Keyword">import</a> <a id="863" href="Cubical.Homotopy.Group.Pi3S2.html" class="Module">Cubical.Homotopy.Group.Pi3S2</a>
 <a id="892" class="Keyword">open</a> <a id="897" class="Keyword">import</a> <a id="904" href="Cubical.Homotopy.Group.Pi4S3.BrunerieNumber.html" class="Module">Cubical.Homotopy.Group.Pi4S3.BrunerieNumber</a>
 
@@ -40,7 +40,7 @@ The file still type checks without it, but it&#39;s a lot slower (about 10 times
 
 <a id="1321" class="Comment">-- Homotopy groups (shifted version of π&#39;Gr to get nicer numbering)</a>
 <a id="π"></a><a id="1389" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1389" class="Function">π</a> <a id="1391" class="Symbol">:</a> <a id="1393" href="Agda.Builtin.Nat.html#192" class="Datatype">ℕ</a> <a id="1395" class="Symbol">→</a> <a id="1397" href="Cubical.Foundations.Pointed.Base.html#587" class="Function">Pointed₀</a> <a id="1406" class="Symbol">→</a> <a id="1408" href="Cubical.Algebra.Group.Base.html#1100" class="Function">Group₀</a>
-<a id="1415" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1389" class="Function">π</a> <a id="1417" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1417" class="Bound">n</a> <a id="1419" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1419" class="Bound">X</a> <a id="1421" class="Symbol">=</a> <a id="1423" href="Cubical.Homotopy.Group.Base.html#24859" class="Function">π&#39;Gr</a> <a id="1428" class="Symbol">(</a><a id="1429" href="Cubical.Data.Nat.Base.html#436" class="Function">predℕ</a> <a id="1435" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1417" class="Bound">n</a><a id="1436" class="Symbol">)</a> <a id="1438" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1419" class="Bound">X</a>
+<a id="1415" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1389" class="Function">π</a> <a id="1417" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1417" class="Bound">n</a> <a id="1419" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1419" class="Bound">X</a> <a id="1421" class="Symbol">=</a> <a id="1423" href="Cubical.Homotopy.Group.Base.html#25000" class="Function">π&#39;Gr</a> <a id="1428" class="Symbol">(</a><a id="1429" href="Cubical.Data.Nat.Base.html#436" class="Function">predℕ</a> <a id="1435" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1417" class="Bound">n</a><a id="1436" class="Symbol">)</a> <a id="1438" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1419" class="Bound">X</a>
 
 
 <a id="1442" class="Comment">-- Nicer notation for the spheres (as pointed types)</a>
@@ -52,13 +52,13 @@ The file still type checks without it, but it&#39;s a lot slower (about 10 times
 <a id="1536" class="Comment">-- The Brunerie number; defined in Cubical.Homotopy.Group.Pi4S3.BrunerieNumber</a>
 <a id="1615" class="Comment">-- as &quot;abs (HopfInvariant-π&#39; 0 ([ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂) ]×))&quot;</a>
 <a id="β"></a><a id="1687" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1687" class="Function">β</a> <a id="1689" class="Symbol">:</a> <a id="1691" href="Agda.Builtin.Nat.html#192" class="Datatype">ℕ</a>
-<a id="1693" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1687" class="Function">β</a> <a id="1695" class="Symbol">=</a> <a id="1697" href="Cubical.Homotopy.Group.Pi4S3.BrunerieNumber.html#2013" class="Function">Brunerie</a>
+<a id="1693" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1687" class="Function">β</a> <a id="1695" class="Symbol">=</a> <a id="1697" href="Cubical.Homotopy.Group.Pi4S3.BrunerieNumber.html#2203" class="Function">Brunerie</a>
 
 
 <a id="1708" class="Comment">-- The connection to π₄(S³) is then also proved in the BrunerieNumber</a>
 <a id="1778" class="Comment">-- file following Corollary 3.4.5 in Guillaume Brunerie&#39;s PhD thesis.</a>
 <a id="βSpec"></a><a id="1848" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1848" class="Function">βSpec</a> <a id="1854" class="Symbol">:</a> <a id="1856" href="Cubical.Algebra.Group.Morphisms.html#1601" class="Function">GroupEquiv</a> <a id="1867" class="Symbol">(</a><a id="1868" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1389" class="Function">π</a> <a id="1870" class="Number">4</a> <a id="1872" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1498" class="Function">𝕊³</a><a id="1874" class="Symbol">)</a> <a id="1876" class="Symbol">(</a><a id="1877" href="Cubical.Algebra.Group.Instances.IntMod.html#1215" class="Function Operator">ℤ/</a> <a id="1880" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1687" class="Function">β</a><a id="1881" class="Symbol">)</a>
-<a id="1883" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1848" class="Function">βSpec</a> <a id="1889" class="Symbol">=</a> <a id="1891" href="Cubical.Homotopy.Group.Pi4S3.BrunerieNumber.html#15582" class="Function">BrunerieIso</a>
+<a id="1883" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1848" class="Function">βSpec</a> <a id="1889" class="Symbol">=</a> <a id="1891" href="Cubical.Homotopy.Group.Pi4S3.BrunerieNumber.html#15772" class="Function">BrunerieIso</a>
 
 
 <a id="1905" class="Comment">-- Ideally one could prove that β is 2 by normalization, but this does</a>
@@ -67,19 +67,19 @@ The file still type checks without it, but it&#39;s a lot slower (about 10 times
 <a id="2114" class="Comment">-- abstract&#39;s). So instead we prove this by hand as in the second half</a>
 <a id="2185" class="Comment">-- of Guillaume&#39;s thesis.</a>
 <a id="β≡2"></a><a id="2211" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#2211" class="Function">β≡2</a> <a id="2215" class="Symbol">:</a> <a id="2217" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1687" class="Function">β</a> <a id="2219" href="Agda.Builtin.Cubical.Path.html#388" class="Function Operator">≡</a> <a id="2221" class="Number">2</a>
-<a id="2223" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#2211" class="Function">β≡2</a> <a id="2227" class="Symbol">=</a> <a id="2229" href="Cubical.Homotopy.HopfInvariant.Brunerie.html#14750" class="Function">Brunerie≡2</a>
+<a id="2223" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#2211" class="Function">β≡2</a> <a id="2227" class="Symbol">=</a> <a id="2229" href="Cubical.Homotopy.HopfInvariant.Brunerie.html#14941" class="Function">Brunerie≡2</a>
 
 
 <a id="2242" class="Comment">-- This involves a lot of theory, for example that π₃(S²) ≃ ℤ where</a>
 <a id="2310" class="Comment">-- the underlying map is induced by the Hopf invariant (which involves</a>
 <a id="2381" class="Comment">-- the cup product on cohomology).</a>
 <a id="2416" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#2416" class="Function">_</a> <a id="2418" class="Symbol">:</a> <a id="2420" href="Cubical.Algebra.Group.Morphisms.html#1601" class="Function">GroupEquiv</a> <a id="2431" class="Symbol">(</a><a id="2432" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1389" class="Function">π</a> <a id="2434" class="Number">3</a> <a id="2436" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1495" class="Function">𝕊²</a><a id="2438" class="Symbol">)</a> <a id="2440" href="Cubical.Algebra.Group.Instances.Int.html#461" class="Function">ℤ</a>
-<a id="2442" class="Symbol">_</a> <a id="2444" class="Symbol">=</a> <a id="2446" href="Cubical.Homotopy.Group.Pi3S2.html#5588" class="Function">hopfInvariantEquiv</a>
+<a id="2442" class="Symbol">_</a> <a id="2444" class="Symbol">=</a> <a id="2446" href="Cubical.Homotopy.Group.Pi3S2.html#5782" class="Function">hopfInvariantEquiv</a>
 
 <a id="2466" class="Comment">-- Which is a consequence of the fact that π₃(S²) is generated by the</a>
 <a id="2536" class="Comment">-- Hopf map.</a>
-<a id="2549" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#2549" class="Function">_</a> <a id="2551" class="Symbol">:</a> <a id="2553" href="Cubical.Algebra.Group.ZAction.html#6967" class="Function">gen₁-by</a> <a id="2561" class="Symbol">(</a><a id="2562" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1389" class="Function">π</a> <a id="2564" class="Number">3</a> <a id="2566" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1495" class="Function">𝕊²</a><a id="2568" class="Symbol">)</a> <a id="2570" href="Cubical.HITs.SetTruncation.Base.html#299" class="InductiveConstructor Operator">∣</a> <a id="2572" href="Cubical.Homotopy.HopfInvariant.HopfMap.html#1909" class="Function">HopfMap</a> <a id="2580" href="Cubical.HITs.SetTruncation.Base.html#299" class="InductiveConstructor Operator">∣₂</a>
-<a id="2583" class="Symbol">_</a> <a id="2585" class="Symbol">=</a> <a id="2587" href="Cubical.Homotopy.Group.Pi3S2.html#5313" class="Function">π₂S³-gen-by-HopfMap</a>
+<a id="2549" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#2549" class="Function">_</a> <a id="2551" class="Symbol">:</a> <a id="2553" href="Cubical.Algebra.Group.ZAction.html#6967" class="Function">gen₁-by</a> <a id="2561" class="Symbol">(</a><a id="2562" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1389" class="Function">π</a> <a id="2564" class="Number">3</a> <a id="2566" href="Cubical.Homotopy.Group.Pi4S3.Summary.html#1495" class="Function">𝕊²</a><a id="2568" class="Symbol">)</a> <a id="2570" href="Cubical.HITs.SetTruncation.Base.html#299" class="InductiveConstructor Operator">∣</a> <a id="2572" href="Cubical.Homotopy.HopfInvariant.HopfMap.html#2096" class="Function">HopfMap</a> <a id="2580" href="Cubical.HITs.SetTruncation.Base.html#299" class="InductiveConstructor Operator">∣₂</a>
+<a id="2583" class="Symbol">_</a> <a id="2585" class="Symbol">=</a> <a id="2587" href="Cubical.Homotopy.Group.Pi3S2.html#5507" class="Function">π₂S³-gen-by-HopfMap</a>
 
 <a id="2608" class="Comment">-- etc. For more details see the proof of &quot;Brunerie≡2&quot;.</a>
 
