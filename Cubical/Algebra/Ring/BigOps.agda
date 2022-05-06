@@ -107,7 +107,7 @@ module SumMap
   where
 
   open IsRingHom fstr
-  
+
   open RingStr Astr using ()
     renaming
     ( _+_ to _+A_ )
@@ -118,7 +118,7 @@ module SumMap
 
   ∑Map : {n : ℕ} → (V : FinVec A n) → f (Sum.∑ Ar V) ≡ Sum.∑ Br (λ k → f (V k))
   ∑Map {n = zero} V = pres0
-  ∑Map {n = suc n} V = 
+  ∑Map {n = suc n} V =
                        f ((V zero) +A helper) ≡⟨ pres+ (V zero) helper ⟩
                        ((f (V zero)) +B (f helper)) ≡⟨ cong (λ X → f (V zero) +B X) (∑Map (λ k → (V ∘ suc) k)) ⟩
                        Sum.∑ Br (λ k → f (V k)) ∎
