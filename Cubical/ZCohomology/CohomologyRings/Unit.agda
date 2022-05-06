@@ -19,14 +19,14 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.Polynomials.Multivariate.Equiv-A[X]X-A
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
@@ -36,7 +36,6 @@ open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
-open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
 
 open import Cubical.ZCohomology.Groups.Unit
 
@@ -230,7 +229,7 @@ module Equiv-Unit-Properties where
   snd ℤ[X]→H*-Unit = makeIsRingHom ℤ[x]→H*-Unit-pres1Pℤ ℤ[x]→H*-Unit-pres+ ℤ[x]→H*-Unit-pres·
 
   ℤ[X]/X→H*R-Unit : RingHom (CommRing→Ring ℤ[X]/X) (H*R Unit)
-  ℤ[X]/X→H*R-Unit = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R Unit) ℤ[X]→H*-Unit <X> ℤ[x]→H*-Unit-cancelX
+  ℤ[X]/X→H*R-Unit = Quotient-FGideal-CommRing-Ring.f ℤ[X] (H*R Unit) ℤ[X]→H*-Unit <X> ℤ[x]→H*-Unit-cancelX
 
   ℤ[x]/x→H*-Unit : ℤ[x]/x → H* Unit
   ℤ[x]/x→H*-Unit = fst ℤ[X]/X→H*R-Unit

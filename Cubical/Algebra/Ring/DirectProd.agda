@@ -106,7 +106,7 @@ module Coproduct-Equiv
   _·Y×Y'_ = _·_ (snd (DirectProd-Ring Yr Y'r))
 
   re×re' : (re : RingEquiv Xr Yr) → (re' : RingEquiv X'r Y'r) → (X × X') ≃ (Y × Y')
-  re×re' re re' = isoToEquiv (prodIso (equivToIso (fst re)) (equivToIso (fst re')))
+  re×re' re re' = ≃-× (fst re) (fst re')
 
   Coproduct-Equiv-12 : (re : RingEquiv Xr Yr) → (re' : RingEquiv X'r Y'r) →
                         RingEquiv (DirectProd-Ring Xr X'r) (DirectProd-Ring Yr Y'r)

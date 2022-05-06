@@ -1,7 +1,10 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.Equiv-A[X]X-A where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Vec
@@ -17,7 +20,7 @@ open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 
 open import Cubical.Relation.Nullary
 
@@ -170,15 +173,15 @@ module Properties-Equiv-QuotientXn-A
             base-eq a a' (zero ∷ []) (suc k' ∷ []) = sym (0RightAnnihilates (CommRing→Ring Ar) _)
             base-eq a a' (suc k ∷ []) (k' ∷ []) = sym (0LeftAnnihilates (CommRing→Ring Ar) _)
 
-  A[X]→A : RingHom (CommRing→Ring A[X]) (CommRing→Ring Ar)
+  A[X]→A : CommRingHom A[X] Ar
   fst A[X]→A = A[x]→A
   snd A[X]→A = makeIsRingHom A[x]→A-pres1 A[x]→A-pres+ A[x]→A-pres·
 
   A[x]→A-cancel : (k : Fin 1) → A[x]→A (<Xkʲ> Ar 1 0 1 k) ≡ 0A
   A[x]→A-cancel zero = refl
 
-  A[X]/X→A : RingHom (CommRing→Ring A[X]/X) (CommRing→Ring Ar)
-  A[X]/X→A = Rec-Quotient-FGideal.f A[X] Ar A[X]→A (<Xkʲ> Ar 1 0 1) A[x]→A-cancel
+  A[X]/X→A : CommRingHom A[X]/X Ar
+  A[X]/X→A = Quotient-FGideal-CommRing-CommRing.f A[X] Ar A[X]→A (<Xkʲ> Ar 1 0 1) A[x]→A-cancel
 
   A[x]/x→A : A[x]/x → A
   A[x]/x→A = fst A[X]/X→A
@@ -241,7 +244,7 @@ module _
   open Iso
   open Properties-Equiv-QuotientXn-A Ar
 
-  Equiv-A[X]/X-A : RingEquiv (CommRing→Ring (A[X1,···,Xn]/<Xkʲ> Ar 1 0 1)) (CommRing→Ring Ar)
+  Equiv-A[X]/X-A : CommRingEquiv (A[X1,···,Xn]/<Xkʲ> Ar 1 0 1) Ar
   fst Equiv-A[X]/X-A = isoToEquiv is
     where
     is : Iso (A[x1,···,xn]/<xkʲ> Ar 1 0 1) A

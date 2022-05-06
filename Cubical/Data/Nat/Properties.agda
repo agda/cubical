@@ -1,8 +1,6 @@
 {-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.Nat.Properties where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism

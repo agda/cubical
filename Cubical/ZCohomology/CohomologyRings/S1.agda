@@ -1,4 +1,9 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
+
+-- This file could be proven using the file Sn
+-- However the proofs are easier than in Sn
+-- And so kept for pedagologic reasons
+
 module Cubical.ZCohomology.CohomologyRings.S1 where
 
 open import Cubical.Foundations.Prelude
@@ -24,7 +29,7 @@ open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 open import Cubical.Algebra.Direct-Sum.Base
 
 open import Cubical.HITs.Truncation
@@ -35,7 +40,6 @@ open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
-open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
 
 open import Cubical.Data.Unit
 open import Cubical.HITs.Sn
@@ -271,7 +275,7 @@ module Equiv-S1-Properties where
   snd ℤ[X]→H*-S¹ = makeIsRingHom ℤ[x]→H*-S¹-pres1Pℤ ℤ[x]→H*-S¹-pres+ ℤ[x]→H*-S¹-pres·
 
   ℤ[X]/X²→H*R-S¹ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
-  ℤ[X]/X²→H*R-S¹ = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R (S₊ 1)) ℤ[X]→H*-S¹ <X²> ℤ[x]→H*-S¹-cancelX
+  ℤ[X]/X²→H*R-S¹ = Quotient-FGideal-CommRing-Ring.f ℤ[X] (H*R (S₊ 1)) ℤ[X]→H*-S¹ <X²> ℤ[x]→H*-S¹-cancelX
 
   ℤ[x]/x²→H*-S¹ : ℤ[x]/x² → H* (S₊ 1)
   ℤ[x]/x²→H*-S¹ = fst ℤ[X]/X²→H*R-S¹

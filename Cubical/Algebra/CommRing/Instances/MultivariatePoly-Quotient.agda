@@ -38,7 +38,7 @@ module _
   where
 
   <Xkʲ> : (k j : ℕ) →  FinVec (A[x1,···,xn] Ar n) 1
-  <Xkʲ> k j zero = base (akbVec n k j 0) (CommRingStr.1r Astr)
+  <Xkʲ> k j zero = base (genδℕ-Vec n k j 0) (CommRingStr.1r Astr)
 
   A[X1,···,Xn]/<Xkʲ> : (k j : ℕ) → CommRing ℓ
   A[X1,···,Xn]/<Xkʲ> k j = (A[X1,···,Xn] Ar n) / (genIdeal ((A[X1,···,Xn] Ar n)) (<Xkʲ> k j))
@@ -47,7 +47,7 @@ module _
   A[x1,···,xn]/<xkʲ> k j = fst (A[X1,···,Xn]/<Xkʲ> k j)
 
   <X1,···,Xn> : FinVec (A[x1,···,xn] Ar n) n
-  <X1,···,Xn> = λ k → base (1k0Vec n (toℕ k)) (CommRingStr.1r Astr)
+  <X1,···,Xn> = λ k → base (δℕ-Vec n (toℕ k)) (CommRingStr.1r Astr)
 
   A[X1,···,Xn]/<X1,···,Xn> : CommRing ℓ
   A[X1,···,Xn]/<X1,···,Xn> = (A[X1,···,Xn] Ar n) / (genIdeal ((A[X1,···,Xn] Ar n)) <X1,···,Xn>)

@@ -20,27 +20,27 @@ private variable
 -----------------------------------------------------------------------------
 -- Generating Vector
 
-akbVec : {A : Type ℓ} → (m k : ℕ) → (a b : A) → Vec A m
-akbVec zero k a b = []
-akbVec (suc m) k a b  with (discreteℕ k m)
+genδℕ-Vec : {A : Type ℓ} → (m k : ℕ) → (a b : A) → Vec A m
+genδℕ-Vec zero k a b = []
+genδℕ-Vec (suc m) k a b  with (discreteℕ k m)
 ... | yes p = a ∷ replicate b
-... | no ¬p = b ∷ (akbVec m k a b)
+... | no ¬p = b ∷ (genδℕ-Vec m k a b)
 
 -- some results are easier / false without general a and b
-1k0Vec : (m : ℕ) → (k : ℕ) → Vec ℕ m
-1k0Vec m k = akbVec m k 1 0
+δℕ-Vec : (m : ℕ) → (k : ℕ) → Vec ℕ m
+δℕ-Vec m k = genδℕ-Vec m k 1 0
 
-1k0Vec-n≤k→≡ : (m k : ℕ) → (m ≤ k) → 1k0Vec m k ≡ replicate 0
-1k0Vec-n≤k→≡ zero k r = refl
-1k0Vec-n≤k→≡ (suc m) k r with (discreteℕ k m)
+δℕ-Vec-n≤k→≡ : (m k : ℕ) → (m ≤ k) → δℕ-Vec m k ≡ replicate 0
+δℕ-Vec-n≤k→≡ zero k r = refl
+δℕ-Vec-n≤k→≡ (suc m) k r with (discreteℕ k m)
 ... | yes p = ⊥.rec (<→≢ r (sym p))
-... | no ¬p = cong (λ X → 0 ∷ X) (1k0Vec-n≤k→≡ m k (≤-trans ≤-sucℕ r))
+... | no ¬p = cong (λ X → 0 ∷ X) (δℕ-Vec-n≤k→≡ m k (≤-trans ≤-sucℕ r))
 
-1k0Vec-k<n→≢ : (m k : ℕ) → (k < m) → (1k0Vec m k ≡ replicate 0 → ⊥)
-1k0Vec-k<n→≢ zero k r = ⊥.rec (¬-<-zero r)
-1k0Vec-k<n→≢ (suc m) k r q with (discreteℕ k m) | (≤-split r)
+δℕ-Vec-k<n→≢ : (m k : ℕ) → (k < m) → (δℕ-Vec m k ≡ replicate 0 → ⊥)
+δℕ-Vec-k<n→≢ zero k r = ⊥.rec (¬-<-zero r)
+δℕ-Vec-k<n→≢ (suc m) k r q with (discreteℕ k m) | (≤-split r)
 ... | yes p | z = compute-eqℕ 1 0 (fst (VecPath.encode _ _ q))
-... | no ¬p | inl x = 1k0Vec-k<n→≢ m k (pred-≤-pred x) (snd (VecPath.encode _ _ q))
+... | no ¬p | inl x = δℕ-Vec-k<n→≢ m k (pred-≤-pred x) (snd (VecPath.encode _ _ q))
 ... | no ¬p | inr x = ¬p (injSuc x)
 
 -----------------------------------------------------------------------------
@@ -69,16 +69,16 @@ _+n-vec_ {.(suc _)} (k ∷ v) (l ∷ v') = (k +n l) ∷ (v +n-vec v')
 
 -----------------------------------------------------------------------------
 -- Equlity on Vec ℕ
-v+n-vecv'≡0→v≡0×v'≡0 : {m : ℕ} → (v v' : Vec ℕ m) → (v +n-vec v') ≡ replicate 0
++n-vecSplitReplicate0 : {m : ℕ} → (v v' : Vec ℕ m) → (v +n-vec v') ≡ replicate 0
                         → (v ≡ replicate 0) × (v' ≡ replicate 0)
-v+n-vecv'≡0→v≡0×v'≡0 [] [] p = refl , refl
-v+n-vecv'≡0→v≡0×v'≡0 (k ∷ v) (l ∷ v') p with VecPath.encode ((k +n l) ∷ (v +n-vec v')) (replicate 0) p
-... | pkl , pvv' = (cong₂ _∷_ (fst (m+n≡0→m≡0×n≡0 pkl)) (fst (v+n-vecv'≡0→v≡0×v'≡0 v v' pvv'))) ,
-                   (cong₂ _∷_ (snd (m+n≡0→m≡0×n≡0 pkl)) (snd (v+n-vecv'≡0→v≡0×v'≡0 v v' pvv')))
++n-vecSplitReplicate0 [] [] p = refl , refl
++n-vecSplitReplicate0 (k ∷ v) (l ∷ v') p with VecPath.encode ((k +n l) ∷ (v +n-vec v')) (replicate 0) p
+... | pkl , pvv' = (cong₂ _∷_ (fst (m+n≡0→m≡0×n≡0 pkl)) (fst (+n-vecSplitReplicate0 v v' pvv'))) ,
+                   (cong₂ _∷_ (snd (m+n≡0→m≡0×n≡0 pkl)) (snd (+n-vecSplitReplicate0 v v' pvv')))
 
 
 pred-vec-≢0 : {m : ℕ} → (v : Vec ℕ m) → (v ≡ replicate 0 → ⊥)
-              → Σ[ k ∈ ℕ ] (Σ[ v' ∈ Vec ℕ m ] ( Σ[ r ∈ (k < m) ] v ≡ v' +n-vec (1k0Vec m k)))
+              → Σ[ k ∈ ℕ ] (Σ[ v' ∈ Vec ℕ m ] ( Σ[ r ∈ (k < m) ] v ≡ v' +n-vec (δℕ-Vec m k)))
 pred-vec-≢0 {zero} [] ¬q = ⊥.rec (¬q refl)
 pred-vec-≢0 {(suc m)} (l ∷ v) ¬q with (discreteℕ l 0)
 -- case l ≡ 0

@@ -1,7 +1,10 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.Equiv-PolynQuotient-A where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
@@ -168,24 +171,24 @@ module Properties-Equiv-QuotientXn-A
                                            | (discreteVecℕn v (replicate 0))
                                            | (discreteVecℕn v' (replicate 0))
                ... | yes r | yes p | yes e = refl
-               ... | yes r | yes p | no ¬q = ⊥.rec (¬q (snd (v+n-vecv'≡0→v≡0×v'≡0 v v' r)))
-               ... | yes r | no ¬p | q     = ⊥.rec (¬p (fst (v+n-vecv'≡0→v≡0×v'≡0 v v' r)))
+               ... | yes r | yes p | no ¬q = ⊥.rec (¬q (snd (+n-vecSplitReplicate0 v v' r)))
+               ... | yes r | no ¬p | q     = ⊥.rec (¬p (fst (+n-vecSplitReplicate0 v v' r)))
                ... | no ¬r | yes p | yes q = ⊥.rec (¬r (cong₂ _+n-vec_ p q ∙ +n-vec-rid _))
                ... | no ¬r | yes p | no ¬q = sym (0RightAnnihilates (CommRing→Ring Ar) _)
                ... | no ¬r | no ¬p | yes q = sym (0LeftAnnihilates (CommRing→Ring Ar) _)
                ... | no ¬r | no ¬p | no ¬q = sym (0RightAnnihilates (CommRing→Ring Ar) _)
 
   PA→A-cancel : (k : Fin n) → PA→A (<X1,···,Xn> Ar n k) ≡ 0A
-  PA→A-cancel k with (discreteVecℕn (1k0Vec n (toℕ k)) (replicate 0))
-  ... | yes p = ⊥.rec (1k0Vec-k<n→≢ n (toℕ k) (toℕ<n k) p)
+  PA→A-cancel k with (discreteVecℕn (δℕ-Vec n (toℕ k)) (replicate 0))
+  ... | yes p = ⊥.rec (δℕ-Vec-k<n→≢ n (toℕ k) (toℕ<n k) p)
   ... | no ¬p = refl
 
-  PAr→Ar : RingHom (CommRing→Ring (A[X1,···,Xn] Ar n)) (CommRing→Ring Ar)
+  PAr→Ar : CommRingHom (A[X1,···,Xn] Ar n) Ar
   fst PAr→Ar = PA→A
   snd PAr→Ar = makeIsRingHom PA→A-pres1 PA→A-pres+ PA→A-pres·
 
-  PAIr→Ar : RingHom (CommRing→Ring (A[X1,···,Xn]/<X1,···,Xn> Ar n)) (CommRing→Ring Ar)
-  PAIr→Ar = Rec-Quotient-FGideal.f (A[X1,···,Xn] Ar n) Ar PAr→Ar (<X1,···,Xn> Ar n) PA→A-cancel
+  PAIr→Ar : CommRingHom (A[X1,···,Xn]/<X1,···,Xn> Ar n) Ar
+  PAIr→Ar = Quotient-FGideal-CommRing-CommRing.f (A[X1,···,Xn] Ar n) Ar PAr→Ar (<X1,···,Xn> Ar n) PA→A-cancel
 
   PAI→A : A[x1,···,xn]/<x1,···,xn> Ar n → A
   PAI→A = fst PAIr→Ar
@@ -243,14 +246,14 @@ module Properties-Equiv-QuotientXn-A
            ... | yes p = cong [_] (cong (λ X → base X a) (sym p))
            ... | no ¬p with (pred-vec-≢0 v ¬p)
            ... | k , v' , infkn , eqvv' = eq/ (base (replicate 0) 0A)
-                                             (base v a) ∣ ((akbFinVec n k (base v' (-A a)) 0PA) , helper) ∣₋₁
+                                             (base v a) ∣ ((genδ-FinVec n k (base v' (-A a)) 0PA) , helper) ∣₋₁
                where
                helper : _
                helper = cong (λ X → X Poly+ base v (-A a)) (base-0P (replicate 0))
                         ∙ +PALid (base v (-A a))
                         ∙ sym (
-                          cbn-akbℕ-linear-combi ((A[X1,···,Xn] Ar n)) n k infkn (base v' (-A a)) (<X1,···,Xn> Ar n)
-                          ∙ cong₂ base (cong (λ X → v' +n-vec 1k0Vec n X) (toFromId' n k infkn)) (·ARid _)
+                          genδ-FinVec-ℕLinearCombi ((A[X1,···,Xn] Ar n)) n k infkn (base v' (-A a)) (<X1,···,Xn> Ar n)
+                          ∙ cong₂ base (cong (λ X → v' +n-vec δℕ-Vec n X) (toFromId' n k infkn)) (·ARid _)
                           ∙ cong (λ X → base X (-A a)) (sym eqvv'))
 
 
@@ -266,7 +269,7 @@ module _
   open Iso
   open Properties-Equiv-QuotientXn-A Ar n
 
-  Equiv-QuotientX-A : RingEquiv (CommRing→Ring (A[X1,···,Xn]/<X1,···,Xn> Ar n)) (CommRing→Ring Ar)
+  Equiv-QuotientX-A : CommRingEquiv (A[X1,···,Xn]/<X1,···,Xn> Ar n) Ar
   fst Equiv-QuotientX-A = isoToEquiv is
     where
     is : Iso (A[x1,···,xn]/<x1,···,xn> Ar n) A

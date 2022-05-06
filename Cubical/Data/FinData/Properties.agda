@@ -108,15 +108,18 @@ toFin0≡0 {ℕzero} (ℕsuc k , p) = Empty.rec (ℕsnotz (+-comm 1 k ∙ (cong 
 toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
          subst (λ x → weakenFin x ≡ zero) (sym (toFin0≡0 (k , cong predℕ p))) refl
 
-akbFinVec : (n k : ℕ) → (a b : A) → FinVec A n
-akbFinVec (ℕsuc n) ℕzero a b zero = a
-akbFinVec (ℕsuc n) ℕzero a b (suc x) = b
-akbFinVec (ℕsuc n) (ℕsuc k) a b zero = b
-akbFinVec (ℕsuc n) (ℕsuc k) a b (suc x) = akbFinVec n k a b x
+genδ-FinVec : (n k : ℕ) → (a b : A) → FinVec A n
+genδ-FinVec (ℕsuc n) ℕzero a b zero = a
+genδ-FinVec (ℕsuc n) ℕzero a b (suc x) = b
+genδ-FinVec (ℕsuc n) (ℕsuc k) a b zero = b
+genδ-FinVec (ℕsuc n) (ℕsuc k) a b (suc x) = genδ-FinVec n k a b x
+
+δℕ-FinVec : (n k : ℕ) → FinVec ℕ n
+δℕ-FinVec n k = genδ-FinVec n k 1 0
 
 -- WARNING : harder to prove things about
-akbFinVec' : (n k : ℕ) → (a b : A) → FinVec A n
-akbFinVec' n k a b x with discreteℕ (toℕ x) k
+genδ-FinVec' : (n k : ℕ) → (a b : A) → FinVec A n
+genδ-FinVec' n k a b x with discreteℕ (toℕ x) k
 ... | yes p = a
 ... | no ¬p = b
 

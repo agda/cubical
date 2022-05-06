@@ -29,7 +29,7 @@ open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient-notationZ
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 open import Cubical.Algebra.Direct-Sum.Base
 
 open import Cubical.HITs.Truncation
@@ -42,7 +42,6 @@ open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
-open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
 
 open import Cubical.Data.Unit
 open import Cubical.HITs.Sn
@@ -218,26 +217,26 @@ module Equiv-Sn-Properties (n : ℕ) where
 -- Hence when need to add transport to go from coHom 0 X to coHom 0 X
 -- This some notation and usefull lemma
 
-  SubstCoHom : {k l : ℕ} → (x : k ≡ l) → (a : coHom k (S₊ (suc n))) → coHom l (S₊ (suc n))
-  SubstCoHom x a = subst (λ X → coHom X (S₊ (suc n))) x a
+  substCoHom : {k l : ℕ} → (x : k ≡ l) → (a : coHom k (S₊ (suc n))) → coHom l (S₊ (suc n))
+  substCoHom x a = subst (λ X → coHom X (S₊ (suc n))) x a
 
   -- solve a pbl of project with the notation
-  SubstReflCoHom : {k : ℕ} → (a : coHom k (S₊ (suc n))) → subst (λ X → coHom X (S₊ (suc n))) refl a ≡ a
-  SubstReflCoHom a = substRefl a
+  substReflCoHom : {k : ℕ} → (a : coHom k (S₊ (suc n))) → subst (λ X → coHom X (S₊ (suc n))) refl a ≡ a
+  substReflCoHom a = substRefl a
 
-  subst-0 : (k l : ℕ) → (x : k ≡ l) → SubstCoHom x (0ₕ k) ≡ 0ₕ l
-  subst-0 k l x = J (λ l x → SubstCoHom x (0ₕ k) ≡ 0ₕ l) (SubstReflCoHom (0ₕ k)) x
+  subst-0 : (k l : ℕ) → (x : k ≡ l) → substCoHom x (0ₕ k) ≡ 0ₕ l
+  subst-0 k l x = J (λ l x → substCoHom x (0ₕ k) ≡ 0ₕ l) (substReflCoHom (0ₕ k)) x
 
   subst-+ : (k : ℕ) → (a b : coHom k (S₊ (suc n))) → (l : ℕ) → (x : k ≡ l)
-            → SubstCoHom x (a +ₕ b) ≡ SubstCoHom x a +ₕ SubstCoHom x b
-  subst-+ k a b l x = J (λ l x → SubstCoHom x (a +ₕ b) ≡ SubstCoHom x a +ₕ SubstCoHom x b)
-                        (SubstReflCoHom (a +ₕ b) ∙ sym (cong₂ _+ₕ_ (SubstReflCoHom a) (SubstReflCoHom b)))
+            → substCoHom x (a +ₕ b) ≡ substCoHom x a +ₕ substCoHom x b
+  subst-+ k a b l x = J (λ l x → substCoHom x (a +ₕ b) ≡ substCoHom x a +ₕ substCoHom x b)
+                        (substReflCoHom (a +ₕ b) ∙ sym (cong₂ _+ₕ_ (substReflCoHom a) (substReflCoHom b)))
                         x
 
   subst-⌣ : (k : ℕ) → (a b : coHom k (S₊ (suc n))) → (l : ℕ) → (x : k ≡ l)
-            → SubstCoHom (cong₂ _+'_ x x) (a ⌣ b) ≡ SubstCoHom x a ⌣ SubstCoHom x b
-  subst-⌣ k a b l x = J (λ l x → SubstCoHom (cong₂ _+'_ x x) (a ⌣ b) ≡ SubstCoHom x a ⌣ SubstCoHom x b)
-                        (SubstReflCoHom (a ⌣ b) ∙ sym (cong₂ _⌣_ (SubstReflCoHom a) (SubstReflCoHom b)))
+            → substCoHom (cong₂ _+'_ x x) (a ⌣ b) ≡ substCoHom x a ⌣ substCoHom x b
+  subst-⌣ k a b l x = J (λ l x → substCoHom (cong₂ _+'_ x x) (a ⌣ b) ≡ substCoHom x a ⌣ substCoHom x b)
+                        (substReflCoHom (a ⌣ b) ∙ sym (cong₂ _⌣_ (substReflCoHom a) (substReflCoHom b)))
                         x
 
 
@@ -370,7 +369,7 @@ module Equiv-Sn-Properties (n : ℕ) where
   snd ℤ[X]→H*-Sⁿ = makeIsRingHom ℤ[x]→H*-Sⁿ-pres1 ℤ[x]→H*-Sⁿ-pres+ ℤ[x]→H*-Sⁿ-pres·
 
   ℤ[X]/X²→H*R-Sⁿ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ (suc n)))
-  ℤ[X]/X²→H*R-Sⁿ = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R (S₊ (suc n))) ℤ[X]→H*-Sⁿ <X²> ℤ[x]→H*-Sⁿ-cancelX
+  ℤ[X]/X²→H*R-Sⁿ = Quotient-FGideal-CommRing-Ring.f ℤ[X] (H*R (S₊ (suc n))) ℤ[X]→H*-Sⁿ <X²> ℤ[x]→H*-Sⁿ-cancelX
 
   ℤ[x]/x²→H*-Sⁿ : ℤ[x]/x² → H* (S₊ (suc n))
   ℤ[x]/x²→H*-Sⁿ = fst ℤ[X]/X²→H*R-Sⁿ
@@ -381,8 +380,8 @@ module Equiv-Sn-Properties (n : ℕ) where
 -- Converse Sens on ℤ[X] + ℤ[x]/x
 
   base-trad-H* : (k : ℕ) → (a : coHom k (S₊ (suc n))) → (x : partℕ k) → ℤ[x]
-  base-trad-H* k a (is0 x) = baseP (0 ∷ []) (fun (fst (H⁰-Sⁿ≅ℤ n)) (SubstCoHom x a))
-  base-trad-H* k a (isSn x) = baseP (1 ∷ []) (fun (fst (Hⁿ-Sⁿ≅ℤ n)) (SubstCoHom x a))
+  base-trad-H* k a (is0 x) = baseP (0 ∷ []) (fun (fst (H⁰-Sⁿ≅ℤ n)) (substCoHom x a))
+  base-trad-H* k a (isSn x) = baseP (1 ∷ []) (fun (fst (Hⁿ-Sⁿ≅ℤ n)) (substCoHom x a))
   base-trad-H* k a (else x) = 0Pℤ
 
   H*-Sⁿ→ℤ[x] : H* (S₊ (suc n)) → ℤ[x]
@@ -434,18 +433,18 @@ module Equiv-Sn-Properties (n : ℕ) where
 
   e-sect-base : (k : ℕ) → (a : coHom k (S₊ (suc n))) → (x : partℕ k) →
                 ℤ[x]/x²→H*-Sⁿ [ (base-trad-H* k a x) ] ≡ base k a
-  e-sect-base k a (is0 x)  = cong (base 0) (leftInv (fst (H⁰-Sⁿ≅ℤ n)) (SubstCoHom x a))
-                             ∙ sym (ConstsubstCommSlice (λ x → coHom x (S₊ (suc n))) (H* (S₊ (suc n))) base x a)
+  e-sect-base k a (is0 x)  = cong (base 0) (leftInv (fst (H⁰-Sⁿ≅ℤ n)) (substCoHom x a))
+                             ∙ sym (constSubstCommSlice (λ x → coHom x (S₊ (suc n))) (H* (S₊ (suc n))) base x a)
 
-  e-sect-base k a (isSn x) = cong (base (suc n)) (leftInv (fst (Hⁿ-Sⁿ≅ℤ n)) (SubstCoHom x a))
-                             ∙ sym (ConstsubstCommSlice (λ x → coHom x (S₊ (suc n))) (H* (S₊ (suc n))) base x a)
+  e-sect-base k a (isSn x) = cong (base (suc n)) (leftInv (fst (Hⁿ-Sⁿ≅ℤ n)) (substCoHom x a))
+                             ∙ sym (constSubstCommSlice (λ x → coHom x (S₊ (suc n))) (H* (S₊ (suc n))) base x a)
   e-sect-base k a (else x) = sym (base-neutral k)
-                             ∙ ConstsubstCommSlice ((λ x → coHom x (S₊ (suc n)))) ((H* (S₊ (suc n)))) base (suc-predℕ k (fst x)) (0ₕ k)
+                             ∙ constSubstCommSlice ((λ x → coHom x (S₊ (suc n)))) ((H* (S₊ (suc n)))) base (suc-predℕ k (fst x)) (0ₕ k)
                              ∙ cong (base (suc (predℕ k)))
                                ((isOfHLevelRetractFromIso 1
                                        (fst (Hⁿ-Sᵐ≅0 (predℕ k) n λ p → snd x (suc-predℕ k (fst x) ∙ cong suc p)))
                                        isPropUnit _ _))
-                             ∙ sym (ConstsubstCommSlice ((λ x → coHom x (S₊ (suc n)))) ((H* (S₊ (suc n)))) base (suc-predℕ k (fst x)) a)
+                             ∙ sym (constSubstCommSlice ((λ x → coHom x (S₊ (suc n)))) ((H* (S₊ (suc n)))) base (suc-predℕ k (fst x)) a)
 
   e-sect : (x : H* (S₊ (suc n))) → ℤ[x]/x²→H*-Sⁿ (H*-Sⁿ→ℤ[x]/x² x) ≡ x
   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
@@ -467,11 +466,11 @@ module Equiv-Sn-Properties (n : ℕ) where
            base-case : _
            base-case (zero ∷ []) a = cong [_] (cong (base-trad-H* 0 (inv (fst (H⁰-Sⁿ≅ℤ n)) a)) part0)
                                      ∙ cong [_] (cong (baseP (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n)))
-                                                                             (SubstReflCoHom (inv (fst (H⁰-Sⁿ≅ℤ n)) a))))
+                                                                             (substReflCoHom (inv (fst (H⁰-Sⁿ≅ℤ n)) a))))
                                      ∙ cong [_] (cong (baseP (0 ∷ [])) (rightInv (fst (H⁰-Sⁿ≅ℤ n)) a))
            base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)) (partSn (part (suc n))))
                                      ∙ cong [_] (cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n)))
-                                                                             (SubstReflCoHom (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a))))
+                                                                             (substReflCoHom (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a))))
                                      ∙ cong [_] (cong (baseP (1 ∷ [])) (rightInv (fst (Hⁿ-Sⁿ≅ℤ n)) a))
            base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc k) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₋₁
              where

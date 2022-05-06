@@ -93,8 +93,8 @@ module VecPath {A : Type ℓ}
   decodeRefl (a ∷ v) = refl
 
   -- equiv
-  ≡Vec≃codeVec : {n : ℕ} → (v v' : Vec A n) → Iso (v ≡ v') (code v v')
-  ≡Vec≃codeVec v v' = is
+  ≡Vec≃codeVec : {n : ℕ} → (v v' : Vec A n) → (v ≡ v') ≃ (code v v')
+  ≡Vec≃codeVec v v' = isoToEquiv is
     where
     is : Iso (v ≡ v') (code v v')
     fun is = encode v v'
@@ -118,10 +118,10 @@ module VecPath {A : Type ℓ}
   discreteA→discreteVecA : Discrete A → (n : ℕ) → Discrete (Vec A n)
   discreteA→discreteVecA DA zero [] [] = yes refl
   discreteA→discreteVecA DA (suc n) (a ∷ v) (a' ∷ v') with (DA a a') | (discreteA→discreteVecA DA n v v')
-  ... | yes p | yes q = yes (inv (≡Vec≃codeVec (a ∷ v) (a' ∷ v')) (p , q))
-  ... | yes p | no ¬q = no (λ r → ¬q (snd (fun (≡Vec≃codeVec (a ∷ v) (a' ∷ v')) r)))
-  ... | no ¬p | yes q = no (λ r → ¬p (fst (fun (≡Vec≃codeVec (a ∷ v) (a' ∷ v')) r)))
-  ... | no ¬p | no ¬q = no (λ r → ¬q (snd (fun (≡Vec≃codeVec (a ∷ v) (a' ∷ v')) r)))
+  ... | yes p | yes q = yes (invIsEq (snd (≡Vec≃codeVec (a ∷ v) (a' ∷ v'))) (p , q))
+  ... | yes p | no ¬q = no (λ r → ¬q (snd (funIsEq (snd (≡Vec≃codeVec (a ∷ v) (a' ∷ v'))) r)))
+  ... | no ¬p | yes q = no (λ r → ¬p (fst (funIsEq (snd (≡Vec≃codeVec (a ∷ v) (a' ∷ v'))) r)))
+  ... | no ¬p | no ¬q = no (λ r → ¬q (snd (funIsEq (snd (≡Vec≃codeVec (a ∷ v) (a' ∷ v'))) r)))
 
   ≢-∷ : {m : ℕ} → (Discrete A) → (a : A) → (v : Vec A m) → (a' : A) → (v' : Vec A m) →
          (a ∷ v ≡ a' ∷ v' → ⊥.⊥) → (a ≡ a' → ⊥.⊥) ⊎ (v ≡ v' → ⊥.⊥)

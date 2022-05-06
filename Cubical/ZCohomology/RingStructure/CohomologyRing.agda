@@ -92,7 +92,7 @@ module CupRingProperties (A : Type ℓ) where
                         (λ m b → DS-Ind-Prop.f ℕ _ _ _ (λ _ → is-set _ _)
                                   refl
                                   (λ k c → (cong (base (n +' (m +' k))) (assoc-⌣ n m k a b c))
-                                             ∙ sym (ConstsubstCommSlice (λ n → coHom n A) (H* A) base (sym (+'-assoc n m k)) ((a ⌣ b) ⌣ c)))
+                                             ∙ sym (constSubstCommSlice (λ n → coHom n A) (H* A) base (sym (+'-assoc n m k)) ((a ⌣ b) ⌣ c)))
                                   λ {U V} ind-U ind-V → cong₂ _+_ ind-U ind-V)
                         λ {U V} ind-U ind-V z → cong₂ _+_ (ind-U z) (ind-V z))
               λ {U V} ind-U ind-V y z → cong₂ _+_ (ind-U y z) (ind-V y z)
@@ -100,7 +100,7 @@ module CupRingProperties (A : Type ℓ) where
   cupIdR : (x : H* A) → x cup 1H* ≡ x
   cupIdR = DS-Ind-Prop.f ℕ _ _ _ (λ _ → is-set _ _)
             refl
-            (λ n a → (cong (base (n +' 0)) (lUnit⌣ n a)) ∙ sym (ConstsubstCommSlice (λ n → coHom n A) (H* A) base (sym (n+'0 n)) a))
+            (λ n a → (cong (base (n +' 0)) (lUnit⌣ n a)) ∙ sym (constSubstCommSlice (λ n → coHom n A) (H* A) base (sym (n+'0 n)) a))
             λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V)
 
   cupIdL : (x : H* A) → 1H* cup x ≡ x
@@ -170,7 +170,7 @@ module _ (A : Type ℓ) where
                         base (n +' m) ((-ₕ^ n · m) (subst (λ n₁ → coHom n₁ A) (+'-comm m n) (b ⌣ a)))
                                  ≡⟨ sym (-^-base n m (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a))) ⟩
                         (-^ n · m)  (base (n +' m) (subst (λ k → coHom k A) (+'-comm m n) (b ⌣ a)))
-                                 ≡⟨ cong (-^ n · m) (sym (ConstsubstCommSlice (λ k → coHom k A) H* base (+'-comm m n) (b ⌣ a))) ⟩
+                                 ≡⟨ cong (-^ n · m) (sym (constSubstCommSlice (λ k → coHom k A) H* base (+'-comm m n) (b ⌣ a))) ⟩
                          (-^ n · m) (base (m +' n) (b ⌣ a)) ∎
 
 

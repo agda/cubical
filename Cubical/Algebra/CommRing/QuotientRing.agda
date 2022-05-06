@@ -38,10 +38,10 @@ R / I =
 
 --
 
-module Rec-Quotient-FGideal
+module Quotient-FGideal-CommRing-Ring
   (A'@(A , Ar) : CommRing ℓ)
-  (B'@(B , Br) : CommRing ℓ')
-  (g'@(g , gr) : CommRingHom A' B')
+  (B'@(B , Br) : Ring ℓ')
+  (g'@(g , gr) : RingHom (CommRing→Ring A') B')
   where
 
   open CommRingStr Ar using ()
@@ -52,13 +52,15 @@ module Rec-Quotient-FGideal
     ; -_        to -A_
     ; _·_       to _·A_ )
 
-  open CommRingStr Br using ()
+  open RingStr Br using ()
     renaming
     ( 0r        to 0B
     ; 1r        to 1B
     ; _+_       to _+B_
     ; -_        to -B_
-    ; _·_       to _·B_ )
+    ; _·_       to _·B_
+    ; +Lid     to +BIdL
+    ; is-set    to isSetB)
 
   open CommRingStr
   open IsRingHom
@@ -70,23 +72,35 @@ module Rec-Quotient-FGideal
     (gnull : (k : Fin n) → g ( v k) ≡ 0B)
     where
 
-    f : CommRingHom (A' / (generatedIdeal _ v)) B'
-    fst f = SQ.rec (is-set Br)
+    f : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
+    fst f = SQ.rec (isSetB)
             g
-            λ a b → PT.rec (is-set Br _ _)
+            λ a b → PT.rec (isSetB _ _)
                      λ x → g a                                   ≡⟨ cong g (sym (+Rid Ar a)) ⟩
                      g (a +A 0A)                                  ≡⟨ cong (λ X → g (a +A X)) (sym (snd (+Inv Ar b))) ⟩
                      g (a +A ((-A b) +A b))                       ≡⟨ cong g (+Assoc Ar a (-A b) b) ⟩
                      g ((a +A -A b) +A b)                         ≡⟨ pres+ gr (a +A -A b) b ⟩
                      (g(a +A -A b) +B g b)                        ≡⟨ cong (λ X → g X +B g b) (snd x) ⟩
-                     (g (linearCombination A' (fst x) v) +B g b)  ≡⟨ cong (λ X → X +B g b) (cancel-linear-combinaison A' B' g' n (fst x) v gnull) ⟩
-                     0B +B g b                                    ≡⟨ +Lid Br (g b) ⟩
+                     (g (linearCombination A' (fst x) v) +B g b)  ≡⟨ cong (λ X → X +B g b) (cancelLinearCombination A' B' g' n (fst x) v gnull) ⟩
+                     0B +B g b                                    ≡⟨ +BIdL (g b) ⟩
                      g b ∎
     snd f = makeIsRingHom
             (pres1 gr)
-            (elimProp (λ x p q i y j → is-set Br _ _ (p y) (q y) i j)
-                      λ a → elimProp (λ _ → is-set Br _ _)
+            (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
+                      λ a → elimProp (λ _ → isSetB _ _)
                              λ a' → pres+ gr a a')
-            (elimProp (λ x p q i y j → is-set Br _ _ (p y) (q y) i j)
-                      λ a → elimProp (λ _ → is-set Br _ _)
+            (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
+                      λ a → elimProp (λ _ → isSetB _ _)
                              λ a' → pres· gr a a')
+
+module Quotient-FGideal-CommRing-CommRing
+  (A'@(A , Ar) : CommRing ℓ)
+  (B'@(B , Br) : CommRing ℓ')
+  (g'@(g , gr) : CommRingHom A' B')
+  {n : ℕ}
+  (v : FinVec A n)
+  (gnull : (k : Fin n) → g ( v k) ≡ CommRingStr.0r (snd B'))
+  where
+
+  f : CommRingHom (A' / (generatedIdeal _ v)) B'
+  f = Quotient-FGideal-CommRing-Ring.f A' (CommRing→Ring B') g' v gnull

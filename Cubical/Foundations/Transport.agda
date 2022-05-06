@@ -130,13 +130,13 @@ substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
 substCommSlice B C F p Bx a =
   transport-fillerExt⁻ (cong C p) a (F _ (transport-fillerExt (cong B p) a Bx))
 
-ConstsubstCommSlice : ∀ {ℓ ℓ'} {A : Type ℓ}
+constSubstCommSlice : ∀ {ℓ ℓ'} {A : Type ℓ}
                    → (B : A → Type ℓ')
                    → (C : Type ℓ')
                    → (F : ∀ a → B a → C)
                    → {x y : A} (p : x ≡ y) (u : B x)
                    →  (F x u) ≡ F y (subst B p u)
-ConstsubstCommSlice B C F p Bx = (sym (transportRefl (F _ Bx)) ∙ substCommSlice B (λ _ → C) F p Bx)
+constSubstCommSlice B C F p Bx = (sym (transportRefl (F _ Bx)) ∙ substCommSlice B (λ _ → C) F p Bx)
 
 -- transporting over (λ i → B (p i) → C (p i)) divides the transport into
 -- transports over (λ i → C (p i)) and (λ i → B (p (~ i)))
