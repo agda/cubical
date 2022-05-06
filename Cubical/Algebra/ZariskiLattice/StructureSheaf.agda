@@ -180,7 +180,8 @@ module _ (R' : CommRing ℓ) where
  open SheafOnBasis ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ})
                    (TerminalCommAlgebra R') BasicOpens basicOpensAreBasis
 
- isSheafBasisStructurePShf : isDLBasisSheaf BasisStructurePShf
+ -- only proof for weak notion of sheaf on a basis
+ isSheafBasisStructurePShf : isDLBasisSheafPullback BasisStructurePShf
  fst isSheafBasisStructurePShf 0∈BO =
    transport (λ i → F-ob (0z , canonical0∈BO≡0∈BO i) ≡ UnitCommAlgebra R') R[1/0]≡0
    where

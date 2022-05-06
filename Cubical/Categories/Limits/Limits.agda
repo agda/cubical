@@ -118,6 +118,18 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
      limOut CC₁ u ⋆⟨ C ⟩ D₁ .F-hom e ⋆⟨ C ⟩ f v   ≡⟨ cong (λ x → x ⋆⟨ C ⟩ f v) (limOutCommutes CC₁ e) ⟩
      limOut CC₁ v ⋆⟨ C ⟩ f v ∎
 
+
+--precomposition with a functor
+open Category
+open Functor
+open Cone
+F-cone : {ℓJ ℓJ' ℓC ℓC' ℓE ℓE' : Level} {J : Category ℓJ ℓJ'} {C : Category ℓC ℓC'} {E : Category ℓE ℓE'}
+         {c : ob C} {D : Functor J C}
+       → (F : Functor C E) → Cone D c → Cone (funcComp F D) (F .F-ob c)
+coneOut (F-cone F cc) v = F .F-hom (cc .coneOut v)
+coneOutCommutes (F-cone F cc) e = F-triangle F (cc .coneOutCommutes e)
+
+
 -- A category is complete if it has all limits
 Limits : {ℓJ ℓJ' ℓC ℓC' : Level} → Category ℓC ℓC' → Type _
 Limits {ℓJ} {ℓJ'} C = (J : Category ℓJ ℓJ') → (D : Functor J C) → LimCone D
