@@ -303,13 +303,12 @@ module Equiv-Sn-Properties (n : ℕ) where
       pres·-base-case-0l (pos (suc k))    b = pres· Tlg b (pos k ·ℤ b)
                                                ∙ cong (λ X → (Tl b) +ₕ X) (pres·-base-case-0l (pos k) b)
                                                ∙ sym (T0-posS k (Tl b))
-      pres·-base-case-0l (negsuc zero)    b = cong Tl (sym (+ℤLid (-ℤ b)))
-                                               ∙ presinv Tlg b
+      pres·-base-case-0l (negsuc zero)    b =  presinv Tlg b
                                                ∙ sym (T0-neg0 (Tl b))
       pres·-base-case-0l (negsuc (suc k)) b = cong Tl (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
                                                ∙ pres· Tlg (negsuc k ·ℤ b) (-ℤ b)
                                                ∙ cong₂ _+ₕ_ (pres·-base-case-0l (negsuc k) b)
-                                                            (cong Tl (sym (+ℤLid (-ℤ b))) ∙ presinv Tlg b)
+                                                            (presinv Tlg b)
                                                ∙ sym (T0-negS k (Tl b))
 
 
