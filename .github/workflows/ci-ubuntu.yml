@@ -53,14 +53,23 @@ jobs:
           # Pick Agda version
           echo "AGDA_BRANCH=v2.6.2.2" >> $GITHUB_ENV
 
+
+      ########################################################################
+      ## CHECKOUT
+      ########################################################################
+
+      # By default github actions do not pull the repo
+      - name: Checkout cubical
+        uses: actions/checkout@v3
+
       ########################################################################
       ## CACHING
       ########################################################################
 
       # This caching step allows us to save a lot of building time by only
-      # downloading ghc and cabal and rebuilding Agda if absolutely necessary
-      # i.e. if we change either the version of Agda, ghc, or cabal that we want
-      # to use for the build.
+      # downloading ghc and cabal, rebuilding Agda, and re-checking unchanged
+      # library files if absolutely necessary i.e. if we change either the
+      # version of Agda, ghc, or cabal that we want to use for the build.
       - name: Cache cabal packages
         uses: actions/cache@v3
         id: cache-cabal
@@ -70,6 +79,15 @@ jobs:
             ~/.cabal/store
             ~/.cabal/bin
           key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
+
+      - name: Cache library build
+        uses: actions/cache@v3
+        id: cache-library
+        with:
+          path: ./_build
+          key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Cubical/**') }}
+          restore-keys: |
+            library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
 
       ########################################################################
       ## INSTALLATION STEPS
@@ -109,10 +127,6 @@ jobs:
       ########################################################################
       ## TESTING
       ########################################################################
-
-      # By default github actions do not pull the repo
-      - name: Checkout cubical
-        uses: actions/checkout@v3
 
       - name: Test cubical
         run: |
