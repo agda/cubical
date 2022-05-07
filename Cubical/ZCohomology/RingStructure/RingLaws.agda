@@ -640,10 +640,10 @@ module _ {A : Type ℓ} (n m : ℕ) where
 1⌣ : ∀ {ℓ} {A : Type ℓ} → coHom 0 A
 1⌣ = ∣ (λ _ → 1) ∣₂
 
-private
-  n+'0 : (n : ℕ) → n +' 0 ≡ n
-  n+'0 zero = refl
-  n+'0 (suc n) = refl
+
+n+'0 : (n : ℕ) → n +' 0 ≡ n
+n+'0 zero = refl
+n+'0 (suc n) = refl
 
 lUnit⌣ₖ : (n : ℕ) (x : coHomK n) → _⌣ₖ_ {n = 0} (pos 1) x ≡ x
 lUnit⌣ₖ zero = λ _ → refl

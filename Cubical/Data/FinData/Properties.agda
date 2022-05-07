@@ -25,6 +25,16 @@ private
    A : Type ℓ
    m n k : ℕ
 
+-- alternative from
+fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
+fromℕ' ℕzero k infkn = Empty.rec (¬-<-zero infkn)
+fromℕ' (ℕsuc n) ℕzero infkn = zero
+fromℕ' (ℕsuc n) (ℕsuc k) infkn = suc (fromℕ' n k (pred-≤-pred infkn))
+
+toFromId' : (n : ℕ) → (k : ℕ) → (infkn : k < n) → toℕ (fromℕ' n k infkn) ≡ k
+toFromId' ℕzero k infkn = Empty.rec (¬-<-zero infkn)
+toFromId' (ℕsuc n) ℕzero infkn = refl
+toFromId' (ℕsuc n) (ℕsuc k) infkn = cong ℕsuc (toFromId' n k (pred-≤-pred infkn))
 
 znots : ∀{k} {m : Fin k} → ¬ (zero ≡ (suc m))
 znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
@@ -97,6 +107,21 @@ toFin0≡0 (ℕzero , p) = subst (λ x → fromℕ x ≡ zero) (cong predℕ p) 
 toFin0≡0 {ℕzero} (ℕsuc k , p) = Empty.rec (ℕsnotz (+-comm 1 k ∙ (cong predℕ p)))
 toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
          subst (λ x → weakenFin x ≡ zero) (sym (toFin0≡0 (k , cong predℕ p))) refl
+
+genδ-FinVec : (n k : ℕ) → (a b : A) → FinVec A n
+genδ-FinVec (ℕsuc n) ℕzero a b zero = a
+genδ-FinVec (ℕsuc n) ℕzero a b (suc x) = b
+genδ-FinVec (ℕsuc n) (ℕsuc k) a b zero = b
+genδ-FinVec (ℕsuc n) (ℕsuc k) a b (suc x) = genδ-FinVec n k a b x
+
+δℕ-FinVec : (n k : ℕ) → FinVec ℕ n
+δℕ-FinVec n k = genδ-FinVec n k 1 0
+
+-- WARNING : harder to prove things about
+genδ-FinVec' : (n k : ℕ) → (a b : A) → FinVec A n
+genδ-FinVec' n k a b x with discreteℕ (toℕ x) k
+... | yes p = a
+... | no ¬p = b
 
 -- doing induction on toFin is awkward, so the following alternative
 enum : (m : ℕ) → m < n → Fin n
