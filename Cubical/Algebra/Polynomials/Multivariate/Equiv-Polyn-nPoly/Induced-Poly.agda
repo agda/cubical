@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Multivariate.Equiv.Induced-Poly where
+module Cubical.Algebra.Polynomials.Multivariate.Equiv-Polyn-nPoly.Induced-Poly where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

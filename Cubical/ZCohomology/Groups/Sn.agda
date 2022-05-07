@@ -52,6 +52,10 @@ open IsGroupHom
 open BijectionIso
 open Iso
 
+
+
+-------------------------- H⁰(Sⁿ) for n > 1 -----------------------------
+
 Sn-connected : (n : ℕ) (x : typ (S₊∙ (suc n))) → ∥ pt (S₊∙ (suc n)) ≡ x ∥₁
 Sn-connected zero = toPropElim (λ _ → isPropPropTrunc) ∣ refl ∣₁
 Sn-connected (suc zero) = suspToPropElim base (λ _ → isPropPropTrunc) ∣ refl ∣₁
@@ -113,7 +117,7 @@ H⁰-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr 0 (S₊ (suc n))) ℤGroup
 H⁰-Sⁿ≅ℤ zero = H⁰-connected base (Sn-connected 0)
 H⁰-Sⁿ≅ℤ (suc n) = H⁰-connected north (Sn-connected (suc n))
 
--- -- ----------------------------------------------------------------------
+----------------------------------------------------------------------
 
 --- We will need to switch between Sⁿ defined using suspensions and using pushouts
 --- in order to apply Mayer Vietoris.
@@ -148,7 +152,7 @@ snd H⁰-S⁰≅ℤ×ℤ =
     (sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetℤ isSetℤ) _ _) λ a b → refl)
 
 
-------------------------- H¹(S⁰) ≅ 0 -------------------------------
+------------------------- Hⁿ(S⁰) ≅ 0 for n ≥ 1 -------------------------------
 
 
 private
@@ -182,10 +186,10 @@ private
                                   (λ _ _ → isProp→isOfHLevelSuc (4 + n) (isSetSetTrunc _ _))
                                   (suspToPropElim2 north (λ _ _ → isSetSetTrunc _ _) refl) (fst y) (snd y)
 
-H¹-S⁰≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ 0)) UnitGroup₀
-H¹-S⁰≅0 n = contrGroupIsoUnit (isContrHⁿ-S0 n)
+Hⁿ-S⁰≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ 0)) UnitGroup₀
+Hⁿ-S⁰≅0 n = contrGroupIsoUnit (isContrHⁿ-S0 n)
 
-------------------------- H²(S¹) ≅ 0 -------------------------------
+------------------------- Hⁿ(S¹) ≅ 0 , for n ≥ 2  -------------------------------
 
 Hⁿ-S¹≅0 : (n : ℕ) → GroupIso (coHomGr (2 + n) (S₊ 1)) UnitGroup₀
 Hⁿ-S¹≅0 n = contrGroupIsoUnit
@@ -213,7 +217,7 @@ Hⁿ-S¹≅0 n = contrGroupIsoUnit
     helper3 = isOfHLevelRetractFromIso 0 setTruncTrunc2Iso
                                          (isConnectedPath 2 (isConnectedSubtr 3 n helper4) _ _)
 
--- --------------- H¹(Sⁿ), n ≥ 1 --------------------------------------------
+--------------- H¹(Sⁿ), n ≥ 2 --------------------------------------------
 
 H¹-Sⁿ≅0 : (n : ℕ) → GroupIso (coHomGr 1 (S₊ (2 + n))) UnitGroup₀
 H¹-Sⁿ≅0 zero = contrGroupIsoUnit isContrH¹S²
@@ -257,8 +261,8 @@ H¹(S¹) := ∥ S¹ → K₁ ∥₂
         ≃ ∥ S¹ ∥₂ × ∥ ℤ ∥₂
         ≃ ℤ
 -}
-coHom1S1≃ℤ : GroupIso (coHomGr 1 (S₊ 1)) ℤGroup
-coHom1S1≃ℤ = theIso
+H¹-S¹≅ℤ : GroupIso (coHomGr 1 (S₊ 1)) ℤGroup
+H¹-S¹≅ℤ = theIso
   where
   F = Iso.fun S¹→S¹≡S¹×ℤ
   F⁻ = Iso.inv S¹→S¹≡S¹×ℤ
@@ -285,9 +289,11 @@ coHom1S1≃ℤ = theIso
     help : (p q : Path (coHomK 1) ∣ base ∣ ∣ base ∣) → cong₂ _+ₖ_ p q ≡ p ∙ q
     help p q = cong₂Funct _+ₖ_ p q ∙ (λ i → cong (λ x → rUnitₖ 1 x i) p ∙ cong (λ x → lUnitₖ 1 x i) q)
 
+
+
 ---------------------------- Hⁿ(Sⁿ) ≅ ℤ , n ≥ 1 -------------------
 Hⁿ-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ (suc n))) ℤGroup
-Hⁿ-Sⁿ≅ℤ zero = coHom1S1≃ℤ
+Hⁿ-Sⁿ≅ℤ zero = H¹-S¹≅ℤ
 Hⁿ-Sⁿ≅ℤ (suc n) = suspensionAx-Sn n n □ Hⁿ-Sⁿ≅ℤ n
 
 -------------- Hⁿ(Sᵐ) ≅ ℤ for n , m ≥ 1 with n ≠ m ----------------
@@ -297,6 +303,26 @@ Hⁿ-Sᵐ≅0 zero (suc m) pf = H¹-Sⁿ≅0 m
 Hⁿ-Sᵐ≅0 (suc n) zero pf = Hⁿ-S¹≅0 n
 Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
                            □ Hⁿ-Sᵐ≅0 n m λ p → pf (cong suc p)
+
+
+-------------- A nice packaging for the Hⁿ-Sⁿ  ----------------
+
+code : (m n : ℕ) → Type ℓ-zero
+code zero     zero   = GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
+code zero    (suc n) = GroupIso (coHomGr 0 (S₊ (suc n))) ℤGroup
+code (suc m)  zero   = GroupIso (coHomGr (suc m) (S₊ 0)) UnitGroup₀
+code (suc m) (suc n) with (discreteℕ m n)
+... | yes p = GroupIso (coHomGr (suc n) (S₊ (suc n))) ℤGroup
+... | no ¬p = GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup₀
+
+Hᵐ-Sⁿ : (m n : ℕ) → code m n
+Hᵐ-Sⁿ zero     zero   = H⁰-S⁰≅ℤ×ℤ
+Hᵐ-Sⁿ zero    (suc n) = H⁰-Sⁿ≅ℤ n
+Hᵐ-Sⁿ (suc m)  zero   = Hⁿ-S⁰≅0 m
+Hᵐ-Sⁿ (suc m) (suc n) with discreteℕ m n
+... | yes p = Hⁿ-Sⁿ≅ℤ n
+... | no ¬p = Hⁿ-Sᵐ≅0 n m λ e → ¬p (sym e)
+
 
 
 -- Test functions
