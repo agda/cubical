@@ -27,8 +27,13 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.Truncation renaming (elim to trElim) hiding (map ; elim2)
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim)
 
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
-
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Bool renaming (Bool to BoolGroup)
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Unit
 
 S¹⋁S¹ : Type₀
 S¹⋁S¹ = S₊∙ 1 ⋁ S₊∙ 1
@@ -42,7 +47,7 @@ H⁰-S¹⋁S¹ = H⁰-connected (inl base) (wedgeConnected _ _ (Sn-connected 0) 
 
 ------------- H¹(S¹⋁S¹) ------------
 H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (DirProd ℤGroup ℤGroup)
-H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ GroupIsoDirProd coHom1S1≃ℤ coHom1S1≃ℤ
+H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ GroupIsoDirProd H¹-S¹≅ℤ H¹-S¹≅ℤ
 
 ------------- H⁰(S²⋁S¹⋁S¹) ---------
 H⁰-S²⋁S¹⋁S¹ : GroupIso (coHomGr 0 S²⋁S¹⋁S¹) ℤGroup
@@ -66,7 +71,7 @@ H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) ℤGroup
 H²-S²⋁S¹⋁S¹ =
   compGroupIso
   (Hⁿ-⋁ _ _ 1)
-  (GroupIsoDirProd {B = UnitGroup}
+  (GroupIsoDirProd {B = UnitGroup₀}
     (Hⁿ-Sⁿ≅ℤ 1)
     ((Hⁿ-⋁ _ _ 1)  □ GroupIsoDirProd (Hⁿ-S¹≅0 0) (Hⁿ-S¹≅0 0) □ rUnitGroupIso)
   □ rUnitGroupIso)

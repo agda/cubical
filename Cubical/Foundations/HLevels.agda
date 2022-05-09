@@ -30,8 +30,7 @@ HLevel = ℕ
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' ℓ'''' ℓ''''' : Level
-    A A′ : Type ℓ
-    A' : Type ℓ'
+    A A' : Type ℓ
     B : A → Type ℓ
     C : (x : A) → B x → Type ℓ
     D : (x : A) (y : B x) → C x y → Type ℓ
@@ -307,8 +306,8 @@ isContrΣ {A = A} {B = B} (a , p) q =
      , ( λ x i → p (x .fst) i
        , h (p (x .fst) i) (transp (λ j → B (p (x .fst) (i ∨ ~ j))) i (x .snd)) i))
 
-isContrΣ′ : (ca : isContr A) → isContr (B (fst ca)) → isContr (Σ A B)
-isContrΣ′ ca cb = isContrΣ ca (λ x → subst _ (snd ca x) cb)
+isContrΣ' : (ca : isContr A) → isContr (B (fst ca)) → isContr (Σ A B)
+isContrΣ' ca cb = isContrΣ ca (λ x → subst _ (snd ca x) cb)
 
 section-Σ≡Prop
   : (pB : (x : A) → isProp (B x)) {u v : Σ A B}
@@ -595,6 +594,21 @@ isOfHLevelDep 0 {A = A} B = {a : A} → Σ[ b ∈ B a ] ({a' : A} (b' : B a') (p
 isOfHLevelDep 1 {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 ≡ a1)  → PathP (λ i → B (p i)) b0 b1
 isOfHLevelDep (suc (suc  n)) {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) → isOfHLevelDep (suc n) {A = a0 ≡ a1} (λ p → PathP (λ i → B (p i)) b0 b1)
 
+isContrDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isContrDep = isOfHLevelDep 0
+
+isPropDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isPropDep = isOfHLevelDep 1
+
+isContrDep∘
+  : {A' : Type ℓ} (f : A' → A) → isContrDep B → isContrDep (B ∘ f)
+isContrDep∘ f cB {a} = λ where
+  .fst → cB .fst
+  .snd b' p → cB .snd b' (cong f p)
+
+isPropDep∘ : {A' : Type ℓ} (f : A' → A) → isPropDep B → isPropDep (B ∘ f)
+isPropDep∘ f pB b0 b1 = pB b0 b1 ∘ cong f
+
 isOfHLevel→isOfHLevelDep : (n : HLevel)
   → {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isOfHLevel n (B a)) → isOfHLevelDep n {A = A} B
 isOfHLevel→isOfHLevelDep 0 h {a} =
@@ -750,8 +764,8 @@ module _ (isSet-A : isSet A) (isSet-A' : isSet A') where
 
 
 
-isSet→Iso-Iso-≡ : (isSet-A : isSet A) → (isSet-A′ : isSet A′) →  Iso (Iso A A′) (A ≡ A′)
-isSet→Iso-Iso-≡ isSet-A isSet-A′ = ww
+isSet→Iso-Iso-≡ : (isSet-A : isSet A) → (isSet-A' : isSet A') →  Iso (Iso A A') (A ≡ A')
+isSet→Iso-Iso-≡ isSet-A isSet-A' = ww
   where
     open Iso
 
@@ -759,8 +773,7 @@ isSet→Iso-Iso-≡ isSet-A isSet-A′ = ww
     fun ww = isoToPath
     inv ww = pathToIso
     rightInv ww b = isInjectiveTransport (funExt λ _ → transportRefl _)
-    leftInv ww a = SetsIso≡-ext isSet-A isSet-A′ (λ _ → transportRefl (fun a _)) λ _ → cong (inv a) (transportRefl _)
+    leftInv ww a = SetsIso≡-ext isSet-A isSet-A' (λ _ → transportRefl (fun a _)) λ _ → cong (inv a) (transportRefl _)
 
 hSet-Iso-Iso-≡ : (A : hSet ℓ) → (A' : hSet ℓ) → Iso (Iso (fst A) (fst A')) (A ≡ A')
 hSet-Iso-Iso-≡ A A' = compIso (isSet→Iso-Iso-≡ (snd A) (snd A')) (equivToIso (_ , isEquiv-Σ≡Prop λ _ → isPropIsSet))
-

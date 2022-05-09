@@ -29,6 +29,8 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 

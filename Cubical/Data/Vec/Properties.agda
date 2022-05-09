@@ -7,10 +7,15 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
 import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Unit
 open import Cubical.Data.Nat
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 open import Cubical.Data.Vec.Base
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
+
+open Iso
 
 private
   variable
@@ -58,3 +63,70 @@ FinVec≡Vec n = ua (FinVec≃Vec n)
 
 isContrVec0 : isContr (Vec A 0)
 isContrVec0 = [] , λ { [] → refl }
+
+-- encode - decode Vec
+module VecPath {A : Type ℓ}
+  where
+
+  code : {n : ℕ} → (v v' : Vec A n) → Type ℓ
+  code [] [] = Unit*
+  code (a ∷ v) (a' ∷ v') = (a ≡ a') × (v ≡ v')
+
+  -- encode
+  reflEncode : {n : ℕ} → (v : Vec A n) → code v v
+  reflEncode [] = tt*
+  reflEncode (a ∷ v) = refl , refl
+
+  encode : {n : ℕ} → (v v' : Vec A n) → (v ≡ v') → code v v'
+  encode v v' p = J (λ v' _ → code v v') (reflEncode v) p
+
+  encodeRefl : {n : ℕ} → (v : Vec A n) → encode v v refl ≡ reflEncode v
+  encodeRefl v = JRefl (λ v' _ → code v v') (reflEncode v)
+
+  -- decode
+  decode : {n : ℕ} → (v v' : Vec A n) → (r : code v v') → (v ≡ v')
+  decode [] [] _ = refl
+  decode (a ∷ v) (a' ∷ v') (p , q) = cong₂ _∷_ p q
+
+  decodeRefl : {n : ℕ} → (v : Vec A n) → decode v v (reflEncode v) ≡ refl
+  decodeRefl [] = refl
+  decodeRefl (a ∷ v) = refl
+
+  -- equiv
+  ≡Vec≃codeVec : {n : ℕ} → (v v' : Vec A n) → (v ≡ v') ≃ (code v v')
+  ≡Vec≃codeVec v v' = isoToEquiv is
+    where
+    is : Iso (v ≡ v') (code v v')
+    fun is = encode v v'
+    inv is = decode v v'
+    rightInv is = sect v v'
+      where
+      sect : {n : ℕ} → (v v' : Vec A n) → (r : code v v')
+             → encode v v' (decode v v' r) ≡ r
+      sect [] [] tt* = encodeRefl []
+      sect (a ∷ v) (a' ∷ v') (p , q) = J (λ a' p → encode (a ∷ v) (a' ∷ v') (decode (a ∷ v) (a' ∷ v') (p , q)) ≡ (p , q))
+                                       (J (λ v' q → encode (a ∷ v) (a ∷ v') (decode (a ∷ v) (a ∷ v') (refl , q)) ≡ (refl , q))
+                                       (encodeRefl (a ∷ v)) q) p
+    leftInv is = retr v v'
+      where
+      retr : {n : ℕ} → (v v' : Vec A n) → (p : v ≡ v')
+             → decode v v' (encode v v' p) ≡ p
+      retr v v' p = J (λ v' p → decode v v' (encode v v' p) ≡ p)
+                    (cong (decode v v) (encodeRefl v) ∙ decodeRefl v) p
+
+
+  discreteA→discreteVecA : Discrete A → (n : ℕ) → Discrete (Vec A n)
+  discreteA→discreteVecA DA zero [] [] = yes refl
+  discreteA→discreteVecA DA (suc n) (a ∷ v) (a' ∷ v') with (DA a a') | (discreteA→discreteVecA DA n v v')
+  ... | yes p | yes q = yes (invIsEq (snd (≡Vec≃codeVec (a ∷ v) (a' ∷ v'))) (p , q))
+  ... | yes p | no ¬q = no (λ r → ¬q (snd (funIsEq (snd (≡Vec≃codeVec (a ∷ v) (a' ∷ v'))) r)))
+  ... | no ¬p | yes q = no (λ r → ¬p (fst (funIsEq (snd (≡Vec≃codeVec (a ∷ v) (a' ∷ v'))) r)))
+  ... | no ¬p | no ¬q = no (λ r → ¬q (snd (funIsEq (snd (≡Vec≃codeVec (a ∷ v) (a' ∷ v'))) r)))
+
+  ≢-∷ : {m : ℕ} → (Discrete A) → (a : A) → (v : Vec A m) → (a' : A) → (v' : Vec A m) →
+         (a ∷ v ≡ a' ∷ v' → ⊥.⊥) → (a ≡ a' → ⊥.⊥) ⊎ (v ≡ v' → ⊥.⊥)
+  ≢-∷ {m} discreteA a v a' v' ¬r with (discreteA a a')
+                        | (discreteA→discreteVecA discreteA m v v')
+  ... | yes p | yes q = ⊥.rec (¬r (cong₂ _∷_ p q))
+  ... | yes p | no ¬q = inr ¬q
+  ... | no ¬p | y = inl ¬p
