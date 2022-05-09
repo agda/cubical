@@ -16,14 +16,14 @@ open GroupStr
 fst ℤ = ℤType
 1g (snd ℤ) = 0
 _·_ (snd ℤ) = _+ℤ_
-inv (snd ℤ) = _-ℤ_ 0
+inv (snd ℤ) = -ℤ_
 isGroup (snd ℤ) = isGroupℤ
   where
   abstract
-    isGroupℤ : IsGroup (pos 0) _+ℤ_ (_-ℤ_ (pos 0))
-    isGroupℤ = makeIsGroup isSetℤ +Assoc (λ _ → refl) (+Comm 0)
-                           (λ x → +Comm x (pos 0 -ℤ x) ∙ minusPlus x 0)
-                           (λ x → minusPlus x 0)
+    isGroupℤ : IsGroup (pos 0) (_+ℤ_) (-ℤ_)
+    isGroupℤ = makeIsGroup isSetℤ
+                           +Assoc (λ _ → refl) (+Comm 0)
+                           -Cancel -Cancel'
 
 ℤHom : (n : ℤType) → GroupHom ℤ ℤ
 fst (ℤHom n) x = n ·ℤ x
@@ -38,7 +38,4 @@ fst negEquivℤ =
          (GroupTheory.invInv ℤ)
          (GroupTheory.invInv ℤ))
 snd negEquivℤ =
-  makeIsGroupHom λ x y
-    → +Comm (pos 0) (-ℤ (x +ℤ y))
-    ∙ -Dist+ x y
-    ∙ cong₂ _+ℤ_ (+Comm (-ℤ x) (pos 0)) (+Comm (-ℤ y) (pos 0))
+  makeIsGroupHom -Dist+
