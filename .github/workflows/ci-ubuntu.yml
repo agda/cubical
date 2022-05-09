@@ -135,7 +135,12 @@ jobs:
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
 
+      ########################################################################
+      ## HTML GENERATION
+      ########################################################################
+
       - name: Htmlize cubical
+        if: github.event_name == 'push' && github.ref_name == 'master'
         run: |
           make listings \
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
