@@ -23,4 +23,3 @@ isCommRing (snd ℤ) = isCommRingℤ
     isCommRingℤ = makeIsCommRing isSetℤ Int.+Assoc (λ _ → refl)
                                  -Cancel Int.+Comm Int.·Assoc
                                  Int.·Rid ·DistR+ Int.·Comm
-

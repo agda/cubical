@@ -198,14 +198,12 @@ module Equiv-S1-Properties where
                         T0 (a ·ℤ b) ≡ (T0 a) ⌣ (T0 b)
   pres·-base-case-00 (pos zero)       b = (IsGroupHom.pres1 T0g)
   pres·-base-case-00 (pos (suc n))    b = ((IsGroupHom.pres· T0g b (pos n ·ℤ b)))
-                                           ∙ (cong (λ X → (T0 b) +ₕ X) (pres·-base-case-00 (pos n) b))
-  pres·-base-case-00 (negsuc zero)    b = cong T0 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
-                                           ∙ IsGroupHom.presinv T0g b
-
+                                          ∙ (cong (λ X → (T0 b) +ₕ X) (pres·-base-case-00 (pos n) b))
+  pres·-base-case-00 (negsuc zero)    b = IsGroupHom.presinv T0g b
   pres·-base-case-00 (negsuc (suc n)) b = cong T0 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
-                                           ∙ IsGroupHom.pres· T0g (negsuc n ·ℤ b) (-ℤ b)
-                                            ∙ cong₂ _+ₕ_ (pres·-base-case-00 (negsuc n) b)
-                                                         (cong T0 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T0g b)
+                                          ∙ IsGroupHom.pres· T0g (negsuc n ·ℤ b) (-ℤ b)
+                                          ∙ cong₂ _+ₕ_ (pres·-base-case-00 (negsuc n) b)
+                                                         (IsGroupHom.presinv T0g b)
 -- cup product on H⁰ → H¹ → H¹
   T1 : (z : ℤ) → coHom 1 (S₊ 1)
   T1 = λ z → inv (fst (Hᵐ-Sⁿ 1 1)) z
@@ -218,14 +216,12 @@ module Equiv-S1-Properties where
                         T1 (a ·ℤ b) ≡ (T0 a) ⌣ (T1 b)
   pres·-base-case-01 (pos zero)       b = (IsGroupHom.pres1 T1g)
   pres·-base-case-01 (pos (suc n))    b = ((IsGroupHom.pres· T1g b (pos n ·ℤ b)))
-                                           ∙ (cong (λ X → (T1 b) +ₕ X) (pres·-base-case-01 (pos n) b))
-  pres·-base-case-01 (negsuc zero)    b = cong T1 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
-                                           ∙ IsGroupHom.presinv T1g b
-
+                                          ∙ (cong (λ X → (T1 b) +ₕ X) (pres·-base-case-01 (pos n) b))
+  pres·-base-case-01 (negsuc zero)    b = IsGroupHom.presinv T1g b
   pres·-base-case-01 (negsuc (suc n)) b = cong T1 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
-                                           ∙ IsGroupHom.pres· T1g (negsuc n ·ℤ b) (-ℤ b)
-                                            ∙ cong₂ _+ₕ_ (pres·-base-case-01 (negsuc n) b)
-                                                         (cong T1 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T1g b)
+                                          ∙ IsGroupHom.pres· T1g (negsuc n ·ℤ b) (-ℤ b)
+                                          ∙ cong₂ _+ₕ_ (pres·-base-case-01 (negsuc n) b)
+                                                         (IsGroupHom.presinv T1g b)
 
 
 -- Nice packaging of the proof

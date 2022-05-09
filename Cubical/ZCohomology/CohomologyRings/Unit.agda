@@ -182,14 +182,12 @@ module Equiv-Unit-Properties where
                         T0 (a ·ℤ b) ≡ (T0 a) ⌣ (T0 b)
   pres·-base-case-00 (pos zero)       b = (IsGroupHom.pres1 T0g)
   pres·-base-case-00 (pos (suc n))    b = ((IsGroupHom.pres· T0g b (pos n ·ℤ b)))
-                                           ∙ (cong (λ X → (T0 b) +ₕ X) (pres·-base-case-00 (pos n) b))
-  pres·-base-case-00 (negsuc zero)    b = cong T0 (sym (+ℤLid (-ℤ b))) -- issue with the definition of ℤCommRing and ℤGroup
-                                           ∙ IsGroupHom.presinv T0g b
-
+                                          ∙ (cong (λ X → (T0 b) +ₕ X) (pres·-base-case-00 (pos n) b))
+  pres·-base-case-00 (negsuc zero)    b = IsGroupHom.presinv T0g b
   pres·-base-case-00 (negsuc (suc n)) b = cong T0 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
-                                           ∙ IsGroupHom.pres· T0g (negsuc n ·ℤ b) (-ℤ b)
-                                            ∙ cong₂ _+ₕ_ (pres·-base-case-00 (negsuc n) b)
-                                                         (cong T0 (sym (+ℤLid (-ℤ b))) ∙ IsGroupHom.presinv T0g b)
+                                          ∙ IsGroupHom.pres· T0g (negsuc n ·ℤ b) (-ℤ b)
+                                          ∙ cong₂ _+ₕ_ (pres·-base-case-00 (negsuc n) b)
+                                                         (IsGroupHom.presinv T0g b)
 
 
   pres·-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
