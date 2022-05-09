@@ -206,7 +206,7 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
   BFsq F = F-square F Bsq
 
 
- -- On a basis this is weaker than the right definition below!
+ -- On a basis this is weaker than the definition below!
  isDLBasisSheafPullback : DLBasisPreSheaf → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
  isDLBasisSheafPullback F = ((0∈L' : 0l ∈ L') → F .F-ob (0l , 0∈L') ≡ 1c)
                           × ((x y : ob BasisCat) (x∨y∈L' : fst x ∨l fst y ∈ L')
@@ -234,7 +234,7 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
 
    BDiag : Functor (DLShfDiag n) (BasisCat ^op)
    F-ob BDiag (sing i) = α i
-   F-ob BDiag (pair i j _) = α i · α j
+   F-ob BDiag (pair i j _) = α i · α j -- α i ∧ α j + basis is closed under ∧
    F-hom BDiag idAr = is-refl _
    F-hom BDiag singPairL = ≤m→≤j _ _ (∧≤RCancel _ _)
    F-hom BDiag singPairR = ≤m→≤j _ _ (∧≤LCancel _ _)
