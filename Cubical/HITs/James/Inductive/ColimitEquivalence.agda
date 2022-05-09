@@ -3,6 +3,8 @@
 This file contains:
   - The reduced version gives the same type as James.
 
+Warning: This file type-checks a bit slowly, and I don't know why.
+
 -}
 {-# OPTIONS --safe #-}
 module Cubical.HITs.James.Inductive.ColimitEquivalence where
@@ -15,7 +17,6 @@ open import Cubical.Foundations.Pointed
 open import Cubical.HITs.James.Base
   renaming (James to JamesConstruction)
 open import Cubical.HITs.James.Inductive.Reduced
-  hiding   (coh')
   renaming (𝕁Red to 𝕁RedConstruction ; 𝕁Red∞ to 𝕁amesConstruction)
 open import Cubical.HITs.James.Inductive.Coherence
 

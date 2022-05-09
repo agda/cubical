@@ -15,8 +15,7 @@ open import Cubical.Foundations.Prelude
 module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
   open Category C
 
-  private
-    record TensorStr : Type (ℓ-max ℓ ℓ') where
+  record TensorStr : Type (ℓ-max ℓ ℓ') where
       field
         ─⊗─ : Functor (C × C) C
         unit : ob

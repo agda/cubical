@@ -11,7 +11,7 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (_≤_)
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 import Cubical.Data.Fin as Fin

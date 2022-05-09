@@ -23,12 +23,6 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.Groups.Sn
-open import Cubical.ZCohomology.RingStructure.CupProduct
-
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
@@ -42,11 +36,26 @@ open import Cubical.HITs.SetTruncation
 open import Cubical.HITs.PropositionalTruncation
   renaming (map to pMap ; rec to pRec)
 
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.Groups.Sn
+open import Cubical.ZCohomology.RingStructure.CupProduct
+
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int
 
 open import Cubical.Relation.Nullary
 
 open import Cubical.Homotopy.Loopspace
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.Groups.Sn
+open import Cubical.ZCohomology.RingStructure.CupProduct
 
 open Iso
 

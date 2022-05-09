@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-  - The inductive construction of James, as direct limit of some family.
+  - The inductive construction of James.
 
 -}
 {-# OPTIONS --safe #-}

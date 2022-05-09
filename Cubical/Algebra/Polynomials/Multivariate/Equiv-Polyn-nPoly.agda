@@ -16,10 +16,10 @@ open import Cubical.Algebra.CommRing.Instances.UnivariatePoly
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Properties
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
-open import Cubical.Algebra.Polynomials.Multivariate.Equiv.Poly0-A
-open import Cubical.Algebra.Polynomials.Multivariate.Equiv.Poly1-Poly
-open import Cubical.Algebra.Polynomials.Multivariate.Equiv.Comp-Poly
-open import Cubical.Algebra.Polynomials.Multivariate.Equiv.Induced-Poly
+open import Cubical.Algebra.Polynomials.Multivariate.Equiv-Polyn-nPoly.Poly0-A
+open import Cubical.Algebra.Polynomials.Multivariate.Equiv-Polyn-nPoly.Poly1-Poly
+open import Cubical.Algebra.Polynomials.Multivariate.Equiv-Polyn-nPoly.Comp-Poly
+open import Cubical.Algebra.Polynomials.Multivariate.Equiv-Polyn-nPoly.Induced-Poly
 
 
 open Nth-Poly-structure

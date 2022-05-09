@@ -28,7 +28,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal renaming (IdealsIn to IdealsInRing)
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 
 private
   variable
@@ -336,3 +336,9 @@ module _ {R : CommRing ℓ} where
                                              subst-∈p (fst I)
                                                    (·Comm r _)
                                                    (·Closed (snd I) r x∈pI)
+
+  Ideal→CommIdeal : IdealsInRing (CommRing→Ring R) → IdealsIn R
+  fst (Ideal→CommIdeal I) = fst I
+  +Closed (snd (Ideal→CommIdeal I)) = +-closed (snd I)
+  contains0 (snd (Ideal→CommIdeal I)) = 0r-closed (snd I)
+  ·Closed (snd (Ideal→CommIdeal I)) = ·-closedLeft (snd I)

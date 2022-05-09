@@ -11,7 +11,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
-open import Cubical.HITs.S1 renaming (_·_ to _*_)
+open import Cubical.HITs.S1 renaming (_·_ to _*_) hiding (rec ; elim)
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
 open import Cubical.Data.Nat hiding (elim)
@@ -22,7 +22,6 @@ open import Cubical.HITs.Truncation
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Join renaming (joinS¹S¹→S³ to joinS¹S¹→S3)
 open import Cubical.Data.Bool
-
 
 private
   variable

@@ -39,8 +39,13 @@ open import Cubical.HITs.Wedge
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.AbGroup.Instances.Unit
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Unit
 
 open coHomTheory
 open Iso
@@ -80,7 +85,7 @@ SuspCohomElim {A = A} n {B = B} isprop f =
 -- (Reduced) cohomology functor
 coHomFunctor : {ℓ : Level}  (n : ℤ) → Pointed ℓ → AbGroup ℓ
 coHomFunctor (pos n) = coHomRedGroup n
-coHomFunctor (negsuc n) _ = trivialAbGroup
+coHomFunctor (negsuc n) _ = UnitAbGroup
 
 -- Alternative definition with reduced groups replaced by unreduced one for n ≥ 1
 coHomFunctor' : {ℓ : Level} (n : ℤ) → Pointed ℓ → AbGroup ℓ

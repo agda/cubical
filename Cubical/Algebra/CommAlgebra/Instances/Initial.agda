@@ -10,8 +10,12 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Algebra
+open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom)
+open import Cubical.Algebra.Algebra.Properties
 open import Cubical.Algebra.CommAlgebra
+import Cubical.Algebra.Algebra.Properties
+
+open AlgebraHoms
 
 private
   variable
@@ -109,10 +113,10 @@ module _ (R : CommRing ℓ) where
         Iso.rightInv asIso =
           λ x i → cong
                     fst
-                    (isContr→isProp (initialityContr initialCAlg) (compCommAlgebraHom initialCAlg A initialCAlg from to ) (idCommAlgebraHom initialCAlg))
+                    (isContr→isProp (initialityContr initialCAlg) (to ∘a from) (idCAlgHom initialCAlg))
                     i x
         Iso.leftInv asIso =
           λ x i → cong
                     fst
-                    (isContr→isProp (isInitial A) (compCommAlgebraHom A initialCAlg A to from) (idCommAlgebraHom A))
+                    (isContr→isProp (isInitial A) (from ∘a to) (idCAlgHom A))
                     i x

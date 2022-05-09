@@ -9,8 +9,8 @@ This file contains:
   - Special cases of 𝕁 n for n = 0, 1 and 2;
   - Connectivity of inclusion maps.
 
-Actually here is only a summary of these results,
-their proofs are divided into parts and placed in the fold Cubical.HITs.James.Inductive
+This file is the summary of the main results.
+The proof is divided into parts and put inside the fold Cubical.HITs.James.Inductive
 
 -}
 {-# OPTIONS --safe #-}
@@ -32,7 +32,7 @@ open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.James.Base
 open import Cubical.HITs.James.Inductive.Base
 open import Cubical.HITs.James.Inductive.PushoutFormula
-open import Cubical.HITs.James.Inductive.Reduced hiding (𝕁 ; 𝕁∞)
+open import Cubical.HITs.James.Inductive.Reduced
 open import Cubical.HITs.James.Inductive.ColimitEquivalence
 
 open import Cubical.Homotopy.Connected
