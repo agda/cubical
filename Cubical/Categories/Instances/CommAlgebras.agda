@@ -272,19 +272,19 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
 
  private
   ∥P∥ : ℙ (ob C)
-  ∥P∥ x  = ∥ P x ∥ , isPropPropTrunc
+  ∥P∥ x  = ∥ P x ∥₁ , isPropPropTrunc
   ΣC∥P∥Cat = ΣPropCat C ∥P∥
   CommAlgCat = CommAlgebrasCategory {ℓ = ℓ''} R {ℓ' = ℓ''}
 
  𝓕UniqueEquiv : (x : ob C) (p q : P x) → isContr (CommAlgebraEquiv (𝓕 (x , p)) (𝓕 (x , q)))
  𝓕UniqueEquiv x = contrCommAlgebraHom→contrCommAlgebraEquiv (curry 𝓕 x) λ p q → uniqueHom _ _ (id C)
 
- theMap : (x : ob C) → ∥ P x ∥ → CommAlgebra R ℓ''
+ theMap : (x : ob C) → ∥ P x ∥₁ → CommAlgebra R ℓ''
  theMap x = recPT→CommAlgebra (curry 𝓕 x) (λ p q → 𝓕UniqueEquiv x p q .fst)
                                          λ p q r → 𝓕UniqueEquiv x p r .snd _
 
  theAction : (x y : ob C) → C [ x , y ]
-           → (p : ∥ P x ∥) (q : ∥ P y ∥) → isContr (CommAlgebraHom (theMap y q) (theMap x p))
+           → (p : ∥ P x ∥₁) (q : ∥ P y ∥₁) → isContr (CommAlgebraHom (theMap y q) (theMap x p))
  theAction _ _ f = elim2 (λ _ _ → isPropIsContr) λ _ _ → uniqueHom _ _ f
 
  open Functor

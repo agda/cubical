@@ -65,7 +65,7 @@ _∣_ : ℤ → ℤ → Type
 m ∣ n = ∃[ c ∈ ℤ ] c · m ≡ n
 
 isProp∣ : isProp (m ∣ n)
-isProp∣ = squash
+isProp∣ = squash₁
 
 -- Untruncated divisiblility relation
 
@@ -82,15 +82,15 @@ isProp∣' {m = negsuc m} {n = n} p q =
   Σ≡Prop (λ _ → isSetℤ _ _) (·rCancel (negsuc m) _ _ (p .snd ∙ sym (q .snd)) (negsucNotpos _ 0))
 
 ∣→∣' : (m n : ℤ) → m ∣ n → m ∣' n
-∣→∣' (pos 0) n ∣ c , p ∣ = ·Comm 0 c ∙ p
-∣→∣' (pos (suc m)) n ∣ p ∣ = p
-∣→∣' (negsuc m) n ∣ p ∣ = p
-∣→∣' m n (squash p q i) = isProp∣' (∣→∣' _ _ p) (∣→∣' _ _ q) i
+∣→∣' (pos 0) n ∣ c , p ∣₁ = ·Comm 0 c ∙ p
+∣→∣' (pos (suc m)) n ∣ p ∣₁ = p
+∣→∣' (negsuc m) n ∣ p ∣₁ = p
+∣→∣' m n (squash₁ p q i) = isProp∣' (∣→∣' _ _ p) (∣→∣' _ _ q) i
 
 ∣'→∣ : (m n : ℤ) → m ∣' n → m ∣ n
-∣'→∣ (pos 0) n p = ∣ 0 , p ∣
-∣'→∣ (pos (suc m)) n p = ∣ p ∣
-∣'→∣ (negsuc m) n p = ∣ p ∣
+∣'→∣ (pos 0) n p = ∣ 0 , p ∣₁
+∣'→∣ (pos (suc m)) n p = ∣ p ∣₁
+∣'→∣ (negsuc m) n p = ∣ p ∣₁
 
 ∣≃∣' : (m n : ℤ) → (m ∣ n) ≃ (m ∣' n)
 ∣≃∣' m n = propBiimpl→Equiv isProp∣ isProp∣' (∣→∣' _ _) (∣'→∣ _ _)
@@ -98,19 +98,19 @@ isProp∣' {m = negsuc m} {n = n} p q =
 -- Properties of divisibility
 
 ∣-left : m ∣ (m · k)
-∣-left {k = k} = ∣ k , ·Comm k _ ∣
+∣-left {k = k} = ∣ k , ·Comm k _ ∣₁
 
 ∣-right : m ∣ (k · m)
-∣-right {k = k} =  ∣ k , refl ∣
+∣-right {k = k} =  ∣ k , refl ∣₁
 
 ∣-refl : m ≡ n → m ∣ n
-∣-refl p = ∣ 1 , p ∣
+∣-refl p = ∣ 1 , p ∣₁
 
 ∣-zeroˡ : 0 ∣ m → 0 ≡ m
 ∣-zeroˡ = ∣→∣' _ _
 
 ∣-zeroʳ : m ∣ 0
-∣-zeroʳ = ∣ 0 , refl ∣
+∣-zeroʳ = ∣ 0 , refl ∣₁
 
 ∣-+ : k ∣ m → k ∣ n → k ∣ (m + n)
 ∣-+ =
@@ -132,7 +132,7 @@ isProp∣' {m = negsuc m} {n = n} p q =
 -- Natural numbers back and forth (using abs)
 
 ∣→∣ℕ : m ∣ n → abs m ∣ℕ abs n
-∣→∣ℕ {m = m} = Prop.rec isProp∣ℕ (λ (c , h) → ∣ abs c , sym (abs· c m) ∙ cong abs h ∣)
+∣→∣ℕ {m = m} = Prop.rec isProp∣ℕ (λ (c , h) → ∣ abs c , sym (abs· c m) ∙ cong abs h ∣₁)
 
 private
   ∣ℕ→∣-helper : (m n : ℤ)
@@ -169,7 +169,7 @@ private
     ∙ sym q
 
 ∣ℕ→∣ : abs m ∣ℕ abs n → m ∣ n
-∣ℕ→∣ = Prop.rec isProp∣ (λ (c , h) → ∣ ∣ℕ→∣-helper _ _ c h (abs→⊎ _ _ refl) (abs→⊎ _ _ refl) ∣)
+∣ℕ→∣ = Prop.rec isProp∣ (λ (c , h) → ∣ ∣ℕ→∣-helper _ _ c h (abs→⊎ _ _ refl) (abs→⊎ _ _ refl) ∣₁)
 
 ¬∣→¬∣ℕ : ¬ m ∣ n → ¬ abs m ∣ℕ abs n
 ¬∣→¬∣ℕ p q = p (∣ℕ→∣ q)
@@ -294,7 +294,7 @@ module _
   (m n : ℤ)(qr : QuotRem m n) where
 
   rem≡0→m∣n : qr .rem ≡ 0 → m ∣ n
-  rem≡0→m∣n p = ∣ qr .div , (λ i → qr .div · m + p (~ i)) ∙ sym (qr .quotEq) ∣
+  rem≡0→m∣n p = ∣ qr .div , (λ i → qr .div · m + p (~ i)) ∙ sym (qr .quotEq) ∣₁
 
   m∣n→rem≡0 : m ∣ n → qr .rem ≡ 0
   m∣n→rem≡0 p =

@@ -27,7 +27,7 @@ _∣_ : ℕ → ℕ → Type₀
 m ∣ n = ∃[ c ∈ ℕ ] c · m ≡ n
 
 isProp∣ : isProp (m ∣ n)
-isProp∣ = squash
+isProp∣ = squash₁
 
 prediv : ℕ → ℕ → Type₀
 prediv m n = Σ[ c ∈ ℕ ] c · m ≡ n
@@ -46,7 +46,7 @@ isProp∣' {suc m} {n} (c₁ , p₁) (c₂ , p₂) =
 ∣≃∣' : (m ∣ n) ≃ (m ∣' n)
 ∣≃∣' {zero} = propBiimpl→Equiv isProp∣ isProp∣'
                               (PropTrunc.rec (isSetℕ _ _) λ { (c , p) → 0≡m·0 c ∙ p })
-                              (λ p → ∣ zero , p ∣)
+                              (λ p → ∣ zero , p ∣₁)
 ∣≃∣' {suc m} = propTruncIdempotent≃ isProp∣'
 
 ∣-untrunc : m ∣ n → Σ[ c ∈ ℕ ] c · m ≡ n
@@ -57,17 +57,17 @@ isProp∣' {suc m} {n} (c₁ , p₁) (c₂ , p₂) =
 -- basic properties of ∣
 
 ∣-refl : m ≡ n → m ∣ n
-∣-refl p = ∣ 1 , +-zero _ ∙ p ∣
+∣-refl p = ∣ 1 , +-zero _ ∙ p ∣₁
 
 ∣-trans : l ∣ m → m ∣ n → l ∣ n
 ∣-trans = PropTrunc.map2 λ {
   (c₁ , p) (c₂ , q) → (c₂ · c₁ , sym (·-assoc c₂ c₁ _) ∙ cong (c₂ ·_) p ∙ q) }
 
 ∣-left : ∀ k → m ∣ (m · k)
-∣-left k = ∣ k , ·-comm k _ ∣
+∣-left k = ∣ k , ·-comm k _ ∣₁
 
 ∣-right : ∀ k → m ∣ (k · m)
-∣-right k = ∣ k , refl ∣
+∣-right k = ∣ k , refl ∣₁
 
 ∣-cancelʳ : ∀ k → (m · suc k) ∣ (n · suc k) → m ∣ n
 ∣-cancelʳ k = PropTrunc.map λ {
@@ -81,10 +81,10 @@ isProp∣' {suc m} {n} (c₁ , p₁) (c₂ , p₂) =
 ∣-zeroˡ = equivFun ∣≃∣'
 
 ∣-zeroʳ : ∀ m → m ∣ zero
-∣-zeroʳ m = ∣ zero , refl ∣
+∣-zeroʳ m = ∣ zero , refl ∣₁
 
 ∣-oneˡ : ∀ m → 1 ∣ m
-∣-oneˡ m = ∣ m , ·-identityʳ m ∣
+∣-oneˡ m = ∣ m , ·-identityʳ m ∣₁
 
 -- if n > 0, then the constant c (s.t. c · m ≡ n) is also > 0
 ∣s-untrunc : m ∣ suc n → Σ[ c ∈ ℕ ] (suc c) · m ≡ suc n

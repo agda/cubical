@@ -300,7 +300,7 @@ recPT→CommAlgebra : {R : CommRing ℓ} {A : Type ℓ'} (𝓕  : A → CommAlge
            → (σ : ∀ x y → CommAlgebraEquiv (𝓕 x) (𝓕 y))
            → (∀ x y z → σ x z ≡ compCommAlgebraEquiv (σ x y) (σ y z))
           ------------------------------------------------------
-           → ∥ A ∥ → CommAlgebra R ℓ''
+           → ∥ A ∥₁ → CommAlgebra R ℓ''
 recPT→CommAlgebra 𝓕 σ compCoh = GpdElim.rec→Gpd isGroupoidCommAlgebra 𝓕
   (3-ConstantCompChar 𝓕 (λ x y → uaCommAlgebra (σ x y))
                           λ x y z → sym (  cong uaCommAlgebra (compCoh x y z)

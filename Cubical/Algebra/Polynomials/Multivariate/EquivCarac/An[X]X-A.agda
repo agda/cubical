@@ -28,7 +28,6 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
-  renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
 
 private variable
   ℓ : Level
@@ -246,7 +245,7 @@ module Properties-Equiv-QuotientXn-A
            ... | yes p = cong [_] (cong (λ X → base X a) (sym p))
            ... | no ¬p with (pred-vec-≢0 v ¬p)
            ... | k , v' , infkn , eqvv' = eq/ (base (replicate 0) 0A)
-                                             (base v a) ∣ ((genδ-FinVec n k (base v' (-A a)) 0PA) , helper) ∣₋₁
+                                             (base v a) ∣ ((genδ-FinVec n k (base v' (-A a)) 0PA) , helper) ∣₁
                where
                helper : _
                helper = cong (λ X → X poly+ base v (-A a)) (base-0P (replicate 0))

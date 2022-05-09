@@ -413,7 +413,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
                                     ∙∙ cong (_· s) (sym (0RightAnnihilates _))
 
    Surχ : isSurjection (fst χ)
-   Surχ a = PT.rec isPropPropTrunc (λ x → PT.∣ [ x .fst ] , x .snd ∣) (surχ a)
+   Surχ a = PT.rec isPropPropTrunc (λ x → PT.∣ [ x .fst ] , x .snd ∣₁) (surχ a)
 
 
  S⁻¹RChar : (A' : CommRing ℓ) (φ : CommRingHom R' A')
