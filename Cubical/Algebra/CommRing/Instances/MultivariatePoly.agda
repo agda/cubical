@@ -31,20 +31,19 @@ module _
   fst PolyCommRing = Poly A n
   0r (snd PolyCommRing) = 0P
   1r (snd PolyCommRing) = 1P
-  _+_ (snd PolyCommRing) = _Poly+_
-  _·_ (snd PolyCommRing) = _Poly*_
-  - snd PolyCommRing = Poly-inv
+  _+_ (snd PolyCommRing) = _poly+_
+  _·_ (snd PolyCommRing) = _poly*_
+  - snd PolyCommRing = polyInv
   isCommRing (snd PolyCommRing) = makeIsCommRing
                                   trunc
-                                  Poly+-assoc
-                                  Poly+-Rid
-                                  Poly+-rinv
-                                  Poly+-comm
-                                  Poly*-assoc
-                                  Poly*-Rid
-                                  Poly*-Rdist
-                                  Poly*-comm
-
+                                  poly+Assoc
+                                  poly+IdR
+                                  poly+InvR
+                                  poly+Comm
+                                  poly*Assoc
+                                  poly*IdR
+                                  poly*DistR
+                                  poly*Comm
 
 
 -----------------------------------------------------------------------------

@@ -407,23 +407,23 @@ module Equiv-Sn-Properties (n : ℕ) where
 
     base-add-eq : (k : ℕ) → (a b : coHom k (S₊ (suc n))) → (x : partℕ k)
                   → base-trad-H* k a x +Pℤ base-trad-H* k b x ≡ base-trad-H* k (a +ₕ b) x
-    base-add-eq k a b (is0 x) = base-Poly+ _ _ _
+    base-add-eq k a b (is0 x) = base-poly+ _ _ _
                                 ∙ cong (baseP (0 ∷ [])) (sym (pres· (snd (H⁰-Sⁿ≅ℤ n)) _ _))
                                 ∙ cong (baseP (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (sym (subst-+ k a b 0 x)))
-    base-add-eq k a b (isSn x) =  base-Poly+ _ _ _
+    base-add-eq k a b (isSn x) =  base-poly+ _ _ _
                                   ∙ cong (baseP (1 ∷ [])) (sym (pres· (snd (Hⁿ-Sⁿ≅ℤ n)) _ _))
                                   ∙ cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (sym (subst-+ k a b (suc n) x)))
     base-add-eq k a b (else x) = +PℤRid _
 
 
-  H*-Sⁿ→ℤ[x]-gmorph : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x] ( x +H* y) ≡ H*-Sⁿ→ℤ[x] x +Pℤ H*-Sⁿ→ℤ[x] y
-  H*-Sⁿ→ℤ[x]-gmorph x y = refl
+  H*-Sⁿ→ℤ[x]-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x] ( x +H* y) ≡ H*-Sⁿ→ℤ[x] x +Pℤ H*-Sⁿ→ℤ[x] y
+  H*-Sⁿ→ℤ[x]-pres+ x y = refl
 
   H*-Sⁿ→ℤ[x]/x² : H* (S₊ (suc n)) → ℤ[x]/x²
   H*-Sⁿ→ℤ[x]/x² = [_] ∘ H*-Sⁿ→ℤ[x]
 
-  H*-Sⁿ→ℤ[x]/x²-gmorph : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x]/x² (x +H* y) ≡ (H*-Sⁿ→ℤ[x]/x² x) +PℤI (H*-Sⁿ→ℤ[x]/x² y)
-  H*-Sⁿ→ℤ[x]/x²-gmorph x y = refl
+  H*-Sⁿ→ℤ[x]/x²-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x]/x² (x +H* y) ≡ (H*-Sⁿ→ℤ[x]/x² x) +PℤI (H*-Sⁿ→ℤ[x]/x² y)
+  H*-Sⁿ→ℤ[x]/x²-pres+ x y = refl
 
 
 

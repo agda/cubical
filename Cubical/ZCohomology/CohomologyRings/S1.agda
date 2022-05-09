@@ -303,8 +303,8 @@ module Equiv-S1-Properties where
                base-neutral-eq (suc (suc n)) = refl
 
                base-add-eq : _
-               base-add-eq zero a b        = (base-Poly+ _ _ _) ∙ (cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 0 1)) a b)))
-               base-add-eq one a b         = (base-Poly+ _ _ _) ∙ (cong (baseP (1 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 1 1)) a b)))
+               base-add-eq zero a b        = (base-poly+ _ _ _) ∙ (cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 0 1)) a b)))
+               base-add-eq one a b         = (base-poly+ _ _ _) ∙ (cong (baseP (1 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 1 1)) a b)))
                base-add-eq (suc (suc n)) a b = +PℤRid _
 
   H*-S¹→ℤ[x]-pres+ : (x y : H* (S₊ 1)) → H*-S¹→ℤ[x] ( x +H* y) ≡ H*-S¹→ℤ[x] x +Pℤ H*-S¹→ℤ[x] y

@@ -23,7 +23,7 @@ open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
-open import Cubical.Algebra.Polynomials.Multivariate.Equiv-A[X]X-A
+open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.A[X]X-A
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
@@ -257,7 +257,7 @@ module Equiv-Unit-Properties where
                base-neutral-eq (suc n) = refl
 
                base-add-eq : _
-               base-add-eq zero a b = base-Poly+ _ _ _
+               base-add-eq zero a b = base-poly+ _ _ _
                                       ∙ cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd H⁰-Unit≅ℤ) a b))
                base-add-eq (suc n) a b = +PℤRid _
 
@@ -303,13 +303,13 @@ module Equiv-Unit-Properties where
            base-case (zero ∷ []) a = refl
            base-case (suc n ∷ []) a = eq/ 0Pℤ (baseP (suc n ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , foo) ∣₋₁
              where
-             foo : (0P Poly+ baseP (suc n ∷ []) (- a)) ≡ (baseP (n +n 1 ∷ []) (- a · pos 1) Poly+ 0P)
-             foo = (0P Poly+ baseP (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
+             foo : (0P poly+ baseP (suc n ∷ []) (- a)) ≡ (baseP (n +n 1 ∷ []) (- a · pos 1) poly+ 0P)
+             foo = (0P poly+ baseP (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
                    baseP (suc n ∷ []) (- a) ≡⟨ cong₂ baseP (cong (λ X → X ∷ []) (sym ((+-suc n 0)
                                               ∙ (cong suc (+-zero n))))) (sym (·ℤRid _)) ⟩
                    baseP (n +n suc 0 ∷ []) (- a ·ℤ 1ℤ) ≡⟨ refl ⟩
                    baseP (n +n 1 ∷ []) (- a · pos 1) ≡⟨ sym (+PℤRid _) ⟩
-                   (baseP (n +n 1 ∷ []) (- a · pos 1) Poly+ 0P) ∎
+                   (baseP (n +n 1 ∷ []) (- a · pos 1) poly+ 0P) ∎
 
 
 

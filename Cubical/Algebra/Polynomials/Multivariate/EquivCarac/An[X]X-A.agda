@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Multivariate.Equiv-PolynQuotient-A where
+module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.An[X]X-A where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -205,7 +205,7 @@ module Properties-Equiv-QuotientXn-A
   A→PA-pres1 = refl
 
   A→PA-pres+ : (a a' : A) → A→PA (a +A a') ≡ (A→PA a) +PA (A→PA a')
-  A→PA-pres+ a a' = sym (base-Poly+ _ _ _)
+  A→PA-pres+ a a' = sym (base-poly+ _ _ _)
 
   A→PA-pres· : (a a' : A) → A→PA (a ·A a') ≡ (A→PA a) ·PA (A→PA a')
   A→PA-pres· a a' = cong (λ X → base X (a ·A a')) (sym (+n-vec-rid _))
@@ -249,7 +249,7 @@ module Properties-Equiv-QuotientXn-A
                                              (base v a) ∣ ((genδ-FinVec n k (base v' (-A a)) 0PA) , helper) ∣₋₁
                where
                helper : _
-               helper = cong (λ X → X Poly+ base v (-A a)) (base-0P (replicate 0))
+               helper = cong (λ X → X poly+ base v (-A a)) (base-0P (replicate 0))
                         ∙ +PALid (base v (-A a))
                         ∙ sym (
                           genδ-FinVec-ℕLinearCombi ((A[X1,···,Xn] Ar n)) n k infkn (base v' (-A a)) (<X1,···,Xn> Ar n)
