@@ -318,6 +318,14 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
       (λ j → compPath-filler p q (i ∨ ~ k) j)) (~ k)
       (J (λ j → compPath-filler p q (~ k) j))
 
+-- A prefix operator version of J that is more suitable to be nested
+
+module _ {P : ∀ y → x ≡ y → Type ℓ'} (d : P x refl) where
+  J>_ : ∀ y → (p : x ≡ y) → P y p
+  J>_ _ p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
+
+  infix 10 J>_
+
 -- Converting to and from a PathP
 
 module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where

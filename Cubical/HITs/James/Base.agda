@@ -3,7 +3,10 @@
 The James Construction,
   also known as James Reduced Product
 
-This is a very fundamental and useful construction in classical homotopy theory.
+A very fundamental and useful construction in classical homotopy theory.
+It can be seen as the free A∞-monoid constructed out of a given type,
+namely the "correct higher version" of free monoid that is meaningful for all types,
+instead of only h-Sets.
 
 Referrence:
   Guillaume Brunerie,
