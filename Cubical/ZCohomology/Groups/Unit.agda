@@ -15,7 +15,7 @@ open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
 open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+  renaming (rec to pRec ; elim to pElim ; elim2 to pElim2)
 
 open import Cubical.Data.Int hiding (ℤ ; _+_ ; +Comm)
 open import Cubical.Data.Nat

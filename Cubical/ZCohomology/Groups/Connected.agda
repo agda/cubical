@@ -11,7 +11,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec)
 open import Cubical.HITs.Nullification
 
 open import Cubical.Data.Sigma hiding (_×_)

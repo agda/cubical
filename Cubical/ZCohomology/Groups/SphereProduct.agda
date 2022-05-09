@@ -86,7 +86,7 @@ private
 
 ∥HⁿSᵐPath∥ : (n m : ℕ) → (f : S₊ (suc m) → coHomK (suc n))
        → ¬ (n ≡ m)
-       → ∥ f ≡ (λ _ → 0ₖ (suc n)) ∥
+       → ∥ f ≡ (λ _ → 0ₖ (suc n)) ∥₁
 ∥HⁿSᵐPath∥ n m f p =
   fun PathIdTrunc₀Iso
     (isContr→isProp
@@ -106,7 +106,7 @@ inv (fst (×leftSuspensionIso n m)) =
 rightInv (fst (×leftSuspensionIso n m)) =
   sElim (λ _ → isSetPathImplicit)
     λ f → inv PathIdTrunc₀Iso
-      (pRec squash
+      (pRec squash₁
         (uncurry (λ g p
           → pMap (λ gid → funExt λ {(x , y)
          → (λ i → uncurry (↑Sⁿ×Sᵐ→Kₙ₊ₘ n m
@@ -157,7 +157,7 @@ rightInv (fst (×leftSuspensionIso n m)) =
   ∥Path∥ :
     (g : S₊ (suc n) → S₊ (suc m)
          → typ (Ω (coHomK-ptd (suc (suc (suc n + m))))))
-       → ∥ (g (ptSn _)) ≡ (λ _ → refl) ∥
+       → ∥ (g (ptSn _)) ≡ (λ _ → refl) ∥₁
   ∥Path∥ g =
       fun PathIdTrunc₀Iso
         (isContr→isProp

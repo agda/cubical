@@ -80,9 +80,9 @@ ImG→H⊂KerH→L (extendExact4Surjective G H L R S G→H H→L L→R R→S sur
   pRec (GroupStr.is-set (snd R) _ _)
     (uncurry λ g → J (λ x _ → isInKer L→R x)
       (ImG→H⊂KerH→L ex (fst H→L (fst G→H g))
-        ∣ (fst G→H g) , refl ∣))
+        ∣ (fst G→H g) , refl ∣₁))
 KerH→L⊂ImG→H (extendExact4Surjective G H L R S G→H H→L L→R R→S surj ex) x ker =
-  pRec squash
+  pRec squash₁
     (uncurry λ y → J (λ x _ → isInIm (compGroupHom G→H H→L) x)
       (pMap (uncurry
         (λ y → J (λ y _ → Σ[ g ∈ fst G ] fst H→L (fst G→H g) ≡ H→L .fst y)

@@ -286,7 +286,7 @@ private
                                               (λ gId → ∣ ∣ (λ { (inl tt) → 0
                                                               ; (inr b) → g b
                                                               ; (push a i) → funExt⁻ (cong fst gId) a (~ i)}) , q ∣₂
-                                                       , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl) ∣)
+                                                       , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl) ∣₁)
                                               (Iso.fun PathIdTrunc₀Iso inker)})
     inv (exactnessIso (pos zero) (f , p)) =
       uncurry (sElim (λ _ → isSetΠ λ _ → isSetΣ isSetSetTrunc λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
@@ -326,7 +326,7 @@ private
                                (λ gIdTot → ∣ ∣ (λ { (inl tt) → 0ₖ _
                                                   ; (inr b) → g b
                                                   ; (push a i) → funExt⁻ gIdTot a (~ i)}) ∣₂
-                                             , cong ∣_∣₂ (funExt λ b → refl) ∣)
+                                             , cong ∣_∣₂ (funExt λ b → refl) ∣₁)
                                (Iso.fun PathIdTrunc₀Iso inker)
     inv (exactnessIso (pos (suc n)) f) im = fst im , inKer-helper (fst im) (snd im)
       where
@@ -353,7 +353,7 @@ private
       isContr→Iso ((tt* , refl)
                    , λ {(tt* , p) → Σ≡Prop (λ _ → isOfHLevelPath 1 isPropUnit* _ _)
                                             refl})
-                   ((tt* , ∣ tt* , refl ∣)
+                   ((tt* , ∣ tt* , refl ∣₁)
                    , λ {(tt* , p) → Σ≡Prop (λ _ → isPropPropTrunc)
                                             refl})
 

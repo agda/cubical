@@ -11,7 +11,7 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec )
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
@@ -133,7 +133,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     where
     helper : (f : A ⋁ B → coHomK 1) (x : coHomK 1)
           → f (inl (pt A)) ≡ x
-          → ∥ f ≡ wedgeFun⁻ 0 (λ x → f (inl x)) (λ x → f (inr x)) ∥
+          → ∥ f ≡ wedgeFun⁻ 0 (λ x → f (inl x)) (λ x → f (inr x)) ∥₁
     helper f =
       trElim (λ _ → isProp→isOfHLevelSuc 2 (isPropΠ λ _ → isPropPropTrunc))
         (sphereElim 0 (λ _ → isPropΠ λ _ → isPropPropTrunc)
@@ -181,7 +181,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
     where
     helper : (f : A ⋁ B → coHomK (2 + n)) (x : coHomK (2 + n))
           → f (inl (pt A)) ≡ x
-          → ∥ f ≡ wedgeFun⁻ (suc n) (λ x → f (inl x)) (λ x → f (inr x)) ∥
+          → ∥ f ≡ wedgeFun⁻ (suc n) (λ x → f (inl x)) (λ x → f (inr x)) ∥₁
     helper f =
       trElim (λ _ → isProp→isOfHLevelSuc (3 + n) (isPropΠ λ _ → isPropPropTrunc))
         (sphereToPropElim (suc n) (λ _ → isPropΠ λ _ → isPropPropTrunc)
@@ -243,7 +243,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
               λ {(f , p) (g , q) → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl)
                                           , cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl))})
 
-  wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥) → ((x : typ B) → ∥ pt B ≡ x ∥) → (x : A ⋁ B) → ∥ inl (pt A) ≡ x ∥
+  wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥₁) → ((x : typ B) → ∥ pt B ≡ x ∥₁) → (x : A ⋁ B) → ∥ inl (pt A) ≡ x ∥₁
   wedgeConnected conA conB =
     PushoutToProp (λ _ → isPropPropTrunc)
                   (λ a → pRec isPropPropTrunc (λ p → ∣ cong inl p ∣₁) (conA a))

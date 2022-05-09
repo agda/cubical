@@ -522,7 +522,7 @@ module g-base where
 -- We now generealise the equivalence g to also apply to arbitrary fibrations (Q : B → Type)
 -- satisfying (Q * ≃∙ Sⁿ)
 module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
-         (conB : (x y : typ B) → ∥ x ≡ y ∥)
+         (conB : (x y : typ B) → ∥ x ≡ y ∥₁)
          (n : ℕ) (Q-is : Iso (typ (Q (pt B))) (S₊ n))
          (Q-is-ptd : Iso.fun Q-is (pt (Q (pt B))) ≡ snd (S₊∙ n))
          (c : (b : typ B) → (Q b →∙ coHomK-ptd n))
@@ -786,7 +786,7 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
 -- the nᵗʰ cohomology of B and the (n+i)ᵗʰ reduced cohomology of Ẽ,
 -- as defined above
 module Thom {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
-         (conB : (x y : typ B) → ∥ x ≡ y ∥)
+         (conB : (x y : typ B) → ∥ x ≡ y ∥₁)
          (n : ℕ) (Q-is : Iso (typ (preThom.Q B P (pt B))) (S₊ n))
          (Q-is-ptd : Iso.fun Q-is (pt (preThom.Q B P (pt B))) ≡ snd (S₊∙ n))
          (c : (b : typ B) → (preThom.Q B P b →∙ coHomK-ptd n))
@@ -823,8 +823,8 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
          (Q-is-ptd : Iso.fun Q-is (pt (preThom.Q B P (pt B))) ≡ snd (S₊∙ n))
          where
 
-  0-connB : (x y : typ B) → ∥ x ≡ y ∥
-  0-connB x y = sRec (isProp→isSet squash) (∥_∥.∣_∣) (conB x y)
+  0-connB : (x y : typ B) → ∥ x ≡ y ∥₁
+  0-connB x y = sRec (isProp→isSet squash₁) (∥_∥₁.∣_∣₁) (conB x y)
 
   c = (c* B (preThom.Q B P) conB n Q-is Q-is-ptd .fst)
   c-ptd = (c* B (preThom.Q B P) conB n Q-is Q-is-ptd .snd)
@@ -906,12 +906,12 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
 
     Ker-p⊂Im-j : (i : ℕ) (x : _) → isInKer (p-hom i) x → isInIm (j* i) x
     Ker-p⊂Im-j i =
-      sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash))
-        λ f ker → pRec squash
+      sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash₁))
+        λ f ker → pRec squash₁
           (λ id → ∣ ∣ (λ { (inl x) → 0ₖ _
                          ; (inr x) → f x
                          ; (push a i₁) → funExt⁻ id a (~ i₁)}) , refl ∣₂
-                         , refl ∣)
+                         , refl ∣₁)
                    (Iso.fun PathIdTrunc₀Iso ker)
 
   Im-p⊂Ker-Susp : (i : ℕ) (x : _)
@@ -929,8 +929,8 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   Ker-Susp⊂Im-p : (i : ℕ) (x : _)
                 → isInKer (E-susp i) x → isInIm (p-hom i) x
   Ker-Susp⊂Im-p i =
-    sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash))
-      λ f ker → pRec squash
+    sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash₁))
+      λ f ker → pRec squash₁
         (λ id → ∣ ∣ (λ x → ΩKn+1→Kn i (sym (funExt⁻ (cong fst id) (inr x)))) ∣₂
                   , cong ∣_∣₂ (funExt (λ { (a , b) →
                          cong (ΩKn+1→Kn i)
@@ -944,7 +944,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                         ∙ (sym (assoc _ _ _)
                         ∙∙ cong (Kn→ΩKn+1 i (f (a , b)) ∙_) (rCancel _)
                         ∙∙ sym (rUnit _)))
-                        ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f (a , b))})) ∣)
+                        ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f (a , b))})) ∣₁)
         (Iso.fun PathIdTrunc₀Iso ker)
 
   Im-Susp⊂Ker-j : (i : ℕ) (x : _)
@@ -961,16 +961,16 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   Ker-j⊂Im-Susp : (i : ℕ) (x : _)
                 → isInKer (cofibSeq.j* (suc i)) x → isInIm (E-susp i) x
   Ker-j⊂Im-Susp i =
-    sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash))
+    sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash₁))
       λ f ker
-       → pRec squash
+       → pRec squash₁
           (λ p → ∣ ∣ (λ x → ΩKn+1→Kn _ (sym (snd f)
                                      ∙∙ cong (fst f) (push x)
                                      ∙∙ funExt⁻ p (fst x))) ∣₂
                   , cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousKn _)
                     (funExt (λ { (inl x) → sym (snd f)
                                ; (inr x) → sym (funExt⁻ p x)
-                               ; (push a j) k → h3 f p a k j}))) ∣)
+                               ; (push a j) k → h3 f p a k j}))) ∣₁)
           (Iso.fun PathIdTrunc₀Iso ker)
           where
           h3 : (f : (E'̃ , inl tt) →∙ coHomK-ptd (suc i))
@@ -1040,14 +1040,14 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   Im-ϕ∘j⊂Ker-p : (i : ℕ) (x : _) → isInIm (ϕ∘j i) x → isInKer (p-hom _) x
   Im-ϕ∘j⊂Ker-p i x p =
     cofibSeq.Im-j⊂Ker-p _ x
-      (pRec squash (uncurry (λ f p → ∣ fst (fst (ϕ _)) f , p ∣)) p)
+      (pRec squash₁ (uncurry (λ f p → ∣ fst (fst (ϕ _)) f , p ∣₁)) p)
 
   Ker-p⊂Im-ϕ∘j : (i : ℕ) (x : _) → isInKer (p-hom _) x → isInIm (ϕ∘j i) x
   Ker-p⊂Im-ϕ∘j i x p =
-    pRec squash
+    pRec squash₁
       (uncurry (λ f p →
           ∣ (invEq (fst (ϕ _)) f)
-         , (cong (fst (cofibSeq.j* _)) (secEq (fst (ϕ _)) f) ∙ p) ∣))
+         , (cong (fst (cofibSeq.j* _)) (secEq (fst (ϕ _)) f) ∙ p) ∣₁))
         (cofibSeq.Ker-p⊂Im-j _ x p)
 
   Im-p⊂KerSusp∘ϕ : (i : ℕ) (x : _)
@@ -1073,7 +1073,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                              (invGroupEquiv (ϕ (suc i))) (+'-suc i n)) (fst (E-susp _) f))
              ∙∙ (natTranspLem _ (λ n → fst (cofibSeq.j* n)) (sym (+'-suc i n))
              ∙ cong (subst (λ z → coHomGr z (typ B) .fst) (sym (+'-suc i n)))
-                    (Im-Susp⊂Ker-j _ (fst (E-susp (i +' n)) f) ∣ f , refl ∣)
+                    (Im-Susp⊂Ker-j _ (fst (E-susp (i +' n)) f) ∣ f , refl ∣₁)
               ∙ tLem i n)))
     where
     tLem : (i n : ℕ) → subst (λ z → coHomGr z (typ B) .fst) (sym (+'-suc i n))
@@ -1086,9 +1086,9 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   Ker-ϕ∘j⊂Im-Susp∘ϕ : (i : ℕ) (x : _)
     → isInKer (ϕ∘j (suc i)) x → isInIm (susp∘ϕ i) x
   Ker-ϕ∘j⊂Im-Susp∘ϕ i x p =
-    pRec squash
+    pRec squash₁
       (uncurry (λ f p → ∣ f , cong (fst (fst (thomIso' i))) p
-                        ∙ secEq (fst (thomIso' _)) x ∣))
+                        ∙ secEq (fst (thomIso' _)) x ∣₁))
       (Ker-j⊂Im-Susp _ (invEq (fst (thomIso' _)) x)
         ((cong (cofibSeq.j* (suc (i +' n)) .fst ) lem₁
         ∙ natTranspLem _ (λ n → cofibSeq.j* n .fst) (+'-suc i n))

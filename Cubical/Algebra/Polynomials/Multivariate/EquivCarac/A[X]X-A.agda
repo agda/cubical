@@ -26,7 +26,6 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
-  renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
 
 private variable
   ℓ : Level
@@ -226,7 +225,7 @@ module Properties-Equiv-QuotientXn-A
          where
          base-eq : (a : A) → (v : Vec ℕ 1) → A→A[x]/x (A[x]/x→A [ (base v a) ]) ≡ [ (base v a) ]
          base-eq a (zero ∷ []) = cong [_] refl
-         base-eq a (suc k ∷ []) = eq/ (base (0 ∷ []) 0A) (base (suc k ∷ []) a) ∣ ((λ x → base (k ∷ []) (-A a)) , helper) ∣₋₁
+         base-eq a (suc k ∷ []) = eq/ (base (0 ∷ []) 0A) (base (suc k ∷ []) a) ∣ ((λ x → base (k ∷ []) (-A a)) , helper) ∣₁
            where
            helper : _
            helper = cong (λ X → X poly+ base (suc k ∷ []) (-A a)) (base-0P _)

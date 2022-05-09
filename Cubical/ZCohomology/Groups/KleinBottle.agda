@@ -10,7 +10,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
+open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
 open import Cubical.Data.Nat hiding (isEven)
 

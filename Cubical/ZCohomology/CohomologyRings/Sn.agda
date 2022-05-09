@@ -35,7 +35,7 @@ open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
 open import Cubical.HITs.SetTruncation as ST
-open import Cubical.HITs.PropositionalTruncation as PT renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
@@ -471,7 +471,7 @@ module Equiv-Sn-Properties (n : ℕ) where
                                      ∙ cong [_] (cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n)))
                                                                              (substReflCoHom (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a))))
                                      ∙ cong [_] (cong (baseP (1 ∷ [])) (rightInv (fst (Hⁿ-Sⁿ≅ℤ n)) a))
-           base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc k) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₋₁
+           base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc k) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₁
              where
              helper : _
              helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))

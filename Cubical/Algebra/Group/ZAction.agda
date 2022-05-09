@@ -528,7 +528,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                           (funExt⁻ (cong fst (characGroupHomℤ f ∙ cong ℤHom p)) ((pos (quotient x / (suc n))))
                           ∙ sym (pos· (suc n) (quotient x / (suc n)))
                           ∙ cong pos ((λ i → q (~ i) .fst +ℕ suc n ·ℕ (quotient x / suc n)))
-                          ∙ cong pos (≡remainder+quotient (suc n) x))) ∣ ;
+                          ∙ cong pos (≡remainder+quotient (suc n) x))) ∣₁ ;
            (negsuc x) q → eq/ (negsuc x) 0
                           ∣ (((- pos (quotient suc x / (suc n)))) ,
                           presinv (snd f) (pos (quotient suc x / (suc n)))
@@ -541,10 +541,10 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                                                  ∙ cong -ₘ_ q
                                                  ∙ GroupTheory.inv1g (ℤ/ (suc n))) (~ i))
                                                  +ℕ suc n ·ℕ quotient (suc x) / suc n)))
-                          ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))))) ∣})
+                          ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))))) ∣₁})
   BijectionIso.surj (ℤHom→ℤ/im≅ℤ/im1 n p) x =
       ∣ [ pos (fst x) ]
-    , (Σ≡Prop (λ _ → isProp≤) (modIndBase n (fst x) (snd x))) ∣
+    , (Σ≡Prop (λ _ → isProp≤) (modIndBase n (fst x) (snd x))) ∣₁
 
 -- main result
 ℤ/imIso : (f : GroupHom ℤGroup ℤGroup)
@@ -573,8 +573,8 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                                                    ∙ GroupTheory.invInv ℤGroup (fst f x)
                                                    ∙ q }))
                  (Prop.map (λ { (x , q) → (- x) , (presinv (snd f) x ∙ q) }))
-                 ((λ _ → squash _ _))
-                 (λ _ → squash _ _)))))
+                 ((λ _ → squash₁ _ _))
+                 (λ _ → squash₁ _ _)))))
 
 -- Goal: given G -ᶠ→ H → L → Unit exact, with G ≅ H ≅ ℤ, we get
 -- an iso ℤ/abs (f 1) ≅ H, where f 1 and 1 are viewed as integers

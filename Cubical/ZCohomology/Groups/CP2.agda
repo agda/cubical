@@ -40,7 +40,7 @@ open import Cubical.HITs.Join
 open import Cubical.HITs.SetTruncation
   renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim2 to pElim2 ; ∣_∣ to ∣_∣₁ ; map to pMap)
+  renaming (rec to pRec ; elim2 to pElim2 ; map to pMap)
 open import Cubical.HITs.Truncation
 
 open import Cubical.Relation.Nullary
@@ -70,8 +70,8 @@ leftInv characFunSpaceCP² _ =
 H⁰CP²≅ℤ : GroupIso (coHomGr 0 CP²) ℤGroup
 H⁰CP²≅ℤ =
   H⁰-connected (inr tt)
-    (PushoutToProp (λ _ → squash)
-      (sphereElim _ (λ _ → isOfHLevelSuc 1 squash)
+    (PushoutToProp (λ _ → squash₁)
+      (sphereElim _ (λ _ → isOfHLevelSuc 1 squash₁)
         ∣ sym (push (north , base)) ∣₁)
     λ _ → ∣ refl ∣₁)
 
@@ -161,7 +161,7 @@ H¹-CP²≅0 =
     (isOfHLevelRetractFromIso 0 (setTruncIso characFunSpaceCP²)
     (isOfHLevelRetractFromIso 0 lem₂ lem₃))
   where
-  lem₁ : (f : (Susp S¹ → coHomK 1)) → ∥ (λ _ → 0ₖ _) ≡ f ∥
+  lem₁ : (f : (Susp S¹ → coHomK 1)) → ∥ (λ _ → 0ₖ _) ≡ f ∥₁
   lem₁ f = pMap (λ p → p)
                 (Iso.fun PathIdTrunc₀Iso (isOfHLevelRetractFromIso 1
                   (fst (Hⁿ-Sᵐ≅0 0 1 (λ p → snotz (sym p)))) isPropUnit (0ₕ _) ∣ f ∣₂))

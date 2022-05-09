@@ -30,7 +30,7 @@ open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
-open import Cubical.HITs.PropositionalTruncation as PT renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
@@ -301,7 +301,7 @@ module Equiv-Unit-Properties where
            where
            base-case : _
            base-case (zero ∷ []) a = refl
-           base-case (suc n ∷ []) a = eq/ 0Pℤ (baseP (suc n ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , foo) ∣₋₁
+           base-case (suc n ∷ []) a = eq/ 0Pℤ (baseP (suc n ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , foo) ∣₁
              where
              foo : (0P poly+ baseP (suc n ∷ []) (- a)) ≡ (baseP (n +n 1 ∷ []) (- a · pos 1) poly+ 0P)
              foo = (0P poly+ baseP (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
