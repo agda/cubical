@@ -342,7 +342,7 @@ recPT→CommRing : {A : Type ℓ'} (𝓕  : A → CommRing ℓ)
            → (σ : ∀ x y → CommRingEquiv (𝓕 x) (𝓕 y))
            → (∀ x y z → σ x z ≡ compCommRingEquiv (σ x y) (σ y z))
           ------------------------------------------------------
-           → ∥ A ∥ → CommRing ℓ
+           → ∥ A ∥₁ → CommRing ℓ
 recPT→CommRing 𝓕 σ compCoh = GpdElim.rec→Gpd isGroupoidCommRing 𝓕
   (3-ConstantCompChar 𝓕 (λ x y → uaCommRing (σ x y))
                           λ x y z → sym (  cong uaCommRing (compCoh x y z)

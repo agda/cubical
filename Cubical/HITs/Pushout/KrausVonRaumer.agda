@@ -151,12 +151,12 @@ isEmbeddingInr f g fEmb c₀ c₁ =
 -- Further Application: Pushouts of emedding-spans of n-Types are n-Types, for n≥0
 module _ (f : A → B) (g : A → C) where
   inlrJointlySurjective :
-    (z : Pushout f g) → ∥ Σ[ x ∈ (B ⊎ C) ] (⊎.rec inl inr x) ≡ z ∥
+    (z : Pushout f g) → ∥ Σ[ x ∈ (B ⊎ C) ] (⊎.rec inl inr x) ≡ z ∥₁
   inlrJointlySurjective =
     elimProp _
              (λ _ → isPropPropTrunc)
-             (λ b → ∣ ⊎.inl b , refl ∣)
-             (λ c → ∣ ⊎.inr c , refl ∣)
+             (λ b → ∣ ⊎.inl b , refl ∣₁)
+             (λ c → ∣ ⊎.inr c , refl ∣₁)
 
   preserveHLevelEmbedding :
     {n : HLevel}
