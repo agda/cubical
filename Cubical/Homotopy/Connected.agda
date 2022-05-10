@@ -80,8 +80,13 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) wher
   isIsoPrecompose : ∀ {ℓ'''} (n : ℕ) (P : B → TypeOfHLevel ℓ''' n)
                    → isConnectedFun n f
                    → Iso ((b : B) → P b .fst) ((a : A) → P (f a) .fst)
-  isIsoPrecompose zero P fConn = isContr→Iso (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd)
-  Iso.fun (isIsoPrecompose (suc n) P fConn) = _∘ f
+  Iso.fun (isIsoPrecompose _ P fConn) = _∘ f
+  Iso.inv (isIsoPrecompose zero P fConn) =
+    Iso.inv (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
+  Iso.rightInv (isIsoPrecompose zero P fConn) =
+    Iso.rightInv (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
+  Iso.leftInv (isIsoPrecompose zero P fConn) =
+    Iso.leftInv (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
   Iso.inv (isIsoPrecompose (suc n) P fConn) t b = inv n P t b (fConn b .fst)
   Iso.rightInv (isIsoPrecompose (suc n) P fConn) t =
     funExt λ a → cong (inv n P t (f a)) (fConn (f a) .snd ∣ a , refl ∣)

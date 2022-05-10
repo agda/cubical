@@ -7,6 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Pointed.Base
 open import Cubical.Functions.Embedding
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
@@ -15,6 +16,10 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Sum
 
 open import Cubical.Data.Maybe.Base
+
+Maybe∙ : ∀ {ℓ} (A : Type ℓ) → Pointed ℓ
+Maybe∙ A .fst = Maybe A
+Maybe∙ A .snd = nothing
 
 map-Maybe-id : ∀ {ℓ} {A : Type ℓ} → ∀ m → map-Maybe (idfun A) m ≡ m
 map-Maybe-id nothing = refl

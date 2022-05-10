@@ -77,6 +77,10 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Exact
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Instances.IntMod
+open import Cubical.Algebra.Group.GroupPath
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int
 
 open S¹Hopf
 open Iso

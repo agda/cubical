@@ -162,7 +162,7 @@ infix 4 _[_↦_]
 private
   variable
     ℓ  : Level
-    ℓ′ : I → Level
+    ℓ' : I → Level
 
 -- Homogeneous filling
 hfill : {A : Type ℓ}
@@ -179,7 +179,7 @@ hfill {φ = φ} u u0 i =
 -- Heterogeneous composition can defined as in CHM, however we use the
 -- builtin one as it doesn't require u0 to be a cubical subtype. This
 -- reduces the number of inS's a lot.
--- comp : (A : ∀ i → Type (ℓ′ i))
+-- comp : (A : ∀ i → Type (ℓ' i))
 --        {φ : I}
 --        (u : ∀ i → Partial φ (A i))
 --        (u0 : A i0 [ φ ↦ u i0 ])
@@ -190,7 +190,7 @@ hfill {φ = φ} u u0 i =
 --         (transp A i0 (outS u0))
 
 -- Heterogeneous filling defined using comp
-fill : (A : ∀ i → Type (ℓ′ i))
+fill : (A : ∀ i → Type (ℓ' i))
        {φ : I}
        (u : ∀ i → Partial φ (A i))
        (u0 : A i0 [ φ ↦ u i0 ])

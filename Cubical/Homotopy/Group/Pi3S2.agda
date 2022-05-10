@@ -35,6 +35,10 @@ open import Cubical.Data.Int hiding (ℤ)
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Unit
+open import Cubical.Algebra.Group.Instances.Int
 
 TotalHopf→∙S² : (Σ (S₊ 2) S¹Hopf , north , base) →∙ S₊∙ 2
 fst TotalHopf→∙S² = fst
