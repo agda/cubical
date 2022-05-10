@@ -66,20 +66,26 @@ module _ {U : Type ℓ} (_~_ : U → U → Type ℓ')
   The following is called fundamental theorem of identity types in Egbert Rijke's
   introduction to homotopy type theory.
 -}
+recognizeId : {A : Type ℓ} {a : A} (Eq : A → Type ℓ')
+  → Eq a
+  → isContr (Σ _ Eq)
+  → (x : A) → (a ≡ x) ≃ (Eq x)
+recognizeId {A = A} {a = a} Eq eqRefl eqContr x = (fiberMap x) , (isEquivFiberMap x)
+  where
+    fiberMap : (x : A) → a ≡ x → Eq x
+    fiberMap x = J (λ x p → Eq x) eqRefl
+
+    mapOnSigma : Σ[ x ∈ A ] a ≡ x → Σ _ Eq
+    mapOnSigma pair = fst pair , fiberMap (fst pair) (snd pair)
+
+    equivOnSigma : (x : A) → isEquiv mapOnSigma
+    equivOnSigma x = isEquivFromIsContr mapOnSigma (isContrSingl a) eqContr
+
+    isEquivFiberMap : (x : A) → isEquiv (fiberMap x)
+    isEquivFiberMap = fiberEquiv (λ x → a ≡ x) Eq fiberMap (equivOnSigma x)
+
 fundamentalTheoremOfId : {A : Type ℓ} (Eq : A → A → Type ℓ')
   → ((x : A) → Eq x x)
   → ((x : A) → isContr (Σ[ y ∈ A ] Eq x y))
   → (x y : A) → (x ≡ y) ≃ (Eq x y)
-fundamentalTheoremOfId {A = A} Eq eqRefl eqContr x y = (fiberMap x y) , (isEquivFiberMap x y)
-  where
-    fiberMap : (x y : A) → x ≡ y → Eq x y
-    fiberMap x y = J (λ y p → Eq x y) (eqRefl x)
-
-    mapOnSigma : (x : A) → Σ[ y ∈ A ] x ≡ y → Σ[ y ∈ A ] Eq x y
-    mapOnSigma x pair = fst pair , fiberMap x (fst pair) (snd pair)
-
-    equivOnSigma : (x : A) → isEquiv (mapOnSigma x)
-    equivOnSigma x = isEquivFromIsContr (mapOnSigma x) (isContrSingl x) (eqContr x)
-
-    isEquivFiberMap : (x y : A) → isEquiv (fiberMap x y)
-    isEquivFiberMap x = fiberEquiv (λ y → x ≡ y) (Eq x) (fiberMap x) (equivOnSigma x)
+fundamentalTheoremOfId Eq eqRefl eqContr x = recognizeId (Eq x) (eqRefl x) (eqContr x)

@@ -44,8 +44,8 @@ private
   witness-prop : ∀ j → isProp (j + m ≡ n)
   witness-prop {m} {n} j = isSetℕ (j + m) n
 
-m≤n-isProp : isProp (m ≤ n)
-m≤n-isProp {m} {n} (k , p) (l , q)
+isProp≤ : isProp (m ≤ n)
+isProp≤ {m} {n} (k , p) (l , q)
   = Σ≡Prop witness-prop lemma
   where
   lemma : k ≡ l
@@ -308,7 +308,7 @@ module _
     dichotomy<≡ : ∀ b n → (n<b : n < b) → dichotomy b n ≡ inl n<b
     dichotomy<≡ b n n<b
       = case dichotomy b n return (λ d → d ≡ inl n<b) of λ
-      { (inl x) → cong inl (m≤n-isProp x n<b)
+      { (inl x) → cong inl (isProp≤ x n<b)
       ; (inr (m , p)) → ⊥.rec (<-asym n<b (m , sym (p ∙ +-comm b m)))
       }
 

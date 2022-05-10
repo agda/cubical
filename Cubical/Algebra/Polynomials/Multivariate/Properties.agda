@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat renaming(_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Vec
+open import Cubical.Data.Vec.OperationsNat
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing

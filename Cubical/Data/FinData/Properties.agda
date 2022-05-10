@@ -25,6 +25,16 @@ private
    A : Type ℓ
    m n k : ℕ
 
+-- alternative from
+fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
+fromℕ' ℕzero k infkn = Empty.rec (¬-<-zero infkn)
+fromℕ' (ℕsuc n) ℕzero infkn = zero
+fromℕ' (ℕsuc n) (ℕsuc k) infkn = suc (fromℕ' n k (pred-≤-pred infkn))
+
+toFromId' : (n : ℕ) → (k : ℕ) → (infkn : k < n) → toℕ (fromℕ' n k infkn) ≡ k
+toFromId' ℕzero k infkn = Empty.rec (¬-<-zero infkn)
+toFromId' (ℕsuc n) ℕzero infkn = refl
+toFromId' (ℕsuc n) (ℕsuc k) infkn = cong ℕsuc (toFromId' n k (pred-≤-pred infkn))
 
 znots : ∀{k} {m : Fin k} → ¬ (zero ≡ (suc m))
 znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
@@ -98,6 +108,21 @@ toFin0≡0 {ℕzero} (ℕsuc k , p) = Empty.rec (ℕsnotz (+-comm 1 k ∙ (cong 
 toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
          subst (λ x → weakenFin x ≡ zero) (sym (toFin0≡0 (k , cong predℕ p))) refl
 
+genδ-FinVec : (n k : ℕ) → (a b : A) → FinVec A n
+genδ-FinVec (ℕsuc n) ℕzero a b zero = a
+genδ-FinVec (ℕsuc n) ℕzero a b (suc x) = b
+genδ-FinVec (ℕsuc n) (ℕsuc k) a b zero = b
+genδ-FinVec (ℕsuc n) (ℕsuc k) a b (suc x) = genδ-FinVec n k a b x
+
+δℕ-FinVec : (n k : ℕ) → FinVec ℕ n
+δℕ-FinVec n k = genδ-FinVec n k 1 0
+
+-- WARNING : harder to prove things about
+genδ-FinVec' : (n k : ℕ) → (a b : A) → FinVec A n
+genδ-FinVec' n k a b x with discreteℕ (toℕ x) k
+... | yes p = a
+... | no ¬p = b
+
 -- doing induction on toFin is awkward, so the following alternative
 enum : (m : ℕ) → m < n → Fin n
 enum {n = ℕzero} _ m<0 = Empty.rec (¬-<-zero m<0)
@@ -114,7 +139,7 @@ toℕ∘enum {n = ℕsuc n} 0 _ = refl
 toℕ∘enum {n = ℕsuc n} (ℕsuc m) p i = ℕsuc (toℕ∘enum m (pred-≤-pred p) i)
 
 enumExt : {m m' : ℕ}(p : m < n)(p' : m' < n) → m ≡ m' → enum m p ≡ enum m' p'
-enumExt p p' q i = enum (q i) (isProp→PathP (λ i → m≤n-isProp {m = ℕsuc (q i)}) p p' i)
+enumExt p p' q i = enum (q i) (isProp→PathP (λ i → isProp≤ {m = ℕsuc (q i)}) p p' i)
 
 enumInj : {p : m < k}{q : n < k} → enum m p ≡ enum n q → m ≡ n
 enumInj p = sym (toℕ∘enum _ _) ∙ cong toℕ p ∙ toℕ∘enum _ _
@@ -242,3 +267,35 @@ module FinProdChar where
                     Fin m ⊎ (Fin n × Fin m) ≃⟨ isoToEquiv (⊎Iso idIso (equivToIso (Equiv n m))) ⟩
                     Fin m ⊎ Fin (n · m)     ≃⟨ FinSumChar.Equiv m (n · m) ⟩
                     Fin (m + n · m)         ■
+
+-- Exhaustion of decidable predicate
+
+∀Dec :
+    (P : Fin m → Type ℓ)
+  → (dec : (i : Fin m) → Dec (P i))
+  → ((i : Fin m) → P i) ⊎ (Σ[ i ∈ Fin m ] ¬ P i)
+∀Dec {m = 0} _ _ = inl λ ()
+∀Dec {m = ℕsuc m} P dec = helper (dec zero) (∀Dec _ (dec ∘ suc))
+  where
+    helper :
+        Dec (P zero)
+      → ((i : Fin m) → P (suc i))  ⊎ (Σ[ i ∈ Fin m ] ¬ P (suc i))
+      → ((i : Fin (ℕsuc m)) → P i) ⊎ (Σ[ i ∈ Fin (ℕsuc m) ] ¬ P i)
+    helper (yes p) (inl q) = inl λ { zero → p ; (suc i) → q i }
+    helper (yes _) (inr q) = inr (suc (q .fst) , q .snd)
+    helper (no ¬p) _ = inr (zero , ¬p)
+
+∀Dec2 :
+    (P : Fin m → Fin n → Type ℓ)
+  → (dec : (i : Fin m)(j : Fin n) → Dec (P i j))
+  → ((i : Fin m)(j : Fin n) → P i j) ⊎ (Σ[ i ∈ Fin m ] Σ[ j ∈ Fin n ] ¬ P i j)
+∀Dec2 {m = 0} {n = n} _ _ = inl λ ()
+∀Dec2 {m = ℕsuc m} {n = n} P dec = helper (∀Dec (P zero) (dec zero)) (∀Dec2 (P ∘ suc) (dec ∘ suc))
+  where
+    helper :
+        ((j : Fin n) → P zero j) ⊎ (Σ[ j ∈ Fin n ] ¬ P zero j)
+      → ((i : Fin m)(j : Fin n) → P (suc i) j)  ⊎ (Σ[ i ∈ Fin m ] Σ[ j ∈ Fin n ] ¬ P (suc i) j)
+      → ((i : Fin (ℕsuc m))(j : Fin n) → P i j) ⊎ (Σ[ i ∈ Fin (ℕsuc m) ] Σ[ j ∈ Fin n ] ¬ P i j)
+    helper (inl p) (inl q) = inl λ { zero j → p j ; (suc i) j → q i j }
+    helper (inl _) (inr q) = inr (suc (q .fst) , q .snd .fst , q .snd .snd)
+    helper (inr p) _ = inr (zero , p)

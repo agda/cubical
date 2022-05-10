@@ -25,7 +25,8 @@ open import Cubical.HITs.Truncation
   renaming (rec to trRec ; elim to trElim ; elim2 to trElim2)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp renaming (toSusp to σ)
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 renaming (_·_ to _*_)
+open import Cubical.HITs.S3
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
@@ -33,6 +34,9 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.GroupPath
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 
@@ -700,7 +704,7 @@ mutual
     (equivToIso
      (Ω→ (ΩTruncSwitchFun n m) .fst
     , isEquivΩ→ _ (compEquiv (isoToEquiv (ΩTruncSwitch {A = A} n (suc (suc m))))
-       (transportEquiv
+       (pathToEquiv
          (λ i → typ ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))) .snd)))
 
   ΩTruncSwitch : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
@@ -1019,6 +1023,11 @@ snd (π'∘∙Hom {A = A} {B = B} n f) = isHom∘∙
   funExt (sElim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (∘∙-idʳ f))
 
+invEquiv∙idEquiv∙≡idEquiv : ∀ {ℓ} {A : Pointed ℓ}
+  → invEquiv∙ (idEquiv (fst A) , (λ _ → pt A))
+  ≡ (idEquiv (fst A) , refl)
+invEquiv∙idEquiv∙≡idEquiv = ΣPathP ((Σ≡Prop (λ _ → isPropIsEquiv _) refl) , (sym (lUnit refl)))
+
 π'eqFunIsEquiv :
   ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
       → (e : A ≃∙ B)
@@ -1038,12 +1047,27 @@ snd (π'∘∙Hom {A = A} {B = B} n f) = isHom∘∙
       (sym (π'eqFun-idEquiv n))
       (makeIsGroupHom λ _ _ → refl))
 
+π'GrIso : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+      → A ≃∙ B
+      → GroupIso (π'Gr n A) (π'Gr n B)
+fun (fst (π'GrIso n e)) = π'eqFun n e
+inv (fst (π'GrIso n e)) = π'eqFun n (invEquiv∙ e)
+rightInv (fst (π'GrIso {B = B} n e)) =
+  Equiv∙J (λ A e → (f : _) → π'eqFun n e (π'eqFun n (invEquiv∙ e) f) ≡ f)
+    (λ f → (λ i → π'eqFun-idEquiv n i (π'eqFun n (invEquiv∙idEquiv∙≡idEquiv i) f))
+    ∙ funExt⁻ (π'eqFun-idEquiv n) f)
+    e
+leftInv (fst (π'GrIso n e)) =
+  Equiv∙J (λ A e → (f : _) → π'eqFun n (invEquiv∙ e)  (π'eqFun n e f) ≡ f)
+    (λ f → (λ i → π'eqFun n (invEquiv∙idEquiv∙≡idEquiv i) (π'eqFun-idEquiv n i f))
+          ∙ funExt⁻ (π'eqFun-idEquiv n) f)
+    e
+snd (π'GrIso n e) = π'eqFunIsHom n e
+
 π'Iso : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
       → A ≃∙ B
       → GroupEquiv (π'Gr n A) (π'Gr n B)
-fst (fst (π'Iso n e)) = π'eqFun n e
-snd (fst (π'Iso n e)) = π'eqFunIsEquiv n e
-snd (π'Iso n e) = π'eqFunIsHom n e
+π'Iso n e = GroupIso→GroupEquiv (π'GrIso n e)
 
 πIso : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
         → (A ≃∙ B)

@@ -24,7 +24,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Data.Sigma.Base
 
 open import Cubical.Core.Glue public
-  using ( Glue ; glue ; unglue ; lineToEquiv )
+  using (Glue ; glue ; unglue)
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -191,8 +191,13 @@ module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
   thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} isoThm
 
+isEquivTransport : {A B : Type ℓ} (p : A ≡ B) → isEquiv (transport p)
+isEquivTransport p =
+  transport (λ i → isEquiv (transp (λ j → p (i ∧ j)) (~ i))) (idIsEquiv _)
+
 pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
-pathToEquiv p = lineToEquiv (λ i → p i)
+pathToEquiv p .fst = transport p
+pathToEquiv p .snd = isEquivTransport p
 
 pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
 pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)

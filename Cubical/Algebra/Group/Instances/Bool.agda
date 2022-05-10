@@ -48,7 +48,7 @@ open GroupStr renaming (assoc to assocG)
 module _ {ℓ : Level} {A : Group ℓ} (e : Iso (fst A) BoolType) where
   private
     discreteA : Discrete (typ A)
-    discreteA = IsoPresDiscrete (invIso e) _≟_
+    discreteA = isoPresDiscrete (invIso e) _≟_
 
     _·A_ = GroupStr._·_ (snd A)
     -A_ = GroupStr.inv (snd A)

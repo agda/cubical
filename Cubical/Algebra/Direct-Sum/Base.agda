@@ -15,10 +15,10 @@ open import Cubical.Algebra.AbGroup
 
 
 private variable
-  ℓ ℓ' : Level
+  ℓ ℓ' ℓ'' : Level
 
 
-data ⊕ (Idx : Type ℓ) (P : Idx → Type ℓ) (AGP : (r : Idx) → AbGroupStr (P r)) : Type ℓ  where
+data ⊕ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupStr (P r)) : Type (ℓ-max ℓ ℓ')  where
   -- elements
   neutral      : ⊕ Idx P AGP
   base         : (r : Idx) → (P r) → ⊕ Idx P AGP
@@ -35,10 +35,10 @@ data ⊕ (Idx : Type ℓ) (P : Idx → Type ℓ) (AGP : (r : Idx) → AbGroupStr
 
 
 
-module _ (Idx : Type ℓ) (P : Idx → Type ℓ) (AGP : (r : Idx) → AbGroupStr (P r)) where
+module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupStr (P r)) where
 
   module DS-Ind-Set
-    (Q            : (x : ⊕ Idx P AGP) → Type ℓ')
+    (Q            : (x : ⊕ Idx P AGP) → Type ℓ'')
     (issd         : (x : ⊕ Idx P AGP) → isSet (Q x))
     -- elements
     (neutral*     : Q neutral)
@@ -71,7 +71,7 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ) (AGP : (r : Idx) → AbGroupStr
 
 
   module DS-Rec-Set
-    (B : Type ℓ')
+    (B : Type ℓ'')
     (iss : isSet(B))
     (neutral* : B)
     (base*    : (r : Idx) → P r → B)
@@ -89,7 +89,7 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ) (AGP : (r : Idx) → AbGroupStr
 
 
   module DS-Ind-Prop
-    (Q            : (x : ⊕ Idx P AGP) → Type ℓ')
+    (Q            : (x : ⊕ Idx P AGP) → Type ℓ'')
     (ispd         : (x : ⊕ Idx P AGP) → isProp (Q x))
     -- elements
     (neutral*     : Q neutral)
@@ -108,7 +108,7 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ) (AGP : (r : Idx) → AbGroupStr
 
 
   module DS-Rec-Prop
-    (B        : Type ℓ')
+    (B        : Type ℓ'')
     (isp      : isProp B)
     (neutral* : B)
     (base*    : (r : Idx) → P r → B)

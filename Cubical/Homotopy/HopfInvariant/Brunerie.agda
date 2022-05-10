@@ -51,10 +51,12 @@ open import Cubical.HITs.PropositionalTruncation
   renaming (map to pMap ; rec to pRec)
 
 open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup ; Unit to UnitGroup)
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
-
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Unit
 
 open Iso
 open IsGroupHom
@@ -319,15 +321,15 @@ module BrunerieNumLem
                           ; x south → refl
                           ; x (merid a i) j → triv⌣ a j i}))
 
-    -ₕId : (x : coHom 4 (S₊ 2 × S₊ 2)) → (-ₕ^ 2 · 2) x ≡ x
-    -ₕId =
+    -ₕ'Id : (x : coHom 4 (S₊ 2 × S₊ 2)) → (-ₕ'^ 2 · 2) x ≡ x
+    -ₕ'Id =
       sElim (λ _ → isSetPathImplicit)
-         λ f → cong ∣_∣₂ (funExt λ x → -ₖ-gen-inl-left 2 2 tt (inl tt) (f x))
+         λ f → cong ∣_∣₂ (funExt λ x → -ₖ'-gen-inl-left 2 2 tt (inl tt) (f x))
 
     y⌣x≡x⌣y : y ⌣ x ≡ x ⌣ y
     y⌣x≡x⌣y =
-      y ⌣ x                                 ≡⟨ gradedComm-⌣ 2 2 y x ⟩
-      (-ₕ^ 2 · 2) (transport refl (x ⌣ y))  ≡⟨ -ₕId (transport refl (x ⌣ y)) ⟩
+      y ⌣ x                                 ≡⟨ gradedComm'-⌣ 2 2 y x ⟩
+      (-ₕ'^ 2 · 2) (transport refl (x ⌣ y))  ≡⟨ -ₕ'Id (transport refl (x ⌣ y)) ⟩
       transport refl (x ⌣ y)                ≡⟨ transportRefl (x ⌣ y) ⟩
       x ⌣ y ∎
 

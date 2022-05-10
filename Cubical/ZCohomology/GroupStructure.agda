@@ -3,8 +3,6 @@ module Cubical.ZCohomology.GroupStructure where
 
 open import Cubical.ZCohomology.Base
 
-open import Cubical.HITs.S1
-open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
@@ -13,14 +11,24 @@ open import Cubical.Foundations.Pointed hiding (id)
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
+
 open import Cubical.Data.Sigma
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; -_ to -ℤ_)
+open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
+
+open import Cubical.HITs.S1 hiding (rec ; elim ; ind)
+open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; isSetSetTrunc to §)
-open import Cubical.Data.Int renaming (_+_ to _ℤ+_ ; -_ to -ℤ_)
-open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3 ; map2 to trMap2)
+
 open import Cubical.Homotopy.Loopspace
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup)
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
@@ -109,7 +117,7 @@ wedgeMapS¹ (loop i) (loop j) =
 0ₖ = coHom-pt
 
 _+ₖ_ : {n : ℕ} → coHomK n → coHomK n → coHomK n
-_+ₖ_ {n = zero} x y = x ℤ+ y
+_+ₖ_ {n = zero} x y = x +ℤ y
 _+ₖ_ {n = suc zero} = trMap2 wedgeMapS¹
 _+ₖ_ {n = suc (suc n)} = trRec (isOfHLevelΠ (4 + n) λ _ → isOfHLevelTrunc (4 + n))
                             λ x → trRec (isOfHLevelTrunc (4 + n)) (preAdd n x)
@@ -161,7 +169,7 @@ syntax -'ₖ-syntax n x y = x -[ n ]ₖ y
 
 -ₖ^2 : {n : ℕ} → (x : coHomK n) → (-ₖ (-ₖ x)) ≡ x
 -ₖ^2 {n = zero} x =
-  +Comm (pos zero) (-ℤ (pos zero ℤ+ (-ℤ x))) ∙∙ -Dist+  (pos zero) (-ℤ x)
+  +Comm (pos zero) (-ℤ (pos zero +ℤ (-ℤ x))) ∙∙ -Dist+  (pos zero) (-ℤ x)
      ∙∙ (+Comm (pos zero) (-ℤ (-ℤ x)) ∙ -Involutive x)
 -ₖ^2 {n = suc zero} =
   trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _) λ { base → refl ; (loop i) → refl}
@@ -362,7 +370,10 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
 -0ₖ {n = suc (suc n)} = refl
 
 -distrₖ : (n : ℕ) (x y : coHomK n) → -[ n ]ₖ (x +[ n ]ₖ y) ≡ (-[ n ]ₖ x) +[ n ]ₖ (-[ n ]ₖ y)
--distrₖ zero x y = GroupTheory.invDistr ℤGroup x y ∙ +Comm (0 - y) (0 - x)
+-distrₖ zero x y = sym (pos0+ _)
+                   ∙ GroupTheory.invDistr ℤGroup x y
+                   ∙ +Comm (-ℤ y) (-ℤ x)
+                   ∙ sym (cong₂ _+ℤ_ (sym (pos0+ _)) (sym (pos0+ _)))
 -distrₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeconFun _ _ (λ _ _ → isOfHLevelTrunc 3 _ _)
@@ -378,8 +389,8 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
 
 -cancelRₖ : (n : ℕ) (x y : coHomK n) → (y +[ n ]ₖ x) -[ n ]ₖ x ≡ y
 -cancelRₖ zero x y = sym (+Assoc y x (0 - x))
-                  ∙∙ cong (y ℤ+_) (+Comm x (0 - x))
-                  ∙∙ cong (y ℤ+_) (minusPlus x (pos 0))
+                  ∙∙ cong (y +ℤ_) (+Comm x (0 - x))
+                  ∙∙ cong (y +ℤ_) (minusPlus x (pos 0))
 -cancelRₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeconFun _ _ (λ _ _ → wedgeConHLevPath 0 _ _)
@@ -397,7 +408,7 @@ isCommΩK (suc (suc n)) p q = ∙≡+₂ n p q ∙∙ cong+ₖ-comm (suc n) p q 
 -cancelLₖ n x y = cong (λ z → z -[ n ]ₖ x) (commₖ n x y) ∙ -cancelRₖ n x y
 
 -+cancelₖ : (n : ℕ) (x y : coHomK n) → (x -[ n ]ₖ y) +[ n ]ₖ y ≡ x
--+cancelₖ zero x y = sym (+Assoc x (0 - y) y) ∙ cong (x ℤ+_) (minusPlus y (pos 0))
+-+cancelₖ zero x y = sym (+Assoc x (0 - y) y) ∙ cong (x +ℤ_) (minusPlus y (pos 0))
 -+cancelₖ (suc zero) =
   elim2 (λ _ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
         (wedgeconFun _ _ (λ _ _ → wedgeConHLevPath 0 _ _)

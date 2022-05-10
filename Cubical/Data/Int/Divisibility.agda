@@ -32,7 +32,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
   renaming (ℤ to Ringℤ)
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 
 private
   variable
@@ -128,6 +128,7 @@ isProp∣' {m = negsuc m} {n = n} p q =
 ∣-right· : k ∣ m → k ∣ (n · m)
 ∣-right· {k = k} {n = n} p = ∣-trans p (∣-right {k = n})
 
+
 -- Natural numbers back and forth (using abs)
 
 ∣→∣ℕ : m ∣ n → abs m ∣ℕ abs n
@@ -173,10 +174,12 @@ private
 ¬∣→¬∣ℕ : ¬ m ∣ n → ¬ abs m ∣ℕ abs n
 ¬∣→¬∣ℕ p q = p (∣ℕ→∣ q)
 
--- Strictly divisible
+
+-- Inequality for strict divisibility
 
 stDivIneq : ¬ m ≡ 0 → ¬ m ∣ n → k ∣ m → k ∣ n → abs k < abs m
 stDivIneq p q h h' = stDivIneqℕ (¬x≡0→¬abs≡0 p) (¬∣→¬∣ℕ q) (∣→∣ℕ h) (∣→∣ℕ h')
+
 
 -- Exact division
 
@@ -189,6 +192,7 @@ divideEq : (p : m ∣ n) → divide p · m ≡ n
 divideEq {m = pos 0} = ∣→∣' _ _
 divideEq {m = pos (suc m)} p = ∣→∣' _ _ p .snd
 divideEq {m = negsuc m} p = ∣→∣' _ _ p .snd
+
 
 -- Bézout and Euclidean Domain
 
@@ -208,7 +212,7 @@ Bézout0 n .coef₁ = 0
 Bézout0 n .coef₂ = 1
 Bézout0 n .gcd   = n
 Bézout0 n .identity = +Comm 0 n
-Bézout0 n .isCD = ∣-zeroʳ , ∣-refl refl
+Bézout0 n .isCD  = ∣-zeroʳ , ∣-refl refl
 
 bézoutReduction : (m d r : ℤ) → Bézout r m → Bézout m (d · m + r)
 bézoutReduction m d r b .coef₁ = - b .coef₁ · d + b .coef₂
@@ -295,20 +299,20 @@ module _
   m∣n→rem≡0 : m ∣ n → qr .rem ≡ 0
   m∣n→rem≡0 p =
     case qr .normIneq
-    return _ of
-      λ { (inl q) → q
-        ; (inr q) →
-            let ∣+  = ∣-+ p (∣-right {m = m} {k = - qr .div})
-                m∣r = subst (m ∣_) (helper3 _ _ (qr .div) (qr .rem) (qr .quotEq)) ∣+
-                m≤r = m∣n→m≤n (¬x≡0→¬abs≡0 (q .fst)) (∣→∣ℕ m∣r)
-            in  Empty.rec (<-asym (q .snd) m≤r) }
+    return _ of λ
+    { (inl q) → q
+    ; (inr q) →
+        let ∣+  = ∣-+ p (∣-right {m = m} {k = - qr .div})
+            m∣r = subst (m ∣_) (helper3 _ _ (qr .div) (qr .rem) (qr .quotEq)) ∣+
+            m≤r = m∣n→m≤n (¬x≡0→¬abs≡0 (q .fst)) (∣→∣ℕ m∣r)
+        in  Empty.rec (<-asym (q .snd) m≤r) }
 
   m∣n→rem≡0' : (p : m ∣ n) → qr .normIneq ≡ inl (m∣n→rem≡0 p)
   m∣n→rem≡0' p =
     case (qr .normIneq)
-    return (λ x → x ≡ inl (m∣n→rem≡0 p)) of
-      λ { (inl q) → cong inl (isSet→SquareP (λ i j → isSetℤ) q (m∣n→rem≡0 p) refl refl)
-        ; (inr q) → Empty.rec (q .fst (m∣n→rem≡0 p)) }
+    return (λ x → x ≡ inl (m∣n→rem≡0 p)) of λ
+    { (inl q) → cong inl (isSet→SquareP (λ i j → isSetℤ) q (m∣n→rem≡0 p) refl refl)
+    ; (inr q) → Empty.rec (q .fst (m∣n→rem≡0 p)) }
 
   rem≢0→m∤n : ¬ qr .rem ≡ 0 → ¬ m ∣ n
   rem≢0→m∤n p q = p (m∣n→rem≡0 q)
@@ -330,32 +334,35 @@ module _
     let b = euclidStep N rem m (<≤-trans (p .snd) (pred-≤-pred h)) (quotRem _ _ (p .fst))
     in  subst (λ x → Bézout m x) (sym quotEq) (bézoutReduction _ div _ b)
 
-  euclid-helper : (m n : ℤ)(dec : Dec (m ≡ 0)) → Bézout m n
-  euclid-helper m n (yes z) = subst (λ x → Bézout x n) (sym z) (Bézout0 n)
-  euclid-helper m n (no ¬z) = euclidStep (suc (abs m)) m n ≤-refl (quotRem m n ¬z)
+  private
+    euclid-helper : (m n : ℤ)(dec : Dec (m ≡ 0)) → Bézout m n
+    euclid-helper m n (yes z) = subst (λ x → Bézout x n) (sym z) (Bézout0 n)
+    euclid-helper m n (no ¬z) = euclidStep (suc (abs m)) m n ≤-refl (quotRem m n ¬z)
 
   euclid : (m n : ℤ) → Bézout m n
   euclid m n = euclid-helper m n (decEq0 _)
 
   -- Euclid algorithm when divisibility holds
-  euclid∣-helper : (m n : ℤ)(dec : Dec (m ≡ 0)) → ¬ m ≡ 0 → m ∣ n
-    → (euclid-helper m n dec .coef₁ ≡ 1) × (euclid-helper m n dec .coef₂ ≡ 0)
-  euclid∣-helper _ _ (yes z) q = Empty.rec (q z)
-  euclid∣-helper m n (no ¬z) _ q =
-    let qr = quotRem m n ¬z
-        path : qr ≡ quotrem _ _ _ _
-        path t = record qr { normIneq = m∣n→rem≡0' _ _ qr q t }
-    in  (λ t → euclidStep (suc (abs m)) m n ≤-refl (path t) .coef₁) ,
-        (λ t → euclidStep (suc (abs m)) m n ≤-refl (path t) .coef₂)
-
   euclid∣ : (m n : ℤ) → ¬ m ≡ 0 → m ∣ n → (euclid m n .coef₁ ≡ 1) × (euclid m n .coef₂ ≡ 0)
   euclid∣ _ _ = euclid∣-helper _ _ (decEq0 _)
+    where
+    euclid∣-helper : (m n : ℤ)(dec : Dec (m ≡ 0)) → ¬ m ≡ 0 → m ∣ n
+      → (euclid-helper m n dec .coef₁ ≡ 1) × (euclid-helper m n dec .coef₂ ≡ 0)
+    euclid∣-helper _ _ (yes z) q = Empty.rec (q z)
+    euclid∣-helper m n (no ¬z) _ q =
+      let qr = quotRem m n ¬z
+          path : qr ≡ quotrem _ _ _ _
+          path t = record qr { normIneq = m∣n→rem≡0' _ _ qr q t }
+      in  (λ t → euclidStep (suc (abs m)) m n ≤-refl (path t) .coef₁) ,
+          (λ t → euclidStep (suc (abs m)) m n ≤-refl (path t) .coef₂)
+
 
 -- The ring ℤ is an Euclidean domain
 
-dec-helper : {ℓ ℓ' : Level}{A : Type ℓ}{B : Type ℓ'} → Dec A → B → A ⊎ ((¬ A) × B)
-dec-helper (yes p) _ = inl p
-dec-helper (no ¬p) b = inr (¬p , b)
+private
+  dec-helper : {ℓ ℓ' : Level}{A : Type ℓ}{B : Type ℓ'} → Dec A → B → A ⊎ ((¬ A) × B)
+  dec-helper (yes p) _ = inl p
+  dec-helper (no ¬p) b = inr (¬p , b)
 
 quotRemPosPos : (m n : ℕ)(¬z : ¬ pos m ≡ 0) → QuotRem (pos m) (pos n)
 quotRemPosPos m n _ .div = pos (quotient  n / m)
@@ -378,22 +385,24 @@ quotRemNegPos m n ¬z .quotEq =
 quotRemNegPos 0       n ¬z .normIneq = Empty.rec (¬z refl)
 quotRemNegPos (suc m) n ¬z .normIneq = quotRemPosPos (suc m) n (λ p → ¬z (λ t → - p t)) .normIneq
 
-quotRemPos-helper : (m : ℤ)(k n : ℕ)(¬z : ¬ m ≡ 0) → (m ≡ pos k) ⊎ (m ≡ - pos k) → QuotRem m (pos n)
-quotRemPos-helper m k n ¬z (inl p) =
-  subst (λ l → QuotRem l (pos n)) (sym p) (quotRemPosPos k n (λ r → ¬z (p ∙ r)))
-quotRemPos-helper m k n ¬z (inr p) =
-  subst (λ l → QuotRem l (pos n)) (sym p) (quotRemNegPos k n (λ r → ¬z (p ∙ r)))
+private
+  quotRemPos-helper : (m : ℤ)(k n : ℕ)(¬z : ¬ m ≡ 0) → (m ≡ pos k) ⊎ (m ≡ - pos k) → QuotRem m (pos n)
+  quotRemPos-helper m k n ¬z (inl p) =
+    subst (λ l → QuotRem l (pos n)) (sym p) (quotRemPosPos k n (λ r → ¬z (p ∙ r)))
+  quotRemPos-helper m k n ¬z (inr p) =
+    subst (λ l → QuotRem l (pos n)) (sym p) (quotRemNegPos k n (λ r → ¬z (p ∙ r)))
 
 quotRemPos : (m : ℤ)(n : ℕ)(¬z : ¬ m ≡ 0) → QuotRem m (pos n)
 quotRemPos m n ¬z = quotRemPos-helper m (abs m) n ¬z (abs→⊎ _ _ refl)
 
-sum-helper : (m r : ℤ)
-  → (r ≡ 0)   ⊎ ((¬ r ≡ 0)   × (abs r < abs m))
-  → (- r ≡ 0) ⊎ ((¬ - r ≡ 0) × (abs (- r) < abs m))
-sum-helper m r (inl p) = inl (λ t → - p t)
-sum-helper m r (inr p) =
-  inr ((λ q → p .fst (sym (-Involutive r) ∙ (λ t → - q t)))
-    , subst (λ k → k < abs m) (sym (abs- r)) (p .snd))
+private
+  sum-helper : (m r : ℤ)
+    → (r ≡ 0)   ⊎ ((¬ r ≡ 0)   × (abs r < abs m))
+    → (- r ≡ 0) ⊎ ((¬ - r ≡ 0) × (abs (- r) < abs m))
+  sum-helper m r (inl p) = inl (λ t → - p t)
+  sum-helper m r (inr p) =
+    inr ((λ q → p .fst (sym (-Involutive r) ∙ (λ t → - q t)))
+      , subst (λ k → k < abs m) (sym (abs- r)) (p .snd))
 
 quotRemNeg : (m : ℤ)(n : ℕ)(¬z : ¬ m ≡ 0) → QuotRem m (- pos n)
 quotRemNeg m n ¬z .div = - (quotRemPos m n ¬z .div)
@@ -404,9 +413,11 @@ quotRemNeg m n ¬z .quotEq =
   ∙ (λ t → -DistL· (quotRemPos m n ¬z .div) m t + - quotRemPos m n ¬z .rem)
 quotRemNeg m n ¬z .normIneq = sum-helper m _ (quotRemPos m n ¬z .normIneq)
 
-quotRem-helper : (m n : ℤ)(k : ℕ)(¬z : ¬ m ≡ 0) → (n ≡ pos k) ⊎ (n ≡ - pos k) → QuotRem m n
-quotRem-helper m n k ¬z (inl p) = subst (λ l → QuotRem m l) (sym p) (quotRemPos m k ¬z)
-quotRem-helper m n k ¬z (inr p) = subst (λ l → QuotRem m l) (sym p) (quotRemNeg m k ¬z)
+private
+  quotRem-helper : (m n : ℤ)(k : ℕ)(¬z : ¬ m ≡ 0) → (n ≡ pos k) ⊎ (n ≡ - pos k) → QuotRem m n
+  quotRem-helper m n k ¬z (inl p) = subst (λ l → QuotRem m l) (sym p) (quotRemPos m k ¬z)
+  quotRem-helper m n k ¬z (inr p) = subst (λ l → QuotRem m l) (sym p) (quotRemNeg m k ¬z)
+
 
 -- The quotient-remainder Theorem and the Bézout identity
 
@@ -419,19 +430,20 @@ bézout = euclid (λ m → discreteℤ m 0) quotRem
 bézout∣ : (m n : ℤ) → ¬ m ≡ 0 → m ∣ n → (bézout m n .coef₁ ≡ 1) × (bézout m n .coef₂ ≡ 0)
 bézout∣ = euclid∣ (λ m → discreteℤ m 0) quotRem
 
+
 -- Divisibility is decidable
 dec∣ : (m n : ℤ) → Dec (m ∣ n)
 dec∣ m n =
   case discreteℤ m 0
-  return (λ _ → Dec (m ∣ n)) of
-    λ { (yes p) →
-          case discreteℤ n 0
-          return (λ _ → Dec (m ∣ n)) of
-            λ { (yes p) → yes (subst (m ∣_) (sym p) ∣-zeroʳ)
-              ; (no ¬p) → no  (λ r → ¬p (sym (∣-zeroˡ (subst (_∣ n) p r)))) }
-      ; (no ¬p) →
-          let qr = quotRem m n ¬p in
-          case discreteℤ (qr .rem) 0
-          return (λ _ → Dec (m ∣ n)) of
-            λ { (yes p) → yes (rem≡0→m∣n _ _ qr  p)
-              ; (no ¬p) → no  (rem≢0→m∤n _ _ qr ¬p) }}
+  return (λ _ → Dec (m ∣ n)) of λ
+  { (yes p) →
+      case discreteℤ n 0
+      return (λ _ → Dec (m ∣ n)) of λ
+      { (yes p) → yes (subst (m ∣_) (sym p) ∣-zeroʳ)
+      ; (no ¬p) → no  (λ r → ¬p (sym (∣-zeroˡ (subst (_∣ n) p r)))) }
+  ; (no ¬p) →
+      let qr = quotRem m n ¬p in
+      case discreteℤ (qr .rem) 0
+      return (λ _ → Dec (m ∣ n)) of λ
+      { (yes p) → yes (rem≡0→m∣n _ _ qr  p)
+      ; (no ¬p) → no  (rem≢0→m∤n _ _ qr ¬p) }}
