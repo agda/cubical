@@ -233,5 +233,5 @@ module _
 
     -- Connectivity of inclusion map
 
-    isConnInl∞ : isConnectedFun d (inl∞ n)
-    isConnInl∞ = elim.isConnectedPrecompose _ _ hasSectionInl∘
+    isConnectedInl∞ : isConnectedFun d (inl∞ n)
+    isConnectedInl∞ = elim.isConnectedPrecompose _ _ hasSectionInl∘

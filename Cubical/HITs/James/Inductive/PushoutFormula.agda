@@ -243,7 +243,7 @@ module _
           (inrConnected _ _ _
             (subst (isConnectedFun _) (comp1 _)
               (isConnectedComp _ _ _
-                (isConn×̂ (isConnectedPoint _ connX _) connf)
+                (isConnected×̂ (isConnectedPoint _ connX _) connf)
                   (isEquiv→isConnected _ (𝕁amesPush≃ k .snd) _)))))
 
     nat-path : (n m k : ℕ) → (1 + (k + m)) · n ≡ k · n + (1 + m) · n
@@ -251,21 +251,21 @@ module _
 
   -- Connectivity results
 
-  isConnIncl : (n : ℕ) → isConnected (1 + n) X
+  isConnectedIncl : (n : ℕ) → isConnected (1 + n) X
     → (m : ℕ) → isConnectedFun ((1 + m) · n) (incl {X∙ = X∙} {n = m})
-  isConnIncl n conn 0 = subst (λ d → isConnectedFun d _) (sym (+-zero n)) (isConnIncl0 n conn)
-  isConnIncl n conn (suc m) = isConnIncl-ind _ _ _ conn (isConnIncl n conn m)
+  isConnectedIncl n conn 0 = subst (λ d → isConnectedFun d _) (sym (+-zero n)) (isConnIncl0 n conn)
+  isConnectedIncl n conn (suc m) = isConnIncl-ind _ _ _ conn (isConnectedIncl n conn m)
 
-  isConnIncl>n : (n : ℕ) → isConnected (1 + n) X
+  isConnectedIncl>n : (n : ℕ) → isConnected (1 + n) X
     → (m k : ℕ) → isConnectedFun ((1 + m) · n) (incl {X∙ = X∙} {n = k + m})
-  isConnIncl>n n conn m k = isConnectedFunSubtr _ (k · n) _
+  isConnectedIncl>n n conn m k = isConnectedFunSubtr _ (k · n) _
     (subst (λ d → isConnectedFun d (incl {X∙ = X∙} {n = k + m}))
-      (nat-path n m k) (isConnIncl n conn (k + m)))
+      (nat-path n m k) (isConnectedIncl n conn (k + m)))
 
   private
     inl∞ : (n : ℕ) → 𝕁ames n → 𝕁ames∞
     inl∞ _ = inl
 
-  isConnInl : (n : ℕ) → isConnected (1 + n) X
+  isConnectedInl : (n : ℕ) → isConnected (1 + n) X
     → (m : ℕ) → isConnectedFun ((1 + m) · n) (inl∞ m)
-  isConnInl n conn m = isConnInl∞ _ _ _ (isConnIncl>n _ conn _)
+  isConnectedInl n conn m = isConnectedInl∞ _ _ _ (isConnectedIncl>n _ conn _)

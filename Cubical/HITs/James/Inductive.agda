@@ -32,6 +32,7 @@ open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.James.Base
 open import Cubical.HITs.James.Inductive.Base
 open import Cubical.HITs.James.Inductive.PushoutFormula
+  renaming (isConnectedIncl to connIncl ; isConnectedInl to connInl)
 open import Cubical.HITs.James.Inductive.Reduced
 open import Cubical.HITs.James.Inductive.ColimitEquivalence
 
@@ -109,13 +110,13 @@ module JamesInd
 
     -- If X is (d+1)-connected, the transition incl : 𝕁 n → 𝕁 (n+1) will be (n+1)d-connected.
 
-    inclConn : (n : ℕ) → isConnectedFun ((1 + n) · d) (incl {n = n})
-    inclConn = isConnIncl X∙ d conn
+    isConnectedIncl : (n : ℕ) → isConnectedFun ((1 + n) · d) (incl {n = n})
+    isConnectedIncl = connIncl X∙ d conn
 
     -- If X is (d+1)-connected, the inclusion inl : 𝕁 n → 𝕁∞ will be (n+1)d-connected.
 
     inl∞ : (n : ℕ) → 𝕁 n → 𝕁∞
     inl∞ _ = inl
 
-    inlConn : (n : ℕ) → isConnectedFun ((1 + n) · d) (inl∞ n)
-    inlConn = isConnInl X∙ d conn
+    isConnectedInl : (n : ℕ) → isConnectedFun ((1 + n) · d) (inl∞ n)
+    isConnectedInl = connInl X∙ d conn

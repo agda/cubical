@@ -100,8 +100,8 @@ module _
 
 -- The connectivity of pushout-product
 
-isConn×̂ : {m n : ℕ}{f : A → B}{g : X → Y}
+isConnected×̂ : {m n : ℕ}{f : A → B}{g : X → Y}
   → isConnectedFun m f → isConnectedFun n g
   → isConnectedFun (m + n) (f ×̂ g)
-isConn×̂ congf congg =
+isConnected×̂ congf congg =
   elim.isConnectedPrecompose _ _ (lifting _ _ _ _ congf congg)
