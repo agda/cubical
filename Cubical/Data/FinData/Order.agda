@@ -29,7 +29,7 @@ i <Fin j = (suc i) ≤Fin (weakenFin j)
 
 open BinaryRelation
 ≤FinIsPropValued : ∀ {n : ℕ} → isPropValued (_≤Fin_ {n})
-≤FinIsPropValued _ _ = m≤n-isProp
+≤FinIsPropValued _ _ = isProp≤
 
 
 -- inductive version
