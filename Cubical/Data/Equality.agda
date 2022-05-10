@@ -32,8 +32,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence hiding (univalence)
 open import Cubical.HITs.PropositionalTruncation public
-  renaming ( squash to squashPath
-           ; rec to recPropTruncPath
+  renaming (rec to recPropTruncPath
            ; elim to elimPropTruncPath )
 open import Cubical.HITs.S1 as S1
   renaming (loop to loopPath)
@@ -257,14 +256,14 @@ univalenceEq {A = A} {B = B} = equivPathToEquiv rem
 
 -- Propositional truncation using ≡ with paths under the hood
 
-∥∥-isProp : ∀ (x y : ∥ A ∥) → x ≡ y
-∥∥-isProp x y = pathToEq (squashPath x y)
+∥∥-isProp : ∀ (x y : ∥ A ∥₁) → x ≡ y
+∥∥-isProp x y = pathToEq (squash₁ x y)
 
-∥∥-recursion : ∀ {A : Type ℓ} {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
+∥∥-recursion : ∀ {A : Type ℓ} {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥₁ → P
 ∥∥-recursion Pprop = recPropTruncPath (isPropToIsPropPath Pprop)
 
-∥∥-induction : ∀ {A : Type ℓ} {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
-                ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
+∥∥-induction : ∀ {A : Type ℓ} {P : ∥ A ∥₁ → Type ℓ} → ((a : ∥ A ∥₁) → isProp (P a)) →
+                ((x : A) → P ∣ x ∣₁) → (a : ∥ A ∥₁) → P a
 ∥∥-induction Pprop = elimPropTruncPath (λ a → isPropToIsPropPath (Pprop a))
 
 
@@ -329,4 +328,3 @@ private
 
   -- test-winding-neg5 : winding (loop^ (negsuc 2)) ≡ negsuc 2
   -- test-winding-neg5 = refl
-

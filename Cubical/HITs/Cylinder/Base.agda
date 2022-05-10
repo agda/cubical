@@ -10,7 +10,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum using (_⊎_; inl; inr)
 
-open import Cubical.HITs.PropositionalTruncation using (∥_∥; ∣_∣; squash)
+open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁)
 open import Cubical.HITs.Interval using (Interval; zero; one; seg)
 
 -- Cylinder A is a cylinder object in the category of cubical types.
@@ -40,12 +40,12 @@ module _ {ℓ} {A : Type ℓ} where
 
   -- The above inclusion is surjective
   includeSurjective : ∀ c → ∃[ s ∈ A ⊎ A ] include s ≡ c
-  includeSurjective (inl x) = ∣ inl x , refl ∣
-  includeSurjective (inr x) = ∣ inr x , refl ∣
+  includeSurjective (inl x) = ∣ inl x , refl ∣₁
+  includeSurjective (inr x) = ∣ inr x , refl ∣₁
   includeSurjective (cross x i) =
-    squash
-      ∣ inl x , (λ j → cross x (i ∧ j)) ∣
-      ∣ inr x , (λ j → cross x (i ∨ ~ j)) ∣
+    squash₁
+      ∣ inl x , (λ j → cross x (i ∧ j)) ∣₁
+      ∣ inr x , (λ j → cross x (i ∨ ~ j)) ∣₁
       i
 
   elim

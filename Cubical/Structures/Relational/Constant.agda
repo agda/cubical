@@ -46,7 +46,7 @@ module _ (A : hSet ℓ') where
   constantPositiveRel : PositiveStrRel {ℓ = ℓ} constantSuitableRel
   constantPositiveRel .act = constantRelAction
   constantPositiveRel .reflexive a = refl
-  constantPositiveRel .detransitive R R' p = ∣ _ , p , refl ∣
+  constantPositiveRel .detransitive R R' p = ∣ _ , p , refl ∣₁
   constantPositiveRel .quo R = isoToIsEquiv isom
     where
     open Iso

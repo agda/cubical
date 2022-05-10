@@ -61,11 +61,11 @@ _∼_ = elim2 eliminator where
   lemma _ rec₁→₂ rec₂→₁ (X₁→Y , Y→X₁) =
     (λ x₂ → do ((x₁ , c_) , xr₁) ← rec₂→₁ x₂
                (y , yr) ← X₁→Y x₁
-               ∣ y , subst fst (λ i → xr₁ i y) yr ∣
+               ∣ y , subst fst (λ i → xr₁ i y) yr ∣₁
     ) ,
     (λ y → do (x₁ , xr₁) ← Y→X₁ y
               ((x₂ , _) , xr₂) ← rec₁→₂ x₁
-              ∣ x₂ , subst fst (λ i → xr₂ (~ i) y) xr₁ ∣
+              ∣ x₂ , subst fst (λ i → xr₂ (~ i) y) xr₁ ∣₁
     )
 
   open Elim2Set
@@ -83,7 +83,7 @@ s ≊ t = ⟨ s ∼ t ⟩
 
 ∼refl : (a : V ℓ) → a ≊ a
 ∼refl = elimProp (λ a → isProp⟨⟩ (a ∼ a))
-                 (λ X ix rec → (λ x → ∣ x , rec x ∣) , (λ x → ∣ x , rec x ∣))
+                 (λ X ix rec → (λ x → ∣ x , rec x ∣₁) , (λ x → ∣ x , rec x ∣₁))
 
 -- keep in mind that the left and right side here live in different universes
 identityPrinciple : (a ≊ b) ≃ (a ≡ b)
@@ -94,8 +94,8 @@ identityPrinciple {a = a} {b = b} =
 
   eqImageXY : {X Y : Type ℓ} {ix : X → V ℓ} {iy : Y → V ℓ} → (∀ x y → ⟨ ix x ∼ iy y ⟩ → ix x ≡ iy y)
             → ⟨ sett X ix ∼ sett Y iy ⟩ → eqImage ix iy
-  eqImageXY rec rel = (λ x → do (y , y∼x) ← fst rel x ; ∣ y , sym (rec _ _ y∼x) ∣)
-                    , (λ y → do (x , x∼y) ← snd rel y ; ∣ x ,      rec _ _ x∼y  ∣)
+  eqImageXY rec rel = (λ x → do (y , y∼x) ← fst rel x ; ∣ y , sym (rec _ _ y∼x) ∣₁)
+                    , (λ y → do (x , x∼y) ← snd rel y ; ∣ x ,      rec _ _ x∼y  ∣₁)
 
   from : a ≊ b → a ≡ b
   from = elimProp propB eliminator a b where
@@ -137,12 +137,12 @@ isPropMonicPresentation a ((X₁ , ix₁ , isEmb₁) , p) ((X₂ , ix₂ , isEmb
   fiberwise1 : ∀ b → fiber ix₁ b → fiber ix₂ b
   fiberwise1 b fbx₁ =
     proof (_ , isEmbedding→hasPropFibers isEmb₂ b)
-    by subst (λ A → ⟨ b ∈ A ⟩) (sym p ∙ q) ∣ fbx₁ ∣
+    by subst (λ A → ⟨ b ∈ A ⟩) (sym p ∙ q) ∣ fbx₁ ∣₁
 
   fiberwise2 : ∀ b → fiber ix₂ b → fiber ix₁ b
   fiberwise2 b fbx₂ =
     proof (_ , isEmbedding→hasPropFibers isEmb₁ b)
-    by subst (λ A → ⟨ b ∈ A ⟩) (sym q ∙ p) ∣ fbx₂ ∣
+    by subst (λ A → ⟨ b ∈ A ⟩) (sym q ∙ p) ∣ fbx₂ ∣₁
 
 sett-repr : (X : Type ℓ) (ix : X → V ℓ) → MonicPresentation (sett X ix)
 sett-repr {ℓ} X ix = (Rep , ixRep , isEmbIxRep) , seteq X Rep ix ixRep eqImIxRep where
@@ -168,7 +168,7 @@ sett-repr {ℓ} X ix = (Rep , ixRep , isEmbIxRep) , seteq X Rep ix ixRep eqImIxR
       goal = Q.elimProp prop₁ (λ p₁ m → Q.elimProp prop₂ (λ p₂ n → eq/ p₁ p₂ (lemma m n)) p₂ n) p₁ m
 
   eqImIxRep : eqImage ix ixRep
-  eqImIxRep = (λ x → ∣ Q.[ x ] , refl ∣) , Q.elimProp (λ _ → P.squash) (λ b → ∣ b , refl ∣)
+  eqImIxRep = (λ x → ∣ Q.[ x ] , refl ∣₁) , Q.elimProp (λ _ → P.squash₁) (λ b → ∣ b , refl ∣₁)
 
 data DeepMonicPresentation (a : V ℓ) : Type (ℓ-suc ℓ) where
   dmp : (mp@((_ , ix , _) , _) : MonicPresentation a)
@@ -247,7 +247,7 @@ a ∈ₛ b = repFiber ⟪ b ⟫↪ a , isPropRepFiber b a
   asRep : ⟨ a ∈ sett ⟪ b ⟫ ⟪ b ⟫↪ ⟩ → fiber ⟪ b ⟫↪ a
   asRep = P.propTruncIdempotent≃ (isEmbedding→hasPropFibers isEmb⟪ b ⟫↪ a) .fst
 ∈-fromFiber : {a b : V ℓ} → fiber ⟪ b ⟫↪ a → ⟨ a ∈ b ⟩
-∈-fromFiber {a = a} {b = b} = subst (λ br → ⟨ a ∈ br ⟩) (sym ⟪ b ⟫-represents) ∘ ∣_∣
+∈-fromFiber {a = a} {b = b} = subst (λ br → ⟨ a ∈ br ⟩) (sym ⟪ b ⟫-represents) ∘ ∣_∣₁
 
 ∈∈ₛ : {a b : V ℓ} → ⟨ a ∈ b ⇔ a ∈ₛ b ⟩
 ∈∈ₛ {a = a} {b = b} = leftToRight , rightToLeft where
@@ -260,7 +260,7 @@ a ∈ₛ b = repFiber ⟪ b ⟫↪ a , isPropRepFiber b a
 
 ix∈ₛ : {X : Type ℓ} {ix : X → V ℓ}
      → (x : X) → ⟨ ix x ∈ₛ sett X ix ⟩
-ix∈ₛ {X = X} {ix = ix} x = ∈∈ₛ {a = ix x} {b = sett X ix} .fst ∣ x , refl ∣
+ix∈ₛ {X = X} {ix = ix} x = ∈∈ₛ {a = ix x} {b = sett X ix} .fst ∣ x , refl ∣₁
 
 ∈ₛ⟪_⟫↪_ : (a : V ℓ) (ix : ⟪ a ⟫) → ⟨ ⟪ a ⟫↪ ix ∈ₛ a ⟩
 ∈ₛ⟪ a ⟫↪ ix = ix , ∼refl (⟪ a ⟫↪ ix)
