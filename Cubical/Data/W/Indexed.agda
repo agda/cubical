@@ -21,8 +21,8 @@ private
     ℓX ℓS ℓP : Level
 
 module Types {X : Type ℓX} (S : X → Type ℓS) (P : ∀ x → S x → Type ℓP) (inX : ∀ x (s : S x) → P x s → X) where
-  data IW : (x : X) → Type (ℓ-max ℓX (ℓ-max ℓS ℓP)) where
-    node : ∀ {x} → (s : S x) → (subtree : (p : P x s) → IW (inX x s p)) → IW x
+  data IW (x : X) : Type (ℓ-max ℓX (ℓ-max ℓS ℓP)) where
+    node : (s : S x) → (subtree : (p : P x s) → IW (inX x s p)) → IW x
 
   Subtree : ∀ {x} → (s : S x) → Type (ℓ-max (ℓ-max ℓX ℓS) ℓP)
   Subtree {x} s = (p : P x s) → IW (inX x s p)
