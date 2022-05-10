@@ -7,7 +7,7 @@ The definition of the abelianization is not as a set-quotient, since the relatio
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.Group.Abelianization where
+module Cubical.Algebra.Group.Abelianization.Abelianization where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

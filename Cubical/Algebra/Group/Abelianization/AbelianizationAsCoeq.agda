@@ -5,7 +5,7 @@ This file contains:
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.HITs.AbelianizationAsCoeq where
+module Cubical.Algebra.Group.Abelianization.AbelianizationAsCoeq where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
