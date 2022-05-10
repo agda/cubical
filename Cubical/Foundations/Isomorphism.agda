@@ -147,6 +147,12 @@ inv (isContr→Iso Actr _) _ = Actr .fst
 rightInv (isContr→Iso _ Bctr) = Bctr .snd
 leftInv (isContr→Iso Actr _)  = Actr .snd
 
+isContr→Iso' : isContr A → isContr B → (A → B) → Iso A B
+fun (isContr→Iso' _ Bctr f) = f
+inv (isContr→Iso' Actr _ _) _ = Actr .fst
+rightInv (isContr→Iso' _ Bctr f) = isContr→isProp Bctr _
+leftInv (isContr→Iso' Actr _ _)  = Actr .snd
+
 isProp→Iso :  (Aprop : isProp A) (Bprop : isProp B) (f : A → B) (g : B → A) → Iso A B
 fun (isProp→Iso _ _ f _) = f
 inv (isProp→Iso _ _ _ g) = g

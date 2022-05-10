@@ -3,13 +3,13 @@
 This file contains:
   - Path lemmas used in the colimit-equivalence proof.
 
-Prolix, indeed. But should be simple. The length mainly thanks to:
+Verbose, indeed. But should be simple. The length mainly thanks to:
   - Degenerate cubes that seem "obvious", but have to be constructed manually;
   - J rule is cubersome to use, especially when iteratively applied,
     also it is overcomplicated to construct JRefl in nested cases.
 
 -}
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.HITs.James.Inductive.Coherence where
 
 open import Cubical.Foundations.Prelude
