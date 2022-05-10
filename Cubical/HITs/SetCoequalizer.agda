@@ -1,7 +1,7 @@
 {-
 
 This file contains:
-    - the coequalizer as a HIT as performed in https://1lab.dev/Data.Set.Coequaliser.html
+    - the coequalizer of sets as a HIT as performed in https://1lab.dev/Data.Set.Coequaliser.html
 
 -}
 {-# OPTIONS --safe #-}

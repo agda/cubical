@@ -62,7 +62,7 @@ module _ (G : Group ℓ) where
         → (x y : Abelianization)
         → C x y
   elimProp2 Cprop f = elimProp (λ x → isPropΠ (λ y → Cprop x y))
-                                       (λ x → elimProp (λ y → Cprop (η x) y) (f x))
+                               (λ x → elimProp (λ y → Cprop (η x) y) (f x))
 
   elimProp3 : {D : Abelianization → Abelianization → Abelianization → Type ℓ}
         → (Dprop : (x y z : Abelianization) → isProp (D x y z))
@@ -154,8 +154,7 @@ module _ (G : Group ℓ) where
   assocAb : (x y z : Abelianization) → x ·Ab (y ·Ab z) ≡ (x ·Ab y) ·Ab z
   assocAb =
     elimProp3
-      (λ x y z → isset (x ·Ab (y ·Ab z))
-      ((x ·Ab y) ·Ab z))
+      (λ x y z → isset (x ·Ab (y ·Ab z)) ((x ·Ab y) ·Ab z))
       (λ x y z → cong η (assoc x y z))
 
   ridAb : (x : Abelianization) → x ·Ab 1Ab ≡ x
@@ -185,7 +184,7 @@ module _ (G : Group ℓ) where
                η (y · x)        ≡⟨ refl ⟩
                (η y) ·Ab (η x) ∎)
 
-  -- The proof that that the abelianization is in fact an abelian group.
+  -- The proof that the abelianization is in fact an abelian group.
   asAbelianGroup : AbGroup ℓ
   asAbelianGroup = makeAbGroup 1Ab _·Ab_ invAb isset assocAb ridAb rinvAb commAb
 
