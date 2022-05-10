@@ -8,7 +8,7 @@ This file contains:
 
 - Lemmas for going back and forth between Path and Id
 
-- Function extensionality for Id
+- Function extesionality for Id
 
 - fiber, isContr, equiv all defined using Id
 
