@@ -97,10 +97,10 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
     hom-∨₂ = ∨≤LCancel _ _
 
     hom-∧₁ : DLCat [ x ∧l y , x ]
-    hom-∧₁ = (≤m→≤j _ _ (∧≤RCancel _ _))
+    hom-∧₁ = ≤m→≤j _ _ (∧≤RCancel _ _)
 
     hom-∧₂ : DLCat [ x ∧l y , y ]
-    hom-∧₂ = (≤m→≤j _ _ (∧≤LCancel _ _))
+    hom-∧₂ = ≤m→≤j _ _ (∧≤LCancel _ _)
 
 
     {-
