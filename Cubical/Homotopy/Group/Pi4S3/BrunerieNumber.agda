@@ -414,7 +414,7 @@ fold∘W≡Whitehead =
       (isConnectedPathP 1 {A = (λ i → p i (snd A) ≡ north)}
         (isConnectedPathSⁿ 1 (fst g (pt A)) north) (snd f) (snd g) .fst )
 
-BrunerieIsoAbstract : GroupEquiv (π'Gr 3 (S₊∙ 3)) (abstractℤ/ Brunerie)
+BrunerieIsoAbstract : GroupEquiv (π'Gr 3 (S₊∙ 3)) (abstractℤGroup/ Brunerie)
 BrunerieIsoAbstract =
   compGroupEquiv π₄S³≅π₃coFib-fold∘W∙
     (invGroupEquiv
@@ -442,6 +442,6 @@ BrunerieIsoAbstract =
 
 -- And, finally, we get the actual iso
 -- (as in Corollary 3.4.5 in Brunerie's thesis)
-BrunerieIso : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤ/ Brunerie)
+BrunerieIso : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ Brunerie)
 BrunerieIso =
   compGroupEquiv BrunerieIsoAbstract (abstractℤ/≅ℤ Brunerie)

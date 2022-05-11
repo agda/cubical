@@ -275,9 +275,6 @@ loop = pathToEq loopPath
 S¹-rec : {A : Type ℓ} (b : A) (l : b ≡ b) → S¹ → A
 S¹-rec b l = S1.rec b (eqToPath l)
 
-S¹-elim : (C : S¹ → Type ℓ) (b : C base) (l : transport C loop b ≡ b) → (x : S¹) → C x
-S¹-elim C b l x = S1.ind C b (eqToPath (substPath≡transport C b loopPath ∙ l)) x
-
 S¹-recβ : (b : A) (l : b ≡ b) → ap (S¹-rec b l) loop ≡ l
 S¹-recβ b l =
   ap (S¹-rec b l) loop ≡⟨ ap≡congPath (S¹-rec b l) loopPath ⟩
