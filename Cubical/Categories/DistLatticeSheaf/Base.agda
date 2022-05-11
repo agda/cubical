@@ -91,7 +91,6 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   module _ (x y : L .fst)where
     hom-∨₁ : DLCat [ x , x ∨l y ]
     hom-∨₁ = ∨≤RCancel _ _
-      -- TODO: isn't the fixity of the operators a bit weird?
 
     hom-∨₂ : DLCat [ y , x ∨l y ]
     hom-∨₂ = ∨≤LCancel _ _
