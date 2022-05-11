@@ -32,7 +32,7 @@ open import Cubical.ZCohomology.GroupStructure
 open IsGroupHom
 open Iso
 
-H⁰-Unit≅ℤ : GroupIso (coHomGr 0 Unit) ℤ
+H⁰-Unit≅ℤ : GroupIso (coHomGr 0 Unit) ℤGroup
 fun (fst H⁰-Unit≅ℤ) = ST.rec isSetℤ (λ f → f tt)
 inv (fst H⁰-Unit≅ℤ) a = ∣ (λ _ → a) ∣₂
 rightInv (fst H⁰-Unit≅ℤ) _ = refl

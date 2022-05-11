@@ -13,7 +13,7 @@ open import Cubical.Data.FinData
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤG)
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing

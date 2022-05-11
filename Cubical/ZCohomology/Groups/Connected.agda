@@ -8,7 +8,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Int hiding (ℤ) renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
 open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.HITs.SetTruncation as ST
@@ -28,7 +28,7 @@ open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Unit
 
 private
-  H⁰-connected-type : ∀ {ℓ} {A : Type ℓ} (a : A) → isConnected 2 A → Iso (coHom 0 A) (fst ℤ)
+  H⁰-connected-type : ∀ {ℓ} {A : Type ℓ} (a : A) → isConnected 2 A → Iso (coHom 0 A) ℤ
   Iso.fun (H⁰-connected-type a con) = ST.rec isSetℤ λ f → f a
   Iso.inv (H⁰-connected-type a con) b = ∣ (λ x → b) ∣₂
   Iso.rightInv (H⁰-connected-type a con) b = refl
@@ -39,7 +39,7 @@ private
 open IsGroupHom
 open Iso
 
-H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₁) → GroupIso (coHomGr 0 A) ℤ
+H⁰-connected : ∀ {ℓ} {A : Type ℓ} (a : A) → ((x : A) → ∥ a ≡ x ∥₁) → GroupIso (coHomGr 0 A) ℤGroup
 fun (fst (H⁰-connected a con)) = ST.rec isSetℤ (λ f → f a)
 inv (fst (H⁰-connected a con)) b = ∣ (λ _ → b) ∣₂
 rightInv (fst (H⁰-connected a con)) _ = refl

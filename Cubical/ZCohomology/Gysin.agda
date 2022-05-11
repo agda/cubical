@@ -18,7 +18,6 @@ open import Cubical.Functions.Embedding
 
 open import Cubical.Relation.Nullary
 
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
@@ -33,7 +32,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Int
 
 open import Cubical.HITs.Truncation as T
 open import Cubical.HITs.SetTruncation as ST

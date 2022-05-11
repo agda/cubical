@@ -322,7 +322,7 @@ snd (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m) =
 Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ : (n m : ℕ)
   → GroupIso (coHomGr ((suc n) +' (suc m))
                   (S₊ (suc n) × S₊ (suc m)))
-              ℤ
+              ℤGroup
 Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ zero m =
   compGroupIso (invGroupIso (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) (Hⁿ-Sⁿ≅ℤ m)
 Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ (suc n) m =
