@@ -19,7 +19,7 @@ open import Cubical.Algebra.Group.MorphismProperties using (isPropIsGroupHom; co
 
 open import Cubical.Algebra.AbGroup.Base
 
-open import Cubical.HITs.SetCoequalizer
+open import Cubical.HITs.SetCoequalizer hiding (inducedHom; commutativity; uniqueness)
 
 private
   variable
@@ -200,5 +200,5 @@ module _ (G : Group ℓ) where
           q = elimProp
                 (λ _ → isSetAbGroup H _ _)
                 (λ x → fst g (incAb x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
-                       (fst f) x ≡⟨ refl ⟩
+                       (fst f) x       ≡⟨ refl ⟩
                        fst (inducedHom H f) (incAb x)∎)

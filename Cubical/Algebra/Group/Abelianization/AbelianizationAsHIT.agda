@@ -262,5 +262,5 @@ module _ (G : Group ℓ) where
           q = elimProp
                 (λ _ → isSetAbGroup H _ _)
                 (λ x → fst g (η x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
-                       (fst f) x ≡⟨ refl ⟩
+                       (fst f) x   ≡⟨ refl ⟩
                        fst (inducedHom H f) (η x)∎)

@@ -62,13 +62,54 @@ rec Cset h hcoeqs (squash x y p q i j) =
   where g = rec Cset h hcoeqs
 
 rec2 : {A' : Type ℓ} {B' : Type ℓ'} {C : Type ℓ''} {f g : A → B} {f' g' : A' → B'}
-    → (Cset : (x y : C) → (p q : x ≡ y) → p ≡ q)
-    → (h : B → B' → C)
-    → (hcoeqsl : (a : A) (b' : B') → h (f a) b' ≡ h (g a) b')
-    → (hcoeqsr : (a' : A') (b : B) → h b (f' a') ≡ h b (g' a'))
-    → SetCoequalizer f g → SetCoequalizer f' g' → C
+     → (Cset : (x y : C) → (p q : x ≡ y) → p ≡ q)
+     → (h : B → B' → C)
+     → (hcoeqsl : (a : A) (b' : B') → h (f a) b' ≡ h (g a) b')
+     → (hcoeqsr : (a' : A') (b : B) → h b (f' a') ≡ h b (g' a'))
+     → SetCoequalizer f g → SetCoequalizer f' g' → C
 rec2 Cset h hcoeqsl hcoeqsr =
   rec
     (isSetΠ (λ _ → Cset))
     (λ b → rec Cset (λ b' → h b b') (λ a' → hcoeqsr a' b))
     (λ a → funExt (elimProp (λ _ → Cset _ _) (λ b' → hcoeqsl a b')))
+
+{- The proof of the universal property of the coequalizer of sets.
+
+A ==f=g==> B --inc--> SetCoequalizer f g
+            \         .
+              \       .
+                h   ∃! inducedHom
+                  \   .
+                    \ .
+                      C
+commuting diagram
+-}
+inducedHom : {C : Type ℓ''} {f g : A → B}
+           → (Cset : (x y : C) → (p q : x ≡ y) → p ≡ q)
+           → (h : B → C)
+           → (hglue : (a : A) → h (f a) ≡ h (g a))
+           → SetCoequalizer f g → C
+inducedHom Cset h hglue = rec Cset h hglue
+
+commutativity : {C : Type ℓ''} {f g : A → B}
+              → (Cset : (x y : C) → (p q : x ≡ y) → p ≡ q)
+              → (h : B → C)
+              → (hglue : (a : A) → h (f a) ≡ h (g a))
+              → ((b : B) → h b ≡ inducedHom Cset h hglue (inc b))
+commutativity Cset h hglue = λ b → refl
+
+uniqueness : {C : Type ℓ''}
+           → (f g : A → B)
+           → (Cset : (x y : C) → (p q : x ≡ y) → p ≡ q)
+           → (h : B → C)
+           → (hglue : (a : A) → h (f a) ≡ h (g a))
+           → (i : SetCoequalizer f g → C)
+           → (icommutativity : (b : B) → h b ≡ i (inc b))
+           → (i ≡ inducedHom Cset h hglue)
+uniqueness f g Cset h hglue i icommutativity = λ j x → q x j
+  where q : (x : SetCoequalizer f g) → i x ≡ inducedHom Cset h hglue x
+        q = elimProp
+              (λ _ → Cset _ _)
+              (λ b → i (inc b) ≡⟨ sym (icommutativity b) ⟩
+                     h b       ≡⟨ refl ⟩
+                     inducedHom Cset h hglue (inc b) ∎)
