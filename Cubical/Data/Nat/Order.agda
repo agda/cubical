@@ -409,3 +409,33 @@ n∸n≡0 (suc n) = n∸n≡0 n
 
 ≤-solver : (m n : ℕ) → ≤-solver-type m n (m ≟ n)
 ≤-solver m n = ≤-solver-case m n (m ≟ n)
+
+
+
+-- inductive order relation taken from agda-stdlib
+data _≤'_ : ℕ → ℕ → Type where
+  z≤ : ∀ {n} → zero ≤' n
+  s≤s : ∀ {m n} → m ≤' n → suc m ≤' suc n
+
+_<'_ : ℕ → ℕ → Type
+m <' n = suc m ≤' n
+
+-- Smart constructors of _<_
+pattern z<s {n}         = s≤s (z≤ {n})
+pattern s<s {m} {n} m<n = s≤s {m} {n} m<n
+
+¬-<'-zero : ¬ m <' 0
+¬-<'-zero {zero} ()
+¬-<'-zero {suc m} ()
+
+≤'Dec : ∀ m n → Dec (m ≤' n)
+≤'Dec zero n = yes z≤
+≤'Dec (suc m) zero = no ¬-<'-zero
+≤'Dec (suc m) (suc n) with ≤'Dec m n
+... | yes m≤'n = yes (s≤s m≤'n)
+... | no m≰'n = no λ { (s≤s m≤'n) → m≰'n m≤'n }
+
+≤'IsPropValued : ∀ m n → isProp (m ≤' n)
+≤'IsPropValued zero n z≤ z≤ = refl
+≤'IsPropValued (suc m) zero ()
+≤'IsPropValued (suc m) (suc n) (s≤s x) (s≤s y) = cong s≤s (≤'IsPropValued m n x y)

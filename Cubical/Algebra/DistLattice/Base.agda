@@ -66,7 +66,7 @@ record DistLatticeStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
     _∧l_         : A → A → A
     isDistLattice : IsDistLattice 0l 1l _∨l_ _∧l_
 
-  infix 7 _∨l_
+  infix 6 _∨l_
   infix 6 _∧l_
 
   open IsDistLattice isDistLattice public
