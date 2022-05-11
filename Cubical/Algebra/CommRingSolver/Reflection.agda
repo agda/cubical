@@ -31,7 +31,6 @@ open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷
 
 open import Cubical.Algebra.CommRingSolver.AlgebraExpression
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int using () renaming (ℤ to ℤRing)
 open import Cubical.Algebra.CommRingSolver.RawAlgebra
 open import Cubical.Algebra.CommRingSolver.IntAsRawRing
 open import Cubical.Algebra.CommRingSolver.Solver renaming (solve to ringSolve)

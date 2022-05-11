@@ -31,7 +31,6 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-  renaming (ℤ to Ringℤ)
 open import Cubical.Algebra.CommRingSolver.Reflection
 
 private
@@ -53,10 +52,10 @@ private
     helper3 : (n m d r : 𝓡 .fst) → n ≡ d · m + r → n + (- d) · m ≡ r
     helper3 n m d r p = (λ t → p t + (- d) · m) ∙ helper2 d m r
 
-open Helper Ringℤ
+open Helper ℤCommRing
 
 
-open CommRingStr      (Ringℤ .snd)
+open CommRingStr      (ℤCommRing .snd)
 
 -- The Divisibility Relation
 -- Most definitions are the same as in Cubical.Data.Nat.Divisibility

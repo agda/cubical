@@ -17,7 +17,7 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
+open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ

@@ -5,18 +5,18 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Data.Int as Int
-  renaming ( ℤ to ℤType ; _+_ to _+ℤ_; _·_ to _·ℤ_; -_ to -ℤ_)
+  renaming ( ℤ to ℤ ; _+_ to _+ℤ_; _·_ to _·ℤ_; -_ to -ℤ_)
 
 open CommRingStr
 
-ℤ : CommRing ℓ-zero
-fst ℤ = ℤType
-0r (snd ℤ) = 0
-1r (snd ℤ) = 1
-_+_ (snd ℤ) = _+ℤ_
-_·_ (snd ℤ) = _·ℤ_
-- snd ℤ = -ℤ_
-isCommRing (snd ℤ) = isCommRingℤ
+ℤCommRing : CommRing ℓ-zero
+fst ℤCommRing = ℤ
+0r (snd ℤCommRing) = 0
+1r (snd ℤCommRing) = 1
+_+_ (snd ℤCommRing) = _+ℤ_
+_·_ (snd ℤCommRing) = _·ℤ_
+- snd ℤCommRing = -ℤ_
+isCommRing (snd ℤCommRing) = isCommRingℤ
   where
   abstract
     isCommRingℤ : IsCommRing 0 1 _+ℤ_ _·ℤ_ -ℤ_

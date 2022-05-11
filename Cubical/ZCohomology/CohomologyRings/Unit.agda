@@ -17,7 +17,7 @@ open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
 open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
+open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
