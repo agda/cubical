@@ -8,6 +8,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Unit
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; +-comm to +n-comm ; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Int hiding (_+'_)
@@ -21,30 +22,28 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤG)
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
+open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
-open import Cubical.Algebra.Direct-Sum.Base
 
-open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
-open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.Truncation
+open import Cubical.HITs.Sn
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
-
-open import Cubical.Data.Unit
-open import Cubical.HITs.Sn
 open import Cubical.ZCohomology.Groups.Sn
 
 open Iso

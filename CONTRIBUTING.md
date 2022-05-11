@@ -111,6 +111,8 @@ When preparing a PR here are some general guidelines:
 - Avoid importing `Foundations.Everything`; import only the modules in
   `Foundations` you are using. Be reasonably specific in general when
   importing.
+  In particular, avoid importing useless files or useless renaming
+  and try to group them by folder like `Foundations` or `Data`
 
 - Avoid `public` imports, except in modules that are specifically meant
   to collect and re-export results from several modules.
