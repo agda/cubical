@@ -204,5 +204,4 @@ module _ {C : Category ℓC ℓC'} {monadM monadN : Monad C} (monadν : MonadHom
   EMFunctor = MapFullSubcategory
     (AlgebrasCategory N) (IsEMAlgebra monadN)
     (AlgebrasCategory M) (IsEMAlgebra monadM)
-    (AlgebrasFunctor ν)
-    mapIsEMAlgebra
+    (AlgebrasFunctor ν) mapIsEMAlgebra
