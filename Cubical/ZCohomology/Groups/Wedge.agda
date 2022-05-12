@@ -1,34 +1,41 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.Wedge where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Properties
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+
 open import Cubical.HITs.Wedge
-open import Cubical.Data.Int hiding (_+_)
 open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
 open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
-open import Cubical.Data.Nat
-open import Cubical.Algebra.Group
-
-open import Cubical.ZCohomology.Groups.Unit
-open import Cubical.ZCohomology.Groups.Sn
-
-open import Cubical.HITs.Pushout
-open import Cubical.Data.Sigma
-
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
-open import Cubical.Foundations.Equiv
+open import Cubical.HITs.Pushout
+open import Cubical.Data.Nat
+open import Cubical.Data.Sigma
+open import Cubical.Data.Int hiding (_+_)
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+
+open import Cubical.Homotopy.Connected
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.Groups.Unit
+open import Cubical.ZCohomology.Groups.Sn
+
+
+
 
 open IsGroupHom
 open Iso

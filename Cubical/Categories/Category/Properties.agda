@@ -92,7 +92,8 @@ module _ {C : Category ℓ ℓ'} where
                   → (f : C [ x , y ]) (g : C [ y , z ]) (g' : C [ y' , z ])
                   → (r : PathP (λ i → C [ p i , z ]) g g')
                   → f ⋆⟨ C ⟩ g ≡ seqP {p = p} f g'
-  lCatWhiskerP f g g' r = cong (λ v → f ⋆⟨ C ⟩ v) (sym (fromPathP (symP r)))
+  lCatWhiskerP {z = z} {p = p} f g g' r =
+    cong (λ v → f ⋆⟨ C ⟩ v) (sym (fromPathP (symP {A = λ i → C [ p (~ i) , z ]} r)))
 
   rCatWhiskerP : {x y' y z : C .ob} {p : y' ≡ y}
                   → (f' : C [ x , y' ]) (f : C [ x , y ]) (g : C [ y , z ])

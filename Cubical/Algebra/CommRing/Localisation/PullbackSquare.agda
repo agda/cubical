@@ -57,7 +57,7 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -187,7 +187,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                   → Σ[ n ∈ ℕ ] v ≡ g ^ n
                   → x ≡ 0r
    exponentHelper (n , u≡fⁿ) (m , v≡gᵐ) =
-                   PT.rec (is-set _ _) Σhelper (GeneratingExponents.lemma R' f g l 1∈⟨f,g⟩)
+                   PT.rec (is-set _ _) Σhelper (GeneratingPowers.thm R' l _ fgVec 1∈⟨f,g⟩)
     where
     l = max n m
 
@@ -293,7 +293,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                    → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
                                 × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
     exponentHelper (m , s≡[fg]ᵐ) =
-       PT.rec isProp∃! Σhelper (GeneratingExponents.lemma R' f g 2n+m 1∈⟨f,g⟩)
+       PT.rec isProp∃! Σhelper (GeneratingPowers.thm R' 2n+m _ fgVec 1∈⟨f,g⟩)
      where
      -- the path we'll actually work with
      xgⁿ[fg]ⁿ⁺ᵐ≡yfⁿ[fg]ⁿ⁺ᵐ : x · g ^ n · (f · g) ^ (n +ℕ m) ≡ y · f ^ n · (f · g) ^ (n +ℕ m)

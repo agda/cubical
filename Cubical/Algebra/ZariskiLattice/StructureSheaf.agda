@@ -1,7 +1,8 @@
 {-
 
-   This module defines the basic opens of the Zariski lattice and proves that they're a basis of the lattice.
-   It also contains the construction of the structure presheaf and a proof of the sheaf property on basic opens,
+   This module defines the basic opens of the Zariski lattice and proves that
+   they're a basis of the lattice. It also contains the construction of the
+   structure presheaf and a proof of the sheaf property on basic opens,
    using the theory developed in the module PreSheafFromUniversalProp and its toSheaf.lemma.
    Note that the structure sheaf is a functor into R-algebras and not just commutative rings.
 
@@ -22,7 +23,7 @@ open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence)
                                          renaming (_∈_ to _∈ₚ_ ; subst-∈ to subst-∈ₚ)
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (_≤_)
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
@@ -52,7 +53,7 @@ open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
@@ -67,7 +68,7 @@ open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Instances.CommAlgebras
 open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.Semilattice
-open import Cubical.Categories.DistLatticeSheaf
+open import Cubical.Categories.DistLatticeSheaf.Base
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -180,7 +181,8 @@ module _ (R' : CommRing ℓ) where
  open SheafOnBasis ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ})
                    (TerminalCommAlgebra R') BasicOpens basicOpensAreBasis
 
- isSheafBasisStructurePShf : isDLBasisSheaf BasisStructurePShf
+ -- only proof for weak notion of sheaf on a basis
+ isSheafBasisStructurePShf : isDLBasisSheafPullback BasisStructurePShf
  fst isSheafBasisStructurePShf 0∈BO =
    transport (λ i → F-ob (0z , canonical0∈BO≡0∈BO i) ≡ UnitCommAlgebra R') R[1/0]≡0
    where

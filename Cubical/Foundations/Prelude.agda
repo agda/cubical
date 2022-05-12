@@ -28,7 +28,7 @@ open import Cubical.Core.Primitives public
 infixr 30 _∙_
 infixr 30 _∙₂_
 infix  3 _∎
-infixr 2 _≡⟨_⟩_
+infixr 2 _≡⟨_⟩_ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
 
 -- Basic theory about paths. These proofs should typically be
@@ -50,9 +50,15 @@ sym : x ≡ y → y ≡ x
 sym p i = p (~ i)
 {-# INLINE sym #-}
 
-symP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} →
-       (p : PathP A x y) → PathP (λ i → A (~ i)) y x
+-- symP infers the type of its argument from the type of its output
+symP : {A : I → Type ℓ} → {x : A i1} → {y : A i0} →
+       (p : PathP (λ i → A (~ i)) x y) → PathP A y x
 symP p j = p (~ j)
+
+-- symP infers the type of its output from the type of its argument
+symP-fromGoal : {A : I → Type ℓ} → {x : A i0} → {y : A i1} →
+       (p : PathP A x y) → PathP (λ i → A (~ i)) y x
+symP-fromGoal p j = p (~ j)
 
 cong : (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
@@ -227,6 +233,9 @@ _ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
 infixr 2 ≡⟨⟩-syntax
 syntax ≡⟨⟩-syntax x (λ i → B) y = x ≡[ i ]⟨ B ⟩ y
 
+_≡⟨⟩_ : (x : A) → x ≡ y → x ≡ y
+_ ≡⟨⟩ x≡y = x≡y
+
 ≡⟨⟩⟨⟩-syntax : (x y : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
 ≡⟨⟩⟨⟩-syntax x y p q r = p ∙∙ q ∙∙ r
 infixr 3 ≡⟨⟩⟨⟩-syntax
@@ -261,7 +270,7 @@ subst2 : ∀ {ℓ' ℓ''} {B : Type ℓ'} {z w : B} (C : A → B → Type ℓ'')
         (p : x ≡ y) (q : z ≡ w) → C x z → C y w
 subst2 B p q b = transport (λ i → B (p i) (q i)) b
 
-substRefl : (px : B x) → subst B refl px ≡ px
+substRefl : ∀ {B : A → Type ℓ} {x} → (px : B x) → subst B refl px ≡ px
 substRefl px = transportRefl px
 
 subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
@@ -308,6 +317,14 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
       (λ i → P (q (i ∨ ~ k))
       (λ j → compPath-filler p q (i ∨ ~ k) j)) (~ k)
       (J (λ j → compPath-filler p q (~ k) j))
+
+-- A prefix operator version of J that is more suitable to be nested
+
+module _ {P : ∀ y → x ≡ y → Type ℓ'} (d : P x refl) where
+  J>_ : ∀ y → (p : x ≡ y) → P y p
+  J>_ _ p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
+
+  infix 10 J>_
 
 -- Converting to and from a PathP
 

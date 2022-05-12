@@ -19,6 +19,9 @@ open import Cubical.Data.Int hiding (ℤ) renaming (_+_ to _+ℤ_; +Comm to +ℤ
 open import Cubical.Data.Nat
 open import Cubical.HITs.Truncation renaming (rec₊ to trRec)
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Instances.Int
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 
 open import Cubical.Homotopy.Connected
 open import Cubical.Foundations.Equiv

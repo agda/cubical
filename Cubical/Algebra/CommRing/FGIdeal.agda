@@ -12,29 +12,33 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum hiding (map ; elim ; rec)
-open import Cubical.Data.FinData hiding (elim ; rec)
+open import Cubical.Data.Sum
+open import Cubical.Data.FinData
 open import Cubical.Data.Nat renaming ( zero to ℕzero ; suc to ℕsuc
                                       ; _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-assoc to +ℕ-assoc ; +-comm to +ℕ-comm
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
-                             hiding (elim ; _choose_)
 open import Cubical.Data.Nat.Order
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PT
 
+open import Cubical.Relation.Nullary
+
+open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.QuotientRing
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 open import Cubical.Algebra.Matrix
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 module _ (Ring@(R , str) : CommRing ℓ) where
   infixr 5 _holds
@@ -68,14 +72,14 @@ module _ (Ring@(R , str) : CommRing ℓ) where
                          → isLinearCombination V x
                          → isLinearCombination V y
                          → isLinearCombination V (x + y)
-  isLinearCombination+ V = map2 λ α β → (λ i → α .fst i + β .fst i)
+  isLinearCombination+ V = PT.map2 λ α β → (λ i → α .fst i + β .fst i)
                                        , cong₂ (_+_) (α .snd) (β .snd) ∙ sym (sumDist+ _ _ V)
 
   {- If x is a linear combinations of l, then -x is
      a linear combination. -}
   isLinearCombination- : {n : ℕ} {x : R} (V : FinVec R n)
                        → isLinearCombination V x → isLinearCombination V (- x)
-  isLinearCombination- V = map λ α → (λ i → - α .fst i) , cong (-_) (α .snd) ∙ sym (dist- _ V)
+  isLinearCombination- V = PT.map λ α → (λ i → - α .fst i) , cong (-_) (α .snd) ∙ sym (dist- _ V)
 
   {- 0r is the trivial linear Combination -}
   isLinearCombination0 : {n : ℕ} (V : FinVec R n)
@@ -85,7 +89,7 @@ module _ (Ring@(R , str) : CommRing ℓ) where
   {- Linear combinations are stable under left multiplication -}
   isLinearCombinationL· : {n : ℕ} (V : FinVec R n) (r : R) {x : R}
                         → isLinearCombination V x → isLinearCombination V (r · x)
-  isLinearCombinationL· V r = map λ α → (λ i → r · α .fst i) , cong (r ·_) (α .snd)
+  isLinearCombinationL· V r = PT.map λ α → (λ i → r · α .fst i) , cong (r ·_) (α .snd)
                                                             ∙∙ ∑Mulrdist r (λ i → α .fst i · V i)
                                                             ∙∙ ∑Ext λ i → ·Assoc r (α .fst i) (V i)
 
@@ -94,6 +98,89 @@ module _ (Ring@(R , str) : CommRing ℓ) where
   CommIdeal.isCommIdeal.+Closed (snd (generatedIdeal V)) = isLinearCombination+ V
   CommIdeal.isCommIdeal.contains0 (snd (generatedIdeal V)) = isLinearCombination0 V
   CommIdeal.isCommIdeal.·Closed (snd (generatedIdeal V)) = λ r → isLinearCombinationL· V r
+
+-- two lemma for computing linear combination
+module _
+  (A'@(A , Ar) : CommRing ℓ)
+  (B'@(B , Br) : Ring ℓ')
+  (f'@(f , fr) : RingHom (CommRing→Ring A') B')
+  where
+
+  open CommRingStr Ar using ()
+    renaming
+    ( 0r        to 0A
+    ; 1r        to 1A
+    ; _+_       to _+A_
+    ; -_        to -A_
+    ; _·_       to _·A_ )
+
+  open RingStr Br using ()
+    renaming
+    ( 0r        to 0B
+    ; 1r        to 1B
+    ; _+_       to _+B_
+    ; -_        to -B_
+    ; _·_       to _·B_ )
+
+  open CommRingStr
+  open IsRingHom
+  open Sum
+  open SumMap (CommRing→Ring A') B'
+
+  ∑A = ∑ (CommRing→Ring A')
+  ∑B = ∑ B'
+
+  cancelLinearCombination : (n : ℕ) → (a v : FinVec A n) → (fnull : (k : Fin n) → f (v k) ≡ 0B)
+                               → f (linearCombination A' a v) ≡ 0B
+  cancelLinearCombination n a v fnull = f (∑A (λ i → a i ·A v i))
+                                             ≡⟨ ∑Map f' (λ i → a i ·A v i) ⟩
+                                        ∑B (λ i → f (a i ·A v i))
+                                             ≡⟨ ∑Ext B' (λ i → pres· fr (a i) (v i)) ⟩
+                                        ∑B (λ i → (f (a i)) ·B (f (v i)))
+                                             ≡⟨ ∑Ext B' (λ i → cong (λ X → f (a i) ·B X) (fnull i)) ⟩
+                                        ∑B (λ i → f (a i) ·B 0B)
+                                             ≡⟨ ∑Mulr0 B' (λ i → f (a i)) ⟩
+                                        0B ∎
+
+
+module _
+  (A'@(A , Astr) : CommRing ℓ)
+  where
+
+  Ar : Ring ℓ
+  Ar = CommRing→Ring A'
+
+  open CommRingStr Astr
+  open RingTheory
+
+  genδ-FinVec-LinearCombi : (n : ℕ) → (k : Fin n) → (a : A) → (v : FinVec A n)
+                               → linearCombination A' (genδ-FinVec n (toℕ k) a 0r) v ≡ (a · (v k))
+  genδ-FinVec-LinearCombi ℕzero () a v
+  genδ-FinVec-LinearCombi (ℕsuc n) zero a v = cong (λ X → a · (v zero) + X) (cong (λ X → foldrFin _+_ 0r X)
+                                                    (funExt (λ x → 0LeftAnnihilates Ar (v (suc x)))))
+                                               ∙ cong (λ X → (a · v zero) + X) (Sum.∑0r Ar n)
+                                               ∙ +Rid _
+  genδ-FinVec-LinearCombi (ℕsuc n) (suc k) a v = cong (λ X → X + foldrFin _+_ 0r (λ x → genδ-FinVec n (toℕ k) a 0r x · v (suc x)))
+                                                       (0LeftAnnihilates Ar _)
+                                                  ∙ +Lid _
+                                                  ∙ genδ-FinVec-LinearCombi n k a (λ z → v (suc z))
+
+
+
+  genδ-FinVec-ℕLinearCombi : (n k : ℕ) → (infkn : k < n) → (a : A) → (v : FinVec A n)
+                           → linearCombination A' (genδ-FinVec n k a 0r) v ≡ (a · (v (fromℕ' n k infkn)))
+  genδ-FinVec-ℕLinearCombi ℕzero k infkn a v = ⊥.rec (¬-<-zero infkn)
+  genδ-FinVec-ℕLinearCombi (ℕsuc n) ℕzero infkn a v = cong (λ X → a · (v zero) + X) (cong (λ X → foldrFin _+_ 0r X)
+                                                       (funExt (λ x → 0LeftAnnihilates Ar (v (suc x)))))
+
+                                                      ∙ cong (λ X → (a · v zero) + X) (Sum.∑0r Ar n)
+                                                      ∙ +Rid _
+  genδ-FinVec-ℕLinearCombi (ℕsuc n) (ℕsuc k) infkn a v = cong (λ X → X + foldrFin _+_ 0r (λ x → genδ-FinVec n k a 0r x · v (suc x)))
+                                                              ((0LeftAnnihilates Ar _))
+                                                          ∙ +Lid _
+                                                          ∙ genδ-FinVec-ℕLinearCombi n k (pred-≤-pred infkn) a (λ z → v (suc z))
+
+
 
 open CommIdeal.isCommIdeal
 genIdeal : {n : ℕ} (R : CommRing ℓ) → FinVec (fst R) n → CommIdeal.CommIdeal R
@@ -123,7 +210,7 @@ module _ (R' : CommRing ℓ) where
 
  inclOfFGIdeal : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
      → (∀ i → V i ∈ I) → ⟨ V ⟩ ⊆ I
- inclOfFGIdeal V I ∀i→Vi∈I x = elim (λ _ → I .fst x .snd) inclOfFGIdealΣ
+ inclOfFGIdeal V I ∀i→Vi∈I x = PT.elim (λ _ → I .fst x .snd) inclOfFGIdealΣ
   where
   inclOfFGIdealΣ : Σ[ α ∈ FinVec R _ ] x ≡ linearCombination R' α V → x ∈ I
   inclOfFGIdealΣ (α , x≡α·V) = subst-∈ I (sym x≡α·V) (∑Closed I (λ i → α i · V i)
@@ -133,17 +220,17 @@ module _ (R' : CommRing ℓ) where
  indInIdeal U i = ∣ (δ i) , sym (∑Mul1r _ U i) ∣
 
  sucIncl : ∀ {n : ℕ} (U : FinVec R (ℕsuc n)) → ⟨ U ∘ suc ⟩ ⊆ ⟨ U ⟩
- sucIncl U x = map λ (α , x≡∑αUsuc) → (λ { zero → 0r ; (suc i) → α i }) , x≡∑αUsuc ∙ path _ _
+ sucIncl U x = PT.map λ (α , x≡∑αUsuc) → (λ { zero → 0r ; (suc i) → α i }) , x≡∑αUsuc ∙ path _ _
   where
   path : ∀ s u₀ → s ≡ 0r · u₀ + s
   path = solve R'
 
  emptyFGIdeal : ∀ (V : FinVec R 0) → ⟨ V ⟩ ≡ 0Ideal
- emptyFGIdeal V = CommIdeal≡Char (λ _ →  rec (is-set _ _) snd)
+ emptyFGIdeal V = CommIdeal≡Char (λ _ →  PT.rec (is-set _ _) snd)
                                  (λ _ x≡0 → ∣ (λ ()) , x≡0 ∣)
 
  0FGIdealLIncl : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩ ⊆ 0Ideal
- 0FGIdealLIncl x = elim (λ _ → is-set _ _)
+ 0FGIdealLIncl x = PT.elim (λ _ → is-set _ _)
          λ (α , x≡∑α0) → subst-∈ 0Ideal (sym x≡∑α0) (∑Closed 0Ideal (λ i → α i · 0r)
          λ i → subst-∈ 0Ideal (sym (0RightAnnihilates _)) refl)
 
@@ -158,7 +245,7 @@ module _ (R' : CommRing ℓ) where
                       → ⟨ U ++Fin V ⟩ ⊆ (⟨ U ⟩ +i ⟨ V ⟩)
  FGIdealAddLemmaLIncl {n = ℕzero} U V x x∈⟨V⟩ =
                                   ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+Lid x) ∣
- FGIdealAddLemmaLIncl {n = ℕsuc n} U V x = rec isPropPropTrunc helperΣ
+ FGIdealAddLemmaLIncl {n = ℕsuc n} U V x = PT.rec isPropPropTrunc helperΣ
    where
    helperΣ : Σ[ α ∈ FinVec R _ ] (x ≡ ∑ λ i → α i · (U ++Fin V) i) → x ∈ (⟨ U ⟩ +i ⟨ V ⟩)
    helperΣ (α , p) = subst-∈ (⟨ U ⟩ +i ⟨ V ⟩) (sym p)
@@ -175,7 +262,7 @@ module _ (R' : CommRing ℓ) where
 
  FGIdealAddLemmaRIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                       → (⟨ U ⟩ +i ⟨ V ⟩) ⊆ ⟨ U ++Fin V ⟩
- FGIdealAddLemmaRIncl U V x = rec isPropPropTrunc (uncurry3 helper)
+ FGIdealAddLemmaRIncl U V x = PT.rec isPropPropTrunc (uncurry3 helper)
    where
    helperΣ : ((y , z) : R × R)
            → Σ[ α ∈ FinVec R _ ] (y ≡ ∑ λ i → α i · U i)
@@ -196,7 +283,7 @@ module _ (R' : CommRing ℓ) where
           → ∃[ β ∈ FinVec R _ ] (z ≡ ∑ λ i → β i · V i)
           → x ≡ y + z
           → x ∈ ⟨ U ++Fin V ⟩
-   helper _ = rec2 (isPropΠ (λ _ → isPropPropTrunc)) (helperΣ _)
+   helper _ = PT.rec2 (isPropΠ (λ _ → isPropPropTrunc)) (helperΣ _)
 
  FGIdealAddLemma : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                  → ⟨ U ++Fin V ⟩ ≡ ⟨ U ⟩ +i ⟨ V ⟩
@@ -217,7 +304,7 @@ module _ (R' : CommRing ℓ) where
  open ProdFin R'
  prodIn··Ideal : {n m : ℕ} (U : FinVec R n) (V : FinVec R m) (x y : R)
           → (x ∈ ⟨ U ⟩) → (y ∈ ⟨ V ⟩) → (x · y) ∈ ⟨ U ··Fin V ⟩
- prodIn··Ideal {n = n} {m = m} U V x y = map2 Σhelper
+ prodIn··Ideal {n = n} {m = m} U V x y = PT.map2 Σhelper
   where
   Σhelper : Σ[ α ∈ FinVec R n ] x ≡ linearCombination R' α U
           → Σ[ β ∈ FinVec R m ] y ≡ linearCombination R' β V
@@ -232,7 +319,7 @@ module _ (R' : CommRing ℓ) where
 
  FGIdealMultLemmaLIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                        → ⟨ U ··Fin V ⟩ ⊆ (⟨ U ⟩ ·i ⟨ V ⟩)
- FGIdealMultLemmaLIncl U V x = elim (λ _ → isPropPropTrunc)
+ FGIdealMultLemmaLIncl U V x = PT.elim (λ _ → isPropPropTrunc)
    λ (α , x≡∑αUV) → subst-∈ (⟨ U ⟩ ·i ⟨ V ⟩)  (sym x≡∑αUV) --replace x by ∑αᵢⱼUᵢVⱼ
      (∑Closed (⟨ U ⟩ ·i ⟨ V ⟩) (λ i → α i · (U ··Fin V) i) --show that each αᵢ(U··V)ᵢ is in product
        λ i → (⟨ U ⟩ ·i ⟨ V ⟩) .snd .·Closed (α i) --drop the α's
@@ -241,7 +328,7 @@ module _ (R' : CommRing ℓ) where
 
  FGIdealMultLemmaRIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                        → (⟨ U ⟩ ·i ⟨ V ⟩) ⊆ ⟨ U ··Fin V ⟩
- FGIdealMultLemmaRIncl U V x = elim (λ _ → isPropPropTrunc)
+ FGIdealMultLemmaRIncl U V x = PT.elim (λ _ → isPropPropTrunc)
    λ (_ , (α , β) , ∀α∈⟨U⟩ , ∀β∈⟨V⟩ , x≡∑αβ) → subst-∈ ⟨ U ··Fin V ⟩ (sym x≡∑αβ)
      (∑Closed ⟨ U ··Fin V ⟩ _ (λ i → prodIn··Ideal U V (α i) (β i) (∀α∈⟨U⟩ i) (∀β∈⟨V⟩ i)))
 
@@ -253,8 +340,9 @@ module _ (R' : CommRing ℓ) where
 
 
 -- A useful lemma for constructing the structure sheaf
-module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
+module GeneratingPowers (R' : CommRing ℓ) (n : ℕ) where
  open CommRingStr (snd R')
+ open CommRingTheory R'
  open RingTheory (CommRing→Ring R')
  open Sum (CommRing→Ring R')
  open Exponentiation R'
@@ -265,79 +353,79 @@ module GeneratingExponents (R' : CommRing ℓ) (f g : fst R') (n : ℕ) where
   R = fst R'
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
-  fgVec : FinVec R 2
-  fgVec zero = f
-  fgVec (suc zero) = g
-  ⟨f,g⟩ = ⟨ fgVec ⟩
+  _ⁿ : {m : ℕ} → FinVec R m → FinVec R m
+  U ⁿ = λ i → U i ^ n
 
-  fⁿgⁿVec : FinVec R 2
-  fⁿgⁿVec zero = f ^ n
-  fⁿgⁿVec (suc zero) = g ^ n
 
-  ⟨fⁿ,gⁿ⟩ = ⟨ fⁿgⁿVec ⟩
-
- lemma : 1r ∈ ⟨f,g⟩ → 1r ∈ ⟨fⁿ,gⁿ⟩
- lemma = elim (λ _ →  isPropPropTrunc) Σlemma
+ lemma : (m : ℕ) (α U : FinVec R (ℕsuc m))
+       → (linearCombination R' α U) ^ ((ℕsuc m) ·ℕ n) ∈ ⟨ U ⁿ ⟩
+ lemma ℕzero α U = ∣ α ⁿ , path ∣
   where
-  Σlemma : Σ[ α ∈ FinVec R 2 ] (1r ≡ linearCombination R' α fgVec) → 1r ∈ ⟨fⁿ,gⁿ⟩
-  Σlemma (α , p) = subst-∈ ⟨fⁿ,gⁿ⟩ path ∑Binomial∈⟨fⁿ,gⁿ⟩
+  path : (α zero · U zero + 0r) ^ (n +ℕ 0) ≡ α zero ^ n · U zero ^ n + 0r
+  path = (α zero · U zero + 0r) ^ (n +ℕ 0) ≡⟨ cong (_^ (n +ℕ 0)) (+Rid _) ⟩
+         (α zero · U zero) ^ (n +ℕ 0)      ≡⟨ cong ((α zero · U zero) ^_) (+-zero n) ⟩
+         (α zero · U zero) ^ n             ≡⟨ ^-ldist-· _ _ n ⟩
+         α zero ^ n · U zero ^ n           ≡⟨ sym (+Rid _) ⟩
+         α zero ^ n · U zero ^ n + 0r ∎
+
+ lemma (ℕsuc m) α U = subst-∈ ⟨ U ⁿ ⟩ (sym (BinomialThm (n +ℕ (ℕsuc m) ·ℕ n) x y)) ∑Binomial∈⟨Uⁿ⟩
+  where
+  x = α zero · U zero
+  y = linearCombination R' (α ∘ suc) (U ∘ suc)
+
+  binomialSummand∈⟨Uⁿ⟩ : ∀ (i : Fin _) → BinomialVec (n +ℕ (ℕsuc m) ·ℕ n) x y i ∈ ⟨ U ⁿ ⟩
+  binomialSummand∈⟨Uⁿ⟩ i with ≤-+-split n ((ℕsuc m) ·ℕ n) (toℕ i) (pred-≤-pred (toℕ<n i))
+  ... | inl n≤i = subst-∈ ⟨ U ⁿ ⟩ (·CommAssocr _ _ (x ^ (toℕ i)))
+                                  (⟨ U ⁿ ⟩ .snd .·Closed _ (xHelper (toℕ i) n≤i))
    where
-   α₀f = α zero · f
-   α₁g = α (suc zero) · g
-
-   binomialSummand∈⟨fⁿ,gⁿ⟩ : (i : Fin (ℕsuc (n +ℕ n))) → BinomialVec (n +ℕ n) α₀f α₁g i ∈ ⟨fⁿ,gⁿ⟩
-   binomialSummand∈⟨fⁿ,gⁿ⟩ i with ≤-+-split n n (toℕ i) (pred-≤-pred (toℕ<n i))
-   ... | inl n≤i = subst-∈ ⟨fⁿ,gⁿ⟩ (sym path)
-                                   (⟨fⁿ,gⁿ⟩ .snd .·Closed _ (indInIdeal R' fⁿgⁿVec zero))
+   xHelper : ∀ k → n ≤ k → x ^ k ∈ ⟨ U ⁿ ⟩
+   xHelper k n≤k = subst-∈ ⟨ U ⁿ ⟩ path (⟨ U ⁿ ⟩ .snd .·Closed _ (indInIdeal R' (U ⁿ) zero))
     where
-    useSolver : ∀ a b c d e → a · (b · (c · d)) · e ≡ a · (b · c) · e · d
-    useSolver = solve R'
+    path : α zero ^ k · U zero ^ (k ∸ n) · U zero ^ n ≡ x ^ k
+    path = α zero ^ k · U zero ^ (k ∸ n) · U zero ^ n
+         ≡⟨ sym (·Assoc _ _ _) ⟩
+           α zero ^ k · (U zero ^ (k ∸ n) · U zero ^ n)
+         ≡⟨ cong ((α zero ^ k) ·_) (·-of-^-is-^-of-+ (U zero) (k ∸ n) n) ⟩
+           α zero ^ k · U zero ^ ((k ∸ n) +ℕ n)
+         ≡⟨ cong (λ l → (α zero ^ k) · (U zero ^ l)) (≤-∸-+-cancel n≤k) ⟩
+           α zero ^ k · U zero ^ k
+         ≡⟨ sym (^-ldist-· (α zero) (U zero) k) ⟩
+           x ^ k ∎
 
-    bc = (n +ℕ n) choose toℕ i
-    gPart = (α (suc zero) · g) ^ (n +ℕ n ∸ toℕ i)
+  ... | inr [m+1]n≤n+[m+1]n-i = ⟨ U ⁿ ⟩ .snd .·Closed _ (yHelper (toℕ i) [m+1]n≤n+[m+1]n-i)
+   where
+   powSucIncl : ⟨ (U ∘ suc) ⁿ ⟩ ⊆ ⟨ U ⁿ ⟩
+   powSucIncl = inclOfFGIdeal R' ((U ∘ suc) ⁿ) ⟨ U ⁿ ⟩ (λ i → indInIdeal R' (U ⁿ) (suc i))
 
-    path : bc · (α zero · f) ^ toℕ i · gPart
-         ≡ bc · ((α zero) ^ toℕ i · f ^ (toℕ i ∸ n)) · gPart · f ^ n
-    path =
-       bc · (α zero · f) ^ toℕ i · gPart
-     ≡⟨ cong (λ x → bc · x · gPart) (^-ldist-· (α zero) f (toℕ i)) ⟩
-       bc · (α zero ^ toℕ i · f ^ toℕ i) · gPart
-     ≡⟨ cong (λ k → bc · (α zero ^ toℕ i · f ^ k) · gPart) (sym (≤-∸-+-cancel n≤i)) ⟩
-       bc · (α zero ^ toℕ i · f ^ ((toℕ i ∸ n) +ℕ n)) · gPart
-     ≡⟨ cong (λ x → bc · (α zero ^ toℕ i · x) · gPart) (sym (·-of-^-is-^-of-+ f (toℕ i ∸ n) n)) ⟩
-       bc · (α zero ^ toℕ i · (f ^ (toℕ i ∸ n) · f ^ n)) · gPart
-     ≡⟨ useSolver _ _ _ _ _ ⟩
-       bc · ((α zero) ^ toℕ i · f ^ (toℕ i ∸ n)) · gPart · f ^ n ∎
+   inductiveStep : y ^ ((ℕsuc m) ·ℕ n) ∈ ⟨ U ⁿ ⟩
+   inductiveStep = powSucIncl _ (lemma m (α ∘ suc) (U ∘ suc))
 
-   ... | inr n≤2n-i = subst-∈ ⟨fⁿ,gⁿ⟩ (sym path)
-                                      (⟨fⁿ,gⁿ⟩ .snd .·Closed _ (indInIdeal R' fⁿgⁿVec (suc zero)))
+   yHelper : ∀ k
+           → (ℕsuc m) ·ℕ n ≤ n +ℕ (ℕsuc m) ·ℕ n ∸ k
+           → y ^ (n +ℕ (ℕsuc m) ·ℕ n ∸ k) ∈ ⟨ U ⁿ ⟩
+   yHelper k [m+1]n≤n+[m+1]n-k = subst-∈ ⟨ U ⁿ ⟩ path (⟨ U ⁿ ⟩ .snd .·Closed _ inductiveStep)
     where
-    useSolver : ∀ a b c d e → a · b · (c · (d · e)) ≡ a · b · (c · d) · e
-    useSolver = solve R'
-
-    bc = (n +ℕ n) choose toℕ i
-    fPart = (α zero · f) ^ toℕ i
-    2n-i = (n +ℕ n ∸ toℕ i)
-
-    path : bc · fPart · (α (suc zero) · g) ^ 2n-i
-         ≡ bc · fPart · (α (suc zero) ^ 2n-i · g ^ (2n-i ∸ n)) · g ^ n
+    n+[m+1]n-k = n +ℕ (ℕsuc m) ·ℕ n ∸ k
+    [m+1]n = (ℕsuc m) ·ℕ n
+    path : y ^ (n+[m+1]n-k ∸ [m+1]n) · y ^ [m+1]n ≡ y ^ n+[m+1]n-k
     path =
-       bc · fPart · (α (suc zero) · g) ^ 2n-i
-     ≡⟨ cong (bc · fPart ·_) (^-ldist-· (α (suc zero)) g 2n-i) ⟩
-       bc · fPart · (α (suc zero) ^ 2n-i · g ^ 2n-i)
-     ≡⟨ cong (λ k → bc · fPart · (α (suc zero) ^ 2n-i · g ^ k)) (sym (≤-∸-+-cancel n≤2n-i)) ⟩
-       bc · fPart · (α (suc zero) ^ 2n-i · g ^ ((2n-i ∸ n) +ℕ n))
-     ≡⟨ cong (λ x → bc · fPart · (α (suc zero) ^ 2n-i · x)) (sym (·-of-^-is-^-of-+ g (2n-i ∸ n) n)) ⟩
-       bc · fPart · (α (suc zero) ^ 2n-i · (g ^ (2n-i ∸ n) · g ^ n))
-     ≡⟨ useSolver _ _ _ _ _ ⟩
-       bc · fPart · (α (suc zero) ^ 2n-i · g ^ (2n-i ∸ n)) · g ^ n ∎
+      y ^ (n+[m+1]n-k ∸ [m+1]n) · y ^ [m+1]n ≡⟨ ·-of-^-is-^-of-+ y (n+[m+1]n-k ∸ [m+1]n) [m+1]n ⟩
+      y ^ ((n+[m+1]n-k ∸ [m+1]n) +ℕ [m+1]n)  ≡⟨ cong (y ^_) (≤-∸-+-cancel [m+1]n≤n+[m+1]n-k) ⟩
+      y ^ n+[m+1]n-k ∎
 
-   ∑Binomial∈⟨fⁿ,gⁿ⟩ : ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ∈ ⟨fⁿ,gⁿ⟩
-   ∑Binomial∈⟨fⁿ,gⁿ⟩ = ∑Closed ⟨fⁿ,gⁿ⟩ (BinomialVec (n +ℕ n) _ _) binomialSummand∈⟨fⁿ,gⁿ⟩
+  ∑Binomial∈⟨Uⁿ⟩ : ∑ (BinomialVec (n +ℕ (ℕsuc m) ·ℕ n) x y) ∈ ⟨ U ⁿ ⟩
+  ∑Binomial∈⟨Uⁿ⟩ = ∑Closed ⟨ U ⁿ ⟩ _ binomialSummand∈⟨Uⁿ⟩
 
-   path : ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡ 1r
-   path = ∑ (BinomialVec (n +ℕ n) α₀f α₁g) ≡⟨ sym (BinomialThm (n +ℕ n) α₀f α₁g) ⟩
-          (α₀f + α₁g) ^ (n +ℕ n)           ≡⟨ cong (_^ (n +ℕ n)) (sym (+Assoc _ _ _ ∙ +Rid _)) ⟩
-          (α₀f + (α₁g + 0r)) ^ (n +ℕ n)    ≡⟨ cong (_^ (n +ℕ n)) (sym p) ⟩
-          1r ^ (n +ℕ n)                    ≡⟨ 1ⁿ≡1 (n +ℕ n) ⟩
+
+ thm : ∀ (m : ℕ) (U : FinVec R m) → 1r ∈ ⟨ U ⟩ → 1r ∈ ⟨ U ⁿ ⟩
+ thm ℕzero U 1∈⟨U⟩ = 1∈⟨U⟩
+ thm (ℕsuc m) U = PT.elim (λ _ → isPropPropTrunc) Σhelper
+  where
+  Σhelper : Σ[ α ∈ FinVec R (ℕsuc m) ] 1r ≡ linearCombination R' α U
+          → 1r ∈ ⟨ U ⁿ ⟩
+  Σhelper (α , p) = subst-∈ ⟨ U ⁿ ⟩ path (lemma m α U)
+   where
+   path : linearCombination R' α U ^ ((ℕsuc m) ·ℕ n) ≡ 1r
+   path = linearCombination R' α U ^ ((ℕsuc m) ·ℕ n) ≡⟨ cong (_^ ((ℕsuc m) ·ℕ n)) (sym p) ⟩
+          1r ^ ((ℕsuc m) ·ℕ n)                       ≡⟨ 1ⁿ≡1 ((ℕsuc m) ·ℕ n) ⟩
           1r ∎

@@ -50,7 +50,7 @@ toℕ = fst
 
 -- ... and injective.
 toℕ-injective : ∀{fj fk : Fin k} → toℕ fj ≡ toℕ fk → fj ≡ fk
-toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → m≤n-isProp)
+toℕ-injective {fj = fj} {fk} = Σ≡Prop (λ _ → isProp≤)
 
 -- Conversion from ℕ with a recursive definition of ≤
 
@@ -108,4 +108,4 @@ any? {n = suc n} {P = P} P? =
 FinPathℕ : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (x ≡ (y , p))
 FinPathℕ {n = n} x y p =
     ((fst (snd x)) , (cong (λ y → fst (snd x) + y) (cong suc (sym p)) ∙ snd (snd x)))
-  , (Σ≡Prop (λ _ → m≤n-isProp) p)
+  , (Σ≡Prop (λ _ → isProp≤) p)
