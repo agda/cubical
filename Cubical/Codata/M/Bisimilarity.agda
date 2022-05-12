@@ -1,10 +1,16 @@
 {-# OPTIONS --postfix-projections --guardedness #-}
 module Cubical.Codata.M.Bisimilarity where
 
-open import Cubical.Core.Everything
-open import Cubical.Codata.M
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.HLevels
+
+
+open import Cubical.Codata.M
+
+
 open Helpers using (J')
 
 -- Bisimilarity as a coinductive record type.

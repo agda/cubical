@@ -1,7 +1,12 @@
 {-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.Queue.1List where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Structure
+
 
 open import Cubical.Structures.Queue
 
