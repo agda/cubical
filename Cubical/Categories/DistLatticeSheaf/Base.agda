@@ -137,7 +137,60 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   open Join L
   isDLSheaf : (F : DLPreSheaf) → Type _
   isDLSheaf F = ∀ (n : ℕ) (α : FinVec (fst L) n) → isLimCone _ _ (F-cone F (⋁Cone L α))
-  --TODO: Equivalence of isDLSheaf and isDLSheafPullback
+
+
+  module EquivalenceOfDefs (isUnivalentC : isUnivalent C)
+                           (F : DLPreSheaf) where
+    open isUnivalent
+    open Cone
+    L→P : isDLSheaf F → isDLSheafPullback F
+    fst (L→P isSheafF) = CatIsoToPath isUnivalentC (terminalToIso C (_ , isTerminalF0) T)
+      where -- F(0) ≡ terminal obj.
+      isLimConeF0 : isLimCone _ (F .F-ob 0l) (F-cone F (⋁Cone L (λ ())))
+      isLimConeF0 = isSheafF 0 (λ ())
+
+      toCone : (y : ob C) → Cone (funcComp F (FinVec→Diag L {n = 0} (λ ()))) y
+      coneOut (toCone y) (sing ())
+      coneOut (toCone y) (pair () _ _)
+      coneOutCommutes (toCone y) {u = sing ()} idAr
+      coneOutCommutes (toCone y) {u = pair () _ _} idAr
+
+      toConeMor : ∀ (y : ob C) (f : C [ y , F .F-ob 0l ])
+                → isConeMor (toCone y) (F-cone F (⋁Cone L (λ ()))) f
+      toConeMor y f (sing ())
+      toConeMor y f (pair () _ _)
+
+      isTerminalF0 : isTerminal C (F .F-ob 0l)
+      fst (isTerminalF0 y) = isLimConeF0 _ (toCone y) .fst .fst
+      snd (isTerminalF0 y) f = cong fst (isLimConeF0 _ (toCone y) .snd (_ , toConeMor y f))
+
+    snd (L→P isSheafF) x y = {!LimAsPullback .univProp!}
+     where
+     open Cone
+     open LimCone
+     open Pullback
+     xyVec : FinVec (fst L) 2
+     xyVec zero = y
+     xyVec one = x
+
+     inducedLimCone : LimCone (funcComp F (FinVec→Diag L xyVec))
+     lim inducedLimCone = F .F-ob (⋁ xyVec)
+     limCone inducedLimCone = F-cone F (⋁Cone L xyVec)
+     univProp inducedLimCone = isSheafF 2 xyVec
+
+     theLimCone : LimCone (funcComp F (FinVec→Diag L xyVec))
+     lim theLimCone = (F .F-ob (x ∨l y))
+     coneOut (limCone theLimCone) (sing zero) = F .F-hom (hom-∨₂ x y)
+     coneOut (limCone theLimCone) (sing one) = F .F-hom (hom-∨₁ x y)
+     coneOut (limCone theLimCone) (pair zero zero ())
+     coneOut (limCone theLimCone) (pair zero one (s≤s z≤)) = {!!}
+       -- F .F-hom (hom-∨₁ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₁ x y)
+     coneOut (limCone theLimCone) (pair (suc _) zero ())
+     coneOut (limCone theLimCone) (pair one one (s≤s ()))
+     coneOut (limCone theLimCone) (pair (suc (suc _)) one (s≤s ()))
+     coneOutCommutes (limCone theLimCone) = {!!}
+     univProp theLimCone = {!!}
+     open DLShfDiagsAsPullbacks C _ theLimCone
 
 
 
