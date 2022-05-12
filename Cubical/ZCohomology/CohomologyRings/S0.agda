@@ -12,8 +12,8 @@ open import Cubical.Data.Sum
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
-open import Cubical.Algebra.Direct-Sum.Base
+open import Cubical.Algebra.AbGroup.Instances.DirectSum
+open import Cubical.Algebra.DirectSum.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.DirectProd
 open import Cubical.Algebra.CommRing

@@ -1,12 +1,12 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.AbGroup.Instances.Direct-Sum where
+module Cubical.Algebra.AbGroup.Instances.DirectSum where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.AbGroup
 
-open import Cubical.Algebra.Direct-Sum.Base
-open import Cubical.Algebra.Direct-Sum.Properties
+open import Cubical.Algebra.DirectSum.Base
+open import Cubical.Algebra.DirectSum.Properties
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
 
