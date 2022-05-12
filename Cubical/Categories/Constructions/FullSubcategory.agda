@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
 
 private
   variable
@@ -61,6 +61,18 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP)
   MapFullSubcategory F f = ToFullSubcategory (FullSubcategory C P) D Q
     (funcComp F (FullInclusion C P) )
     λ (c , p) → f c p
+
+module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
+  private
+    module C = Category C
+  open Category
+  open Functor
+
+  MapFullSubcategory-id :
+    MapFullSubcategory C P C P (funcId C) (λ c p → p) ≡ funcId (FullSubcategory C P)
+  MapFullSubcategory-id = Functor≡
+    (λ (c , p) → refl)
+    (λ γ → refl)
 
 module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP)
          (D : Category ℓD ℓD') (Q : Category.ob D → Type ℓQ)
