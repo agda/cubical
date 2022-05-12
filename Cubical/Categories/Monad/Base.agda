@@ -56,12 +56,12 @@ module _ (C : Category ℓ ℓ') where
 
 module _ {C : Category ℓ ℓ'} (monadM monadN : Monad C) (ν : NatTrans (fst monadM) (fst monadN)) where
 
-  M N : Functor C C
-  M = fst monadM
-  N = fst monadN
-
-  module M = IsMonad (snd monadM)
-  module N = IsMonad (snd monadN)
+  private
+    M N : Functor C C
+    M = fst monadM
+    N = fst monadN
+    module M = IsMonad (snd monadM)
+    module N = IsMonad (snd monadN)
 
   record IsMonadHom : Type (ℓ-max ℓ ℓ') where
     constructor proveMonadHom
