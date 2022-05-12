@@ -1,15 +1,25 @@
 {-# OPTIONS --safe #-}
 module Cubical.HITs.AssocList.Properties where
 
-open import Cubical.HITs.AssocList.Base as AL
-open import Cubical.Foundations.Everything
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.SIP
-open import Cubical.HITs.FiniteMultiset as FMS
-  hiding (_++_; unitl-++; unitr-++; assoc-++; cons-++; comm-++)
-open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-assoc; isSetℕ)
-open import Cubical.Structures.MultiSet
+
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
+
+open import Cubical.Structures.MultiSet
+
+open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-assoc; isSetℕ)
+
+open import Cubical.HITs.AssocList.Base as AL
+open import Cubical.HITs.FiniteMultiset as FMS
+  hiding (_++_; unitl-++; unitr-++; assoc-++; cons-++; comm-++)
 
 private
   variable

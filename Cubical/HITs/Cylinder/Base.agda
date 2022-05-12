@@ -2,9 +2,9 @@
 
 module Cubical.HITs.Cylinder.Base where
 
-open import Cubical.Core.Everything
-
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -12,6 +12,8 @@ open import Cubical.Data.Sum using (_⊎_; inl; inr)
 
 open import Cubical.HITs.PropositionalTruncation using (∥_∥₁; ∣_∣₁; squash₁)
 open import Cubical.HITs.Interval using (Interval; zero; one; seg)
+
+
 
 -- Cylinder A is a cylinder object in the category of cubical types.
 --

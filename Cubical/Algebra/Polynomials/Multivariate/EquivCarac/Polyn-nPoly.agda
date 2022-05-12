@@ -1,7 +1,8 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.Polyn-nPoly where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Vec
