@@ -141,8 +141,8 @@ toℕ∘enum {n = ℕsuc n} (ℕsuc m) p i = ℕsuc (toℕ∘enum m (pred-≤-pr
 enumExt : {m m' : ℕ}(p : m < n)(p' : m' < n) → m ≡ m' → enum m p ≡ enum m' p'
 enumExt p p' q i = enum (q i) (isProp→PathP (λ i → isProp≤ {m = ℕsuc (q i)}) p p' i)
 
-enumInj : {p : m < k}{q : n < k} → enum m p ≡ enum n q → m ≡ n
-enumInj p = sym (toℕ∘enum _ _) ∙ cong toℕ p ∙ toℕ∘enum _ _
+enumInj : (p : m < k) (q : n < k) → enum m p ≡ enum n q → m ≡ n
+enumInj p q path = sym (toℕ∘enum _ p) ∙ cong toℕ path ∙ toℕ∘enum _ q
 
 enumIndStep :
     (P : Fin n → Type ℓ)
