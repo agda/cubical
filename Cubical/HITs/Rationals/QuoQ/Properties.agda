@@ -1,7 +1,11 @@
 {-# OPTIONS --safe #-}
 module Cubical.HITs.Rationals.QuoQ.Properties where
 
-open import Cubical.Foundations.Everything hiding (_⁻¹)
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.GroupoidLaws hiding (_⁻¹)
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Int.MoreInts.QuoInt as ℤ using (ℤ; Sign; signed; pos; neg; posneg; sign)
 open import Cubical.HITs.SetQuotients as SetQuotient using () renaming (_/_ to _//_)
@@ -242,4 +246,3 @@ x - y = x + (- y)
 
 +-injʳ : ∀ x y z → x + y ≡ z + y → x ≡ z
 +-injʳ x y z p = +-injˡ y x z (+-comm y x ∙ p ∙ +-comm z y)
-

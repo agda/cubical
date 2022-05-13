@@ -93,14 +93,14 @@ open Equivalences renaming (propBiimpl→Equiv to prop≃) public
 
 -- 2.3 Higher Inductive Types
 -- Propositional Truncation
-open PropositionalTruncation using (∥_∥ ; map) public
+open PropositionalTruncation using (∥_∥₁ ; map) public
 open CostMonad using (Cost ; Cost≡ ; _>>=_ ; return
                            ; fib ; fibTail) public
 -- Computation
-_ : fib 20 ≡ (6765 , PropositionalTruncation.∣ 21890 ∣)
+_ : fib 20 ≡ (6765 , PropositionalTruncation.∣ 21890 ∣₁)
 _ = refl
 
-_ : fibTail 20 ≡ (6765 , PropositionalTruncation.∣ 19 ∣)
+_ : fibTail 20 ≡ (6765 , PropositionalTruncation.∣ 19 ∣₁)
 _ = refl
 
 -- Set Quotients

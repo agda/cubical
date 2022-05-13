@@ -39,43 +39,43 @@ module _
 
   infixr 30 _⋆̂_
 
-  _⋆̂_ : ∥ A ≃ B ∥ → ∥ B ≃ C ∥ → ∥ A ≃ C ∥
+  _⋆̂_ : ∥ A ≃ B ∥₁ → ∥ B ≃ C ∥₁ → ∥ A ≃ C ∥₁
   _⋆̂_ = Prop.map2 (_⋆_)
 
 module _
   {A : Type ℓ}{B : Type ℓ'} where
 
-  ∣invEquiv∣ : ∥ A ≃ B ∥ → ∥ B ≃ A ∥
+  ∣invEquiv∣ : ∥ A ≃ B ∥₁ → ∥ B ≃ A ∥₁
   ∣invEquiv∣ = Prop.map invEquiv
 
 -- useful implications
 
 EquivPresIsFinSet : A ≃ B → isFinSet A → isFinSet B
-EquivPresIsFinSet e (_ , p) = _ , ∣ invEquiv e ∣ ⋆̂ p
+EquivPresIsFinSet e (_ , p) = _ , ∣ invEquiv e ∣₁ ⋆̂ p
 
 isFinSetFin : {n : ℕ} → isFinSet (Fin n)
-isFinSetFin = _ , ∣ idEquiv _ ∣
+isFinSetFin = _ , ∣ idEquiv _ ∣₁
 
 isFinSetUnit : isFinSet Unit
-isFinSetUnit = 1 , ∣ invEquiv Fin1≃Unit ∣
+isFinSetUnit = 1 , ∣ invEquiv Fin1≃Unit ∣₁
 
 isFinSetBool : isFinSet Bool
-isFinSetBool = 2 , ∣ invEquiv SumFin2≃Bool ∣
+isFinSetBool = 2 , ∣ invEquiv SumFin2≃Bool ∣₁
 
 isFinSet→Discrete : isFinSet A → Discrete A
 isFinSet→Discrete h = Prop.rec isPropDiscrete (λ p → EquivPresDiscrete (invEquiv p) discreteFin) (h .snd)
 
 isContr→isFinSet : isContr A → isFinSet A
-isContr→isFinSet h = 1 , ∣ isContr→≃Unit* h ⋆ invEquiv Unit≃Unit* ⋆ invEquiv Fin1≃Unit ∣
+isContr→isFinSet h = 1 , ∣ isContr→≃Unit* h ⋆ invEquiv Unit≃Unit* ⋆ invEquiv Fin1≃Unit ∣₁
 
 isDecProp→isFinSet : isProp A → Dec A → isFinSet A
 isDecProp→isFinSet h (yes p) = isContr→isFinSet (inhProp→isContr p h)
-isDecProp→isFinSet h (no ¬p) = 0 , ∣ uninhabEquiv ¬p (idfun _) ∣
+isDecProp→isFinSet h (no ¬p) = 0 , ∣ uninhabEquiv ¬p (idfun _) ∣₁
 
-isDec→isFinSet∥∥ : Dec A → isFinSet ∥ A ∥
+isDec→isFinSet∥∥ : Dec A → isFinSet ∥ A ∥₁
 isDec→isFinSet∥∥ dec = isDecProp→isFinSet isPropPropTrunc (Dec∥∥ dec)
 
-isFinSet→Dec∥∥ : isFinSet A → Dec ∥ A ∥
+isFinSet→Dec∥∥ : isFinSet A → Dec ∥ A ∥₁
 isFinSet→Dec∥∥ h =
   Prop.rec (isPropDec isPropPropTrunc)
       (λ p → EquivPresDec (propTrunc≃ (invEquiv p)) (Dec∥Fin∥ _)) (h .snd)
@@ -83,11 +83,11 @@ isFinSet→Dec∥∥ h =
 isFinProp→Dec : isFinSet A → isProp A → Dec A
 isFinProp→Dec p h = subst Dec (propTruncIdempotent h) (isFinSet→Dec∥∥ p)
 
-PeirceLaw∥∥ : isFinSet A → NonEmpty ∥ A ∥ → ∥ A ∥
+PeirceLaw∥∥ : isFinSet A → NonEmpty ∥ A ∥₁ → ∥ A ∥₁
 PeirceLaw∥∥ p = Dec→Stable (isFinSet→Dec∥∥ p)
 
-PeirceLaw : isFinSet A → NonEmpty A → ∥ A ∥
-PeirceLaw p q = PeirceLaw∥∥ p (λ f → q (λ x → f ∣ x ∣))
+PeirceLaw : isFinSet A → NonEmpty A → ∥ A ∥₁
+PeirceLaw p q = PeirceLaw∥∥ p (λ f → q (λ x → f ∣ x ∣₁))
 
 -- transprot family towards Fin
 

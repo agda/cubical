@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Multivariate.Equiv-A[X]X-A where
+module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.A[X]X-A where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -17,7 +17,7 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 
 open import Cubical.Algebra.Polynomials.Multivariate.Base
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
+open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
@@ -26,7 +26,6 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
-  renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
 
 private variable
   ℓ : Level
@@ -195,7 +194,7 @@ module Properties-Equiv-QuotientXn-A
   A→A[x] a = base (0 ∷ []) a
 
   A→A[x]-pres+ : (a a' : A) → A→A[x] (a +A a') ≡ A→A[x] a +PA A→A[x] a'
-  A→A[x]-pres+ a a' = sym (base-Poly+ (0 ∷ []) a a')
+  A→A[x]-pres+ a a' = sym (base-poly+ (0 ∷ []) a a')
 
   A→A[x]/x : A → A[x]/x
   A→A[x]/x = [_] ∘ A→A[x]
@@ -226,10 +225,10 @@ module Properties-Equiv-QuotientXn-A
          where
          base-eq : (a : A) → (v : Vec ℕ 1) → A→A[x]/x (A[x]/x→A [ (base v a) ]) ≡ [ (base v a) ]
          base-eq a (zero ∷ []) = cong [_] refl
-         base-eq a (suc k ∷ []) = eq/ (base (0 ∷ []) 0A) (base (suc k ∷ []) a) ∣ ((λ x → base (k ∷ []) (-A a)) , helper) ∣₋₁
+         base-eq a (suc k ∷ []) = eq/ (base (0 ∷ []) 0A) (base (suc k ∷ []) a) ∣ ((λ x → base (k ∷ []) (-A a)) , helper) ∣₁
            where
            helper : _
-           helper = cong (λ X → X Poly+ base (suc k ∷ []) (-A a)) (base-0P _)
+           helper = cong (λ X → X poly+ base (suc k ∷ []) (-A a)) (base-0P _)
                      ∙ +PALid _
                      ∙ sym (+PARid _
                             ∙ cong₂ base

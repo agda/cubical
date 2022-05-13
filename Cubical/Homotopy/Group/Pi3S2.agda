@@ -30,7 +30,7 @@ open import Cubical.HITs.S1
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
-open import Cubical.Data.Int hiding (ℤ)
+open import Cubical.Data.Int
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.ZAction
@@ -108,7 +108,7 @@ snd π'₃S²≅π'₃TotalHopf = snd (π'∘∙Hom 2 TotalHopf→∙S²)
        (IsoSphereJoin 1 1))))
   , refl)
 
-π₃S²≅ℤ : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤ
+π₃S²≅ℤ : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤGroup
 π₃S²≅ℤ =
   compGroupEquiv
     (invGroupEquiv
@@ -162,7 +162,7 @@ snd π'₃S²≅π'₃TotalHopf = snd (π'∘∙Hom 2 TotalHopf→∙S²)
 
 -- As a consequence, we also get that the Hopf invariant determines
 -- an iso π₃S²≅ℤ
-hopfInvariantEquiv : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤ
+hopfInvariantEquiv : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤGroup
 fst (fst hopfInvariantEquiv) = HopfInvariant-π' 0
 snd (fst hopfInvariantEquiv) =
   GroupEquivℤ-isEquiv (invGroupEquiv π₃S²≅ℤ) ∣ HopfMap ∣₂

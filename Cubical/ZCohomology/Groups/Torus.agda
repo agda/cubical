@@ -1,16 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.Torus where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Groups.Connected
-open import Cubical.ZCohomology.MayerVietorisUnreduced
-open import Cubical.ZCohomology.Groups.Unit
-open import Cubical.ZCohomology.Groups.Sn
-open import Cubical.ZCohomology.Groups.Prelims
-open import Cubical.ZCohomology.RingStructure.CupProduct
-
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Univalence
@@ -20,38 +10,49 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 
-open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
-open import Cubical.Data.Nat
+open import Cubical.Relation.Nullary
+
 open import Cubical.Data.Unit
+open import Cubical.Data.Nat
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
+open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Bool renaming (Bool to BoolGroup)
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Bool
+open import Cubical.Algebra.Group.Instances.Int
 
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.Truncation as T
+open import Cubical.HITs.Nullification
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2) hiding (map)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim2 to pElim2 ; ∣_∣ to ∣_∣₁) hiding (map)
-open import Cubical.HITs.Nullification
-open import Cubical.HITs.Truncation renaming (elim to trElim ; elim2 to trElim2 ; map to trMap ; rec to trRec)
+open import Cubical.HITs.Wedge
+
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Loopspace
 
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Groups.Connected
+open import Cubical.ZCohomology.MayerVietorisUnreduced
+open import Cubical.ZCohomology.Groups.Unit
+open import Cubical.ZCohomology.Groups.Sn
+open import Cubical.ZCohomology.Groups.Prelims
+open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.Groups.WedgeOfSpheres
   renaming (to₂ to to₂-∨ ; from₂ to from₂-∨ ; from₁ to from₁-∨ ; to₁ to to₁-∨) hiding (to₀ ; from₀)
-open import Cubical.Data.Empty
-open import Cubical.HITs.Wedge
-
-open import Cubical.Relation.Nullary
 
 open IsGroupHom
 open Iso
+
+
 
 -- The following section contains stengthened induction principles for cohomology groups of T². They are particularly useful for showing that
 -- that some Isos are morphisms. They make things type-check faster, but should probably not be used for computations.
@@ -129,8 +130,8 @@ coHomPointedElimT²' : ∀ {ℓ} (n : ℕ) {B : coHom (2 + n) (S¹ × S¹) → T
                  → (x : coHom (2 + n) (S¹ × S¹)) → B x
 coHomPointedElimT²' n {B = B} prop ind =
   coHomPointedElimT² (suc n) prop
-    λ p q P → trRec (isProp→isOfHLevelSuc n (prop _))
-      (λ p-refl → trRec (isProp→isOfHLevelSuc n (prop _))
+    λ p q P → T.rec (isProp→isOfHLevelSuc n (prop _))
+      (λ p-refl → T.rec (isProp→isOfHLevelSuc n (prop _))
                          (λ q-refl → lem n {B = B} ind p (sym p-refl) q (sym q-refl) P)
       (isConnectedPath _ (isConnectedPathKn (suc n) _ _) q refl .fst))
       (isConnectedPath _ (isConnectedPathKn (suc n) _ _) p refl .fst)
@@ -149,8 +150,8 @@ private
 H⁰-T²≅ℤ : GroupIso (coHomGr 0 (S₊ 1 × S₊ 1)) ℤGroup
 H⁰-T²≅ℤ =
   H⁰-connected (base , base)
-    λ (a , b) → pRec isPropPropTrunc
-                     (λ id1 → pRec isPropPropTrunc
+    λ (a , b) → PT.rec isPropPropTrunc
+                     (λ id1 → PT.rec isPropPropTrunc
                                    (λ id2 → ∣ ΣPathP (id1 , id2) ∣₁)
                                    (Sn-connected 0 b) )
                      (Sn-connected 0 a)

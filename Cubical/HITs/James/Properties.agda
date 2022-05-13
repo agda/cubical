@@ -3,10 +3,11 @@
 Basic properties of James construction
 
 This file contains:
-  - The type James X has h-monoid structure, namely being a monoid after set truncation.
+
+  - The type James X has h-monoid structure, namely being a monoid in "homotopy category".
 
   - The equivalence "James X₊ ≃ List X" for type X,
-      where X₊ denotes the type formed by freely adjoining a point to X.
+    where X₊ denotes the type formed by freely adjoining a base point to X.
 
 -}
 {-# OPTIONS --safe #-}
@@ -44,11 +45,15 @@ module _
   ++Assoc (x ∷ xs) ys zs t = x ∷ ++Assoc xs ys zs t
   ++Assoc (unit xs i) ys zs t = unit (++Assoc xs ys zs t) i
 
+
+-- Freely adjoining a point
+
 module _
   (X : Type ℓ) where
 
   private
     X₊ = Maybe∙ X
+
 
   J₊→List : James X₊ → List X
   J₊→List [] = []

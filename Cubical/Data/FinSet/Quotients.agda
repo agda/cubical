@@ -88,7 +88,7 @@ module _
   isFinSetℙEff : isFinSet (ℙEff (X .fst))
   isFinSetℙEff = 2 ^ (card X) ,
     Prop.elim (λ _ → isPropPropTrunc {A = _ ≃ Fin _})
-      (λ p → ∣ isFinOrdℙEff (X .fst) (_ , p) .snd ∣)
+      (λ p → ∣ isFinOrdℙEff (X .fst) (_ , p) .snd ∣₁)
       (X .snd .snd)
 
 module _
@@ -97,21 +97,21 @@ module _
   (dec : (x x' : X .fst) → isDecProp (R x x')) where
 
   isEqClassEff : ℙEff (X .fst) → Type ℓ
-  isEqClassEff f = ∥ Σ[ x ∈ X .fst ] ((a : X .fst) → f a ≡ dec a x .fst) ∥
+  isEqClassEff f = ∥ Σ[ x ∈ X .fst ] ((a : X .fst) → f a ≡ dec a x .fst) ∥₁
 
   isDecPropIsEqClassEff : {f : ℙEff (X .fst)} → isDecProp (isEqClassEff f)
   isDecPropIsEqClassEff = isDecProp∃ X (λ _ → _ , isDecProp∀ X (λ _ → _ , _ , Bool≡≃ _ _))
 
   isEqClassEff→isEqClass' : (f : ℙEff (X .fst))(x : X .fst)
     → ((a : X .fst) → f a ≡ dec a x .fst)
-    → (a : X .fst) → Bool→Type* {ℓ = ℓ'} (f a) ≃ ∥ R a x ∥
+    → (a : X .fst) → Bool→Type* {ℓ = ℓ'} (f a) ≃ ∥ R a x ∥₁
   isEqClassEff→isEqClass' f x h a =
       pathToEquiv (cong Bool→Type* (h a))
     ⋆ invEquiv (LiftDecProp (dec a x))
     ⋆ invEquiv (propTruncIdempotent≃ (isDecProp→isProp (dec a x)))
 
   isEqClass→isEqClassEff' : (f : ℙEff (X .fst))(x : X .fst)
-    → ((a : X .fst) → Bool→Type* {ℓ = ℓ'} (f a) ≃ ∥ R a x ∥)
+    → ((a : X .fst) → Bool→Type* {ℓ = ℓ'} (f a) ≃ ∥ R a x ∥₁)
     → (a : X .fst) → f a ≡ dec a x .fst
   isEqClass→isEqClassEff' f x h a =
     Bool→TypeInj* _ _

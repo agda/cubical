@@ -38,7 +38,7 @@ open import Cubical.Homotopy.Hopf
 open S¹Hopf
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.Susp
-open import Cubical.HITs.S1 hiding (rec ; elim ; ind)
+open import Cubical.HITs.S1
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms

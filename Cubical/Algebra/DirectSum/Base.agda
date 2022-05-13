@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.Direct-Sum.Base where
+module Cubical.Algebra.DirectSum.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

@@ -30,10 +30,10 @@ LLPO : Type ℓ → Type ℓ
 LLPO A
   = ∀(P Q : A → 𝟚)
   → (∀ x y → ⟨ P x ⟩ → ⟨ Q y ⟩ → ⊥)
-  → ∥ (∀ x → ¬ ⟨ P x ⟩) ⊎ (∀ y → ¬ ⟨ Q y ⟩) ∥
+  → ∥ (∀ x → ¬ ⟨ P x ⟩) ⊎ (∀ y → ¬ ⟨ Q y ⟩) ∥₁
 
 isPropLLPO : isProp (LLPO A)
-isPropLLPO = isPropΠ3 λ _ _ _ → squash
+isPropLLPO = isPropΠ3 λ _ _ _ → squash₁
 
 -- As above, but without ensuring propositionality
 LLPO∞ : Type ℓ → Type ℓ
@@ -43,7 +43,7 @@ LLPO∞ A
   → (∀ x → ¬ ⟨ P x ⟩) ⊎ (∀ y → ¬ ⟨ Q y ⟩)
 
 LLPO∞→LLPO : LLPO∞ A → LLPO A
-LLPO∞→LLPO llpo' P Q ¬both = ∣ llpo' P Q ¬both ∣
+LLPO∞→LLPO llpo' P Q ¬both = ∣ llpo' P Q ¬both ∣₁
 
 -- Weak limited principle of omniscience
 --
@@ -92,7 +92,7 @@ WLPO→LLPO∞ {A = A} womn P Q ¬both with womn P
 --
 -- Either a decidable predicate never holds, or it does
 LPO : Type ℓ → Type ℓ
-LPO A = ∀(P : A → 𝟚) → (∀ x → ¬ ⟨ P x ⟩) ⊎ ∥ Σ[ x ∈ A ] ⟨ P x ⟩ ∥
+LPO A = ∀(P : A → 𝟚) → (∀ x → ¬ ⟨ P x ⟩) ⊎ ∥ Σ[ x ∈ A ] ⟨ P x ⟩ ∥₁
 
 LPO→WLPO : LPO A → WLPO A
 LPO→WLPO omn P with omn P
@@ -104,4 +104,4 @@ LPO∞ : Type ℓ → Type ℓ
 LPO∞ A = ∀(P : A → 𝟚) → (∀ x → ¬ ⟨ P x ⟩) ⊎ (Σ[ x ∈ A ] ⟨ P x ⟩)
 
 LPO∞→LPO : LPO∞ A → LPO A
-LPO∞→LPO omn P = Sum.map (idfun _) ∣_∣ (omn P)
+LPO∞→LPO omn P = Sum.map (idfun _) ∣_∣₁ (omn P)

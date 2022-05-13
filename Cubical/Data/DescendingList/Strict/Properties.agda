@@ -64,7 +64,7 @@ module IsoToLFSet
   >ᴴ-trans x y (cons z zs _) x>y (>ᴴcons y>z) = >ᴴcons (>-trans x>y y>z)
 
   ≡ₚ-sym : ∀ {A : Type} {x y : A} → ⟨ x ≡ₚ y ⟩ → ⟨ y ≡ₚ x ⟩
-  ≡ₚ-sym p = PropTrunc.rec squash (λ p → ∣ sym p ∣) p
+  ≡ₚ-sym p = PropTrunc.rec squash₁ (λ p → ∣ sym p ∣₁) p
 
   >-all : ∀ x l → x >ᴴ l → ∀ a → ⟨ a ∈ˡ l ⟩ → x > a
   >-all x (cons y zs y>zs) (>ᴴcons x>y) a a∈l =
@@ -153,14 +153,14 @@ module IsoToLFSet
 
   Memˡ-inj : ∀ l₁ l₂ → Memˡ l₁ ≡ Memˡ l₂ → l₁ ≡ l₂
   Memˡ-inj [] [] eq = refl
-  Memˡ-inj [] (cons y ys y>ys) eq = ⊥.rec (lower (transport (λ i → ⟨ eq (~ i) y ⟩) (inl ∣ refl ∣)))
-  Memˡ-inj (cons y ys y>ys) [] eq = ⊥.rec (lower (transport (λ i → ⟨ eq i y ⟩) (inl ∣ refl ∣)))
+  Memˡ-inj [] (cons y ys y>ys) eq = ⊥.rec (lower (transport (λ i → ⟨ eq (~ i) y ⟩) (inl ∣ refl ∣₁)))
+  Memˡ-inj (cons y ys y>ys) [] eq = ⊥.rec (lower (transport (λ i → ⟨ eq i y ⟩) (inl ∣ refl ∣₁)))
   Memˡ-inj (cons x xs x>xs) (cons y ys y>ys) e =
      ⊔-elim (x ≡ₚ y) (x ∈ʰ unsort ys)
        (λ _ → ((cons x xs x>xs) ≡ (cons y ys y>ys)) , SDL-isSet _ _)
        (PropTrunc.rec (SDL-isSet _ _) with-x≡y)
        (⊥.rec ∘ x∉ys)
-       (transport (λ i → ⟨ e i x ⟩) (inl ∣ refl ∣)) where
+       (transport (λ i → ⟨ e i x ⟩) (inl ∣ refl ∣₁)) where
 
     xxs = cons x xs x>xs
 
@@ -170,7 +170,7 @@ module IsoToLFSet
         y>x = (>-all y ys y>ys x x∈ys)
 
         y∈xxs : ⟨ y ∈ˡ (cons x xs x>xs) ⟩
-        y∈xxs = (transport (λ i → ⟨ e (~ i) y ⟩) (inl ∣ refl ∣))
+        y∈xxs = (transport (λ i → ⟨ e (~ i) y ⟩) (inl ∣ refl ∣₁))
 
         y>y : y > y
         y>y = >-all y xxs (>ᴴcons y>x) y y∈xxs

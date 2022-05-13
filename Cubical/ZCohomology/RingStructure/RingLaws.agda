@@ -1,19 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.RingStructure.RingLaws where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.RingStructure.CupProduct
-
-open import Cubical.Homotopy.Loopspace
-
-open import Cubical.HITs.S1 hiding (_·_)
-open import Cubical.HITs.Sn
-open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.Truncation renaming (elim to trElim)
-
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
@@ -21,16 +8,31 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
-open import Cubical.Data.Int
-  renaming (_+_ to _ℤ+_ ; _·_ to _ℤ∙_ ; +Comm to +ℤ-comm
-          ; ·Comm to ∙-comm ; +Assoc to ℤ+-assoc ; -_ to -ℤ_)
-    hiding (_+'_ ; +'≡+)
+
 open import Cubical.Data.Nat
+open import Cubical.Data.Int
+  renaming (_+_ to _ℤ+_ ; _·_ to _ℤ∙_ ; +Comm to +ℤ-comm ; ·Comm to ∙-comm ; +Assoc to ℤ+-assoc ; -_ to -ℤ_)
+  hiding (_+'_ ; +'≡+)
 open import Cubical.Data.Sigma
+
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.Truncation as T
+open import Cubical.HITs.S1 hiding (_·_)
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp
+
+open import Cubical.Homotopy.Loopspace
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.RingStructure.CupProduct
 
 private
   variable
     ℓ : Level
+
+
 
 -- Some boring lemmas
 ·₀≡·ℤ : (x y : ℤ) → _·₀_ {n = zero} x y ≡ x ℤ∙ y
@@ -105,7 +107,7 @@ private
   leftDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n))
     → ⌣ₖ-distrFun (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2 (suc n) (suc m) x y
   leftDistr-⌣ₖ· n m =
-    elim2 (λ _ _ → isOfHLevelSuc (2 + n) (hLevHelp n m _ _))
+    T.elim2 (λ _ _ → isOfHLevelSuc (2 + n) (hLevHelp n m _ _))
           main
     where
     hLevHelp : (n m : ℕ) (x y : _)
@@ -235,7 +237,7 @@ private
   rightDistr-⌣ₖ· : (n m : ℕ) (x y : coHomK (suc n))
     → ⌣ₖ-distrFun-r (suc n) (suc m) x y ≡ ⌣ₖ-distrFun2-r (suc n) (suc m) x y
   rightDistr-⌣ₖ· n m =
-    elim2 (λ _ _ → isOfHLevelPath (3 + n) (isOfHLevel↑∙ (suc n) m) _ _)
+    T.elim2 (λ _ _ → isOfHLevelPath (3 + n) (isOfHLevel↑∙ (suc n) m) _ _)
           main
     where
     fst-left : (n : ℕ) (y : S₊ (suc n)) →
@@ -360,7 +362,7 @@ private
 -- Key lemma for associativity
 assocer-helpFun≡ : (n m : ℕ) → (x : coHomK (suc n)) → assocer-helpFun n m x ≡ assocer-helpFun2 n m x
 assocer-helpFun≡ n m =
-  trElim (λ _ → isOfHLevelPath (3 + n) (hLev-assocer-helpFun n m) _ _)
+  T.elim (λ _ → isOfHLevelPath (3 + n) (hLev-assocer-helpFun n m) _ _)
          λ a → →∙Homogeneous≡ (subst isHomogeneous Kn≃ΩKn+1∙ (isHomogeneousKn _))
            (funExt (main n a))
   where
@@ -393,7 +395,7 @@ assoc-helper n m x y = funExt⁻ (cong fst (assocer-helpFun≡ n m x)) y
 
 assoc-⌣ₖ· : (n m k : ℕ) → (x : coHomK (suc n)) → assocer n m k x ≡ assocer2 n m k x
 assoc-⌣ₖ· n m k =
-  trElim (λ _ → isOfHLevelPath (3 + n)
+  T.elim (λ _ → isOfHLevelPath (3 + n)
             (transport (λ i → isOfHLevel (3 + n)
                 (coHomK-ptd (suc m) →∙ (coHomK-ptd (suc k) →∙ coHomK-ptd (h (~ i)) ∙)))
               (isOfHLevel↑∙∙ m k (suc n))) _ _)
@@ -593,33 +595,33 @@ assoc-⌣ₖ (suc n) (suc m) (suc k) x y z =
 -- Ring laws for ⌣
 module _ {A : Type ℓ} (n m : ℕ) where
   ⌣-0ₕ : (f : coHom n A) → (f ⌣ 0ₕ m) ≡ 0ₕ _
-  ⌣-0ₕ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+  ⌣-0ₕ = ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
                 λ f → cong ∣_∣₂ (funExt λ x → ⌣ₖ-0ₖ n m (f x))
 
   0ₕ-⌣ : (f : coHom m A) → (0ₕ n ⌣ f) ≡ 0ₕ _
-  0ₕ-⌣ = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+  0ₕ-⌣ = ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
                 λ f → cong ∣_∣₂ (funExt λ x → 0ₖ-⌣ₖ n m (f x))
 
 
   leftDistr-⌣ : (f : coHom n A) (g h : coHom m A)
               → f ⌣ (g +ₕ h) ≡ f ⌣ g +ₕ f ⌣ h
   leftDistr-⌣ =
-    sElim (λ _ → isSetΠ2 λ _ _ → isOfHLevelPath 2 squash₂ _ _)
-      λ f → sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    ST.elim (λ _ → isSetΠ2 λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+      λ f → ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
         λ g h → cong ∣_∣₂ (funExt λ x → leftDistr-⌣ₖ n m (f x) (g x) (h x))
 
   rightDistr-⌣ : (g h : coHom n A) (f : coHom m A) → (g +ₕ h) ⌣ f ≡ g ⌣ f +ₕ h ⌣ f
   rightDistr-⌣ =
-    sElim2 (λ _ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
-      λ g h → sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+    ST.elim2 (λ _ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
+      λ g h → ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
         λ f → cong ∣_∣₂ (funExt λ x → rightDistr-⌣ₖ n m (g x) (h x) (f x))
 
   assoc-⌣ : (l : ℕ) (f : coHom n A) (g : coHom m A) (h : coHom l A)
           → f ⌣ g ⌣ h ≡ subst (λ x → coHom x A) (sym (+'-assoc n m l)) ((f ⌣ g) ⌣ h)
   assoc-⌣ l =
-    sElim (λ _ → isSetΠ2 λ _ _ → isOfHLevelPath 2 squash₂ _ _)
-      λ f → sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 squash₂ _ _)
-        λ g → sElim (λ _ → isOfHLevelPath 2 squash₂ _ _) λ h →
+    ST.elim (λ _ → isSetΠ2 λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+      λ f → ST.elim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 squash₂ _ _)
+        λ g → ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _) λ h →
           cong ∣_∣₂ ((funExt (λ x → assoc-⌣ₖ n m l (f x) (g x) (h x)
                    ∙ cong (subst coHomK (sym (+'-assoc n m l)))
                      λ i → (f (transportRefl x (~ i)) ⌣ₖ g (transportRefl x (~ i)))
@@ -628,12 +630,12 @@ module _ {A : Type ℓ} (n m : ℕ) where
 -- Additive unit(s)
 0⌣ :  ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (x : coHom n A)
      → x ⌣ (0ₕ m) ≡ 0ₕ _
-0⌣ n m = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+0⌣ n m = ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
                 λ f → cong ∣_∣₂ (funExt λ x → ⌣ₖ-0ₖ n m (f x))
 
 ⌣0 :  ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (x : coHom n A)
      → (0ₕ m) ⌣ x ≡ 0ₕ _
-⌣0 n m = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+⌣0 n m = ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
                 λ f → cong ∣_∣₂ (funExt λ x → 0ₖ-⌣ₖ m n (f x))
 
 -- Multiplicative unit
@@ -651,31 +653,31 @@ lUnit⌣ₖ (suc n) x = rUnitₖ _ x
 
 lUnit⌣ : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (x : coHom n A)
   → x ⌣ 1⌣ ≡ subst (λ n → coHom n A) (sym (n+'0 n)) x
-lUnit⌣ zero = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+lUnit⌣ zero = ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
   λ f → cong ∣_∣₂ (funExt (λ x → comm-·₀ (f x) (pos 1))) ∙ sym (transportRefl ∣ f ∣₂)
 lUnit⌣ (suc n) =
-  sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+  ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
   λ f → cong ∣_∣₂ (funExt (λ x → cong (f x +ₖ_) (0ₖ-⌣ₖ zero _ (f x)) ∙ rUnitₖ _ (f x)))
        ∙ sym (transportRefl ∣ f ∣₂)
 
 rUnit⌣ : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (x : coHom n A)
        → 1⌣ ⌣ x ≡ x
-rUnit⌣ zero = sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+rUnit⌣ zero = ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
                λ f → refl
 rUnit⌣ (suc n) =
-  sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+  ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
                λ f → cong ∣_∣₂ (funExt λ x → rUnitₖ _ (f x))
 
 -ₕDistᵣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
   (x : coHom n A) (y : coHom m A) → (-ₕ (x ⌣ y)) ≡ x ⌣ (-ₕ y)
 -ₕDistᵣ n m =
-  sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+  ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
     λ f g → cong ∣_∣₂ (funExt λ x → -Distᵣ n m (f x) (g x))
 
 -ₕDistₗ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
   (x : coHom n A) (y : coHom m A) → (-ₕ (x ⌣ y)) ≡ (-ₕ x) ⌣ y
 -ₕDistₗ n m =
-  sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+  ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
     λ f g → cong ∣_∣₂ (funExt λ x → -Distₗ n m (f x) (g x))
 
 -ₕDistₗᵣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ)
@@ -683,7 +685,7 @@ rUnit⌣ (suc n) =
 -ₕDistₗᵣ n m x y =
      sym (-ₕDistₗ n m x (-ₕ y))
   ∙∙ cong -ₕ_ (sym (-ₕDistᵣ n m x y))
-  ∙∙ sElim2 {C = λ x y → (-ₕ (-ₕ (x ⌣ y))) ≡ x ⌣ y}
+  ∙∙ ST.elim2 {C = λ x y → (-ₕ (-ₕ (x ⌣ y))) ≡ x ⌣ y}
             (λ _ _ → isSetPathImplicit)
             (λ f g → cong ∣_∣₂ (funExt λ _ → -ₖ^2 _)) x y
 

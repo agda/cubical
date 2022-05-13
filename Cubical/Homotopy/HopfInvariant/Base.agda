@@ -38,7 +38,7 @@ open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Instances.Unit
 
 open import Cubical.HITs.Pushout
@@ -200,9 +200,9 @@ module _ (n : ℕ) (f : S₊∙ (3 +ℕ n +ℕ n) →∙ S₊∙ (2 +ℕ n)) whe
     Sphere→H : coHom 2+n (S₊ (suc (suc n))) → coHom 2+n H
     Sphere→H = sMap preSphere→H
 
-    conCohom2+n : (x : _) → ∥ x ≡ 0ₖ (suc (suc n)) ∥
+    conCohom2+n : (x : _) → ∥ x ≡ 0ₖ (suc (suc n)) ∥₁
     conCohom2+n =
-      coHomK-elim _ (λ _ → isProp→isOfHLevelSuc (suc n) squash) ∣ refl ∣
+      coHomK-elim _ (λ _ → isProp→isOfHLevelSuc (suc n) squash₁) ∣ refl ∣₁
 
   HIPSphereCohomIso :
     Iso (coHom (2 +ℕ n) (HopfInvariantPush n (fst f)))

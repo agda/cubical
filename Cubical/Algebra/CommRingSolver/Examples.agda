@@ -30,10 +30,10 @@ module TestErrors (R : CommRing ℓ) where
   -}
 
 module TestWithℤ where
-  open CommRingStr (ℤ .snd)
+  open CommRingStr (ℤCommRing .snd)
 
-  _ : (a b : fst ℤ) → a + b ≡ b + a
-  _ = solve ℤ
+  _ : (a b : fst ℤCommRing) → a + b ≡ b + a
+  _ = solve ℤCommRing
 
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)

@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Multivariate.Equiv-Polyn-nPoly.Comp-Poly where
+module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.An[Am[X]]-Anm[X] where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -38,21 +38,21 @@ module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
   N∘M→N+M-b v = Poly-Rec-Set.f A' m (Poly A' (n +n m)) trunc
                 0P
                 (λ v' a → base (v ++ v') a)
-                _Poly+_
-                Poly+-assoc
-                Poly+-Rid
-                Poly+-comm
+                _poly+_
+                poly+Assoc
+                poly+IdR
+                poly+Comm
                 (λ v' → base-0P (v ++ v'))
-                (λ v' a b → base-Poly+ (v ++ v') a b)
+                (λ v' a b → base-poly+ (v ++ v') a b)
 
   N∘M→N+M : Poly (PolyCommRing A' m) n → Poly A' (n +n m)
   N∘M→N+M = Poly-Rec-Set.f (PolyCommRing A' m) n (Poly A' (n +n m)) trunc
            0P
            N∘M→N+M-b
-           _Poly+_
-           Poly+-assoc
-           Poly+-Rid
-           Poly+-comm
+           _poly+_
+           poly+Assoc
+           poly+IdR
+           poly+Comm
            (λ _ → refl)
            (λ v a b → refl)
 
@@ -65,13 +65,13 @@ module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
             0P
             (λ v a → let v , v'  = sep-vec n m v in
                       base v (base v' a))
-            _Poly+_
-            Poly+-assoc
-            Poly+-Rid
-            Poly+-comm
+            _poly+_
+            poly+Assoc
+            poly+IdR
+            poly+Comm
             (λ v → (cong (base (fst (sep-vec n m v))) (base-0P (snd (sep-vec n m v)))) ∙ (base-0P (fst (sep-vec n m v))))
-            λ v a b → base-Poly+ (fst (sep-vec n m v)) (base (snd (sep-vec n m v)) a) (base (snd (sep-vec n m v)) b)
-                       ∙ cong (base (fst (sep-vec n m v))) (base-Poly+ (snd (sep-vec n m v)) a b)
+            λ v a b → base-poly+ (fst (sep-vec n m v)) (base (snd (sep-vec n m v)) a) (base (snd (sep-vec n m v)) b)
+                       ∙ cong (base (fst (sep-vec n m v))) (base-poly+ (snd (sep-vec n m v)) a b)
 
 
 -----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
            (λ _ → trunc _ _)
            refl
            (λ v a → cong (λ X → base X a) (sep-vec-id n m v))
-           (λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U ind-V)
+           (λ {U V} ind-U ind-V → cong₂ _poly+_ ind-U ind-V)
 
 
 -----------------------------------------------------------------------------
@@ -99,8 +99,8 @@ module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
                    (λ _ → trunc _ _)
                    (sym (base-0P v))
                    (λ v' a → cong₂ base (sep-vec-fst n m v v') (cong (λ X → base X a) (sep-vec-snd n m v v')))
-                   (λ {U V} ind-U ind-V → (cong₂ _Poly+_ ind-U ind-V) ∙ (base-Poly+ v U V)))
-           (λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U ind-V )
+                   (λ {U V} ind-U ind-V → (cong₂ _poly+_ ind-U ind-V) ∙ (base-poly+ v U V)))
+           (λ {U V} ind-U ind-V → cong₂ _poly+_ ind-U ind-V )
 
 
 -----------------------------------------------------------------------------
@@ -109,46 +109,46 @@ module Comp-Poly-nm (A' : CommRing ℓ) (n m : ℕ) where
   map-0P : N∘M→N+M (0P) ≡ 0P
   map-0P = refl
 
-  N∘M→N+M-gmorph : (P Q : Poly (PolyCommRing A' m) n) → N∘M→N+M ( P Poly+ Q) ≡ N∘M→N+M P Poly+ N∘M→N+M Q
+  N∘M→N+M-gmorph : (P Q : Poly (PolyCommRing A' m) n) → N∘M→N+M ( P poly+ Q) ≡ N∘M→N+M P poly+ N∘M→N+M Q
   N∘M→N+M-gmorph = λ P Q → refl
 
   map-1P : N∘M→N+M (N∘Mr.1P) ≡ N+Mr.1P
   map-1P = cong (λ X → base X 1r) (rep-concat n m 0 )
 
-  N∘M→N+M-rmorph : (P Q : Poly (PolyCommRing A' m) n) → N∘M→N+M ( P N∘Mr.Poly* Q) ≡ N∘M→N+M P N+Mr.Poly* N∘M→N+M Q
+  N∘M→N+M-rmorph : (P Q : Poly (PolyCommRing A' m) n) → N∘M→N+M ( P N∘Mr.poly* Q) ≡ N∘M→N+M P N+Mr.poly* N∘M→N+M Q
   N∘M→N+M-rmorph =
     -- Ind P
     Poly-Ind-Prop.f (PolyCommRing A' m) n
-    (λ P → (Q : Poly (PolyCommRing A' m) n) → N∘M→N+M (P N∘Mr.Poly* Q) ≡ (N∘M→N+M P N+Mr.Poly* N∘M→N+M Q))
+    (λ P → (Q : Poly (PolyCommRing A' m) n) → N∘M→N+M (P N∘Mr.poly* Q) ≡ (N∘M→N+M P N+Mr.poly* N∘M→N+M Q))
     (λ P p q i Q j → trunc _ _ (p Q) (q Q) i j)
     (λ Q → refl)
     (λ v → -- Ind Base P
            Poly-Ind-Prop.f A' m
-           (λ P → (Q : Poly (PolyCommRing A' m) n) → N∘M→N+M (base v P N∘Mr.Poly* Q) ≡ (N∘M→N+M (base v P) N+Mr.Poly* N∘M→N+M Q))
+           (λ P → (Q : Poly (PolyCommRing A' m) n) → N∘M→N+M (base v P N∘Mr.poly* Q) ≡ (N∘M→N+M (base v P) N+Mr.poly* N∘M→N+M Q))
            (λ P p q i Q j → trunc _ _ (p Q) (q Q) i j)
-           (λ Q → cong (λ X → N∘M→N+M (X N∘Mr.Poly* Q)) (base-0P v))
+           (λ Q → cong (λ X → N∘M→N+M (X N∘Mr.poly* Q)) (base-0P v))
            (λ v' a → -- Ind Q
                       Poly-Ind-Prop.f (PolyCommRing A' m) n
-                      (λ Q → N∘M→N+M (base v (base v' a) N∘Mr.Poly* Q) ≡ (N∘M→N+M (base v (base v' a)) N+Mr.Poly* N∘M→N+M Q))
+                      (λ Q → N∘M→N+M (base v (base v' a) N∘Mr.poly* Q) ≡ (N∘M→N+M (base v (base v' a)) N+Mr.poly* N∘M→N+M Q))
                       (λ _ → trunc _ _)
-                      (sym (N+Mr.0PRightAnnihilatesPoly (N∘M→N+M (base v (base v' a)))))
+                      (sym (N+Mr.poly*AnnihilR (N∘M→N+M (base v (base v' a)))))
                       (λ w → -- Ind base Q
                               Poly-Ind-Prop.f A' m
                               _
                               (λ _ → trunc _ _)
-                              (sym (N+Mr.0PRightAnnihilatesPoly (N∘M→N+M (base v (base v' a)))))
+                              (sym (N+Mr.poly*AnnihilR (N∘M→N+M (base v (base v' a)))))
                               (λ w' b → cong (λ X → base X (a · b)) (+n-vec-concat n m v w v' w'))
-                              λ {U V} ind-U ind-V → cong (λ X → N∘M→N+M (base v (base v' a) N∘Mr.Poly* X)) (sym (base-Poly+ w U V))
-                                                     ∙ cong₂ (_Poly+_ ) ind-U ind-V
-                                                     ∙ sym (cong (λ X → N∘M→N+M (base v (base v' a)) N+Mr.Poly* N∘M→N+M X) (base-Poly+ w U V)) )
+                              λ {U V} ind-U ind-V → cong (λ X → N∘M→N+M (base v (base v' a) N∘Mr.poly* X)) (sym (base-poly+ w U V))
+                                                     ∙ cong₂ (_poly+_ ) ind-U ind-V
+                                                     ∙ sym (cong (λ X → N∘M→N+M (base v (base v' a)) N+Mr.poly* N∘M→N+M X) (base-poly+ w U V)) )
                               -- End Ind base Q
-                      λ {U V} ind-U ind-V → cong₂ _Poly+_ ind-U ind-V)
+                      λ {U V} ind-U ind-V → cong₂ _poly+_ ind-U ind-V)
                       -- End Ind Q
-           λ {U V} ind-U ind-V Q → cong (λ X → N∘M→N+M (X N∘Mr.Poly* Q)) (sym (base-Poly+ v U V))
-                                    ∙ cong₂ _Poly+_ (ind-U Q) (ind-V Q)
-                                    ∙ sym (cong (λ X → (N∘M→N+M X) N+Mr.Poly* (N∘M→N+M Q)) (sym (base-Poly+ v U V)) ))
+           λ {U V} ind-U ind-V Q → cong (λ X → N∘M→N+M (X N∘Mr.poly* Q)) (sym (base-poly+ v U V))
+                                    ∙ cong₂ _poly+_ (ind-U Q) (ind-V Q)
+                                    ∙ sym (cong (λ X → (N∘M→N+M X) N+Mr.poly* (N∘M→N+M Q)) (sym (base-poly+ v U V)) ))
            -- End Ind base P
-     λ {U V} ind-U ind-V Q → cong₂ _Poly+_ (ind-U Q) (ind-V Q)
+     λ {U V} ind-U ind-V Q → cong₂ _poly+_ (ind-U Q) (ind-V Q)
      -- End Ind P
 
 

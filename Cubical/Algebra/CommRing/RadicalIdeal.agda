@@ -84,7 +84,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
    ∑Binomial∈I : ∑ (BinomialVec (n +ℕ m) x y) ∈ I
    ∑Binomial∈I = ∑Closed I (BinomialVec (n +ℕ m) _ _) binomialCoeff∈I
  contains0 (snd (√ I)) =
-   ∣ 1 , subst-∈ I (sym (0LeftAnnihilates 1r)) ((I .snd) .contains0) ∣
+   ∣ 1 , subst-∈ I (sym (0LeftAnnihilates 1r)) ((I .snd) .contains0) ∣₁
  ·Closed (snd (√ I)) r =
    map λ { (n , xⁿ∈I) → n , subst-∈ I (sym (^-ldist-· r _ n)) ((I .snd) .·Closed (r ^ n) xⁿ∈I) }
 
@@ -94,7 +94,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
          map (λ { (m , [xⁿ]ᵐ∈I) → (n ·ℕ m) , subst-∈ I (sym (^-rdist-·ℕ x n m)) [xⁿ]ᵐ∈I })
 
  ∈→∈√ : ∀ (I : CommIdeal) (x : R) → x ∈ I → x ∈ √ I
- ∈→∈√ I _ x∈I = ∣ 1 , subst-∈ I (sym (·Rid _)) x∈I ∣
+ ∈→∈√ I _ x∈I = ∣ 1 , subst-∈ I (sym (·Rid _)) x∈I ∣₁
 
 
 
@@ -103,7 +103,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
  √FGIdealCharLImpl : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
          → √ ⟨ V ⟩[ R' ] ⊆ √ I → (∀ i → V i ∈ √ I)
  √FGIdealCharLImpl V I √⟨V⟩⊆√I i = √⟨V⟩⊆√I _ (∈→∈√ ⟨ V ⟩[ R' ] (V i)
-                                       ∣ (λ j → δ i j) , sym (∑Mul1r _ _ i) ∣)
+                                       ∣ (λ j → δ i j) , sym (∑Mul1r _ _ i) ∣₁)
 
  √FGIdealCharRImpl : {n : ℕ} (V : FinVec R n) (I : CommIdeal)
          → (∀ i → V i ∈ √ I) → √ ⟨ V ⟩[ R' ] ⊆ √ I
@@ -159,14 +159,14 @@ module RadicalIdeal (R' : CommRing ℓ) where
 
    Σhelper : Σ[ m ∈ ℕ ] (z ^ m ∈ J) → x ^ n ≡ y + z → x ∈ √ (I +i J)
    Σhelper (m , z^m∈J) x^n≡y+z =
-     ∣ n ·ℕ m , ∣ (∑ (yVec m) , z ^ m) , ∑yVec∈I m  , z^m∈J , path m x^n≡y+z ∣ ∣
+     ∣ n ·ℕ m , ∣ (∑ (yVec m) , z ^ m) , ∑yVec∈I m  , z^m∈J , path m x^n≡y+z ∣₁ ∣₁
 
  √+RContrRIncl : (I J : CommIdeal) → √ (I +i J) ⊆ √ (I +i √ J)
  √+RContrRIncl I J x = PT.elim (λ _ → isPropPropTrunc) (uncurry curriedIncl2)
   where
   curriedIncl2 : (n : ℕ) → (x ^ n ∈ (I +i J)) → x ∈ √ ((I +i √ J))
   curriedIncl2 n = map λ ((y , z) , y∈I , z∈J , x≡y+z)
-                          → n , ∣ (y , z) , y∈I , ∈→∈√ J z z∈J , x≡y+z ∣
+                          → n , ∣ (y , z) , y∈I , ∈→∈√ J z z∈J , x≡y+z ∣₁
 
  √+RContr : (I J : CommIdeal) → √ (I +i √ J) ≡ √ (I +i J)
  √+RContr I J = CommIdeal≡Char (√+RContrLIncl I J) (√+RContrRIncl I J)
@@ -194,7 +194,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
                                       (∈→∈√ I _ (·RClosed (I .snd) y x∈I))
    curriedHelper x y x∈I (suc l) y^l+1∈J = -- (xy)^l+1 ≡ x^l · x (∈I) · y^l+1 (∈J)
      ∣ suc l , subst-∈ (I ·i J) (sym (^-ldist-· _ _ (suc l)))
-     (prodInProd I J _ _ (subst-∈ I (·Comm _ _) (I .snd .·Closed (x ^ l) x∈I)) y^l+1∈J) ∣
+     (prodInProd I J _ _ (subst-∈ I (·Comm _ _) (I .snd .·Closed (x ^ l) x∈I)) y^l+1∈J) ∣₁
 
    prodHelper : ∀ i → β i ∈ √ J → α i · β i ∈ √ (I ·i J)
    prodHelper i = PT.elim (λ _ → isPropPropTrunc) (uncurry (curriedHelper (α i) (β i) (α∈I i)))
@@ -204,7 +204,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
   where
   curriedIncl2 : (n : ℕ) → x ^ n ∈ (I ·i J) → x ∈ √ (I ·i √ J)
   curriedIncl2 n = map λ (m , (α , β) , α∈I , β∈J , xⁿ≡∑αβ)
-                   → n , ∣ m , (α , β) , α∈I , (λ i → ∈→∈√ J (β i) (β∈J i)) , xⁿ≡∑αβ ∣
+                   → n , ∣ m , (α , β) , α∈I , (λ i → ∈→∈√ J (β i) (β∈J i)) , xⁿ≡∑αβ ∣₁
 
  √·RContr : (I J : CommIdeal) → √ (I ·i √ J) ≡ √ (I ·i J)
  √·RContr I J = CommIdeal≡Char (√·RContrLIncl I J) (√·RContrRIncl I J)

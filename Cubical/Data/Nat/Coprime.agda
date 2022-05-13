@@ -42,8 +42,8 @@ module ToCoprime ((m , n) : ℕ × ℕ₊₁) where
     lem a p q = ·-assoc a _ _ ∙ cong (_· _) p ∙ q
 
     gr' : ∀ d' → prediv d' c₁ → prediv d' (ℕ₊₁→ℕ c₂) → (d' · d) ∣ d
-    gr' d' (b₁ , q₁) (b₂ , q₂) = gr (d' · d) ((∣ b₁ , lem b₁ q₁ p₁ ∣) ,
-                                              (∣ b₂ , lem b₂ q₂ p₂ ∣))
+    gr' d' (b₁ , q₁) (b₂ , q₂) = gr (d' · d) ((∣ b₁ , lem b₁ q₁ p₁ ∣₁) ,
+                                              (∣ b₂ , lem b₂ q₂ p₂ ∣₁))
 
   d-1 = m∣sn→z<m d∣n .fst
   q : d ≡ suc d-1
@@ -62,7 +62,7 @@ module ToCoprime ((m , n) : ℕ × ℕ₊₁) where
                                                 d-cancelʳ d' (gr' d' a b)) d'∣c₂) d'∣c₁
 
   toCoprime∣ : (c₁ ∣ m) × (ℕ₊₁→ℕ c₂ ∣ ℕ₊₁→ℕ n)
-  toCoprime∣ = ∣ d , ·-comm d c₁ ∙ p₁ ∣ , ∣ d , ·-comm d (ℕ₊₁→ℕ c₂) ∙ p₂ ∣
+  toCoprime∣ = ∣ d , ·-comm d c₁ ∙ p₁ ∣₁ , ∣ d , ·-comm d (ℕ₊₁→ℕ c₂) ∙ p₂ ∣₁
 
   toCoprime-idem : areCoprime (m , ℕ₊₁→ℕ n) → (c₁ , c₂) ≡ (m , n)
   toCoprime-idem cp i = q₁ i , ℕ₊₁→ℕ-inj q₂ i
