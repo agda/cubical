@@ -40,7 +40,7 @@ record IsField {R : Type ℓ}
 
   field
     isCommRing : IsCommRing 0r 1r _+_ _·_ -_
-    ·⁻¹≡1      : (x : R) → x · (x ⁻¹) ≡ 1r
+    ·⁻¹≡1      : (x : R) → ¬ (x ≡ 0r) → x · (x ⁻¹) ≡ 1r
     0≢1        : ¬ (0r ≡ 1r)
 
   open IsCommRing isCommRing public
@@ -81,7 +81,7 @@ makeIsField : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ _⁻¹ 
                  (·-rid : (x : R) → x · 1r ≡ x)
                  (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
                  (·-comm : (x y : R) → x · y ≡ y · x)
-                 (·⁻¹≡1 : (x : R) → x · (x ⁻¹) ≡ 1r)
+                 (·⁻¹≡1 : (x : R) → ¬ (x ≡ 0r) → x · (x ⁻¹) ≡ 1r)
                  (0≢1 : ¬ (0r ≡ 1r))
                → IsField 0r 1r _+_ _·_ -_ _⁻¹
 makeIsField {_+_ = _+_} is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm ·⁻¹≡1 0≢1 =
@@ -97,7 +97,7 @@ makeField : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) ( -_ _⁻¹ : 
                  (·-rid : (x : R) → x · 1r ≡ x)
                  (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
                  (·-comm : (x y : R) → x · y ≡ y · x)
-                 (·⁻¹≡1 : (x : R) → x · (x ⁻¹) ≡ 1r)
+                 (·⁻¹≡1 : (x : R) → ¬ (x ≡ 0r) → x · (x ⁻¹) ≡ 1r)
                  (0≢1 : ¬ (0r ≡ 1r))
                → Field ℓ
 makeField 0r 1r _+_ _·_ -_ _⁻¹ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm ·⁻¹≡1 0≢1 =
@@ -153,8 +153,8 @@ isPropIsField 0r 1r _+_ _·_ -_ _⁻¹ (isfield RR RC RD) (isfield SR SC SD) =
   isSetR : isSet _
   isSetR =  RR .IsCommRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
-  isPropInv : isProp ((x : _) → x · (x ⁻¹) ≡ 1r)
-  isPropInv = isPropΠ λ _ → isSetR _ _
+  isPropInv : isProp ((x : _) → ¬ (x ≡ 0r) → x · (x ⁻¹) ≡ 1r)
+  isPropInv = isPropΠ2 λ _ _ → isSetR _ _
 
   isProp→⊥ : ∀ {A : Type ℓ} → isProp (A → ⊥)
   isProp→⊥ = isPropΠ λ _ → isProp⊥
