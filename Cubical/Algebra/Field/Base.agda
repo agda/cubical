@@ -56,7 +56,7 @@ record FieldStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
     _·_        : A → A → A
     -_         : A → A
     _⁻¹        : A → A
-    isField : IsField 0r 1r _+_ _·_ -_ _⁻¹
+    isField    : IsField 0r 1r _+_ _·_ -_ _⁻¹
 
   infix  20 _⁻¹
   infix  8 -_
