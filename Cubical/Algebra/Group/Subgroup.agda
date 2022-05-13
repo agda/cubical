@@ -162,7 +162,7 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
   imSubset x = isInIm ϕ x , isPropIsInIm ϕ x
 
   isSubgroupIm : isSubgroup H imSubset
-  id-closed isSubgroupIm = ∣ G.1g , ϕ.pres1 ∣
+  id-closed isSubgroupIm = ∣ G.1g , ϕ.pres1 ∣₁
   op-closed isSubgroupIm =
     map2 λ { (x , hx) (y , hy) → x G.· y , ϕ.pres· x y ∙ λ i → hx i H.· hy i }
   inv-closed isSubgroupIm = map λ { (x , hx) → G.inv x , ϕ.presinv x ∙ cong H.inv hx }

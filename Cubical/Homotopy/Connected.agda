@@ -1,28 +1,36 @@
 {-# OPTIONS --safe #-}
 module Cubical.Homotopy.Connected where
 
-open import Cubical.Core.Everything
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence
+
 open import Cubical.Functions.Fibration
+
+open import Cubical.Data.Unit
+open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
+
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
-open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1
-open import Cubical.Data.Bool
-open import Cubical.Data.Unit
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
+
+open import Cubical.Homotopy.Loopspace
+
+
 
 -- Note that relative to most sources, this notation is off by +2
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ
@@ -80,8 +88,13 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) wher
   isIsoPrecompose : ∀ {ℓ'''} (n : ℕ) (P : B → TypeOfHLevel ℓ''' n)
                    → isConnectedFun n f
                    → Iso ((b : B) → P b .fst) ((a : A) → P (f a) .fst)
-  isIsoPrecompose zero P fConn = isContr→Iso (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd)
-  Iso.fun (isIsoPrecompose (suc n) P fConn) = _∘ f
+  Iso.fun (isIsoPrecompose _ P fConn) = _∘ f
+  Iso.inv (isIsoPrecompose zero P fConn) =
+    Iso.inv (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
+  Iso.rightInv (isIsoPrecompose zero P fConn) =
+    Iso.rightInv (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
+  Iso.leftInv (isIsoPrecompose zero P fConn) =
+    Iso.leftInv (isContr→Iso' (isOfHLevelΠ _ (λ b → P b .snd)) (isOfHLevelΠ _ λ a → P (f a) .snd) (_∘ f))
   Iso.inv (isIsoPrecompose (suc n) P fConn) t b = inv n P t b (fConn b .fst)
   Iso.rightInv (isIsoPrecompose (suc n) P fConn) t =
     funExt λ a → cong (inv n P t (f a)) (fConn (f a) .snd ∣ a , refl ∣)

@@ -103,6 +103,28 @@ module NaturalBijection where
       adjNatInC : ∀ {c' c d} (g : C [ c , G ⟅ d ⟆ ]) (h : C [ c' , c ])
                 → (h ⋆⟨ C ⟩ g) ♯ ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯
 
+    adjNatInD' : ∀ {c : C .ob} {d d'} (g : C [ c , G ⟅ d ⟆ ]) (k : D [ d , d' ])
+                → g ♯ ⋆⟨ D ⟩ k ≡ (g ⋆⟨ C ⟩ G ⟪ k ⟫) ♯
+    adjNatInD' {c} {d} {d'} g k =
+      g ♯ ⋆⟨ D ⟩ k
+        ≡⟨ sym (adjIso .leftInv (g ♯ ⋆⟨ D ⟩ k)) ⟩
+      ((g ♯ ⋆⟨ D ⟩ k) ♭) ♯
+        ≡⟨ cong _♯ (adjNatInD (g ♯) k) ⟩
+      ((g ♯) ♭ ⋆⟨ C ⟩ G ⟪ k ⟫) ♯
+        ≡⟨ cong _♯ (cong (λ g' → seq' C g' (G ⟪ k ⟫)) (adjIso .rightInv g)) ⟩
+      (g ⋆⟨ C ⟩ G ⟪ k ⟫) ♯ ∎
+
+    adjNatInC' : ∀ {c' c d} (f : D [ F ⟅ c ⟆ , d ]) (h : C [ c' , c ])
+                → h ⋆⟨ C ⟩ (f ♭) ≡ (F ⟪ h ⟫ ⋆⟨ D ⟩ f) ♭
+    adjNatInC' {c'} {c} {d} f h =
+      h ⋆⟨ C ⟩ (f ♭)
+        ≡⟨ sym (adjIso .rightInv (h ⋆⟨ C ⟩ (f ♭))) ⟩
+      ((h ⋆⟨ C ⟩ (f ♭)) ♯) ♭
+        ≡⟨ cong _♭ (adjNatInC (f ♭) h) ⟩
+      ((F ⟪ h ⟫ ⋆⟨ D ⟩ (f ♭) ♯) ♭)
+        ≡⟨ cong _♭ (cong (λ f' → seq' D (F ⟪ h ⟫) f') (adjIso .leftInv f)) ⟩
+      (F ⟪ h ⟫ ⋆⟨ D ⟩ f) ♭ ∎
+
   isLeftAdjoint : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
   isLeftAdjoint {C = C}{D} F = Σ[ G ∈ Functor D C ] F ⊣ G
 

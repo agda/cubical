@@ -17,17 +17,17 @@ private
     P Q : Type ℓ
 
 infix 1 proof_by_
-proof_by_ : (P : hProp ℓ) → ∥ ⟨ P ⟩ ∥ → ⟨ P ⟩
+proof_by_ : (P : hProp ℓ) → ∥ ⟨ P ⟩ ∥₁ → ⟨ P ⟩
 proof P by p = rec (isProp⟨⟩ P) (λ p → p) p
 
-return : P → ∥ P ∥
-return p = ∣ p ∣
+return : P → ∥ P ∥₁
+return p = ∣ p ∣₁
 
-exact_ : ∥ P ∥ → ∥ P ∥
+exact_ : ∥ P ∥₁ → ∥ P ∥₁
 exact p = p
 
-_>>=_ : ∥ P ∥ → (P → ∥ Q ∥) → ∥ Q ∥
+_>>=_ : ∥ P ∥₁ → (P → ∥ Q ∥₁) → ∥ Q ∥₁
 p >>= f = rec isPropPropTrunc f p
 
-_>>_ : ∥ P ∥ → ∥ Q ∥ → ∥ Q ∥
+_>>_ : ∥ P ∥₁ → ∥ Q ∥₁ → ∥ Q ∥₁
 _ >> q = q

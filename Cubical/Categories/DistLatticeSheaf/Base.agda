@@ -1,11 +1,15 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Categories.DistLatticeSheaf where
+module Cubical.Categories.DistLatticeSheaf.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat.Order
+open import Cubical.Data.FinData
+open import Cubical.Data.FinData.Order
 
 open import Cubical.Relation.Binary.Poset
 
@@ -15,6 +19,7 @@ open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.Basis
+open import Cubical.Algebra.DistLattice.BigOps
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -29,6 +34,9 @@ open import Cubical.Categories.Instances.Poset
 open import Cubical.Categories.Instances.Semilattice
 open import Cubical.Categories.Instances.Lattice
 open import Cubical.Categories.Instances.DistLattice
+
+
+open import Cubical.Categories.DistLatticeSheaf.Diagram
 
 private
   variable
@@ -80,49 +88,56 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   DLPreSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
   DLPreSheaf = Functor (DLCat ^op) C
 
-  hom-∨₁ : (x y : L .fst) → DLCat [ x , x ∨l y ]
-  hom-∨₁ = ∨≤RCancel
-    -- TODO: isn't the fixity of the operators a bit weird?
+  module _ (x y : L .fst)where
+    hom-∨₁ : DLCat [ x , x ∨l y ]
+    hom-∨₁ = ∨≤RCancel _ _
 
-  hom-∨₂ : (x y : L .fst) → DLCat [ y , x ∨l y ]
-  hom-∨₂ = ∨≤LCancel
+    hom-∨₂ : DLCat [ y , x ∨l y ]
+    hom-∨₂ = ∨≤LCancel _ _
 
-  hom-∧₁ : (x y : L .fst) → DLCat [ x ∧l y , x ]
-  hom-∧₁ _ _ = (≤m→≤j _ _ (∧≤RCancel _ _))
+    hom-∧₁ : DLCat [ x ∧l y , x ]
+    hom-∧₁ = ≤m→≤j _ _ (∧≤RCancel _ _)
 
-  hom-∧₂ : (x y : L .fst) → DLCat [ x ∧l y , y ]
-  hom-∧₂ _ _ = (≤m→≤j _ _ (∧≤LCancel _ _))
+    hom-∧₂ : DLCat [ x ∧l y , y ]
+    hom-∧₂ = ≤m→≤j _ _ (∧≤LCancel _ _)
 
 
-  {-
-     x ∧ y ----→   x
-       |           |
-       |    sq     |
-       V           V
-       y   ----→ x ∨ y
-  -}
-  sq : (x y : L .fst) → hom-∧₂ x y ⋆ hom-∨₂ x y ≡ hom-∧₁ x y ⋆ hom-∨₁ x y
-  sq x y = is-prop-valued (x ∧l y) (x ∨l y) (hom-∧₂ x y ⋆ hom-∨₂ x y) (hom-∧₁ x y ⋆ hom-∨₁ x y)
+    {-
+       x ∧ y ----→   x
+         |           |
+         |    sq     |
+         V           V
+         y   ----→ x ∨ y
+    -}
+    sq : hom-∧₂ ⋆ hom-∨₂ ≡ hom-∧₁ ⋆ hom-∨₁
+    sq = is-prop-valued (x ∧l y) (x ∨l y) (hom-∧₂ ⋆ hom-∨₂) (hom-∧₁ ⋆ hom-∨₁)
 
-  {-
-    F(x ∨ y) ----→ F(x)
-       |            |
-       |     Fsq    |
-       V            V
-      F(y) ------→ F(x ∧ y)
-  -}
-  Fsq : (F : DLPreSheaf) (x y : L .fst)
-      → F .F-hom (hom-∨₂ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₂ x y) ≡
-        F .F-hom (hom-∨₁ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₁ x y)
-  Fsq F x y = F-square F (sq x y)
+    {-
+      F(x ∨ y) ----→ F(x)
+         |            |
+         |     Fsq    |
+         V            V
+        F(y) ------→ F(x ∧ y)
+    -}
+    Fsq : (F : DLPreSheaf)
+        → F .F-hom hom-∨₂ ⋆⟨ C ⟩ F .F-hom hom-∧₂ ≡
+          F .F-hom hom-∨₁ ⋆⟨ C ⟩ F .F-hom hom-∧₁
+    Fsq F = F-square F sq
 
-  isDLSheaf : (F : DLPreSheaf) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  isDLSheaf F = (F-ob F 0l ≡ 𝟙)
-              × ((x y : L .fst) → isPullback C _ _ _ (Fsq F x y))
+  isDLSheafPullback : (F : DLPreSheaf) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+  isDLSheafPullback F = (F-ob F 0l ≡ 𝟙)
+                      × ((x y : L .fst) → isPullback C _ _ _ (Fsq x y F))
 
   -- TODO: might be better to define this as a record
-  DLSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  DLSheaf = Σ[ F ∈ DLPreSheaf ] isDLSheaf F
+  DLSheafPullback : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+  DLSheafPullback = Σ[ F ∈ DLPreSheaf ] isDLSheafPullback F
+
+
+  -- Now for the proper version using limits of the right kind:
+  open Join L
+  isDLSheaf : (F : DLPreSheaf) → Type _
+  isDLSheaf F = ∀ (n : ℕ) (α : FinVec (fst L) n) → isLimCone _ _ (F-cone F (⋁Cone L α))
+  --TODO: Equivalence of isDLSheaf and isDLSheafPullback
 
 
 
@@ -190,17 +205,54 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
   BFsq F = F-square F Bsq
 
 
- -- TODO: check that this is equivalent to the functor
- -- preserving terminal objects and pullbacks
- isDLBasisSheaf : DLBasisPreSheaf → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
- isDLBasisSheaf F = ((0∈L' : 0l ∈ L') → F .F-ob (0l , 0∈L') ≡ 1c)
-                  × ((x y : ob BasisCat) (x∨y∈L' : fst x ∨l fst y ∈ L')
-                  → isPullback C _ _ _ (BFsq x y x∨y∈L' F))
-  where
-  open condSquare
+ -- On a basis this is weaker than the definition below!
+ isDLBasisSheafPullback : DLBasisPreSheaf → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+ isDLBasisSheafPullback F = ((0∈L' : 0l ∈ L') → F .F-ob (0l , 0∈L') ≡ 1c)
+                          × ((x y : ob BasisCat) (x∨y∈L' : fst x ∨l fst y ∈ L')
+                               → isPullback C _ _ _ (BFsq x y x∨y∈L' F))
+                                 where open condSquare
 
-  DLBasisSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  DLBasisSheaf = Σ[ F ∈ DLBasisPreSheaf ] isDLBasisSheaf F
+ DLBasisSheafPullback : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+ DLBasisSheafPullback = Σ[ F ∈ DLBasisPreSheaf ] isDLBasisSheafPullback F
+
+
+ -- the correct defintion
+ open Join L
+ module condCone {n : ℕ} (α : FinVec (ob BasisCat) n) (⋁α∈L' : ⋁ (λ i →  α i .fst) ∈ L') where
+   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L))
+   open PosetStr (IndPoset .snd) hiding (_≤_)
+   open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
+        using (∧≤RCancel ; ∧≤LCancel)
+   open Order (DistLattice→Lattice L)
+   open Cone
+   private
+     α' : FinVec (fst L) n
+     α' i = α i .fst
+     ⋁α : ob BasisCat
+     ⋁α = ⋁ α' , ⋁α∈L'
+
+   BDiag : Functor (DLShfDiag n) (BasisCat ^op)
+   F-ob BDiag (sing i) = α i
+   F-ob BDiag (pair i j _) = α i · α j -- α i ∧ α j + basis is closed under ∧
+   F-hom BDiag idAr = is-refl _
+   F-hom BDiag singPairL = ≤m→≤j _ _ (∧≤RCancel _ _)
+   F-hom BDiag singPairR = ≤m→≤j _ _ (∧≤LCancel _ _)
+   F-id BDiag = is-prop-valued _ _ _ _
+   F-seq BDiag _ _ = is-prop-valued _ _ _ _
+
+   B⋁Cone : Cone BDiag ⋁α
+   coneOut B⋁Cone (sing i) = ind≤⋁ α' i
+   coneOut B⋁Cone (pair i _ _) = is-trans _ (α' i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α' i)
+   coneOutCommutes B⋁Cone _ = is-prop-valued _ _ _ _
+
+ isDLBasisSheaf : DLBasisPreSheaf → Type _
+ isDLBasisSheaf F = ∀ {n : ℕ} (α : FinVec (ob BasisCat) n) (⋁α∈L' : ⋁ (λ i →  α i .fst) ∈ L')
+                  → isLimCone _ _ (F-cone F (B⋁Cone  α ⋁α∈L'))
+                    where open condCone
+
+
+
+
 
   -- To prove the statement we probably need that C is:
   -- 1. univalent

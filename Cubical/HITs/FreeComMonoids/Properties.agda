@@ -2,7 +2,13 @@
 
 module Cubical.HITs.FreeComMonoids.Properties where
 
-open import Cubical.Foundations.Everything hiding (assoc; ⟨_⟩)
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.GroupoidLaws hiding (assoc)
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat hiding (_·_ ; _^_)
 
@@ -12,6 +18,8 @@ open import Cubical.HITs.AssocList as AL
 private variable
   ℓ : Level
   A : Type ℓ
+
+
 
 multi-· : A → ℕ → FreeComMonoid A → FreeComMonoid A
 multi-· x zero xs = xs

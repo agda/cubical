@@ -241,7 +241,7 @@ module _ {R : CommRing ℓ} where
       equiv : CommAlgebraEquiv (FPAlgebra n relations) A
 
   isFPAlgebra : (A : CommAlgebra R ℓ) → Type _
-  isFPAlgebra A = ∥ FinitePresentation A ∥
+  isFPAlgebra A = ∥ FinitePresentation A ∥₁
 
   isFPAlgebraIsProp : {A : CommAlgebra R ℓ} → isProp (isFPAlgebra A)
   isFPAlgebraIsProp = isPropPropTrunc

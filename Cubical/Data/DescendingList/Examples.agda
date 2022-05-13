@@ -13,7 +13,7 @@
 
 module Cubical.Data.DescendingList.Examples where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat

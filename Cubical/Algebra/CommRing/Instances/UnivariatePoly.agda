@@ -3,6 +3,8 @@
 module Cubical.Algebra.CommRing.Instances.UnivariatePoly where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Nat using (ℕ ; zero ; suc)
+
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Polynomials.Univariate.Base
 open import Cubical.Algebra.Polynomials.Univariate.Properties
@@ -31,3 +33,8 @@ UnivariatePoly R = (PolyMod.Poly R) , str
                                       (PolyModTheory.Poly*Rid R)
                                       (PolyModTheory.Poly*LDistrPoly+ R)
                                       (PolyModTheory.Poly*Commutative R)
+
+
+nUnivariatePoly : (A' : CommRing ℓ) → (n : ℕ) → CommRing ℓ
+nUnivariatePoly A' zero = A'
+nUnivariatePoly A' (suc n) = UnivariatePoly (nUnivariatePoly A' n)

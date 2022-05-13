@@ -18,6 +18,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Nat
+open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.James.Inductive.Base
   renaming (𝕁ames to 𝕁amesConstruction ; 𝕁ames∞ to 𝕁ames∞Construction)
 

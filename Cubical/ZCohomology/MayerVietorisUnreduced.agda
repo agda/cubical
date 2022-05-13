@@ -8,23 +8,24 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Data.Sigma
-open import Cubical.HITs.Pushout
-open import Cubical.HITs.Sn
-open import Cubical.HITs.S1
-open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
-open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec ; elim3 to trElim3)
+
 open import Cubical.Data.Nat
+open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Bool renaming (Bool to BoolGroup)
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Bool
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Instances.Unit
+
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.Pushout
+open import Cubical.HITs.Sn
+open import Cubical.HITs.S1
+open import Cubical.HITs.Susp
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
@@ -38,11 +39,11 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
 
   private
     i* : (n : ℕ) → coHom n (Pushout f g) → coHom n A × coHom n B
-    i* n = sRec (isSet× isSetSetTrunc isSetSetTrunc) λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂
+    i* n = ST.rec (isSet× isSetSetTrunc isSetSetTrunc) λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂
 
   iIsHom : (n : ℕ) → IsGroupHom (coHomGr n (Pushout f g) .snd) (i* n) (×coHomGr n A B .snd)
   iIsHom n =
-    makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _) λ _ _ → refl)
+    makeIsGroupHom (ST.elim2 (λ _ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _) λ _ _ → refl)
 
   i : (n : ℕ) → GroupHom (coHomGr n (Pushout f g)) (×coHomGr n A B)
   fst (i n) = i* n
@@ -91,24 +92,24 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                                   ; (j = i1) → (Kn→ΩKn+1 n (h a) i) +[ (suc n) ]ₖ coHom-pt (suc n)})
                         (rUnitₖ (suc n) (Kn→ΩKn+1 n (h a) i) (~ j))))
 
-  dIsHom : (n : ℕ) → IsGroupHom (coHomGr n C .snd) (sRec isSetSetTrunc λ a → ∣ d-pre n a ∣₂) (coHomGr (suc n) (Pushout f g) .snd)
+  dIsHom : (n : ℕ) → IsGroupHom (coHomGr n C .snd) (ST.rec isSetSetTrunc λ a → ∣ d-pre n a ∣₂) (coHomGr (suc n) (Pushout f g) .snd)
   dIsHom n =
     makeIsGroupHom
-      (sElim2 (λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+      (ST.elim2 (λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
               λ f g i → ∣ funExt (λ x → dHomHelper n f g x) i ∣₂)
 
   d : (n : ℕ) → GroupHom (coHomGr n C) (coHomGr (suc n) (Pushout f g))
-  fst (d n) = sRec isSetSetTrunc λ a → ∣ d-pre n a ∣₂
+  fst (d n) = ST.rec isSetSetTrunc λ a → ∣ d-pre n a ∣₂
   snd (d n) = dIsHom n
 
   -- The long exact sequence
   Im-d⊂Ker-i : (n : ℕ) (x : ⟨ (coHomGr (suc n) (Pushout f g)) ⟩)
             → isInIm (d n) x
             → isInKer (i (suc n)) x
-  Im-d⊂Ker-i n = sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
-                       λ a → pRec (isOfHLevelPath' 1 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
+  Im-d⊂Ker-i n = ST.elim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
+                       λ a → PT.rec (isOfHLevelPath' 1 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
                                (sigmaElim (λ _ → isOfHLevelPath 2 (isSet× isSetSetTrunc isSetSetTrunc) _ _)
-                                λ δ b i → sRec (isSet× isSetSetTrunc isSetSetTrunc)
+                                λ δ b i → ST.rec (isSet× isSetSetTrunc isSetSetTrunc)
                                                (λ δ → ∣ (λ x → δ (inl x)) ∣₂ , ∣ (λ x → δ (inr x)) ∣₂ ) (b (~ i)))
 
 
@@ -116,10 +117,10 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
              → isInKer (i (suc n)) x
              → isInIm (d n) x
   Ker-i⊂Im-d n =
-     sElim (λ _ → isSetΠ λ _ → isProp→isSet isPropPropTrunc)
-           λ a p → pRec {A = (λ x → a (inl x)) ≡ λ _ → 0ₖ (suc n)}
+     ST.elim (λ _ → isSetΠ λ _ → isProp→isSet isPropPropTrunc)
+           λ a p → PT.rec {A = (λ x → a (inl x)) ≡ λ _ → 0ₖ (suc n)}
                         (isProp→ isPropPropTrunc)
-                        (λ p1 → pRec isPropPropTrunc λ p2 → ∣ ∣ (λ c → ΩKn+1→Kn n (sym (cong (λ F → F (f c)) p1)
+                        (λ p1 → PT.rec isPropPropTrunc λ p2 → ∣ ∣ (λ c → ΩKn+1→Kn n (sym (cong (λ F → F (f c)) p1)
                                                                                      ∙∙ cong a (push c)
                                                                                      ∙∙ cong (λ F → F (g c)) p2)) ∣₂
                                                                              , cong ∣_∣₂ (funExt (λ δ → helper a p1 p2 δ)) ∣₁)
@@ -150,11 +151,11 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
             → isInIm (i n) x
             → isInKer (Δ n) x
   Im-i⊂Ker-Δ n (Fa , Fb) =
-    sElim {B = λ Fa → (Fb : _) → isInIm (i n) (Fa , Fb)
+    ST.elim {B = λ Fa → (Fb : _) → isInIm (i n) (Fa , Fb)
                                → isInKer (Δ n) (Fa , Fb)}
           (λ _ → isSetΠ2 λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-          (λ Fa → sElim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-                        λ Fb → pRec (isSetSetTrunc _ _)
+          (λ Fa → ST.elim (λ _ → isSetΠ λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+                        λ Fb → PT.rec (isSetSetTrunc _ _)
                                      (sigmaElim (λ x → isProp→isSet (isSetSetTrunc _ _))
                                                 λ Fd p → helper n Fa Fb Fd p))
           Fa
@@ -171,7 +172,7 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
             → isInKer (Δ n) a
             → isInIm (i n) a
   Ker-Δ⊂Im-i n = prodElim (λ _ → isSetΠ (λ _ → isProp→isSet isPropPropTrunc))
-                          (λ Fa Fb p → pRec isPropPropTrunc
+                          (λ Fa Fb p → PT.rec isPropPropTrunc
                                             (λ q → ∣ ∣ helpFun Fa Fb q ∣₂ , refl ∣₁)
                                             (helper Fa Fb p))
     where
@@ -210,8 +211,8 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
              → isInKer (d n) a
              → isInIm (Δ n) a
   Ker-d⊂Im-Δ n =
-    sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 isPropPropTrunc)
-          λ Fc p → pRec isPropPropTrunc (λ p → ∣ (∣ (λ a → ΩKn+1→Kn n (cong (λ f → f (inl a)) p)) ∣₂ ,
+    ST.elim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelSuc 1 isPropPropTrunc)
+          λ Fc p → PT.rec isPropPropTrunc (λ p → ∣ (∣ (λ a → ΩKn+1→Kn n (cong (λ f → f (inl a)) p)) ∣₂ ,
                                                      ∣ (λ b → ΩKn+1→Kn n (cong (λ f → f (inr b)) p)) ∣₂) ,
                                                   Iso.inv (PathIdTrunc₀Iso) ∣ funExt (λ c → helper2 Fc p c) ∣₁ ∣₁)
                                          (Iso.fun (PathIdTrunc₀Iso) p)
@@ -230,10 +231,10 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
              → isInIm (Δ n) a
              → isInKer (d n) a
   Im-Δ⊂Ker-d n =
-    sElim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-          λ Fc → pRec (isOfHLevelPath' 1 isSetSetTrunc _ _)
+    ST.elim (λ _ → isOfHLevelΠ 2 λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+          λ Fc → PT.rec (isOfHLevelPath' 1 isSetSetTrunc _ _)
                        (sigmaProdElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-                                      λ Fa Fb p → pRec (isOfHLevelPath' 1 isSetSetTrunc _ _)
+                                      λ Fa Fb p → PT.rec (isOfHLevelPath' 1 isSetSetTrunc _ _)
                                                         (λ q → ((λ i → fst (d n) ∣ (q (~ i)) ∣₂) ∙ dΔ-Id n Fa Fb))
                                                         (Iso.fun (PathIdTrunc₀Iso) p))
 

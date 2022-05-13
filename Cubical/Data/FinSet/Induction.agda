@@ -38,7 +38,7 @@ module _
   {ℓ : Level} where
 
   𝟘 : FinSet ℓ
-  𝟘 = ⊥* , 0 , ∣ uninhabEquiv Empty.rec* Empty.rec ∣
+  𝟘 = ⊥* , 0 , ∣ uninhabEquiv Empty.rec* Empty.rec ∣₁
 
   𝟙 : FinSet ℓ
   𝟙 = Unit* , isContr→isFinSet (isContrUnit*)
@@ -92,7 +92,7 @@ module _
 
 -- every finite sets are merely equal to some 𝔽in
 
-∣≡𝔽in∣ : (X : FinSet ℓ) → ∥ Σ[ n ∈ ℕ ] X ≡ 𝔽in n ∥
+∣≡𝔽in∣ : (X : FinSet ℓ) → ∥ Σ[ n ∈ ℕ ] X ≡ 𝔽in n ∥₁
 ∣≡𝔽in∣ X = Prop.map (λ (n , p) → n , path X (n , p)) (isFinSet→isFinSet' (X .snd))
   where
     path : (X : FinSet ℓ) → ((n , _) : isFinOrd (X .fst)) → X ≡ 𝔽in n

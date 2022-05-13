@@ -9,14 +9,18 @@ module Cubical.HITs.James.Inductive.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Nat
+
+open import Cubical.HITs.SequentialColimit
 
 private
   variable
     ℓ : Level
 
 module _
-  ((X , x₀) : Pointed ℓ) where
+  (X∙@(X , x₀) : Pointed ℓ) where
 
   -- The family 𝕁ames n is equivalence to Brunerie's J n
 
@@ -28,8 +32,15 @@ module _
     unit  : {n : ℕ} → (xs : 𝕁ames n) → incl xs ≡ x₀ ∷ xs
     coh   : {n : ℕ} → (xs : 𝕁ames n) → PathP (λ i → incl (unit xs i) ≡ x₀ ∷ incl xs) (unit (incl xs)) (incl∷ x₀ xs)
 
-  -- The 𝕁ames∞ can be seen as direct colimit of 𝕁ames n
+  -- The direct system defined by 𝕁ames
 
-  data 𝕁ames∞ : Type ℓ where
-    inl : {n : ℕ} → 𝕁ames n → 𝕁ames∞
-    push : {n : ℕ}(xs : 𝕁ames n) → inl xs ≡ inl (incl xs)
+  open Sequence
+
+  𝕁amesSeq : Sequence ℓ
+  𝕁amesSeq .space = 𝕁ames
+  𝕁amesSeq .map   = incl
+
+  -- The 𝕁ames∞ wanted is the direct colimit of 𝕁ames n
+
+  𝕁ames∞ : Type ℓ
+  𝕁ames∞ = Lim→ 𝕁amesSeq

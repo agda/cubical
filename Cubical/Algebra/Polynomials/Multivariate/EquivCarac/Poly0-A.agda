@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Multivariate.Equiv-Polyn-nPoly.Poly0-A where
+module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.Poly0-A where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -53,7 +53,7 @@ module Equiv-Poly0-A (A' : CommRing ℓ) where
            (λ _ → trunc _ _)
            (base-0P [])
            (λ { [] a → refl })
-           λ {U V} ind-U ind-V → (sym (base-Poly+ [] (Poly0→A U) (Poly0→A V))) ∙ (cong₂ _Poly+_ ind-U ind-V)
+           λ {U V} ind-U ind-V → (sym (base-poly+ [] (Poly0→A U) (Poly0→A V))) ∙ (cong₂ _poly+_ ind-U ind-V)
 
 
 -----------------------------------------------------------------------------
@@ -62,19 +62,19 @@ module Equiv-Poly0-A (A' : CommRing ℓ) where
   map-0P : Poly0→A 0P ≡ 0r
   map-0P = refl
 
-  Poly0→A-gmorph : (P Q : Poly A' 0) → Poly0→A ( P Poly+ Q) ≡ Poly0→A P + Poly0→A Q
+  Poly0→A-gmorph : (P Q : Poly A' 0) → Poly0→A ( P poly+ Q) ≡ Poly0→A P + Poly0→A Q
   Poly0→A-gmorph P Q = refl
 
   map-1P : Poly0→A 1P ≡ 1r
   map-1P = refl
 
-  Poly0→A-rmorph : (P Q : Poly A' 0) → Poly0→A ( P Poly* Q) ≡ Poly0→A P · Poly0→A Q
+  Poly0→A-rmorph : (P Q : Poly A' 0) → Poly0→A ( P poly* Q) ≡ Poly0→A P · Poly0→A Q
   Poly0→A-rmorph = Poly-Ind-Prop.f A' 0
-                    (λ P → (Q : Poly A' 0) → Poly0→A (P Poly* Q) ≡ Poly0→A P · Poly0→A Q)
-                    (λ P p q i Q j → isSetA (Poly0→A (P Poly* Q)) (Poly0→A P · Poly0→A Q) (p Q) (q Q) i j)
+                    (λ P → (Q : Poly A' 0) → Poly0→A (P poly* Q) ≡ Poly0→A P · Poly0→A Q)
+                    (λ P p q i Q j → isSetA (Poly0→A (P poly* Q)) (Poly0→A P · Poly0→A Q) (p Q) (q Q) i j)
                     (λ Q → sym (RingTheory.0LeftAnnihilates (CommRing→Ring A') (Poly0→A Q)))
                     (λ v a → Poly-Ind-Prop.f A' 0
-                              (λ P → Poly0→A (base v a Poly* P) ≡ Poly0→A (base v a) · Poly0→A P)
+                              (λ P → Poly0→A (base v a poly* P) ≡ Poly0→A (base v a) · Poly0→A P)
                               (λ _ → isSetA _ _)
                               (sym (RingTheory.0RightAnnihilates (CommRing→Ring A') (Poly0→A (base v a))))
                               (λ v' a' → refl)

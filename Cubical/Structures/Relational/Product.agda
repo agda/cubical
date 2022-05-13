@@ -81,10 +81,10 @@ productPositiveRel :
 productPositiveRel σ₁ σ₂ .act = productRelAction (σ₁ .act) (σ₂ .act)
 productPositiveRel σ₁ σ₂ .reflexive (s₁ , s₂) = σ₁ .reflexive s₁ , σ₂ .reflexive s₂
 productPositiveRel σ₁ σ₂ .detransitive R R' (rr'₁ , rr'₂) =
-  Trunc.rec squash
+  Trunc.rec squash₁
     (λ {(s₁ , r₁ , r₁') →
-      Trunc.rec squash
-        (λ {(s₂ , r₂ , r₂') → ∣ (s₁ , s₂) , (r₁ , r₂) , (r₁' , r₂') ∣})
+      Trunc.rec squash₁
+        (λ {(s₂ , r₂ , r₂') → ∣ (s₁ , s₂) , (r₁ , r₂) , (r₁' , r₂') ∣₁})
         (σ₂ .detransitive R R' rr'₂)})
     (σ₁ .detransitive R R' rr'₁)
 productPositiveRel {S₁ = S₁} {ρ₁} {θ₁} {S₂} {ρ₂} {θ₂} σ₁ σ₂ .quo {X} R =

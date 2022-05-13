@@ -53,9 +53,9 @@ FinSetOfCard≡ _ _ = Σ≡PropEquiv (λ _ → isSetℕ _ _)
 
 open Iso
 
-∥FinSetOfCard∥₂≡ : (X Y : FinSetOfCard ℓ n) → ∥ X .fst ≡ Y .fst ∥ → ∣ X ∣₂ ≡ ∣ Y ∣₂
+∥FinSetOfCard∥₂≡ : (X Y : FinSetOfCard ℓ n) → ∥ X .fst ≡ Y .fst ∥₁ → ∣ X ∣₂ ≡ ∣ Y ∣₂
 ∥FinSetOfCard∥₂≡ _ _ =
-  Prop.rec (squash₂ _ _) (λ p → PathIdTrunc₀Iso .inv ∣ FinSetOfCard≡ _ _ .fst p ∣)
+  Prop.rec (squash₂ _ _) (λ p → PathIdTrunc₀Iso .inv ∣ FinSetOfCard≡ _ _ .fst p ∣₁)
 
 isPathConnectedFinSetOfCard : isContr ∥ FinSetOfCard ℓ n ∥₂
 isPathConnectedFinSetOfCard {n = n} .fst = ∣ 𝔽in n , card𝔽in n ∣₂

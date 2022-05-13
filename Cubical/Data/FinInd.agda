@@ -35,12 +35,12 @@ isFinInd A = ∃[ n ∈ ℕ ] Fin n ↠ A
 
 isFinSet→isFinInd : isFinSet A → isFinInd A
 isFinSet→isFinInd h = PT.elim
-  (λ _ → squash)
+  (λ _ → squash₁)
   (λ equiv →
-    ∣ _ , invEq equiv , section→isSurjection (retEq equiv) ∣) (h .snd)
+    ∣ _ , invEq equiv , section→isSurjection (retEq equiv) ∣₁) (h .snd)
 
 isFinInd-S¹ : isFinInd S¹
-isFinInd-S¹ = ∣ 1 , f , isSurjection-f ∣
+isFinInd-S¹ = ∣ 1 , f , isSurjection-f ∣₁
   where
     f : Fin 1 → S¹
     f _ = base
