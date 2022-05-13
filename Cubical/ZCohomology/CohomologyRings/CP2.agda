@@ -1,59 +1,51 @@
-
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.CohomologyRings.CP2 where
+
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Empty renaming (rec to rec-⊥ ; elim to elim-⊥)
-open import Cubical.Data.Nat renaming (_+_ to _+n_ ; +-comm to +n-comm ; _·_ to _·n_ ; snotz to nsnotz ; znots to nznots)
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Unit
+open import Cubical.Data.Nat renaming (_+_ to _+n_ ; +-comm to +n-comm ; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Int hiding (_+'_)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum
 open import Cubical.Data.Vec
 open import Cubical.Data.FinData
 
 open import Cubical.Relation.Nullary
 
-open import Cubical.Algebra.Group hiding (UnitGroup₀ ; Bool ; _/_ ) renaming (ℤ to ℤG)
-open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.DirectSum.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-
-open import Cubical.Algebra.Direct-Sum.Base
-open import Cubical.Algebra.AbGroup.Instances.Direct-Sum
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
+open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 
+open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
+open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation
-open import Cubical.HITs.SetQuotients renaming (elimProp to elimProp-sq ; rec to rec-sq ; _/_ to _/sq_)
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.Sn
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
-open import Cubical.ZCohomology.CohomologyRings.Eliminator-Poly-Quotient-to-Ring
-
-open import Cubical.Data.Unit
 open import Cubical.ZCohomology.Groups.CP2
-
-private variable
-  ℓ ℓ' : Level
 
 open Iso
 
@@ -71,18 +63,18 @@ module Properties-H⁰CP²≅ℤ where
   T0g = snd (invGroupIso H⁰CP²≅ℤ)
 
   T0-pos0 : {l : ℕ} → (x : coHom l CP²) → T0 (pos zero) ⌣ x ≡ 0ₕ l
-  T0-pos0 = sElim (λ _ → isProp→isSet (squash₂ _ _)) (λ _ → refl)
+  T0-pos0 = ST.elim (λ _ → isProp→isSet (squash₂ _ _)) (λ _ → refl)
 
   T0-posS : {l : ℕ} → (k : ℕ) → (x : coHom l CP²)
             → T0 (pos (suc k)) ⌣ x ≡ x +ₕ (T0 (pos k) ⌣ x)
-  T0-posS k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ _ → refl)
+  T0-posS k = ST.elim (λ x → isProp→isSet (squash₂ _ _)) (λ _ → refl)
 
   T0-neg0 : {l : ℕ} → (x : coHom l CP²) → T0 (negsuc zero) ⌣ x ≡ -ₕ x
-  T0-neg0 = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ _ → refl)
+  T0-neg0 = ST.elim (λ x → isProp→isSet (squash₂ _ _)) (λ _ → refl)
 
   T0-negS : {l : ℕ} → (k : ℕ) → (x : coHom l CP²)
             → T0 (negsuc (suc k)) ⌣ x ≡ (T0 (negsuc k) ⌣ x) +ₕ (-ₕ x)
-  T0-negS k = sElim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
+  T0-negS k = ST.elim (λ x → isProp→isSet (squash₂ _ _)) (λ x → refl)
 
 
 
@@ -285,8 +277,8 @@ module Equiv-CP2-Properties where
 -----------------------------------------------------------------------------
 -- Morphism on ℤ[x]
 
-  ℤ[x]→H*-CP²-map1 : ℤ[x]→H*-CP² (1Pℤ) ≡ 1H*
-  ℤ[x]→H*-CP²-map1 = refl
+  ℤ[x]→H*-CP²-pres1 : ℤ[x]→H*-CP² (1Pℤ) ≡ 1H*
+  ℤ[x]→H*-CP²-pres1 = refl
 
   ℤ[x]→H*-CP²-map+ : (x y : ℤ[x]) → ℤ[x]→H*-CP² (x +Pℤ y) ≡ ℤ[x]→H*-CP² x +H* ℤ[x]→H*-CP² y
   ℤ[x]→H*-CP²-map+ x y = refl
@@ -298,68 +290,67 @@ module Equiv-CP2-Properties where
     (Tlg : IsGroupHom (ℤG .snd) Tl (coHomGr l CP² .snd))
     where
 
-      rmorph-base-case-0l : (a : ℤ) → (b : ℤ) →
+      pres·-base-case-0l : (a : ℤ) → (b : ℤ) →
                             Tl (a ·ℤ b) ≡ (T0 a) ⌣ (Tl b)
-      rmorph-base-case-0l (pos zero)       b = pres1 Tlg
+      pres·-base-case-0l (pos zero)       b = pres1 Tlg
                                                ∙ sym (T0-pos0 (Tl b))
-      rmorph-base-case-0l (pos (suc k))    b = pres· Tlg b (pos k ·ℤ b)
-                                               ∙ cong (λ X → (Tl b) +ₕ X) (rmorph-base-case-0l (pos k) b)
+      pres·-base-case-0l (pos (suc k))    b = pres· Tlg b (pos k ·ℤ b)
+                                               ∙ cong (λ X → (Tl b) +ₕ X) (pres·-base-case-0l (pos k) b)
                                                ∙ sym (T0-posS k (Tl b))
-      rmorph-base-case-0l (negsuc zero)    b = cong Tl (sym (+ℤLid (-ℤ b)))
-                                               ∙ presinv Tlg b
+      pres·-base-case-0l (negsuc zero)    b = presinv Tlg b
                                                ∙ sym (T0-neg0 (Tl b))
-      rmorph-base-case-0l (negsuc (suc k)) b = cong Tl (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
+      pres·-base-case-0l (negsuc (suc k)) b = cong Tl (+ℤComm (-ℤ b) (negsuc k ·ℤ b))
                                                ∙ pres· Tlg (negsuc k ·ℤ b) (-ℤ b)
-                                               ∙ cong₂ _+ₕ_ (rmorph-base-case-0l (negsuc k) b)
-                                                            (cong Tl (sym (+ℤLid (-ℤ b))) ∙ presinv Tlg b)
+                                               ∙ cong₂ _+ₕ_ (pres·-base-case-0l (negsuc k) b)
+                                                            (presinv Tlg b)
                                                ∙ sym (T0-negS k (Tl b))
 
-  rmorph-base-case-11 : (a b : ℤ) → inv (fst H⁴CP²≅ℤ) (a ·ℤ b) ≡  inv (fst H²CP²≅ℤ) a ⌣ inv (fst H²CP²≅ℤ) b
-  rmorph-base-case-11 (pos zero) (pos zero) = {!!}
-  rmorph-base-case-11 (pos zero) (pos (suc n₁)) = {!!}
-  rmorph-base-case-11 (pos (suc n)) (pos zero) = {!!}
-  rmorph-base-case-11 (pos (suc n)) (pos (suc n₁)) = {!!}
-  rmorph-base-case-11 (pos n) (negsuc n₁) = {!!}
-  rmorph-base-case-11 (negsuc n) (pos n₁) = {!!}
-  rmorph-base-case-11 (negsuc n) (negsuc n₁) = {!!}
+  pres·-base-case-11 : (a b : ℤ) → inv (fst H⁴CP²≅ℤ) (a ·ℤ b) ≡  inv (fst H²CP²≅ℤ) a ⌣ inv (fst H²CP²≅ℤ) b
+  pres·-base-case-11 (pos zero) (pos zero) = {!!}
+  pres·-base-case-11 (pos zero) (pos (suc n₁)) = {!!}
+  pres·-base-case-11 (pos (suc n)) (pos zero) = {!!}
+  pres·-base-case-11 (pos (suc n)) (pos (suc n₁)) = {!!}
+  pres·-base-case-11 (pos n) (negsuc n₁) = {!!}
+  pres·-base-case-11 (negsuc n) (pos n₁) = {!!}
+  pres·-base-case-11 (negsuc n) (negsuc n₁) = {!!}
 
 
 
 -- Nice packging of the proof
 
-  rmorph-base-case-int : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
+  pres·-base-case-int : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
                          ℤ[x]→H*-CP² (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
                          ≡ ℤ[x]→H*-CP² (baseP (k ∷ []) a) cup ℤ[x]→H*-CP² (baseP (l ∷ []) b)
-  rmorph-base-case-int zero a zero b = cong (base 0) (rmorph-base-case-0l 0 (inv (fst H⁰CP²≅ℤ)) (snd (invGroupIso H⁰CP²≅ℤ)) a b)
-  rmorph-base-case-int zero a one b  = cong (base 2) (rmorph-base-case-0l 2 (inv (fst H²CP²≅ℤ)) (snd (invGroupIso H²CP²≅ℤ)) a b)
-  rmorph-base-case-int zero a two b  = cong (base 4) (rmorph-base-case-0l 4 (inv (fst H⁴CP²≅ℤ)) (snd (invGroupIso H⁴CP²≅ℤ)) a b)
-  rmorph-base-case-int zero a (suc (suc (suc l))) b = refl
-  rmorph-base-case-int one a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
-                                      ∙ rmorph-base-case-int zero b one a
+  pres·-base-case-int zero a zero b = cong (base 0) (pres·-base-case-0l 0 (inv (fst H⁰CP²≅ℤ)) (snd (invGroupIso H⁰CP²≅ℤ)) a b)
+  pres·-base-case-int zero a one b  = cong (base 2) (pres·-base-case-0l 2 (inv (fst H²CP²≅ℤ)) (snd (invGroupIso H²CP²≅ℤ)) a b)
+  pres·-base-case-int zero a two b  = cong (base 4) (pres·-base-case-0l 4 (inv (fst H⁴CP²≅ℤ)) (snd (invGroupIso H⁴CP²≅ℤ)) a b)
+  pres·-base-case-int zero a (suc (suc (suc l))) b = refl
+  pres·-base-case-int one a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
+                                      ∙ pres·-base-case-int zero b one a
                                        ∙ gradCommRing CP² _ _ _ _
-  rmorph-base-case-int one a one b  = cong (base 4) (rmorph-base-case-11 a b)
-  rmorph-base-case-int one a two b  = sym (base-neutral _)
+  pres·-base-case-int one a one b  = cong (base 4) (pres·-base-case-11 a b)
+  pres·-base-case-int one a two b  = sym (base-neutral _)
                                       ∙ cong (base 6) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-CP²≅0 5 (compute-eqℕ _ _) (compute-eqℕ _ _))) isPropUnit _ _)
-  rmorph-base-case-int one a (suc (suc (suc l))) b = refl
-  rmorph-base-case-int two a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (two ∷ []) a) (baseP (zero ∷ []) b))
-                                      ∙ rmorph-base-case-int zero b two a
+  pres·-base-case-int one a (suc (suc (suc l))) b = refl
+  pres·-base-case-int two a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (two ∷ []) a) (baseP (zero ∷ []) b))
+                                      ∙ pres·-base-case-int zero b two a
                                        ∙ gradCommRing CP² _ _ _ _
-  rmorph-base-case-int two a one b  = sym (base-neutral _)
+  pres·-base-case-int two a one b  = sym (base-neutral _)
                                       ∙ cong (base 6) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-CP²≅0 5 (compute-eqℕ _ _) (compute-eqℕ _ _))) isPropUnit _ _)
-  rmorph-base-case-int two a two b  = sym (base-neutral _)
+  pres·-base-case-int two a two b  = sym (base-neutral _)
                                       ∙ cong (base 8) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-CP²≅0 7 (compute-eqℕ _ _) (compute-eqℕ _ _))) isPropUnit _ _)
-  rmorph-base-case-int two a (suc (suc (suc l))) b = refl
-  rmorph-base-case-int (suc (suc (suc k))) a l b = refl
+  pres·-base-case-int two a (suc (suc (suc l))) b = refl
+  pres·-base-case-int (suc (suc (suc k))) a l b = refl
 
 
-  rmorph-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
+  pres·-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
                 ℤ[x]→H*-CP² (baseP v a ·Pℤ baseP v' b)
               ≡ ℤ[x]→H*-CP² (baseP v a) cup ℤ[x]→H*-CP² (baseP v' b)
-  rmorph-base-case-vec (k ∷ []) a (l ∷ []) b = rmorph-base-case-int k a l b
+  pres·-base-case-vec (k ∷ []) a (l ∷ []) b = pres·-base-case-int k a l b
 
   -- proof of the morphism
-  ℤ[x]→H*-CP²-rmorph : (x y : ℤ[x]) → ℤ[x]→H*-CP² (x ·Pℤ y) ≡ ℤ[x]→H*-CP² x cup ℤ[x]→H*-CP² y
-  ℤ[x]→H*-CP²-rmorph = Poly-Ind-Prop.f _ _ _
+  ℤ[x]→H*-CP²-pres· : (x y : ℤ[x]) → ℤ[x]→H*-CP² (x ·Pℤ y) ≡ ℤ[x]→H*-CP² x cup ℤ[x]→H*-CP² y
+  ℤ[x]→H*-CP²-pres· = Poly-Ind-Prop.f _ _ _
                          (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                          (λ y → refl)
                          base-case
@@ -368,7 +359,7 @@ module Equiv-CP2-Properties where
     base-case : _
     base-case (k ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R CP²) _))
-                           (λ v' b → rmorph-base-case-vec (k ∷ []) a v' b)
+                           (λ v' b → pres·-base-case-vec (k ∷ []) a v' b)
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
 
 
@@ -380,10 +371,10 @@ module Equiv-CP2-Properties where
 
   ℤ[X]→H*-CP² : RingHom (CommRing→Ring ℤ[X]) (H*R CP²)
   fst ℤ[X]→H*-CP² = ℤ[x]→H*-CP²
-  snd ℤ[X]→H*-CP² = makeIsRingHom ℤ[x]→H*-CP²-map1 ℤ[x]→H*-CP²-map+ ℤ[x]→H*-CP²-rmorph
+  snd ℤ[X]→H*-CP² = makeIsRingHom ℤ[x]→H*-CP²-pres1 ℤ[x]→H*-CP²-map+ ℤ[x]→H*-CP²-pres·
 
   ℤ[X]/X³→H*R-CP² : RingHom (CommRing→Ring ℤ[X]/X³) (H*R CP²)
-  ℤ[X]/X³→H*R-CP² = Rec-Quotient-FGIdeal-Ring.f ℤ[X] (H*R CP²) ℤ[X]→H*-CP² <X³> ℤ[x]→H*-CP²-cancelX
+  ℤ[X]/X³→H*R-CP² = Quotient-FGideal-CommRing-Ring.f ℤ[X] (H*R CP²) ℤ[X]→H*-CP² <X³> ℤ[x]→H*-CP²-cancelX
 
   ℤ[x]/x³→H*-CP² : ℤ[x]/x³ → H* CP²
   ℤ[x]/x³→H*-CP² = fst ℤ[X]/X³→H*R-CP²
@@ -426,13 +417,13 @@ module Equiv-CP2-Properties where
 
     base-add-eq : (k : ℕ) → (a b : coHom k CP²) → (x : partℕ k)
                   → base-trad-H* k a x +Pℤ base-trad-H* k b x ≡ base-trad-H* k (a +ₕ b) x
-    base-add-eq k a b (is0 x) = base-Poly+ _ _ _
+    base-add-eq k a b (is0 x) = base-poly+ _ _ _
                                 ∙ cong (baseP (0 ∷ [])) (sym (pres· (snd H⁰CP²≅ℤ) _ _))
                                 ∙ cong (baseP (0 ∷ [])) (cong (fun (fst H⁰CP²≅ℤ)) (sym (subst-+ k a b 0 x)))
-    base-add-eq k a b (is2 x) = base-Poly+ _ _ _
+    base-add-eq k a b (is2 x) = base-poly+ _ _ _
                                 ∙ cong (baseP (1 ∷ [])) (sym (pres· (snd H²CP²≅ℤ) _ _))
                                 ∙ cong (baseP (1 ∷ [])) (cong (fun (fst H²CP²≅ℤ)) (sym (subst-+ k a b 2 x)))
-    base-add-eq k a b (is4 x) = base-Poly+ _ _ _
+    base-add-eq k a b (is4 x) = base-poly+ _ _ _
                                 ∙ cong (baseP (2 ∷ [])) (sym (pres· (snd H⁴CP²≅ℤ) _ _))
                                 ∙ cong (baseP (2 ∷ [])) (cong (fun (fst H⁴CP²≅ℤ)) (sym (subst-+ k a b 4 x)))
     base-add-eq k a b (else x) = +PℤRid _
@@ -454,20 +445,20 @@ module Equiv-CP2-Properties where
   e-sect-base : (k : ℕ) → (a : coHom k CP²) → (x : partℕ k) →
                 ℤ[x]/x³→H*-CP² [ (base-trad-H* k a x) ] ≡ base k a
   e-sect-base k a (is0 x) = cong (base 0) (leftInv (fst H⁰CP²≅ℤ) (SubstCoHom x a))
-                            ∙ sym (ConstsubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
+                            ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
   e-sect-base k a (is2 x) = cong (base 2) (leftInv (fst H²CP²≅ℤ) (SubstCoHom x a))
-                            ∙ sym (ConstsubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
+                            ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
   e-sect-base k a (is4 x) = cong (base 4) (leftInv (fst H⁴CP²≅ℤ) (SubstCoHom x a))
-                            ∙ sym (ConstsubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
+                            ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
   e-sect-base k a (else x) = sym (base-neutral k)
-                             ∙ ConstsubstCommSlice ((λ x → coHom x CP²)) ((H* CP²)) base (suc-predℕ k (fst x)) (0ₕ k)
+                             ∙ constSubstCommSlice ((λ x → coHom x CP²)) ((H* CP²)) base (suc-predℕ k (fst x)) (0ₕ k)
                              ∙ cong (base (suc (predℕ k)))
                                     (((isOfHLevelRetractFromIso 1
                                          (fst (Hⁿ-CP²≅0 (predℕ k)
                                                         (λ p → fst (snd x) (suc-predℕ k (fst x) ∙ p))
                                                         λ p → snd (snd x) (suc-predℕ k (fst x) ∙ p)) )
                                          isPropUnit _ _)))
-                             ∙ sym (ConstsubstCommSlice ((λ x → coHom x CP²)) ((H* CP²)) base (suc-predℕ k (fst x)) a)
+                             ∙ sym (constSubstCommSlice ((λ x → coHom x CP²)) ((H* CP²)) base (suc-predℕ k (fst x)) a)
 
   e-sect : (x : H* CP²) → ℤ[x]/x³→H*-CP² (H*-CP²→ℤ[x]/x³ x) ≡ x
   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
@@ -480,7 +471,7 @@ module Equiv-CP2-Properties where
 -- Retraction
 
   e-retr : (x : ℤ[x]/x³) → H*-CP²→ℤ[x]/x³ (ℤ[x]/x³→H*-CP² x) ≡ x
-  e-retr = elimProp-sq (λ _ → isSetPℤI _ _)
+  e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
            (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
            refl
            base-case
@@ -496,7 +487,7 @@ module Equiv-CP2-Properties where
            base-case (two ∷ []) a = cong [_] (cong (baseP (2 ∷ [])) (cong (fun (fst H⁴CP²≅ℤ))
                                                                                (SubstReflCoHom (inv (fst H⁴CP²≅ℤ) a))))
                                     ∙ cong [_] (cong (baseP (2 ∷ [])) (rightInv (fst H⁴CP²≅ℤ) a))
-           base-case (suc (suc (suc k)) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc (suc k)) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₋₁
+           base-case (suc (suc (suc k)) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc (suc k)) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₁
              where
              helper : _
              helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+n-comm k 3))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))
