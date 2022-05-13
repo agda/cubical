@@ -146,16 +146,16 @@ module _ (L' : DistLattice ℓ) where
 
  FinVec→Diag : {n : ℕ} → FinVec L n → Functor (DLShfDiag n) LCat
  F-ob (FinVec→Diag α) (sing i) = α i
- F-ob (FinVec→Diag α) (pair i j _) = α i ∧l α j
+ F-ob (FinVec→Diag α) (pair i j _) = α j ∧l α i
  F-hom (FinVec→Diag α) idAr = is-refl _
- F-hom (FinVec→Diag α) singPairL = ≤m→≤j _ _ (∧≤RCancel _ _)
- F-hom (FinVec→Diag α) singPairR = ≤m→≤j _ _ (∧≤LCancel _ _)
+ F-hom (FinVec→Diag α) singPairL = ≤m→≤j _ _ (∧≤LCancel _ _)
+ F-hom (FinVec→Diag α) singPairR = ≤m→≤j _ _ (∧≤RCancel _ _)
  F-id (FinVec→Diag α) = is-prop-valued _ _ _ _
  F-seq (FinVec→Diag α) _ _ = is-prop-valued _ _ _ _
 
  ⋁Cone : {n : ℕ} (α : FinVec L n) → Cone (FinVec→Diag α) (⋁ α)
  coneOut (⋁Cone α) (sing i) = ind≤⋁ α i
- coneOut (⋁Cone α) (pair i _ _) = is-trans _ (α i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α i)
+ coneOut (⋁Cone α) (pair i _ _) = is-trans _ (α i) _ (≤m→≤j _ _ (∧≤LCancel _ _)) (ind≤⋁ α i)
  coneOutCommutes (⋁Cone α) _ = is-prop-valued _ _ _ _
 
  isLimCone⋁Cone : {n : ℕ} (α : FinVec L n) → isLimCone (FinVec→Diag α) (⋁ α) (⋁Cone α)

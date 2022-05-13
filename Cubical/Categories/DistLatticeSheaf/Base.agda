@@ -164,7 +164,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
       fst (isTerminalF0 y) = isLimConeF0 _ (toCone y) .fst .fst
       snd (isTerminalF0 y) f = cong fst (isLimConeF0 _ (toCone y) .snd (_ , toConeMor y f))
 
-    snd (L→P isSheafF) x y = {!LimAsPullback .univProp!}
+    snd (L→P isSheafF) x y = LimAsPullback .univProp
      where
      open Cone
      open LimCone
@@ -178,18 +178,71 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
      limCone inducedLimCone = F-cone F (⋁Cone L xyVec)
      univProp inducedLimCone = isSheafF 2 xyVec
 
+     theCone : Cone (funcComp F (FinVec→Diag L xyVec)) (F .F-ob (x ∨l y))
+     coneOut (theCone) (sing zero) = F .F-hom (hom-∨₂ x y)
+     coneOut (theCone) (sing one) = F .F-hom (hom-∨₁ x y)
+     coneOut (theCone) (pair zero zero ())
+     coneOut (theCone) (pair zero one (s≤s z≤)) =
+       F .F-hom (hom-∨₂ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₂ x y)
+     coneOut (theCone) (pair one zero ())
+     coneOut (theCone) (pair one one (s≤s ()))
+     coneOut (theCone) (pair (suc (suc _)) one (s≤s ()))
+     coneOutCommutes (theCone) {u = u} idAr =
+       cong (seq' C (coneOut (theCone) u)) (F .F-id) ∙ ⋆IdR C _
+     coneOutCommutes (theCone) (singPairL {zero} {zero} {()})
+     coneOutCommutes (theCone) (singPairL {zero} {one} {s≤s z≤}) = refl
+     coneOutCommutes (theCone) (singPairL {one} {zero} {()})
+     coneOutCommutes (theCone) (singPairL {one} {one} {s≤s ()})
+     coneOutCommutes (theCone) (singPairL {suc (suc _)} {one} {s≤s ()})
+     coneOutCommutes (theCone) (singPairR {zero} {zero} {()})
+     coneOutCommutes (theCone) (singPairR {zero} {one} {s≤s z≤}) = sym (Fsq x y F)
+     coneOutCommutes (theCone) (singPairR {one} {zero} {()})
+     coneOutCommutes (theCone) (singPairR {one} {one} {s≤s ()})
+     coneOutCommutes (theCone) (singPairR {suc (suc _)} {one} {s≤s ()})
+
      theLimCone : LimCone (funcComp F (FinVec→Diag L xyVec))
-     lim theLimCone = (F .F-ob (x ∨l y))
-     coneOut (limCone theLimCone) (sing zero) = F .F-hom (hom-∨₂ x y)
-     coneOut (limCone theLimCone) (sing one) = F .F-hom (hom-∨₁ x y)
-     coneOut (limCone theLimCone) (pair zero zero ())
-     coneOut (limCone theLimCone) (pair zero one (s≤s z≤)) = {!!}
-       -- F .F-hom (hom-∨₁ x y) ⋆⟨ C ⟩ F .F-hom (hom-∧₁ x y)
-     coneOut (limCone theLimCone) (pair (suc _) zero ())
-     coneOut (limCone theLimCone) (pair one one (s≤s ()))
-     coneOut (limCone theLimCone) (pair (suc (suc _)) one (s≤s ()))
-     coneOutCommutes (limCone theLimCone) = {!!}
-     univProp theLimCone = {!!}
+     lim theLimCone = _
+     limCone theLimCone = theCone
+     univProp theLimCone =
+       transport (λ i → isLimCone _ (limPath i) (limConePathP i)) (univProp inducedLimCone)
+       where
+       xyPath : ⋁ xyVec ≡ x ∨l y
+       xyPath = cong (y ∨l_) (∨lRid x) ∙ ∨lComm _ _
+
+       limPath : lim inducedLimCone ≡ lim theLimCone
+       limPath = cong (F .F-ob) xyPath
+
+       limConePathP : PathP (λ i → Cone (funcComp F (FinVec→Diag L xyVec)) (limPath i))
+                            (limCone inducedLimCone) theCone
+       limConePathP = conePathP helperPathP
+         where
+         helperPathP :
+           ∀ v → PathP (λ i → C [ limPath i , F-ob (funcComp F (FinVec→Diag L xyVec)) v ])
+                       (coneOut (limCone inducedLimCone) v) (coneOut theCone v)
+         helperPathP (sing zero) i = F .F-hom
+           (isProp→PathP {B = λ j → (DLCat ^op) [ xyPath j , y ]}
+                         (λ _ → is-prop-valued _ _) (ind≤⋁ xyVec zero) (hom-∨₂ x y) i)
+         helperPathP (sing one) i = F .F-hom
+           (isProp→PathP {B = λ j → (DLCat ^op) [ xyPath j , x ]}
+                         (λ _ → is-prop-valued _ _) (ind≤⋁ xyVec one) (hom-∨₁ x y) i)
+         helperPathP (pair zero zero ())
+         helperPathP (pair zero one (s≤s z≤)) =
+           subst (λ f → PathP (λ i → C [ limPath i  , F .F-ob (x ∧l y) ])
+                              (coneOut (limCone inducedLimCone) (pair zero one (s≤s z≤))) f)
+                 (F-seq F _ _) helperHelperPathP
+           where
+           helperHelperPathP : PathP (λ i → C [ limPath i  , F .F-ob (x ∧l y) ])
+                                    (coneOut (limCone inducedLimCone) (pair zero one (s≤s z≤)))
+                                    (F .F-hom (hom-∨₂ x y ⋆⟨ (DLCat ^op) ⟩ hom-∧₂ x y))
+           helperHelperPathP i = F .F-hom
+             (isProp→PathP {B = λ j → (DLCat ^op) [ xyPath j , x ∧l y ]}
+                (λ _ → is-prop-valued _ _)
+                (is-trans _ (xyVec zero) _ (≤m→≤j _ _ (∧≤LCancel _ _)) (ind≤⋁ xyVec zero))
+                (hom-∨₂ x y ⋆⟨ (DLCat ^op) ⟩ hom-∧₂ x y) i)
+         helperPathP (pair one zero ())
+         helperPathP (pair one one (s≤s ()))
+         helperPathP (pair (suc (suc _)) one (s≤s ()))
+
      open DLShfDiagsAsPullbacks C _ theLimCone
 
 
