@@ -1,4 +1,5 @@
-module Field.Base where
+{-# OPTIONS --safe #-}
+module Cubical.Algebra.Field.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
