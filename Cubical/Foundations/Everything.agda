@@ -22,8 +22,8 @@ open import Cubical.Foundations.Id
            ; isEquiv       to isEquivId
            ; equivIsEquiv  to equivIsEquivId
            ; refl          to reflId
-           ; ∥_∥           to propTruncId
-           ; ∣_∣           to incId
+           ; ∥_∥₁           to propTruncId
+           ; ∣_∣₁           to incId
            ; isPropIsContr to isPropIsContrId
            ; isPropIsEquiv to isPropIsEquivId
            )

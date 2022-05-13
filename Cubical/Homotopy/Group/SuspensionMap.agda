@@ -591,14 +591,14 @@ isConnectedSuspMap n m =
 isSurjectiveSuspMap : (n : ℕ)
   → isSurjective (suspMapπ'Hom {A = S₊∙ (2 + n)} (2 + n))
 isSurjectiveSuspMap n =
-  sElim (λ _ → isProp→isSet squash)
+  sElim (λ _ → isProp→isSet squash₁)
     λ f →
       trRec
         ((subst (λ x → isOfHLevel x (isInIm (suspMapπ'Hom (2 + n)) ∣ f ∣₂))
                       (sym (snd (lem n n)))
                       (isProp→isOfHLevelSuc {A = isInIm (suspMapπ'Hom (2 + n)) ∣ f ∣₂}
-                      (fst (lem n n)) squash)))
-        (λ p → ∣ ∣ fst p ∣₂ , (cong ∣_∣₂ (snd p)) ∣)
+                      (fst (lem n n)) squash₁)))
+        (λ p → ∣ ∣ fst p ∣₂ , (cong ∣_∣₂ (snd p)) ∣₁)
         (fst (isConnectedSuspMap (2 + n) (suc n) f))
   where
   lem : (m n : ℕ) → Σ[ x ∈ ℕ ] ((m + suc (suc n) ∸ suc n) ≡ suc x)

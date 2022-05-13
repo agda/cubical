@@ -76,7 +76,7 @@ maybePositiveRel :
 maybePositiveRel σ .act = maybeRelAction (σ .act)
 maybePositiveRel σ .reflexive nothing = _
 maybePositiveRel σ .reflexive (just s) = σ .reflexive s
-maybePositiveRel σ .detransitive R R' {nothing} {nothing} r = ∣ nothing , _ , _ ∣
+maybePositiveRel σ .detransitive R R' {nothing} {nothing} r = ∣ nothing , _ , _ ∣₁
 maybePositiveRel σ .detransitive R R' {just s} {just u} rr' =
   Trunc.map (λ {(t , r , r') → just t , r , r'}) (σ .detransitive R R' rr')
 maybePositiveRel {S = S} {ρ = ρ} {θ = θ} σ .quo {X} R =

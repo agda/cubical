@@ -1,10 +1,17 @@
 {-# OPTIONS --safe #-}
 module Cubical.Experiments.Brunerie where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
+
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
+
 open import Cubical.HITs.S1 hiding (encode)
 open import Cubical.HITs.S2
 open import Cubical.HITs.S3
@@ -14,6 +21,7 @@ open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
 open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
 open import Cubical.HITs.Truncation as Trunc
 open import Cubical.HITs.Susp renaming (toSusp to σ)
+
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Hopf
 open S¹Hopf

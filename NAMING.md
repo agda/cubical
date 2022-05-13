@@ -44,3 +44,15 @@ For naming conventions specific to the Algebra subfolder, see
   should appear in the order they appear in the type (like
   `isContrUnit`). For functions things can either be separated by `→`
   (like `isProp→isSet`) or `To` (like `isoToEquiv`).
+
+* The `elim` and `rec` should be use as much as possible without
+  renaming but by importing and renaming the module.
+  For instance use "open import Cubical.Data.Empty as ⊥`
+  then use `⊥.rec` or `⊥.elim' rather than doing
+  `renaming (rec to rec-⊥)` and using `rec-⊥`.
+
+  Some convetional naming :
+  - Empty                   -> ⊥
+  - PropositionalTruncation -> PT
+  - SetTruncation           -> ST
+  - SetQuotient             -> SQ

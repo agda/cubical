@@ -516,7 +516,7 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
     mm<m = <-·sk-cancel mm·sn<m·sn
 
   isSurjectionIntro : isSurjection intro
-  isSurjectionIntro = ∣_∣ ∘ elimF
+  isSurjectionIntro = ∣_∣₁ ∘ elimF
 
 -- Fin (m + n) ≡ Fin m ⊎ Fin n
 -- ===========================
@@ -645,7 +645,7 @@ DecFin (suc n) = yes fzero
 
 -- propositional truncation of Fin
 
-Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥
+Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥₁
 Dec∥Fin∥ n = Dec∥∥ (DecFin n)
 
 -- some properties about cardinality

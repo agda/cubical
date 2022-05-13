@@ -40,7 +40,7 @@ module _
   isDecProp¬' : isDecProp (¬ X)
   isDecProp¬' = _ ,  invEquiv (preCompEquiv (p .snd)) ⋆ SumFin¬ _
 
-  isDecProp∥∥' : isDecProp ∥ X ∥
+  isDecProp∥∥' : isDecProp ∥ X ∥₁
   isDecProp∥∥' = _ , propTrunc≃ (p .snd) ⋆ SumFin∥∥DecProp _
 
 module _
@@ -57,7 +57,7 @@ module _
     ⋆ Σ-cong-equiv-snd (λ x → dec (invEq e x) .snd)
     ⋆ SumFinSub≃ _ (fst ∘ dec ∘ invEq e)
 
-  isDecProp∃' : isDecProp ∥ Σ X P ∥
+  isDecProp∃' : isDecProp ∥ Σ X P ∥₁
   isDecProp∃' = _ ,
       Prop.propTrunc≃ (
         Σ-cong-equiv {B' = λ x → P (invEq e x)} e (transpFamily p)
@@ -90,7 +90,7 @@ module _
     (λ p → isFinOrd→isFinSet (isFinOrdSub (X .fst) (_ , p) (λ x → P x .fst) (λ x → P x .snd)))
     (X .snd .snd)
 
-  isDecProp∃ : isDecProp ∥ Σ (X .fst) (λ x → P x .fst) ∥
+  isDecProp∃ : isDecProp ∥ Σ (X .fst) (λ x → P x .fst) ∥₁
   isDecProp∃ = Prop.rec isPropIsDecProp
     (λ p → isDecProp∃' (X .fst) (_ , p) (λ x → P x .fst) (λ x → P x .snd)) (X .snd .snd)
 
@@ -137,6 +137,6 @@ module _
   isDecProp¬ = Prop.rec isPropIsDecProp
     (λ p → isDecProp¬' (X .fst) (_ , p)) (X .snd .snd)
 
-  isDecProp∥∥ : isDecProp ∥ X .fst ∥
+  isDecProp∥∥ : isDecProp ∥ X .fst ∥₁
   isDecProp∥∥ = Prop.rec isPropIsDecProp
     (λ p → isDecProp∥∥' (X .fst) (_ , p)) (X .snd .snd)

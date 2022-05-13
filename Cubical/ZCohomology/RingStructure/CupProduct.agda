@@ -1,20 +1,22 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.RingStructure.CupProduct where
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Properties
-
-open import Cubical.HITs.S1 hiding (_·_)
-open import Cubical.HITs.Sn
-open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (rec2 to sRec2)
-open import Cubical.HITs.Truncation renaming (rec to trRec)
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
-open import Cubical.Data.Int hiding (_+'_ ; +'≡+ ; _+_)
+
 open import Cubical.Data.Nat
+open import Cubical.Data.Int hiding (_+'_ ; +'≡+ ; _+_)
+
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.Truncation as T
+open import Cubical.HITs.S1 hiding (_·_)
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Properties
 
 infixl 30 _·₀_
 infixr 35 _⌣ₖ_
@@ -53,7 +55,7 @@ fst (⌣ₖ∙ zero m a) b = a ·₀ b
 snd (⌣ₖ∙ zero m a) = ·₀-0ₖ a
 fst (⌣ₖ∙ (suc n) zero a) b = b ·₀ a
 snd (⌣ₖ∙ (suc n) zero a) = refl
-⌣ₖ∙ (suc n) (suc m) = trRec (isOfHLevel↑∙ (suc n) m) (cup n m)
+⌣ₖ∙ (suc n) (suc m) = T.rec (isOfHLevel↑∙ (suc n) m) (cup n m)
   where
   cup : (n m : ℕ) → S₊ (suc n) → coHomK-ptd (suc m) →∙ coHomK-ptd (suc (suc (n + m)))
   fst (cup zero m base) _ = 0ₖ _
@@ -87,4 +89,4 @@ snd (snd (⌣ₖ∙∙ (suc (suc n)) (suc m)) i) = refl
 
 -- Cup product
 _⌣_ : ∀ {ℓ} {A : Type ℓ} {n m : ℕ} → coHom n A → coHom m A → coHom (n +' m) A
-_⌣_ = sRec2 squash₂ λ f g → ∣ (λ x → f x ⌣ₖ g x) ∣₂
+_⌣_ = ST.rec2 squash₂ λ f g → ∣ (λ x → f x ⌣ₖ g x) ∣₂

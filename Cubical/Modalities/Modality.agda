@@ -6,7 +6,12 @@ module Cubical.Modalities.Modality where
   https://github.com/HoTT/HoTT-Agda/blob/master/core/lib/types/Modality.agda
 -}
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Structure
 
 record Modality ℓ : Type (ℓ-suc ℓ) where
   field

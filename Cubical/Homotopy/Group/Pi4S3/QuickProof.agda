@@ -654,7 +654,7 @@ abstract
   π₃*S³≅π₃*S³-abs = invGroupEquiv π₃S³≅π₃*S³
 
   -- stated in terms of (n : ℕ) to prevent normalisation
-  π₃'S³≅ℤ-abs : (n : ℕ) → GroupEquiv (π'Gr n (S₊∙ (suc n))) ℤ
+  π₃'S³≅ℤ-abs : (n : ℕ) → GroupEquiv (π'Gr n (S₊∙ (suc n))) ℤGroup
   π₃'S³≅ℤ-abs n = GroupIso→GroupEquiv (πₙ'Sⁿ≅ℤ n)
 
   η↦η₁-abs : fst (fst π₃S²≅π₃*S²-abs) η ≡ η₁
@@ -686,10 +686,10 @@ abstract
         IsGroupHom.pres· (π₃'S³≅ℤ-abs 2 .snd)
               (-π' 2 x) (-π' 2 x)
       ∙ cong (λ x → x +Z x)
-        (IsGroupHom.presinv (π₃'S³≅ℤ-abs 2 .snd) x ∙ cong (inv (ℤ .snd)) p)
+        (IsGroupHom.presinv (π₃'S³≅ℤ-abs 2 .snd) x ∙ cong (inv (ℤGroup .snd)) p)
 
--- Puting it all together, we get our group iso π₃(S²) ≅ ℤ
-π₃'S²≅ℤ : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤ
+-- Puting it all together, we get our group iso π₃(S²) ≅ ℤGroup
+π₃'S²≅ℤ : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤGroup
 π₃'S²≅ℤ =
   compGroupEquiv
     π₃S²≅π₃*S²-abs
@@ -716,7 +716,7 @@ abstract
 
 -- We combine this with the rest of the main conclusions of chapters
 -- 1-3 in Brunerie's thesis
-BrunerieIso : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤ/ 2)
+BrunerieIso : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ 2)
 BrunerieIso =
   compGroupEquiv
     (compGroupEquiv π₄S³≅π₃coFib-fold∘W∙

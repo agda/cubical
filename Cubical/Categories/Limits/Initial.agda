@@ -41,7 +41,7 @@ module _ (C : Category ℓ ℓ') where
   initialEndoIsId T f = isContr→isProp (T .snd (initialOb T)) f id
 
   hasInitial : Type (ℓ-max ℓ ℓ')
-  hasInitial = ∥ Initial ∥
+  hasInitial = ∥ Initial ∥₁
 
   -- Initiality of an object is a proposition.
   isPropIsInitial : (x : ob) → isProp (isInitial x)

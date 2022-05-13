@@ -17,7 +17,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Algebra.CommRingSolver.Reflection
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to Ringℤ)
+open import Cubical.Algebra.CommRing.Instances.Int
 
 open import Cubical.Algebra.Matrix
 open import Cubical.Algebra.Matrix.CommRingCoefficient
@@ -31,7 +31,7 @@ private
 -- It seems there are bugs when applying ring solver to integers.
 -- The following is a work-around.
 private
-  module Helper {ℓ : Level}(𝓡 : CommRing ℓ) where
+  module Helper {ℓ : Level} (𝓡 : CommRing ℓ) where
     open CommRingStr (𝓡 .snd)
 
     helper1 : (a b x y g : 𝓡 .fst) → (a · x - b · - y) · g ≡ a · (x · g) + b · (y · g)
@@ -40,7 +40,7 @@ private
     helper2 : (a b : 𝓡 .fst) → a ≡ 1r · a + 0r · b
     helper2 = solve 𝓡
 
-open Helper Ringℤ
+open Helper ℤCommRing
 
 module ElemTransformationℤ where
 
@@ -50,13 +50,13 @@ module ElemTransformationℤ where
   open import Cubical.Data.Int.Divisibility
 
   private
-    ℤ = Ringℤ .fst
+    ℤ = ℤCommRing .fst
 
-  open CommRingStr      (Ringℤ .snd)
-  open Sum              (CommRing→Ring Ringℤ)
+  open CommRingStr      (ℤCommRing .snd)
+  open Sum              (CommRing→Ring ℤCommRing)
 
-  open Coefficient Ringℤ
-  open LinearTransformation Ringℤ
+  open Coefficient ℤCommRing
+  open LinearTransformation ℤCommRing
   open Bézout
 
   open SimRel
@@ -79,7 +79,7 @@ module ElemTransformationℤ where
     module _
       (p : ¬ x ≡ 0) where
 
-      open Units Ringℤ
+      open Units ℤCommRing
 
       private
         detEq : det2×2 bézout2Mat · b .gcd ≡ b .gcd

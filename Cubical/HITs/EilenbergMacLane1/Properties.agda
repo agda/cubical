@@ -29,9 +29,6 @@ open import Cubical.Algebra.AbGroup.Base
 
 open import Cubical.Functions.Morphism
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
-open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)
-
 private
   variable
     ℓG ℓ : Level

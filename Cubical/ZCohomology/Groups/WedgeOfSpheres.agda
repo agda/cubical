@@ -6,9 +6,24 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
+
 open import Cubical.Data.Nat
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
+open import Cubical.Data.Sigma
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Bool
+open import Cubical.Algebra.Group.Instances.Int
+open import Cubical.Algebra.Group.Instances.Unit
+
+open import Cubical.HITs.Sn
+open import Cubical.HITs.S1
+open import Cubical.HITs.Susp
+open import Cubical.HITs.Wedge
+open import Cubical.HITs.Pushout
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
@@ -19,21 +34,8 @@ open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Connected
 open import Cubical.ZCohomology.RingStructure.CupProduct
 
-open import Cubical.HITs.Sn
-open import Cubical.HITs.S1
-open import Cubical.HITs.Susp
-open import Cubical.HITs.Wedge
-open import Cubical.HITs.Pushout
-open import Cubical.HITs.Truncation renaming (elim to trElim) hiding (map ; elim2)
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim)
 
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.DirProd
-open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Bool renaming (Bool to BoolGroup)
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
-open import Cubical.Algebra.Group.Instances.Unit
+
 
 S¹⋁S¹ : Type₀
 S¹⋁S¹ = S₊∙ 1 ⋁ S₊∙ 1

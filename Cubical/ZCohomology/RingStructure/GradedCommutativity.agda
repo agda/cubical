@@ -1,22 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.RingStructure.GradedCommutativity where
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.RingStructure.CupProduct
-open import Cubical.ZCohomology.RingStructure.RingLaws
-open import Cubical.ZCohomology.Properties
-
-open import Cubical.Homotopy.Loopspace
-
-open import Cubical.HITs.S1 hiding (_·_)
-open import Cubical.HITs.Sn
-open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; rec2 to sRec2
-          ; elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.Truncation
-  renaming (elim to trElim ; map to trMap ; map2 to trMap2
-          ; rec to trRec ; elim3 to trElim3)
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
@@ -27,18 +10,34 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Foundations.Path
-open import Cubical.Data.Int
-  renaming (_+_ to _ℤ+_ ; _·_ to _ℤ∙_ ; +Comm to +ℤ-comm
-           ; ·Comm to ∙-comm ; +Assoc to ℤ+-assoc ; -_ to -ℤ_)
-    hiding (_+'_ ; +'≡+)
+
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
+open import Cubical.Data.Int
+  renaming (_+_ to _ℤ+_ ; _·_ to _ℤ∙_ ; +Comm to +ℤ-comm ; ·Comm to ∙-comm ; +Assoc to ℤ+-assoc ; -_ to -ℤ_)
+  hiding (_+'_ ; +'≡+)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Sum
+
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.Truncation as T
+open import Cubical.HITs.S1 hiding (_·_)
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp
+
+open import Cubical.Homotopy.Loopspace
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.RingStructure.CupProduct
+open import Cubical.ZCohomology.RingStructure.RingLaws
+open import Cubical.ZCohomology.Properties
 
 private
   variable
     ℓ : Level
+
+
 
 natTranspLem : ∀ {ℓ} {A B : ℕ → Type ℓ} {n m : ℕ} (a : A n)
   (f : (n : ℕ) → (a : A n) → B n) (p : n ≡ m)
@@ -90,7 +89,7 @@ private
          (q : isEvenT m ⊎ isOddT m)
        → coHomK k → coHomK k
 -ₖ'-gen {k = zero} = -ₖ'-helper {k = zero}
--ₖ'-gen {k = suc k} n m p q = trMap (-ₖ'-helper {k = suc k} n m p q)
+-ₖ'-gen {k = suc k} n m p q = T.map (-ₖ'-helper {k = suc k} n m p q)
 
 -- -ₖ'ⁿ̇*ᵐ
 -ₖ'^_·_ : {k : ℕ} (n m : ℕ) → coHomK k → coHomK k
@@ -98,18 +97,18 @@ private
 
 -- cohomology version
 -ₕ'^_·_ : {k : ℕ} {A : Type ℓ} (n m : ℕ) → coHom k A → coHom k A
--ₕ'^_·_ n m = sMap λ f x → (-ₖ'^ n · m) (f x)
+-ₕ'^_·_ n m = ST.map λ f x → (-ₖ'^ n · m) (f x)
 
 -- -ₖ'ⁿ̇*ᵐ = -ₖ' for n m odd
 -ₖ'-gen-inr≡-ₖ' : {k : ℕ} (n m : ℕ) (p : _) (q : _) (x : coHomK k)
   → -ₖ'-gen n m (inr p) (inr q) x ≡ (-ₖ x)
 -ₖ'-gen-inr≡-ₖ' {k = zero} n m p q _ = refl
 -ₖ'-gen-inr≡-ₖ' {k = suc zero} n m p q =
-  trElim ((λ _ → isOfHLevelTruncPath))
+  T.elim ((λ _ → isOfHLevelTruncPath))
          λ { base → refl
           ; (loop i) → refl}
 -ₖ'-gen-inr≡-ₖ' {k = suc (suc k)} n m p q =
-  trElim ((λ _ → isOfHLevelTruncPath))
+  T.elim ((λ _ → isOfHLevelTruncPath))
          λ { north → refl
            ; south → refl
            ; (merid a i) k → ∣ symDistr (merid (ptSn _)) (sym (merid a)) (~ k) (~ i) ∣ₕ}
@@ -119,10 +118,10 @@ private
   → -ₖ'-gen n m (inl p) q x ≡ x
 -ₖ'-gen-inl-left {k = zero} n m p q x = refl
 -ₖ'-gen-inl-left {k = suc zero} n m p q =
-  trElim (λ _ → isOfHLevelTruncPath)
+  T.elim (λ _ → isOfHLevelTruncPath)
          λ { base → refl ; (loop i) → refl}
 -ₖ'-gen-inl-left {k = suc (suc k)} n m p q =
-  trElim (λ _ → isOfHLevelPath (4 + k) (isOfHLevelTrunc (4 + k)) _ _)
+  T.elim (λ _ → isOfHLevelPath (4 + k) (isOfHLevelTrunc (4 + k)) _ _)
          λ { north → refl
            ; south → cong ∣_∣ₕ (merid (ptSn _))
            ; (merid a i) k → ∣ compPath-filler (merid a) (sym (merid (ptSn _))) (~ k) i ∣ₕ}
@@ -133,18 +132,18 @@ private
 -ₖ'-gen-inl-right {k = zero} n m (inl x₁) q x = refl
 -ₖ'-gen-inl-right {k = zero} n m (inr x₁) q x = refl
 -ₖ'-gen-inl-right {k = suc zero} n m (inl x₁) q =
-  trElim (λ _ → isOfHLevelTruncPath)
+  T.elim (λ _ → isOfHLevelTruncPath)
          λ { base → refl ; (loop i) → refl}
 -ₖ'-gen-inl-right {k = suc zero} n m (inr x₁) q =
-  trElim (λ _ → isOfHLevelTruncPath)
+  T.elim (λ _ → isOfHLevelTruncPath)
          λ { base → refl ; (loop i) → refl}
 -ₖ'-gen-inl-right {k = suc (suc k)} n m (inl x₁) q =
-  trElim (λ _ → isOfHLevelTruncPath)
+  T.elim (λ _ → isOfHLevelTruncPath)
          λ { north → refl
            ; south → cong ∣_∣ₕ (merid (ptSn _))
            ; (merid a i) k → ∣ compPath-filler (merid a) (sym (merid (ptSn _))) (~ k) i  ∣ₕ}
 -ₖ'-gen-inl-right {k = suc (suc k)} n m (inr x₁) q =
-  trElim (λ _ → isOfHLevelTruncPath)
+  T.elim (λ _ → isOfHLevelTruncPath)
          λ { north → refl
            ; south → cong ∣_∣ₕ (merid (ptSn _))
            ; (merid a i) k → ∣ compPath-filler (merid a) (sym (merid (ptSn _))) (~ k) i  ∣ₕ}
@@ -186,7 +185,7 @@ cong-ₖ'-gen-inr : {k : ℕ} (n m : ℕ)  (p : _) (q : _) (P : Path (coHomK (2 
 cong-ₖ'-gen-inr {k = k} n m p q P = code≡sym (0ₖ _) P
   where
   code : (x : coHomK (2 + k)) → 0ₖ _ ≡ x → x ≡ 0ₖ _
-  code = trElim (λ _ → isOfHLevelΠ (4 + k) λ _ → isOfHLevelTruncPath)
+  code = T.elim (λ _ → isOfHLevelΠ (4 + k) λ _ → isOfHLevelTruncPath)
                 λ { north → cong (-ₖ'-gen n m (inr p) (inr q))
                   ; south P → cong ∣_∣ₕ (sym (merid (ptSn _))) ∙ (cong (-ₖ'-gen n m (inr p) (inr q)) P)
                   ; (merid a i) → t a i}
@@ -874,9 +873,9 @@ gradedComm'-elimCase k zero (suc m) term (inr tt) q a b =
 gradedComm'-elimCase k (suc n) zero term p q a b =
   gradedComm'-elimCase-left (suc n) p q a b
 gradedComm'-elimCase zero (suc n) (suc m) term p q a b =
-  ⊥-rec (snotz (sym (+-suc n m) ∙ cong predℕ term))
+  ⊥.rec (snotz (sym (+-suc n m) ∙ cong predℕ term))
 gradedComm'-elimCase (suc zero) (suc n) (suc m) term p q a b =
-  ⊥-rec (snotz (sym (+-suc n m) ∙ cong predℕ term))
+  ⊥.rec (snotz (sym (+-suc n m) ∙ cong predℕ term))
 gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q north north = refl
 gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q north south = refl
 gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q north (merid a i) r =
@@ -1048,7 +1047,7 @@ gradedComm'-⌣ₖ∙ : (n m : ℕ) (p : _) (q : _) (a : _)
         (0ₖ-⌣ₖ (suc m) (suc n) a))
    ∙ coherence-transp n m p q))
 gradedComm'-⌣ₖ∙ n m p q =
-  trElim (λ _ → isOfHLevelPath (3 + n) ((isOfHLevel↑∙ (suc n) m)) _ _)
+  T.elim (λ _ → isOfHLevelPath (3 + n) ((isOfHLevel↑∙ (suc n) m)) _ _)
     λ a → →∙Homogeneous≡ (isHomogeneousKn _) (funExt λ b → funExt⁻ (cong fst (f₁≡f₂ b)) a)
   where
   f₁ : coHomK (suc m) → S₊∙ (suc n) →∙ coHomK-ptd (suc n +' suc m)
@@ -1067,7 +1066,7 @@ gradedComm'-⌣ₖ∙ n m p q =
 
   f₁≡f₂ : (b : _) → f₁ b ≡ f₂ b
   f₁≡f₂ =
-    trElim (λ _ → isOfHLevelPath (3 + m)
+    T.elim (λ _ → isOfHLevelPath (3 + m)
                     (subst (isOfHLevel (3 + m))
                      (λ i → S₊∙ (suc n) →∙ coHomK-ptd (+'-comm (suc n) (suc m) (~ i)))
                       (isOfHLevel↑∙' (suc m) n)) _ _)
@@ -1095,7 +1094,7 @@ gradedComm'-⌣ₖ (suc n) (suc m) a b =
 gradedComm'-⌣ : {A : Type ℓ} (n m : ℕ) (a : coHom n A) (b : coHom m A)
   → a ⌣ b ≡ (-ₕ'^ n · m) (subst (λ n → coHom n A) (+'-comm m n) (b ⌣ a))
 gradedComm'-⌣ n m =
-  sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+  ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
     λ f g →
       cong ∣_∣₂ (funExt (λ x →
         gradedComm'-⌣ₖ n m (f x) (g x)
@@ -1120,10 +1119,10 @@ gradedComm'-⌣ n m =
 -ₕ^-gen-eq : ∀ {ℓ} {k : ℕ} {A : Type ℓ} (n m : ℕ)
   → (p : isEvenT n ⊎ isOddT n) (q : isEvenT m ⊎ isOddT m)
   → (x : coHom k A)
-  → -ₕ^-gen n m p q x  ≡ (sMap λ f x → (-ₖ'-gen n m p q) (f x)) x
--ₕ^-gen-eq {k = k} n m (inl p) q = sElim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → sym (-ₖ'-gen-inl-left n m p q (f x)))
--ₕ^-gen-eq {k = k} n m (inr p) (inl q) = sElim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ z → sym (-ₖ'-gen-inl-right n m (inr p) q (f z)))
--ₕ^-gen-eq {k = k} n m (inr p) (inr q) = sElim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ z → sym (-ₖ'-gen-inr≡-ₖ' n m p q (f z)))
+  → -ₕ^-gen n m p q x  ≡ (ST.map λ f x → (-ₖ'-gen n m p q) (f x)) x
+-ₕ^-gen-eq {k = k} n m (inl p) q = ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → sym (-ₖ'-gen-inl-left n m p q (f x)))
+-ₕ^-gen-eq {k = k} n m (inr p) (inl q) = ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ z → sym (-ₖ'-gen-inl-right n m (inr p) q (f z)))
+-ₕ^-gen-eq {k = k} n m (inr p) (inr q) = ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ z → sym (-ₖ'-gen-inr≡-ₖ' n m p q (f z)))
 
 -ₕ^-eq : ∀ {ℓ} {k : ℕ} {A : Type ℓ} (n m : ℕ) → (a : coHom k A)
              → (-ₕ^ n · m) a  ≡ (-ₕ'^ n · m) a

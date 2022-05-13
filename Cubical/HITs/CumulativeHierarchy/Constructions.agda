@@ -53,7 +53,7 @@ record SetPackage ℓ ℓ' : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
   field
     ∈-rep : V ℓ → hProp ℓ'
     unpack : (x : X) → ⟨ ∈-rep (ix x) ⟩
-    repack : {y : V ℓ} → ⟨ ∈-rep y ⟩ → ∥ fiber ix y ∥
+    repack : {y : V ℓ} → ⟨ ∈-rep y ⟩ → ∥ fiber ix y ∥₁
 
   open PropMonad
   classification : ⟨ ∀[ y ] (y ∈ₛ resSet ⇔ ∈-rep y) ⟩
@@ -99,10 +99,10 @@ module UnionSet (S : V ℓ) where
   UnionPackage : SetPackage _ (ℓ-suc ℓ)
   structure UnionPackage = UnionStructure
   ∈-rep UnionPackage y = ∃[ v ] (v ∈ₛ S) ⊓ (y ∈ₛ v)
-  unpack UnionPackage (vi , yi) = ∣ ⟪ S ⟫↪ vi , ∈ₛ⟪ S ⟫↪ vi , ∈ₛ⟪ ⟪ S ⟫↪ vi ⟫↪ yi ∣
-  repack UnionPackage {y = y} = P.rec squash go where
-    go : Σ[ v ∈ V _ ] ⟨ v ∈ₛ S ⟩ ⊓′ ⟨ y ∈ₛ v ⟩ → ∥ fiber _ y ∥
-    go (v , (vi , vS) , xv) = ∣ repFiber≃fiber _ _ .fst ((vi , key .fst) , key .snd) ∣ where
+  unpack UnionPackage (vi , yi) = ∣ ⟪ S ⟫↪ vi , ∈ₛ⟪ S ⟫↪ vi , ∈ₛ⟪ ⟪ S ⟫↪ vi ⟫↪ yi ∣₁
+  repack UnionPackage {y = y} = P.rec squash₁ go where
+    go : Σ[ v ∈ V _ ] ⟨ v ∈ₛ S ⟩ ⊓′ ⟨ y ∈ₛ v ⟩ → ∥ fiber _ y ∥₁
+    go (v , (vi , vS) , xv) = ∣ repFiber≃fiber _ _ .fst ((vi , key .fst) , key .snd) ∣₁ where
       path : v ≡ ⟪ S ⟫↪ vi
       path = sym (equivFun identityPrinciple vS)
       key : Σ[ i ∈ ⟪ ⟪ S ⟫↪ vi ⟫ ] ⟪ ⟪ S ⟫↪ vi ⟫↪ i ≊ y
@@ -126,8 +126,8 @@ module PairingSet (a b : V ℓ) where
   unpack PairingPackage (lift false) = L.inl refl
   unpack PairingPackage (lift true) = L.inr refl
   repack PairingPackage {y = y} = _>>= λ where
-    (_⊎_.inl ya) → ∣ lift false , sym ya ∣
-    (_⊎_.inr yb) → ∣ lift true , sym yb ∣
+    (_⊎_.inl ya) → ∣ lift false , sym ya ∣₁
+    (_⊎_.inr yb) → ∣ lift true , sym yb ∣₁
 
   PAIR : V ℓ
   PAIR = SetStructure.resSet PairingStructure
@@ -147,7 +147,7 @@ module SingletonSet (a : V ℓ) where
   structure SingletonPackage = SingletonStructure
   ∈-rep SingletonPackage d = d ≡ₕ a
   unpack SingletonPackage _ = refl
-  repack SingletonPackage ya = ∣ lift tt , sym ya ∣
+  repack SingletonPackage ya = ∣ lift tt , sym ya ∣₁
 
   SINGL : V ℓ
   SINGL = SetStructure.resSet SingletonStructure
@@ -177,12 +177,12 @@ module InfinitySet {ℓ} where
   structure ωPackage = ωStructure
   ∈-rep ωPackage d = (d ≡ₕ ∅) ⊔ (∃[ v ] (d ≡ₕ sucV v) ⊓ (v ∈ₛ ω))
   unpack ωPackage (lift zero) = L.inl refl
-  unpack ωPackage (lift (suc n)) = L.inr ∣ # n , refl , ∈∈ₛ {b = ω} .fst ∣ lift n , refl ∣ ∣
+  unpack ωPackage (lift (suc n)) = L.inr ∣ # n , refl , ∈∈ₛ {b = ω} .fst ∣ lift n , refl ∣₁ ∣₁
   repack ωPackage {y = y} = ⊔-elim (y ≡ₕ ∅) ∥ _ ∥ₚ (λ _ → ∥ fiber _ y ∥ₚ)
-    (λ e → ∣ lift zero , sym e ∣)
+    (λ e → ∣ lift zero , sym e ∣₁)
     (λ m → do (v , yv , vr) ← m
               (lift n , eq) ← ∈∈ₛ {b = ω} .snd vr
-              ∣ lift (suc n) , sym (subst (λ v → y ≡ (v ∪ ⁅ v ⁆s)) (sym eq) yv) ∣
+              ∣ lift (suc n) , sym (subst (λ v → y ≡ (v ∪ ⁅ v ⁆s)) (sym eq) yv) ∣₁
     )
 
   infinity-ax : ⟨ ∀[ y ] (y ∈ₛ ω ⇔ (y ≡ₕ ∅) ⊔ (∃[ v ] (y ≡ₕ sucV v) ⊓ (v ∈ₛ ω))) ⟩
@@ -193,7 +193,7 @@ module InfinitySet {ℓ} where
   ω-empty = infinity-ax ∅ .snd (L.inl refl)
 
   ω-next : ⟨ ∀[ x ∶ V ℓ ] x ∈ₛ ω ⇒ sucV x ∈ₛ ω ⟩
-  ω-next x x∈ω = infinity-ax (sucV x) .snd (L.inr ∣ x , refl , x∈ω ∣)
+  ω-next x x∈ω = infinity-ax (sucV x) .snd (L.inr ∣ x , refl , x∈ω ∣₁)
 
   #-in-ω : ∀ n → ⟨ # n ∈ₛ ω ⟩
   #-in-ω zero = ω-empty
@@ -213,10 +213,10 @@ module ReplacementSet (r : V ℓ → V ℓ) (a : V ℓ) where
   ReplacementPackage : SetPackage _ (ℓ-suc ℓ)
   structure ReplacementPackage = ReplacementStructure
   ∈-rep ReplacementPackage y = ∃[ z ] (z ∈ₛ a) ⊓ (y ≡ₕ r z)
-  unpack ReplacementPackage ⟪a⟫ = ∣ ⟪ a ⟫↪ ⟪a⟫ , (∈ₛ⟪ a ⟫↪ ⟪a⟫) , refl ∣
+  unpack ReplacementPackage ⟪a⟫ = ∣ ⟪ a ⟫↪ ⟪a⟫ , (∈ₛ⟪ a ⟫↪ ⟪a⟫) , refl ∣₁
   repack ReplacementPackage {y = y} m = do
     (z , (a , za) , yr) ← m
-    ∣ a , cong r (equivFun identityPrinciple za) ∙ sym yr ∣
+    ∣ a , cong r (equivFun identityPrinciple za) ∙ sym yr ∣₁
 
   replacement-ax : ⟨ ∀[ y ] (y ∈ₛ REPLACED ⇔ (∃[ z ] (z ∈ₛ a) ⊓ (y ≡ₕ r z))) ⟩
   replacement-ax y = classification y where
@@ -234,7 +234,7 @@ module SeparationSet (a : V ℓ) (ϕ : V ℓ → hProp ℓ) where
   unpack SeparationPackage (⟪a⟫ , phi) = (∈ₛ⟪ a ⟫↪ ⟪a⟫) , phi
   repack SeparationPackage ((⟪a⟫ , ya) , phi) =
     ∣ (⟪a⟫ , subst (fst ∘ ϕ) (sym (equivFun identityPrinciple ya)) phi)
-      , equivFun identityPrinciple ya ∣
+      , equivFun identityPrinciple ya ∣₁
 
   SEPAREE : V ℓ
   SEPAREE = SetStructure.resSet SeparationStructure
@@ -250,11 +250,11 @@ module Examples where
   the1 : V ℓ-zero
   the1 = # 1
 
-  1-ok? : ∥ Bool ∥
+  1-ok? : ∥ Bool ∥₁
   1-ok? = do
     prf ← infinity-ax the1 .fst (#-in-ω 1)
-    case prf of λ { (⊎.inl _) → ∣ false ∣ ; (⊎.inr _) → ∣ true ∣ }
+    case prf of λ { (⊎.inl _) → ∣ false ∣₁ ; (⊎.inr _) → ∣ true ∣₁ }
     where
     open PropMonad
-  test : 1-ok? ≡ ∣ true ∣
+  test : 1-ok? ≡ ∣ true ∣₁
   test = refl

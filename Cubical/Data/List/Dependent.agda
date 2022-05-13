@@ -1,6 +1,13 @@
 {-# OPTIONS --safe #-}
 
-open import Cubical.Foundations.Everything renaming (Iso to _≅_)
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism renaming (Iso to _≅_)
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
+
 open import Cubical.Data.List
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod hiding (map)
@@ -73,4 +80,3 @@ mapOverIdfun-∘ : ∀ {ℓA ℓB ℓB' ℓB''} {A : Type ℓA} {B : A → Type 
   → mapOverIdfun (λ a → h a ∘ g a) as ≡ mapOverIdfun h as ∘ mapOverIdfun g as
 mapOverIdfun-∘ h g [] i [] = []
 mapOverIdfun-∘ h g (a ∷ as) i (b ∷ bs) = h a (g a b) ∷ mapOverIdfun-∘ h g as i bs
-

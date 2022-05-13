@@ -23,8 +23,7 @@ open import Cubical.HITs.Nullification as Null hiding (rec; elim)
 
 open import Cubical.HITs.Truncation.FromNegTwo.Base
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc
-  renaming (∥_∥ to ∥_∥₁; ∣_∣ to ∣_∣₁; squash to squash₁) using ()
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥₁; ∣_∣₁; squash₁)
 open import Cubical.HITs.SetTruncation       as SetTrunc  using (∥_∥₂; ∣_∣₂; squash₂)
 open import Cubical.HITs.GroupoidTruncation  as GpdTrunc  using (∥_∥₃; ∣_∣₃; squash₃)
 open import Cubical.HITs.2GroupoidTruncation as 2GpdTrunc using (∥_∥₄; ∣_∣₄; squash₄)

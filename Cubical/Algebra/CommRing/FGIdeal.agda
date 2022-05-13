@@ -84,7 +84,7 @@ module _ (Ring@(R , str) : CommRing ℓ) where
   {- 0r is the trivial linear Combination -}
   isLinearCombination0 : {n : ℕ} (V : FinVec R n)
                        → isLinearCombination V 0r
-  isLinearCombination0 V = ∣ _ , sym (dist0 V) ∣
+  isLinearCombination0 V = ∣ _ , sym (dist0 V) ∣₁
 
   {- Linear combinations are stable under left multiplication -}
   isLinearCombinationL· : {n : ℕ} (V : FinVec R n) (r : R) {x : R}
@@ -217,7 +217,7 @@ module _ (R' : CommRing ℓ) where
                              λ i → ·Closed (I .snd) _ (∀i→Vi∈I i))
 
  indInIdeal : ∀ {n : ℕ} (U : FinVec R n) (i : Fin n) → U i ∈ ⟨ U ⟩
- indInIdeal U i = ∣ (δ i) , sym (∑Mul1r _ U i) ∣
+ indInIdeal U i = ∣ (δ i) , sym (∑Mul1r _ U i) ∣₁
 
  sucIncl : ∀ {n : ℕ} (U : FinVec R (ℕsuc n)) → ⟨ U ∘ suc ⟩ ⊆ ⟨ U ⟩
  sucIncl U x = PT.map λ (α , x≡∑αUsuc) → (λ { zero → 0r ; (suc i) → α i }) , x≡∑αUsuc ∙ path _ _
@@ -227,7 +227,7 @@ module _ (R' : CommRing ℓ) where
 
  emptyFGIdeal : ∀ (V : FinVec R 0) → ⟨ V ⟩ ≡ 0Ideal
  emptyFGIdeal V = CommIdeal≡Char (λ _ →  PT.rec (is-set _ _) snd)
-                                 (λ _ x≡0 → ∣ (λ ()) , x≡0 ∣)
+                                 (λ _ x≡0 → ∣ (λ ()) , x≡0 ∣₁)
 
  0FGIdealLIncl : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩ ⊆ 0Ideal
  0FGIdealLIncl x = PT.elim (λ _ → is-set _ _)
@@ -244,7 +244,7 @@ module _ (R' : CommRing ℓ) where
  FGIdealAddLemmaLIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                       → ⟨ U ++Fin V ⟩ ⊆ (⟨ U ⟩ +i ⟨ V ⟩)
  FGIdealAddLemmaLIncl {n = ℕzero} U V x x∈⟨V⟩ =
-                                  ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+Lid x) ∣
+                                  ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+Lid x) ∣₁
  FGIdealAddLemmaLIncl {n = ℕsuc n} U V x = PT.rec isPropPropTrunc helperΣ
    where
    helperΣ : Σ[ α ∈ FinVec R _ ] (x ≡ ∑ λ i → α i · (U ++Fin V) i) → x ∈ (⟨ U ⟩ +i ⟨ V ⟩)
@@ -258,7 +258,7 @@ module _ (R' : CommRing ℓ) where
     sumIncl : (∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i) ∈ (⟨ U ⟩ +i ⟨ V ⟩)
     sumIncl = let sum = ∑ λ i → (α ∘ suc) i · ((U ∘ suc) ++Fin V) i in
          +iRespLincl ⟨ U ∘ suc ⟩ ⟨ U ⟩ ⟨ V ⟩ (sucIncl U) sum
-           (FGIdealAddLemmaLIncl (U ∘ suc) V _ ∣ (α ∘ suc) , refl ∣)
+           (FGIdealAddLemmaLIncl (U ∘ suc) V _ ∣ (α ∘ suc) , refl ∣₁)
 
  FGIdealAddLemmaRIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                       → (⟨ U ⟩ +i ⟨ V ⟩) ⊆ ⟨ U ++Fin V ⟩
@@ -269,7 +269,7 @@ module _ (R' : CommRing ℓ) where
            → Σ[ β ∈ FinVec R _ ] (z ≡ ∑ λ i → β i · V i)
            → x ≡ y + z
            → x ∈ ⟨ U ++Fin V ⟩
-   helperΣ (y , z) (α , y≡∑αU) (β , z≡∑βV) x≡y+z = ∣ (α ++Fin β) , path ∣
+   helperΣ (y , z) (α , y≡∑αU) (β , z≡∑βV) x≡y+z = ∣ (α ++Fin β) , path ∣₁
     where
     path : x ≡ ∑ λ i → (α ++Fin β) i · (U ++Fin V) i
     path = x                                               ≡⟨ x≡y+z ⟩
@@ -359,7 +359,7 @@ module GeneratingPowers (R' : CommRing ℓ) (n : ℕ) where
 
  lemma : (m : ℕ) (α U : FinVec R (ℕsuc m))
        → (linearCombination R' α U) ^ ((ℕsuc m) ·ℕ n) ∈ ⟨ U ⁿ ⟩
- lemma ℕzero α U = ∣ α ⁿ , path ∣
+ lemma ℕzero α U = ∣ α ⁿ , path ∣₁
   where
   path : (α zero · U zero + 0r) ^ (n +ℕ 0) ≡ α zero ^ n · U zero ^ n + 0r
   path = (α zero · U zero + 0r) ^ (n +ℕ 0) ≡⟨ cong (_^ (n +ℕ 0)) (+Rid _) ⟩

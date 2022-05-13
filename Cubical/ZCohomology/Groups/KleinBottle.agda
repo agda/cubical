@@ -1,50 +1,46 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.KleinBottle where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Properties
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to pRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; ∣_∣ to ∣_∣₁)
-open import Cubical.HITs.Truncation renaming (elim to trElim ; rec to trRec ; elim2 to trElim2)
+open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Equiv
+
 open import Cubical.Data.Nat hiding (isEven)
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Bool
+open import Cubical.Data.Int renaming (+Comm to +-commℤ ; _+_ to _+ℤ_)
+open import Cubical.Data.Sigma
+
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.Truncation as T
+open import Cubical.HITs.S1
+open import Cubical.HITs.Sn
+open import Cubical.HITs.KleinBottle
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Bool renaming (Bool to BoolGroup)
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Bool
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Instances.Unit
 
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Transport
+open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Loopspace
 
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
-
-open import Cubical.Data.Sigma
-
-open import Cubical.Foundations.Isomorphism
-open import Cubical.HITs.S1
-open import Cubical.HITs.Sn
-open import Cubical.Foundations.Equiv
-open import Cubical.Homotopy.Connected
-
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-open import Cubical.Data.Bool
-open import Cubical.Data.Int renaming (+Comm to +-commℤ ; _+_ to _+ℤ_)
-
-open import Cubical.HITs.KleinBottle
-open import Cubical.Data.Empty
-open import Cubical.Foundations.Path
-
-open import Cubical.Homotopy.Loopspace
 
 open IsGroupHom
 open Iso
@@ -99,11 +95,11 @@ private
 
 ------ H¹(𝕂²) ≅ 0 --------------
 H⁰-𝕂² : GroupIso (coHomGr 0 KleinBottle) ℤGroup
-fun (fst H⁰-𝕂²) = sRec isSetℤ λ f → f point
+fun (fst H⁰-𝕂²) = ST.rec isSetℤ λ f → f point
 inv (fst H⁰-𝕂²) x = ∣ (λ _ → x) ∣₂
 rightInv (fst H⁰-𝕂²) _ = refl
 leftInv (fst H⁰-𝕂²) =
-  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+  ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ f → cong ∣_∣₂ (funExt (λ {point → refl
                                  ; (line1 i) j → isSetℤ (f point) (f point) refl (cong f line1) j i
                                  ; (line2 i) j → isSetℤ (f point) (f point) refl (cong f line2) j i
@@ -118,7 +114,7 @@ leftInv (fst H⁰-𝕂²) =
                 λ i j → f (square i j)
   helper f = isGroupoid→isGroupoid' (isOfHLevelSuc 2 isSetℤ) _ _ _ _ _ _
 snd H⁰-𝕂² =
-  makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 isSetℤ _ _) λ _ _ → refl)
+  makeIsGroupHom (ST.elim2 (λ _ _ → isOfHLevelPath 2 isSetℤ _ _) λ _ _ → refl)
 
 ------ H¹(𝕂¹) ≅ ℤ ------------
 {-
@@ -132,7 +128,7 @@ H¹(𝕂²) := ∥ 𝕂² → K₁ ∥₂
 nilpotent→≡0 : (x : ℤ) → x +ℤ x ≡ 0 → x ≡ 0
 nilpotent→≡0 (pos zero) p = refl
 nilpotent→≡0 (pos (suc n)) p =
-  ⊥-rec (negsucNotpos _ _
+  ⊥.rec (negsucNotpos _ _
         (sym (cong (_- 1) (cong sucℤ (sym (helper2 n)) ∙ p))))
   where
   helper2 : (n : ℕ) → pos (suc n) +pos n ≡ pos (suc (n + n))
@@ -140,7 +136,7 @@ nilpotent→≡0 (pos (suc n)) p =
   helper2 (suc n) = cong sucℤ (sym (sucℤ+pos n (pos (suc n))))
                  ∙∙ cong (sucℤ ∘ sucℤ) (helper2 n)
                  ∙∙ cong (pos ∘ suc ∘ suc) (sym (+-suc n n))
-nilpotent→≡0 (negsuc n) p = ⊥-rec (negsucNotpos _ _ (helper2 n p))
+nilpotent→≡0 (negsuc n) p = ⊥.rec (negsucNotpos _ _ (helper2 n p))
   where
   helper2 : (n : ℕ) → (negsuc n +negsuc n) ≡ pos 0 → negsuc n ≡ pos (suc n)
   helper2 n p = cong (negsuc n +ℤ_) (sym (helper3 n))
@@ -154,7 +150,7 @@ nilpotent→≡0 (negsuc n) p = ⊥-rec (negsucNotpos _ _ (helper2 n p))
 
 nilpotent→≡refl : (x : coHomK 1) (p : x ≡ x) → p ∙ p ≡ refl → p ≡ refl
 nilpotent→≡refl =
-  trElim (λ _ → isGroupoidΠ2 λ _ _ → isOfHLevelPlus {n = 1} 2 (isOfHLevelTrunc 3 _ _ _ _))
+  T.elim (λ _ → isGroupoidΠ2 λ _ _ → isOfHLevelPlus {n = 1} 2 (isOfHLevelTrunc 3 _ _ _ _))
          (toPropElim (λ _ → isPropΠ2 λ _ _ → isOfHLevelTrunc 3 _ _ _ _)
           λ p pId → sym (rightInv (Iso-Kn-ΩKn+1 0) p)
                   ∙∙ cong (Kn→ΩKn+1 0) (nilpotent→≡0 (ΩKn+1→Kn 0 p)
@@ -194,7 +190,7 @@ H¹-𝕂²≅ℤ = compGroupIso theGroupIso (Hⁿ-Sⁿ≅ℤ 0)
   is-hom : IsGroupHom (coHomGr 1 KleinBottle .snd) (fun theIso) (coHomGr 1 S¹ .snd)
   is-hom =
     makeIsGroupHom
-      (sElim2 (λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+      (ST.elim2 (λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ f g → cong ∣_∣₂ (funExt λ {base → refl ; (loop i) → refl}))
 
   theGroupIso : GroupIso (coHomGr 1 KleinBottle) (coHomGr 1 S¹)
@@ -215,22 +211,22 @@ H²(𝕂²) := ∥ 𝕂² → K₂ ∥₂
 Iso-H²-𝕂²₁ : Iso ∥ Σ[ x ∈ coHomK 2 ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙ p ≡ refl ∥₂
                   ∥ Σ[ p ∈ 0ₖ 2 ≡ 0ₖ 2 ] p ∙ p ≡ refl ∥₂
 fun Iso-H²-𝕂²₁ =
-  sRec isSetSetTrunc
-    (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 2} 2 isSetSetTrunc)
+  ST.rec isSetSetTrunc
+    (uncurry (T.elim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 2} 2 isSetSetTrunc)
                      (sphereElim _ (λ _ → isSetΠ λ _ → isSetSetTrunc)
                                  λ y → ∣ fst y , snd (snd y) ∣₂)))
 inv Iso-H²-𝕂²₁ =
-  sMap λ p → (0ₖ 2) , ((fst p) , (refl , (snd p)))
+  ST.map λ p → (0ₖ 2) , ((fst p) , (refl , (snd p)))
 rightInv Iso-H²-𝕂²₁ =
-  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+  ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ p → refl
 leftInv Iso-H²-𝕂²₁ =
-  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-        (uncurry (trElim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 1} 3 (isSetSetTrunc _ _))
+  ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+        (uncurry (T.elim (λ _ → is2GroupoidΠ λ _ → isOfHLevelPlus {n = 1} 3 (isSetSetTrunc _ _))
                  (sphereToPropElim _
                    (λ _ → isPropΠ λ _ → isSetSetTrunc _ _)
                    λ {(p , (q , sq))
-                     → trRec (isSetSetTrunc _ _)
+                     → T.rec (isSetSetTrunc _ _)
                               (λ qid → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP (refl , (ΣPathP (sym qid  , refl)))))))
                               (fun (PathIdTruncIso _)
                                        (isContr→isProp (isConnectedPathKn 1 (0ₖ 2) (0ₖ 2)) ∣ q ∣ ∣ refl ∣))})))
@@ -249,7 +245,7 @@ We also have to show that this map respects the loop
 -}
 
 ΣKₙNilpot→Bool :  Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 → Bool
-ΣKₙNilpot→Bool = uncurry (trElim (λ _ → isGroupoidΠ λ _ → isOfHLevelSuc 2 isSetBool)
+ΣKₙNilpot→Bool = uncurry (T.elim (λ _ → isGroupoidΠ λ _ → isOfHLevelSuc 2 isSetBool)
                         λ {base p → isEven (ΩKn+1→Kn 0 p)
                         ; (loop i) p → hcomp (λ k → λ { (i = i0) → respectsLoop p k
                                                         ; (i = i1) → isEven (ΩKn+1→Kn 0 p)})
@@ -297,11 +293,11 @@ which is just ∣ (0 , p) ∣₂ * ∣ (0 , q) ∣₂ ≡ ∣ (0 , p ∙ q) ∣�
 
 private
   _*_ : ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
-  _*_ = sRec (isSetΠ (λ _ → isSetSetTrunc)) λ a → sRec isSetSetTrunc λ b → *' (fst a) (fst b) (snd a) (snd b)
+  _*_ = ST.rec (isSetΠ (λ _ → isSetSetTrunc)) λ a → ST.rec isSetSetTrunc λ b → *' (fst a) (fst b) (snd a) (snd b)
     where
     *' : (x y : coHomK 1) (p : x +ₖ x ≡ 0ₖ 1) (q : y +ₖ y ≡ 0ₖ 1) → ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
     *' =
-      trElim2 (λ _ _ → isGroupoidΠ2 λ _ _ → isOfHLevelSuc 2 isSetSetTrunc)
+      T.elim2 (λ _ _ → isGroupoidΠ2 λ _ _ → isOfHLevelSuc 2 isSetSetTrunc)
               (wedgeconFun _ _
                 (λ _ _ → isSetΠ2 λ _ _ → isSetSetTrunc)
                 (λ x p q → ∣ ∣ x ∣ , cong₂ _+ₖ_ p q ∣₂)
@@ -312,7 +308,7 @@ private
   *=∙ p q = cong ∣_∣₂ (ΣPathP (refl , sym (∙≡+₁ p q)))
 
 isEvenNegsuc : (n : ℕ) → isEven (pos (suc n)) ≡ true → isEven (negsuc n) ≡ true
-isEvenNegsuc zero p = ⊥-rec (true≢false (sym p))
+isEvenNegsuc zero p = ⊥.rec (true≢false (sym p))
 isEvenNegsuc (suc n) p = p
 
 ¬isEvenNegSuc : (n : ℕ) → isEven (pos (suc n)) ≡ false → isEven (negsuc n) ≡ false
@@ -324,7 +320,7 @@ evenCharac : (x : ℤ) → isEven x ≡ true
             ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂
             ∣ (0ₖ 1 , refl) ∣₂
 evenCharac (pos zero) isisEven i = ∣ (0ₖ 1) , (rUnit refl (~ i)) ∣₂
-evenCharac (pos (suc zero)) isisEven = ⊥-rec (true≢false (sym isisEven))
+evenCharac (pos (suc zero)) isisEven = ⊥.rec (true≢false (sym isisEven))
 evenCharac (pos (suc (suc zero))) isisEven =
     cong ∣_∣₂ ((λ i → 0ₖ 1 , rUnit (cong ∣_∣ ((lUnit loop (~ i)) ∙ loop)) (~ i))
   ∙ (ΣPathP (cong ∣_∣ loop , λ i j → ∣ (loop ∙ loop) (i ∨ j) ∣)))
@@ -333,7 +329,7 @@ evenCharac (pos (suc (suc (suc n)))) isisEven =
   ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (pos (suc n))) (Kn→ΩKn+1 0 (pos 2)))
   ∙∙ (cong₂ _*_ (evenCharac (pos (suc n)) isisEven) (evenCharac 2 refl))
 
-evenCharac (negsuc zero) isisEven = ⊥-rec (true≢false (sym isisEven))
+evenCharac (negsuc zero) isisEven = ⊥.rec (true≢false (sym isisEven))
 evenCharac (negsuc (suc zero)) isisEven =
   cong ∣_∣₂ ((λ i → 0ₖ 1
                   , λ i₁ → hfill (doubleComp-faces (λ i₂ → ∣ base ∣) (λ _ → ∣ base ∣) i₁)
@@ -348,7 +344,7 @@ oddCharac : (x : ℤ) → isEven x ≡ false
     → Path ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂
             ∣ (0ₖ 1 , Kn→ΩKn+1 0 x) ∣₂
             ∣ (0ₖ 1 , cong ∣_∣ loop) ∣₂
-oddCharac (pos zero) isOdd = ⊥-rec (true≢false isOdd)
+oddCharac (pos zero) isOdd = ⊥.rec (true≢false isOdd)
 oddCharac (pos (suc zero)) isOdd i =
   ∣ (0ₖ 1 , λ j → hfill (doubleComp-faces (λ i₂ → ∣ base ∣) (λ _ → ∣ base ∣) j)
                          (inS ∣ lUnit loop (~ i) j ∣) (~ i)) ∣₂
@@ -362,7 +358,7 @@ oddCharac (negsuc zero) isOdd =
                                                            ; (i = i1) → loop j
                                                            ; (j = i1) → base})
                                                  (loop (j ∨ ~ i)) ∣))
-oddCharac (negsuc (suc zero)) isOdd = ⊥-rec (true≢false isOdd)
+oddCharac (negsuc (suc zero)) isOdd = ⊥.rec (true≢false isOdd)
 oddCharac (negsuc (suc (suc n))) isOdd =
      cong ∣_∣₂ (λ i → 0ₖ 1 , Kn→ΩKn+1-hom 0 (negsuc n) -2 i)
   ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (negsuc n)) (Kn→ΩKn+1 0 -2))
@@ -374,13 +370,13 @@ Bool→ΣKₙNilpot false = ∣ 0ₖ 1 , cong ∣_∣ loop ∣₂
 Bool→ΣKₙNilpot true = ∣ 0ₖ 1 , refl ∣₂
 
 testIso : Iso ∥ Σ[ x ∈ coHomK 1 ] x +ₖ x ≡ 0ₖ 1 ∥₂ Bool
-fun testIso = sRec isSetBool ΣKₙNilpot→Bool
+fun testIso = ST.rec isSetBool ΣKₙNilpot→Bool
 inv testIso = Bool→ΣKₙNilpot
 rightInv testIso false = refl
 rightInv testIso true = refl
 leftInv testIso =
-  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-        (uncurry (trElim
+  ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+        (uncurry (T.elim
           (λ _ → isGroupoidΠ λ _ → isOfHLevelPlus {n = 1} 2 (isSetSetTrunc _ _))
           (toPropElim (λ _ → isPropΠ (λ _ → isSetSetTrunc _ _))
           (λ p → path p (isEven (ΩKn+1→Kn 0 p)) refl))))
@@ -426,7 +422,7 @@ isContrHⁿ-𝕂² n =
               ∣ x , p , q , P ∣₂
               ∣ 0ₖ _ , refl , refl , sym (rUnit refl) ∣₂
   helper =
-    trElim (λ _ → isProp→isOfHLevelSuc (4 + n) (isPropΠ4 λ _ _ _ _ → isPropΠ λ _ → isSetSetTrunc _ _))
+    T.elim (λ _ → isProp→isOfHLevelSuc (4 + n) (isPropΠ4 λ _ _ _ _ → isPropΠ λ _ → isSetSetTrunc _ _))
       (sphereToPropElim _ (λ _ → isPropΠ4 λ _ _ _ _ → isPropΠ λ _ → isSetSetTrunc _ _)
         λ p → J (λ p _ → (q : 0ₖ _ ≡ 0ₖ _) → (refl ≡ q)
                         → (P : p ∙∙ q ∙∙ p ≡ q)
@@ -437,7 +433,7 @@ isContrHⁿ-𝕂² n =
                                 → Path ∥ (Σ[ x ∈ coHomK (3 + n) ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙∙ q ∙∙ p ≡ q) ∥₂
                                         ∣ 0ₖ _ , refl , q , P ∣₂
                                         ∣ 0ₖ _ , refl , refl , sym (rUnit refl) ∣₂)
-                         λ P → trRec (isProp→isOfHLevelSuc n (isSetSetTrunc _ _))
+                         λ P → T.rec (isProp→isOfHLevelSuc n (isSetSetTrunc _ _))
                                       (λ P≡rUnitrefl i → ∣ 0ₖ (3 + n) , refl , refl , P≡rUnitrefl i ∣₂)
                                       (fun (PathIdTruncIso _)
                                                  (isContr→isProp (isConnectedPath _ (isConnectedPathKn (2 + n) _ _)
@@ -447,10 +443,10 @@ isContrHⁿ-𝕂² n =
   isContrΣ-help : isContr ∥ (Σ[ x ∈ coHomK (3 + n) ] Σ[ p ∈ x ≡ x ] Σ[ q ∈ x ≡ x ] p ∙∙ q ∙∙ p ≡ q) ∥₂
   fst isContrΣ-help = ∣ 0ₖ _ , refl , refl , sym (rUnit refl) ∣₂
   snd isContrΣ-help =
-    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+    ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
       λ {(x , p , q , P)
-        → trRec (isProp→isOfHLevelSuc (suc n) (isSetSetTrunc _ _))
-            (λ pId → trRec (isProp→isOfHLevelSuc (suc n) (isSetSetTrunc _ _))
+        → T.rec (isProp→isOfHLevelSuc (suc n) (isSetSetTrunc _ _))
+            (λ pId → T.rec (isProp→isOfHLevelSuc (suc n) (isSetSetTrunc _ _))
                       (λ qId → sym (helper x p pId q qId P))
                       (fun (PathIdTruncIso (2 + n))
                                  (isContr→isProp (isConnectedPathKn (2 + n) _ _) ∣ refl ∣ ∣ q ∣)))

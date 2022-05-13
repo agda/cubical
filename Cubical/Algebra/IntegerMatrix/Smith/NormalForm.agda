@@ -27,13 +27,12 @@ open import Cubical.Relation.Nullary
 open import Cubical.Algebra.Matrix.CommRingCoefficient
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-  renaming (ℤ to ℤRing)
 
 private
   variable
     m n k : ℕ
 
-open Coefficient  ℤRing
+open Coefficient  ℤCommRing
 
 
 -- Sequence of consecutively divisible integers

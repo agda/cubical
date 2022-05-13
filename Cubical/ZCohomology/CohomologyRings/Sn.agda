@@ -8,6 +8,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Unit
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; +-comm to +n-comm ; _·_ to _·n_ ; snotz to nsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Int hiding (_+'_)
@@ -18,33 +19,31 @@ open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤG)
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.DirectSum.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
+open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
-open import Cubical.Algebra.Direct-Sum.Base
 
-open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
+open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetTruncation as ST
-open import Cubical.HITs.PropositionalTruncation as PT renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.Truncation
+open import Cubical.HITs.Sn
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
-
-open import Cubical.Data.Unit
-open import Cubical.HITs.Sn
 open import Cubical.ZCohomology.Groups.Sn
 
 open Iso
@@ -407,23 +406,23 @@ module Equiv-Sn-Properties (n : ℕ) where
 
     base-add-eq : (k : ℕ) → (a b : coHom k (S₊ (suc n))) → (x : partℕ k)
                   → base-trad-H* k a x +Pℤ base-trad-H* k b x ≡ base-trad-H* k (a +ₕ b) x
-    base-add-eq k a b (is0 x) = base-Poly+ _ _ _
+    base-add-eq k a b (is0 x) = base-poly+ _ _ _
                                 ∙ cong (baseP (0 ∷ [])) (sym (pres· (snd (H⁰-Sⁿ≅ℤ n)) _ _))
                                 ∙ cong (baseP (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (sym (subst-+ k a b 0 x)))
-    base-add-eq k a b (isSn x) =  base-Poly+ _ _ _
+    base-add-eq k a b (isSn x) =  base-poly+ _ _ _
                                   ∙ cong (baseP (1 ∷ [])) (sym (pres· (snd (Hⁿ-Sⁿ≅ℤ n)) _ _))
                                   ∙ cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (sym (subst-+ k a b (suc n) x)))
     base-add-eq k a b (else x) = +PℤRid _
 
 
-  H*-Sⁿ→ℤ[x]-gmorph : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x] ( x +H* y) ≡ H*-Sⁿ→ℤ[x] x +Pℤ H*-Sⁿ→ℤ[x] y
-  H*-Sⁿ→ℤ[x]-gmorph x y = refl
+  H*-Sⁿ→ℤ[x]-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x] ( x +H* y) ≡ H*-Sⁿ→ℤ[x] x +Pℤ H*-Sⁿ→ℤ[x] y
+  H*-Sⁿ→ℤ[x]-pres+ x y = refl
 
   H*-Sⁿ→ℤ[x]/x² : H* (S₊ (suc n)) → ℤ[x]/x²
   H*-Sⁿ→ℤ[x]/x² = [_] ∘ H*-Sⁿ→ℤ[x]
 
-  H*-Sⁿ→ℤ[x]/x²-gmorph : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x]/x² (x +H* y) ≡ (H*-Sⁿ→ℤ[x]/x² x) +PℤI (H*-Sⁿ→ℤ[x]/x² y)
-  H*-Sⁿ→ℤ[x]/x²-gmorph x y = refl
+  H*-Sⁿ→ℤ[x]/x²-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x]/x² (x +H* y) ≡ (H*-Sⁿ→ℤ[x]/x² x) +PℤI (H*-Sⁿ→ℤ[x]/x² y)
+  H*-Sⁿ→ℤ[x]/x²-pres+ x y = refl
 
 
 
@@ -471,7 +470,7 @@ module Equiv-Sn-Properties (n : ℕ) where
                                      ∙ cong [_] (cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n)))
                                                                              (substReflCoHom (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a))))
                                      ∙ cong [_] (cong (baseP (1 ∷ [])) (rightInv (fst (Hⁿ-Sⁿ≅ℤ n)) a))
-           base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc k) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₋₁
+           base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc k) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₁
              where
              helper : _
              helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))

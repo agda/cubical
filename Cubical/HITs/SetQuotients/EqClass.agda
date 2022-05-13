@@ -48,7 +48,7 @@ module _
     (R : X → X → Type ℓ'') where
 
     isEqClass : ℙ → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-    isEqClass P = ∥ Σ[ x ∈ X ] ((a : X) → P a .fst ≃ ∥ R a x ∥) ∥
+    isEqClass P = ∥ Σ[ x ∈ X ] ((a : X) → P a .fst ≃ ∥ R a x ∥₁) ∥₁
 
     isPropIsEqClass : (P : ℙ) → isProp (isEqClass P)
     isPropIsEqClass P = isPropPropTrunc
@@ -89,17 +89,17 @@ module _
   (R : X → X → Type ℓ'')
   (h : isEquivRel R) where
 
-  ∥Rx∥Iso : (x x' : X)(r : R x x') → (a : X) → Iso ∥ R a x ∥ ∥ R a x' ∥
-  ∥Rx∥Iso x x' r a .fun = Prop.rec isPropPropTrunc (λ r' → ∣ h .transitive _ _ _ r' r ∣)
-  ∥Rx∥Iso x x' r a .inv = Prop.rec isPropPropTrunc (λ r' → ∣ h .transitive _ _ _ r' (h .symmetric _ _ r) ∣)
+  ∥Rx∥Iso : (x x' : X)(r : R x x') → (a : X) → Iso ∥ R a x ∥₁ ∥ R a x' ∥₁
+  ∥Rx∥Iso x x' r a .fun = Prop.rec isPropPropTrunc (λ r' → ∣ h .transitive _ _ _ r' r ∣₁)
+  ∥Rx∥Iso x x' r a .inv = Prop.rec isPropPropTrunc (λ r' → ∣ h .transitive _ _ _ r' (h .symmetric _ _ r) ∣₁)
   ∥Rx∥Iso x x' r a .leftInv _ = isPropPropTrunc _ _
   ∥Rx∥Iso x x' r a .rightInv _ = isPropPropTrunc _ _
 
-  isEqClass∥Rx∥ : (x : X) → isEqClass X R (λ a → ∥ R a x ∥ , isPropPropTrunc)
-  isEqClass∥Rx∥ x = ∣ x , (λ _ → idEquiv _) ∣
+  isEqClass∥Rx∥ : (x : X) → isEqClass X R (λ a → ∥ R a x ∥₁ , isPropPropTrunc)
+  isEqClass∥Rx∥ x = ∣ x , (λ _ → idEquiv _) ∣₁
 
   ∥R∥ : (x : X) → X ∥ R
-  ∥R∥ x = (λ a → ∥ R a x ∥ , isPropPropTrunc) , isEqClass∥Rx∥ x
+  ∥R∥ x = (λ a → ∥ R a x ∥₁ , isPropPropTrunc) , isEqClass∥Rx∥ x
 
   ∥Rx∥Path : (x x' : X)(r : R x x') → ∥R∥ x ≡ ∥R∥ x'
   ∥Rx∥Path x x' r i .fst a .fst = ua (isoToEquiv (∥Rx∥Iso x x' r a)) i
@@ -114,8 +114,8 @@ module _
   /→∥ : X / R → X ∥ R
   /→∥ = SetQuot.rec (isSet∥ X R) ∥R∥ (λ x x' r → ∥Rx∥Path x x' r)
 
-  inj/→∥' : (x x' : X) → ∥R∥ x ≡ ∥R∥ x' → ∥ R x x' ∥
-  inj/→∥' x x' p = transport (λ i → p i .fst x .fst) ∣ h .reflexive x ∣
+  inj/→∥' : (x x' : X) → ∥R∥ x ≡ ∥R∥ x' → ∥ R x x' ∥₁
+  inj/→∥' x x' p = transport (λ i → p i .fst x .fst) ∣ h .reflexive x ∣₁
 
   inj/→∥ : (x y : X / R) → /→∥ x ≡ /→∥ y → x ≡ y
   inj/→∥ =
@@ -126,7 +126,7 @@ module _
   isEmbedding/→∥ : isEmbedding /→∥
   isEmbedding/→∥ = injEmbedding squash/ (isSet∥ X R) (λ {x} {y} → inj/→∥ x y)
 
-  surj/→∥ : (P : X ∥ R) → ((x , _) : Σ[ x ∈ X ] ((a : X) → P .fst a .fst ≃ ∥ R a x ∥)) → ∥R∥ x ≡ P
+  surj/→∥ : (P : X ∥ R) → ((x , _) : Σ[ x ∈ X ] ((a : X) → P .fst a .fst ≃ ∥ R a x ∥₁)) → ∥R∥ x ≡ P
   surj/→∥ P (x , p) i .fst a .fst = ua (p a) (~ i)
   surj/→∥ P (x , p) i .fst a .snd =
     isProp→PathP {B = λ i → isProp (surj/→∥ P (x , p) i .fst a .fst)}
@@ -137,7 +137,7 @@ module _
                  (isEqClass∥Rx∥ x) (P .snd) i
 
   isSurjection/→∥ : isSurjection /→∥
-  isSurjection/→∥ P = Prop.rec isPropPropTrunc (λ p → ∣ [ p .fst ] , surj/→∥ P p ∣) (P .snd)
+  isSurjection/→∥ P = Prop.rec isPropPropTrunc (λ p → ∣ [ p .fst ] , surj/→∥ P p ∣₁) (P .snd)
 
   -- both definitions are equivalent
   equivQuot : X / R ≃ X ∥ R
