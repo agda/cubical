@@ -1,0 +1,14 @@
+name: Build
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Nix Config
+        run: |
+          mkdir -p ~/.config/nix/
+          echo '
+            experimental-features = nix-command flakes' > ~/.config/nix/nix.conf
+      - name: Build
+        run:  nix build -v --print-build-logs
