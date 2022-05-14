@@ -26,6 +26,3 @@ AlmostNull G Gstr f = ∃[ m ∈ ℕ ] ((n : ℕ) → m < n → f n ≡ 0g (Gstr
 
 ⊕Fun : (G : ℕ → Type ℓ) → (Gstr : (n : ℕ) → AbGroupStr (G n)) → Type ℓ
 ⊕Fun G Gstr = Σ[ f ∈ ((n : ℕ) → G n) ] AlmostNull G Gstr f
-
-isSet⊕Fun : (G : ℕ → Type ℓ) → (Gstr : (n : ℕ) → AbGroupStr (G n)) → isSet (⊕Fun G Gstr)
-isSet⊕Fun G Gstr = isSetΣSndProp (isSetΠ (λ n → is-set (Gstr n))) (λ _ → squash₁)

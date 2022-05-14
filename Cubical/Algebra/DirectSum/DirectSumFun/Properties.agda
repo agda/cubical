@@ -32,6 +32,9 @@ module DSF-properties
     GG : ℕ → Group ℓ
     GG n = AbGroup→Group ((G n) , (Gstr n))
 
+  isSet⊕Fun : isSet (⊕Fun G Gstr)
+  isSet⊕Fun = isSetΣSndProp (isSetΠ (λ n → is-set (Gstr n))) (λ _ → squash₁)
+
 
   -- Object
   0⊕Fun : ⊕Fun G Gstr

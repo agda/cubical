@@ -36,7 +36,7 @@ open Iso
 
 module intermediate-def where
   H*AbGr : (A : Type ℓ) → AbGroup ℓ
-  H*AbGr A = ⊕-AbGr ℕ (λ n → coHom n A) (λ n → snd (coHomGroup n A))
+  H*AbGr A = ⊕HIT-AbGr ℕ (λ n → coHom n A) (λ n → snd (coHomGroup n A))
 
   H* : (A : Type ℓ) → Type ℓ
   H* A = fst (H*AbGr A)

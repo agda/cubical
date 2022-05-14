@@ -22,4 +22,4 @@ module _ (G : (n : ℕ) → Type ℓ) (Gstr : (n : ℕ) → AbGroupStr (G n)) wh
   0g (snd ⊕Fun-AbGr) = 0⊕Fun
   AbGroupStr._+_ (snd ⊕Fun-AbGr) = _+⊕Fun_
   - snd ⊕Fun-AbGr = Inv⊕Fun
-  isAbGroup (snd ⊕Fun-AbGr) = makeIsAbGroup (isSet⊕Fun G Gstr) +⊕FunAssoc +⊕FunRid +⊕FunInvR +⊕FunComm
+  isAbGroup (snd ⊕Fun-AbGr) = makeIsAbGroup isSet⊕Fun +⊕FunAssoc +⊕FunRid +⊕FunInvR +⊕FunComm
