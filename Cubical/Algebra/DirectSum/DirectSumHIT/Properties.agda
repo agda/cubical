@@ -13,8 +13,8 @@ private variable
 
 module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupStr (P r)) where
 
-  inv : ⊕ Idx P AGP → ⊕ Idx P AGP
-  inv = DS-Rec-Set.f Idx P AGP (⊕ Idx P AGP) trunc
+  inv : ⊕HIT Idx P AGP → ⊕HIT Idx P AGP
+  inv = DS-Rec-Set.f Idx P AGP (⊕HIT Idx P AGP) trunc
            -- elements
            neutral
            (λ r a → base r (AbGroupStr.-_ (AGP r) a))
@@ -36,7 +36,7 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
 
 
 
-  rinv : (z : ⊕ Idx P AGP) → z add (inv z) ≡ neutral
+  rinv : (z : ⊕HIT Idx P AGP) → z add (inv z) ≡ neutral
   rinv = DS-Ind-Prop.f Idx P AGP (λ z → z add (inv z) ≡ neutral) (λ _ → trunc _ _)
          -- elements
          (addRid neutral)

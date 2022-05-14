@@ -16,7 +16,7 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
   open AbGroupStr
 
   ⊕-AbGr : AbGroup (ℓ-max ℓ ℓ')
-  fst ⊕-AbGr = ⊕ Idx P AGP
+  fst ⊕-AbGr = ⊕HIT Idx P AGP
   0g (snd ⊕-AbGr) = neutral
   _+_ (snd ⊕-AbGr) = _add_
   - snd ⊕-AbGr = inv Idx P AGP
