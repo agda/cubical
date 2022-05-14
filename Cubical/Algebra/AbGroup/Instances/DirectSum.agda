@@ -8,8 +8,6 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.DirectSum.Base
 open import Cubical.Algebra.DirectSum.Properties
 
-open import Cubical.Algebra.Polynomials.Multivariate.Base
-
 private variable
   ℓ ℓ' : Level
 
