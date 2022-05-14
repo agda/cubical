@@ -16,6 +16,7 @@
           # The cubical library has several `Everything.agda` files, which are
           # compiled through the make file they provide.
           nativeBuildInputs = [ agda ghc glibcLocales ];
+          install = "touch $out";
         };
       defaultPackage = packages.cubical;
     });
