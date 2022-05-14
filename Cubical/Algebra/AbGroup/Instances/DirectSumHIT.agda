@@ -1,12 +1,12 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.AbGroup.Instances.DirectSum where
+module Cubical.Algebra.AbGroup.Instances.DirectSumHIT where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.AbGroup
 
-open import Cubical.Algebra.DirectSum.Base
-open import Cubical.Algebra.DirectSum.Properties
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Properties
 
 private variable
   ℓ ℓ' : Level
