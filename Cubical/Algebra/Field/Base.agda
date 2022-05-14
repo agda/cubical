@@ -34,13 +34,13 @@ private
     ℓ ℓ' : Level
 
 record IsField {R : Type ℓ}
-                  (0r 1r : R) (_+_ _·_ : R → R → R) (-_ _⁻¹ : R → R) : Type ℓ where
+                  (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
 
   constructor isfield
 
   field
     isCommRing : IsCommRing 0r 1r _+_ _·_ -_
-    ·⁻¹≡1      : (x : R) → ¬ (x ≡ 0r) → x · (x ⁻¹) ≡ 1r
+    ≠0→inverse : (x : R) → ¬ (x ≡ 0r) → Σ[ y ∈ R ] x · y ≡ 1r
     0≢1        : ¬ (0r ≡ 1r)
 
   open IsCommRing isCommRing public
@@ -55,10 +55,8 @@ record FieldStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
     _+_        : A → A → A
     _·_        : A → A → A
     -_         : A → A
-    _⁻¹        : A → A
-    isField    : IsField 0r 1r _+_ _·_ -_ _⁻¹
+    isField    : IsField 0r 1r _+_ _·_ -_
 
-  infix  20 _⁻¹
   infix  8 -_
   infixl 7 _·_
   infixl 6 _+_
@@ -71,7 +69,7 @@ Field ℓ = TypeWithStr ℓ FieldStr
 isSetField : (R : Field ℓ) → isSet ⟨ R ⟩
 isSetField R = R .snd .FieldStr.isField .IsField.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
-makeIsField : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ _⁻¹ : R → R}
+makeIsField : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                  (is-setR : isSet R)
                  (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
                  (+-rid : (x : R) → x + 0r ≡ x)
@@ -81,11 +79,11 @@ makeIsField : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ _⁻¹ 
                  (·-rid : (x : R) → x · 1r ≡ x)
                  (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
                  (·-comm : (x y : R) → x · y ≡ y · x)
-                 (·⁻¹≡1 : (x : R) → ¬ (x ≡ 0r) → x · (x ⁻¹) ≡ 1r)
+                 (≠0→inverse : (x : R) → ¬ (x ≡ 0r) → Σ[ y ∈ R ] x · y ≡ 1r)
                  (0≢1 : ¬ (0r ≡ 1r))
-               → IsField 0r 1r _+_ _·_ -_ _⁻¹
-makeIsField {_+_ = _+_} is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm ·⁻¹≡1 0≢1 =
-  isfield (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm) ·⁻¹≡1 0≢1
+               → IsField 0r 1r _+_ _·_ -_
+makeIsField {_+_ = _+_} is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm ≠0→inverse 0≢1 =
+  isfield (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm) ≠0→inverse 0≢1
 
 makeField : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) ( -_ _⁻¹ : R → R)
                  (is-setR : isSet R)
@@ -97,17 +95,17 @@ makeField : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) ( -_ _⁻¹ : 
                  (·-rid : (x : R) → x · 1r ≡ x)
                  (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
                  (·-comm : (x y : R) → x · y ≡ y · x)
-                 (·⁻¹≡1 : (x : R) → ¬ (x ≡ 0r) → x · (x ⁻¹) ≡ 1r)
+                 (≠0→inverse : (x : R) → ¬ (x ≡ 0r) → Σ[ y ∈ R ] x · y ≡ 1r)
                  (0≢1 : ¬ (0r ≡ 1r))
                → Field ℓ
-makeField 0r 1r _+_ _·_ -_ _⁻¹ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm ·⁻¹≡1 0≢1 =
-  _ , fieldstr _ _ _ _ _ _ (makeIsField is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm ·⁻¹≡1 0≢1)
+makeField 0r 1r _+_ _·_ -_ _⁻¹ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm ≠0→inverse 0≢1 =
+  _ , fieldstr _ _ _ _ _ (makeIsField is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm ≠0→inverse 0≢1)
 
 FieldStr→CommRingStr : {A : Type ℓ} → FieldStr A → CommRingStr A
-FieldStr→CommRingStr (fieldstr _ _ _ _ _ _ H) = commringstr _ _ _ _ _ (IsField.isCommRing H)
+FieldStr→CommRingStr (fieldstr _ _ _ _ _ H) = commringstr _ _ _ _ _ (IsField.isCommRing H)
 
 Field→CommRing : Field ℓ → CommRing ℓ
-Field→CommRing (_ , fieldstr _ _ _ _ _ _ H) = _ , commringstr _ _ _ _ _ (IsField.isCommRing H)
+Field→CommRing (_ , fieldstr _ _ _ _ _ H) = _ , commringstr _ _ _ _ _ (IsField.isCommRing H)
 
 record IsFieldHom {A : Type ℓ} {B : Type ℓ'} (R : FieldStr A) (f : A → B) (S : FieldStr B)
   : Type (ℓ-max ℓ ℓ')
@@ -124,7 +122,6 @@ record IsFieldHom {A : Type ℓ} {B : Type ℓ'} (R : FieldStr A) (f : A → B) 
     pres+  : (x y : A) → f (x R.+ y) ≡ f x S.+ f y
     pres·  : (x y : A) → f (x R.· y) ≡ f x S.· f y
     pres-  : (x : A) → f (R.- x) ≡ S.- (f x)
-    pres⁻¹ : (x : A) → f (x R.⁻¹) ≡ ((f x) S.⁻¹)
 
 unquoteDecl IsFieldHomIsoΣ = declareRecordIsoΣ IsFieldHomIsoΣ (quote IsFieldHom)
 
@@ -144,17 +141,14 @@ _$_ : {R S : Field ℓ} → (φ : FieldHom R S) → (x : ⟨ R ⟩) → ⟨ S �
 FieldEquiv→FieldHom : {A B : Field ℓ} → FieldEquiv A B → FieldHom A B
 FieldEquiv→FieldHom (e , eIsHom) = e .fst , eIsHom
 
-isPropIsField : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ _⁻¹ : R → R)
-             → isProp (IsField 0r 1r _+_ _·_ -_ _⁻¹)
-isPropIsField 0r 1r _+_ _·_ -_ _⁻¹ (isfield RR RC RD) (isfield SR SC SD) =
+isPropIsField : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
+             → isProp (IsField 0r 1r _+_ _·_ -_)
+isPropIsField {R = R} 0r 1r _+_ _·_ -_ (isfield RR RC RD) (isfield SR SC SD) =
   λ i → isfield (isPropIsCommRing _ _ _ _ _ RR SR i)
                    (isPropInv RC SC i) (isProp→⊥ RD SD i)
   where
-  isSetR : isSet _
-  isSetR =  RR .IsCommRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
-
-  isPropInv : isProp ((x : _) → ¬ (x ≡ 0r) → x · (x ⁻¹) ≡ 1r)
-  isPropInv = isPropΠ2 λ _ _ → isSetR _ _
+  isPropInv : isProp ((x : _) → ¬ (x ≡ 0r) → Σ[ y ∈ R ] x · y ≡ 1r)
+  isPropInv = isPropΠ2 λ x _ → Units.inverseUniqueness (R , commringstr _ _ _ _ _ RR) x
 
   isProp→⊥ : ∀ {A : Type ℓ} → isProp (A → ⊥)
   isProp→⊥ = isPropΠ λ _ → isProp⊥
@@ -168,8 +162,7 @@ isPropIsField 0r 1r _+_ _·_ -_ _⁻¹ (isfield RR RC RD) (isfield SR SC SD) =
       data[ _+_ ∣ bin ∣ pres+ ]
       data[ _·_ ∣ bin ∣ pres· ]
       data[ -_  ∣ un ∣ pres- ]
-      data[ _⁻¹ ∣ un ∣ pres⁻¹ ]
-      prop[ isField ∣ (λ _ _ → isPropIsField _ _ _ _ _ _) ])
+      prop[ isField ∣ (λ _ _ → isPropIsField _ _ _ _ _) ])
  where
   open FieldStr
   open IsFieldHom
