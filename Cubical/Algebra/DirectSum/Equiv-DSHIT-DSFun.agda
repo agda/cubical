@@ -11,6 +11,7 @@ open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
+open import Cubical.Data.FinData
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -91,8 +92,14 @@ module Equiv-Properties
     +⊕Fun-InvL : (x : ⊕Fun G Gstr) → (-⊕Fun x) +⊕Fun x ≡ 0⊕Fun
     +⊕Fun-InvL = λ x → snd (+⊕Fun-InvR×InvL x)
 
+    0Fun : (n : ℕ) → G n
+    0Fun = λ n → 0g (Gstr n)
+
+    _+Fun_ : ((n : ℕ) → G n) → ((n : ℕ) → G n) → ((n : ℕ) → G n)
+    _+Fun_ f g n = Gstr n ._+_ (f n) (g n)
+
 -----------------------------------------------------------------------------
--- Transport
+-- Some simplification for transport
 
   subst0 : {k n : ℕ} → (p : k ≡ n) → subst G p (0g (Gstr k)) ≡ 0g (Gstr n)
   subst0 {k} {n} p = J (λ n p → subst G p (0g (Gstr k)) ≡ 0g (Gstr n))
@@ -108,11 +115,11 @@ module Equiv-Properties
   substG : (g : (n : ℕ) → G n) → {k n : ℕ} → (p : k ≡ n) → subst G p (g k) ≡ g n
   substG g {k} {n} p = J (λ n p → subst G p (g k) ≡ g n) (transportRefl _) p
 
-
 -----------------------------------------------------------------------------
 -- Direct Sens
 
-  -- trad on function
+  -- To facilitate the proof the traduction to the function
+  -- and to its properties are sperated
   fun-trad : (k : ℕ) → (a : G k) → (n : ℕ) → G n
   fun-trad k a n with (discreteℕ k n)
   ... | yes p = subst G p a
@@ -166,36 +173,6 @@ module Equiv-Properties
                                    ∣ ((k +n l) , (λ n q → cong₂ ((Gstr n)._+_) (nu n (<-+k-trans q)) (nv n (<-k+-trans q))
                                                           ∙ fst (identity (Gstr n) _))) ∣₁} })
 
-
-  -- ⊕HIT→⊕Fun : ⊕HIT ℕ G Gstr → ⊕Fun G Gstr
-  -- ⊕HIT→⊕Fun = DS-Rec-Set.f _ _ _ _ isSet⊕Fun
-  --              0⊕Fun
-  --              (λ k a → (fun-trad k a) , ∣ (nfun-trad k a) ∣₁)
-  --              _+⊕Fun_
-  --              +⊕Fun-Assoc
-  --              +⊕Fun-IdR
-  --              +⊕Fun-Comm
-  --              base-0-eq
-  --              base-add-eq
-  --           where
-  --           base-0-eq : _
-  --           base-0-eq k = ΣPathTransport→PathΣ _ _
-  --                         (funExt f-eq , (squash₁ _ _))
-  --                     where
-  --                     f-eq : _
-  --                     f-eq n with discreteℕ k n
-  --                     ... | yes p = subst0 p
-  --                     ... | no ¬p = refl
-
-  --           base-add-eq : _
-  --           base-add-eq k a b = ΣPathTransport→PathΣ _ _
-  --                          ((funExt f-eq) , (squash₁ _ _))
-  --                       where
-  --                       f-eq : _
-  --                       f-eq n with discreteℕ k n
-  --                       ... | yes p = sym (subst+ a b p)
-  --                       ... | no ¬p = fst (identity (Gstr n) (0g (Gstr n)))
-
   ⊕HIT→⊕Fun : ⊕HIT ℕ G Gstr → ⊕Fun G Gstr
   ⊕HIT→⊕Fun x = (⊕HIT→Fun x) , (⊕HIT→⊕AlmostNull x)
 
@@ -208,10 +185,6 @@ module Equiv-Properties
 
 -----------------------------------------------------------------------------
 -- Converse sens + Section
-
-  {- To build the traduction, one need to know the k such that g is null.
-     Hence we need to be a prop, so we prove the section in the same type
-  -}
 
   inj-⊕HIT→Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun x ≡ ⊕HIT→Fun y → x ≡ y
   inj-⊕HIT→Fun = {!!}
@@ -256,7 +229,7 @@ module Equiv-Properties
 
   trad-eq : (g : (n : ℕ) → G n) → (k : ℕ) → (ng : (n : ℕ) → ( k < n) → g n ≡ 0g (Gstr n))
             → (n : ℕ) → ⊕HIT→Fun (Strad g k) n ≡ g n
-  trad-eq g k ng n with splitℕ-< n k
+  trad-eq g k ng n with splitℕ-≤ n k
   ... | inl x = trad-n≤m g k n x
   ... | inr x = trad-m<n g k n x ∙ sym (ng n x)
 
