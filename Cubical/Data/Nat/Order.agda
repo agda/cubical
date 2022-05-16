@@ -119,6 +119,12 @@ suc-< p = pred-≤-pred (≤-suc p)
  cancelled : l + m ≡ n
  cancelled = inj-+m (sym (+-assoc l m k) ∙ p)
 
+≤-+k-trans : (m + k ≤ n) → m ≤ n
+≤-+k-trans {m} {k} {n} p = ≤-trans (k , +-comm k m) p
+
+≤-k+-trans : (k + m ≤ n) → m ≤ n
+≤-k+-trans {m} {k} {n} p = ≤-trans (m , refl) p
+
 ≤-·k : m ≤ n → m · k ≤ n · k
 ≤-·k {m} {n} {k} (d , r) = d · k , reason where
   reason : d · k + m · k ≡ n · k
@@ -163,17 +169,17 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-asym : m < n → ¬ n ≤ m
 <-asym m<n = ¬m<m ∘ <≤-trans m<n
 
-<-+k-cbnL : {k l n : ℕ} → (k + l < n) → k < n
-<-+k-cbnL {k} {l} {n} p = ≤<-trans (l , +-comm l k) p
-
-<-+k-cbnR : {k l n : ℕ} → (k + l < n) → l < n
-<-+k-cbnR {k} {l} {n} p = ≤<-trans (k , refl) p
-
 <-+k : m < n → m + k < n + k
 <-+k p = ≤-+k p
 
 <-k+ : m < n → k + m < k + n
 <-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
+
+<-+k-trans : (m + k < n) → m < n
+<-+k-trans {m} {k} {n} p = ≤<-trans (k , +-comm k m) p
+
+<-k+-trans : (k + m < n) → m < n
+<-k+-trans {m} {k} {n} p = ≤<-trans (m , refl) p
 
 <-+-< : m < n → k < l → m + k < n + l
 <-+-<  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
@@ -246,6 +252,12 @@ zero ≟ suc n = lt (n , +-comm n 1)
 suc m ≟ zero = gt (m , +-comm m 1)
 suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 
+splitℕ-< : (m n : ℕ) → (m ≤ n) ⊎ (n < m)
+splitℕ-< m n with m ≟ n
+... | lt x = inl (<-weaken x)
+... | eq x = inl (0 , x)
+... | gt x = inr x
+
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
@@ -259,6 +271,9 @@ suc m ≟ suc n = Trichotomy-suc (m ≟ n)
   case (≤-split p) of
     λ { (inl r) → r
       ; (inr r) → ⊥.rec (q r) }
+
+≤-suc-≢ : m ≤ suc n → (m ≡ suc n → ⊥ ) → m ≤ n
+≤-suc-≢ p ¬q = pred-≤-pred (≤→< p ¬q)
 
 ≤-+-split : ∀ n m k → k ≤ n + m → (n ≤ k) ⊎ (m ≤ (n + m) ∸ k)
 ≤-+-split n m k k≤n+m with n ≟ k

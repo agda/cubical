@@ -44,11 +44,11 @@ module DSF-properties
   _+⊕Fun_ (f , Anf) (g , Ang) = f+g , Anf+g Anf Ang
     where
     f+g = λ n → Gstr n ._+_ (f n) (g n)
-    Anf+g : AlmostNull G Gstr f → AlmostNull G Gstr g → AlmostNull G Gstr f+g
+    Anf+g : AlmostNullP G Gstr f → AlmostNullP G Gstr g → AlmostNullP G Gstr f+g
     Anf+g = PT.rec2 squash₁
             (λ { (k , nf) → λ { (l , ng) →
                ∣ ((k +n l) ,
-                 (λ n p → cong₂ ((Gstr n)._+_) (nf n (<-+k-cbnL p)) (ng n (<-+k-cbnR p))
+                 (λ n p → cong₂ ((Gstr n)._+_) (nf n (<-+k-trans p)) (ng n (<-k+-trans p))
                            ∙ rid (Gstr n) (0g (Gstr n)))) ∣₁ } })
 
 
@@ -56,7 +56,7 @@ module DSF-properties
   Inv⊕Fun (f , Anf) = f- , Anf- Anf
     where
     f- = λ n → (Gstr n).-_ (f n)
-    Anf- : AlmostNull G Gstr f → AlmostNull G Gstr f-
+    Anf- : AlmostNullP G Gstr f → AlmostNullP G Gstr f-
     Anf- = PT.rec squash₁
            (λ { (k , nf) →
               ∣ (k , λ n p → cong ((Gstr n).-_) (nf n p) ∙ inv1g (GG n)) ∣₁})
