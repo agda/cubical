@@ -5,7 +5,11 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Powerset using (_∈_; _⊆_) -- \in, \sub=
+open import Cubical.Foundations.Powerset using (_∈_; _⊆_; ⊆-extensionality) -- \in, \sub=
+
+open import Cubical.Data.Sigma using (Σ≡Prop)
+
+open import Cubical.Relation.Binary
 
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/ₛ_)
 open import Cubical.HITs.SetQuotients.Properties
@@ -13,6 +17,7 @@ open import Cubical.HITs.SetQuotients.Properties
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal
 open import Cubical.Algebra.Ring.Kernel
+open import Cubical.Algebra.CommRingSolver.Reflection
 
 private
   variable
@@ -70,6 +75,10 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
       where
         R/I→R/I-isSet : R/I → isSet (R/I → R/I)
         R/I→R/I-isSet _ = isSetΠ (λ _ → squash/)
+
+    -- Note that _+/I_ reduces in this case:
+    _ : (x y : R) → [ x ] +/I [ y ] ≡ [ x + y ]
+    _ = λ x y → refl
 
     +/I-comm : (x y : R/I) → x +/I y ≡ y +/I x
     +/I-comm = elimProp2 (λ _ _ → squash/ _ _) eq
@@ -186,6 +195,14 @@ R / (I , IisIdeal) = asRing R I IisIdeal
 [_]/I : {R : Ring ℓ} {I : IdealsIn R} → (a : ⟨ R ⟩) → ⟨ R / I ⟩
 [ a ]/I = [ a ]
 
+quotientMap : (R : Ring ℓ) → (I : IdealsIn R) → RingHom R (R / I)
+fst (quotientMap R I) = [_]
+IsRingHom.pres0 (snd (quotientMap R I)) = refl
+IsRingHom.pres1 (snd (quotientMap R I)) = refl
+IsRingHom.pres+ (snd (quotientMap R I)) _ _ = refl
+IsRingHom.pres· (snd (quotientMap R I)) _ _ = refl
+IsRingHom.pres- (snd (quotientMap R I)) _ = refl
+
 
 module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
   open RingStr ⦃...⦄
@@ -234,3 +251,40 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
              → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $ [ x ] ≡ φ $ x)
              → (x : ⟨ R ⟩) → ψ $ [ x ] ≡ inducedHom p $ [ x ]
     unique p ψ ψIsSolution x = ψIsSolution x
+
+
+module Kernel (R : Ring ℓ) (I : IdealsIn R) where
+  q = quotientMap R I
+
+  kernel≡I : kernelIdeal q ≡ I
+  kernel≡I = Σ≡Prop (isPropIsIdeal R) (⊆-extensionality _ _ (ker⊆I , I⊆ker))
+    where
+      open RingStr (snd R)
+      module R/I = RingStr (snd (R / I))
+      open BinaryRelation
+
+      x-0≡x : (x : ⟨ R ⟩) → x - 0r ≡ x
+      x-0≡x x =
+        x - 0r  ≡⟨ cong (x +_) (RingTheory.0Selfinverse R) ⟩
+        x + 0r  ≡⟨ +Rid x ⟩
+        x       ∎
+
+      _~_ : Rel ⟨ R ⟩ ⟨ R ⟩ ℓ
+      x ~ y = x - y ∈ fst I
+
+      ~IsPropValued : isPropValued _~_
+      ~IsPropValued x y = snd (fst I (x - y))
+
+      ~IsEquivRel : isEquivRel _~_
+      isEquivRel.reflexive ~IsEquivRel x = {!!}
+      isEquivRel.symmetric ~IsEquivRel x y = {!!}
+      isEquivRel.transitive ~IsEquivRel x y z = {!!}
+
+      ker⊆I : (x : ⟨ R ⟩) → x ∈ kernel q → x ∈ fst I
+      ker⊆I x x∈ker = subst (_∈ fst I) (x-0≡x x) x-0∈I
+        where
+          x-0∈I : x - 0r ∈ fst I
+          x-0∈I = effective ~IsPropValued ~IsEquivRel x 0r x∈ker
+
+      I⊆ker : (x : ⟨ R ⟩) → x ∈ fst I → x ∈ kernel q
+      I⊆ker x x∈I = eq/ _ _ (subst (_∈ fst I) (sym (x-0≡x x)) x∈I)
