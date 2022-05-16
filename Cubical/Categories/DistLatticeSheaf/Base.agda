@@ -143,6 +143,8 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
                            (F : DLPreSheaf) where
     open isUnivalent
     open Cone
+    open LimCone
+    open Pullback
     L→P : isDLSheaf F → isDLSheafPullback F
     fst (L→P isSheafF) = CatIsoToPath isUnivalentC (terminalToIso C (_ , isTerminalF0) T)
       where -- F(0) ≡ terminal obj.
@@ -166,9 +168,6 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
 
     snd (L→P isSheafF) x y = LimAsPullback .univProp
      where
-     open Cone
-     open LimCone
-     open Pullback
      xyVec : FinVec (fst L) 2
      xyVec zero = y
      xyVec one = x
@@ -242,9 +241,20 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
          helperPathP (pair one zero ())
          helperPathP (pair one one (s≤s ()))
          helperPathP (pair (suc (suc _)) one (s≤s ()))
-
      open DLShfDiagsAsPullbacks C _ theLimCone
 
+
+    --the other direction
+    P→L : isDLSheafPullback F → isDLSheaf F
+    fst (fst (P→L (F0=1 , _) ℕ.zero α c cc)) = subst (λ d → C [ c , d ]) (sym F0=1) (T .snd c .fst)
+    snd (fst (P→L (F0=1 , _) ℕ.zero α c cc)) (sing ())
+    snd (fst (P→L (F0=1 , _) ℕ.zero α c cc)) (pair () _ _)
+    snd (P→L (F0=1 , _) ℕ.zero α c cc) (f , _) = Σ≡Prop (isPropIsConeMor _ _)
+        (transport (λ i → subst-filler (λ d → C [ c , d ]) (sym F0=1) (T .snd c .fst) i
+                        ≡ subst-filler (λ d → C [ c , d ]) F0=1 f (~ i))
+                   (T .snd c .snd (subst (λ d → C [ c , d ]) F0=1 f)))
+
+    P→L (_ , presPBSq) (ℕ.suc n) α = {!presPBSq (α zero) (⋁ (α ∘ suc))!}
 
 
 module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C)
