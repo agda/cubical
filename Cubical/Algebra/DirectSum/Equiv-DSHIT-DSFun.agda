@@ -207,7 +207,11 @@ module Equiv-Properties
 
 
 -----------------------------------------------------------------------------
--- Converse sens
+-- Converse sens + Section
+
+  {- To build the traduction, one need to know the k such that g is null.
+     Hence we need to be a prop, so we prove the section in the same type
+  -}
 
   inj-⊕HIT→Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun x ≡ ⊕HIT→Fun y → x ≡ y
   inj-⊕HIT→Fun = {!!}
@@ -219,43 +223,42 @@ module Equiv-Properties
   lemProp g (x , p) (y , q) = ΣPathTransport→PathΣ _ _
                               ((inj-⊕HIT→⊕Fun x y (p ∙ sym q)) , isSet⊕Fun _ _ _ _)
 
+
+  -- trad g = ∑_{i ∈〚0, k〛} base i (g i)
   Strad : (g : (n : ℕ) → G n) → (i : ℕ) → ⊕HIT ℕ G Gstr
   Strad g zero = base 0 (g 0)
   Strad g (suc i) = (base (suc i) (g (suc i))) +⊕HIT (Strad g i)
 
-  trad-< : (g : (n : ℕ) → G n) → (k : ℕ) → (ng : (n : ℕ) → ( k < n) → g n ≡ 0g (Gstr n))
-           → (i : ℕ) → (n : ℕ) → (r : (k < n)) → ⊕HIT→Fun (Strad g i) n ≡ 0g (Gstr n)
-  trad-< g k ng zero n r with discreteℕ 0 n
-  ... | yes p = substG g p ∙ ng n r
-  ... | no ¬p = refl
-  trad-< g k ng (suc i) n r with discreteℕ (suc i) n
-  ... | yes p = cong₂ ((Gstr n)._+_) (substG g p) (trad-< g k ng i n r)
-                ∙ cong (λ X → Gstr n ._+_ X (0g (Gstr n))) (ng n r)
-                ∙ fst (identity (Gstr n) _)
-  ... | no ¬p = snd (identity (Gstr n) _) ∙ trad-< g k ng i n r
-
-  trad-<< : (g : (n : ℕ) → G n) → (i : ℕ) → (n : ℕ) → (r : i < n)
-            → ⊕HIT→Fun (Strad g i) n ≡ 0g (Gstr n)
-  trad-<< g zero n r with discreteℕ 0 n
+{- ### General Behabiour ### -}
+  -- if m < n then the traduction of sum up to i is 0
+  trad-m<n : (g : (n : ℕ) → G n) → (m : ℕ) → (n : ℕ) → (r : m < n)
+            → ⊕HIT→Fun (Strad g m) n ≡ 0g (Gstr n)
+  trad-m<n g zero n r with discreteℕ 0 n
   ... | yes p = ⊥.rec (<→≢ r p)
   ... | no ¬p = refl
-  trad-<< g (suc i) n r with discreteℕ (suc i) n
+  trad-m<n g (suc m) n r with discreteℕ (suc m) n
   ... | yes p = ⊥.rec (<→≢ r p)
-  ... | no ¬p = snd (identity (Gstr n) _) ∙ trad-<< g i n (<-trans ≤-refl r)
+  ... | no ¬p = snd (identity (Gstr n) _) ∙ trad-m<n g m n (<-trans ≤-refl r)
 
-  trad-≤ : (g : (n : ℕ) → G n) → (k : ℕ) → (n : ℕ) → (r : n ≤ k) → ⊕HIT→Fun (Strad g k) n ≡ g n
-  trad-≤ g zero n r with discreteℕ 0 n
+  {- if n ≤ m, prove ⊕HIT→Fun (∑_{i ∈〚0, m〛} base i (g i)) ≡ g n
+     then n is equal to only one〚0, m〛=> induction on m
+     case 0 : ok
+     case suc m : if n ≡ suc m, then the rest of the sum is 0 by trad-m<n
+                  if n ≢ suc m, then it is in the rest of the sum => recursive call -}
+  trad-n≤m : (g : (n : ℕ) → G n) → (m : ℕ) → (n : ℕ) → (r : n ≤ m) → ⊕HIT→Fun (Strad g m) n ≡ g n
+  trad-n≤m g zero n r with discreteℕ 0 n
   ... | yes p = substG g p
   ... | no ¬p = ⊥.rec (¬p (sym (≤0→≡0 r)))
-  trad-≤ g (suc k) n r with discreteℕ (suc k) n
-  ... | yes p = cong₂ ((Gstr n)._+_) (substG g p) (trad-<< g k n (0 , p)) ∙ fst (identity (Gstr n) _)
-  ... | no ¬p = snd (identity (Gstr n) _) ∙ trad-≤ g k n (≤-suc-≢ r λ x → ¬p (sym x))
+  trad-n≤m g (suc m) n r with discreteℕ (suc m) n
+  ... | yes p = cong₂ ((Gstr n)._+_) (substG g p) (trad-m<n g m n (0 , p)) ∙ fst (identity (Gstr n) _)
+  ... | no ¬p = snd (identity (Gstr n) _) ∙ trad-n≤m g m n (≤-suc-≢ r λ x → ¬p (sym x))
+{- ### General Behabiour ### -}
 
   trad-eq : (g : (n : ℕ) → G n) → (k : ℕ) → (ng : (n : ℕ) → ( k < n) → g n ≡ 0g (Gstr n))
             → (n : ℕ) → ⊕HIT→Fun (Strad g k) n ≡ g n
   trad-eq g k ng n with splitℕ-< n k
-  ... | inl x = trad-≤ g k n x
-  ... | inr x = trad-<< g k n x ∙ sym (ng n x)
+  ... | inl x = trad-n≤m g k n x
+  ... | inr x = trad-m<n g k n x ∙ sym (ng n x)
 
   ⊕Fun→⊕HIT+ : (g : ⊕Fun G Gstr) → Σ[ x ∈ ⊕HIT ℕ G Gstr ] ⊕HIT→⊕Fun x ≡ g
   ⊕Fun→⊕HIT+ (g , Ang) = PT.rec (lemProp (g , Ang))
@@ -266,3 +269,11 @@ module Equiv-Properties
 
   ⊕Fun→⊕HIT : ⊕Fun G Gstr → ⊕HIT ℕ G Gstr
   ⊕Fun→⊕HIT g = fst (⊕Fun→⊕HIT+ g)
+
+  e-sect : (g : ⊕Fun G Gstr) → ⊕HIT→⊕Fun (⊕Fun→⊕HIT g) ≡ g
+  e-sect g = snd (⊕Fun→⊕HIT+ g)
+
+-----------------------------------------------------------------------------
+-- Retraction
+
+         {- TODO -}
