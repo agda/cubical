@@ -311,11 +311,6 @@ fst η₃ (inl x) = north
 fst η₃ (inr x) = north
 fst η₃ (push a b i) =
   (σ (S² , base) (S¹×S¹→S² a b) ∙ σ (S² , base) (S¹×S¹→S² a b)) i
-  where
-  S¹×S¹→S² : S¹ → S¹ → S²
-  S¹×S¹→S² base y = base
-  S¹×S¹→S² (loop i) base = base
-  S¹×S¹→S² (loop i) (loop j) = surf i j
 snd η₃ = refl
 
 K₂ = ∥ S² ∥₄

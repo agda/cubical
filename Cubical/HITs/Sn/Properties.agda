@@ -12,7 +12,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.HITs.S1 renaming (_·_ to _*_) hiding (rec ; elim)
-open import Cubical.HITs.S2
+open import Cubical.HITs.S2 hiding (S¹×S¹→S²)
 open import Cubical.HITs.S3
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
