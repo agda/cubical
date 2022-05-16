@@ -213,7 +213,7 @@ module Equiv-Properties
   inj-⊕HIT→Fun = {!!}
 
   inj-⊕HIT→⊕Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→⊕Fun x ≡ ⊕HIT→⊕Fun y → x ≡ y
-  inj-⊕HIT→⊕Fun x y p = {!ΣPathTransport→PathΣ _ _!}
+  inj-⊕HIT→⊕Fun x y p = inj-⊕HIT→Fun x y (fst (PathΣ→ΣPathTransport _ _ p))
 
   lemProp : (g : ⊕Fun G Gstr) → isProp (Σ[ x ∈ ⊕HIT ℕ G Gstr ] ⊕HIT→⊕Fun x ≡ g )
   lemProp g (x , p) (y , q) = ΣPathTransport→PathΣ _ _
