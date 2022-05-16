@@ -252,11 +252,17 @@ zero ≟ suc n = lt (n , +-comm n 1)
 suc m ≟ zero = gt (m , +-comm m 1)
 suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 
-splitℕ-< : (m n : ℕ) → (m ≤ n) ⊎ (n < m)
-splitℕ-< m n with m ≟ n
+splitℕ-≤ : (m n : ℕ) → (m ≤ n) ⊎ (n < m)
+splitℕ-≤ m n with m ≟ n
 ... | lt x = inl (<-weaken x)
 ... | eq x = inl (0 , x)
 ... | gt x = inr x
+
+splitℕ-< : (m n : ℕ) → (m < n) ⊎ (n ≤ m)
+splitℕ-< m n with m ≟ n
+... | lt x = inl x
+... | eq x = inr (0 , (sym x))
+... | gt x = inr (<-weaken x)
 
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
