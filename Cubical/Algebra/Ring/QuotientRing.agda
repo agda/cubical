@@ -253,61 +253,59 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
     unique p ψ ψIsSolution x = ψIsSolution x
 
 
-module Kernel (R : Ring ℓ) (I : IdealsIn R) where
+module Kernel {R : Ring ℓ} (I : IdealsIn R) where
+  open RingStr (snd R)
+  open isIdeal (snd I)
+  open BinaryRelation.isEquivRel
+
   q = quotientMap R I
+
+  private
+    x-0≡x : (x : ⟨ R ⟩) → x - 0r ≡ x
+    x-0≡x x =
+      x - 0r  ≡⟨ cong (x +_) (RingTheory.0Selfinverse R) ⟩
+      x + 0r  ≡⟨ +Rid x ⟩
+      x       ∎
+
+  I⊆ker : fst I ⊆ kernel q
+  I⊆ker x x∈I = eq/ _ _ (subst (_∈ fst I) (sym (x-0≡x x)) x∈I)
+
+  private
+    _~_ : Rel ⟨ R ⟩ ⟨ R ⟩ ℓ
+    x ~ y = x - y ∈ fst I
+
+    ~IsPropValued : BinaryRelation.isPropValued _~_
+    ~IsPropValued x y = snd (fst I (x - y))
+
+    -- _~_ is an equivalence relation.
+    -- Note: This could be proved in the general setting of a subgroup of a group.
+
+    -[x-y]≡y-x : {x y : ⟨ R ⟩} → - (x - y) ≡ y - x
+    -[x-y]≡y-x {x} {y} =
+      - (x - y)      ≡⟨ sym (-Dist _ _) ⟩
+      - x + - (- y)  ≡⟨ cong (- x +_) (-Idempotent _) ⟩
+      - x + y        ≡⟨ +Comm _ _ ⟩
+      y - x          ∎
+      where open RingTheory R
+
+    x-y+y-z≡x-z : {x y z : ⟨ R ⟩} → (x - y) + (y - z) ≡ x - z
+    x-y+y-z≡x-z {x} {y} {z} =
+      (x + - y) + (y + - z)  ≡⟨ +Assoc _ _ _ ⟩
+      ((x + - y) + y) + - z  ≡⟨ cong (_+ - z) (sym (+Assoc _ _ _)) ⟩
+      (x + (- y + y)) + - z  ≡⟨ cong (λ -y+y → (x + -y+y) + - z) (+Linv _) ⟩
+      (x + 0r) + - z         ≡⟨ cong (_+ - z) (+Rid _) ⟩
+      x - z                  ∎
+
+    ~IsEquivRel : BinaryRelation.isEquivRel _~_
+    reflexive ~IsEquivRel x              = subst (_∈ fst I) (sym (+Rinv x)) 0r-closed
+    symmetric ~IsEquivRel x y x~y        = subst (_∈ fst I) -[x-y]≡y-x (-closed x~y)
+    transitive ~IsEquivRel x y z x~y y~z = subst (_∈ fst I) x-y+y-z≡x-z (+-closed x~y y~z)
+
+  ker⊆I : kernel q ⊆ fst I
+  ker⊆I x x∈ker = subst (_∈ fst I) (x-0≡x x) x-0∈I
+    where
+      x-0∈I : x - 0r ∈ fst I
+      x-0∈I = effective ~IsPropValued ~IsEquivRel x 0r x∈ker
 
   kernel≡I : kernelIdeal q ≡ I
   kernel≡I = Σ≡Prop (isPropIsIdeal R) (⊆-extensionality _ _ (ker⊆I , I⊆ker))
-    where
-      open RingStr (snd R)
-      module R/I = RingStr (snd (R / I))
-      open BinaryRelation
-
-      x-0≡x : (x : ⟨ R ⟩) → x - 0r ≡ x
-      x-0≡x x =
-        x - 0r  ≡⟨ cong (x +_) (RingTheory.0Selfinverse R) ⟩
-        x + 0r  ≡⟨ +Rid x ⟩
-        x       ∎
-
-      _~_ : Rel ⟨ R ⟩ ⟨ R ⟩ ℓ
-      x ~ y = x - y ∈ fst I
-
-      ~IsPropValued : isPropValued _~_
-      ~IsPropValued x y = snd (fst I (x - y))
-
-      -- _~_ is an equivalence relation.
-      -- Note: This could be proved in the general setting of a subgroup of a group.
-      module _ where
-        open isEquivRel
-        open isIdeal (snd I)
-        open RingTheory R
-
-        private
-          -[x-y]≡y-x : {x y : ⟨ R ⟩} → - (x - y) ≡ y - x
-          -[x-y]≡y-x {x} {y} =
-            - (x - y)      ≡⟨ sym (-Dist _ _) ⟩
-            - x + - (- y)  ≡⟨ cong (- x +_) (-Idempotent _) ⟩
-            - x + y        ≡⟨ +Comm _ _ ⟩
-            y - x          ∎
-
-          x-y+y-z≡x-z : {x y z : ⟨ R ⟩} → (x - y) + (y - z) ≡ x - z
-          x-y+y-z≡x-z {x} {y} {z} =
-            (x + - y) + (y + - z)  ≡⟨ +Assoc _ _ _ ⟩
-            ((x + - y) + y) + - z  ≡⟨ cong (_+ - z) (sym (+Assoc _ _ _)) ⟩
-            (x + (- y + y)) + - z  ≡⟨ cong (λ -y+y → (x + -y+y) + - z) (+Linv _) ⟩
-            (x + 0r) + - z         ≡⟨ cong (_+ - z) (+Rid _) ⟩
-            x - z                  ∎
-
-        ~IsEquivRel : isEquivRel _~_
-        reflexive ~IsEquivRel x              = subst (_∈ fst I) (sym (+Rinv x)) 0r-closed
-        symmetric ~IsEquivRel x y x~y        = subst (_∈ fst I) -[x-y]≡y-x (-closed x~y)
-        transitive ~IsEquivRel x y z x~y y~z = subst (_∈ fst I) x-y+y-z≡x-z (+-closed x~y y~z)
-
-      ker⊆I : (x : ⟨ R ⟩) → x ∈ kernel q → x ∈ fst I
-      ker⊆I x x∈ker = subst (_∈ fst I) (x-0≡x x) x-0∈I
-        where
-          x-0∈I : x - 0r ∈ fst I
-          x-0∈I = effective ~IsPropValued ~IsEquivRel x 0r x∈ker
-
-      I⊆ker : (x : ⟨ R ⟩) → x ∈ fst I → x ∈ kernel q
-      I⊆ker x x∈I = eq/ _ _ (subst (_∈ fst I) (sym (x-0≡x x)) x∈I)
