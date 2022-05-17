@@ -213,26 +213,11 @@ module Equiv-Properties
   inj-⊕HIT→Fun = {!!}
 
   {- idea 1 : compute this as a normal form ?
-  then x ≡ y is ∑ base i (a i) ≡ ∑ base i (b i)
-  this turn to λ i → a i | 0 ≡ λ i → b i | 0 => λ i → a i ≡ b i
-  which turns to x ≡ y
+  then x ≡ y is ∑ base i (a i) ≡ ∑ base i (b i) -> extended to same size !
+  this turn to λ i → a i | 0 ≡ λ i → b i | 0 => so on i, a i ≡ b i (harder to prove)
+  which turns to x ≡ y with a cong
 
-  hard proof ?
-  how to compute the normal form, def of the normal form ?
-  -}
-
-  {- idea 2 : direct proof, pbl rec on what ?
-   on |x| + |y| ? with |0| -> 1, |base k a| -> 1, |u + v| -> |u| + |v| ???
-   rec x y :
-   0        | 0                          => ok
-   0        | base b l -> at k -> 0 ≡ a => ok
-   0        | u + v    -> 0 ≡ T (u + v) -> T(-v) ≡ T(u) -> -v ≡ u -> 0 ≡ u + v => ON WHAT PRINCIPLE ???
-   base k a | 0 => same ok
-   base k a | base l b -> case anlysis on k ≡ l => 0k
-   base k a | u + v    -> IMPOSSIBLE !!!
-   u + v    | h -> T(u + v) ≡ T(h) -> T(u) ≡ T(h - v) -> u ≡ h - v -> u + v ≡ h  => ok hyp rec on u
-
-  => => => FAILS FAILS FAILS
+  do it with an assumption => don't do something pointless
   -}
 
   inj-⊕HIT→⊕Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→⊕Fun x ≡ ⊕HIT→⊕Fun y → x ≡ y
@@ -315,14 +300,11 @@ module Equiv-Properties
   ⊕Fun→⊕HIT-pres0 = base-neutral 0
 
   ⊕Fun→⊕HIT-pres+ : (f g : ⊕Fun G Gstr) → ⊕Fun→⊕HIT (f +⊕Fun g) ≡ (⊕Fun→⊕HIT f) +⊕HIT (⊕Fun→⊕HIT g)
-  ⊕Fun→⊕HIT-pres+ (f , Anf) (g , Ang) = PT.elim (λ X → isSet⊕HIT (⊕Fun→⊕HIT ((f , X) +⊕Fun (g , Ang)))
-                                                                   ((⊕Fun→⊕HIT (f , X)) +⊕HIT (⊕Fun→⊕HIT (g , Ang))))
-                                            (λ x →
-                                            PT.elim (λ Y → isSet⊕HIT (⊕Fun→⊕HIT ((f , ∣ x ∣₁) +⊕Fun (g , Y)))
-                                                                      ((⊕Fun→⊕HIT (f , ∣ x ∣₁)) +⊕HIT (⊕Fun→⊕HIT (g , Y))))
-                                               (λ y → AN f x g y)
-                                            Ang )
-                                         Anf
+  ⊕Fun→⊕HIT-pres+ (f , Anf) (g , Ang) = PT.elim2 (λ x y → isSet⊕HIT (⊕Fun→⊕HIT ((f , x) +⊕Fun (g , y)))
+                                                                   ((⊕Fun→⊕HIT (f , x)) +⊕HIT (⊕Fun→⊕HIT (g , y))))
+                                                  (λ x y → AN f x g y)
+                                                   Anf Ang
+
     where
     AN : (f : (n : ℕ) → G n) → (x : AlmostNull G Gstr f) → (g : (n : ℕ) → G n) → (y : AlmostNull G Gstr g)
                      → ⊕Fun→⊕HIT ((f , ∣ x ∣₁) +⊕Fun (g , ∣ y ∣₁)) ≡ (⊕Fun→⊕HIT (f , ∣ x ∣₁)) +⊕HIT (⊕Fun→⊕HIT (g , ∣ y ∣₁))
