@@ -186,6 +186,29 @@ module Equiv-Properties
 -----------------------------------------------------------------------------
 -- Converse sens + Section
 
+  {- idea 1 : compute this as a normal form ?
+  then x ≡ y is ∑ base i (a i) ≡ ∑ base i (b i)
+  this turn to λ i → a i | 0 ≡ λ i → b i | 0 => λ i → a i ≡ b i
+  which turns to x ≡ y
+
+  hard proof ?
+  how to compute the normal form, def of the normal form ?
+  -}
+
+  {- idea 2 : direct proof, pbl rec on what ?
+   on |x| + |y| ? with |0| -> 1, |base k a| -> 1, |u + v| -> |u| + |v| ???
+   rec x y :
+   0        | 0                          => ok
+   0        | base b l -> at k -> 0 ≡ a => ok
+   0        | u + v    -> 0 ≡ T (u + v) -> T(-v) ≡ T(u) -> -v ≡ u -> 0 ≡ u + v => ON WHAT PRINCIPLE ???
+   base k a | 0 => same ok
+   base k a | base l b -> case anlysis on k ≡ l => 0k
+   base k a | u + v    -> IMPOSSIBLE !!!
+   u + v    | h -> T(u + v) ≡ T(h) -> T(u) ≡ T(h - v) -> u ≡ h - v -> u + v ≡ h  => ok hyp rec on u
+
+  => => => FAILS FAILS FAILS
+  -}
+
   inj-⊕HIT→Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun x ≡ ⊕HIT→Fun y → x ≡ y
   inj-⊕HIT→Fun = {!!}
 
@@ -195,7 +218,6 @@ module Equiv-Properties
   lemProp : (g : ⊕Fun G Gstr) → isProp (Σ[ x ∈ ⊕HIT ℕ G Gstr ] ⊕HIT→⊕Fun x ≡ g )
   lemProp g (x , p) (y , q) = ΣPathTransport→PathΣ _ _
                               ((inj-⊕HIT→⊕Fun x y (p ∙ sym q)) , isSet⊕Fun _ _ _ _)
-
 
   -- trad g = ∑_{i ∈〚0, k〛} base i (g i)
   Strad : (g : (n : ℕ) → G n) → (i : ℕ) → ⊕HIT ℕ G Gstr
@@ -243,10 +265,30 @@ module Equiv-Properties
   ⊕Fun→⊕HIT : ⊕Fun G Gstr → ⊕HIT ℕ G Gstr
   ⊕Fun→⊕HIT g = fst (⊕Fun→⊕HIT+ g)
 
+  ⊕Fun→⊕HIT-pres0 : ⊕Fun→⊕HIT 0⊕Fun ≡ 0⊕HIT
+  ⊕Fun→⊕HIT-pres0 = base-neutral 0
+
+  ⊕Fun→⊕HIT-pres+ : (f g : ⊕Fun G Gstr) → ⊕Fun→⊕HIT (f +⊕Fun g) ≡ (⊕Fun→⊕HIT f) +⊕HIT (⊕Fun→⊕HIT g)
+  ⊕Fun→⊕HIT-pres+ = {!!}
+  {- idea :   ∑ [0, k + l] base i (f i + g i)
+            ≡ ∑ [0, k + l] base i (f i) + ∑ [0, k + l] base i (g i)
+            ≡ ∑ [0, k] base i (f i) + ∑ [0, l] base i (g i)
+  -}
+
+-----------------------------------------------------------------------------
+-- Section
+
   e-sect : (g : ⊕Fun G Gstr) → ⊕HIT→⊕Fun (⊕Fun→⊕HIT g) ≡ g
   e-sect g = snd (⊕Fun→⊕HIT+ g)
+
 
 -----------------------------------------------------------------------------
 -- Retraction
 
-         {- TODO -}
+  e-retr : (x : ⊕HIT ℕ G Gstr) → ⊕Fun→⊕HIT (⊕HIT→⊕Fun x) ≡ x
+  e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕HIT _ _)
+           (base-neutral 0)
+           {!!} -- should be ok because ∑ base i 0 + base k a -> is base k a
+           λ {U} {V} ind-U ind-V → cong ⊕Fun→⊕HIT (⊕HIT→⊕Fun-pres+ U V)
+                                    ∙ ⊕Fun→⊕HIT-pres+ (⊕HIT→⊕Fun U) (⊕HIT→⊕Fun V)
+                                    ∙ cong₂ _+⊕HIT_ ind-U ind-V
