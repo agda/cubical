@@ -2,6 +2,8 @@
 
 This file contains:
     - the abelianization of groups as a coequalizer of sets as performed in https://1lab.dev/Algebra.Group.Ab.Free.html
+    - the proof that this way of defining the abelianization of groups is equivalent to defining it as a HIT,
+      more precisely that there is a unique isomorphism between the resulting abelian groups
 
 -}
 {-# OPTIONS --safe #-}
