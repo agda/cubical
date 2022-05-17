@@ -292,13 +292,13 @@ module Equiv-Properties
                                         ∙ cong₂ _+⊕HIT_ (Strad-max f k nf (k +n l) (l , (+-comm l k)))
                                                         (Strad-max g l ng (k +n l) (k , refl))
 
+  ⊕Fun→⊕HIT-ANP : (f : (n : ℕ) → G n) → (x : AlmostNullP G Gstr f) → (g : (n : ℕ) → G n) → (y : AlmostNullP G Gstr g)
+                    → ⊕Fun→⊕HIT ((f , x) +⊕Fun (g , y)) ≡ (⊕Fun→⊕HIT (f , x)) +⊕HIT (⊕Fun→⊕HIT (g , y))
+  ⊕Fun→⊕HIT-ANP f = PT.elim (λ _ → isPropΠ (λ _ → isPropΠ (λ _ → isSet⊕HIT _ _)))
+                     (λ x g → PT.elim (λ _ → isSet⊕HIT _ _) λ y → ⊕Fun→⊕HIT-AN f x g y)
 
   ⊕Fun→⊕HIT-pres+ : (f g : ⊕Fun G Gstr) → ⊕Fun→⊕HIT (f +⊕Fun g) ≡ (⊕Fun→⊕HIT f) +⊕HIT (⊕Fun→⊕HIT g)
-  ⊕Fun→⊕HIT-pres+ (f , Anf) (g , Ang) = PT.rec (isSet⊕HIT _ _) (λ { (k , nf) →
-                                         PT.rec (isSet⊕HIT _ _) (λ { (l , ng) →
-                                                {!?!}})
-                                         Ang })
-                                         Anf
+  ⊕Fun→⊕HIT-pres+ (f , Anf) (g , Ang) = ⊕Fun→⊕HIT-ANP f Anf g Ang
 
   {- idea :   ∑ [0, k + l] base i (f i + g i)
             ≡ ∑ [0, k + l] base i (f i) + ∑ [0, k + l] base i (g i)
