@@ -13,7 +13,7 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.QuotientRing renaming (_/_ to _/CommRing_) hiding ([_]/)
-open import Cubical.Algebra.Ring.QuotientRing renaming (_/_ to _/Ring_)
+open import Cubical.Algebra.Ring.QuotientRing renaming (_/_ to _/Ring_) hiding (quotientMap)
 open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
@@ -24,7 +24,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
 open import Cubical.Algebra.CommRingSolver.Reflection
 open import Cubical.Algebra.Algebra.Properties
-open AlgebraHoms using () renaming (compAlgebraHom to compCAlgHom)
+open AlgebraHoms using (compAlgebraHom)
 
 private
   variable
@@ -137,7 +137,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   pres⋆ (snd (inducedHom B ϕ kernel⊆I)) = λ r → elimProp (λ _ → isSetCommAlgebra B _ _) (pres⋆ (snd ϕ) r)
 
   injectivePrecomp : (B : CommAlgebra R ℓ) (f g : CommAlgebraHom (A / I) B)
-                     → compCAlgHom (quotientMap A I) f ≡ compCAlgHom (quotientMap A I) g
+                     → f ∘a (quotientMap A I) ≡ g ∘a (quotientMap A I)
                      → f ≡ g
   injectivePrecomp B f g p =
     Σ≡Prop
