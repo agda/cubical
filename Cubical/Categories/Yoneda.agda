@@ -134,7 +134,7 @@ module _ {C : Category ℓ ℓ} where
   yo x .F-id i f = ⋆IdL f i
   yo x .F-seq f g i h = ⋆Assoc g f h i
 
-  YO : Functor C (PreShv C ℓ)
+  YO : Functor C (PresheafCategory C ℓ)
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
   YO .F-hom f .N-hom g i h = ⋆Assoc g h f i
