@@ -275,10 +275,33 @@ module Kernel (R : Ring ℓ) (I : IdealsIn R) where
       ~IsPropValued : isPropValued _~_
       ~IsPropValued x y = snd (fst I (x - y))
 
-      ~IsEquivRel : isEquivRel _~_
-      isEquivRel.reflexive ~IsEquivRel x = {!!}
-      isEquivRel.symmetric ~IsEquivRel x y = {!!}
-      isEquivRel.transitive ~IsEquivRel x y z = {!!}
+      -- _~_ is an equivalence relation.
+      -- Note: This could be proved in the general setting of a subgroup of a group.
+      module _ where
+        open isEquivRel
+        open isIdeal (snd I)
+        open RingTheory R
+
+        private
+          -[x-y]≡y-x : {x y : ⟨ R ⟩} → - (x - y) ≡ y - x
+          -[x-y]≡y-x {x} {y} =
+            - (x - y)      ≡⟨ sym (-Dist _ _) ⟩
+            - x + - (- y)  ≡⟨ cong (- x +_) (-Idempotent _) ⟩
+            - x + y        ≡⟨ +Comm _ _ ⟩
+            y - x          ∎
+
+          x-y+y-z≡x-z : {x y z : ⟨ R ⟩} → (x - y) + (y - z) ≡ x - z
+          x-y+y-z≡x-z {x} {y} {z} =
+            (x + - y) + (y + - z)  ≡⟨ +Assoc _ _ _ ⟩
+            ((x + - y) + y) + - z  ≡⟨ cong (_+ - z) (sym (+Assoc _ _ _)) ⟩
+            (x + (- y + y)) + - z  ≡⟨ cong (λ -y+y → (x + -y+y) + - z) (+Linv _) ⟩
+            (x + 0r) + - z         ≡⟨ cong (_+ - z) (+Rid _) ⟩
+            x - z                  ∎
+
+        ~IsEquivRel : isEquivRel _~_
+        reflexive ~IsEquivRel x              = subst (_∈ fst I) (sym (+Rinv x)) 0r-closed
+        symmetric ~IsEquivRel x y x~y        = subst (_∈ fst I) -[x-y]≡y-x (-closed x~y)
+        transitive ~IsEquivRel x y z x~y y~z = subst (_∈ fst I) x-y+y-z≡x-z (+-closed x~y y~z)
 
       ker⊆I : (x : ⟨ R ⟩) → x ∈ kernel q → x ∈ fst I
       ker⊆I x x∈ker = subst (_∈ fst I) (x-0≡x x) x-0∈I
