@@ -3,6 +3,7 @@ module Cubical.Algebra.DirectSum.Equiv-DSHIT-DSFun where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
 
 open import Cubical.Relation.Nullary
 
@@ -285,10 +286,31 @@ module Equiv-Properties
 -----------------------------------------------------------------------------
 -- Retraction
 
+  lemmaSkk : (k : ℕ) → (a : G k) → (i : ℕ) → (r : i < k) → Strad (λ n → fun-trad k a n) i ≡ 0⊕HIT
+  lemmaSkk k a zero r with discreteℕ k 0
+  ... | yes p = ⊥.rec (<→≢ r (sym p))
+  ... | no ¬p = base-neutral 0
+  lemmaSkk k a (suc i) r with discreteℕ k (suc i)
+  ... | yes p = ⊥.rec (<→≢ r (sym p))
+  ... | no ¬p = cong₂ _+⊕HIT_ (base-neutral (suc i)) (lemmaSkk k a i (<-trans ≤-refl r)) ∙ +⊕HIT-IdR _
+
+  lemmakk : (k : ℕ) → (a : G k) → ⊕Fun→⊕HIT (⊕HIT→⊕Fun (base k a)) ≡ base k a
+  lemmakk zero a = cong (base 0) (transportRefl a)
+  lemmakk (suc k) a with (discreteℕ (suc k) (suc k)) | (discreteℕ k k)
+  ... | yes p | yes q = cong₂ _add_
+                             (sym (constSubstCommSlice G (⊕HIT ℕ G Gstr) base (cong suc q) a))
+                             (lemmaSkk (suc k) a k ≤-refl)
+                        ∙ +⊕HIT-IdR _
+  ... | yes p | no ¬q = ⊥.rec (¬q refl)
+  ... | no ¬p | yes q = ⊥.rec (¬p refl)
+  ... | no ¬p | no ¬q = ⊥.rec (¬q refl)
+
+-- Strad (λ n → fun-trad G Gstr (suc k) a n | discreteℕ (suc k) n) k)
+
   e-retr : (x : ⊕HIT ℕ G Gstr) → ⊕Fun→⊕HIT (⊕HIT→⊕Fun x) ≡ x
   e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕HIT _ _)
            (base-neutral 0)
-           {!!} -- should be ok because ∑ base i 0 + base k a -> is base k a
+           lemmakk
            λ {U} {V} ind-U ind-V → cong ⊕Fun→⊕HIT (⊕HIT→⊕Fun-pres+ U V)
                                     ∙ ⊕Fun→⊕HIT-pres+ (⊕HIT→⊕Fun U) (⊕HIT→⊕Fun V)
                                     ∙ cong₂ _+⊕HIT_ ind-U ind-V
