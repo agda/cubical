@@ -1064,7 +1064,7 @@ snd π₁S¹→∙ΩS³'≅π₃*S³' =
   fst mainMap∙ f = mainMap (fst f)
   snd mainMap∙ = refl
 
-π₁S¹→ℤ : GroupHom ((π'Gr 0 (S₊∙ 1))) ℤ
+π₁S¹→ℤ : GroupHom ((π'Gr 0 (S₊∙ 1))) ℤGroup
 π₁S¹→ℤ =
   compGroupHom
     ((sMap (λ f → basechange2⁻ _ (cong (fst f) loop)))
@@ -1079,7 +1079,7 @@ snd π₁S¹→∙ΩS³'≅π₃*S³' =
        (_ , πₙSⁿ≅ℤ 0 .snd)
 
 -- We combine them into one
-computer : GroupHom π₃*S³' ℤ
+computer : GroupHom π₃*S³' ℤGroup
 computer = compGroupHom
       (GroupEquiv→GroupHom (invGroupEquiv (GroupIso→GroupEquiv π₁S¹→∙ΩS³'≅π₃*S³')))
       (compGroupHom (compGroupHom π₁S¹→∙ΩS³'→π₁S¹→∙K₂ π₁S¹→∙K₂→π₁S¹) π₁S¹→ℤ)
@@ -1098,7 +1098,7 @@ computer = compGroupHom
 1∈π₃*S³'↦1 = refl
 
 -- This implies that computer indeed is an iso
-computerIso : GroupEquiv π₃*S³' ℤ
+computerIso : GroupEquiv π₃*S³' ℤGroup
 fst (fst computerIso) = fst computer
 snd (fst computerIso) =
   1∈Im→isEquiv π₃*S³'
@@ -1110,7 +1110,7 @@ snd (fst computerIso) =
             π₃S³≅π₃*S³)
             π₃*S³≅π₃*S³')
     computer
-    ∣ 1∈π₃*S³' , 1∈π₃*S³'↦1 ∣
+    ∣ 1∈π₃*S³' , 1∈π₃*S³'↦1 ∣₁
 snd computerIso = snd computer
 
 -- We now verify via computation that η₃' maps to -2
@@ -1119,7 +1119,7 @@ computerIsoη₃ = refl
 
 -- Putting this together with the info frm the beginning of the file, we have an iso
 -- π₃S² ≅ π₃*S³' ≅ ℤ, mapping η ↦ η₃' ↦ -2
-BrunerieIso' : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤ/ 2)
+BrunerieIso' : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ 2)
 BrunerieIso' =
   compGroupEquiv
     (compGroupEquiv
@@ -1158,7 +1158,7 @@ BrunerieIso' =
     η₃-abs-pres : fst π₃*S³≅π₃*S³' .fst (fst η₃-abs) ≡ ∣ η₃'-raw ∣₂
     η₃-abs-pres = π₃*S³≅π₃*S³'-pres-η₃
 
-  π₃*S³≅ℤ : GroupEquiv π₃*S³ ℤ
+  π₃*S³≅ℤ : GroupEquiv π₃*S³ ℤGroup
   π₃*S³≅ℤ = compGroupEquiv π₃*S³≅π₃*S³' computerIso
 
   π₃*S³≅ℤβ≡-2 : fst (fst π₃*S³≅ℤ) η₃ ≡ -2
@@ -1167,7 +1167,7 @@ BrunerieIso' =
                 ∙ computerIsoη₃
 
   abstract
-    π₃*S³≅ℤ-abs : Σ[ f ∈ GroupEquiv π₃*S³ ℤ ] (fst (fst f) η₃ ≡ -2)
+    π₃*S³≅ℤ-abs : Σ[ f ∈ GroupEquiv π₃*S³ ℤGroup ] (fst (fst f) η₃ ≡ -2)
     π₃*S³≅ℤ-abs = π₃*S³≅ℤ , π₃*S³≅ℤβ≡-2
 
   m1 = fst (fst (fst π₃*S³≅ℤ-abs))
