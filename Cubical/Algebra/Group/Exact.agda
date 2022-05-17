@@ -19,28 +19,28 @@ open import Cubical.Data.Unit
 
 SES→isEquiv : ∀ {ℓ ℓ'} {L R : Group ℓ-zero}
   → {G : Group ℓ} {H : Group ℓ'}
-  → Unit ≡ L
-  → Unit ≡ R
+  → UnitGroup₀ ≡ L
+  → UnitGroup₀ ≡ R
   → (lhom : GroupHom L G) (midhom : GroupHom G H) (rhom : GroupHom H R)
   → ((x : _) → isInKer midhom x → isInIm lhom x)
   → ((x : _) → isInKer rhom x → isInIm midhom x)
   → isEquiv (fst midhom)
 SES→isEquiv {R = R} {G = G} {H = H} =
-  J (λ L _ → Unit ≡ R →
+  J (λ L _ → UnitGroup₀ ≡ R →
       (lhom : GroupHom L G) (midhom : GroupHom G H)
       (rhom : GroupHom H R) →
       ((x : fst G) → isInKer midhom x → isInIm lhom x) →
       ((x : fst H) → isInKer rhom x → isInIm midhom x) →
       isEquiv (fst midhom))
-      ((J (λ R _ → (lhom : GroupHom Unit G) (midhom : GroupHom G H)
+      ((J (λ R _ → (lhom : GroupHom UnitGroup₀ G) (midhom : GroupHom G H)
                    (rhom : GroupHom H R) →
                    ((x : fst G) → isInKer midhom x → isInIm lhom x) →
                    ((x : _) → isInKer rhom x → isInIm midhom x) →
                    isEquiv (fst midhom))
          main))
   where
-  main : (lhom : GroupHom Unit G) (midhom : GroupHom G H)
-         (rhom : GroupHom H Unit) →
+  main : (lhom : GroupHom UnitGroup₀ G) (midhom : GroupHom G H)
+         (rhom : GroupHom H UnitGroup₀) →
          ((x : fst G) → isInKer midhom x → isInIm lhom x) →
          ((x : fst H) → isInKer rhom x → isInIm midhom x) →
          isEquiv (fst midhom)
@@ -80,9 +80,9 @@ ImG→H⊂KerH→L (extendExact4Surjective G H L R S G→H H→L L→R R→S sur
   pRec (GroupStr.is-set (snd R) _ _)
     (uncurry λ g → J (λ x _ → isInKer L→R x)
       (ImG→H⊂KerH→L ex (fst H→L (fst G→H g))
-        ∣ (fst G→H g) , refl ∣))
+        ∣ (fst G→H g) , refl ∣₁))
 KerH→L⊂ImG→H (extendExact4Surjective G H L R S G→H H→L L→R R→S surj ex) x ker =
-  pRec squash
+  pRec squash₁
     (uncurry λ y → J (λ x _ → isInIm (compGroupHom G→H H→L) x)
       (pMap (uncurry
         (λ y → J (λ y _ → Σ[ g ∈ fst G ] fst H→L (fst G→H g) ≡ H→L .fst y)
@@ -97,14 +97,14 @@ KerL→R⊂ImH→L (extendExact4Surjective G H L R S G→H H→L L→R R→S sur
 transportExact4 : {ℓ ℓ' ℓ'' : Level}
                    {G G₂ : Group ℓ} {H H₂ : Group ℓ'} {L L₂ : Group ℓ''} {R : Group₀}
                    (G≡G₂ : G ≡ G₂) (H≡H₂ : H ≡ H₂) (L≡L₂ : L ≡ L₂)
-                → Unit ≡ R
+                → UnitGroup₀ ≡ R
                 → (G→H : GroupHom G H) (G₂→H₂ : GroupHom G₂ H₂)
                    (H→L : GroupHom H L) (H₂→L₂ : GroupHom H₂ L₂)
                    (L→R : GroupHom L R)
                 → Exact4 G H L R G→H H→L L→R
                 → PathP (λ i → GroupHom (G≡G₂ i) (H≡H₂ i)) G→H G₂→H₂
                 → PathP (λ i → GroupHom (H≡H₂ i) (L≡L₂ i)) H→L H₂→L₂
-                → Exact4 G₂ H₂ L₂ Unit G₂→H₂ H₂→L₂ (→UnitHom L₂)
+                → Exact4 G₂ H₂ L₂ UnitGroup₀ G₂→H₂ H₂→L₂ (→UnitHom L₂)
 transportExact4 {G = G} {G₂ = G₂} {H = H} {H₂ = H₂} {L = L} {L₂ = L₂} {R = R} =
   J4 (λ G₂ H₂ L₂ R G≡G₂ H≡H₂ L≡L₂ Unit≡R
                 → (G→H : GroupHom G H) (G₂→H₂ : GroupHom G₂ H₂)
@@ -113,11 +113,11 @@ transportExact4 {G = G} {G₂ = G₂} {H = H} {H₂ = H₂} {L = L} {L₂ = L₂
                 → Exact4 G H L R G→H H→L L→R
                 → PathP (λ i → GroupHom (G≡G₂ i) (H≡H₂ i)) G→H G₂→H₂
                 → PathP (λ i → GroupHom (H≡H₂ i) (L≡L₂ i)) H→L H₂→L₂
-                → Exact4 G₂ H₂ L₂ Unit G₂→H₂ H₂→L₂ (→UnitHom L₂))
+                → Exact4 G₂ H₂ L₂ UnitGroup₀ G₂→H₂ H₂→L₂ (→UnitHom L₂))
       (λ G→H G₂→H₂ H→L H₂→L₂ L→R ex pp1 pp2
         → J4 (λ G₂→H₂ H₂→L₂ (x : UnitType) (y : UnitType)
                  pp1 pp2 (_ : tt ≡ x) (_ : tt ≡ x)
-             → Exact4 G H L Unit G₂→H₂ H₂→L₂ (→UnitHom L))
+             → Exact4 G H L UnitGroup₀ G₂→H₂ H₂→L₂ (→UnitHom L))
                ex G₂→H₂ H₂→L₂ tt tt pp1 pp2 refl refl )
       G₂ H₂ L₂ R
   where

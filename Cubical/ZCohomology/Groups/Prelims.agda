@@ -1,10 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.Prelims where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.GroupStructure
-
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
@@ -13,16 +9,21 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
+open import Cubical.Data.Nat
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
+open import Cubical.Data.Sigma
+
+open import Cubical.HITs.Truncation as T
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
-open import Cubical.HITs.S1
 
 open import Cubical.Homotopy.Loopspace
-open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
-open import Cubical.Data.Nat
-open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
-open import Cubical.HITs.SetTruncation renaming (elim to sElim ; map to sMap ; rec to sRec)
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
 
 infixr 33 _⋄_
 
@@ -87,10 +88,10 @@ coHomPointedElimSⁿ n m {B = B} isprop ind =
 0₄ = 0ₖ 4
 
 S¹map : hLevelTrunc 3 S¹ → S¹
-S¹map = trRec isGroupoidS¹ (idfun _)
+S¹map = T.rec isGroupoidS¹ (idfun _)
 
 S¹map-id : (x : hLevelTrunc 3 S¹) → Path (hLevelTrunc 3 S¹) ∣ S¹map x ∣ x
-S¹map-id = trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
+S¹map-id = T.elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
                   λ a → refl
 
 

@@ -33,7 +33,7 @@ open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -302,7 +302,7 @@ module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
      helper2 : (α : FinVec (fst R) 1)
              → x ^ n ≡ linearCombination R α (replicateFinVec 1 y)
              → x ∈ᵢ √ ⟨ y · x ⟩
-     helper2 α p = ∣ (suc n) , ∣ α , cong (x ·_) p ∙ useSolver x y (α zero) ∣ ∣
+     helper2 α p = ∣ (suc n) , ∣ α , cong (x ·_) p ∙ useSolver x y (α zero) ∣₁ ∣₁
       where
       useSolver : ∀ x y a → x · (a · y + 0r) ≡ a · (y · x) + 0r
       useSolver = solve R

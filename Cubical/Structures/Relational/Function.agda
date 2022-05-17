@@ -40,19 +40,19 @@ private
     → compPropRel (R .fst) (quotientPropRel (R .fst .fst)) .fst ≡ graphRel [_]
   composeWith[_] R =
     funExt₂ λ a t →
-    hPropExt squash (squash/ _ _)
+    hPropExt squash₁ (squash/ _ _)
       (Trunc.rec (squash/ _ _) (λ {(b , r , p) → eq/ a b r ∙ p }))
-      (λ p → ∣ a , R .snd .reflexive a , p ∣)
+      (λ p → ∣ a , R .snd .reflexive a , p ∣₁)
 
   [_]∙[_]⁻¹ : {A : Type ℓ} (R : EquivPropRel A ℓ)
     → compPropRel (quotientPropRel (R .fst .fst)) (invPropRel (quotientPropRel (R .fst .fst))) .fst
       ≡ R .fst .fst
   [_]∙[_]⁻¹ R =
     funExt₂ λ a b →
-    hPropExt squash (R .fst .snd a b)
+    hPropExt squash₁ (R .fst .snd a b)
       (Trunc.rec (R .fst .snd a b)
         (λ {(c , p , q) → effective (R .fst .snd) (R .snd) a b (p ∙ sym q)}))
-      (λ r → ∣ _ , eq/ a b r , refl ∣)
+      (λ r → ∣ _ , eq/ a b r , refl ∣₁)
 
 functionSuitableRel : {S : Type ℓ → Type ℓ₁} {T : Type ℓ → Type ℓ₂}
   {ρ₁ : StrRel S ℓ₁'} {ρ₂ : StrRel T ℓ₂'}
@@ -144,7 +144,7 @@ functionSuitableRel {ρ₁ = ρ₁} {ρ₂} θ₁ σ θ₂ .symmetric R h r =
   θ₂ .symmetric R (h (θ₁ .symmetric (invPropRel R) r))
 functionSuitableRel {ρ₁ = ρ₁} {ρ₂} θ₁ σ θ₂ .transitive R R' h h' rr' =
   Trunc.rec
-    (θ₂ .prop (λ _ _ → squash) _ _)
+    (θ₂ .prop (λ _ _ → squash₁) _ _)
     (λ {(_ , r , r') → θ₂ .transitive R R' (h r) (h' r')})
     (σ .detransitive R R' rr')
 functionSuitableRel {ρ₁ = ρ₁} {ρ₂} θ₁ σ θ₂ .set setX =

@@ -25,14 +25,14 @@ module _ (A' : CommRing ℓ) where
     -- elements
     0P     : Poly n
     base   : (v : Vec ℕ n) → (a : A) → Poly n
-    _Poly+_  : (P : Poly n) → (Q : Poly n) → Poly n
+    _poly+_  : (P : Poly n) → (Q : Poly n) → Poly n
       -- AbGroup eq
-    Poly+-assoc : (P Q R : Poly n) → P Poly+ (Q Poly+ R) ≡ (P Poly+ Q) Poly+ R
-    Poly+-Rid   : (P : Poly n) → P Poly+ 0P ≡ P
-    Poly+-comm  : (P Q : Poly n) → P Poly+ Q ≡ Q Poly+ P
+    poly+Assoc : (P Q R : Poly n) → P poly+ (Q poly+ R) ≡ (P poly+ Q) poly+ R
+    poly+IdR   : (P : Poly n) → P poly+ 0P ≡ P
+    poly+Comm  : (P Q : Poly n) → P poly+ Q ≡ Q poly+ P
       -- Base eq
     base-0P : (v : Vec ℕ n) → base v 0r ≡ 0P
-    base-Poly+     : (v : Vec ℕ n) → (a b : A) → (base v a) Poly+ (base v b) ≡ base v (a + b)
+    base-poly+     : (v : Vec ℕ n) → (a b : A) → (base v a) poly+ (base v b) ≡ base v (a + b)
       -- Set Trunc
     trunc : isSet(Poly n)
 
@@ -52,29 +52,29 @@ module _ (A' : CommRing ℓ) where
     -- elements
     (0P* : F 0P)
     (base* : (v : Vec ℕ n) → (a : A) → F (base v a))
-    (_Poly+*_ : {P Q : Poly A' n} → (PS : F P) → (QS : F Q) → F (P Poly+ Q))
+    (_poly+*_ : {P Q : Poly A' n} → (PS : F P) → (QS : F Q) → F (P poly+ Q))
     -- AbGroup eq
-    (Poly+-assoc* : {P Q R : Poly A' n} → (PS : F P) → (QS : F Q) → (RS : F R)
-                    → PathP (λ i → F (Poly+-assoc P Q R i)) (PS Poly+* (QS Poly+* RS)) ((PS Poly+* QS) Poly+* RS))
-    (Poly+-Rid*   : {P : Poly A' n} → (PS : F P) →
-                   PathP (λ i → F (Poly+-Rid P i)) (PS Poly+* 0P*) PS)
-    (Poly+-comm*  : {P Q : Poly A' n} → (PS : F P) → (QS : F Q)
-                    → PathP (λ i → F (Poly+-comm P Q i)) (PS Poly+* QS) (QS Poly+* PS))
+    (poly+Assoc* : {P Q R : Poly A' n} → (PS : F P) → (QS : F Q) → (RS : F R)
+                    → PathP (λ i → F (poly+Assoc P Q R i)) (PS poly+* (QS poly+* RS)) ((PS poly+* QS) poly+* RS))
+    (poly+IdR*   : {P : Poly A' n} → (PS : F P) →
+                   PathP (λ i → F (poly+IdR P i)) (PS poly+* 0P*) PS)
+    (poly+Comm*  : {P Q : Poly A' n} → (PS : F P) → (QS : F Q)
+                    → PathP (λ i → F (poly+Comm P Q i)) (PS poly+* QS) (QS poly+* PS))
     -- Base eq
     (base-0P* : (v : Vec ℕ n) → PathP (λ i → F (base-0P v i)) (base* v 0r) 0P*)
-    (base-Poly+*     : (v : Vec ℕ n) → (a b : A)
-                     → PathP (λ i → F (base-Poly+ v a b i)) ((base* v a) Poly+* (base* v b)) (base* v (a + b)))
+    (base-poly+*     : (v : Vec ℕ n) → (a b : A)
+                     → PathP (λ i → F (base-poly+ v a b i)) ((base* v a) poly+* (base* v b)) (base* v (a + b)))
     where
 
     f : (P : Poly A' n) → F P
     f 0P = 0P*
     f (base v a) = base* v a
-    f (P Poly+ Q) = (f P) Poly+* (f Q)
-    f (Poly+-assoc P Q R i) = Poly+-assoc* (f P) (f Q) (f R) i
-    f (Poly+-Rid P i) = Poly+-Rid* (f P) i
-    f (Poly+-comm P Q i) = Poly+-comm* (f P) (f Q) i
+    f (P poly+ Q) = (f P) poly+* (f Q)
+    f (poly+Assoc P Q R i) = poly+Assoc* (f P) (f Q) (f R) i
+    f (poly+IdR P i) = poly+IdR* (f P) i
+    f (poly+Comm P Q i) = poly+Comm* (f P) (f Q) i
     f (base-0P v i) = base-0P* v i
-    f (base-Poly+ v a b i) = base-Poly+* v a b i
+    f (base-poly+ v a b i) = base-poly+* v a b i
     f (trunc P Q p q i j) = isOfHLevel→isOfHLevelDep 2 issd  (f P) (f Q) (cong f p) (cong f q) (trunc P Q p q) i j
 
 
@@ -86,18 +86,18 @@ module _ (A' : CommRing ℓ) where
     -- elements
     (0P*      : B)
     (base*    : (v : Vec ℕ n) → (a : A) → B)
-    (_Poly+*_ : B → B → B)
+    (_poly+*_ : B → B → B)
     -- AbGroup eq
-    (Poly+-assoc* : (PS QS RS : B) → (PS Poly+* (QS Poly+* RS)) ≡ ((PS Poly+* QS) Poly+* RS))
-    (Poly+-Rid*   : (PS : B)       → (PS Poly+* 0P*) ≡  PS)
-    (Poly+-comm*  : (PS QS : B)    → (PS Poly+* QS) ≡ (QS Poly+* PS))
+    (poly+Assoc* : (PS QS RS : B) → (PS poly+* (QS poly+* RS)) ≡ ((PS poly+* QS) poly+* RS))
+    (poly+IdR*   : (PS : B)       → (PS poly+* 0P*) ≡  PS)
+    (poly+Comm*  : (PS QS : B)    → (PS poly+* QS) ≡ (QS poly+* PS))
     -- Base eq
     (base-0P* : (v : Vec ℕ n) → (base* v 0r) ≡  0P*)
-    (base-Poly+*     : (v : Vec ℕ n) → (a b : A) → ((base* v a) Poly+* (base* v b)) ≡ (base* v (a + b)))
+    (base-poly+*     : (v : Vec ℕ n) → (a b : A) → ((base* v a) poly+* (base* v b)) ≡ (base* v (a + b)))
     where
 
     f : Poly A' n → B
-    f = Poly-Ind-Set.f n (λ _ → B) (λ _ → iss) 0P* base* _Poly+*_ Poly+-assoc* Poly+-Rid* Poly+-comm* base-0P* base-Poly+*
+    f = Poly-Ind-Set.f n (λ _ → B) (λ _ → iss) 0P* base* _poly+*_ poly+Assoc* poly+IdR* poly+Comm* base-0P* base-poly+*
 
 
   module Poly-Ind-Prop
@@ -108,16 +108,16 @@ module _ (A' : CommRing ℓ) where
     -- elements
     (0P* : F 0P)
     (base* : (v : Vec ℕ n) → (a : A) → F (base v a))
-    (_Poly+*_ : {P Q : Poly A' n} → (PS : F P) → (QS : F Q) → F (P Poly+ Q))
+    (_poly+*_ : {P Q : Poly A' n} → (PS : F P) → (QS : F Q) → F (P poly+ Q))
     where
 
     f : (P : Poly A' n) → F P
-    f = Poly-Ind-Set.f n F (λ P → isProp→isSet (ispd P)) 0P* base* _Poly+*_
-          (λ {P Q R} PS QS RQ → toPathP (ispd _ (transport (λ i → F (Poly+-assoc P Q R i)) _) _))
-          (λ {P} PS           → toPathP (ispd _ (transport (λ i → F (Poly+-Rid P i))       _) _))
-          (λ {P Q} PS QS      → toPathP (ispd _ (transport (λ i → F (Poly+-comm P Q i))    _) _))
+    f = Poly-Ind-Set.f n F (λ P → isProp→isSet (ispd P)) 0P* base* _poly+*_
+          (λ {P Q R} PS QS RQ → toPathP (ispd _ (transport (λ i → F (poly+Assoc P Q R i)) _) _))
+          (λ {P} PS           → toPathP (ispd _ (transport (λ i → F (poly+IdR P i))       _) _))
+          (λ {P Q} PS QS      → toPathP (ispd _ (transport (λ i → F (poly+Comm P Q i))    _) _))
           (λ v                → toPathP (ispd _ (transport (λ i → F (base-0P v i))    _) _))
-          (λ v a b            → toPathP (ispd _ (transport (λ i → F (base-Poly+ v a b i))    _) _))
+          (λ v a b            → toPathP (ispd _ (transport (λ i → F (base-poly+ v a b i))    _) _))
 
 
   module Poly-Rec-Prop
@@ -128,8 +128,8 @@ module _ (A' : CommRing ℓ) where
     -- elements
     (0P* : B)
     (base* : (v : Vec ℕ n) → (a : A) → B)
-    (_Poly+*_ : B → B → B)
+    (_poly+*_ : B → B → B)
     where
 
     f : Poly A' n → B
-    f = Poly-Ind-Prop.f n (λ _ → B) (λ _ → isp) 0P* base* _Poly+*_
+    f = Poly-Ind-Prop.f n (λ _ → B) (λ _ → isp) 0P* base* _poly+*_

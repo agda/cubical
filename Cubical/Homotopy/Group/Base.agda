@@ -34,6 +34,9 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.GroupPath
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 
@@ -701,7 +704,7 @@ mutual
     (equivToIso
      (Ω→ (ΩTruncSwitchFun n m) .fst
     , isEquivΩ→ _ (compEquiv (isoToEquiv (ΩTruncSwitch {A = A} n (suc (suc m))))
-       (transportEquiv
+       (pathToEquiv
          (λ i → typ ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))) .snd)))
 
   ΩTruncSwitch : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)

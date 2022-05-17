@@ -4,6 +4,7 @@ module Cubical.Algebra.CommAlgebra.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -25,12 +26,34 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra.Base
 
+open import Cubical.Algebra.CommRing using (CommRing→Ring)
+
 open import Cubical.HITs.PropositionalTruncation
 
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
+    R : CommRing ℓ
 
+open AlgebraHoms
+
+idCAlgHom : (A : CommAlgebra R ℓ) → _
+idCAlgHom A = idAlgebraHom (CommAlgebra→Algebra A)
+
+idCAlgEquiv : (A : CommAlgebra R ℓ) → CommAlgebraEquiv A A
+fst (idCAlgEquiv A) = idEquiv (fst A)
+snd (idCAlgEquiv A) = snd (idCAlgHom A)
+
+infix  3 _≃CAlg∎
+infixr 2 _≃CAlg⟨_⟩_
+
+_≃CAlg∎ : (A : CommAlgebra R ℓ) → CommAlgebraEquiv A A
+A ≃CAlg∎ = idCAlgEquiv A
+
+_≃CAlg⟨_⟩_ : {B C : CommAlgebra R ℓ}
+             (A : CommAlgebra R ℓ) (f : CommAlgebraEquiv A B) (g : CommAlgebraEquiv B C)
+           → CommAlgebraEquiv A C
+A ≃CAlg⟨ f ⟩ g = g ∘≃a f
 
 -- An R-algebra is the same as a CommRing A with a CommRingHom φ : R → A
 module CommAlgChar (R : CommRing ℓ) where
@@ -111,6 +134,12 @@ module CommAlgChar (R : CommRing ℓ) where
   CommAlgebraStr.isCommAlgebra (AlgStrPathP i) = isProp→PathP
     (λ i → isPropIsCommAlgebra _ _ _ _ _ _ (CommAlgebraStr._⋆_ (AlgStrPathP i)))
     (CommAlgebraStr.isCommAlgebra (snd (toCommAlg (fromCommAlg A)))) isCommAlgebra i
+
+  CommAlgIso : Iso (CommAlgebra R ℓ) CommRingWithHom
+  fun CommAlgIso = fromCommAlg
+  inv CommAlgIso = toCommAlg
+  rightInv CommAlgIso = CommRingWithHomRoundTrip
+  leftInv CommAlgIso = CommAlgRoundTrip
 
 
  CommAlgIso : Iso (CommAlgebra R ℓ) CommRingWithHom
@@ -271,7 +300,7 @@ recPT→CommAlgebra : {R : CommRing ℓ} {A : Type ℓ'} (𝓕  : A → CommAlge
            → (σ : ∀ x y → CommAlgebraEquiv (𝓕 x) (𝓕 y))
            → (∀ x y z → σ x z ≡ compCommAlgebraEquiv (σ x y) (σ y z))
           ------------------------------------------------------
-           → ∥ A ∥ → CommAlgebra R ℓ''
+           → ∥ A ∥₁ → CommAlgebra R ℓ''
 recPT→CommAlgebra 𝓕 σ compCoh = GpdElim.rec→Gpd isGroupoidCommAlgebra 𝓕
   (3-ConstantCompChar 𝓕 (λ x y → uaCommAlgebra (σ x y))
                           λ x y z → sym (  cong uaCommAlgebra (compCoh x y z)
@@ -305,3 +334,33 @@ contrCommAlgebraHom→contrCommAlgebraEquiv σ contrHom x y = σEquiv ,
   σEquiv : CommAlgebraEquiv (σ x) (σ y)
   fst σEquiv = isoToEquiv σIso
   snd σEquiv = snd χ₁
+
+CommAlgebra→Ring : {R : CommRing ℓ} → CommAlgebra R ℓ → Ring ℓ
+CommAlgebra→Ring = CommRing→Ring ∘ CommAlgebra→CommRing
+
+module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ} where
+  open CommAlgebraStr ⦃...⦄
+  instance
+   _ = snd A
+   _ = snd B
+  open IsAlgebraHom
+
+  CommAlgebraHom→RingHom : CommAlgebraHom A B → RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B)
+  fst (CommAlgebraHom→RingHom ϕ) = fst ϕ
+  IsRingHom.pres0 (snd (CommAlgebraHom→RingHom ϕ)) = pres0 (snd ϕ)
+  IsRingHom.pres1 (snd (CommAlgebraHom→RingHom ϕ)) = pres1 (snd ϕ)
+  IsRingHom.pres+ (snd (CommAlgebraHom→RingHom ϕ)) = pres+ (snd ϕ)
+  IsRingHom.pres· (snd (CommAlgebraHom→RingHom ϕ)) = pres· (snd ϕ)
+  IsRingHom.pres- (snd (CommAlgebraHom→RingHom ϕ)) = pres- (snd ϕ)
+
+  CommAlgebraHomFromRingHom :
+      (ϕ : RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B))
+    → ((r : fst R) (x : fst A) → (fst ϕ) (r ⋆ x)  ≡ r ⋆ (fst ϕ x))
+    → CommAlgebraHom A B
+  fst (CommAlgebraHomFromRingHom ϕ pres*) = fst ϕ
+  pres0 (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres0 (snd ϕ)
+  pres1 (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres1 (snd ϕ)
+  pres+ (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres+ (snd ϕ)
+  pres· (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres· (snd ϕ)
+  pres- (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres- (snd ϕ)
+  pres⋆ (snd (CommAlgebraHomFromRingHom ϕ pres*)) = pres*

@@ -17,28 +17,27 @@ open import Cubical.Data.Equality
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
-
 private
  variable
   ℓ : Level
   A : Type ℓ
   x y : A
 
-uip : (prf : x ≡p x) → prf ≡c reflp
-uip reflp i = reflp
+uip : (prf : x ≡ x) → Path _ prf refl
+uip refl i = refl
 
-transport-uip : (prf : A ≡p A) → transport (ptoc prf) x ≡c x
+transport-uip : (prf : A ≡ A) → Path _ (transportPath (eqToPath prf) x) x
 transport-uip {x = x} prf =
-  cong (λ m → transport (ptoc m) x) (uip prf) ∙ transportRefl x
+  compPath (congPath (λ p → transportPath (eqToPath p) x) (uip prf)) (transportRefl x)
 
-transport-not : transport (ptoc (ctop notEq)) true ≡c false
-transport-not = cong (λ a → transport a true) (ptoc-ctop notEq)
+transport-not : Path _ (transportPath (eqToPath (pathToEq notEq)) true) false
+transport-not = congPath (λ a → transportPath a true) (eqToPath-pathToEq notEq)
 
-false-true : false ≡c true
-false-true = sym transport-not ∙ transport-uip (ctop notEq)
+false-true : Path _ false true
+false-true = compPath (symPath transport-not) (transport-uip (pathToEq notEq))
 
 absurd : (X : Type) → X
-absurd X = transport (cong sel false-true) true
+absurd X = transportPath (congPath sel false-true) true
   where
     sel : Bool → Type
     sel false = Bool

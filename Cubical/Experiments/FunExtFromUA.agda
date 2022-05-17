@@ -4,7 +4,11 @@
 
 module Cubical.Experiments.FunExtFromUA where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
 
 variable
  ℓ ℓ' : Level

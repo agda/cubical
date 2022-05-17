@@ -24,7 +24,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Data.Sigma.Base
 
 open import Cubical.Core.Glue public
-  using ( Glue ; glue ; unglue ; lineToEquiv )
+  using (Glue ; glue ; unglue)
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -172,15 +172,15 @@ EquivJ P r e = subst (λ x → P (x .fst) (x .snd)) (contrSinglEquiv e) r
 
 -- Assuming that we have an inverse to ua we can easily prove univalence
 module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
-                  (aurefl : ∀ {ℓ} {A B : Type ℓ} → au refl ≡ idEquiv A) where
+                  (aurefl : ∀ {ℓ} {A : Type ℓ} → au refl ≡ idEquiv A) where
 
   ua-au : {A B : Type ℓ} (p : A ≡ B) → ua (au p) ≡ p
   ua-au {B = B} = J (λ _ p → ua (au p) ≡ p)
-                    (cong ua (aurefl {B = B}) ∙ uaIdEquiv)
+                    (cong ua aurefl ∙ uaIdEquiv)
 
   au-ua : {A B : Type ℓ} (e : A ≃ B) → au (ua e) ≡ e
   au-ua {B = B} = EquivJ (λ _ f → au (ua f) ≡ f)
-                         (subst (λ r → au r ≡ idEquiv _) (sym uaIdEquiv) (aurefl {B = B}))
+                         (subst (λ r → au r ≡ idEquiv _) (sym uaIdEquiv) aurefl)
 
   isoThm : ∀ {ℓ} {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
   isoThm .Iso.fun = au
@@ -191,8 +191,13 @@ module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
   thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} isoThm
 
+isEquivTransport : {A B : Type ℓ} (p : A ≡ B) → isEquiv (transport p)
+isEquivTransport p =
+  transport (λ i → isEquiv (transp (λ j → p (i ∧ j)) (~ i))) (idIsEquiv _)
+
 pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
-pathToEquiv p = lineToEquiv (λ i → p i)
+pathToEquiv p .fst = transport p
+pathToEquiv p .snd = isEquivTransport p
 
 pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
 pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)

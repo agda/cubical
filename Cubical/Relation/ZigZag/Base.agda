@@ -66,7 +66,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
     f a =
       Trunc.rec→Set squash/
         ([_] ∘ fst)
-        (λ {(b , r) (b' , r') → eq/ b b' ∣ a , r , r' ∣})
+        (λ {(b , r) (b' , r') → eq/ b b' ∣ a , r , r' ∣₁})
 
     fPath :
       (a₀ : A) (s₀ : ∃[ b ∈ B ] R .fst .fst a₀ b)
@@ -79,7 +79,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
           Trunc.elim (λ _ → isPropΠ λ _ → squash/ _ _)
             (λ {(b₁ , r₁) →
               Trunc.elim (λ _ → squash/ _ _)
-                (λ {(b' , r₀' , r₁') → eq/ b₀ b₁ ∣ a₀ , r₀ , sim .zigzag r₀' r₁' r₁ ∣})})})
+                (λ {(b' , r₀' , r₁') → eq/ b₀ b₁ ∣ a₀ , r₀ , sim .zigzag r₀' r₁' r₁ ∣₁})})})
 
     φ : A / Rᴸ → B / Rᴿ
     φ [ a ] = f a (sim .fwd a)
@@ -90,7 +90,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
   relToFwd≡ : ∀ {a b} → R .fst .fst a b → φ [ a ] ≡ [ b ]
   relToFwd≡ {a} {b} r =
     Trunc.elim {P = λ s → f a s ≡ [ b ]} (λ _ → squash/ _ _)
-      (λ {(b' , r') → eq/ b' b ∣ a , r' , r ∣})
+      (λ {(b' , r') → eq/ b' b ∣ a , r' , r ∣₁})
       (sim .fwd a)
 
   fwd≡ToRel : ∀ {a b} → φ [ a ] ≡ [ b ] → R .fst .fst a b
@@ -111,7 +111,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
     g b =
       Trunc.rec→Set squash/
         ([_] ∘ fst)
-        (λ {(a , r) (a' , r') → eq/ a a' ∣ b , r , r' ∣})
+        (λ {(a , r) (a' , r') → eq/ a a' ∣ b , r , r' ∣₁})
 
     gPath :
       (b₀ : B) (s₀ : ∃[ a ∈ A ] R .fst .fst a b₀)
@@ -124,7 +124,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
           Trunc.elim (λ _ → isPropΠ λ _ → squash/ _ _)
             (λ {(a₁ , r₁) →
               Trunc.elim (λ _ → squash/ _ _)
-                (λ {(a' , r₀' , r₁') → eq/ a₀ a₁ ∣ b₀ , r₀ , sim .zigzag r₁ r₁' r₀' ∣})})})
+                (λ {(a' , r₀' , r₁') → eq/ a₀ a₁ ∣ b₀ , r₀ , sim .zigzag r₁ r₁' r₀' ∣₁})})})
 
     ψ : B / Rᴿ → A / Rᴸ
     ψ [ b ] = g b (sim .bwd b)
@@ -134,7 +134,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
   relToBwd≡ : ∀ {a b} → R .fst .fst a b → ψ [ b ] ≡ [ a ]
   relToBwd≡ {a} {b} r =
     Trunc.elim {P = λ s → g b s ≡ [ a ]} (λ _ → squash/ _ _)
-      (λ {(a' , r') → eq/ a' a ∣ b , r' , r ∣})
+      (λ {(a' , r') → eq/ a' a ∣ b , r' , r ∣₁})
       (sim .bwd b)
 
   private
