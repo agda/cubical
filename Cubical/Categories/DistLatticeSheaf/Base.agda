@@ -2,6 +2,7 @@
 module Cubical.Categories.DistLatticeSheaf.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
@@ -21,7 +22,7 @@ open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.Basis
 open import Cubical.Algebra.DistLattice.BigOps
 
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.Pullback
@@ -66,7 +67,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
 
 module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
-  open Category hiding (_⋆_)
+  open Category hiding (_⋆_ ; _∘_)
   open Functor
   open Order (DistLattice→Lattice L)
   open DistLatticeStr (snd L)
@@ -81,8 +82,6 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   private
    DLCat : Category ℓ ℓ
    DLCat = DistLatticeCategory L
-
-  open Category DLCat
 
   -- C-valued presheaves on a distributive lattice
   DLPreSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
@@ -109,8 +108,8 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
          V           V
          y   ----→ x ∨ y
     -}
-    sq : hom-∧₂ ⋆ hom-∨₂ ≡ hom-∧₁ ⋆ hom-∨₁
-    sq = is-prop-valued (x ∧l y) (x ∨l y) (hom-∧₂ ⋆ hom-∨₂) (hom-∧₁ ⋆ hom-∨₁)
+    sq : hom-∧₂ ⋆⟨ DLCat ⟩ hom-∨₂ ≡ hom-∧₁ ⋆⟨ DLCat ⟩ hom-∨₁
+    sq = is-prop-valued (x ∧l y) (x ∨l y) (hom-∧₂ ⋆⟨ DLCat ⟩ hom-∨₂) (hom-∧₁ ⋆⟨ DLCat ⟩ hom-∨₁)
 
     {-
       F(x ∨ y) ----→ F(x)
@@ -254,7 +253,13 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
                         ≡ subst-filler (λ d → C [ c , d ]) F0=1 f (~ i))
                    (T .snd c .snd (subst (λ d → C [ c , d ]) F0=1 f)))
 
-    P→L (_ , presPBSq) (ℕ.suc n) α = {!presPBSq (α zero) (⋁ (α ∘ suc))!}
+    P→L (_ , presPBSq) (ℕ.suc n) α c cc = uniqueExists
+      {!!}
+        {!!}
+          (λ _ → isPropIsConeMor _ _ _)
+            {!!}
+     where
+     inducedPB = presPBSq (α zero) (⋁ (α ∘ suc))
 
 
 module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C)
