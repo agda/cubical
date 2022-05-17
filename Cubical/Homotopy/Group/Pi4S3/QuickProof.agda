@@ -33,7 +33,13 @@ defined in Cubical.HITs.Sphere.Properties, kills off a good deal of
 
 4. Conclude that π₄(S³) ≅ ℤ/2ℤ.
 
--}
+--------------
+
+The file also contains a second approach: showing η₃ ↦ -2 by
+computation. This is done by very carefully choosing the equivalences
+involved. In fact, one has to be so careful that it almost requires
+more work than just proving η₃ ↦ -2 by hand. But at least, we can do it!-}
+
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.QuickProof where
 
@@ -49,6 +55,9 @@ open import Cubical.Homotopy.HopfInvariant.HopfMap using (hopfMap≡HopfMap')
 open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber
   using (fold∘W ; coFib-fold∘W∙ ; π₄S³≅π₃coFib-fold∘W∙ ; S³→S²→Pushout→Unit)
 -- Only imports definitions/proofs from chapter 1-3 in Brunerie's thesis
+open import Cubical.Homotopy.Group.Pi4S3.BrunerieExperiments
+  using (K₂ ; f7' ; S¹∙ ; encodeTruncS²)
+-- For computation (alternative proof)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
@@ -64,6 +73,7 @@ open import Cubical.Data.Int
   renaming (ℤ to Z ; _·_ to _·Z_ ; _+_ to _+Z_)
 
 open import Cubical.HITs.S1 as S1 renaming (_·_ to _*_)
+open import Cubical.HITs.S2 renaming (S¹×S¹→S² to S¹×S¹→S²')
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Join hiding (joinS¹S¹→S³)
@@ -72,6 +82,8 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.SetTruncation
   renaming (rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
+open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
+open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Exact
@@ -81,6 +93,17 @@ open import Cubical.Algebra.Group.GroupPath
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int
+
+
+
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
+open import Cubical.Foundations.Pointed.Homogeneous
+open import Cubical.Foundations.Path
 
 open S¹Hopf
 open Iso
@@ -735,46 +758,13 @@ BrunerieIso =
            ∙ cong abs η↦-2))))
            (abstractℤ/≅ℤ 2)
 
-
+------------- Part 2: proof (partly) by computation -------------
 -- Alternative version of the same proof: proving η₃ ↦ -2 by computation
-open import Cubical.HITs.S2 renaming (S¹×S¹→S² to S¹×S¹→S²')
--- move to Sn
-SuspS¹→S²-S¹×S¹→S² : (a b : S¹) → (SuspS¹→S² (S¹×S¹→S² a b)) ≡ (S¹×S¹→S²' b a)
-SuspS¹→S²-S¹×S¹→S² base base = refl
-SuspS¹→S²-S¹×S¹→S² base (loop i) = refl
-SuspS¹→S²-S¹×S¹→S² (loop i) base = refl
-SuspS¹→S²-S¹×S¹→S² (loop i) (loop j) k =
-  hcomp (λ r → λ {(i = i0) → rUnit (λ _ → base) (~ r ∧ ~ k) j
-                 ; (i = i1) → rUnit (λ _ → base) (~ r ∧ ~ k) j
-                 ; (j = i0) → base
-                 ; (j = i1) → base
-                 ; (k = i0) → SuspS¹→S² (doubleCompPath-filler (
-                                 sym (rCancel (merid base)))
-                                 ((λ i → merid (loop i) ∙ sym (merid base)))
-                                 (rCancel (merid base)) r i j )
-                 ; (k = i1) → surf j i})
-    (hcomp (λ r → λ {(i = i0) → rUnit (λ _ → base) (r ∧ ~ k) j
-                 ; (i = i1) → rUnit (λ _ → base) (r ∧ ~ k) j
-                 ; (j = i0) → base
-                 ; (j = i1) → base
-                 ; (k = i0) → SuspS¹→S² (compPath-filler (merid (loop i)) (sym (merid base)) r j)
-                 ; (k = i1) → surf j i})
-           (surf j i))
-
-open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
-open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
-open import Cubical.Experiments.Brunerie hiding (η₃)
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.HITs.PropositionalTruncation as PropTrunc
-open import Cubical.Foundations.Pointed.Homogeneous
-open import Cubical.Foundations.Path
 connS² : isConnected 3 S²
-connS² = ∣ base ∣ , Trunc.elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
-                (S²ToSetElim (λ _ → isOfHLevelTrunc 3 _ _)
-                  refl)
+connS² = ∣ base ∣
+  , Trunc.elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
+      (S²ToSetElim (λ _ → isOfHLevelTrunc 3 _ _)
+        refl)
 
 connSuspS² : isConnected 4 (Susp S²)
 fst connSuspS² = ∣ north ∣
@@ -794,7 +784,6 @@ snd connSuspS² =
 π₃*S³' = π₃* (Susp∙ S²) (isConnectedSubtr 3 1 connSuspS²)
 
 -- The version of η₃ we have been able to compute lies in π₃*S³'
-
 η₃'-raw : (join S¹ S¹ , inl base) →∙ (Susp S² , north)
 fst η₃'-raw (inl x) = north
 fst η₃'-raw (inr x) = north
@@ -804,7 +793,6 @@ snd η₃'-raw = refl
 
 η₃' : π₃*S³' .fst
 η₃' = ∣ η₃'-raw ∣₂
-
 
 -- We first have to show (manually) that the following iso sends η₃ to η₃'
 π₃*S³≅π₃*S³' : GroupEquiv π₃*S³ π₃*S³'
@@ -927,10 +915,10 @@ leftInv π₃*S³'≅π₁S¹→∙ΩS³'-raw =
                    , help f))
   where
   help : (f : (join S¹ S¹ , inl base) →∙ Susp∙ S²)
-       → PathP (λ i → (sym (snd f)
-                      ∙ cong (fst f) (push base base ∙ sym (push base base))) i
-                      ≡ north)
-               refl (snd f)
+    → PathP (λ i → (sym (snd f)
+                   ∙ cong (fst f) (push base base ∙ sym (push base base))) i
+                   ≡ north)
+             refl (snd f)
   help f =
     flipSquare ((cong (sym (snd f) ∙_)
     (cong (cong (fst f))
@@ -1064,7 +1052,6 @@ snd π₁S¹→∙ΩS³'≅π₃*S³' =
 π₁S¹→∙ΩS³'→π₁S¹→∙K₂ =
   π'∘∙Hom 0 ((λ f → (λ x → f7' (fst f x)) , (cong f7' (snd f))) , refl)
 
-
 π₁S¹→∙K₂→π₁S¹ :
   GroupHom (π'Gr 0 (S₊∙ 1 →∙ (K₂ , ∣ base ∣₄ ) ∙)) (π'Gr 0 (S₊∙ 1))
 π₁S¹→∙K₂→π₁S¹ = π'∘∙Hom 0 mainMap∙
@@ -1092,84 +1079,30 @@ snd π₁S¹→∙ΩS³'≅π₃*S³' =
                 (sym (snd g)) (λ i → fst g (loop i)) (snd g) (~ i))) ∣₂))
        (_ , πₙSⁿ≅ℤ 0 .snd)
 
-η₃-raw/2 : (join S¹ S¹ , inl base) →∙ S₊∙ 3
-fst η₃-raw/2 (inl x) = north
-fst η₃-raw/2 (inr x) = north
-fst η₃-raw/2 (push a b i) =
-  σ₂ (S¹×S¹→S² a b) (~ i)
-snd η₃-raw/2 = refl
-
-open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Sum
-open import Cubical.Relation.Nullary
-1∈Im→isEquivℤ : (h : GroupHom ℤ ℤ) → isInIm h (pos 1) → isEquiv (fst h)
-1∈Im→isEquivℤ h = PropTrunc.rec (isPropIsEquiv _)
-         λ p → GroupEquivℤ-isEquiv idGroupEquiv 1 (λ r → r , (·Comm 1 r ∙ ℤ·≡· r 1)) h (h2 p)
-   where
-   h2 : Σ[ x ∈ ℤ .fst ] fst h x ≡ 1 → (fst h 1 ≡ 1) ⊎ (fst h 1 ≡ -1)
-   h2 (n , p) =
-     help2 n
-      (fst h (pos 1))
-      help1'
-      (λ q → snotz (injPos (sym p
-                 ∙∙ cong (fst h) q
-                 ∙∙ IsGroupHom.pres1 (snd h))))
-       λ q → snotz (injPos (sym p
-                   ∙∙ cong (fst h) (·Comm 1 n ∙ ℤ·≡· n 1)
-                   ∙∙ homPresℤ· h 1 n ∙ (cong (n ℤ[ Z , ℤ .snd ]·_) q)
-                   ∙∙ sym (ℤ·≡· n 0)
-                   ∙∙ ·Comm n 0))
-     where
-     help1' : pos 1 ≡ n ·Z fst h (pos 1)
-     help1' =
-         sym p
-       ∙ cong (fst h) (sym (ℤ·≡· 1 n)
-       ∙∙ ·Comm 1 n ∙∙ ℤ·≡· n 1)
-       ∙ (homPresℤ· h 1 n)
-       ∙ sym (ℤ·≡· n (fst h 1))
-
-     help2 : (a b : Z) → 1 ≡ a ·Z b → ¬ (a ≡ 0) → ¬ (b ≡ 0) → (b ≡ 1) ⊎ (b ≡ -1)
-     help2 a (pos zero) p a≠0 b≠0 = ⊥.rec (b≠0 refl)
-     help2 a (pos (suc zero)) p a≠0 b≠0 = inl refl
-     help2 (pos zero) (pos (suc (suc n))) p a≠0 b≠0 = ⊥.rec (a≠0 refl)
-     help2 (pos (suc n₁)) (pos (suc (suc n))) p a≠0 b≠0 =
-       ⊥.rec (snotz
-         (cong predℕ (injPos ((pos·pos (suc n₁) (suc (suc n)) ∙ sym p)))))
-     help2 (negsuc n₁) (pos (suc (suc n))) p a≠0 b≠0 =
-       ⊥.rec (snotz (sym (injNegsuc (cong (predℤ ∘ predℤ)
-               (p ∙ negsuc·pos n₁ (suc (suc n))
-               ∙ cong (-_) (sym (pos·pos (suc n₁) (suc (suc n)))))))))
-     help2 a (negsuc zero) p a≠0 b≠0 = inr refl
-     help2 (pos zero) (negsuc (suc n)) p a≠0 b≠0 = ⊥.rec (a≠0 refl)
-     help2 (pos (suc n₁)) (negsuc (suc n)) p a≠0 b≠0 =
-       ⊥.rec (snotz (sym (injNegsuc
-           (cong (predℤ ∘ predℤ) (p ∙ pos·negsuc (suc n₁) (suc n)
-         ∙ cong (-_) (sym (pos·pos (suc n₁) (suc (suc n)))))))))
-     help2 (negsuc n₁) (negsuc (suc n)) p a≠0 b≠0 =
-       ⊥.rec (snotz (injPos
-           (sym (cong predℤ (p ∙ negsuc·negsuc n₁ (suc n)
-          ∙ sym (pos·pos (suc n₁) (suc (suc n))))))))
-
-okcool : ∀ (G : Group₀) (e : GroupEquiv ℤ G)
-       → (h : GroupHom G ℤ)
-       → isInIm (_ , snd h) 1
-       → isEquiv (fst h)
-okcool G =
-  GroupEquivJ
-    (λ H _ → (h : GroupHom H ℤ)
-       → isInIm (_ , snd h) 1
-       → isEquiv (fst h))
-    1∈Im→isEquivℤ
-
-n1 : GroupHom π₃*S³' ℤ
-n1 = compGroupHom
+-- We combine them into one
+computer : GroupHom π₃*S³' ℤ
+computer = compGroupHom
       (GroupEquiv→GroupHom (invGroupEquiv (GroupIso→GroupEquiv π₁S¹→∙ΩS³'≅π₃*S³')))
       (compGroupHom (compGroupHom π₁S¹→∙ΩS³'→π₁S¹→∙K₂ π₁S¹→∙K₂→π₁S¹) π₁S¹→ℤ)
 
-mainGroupIso : GroupEquiv π₃*S³' ℤ
-fst (fst mainGroupIso) = fst n1
-snd (fst mainGroupIso) =
-  okcool π₃*S³'
+-- We show that it's an iso by computation: 1 lies in its image
+
+-- It's witnessed by the following element:
+1∈π₃*S³' : π₃*S³' .fst
+1∈π₃*S³' =
+  ∣ (λ { (inl x) → north
+       ; (inr x) → north
+       ; (push a b i) → σ S²∙ (S¹×S¹→S²' b a) i}) , refl ∣₂
+
+-- By computation, it maps to 1
+1∈π₃*S³'↦1 : fst computer 1∈π₃*S³' ≡ 1
+1∈π₃*S³'↦1 = refl
+
+-- This implies that computer indeed is an iso
+computerIso : GroupEquiv π₃*S³' ℤ
+fst (fst computerIso) = fst computer
+snd (fst computerIso) =
+  1∈Im→isEquiv π₃*S³'
     (compGroupEquiv
       (compGroupEquiv
         (invGroupEquiv
@@ -1177,31 +1110,16 @@ snd (fst mainGroupIso) =
             (πₙ'Sⁿ≅ℤ 2)))
             π₃S³≅π₃*S³)
             π₃*S³≅π₃*S³')
-    n1
-    ∣ ∣ (λ { (inl x) → north
-          ; (inr x) → north
-          ; (push a b i) → σ S²∙ (S¹×S¹→S²' b a) i}) , refl ∣₂ , refl ∣
-snd mainGroupIso = snd n1
+    computer
+    ∣ 1∈π₃*S³' , 1∈π₃*S³'↦1 ∣
+snd computerIso = snd computer
 
--- Computation!
-mainGroupIsoη₃ : fst (fst mainGroupIso) ∣ η₃'-raw ∣₂ ≡ -2
-mainGroupIsoη₃ = refl
+-- We now verify via computation that η₃' maps to -2
+computerIsoη₃ : fst (fst computerIso) η₃' ≡ -2
+computerIsoη₃ = refl
 
-test2 : GroupEquiv π₃*S³ ℤ
-test2 = compGroupEquiv π₃*S³≅π₃*S³' mainGroupIso
-
-test2β≡-2 : fst (fst test2) η₃ ≡ -2
-test2β≡-2 = (cong (fst (fst test2)) (sym (snd η₃-abs))
-                ∙ cong (fst (fst mainGroupIso)) η₃-abs-pres)
-              ∙ mainGroupIsoη₃
-  where
-  abstract
-    η₃-abs : Σ[ x ∈ _ ] x ≡ η₃
-    η₃-abs = η₃ , refl
-
-    η₃-abs-pres : fst π₃*S³≅π₃*S³' .fst (fst η₃-abs) ≡ ∣ η₃'-raw ∣₂
-    η₃-abs-pres = π₃*S³≅π₃*S³'-pres-η₃
-
+-- Putting this together with the info frm the beginning of the file, we have an iso
+-- π₃S² ≅ π₃*S³' ≅ ℤ, mapping η ↦ η₃' ↦ -2
 BrunerieIso' : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤ/ 2)
 BrunerieIso' =
   compGroupEquiv
@@ -1218,7 +1136,7 @@ BrunerieIso' =
                     π₃S²≅π₃*S²-abs
                     π₃*S²≅π₃*joinS¹S¹-abs)
                   π₃*joinS¹S¹≅π₃*S³-abs)
-                (fst test2-abs)))
+                (fst π₃*S³≅ℤ-abs)))
             (π'∘∙Hom 2 (fold∘W , refl))
             _
             S³→S²→Pushout→Unit
@@ -1228,20 +1146,35 @@ BrunerieIso' =
                       (sym (cong (invEq (fst (π₃'S³≅ℤ-abs 2))) (gen↦1 2))
                     ∙ retEq (fst (π₃'S³≅ℤ-abs 2)) ∣ idfun∙ (S₊∙ 3) ∣₂))
                     ∙ (λ _ → η)))
-            ∙ cong (m1 ∘ m2 ∘ m3) η↦η₁-abs 
+            ∙ cong (m1 ∘ m2 ∘ m3) η↦η₁-abs
             ∙ cong (m1 ∘ m2) η₁↦η₂-abs
             ∙ cong (m1) η₂↦η₃-abs)
             ∙ m5))))
     (abstractℤ/≅ℤ 2)
   where
   abstract
-    test2-abs : Σ[ f ∈ GroupEquiv π₃*S³ ℤ ] (fst (fst f) η₃ ≡ -2)
-    test2-abs = test2 , test2β≡-2
+    η₃-abs : Σ[ x ∈ _ ] x ≡ η₃
+    η₃-abs = η₃ , refl
 
-  m1 = fst (fst (fst test2-abs))
+    η₃-abs-pres : fst π₃*S³≅π₃*S³' .fst (fst η₃-abs) ≡ ∣ η₃'-raw ∣₂
+    η₃-abs-pres = π₃*S³≅π₃*S³'-pres-η₃
+
+  π₃*S³≅ℤ : GroupEquiv π₃*S³ ℤ
+  π₃*S³≅ℤ = compGroupEquiv π₃*S³≅π₃*S³' computerIso
+
+  π₃*S³≅ℤβ≡-2 : fst (fst π₃*S³≅ℤ) η₃ ≡ -2
+  π₃*S³≅ℤβ≡-2 = (cong (fst (fst π₃*S³≅ℤ)) (sym (snd η₃-abs))
+                  ∙ cong (fst (fst computerIso)) η₃-abs-pres)
+                ∙ computerIsoη₃
+
+  abstract
+    π₃*S³≅ℤ-abs : Σ[ f ∈ GroupEquiv π₃*S³ ℤ ] (fst (fst f) η₃ ≡ -2)
+    π₃*S³≅ℤ-abs = π₃*S³≅ℤ , π₃*S³≅ℤβ≡-2
+
+  m1 = fst (fst (fst π₃*S³≅ℤ-abs))
   m2 = fst (fst π₃*joinS¹S¹≅π₃*S³-abs)
   m3 = fst (fst π₃*S²≅π₃*joinS¹S¹-abs)
   m4 = fst (fst π₃S²≅π₃*S²-abs)
 
   m5 : abs (m1 η₃) ≡ 2
-  m5 = cong abs (snd test2-abs)
+  m5 = cong abs (snd π₃*S³≅ℤ-abs)
