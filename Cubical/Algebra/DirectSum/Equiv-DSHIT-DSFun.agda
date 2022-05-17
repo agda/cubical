@@ -101,6 +101,7 @@ module Equiv-Properties
     _+Fun_ : ((n : ℕ) → G n) → ((n : ℕ) → G n) → ((n : ℕ) → G n)
     _+Fun_ f g n = Gstr n ._+_ (f n) (g n)
 
+
 -----------------------------------------------------------------------------
 -- Some simplification for transport
 
@@ -118,11 +119,16 @@ module Equiv-Properties
   substG : (g : (n : ℕ) → G n) → {k n : ℕ} → (p : k ≡ n) → subst G p (g k) ≡ g n
   substG g {k} {n} p = J (λ n p → subst G p (g k) ≡ g n) (transportRefl _) p
 
+
 -----------------------------------------------------------------------------
 -- Direct Sens
 
   -- To facilitate the proof the traduction to the function
-  -- and to its properties are sperated
+  -- and its properties are done in two times
+
+  ---------------------------------------------------------------------------
+  -- Traduction to the function
+
   fun-trad : (k : ℕ) → (a : G k) → (n : ℕ) → G n
   fun-trad k a n with (discreteℕ k n)
   ... | yes p = subst G p a
@@ -157,7 +163,10 @@ module Equiv-Properties
                          p
            ... | no ¬p = fst (identity (Gstr n) (0g (Gstr n)))
 
-  -- trad on AlmostNull
+
+  ---------------------------------------------------------------------------
+  -- Traduction to the properties
+
   nfun-trad : (k : ℕ) → (a : G k) → AlmostNull G Gstr (fun-trad k a)
   nfun-trad k a = k , fix-eq
     where
@@ -176,6 +185,9 @@ module Equiv-Properties
                                    ∣ ((k +n l) , (λ n q → cong₂ ((Gstr n)._+_) (nu n (<-+k-trans q)) (nv n (<-k+-trans q))
                                                           ∙ fst (identity (Gstr n) _))) ∣₁} })
 
+  ---------------------------------------------------------------------------
+  -- Traduction + Morphism
+
   ⊕HIT→⊕Fun : ⊕HIT ℕ G Gstr → ⊕Fun G Gstr
   ⊕HIT→⊕Fun x = (⊕HIT→Fun x) , (⊕HIT→⊕AlmostNull x)
 
@@ -187,7 +199,18 @@ module Equiv-Properties
 
 
 -----------------------------------------------------------------------------
--- Converse sens + Section
+-- Converse sens
+
+  {- To be able to define ⊕Fun→⊕HIT, one we need to know k (point of annulation)
+     but to get it one need to eliminate in prop.
+     To sove this we build ⊕Fun→⊕HIT, meanwhile proving that it is a section.
+  -}
+
+  ---------------------------------------------------------------------------
+  -- Proof that we eliminate in a proposition
+
+  inj-⊕HIT→Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun x ≡ ⊕HIT→Fun y → x ≡ y
+  inj-⊕HIT→Fun = {!!}
 
   {- idea 1 : compute this as a normal form ?
   then x ≡ y is ∑ base i (a i) ≡ ∑ base i (b i)
@@ -212,9 +235,6 @@ module Equiv-Properties
   => => => FAILS FAILS FAILS
   -}
 
-  inj-⊕HIT→Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun x ≡ ⊕HIT→Fun y → x ≡ y
-  inj-⊕HIT→Fun = {!!}
-
   inj-⊕HIT→⊕Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→⊕Fun x ≡ ⊕HIT→⊕Fun y → x ≡ y
   inj-⊕HIT→⊕Fun x y p = inj-⊕HIT→Fun x y (fst (PathΣ→ΣPathTransport _ _ p))
 
@@ -222,60 +242,19 @@ module Equiv-Properties
   lemProp g (x , p) (y , q) = ΣPathTransport→PathΣ _ _
                               ((inj-⊕HIT→⊕Fun x y (p ∙ sym q)) , isSet⊕Fun _ _ _ _)
 
-  -- trad g = ∑_{i ∈〚0, k〛} base i (g i)
+
+  --  General traduction for underliyng function
   Strad : (g : (n : ℕ) → G n) → (i : ℕ) → ⊕HIT ℕ G Gstr
   Strad g zero = base 0 (g 0)
   Strad g (suc i) = (base (suc i) (g (suc i))) +⊕HIT (Strad g i)
 
-{- ### General Behabiour ### -}
-  -- if m < n then the traduction of sum up to i is 0
-  trad-m<n : (g : (n : ℕ) → G n) → (m : ℕ) → (n : ℕ) → (r : m < n)
-            → ⊕HIT→Fun (Strad g m) n ≡ 0g (Gstr n)
-  trad-m<n g zero n r with discreteℕ 0 n
-  ... | yes p = ⊥.rec (<→≢ r p)
-  ... | no ¬p = refl
-  trad-m<n g (suc m) n r with discreteℕ (suc m) n
-  ... | yes p = ⊥.rec (<→≢ r p)
-  ... | no ¬p = snd (identity (Gstr n) _) ∙ trad-m<n g m n (<-trans ≤-refl r)
-
-  {- if n ≤ m, prove ⊕HIT→Fun (∑_{i ∈〚0, m〛} base i (g i)) ≡ g n
-     then n is equal to only one〚0, m〛=> induction on m
-     case 0 : ok
-     case suc m : if n ≡ suc m, then the rest of the sum is 0 by trad-m<n
-                  if n ≢ suc m, then it is in the rest of the sum => recursive call -}
-  trad-n≤m : (g : (n : ℕ) → G n) → (m : ℕ) → (n : ℕ) → (r : n ≤ m) → ⊕HIT→Fun (Strad g m) n ≡ g n
-  trad-n≤m g zero n r with discreteℕ 0 n
-  ... | yes p = substG g p
-  ... | no ¬p = ⊥.rec (¬p (sym (≤0→≡0 r)))
-  trad-n≤m g (suc m) n r with discreteℕ (suc m) n
-  ... | yes p = cong₂ ((Gstr n)._+_) (substG g p) (trad-m<n g m n (0 , p)) ∙ fst (identity (Gstr n) _)
-  ... | no ¬p = snd (identity (Gstr n) _) ∙ trad-n≤m g m n (≤-suc-≢ r λ x → ¬p (sym x))
-{- ### General Behabiour ### -}
-
-  trad-eq : (g : (n : ℕ) → G n) → (k : ℕ) → (ng : (n : ℕ) → ( k < n) → g n ≡ 0g (Gstr n))
-            → (n : ℕ) → ⊕HIT→Fun (Strad g k) n ≡ g n
-  trad-eq g k ng n with splitℕ-≤ n k
-  ... | inl x = trad-n≤m g k n x
-  ... | inr x = trad-m<n g k n x ∙ sym (ng n x)
-
-  ⊕Fun→⊕HIT+ : (g : ⊕Fun G Gstr) → Σ[ x ∈ ⊕HIT ℕ G Gstr ] ⊕HIT→⊕Fun x ≡ g
-  ⊕Fun→⊕HIT+ (g , Ang) = PT.rec (lemProp (g , Ang))
-                          (λ { (k , ng)
-                               → Strad g k , ΣPathTransport→PathΣ _ _
-                                              ((funExt (trad-eq g k ng)) , (squash₁ _ _)) })
-                          Ang
-
-  ⊕Fun→⊕HIT : ⊕Fun G Gstr → ⊕HIT ℕ G Gstr
-  ⊕Fun→⊕HIT g = fst (⊕Fun→⊕HIT+ g)
-
-  ⊕Fun→⊕HIT-pres0 : ⊕Fun→⊕HIT 0⊕Fun ≡ 0⊕HIT
-  ⊕Fun→⊕HIT-pres0 = base-neutral 0
-
   Strad-pres+ : (f g : (n : ℕ) → G n) → (i : ℕ) → Strad (f +Fun g) i ≡ Strad f i +⊕HIT Strad g i
   Strad-pres+ f g zero = sym (base-add 0 (f 0) (g 0))
-  Strad-pres+ f g (suc i) = cong₂ _+⊕HIT_ (sym (base-add _ _ _)) (Strad-pres+ f g i)
+  Strad-pres+ f g (suc i) = cong₂ _+⊕HIT_ (sym (base-add _ _ _))
+                                          (Strad-pres+ f g i)
                             ∙ comm-4 (⊕HIT-AbGr ℕ G Gstr) _ _ _ _
 
+  -- Properties in the converse sens
   Strad-max : (f : (n : ℕ) → G n) → (k : ℕ) → (ng : AlmostNullProof G Gstr f k)
               → (i : ℕ) → (r : k ≤ i) → Strad f i ≡ Strad f k
   Strad-max f k ng zero r = sym (cong (Strad f) (≤0→≡0 r))
@@ -286,24 +265,71 @@ module Equiv-Properties
                 ∙ +⊕HIT-IdL _
   ... | inr x = cong (Strad f) (sym x)
 
-  ⊕Fun→⊕HIT-AN : (f : (n : ℕ) → G n) → (x : AlmostNull G Gstr f) → (g : (n : ℕ) → G n) → (y : AlmostNull G Gstr g)
-                   → ⊕Fun→⊕HIT ((f , ∣ x ∣₁) +⊕Fun (g , ∣ y ∣₁)) ≡ (⊕Fun→⊕HIT (f , ∣ x ∣₁)) +⊕HIT (⊕Fun→⊕HIT (g , ∣ y ∣₁))
-  ⊕Fun→⊕HIT-AN f (k , nf) g (l , ng) = Strad-pres+ f g (k +n l)
-                                        ∙ cong₂ _+⊕HIT_ (Strad-max f k nf (k +n l) (l , (+-comm l k)))
-                                                        (Strad-max g l ng (k +n l) (k , refl))
+  -- if m < n then the traduction of sum up to i is 0
+  Strad-m<n : (g : (n : ℕ) → G n) → (m : ℕ) → (n : ℕ) → (r : m < n)
+            → ⊕HIT→Fun (Strad g m) n ≡ 0g (Gstr n)
+  Strad-m<n g zero n r with discreteℕ 0 n
+  ... | yes p = ⊥.rec (<→≢ r p)
+  ... | no ¬p = refl
+  Strad-m<n g (suc m) n r with discreteℕ (suc m) n
+  ... | yes p = ⊥.rec (<→≢ r p)
+  ... | no ¬p = snd (identity (Gstr n) _) ∙ Strad-m<n g m n (<-trans ≤-refl r)
 
-  ⊕Fun→⊕HIT-ANP : (f : (n : ℕ) → G n) → (x : AlmostNullP G Gstr f) → (g : (n : ℕ) → G n) → (y : AlmostNullP G Gstr g)
-                    → ⊕Fun→⊕HIT ((f , x) +⊕Fun (g , y)) ≡ (⊕Fun→⊕HIT (f , x)) +⊕HIT (⊕Fun→⊕HIT (g , y))
-  ⊕Fun→⊕HIT-ANP f = PT.elim (λ _ → isPropΠ (λ _ → isPropΠ (λ _ → isSet⊕HIT _ _)))
-                     (λ x g → PT.elim (λ _ → isSet⊕HIT _ _) λ y → ⊕Fun→⊕HIT-AN f x g y)
+  {- if n ≤ m, prove ⊕HIT→Fun (∑_{i ∈〚0, m〛} base i (g i)) ≡ g n
+     then n is equal to only one〚0, m〛=> induction on m
+     case 0 : ok
+     case suc m : if n ≡ suc m, then the rest of the sum is 0 by trad-m<n
+                  if n ≢ suc m, then it is in the rest of the sum => recursive call -}
+  Strad-n≤m : (g : (n : ℕ) → G n) → (m : ℕ) → (n : ℕ) → (r : n ≤ m) → ⊕HIT→Fun (Strad g m) n ≡ g n
+  Strad-n≤m g zero n r with discreteℕ 0 n
+  ... | yes p = substG g p
+  ... | no ¬p = ⊥.rec (¬p (sym (≤0→≡0 r)))
+  Strad-n≤m g (suc m) n r with discreteℕ (suc m) n
+  ... | yes p = cong₂ ((Gstr n)._+_) (substG g p) (Strad-m<n g m n (0 , p)) ∙ fst (identity (Gstr n) _)
+  ... | no ¬p = snd (identity (Gstr n) _) ∙ Strad-n≤m g m n (≤-suc-≢ r λ x → ¬p (sym x))
+
+
+  ---------------------------------------------------------------------------
+  -- Traduction + Morphsim
+
+  -- traduction
+  ⊕Fun→⊕HIT+ : (g : ⊕Fun G Gstr) → Σ[ x ∈ ⊕HIT ℕ G Gstr ] ⊕HIT→⊕Fun x ≡ g
+  ⊕Fun→⊕HIT+ (g , Ang) = PT.rec (lemProp (g , Ang))
+                          (λ { (k , ng)
+                               → Strad g k , ΣPathTransport→PathΣ _ _
+                                              ((funExt (trad-section g k ng)) , (squash₁ _ _)) })
+                          Ang
+             where
+             trad-section : (g : (n : ℕ) → G n) → (k : ℕ) → (ng : (n : ℕ) → ( k < n) → g n ≡ 0g (Gstr n))
+                            → (n : ℕ) → ⊕HIT→Fun (Strad g k) n ≡ g n
+             trad-section g k ng n with splitℕ-≤ n k
+             ... | inl x = Strad-n≤m g k n x
+             ... | inr x = Strad-m<n g k n x ∙ sym (ng n x)
+
+
+  ⊕Fun→⊕HIT : ⊕Fun G Gstr → ⊕HIT ℕ G Gstr
+  ⊕Fun→⊕HIT g = fst (⊕Fun→⊕HIT+ g)
+
+  -- morphism
+  ⊕Fun→⊕HIT-pres0 : ⊕Fun→⊕HIT 0⊕Fun ≡ 0⊕HIT
+  ⊕Fun→⊕HIT-pres0 = base-neutral 0
 
   ⊕Fun→⊕HIT-pres+ : (f g : ⊕Fun G Gstr) → ⊕Fun→⊕HIT (f +⊕Fun g) ≡ (⊕Fun→⊕HIT f) +⊕HIT (⊕Fun→⊕HIT g)
-  ⊕Fun→⊕HIT-pres+ (f , Anf) (g , Ang) = ⊕Fun→⊕HIT-ANP f Anf g Ang
+  ⊕Fun→⊕HIT-pres+ (f , Anf) (g , Ang) = PT.elim (λ X → isSet⊕HIT (⊕Fun→⊕HIT ((f , X) +⊕Fun (g , Ang)))
+                                                                   ((⊕Fun→⊕HIT (f , X)) +⊕HIT (⊕Fun→⊕HIT (g , Ang))))
+                                            (λ x →
+                                            PT.elim (λ Y → isSet⊕HIT (⊕Fun→⊕HIT ((f , ∣ x ∣₁) +⊕Fun (g , Y)))
+                                                                      ((⊕Fun→⊕HIT (f , ∣ x ∣₁)) +⊕HIT (⊕Fun→⊕HIT (g , Y))))
+                                               (λ y → AN f x g y)
+                                            Ang )
+                                         Anf
+    where
+    AN : (f : (n : ℕ) → G n) → (x : AlmostNull G Gstr f) → (g : (n : ℕ) → G n) → (y : AlmostNull G Gstr g)
+                     → ⊕Fun→⊕HIT ((f , ∣ x ∣₁) +⊕Fun (g , ∣ y ∣₁)) ≡ (⊕Fun→⊕HIT (f , ∣ x ∣₁)) +⊕HIT (⊕Fun→⊕HIT (g , ∣ y ∣₁))
+    AN f (k , nf) g (l , ng) = Strad-pres+ f g (k +n l)
+                               ∙ cong₂ _+⊕HIT_ (Strad-max f k nf (k +n l) (l , (+-comm l k)))
+                                               (Strad-max g l ng (k +n l) (k , refl))
 
-  {- idea :   ∑ [0, k + l] base i (f i + g i)
-            ≡ ∑ [0, k + l] base i (f i) + ∑ [0, k + l] base i (g i)
-            ≡ ∑ [0, k] base i (f i) + ∑ [0, l] base i (g i)
-  -}
 
 -----------------------------------------------------------------------------
 -- Section
@@ -334,7 +360,6 @@ module Equiv-Properties
   ... | no ¬p | yes q = ⊥.rec (¬p refl)
   ... | no ¬p | no ¬q = ⊥.rec (¬q refl)
 
--- Strad (λ n → fun-trad G Gstr (suc k) a n | discreteℕ (suc k) n) k)
 
   e-retr : (x : ⊕HIT ℕ G Gstr) → ⊕Fun→⊕HIT (⊕HIT→⊕Fun x) ≡ x
   e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕HIT _ _)
