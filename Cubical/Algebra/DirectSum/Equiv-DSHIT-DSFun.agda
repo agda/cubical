@@ -31,7 +31,9 @@ private variable
   ℓ : Level
 
 open GroupTheory
+open AbGroupTheory
 open AbGroupStr
+
 
 -----------------------------------------------------------------------------
 -- Notation
@@ -269,8 +271,35 @@ module Equiv-Properties
   ⊕Fun→⊕HIT-pres0 : ⊕Fun→⊕HIT 0⊕Fun ≡ 0⊕HIT
   ⊕Fun→⊕HIT-pres0 = base-neutral 0
 
+  Strad-pres+ : (f g : (n : ℕ) → G n) → (i : ℕ) → Strad (f +Fun g) i ≡ Strad f i +⊕HIT Strad g i
+  Strad-pres+ f g zero = sym (base-add 0 (f 0) (g 0))
+  Strad-pres+ f g (suc i) = cong₂ _+⊕HIT_ (sym (base-add _ _ _)) (Strad-pres+ f g i)
+                            ∙ comm-4 (⊕HIT-AbGr ℕ G Gstr) _ _ _ _
+
+  Strad-max : (f : (n : ℕ) → G n) → (k : ℕ) → (ng : AlmostNullProof G Gstr f k)
+              → (i : ℕ) → (r : k ≤ i) → Strad f i ≡ Strad f k
+  Strad-max f k ng zero r = sym (cong (Strad f) (≤0→≡0 r))
+  Strad-max f k ng (suc i) r with ≤-split r
+  ... | inl x = cong₂ _+⊕HIT_
+                      (cong (base (suc i)) (ng (suc i) x) ∙ base-neutral (suc i))
+                      (Strad-max f k ng i (pred-≤-pred x))
+                ∙ +⊕HIT-IdL _
+  ... | inr x = cong (Strad f) (sym x)
+
+  ⊕Fun→⊕HIT-AN : (f : (n : ℕ) → G n) → (x : AlmostNull G Gstr f) → (g : (n : ℕ) → G n) → (y : AlmostNull G Gstr g)
+                   → ⊕Fun→⊕HIT ((f , ∣ x ∣₁) +⊕Fun (g , ∣ y ∣₁)) ≡ (⊕Fun→⊕HIT (f , ∣ x ∣₁)) +⊕HIT (⊕Fun→⊕HIT (g , ∣ y ∣₁))
+  ⊕Fun→⊕HIT-AN f (k , nf) g (l , ng) = Strad-pres+ f g (k +n l)
+                                        ∙ cong₂ _+⊕HIT_ (Strad-max f k nf (k +n l) (l , (+-comm l k)))
+                                                        (Strad-max g l ng (k +n l) (k , refl))
+
+
   ⊕Fun→⊕HIT-pres+ : (f g : ⊕Fun G Gstr) → ⊕Fun→⊕HIT (f +⊕Fun g) ≡ (⊕Fun→⊕HIT f) +⊕HIT (⊕Fun→⊕HIT g)
-  ⊕Fun→⊕HIT-pres+ = {!!}
+  ⊕Fun→⊕HIT-pres+ (f , Anf) (g , Ang) = PT.rec (isSet⊕HIT _ _) (λ { (k , nf) →
+                                         PT.rec (isSet⊕HIT _ _) (λ { (l , ng) →
+                                                {!?!}})
+                                         Ang })
+                                         Anf
+
   {- idea :   ∑ [0, k + l] base i (f i + g i)
             ≡ ∑ [0, k + l] base i (f i) + ∑ [0, k + l] base i (g i)
             ≡ ∑ [0, k] base i (f i) + ∑ [0, l] base i (g i)
