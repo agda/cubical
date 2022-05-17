@@ -144,6 +144,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
     open Cone
     open LimCone
     open Pullback
+    open Cospan
     L→P : isDLSheaf F → isDLSheafPullback F
     fst (L→P isSheafF) = CatIsoToPath isUnivalentC (terminalToIso C (_ , isTerminalF0) T)
       where -- F(0) ≡ terminal obj.
@@ -259,8 +260,37 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
           (λ _ → isPropIsConeMor _ _ _)
             {!!}
      where
-     inducedPB = presPBSq (α zero) (⋁ (α ∘ suc))
+     β : FinVec (fst L) n
+     β i = α zero ∧l α (suc i)
 
+     αβPath : (α zero) ∧l ⋁ (α ∘ suc) ≡ ⋁ β
+     αβPath = ⋁Meetrdist (α zero) (α ∘ suc)
+
+     -- the square we want
+     theCospan : Cospan C
+     l theCospan = F .F-ob (⋁ (α ∘ suc))
+     m theCospan = F .F-ob (⋁ β)
+     r theCospan = F .F-ob (α zero)
+     s₁ theCospan = F .F-hom (≤-⋁Ext _ _ λ _ → hom-∧₂ _ _)
+     s₂ theCospan = F .F-hom (⋁IsMax _ _ λ _ → hom-∧₁ _ _)
+
+     thePB : Pullback C theCospan
+     pbOb thePB = F .F-ob (⋁ α)
+     pbPr₁ thePB = F .F-hom (hom-∨₂ _ _)
+     pbPr₂ thePB = F .F-hom (hom-∨₁ _ _)
+     pbCommutes thePB = F-square F (is-prop-valued _ _ _ _)
+     univProp thePB f g square = presPBSq (α zero) (⋁ (α ∘ suc)) f g squarePath
+      where
+      p : PathP (λ i → (DLCat ^op) [ ⋁ (α ∘ suc) , αβPath i ])
+                (hom-∧₂ _ _) (≤-⋁Ext _ _ λ _ → hom-∧₂ _ _)
+      p = toPathP (is-prop-valued _ _ _ _)
+
+      q : PathP (λ i → (DLCat ^op) [ α zero , αβPath i ])
+                (hom-∧₁ _ _) (⋁IsMax _ _ λ _ → hom-∧₁ _ _)
+      q = toPathP (is-prop-valued _ _ _ _)
+
+      squarePath : f ⋆⟨ C ⟩ F .F-hom (hom-∧₂ _ _) ≡ g ⋆⟨ C ⟩ F .F-hom (hom-∧₁ _ _)
+      squarePath = transport (λ i → f ⋆⟨ C ⟩ F .F-hom (p (~ i)) ≡ g ⋆⟨ C ⟩ F .F-hom (q (~ i))) square
 
 module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C)
                     (L' : ℙ (fst L)) (hB : IsBasis L L') where
