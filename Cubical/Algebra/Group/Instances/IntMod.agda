@@ -4,91 +4,90 @@ module Cubical.Algebra.Group.Instances.IntMod where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
-open import Cubical.Algebra.Group.Instances.Int
-open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Monoid.Base
-open import Cubical.Algebra.Semigroup.Base
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-open import Cubical.Data.Bool hiding (isProp≤)
-open import Cubical.Data.Fin
-open import Cubical.Data.Fin.Arithmetic
-open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; ℤ to ℤType)
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
+
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
+open import Cubical.Data.Bool hiding (isProp≤)
+open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Mod
 open import Cubical.Data.Nat.Order
-open import Cubical.Algebra.Group.Instances.Int
-  renaming (ℤ to ℤGroup)
-open import Cubical.Algebra.Group.Instances.Unit
-open import Cubical.Algebra.Group.Instances.Bool
-  renaming (Bool to BoolGroup)
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_)
+open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Arithmetic
+open import Cubical.Data.Sigma
+
+open import Cubical.Algebra.Monoid.Base
+open import Cubical.Algebra.Semigroup.Base
+open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.Properties
-open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
+open import Cubical.Algebra.Group.Instances.Unit
+open import Cubical.Algebra.Group.Instances.Bool
+open import Cubical.Algebra.Group.Instances.Int
 
 open GroupStr
 open IsGroup
 open IsMonoid
 
-ℤ/_ : ℕ → Group₀
-ℤ/ zero = ℤGroup
-fst (ℤ/ suc n) = Fin (suc n)
-1g (snd (ℤ/ suc n)) = 0
-GroupStr._·_ (snd (ℤ/ suc n)) = _+ₘ_
-inv (snd (ℤ/ suc n)) = -ₘ_
-IsSemigroup.is-set (isSemigroup (isMonoid (isGroup (snd (ℤ/ suc n))))) =
+
+ℤGroup/_ : ℕ → Group₀
+ℤGroup/ zero = ℤGroup
+fst (ℤGroup/ suc n) = Fin (suc n)
+1g (snd (ℤGroup/ suc n)) = 0
+GroupStr._·_ (snd (ℤGroup/ suc n)) = _+ₘ_
+inv (snd (ℤGroup/ suc n)) = -ₘ_
+IsSemigroup.is-set (isSemigroup (isMonoid (isGroup (snd (ℤGroup/ suc n))))) =
   isSetFin
-IsSemigroup.assoc (isSemigroup (isMonoid (isGroup (snd (ℤ/ suc n))))) =
+IsSemigroup.assoc (isSemigroup (isMonoid (isGroup (snd (ℤGroup/ suc n))))) =
   λ x y z → sym (+ₘ-assoc x y z)
-fst (identity (isMonoid (isGroup (snd (ℤ/ suc n)))) x) = +ₘ-rUnit x
-snd (identity (isMonoid (isGroup (snd (ℤ/ suc n)))) x) = +ₘ-lUnit x
-fst (inverse (isGroup (snd (ℤ/ suc n))) x) = +ₘ-rCancel x
-snd (inverse (isGroup (snd (ℤ/ suc n))) x) = +ₘ-lCancel x
+fst (identity (isMonoid (isGroup (snd (ℤGroup/ suc n)))) x) = +ₘ-rUnit x
+snd (identity (isMonoid (isGroup (snd (ℤGroup/ suc n)))) x) = +ₘ-lUnit x
+fst (inverse (isGroup (snd (ℤGroup/ suc n))) x) = +ₘ-rCancel x
+snd (inverse (isGroup (snd (ℤGroup/ suc n))) x) = +ₘ-lCancel x
 
-ℤ/1≅Unit : GroupIso (ℤ/ 1) UnitGroup₀
-ℤ/1≅Unit = contrGroupIsoUnit isContrFin1
+ℤGroup/1≅Unit : GroupIso (ℤGroup/ 1) UnitGroup₀
+ℤGroup/1≅Unit = contrGroupIsoUnit isContrFin1
 
-Bool≅ℤ/2 : GroupIso BoolGroup (ℤ/ 2)
-Iso.fun (fst Bool≅ℤ/2) false = 1
-Iso.fun (fst Bool≅ℤ/2) true = 0
-Iso.inv (fst Bool≅ℤ/2) (zero , p) = true
-Iso.inv (fst Bool≅ℤ/2) (suc zero , p) = false
-Iso.inv (fst Bool≅ℤ/2) (suc (suc x) , p) =
-  ⊥-rec (¬-<-zero (predℕ-≤-predℕ (predℕ-≤-predℕ p)))
-Iso.rightInv (fst Bool≅ℤ/2) (zero , p) =
+Bool≅ℤGroup/2 : GroupIso BoolGroup (ℤGroup/ 2)
+Iso.fun (fst Bool≅ℤGroup/2) false = 1
+Iso.fun (fst Bool≅ℤGroup/2) true = 0
+Iso.inv (fst Bool≅ℤGroup/2) (zero , p) = true
+Iso.inv (fst Bool≅ℤGroup/2) (suc zero , p) = false
+Iso.inv (fst Bool≅ℤGroup/2) (suc (suc x) , p) =
+  ⊥.rec (¬-<-zero (predℕ-≤-predℕ (predℕ-≤-predℕ p)))
+Iso.rightInv (fst Bool≅ℤGroup/2) (zero , p) =
   Σ≡Prop (λ _ → isProp≤) refl
-Iso.rightInv (fst Bool≅ℤ/2) (suc zero , p) =
+Iso.rightInv (fst Bool≅ℤGroup/2) (suc zero , p) =
   Σ≡Prop (λ _ → isProp≤) refl
-Iso.rightInv (fst Bool≅ℤ/2) (suc (suc x) , p) =
-  ⊥-rec (¬-<-zero (predℕ-≤-predℕ (predℕ-≤-predℕ p)))
-Iso.leftInv (fst Bool≅ℤ/2) false = refl
-Iso.leftInv (fst Bool≅ℤ/2) true = refl
-snd Bool≅ℤ/2 =
+Iso.rightInv (fst Bool≅ℤGroup/2) (suc (suc x) , p) =
+  ⊥.rec (¬-<-zero (predℕ-≤-predℕ (predℕ-≤-predℕ p)))
+Iso.leftInv (fst Bool≅ℤGroup/2) false = refl
+Iso.leftInv (fst Bool≅ℤGroup/2) true = refl
+snd Bool≅ℤGroup/2 =
   makeIsGroupHom λ { false false → refl
                    ; false true → refl
                    ; true false → refl
                    ; true true → refl}
 
-ℤ/2≅Bool : GroupIso (ℤ/ 2) BoolGroup
-ℤ/2≅Bool = invGroupIso Bool≅ℤ/2
+ℤGroup/2≅Bool : GroupIso (ℤGroup/ 2) BoolGroup
+ℤGroup/2≅Bool = invGroupIso Bool≅ℤGroup/2
 
--- Definition of the quotient map homomorphism ℤ → ℤ/ (suc n)
+-- Definition of the quotient map homomorphism ℤ → ℤGroup/ (suc n)
 -- as a group homomorphism.
-ℤ→Fin : (n : ℕ) → ℤType → Fin (suc n)
+ℤ→Fin : (n : ℕ) → ℤ → Fin (suc n)
 ℤ→Fin n (pos x) = x mod (suc n) , mod< n x
 ℤ→Fin n (negsuc x) = -ₘ (suc x mod suc n , mod< n (suc x))
 
-ℤ→Fin-presinv : (n : ℕ) (x : ℤType) → ℤ→Fin n (- x) ≡ -ₘ ℤ→Fin n x
+ℤ→Fin-presinv : (n : ℕ) (x : ℤ) → ℤ→Fin n (- x) ≡ -ₘ ℤ→Fin n x
 ℤ→Fin-presinv n (pos zero) =
   Σ≡Prop (λ _ → isProp≤) ((λ _ → zero) ∙ sym (cong fst help))
   where
   help : (-ₘ_ {n = n} 0) ≡ 0
-  help = GroupTheory.inv1g (ℤ/ (suc n))
+  help = GroupTheory.inv1g (ℤGroup/ (suc n))
 ℤ→Fin-presinv n (pos (suc x)) = Σ≡Prop (λ _ → isProp≤) refl
 ℤ→Fin-presinv n (negsuc x) =
-  sym (GroupTheory.invInv (ℤ/ (suc n)) _)
+  sym (GroupTheory.invInv (ℤGroup/ (suc n)) _)
 
 
 -ₘ1-id : (n : ℕ)
@@ -108,7 +107,7 @@ suc-ₘ1 : (n y : ℕ)
    ≡ (y mod suc n , mod< n y)
 suc-ₘ1 zero y =
   isContr→isProp
-    (isOfHLevelRetractFromIso 0 (fst ℤ/1≅Unit) isContrUnit) _ _
+    (isOfHLevelRetractFromIso 0 (fst ℤGroup/1≅Unit) isContrUnit) _ _
 suc-ₘ1 (suc n) y =
      (λ i → ((suc y mod suc (suc n)) , mod< (suc n) (suc y))
          +ₘ (-ₘ1-id (suc n) i))
@@ -140,15 +139,15 @@ suc-ₘ1 (suc n) y =
      +ₘ (-ₘ (((suc y mod suc n) , mod< n (suc y)))))
        ≡ -ₘ ((y mod suc n) , mod< n y)
 1-ₘsuc n y =
-     sym (GroupTheory.invInv (ℤ/ (suc n)) _)
+     sym (GroupTheory.invInv (ℤGroup/ (suc n)) _)
    ∙ cong -ₘ_
-      (GroupTheory.invDistr (ℤ/ (suc n))
+      (GroupTheory.invDistr (ℤGroup/ (suc n))
         (modInd n 1 , mod< n 1) (-ₘ (modInd n (suc y) , mod< n (suc y)))
       ∙ cong (_-ₘ (modInd n 1 , mod< n 1))
-       (GroupTheory.invInv (ℤ/ (suc n)) (modInd n (suc y) , mod< n (suc y)))
+       (GroupTheory.invInv (ℤGroup/ (suc n)) (modInd n (suc y) , mod< n (suc y)))
        ∙ suc-ₘ1 n y)
 
-isHomℤ→Fin : (n : ℕ) → IsGroupHom (snd ℤGroup) (ℤ→Fin n) (snd (ℤ/ (suc n)))
+isHomℤ→Fin : (n : ℕ) → IsGroupHom (snd ℤGroup) (ℤ→Fin n) (snd (ℤGroup/ (suc n)))
 isHomℤ→Fin n =
   makeIsGroupHom
     λ { (pos x) y → pos+case x y
@@ -160,19 +159,19 @@ isHomℤ→Fin n =
            sym (cong (ℤ→Fin n) (-Dist+ (pos (suc x)) (pos (suc y))))
         ∙∙ ℤ→Fin-presinv n (pos (suc x) +ℤ (pos (suc y)))
         ∙∙ cong -ₘ_ (pos+case (suc x) (pos (suc y)))
-        ∙∙ GroupTheory.invDistr (ℤ/ (suc n))
+        ∙∙ GroupTheory.invDistr (ℤGroup/ (suc n))
              (modInd n (suc x)
             , mod< n (suc x)) (modInd n (suc y) , mod< n (suc y))
         ∙∙ +ₘ-comm (ℤ→Fin n (negsuc y)) (ℤ→Fin n (negsuc x))}
   where
-  +1case :  (y : ℤType) → ℤ→Fin n (1 +ℤ y) ≡ ℤ→Fin n 1 +ₘ ℤ→Fin n y
-  +1case (pos zero) = sym (GroupStr.rid (snd (ℤ/ (suc n))) _)
+  +1case :  (y : ℤ) → ℤ→Fin n (1 +ℤ y) ≡ ℤ→Fin n 1 +ₘ ℤ→Fin n y
+  +1case (pos zero) = sym (GroupStr.rid (snd (ℤGroup/ (suc n))) _)
   +1case (pos (suc y)) =
        cong (ℤ→Fin n) (+Comm 1 (pos (suc y)))
      ∙ Σ≡Prop (λ _ → isProp≤) (mod+mod≡mod (suc n) 1 (suc y))
   +1case (negsuc zero) =
       Σ≡Prop (λ _ → isProp≤) refl
-    ∙ sym (GroupStr.invr (snd (ℤ/ (suc n))) (modInd n 1 , mod< n 1))
+    ∙ sym (GroupStr.invr (snd (ℤGroup/ (suc n))) (modInd n 1 , mod< n 1))
   +1case (negsuc (suc y)) =
     Σ≡Prop (λ _ → isProp≤)
       (cong fst (cong (ℤ→Fin n) (+Comm 1 (negsuc (suc y))))
@@ -181,11 +180,11 @@ isHomℤ→Fin n =
        ∙ λ i → fst ((1 mod (suc n) , mod< n 1)
          +ₘ (-ₘ (((suc (suc y) mod suc n) , mod< n (suc (suc y)))))))
 
-  pos+case : (x : ℕ) (y : ℤType)
+  pos+case : (x : ℕ) (y : ℤ)
     → ℤ→Fin n (pos x +ℤ y) ≡ ℤ→Fin n (pos x) +ₘ ℤ→Fin n y
   pos+case zero y =
       cong (ℤ→Fin n) (+Comm 0 y)
-    ∙ sym (GroupStr.lid (snd (ℤ/ (suc n))) (ℤ→Fin n y))
+    ∙ sym (GroupStr.lid (snd (ℤGroup/ (suc n))) (ℤ→Fin n y))
   pos+case (suc zero) y = +1case y
   pos+case (suc (suc x)) y =
        cong (ℤ→Fin n) (cong (_+ℤ y) (+Comm (pos (suc x)) 1)

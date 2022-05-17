@@ -20,19 +20,19 @@ private
     f : A → B
 
 isSurjection : (A → B) → Type _
-isSurjection f = ∀ b → ∥ fiber f b ∥
+isSurjection f = ∀ b → ∥ fiber f b ∥₁
 
 _↠_ : Type ℓ → Type ℓ' → Type (ℓ-max ℓ ℓ')
 A ↠ B = Σ[ f ∈ (A → B) ] isSurjection f
 
 section→isSurjection : {g : B → A} → section f g → isSurjection f
-section→isSurjection {g = g} s b = ∣ g b , s b ∣
+section→isSurjection {g = g} s b = ∣ g b , s b ∣₁
 
 isPropIsSurjection : isProp (isSurjection f)
-isPropIsSurjection = isPropΠ λ _ → squash
+isPropIsSurjection = isPropΠ λ _ → squash₁
 
 isEquiv→isSurjection : isEquiv f → isSurjection f
-isEquiv→isSurjection e b = ∣ fst (equiv-proof e b) ∣
+isEquiv→isSurjection e b = ∣ fst (equiv-proof e b) ∣₁
 
 isEquiv→isEmbedding×isSurjection : isEquiv f → isEmbedding f × isSurjection f
 isEquiv→isEmbedding×isSurjection e = isEquiv→isEmbedding e , isEquiv→isSurjection e
@@ -44,7 +44,7 @@ equiv-proof (isEmbedding×isSurjection→isEquiv {f = f} (emb , sur)) b =
   hpf : hasPropFibers f
   hpf = isEmbedding→hasPropFibers emb
 
-  fib : ∥ fiber f b ∥
+  fib : ∥ fiber f b ∥₁
   fib = sur b
 
   fib' : isProp (fiber f b)
@@ -68,12 +68,12 @@ rightCancellable {ℓ} {A} {ℓ'} {B} f = ∀ {C : Type (ℓ-suc (ℓ-max ℓ �
 epi⇒surjective : (f : A → B) → rightCancellable f → isSurjection f
 epi⇒surjective f rc y = transport (fact₂ y) tt*
     where hasPreimage : (A → B) → B → _
-          hasPreimage f y = ∥ fiber f y ∥
+          hasPreimage f y = ∥ fiber f y ∥₁
 
           fact₁ : ∀ x → Unit* ≡ hasPreimage f (f x)
           fact₁ x = hPropExt isPropUnit*
                              isPropPropTrunc
-                             (λ _ → ∣ (x , refl) ∣)
+                             (λ _ → ∣ (x , refl) ∣₁)
                              (λ _ → tt*)
 
           fact₂ : ∀ y → Unit* ≡ hasPreimage f y

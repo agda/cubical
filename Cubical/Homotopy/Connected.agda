@@ -1,28 +1,36 @@
 {-# OPTIONS --safe #-}
 module Cubical.Homotopy.Connected where
 
-open import Cubical.Core.Everything
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence
+
 open import Cubical.Functions.Fibration
+
+open import Cubical.Data.Unit
+open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
+
 open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
-open import Cubical.Homotopy.Loopspace
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1
-open import Cubical.Data.Bool
-open import Cubical.Data.Unit
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
+
+open import Cubical.Homotopy.Loopspace
+
+
 
 -- Note that relative to most sources, this notation is off by +2
 isConnected : ∀ {ℓ} (n : HLevel) (A : Type ℓ) → Type ℓ

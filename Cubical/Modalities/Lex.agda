@@ -1,8 +1,15 @@
 {-# OPTIONS --safe --postfix-projections #-}
 
-open import Cubical.Foundations.Everything renaming (uncurry to λ⟨,⟩_)
-open import Cubical.Data.Sigma.Properties
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function renaming (uncurry to λ⟨,⟩_)
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.CartesianKanOps
+
+open import Cubical.Data.Sigma.Properties
+
 
 module Cubical.Modalities.Lex
   (◯ : ∀ {ℓ} → Type ℓ → Type ℓ)

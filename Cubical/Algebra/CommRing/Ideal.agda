@@ -113,7 +113,7 @@ module CommIdeal (R' : CommRing ℓ) where
   +ClosedΣ ((y₁ , z₁) , y₁∈I , z₁∈J , x₁≡y₁+z₁) ((y₂ , z₂) , y₂∈I , z₂∈J , x₂≡y₂+z₂) =
     (y₁ + y₂ , z₁ + z₂) , +Closed (snd I) y₁∈I y₂∈I , +Closed (snd J) z₁∈J z₂∈J
                       , cong₂ (_+_) x₁≡y₁+z₁ x₂≡y₂+z₂ ∙ +ShufflePairs _ _ _ _
- contains0 (snd (I +i J)) = ∣ (0r , 0r) , contains0 (snd I) , contains0 (snd J) , sym (+Rid _) ∣
+ contains0 (snd (I +i J)) = ∣ (0r , 0r) , contains0 (snd I) , contains0 (snd J) , sym (+Rid _) ∣₁
  ·Closed (snd (I +i J)) {x = x} r = map ·ClosedΣ
   where
   ·ClosedΣ : Σ[ (y₁ , z₁) ∈ (R × R) ] ((y₁ ∈ I) × (z₁ ∈ J) × (x ≡ y₁ + z₁))
@@ -135,16 +135,16 @@ module CommIdeal (R' : CommRing ℓ) where
                                  → subst-∈ I (sym (x≡y+z ∙∙ cong (_+ z) y≡0 ∙∙ +Lid z)) z∈I
 
  +iLidRIncl : ∀ (I : CommIdeal) → I ⊆ (0Ideal +i I)
- +iLidRIncl I x x∈I = ∣ (0r , x) , refl , x∈I , sym (+Lid _) ∣
+ +iLidRIncl I x x∈I = ∣ (0r , x) , refl , x∈I , sym (+Lid _) ∣₁
 
  +iLid : ∀ (I : CommIdeal) → 0Ideal +i I ≡ I
  +iLid I = CommIdeal≡Char (+iLidLIncl I) (+iLidRIncl I)
 
  +iLincl : ∀ (I J : CommIdeal) → I ⊆ (I +i J)
- +iLincl I J x x∈I = ∣ (x , 0r) , x∈I , J .snd .contains0 , sym (+Rid x) ∣
+ +iLincl I J x x∈I = ∣ (x , 0r) , x∈I , J .snd .contains0 , sym (+Rid x) ∣₁
 
  +iRincl : ∀ (I J : CommIdeal) → J ⊆ (I +i J)
- +iRincl I J x x∈J = ∣ (0r , x) , I .snd .contains0 , x∈J ,  sym (+Lid x) ∣
+ +iRincl I J x x∈J = ∣ (0r , x) , I .snd .contains0 , x∈J ,  sym (+Lid x) ∣₁
 
  +iRespLincl : ∀ (I J K : CommIdeal) → I ⊆ J → (I +i K) ⊆ (J +i K)
  +iRespLincl I J K I⊆J x = map λ ((y , z) , y∈I , z∈K , x≡y+z) → ((y , z) , I⊆J y y∈I , z∈K , x≡y+z)
@@ -153,15 +153,15 @@ module CommIdeal (R' : CommRing ℓ) where
  +iAssocLIncl I J K x = elim (λ _ → ((I +i J) +i K) .fst x .snd) (uncurry3
            λ (y , z) y∈I → elim (λ _ → isPropΠ λ _ → ((I +i J) +i K) .fst x .snd)
              λ ((u , v) , u∈J , v∈K , z≡u+v) x≡y+z
-               → ∣ (y + u , v) , ∣ _ , y∈I , u∈J , refl ∣ , v∈K
-                                , x≡y+z ∙∙ cong (y +_) z≡u+v ∙∙ +Assoc _ _ _ ∣)
+               → ∣ (y + u , v) , ∣ _ , y∈I , u∈J , refl ∣₁ , v∈K
+                                , x≡y+z ∙∙ cong (y +_) z≡u+v ∙∙ +Assoc _ _ _ ∣₁)
 
  +iAssocRIncl : ∀ (I J K : CommIdeal) → ((I +i J) +i K) ⊆ (I +i (J +i K))
  +iAssocRIncl I J K x = elim (λ _ → (I +i (J +i K)) .fst x .snd) (uncurry3
            λ (y , z) → elim (λ _ → isPropΠ2 λ _ _ → (I +i (J +i K)) .fst x .snd)
              λ ((u , v) , u∈I , v∈J , y≡u+v) z∈K x≡y+z
-               → ∣ (u , v + z) , u∈I , ∣ _ , v∈J , z∈K , refl ∣
-                                      , x≡y+z ∙∙ cong (_+ z) y≡u+v ∙∙ sym (+Assoc _ _ _) ∣)
+               → ∣ (u , v + z) , u∈I , ∣ _ , v∈J , z∈K , refl ∣₁
+                                      , x≡y+z ∙∙ cong (_+ z) y≡u+v ∙∙ sym (+Assoc _ _ _) ∣₁)
 
  +iAssoc : ∀ (I J K : CommIdeal) → I +i (J +i K) ≡ (I +i J) +i K
  +iAssoc I J K = CommIdeal≡Char (+iAssocLIncl I J K) (+iAssocRIncl I J K)
@@ -171,7 +171,7 @@ module CommIdeal (R' : CommRing ℓ) where
                                  → subst-∈ I (sym x≡y+z) (I .snd .+Closed y∈I z∈I)
 
  +iIdemRIncl : ∀ (I : CommIdeal) → I ⊆ (I +i I)
- +iIdemRIncl I x x∈I = ∣ (0r , x) , I .snd .contains0 , x∈I , sym (+Lid _) ∣
+ +iIdemRIncl I x x∈I = ∣ (0r , x) , I .snd .contains0 , x∈I , sym (+Lid _) ∣₁
 
  +iIdem : ∀ (I : CommIdeal) → I +i I ≡ I
  +iIdem I = CommIdeal≡Char (+iIdemLIncl I) (+iIdemRIncl I)
@@ -195,7 +195,7 @@ module CommIdeal (R' : CommRing ℓ) where
                                       , ++FinPres∈ (J .fst) ∀βi∈J ∀δi∈J
     , cong₂ (_+_) x≡∑αβ y≡∑γδ ∙∙ sym (∑Split++ (λ i → α i · β i) (λ i → γ i · δ i))
                               ∙∙ ∑Ext (mul++dist α β γ δ)
- contains0 (snd (I ·i J)) = ∣ 0 , ((λ ()) , (λ ())) , (λ ()) , (λ ()) , refl ∣
+ contains0 (snd (I ·i J)) = ∣ 0 , ((λ ()) , (λ ())) , (λ ()) , (λ ()) , refl ∣₁
  ·Closed (snd (I ·i J)) r = map
   λ (n , (α , β) , ∀αi∈I , ∀βi∈J , x≡∑αβ)
    → n , ((λ i → r · α i) , β) , (λ i → I .snd .·Closed r (∀αi∈I i)) , ∀βi∈J
@@ -205,7 +205,7 @@ module CommIdeal (R' : CommRing ℓ) where
 
  prodInProd : ∀ (I J : CommIdeal) (x y : R) → x ∈ I → y ∈ J → (x · y) ∈ (I ·i J)
  prodInProd _ _ x y x∈I y∈J =
-            ∣ 1 , ((λ _ → x) , λ _ → y) , (λ _ → x∈I) , (λ _ → y∈J) , sym (+Rid _) ∣
+            ∣ 1 , ((λ _ → x) , λ _ → y) , (λ _ → x∈I) , (λ _ → y∈J) , sym (+Rid _) ∣₁
 
  ·iLincl : ∀ (I J : CommIdeal) → (I ·i J) ⊆ I
  ·iLincl I J x = elim (λ _ → I .fst x .snd)
@@ -220,7 +220,7 @@ module CommIdeal (R' : CommRing ℓ) where
  ·iComm I J = CommIdeal≡Char (·iComm⊆ I J) (·iComm⊆ J I)
 
  I⊆I1 : ∀ (I : CommIdeal) → I ⊆ (I ·i 1Ideal)
- I⊆I1 I x x∈I = ∣ 1 , ((λ _ → x) , λ _ → 1r) , (λ _ → x∈I) , (λ _ → lift tt) , useSolver x ∣
+ I⊆I1 I x x∈I = ∣ 1 , ((λ _ → x) , λ _ → 1r) , (λ _ → x∈I) , (λ _ → lift tt) , useSolver x ∣₁
   where
   useSolver : ∀ x → x ≡ x · 1r + 0r
   useSolver = solve R'
@@ -273,7 +273,7 @@ module CommIdeal (R' : CommRing ℓ) where
            (λ ((γi , δi) , γi∈J , δi∈K , βi≡γi+δi) →
               ∣ (α i · γi , α i · δi) , prodInProd I J _ _ (α∈I i) γi∈J
                                       , prodInProd I K _ _ (α∈I i) δi∈K
-                                      , cong (α i ·_) βi≡γi+δi ∙ ·Rdist+ _ _ _ ∣)
+                                      , cong (α i ·_) βi≡γi+δi ∙ ·Rdist+ _ _ _ ∣₁)
            (β∈J+K i))
 
  ·iRdist+iRIncl : ∀ (I J K : CommIdeal) → ((I ·i J) +i (I ·i K)) ⊆ (I ·i (J +i K))

@@ -51,7 +51,6 @@ module Join (L' : DistLattice ℓ) where
   L = fst L'
  open DistLatticeStr (snd L')
  open MonoidBigOp (Semilattice→Monoid (Lattice→JoinSemilattice (DistLattice→Lattice L')))
- -- extra DistLattice→JoinMonoid?
  open LatticeTheory (DistLattice→Lattice L')
  open KroneckerDelta L'
 

@@ -31,7 +31,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Instances.Unit
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.Group.DirProd
@@ -492,7 +492,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
         ∙ GroupTheory.invInv ℤGroup y}
 
   ℤHom→ℤ/im≅ℤ/im1 : (n : ℕ) →  fst f 1 ≡ pos (suc n)
-    → BijectionIso (ℤGroup / imℤHomSubGroup f) (ℤ/ (suc n))
+    → BijectionIso (ℤGroup / imℤHomSubGroup f) (ℤGroup/ (suc n))
   fst (BijectionIso.fun (ℤHom→ℤ/im≅ℤ/im1 n p)) =
       sRec isSetFin (ℤ→Fin n) λ a b
       → rec (isSetFin _ _) (uncurry λ x q
@@ -501,7 +501,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
 
             ∙ pres· (isHomℤ→Fin n) (pos (suc n) * x) b
             ∙ cong (_+ₘ ℤ→Fin n b) (lem x)
-            ∙ GroupStr.lid (snd (ℤ/ (suc n))) (ℤ→Fin n b))
+            ∙ GroupStr.lid (snd (ℤGroup/ (suc n))) (ℤ→Fin n b))
     where
     lem : (x : ℤ) → ℤ→Fin n (pos (suc n) * x) ≡ 0
     lem (pos x) = cong (ℤ→Fin n) (sym (pos· (suc n) x))
@@ -514,7 +514,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
       ∙∙ cong -ₘ_ (Σ≡Prop (λ _ → isProp≤)
                     (cong (_mod (suc n)) (·-comm (suc n) (suc x))
                     ∙ zero-charac-gen (suc n) (suc x)))
-      ∙∙ GroupTheory.inv1g (ℤ/ (suc n))
+      ∙∙ GroupTheory.inv1g (ℤGroup/ (suc n))
 
     cancel-lem : (a b x : ℤ) → a +ℤ (- b) ≡ x → a ≡ x +ℤ b
     cancel-lem a b x p = sym (minusPlus b a) ∙ cong (_+ℤ b) p
@@ -528,7 +528,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                           (funExt⁻ (cong fst (characGroupHomℤ f ∙ cong ℤHom p)) ((pos (quotient x / (suc n))))
                           ∙ sym (pos· (suc n) (quotient x / (suc n)))
                           ∙ cong pos ((λ i → q (~ i) .fst +ℕ suc n ·ℕ (quotient x / suc n)))
-                          ∙ cong pos (≡remainder+quotient (suc n) x))) ∣ ;
+                          ∙ cong pos (≡remainder+quotient (suc n) x))) ∣₁ ;
            (negsuc x) q → eq/ (negsuc x) 0
                           ∣ (((- pos (quotient suc x / (suc n)))) ,
                           presinv (snd f) (pos (quotient suc x / (suc n)))
@@ -536,27 +536,27 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                                        (pos (quotient (suc x) / (suc n))))
                           ∙∙ cong -_ (sym (pos· (suc n) (quotient suc x / (suc n)))
                                     ∙ (λ i → pos (fst ((sym (GroupTheory.invInv
-                                                              (ℤ/ (suc n))
+                                                              (ℤGroup/ (suc n))
                                                   ((suc x mod suc n) , mod< n (suc x)))
                                                  ∙ cong -ₘ_ q
-                                                 ∙ GroupTheory.inv1g (ℤ/ (suc n))) (~ i))
+                                                 ∙ GroupTheory.inv1g (ℤGroup/ (suc n))) (~ i))
                                                  +ℕ suc n ·ℕ quotient (suc x) / suc n)))
-                          ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))))) ∣})
+                          ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))))) ∣₁})
   BijectionIso.surj (ℤHom→ℤ/im≅ℤ/im1 n p) x =
       ∣ [ pos (fst x) ]
-    , (Σ≡Prop (λ _ → isProp≤) (modIndBase n (fst x) (snd x))) ∣
+    , (Σ≡Prop (λ _ → isProp≤) (modIndBase n (fst x) (snd x))) ∣₁
 
 -- main result
 ℤ/imIso : (f : GroupHom ℤGroup ℤGroup)
-  → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤ/ abs (fst f 1))
+  → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤGroup/ abs (fst f 1))
 ℤ/imIso f = helpIso _ refl
   where
   helpIso : (a : ℤ)
-       → fst f 1 ≡ a → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤ/ abs a)
+       → fst f 1 ≡ a → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤGroup/ abs a)
   helpIso (pos zero) p = invGroupIso (trivHom→ℤ≅ℤ/im f p)
   helpIso (pos (suc n)) p = BijectionIso→GroupIso (ℤHom→ℤ/im≅ℤ/im1 f n p)
   helpIso (negsuc n) p =
-    subst ((λ x → GroupIso (ℤGroup / x) (ℤ/ abs (negsuc n))))
+    subst ((λ x → GroupIso (ℤGroup / x) (ℤGroup/ abs (negsuc n))))
           (sym lem1)
           (BijectionIso→GroupIso
             (ℤHom→ℤ/im≅ℤ/im1 extendHom n (cong -_ p)))
@@ -573,8 +573,8 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                                                    ∙ GroupTheory.invInv ℤGroup (fst f x)
                                                    ∙ q }))
                  (Prop.map (λ { (x , q) → (- x) , (presinv (snd f) x ∙ q) }))
-                 ((λ _ → squash _ _))
-                 (λ _ → squash _ _)))))
+                 ((λ _ → squash₁ _ _))
+                 (λ _ → squash₁ _ _)))))
 
 -- Goal: given G -ᶠ→ H → L → Unit exact, with G ≅ H ≅ ℤ, we get
 -- an iso ℤ/abs (f 1) ≅ H, where f 1 and 1 are viewed as integers
@@ -600,7 +600,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) (G : Group₀)
   ℤ/im≅ℤ/ker =
     GroupEquiv→GroupIso (invEq (GroupPath _ _) (cong (ℤGroup /_) imf≡kerg))
 
-  GroupIsoℤ/abs : GroupIso (ℤ/ abs (fst f (pos 1))) G
+  GroupIsoℤ/abs : GroupIso (ℤGroup/ abs (fst f (pos 1))) G
   GroupIsoℤ/abs =
     compGroupIso
       (invGroupIso (ℤ/imIso f))
@@ -616,29 +616,29 @@ GroupEquivℤ/abs-gen : (G H L : Group₀)
   → (r : GroupEquiv ℤGroup H)
   → (f : GroupHom G H) (g : GroupHom H L)
   → Exact4 G H L UnitGroup₀ f g (→UnitHom L)
-  → GroupEquiv (ℤ/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L
+  → GroupEquiv (ℤGroup/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L
 GroupEquivℤ/abs-gen G H L =
   GroupEquivJ (λ G e
     → (r : GroupEquiv ℤGroup H)
      → (f : GroupHom G H) (g : GroupHom H L)
      → Exact4 G H L UnitGroup₀ f g (→UnitHom L)
-     → GroupEquiv (ℤ/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L)
+     → GroupEquiv (ℤGroup/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L)
     (GroupEquivJ (λ H r
       → (f : GroupHom ℤGroup H) (g : GroupHom H L) →
       Exact4 ℤGroup H L UnitGroup₀ f g (→UnitHom L) →
       GroupEquiv
-      (ℤ/ abs (invEq (fst r) (fst f 1))) L)
+      (ℤGroup/ abs (invEq (fst r) (fst f 1))) L)
       λ f g ex → GroupIso→GroupEquiv (GroupIsoℤ/abs f L g ex))
 
 -- for type checking reasons, let's also do it with an abstract type
 abstract
-  abstractℤ/_ : ℕ → Group₀
-  abstractℤ/_ n = ℤ/ n
+  abstractℤGroup/_ : ℕ → Group₀
+  abstractℤGroup/_ n = ℤGroup/ n
 
-  abstractℤ/≡ℤ : abstractℤ/_ ≡ ℤ/_
+  abstractℤ/≡ℤ : abstractℤGroup/_ ≡ ℤGroup/_
   abstractℤ/≡ℤ = refl
 
-  abstractℤ/≅ℤ : (n : ℕ) → GroupEquiv (abstractℤ/ n) (ℤ/ n)
+  abstractℤ/≅ℤ : (n : ℕ) → GroupEquiv (abstractℤGroup/_ n) (ℤGroup/ n)
   abstractℤ/≅ℤ n = idGroupEquiv
 
 GroupEquiv-abstractℤ/abs-gen : (G H L : Group₀)
@@ -648,11 +648,11 @@ GroupEquiv-abstractℤ/abs-gen : (G H L : Group₀)
   → Exact4 G H L UnitGroup₀ f g (→UnitHom L)
   → (n : ℕ)
   → abs (invEq (fst r) (fst f (fst (fst e) 1))) ≡ n
-  → GroupEquiv (abstractℤ/ n) L
+  → GroupEquiv (abstractℤGroup/_ n) L
 GroupEquiv-abstractℤ/abs-gen G H L e r f g ex n p = main
   where
   abstract
-    main : GroupEquiv (abstractℤ/ n) L
+    main : GroupEquiv (abstractℤGroup/_ n) L
     main =
       transport (λ i
                → GroupEquiv (abstractℤ/≡ℤ (~ i) (p i)) L)

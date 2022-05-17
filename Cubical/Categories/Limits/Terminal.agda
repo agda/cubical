@@ -37,7 +37,7 @@ module _ (C : Category ℓ ℓ') where
   terminalEndoIsId T f = isContr→isProp (T .snd (terminalOb T)) f id
 
   hasTerminal : Type (ℓ-max ℓ ℓ')
-  hasTerminal = ∥ Terminal ∥
+  hasTerminal = ∥ Terminal ∥₁
 
   -- Terminality of an object is a proposition.
   isPropIsTerminal : (x : ob) → isProp (isTerminal x)

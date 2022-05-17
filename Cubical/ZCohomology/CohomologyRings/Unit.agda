@@ -13,30 +13,27 @@ open import Cubical.Data.FinData
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤG)
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
+open import Cubical.Algebra.DirectSum.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤ to ℤCR)
+open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
-
-open import Cubical.Algebra.Direct-Sum.Base
 open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
-open import Cubical.Algebra.Polynomials.Multivariate.Equiv-A[X]X-A
+open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.A[X]X-A
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
-open import Cubical.HITs.PropositionalTruncation as PT renaming (∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
-
 open import Cubical.ZCohomology.Groups.Unit
 
 open Iso
@@ -257,7 +254,7 @@ module Equiv-Unit-Properties where
                base-neutral-eq (suc n) = refl
 
                base-add-eq : _
-               base-add-eq zero a b = base-Poly+ _ _ _
+               base-add-eq zero a b = base-poly+ _ _ _
                                       ∙ cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd H⁰-Unit≅ℤ) a b))
                base-add-eq (suc n) a b = +PℤRid _
 
@@ -301,15 +298,15 @@ module Equiv-Unit-Properties where
            where
            base-case : _
            base-case (zero ∷ []) a = refl
-           base-case (suc n ∷ []) a = eq/ 0Pℤ (baseP (suc n ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , foo) ∣₋₁
+           base-case (suc n ∷ []) a = eq/ 0Pℤ (baseP (suc n ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , foo) ∣₁
              where
-             foo : (0P Poly+ baseP (suc n ∷ []) (- a)) ≡ (baseP (n +n 1 ∷ []) (- a · pos 1) Poly+ 0P)
-             foo = (0P Poly+ baseP (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
+             foo : (0P poly+ baseP (suc n ∷ []) (- a)) ≡ (baseP (n +n 1 ∷ []) (- a · pos 1) poly+ 0P)
+             foo = (0P poly+ baseP (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
                    baseP (suc n ∷ []) (- a) ≡⟨ cong₂ baseP (cong (λ X → X ∷ []) (sym ((+-suc n 0)
                                               ∙ (cong suc (+-zero n))))) (sym (·ℤRid _)) ⟩
                    baseP (n +n suc 0 ∷ []) (- a ·ℤ 1ℤ) ≡⟨ refl ⟩
                    baseP (n +n 1 ∷ []) (- a · pos 1) ≡⟨ sym (+PℤRid _) ⟩
-                   (baseP (n +n 1 ∷ []) (- a · pos 1) Poly+ 0P) ∎
+                   (baseP (n +n 1 ∷ []) (- a · pos 1) poly+ 0P) ∎
 
 
 

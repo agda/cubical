@@ -157,10 +157,10 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
 
   ∃List : (x : AGr ⨂₁ BGr) → ∃[ l ∈ List (A × B) ] (unlist l ≡ x)
   ∃List =
-    ⊗elimProp (λ _ → squash)
-      (λ a b → ∣ [ a , b ] , ⊗rUnit (a ⊗ b) ∣)
-      λ x y → rec2 squash λ {(l1 , p) (l2 , q)
-                          → ∣ (l1 ++ l2) , unlist++ l1 l2 ∙ cong₂ _+⊗_ p q ∣}
+    ⊗elimProp (λ _ → squash₁)
+      (λ a b → ∣ [ a , b ] , ⊗rUnit (a ⊗ b) ∣₁)
+      λ x y → rec2 squash₁ λ {(l1 , p) (l2 , q)
+                          → ∣ (l1 ++ l2) , unlist++ l1 l2 ∙ cong₂ _+⊗_ p q ∣₁}
 
   ⊗elimPropUnlist : ∀ {ℓ} {C : AGr ⨂₁ BGr → Type ℓ}
            → ((x : _) → isProp (C x))

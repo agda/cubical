@@ -109,7 +109,7 @@ isSetGroupHom {G = G} {H = H} =
   isSetΣ (isSetΠ λ _ → is-set (snd H)) λ _ → isProp→isSet (isPropIsGroupHom G H)
 
 isPropIsInIm : (f : GroupHom G H) (x : ⟨ H ⟩) → isProp (isInIm f x)
-isPropIsInIm f x = squash
+isPropIsInIm f x = squash₁
 
 isSetIm : (f : GroupHom G H) → isSet (Im f)
 isSetIm {H = H} f = isSetΣ (is-set (snd H)) λ x → isProp→isSet (isPropIsInIm f x)
@@ -195,7 +195,7 @@ compSurjective : ∀ {ℓ ℓ' ℓ''} {G : Group ℓ} {H : Group ℓ'} {L : Grou
          → isSurjective G→H → isSurjective H→L
          → isSurjective (compGroupHom G→H H→L)
 compSurjective G→H H→L surj1 surj2 l =
-  rec squash
+  rec squash₁
     (λ {(h , p)
       → pMap (λ {(g , q) → g , (cong (fst H→L) q ∙ p)})
         (surj1 h)})
@@ -284,7 +284,7 @@ BijectionIso→GroupIso {G = G} {H = H} i = grIso
   inv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .fst
   rightInv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .snd
   leftInv (fst grIso) b j = rec (helper (f b)) (λ a → a)
-                                 (isPropPropTrunc (surj i (f b)) ∣ b , refl ∣ j) .fst
+                                 (isPropPropTrunc (surj i (f b)) ∣ b , refl ∣₁ j) .fst
   snd grIso = snd (fun i)
 
 BijectionIsoToGroupEquiv : BijectionIso G H → GroupEquiv G H
