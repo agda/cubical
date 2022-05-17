@@ -1,8 +1,8 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
 {-
-  Kan extension of a functor C → D to a functor PreShv C ℓ → PreShv D ℓ left or right adjoint to
-  precomposition.
+  Kan extension of a functor C → D to a functor PresheafCategory C ℓ → PresheafCategory D ℓ
+  left or right adjoint to precomposition.
 -}
 
 module Cubical.Categories.Presheaf.KanExtension where
@@ -23,7 +23,8 @@ open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 
 {-
-  Left Kan extension of a functor C → D to a functor PreShv C ℓ → PreShv D ℓ left adjoint to precomposition.
+  Left Kan extension of a functor C → D to a functor PresheafCategory C ℓ → PresheafCategory D ℓ
+  left adjoint to precomposition.
 -}
 
 module Lan {ℓC ℓC' ℓD ℓD'} ℓS
@@ -193,7 +194,8 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   adj = make⊣ η ε Δ₁ Δ₂
 
 {-
-  Right Kan extension of a functor C → D to a functor PreShv C ℓ → PreShv D ℓ right adjoint to precomposition.
+  Right Kan extension of a functor C → D to a functor PresheafCategory C ℓ → PresheafCategory D ℓ
+  right adjoint to precomposition.
 -}
 
 module Ran {ℓC ℓC' ℓD ℓD'} ℓS
