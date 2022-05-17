@@ -63,6 +63,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
+open import Cubical.Foundations.Pointed.Homogeneous
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
@@ -82,6 +85,7 @@ open import Cubical.HITs.Pushout
 open import Cubical.HITs.SetTruncation
   renaming (rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
 open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
 open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
 
@@ -94,16 +98,11 @@ open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int
 
-
-
-
+-- For computation (alternative proof)
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.HITs.PropositionalTruncation as PropTrunc
-open import Cubical.Foundations.Pointed.Homogeneous
-open import Cubical.Foundations.Path
+
 
 open S¹Hopf
 open Iso

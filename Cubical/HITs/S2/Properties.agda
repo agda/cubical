@@ -75,7 +75,8 @@ S¹×S¹→S²-anticomm (loop i) base = refl
 S¹×S¹→S²-anticomm (loop i) (loop i₁) = refl
 
 toSuspPresInvS² : (x : S²) → toSusp S²∙ (invS² x) ≡ sym (toSusp S²∙ x)
-toSuspPresInvS² base = rCancel (merid base) ∙∙ refl ∙∙ cong sym (sym (rCancel (merid base)))
+toSuspPresInvS² base =
+  rCancel (merid base) ∙∙ refl ∙∙ cong sym (sym (rCancel (merid base)))
 toSuspPresInvS² (surf i j) k r =
   hcomp (λ l → λ {(i = i0) → cc l k r
                  ; (i = i1) → cc l k r
@@ -88,7 +89,8 @@ toSuspPresInvS² (surf i j) k r =
         (l1≡l2 k j i r)
   where
   cc : Cube {A = Susp S²} _ _ _ _ _ _
-  cc = doubleCompPath-filler (rCancel (merid base)) refl (cong sym (sym (rCancel (merid base))))
+  cc = doubleCompPath-filler
+        (rCancel (merid base)) refl (cong sym (sym (rCancel (merid base))))
 
   l1-fill : (i j k r : I) → Susp S²
   l1-fill i j k r =
