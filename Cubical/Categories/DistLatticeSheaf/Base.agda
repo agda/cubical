@@ -254,25 +254,25 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
                         ≡ subst-filler (λ d → C [ c , d ]) F0=1 f (~ i))
                    (T .snd c .snd (subst (λ d → C [ c , d ]) F0=1 f)))
 
-    P→L (_ , presPBSq) (ℕ.suc n) α c cc = uniqueExists
-      {!!}
-        {!!}
+    P→L (F0=1 , presPBSq) (ℕ.suc n) α c cc = uniqueExists
+      (uniqH .fst .fst)
+        (toIsConeMor (uniqH .fst .fst) (uniqH .fst .snd))
           (λ _ → isPropIsConeMor _ _ _)
-            {!!}
+            λ h' isConeMorH' → cong fst (uniqH .snd (h' , fromIsConeMor h' isConeMorH'))
      where
      β : FinVec (fst L) n
-     β i = α zero ∧l α (suc i)
+     β i = α (suc i) ∧l α zero
 
      αβPath : (α zero) ∧l ⋁ (α ∘ suc) ≡ ⋁ β
-     αβPath = ⋁Meetrdist (α zero) (α ∘ suc)
+     αβPath = ∧lComm _ _ ∙ ⋁Meetldist (α zero) (α ∘ suc)
 
      -- the square we want
      theCospan : Cospan C
      l theCospan = F .F-ob (⋁ (α ∘ suc))
      m theCospan = F .F-ob (⋁ β)
      r theCospan = F .F-ob (α zero)
-     s₁ theCospan = F .F-hom (≤-⋁Ext _ _ λ _ → hom-∧₂ _ _)
-     s₂ theCospan = F .F-hom (⋁IsMax _ _ λ _ → hom-∧₁ _ _)
+     s₁ theCospan = F .F-hom (≤-⋁Ext _ _ λ _ → hom-∧₁ _ _)
+     s₂ theCospan = F .F-hom (⋁IsMax _ _ λ _ → hom-∧₂ _ _)
 
      thePB : Pullback C theCospan
      pbOb thePB = F .F-ob (⋁ α)
@@ -282,15 +282,142 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
      univProp thePB f g square = presPBSq (α zero) (⋁ (α ∘ suc)) f g squarePath
       where
       p : PathP (λ i → (DLCat ^op) [ ⋁ (α ∘ suc) , αβPath i ])
-                (hom-∧₂ _ _) (≤-⋁Ext _ _ λ _ → hom-∧₂ _ _)
+                (hom-∧₂ _ _) (≤-⋁Ext _ _ λ _ → hom-∧₁ _ _)
       p = toPathP (is-prop-valued _ _ _ _)
 
       q : PathP (λ i → (DLCat ^op) [ α zero , αβPath i ])
-                (hom-∧₁ _ _) (⋁IsMax _ _ λ _ → hom-∧₁ _ _)
+                (hom-∧₁ _ _) (⋁IsMax _ _ λ _ → hom-∧₂ _ _)
       q = toPathP (is-prop-valued _ _ _ _)
 
       squarePath : f ⋆⟨ C ⟩ F .F-hom (hom-∧₂ _ _) ≡ g ⋆⟨ C ⟩ F .F-hom (hom-∧₁ _ _)
       squarePath = transport (λ i → f ⋆⟨ C ⟩ F .F-hom (p (~ i)) ≡ g ⋆⟨ C ⟩ F .F-hom (q (~ i))) square
+
+     -- the two induced cones on which we use the ind. hyp.
+     ccSuc : Cone (funcComp F (FinVec→Diag L (α ∘ suc))) c
+     coneOut ccSuc (sing i) = coneOut cc (sing (suc i))
+     coneOut ccSuc (pair i j i<j) = coneOut cc (pair (suc i) (suc j) (s≤s i<j))
+     coneOutCommutes ccSuc {sing _} idAr = coneOutCommutes cc idAr
+     coneOutCommutes ccSuc {pair _ _ _} idAr = coneOutCommutes cc idAr
+     coneOutCommutes ccSuc singPairL = coneOutCommutes cc singPairL
+     coneOutCommutes ccSuc singPairR = coneOutCommutes cc singPairR
+
+     cc∧Suc : Cone (funcComp F (FinVec→Diag L β)) c
+     coneOut cc∧Suc (sing i) = coneOut cc (pair zero (suc i) (s≤s z≤))
+     coneOut cc∧Suc (pair i j i<j) = {!!}
+     coneOutCommutes cc∧Suc = {!!}
+
+     -- our morphisms:
+     f : C [ c , F .F-ob (α zero) ]
+     f = coneOut cc (sing zero)
+
+     g : C [ c , F .F-ob (⋁ (α ∘ suc)) ]
+     g = P→L (F0=1 , presPBSq) n (α ∘ suc) c ccSuc .fst .fst
+
+     k = g ⋆⟨ C ⟩ s₁ theCospan
+     o = f ⋆⟨ C ⟩ s₂ theCospan
+
+     isConeMorK : isConeMor cc∧Suc (F-cone F (⋁Cone L β)) k
+     isConeMorK = {!!}
+
+     isConeMorO : isConeMor cc∧Suc (F-cone F (⋁Cone L β)) o
+     isConeMorO = {!!}
+
+     fgSquare : g ⋆⟨ C ⟩ s₁ theCospan ≡ f ⋆⟨ C ⟩ s₂ theCospan
+     fgSquare = cong fst (isContr→isProp (P→L (F0=1 , presPBSq) n β c cc∧Suc)
+                                         (k , isConeMorK) (o , isConeMorO))
+
+     uniqH : ∃![ h ∈ C [ c , F .F-ob (⋁ α) ] ]
+               (g ≡ h ⋆⟨ C ⟩ pbPr₁ thePB) × (f ≡ h ⋆⟨ C ⟩ pbPr₂ thePB)
+     uniqH = univProp thePB _ _ fgSquare
+
+     toIsConeMor : ∀ (h : C [ c , F .F-ob (⋁ α) ])
+                 → (g ≡ h ⋆⟨ C ⟩ pbPr₁ thePB) × (f ≡ h ⋆⟨ C ⟩ pbPr₂ thePB)
+                 → isConeMor cc (F-cone F (⋁Cone L α)) h
+     toIsConeMor h (gTriangle , fTriangle) (sing zero) = sym fTriangle
+     toIsConeMor h (gTriangle , fTriangle) (sing (suc i)) =
+         h ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L α)) (sing (suc i)))
+       ≡⟨ cong (λ x → seq' C h (F .F-hom x)) (is-prop-valued _ _ _ _) ⟩
+         h ⋆⟨ C ⟩ F .F-hom (hom-∨₂ _ _ ⋆⟨ DLCat ^op ⟩ ⋁Cone L (α ∘ suc) .coneOut (sing i))
+       ≡⟨ cong (seq' C h) (F .F-seq _ _) ⟩
+         h ⋆⟨ C ⟩ (pbPr₁ thePB ⋆⟨ C ⟩ F .F-hom (⋁Cone L (α ∘ suc) .coneOut (sing i)))
+       ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+         (h ⋆⟨ C ⟩ pbPr₁ thePB) ⋆⟨ C ⟩ F .F-hom (⋁Cone L (α ∘ suc) .coneOut (sing i))
+       ≡⟨ cong (λ x → seq' C x (F .F-hom (⋁Cone L (α ∘ suc) .coneOut (sing i)))) (sym gTriangle) ⟩
+         g ⋆⟨ C ⟩ F .F-hom (⋁Cone L (α ∘ suc) .coneOut (sing i))
+       ≡⟨ P→L (F0=1 , presPBSq) n (α ∘ suc) c ccSuc .fst .snd (sing i) ⟩
+         coneOut cc (sing (suc i)) ∎
+     toIsConeMor h (gTriangle , fTriangle) (pair i zero ())
+     toIsConeMor h (gTriangle , fTriangle) (pair zero (suc j) (s≤s z≤)) =
+         h ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L α)) (pair zero (suc j) (s≤s z≤)))
+       ≡⟨ cong (λ x → seq' C h (F .F-hom x)) (is-prop-valued _ _ _ _) ⟩
+         h ⋆⟨ C ⟩ F .F-hom
+            ((hom-∨₁ _ _) ⋆⟨ DLCat ^op ⟩ ((⋁IsMax _ _ λ _ → hom-∧₂ _ _)
+                          ⋆⟨ DLCat ^op ⟩ coneOut (⋁Cone L β) (sing j)))
+       ≡⟨ cong (seq' C h) (F .F-seq _ _) ⟩
+         h ⋆⟨ C ⟩ (pbPr₂ thePB ⋆⟨ C ⟩
+            F .F-hom ((⋁IsMax _ _ λ _ → hom-∧₂ _ _) ⋆⟨ DLCat ^op ⟩ coneOut (⋁Cone L β) (sing j)))
+       ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+         (h ⋆⟨ C ⟩ pbPr₂ thePB) ⋆⟨ C ⟩
+            F .F-hom ((⋁IsMax _ _ λ _ → hom-∧₂ _ _) ⋆⟨ DLCat ^op ⟩ coneOut (⋁Cone L β) (sing j))
+       ≡⟨ cong (λ x → x ⋆⟨ C ⟩
+            F .F-hom ((⋁IsMax _ _ λ _ → hom-∧₂ _ _) ⋆⟨ DLCat ^op ⟩ coneOut (⋁Cone L β) (sing j)))
+            (sym fTriangle) ⟩
+         f ⋆⟨ C ⟩
+            F .F-hom ((⋁IsMax _ _ λ _ → hom-∧₂ _ _) ⋆⟨ DLCat ^op ⟩ coneOut (⋁Cone L β) (sing j))
+       ≡⟨ cong (seq' C f) (F .F-seq _ _) ⟩
+         f ⋆⟨ C ⟩ (s₂ theCospan ⋆⟨ C ⟩ coneOut (F-cone F (⋁Cone L β)) (sing j))
+       ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+         o ⋆⟨ C ⟩ coneOut (F-cone F (⋁Cone L β)) (sing j)
+       ≡⟨ isConeMorO (sing j) ⟩
+         coneOut cc∧Suc (sing j) ∎
+     toIsConeMor h (gTriangle , fTriangle) (pair (suc i) (suc j) (s≤s i<j)) =
+         h ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L α)) (pair (suc i) (suc j) (s≤s i<j)))
+       ≡⟨ cong (λ x → seq' C h (F .F-hom x)) (is-prop-valued _ _ _ _) ⟩
+         h ⋆⟨ C ⟩ F .F-hom (hom-∨₂ _ _ ⋆⟨ DLCat ^op ⟩ ⋁Cone L (α ∘ suc) .coneOut (pair i j i<j))
+       ≡⟨ cong (seq' C h) (F .F-seq _ _) ⟩
+         h ⋆⟨ C ⟩ (pbPr₁ thePB ⋆⟨ C ⟩ F .F-hom (⋁Cone L (α ∘ suc) .coneOut (pair i j i<j)))
+       ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+         (h ⋆⟨ C ⟩ pbPr₁ thePB) ⋆⟨ C ⟩ F .F-hom (⋁Cone L (α ∘ suc) .coneOut (pair i j i<j))
+       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ (F .F-hom (⋁Cone L (α ∘ suc) .coneOut _))) (sym gTriangle) ⟩
+         g ⋆⟨ C ⟩ F .F-hom (⋁Cone L (α ∘ suc) .coneOut (pair i j i<j))
+       ≡⟨ P→L (F0=1 , presPBSq) n (α ∘ suc) c ccSuc .fst .snd (pair i j i<j) ⟩
+         coneOut cc (pair (suc i) (suc j) (s≤s i<j)) ∎
+
+
+     fromIsConeMor : ∀ (h : C [ c , F .F-ob (⋁ α) ])
+                   → isConeMor cc (F-cone F (⋁Cone L α)) h
+                   → (g ≡ h ⋆⟨ C ⟩ pbPr₁ thePB) × (f ≡ h ⋆⟨ C ⟩ pbPr₂ thePB)
+     fst (fromIsConeMor h isConeMorH) =
+       cong fst (P→L (F0=1 , presPBSq) n (α ∘ suc) c ccSuc .snd (s , isConeMorS))
+       where
+       s = h ⋆⟨ C ⟩ pbPr₁ thePB
+       isConeMorS : isConeMor ccSuc (F-cone F (⋁Cone L (α ∘ suc))) s
+       isConeMorS (sing i) =
+           (h ⋆⟨ C ⟩ pbPr₁ thePB) ⋆⟨ C ⟩ (F .F-hom (ind≤⋁ (α ∘ suc) i))
+         ≡⟨ ⋆Assoc C _ _ _ ⟩
+           h ⋆⟨ C ⟩ (pbPr₁ thePB ⋆⟨ C ⟩ (F .F-hom (ind≤⋁ (α ∘ suc) i)))
+         ≡⟨ cong (seq' C h) (sym (F .F-seq _ _)) ⟩
+           h ⋆⟨ C ⟩ F .F-hom (hom-∨₂ _ _ ⋆⟨ DLCat ^op ⟩ ind≤⋁ (α ∘ suc) i)
+         ≡⟨ cong (λ x → seq' C h (F .F-hom x)) (is-prop-valued _ _ _ _) ⟩
+           h ⋆⟨ C ⟩ coneOut (F-cone F (⋁Cone L α)) (sing (suc i))
+         ≡⟨ isConeMorH (sing (suc i)) ⟩
+           coneOut cc (sing (suc i)) ∎
+       isConeMorS (pair i j i<j) =
+           (h ⋆⟨ C ⟩ pbPr₁ thePB) ⋆⟨ C ⟩ (F .F-hom (⋁Cone L (α ∘ suc) .coneOut (pair i j i<j)))
+         ≡⟨ ⋆Assoc C _ _ _ ⟩
+           h ⋆⟨ C ⟩ (pbPr₁ thePB ⋆⟨ C ⟩ (F .F-hom (⋁Cone L (α ∘ suc) .coneOut (pair i j i<j))))
+         ≡⟨ cong (seq' C h) (sym (F .F-seq _ _)) ⟩
+           h ⋆⟨ C ⟩ F .F-hom (hom-∨₂ _ _ ⋆⟨ DLCat ^op ⟩ ⋁Cone L (α ∘ suc) .coneOut (pair i j i<j))
+         ≡⟨ cong (λ x → seq' C h (F .F-hom x)) (is-prop-valued _ _ _ _) ⟩
+           h ⋆⟨ C ⟩ coneOut (F-cone F (⋁Cone L α)) (pair (suc i) (suc j) (s≤s i<j))
+         ≡⟨ isConeMorH (pair (suc i) (suc j) (s≤s i<j)) ⟩
+           coneOut cc (pair (suc i) (suc j) (s≤s i<j)) ∎
+
+     snd (fromIsConeMor h isConeMorH) = sym (isConeMorH (sing zero))
+
+
+
+
 
 module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C)
                     (L' : ℙ (fst L)) (hB : IsBasis L L') where
