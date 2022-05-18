@@ -1,7 +1,9 @@
-{- This file contains a direct proof that the Brunerie number (the
-number n s.t. π₄(S³)≅ℤ/nℤ) is 2, not relying on any of the more
-advanced constructions in chapters 4-6 in Brunerie's thesis (but still
-using chapters 1-3 for the construction). The Brunerie number is defined via
+{-
+
+This file contains a direct proof that the Brunerie number (the number
+n s.t. π₄(S³)≅ℤ/nℤ) is 2, not relying on any of the more advanced
+constructions in chapters 4-6 in Brunerie's thesis (but still using
+chapters 1-3 for the construction). The Brunerie number is defined via
 
 S³ ≃ S¹ * S¹ -ᵂ→ S² ∨ S² -ᶠᵒˡᵈ→ S²
 
@@ -33,15 +35,29 @@ defined in Cubical.HITs.Sphere.Properties, kills off a good deal of
 
 4. Conclude that π₄(S³) ≅ ℤ/2ℤ.
 
---------------
 
-The file also contains a second approach: showing η₃ ↦ -2 by
+-------------- Part 2:
+
+The file also contains a second approach: showing η₃ : π₃*(S³) ↦ -2 by
 computation. This is done by very carefully choosing the equivalences
 involved. In fact, one has to be so careful that it almost requires
-more work than just proving η₃ ↦ -2 by hand. But at least, we can do it!-}
+more work than just proving η₃ : ↦ -2 by hand. But at least, we can do
+it!
 
+-}
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Homotopy.Group.Pi4S3.QuickProof where
+module Cubical.Homotopy.Group.Pi4S3.DirectProof where
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
+open import Cubical.Foundations.Pointed.Homogeneous
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Group.Base
@@ -58,17 +74,6 @@ open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber
 open import Cubical.Homotopy.Group.Pi4S3.BrunerieExperiments
   using (K₂ ; f7' ; S¹∙ ; encodeTruncS²)
 -- For computation (alternative proof)
-
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
-open import Cubical.Foundations.Pointed.Homogeneous
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
@@ -738,8 +743,8 @@ abstract
 
 -- We combine this with the rest of the main conclusions of chapters
 -- 1-3 in Brunerie's thesis
-BrunerieIso : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ 2)
-BrunerieIso =
+BrunerieGroupEquiv : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ 2)
+BrunerieGroupEquiv =
   compGroupEquiv
     (compGroupEquiv π₄S³≅π₃coFib-fold∘W∙
     (invGroupEquiv
@@ -756,6 +761,8 @@ BrunerieIso =
                     ∙ retEq (fst (π₃'S³≅ℤ-abs 2)) ∣ idfun∙ (S₊∙ 3) ∣₂))
            ∙ cong abs η↦-2))))
            (abstractℤ/≅ℤ 2)
+
+
 
 ------------- Part 2: proof (partly) by computation -------------
 -- Alternative version of the same proof: proving η₃ ↦ -2 by computation
@@ -1114,13 +1121,13 @@ snd (fst computerIso) =
 snd computerIso = snd computer
 
 -- We now verify via computation that η₃' maps to -2
-computerIsoη₃ : fst (fst computerIso) η₃' ≡ -2
+computerIsoη₃ : fst computer η₃' ≡ -2
 computerIsoη₃ = refl
 
--- Putting this together with the info frm the beginning of the file, we have an iso
+-- Putting this together with the info from the beginning of the file, we have an iso
 -- π₃S² ≅ π₃*S³' ≅ ℤ, mapping η ↦ η₃' ↦ -2
-BrunerieIso' : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ 2)
-BrunerieIso' =
+BrunerieGroupEquiv' : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ (abs (fst computer η₃')))
+BrunerieGroupEquiv' =
   compGroupEquiv
     (compGroupEquiv
       π₄S³≅π₃coFib-fold∘W∙
@@ -1147,9 +1154,9 @@ BrunerieIso' =
                     ∙ (λ _ → η)))
             ∙ cong (m1 ∘ m2 ∘ m3) η↦η₁-abs
             ∙ cong (m1 ∘ m2) η₁↦η₂-abs
-            ∙ cong (m1) η₂↦η₃-abs)
-            ∙ m5))))
-    (abstractℤ/≅ℤ 2)
+            ∙ cong m1 η₂↦η₃-abs)
+            ∙ cong abs (snd π₃*S³≅ℤ-abs)))))
+    (abstractℤ/≅ℤ (abs (fst computer η₃')))
   where
   abstract
     η₃-abs : Σ[ x ∈ _ ] x ≡ η₃
@@ -1161,13 +1168,13 @@ BrunerieIso' =
   π₃*S³≅ℤ : GroupEquiv π₃*S³ ℤGroup
   π₃*S³≅ℤ = compGroupEquiv π₃*S³≅π₃*S³' computerIso
 
-  π₃*S³≅ℤβ≡-2 : fst (fst π₃*S³≅ℤ) η₃ ≡ -2
+  π₃*S³≅ℤβ≡-2 : fst (fst π₃*S³≅ℤ) η₃ ≡ fst computer η₃'
   π₃*S³≅ℤβ≡-2 = (cong (fst (fst π₃*S³≅ℤ)) (sym (snd η₃-abs))
-                  ∙ cong (fst (fst computerIso)) η₃-abs-pres)
+                  ∙ cong (fst computer) η₃-abs-pres)
                 ∙ computerIsoη₃
 
   abstract
-    π₃*S³≅ℤ-abs : Σ[ f ∈ GroupEquiv π₃*S³ ℤGroup ] (fst (fst f) η₃ ≡ -2)
+    π₃*S³≅ℤ-abs : Σ[ f ∈ GroupEquiv π₃*S³ ℤGroup ] (fst (fst f) η₃ ≡ fst computer η₃')
     π₃*S³≅ℤ-abs = π₃*S³≅ℤ , π₃*S³≅ℤβ≡-2
 
   m1 = fst (fst (fst π₃*S³≅ℤ-abs))
@@ -1175,5 +1182,6 @@ BrunerieIso' =
   m3 = fst (fst π₃*S²≅π₃*joinS¹S¹-abs)
   m4 = fst (fst π₃S²≅π₃*S²-abs)
 
-  m5 : abs (m1 η₃) ≡ 2
-  m5 = cong abs (snd π₃*S³≅ℤ-abs)
+-- We hence get the following by computation:
+BrunerieGroupEquiv'' : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ 2)
+BrunerieGroupEquiv'' = BrunerieGroupEquiv'

@@ -1,3 +1,9 @@
+{-
+This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug
+branch of cubicaltt It also contains a computation of a simplified
+version of the Brunerie number, motivated in
+Cubical.Homotopy.Group.Pi4S3.DirectProof.
+-}
 {-# OPTIONS --safe #-}
 module Cubical.Homotopy.Group.Pi4S3.BrunerieExperiments where
 
@@ -25,10 +31,6 @@ open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Hopf
 open S¹Hopf
-
--- This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug branch of cubicaltt
--- It also contains a computation of a simplified version of the Brunerie number, motivated
--- in Cubical.Homotopy.Group.Pi4S3.QuickProof.
 
 Bool∙ S¹∙ S³∙ : Pointed₀
 Bool∙ = (Bool , true)
@@ -311,9 +313,9 @@ goo x = g10 (g9 (g8 (f7 (f6 (f5 x)))))
 
 {- Computation of an alternative definition of the Brunerie number
 based on https://github.com/agda/cubical/pull/741. One should note
-that this computation by no means is comparable to the one of the term
+that this computation is quite different to the one of the term
 "brunerie" defined above. This computation starts in π₃S³ rather than
-π₃S². -}
+π₃S².  -}
 
 -- The brunerie element can be shown to correspond to the following map
 η₃ : (join S¹ S¹ , inl base) →∙ (Susp S² , north)
@@ -371,4 +373,4 @@ brunerie'≡-2 = refl
 
 -- Proving that this indeed corresponds to the Brunerie number
 -- requires us to phrase things slightly more carefully. For this, see
--- the second part of the Cubical.Homotopy.Group.Pi4S3.QuickProof.
+-- the second part of the Cubical.Homotopy.Group.Pi4S3.DirectProof
