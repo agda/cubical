@@ -33,7 +33,13 @@ defined in Cubical.HITs.Sphere.Properties, kills off a good deal of
 
 4. Conclude that π₄(S³) ≅ ℤ/2ℤ.
 
--}
+--------------
+
+The file also contains a second approach: showing η₃ ↦ -2 by
+computation. This is done by very carefully choosing the equivalences
+involved. In fact, one has to be so careful that it almost requires
+more work than just proving η₃ ↦ -2 by hand. But at least, we can do it!-}
+
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.QuickProof where
 
@@ -49,11 +55,17 @@ open import Cubical.Homotopy.HopfInvariant.HopfMap using (hopfMap≡HopfMap')
 open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber
   using (fold∘W ; coFib-fold∘W∙ ; π₄S³≅π₃coFib-fold∘W∙ ; S³→S²→Pushout→Unit)
 -- Only imports definitions/proofs from chapter 1-3 in Brunerie's thesis
+open import Cubical.Homotopy.Group.Pi4S3.BrunerieExperiments
+  using (K₂ ; f7' ; S¹∙ ; encodeTruncS²)
+-- For computation (alternative proof)
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
+open import Cubical.Foundations.Pointed.Homogeneous
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
@@ -63,7 +75,8 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Int
   renaming (ℤ to Z ; _·_ to _·Z_ ; _+_ to _+Z_)
 
-open import Cubical.HITs.S1 renaming (_·_ to _*_)
+open import Cubical.HITs.S1 as S1 renaming (_·_ to _*_)
+open import Cubical.HITs.S2 renaming (S¹×S¹→S² to S¹×S¹→S²')
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp renaming (toSusp to σ)
 open import Cubical.HITs.Join hiding (joinS¹S¹→S³)
@@ -71,7 +84,10 @@ open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.SetTruncation
   renaming (rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.Truncation renaming (rec to trRec)
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
+open import Cubical.HITs.GroupoidTruncation as GroupoidTrunc
+open import Cubical.HITs.2GroupoidTruncation as 2GroupoidTrunc
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Exact
@@ -81,6 +97,12 @@ open import Cubical.Algebra.Group.GroupPath
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int
+
+-- For computation (alternative proof)
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
+
 
 open S¹Hopf
 open Iso
@@ -734,3 +756,424 @@ BrunerieIso =
                     ∙ retEq (fst (π₃'S³≅ℤ-abs 2)) ∣ idfun∙ (S₊∙ 3) ∣₂))
            ∙ cong abs η↦-2))))
            (abstractℤ/≅ℤ 2)
+
+------------- Part 2: proof (partly) by computation -------------
+-- Alternative version of the same proof: proving η₃ ↦ -2 by computation
+connS² : isConnected 3 S²
+connS² = ∣ base ∣
+  , Trunc.elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
+      (S²ToSetElim (λ _ → isOfHLevelTrunc 3 _ _)
+        refl)
+
+connSuspS² : isConnected 4 (Susp S²)
+fst connSuspS² = ∣ north ∣
+snd connSuspS² =
+  Trunc.elim (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _)
+             λ { north → refl
+               ; south → cong ∣_∣ₕ (merid base)
+               ; (merid a i) → lem a i}
+  where
+  lem : (a : S²)
+    → PathP (λ i → ∣ north ∣ₕ ≡ ∣ merid a i ∣ₕ)
+             refl (cong ∣_∣ₕ (merid base))
+  lem = S²ToSetElim (λ _ → isOfHLevelPathP' 2 (isOfHLevelTrunc 4  _ _) _ _)
+           λ i j → ∣ merid base (i ∧ j) ∣ₕ
+
+π₃*S³' : Group₀
+π₃*S³' = π₃* (Susp∙ S²) (isConnectedSubtr 3 1 connSuspS²)
+
+-- The version of η₃ we have been able to compute lies in π₃*S³'
+η₃'-raw : (join S¹ S¹ , inl base) →∙ (Susp S² , north)
+fst η₃'-raw (inl x) = north
+fst η₃'-raw (inr x) = north
+fst η₃'-raw (push a b i) =
+  (σ (S² , base) (S¹×S¹→S²' a b) ∙ σ (S² , base) (S¹×S¹→S²' a b)) i
+snd η₃'-raw = refl
+
+η₃' : π₃*S³' .fst
+η₃' = ∣ η₃'-raw ∣₂
+
+-- We first have to show (manually) that the following iso sends η₃ to η₃'
+π₃*S³≅π₃*S³' : GroupEquiv π₃*S³ π₃*S³'
+π₃*S³≅π₃*S³' = postCompπ₃*Equiv _ _
+        (isoToEquiv (congSuspIso (invIso S²IsoSuspS¹))
+       , refl)
+
+π₃*S³≅π₃*S³'-pres-η₃ : fst (fst π₃*S³≅π₃*S³') η₃ ≡ η₃'
+π₃*S³≅π₃*S³'-pres-η₃ =
+  cong ∣_∣₂
+    (ΣPathP ((funExt (λ { (inl x) → refl
+                        ; (inr x) → refl
+                        ; (push a b i) j → lem a b j i}))
+                        , sym (rUnit refl)))
+  where
+  lem : (a b : S¹)
+    → cong (suspFun SuspS¹→S²)
+            (sym (σ₂ (S¹×S¹→S² a b)) ∙ sym (σ₂ (S¹×S¹→S² a b)))
+    ≡ (σ (S² , base) (S¹×S¹→S²' a b) ∙ σ (S² , base) (S¹×S¹→S²' a b))
+  lem a b =
+      cong-∙ (suspFun SuspS¹→S²)
+             (sym (σ₂ (S¹×S¹→S² a b))) (sym (σ₂ (S¹×S¹→S² a b)))
+    ∙ cong (λ x → x ∙ x)
+           (cong sym (cong-∙
+             (suspFun SuspS¹→S²) (merid (S¹×S¹→S² a b)) (sym (merid north)))
+          ∙ cong sym (cong (σ S²∙) (SuspS¹→S²-S¹×S¹→S² a b))
+          ∙ sym (S¹×S¹→S²-sym a b))
+
+-- After this, we want to establish an iso π₃*S³'≅ℤ which is nice enough to compute.
+-- This requires a bit of work and some hacking.
+
+-- First iso: π₃*(Susp S²) ≅ π₁(S¹ →∙ Ω(Susp S²))
+private
+  map← : S₊∙ 1 →∙ (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙)
+        → (join S¹ S¹ , inl base) →∙ Susp∙ S²
+  fst (map← f) (inl x) = north
+  fst (map← f) (inr x) = north
+  fst (map← f) (push a b i) = fst f a .fst b i
+  snd (map← f) = refl
+
+  map→ : (join S¹ S¹ , inl base) →∙ Susp∙ S²
+        → S₊∙ 1 →∙ (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙)
+  fst (fst (map→ f) x) y =
+       sym (snd f)
+    ∙∙ cong (fst f)
+        ((push base base ∙ sym (push x base)) ∙∙ push x y ∙∙ sym (push base y))
+    ∙∙ snd f
+  snd (fst (map→ f) x) =
+     cong (sym (snd f) ∙∙_∙∙ snd f)
+       (cong (cong (fst f))
+          ((λ j → (push base base ∙ (λ i → push x base (~ i ∨ j)))
+       ∙∙ (λ i → push x base (i ∨ j)) ∙∙ sym (push base base))
+        ∙ cong (_∙∙ refl ∙∙ sym (push base base)) (sym (rUnit (push base base)))
+        ∙ ∙∙lCancel (sym (push base base))))
+        ∙ ∙∙lCancel (snd f)
+  snd (map→ f) = coherence _
+    λ x → cong (sym (snd f) ∙∙_∙∙ snd f)
+             (cong (cong (fst f))
+               (cong (_∙∙ push base x ∙∙ sym (push base x))
+                 (rCancel (push base base))
+                ∙ rCancel (push base x)))
+        ∙ ∙∙lCancel (snd f)
+    where
+    abstract
+      coherence : (f : S₊∙ 1 →∙ Ω (Susp∙ S²))
+        → ((x : S¹) → fst f x ≡ refl) → f ≡ ((λ _ → refl) , refl)
+      coherence f p = →∙Homogeneous≡ (isHomogeneousPath _ _) (funExt p)
+
+-- Iso for underlying type
+π₃*S³'≅π₁S¹→∙ΩS³'-raw :
+  Iso (π₃*S³' .fst) ((π'Gr 0 (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙)) .fst)
+fun π₃*S³'≅π₁S¹→∙ΩS³'-raw = sMap map→
+inv π₃*S³'≅π₁S¹→∙ΩS³'-raw = sMap map←
+rightInv π₃*S³'≅π₁S¹→∙ΩS³'-raw =
+  sElim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂
+      (→∙Homogeneous≡
+        (subst isHomogeneous
+         (ua∙ {A = (Ω^ 2) (Susp∙ S²)} {B =  (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙)}
+          (isoToEquiv (IsoΩSphereMap 1))
+            (ΣPathP ((funExt (λ { base → refl ; (loop i) → refl})) , refl)))
+                      (isHomogeneousPath _ _))
+           (funExt λ x → →∙Homogeneous≡ (isHomogeneousPath _ _)
+             (funExt λ y
+               → sym (rUnit
+                   ((cong (fst (map← f)))
+                       ((push base base
+                       ∙ sym (push x base)) ∙∙ push x y ∙∙ sym (push base y))))
+                         ∙∙ cong-∙∙ (fst (map← f))
+                             (push base base
+                            ∙ sym (push x base)) (push x y) (sym (push base y))
+                         ∙∙ (λ i → cong-∙ (fst (map← f))
+                                    (push base base) (sym (push x base)) i
+                                 ∙∙ f .fst x .fst y
+                                 ∙∙ sym (snd f i .fst y))
+                         ∙∙ cong (_∙∙ f .fst x .fst y ∙∙ refl)
+                                 (cong₂ _∙_ (fst f base .snd) (cong sym (fst f x .snd))
+                                   ∙ sym (rUnit refl))
+                         ∙∙ sym (rUnit (f .fst x .fst y)))))
+leftInv π₃*S³'≅π₁S¹→∙ΩS³'-raw =
+  sElim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ (ΣPathP
+      ((funExt
+      (λ { (inl x) → sym (snd f)
+                    ∙ cong (fst f) (push base base ∙ sym (push x base))
+         ; (inr x) → sym (snd f)
+                    ∙ cong (fst f) (push base x)
+         ; (push a b i) j
+           → hcomp (λ k → λ {(i = i0) →
+                                compPath-filler' (sym (snd f)) (cong (fst f)
+                                  (push base base ∙ sym (push a base))) k j
+                             ; (i = i1) →
+                                compPath-filler' (sym (snd f)) (cong (fst f)
+                                  (push base b)) k j
+                             ; (j = i1) → fst f (push a b i) })
+                    (fst f (doubleCompPath-filler
+                             (push base base ∙ sym (push a base))
+                             (push a b)
+                             (sym (push base b)) (~ j) i))}))
+                   , help f))
+  where
+  help : (f : (join S¹ S¹ , inl base) →∙ Susp∙ S²)
+    → PathP (λ i → (sym (snd f)
+                   ∙ cong (fst f) (push base base ∙ sym (push base base))) i
+                   ≡ north)
+             refl (snd f)
+  help f =
+    flipSquare ((cong (sym (snd f) ∙_)
+    (cong (cong (fst f))
+      (rCancel (push base base))) ∙ sym (rUnit (sym (snd f))))
+    ◁ λ i j → snd f (i ∨ ~ j))
+
+-- the iso
+π₁S¹→∙ΩS³'≅π₃*S³' : GroupIso (π'Gr 0 (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙)) π₃*S³'
+fst π₁S¹→∙ΩS³'≅π₃*S³' = invIso π₃*S³'≅π₁S¹→∙ΩS³'-raw
+snd π₁S¹→∙ΩS³'≅π₃*S³' =
+  makeIsGroupHom
+    (sElim2 (λ _ _ → isSetPathImplicit)
+            λ f g → cong ∣_∣₂
+              (ΣPathP ((funExt (λ { (inl x) → refl
+                                  ; (inr x) → refl
+                                  ; (push a b i) j → main f g a b j i}))
+                      , refl)))
+  where
+  main : (f g : S₊∙ 1 →∙ (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙)) (a b : S¹)
+    → cong (fst (map← (∙Π f g))) (push a b)
+    ≡ cong (fst (map← f +join map← g)) (push a b)
+  main f g a b = (main-lem a b
+            ∙ (λ i → (λ j → fst f a .fst b (j ∧ i))
+                   ∙∙ ((λ j → fst f a .fst b (j ∨ i)))
+                   ∙∙ fst g a .fst b))
+            ∙ λ i → (rUnit (fst f a .fst b) ∙ cong (fst f a .fst b ∙_)
+                       (cong sym (sym (funExt⁻ (cong fst (snd f)) b)))
+                      ∙ sym (cong-∙ (map← f .fst) (push a b) (sym (push base b)))) i
+                  ∙∙ rUnit refl i
+                  ∙∙ ((lUnit (fst g a .fst b)
+            ∙ (λ i → fst g base .snd (~ i)
+                   ∙∙ sym (fst g a .snd (~ i))
+                   ∙∙ cong (map← g .fst) (push a b)))
+                    ∙ (sym (cong-∙∙ (map← g .fst)
+                            (push base base) (sym (push a base)) (push a b)))) i
+    where
+    JLem : ∀ {ℓ} {A : Type ℓ} (* : A)
+              (fab : * ≡ *) (fabrefl : refl ≡ fab)
+              (gab : * ≡ *) (gabrefl : refl ≡ gab)
+           → (fl : fab ≡ fab) (gl : gab ≡ gab)
+           → PathP (λ i → (rUnit refl ∙ (λ i → fabrefl i ∙ gabrefl i)) i
+                          ≡ (rUnit refl ∙ (λ i → fabrefl i ∙ gabrefl i)) i)
+                    ((fabrefl ∙∙ fl ∙∙ sym fabrefl)
+                    ∙ (gabrefl ∙∙ gl ∙∙ sym gabrefl))
+                    (cong₂ _∙_ fl gl)
+    JLem * =
+      J> (J> λ fl gl
+        → flipSquare (sym (rUnit (rUnit refl))
+                ◁ ((flipSquare (cong₂ _∙_ (sym (rUnit fl)) (sym (rUnit gl))
+                             ◁ ((λ i → (cong (λ x → rUnit x i) fl
+                                      ∙ cong (λ x → lUnit x i) gl))
+                             ▷ sym (cong₂Funct _∙_ fl gl))))
+                ▷ rUnit (rUnit refl))))
+
+    pp : (b : S¹) → refl ∙ refl ≡ fst (fst f base) b ∙ fst (fst g base) b
+    pp b i = fst (snd f (~ i)) b ∙ fst (snd g (~ i)) b
+
+    main-lem : (a b : S¹)
+      → cong (fst (map← (∙Π f g))) (push a b)
+       ≡ (fst f a .fst b ∙ fst g a .fst b)
+    main-lem base b = rUnit refl ∙ pp b
+    main-lem (loop i) b j =
+      hcomp (λ r → λ {(i = i0) → (rUnit refl ∙ pp b) j
+                     ; (i = i1) → (rUnit refl ∙ pp b) j
+                     ; (j = i0) → lem (~ r) i
+                     ; (j = i1) →
+                       (fst f (loop i) .fst b ∙ fst g (loop i) .fst b)})
+            (JLem north
+              (fst f base .fst b) (λ i → fst (snd f (~ i)) b)
+              (fst g base .fst b) (λ i → fst (snd g (~ i)) b)
+              (λ i → fst f (loop i) .fst b)
+              (λ i → fst g (loop i) .fst b) j i)
+      where
+      lem : cong (λ l → cong (fst (map← (∙Π f g))) (push l b)) loop
+          ≡ ((λ i → fst (snd f (~ i)) b)
+            ∙∙ funExt⁻ (cong fst (cong (f .fst) loop)) b
+            ∙∙ (λ i → fst (snd f i) b))
+          ∙ ((λ i → fst (snd g (~ i)) b)
+            ∙∙ funExt⁻ (cong fst (cong (g .fst) loop)) b
+            ∙∙ (λ i → fst (snd g i) b))
+      lem =
+         (λ i → funExt⁻ (cong-∙ fst
+                   (sym (snd f) ∙∙ cong (f .fst) loop ∙∙ snd f)
+                   (sym (snd g) ∙∙ cong (g .fst) loop ∙∙ snd g) i) b)
+        ∙ λ i → funExt⁻
+                  (cong-∙∙ fst (sym (snd f)) (cong (f .fst) loop) (snd f) i
+                 ∙ cong-∙∙ fst (sym (snd g)) (cong (g .fst) loop) (snd g) i) b
+
+-- The goal now is to establish a homomorphism from π₁S¹→∙ΩS³' to ℤ.
+-- We can then show that 1 is in its image via computation, establishing that it
+-- is an iso (since we already know that π₁S¹→∙ΩS³' ≅ ℤ)
+
+-- We first introduce the following base change map defined via pattern
+-- matching for better computational behaviour
+ΩK₂-basechange : (x : K₂) → Ω (K₂ , x) →∙ Ω (K₂ , ∣ base ∣₄)
+ΩK₂-basechange =
+  2GroupoidTrunc.elim
+    (λ _ → isOfHLevelΣ 4
+              (isOfHLevelΠ 4 (λ _ → isOfHLevelPath 4 squash₄ _ _))
+               λ _ → isOfHLevelPath 4 (isOfHLevelPath 4 squash₄ _ _) _ _)
+    λ { base → idfun∙ _
+      ; (surf i j) → coherence i j}
+  where
+  K₂≃coHomK2 : Iso K₂ (coHomK 2)
+  K₂≃coHomK2 = compIso 2GroupoidTruncTrunc4Iso (mapCompIso S²IsoSuspS¹)
+
+  ΩK₂≡S¹ : Ω (K₂ , ∣ base ∣₄) ≡ S¹∙
+  ΩK₂≡S¹ = ua∙ (isoToEquiv (compIso (congIso K₂≃coHomK2)
+         (compIso
+           (invIso (Iso-Kn-ΩKn+1 1))
+           (truncIdempotentIso 3 isGroupoidS¹)))) refl
+
+  coherence :
+    SquareP (λ i j → Ω (K₂ , ∣ surf i j ∣₄) →∙ Ω (K₂ , ∣ base ∣₄))
+            (λ _ → idfun∙ (Ω (K₂ , ∣ base ∣₄)))
+            (λ _ → idfun∙ (Ω (K₂ , ∣ base ∣₄)))
+            (λ _ → idfun∙ (Ω (K₂ , ∣ base ∣₄)))
+            λ _ → idfun∙ (Ω (K₂ , ∣ base ∣₄))
+  coherence =
+    toPathP
+      (isOfHLevelPath' 1 (subst isSet (λ i → ΩK₂≡S¹ (~ i) →∙ Ω (K₂ , ∣ base ∣₄))
+        (subst isSet
+          (isoToPath
+            (equivToIso (Ω→SphereMap 1 {A = Ω (K₂ , ∣ base ∣₄) }
+            , isEquiv-Ω→SphereMap 1))) (squash₄ _ _ _ _))) _ _ _ _)
+
+-- The three homomorphisms
+π₁S¹→∙ΩS³'→π₁S¹→∙K₂ :
+  GroupHom (π'Gr 0 (S₊∙ 1 →∙ Ω (Susp∙ S²) ∙))
+           (π'Gr 0 (S₊∙ 1 →∙ (K₂ , ∣ base ∣₄ ) ∙))
+π₁S¹→∙ΩS³'→π₁S¹→∙K₂ =
+  π'∘∙Hom 0 ((λ f → (λ x → f7' (fst f x)) , (cong f7' (snd f))) , refl)
+
+π₁S¹→∙K₂→π₁S¹ :
+  GroupHom (π'Gr 0 (S₊∙ 1 →∙ (K₂ , ∣ base ∣₄ ) ∙)) (π'Gr 0 (S₊∙ 1))
+π₁S¹→∙K₂→π₁S¹ = π'∘∙Hom 0 mainMap∙
+  where
+  mainMap : (S¹ → K₂) → S¹
+  mainMap f =
+    GroupoidTrunc.rec isGroupoidS¹ (λ x → x)
+      (encodeTruncS² (ΩK₂-basechange _ .fst (cong f loop)))
+
+  mainMap∙ : ((S₊∙ 1 →∙ (K₂ , ∣ base ∣₄) ∙) →∙ S₊∙ 1)
+  fst mainMap∙ f = mainMap (fst f)
+  snd mainMap∙ = refl
+
+π₁S¹→ℤ : GroupHom ((π'Gr 0 (S₊∙ 1))) ℤGroup
+π₁S¹→ℤ =
+  compGroupHom
+    ((sMap (λ f → basechange2⁻ _ (cong (fst f) loop)))
+     , makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
+       λ f g i
+         → ∣ (basechange2⁻ (snd f (~ i))
+              (doubleCompPath-filler
+                (sym (snd f)) (λ i → fst f (loop i)) (snd f) (~ i))
+            ∙ basechange2⁻ (snd g (~ i))
+              (doubleCompPath-filler
+                (sym (snd g)) (λ i → fst g (loop i)) (snd g) (~ i))) ∣₂))
+       (_ , πₙSⁿ≅ℤ 0 .snd)
+
+-- We combine them into one
+computer : GroupHom π₃*S³' ℤGroup
+computer = compGroupHom
+      (GroupEquiv→GroupHom (invGroupEquiv (GroupIso→GroupEquiv π₁S¹→∙ΩS³'≅π₃*S³')))
+      (compGroupHom (compGroupHom π₁S¹→∙ΩS³'→π₁S¹→∙K₂ π₁S¹→∙K₂→π₁S¹) π₁S¹→ℤ)
+
+-- We show that it's an iso by computation: 1 lies in its image
+
+-- It's witnessed by the following element:
+1∈π₃*S³' : π₃*S³' .fst
+1∈π₃*S³' =
+  ∣ (λ { (inl x) → north
+       ; (inr x) → north
+       ; (push a b i) → σ S²∙ (S¹×S¹→S²' b a) i}) , refl ∣₂
+
+-- By computation, it maps to 1
+1∈π₃*S³'↦1 : fst computer 1∈π₃*S³' ≡ 1
+1∈π₃*S³'↦1 = refl
+
+-- This implies that computer indeed is an iso
+computerIso : GroupEquiv π₃*S³' ℤGroup
+fst (fst computerIso) = fst computer
+snd (fst computerIso) =
+  1∈Im→isEquiv π₃*S³'
+    (compGroupEquiv
+      (compGroupEquiv
+        (invGroupEquiv
+          (GroupIso→GroupEquiv
+            (πₙ'Sⁿ≅ℤ 2)))
+            π₃S³≅π₃*S³)
+            π₃*S³≅π₃*S³')
+    computer
+    ∣ 1∈π₃*S³' , 1∈π₃*S³'↦1 ∣₁
+snd computerIso = snd computer
+
+-- We now verify via computation that η₃' maps to -2
+computerIsoη₃ : fst (fst computerIso) η₃' ≡ -2
+computerIsoη₃ = refl
+
+-- Putting this together with the info frm the beginning of the file, we have an iso
+-- π₃S² ≅ π₃*S³' ≅ ℤ, mapping η ↦ η₃' ↦ -2
+BrunerieIso' : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ 2)
+BrunerieIso' =
+  compGroupEquiv
+    (compGroupEquiv
+      π₄S³≅π₃coFib-fold∘W∙
+      (invGroupEquiv
+        (GroupEquiv-abstractℤ/abs-gen
+          (π'Gr 2 (S₊∙ 3)) (π'Gr 2 (S₊∙ 2)) (π'Gr 2 coFib-fold∘W∙)
+            (invGroupEquiv (π₃'S³≅ℤ-abs 2))
+            (invGroupEquiv
+              (compGroupEquiv
+                (compGroupEquiv
+                  (compGroupEquiv
+                    π₃S²≅π₃*S²-abs
+                    π₃*S²≅π₃*joinS¹S¹-abs)
+                  π₃*joinS¹S¹≅π₃*S³-abs)
+                (fst π₃*S³≅ℤ-abs)))
+            (π'∘∙Hom 2 (fold∘W , refl))
+            _
+            S³→S²→Pushout→Unit
+            _
+            (cong abs ((cong (m1 ∘ m2 ∘ m3 ∘ m4)
+                  ((cong (sMap (_∘∙_ (fold∘W , refl)))
+                      (sym (cong (invEq (fst (π₃'S³≅ℤ-abs 2))) (gen↦1 2))
+                    ∙ retEq (fst (π₃'S³≅ℤ-abs 2)) ∣ idfun∙ (S₊∙ 3) ∣₂))
+                    ∙ (λ _ → η)))
+            ∙ cong (m1 ∘ m2 ∘ m3) η↦η₁-abs
+            ∙ cong (m1 ∘ m2) η₁↦η₂-abs
+            ∙ cong (m1) η₂↦η₃-abs)
+            ∙ m5))))
+    (abstractℤ/≅ℤ 2)
+  where
+  abstract
+    η₃-abs : Σ[ x ∈ _ ] x ≡ η₃
+    η₃-abs = η₃ , refl
+
+    η₃-abs-pres : fst π₃*S³≅π₃*S³' .fst (fst η₃-abs) ≡ ∣ η₃'-raw ∣₂
+    η₃-abs-pres = π₃*S³≅π₃*S³'-pres-η₃
+
+  π₃*S³≅ℤ : GroupEquiv π₃*S³ ℤGroup
+  π₃*S³≅ℤ = compGroupEquiv π₃*S³≅π₃*S³' computerIso
+
+  π₃*S³≅ℤβ≡-2 : fst (fst π₃*S³≅ℤ) η₃ ≡ -2
+  π₃*S³≅ℤβ≡-2 = (cong (fst (fst π₃*S³≅ℤ)) (sym (snd η₃-abs))
+                  ∙ cong (fst (fst computerIso)) η₃-abs-pres)
+                ∙ computerIsoη₃
+
+  abstract
+    π₃*S³≅ℤ-abs : Σ[ f ∈ GroupEquiv π₃*S³ ℤGroup ] (fst (fst f) η₃ ≡ -2)
+    π₃*S³≅ℤ-abs = π₃*S³≅ℤ , π₃*S³≅ℤβ≡-2
+
+  m1 = fst (fst (fst π₃*S³≅ℤ-abs))
+  m2 = fst (fst π₃*joinS¹S¹≅π₃*S³-abs)
+  m3 = fst (fst π₃*S²≅π₃*joinS¹S¹-abs)
+  m4 = fst (fst π₃S²≅π₃*S²-abs)
+
+  m5 : abs (m1 η₃) ≡ 2
+  m5 = cong abs (snd π₃*S³≅ℤ-abs)
