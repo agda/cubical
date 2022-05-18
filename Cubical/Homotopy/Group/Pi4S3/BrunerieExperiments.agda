@@ -373,4 +373,4 @@ brunerie'≡-2 = refl
 
 -- Proving that this indeed corresponds to the Brunerie number
 -- requires us to phrase things slightly more carefully. For this, see
--- the second part of the Cubical.Homotopy.Group.Pi4S3.DirectProof
+-- the second part of the Cubical.Homotopy.Group.Pi4S3.DirectProof.

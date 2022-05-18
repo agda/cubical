@@ -35,7 +35,6 @@ defined in Cubical.HITs.Sphere.Properties, kills off a good deal of
 
 4. Conclude that π₄(S³) ≅ ℤ/2ℤ.
 
-
 -------------- Part 2:
 
 The file also contains a second approach: showing η₃ : π₃*(S³) ↦ -2 by
