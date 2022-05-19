@@ -14,6 +14,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 open import Cubical.Data.Vec
+open import Cubical.Data.Vec.DepVec
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -256,11 +257,6 @@ module Equiv-Properties
 -----------------------------------------------------------------------------
 -- Converse sens
 
-  -- reformulation avec des vecteurs dependants :
-  data depVec (G : (n : ℕ) → Type ℓ) : ℕ → Type ℓ where
-    ⋆ : depVec G 0
-    _□_ : {n : ℕ} → (a : G (suc n)) → (v : depVec G n) → depVec G (suc n)
-
   sumHIT : (m : ℕ) → depVec G m → ⊕HIT ℕ G Gstr
   sumHIT (0) ⋆ = 0⊕HIT
   sumHIT (suc m) (a □ dv) = (base (suc m) a) +⊕HIT (sumHIT m dv)
@@ -275,9 +271,6 @@ module Equiv-Properties
 
   PSN : (x y : ⊕HIT ℕ G Gstr) → Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] Σ[ b ∈ depVec G m ] (x ≡ sumHIT m a) × (y ≡ sumHIT m b)
   PSN = {!!}
-
-  eqDepVec : (m : ℕ) → (a b : G (suc m)) → (dva dvb : depVec G m) → a ≡ b → dva ≡ dvb → (a □ dva) ≡ (b □ dvb)
-  eqDepVec = {!!}
 
   sumFun< : (m : ℕ) → (dva : depVec G m) → (i : ℕ) → (m < i) → sumFun m dva i ≡ 0g (Gstr i)
   sumFun< 0 ⋆ i r = refl
@@ -327,9 +320,9 @@ module Equiv-Properties
 
   injDJJ : (m : ℕ) → (a b : depVec G m) → sumFun m a ≡ sumFun m b → a ≡ b
   injDJJ 0 ⋆ ⋆ x = refl
-  injDJJ (suc m) (a □ dva) (b □ dvb) x = eqDepVec m a b dva dvb
-                                         (sumFunHead m a b dva dvb x)
-                                         (injDJJ m dva dvb (funExt (sumFunTail m a b dva dvb x)))
+  injDJJ (suc m) (a □ dva) (b □ dvb) x = depVecPath.decode G (a □ dva) (b □ dvb)
+                                         ((sumFunHead m a b dva dvb x)
+                                         , (injDJJ m dva dvb (funExt (sumFunTail m a b dva dvb x))))
 
   injDJ : (m : ℕ) → (a b : depVec G m) → ⊕HIT→Fun (sumHIT m a) ≡ ⊕HIT→Fun (sumHIT m b) → a ≡ b
   injDJ m a b r = injDJJ m a b (sym (SHIT→SFun m a) ∙ r ∙ SHIT→SFun m b)
@@ -339,15 +332,6 @@ module Equiv-Properties
   ... | m , a , b , p , q = p
                             ∙ cong (sumHIT m) (injDJ m a b (sym (cong ⊕HIT→Fun p) ∙ r ∙ cong ⊕HIT→Fun q))
                             ∙ sym q
-
-
-  {- idea 1 : compute this as a normal form ?
-  then x ≡ y is ∑ base i (a i) ≡ ∑ base i (b i) -> extended to same size !
-  this turn to λ i → a i | 0 ≡ λ i → b i | 0 => so on i, a i ≡ b i (harder to prove)
-  which turns to x ≡ y with a cong
-
-  do it with an assumption => don't do something pointless
-  -}
 
   inj-⊕HIT→⊕Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→⊕Fun x ≡ ⊕HIT→⊕Fun y → x ≡ y
   inj-⊕HIT→⊕Fun x y p = inj-⊕HIT→Fun x y (fst (PathΣ→ΣPathTransport _ _ p))
