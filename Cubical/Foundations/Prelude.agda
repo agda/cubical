@@ -30,7 +30,7 @@ infixr 30 _∙₂_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
-infixr 4 _≡$_ _≡$S_
+infixl 4 _≡$_ _≡$S_
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
