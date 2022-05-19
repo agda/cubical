@@ -30,6 +30,7 @@ infixr 30 _∙₂_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
+infixr 4 _≡$_
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
@@ -59,6 +60,10 @@ symP p j = p (~ j)
 symP-fromGoal : {A : I → Type ℓ} → {x : A i0} → {y : A i1} →
        (p : PathP A x y) → PathP (λ i → A (~ i)) y x
 symP-fromGoal p j = p (~ j)
+
+congS : ∀ {B : Type ℓ} → (f : A → B) (p : x ≡ y) → f x ≡ f y
+congS f p i = f (p i)
+{-# INLINE congS #-}
 
 cong : (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
@@ -300,6 +305,8 @@ funExt⁻ : {B : A → I → Type ℓ'}
   → PathP (λ i → (x : A) → B x i) f g
   → ((x : A) → PathP (B x) (f x) (g x))
 funExt⁻ eq x i = eq i x
+
+_≡$_ = funExt⁻
 
 -- J for paths and its computation rule
 
