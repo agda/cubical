@@ -30,7 +30,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (map to pMap)
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
-    F G H : Group ℓ
+    E F G H : Group ℓ
 
 open Iso
 open GroupStr
@@ -189,6 +189,10 @@ snd (GroupHom≡ {G = G} {H = H} {f = f} {g = g} p i) = p-hom i
   p-hom : PathP (λ i → IsGroupHom (G .snd) (p i) (H .snd)) (f .snd) (g .snd)
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
+compGroupHomAssoc : (e : GroupHom E F) → (f : GroupHom F G) → (g : GroupHom G H)
+                  → compGroupHom (compGroupHom e f) g ≡ compGroupHom e (compGroupHom f g)
+compGroupHomAssoc e f g = GroupHom≡ refl
+
 -- The composition of surjective maps is surjective
 compSurjective : ∀ {ℓ ℓ' ℓ''} {G : Group ℓ} {H : Group ℓ'} {L : Group ℓ''}
          → (G→H : GroupHom G H) (H→L : GroupHom H L)
@@ -254,6 +258,13 @@ leftInv (fst (GroupIsoDirProd iso1 iso2)) a =
 snd (GroupIsoDirProd iso1 iso2) = makeIsGroupHom λ a b →
   ΣPathP (pres· (snd iso1) (fst a) (fst b) , pres· (snd iso2) (snd a) (snd b))
 
+{-GroupIso≡ : {f g : GroupIso G H} → fst f ≡ fst g → f ≡ g
+fst (GroupIso≡ p i) = p i
+snd (GroupIso≡ {G = G} {H = H} {f = f} {g = g} p i) = p-hom i
+  where
+  p-hom : PathP (λ i → IsGroupHom (G .snd) (p i) (H .snd)) (f .snd) (g .snd)
+  p-hom = toPathP (isPropIsGroupHom G H _ _)
+-}
 
 -- Conversion functions between different notions of group morphisms
 GroupEquiv→GroupHom : GroupEquiv G H → GroupHom G H

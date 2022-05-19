@@ -17,7 +17,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties using (isPropIsGroupHom; compGroupHom)
+open import Cubical.Algebra.Group.MorphismProperties using (isPropIsGroupHom; compGroupHom; idGroupHom)
 
 open import Cubical.Algebra.AbGroup.Base
 

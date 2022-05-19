@@ -11,21 +11,38 @@ module Cubical.Algebra.Group.Abelianization.AbelianizationAsCoeq where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties using (isPropIsGroupHom; compGroupHom)
+open import Cubical.Algebra.Group.MorphismProperties
+  using (isPropIsGroupHom; compGroupHom; idGroupHom; compGroupHomAssoc; GroupEquiv→GroupHom; GroupIso→GroupEquiv; GroupEquiv→GroupIso; invGroupIso; GroupEquiv≡)
 
 open import Cubical.Algebra.AbGroup.Base
 
 open import Cubical.HITs.SetCoequalizer hiding (inducedHom; commutativity; uniqueness)
 
+open import Cubical.Algebra.Group.Abelianization.Base
+  renaming (Abelianization to HITAbelianization;
+            η to HITη;
+            comm to HITcomm;
+            isset to HITisset)
+
+open import Cubical.Algebra.Group.Abelianization.Properties
+  renaming (asAbelianGroup to HITasAbelianGroup;
+            ηAsGroupHom to HITηAsGroupHom;
+            inducedHom to HITinducedHom;
+            commutativity to HITcommutativity;
+            uniqueness to HITuniqueness)
+  hiding (elimProp; elimProp2; elimProp3; elimContr; elimContr2; rec; rec2; _·Ab_; 1Ab; invAb; assocAb; ridAb; rinvAb; commAb)
+
 private
   variable
     ℓ : Level
+    G : Group ℓ
 
 module _ (G : Group ℓ) where
   open GroupStr {{...}}
@@ -160,7 +177,7 @@ module _ (G : Group ℓ) where
           g = rec
                 (isSetAbGroup H)
                 (λ x → (f') x)
-                (λ (a , b , c) → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
+                (λ (a , b , c) → f' (a · b · c)     ≡⟨ (snd f).pres· a (b · c) ⟩
                            (f' a) · (f' (b · c))    ≡⟨ cong (λ x → (f' a) · x) ((snd f).pres· b c) ⟩
                            (f' a) · (f' b) · (f' c) ≡⟨ cong (λ x → (f' a) · x) ((snd H).AbGroupStr.comm (f' b) (f' c)) ⟩
                            (f' a) · (f' c) · (f' b) ≡⟨ cong (λ x → (f' a) · x) (sym ((snd f).pres· c b)) ⟩
@@ -204,3 +221,86 @@ module _ (G : Group ℓ) where
                 (λ x → fst g (incAb x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
                        (fst f) x       ≡⟨ refl ⟩
                        fst (inducedHom H f) (incAb x)∎)
+
+  {- The proof that defining the abelianization of groups as a coequalizer of sets is equivalent to defining it as a HIT,
+  more precisely that there is an isomorphism between the resulting abelian groups unique with respect to commuting with
+  the constructors η and inc. -}
+  isomorphism : AbGroupIso asAbelianGroup (HITasAbelianGroup G)
+  isomorphism = h , hIsHomo
+    where
+    f = inducedHom (HITasAbelianGroup G) (HITηAsGroupHom G)
+    g = HITinducedHom G asAbelianGroup incAbAsGroupHom
+
+    HITgfcomm : compGroupHom (HITηAsGroupHom G) (compGroupHom g f) ≡ (HITηAsGroupHom G)
+    {-HITgfcomm = compGroupHom (HITηAsGroupHom G) (compGroupHom g f) ≡⟨ sym (compGroupHomAssoc (HITηAsGroupHom G) g f) ⟩
+                compGroupHom (compGroupHom (HITηAsGroupHom G) g) f ≡⟨ cong (λ x → compGroupHom x f) (HITcommutativity G asAbelianGroup incAbAsGroupHom) ⟩
+                compGroupHom incAbAsGroupHom f ≡⟨ commutativity (HITasAbelianGroup G) (HITηAsGroupHom G) ⟩
+                (HITηAsGroupHom G) ∎ -}
+    HITgfcomm = Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x → q x i)
+      where q : (x : fst G) → fst (compGroupHom (compGroupHom (HITηAsGroupHom G) g) f) x ≡ fst (HITηAsGroupHom G) x
+            q = (λ x → refl)
+
+    HITidcomm : compGroupHom (HITηAsGroupHom G) idGroupHom ≡ HITηAsGroupHom G
+    HITidcomm = Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x → q x i)
+      where q : (x : fst G) → fst (compGroupHom (HITηAsGroupHom G) idGroupHom) x ≡ fst (HITηAsGroupHom G) x
+            q = (λ x → refl)
+
+    HITidIsInduced : HITinducedHom G (HITasAbelianGroup G) (HITηAsGroupHom G) ≡ idGroupHom
+    HITidIsInduced = sym (HITuniqueness G (HITasAbelianGroup G) (HITηAsGroupHom G) idGroupHom HITidcomm)
+
+    HITgfIsInduced : HITinducedHom G (HITasAbelianGroup G) (HITηAsGroupHom G) ≡ compGroupHom g f
+    HITgfIsInduced = sym (HITuniqueness G (HITasAbelianGroup G) (HITηAsGroupHom G) (compGroupHom g f) HITgfcomm)
+
+    i : idGroupHom ≡ compGroupHom g f
+    i = idGroupHom ≡⟨ sym HITidIsInduced ⟩
+        HITinducedHom G (HITasAbelianGroup G) (HITηAsGroupHom G) ≡⟨ HITgfIsInduced ⟩
+        compGroupHom g f ∎
+
+    fgcomm : compGroupHom incAbAsGroupHom (compGroupHom f g) ≡ incAbAsGroupHom
+    fgcomm = Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x → q x i)
+      where q : (x : fst G) → fst (compGroupHom (compGroupHom incAbAsGroupHom f) g) x ≡ fst incAbAsGroupHom x
+            q = (λ x → refl)
+
+    idcomm : compGroupHom incAbAsGroupHom idGroupHom ≡ incAbAsGroupHom
+    idcomm = Σ≡Prop
+        (λ _ → isPropIsGroupHom _ _)
+        (λ i x → q x i)
+      where q : (x : fst G) → fst (compGroupHom incAbAsGroupHom idGroupHom) x ≡ fst incAbAsGroupHom x
+            q = (λ x → refl)
+
+    idIsInduced : inducedHom asAbelianGroup incAbAsGroupHom ≡ idGroupHom
+    idIsInduced = sym (uniqueness asAbelianGroup incAbAsGroupHom idGroupHom idcomm)
+
+    fgIsInduced : inducedHom asAbelianGroup incAbAsGroupHom ≡ compGroupHom f g
+    fgIsInduced = sym (uniqueness asAbelianGroup incAbAsGroupHom (compGroupHom f g) fgcomm)
+
+    j : idGroupHom ≡ compGroupHom f g
+    j = idGroupHom ≡⟨ sym idIsInduced ⟩
+        inducedHom asAbelianGroup incAbAsGroupHom ≡⟨ fgIsInduced ⟩
+        compGroupHom f g ∎
+
+    h = iso
+          (fst f)
+          (fst g)
+          (λ b → cong (λ e → e b) (cong fst (sym i)))
+          (λ a → cong (λ e → e a) (cong fst (sym j)))
+    hIsHomo = snd f
+
+  isomorphismCommutativity : compGroupHom incAbAsGroupHom (GroupEquiv→GroupHom (GroupIso→GroupEquiv isomorphism)) ≡ (HITηAsGroupHom G)
+  isomorphismCommutativity = HITcommutativity G (HITasAbelianGroup G) (HITηAsGroupHom G)
+
+  -- isomorphismCommutativity2 : compGroupHom (HITηAsGroupHom G) (GroupEquiv→GroupHom (GroupIso→GroupEquiv (invGroupIso isomorphism))) ≡ incAbAsGroupHom
+  -- isomorphismCommutativity2 = {! commutativity asAbelianGroup incAbAsGroupHom !}
+
+  {-isomorphismUniqueness : (h : AbGroupIso asAbelianGroup (HITasAbelianGroup G))
+                        → (hcomm : compGroupHom incAbAsGroupHom (GroupEquiv→GroupHom (GroupIso→GroupEquiv h)) ≡ HITηAsGroupHom G)
+                        → h ≡ isomorphism
+  isomorphismUniqueness h hcomm = {! cong GroupEquiv→GroupIso (GroupEquiv≡ (GroupIso→GroupEquiv h) (GroupIso→GroupEquiv isomorphism) ?)  !}
+  -}
+  -- HITuniqueness G (HITasAbelianGroup G) (HITηAsGroupHom G) (GroupEquiv→GroupHom (GroupIso→GroupEquiv h)) hcomm
