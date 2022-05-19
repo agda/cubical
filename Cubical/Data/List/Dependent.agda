@@ -9,6 +9,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 
 open import Cubical.Data.List
+open import Cubical.Data.FinData
+open import Cubical.Data.List.FinData
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod hiding (map)
 open import Cubical.Data.Nat
@@ -20,6 +22,10 @@ open _≅_
 data ListP {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) : (as : List A) → Type (ℓ-max ℓA ℓB) where
   [] : ListP B []
   _∷_ : {x : A} (y : B x) {xs : List A} (ys : ListP B xs) → ListP B (x ∷ xs)
+
+lookupP : ∀ {ℓA ℓB} {A : Type ℓA} {B : A → Type ℓB} {as} (bs : ListP B as) → (p : Fin (length as)) → B (lookup as p)
+lookupP (b ∷ bs) zero = b
+lookupP (b ∷ bs) (suc p) = lookupP bs p
 
 -- Represent ListP via known operations in order to derive properties more easily.
 RepListP : ∀ {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) (as : List A) → Type (ℓ-max ℓA ℓB)
