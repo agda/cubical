@@ -17,7 +17,7 @@ module _ {X : Type ℓ} (A : X → Type ℓ') where
   infix 20 _⁻¹
 
 
-  data Coproduct : Type _ where
+  data Coproduct : Type (ℓ-max ℓ ℓ') where
     incl       : (x : X) → A x → Coproduct
     ε         : Coproduct
     _·_       : Coproduct → Coproduct → Coproduct
