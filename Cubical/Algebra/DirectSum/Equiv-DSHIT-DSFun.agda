@@ -2,6 +2,7 @@
 module Cubical.Algebra.DirectSum.Equiv-DSHIT-DSFun where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 
@@ -12,11 +13,16 @@ open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
-open import Cubical.Data.FinData
+open import Cubical.Data.Vec
+-- open import Cubical.Data.FinData
+-- open import Cubical.Data.FinData.DepFinVec
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
+open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Monoid.BigOp
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.DirectSumFun
 open import Cubical.Algebra.DirectSum.DirectSumFun.Base
@@ -95,11 +101,47 @@ module Equiv-Properties
     +⊕Fun-InvL : (x : ⊕Fun G Gstr) → (-⊕Fun x) +⊕Fun x ≡ 0⊕Fun
     +⊕Fun-InvL = λ x → snd (+⊕Fun-InvR×InvL x)
 
-    0Fun : (n : ℕ) → G n
-    0Fun = λ n → 0g (Gstr n)
+-----------------------------------------------------------------------------
+-- AbGroup on Fun -> produit ? sequence ?
 
-    _+Fun_ : ((n : ℕ) → G n) → ((n : ℕ) → G n) → ((n : ℕ) → G n)
-    _+Fun_ f g n = Gstr n ._+_ (f n) (g n)
+    Fun-AbGroup : AbGroup ℓ
+    fst Fun-AbGroup = (n : ℕ) → G n
+    0g (snd Fun-AbGroup) =  λ n → 0g (Gstr n)
+    _+_ (snd Fun-AbGroup) = λ f g n → Gstr n ._+_ (f n) (g n)
+    - snd Fun-AbGroup = λ f n → (Gstr n).-_ (f n)
+    isAbGroup (snd Fun-AbGroup) = makeIsAbGroup
+                                  (isSetΠ (λ n → is-set (Gstr n)))
+                                  (λ f g h → funExt (λ n → (Gstr n).assoc _ _ _))
+                                  (λ f → funExt (λ n → fst (identity (Gstr n) _)))
+                                  (λ f → funExt (λ n → fst (inverse (Gstr n) _)))
+                                  (λ f g → funExt (λ n → comm (Gstr n) _ _))
+
+  open AbGroupStr (snd Fun-AbGroup) using ()
+      renaming
+    ( 0g       to 0Fun
+    ; _+_      to _+Fun_
+    ; -_       to -Fun_
+    ; assoc    to +FunAssoc
+    ; identity to +FunIdR×IdL
+    ; inverse  to +FunInvR×InvL
+    ; comm     to +FunComm
+    ; is-set   to isSetFun)
+
+  private
+    Fun : (G : (n : ℕ) → Type ℓ) → (Gstr : (n : ℕ) → AbGroupStr (G n)) → Type ℓ
+    Fun G Gstr = (n : ℕ) → G n
+
+    +⊕FunIdR : (x : Fun G Gstr) → x +Fun 0Fun ≡ x
+    +⊕FunIdR = λ x → fst (+FunIdR×IdL x)
+
+    +⊕FunIdL : (x : Fun G Gstr) → 0Fun +Fun x  ≡ x
+    +⊕FunIdL = λ x → snd (+FunIdR×IdL x)
+
+    +⊕FunInvR : (x : Fun G Gstr) → x +Fun (-Fun x) ≡ 0Fun
+    +⊕FunInvR = λ x → fst (+FunInvR×InvL x)
+
+    +⊕FunInvL : (x : Fun G Gstr) → (-Fun x) +Fun x ≡ 0Fun
+    +⊕FunInvL = λ x → snd (+FunInvR×InvL x)
 
 
 -----------------------------------------------------------------------------
@@ -134,6 +176,11 @@ module Equiv-Properties
   ... | yes p = subst G p a
   ... | no ¬p = 0g (Gstr n)
 
+  fun-trad-refl : (k : ℕ) → (a : G k) → fun-trad k a k ≡ a
+  fun-trad-refl k a with discreteℕ k k
+  ... | yes p = cong (λ X → subst G X a) (isSetℕ _ _ _ _) ∙ transportRefl a
+  ... | no ¬p = ⊥.rec (¬p refl)
+
   ⊕HIT→Fun : ⊕HIT ℕ G Gstr → (n : ℕ) → G n
   ⊕HIT→Fun = DS-Rec-Set.f _ _ _ _ (isSetΠ λ n → is-set (Gstr n))
               (λ n → 0g (Gstr n))
@@ -163,6 +210,11 @@ module Equiv-Properties
                          p
            ... | no ¬p = fst (identity (Gstr n) (0g (Gstr n)))
 
+  ⊕HIT→Fun-pres0 : ⊕HIT→Fun 0⊕HIT ≡ 0Fun
+  ⊕HIT→Fun-pres0 = refl
+
+  ⊕HIT→Fun-pres+ : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun (x +⊕HIT y) ≡ ((⊕HIT→Fun x) +Fun (⊕HIT→Fun y))
+  ⊕HIT→Fun-pres+ x y = refl
 
   ---------------------------------------------------------------------------
   -- Traduction to the properties
@@ -208,9 +260,126 @@ module Equiv-Properties
 
   ---------------------------------------------------------------------------
   -- Proof that we eliminate in a proposition
+  ⊕HIT-Monoid = Group→Monoid (AbGroup→Group (⊕HIT-AbGr ℕ G Gstr))
+  Fun-Monoid = Group→Monoid (AbGroup→Group (Fun-AbGroup))
+
+  open MonoidBigOp ⊕HIT-Monoid renaming (bigOp to ∑HIT)
+  open MonoidBigOp Fun-Monoid renaming (bigOp to ∑Fun)
+
+  -- PSFe : (x y : ⊕HIT ℕ G Gstr) → Σ[ m ∈ ℕ ] (Σ[ a ∈ depFinVec G m ] (Σ[ b ∈ depFinVec G m ] (
+  --         (x ≡ ∑HIT λ i → base (toℕ i) (a i) ) × (y ≡ ∑HIT (λ i → base (toℕ i) (b i))) )))
+  -- PSFe = {!!}
+
+
+
+  -- -- besoin de reformuler avec le bon monoid -> monoid sum sur les fonctions
+  -- swap∑HIT : (m : ℕ) → (a : depFinVec G m) →
+  --            ⊕HIT→Fun (∑HIT λ i → base (toℕ i) (a i)) ≡ ∑Fun (λ i → ⊕HIT→Fun (base (toℕ i) (a i)))
+  -- swap∑HIT m a = bigOpMap ⊕HIT-Monoid Fun-Monoid (⊕HIT→Fun , monoidequiv ⊕HIT→Fun-pres0 ⊕HIT→Fun-pres+) m λ i → base (toℕ i) (a i)
+
+
+  -- eqfix : (m : ℕ) → (a : depFinVec G m) → (k l : Fin m) → (p : k ≡ l) → subst G (cong toℕ p) (a k) ≡ a l
+  -- eqfix m a k l p = J (λ l p → subst G (cong toℕ p) (a k) ≡ a l) (transportRefl _) p
+
+  -- substa : (m : ℕ) → (a : depFinVec G m) → (k l : Fin m) → (p : toℕ k ≡ toℕ l) → subst G p (a k) ≡ a l
+  -- substa m a k l p = cong (λ X → subst G X (a k)) (isSetℕ _ _ _ _)
+  --                    ∙ eqfix m a k l (inj-toℕ p)
+
+  -- injDJD : (m : ℕ) → (a : depFinVec G m) → (i : Fin m) → ∑Fun (λ i → ⊕HIT→Fun (base (toℕ i) (a i))) (toℕ i) ≡ a i
+  -- injDJD (suc m) a i with discreteℕ 0 (toℕ i)
+  -- ... | yes p = cong (λ X → Gstr (toℕ i) ._+_ (transp (λ i₁ → G (p i₁)) i0 (a zero)) X) {!!}
+  --               ∙ fst (identity (Gstr (toℕ i)) (subst G p (a zero)))
+  --               ∙ substa (suc m) a zero i p
+  -- ... | no ¬p = snd (identity (Gstr (toℕ i)) _)
+  --               ∙ (∑Fun (λ i → ⊕HIT→Fun (base (toℕ (suc i)) ((a ∘ suc) i))) (toℕ i) ≡⟨ {!injDJD!} ⟩ {!!})
+  --               ∙ {!!}
+
+
+
+  -- injDJ : (m : ℕ) → (a b : depFinVec G m) →
+  --         (p : ⊕HIT→Fun (∑HIT λ i → base (toℕ i) (a i)) ≡ ⊕HIT→Fun (∑HIT λ i → base (toℕ i) (b i)))
+  --         → (i : Fin m) → a i ≡ b i
+  -- injDJ m a b p i = sym (injDJD m a i)
+  --                   ∙ funExt⁻ (sym (swap∑HIT m a) ∙ p ∙ swap∑HIT m b) (toℕ i)
+  --                   ∙ injDJD m b i
+
+  -- inj-⊕HIT→Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun x ≡ ⊕HIT→Fun y → x ≡ y
+  -- inj-⊕HIT→Fun x y r with PSFe x y
+  -- ... | k , a , b , p , q = p
+  --                           ∙ cong (λ X → ∑HIT (λ i → base (toℕ i) (X i)))
+  --                                  (funExt λ i → injDJ k a b (cong ⊕HIT→Fun (sym p) ∙ r ∙ cong ⊕HIT→Fun q) i)
+  --                           ∙ sym q
+
+
+  -- reformulation avec des vecteurs dependants :
+  data depVec (G : (n : ℕ) → Type ℓ) : ℕ → Type ℓ where
+    ⋆ : depVec G 0
+    _□_ : {n : ℕ} → (a : G (suc n)) → (v : depVec G n) → depVec G (suc n)
+
+  -- TdepVec : {n : ℕ} → depVec G n → Vec (⊕HIT ℕ G Gstr) n
+  -- TdepVec {0} ⋆ = []
+  -- TdepVec {suc n} (a □ v) = (base (suc n) a) ∷ (TdepVec v)
+
+  sumHIT : (m : ℕ) → depVec G m → ⊕HIT ℕ G Gstr
+  sumHIT (0) ⋆ = 0⊕HIT
+  sumHIT (suc m) (a □ dv) = (base (suc m) a) +⊕HIT (sumHIT m dv)
+
+  sumFun : (m : ℕ) → depVec G m → Fun G Gstr
+  sumFun 0 ⋆ = 0Fun
+  sumFun (suc m) (a □ dv) = (⊕HIT→Fun (base (suc m) a)) +Fun (sumFun m dv)
+
+  SHIT→SFun : (m : ℕ) → (dv : depVec G m) → ⊕HIT→Fun (sumHIT m dv) ≡ sumFun m dv
+  SHIT→SFun 0 ⋆ = refl
+  SHIT→SFun (suc m) (a □ dv) = cong₂ _+Fun_ refl (SHIT→SFun m dv)
+
+  PSN : (x y : ⊕HIT ℕ G Gstr) → Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] Σ[ b ∈ depVec G m ] (x ≡ sumHIT m a) × (y ≡ sumHIT m b)
+  PSN = {!!}
+
+  eqDepVec : (m : ℕ) → (a b : G (suc m)) → (dva dvb : depVec G m) → a ≡ b → dva ≡ dvb → (a □ dva) ≡ (b □ dvb)
+  eqDepVec = {!!}
+
+  -- injDJJn : (m : ℕ) → (a b : depVec G m) → sumFun m a n ≡ sumFun m b n → a n ≡ b n
+  -- injDJJn 0 ⋆ ⋆ x = {!!}
+  -- injDJJn (suc m) (a □ dva) (b □ dvb) x =
+
+  sumFun< : (m : ℕ) → (dva : depVec G m) → (i : ℕ) → (m < i) → sumFun m dva i ≡ 0g (Gstr i)
+  sumFun< 0 ⋆ i r = refl
+  sumFun< (suc m) (a □ dva) i r with discreteℕ (suc m) i
+  ... | yes p = ⊥.rec (<→≢ r p)
+  ... | no ¬p = snd (identity (Gstr i) (sumFun m dva i)) ∙ sumFun< m dva i (<-trans ≤-refl r)
+
+  injDJJ : (m : ℕ) → (a b : depVec G m) → sumFun m a ≡ sumFun m b → a ≡ b
+  injDJJ 0 ⋆ ⋆ x = refl
+  injDJJ (suc m) (a □ dva) (b □ dvb) x = eqDepVec m a b dva dvb ifeq (injDJJ m dva dvb (funExt {!!}))
+    where
+
+    ifeq : a ≡ b
+    ifeq = a
+                ≡⟨ sym (fst (identity (Gstr (suc m)) a)) ⟩
+          (Gstr (suc m))._+_ a (0g (Gstr (suc m)))
+                ≡⟨ cong₂ ((Gstr (suc m))._+_) (sym (fun-trad-refl (suc m) a)) (sym (sumFun< m dva (suc m) ≤-refl)) ⟩
+          (Gstr (suc m))._+_ (fun-trad (suc m) a (suc m)) (sumFun m dva (suc m))
+                ≡⟨ funExt⁻ x (suc m) ⟩
+          (Gstr (suc m))._+_ (fun-trad (suc m) b (suc m)) (sumFun m dvb (suc m))
+                ≡⟨ cong₂ (Gstr (suc m) ._+_) (fun-trad-refl (suc m) b) (sumFun< m dvb (suc m) ≤-refl) ⟩
+          (Gstr (suc m))._+_ b (0g (Gstr (suc m)))
+                ≡⟨ fst (identity (Gstr (suc m)) b) ⟩
+          b ∎
+
+    reccall : (n : ℕ) → (sumFun m dva n) ≡ (sumFun m dvb n)
+    reccall n with splitℕ-≤ (suc m) n
+    ... | x = {!!}
+
+
+  injDJ : (m : ℕ) → (a b : depVec G m) → ⊕HIT→Fun (sumHIT m a) ≡ ⊕HIT→Fun (sumHIT m b) → a ≡ b
+  injDJ m a b r = injDJJ m a b (sym (SHIT→SFun m a) ∙ r ∙ SHIT→SFun m b)
 
   inj-⊕HIT→Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun x ≡ ⊕HIT→Fun y → x ≡ y
-  inj-⊕HIT→Fun = {!!}
+  inj-⊕HIT→Fun x y r with PSN x y
+  ... | m , a , b , p , q = p
+                            ∙ cong (sumHIT m) (injDJ m a b (sym (cong ⊕HIT→Fun p) ∙ r ∙ cong ⊕HIT→Fun q))
+                            ∙ sym q
+
 
   {- idea 1 : compute this as a normal form ?
   then x ≡ y is ∑ base i (a i) ≡ ∑ base i (b i) -> extended to same size !
