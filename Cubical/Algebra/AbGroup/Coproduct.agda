@@ -83,3 +83,12 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ') where
 
     f : Coproduct → B
     f = Elim.f incl* ε* _·*_ _⁻¹* assoc* comm* identityᵣ* invᵣ* (const BType)
+
+  AsAbGroup : AbGroup ℓ'
+  AsAbGroup = ?
+
+  inclHom : (x : X) → AbGroupHom (A x) AsAbGroup
+  inclHom x = ?
+
+  module UniversalProperty (B : AbGroup ℓ') (incl* : (x : X) → AbGroupHom (A x) B)
+         where
