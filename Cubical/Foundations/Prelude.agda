@@ -30,7 +30,7 @@ infixr 30 _∙₂_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
-infixr 4 _≡$_ _≡$P_
+infixr 4 _≡$_ _≡$S_
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
@@ -306,15 +306,15 @@ funExt⁻ : {B : A → I → Type ℓ'}
   → ((x : A) → PathP (B x) (f x) (g x))
 funExt⁻ eq x i = eq i x
 
-_≡$P_ = funExt⁻
+_≡$_ = funExt⁻
 
-funExtS⁻ : {B : Type ℓ'}
-  {f g : (x : A) → B}
-  → f ≡ g
-  → ((x : A) → f x ≡ g x)
+funExtS⁻ : {B : I → Type ℓ'}
+  {f : (x : A) → B i0} {g : (x : A) → B i1}
+  → PathP (λ i → (x : A) → B i) f g
+  → ((x : A) → PathP (λ i → B i) (f x) (g x))
 funExtS⁻ eq x i = eq i x
 
-_≡$_ = funExtS⁻
+_≡$S_ = funExtS⁻
 
 -- J for paths and its computation rule
 
