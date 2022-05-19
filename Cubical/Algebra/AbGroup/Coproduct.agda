@@ -4,6 +4,7 @@ module Cubical.Algebra.AbGroup.Coproduct where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Structure
 
 open import Cubical.Algebra.AbGroup
 
@@ -11,14 +12,13 @@ private variable
   ℓ ℓ' : Level
   A : Type ℓ
 
-module _ {X : Type ℓ} (A : X → Type ℓ') where
+module _ {X : Type ℓ} (A : X → AbGroup ℓ') where
 
   infixl 7 _·_
   infix 20 _⁻¹
 
-
   data Coproduct : Type (ℓ-max ℓ ℓ') where
-    incl       : (x : X) → A x → Coproduct
+    incl       : (x : X) → ⟨ A x ⟩ → Coproduct
     ε         : Coproduct
     _·_       : Coproduct → Coproduct → Coproduct
     _⁻¹       : Coproduct → Coproduct
@@ -29,7 +29,7 @@ module _ {X : Type ℓ} (A : X → Type ℓ') where
     trunc     : isSet Coproduct
 
   module Elim {B : Coproduct → Type ℓ'}
-    (incl*       : (x : X) (a : A x) → B (incl x a))
+    (incl*       : (x : X) (a : ⟨ A x ⟩) → B (incl x a))
     (ε*         : B ε)
     (_·*_       : ∀ {x y}   → B x → B y → B (x · y))
     (_⁻¹*       : ∀ {x}     → B x → B (x ⁻¹))
@@ -57,7 +57,7 @@ module _ {X : Type ℓ} (A : X → Type ℓ') where
 
   module ElimProp {B : Coproduct → Type ℓ'}
     (BProp : {xs : Coproduct} → isProp (B xs))
-    (incl*       : (x : X) (a : A x) → B (incl x a))
+    (incl*       : (x : X) (a : ⟨ A x ⟩) → B (incl x a))
     (ε*         : B ε)
     (_·*_       : ∀ {x y}   → B x → B y → B (x · y))
     (_⁻¹*       : ∀ {x}     → B x → B (x ⁻¹)) where
@@ -71,7 +71,7 @@ module _ {X : Type ℓ} (A : X → Type ℓ') where
       (λ _ → (isProp→isSet BProp))
 
   module Rec {B : Type ℓ'} (BType : isSet B)
-    (incl*       : (x : X) (a : A x) → B)
+    (incl*       : (x : X) (a : ⟨ A x ⟩) → B)
     (ε*         : B)
     (_·*_       : B → B → B)
     (_⁻¹*       : B → B)
