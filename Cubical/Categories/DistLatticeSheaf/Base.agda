@@ -73,7 +73,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   open DistLatticeStr (snd L)
   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L))
   open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
-      using (∧≤RCancel ; ∧≤LCancel)
+      using (∧≤RCancel ; ∧≤LCancel ; ≤-∧Pres)
   open PosetStr (IndPoset .snd) hiding (_≤_)
 
   𝟙 : ob C
@@ -303,8 +303,57 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
 
      cc∧Suc : Cone (funcComp F (FinVec→Diag L β)) c
      coneOut cc∧Suc (sing i) = coneOut cc (pair zero (suc i) (s≤s z≤))
-     coneOut cc∧Suc (pair i j i<j) = {!!}
-     coneOutCommutes cc∧Suc = {!!}
+     coneOut cc∧Suc (pair i j i<j) = coneOut cc (pair (suc i) (suc j) (s≤s i<j))
+        ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))
+        --(αⱼ ∧ αᵢ) ≥ (αⱼ ∧ α₀) ∧ (αᵢ ∧ α₀)
+     coneOutCommutes cc∧Suc idAr =
+       cong (seq' C (coneOut cc∧Suc _)) ((funcComp F (FinVec→Diag L β)) .F-id) ∙ ⋆IdR C _
+     coneOutCommutes cc∧Suc (singPairL {i = i} {j = j} {i<j = i<j}) =
+         coneOut cc (pair zero (suc i) (s≤s z≤)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairL)
+       ≡⟨ cong (λ x → seq' C x (funcComp F (FinVec→Diag L β) .F-hom singPairL)) (sym (coneOutCommutes cc singPairR)) ⟩
+         (coneOut cc (sing (suc i)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairR))
+                                    ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairL)
+       ≡⟨ ⋆Assoc C _ _ _ ⟩
+         coneOut cc (sing (suc i)) ⋆⟨ C ⟩ ((funcComp F (FinVec→Diag L α) .F-hom singPairR)
+                                   ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairL))
+       ≡⟨ cong (λ x → coneOut cc (sing (suc i)) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
+         coneOut cc (sing (suc i)) ⋆⟨ C ⟩ F .F-hom
+           ((FinVec→Diag L α) .F-hom (singPairR {i<j = s≤s z≤}) ⋆⟨ DLCat ^op ⟩ (FinVec→Diag L β) .F-hom (singPairL {i<j = i<j}))
+       ≡⟨ cong (λ x → coneOut cc (sing (suc i)) ⋆⟨ C ⟩ F .F-hom x) (is-prop-valued _ _ _ _) ⟩
+         coneOut cc (sing (suc i)) ⋆⟨ C ⟩ F .F-hom
+           ((FinVec→Diag L α) .F-hom (singPairL {i<j = s≤s i<j}) ⋆⟨ DLCat ^op ⟩ (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+       ≡⟨ cong (λ x → coneOut cc (sing (suc i)) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
+         coneOut cc (sing (suc i)) ⋆⟨ C ⟩ ((funcComp F (FinVec→Diag L α) .F-hom singPairL)
+                                   ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+       ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+         (coneOut cc (sing (suc i)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairL))
+                                    ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))
+       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))) (coneOutCommutes cc singPairL) ⟩
+         coneOut cc (pair (suc i) (suc j) (s≤s i<j)) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))) ∎
+
+     coneOutCommutes cc∧Suc (singPairR {i = i} {j = j} {i<j = i<j}) =
+         coneOut cc (pair zero (suc j) (s≤s z≤)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairR)
+       ≡⟨ cong (λ x → seq' C x (funcComp F (FinVec→Diag L β) .F-hom singPairR)) (sym (coneOutCommutes cc singPairR)) ⟩
+         (coneOut cc (sing (suc j)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairR))
+                                    ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairR)
+       ≡⟨ ⋆Assoc C _ _ _ ⟩
+         coneOut cc (sing (suc j)) ⋆⟨ C ⟩ ((funcComp F (FinVec→Diag L α) .F-hom singPairR)
+                                   ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairR))
+       ≡⟨ cong (λ x → coneOut cc (sing (suc j)) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
+         coneOut cc (sing (suc j)) ⋆⟨ C ⟩ F .F-hom
+           ((FinVec→Diag L α) .F-hom (singPairR {i<j = s≤s z≤}) ⋆⟨ DLCat ^op ⟩ (FinVec→Diag L β) .F-hom (singPairR {i<j = i<j}))
+       ≡⟨ cong (λ x → coneOut cc (sing (suc j)) ⋆⟨ C ⟩ F .F-hom x) (is-prop-valued _ _ _ _) ⟩
+         coneOut cc (sing (suc j)) ⋆⟨ C ⟩ F .F-hom
+           ((FinVec→Diag L α) .F-hom (singPairR {i<j = s≤s i<j}) ⋆⟨ DLCat ^op ⟩ (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+       ≡⟨ cong (λ x → coneOut cc (sing (suc j)) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
+         coneOut cc (sing (suc j)) ⋆⟨ C ⟩ ((funcComp F (FinVec→Diag L α) .F-hom singPairR)
+                                   ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+       ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+         (coneOut cc (sing (suc j)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairR))
+                                    ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))
+       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))) (coneOutCommutes cc singPairR) ⟩
+         coneOut cc (pair (suc i) (suc j) (s≤s i<j)) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))) ∎
+
 
      -- our morphisms:
      f : C [ c , F .F-ob (α zero) ]
@@ -320,11 +369,40 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
      isConeMorK = {!!}
 
      isConeMorO : isConeMor cc∧Suc (F-cone F (⋁Cone L β)) o
-     isConeMorO = {!!}
+     isConeMorO (sing i) =
+         o ⋆⟨ C ⟩ (F .F-hom (ind≤⋁ β i))
+       ≡⟨ ⋆Assoc C _ _ _ ⟩
+         f ⋆⟨ C ⟩ (s₂ theCospan ⋆⟨ C ⟩ (F .F-hom (ind≤⋁ β i)))
+       ≡⟨ cong (λ x  → f ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
+         f ⋆⟨ C ⟩ F .F-hom ((⋁IsMax _ _ λ _ → hom-∧₂ _ _) ⋆⟨ DLCat ^op ⟩  ind≤⋁ β i)
+       ≡⟨ cong (λ x → f ⋆⟨ C ⟩ F .F-hom x) (is-prop-valued _ _ _ _) ⟩
+         f ⋆⟨ C ⟩ funcComp F (FinVec→Diag L α) .F-hom singPairL
+       ≡⟨ coneOutCommutes cc singPairL ⟩
+         coneOut cc (pair zero (suc i) (s≤s z≤)) ∎
+     isConeMorO (pair i j i<j) =
+         (coneOut cc (sing zero) ⋆⟨ C ⟩ s₂ theCospan) ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L β)) (pair i j i<j))
+       ≡⟨ ⋆Assoc C _ _ _ ⟩
+          coneOut cc (sing zero) ⋆⟨ C ⟩ (s₂ theCospan ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L β)) (pair i j i<j)))
+       ≡⟨ cong (λ x  → f ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
+         coneOut cc (sing zero) ⋆⟨ C ⟩ F .F-hom
+           ((⋁IsMax _ _ λ _ → hom-∧₂ _ _) ⋆⟨ DLCat ^op ⟩ coneOut (⋁Cone L β) (pair i j i<j))
+       ≡⟨ cong (λ x → coneOut cc (sing zero) ⋆⟨ C ⟩ F .F-hom x) (is-prop-valued _ _ _ _) ⟩
+         coneOut cc (sing zero) ⋆⟨ C ⟩ F .F-hom
+           ((FinVec→Diag L α) .F-hom (singPairL {i<j = s≤s z≤}) ⋆⟨ DLCat ^op ⟩ (FinVec→Diag L β) .F-hom singPairL)
+       ≡⟨ cong (λ x → coneOut cc (sing zero) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
+         coneOut cc (sing zero) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairL
+                                ⋆⟨ C ⟩ funcComp F (FinVec→Diag L β) .F-hom singPairL)
+       ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+         (coneOut cc (sing zero) ⋆⟨ C ⟩ funcComp F (FinVec→Diag L α) .F-hom singPairL)
+                                 ⋆⟨ C ⟩ funcComp F (FinVec→Diag L β) .F-hom singPairL
+       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ funcComp F (FinVec→Diag L β) .F-hom singPairL) (coneOutCommutes cc singPairL) ⟩
+         coneOut cc (pair zero (suc i) (s≤s z≤)) ⋆⟨ C ⟩ funcComp F (FinVec→Diag L β) .F-hom singPairL
+       ≡⟨ coneOutCommutes cc∧Suc singPairL ⟩
+         coneOut cc∧Suc (pair i j i<j) ∎
 
      fgSquare : g ⋆⟨ C ⟩ s₁ theCospan ≡ f ⋆⟨ C ⟩ s₂ theCospan
      fgSquare = cong fst (isContr→isProp (P→L (F0=1 , presPBSq) n β c cc∧Suc)
-                                         (k , isConeMorK) (o , isConeMorO))
+                                          (k , isConeMorK) (o , isConeMorO))
 
      uniqH : ∃![ h ∈ C [ c , F .F-ob (⋁ α) ] ]
                (g ≡ h ⋆⟨ C ⟩ pbPr₁ thePB) × (f ≡ h ⋆⟨ C ⟩ pbPr₂ thePB)
