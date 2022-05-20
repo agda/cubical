@@ -37,7 +37,7 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
     invᵣ      : ∀ a     → a ⊕ (⊖ a)   ≡ ε
     trunc     : isSet Coproduct
 
-  module Elim {B : Coproduct → Type ℓ'}
+  module _ {B : Coproduct → Type ℓ'}
     (incl*       : (x : X) (a : ⟨ A x ⟩) → B (incl a))
     (ε*         : B ε)
     (_⊕*_       : ∀ {x y}   → B x → B y → B (x ⊕ y))
@@ -54,28 +54,28 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
       → PathP (λ i → B (invᵣ x i)) (xs ⊕* (⊖* xs)) ε*)
     (trunc*     : ∀ xs → isSet (B xs)) where
 
-    f : (x : Coproduct) → B x
-    f (incl a) = incl* _ a
-    f ε = ε*
-    f (x ⊕ y) = f x ⊕* f y
-    f (⊖ x) = ⊖* (f x)
-    f (inclPres+ a a' i) = inclPres+* a a' i
-    f (assoc x y z i) = assoc* (f x) (f y) (f z) i
-    f (comm x y i) = comm* (f x) (f y) i
-    f (identityᵣ x i) = identityᵣ* (f x) i
-    f (invᵣ x i) = invᵣ* (f x) i
-    f (trunc x y p q i j) = isOfHLevel→isOfHLevelDep 2 trunc*  (f x) (f y)
-      (cong f p) (cong f q) (trunc x y p q) i j
+    elim : (x : Coproduct) → B x
+    elim (incl a) = incl* _ a
+    elim ε = ε*
+    elim (x ⊕ y) = elim x ⊕* elim y
+    elim (⊖ x) = ⊖* (elim x)
+    elim (inclPres+ a a' i) = inclPres+* a a' i
+    elim (assoc x y z i) = assoc* (elim x) (elim y) (elim z) i
+    elim (comm x y i) = comm* (elim x) (elim y) i
+    elim (identityᵣ x i) = identityᵣ* (elim x) i
+    elim (invᵣ x i) = invᵣ* (elim x) i
+    elim (trunc x y p q i j) = isOfHLevel→isOfHLevelDep 2 trunc*  (elim x) (elim y)
+      (cong elim p) (cong elim q) (trunc x y p q) i j
 
-  module ElimProp {B : Coproduct → Type ℓ'}
+  module _ {B : Coproduct → Type ℓ'}
     (BProp : {xs : Coproduct} → isProp (B xs))
     (incl*       : (x : X) (a : ⟨ A x ⟩) → B (incl a))
     (ε*         : B ε)
     (_⊕*_       : ∀ {x y}   → B x → B y → B (x ⊕ y))
     (_⊖*       : ∀ {x}     → B x → B (⊖ x)) where
 
-    f : (xs : Coproduct) → B xs
-    f = Elim.f incl* ε* _⊕*_ _⊖*
+    elimProp : (xs : Coproduct) → B xs
+    elimProp = elim incl* ε* _⊕*_ _⊖*
       (λ {x} a b → toPathP (BProp (transport (λ i → B (inclPres+ a b i)) (incl* _ (a + b))) (incl* _ a ⊕* incl* _ b)))
       (λ {x y z} xs ys zs → toPathP (BProp (transport (λ i → B (assoc x y z i)) (xs ⊕* (ys ⊕* zs))) ((xs ⊕* ys) ⊕* zs)))
       (λ {x y} xs ys → toPathP (BProp (transport (λ i → B (comm x y i)) (xs ⊕* ys)) (ys ⊕* xs)))
@@ -83,7 +83,7 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
       (λ {x} xs → toPathP (BProp (transport (λ i → B (invᵣ x i)) (xs ⊕* (xs ⊖*))) ε*))
       (λ _ → (isProp→isSet BProp))
 
-  module Rec {B : Type ℓ'} (BType : isSet B)
+  module _ {B : Type ℓ'} (BType : isSet B)
     (incl*       : (x : X) (a : ⟨ A x ⟩) → B)
     (ε*         : B)
     (_⊕*_       : B → B → B)
@@ -95,8 +95,8 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
     (invᵣ*      : (x : B)     → x ⊕* (⊖* x)  ≡ ε*)
     where
 
-    f : Coproduct → B
-    f = Elim.f incl* ε* _⊕*_ ⊖*_ inclPres+* assoc* comm* identityᵣ* invᵣ* (const BType)
+    rec : Coproduct → B
+    rec = elim incl* ε* _⊕*_ ⊖*_ inclPres+* assoc* comm* identityᵣ* invᵣ* (const BType)
 
   AsAbGroup : AbGroup ℓ
   AsAbGroup = makeAbGroup {G = Coproduct} ε _⊕_ ⊖_ trunc assoc identityᵣ invᵣ comm
@@ -113,5 +113,5 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
 
     inducedMap : Coproduct → ⟨ B ⟩
     inducedMap x =
-      Rec.f (isSetAbGroup B) (λ x a → fst (incl* x) a) 0g _+_ -_ ? ? ? ?
-        ? ?
+      rec (isSetAbGroup B) (λ x a → fst (incl* x) a) 0g _+_ -_ {!!} {!!} {!!} {!!}
+        {!!} {!!}
