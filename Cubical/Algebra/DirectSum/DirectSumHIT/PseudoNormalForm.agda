@@ -98,7 +98,13 @@ module _
   extendDVR k l dv = subst (λ X → depVec G X) (+-comm l k) (extendDVL l k dv)
 
   extendDVReq : (k l : ℕ) → (dv : depVec G k) → sumHIT (extendDVR k l dv) ≡ sumHIT dv
-  extendDVReq k l dv = {!!}
+  extendDVReq k l dv = J (λ m p → sumHIT (subst (λ X → depVec G X) p (extendDVL l k dv)) ≡ sumHIT dv)
+                       (sumHIT (subst (λ X → depVec G X) refl (extendDVL l k dv))
+                               ≡⟨ cong sumHIT (transportRefl (extendDVL l k dv)) ⟩
+                       sumHIT (extendDVL l k dv)
+                               ≡⟨ extendDVLeq l k dv ⟩
+                       sumHIT dv ∎)
+                       (+-comm l k)
 
   -- pointwise add
   _pt+DV_ : {n : ℕ} → (dva dvb : depVec G n) → depVec G n
@@ -115,31 +121,29 @@ module _
 -- Case Traduction
 
   PNF : (x : ⊕HIT ℕ G Gstr) → Type ℓ
-  PNF x = Σ[ m ∈ ℕ ] Σ[ dv ∈ depVec G m ] x ≡ sumHIT dv
+  PNF x = ∥ Σ[ m ∈ ℕ ] Σ[ dv ∈ depVec G m ] x ≡ sumHIT dv ∥₁
 
   base→PNF : (n : ℕ) → (a : G n) → PNF (base n a)
-  base→PNF n a = (suc n) , ((a □ replicate0g n) , sym (cong (λ X → base n a +⊕HIT X) (sumHIT0g n)
-                  ∙ +⊕HIT-IdR _))
+  base→PNF n a = ∣ (suc n) , ((a □ replicate0g n) , sym (cong (λ X → base n a +⊕HIT X) (sumHIT0g n)
+                  ∙ +⊕HIT-IdR _)) ∣₁
 
   add→PNF : {U V : ⊕HIT ℕ G Gstr} → (ind-U : PNF U) → (ind-V : PNF V) → PNF (U +⊕HIT V)
-  add→PNF {U} {V} (k , dva , p) (l , dvb , q) =
-          (k +n l)
-          , (((extendDVR k l dva) pt+DV (extendDVL k l dvb))
-          , cong₂ _+⊕HIT_ p q
-            ∙ cong₂ _+⊕HIT_ (sym (extendDVReq k l dva)) (sym (extendDVLeq k l dvb))
-            ∙ sym (sumHIT+ (extendDVR k l dva) (extendDVL k l dvb)) )
+  add→PNF {U} {V} = elim2 (λ _ _ → squash₁)
+                    (λ { (k , dva , p) →
+                    λ { (l , dvb , q) →
+                    ∣ ((k +n l)
+                      , (((extendDVR k l dva) pt+DV (extendDVL k l dvb))
+                      , cong₂ _+⊕HIT_ p q
+                        ∙ cong₂ _+⊕HIT_ (sym (extendDVReq k l dva)) (sym (extendDVLeq k l dvb))
+                        ∙ sym (sumHIT+ (extendDVR k l dva) (extendDVL k l dvb)) )) ∣₁}})
+
 
 -----------------------------------------------------------------------------
 -- Translation
 
-  ⊕HIT→PNF : (x : ⊕HIT ℕ G Gstr) → Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] x ≡ sumHIT a
-  ⊕HIT→PNF = DS-Ind-Set.f _ _ _ _
-        (λ _ → isSetΣ isSetℕ (λ _ → isSetΣ {!!} λ _ → isProp→isSet (isSet⊕HIT _ _)))
-        (0 , (⋆ , refl))
+  ⊕HIT→PNF : (x : ⊕HIT ℕ G Gstr) → ∥ Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] x ≡ sumHIT a ∥₁
+  ⊕HIT→PNF = DS-Ind-Prop.f _ _ _ _
+        (λ _ → squash₁)
+        ∣ (0 , (⋆ , refl)) ∣₁
         base→PNF
         add→PNF
-        {!!}
-        {!!}
-        {!!}
-        {!!}
-        {!!}
