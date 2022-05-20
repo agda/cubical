@@ -20,6 +20,7 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
   infix 20 ⊖_
 
   open AbGroupStr ⦃...⦄ using (_+_; -_; 0g)
+
   private
     instance
       givenAbGroupStr : {x : X} → AbGroupStr _
@@ -106,12 +107,17 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
 
   module UniversalProperty (B : AbGroup ℓ') (incl* : (x : X) → AbGroupHom (A x) B)
          where
-
+    open IsGroupHom ⦃...⦄ using () renaming (pres· to pres+)
+    module someGroup's = AbGroupStr ⦃...⦄
     private
+      instance
+        inclInstance : {x : X} → IsGroupHom _ _ _
+        inclInstance {x} = snd (incl* x)
       instance
         _ = snd B
 
     inducedMap : Coproduct → ⟨ B ⟩
-    inducedMap x =
-      rec (isSetAbGroup B) (λ x a → fst (incl* x) a) 0g _+_ -_ {!!} {!!} {!!} {!!}
-        {!!} {!!}
+    inducedMap =
+      rec (isSetAbGroup B) (λ x a → fst (incl* x) a)
+          0g _+_ -_
+          pres+ someGroup's.assoc someGroup's.comm someGroup's.rid someGroup's.invr
