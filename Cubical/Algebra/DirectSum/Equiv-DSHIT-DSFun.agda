@@ -18,8 +18,6 @@ open import Cubical.Data.Vec.DepVec
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Monoid.BigOp
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup
@@ -29,6 +27,7 @@ open import Cubical.Algebra.DirectSum.DirectSumFun.Properties
 open import Cubical.Algebra.AbGroup.Instances.DirectSumHIT
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Properties
+open import Cubical.Algebra.DirectSum.DirectSumHIT.PseudoNormalForm
 
 open import Cubical.Algebra.Polynomials.Univariate.Base
 
@@ -257,9 +256,8 @@ module Equiv-Properties
 -----------------------------------------------------------------------------
 -- Converse sens
 
-  sumHIT : (m : ℕ) → depVec G m → ⊕HIT ℕ G Gstr
-  sumHIT (0) ⋆ = 0⊕HIT
-  sumHIT (suc m) (a □ dv) = (base (suc m) a) +⊕HIT (sumHIT m dv)
+  PSN : (x y : ⊕HIT ℕ G Gstr) → Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] Σ[ b ∈ depVec G m ] (x ≡ sumHIT m a) × (y ≡ sumHIT m b)
+  PSN = {!!}
 
   sumFun : (m : ℕ) → depVec G m → Fun G Gstr
   sumFun 0 ⋆ = 0Fun
@@ -268,9 +266,6 @@ module Equiv-Properties
   SHIT→SFun : (m : ℕ) → (dv : depVec G m) → ⊕HIT→Fun (sumHIT m dv) ≡ sumFun m dv
   SHIT→SFun 0 ⋆ = refl
   SHIT→SFun (suc m) (a □ dv) = cong₂ _+Fun_ refl (SHIT→SFun m dv)
-
-  PSN : (x y : ⊕HIT ℕ G Gstr) → Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] Σ[ b ∈ depVec G m ] (x ≡ sumHIT m a) × (y ≡ sumHIT m b)
-  PSN = {!!}
 
   sumFun< : (m : ℕ) → (dva : depVec G m) → (i : ℕ) → (m < i) → sumFun m dva i ≡ 0g (Gstr i)
   sumFun< 0 ⋆ i r = refl

@@ -21,7 +21,7 @@ private
 
 data depVec (G : (n : ℕ) → Type ℓ) : ℕ → Type ℓ where
   ⋆   : depVec G 0
-  _□_ : {n : ℕ} → (a : G (suc n)) → (v : depVec G n) → depVec G (suc n)
+  _□_ : {n : ℕ} → (a : G n) → (v : depVec G n) → depVec G (suc n)
 
 
 module depVecPath (G : (n : ℕ) → Type ℓ)
@@ -72,3 +72,10 @@ module depVecPath (G : (n : ℕ) → Type ℓ)
              → decode v v' (encode v v' p) ≡ p
       retr v v' p = J (λ v' p → decode v v' (encode v v' p) ≡ p)
                     (cong (decode v v) (encodeRefl v) ∙ decodeRefl v) p
+
+
+-- module _ (G : (n : ℕ) → Type ℓ)
+--   where
+
+--   isSetDepVec : ((n : ℕ) → isSet (G n)) → (n : ℕ) → isSet (depVec G n)
+--   isSetDepVec G n = {!!}
