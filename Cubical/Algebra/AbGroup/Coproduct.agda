@@ -8,6 +8,7 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group.MorphismProperties using (makeIsGroupHom)
+open import Cubical.Algebra.Group.Morphisms using (IsGroupHom)
 
 private variable
   ℓ ℓ' : Level
@@ -18,7 +19,7 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
   infixl 7 _⊕_
   infix 20 ⊖_
 
-  open AbGroupStr ⦃...⦄ using (_+_)
+  open AbGroupStr ⦃...⦄ using (_+_; -_; 0g)
   private
     instance
       givenAbGroupStr : {x : X} → AbGroupStr _
@@ -29,11 +30,11 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
     ε         : Coproduct
     _⊕_       : Coproduct → Coproduct → Coproduct
     ⊖_       : Coproduct → Coproduct
-    inclPres+ : {x : X} → (a b : ⟨ A x ⟩) → incl (a + b) ≡ (incl a) ⊕ (incl b)
-    assoc     : ∀ x y z → x ⊕ (y ⊕ z) ≡ (x ⊕ y) ⊕ z
-    comm      : ∀ x y   → x ⊕ y       ≡ y ⊕ x
-    identityᵣ : ∀ x     → x ⊕ ε       ≡ x
-    invᵣ      : ∀ x     → x ⊕ (⊖ x)   ≡ ε
+    inclPres+ : {x : X} → (a a' : ⟨ A x ⟩) → incl (a + a') ≡ (incl a) ⊕ (incl a')
+    assoc     : ∀ a a' a'' → a ⊕ (a' ⊕ a'') ≡ (a ⊕ a') ⊕ a''
+    comm      : ∀ a a'   → a ⊕ a'       ≡ a' ⊕ a
+    identityᵣ : ∀ a     → a ⊕ ε       ≡ a
+    invᵣ      : ∀ a     → a ⊕ (⊖ a)   ≡ ε
     trunc     : isSet Coproduct
 
   module Elim {B : Coproduct → Type ℓ'}
@@ -58,7 +59,7 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
     f ε = ε*
     f (x ⊕ y) = f x ⊕* f y
     f (⊖ x) = ⊖* (f x)
-    f (inclPres+ a b i) = {!!}
+    f (inclPres+ a a' i) = inclPres+* a a' i
     f (assoc x y z i) = assoc* (f x) (f y) (f z) i
     f (comm x y i) = comm* (f x) (f y) i
     f (identityᵣ x i) = identityᵣ* (f x) i
@@ -105,3 +106,12 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
 
   module UniversalProperty (B : AbGroup ℓ') (incl* : (x : X) → AbGroupHom (A x) B)
          where
+
+    private
+      instance
+        _ = snd B
+
+    inducedMap : Coproduct → ⟨ B ⟩
+    inducedMap x =
+      Rec.f (isSetAbGroup B) (λ x a → fst (incl* x) a) 0g _+_ -_ ? ? ? ?
+        ? ?
