@@ -366,7 +366,8 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
      o = f ⋆⟨ C ⟩ s₂ theCospan
 
      isConeMorK : isConeMor cc∧Suc (F-cone F (⋁Cone L β)) k
-     isConeMorK = {!!}
+     isConeMorK (sing i) = {!P→L (F0=1 , presPBSq) n (α ∘ suc) c ccSuc .fst .snd!}
+     isConeMorK (pair i j i<j) = {!!}
 
      isConeMorO : isConeMor cc∧Suc (F-cone F (⋁Cone L β)) o
      isConeMorO (sing i) =
