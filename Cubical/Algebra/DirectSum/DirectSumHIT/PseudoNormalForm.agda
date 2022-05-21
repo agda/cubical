@@ -35,7 +35,7 @@ open AbGroupStr
 -----------------------------------------------------------------------------
 -- Notation
 
-module _
+module DefPNF
   (G : (n : ℕ) → Type ℓ)
   (Gstr : (n : ℕ) → AbGroupStr (G n))
   where
@@ -120,8 +120,23 @@ module _
 -----------------------------------------------------------------------------
 -- Case Traduction
 
+  {- WARNING :
+     The pseudo normal is not unique.
+     It is actually so not unique that it is not possible to raise one from ⊕HIT.
+     Hence we actually need to make it a prop to be able to eliminate.
+  -}
+
+  untruncatedPNF : (x : ⊕HIT ℕ G Gstr) → Type ℓ
+  untruncatedPNF x = Σ[ m ∈ ℕ ] Σ[ dv ∈ depVec G m ] x ≡ sumHIT dv
+
   PNF : (x : ⊕HIT ℕ G Gstr) → Type ℓ
-  PNF x = ∥ Σ[ m ∈ ℕ ] Σ[ dv ∈ depVec G m ] x ≡ sumHIT dv ∥₁
+  PNF x = ∥ untruncatedPNF x ∥₁
+
+  untruncatedPNF2 : (x y : ⊕HIT ℕ G Gstr) → Type ℓ
+  untruncatedPNF2 x y = Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] Σ[ b ∈ depVec G m ] (x ≡ sumHIT a) × (y ≡ sumHIT b)
+
+  PNF2 :  (x y : ⊕HIT ℕ G Gstr) → Type ℓ
+  PNF2 x y = ∥ untruncatedPNF2 x y ∥₁
 
   base→PNF : (n : ℕ) → (a : G n) → PNF (base n a)
   base→PNF n a = ∣ (suc n) , ((a □ replicate0g n) , sym (cong (λ X → base n a +⊕HIT X) (sumHIT0g n)
@@ -147,3 +162,17 @@ module _
         ∣ (0 , (⋆ , refl)) ∣₁
         base→PNF
         add→PNF
+
+  ⊕HIT→PNF2 : (x y : ⊕HIT ℕ G Gstr) → ∥ Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] Σ[ b ∈ depVec G m ] (x ≡ sumHIT a) × (y ≡ sumHIT b) ∥₁
+  ⊕HIT→PNF2 x y = helper (⊕HIT→PNF x) (⊕HIT→PNF y)
+    where
+    helper : PNF x → PNF y →
+             ∥ Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] Σ[ b ∈ depVec G m ] (x ≡ sumHIT a) × (y ≡ sumHIT b) ∥₁
+    helper = elim2 (λ _ _ → squash₁)
+                   (λ { (k , dva , p) →
+                   λ { (l , dvb , q) →
+                       ∣   ((k +n l)
+                         , ((extendDVR k l dva)
+                         , (extendDVL k l dvb
+                         , p ∙ sym (extendDVReq k l dva)
+                         , q ∙ sym (extendDVLeq k l dvb)))) ∣₁}})

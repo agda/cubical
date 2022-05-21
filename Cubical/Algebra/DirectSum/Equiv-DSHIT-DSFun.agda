@@ -3,6 +3,8 @@ module Cubical.Algebra.DirectSum.Equiv-DSHIT-DSFun where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 
@@ -20,6 +22,7 @@ open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.DirectSumFun
 open import Cubical.Algebra.DirectSum.DirectSumFun.Base
@@ -256,77 +259,81 @@ module Equiv-Properties
 -----------------------------------------------------------------------------
 -- Converse sens
 
-  PSN : (x y : ⊕HIT ℕ G Gstr) → Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] Σ[ b ∈ depVec G m ] (x ≡ sumHIT m a) × (y ≡ sumHIT m b)
-  PSN = {!!}
+  open DefPNF G Gstr
 
-  sumFun : (m : ℕ) → depVec G m → Fun G Gstr
-  sumFun 0 ⋆ = 0Fun
-  sumFun (suc m) (a □ dv) = (⊕HIT→Fun (base (suc m) a)) +Fun (sumFun m dv)
+  sumFun : {m : ℕ} → depVec G m → Fun G Gstr
+  sumFun {0} ⋆ = 0Fun
+  sumFun {suc m} (a □ dv) = (⊕HIT→Fun (base m a)) +Fun (sumFun dv)
 
-  SHIT→SFun : (m : ℕ) → (dv : depVec G m) → ⊕HIT→Fun (sumHIT m dv) ≡ sumFun m dv
-  SHIT→SFun 0 ⋆ = refl
-  SHIT→SFun (suc m) (a □ dv) = cong₂ _+Fun_ refl (SHIT→SFun m dv)
+  SHIT→SFun : {m : ℕ} → (dv : depVec G m) → ⊕HIT→Fun (sumHIT dv) ≡ sumFun dv
+  SHIT→SFun {0} ⋆ = refl
+  SHIT→SFun {suc m} (a □ dv) = cong₂ _+Fun_ refl (SHIT→SFun dv)
 
-  sumFun< : (m : ℕ) → (dva : depVec G m) → (i : ℕ) → (m < i) → sumFun m dva i ≡ 0g (Gstr i)
-  sumFun< 0 ⋆ i r = refl
-  sumFun< (suc m) (a □ dva) i r with discreteℕ (suc m) i
+  sumFun< : {m : ℕ} → (dva : depVec G m) → (i : ℕ) → (m ≤ i) → sumFun dva i ≡ 0g (Gstr i)
+  sumFun< {0} ⋆ i r = refl
+  sumFun< {suc m} (a □ dva) i r with discreteℕ m i
   ... | yes p = ⊥.rec (<→≢ r p)
-  ... | no ¬p = snd (identity (Gstr i) (sumFun m dva i)) ∙ sumFun< m dva i (<-trans ≤-refl r)
+  ... | no ¬p = snd (identity (Gstr i) (sumFun dva i)) ∙ sumFun< dva i (≤-trans ≤-sucℕ r)
 
-  sumFunHead : (m : ℕ) → (a b : (G (suc m))) → (dva dvb : depVec G m) →
-               (x : sumFun (suc m) (a □ dva) ≡ sumFun (suc m) (b □ dvb)) → a ≡ b
-  sumFunHead m a b dva dvb x = a
-                     ≡⟨ sym (fst (identity (Gstr (suc m)) a)) ⟩
-               (Gstr (suc m))._+_ a (0g (Gstr (suc m)))
-                     ≡⟨ cong₂ ((Gstr (suc m))._+_) (sym (fun-trad-eq (suc m) a)) (sym (sumFun< m dva (suc m) ≤-refl)) ⟩
-               (Gstr (suc m))._+_ (fun-trad (suc m) a (suc m)) (sumFun m dva (suc m))
-                     ≡⟨ funExt⁻ x (suc m) ⟩
-               (Gstr (suc m))._+_ (fun-trad (suc m) b (suc m)) (sumFun m dvb (suc m))
-                     ≡⟨ cong₂ (Gstr (suc m) ._+_) (fun-trad-eq (suc m) b) (sumFun< m dvb (suc m) ≤-refl) ⟩
-               (Gstr (suc m))._+_ b (0g (Gstr (suc m)))
-                     ≡⟨ fst (identity (Gstr (suc m)) b) ⟩
+  sumFunHead : {m : ℕ} → (a b : (G m)) → (dva dvb : depVec G m) →
+               (x : sumFun (a □ dva) ≡ sumFun (b □ dvb)) → a ≡ b
+  sumFunHead {m} a b dva dvb x =
+               a
+                        ≡⟨ sym (fst (identity (Gstr m) a)) ⟩
+               (Gstr m)._+_ a (0g (Gstr m))
+                        ≡⟨ cong₂ (Gstr m ._+_) (sym (fun-trad-eq m a)) (sym (sumFun< dva m ≤-refl)) ⟩
+               (Gstr m)._+_ (fun-trad m a m) (sumFun dva m)
+                        ≡⟨ funExt⁻ x m ⟩
+               (Gstr m)._+_ (fun-trad m b m) (sumFun dvb m)
+                        ≡⟨ cong₂ (Gstr m ._+_) (fun-trad-eq m b) (sumFun< dvb m ≤-refl) ⟩
+               (Gstr m)._+_ b (0g (Gstr m))
+                        ≡⟨ fst (identity (Gstr m) b) ⟩
                b ∎
 
-  substSumFun : (m : ℕ) → (dv : depVec G m) → (n : ℕ) → (p : suc m ≡ n)
-                → subst G p (sumFun m dv (suc m)) ≡ sumFun m dv n
-  substSumFun m dv n p = J (λ n p → subst G p (sumFun m dv (suc m)) ≡ sumFun m dv n)
-                           (transportRefl _)
-                           p
+  substSumFun : {m : ℕ} → (dv : depVec G m) → (n : ℕ) → (p : m ≡ n)
+                → subst G p (sumFun dv m) ≡ sumFun dv n
+  substSumFun {m} dv n p = J (λ n p → subst G p (sumFun dv m) ≡ sumFun dv n)
+                             (transportRefl _)
+                             p
 
-  sumFunTail : (m : ℕ) → (a b : (G (suc m))) → (dva dvb : depVec G m) →
-             (x : sumFun (suc m) (a □ dva) ≡ sumFun (suc m) (b □ dvb)) → (n : ℕ) →
-             sumFun m dva n ≡ sumFun m dvb n
-  sumFunTail m a b dva dvb x n with discreteℕ (suc m) n
-  ... | yes p = sumFun m dva n                   ≡⟨ sym (substSumFun m dva n p) ⟩
-                subst G p (sumFun m dva (suc m)) ≡⟨ cong (subst G p) (sumFun< m dva (suc m) ≤-refl) ⟩
-                subst G p (0g (Gstr (suc m)))    ≡⟨ subst0 p ⟩
-                0g (Gstr n)                      ≡⟨ sym (subst0 p) ⟩
-                subst G p (0g (Gstr (suc m)))    ≡⟨ sym (cong (subst G p) (sumFun< m dvb (suc m) ≤-refl)) ⟩
-                subst G p (sumFun m dvb (suc m)) ≡⟨ substSumFun m dvb n p ⟩
-                sumFun m dvb n ∎
-  ... | no ¬p = sumFun m dva n                                       ≡⟨ sym (snd (identity (Gstr n) _)) ⟩
-                (Gstr n)._+_ (0g (Gstr n)) (sumFun m dva n)          ≡⟨ cong (λ X → (Gstr n)._+_ X (sumFun m dva n))
-                                                                             (sym (fun-trad-neq (suc m) a n ¬p)) ⟩
-                Gstr n ._+_ (fun-trad (suc m) a n) (sumFun m dva n)  ≡⟨ funExt⁻ x n ⟩
-                Gstr n ._+_ (fun-trad (suc m) b n) (sumFun m dvb n)  ≡⟨ cong (λ X → Gstr n ._+_ X (sumFun m dvb n))
-                                                                             (fun-trad-neq (suc m) b n ¬p) ⟩
-                (Gstr n)._+_ (0g (Gstr n)) (sumFun m dvb n)          ≡⟨ snd (identity (Gstr n) _) ⟩
-                sumFun m dvb n ∎
+  sumFunTail : {m : ℕ} → (a b : (G m)) → (dva dvb : depVec G m) →
+             (x : sumFun (a □ dva) ≡ sumFun (b □ dvb)) → (n : ℕ) →
+             sumFun dva n ≡ sumFun dvb n
+  sumFunTail {m} a b dva dvb x n with discreteℕ m n
+  ... | yes p = sumFun dva n                   ≡⟨ sym (substSumFun dva n p) ⟩
+                subst G p (sumFun dva m)       ≡⟨ cong (subst G p) (sumFun< dva m ≤-refl) ⟩
+                subst G p (0g (Gstr m))        ≡⟨ subst0 p ⟩
+                0g (Gstr n)                    ≡⟨ sym (subst0 p) ⟩
+                subst G p (0g (Gstr m))        ≡⟨ sym (cong (subst G p) (sumFun< dvb m ≤-refl)) ⟩
+                subst G p (sumFun dvb m)       ≡⟨ substSumFun dvb n p ⟩
+                sumFun dvb n ∎
+  ... | no ¬p = sumFun dva n                                 ≡⟨ sym (snd (identity (Gstr n) _)) ⟩
+                (Gstr n)._+_ (0g (Gstr n)) (sumFun dva n)    ≡⟨ cong (λ X → (Gstr n)._+_ X (sumFun dva n))
+                                                                             (sym (fun-trad-neq m a n ¬p)) ⟩
+                Gstr n ._+_ (fun-trad m a n) (sumFun dva n)  ≡⟨ funExt⁻ x n ⟩
+                Gstr n ._+_ (fun-trad m b n) (sumFun dvb n)  ≡⟨ cong (λ X → Gstr n ._+_ X (sumFun dvb n))
+                                                                             (fun-trad-neq m b n ¬p) ⟩
+                (Gstr n)._+_ (0g (Gstr n)) (sumFun dvb n)    ≡⟨ snd (identity (Gstr n) _) ⟩
+                sumFun dvb n ∎
 
-  injDJJ : (m : ℕ) → (a b : depVec G m) → sumFun m a ≡ sumFun m b → a ≡ b
-  injDJJ 0 ⋆ ⋆ x = refl
-  injDJJ (suc m) (a □ dva) (b □ dvb) x = depVecPath.decode G (a □ dva) (b □ dvb)
-                                         ((sumFunHead m a b dva dvb x)
-                                         , (injDJJ m dva dvb (funExt (sumFunTail m a b dva dvb x))))
+  injDJJ : {m : ℕ} → (dva dvb : depVec G m) → sumFun dva ≡ sumFun dvb → dva ≡ dvb
+  injDJJ {0} ⋆ ⋆ x = refl
+  injDJJ {suc m} (a □ dva) (b □ dvb) x = depVecPath.decode G (a □ dva) (b □ dvb)
+                                         ((sumFunHead a b dva dvb x)
+                                         , (injDJJ dva dvb (funExt (sumFunTail a b dva dvb x))))
 
-  injDJ : (m : ℕ) → (a b : depVec G m) → ⊕HIT→Fun (sumHIT m a) ≡ ⊕HIT→Fun (sumHIT m b) → a ≡ b
-  injDJ m a b r = injDJJ m a b (sym (SHIT→SFun m a) ∙ r ∙ SHIT→SFun m b)
+  injDJ : {m : ℕ} → (a b : depVec G m) → ⊕HIT→Fun (sumHIT a) ≡ ⊕HIT→Fun (sumHIT b) → a ≡ b
+  injDJ a b r = injDJJ a b (sym (SHIT→SFun a) ∙ r ∙ SHIT→SFun b)
 
   inj-⊕HIT→Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun x ≡ ⊕HIT→Fun y → x ≡ y
-  inj-⊕HIT→Fun x y r with PSN x y
-  ... | m , a , b , p , q = p
-                            ∙ cong (sumHIT m) (injDJ m a b (sym (cong ⊕HIT→Fun p) ∙ r ∙ cong ⊕HIT→Fun q))
-                            ∙ sym q
+  inj-⊕HIT→Fun x y r = helper (⊕HIT→PNF2 x y) r
+    where
+    helper : PNF2 x y → ⊕HIT→Fun x ≡ ⊕HIT→Fun y → x ≡ y
+    helper = PT.elim (λ _ → isPropΠ (λ _ → isSet⊕HIT _ _))
+                     λ { (m , dva , dvb , p , q) r →
+                         p
+                         ∙ cong sumHIT (injDJ dva dvb (sym (cong ⊕HIT→Fun p) ∙ r ∙ cong ⊕HIT→Fun q))
+                         ∙ sym q}
 
   inj-⊕HIT→⊕Fun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→⊕Fun x ≡ ⊕HIT→⊕Fun y → x ≡ y
   inj-⊕HIT→⊕Fun x y p = inj-⊕HIT→Fun x y (fst (PathΣ→ΣPathTransport _ _ p))
@@ -458,3 +465,21 @@ module Equiv-Properties
            λ {U} {V} ind-U ind-V → cong ⊕Fun→⊕HIT (⊕HIT→⊕Fun-pres+ U V)
                                     ∙ ⊕Fun→⊕HIT-pres+ (⊕HIT→⊕Fun U) (⊕HIT→⊕Fun V)
                                     ∙ cong₂ _+⊕HIT_ ind-U ind-V
+
+module _
+  (G : ℕ → Type ℓ)
+  (Gstr : (n : ℕ) → AbGroupStr (G n))
+  where
+
+  open Iso
+  open Equiv-Properties G Gstr
+
+  Equiv-DirectSum : AbGroupEquiv (⊕HIT-AbGr ℕ G Gstr) (⊕Fun-AbGr G Gstr)
+  fst Equiv-DirectSum = isoToEquiv is
+    where
+    is : Iso (⊕HIT ℕ G Gstr) (⊕Fun G Gstr)
+    fun is = ⊕HIT→⊕Fun
+    Iso.inv is = ⊕Fun→⊕HIT
+    rightInv is = e-sect
+    leftInv is = e-retr
+  snd Equiv-DirectSum = makeIsGroupHom ⊕HIT→⊕Fun-pres+
