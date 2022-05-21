@@ -39,12 +39,12 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
     trunc     : isSet Coproduct
 
   module _ {B : Coproduct → Type ℓ'}
-    (incl*       : (x : X) (a : ⟨ A x ⟩) → B (incl a))
+    (incl*       : {x : X} (a : ⟨ A x ⟩) → B (incl a))
     (ε*         : B ε)
     (_⊕*_       : ∀ {x y}   → B x → B y → B (x ⊕ y))
     (⊖*_       : ∀ {x}     → B x → B (⊖ x))
     (inclPres+* : {x : X} → (a b : ⟨ A x ⟩)
-      → PathP (λ i → B (inclPres+ a b i)) (incl* _ (a + b)) (incl* _ a ⊕* incl* _ b))
+      → PathP (λ i → B (inclPres+ a b i)) (incl* (a + b)) (incl* a ⊕* incl* b))
     (assoc*     : ∀ {x y z} → (xs : B x) (ys : B y) (zs : B z)
       → PathP (λ i → B (assoc x y z i)) (xs ⊕* (ys ⊕* zs)) ((xs ⊕* ys) ⊕* zs))
     (comm*      : ∀ {x y}   → (xs : B x) (ys : B y)
@@ -56,7 +56,7 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
     (trunc*     : ∀ xs → isSet (B xs)) where
 
     elim : (x : Coproduct) → B x
-    elim (incl a) = incl* _ a
+    elim (incl a) = incl* a
     elim ε = ε*
     elim (x ⊕ y) = elim x ⊕* elim y
     elim (⊖ x) = ⊖* (elim x)
@@ -70,14 +70,14 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
 
   module _ {B : Coproduct → Type ℓ'}
     (BProp : {xs : Coproduct} → isProp (B xs))
-    (incl*       : (x : X) (a : ⟨ A x ⟩) → B (incl a))
+    (incl*       : {x : X} (a : ⟨ A x ⟩) → B (incl a))
     (ε*         : B ε)
     (_⊕*_       : ∀ {x y}   → B x → B y → B (x ⊕ y))
     (_⊖*       : ∀ {x}     → B x → B (⊖ x)) where
 
     elimProp : (xs : Coproduct) → B xs
     elimProp = elim incl* ε* _⊕*_ _⊖*
-      (λ {x} a b → toPathP (BProp (transport (λ i → B (inclPres+ a b i)) (incl* _ (a + b))) (incl* _ a ⊕* incl* _ b)))
+      (λ {x} a b → toPathP (BProp (transport (λ i → B (inclPres+ a b i)) (incl* (a + b))) (incl* a ⊕* incl* b)))
       (λ {x y z} xs ys zs → toPathP (BProp (transport (λ i → B (assoc x y z i)) (xs ⊕* (ys ⊕* zs))) ((xs ⊕* ys) ⊕* zs)))
       (λ {x y} xs ys → toPathP (BProp (transport (λ i → B (comm x y i)) (xs ⊕* ys)) (ys ⊕* xs)))
       (λ {x} xs → toPathP (BProp (transport (λ i → B (identityᵣ x i)) (xs ⊕* ε*)) xs))
@@ -98,18 +98,18 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
     elimProp2 : (x y : Coproduct) → B x y
     elimProp2 =
       elimProp
-        (λ {_} → isPropΠ (λ _ → BProp))
-        (λ x a → elimProp BProp (λ y a' → incl* a a') ε*R ⊕*R ⊖*R)
+        (isPropΠ (λ _ → BProp))
+        (λ a → elimProp BProp (λ a' → incl* a a') ε*R ⊕*R ⊖*R)
         (λ _ → ε*L)
         (λ b b' x → ⊕*L (b x) (b' x))
         λ b x → ⊖*L (b x)
 
   module _ {B : Type ℓ'} (BType : isSet B)
-    (incl*       : (x : X) (a : ⟨ A x ⟩) → B)
+    (incl*       : {x : X} (a : ⟨ A x ⟩) → B)
     (ε*         : B)
     (_⊕*_       : B → B → B)
     (⊖*_       : B → B)
-    (inclPres+* : {x : X} → (a b : ⟨ A x ⟩) → incl* _ (a + b) ≡ incl* _ a ⊕* incl* _ b)
+    (inclPres+* : {x : X} → (a b : ⟨ A x ⟩) → incl* (a + b) ≡ incl* a ⊕* incl* b)
     (assoc*     : (x y z : B) → x ⊕* (y ⊕* z) ≡ (x ⊕* y) ⊕* z)
     (comm*      : (x y : B)   → x ⊕* y        ≡ y ⊕* x)
     (identityᵣ* : (x : B)     → x ⊕* ε*       ≡ x)
@@ -118,6 +118,10 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
 
     rec : Coproduct → B
     rec = elim incl* ε* _⊕*_ ⊖*_ inclPres+* assoc* comm* identityᵣ* invᵣ* (const BType)
+
+    recIncl : {x : X} (a : ⟨ A x ⟩)
+              → rec (incl a) ≡ incl* a
+    recIncl a = {!!}
 
   AsAbGroup : AbGroup ℓ
   AsAbGroup = makeAbGroup {G = Coproduct} ε _⊕_ ⊖_ trunc assoc identityᵣ invᵣ comm
@@ -135,12 +139,20 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
         inclInstance {x} = snd (incl* x)
       instance
         _ = snd B
+        _ = snd AsAbGroup
 
     inducedMap : Coproduct → ⟨ B ⟩
     inducedMap =
-      rec (isSetAbGroup B) (λ x a → fst (incl* x) a)
+      rec (isSetAbGroup B) (λ a → fst (incl* _) a)
           0g _+_ -_
           pres+ someGroup's.assoc someGroup's.comm someGroup's.rid someGroup's.invr
 
     inducedHom : AbGroupHom AsAbGroup B
-    inducedHom = inducedMap , makeIsGroupHom {!elimProp!}
+    inducedHom =
+      let ϕ = inducedMap
+      in ϕ ,
+         makeIsGroupHom
+           (elimProp2
+             (isSetAbGroup B _ _)
+             (λ a a' → ϕ (incl a + incl a') ≡⟨ {!!} ⟩ ϕ (incl a) + ϕ (incl a') ∎ )
+             {!!} {!!} {!!} {!!} {!!} {!!})
