@@ -84,6 +84,26 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
       (λ {x} xs → toPathP (BProp (transport (λ i → B (invᵣ x i)) (xs ⊕* (xs ⊖*))) ε*))
       (λ _ → (isProp→isSet BProp))
 
+  module _ {B : (x y : Coproduct) → Type ℓ'}
+    (BProp : {x y : Coproduct} → isProp (B x y))
+    (incl*       : {x x' : X} (a : ⟨ A x ⟩) (a' : ⟨ A x' ⟩) → B (incl a) (incl a'))
+    (ε*L         : {x : Coproduct} → B ε x)
+    (ε*R         : {x : Coproduct} → B x ε)
+    (⊕*R       : ∀ {x y z}   → B x y → B x z → B x (y ⊕ z))
+    (⊕*L       : ∀ {x y z}   → B x y → B z y → B (x ⊕ z) y)
+    (⊖*R       : ∀ {x y}     → B x y → B x (⊖ y))
+    (⊖*L       : ∀ {x y}     → B x y → B (⊖ x) y)
+    where
+
+    elimProp2 : (x y : Coproduct) → B x y
+    elimProp2 =
+      elimProp
+        (λ {_} → isPropΠ (λ _ → BProp))
+        (λ x a → elimProp BProp (λ y a' → incl* a a') ε*R ⊕*R ⊖*R)
+        (λ _ → ε*L)
+        (λ b b' x → ⊕*L (b x) (b' x))
+        λ b x → ⊖*L (b x)
+
   module _ {B : Type ℓ'} (BType : isSet B)
     (incl*       : (x : X) (a : ⟨ A x ⟩) → B)
     (ε*         : B)
@@ -121,3 +141,6 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
       rec (isSetAbGroup B) (λ x a → fst (incl* x) a)
           0g _+_ -_
           pres+ someGroup's.assoc someGroup's.comm someGroup's.rid someGroup's.invr
+
+    inducedHom : AbGroupHom AsAbGroup B
+    inducedHom = inducedMap , makeIsGroupHom {!elimProp!}
