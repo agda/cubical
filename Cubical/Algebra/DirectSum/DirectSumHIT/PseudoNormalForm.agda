@@ -2,34 +2,22 @@
 module Cubical.Algebra.DirectSum.DirectSumHIT.PseudoNormalForm where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Transport
 
-open import Cubical.Relation.Nullary
-
-open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum
-open import Cubical.Data.Vec
 open import Cubical.Data.Vec.DepVec
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.DirectSumHIT
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
-open import Cubical.Algebra.DirectSum.DirectSumHIT.Properties
 
 private variable
   ℓ : Level
 
-open GroupTheory
-open AbGroupTheory
 open AbGroupStr
+open AbGroupTheory
 
 
 -----------------------------------------------------------------------------
@@ -121,8 +109,8 @@ module DefPNF
 -- Case Traduction
 
   {- WARNING :
-     The pseudo normal is not unique.
-     It is actually so not unique that it is not possible to raise one from ⊕HIT.
+     The pseudo normal form is not unique.
+     It is actually not unique enough so that it is not possible to raise one from ⊕HIT.
      Hence we actually need to make it a prop to be able to eliminate.
   -}
 
@@ -138,21 +126,6 @@ module DefPNF
   PNF2 :  (x y : ⊕HIT ℕ G Gstr) → Type ℓ
   PNF2 x y = ∥ untruncatedPNF2 x y ∥₁
 
-  base→PNF : (n : ℕ) → (a : G n) → PNF (base n a)
-  base→PNF n a = ∣ (suc n) , ((a □ replicate0g n) , sym (cong (λ X → base n a +⊕HIT X) (sumHIT0g n)
-                  ∙ +⊕HIT-IdR _)) ∣₁
-
-  add→PNF : {U V : ⊕HIT ℕ G Gstr} → (ind-U : PNF U) → (ind-V : PNF V) → PNF (U +⊕HIT V)
-  add→PNF {U} {V} = elim2 (λ _ _ → squash₁)
-                    (λ { (k , dva , p) →
-                    λ { (l , dvb , q) →
-                    ∣ ((k +n l)
-                      , (((extendDVR k l dva) pt+DV (extendDVL k l dvb))
-                      , cong₂ _+⊕HIT_ p q
-                        ∙ cong₂ _+⊕HIT_ (sym (extendDVReq k l dva)) (sym (extendDVLeq k l dvb))
-                        ∙ sym (sumHIT+ (extendDVR k l dva) (extendDVL k l dvb)) )) ∣₁}})
-
-
 -----------------------------------------------------------------------------
 -- Translation
 
@@ -162,6 +135,22 @@ module DefPNF
         ∣ (0 , (⋆ , refl)) ∣₁
         base→PNF
         add→PNF
+    where
+    base→PNF : (n : ℕ) → (a : G n) → PNF (base n a)
+    base→PNF n a = ∣ (suc n) , ((a □ replicate0g n) , sym (cong (λ X → base n a +⊕HIT X) (sumHIT0g n)
+                    ∙ +⊕HIT-IdR _)) ∣₁
+
+    add→PNF : {U V : ⊕HIT ℕ G Gstr} → (ind-U : PNF U) → (ind-V : PNF V) → PNF (U +⊕HIT V)
+    add→PNF {U} {V} = elim2 (λ _ _ → squash₁)
+                      (λ { (k , dva , p) →
+                      λ { (l , dvb , q) →
+                      ∣ ((k +n l)
+                        , (((extendDVR k l dva) pt+DV (extendDVL k l dvb))
+                        , cong₂ _+⊕HIT_ p q
+                          ∙ cong₂ _+⊕HIT_ (sym (extendDVReq k l dva)) (sym (extendDVLeq k l dvb))
+                          ∙ sym (sumHIT+ (extendDVR k l dva) (extendDVL k l dvb)) )) ∣₁}})
+
+
 
   ⊕HIT→PNF2 : (x y : ⊕HIT ℕ G Gstr) → ∥ Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] Σ[ b ∈ depVec G m ] (x ≡ sumHIT a) × (y ≡ sumHIT b) ∥₁
   ⊕HIT→PNF2 x y = helper (⊕HIT→PNF x) (⊕HIT→PNF y)
