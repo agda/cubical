@@ -48,7 +48,7 @@ module intermediate-def where
 module CupRingProperties (A : Type ℓ) where
   open intermediate-def
   open AbGroupStr (snd (H*Fun-AbGr A))
-  open AbGroupTheory (H*Fun-AbGr A)
+  open AbGroupTheory
 
   private
     G : (n : ℕ) → Type ℓ
@@ -106,20 +106,21 @@ module CupRingProperties (A : Type ℓ) where
   _cupFun_ f g n = sumFun n n ≤-refl f g
 
   -- Proof that it is an almost null sequence
-  cupAn : (f g : (n : ℕ) → coHom n A) → AlmostNull G Gstr f → AlmostNull G Gstr g → AlmostNull G Gstr (f cupFun g)
-  cupAn f g (k , nf) (l , ng) = (k +n l) , λ n r → {!!}
-    {- proof for sumFun i n ≤-refl f g -> apply on n (for rec call)
-       i ≤ n & n > k+l
-       Case analysis :
-       k     < suc i -> 0 + rec-call
-       suc i ≤ k     -> n - (suc i) > k+l - k = l -> ok + rec-call
-    -}
+  -- cupAn : (f g : (n : ℕ) → coHom n A) → AlmostNull G Gstr f → AlmostNull G Gstr g → AlmostNull G Gstr (f cupFun g)
+  -- cupAn f g (k , nf) (l , ng) = (k +n l) , λ n r → {!!}
+  --   {- proof for sumFun i n ≤-refl f g -> apply on n (for rec call)
+  --      i ≤ n & n > k+l
+  --      Case analysis :
+  --      k     < suc i -> 0 + rec-call
+  --      suc i ≤ k     -> n - (suc i) > k+l - k = l -> ok + rec-call
+  --   -}
 
 
 -----------------------------------------------------------------------------
 -- Requiered lemma for mapping the product
 
-  substCoHom0 : {n m : ℕ} → (p :  n ≡ m) → subst (λ X → coHom X A) p (0ₕ n) ≡ 0ₕ m
+  -- lemma for 0 case
+  substCoHom0 : {n m : ℕ} → (p : n ≡ m) → subst (λ X → coHom X A) p (0ₕ n) ≡ 0ₕ m
   substCoHom0 {n} {m} p = J (λ m p → subst (λ X → coHom X A) p (0ₕ n) ≡ 0ₕ m)
                           (transportRefl _) p
 
@@ -135,6 +136,7 @@ module CupRingProperties (A : Type ℓ) where
                         ∙ rUnitₕ n _
                         ∙ substCoHom0 (eqSameFiber r)
 
+
   cupFunAnnihilR : (f : (n : ℕ) → (G n)) → f cupFun 0Fun ≡ 0Fun
   cupFunAnnihilR f = funExt (λ n → sumF0 n n ≤-refl)
     where
@@ -146,3 +148,34 @@ module CupRingProperties (A : Type ℓ) where
                               (sumF0 i n (≤-trans ≤-sucℕ r))
                         ∙ rUnitₕ n _
                         ∙ substCoHom0 (eqSameFiber r)
+
+
+  -- lemma for +
+  substCoHom+ : {n m : ℕ} → (p : n ≡ m) → (x y : coHom n A) →
+                subst (λ X → coHom X A) p (x +ₕ y) ≡ subst (λ X → coHom X A) p x +ₕ subst (λ X → coHom X A) p y
+  substCoHom+ {n} {m} p x y = J (λ m p → subst (λ X → coHom X A) p (x +ₕ y) ≡ subst (λ X → coHom X A) p x +ₕ subst (λ X → coHom X A) p y)
+                                (transportRefl _ ∙ sym (cong₂ _+ₕ_ (transportRefl _) (transportRefl _)))
+                                p
+
+
+  cupFunDistR : (f g h : (n : ℕ) → coHom n A) → f cupFun (g +Fun h) ≡ (f cupFun g) +Fun (f cupFun h)
+  cupFunDistR f g h = funExt (λ n → sumFAssoc n n ≤-refl)
+   where
+   sumFAssoc : (i n : ℕ) → (r : i ≤ n) → sumFun i n r f (g +Fun h) ≡ (sumFun i n r f g) +ₕ (sumFun i n r f h)
+   sumFAssoc zero n r = cong (subst (λ X → coHom X A) (eqSameFiber r)) (leftDistr-⌣ _ _ _ _ _)
+                        ∙ substCoHom+ _ _ _
+   sumFAssoc (suc i) n r = cong (λ X → X +ₕ (sumFun i n (≤-trans ≤-sucℕ r) f (g +Fun h)))
+                                (cong (subst (λ X → coHom X A) (eqSameFiber r)) (leftDistr-⌣ _ _ _ _ _))
+                           ∙ cong₂ _+ₕ_ (substCoHom+ (eqSameFiber r) _ _) (sumFAssoc i n (≤-trans ≤-sucℕ r))
+                           ∙ comm-4 (coHomGroup n A) _ _ _ _
+
+  cupFunDistL : (f g h : (n : ℕ) → coHom n A) → (f +Fun g) cupFun h ≡ (f cupFun h) +Fun (g cupFun h)
+  cupFunDistL f g h = funExt (λ n → sumFAssoc n n ≤-refl)
+   where
+   sumFAssoc : (i n : ℕ) → (r : i ≤ n) → sumFun i n r (f +Fun g) h ≡ (sumFun i n r f h) +ₕ (sumFun i n r g h)
+   sumFAssoc zero n r = cong (subst (λ X → coHom X A) (eqSameFiber r)) (rightDistr-⌣ _ _ _ _ _)
+                        ∙ substCoHom+ _ _ _
+   sumFAssoc (suc i) n r = cong (λ X → X +ₕ (sumFun i n (≤-trans ≤-sucℕ r) (f +Fun g) h))
+                                (cong (subst (λ X → coHom X A) (eqSameFiber r)) (rightDistr-⌣ _ _ _ _ _))
+                           ∙ cong₂ _+ₕ_ (substCoHom+ (eqSameFiber r) _ _) (sumFAssoc i n (≤-trans ≤-sucℕ r))
+                           ∙ comm-4 (coHomGroup n A) _ _ _ _
