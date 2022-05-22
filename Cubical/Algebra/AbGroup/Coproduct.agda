@@ -121,7 +121,11 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
 
     recIncl : {x : X} (a : ⟨ A x ⟩)
               → rec (incl a) ≡ incl* a
-    recIncl a = {!!}
+    recIncl a = refl
+
+    rec⊕ : (a a' : Coproduct)
+              → rec (a ⊕ a') ≡ rec a ⊕* rec a'
+    rec⊕ a a' = refl
 
   AsAbGroup : AbGroup ℓ
   AsAbGroup = makeAbGroup {G = Coproduct} ε _⊕_ ⊖_ trunc assoc identityᵣ invᵣ comm
@@ -154,5 +158,9 @@ module _ {X : Type ℓ} (A : X → AbGroup ℓ) where
          makeIsGroupHom
            (elimProp2
              (isSetAbGroup B _ _)
-             (λ a a' → ϕ (incl a + incl a') ≡⟨ {!!} ⟩ ϕ (incl a) + ϕ (incl a') ∎ )
-             {!!} {!!} {!!} {!!} {!!} {!!})
+             (λ _ _ → refl)
+             refl refl
+             (λ _ _ → refl)
+             (λ _ _ → refl)
+             (λ _ → refl)
+             λ _ → refl)
