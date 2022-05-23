@@ -46,39 +46,19 @@ module Quotient-FGideal-CommRing-Ring
   (g'@(g , gr) : RingHom (CommRing→Ring A') B')
   where
 
-  open CommRingStr Ar using ()
-    renaming
-    ( 0r        to 0A
-    ; 1r        to 1A
-    ; _+_       to _+A_
-    ; -_        to -A_
-    ; _·_       to _·A_ )
-
-  open RingStr Br using ()
-    renaming
-    ( 0r        to 0B
-    ; 1r        to 1B
-    ; _+_       to _+B_
-    ; -_        to -B_
-    ; _·_       to _·B_
-    ; +Lid     to +BIdL
-    ; is-set    to isSetB)
-
-  open CommRingStr
+  open RingStr Br using (0r)
   open IsRingHom
-
 
   module _
     {n : ℕ}
     (v : FinVec A n)
-    (gnull : (k : Fin n) → g ( v k) ≡ 0B)
+    (gnull : (k : Fin n) → g ( v k) ≡ 0r)
     where
 
-
-    zeroOnGeneratedIdeal : (n : ℕ) → (x : ⟨ A' ⟩) → x ∈ fst (generatedIdeal A' v) → g' $ x ≡ 0B
+    zeroOnGeneratedIdeal : (n : ℕ) → (x : ⟨ A' ⟩) → x ∈ fst (generatedIdeal A' v) → g' $ x ≡ 0r
     zeroOnGeneratedIdeal n x x∈FGIdeal =
       PT.elim
-        (λ _ → isSetRing B' (g' $ x) 0B)
+        (λ _ → isSetRing B' (g' $ x) 0r)
         (λ {(α , isLC) → subst _ (sym isLC) (cancelLinearCombination A' B' g' _ α v gnull)})
         x∈FGIdeal
 
