@@ -28,7 +28,6 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Limits
-open import Cubical.Categories.Limits.RightKan
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Instances.Poset
@@ -44,29 +43,8 @@ private
     ℓ ℓ' ℓ'' : Level
 
 
-module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
-                         (limitC : Limits {ℓ} {ℓ} C) (L' : ℙ (fst L)) where
 
- open Functor
-
- private
-  DLCat = DistLatticeCategory L
-  DLSubCat = ΣPropCat  DLCat L'
-  DLPreSheaf = Functor (DLCat ^op) C
-  DLSubPreSheaf = Functor (DLSubCat ^op) C
-
-  i : Functor DLSubCat DLCat
-  F-ob i = fst
-  F-hom i f = f
-  F-id i = refl
-  F-seq i _ _ = refl
-
- DLRan : DLSubPreSheaf → DLPreSheaf
- DLRan = Ran limitC (i ^opF)
-
-
-
-module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
+module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
   open Category hiding (_⋆_ ; _∘_)
   open Functor
   open Order (DistLattice→Lattice L)
@@ -76,16 +54,13 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
       using (∧≤RCancel ; ∧≤LCancel ; ≤-∧Pres)
   open PosetStr (IndPoset .snd) hiding (_≤_)
 
-  𝟙 : ob C
-  𝟙 = terminalOb C T
-
   private
    DLCat : Category ℓ ℓ
    DLCat = DistLatticeCategory L
 
-  -- C-valued presheaves on a distributive lattice
-  DLPreSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  DLPreSheaf = Functor (DLCat ^op) C
+   -- C-valued presheaves on a distributive lattice
+   DLPreSheaf : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+   DLPreSheaf = Functor (DLCat ^op) C
 
   module _ (x y : L .fst)where
     hom-∨₁ : DLCat [ x , x ∨l y ]
@@ -124,7 +99,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
     Fsq F = F-square F sq
 
   isDLSheafPullback : (F : DLPreSheaf) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-  isDLSheafPullback F = (F-ob F 0l ≡ 𝟙)
+  isDLSheafPullback F = isTerminal C (F-ob F 0l)
                       × ((x y : L .fst) → isPullback C _ _ _ (Fsq x y F))
 
   -- TODO: might be better to define this as a record
@@ -138,15 +113,14 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
   isDLSheaf F = ∀ (n : ℕ) (α : FinVec (fst L) n) → isLimCone _ _ (F-cone F (⋁Cone L α))
 
 
-  module EquivalenceOfDefs (isUnivalentC : isUnivalent C)
-                           (F : DLPreSheaf) where
+  module EquivalenceOfDefs (F : DLPreSheaf) where
     open isUnivalent
     open Cone
     open LimCone
     open Pullback
     open Cospan
     L→P : isDLSheaf F → isDLSheafPullback F
-    fst (L→P isSheafF) = CatIsoToPath isUnivalentC (terminalToIso C (_ , isTerminalF0) T)
+    fst (L→P isSheafF) = isTerminalF0
       where -- F(0) ≡ terminal obj.
       isLimConeF0 : isLimCone _ (F .F-ob 0l) (F-cone F (⋁Cone L (λ ())))
       isLimConeF0 = isSheafF 0 (λ ())
@@ -246,13 +220,11 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
 
     --the other direction
     P→L : isDLSheafPullback F → isDLSheaf F
-    fst (fst (P→L (F0=1 , _) ℕ.zero α c cc)) = subst (λ d → C [ c , d ]) (sym F0=1) (T .snd c .fst)
-    snd (fst (P→L (F0=1 , _) ℕ.zero α c cc)) (sing ())
-    snd (fst (P→L (F0=1 , _) ℕ.zero α c cc)) (pair () _ _)
-    snd (P→L (F0=1 , _) ℕ.zero α c cc) (f , _) = Σ≡Prop (isPropIsConeMor _ _)
-        (transport (λ i → subst-filler (λ d → C [ c , d ]) (sym F0=1) (T .snd c .fst) i
-                        ≡ subst-filler (λ d → C [ c , d ]) F0=1 f (~ i))
-                   (T .snd c .snd (subst (λ d → C [ c , d ]) F0=1 f)))
+    fst (fst (P→L (isTerminalF0 , _) ℕ.zero α c cc)) = isTerminalF0 c .fst
+    snd (fst (P→L (isTerminalF0 , _) ℕ.zero α c cc)) (sing ())
+    snd (fst (P→L (isTerminalF0 , _) ℕ.zero α c cc)) (pair () _ _)
+    snd (P→L (isTerminalF0 , _) ℕ.zero α c cc) _ =
+      Σ≡Prop (isPropIsConeMor _ _) (isTerminalF0 c .snd _)
 
     P→L (F0=1 , presPBSq) (ℕ.suc n) α c cc = uniqueExists
       (uniqH .fst .fst)
@@ -310,7 +282,8 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
        cong (seq' C (coneOut cc∧Suc _)) ((funcComp F (FinVec→Diag L β)) .F-id) ∙ ⋆IdR C _
      coneOutCommutes cc∧Suc (singPairL {i = i} {j = j} {i<j = i<j}) =
          coneOut cc (pair zero (suc i) (s≤s z≤)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairL)
-       ≡⟨ cong (λ x → seq' C x (funcComp F (FinVec→Diag L β) .F-hom singPairL)) (sym (coneOutCommutes cc singPairR)) ⟩
+       ≡⟨ cong (λ x → seq' C x (funcComp F (FinVec→Diag L β) .F-hom singPairL))
+               (sym (coneOutCommutes cc singPairR)) ⟩
          (coneOut cc (sing (suc i)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairR))
                                     ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairL)
        ≡⟨ ⋆Assoc C _ _ _ ⟩
@@ -318,22 +291,28 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
                                    ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairL))
        ≡⟨ cong (λ x → coneOut cc (sing (suc i)) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
          coneOut cc (sing (suc i)) ⋆⟨ C ⟩ F .F-hom
-           ((FinVec→Diag L α) .F-hom (singPairR {i<j = s≤s z≤}) ⋆⟨ DLCat ^op ⟩ (FinVec→Diag L β) .F-hom (singPairL {i<j = i<j}))
+           ((FinVec→Diag L α) .F-hom (singPairR {i<j = s≤s z≤})
+             ⋆⟨ DLCat ^op ⟩ (FinVec→Diag L β) .F-hom (singPairL {i<j = i<j}))
        ≡⟨ cong (λ x → coneOut cc (sing (suc i)) ⋆⟨ C ⟩ F .F-hom x) (is-prop-valued _ _ _ _) ⟩
          coneOut cc (sing (suc i)) ⋆⟨ C ⟩ F .F-hom
-           ((FinVec→Diag L α) .F-hom (singPairL {i<j = s≤s i<j}) ⋆⟨ DLCat ^op ⟩ (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+           ((FinVec→Diag L α) .F-hom (singPairL {i<j = s≤s i<j})
+             ⋆⟨ DLCat ^op ⟩ (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
        ≡⟨ cong (λ x → coneOut cc (sing (suc i)) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
          coneOut cc (sing (suc i)) ⋆⟨ C ⟩ ((funcComp F (FinVec→Diag L α) .F-hom singPairL)
-                                   ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+           ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
        ≡⟨ sym (⋆Assoc C _ _ _) ⟩
          (coneOut cc (sing (suc i)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairL))
-                                    ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))
-       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))) (coneOutCommutes cc singPairL) ⟩
-         coneOut cc (pair (suc i) (suc j) (s≤s i<j)) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))) ∎
+           ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))
+       ≡⟨ cong
+           (λ x → x ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+           (coneOutCommutes cc singPairL) ⟩
+         coneOut cc (pair (suc i) (suc j) (s≤s i<j))
+           ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))) ∎
 
      coneOutCommutes cc∧Suc (singPairR {i = i} {j = j} {i<j = i<j}) =
          coneOut cc (pair zero (suc j) (s≤s z≤)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairR)
-       ≡⟨ cong (λ x → seq' C x (funcComp F (FinVec→Diag L β) .F-hom singPairR)) (sym (coneOutCommutes cc singPairR)) ⟩
+       ≡⟨ cong (λ x → seq' C x (funcComp F (FinVec→Diag L β) .F-hom singPairR))
+               (sym (coneOutCommutes cc singPairR)) ⟩
          (coneOut cc (sing (suc j)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairR))
                                     ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairR)
        ≡⟨ ⋆Assoc C _ _ _ ⟩
@@ -341,18 +320,23 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
                                    ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L β) .F-hom singPairR))
        ≡⟨ cong (λ x → coneOut cc (sing (suc j)) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
          coneOut cc (sing (suc j)) ⋆⟨ C ⟩ F .F-hom
-           ((FinVec→Diag L α) .F-hom (singPairR {i<j = s≤s z≤}) ⋆⟨ DLCat ^op ⟩ (FinVec→Diag L β) .F-hom (singPairR {i<j = i<j}))
+           ((FinVec→Diag L α) .F-hom (singPairR {i<j = s≤s z≤})
+             ⋆⟨ DLCat ^op ⟩ (FinVec→Diag L β) .F-hom (singPairR {i<j = i<j}))
        ≡⟨ cong (λ x → coneOut cc (sing (suc j)) ⋆⟨ C ⟩ F .F-hom x) (is-prop-valued _ _ _ _) ⟩
          coneOut cc (sing (suc j)) ⋆⟨ C ⟩ F .F-hom
-           ((FinVec→Diag L α) .F-hom (singPairR {i<j = s≤s i<j}) ⋆⟨ DLCat ^op ⟩ (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+           ((FinVec→Diag L α) .F-hom (singPairR {i<j = s≤s i<j})
+             ⋆⟨ DLCat ^op ⟩ (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
        ≡⟨ cong (λ x → coneOut cc (sing (suc j)) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
          coneOut cc (sing (suc j)) ⋆⟨ C ⟩ ((funcComp F (FinVec→Diag L α) .F-hom singPairR)
-                                   ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+           ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
        ≡⟨ sym (⋆Assoc C _ _ _) ⟩
          (coneOut cc (sing (suc j)) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairR))
-                                    ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))
-       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))) (coneOutCommutes cc singPairR) ⟩
-         coneOut cc (pair (suc i) (suc j) (s≤s i<j)) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))) ∎
+           ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _)))
+       ≡⟨ cong
+            (λ x → x ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))))
+            (coneOutCommutes cc singPairR) ⟩
+         coneOut cc (pair (suc i) (suc j) (s≤s i<j))
+           ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤RCancel _ _) (∧≤RCancel _ _))) ∎
 
 
      -- our morphisms:
@@ -423,22 +407,26 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
        ≡⟨ coneOutCommutes cc singPairL ⟩
          coneOut cc (pair zero (suc i) (s≤s z≤)) ∎
      isConeMorO (pair i j i<j) =
-         (coneOut cc (sing zero) ⋆⟨ C ⟩ s₂ theCospan) ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L β)) (pair i j i<j))
+         (coneOut cc (sing zero) ⋆⟨ C ⟩ s₂ theCospan)
+                                 ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L β)) (pair i j i<j))
        ≡⟨ ⋆Assoc C _ _ _ ⟩
-          coneOut cc (sing zero) ⋆⟨ C ⟩ (s₂ theCospan ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L β)) (pair i j i<j)))
+          coneOut cc (sing zero) ⋆⟨ C ⟩ (s₂ theCospan
+                                 ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L β)) (pair i j i<j)))
        ≡⟨ cong (λ x  → f ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
          coneOut cc (sing zero) ⋆⟨ C ⟩ F .F-hom
            ((⋁IsMax _ _ λ _ → hom-∧₂ _ _) ⋆⟨ DLCat ^op ⟩ coneOut (⋁Cone L β) (pair i j i<j))
        ≡⟨ cong (λ x → coneOut cc (sing zero) ⋆⟨ C ⟩ F .F-hom x) (is-prop-valued _ _ _ _) ⟩
          coneOut cc (sing zero) ⋆⟨ C ⟩ F .F-hom
-           ((FinVec→Diag L α) .F-hom (singPairL {i<j = s≤s z≤}) ⋆⟨ DLCat ^op ⟩ (FinVec→Diag L β) .F-hom singPairL)
+           ((FinVec→Diag L α) .F-hom (singPairL {i<j = s≤s z≤})
+             ⋆⟨ DLCat ^op ⟩ (FinVec→Diag L β) .F-hom singPairL)
        ≡⟨ cong (λ x → coneOut cc (sing zero) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
          coneOut cc (sing zero) ⋆⟨ C ⟩ (funcComp F (FinVec→Diag L α) .F-hom singPairL
                                 ⋆⟨ C ⟩ funcComp F (FinVec→Diag L β) .F-hom singPairL)
        ≡⟨ sym (⋆Assoc C _ _ _) ⟩
          (coneOut cc (sing zero) ⋆⟨ C ⟩ funcComp F (FinVec→Diag L α) .F-hom singPairL)
                                  ⋆⟨ C ⟩ funcComp F (FinVec→Diag L β) .F-hom singPairL
-       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ funcComp F (FinVec→Diag L β) .F-hom singPairL) (coneOutCommutes cc singPairL) ⟩
+       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ funcComp F (FinVec→Diag L β) .F-hom singPairL)
+               (coneOutCommutes cc singPairL) ⟩
          coneOut cc (pair zero (suc i) (s≤s z≤)) ⋆⟨ C ⟩ funcComp F (FinVec→Diag L β) .F-hom singPairL
        ≡⟨ coneOutCommutes cc∧Suc singPairL ⟩
          coneOut cc∧Suc (pair i j i<j) ∎
@@ -540,7 +528,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C) where
 
 
 
-module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Terminal C)
+module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                     (L' : ℙ (fst L)) (hB : IsBasis L L') where
 
  open Category
@@ -554,10 +542,6 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
   DLCat = DistLatticeCategory L
   BasisCat = ΣPropCat  DLCat L'
   DLBasisPreSheaf = Functor (BasisCat ^op) C
-
-  -- to avoid writing 𝟙 L C T
-  1c : ob C
-  1c = terminalOb C T
 
   instance
    _ = snd L
@@ -579,11 +563,11 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
 
      but as a square in BasisCat
   -}
-  Bsq : seq' BasisCat {x = x · y} {y = y} {z = x∨y} (hom-∧₂ L C T (fst x) (fst y))
-                                                    (hom-∨₂ L C T (fst x) (fst y))
-      ≡ seq' BasisCat {x = x · y} {y = x} {z = x∨y} (hom-∧₁ L C T (fst x) (fst y))
-                                                    (hom-∨₁ L C T (fst x) (fst y))
-  Bsq = sq L C T (fst x) (fst y)
+  Bsq : seq' BasisCat {x = x · y} {y = y} {z = x∨y} (hom-∧₂ L C (fst x) (fst y))
+                                                    (hom-∨₂ L C (fst x) (fst y))
+      ≡ seq' BasisCat {x = x · y} {y = x} {z = x∨y} (hom-∧₁ L C (fst x) (fst y))
+                                                    (hom-∨₁ L C (fst x) (fst y))
+  Bsq = sq L C (fst x) (fst y)
 
   {-
     F(x ∨ y) ----→ F(x)
@@ -596,17 +580,17 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
   -}
   BFsq : (F : DLBasisPreSheaf)
        → seq' C {x = F .F-ob x∨y} {y = F .F-ob y} {z = F .F-ob (x · y)}
-                (F .F-hom (hom-∨₂ L C T (fst x) (fst y)))
-                (F .F-hom (hom-∧₂ L C T (fst x) (fst y)))
+                (F .F-hom (hom-∨₂ L C (fst x) (fst y)))
+                (F .F-hom (hom-∧₂ L C (fst x) (fst y)))
        ≡ seq' C {x = F .F-ob x∨y} {y = F .F-ob x} {z = F .F-ob (x · y)}
-                (F .F-hom (hom-∨₁ L C T (fst x) (fst y)))
-                (F .F-hom (hom-∧₁ L C T (fst x) (fst y)))
+                (F .F-hom (hom-∨₁ L C (fst x) (fst y)))
+                (F .F-hom (hom-∧₁ L C (fst x) (fst y)))
   BFsq F = F-square F Bsq
 
 
  -- On a basis this is weaker than the definition below!
  isDLBasisSheafPullback : DLBasisPreSheaf → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
- isDLBasisSheafPullback F = ((0∈L' : 0l ∈ L') → F .F-ob (0l , 0∈L') ≡ 1c)
+ isDLBasisSheafPullback F = ((0∈L' : 0l ∈ L') → isTerminal C (F .F-ob (0l , 0∈L')))
                           × ((x y : ob BasisCat) (x∨y∈L' : fst x ∨l fst y ∈ L')
                                → isPullback C _ _ _ (BFsq x y x∨y∈L' F))
                                  where open condSquare
@@ -648,50 +632,3 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (T : Termina
  isDLBasisSheaf F = ∀ {n : ℕ} (α : FinVec (ob BasisCat) n) (⋁α∈L' : ⋁ (λ i →  α i .fst) ∈ L')
                   → isLimCone _ _ (F-cone F (B⋁Cone  α ⋁α∈L'))
                     where open condCone
-
-
-
-
-
-  -- To prove the statement we probably need that C is:
-  -- 1. univalent
-  -- 2. has finite limits (or pullbacks and a terminal object)
-  -- 3. isGroupoid (C .ob)
-  -- The last point is not strictly necessary, but we have to have some
-  -- control over the hLevel as we want to write F(x) in terms of its
-  -- basis cover which is information hidden under a prop truncation...
-  -- Alternatively we just prove the statement for C = CommRingsCategory
-
-  -- TODO: is unique existence expressed like this what we want?
-  -- statement : (F' : DLBasisSheaf)
-  --           → ∃![ F ∈ DLSheaf L C T ] ((x : fst L) → (x ∈ L') → CatIso C (F-ob (fst F) x) (F-ob (fst F') x)) -- TODO: if C is univalent the CatIso could be ≡?
-  -- statement (F' , h1 , hPb) = ?
-
-  -- It might be easier to prove all of these if we use the definition
-  -- in terms of particular limits instead
-
-
-
-
-
-  -- Scrap zone:
-
-  -- -- Sublattices: upstream later
-  -- record isSublattice (L' : ℙ (fst L)) : Type ℓ where
-  --   field
-  --     1l-closed  : 1l ∈ L'
-  --     0l-closed  : 0l ∈ L'
-  --     ∧l-closed  : {x y : fst L} → x ∈ L' → y ∈ L' → x ∧l y ∈ L'
-  --     ∨l-closed  : {x y : fst L} → x ∈ L' → y ∈ L' → x ∨l y ∈ L'
-
-  -- open isSublattice
-
-  -- Sublattice : Type (ℓ-suc ℓ)
-  -- Sublattice = Σ[ L' ∈ ℙ (fst L) ] isSublattice L'
-
-  -- restrictDLSheaf : DLSheaf → Sublattice → DLSheaf
-  -- F-ob (fst (restrictDLSheaf F (L' , HL'))) x = {!F-ob (fst F) x!} -- Hmm, not nice...
-  -- F-hom (fst (restrictDLSheaf F L')) = {!!}
-  -- F-id (fst (restrictDLSheaf F L')) = {!!}
-  -- F-seq (fst (restrictDLSheaf F L')) = {!!}
-  -- snd (restrictDLSheaf F L') = {!!}

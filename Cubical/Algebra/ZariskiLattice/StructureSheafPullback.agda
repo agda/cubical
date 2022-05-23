@@ -64,6 +64,7 @@ open import Cubical.Algebra.ZariskiLattice.UniversalProperty
 
 open import Cubical.Categories.Category.Base hiding (_[_,_])
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Instances.CommAlgebras
 open import Cubical.Categories.Instances.DistLattice
@@ -183,8 +184,9 @@ module _ (R' : CommRing ℓ) where
 
  -- only proof for weak notion of sheaf on a basis
  isSheafBasisStructurePShf : isDLBasisSheafPullback BasisStructurePShf
- fst isSheafBasisStructurePShf 0∈BO =
-   transport (λ i → F-ob (0z , canonical0∈BO≡0∈BO i) ≡ UnitCommAlgebra R') R[1/0]≡0
+ fst isSheafBasisStructurePShf 0∈BO = subst (isTerminal (CommAlgebrasCategory R'))
+                                        (sym R[1/0]≡0 ∙ λ i → F-ob (0z , canonical0∈BO≡0∈BO i))
+                                          (TerminalCommAlgebra R' .snd)
    where
    open Functor ⦃...⦄
    instance
@@ -245,11 +247,11 @@ module _ (R' : CommRing ℓ) where
    Cospan.s₁ (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-hom
              {x = (𝔟 , ∣ g , Dg≡𝔟 ∣)}
              {y = (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)}
-             (hom-∧₂  ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ}) (TerminalCommAlgebra R') 𝔞 𝔟)
+             (hom-∧₂  ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ}) 𝔞 𝔟)
    Cospan.s₂ (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-hom
              {x = (𝔞 , ∣ f , Df≡𝔞 ∣)}
              {y = (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)}
-             (hom-∧₁  ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ}) (TerminalCommAlgebra R') 𝔞 𝔟)
+             (hom-∧₁  ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ}) 𝔞 𝔟)
 
 
    Σhelper : (a : Σ[ f ∈ R ] D f ≡ 𝔞) (b : Σ[ g ∈ R ] D g ≡ 𝔟) (c : Σ[ h ∈ R ] D h ≡ 𝔞 ∨z 𝔟)
