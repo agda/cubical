@@ -213,7 +213,7 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
       _ = R
       _ = snd R
 
-  module _ {S : Ring ℓ} (φ : RingHom R S) where
+  module _ {S : Ring ℓ'} (φ : RingHom R S) where
     open IsRingHom
     open RingHomTheory φ
     private
@@ -223,8 +223,12 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
       f = fst φ
       module φ = IsRingHom (snd φ)
 
-
-    inducedHom : Iₛ ⊆ kernel φ → RingHom (R / I) S
+    {-
+      We do not use the kernel ideal, since it is *not* an ideal in R,
+      if S is from a different universe. Instead, the condition, that
+      Iₛ is contained in the kernel of φ is rephrased explicitly.
+    -}
+    inducedHom : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $ x ≡ 0r) → RingHom (R / I) S
     fst (inducedHom Iₛ⊆kernel) =
       elim
         (λ _ → isSetRing S)
@@ -243,11 +247,11 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
     pres- (snd (inducedHom Iₛ⊆kernel)) =
       elimProp (λ _ → isSetRing S _ _) φ.pres-
 
-    solution : (p : Iₛ ⊆ kernel φ)
+    solution : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $ x ≡ 0r))
                → (x : ⟨ R ⟩) → inducedHom p $ [ x ] ≡ φ $ x
     solution p x = refl
 
-    unique : (p : Iₛ ⊆ kernel φ)
+    unique : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $ x ≡ 0r))
              → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $ [ x ] ≡ φ $ x)
              → (x : ⟨ R ⟩) → ψ $ [ x ] ≡ inducedHom p $ [ x ]
     unique p ψ ψIsSolution x = ψIsSolution x
