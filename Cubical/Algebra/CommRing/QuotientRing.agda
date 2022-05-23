@@ -38,8 +38,6 @@ R / I =
 [ a ]/ = [ a ]
 
 
---
-
 module Quotient-FGideal-CommRing-Ring
   (A'@(A , Ar) : CommRing ℓ)
   (B'@(B , Br) : Ring ℓ')
