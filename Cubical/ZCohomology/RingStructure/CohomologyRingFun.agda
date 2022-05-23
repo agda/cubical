@@ -97,7 +97,7 @@ module CupH*FunProperties (A : Type ℓ) where
                                   ∙ cong suc (eqSameFiber (pred-≤-pred r))
 
   sumFun : (i n : ℕ) → (i ≤ n) → (f g : (n : ℕ) → coHom n A) → coHom n A
-  sumFun zero n r f g = subst (λ X → coHom X A) (eqSameFiber r) (f 0 ⌣ g n)
+  sumFun zero n r f g = (f 0 ⌣ g n)
   sumFun (suc i) n r f g = subst (λ X → coHom X A) (eqSameFiber r) ((f (suc i)) ⌣ (g (n ∸ (suc i))))
                            +ₕ sumFun i n (≤-trans ≤-sucℕ r) f g
 
@@ -127,8 +127,7 @@ module CupH*FunProperties (A : Type ℓ) where
   cupFunAnnihilL f = funExt (λ n → sumF0 n n ≤-refl)
     where
     sumF0 : (i n : ℕ) → (r : i ≤ n) → sumFun i n r 0Fun f ≡ 0ₕ n
-    sumF0 zero n r = cong (subst (λ X → coHom X A) (eqSameFiber r)) (0ₕ-⌣ _ _ _)
-                     ∙ substCoHom0 (eqSameFiber r)
+    sumF0 zero n r = 0ₕ-⌣ _ _ _
     sumF0 (suc i) n r = cong₂ _+ₕ_
                               (cong (subst (λ X → coHom X A) (eqSameFiber r)) (0ₕ-⌣ _ _ _))
                               (sumF0 i n (≤-trans ≤-sucℕ r))
@@ -140,8 +139,7 @@ module CupH*FunProperties (A : Type ℓ) where
   cupFunAnnihilR f = funExt (λ n → sumF0 n n ≤-refl)
     where
     sumF0 : (i n : ℕ) → (r : i ≤ n) → sumFun i n r f 0Fun ≡ 0ₕ n
-    sumF0 zero n r = cong (subst (λ X → coHom X A) (eqSameFiber r)) (⌣-0ₕ _ _ _)
-                     ∙ substCoHom0 (eqSameFiber r)
+    sumF0 zero n r = ⌣-0ₕ _ _ _
     sumF0 (suc i) n r = cong₂ _+ₕ_
                               (cong (subst (λ X → coHom X A) (eqSameFiber r)) (⌣-0ₕ _ _ _))
                               (sumF0 i n (≤-trans ≤-sucℕ r))
@@ -161,8 +159,7 @@ module CupH*FunProperties (A : Type ℓ) where
   cupFunDistR f g h = funExt (λ n → sumFAssoc n n ≤-refl)
    where
    sumFAssoc : (i n : ℕ) → (r : i ≤ n) → sumFun i n r f (g +Fun h) ≡ (sumFun i n r f g) +ₕ (sumFun i n r f h)
-   sumFAssoc zero n r = cong (subst (λ X → coHom X A) (eqSameFiber r)) (leftDistr-⌣ _ _ _ _ _)
-                        ∙ substCoHom+ _ _ _
+   sumFAssoc zero n r = leftDistr-⌣ _ _ _ _ _
    sumFAssoc (suc i) n r = cong (λ X → X +ₕ (sumFun i n (≤-trans ≤-sucℕ r) f (g +Fun h)))
                                 (cong (subst (λ X → coHom X A) (eqSameFiber r)) (leftDistr-⌣ _ _ _ _ _))
                            ∙ cong₂ _+ₕ_ (substCoHom+ (eqSameFiber r) _ _) (sumFAssoc i n (≤-trans ≤-sucℕ r))
@@ -172,8 +169,7 @@ module CupH*FunProperties (A : Type ℓ) where
   cupFunDistL f g h = funExt (λ n → sumFAssoc n n ≤-refl)
    where
    sumFAssoc : (i n : ℕ) → (r : i ≤ n) → sumFun i n r (f +Fun g) h ≡ (sumFun i n r f h) +ₕ (sumFun i n r g h)
-   sumFAssoc zero n r = cong (subst (λ X → coHom X A) (eqSameFiber r)) (rightDistr-⌣ _ _ _ _ _)
-                        ∙ substCoHom+ _ _ _
+   sumFAssoc zero n r = rightDistr-⌣ _ _ _ _ _
    sumFAssoc (suc i) n r = cong (λ X → X +ₕ (sumFun i n (≤-trans ≤-sucℕ r) (f +Fun g) h))
                                 (cong (subst (λ X → coHom X A) (eqSameFiber r)) (rightDistr-⌣ _ _ _ _ _))
                            ∙ cong₂ _+ₕ_ (substCoHom+ (eqSameFiber r) _ _) (sumFAssoc i n (≤-trans ≤-sucℕ r))
@@ -181,26 +177,59 @@ module CupH*FunProperties (A : Type ℓ) where
 
   -- lemma for the base case
   open Equiv-Properties G Gstr using
-    ( fun-trad
+    ( subst0
+    ; subst+
+    ; substG
+    ; fun-trad
     ; fun-trad-eq
     ; fun-trad-neq
     ; ⊕HIT→Fun    )
 
   sumFun= : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) →
-            (n i : ℕ) → (r : i ≤ n) → (p : k +' l ≡ n) →
-             subst G p (a ⌣ b) ≡ sumFun i n r (fun-trad k a) (fun-trad l b)
-  sumFun= k a l b n zero r p = {!!}
+            (i n : ℕ) → (r : i ≤ n) → (pp : k +' l ≡ n) →
+             subst G pp (a ⌣ b) ≡ sumFun i n r (fun-trad k a) (fun-trad l b)
+  sumFun= k a l b n zero r pp with discreteℕ k 0 | discreteℕ l n
+  -- first regarder si i vaut n ?
+  ... | yes p | yes q = {!!} -- sym => subst G p a ⌣ subst G q b => subst G (p +' q) ( a ⌣ b) => subst G pp (p +' q) (a ⌣ b)
+  ... | yes p | no ¬q = {!!}
+  ... | no ¬p | yes q = {!!}
+  ... | no ¬p | no ¬q = {!!}
   sumFun= k a l b n (suc i) r p = {!!}
 
-  sumFBase : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) → (n i : ℕ) → (r : i ≤ n) →
+
+  sumFun≠ : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) →
+            (i n : ℕ) → (r : i ≤ n) → (¬pp : k +' l ≡ n → ⊥) →
+            sumFun i n r (fun-trad k a) (fun-trad l b) ≡ 0ₕ n
+  sumFun≠ k a l b zero n r ¬pp with discreteℕ k 0 | discreteℕ l n
+  ... | yes p | yes q = ⊥.rec (¬pp (cong₂ _+'_ p q))
+  ... | yes p | no ¬q = ⌣-0ₕ 0 n (subst G p a)
+  ... | no ¬p | yes q = 0ₕ-⌣ 0 n (subst G q b)
+  ... | no ¬p | no ¬q = 0ₕ-⌣ 0 n (0ₕ n)
+  sumFun≠ k a l b (suc i) n r ¬pp with discreteℕ k (suc i) | discreteℕ l (n ∸ (suc i))
+  ... | yes p | yes q = ⊥.rec (¬pp (cong₂ _+'_ p q ∙ eqSameFiber r))
+  ... | yes p | no ¬q = cong₂ _+ₕ_
+                              (cong (subst (λ X → coHom X A) (eqSameFiber r)) (⌣-0ₕ (suc i) (n ∸ suc i) _))
+                              (sumFun≠ k a l b i n (≤-trans ≤-sucℕ r) ¬pp)
+                        ∙ rUnitₕ n _
+                        ∙ substCoHom0 _
+  ... | no ¬p | yes q = cong₂ _+ₕ_
+                              (cong (subst (λ X → coHom X A) (eqSameFiber r)) (0ₕ-⌣ (suc i) (n ∸ suc i) _))
+                              (sumFun≠ k a l b i n (≤-trans ≤-sucℕ r) ¬pp)
+                        ∙ rUnitₕ n _
+                        ∙ substCoHom0 _
+  ... | no ¬p | no ¬q = cong₂ _+ₕ_
+                              (cong (subst (λ X → coHom X A) (eqSameFiber r)) (0ₕ-⌣ (suc i) (n ∸ suc i) (0ₕ (n ∸ suc i))))
+                              (sumFun≠ k a l b i n (≤-trans ≤-sucℕ r) ¬pp)
+                        ∙ rUnitₕ n _
+                        ∙ substCoHom0 _
+
+
+  sumFBase : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) → (i n : ℕ) → (r : i ≤ n) →
              fun-trad (k +' l) (a ⌣ b) n ≡ sumFun i n r (fun-trad k a) (fun-trad l b)
-  sumFBase k a l b n i r with discreteℕ (k +' l) n
-  ... | yes p = {!!}
-  ... | no ¬p = {!!}
-  {- idée 3 cas :
-     n = k +' l => ok car k et l en meme temps
-     sinon 0 car les deux match jamais
-  -}
+  sumFBase k a l b i n r with discreteℕ (k +' l) n
+  ... | yes p = sumFun= k a l b i n r p
+  ... | no ¬p = sym (sumFun≠ k a l b i n r ¬p)
+
 
   -----------------------------------------------------------------------------
   -- Proof that ⊕HIT→⊕Fun preserve the cup product
@@ -231,7 +260,7 @@ module CupH*FunProperties (A : Type ℓ) where
                     (λ y → sym (cupFunAnnihilL (⊕HIT→Fun y)))
                     (λ k a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetFun _ _)
                               (sym (cupFunAnnihilR (⊕HIT→Fun (base k a))))
-                              (λ l b → {!!})
+                              (λ l b → funExt (λ n → sumFBase k a l b n n ≤-refl))
                               λ {U V} ind-U ind-V → cong₂ _+Fun_ ind-U ind-V
                                                      ∙ sym (cupFunDistR _ _ _))
                     λ {U} {V} ind-U ind-V y → cong₂ _+Fun_ (ind-U y) (ind-V y)
