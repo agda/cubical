@@ -252,13 +252,17 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
              → (x : ⟨ R ⟩) → ψ $ [ x ] ≡ inducedHom p $ [ x ]
     unique p ψ ψIsSolution x = ψIsSolution x
 
-
+{-
+  Show that the kernel of the quotient map
+  π : R ─→ R/I
+  is the given ideal I.
+-}
 module Kernel {R : Ring ℓ} (I : IdealsIn R) where
   open RingStr (snd R)
   open isIdeal (snd I)
   open BinaryRelation.isEquivRel
 
-  q = quotientMap R I
+  π = quotientMap R I
 
   private
     x-0≡x : (x : ⟨ R ⟩) → x - 0r ≡ x
@@ -267,7 +271,7 @@ module Kernel {R : Ring ℓ} (I : IdealsIn R) where
       x + 0r  ≡⟨ +Rid x ⟩
       x       ∎
 
-  I⊆ker : fst I ⊆ kernel q
+  I⊆ker : fst I ⊆ kernel π
   I⊆ker x x∈I = eq/ _ _ (subst (_∈ fst I) (sym (x-0≡x x)) x∈I)
 
   private
@@ -301,11 +305,11 @@ module Kernel {R : Ring ℓ} (I : IdealsIn R) where
     symmetric ~IsEquivRel x y x~y        = subst (_∈ fst I) -[x-y]≡y-x (-closed x~y)
     transitive ~IsEquivRel x y z x~y y~z = subst (_∈ fst I) x-y+y-z≡x-z (+-closed x~y y~z)
 
-  ker⊆I : kernel q ⊆ fst I
+  ker⊆I : kernel π ⊆ fst I
   ker⊆I x x∈ker = subst (_∈ fst I) (x-0≡x x) x-0∈I
     where
       x-0∈I : x - 0r ∈ fst I
       x-0∈I = effective ~IsPropValued ~IsEquivRel x 0r x∈ker
 
-  kernel≡I : kernelIdeal q ≡ I
+  kernel≡I : kernelIdeal π ≡ I
   kernel≡I = Σ≡Prop (isPropIsIdeal R) (⊆-extensionality _ _ (ker⊆I , I⊆ker))
