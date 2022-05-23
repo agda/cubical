@@ -74,24 +74,24 @@ module Quotient-FGideal-CommRing-Ring
 
     f : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
     fst f = SQ.rec (isSetB)
-            g
-            λ a b → PT.rec (isSetB _ _)
-                     λ x → g a                                   ≡⟨ cong g (sym (+Rid Ar a)) ⟩
-                     g (a +A 0A)                                  ≡⟨ cong (λ X → g (a +A X)) (sym (snd (+Inv Ar b))) ⟩
-                     g (a +A ((-A b) +A b))                       ≡⟨ cong g (+Assoc Ar a (-A b) b) ⟩
-                     g ((a +A -A b) +A b)                         ≡⟨ pres+ gr (a +A -A b) b ⟩
-                     (g(a +A -A b) +B g b)                        ≡⟨ cong (λ X → g X +B g b) (snd x) ⟩
-                     (g (linearCombination A' (fst x) v) +B g b)  ≡⟨ cong (λ X → X +B g b) (cancelLinearCombination A' B' g' n (fst x) v gnull) ⟩
-                     0B +B g b                                    ≡⟨ +BIdL (g b) ⟩
-                     g b ∎
+      g
+      λ a b → PT.rec (isSetB _ _)
+        λ x → g a                                   ≡⟨ cong g (sym (+Rid Ar a)) ⟩
+        g (a +A 0A)                                  ≡⟨ cong (λ X → g (a +A X)) (sym (snd (+Inv Ar b))) ⟩
+        g (a +A ((-A b) +A b))                       ≡⟨ cong g (+Assoc Ar a (-A b) b) ⟩
+        g ((a +A -A b) +A b)                         ≡⟨ pres+ gr (a +A -A b) b ⟩
+        (g(a +A -A b) +B g b)                        ≡⟨ cong (λ X → g X +B g b) (snd x) ⟩
+        (g (linearCombination A' (fst x) v) +B g b)  ≡⟨ cong (λ X → X +B g b) (cancelLinearCombination A' B' g' n (fst x) v gnull) ⟩
+        0B +B g b                                    ≡⟨ +BIdL (g b) ⟩
+        g b ∎
     snd f = makeIsRingHom
-            (pres1 gr)
-            (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
-                      λ a → elimProp (λ _ → isSetB _ _)
-                             λ a' → pres+ gr a a')
-            (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
-                      λ a → elimProp (λ _ → isSetB _ _)
-                             λ a' → pres· gr a a')
+      (pres1 gr)
+      (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
+                λ a → elimProp (λ _ → isSetB _ _)
+                       λ a' → pres+ gr a a')
+      (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
+                λ a → elimProp (λ _ → isSetB _ _)
+                       λ a' → pres· gr a a')
 
 module Quotient-FGideal-CommRing-CommRing
   (A'@(A , Ar) : CommRing ℓ)
