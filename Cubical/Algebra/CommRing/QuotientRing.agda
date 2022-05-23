@@ -3,6 +3,7 @@ module Cubical.Algebra.CommRing.QuotientRing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
@@ -72,6 +73,15 @@ module Quotient-FGideal-CommRing-Ring
     (v : FinVec A n)
     (gnull : (k : Fin n) → g ( v k) ≡ 0B)
     where
+
+
+    zeroOnGeneratedIdeal : (n : ℕ) → (v : FinVec A n) → (gnull : (k : Fin n) → g' $ (v k) ≡ 0B)
+                           → (x : ⟨ A' ⟩) → x ∈ fst (generatedIdeal A' v) → g' $ x ≡ 0B
+    zeroOnGeneratedIdeal n v gnull x x∈FGIdeal =
+      PT.elim
+        (λ _ → isSetRing B' (g' $ x) 0B)
+        (λ {(α , isLC) → subst _ (sym isLC) (cancelLinearCombination A' B' g' _ α v gnull)})
+        x∈FGIdeal
 
     inducedHom : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
     inducedHom = {!UniversalProperty.inducedHom (CommRing→Ring A') (CommIdeal→Ideal ideal) g' !}
