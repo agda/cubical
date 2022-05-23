@@ -21,7 +21,7 @@ open import Cubical.Algebra.CommRingSolver.Reflection
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R' I) where
   open RingStr (snd R')

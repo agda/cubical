@@ -2,6 +2,7 @@
 module Cubical.Algebra.CommRing.QuotientRing where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
@@ -72,8 +73,11 @@ module Quotient-FGideal-CommRing-Ring
     (gnull : (k : Fin n) → g ( v k) ≡ 0B)
     where
 
-    f : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
-    fst f = SQ.rec (isSetB)
+    inducedHom : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
+    inducedHom = {!UniversalProperty.inducedHom (CommRing→Ring A') (CommIdeal→Ideal ideal) g' !}
+      where ideal = generatedIdeal _ v
+{-
+    fst inducedHom = SQ.rec (isSetB)
       g
       λ a b → PT.rec (isSetB _ _)
         λ x → g a                                   ≡⟨ cong g (sym (+Rid Ar a)) ⟩
@@ -84,7 +88,7 @@ module Quotient-FGideal-CommRing-Ring
         (g (linearCombination A' (fst x) v) +B g b)  ≡⟨ cong (λ X → X +B g b) (cancelLinearCombination A' B' g' n (fst x) v gnull) ⟩
         0B +B g b                                    ≡⟨ +BIdL (g b) ⟩
         g b ∎
-    snd f = makeIsRingHom
+    snd inducedHom = makeIsRingHom
       (pres1 gr)
       (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
                 λ a → elimProp (λ _ → isSetB _ _)
@@ -92,9 +96,10 @@ module Quotient-FGideal-CommRing-Ring
       (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
                 λ a → elimProp (λ _ → isSetB _ _)
                        λ a' → pres· gr a a')
-
+-}
+{-
 module Quotient-FGideal-CommRing-CommRing
-  (A'@(A , Ar) : CommRing ℓ)
+  (A' : CommRing ℓ)
   (B'@(B , Br) : CommRing ℓ')
   (g'@(g , gr) : CommRingHom A' B')
   {n : ℕ}
@@ -103,4 +108,5 @@ module Quotient-FGideal-CommRing-CommRing
   where
 
   f : CommRingHom (A' / (generatedIdeal _ v)) B'
-  f = Quotient-FGideal-CommRing-Ring.f A' (CommRing→Ring B') g' v gnull
+  f = Quotient-FGideal-CommRing-Ring.inducedHom A' (CommRing→Ring B') g' v gnull
+-}
