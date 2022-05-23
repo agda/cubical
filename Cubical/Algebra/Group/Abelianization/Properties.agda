@@ -103,7 +103,7 @@ module _ (G : Group ℓ) where
       (λ a b c → funExt (elimProp (λ _ → Mset _ _) (λ d → fcomml a b c d)))
 
 
-  -- Definition of the group structure on the Abelianization. Here the generality of the comm relation is used.
+  -- Definition of the group structure on the abelianization. Here the generality of the comm relation is used.
   _·Ab_ : Abelianization G → Abelianization G → Abelianization G
   _·Ab_ =
     rec2
@@ -177,7 +177,7 @@ module _ (G : Group ℓ) where
                η (y · x)        ≡⟨ refl ⟩
                (η y) ·Ab (η x) ∎)
 
-  -- The proof that the Abelianization is in fact an abelian group.
+  -- The proof that the abelianization is in fact an abelian group.
   asAbelianGroup : AbGroup ℓ
   asAbelianGroup = makeAbGroup 1Ab _·Ab_ invAb isset assocAb ridAb rinvAb commAb
 
@@ -191,9 +191,9 @@ module _ (G : Group ℓ) where
     IsGroupHom.pres1 fIsHom = refl
     IsGroupHom.presinv fIsHom = λ x → refl
 
-  {- The proof of the universal property of the Abelianization.
+  {- The proof of the universal property of the abelianization.
 
-  G --η--> Abelianization
+  G --η--> abelianization
    \         .
      \       .
        f   ∃! inducedHom

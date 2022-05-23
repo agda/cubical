@@ -193,8 +193,8 @@ compGroupHomAssoc : (e : GroupHom E F) → (f : GroupHom F G) → (g : GroupHom 
                   → compGroupHom (compGroupHom e f) g ≡ compGroupHom e (compGroupHom f g)
 compGroupHomAssoc e f g = GroupHom≡ refl
 
-idGroupHomComp : (f : GroupHom F G) → compGroupHom f idGroupHom ≡ f
-idGroupHomComp f = GroupHom≡ refl
+compGroupHomId : (f : GroupHom F G) → compGroupHom f idGroupHom ≡ f
+compGroupHomId f = GroupHom≡ refl
 
 -- The composition of surjective maps is surjective
 compSurjective : ∀ {ℓ ℓ' ℓ''} {G : Group ℓ} {H : Group ℓ'} {L : Group ℓ''}
