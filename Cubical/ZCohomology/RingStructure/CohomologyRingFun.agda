@@ -4,6 +4,9 @@ module Cubical.ZCohomology.RingStructure.CohomologyRingFun where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.HLevels
+
+open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
@@ -18,7 +21,9 @@ open import Cubical.Algebra.AbGroup.Instances.NProd
 open import Cubical.Algebra.Ring
 
 open import Cubical.Algebra.DirectSum.DirectSumFun.Base
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.AbGroup.Instances.DirectSumFun
+open import Cubical.Algebra.AbGroup.Instances.DirectSumHIT
 open import Cubical.Algebra.DirectSum.Equiv-DSHIT-DSFun
 
 open import Cubical.HITs.SetTruncation as ST
@@ -28,6 +33,7 @@ open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.GradedCommutativity
+open import Cubical.ZCohomology.RingStructure.CohomologyRing
 
 private variable
   ℓ ℓ' : Level
@@ -38,15 +44,15 @@ open Iso
 -----------------------------------------------------------------------------
 -- Notation
 
-module intermediate-def where
+module DefH*Fun where
   H*Fun-AbGr : (A : Type ℓ) → AbGroup ℓ
   H*Fun-AbGr A = ⊕Fun-AbGr (λ n → coHom n A) (λ n → snd (coHomGroup n A))
 
   H*Fun : (A : Type ℓ) → Type ℓ
   H*Fun A = fst (H*Fun-AbGr A)
 
-module CupRingProperties (A : Type ℓ) where
-  open intermediate-def
+module CupH*FunProperties (A : Type ℓ) where
+  open DefH*Fun
   open AbGroupStr (snd (H*Fun-AbGr A))
   open AbGroupTheory
 
@@ -77,13 +83,6 @@ module CupRingProperties (A : Type ℓ) where
 
     +FunIdL : (x : Fun G Gstr) → 0Fun +Fun x  ≡ x
     +FunIdL = λ x → snd (+FunIdR×IdL x)
-
-    -- +FunInvR : (x : Fun G Gstr) → x +Fun (-Fun x) ≡ 0Fun
-    -- +FunInvR = λ x → fst (+FunInvR×InvL x)
-
-    -- +FunInvL : (x : Fun G Gstr) → (-Fun x) +Fun x ≡ 0Fun
-    -- +FunInvL = λ x → snd (+FunInvR×InvL x)
-
 
 -----------------------------------------------------------------------------
 -- Definition of the cup product
@@ -117,7 +116,7 @@ module CupRingProperties (A : Type ℓ) where
 
 
 -----------------------------------------------------------------------------
--- Requiered lemma for mapping the product
+-- Requiered lemma for preserving the cup product
 
   -- lemma for 0 case
   substCoHom0 : {n m : ℕ} → (p : n ≡ m) → subst (λ X → coHom X A) p (0ₕ n) ≡ 0ₕ m
@@ -179,3 +178,61 @@ module CupRingProperties (A : Type ℓ) where
                                 (cong (subst (λ X → coHom X A) (eqSameFiber r)) (rightDistr-⌣ _ _ _ _ _))
                            ∙ cong₂ _+ₕ_ (substCoHom+ (eqSameFiber r) _ _) (sumFAssoc i n (≤-trans ≤-sucℕ r))
                            ∙ comm-4 (coHomGroup n A) _ _ _ _
+
+  -- lemma for the base case
+  open Equiv-Properties G Gstr using
+    ( fun-trad
+    ; fun-trad-eq
+    ; fun-trad-neq
+    ; ⊕HIT→Fun    )
+
+  sumFun= : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) →
+            (n i : ℕ) → (r : i ≤ n) → (p : k +' l ≡ n) →
+             subst G p (a ⌣ b) ≡ sumFun i n r (fun-trad k a) (fun-trad l b)
+  sumFun= k a l b n zero r p = {!!}
+  sumFun= k a l b n (suc i) r p = {!!}
+
+  sumFBase : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) → (n i : ℕ) → (r : i ≤ n) →
+             fun-trad (k +' l) (a ⌣ b) n ≡ sumFun i n r (fun-trad k a) (fun-trad l b)
+  sumFBase k a l b n i r with discreteℕ (k +' l) n
+  ... | yes p = {!!}
+  ... | no ¬p = {!!}
+  {- idée 3 cas :
+     n = k +' l => ok car k et l en meme temps
+     sinon 0 car les deux match jamais
+  -}
+
+  -----------------------------------------------------------------------------
+  -- Proof that ⊕HIT→⊕Fun preserve the cup product
+
+  open CupRingProperties A
+
+  open AbGroupStr (snd (⊕HIT-AbGr ℕ G Gstr)) using ()
+      renaming
+    ( 0g       to 0⊕HIT
+    ; _+_      to _+⊕HIT_
+    ; -_       to -⊕HIT_
+    ; assoc    to +⊕HITAssoc
+    ; identity to +⊕HITIdR×IdL
+    ; inverse  to +⊕HITInvR×InvL
+    ; comm     to +⊕HITComm
+    ; is-set   to isSet⊕HIT)
+
+  private
+    +⊕HITIdR : (x : ⊕HIT ℕ G Gstr) → x +⊕HIT 0⊕HIT ≡ x
+    +⊕HITIdR = λ x → fst (+⊕HITIdR×IdL x)
+
+    +⊕HITIdL : (x : ⊕HIT ℕ G Gstr) → 0⊕HIT +⊕HIT x  ≡ x
+    +⊕HITIdL = λ x → snd (+⊕HITIdR×IdL x)
+
+  ⊕HIT→Fun-pres⌣ : (x y : H* A) → ⊕HIT→Fun (x cup y) ≡ ((⊕HIT→Fun x) cupFun (⊕HIT→Fun y))
+  ⊕HIT→Fun-pres⌣ = DS-Ind-Prop.f _ _ _ _
+                    (λ x → isPropΠ (λ _ → isSetFun _ _))
+                    (λ y → sym (cupFunAnnihilL (⊕HIT→Fun y)))
+                    (λ k a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetFun _ _)
+                              (sym (cupFunAnnihilR (⊕HIT→Fun (base k a))))
+                              (λ l b → {!!})
+                              λ {U V} ind-U ind-V → cong₂ _+Fun_ ind-U ind-V
+                                                     ∙ sym (cupFunDistR _ _ _))
+                    λ {U} {V} ind-U ind-V y → cong₂ _+Fun_ (ind-U y) (ind-V y)
+                                               ∙ sym (cupFunDistL _ _ _)
