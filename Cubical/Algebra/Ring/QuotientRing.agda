@@ -257,7 +257,7 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
   π : R ─→ R/I
   is the given ideal I.
 -}
-module Kernel {R : Ring ℓ} (I : IdealsIn R) where
+module idealIsKernel {R : Ring ℓ} (I : IdealsIn R) where
   open RingStr (snd R)
   open isIdeal (snd I)
   open BinaryRelation.isEquivRel
