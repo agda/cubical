@@ -12,8 +12,8 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.QuotientRing renaming (_/_ to _/CommRing_) hiding ([_]/)
-open import Cubical.Algebra.Ring.QuotientRing renaming (_/_ to _/Ring_) hiding (quotientMap)
+import Cubical.Algebra.CommRing.QuotientRing as CommRing
+import Cubical.Algebra.Ring.QuotientRing as Ring
 open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
@@ -42,7 +42,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
 
   _/_ :  CommAlgebra R ℓ
   _/_ = commAlgebraFromCommRing
-           ((CommAlgebra→CommRing A) /CommRing I)
+           ((CommAlgebra→CommRing A) CommRing./ I)
            (λ r → elim (λ _ → squash/) (λ x → [ r ⋆ x ]) (eq r))
            (λ r s → elimProp (λ _ → squash/ _ _)
                              λ x i → [ ((r ·R s) ⋆ x ≡⟨ ⋆-assoc r s x ⟩
@@ -93,10 +93,10 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
 
   private
     LRing = CommAlgebra→Ring (A / I)
-    RRing = (CommAlgebra→Ring A) /Ring (CommIdeal→Ideal I)
+    RRing = (CommAlgebra→Ring A) Ring./ (CommIdeal→Ideal I)
 
   -- sanity check / maybe a helper function some day
-  CommForget/ : RingEquiv (CommAlgebra→Ring (A / I)) ((CommAlgebra→Ring A) /Ring (CommIdeal→Ideal I))
+  CommForget/ : RingEquiv (CommAlgebra→Ring (A / I)) ((CommAlgebra→Ring A) Ring./ (CommIdeal→Ideal I))
   fst CommForget/ =
     isoToEquiv
       (iso
@@ -177,7 +177,6 @@ private
     open CommRingStr (snd R)
     lemma : (y : (fst R)) → y ≡ y - 0r
     lemma = solve R
-
 
 isZeroFromIdeal : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
                   → (x : ⟨ A ⟩) → x ∈ (fst I) → fst (quotientMap A I) x ≡ CommAlgebraStr.0a (snd (A / I))
