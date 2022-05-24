@@ -69,5 +69,5 @@ module Quotient-FGideal-CommRing-CommRing
   (gnull : (k : Fin n) → g $ v k ≡ CommRingStr.0r (snd B))
   where
 
-  f : CommRingHom (A / (generatedIdeal _ v)) B
-  f = Quotient-FGideal-CommRing-Ring.inducedHom A (CommRing→Ring B) g v gnull
+  inducedHom : CommRingHom (A / (generatedIdeal _ v)) B
+  inducedHom = Quotient-FGideal-CommRing-Ring.inducedHom A (CommRing→Ring B) g v gnull
