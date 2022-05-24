@@ -71,3 +71,7 @@ module Quotient-FGideal-CommRing-CommRing
 
   inducedHom : CommRingHom (A / (generatedIdeal _ v)) B
   inducedHom = Quotient-FGideal-CommRing-Ring.inducedHom A (CommRing→Ring B) g v gnull
+
+
+quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
+quotientHom R I = Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)

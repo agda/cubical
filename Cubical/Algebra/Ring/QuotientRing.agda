@@ -195,13 +195,13 @@ R / (I , IisIdeal) = asRing R I IisIdeal
 [_]/I : {R : Ring ℓ} {I : IdealsIn R} → (a : ⟨ R ⟩) → ⟨ R / I ⟩
 [ a ]/I = [ a ]
 
-quotientMap : (R : Ring ℓ) → (I : IdealsIn R) → RingHom R (R / I)
-fst (quotientMap R I) = [_]
-IsRingHom.pres0 (snd (quotientMap R I)) = refl
-IsRingHom.pres1 (snd (quotientMap R I)) = refl
-IsRingHom.pres+ (snd (quotientMap R I)) _ _ = refl
-IsRingHom.pres· (snd (quotientMap R I)) _ _ = refl
-IsRingHom.pres- (snd (quotientMap R I)) _ = refl
+quotientHom : (R : Ring ℓ) → (I : IdealsIn R) → RingHom R (R / I)
+fst (quotientHom R I) = [_]
+IsRingHom.pres0 (snd (quotientHom R I)) = refl
+IsRingHom.pres1 (snd (quotientHom R I)) = refl
+IsRingHom.pres+ (snd (quotientHom R I)) _ _ = refl
+IsRingHom.pres· (snd (quotientHom R I)) _ _ = refl
+IsRingHom.pres- (snd (quotientHom R I)) _ = refl
 
 
 module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
@@ -266,7 +266,7 @@ module idealIsKernel {R : Ring ℓ} (I : IdealsIn R) where
   open isIdeal (snd I)
   open BinaryRelation.isEquivRel
 
-  π = quotientMap R I
+  π = quotientHom R I
 
   private
     x-0≡x : (x : ⟨ R ⟩) → x - 0r ≡ x
