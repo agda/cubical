@@ -8,14 +8,14 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
 
-open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
+open import Cubical.HITs.SetQuotients using ([_]; squash/; elimProp2)
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Ring.QuotientRing renaming (_/_ to _/Ring_) hiding (asRing)
+import Cubical.Algebra.Ring.QuotientRing as Ring
 
 private
   variable
@@ -28,7 +28,7 @@ R / I =
                              (elimProp2 (λ _ _ → squash/ _ _)
                                         commEq))
    where
-       asRing = (CommRing→Ring R) /Ring (CommIdeal→Ideal I)
+       asRing = (CommRing→Ring R) Ring./ (CommIdeal→Ideal I)
        _·/_ : fst asRing → fst asRing → fst asRing
        _·/_ = RingStr._·_ (snd asRing)
        commEq : (x y : fst R) → ([ x ] ·/ [ y ]) ≡ ([ y ] ·/ [ x ])
@@ -57,7 +57,7 @@ module Quotient-FGideal-CommRing-Ring
       x∈FGIdeal
 
   inducedHom : RingHom (CommRing→Ring (A / (generatedIdeal _ v))) B
-  inducedHom = UniversalProperty.inducedHom (CommRing→Ring A) (CommIdeal→Ideal ideal) g zeroOnGeneratedIdeal
+  inducedHom = Ring.UniversalProperty.inducedHom (CommRing→Ring A) (CommIdeal→Ideal ideal) g zeroOnGeneratedIdeal
     where ideal = generatedIdeal A v
 
 module Quotient-FGideal-CommRing-CommRing
