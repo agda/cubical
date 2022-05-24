@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.GroupoidLaws renaming (assoc to ≡assoc)
 
 open import Cubical.Relation.Nullary
 
@@ -12,6 +13,7 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
@@ -185,17 +187,6 @@ module CupH*FunProperties (A : Type ℓ) where
     ; fun-trad-neq
     ; ⊕HIT→Fun    )
 
-  sumFun= : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) →
-            (i n : ℕ) → (r : i ≤ n) → (pp : k +' l ≡ n) →
-             subst G pp (a ⌣ b) ≡ sumFun i n r (fun-trad k a) (fun-trad l b)
-  sumFun= k a l b n zero r pp with discreteℕ k 0 | discreteℕ l n
-  -- first regarder si i vaut n ?
-  ... | yes p | yes q = {!!} -- sym => subst G p a ⌣ subst G q b => subst G (p +' q) ( a ⌣ b) => subst G pp (p +' q) (a ⌣ b)
-  ... | yes p | no ¬q = {!!}
-  ... | no ¬p | yes q = {!!}
-  ... | no ¬p | no ¬q = {!!}
-  sumFun= k a l b n (suc i) r p = {!!}
-
 
   sumFun≠ : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) →
             (i n : ℕ) → (r : i ≤ n) → (¬pp : k +' l ≡ n → ⊥) →
@@ -223,12 +214,72 @@ module CupH*FunProperties (A : Type ℓ) where
                         ∙ rUnitₕ n _
                         ∙ substCoHom0 _
 
+  sumFun< : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) →
+            (i n : ℕ) → (r : i ≤ n) → (i < k) →
+            sumFun i n r (fun-trad k a) (fun-trad l b) ≡ 0ₕ n
+  sumFun< k a l b zero n r pp with discreteℕ k 0
+  ... | yes p = ⊥.rec (<→≢ pp (sym p))
+  ... | no ¬p = 0ₕ-⌣ 0 n _
+  sumFun< k a l b (suc i) n r pp with discreteℕ k (suc i)
+  ... | yes p = ⊥.rec (<→≢ pp (sym p))
+  ... | no ¬p = cong₂ _+ₕ_
+                      (cong (subst (λ X → coHom X A) (eqSameFiber r)) (0ₕ-⌣ (suc i) (n ∸ suc i) _))
+                      (sumFun< k a l b i n (≤-trans ≤-sucℕ r) (<-trans ≤-refl pp))
+                ∙ rUnitₕ n _
+                ∙ substCoHom0 _
 
-  sumFBase : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) → (i n : ℕ) → (r : i ≤ n) →
-             fun-trad (k +' l) (a ⌣ b) n ≡ sumFun i n r (fun-trad k a) (fun-trad l b)
-  sumFBase k a l b i n r with discreteℕ (k +' l) n
-  ... | yes p = sumFun= k a l b i n r p
-  ... | no ¬p = sym (sumFun≠ k a l b i n r ¬p)
+  substCoHom⌣ : {m n k l : ℕ} → (p : m ≡ n) → (q : k ≡ l) → (r : m +' k ≡ n +' l) →
+                (a : coHom m A) → (b : coHom k A) →
+                subst G p a ⌣ subst G q b ≡ subst G r (a ⌣ b)
+  substCoHom⌣ p q r a b = J (λ n p → subst G p a ⌣ subst G q b ≡ subst G (cong₂ _+'_ p q) (a ⌣ b))
+                            (J (λ l q → subst G refl a ⌣ subst G q b ≡ subst G (cong₂ _+'_ refl q) (a ⌣ b))
+                               (cong₂ _⌣_ (transportRefl _) (transportRefl _)
+                                ∙ sym (transportRefl _))
+                               q)
+                             p
+                           ∙ cong (λ X → subst (λ X → coHom X A) X (a ⌣ b)) (isSetℕ _ _ _ _)
+
+  sumFun≤ : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) →
+            (i n : ℕ) → (r : i ≤ n) → (pp : k +' l ≡ n) → (k ≤ i) →
+            sumFun i n r (fun-trad k a) (fun-trad l b) ≡ subst G pp (a ⌣ b)
+  sumFun≤ k a l b zero n r pp rr with discreteℕ k 0 | discreteℕ l n
+  ... | yes p | yes q = substCoHom⌣ p q pp a b
+  ... | yes p | no ¬q = ⊥.rec (¬q (cong (λ X → X +' l) (sym p) ∙ pp))
+  ... | no ¬p | yes q = ⊥.rec (¬p (≤0→≡0 rr))
+  ... | no ¬p | no ¬q = ⊥.rec (¬p (≤0→≡0 rr))
+  sumFun≤ k a l b (suc i) n r pp rr with discreteℕ k (suc i) | discreteℕ l (n ∸ suc i)
+  ... | yes p | yes q = cong₂ _+ₕ_
+                              (cong (subst (λ X → coHom X A) (eqSameFiber r)) (substCoHom⌣ p q (pp ∙ sym (eqSameFiber r)) a b))
+                              (sumFun< k a l b i n (≤-trans ≤-sucℕ r) (0 , (sym p)))
+                        ∙ rUnitₕ n _
+                        ∙ sym (substComposite G (pp ∙ sym (eqSameFiber r)) (eqSameFiber r) (a ⌣ b))
+                          -- more elegant than isSetℕ _ _ _ _
+                        ∙ cong (λ X → subst G X (a ⌣ b))
+                               (sym (≡assoc _ _ _)
+                               ∙ cong (λ X → pp ∙ X) (lCancel (eqSameFiber r))
+                               ∙ sym (rUnit pp) )
+  ... | yes p | no ¬q = ⊥.rec (¬q (inj-m+ (sym (+'≡+ (suc i) l)
+                                          ∙ cong (λ X → X +' l) (sym p)
+                                          ∙ pp
+                                          ∙ sym (eqSameFiber r)
+                                          ∙ +'≡+ (suc i) (n ∸ suc i))))
+  ... | no ¬p | yes q = ⊥.rec (¬p (inj-+m (sym (+'≡+ k (n ∸ suc i))
+                                            ∙ cong (λ X → k +' X) (sym q)
+                                            ∙ pp
+                                            ∙ sym (eqSameFiber r)
+                                            ∙ +'≡+ (suc i) (n ∸ suc i))))
+  ... | no ¬p | no ¬q = cong₂ _+ₕ_
+                              (cong (λ X → subst (λ X → coHom X A) (eqSameFiber r) X) (0ₕ-⌣ _ _ (0ₕ (n ∸ suc i))))
+                              (sumFun≤ k a l b i n (≤-trans ≤-sucℕ r) pp (≤-suc-≢ rr ¬p))
+                        ∙ cong (λ X → X +ₕ subst G pp (a ⌣ b)) (substCoHom0 (eqSameFiber r))
+                        ∙ lUnitₕ n _
+
+
+  sumFBase : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) → (n : ℕ) →
+             fun-trad (k +' l) (a ⌣ b) n ≡ sumFun n n ≤-refl (fun-trad k a) (fun-trad l b)
+  sumFBase k a l b n with discreteℕ (k +' l) n
+  ... | yes p = sym (sumFun≤ k a l b n n ≤-refl p (l , (+-comm l k ∙ sym (+'≡+ k l) ∙ p)))
+  ... | no ¬p = sym (sumFun≠ k a l b n n ≤-refl ¬p)
 
 
   -----------------------------------------------------------------------------
@@ -260,7 +311,7 @@ module CupH*FunProperties (A : Type ℓ) where
                     (λ y → sym (cupFunAnnihilL (⊕HIT→Fun y)))
                     (λ k a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetFun _ _)
                               (sym (cupFunAnnihilR (⊕HIT→Fun (base k a))))
-                              (λ l b → funExt (λ n → sumFBase k a l b n n ≤-refl))
+                              (λ l b → funExt (λ n → sumFBase k a l b n))
                               λ {U V} ind-U ind-V → cong₂ _+Fun_ ind-U ind-V
                                                      ∙ sym (cupFunDistR _ _ _))
                     λ {U} {V} ind-U ind-V y → cong₂ _+Fun_ (ind-U y) (ind-V y)
