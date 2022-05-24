@@ -601,18 +601,13 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
  -- the correct defintion
  open Join L
- module condCone {n : ℕ} (α : FinVec (ob BasisCat) n) (⋁α∈L' : ⋁ (λ i →  α i .fst) ∈ L') where
+ module condCone {n : ℕ} (α : FinVec (ob BasisCat) n) where
    open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L))
    open PosetStr (IndPoset .snd) hiding (_≤_)
    open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
         using (∧≤RCancel ; ∧≤LCancel)
    open Order (DistLattice→Lattice L)
    open Cone
-   private
-     α' : FinVec (fst L) n
-     α' i = α i .fst
-     ⋁α : ob BasisCat
-     ⋁α = ⋁ α' , ⋁α∈L'
 
    BDiag : Functor (DLShfDiag n) (BasisCat ^op)
    F-ob BDiag (sing i) = α i
@@ -623,10 +618,17 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
    F-id BDiag = is-prop-valued _ _ _ _
    F-seq BDiag _ _ = is-prop-valued _ _ _ _
 
-   B⋁Cone : Cone BDiag ⋁α
-   coneOut B⋁Cone (sing i) = ind≤⋁ α' i
-   coneOut B⋁Cone (pair i _ _) = is-trans _ (α' i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α' i)
-   coneOutCommutes B⋁Cone _ = is-prop-valued _ _ _ _
+   module _ (⋁α∈L' : ⋁ (λ i →  α i .fst) ∈ L')  where
+     private
+       α' : FinVec (fst L) n
+       α' i = α i .fst
+       ⋁α : ob BasisCat
+       ⋁α = ⋁ α' , ⋁α∈L'
+
+     B⋁Cone : Cone BDiag ⋁α
+     coneOut B⋁Cone (sing i) = ind≤⋁ α' i
+     coneOut B⋁Cone (pair i _ _) = is-trans _ (α' i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α' i)
+     coneOutCommutes B⋁Cone _ = is-prop-valued _ _ _ _
 
  isDLBasisSheaf : DLBasisPreSheaf → Type _
  isDLBasisSheaf F = ∀ {n : ℕ} (α : FinVec (ob BasisCat) n) (⋁α∈L' : ⋁ (λ i →  α i .fst) ∈ L')

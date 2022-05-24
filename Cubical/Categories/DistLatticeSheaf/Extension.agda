@@ -68,25 +68,36 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
  DLRan : DLSubPreSheaf → DLPreSheaf
  DLRan = Ran limitC (i ^opF)
 
- module _ (isBasisL' : IsBasis L L') where
+ module _ (isBasisL' : IsBasis L L') (F : DLSubPreSheaf) where
   open SheafOnBasis L C L' isBasisL'
   open Order (DistLattice→Lattice L)
   open DistLatticeStr (snd L)
+  open Join L
   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L))
   open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
       using (∧≤RCancel ; ∧≤LCancel ; ≤-∧Pres)
   open PosetStr (IndPoset .snd) hiding (_≤_)
 
-  isDLSheafDLRan : ∀ (F : DLSubPreSheaf)
-                 → isDLBasisSheaf F → isDLSheafPullback L C (DLRan F)
-  fst (isDLSheafDLRan F isSheafF) x = limArrow (limitC _ (F* 0l)) x (toCone x)
-   , λ f → {!limArrowUnique (limitC _ (F* 0l)) x (toCone x)!}
-   where
+  open condCone
+  private
    F* = T* limitC (i ^opF) F
 
-   toCone : (y : ob C) → Cone (F* 0l) y
-   coneOut (toCone y) ((u , u∈L') , 0≥u) = {!!}
-   coneOutCommutes (toCone y) = {!!}
+  coneLemma : ∀ (c : ob C) {n : ℕ} (α : FinVec (fst L) n) (α∈L' : ∀ i → α i ∈ L')
+            → Cone (funcComp F (BDiag (λ i → α i , α∈L' i)) ) c → Cone (F* (⋁ α)) c
+  coneLemma c α α∈L' cc = {!!}
 
+  isDLSheafDLRan : isDLBasisSheaf F → isDLSheafPullback L C (DLRan F)
+  fst (isDLSheafDLRan isSheafF) x = {!!} --must be a more elegant way to do this
+   --   limArrow (limitC _ (F* 0l)) x (toCone x)
+   -- , λ f → limArrowUnique (limitC _ (F* 0l)) x (toCone x) f {!!}
+   -- where
+   -- toCone : (y : ob C) → Cone (F* 0l) y
+   -- coneOut (toCone y) ((u , u∈L') , 0≥u) = {!isSheafF (λ ()) 0∈L'  y!}
+   --  where
+   --  0≡u : 0l ≡ u
+   --  0≡u = is-antisym _ _ (∨lLid _) 0≥u
+   --  0∈L' : 0l ∈ L'
+   --  0∈L' = subst-∈ L' (sym 0≡u) u∈L'
+   -- coneOutCommutes (toCone y) = {!!}
 
-  snd (isDLSheafDLRan F isSheafF) = {!!}
+  snd (isDLSheafDLRan isSheafF) = {!!}
