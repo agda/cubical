@@ -23,6 +23,8 @@ data ListP {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) : (as : List A) →
   [] : ListP B []
   _∷_ : {x : A} (y : B x) {xs : List A} (ys : ListP B xs) → ListP B (x ∷ xs)
 
+infixr 5 _∷_
+
 --------------------------
 
 -- Represent ListP via known operations in order to derive properties more easily.
