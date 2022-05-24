@@ -53,15 +53,15 @@ module Quotient-FGideal-CommRing-Ring
     (gnull : (k : Fin n) → g $ v k ≡ 0r)
     where
 
-    zeroOnGeneratedIdeal : (n : ℕ) → (x : ⟨ A ⟩) → x ∈ fst (generatedIdeal A v) → g $ x ≡ 0r
-    zeroOnGeneratedIdeal n x x∈FGIdeal =
+    zeroOnGeneratedIdeal : (x : ⟨ A ⟩) → x ∈ fst (generatedIdeal A v) → g $ x ≡ 0r
+    zeroOnGeneratedIdeal x x∈FGIdeal =
       PT.elim
         (λ _ → isSetRing B (g $ x) 0r)
         (λ {(α , isLC) → subst _ (sym isLC) (cancelLinearCombination A B g _ α v gnull)})
         x∈FGIdeal
 
     inducedHom : RingHom (CommRing→Ring (A / (generatedIdeal _ v))) B
-    inducedHom = UniversalProperty.inducedHom (CommRing→Ring A) (CommIdeal→Ideal ideal) g (zeroOnGeneratedIdeal n)
+    inducedHom = UniversalProperty.inducedHom (CommRing→Ring A) (CommIdeal→Ideal ideal) g zeroOnGeneratedIdeal
       where ideal = generatedIdeal A v
 
 module Quotient-FGideal-CommRing-CommRing
