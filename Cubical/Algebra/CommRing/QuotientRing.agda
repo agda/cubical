@@ -39,39 +39,39 @@ R / I =
 
 
 module Quotient-FGideal-CommRing-Ring
-  (A'@(A , Ar) : CommRing ℓ)
-  (B'@(B , Br) : Ring ℓ')
-  (g'@(g , gr) : RingHom (CommRing→Ring A') B')
+  (A : CommRing ℓ)
+  (B : Ring ℓ')
+  (g : RingHom (CommRing→Ring A) B)
   where
 
-  open RingStr Br using (0r)
+  open RingStr (snd B) using (0r)
   open IsRingHom
 
   module _
     {n : ℕ}
-    (v : FinVec A n)
-    (gnull : (k : Fin n) → g ( v k) ≡ 0r)
+    (v : FinVec ⟨ A ⟩ n)
+    (gnull : (k : Fin n) → g $ v k ≡ 0r)
     where
 
-    zeroOnGeneratedIdeal : (n : ℕ) → (x : ⟨ A' ⟩) → x ∈ fst (generatedIdeal A' v) → g' $ x ≡ 0r
+    zeroOnGeneratedIdeal : (n : ℕ) → (x : ⟨ A ⟩) → x ∈ fst (generatedIdeal A v) → g $ x ≡ 0r
     zeroOnGeneratedIdeal n x x∈FGIdeal =
       PT.elim
-        (λ _ → isSetRing B' (g' $ x) 0r)
-        (λ {(α , isLC) → subst _ (sym isLC) (cancelLinearCombination A' B' g' _ α v gnull)})
+        (λ _ → isSetRing B (g $ x) 0r)
+        (λ {(α , isLC) → subst _ (sym isLC) (cancelLinearCombination A B g _ α v gnull)})
         x∈FGIdeal
 
-    inducedHom : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
-    inducedHom = UniversalProperty.inducedHom (CommRing→Ring A') (CommIdeal→Ideal ideal) g' (zeroOnGeneratedIdeal n)
-      where ideal = generatedIdeal A' v
+    inducedHom : RingHom (CommRing→Ring (A / (generatedIdeal _ v))) B
+    inducedHom = UniversalProperty.inducedHom (CommRing→Ring A) (CommIdeal→Ideal ideal) g (zeroOnGeneratedIdeal n)
+      where ideal = generatedIdeal A v
 
 module Quotient-FGideal-CommRing-CommRing
-  (A'@(A , Ar) : CommRing ℓ)
-  (B'@(B , Br) : CommRing ℓ')
-  (g'@(g , gr) : CommRingHom A' B')
+  (A : CommRing ℓ)
+  (B : CommRing ℓ')
+  (g : CommRingHom A B)
   {n : ℕ}
-  (v : FinVec A n)
-  (gnull : (k : Fin n) → g ( v k) ≡ CommRingStr.0r (snd B'))
+  (v : FinVec ⟨ A ⟩ n)
+  (gnull : (k : Fin n) → g $ v k ≡ CommRingStr.0r (snd B))
   where
 
-  f : CommRingHom (A' / (generatedIdeal _ v)) B'
-  f = Quotient-FGideal-CommRing-Ring.inducedHom A' (CommRing→Ring B') g' v gnull
+  f : CommRingHom (A / (generatedIdeal _ v)) B
+  f = Quotient-FGideal-CommRing-Ring.inducedHom A (CommRing→Ring B) g v gnull
