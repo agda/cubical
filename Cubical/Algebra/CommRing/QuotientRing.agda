@@ -14,6 +14,7 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
+open import Cubical.Algebra.CommRing.Kernel
 open import Cubical.Algebra.Ring
 import Cubical.Algebra.Ring.QuotientRing as Ring
 
@@ -75,3 +76,11 @@ module Quotient-FGideal-CommRing-CommRing
 
 quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
 quotientHom R I = Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
+
+
+module idealIsKernel {R : CommRing ℓ} (I : IdealsIn R) where
+
+  π = quotientHom R I
+
+  kernel≡I : kernelIdeal R (R / I) π ≡ I
+  kernel≡I = cong Ideal→CommIdeal (Ring.idealIsKernel.kernel≡I (CommIdeal→Ideal I))

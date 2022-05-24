@@ -11,5 +11,7 @@ private
   variable
     ℓ : Level
 
-kernelIdeal : {R S : CommRing ℓ} (f : CommRingHom R S) → IdealsIn R
-kernelIdeal f = Ideal→CommIdeal (ringKernelIdeal f)
+
+-- If R and S were implicit, their ·Comm component could (almost?) never be inferred.
+kernelIdeal : (R S : CommRing ℓ) (f : CommRingHom R S) → IdealsIn R
+kernelIdeal _ _ f = Ideal→CommIdeal (ringKernelIdeal f)
