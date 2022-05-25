@@ -24,7 +24,7 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation renaming (rec to propTruncRec; rec2 to propTruncRec2)
 
 open import Cubical.Algebra.CommMonoid.Base
-open import Cubical.Algebra.OrderedCommMonoid.Base
+open import Cubical.Algebra.OrderedCommMonoid
 
 open import Cubical.Relation.Binary.Poset
 
@@ -214,5 +214,16 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
           ≤↑IsProp ≤↑IsRefl ≤↑IsTrans ≤↑IsAntisym ·↑IsRMonotone ·↑IsLMonotone
     })
 
+  boundedSubstructure : OrderedCommMonoid (ℓ-suc ℓ) ℓ
+  boundedSubstructure =
+    makeOrderedSubmonoid
+      asOrderedCommMonoid
+      (λ s → (isBounded s , isPropIsBounded s))
+      ·presBounded
+      (isBounded^ ε)
+
 PropCompletion : OrderedCommMonoid ℓ ℓ → OrderedCommMonoid (ℓ-suc ℓ) ℓ
 PropCompletion M = PropCompletion.asOrderedCommMonoid _ M
+
+BoundedPropCompletion : OrderedCommMonoid ℓ ℓ → OrderedCommMonoid (ℓ-suc ℓ) ℓ
+BoundedPropCompletion M = PropCompletion.boundedSubstructure _ M
