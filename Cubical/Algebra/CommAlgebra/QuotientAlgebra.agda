@@ -185,7 +185,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
     kernel A (A / I) π ≡⟨ Σ≡Prop
                             (isPropIsCommIdeal (CommAlgebra→CommRing A))
                             refl ⟩
-    _                  ≡⟨  CommRing.idealIsKernel.kernel≡I {R = CommAlgebra→CommRing A} I ⟩
+    _                  ≡⟨  CommRing.kernel≡I {R = CommAlgebra→CommRing A} I ⟩
     I ∎
 
 
