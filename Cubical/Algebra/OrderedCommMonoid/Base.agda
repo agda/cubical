@@ -15,7 +15,10 @@ private
   variable
     ℓ ℓ' : Level
 
-record IsOrderedCommMonoid {M : Type ℓ} (_·_ : M → M → M) (1m : M) (_≤_ : M → M → Type ℓ') : Type (ℓ-max ℓ ℓ') where
+record IsOrderedCommMonoid
+       {M : Type ℓ}
+       (_·_ : M → M → M) (1m : M) (_≤_ : M → M → Type ℓ') : Type (ℓ-max ℓ ℓ')
+       where
   field
     isPoset     : IsPoset _≤_
     isCommMonoid   : IsCommMonoid 1m _·_
@@ -54,13 +57,25 @@ module _ where
                  (rmonotone : (x y z : M) → x ≤ y → (x · z) ≤ (y · z))
                  (lmonotone : (x y z : M) → x ≤ y → (z · x) ≤ (z · y))
                → IsOrderedCommMonoid _·_ 1m _≤_
-  isCommMonoid (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
+  isCommMonoid
+    (makeIsOrderedCommMonoid
+      is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone)
+    =
     makeIsCommMonoid is-setM assoc rid comm
-  isPoset (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
+  isPoset
+    (makeIsOrderedCommMonoid
+      is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone)
+    =
     isposet is-setM isProp≤ isRefl isTrans isAntisym
-  MonotoneR (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
+  MonotoneR
+    (makeIsOrderedCommMonoid
+      is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone)
+    =
     rmonotone _ _ _
-  MonotoneL (makeIsOrderedCommMonoid is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone) =
+  MonotoneL
+    (makeIsOrderedCommMonoid
+      is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone)
+    =
     lmonotone _ _ _
 
   IsOrderedCommMonoidFromIsCommMonoid :
