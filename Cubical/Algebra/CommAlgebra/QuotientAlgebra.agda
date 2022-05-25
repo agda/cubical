@@ -177,14 +177,16 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
 module idealIsKernel {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   open CommIdeal using (isPropIsCommIdeal)
 
-  π = quotientHom A I
+  private
+    π = quotientHom A I
 
   kernel≡I : kernel A (A / I) π ≡ I
-  kernel≡I = kernel A (A / I) π ≡⟨ Σ≡Prop
-                                     (isPropIsCommIdeal (CommAlgebra→CommRing A))
-                                     refl ⟩
-             _               ≡⟨  CommRing.idealIsKernel.kernel≡I {R = CommAlgebra→CommRing A} I ⟩
-             I ∎
+  kernel≡I =
+    kernel A (A / I) π ≡⟨ Σ≡Prop
+                            (isPropIsCommIdeal (CommAlgebra→CommRing A))
+                            refl ⟩
+    _                  ≡⟨  CommRing.idealIsKernel.kernel≡I {R = CommAlgebra→CommRing A} I ⟩
+    I ∎
 
 
 private
