@@ -1,9 +1,11 @@
 {-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.Nat.Properties where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Empty as ⊥
@@ -47,6 +49,76 @@ snotz eq = subst (caseNat ⊥ ℕ) eq 0
 
 injSuc : suc m ≡ suc n → m ≡ n
 injSuc p = cong predℕ p
+
+-- encode decode caracterisation of equality
+codeℕ : (n m : ℕ) → Type ℓ-zero
+codeℕ zero zero = Unit
+codeℕ zero (suc m) = ⊥
+codeℕ (suc n) zero = ⊥
+codeℕ (suc n) (suc m) = codeℕ n m
+
+encodeℕ : (n m : ℕ) → (n ≡ m) → codeℕ n m
+encodeℕ n m p = subst (λ m → codeℕ n m) p (reflCode n)
+ where
+ reflCode : (n : ℕ) → codeℕ n n
+ reflCode zero = tt
+ reflCode (suc n) = reflCode n
+
+compute-eqℕ : (n m : ℕ) → (n ≡ m ) → codeℕ n m
+compute-eqℕ zero zero p = tt
+compute-eqℕ zero (suc m) p = znots p
+compute-eqℕ (suc n) zero p = snotz p
+compute-eqℕ (suc n) (suc m) p = compute-eqℕ n m (injSuc p)
+
+decodeℕ : (n m : ℕ) → codeℕ n m → (n ≡ m)
+decodeℕ zero zero = λ _ → refl
+decodeℕ zero (suc m) = ⊥.rec
+decodeℕ (suc n) zero = ⊥.rec
+decodeℕ (suc n) (suc m) = λ r → cong suc (decodeℕ n m r)
+
+≡ℕ≃Codeℕ : (n m : ℕ) → (n ≡ m) ≃ codeℕ n m
+≡ℕ≃Codeℕ n m = isoToEquiv is
+  where
+  is : Iso (n ≡ m) (codeℕ n m)
+  Iso.fun is = encodeℕ n m
+  Iso.inv is = decodeℕ n m
+  Iso.rightInv is = sect n m
+    where
+    sect : (n m : ℕ) → (r : codeℕ n m) → (encodeℕ n m (decodeℕ n m r) ≡ r)
+    sect zero zero tt = refl
+    sect zero (suc m) r = ⊥.rec r
+    sect (suc n) zero r = ⊥.rec r
+    sect (suc n) (suc m) r = sect n m r
+  Iso.leftInv is = retr n m
+    where
+    reflRetr : (n : ℕ) → decodeℕ n n (encodeℕ n n refl) ≡ refl
+    reflRetr zero = refl
+    reflRetr (suc n) i = cong suc (reflRetr n i)
+
+    retr : (n m : ℕ) → (p : n ≡ m) → (decodeℕ n m (encodeℕ n m p) ≡ p)
+    retr n m p = J (λ m p → decodeℕ n m (encodeℕ n m p) ≡ p) (reflRetr n) p
+
+
+≡ℕ≃Codeℕ' : (n m : ℕ) → (n ≡ m) ≃ codeℕ n m
+≡ℕ≃Codeℕ' n m = isoToEquiv is
+  where
+  is : Iso (n ≡ m) (codeℕ n m)
+  Iso.fun is = compute-eqℕ n m
+  Iso.inv is = decodeℕ n m
+  Iso.rightInv is = sect n m
+    where
+    sect : (n m : ℕ) → (r : codeℕ n m) → compute-eqℕ n m (decodeℕ n m r) ≡ r
+    sect zero zero tt = refl
+    sect (suc n) (suc m) r = sect n m r
+  Iso.leftInv is = retr n m
+    where
+    reflRetr : (n : ℕ) → decodeℕ n n (compute-eqℕ n n refl) ≡ refl
+    reflRetr zero = refl
+    reflRetr (suc n) i = cong suc (reflRetr n i)
+
+    retr : (n m : ℕ) → (p : n ≡ m) → decodeℕ n m (compute-eqℕ n m p) ≡ p
+    retr n m p = J (λ m p → decodeℕ n m (compute-eqℕ n m p) ≡ p) (reflRetr n) p
+
 
 discreteℕ : Discrete ℕ
 discreteℕ zero zero = yes refl
@@ -149,6 +221,11 @@ inj-·sm {suc l} {m} {suc n} p = cong suc (inj-·sm (inj-m+ {m = suc m} p))
 
 inj-sm· : suc m · l ≡ suc m · n → l ≡ n
 inj-sm· {m} {l} {n} p = inj-·sm (·-comm l (suc m) ∙ p ∙ ·-comm (suc m) n)
+
+integral-domain-· : {k l : ℕ} → (k ≡ 0 → ⊥) → (l ≡ 0 → ⊥) → (k · l ≡ 0 → ⊥)
+integral-domain-· {zero} {l} ¬p ¬q r = ¬p refl
+integral-domain-· {suc k} {zero} ¬p ¬q r = ¬q refl
+integral-domain-· {suc k} {suc l} ¬p ¬q r = snotz r
 
 -- Arithmetic facts about ∸
 

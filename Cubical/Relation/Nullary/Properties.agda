@@ -23,21 +23,22 @@ open import Cubical.HITs.PropositionalTruncation.Base
 private
   variable
     ℓ : Level
-    A : Type ℓ
+    A B : Type ℓ
 
-IsoPresDiscrete : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → Iso A B
-               → Discrete A → Discrete B
-IsoPresDiscrete e dA x y with dA (Iso.inv e x) (Iso.inv e y)
-... | yes p = subst Dec (λ i → Iso.rightInv e x i ≡ Iso.rightInv e y i)
-                        (yes (cong (Iso.fun e) p))
-... | no p = subst Dec (λ i → Iso.rightInv e x i ≡ Iso.rightInv e y i)
-                   (no λ q → p (sym (Iso.leftInv e (Iso.inv e x))
-                     ∙∙ cong (Iso.inv e) q
-                     ∙∙ Iso.leftInv e (Iso.inv e y)))
+-- Functions with a section preserve discreteness.
+sectionDiscrete
+  : (f : A → B) (g : B → A) → section f g → Discrete A → Discrete B
+sectionDiscrete f g sect dA x y with dA (g x) (g y)
+... | yes p = yes (sym (sect x) ∙∙ cong f p ∙∙ sect y)
+... | no ¬p = no (λ p → ¬p (cong g p))
+
+isoPresDiscrete : Iso A B → Discrete A → Discrete B
+isoPresDiscrete e = sectionDiscrete fun inv rightInv
+  where open Iso e
 
 EquivPresDiscrete : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B
                → Discrete A → Discrete B
-EquivPresDiscrete e = IsoPresDiscrete (equivToIso e)
+EquivPresDiscrete e = isoPresDiscrete (equivToIso e)
 
 isProp¬ : (A : Type ℓ) → isProp (¬ A)
 isProp¬ A p q i x = isProp⊥ (p x) (q x) i
@@ -75,12 +76,12 @@ EquivPresDec : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B
           → Dec A → Dec B
 EquivPresDec p = mapDec (p .fst) (λ f → f ∘ invEq p)
 
-¬→¬∥∥ : ¬ A → ¬ ∥ A ∥
-¬→¬∥∥ ¬p ∣ a ∣ = ¬p a
-¬→¬∥∥ ¬p (squash x y i) = isProp⊥ (¬→¬∥∥ ¬p x) (¬→¬∥∥ ¬p y) i
+¬→¬∥∥ : ¬ A → ¬ ∥ A ∥₁
+¬→¬∥∥ ¬p ∣ a ∣₁ = ¬p a
+¬→¬∥∥ ¬p (squash₁ x y i) = isProp⊥ (¬→¬∥∥ ¬p x) (¬→¬∥∥ ¬p y) i
 
-Dec∥∥ : Dec A → Dec ∥ A ∥
-Dec∥∥ = mapDec ∣_∣ ¬→¬∥∥
+Dec∥∥ : Dec A → Dec ∥ A ∥₁
+Dec∥∥ = mapDec ∣_∣₁ ¬→¬∥∥
 
 -- we have the following implications
 -- X ── ∣_∣ ─→ ∥ X ∥
@@ -89,13 +90,12 @@ Dec∥∥ = mapDec ∣_∣ ¬→¬∥∥
 
 -- reexport propositional truncation for uniformity
 open Cubical.HITs.PropositionalTruncation.Base
-  using (∣_∣) public
 
-populatedBy : ∥ A ∥ → ⟪ A ⟫
+populatedBy : ∥ A ∥₁ → ⟪ A ⟫
 populatedBy {A = A} a (f , fIsConst) = h a where
-  h : ∥ A ∥ → Fixpoint f
-  h ∣ a ∣ = f a , fIsConst (f a) a
-  h (squash a b i) = 2-Constant→isPropFixpoint f fIsConst (h a) (h b) i
+  h : ∥ A ∥₁ → Fixpoint f
+  h ∣ a ∣₁ = f a , fIsConst (f a) a
+  h (squash₁ a b i) = 2-Constant→isPropFixpoint f fIsConst (h a) (h b) i
 
 notEmptyPopulated : ⟪ A ⟫ → NonEmpty A
 notEmptyPopulated {A = A} pop u = u (fixpoint (pop (h , hIsConst))) where
@@ -120,9 +120,9 @@ PStable→SplitSupport pst = pst ∘ populatedBy
 SplitSupport→Collapsible : SplitSupport A → Collapsible A
 SplitSupport→Collapsible {A = A} hst = h , hIsConst where
   h : A → A
-  h p = hst ∣ p ∣
+  h p = hst ∣ p ∣₁
   hIsConst : 2-Constant h
-  hIsConst p q i = hst (squash ∣ p ∣ ∣ q ∣ i)
+  hIsConst p q i = hst (squash₁ ∣ p ∣₁ ∣ q ∣₁ i)
 
 Collapsible→SplitSupport : Collapsible A → SplitSupport A
 Collapsible→SplitSupport f x = fixpoint (populatedBy x f)
@@ -154,9 +154,9 @@ HSeparated→isSet = Collapsible≡→isSet ∘ HSeparated→Collapsible≡
 
 isSet→HSeparated : isSet A → HSeparated A
 isSet→HSeparated setA x y = extract where
-  extract : ∥ x ≡ y ∥ → x ≡ y
-  extract ∣ p ∣ = p
-  extract (squash p q i) = setA x y (extract p) (extract q) i
+  extract : ∥ x ≡ y ∥₁ → x ≡ y
+  extract ∣ p ∣₁ = p
+  extract (squash₁ p q i) = setA x y (extract p) (extract q) i
 
 -- by the above more sufficient conditions to inhibit isSet A are given
 PStable≡→HSeparated : PStable≡ A → HSeparated A

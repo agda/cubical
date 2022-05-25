@@ -242,7 +242,7 @@ module RingEquivs where
   fst (invEquivRing e) = invEquiv (fst e)
   snd (invEquivRing e) = isRingHomInv e
 
-module RingHomTheory {R S : Ring ℓ} (φ : RingHom R S) where
+module RingHomTheory {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) where
   open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
   open IsRingHom (φ .snd)
@@ -325,7 +325,7 @@ recPT→Ring : {A : Type ℓ'} (𝓕  : A → Ring ℓ)
            → (σ : ∀ x y → RingEquiv (𝓕 x) (𝓕 y))
            → (∀ x y z → σ x z ≡ compRingEquiv (σ x y) (σ y z))
           ------------------------------------------------------
-           → ∥ A ∥ → Ring ℓ
+           → ∥ A ∥₁ → Ring ℓ
 recPT→Ring 𝓕 σ compCoh = rec→Gpd isGroupoidRing 𝓕
   (3-ConstantCompChar 𝓕 (λ x y → uaRing (σ x y))
                           λ x y z → sym (  cong uaRing (compCoh x y z)

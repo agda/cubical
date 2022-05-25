@@ -16,9 +16,9 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat renaming (_+_ to _Nat+_; _·_ to _Nat·_) hiding (·-comm)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty.Base renaming (rec to ⊥rec )
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (_≤_)
 
-open import Cubical.Algebra.Group hiding (Bool)
+open import Cubical.Algebra.Group
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
@@ -100,7 +100,7 @@ module PolyMod (R' : CommRing ℓ) where
 
 
   isSetPolyFun : isSet PolyFun
-  isSetPolyFun = isSetΣSndProp (isSetΠ (λ x → isSetCommRing R')) λ f x y → squash x y
+  isSetPolyFun = isSetΣSndProp (isSetΠ (λ x → isSetCommRing R')) λ f x y → squash₁ x y
 
 
   --construction of the function that represents the polynomial
@@ -116,14 +116,14 @@ module PolyMod (R' : CommRing ℓ) where
 
   Poly→Prf : (p : Poly) → ∃[ n ∈ ℕ ] ((m : ℕ) → n ≤ m → (Poly→Fun p m ≡ 0r))
   Poly→Prf = ElimProp.f (λ p →  ∃[ n ∈ ℕ ] ((m : ℕ) → n ≤ m → (Poly→Fun p m ≡ 0r)))
-                        ∣ 0 , (λ m ineq → refl) ∣
+                        ∣ 0 , (λ m ineq → refl) ∣₁
                         (λ r p → map ( λ (n , ineq) → (suc n) ,
                                        λ { zero h → ⊥rec (znots (sym (≤0→≡0 h))) ;
                                            (suc m) h → ineq m (pred-≤-pred h)
                                          }
                                      )
                         )
-                        squash
+                        squash₁
 
   Poly→PolyFun : Poly → PolyFun
   Poly→PolyFun p = (Poly→Fun p) , (Poly→Prf p)

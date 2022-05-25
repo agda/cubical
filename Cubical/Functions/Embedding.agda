@@ -7,12 +7,12 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Univalence using (ua; univalence)
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence using (ua; univalence; pathToEquiv)
 open import Cubical.Functions.Fibration
 
 open import Cubical.Data.Sigma
@@ -364,7 +364,7 @@ module FibrationIdentityPrinciple {B : Type ℓ} {ℓ₁} where
         (Σ[ (E , g) ∈ Fibration B ℓ₁ ] Σ[ eq ∈ (L E ≡ A) ] PathP (λ i → eq i → B) (g ∘ lower) f)
       ≃⟨ boringSwap ⟩
         (Σ[ (E , eq) ∈ fiber L A ] Σ[ g ∈ (E → B) ] PathP (λ i → eq i → B) (g ∘ lower) f)
-      ≃⟨ Σ-cong-equiv-snd (λ _ → Σ-cong-equiv-snd λ _ → transportEquiv (PathP≡Path⁻ _ _ _)) ⟩
+      ≃⟨ Σ-cong-equiv-snd (λ _ → Σ-cong-equiv-snd λ _ → pathToEquiv (PathP≡Path⁻ _ _ _)) ⟩
         (Σ[ (E , eq) ∈ fiber L A ] fiber (_∘ lower) (transport⁻ (λ i → eq i → B) f))
       ■ where
       unquoteDecl boringSwap =

@@ -4,7 +4,7 @@ Eilenberg–Mac Lane type K(G, 1)
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe #-}
+{-# OPTIONS --cubical --no-import-sorts --safe  --experimental-lossy-unification #-}
 module Cubical.HITs.EilenbergMacLane1.Properties where
 
 open import Cubical.HITs.EilenbergMacLane1.Base
@@ -15,13 +15,19 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Empty renaming (rec to ⊥-rec) hiding (elim)
+
 
 open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Properties
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
-open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)
+open import Cubical.Algebra.AbGroup.Base
+
+open import Cubical.Functions.Morphism
 
 private
   variable
@@ -30,6 +36,29 @@ private
 module _ ((G , str) : Group ℓG) where
 
   open GroupStr str
+
+  elimGroupoid :
+   {B : EM₁ (G , str) → Type ℓ}
+          → ((x : EM₁ (G , str)) → isGroupoid (B x))
+          → (b : B embase)
+          → (bloop : ((g : G) → PathP (λ i → B (emloop g i)) b b))
+          → ((g h : G) → PathP (λ i → PathP (λ j → B (emcomp g h j i))
+                                 (bloop g i) (bloop (g · h) i)) (λ _ → b) (bloop h))
+          → (x : EM₁ (G , str))
+          → B x
+  elimGroupoid Bgroup b bloop bcomp embase = b
+  elimGroupoid Bgroup b bloop bcomp (emloop x i) = bloop x i
+  elimGroupoid Bgroup b bloop bcomp (emcomp g h j i) = bcomp g h i j
+  elimGroupoid {B = B} Bgroup b bloop bcomp (emsquash g h p q r s i j k) = help i j k
+    where
+    help : PathP (λ i → PathP (λ j → PathP (λ k → B (emsquash g h p q r s i j k))
+                 (elimGroupoid Bgroup b bloop bcomp g)
+                 (elimGroupoid Bgroup b bloop bcomp h))
+                 (λ k → elimGroupoid Bgroup b bloop bcomp (p k))
+                 λ k → elimGroupoid Bgroup b bloop bcomp (q k))
+                 (λ j k → elimGroupoid Bgroup b bloop bcomp (r j k))
+                 λ j k → elimGroupoid Bgroup b bloop bcomp (s j k)
+    help = toPathP (isOfHLevelPathP' 1 (isOfHLevelPathP' 2 (Bgroup _) _ _) _ _ _ _)
 
   elimSet : {B : EM₁ (G , str) → Type ℓ}
           → ((x : EM₁ (G , str)) → isSet (B x))

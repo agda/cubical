@@ -30,7 +30,8 @@ isSetDeltaInt : isSet DeltaInt
 
 module Cubical.Data.Int.MoreInts.DeltaInt.Properties where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Nat hiding (zero)
 open import Cubical.Data.Int hiding (abs; _+_)
 open import Cubical.Data.Int.MoreInts.DeltaInt.Base
@@ -83,4 +84,3 @@ predSucc (cancel a b i) = succPred (cancel a b i)
 
 succPredEq : DeltaInt ≡ DeltaInt
 succPredEq = isoToPath (iso succ pred succPred predSucc)
-

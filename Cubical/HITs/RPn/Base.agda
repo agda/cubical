@@ -53,7 +53,7 @@ data RP² : Type₀ where
 2-EltPointed₀ = PointedEqvTo ℓ-zero Bool -- Σ[ X ∈ Type₀ ] X × ∥ X ≃ Bool ∥
 
 Bool* : 2-EltType₀
-Bool* = Bool , ∣ idEquiv _ ∣
+Bool* = Bool , ∣ idEquiv _ ∣₁
 
 
 -- Our first goal is to 'lift' `_⊕_ : Bool → Bool ≃ Bool` to a function `_⊕_ : A → A ≃ Bool`
@@ -80,7 +80,7 @@ snd (isContrBoolPointedEquiv x) (e , p)
 --  that there is therefore a unique pointed isomorphism (Bool , false) ≃ (X , x) for any
 --  2-element pointed type (X , x, ∣e∣).
 isContr-2-EltPointedEquiv : (X∙ : 2-EltPointed₀)
-                         → isContr ((Bool , false , ∣ idEquiv Bool ∣) ≃[ PointedEqvToEquivStr Bool ] X∙)
+                         → isContr ((Bool , false , ∣ idEquiv Bool ∣₁) ≃[ PointedEqvToEquivStr Bool ] X∙)
 isContr-2-EltPointedEquiv (X , x , ∣e∣)
   = PropTrunc.rec isPropIsContr
                   (λ e → J (λ X∙ _ → isContr ((Bool , false) ≃[ PointedEquivStr ] X∙))
@@ -110,7 +110,7 @@ module ⊕* (X : 2-EltType₀) where
   elim {ℓ'} P propP r = PropTrunc.elim {P = λ ∣e∣ → P (typ X) (R₁ ∣e∣)} (λ _ → propP _ _)
                                        (λ e → EquivJ (λ A e → P A (R₂ A e)) r e)
                                        (snd X)
-    where R₁ : ∥ fst X ≃ Bool ∥ → typ X → typ X → Bool
+    where R₁ : ∥ fst X ≃ Bool ∥₁ → typ X → typ X → Bool
           R₁ ∣e∣ y = invEq (fst (fst (isContr-2-EltPointedEquiv (fst X , y , ∣e∣))))
           R₂ : (B : Type₀) → B ≃ Bool → B → B → Bool
           R₂ A e y = invEq (fst (fst (J (λ A∙ _ → isContr ((Bool , false) ≃[ PointedEquivStr ] A∙))
@@ -133,7 +133,7 @@ module ⊕* (X : 2-EltType₀) where
 -- Lemma II.2 in [BR17], though we do not use it here
 -- Note: Lemma II.3 is `pointed-sip`, used in `PointedEqvTo-sip`
 isContr-2-EltPointed : isContr (2-EltPointed₀)
-fst isContr-2-EltPointed = (Bool , false , ∣ idEquiv Bool ∣)
+fst isContr-2-EltPointed = (Bool , false , ∣ idEquiv Bool ∣₁)
 snd isContr-2-EltPointed A∙ = PointedEqvTo-sip Bool _ A∙ (fst (isContr-2-EltPointedEquiv A∙))
 
 
@@ -163,8 +163,8 @@ cov⁻¹ (ℕ→ℕ₋₁ n) (inl x)          = cov⁻¹ (-1+ n) x
 cov⁻¹ (ℕ→ℕ₋₁ n) (inr _)          = Bool*
 cov⁻¹ (ℕ→ℕ₋₁ n) (push (x , y) i) = ua ((λ z → y ⊕* z) , ⊕*.isEquivʳ (cov⁻¹ (-1+ n) x) y) i , ∣p∣ i
   where open ⊕* (cov⁻¹ (-1+ n) x)
-        ∣p∣ = isProp→PathP (λ i → squash {A = ua (⊕*.Equivʳ (cov⁻¹ (-1+ n) x) y) i ≃ Bool})
-                           (str (cov⁻¹ (-1+ n) x)) (∣ idEquiv _ ∣)
+        ∣p∣ = isProp→PathP (λ i → squash₁ {A = ua (⊕*.Equivʳ (cov⁻¹ (-1+ n) x) y) i ≃ Bool})
+                           (str (cov⁻¹ (-1+ n) x)) (∣ idEquiv _ ∣₁)
 {-
                          tt
    Total (cov⁻¹ (n-1)) — — — > Unit

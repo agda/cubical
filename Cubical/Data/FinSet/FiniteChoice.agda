@@ -29,7 +29,7 @@ private
     ℓ ℓ' : Level
 
 choice≃Fin :
-  {n : ℕ}(Y : Fin n → Type ℓ) → ((x : Fin n) → ∥ Y x ∥) ≃ ∥ ((x : Fin n) → Y x) ∥
+  {n : ℕ}(Y : Fin n → Type ℓ) → ((x : Fin n) → ∥ Y x ∥₁) ≃ ∥ ((x : Fin n) → Y x) ∥₁
 choice≃Fin {n = 0} Y =
     isContr→≃Unit (isContrΠ⊥)
   ⋆ Unit≃Unit*
@@ -37,7 +37,7 @@ choice≃Fin {n = 0} Y =
   ⋆ propTrunc≃ (invEquiv (isContr→≃Unit* (isContrΠ⊥ {A = Y})))
 choice≃Fin {n = suc n} Y =
     Π⊎≃
-  ⋆ Σ-cong-equiv-fst (ΠUnit (λ x → ∥ Y (inl x) ∥))
+  ⋆ Σ-cong-equiv-fst (ΠUnit (λ x → ∥ Y (inl x) ∥₁))
   ⋆ Σ-cong-equiv-snd (λ _ → choice≃Fin {n = n} (λ x → Y (inr x)))
   ⋆ Σ-cong-equiv-fst (propTrunc≃ (invEquiv (ΠUnit (λ x → Y (inl x)))))
   ⋆ ∥∥-×-≃
@@ -50,9 +50,9 @@ module _
   private
     e = p .snd
 
-  choice≃' : ((x : X) → ∥ Y x ∥) ≃ ∥ ((x : X) → Y x) ∥
+  choice≃' : ((x : X) → ∥ Y x ∥₁) ≃ ∥ ((x : X) → Y x) ∥₁
   choice≃' =
-      equivΠ {B' = λ x → ∥ Y (invEq e x) ∥} e (transpFamily p)
+      equivΠ {B' = λ x → ∥ Y (invEq e x) ∥₁} e (transpFamily p)
     ⋆ choice≃Fin _
     ⋆ propTrunc≃ (invEquiv (equivΠ {B' = λ x → Y (invEq e x)} e (transpFamily p)))
 
@@ -60,11 +60,11 @@ module _
   (X : FinSet ℓ)
   (Y : X .fst → Type ℓ') where
 
-  choice≃ : ((x : X .fst) → ∥ Y x ∥) ≃ ∥ ((x : X .fst) → Y x) ∥
+  choice≃ : ((x : X .fst) → ∥ Y x ∥₁) ≃ ∥ ((x : X .fst) → Y x) ∥₁
   choice≃ =
     Prop.rec
       (isOfHLevel≃ 1 (isPropΠ (λ x → isPropPropTrunc)) isPropPropTrunc)
       (λ p → choice≃' (X .fst) (_ , p) Y) (X .snd .snd)
 
-  choice : ((x : X .fst) → ∥ Y x ∥) → ∥ ((x : X .fst) → Y x) ∥
+  choice : ((x : X .fst) → ∥ Y x ∥₁) → ∥ ((x : X .fst) → Y x) ∥₁
   choice = choice≃ .fst

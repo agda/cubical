@@ -24,6 +24,16 @@ cofib f = Pushout (λ _ → tt) f
 cfcod : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → B → cofib f
 cfcod f = inr
 
+-- Symmetry of pushout
+
+symPushout : {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  → (f : A → B) (g : A → C) → Pushout f g ≃ Pushout g f
+symPushout f g = isoToEquiv
+  (iso (λ { (inl x) → inr x ; (inr x) → inl x ; (push x i) → push x (~ i)})
+       (λ { (inl x) → inr x ; (inr x) → inl x ; (push x i) → push x (~ i)})
+       (λ { (inl x) → refl  ; (inr x) → refl  ; (push x i) → refl})
+       (λ { (inl x) → refl  ; (inr x) → refl  ; (push x i) → refl}))
+
 -- Suspension defined as a pushout
 
 PushoutSusp : ∀ {ℓ} (A : Type ℓ) → Type ℓ

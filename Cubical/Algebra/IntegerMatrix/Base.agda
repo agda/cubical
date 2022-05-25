@@ -10,20 +10,12 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function hiding (const)
 open import Cubical.Foundations.Powerset
 
-open import Cubical.Data.Nat
-  hiding   (_·_)
-  renaming (_+_ to _+ℕ_ ; +-assoc to +Assocℕ)
+open import Cubical.Data.Nat hiding (_·_) renaming (_+_ to _+ℕ_ ; +-assoc to +Assocℕ)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Nat.Divisibility
-  using    (m∣n→m≤n)
-  renaming (∣-trans to ∣ℕ-trans)
-open import Cubical.Data.Int
-  hiding   (_+_ ; _·_ ; _-_ ; -_ ; addEq)
+open import Cubical.Data.Nat.Divisibility using (m∣n→m≤n) renaming (∣-trans to ∣ℕ-trans)
+open import Cubical.Data.Int hiding   (_+_ ; _·_ ; _-_ ; -_ ; addEq)
 open import Cubical.Data.Int.Divisibility
 open import Cubical.Data.FinData
-
-open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Unit  as Unit
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
@@ -32,7 +24,6 @@ open import Cubical.Algebra.Matrix.CommRingCoefficient
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-  renaming (ℤ to ℤRing)
 
 open import Cubical.Relation.Nullary
 open import Cubical.Induction.WellFounded
@@ -41,9 +32,10 @@ private
   variable
     m n k : ℕ
 
-open CommRingStr (ℤRing .snd)
-open Coefficient  ℤRing
-open Sum         (CommRing→Ring ℤRing)
+open CommRingStr (ℤCommRing .snd)
+open Coefficient  ℤCommRing
+open Sum         (CommRing→Ring ℤCommRing)
+
 
 -- Using well-foundedness to do induction
 

@@ -23,7 +23,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥; ∣_∣; squash)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥₁; ∣_∣₁; squash₁)
 open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂; ∣_∣₂; squash₂)
 
 -- Type quotients
@@ -73,7 +73,7 @@ elimProp2 Rt Cprop f = elimProp Rt (λ x → isPropΠ (λ y → Cprop x y))
 
 isSurjective[] : (Rt : BinaryRelation.isTrans R)
                → isSurjection (λ a → [ a ])
-isSurjective[] Rt = elimProp Rt (λ x → squash) (λ a → ∣ a , refl ∣)
+isSurjective[] Rt = elimProp Rt (λ x → squash₁) (λ a → ∣ a , refl ∣₁)
 
 elim : (Rt : BinaryRelation.isTrans R)
      → {B : A // Rt → Type ℓ}

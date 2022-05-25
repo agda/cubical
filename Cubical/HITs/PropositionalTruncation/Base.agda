@@ -12,6 +12,6 @@ open import Cubical.Core.Primitives
 
 -- Propositional truncation as a higher inductive type:
 
-data ∥_∥ {ℓ} (A : Type ℓ) : Type ℓ where
-  ∣_∣ : A → ∥ A ∥
-  squash : ∀ (x y : ∥ A ∥) → x ≡ y
+data ∥_∥₁ {ℓ} (A : Type ℓ) : Type ℓ where
+  ∣_∣₁ : A → ∥ A ∥₁
+  squash₁ : ∀ (x y : ∥ A ∥₁) → x ≡ y

@@ -40,7 +40,7 @@ private
 module _
   (X : Type ℓ)(p : isFinOrd X) where
 
-  isFinOrd∥∥ : isFinOrd ∥ X ∥
+  isFinOrd∥∥ : isFinOrd ∥ X ∥₁
   isFinOrd∥∥ = _ , propTrunc≃ (p .snd) ⋆ SumFin∥∥≃ _
 
   isFinOrd≃ : isFinOrd (X ≃ X)
@@ -117,7 +117,7 @@ module _
   isFinSet≡ : (a b : X .fst) → isFinSet (a ≡ b)
   isFinSet≡ a b = isDecProp→isFinSet (isFinSet→isSet (X .snd) a b) (isFinSet→Discrete (X .snd) a b)
 
-  isFinSet∥∥ : isFinSet ∥ X .fst ∥
+  isFinSet∥∥ : isFinSet ∥ X .fst ∥₁
   isFinSet∥∥ = Prop.rec isPropIsFinSet (λ p → isFinOrd→isFinSet (isFinOrd∥∥ (X .fst) (_ , p))) (X .snd .snd)
 
   isFinSetIsContr : isFinSet (isContr (X .fst))

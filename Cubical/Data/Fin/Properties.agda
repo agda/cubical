@@ -62,18 +62,18 @@ Unit≃Fin1 =
 
 -- Regardless of k, Fin k is a set.
 isSetFin : ∀{k} → isSet (Fin k)
-isSetFin {k} = isSetΣ isSetℕ (λ _ → isProp→isSet m≤n-isProp)
+isSetFin {k} = isSetΣ isSetℕ (λ _ → isProp→isSet isProp≤)
 
 discreteFin : ∀ {n} → Discrete (Fin n)
 discreteFin {n} (x , hx) (y , hy) with discreteℕ x y
-... | yes prf = yes (Σ≡Prop (λ _ → m≤n-isProp) prf)
+... | yes prf = yes (Σ≡Prop (λ _ → isProp≤) prf)
 ... | no prf = no λ h → prf (cong fst h)
 
 inject<-ne : ∀ {n} (i : Fin n) → ¬ inject< ≤-refl i ≡ (n , ≤-refl)
 inject<-ne {n} (k , k<n) p = <→≢ k<n (cong fst p)
 
 Fin-fst-≡ : ∀ {n} {i j : Fin n} → fst i ≡ fst j → i ≡ j
-Fin-fst-≡ = Σ≡Prop (λ _ → m≤n-isProp)
+Fin-fst-≡ = Σ≡Prop (λ _ → isProp≤)
 
 private
   subst-app : (B : A → Type b) (f : (x : A) → B x) {x y : A} (x≡y : x ≡ y) →
@@ -385,7 +385,7 @@ pigeonhole {m} {n} (suc k , prf) f =
     g : Fin (suc n′) → Fin n′
     g k = fst (f′ k) , <-trans (snd (f′ k)) m<n′
     i , j , ¬q , r = pigeonhole-special g
-  in transport transport-prf (i , j , ¬q , Σ≡Prop (λ _ → m≤n-isProp) (cong fst r))
+  in transport transport-prf (i , j , ¬q , Σ≡Prop (λ _ → isProp≤) (cong fst r))
   where
     n′ : ℕ
     n′ = k + suc m
@@ -516,7 +516,7 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
     mm<m = <-·sk-cancel mm·sn<m·sn
 
   isSurjectionIntro : isSurjection intro
-  isSurjectionIntro = ∣_∣ ∘ elimF
+  isSurjectionIntro = ∣_∣₁ ∘ elimF
 
 -- Fin (m + n) ≡ Fin m ⊎ Fin n
 -- ===========================
@@ -578,11 +578,11 @@ Iso.rightInv (Fin+≅Fin⊎Fin m n) = sec-f-g
   where
     sec-f-g : _
     sec-f-g (inl (k , k<m)) with k ≤? m
-    sec-f-g (inl (k , k<m)) | inl _   = cong inl (Σ≡Prop (λ _ → m≤n-isProp) refl)
+    sec-f-g (inl (k , k<m)) | inl _   = cong inl (Σ≡Prop (λ _ → isProp≤) refl)
     sec-f-g (inl (k , k<m)) | inr m≤k = Empty.rec (¬-<-and-≥ k<m m≤k)
     sec-f-g (inr (k , k<n)) with (m + k) ≤? m
     sec-f-g (inr (k , k<n)) | inl p   = Empty.rec (¬m+n<m {m} {k} p)
-    sec-f-g (inr (k , k<n)) | inr k≥m = cong inr (Σ≡Prop (λ _ → m≤n-isProp) rem)
+    sec-f-g (inr (k , k<n)) | inr k≥m = cong inr (Σ≡Prop (λ _ → isProp≤) rem)
       where
         rem : (m + k) ∸ m ≡ k
         rem = subst (λ - → - ∸ m ≡ k) (+-comm k m) (m+n∸n=m m k)
@@ -590,8 +590,8 @@ Iso.leftInv  (Fin+≅Fin⊎Fin m n) = ret-f-g
   where
     ret-f-g : _
     ret-f-g (k , k<m+n) with k ≤? m
-    ret-f-g (k , k<m+n) | inl _   = Σ≡Prop (λ _ → m≤n-isProp) refl
-    ret-f-g (k , k<m+n) | inr m≥k = Σ≡Prop (λ _ → m≤n-isProp) (∸-lemma m≥k)
+    ret-f-g (k , k<m+n) | inl _   = Σ≡Prop (λ _ → isProp≤) refl
+    ret-f-g (k , k<m+n) | inr m≥k = Σ≡Prop (λ _ → isProp≤) (∸-lemma m≥k)
 
 Fin+≡Fin⊎Fin : (m n : ℕ) → Fin (m + n) ≡ Fin m ⊎ Fin n
 Fin+≡Fin⊎Fin m n = isoToPath (Fin+≅Fin⊎Fin m n)
@@ -645,7 +645,7 @@ DecFin (suc n) = yes fzero
 
 -- propositional truncation of Fin
 
-Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥
+Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥₁
 Dec∥Fin∥ n = Dec∥∥ (DecFin n)
 
 -- some properties about cardinality

@@ -40,4 +40,4 @@ module _ (C : Category ℓ ℓ') where
   BinCoproducts = (x y : ob) → BinCoproduct x y
 
   hasBinCoproducts : Type (ℓ-max ℓ ℓ')
-  hasBinCoproducts = ∥ BinCoproducts ∥
+  hasBinCoproducts = ∥ BinCoproducts ∥₁

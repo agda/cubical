@@ -1,7 +1,10 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Queue.Untruncated2ListInvariant where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.List
 open import Cubical.Data.Maybe

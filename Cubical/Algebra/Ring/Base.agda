@@ -16,6 +16,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
 
 open import Cubical.Displayed.Base
@@ -160,7 +162,7 @@ IsRingEquiv M e N = IsRingHom M (e .fst) N
 RingEquiv : (R : Ring ℓ) (S : Ring ℓ') → Type (ℓ-max ℓ ℓ')
 RingEquiv R S = Σ[ e ∈ (⟨ R ⟩ ≃ ⟨ S ⟩) ] IsRingEquiv (R .snd) e (S .snd)
 
-_$_ : {R S : Ring ℓ} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
+_$_ : {R : Ring ℓ} {S : Ring ℓ'} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
 φ $ x = φ .fst x
 
 RingEquiv→RingHom : {A B : Ring ℓ} → RingEquiv A B → RingHom A B
