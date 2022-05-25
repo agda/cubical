@@ -18,6 +18,7 @@ open import Cubical.Data.Sum
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.GroupPath
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.NProd
 open import Cubical.Algebra.Ring
@@ -28,6 +29,7 @@ open import Cubical.Algebra.AbGroup.Instances.DirectSumFun
 open import Cubical.Algebra.AbGroup.Instances.DirectSumHIT
 open import Cubical.Algebra.DirectSum.Equiv-DSHIT-DSFun
 
+open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetTruncation as ST
 
 open import Cubical.ZCohomology.Base
@@ -86,6 +88,14 @@ module CupH*FunProperties (A : Type ℓ) where
     +FunIdL : (x : Fun G Gstr) → 0Fun +Fun x  ≡ x
     +FunIdL = λ x → snd (+FunIdR×IdL x)
 
+
+-----------------------------------------------------------------------------
+-- Substitution
+
+  substCoHom0 : {n m : ℕ} → (p : n ≡ m) → subst (λ X → coHom X A) p (0ₕ n) ≡ 0ₕ m
+  substCoHom0 {n} {m} p = J (λ m p → subst (λ X → coHom X A) p (0ₕ n) ≡ 0ₕ m)
+                          (transportRefl _) p
+
 -----------------------------------------------------------------------------
 -- Definition of the cup product
 
@@ -107,24 +117,40 @@ module CupH*FunProperties (A : Type ℓ) where
   _cupFun_ f g n = sumFun n n ≤-refl f g
 
   -- Proof that it is an almost null sequence
-  -- cupAn : (f g : (n : ℕ) → coHom n A) → AlmostNull G Gstr f → AlmostNull G Gstr g → AlmostNull G Gstr (f cupFun g)
-  -- cupAn f g (k , nf) (l , ng) = (k +n l) , λ n r → {!!}
-  --   {- proof for sumFun i n ≤-refl f g -> apply on n (for rec call)
-  --      i ≤ n & n > k+l
-  --      Case analysis :
-  --      k     < suc i -> 0 + rec-call
-  --      suc i ≤ k     -> n - (suc i) > k+l - k = l -> ok + rec-call
-  --   -}
+  cupAn : (f g : (n : ℕ) → coHom n A) → AlmostNull G Gstr f → AlmostNull G Gstr g → AlmostNull G Gstr (f cupFun g)
+  cupAn f g (k , nf) (l , ng) = (k +n l) , λ n pp → sumF0 n n pp ≤-refl
+    where
+    sumF0 : (i n : ℕ) → (pp : k +n l < n) → (r : i ≤ n) → sumFun i n r f g ≡ 0ₕ n
+    sumF0 zero n pp r = cong (λ X → f 0 ⌣ X) (ng n (≤<-trans (k , refl) pp))
+                       ∙ ⌣-0ₕ 0 n _
+    sumF0 (suc i) n pp r with splitℕ-≤ (suc i) k
+    ... | inl x = cong₂ _+ₕ_
+                        (cong (subst (λ X → coHom X A) (eqSameFiber r))
+                              (cong (λ X → f (suc i) ⌣ X) (ng (n ∸ suc i) {!!})
+                              -- n ∸ suc i ≥ n - k > k +n l ∸ k ≡ 0
+                              ∙ ⌣-0ₕ (suc i) (n ∸ suc i) _))
+                        (sumF0 i n pp (≤-trans ≤-sucℕ r))
+                  ∙ rUnitₕ n _
+                  ∙ substCoHom0 _
+    ... | inr x = cong₂ _+ₕ_
+                        (cong (subst (λ X → coHom X A) (eqSameFiber r))
+                              (cong (λ X → X ⌣ g (n ∸ suc i)) (nf (suc i) x)
+                              ∙ 0ₕ-⌣ (suc i) (n ∸ suc i) _))
+                        (sumF0 i n pp (≤-trans ≤-sucℕ r))
+                  ∙ rUnitₕ n _
+                  ∙ substCoHom0 _
+
+  _cupF_ : H*Fun A → H*Fun A → H*Fun A
+  (f , Anf) cupF (g , Ang) = (f cupFun g) , helper Anf Ang
+    where
+    helper :  AlmostNullP G Gstr f →  AlmostNullP G Gstr g →  AlmostNullP G Gstr (f cupFun g)
+    helper = PT.rec2 squash₁ (λ x y → ∣ (cupAn f g x y) ∣₁)
 
 
 -----------------------------------------------------------------------------
 -- Requiered lemma for preserving the cup product
 
   -- lemma for 0 case
-  substCoHom0 : {n m : ℕ} → (p : n ≡ m) → subst (λ X → coHom X A) p (0ₕ n) ≡ 0ₕ m
-  substCoHom0 {n} {m} p = J (λ m p → subst (λ X → coHom X A) p (0ₕ n) ≡ 0ₕ m)
-                          (transportRefl _) p
-
   cupFunAnnihilL : (f : (n : ℕ) → coHom n A) → 0Fun cupFun f ≡ 0Fun
   cupFunAnnihilL f = funExt (λ n → sumF0 n n ≤-refl)
     where
@@ -185,7 +211,9 @@ module CupH*FunProperties (A : Type ℓ) where
     ; fun-trad
     ; fun-trad-eq
     ; fun-trad-neq
-    ; ⊕HIT→Fun    )
+    ; ⊕HIT→Fun
+    ; ⊕HIT→⊕Fun
+    ; ⊕HIT→⊕Fun-pres+)
 
 
   sumFun≠ : (k : ℕ) → (a : coHom k A) → (l : ℕ) →  (b : coHom l A) →
@@ -305,14 +333,34 @@ module CupH*FunProperties (A : Type ℓ) where
     +⊕HITIdL : (x : ⊕HIT ℕ G Gstr) → 0⊕HIT +⊕HIT x  ≡ x
     +⊕HITIdL = λ x → snd (+⊕HITIdR×IdL x)
 
-  ⊕HIT→Fun-pres⌣ : (x y : H* A) → ⊕HIT→Fun (x cup y) ≡ ((⊕HIT→Fun x) cupFun (⊕HIT→Fun y))
-  ⊕HIT→Fun-pres⌣ = DS-Ind-Prop.f _ _ _ _
-                    (λ x → isPropΠ (λ _ → isSetFun _ _))
-                    (λ y → sym (cupFunAnnihilL (⊕HIT→Fun y)))
-                    (λ k a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetFun _ _)
-                              (sym (cupFunAnnihilR (⊕HIT→Fun (base k a))))
-                              (λ l b → funExt (λ n → sumFBase k a l b n))
-                              λ {U V} ind-U ind-V → cong₂ _+Fun_ ind-U ind-V
-                                                     ∙ sym (cupFunDistR _ _ _))
-                    λ {U} {V} ind-U ind-V y → cong₂ _+Fun_ (ind-U y) (ind-V y)
-                                               ∙ sym (cupFunDistL _ _ _)
+  ⊕HIT→Fun-pres⌣Fun : (x y : H* A) → ⊕HIT→Fun (x cup y) ≡ ((⊕HIT→Fun x) cupFun (⊕HIT→Fun y))
+  ⊕HIT→Fun-pres⌣Fun = DS-Ind-Prop.f _ _ _ _
+                       (λ x → isPropΠ (λ _ → isSetFun _ _))
+                       (λ y → sym (cupFunAnnihilL (⊕HIT→Fun y)))
+                       (λ k a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetFun _ _)
+                                 (sym (cupFunAnnihilR (⊕HIT→Fun (base k a))))
+                                 (λ l b → funExt (λ n → sumFBase k a l b n))
+                                 λ {U V} ind-U ind-V → cong₂ _+Fun_ ind-U ind-V
+                                                        ∙ sym (cupFunDistR _ _ _))
+                       λ {U} {V} ind-U ind-V y → cong₂ _+Fun_ (ind-U y) (ind-V y)
+                                                  ∙ sym (cupFunDistL _ _ _)
+
+
+  ⊕HIT→Fun-pres⌣ : (x y : H* A) → ⊕HIT→⊕Fun (x cup y) ≡ ((⊕HIT→⊕Fun x) cupF (⊕HIT→⊕Fun y))
+  ⊕HIT→Fun-pres⌣ x y = ΣPathTransport→PathΣ _ _
+                        ((⊕HIT→Fun-pres⌣Fun x y) , (squash₁ _ _))
+
+
+
+
+-----------------------------------------------------------------------------
+-- Requiered lemma for preserving the cup product
+
+  open intermediate-def renaming (H* to H*')
+
+  foo : Group ℓ
+  foo = InducedGroup (AbGroup→Group (H*AbGr A)) _+_ (fst (Equiv-DirectSum G Gstr)) ⊕HIT→⊕Fun-pres+
+
+  -- fooeq : foo ≡ AbGroup→Group (H*Fun-AbGr A)
+  -- fooeq = fst (Group≡ _ _)
+  --         (refl , ?)

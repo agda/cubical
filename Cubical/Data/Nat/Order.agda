@@ -211,6 +211,12 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 ≤-∸-suc {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
 ≤-∸-suc {suc m} {suc n} m+1≤n+1 = ≤-∸-suc (pred-≤-pred m+1≤n+1)
 
+-- ≤-∸→> : k ≤ l → n ∸ l ≤ n ∸ k
+-- ≤-∸→> {k} {l} {n} r = {!!}
+
+-- <-∸→≥ : m < n → m ∸ k < n ∸ k
+-- <-∸→≥ {m} {n} {k} r = {!!}
+
 left-≤-max : m ≤ max m n
 left-≤-max {zero} {n} = zero-≤
 left-≤-max {suc m} {zero} = ≤-refl
