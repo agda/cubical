@@ -69,7 +69,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
       isUpwardClosed≤ = λ {_ _ n≤k m≤n → is-trans _ _ _ m≤n n≤k}
 
   isBounded^ : (m : fst M) → isBounded (m ^↑)
-  isBounded^ m = ∣ m , (is-refl m) ∣
+  isBounded^ m = ∣ (m , (is-refl m)) ∣₁
 
   1↑ : M↑
   1↑ = 1m ^↑
@@ -84,14 +84,14 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
            seqIsUpwardClosed n m n≤m =
              propTruncRec
                isPropPropTrunc
-               λ {((a , b) , wa , (wb , a·b≤n)) → ∣ (a , b) , wa , (wb , is-trans _ _ _ a·b≤n n≤m) ∣}
+               λ {((a , b) , wa , (wb , a·b≤n)) → ∣ (a , b) , wa , (wb , is-trans _ _ _ a·b≤n n≤m) ∣₁}
 
   ·presBounded : (s l : M↑) (bs : isBounded s) (bl : isBounded l) → isBounded (s ·↑ l)
   ·presBounded s l =
     propTruncRec2
       isPropPropTrunc
       λ {(m , s≤m) (k , l≤k)
-          → ∣ (m · k) , ∣ (m , k) , (s≤m , (l≤k , (is-refl (m · k)))) ∣ ∣
+          → ∣ (m · k) , ∣ (m , k) , (s≤m , (l≤k , (is-refl (m · k)))) ∣₁ ∣₁
         }
 
   {- convenience functions for the proof that ·↑ is the multiplication of a monoid -}
@@ -125,7 +125,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
           implication s l n = propTruncRec
                              isPropPropTrunc
                              (λ {((a , b) , wa , (wb , a·b≤n))
-                               → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (comm a b) a·b≤n) ∣ })
+                               → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (comm a b) a·b≤n) ∣₁ })
           propPath : (n : fst M) → fst (s ·↑ l) n ≡ fst (l ·↑ s) n
           propPath n = ⇒∶ implication s l n
                        ⇐∶ implication l s n
@@ -137,7 +137,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                              (λ {((a , b) , sa , (1b , a·b≤n))
                                   → (snd s) a n ( subst (_≤ n) (rid a) (is-trans _ _ _ (isLMonotone 1b) a·b≤n)) sa })
           ⇐ : (n : fst M) → typeAt n s → typeAt n (s ·↑ 1↑)
-          ⇐ n = λ sn → ∣ (n , 1m) , (sn , (is-refl _ , subst (_≤ n) (sym (rid n)) (is-refl _))) ∣
+          ⇐ n = λ sn → ∣ (n , 1m) , (sn , (is-refl _ , subst (_≤ n) (sym (rid n)) (is-refl _))) ∣₁
 
   ·↑Assoc : (s l k : M↑) → s ·↑ (l ·↑ k) ≡ (s ·↑ l) ·↑ k
   ·↑Assoc s l k = pathFromImplications (s ·↑ (l ·↑ k)) ((s ·↑ l) ·↑ k) (⇒) ⇐
@@ -148,9 +148,9 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                      → propTruncRec
                          isPropPropTrunc
                          (λ {((a' , b') , la' , (kb' , a'·b'≤b))
-                         → ∣ ((a · a') , b') , ∣ (a , a') , (sa , (la' , is-refl _)) ∣ , kb' ,
+                         → ∣ ((a · a') , b') , ∣ (a , a') , (sa , (la' , is-refl _)) ∣₁ , kb' ,
                              (let a·⟨a'·b'⟩≤n = (is-trans _ _ _ (isLMonotone a'·b'≤b) a·b≤n)
-                              in subst (_≤ n) (assoc a a' b') a·⟨a'·b'⟩≤n) ∣
+                              in subst (_≤ n) (assoc a a' b') a·⟨a'·b'⟩≤n) ∣₁
                             }) l·kb
                    }
           ⇐ : _
@@ -160,9 +160,9 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                      → propTruncRec
                          isPropPropTrunc
                          (λ {((a' , b') , s≤a' , (l≤b' , a'·b'≤a))
-                         → ∣ (a' , b' · b) , s≤a' , ( ∣ (b' , b) , l≤b' , (k≤b , is-refl _) ∣ ,
+                         → ∣ (a' , b' · b) , s≤a' , ( ∣ (b' , b) , l≤b' , (k≤b , is-refl _) ∣₁ ,
                              (let ⟨a'·b'⟩·b≤n = (is-trans _ _ _ (isRMonotone a'·b'≤a) a·b≤n)
-                              in subst (_≤ n) (sym (assoc a' b' b)) ⟨a'·b'⟩·b≤n) ) ∣
+                              in subst (_≤ n) (sym (assoc a' b' b)) ⟨a'·b'⟩·b≤n) ) ∣₁
                             }) s·l≤a
                    }
 
@@ -194,13 +194,13 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
   ·↑IsRMonotone l t s p x =
     propTruncRec
       isPropPropTrunc
-      λ { ((a , b) , l≤a , (s≤b , a·b≤x)) → ∣ (a , b) , p a l≤a , s≤b , a·b≤x ∣}
+      λ { ((a , b) , l≤a , (s≤b , a·b≤x)) → ∣ (a , b) , p a l≤a , s≤b , a·b≤x ∣₁}
 
   ·↑IsLMonotone : (l t s : M↑) → l ≤↑ t → (s ·↑ l) ≤↑ (s ·↑ t)
   ·↑IsLMonotone l t s p x =
     propTruncRec
       isPropPropTrunc
-      λ {((a , b) , s≤a , (l≤b , a·b≤x)) → ∣ (a , b) , s≤a , p b l≤b , a·b≤x ∣}
+      λ {((a , b) , s≤a , (l≤b , a·b≤x)) → ∣ (a , b) , s≤a , p b l≤b , a·b≤x ∣₁}
 
   asOrderedCommMonoid : OrderedCommMonoid (ℓ-suc ℓ) ℓ
   asOrderedCommMonoid = _ ,

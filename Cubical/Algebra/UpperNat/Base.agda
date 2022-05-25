@@ -104,10 +104,10 @@ module Construction where
                    isPropPropTrunc
                    (λ {((a' , b') , ya' , (zb' , a'+b'≤b))
                      → ∣ ((a · a') , (a · b')) ,
-                          ∣ (a , a') , (xa , (ya' , ≤-refl)) ∣ ,
-                          (∣ (a , b') , (xa , (zb' , ≤-refl)) ∣ ,
+                          ∣ (a , a') , (xa , (ya' , ≤-refl)) ∣₁ ,
+                          (∣ (a , b') , (xa , (zb' , ≤-refl)) ∣₁ ,
                           subst (_≤ n) (sym (·-distribˡ a a' b'))
-                            (≤-trans (isLMonotone {z = a} a'+b'≤b) a·b≤n)) ∣ })
+                            (≤-trans (isLMonotone {z = a} a'+b'≤b) a·b≤n)) ∣₁ })
                    y+zb}
       ⇐ : (n : ℕ) → _
       ⇐ n =
@@ -124,7 +124,7 @@ module Construction where
                         (λ a'≤a″ →
                           (a' , (b' +ℕ b″)) , a'x ,
 
-                          (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣ ,
+                          (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣₁ ,
                            (a' · (b' +ℕ b″)       ≤⟨ subst (_≤ (a' · b') +ℕ (a' · b″))
                                                            (·-distribˡ a' b' b″) ≤-refl ⟩
                            (a' · b') +ℕ (a' · b″) ≤⟨ +isRMonotone a'·b'≤a ⟩
@@ -133,7 +133,7 @@ module Construction where
                         )
                         (λ a″≤a' →
                          (a″ , (b' +ℕ b″)) , (a″x ,
-                         (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣ ,
+                         (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣₁ ,
                            ((a″ · (b' +ℕ b″))      ≤⟨ subst (_≤ (a″ · b') +ℕ (a″ · b″))
                                                             (·-distribˡ a″ b' b″) ≤-refl ⟩
                             (a″ · b') +ℕ (a″ · b″) ≤⟨ +isRMonotone
@@ -141,7 +141,7 @@ module Construction where
                             a +ℕ (a″ · b″)         ≤⟨ +isLMonotone a″·b″≤b  ⟩
                             a+b≤n)))
                         )
-                    ∣})
+                    ∣₁})
                   x·zb})
               x·ya}
 
@@ -152,7 +152,7 @@ module Construction where
      ⇒ : (n : ℕ) → typeAt n (0↑ · x) → typeAt n 0↑
      ⇒ n _ = n , ℕ+Comm n 0
      ⇐ : (n : ℕ) → typeAt n 0↑ → typeAt n (0↑ · x)
-     ⇐ n _ = ∣ (0 , n) , ≤-refl , ({!p!} , {!!}) ∣   -- x needs to be bounded for that to work
+     ⇐ n _ = ∣ (0 , n) , ≤-refl , ({!p!} , {!!}) ∣₁   -- x needs to be bounded for that to work
 
   asCommSemiring : CommSemiring (ℓ-suc ℓ-zero)
   fst asCommSemiring = ℕ↑

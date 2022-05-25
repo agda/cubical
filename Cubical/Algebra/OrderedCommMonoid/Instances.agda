@@ -18,7 +18,7 @@ open import Cubical.Data.Nat.Order
              makeIsOrderedCommMonoid
                 isSetℕ
                 +-assoc +-zero (λ _ → refl) +-comm
-                (λ _ _ → m≤n-isProp) (λ _ → ≤-refl) (λ _ _ _ → ≤-trans) (λ _ _ → ≤-antisym)
+                (λ _ _ → isProp≤) (λ _ → ≤-refl) (λ _ _ _ → ≤-trans) (λ _ _ → ≤-antisym)
                 (λ _ _ _ → ≤-+k) (λ _ _ _ → ≤-k+)
          }
 
@@ -32,7 +32,7 @@ open import Cubical.Data.Nat.Order
              makeIsOrderedCommMonoid
                isSetℕ
                ·-assoc ·-identityʳ ·-identityˡ ·-comm
-               (λ _ _ → m≤n-isProp) (λ _ → ≤-refl) (λ _ _ _ → ≤-trans) (λ _ _ → ≤-antisym)
+               (λ _ _ → isProp≤) (λ _ → ≤-refl) (λ _ _ _ → ≤-trans) (λ _ _ → ≤-antisym)
                (λ _ _ _ → ≤-·k) lmono
          }
          where lmono : (x y z : ℕ) → x ≤ y → z · x ≤ z · y
