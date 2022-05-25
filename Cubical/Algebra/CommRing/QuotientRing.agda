@@ -83,4 +83,4 @@ module _ {R : CommRing ℓ} (I : IdealsIn R) where
     π = quotientHom R I
 
   kernel≡I : kernelIdeal R (R / I) π ≡ I
-  kernel≡I = cong Ideal→CommIdeal (Ring.idealIsKernel.kernel≡I (CommIdeal→Ideal I))
+  kernel≡I = cong Ideal→CommIdeal (Ring.kernel≡I (CommIdeal→Ideal I))
