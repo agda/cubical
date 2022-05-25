@@ -266,9 +266,8 @@ module idealIsKernel {R : Ring ℓ} (I : IdealsIn R) where
   open isIdeal (snd I)
   open BinaryRelation.isEquivRel
 
-  π = quotientHom R I
-
   private
+    π = quotientHom R I
     x-0≡x : (x : ⟨ R ⟩) → x - 0r ≡ x
     x-0≡x x =
       x - 0r  ≡⟨ cong (x +_) (RingTheory.0Selfinverse R) ⟩
@@ -315,5 +314,7 @@ module idealIsKernel {R : Ring ℓ} (I : IdealsIn R) where
       x-0∈I : x - 0r ∈ fst I
       x-0∈I = effective ~IsPropValued ~IsEquivRel x 0r x∈ker
 
-  kernel≡I : kernelIdeal π ≡ I
-  kernel≡I = Σ≡Prop (isPropIsIdeal R) (⊆-extensionality _ _ (ker⊆I , I⊆ker))
+kernel≡I :  {R : Ring ℓ} (I : IdealsIn R)
+          → kernelIdeal (quotientHom R I) ≡ I
+kernel≡I {R = R} I = Σ≡Prop (isPropIsIdeal R) (⊆-extensionality _ _ (ker⊆I , I⊆ker))
+  where open idealIsKernel I
