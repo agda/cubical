@@ -59,15 +59,15 @@ module Construction where
   open OrderedCommMonoidStr (snd ℕ↑-+)
     using ()
     renaming (assoc to +Assoc; comm to +Comm; rid to +Rid;
-              _·_ to _+_; 1m to 0↑)
+              _·_ to _+_; ε to 0↑)
 
   open OrderedCommMonoidStr (snd ℕ≤·)
-   using (isLMonotone; isRMonotone)
+   using (MonotoneL; MonotoneR)
 
   open OrderedCommMonoidStr (snd ℕ≤+)
    using ()
    renaming (_·_ to _+ℕ_;
-             isLMonotone to +isLMonotone; isRMonotone to +isRMonotone;
+             MonotoneL to +MonotoneL; MonotoneR to +MonotoneR;
              comm to ℕ+Comm)
 
   open OrderedCommMonoidStr ⦃...⦄
@@ -107,7 +107,7 @@ module Construction where
                           ∣ (a , a') , (xa , (ya' , ≤-refl)) ∣₁ ,
                           (∣ (a , b') , (xa , (zb' , ≤-refl)) ∣₁ ,
                           subst (_≤ n) (sym (·-distribˡ a a' b'))
-                            (≤-trans (isLMonotone {z = a} a'+b'≤b) a·b≤n)) ∣₁ })
+                            (≤-trans (MonotoneL {z = a} a'+b'≤b) a·b≤n)) ∣₁ })
                    y+zb}
       ⇐ : (n : ℕ) → _
       ⇐ n =
@@ -127,8 +127,8 @@ module Construction where
                           (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣₁ ,
                            (a' · (b' +ℕ b″)       ≤⟨ subst (_≤ (a' · b') +ℕ (a' · b″))
                                                            (·-distribˡ a' b' b″) ≤-refl ⟩
-                           (a' · b') +ℕ (a' · b″) ≤⟨ +isRMonotone a'·b'≤a ⟩
-                            a +ℕ (a' · b″)        ≤⟨ +isLMonotone (≤-trans (isRMonotone a'≤a″) a″·b″≤b) ⟩
+                           (a' · b') +ℕ (a' · b″) ≤⟨ +MonotoneR a'·b'≤a ⟩
+                            a +ℕ (a' · b″)        ≤⟨ +MonotoneL (≤-trans (MonotoneR a'≤a″) a″·b″≤b) ⟩
                             a+b≤n ))
                         )
                         (λ a″≤a' →
@@ -136,9 +136,9 @@ module Construction where
                          (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣₁ ,
                            ((a″ · (b' +ℕ b″))      ≤⟨ subst (_≤ (a″ · b') +ℕ (a″ · b″))
                                                             (·-distribˡ a″ b' b″) ≤-refl ⟩
-                            (a″ · b') +ℕ (a″ · b″) ≤⟨ +isRMonotone
-                                                         ((a″ · b') ≤⟨ isRMonotone a″≤a' ⟩ a'·b'≤a) ⟩
-                            a +ℕ (a″ · b″)         ≤⟨ +isLMonotone a″·b″≤b  ⟩
+                            (a″ · b') +ℕ (a″ · b″) ≤⟨ +MonotoneR
+                                                         ((a″ · b') ≤⟨ MonotoneR a″≤a' ⟩ a'·b'≤a) ⟩
+                            a +ℕ (a″ · b″)         ≤⟨ +MonotoneL a″·b″≤b  ⟩
                             a+b≤n)))
                         )
                     ∣₁})
@@ -157,7 +157,7 @@ module Construction where
   asCommSemiring : CommSemiring (ℓ-suc ℓ-zero)
   fst asCommSemiring = ℕ↑
   CommSemiringStr.0r (snd asCommSemiring) = 0↑
-  CommSemiringStr.1r (snd asCommSemiring) = OrderedCommMonoidStr.1m (snd ℕ↑-·)
+  CommSemiringStr.1r (snd asCommSemiring) = OrderedCommMonoidStr.ε (snd ℕ↑-·)
   CommSemiringStr._+_ (snd asCommSemiring) = _+_
   CommSemiringStr._·_ (snd asCommSemiring) = _·_
   IsCommSemiring.+IsCommMonoid (CommSemiringStr.isCommSemiring (snd asCommSemiring)) =
