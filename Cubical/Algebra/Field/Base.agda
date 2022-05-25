@@ -59,17 +59,9 @@ record FieldStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
     _[_]⁻¹     : (x : A) → ¬ (x ≡ 0r) → A
     isField    : IsField 0r 1r _+_ _·_ -_ _[_]⁻¹
 
-  infix  20 _⁻¹
   infix  8 -_
   infixl 7 _·_
-  infixl 7 _/_
   infixl 6 _+_
-
-  _⁻¹ : (x : A) → { ≢0 : ¬ (x ≡ 0r) } → A
-  (x ⁻¹) { ≢0 } = x [ ≢0 ]⁻¹
-
-  _/_ : (x y : A) → { ≢0 : ¬ (y ≡ 0r) } → A
-  (x / y) {≢0} = x · (y [ ≢0 ]⁻¹)
 
   open IsField isField public
 
