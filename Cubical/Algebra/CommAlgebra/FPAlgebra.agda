@@ -246,7 +246,7 @@ module _ {R : CommRing ℓ} where
   isFPAlgebraIsProp : {A : CommAlgebra R ℓ} → isProp (isFPAlgebra A)
   isFPAlgebraIsProp = isPropPropTrunc
 
-module Instances {R : CommRing ℓ} where
+module Instances (R : CommRing ℓ) where
   open FinitePresentation
 
   {- Every (multivariate) polynomial algebra is finitely presented -}
