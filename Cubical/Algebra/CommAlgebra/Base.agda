@@ -140,22 +140,7 @@ module _ {R : CommRing ℓ} where
       commalgebrastr 0r 1S _+_ _·_  -_ _⋆_
         (makeIsCommAlgebra is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·Comm
                                   ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc·)
-    {-
-      Would like to have
-        CommAlgebra→CommRing (commAlgebraFromCommRing S ...) ≡ S
-      definitionally.
-      How many records with no-eta does a CommRing contain? Two instances of IsSemigroup.
-    -}
-    module _
-      (_⋆_ : fst R → fst S → fst S)
-      (·Assoc⋆ : (r s : fst R) (x : fst S) → (r ·R s) ⋆ x ≡ r ⋆ (s ⋆ x))
-      (⋆DistR : (r s : fst R) (x : fst S) → (r +R s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
-      (⋆DistL : (r : fst R) (x y : fst S) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
-      (⋆Lid : (x : fst S) → 1R ⋆ x ≡ x)
-      (⋆Assoc· : (r : fst R) (x y : fst S) → (r ⋆ x) · y ≡ r ⋆ (x · y))
-      where private
-      test : CommAlgebra→CommRing (commAlgebraFromCommRing _⋆_ ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc·) ≡ S
-      test = {! refl !}
+
 
   IsCommAlgebraEquiv : {A : Type ℓ'} {B : Type ℓ''}
     (M : CommAlgebraStr R A) (e : A ≃ B) (N : CommAlgebraStr R B)
