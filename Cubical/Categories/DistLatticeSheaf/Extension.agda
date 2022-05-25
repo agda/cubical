@@ -87,17 +87,29 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
   coneLemma c α α∈L' cc = {!!}
 
   isDLSheafDLRan : isDLBasisSheaf F → isDLSheafPullback L C (DLRan F)
-  fst (isDLSheafDLRan isSheafF) x = {!!} --must be a more elegant way to do this
-   --   limArrow (limitC _ (F* 0l)) x (toCone x)
-   -- , λ f → limArrowUnique (limitC _ (F* 0l)) x (toCone x) f {!!}
-   -- where
-   -- toCone : (y : ob C) → Cone (F* 0l) y
-   -- coneOut (toCone y) ((u , u∈L') , 0≥u) = {!isSheafF (λ ()) 0∈L'  y!}
-   --  where
-   --  0≡u : 0l ≡ u
-   --  0≡u = is-antisym _ _ (∨lLid _) 0≥u
-   --  0∈L' : 0l ∈ L'
-   --  0∈L' = subst-∈ L' (sym 0≡u) u∈L'
-   -- coneOutCommutes (toCone y) = {!!}
+  fst (isDLSheafDLRan isSheafF) x =
+      limArrow (limitC _ (F* 0l)) x (toCone x)
+    , λ f → limArrowUnique (limitC _ (F* 0l)) x (toCone x) f (toConeMor x f)
+    where
+    0↓ = _↓Diag limitC (i ^opF) F 0l
+
+    toTerminal : ∀ (u : ob 0↓) → isTerminal C (F .F-ob (u .fst))
+    toTerminal ((u , u∈L') , 0≥u) = subst (λ v → isTerminal C (F .F-ob v))
+                                          (Σ≡Prop (λ y → L' y .snd) 0≡u)
+                                          (DLBasisSheaf→Terminal F isSheafF 0∈L')
+        where
+        0≡u : 0l ≡ u
+        0≡u = is-antisym _ _ (∨lLid _) 0≥u
+        0∈L' : 0l ∈ L'
+        0∈L' = subst-∈ L' (sym 0≡u) u∈L'
+
+    toCone : (y : ob C) → Cone (F* 0l) y
+    coneOut (toCone y) u = toTerminal u y .fst
+    coneOutCommutes (toCone y) {v = v} e = sym (toTerminal v y .snd _)
+
+    toConeMor : (y : ob C) (f : C [ y , F-ob (DLRan F) 0l ])
+              → isConeMor (toCone y) (limCone (limitC 0↓ (F* 0l))) f
+    toConeMor y f v = sym (toTerminal v y .snd _)
+
 
   snd (isDLSheafDLRan isSheafF) = {!!}

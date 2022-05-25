@@ -634,3 +634,31 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
  isDLBasisSheaf F = ∀ {n : ℕ} (α : FinVec (ob BasisCat) n) (⋁α∈L' : ⋁ (λ i →  α i .fst) ∈ L')
                   → isLimCone _ _ (F-cone F (B⋁Cone  α ⋁α∈L'))
                     where open condCone
+
+
+ DLBasisSheaf→Terminal : ∀ (F : DLBasisPreSheaf)
+                       → isDLBasisSheaf F
+                       → ∀ (0∈L' : 0l ∈ L') → isTerminal C (F .F-ob (0l , 0∈L'))
+ DLBasisSheaf→Terminal F isSheafF 0∈L' = isTerminalF0
+   where
+   open Cone
+   open condCone {n = 0} (λ ())
+   emptyCone = B⋁Cone 0∈L'
+
+   isLimConeF0 : isLimCone _ (F .F-ob (0l , 0∈L')) (F-cone F emptyCone)
+   isLimConeF0 = isSheafF (λ ()) 0∈L'
+
+   toCone : (y : ob C) → Cone (funcComp F BDiag) y
+   coneOut (toCone y) (sing ())
+   coneOut (toCone y) (pair () _ _)
+   coneOutCommutes (toCone y) {u = sing ()} idAr
+   coneOutCommutes (toCone y) {u = pair () _ _} idAr
+
+   toConeMor : ∀ (y : ob C) (f : C [ y , F .F-ob (0l , 0∈L') ])
+             → isConeMor (toCone y) (F-cone F emptyCone) f
+   toConeMor y f (sing ())
+   toConeMor y f (pair () _ _)
+
+   isTerminalF0 : isTerminal C (F .F-ob (0l , 0∈L'))
+   fst (isTerminalF0 y) = isLimConeF0 _ (toCone y) .fst .fst
+   snd (isTerminalF0 y) f = cong fst (isLimConeF0 _ (toCone y) .snd (_ , toConeMor y f))
