@@ -172,6 +172,16 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
        → (a : fst A) → fst (A / I)
 [ a ]/ = [ a ]
 
+
+
+module idealIsKernel {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
+
+  π = quotientHom A I
+
+  kernel≡I : kernel A (A / I) π ≡ I
+  kernel≡I = {!CommRing.idealIsKernel.kernel≡I!} -- cong Ideal→CommIdeal (Ring.idealIsKernel.kernel≡I (CommIdeal→Ideal I))
+
+
 private
   module _ (R : CommRing ℓ) where
     open CommRingStr (snd R)
