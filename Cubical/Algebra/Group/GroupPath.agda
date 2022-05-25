@@ -52,32 +52,37 @@ GroupPath = ∫ 𝒮ᴰ-Group .UARel.ua
 
 -- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
 -- representations
-module _ (G : Group ℓ) {A : Type ℓ} (m : A → A → A)
+module _ (G : Group ℓ) {A : Type ℓ}
+  (m : A → A → A)
+  (u : A)
+  (inverse : A → A)
   (e : ⟨ G ⟩ ≃ A)
   (p· : ∀ x y → e .fst (G .snd ._·_ x y) ≡ m (e .fst x) (e .fst y))
+  (pu : e .fst (G .snd .1g) ≡ u)
+  (pinv : ∀ x → e .fst (G .snd .inv x) ≡ inverse (e .fst x))
   where
 
   private
     module G = GroupStr (G .snd)
 
-    FamilyΣ : Σ[ B ∈ Type ℓ ] (B → B → B) → Type ℓ
-    FamilyΣ (B , n) =
-      Σ[ e ∈ B ]
-      Σ[ i ∈ (B → B) ]
-      IsGroup e n i
+    BaseΣ : Type (ℓ-suc ℓ)
+    BaseΣ = Σ[ B ∈ Type ℓ ] Σ[ m ∈ (B → B → B) ] Σ[ e ∈ B ] (B → B)
 
-    inducedΣ : FamilyΣ (A , m)
+    FamilyΣ : BaseΣ → Type ℓ
+    FamilyΣ (B , m , u , i) = IsGroup u m i
+
+    inducedΣ : FamilyΣ (A , m , u , inverse)
     inducedΣ =
       subst FamilyΣ
-        (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
-        (G.1g , G.inv , G.isGroup)
+        (UARel.≅→≡ (autoUARel BaseΣ) (e , p· , pu , pinv))
+        G.isGroup
 
   InducedGroup : Group ℓ
   InducedGroup .fst = A
   InducedGroup .snd ._·_ = m
-  InducedGroup .snd .1g = inducedΣ .fst
-  InducedGroup .snd .inv = inducedΣ .snd .fst
-  InducedGroup .snd .isGroup = inducedΣ .snd .snd
+  InducedGroup .snd .1g = u
+  InducedGroup .snd .inv = inverse
+  InducedGroup .snd .isGroup = inducedΣ
 
   InducedGroupEquiv : GroupEquiv G InducedGroup
   fst InducedGroupEquiv = e
