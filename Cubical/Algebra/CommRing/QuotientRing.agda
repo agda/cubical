@@ -78,9 +78,9 @@ quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
 quotientHom R I = Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
 
 
-module idealIsKernel {R : CommRing ℓ} (I : IdealsIn R) where
-
-  π = quotientHom R I
+module _ {R : CommRing ℓ} (I : IdealsIn R) where
+  private
+    π = quotientHom R I
 
   kernel≡I : kernelIdeal R (R / I) π ≡ I
   kernel≡I = cong Ideal→CommIdeal (Ring.idealIsKernel.kernel≡I (CommIdeal→Ideal I))
