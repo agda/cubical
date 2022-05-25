@@ -174,7 +174,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
 
 
 
-module idealIsKernel {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   open CommIdeal using (isPropIsCommIdeal)
 
   private
