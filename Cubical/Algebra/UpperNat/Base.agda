@@ -52,7 +52,7 @@ private
    This is different for the subtype of *bounded* upper naturals ℕ↑ᵇ.
 -}
 
-module Construction where
+module ConstructionUnbounded where
   ℕ↑-+ = PropCompletion ℕ≤+
   ℕ↑-· = PropCompletion ℕ≤·
 
@@ -145,7 +145,24 @@ module Construction where
                   x·zb})
               x·ya}
 
-  0LAnnihil : (x : ℕ↑) → 0↑ · x ≡ 0↑
+
+module ConstructionBounded where
+  ℕ↑-+b = BoundedPropCompletion ℕ≤+
+  ℕ↑-·b = BoundedPropCompletion ℕ≤·
+
+  open OrderedCommMonoidStr (snd ℕ↑-+b)
+    using ()
+    renaming (assoc to +Assoc; comm to +Comm; rid to +Rid;
+              _·_ to _+_; ε to 0↑)
+
+  open OrderedCommMonoidStr (snd ℕ↑-·b)
+    using (_·_)
+
+
+  ℕ↑b : Type₁
+  ℕ↑b = fst ℕ↑-+b
+
+  0LAnnihil : (x : ℕ↑b) → 0↑ · x ≡ 0↑
   0LAnnihil x =
     pathFromImplications (0↑ · x) 0↑ (⇒) ⇐
     where
