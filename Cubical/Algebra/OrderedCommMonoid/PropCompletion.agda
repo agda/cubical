@@ -72,7 +72,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
   isBounded^ m = ∣ (m , (is-refl m)) ∣₁
 
   1↑ : M↑
-  1↑ = 1m ^↑
+  1↑ = ε ^↑
 
   _·↑_ : M↑ → M↑ → M↑
   s ·↑ l = seq , seqIsUpwardClosed
@@ -135,9 +135,9 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
     where ⇒ : (n : fst M) → typeAt n (s ·↑ 1↑) → typeAt n s
           ⇒ n = propTruncRec (snd (fst s n))
                              (λ {((a , b) , sa , (1b , a·b≤n))
-                                  → (snd s) a n ( subst (_≤ n) (rid a) (is-trans _ _ _ (isLMonotone 1b) a·b≤n)) sa })
+                                  → (snd s) a n ( subst (_≤ n) (rid a) (is-trans _ _ _ (MonotoneL 1b) a·b≤n)) sa })
           ⇐ : (n : fst M) → typeAt n s → typeAt n (s ·↑ 1↑)
-          ⇐ n = λ sn → ∣ (n , 1m) , (sn , (is-refl _ , subst (_≤ n) (sym (rid n)) (is-refl _))) ∣₁
+          ⇐ n = λ sn → ∣ (n , ε) , (sn , (is-refl _ , subst (_≤ n) (sym (rid n)) (is-refl _))) ∣₁
 
   ·↑Assoc : (s l k : M↑) → s ·↑ (l ·↑ k) ≡ (s ·↑ l) ·↑ k
   ·↑Assoc s l k = pathFromImplications (s ·↑ (l ·↑ k)) ((s ·↑ l) ·↑ k) (⇒) ⇐
@@ -149,7 +149,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                          isPropPropTrunc
                          (λ {((a' , b') , la' , (kb' , a'·b'≤b))
                          → ∣ ((a · a') , b') , ∣ (a , a') , (sa , (la' , is-refl _)) ∣₁ , kb' ,
-                             (let a·⟨a'·b'⟩≤n = (is-trans _ _ _ (isLMonotone a'·b'≤b) a·b≤n)
+                             (let a·⟨a'·b'⟩≤n = (is-trans _ _ _ (MonotoneL a'·b'≤b) a·b≤n)
                               in subst (_≤ n) (assoc a a' b') a·⟨a'·b'⟩≤n) ∣₁
                             }) l·kb
                    }
@@ -161,7 +161,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                          isPropPropTrunc
                          (λ {((a' , b') , s≤a' , (l≤b' , a'·b'≤a))
                          → ∣ (a' , b' · b) , s≤a' , ( ∣ (b' , b) , l≤b' , (k≤b , is-refl _) ∣₁ ,
-                             (let ⟨a'·b'⟩·b≤n = (is-trans _ _ _ (isRMonotone a'·b'≤a) a·b≤n)
+                             (let ⟨a'·b'⟩·b≤n = (is-trans _ _ _ (MonotoneR a'·b'≤a) a·b≤n)
                               in subst (_≤ n) (sym (assoc a' b' b)) ⟨a'·b'⟩·b≤n) ) ∣₁
                             }) s·l≤a
                    }
@@ -207,7 +207,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
     (record {
       _≤_ = _≤↑_ ;
       _·_ = _·↑_ ;
-      1m = 1↑ ;
+      ε = 1↑ ;
       isOrderedCommMonoid =
         IsOrderedCommMonoidFromIsCommMonoid
           (CommMonoidStr.isCommMonoid (snd asCommMonoid))
