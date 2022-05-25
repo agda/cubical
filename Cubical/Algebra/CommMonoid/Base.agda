@@ -90,6 +90,11 @@ isSetFromIsCommMonoid :
 isSetFromIsCommMonoid isCommMonoid =
   isSetFromIsMonoid (MonoidStr.isMonoid (CommMonoidStr→MonoidStr (commmonoidstr _ _ isCommMonoid)))
 
+isSetCommMonoid : (M : CommMonoid ℓ) → isSet ⟨ M ⟩
+isSetCommMonoid M =
+  let open CommMonoidStr (snd M)
+  in isSetFromIsCommMonoid isCommMonoid
+
 CommMonoidHom : (L : CommMonoid ℓ) (M : CommMonoid ℓ') → Type (ℓ-max ℓ ℓ')
 CommMonoidHom L M = MonoidHom (CommMonoid→Monoid L) (CommMonoid→Monoid M)
 
