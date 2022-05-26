@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --postfix-projections #-}
 module Cubical.Algebra.Semigroup.Base where
 
 open import Cubical.Foundations.Prelude
@@ -59,8 +59,11 @@ record SemigroupStr (A : Type ℓ) : Type ℓ where
 Semigroup : ∀ ℓ → Type (ℓ-suc ℓ)
 Semigroup ℓ = TypeWithStr ℓ SemigroupStr
 
-semigroup : (A : Type ℓ) (_·_ : A → A → A) (h : IsSemigroup _·_) → Semigroup ℓ
-semigroup A _·_ h = A , semigroupstr _·_ h
+module _ (A : Type ℓ) (_·_ : A → A → A) (h : IsSemigroup _·_) where
+  semigroup : Semigroup ℓ
+  semigroup .fst = A
+  semigroup .snd .SemigroupStr._·_ = _·_
+  semigroup .snd .SemigroupStr.isSemigroup = h
 
 record IsSemigroupEquiv {A : Type ℓ} {B : Type ℓ}
   (M : SemigroupStr A) (e : A ≃ B) (N : SemigroupStr B)
