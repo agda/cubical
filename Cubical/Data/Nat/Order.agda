@@ -211,11 +211,9 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 ≤-∸-suc {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
 ≤-∸-suc {suc m} {suc n} m+1≤n+1 = ≤-∸-suc (pred-≤-pred m+1≤n+1)
 
--- ≤-∸→> : k ≤ l → n ∸ l ≤ n ∸ k
--- ≤-∸→> {k} {l} {n} r = {!!}
-
--- <-∸→≥ : m < n → m ∸ k < n ∸ k
--- <-∸→≥ {m} {n} {k} r = {!!}
+≤-∸-k : m ≤ n → k + (n ∸ m) ≡ (k + n) ∸ m
+≤-∸-k {m} {n} {zero} r = refl
+≤-∸-k {m} {n} {suc k} r = cong suc (≤-∸-k r) ∙ ≤-∸-suc (≤-trans r (k , refl))
 
 left-≤-max : m ≤ max m n
 left-≤-max {zero} {n} = zero-≤
@@ -418,7 +416,7 @@ suc∸-fst zero (suc m) p = ⊥.rec (¬-<-zero p)
 suc∸-fst (suc n) zero p = refl
 suc∸-fst (suc n) (suc m) p = (suc∸-fst n m (pred-≤-pred p))
 
-n∸m≡0 : (n m : ℕ) → n < m → (n ∸ m) ≡ 0
+n∸m≡0 : (n m : ℕ) → n ≤ m → (n ∸ m) ≡ 0
 n∸m≡0 zero zero p = refl
 n∸m≡0 (suc n) zero p = ⊥.rec (¬-<-zero p)
 n∸m≡0 zero (suc m) p = refl
@@ -427,6 +425,12 @@ n∸m≡0 (suc n) (suc m) p = n∸m≡0 n m (pred-≤-pred p)
 n∸n≡0 : (n : ℕ) → n ∸ n ≡ 0
 n∸n≡0 zero = refl
 n∸n≡0 (suc n) = n∸n≡0 n
+
+n∸l>0 : (n l : ℕ) → (l < n) → 0 < (n ∸ l)
+n∸l>0  zero    zero   r = ⊥.rec (¬-<-zero r)
+n∸l>0  zero   (suc l) r = ⊥.rec (¬-<-zero r)
+n∸l>0 (suc n)  zero   r = suc-≤-suc zero-≤
+n∸l>0 (suc n) (suc l) r = n∸l>0 n l (pred-≤-pred r)
 
 -- automation
 
@@ -472,3 +476,24 @@ pattern s<s {m} {n} m<n = s≤s {m} {n} m<n
 ≤'IsPropValued zero n z≤ z≤ = refl
 ≤'IsPropValued (suc m) zero ()
 ≤'IsPropValued (suc m) (suc n) (s≤s x) (s≤s y) = cong s≤s (≤'IsPropValued m n x y)
+
+≤-∸-≤ : ∀ m n l → m ≤ n → m ∸ l ≤ n ∸ l
+≤-∸-≤  m       n       zero   r = r
+≤-∸-≤  zero    zero   (suc l) r = ≤-refl
+≤-∸-≤  zero   (suc n) (suc l) r = (n ∸ l) , (+-zero _)
+≤-∸-≤ (suc m)  zero   (suc l) r = ⊥.rec (¬-<-zero r)
+≤-∸-≤ (suc m) (suc n) (suc l) r = ≤-∸-≤ m n l (pred-≤-pred r)
+
+<-∸-< : ∀ m n l → m < n → l < n → m ∸ l < n ∸ l
+<-∸-<  m       n       zero   r q = r
+<-∸-<  zero    zero   (suc l) r q = ⊥.rec (¬-<-zero r)
+<-∸-<  zero   (suc n) (suc l) r q = n∸l>0 (suc n) (suc l) q
+<-∸-< (suc m)  zero   (suc l) r q = ⊥.rec (¬-<-zero r)
+<-∸-< (suc m) (suc n) (suc l) r q = <-∸-< m n l (pred-≤-pred r) (pred-≤-pred q)
+
+≤-∸-≥ : ∀ n l k → l ≤ k → n ∸ k ≤ n ∸ l
+≤-∸-≥ n  zero    zero   r = ≤-refl
+≤-∸-≥ n  zero   (suc k) r = ∸-≤ n (suc k)
+≤-∸-≥ n (suc l)  zero   r = ⊥.rec (¬-<-zero r)
+≤-∸-≥  zero   (suc l) (suc k) r = ≤-refl
+≤-∸-≥ (suc n) (suc l) (suc k) r = ≤-∸-≥ n l k (pred-≤-pred r)

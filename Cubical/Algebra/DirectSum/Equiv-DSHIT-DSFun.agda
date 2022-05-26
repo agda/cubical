@@ -136,13 +136,13 @@ module Equiv-Properties
 
 
 -----------------------------------------------------------------------------
--- Direct Sens
+-- Direct Sense
 
-  -- To facilitate the proof the traduction to the function
+  -- To facilitate the proof the translation to the function
   -- and its properties are done in two times
 
   ---------------------------------------------------------------------------
-  -- Traduction to the function
+  -- Translation to the function
 
   fun-trad : (k : ℕ) → (a : G k) → (n : ℕ) → G n
   fun-trad k a n with (discreteℕ k n)
@@ -195,7 +195,7 @@ module Equiv-Properties
   ⊕HIT→Fun-pres+ x y = refl
 
   ---------------------------------------------------------------------------
-  -- Traduction to the properties
+  -- Translation to the properties
 
   nfun-trad : (k : ℕ) → (a : G k) → AlmostNull G Gstr (fun-trad k a)
   nfun-trad k a = k , fix-eq
@@ -216,7 +216,7 @@ module Equiv-Properties
                                                           ∙ fst (identity (Gstr n) _))) ∣₁} })
 
   ---------------------------------------------------------------------------
-  -- Traduction + Morphism
+  -- Translation + Morphism
 
   ⊕HIT→⊕Fun : ⊕HIT ℕ G Gstr → ⊕Fun G Gstr
   ⊕HIT→⊕Fun x = (⊕HIT→Fun x) , (⊕HIT→⊕AlmostNull x)
@@ -229,7 +229,7 @@ module Equiv-Properties
 
 
 -----------------------------------------------------------------------------
--- Converse sens
+-- Converse sense
 
   -----------------------------------------------------------------------------
   -- Prood that ⊕HIT→⊕Fun is injective
@@ -319,7 +319,7 @@ module Equiv-Properties
 
 
   ---------------------------------------------------------------------------
-  --  General traduction for underliyng function
+  --  General translation for underliyng function
 
   Strad : (g : (n : ℕ) → G n) → (i : ℕ) → ⊕HIT ℕ G Gstr
   Strad g zero = base 0 (g 0)
@@ -342,7 +342,7 @@ module Equiv-Properties
                 ∙ +⊕HIT-IdL _
   ... | inr x = cong (Strad f) (sym x)
 
-  -- if m < n then the traduction of sum up to i is 0
+  -- if m < n then the translation of sum up to i is 0
   Strad-m<n : (g : (n : ℕ) → G n) → (m : ℕ) → (n : ℕ) → (r : m < n)
             → ⊕HIT→Fun (Strad g m) n ≡ 0g (Gstr n)
   Strad-m<n g zero n r with discreteℕ 0 n
@@ -367,9 +367,9 @@ module Equiv-Properties
 
 
   ---------------------------------------------------------------------------
-  -- Traduction + Morphsim
+  -- Translation + Morphsim
 
-  -- traduction
+  -- translation
   ⊕Fun→⊕HIT+ : (g : ⊕Fun G Gstr) → Σ[ x ∈ ⊕HIT ℕ G Gstr ] ⊕HIT→⊕Fun x ≡ g
   ⊕Fun→⊕HIT+ (g , Ang) = PT.rec (lemProp (g , Ang))
                           (λ { (k , ng)

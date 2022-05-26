@@ -247,6 +247,9 @@ n∸n (suc n) = n∸n n
 +∸ (suc k) zero = cong suc (+-comm k zero)
 +∸ (suc k) (suc n) = cong (_∸ n) (+-suc k n) ∙ +∸ (suc k) n
 
+∸+ : ∀ k n → (n + k) ∸ n ≡ k
+∸+ k n = cong (λ X → X ∸ n) (+-comm n k) ∙ +∸ k n
+
 ∸-cancelʳ : ∀ m n k → (m + k) ∸ (n + k) ≡ m ∸ n
 ∸-cancelʳ m n k = (λ i → +-comm m k i ∸ +-comm n k i) ∙ ∸-cancelˡ k m n
 

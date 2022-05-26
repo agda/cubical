@@ -126,8 +126,10 @@ module CupH*FunProperties (A : Type ℓ) where
     sumF0 (suc i) n pp r with splitℕ-≤ (suc i) k
     ... | inl x = cong₂ _+ₕ_
                         (cong (subst (λ X → coHom X A) (eqSameFiber r))
-                              (cong (λ X → f (suc i) ⌣ X) (ng (n ∸ suc i) {!!})
-                              -- n ∸ suc i ≥ n - k > k +n l ∸ k ≡ 0
+                              (cong (λ X → f (suc i) ⌣ X) (ng (n ∸ suc i)
+                                    (subst (λ X → X < n ∸ suc i) (∸+ l k)
+                                           (≤<-trans (≤-∸-≥ (k +n l) (suc i) k x)
+                                           (<-∸-< (k +n l) n (suc i) pp (≤-trans (suc-≤-suc (≤-trans x (l , (+-comm l k)))) pp)))))
                               ∙ ⌣-0ₕ (suc i) (n ∸ suc i) _))
                         (sumF0 i n pp (≤-trans ≤-sucℕ r))
                   ∙ rUnitₕ n _
@@ -354,13 +356,11 @@ module CupH*FunProperties (A : Type ℓ) where
 
 
 -----------------------------------------------------------------------------
--- Requiered lemma for preserving the cup product
+-- Transport of the ring structure
 
-  open intermediate-def renaming (H* to H*')
+-- Todo when InducecedGroup is fixed and InducedRing defined
 
-  foo : Group ℓ
-  foo = InducedGroup (AbGroup→Group (H*AbGr A)) _+_ (fst (Equiv-DirectSum G Gstr)) ⊕HIT→⊕Fun-pres+
-
-  -- fooeq : foo ≡ AbGroup→Group (H*Fun-AbGr A)
-  -- fooeq = fst (Group≡ _ _)
-  --         (refl , ?)
+  -- Example on Group
+  -- open intermediate-def renaming (H* to H*')
+  -- foo : Group ℓ
+  -- foo = InducedGroup (AbGroup→Group (H*AbGr A)) _+_ (fst (Equiv-DirectSum G Gstr)) ⊕HIT→⊕Fun-pres+

@@ -2,9 +2,11 @@
 module Cubical.Algebra.DirectSum.DirectSumHIT.PseudoNormalForm where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_)
 open import Cubical.Data.Sigma
+open import Cubical.Data.List
 open import Cubical.Data.Vec.DepVec
 
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -165,3 +167,23 @@ module DefPNF
                          , (extendDVL k l dvb
                          , p ∙ sym (extendDVReq k l dva)
                          , q ∙ sym (extendDVLeq k l dvb)))) ∣₁}})
+
+-----------------------------------------------------------------------------
+-- Idea
+{-
+   It maybe possible to give a normal for without need the prop truncation.
+   The issue with the current one is that we rely on a underline data type depVec
+   which forces us to give an explict length. That's what forces the ∥_∥₁.
+   Hence by getting rid of it and be rewrittinf the term it might be possible
+   to get a normal form without the PT.
+
+   Indeed this basically about pemuting and summing them by G n
+   ∑ base (σ i) a (σ i) -> ∑[i ∈ ℕ] ∑[j ∈ I] base i (b i j) -> ∑ base i (c i)
+   where a b c are informal "sequences"
+
+   Then prove that if we extract the integer, we get an inceasing list
+   with no coefficient being present twice.
+
+   The issue is that it doesn't give a clear normal form so how to use it ?
+   Can it be in a normal form with depVec but without PT ?
+-}
