@@ -41,8 +41,8 @@ record IsRing {R : Type ℓ}
   field
     +IsAbGroup : IsAbGroup 0r _+_ -_
     ·IsMonoid  : IsMonoid 1r _·_
-    dist        : (x y z : R) → (x · (y + z) ≡ (x · y) + (x · z))
-                              × ((x + y) · z ≡ (x · z) + (y · z))
+    ·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
+    ·DistL+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
     -- This is in the Agda stdlib, but it's redundant
     -- zero             : (x : R) → (x · 0r ≡ 0r) × (0r · x ≡ 0r)
 
@@ -58,11 +58,9 @@ record IsRing {R : Type ℓ}
     hiding
       ( is-set ) -- We only want to export one proof of this
 
-  ·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
-  ·DistR+ x y z = dist x y z .fst
 
-  ·DistL+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
-  ·DistL+ x y z = dist x y z .snd
+unquoteDecl IsRingIsoΣ = declareRecordIsoΣ IsRingIsoΣ (quote IsRing)
+
 
 record RingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
@@ -103,7 +101,7 @@ makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → 
 makeIsRing is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ =
   isring (makeIsAbGroup is-setR +Assoc +IdR +InvR +Comm)
          (makeIsMonoid is-setR ·Assoc ·IdR ·IdL)
-         λ x y z → ·DistR+ x y z , ·DistL+ x y z
+         ·DistR+ ·DistL+
 
 makeRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
            (is-setR : isSet R)
@@ -164,17 +162,14 @@ snd (RingHomIsEquiv→RingEquiv f fIsEquiv) = snd f
 
 isPropIsRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsRing 0r 1r _+_ _·_ -_)
-isPropIsRing 0r 1r _+_ _·_ -_ (isring RG RM RD) (isring SG SM SD) =
-  λ i → isring (isPropIsAbGroup _ _ _ RG SG i)
-               (isPropIsMonoid _ _ RM SM i)
-               (isPropDistr RD SD i)
+isPropIsRing 0r 1r _+_ _·_ -_ =
+  isOfHLevelRetractFromIso 1 IsRingIsoΣ
+    (isPropΣ (isPropIsAbGroup 0r _+_ (-_)) λ abgrp →
+     isProp× (isPropIsMonoid 1r _·_)
+             (isProp× (isPropΠ3 λ _ _ _ → abgrp .is-set _ _)
+                      (isPropΠ3 λ _ _ _ → abgrp .is-set _ _)))
   where
-  isSetR : isSet _
-  isSetR = RM .IsMonoid.isSemigroup .IsSemigroup.is-set
-
-  isPropDistr : isProp ((x y z : _) → ((x · (y + z)) ≡ ((x · y) + (x · z)))
-                                    × (((x + y) · z) ≡ ((x · z) + (y · z))))
-  isPropDistr = isPropΠ3 λ _ _ _ → isProp× (isSetR _ _) (isSetR _ _)
+  open IsAbGroup
 
 isPropIsRingHom : {A : Type ℓ} {B : Type ℓ'} (R : RingStr A) (f : A → B) (S : RingStr B)
   → isProp (IsRingHom R f S)

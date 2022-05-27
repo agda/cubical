@@ -12,6 +12,9 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
 
+open import Cubical.Reflection.RecordEquiv
+
+
 private
   variable
     ℓ : Level
@@ -23,21 +26,12 @@ record IsGroup {G : Type ℓ}
 
   field
     isMonoid  : IsMonoid 1g _·_
-    inverse   : (x : G) → (x · inv x ≡ 1g) × (inv x · x ≡ 1g)
+    ·InvR : (x : G) → x · inv x ≡ 1g
+    ·InvL : (x : G) → inv x · x ≡ 1g
 
   open IsMonoid isMonoid public
 
-  infixl 6 _-_
-
-  -- Useful notation for additive groups
-  _-_ : G → G → G
-  x - y = x · inv y
-
-  ·InvL : (x : G) → inv x · x ≡ 1g
-  ·InvL x = inverse x .snd
-
-  ·InvR : (x : G) → x · inv x ≡ 1g
-  ·InvR x = inverse x .fst
+unquoteDecl IsGroupIsoΣ = declareRecordIsoΣ IsGroupIsoΣ (quote IsGroup)
 
 record GroupStr (G : Type ℓ) : Type ℓ where
 
@@ -74,7 +68,8 @@ makeIsGroup : {G : Type ℓ} {e : G} {_·_ : G → G → G} { inv : G → G}
               (·InvL : (x : G) → inv x · x ≡ e)
             → IsGroup e _·_ inv
 IsGroup.isMonoid (makeIsGroup is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL) = makeIsMonoid is-setG ·Assoc ·IdR ·IdL
-IsGroup.inverse (makeIsGroup is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL) = λ x → ·InvR x , ·InvL x
+IsGroup.·InvR (makeIsGroup is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL) = ·InvR
+IsGroup.·InvL (makeIsGroup is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL) = ·InvL
 
 makeGroup : {G : Type ℓ} (1g : G) (_·_ : G → G → G) (inv : G → G)
             (is-setG : isSet G)

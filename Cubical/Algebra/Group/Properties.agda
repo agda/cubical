@@ -13,7 +13,7 @@ open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Monoid.Base
 
 open import Cubical.Algebra.Group.Base
 
@@ -22,19 +22,15 @@ private
     ℓ : Level
     G : Type ℓ
 
-isPropIsGroup : (0g : G) (_+_ : G → G → G) (-_ : G → G)
-              → isProp (IsGroup 0g _+_ -_)
-IsGroup.isMonoid (isPropIsGroup 0g _+_ -_ g1 g2 i) =
-  isPropIsMonoid _ _ (IsGroup.isMonoid g1) (IsGroup.isMonoid g2) i
-IsGroup.inverse (isPropIsGroup 0g _+_ -_ g1 g2 i) =
-  isPropInv (IsGroup.inverse g1) (IsGroup.inverse g2) i
-  where
-  isSetG : isSet _
-  isSetG = IsSemigroup.is-set (IsMonoid.isSemigroup (IsGroup.isMonoid g1))
-
-  isPropInv : isProp ((x : _) → ((x + (- x)) ≡ 0g) × (((- x) + x) ≡ 0g))
-  isPropInv = isPropΠ λ _ → isProp× (isSetG _ _) (isSetG _ _)
-
+isPropIsGroup : (1g : G) (_·_ : G → G → G) (inv : G → G)
+              → isProp (IsGroup 1g _·_ inv)
+isPropIsGroup 1g _·_ inv =
+  isOfHLevelRetractFromIso 1 IsGroupIsoΣ
+    (isPropΣ (isPropIsMonoid 1g _·_)
+             λ mono → isProp× (isPropΠ λ _ → mono .is-set _ _)
+             (isPropΠ λ _ → mono .is-set _ _))
+    where
+    open IsMonoid
 
 module GroupTheory (G : Group ℓ) where
   open GroupStr (snd G)

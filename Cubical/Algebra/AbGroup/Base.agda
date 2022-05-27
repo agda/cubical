@@ -26,6 +26,8 @@ open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
+open import Cubical.Reflection.RecordEquiv
+
 open Iso
 
 private
@@ -44,12 +46,18 @@ record IsAbGroup {G : Type ℓ}
   open IsGroup isGroup public
     renaming
       ( ·Assoc      to +Assoc
-      ; identity    to +Identity
       ; ·IdL        to +IdL
       ; ·IdR        to +IdR
-      ; inverse     to +Inv
       ; ·InvL       to +InvL
       ; ·InvR       to +InvR)
+
+  infixl 6 _-_
+
+  -- Useful notation for additive groups
+  _-_ : G → G → G
+  x - y = x + (- y)
+
+unquoteDecl IsAbGroupIsoΣ = declareRecordIsoΣ IsAbGroupIsoΣ (quote IsAbGroup)
 
 record AbGroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
@@ -61,8 +69,9 @@ record AbGroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
     -_        : A → A
     isAbGroup : IsAbGroup 0g _+_ -_
 
-  infix  8 -_
+
   infixr 7 _+_
+  infix  8 -_
 
   open IsAbGroup isAbGroup public
 
@@ -128,16 +137,15 @@ IsAbGroupEquiv G e H = IsGroupHom (AbGroupStr→GroupStr G) (e .fst) (AbGroupStr
 AbGroupEquiv : (G : AbGroup ℓ) (H : AbGroup ℓ') → Type (ℓ-max ℓ ℓ')
 AbGroupEquiv G H = Σ[ e ∈ (G .fst ≃ H .fst) ] IsAbGroupEquiv (G .snd) e (H .snd)
 
-isPropIsAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (- : G → G)
-                → isProp (IsAbGroup 0g _+_ -)
-isPropIsAbGroup 0g _+_ -_ (isabgroup GG GC) (isabgroup HG HC) =
-  λ i → isabgroup (isPropIsGroup _ _ _ GG HG i) (isPropComm GC HC i)
+isPropIsAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+                → isProp (IsAbGroup 0g _+_ (-_))
+isPropIsAbGroup 0g _+_ -_ =
+  isOfHLevelRetractFromIso 1 IsAbGroupIsoΣ
+    (isPropΣ (isPropIsGroup 0g _+_ (-_))
+             (λ grp → isPropΠ2 (λ _ _ → grp .is-set _ _)))
   where
-  isSetG : isSet _
-  isSetG = GG .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+  open IsGroup
 
-  isPropComm : isProp ((x y : _) → x + y ≡ y + x)
-  isPropComm = isPropΠ2 λ _ _ → isSetG _ _
 
 𝒮ᴰ-AbGroup : DUARel (𝒮-Univ ℓ) AbGroupStr ℓ
 𝒮ᴰ-AbGroup =
@@ -202,12 +210,12 @@ fst trivialAbGroup = Unit*
 0g (snd trivialAbGroup) = tt*
 _+_ (snd trivialAbGroup) _ _ = tt*
 (- snd trivialAbGroup) _ = tt*
-is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) =
-  isProp→isSet isPropUnit*
-·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) _ _ _ = refl
-identity (isMonoid (isGroup (isAbGroup (snd trivialAbGroup)))) _ = refl , refl
-inverse (isGroup (isAbGroup (snd trivialAbGroup))) _ = refl , refl
-+Comm (isAbGroup (snd trivialAbGroup)) _ _ = refl
+isAbGroup (snd trivialAbGroup) = makeIsAbGroup
+                                 (isProp→isSet isPropUnit*)
+                                 (λ _ _ _ → refl)
+                                 (λ _ → refl)
+                                 (λ _ → refl)
+                                 (λ _ _ → refl)
 
 -- useful lemma
 -- duplicate propeerties => this file should be split !
@@ -270,21 +278,13 @@ module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
   HomGroup : AbGroup (ℓ-max ℓ ℓ')
   fst HomGroup = GroupHom AGr (BGr *)
   0g (snd HomGroup) = trivGroupHom
-  AbGroupStr._+_ (snd HomGroup) = compHom
-  AbGroupStr.- snd HomGroup = invHom
-  is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd HomGroup))))) =
+  _+_ (snd HomGroup) = compHom
+  - snd HomGroup = invHom
+  isAbGroup (snd HomGroup) =
+    makeIsAbGroup
     isSetGroupHom
-  ·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd HomGroup))))) (f , p) (g , q) (h , r) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-      (funExt λ x → +AssocB _ _ _)
-  fst (identity (isMonoid (isGroup (isAbGroup (snd HomGroup)))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ y → +IdRB _)
-  snd (identity (isMonoid (isGroup (isAbGroup (snd HomGroup)))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → +IdLB _)
-  fst (inverse (isGroup (isAbGroup (snd HomGroup))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → +InvRB (f x))
-  snd (inverse (isGroup (isAbGroup (snd HomGroup))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → +InvLB (f x))
-  +Comm (isAbGroup (snd HomGroup)) (f , p) (g , q) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-      (funExt λ x → +CommB _ _)
+    (λ { (f , p) (g , q) (h , r) → Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+                                             (funExt λ x → +AssocB _ _ _) })
+    (λ { (f , p) → Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ y → +IdRB _)})
+    ((λ { (f , p) → Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ y → +InvRB _)}))
+    (λ { (f , p) (g , q) → Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → +CommB _ _)})

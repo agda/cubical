@@ -33,15 +33,10 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
 
   field
     isSemigroup : IsSemigroup _·_
-    identity    : (x : A) → (x · ε ≡ x) × (ε · x ≡ x)
+    ·IdR : (x : A) → x · ε ≡ x
+    ·IdL : (x : A) → ε · x ≡ x
 
   open IsSemigroup isSemigroup public
-
-  ·IdL : (x : A) → ε · x ≡ x
-  ·IdL x = identity x .snd
-
-  ·IdR : (x : A) → x · ε ≡ x
-  ·IdR x = identity x .fst
 
 unquoteDecl IsMonoidIsoΣ = declareRecordIsoΣ IsMonoidIsoΣ (quote IsMonoid)
 
@@ -72,7 +67,8 @@ makeIsMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
                (·IdL : (x : M) → ε · x ≡ x)
              → IsMonoid ε _·_
 IsMonoid.isSemigroup (makeIsMonoid is-setM ·Assoc ·IdR ·IdL) = issemigroup is-setM ·Assoc
-IsMonoid.identity (makeIsMonoid is-setM ·Assoc ·IdR ·IdL) = λ x → ·IdR x , ·IdL x
+IsMonoid.·IdR (makeIsMonoid is-setM ·Assoc ·IdR ·IdL) = ·IdR
+IsMonoid.·IdL (makeIsMonoid is-setM ·Assoc ·IdR ·IdL) = ·IdL
 
 makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              (is-setM : isSet M)
@@ -114,9 +110,9 @@ MonoidEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsMonoidEquiv (M .snd) e (
 isPropIsMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M) → isProp (IsMonoid ε _·_)
 isPropIsMonoid ε _·_ =
   isOfHLevelRetractFromIso 1 IsMonoidIsoΣ
-    (isPropΣ
-      (isPropIsSemigroup _·_)
-      (λ semi → isPropΠ λ _ → isProp× (semi .is-set _ _) (semi .is-set _ _)))
+    (isPropΣ (isPropIsSemigroup _·_)
+             (λ semi → isProp× (isPropΠ (λ _ → is-set semi _ _))
+                                (isPropΠ (λ _ → is-set semi _ _))))
   where
   open IsSemigroup
 

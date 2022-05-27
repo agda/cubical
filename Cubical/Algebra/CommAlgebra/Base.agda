@@ -83,47 +83,50 @@ module _ {R : CommRing ℓ} where
   makeIsCommAlgebra : {A : Type ℓ'} {0a 1a : A}
                       {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
                       (isSet-A : isSet A)
-                      (+Assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
-                      (+IdR : (x : A) → x + 0a ≡ x)
-                      (+InvR : (x : A) → x + (- x) ≡ 0a)
-                      (+Comm : (x y : A) → x + y ≡ y + x)
-                      (·Assoc :  (x y z : A) → x · (y · z) ≡ (x · y) · z)
-                      (·IdL : (x : A) → 1a · x ≡ x)
+                      (+Assoc  :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
+                      (+IdR    : (x : A) → x + 0a ≡ x)
+                      (+InvR   : (x : A) → x + (- x) ≡ 0a)
+                      (+Comm   : (x y : A) → x + y ≡ y + x)
+                      (·Assoc  :  (x y z : A) → x · (y · z) ≡ (x · y) · z)
+                      (·IdL    : (x : A) → 1a · x ≡ x)
                       (·DistL+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
-                      (·Comm : (x y : A) → x · y ≡ y · x)
+                      (·Comm   : (x y : A) → x · y ≡ y · x)
                       (⋆AssocR : (r s : ⟨ R ⟩) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
-                      (⋆DistL+ : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
                       (⋆DistR+ : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
-                      (⋆IdL   : (x : A) → 1r ⋆ x ≡ x)
+                      (⋆DistL+ : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                      (⋆IdL    : (x : A) → 1r ⋆ x ≡ x)
                       (⋆AssocL : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
                     → IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
   makeIsCommAlgebra {A = A} {0a} {1a} {_+_} {_·_} { -_} {_⋆_} isSet-A
-                    +Assoc +IdL +InvR +Comm
+                    +Assoc +IdR +InvR +Comm
                     ·Assoc ·IdL ·DistL+ ·Comm
-                    ⋆Assoc ⋆DistL+ ⋆DistR+ ⋆IdL ⋆AssocL
+                    ⋆Assoc ⋆DistR+ ⋆DistL+ ⋆IdL ⋆AssocL
    = iscommalgebra
      (makeIsAlgebra
-       isSet-A
-       +Assoc +IdL +InvR +Comm
-       ·Assoc
-         (λ x → x · 1a ≡⟨ ·Comm _ _ ⟩ 1a · x ≡⟨ ·IdL _ ⟩ x ∎)
-         ·IdL
-         (λ x y z → x · (y + z)      ≡⟨ ·Comm _ _ ⟩
-                    (y + z) · x       ≡⟨ ·DistL+ _ _ _ ⟩
-                    (y · x) + (z · x) ≡⟨ cong (λ u → (y · x) + u) (·Comm _ _) ⟩
-                    (y · x) + (x · z) ≡⟨ cong (λ u → u + (x · z)) (·Comm _ _) ⟩
-                    (x · y) + (x · z) ∎)
-         ·DistL+
-       ⋆Assoc
-         ⋆DistL+
-         ⋆DistR+
-         ⋆IdL
-         ⋆AssocL
-         λ r x y → r ⋆ (x · y) ≡⟨ cong (λ u → r ⋆ u) (·Comm _ _) ⟩
-                    r ⋆ (y · x) ≡⟨ sym (⋆AssocL _ _ _) ⟩
-                    (r ⋆ y) · x ≡⟨ ·Comm _ _ ⟩
-                    x · (r ⋆ y) ∎)
+     isSet-A
+     +Assoc +IdR +InvR +Comm
+     ·Assoc ·IdR ·IdL ·DistR+ ·DistL+
+     ⋆Assoc
+     ⋆DistR+
+     ⋆DistL+
+     ⋆IdL
+     ⋆AssocR
+     ⋆AssocL)
      ·Comm
+     where
+     ·IdR : _
+     ·IdR x = x · 1a ≡⟨ ·Comm _ _ ⟩ 1a · x ≡⟨ ·IdL _ ⟩ x ∎
+     ·DistR+ : _
+     ·DistR+ x y z = x · (y + z)       ≡⟨ ·Comm _ _ ⟩
+                     (y + z) · x       ≡⟨ ·DistL+ _ _ _ ⟩
+                     (y · x) + (z · x) ≡⟨ cong (λ u → (y · x) + u) (·Comm _ _) ⟩
+                     (y · x) + (x · z) ≡⟨ cong (λ u → u + (x · z)) (·Comm _ _) ⟩
+                     (x · y) + (x · z) ∎
+     ⋆AssocR : _
+     ⋆AssocR r x y = r ⋆ (x · y) ≡⟨ cong (λ u → r ⋆ u) (·Comm _ _) ⟩
+                     r ⋆ (y · x) ≡⟨ sym (⋆AssocL _ _ _) ⟩
+                     (r ⋆ y) · x ≡⟨ ·Comm _ _ ⟩
+                     x · (r ⋆ y) ∎
 
   module _ (S : CommRing ℓ') where
     open CommRingStr (snd S) renaming (1r to 1S)
@@ -139,7 +142,7 @@ module _ {R : CommRing ℓ} where
     commAlgebraFromCommRing _⋆_ ·Assoc⋆ ⋆DistL+ ⋆DistR+ ⋆IdL ⋆Assoc· = fst S ,
       commalgebrastr 0r 1S _+_ _·_  -_ _⋆_
         (makeIsCommAlgebra is-set +Assoc +IdR +InvR +Comm ·Assoc ·IdL ·DistL+ ·Comm
-                                  ·Assoc⋆ ⋆DistL+ ⋆DistR+ ⋆IdL ⋆Assoc·)
+                                  ·Assoc⋆ ⋆DistR+ ⋆DistL+ ⋆IdL ⋆Assoc·)
 
 
   IsCommAlgebraEquiv : {A : Type ℓ'} {B : Type ℓ''}

@@ -40,8 +40,8 @@ record IsLeftModule (R : Ring ℓ) {M : Type ℓ'}
   field
     +IsAbGroup : IsAbGroup 0m _+_ -_
     ⋆Assoc : (r s : ⟨ R ⟩) (x : M) → (r · s) ⋆ x ≡ r ⋆ (s ⋆ x)
-    ⋆DistL+ : (r s : ⟨ R ⟩) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x)
     ⋆DistR+ : (r : ⟨ R ⟩) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y)
+    ⋆DistL+ : (r s : ⟨ R ⟩) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x)
     ⋆IdL   : (x : M) → 1r ⋆ x ≡ x
 
   open IsAbGroup +IsAbGroup public
@@ -83,17 +83,17 @@ module _ {R : Ring ℓ} where
   makeIsLeftModule : {M : Type ℓ'} {0m : M}
                   {_+_ : M → M → M} { -_ : M → M} {_⋆_ : ⟨ R ⟩ → M → M}
                   (isSet-M : isSet M)
-                  (+Assoc :  (x y z : M) → x + (y + z) ≡ (x + y) + z)
-                  (+IdR : (x : M) → x + 0m ≡ x)
-                  (+InvR : (x : M) → x + (- x) ≡ 0m)
-                  (+Comm : (x y : M) → x + y ≡ y + x)
-                  (⋆Assoc : (r s : ⟨ R ⟩) (x : M) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
-                  (⋆DistL+ : (r s : ⟨ R ⟩) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                  (+Assoc  :  (x y z : M) → x + (y + z) ≡ (x + y) + z)
+                  (+IdR    : (x : M) → x + 0m ≡ x)
+                  (+InvR   : (x : M) → x + (- x) ≡ 0m)
+                  (+Comm   : (x y : M) → x + y ≡ y + x)
+                  (⋆Assoc  : (r s : ⟨ R ⟩) (x : M) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
                   (⋆DistR+ : (r : ⟨ R ⟩) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
-                  (⋆IdL   : (x : M) → 1r ⋆ x ≡ x)
+                  (⋆DistL+ : (r s : ⟨ R ⟩) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                  (⋆IdL    : (x : M) → 1r ⋆ x ≡ x)
                 → IsLeftModule R 0m _+_ -_ _⋆_
-  makeIsLeftModule isSet-M +Assoc +IdR +InvR +Comm ⋆Assoc ⋆DistL+ ⋆DistR+ ⋆IdL =
-   ismodule (makeIsAbGroup isSet-M +Assoc +IdR +InvR +Comm) ⋆Assoc ⋆DistL+ ⋆DistR+ ⋆IdL
+  makeIsLeftModule isSet-M +Assoc +IdR +InvR +Comm ⋆Assoc ⋆DistR+ ⋆DistL+ ⋆IdL =
+   ismodule (makeIsAbGroup isSet-M +Assoc +IdR +InvR +Comm) ⋆Assoc ⋆DistR+ ⋆DistL+ ⋆IdL
 
 record IsLeftModuleHom {R : Ring ℓ} {A B : Type ℓ'}
   (M : LeftModuleStr R A) (f : A → B) (N : LeftModuleStr R B)
