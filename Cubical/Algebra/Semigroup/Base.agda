@@ -40,7 +40,7 @@ record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
 
   field
     is-set : isSet A
-    assoc  : (x y z : A) → x · (y · z) ≡ (x · y) · z
+    ·Assoc  : (x y z : A) → x · (y · z) ≡ (x · y) · z
 
 unquoteDecl IsSemigroupIsoΣ = declareRecordIsoΣ IsSemigroupIsoΣ (quote IsSemigroup)
 

@@ -48,33 +48,21 @@ record IsRing {R : Type ℓ}
 
   open IsAbGroup +IsAbGroup public
     renaming
-      ( assoc       to +Assoc
-      ; identity    to +Identity
-      ; lid         to +Lid
-      ; rid         to +Rid
-      ; inverse     to +Inv
-      ; invl        to +Linv
-      ; invr        to +Rinv
-      ; comm        to +Comm
-      ; isSemigroup to +IsSemigroup
-      ; isMonoid    to +IsMonoid
-      ; isGroup     to +IsGroup )
+      ( isSemigroup  to +IsSemigroup
+      ; isMonoid     to +IsMonoid
+      ; isGroup      to +IsGroup )
 
   open IsMonoid ·IsMonoid public
     renaming
-      ( assoc       to ·Assoc
-      ; identity    to ·Identity
-      ; lid         to ·Lid
-      ; rid         to ·Rid
-      ; isSemigroup to ·IsSemigroup )
+      ( isSemigroup to ·IsSemigroup )
     hiding
       ( is-set ) -- We only want to export one proof of this
 
-  ·Rdist+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
-  ·Rdist+ x y z = dist x y z .fst
+  ·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
+  ·DistR+ x y z = dist x y z .fst
 
-  ·Ldist+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
-  ·Ldist+ x y z = dist x y z .snd
+  ·DistL+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
+  ·DistL+ x y z = dist x y z .snd
 
 record RingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
@@ -102,37 +90,37 @@ isSetRing R = R .snd .RingStr.isRing .IsRing.·IsMonoid .IsMonoid.isSemigroup .I
 
 makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
              (is-setR : isSet R)
-             (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
-             (+-rid : (x : R) → x + 0r ≡ x)
-             (+-rinv : (x : R) → x + (- x) ≡ 0r)
-             (+-comm : (x y : R) → x + y ≡ y + x)
-             (r+-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
-             (·-rid : (x : R) → x · 1r ≡ x)
-             (·-lid : (x : R) → 1r · x ≡ x)
-             (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
-             (·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
+             (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+             (+IdR : (x : R) → x + 0r ≡ x)
+             (+InvR : (x : R) → x + (- x) ≡ 0r)
+             (+Comm : (x y : R) → x + y ≡ y + x)
+             (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+             (·IdR : (x : R) → x · 1r ≡ x)
+             (·IdL : (x : R) → 1r · x ≡ x)
+             (·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+             (·DistL+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
            → IsRing 0r 1r _+_ _·_ -_
-makeIsRing is-setR assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ =
-  isring (makeIsAbGroup is-setR assoc +-rid +-rinv +-comm)
-         (makeIsMonoid is-setR ·-assoc ·-rid ·-lid)
-         λ x y z → ·-rdist-+ x y z , ·-ldist-+ x y z
+makeIsRing is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ =
+  isring (makeIsAbGroup is-setR +Assoc +IdR +InvR +Comm)
+         (makeIsMonoid is-setR ·Assoc ·IdR ·IdL)
+         λ x y z → ·DistR+ x y z , ·DistL+ x y z
 
 makeRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
            (is-setR : isSet R)
-           (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
-           (+-rid : (x : R) → x + 0r ≡ x)
-           (+-rinv : (x : R) → x + (- x) ≡ 0r)
-           (+-comm : (x y : R) → x + y ≡ y + x)
-           (+-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
-           (·-rid : (x : R) → x · 1r ≡ x)
-           (·-lid : (x : R) → 1r · x ≡ x)
-           (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
-           (·-ldist-+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
+           (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+           (+IdR : (x : R) → x + 0r ≡ x)
+           (+InvR : (x : R) → x + (- x) ≡ 0r)
+           (+Comm : (x y : R) → x + y ≡ y + x)
+           (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+           (·IdR : (x : R) → x · 1r ≡ x)
+           (·IdL : (x : R) → 1r · x ≡ x)
+           (·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+           (·DistL+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
          → Ring ℓ
-makeRing 0r 1r _+_ _·_ -_ is-setR assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ =
+makeRing 0r 1r _+_ _·_ -_ is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ =
   _ , ringstr 0r 1r _+_ _·_ -_
-       (makeIsRing is-setR assoc +-rid +-rinv +-comm
-                   ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+ )
+       (makeIsRing is-setR +Assoc +IdR +InvR +Comm
+                   ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ )
 
 record IsRingHom {A : Type ℓ} {B : Type ℓ'} (R : RingStr A) (f : A → B) (S : RingStr B)
   : Type (ℓ-max ℓ ℓ')

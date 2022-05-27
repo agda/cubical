@@ -41,45 +41,45 @@ module GroupTheory (G : Group ℓ) where
   abstract
     ·CancelL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a · b ≡ a · c → b ≡ c
     ·CancelL a {b} {c} p =
-       b               ≡⟨ sym (lid b) ∙ cong (_· b) (sym (invl a)) ∙ sym (assoc _ _ _) ⟩
+       b               ≡⟨ sym (·IdL b) ∙ cong (_· b) (sym (·InvL a)) ∙ sym (·Assoc _ _ _) ⟩
       inv a · (a · b)  ≡⟨ cong (inv a ·_) p ⟩
-      inv a · (a · c)  ≡⟨ assoc _ _ _ ∙ cong (_· c) (invl a) ∙ lid c ⟩
+      inv a · (a · c)  ≡⟨ ·Assoc _ _ _ ∙ cong (_· c) (·InvL a) ∙ ·IdL c ⟩
       c ∎
 
     ·CancelR : {a b : ⟨ G ⟩} (c : ⟨ G ⟩) → a · c ≡ b · c → a ≡ b
     ·CancelR {a} {b} c p =
-      a                ≡⟨ sym (rid a) ∙ cong (a ·_) (sym (invr c)) ∙ assoc _ _ _ ⟩
+      a                ≡⟨ sym (·IdR a) ∙ cong (a ·_) (sym (·InvR c)) ∙ ·Assoc _ _ _ ⟩
       (a · c) · inv c  ≡⟨ cong (_· inv c) p ⟩
-      (b · c) · inv c  ≡⟨ sym (assoc _ _ _) ∙ cong (b ·_) (invr c) ∙ rid b ⟩
+      (b · c) · inv c  ≡⟨ sym (·Assoc _ _ _) ∙ cong (b ·_) (·InvR c) ∙ ·IdR b ⟩
       b ∎
 
     invInv : (a : ⟨ G ⟩) → inv (inv a) ≡ a
-    invInv a = ·CancelL (inv a) (invr (inv a) ∙ sym (invl a))
+    invInv a = ·CancelL (inv a) (·InvR (inv a) ∙ sym (·InvL a))
 
     inv1g : inv 1g ≡ 1g
-    inv1g = ·CancelL 1g (invr 1g ∙ sym (lid 1g))
+    inv1g = ·CancelL 1g (·InvR 1g ∙ sym (·IdL 1g))
 
     1gUniqueL : {e : ⟨ G ⟩} (x : ⟨ G ⟩) → e · x ≡ x → e ≡ 1g
-    1gUniqueL {e} x p = ·CancelR x (p ∙ sym (lid _))
+    1gUniqueL {e} x p = ·CancelR x (p ∙ sym (·IdL _))
 
     1gUniqueR : (x : ⟨ G ⟩) {e : ⟨ G ⟩} → x · e ≡ x → e ≡ 1g
-    1gUniqueR x {e} p = ·CancelL x (p ∙ sym (rid _))
+    1gUniqueR x {e} p = ·CancelL x (p ∙ sym (·IdR _))
 
     invUniqueL : {g h : ⟨ G ⟩} → g · h ≡ 1g → g ≡ inv h
-    invUniqueL {g} {h} p = ·CancelR h (p ∙ sym (invl h))
+    invUniqueL {g} {h} p = ·CancelR h (p ∙ sym (·InvL h))
 
     invUniqueR : {g h : ⟨ G ⟩} → g · h ≡ 1g → h ≡ inv g
-    invUniqueR {g} {h} p = ·CancelL g (p ∙ sym (invr g))
+    invUniqueR {g} {h} p = ·CancelL g (p ∙ sym (·InvR g))
 
     invDistr : (a b : ⟨ G ⟩) → inv (a · b) ≡ inv b · inv a
     invDistr a b = sym (invUniqueR γ) where
       γ : (a · b) · (inv b · inv a) ≡ 1g
       γ = (a · b) · (inv b · inv a)
-            ≡⟨ sym (assoc _ _ _) ⟩
+            ≡⟨ sym (·Assoc _ _ _) ⟩
           a · b · (inv b) · (inv a)
-            ≡⟨ cong (a ·_) (assoc _ _ _ ∙ cong (_· (inv a)) (invr b)) ⟩
+            ≡⟨ cong (a ·_) (·Assoc _ _ _ ∙ cong (_· (inv a)) (·InvR b)) ⟩
           a · (1g · inv a)
-            ≡⟨ cong (a ·_) (lid (inv a)) ∙ invr a ⟩
+            ≡⟨ cong (a ·_) (·IdL (inv a)) ∙ ·InvR a ⟩
           1g ∎
 
 congIdLeft≡congIdRight : (_·G_ : G → G → G) (-G_ : G → G)

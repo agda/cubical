@@ -39,9 +39,17 @@ record IsAbGroup {G : Type ℓ}
 
   field
     isGroup : IsGroup 0g _+_ -_
-    comm    : (x y : G) → x + y ≡ y + x
+    +Comm    : (x y : G) → x + y ≡ y + x
 
   open IsGroup isGroup public
+    renaming
+      ( ·Assoc      to +Assoc
+      ; identity    to +Identity
+      ; ·IdL        to +IdL
+      ; ·IdR        to +IdR
+      ; inverse     to +Inv
+      ; ·InvL       to +InvL
+      ; ·InvR       to +InvR)
 
 record AbGroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
@@ -63,23 +71,23 @@ AbGroup ℓ = TypeWithStr ℓ AbGroupStr
 
 makeIsAbGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
               (is-setG : isSet G)
-              (assoc   : (x y z : G) → x + (y + z) ≡ (x + y) + z)
-              (rid     : (x : G) → x + 0g ≡ x)
-              (rinv    : (x : G) → x + (- x) ≡ 0g)
-              (comm    : (x y : G) → x + y ≡ y + x)
+              (+Assoc  : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+              (+IdR    : (x : G) → x + 0g ≡ x)
+              (+InvR   : (x : G) → x + (- x) ≡ 0g)
+              (+Comm   : (x y : G) → x + y ≡ y + x)
             → IsAbGroup 0g _+_ -_
-makeIsAbGroup is-setG assoc rid rinv comm =
-  isabgroup (makeIsGroup is-setG assoc rid (λ x → comm _ _ ∙ rid x) rinv (λ x → comm _ _ ∙ rinv x)) comm
+makeIsAbGroup is-setG +Assoc ·IdR +InvR +Comm =
+  isabgroup (makeIsGroup is-setG +Assoc ·IdR (λ x → +Comm _ _ ∙ ·IdR x) +InvR (λ x → +Comm _ _ ∙ +InvR x)) +Comm
 
 makeAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
             (is-setG : isSet G)
-            (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
-            (rid : (x : G) → x + 0g ≡ x)
-            (rinv : (x : G) → x + (- x) ≡ 0g)
-            (comm    : (x y : G) → x + y ≡ y + x)
+            (+Assoc  : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+            (+IdR    : (x : G) → x + 0g ≡ x)
+            (+InvR   : (x : G) → x + (- x) ≡ 0g)
+            (+Comm   : (x y : G) → x + y ≡ y + x)
           → AbGroup ℓ
-makeAbGroup 0g _+_ -_ is-setG assoc rid rinv comm =
-  _ , abgroupstr 0g _+_ -_ (makeIsAbGroup is-setG assoc rid rinv comm)
+makeAbGroup 0g _+_ -_ is-setG +Assoc ·IdR +InvR +Comm =
+  _ , abgroupstr 0g _+_ -_ (makeIsAbGroup is-setG +Assoc ·IdR +InvR +Comm)
 
 open GroupStr
 open AbGroupStr
@@ -96,16 +104,16 @@ fst (AbGroup→Group A) = fst A
 snd (AbGroup→Group A) = AbGroupStr→GroupStr (snd A)
 
 Group→AbGroup : (G : Group ℓ) → ((x y : fst G) → _·_ (snd G) x y ≡ _·_ (snd G) y x) → AbGroup ℓ
-fst (Group→AbGroup G comm) = fst G
-AbGroupStr.0g (snd (Group→AbGroup G comm)) = 1g (snd G)
-AbGroupStr._+_ (snd (Group→AbGroup G comm)) = _·_ (snd G)
-AbGroupStr.- snd (Group→AbGroup G comm) = inv (snd G)
-IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = isGroup (snd G)
-IsAbGroup.comm (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = comm
+fst (Group→AbGroup G +Comm) = fst G
+AbGroupStr.0g (snd (Group→AbGroup G +Comm)) = 1g (snd G)
+AbGroupStr._+_ (snd (Group→AbGroup G +Comm)) = _·_ (snd G)
+AbGroupStr.- snd (Group→AbGroup G +Comm) = inv (snd G)
+IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (Group→AbGroup G +Comm))) = isGroup (snd G)
+IsAbGroup.+Comm (AbGroupStr.isAbGroup (snd (Group→AbGroup G +Comm))) = +Comm
 
 AbGroup→CommMonoid : AbGroup ℓ → CommMonoid ℓ
 AbGroup→CommMonoid (_ , abgroupstr  _ _ _ G) =
-  _ , commmonoidstr _ _ (iscommmonoid (IsAbGroup.isMonoid G) (IsAbGroup.comm G))
+  _ , commmonoidstr _ _ (iscommmonoid (IsAbGroup.isMonoid G) (IsAbGroup.+Comm G))
 
 isSetAbGroup : (A : AbGroup ℓ) → isSet ⟨ A ⟩
 isSetAbGroup A = isSetGroup (AbGroup→Group A)
@@ -186,8 +194,8 @@ open IsGroup
 dirProdAb : AbGroup ℓ → AbGroup ℓ' → AbGroup (ℓ-max ℓ ℓ')
 dirProdAb A B =
   Group→AbGroup (DirProd (AbGroup→Group A) (AbGroup→Group B))
-                 λ p q → ΣPathP (comm (isAbGroup (snd A)) _ _
-                                , comm (isAbGroup (snd B)) _ _)
+                 λ p q → ΣPathP (+Comm (isAbGroup (snd A)) _ _
+                                , +Comm (isAbGroup (snd B)) _ _)
 
 trivialAbGroup : ∀ {ℓ} → AbGroup ℓ
 fst trivialAbGroup = Unit*
@@ -196,19 +204,20 @@ _+_ (snd trivialAbGroup) _ _ = tt*
 (- snd trivialAbGroup) _ = tt*
 is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) =
   isProp→isSet isPropUnit*
-assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) _ _ _ = refl
+·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd trivialAbGroup))))) _ _ _ = refl
 identity (isMonoid (isGroup (isAbGroup (snd trivialAbGroup)))) _ = refl , refl
 inverse (isGroup (isAbGroup (snd trivialAbGroup))) _ = refl , refl
-comm (isAbGroup (snd trivialAbGroup)) _ _ = refl
++Comm (isAbGroup (snd trivialAbGroup)) _ _ = refl
 
 -- useful lemma
+-- duplicate propeerties => this file should be split !
 move4 : ∀ {ℓ} {A : Type ℓ} (x y z w : A) (_+_ : A → A → A)
        → ((x y z : A) → x + (y + z) ≡ (x + y) + z)
        → ((x y : A) → x + y ≡ y + x)
       → (x + y) + (z + w) ≡ ((x + z) + (y + w))
-move4 x y z w _+_ assoc comm =
+move4 x y z w _+_ assoc +Comm =
      sym (assoc x y (z + w))
-  ∙∙ cong (x +_) (assoc y z w ∙∙ cong (_+ w) (comm y z) ∙∙ sym (assoc z y w))
+  ∙∙ cong (x +_) (assoc y z w ∙∙ cong (_+ w) (+Comm y z) ∙∙ sym (assoc z y w))
   ∙∙ assoc x z (y + w)
 
 ---- The type of homomorphisms A → B is an AbGroup if B is -----
@@ -225,16 +234,16 @@ module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
 
     open AbGroupStr strB
       renaming (_+_ to _+B_ ; -_ to -B_ ; 0g to 0B
-              ; rid to ridB ; lid to lidB
-              ; assoc to assocB ; comm to commB
-              ; invr to invrB ; invl to invlB)
+              ; +IdR to +IdRB ; +IdL to +IdLB
+              ; +Assoc to +AssocB ; +Comm to +CommB
+              ; +InvR to +InvRB ; +InvL to +InvLB)
     open GroupStr strA
       renaming (_·_ to _∙A_ ; inv to -A_
-                ; 1g to 1A ; rid to ridA)
+                ; 1g to 1A ; ·IdR to ·IdRA)
 
   trivGroupHom : GroupHom AGr (BGr *)
   fst trivGroupHom x = 0B
-  snd trivGroupHom = makeIsGroupHom λ _ _ → sym (ridB 0B)
+  snd trivGroupHom = makeIsGroupHom λ _ _ → sym (+IdRB 0B)
 
   compHom : GroupHom AGr (BGr *) → GroupHom AGr (BGr *) → GroupHom AGr (BGr *)
   fst (compHom f g) x = fst f x +B fst g x
@@ -242,7 +251,7 @@ module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
       makeIsGroupHom λ x y
       → cong₂ _+B_ (pres· (snd f) x y) (pres· (snd g) x y)
       ∙ move4 (fst f x) (fst f y) (fst g x) (fst g y)
-              _+B_ assocB commB
+              _+B_ +AssocB +CommB
 
   invHom : GroupHom AGr (BGr *) → GroupHom AGr (BGr *)
   fst (invHom (f , p)) x = -B f x
@@ -250,7 +259,7 @@ module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
     makeIsGroupHom
       λ x y → cong -B_ (pres· p x y)
             ∙∙ GroupTheory.invDistr (BGr *) (f x) (f y)
-            ∙∙ commB _ _
+            ∙∙ +CommB _ _
 
   open AbGroupStr
   open IsAbGroup
@@ -265,17 +274,17 @@ module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
   AbGroupStr.- snd HomGroup = invHom
   is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd HomGroup))))) =
     isSetGroupHom
-  assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd HomGroup))))) (f , p) (g , q) (h , r) =
+  ·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd HomGroup))))) (f , p) (g , q) (h , r) =
     Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-      (funExt λ x → assocB _ _ _)
+      (funExt λ x → +AssocB _ _ _)
   fst (identity (isMonoid (isGroup (isAbGroup (snd HomGroup)))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ y → ridB _)
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ y → +IdRB _)
   snd (identity (isMonoid (isGroup (isAbGroup (snd HomGroup)))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → lidB _)
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → +IdLB _)
   fst (inverse (isGroup (isAbGroup (snd HomGroup))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → invrB (f x))
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → +InvRB (f x))
   snd (inverse (isGroup (isAbGroup (snd HomGroup))) (f , p)) =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → invlB (f x))
-  comm (isAbGroup (snd HomGroup)) (f , p) (g , q) =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt λ x → +InvLB (f x))
+  +Comm (isAbGroup (snd HomGroup)) (f , p) (g , q) =
     Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-      (funExt λ x → commB _ _)
+      (funExt λ x → +CommB _ _)

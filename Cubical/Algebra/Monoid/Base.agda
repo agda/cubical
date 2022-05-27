@@ -37,11 +37,11 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
 
   open IsSemigroup isSemigroup public
 
-  lid : (x : A) → ε · x ≡ x
-  lid x = identity x .snd
+  ·IdL : (x : A) → ε · x ≡ x
+  ·IdL x = identity x .snd
 
-  rid : (x : A) → x · ε ≡ x
-  rid x = identity x .fst
+  ·IdR : (x : A) → x · ε ≡ x
+  ·IdR x = identity x .fst
 
 unquoteDecl IsMonoidIsoΣ = declareRecordIsoΣ IsMonoidIsoΣ (quote IsMonoid)
 
@@ -67,21 +67,21 @@ monoid A ε _·_ h = A , monoidstr ε _·_ h
 
 makeIsMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
                (is-setM : isSet M)
-               (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-               (rid : (x : M) → x · ε ≡ x)
-               (lid : (x : M) → ε · x ≡ x)
+               (·Assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+               (·IdR : (x : M) → x · ε ≡ x)
+               (·IdL : (x : M) → ε · x ≡ x)
              → IsMonoid ε _·_
-IsMonoid.isSemigroup (makeIsMonoid is-setM assoc rid lid) = issemigroup is-setM assoc
-IsMonoid.identity (makeIsMonoid is-setM assoc rid lid) = λ x → rid x , lid x
+IsMonoid.isSemigroup (makeIsMonoid is-setM ·Assoc ·IdR ·IdL) = issemigroup is-setM ·Assoc
+IsMonoid.identity (makeIsMonoid is-setM ·Assoc ·IdR ·IdL) = λ x → ·IdR x , ·IdL x
 
 makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              (is-setM : isSet M)
-             (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-             (rid : (x : M) → x · ε ≡ x)
-             (lid : (x : M) → ε · x ≡ x)
+             (·Assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+             (·IdR : (x : M) → x · ε ≡ x)
+             (·IdL : (x : M) → ε · x ≡ x)
            → Monoid ℓ
-makeMonoid ε _·_ is-setM assoc rid lid =
-  monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
+makeMonoid ε _·_ is-setM ·Assoc ·IdR ·IdL =
+  monoid _ ε _·_ (makeIsMonoid is-setM ·Assoc ·IdR ·IdL)
 
 record IsMonoidHom {A : Type ℓ} {B : Type ℓ'}
   (M : MonoidStr A) (f : A → B) (N : MonoidStr B)
@@ -142,10 +142,9 @@ module MonoidTheory {ℓ} (M : Monoid ℓ) where
   -- If there exists a inverse of an element it is unique
   inv-lemma : (x y z : ⟨ M ⟩) → y · x ≡ ε → x · z ≡ ε → y ≡ z
   inv-lemma x y z left-inverse right-inverse =
-    y           ≡⟨ sym (rid y) ⟩
+    y           ≡⟨ sym (·IdR y) ⟩
     y · ε       ≡⟨ cong (λ - → y · -) (sym right-inverse) ⟩
-    y · (x · z) ≡⟨ assoc y x z ⟩
+    y · (x · z) ≡⟨ ·Assoc y x z ⟩
     (y · x) · z ≡⟨ cong (λ - → - · z) left-inverse ⟩
-    ε · z       ≡⟨ lid z ⟩
+    ε · z       ≡⟨ ·IdL z ⟩
     z ∎
-
