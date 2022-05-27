@@ -15,13 +15,10 @@ open import Cubical.Data.Nat using (ℕ ; zero ; suc)
 open import Cubical.Data.NatPlusOne
 open import Cubical.Data.Int.MoreInts.QuoInt
   using    (ℤ ; spos ; sneg ; pos ; neg ; signed ; posneg ; isSetℤ ; 0≢1-ℤ)
-  renaming (_·_ to _·ℤ_ ; _+_ to _+ℤ_ ; -_ to -ℤ_
+  renaming (_·_ to _·ℤ_ ; -_ to -ℤ_
            ; ·-zeroˡ to ·ℤ-zeroˡ
-           ; ·-zeroʳ to ·ℤ-zeroʳ
-           ; ·-identityʳ to ·ℤ-identityʳ
-           ; ·-comm  to ·ℤ-comm
-           ; ·-assoc to ·ℤ-assoc)
-open import Cubical.HITs.SetQuotients as SetQuot hiding (_/_)
+           ; ·-identityʳ to ·ℤ-identityʳ)
+open import Cubical.HITs.SetQuotients as SetQuot
 open import Cubical.HITs.Rationals.QuoQ
   using    (ℚ ; ℕ₊₁→ℤ ; isEquivRel∼)
 
@@ -29,9 +26,7 @@ open import Cubical.Algebra.Field
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRingSolver.Reflection
 open import Cubical.Algebra.CommRing.Instances.QuoInt
-  renaming (ℤ to ℤRing)
 open import Cubical.Algebra.CommRing.Instances.QuoQ
-  renaming (ℚ to ℚRing)
 
 open import Cubical.Relation.Nullary
 
@@ -64,10 +59,9 @@ a≡0→a/b≡0 (a , b) a≡0 = eq/ _ _ a·1≡0·b
 
 -- ℚ is a field
 
-open CommRingStr (ℚRing .snd)
-open Units        ℚRing
-
-open Helpers      ℤRing
+open CommRingStr (ℚCommRing .snd)
+open Units        ℚCommRing
+open Helpers      ℤCommRing
 
 
 hasInverseℚ : (q : ℚ) → ¬ q ≡ 0 → Σ[ p ∈ ℚ ] q · p ≡ 1
@@ -95,4 +89,4 @@ hasInverseℚ = SetQuot.elimProp (λ q → isPropΠ (λ _ → inverseUniqueness 
 -- The instance
 
 ℚField : Field ℓ-zero
-ℚField = makeFieldFromCommRing ℚRing hasInverseℚ 0≢1-ℚ
+ℚField = makeFieldFromCommRing ℚCommRing hasInverseℚ 0≢1-ℚ
