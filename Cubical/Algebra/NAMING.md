@@ -28,7 +28,8 @@ This file provides a guide for naming definitions in the Algebra folder.
     right, and then the operation that is distributed over.
 
     ```
-    x · (y + z) ≡ (x · y) + (x · z)
+    ·DistR+ : x · (y + z) ≡ (x · y) + (x · z)
+    ·DistL+ : (x + y) · z ≡ (x · z) + (y · z)
     ```
 
   - `Id` = unit laws

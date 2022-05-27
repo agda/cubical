@@ -28,14 +28,14 @@ module CommMonoidTheory (M' : CommMonoid ℓ) where
  private M = ⟨ M' ⟩
 
  commAssocl : (x y z : M) → x · (y · z) ≡ y · (x · z)
- commAssocl x y z = ·Assoc x y z ∙∙ cong (_· z) (comm x y) ∙∙ sym (·Assoc y x z)
+ commAssocl x y z = ·Assoc x y z ∙∙ cong (_· z) (·Comm x y) ∙∙ sym (·Assoc y x z)
 
  commAssocr : (x y z : M) → x · y · z ≡ x · z · y
- commAssocr x y z = sym (·Assoc x y z) ∙∙ cong (x ·_) (comm y z) ∙∙ ·Assoc x z y
+ commAssocr x y z = sym (·Assoc x y z) ∙∙ cong (x ·_) (·Comm y z) ∙∙ ·Assoc x z y
 
 
  commAssocr2 : (x y z : M) → x · y · z ≡ z · y · x
- commAssocr2 x y z = commAssocr _ _ _ ∙∙ cong (_· y) (comm _ _) ∙∙ commAssocr _ _ _
+ commAssocr2 x y z = commAssocr _ _ _ ∙∙ cong (_· y) (·Comm _ _) ∙∙ commAssocr _ _ _
 
  commAssocSwap : (x y z w : M) → (x · y) · (z · w) ≡ (x · z) · (y · w)
  commAssocSwap x y z w = ·Assoc (x · y) z w ∙∙ cong (_· w) (commAssocr x y z)

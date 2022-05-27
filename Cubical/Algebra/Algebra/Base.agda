@@ -41,18 +41,18 @@ record IsAlgebra (R : Ring ℓ) {A : Type ℓ'}
   open RingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
 
   field
-    isLeftModule : IsLeftModule R 0a _+_ -_ _⋆_
-    ·-isMonoid  : IsMonoid 1a _·_
-    dist        : (x y z : A) → (x · (y + z) ≡ (x · y) + (x · z))
-                              × ((x + y) · z ≡ (x · z) + (y · z))
-    ⋆-lassoc     : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y)
-    ⋆-rassoc     : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y)
+    +IsLeftModule : IsLeftModule R 0a _+_ -_ _⋆_
+    ·IsMonoid     : IsMonoid 1a _·_
+    ·Dist         : (x y z : A) → (x · (y + z) ≡ (x · y) + (x · z))
+                                   × ((x + y) · z ≡ (x · z) + (y · z))
+    ⋆AssocL       : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y)
+    ⋆AssocR       : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y)
 
-  open IsLeftModule isLeftModule public
+  open IsLeftModule +IsLeftModule public
 
   isRing : IsRing _ _ _ _ _
-  isRing = isring (IsLeftModule.+-isAbGroup isLeftModule) ·-isMonoid dist
-  open IsRing isRing public hiding (_-_; +Assoc; +Lid; +Linv; +Rid; +Rinv; +Comm)
+  isRing = isring (IsLeftModule.+IsAbGroup +IsLeftModule) ·IsMonoid ·Dist
+  open IsRing isRing public hiding (_-_; +Assoc; +IdL; +InvL; +IdR; +InvR; +Comm)
 
 unquoteDecl IsAlgebraIsoΣ = declareRecordIsoΣ IsAlgebraIsoΣ (quote IsAlgebra)
 
@@ -98,7 +98,7 @@ module commonExtractors {R : Ring ℓ} where
   isSetAlgebra : (A : Algebra R ℓ') → isSet ⟨ A ⟩
   isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
 
-  open RingStr (snd R) using (1r; ·Ldist+) renaming (_+_ to _+r_; _·_ to _·s_)
+  open RingStr (snd R) using (1r; ·DistL+) renaming (_+_ to _+r_; _·_ to _·s_)
 
   makeIsAlgebra : {A : Type ℓ'} {0a 1a : A}
                   {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}

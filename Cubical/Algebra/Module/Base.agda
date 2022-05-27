@@ -38,25 +38,17 @@ record IsLeftModule (R : Ring ℓ) {M : Type ℓ'}
   open RingStr (snd R) using (_·_; 1r) renaming (_+_ to _+r_)
 
   field
-    +-isAbGroup : IsAbGroup 0m _+_ -_
-    ⋆-assoc : (r s : ⟨ R ⟩) (x : M) → (r · s) ⋆ x ≡ r ⋆ (s ⋆ x)
-    ⋆-ldist : (r s : ⟨ R ⟩) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x)
-    ⋆-rdist : (r : ⟨ R ⟩) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y)
-    ⋆-lid   : (x : M) → 1r ⋆ x ≡ x
+    +IsAbGroup : IsAbGroup 0m _+_ -_
+    ⋆Assoc : (r s : ⟨ R ⟩) (x : M) → (r · s) ⋆ x ≡ r ⋆ (s ⋆ x)
+    ⋆DistL+ : (r s : ⟨ R ⟩) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x)
+    ⋆DistR+ : (r : ⟨ R ⟩) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y)
+    ⋆IdL   : (x : M) → 1r ⋆ x ≡ x
 
-  open IsAbGroup +-isAbGroup public
+  open IsAbGroup +IsAbGroup public
     renaming
-    ( assoc       to +-assoc
-    ; identity    to +-identity
-    ; lid         to +-lid
-    ; rid         to +-rid
-    ; inverse     to +-inv
-    ; invl        to +-linv
-    ; invr        to +-rinv
-    ; comm        to +-comm
-    ; isSemigroup to +-isSemigroup
-    ; isMonoid    to +-isMonoid
-    ; isGroup     to +-isGroup
+    ( isSemigroup to +IsSemigroup
+    ; isMonoid    to +IsMonoid
+    ; isGroup     to +IsGroup
     )
 
 unquoteDecl IsLeftModuleIsoΣ = declareRecordIsoΣ IsLeftModuleIsoΣ (quote IsLeftModule)
@@ -81,7 +73,7 @@ module _ {R : Ring ℓ} where
 
   LeftModule→AbGroup : (M : LeftModule R ℓ') → AbGroup ℓ'
   LeftModule→AbGroup (_ , leftmodulestr _ _ _ _ isLeftModule) =
-                     _ , abgroupstr _ _ _ (IsLeftModule.+-isAbGroup isLeftModule)
+                     _ , abgroupstr _ _ _ (IsLeftModule.+IsAbGroup isLeftModule)
 
   isSetLeftModule : (M : LeftModule R ℓ') → isSet ⟨ M ⟩
   isSetLeftModule M = isSetAbGroup (LeftModule→AbGroup M)
@@ -91,17 +83,17 @@ module _ {R : Ring ℓ} where
   makeIsLeftModule : {M : Type ℓ'} {0m : M}
                   {_+_ : M → M → M} { -_ : M → M} {_⋆_ : ⟨ R ⟩ → M → M}
                   (isSet-M : isSet M)
-                  (+-assoc :  (x y z : M) → x + (y + z) ≡ (x + y) + z)
-                  (+-rid : (x : M) → x + 0m ≡ x)
-                  (+-rinv : (x : M) → x + (- x) ≡ 0m)
-                  (+-comm : (x y : M) → x + y ≡ y + x)
-                  (⋆-assoc : (r s : ⟨ R ⟩) (x : M) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
-                  (⋆-ldist : (r s : ⟨ R ⟩) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
-                  (⋆-rdist : (r : ⟨ R ⟩) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
-                  (⋆-lid   : (x : M) → 1r ⋆ x ≡ x)
+                  (+Assoc :  (x y z : M) → x + (y + z) ≡ (x + y) + z)
+                  (+IdR : (x : M) → x + 0m ≡ x)
+                  (+InvR : (x : M) → x + (- x) ≡ 0m)
+                  (+Comm : (x y : M) → x + y ≡ y + x)
+                  (⋆Assoc : (r s : ⟨ R ⟩) (x : M) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
+                  (⋆DistL+ : (r s : ⟨ R ⟩) (x : M) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                  (⋆DistR+ : (r : ⟨ R ⟩) (x y : M) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+                  (⋆IdL   : (x : M) → 1r ⋆ x ≡ x)
                 → IsLeftModule R 0m _+_ -_ _⋆_
-  makeIsLeftModule isSet-M +-assoc +-rid +-rinv +-comm ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid =
-    ismodule (makeIsAbGroup isSet-M +-assoc +-rid +-rinv +-comm) ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid
+  makeIsLeftModule isSet-M +Assoc +IdR +InvR +Comm ⋆Assoc ⋆DistL+ ⋆DistR+ ⋆IdL =
+   ismodule (makeIsAbGroup isSet-M +Assoc +IdR +InvR +Comm) ⋆Assoc ⋆DistL+ ⋆DistR+ ⋆IdL
 
 record IsLeftModuleHom {R : Ring ℓ} {A B : Type ℓ'}
   (M : LeftModuleStr R A) (f : A → B) (N : LeftModuleStr R B)
@@ -162,4 +154,3 @@ isPropIsLeftModule R _ _ _ _ =
 
 LeftModulePath : {R : Ring ℓ} (M N : LeftModule R ℓ') → (LeftModuleEquiv M N) ≃ (M ≡ N)
 LeftModulePath {R = R} = ∫ (𝒮ᴰ-LeftModule R) .UARel.ua
-

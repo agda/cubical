@@ -38,15 +38,15 @@ module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
   0-actsNullifying : (x : ⟨ A ⟩) → 0r ⋆ x ≡ 0a
   0-actsNullifying x =
     let idempotent-+ = 0r ⋆ x              ≡⟨ cong (λ u → u ⋆ x) (sym (RingTheory.0Idempotent R)) ⟩
-                       (0r +r 0r) ⋆ x      ≡⟨ ⋆-ldist 0r 0r x ⟩
+                       (0r +r 0r) ⋆ x      ≡⟨ ⋆DistL+ 0r 0r x ⟩
                        (0r ⋆ x) + (0r ⋆ x) ∎
     in RingTheory.+Idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+
 
   ⋆Dist· : (x y : ⟨ R ⟩) (a b : ⟨ A ⟩) → (x ·r y) ⋆ (a · b) ≡ (x ⋆ a) · (y ⋆ b)
-  ⋆Dist· x y a b = (x ·r y) ⋆ (a · b) ≡⟨ ⋆-rassoc _ _ _ ⟩
-                   a · ((x ·r y) ⋆ b) ≡⟨ cong (a ·_) (⋆-assoc _ _ _) ⟩
-                   a · (x ⋆ (y ⋆ b)) ≡⟨ sym (⋆-rassoc _ _ _) ⟩
-                   x ⋆ (a · (y ⋆ b)) ≡⟨ sym (⋆-lassoc _ _ _) ⟩
+  ⋆Dist· x y a b = (x ·r y) ⋆ (a · b) ≡⟨ ⋆AssocR _ _ _ ⟩
+                   a · ((x ·r y) ⋆ b) ≡⟨ cong (a ·_) (⋆Assoc _ _ _) ⟩
+                   a · (x ⋆ (y ⋆ b)) ≡⟨ sym (⋆AssocR _ _ _) ⟩
+                   x ⋆ (a · (y ⋆ b)) ≡⟨ sym (⋆AssocL _ _ _) ⟩
                    (x ⋆ a) · (y ⋆ b) ∎
 
 
