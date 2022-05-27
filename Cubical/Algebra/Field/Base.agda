@@ -43,6 +43,12 @@ record IsField {R : Type ℓ}
     hasInverse : (x : R) → ¬ x ≡ 0r → Σ[ y ∈ R ] x · y ≡ 1r
     0≢1        : ¬ 0r ≡ 1r
 
+  _[_]⁻¹ : (x : R) → ¬ x ≡ 0r → R
+  x [ ¬x≡0 ]⁻¹ = hasInverse x ¬x≡0 .fst
+
+  ·⁻¹≡1 : (x : R) (≢0 : ¬ x ≡ 0r) → x · (x [ ≢0 ]⁻¹) ≡ 1r
+  ·⁻¹≡1 x ¬x≡0 = hasInverse x ¬x≡0 .snd
+
   open IsCommRing isCommRing public
 
 record FieldStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
