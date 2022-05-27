@@ -116,18 +116,18 @@ module _ (G : Group ℓ) where
     rec2
       isset
       (λ x y → η (x · y))
-      (λ a b c d → η ((a · (b · c)) · d) ≡⟨ cong (λ x → (η (x · d))) (assoc _ _ _) ⟩
-                   η (((a · b) · c) · d) ≡⟨ cong η (sym (assoc (a · b) c d)) ⟩
+      (λ a b c d → η ((a · (b · c)) · d) ≡⟨ cong (λ x → (η (x · d))) (·Assoc _ _ _) ⟩
+                   η (((a · b) · c) · d) ≡⟨ cong η (sym (·Assoc (a · b) c d)) ⟩
                    η ((a · b) · (c · d)) ≡⟨ comm (a · b) c d ⟩
-                   η ((a · b) · (d · c)) ≡⟨ cong η (sym (assoc _ _ _)) ⟩
-                   η (a · (b · (d · c))) ≡⟨ cong (λ x → (η (a · x))) (assoc _ _ _) ⟩
+                   η ((a · b) · (d · c)) ≡⟨ cong η (sym (·Assoc _ _ _)) ⟩
+                   η (a · (b · (d · c))) ≡⟨ cong (λ x → (η (a · x))) (·Assoc _ _ _) ⟩
                    η (a · ((b · d) · c)) ≡⟨ comm a (b · d) c ⟩
-                   η (a · (c · (b · d))) ≡⟨ cong (λ x → (η (a · x))) (assoc _ _ _) ⟩
-                   η (a · ((c · b) · d)) ≡⟨ cong η (assoc a (c · b) d) ⟩
+                   η (a · (c · (b · d))) ≡⟨ cong (λ x → (η (a · x))) (·Assoc _ _ _) ⟩
+                   η (a · ((c · b) · d)) ≡⟨ cong η (·Assoc a (c · b) d) ⟩
                    η ((a · (c · b)) · d) ∎)
-      (λ a b c d → η (a · (b · (c · d))) ≡⟨ cong η (assoc _ _ _) ⟩
+      (λ a b c d → η (a · (b · (c · d))) ≡⟨ cong η (·Assoc _ _ _) ⟩
                    η ((a · b) · (c · d)) ≡⟨ comm (a · b) c d ⟩
-                   η ((a · b) · (d · c)) ≡⟨ cong η (sym (assoc _ _ _)) ⟩
+                   η ((a · b) · (d · c)) ≡⟨ cong η (sym (·Assoc _ _ _)) ⟩
                    η (a · (b · (d · c))) ∎)
 
   1Ab : Abelianization
@@ -138,15 +138,15 @@ module _ (G : Group ℓ) where
     rec
       isset
       ((λ x → η (inv x)))
-      (λ a b c → η (inv (a · (b · c)))         ≡⟨ cong η (invDistr a (b · c)) ⟩
+      (λ a b c → η (inv (a · (b · c)))        ≡⟨ cong η (invDistr a (b · c)) ⟩
       η ((inv (b · c)) · (inv a))              ≡⟨ cong (λ x → η (x · (inv a))) (invDistr b c) ⟩
-      η (((inv c) · (inv b)) · (inv a))        ≡⟨ cong η ((sym (lid (((inv c) · (inv b)) · (inv a))))) ⟩
+      η (((inv c) · (inv b)) · (inv a))        ≡⟨ cong η ((sym (·IdL (((inv c) · (inv b)) · (inv a))))) ⟩
       η (1g · (((inv c) · (inv b)) · (inv a))) ≡⟨ comm 1g ((inv c) · (inv b)) (inv a) ⟩
-      η (1g · ((inv a) · ((inv c) · (inv b)))) ≡⟨ cong η (lid ((inv a) · ((inv c) · (inv b)))) ⟩
+      η (1g · ((inv a) · ((inv c) · (inv b)))) ≡⟨ cong η (·IdL ((inv a) · ((inv c) · (inv b)))) ⟩
       η ((inv a) · ((inv c) · (inv b)))        ≡⟨ comm (inv a) (inv c) (inv b) ⟩
-      η ((inv a) · ((inv b) · (inv c)))        ≡⟨ cong η ((sym (lid ((inv a) · ((inv b) · (inv c)))))) ⟩
+      η ((inv a) · ((inv b) · (inv c)))        ≡⟨ cong η ((sym (·IdL ((inv a) · ((inv b) · (inv c)))))) ⟩
       η (1g · ((inv a) · ((inv b) · (inv c)))) ≡⟨ comm 1g (inv a) ((inv b) · (inv c)) ⟩
-      η (1g · (((inv b) · (inv c)) · (inv a))) ≡⟨ cong η (lid (((inv b) · (inv c)) · (inv a))) ⟩
+      η (1g · (((inv b) · (inv c)) · (inv a))) ≡⟨ cong η (·IdL (((inv b) · (inv c)) · (inv a))) ⟩
       η (((inv b) · (inv c)) · (inv a))        ≡⟨ cong (λ x → η (x · (inv a))) (sym (invDistr c b)) ⟩
       η ((inv (c · b)) · (inv a))              ≡⟨ cong η (sym (invDistr a (c · b))) ⟩
       η (inv (a · (c · b))) ∎)
@@ -156,13 +156,13 @@ module _ (G : Group ℓ) where
     elimProp3
       (λ x y z → isset (x ·Ab (y ·Ab z))
       ((x ·Ab y) ·Ab z))
-      (λ x y z → cong η (assoc x y z))
+      (λ x y z → cong η (·Assoc x y z))
 
   ridAb : (x : Abelianization) → x ·Ab 1Ab ≡ x
   ridAb =
     elimProp
       (λ x → isset (x ·Ab 1Ab) x)
-      (λ x → cong η (rid x))
+      (λ x → cong η (·IdR x))
 
   rinvAb : (x : Abelianization) → x ·Ab (invAb x) ≡ 1Ab
   rinvAb =
@@ -170,7 +170,7 @@ module _ (G : Group ℓ) where
       (λ x → isset (x ·Ab (invAb x)) 1Ab)
       (λ x → (η x) ·Ab (invAb (η x)) ≡⟨ refl ⟩
              (η x) ·Ab (η (inv x))   ≡⟨ refl ⟩
-             η (x · (inv x))         ≡⟨ cong η (fst (inverse x)) ⟩
+             η (x · (inv x))         ≡⟨ cong η (·InvR x) ⟩
              η 1g                    ≡⟨ refl ⟩
              1Ab ∎)
 
@@ -179,9 +179,9 @@ module _ (G : Group ℓ) where
     elimProp2
       (λ x y → isset (x ·Ab y) (y ·Ab x))
       (λ x y → (η x) ·Ab (η y)  ≡⟨ refl ⟩
-               η (x · y)        ≡⟨ cong η (sym (lid (x · y))) ⟩
+               η (x · y)        ≡⟨ cong η (sym (·IdL (x · y))) ⟩
                η (1g · (x · y)) ≡⟨ comm 1g x y ⟩
-               η (1g · (y · x)) ≡⟨ cong η (lid (y · x)) ⟩
+               η (1g · (y · x)) ≡⟨ cong η (·IdL (y · x)) ⟩
                η (y · x)        ≡⟨ refl ⟩
                (η y) ·Ab (η x) ∎)
 
@@ -223,7 +223,7 @@ module _ (G : Group ℓ) where
                 (λ x → (f') x)
                 (λ a b c → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
                            (f' a) · (f' (b · c))    ≡⟨ cong (λ x → (f' a) · x) ((snd f).pres· b c) ⟩
-                           (f' a) · (f' b) · (f' c) ≡⟨ cong (λ x → (f' a) · x) ((snd H).AbGroupStr.comm (f' b) (f' c)) ⟩
+                           (f' a) · (f' b) · (f' c) ≡⟨ cong (λ x → (f' a) · x) ((snd H).AbGroupStr.+Comm (f' b) (f' c)) ⟩
                            (f' a) · (f' c) · (f' b) ≡⟨ cong (λ x → (f' a) · x) (sym ((snd f).pres· c b)) ⟩
                            (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
                            f' (a · c · b) ∎)

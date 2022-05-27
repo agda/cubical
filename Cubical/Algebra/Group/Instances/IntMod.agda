@@ -37,14 +37,13 @@ fst (ℤGroup/ suc n) = Fin (suc n)
 1g (snd (ℤGroup/ suc n)) = 0
 GroupStr._·_ (snd (ℤGroup/ suc n)) = _+ₘ_
 inv (snd (ℤGroup/ suc n)) = -ₘ_
-IsSemigroup.is-set (isSemigroup (isMonoid (isGroup (snd (ℤGroup/ suc n))))) =
-  isSetFin
-IsSemigroup.assoc (isSemigroup (isMonoid (isGroup (snd (ℤGroup/ suc n))))) =
-  λ x y z → sym (+ₘ-assoc x y z)
-fst (identity (isMonoid (isGroup (snd (ℤGroup/ suc n)))) x) = +ₘ-rUnit x
-snd (identity (isMonoid (isGroup (snd (ℤGroup/ suc n)))) x) = +ₘ-lUnit x
-fst (inverse (isGroup (snd (ℤGroup/ suc n))) x) = +ₘ-rCancel x
-snd (inverse (isGroup (snd (ℤGroup/ suc n))) x) = +ₘ-lCancel x
+isGroup (snd (ℤGroup/ suc n)) = makeIsGroup
+                                isSetFin
+                                (λ x y z → sym (+ₘ-assoc x y z))
+                                +ₘ-rUnit
+                                +ₘ-lUnit
+                                +ₘ-rCancel
+                                +ₘ-lCancel
 
 ℤGroup/1≅Unit : GroupIso (ℤGroup/ 1) UnitGroup₀
 ℤGroup/1≅Unit = contrGroupIsoUnit isContrFin1
@@ -165,13 +164,13 @@ isHomℤ→Fin n =
         ∙∙ +ₘ-comm (ℤ→Fin n (negsuc y)) (ℤ→Fin n (negsuc x))}
   where
   +1case :  (y : ℤ) → ℤ→Fin n (1 +ℤ y) ≡ ℤ→Fin n 1 +ₘ ℤ→Fin n y
-  +1case (pos zero) = sym (GroupStr.rid (snd (ℤGroup/ (suc n))) _)
+  +1case (pos zero) = sym (GroupStr.·IdR (snd (ℤGroup/ (suc n))) _)
   +1case (pos (suc y)) =
        cong (ℤ→Fin n) (+Comm 1 (pos (suc y)))
      ∙ Σ≡Prop (λ _ → isProp≤) (mod+mod≡mod (suc n) 1 (suc y))
   +1case (negsuc zero) =
       Σ≡Prop (λ _ → isProp≤) refl
-    ∙ sym (GroupStr.invr (snd (ℤGroup/ (suc n))) (modInd n 1 , mod< n 1))
+    ∙ sym (GroupStr.·InvR (snd (ℤGroup/ (suc n))) (modInd n 1 , mod< n 1))
   +1case (negsuc (suc y)) =
     Σ≡Prop (λ _ → isProp≤)
       (cong fst (cong (ℤ→Fin n) (+Comm 1 (negsuc (suc y))))
@@ -184,7 +183,7 @@ isHomℤ→Fin n =
     → ℤ→Fin n (pos x +ℤ y) ≡ ℤ→Fin n (pos x) +ₘ ℤ→Fin n y
   pos+case zero y =
       cong (ℤ→Fin n) (+Comm 0 y)
-    ∙ sym (GroupStr.lid (snd (ℤGroup/ (suc n))) (ℤ→Fin n y))
+    ∙ sym (GroupStr.·IdL (snd (ℤGroup/ (suc n))) (ℤ→Fin n y))
   pos+case (suc zero) y = +1case y
   pos+case (suc (suc x)) y =
        cong (ℤ→Fin n) (cong (_+ℤ y) (+Comm (pos (suc x)) 1)

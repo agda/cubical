@@ -1,19 +1,15 @@
 {-# OPTIONS --safe #-}
-{-
-Module in which commutative monoids are defined.
--}
 module Cubical.Algebra.CommMonoid.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid.Base
+open import Cubical.Algebra.Monoid
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Auto
@@ -27,6 +23,8 @@ open Iso
 private
   variable
     ℓ ℓ' : Level
+
+
 
 record IsCommMonoid {M : Type ℓ}
                     (ε : M) (_·_ : M → M → M) : Type ℓ where
@@ -95,14 +93,12 @@ CommMonoidEquiv M N = Σ[ e ∈ (M .fst ≃ N .fst) ] IsCommMonoidEquiv (M .snd)
 
 isPropIsCommMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              → isProp (IsCommMonoid ε _·_)
-isPropIsCommMonoid ε _·_ (iscommmonoid MM MC) (iscommmonoid SM SC) =
-  λ i → iscommmonoid (isPropIsMonoid _ _ MM SM i) (isPropComm MC SC i)
+isPropIsCommMonoid ε _·_  =
+  isOfHLevelRetractFromIso 1 IsCommMonoidIsoΣ
+    (isPropΣ (isPropIsMonoid ε _·_)
+             λ mon → isPropΠ2 (λ _ _ → mon .is-set _ _))
   where
-  isSetM : isSet _
-  isSetM = MM .IsMonoid.isSemigroup .IsSemigroup.is-set
-
-  isPropComm : isProp ((x y : _) → x · y ≡ y · x)
-  isPropComm = isPropΠ2 λ _ _ → isSetM _ _
+  open IsMonoid
 
 𝒮ᴰ-CommMonoid : DUARel (𝒮-Univ ℓ) CommMonoidStr ℓ
 𝒮ᴰ-CommMonoid =

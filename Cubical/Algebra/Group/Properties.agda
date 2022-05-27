@@ -1,8 +1,3 @@
-{-
-
-This file contains basic theory about groups
-
--}
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Properties where
 

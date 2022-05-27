@@ -1,8 +1,3 @@
-{-
-
-Defines groups and adds some smart constructors
-
--}
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Base where
 
