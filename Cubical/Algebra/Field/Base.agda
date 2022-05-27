@@ -208,5 +208,5 @@ isPropIsField {R = R} 0r 1r _+_ _·_ -_ H@(isfield RR RC RD) (isfield SR SC SD) 
 FieldPath : (R S : Field ℓ) → FieldEquiv R S ≃ (R ≡ S)
 FieldPath = ∫ 𝒮ᴰ-Field .UARel.ua
 
-uaFieldRing : {A B : Field ℓ} → FieldEquiv A B → A ≡ B
-uaFieldRing {A = A} {B = B} = equivFun (FieldPath A B)
+uaField : {A B : Field ℓ} → FieldEquiv A B → A ≡ B
+uaField {A = A} {B = B} = equivFun (FieldPath A B)
