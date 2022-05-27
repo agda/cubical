@@ -151,7 +151,8 @@ module _ {R : CommRing ℓ} where
           f
           (sym (
            f'     ≡⟨ sym (inv f') ⟩
-           freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A) (funExt hasCorrectValues) ⟩
+           freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A)
+                                                         (funExt hasCorrectValues) ⟩
            freeInducedHom A values               ≡⟨ cong (freeInducedHom A) refl ⟩
            freeInducedHom A (evaluateAt A iHom') ≡⟨ inv iHom' ⟩
            iHom' ∎))
@@ -197,18 +198,19 @@ module _ {R : CommRing ℓ} where
       evaluateAtFP : {A : CommAlgebra R ℓ} →
                       CommAlgebraHom FPAlgebra A → zeroLocus A
       evaluateAtFP {A} f = value ,
-                      λ i →  evPoly A (relation i) value                            ≡⟨ step1 (relation i) ⟩
-                             fst compHom (evPoly (Polynomials n) (relation i) var)  ≡⟨ refl ⟩
-                             (fst f) ((fst modRelations)
-                                        (evPoly (Polynomials n) (relation i) var))  ≡⟨ cong (fst f)
-                                                                                            (evPolyHomomorphic
-                                                                                              (Polynomials n)
-                                                                                              FPAlgebra
-                                                                                              modRelations
-                                                                                              (relation i) var) ⟩
-                             (fst f) (evPoly FPAlgebra (relation i) generator)      ≡⟨ cong (fst f) (relationsHold i) ⟩
-                             (fst f) (0a (snd FPAlgebra))                           ≡⟨ IsAlgebraHom.pres0 (snd f) ⟩
-                             0a (snd A) ∎
+        λ i →  evPoly A (relation i) value                            ≡⟨ step1 (relation i) ⟩
+            fst compHom (evPoly (Polynomials n) (relation i) var)  ≡⟨ refl ⟩
+            (fst f) ((fst modRelations)
+                       (evPoly (Polynomials n) (relation i) var))  ≡⟨ cong
+                                                                       (fst f)
+                                                                       (evPolyHomomorphic
+                                                                         (Polynomials n)
+                                                                         FPAlgebra
+                                                                         modRelations
+                                                                         (relation i) var) ⟩
+            (fst f) (evPoly FPAlgebra (relation i) generator)      ≡⟨ cong (fst f) (relationsHold i) ⟩
+            (fst f) (0a (snd FPAlgebra))                           ≡⟨ IsAlgebraHom.pres0 (snd f) ⟩
+            0a (snd A) ∎
         where
           compHom : CommAlgebraHom (Polynomials n) A
           compHom = CommAlgebraHoms.compCommAlgebraHom (Polynomials n) FPAlgebra A modRelations f
@@ -351,7 +353,8 @@ module Instances (R : CommRing ℓ) where
   n terminalCAlgFP = 0
   m terminalCAlgFP = 1
   relations terminalCAlgFP = unitGen
-  equiv terminalCAlgFP = equivFrom1≡0 R R[⊥]/⟨1⟩ (sym (⋆-lid 1a) ∙ relationsHold 0 unitGen zero)
+  equiv terminalCAlgFP = equivFrom1≡0 R R[⊥]/⟨1⟩
+                                      (sym (⋆-lid 1a) ∙ relationsHold 0 unitGen zero)
     where open CommAlgebraStr (snd R[⊥]/⟨1⟩)
 
   {-
@@ -385,52 +388,57 @@ module Instances (R : CommRing ℓ) where
     n R/⟨x⟩FP = 0
     m R/⟨x⟩FP = 1
     relations R/⟨x⟩FP = relation
-    equiv R/⟨x⟩FP = (isoToEquiv (iso (fst toA) (fst fromA) (λ a i → toFrom i $a a) λ a i → fromTo i $a a)) , (snd toA)
-        where
-          toA : CommAlgebraHom B R/⟨x⟩
-          toA = inducedHom 0 relation R/⟨x⟩ (λ ()) relation-holds
-            where
-              vals : FinVec ⟨ R/⟨x⟩ ⟩ 0
-              vals ()
-              vals' : FinVec ⟨ initialCAlg R ⟩ 0
-              vals' ()
-              relation-holds = λ zero →
-                evPoly R/⟨x⟩ (relation zero) (λ ())                           ≡⟨ sym
-                                                                                (evPolyHomomorphic
-                                                                                  (initialCAlg R)
-                                                                                   R/⟨x⟩
-                                                                                   π
-                                                                                   (Construction.const x)
-                                                                                   vals') ⟩
-                π $a (evPoly (initialCAlg R) (Construction.const x) vals')   ≡⟨ cong (π $a_) (·Rid x) ⟩
-                π $a x                                                       ≡⟨ πx≡0 ⟩
-                0a                               ∎
-          {-
-              R ─→   R/⟨x⟩
-            id↓       ↓ ∃!
-              R ─→   R[⊥]/⟨const x⟩
-          -}
-          fromA : CommAlgebraHom R/⟨x⟩ B
-          fromA =
-            quotientInducedHom
-              (initialCAlg R)
-              ⟨x⟩
-              B
-              (initialMap R B)
-              (inclOfFGIdeal
-                (CommAlgebra→CommRing (initialCAlg R))
-                (replicateFinVec 1 x)
-                (kernel (initialCAlg R) B (initialMap R B))
-                λ {Fin.zero → relationsHold 0 relation Fin.zero})
+    equiv R/⟨x⟩FP = (isoToEquiv (iso (fst toA) (fst fromA)
+                                    (λ a i → toFrom i $a a)
+                                    λ a i → fromTo i $a a))
+                   , (snd toA)
+      where
+        toA : CommAlgebraHom B R/⟨x⟩
+        toA = inducedHom 0 relation R/⟨x⟩ (λ ()) relation-holds
+          where
+            vals : FinVec ⟨ R/⟨x⟩ ⟩ 0
+            vals ()
+            vals' : FinVec ⟨ initialCAlg R ⟩ 0
+            vals' ()
+            relation-holds = λ zero →
+              evPoly R/⟨x⟩ (relation zero) (λ ())    ≡⟨ sym
+                                                       (evPolyHomomorphic
+                                                         (initialCAlg R)
+                                                          R/⟨x⟩
+                                                          π
+                                                          (Construction.const x)
+                                                          vals') ⟩
+              π $a (evPoly (initialCAlg R)
+                           (Construction.const x)
+                           vals')                   ≡⟨ cong (π $a_) (·Rid x) ⟩
+              π $a x                                ≡⟨ πx≡0 ⟩
+              0a                               ∎
+        {-
+            R ─→   R/⟨x⟩
+          id↓       ↓ ∃!
+            R ─→   R[⊥]/⟨const x⟩
+        -}
+        fromA : CommAlgebraHom R/⟨x⟩ B
+        fromA =
+          quotientInducedHom
+            (initialCAlg R)
+            ⟨x⟩
+            B
+            (initialMap R B)
+            (inclOfFGIdeal
+              (CommAlgebra→CommRing (initialCAlg R))
+              (replicateFinVec 1 x)
+              (kernel (initialCAlg R) B (initialMap R B))
+              λ {Fin.zero → relationsHold 0 relation Fin.zero})
 
-          open AlgebraHoms
+        open AlgebraHoms
 
-          fromTo : fromA ∘a toA ≡ idCAlgHom B
-          fromTo = cong fst
-            (isContr→isProp (universal 0 relation B (λ ()) (relationsHold 0 relation))
-                            (fromA ∘a toA , (λ ()))
-                            (idCAlgHom B , (λ ())))
+        fromTo : fromA ∘a toA ≡ idCAlgHom B
+        fromTo = cong fst
+          (isContr→isProp (universal 0 relation B (λ ()) (relationsHold 0 relation))
+                          (fromA ∘a toA , (λ ()))
+                          (idCAlgHom B , (λ ())))
 
-          toFrom : toA ∘a fromA ≡ idCAlgHom R/⟨x⟩
-          toFrom = injectivePrecomp (initialCAlg R) ⟨x⟩ R/⟨x⟩ (toA ∘a fromA) (idCAlgHom R/⟨x⟩)
-                     (isContr→isProp (initialityContr R R/⟨x⟩) _ _)
+        toFrom : toA ∘a fromA ≡ idCAlgHom R/⟨x⟩
+        toFrom = injectivePrecomp (initialCAlg R) ⟨x⟩ R/⟨x⟩ (toA ∘a fromA) (idCAlgHom R/⟨x⟩)
+                   (isContr→isProp (initialityContr R R/⟨x⟩) _ _)
