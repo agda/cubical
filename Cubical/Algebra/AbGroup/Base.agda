@@ -13,7 +13,6 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
-open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Group
@@ -195,10 +194,6 @@ module _ (G : AbGroup ℓ) {A : Type ℓ} (m : A → A → A)
   InducedAbGroupPath : G ≡ InducedAbGroup
   InducedAbGroupPath = AbGroupPath _ _ .fst (e , makeIsGroupHom p·)
 
-open IsMonoid
-open IsSemigroup
-open IsGroup
-
 dirProdAb : AbGroup ℓ → AbGroup ℓ' → AbGroup (ℓ-max ℓ ℓ')
 dirProdAb A B =
   Group→AbGroup (DirProd (AbGroup→Group A) (AbGroup→Group B))
@@ -270,10 +265,6 @@ module _ {ℓ ℓ' : Level} (AGr : Group ℓ) (BGr : AbGroup ℓ') where
             ∙∙ +CommB _ _
 
   open AbGroupStr
-  open IsAbGroup
-  open IsGroup
-  open IsMonoid
-  open IsSemigroup
 
   HomGroup : AbGroup (ℓ-max ℓ ℓ')
   fst HomGroup = GroupHom AGr (BGr *)
