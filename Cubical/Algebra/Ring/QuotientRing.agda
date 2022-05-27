@@ -101,14 +101,14 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
     +/I-rinv = elimProp (λ x → squash/ _ _) eq
       where
         eq : (x : R) → [ x ] +/I (-/I [ x ]) ≡ 0/I
-        eq x i = [ +Rinv x i ]
+        eq x i = [ +InvR x i ]
 
 
     +/I-rid : (x : R/I) → x +/I 0/I ≡ x
     +/I-rid = elimProp (λ x → squash/ _ _) eq
       where
         eq : (x : R) → [ x ] +/I 0/I ≡ [ x ]
-        eq x i = [ +Rid x i ]
+        eq x i = [ +IdR x i ]
 
     _·/I_ : R/I → R/I → R/I
     _·/I_ =
@@ -119,7 +119,7 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
         eq : (x y y' : R) → (y - y' ∈ I) → [ x · y ] ≡ [ x · y' ]
         eq x y y' y-y'∈I = eq/ _ _
                              (subst (λ u → u ∈ I)
-                                  (x · (y - y')            ≡⟨ ·Rdist+ _ _ _ ⟩
+                                  (x · (y - y')            ≡⟨ ·DistR+ _ _ _ ⟩
                                   ((x · y) + x · (- y'))   ≡⟨ cong (λ u → (x · y) + u)
                                                                    (-DistR· x y')  ⟩
                                   (x · y) - (x · y')       ∎)
@@ -136,7 +136,7 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
                                 eq′ : (y : R) → left· x [ y ] ≡ left· x' [ y ]
                                 eq′ y = eq/ (x · y) (x' · y)
                                             (subst (λ u → u ∈ I)
-                                              ((x - x') · y         ≡⟨ ·Ldist+ x (- x') y ⟩
+                                              ((x - x') · y         ≡⟨ ·DistL+ x (- x') y ⟩
                                                x · y + (- x') · y   ≡⟨ cong
                                                                          (λ u → x · y + u)
                                                                          (-DistL· x' y) ⟩
@@ -154,26 +154,26 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
     ·/I-lid = elimProp (λ x → squash/ _ _) eq
       where
         eq : (x : R) → 1/I ·/I [ x ] ≡ [ x ]
-        eq x i = [ ·Lid x i ]
+        eq x i = [ ·IdL x i ]
 
     ·/I-rid : (x : R/I) → x ·/I 1/I ≡ x
     ·/I-rid = elimProp (λ x → squash/ _ _) eq
       where
         eq : (x : R) → [ x ] ·/I 1/I ≡ [ x ]
-        eq x i = [ ·Rid x i ]
+        eq x i = [ ·IdR x i ]
 
 
     /I-ldist : (x y z : R/I) → (x +/I y) ·/I z ≡ (x ·/I z) +/I (y ·/I z)
     /I-ldist = elimProp3 (λ _ _ _ → squash/ _ _) eq
       where
         eq : (x y z : R) → ([ x ] +/I [ y ]) ·/I [ z ] ≡ ([ x ] ·/I [ z ]) +/I ([ y ] ·/I [ z ])
-        eq x y z i = [ ·Ldist+ x y z i ]
+        eq x y z i = [ ·DistL+ x y z i ]
 
     /I-rdist : (x y z : R/I) → x ·/I (y +/I z) ≡ (x ·/I y) +/I (x ·/I z)
     /I-rdist = elimProp3 (λ _ _ _ → squash/ _ _) eq
       where
         eq : (x y z : R) → [ x ] ·/I ([ y ] +/I [ z ]) ≡ ([ x ] ·/I [ y ]) +/I ([ x ] ·/I [ z ])
-        eq x y z i = [ ·Rdist+ x y z i ]
+        eq x y z i = [ ·DistR+ x y z i ]
 
   asRing : Ring ℓ
   asRing = makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
