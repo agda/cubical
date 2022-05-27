@@ -19,7 +19,7 @@ open import Cubical.Data.Int.MoreInts.QuoInt
            ; ·-zeroˡ to ·ℤ-zeroˡ
            ; ·-zeroʳ to ·ℤ-zeroʳ
            ; ·-identityʳ to ·ℤ-identityʳ
-           ; ·-comm to ·ℤ-comm
+           ; ·-comm  to ·ℤ-comm
            ; ·-assoc to ·ℤ-assoc)
 open import Cubical.HITs.SetQuotients as SetQuot hiding (_/_)
 open import Cubical.HITs.Rationals.QuoQ

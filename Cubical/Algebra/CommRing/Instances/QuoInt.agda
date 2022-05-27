@@ -12,7 +12,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Data.Nat  using (ℕ ; zero ; suc)
 open import Cubical.Data.Bool using (not)
 open import Cubical.Data.Int.MoreInts.QuoInt
-  renaming ( ℤ to ℤType ; _+_ to _+ℤ_; _·_ to _·ℤ_; -_ to -ℤ_)
+  renaming (ℤ to ℤType ; _+_ to _+ℤ_; _·_ to _·ℤ_; -_ to -ℤ_)
 
 open CommRingStr
 
