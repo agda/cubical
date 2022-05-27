@@ -265,4 +265,3 @@ uaCommAlgebra {R = R} {A = A} {B = B} = equivFun (CommAlgebraPath R A B)
 
 isGroupoidCommAlgebra : {R : CommRing ℓ} → isGroupoid (CommAlgebra R ℓ')
 isGroupoidCommAlgebra A B = isOfHLevelRespectEquiv 2 (CommAlgebraPath _ _ _) (isSetAlgebraEquiv _ _)
--- -}
