@@ -6,7 +6,6 @@ open import Cubical.Foundations.Function hiding (flip)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Univalence
 
 open import Cubical.Relation.Binary
 
@@ -16,11 +15,8 @@ open import Cubical.Data.List
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum hiding (map)
 
-open import Cubical.HITs.PropositionalTruncation
-  renaming (map to pMap ; rec to pRec ; elim to pElim ; elim2 to pElim2)
+open import Cubical.HITs.PropositionalTruncation as PT
 
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
@@ -163,8 +159,8 @@ module _ {AGr : AbGroup ℓ} {BGr : AbGroup ℓ'} where
            → (x : _) → C x
   ⊗elimPropUnlist {C = C} p f =
     ⊗elimProp p (λ x y → subst C (+⊗IdR (x ⊗ y)) (f [ x , y ]))
-      λ x y → pRec (isPropΠ2 λ _ _ → p _)
-                    (pRec (isPropΠ3 λ _ _ _ → p _)
+      λ x y → PT.rec (isPropΠ2 λ _ _ → p _)
+                    (PT.rec (isPropΠ3 λ _ _ _ → p _)
                       (λ {(l1 , p) (l2 , q) ind1 ind2
                         → subst C (unlist++ l2 l1 ∙ cong₂ _+⊗_ q p) (f (l2 ++ l1))})
                       (∃List y))
