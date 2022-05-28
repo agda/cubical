@@ -2,12 +2,9 @@
 module Cubical.Algebra.CommRing.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
@@ -17,10 +14,9 @@ open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring.Base
+
+open import Cubical.Reflection.RecordEquiv
 
 open Iso
 
@@ -38,6 +34,8 @@ record IsCommRing {R : Type ℓ}
     ·Comm : (x y : R) → x · y ≡ y · x
 
   open IsRing isRing public
+
+unquoteDecl IsCommRingIsoΣ = declareRecordIsoΣ IsCommRingIsoΣ (quote IsCommRing)
 
 record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
@@ -112,15 +110,12 @@ CommRingEquiv→CommRingHom (e , eIsHom) = e .fst , eIsHom
 
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsCommRing 0r 1r _+_ _·_ -_)
-isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
-  λ i → iscommring (isPropIsRing _ _ _ _ _ RR SR i)
-                   (isPropComm RC SC i)
+isPropIsCommRing 0r 1r _+_ _·_ -_ =
+  isOfHLevelRetractFromIso 1 IsCommRingIsoΣ
+  (isPropΣ (isPropIsRing 0r 1r _+_ _·_ (-_))
+  (λ ring → isPropΠ2 (λ _ _ → is-set ring _ _)))
   where
-  isSetR : isSet _
-  isSetR = RR .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
-
-  isPropComm : isProp ((x y : _) → x · y ≡ y · x)
-  isPropComm = isPropΠ2 λ _ _ → isSetR _ _
+  open IsRing
 
 𝒮ᴰ-CommRing : DUARel (𝒮-Univ ℓ) CommRingStr ℓ
 𝒮ᴰ-CommRing =

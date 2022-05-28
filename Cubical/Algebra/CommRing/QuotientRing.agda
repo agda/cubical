@@ -59,7 +59,7 @@ module Quotient-FGideal-CommRing-Ring
     ; _+_       to _+B_
     ; -_        to -B_
     ; _·_       to _·B_
-    ; +Lid     to +BIdL
+    ; +IdL      to +BIdL
     ; is-set    to isSetB)
 
   open CommRingStr
@@ -76,8 +76,8 @@ module Quotient-FGideal-CommRing-Ring
     fst f = SQ.rec (isSetB)
             g
             λ a b → PT.rec (isSetB _ _)
-                     λ x → g a                                   ≡⟨ cong g (sym (+Rid Ar a)) ⟩
-                     g (a +A 0A)                                  ≡⟨ cong (λ X → g (a +A X)) (sym (snd (+Inv Ar b))) ⟩
+                     λ x → g a                                   ≡⟨ cong g (sym (+IdR Ar a)) ⟩
+                     g (a +A 0A)                                  ≡⟨ cong (λ X → g (a +A X)) (sym (+InvL Ar b)) ⟩
                      g (a +A ((-A b) +A b))                       ≡⟨ cong g (+Assoc Ar a (-A b) b) ⟩
                      g ((a +A -A b) +A b)                         ≡⟨ pres+ gr (a +A -A b) b ⟩
                      (g(a +A -A b) +B g b)                        ≡⟨ cong (λ X → g X +B g b) (snd x) ⟩
