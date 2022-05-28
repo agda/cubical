@@ -52,7 +52,7 @@ record IsAlgebra (R : Ring ℓ) {A : Type ℓ'}
 
   isRing : IsRing _ _ _ _ _
   isRing = isring (IsLeftModule.+IsAbGroup +IsLeftModule) ·IsMonoid ·DistR+ ·DistL+
-  open IsRing isRing public hiding (_-_; +Assoc; +IdL; +InvL; +IdR; +InvR; +Comm)
+  open IsRing isRing public hiding (_-_; +Assoc; +IdL; +InvL; +IdR; +InvR; +Comm ; ·DistR+ ; ·DistL+)
 
 unquoteDecl IsAlgebraIsoΣ = declareRecordIsoΣ IsAlgebraIsoΣ (quote IsAlgebra)
 

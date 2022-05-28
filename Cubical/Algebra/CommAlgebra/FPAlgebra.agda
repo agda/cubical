@@ -339,5 +339,5 @@ module Instances {R : CommRing ℓ} where
   n terminalCAlgFP = 0
   m terminalCAlgFP = 1
   relations terminalCAlgFP = unitGen
-  equiv terminalCAlgFP = equivFrom1≡0 R R[⊥]/⟨1⟩ (sym (⋆-lid 1a) ∙ relationsHold 0 unitGen zero)
+  equiv terminalCAlgFP = equivFrom1≡0 R R[⊥]/⟨1⟩ (sym (⋆IdL 1a) ∙ relationsHold 0 unitGen zero)
     where open CommAlgebraStr (snd R[⊥]/⟨1⟩)

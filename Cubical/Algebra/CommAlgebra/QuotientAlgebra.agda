@@ -32,7 +32,7 @@ private
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   open CommRingStr {{...}} hiding (_-_; -_; ·IdL ; ·DistR+) renaming (_·_ to _·R_; _+_ to _+R_)
-  open CommAlgebraStr {{...}} hiding (·DistR+)
+  open CommAlgebraStr {{...}}
   open RingTheory (CommRing→Ring (CommAlgebra→CommRing A)) using (-DistR·)
   instance
     _ : CommRingStr _
@@ -64,7 +64,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
                 eq : (r : fst R) (x y : fst A) → x - y ∈ (fst I) →  [ r ⋆ x ] ≡ [ r ⋆ y ]
                 eq r x y x-y∈I = eq/ _ _
                   (subst (λ u → u ∈ fst I)
-                  ((r ⋆ 1a) · (x - y)               ≡⟨ {!·DistL+!} ⟩ --·DistR+ (r ⋆ 1a) x (- y)  ⟩
+                  ((r ⋆ 1a) · (x - y)               ≡⟨ ·DistR+ (r ⋆ 1a) x (- y) ⟩ --·DistR+ (r ⋆ 1a) x (- y)  ⟩
                     (r ⋆ 1a) · x + (r ⋆ 1a) · (- y) ≡[ i ]⟨ (r ⋆ 1a) · x + -DistR· (r ⋆ 1a) y i ⟩
                     (r ⋆ 1a) · x - (r ⋆ 1a) · y     ≡[ i ]⟨ ⋆AssocL r 1a x i
                                                             - ⋆AssocL r 1a y i ⟩
