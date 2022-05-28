@@ -3,26 +3,27 @@ module Cubical.Algebra.Algebra.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
-open import Cubical.Algebra.Module
-open import Cubical.Algebra.Ring
-open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Group
+
 open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Module
+
 open import Cubical.Algebra.Algebra.Base
 
 open Iso

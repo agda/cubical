@@ -2,11 +2,10 @@
 module Cubical.Algebra.Algebra.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
@@ -18,13 +17,14 @@ open import Cubical.Displayed.Universe
 
 open import Cubical.Reflection.RecordEquiv
 
-open import Cubical.Algebra.Module
-open import Cubical.Algebra.Ring
-open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Module
+
 
 open Iso
 
