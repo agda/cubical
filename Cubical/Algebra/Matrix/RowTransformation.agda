@@ -721,7 +721,7 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
           (λ t → x + ∑(λ l → helper a b (δ i₀ l) (δ i₀ l) t))
         ∙ (λ t → x + ∑Mul1r _ (λ l → (δ i₀ l · (a · b))) i₀ t)
         ∙ (λ t → x + diagδ i₀ i₀ refl t · (a · b))
-        ∙ (λ t → x + ·Lid (a · b) t)
+        ∙ (λ t → x + ·IdL (a · b) t)
         where helper : (a b x y : R) → (a · x) · (b · y) ≡ x · (y · (a · b))
               helper = solve 𝓡
 

@@ -21,6 +21,7 @@ open import Cubical.Data.Nat.Divisibility
 open import Cubical.Data.Nat.Mod
 open import Cubical.Data.Int
   hiding   (_+_ ; _·_ ; _-_ ; -_ ; addEq ; ·Comm ; ·Assoc ; +Comm ; +Assoc)
+  renaming (·DistL+ to ·ℤDistL+)
 
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
