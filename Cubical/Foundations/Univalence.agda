@@ -172,15 +172,15 @@ EquivJ P r e = subst (λ x → P (x .fst) (x .snd)) (contrSinglEquiv e) r
 
 -- Assuming that we have an inverse to ua we can easily prove univalence
 module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
-                  (aurefl : ∀ {ℓ} {A B : Type ℓ} → au refl ≡ idEquiv A) where
+                  (aurefl : ∀ {ℓ} {A : Type ℓ} → au refl ≡ idEquiv A) where
 
   ua-au : {A B : Type ℓ} (p : A ≡ B) → ua (au p) ≡ p
   ua-au {B = B} = J (λ _ p → ua (au p) ≡ p)
-                    (cong ua (aurefl {B = B}) ∙ uaIdEquiv)
+                    (cong ua aurefl ∙ uaIdEquiv)
 
   au-ua : {A B : Type ℓ} (e : A ≃ B) → au (ua e) ≡ e
   au-ua {B = B} = EquivJ (λ _ f → au (ua f) ≡ f)
-                         (subst (λ r → au r ≡ idEquiv _) (sym uaIdEquiv) (aurefl {B = B}))
+                         (subst (λ r → au r ≡ idEquiv _) (sym uaIdEquiv) aurefl)
 
   isoThm : ∀ {ℓ} {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
   isoThm .Iso.fun = au
