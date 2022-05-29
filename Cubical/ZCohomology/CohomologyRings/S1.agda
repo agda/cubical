@@ -246,7 +246,8 @@ module Equiv-S1-Properties where
   snd ℤ[X]→H*-S¹ = makeIsRingHom ℤ[x]→H*-S¹-pres1Pℤ ℤ[x]→H*-S¹-pres+ ℤ[x]→H*-S¹-pres·
 
   ℤ[X]/X²→H*R-S¹ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
-  ℤ[X]/X²→H*R-S¹ = Quotient-FGideal-CommRing-Ring.f ℤ[X] (H*R (S₊ 1)) ℤ[X]→H*-S¹ <X²> ℤ[x]→H*-S¹-cancelX
+  ℤ[X]/X²→H*R-S¹ =
+    Quotient-FGideal-CommRing-Ring.inducedHom ℤ[X] (H*R (S₊ 1)) ℤ[X]→H*-S¹ <X²> ℤ[x]→H*-S¹-cancelX
 
   ℤ[x]/x²→H*-S¹ : ℤ[x]/x² → H* (S₊ 1)
   ℤ[x]/x²→H*-S¹ = fst ℤ[X]/X²→H*R-S¹

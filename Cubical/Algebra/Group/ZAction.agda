@@ -657,3 +657,65 @@ GroupEquiv-abstractℤ/abs-gen G H L e r f g ex n p = main
       transport (λ i
                → GroupEquiv (abstractℤ/≡ℤ (~ i) (p i)) L)
              (GroupEquivℤ/abs-gen G H L e r f g ex)
+
+1∈Im→isEquivℤ : (h : GroupHom ℤGroup ℤGroup) → isInIm h (pos 1) → isEquiv (fst h)
+1∈Im→isEquivℤ h = Prop.rec (isPropIsEquiv _)
+         λ p → GroupEquivℤ-isEquiv idGroupEquiv 1
+                 (λ r → r , (·Comm 1 r ∙ ℤ·≡· r 1)) h (main p)
+   where
+   main : Σ[ x ∈ ℤ ] fst h x ≡ 1 → (fst h 1 ≡ 1) ⊎ (fst h 1 ≡ -1)
+   main (n , p) =
+     ≡±1-id n
+      (fst h (pos 1))
+      h1-id
+      (λ q → snotz (injPos (sym p
+                 ∙∙ cong (fst h) q
+                 ∙∙ IsGroupHom.pres1 (snd h))))
+       λ q → snotz (injPos (sym p
+                   ∙∙ cong (fst h) (·Comm 1 n ∙ ℤ·≡· n 1)
+                   ∙∙ homPresℤ· h 1 n ∙ (cong (n ℤ[ ℤGroup ]·_) q)
+                   ∙∙ sym (ℤ·≡· n 0)
+                   ∙∙ ·Comm n 0))
+     where
+     h1-id : pos 1 ≡ n * fst h (pos 1)
+     h1-id =
+         sym p
+       ∙ cong (fst h) (sym (ℤ·≡· 1 n)
+       ∙∙ ·Comm 1 n ∙∙ ℤ·≡· n 1)
+       ∙ (homPresℤ· h 1 n)
+       ∙ sym (ℤ·≡· n (fst h 1))
+
+     ≡±1-id : (a b : ℤ) → 1 ≡ a * b
+       → ¬ (a ≡ 0) → ¬ (b ≡ 0)
+       → (b ≡ 1) ⊎ (b ≡ -1)
+     ≡±1-id a (pos zero) p a≠0 b≠0 = ⊥-rec (b≠0 refl)
+     ≡±1-id a (pos (suc zero)) p a≠0 b≠0 = inl refl
+     ≡±1-id (pos zero) (pos (suc (suc n))) p a≠0 b≠0 = ⊥-rec (a≠0 refl)
+     ≡±1-id (pos (suc n₁)) (pos (suc (suc n))) p a≠0 b≠0 =
+       ⊥-rec (snotz
+         (cong predℕ (injPos ((pos· (suc n₁) (suc (suc n)) ∙ sym p)))))
+     ≡±1-id (negsuc n₁) (pos (suc (suc n))) p a≠0 b≠0 =
+       ⊥-rec (snotz (sym (injNegsuc (cong (predℤ ∘ predℤ)
+               (p ∙ negsuc·pos n₁ (suc (suc n))
+               ∙ cong (-_) (sym (pos· (suc n₁) (suc (suc n)))))))))
+     ≡±1-id a (negsuc zero) p a≠0 b≠0 = inr refl
+     ≡±1-id (pos zero) (negsuc (suc n)) p a≠0 b≠0 = ⊥-rec (a≠0 refl)
+     ≡±1-id (pos (suc n₁)) (negsuc (suc n)) p a≠0 b≠0 =
+       ⊥-rec (snotz (sym (injNegsuc
+           (cong (predℤ ∘ predℤ) (p ∙ pos·negsuc (suc n₁) (suc n)
+         ∙ cong (-_) (sym (pos· (suc n₁) (suc (suc n)))))))))
+     ≡±1-id (negsuc n₁) (negsuc (suc n)) p a≠0 b≠0 =
+       ⊥-rec (snotz (injPos
+           (sym (cong predℤ (p ∙ negsuc·negsuc n₁ (suc n)
+          ∙ sym (pos· (suc n₁) (suc (suc n))))))))
+
+1∈Im→isEquiv : ∀ (G : Group₀) (e : GroupEquiv ℤGroup G)
+       → (h : GroupHom G ℤGroup)
+       → isInIm (_ , snd h) 1
+       → isEquiv (fst h)
+1∈Im→isEquiv G =
+  GroupEquivJ
+    (λ H _ → (h : GroupHom H ℤGroup)
+       → isInIm (_ , snd h) 1
+       → isEquiv (fst h))
+    1∈Im→isEquivℤ

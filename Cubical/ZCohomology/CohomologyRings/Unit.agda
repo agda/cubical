@@ -200,7 +200,7 @@ module Equiv-Unit-Properties where
   snd ℤ[X]→H*-Unit = makeIsRingHom ℤ[x]→H*-Unit-pres1Pℤ ℤ[x]→H*-Unit-pres+ ℤ[x]→H*-Unit-pres·
 
   ℤ[X]/X→H*R-Unit : RingHom (CommRing→Ring ℤ[X]/X) (H*R Unit)
-  ℤ[X]/X→H*R-Unit = Quotient-FGideal-CommRing-Ring.f ℤ[X] (H*R Unit) ℤ[X]→H*-Unit <X> ℤ[x]→H*-Unit-cancelX
+  ℤ[X]/X→H*R-Unit = Quotient-FGideal-CommRing-Ring.inducedHom ℤ[X] (H*R Unit) ℤ[X]→H*-Unit <X> ℤ[x]→H*-Unit-cancelX
 
   ℤ[x]/x→H*-Unit : ℤ[x]/x → H* Unit
   ℤ[x]/x→H*-Unit = fst ℤ[X]/X→H*R-Unit

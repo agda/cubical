@@ -11,7 +11,7 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
 open import Cubical.HITs.S1
-open import Cubical.HITs.S2
+open import Cubical.HITs.S2.Base
 open import Cubical.HITs.S3
 
 open Iso

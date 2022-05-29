@@ -85,7 +85,7 @@ module _ {R : CommRing ℓ} where
       FPAlgebra = Polynomials n / relationsIdeal
 
       modRelations : CommAlgebraHom (Polynomials n) (Polynomials n / relationsIdeal)
-      modRelations = quotientMap (Polynomials n) relationsIdeal
+      modRelations = quotientHom (Polynomials n) relationsIdeal
 
       generator : (i : Fin n) → ⟨ FPAlgebra ⟩
       generator = fst modRelations ∘ var

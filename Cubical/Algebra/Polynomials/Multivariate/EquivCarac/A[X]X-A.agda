@@ -171,7 +171,7 @@ module Properties-Equiv-QuotientXn-A
   A[x]→A-cancel zero = refl
 
   A[X]/X→A : CommRingHom A[X]/X Ar
-  A[X]/X→A = Quotient-FGideal-CommRing-CommRing.f A[X] Ar A[X]→A (<Xkʲ> Ar 1 0 1) A[x]→A-cancel
+  A[X]/X→A = Quotient-FGideal-CommRing-CommRing.inducedHom A[X] Ar A[X]→A (<Xkʲ> Ar 1 0 1) A[x]→A-cancel
 
   A[x]/x→A : A[x]/x → A
   A[x]/x→A = fst A[X]/X→A
