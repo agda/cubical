@@ -62,7 +62,7 @@ module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
   poly+InvR : (P : Poly A' n ) → P poly+ (polyInv P) ≡ 0P
   poly+InvR = Poly-Ind-Prop.f A' n (λ P → (P poly+ polyInv P) ≡ 0P) (λ _ → trunc _ _)
               (poly+IdR 0P)
-              (λ v a → (base-poly+ v a (- a)) ∙ cong (base v) (+Rinv a) ∙ base-0P v)
+              (λ v a → (base-poly+ v a (- a)) ∙ cong (base v) (+InvR a) ∙ base-0P v)
               λ {P Q} ind-P ind-Q → ((P poly+ Q) poly+ ((polyInv P) poly+ (polyInv Q)))
                                               ≡⟨ poly-com-adv P Q (polyInv P) (polyInv Q) ⟩
                                      ((P poly+ polyInv P) poly+ (Q poly+ polyInv Q))
@@ -74,7 +74,7 @@ module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
   poly+InvL : (P  : Poly A' n) → (polyInv P) poly+ P ≡ 0P
   poly+InvL = Poly-Ind-Prop.f A' n _ (λ _ → trunc _ _)
               (poly+IdR 0P)
-              (λ v a → (base-poly+ v (- a) a) ∙ cong (base v) (snd (+Inv a)) ∙ base-0P v)
+              (λ v a → (base-poly+ v (- a) a) ∙ cong (base v) (+InvL a) ∙ base-0P v)
               λ {U V} ind-U ind-V → poly-com-adv (polyInv U) (polyInv V) U V
                                      ∙ cong₂ _poly+_ ind-U ind-V
                                      ∙ poly+IdR 0P
@@ -97,7 +97,7 @@ module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
                        poly+Comm
                        (λ v' → (cong (base (v +n-vec v')) (0RightAnnihilates a)) ∙ (base-0P (v +n-vec v')))
                        λ v' b c → (base-poly+ (v +n-vec v') (a · b) (a · c))
-                                   ∙ (cong (base (v +n-vec v')) (sym (·Rdist+ a b c))))
+                                   ∙ (cong (base (v +n-vec v')) (sym (·DistR+ a b c))))
                        -- End Right induction
             (λ PS QS Q → (PS Q) poly+ (QS Q) )
             (λ PS QS RS i Q → poly+Assoc (PS Q) (QS Q) (RS Q) i)
@@ -115,7 +115,7 @@ module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
                              Poly-Ind-Prop.f A' n _ (λ _ → trunc _ _)
                              (poly+IdR 0P)
                              (λ v' c → (base-poly+ (v +n-vec v') (a · c) (b · c))
-                                        ∙ (cong (base (v +n-vec v')) (sym (·Ldist+ a b c))))
+                                        ∙ (cong (base (v +n-vec v')) (sym (·DistL+ a b c))))
                              λ {P Q} ind-P ind-Q → (poly-com-adv _ _ _ _) ∙ (cong₂ _poly+_ ind-P ind-Q))
                              -- End Right Induction
             -- End Left Induction
@@ -154,14 +154,14 @@ module Nth-Poly-structure (A' : CommRing ℓ) (n : ℕ) where
   poly*IdR : (P : Poly A' n) → P poly* 1P ≡ P
   poly*IdR = Poly-Ind-Prop.f A' n (λ P → (P poly* 1P) ≡ P) (λ _ → trunc _ _)
               refl
-              (λ v a → cong₂ base (+n-vec-rid v) (·Rid a))
+              (λ v a → cong₂ base (+n-vec-rid v) (·IdR a))
               (λ {P Q} ind-P ind-Q → cong₂ _poly+_ ind-P ind-Q)
 
 
   poly*IdL : (P : Poly A' n) → 1P poly* P ≡ P
   poly*IdL = Poly-Ind-Prop.f A' n (λ P → (1P poly* P) ≡ P) (λ _ → trunc _ _)
               refl
-              (λ v a → cong₂ base (+n-vec-lid v) (·Lid a))
+              (λ v a → cong₂ base (+n-vec-lid v) (·IdL a))
               λ {P Q} ind-P ind-Q → cong₂ _poly+_ ind-P ind-Q
 
 

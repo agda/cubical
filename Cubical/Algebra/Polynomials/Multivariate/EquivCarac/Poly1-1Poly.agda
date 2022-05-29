@@ -174,7 +174,7 @@ module Equiv-Poly1-Poly: (A' : CommRing ℓ) where
 
   trad-base-prod : (v v' : Vec ℕ 1) → (a a' : A) → trad-base (v +n-vec v') (a · a') ≡
                                                       (trad-base v a poly:* trad-base v' a')
-  trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l  [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+Rid (a · a')))
+  trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l  [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+IdR (a · a')))
 
   Poly1→Poly:-pres· : (P Q : Poly A' 1) → Poly1→Poly: (P poly* Q) ≡ (Poly1→Poly: P) poly:* (Poly1→Poly: Q)
   Poly1→Poly:-pres· = Poly-Ind-Prop.f A' 1

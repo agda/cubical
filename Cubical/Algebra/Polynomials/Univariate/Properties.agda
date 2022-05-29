@@ -86,15 +86,15 @@ module PolyModTheory (R' : CommRing ℓ) where
   [] Poly+ (drop0 i) = drop0 i
   [] Poly+ (b ∷ q) = b ∷ q
   (a ∷ p) Poly+ (b ∷ q) = (a + b) ∷ (p Poly+ q)
-  (a ∷ p) Poly+ (drop0 i) = +Rid a i ∷ p
+  (a ∷ p) Poly+ (drop0 i) = +IdR a i ∷ p
   (drop0 i) Poly+ (a ∷ q) = lem q i  where
                                  lem : ∀ q → (0r + a) ∷ ([] Poly+ q) ≡ a ∷ q
                                  lem = ElimProp.f (λ q → (0r + a) ∷ ([] Poly+ q) ≡ a ∷ q)
-                                                  (λ i → (+Lid a i ∷ []))
-                                                  (λ r p _ → λ i → +Lid a i ∷ r ∷ p )
+                                                  (λ i → (+IdL a i ∷ []))
+                                                  (λ r p _ → λ i → +IdL a i ∷ r ∷ p )
                                                   (isSetPoly _ _)
-  (drop0 i) Poly+ (drop0 j) =  isSet→isSet' isSetPoly  (cong ([_] ) (+Rid 0r)) drop0
-                                                       (cong ([_] ) (+Lid 0r)) drop0 i j
+  (drop0 i) Poly+ (drop0 j) =  isSet→isSet' isSetPoly  (cong ([_] ) (+IdR 0r)) drop0
+                                                       (cong ([_] ) (+IdL 0r)) drop0 i j
 
 
   -- [] is the left identity for Poly+
@@ -140,7 +140,7 @@ module PolyModTheory (R' : CommRing ℓ) where
   Poly+Inverses = ElimProp.f ( λ p → p Poly+ (Poly- p) ≡ [])
                              refl --(Poly+Lid (Poly- []))
                              (λ r p prf → cong (r + - r ∷_) prf ∙
-                                          (cong (_∷ [])  (+Rinv r) ∙ drop0))
+                                          (cong (_∷ [])  (+InvR r) ∙ drop0))
                              (isSetPoly _ _)
 
 
@@ -184,7 +184,7 @@ module PolyModTheory (R' : CommRing ℓ) where
   -- For any polynomial p we have: 1 _PolyConst*_ p = p
   PolyConst*Lid : ∀ q → 1r PolyConst* q ≡ q
   PolyConst*Lid = ElimProp.f (λ q → 1r PolyConst* q ≡ q ) refl
-                             (λ a p prf → cong (_∷ (1r PolyConst* p)) (·Lid a) ∙
+                             (λ a p prf → cong (_∷ (1r PolyConst* p)) (·IdL a) ∙
                                           cong (a ∷_) (prf) )
                              λ x y → isSetPoly _ _ x y
 
@@ -238,8 +238,8 @@ module PolyModTheory (R' : CommRing ℓ) where
                  lemma : ∀ r p → 1r · r + 0r ∷ (1r PolyConst* p) ≡ r ∷ p
                  lemma =
                    λ r p → 1r · r + 0r ∷ (1r PolyConst* p) ≡⟨ cong (_∷ (1r PolyConst* p) )
-                                                                   (+Rid (1r · r)) ⟩
-                           1r · r ∷ (1r PolyConst* p) ≡⟨ cong (_∷ 1r PolyConst* p) (·Lid r) ⟩
+                                                                   (+IdR (1r · r)) ⟩
+                           1r · r ∷ (1r PolyConst* p) ≡⟨ cong (_∷ 1r PolyConst* p) (·IdL r) ⟩
                            r ∷ (1r PolyConst* p) ≡⟨ cong (r ∷_) (PolyConst*Lid p) ⟩
                            r ∷ p ∎
 
@@ -250,11 +250,11 @@ module PolyModTheory (R' : CommRing ℓ) where
     ElimProp.f (λ p → ∀ q → (0r ∷ (p Poly+ q)) ≡ ((0r ∷ p) Poly+ (0r ∷ q)) )
                (λ q → (cong (0r ∷_) (Poly+Lid q)) ∙
                       cong (0r ∷_) (sym (Poly+Lid q)) ∙
-                      sym (cong (_∷ [] Poly+ q) (+Lid 0r)))
+                      sym (cong (_∷ [] Poly+ q) (+IdL 0r)))
                (λ a p prf → ElimProp.f (λ q → 0r ∷ ((a ∷ p) Poly+ q) ≡
                                          ((0r ∷ a ∷ p) Poly+ (0r ∷ q)))
-                                       (cong (_∷ a ∷ p ) (sym (+Lid 0r)))
-                                       (λ b q prf2 → cong (_∷ a + b ∷ (p Poly+ q)) (sym (+Lid 0r)))
+                                       (cong (_∷ a ∷ p ) (sym (+IdL 0r)))
+                                       (λ b q prf2 → cong (_∷ a + b ∷ (p Poly+ q)) (sym (+IdL 0r)))
                                        (λ x y i → isSetPoly (x i0) (x i1) x y i))
                (λ x y i q → isSetPoly (x q i0) (x q i1) (x q) (y q) i)
 
@@ -271,7 +271,7 @@ module PolyModTheory (R' : CommRing ℓ) where
                                                     (a PolyConst* (b ∷ p)) Poly+ (a PolyConst* q))
                                              refl
                                              (λ c q prf2  → cong (_∷ (a PolyConst* (p Poly+ q)))
-                                                                 (·Rdist+ a b c) ∙
+                                                                 (·DistR+ a b c) ∙
                                                             cong (a · b + a · c ∷_) (prf q))
                                              (isSetPoly _ _))
                      (λ x y i q  → isSetPoly (x q i0) (x q i1) (x q) (y q) i)
@@ -358,7 +358,7 @@ module PolyModTheory (R' : CommRing ℓ) where
                                                            ⟩
                        r · a ∷ ([] Poly+ (p Poly* [ a ])) ≡⟨
                                                             cong (_∷ ([] Poly+ (p Poly* [ a ])))
-                                                                 (sym (+Rid (r · a)))
+                                                                 (sym (+IdR (r · a)))
                                                            ⟩
                        r · a + 0r ∷ ([] Poly+ (p Poly* [ a ])) ∎)
                      ( λ x y i → isSetPoly (x i0) (x i1) x y i)
@@ -379,7 +379,7 @@ module PolyModTheory (R' : CommRing ℓ) where
   0r∷LeftAssoc =
     ElimProp.f (λ p → ∀ q → (0r ∷ p) Poly* q ≡ 0r ∷ (p Poly* q))
                (λ q → cong (_Poly+ [ 0r ])((cong (_Poly+ []) (0rLeftAnnihilatesPoly q))) ∙
-                      cong (_∷ []) (+Lid 0r))
+                      cong (_∷ []) (+IdL 0r))
                (λ r p b q → cong (_Poly+ (0r ∷ ((r PolyConst* q) Poly+ (0r ∷ (p Poly* q)))))
                                  ((0rLeftAnnihilatesPoly q) ∙ drop0))
                (λ x y i q → isSetPoly _ _ (x q) (y q) i)
@@ -442,7 +442,7 @@ module PolyModTheory (R' : CommRing ℓ) where
                a · 0r + 0r ∷ ((a PolyConst* q) Poly+
                  (0r ∷ (p Poly* q))) ≡⟨
                                        cong (_∷ ((a PolyConst* q) Poly+ (0r ∷ (p Poly* q))))
-                                            ((+Rid (a · 0r)))
+                                            ((+IdR (a · 0r)))
                                       ⟩
                a · 0r ∷ ((a PolyConst* q) Poly+
                  (0r ∷ (p Poly* q))) ≡⟨
@@ -496,7 +496,7 @@ module PolyModTheory (R' : CommRing ℓ) where
                                                    refl
                                                    ⟩
                (q Poly* ((0r + a) ∷ p)) ≡⟨ cong (q Poly*_)
-                                                (cong (_∷ p) (+Lid a))
+                                                (cong (_∷ p) (+IdL a))
                                          ⟩
                (q Poly* (a ∷ p)) ∎)
                (λ x y i q → isSetPoly _ _ (x q ) (y q) i)
@@ -530,7 +530,7 @@ module PolyModTheory (R' : CommRing ℓ) where
                   (0r ∷ (p Poly* (q Poly* r)))) ≡⟨
                                                  sym (cong (((a PolyConst* q) Poly* r) Poly+_)
                                                            (cong (_∷ (p Poly* (q Poly* r)))
-                                                                 (+Lid 0r)))
+                                                                 (+IdL 0r)))
                                                  ⟩
                  (((a PolyConst* q) Poly* r) Poly+
                   (0r + 0r ∷ (p Poly* (q Poly* r)))) ≡⟨
@@ -574,15 +574,15 @@ module PolyModTheory (R' : CommRing ℓ) where
 
   prod-Xn-sum : (n : ℕ) → (x y : Poly) → (prod-Xn n x) Poly+ (prod-Xn n y) ≡ prod-Xn n (x Poly+ y)
   prod-Xn-sum zero x y = refl
-  prod-Xn-sum (suc n) x y = cong₂ _∷_ (+Rid 0r) (prod-Xn-sum n x y)
+  prod-Xn-sum (suc n) x y = cong₂ _∷_ (+IdR 0r) (prod-Xn-sum n x y)
 
   prod-Xn-comp : (n m : ℕ) → (x : Poly) → prod-Xn n (prod-Xn m x) ≡ prod-Xn (n +n m) x
   prod-Xn-comp zero m x = refl
   prod-Xn-comp (suc n) m x = cong (λ X → 0r ∷ X) (prod-Xn-comp n m x)
 
   prod-Xn-∷ : (n : ℕ) → (r : R) → (x : Poly) → (prod-Xn n (r ∷ [])) Poly+ (0r ∷ prod-Xn n x) ≡ prod-Xn n (r ∷ x)
-  prod-Xn-∷ zero r x = cong₂ _∷_ (+Rid r) (Poly+Lid x)
-  prod-Xn-∷ (suc n) r x = cong₂ _∷_ (+Lid 0r) (prod-Xn-∷ n r x)
+  prod-Xn-∷ zero r x = cong₂ _∷_ (+IdR r) (Poly+Lid x)
+  prod-Xn-∷ (suc n) r x = cong₂ _∷_ (+IdL 0r) (prod-Xn-∷ n r x)
 
   prod-Xn-prod-0 : (m : ℕ) → (x y : Poly) → x Poly* (prod-Xn m y) ≡ prod-Xn m (x Poly* y)
   prod-Xn-prod-0 zero x y = refl
