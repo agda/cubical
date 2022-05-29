@@ -59,19 +59,13 @@ module Equiv-S1-Properties where
     ; -_        to -ℤ_
     ; _·_       to _·ℤ_
     ; +Assoc    to +ℤAssoc
-    ; +Identity to +ℤIdentity
-    ; +Lid      to +ℤLid
-    ; +Rid      to +ℤRid
-    ; +Inv      to +ℤInv
-    ; +Linv     to +ℤLinv
-    ; +Rinv     to +ℤRinv
+    ; +IdL      to +ℤIdL
+    ; +IdR      to +ℤIdR
     ; +Comm     to +ℤComm
     ; ·Assoc    to ·ℤAssoc
-    ; ·Identity to ·ℤIdentity
-    ; ·Lid      to ·ℤLid
-    ; ·Rid      to ·ℤRid
-    ; ·Rdist+   to ·ℤRdist+
-    ; ·Ldist+   to ·ℤLdist+
+    ; ·IdL      to ·ℤIdL
+    ; ·IdR      to ·ℤIdR
+    ; ·DistR+   to ·ℤDistR+
     ; is-set    to isSetℤ     )
 
   open RingStr (snd (H*R (S₊ 1))) using ()
@@ -82,19 +76,13 @@ module Equiv-S1-Properties where
     ; -_        to -H*_
     ; _·_       to _cup_
     ; +Assoc    to +H*Assoc
-    ; +Identity to +H*Identity
-    ; +Lid      to +H*Lid
-    ; +Rid      to +H*Rid
-    ; +Inv      to +H*Inv
-    ; +Linv     to +H*Linv
-    ; +Rinv     to +H*Rinv
+    ; +IdL      to +H*IdL
+    ; +IdR      to +H*IdR
     ; +Comm     to +H*Comm
     ; ·Assoc    to ·H*Assoc
-    ; ·Identity to ·H*Identity
-    ; ·Lid      to ·H*Lid
-    ; ·Rid      to ·H*Rid
-    ; ·Rdist+   to ·H*Rdist+
-    ; ·Ldist+   to ·H*Ldist+
+    ; ·IdL      to ·H*IdL
+    ; ·IdR      to ·H*IdR
+    ; ·DistR+   to ·H*DistR+
     ; is-set    to isSetH*     )
 
   open CommRingStr (snd ℤ[X]) using ()
@@ -105,20 +93,14 @@ module Equiv-S1-Properties where
     ; -_        to -Pℤ_
     ; _·_       to _·Pℤ_
     ; +Assoc    to +PℤAssoc
-    ; +Identity to +PℤIdentity
-    ; +Lid      to +PℤLid
-    ; +Rid      to +PℤRid
-    ; +Inv      to +PℤInv
-    ; +Linv     to +PℤLinv
-    ; +Rinv     to +PℤRinv
+    ; +IdL      to +PℤIdL
+    ; +IdR      to +PℤIdR
     ; +Comm     to +PℤComm
     ; ·Assoc    to ·PℤAssoc
-    ; ·Identity to ·PℤIdentity
-    ; ·Lid      to ·PℤLid
-    ; ·Rid      to ·PℤRid
+    ; ·IdL      to ·PℤIdL
+    ; ·IdR      to ·PℤIdR
     ; ·Comm     to ·PℤComm
-    ; ·Rdist+   to ·PℤRdist+
-    ; ·Ldist+   to ·PℤLdist+
+    ; ·DistR+   to ·PℤDistR+
     ; is-set    to isSetPℤ     )
 
   open CommRingStr (snd ℤ[X]/X²) using ()
@@ -129,19 +111,13 @@ module Equiv-S1-Properties where
     ; -_        to -PℤI_
     ; _·_       to _·PℤI_
     ; +Assoc    to +PℤIAssoc
-    ; +Identity to +PℤIIdentity
-    ; +Lid      to +PℤILid
-    ; +Rid      to +PℤIRid
-    ; +Inv      to +PℤIInv
-    ; +Linv     to +PℤILinv
-    ; +Rinv     to +PℤIRinv
+    ; +IdL      to +PℤIIdL
+    ; +IdR      to +PℤIIdR
     ; +Comm     to +PℤIComm
     ; ·Assoc    to ·PℤIAssoc
-    ; ·Identity to ·PℤIIdentity
-    ; ·Lid      to ·PℤILid
-    ; ·Rid      to ·PℤIRid
-    ; ·Rdist+   to ·PℤIRdist+
-    ; ·Ldist+   to ·PℤILdist+
+    ; ·IdL      to ·PℤIIdL
+    ; ·IdR      to ·PℤIIdR
+    ; ·DistR+   to ·PℤIDistR+
     ; is-set    to isSetPℤI     )
 
 -----------------------------------------------------------------------------
@@ -153,7 +129,7 @@ module Equiv-S1-Properties where
                   base-trad
                   _+H*_
                   +H*Assoc
-                  +H*Rid
+                  +H*IdR
                   +H*Comm
                   base-neutral-eq
                   base-add-eq
@@ -174,7 +150,7 @@ module Equiv-S1-Properties where
                base-add-eq : _
                base-add-eq (zero ∷ []) a b        = (base-add _ _ _) ∙ (cong (base 0) (sym (IsGroupHom.pres· (snd (invGroupIso (Hᵐ-Sⁿ 0 1))) a b)))
                base-add-eq (one ∷ []) a b         = (base-add _ _ _) ∙ (cong (base 1) (sym (IsGroupHom.pres· (snd (invGroupIso (Hᵐ-Sⁿ 1 1))) a b)))
-               base-add-eq (suc (suc n) ∷ []) a b = +H*Rid _
+               base-add-eq (suc (suc n) ∷ []) a b = +H*IdR _
 
 -----------------------------------------------------------------------------
 -- Morphism on ℤ[x]
@@ -256,7 +232,7 @@ module Equiv-S1-Properties where
     base-case (n ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R (S₊ 1)) _))
                            (λ v' b → pres·-base-case-vec (n ∷ []) a v' b)
-                           λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
+                           λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
 -----------------------------------------------------------------------------
@@ -286,7 +262,7 @@ module Equiv-S1-Properties where
                   base-trad
                   _+Pℤ_
                   +PℤAssoc
-                  +PℤRid
+                  +PℤIdR
                   +PℤComm
                   base-neutral-eq
                   base-add-eq
@@ -304,7 +280,7 @@ module Equiv-S1-Properties where
                base-add-eq : _
                base-add-eq zero a b        = (base-poly+ _ _ _) ∙ (cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 0 1)) a b)))
                base-add-eq one a b         = (base-poly+ _ _ _) ∙ (cong (baseP (1 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 1 1)) a b)))
-               base-add-eq (suc (suc n)) a b = +PℤRid _
+               base-add-eq (suc (suc n)) a b = +PℤIdR _
 
   H*-S¹→ℤ[x]-pres+ : (x y : H* (S₊ 1)) → H*-S¹→ℤ[x] ( x +H* y) ≡ H*-S¹→ℤ[x] x +Pℤ H*-S¹→ℤ[x] y
   H*-S¹→ℤ[x]-pres+ x y = refl
@@ -349,7 +325,7 @@ module Equiv-S1-Properties where
            base-case (suc (suc n) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc n) ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , helper) ∣₁
              where
              helper : _
-             helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+-comm n 2))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))
+             helper = (+PℤIdL _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+-comm n 2))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
 
 
 
