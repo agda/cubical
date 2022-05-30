@@ -80,67 +80,74 @@ module _ {R : CommRing ℓ} where
   isSetCommAlgebra : (A : CommAlgebra R ℓ') → isSet ⟨ A ⟩
   isSetCommAlgebra A = isSetAlgebra (CommAlgebra→Algebra A)
 
-  makeIsCommAlgebra : {A : Type ℓ'} {0a 1a : A}
-                      {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
-                      (isSet-A : isSet A)
-                      (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
-                      (+-rid : (x : A) → x + 0a ≡ x)
-                      (+-rinv : (x : A) → x + (- x) ≡ 0a)
-                      (+-comm : (x y : A) → x + y ≡ y + x)
-                      (·-assoc :  (x y z : A) → x · (y · z) ≡ (x · y) · z)
-                      (·-lid : (x : A) → 1a · x ≡ x)
-                      (·-ldist-+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
-                      (·-comm : (x y : A) → x · y ≡ y · x)
-                      (⋆-assoc : (r s : ⟨ R ⟩) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
-                      (⋆-ldist : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
-                      (⋆-rdist : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
-                      (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
-                      (⋆-lassoc : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
-                    → IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
-  makeIsCommAlgebra {A = A} {0a} {1a} {_+_} {_·_} { -_} {_⋆_} isSet-A
-                    +-assoc +-rid +-rinv +-comm
-                    ·-assoc ·-lid ·-ldist-+ ·-comm
-                    ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid ⋆-lassoc
-   = iscommalgebra
-     (makeIsAlgebra
-       isSet-A
-       +-assoc +-rid +-rinv +-comm
-       ·-assoc
-         (λ x → x · 1a ≡⟨ ·-comm _ _ ⟩ 1a · x ≡⟨ ·-lid _ ⟩ x ∎)
-         ·-lid
-         (λ x y z → x · (y + z)       ≡⟨ ·-comm _ _ ⟩
-                    (y + z) · x       ≡⟨ ·-ldist-+ _ _ _ ⟩
-                    (y · x) + (z · x) ≡⟨ cong (λ u → (y · x) + u) (·-comm _ _) ⟩
-                    (y · x) + (x · z) ≡⟨ cong (λ u → u + (x · z)) (·-comm _ _) ⟩
-                    (x · y) + (x · z) ∎)
-         ·-ldist-+
-       ⋆-assoc
-         ⋆-ldist
-         ⋆-rdist
-         ⋆-lid
-         ⋆-lassoc
-         λ r x y → r ⋆ (x · y) ≡⟨ cong (λ u → r ⋆ u) (·-comm _ _) ⟩
-                   r ⋆ (y · x) ≡⟨ sym (⋆-lassoc _ _ _) ⟩
-                   (r ⋆ y) · x ≡⟨ ·-comm _ _ ⟩
-                   x · (r ⋆ y) ∎)
-     ·-comm
+  module _
+      {A : Type ℓ'} {0a 1a : A}
+      {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
+      (isSet-A : isSet A)
+      (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
+      (+-rid : (x : A) → x + 0a ≡ x)
+      (+-rinv : (x : A) → x + (- x) ≡ 0a)
+      (+-comm : (x y : A) → x + y ≡ y + x)
+      (·-assoc :  (x y z : A) → x · (y · z) ≡ (x · y) · z)
+      (·-lid : (x : A) → 1a · x ≡ x)
+      (·-ldist-+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
+      (·-comm : (x y : A) → x · y ≡ y · x)
+      (⋆-assoc : (r s : ⟨ R ⟩) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
+      (⋆-ldist : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+      (⋆-rdist : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+      (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
+      (⋆-lassoc : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+    where
+
+    makeIsCommAlgebra : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
+    makeIsCommAlgebra .IsCommAlgebra.isAlgebra =
+      makeIsAlgebra
+         isSet-A
+         +-assoc +-rid +-rinv +-comm
+         ·-assoc
+           (λ x → x · 1a ≡⟨ ·-comm _ _ ⟩ 1a · x ≡⟨ ·-lid _ ⟩ x ∎)
+           ·-lid
+           (λ x y z → x · (y + z)       ≡⟨ ·-comm _ _ ⟩
+                      (y + z) · x       ≡⟨ ·-ldist-+ _ _ _ ⟩
+                      (y · x) + (z · x) ≡⟨ cong (λ u → (y · x) + u) (·-comm _ _) ⟩
+                      (y · x) + (x · z) ≡⟨ cong (λ u → u + (x · z)) (·-comm _ _) ⟩
+                      (x · y) + (x · z) ∎)
+           ·-ldist-+
+         ⋆-assoc
+           ⋆-ldist
+           ⋆-rdist
+           ⋆-lid
+           ⋆-lassoc
+           λ r x y → r ⋆ (x · y) ≡⟨ cong (λ u → r ⋆ u) (·-comm _ _) ⟩
+                     r ⋆ (y · x) ≡⟨ sym (⋆-lassoc _ _ _) ⟩
+                     (r ⋆ y) · x ≡⟨ ·-comm _ _ ⟩
+                     x · (r ⋆ y) ∎
+    makeIsCommAlgebra .IsCommAlgebra.·-comm = ·-comm
 
   module _ (S : CommRing ℓ') where
     open CommRingStr (snd S) renaming (1r to 1S)
     open CommRingStr (snd R) using () renaming (_·_ to _·R_; _+_ to _+R_; 1r to 1R)
-    commAlgebraFromCommRing :
-          (_⋆_ : fst R → fst S → fst S)
-        → ((r s : fst R) (x : fst S) → (r ·R s) ⋆ x ≡ r ⋆ (s ⋆ x))
-        → ((r s : fst R) (x : fst S) → (r +R s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
-        → ((r : fst R) (x y : fst S) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
-        → ((x : fst S) → 1R ⋆ x ≡ x)
-        → ((r : fst R) (x y : fst S) → (r ⋆ x) · y ≡ r ⋆ (x · y))
-        → CommAlgebra R ℓ'
-    commAlgebraFromCommRing _⋆_ ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc· = fst S ,
-      commalgebrastr 0r 1S _+_ _·_  -_ _⋆_
-        (makeIsCommAlgebra is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·Comm
-                                  ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc·)
 
+    module _
+        (_⋆_ : fst R → fst S → fst S)
+        (·Assoc⋆ : (r s : fst R) (x : fst S) → (r ·R s) ⋆ x ≡ r ⋆ (s ⋆ x))
+        (⋆DistR : (r s : fst R) (x : fst S) → (r +R s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+        (⋆DistL : (r : fst R) (x y : fst S) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+        (⋆Lid : (x : fst S) → 1R ⋆ x ≡ x)
+        (⋆Assoc· : (r : fst R) (x y : fst S) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+      where
+
+      commAlgebraFromCommRing : CommAlgebra R ℓ'
+      commAlgebraFromCommRing .fst = fst S
+      commAlgebraFromCommRing .snd .CommAlgebraStr.0a = 0r
+      commAlgebraFromCommRing .snd .CommAlgebraStr.1a = 1S
+      commAlgebraFromCommRing .snd .CommAlgebraStr._+_ = _+_
+      commAlgebraFromCommRing .snd .CommAlgebraStr._·_ = _·_
+      commAlgebraFromCommRing .snd .CommAlgebraStr.-_ = -_
+      commAlgebraFromCommRing .snd .CommAlgebraStr._⋆_ = _⋆_
+      commAlgebraFromCommRing .snd .CommAlgebraStr.isCommAlgebra =
+        makeIsCommAlgebra is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·Comm
+                                    ·Assoc⋆ ⋆DistR ⋆DistL ⋆Lid ⋆Assoc·
 
   IsCommAlgebraEquiv : {A : Type ℓ'} {B : Type ℓ''}
     (M : CommAlgebraStr R A) (e : A ≃ B) (N : CommAlgebraStr R B)
