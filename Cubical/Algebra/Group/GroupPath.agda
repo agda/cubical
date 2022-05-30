@@ -66,7 +66,7 @@ module _ (G : Group ℓ) {A : Type ℓ}
     module G = GroupStr (G .snd)
 
     BaseΣ : Type (ℓ-suc ℓ)
-    BaseΣ = Σ[ B ∈ Type ℓ ] Σ[ m ∈ (B → B → B) ] Σ[ e ∈ B ] (B → B)
+    BaseΣ = Σ[ B ∈ Type ℓ ] (B → B → B) × B × (B → B)
 
     FamilyΣ : BaseΣ → Type ℓ
     FamilyΣ (B , m , u , i) = IsGroup u m i

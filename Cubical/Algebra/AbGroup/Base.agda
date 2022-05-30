@@ -154,7 +154,7 @@ module _ (G : AbGroup ℓ) {A : Type ℓ}
   (u : A)
   (inverse : A → A)
   (e : ⟨ G ⟩ ≃ A)
-  (p· : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
+  (p+ : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
   (pu : e .fst (G .snd .0g) ≡ u)
   (pinv : ∀ x → e .fst (G .snd .-_ x) ≡ inverse (e .fst x))
   where
@@ -163,7 +163,7 @@ module _ (G : AbGroup ℓ) {A : Type ℓ}
     module G = AbGroupStr (G .snd)
 
     BaseΣ : Type (ℓ-suc ℓ)
-    BaseΣ = Σ[ B ∈ Type ℓ ] Σ[ m ∈ (B → B → B) ] Σ[ e ∈ B ] (B → B)
+    BaseΣ = Σ[ B ∈ Type ℓ ] (B → B → B) × B × (B → B)
 
     FamilyΣ : BaseΣ → Type ℓ
     FamilyΣ (B , m , u , i) = IsAbGroup u m i
@@ -171,7 +171,7 @@ module _ (G : AbGroup ℓ) {A : Type ℓ}
     inducedΣ : FamilyΣ (A , m , u , inverse)
     inducedΣ =
       subst FamilyΣ
-        (UARel.≅→≡ (autoUARel BaseΣ) (e , p· , pu , pinv))
+        (UARel.≅→≡ (autoUARel BaseΣ) (e , p+ , pu , pinv))
         G.isAbGroup
 
   InducedAbGroup : AbGroup ℓ
@@ -183,7 +183,7 @@ module _ (G : AbGroup ℓ) {A : Type ℓ}
 
   InducedAbGroupEquiv : AbGroupEquiv G InducedAbGroup
   fst InducedAbGroupEquiv = e
-  snd InducedAbGroupEquiv = makeIsGroupHom p·
+  snd InducedAbGroupEquiv = makeIsGroupHom p+
 
   InducedAbGroupPath : G ≡ InducedAbGroup
   InducedAbGroupPath = AbGroupPath _ _ .fst InducedAbGroupEquiv
