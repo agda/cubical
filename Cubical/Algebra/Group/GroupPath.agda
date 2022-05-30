@@ -50,8 +50,12 @@ open IsGroupHom
 GroupPath : (M N : Group ℓ) → GroupEquiv M N ≃ (M ≡ N)
 GroupPath = ∫ 𝒮ᴰ-Group .UARel.ua
 
--- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
--- representations
+
+-- The module below defines a group induced from an equivalence
+-- between a group G and a type A which preserves the full raw group
+-- structure from G to A. This version is useful when proving that
+-- some type equivalent to a group is a group while also specifying
+-- the binary operation, unit and inverse.
 module _ (G : Group ℓ) {A : Type ℓ}
   (m : A → A → A)
   (u : A)
@@ -90,6 +94,47 @@ module _ (G : Group ℓ) {A : Type ℓ}
 
   InducedGroupPath : G ≡ InducedGroup
   InducedGroupPath = GroupPath _ _ .fst InducedGroupEquiv
+
+
+-- The module below defines a group induced from an equivalence which
+-- preserves the binary operation (i.e. a group isomorphism). This
+-- version is useful when proving that some type equivalent to a group
+-- G is a group when one doesn't care about what the unit and inverse
+-- are. When using this version the unit and inverse will both be
+-- defined by transporting over the unit and inverse from G to A.
+module _ (G : Group ℓ) {A : Type ℓ}
+  (m : A → A → A)
+  (e : ⟨ G ⟩ ≃ A)
+  (p· : ∀ x y → e .fst (G .snd ._·_ x y) ≡ m (e .fst x) (e .fst y))
+  where
+
+  private
+    module G = GroupStr (G .snd)
+
+    FamilyΣ : Σ[ B ∈ Type ℓ ] (B → B → B) → Type ℓ
+    FamilyΣ (B , n) = Σ[ e ∈ B ] Σ[ i ∈ (B → B) ] IsGroup e n i
+
+    inducedΣ : FamilyΣ (A , m)
+    inducedΣ =
+      subst FamilyΣ
+        (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
+        (G.1g , G.inv , G.isGroup)
+
+  InducedGroupFromPres· : Group ℓ
+  InducedGroupFromPres· .fst = A
+  InducedGroupFromPres· .snd ._·_ = m
+  InducedGroupFromPres· .snd .1g = inducedΣ .fst
+  InducedGroupFromPres· .snd .inv = inducedΣ .snd .fst
+  InducedGroupFromPres· .snd .isGroup = inducedΣ .snd .snd
+
+  InducedGroupEquivFromPres· : GroupEquiv G InducedGroupFromPres·
+  fst InducedGroupEquivFromPres· = e
+  snd InducedGroupEquivFromPres· = makeIsGroupHom p·
+
+  InducedGroupPathFromPres· : G ≡ InducedGroupFromPres·
+  InducedGroupPathFromPres· = GroupPath _ _ .fst InducedGroupEquivFromPres·
+
+
 
 uaGroup : {G H : Group ℓ} → GroupEquiv G H → G ≡ H
 uaGroup {G = G} {H = H} = equivFun (GroupPath G H)

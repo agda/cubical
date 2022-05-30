@@ -147,8 +147,13 @@ isPropIsAbGroup 0g _+_ -_ (isabgroup GG GC) (isabgroup HG HC) =
 AbGroupPath : (G H : AbGroup ℓ) → (AbGroupEquiv G H) ≃ (G ≡ H)
 AbGroupPath = ∫ 𝒮ᴰ-AbGroup .UARel.ua
 
--- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
--- representations
+
+-- The module below defines an abelian group induced from an
+-- equivalence between an abelian group G and a type A which preserves
+-- the full raw group structure from G to A. This version is useful
+-- when proving that some type equivalent to an abelian group is an
+-- abelian group while also specifying the binary operation, unit and
+-- inverse. For an example of this see Algebra.Matrix
 module _ (G : AbGroup ℓ) {A : Type ℓ}
   (m : A → A → A)
   (u : A)
@@ -187,6 +192,48 @@ module _ (G : AbGroup ℓ) {A : Type ℓ}
 
   InducedAbGroupPath : G ≡ InducedAbGroup
   InducedAbGroupPath = AbGroupPath _ _ .fst InducedAbGroupEquiv
+
+
+
+-- The module below defines an abelian group induced from an
+-- equivalence which preserves the binary operation (i.e. a group
+-- isomorphism). This version is useful when proving that some type
+-- equivalent to an abelian group G is an abelian group when one
+-- doesn't care about what the unit and inverse are. When using this
+-- version the unit and inverse will both be defined by transporting
+-- over the unit and inverse from G to A.
+module _ (G : AbGroup ℓ) {A : Type ℓ}
+  (m : A → A → A)
+  (e : ⟨ G ⟩ ≃ A)
+  (p· : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
+  where
+
+  private
+    module G = AbGroupStr (G .snd)
+
+    FamilyΣ : Σ[ B ∈ Type ℓ ] (B → B → B) → Type ℓ
+    FamilyΣ (B , n) = Σ[ e ∈ B ] Σ[ i ∈ (B → B) ] IsAbGroup e n i
+
+    inducedΣ : FamilyΣ (A , m)
+    inducedΣ =
+      subst FamilyΣ
+        (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
+        (G.0g , G.-_ , G.isAbGroup)
+
+  InducedAbGroupFromPres· : AbGroup ℓ
+  InducedAbGroupFromPres· .fst = A
+  InducedAbGroupFromPres· .snd ._+_ = m
+  InducedAbGroupFromPres· .snd .0g = inducedΣ .fst
+  InducedAbGroupFromPres· .snd .-_ = inducedΣ .snd .fst
+  InducedAbGroupFromPres· .snd .isAbGroup = inducedΣ .snd .snd
+
+  InducedAbGroupEquivFromPres· : AbGroupEquiv G InducedAbGroupFromPres·
+  fst InducedAbGroupEquivFromPres· = e
+  snd InducedAbGroupEquivFromPres· = makeIsGroupHom p·
+
+  InducedAbGroupPathFromPres· : G ≡ InducedAbGroupFromPres·
+  InducedAbGroupPathFromPres· = AbGroupPath _ _ .fst InducedAbGroupEquivFromPres·
+
 
 open IsMonoid
 open IsSemigroup
