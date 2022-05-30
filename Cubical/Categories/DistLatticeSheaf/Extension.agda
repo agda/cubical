@@ -84,87 +84,89 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
    instance
     _ = isBasisL'
    F* = T* limitC (i ^opF) F
+   -- figure out helping notation
+   -- to∧FinVec : {n : ℕ} (α : FinVec (fst L) n) (α∈L' : ∀ i → α i ∈ L')
+   --             (u : fst L) (u∈L' : u ∈ L') (u≤⋁α : u ≤ ⋁ α)
 
-  coneLemma : ∀ (c : ob C) {n : ℕ} (α : FinVec (fst L) n) (α∈L' : ∀ i → α i ∈ L')
-            → Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c → Cone (F* (⋁ α)) c
-  coneOut (coneLemma c α α∈L' cc) ((u , u∈L') , u≤⋁α) = subst (λ x → C [ c , F .F-ob x ])
-    (Σ≡Prop (λ x → L' x .snd) (sym p)) (isSheafF (λ i → β i , β∈L' i) ⋁β∈L' c ccβ .fst .fst)
-    where
-    β : FinVec (fst L) _
-    β i = u ∧l α i
-    β∈L' : ∀ i → β i ∈ L'
-    β∈L' i = ∧lClosed _ _ u∈L' (α∈L' i)
+   coneLemma : ∀ (c : ob C) {n : ℕ} (α : FinVec (fst L) n) (α∈L' : ∀ i → α i ∈ L')
+             → Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c → Cone (F* (⋁ α)) c
+   coneOut (coneLemma c α α∈L' cc) ((u , u∈L') , u≤⋁α) = subst (λ x → C [ c , F .F-ob x ])
+     (Σ≡Prop (λ x → L' x .snd) (sym p)) (isSheafF (λ i → β i , β∈L' i) ⋁β∈L' c ccβ .fst .fst)
+     where
+     β : FinVec (fst L) _
+     β i = u ∧l α i
+     β∈L' : ∀ i → β i ∈ L'
+     β∈L' i = ∧lClosed _ _ u∈L' (α∈L' i)
 
-    p : u ≡ ⋁ β
-    p = sym (≤j→≤m _ _ u≤⋁α) ∙ ⋁Meetrdist _ _
-    ⋁β∈L' : ⋁ β ∈ L'
-    ⋁β∈L' = subst-∈ L' p u∈L'
+     p : u ≡ ⋁ β
+     p = sym (≤j→≤m _ _ u≤⋁α) ∙ ⋁Meetrdist _ _
+     ⋁β∈L' : ⋁ β ∈ L'
+     ⋁β∈L' = subst-∈ L' p u∈L'
 
-    ccβ : Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c
-    coneOut ccβ (sing i) = coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-    coneOut ccβ (pair i j i<j) = coneOut cc (pair i j i<j)
-      ⋆⟨ C ⟩ F .F-hom ((≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
-    coneOutCommutes ccβ {u = u} idAr = cong (λ x → coneOut ccβ u ⋆⟨ C ⟩ x)
-                                            (F-id (funcComp F (BDiag (λ i → β i , β∈L' i))))
-                                     ∙ ⋆IdR C _
-    coneOutCommutes ccβ (singPairL {i = i} {j} {i<j}) =
-        coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-                            ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → β i , β∈L' i)) .F-hom singPairL)
-      ≡⟨ ⋆Assoc C _ _ _ ⟩
-        coneOut cc (sing i) ⋆⟨ C ⟩ (F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-                            ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → β i , β∈L' i)) .F-hom singPairL))
-      ≡⟨ cong (λ x → coneOut cc (sing i) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
-        coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom
-          (≤m→≤j _ _ (∧≤LCancel _ _)
-            ⋆⟨ DLCat ^op ⟩ (BDiag (λ i → β i , β∈L' i) .F-hom (singPairL {i = i} {j} {i<j})))
-      ≡⟨ cong (λ x → coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom
-              {y = β i ∧l β j , ∧lClosed _ _ (β∈L' i) (β∈L' j)} x) (is-prop-valued _ _ _ _) ⟩
-        coneOut cc (sing i)
-          ⋆⟨ C ⟩ F .F-hom ((BDiag (λ i → α i , α∈L' i)) .F-hom  (singPairL {i = i} {j} {i<j})
-          ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _)))
-      ≡⟨ cong (λ x → coneOut cc (sing i) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
-        coneOut cc (sing i)
-          ⋆⟨ C ⟩ ((funcComp F (BDiag (λ i → α i , α∈L' i)) .F-hom  (singPairL {i = i} {j} {i<j}))
-          ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
-      ≡⟨ sym (⋆Assoc C _ _ _) ⟩
-        (coneOut cc (sing i)
-          ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → α i , α∈L' i)) .F-hom  (singPairL {i = i} {j} {i<j})))
-          ⋆⟨ C ⟩ F .F-hom ((≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
-      ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom {y = β i ∧l β j , ∧lClosed _ _ (β∈L' i) (β∈L' j)}
-               (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
-               (coneOutCommutes cc (singPairL {i = i} {j} {i<j})) ⟩
-        coneOut ccβ (pair i j i<j) ∎
+     ccβ : Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c
+     coneOut ccβ (sing i) = coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+     coneOut ccβ (pair i j i<j) = coneOut cc (pair i j i<j)
+       ⋆⟨ C ⟩ F .F-hom ((≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
+     coneOutCommutes ccβ {u = u} idAr = cong (λ x → coneOut ccβ u ⋆⟨ C ⟩ x)
+                                             (F-id (funcComp F (BDiag (λ i → β i , β∈L' i))))
+                                      ∙ ⋆IdR C _
+     coneOutCommutes ccβ (singPairL {i = i} {j} {i<j}) =
+         coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+                             ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → β i , β∈L' i)) .F-hom singPairL)
+       ≡⟨ ⋆Assoc C _ _ _ ⟩
+         coneOut cc (sing i) ⋆⟨ C ⟩ (F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+                             ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → β i , β∈L' i)) .F-hom singPairL))
+       ≡⟨ cong (λ x → coneOut cc (sing i) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
+         coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom
+           (≤m→≤j _ _ (∧≤LCancel _ _)
+             ⋆⟨ DLCat ^op ⟩ (BDiag (λ i → β i , β∈L' i) .F-hom (singPairL {i = i} {j} {i<j})))
+       ≡⟨ cong (λ x → coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom
+               {y = β i ∧l β j , ∧lClosed _ _ (β∈L' i) (β∈L' j)} x) (is-prop-valued _ _ _ _) ⟩
+         coneOut cc (sing i)
+           ⋆⟨ C ⟩ F .F-hom ((BDiag (λ i → α i , α∈L' i)) .F-hom  (singPairL {i = i} {j} {i<j})
+           ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _)))
+       ≡⟨ cong (λ x → coneOut cc (sing i) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
+         coneOut cc (sing i)
+           ⋆⟨ C ⟩ ((funcComp F (BDiag (λ i → α i , α∈L' i)) .F-hom  (singPairL {i = i} {j} {i<j}))
+           ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
+       ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+         (coneOut cc (sing i)
+           ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → α i , α∈L' i)) .F-hom  (singPairL {i = i} {j} {i<j})))
+           ⋆⟨ C ⟩ F .F-hom ((≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
+       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom {y = β i ∧l β j , ∧lClosed _ _ (β∈L' i) (β∈L' j)}
+                (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
+                (coneOutCommutes cc (singPairL {i = i} {j} {i<j})) ⟩
+         coneOut ccβ (pair i j i<j) ∎
 
-    coneOutCommutes ccβ (singPairR {i = i} {j} {i<j}) =
-        coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-                            ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → β i , β∈L' i)) .F-hom singPairR)
-      ≡⟨ ⋆Assoc C _ _ _ ⟩
-        coneOut cc (sing j) ⋆⟨ C ⟩ (F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-                            ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → β i , β∈L' i)) .F-hom singPairR))
-      ≡⟨ cong (λ x → coneOut cc (sing j) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
-        coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom
-          (≤m→≤j _ _ (∧≤LCancel _ _)
-            ⋆⟨ DLCat ^op ⟩ (BDiag (λ i → β i , β∈L' i) .F-hom (singPairR {i = i} {j} {i<j})))
-      ≡⟨ cong (λ x → coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom
-              {y = β i ∧l β j , ∧lClosed _ _ (β∈L' i) (β∈L' j)} x) (is-prop-valued _ _ _ _) ⟩
-        coneOut cc (sing j)
-          ⋆⟨ C ⟩ F .F-hom ((BDiag (λ i → α i , α∈L' i)) .F-hom (singPairR {i = i} {j} {i<j})
-          ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _)))
-      ≡⟨ cong (λ x → coneOut cc (sing j) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
-        coneOut cc (sing j)
-          ⋆⟨ C ⟩ ((funcComp F (BDiag (λ i → α i , α∈L' i)) .F-hom (singPairR {i = i} {j} {i<j}))
-          ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
-      ≡⟨ sym (⋆Assoc C _ _ _) ⟩
-        (coneOut cc (sing j)
-          ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → α i , α∈L' i)) .F-hom (singPairR {i = i} {j} {i<j})))
-          ⋆⟨ C ⟩ F .F-hom ((≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
-      ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom {y = β i ∧l β j , ∧lClosed _ _ (β∈L' i) (β∈L' j)}
-               (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
-               (coneOutCommutes cc (singPairR {i = i} {j} {i<j})) ⟩
-        coneOut ccβ (pair i j i<j) ∎
+     coneOutCommutes ccβ (singPairR {i = i} {j} {i<j}) =
+         coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+                             ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → β i , β∈L' i)) .F-hom singPairR)
+       ≡⟨ ⋆Assoc C _ _ _ ⟩
+         coneOut cc (sing j) ⋆⟨ C ⟩ (F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+                             ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → β i , β∈L' i)) .F-hom singPairR))
+       ≡⟨ cong (λ x → coneOut cc (sing j) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
+         coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom
+           (≤m→≤j _ _ (∧≤LCancel _ _)
+             ⋆⟨ DLCat ^op ⟩ (BDiag (λ i → β i , β∈L' i) .F-hom (singPairR {i = i} {j} {i<j})))
+       ≡⟨ cong (λ x → coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom
+               {y = β i ∧l β j , ∧lClosed _ _ (β∈L' i) (β∈L' j)} x) (is-prop-valued _ _ _ _) ⟩
+         coneOut cc (sing j)
+           ⋆⟨ C ⟩ F .F-hom ((BDiag (λ i → α i , α∈L' i)) .F-hom (singPairR {i = i} {j} {i<j})
+           ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _)))
+       ≡⟨ cong (λ x → coneOut cc (sing j) ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
+         coneOut cc (sing j)
+           ⋆⟨ C ⟩ ((funcComp F (BDiag (λ i → α i , α∈L' i)) .F-hom (singPairR {i = i} {j} {i<j}))
+           ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
+       ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+         (coneOut cc (sing j)
+           ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → α i , α∈L' i)) .F-hom (singPairR {i = i} {j} {i<j})))
+           ⋆⟨ C ⟩ F .F-hom ((≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
+       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom {y = β i ∧l β j , ∧lClosed _ _ (β∈L' i) (β∈L' j)}
+                (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))))
+                (coneOutCommutes cc (singPairR {i = i} {j} {i<j})) ⟩
+         coneOut ccβ (pair i j i<j) ∎
 
-  coneOutCommutes (coneLemma c α α∈L' cc) {u = (u , u∈L') , u≤⋁α} {v = (v , v∈L') , v≤⋁α} u≥v = {!!}
-
+   coneOutCommutes (coneLemma c α α∈L' cc) {u = (u , u∈L') , u≤⋁α} {v = (v , v∈L') , v≤⋁α} u≥v = {!!}
 
 
   isDLSheafDLRan : isDLSheafPullback L C (DLRan F)
