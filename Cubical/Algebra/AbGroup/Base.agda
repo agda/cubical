@@ -149,35 +149,44 @@ AbGroupPath = ∫ 𝒮ᴰ-AbGroup .UARel.ua
 
 -- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
 -- representations
-module _ (G : AbGroup ℓ) {A : Type ℓ} (m : A → A → A)
+module _ (G : AbGroup ℓ) {A : Type ℓ}
+  (m : A → A → A)
+  (u : A)
+  (inverse : A → A)
   (e : ⟨ G ⟩ ≃ A)
   (p· : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
+  (pu : e .fst (G .snd .0g) ≡ u)
+  (pinv : ∀ x → e .fst (G .snd .-_ x) ≡ inverse (e .fst x))
   where
 
   private
     module G = AbGroupStr (G .snd)
 
-    FamilyΣ : Σ[ B ∈ Type ℓ ] (B → B → B) → Type ℓ
-    FamilyΣ (B , n) =
-      Σ[ e ∈ B ]
-      Σ[ i ∈ (B → B) ]
-      IsAbGroup e n i
+    BaseΣ : Type (ℓ-suc ℓ)
+    BaseΣ = Σ[ B ∈ Type ℓ ] Σ[ m ∈ (B → B → B) ] Σ[ e ∈ B ] (B → B)
 
-    inducedΣ : FamilyΣ (A , m)
+    FamilyΣ : BaseΣ → Type ℓ
+    FamilyΣ (B , m , u , i) = IsAbGroup u m i
+
+    inducedΣ : FamilyΣ (A , m , u , inverse)
     inducedΣ =
       subst FamilyΣ
-        (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
-        (G.0g , G.-_ , G.isAbGroup)
+        (UARel.≅→≡ (autoUARel BaseΣ) (e , p· , pu , pinv))
+        G.isAbGroup
 
   InducedAbGroup : AbGroup ℓ
   InducedAbGroup .fst = A
   InducedAbGroup .snd ._+_ = m
-  InducedAbGroup .snd .0g = inducedΣ .fst
-  InducedAbGroup .snd .-_ = inducedΣ .snd .fst
-  InducedAbGroup .snd .isAbGroup = inducedΣ .snd .snd
+  InducedAbGroup .snd .0g = u
+  InducedAbGroup .snd .-_ = inverse
+  InducedAbGroup .snd .isAbGroup = inducedΣ
+
+  InducedAbGroupEquiv : AbGroupEquiv G InducedAbGroup
+  fst InducedAbGroupEquiv = e
+  snd InducedAbGroupEquiv = makeIsGroupHom p·
 
   InducedAbGroupPath : G ≡ InducedAbGroup
-  InducedAbGroupPath = AbGroupPath _ _ .fst (e , makeIsGroupHom p·)
+  InducedAbGroupPath = AbGroupPath _ _ .fst InducedAbGroupEquiv
 
 open IsMonoid
 open IsSemigroup
