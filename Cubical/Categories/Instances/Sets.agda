@@ -4,6 +4,8 @@ module Cubical.Categories.Instances.Sets where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
@@ -67,13 +69,49 @@ module _ {C : Category ℓ ℓ'} {F : Functor C (SET ℓ')} where
 open CatIso renaming (inv to cInv)
 open Iso
 
-Iso→CatIso : ∀ {A B : (SET ℓ) .ob}
-           → Iso (fst A) (fst B)
-           → CatIso (SET ℓ) A B
-Iso→CatIso is .mor = is .fun
-Iso→CatIso is .cInv = is .inv
-Iso→CatIso is .sec = funExt λ b → is .rightInv b -- is .rightInv
-Iso→CatIso is .ret = funExt λ b → is .leftInv b -- is .rightInv
+module _ {A B : (SET ℓ) .ob } where
+
+  Iso→CatIso : Iso (fst A) (fst B)
+             → CatIso (SET ℓ) A B
+  Iso→CatIso is .mor = is .fun
+  Iso→CatIso is .cInv = is .inv
+  Iso→CatIso is .sec = funExt λ b → is .rightInv b -- is .rightInv
+  Iso→CatIso is .ret = funExt λ b → is .leftInv b -- is .rightInv
+
+  CatIso→Iso : CatIso (SET ℓ) A B
+             → Iso (fst A) (fst B)
+  CatIso→Iso cis .fun = cis .mor
+  CatIso→Iso cis .inv = cis .cInv
+  CatIso→Iso cis .rightInv = funExt⁻ λ b → cis .sec b
+  CatIso→Iso cis .leftInv = funExt⁻ λ b → cis .ret b
+
+
+  Iso-Iso-CatIso : Iso (Iso (fst A) (fst B)) (CatIso (SET ℓ) A B)
+  fun Iso-Iso-CatIso = Iso→CatIso
+  inv Iso-Iso-CatIso = CatIso→Iso
+  rightInv Iso-Iso-CatIso b = refl
+  fun (leftInv Iso-Iso-CatIso a i) = fun a
+  inv (leftInv Iso-Iso-CatIso a i) = inv a
+  rightInv (leftInv Iso-Iso-CatIso a i) = rightInv a
+  leftInv (leftInv Iso-Iso-CatIso a i) = leftInv a
+
+  Iso-CatIso-≡ : Iso (CatIso (SET ℓ) A B) (A ≡ B)
+  Iso-CatIso-≡ = compIso (invIso Iso-Iso-CatIso) (hSet-Iso-Iso-≡ _ _)
+
+-- SET is univalent
+
+isUnivalentSET : isUnivalent {ℓ' = ℓ} (SET _)
+isUnivalent.univ isUnivalentSET (A , isSet-A) (B , isSet-B)  =
+   precomposesToId→Equiv
+      pathToIso _ (funExt w) (isoToIsEquiv Iso-CatIso-≡)
+   where
+     w : _
+     w ci =
+       invEq
+         (congEquiv (isoToEquiv (invIso Iso-Iso-CatIso)))
+         (SetsIso≡-ext isSet-A isSet-B
+            (λ x i → transp (λ _ → B) i (ci .mor  (transp (λ _ → A) i x)))
+            (λ x i → transp (λ _ → A) i (ci .cInv (transp (λ _ → B) i x))))
 
 -- SET is complete
 

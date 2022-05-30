@@ -16,7 +16,7 @@ This definition is weaker than `isFinSet`.
 module Cubical.Data.FinInd where
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin
+open import Cubical.Data.SumFin
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinSet
 open import Cubical.Foundations.Prelude
@@ -34,13 +34,13 @@ isFinInd : Type ℓ → Type ℓ
 isFinInd A = ∃[ n ∈ ℕ ] Fin n ↠ A
 
 isFinSet→isFinInd : isFinSet A → isFinInd A
-isFinSet→isFinInd = PT.rec
-  squash
-  λ (n , equiv) →
-    ∣ n , invEq equiv , section→isSurjection (retEq equiv) ∣
+isFinSet→isFinInd h = PT.elim
+  (λ _ → squash₁)
+  (λ equiv →
+    ∣ _ , invEq equiv , section→isSurjection (retEq equiv) ∣₁) (h .snd)
 
 isFinInd-S¹ : isFinInd S¹
-isFinInd-S¹ = ∣ 1 , f , isSurjection-f ∣
+isFinInd-S¹ = ∣ 1 , f , isSurjection-f ∣₁
   where
     f : Fin 1 → S¹
     f _ = base

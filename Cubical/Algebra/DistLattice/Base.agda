@@ -66,7 +66,7 @@ record DistLatticeStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
     _∧l_         : A → A → A
     isDistLattice : IsDistLattice 0l 1l _∨l_ _∧l_
 
-  infix 7 _∨l_
+  infix 6 _∨l_
   infix 6 _∧l_
 
   open IsDistLattice isDistLattice public
@@ -225,6 +225,9 @@ DistLattice→Lattice (_ , distlatticestr _ _ _ _  H) =
 
 DistLatticeHom : (L : DistLattice ℓ) (M : DistLattice ℓ') → Type (ℓ-max ℓ ℓ')
 DistLatticeHom L M = LatticeHom (DistLattice→Lattice L) (DistLattice→Lattice M)
+
+idDistLatticeHom : (L : DistLattice ℓ) → DistLatticeHom L L
+idDistLatticeHom L = idLatticeHom (DistLattice→Lattice L)
 
 IsDistLatticeEquiv : {A : Type ℓ} {B : Type ℓ'}
   (L : DistLatticeStr A) (e : A ≃ B) (M : DistLatticeStr B) → Type (ℓ-max ℓ ℓ')

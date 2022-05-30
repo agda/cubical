@@ -1,13 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.ZCohomology.Groups.Sn where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.Groups.Unit
-open import Cubical.ZCohomology.Groups.Connected
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Groups.Prelims
-
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
@@ -17,27 +10,38 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
+open import Cubical.Relation.Nullary
+
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Bool
+open import Cubical.Data.Nat
+open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Unit
+open import Cubical.Algebra.Group.Instances.Int
+
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₁ ; ∣_∣ to ∣_∣₁)
-  hiding (map)
-
-open import Cubical.Relation.Nullary
-open import Cubical.Data.Sum hiding (map)
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-
-open import Cubical.Data.Bool
-open import Cubical.Data.Sigma
-open import Cubical.Data.Int renaming (_+_ to _+ℤ_; +Comm to +ℤ-comm ; +Assoc to +ℤ-assoc)
-open import Cubical.Data.Nat
-open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; rec to trRec)
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.Truncation as T
 
 open import Cubical.Homotopy.Connected
 
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Unit to UnitGroup) hiding (Bool)
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.Groups.Unit
+open import Cubical.ZCohomology.Groups.Connected
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Groups.Prelims
 
 infixr 31 _□_
 _□_ : _
@@ -46,6 +50,10 @@ _□_ = compGroupIso
 open IsGroupHom
 open BijectionIso
 open Iso
+
+
+
+-------------------------- H⁰(Sⁿ) for n > 1 -----------------------------
 
 Sn-connected : (n : ℕ) (x : typ (S₊∙ (suc n))) → ∥ pt (S₊∙ (suc n)) ≡ x ∥₁
 Sn-connected zero = toPropElim (λ _ → isPropPropTrunc) ∣ refl ∣₁
@@ -63,7 +71,7 @@ suspensionAx-Sn n m =
                    (S₊ (suc m) → x ≡ y)) ∥₂
               (coHom (suc n) (S₊ (suc m)))
   Iso.fun helperIso =
-    sRec isSetSetTrunc
+    ST.rec isSetSetTrunc
          (uncurry
            (coHomK-elim _
              (λ _ → isOfHLevelΠ (2 + n)
@@ -74,12 +82,12 @@ suspensionAx-Sn n m =
                     λ _ → isOfHLevelPlus' {n = n} 2 isSetSetTrunc)
                  λ f → ∣ (λ x → ΩKn+1→Kn (suc n) (f x)) ∣₂))))
   Iso.inv helperIso =
-    sMap λ f → (0ₖ _) , (0ₖ _ , λ x → Kn→ΩKn+1 (suc n) (f x))
+    ST.map λ f → (0ₖ _) , (0ₖ _ , λ x → Kn→ΩKn+1 (suc n) (f x))
   Iso.rightInv helperIso =
     coHomPointedElim _ (ptSn (suc m)) (λ _ → isSetSetTrunc _ _)
       λ f fId → cong ∣_∣₂ (funExt (λ x → Iso.leftInv (Iso-Kn-ΩKn+1 _) (f x)))
   Iso.leftInv helperIso =
-    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+    ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
       (uncurry
         (coHomK-elim _
           (λ _ → isProp→isOfHLevelSuc (suc n) (isPropΠ λ _ → isSetSetTrunc _ _))
@@ -108,7 +116,7 @@ H⁰-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr 0 (S₊ (suc n))) ℤGroup
 H⁰-Sⁿ≅ℤ zero = H⁰-connected base (Sn-connected 0)
 H⁰-Sⁿ≅ℤ (suc n) = H⁰-connected north (Sn-connected (suc n))
 
--- -- ----------------------------------------------------------------------
+----------------------------------------------------------------------
 
 --- We will need to switch between Sⁿ defined using suspensions and using pushouts
 --- in order to apply Mayer Vietoris.
@@ -121,10 +129,10 @@ coHomPushout≅coHomSn : (n m : ℕ) → GroupIso (coHomGr m (S₊ (suc n)))
                                              (coHomGr m (Pushout {A = S₊ n} (λ _ → tt) λ _ → tt))
 coHomPushout≅coHomSn zero m =
   setTruncIso (domIso S1Iso) ,
-  makeIsGroupHom (sElim2 (λ _ _ → isSet→isGroupoid isSetSetTrunc _ _) (λ _ _ → refl))
+  makeIsGroupHom (ST.elim2 (λ _ _ → isSet→isGroupoid isSetSetTrunc _ _) (λ _ _ → refl))
 coHomPushout≅coHomSn (suc n) m =
   setTruncIso (domIso (invIso PushoutSuspIsoSusp)) ,
-  makeIsGroupHom (sElim2 (λ _ _ → isSet→isGroupoid isSetSetTrunc _ _) (λ _ _ → refl))
+  makeIsGroupHom (ST.elim2 (λ _ _ → isSet→isGroupoid isSetSetTrunc _ _) (λ _ _ → refl))
 
 -------------------------- H⁰(S⁰) -----------------------------
 S0→ℤ : (a : ℤ × ℤ) → S₊ 0 → ℤ
@@ -132,18 +140,18 @@ S0→ℤ a true = fst a
 S0→ℤ a false = snd a
 
 H⁰-S⁰≅ℤ×ℤ : GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
-fun (fst H⁰-S⁰≅ℤ×ℤ) = sRec (isSet× isSetℤ isSetℤ) λ f → (f true) , (f false)
+fun (fst H⁰-S⁰≅ℤ×ℤ) = ST.rec (isSet× isSetℤ isSetℤ) λ f → (f true) , (f false)
 inv (fst H⁰-S⁰≅ℤ×ℤ) a = ∣ S0→ℤ a ∣₂
 rightInv (fst H⁰-S⁰≅ℤ×ℤ) _ = refl
 leftInv (fst H⁰-S⁰≅ℤ×ℤ) =
-  sElim (λ _ → isSet→isGroupoid isSetSetTrunc _ _)
+  ST.elim (λ _ → isSet→isGroupoid isSetSetTrunc _ _)
         (λ f → cong ∣_∣₂ (funExt (λ {true → refl ; false → refl})))
 snd H⁰-S⁰≅ℤ×ℤ =
   makeIsGroupHom
-    (sElim2 (λ _ _ → isSet→isGroupoid (isSet× isSetℤ isSetℤ) _ _) λ a b → refl)
+    (ST.elim2 (λ _ _ → isSet→isGroupoid (isSet× isSetℤ isSetℤ) _ _) λ a b → refl)
 
 
-------------------------- H¹(S⁰) ≅ 0 -------------------------------
+------------------------- Hⁿ(S⁰) ≅ 0 for n ≥ 1 -------------------------------
 
 
 private
@@ -162,27 +170,27 @@ private
     where
     isContrHelper : (n : ℕ) → isContr (∥ (coHomK (suc n) × coHomK (suc n)) ∥₂)
     fst (isContrHelper zero) = ∣ (0₁ , 0₁) ∣₂
-    snd (isContrHelper zero) = sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-                                  λ y → elim2 {B = λ x y → ∣ (0₁ , 0₁) ∣₂ ≡ ∣(x , y) ∣₂ }
+    snd (isContrHelper zero) = ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+                                  λ y → T.elim2 {B = λ x y → ∣ (0₁ , 0₁) ∣₂ ≡ ∣(x , y) ∣₂ }
                                   (λ _ _ → isOfHLevelPlus {n = 2} 2 isSetSetTrunc _ _)
                                   (toPropElim2 (λ _ _ → isSetSetTrunc _ _) refl) (fst y) (snd y)
     isContrHelper (suc zero) = ∣ (0₂ , 0₂) ∣₂
-                          , sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-                                  λ y → elim2 {B = λ x y → ∣ (0₂ , 0₂) ∣₂ ≡ ∣(x , y) ∣₂ }
+                          , ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+                                  λ y → T.elim2 {B = λ x y → ∣ (0₂ , 0₂) ∣₂ ≡ ∣(x , y) ∣₂ }
                                   (λ _ _ → isOfHLevelPlus {n = 2} 3 isSetSetTrunc _ _)
                                   (suspToPropElim2 base (λ _ _ → isSetSetTrunc _ _) refl) (fst y) (snd y)
     isContrHelper (suc (suc n)) = ∣ (0ₖ (3 + n) , 0ₖ (3 + n)) ∣₂
-                          , sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-                                  λ y → elim2 {B = λ x y → ∣ (0ₖ (3 + n) , 0ₖ (3 + n)) ∣₂ ≡ ∣(x , y) ∣₂ }
+                          , ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+                                  λ y → T.elim2 {B = λ x y → ∣ (0ₖ (3 + n) , 0ₖ (3 + n)) ∣₂ ≡ ∣(x , y) ∣₂ }
                                   (λ _ _ → isProp→isOfHLevelSuc (4 + n) (isSetSetTrunc _ _))
                                   (suspToPropElim2 north (λ _ _ → isSetSetTrunc _ _) refl) (fst y) (snd y)
 
-H¹-S⁰≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ 0)) UnitGroup
-H¹-S⁰≅0 n = contrGroupIsoUnit (isContrHⁿ-S0 n)
+Hⁿ-S⁰≅0 : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ 0)) UnitGroup₀
+Hⁿ-S⁰≅0 n = contrGroupIsoUnit (isContrHⁿ-S0 n)
 
-------------------------- H²(S¹) ≅ 0 -------------------------------
+------------------------- Hⁿ(S¹) ≅ 0 , for n ≥ 2  -------------------------------
 
-Hⁿ-S¹≅0 : (n : ℕ) → GroupIso (coHomGr (2 + n) (S₊ 1)) UnitGroup
+Hⁿ-S¹≅0 : (n : ℕ) → GroupIso (coHomGr (2 + n) (S₊ 1)) UnitGroup₀
 Hⁿ-S¹≅0 n = contrGroupIsoUnit
             (isOfHLevelRetractFromIso 0 helper
               (_ , helper2))
@@ -192,11 +200,11 @@ Hⁿ-S¹≅0 n = contrGroupIsoUnit
 
   helper2 : (x : ∥ Σ (hLevelTrunc (4 + n) (S₊ (2 + n))) (λ x → ∥ x ≡ x ∥₂) ∥₂) → ∣ ∣ north ∣ , ∣ refl ∣₂ ∣₂ ≡ x
   helper2 =
-    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+    ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
           (uncurry
-            (trElim (λ _ → isOfHLevelΠ (4 + n) λ _ → isProp→isOfHLevelSuc (3 + n) (isSetSetTrunc _ _))
+            (T.elim (λ _ → isOfHLevelΠ (4 + n) λ _ → isProp→isOfHLevelSuc (3 + n) (isSetSetTrunc _ _))
               (suspToPropElim (ptSn (suc n)) (λ _ → isPropΠ λ _ → isSetSetTrunc _ _)
-                (sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+                (ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
                        λ p
                     → cong ∣_∣₂ (ΣPathP (refl , isContr→isProp helper3 _ _))))))
     where
@@ -208,9 +216,9 @@ Hⁿ-S¹≅0 n = contrGroupIsoUnit
     helper3 = isOfHLevelRetractFromIso 0 setTruncTrunc2Iso
                                          (isConnectedPath 2 (isConnectedSubtr 3 n helper4) _ _)
 
--- --------------- H¹(Sⁿ), n ≥ 1 --------------------------------------------
+--------------- H¹(Sⁿ), n ≥ 2 --------------------------------------------
 
-H¹-Sⁿ≅0 : (n : ℕ) → GroupIso (coHomGr 1 (S₊ (2 + n))) UnitGroup
+H¹-Sⁿ≅0 : (n : ℕ) → GroupIso (coHomGr 1 (S₊ (2 + n))) UnitGroup₀
 H¹-Sⁿ≅0 zero = contrGroupIsoUnit isContrH¹S²
   where
   isContrH¹S² : isContr ⟨ coHomGr 1 (S₊ 2) ⟩
@@ -227,13 +235,13 @@ H¹-Sⁿ≅0 (suc n) = contrGroupIsoUnit isContrH¹S³⁺ⁿ
 
   isContrH¹S³⁺ⁿ-ish : (f : (S₊ (3 + n) → hLevelTrunc (4 + n) (coHomK 1)))
                    → ∣ (λ _ → ∣ ∣ base ∣ ∣) ∣₂ ≡ ∣ f ∣₂
-  isContrH¹S³⁺ⁿ-ish f = ind (f north) refl
+  isContrH¹S³⁺ⁿ-ish f = ind-helper (f north) refl
     where
-    ind : (x : hLevelTrunc (4 + n) (coHomK 1))
+    ind-helper : (x : hLevelTrunc (4 + n) (coHomK 1))
        → x ≡ f north
        → ∣ (λ _ → ∣ ∣ base ∣ ∣) ∣₂ ≡ ∣ f ∣₂
-    ind = trElim (λ _ → isOfHLevelΠ (4 + n) λ _ → isOfHLevelPlus' {n = (3 + n)} 1 (isSetSetTrunc _ _))
-              (trElim (λ _ → isOfHLevelΠ 3 λ _ → isOfHLevelPlus {n = 1} 2 (isSetSetTrunc _ _))
+    ind-helper = T.elim (λ _ → isOfHLevelΠ (4 + n) λ _ → isOfHLevelPlus' {n = (3 + n)} 1 (isSetSetTrunc _ _))
+              (T.elim (λ _ → isOfHLevelΠ 3 λ _ → isOfHLevelPlus {n = 1} 2 (isSetSetTrunc _ _))
               (toPropElim (λ _ → isPropΠ λ _ → isSetSetTrunc _ _)
               λ p → cong ∣_∣₂ (funExt λ x → p ∙∙ sym (spoke f north) ∙∙ spoke f x)))
   isContrH¹S³⁺ⁿ : isContr ⟨ coHomGr 1 (S₊ (3 + n)) ⟩
@@ -241,7 +249,7 @@ H¹-Sⁿ≅0 (suc n) = contrGroupIsoUnit isContrH¹S³⁺ⁿ
     isOfHLevelRetractFromIso 0
       anIso
       (∣ (λ _ → ∣ ∣ base ∣ ∣) ∣₂
-      , sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _) isContrH¹S³⁺ⁿ-ish)
+      , ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _) isContrH¹S³⁺ⁿ-ish)
 
 --------- H¹(S¹) ≅ ℤ -------
 {-
@@ -252,20 +260,20 @@ H¹(S¹) := ∥ S¹ → K₁ ∥₂
         ≃ ∥ S¹ ∥₂ × ∥ ℤ ∥₂
         ≃ ℤ
 -}
-coHom1S1≃ℤ : GroupIso (coHomGr 1 (S₊ 1)) ℤGroup
-coHom1S1≃ℤ = theIso
+H¹-S¹≅ℤ : GroupIso (coHomGr 1 (S₊ 1)) ℤGroup
+H¹-S¹≅ℤ = theIso
   where
   F = Iso.fun S¹→S¹≡S¹×ℤ
   F⁻ = Iso.inv S¹→S¹≡S¹×ℤ
 
   theIso : GroupIso (coHomGr 1 (S₊ 1)) ℤGroup
-  fun (fst theIso) = sRec isSetℤ (λ f → snd (F f))
+  fun (fst theIso) = ST.rec isSetℤ (λ f → snd (F f))
   inv (fst theIso) a = ∣ (F⁻ (base , a)) ∣₂
   rightInv (fst theIso) a = cong snd (Iso.rightInv S¹→S¹≡S¹×ℤ (base , a))
   leftInv (fst theIso) =
-    sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
-                          λ f → cong ((sRec isSetSetTrunc ∣_∣₂)
-                                        ∘ sRec isSetSetTrunc λ x → ∣ F⁻ (x , (snd (F f))) ∣₂)
+    ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+                          λ f → cong ((ST.rec isSetSetTrunc ∣_∣₂)
+                                        ∘ ST.rec isSetSetTrunc λ x → ∣ F⁻ (x , (snd (F f))) ∣₂)
                                       (Iso.inv PathIdTrunc₀Iso (isConnectedS¹ (fst (F f))))
                               ∙ cong ∣_∣₂ (Iso.leftInv S¹→S¹≡S¹×ℤ f)
   snd theIso =
@@ -280,18 +288,40 @@ coHom1S1≃ℤ = theIso
     help : (p q : Path (coHomK 1) ∣ base ∣ ∣ base ∣) → cong₂ _+ₖ_ p q ≡ p ∙ q
     help p q = cong₂Funct _+ₖ_ p q ∙ (λ i → cong (λ x → rUnitₖ 1 x i) p ∙ cong (λ x → lUnitₖ 1 x i) q)
 
+
+
 ---------------------------- Hⁿ(Sⁿ) ≅ ℤ , n ≥ 1 -------------------
 Hⁿ-Sⁿ≅ℤ : (n : ℕ) → GroupIso (coHomGr (suc n) (S₊ (suc n))) ℤGroup
-Hⁿ-Sⁿ≅ℤ zero = coHom1S1≃ℤ
+Hⁿ-Sⁿ≅ℤ zero = H¹-S¹≅ℤ
 Hⁿ-Sⁿ≅ℤ (suc n) = suspensionAx-Sn n n □ Hⁿ-Sⁿ≅ℤ n
 
 -------------- Hⁿ(Sᵐ) ≅ ℤ for n , m ≥ 1 with n ≠ m ----------------
-Hⁿ-Sᵐ≅0 : (n m : ℕ) → ¬ (n ≡ m) → GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup
-Hⁿ-Sᵐ≅0 zero zero pf = ⊥-rec (pf refl)
+Hⁿ-Sᵐ≅0 : (n m : ℕ) → ¬ (n ≡ m) → GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup₀
+Hⁿ-Sᵐ≅0 zero zero pf = ⊥.rec (pf refl)
 Hⁿ-Sᵐ≅0 zero (suc m) pf = H¹-Sⁿ≅0 m
 Hⁿ-Sᵐ≅0 (suc n) zero pf = Hⁿ-S¹≅0 n
 Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
                            □ Hⁿ-Sᵐ≅0 n m λ p → pf (cong suc p)
+
+
+-------------- A nice packaging for the Hⁿ-Sⁿ  ----------------
+
+code : (m n : ℕ) → Type ℓ-zero
+code zero     zero   = GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
+code zero    (suc n) = GroupIso (coHomGr 0 (S₊ (suc n))) ℤGroup
+code (suc m)  zero   = GroupIso (coHomGr (suc m) (S₊ 0)) UnitGroup₀
+code (suc m) (suc n) with (discreteℕ m n)
+... | yes p = GroupIso (coHomGr (suc n) (S₊ (suc n))) ℤGroup
+... | no ¬p = GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup₀
+
+Hᵐ-Sⁿ : (m n : ℕ) → code m n
+Hᵐ-Sⁿ zero     zero   = H⁰-S⁰≅ℤ×ℤ
+Hᵐ-Sⁿ zero    (suc n) = H⁰-Sⁿ≅ℤ n
+Hᵐ-Sⁿ (suc m)  zero   = Hⁿ-S⁰≅0 m
+Hᵐ-Sⁿ (suc m) (suc n) with discreteℕ m n
+... | yes p = Hⁿ-Sⁿ≅ℤ n
+... | no ¬p = Hⁿ-Sᵐ≅0 n m λ e → ¬p (sym e)
+
 
 
 -- Test functions

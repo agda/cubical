@@ -1,182 +1,139 @@
+{-
+
+This file contains a summary of the proofs that π₄(S³) ≡ ℤ/2ℤ
+
+- The first proof "π₄S³≃ℤ/2ℤ" closely follows Brunerie's thesis.
+
+- The second proof "π₄S³≃ℤ/2ℤ-direct" is much more direct and avoids
+  all of the more advanced constructions in chapters 4-6 in Brunerie's
+  thesis.
+
+- The third proof "π₄S³≃ℤ/2ℤ-computation" uses ideas from the direct
+  proof to define an alternative Brunerie number which computes to -2
+  in a few seconds and the main result is hence obtained by computation
+  as conjectured on page 85 of Brunerie's thesis.
+
+The --experimental-lossy-unification flag is used to speed up type checking.
+The file still type checks without it, but it's a lot slower (about 10 times).
+
+-}
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.Summary where
 
-{-
-This file contains a summary of what remains for π₄S³≅ℤ/2 to be proved.
-See the module π₄S³ at the end of this file.
--}
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Function
 
-open import Cubical.Data.Nat
-open import Cubical.Data.Sum
-open import Cubical.Data.Sigma
-open import Cubical.Data.Int
-  renaming (_·_ to _·ℤ_ ; _+_ to _+ℤ_)
-
-open import Cubical.Homotopy.Group.Base
-open import Cubical.Homotopy.HopfInvariant.Base
-open import Cubical.Homotopy.HopfInvariant.Homomorphism
-open import Cubical.Homotopy.HopfInvariant.HopfMap
-open import Cubical.Homotopy.Whitehead
-open import Cubical.Algebra.Group.Instances.IntMod
-open import Cubical.Foundations.Isomorphism
+open import Cubical.Data.Nat.Base
+open import Cubical.Data.Int.Base
+open import Cubical.Data.Sigma.Base
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.SetTruncation
 
-open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
+open import Cubical.Homotopy.HopfInvariant.Base
+open import Cubical.Homotopy.HopfInvariant.Homomorphism
+open import Cubical.Homotopy.HopfInvariant.HopfMap
+open import Cubical.Homotopy.HopfInvariant.Brunerie
+open import Cubical.Homotopy.Whitehead
+open import Cubical.Homotopy.Group.Base hiding (π)
+open import Cubical.Homotopy.Group.Pi3S2
+open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber
+open import Cubical.Homotopy.Group.Pi4S3.DirectProof as DirectProof
+
+open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.Instances.Bool
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.GroupPath
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int
+open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.Group.ZAction
 
 
-[_]× : ∀ {ℓ} {X : Pointed ℓ} {n m : ℕ}
-  → π' (suc n) X × π' (suc m) X → π' (suc (n + m)) X
-[_]× (f , g) = [ f ∣ g ]π'
+-- Homotopy groups (shifted version of π'Gr to get nicer numbering)
+π : ℕ → Pointed₀ → Group₀
+π n X = π'Gr (predℕ n) X
 
--- Some type abbreviations (unproved results)
-π₃S²-gen : Type
-π₃S²-gen = gen₁-by (π'Gr 2 (S₊∙ 2)) ∣ HopfMap ∣₂
 
-π₄S³≅ℤ/something : GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2))
-                 → Type
-π₄S³≅ℤ/something eq =
-  GroupIso (π'Gr 3 (S₊∙ 3))
-           (ℤ/ abs (invEq (fst eq)
-             [ ∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂ ]×))
+-- Nicer notation for the spheres (as pointed types)
+𝕊² 𝕊³ : Pointed₀
+𝕊² = S₊∙ 2
+𝕊³ = S₊∙ 3
 
-miniLem₁ : Type
-miniLem₁ = (g : ℤ) → gen₁-by ℤGroup g → (g ≡ 1) ⊎ (g ≡ -1)
 
-miniLem₂ : Type
-miniLem₂ = (ϕ : GroupEquiv ℤGroup ℤGroup) (g : ℤ)
-      → (abs g ≡ abs (fst (fst ϕ) g))
+-- The Brunerie number; defined in Cubical.Homotopy.Group.Pi4S3.BrunerieNumber
+-- as "abs (HopfInvariant-π' 0 ([ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂) ]×))"
+β : ℕ
+β = Brunerie
 
--- some minor group lemmas
-groupLem-help : miniLem₁ → (g : ℤ) →
-      gen₁-by ℤGroup g →
-      (ϕ : GroupHom ℤGroup ℤGroup) →
-      (fst ϕ g ≡ pos 1) ⊎ (fst ϕ g ≡ negsuc 0)
-    → isEquiv (fst ϕ)
-groupLem-help grlem1 g gen ϕ = main (grlem1 g gen)
-  where
-  isEquiv- : isEquiv (-_)
-  isEquiv- = isoToIsEquiv (iso -_ -_ -Involutive -Involutive)
 
-  lem : fst ϕ (pos 1) ≡ pos 1 → fst ϕ ≡ idfun _
-  lem p = funExt lem2
-    where
-    lem₁ : (x₁ : ℕ) → fst ϕ (pos x₁) ≡ idfun ℤ (pos x₁)
-    lem₁ zero = IsGroupHom.pres1 (snd ϕ)
-    lem₁ (suc zero) = p
-    lem₁ (suc (suc n)) =
-      IsGroupHom.pres· (snd ϕ) (pos (suc n)) 1
-                             ∙ cong₂ _+ℤ_ (lem₁ (suc n)) p
+-- The connection to π₄(S³) is then also proved in the BrunerieNumber
+-- file following Corollary 3.4.5 in Guillaume Brunerie's PhD thesis.
+βSpec : GroupEquiv (π 4 𝕊³) (ℤGroup/ β)
+βSpec = BrunerieIso
 
-    lem2 : (x₁ : ℤ) → fst ϕ x₁ ≡ idfun ℤ x₁
-    lem2 (pos n) = lem₁ n
-    lem2 (negsuc zero) =
-      IsGroupHom.presinv (snd ϕ) 1 ∙ cong (λ x → pos 0 - x) p
-    lem2 (negsuc (suc n)) =
-        (cong (fst ϕ) (sym (+Comm (pos 0) (negsuc (suc n))))
-      ∙ IsGroupHom.presinv (snd ϕ) (pos (suc (suc n))))
-      ∙∙ +Comm (pos 0) _
-      ∙∙ cong (-_) (lem₁ (suc (suc n)))
 
-  lem₂ : fst ϕ (negsuc 0) ≡ pos 1 → fst ϕ ≡ -_
-  lem₂ p = funExt lem2
-    where
-    s = IsGroupHom.presinv (snd ϕ) (negsuc 0)
-     ∙∙ +Comm (pos 0) _
-     ∙∙ cong -_ p
+-- Ideally one could prove that β is 2 by normalization, but this does
+-- not seem to terminate before we run out of memory. To try normalize
+-- this use "C-u C-c C-n β≡2" (which normalizes the term, ignoring
+-- abstract's). So instead we prove this by hand as in the second half
+-- of Guillaume's thesis.
+β≡2 : β ≡ 2
+β≡2 = Brunerie≡2
 
-    lem2 : (n : ℤ) → fst ϕ n ≡ - n
-    lem2 (pos zero) = IsGroupHom.pres1 (snd ϕ)
-    lem2 (pos (suc zero)) = s
-    lem2 (pos (suc (suc n))) =
-         IsGroupHom.pres· (snd ϕ) (pos (suc n)) 1
-       ∙ cong₂ _+ℤ_ (lem2 (pos (suc n))) s
-    lem2 (negsuc zero) = p
-    lem2 (negsuc (suc n)) =
-         IsGroupHom.pres· (snd ϕ) (negsuc n) (negsuc 0)
-       ∙ cong₂ _+ℤ_ (lem2 (negsuc n)) p
 
-  main : (g ≡ pos 1) ⊎ (g ≡ negsuc 0)
-      → (fst ϕ g ≡ pos 1) ⊎ (fst ϕ g ≡ negsuc 0)
-      → isEquiv (fst ϕ)
-  main (inl p) =
-    J (λ g p → (fst ϕ g ≡ pos 1)
-             ⊎ (fst ϕ g ≡ negsuc 0) → isEquiv (fst ϕ))
-      (λ { (inl x) → subst isEquiv (sym (lem x)) (snd (idEquiv _))
-         ; (inr x) → subst isEquiv
-                            (sym (lem₂ (IsGroupHom.presinv (snd ϕ) (pos 1)
-                          ∙ (cong (λ x → pos 0 - x) x))))
-                            isEquiv- })
-                 (sym p)
-  main (inr p) =
-    J (λ g p → (fst ϕ g ≡ pos 1)
-             ⊎ (fst ϕ g ≡ negsuc 0) → isEquiv (fst ϕ))
-      (λ { (inl x) → subst isEquiv (sym (lem₂ x)) isEquiv-
-         ; (inr x) → subst isEquiv
-                       (sym (lem (
-                       IsGroupHom.presinv (snd ϕ) (negsuc 0)
-                     ∙ cong (λ x → pos 0 - x) x)))
-                    (snd (idEquiv _))})
-      (sym p)
+-- This involves a lot of theory, for example that π₃(S²) ≃ ℤGroup where
+-- the underlying map is induced by the Hopf invariant (which involves
+-- the cup product on cohomology).
+_ : GroupEquiv (π 3 𝕊²) ℤGroup
+_ = hopfInvariantEquiv
 
-groupLem : {G : Group₀}
-         → miniLem₁
-         → GroupEquiv ℤGroup G
-         → (g : fst G)
-         → gen₁-by G g
-         → (ϕ : GroupHom G ℤGroup)
-         → (fst ϕ g ≡ 1) ⊎ (fst ϕ g ≡ -1)
-         → isEquiv (fst ϕ)
-groupLem {G = G} s =
-  GroupEquivJ
-    (λ G _ → (g : fst G)
-         → gen₁-by G g
-         → (ϕ : GroupHom G ℤGroup)
-         → (fst ϕ g ≡ 1) ⊎ (fst ϕ g ≡ -1)
-         → isEquiv (fst ϕ))
-    (groupLem-help s)
+-- Which is a consequence of the fact that π₃(S²) is generated by the
+-- Hopf map.
+_ : gen₁-by (π 3 𝕊²) ∣ HopfMap ∣₂
+_ = π₂S³-gen-by-HopfMap
 
--- summary
-module π₄S³
-  (mini-lem₁ : miniLem₁)
-  (mini-lem₂ : miniLem₂)
-  (ℤ≅π₃S² : GroupEquiv ℤGroup (π'Gr 2 (S₊∙ 2)))
-  (gen-by-HopfMap : π₃S²-gen)
-  (π₄S³≅ℤ/whitehead : π₄S³≅ℤ/something ℤ≅π₃S²)
-  (hopfWhitehead :
-       abs (HopfInvariant-π' 0
-             ([ (∣ idfun∙ _ ∣₂ , ∣ idfun∙ _ ∣₂) ]×))
-     ≡ 2)
-  where
-  π₄S³ = π'Gr 3 (S₊∙ 3)
+-- etc. For more details see the proof of "Brunerie≡2".
 
-  hopfInvariantEquiv : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤGroup
-  fst (fst hopfInvariantEquiv) = HopfInvariant-π' 0
-  snd (fst hopfInvariantEquiv) =
-    groupLem mini-lem₁ ℤ≅π₃S² ∣ HopfMap ∣₂
-             gen-by-HopfMap
-             (GroupHom-HopfInvariant-π' 0)
-             (abs→⊎ _ _ HopfInvariant-HopfMap)
-  snd hopfInvariantEquiv = snd (GroupHom-HopfInvariant-π' 0)
 
-  lem : ∀ {G : Group₀} (ϕ ψ : GroupEquiv ℤGroup G) (g : fst G)
-      → abs (invEq (fst ϕ) g) ≡ abs (invEq (fst ψ) g)
-  lem =
-    GroupEquivJ
-      (λ G ϕ → (ψ : GroupEquiv ℤGroup G) (g : fst G)
-      → abs (invEq (fst ϕ) g) ≡ abs (invEq (fst ψ) g))
-      λ ψ → mini-lem₂ (invGroupEquiv ψ)
+-- Combining all of this gives us the desired equivalence of groups:
+π₄S³≃ℤ/2ℤ : GroupEquiv (π 4 𝕊³) (ℤGroup/ 2)
+π₄S³≃ℤ/2ℤ = subst (GroupEquiv (π 4 𝕊³)) (cong ℤGroup/_ β≡2) βSpec
 
-  main : GroupIso π₄S³ (ℤ/ 2)
-  main = subst (GroupIso π₄S³)
-               (cong (ℤ/_) (lem ℤ≅π₃S² (invGroupEquiv (hopfInvariantEquiv)) _
-                               ∙ hopfWhitehead))
-               π₄S³≅ℤ/whitehead
+
+-- By the SIP this induces an equality of groups:
+π₄S³≡ℤ/2ℤ : π 4 𝕊³ ≡ ℤGroup/ 2
+π₄S³≡ℤ/2ℤ = GroupPath _ _ .fst π₄S³≃ℤ/2ℤ
+
+
+-- As a sanity check we also establish the equality with Bool:
+π₄S³≡Bool : π 4 𝕊³ ≡ BoolGroup
+π₄S³≡Bool = π₄S³≡ℤ/2ℤ ∙ GroupPath _ _ .fst (GroupIso→GroupEquiv ℤGroup/2≅Bool)
+
+
+-- We also have a much more direct proof in Cubical.Homotopy.Group.Pi4S3.DirectProof,
+-- not relying on any of the more advanced constructions in chapters
+-- 4-6 in Brunerie's thesis (but still using chapters 1-3 for the
+-- construction). For details see the header of that file.
+
+π₄S³≃ℤ/2ℤ-direct : GroupEquiv (π 4 𝕊³) (ℤGroup/ 2)
+π₄S³≃ℤ/2ℤ-direct = DirectProof.BrunerieGroupEquiv
+
+
+-- This direct proof allows us to define a much simplified version of
+-- the Brunerie number:
+β' : ℤ
+β' = fst DirectProof.computer η₃'
+
+-- This number computes definitionally to -2 in a few seconds!
+β'≡-2 : β' ≡ -2
+β'≡-2 = refl
+
+-- As a sanity check we have proved (commented as typechecking is quite slow):
+-- β'Spec : GroupEquiv (π 4 𝕊³) (ℤGroup/ abs β')
+-- β'Spec = DirectProof.BrunerieGroupEquiv'
+
+-- Combining all of this gives us the desired equivalence of groups by
+-- computation as conjectured in Brunerie's thesis:
+π₄S³≃ℤ/2ℤ-computation : GroupEquiv (π 4 𝕊³) (ℤGroup/ 2)
+π₄S³≃ℤ/2ℤ-computation = DirectProof.BrunerieGroupEquiv''

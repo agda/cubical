@@ -7,19 +7,13 @@ Type quotients:
 {-# OPTIONS --safe #-}
 module Cubical.HITs.TypeQuotients.Properties where
 
-open import Cubical.HITs.TypeQuotients.Base
-
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥ ; ∣_∣ ; squash)
-open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣₂ ; squash₂
-                                                              ; isSetSetTrunc)
+open import Cubical.HITs.TypeQuotients.Base
 
 private
   variable

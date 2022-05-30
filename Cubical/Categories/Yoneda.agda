@@ -170,7 +170,7 @@ module _ {C : Category ℓ ℓ} where
 
 
   isFullYO : isFull YO
-  isFullYO x y F[f] = ∣ yo-yo-yo _ F[f] , yoIso {x} (yo y) .Iso.leftInv F[f] ∣
+  isFullYO x y F[f] = ∣ yo-yo-yo _ F[f] , yoIso {x} (yo y) .Iso.leftInv F[f] ∣₁
 
   isFaithfulYO : isFaithful YO
   isFaithfulYO x y f g p i =

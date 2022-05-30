@@ -1,18 +1,18 @@
-AGDA_BIN    ?= agda
-AGDA_FLAGS  ?= -W noNoEquivWhenSplitting -W error
-AGDA_EXEC   ?= $(AGDA_BIN) $(AGDA_FLAGS)
-RTS_OPTIONS = +RTS -H3G -RTS
-AGDA        = $(AGDA_EXEC) $(RTS_OPTIONS)
-
-FIX_WHITESPACE ?= fix-whitespace
-RUNHASKELL     ?= runhaskell
-EVERYTHINGS    =  $(RUNHASKELL) ./Everythings.hs
+AGDA_BIN?=agda
+AGDA_FLAGS?=-W error
+AGDA_EXEC?=$(AGDA_BIN) $(AGDA_FLAGS)
+FIX_WHITESPACE?=fix-whitespace
+RTS_OPTIONS=+RTS -H3G -RTS
+AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
+RUNHASKELL?=runhaskell
+EVERYTHINGS=$(RUNHASKELL) ./Everythings.hs
 
 .PHONY : all
 all : build
 
 .PHONY : build
-build : gen-everythings check
+build :
+	$(MAKE) AGDA_EXEC=$(AGDA_BIN) gen-everythings check
 
 .PHONY : test
 test : check-whitespace gen-and-check-everythings check-README check
@@ -65,3 +65,9 @@ listings: $(wildcard Cubical/**/*.agda)
 clean:
 	find . -type f -name '*.agdai' -delete
 
+.PHONY: debug
+debug : ## Print debug information.
+	@echo "AGDA_BIN              = $(AGDA_BIN)"
+	@echo "AGDA_FLAGS            = $(AGDA_FLAGS)"
+	@echo "AGDA_EXEC             = $(AGDA_EXEC)"
+	@echo "AGDA                  = $(AGDA)"

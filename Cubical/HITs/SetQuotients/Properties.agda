@@ -27,16 +27,17 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Base
 
 open import Cubical.HITs.TypeQuotients as TypeQuot using (_/ₜ_ ; [_] ; eq/)
-open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥ ; ∣_∣ ; squash)
-open import Cubical.HITs.SetTruncation as SetTrunc using (∥_∥₂ ; ∣_∣₂ ; squash₂
-                                                              ; isSetSetTrunc)
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
+  using (∥_∥₁ ; ∣_∣₁ ; squash₁) renaming (rec to propRec)
+open import Cubical.HITs.SetTruncation as SetTrunc
+  using (∥_∥₂ ; ∣_∣₂ ; squash₂ ; isSetSetTrunc)
 
 
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A B C : Type ℓ
-    R S T : A → A → Type ℓ
+    A B C Q : Type ℓ
+    R S T W : A → A → Type ℓ
 
 elimProp : {P : A / R → Type ℓ}
   → (∀ x → isProp (P x))
@@ -67,6 +68,14 @@ elimProp3 prop f =
   elimProp (λ x → isPropΠ2 (prop x)) λ a →
   elimProp2 (prop [ a ]) (f a)
 
+elimProp4 : {P : A / R → B / S → C / T → Q / W → Type ℓ}
+  → (∀ x y z t → isProp (P x y z t))
+  → (∀ a b c d → P [ a ] [ b ] [ c ] [ d ])
+  → ∀ x y z t → P x y z t
+elimProp4 prop f =
+  elimProp (λ x → isPropΠ3 (prop x)) λ a →
+  elimProp3 (prop [ a ]) (f a)
+
 -- sometimes more convenient:
 elimContr : {P : A / R → Type ℓ}
   → (∀ a → isContr (P [ a ]))
@@ -84,7 +93,7 @@ elimContr2 contr =
 
 -- lemma 6.10.2 in hott book
 []surjective : (x : A / R) → ∃[ a ∈ A ] [ a ] ≡ x
-[]surjective = elimProp (λ x → squash) (λ a → ∣ a , refl ∣)
+[]surjective = elimProp (λ x → squash₁) (λ a → ∣ a , refl ∣₁)
 
 elim : {P : A / R → Type ℓ}
   → (∀ x → isSet (P x))
@@ -300,20 +309,20 @@ discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
 
 
 -- Quotienting by the truncated relation is equivalent to quotienting by untruncated relation
-truncRelIso : Iso (A / R) (A / (λ a b → ∥ R a b ∥))
-Iso.fun truncRelIso = rec squash/ [_] λ _ _ r → eq/ _ _ ∣ r ∣
+truncRelIso : Iso (A / R) (A / (λ a b → ∥ R a b ∥₁))
+Iso.fun truncRelIso = rec squash/ [_] λ _ _ r → eq/ _ _ ∣ r ∣₁
 Iso.inv truncRelIso = rec squash/ [_] λ _ _ → PropTrunc.rec (squash/ _ _) λ r → eq/ _ _ r
 Iso.rightInv truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
 Iso.leftInv truncRelIso = elimProp (λ _ → squash/ _ _) λ _ → refl
 
-truncRelEquiv : A / R ≃ A / (λ a b → ∥ R a b ∥)
+truncRelEquiv : A / R ≃ A / (λ a b → ∥ R a b ∥₁)
 truncRelEquiv = isoToEquiv truncRelIso
 
 -- Using this we can obtain a useful characterization of
 -- path-types for equivalence relations (not prop-valued)
 -- and their quotients
 
-isEquivRel→TruncIso : isEquivRel R → (a b : A) → Iso ([ a ] ≡ [ b ]) ∥ R a b ∥
+isEquivRel→TruncIso : isEquivRel R → (a b : A) → Iso ([ a ] ≡ [ b ]) ∥ R a b ∥₁
 isEquivRel→TruncIso {A = A} {R = R} Req a b =
   compIso
     (isProp→Iso (squash/ _ _) (squash/ _ _)
@@ -321,8 +330,8 @@ isEquivRel→TruncIso {A = A} {R = R} Req a b =
     (isEquivRel→effectiveIso (λ _ _ → PropTrunc.isPropPropTrunc) ∥R∥eq a b)
   where
   open isEquivRel
-  ∥R∥eq : isEquivRel λ a b → ∥ R a b ∥
-  reflexive ∥R∥eq a = ∣ reflexive Req a ∣
+  ∥R∥eq : isEquivRel λ a b → ∥ R a b ∥₁
+  reflexive ∥R∥eq a = ∣ reflexive Req a ∣₁
   symmetric ∥R∥eq a b = PropTrunc.map (symmetric Req a b)
   transitive ∥R∥eq a b c = PropTrunc.map2 (transitive Req a b c)
 
@@ -332,3 +341,17 @@ Iso.fun (relBiimpl→TruncIso R→S S→R) = rec squash/ [_] λ _ _ Rab → eq/ 
 Iso.inv (relBiimpl→TruncIso R→S S→R) = rec squash/ [_] λ _ _ Sab → eq/ _ _ (S→R Sab)
 Iso.rightInv (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
 Iso.leftInv (relBiimpl→TruncIso R→S S→R) = elimProp (λ _ → squash/ _ _) λ _ → refl
+
+descendMapPath : {M : Type ℓ} (f g : A / R → M) (isSetM : isSet M)
+               → ((x : A) → f [ x ] ≡ g [ x ])
+               → f ≡ g
+descendMapPath f g isSetM path i x =
+  propRec
+    (isSetM (f x) (g x))
+    (λ {(x' , p) →
+                        f x        ≡⟨ cong f (sym p) ⟩
+                        f [ x' ]   ≡⟨ path x' ⟩
+                        g [ x' ]   ≡⟨ cong g p ⟩
+                        g x   ∎ })
+    ([]surjective x)
+    i

@@ -107,6 +107,9 @@ IsCommRingEquiv R e S = IsRingHom (CommRingStr→RingStr R) (e .fst) (CommRingSt
 CommRingEquiv : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingEquiv R S = Σ[ e ∈ (R .fst ≃ S .fst) ] IsCommRingEquiv (R .snd) e (S .snd)
 
+CommRingEquiv→CommRingHom : {A : CommRing ℓ} {B : CommRing ℓ'} → CommRingEquiv A B → CommRingHom A B
+CommRingEquiv→CommRingHom (e , eIsHom) = e .fst , eIsHom
+
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsCommRing 0r 1r _+_ _·_ -_)
 isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
@@ -140,5 +143,33 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
 CommRingPath : (R S : CommRing ℓ) → CommRingEquiv R S ≃ (R ≡ S)
 CommRingPath = ∫ 𝒮ᴰ-CommRing .UARel.ua
 
+uaCommRing : {A B : CommRing ℓ} → CommRingEquiv A B → A ≡ B
+uaCommRing {A = A} {B = B} = equivFun (CommRingPath A B)
+
 isSetCommRing : ((R , str) : CommRing ℓ) → isSet R
 isSetCommRing (R , str) = str .CommRingStr.is-set
+
+CommRingIso : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
+CommRingIso R S = Σ[ e ∈ Iso (R .fst) (S .fst) ]
+                     IsRingHom (CommRingStr→RingStr (R .snd)) (e .fun) (CommRingStr→RingStr (S .snd))
+
+CommRingEquivIsoCommRingIso : (R : CommRing ℓ) (S : CommRing ℓ') → Iso (CommRingEquiv R S) (CommRingIso R S)
+fst (fun (CommRingEquivIsoCommRingIso R S) e) = equivToIso (e .fst)
+snd (fun (CommRingEquivIsoCommRingIso R S) e) = e .snd
+fst (inv (CommRingEquivIsoCommRingIso R S) e) = isoToEquiv (e .fst)
+snd (inv (CommRingEquivIsoCommRingIso R S) e) = e .snd
+rightInv (CommRingEquivIsoCommRingIso R S) (e , he) =
+  Σ≡Prop (λ e → isPropIsRingHom (snd (CommRing→Ring R)) (e .fun) (snd (CommRing→Ring S)))
+         rem
+  where
+  rem : equivToIso (isoToEquiv e) ≡ e
+  fun (rem i) x = fun e x
+  inv (rem i) x = inv e x
+  rightInv (rem i) b j = CommRingStr.is-set (snd S) (fun e (inv e b)) b (rightInv e b) (rightInv e b) i j
+  leftInv (rem i) a j = CommRingStr.is-set (snd R) (inv e (fun e a)) a (retEq (isoToEquiv e) a) (leftInv e a) i j
+leftInv (CommRingEquivIsoCommRingIso R S) e =
+  Σ≡Prop (λ e → isPropIsRingHom (snd (CommRing→Ring R)) (e .fst) (snd (CommRing→Ring S)))
+         (equivEq refl)
+
+isGroupoidCommRing : isGroupoid (CommRing ℓ)
+isGroupoidCommRing _ _ = isOfHLevelRespectEquiv 2 (CommRingPath _ _) (isSetRingEquiv _ _)

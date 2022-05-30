@@ -9,8 +9,8 @@ open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Induction.WellFounded
 
-open import Cubical.Data.Fin
 open import Cubical.Data.Sigma as Σ
+open import Cubical.Data.Fin
 open import Cubical.Data.NatPlusOne
 
 open import Cubical.HITs.PropositionalTruncation as PropTrunc
@@ -19,6 +19,8 @@ open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Nat.Divisibility
+
+open import Cubical.Relation.Nullary
 
 private
   variable
@@ -159,3 +161,8 @@ isGCD-multʳ : ∀ k → isGCD m n d
 isGCD-multʳ {m} {n} {d} k dGCD = gcd≡→isGCD (gcd-factorʳ m n k ∙ cong (_· k) r)
   where r : gcd m n ≡ d
         r = isGCD→gcd≡ dGCD
+
+-- Inequality for strict divisibility
+
+stDivIneqGCD : ¬ m ≡ 0 → ¬ m ∣ n → (g : GCD m n) → g .fst < m
+stDivIneqGCD p q g = stDivIneq p q (g .snd .fst .fst) (g .snd .fst .snd)

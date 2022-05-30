@@ -25,7 +25,7 @@ open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 
-open import Cubical.HITs.PropositionalTruncation hiding (map)
+open import Cubical.HITs.PropositionalTruncation renaming (map to pMap)
 
 private
   variable
@@ -77,6 +77,21 @@ module _ {A : Type ℓ} {B : Type ℓ'} {G : GroupStr A} {f : A → B} {H : Grou
   makeIsGroupHom .pres1 = hom1g G f H pres
   makeIsGroupHom .presinv = homInv G f H pres
 
+isGroupHomInv : (f : GroupEquiv G H) → IsGroupHom (H .snd) (invEq (fst f)) (G .snd)
+isGroupHomInv {G = G} {H = H} f = makeIsGroupHom λ h h' →
+  isInj-f _ _
+    (f' (g (h ⋆² h'))        ≡⟨ secEq (fst f) _ ⟩
+     (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (secEq (fst f) h) (secEq (fst f) h')) ⟩
+     (f' (g h) ⋆² f' (g h')) ≡⟨ sym (pres· (snd f) _ _) ⟩
+     f' (g h ⋆¹ g h') ∎)
+  where
+  f' = fst (fst f)
+  _⋆¹_ = _·_ (snd G)
+  _⋆²_ = _·_ (snd H)
+  g = invEq (fst f)
+
+  isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
+  isInj-f x y = invEq (_ , isEquiv→isEmbedding (snd (fst f)) x y)
 
 -- H-level results
 isPropIsGroupHom : (G : Group ℓ) (H : Group ℓ') {f : ⟨ G ⟩ → ⟨ H ⟩}
@@ -94,7 +109,7 @@ isSetGroupHom {G = G} {H = H} =
   isSetΣ (isSetΠ λ _ → is-set (snd H)) λ _ → isProp→isSet (isPropIsGroupHom G H)
 
 isPropIsInIm : (f : GroupHom G H) (x : ⟨ H ⟩) → isProp (isInIm f x)
-isPropIsInIm f x = squash
+isPropIsInIm f x = squash₁
 
 isSetIm : (f : GroupHom G H) → isSet (Im f)
 isSetIm {H = H} f = isSetΣ (is-set (snd H)) λ x → isProp→isSet (isPropIsInIm f x)
@@ -174,6 +189,17 @@ snd (GroupHom≡ {G = G} {H = H} {f = f} {g = g} p i) = p-hom i
   p-hom : PathP (λ i → IsGroupHom (G .snd) (p i) (H .snd)) (f .snd) (g .snd)
   p-hom = toPathP (isPropIsGroupHom G H _ _)
 
+-- The composition of surjective maps is surjective
+compSurjective : ∀ {ℓ ℓ' ℓ''} {G : Group ℓ} {H : Group ℓ'} {L : Group ℓ''}
+         → (G→H : GroupHom G H) (H→L : GroupHom H L)
+         → isSurjective G→H → isSurjective H→L
+         → isSurjective (compGroupHom G→H H→L)
+compSurjective G→H H→L surj1 surj2 l =
+  rec squash₁
+    (λ {(h , p)
+      → pMap (λ {(g , q) → g , (cong (fst H→L) q ∙ p)})
+        (surj1 h)})
+    (surj2 l)
 
 -- GroupEquiv identity, composition and inversion
 idGroupEquiv : GroupEquiv G G
@@ -183,22 +209,6 @@ snd idGroupEquiv = makeIsGroupHom λ _ _ → refl
 compGroupEquiv : GroupEquiv F G → GroupEquiv G H → GroupEquiv F H
 fst (compGroupEquiv f g) = compEquiv (fst f) (fst g)
 snd (compGroupEquiv f g) = isGroupHomComp (_ , f .snd) (_ , g .snd)
-
-isGroupHomInv : (f : GroupEquiv G H) → IsGroupHom (H .snd) (invEq (fst f)) (G .snd)
-isGroupHomInv {G = G} {H = H} f = makeIsGroupHom λ h h' →
-  isInj-f _ _
-    (f' (g (h ⋆² h'))        ≡⟨ secEq (fst f) _ ⟩
-     (h ⋆² h')               ≡⟨ sym (cong₂ _⋆²_ (secEq (fst f) h) (secEq (fst f) h')) ⟩
-     (f' (g h) ⋆² f' (g h')) ≡⟨ sym (pres· (snd f) _ _) ⟩
-     f' (g h ⋆¹ g h') ∎)
-  where
-  f' = fst (fst f)
-  _⋆¹_ = _·_ (snd G)
-  _⋆²_ = _·_ (snd H)
-  g = invEq (fst f)
-
-  isInj-f : (x y : ⟨ G ⟩) → f' x ≡ f' y → x ≡ y
-  isInj-f x y = invEq (_ , isEquiv→isEmbedding (snd (fst f)) x y)
 
 invGroupEquiv : GroupEquiv G H → GroupEquiv H G
 fst (invGroupEquiv f) = invEquiv (fst f)
@@ -246,6 +256,9 @@ snd (GroupIsoDirProd iso1 iso2) = makeIsGroupHom λ a b →
 
 
 -- Conversion functions between different notions of group morphisms
+GroupEquiv→GroupHom : GroupEquiv G H → GroupHom G H
+fst (GroupEquiv→GroupHom ((f , _) , _)) = f
+snd (GroupEquiv→GroupHom (_ , isHom)) = isHom
 
 GroupIso→GroupEquiv : GroupIso G H → GroupEquiv G H
 fst (GroupIso→GroupEquiv i) = isoToEquiv (fst i)
@@ -271,7 +284,7 @@ BijectionIso→GroupIso {G = G} {H = H} i = grIso
   inv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .fst
   rightInv (fst grIso) b = rec (helper b) (λ a → a) (surj i b) .snd
   leftInv (fst grIso) b j = rec (helper (f b)) (λ a → a)
-                                 (isPropPropTrunc (surj i (f b)) ∣ b , refl ∣ j) .fst
+                                 (isPropPropTrunc (surj i (f b)) ∣ b , refl ∣₁ j) .fst
   snd grIso = snd (fun i)
 
 BijectionIsoToGroupEquiv : BijectionIso G H → GroupEquiv G H

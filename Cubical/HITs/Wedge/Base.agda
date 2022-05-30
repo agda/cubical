@@ -6,6 +6,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.HITs.Pushout.Base
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+open import Cubical.Foundations.GroupoidLaws
 
 _⋁_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
 _⋁_ (A , ptA) (B , ptB) = Pushout {A = Unit} {B = A} {C = B} (λ _ → ptA) (λ _ → ptB)
@@ -49,3 +50,10 @@ fold⋁ : ∀ {ℓ} {A : Pointed ℓ} → A ⋁ A → typ A
 fold⋁ (inl x) = x
 fold⋁ (inr x) = x
 fold⋁ {A = A} (push a i) = snd A
+
+id∨→∙id : ∀ {ℓ} {A : Pointed ℓ} → ∨→∙ (idfun∙ A) (idfun∙ A) ≡ (fold⋁ , refl)
+id∨→∙id {A = A} =
+  ΣPathP ((funExt (λ { (inl x) → refl
+                     ; (inr x) → refl
+                     ; (push a i) j → rUnit (λ _ → pt A) (~ j) i}))
+                , refl)

@@ -1,9 +1,12 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Homotopy.Whitehead where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma

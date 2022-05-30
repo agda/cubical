@@ -100,14 +100,42 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
                    → isConeMor cc limCone k → limArrow c cc ≡ k
     limArrowUnique c cc k hk = cong fst (univProp c cc .snd (k , hk))
 
-  -- TODO: define limOfArrows
+  open LimCone
+  limOfArrows : (D₁ D₂ : Functor J C)
+                (CC₁ : LimCone D₁) (CC₂ : LimCone D₂)
+                (f : (u : ob J) → C [ D₁ .F-ob u , D₂ .F-ob u ])
+                (fNat : {u v : ob J} (e : J [ u , v ])
+                      →  f u ⋆⟨ C ⟩ D₂ .F-hom e ≡ D₁ .F-hom e ⋆⟨ C ⟩ f v)
+              → C [ CC₁ .lim , CC₂ .lim ]
+  limOfArrows D₁ D₂ CC₁ CC₂ f fNat = limArrow CC₂ (CC₁ .lim) coneD₂Lim₁
+   where
+   coneD₂Lim₁ : Cone D₂ (CC₁ .lim)
+   coneOut coneD₂Lim₁ v = limOut CC₁ v ⋆⟨ C ⟩ f v
+   coneOutCommutes coneD₂Lim₁ {u = u} {v = v} e =
+     limOut CC₁ u ⋆⟨ C ⟩ f u ⋆⟨ C ⟩ D₂ .F-hom e   ≡⟨ ⋆Assoc C _ _ _ ⟩
+     limOut CC₁ u ⋆⟨ C ⟩ (f u ⋆⟨ C ⟩ D₂ .F-hom e) ≡⟨ cong (λ x → seq' C (limOut CC₁ u) x) (fNat e) ⟩
+     limOut CC₁ u ⋆⟨ C ⟩ (D₁ .F-hom e ⋆⟨ C ⟩ f v) ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+     limOut CC₁ u ⋆⟨ C ⟩ D₁ .F-hom e ⋆⟨ C ⟩ f v   ≡⟨ cong (λ x → x ⋆⟨ C ⟩ f v) (limOutCommutes CC₁ e) ⟩
+     limOut CC₁ v ⋆⟨ C ⟩ f v ∎
+
+
+--precomposition with a functor
+open Category
+open Functor
+open Cone
+F-cone : {ℓJ ℓJ' ℓC ℓC' ℓE ℓE' : Level} {J : Category ℓJ ℓJ'} {C : Category ℓC ℓC'} {E : Category ℓE ℓE'}
+         {c : ob C} {D : Functor J C}
+       → (F : Functor C E) → Cone D c → Cone (funcComp F D) (F .F-ob c)
+coneOut (F-cone F cc) v = F .F-hom (cc .coneOut v)
+coneOutCommutes (F-cone F cc) e = F-triangle F (cc .coneOutCommutes e)
+
 
 -- A category is complete if it has all limits
 Limits : {ℓJ ℓJ' ℓC ℓC' : Level} → Category ℓC ℓC' → Type _
 Limits {ℓJ} {ℓJ'} C = (J : Category ℓJ ℓJ') → (D : Functor J C) → LimCone D
 
 hasLimits : {ℓJ ℓJ' ℓC ℓC' : Level} → Category ℓC ℓC' → Type _
-hasLimits {ℓJ} {ℓJ'} C = (J : Category ℓJ ℓJ') → (D : Functor J C) → ∥ LimCone D ∥
+hasLimits {ℓJ} {ℓJ'} C = (J : Category ℓJ ℓJ') → (D : Functor J C) → ∥ LimCone D ∥₁
 
 -- Limits of a specific shape J in a category C
 LimitsOfShape : {ℓJ ℓJ' ℓC ℓC' : Level} → Category ℓJ ℓJ' → Category ℓC ℓC' → Type _

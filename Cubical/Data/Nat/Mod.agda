@@ -4,6 +4,7 @@ module Cubical.Data.Nat.Mod where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Empty
 
 -- Defining x mod 0 to be 0. This way all the theorems below are true
 -- for n : ℕ instead of n : ℕ₊₁.
@@ -88,6 +89,52 @@ mod-idempotent {n = suc n} =
                           ∙∙ mod-rUnit (suc n) x
                            ∙ (cong (_mod (suc n)) (+-comm x (suc n)))
 
+zero-charac : (n : ℕ) → n mod n ≡ 0
+zero-charac zero = refl
+zero-charac (suc n) = cong (_mod suc n) (+-comm 0 (suc n))
+                  ∙∙ modIndStep n 0
+                  ∙∙ modIndBase n 0 (n , (+-comm n 1))
+
+zero-charac-gen : (n x : ℕ) → ((x · n) mod n) ≡ 0
+zero-charac-gen zero x = refl
+zero-charac-gen (suc n) zero = refl
+zero-charac-gen (suc n) (suc x) =
+  modIndStep n (x · (suc n)) ∙ zero-charac-gen (suc n) x
+
+mod·mod≡mod : (n x y : ℕ)
+  → (x · y) mod n ≡ (((x mod n) · (y mod n)) mod n)
+mod·mod≡mod zero _ _ = refl
+mod·mod≡mod (suc n) =
+  +induction n _
+    (λ x p → +induction n _
+      (λ y q
+        → cong (modInd n)
+            (cong₂ _·_ (sym (modIndBase n x p)) (sym (modIndBase n y q))))
+      λ y p →
+           cong (modInd n) (sym (·-distribˡ  x (suc n) y))
+        ∙∙ mod+mod≡mod (suc n) (x · suc n) (x · y)
+        ∙∙ cong (λ z → modInd n (z + modInd n (x · y)))
+                (zero-charac-gen (suc n) x)
+        ∙∙ mod-idempotent (x · y)
+        ∙∙ p
+         ∙ cong (_mod (suc n)) (cong (x mod (suc n) ·_)
+                (sym (mod-idempotent y)
+                ∙∙ (λ i → modInd n (mod-rUnit (suc n) 0 i + modInd n y))
+                ∙∙ sym (mod+mod≡mod (suc n) (suc n) y))))
+    λ x p y →
+         (sym (cong (_mod (suc n)) (·-distribʳ (suc n) x y))
+       ∙∙ mod+mod≡mod (suc n) (suc n · y) (x · y)
+       ∙∙ (λ i → modInd n ((cong (_mod (suc n))
+             (·-comm (suc n) y) ∙ zero-charac-gen (suc n) y) i
+             + modInd n (x · y)))
+        ∙ mod-idempotent (x · y))
+      ∙∙ p y
+      ∙∙ cong (_mod (suc n)) (cong (_· y mod (suc n))
+              ((sym (mod-idempotent x)
+              ∙ cong (λ z → (z + x mod (suc n)) mod (suc n))
+                     (mod-rUnit (suc n) 0))
+              ∙ sym (mod+mod≡mod (suc n) (suc n) x)))
+
 mod-rCancel : (n x y : ℕ) → (x + y) mod n ≡ (x + y mod n) mod n
 mod-rCancel zero x y = refl
 mod-rCancel (suc n) x =
@@ -105,12 +152,6 @@ mod-lCancel n x y =
      cong (_mod n) (+-comm x y)
   ∙∙ mod-rCancel n y x
   ∙∙ cong (_mod n) (+-comm y (x mod n))
-
-zero-charac : (n : ℕ) → n mod n ≡ 0
-zero-charac zero = refl
-zero-charac (suc n) = cong (_mod suc n) (+-comm 0 (suc n))
-                  ∙∙ modIndStep n 0
-                  ∙∙ modIndBase n 0 (n , (+-comm n 1))
 
 -- remainder and quotient after division by n
 -- Again, allowing for 0-division to get nicer syntax

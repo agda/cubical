@@ -108,7 +108,7 @@ isEquivPunchOut {i = i} = isEmbedding×isSurjection→isEquiv (isEmbPunchOut , i
   isEmbPunchOut : isEmbedding (punchOut i)
   isEmbPunchOut = injEmbedding isSetFinExcept isSetFin λ {_} {_} → punchOut-injective i _ _
   isSurPunchOut : isSurjection (punchOut i)
-  isSurPunchOut b = ∣ _ , punchOut∘In i b ∣
+  isSurPunchOut b = ∥_∥₁.∣ _ , (punchOut∘In i b) ∣₁
 
 punchOutEquiv : {i : Fin (suc n)} → FinExcept i ≃ Fin n
 punchOutEquiv = _ , isEquivPunchOut

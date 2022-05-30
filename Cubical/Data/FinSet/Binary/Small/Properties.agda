@@ -31,19 +31,19 @@ private
     B : Type ℓ
 
 isBinaryEl : ∀ b → isBinary (El b)
-isBinaryEl ℕ₂ = ∣ idEquiv Bool ∣
+isBinaryEl ℕ₂ = ∣ idEquiv Bool ∣₁
 isBinaryEl (un b c e i)
-  = squash
-      (transp (λ j → ∥ Bool ≃ ua e (i ∧ j) ∥) (~ i) (isBinaryEl b))
-      (transp (λ j → ∥ Bool ≃ ua e (i ∨ ~ j) ∥) i (isBinaryEl c))
+  = squash₁
+      (transp (λ j → ∥ Bool ≃ ua e (i ∧ j) ∥₁) (~ i) (isBinaryEl b))
+      (transp (λ j → ∥ Bool ≃ ua e (i ∨ ~ j) ∥₁) i (isBinaryEl c))
       i
 
 isBinaryEl' : ∀ ℓ b → isBinary (Lift {j = ℓ} (El b))
-isBinaryEl' ℓ ℕ₂ = ∣ LiftEquiv ∣
+isBinaryEl' ℓ ℕ₂ = ∣ LiftEquiv ∣₁
 isBinaryEl' ℓ (un b c e i)
-  = squash
-      (transp (λ j → ∥ Bool ≃ Lift {j = ℓ} (ua e (i ∧ j)) ∥) (~ i) (isBinaryEl' ℓ b))
-      (transp (λ j → ∥ Bool ≃ Lift {j = ℓ} (ua e (i ∨ ~ j)) ∥) i (isBinaryEl' ℓ c))
+  = squash₁
+      (transp (λ j → ∥ Bool ≃ Lift {j = ℓ} (ua e (i ∧ j)) ∥₁) (~ i) (isBinaryEl' ℓ b))
+      (transp (λ j → ∥ Bool ≃ Lift {j = ℓ} (ua e (i ∨ ~ j)) ∥₁) i (isBinaryEl' ℓ c))
       i
 
 isPropIsSetEl : isOfHLevelDep 1 (λ b → isSet (El b))
@@ -67,7 +67,7 @@ module Reflection where
 
   open Iso
 
-  lemma : ∀(B : Type₀) → ∥ Bool ≃ B ∥ → Σ[ b ∈ Binary ] El b ≃ B
+  lemma : ∀(B : Type₀) → ∥ Bool ≃ B ∥₁ → Σ[ b ∈ Binary ] El b ≃ B
   lemma B = rec Sprp (_,_ ℕ₂)
     where
     Fprp : isProp (fiber El B)

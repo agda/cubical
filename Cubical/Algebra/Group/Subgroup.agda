@@ -162,7 +162,7 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
   imSubset x = isInIm ϕ x , isPropIsInIm ϕ x
 
   isSubgroupIm : isSubgroup H imSubset
-  id-closed isSubgroupIm = ∣ G.1g , ϕ.pres1 ∣
+  id-closed isSubgroupIm = ∣ G.1g , ϕ.pres1 ∣₁
   op-closed isSubgroupIm =
     map2 λ { (x , hx) (y , hy) → x G.· y , ϕ.pres· x y ∙ λ i → hx i H.· hy i }
   inv-closed isSubgroupIm = map λ { (x , hx) → G.inv x , ϕ.presinv x ∙ cong H.inv hx }
@@ -172,6 +172,19 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
 
   imGroup : Group ℓ
   imGroup = Subgroup→Group _ imSubgroup
+
+  isNormalIm : ((x y : ⟨ H ⟩) → x H.· y ≡ y H.· x)
+            → isNormal imSubgroup
+  isNormalIm comm x y =
+    map λ {(g , p)
+      → g ,
+      (ϕ .fst g                  ≡⟨ p ⟩
+      y                          ≡⟨ sym (H.rid y) ⟩
+      (y H.· H.1g)               ≡⟨ cong (y H.·_) (sym (H.invr x)) ⟩
+      (y H.· (x H.· H.inv x))    ≡⟨ H.assoc y x (H.inv x) ⟩
+      ((y H.· x) H.· H.inv x)    ≡⟨ cong (H._· H.inv x) (comm y x) ⟩
+      ((x H.· y) H.· H.inv x)    ≡⟨ sym (H.assoc x y (H.inv x)) ⟩
+      x H.· y H.· H.inv x        ∎ )}
 
   kerSubset : ℙ ⟨ G ⟩
   kerSubset x = isInKer ϕ x , isPropIsInKer ϕ x

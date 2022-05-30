@@ -12,6 +12,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients renaming (_/_ to _/s_ ; rec to recS ; elim to elimS)
 open import Cubical.HITs.PropositionalTruncation
@@ -35,20 +36,28 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
   open Iso
   open GroupTheory
 
-  private
-    kerϕ : NormalSubgroup G
-    kerϕ = kerSubgroup ϕ , isNormalKer ϕ
 
+  kerNormalSubgroup : NormalSubgroup G
+  kerNormalSubgroup = kerSubgroup ϕ , isNormalKer ϕ
+
+  private
     imϕ : Group ℓ
     imϕ = imGroup ϕ
 
+  -- for completeness:
+  imNormalSubgroup : ((x y : ⟨ H ⟩)
+    → GroupStr._·_ (snd H) x y ≡ GroupStr._·_ (snd H) y x)
+    → NormalSubgroup H
+  imNormalSubgroup comm = imSubgroup ϕ , isNormalIm ϕ comm
+
+  private
     module G = GroupStr (snd G)
     module H = GroupStr (snd H)
     module imG = GroupStr (snd imϕ)
-    module kerG = GroupStr (snd (G / kerϕ))
+    module kerG = GroupStr (snd (G / kerNormalSubgroup))
     module ϕ = IsGroupHom (ϕ .snd)
 
-  f1 : ⟨ imϕ ⟩ → ⟨ G / kerϕ ⟩
+  f1 : ⟨ imϕ ⟩ → ⟨ G / kerNormalSubgroup ⟩
   f1 (x , Hx) = rec→Set ( squash/)
                          (λ { (y , hy) → [ y ]})
                          (λ { (y , hy) (z , hz) → eq/ y z (rem y z hy hz) })
@@ -62,9 +71,9 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
       x H.· H.inv x                 ≡⟨ H.invr x ⟩
       H.1g                          ∎
 
-  f2 : ⟨ G / kerϕ ⟩ → ⟨ imϕ ⟩
-  f2 = recS imG.is-set (λ y → ϕ .fst y , ∣ y , refl ∣)
-                       (λ x y r → Σ≡Prop (λ _ → squash)
+  f2 : ⟨ G / kerNormalSubgroup ⟩ → ⟨ imϕ ⟩
+  f2 = recS imG.is-set (λ y → ϕ .fst y , ∣ y , refl ∣₁)
+                       (λ x y r → Σ≡Prop (λ _ → squash₁)
                        (rem x y r))
     where
     rem : (x y : ⟨ G ⟩) → ϕ .fst (x G.· G.inv y) ≡ H.1g → ϕ .fst x ≡ ϕ .fst y
@@ -78,13 +87,13 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
       H.1g H.· ϕ .fst y                             ≡⟨ H.lid _ ⟩
       ϕ .fst y ∎
 
-  f12 : (x : ⟨ G / kerϕ ⟩) → f1 (f2 x) ≡ x
+  f12 : (x : ⟨ G / kerNormalSubgroup ⟩) → f1 (f2 x) ≡ x
   f12 = elimProp (λ _ → squash/ _ _) (λ _ → refl)
 
   f21 : (x : ⟨ imϕ ⟩) → f2 (f1 x) ≡ x
   f21 (x , hx) = elim {P = λ hx → f2 (f1 (x , hx)) ≡ (x , hx)}
                       (λ _ → imG.is-set _ _)
-                      (λ {(x , hx) → Σ≡Prop (λ _ → squash) hx})
+                      (λ {(x , hx) → Σ≡Prop (λ _ → squash₁) hx})
                       hx
 
   f1-isHom : (x y : ⟨ imϕ ⟩) → f1 (x imG.· y) ≡ f1 x kerG.· f1 y
@@ -93,7 +102,7 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
           (λ _ _ → kerG.is-set _ _) (λ _ _ → refl) hx hy
 
   -- The first isomorphism theorem for groups
-  isoThm1 : GroupIso imϕ (G / kerϕ)
+  isoThm1 : GroupIso imϕ (G / kerNormalSubgroup)
   fun (fst isoThm1) = f1
   inv (fst isoThm1) = f2
   rightInv (fst isoThm1) = f12
@@ -101,5 +110,19 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
   snd isoThm1 = makeIsGroupHom f1-isHom
 
   -- The SIP lets us turn the isomorphism theorem into a path
-  pathThm1 : imϕ ≡ G / kerϕ
+  pathThm1 : imϕ ≡ G / kerNormalSubgroup
   pathThm1 = uaGroup (GroupIso→GroupEquiv isoThm1)
+
+  surjImIso : isSurjective ϕ → GroupIso imϕ H
+  surjImIso surj =
+    BijectionIso→GroupIso
+      (bijIso indHom
+              (uncurry
+                (λ h → elim (λ _ → isPropΠ (λ _ → imG.is-set _ _))
+                  (uncurry λ g y
+                    → λ inker → Σ≡Prop (λ _ → squash₁) inker)))
+              λ b → map (λ x → (b , ∣ x ∣₁) , refl) (surj b))
+    where
+    indHom : GroupHom imϕ H
+    fst indHom = fst
+    snd indHom = makeIsGroupHom λ _ _ → refl
