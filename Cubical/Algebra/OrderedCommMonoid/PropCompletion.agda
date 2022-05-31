@@ -193,19 +193,27 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
     Poset structure on M↑
   -}
   _≤↑_ : (s l : M↑) → Type _
-  s ≤↑ l = (m : fst M) → fst ((fst s) m) → fst ((fst l) m)
+  s ≤↑ l = (m : fst M) → fst ((fst l) m) → fst ((fst s) m)
+
+  isBounded→≤↑ : (s : M↑) → isBounded s → ∃[ m ∈ fst M ] (s ≤↑ (m ^↑))
+  isBounded→≤↑ s =
+    propTruncRec
+      isPropPropTrunc
+      λ {(m , mIsBound)
+           → ∣ m , (λ n m≤n → snd s m n m≤n mIsBound) ∣₁
+        }
 
   ≤↑IsProp : (s l : M↑) → isProp (s ≤↑ l)
-  ≤↑IsProp s l = isPropΠ2 (λ x p → snd (fst l x))
+  ≤↑IsProp s l = isPropΠ2 (λ x p → snd (fst s x))
 
   ≤↑IsRefl : (s : M↑) → s ≤↑ s
   ≤↑IsRefl s = λ m x → x
 
   ≤↑IsTrans : (s l t : M↑) → s ≤↑ l → l ≤↑ t → s ≤↑ t
-  ≤↑IsTrans s l t p q x = (q x) ∘ (p x)
+  ≤↑IsTrans s l t p q x = (p x) ∘ (q x)
 
   ≤↑IsAntisym : (s l : M↑) → s ≤↑ l → l ≤↑ s → s ≡ l
-  ≤↑IsAntisym s l p q = pathFromImplications _ _ p q
+  ≤↑IsAntisym s l p q = pathFromImplications _ _ q p
 
   {-
     Compatability with the monoid structure
