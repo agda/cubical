@@ -76,7 +76,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
   open Join L
   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L))
   open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
-      using (∧≤RCancel ; ∧≤LCancel ; ≤-∧Pres)
+      using (∧≤RCancel ; ∧≤LCancel ; ≤-∧Pres ; ≤-∧RPres ; ≤-∧LPres)
   open PosetStr (IndPoset .snd) hiding (_≤_)
   open IsBasis ⦃...⦄
   open condCone
@@ -227,7 +227,14 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
         compIsConeMor : isConeMor (βCone c v v∈L' cc)
                          (F-cone F (B⋁Cone (λ i → β v i , β∈L' v v∈L' i) (⋁β∈L' v v∈L' v≤⋁α)))
                          (fᵤ ⋆⟨ C ⟩ e)
-        compIsConeMor (sing i) = {!!}
+        compIsConeMor (sing i) =
+            (fᵤ ⋆⟨ C ⟩ e) ⋆⟨ C ⟩ F .F-hom (ind≤⋁ (β v) i)
+
+          ≡⟨ {!!} ⟩
+             (coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j (u ∧l α i) (α i) (∧≤LCancel _ _)))
+                                  ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧RPres _ _ _ {!v≤u!}))
+          ≡⟨ {!!} ⟩
+             coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j (v ∧l α i) (α i) (∧≤LCancel _ _)) ∎
         compIsConeMor (pair i j i<j) = {!!}
 
 

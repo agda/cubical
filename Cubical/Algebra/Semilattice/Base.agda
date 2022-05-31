@@ -221,6 +221,9 @@ module MeetSemilattice (L' : Semilattice ℓ) where
  ≤-∧LPres : ∀ x y z → x ≤ y → z ∧l x ≤ z ∧l y
  ≤-∧LPres x y z x≤y = commAssocSwap z x z y ∙∙ cong (_∧l (x ∧l y)) (idem z) ∙∙ cong (z ∧l_) x≤y
 
+ ≤-∧RPres : ∀ x y z → x ≤ y → x ∧l z ≤ y ∧l z
+ ≤-∧RPres x y z x≤y = commAssocSwap x z y z ∙∙ cong (x ∧l y ∧l_) (idem z) ∙∙ cong (_∧l z) x≤y
+
  ≤-∧Pres : ∀ x y z w → x ≤ y → z ≤ w → x ∧l z ≤ y ∧l w
  ≤-∧Pres x y z w x≤y z≤w = commAssocSwap x z y w ∙ cong₂ _∧l_ x≤y z≤w
 
