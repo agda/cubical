@@ -122,14 +122,21 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                                ⇐∶ l→s n
 
 
-  ↑Pres· : (x y : fst M) → (x · y) ^↑ ≡ (x ^↑) ·↑ (y ^↑)
-  ↑Pres· x y = pathFromImplications ((x · y) ^↑) ((x ^↑) ·↑ (y ^↑)) (⇐) ⇒
+  ^↑Pres· : (x y : fst M) → (x · y) ^↑ ≡ (x ^↑) ·↑ (y ^↑)
+  ^↑Pres· x y = pathFromImplications ((x · y) ^↑) ((x ^↑) ·↑ (y ^↑)) (⇐) ⇒
     where
       ⇐ : (n : fst M) → typeAt n ((x · y) ^↑) → typeAt n ((x ^↑) ·↑ (y ^↑))
-      ⇐ n x·y≤n = {!!}
+      ⇐ n x·y≤n = ∣ (x , y) , ((is-refl _) , ((is-refl _) , x·y≤n)) ∣₁
 
       ⇒ : (n : fst M) → typeAt n ((x ^↑) ·↑ (y ^↑)) → typeAt n ((x · y) ^↑)
-      ⇒ n = {!!}
+      ⇒ n = propTruncRec
+              (snd (fst ((x · y) ^↑) n))
+              λ {((m , l) , x≤m , (y≤l , m·l≤n))
+                  → is-trans _ _ _
+                             (is-trans _ _ _ (MonotoneR x≤m)
+                                             (MonotoneL y≤l))
+                             m·l≤n
+                }
 
   ·↑Comm : (s l : M↑) → s ·↑ l ≡ l ·↑ s
   ·↑Comm s l = M↑Path λ n → cong fst (propPath n)
@@ -145,9 +152,10 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
   ·↑Rid : (s : M↑) → s ·↑ 1↑ ≡ s
   ·↑Rid s = pathFromImplications (s ·↑ 1↑) s (⇒) ⇐
     where ⇒ : (n : fst M) → typeAt n (s ·↑ 1↑) → typeAt n s
-          ⇒ n = propTruncRec (snd (fst s n))
-                             (λ {((a , b) , sa , (1b , a·b≤n))
-                                  → (snd s) a n ( subst (_≤ n) (rid a) (is-trans _ _ _ (MonotoneL 1b) a·b≤n)) sa })
+          ⇒ n = propTruncRec
+                  (snd (fst s n))
+                  (λ {((a , b) , sa , (1b , a·b≤n))
+                     → (snd s) a n ( subst (_≤ n) (rid a) (is-trans _ _ _ (MonotoneL 1b) a·b≤n)) sa })
           ⇐ : (n : fst M) → typeAt n s → typeAt n (s ·↑ 1↑)
           ⇐ n = λ sn → ∣ (n , ε) , (sn , (is-refl _ , subst (_≤ n) (sym (rid n)) (is-refl _))) ∣₁
 
