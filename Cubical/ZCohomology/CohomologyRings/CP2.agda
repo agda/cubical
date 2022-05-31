@@ -20,7 +20,7 @@ open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.DirectSum.Base
@@ -50,13 +50,21 @@ open import Cubical.ZCohomology.CohomologyRings.CupProductProperties
 
 open Iso
 
-
------------------------------------------------------------------------------
--- Definitions
-
-module Equiv-CP2-Properties where
+module ComputeCP²
+  -- functions
+  (e₀ : GroupIso ℤGroup (coHomGr 0 CP²))
+  (e₂ : GroupIso ℤGroup (coHomGr 2 CP²))
+  (e₄ : GroupIso ℤGroup (coHomGr 4 CP²))
+  where
 
   open IsGroupHom
+  -- open pres
+
+-----------------------------------------------------------------------------
+-- Begin Notation
+
+  ---------------------------------------------------------------------------
+  -- Import Notation
 
   open CommRingStr (snd ℤCR) using ()
     renaming
@@ -151,165 +159,146 @@ module Equiv-CP2-Properties where
     ; ·Ldist+   to ·PℤILdist+
     ; is-set    to isSetPℤI     )
 
------------------------------------------------------------------------------
--- Partition of ℕ
 
-  data partℕ (k : ℕ) : Type ℓ-zero where
-    is0  : (k ≡ 0)            → partℕ k
-    is2  : (k ≡ 2)            → partℕ k
-    is4  : (k ≡ 4)            → partℕ k
-    else : (k ≡ 0 → ⊥)
-           × ((k ≡ 2 → ⊥)
-              × (k ≡ 4 → ⊥)) → partℕ k
-
-  part : (k : ℕ) → partℕ k
-  part k with (discreteℕ k 0)
-  ... | yes p = is0 p
-  ... | no ¬p with (discreteℕ k 2)
-  ... |       yes q = is2 q
-  ... |       no ¬q with (discreteℕ k 4)
-  ... |             yes r = is4 r
-  ... |             no ¬r = else (¬p , (¬q , ¬r))
-
-
-  part0 : part 0 ≡ is0 refl
-  part0 = refl
-
-  part2 : part 2 ≡ is2 refl
-  part2 = refl
-
-  part4 : part 4 ≡ is4 refl
-  part4 = refl
-
-
------------------------------------------------------------------------------
--- Some notation
+  ---------------------------------------------------------------------------
+  -- Equiv Notation
 
   ϕ₀ : ℤ → coHom 0 CP²
-  ϕ₀ = inv (fst H⁰CP²≅ℤ)
-  ϕ₀str : IsGroupHom (snd ℤG) ϕ₀ (coHomGr 0 CP² .snd)
-  ϕ₀str = snd (invGroupIso H⁰CP²≅ℤ)
-
-  ϕ₀⁻¹ : coHom 0 CP² → ℤ
-  ϕ₀⁻¹ = fun (fst H⁰CP²≅ℤ)
-  ϕ₀⁻¹str : IsGroupHom (coHomGr 0 CP² .snd) ϕ₀⁻¹ (snd ℤG)
-  ϕ₀⁻¹str = snd H⁰CP²≅ℤ
-
-  ϕ₀-sect : section ϕ₀ ϕ₀⁻¹
-  ϕ₀-sect = leftInv (fst H⁰CP²≅ℤ)
-  ϕ₀-retr : retract ϕ₀ ϕ₀⁻¹
-  ϕ₀-retr = rightInv (fst H⁰CP²≅ℤ)
-
+  ϕ₀ = fun (fst e₀)
+  ϕ₀str = snd e₀
   ϕ₂ : ℤ → coHom 2 CP²
-  ϕ₂ = inv (fst H²CP²≅ℤ)
-  ϕ₂str : IsGroupHom (snd ℤG) ϕ₂ (coHomGr 2 CP² .snd)
-  ϕ₂str = snd (invGroupIso H²CP²≅ℤ)
-
-  ϕ₂⁻¹ : coHom 2 CP² → ℤ
-  ϕ₂⁻¹ = fun (fst H²CP²≅ℤ)
-  ϕ₂⁻¹str : IsGroupHom (coHomGr 2 CP² .snd) ϕ₂⁻¹ (snd ℤG)
-  ϕ₂⁻¹str = snd H²CP²≅ℤ
-
-  ϕ₂-sect : section ϕ₂ ϕ₂⁻¹
-  ϕ₂-sect = leftInv (fst H²CP²≅ℤ)
-  ϕ₂-retr : retract ϕ₂ ϕ₂⁻¹
-  ϕ₂-retr = rightInv (fst H²CP²≅ℤ)
-
+  ϕ₂ = fun (fst e₂)
+  ϕ₂str = snd e₂
   ϕ₄ : ℤ → coHom 4 CP²
-  ϕ₄ = inv (fst H⁴CP²≅ℤ)
-  ϕ₄str : IsGroupHom (snd ℤG) ϕ₄ (coHomGr 4 CP² .snd)
-  ϕ₄str = snd (invGroupIso H⁴CP²≅ℤ)
+  ϕ₄ = fun (fst e₄)
+  ϕ₄str = snd e₄
 
-  ϕ₄⁻¹ : coHom 4 CP² → ℤ
-  ϕ₄⁻¹ = fun (fst H⁴CP²≅ℤ)
-  ϕ₄⁻¹str : IsGroupHom (coHomGr 4 CP² .snd) ϕ₄⁻¹ (snd ℤG)
-  ϕ₄⁻¹str = snd H⁴CP²≅ℤ
+  ϕ₀⁻¹ = inv (fst e₀)
+  ϕ₀⁻¹str = snd (invGroupIso e₀)
+  ϕ₂⁻¹ = inv (fst e₂)
+  ϕ₂⁻¹str = snd (invGroupIso e₂)
+  ϕ₄⁻¹ = inv (fst e₄)
+  ϕ₄⁻¹str = snd (invGroupIso e₄)
 
-  ϕ₄-sect : section ϕ₄ ϕ₄⁻¹
-  ϕ₄-sect = leftInv (fst H⁴CP²≅ℤ)
-  ϕ₄-retr : retract ϕ₄ ϕ₄⁻¹
-  ϕ₄-retr = {!rightInv!} --leftInv (fst (invGroupIso H⁴CP²≅ℤ))
+  ϕ₀-sect = rightInv (fst e₀)
+  ϕ₂-sect = rightInv (fst e₂)
+  ϕ₄-sect = rightInv (fst e₄)
 
--- -----------------------------------------------------------------------------
--- -- Direct Sens on ℤ[x]/<X³>
+  ϕ₀-retr = leftInv (fst e₀)
+  ϕ₂-retr = leftInv (fst e₂)
+  ϕ₄-retr = leftInv (fst e₄)
 
 
---   -----------------------------------------------------------------------------
---   -- Function on ℤ[x]
+-- End Notation
+-----------------------------------------------------------------------------
+-- Begin proof of the equivalence
 
---   ℤ[x]→H*-CP² : ℤ[x] → H* CP²
---   ℤ[x]→H*-CP² = Poly-Rec-Set.f _ _ _ isSetH*
---        0H*
---        ϕ
---        _+H*_
---        +H*Assoc
---        +H*Rid
---        +H*Comm
---        base-neutral-eq
---        base-add-eq
---     where
---     ϕ : (v : Vec ℕ 1) → (a : ℤ) → H* CP²
---     ϕ (zero ∷ []) a = base 0 (ϕ₀ a)
---     ϕ (one ∷ []) a  = base 2 (ϕ₂ a)
---     ϕ (two ∷ []) a  = base 4 (ϕ₄ a)
---     ϕ (suc (suc (suc k)) ∷ []) a = 0H*
+  module _
+    (presϕ₀ : ϕ₀ 1ℤ ≡ 1⌣)
+    (eq⌣0nn : (n : ℕ) → (a : coHom n CP²) → ϕ₀ (pos 1) ⌣ a ≡ a)
+    -- (eq⌣224 : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1))
+    where
 
---     base-neutral-eq : _
---     base-neutral-eq (zero ∷ []) = cong (base 0) (pres1 ϕ₀str) ∙ base-neutral _
---     base-neutral-eq (one ∷ [])  = cong (base 2) (pres1 ϕ₂str) ∙ base-neutral _
---     base-neutral-eq (two ∷ [])  = cong (base 4) (pres1 ϕ₄str) ∙ base-neutral _
---     base-neutral-eq (suc (suc (suc k)) ∷ []) = refl
+    eq⌣224 : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1)
+    eq⌣224 = {!!}
 
---     base-add-eq : _
---     base-add-eq (zero ∷ []) a b = base-add _ _ _ ∙ cong (base 0) (sym (pres· ϕ₀str _ _))
---     base-add-eq (one ∷ []) a b  = base-add _ _ _ ∙ cong (base 2) (sym (pres· ϕ₂str _ _))
---     base-add-eq (two ∷ []) a b  = base-add _ _ _ ∙ cong (base 4) (sym (pres· ϕ₄str _ _))
---     base-add-eq (suc (suc (suc k)) ∷ []) a b = +H*Rid _
+  -----------------------------------------------------------------------------
+  -- Partition of ℕ
 
---   ℤ[x]→H*-CP²-pres1 : ℤ[x]→H*-CP² (1Pℤ) ≡ 1H*
---   ℤ[x]→H*-CP²-pres1 = refl
+    data partℕ (k : ℕ) : Type ℓ-zero where
+      is0  : (k ≡ 0)            → partℕ k
+      is2  : (k ≡ 2)            → partℕ k
+      is4  : (k ≡ 4)            → partℕ k
+      else : (k ≡ 0 → ⊥)
+             × ((k ≡ 2 → ⊥)
+                × (k ≡ 4 → ⊥)) → partℕ k
 
---   ℤ[x]→H*-CP²-map+ : (x y : ℤ[x]) → ℤ[x]→H*-CP² (x +Pℤ y) ≡ ℤ[x]→H*-CP² x +H* ℤ[x]→H*-CP² y
---   ℤ[x]→H*-CP²-map+ x y = refl
+    part : (k : ℕ) → partℕ k
+    part k with (discreteℕ k 0)
+    ... | yes p = is0 p
+    ... | no ¬p with (discreteℕ k 2)
+    ... |       yes q = is2 q
+    ... |       no ¬q with (discreteℕ k 4)
+    ... |             yes r = is4 r
+    ... |             no ¬r = else (¬p , (¬q , ¬r))
 
---   -----------------------------------------------------------------------------
---   -- presCup
 
---   ϕ₀-gen : (n : ℕ) → (f : coHom n CP²) → ϕ₀ (pos 1) ⌣ f ≡ f
---   ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n CP²)) _ _))
---              λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x)))
+    part0 : part 0 ≡ is0 refl
+    part0 = refl
 
---   -- Cup Product 2, 2, 4
---   ϕ₂-ϕ₄-gen :  ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₄ ((pos 1) ·ℤ (pos 1))
---   ϕ₂-ϕ₄-gen = {!!}
+    part2 : part 2 ≡ is2 refl
+    part2 = refl
 
+    part4 : part 4 ≡ is4 refl
+    part4 = refl
+
+  -----------------------------------------------------------------------------
+  -- Direct Sens on ℤ[x]/<X³>
+
+    -- -- Function on ℤ[x]
+    -- ℤ[x]→H*-CP² : ℤ[x] → H* CP²
+    -- ℤ[x]→H*-CP² = Poly-Rec-Set.f _ _ _ isSetH*
+    --      0H*
+    --      ϕ
+    --      _+H*_
+    --      +H*Assoc
+    --      +H*Rid
+    --      +H*Comm
+    --      base-neutral-eq
+    --      base-add-eq
+    --   where
+    --   ϕ : (v : Vec ℕ 1) → (a : ℤ) → H* CP²
+    --   ϕ (zero ∷ []) a = base 0 (ϕ₀ a)
+    --   ϕ (one ∷ []) a  = base 2 (ϕ₂ a)
+    --   ϕ (two ∷ []) a  = base 4 (ϕ₄ a)
+    --   ϕ (suc (suc (suc k)) ∷ []) a = 0H*
+
+    --   base-neutral-eq : _
+    --   base-neutral-eq (zero ∷ []) = cong (base 0) (pres1 ϕ₀str) ∙ base-neutral _
+    --   base-neutral-eq (one ∷ [])  = cong (base 2) (pres1 ϕ₂str) ∙ base-neutral _
+    --   base-neutral-eq (two ∷ [])  = cong (base 4) (pres1 ϕ₄str) ∙ base-neutral _
+    --   base-neutral-eq (suc (suc (suc k)) ∷ []) = refl
+
+    --   base-add-eq : _
+    --   base-add-eq (zero ∷ []) a b = base-add _ _ _ ∙ cong (base 0) (sym (pres· ϕ₀str _ _))
+    --   base-add-eq (one ∷ []) a b  = base-add _ _ _ ∙ cong (base 2) (sym (pres· ϕ₂str _ _))
+    --   base-add-eq (two ∷ []) a b  = base-add _ _ _ ∙ cong (base 4) (sym (pres· ϕ₄str _ _))
+    --   base-add-eq (suc (suc (suc k)) ∷ []) a b = +H*Rid _
+
+    -- ℤ[x]→H*-CP²-pres1 : ℤ[x]→H*-CP² (1Pℤ) ≡ 1H*
+    -- ℤ[x]→H*-CP²-pres1 = cong (base 0) presϕ₀
+
+    -- ℤ[x]→H*-CP²-map+ : (x y : ℤ[x]) → ℤ[x]→H*-CP² (x +Pℤ y) ≡ ℤ[x]→H*-CP² x +H* ℤ[x]→H*-CP² y
+    -- ℤ[x]→H*-CP²-map+ x y = refl
+
+  -- presCup
 
 --  -- Nice packging of the proof
 --   open pres
 
---   presCupInt : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
---                  ℤ[x]→H*-CP² (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
---                ≡ ℤ[x]→H*-CP² (baseP (k ∷ []) a) cup ℤ[x]→H*-CP² (baseP (l ∷ []) b)
---   presCupInt zero a zero b = cong (base 0) (ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₀ ϕ₀str ϕ₀ ϕ₀str (ϕ₀-gen _ _) _ _)
---   presCupInt zero a one b  = cong (base 2) ((ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₂ ϕ₂str ϕ₂ ϕ₂str (ϕ₀-gen _ _) _ _))
---   presCupInt zero a two b  = cong (base 4) ((ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₄ ϕ₄str ϕ₄ ϕ₄str (ϕ₀-gen _ _) _ _))
---   presCupInt zero a (suc (suc (suc l))) b = refl
---   presCupInt one a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
---                             ∙ presCupInt zero b one a
---                             ∙ gradCommRing CP² _ _ _ _
---   presCupInt one a one b  = cong (base 4) ((ϕₙ⌣ϕₘ ϕ₂ ϕ₂str ϕ₂ ϕ₂str ϕ₄ ϕ₄str ϕ₂-ϕ₄-gen _ _))
---   presCupInt one a two b  = sym (base-neutral _)
---                             ∙ cong (base 6) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
---   presCupInt one a (suc (suc (suc l))) b = refl
---   presCupInt two a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (two ∷ []) a) (baseP (zero ∷ []) b))
---                             ∙ presCupInt zero b two a
---                             ∙ gradCommRing CP² _ _ _ _
---   presCupInt two a one b  = sym (base-neutral _)
---                             ∙ cong (base 6) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
---   presCupInt two a two b  = sym (base-neutral _)
---                             ∙ cong (base 8) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
---   presCupInt two a (suc (suc (suc l))) b = refl
---   presCupInt (suc (suc (suc k))) a l b = refl
+    -- presCupInt : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
+    --                ℤ[x]→H*-CP² (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
+    --              ≡ ℤ[x]→H*-CP² (baseP (k ∷ []) a) cup ℤ[x]→H*-CP² (baseP (l ∷ []) b)
+    -- presCupInt zero a zero b = cong (base 0) (ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₀ ϕ₀str ϕ₀ ϕ₀str (eq⌣0nn _ _) _ _)
+    -- presCupInt zero a one b  = cong (base 2) ((ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₂ ϕ₂str ϕ₂ ϕ₂str (eq⌣0nn _ _) _ _))
+    -- presCupInt zero a two b  = cong (base 4) ((ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₄ ϕ₄str ϕ₄ ϕ₄str (eq⌣0nn _ _) _ _))
+    -- presCupInt zero a (suc (suc (suc l))) b = refl
+    -- presCupInt one a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
+    --                           ∙ presCupInt zero b one a
+    --                           ∙ gradCommRing CP² _ _ _ _
+    -- presCupInt one a one b  = cong (base 4) ((ϕₙ⌣ϕₘ ϕ₂ ϕ₂str ϕ₂ ϕ₂str ϕ₄ ϕ₄str eq⌣224 _ _))
+    -- presCupInt one a two b  = sym (base-neutral _)
+    --                           ∙ cong (base 6) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
+    -- presCupInt one a (suc (suc (suc l))) b = refl
+    -- presCupInt two a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (two ∷ []) a) (baseP (zero ∷ []) b))
+    --                           ∙ presCupInt zero b two a
+    --                           ∙ gradCommRing CP² _ _ _ _
+    -- presCupInt two a one b  = sym (base-neutral _)
+    --                           ∙ cong (base 6) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
+    -- presCupInt two a two b  = sym (base-neutral _)
+    --                           ∙ cong (base 8) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
+    -- presCupInt two a (suc (suc (suc l))) b = refl
+    -- presCupInt (suc (suc (suc k))) a l b = refl
 
 
 --   presCupVec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
@@ -478,3 +467,12 @@ module Equiv-CP2-Properties where
 
 --   CohomologyRing-CP² : RingEquiv (H*R CP²) (CommRing→Ring ℤ[X]/X³)
 --   CohomologyRing-CP² = RingEquivs.invEquivRing CP²-CohomologyRing
+
+
+
+
+
+
+--   ϕ₀-gen : (n : ℕ) → (f : coHom n CP²) → ϕ₀ (pos 1) ⌣ f ≡ f
+--   ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n CP²)) _ _))
+--              λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x)))
