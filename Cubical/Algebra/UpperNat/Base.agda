@@ -155,11 +155,11 @@ module ConstructionBounded where
   open OrderedCommMonoidStr (snd ℕ≤+)
     using ()
     renaming (_·_ to _+ℕ_;
-              MonotoneL to +MonotoneL; MonotoneR to +MonotoneR;
+              MonotoneL to +MonotoneL; MonotoneR to +MonotoneR; rid to +Rid;
               comm to ℕ+Comm)
   open OrderedCommMonoidStr (snd ℕ↑-+b)
     using ()
-    renaming (assoc to +Assoc; comm to +Comm; rid to +Rid;
+    renaming (assoc to +Assoc; comm to +Comm;
               _·_ to _+_; ε to 0↑)
 
   open OrderedCommMonoidStr (snd ℕ↑-·b)
@@ -179,7 +179,11 @@ module ConstructionBounded where
      ⇒ : (n : ℕ) → typeAt n (fst (0↑ · x)) → typeAt n (fst 0↑)
      ⇒ n _ = n , ℕ+Comm n 0
      ⇐ : (n : ℕ) → typeAt n (fst 0↑) → typeAt n (fst (0↑ · x))
-     ⇐ n _ = ∣ (0 , n) , ≤-refl , ({!!} , {!!}) ∣₁
+     ⇐ n _ =
+       propTruncRec
+         isPropPropTrunc
+         (λ {(m , mIsUpperBound) → ∣ (0 , m) , ((0 , refl) , (mIsUpperBound , n ,  +Rid n)) ∣₁})
+         (snd x)
 
 
   asCommSemiring : CommSemiring (ℓ-suc ℓ-zero)
