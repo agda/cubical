@@ -6,6 +6,7 @@ module Cubical.Algebra.OrderedCommMonoid.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP using (TypeWithStr)
+open import Cubical.Foundations.Structure using (⟨_⟩)
 
 open import Cubical.Algebra.CommMonoid.Base
 
@@ -94,14 +95,17 @@ module _ where
   MonotoneR (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid _ _ _ _ rmonotone _) = rmonotone _ _ _
   MonotoneL (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid _ _ _ _ _ lmonotone) = lmonotone _ _ _
 
-
 OrderedCommMonoid→CommMonoid : OrderedCommMonoid ℓ ℓ' → CommMonoid ℓ
+OrderedCommMonoid→CommMonoid (M , _) .fst = M
 OrderedCommMonoid→CommMonoid
   (M , record {
          _≤_ = _;
          _·_ = _·_;
          ε = ε;
          isOrderedCommMonoid = isOrderedCommMonoid
-       })
-   = let open IsOrderedCommMonoid isOrderedCommMonoid
-     in M , (commmonoidstr ε _·_ isCommMonoid)
+  }) .snd
+     = let open IsOrderedCommMonoid isOrderedCommMonoid
+       in commmonoidstr ε _·_ isCommMonoid
+
+isSetOrderedCommMonoid : (M : OrderedCommMonoid ℓ ℓ') → isSet ⟨ M ⟩
+isSetOrderedCommMonoid M = isSetCommMonoid (OrderedCommMonoid→CommMonoid M)
