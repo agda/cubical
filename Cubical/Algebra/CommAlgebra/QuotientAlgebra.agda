@@ -40,7 +40,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
     _ : CommAlgebraStr _ _
     _ = snd A
 
-  _/_ :  CommAlgebra R ℓ
+  _/_ : CommAlgebra R ℓ
   _/_ = commAlgebraFromCommRing
            ((CommAlgebra→CommRing A) CommRing./ I)
            (λ r → elim (λ _ → squash/) (λ x → [ r ⋆ x ]) (eq r))
@@ -64,7 +64,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
                 eq : (r : fst R) (x y : fst A) → x - y ∈ (fst I) →  [ r ⋆ x ] ≡ [ r ⋆ y ]
                 eq r x y x-y∈I = eq/ _ _
                   (subst (λ u → u ∈ fst I)
-                  ((r ⋆ 1a) · (x - y)               ≡⟨ ·Rdist+ (r ⋆ 1a) x (- y)  ⟩
+                  ((r ⋆ 1a) · (x - y)               ≡⟨ ·Rdist+ (r ⋆ 1a) x (- y) ⟩
                     (r ⋆ 1a) · x + (r ⋆ 1a) · (- y) ≡[ i ]⟨ (r ⋆ 1a) · x + -DistR· (r ⋆ 1a) y i ⟩
                     (r ⋆ 1a) · x - (r ⋆ 1a) · y     ≡[ i ]⟨ ⋆-lassoc r 1a x i
                                                             - ⋆-lassoc r 1a y i ⟩
@@ -73,13 +73,13 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
                   (isCommIdeal.·Closed (snd I) _ x-y∈I))
 
   quotientHom : CommAlgebraHom A (_/_)
-  fst quotientHom = λ x → [ x ]
+  fst quotientHom x = [ x ]
   IsAlgebraHom.pres0 (snd quotientHom) = refl
   IsAlgebraHom.pres1 (snd quotientHom) = refl
-  IsAlgebraHom.pres+ (snd quotientHom) = λ _ _ → refl
-  IsAlgebraHom.pres· (snd quotientHom) = λ _ _ → refl
-  IsAlgebraHom.pres- (snd quotientHom) = λ _ → refl
-  IsAlgebraHom.pres⋆ (snd quotientHom) = λ _ _ → refl
+  IsAlgebraHom.pres+ (snd quotientHom) _ _ = refl
+  IsAlgebraHom.pres· (snd quotientHom) _ _ = refl
+  IsAlgebraHom.pres- (snd quotientHom) _ = refl
+  IsAlgebraHom.pres⋆ (snd quotientHom) _ _ = refl
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   open CommRingStr {{...}} hiding (_-_; -_; dist; ·Lid; ·Rdist+) renaming (_·_ to _·R_; _+_ to _+R_)

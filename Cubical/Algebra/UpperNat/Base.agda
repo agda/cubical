@@ -40,16 +40,18 @@ private
    constructively (no proof of that is given here).
 
    Example Application:
-   The degree of a polynomial may be defined as an upper natural:
+   The degree of a polynomial P=∑_{i=0}^{n} aᵢ · Xⁱ may be defined as an upper natural:
 
-     deg(∑_{i=0}^{n} aᵢ · Xⁱ) :≡ λ (k : ℕ) → ∀ (k+1 ≤ i ≤ n) aᵢ≡0
+     deg(P) :≡ (λ n → all non-zero indices have index smaller n)
+
+     Or: deg(∑_{i=0}^{n} aᵢ · Xⁱ) = λ (k : ℕ) → ∀ (k+1 ≤ i ≤ n) aᵢ≡0
 
    This works even if a constructive definition of polynomial is used.
 
    However the upper naturals are a bit too unconstraint and do not even form a semiring,
    since they include 'infinity' elements like the proposition that is always false.
 
-   This is different for the subtype of *bounded* upper naturals ℕ↑ᵇ.
+   This is different for the subtype of *bounded* upper naturals ℕ↑b.
 -}
 
 module ConstructionUnbounded where
@@ -150,6 +152,11 @@ module ConstructionBounded where
   ℕ↑-+b = BoundedPropCompletion ℕ≤+
   ℕ↑-·b = BoundedPropCompletion ℕ≤·
 
+  open OrderedCommMonoidStr (snd ℕ≤+)
+    using ()
+    renaming (_·_ to _+ℕ_;
+              MonotoneL to +MonotoneL; MonotoneR to +MonotoneR;
+              comm to ℕ+Comm)
   open OrderedCommMonoidStr (snd ℕ↑-+b)
     using ()
     renaming (assoc to +Assoc; comm to +Comm; rid to +Rid;
@@ -158,28 +165,34 @@ module ConstructionBounded where
   open OrderedCommMonoidStr (snd ℕ↑-·b)
     using (_·_)
 
+  open PropCompletion ℓ-zero ℕ≤+
+    using (typeAt; pathFromImplications)
 
   ℕ↑b : Type₁
   ℕ↑b = fst ℕ↑-+b
 
   0LAnnihil : (x : ℕ↑b) → 0↑ · x ≡ 0↑
   0LAnnihil x =
-    pathFromImplications (0↑ · x) 0↑ (⇒) ⇐
+    Σ≡Prop (λ s → PropCompletion.isPropIsBounded ℓ-zero ℕ≤+ s)
+           (pathFromImplications (fst (0↑ · x)) (fst 0↑) (⇒) ⇐)
     where
-     ⇒ : (n : ℕ) → typeAt n (0↑ · x) → typeAt n 0↑
+     ⇒ : (n : ℕ) → typeAt n (fst (0↑ · x)) → typeAt n (fst 0↑)
      ⇒ n _ = n , ℕ+Comm n 0
-     ⇐ : (n : ℕ) → typeAt n 0↑ → typeAt n (0↑ · x)
-     ⇐ n _ = ∣ (0 , n) , ≤-refl , ({!p!} , {!!}) ∣₁   -- x needs to be bounded for that to work
+     ⇐ : (n : ℕ) → typeAt n (fst 0↑) → typeAt n (fst (0↑ · x))
+     ⇐ n _ = ∣ (0 , n) , ≤-refl , ({!!} , {!!}) ∣₁
+
 
   asCommSemiring : CommSemiring (ℓ-suc ℓ-zero)
-  fst asCommSemiring = ℕ↑
+  fst asCommSemiring = ℕ↑b
   CommSemiringStr.0r (snd asCommSemiring) = 0↑
-  CommSemiringStr.1r (snd asCommSemiring) = OrderedCommMonoidStr.ε (snd ℕ↑-·)
+  CommSemiringStr.1r (snd asCommSemiring) = OrderedCommMonoidStr.ε (snd ℕ↑-·b)
   CommSemiringStr._+_ (snd asCommSemiring) = _+_
   CommSemiringStr._·_ (snd asCommSemiring) = _·_
   IsCommSemiring.+IsCommMonoid (CommSemiringStr.isCommSemiring (snd asCommSemiring)) =
-    OrderedCommMonoidStr.isCommMonoid (snd ℕ↑-+)
+    OrderedCommMonoidStr.isCommMonoid (snd ℕ↑-+b)
   IsCommSemiring.·IsCommMonoid (CommSemiringStr.isCommSemiring (snd asCommSemiring)) =
-    OrderedCommMonoidStr.isCommMonoid (snd ℕ↑-·)
-  IsCommSemiring.·LDist+ (CommSemiringStr.isCommSemiring (snd asCommSemiring)) = +LDist·
+    OrderedCommMonoidStr.isCommMonoid (snd ℕ↑-·b)
+  IsCommSemiring.·LDist+ (CommSemiringStr.isCommSemiring (snd asCommSemiring)) =
+    λ x y z → Σ≡Prop (λ s → PropCompletion.isPropIsBounded ℓ-zero ℕ≤+ s)
+                     (ConstructionUnbounded.+LDist· (fst x) (fst y) (fst z))
   IsCommSemiring.0LAnnihil (CommSemiringStr.isCommSemiring (snd asCommSemiring)) = 0LAnnihil

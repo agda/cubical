@@ -13,7 +13,7 @@ open import Cubical.Data.Nat.Order
        record
          { _≤_ = _≤_;
            _·_ = _+_;
-           1m = 0;
+           ε = 0;
            isOrderedCommMonoid =
              makeIsOrderedCommMonoid
                 isSetℕ
@@ -27,7 +27,7 @@ open import Cubical.Data.Nat.Order
        record
          { _≤_ = _≤_ ;
            _·_ = _·_ ;
-           1m = 1 ;
+           ε = 1 ;
            isOrderedCommMonoid =
              makeIsOrderedCommMonoid
                isSetℕ
