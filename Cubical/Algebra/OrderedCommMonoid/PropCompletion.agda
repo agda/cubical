@@ -15,6 +15,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Functions.Logic
 open import Cubical.Functions.Embedding
@@ -119,6 +121,16 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                   propPath n = ⇒∶ s→l n
                                ⇐∶ l→s n
 
+
+  ↑Pres· : (x y : fst M) → (x · y) ^↑ ≡ (x ^↑) ·↑ (y ^↑)
+  ↑Pres· x y = pathFromImplications ((x · y) ^↑) ((x ^↑) ·↑ (y ^↑)) (⇐) ⇒
+    where
+      ⇐ : (n : fst M) → typeAt n ((x · y) ^↑) → typeAt n ((x ^↑) ·↑ (y ^↑))
+      ⇐ n x·y≤n = {!!}
+
+      ⇒ : (n : fst M) → typeAt n ((x ^↑) ·↑ (y ^↑)) → typeAt n ((x · y) ^↑)
+      ⇒ n = {!!}
+
   ·↑Comm : (s l : M↑) → s ·↑ l ≡ l ·↑ s
   ·↑Comm s l = M↑Path λ n → cong fst (propPath n)
     where implication : (s l : M↑) (n : fst M) → fst (fst (s ·↑ l) n) → fst (fst (l ·↑ s) n)
@@ -222,8 +234,19 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
       ·presBounded
       (isBounded^ ε)
 
-PropCompletion : OrderedCommMonoid ℓ ℓ → OrderedCommMonoid (ℓ-suc ℓ) ℓ
+PropCompletion :
+    OrderedCommMonoid ℓ ℓ
+  → OrderedCommMonoid (ℓ-suc ℓ) ℓ
 PropCompletion M = PropCompletion.asOrderedCommMonoid _ M
 
-BoundedPropCompletion : OrderedCommMonoid ℓ ℓ → OrderedCommMonoid (ℓ-suc ℓ) ℓ
+BoundedPropCompletion :
+     OrderedCommMonoid ℓ ℓ
+  → OrderedCommMonoid (ℓ-suc ℓ) ℓ
 BoundedPropCompletion M = PropCompletion.boundedSubstructure _ M
+
+isSetBoundedPropCompletion :
+     (M : OrderedCommMonoid ℓ ℓ)
+   → isSet (⟨ BoundedPropCompletion M ⟩)
+isSetBoundedPropCompletion M =
+  isSetΣSndProp (isSetOrderedCommMonoid (PropCompletion M))
+                λ x → PropCompletion.isPropIsBounded _ M x
