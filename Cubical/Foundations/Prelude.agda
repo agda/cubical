@@ -277,6 +277,11 @@ subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
   → PathP (λ i → B (p i)) b (subst B p b)
 subst-filler B p = transport-filler (cong B p)
 
+subst2-filler : {B : Type ℓ'} {z w : B} (C : A → B → Type ℓ'')
+                (p : x ≡ y) (q : z ≡ w) (c : C x z)
+              → PathP (λ i → C (p i) (q i)) c (subst2 C p q c)
+subst2-filler C p q = transport-filler (cong₂ C p q)
+
 -- Function extensionality
 
 funExt : {B : A → I → Type ℓ'}
