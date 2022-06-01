@@ -192,44 +192,45 @@ module ComputeCP²Notation
 -----------------------------------------------------------------------------
 -- Begin proof of the equivalence
 
-  module ComputeCP²Function
-    (ϕ₀-pres1 : ϕ₀ 1ℤ ≡ 1⌣)
-    (ϕ₀-gen : (n : ℕ) → (a : coHom n CP²) → ϕ₀ (pos 1) ⌣ a ≡ a)
-    -- (eq⌣224 : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1))
-    where
-
-    eq⌣224 : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₄ (pos 1)
-    eq⌣224 = {!!}
 
   -----------------------------------------------------------------------------
   -- Partition of ℕ
 
-    data partℕ (k : ℕ) : Type ℓ-zero where
-      is0  : (k ≡ 0)            → partℕ k
-      is2  : (k ≡ 2)            → partℕ k
-      is4  : (k ≡ 4)            → partℕ k
-      else : (k ≡ 0 → ⊥)
-             × ((k ≡ 2 → ⊥)
-                × (k ≡ 4 → ⊥)) → partℕ k
+  data partℕ (k : ℕ) : Type ℓ-zero where
+    is0  : (k ≡ 0)            → partℕ k
+    is2  : (k ≡ 2)            → partℕ k
+    is4  : (k ≡ 4)            → partℕ k
+    else : (k ≡ 0 → ⊥)
+           × ((k ≡ 2 → ⊥)
+              × (k ≡ 4 → ⊥)) → partℕ k
 
-    part : (k : ℕ) → partℕ k
-    part k with (discreteℕ k 0)
-    ... | yes p = is0 p
-    ... | no ¬p with (discreteℕ k 2)
-    ... |       yes q = is2 q
-    ... |       no ¬q with (discreteℕ k 4)
-    ... |             yes r = is4 r
-    ... |             no ¬r = else (¬p , (¬q , ¬r))
+  part : (k : ℕ) → partℕ k
+  part k with (discreteℕ k 0)
+  ... | yes p = is0 p
+  ... | no ¬p with (discreteℕ k 2)
+  ... |       yes q = is2 q
+  ... |       no ¬q with (discreteℕ k 4)
+  ... |             yes r = is4 r
+  ... |             no ¬r = else (¬p , (¬q , ¬r))
 
 
-    part0 : part 0 ≡ is0 refl
-    part0 = refl
+  part0 : part 0 ≡ is0 refl
+  part0 = refl
 
-    part2 : part 2 ≡ is2 refl
-    part2 = refl
+  part2 : part 2 ≡ is2 refl
+  part2 = refl
 
-    part4 : part 4 ≡ is4 refl
-    part4 = refl
+  part4 : part 4 ≡ is4 refl
+  part4 = refl
+
+  open pres
+
+  module ComputeCP²Function
+    (ϕ₀-pres1 : ϕ₀ 1ℤ ≡ 1⌣)
+    (ϕ₀-gen : (n : ℕ) → (a : coHom n CP²) → ϕ₀ (pos 1) ⌣ a ≡ a)
+    (eq⌣224 : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₄ (pos 1))
+    where
+
 
   -----------------------------------------------------------------------------
   -- Direct Sens on ℤ[x]/<X³>
@@ -272,7 +273,6 @@ module ComputeCP²Notation
 
 
    -- Nice packging of the cup product
-    open pres
 
     presCupInt : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
                    ℤ[x]→H*-CP² (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
@@ -465,7 +465,7 @@ open ComputeCP²Notation
 ϕ₂⌣ϕ₂≡ϕ₄ = {!!}
 
 
-open ComputeCP²Function ϕ₀-pres1 ϕ₀-gen
+open ComputeCP²Function ϕ₀-pres1 ϕ₀-gen ϕ₂⌣ϕ₂≡ϕ₄
 
 CP²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X³) (H*R CP²)
 fst CP²-CohomologyRing = isoToEquiv is
