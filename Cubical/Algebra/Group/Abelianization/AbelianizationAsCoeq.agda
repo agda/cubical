@@ -433,3 +433,7 @@ module IsoCoeqHIT (G : Group ℓ) where
                                 incAbAsGroupHom
                                 (GroupIso→GroupHom (invGroupIso h))
                                 isocomm)))
+
+AbelianizationComparisonIsomorphism : (G : Group ℓ)
+                                    → AbGroupIso (AbelianizationAbGroup G) (HITasAbelianGroup G)
+AbelianizationComparisonIsomorphism G = IsoCoeqHIT.isomorphism G
