@@ -19,5 +19,5 @@ private
 -- Set coequalizers as a higher inductive type
 data SetCoequalizer {A : Type ℓ} {B : Type ℓ'} (f g : A → B) : Type (ℓ-max ℓ ℓ') where
   inc    : B → SetCoequalizer f g
-  glue   : (a : A) → inc (f a) ≡ inc (g a)
+  coeq   : (a : A) → inc (f a) ≡ inc (g a)
   squash : (x y : SetCoequalizer f g) → (p q : x ≡ y) → p ≡ q
