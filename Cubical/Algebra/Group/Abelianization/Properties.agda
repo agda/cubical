@@ -3,7 +3,8 @@
 This file contains:
     - the abelianization of groups as a HIT as proposed in https://arxiv.org/abs/2007.05833
 
-The definition of the abelianization is not as a set-quotient, since the relation of abelianization is cumbersome to work with.
+The definition of the abelianization is not as a set-quotient, since the relation of
+abelianization is cumbersome to work with.
 
 -}
 {-# OPTIONS --safe #-}
@@ -17,7 +18,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties using (isPropIsGroupHom; compGroupHom; idGroupHom)
+open import Cubical.Algebra.Group.MorphismProperties
+  using (isPropIsGroupHom; compGroupHom; idGroupHom)
 
 open import Cubical.Algebra.AbGroup.Base
 
@@ -109,7 +111,10 @@ module AbelianizationGroupStructure (G : Group ℓ) where
     instance
       _ = snd G
 
-  -- Definition of the group structure on the abelianization. Here the generality of the comm relation is used.
+  {-
+    Definition of the group structure on the abelianization. Here the generality of the comm
+    relation is used.
+  -}
   _·Ab_ : Abelianization G → Abelianization G → Abelianization G
   _·Ab_ =
     (rec2 G)
@@ -139,14 +144,20 @@ module AbelianizationGroupStructure (G : Group ℓ) where
       ((λ x → η (inv x)))
       (λ a b c → η (inv (a · (b · c)))         ≡⟨ cong η (invDistr a (b · c)) ⟩
       η ((inv (b · c)) · (inv a))              ≡⟨ cong (λ x → η (x · (inv a))) (invDistr b c) ⟩
-      η (((inv c) · (inv b)) · (inv a))        ≡⟨ cong η ((sym (lid (((inv c) · (inv b)) · (inv a))))) ⟩
+      η (((inv c) · (inv b)) · (inv a))        ≡⟨ cong
+                                                    η
+                                                    ((sym (lid (((inv c) · (inv b)) · (inv a))))) ⟩
       η (1g · (((inv c) · (inv b)) · (inv a))) ≡⟨ comm 1g ((inv c) · (inv b)) (inv a) ⟩
       η (1g · ((inv a) · ((inv c) · (inv b)))) ≡⟨ cong η (lid ((inv a) · ((inv c) · (inv b)))) ⟩
       η ((inv a) · ((inv c) · (inv b)))        ≡⟨ comm (inv a) (inv c) (inv b) ⟩
-      η ((inv a) · ((inv b) · (inv c)))        ≡⟨ cong η ((sym (lid ((inv a) · ((inv b) · (inv c)))))) ⟩
+      η ((inv a) · ((inv b) · (inv c)))        ≡⟨ cong
+                                                    η
+                                                    ((sym (lid ((inv a) · ((inv b) · (inv c)))))) ⟩
       η (1g · ((inv a) · ((inv b) · (inv c)))) ≡⟨ comm 1g (inv a) ((inv b) · (inv c)) ⟩
       η (1g · (((inv b) · (inv c)) · (inv a))) ≡⟨ cong η (lid (((inv b) · (inv c)) · (inv a))) ⟩
-      η (((inv b) · (inv c)) · (inv a))        ≡⟨ cong (λ x → η (x · (inv a))) (sym (invDistr c b)) ⟩
+      η (((inv b) · (inv c)) · (inv a))        ≡⟨ cong
+                                                    (λ x → η (x · (inv a)))
+                                                    (sym (invDistr c b)) ⟩
       η ((inv (c · b)) · (inv a))              ≡⟨ cong η (sym (invDistr a (c · b))) ⟩
       η (inv (a · (c · b))) ∎)
 
@@ -237,11 +248,15 @@ module UniversalProperty (G : Group ℓ) where
                   (isSetAbGroup H)
                   (λ x → (f') x)
                   (λ a b c → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
-                             (f' a) · (f' (b · c))    ≡⟨ cong (λ x → (f' a) · x) ((snd f).pres· b c) ⟩
+                             (f' a) · (f' (b · c))    ≡⟨ cong
+                                                           (λ x → (f' a) · x)
+                                                           ((snd f).pres· b c) ⟩
                              (f' a) · (f' b) · (f' c) ≡⟨ cong
                                                            (λ x → (f' a) · x)
                                                            ((snd H).AbGroupStr.comm (f' b) (f' c)) ⟩
-                             (f' a) · (f' c) · (f' b) ≡⟨ cong (λ x → (f' a) · x) (sym ((snd f).pres· c b)) ⟩
+                             (f' a) · (f' c) · (f' b) ≡⟨ cong
+                                                           (λ x → (f' a) · x)
+                                                           (sym ((snd f).pres· c b)) ⟩
                              (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
                              f' (a · c · b) ∎)
             gIsHom : IsGroupHom (snd (AbGroup→Group asAbelianGroup)) g (snd (AbGroup→Group H))

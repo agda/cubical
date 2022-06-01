@@ -58,7 +58,8 @@ module AbelianizationAsCoeq (G : Group ℓ) where
 
   {-
     The definition of the abelianization of a group as a coequalizer of sets. The generality
-    of the coequalized functions will be needed to define the group structure on the abelianization.
+    of the coequalized functions will be needed to define the group structure on the
+    abelianization.
   -}
   Abelianization : Type ℓ
   Abelianization =
@@ -73,25 +74,30 @@ module AbelianizationAsCoeq (G : Group ℓ) where
   comm : (x y z : G') → incAb (x · (y · z)) ≡ incAb (x · (z · y))
   comm = λ x y z → coeq (x , y , z)
 
-  -- Definition of the group structure on the abelianization. Here the generality of the coequalized functions is used.
+  {-
+    Definition of the group structure on the abelianization. Here the generality of the
+    coequalized functions is used.
+  -}
   _·Ab_ : Abelianization → Abelianization → Abelianization
   _·Ab_ =
     rec2
       squash
       (λ x y → incAb (x · y))
-      (λ (a , b , c) d → incAb ((a · (b · c)) · d) ≡⟨ cong (λ x → incAb (x · d)) (assoc _ _ _) ⟩
-                         incAb (((a · b) · c) · d) ≡⟨ cong incAb (sym (assoc (a · b) c d)) ⟩
-                         incAb ((a · b) · (c · d)) ≡⟨ comm (a · b) c d ⟩
-                         incAb ((a · b) · (d · c)) ≡⟨ cong incAb (sym (assoc _ _ _)) ⟩
-                         incAb (a · (b · (d · c))) ≡⟨ cong (λ x → incAb (a · x)) (assoc _ _ _) ⟩
-                         incAb (a · ((b · d) · c)) ≡⟨ comm a (b · d) c ⟩
-                         incAb (a · (c · (b · d))) ≡⟨ cong (λ x → incAb (a · x)) (assoc _ _ _) ⟩
-                         incAb (a · ((c · b) · d)) ≡⟨ cong incAb (assoc a (c · b) d) ⟩
-                         incAb ((a · (c · b)) · d) ∎)
-      (λ (b , c , d) a → incAb (a · (b · (c · d))) ≡⟨ cong incAb (assoc _ _ _) ⟩
-                         incAb ((a · b) · (c · d)) ≡⟨ comm (a · b) c d ⟩
-                         incAb ((a · b) · (d · c)) ≡⟨ cong incAb (sym (assoc _ _ _)) ⟩
-                         incAb (a · (b · (d · c))) ∎)
+      (λ (a , b , c) d →
+        incAb ((a · (b · c)) · d) ≡⟨ cong (λ x → incAb (x · d)) (assoc _ _ _) ⟩
+        incAb (((a · b) · c) · d) ≡⟨ cong incAb (sym (assoc (a · b) c d)) ⟩
+        incAb ((a · b) · (c · d)) ≡⟨ comm (a · b) c d ⟩
+        incAb ((a · b) · (d · c)) ≡⟨ cong incAb (sym (assoc _ _ _)) ⟩
+        incAb (a · (b · (d · c))) ≡⟨ cong (λ x → incAb (a · x)) (assoc _ _ _) ⟩
+        incAb (a · ((b · d) · c)) ≡⟨ comm a (b · d) c ⟩
+        incAb (a · (c · (b · d))) ≡⟨ cong (λ x → incAb (a · x)) (assoc _ _ _) ⟩
+        incAb (a · ((c · b) · d)) ≡⟨ cong incAb (assoc a (c · b) d) ⟩
+        incAb ((a · (c · b)) · d) ∎)
+      (λ (b , c , d) a →
+        incAb (a · (b · (c · d))) ≡⟨ cong incAb (assoc _ _ _) ⟩
+        incAb ((a · b) · (c · d)) ≡⟨ comm (a · b) c d ⟩
+        incAb ((a · b) · (d · c)) ≡⟨ cong incAb (sym (assoc _ _ _)) ⟩
+        incAb (a · (b · (d · c))) ∎)
 
   1Ab : Abelianization
   1Ab = incAb 1g
@@ -101,18 +107,25 @@ module AbelianizationAsCoeq (G : Group ℓ) where
     rec
       squash
       (λ x → incAb (inv x))
-      (λ (a , b , c) → incAb (inv (a · (b · c)))              ≡⟨ cong incAb (invDistr a (b · c)) ⟩
-                       incAb (inv (b · c) · inv a)            ≡⟨ cong (λ x → incAb (x · inv a)) (invDistr b c) ⟩
-                       incAb ((inv c · inv b) · inv a)        ≡⟨ cong incAb (sym (lid ((inv c · inv b) · inv a))) ⟩
-                       incAb (1g · ((inv c · inv b) · inv a)) ≡⟨ comm 1g (inv c · inv b) (inv a) ⟩
-                       incAb (1g · (inv a · (inv c · inv b))) ≡⟨ cong incAb (lid (inv a · (inv c · inv b))) ⟩
-                       incAb (inv a · (inv c · inv b))        ≡⟨ comm (inv a) (inv c) (inv b) ⟩
-                       incAb (inv a · (inv b · inv c))        ≡⟨ cong incAb (sym (lid (inv a · (inv b · inv c)))) ⟩
-                       incAb (1g · (inv a · (inv b · inv c))) ≡⟨ comm 1g (inv a) (inv b · inv c) ⟩
-                       incAb (1g · ((inv b · inv c) · inv a)) ≡⟨ cong incAb (lid ((inv b · inv c) · inv a)) ⟩
-                       incAb ((inv b · inv c) · inv a)        ≡⟨ cong (λ x → incAb (x · inv a)) (sym (invDistr c b)) ⟩
-                       incAb (inv (c · b) · inv a)            ≡⟨ cong incAb (sym (invDistr a (c · b))) ⟩
-                       incAb (inv (a · (c · b))) ∎)
+      (λ (a , b , c) →
+        incAb (inv (a · (b · c)))              ≡⟨ cong incAb (invDistr a (b · c)) ⟩
+        incAb (inv (b · c) · inv a)            ≡⟨ cong (λ x → incAb (x · inv a)) (invDistr b c) ⟩
+        incAb ((inv c · inv b) · inv a)        ≡⟨ cong
+                                                    incAb
+                                                    (sym (lid ((inv c · inv b) · inv a))) ⟩
+        incAb (1g · ((inv c · inv b) · inv a)) ≡⟨ comm 1g (inv c · inv b) (inv a) ⟩
+        incAb (1g · (inv a · (inv c · inv b))) ≡⟨ cong incAb (lid (inv a · (inv c · inv b))) ⟩
+        incAb (inv a · (inv c · inv b))        ≡⟨ comm (inv a) (inv c) (inv b) ⟩
+        incAb (inv a · (inv b · inv c))        ≡⟨ cong
+                                                    incAb
+                                                    (sym (lid (inv a · (inv b · inv c)))) ⟩
+        incAb (1g · (inv a · (inv b · inv c))) ≡⟨ comm 1g (inv a) (inv b · inv c) ⟩
+        incAb (1g · ((inv b · inv c) · inv a)) ≡⟨ cong incAb (lid ((inv b · inv c) · inv a)) ⟩
+        incAb ((inv b · inv c) · inv a)        ≡⟨ cong
+                                                    (λ x → incAb (x · inv a))
+                                                    (sym (invDistr c b)) ⟩
+        incAb (inv (c · b) · inv a)            ≡⟨ cong incAb (sym (invDistr a (c · b))) ⟩
+        incAb (inv (a · (c · b))) ∎)
 
   assocAb : (x y z : Abelianization) → x ·Ab (y ·Ab z) ≡ (x ·Ab y) ·Ab z
   assocAb =
@@ -202,12 +215,15 @@ module UniversalPropertyCoeq (G : Group ℓ) where
             g = rec
                   (isSetAbGroup H)
                   (λ x → (f') x)
-                  (λ (a , b , c) → f' (a · b · c)     ≡⟨ (snd f).pres· a (b · c) ⟩
-                            (f' a) · (f' (b · c))    ≡⟨ cong (λ x → (f' a) · x) ((snd f).pres· b c) ⟩
-                            (f' a) · (f' b) · (f' c) ≡⟨ cong (λ x → (f' a) · x) ((snd H).AbGroupStr.comm (f' b) (f' c)) ⟩
-                            (f' a) · (f' c) · (f' b) ≡⟨ cong (λ x → (f' a) · x) (sym ((snd f).pres· c b)) ⟩
-                            (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
-                            f' (a · c · b) ∎)
+                  (λ (a , b , c) →
+                    f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
+                    (f' a) · (f' (b · c))    ≡⟨ cong (λ x → (f' a) · x) ((snd f).pres· b c) ⟩
+                    (f' a) · (f' b) · (f' c) ≡⟨ cong (λ x → (f' a) · x)
+                                                     ((snd H).AbGroupStr.comm (f' b) (f' c)) ⟩
+                    (f' a) · (f' c) · (f' b) ≡⟨ cong (λ x → (f' a) · x)
+                                                     (sym ((snd f).pres· c b)) ⟩
+                    (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩
+                    f' (a · c · b) ∎)
             gIsHom : IsGroupHom (snd (AbGroup→Group asAbelianGroup)) g (snd (AbGroup→Group H))
             pres· gIsHom =
               elimProp2
@@ -278,21 +294,30 @@ module IsoCoeqHIT (G : Group ℓ) where
 
     HITgfcomm : compGroupHom (HITηAsGroupHom G) (compGroupHom g f) ≡ (HITηAsGroupHom G)
     HITgfcomm =
-      compGroupHom (HITηAsGroupHom G) (compGroupHom g f) ≡⟨ sym (compGroupHomAssoc (HITηAsGroupHom G) g f) ⟩
-      compGroupHom (compGroupHom (HITηAsGroupHom G) g) f ≡⟨ cong
-                                                              (λ x → compGroupHom x f)
-                                                              (HITcommutativity G asAbelianGroup incAbAsGroupHom) ⟩
-      compGroupHom incAbAsGroupHom f                     ≡⟨ commutativity (HITasAbelianGroup G) (HITηAsGroupHom G) ⟩
+      compGroupHom (HITηAsGroupHom G) (compGroupHom g f)
+        ≡⟨ sym (compGroupHomAssoc (HITηAsGroupHom G) g f) ⟩
+      compGroupHom (compGroupHom (HITηAsGroupHom G) g) f
+        ≡⟨ cong (λ x → compGroupHom x f) (HITcommutativity G asAbelianGroup incAbAsGroupHom) ⟩
+      compGroupHom incAbAsGroupHom f
+        ≡⟨ commutativity (HITasAbelianGroup G) (HITηAsGroupHom G) ⟩
       (HITηAsGroupHom G) ∎
 
     HITidcomm : compGroupHom (HITηAsGroupHom G) idGroupHom ≡ HITηAsGroupHom G
     HITidcomm = compGroupHomId (HITηAsGroupHom G)
 
     HITidIsInduced : HITinducedHom G (HITasAbelianGroup G) (HITηAsGroupHom G) ≡ idGroupHom
-    HITidIsInduced = sym (HITuniqueness G (HITasAbelianGroup G) (HITηAsGroupHom G) idGroupHom HITidcomm)
+    HITidIsInduced = sym (HITuniqueness G
+                           (HITasAbelianGroup G)
+                           (HITηAsGroupHom G)
+                           idGroupHom
+                           HITidcomm)
 
     HITgfIsInduced : HITinducedHom G (HITasAbelianGroup G) (HITηAsGroupHom G) ≡ compGroupHom g f
-    HITgfIsInduced = sym (HITuniqueness G (HITasAbelianGroup G) (HITηAsGroupHom G) (compGroupHom g f) HITgfcomm)
+    HITgfIsInduced = sym (HITuniqueness G
+                           (HITasAbelianGroup G)
+                           (HITηAsGroupHom G)
+                           (compGroupHom g f)
+                           HITgfcomm)
 
     i : idGroupHom ≡ compGroupHom g f
     i = idGroupHom ≡⟨ sym HITidIsInduced ⟩
@@ -301,11 +326,12 @@ module IsoCoeqHIT (G : Group ℓ) where
 
     fgcomm : compGroupHom incAbAsGroupHom (compGroupHom f g) ≡ incAbAsGroupHom
     fgcomm =
-      compGroupHom incAbAsGroupHom (compGroupHom f g) ≡⟨ sym (compGroupHomAssoc incAbAsGroupHom f g) ⟩
-      compGroupHom (compGroupHom incAbAsGroupHom f) g ≡⟨ cong
-                                                          (λ x → compGroupHom x g)
-                                                          (commutativity (HITasAbelianGroup G) (HITηAsGroupHom G)) ⟩
-      compGroupHom (HITηAsGroupHom G) g               ≡⟨ (HITcommutativity G) asAbelianGroup incAbAsGroupHom ⟩
+      compGroupHom incAbAsGroupHom (compGroupHom f g)
+        ≡⟨ sym (compGroupHomAssoc incAbAsGroupHom f g) ⟩
+      compGroupHom (compGroupHom incAbAsGroupHom f) g
+        ≡⟨ cong (λ x → compGroupHom x g) (commutativity (HITasAbelianGroup G) (HITηAsGroupHom G)) ⟩
+      compGroupHom (HITηAsGroupHom G) g
+        ≡⟨ (HITcommutativity G) asAbelianGroup incAbAsGroupHom ⟩
       incAbAsGroupHom ∎
 
     idcomm : compGroupHom incAbAsGroupHom idGroupHom ≡ incAbAsGroupHom
@@ -329,31 +355,38 @@ module IsoCoeqHIT (G : Group ℓ) where
           (λ a → cong (λ e → e a) (cong fst (sym j)))
     hIsHomo = snd f
 
-  isomorphismCommutativity : compGroupHom incAbAsGroupHom (GroupIso→GroupHom isomorphism) ≡ (HITηAsGroupHom G)
+  isomorphismCommutativity : compGroupHom incAbAsGroupHom (GroupIso→GroupHom isomorphism)
+                               ≡ (HITηAsGroupHom G)
   isomorphismCommutativity = commutativity (HITasAbelianGroup G) (HITηAsGroupHom G)
 
   isomorphismUniqueness : (h : AbGroupIso asAbelianGroup (HITasAbelianGroup G))
-                        → (hcomm : compGroupHom incAbAsGroupHom (GroupIso→GroupHom h) ≡ (HITηAsGroupHom G))
-                        → h ≡ isomorphism
+    → (hcomm : compGroupHom incAbAsGroupHom (GroupIso→GroupHom h) ≡ (HITηAsGroupHom G))
+    → h ≡ isomorphism
   isomorphismUniqueness h hcomm = GroupIso≡ p
     where
       r : (x : fst asAbelianGroup)
         → fst (compGroupHom (GroupIso→GroupHom h) (GroupIso→GroupHom (invGroupIso h))) x ≡ x
       r = λ x → (h .fst .Iso.leftInv) x
 
-      leftInvGroupHom : (compGroupHom (GroupIso→GroupHom h) (GroupIso→GroupHom (invGroupIso h))) ≡ idGroupHom
+      leftInvGroupHom : (compGroupHom
+                          (GroupIso→GroupHom h)
+                          (GroupIso→GroupHom (invGroupIso h))) ≡ idGroupHom
       leftInvGroupHom =
         Σ≡Prop
           (λ _ → isPropIsGroupHom _ _)
           (λ i x → r x i)
 
       q : (g : fst  G)
-        → fst (compGroupHom (HITηAsGroupHom G) (GroupIso→GroupHom (invGroupIso h))) g ≡ fst incAbAsGroupHom g
+        → fst (compGroupHom
+                (HITηAsGroupHom G)
+                (GroupIso→GroupHom (invGroupIso h))) g ≡ fst incAbAsGroupHom g
       q = λ g
         → fst (compGroupHom (HITηAsGroupHom G) (GroupIso→GroupHom (invGroupIso h))) g
             ≡⟨ cong
                  (λ f → f g)
-                 (cong fst (cong (λ f → compGroupHom f (GroupIso→GroupHom (invGroupIso h))) (sym hcomm))) ⟩
+                 (cong fst (cong
+                             (λ f → compGroupHom f (GroupIso→GroupHom (invGroupIso h)))
+                             (sym hcomm))) ⟩
           fst (compGroupHom
                 (compGroupHom incAbAsGroupHom (GroupIso→GroupHom h))
                 (GroupIso→GroupHom (invGroupIso h))) g
@@ -366,10 +399,14 @@ module IsoCoeqHIT (G : Group ℓ) where
           fst (compGroupHom
                 incAbAsGroupHom
                 (compGroupHom (GroupIso→GroupHom h) (GroupIso→GroupHom (invGroupIso h)))) g
-            ≡⟨ cong (λ f → f g) (cong fst (cong (λ f → (compGroupHom incAbAsGroupHom f)) leftInvGroupHom)) ⟩
+            ≡⟨ cong
+                (λ f → f g)
+                (cong fst (cong (λ f → (compGroupHom incAbAsGroupHom f)) leftInvGroupHom)) ⟩
           fst incAbAsGroupHom g ∎
 
-      isocomm : compGroupHom (HITηAsGroupHom G) (GroupIso→GroupHom (invGroupIso h)) ≡ incAbAsGroupHom
+      isocomm : compGroupHom
+                  (HITηAsGroupHom G)
+                  (GroupIso→GroupHom (invGroupIso h)) ≡ incAbAsGroupHom
       isocomm =
         Σ≡Prop
           (λ _ → isPropIsGroupHom _ _)

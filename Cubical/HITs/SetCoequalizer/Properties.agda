@@ -43,14 +43,17 @@ elimProp2 : {A' : Type ℓ} {B' : Type ℓ'} {f g : A → B} {f' g' : A' → B'}
 elimProp2 Cprop Cinc = elimProp (λ x → isPropΠ (λ y → Cprop x y))
                                 (λ x → elimProp (λ y → Cprop (inc x) y) (Cinc x))
 
-elimProp3 : {A' A'' : Type ℓ} {B' B'' : Type ℓ'} {f g : A → B} {f' g' : A' → B'} {f'' g'' : A'' → B''}
-            {C : SetCoequalizer f g → SetCoequalizer f' g' → SetCoequalizer f'' g'' → Type (ℓ-max ℓ ℓ')}
+elimProp3 : {A' A'' : Type ℓ} {B' B'' : Type ℓ'} {f g : A → B} {f' g' : A' → B'}
+            {f'' g'' : A'' → B''}
+            {C : SetCoequalizer f g → SetCoequalizer f' g' → SetCoequalizer f'' g''
+               → Type (ℓ-max ℓ ℓ')}
           → (Cprop : (x : SetCoequalizer f g)
                    → (y : SetCoequalizer f' g')
                    → (z : SetCoequalizer f'' g'')
                    → isProp (C x y z))
           → (Cinc : (b : B) → (b' : B') → (b'' : B'') → C (inc b) (inc b') (inc b''))
-          → (x : SetCoequalizer f g) → (y : SetCoequalizer f' g') → (z : SetCoequalizer f'' g'') → C x y z
+          → (x : SetCoequalizer f g) → (y : SetCoequalizer f' g') → (z : SetCoequalizer f'' g'')
+          → C x y z
 elimProp3 Cprop Cinc = elimProp (λ x → isPropΠ2 (λ y z → Cprop x y z))
                                 (λ x → elimProp2 (λ y z → Cprop (inc x) y z) (Cinc x))
 
