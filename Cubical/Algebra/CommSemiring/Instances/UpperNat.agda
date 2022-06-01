@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.UpperNat.Base where
+module Cubical.Algebra.CommSemiring.Instances.UpperNat where
 {-
   based on:
   https://github.com/DavidJaz/Cohesion/blob/master/UpperNaturals.agda
@@ -127,19 +127,22 @@ module ConstructionUnbounded where
                           (a' , (b' +ℕ b″)) , a'x ,
 
                           (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣₁ ,
-                           (a' · (b' +ℕ b″)       ≤⟨ subst (_≤ (a' · b') +ℕ (a' · b″))
-                                                           (·-distribˡ a' b' b″) ≤-refl ⟩
+                           (a' · (b' +ℕ b″)       ≤⟨ subst
+                                                       (_≤ (a' · b') +ℕ (a' · b″))
+                                                       (·-distribˡ a' b' b″) ≤-refl ⟩
                            (a' · b') +ℕ (a' · b″) ≤⟨ +MonotoneR a'·b'≤a ⟩
-                            a +ℕ (a' · b″)        ≤⟨ +MonotoneL (≤-trans (MonotoneR a'≤a″) a″·b″≤b) ⟩
+                            a +ℕ (a' · b″)        ≤⟨ +MonotoneL
+                                                       (≤-trans (MonotoneR a'≤a″) a″·b″≤b) ⟩
                             a+b≤n ))
                         )
                         (λ a″≤a' →
                          (a″ , (b' +ℕ b″)) , (a″x ,
                          (∣ (b' , b″) , (b'y , (zb″ , ≤-refl)) ∣₁ ,
-                           ((a″ · (b' +ℕ b″))      ≤⟨ subst (_≤ (a″ · b') +ℕ (a″ · b″))
-                                                            (·-distribˡ a″ b' b″) ≤-refl ⟩
+                           ((a″ · (b' +ℕ b″))      ≤⟨ subst
+                                                        (_≤ (a″ · b') +ℕ (a″ · b″))
+                                                        (·-distribˡ a″ b' b″) ≤-refl ⟩
                             (a″ · b') +ℕ (a″ · b″) ≤⟨ +MonotoneR
-                                                         ((a″ · b') ≤⟨ MonotoneR a″≤a' ⟩ a'·b'≤a) ⟩
+                                                        ((a″ · b') ≤⟨ MonotoneR a″≤a' ⟩ a'·b'≤a) ⟩
                             a +ℕ (a″ · b″)         ≤⟨ +MonotoneL a″·b″≤b  ⟩
                             a+b≤n)))
                         )
