@@ -3,9 +3,13 @@
 module Cubical.Categories.Functor.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function renaming (_∘_ to _◍_)
 open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
 open import Cubical.Foundations.HLevels
+open import Cubical.Functions.Surjection
+open import Cubical.Functions.Embedding
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
 
@@ -138,3 +142,17 @@ isSetFunctor {D = D} {C = C} isSet-D-ob F G p q = w
        (λ i i₁ → isProp→isSet (D .isSetHom (F-hom (w i i₁) _) ((F-hom (w i i₁) _) ⋆⟨ D ⟩ (F-hom (w i i₁) _))))
        (λ i₁ → F-seq (p i₁) _ _) (λ i₁ → F-seq (q i₁) _ _) refl refl i i₁
 
+
+-- Fully-faithfulness of functors
+
+module _ {F : Functor C D} where
+
+  isFullyFaithful→Full : isFullyFaithful F → isFull F
+  isFullyFaithful→Full fullfaith x y = isEquiv→isSurjection (fullfaith x y)
+
+  isFullyFaithful→Faithful : isFullyFaithful F → isFaithful F
+  isFullyFaithful→Faithful fullfaith x y = isEmbedding→Inj (isEquiv→isEmbedding (fullfaith x y))
+
+  isFull+Faithful→isFullyFaithful : isFull F → isFaithful F → isFullyFaithful F
+  isFull+Faithful→isFullyFaithful full faith x y = isEmbedding×isSurjection→isEquiv
+    (injEmbedding (C .isSetHom) (D .isSetHom) (faith x y _ _) , full x y)

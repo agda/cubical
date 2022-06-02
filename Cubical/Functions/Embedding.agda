@@ -47,6 +47,14 @@ isEmbedding f = ∀ w x → isEquiv {A = w ≡ x} (cong f)
 isPropIsEmbedding : isProp (isEmbedding f)
 isPropIsEmbedding {f = f} = isPropΠ2 λ _ _ → isPropIsEquiv (cong f)
 
+-- Embedding is injection in the aforementioned sense:
+isEmbedding→Inj
+  : {f : A → B}
+  → isEmbedding f
+  → ∀ w x → f w ≡ f x → w ≡ x
+isEmbedding→Inj {f = f} embb w x p
+  = equiv-proof (embb w x) p .fst .fst
+
 -- If A and B are h-sets, then injective functions between
 -- them are embeddings.
 --
@@ -65,6 +73,7 @@ injEmbedding {f = f} iSA iSB inj w x
 
   retr : retract (cong f) inj
   retr p = iSA w x _ p
+
 
 -- If `f` is an embedding, we'd expect the fibers of `f` to be
 -- propositions, like an injective function.
