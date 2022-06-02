@@ -46,7 +46,7 @@ For naming conventions specific to the Algebra subfolder, see
   (like `isProp→isSet`) or `To` (like `isoToEquiv`).
 
 * When defining eliminators, recursors and similar functions for datatypes,
-  use the names `elim` and `rec` or use it as a suffix accordingly.
+  use the names `elim` and `rec`, potentially with a suitable suffix (like `elimProp`).
   Do not use `ind`.
   You can look
   [here](https://github.com/agda/cubical/blob/master/Cubical/HITs/SetQuotients/Properties.agda#L42-L92)
