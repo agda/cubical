@@ -18,7 +18,7 @@ record IsCommSemiring {R : Type ℓ}
     +IsCommMonoid  : IsCommMonoid 0r _+_
     ·IsCommMonoid  : IsCommMonoid 1r _·_
     ·LDist+        : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
-    0LAnnihil      : (x : R) → 0r · x ≡ 0r
+    AnnihilL       : (x : R) → 0r · x ≡ 0r
 
   open IsCommMonoid +IsCommMonoid public
     renaming

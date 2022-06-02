@@ -59,7 +59,7 @@ module ConstructionUnbounded where
   ℕ↑-· = PropCompletion ℕ≤·
 
   open OrderedCommMonoidStr (snd ℕ↑-+)
-    using ()
+    hiding (_≤_; MonotoneL; MonotoneR)
     renaming (assoc to +Assoc; comm to +Comm; rid to +Rid;
               _·_ to _+_; ε to 0↑)
 
@@ -67,7 +67,7 @@ module ConstructionUnbounded where
    using (MonotoneL; MonotoneR)
 
   open OrderedCommMonoidStr (snd ℕ≤+)
-   using ()
+   hiding (_≤_)
    renaming (_·_ to _+ℕ_;
              MonotoneL to +MonotoneL; MonotoneR to +MonotoneR;
              comm to ℕ+Comm)
@@ -170,8 +170,8 @@ module ConstructionBounded where
   ℕ↑b : Type₁
   ℕ↑b = fst ℕ↑-+b
 
-  0LAnnihil : (x : ℕ↑b) → 0↑ · x ≡ 0↑
-  0LAnnihil x =
+  AnnihilL : (x : ℕ↑b) → 0↑ · x ≡ 0↑
+  AnnihilL x =
     Σ≡Prop (λ s → PropCompletion.isPropIsBounded ℓ-zero ℕ≤+ s)
            (pathFromImplications (fst (0↑ · x)) (fst 0↑) (⇒) ⇐)
     where
@@ -198,4 +198,4 @@ module ConstructionBounded where
   IsCommSemiring.·LDist+ (CommSemiringStr.isCommSemiring (snd asCommSemiring)) =
     λ x y z → Σ≡Prop (λ s → PropCompletion.isPropIsBounded ℓ-zero ℕ≤+ s)
                      (ConstructionUnbounded.+LDist· (fst x) (fst y) (fst z))
-  IsCommSemiring.0LAnnihil (CommSemiringStr.isCommSemiring (snd asCommSemiring)) = 0LAnnihil
+  IsCommSemiring.AnnihilL (CommSemiringStr.isCommSemiring (snd asCommSemiring)) = AnnihilL
