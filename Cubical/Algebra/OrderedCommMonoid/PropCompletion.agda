@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --postfix-projections #-}
 module Cubical.Algebra.OrderedCommMonoid.PropCompletion where
 {-
   The completion of an ordered monoid, viewed as monoidal prop-enriched category.
@@ -231,16 +231,14 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
       λ {((a , b) , s≤a , (l≤b , a·b≤x)) → ∣ (a , b) , s≤a , p b l≤b , a·b≤x ∣₁}
 
   asOrderedCommMonoid : OrderedCommMonoid (ℓ-suc ℓ) ℓ
-  asOrderedCommMonoid = _ ,
-    (record {
-      _≤_ = _≤↑_ ;
-      _·_ = _·↑_ ;
-      ε = 1↑ ;
-      isOrderedCommMonoid =
-        IsOrderedCommMonoidFromIsCommMonoid
+  asOrderedCommMonoid .fst = _
+  asOrderedCommMonoid .snd .OrderedCommMonoidStr._≤_ = _≤↑_
+  asOrderedCommMonoid .snd .OrderedCommMonoidStr._·_ = _·↑_
+  asOrderedCommMonoid .snd .OrderedCommMonoidStr.ε = 1↑
+  asOrderedCommMonoid .snd .OrderedCommMonoidStr.isOrderedCommMonoid =
+    IsOrderedCommMonoidFromIsCommMonoid
           (CommMonoidStr.isCommMonoid (snd asCommMonoid))
           ≤↑IsProp ≤↑IsRefl ≤↑IsTrans ≤↑IsAntisym ·↑IsRMonotone ·↑IsLMonotone
-    })
 
   boundedSubstructure : OrderedCommMonoid (ℓ-suc ℓ) ℓ
   boundedSubstructure =
