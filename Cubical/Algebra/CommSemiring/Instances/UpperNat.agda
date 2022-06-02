@@ -26,7 +26,7 @@ open import Cubical.Data.Empty hiding (⊥)
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.Truncation
-open import Cubical.HITs.PropositionalTruncation renaming (rec to propTruncRec)
+open import Cubical.HITs.PropositionalTruncation as PT
 
 private
   variable
@@ -99,10 +99,10 @@ module ConstructionUnbounded where
       (⇒) ⇐
     where
       ⇒ : (n : ℕ) → typeAt n (x · (y + z))  → typeAt n ((x · y) + (x · z))
-      ⇒ n = propTruncRec
+      ⇒ n = PT.rec
              isPropPropTrunc
              λ {((a , b) , xa , (y+zb , a·b≤n)) →
-                 propTruncRec
+                 PT.rec
                    isPropPropTrunc
                    (λ {((a' , b') , ya' , (zb' , a'+b'≤b))
                      → ∣ ((a · a') , (a · b')) ,
@@ -111,15 +111,16 @@ module ConstructionUnbounded where
                           subst (_≤ n) (sym (·-distribˡ a a' b'))
                             (≤-trans (MonotoneL {z = a} a'+b'≤b) a·b≤n)) ∣₁ })
                    y+zb}
+
       ⇐ : (n : ℕ) → _
       ⇐ n =
-        propTruncRec
+        PT.rec
           isPropPropTrunc
           λ {((a , b) , x·ya , (x·zb , a+b≤n))
-          → propTruncRec
+          → PT.rec
               isPropPropTrunc
               (λ {((a' , b') , a'x , (b'y , a'·b'≤a))
-              → propTruncRec
+              → PT.rec
                   isPropPropTrunc
                   (λ {((a″ , b″) , a″x , (zb″ , a″·b″≤b))
                   → ∣ ≤CaseInduction {n = a'} {m = a″}
@@ -183,7 +184,7 @@ module ConstructionBounded where
      ⇒ n _ = n , ℕ+Comm n 0
      ⇐ : (n : ℕ) → typeAt n (fst 0↑) → typeAt n (fst (0↑ · x))
      ⇐ n _ =
-       propTruncRec
+       PT.rec
          isPropPropTrunc
          (λ {(m , mIsUpperBound) → ∣ (0 , m) , ((0 , refl) , (mIsUpperBound , n ,  +Rid n)) ∣₁})
          (snd x)
