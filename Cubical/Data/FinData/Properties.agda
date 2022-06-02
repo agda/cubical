@@ -4,7 +4,6 @@ module Cubical.Data.FinData.Properties where
 
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Powerset
@@ -39,8 +38,16 @@ toFromId' (ℕsuc n) (ℕsuc k) infkn = cong ℕsuc (toFromId' n k (pred-≤-pre
 znots : ∀{k} {m : Fin k} → ¬ (zero ≡ (suc m))
 znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
 
+znotsP : ∀ {k0 k1 : ℕ} {k : k0 ≡ k1} {m1 : Fin k1}
+  → ¬ PathP (λ i → Fin (ℕsuc (k i))) zero (suc m1)
+znotsP p = ℕznots (congP (λ i → toℕ) p)
+
 snotz : ∀{k} {m : Fin k} → ¬ ((suc m) ≡ zero)
 snotz {k} {m} x = subst (Fin.rec ⊥ (Fin k)) x m
+
+snotzP : ∀ {k0 k1 : ℕ} {k : k0 ≡ k1} {m0 : Fin k0}
+  → ¬ PathP (λ i → Fin (ℕsuc (k i))) (suc m0) zero
+snotzP p = ℕsnotz (congP (λ i → toℕ) p)
 
 isPropFin0 : isProp (Fin 0)
 isPropFin0 = Empty.rec ∘ ¬Fin0
@@ -53,6 +60,25 @@ injSucFin : ∀ {n} {p q : Fin n} → suc p ≡ suc q → p ≡ q
 injSucFin {ℕsuc ℕzero} {zero} {zero} pf = refl
 injSucFin {ℕsuc (ℕsuc n)} pf = cong predFin pf
 
+injSucFinP : ∀ {n0 n1 : ℕ} {n : n0 ≡ n1} {p0 : Fin n0} {p1 : Fin n1}
+  → PathP (λ i → Fin (ℕsuc (n i))) (suc p0) (suc p1)
+  → PathP (λ i → Fin (n i)) p0 p1
+injSucFinP {one} {one} {n} {zero} {zero} sucp =
+  transport (λ j → PathP (λ i → Fin (eqn j i)) zero zero) refl
+  where eqn : refl ≡ n
+        eqn = isSetℕ one one refl n
+injSucFinP {one} {ℕsuc (ℕsuc n1)} {n} {p0} {p1} sucp = Empty.rec (ℕznots (injSuc n))
+injSucFinP {ℕsuc (ℕsuc n0)} {one} {n} {p0} {p1} sucp = Empty.rec (ℕsnotz (injSuc n))
+injSucFinP {ℕsuc (ℕsuc n0)} {ℕsuc (ℕsuc n1)} {n} {p0} {p1} sucp =
+  transport (λ j → PathP (λ i → Fin (eqn j i)) p0 p1) (
+      congP (λ i → predFin) (
+        transport (λ j → PathP (λ i → Fin (ℕsuc (eqn (~ j) i))) (suc p0) (suc p1)) sucp
+      )
+    )
+  where n' : 2 + n0 ≡ 2 + n1
+        n' = cong ℕsuc (injSuc n)
+        eqn : n' ≡ n
+        eqn = isSetℕ (2 + n0) (2 + n1) n' n
 
 discreteFin : ∀{k} → Discrete (Fin k)
 discreteFin zero zero = yes refl
