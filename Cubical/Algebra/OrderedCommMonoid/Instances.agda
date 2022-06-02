@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --postfix-projections #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.OrderedCommMonoid.Instances where
 
 open import Cubical.Foundations.Prelude
