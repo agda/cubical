@@ -262,11 +262,6 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
             coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j (v ∧l α i) (α i) (∧≤LCancel _ _)) ∎
 
         compIsConeMor (pair i j i<j) =
-          --   (fᵤ ⋆⟨ C ⟩ e)
-          --       ⋆⟨ C ⟩ F .F-hom (is-trans _ (β v i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ (β v) i))
-          -- ≡⟨ {!!} ⟩
-          --   coneOut cc (pair i j i<j)
-          --     ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))) ∎
             (fᵤ ⋆⟨ C ⟩ e)
                 ⋆⟨ C ⟩ F .F-hom (is-trans _ (β v i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ (β v) i))
           ≡⟨ ⋆Assoc C _ _ _ ⟩
@@ -276,32 +271,39 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
             fᵤ ⋆⟨ C ⟩ F .F-hom
               (subst2 _≤_ (β≡ v v≤⋁α) (β≡ u u≤⋁α) v≤u
                 ⋆⟨ DLCat ^op ⟩ is-trans _ (β v i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ (β v) i))
-          -- ≡⟨ cong (λ x → fᵤ ⋆⟨ C ⟩ F .F-hom {y = _ , ∧lClosed _ _ v∈L' (α∈L' i)} x)
-          --         (is-prop-valued _ _ _ _) ⟩
-          --   fᵤ ⋆⟨ C ⟩ F .F-hom
-          --     (ind≤⋁ (β u) i ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))
-          -- ≡⟨ cong (λ x → fᵤ ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
-          --   fᵤ ⋆⟨ C ⟩ (F .F-hom {y = _ , ∧lClosed _ _ u∈L' (α∈L' i)} (ind≤⋁ (β u) i)
-          --      ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
-          -- ≡⟨ sym (⋆Assoc C _ _ _) ⟩
-          --   (fᵤ ⋆⟨ C ⟩ F .F-hom {y = _ , ∧lClosed _ _ u∈L' (α∈L' i)} (ind≤⋁ (β u) i))
-          --       ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))
-          -- ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
-          --         (uniqβConeMor c cc u u∈L' u≤⋁α .fst .snd (sing i)) ⟩
-          --   (coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom {y = _ , ∧lClosed _ _ u∈L' (α∈L' i)}
-          --                                         (≤m→≤j (u ∧l α i) (α i) (∧≤LCancel _ _)))
-          --                        ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))
-          ≡⟨ {!!} ⟩
-            coneOut cc (pair i j i<j) ⋆⟨ C ⟩ (F .F-hom {y = _ , {!!}}
+          ≡⟨ cong (λ x → fᵤ ⋆⟨ C ⟩ F .F-hom
+                  {y = _ , ∧lClosed _ _ (∧lClosed _ _ v∈L' (α∈L' i)) (∧lClosed _ _ v∈L' (α∈L' j))} x)
+                  (is-prop-valued _ _ _ _) ⟩
+            fᵤ ⋆⟨ C ⟩ F .F-hom (is-trans _ (β u i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ (β u) i)
+               ⋆⟨ DLCat ^op ⟩
+                 ≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
+          ≡⟨ cong (λ x → fᵤ ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
+            fᵤ ⋆⟨ C ⟩ (F .F-hom (is-trans _ (β u i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ (β u) i))
+               ⋆⟨ C ⟩ F .F-hom
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))))
+          ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+            fᵤ ⋆⟨ C ⟩ F .F-hom (is-trans _ (β u i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ (β u) i))
+               ⋆⟨ C ⟩ F .F-hom
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
+          ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))))
+                 (uniqβConeMor c cc u u∈L' u≤⋁α .fst .snd (pair i j i<j)) ⟩
+            coneOut (βCone c u u∈L' cc) (pair i j i<j)
+               ⋆⟨ C ⟩ F .F-hom
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
+          ≡⟨ ⋆Assoc C _ _ _ ⟩
+            coneOut cc (pair i j i<j) ⋆⟨ C ⟩ (F .F-hom
+                       {y = _ , ∧lClosed _ _ (∧lClosed _ _ u∈L' (α∈L' i)) (∧lClosed _ _ u∈L' (α∈L' j))}
                        (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel u _) (∧≤LCancel u _)))
-                                ⋆⟨ C ⟩ F .F-hom {!!})
-          -- ≡⟨ cong (λ x → coneOut cc (sing i) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
-          --   coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom
-          --     (≤m→≤j (u ∧l α i) (α i) (∧≤LCancel _ _)
-          --       ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))
-          -- ≡⟨ cong (λ x → coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom {y = _ , ∧lClosed _ _ v∈L' (α∈L' i)} x)
-          --        (is-prop-valued _ _ _ _) ⟩
-          ≡⟨ {!!} ⟩
+               ⋆⟨ C ⟩ F .F-hom
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))))
+          ≡⟨ cong (λ x → coneOut cc (pair i j i<j) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
+            coneOut cc (pair i j i<j) ⋆⟨ C ⟩ F .F-hom
+                 ((≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel u _) (∧≤LCancel u _)) ⋆⟨ DLCat ^op ⟩
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))))
+          ≡⟨ cong (λ x → coneOut cc (pair i j i<j) ⋆⟨ C ⟩ F .F-hom
+                  {y = _ , ∧lClosed _ _ (∧lClosed _ _ v∈L' (α∈L' i)) (∧lClosed _ _ v∈L' (α∈L' j))} x)
+                  (is-prop-valued _ _ _ _) ⟩
             coneOut cc (pair i j i<j) ⋆⟨ C ⟩
               F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))) ∎
 
