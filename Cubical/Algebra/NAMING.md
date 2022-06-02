@@ -3,7 +3,7 @@ NAMING
 
 This file provides a guide for naming definitions in the Algebra folder.
 You may divert from the naming scheme for sufficiently 'local' names,
-e.g. names which are ```private``` or in a ```where``` clause.
+e.g. names which are ```private``` or in a ```where```/```let``` clause.
 If you need the operations and properties, of,
 say the ```Group``` ```ℤGroup```,
 use the names provided by ```open AbGroupStr (ℤGroup .snd)```.
