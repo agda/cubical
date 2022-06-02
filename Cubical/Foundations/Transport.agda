@@ -30,6 +30,10 @@ transport⁻ p = transport (λ i → p (~ i))
 subst⁻ : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y) → B y → B x
 subst⁻ B p pa = transport⁻ (λ i → B (p i)) pa
 
+subst⁻-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y) (b : B y)
+  → PathP (λ i → B (p (~ i))) b (subst⁻ B p b)
+subst⁻-filler B p = subst-filler B (sym p)
+
 transport-fillerExt : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B)
                     → PathP (λ i → A → p i) (λ x → x) (transport p)
 transport-fillerExt p i x = transport-filler p x i
