@@ -86,3 +86,10 @@ use the names provided by ```open AbGroupStr (ℤGroup .snd)```.
 
 * An instance of an algebraic structure should include the
   name of the structure. For example `UnitGroup` and `ℤGroup`.
+
+* Use traditional names for constructions in algebra as they could appear in a common textbook,
+  like e.g. Serge Lang's 'Algebra'.
+  So for exmaple, 'DirectSum' is to be preffered over 'Coproduct'.
+
+* If there are two canonical subfolders for a construction or instance of an algebraic structure,
+  use both and make one use the other.
