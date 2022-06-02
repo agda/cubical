@@ -308,6 +308,34 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
               F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel _ _) (∧≤LCancel _ _))) ∎
 
 
+    -- more notation for second lemma
+    -- this is the restriction of the limiting cone through which we define
+    -- the Kan-extension to the αᵢ's
+    private
+      F[⋁α]Cone = limitC ⋁α↓ (F* (⋁ α)) .limCone
+
+      restCone : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) (DLRan F .F-ob (⋁ α))
+      coneOut restCone (sing i) = F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)
+      coneOut restCone (pair i j i<j) = F[⋁α]Cone .coneOut
+                       ((α i ∧l α j , ∧lClosed _ _ (α∈L' i) (α∈L' j))
+                     , is-trans _ (α i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α i))
+      coneOutCommutes restCone {u = sing i} idAr = F[⋁α]Cone .coneOutCommutes
+                                                     (is-refl _ , is-prop-valued _ _ _ _)
+      coneOutCommutes restCone {u = pair i j i<j} idAr = F[⋁α]Cone .coneOutCommutes
+                                                     (is-refl _ , is-prop-valued _ _ _ _)
+      coneOutCommutes restCone singPairL = F[⋁α]Cone .coneOutCommutes
+                                             (≤m→≤j _ _ (∧≤RCancel _ _) , is-prop-valued _ _ _ _)
+      coneOutCommutes restCone singPairR = F[⋁α]Cone .coneOutCommutes
+                                             (≤m→≤j _ _ (∧≤LCancel _ _) , is-prop-valued _ _ _ _)
+
+    -- gives us preservation of cone morphisms that ensure uniqueness
+    lemma2 : ∀ (c : ob C) (cc : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c)
+               (f : C [ c , (DLRan F .F-ob (⋁ α)) ])
+           → isConeMor cc restCone f
+           → isConeMor (lemma1 c cc)  F[⋁α]Cone f
+    lemma2 c cc f = {!!}
+
+
   isDLSheafDLRan : isDLSheafPullback L C (DLRan F)
   fst isDLSheafDLRan x =
       limArrow (limitC _ (F* 0l)) x (toCone x)
