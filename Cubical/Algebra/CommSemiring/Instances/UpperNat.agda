@@ -157,14 +157,9 @@ module ConstructionBounded where
   ℕ↑-·b = BoundedPropCompletion ℕ≤·
 
   open OrderedCommMonoidStr (snd ℕ≤+)
-    using ()
-    renaming (_·_ to _+ℕ_;
-              MonotoneL to +MonotoneL; MonotoneR to +MonotoneR; rid to +Rid;
-              comm to ℕ+Comm)
+    renaming (_·_ to _+ℕ_; rid to +Rid; comm to ℕ+Comm)
   open OrderedCommMonoidStr (snd ℕ↑-+b)
-    using ()
-    renaming (assoc to +Assoc; comm to +Comm;
-              _·_ to _+_; ε to 0↑)
+    renaming (_·_ to _+_; ε to 0↑)
 
   open OrderedCommMonoidStr (snd ℕ↑-·b)
     using (_·_)
