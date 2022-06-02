@@ -102,12 +102,6 @@ record IsMonoidHom {A : Type ℓ} {B : Type ℓ'}
 MonoidHom : (L : Monoid ℓ) (M : Monoid ℓ') → Type (ℓ-max ℓ ℓ')
 MonoidHom L M = Σ[ f ∈ (⟨ L ⟩ → ⟨ M ⟩) ] IsMonoidHom (L .snd) f (M .snd)
 
-isSetFromIsMonoid :
-  {M : Type ℓ} {ε : M} {_·_ : M → M → M}
-  (isMonoid : IsMonoid ε _·_)
-  → isSet M
-isSetFromIsMonoid isMonoid = IsSemigroup.is-set (IsMonoid.isSemigroup isMonoid)
-
 IsMonoidEquiv : {A : Type ℓ} {B : Type ℓ'} (M : MonoidStr A) (e : A ≃ B) (N : MonoidStr B)
   → Type (ℓ-max ℓ ℓ')
 IsMonoidEquiv M e N = IsMonoidHom M (e .fst) N
