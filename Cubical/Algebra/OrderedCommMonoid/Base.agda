@@ -42,44 +42,29 @@ record OrderedCommMonoidStr (ℓ' : Level) (M : Type ℓ) : Type (ℓ-suc (ℓ-m
 OrderedCommMonoid : (ℓ ℓ' : Level) → Type (ℓ-suc (ℓ-max ℓ ℓ'))
 OrderedCommMonoid ℓ ℓ' = TypeWithStr ℓ (OrderedCommMonoidStr ℓ')
 
-module _ where
+module _
+    {M : Type ℓ} {1m : M} {_·_ : M → M → M} {_≤_ : M → M → Type ℓ'}
+    (is-setM : isSet M)
+    (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+    (rid : (x : M) → x · 1m ≡ x)
+    (lid : (x : M) → 1m · x ≡ x)
+    (comm : (x y : M) → x · y ≡ y · x)
+    (isProp≤ : (x y : M) → isProp (x ≤ y))
+    (isRefl : (x : M) → x ≤ x)
+    (isTrans : (x y z : M) → x ≤ y → y ≤ z → x ≤ z)
+    (isAntisym : (x y : M) → x ≤ y → y ≤ x → x ≡ y)
+    (rmonotone : (x y z : M) → x ≤ y → (x · z) ≤ (y · z))
+    (lmonotone : (x y z : M) → x ≤ y → (z · x) ≤ (z · y))
+  where
   open IsOrderedCommMonoid
 
-  makeIsOrderedCommMonoid : {M : Type ℓ} {1m : M} {_·_ : M → M → M} {_≤_ : M → M → Type ℓ'}
-                 (is-setM : isSet M)
-                 (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-                 (rid : (x : M) → x · 1m ≡ x)
-                 (lid : (x : M) → 1m · x ≡ x)
-                 (comm : (x y : M) → x · y ≡ y · x)
-                 (isProp≤ : (x y : M) → isProp (x ≤ y))
-                 (isRefl : (x : M) → x ≤ x)
-                 (isTrans : (x y z : M) → x ≤ y → y ≤ z → x ≤ z)
-                 (isAntisym : (x y : M) → x ≤ y → y ≤ x → x ≡ y)
-                 (rmonotone : (x y z : M) → x ≤ y → (x · z) ≤ (y · z))
-                 (lmonotone : (x y z : M) → x ≤ y → (z · x) ≤ (z · y))
-               → IsOrderedCommMonoid _·_ 1m _≤_
-  isCommMonoid
-    (makeIsOrderedCommMonoid
-      is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone)
-    =
-    makeIsCommMonoid is-setM assoc rid comm
-  isPoset
-    (makeIsOrderedCommMonoid
-      is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone)
-    =
-    isposet is-setM isProp≤ isRefl isTrans isAntisym
-  MonotoneR
-    (makeIsOrderedCommMonoid
-      is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone)
-    =
-    rmonotone _ _ _
-  MonotoneL
-    (makeIsOrderedCommMonoid
-      is-setM assoc rid lid comm isProp≤ isRefl isTrans isAntisym rmonotone lmonotone)
-    =
-    lmonotone _ _ _
+  makeIsOrderedCommMonoid : IsOrderedCommMonoid _·_ 1m _≤_
+  isCommMonoid makeIsOrderedCommMonoid = makeIsCommMonoid is-setM assoc rid comm
+  isPoset makeIsOrderedCommMonoid = isposet is-setM isProp≤ isRefl isTrans isAntisym
+  MonotoneR makeIsOrderedCommMonoid = rmonotone _ _ _
+  MonotoneL makeIsOrderedCommMonoid = lmonotone _ _ _
 
-  IsOrderedCommMonoidFromIsCommMonoid :
+module _
     {M : Type ℓ} {1m : M} {_·_ : M → M → M} {_≤_ : M → M → Type ℓ'}
     (isCommMonoid : IsCommMonoid 1m _·_)
     (isProp≤ : (x y : M) → isProp (x ≤ y))
@@ -88,24 +73,21 @@ module _ where
     (isAntisym : (x y : M) → x ≤ y → y ≤ x → x ≡ y)
     (rmonotone : (x y z : M) → x ≤ y → (x · z) ≤ (y · z))
     (lmonotone : (x y z : M) → x ≤ y → (z · x) ≤ (z · y))
-    → IsOrderedCommMonoid _·_ 1m _≤_
-  isPoset (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid isProp≤ isRefl isTrans isAntisym _ _) =
+  where
+  module CM = IsOrderedCommMonoid
+
+  IsOrderedCommMonoidFromIsCommMonoid : IsOrderedCommMonoid _·_ 1m _≤_
+  CM.isPoset IsOrderedCommMonoidFromIsCommMonoid =
     isposet (isSetFromIsCommMonoid isCommMonoid) isProp≤ isRefl isTrans isAntisym
-  isCommMonoid (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid _ _ _ _ _ _) = isCommMonoid
-  MonotoneR (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid _ _ _ _ rmonotone _) = rmonotone _ _ _
-  MonotoneL (IsOrderedCommMonoidFromIsCommMonoid isCommMonoid _ _ _ _ _ lmonotone) = lmonotone _ _ _
+  CM.isCommMonoid IsOrderedCommMonoidFromIsCommMonoid = isCommMonoid
+  CM.MonotoneR IsOrderedCommMonoidFromIsCommMonoid = rmonotone _ _ _
+  CM.MonotoneL IsOrderedCommMonoidFromIsCommMonoid = lmonotone _ _ _
 
 OrderedCommMonoid→CommMonoid : OrderedCommMonoid ℓ ℓ' → CommMonoid ℓ
-OrderedCommMonoid→CommMonoid (M , _) .fst = M
-OrderedCommMonoid→CommMonoid
-  (M , record {
-         _≤_ = _;
-         _·_ = _·_;
-         ε = ε;
-         isOrderedCommMonoid = isOrderedCommMonoid
-  }) .snd
-     = let open IsOrderedCommMonoid isOrderedCommMonoid
-       in commmonoidstr ε _·_ isCommMonoid
+OrderedCommMonoid→CommMonoid M .fst = M .fst
+OrderedCommMonoid→CommMonoid M .snd =
+  let open OrderedCommMonoidStr (M .snd)
+  in commmonoidstr _ _ isCommMonoid
 
 isSetOrderedCommMonoid : (M : OrderedCommMonoid ℓ ℓ') → isSet ⟨ M ⟩
 isSetOrderedCommMonoid M = isSetCommMonoid (OrderedCommMonoid→CommMonoid M)
