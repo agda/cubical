@@ -426,16 +426,16 @@ module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ₁} (f g : Embedding B ℓ
     ■
 open EmbeddingIdentityPrinciple renaming (f≃g to _≃Emb_) using (EmbeddingIP) public
 
-module SubtypePathReflection {A : Type ℓ} (P : A → hProp ℓ₁) where
-  subtypeHasPropFibers : hasPropFibers (λ (x : Σ[ y ∈ A ] fst (P y)) → fst x)
-  subtypeHasPropFibers x = isPropFiber
-    where isPropFiber : isProp (fiber fst x)
-          isPropFiber = isOfHLevelRespectEquiv 1 (invEquiv (fiberEquiv (λ x → fst (P x)) x)) (snd (P x))
+module _ {A : Type ℓ} (P : A → hProp ℓ₁) where
+  private
+    subtypeHasPropFibers : hasPropFibers (λ (x : Σ[ y ∈ A ] fst (P y)) → fst x)
+    subtypeHasPropFibers x = isPropFiber
+      where isPropFiber : isProp (fiber fst x)
+            isPropFiber = isOfHLevelRespectEquiv 1 (invEquiv (fiberEquiv (λ x → fst (P x)) x)) (snd (P x))
+
   subtypePathReflection : (x y : Σ[ a ∈ A ] fst (P a))
                           → fst x ≡ fst y → x ≡ y
   subtypePathReflection x y q = Iso.inv
                                     (equivToIso
                                      (_ , hasPropFibers→isEmbedding subtypeHasPropFibers x y))
                                     q
-
-open SubtypePathReflection using (subtypePathReflection) public
