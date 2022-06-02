@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.OrderedCommMonoid.PropCompletion where
 {-
-  The completion of an ordered monoid, viewd as monoidal prop-enriched category.
+  The completion of an ordered monoid, viewed as monoidal prop-enriched category.
   This is used in the construction of the upper naturals, which is an idea of David
   Jaz Myers presented here
 
