@@ -128,6 +128,9 @@ isSetAbGroup A = isSetGroup (AbGroup→Group A)
 AbGroupHom : (G : AbGroup ℓ) (H : AbGroup ℓ') → Type (ℓ-max ℓ ℓ')
 AbGroupHom G H = GroupHom (AbGroup→Group G) (AbGroup→Group H)
 
+AbGroupIso : (G : AbGroup ℓ) (H : AbGroup ℓ') → Type (ℓ-max ℓ ℓ')
+AbGroupIso G H = GroupIso (AbGroup→Group G) (AbGroup→Group H)
+
 IsAbGroupEquiv : {A : Type ℓ} {B : Type ℓ'}
   (G : AbGroupStr A) (e : A ≃ B) (H : AbGroupStr B) → Type (ℓ-max ℓ ℓ')
 IsAbGroupEquiv G e H = IsGroupHom (AbGroupStr→GroupStr G) (e .fst) (AbGroupStr→GroupStr H)
