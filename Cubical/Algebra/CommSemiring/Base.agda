@@ -2,7 +2,7 @@
 module Cubical.Algebra.CommSemiring.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.SIP using (TypeWithStr)
 
 open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Monoid

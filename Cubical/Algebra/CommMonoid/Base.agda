@@ -88,7 +88,8 @@ isSetFromIsCommMonoid :
   (isCommMonoid : IsCommMonoid ε _·_)
   → isSet M
 isSetFromIsCommMonoid isCommMonoid =
-  isSetFromIsMonoid (MonoidStr.isMonoid (CommMonoidStr→MonoidStr (commmonoidstr _ _ isCommMonoid)))
+  let open IsCommMonoid isCommMonoid
+  in is-set
 
 isSetCommMonoid : (M : CommMonoid ℓ) → isSet ⟨ M ⟩
 isSetCommMonoid M =
