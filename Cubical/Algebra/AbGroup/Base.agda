@@ -61,25 +61,36 @@ record AbGroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 AbGroup : ∀ ℓ → Type (ℓ-suc ℓ)
 AbGroup ℓ = TypeWithStr ℓ AbGroupStr
 
-makeIsAbGroup : {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
-              (is-setG : isSet G)
-              (assoc   : (x y z : G) → x + (y + z) ≡ (x + y) + z)
-              (rid     : (x : G) → x + 0g ≡ x)
-              (rinv    : (x : G) → x + (- x) ≡ 0g)
-              (comm    : (x y : G) → x + y ≡ y + x)
-            → IsAbGroup 0g _+_ -_
-makeIsAbGroup is-setG assoc rid rinv comm =
-  isabgroup (makeIsGroup is-setG assoc rid (λ x → comm _ _ ∙ rid x) rinv (λ x → comm _ _ ∙ rinv x)) comm
+module _ {G : Type ℓ} {0g : G} {_+_ : G → G → G} { -_ : G → G}
+         (is-setG : isSet G)
+         (assoc   : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+         (rid     : (x : G) → x + 0g ≡ x)
+         (rinv    : (x : G) → x + (- x) ≡ 0g)
+         (comm    : (x y : G) → x + y ≡ y + x)
+  where
 
-makeAbGroup : {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
-            (is-setG : isSet G)
-            (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
-            (rid : (x : G) → x + 0g ≡ x)
-            (rinv : (x : G) → x + (- x) ≡ 0g)
-            (comm    : (x y : G) → x + y ≡ y + x)
-          → AbGroup ℓ
-makeAbGroup 0g _+_ -_ is-setG assoc rid rinv comm =
-  _ , abgroupstr 0g _+_ -_ (makeIsAbGroup is-setG assoc rid rinv comm)
+  makeIsAbGroup : IsAbGroup 0g _+_ -_
+  makeIsAbGroup .IsAbGroup.isGroup =
+    makeIsGroup is-setG assoc rid
+                (λ x → comm _ _ ∙ rid x)
+                rinv
+                (λ x → comm _ _ ∙ rinv x)
+  makeIsAbGroup .IsAbGroup.comm = comm
+
+module _ {G : Type ℓ} (0g : G) (_+_ : G → G → G) (-_ : G → G)
+         (is-setG : isSet G)
+         (assoc : (x y z : G) → x + (y + z) ≡ (x + y) + z)
+         (rid : (x : G) → x + 0g ≡ x)
+         (rinv : (x : G) → x + (- x) ≡ 0g)
+         (comm    : (x y : G) → x + y ≡ y + x)
+  where
+
+  makeAbGroup : AbGroup ℓ
+  makeAbGroup .fst = G
+  makeAbGroup .snd .AbGroupStr.0g = 0g
+  makeAbGroup .snd .AbGroupStr._+_ = _+_
+  makeAbGroup .snd .AbGroupStr.-_ = -_
+  makeAbGroup .snd .AbGroupStr.isAbGroup = makeIsAbGroup is-setG assoc rid rinv comm
 
 open GroupStr
 open AbGroupStr
@@ -103,15 +114,22 @@ AbGroupStr.- snd (Group→AbGroup G comm) = inv (snd G)
 IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = isGroup (snd G)
 IsAbGroup.comm (AbGroupStr.isAbGroup (snd (Group→AbGroup G comm))) = comm
 
-AbGroup→CommMonoid : AbGroup ℓ → CommMonoid ℓ
-AbGroup→CommMonoid (_ , abgroupstr  _ _ _ G) =
-  _ , commmonoidstr _ _ (iscommmonoid (IsAbGroup.isMonoid G) (IsAbGroup.comm G))
+module _ ((G , abgroupstr _ _ _ GisGroup) : AbGroup ℓ) where
+  AbGroup→CommMonoid : CommMonoid ℓ
+  AbGroup→CommMonoid .fst = G
+  AbGroup→CommMonoid .snd .CommMonoidStr.ε = _
+  AbGroup→CommMonoid .snd .CommMonoidStr._·_ = _
+  AbGroup→CommMonoid .snd .CommMonoidStr.isCommMonoid .IsCommMonoid.isMonoid = IsAbGroup.isMonoid GisGroup
+  AbGroup→CommMonoid .snd .CommMonoidStr.isCommMonoid .IsCommMonoid.comm = IsAbGroup.comm GisGroup
 
 isSetAbGroup : (A : AbGroup ℓ) → isSet ⟨ A ⟩
 isSetAbGroup A = isSetGroup (AbGroup→Group A)
 
 AbGroupHom : (G : AbGroup ℓ) (H : AbGroup ℓ') → Type (ℓ-max ℓ ℓ')
 AbGroupHom G H = GroupHom (AbGroup→Group G) (AbGroup→Group H)
+
+AbGroupIso : (G : AbGroup ℓ) (H : AbGroup ℓ') → Type (ℓ-max ℓ ℓ')
+AbGroupIso G H = GroupIso (AbGroup→Group G) (AbGroup→Group H)
 
 IsAbGroupEquiv : {A : Type ℓ} {B : Type ℓ'}
   (G : AbGroupStr A) (e : A ≃ B) (H : AbGroupStr B) → Type (ℓ-max ℓ ℓ')
