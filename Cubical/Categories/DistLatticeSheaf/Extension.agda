@@ -13,6 +13,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.FinData.Order
 
 open import Cubical.Relation.Binary.Poset
+open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
@@ -275,32 +276,35 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                   {y = _ , ∧lClosed _ _ (∧lClosed _ _ v∈L' (α∈L' i)) (∧lClosed _ _ v∈L' (α∈L' j))} x)
                   (is-prop-valued _ _ _ _) ⟩
             fᵤ ⋆⟨ C ⟩ F .F-hom (is-trans _ (β u i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ (β u) i)
-               ⋆⟨ DLCat ^op ⟩
-                 ≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
+               ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))
+                                        (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
           ≡⟨ cong (λ x → fᵤ ⋆⟨ C ⟩ x) (F .F-seq _ _) ⟩
             fᵤ ⋆⟨ C ⟩ (F .F-hom (is-trans _ (β u i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ (β u) i))
-               ⋆⟨ C ⟩ F .F-hom
-                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))))
+               ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))
+                                                           (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))))
           ≡⟨ sym (⋆Assoc C _ _ _) ⟩
             fᵤ ⋆⟨ C ⟩ F .F-hom (is-trans _ (β u i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ (β u) i))
-               ⋆⟨ C ⟩ F .F-hom
-                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
+               ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))
+                                                           (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
           ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom
-                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))))
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))
+                                             (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))))
                  (uniqβConeMor c cc u u∈L' u≤⋁α .fst .snd (pair i j i<j)) ⟩
             coneOut (βCone c u u∈L' cc) (pair i j i<j)
-               ⋆⟨ C ⟩ F .F-hom
-                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
+               ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))
+                                          (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))
           ≡⟨ ⋆Assoc C _ _ _ ⟩
             coneOut cc (pair i j i<j) ⋆⟨ C ⟩ (F .F-hom
-                       {y = _ , ∧lClosed _ _ (∧lClosed _ _ u∈L' (α∈L' i)) (∧lClosed _ _ u∈L' (α∈L' j))}
-                       (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel u _) (∧≤LCancel u _)))
+                 {y = _ , ∧lClosed _ _ (∧lClosed _ _ u∈L' (α∈L' i)) (∧lClosed _ _ u∈L' (α∈L' j))}
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel u _) (∧≤LCancel u _)))
                ⋆⟨ C ⟩ F .F-hom
-                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))))
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))
+                                             (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)))))
           ≡⟨ cong (λ x → coneOut cc (pair i j i<j) ⋆⟨ C ⟩ x) (sym (F .F-seq _ _)) ⟩
             coneOut cc (pair i j i<j) ⋆⟨ C ⟩ F .F-hom
                  ((≤m→≤j _ _ (≤-∧Pres _ _ _ _ (∧≤LCancel u _) (∧≤LCancel u _)) ⋆⟨ DLCat ^op ⟩
-                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u)) (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))))
+                 (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))
+                                             (≤-∧RPres _ _ _ (≤j→≤m _ _ v≤u))))))
           ≡⟨ cong (λ x → coneOut cc (pair i j i<j) ⋆⟨ C ⟩ F .F-hom
                   {y = _ , ∧lClosed _ _ (∧lClosed _ _ v∈L' (α∈L' i)) (∧lClosed _ _ v∈L' (α∈L' j))} x)
                   (is-prop-valued _ _ _ _) ⟩
@@ -314,28 +318,58 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
     private
       F[⋁α]Cone = limitC ⋁α↓ (F* (⋁ α)) .limCone
 
-      restCone : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) (DLRan F .F-ob (⋁ α))
-      coneOut restCone (sing i) = F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)
-      coneOut restCone (pair i j i<j) = F[⋁α]Cone .coneOut
-                       ((α i ∧l α j , ∧lClosed _ _ (α∈L' i) (α∈L' j))
-                     , is-trans _ (α i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α i))
-      coneOutCommutes restCone {u = sing i} idAr = F[⋁α]Cone .coneOutCommutes
-                                                     (is-refl _ , is-prop-valued _ _ _ _)
-      coneOutCommutes restCone {u = pair i j i<j} idAr = F[⋁α]Cone .coneOutCommutes
-                                                     (is-refl _ , is-prop-valued _ _ _ _)
-      coneOutCommutes restCone singPairL = F[⋁α]Cone .coneOutCommutes
-                                             (≤m→≤j _ _ (∧≤RCancel _ _) , is-prop-valued _ _ _ _)
-      coneOutCommutes restCone singPairR = F[⋁α]Cone .coneOutCommutes
-                                             (≤m→≤j _ _ (∧≤LCancel _ _) , is-prop-valued _ _ _ _)
+    restCone : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) (DLRan F .F-ob (⋁ α))
+    coneOut restCone (sing i) = F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)
+    coneOut restCone (pair i j i<j) = F[⋁α]Cone .coneOut
+                     ((α i ∧l α j , ∧lClosed _ _ (α∈L' i) (α∈L' j))
+                   , is-trans _ (α i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α i))
+    coneOutCommutes restCone {u = sing i} idAr = F[⋁α]Cone .coneOutCommutes
+                                                   (is-refl _ , is-prop-valued _ _ _ _)
+    coneOutCommutes restCone {u = pair i j i<j} idAr = F[⋁α]Cone .coneOutCommutes
+                                                   (is-refl _ , is-prop-valued _ _ _ _)
+    coneOutCommutes restCone singPairL = F[⋁α]Cone .coneOutCommutes
+                                           (≤m→≤j _ _ (∧≤RCancel _ _) , is-prop-valued _ _ _ _)
+    coneOutCommutes restCone singPairR = F[⋁α]Cone .coneOutCommutes
+                                           (≤m→≤j _ _ (∧≤LCancel _ _) , is-prop-valued _ _ _ _)
 
     -- gives us preservation of cone morphisms that ensure uniqueness
     lemma2 : ∀ (c : ob C) (cc : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c)
                (f : C [ c , (DLRan F .F-ob (⋁ α)) ])
            → isConeMor cc restCone f
            → isConeMor (lemma1 c cc)  F[⋁α]Cone f
-    lemma2 c cc f = {!!}
+    lemma2 c cc f isRestConeMorf ((u , u∈L') , u≤⋁α) =
+      transport (λ i → f ⋆⟨ C ⟩ coneOutPathP i ≡ bᵤPathP i) triangle
+      where
+      -- for convenience
+      pᵤ = Σ≡Prop (λ x → L' x .snd) {u = _ , ⋁β∈L' u u∈L' u≤⋁α}
+                                    {v = _ , u∈L'} (sym (β≡ u u≤⋁α))
+
+      bᵤ : C [ c , F .F-ob (⋁ (β u) , ⋁β∈L' u u∈L' u≤⋁α) ]
+      bᵤ = uniqβConeMor c cc u u∈L' u≤⋁α .fst .fst
+
+      bᵤPathP : PathP (λ i → C [ c , F .F-ob (pᵤ i) ])
+                  bᵤ (coneOut (lemma1 c cc) ((u , u∈L') , u≤⋁α))
+      bᵤPathP = subst-filler (λ x → C [ c , F .F-ob x ]) pᵤ bᵤ
 
 
+      ⋁βᵤ : ob ⋁α↓
+      ⋁βᵤ = ((⋁ (β u) , ⋁β∈L' u u∈L' u≤⋁α) , subst (_≤ ⋁ α) (β≡ u u≤⋁α) u≤⋁α)
+
+      coneOutPathP : PathP (λ i → C [ (DLRan F .F-ob (⋁ α)) , F .F-ob (pᵤ i) ])
+                       (coneOut F[⋁α]Cone ⋁βᵤ) (coneOut F[⋁α]Cone ((u , u∈L') , u≤⋁α))
+      coneOutPathP i = coneOut F[⋁α]Cone ((pᵤ i) , subst-filler (_≤ ⋁ α) (β≡ u u≤⋁α) u≤⋁α (~ i))
+
+      triangle : f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ⋁βᵤ ≡ bᵤ
+      triangle = sym (cong fst (uniqβConeMor c cc u u∈L' u≤⋁α .snd
+                               (f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ⋁βᵤ , compIsConeMor)))
+        where
+        compIsConeMor : isConeMor (βCone c u u∈L' cc)
+                         (F-cone F (B⋁Cone (λ i → β u i , β∈L' u u∈L' i) (⋁β∈L' u u∈L' u≤⋁α)))
+                         (f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ⋁βᵤ)
+        compIsConeMor v = {!!}
+
+
+---- the main proof --------------------------------------------------------------------------------
   isDLSheafDLRan : isDLSheafPullback L C (DLRan F)
   fst isDLSheafDLRan x =
       limArrow (limitC _ (F* 0l)) x (toCone x)
@@ -362,4 +396,10 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
     toConeMor y f v = sym (toTerminal v y .snd _)
 
 
-  snd isDLSheafDLRan x y = {!!}
+  snd isDLSheafDLRan x y = rec2 (isPropIsPullback _ _ _ _ (Fsq L C x y (DLRan F)))
+                             Σhelper (⋁Basis x) (⋁Basis y)
+    where
+    Σhelper : Σ[ n ∈ ℕ ] Σ[ β ∈ FinVec (fst L) n ] (∀ i → β i ∈ L') × (⋁ β ≡ x)
+            → Σ[ m ∈ ℕ ] Σ[ γ ∈ FinVec (fst L) m ] (∀ i → γ i ∈ L') × (⋁ γ ≡ y)
+            → isPullback C _ _ _ (Fsq L C x y (DLRan F))
+    Σhelper (n , β , β∈L' , ⋁β≡x) (m , γ , γ∈L' , ⋁γ≡y) = {!!}
