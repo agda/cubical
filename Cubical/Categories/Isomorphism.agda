@@ -3,10 +3,9 @@ module Cubical.Categories.Isomorphism where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Function
 open import Cubical.Categories.Category
-  renaming (CatIso≡ to CatIso≡Ext)
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functor.Properties
 
 private
   variable
@@ -16,37 +15,25 @@ private
 module _ {C : Category ℓC ℓC'} where
 
   open Category C
-  open CatIso
+  open isIso
 
 
   ⋆Iso : {x y z : ob} → (f : CatIso C x y)(g : CatIso C y z) → CatIso C x z
-  ⋆Iso f g .mor = f .mor ⋆ g .mor
-  ⋆Iso f g .inv = g .inv ⋆ f .inv
-  ⋆Iso f g .sec = sym (⋆Assoc _ _ _)
-    ∙ (λ i → ⋆Assoc (g .inv) (f .inv) (f .mor) i ⋆ g .mor)
-    ∙ (λ i → (g .inv ⋆ f .sec i) ⋆ g .mor)
-    ∙ (λ i → ⋆IdR (g .inv) i ⋆ g .mor)
-    ∙ g .sec
-  ⋆Iso f g .ret = sym (⋆Assoc _ _ _)
-    ∙ (λ i → ⋆Assoc (f .mor) (g .mor) (g .inv) i ⋆ f .inv)
-    ∙ (λ i → (f .mor ⋆ g .ret i) ⋆ f .inv)
-    ∙ (λ i → ⋆IdR (f .mor) i ⋆ f .inv)
-    ∙ f .ret
+  ⋆Iso f g .fst = f .fst ⋆ g .fst
+  ⋆Iso f g .snd .inv = g .snd .inv ⋆ f .snd .inv
+  ⋆Iso f g .snd .sec = sym (⋆Assoc _ _ _)
+    ∙ (λ i → ⋆Assoc (g .snd .inv) (f .snd .inv) (f .fst) i ⋆ g .fst)
+    ∙ (λ i → (g .snd .inv ⋆ f .snd .sec i) ⋆ g .fst)
+    ∙ (λ i → ⋆IdR (g .snd .inv) i ⋆ g .fst)
+    ∙ g .snd .sec
+  ⋆Iso f g .snd .ret = sym (⋆Assoc _ _ _)
+    ∙ (λ i → ⋆Assoc (f .fst) (g .fst) (g .snd .inv) i ⋆ f .snd .inv)
+    ∙ (λ i → (f .fst ⋆ g .snd .ret i) ⋆ f .snd .inv)
+    ∙ (λ i → ⋆IdR (f .fst) i ⋆ f .snd .inv)
+    ∙ f .snd .ret
 
   compIso : {x y z : ob} → (g : CatIso C y z)(f : CatIso C x y) → CatIso C x z
   compIso g f = ⋆Iso f g
-
-
-  CatIso≡ : {x y : ob} (f g : CatIso C x y) → f .mor ≡ g .mor → f ≡ g
-  CatIso≡ f g p = CatIso≡Ext f g p inv≡
-    where
-    inv≡ : f .inv ≡ g .inv
-    inv≡ = sym (⋆IdL _)
-      ∙ (λ i → g .sec (~ i) ⋆ f .inv)
-      ∙ ⋆Assoc _ _ _
-      ∙ (λ i → g .inv ⋆ (p (~ i) ⋆ f .inv))
-      ∙ (λ i → g .inv ⋆ f .ret i)
-      ∙ ⋆IdR _
 
 
   ⋆IsoIdL : {x y : ob} → (f : CatIso C x y) → ⋆Iso idCatIso f ≡ f
@@ -66,33 +53,72 @@ module _ {C : Category ℓC ℓC'} where
       ∙ (λ i → ⋆Iso (pathToIso-refl (~ i)) (pathToIso refl))
 
 
+  pathToIso-Square : {x y z w : ob}
+    → (p : x ≡ y)(q : z ≡ w)
+    → (f : Hom[ x , z ])(g : Hom[ y , w ])
+    → PathP (λ i → Hom[ p i , q i ]) f g
+    → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} p .fst ⋆ g
+  pathToIso-Square {x = x} {z = z} p q =
+    J (λ y p →
+        (w : ob)(q : z ≡ w)(f : Hom[ x , z ])(g : Hom[ y , w ])
+      → PathP (λ i → Hom[ p i , q i ]) f g
+      → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} p .fst ⋆ g)
+    (λ _ → J (λ w q →
+        (f : Hom[ x , z ])(g : Hom[ x , w ])
+      → PathP (λ i → Hom[ x , q i ]) f g
+      → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} refl .fst ⋆ g)
+      sqr-refl) p _ q
+    where
+    sqr-refl : {x z : ob} → (f g : Hom[ x , z ]) → f ≡ g
+      → f ⋆ pathToIso {C = C} refl .fst ≡ pathToIso {C = C} refl .fst ⋆ g
+    sqr-refl f g p = (λ i → f ⋆ pathToIso-refl {C = C} i .fst)
+      ∙ ⋆IdR _ ∙ p ∙ sym (⋆IdL _)
+      ∙ (λ i → pathToIso-refl {C = C} (~ i) .fst ⋆ g)
+
+
 module _ {C : Category ℓC ℓC'} where
 
   open Category
-  open CatIso
+  open isIso
 
   op-Iso : {x y : C .ob} → CatIso C x y → CatIso (C ^op) x y
-  op-Iso f .mor = f .inv
-  op-Iso f .inv = f .mor
-  op-Iso f .sec = f .sec
-  op-Iso f .ret = f .ret
+  op-Iso f .fst = f .snd .inv
+  op-Iso f .snd .inv = f .fst
+  op-Iso f .snd .sec = f .snd .sec
+  op-Iso f .snd .ret = f .snd .ret
 
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{F : Functor C D} where
 
-  open Category
-  open CatIso
+  open Category hiding (_∘_)
+  open isIso
   open Functor
 
 
+  F-PresIsIso : {x y : C .ob}{f : C [ x , y ]} → isIso C f → isIso D (F .F-hom f)
+  F-PresIsIso f .inv = F . F-hom (f .inv)
+  F-PresIsIso f .sec = sym (F .F-seq (f .inv) _) ∙ cong (F .F-hom) (f .sec) ∙ F .F-id
+  F-PresIsIso f .ret = sym (F .F-seq _ (f .inv)) ∙ cong (F .F-hom) (f .ret) ∙ F .F-id
+
+
   F-Iso : {x y : C .ob} → CatIso C x y → CatIso D (F .F-ob x) (F .F-ob y)
-  F-Iso f .mor = F . F-hom (f .mor)
-  F-Iso f .inv = F . F-hom (f .inv)
-  F-Iso f .sec = sym (F .F-seq (f .inv) (f .mor)) ∙ cong (F .F-hom) (f .sec) ∙ F .F-id
-  F-Iso f .ret = sym (F .F-seq (f .mor) (f .inv)) ∙ cong (F .F-hom) (f .ret) ∙ F .F-id
+  F-Iso f .fst = F . F-hom (f .fst)
+  F-Iso f .snd = F-PresIsIso (f .snd)
 
   F-Iso-PresId : {x : C .ob} → F-Iso (idCatIso {x = x}) ≡ idCatIso
   F-Iso-PresId = CatIso≡ _ _ (F .F-id)
 
   F-Iso-Pres⋆ : {x y z : C .ob} → (f : CatIso C x y)(g : CatIso C y z) → F-Iso (⋆Iso f g) ≡ ⋆Iso (F-Iso f) (F-Iso g)
   F-Iso-Pres⋆ _ _ = CatIso≡ _ _ (F .F-seq _ _)
+
+
+  F-pathToIso : {x y : C .ob} → (p : x ≡ y) → F-Iso (pathToIso p) ≡ pathToIso (cong (F .F-ob) p)
+  F-pathToIso p = J (λ y p → F-Iso (pathToIso p) ≡ pathToIso (cong (F .F-ob) p)) F-pathToIso-refl p
+    where
+    F-pathToIso-refl : {x : C .ob} → F-Iso (pathToIso {x = x} refl) ≡ pathToIso (cong (F .F-ob) refl)
+    F-pathToIso-refl = cong F-Iso pathToIso-refl
+      ∙ F-Iso-PresId
+      ∙ sym pathToIso-refl
+
+  F-pathToIso-∘ : {x y : C .ob} → F-Iso ∘ pathToIso {x = x} {y = y} ≡ pathToIso ∘ cong (F .F-ob)
+  F-pathToIso-∘ i p = F-pathToIso p i

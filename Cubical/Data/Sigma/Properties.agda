@@ -260,6 +260,16 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 Σ-cong' : (p : A ≡ A') → PathP (λ i → p i → Type ℓ') B B' → Σ A B ≡ Σ A' B'
 Σ-cong' p p' = cong₂ (λ (A : Type _) (B : A → Type _) → Σ A B) p p'
 
+Σ-cong-equiv-prop :
+    (e : A ≃ A')
+  → ((x : A ) → isProp (B  x))
+  → ((x : A') → isProp (B' x))
+  → ((x : A) → B x → B' (equivFun e x))
+  → ((x : A) → B' (equivFun e x) → B x)
+  → Σ A B ≃ Σ A' B'
+Σ-cong-equiv-prop e prop prop' prop→ prop← =
+  Σ-cong-equiv e (λ x → propBiimpl→Equiv (prop x) (prop' (equivFun e x)) (prop→ x) (prop← x))
+
 -- Alternative version for path in Σ-types, as in the HoTT book
 
 ΣPathTransport : (a b : Σ A B) → Type _

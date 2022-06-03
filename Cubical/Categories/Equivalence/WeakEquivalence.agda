@@ -5,6 +5,8 @@ module Cubical.Categories.Equivalence.WeakEquivalence where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
   renaming (isEquiv to isEquivMap)
+open import Cubical.Functions.Surjection
+open import Cubical.Functions.Embedding
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -16,7 +18,7 @@ open import Cubical.HITs.PropositionalTruncation.Base
 open Category
 open Functor
 open NatIso
-open CatIso
+open isIso
 open NatTrans
 open isEquivalence
 open _≃ᶜ_
@@ -33,9 +35,8 @@ record isWeakEquivalence {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
         (func : Functor C D) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
   field
 
-    full  : isFull func
-    faith : isFaithful func
-    surj  : isEssentiallySurj func
+    fullfaith : isFullyFaithful   func
+    esssurj   : isEssentiallySurj func
 
 record WeakEquivalence (C : Category ℓC ℓC') (D : Category ℓD ℓD')
   : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
@@ -50,23 +51,22 @@ open WeakEquivalence
 
 
 isEquiv→isWeakEquiv : isEquivalence F → isWeakEquivalence F
-isEquiv→isWeakEquiv isequiv .full  = isEquiv→Full isequiv
-isEquiv→isWeakEquiv isequiv .faith = isEquiv→Faithful isequiv
-isEquiv→isWeakEquiv isequiv .surj  = isEquiv→Surj isequiv
+isEquiv→isWeakEquiv isequiv .fullfaith = isEquiv→FullyFaithful isequiv
+isEquiv→isWeakEquiv isequiv .esssurj   = isEquiv→Surj isequiv
 
 
 module _
-  {C : Category ℓC ℓC'}(isUnivC : isUnivalent C)
-  {D : Category ℓD ℓD'}(isUnivD : isUnivalent D)
+  (isUnivC : isUnivalent C)
+  (isUnivD : isUnivalent D)
   where
 
   open isUnivalent
 
 
-  module _ {F : WeakEquivalence C D} where
-
-    isEquivF-ob : isEquivMap (F .func .F-ob)
-    isEquivF-ob = {!!}
+  isEquivF-ob : {F : Functor C D} → isWeakEquivalence F → isEquivMap (F .F-ob)
+  isEquivF-ob {F = F} is-w-equiv = isEmbedding×isSurjection→isEquiv
+    (isFullyFaithful→isEmbb-ob isUnivC isUnivD {F = F} (is-w-equiv .fullfaith) ,
+     isSurj→isSurj-ob isUnivD {F = F} (is-w-equiv .esssurj))
 
 
   isWeakEquiv→isEquiv : isWeakEquivalence F → isEquivalence F

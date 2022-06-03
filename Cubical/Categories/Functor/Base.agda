@@ -28,7 +28,7 @@ record Functor (C : Category ℓC ℓC') (D : Category ℓD ℓD') :
   isFull = (x y : _) (F[f] : D [ F-ob x , F-ob y ]) → ∃[ f ∈ C [ x , y ] ] F-hom f ≡ F[f]
   isFaithful = (x y : _) (f g : C [ x , y ]) → F-hom f ≡ F-hom g → f ≡ g
   isFullyFaithful = (x y : _) → isEquiv (F-hom {x = x} {y = y})
-  isEssentiallySurj = (d : D .ob) → Σ[ c ∈ C .ob ] CatIso D (F-ob c) d
+  isEssentiallySurj = (d : D .ob) → ∃[ c ∈ C .ob ] CatIso D (F-ob c) d
 
   -- preservation of commuting squares and triangles
   F-square : {x y u v : C .ob}

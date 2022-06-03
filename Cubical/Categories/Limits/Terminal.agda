@@ -43,14 +43,14 @@ module _ (C : Category ℓ ℓ') where
   isPropIsTerminal : (x : ob) → isProp (isTerminal x)
   isPropIsTerminal _ = isPropΠ λ _ → isPropIsContr
 
-  open CatIso
+  open isIso
 
   -- Objects that are initial are isomorphic.
   terminalToIso : (x y : Terminal) → CatIso C (terminalOb x) (terminalOb y)
-  mor (terminalToIso x y) = terminalArrow y (terminalOb x)
-  inv (terminalToIso x y) = terminalArrow x (terminalOb y)
-  sec (terminalToIso x y) = terminalEndoIsId y _
-  ret (terminalToIso x y) = terminalEndoIsId x _
+  terminalToIso x y .fst = terminalArrow y (terminalOb x)
+  terminalToIso x y .snd .inv = terminalArrow x (terminalOb y)
+  terminalToIso x y .snd .sec = terminalEndoIsId y _
+  terminalToIso x y .snd .ret = terminalEndoIsId x _
 
   open isUnivalent
 

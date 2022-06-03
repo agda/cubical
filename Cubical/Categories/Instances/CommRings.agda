@@ -29,7 +29,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 open Category hiding (_∘_)
 open isUnivalent
-open CatIso
+open isIso
 open Functor
 open CommRingStr
 open RingHoms
@@ -58,8 +58,8 @@ F-seq forgetfulFunctor f g = funExt (λ _ → refl)
 open Iso
 
 CommRingIsoIsoCatIso : {R S : CommRing ℓ} → Iso (CommRingIso R S) (CatIso CommRingsCategory R S)
-mor (fun CommRingIsoIsoCatIso e) = (e .fst .fun) , (e .snd)
-inv (fun (CommRingIsoIsoCatIso {R = R} {S}) e) =
+(fun CommRingIsoIsoCatIso e) .fst = (e .fst .fun) , (e .snd)
+(fun (CommRingIsoIsoCatIso {R = R} {S}) e) .snd .inv =
     e .fst .inv
   , makeIsRingHom (sym (cong (e .fst .inv) (pres1 (e .snd))) ∙ e .fst .leftInv _)
                   (λ x y → let rem = e .fst .rightInv _
@@ -70,14 +70,14 @@ inv (fun (CommRingIsoIsoCatIso {R = R} {S}) e) =
                                   ∙∙ (λ i → S .snd ._·_ (e .fst .rightInv x (~ i)) (e .fst .rightInv y (~ i)))
                                   ∙∙ sym (pres· (e .snd) _ _)
                            in injCommRingIso {R = R} {S} e _ _ rem)
-sec (fun CommRingIsoIsoCatIso e) = RingHom≡ (funExt (e .fst .rightInv))
-ret (fun CommRingIsoIsoCatIso e) = RingHom≡ (funExt (e .fst .leftInv))
-fun (fst (inv CommRingIsoIsoCatIso e)) = e .mor .fst
-inv (fst (inv CommRingIsoIsoCatIso e)) = e .inv .fst
-rightInv (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .sec i) x
-leftInv (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .ret i) x
-snd (inv CommRingIsoIsoCatIso e) = e .mor .snd
-rightInv CommRingIsoIsoCatIso x = CatIso≡ _ _ (RingHom≡ refl) (RingHom≡ refl)
+(fun CommRingIsoIsoCatIso e) .snd .sec = RingHom≡ (funExt (e .fst .rightInv))
+(fun CommRingIsoIsoCatIso e) .snd .ret = RingHom≡ (funExt (e .fst .leftInv))
+fun (fst (inv CommRingIsoIsoCatIso e)) = e .fst .fst
+inv (fst (inv CommRingIsoIsoCatIso e)) = e .snd .inv .fst
+rightInv (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .snd .sec i) x
+leftInv  (fst (inv CommRingIsoIsoCatIso e)) x i = fst (e .snd .ret i) x
+snd (inv CommRingIsoIsoCatIso e) = e .fst .snd
+rightInv CommRingIsoIsoCatIso x = CatIso≡ _ _ (RingHom≡ refl)
 leftInv (CommRingIsoIsoCatIso {R = R} {S}) x =
   Σ≡Prop (λ x → isPropIsRingHom (CommRingStr→RingStr (R .snd))
                                 (x .fun)
@@ -97,7 +97,6 @@ univ isUnivalentCommRingsCategory R S = subst isEquiv (funExt rem) (≡≃CatIso
   rem : ∀ p → ≡≃CatIso .fst p ≡ pathToIso p
   rem p = CatIso≡ _ _
     (RingHom≡ (funExt λ x → cong (transport (cong fst p)) (sym (transportRefl x))))
-    (RingHom≡ refl)
 
 TerminalCommRing : Terminal {ℓ-suc ℓ-zero} CommRingsCategory
 fst TerminalCommRing = UnitCommRing

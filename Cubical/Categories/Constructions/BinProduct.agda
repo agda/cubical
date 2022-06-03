@@ -67,10 +67,10 @@ module _ (C : Category ℓC ℓC')
 
   -- The isomorphisms in product category
 
-  open CatIso
+  open isIso
 
   iso× : {x y : C .ob}{z w : D .ob} → CatIso C x y → CatIso D z w → CatIso (C × D) (x , z) (y , w)
-  iso× f g .mor = f .mor , g .mor
-  iso× f g .inv = f .inv , g .inv
-  iso× f g .sec i = f .sec i , g .sec i
-  iso× f g .ret i = f .ret i , g .ret i
+  iso× f g .fst = f .fst , g .fst
+  iso× f g .snd .inv = f .snd .inv , g .snd .inv
+  iso× f g .snd .sec i = f .snd .sec i , g .snd .sec i
+  iso× f g .snd .ret i = f .snd .ret i , g .snd .ret i
