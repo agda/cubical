@@ -23,16 +23,24 @@ private
 
 module _ (R : CommRing ℓ) where
 
-  initialCAlg : CommAlgebra R ℓ
-  initialCAlg =
-    let open CommRingStr (snd R)
-    in  (fst R , commalgebrastr _ _ _ _ _ (λ r x → r · x)
-                    (makeIsCommAlgebra (isSetRing (CommRing→Ring R))
-                       +Assoc +IdR +InvR +Comm
-                       ·Assoc ·IdL
-                       ·DistL+ ·Comm
-                        (λ x y z → sym (·Assoc x y z)) ·DistR+ ·DistL+ ·IdL
-                         λ x y z → sym (·Assoc x y z)))
+  module _ where
+    open CommRingStr (snd R)
+
+    initialCAlg : CommAlgebra R ℓ
+    initialCAlg .fst = fst R
+    initialCAlg .snd .CommAlgebraStr.0a = _
+    initialCAlg .snd .CommAlgebraStr.1a = _
+    initialCAlg .snd .CommAlgebraStr._+_ = _
+    initialCAlg .snd .CommAlgebraStr._·_ = _
+    initialCAlg .snd .CommAlgebraStr.-_ = _
+    initialCAlg .snd .CommAlgebraStr._⋆_ r x = r · x
+    initialCAlg .snd .CommAlgebraStr.isCommAlgebra =
+      makeIsCommAlgebra (isSetRing (CommRing→Ring R))
+                         +Assoc +IdR +InvR +Comm
+                         ·Assoc ·IdL
+                         ·DistL+ ·Comm
+                          (λ x y z → sym (·Assoc x y z)) ·DistR+ ·DistL+ ·IdL
+                           λ x y z → sym (·Assoc x y z)
 
   module _ (A : CommAlgebra R ℓ) where
     open CommAlgebraStr ⦃... ⦄

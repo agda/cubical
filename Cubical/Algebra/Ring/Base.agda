@@ -83,39 +83,67 @@ Ring ℓ = TypeWithStr ℓ RingStr
 isSetRing : (R : Ring ℓ) → isSet ⟨ R ⟩
 isSetRing R = R .snd .RingStr.isRing .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
-makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
-             (is-setR : isSet R)
-             (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
-             (+IdR : (x : R) → x + 0r ≡ x)
-             (+InvR : (x : R) → x + (- x) ≡ 0r)
-             (+Comm : (x y : R) → x + y ≡ y + x)
-             (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
-             (·IdR : (x : R) → x · 1r ≡ x)
-             (·IdL : (x : R) → 1r · x ≡ x)
-             (·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
-             (·DistL+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
-           → IsRing 0r 1r _+_ _·_ -_
-makeIsRing is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ =
-  isring (makeIsAbGroup is-setR +Assoc +IdR +InvR +Comm)
-         (makeIsMonoid is-setR ·Assoc ·IdR ·IdL)
-         ·DistR+ ·DistL+
+-- -- <<<<<<< HEAD
+-- makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
 
-makeRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
-           (is-setR : isSet R)
-           (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
-           (+IdR : (x : R) → x + 0r ≡ x)
-           (+InvR : (x : R) → x + (- x) ≡ 0r)
-           (+Comm : (x y : R) → x + y ≡ y + x)
-           (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
-           (·IdR : (x : R) → x · 1r ≡ x)
-           (·IdL : (x : R) → 1r · x ≡ x)
-           (·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
-           (·DistL+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
-         → Ring ℓ
-makeRing 0r 1r _+_ _·_ -_ is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ =
-  _ , ringstr 0r 1r _+_ _·_ -_
-       (makeIsRing is-setR +Assoc +IdR +InvR +Comm
-                   ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ )
+--            → IsRing 0r 1r _+_ _·_ -_
+-- makeIsRing is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ =
+--   isring (makeIsAbGroup is-setR +Assoc +IdR +InvR +Comm)
+--          (makeIsMonoid is-setR ·Assoc ·IdR ·IdL)
+--          ·DistR+ ·DistL+
+
+-- makeRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
+
+--          → Ring ℓ
+-- makeRing 0r 1r _+_ _·_ -_ is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ =
+--   _ , ringstr 0r 1r _+_ _·_ -_
+--        (makeIsRing is-setR +Assoc +IdR +InvR +Comm
+--                    ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ )
+--=======
+
+module _ {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
+               (is-setR : isSet R)
+               (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+               (+IdR : (x : R) → x + 0r ≡ x)
+               (+InvR : (x : R) → x + (- x) ≡ 0r)
+               (+Comm : (x y : R) → x + y ≡ y + x)
+               (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+               (·IdR : (x : R) → x · 1r ≡ x)
+               (·IdL : (x : R) → 1r · x ≡ x)
+               (·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+               (·DistL+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
+  where
+
+  makeIsRing : IsRing 0r 1r _+_ _·_ -_
+  makeIsRing .IsRing.+IsAbGroup = makeIsAbGroup is-setR +Assoc +IdR +InvR +Comm
+  makeIsRing .IsRing.·IsMonoid = makeIsMonoid is-setR ·Assoc ·IdR ·IdL
+  makeIsRing .IsRing.·DistR+ = ·DistR+
+  makeIsRing .IsRing.·DistL+ = ·DistL+
+
+module _ {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
+               (is-setR : isSet R)
+               (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+               (+IdR : (x : R) → x + 0r ≡ x)
+               (+InvR : (x : R) → x + (- x) ≡ 0r)
+               (+Comm : (x y : R) → x + y ≡ y + x)
+               (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+               (·IdR : (x : R) → x · 1r ≡ x)
+               (·IdL : (x : R) → 1r · x ≡ x)
+               (·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+               (·DistL+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
+  where
+
+  makeRing : Ring ℓ
+  makeRing .fst = R
+  makeRing .snd .RingStr.0r = 0r
+  makeRing .snd .RingStr.1r = 1r
+  makeRing .snd .RingStr._+_ = _+_
+  makeRing .snd .RingStr._·_ = _·_
+  makeRing .snd .RingStr.-_ = -_
+  makeRing .snd .RingStr.isRing =
+    makeIsRing is-setR +Assoc +IdR +InvR +Comm
+                       ·Assoc ·IdR ·IdL ·DistR+ ·DistL+
+-->>>>>>> master
 
 record IsRingHom {A : Type ℓ} {B : Type ℓ'} (R : RingStr A) (f : A → B) (S : RingStr B)
   : Type (ℓ-max ℓ ℓ')
@@ -223,18 +251,22 @@ isGroupoidRing _ _ = isOfHLevelRespectEquiv 2 (RingPath _ _) (isSetRingEquiv _ _
 
 -- Rings have an abelian group and a monoid
 
-Ring→AbGroup : Ring ℓ → AbGroup ℓ
-Ring→AbGroup (A , ringstr _ _ _ _ _ R) = A , abgroupstr _ _ _ (IsRing.+IsAbGroup R)
+module _ ((A , (ringstr 0r 1r _+_ _·_ -_ R)) : Ring ℓ) where
+  Ring→AbGroup : AbGroup ℓ
+  Ring→AbGroup .fst = A
+  Ring→AbGroup .snd .AbGroupStr.0g = 0r
+  Ring→AbGroup .snd .AbGroupStr._+_ = _+_
+  Ring→AbGroup .snd .AbGroupStr.-_ = -_
+  Ring→AbGroup .snd .AbGroupStr.isAbGroup = IsRing.+IsAbGroup R
+
+  Ring→MultMonoid : Monoid ℓ
+  Ring→MultMonoid = monoid A 1r _·_ (IsRing.·IsMonoid R)
 
 Ring→Group : Ring ℓ → Group ℓ
 Ring→Group = AbGroup→Group ∘ Ring→AbGroup
 
 Ring→AddMonoid : Ring ℓ → Monoid ℓ
 Ring→AddMonoid = Group→Monoid ∘ Ring→Group
-
-Ring→MultMonoid : Ring ℓ → Monoid ℓ
-Ring→MultMonoid (A , ringstr _ _ _ _ _ R) = monoid _ _ _ (IsRing.·IsMonoid R)
-
 
 -- Smart constructor for ring homomorphisms
 -- that infers the other equations from pres1, pres+, and pres·
