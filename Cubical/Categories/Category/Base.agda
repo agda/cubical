@@ -120,8 +120,7 @@ record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
 
   -- The function extracting paths from category-theoretic isomorphisms.
   CatIsoToPath : {x y : C .ob} (p : CatIso _ x y) → x ≡ y
-  CatIsoToPath {x = x} {y = y} p =
-    equivFun (invEquiv (univEquiv x y)) p
+  CatIsoToPath = invEq (univEquiv _ _)
 
   isGroupoid-ob : isGroupoid (C .ob)
   isGroupoid-ob = isOfHLevelPath'⁻ 2 (λ _ _ → isOfHLevelRespectEquiv 2 (invEquiv (univEquiv _ _)) (isSet-CatIso _ _))

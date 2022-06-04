@@ -100,7 +100,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   pathToNatTrans : {F G : Functor C D} → F ≡ G → NatTrans F G
   pathToNatTrans p .N-ob x = pathToIso {C = D} (λ i → p i .F-ob x) .fst
   pathToNatTrans {F = F} {G = G} p .N-hom {x = x} {y = y} f =
-    pathToIso-Square {C = D} _ _ _ _ (λ i → p i .F-hom f)
+    pathToIso-Comm {C = D} _ _ _ _ (λ i → p i .F-hom f)
 
   pathToNatIso : {F G : Functor C D} → F ≡ G → NatIso F G
   pathToNatIso p .trans = pathToNatTrans p

@@ -2,6 +2,7 @@
 module Cubical.Categories.Isomorphism where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Categories.Category
@@ -53,12 +54,12 @@ module _ {C : Category ℓC ℓC'} where
       ∙ (λ i → ⋆Iso (pathToIso-refl (~ i)) (pathToIso refl))
 
 
-  pathToIso-Square : {x y z w : ob}
+  pathToIso-Comm : {x y z w : ob}
     → (p : x ≡ y)(q : z ≡ w)
     → (f : Hom[ x , z ])(g : Hom[ y , w ])
     → PathP (λ i → Hom[ p i , q i ]) f g
     → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} p .fst ⋆ g
-  pathToIso-Square {x = x} {z = z} p q =
+  pathToIso-Comm {x = x} {z = z} p q =
     J (λ y p →
         (w : ob)(q : z ≡ w)(f : Hom[ x , z ])(g : Hom[ y , w ])
       → PathP (λ i → Hom[ p i , q i ]) f g
@@ -74,6 +75,44 @@ module _ {C : Category ℓC ℓC'} where
     sqr-refl f g p = (λ i → f ⋆ pathToIso-refl {C = C} i .fst)
       ∙ ⋆IdR _ ∙ p ∙ sym (⋆IdL _)
       ∙ (λ i → pathToIso-refl {C = C} (~ i) .fst ⋆ g)
+
+  pathToIso-Square : {x y z w : ob}
+    → (p : x ≡ y)(q : z ≡ w)
+    → (f : Hom[ x , z ])(g : Hom[ y , w ])
+    → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} p .fst ⋆ g
+    → PathP (λ i → Hom[ p i , q i ]) f g
+  pathToIso-Square {x = x} {z = z} p q =
+    J (λ y p →
+        (w : ob)(q : z ≡ w)(f : Hom[ x , z ])(g : Hom[ y , w ])
+      → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} p .fst ⋆ g
+      → PathP (λ i → Hom[ p i , q i ]) f g)
+    (λ _ → J (λ w q →
+        (f : Hom[ x , z ])(g : Hom[ x , w ])
+      → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} refl .fst ⋆ g
+      → PathP (λ i → Hom[ x , q i ]) f g)
+      sqr-refl) p _ q
+    where
+    sqr-refl : {x z : ob} → (f g : Hom[ x , z ])
+      → f ⋆ pathToIso {C = C} refl .fst ≡ pathToIso {C = C} refl .fst ⋆ g
+      → f ≡ g
+    sqr-refl f g p = sym (⋆IdR _)
+      ∙ (λ i → f ⋆ pathToIso-refl {C = C} (~ i) .fst)
+      ∙ p
+      ∙ (λ i → pathToIso-refl {C = C} i .fst ⋆ g)
+      ∙ ⋆IdL _
+
+  module _ (isUnivC : isUnivalent C) where
+
+    open isUnivalent isUnivC
+
+    isoToPath-Square : {x y z w : ob}
+      → (p : CatIso C x y)(q : CatIso C z w)
+      → (f : Hom[ x , z ])(g : Hom[ y , w ])
+      → f ⋆ q .fst ≡ p .fst ⋆ g
+      → PathP (λ i → Hom[ CatIsoToPath p i , CatIsoToPath q i ]) f g
+    isoToPath-Square p q f g comm =
+      pathToIso-Square (CatIsoToPath p) (CatIsoToPath q) _ _
+        ((λ i → f ⋆ secEq (univEquiv _ _) q i .fst) ∙ comm ∙ (λ i → secEq (univEquiv _ _) p (~ i) .fst ⋆ g))
 
 
 module _ {C : Category ℓC ℓC'} where

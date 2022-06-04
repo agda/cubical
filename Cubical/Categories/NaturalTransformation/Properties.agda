@@ -11,6 +11,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation.Base
 
 private
@@ -100,3 +101,21 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       isSetRetract (fun NatTransIsoΣ) (inv NatTransIsoΣ) (leftInv NatTransIsoΣ)
                    (isSetΣSndProp (isSetΠ (λ _ → isSetHom D))
                                   (λ _ → isPropImplicitΠ2 (λ _ _ → isPropΠ (λ _ → isSetHom D _ _))))
+
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}(isUnivD : isUnivalent D) where
+
+  open isUnivalent isUnivD
+
+  NatIsoToPath : {F G : Functor C D} → NatIso F G → F ≡ G
+  NatIsoToPath natiso i .F-ob x = CatIsoToPath (_ , natiso .nIso x) i
+  NatIsoToPath natiso i .F-hom f = isoToPath-Square isUnivD _ _ _ _ (natiso .trans .N-hom f) i
+  NatIsoToPath {F = F} {G = G} natiso i .F-id j =
+    isSet→SquareP (λ i j → D .isSetHom {x = NatIsoToPath natiso i .F-ob _} {y = NatIsoToPath natiso i .F-ob _})
+      (F .F-id) (G .F-id) (λ i → NatIsoToPath natiso i .F-hom (C .id)) (λ i → D .id) i j
+  NatIsoToPath {F = F} {G = G} natiso i .F-seq f g j =
+    isSet→SquareP (λ i j → D .isSetHom {x = NatIsoToPath natiso i .F-ob _} {y = NatIsoToPath natiso i .F-ob _})
+      (F .F-seq f g) (G .F-seq f g) (λ i → NatIsoToPath natiso i .F-hom (f ⋆⟨ C ⟩ g))
+      (λ i → (NatIsoToPath natiso i .F-hom f) ⋆⟨ D ⟩ (NatIsoToPath natiso i .F-hom g)) i j
