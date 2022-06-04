@@ -385,6 +385,14 @@ Iso.inv (prodIso iAC iBD) (c , d) = (Iso.inv iAC c) , Iso.inv iBD d
 Iso.rightInv (prodIso iAC iBD) (c , d) = ΣPathP ((Iso.rightInv iAC c) , (Iso.rightInv iBD d))
 Iso.leftInv (prodIso iAC iBD) (a , b) = ΣPathP ((Iso.leftInv iAC a) , (Iso.leftInv iBD b))
 
+prodEquivToIso : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+  → (e : A ≃ C)(e' : B ≃ D)
+  → prodIso (equivToIso e) (equivToIso e') ≡ equivToIso (≃-× e e')
+Iso.fun (prodEquivToIso e e' i) = Iso.fun (equivToIso (≃-× e e'))
+Iso.inv (prodEquivToIso e e' i) = Iso.inv (equivToIso (≃-× e e'))
+Iso.rightInv (prodEquivToIso e e' i) = Iso.rightInv (equivToIso (≃-× e e'))
+Iso.leftInv (prodEquivToIso e e' i) = Iso.leftInv (equivToIso (≃-× e e'))
+
 toProdIso : {B C : A → Type ℓ}
           → Iso ((a : A) → B a × C a) (((a : A) → B a) × ((a : A) → C a))
 Iso.fun toProdIso = λ f → (λ a → fst (f a)) , (λ a → snd (f a))
