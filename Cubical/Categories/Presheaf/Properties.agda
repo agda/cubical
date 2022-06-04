@@ -276,7 +276,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
       where
         isIsoCf : ∀ (c : C .ob)
                 → isIsoC _ (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
-        isIsoCf c = CatIso→isIso (Iso→CatIso (typeSectionIso {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧)))
+        isIsoCf c = Morphism.CatIso→isIso (Iso→CatIso (typeSectionIso {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧)))
 
 
   -- ========================================
@@ -373,7 +373,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
       where
         isIsoC' : ∀ (cx : (∫ᴾ F) .ob)
                 → isIsoC (SET _) ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
-        isIsoC' cx@(c , _) = CatIso→isIso (Iso→CatIso (invIso (typeFiberIso {isSetA = snd (F ⟅ c ⟆)} _)))
+        isIsoC' cx@(c , _) = Morphism.CatIso→isIso (Iso→CatIso (invIso (typeFiberIso {isSetA = snd (F ⟅ c ⟆)} _)))
 
 
   -- putting it all together
