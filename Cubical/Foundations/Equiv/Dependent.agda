@@ -2,6 +2,12 @@
 
 Dependent version of isomorphisms and equivalences
 
+Extremely useful if one wants to construct explicit isomorphisms between record types
+with fields dependent on each other.
+
+This can be generalize in inumerable ways.
+Maybe one day someone will find a common scheme and then computer could automatically generate them.
+
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.Dependent where
