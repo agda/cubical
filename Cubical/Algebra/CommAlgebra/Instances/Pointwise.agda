@@ -20,7 +20,7 @@ pointwiseAlgebra {R = R} X A =
        (pointwiseRing X (CommAlgebra→CommRing A))
        (λ r f → (λ x → r ⋆ (f x)))
        (λ r s f i x → ⋆Assoc r s (f x) i)
-       (λ r s f i x → ⋆DistL+ r s (f x) i)
        (λ r f g i x → ⋆DistR+ r (f x) (g x) i)
+       (λ r s f i x → ⋆DistL+ r s (f x) i)
        (λ f i x → ⋆IdL (f x) i)
        λ r f g i x → ⋆AssocL r (f x) (g x) i
