@@ -15,7 +15,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
 
 private variable
-  ℓ ℓ' ℓ'' : Level
+  ℓ ℓ' : Level
 
 
 -----------------------------------------------------------------------------
@@ -23,7 +23,7 @@ private variable
 
 module _
   (IdM@(Idx , IdxStr) : Monoid ℓ)
-  (G : (n : Idx) → Type ℓ)
+  (G : (n : Idx) → Type ℓ')
   (Gstr : (n : Idx) → AbGroupStr (G n))
   where
 
@@ -58,8 +58,8 @@ module _
   module _
     (1⋆      : G ε)
     (_⋆_     : {k l : Idx} → G k → G l → G (k · l))
-    (⋆-0     : {k l : Idx} → (a : G k) → a ⋆ (0g (Gstr l)) ≡ 0g (Gstr (k · l)))
     (0-⋆     : {k l : Idx} → (b : G l) → (0g (Gstr k)) ⋆ b ≡ 0g (Gstr (k · l)))
+    (⋆-0     : {k l : Idx} → (a : G k) → a ⋆ (0g (Gstr l)) ≡ 0g (Gstr (k · l)))
     (⋆Assoc  : {k l m : Idx} → (a : G k) → (b : G l) → (c : G m) →
                 _≡_ {A = Σ[ k ∈ Idx ] G k} ((k · (l · m)) , (a ⋆ (b ⋆ c))) (((k · l) · m) , ((a ⋆ b) ⋆ c)))
     (⋆IdR    : {k : Idx} → (a : G k) → _≡_ {A = Σ[ k ∈ Idx ] G k} ( k · ε , a ⋆ 1⋆ ) (k , a))
@@ -139,7 +139,7 @@ module _
 
     open RingStr
 
-    ⊕HITgradedRing-Ring : Ring ℓ
+    ⊕HITgradedRing-Ring : Ring (ℓ-max ℓ ℓ')
     fst ⊕HITgradedRing-Ring = ⊕G
     RingStr.0r (snd ⊕HITgradedRing-Ring) = 0⊕
     RingStr.1r (snd ⊕HITgradedRing-Ring) = 1⊕
