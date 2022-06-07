@@ -70,8 +70,6 @@ module _
   upUnicity⊕HIT (h , hstr) eqInj = ΣPathTransport→PathΣ _ _
                              (helper , isPropIsGroupHom _ _ _ _)
     where
-    try : (k : Idx) → fH k ≡ λ x → h (injₖ k x)
-    try k = funExt (λ a → funExt⁻ (cong fst (eqInj k)) a)
 
     helper : _
     helper = funExt (DS-Ind-Prop.f _ _ _ _ (λ _ → is-set Hstr _ _)
