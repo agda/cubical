@@ -235,6 +235,15 @@ encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣
 
 -- THE BIG GAME
 
+S²→S³ : S² → Path S³ base base
+S²→S³ base = refl
+S²→S³ (surf i i₁) k = surf i i₁ k
+
+joinS¹S¹→S³'' : join S¹ S¹ → S³
+joinS¹S¹→S³'' (inl x) = base
+joinS¹S¹→S³'' (inr x) = base
+joinS¹S¹→S³'' (push a b i) = S²→S³ (S¹×S¹→S² a b) i
+
 f3 : Ω³ S³∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 f3 = mapΩ³refl S³→joinS¹S¹
 
@@ -245,7 +254,7 @@ f5 : Ω³ S²∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 f5 = h
 
 f6 : Ω³ (join∙ S¹∙ S¹) .fst → Ω³ S³∙ .fst
-f6 = mapΩ³refl joinS¹S¹→S³
+f6 = mapΩ³refl joinS¹S¹→S³''
 
 f7 : Ω³ S³∙ .fst → Ω² ∥ S²∙ ∥₄∙ .fst
 f7 = π₃S³
@@ -263,7 +272,8 @@ g10 = SetTrunc.rec isSetℤ (idfun ℤ)
 brunerie : ℤ
 brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
 
-
+zz : {!!}
+zz = {!!}
 
 {-
 
