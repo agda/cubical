@@ -58,7 +58,23 @@ module _
   ⊕HIT→H-hom = ⊕HIT→H , (makeIsGroupHom (λ _ _ → refl))
 
   -- Universal Property
-  up⊕HIT : (k : Idx) → fHhom k ≡ compGroupHom (injₖ-hom k) ⊕HIT→H-hom
-  up⊕HIT k = ΣPathTransport→PathΣ _ _
+  up∃⊕HIT : (k : Idx) → fHhom k ≡ compGroupHom (injₖ-hom k) ⊕HIT→H-hom
+  up∃⊕HIT k = ΣPathTransport→PathΣ _ _
              ((funExt (λ _ → refl))
              , isPropIsGroupHom _ _ _ _)
+
+
+  upUnicity⊕HIT : (hhom : AbGroupHom (⊕HIT-AbGr Idx G Gstr) HAbGr) →
+                  (eqInj : (k : Idx) → fHhom k ≡ compGroupHom (injₖ-hom k) hhom)
+                  → hhom ≡ ⊕HIT→H-hom
+  upUnicity⊕HIT (h , hstr) eqInj = ΣPathTransport→PathΣ _ _
+                             (helper , isPropIsGroupHom _ _ _ _)
+    where
+    try : (k : Idx) → fH k ≡ λ x → h (injₖ k x)
+    try k = funExt (λ a → funExt⁻ (cong fst (eqInj k)) a)
+
+    helper : _
+    helper = funExt (DS-Ind-Prop.f _ _ _ _ (λ _ → is-set Hstr _ _)
+                    (pres1 hstr)
+                    (λ k a → sym (funExt⁻ (cong fst (eqInj k)) a))
+                    λ {U V} ind-U ind-V → pres· hstr _ _ ∙ cong₂ (_+_ Hstr) ind-U ind-V)
