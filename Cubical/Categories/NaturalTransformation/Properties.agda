@@ -5,6 +5,7 @@ module Cubical.Categories.NaturalTransformation.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
@@ -104,7 +105,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
                                   (λ _ → isPropImplicitΠ2 (λ _ _ → isPropΠ (λ _ → isSetHom D _ _))))
 
 
--- Natural isomorphism is equivalent to path if the target category is univalent.
+-- Natural isomorphism is path when the target category is univalent.
 
 module _
   {C : Category ℓC ℓC'}
@@ -123,3 +124,9 @@ module _
 
   Path→NatIso→Path : (p : F ≡ G) → NatIsoToPath (pathToNatIso p) ≡ p
   Path→NatIso→Path p = FunctorPath≡ (λ i j x → retEq (univEquiv _ _) (λ i → p i .F-ob x) i j)
+
+  Iso-Path-NatIso : Iso (F ≡ G) (NatIso F G)
+  Iso-Path-NatIso = iso pathToNatIso NatIsoToPath NatIso→Path→NatIso Path→NatIso→Path
+
+  Path≃NatIso : (F ≡ G) ≃ NatIso F G
+  Path≃NatIso = isoToEquiv Iso-Path-NatIso
