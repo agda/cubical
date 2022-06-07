@@ -45,8 +45,7 @@ module _ {C : Category ℓC ℓC'} where
 
 
   pathToIso-∙ : {x y z : ob}(p : x ≡ y)(q : y ≡ z) → pathToIso (p ∙ q) ≡ ⋆Iso (pathToIso p) (pathToIso q)
-  pathToIso-∙ p q = J (λ y p → (z : ob)(q : y ≡ z) → pathToIso (p ∙ q) ≡ ⋆Iso (pathToIso p) (pathToIso q))
-    (λ _ q → J (λ z q → pathToIso (refl ∙ q) ≡ ⋆Iso (pathToIso refl) (pathToIso q)) pathToIso-∙-refl q) p _ q
+  pathToIso-∙ p q = J2 (λ y p z q → pathToIso (p ∙ q) ≡ ⋆Iso (pathToIso p) (pathToIso q)) pathToIso-∙-refl p q
     where
     pathToIso-∙-refl : {x : ob} → pathToIso {x = x} (refl ∙ refl) ≡ ⋆Iso (pathToIso refl) (pathToIso refl)
     pathToIso-∙-refl = cong pathToIso (sym compPathRefl)
@@ -60,17 +59,13 @@ module _ {C : Category ℓC ℓC'} where
     → PathP (λ i → Hom[ p i , q i ]) f g
     → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} p .fst ⋆ g
   pathToIso-Comm {x = x} {z = z} p q =
-    J (λ y p →
-        (w : ob)(q : z ≡ w)(f : Hom[ x , z ])(g : Hom[ y , w ])
+    J2 (λ y p w q →
+        (f : Hom[ x , z ])(g : Hom[ y , w ])
       → PathP (λ i → Hom[ p i , q i ]) f g
       → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} p .fst ⋆ g)
-    (λ _ → J (λ w q →
-        (f : Hom[ x , z ])(g : Hom[ x , w ])
-      → PathP (λ i → Hom[ x , q i ]) f g
-      → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} refl .fst ⋆ g)
-      sqr-refl) p _ q
+    sqr-refl p q
     where
-    sqr-refl : {x z : ob} → (f g : Hom[ x , z ]) → f ≡ g
+    sqr-refl : (f g : Hom[ x , z ]) → f ≡ g
       → f ⋆ pathToIso {C = C} refl .fst ≡ pathToIso {C = C} refl .fst ⋆ g
     sqr-refl f g p = (λ i → f ⋆ pathToIso-refl {C = C} i .fst)
       ∙ ⋆IdR _ ∙ p ∙ sym (⋆IdL _)
@@ -82,17 +77,13 @@ module _ {C : Category ℓC ℓC'} where
     → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} p .fst ⋆ g
     → PathP (λ i → Hom[ p i , q i ]) f g
   pathToIso-Square {x = x} {z = z} p q =
-    J (λ y p →
-        (w : ob)(q : z ≡ w)(f : Hom[ x , z ])(g : Hom[ y , w ])
+    J2 (λ y p w q →
+        (f : Hom[ x , z ])(g : Hom[ y , w ])
       → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} p .fst ⋆ g
       → PathP (λ i → Hom[ p i , q i ]) f g)
-    (λ _ → J (λ w q →
-        (f : Hom[ x , z ])(g : Hom[ x , w ])
-      → f ⋆ pathToIso {C = C} q .fst ≡ pathToIso {C = C} refl .fst ⋆ g
-      → PathP (λ i → Hom[ x , q i ]) f g)
-      sqr-refl) p _ q
+    sqr-refl p q
     where
-    sqr-refl : {x z : ob} → (f g : Hom[ x , z ])
+    sqr-refl : (f g : Hom[ x , z ])
       → f ⋆ pathToIso {C = C} refl .fst ≡ pathToIso {C = C} refl .fst ⋆ g
       → f ≡ g
     sqr-refl f g p = sym (⋆IdR _)

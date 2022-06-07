@@ -4,6 +4,7 @@
 module Cubical.Categories.NaturalTransformation.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
@@ -103,19 +104,22 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
                                   (λ _ → isPropImplicitΠ2 (λ _ _ → isPropΠ (λ _ → isSetHom D _ _))))
 
 
+-- Natural isomorphism is equivalent to path if the target category is univalent.
+
 module _
   {C : Category ℓC ℓC'}
-  {D : Category ℓD ℓD'}(isUnivD : isUnivalent D) where
+  {D : Category ℓD ℓD'}(isUnivD : isUnivalent D)
+  {F G : Functor C D} where
 
   open isUnivalent isUnivD
 
-  NatIsoToPath : {F G : Functor C D} → NatIso F G → F ≡ G
-  NatIsoToPath natiso i .F-ob x = CatIsoToPath (_ , natiso .nIso x) i
-  NatIsoToPath natiso i .F-hom f = isoToPath-Square isUnivD _ _ _ _ (natiso .trans .N-hom f) i
-  NatIsoToPath {F = F} {G = G} natiso i .F-id j =
-    isSet→SquareP (λ i j → D .isSetHom {x = NatIsoToPath natiso i .F-ob _} {y = NatIsoToPath natiso i .F-ob _})
-      (F .F-id) (G .F-id) (λ i → NatIsoToPath natiso i .F-hom (C .id)) (λ i → D .id) i j
-  NatIsoToPath {F = F} {G = G} natiso i .F-seq f g j =
-    isSet→SquareP (λ i j → D .isSetHom {x = NatIsoToPath natiso i .F-ob _} {y = NatIsoToPath natiso i .F-ob _})
-      (F .F-seq f g) (G .F-seq f g) (λ i → NatIsoToPath natiso i .F-hom (f ⋆⟨ C ⟩ g))
-      (λ i → (NatIsoToPath natiso i .F-hom f) ⋆⟨ D ⟩ (NatIsoToPath natiso i .F-hom g)) i j
+  NatIsoToPath : NatIso F G → F ≡ G
+  NatIsoToPath niso =
+    Functor≡ (λ x → CatIsoToPath (_ , niso .nIso x))
+      (λ f → isoToPath-Square isUnivD _ _ _ _ (niso .trans .N-hom f))
+
+  NatIso→Path→NatIso : (niso : NatIso F G) → pathToNatIso (NatIsoToPath niso) ≡ niso
+  NatIso→Path→NatIso niso = NatIso≡ (λ i x → secEq (univEquiv _ _) (_ , niso .nIso x) i .fst)
+
+  Path→NatIso→Path : (p : F ≡ G) → NatIsoToPath (pathToNatIso p) ≡ p
+  Path→NatIso→Path p = FunctorPath≡ (λ i j x → retEq (univEquiv _ _) (λ i → p i .F-ob x) i j)

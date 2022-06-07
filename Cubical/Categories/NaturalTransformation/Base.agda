@@ -94,7 +94,6 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 
   syntax idTrans F = 1[ F ]
 
-
   -- Natural isomorphism induced by path of functors
 
   pathToNatTrans : {F G : Functor C D} → F ≡ G → NatTrans F G
@@ -196,6 +195,14 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
         rem : PathP (λ i → (F .F-hom f) ⋆ᴰ (p i _) ≡ (p i _) ⋆ᴰ (G .F-hom f))
                     (α .N-hom f) (β .N-hom f)
         rem = toPathP (D .isSetHom _ _ _ _)
+
+
+  -- `constructor` for path of natural isomorphisms
+  NatIso≡ : {F G : Functor C D}{f g : NatIso F G} → f .trans .N-ob ≡ g .trans .N-ob → f ≡ g
+  NatIso≡ {f = f} {g} p i .trans = makeNatTransPath {α = f .trans} {β = g .trans} p i
+  NatIso≡ {f = f} {g} p i .nIso x =
+    isProp→PathP (λ i → isPropIsIso (NatIso≡ {f = f} {g} p i .trans .N-ob x)) (f .nIso _) (g .nIso _) i
+
 
   module _  {F F' G G' : Functor C D} {α : NatTrans F G} {β : NatTrans F' G'} where
     open Category
