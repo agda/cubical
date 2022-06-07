@@ -89,7 +89,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
   -- the crucial lemmas that will gives us the cones needed to construct the unique
   -- arrow in our pullback square below
-  module coneLemmas {n : ℕ} (α : FinVec (fst L) n) (α∈L' : ∀ i → α i ∈ L') where
+  module ConeLemmas {n : ℕ} (α : FinVec (fst L) n) (α∈L' : ∀ i → α i ∈ L') where
     private -- some notation
       ⋁α↓ = _↓Diag limitC (i ^opF) F (⋁ α)
 
@@ -402,4 +402,99 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
     Σhelper : Σ[ n ∈ ℕ ] Σ[ β ∈ FinVec (fst L) n ] (∀ i → β i ∈ L') × (⋁ β ≡ x)
             → Σ[ m ∈ ℕ ] Σ[ γ ∈ FinVec (fst L) m ] (∀ i → γ i ∈ L') × (⋁ γ ≡ y)
             → isPullback C _ _ _ (Fsq L C x y (DLRan F))
-    Σhelper (n , β , β∈L' , ⋁β≡x) (m , γ , γ∈L' , ⋁γ≡y) = {!!}
+    Σhelper (n , β , β∈L' , ⋁β≡x) (n' , γ , γ∈L' , ⋁γ≡y) =
+      transport (λ i → isPullback C (cospanPath i) (pbPr₁PathP i) (pbPr₂PathP i) (squarePathP i))
+                (univProp ⋁Pullback)
+      where
+      open Cospan
+      open Pullback
+      ⋁β++γ≡x∨y : ⋁ (β ++Fin γ) ≡ x ∨l y
+      ⋁β++γ≡x∨y = ⋁Split++ β γ ∙ cong₂ (_∨l_) ⋁β≡x ⋁γ≡y
+
+      β++γ∈L' : ∀ i → (β ++Fin γ) i ∈ L'
+      β++γ∈L' i = {!FinSumChar.inv _ _ i!} -- doesn't let you use with-abstraction (C-c C-h)
+
+      -- replace x and y by their representations of joins of base elements
+      -- and transport over
+      xyCospan : Cospan C
+      l xyCospan = DLRan F .F-ob y
+      m xyCospan = DLRan F .F-ob (x ∧l y)
+      r xyCospan = DLRan F .F-ob x
+      s₁ xyCospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+      s₂ xyCospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+
+      ⋁Cospan : Cospan C
+      l ⋁Cospan = DLRan F .F-ob (⋁ γ)
+      m ⋁Cospan = DLRan F .F-ob (⋁ β ∧l ⋁ γ)
+      r ⋁Cospan = DLRan F .F-ob (⋁ β)
+      s₁ ⋁Cospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+      s₂ ⋁Cospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+
+      cospanPath : ⋁Cospan ≡ xyCospan
+      l (cospanPath i) = DLRan F .F-ob (⋁γ≡y i)
+      m (cospanPath i) = DLRan F .F-ob (⋁β≡x i ∧l ⋁γ≡y i)
+      r (cospanPath i) = DLRan F .F-ob (⋁β≡x i)
+      s₁ (cospanPath i) = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+      s₂ (cospanPath i) = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+
+      -- the pullback square we want
+      ⋁Pullback : Pullback C ⋁Cospan
+      pbOb ⋁Pullback = DLRan F .F-ob (⋁ (β ++Fin γ))
+      pbPr₁ ⋁Pullback = DLRan F .F-hom (subst (⋁ γ ≤_) (sym (⋁Split++ β γ)) (∨≤LCancel _ _))
+      pbPr₂ ⋁Pullback = DLRan F .F-hom (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
+      pbCommutes ⋁Pullback = F-square (DLRan F) (is-prop-valued _ _ _ _)
+      univProp ⋁Pullback {d = c} f g square = uniqueExists
+        (applyLemma1 f g square .fst .fst)
+          (fromConeMor _ (applyLemma1 f g square .fst .snd))
+            (λ _ → isProp× (isSetHom C _ _) (isSetHom C _ _))
+              λ h' trs → cong fst (applyLemma1 f g square .snd -- lemma 2 ensures uniqueness
+                (h' , lemma2 _ (toCone f g square) _ (toConeMor f g square h' trs)))
+        where -- this is where we apply our lemmas
+        open ConeLemmas (β ++Fin γ) β++γ∈L'
+        theLimit = limitC _ (F* (⋁ (β ++Fin γ)))
+        -- should toCone and toConeMor be upstreamed?
+        toCone : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
+               → f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂
+               → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' i))) c
+        toCone = {!!}
+
+        toConeMor : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
+                    (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
+                    (h : C [ c , ⋁Pullback .pbOb ])
+                  → (f ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) × (g ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
+                  → isConeMor (toCone f g square) restCone h
+        toConeMor = {!!}
+
+        applyLemma1 : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
+                      (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
+                    → ∃![ h ∈ C [ c , ⋁Pullback .pbOb ] ]
+                        isConeMor (lemma1 c (toCone f g square)) (limCone theLimit) h
+        applyLemma1 f g square = univProp theLimit _ _
+
+        fromConeMor : (h : C [ c , ⋁Pullback .pbOb ])
+                    → isConeMor (lemma1 c (toCone f g square)) (limCone theLimit) h
+                    → (f ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) × (g ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
+        fromConeMor h hIsConeMor = {!!}
+
+
+      -- some more names to make the transport readable
+      pbPr₁PathP : PathP (λ i → C [ DLRan F .F-ob (⋁β++γ≡x∨y i) , DLRan F .F-ob (⋁γ≡y i) ])
+                         (pbPr₁ ⋁Pullback) (DLRan F .F-hom (hom-∨₂ L C x y))
+      pbPr₁PathP i = DLRan F .F-hom
+                       (isProp→PathP {B = λ i → (⋁γ≡y i) ≤ (⋁β++γ≡x∨y i)}
+                                     (λ _ → is-prop-valued _ _)
+                                     (subst (⋁ γ ≤_) (sym (⋁Split++ β γ)) (∨≤LCancel _ _))
+                                     (hom-∨₂ L C x y) i)
+
+      pbPr₂PathP : PathP (λ i → C [ DLRan F .F-ob (⋁β++γ≡x∨y i) , DLRan F .F-ob (⋁β≡x i) ])
+                         (pbPr₂ ⋁Pullback) (DLRan F .F-hom (hom-∨₁ L C x y))
+      pbPr₂PathP i = DLRan F .F-hom
+                       (isProp→PathP {B = λ i → (⋁β≡x i) ≤ (⋁β++γ≡x∨y i)}
+                                     (λ _ → is-prop-valued _ _)
+                                     (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
+                                     (hom-∨₁ L C x y) i)
+
+      squarePathP : PathP (λ i → pbPr₁PathP i ⋆⟨ C ⟩ cospanPath i .s₁
+                               ≡ pbPr₂PathP i ⋆⟨ C ⟩ cospanPath i .s₂)
+                          (pbCommutes ⋁Pullback) (Fsq L C x y (DLRan F))
+      squarePathP = toPathP (isSetHom C _ _ _ _)
