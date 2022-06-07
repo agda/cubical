@@ -30,25 +30,13 @@ module _
   open RingStr Astr
   open RingTheory ARing
 
-  trivialGradedRing : GradedRing ℓ-zero ℓ
-  trivialGradedRing = makeGradedRing
-                      ARing NatMonoid G Gstr
-                      1r
-                      ⋆
-                      0-⋆
-                      ⋆-0
-                      ⋆Assoc
-                      ⋆IdR
-                      ⋆IdL
-                      ⋆DistR+
-                      ⋆DistL+
-                      equivRing
-    where
-    G : _
+  private
+
+    G : ℕ → Type ℓ
     G zero = A
     G (suc k) = Unit*
 
-    Gstr : _
+    Gstr : (k : ℕ) → AbGroupStr (G k)
     Gstr zero = snd (Ring→AbGroup ARing)
     Gstr (suc k) = snd UnitAbGroup
 
@@ -68,18 +56,19 @@ module _
     ⋆-0 {suc k} {l} a = refl
 
     ⋆Assoc : {k l m : ℕ} (a : G k) (b : G l) (c : G m) →
-             (k Cubical.Data.Nat.+ (l Cubical.Data.Nat.+ m) , ⋆ a (⋆ b c)) ≡
+             _≡_ {A = Σ[ k ∈ ℕ ] G k}
+             (k Cubical.Data.Nat.+ (l Cubical.Data.Nat.+ m) , ⋆ a (⋆ b c))
              (k Cubical.Data.Nat.+ l Cubical.Data.Nat.+ m , ⋆ (⋆ a b) c)
     ⋆Assoc {zero} {zero} {zero} a b c =  ΣPathTransport→PathΣ _ _ (+-assoc _ _ _ , transportRefl _ ∙ ·Assoc _ _ _)
     ⋆Assoc {zero} {zero} {suc m} a b c = ΣPathTransport→PathΣ _ _ (+-assoc _ _ _ , transportRefl _)
     ⋆Assoc {zero} {suc l} {m} a b c =  ΣPathTransport→PathΣ _ _ (+-assoc _ _ _ , transportRefl _)
     ⋆Assoc {suc k} {l} {m} a b c = ΣPathTransport→PathΣ _ _ (+-assoc _ _ _ , transportRefl _)
 
-    ⋆IdR : {k : ℕ} (a : G k) → (k Cubical.Data.Nat.+ 0 , ⋆ a 1r) ≡ (k , a)
+    ⋆IdR : {k : ℕ} (a : G k) → _≡_ {A = Σ[ k ∈ ℕ ] G k} (k Cubical.Data.Nat.+ 0 , ⋆ a 1r) (k , a)
     ⋆IdR {zero} a = ΣPathTransport→PathΣ _ _ (refl , (transportRefl _ ∙ ·Rid _))
     ⋆IdR {suc k} a = ΣPathTransport→PathΣ _ _ ((+-zero _) , (transportRefl _))
 
-    ⋆IdL : {l : ℕ} (b : G l) → (l , ⋆ 1r b) ≡ (l , b)
+    ⋆IdL : {l : ℕ} (b : G l) → _≡_ {A = Σ[ k ∈ ℕ ] G k} (l , ⋆ 1r b) (l , b)
     ⋆IdL {zero} b = ΣPathTransport→PathΣ _ _ (refl , (transportRefl _ ∙ ·Lid _))
     ⋆IdL {suc l} b = ΣPathTransport→PathΣ _ _ (refl , (transportRefl _))
 
@@ -95,6 +84,12 @@ module _
     ⋆DistL+ {zero} {suc l} a b c = refl
     ⋆DistL+ {suc k} {l} a b c = refl
 
+  trivialGradedRing : GradedRing ℓ-zero ℓ
+  trivialGradedRing = makeGradedRing ARing NatMonoid
+                      G Gstr 1r ⋆  0-⋆ ⋆-0
+                      ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+
+                      equivRing
+    where
     equivRing : RingEquiv ARing (⊕HITgradedRing-Ring
                                  NatMonoid G Gstr 1r ⋆ 0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+)
     fst equivRing = isoToEquiv is
