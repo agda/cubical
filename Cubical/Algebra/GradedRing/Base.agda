@@ -39,15 +39,15 @@ record IsGradedRing (R    : Ring (ℓ-max ℓ ℓ'))
     0-⋆     : {k l : Idx} → (b : G l) → (0g (Gstr k)) ⋆ b ≡ 0g (Gstr (k · l))
     ⋆-0     : {k l : Idx} → (a : G k) → a ⋆ (0g (Gstr l)) ≡ 0g (Gstr (k · l))
     ⋆Assoc  : {k l m : Idx} → (a : G k) → (b : G l) → (c : G m) →
-               _≡_ {A = Σ[ k ∈ Idx ] G k} ((k · (l · m)) , (a ⋆ (b ⋆ c))) (((k · l) · m) , ((a ⋆ b) ⋆ c))
-    ⋆IdR    : {k : Idx} → (a : G k) → _≡_ {A = Σ[ k ∈ Idx ] G k} ( k · ε , a ⋆ 1⋆ ) (k , a)
-    ⋆IdL    : {l : Idx} → (b : G l) → _≡_ {A = Σ[ k ∈ Idx ] G k} ( ε · l , 1⋆ ⋆ b ) (l , b)
+              ((k · (l · m)) , (a ⋆ (b ⋆ c))) ≡ (((k · l) · m) , ((a ⋆ b) ⋆ c))
+    ⋆IdR    : {k : Idx} → (a : G k) → ( k · ε , a ⋆ 1⋆ ) ≡ (k , a)
+    ⋆IdL    : {l : Idx} → (b : G l) → ( ε · l , 1⋆ ⋆ b ) ≡ (l , b)
     ⋆DistR+ : {k l : Idx} → (a : G k) → (b c : G l) →
               a ⋆ ((Gstr l) ._+_ b c) ≡ Gstr (k · l) ._+_ (a ⋆ b) (a ⋆ c)
     ⋆DistL+ : {k l : Idx} → (a b : G k) → (c : G l) →
               ((Gstr k) ._+_ a b) ⋆ c ≡ Gstr (k · l) ._+_ (a ⋆ c) (b ⋆ c)
     equivRing : RingEquiv R (⊕HITgradedRing-Ring IdM G Gstr 1⋆ _⋆_
-                                                 0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+)
+                             0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+)
 
 
 record GradedRingStr (R : Ring (ℓ-max ℓ ℓ')) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
@@ -81,12 +81,10 @@ makeIsGradedRing : {R : Ring (ℓ-max ℓ ℓ')} {IdM : Monoid ℓ}
                    (0-⋆     : {k l : fst IdM} (b : G l) → (0g (Gstr k) ⋆ b) ≡ 0g (Gstr ((snd IdM MonoidStr.· k) l)))
                    (⋆-0     : {k l : fst IdM} (a : G k) → (a ⋆ 0g (Gstr l)) ≡ 0g (Gstr ((snd IdM MonoidStr.· k) l)))
                    (⋆Assoc  : {k l m : fst IdM} (a : G k) (b : G l) (c : G m) →
-                               _≡_ {A = Σ[ k ∈ fst IdM ] G k} (((snd IdM ._·_ k) ((snd IdM ._·_ l) m) , (a ⋆ (b ⋆ c))))
-                                                              ((snd IdM ._·_ ((snd IdM ._·_ k) l) m) , ((a ⋆ b) ⋆ c)))
-                   (⋆IdR    : {k : fst IdM} → (a : G k) →
-                               _≡_ {A = Σ[ k ∈ fst IdM ] G k} ( snd IdM ._·_ k (snd IdM .ε) , a ⋆ 1⋆ ) (k , a))
-                   (⋆IdL    : {l : fst IdM} → (b : G l) →
-                              _≡_ {A = Σ[ k ∈ fst IdM ] G k} ( snd IdM ._·_ (snd IdM .ε) l , 1⋆ ⋆ b ) (l , b))
+                                 (((snd IdM ._·_ k) ((snd IdM ._·_ l) m) , (a ⋆ (b ⋆ c))))
+                               ≡ ((snd IdM ._·_ ((snd IdM ._·_ k) l) m) , ((a ⋆ b) ⋆ c)))
+                   (⋆IdR    : {k : fst IdM} → (a : G k) → ( snd IdM ._·_ k (snd IdM .ε) , a ⋆ 1⋆ ) ≡ (k , a))
+                   (⋆IdL    : {l : fst IdM} → (b : G l) → ( snd IdM ._·_ (snd IdM .ε) l , 1⋆ ⋆ b ) ≡ (l , b))
                    (⋆DistR+ : {k l : fst IdM} → (a : G k) → (b c : G l) →
                               a ⋆ ((Gstr l) ._+_ b c) ≡ Gstr (snd IdM ._·_ k l) ._+_ (a ⋆ b) (a ⋆ c))
                    (⋆DistL+ : {k l : fst IdM} → (a b : G k) → (c : G l) →
@@ -106,12 +104,10 @@ makeGradedRing : (R : Ring (ℓ-max ℓ ℓ')) (IdM : Monoid ℓ)
                  (0-⋆    : {k l : fst IdM} (b : G l) → (0g (Gstr k) ⋆ b) ≡ 0g (Gstr ((snd IdM MonoidStr.· k) l)))
                  (⋆-0    : {k l : fst IdM} (a : G k) → (a ⋆ 0g (Gstr l)) ≡ 0g (Gstr ((snd IdM MonoidStr.· k) l)))
                  (⋆Assoc : {k l m : fst IdM} (a : G k) (b : G l) (c : G m) →
-                            _≡_ {A = Σ[ k ∈ fst IdM ] G k} (((snd IdM ._·_ k) ((snd IdM ._·_ l) m) , (a ⋆ (b ⋆ c))))
-                                                           ((snd IdM ._·_ ((snd IdM ._·_ k) l) m) , ((a ⋆ b) ⋆ c)))
-                 (⋆IdR    : {k : fst IdM} → (a : G k) →
-                            _≡_ {A = Σ[ k ∈ fst IdM ] G k} ( snd IdM ._·_ k (snd IdM .ε) , a ⋆ 1⋆ ) (k , a))
-                 (⋆IdL    : {l : fst IdM} → (b : G l) →
-                            _≡_ {A = Σ[ k ∈ fst IdM ] G k} ( snd IdM ._·_ (snd IdM .ε) l , 1⋆ ⋆ b ) (l , b))
+                              (((snd IdM ._·_ k) ((snd IdM ._·_ l) m) , (a ⋆ (b ⋆ c))))
+                            ≡ ((snd IdM ._·_ ((snd IdM ._·_ k) l) m) , ((a ⋆ b) ⋆ c)))
+                 (⋆IdR    : {k : fst IdM} → (a : G k) → (snd IdM ._·_ k (snd IdM .ε) , a ⋆ 1⋆ ) ≡ (k , a))
+                 (⋆IdL    : {l : fst IdM} → (b : G l) → (snd IdM ._·_ (snd IdM .ε) l , 1⋆ ⋆ b ) ≡ (l , b))
                  (⋆DistR+ : {k l : fst IdM} → (a : G k) → (b c : G l) →
                             a ⋆ ((Gstr l) ._+_ b c) ≡ Gstr (snd IdM ._·_ k l) ._+_ (a ⋆ b) (a ⋆ c))
                  (⋆DistL+ : {k l : fst IdM} → (a b : G k) → (c : G l) →
