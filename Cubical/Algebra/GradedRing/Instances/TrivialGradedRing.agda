@@ -109,5 +109,9 @@ module _
                     (λ { zero a → refl ; (suc k) a → base-neutral _ ∙ sym (base-neutral _)} )
                     λ {U V} ind-U ind-V → sym (base-add _ _ _) ∙ cong₂ _add_ ind-U ind-V
       leftInv is = λ _ → refl
-    snd equivRing = makeIsRingHom {!!} {!!} {!!}
-                    -- (refl) (λ _ _ → sym (base-add _ _ _)) (λ _ _ → refl)
+    snd equivRing = makeIsRingHom
+                    -- issue agda have trouble infering the Idx, G, Gstr
+                    {R = ARing}
+                    {S = ⊕HITgradedRing-Ring NatMonoid G Gstr 1r ⋆ 0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+}
+                    {f = λ a → base 0 a}
+                    refl (λ _ _ → sym (base-add _ _ _)) λ _ _ → refl
