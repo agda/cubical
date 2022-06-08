@@ -165,9 +165,63 @@ isPropIsAbGroup 0g _+_ -_ (isabgroup GG GC) (isabgroup HG HC) =
 AbGroupPath : (G H : AbGroup ℓ) → (AbGroupEquiv G H) ≃ (G ≡ H)
 AbGroupPath = ∫ 𝒮ᴰ-AbGroup .UARel.ua
 
--- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
--- representations
-module _ (G : AbGroup ℓ) {A : Type ℓ} (m : A → A → A)
+
+-- The module below defines an abelian group induced from an
+-- equivalence between an abelian group G and a type A which preserves
+-- the full raw group structure from G to A. This version is useful
+-- when proving that some type equivalent to an abelian group is an
+-- abelian group while also specifying the binary operation, unit and
+-- inverse. For an example of this see Algebra.Matrix
+module _ (G : AbGroup ℓ) {A : Type ℓ}
+  (m : A → A → A)
+  (u : A)
+  (inverse : A → A)
+  (e : ⟨ G ⟩ ≃ A)
+  (p+ : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
+  (pu : e .fst (G .snd .0g) ≡ u)
+  (pinv : ∀ x → e .fst (G .snd .-_ x) ≡ inverse (e .fst x))
+  where
+
+  private
+    module G = AbGroupStr (G .snd)
+
+    BaseΣ : Type (ℓ-suc ℓ)
+    BaseΣ = Σ[ B ∈ Type ℓ ] (B → B → B) × B × (B → B)
+
+    FamilyΣ : BaseΣ → Type ℓ
+    FamilyΣ (B , m , u , i) = IsAbGroup u m i
+
+    inducedΣ : FamilyΣ (A , m , u , inverse)
+    inducedΣ =
+      subst FamilyΣ
+        (UARel.≅→≡ (autoUARel BaseΣ) (e , p+ , pu , pinv))
+        G.isAbGroup
+
+  InducedAbGroup : AbGroup ℓ
+  InducedAbGroup .fst = A
+  InducedAbGroup .snd ._+_ = m
+  InducedAbGroup .snd .0g = u
+  InducedAbGroup .snd .-_ = inverse
+  InducedAbGroup .snd .isAbGroup = inducedΣ
+
+  InducedAbGroupEquiv : AbGroupEquiv G InducedAbGroup
+  fst InducedAbGroupEquiv = e
+  snd InducedAbGroupEquiv = makeIsGroupHom p+
+
+  InducedAbGroupPath : G ≡ InducedAbGroup
+  InducedAbGroupPath = AbGroupPath _ _ .fst InducedAbGroupEquiv
+
+
+
+-- The module below defines an abelian group induced from an
+-- equivalence which preserves the binary operation (i.e. a group
+-- isomorphism). This version is useful when proving that some type
+-- equivalent to an abelian group G is an abelian group when one
+-- doesn't care about what the unit and inverse are. When using this
+-- version the unit and inverse will both be defined by transporting
+-- over the unit and inverse from G to A.
+module _ (G : AbGroup ℓ) {A : Type ℓ}
+  (m : A → A → A)
   (e : ⟨ G ⟩ ≃ A)
   (p· : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
   where
@@ -176,10 +230,7 @@ module _ (G : AbGroup ℓ) {A : Type ℓ} (m : A → A → A)
     module G = AbGroupStr (G .snd)
 
     FamilyΣ : Σ[ B ∈ Type ℓ ] (B → B → B) → Type ℓ
-    FamilyΣ (B , n) =
-      Σ[ e ∈ B ]
-      Σ[ i ∈ (B → B) ]
-      IsAbGroup e n i
+    FamilyΣ (B , n) = Σ[ e ∈ B ] Σ[ i ∈ (B → B) ] IsAbGroup e n i
 
     inducedΣ : FamilyΣ (A , m)
     inducedΣ =
@@ -187,15 +238,20 @@ module _ (G : AbGroup ℓ) {A : Type ℓ} (m : A → A → A)
         (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
         (G.0g , G.-_ , G.isAbGroup)
 
-  InducedAbGroup : AbGroup ℓ
-  InducedAbGroup .fst = A
-  InducedAbGroup .snd ._+_ = m
-  InducedAbGroup .snd .0g = inducedΣ .fst
-  InducedAbGroup .snd .-_ = inducedΣ .snd .fst
-  InducedAbGroup .snd .isAbGroup = inducedΣ .snd .snd
+  InducedAbGroupFromPres· : AbGroup ℓ
+  InducedAbGroupFromPres· .fst = A
+  InducedAbGroupFromPres· .snd ._+_ = m
+  InducedAbGroupFromPres· .snd .0g = inducedΣ .fst
+  InducedAbGroupFromPres· .snd .-_ = inducedΣ .snd .fst
+  InducedAbGroupFromPres· .snd .isAbGroup = inducedΣ .snd .snd
 
-  InducedAbGroupPath : G ≡ InducedAbGroup
-  InducedAbGroupPath = AbGroupPath _ _ .fst (e , makeIsGroupHom p·)
+  InducedAbGroupEquivFromPres· : AbGroupEquiv G InducedAbGroupFromPres·
+  fst InducedAbGroupEquivFromPres· = e
+  snd InducedAbGroupEquivFromPres· = makeIsGroupHom p·
+
+  InducedAbGroupPathFromPres· : G ≡ InducedAbGroupFromPres·
+  InducedAbGroupPathFromPres· = AbGroupPath _ _ .fst InducedAbGroupEquivFromPres·
+
 
 open IsMonoid
 open IsSemigroup

@@ -27,6 +27,7 @@ open import Cubical.Displayed.Universe
 
 open import Cubical.Reflection.RecordEquiv
 
+
 open Iso
 
 private
@@ -248,6 +249,60 @@ uaRing {A = A} {B = B} = equivFun (RingPath A B)
 
 isGroupoidRing : isGroupoid (Ring ℓ)
 isGroupoidRing _ _ = isOfHLevelRespectEquiv 2 (RingPath _ _) (isSetRingEquiv _ _)
+
+open RingStr
+open IsRingHom
+
+-- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
+-- representations
+module _ (R : Ring ℓ) {A : Type ℓ}
+  (0a 1a : A)
+  (add mul : A → A → A)
+  (inv : A → A)
+  (e : ⟨ R ⟩ ≃ A)
+  (p0 : e .fst (R .snd .0r) ≡ 0a)
+  (p1 : e .fst (R .snd .1r) ≡ 1a)
+  (p+ : ∀ x y → e .fst (R .snd ._+_ x y) ≡ add (e .fst x) (e .fst y))
+  (p· : ∀ x y → e .fst (R .snd ._·_ x y) ≡ mul (e .fst x) (e .fst y))
+  (pinv : ∀ x → e .fst (R .snd .-_ x) ≡ inv (e .fst x))
+  where
+
+  private
+    module R = RingStr (R .snd)
+
+    BaseΣ : Type (ℓ-suc ℓ)
+    BaseΣ = Σ[ B ∈ Type ℓ ] B × B × (B → B → B) × (B → B → B) × (B → B)
+
+    FamilyΣ : BaseΣ → Type ℓ
+    FamilyΣ (B , u0 , u1 , a , m , i) = IsRing u0 u1 a m i
+
+    inducedΣ : FamilyΣ (A , 0a , 1a , add , mul , inv)
+    inducedΣ =
+      subst FamilyΣ
+        (UARel.≅→≡ (autoUARel BaseΣ) (e , p0 , p1 , p+ , p· , pinv))
+        R.isRing
+
+  InducedRing : Ring ℓ
+  InducedRing .fst = A
+  0r (InducedRing .snd) = 0a
+  1r (InducedRing .snd) = 1a
+  _+_ (InducedRing .snd) = add
+  _·_ (InducedRing .snd) = mul
+  - InducedRing .snd = inv
+  isRing (InducedRing .snd) = inducedΣ
+
+  InducedRingEquiv : RingEquiv R InducedRing
+  fst InducedRingEquiv = e
+  pres0 (snd InducedRingEquiv) = p0
+  pres1 (snd InducedRingEquiv) = p1
+  pres+ (snd InducedRingEquiv) = p+
+  pres· (snd InducedRingEquiv) = p·
+  pres- (snd InducedRingEquiv) = pinv
+
+  InducedRingPath : R ≡ InducedRing
+  InducedRingPath = RingPath _ _ .fst InducedRingEquiv
+
+
 
 
 -- Rings have an abelian group and a monoid
