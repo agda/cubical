@@ -399,11 +399,10 @@ Embedding : (B : Type ℓ') → (ℓ : Level) → Type (ℓ-max ℓ' (ℓ-suc �
 Embedding B ℓ = Σ[ A ∈ Type ℓ ] A ↪ B
 
 module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ'} (f g : Embedding B ℓ') where
-  module _ where
-    open Σ f renaming (fst to F) public
-    open Σ g renaming (fst to G) public
-    open Σ (f .snd) renaming (fst to ffun; snd to isEmbF) public
-    open Σ (g .snd) renaming (fst to gfun; snd to isEmbG) public
+  open Σ f renaming (fst to F)
+  open Σ g renaming (fst to G)
+  open Σ (f .snd) renaming (fst to ffun; snd to isEmbF)
+  open Σ (g .snd) renaming (fst to gfun; snd to isEmbG)
   f≃g : Type _
   f≃g = (∀ b → fiber ffun b → fiber gfun b) ×
          (∀ b → fiber gfun b → fiber ffun b)
@@ -429,7 +428,12 @@ module EmbeddingIdentityPrinciple {B : Type ℓ} {ℓ'} (f g : Embedding B ℓ')
     ≃⟨ invEquiv (_ , isEmbeddingToFibr _ _) ⟩
       f ≡ g
     ■
-open EmbeddingIdentityPrinciple renaming (f≃g to _≃Emb_) using (EmbeddingIP) public
+
+_≃Emb_ : {B : Type ℓ} (f g : Embedding B ℓ') → Type _
+_≃Emb_ = EmbeddingIdentityPrinciple.f≃g
+
+EmbeddingIP : {B : Type ℓ} (f g : Embedding B ℓ') → f ≃Emb g ≃ (f ≡ g)
+EmbeddingIP = EmbeddingIdentityPrinciple.EmbeddingIP
 
 module _ {A : Type ℓ} (P : A → hProp ℓ') where
   private
