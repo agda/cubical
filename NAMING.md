@@ -45,8 +45,17 @@ For naming conventions specific to the Algebra subfolder, see
   `isContrUnit`). For functions things can either be separated by `→`
   (like `isProp→isSet`) or `To` (like `isoToEquiv`).
 
-* The `elim` and `rec` should be use as much as possible without
-  renaming but by importing and renaming the module.
+* When defining eliminators, recursors and similar functions for datatypes,
+  use the names `elim` and `rec`, potentially with a suitable suffix (like `elimProp`).
+  Do not use `ind`.
+  You can look
+  [here](https://github.com/agda/cubical/blob/master/Cubical/HITs/SetQuotients/Properties.agda#L42-L92)
+  and
+  [here](https://github.com/agda/cubical/blob/master/Cubical/HITs/S1/Properties.agda#L14-L20)
+  to see how diffrent versions of `elim` and `rec` are named and typed.
+
+* The `elim` and `rec` should be used as much as possible without
+  renaming, but by importing and renaming the module.
   For instance use "open import Cubical.Data.Empty as ⊥`
   then use `⊥.rec` or `⊥.elim' rather than doing
   `renaming (rec to rec-⊥)` and using `rec-⊥`.
