@@ -2,10 +2,12 @@
 module Cubical.Algebra.CommMonoid.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommMonoid.Base
 
 private
@@ -32,11 +34,11 @@ module _
     IsCommMonoid.isMonoid (CommMonoidStr.isCommMonoid (snd makeSubCommMonoid)) =
       makeIsMonoid
         (isOfHLevelΣ 2 (isSetFromIsCommMonoid isCommMonoid) λ _ → isProp→isSet (snd (P _)))
-        (λ x y z → Σ≡Prop (λ _ → snd (P _)) (assoc (fst x) (fst y) (fst z)))
-        (λ x → Σ≡Prop (λ _ → snd (P _)) (rid (fst x)))
-        λ x → Σ≡Prop (λ _ → snd (P _)) (lid (fst x))
-    IsCommMonoid.comm (CommMonoidStr.isCommMonoid (snd makeSubCommMonoid)) =
-      λ x y → Σ≡Prop (λ _ → snd (P _)) (comm (fst x) (fst y))
+        (λ x y z → Σ≡Prop (λ _ → snd (P _)) (·Assoc (fst x) (fst y) (fst z)))
+        (λ x → Σ≡Prop (λ _ → snd (P _)) (·IdR (fst x)))
+        λ x → Σ≡Prop (λ _ → snd (P _)) (·IdL (fst x))
+    IsCommMonoid.·Comm (CommMonoidStr.isCommMonoid (snd makeSubCommMonoid)) =
+      λ x y → Σ≡Prop (λ _ → snd (P _)) (·Comm (fst x) (fst y))
 
 module CommMonoidTheory (M' : CommMonoid ℓ) where
  open CommMonoidStr (snd M')
