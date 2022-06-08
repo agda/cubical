@@ -135,6 +135,7 @@ module _ (G' : AbGroup ℓ) where
 
   open AbGroupStr (snd G')
   private G = ⟨ G' ⟩
+
   zeroVecMatrix : ∀ {m n} → VecMatrix G m n
   zeroVecMatrix = replicate (replicate 0g)
 
@@ -151,14 +152,32 @@ module _ (G' : AbGroup ℓ) where
 
   open FinMatrixAbGroup
 
+  FinMatrix→VecMatrixPres0 : (m n : ℕ) →
+    FinMatrix→VecMatrix (zeroFinMatrix G') ≡ zeroVecMatrix {m = m} {n = n}
+  FinMatrix→VecMatrixPres0 zero n = refl
+  FinMatrix→VecMatrixPres0 (suc m) n = cong₂ _∷_ (lem0 n) (FinMatrix→VecMatrixPres0 m n)
+    where
+    lem0 : (n : ℕ) → FinVec→Vec (zeroFinMatrix G' (zero {n = m})) ≡ replicate {n = n} 0g
+    lem0 zero = refl
+    lem0 (suc n) = cong (0g ∷_) (lem0 n)
+
+  FinMatrix→VecMatrixPres- : (m n : ℕ) (M : FinMatrix G m n)
+    → FinMatrix→VecMatrix (negFinMatrix G' M) ≡ negVecMatrix (FinMatrix→VecMatrix M)
+  FinMatrix→VecMatrixPres- zero n M = refl
+  FinMatrix→VecMatrixPres- (suc m) n M = cong₂ _∷_ (lem n (M zero)) (FinMatrix→VecMatrixPres- m n (λ i j → M (suc i) j))
+    where
+    lem : (n : ℕ) (V : FinVec G n) → FinVec→Vec (λ i → - V i) ≡ map -_ (FinVec→Vec V)
+    lem zero V = refl
+    lem (suc n) V = cong ((- V zero) ∷_) (lem n (V ∘ suc))
+
   -- Proof that FinMatrix→VecMatrix is a group homorphism
-  FinMatrix→VecMatrixHomAdd : (m n : ℕ) (M N : FinMatrix G m n)
+  FinMatrix→VecMatrixPres+ : (m n : ℕ) (M N : FinMatrix G m n)
     → FinMatrix→VecMatrix (addFinMatrix G' M N) ≡
       addVecMatrix (FinMatrix→VecMatrix M) (FinMatrix→VecMatrix N)
-  FinMatrix→VecMatrixHomAdd zero n M N = refl
-  FinMatrix→VecMatrixHomAdd (suc m) n M N =
+  FinMatrix→VecMatrixPres+ zero n M N = refl
+  FinMatrix→VecMatrixPres+ (suc m) n M N =
     λ i → lem n (M zero) (N zero) i
-        ∷ FinMatrix→VecMatrixHomAdd m n (λ i j → M (suc i) j) (λ i j → N (suc i) j) i
+        ∷ FinMatrix→VecMatrixPres+ m n (λ i j → M (suc i) j) (λ i j → N (suc i) j) i
      where
      lem : (n : ℕ) (V W : FinVec G n)
        → FinVec→Vec (λ j → V j + W j) ≡ addVec (FinVec→Vec V) (FinVec→Vec W)
@@ -169,14 +188,13 @@ module _ (G' : AbGroup ℓ) where
   -- VecMatrix that is equal to the one on FinMatrix
   VecMatrixAbGroup : (m n : ℕ) → AbGroup ℓ
   VecMatrixAbGroup m n =
-    InducedAbGroup (FinMatrixAbGroup G' m n) addVecMatrix
-      FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
+    InducedAbGroup (FinMatrixAbGroup G' m n) addVecMatrix zeroVecMatrix negVecMatrix FinMatrix≃VecMatrix
+      (FinMatrix→VecMatrixPres+ m n) (FinMatrix→VecMatrixPres0 m n) (FinMatrix→VecMatrixPres- m n)
 
   FinMatrixAbGroup≡VecMatrixAbGroup : (m n : ℕ) → FinMatrixAbGroup G' m n ≡ VecMatrixAbGroup m n
   FinMatrixAbGroup≡VecMatrixAbGroup m n =
-    InducedAbGroupPath (FinMatrixAbGroup G' m n) addVecMatrix
-      FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
-
+    InducedAbGroupPath (FinMatrixAbGroup G' m n) addVecMatrix zeroVecMatrix negVecMatrix FinMatrix≃VecMatrix
+      (FinMatrix→VecMatrixPres+ m n) (FinMatrix→VecMatrixPres0 m n) (FinMatrix→VecMatrixPres- m n)
 
 -- Define identity matrix and matrix multiplication for FinMatrix and
 -- prove that square matrices form a ring

@@ -244,7 +244,8 @@ snd (coHomGr≅coHomRedGr n A) = makeIsGroupHom (+∙≡+ n)
 coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → AbGroup ℓ
 coHomRedGroup zero A = coHomRedGroupDir zero A
 coHomRedGroup (suc n) A =
-  InducedAbGroup (coHomGroup (suc n) (typ A))
+  InducedAbGroupFromPres·
+                 (coHomGroup (suc n) (typ A))
                  _+ₕ∙_
                  (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
                  (homhelp n A)
@@ -253,7 +254,8 @@ abstract
   coHomGroup≡coHomRedGroup : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ)
                           → coHomGroup (suc n) (typ A) ≡ coHomRedGroup (suc n) A
   coHomGroup≡coHomRedGroup n A =
-    InducedAbGroupPath (coHomGroup (suc n) (typ A))
+    InducedAbGroupPathFromPres·
+              (coHomGroup (suc n) (typ A))
               _+ₕ∙_
               (isoToEquiv (invIso (Iso-coHom-coHomRed n)))
               (homhelp n A)
