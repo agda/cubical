@@ -148,4 +148,3 @@ module MonoidTheory {ℓ} (M : Monoid ℓ) where
     (y · x) · z ≡⟨ cong (λ - → - · z) left-inverse ⟩
     ε · z       ≡⟨ lid z ⟩
     z ∎
-
