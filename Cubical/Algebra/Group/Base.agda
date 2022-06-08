@@ -1,5 +1,9 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Base where
+{-
+  Defines groups and adds the smart constructors [makeGroup-right] and [makeGroup-left]
+  for constructing groups from less data than the standard [makeGroup] constructor.
+-}
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
