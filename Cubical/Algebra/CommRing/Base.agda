@@ -97,6 +97,16 @@ CommRingStr→RingStr (commringstr _ _ _ _ _ H) = ringstr _ _ _ _ _ (IsCommRing.
 CommRing→Ring : CommRing ℓ → Ring ℓ
 CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
 
+Ring→CommRing : (R : Ring ℓ) → ((x y : (fst R)) → (RingStr._·_ (snd R) x y ≡ RingStr._·_ (snd R) y x)) → CommRing ℓ
+fst (Ring→CommRing R p) = fst R
+CommRingStr.0r (snd (Ring→CommRing R p)) = RingStr.0r (snd R)
+CommRingStr.1r (snd (Ring→CommRing R p)) = RingStr.1r (snd R)
+CommRingStr._+_ (snd (Ring→CommRing R p)) = RingStr._+_ (snd R)
+CommRingStr._·_ (snd (Ring→CommRing R p)) = RingStr._·_ (snd R)
+CommRingStr.- snd (Ring→CommRing R p) = RingStr.-_ (snd R)
+IsCommRing.isRing (CommRingStr.isCommRing (snd (Ring→CommRing R p))) = RingStr.isRing (snd R)
+IsCommRing.·Comm (CommRingStr.isCommRing (snd (Ring→CommRing R p))) = p
+
 CommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingHom R S = RingHom (CommRing→Ring R) (CommRing→Ring S)
 

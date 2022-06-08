@@ -11,8 +11,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.DirectSumHIT
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
-
-open import Cubical.ZCohomology.RingStructure.CohomologyRing
+open import Cubical.Algebra.CommRing
 
 private variable
   ℓ ℓ' : Level
@@ -137,8 +136,6 @@ module _
     prodDistL+ : (x y z : ⊕G) → (x +⊕ y) prod z ≡ (x prod z) +⊕ (y prod z)
     prodDistL+ = λ x y z → refl
 
-    open RingStr
-
     ⊕HITgradedRing-Ring : Ring (ℓ-max ℓ ℓ')
     fst ⊕HITgradedRing-Ring = ⊕G
     RingStr.0r (snd ⊕HITgradedRing-Ring) = 0⊕
@@ -146,6 +143,25 @@ module _
     RingStr._+_ (snd ⊕HITgradedRing-Ring) = _+⊕_
     RingStr._·_ (snd ⊕HITgradedRing-Ring) = _prod_
     RingStr.- snd ⊕HITgradedRing-Ring = -⊕_
-    isRing (snd ⊕HITgradedRing-Ring) = makeIsRing isSet⊕G
-                                       +⊕Assoc +⊕IdR +⊕InvR +⊕Comm
-                                       prodAssoc prodIdR prodIdL prodDistR+ prodDistL+
+    RingStr.isRing (snd ⊕HITgradedRing-Ring) = makeIsRing isSet⊕G
+                                               +⊕Assoc +⊕IdR +⊕InvR +⊕Comm
+                                               prodAssoc prodIdR prodIdL prodDistR+ prodDistL+
+
+    module _
+      (⋆Comm : {k l : Idx} → (a : G k) → (b : G l) →
+               _≡_ {A = Σ[ k ∈ Idx ] G k} ((k · l) , (a ⋆ b)) ((l · k) , (b ⋆ a)))
+      where
+
+      open RingTheory ⊕HITgradedRing-Ring
+
+      prodComm : (x y : ⊕G) → x prod y ≡ y prod x
+      prodComm = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ (λ _ → isSet⊕G _ _))
+                 (λ y → sym (0RightAnnihilates y))
+                 (λ k a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕G _ _)
+                           refl
+                           (λ l b → cong₂ base (cong fst (⋆Comm _ _)) (cong snd (⋆Comm _ _)))
+                           λ {U V} ind-U ind-V → cong₂ _+⊕_ ind-U ind-V)
+                 λ {U V} ind-U ind-V Q → ((cong₂ _+⊕_ (ind-U Q) (ind-V Q)) ∙ sym (prodDistR+ Q U V))
+
+      ⊕HITgradedRing-CommRing : CommRing (ℓ-max ℓ ℓ')
+      ⊕HITgradedRing-CommRing = Ring→CommRing ⊕HITgradedRing-Ring prodComm
