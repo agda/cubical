@@ -14,8 +14,8 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.CommRing.Instances.Int
 
-open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+     renaming (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 
 
@@ -23,19 +23,19 @@ open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 -- Notations for ℤ polynomial rings
 
 ℤ[X] : CommRing ℓ-zero
-ℤ[X] = PolyCommRing ℤCommRing 1
+ℤ[X] = A[X1,···,Xn] ℤCommRing 1
 
 ℤ[x] : Type ℓ-zero
 ℤ[x] = fst ℤ[X]
 
 ℤ[X,Y] : CommRing ℓ-zero
-ℤ[X,Y] = PolyCommRing ℤCommRing 2
+ℤ[X,Y] = A[X1,···,Xn] ℤCommRing 2
 
 ℤ[x,y] : Type ℓ-zero
 ℤ[x,y] = fst ℤ[X,Y]
 
 ℤ[X,Y,Z] : CommRing ℓ-zero
-ℤ[X,Y,Z] = PolyCommRing ℤCommRing 3
+ℤ[X,Y,Z] = A[X1,···,Xn] ℤCommRing 3
 
 ℤ[x,y,z] : Type ℓ-zero
 ℤ[x,y,z] = fst ℤ[X,Y,Z]
@@ -93,6 +93,6 @@ open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 ℤ'[X]/X : CommRing ℓ-zero
 ℤ'[X]/X = A[X1,···,Xn]/<X1,···,Xn> ℤCommRing 1
 
-equivℤ[X] : ℤ'[X]/X ≡ ℤ[X]/X
-equivℤ[X] = cong (λ X → (A[X1,···,Xn] ℤCommRing 1) / (genIdeal ((A[X1,···,Xn] ℤCommRing 1)) X))
-                   (funExt (λ {zero → refl }))
+-- there is a unification problem that keep pop in up everytime I modify something
+-- equivℤ[X] : ℤ'[X]/X ≡ ℤ[X]/X
+-- equivℤ[X] = cong₂ _/_ refl (cong (λ X → genIdeal (A[X1,···,Xn] ℤCommRing {!!}) X) {!!})

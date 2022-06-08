@@ -10,14 +10,15 @@ open import Cubical.Data.FinData
 
 open import Cubical.Relation.Nullary
 
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 
-open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+  renaming (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
 
 private variable
   ℓ : Level
@@ -26,8 +27,8 @@ private variable
 -- General Nth polynome / quotient
 -- Better to declare an alias
 
-PolyCommRing-Quotient : (A : CommRing ℓ) → {n m : ℕ} → FinVec (fst (PolyCommRing A n)) m → CommRing ℓ
-PolyCommRing-Quotient A {n} {m} v = PolyCommRing A n / genIdeal (PolyCommRing A n) v
+PolyCommRing-Quotient : (A : CommRing ℓ) → {n m : ℕ} → FinVec (fst (A[X1,···,Xn] A n)) m → CommRing ℓ
+PolyCommRing-Quotient A {n} {m} v = A[X1,···,Xn] A n / genIdeal (A[X1,···,Xn] A n) v
 
 -----------------------------------------------------------------------------
 -- Notation in the general case and some real cases 1, 2, 3

@@ -11,14 +11,15 @@ open import Cubical.Data.Vec
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
 
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 
-open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+     renaming (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
 
@@ -128,7 +129,7 @@ module Properties-Equiv-QuotientXn-A
 -- Direct sens
 
   A[x]→A : A[x] → A
-  A[x]→A = Poly-Rec-Set.f _ _ _ isSetA
+  A[x]→A = DS-Rec-Set.f _ _ _ _ isSetA
           0A
           base-trad
           _+A_
@@ -158,10 +159,10 @@ module Properties-Equiv-QuotientXn-A
   A[x]→A-pres+ x y = refl
 
   A[x]→A-pres· : (x y : A[x]) → (A[x]→A (x ·PA y)) ≡ A[x]→A x ·A A[x]→A y
-  A[x]→A-pres· = Poly-Ind-Prop.f _ _ _
+  A[x]→A-pres· = DS-Ind-Prop.f _ _ _ _
                (λ x u v i y → isSetA _ _ (u y) (v y) i)
                (λ y → sym (0LeftAnnihilates (CommRing→Ring Ar) _))
-               (λ v a → Poly-Ind-Prop.f _ _ _ (λ _ → isSetA _ _)
+               (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetA _ _)
                          (sym (0RightAnnihilates (CommRing→Ring Ar) _))
                          (λ v' a' → base-eq a a' v v')
                          (λ {U V} ind-U ind-V → cong₂ _+A_ ind-U ind-V ∙ sym (·ARdist+ _ _ _)))
@@ -194,7 +195,7 @@ module Properties-Equiv-QuotientXn-A
   A→A[x] a = base (0 ∷ []) a
 
   A→A[x]-pres+ : (a a' : A) → A→A[x] (a +A a') ≡ A→A[x] a +PA A→A[x] a'
-  A→A[x]-pres+ a a' = sym (base-poly+ (0 ∷ []) a a')
+  A→A[x]-pres+ a a' = sym (base-add (0 ∷ []) a a')
 
   A→A[x]/x : A → A[x]/x
   A→A[x]/x = [_] ∘ A→A[x]
@@ -217,8 +218,8 @@ module Properties-Equiv-QuotientXn-A
 
   e-retr : (x : A[x]/x) → A→A[x]/x (A[x]/x→A x) ≡ x
   e-retr = SQ.elimProp (λ x → isSetPAI _ _)
-           (Poly-Ind-Prop.f _ _ _ (λ x → isSetPAI _ _)
-           (cong [_] (base-0P _))
+           (DS-Ind-Prop.f _ _ _ _ (λ x → isSetPAI _ _)
+           (cong [_] (base-neutral _))
            (λ v a → base-eq a v)
            λ {U V} ind-U ind-V → cong [_] ((A→A[x]-pres+ _ _)) ∙ cong₂ _+PAI_ ind-U ind-V)
 
@@ -228,7 +229,7 @@ module Properties-Equiv-QuotientXn-A
          base-eq a (suc k ∷ []) = eq/ (base (0 ∷ []) 0A) (base (suc k ∷ []) a) ∣ ((λ x → base (k ∷ []) (-A a)) , helper) ∣₁
            where
            helper : _
-           helper = cong (λ X → X poly+ base (suc k ∷ []) (-A a)) (base-0P _)
+           helper = cong (λ X → X +PA base (suc k ∷ []) (-A a)) (base-neutral _)
                      ∙ +PALid _
                      ∙ sym (+PARid _
                             ∙ cong₂ base

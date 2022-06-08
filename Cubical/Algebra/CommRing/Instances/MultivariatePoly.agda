@@ -55,11 +55,8 @@ module _
   (n : ℕ)
   where
 
-  A[X1,···,Xn] : CommRing ℓ
-  A[X1,···,Xn] = PolyCommRing Ar n
-
-  A[x1,···,xn] : Type ℓ
-  A[x1,···,xn] = fst (A[X1,···,Xn])
-
   Poly : Type ℓ
-  Poly = fst (A[X1,···,Xn])
+  Poly = fst (PolyCommRing Ar n)
+
+-- Possible renaming
+-- (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
