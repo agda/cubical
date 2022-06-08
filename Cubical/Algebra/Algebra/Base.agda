@@ -76,12 +76,27 @@ Algebra R ℓ' = Σ[ A ∈ Type ℓ' ] AlgebraStr R A
 
 module commonExtractors {R : Ring ℓ} where
 
-  Algebra→Module : (A : Algebra R ℓ') → LeftModule R ℓ'
-  Algebra→Module (_ , algebrastr A _ _ _ _ _ (isalgebra isLeftModule _ _ _ _)) =
-    _ , leftmodulestr A _ _ _ isLeftModule
+  module _ where
+    open IsAlgebra
+    open RingStr
+    open LeftModuleStr
 
-  Algebra→Ring : (A : Algebra R ℓ') → Ring ℓ'
-  Algebra→Ring (_ , str) = _ , ringstr _ _ _ _ _ (IsAlgebra.isRing (AlgebraStr.isAlgebra str))
+    Algebra→Module : (A : Algebra R ℓ') → LeftModule R ℓ'
+    Algebra→Module A .fst = A .fst
+    Algebra→Module A .snd .0m = _
+    Algebra→Module A .snd ._+_ = _
+    Algebra→Module A .snd .-_ = _
+    Algebra→Module A .snd ._⋆_ = _
+    Algebra→Module A .snd .isLeftModule = (A .snd .AlgebraStr.isAlgebra) .isLeftModule
+
+    Algebra→Ring : (A : Algebra R ℓ') → Ring ℓ'
+    Algebra→Ring A .fst = A .fst
+    Algebra→Ring A .snd .0r = _
+    Algebra→Ring A .snd .1r = _
+    Algebra→Ring A .snd ._+_ = _
+    Algebra→Ring A .snd ._·_ = _
+    Algebra→Ring A .snd .-_  = _
+    Algebra→Ring A .snd .RingStr.isRing = IsAlgebra.isRing (A .snd .AlgebraStr.isAlgebra)
 
   Algebra→AbGroup : (A : Algebra R ℓ') → AbGroup ℓ'
   Algebra→AbGroup A = LeftModule→AbGroup (Algebra→Module A)
@@ -100,37 +115,37 @@ module commonExtractors {R : Ring ℓ} where
 
   open RingStr (snd R) using (1r; ·Ldist+) renaming (_+_ to _+r_; _·_ to _·s_)
 
-  makeIsAlgebra : {A : Type ℓ'} {0a 1a : A}
-                  {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
-                  (isSet-A : isSet A)
-                  (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
-                  (+-rid : (x : A) → x + 0a ≡ x)
-                  (+-rinv : (x : A) → x + (- x) ≡ 0a)
-                  (+-comm : (x y : A) → x + y ≡ y + x)
-                  (·-assoc :  (x y z : A) → x · (y · z) ≡ (x · y) · z)
-                  (·-rid : (x : A) → x · 1a ≡ x)
-                  (·-lid : (x : A) → 1a · x ≡ x)
-                  (·-rdist-+ : (x y z : A) → x · (y + z) ≡ (x · y) + (x · z))
-                  (·-ldist-+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
-                  (⋆-assoc : (r s : ⟨ R ⟩) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
-                  (⋆-ldist : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
-                  (⋆-rdist : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
-                  (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
-                  (⋆-lassoc : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
-                  (⋆-rassoc : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
-                → IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
-  makeIsAlgebra isSet-A
-                +-assoc +-rid +-rinv +-comm
-                ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+
-                ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid ⋆-lassoc ⋆-rassoc =
-                isalgebra
-                  (makeIsLeftModule isSet-A
-                                    +-assoc +-rid +-rinv +-comm
-                                    ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid)
-                  (makeIsMonoid isSet-A ·-assoc ·-rid ·-lid)
-                  (λ x y z → ·-rdist-+ x y z , ·-ldist-+ x y z)
-                  ⋆-lassoc ⋆-rassoc
+  module _ {A : Type ℓ'} {0a 1a : A}
+           {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
+           (isSet-A : isSet A)
+           (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
+           (+-rid : (x : A) → x + 0a ≡ x)
+           (+-rinv : (x : A) → x + (- x) ≡ 0a)
+           (+-comm : (x y : A) → x + y ≡ y + x)
+           (·-assoc :  (x y z : A) → x · (y · z) ≡ (x · y) · z)
+           (·-rid : (x : A) → x · 1a ≡ x)
+           (·-lid : (x : A) → 1a · x ≡ x)
+           (·-rdist-+ : (x y z : A) → x · (y + z) ≡ (x · y) + (x · z))
+           (·-ldist-+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
+           (⋆-assoc : (r s : ⟨ R ⟩) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
+           (⋆-ldist : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+           (⋆-rdist : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+           (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
+           (⋆-lassoc : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+           (⋆-rassoc : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
+    where
 
+    makeIsAlgebra : IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
+    makeIsAlgebra .IsAlgebra.isLeftModule =
+      makeIsLeftModule isSet-A
+                       +-assoc +-rid +-rinv +-comm
+                       ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid
+    makeIsAlgebra .IsAlgebra.·-isMonoid =
+      makeIsMonoid isSet-A ·-assoc ·-rid ·-lid
+    makeIsAlgebra .IsAlgebra.dist =
+      λ x y z → ·-rdist-+ x y z , ·-ldist-+ x y z
+    makeIsAlgebra .IsAlgebra.⋆-lassoc = ⋆-lassoc
+    makeIsAlgebra .IsAlgebra.⋆-rassoc = ⋆-rassoc
 
 open commonExtractors public
 
