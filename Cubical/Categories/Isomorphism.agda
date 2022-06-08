@@ -66,6 +66,11 @@ module _ {C : Category ℓC ℓC'} where
       ∙ (λ i → ⋆Iso (pathToIso-refl (~ i)) (pathToIso refl))
 
 
+  transportPathToIso : {x y z : ob}(f : C [ x , y ])(p : y ≡ z) → PathP (λ i → C [ x , p i ]) f (f ⋆ pathToIso {C = C} p .fst)
+  transportPathToIso {x = x} f = J (λ _ p → PathP (λ i → C [ x , p i ]) f (f ⋆ pathToIso {C = C} p .fst))
+    (sym (⋆IdR _) ∙ cong (λ x → f ⋆ x) (sym (cong fst (pathToIso-refl {C = C}))))
+
+
   pathToIso-Comm : {x y z w : ob}
     → (p : x ≡ y)(q : z ≡ w)
     → (f : Hom[ x , z ])(g : Hom[ y , w ])
@@ -108,6 +113,22 @@ module _ {C : Category ℓC ℓC'} where
   module _ (isUnivC : isUnivalent C) where
 
     open isUnivalent isUnivC
+
+
+    transportIsoToPath : {x y z : ob}(f : C [ x , y ])(p : CatIso C y z)
+      → PathP (λ i → C [ x , CatIsoToPath p i ]) f (f ⋆ p .fst)
+    transportIsoToPath f p i =
+      hcomp (λ j → λ
+        { (i = i0) → f
+        ; (i = i1) → f ⋆ secEq (univEquiv _ _) p j .fst })
+      (transportPathToIso f (CatIsoToPath p) i)
+
+    transportIsoToPathIso : {x y z : ob}(f : CatIso C x y)(p : CatIso C y z)
+      → PathP (λ i → CatIso C x (CatIsoToPath p i)) f (⋆Iso f p)
+    transportIsoToPathIso f p i .fst = transportIsoToPath (f .fst) p i
+    transportIsoToPathIso f p i .snd =
+      isProp→PathP (λ i → isPropIsIso (transportIsoToPath (f .fst) p i)) (f .snd) (⋆Iso f p .snd) i
+
 
     isoToPath-Square : {x y z w : ob}
       → (p : CatIso C x y)(q : CatIso C z w)
