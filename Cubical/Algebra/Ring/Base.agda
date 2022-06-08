@@ -277,10 +277,10 @@ module _ (R : Ring ℓ) {A : Type ℓ}
     FamilyΣ (B , u0 , u1 , a , m , i) = IsRing u0 u1 a m i
 
     inducedΣ : FamilyΣ (A , 0a , 1a , add , mul , inv)
-    inducedΣ = {!!}
-      -- subst FamilyΣ
-      --   (UARel.≅→≡ (autoUARel BaseΣ) (e , p0 , p1 , p+ , p· , pinv))
-      --   R.isRing
+    inducedΣ =
+      subst FamilyΣ
+        (UARel.≅→≡ (autoUARel BaseΣ) (e , p0 , p1 , p+ , p· , pinv))
+        R.isRing
 
   InducedRing : Ring ℓ
   InducedRing .fst = A
