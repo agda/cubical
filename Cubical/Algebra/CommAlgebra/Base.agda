@@ -131,21 +131,6 @@ module _ {R : CommRing ℓ} where
   module _ (S : CommRing ℓ') where
     open CommRingStr (snd S) renaming (1r to 1S)
     open CommRingStr (snd R) using () renaming (_·_ to _·R_; _+_ to _+R_; 1r to 1R)
--- <<<<<<< HEAD
---     commAlgebraFromCommRing :
---           (_⋆_ : fst R → fst S → fst S)
---         → ((r s : fst R) (x : fst S) → (r ·R s) ⋆ x ≡ r ⋆ (s ⋆ x))
---         → ((r s : fst R) (x : fst S) → (r +R s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
---         → ((r : fst R) (x y : fst S) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
---         → ((x : fst S) → 1R ⋆ x ≡ x)
---         → ((r : fst R) (x y : fst S) → (r ⋆ x) · y ≡ r ⋆ (x · y))
---         → CommAlgebra R ℓ'
---     commAlgebraFromCommRing _⋆_ ·Assoc⋆ ⋆DistL+ ⋆DistR+ ⋆IdL ⋆Assoc· = fst S ,
---       commalgebrastr 0r 1S _+_ _·_  -_ _⋆_
---         (makeIsCommAlgebra is-set +Assoc +IdR +InvR +Comm ·Assoc ·IdL ·DistL+ ·Comm
---                                   ·Assoc⋆ ⋆DistR+ ⋆DistL+ ⋆IdL ⋆Assoc·)
--- =======
--- >>>>>>> master
 
     module _
         (_⋆_ : fst R → fst S → fst S)

@@ -125,3 +125,7 @@ module Product (R' : Ring ℓ) where
  ∏Ext = bigOpExt
  ∏0r = bigOpε
  ∏Last = bigOpLast
+
+-- only holds in CommRings!
+-- ∏Split : ∀ {n} → (V W : FinVec R n) → ∏ (λ i → V i · W i) ≡ ∏ V · ∏ W
+-- ∏Split = bigOpSplit MultR' ·-comm

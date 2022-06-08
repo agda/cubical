@@ -83,24 +83,6 @@ Ring ℓ = TypeWithStr ℓ RingStr
 isSetRing : (R : Ring ℓ) → isSet ⟨ R ⟩
 isSetRing R = R .snd .RingStr.isRing .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
--- -- <<<<<<< HEAD
--- makeIsRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
-
---            → IsRing 0r 1r _+_ _·_ -_
--- makeIsRing is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ =
---   isring (makeIsAbGroup is-setR +Assoc +IdR +InvR +Comm)
---          (makeIsMonoid is-setR ·Assoc ·IdR ·IdL)
---          ·DistR+ ·DistL+
-
--- makeRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
-
---          → Ring ℓ
--- makeRing 0r 1r _+_ _·_ -_ is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ =
---   _ , ringstr 0r 1r _+_ _·_ -_
---        (makeIsRing is-setR +Assoc +IdR +InvR +Comm
---                    ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ )
---=======
-
 module _ {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                (is-setR : isSet R)
                (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
@@ -143,7 +125,6 @@ module _ {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
   makeRing .snd .RingStr.isRing =
     makeIsRing is-setR +Assoc +IdR +InvR +Comm
                        ·Assoc ·IdR ·IdL ·DistR+ ·DistL+
--->>>>>>> master
 
 record IsRingHom {A : Type ℓ} {B : Type ℓ'} (R : RingStr A) (f : A → B) (S : RingStr B)
   : Type (ℓ-max ℓ ℓ')
