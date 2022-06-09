@@ -240,8 +240,8 @@ module _
 
   -- Fully-faithful functor between univalent target induces embedding on objects
 
-  isFullyFaithful→isEmbb-ob : isFullyFaithful F → isEmbedding (F .F-ob)
-  isFullyFaithful→isEmbb-ob fullfaith x y =
+  isFullyFaithful→isEmbd-ob : isFullyFaithful F → isEmbedding (F .F-ob)
+  isFullyFaithful→isEmbd-ob fullfaith x y =
     isEquiv[equivFunA≃B∘f]→isEquiv[f] _ (_ , isUnivD .univ _ _)
       (subst isEquiv (F-pathToIso-∘ {F = F})
       (compEquiv (_ , isUnivC .univ _ _)

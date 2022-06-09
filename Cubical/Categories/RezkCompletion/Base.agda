@@ -29,18 +29,18 @@ private
 -- and so the predicate is not inside any universe of finite level.
 
 -- The product type with one parameter in Typeω
-record _×_ {a} (A : Type a) (B : Typeω) : Typeω where
+record _×ω_ {a} (A : Type a) (B : Typeω) : Typeω where
   constructor _,_
   field
     fst : A
     snd : B
 
+open _×ω_ public
+
 isRezkCompletion : (F : Functor C D) → Typeω
-isRezkCompletion {D = D} F = isUnivalent D × ({ℓ ℓ' : Level}{E : Category ℓ ℓ'} → isUnivalent E → isEquivalence (precomposeF E F))
+isRezkCompletion {D = D} F = isUnivalent D ×ω ({ℓ ℓ' : Level}{E : Category ℓ ℓ'} → isUnivalent E → isEquivalence (precomposeF E F))
 
 -- The critrion of being Rezk completion, c.f. HoTT Book Chapter 9.9.
-
-open _×_
 
 makeIsRezkCompletion : {F : Functor C D} → isUnivalent D → isWeakEquivalence F → isRezkCompletion F
 makeIsRezkCompletion univ w-equiv .fst = univ
