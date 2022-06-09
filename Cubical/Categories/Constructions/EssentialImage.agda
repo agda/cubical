@@ -59,5 +59,9 @@ module _
   isFullyFaithfulFromEssentialImage = isFullyFaithfulIncl D isInEssentialImage
 
 
+  isFullyFaithfulToEssentialImage : isFullyFaithful F → isFullyFaithful ToEssentialImage
+  isFullyFaithfulToEssentialImage fullfaith = fullfaith
+
+
   isUnivalentEssentialImage : isUnivalent D → isUnivalent EssentialImage
   isUnivalentEssentialImage = isUnivalentFullSub _ isPropIsInEssentialImage
