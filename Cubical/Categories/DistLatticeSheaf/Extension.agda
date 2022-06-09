@@ -412,7 +412,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       ⋁β++γ≡x∨y = ⋁Split++ β γ ∙ cong₂ (_∨l_) ⋁β≡x ⋁γ≡y
 
       β++γ∈L' : ∀ i → (β ++Fin γ) i ∈ L'
-      β++γ∈L' i = {!FinSumChar.inv _ _ i!} -- doesn't let you use with-abstraction (C-c C-h)
+      β++γ∈L' = ++FinPres∈ L' β∈L' γ∈L'
 
       -- replace x and y by their representations of joins of base elements
       -- and transport over
