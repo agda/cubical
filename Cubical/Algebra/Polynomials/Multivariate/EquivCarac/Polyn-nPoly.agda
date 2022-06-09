@@ -30,6 +30,6 @@ private variable
 
 Equiv-Polyn-nPoly : (A' : CommRing ℓ) → (n : ℕ) → CommRingEquiv (PolyCommRing A' n) (nUnivariatePoly A' n)
 Equiv-Polyn-nPoly A' zero = CRE-Poly0-A A'
-Equiv-Polyn-nPoly A' (suc n) = inv-ecr _ _ (CRE-PolyN∘M-PolyN+M A' 1 n)
-                               ∘-ecr (lift-equiv-poly _ _ (Equiv-Polyn-nPoly A' n) 1
+Equiv-Polyn-nPoly A' (suc n) =       inv-ecr _ _ (CRE-PolyN∘M-PolyN+M A' 1 n)
+                               ∘-ecr (lift-equiv-poly _ _ 1 (Equiv-Polyn-nPoly A' n)
                                ∘-ecr CRE-Poly1-Poly: (nUnivariatePoly A' n))
