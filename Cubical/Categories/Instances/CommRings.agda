@@ -155,12 +155,12 @@ module _ {ℓJ ℓJ' : Level} where
     makeIsCommRing
       (isSetCone (funcComp forgetfulFunctor D) (Unit* , _))
       (λ _ _ _ → cone≡ (λ v → funExt (λ _ → snd (F-ob D v) .+Assoc _ _ _)))
-      (λ _ → cone≡ (λ v → funExt (λ _ → +Rid (snd (F-ob D v)) _)))
-      (λ _ → cone≡ (λ v → funExt (λ _ → +Rinv (snd (F-ob D v)) _)))
+      (λ _ → cone≡ (λ v → funExt (λ _ → +IdR (snd (F-ob D v)) _)))
+      (λ _ → cone≡ (λ v → funExt (λ _ → +InvR (snd (F-ob D v)) _)))
       (λ _ _ → cone≡ (λ v → funExt (λ _ → snd (F-ob D v) .+Comm _ _)))
       (λ _ _ _ → cone≡ (λ v → funExt (λ _ → snd (F-ob D v) .·Assoc _ _ _)))
-      (λ _ → cone≡ (λ v → funExt (λ _ → ·Rid (snd (F-ob D v)) _)))
-      (λ _ _ _ → cone≡ (λ v → funExt (λ _ → ·Rdist+ (snd (F-ob D v)) _ _ _)))
+      (λ _ → cone≡ (λ v → funExt (λ _ → ·IdR (snd (F-ob D v)) _)))
+      (λ _ _ _ → cone≡ (λ v → funExt (λ _ → ·DistR+ (snd (F-ob D v)) _ _ _)))
       (λ _ _ → cone≡ (λ v → funExt (λ _ → snd (F-ob D v) .·Comm _ _)))
   fst (coneOut (limCone (LimitsCommRingsCategory J D)) v) =
     coneOut (limCone (completeSET J (funcComp forgetfulFunctor D))) v

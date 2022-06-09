@@ -22,22 +22,12 @@ record IsCommSemiring {R : Type ℓ}
 
   open IsCommMonoid +IsCommMonoid public
     renaming
-      ( assoc       to +Assoc
-      ; identity    to +Identity
-      ; lid         to +Lid
-      ; rid         to +Rid
-      ; comm        to +Comm
-      ; isSemigroup to +IsSemigroup
+      ( isSemigroup to +IsSemigroup
       ; isMonoid    to +IsMonoid)
 
   open IsCommMonoid ·IsCommMonoid public
     renaming
-      ( assoc       to ·Assoc
-      ; identity    to ·Identity
-      ; lid         to ·Lid
-      ; rid         to ·Rid
-      ; comm        to ·Comm
-      ; isSemigroup to ·IsSemigroup
+      ( isSemigroup to ·IsSemigroup
       ; isMonoid    to ·IsMonoid)
     hiding
       ( is-set ) -- We only want to export one proof of this

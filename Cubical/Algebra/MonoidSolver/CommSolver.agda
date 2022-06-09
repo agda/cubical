@@ -65,13 +65,13 @@ module Eval (M : CommMonoid ℓ) where
   UnitVecEvaluatesToVar : ∀{n} (i : Fin n) (v : Env n) →  eval e[ i ] v ≡ lookup i v
   UnitVecEvaluatesToVar zero (v ∷ vs) =
     v · eval emptyForm vs ≡⟨ cong₂ _·_ refl (emptyFormEvaluatesToε vs) ⟩
-    v · ε                 ≡⟨ rid _ ⟩
+    v · ε                 ≡⟨ ·IdR _ ⟩
     v                     ∎
   UnitVecEvaluatesToVar (suc i) (v ∷ vs) = UnitVecEvaluatesToVar i vs
 
   evalIsHom : ∀ {n} (x y : NormalForm n) (v : Env n)
             → eval (x ⊞ y) v ≡ (eval x v) · (eval y v)
-  evalIsHom [] [] v = sym (lid _)
+  evalIsHom [] [] v = sym (·IdL _)
   evalIsHom (x ∷ xs) (y ∷ ys) (v ∷ vs) =
     lemma x y (evalIsHom xs ys vs)
       where
@@ -79,7 +79,7 @@ module Eval (M : CommMonoid ℓ) where
             → iter (x + y) (v ·_) a ≡ iter x (v ·_) b · iter y (v ·_) c
       lemma 0 0 p = p
       lemma 0 (ℕ.suc y) p = (cong₂ _·_ refl (lemma 0 y p)) ∙ commAssocl _ _ _
-      lemma (ℕ.suc x) y p = (cong₂ _·_ refl (lemma x y p)) ∙ assoc _ _ _
+      lemma (ℕ.suc x) y p = (cong₂ _·_ refl (lemma x y p)) ∙ ·Assoc _ _ _
 
 module EqualityToNormalform (M : CommMonoid ℓ) where
   open Eval M

@@ -2,18 +2,14 @@
 module Cubical.Algebra.Semigroup.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Reflection.RecordEquiv
-open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Auto
@@ -40,7 +36,7 @@ record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
 
   field
     is-set : isSet A
-    assoc  : (x y z : A) → x · (y · z) ≡ (x · y) · z
+    ·Assoc  : (x y z : A) → x · (y · z) ≡ (x · y) · z
 
 unquoteDecl IsSemigroupIsoΣ = declareRecordIsoΣ IsSemigroupIsoΣ (quote IsSemigroup)
 

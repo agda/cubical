@@ -48,9 +48,9 @@ module Eval (M : Monoid ℓ) where
   -- some calculation
   evalIsHom : ∀ {n} (x y : NormalForm n) (v : Env n)
             → eval (x ++ y) v ≡ eval x v · eval y v
-  evalIsHom [] y v       = sym (lid _)
+  evalIsHom [] y v       = sym (·IdL _)
   evalIsHom (x ∷ xs) y v =
-    cong (λ m → (lookup x v) · m) (evalIsHom xs y v) ∙ assoc _ _ _
+    cong (λ m → (lookup x v) · m) (evalIsHom xs y v) ∙ ·Assoc _ _ _
 
 module EqualityToNormalform (M : Monoid ℓ) where
   open Eval M
@@ -61,7 +61,7 @@ module EqualityToNormalform (M : Monoid ℓ) where
                       → (e : Expr ⟨ M ⟩ n)
                       → (v : Env n)
                       → eval (normalize e) v ≡ ⟦ e ⟧ v
-  isEqualToNormalform n (∣ i) v     = rid _
+  isEqualToNormalform n (∣ i) v     = ·IdR _
   isEqualToNormalform n ε⊗ v        = refl
   isEqualToNormalform n (e₁ ⊗ e₂) v =
     eval ((normalize e₁) ++ (normalize e₂)) v         ≡⟨ evalIsHom (normalize e₁) (normalize e₂) v ⟩
