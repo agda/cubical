@@ -25,8 +25,21 @@ private
 open isWeakEquivalence
 
 
+-- There are 2 different ways to construct Rezk completion,
+-- one is using the essential image of Yoneda embbeding,
+-- another one is using higher inductive type
+-- (c.f. HoTT Book Chaper 9.9).
 
-module RezkByYoneda (ℓS : Level)(C : Category ℓ ℓ) where
+-- Yoneda embbeding can give a very simple and quick construction.
+-- Unfortunately, this construction increases universe level.
+
+-- HIT construction, on the other hand, keep the universe level,
+-- but its proof is a bit long and tedious, still easy though.
+
+
+{- The Construction by Yoneda Embedding -}
+
+module RezkByYoneda (C : Category ℓ ℓ) where
 
   YonedaImage : Category (ℓ-suc ℓ) ℓ
   YonedaImage = EssentialImage (YO {C = C})
@@ -38,8 +51,15 @@ module RezkByYoneda (ℓS : Level)(C : Category ℓ ℓ) where
   ToYonedaImage = ToEssentialImage _
 
   isWeakEquivalenceToYonedaImage : isWeakEquivalence ToYonedaImage
-  isWeakEquivalenceToYonedaImage .fullfaith = {!!}
+  isWeakEquivalenceToYonedaImage .fullfaith = isFullyFaithfulToEssentialImage _ isFullyFaithfulYO
   isWeakEquivalenceToYonedaImage .esssurj   = isEssentiallySurjToEssentialImage YO
 
   isRezkCompletionToYonedaImage : isRezkCompletion ToYonedaImage
   isRezkCompletionToYonedaImage = makeIsRezkCompletion isUnivalentYonedaImage isWeakEquivalenceToYonedaImage
+
+
+{- The Construction by Higher Inductive Type -}
+
+module RezkByHIT (C : Category ℓ ℓ') where
+
+  -- TODO: Write the HIT construction of Rezk completion here.
