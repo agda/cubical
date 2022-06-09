@@ -91,6 +91,7 @@ module Equiv-Sn-Properties (n : ℕ) where
 
   open IsGroupHom
   open Properties-H⁰-Sⁿ≅ℤ
+  open gradedRingProperties
 
   open CommRingStr (snd ℤCR) using ()
     renaming

@@ -51,6 +51,8 @@ module Equiv-S1-Properties where
 -----------------------------------------------------------------------------
 -- Definitions
 
+  open gradedRingProperties
+
   open CommRingStr (snd ℤCR) using ()
     renaming
     ( 0r        to 0ℤ
