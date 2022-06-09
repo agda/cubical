@@ -1,6 +1,17 @@
 {-
 
-This file contains a summary of the proof that π₄(S³) ≡ ℤ/2ℤ
+This file contains a summary of the proofs that π₄(S³) ≡ ℤ/2ℤ
+
+- The first proof "π₄S³≃ℤ/2ℤ" closely follows Brunerie's thesis.
+
+- The second proof "π₄S³≃ℤ/2ℤ-direct" is much more direct and avoids
+  all of the more advanced constructions in chapters 4-6 in Brunerie's
+  thesis.
+
+- The third proof "π₄S³≃ℤ/2ℤ-computation" uses ideas from the direct
+  proof to define an alternative Brunerie number which computes to -2
+  in a few seconds and the main result is hence obtained by computation
+  as conjectured on page 85 of Brunerie's thesis.
 
 The --experimental-lossy-unification flag is used to speed up type checking.
 The file still type checks without it, but it's a lot slower (about 10 times).
@@ -13,6 +24,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Nat.Base
+open import Cubical.Data.Int.Base
 open import Cubical.Data.Sigma.Base
 
 open import Cubical.HITs.Sn
@@ -26,6 +38,7 @@ open import Cubical.Homotopy.Whitehead
 open import Cubical.Homotopy.Group.Base hiding (π)
 open import Cubical.Homotopy.Group.Pi3S2
 open import Cubical.Homotopy.Group.Pi4S3.BrunerieNumber
+open import Cubical.Homotopy.Group.Pi4S3.DirectProof as DirectProof
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Instances.Bool
@@ -96,3 +109,31 @@ _ = π₂S³-gen-by-HopfMap
 -- As a sanity check we also establish the equality with Bool:
 π₄S³≡Bool : π 4 𝕊³ ≡ BoolGroup
 π₄S³≡Bool = π₄S³≡ℤ/2ℤ ∙ GroupPath _ _ .fst (GroupIso→GroupEquiv ℤGroup/2≅Bool)
+
+
+-- We also have a much more direct proof in Cubical.Homotopy.Group.Pi4S3.DirectProof,
+-- not relying on any of the more advanced constructions in chapters
+-- 4-6 in Brunerie's thesis (but still using chapters 1-3 for the
+-- construction). For details see the header of that file.
+
+π₄S³≃ℤ/2ℤ-direct : GroupEquiv (π 4 𝕊³) (ℤGroup/ 2)
+π₄S³≃ℤ/2ℤ-direct = DirectProof.BrunerieGroupEquiv
+
+
+-- This direct proof allows us to define a much simplified version of
+-- the Brunerie number:
+β' : ℤ
+β' = fst DirectProof.computer η₃'
+
+-- This number computes definitionally to -2 in a few seconds!
+β'≡-2 : β' ≡ -2
+β'≡-2 = refl
+
+-- As a sanity check we have proved (commented as typechecking is quite slow):
+-- β'Spec : GroupEquiv (π 4 𝕊³) (ℤGroup/ abs β')
+-- β'Spec = DirectProof.BrunerieGroupEquiv'
+
+-- Combining all of this gives us the desired equivalence of groups by
+-- computation as conjectured in Brunerie's thesis:
+π₄S³≃ℤ/2ℤ-computation : GroupEquiv (π 4 𝕊³) (ℤGroup/ 2)
+π₄S³≃ℤ/2ℤ-computation = DirectProof.BrunerieGroupEquiv''

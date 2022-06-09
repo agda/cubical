@@ -17,6 +17,10 @@ open import Cubical.Induction.WellFounded
 
 open import Cubical.Relation.Nullary
 
+private
+  variable
+    ℓ : Level
+
 infix 4 _≤_ _<_ _≥_ _>_
 
 _≤_ : ℕ → ℕ → Type₀
@@ -61,11 +65,17 @@ suc-≤-suc (k , p) = k , (+-suc k _) ∙ (cong suc p)
 ≤-+k {m} {k = k} (i , p)
   = i , +-assoc i m k ∙ cong (_+ k) p
 
+≤SumRight : n ≤ k + n
+≤SumRight {n} {k} = ≤-+k zero-≤
+
 ≤-k+ : m ≤ n → k + m ≤ k + n
 ≤-k+ {m} {n} {k}
   = subst (_≤ k + n) (+-comm m k)
   ∘ subst (m + k ≤_) (+-comm n k)
   ∘ ≤-+k
+
+≤SumLeft : n ≤ n + k
+≤SumLeft {n} {k} = subst (n ≤_) (+-comm k n) (≤-+k zero-≤)
 
 pred-≤-pred : suc m ≤ suc n → m ≤ n
 pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
@@ -267,6 +277,14 @@ splitℕ-< m n with m ≟ n
 ... | lt x = inl x
 ... | eq x = inr (0 , (sym x))
 ... | gt x = inr (<-weaken x)
+
+≤CaseInduction : {P : ℕ → ℕ → Type ℓ} {n m : ℕ}
+  → (n ≤ m → P n m) → (m ≤ n → P n m)
+  → P n m
+≤CaseInduction {n = n} {m = m} p q with n ≟ m
+... | lt x = p (<-weaken x)
+... | eq x = p (subst (n ≤_) x ≤-refl)
+... | gt x = q (<-weaken x)
 
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred

@@ -11,7 +11,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
 
-open import Cubical.Data.Int using () renaming (ℤ to Int ; discreteℤ to discreteInt ; isSetℤ to isSetInt)
+open import Cubical.Data.Int using ()
+  renaming (ℤ to Int ; discreteℤ to discreteInt ; isSetℤ to isSetInt ; 0≢1-ℤ to 0≢1-Int)
 open import Cubical.Data.Nat as ℕ using (ℕ; zero; suc)
 open import Cubical.Data.Bool as Bool using (Bool; not; notnot)
 
@@ -213,3 +214,9 @@ instance
 instance
   fromNegℤ : HasFromNeg ℤ
   fromNegℤ = record { Constraint = λ _ → Unit ; fromNeg = λ n → neg n }
+
+
+-- ℤ is non-trivial
+
+0≢1-ℤ : ¬ 0 ≡ 1
+0≢1-ℤ p = 0≢1-Int (cong ℤ→Int p)
