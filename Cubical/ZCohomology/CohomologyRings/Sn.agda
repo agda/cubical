@@ -24,10 +24,10 @@ open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
+
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
@@ -244,7 +244,7 @@ module Equiv-Sn-Properties (n : ℕ) where
 -- Direct Sens on ℤ[x]
 
   ℤ[x]→H*-Sⁿ : ℤ[x] → H* (S₊ (suc n))
-  ℤ[x]→H*-Sⁿ = Poly-Rec-Set.f _ _ _ isSetH*
+  ℤ[x]→H*-Sⁿ = DS-Rec-Set.f _ _ _ _ isSetH*
        0H*
        base-trad
        _+H*_
@@ -313,14 +313,14 @@ module Equiv-Sn-Properties (n : ℕ) where
 
 -- Nice packging of the proof
   pres·-base-case-int : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
-                         ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
-                         ≡ ℤ[x]→H*-Sⁿ (baseP (k ∷ []) a) cup ℤ[x]→H*-Sⁿ (baseP (l ∷ []) b)
+                         ℤ[x]→H*-Sⁿ (base (k ∷ []) a ·Pℤ base (l ∷ []) b)
+                         ≡ ℤ[x]→H*-Sⁿ (base (k ∷ []) a) cup ℤ[x]→H*-Sⁿ (base (l ∷ []) b)
   pres·-base-case-int zero          a zero          b = cong (base 0) (pres·-base-case-0l 0 (inv (fst (H⁰-Sⁿ≅ℤ n)))
                                                                                               (snd (invGroupIso (H⁰-Sⁿ≅ℤ n))) a b)
   pres·-base-case-int zero          a one           b = cong (base (suc n)) (pres·-base-case-0l (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)))
                                                                                                   (snd (invGroupIso (Hⁿ-Sⁿ≅ℤ n))) a b)
   pres·-base-case-int zero          a (suc (suc l)) b = refl
-  pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-Sⁿ (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
+  pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-Sⁿ (·PℤComm (base (one ∷ []) a) (base (zero ∷ []) b))
                                                          ∙ pres·-base-case-int zero b one a
                                                          ∙ gradCommRing (S₊ (suc n)) 0 (suc n) (inv (fst (H⁰-Sⁿ≅ℤ n)) b) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)
   pres·-base-case-int one           a one           b = sym (base-neutral (suc n +' suc n))
@@ -337,20 +337,20 @@ module Equiv-Sn-Properties (n : ℕ) where
 
 
   pres·-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
-                ℤ[x]→H*-Sⁿ (baseP v a ·Pℤ baseP v' b)
-              ≡ ℤ[x]→H*-Sⁿ (baseP v a) cup ℤ[x]→H*-Sⁿ (baseP v' b)
+                ℤ[x]→H*-Sⁿ (base v a ·Pℤ base v' b)
+              ≡ ℤ[x]→H*-Sⁿ (base v a) cup ℤ[x]→H*-Sⁿ (base v' b)
   pres·-base-case-vec (k ∷ []) a (l ∷ []) b = pres·-base-case-int k a l b
 
   -- proof of the morphism
   ℤ[x]→H*-Sⁿ-pres· : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x ·Pℤ y) ≡ ℤ[x]→H*-Sⁿ x cup ℤ[x]→H*-Sⁿ y
-  ℤ[x]→H*-Sⁿ-pres· = Poly-Ind-Prop.f _ _ _
+  ℤ[x]→H*-Sⁿ-pres· = DS-Ind-Prop.f _ _ _ _
                          (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                          (λ y → refl)
                          base-case
                          λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
     where
     base-case : _
-    base-case (k ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
+    base-case (k ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R (S₊ (suc n))) _))
                            (λ v' b → pres·-base-case-vec (k ∷ []) a v' b)
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
@@ -378,8 +378,8 @@ module Equiv-Sn-Properties (n : ℕ) where
 -- Converse Sens on ℤ[X] + ℤ[x]/x
 
   base-trad-H* : (k : ℕ) → (a : coHom k (S₊ (suc n))) → (x : partℕ k) → ℤ[x]
-  base-trad-H* k a (is0 x) = baseP (0 ∷ []) (fun (fst (H⁰-Sⁿ≅ℤ n)) (substCoHom x a))
-  base-trad-H* k a (isSn x) = baseP (1 ∷ []) (fun (fst (Hⁿ-Sⁿ≅ℤ n)) (substCoHom x a))
+  base-trad-H* k a (is0 x) = base (0 ∷ []) (fun (fst (H⁰-Sⁿ≅ℤ n)) (substCoHom x a))
+  base-trad-H* k a (isSn x) = base (1 ∷ []) (fun (fst (Hⁿ-Sⁿ≅ℤ n)) (substCoHom x a))
   base-trad-H* k a (else x) = 0Pℤ
 
   H*-Sⁿ→ℤ[x] : H* (S₊ (suc n)) → ℤ[x]
@@ -395,23 +395,23 @@ module Equiv-Sn-Properties (n : ℕ) where
     where
 
     base-neutral-eq : (k : ℕ) → (x : partℕ k) → base-trad-H* k (0ₕ k) x ≡ 0Pℤ
-    base-neutral-eq k (is0 x)  = cong (baseP (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (subst-0 k 0 x))
-                                 ∙ cong (baseP (0 ∷ [])) (pres1 (snd (H⁰-Sⁿ≅ℤ n)))
-                                 ∙ base-0P (0 ∷ [])
-    base-neutral-eq k (isSn x) = cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (subst-0 k (suc n) x))
-                                 ∙ cong (baseP (1 ∷ [])) (pres1 (snd (Hⁿ-Sⁿ≅ℤ n)))
-                                 ∙ base-0P (1 ∷ [])
+    base-neutral-eq k (is0 x)  = cong (base (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (subst-0 k 0 x))
+                                 ∙ cong (base (0 ∷ [])) (pres1 (snd (H⁰-Sⁿ≅ℤ n)))
+                                 ∙ base-neutral (0 ∷ [])
+    base-neutral-eq k (isSn x) = cong (base (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (subst-0 k (suc n) x))
+                                 ∙ cong (base (1 ∷ [])) (pres1 (snd (Hⁿ-Sⁿ≅ℤ n)))
+                                 ∙ base-neutral (1 ∷ [])
     base-neutral-eq k (else x) = refl
 
 
     base-add-eq : (k : ℕ) → (a b : coHom k (S₊ (suc n))) → (x : partℕ k)
                   → base-trad-H* k a x +Pℤ base-trad-H* k b x ≡ base-trad-H* k (a +ₕ b) x
-    base-add-eq k a b (is0 x) = base-poly+ _ _ _
-                                ∙ cong (baseP (0 ∷ [])) (sym (pres· (snd (H⁰-Sⁿ≅ℤ n)) _ _))
-                                ∙ cong (baseP (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (sym (subst-+ k a b 0 x)))
-    base-add-eq k a b (isSn x) =  base-poly+ _ _ _
-                                  ∙ cong (baseP (1 ∷ [])) (sym (pres· (snd (Hⁿ-Sⁿ≅ℤ n)) _ _))
-                                  ∙ cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (sym (subst-+ k a b (suc n) x)))
+    base-add-eq k a b (is0 x) = base-add _ _ _
+                                ∙ cong (base (0 ∷ [])) (sym (pres· (snd (H⁰-Sⁿ≅ℤ n)) _ _))
+                                ∙ cong (base (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (sym (subst-+ k a b 0 x)))
+    base-add-eq k a b (isSn x) =  base-add _ _ _
+                                  ∙ cong (base (1 ∷ [])) (sym (pres· (snd (Hⁿ-Sⁿ≅ℤ n)) _ _))
+                                  ∙ cong (base (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (sym (subst-+ k a b (suc n) x)))
     base-add-eq k a b (else x) = +PℤRid _
 
 
@@ -456,24 +456,24 @@ module Equiv-Sn-Properties (n : ℕ) where
 
   e-retr : (x : ℤ[x]/x²) → H*-Sⁿ→ℤ[x]/x² (ℤ[x]/x²→H*-Sⁿ x) ≡ x
   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-           (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
+           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
            refl
            base-case
            λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
            where
            base-case : _
            base-case (zero ∷ []) a = cong [_] (cong (base-trad-H* 0 (inv (fst (H⁰-Sⁿ≅ℤ n)) a)) part0)
-                                     ∙ cong [_] (cong (baseP (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n)))
+                                     ∙ cong [_] (cong (base (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n)))
                                                                              (substReflCoHom (inv (fst (H⁰-Sⁿ≅ℤ n)) a))))
-                                     ∙ cong [_] (cong (baseP (0 ∷ [])) (rightInv (fst (H⁰-Sⁿ≅ℤ n)) a))
+                                     ∙ cong [_] (cong (base (0 ∷ [])) (rightInv (fst (H⁰-Sⁿ≅ℤ n)) a))
            base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)) (partSn (part (suc n))))
-                                     ∙ cong [_] (cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n)))
+                                     ∙ cong [_] (cong (base (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n)))
                                                                              (substReflCoHom (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a))))
-                                     ∙ cong [_] (cong (baseP (1 ∷ [])) (rightInv (fst (Hⁿ-Sⁿ≅ℤ n)) a))
-           base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc k) ∷ []) a)  ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₁
+                                     ∙ cong [_] (cong (base (1 ∷ [])) (rightInv (fst (Hⁿ-Sⁿ≅ℤ n)) a))
+           base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (base (suc (suc k) ∷ []) a)  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
              where
              helper : _
-             helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))
+             helper = (+PℤLid _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))
 
 
 

@@ -15,16 +15,16 @@ open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
+
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
-open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.A[X]X-A
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
 open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
+open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.A[X]X-A
 
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
@@ -136,7 +136,7 @@ module Equiv-Unit-Properties where
 -- Direct Sens on ℤ[x]
 
   ℤ[x]→H*-Unit : ℤ[x] → H* Unit
-  ℤ[x]→H*-Unit = Poly-Rec-Set.f _ _ _ isSetH*
+  ℤ[x]→H*-Unit = DS-Rec-Set.f _ _ _ _ isSetH*
                   0H*
                   base-trad
                   _+H*_
@@ -165,7 +165,7 @@ module Equiv-Unit-Properties where
   ℤ[x]→H*-Unit-pres+ x y = refl
 
 
--- Proving the morphism on the cup product
+-- -- Proving the morphism on the cup product
 
   T0 : (z : ℤ) → coHom 0 Unit
   T0 = λ z → inv (fst H⁰-Unit≅ℤ) z
@@ -188,28 +188,27 @@ module Equiv-Unit-Properties where
 
 
   pres·-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
-                ℤ[x]→H*-Unit (baseP (n ∷ []) a ·Pℤ baseP (m ∷ []) b)
-              ≡ ℤ[x]→H*-Unit (baseP (n ∷ []) a) cup ℤ[x]→H*-Unit (baseP (m ∷ []) b)
+                ℤ[x]→H*-Unit (base (n ∷ []) a ·Pℤ base (m ∷ []) b)
+              ≡ ℤ[x]→H*-Unit (base (n ∷ []) a) cup ℤ[x]→H*-Unit (base (m ∷ []) b)
   pres·-base-case-int zero    a zero    b = cong (base 0) (pres·-base-case-00 a b)
   pres·-base-case-int zero    a (suc m) b = refl
   pres·-base-case-int (suc n) a m       b = refl
 
   pres·-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
-                ℤ[x]→H*-Unit (baseP v a ·Pℤ baseP v' b)
-              ≡ ℤ[x]→H*-Unit (baseP v a) cup ℤ[x]→H*-Unit (baseP v' b)
+                ℤ[x]→H*-Unit (base v a ·Pℤ base v' b)
+              ≡ ℤ[x]→H*-Unit (base v a) cup ℤ[x]→H*-Unit (base v' b)
   pres·-base-case-vec (n ∷ []) a (m ∷ []) b = pres·-base-case-int n a m b
 
 
-
   ℤ[x]→H*-Unit-pres· : (x y : ℤ[x]) → ℤ[x]→H*-Unit (x ·Pℤ y) ≡ ℤ[x]→H*-Unit x cup ℤ[x]→H*-Unit y
-  ℤ[x]→H*-Unit-pres· = Poly-Ind-Prop.f _ _ _
+  ℤ[x]→H*-Unit-pres· = DS-Ind-Prop.f _ _ _ _
                          (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                          (λ y → refl)
                          base-case
                          λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
     where
     base-case : _
-    base-case (n ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
+    base-case (n ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R Unit) _))
                            (λ v' b → pres·-base-case-vec (n ∷ []) a v' b)
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
@@ -246,16 +245,16 @@ module Equiv-Unit-Properties where
                   base-add-eq
                where
                base-trad : (n : ℕ) → coHom n Unit → ℤ[x]
-               base-trad zero a = baseP (0 ∷ []) (fun (fst H⁰-Unit≅ℤ) a)
+               base-trad zero a = base (0 ∷ []) (fun (fst H⁰-Unit≅ℤ) a)
                base-trad (suc n) a = 0Pℤ
 
                base-neutral-eq : _
-               base-neutral-eq zero = base-0P _
+               base-neutral-eq zero = base-neutral _
                base-neutral-eq (suc n) = refl
 
                base-add-eq : _
-               base-add-eq zero a b = base-poly+ _ _ _
-                                      ∙ cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd H⁰-Unit≅ℤ) a b))
+               base-add-eq zero a b = base-add _ _ _
+                                      ∙ cong (base (0 ∷ [])) (sym (IsGroupHom.pres· (snd H⁰-Unit≅ℤ) a b))
                base-add-eq (suc n) a b = +PℤRid _
 
   H*-Unit→ℤ[x]-pres+ : (x y : H* Unit) → H*-Unit→ℤ[x] ( x +H* y) ≡ H*-Unit→ℤ[x] x +Pℤ H*-Unit→ℤ[x] y
@@ -291,22 +290,22 @@ module Equiv-Unit-Properties where
 
   e-retr : (x : ℤ[x]/x) → H*-Unit→ℤ[x]/x (ℤ[x]/x→H*-Unit x) ≡ x
   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-           (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
+           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
            refl
            base-case
            λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
            where
            base-case : _
            base-case (zero ∷ []) a = refl
-           base-case (suc n ∷ []) a = eq/ 0Pℤ (baseP (suc n ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , foo) ∣₁
+           base-case (suc n ∷ []) a = eq/ 0Pℤ (base (suc n ∷ []) a) ∣ ((λ x → base (n ∷ []) (-ℤ a)) , foo) ∣₁
              where
-             foo : (0P poly+ baseP (suc n ∷ []) (- a)) ≡ (baseP (n +n 1 ∷ []) (- a · pos 1) poly+ 0P)
-             foo = (0P poly+ baseP (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
-                   baseP (suc n ∷ []) (- a) ≡⟨ cong₂ baseP (cong (λ X → X ∷ []) (sym ((+-suc n 0)
+             foo : (0Pℤ +Pℤ base (suc n ∷ []) (- a)) ≡ (base (n +n 1 ∷ []) (- a · pos 1) +Pℤ 0Pℤ)
+             foo = (0Pℤ +Pℤ base (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
+                   base (suc n ∷ []) (- a) ≡⟨ cong₂ base (cong (λ X → X ∷ []) (sym ((+-suc n 0)
                                               ∙ (cong suc (+-zero n))))) (sym (·ℤRid _)) ⟩
-                   baseP (n +n suc 0 ∷ []) (- a ·ℤ 1ℤ) ≡⟨ refl ⟩
-                   baseP (n +n 1 ∷ []) (- a · pos 1) ≡⟨ sym (+PℤRid _) ⟩
-                   (baseP (n +n 1 ∷ []) (- a · pos 1) poly+ 0P) ∎
+                   base (n +n suc 0 ∷ []) (- a ·ℤ 1ℤ) ≡⟨ refl ⟩
+                   base (n +n 1 ∷ []) (- a · pos 1) ≡⟨ sym (+PℤRid _) ⟩
+                   (base (n +n 1 ∷ []) (- a · pos 1) +Pℤ 0Pℤ) ∎
 
 
 
