@@ -13,26 +13,23 @@ private
   variable
     ℓ : Level
 
+open CommRingStr
 
-UnivariatePoly : (CommRing ℓ) → CommRing ℓ
-UnivariatePoly R = (PolyMod.Poly R) , str
-    where
-      open CommRingStr --(snd R)
-      str : CommRingStr (PolyMod.Poly R)
-      0r str = PolyModTheory.0P R
-      1r str = PolyModTheory.1P R
-      _+_ str = PolyModTheory._Poly+_ R
-      _·_ str = PolyModTheory._Poly*_ R
-      - str = PolyModTheory.Poly- R
-      isCommRing str = makeIsCommRing (PolyMod.isSetPoly R)
-                                      (PolyModTheory.Poly+Assoc R)
-                                      (PolyModTheory.Poly+Rid R)
-                                      (PolyModTheory.Poly+Inverses R)
-                                      (PolyModTheory.Poly+Comm  R)
-                                      (PolyModTheory.Poly*Associative R)
-                                      (PolyModTheory.Poly*Rid R)
-                                      (PolyModTheory.Poly*LDistrPoly+ R)
-                                      (PolyModTheory.Poly*Commutative R)
+module _ (R : CommRing ℓ) where
+
+  open PolyMod R
+  open PolyModTheory R
+
+  UnivariatePoly : CommRing ℓ
+  fst UnivariatePoly = Poly R
+  0r (snd UnivariatePoly) = 0P
+  1r (snd UnivariatePoly) = 1P
+  _+_ (snd UnivariatePoly) = _Poly+_
+  _·_ (snd UnivariatePoly) = _Poly*_
+  - snd UnivariatePoly = Poly-
+  isCommRing (snd UnivariatePoly) = makeIsCommRing isSetPoly
+                                    Poly+Assoc Poly+Rid Poly+Inverses Poly+Comm
+                                    Poly*Associative Poly*Rid Poly*LDistrPoly+ Poly*Commutative
 
 
 nUnivariatePoly : (A' : CommRing ℓ) → (n : ℕ) → CommRing ℓ

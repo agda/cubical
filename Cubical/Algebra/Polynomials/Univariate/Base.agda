@@ -29,6 +29,19 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
+module _ (R' : CommRing ℓ) where
+  private
+    R = fst R'
+
+  open CommRingStr (snd R')
+
+  data Poly : Type ℓ where
+    []    : Poly
+    _∷_   : (a : R) → (p : Poly) → Poly
+    drop0 : 0r ∷ [] ≡ []
+
+  infixr 5 _∷_
+
 module PolyMod (R' : CommRing ℓ) where
   private
     R = fst R'
@@ -39,21 +52,12 @@ module PolyMod (R' : CommRing ℓ) where
 -- A polynomial a₁ +  a₂x + ... + aⱼxʲ of degree j is represented as a list [a₁, a₂, ...,aⱼ]
 -- modulo trailing zeros.
 -------------------------------------------------------------------------------------------
-
-  data Poly : Type ℓ where
-    []    : Poly
-    _∷_  : (a : R) → (p : Poly) → Poly
-    drop0 : 0r ∷ [] ≡ []
-
-  infixr 5 _∷_
-
-
-  module Elim (B      : Poly → Type ℓ')
+  module Elim (B      : Poly R' → Type ℓ')
               ([]*    : B [])
-              (cons*  : (r : R) (p : Poly) (b : B p) → B (r ∷ p))
+              (cons*  : (r : R) (p : Poly R') (b : B p) → B (r ∷ p))
               (drop0* : PathP (λ i → B (drop0 i)) (cons* 0r [] []*) []*) where
 
-   f : (p : Poly) → B p
+   f : (p : Poly R') → B p
    f [] = []*
    f (x ∷ p) = cons* x p (f p)
    f (drop0 i) = drop0* i
@@ -62,12 +66,12 @@ module PolyMod (R' : CommRing ℓ) where
   -- Given a proposition (as type) ϕ ranging over polynomials, we prove it by:
   -- ElimProp.f ϕ ⌜proof for base case []⌝ ⌜proof for induction case a ∷ p⌝
   --           ⌜proof that ϕ actually is a proposition over the domain of polynomials⌝
-  module ElimProp (B : Poly → Type ℓ')
+  module _ (B : Poly R' → Type ℓ')
                   ([]* : B [])
-                  (cons* : (r : R) (p : Poly) (b : B p) → B (r ∷ p))
-                  (BProp : {p : Poly} → isProp (B p)) where
-   f : (p : Poly) → B p
-   f = Elim.f B []* cons* (toPathP (BProp (transport (λ i → B (drop0 i)) (cons* 0r [] []*)) []*))
+                  (cons* : (r : R) (p : Poly R') (b : B p) → B (r ∷ p))
+                  (BProp : {p : Poly R'} → isProp (B p)) where
+   ElimProp : (p : Poly R') → B p
+   ElimProp = Elim.f B []* cons* (toPathP (BProp (transport (λ i → B (drop0 i)) (cons* 0r [] []*)) []*))
 
 
   module Rec (B : Type ℓ')
@@ -75,12 +79,12 @@ module PolyMod (R' : CommRing ℓ) where
              (cons* : R → B → B)
              (drop0* : cons* 0r []* ≡ []*)
              (Bset : isSet B) where
-    f : Poly → B
+    f : Poly R' → B
     f = Elim.f (λ _ → B) []* (λ r p b → cons* r b) drop0*
 
 
-  module RecPoly ([]* : Poly) (cons* : R → Poly → Poly) (drop0* : cons* 0r []* ≡ []*) where
-    f : Poly → Poly
+  module RecPoly ([]* : Poly R') (cons* : R → Poly R' → Poly R') (drop0* : cons* 0r []* ≡ []*) where
+    f : Poly R' → Poly R'
     f [] = []*
     f (a ∷ p) = cons* a (f p)
     f (drop0 i) = drop0* i
@@ -104,7 +108,7 @@ module PolyMod (R' : CommRing ℓ) where
 
 
   --construction of the function that represents the polynomial
-  Poly→Fun : Poly → (ℕ → R)
+  Poly→Fun : Poly R' → (ℕ → R)
   Poly→Fun [] = (λ _ → 0r)
   Poly→Fun (a ∷ p) = (λ n → if isZero n then a else Poly→Fun p (predℕ n))
   Poly→Fun (drop0 i) = lemma i
@@ -114,8 +118,8 @@ module PolyMod (R' : CommRing ℓ) where
     lemma i (suc n) = 0r
 
 
-  Poly→Prf : (p : Poly) → ∃[ n ∈ ℕ ] ((m : ℕ) → n ≤ m → (Poly→Fun p m ≡ 0r))
-  Poly→Prf = ElimProp.f (λ p →  ∃[ n ∈ ℕ ] ((m : ℕ) → n ≤ m → (Poly→Fun p m ≡ 0r)))
+  Poly→Prf : (p : Poly R') → ∃[ n ∈ ℕ ] ((m : ℕ) → n ≤ m → (Poly→Fun p m ≡ 0r))
+  Poly→Prf = ElimProp (λ p →  ∃[ n ∈ ℕ ] ((m : ℕ) → n ≤ m → (Poly→Fun p m ≡ 0r)))
                         ∣ 0 , (λ m ineq → refl) ∣₁
                         (λ r p → map ( λ (n , ineq) → (suc n) ,
                                        λ { zero h → ⊥rec (znots (sym (≤0→≡0 h))) ;
@@ -125,7 +129,7 @@ module PolyMod (R' : CommRing ℓ) where
                         )
                         squash₁
 
-  Poly→PolyFun : Poly → PolyFun
+  Poly→PolyFun : Poly R' → PolyFun
   Poly→PolyFun p = (Poly→Fun p) , (Poly→Prf p)
 
 
@@ -139,7 +143,7 @@ module PolyMod (R' : CommRing ℓ) where
   atS : (ℕ → R) → (ℕ → R)
   atS f n = f (suc n)
 
-  polyEq : (p p' : Poly) → Poly→Fun p ≡ Poly→Fun p' → p ≡ p'
+  polyEq : (p p' : Poly R') → Poly→Fun p ≡ Poly→Fun p' → p ≡ p'
   polyEq [] [] _ = refl
   polyEq [] (a ∷ p') α =
     sym drop0 ∙∙ cong₂ _∷_ (cong at0 α) (polyEq [] p' (cong atS α)) ∙∙ refl
@@ -190,16 +194,16 @@ module PolyMod (R' : CommRing ℓ) where
       (is-set 0r 0r (cong at0 α) refl (i ∧ j) k ∷ [])
 
 
-  PolyFun→Poly+ : (q : PolyFun) → Σ[ p ∈ Poly ] Poly→Fun p ≡ q .fst
+  PolyFun→Poly+ : (q : PolyFun) → Σ[ p ∈ Poly R' ] Poly→Fun p ≡ q .fst
   PolyFun→Poly+ (f , pf) = rec lem (λ x → rem1 f (x .fst) (x .snd) ,
                                                funExt (rem2 f (fst x) (snd x))
                                    ) pf
     where
-    lem : isProp (Σ[ p ∈ Poly ] Poly→Fun p ≡ f)
+    lem : isProp (Σ[ p ∈ (Poly R')] Poly→Fun p ≡ f)
     lem (p , α) (p' , α') =
       ΣPathP (polyEq p p' (α ∙ sym α'), isProp→PathP (λ i → (isSetΠ λ _ → is-set) _ _) _ _)
 
-    rem1 : (p : ℕ → R) (n : ℕ) → ((m : ℕ) → n ≤ m → p m ≡ 0r) → Poly
+    rem1 : (p : ℕ → R) (n : ℕ) → ((m : ℕ) → n ≤ m → p m ≡ 0r) → Poly R'
     rem1 p zero h = []
     rem1 p (suc n) h = p 0 ∷ rem1 (λ x → p (suc x)) n (λ m x → h (suc m) (suc-≤-suc x))
 
@@ -209,10 +213,10 @@ module PolyMod (R' : CommRing ℓ) where
     rem2 f (suc n) h zero = refl
     rem2 f (suc n) h (suc m) = rem2 (λ x → f (suc x)) n (λ k p → h (suc k) (suc-≤-suc p)) m
 
-  PolyFun→Poly : PolyFun → Poly
+  PolyFun→Poly : PolyFun → Poly R'
   PolyFun→Poly q = PolyFun→Poly+ q .fst
 
-  PolyFun→Poly→PolyFun : (p : Poly) → PolyFun→Poly (Poly→PolyFun p) ≡ p
+  PolyFun→Poly→PolyFun : (p : Poly R') → PolyFun→Poly (Poly→PolyFun p) ≡ p
   PolyFun→Poly→PolyFun p = polyEq _ _ (PolyFun→Poly+ (Poly→PolyFun p) .snd)
 
 
@@ -220,7 +224,7 @@ module PolyMod (R' : CommRing ℓ) where
 --End of code by Mörtberg and Cavallo
 -------------------------------------
 
-  isSetPoly : isSet Poly
+  isSetPoly : isSet (Poly R')
   isSetPoly = isSetRetract Poly→PolyFun
                            PolyFun→Poly
                            PolyFun→Poly→PolyFun
