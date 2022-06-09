@@ -11,6 +11,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Functor.ComposeProperty
 open import Cubical.Categories.Equivalence
 open import Cubical.Categories.Equivalence.WeakEquivalence
 open import Cubical.Categories.Instances.Functors
@@ -43,4 +44,4 @@ open _×_
 
 makeIsRezkCompletion : {F : Functor C D} → isUnivalent D → isWeakEquivalence F → isRezkCompletion F
 makeIsRezkCompletion univ w-equiv .fst = univ
-makeIsRezkCompletion univ w-equiv .snd univE = {!!}
+makeIsRezkCompletion univ w-equiv .snd univE = isWeakEquiv→isEquivPrecomp univE _ w-equiv

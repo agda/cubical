@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 
 module Cubical.Categories.Functor.ComposeProperty where
 
@@ -13,6 +13,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation.Base
+open import Cubical.Categories.Equivalence
 open import Cubical.Categories.Equivalence.WeakEquivalence
 
 open import Cubical.Categories.Instances.Functors
@@ -131,12 +132,12 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
       ∙ E .⋆IdR _ ∙ E .⋆IdL _) i)
 
 
-    -- As a corollary, if F is essential surjective and full, (- ∘ F) is fully faithfull.
+  -- As a corollary, if F is essential surjective and full, (- ∘ F) is fully faithfull.
 
-    isEssSurj+Full→isFullyFaithfulPrecomp : isEssentiallySurj F → isFull F → isFullyFaithful (precomposeF E F)
-    isEssSurj+Full→isFullyFaithfulPrecomp surj full =
-      isFull+Faithful→isFullyFaithful {F = precomposeF E F}
-        (isEssSurj+Full→isFullPrecomp surj full) (isEssSurj→isFaithfulPrecomp surj)
+  isEssSurj+Full→isFullyFaithfulPrecomp : isEssentiallySurj F → isFull F → isFullyFaithful (precomposeF E F)
+  isEssSurj+Full→isFullyFaithfulPrecomp surj full =
+    isFull+Faithful→isFullyFaithful {F = precomposeF E F}
+      (isEssSurj+Full→isFullPrecomp surj full) (isEssSurj→isFaithfulPrecomp surj)
 
 
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
@@ -156,7 +157,7 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   -- If F is weak equivalence and the target category is univalent, (- ∘ F) is essentially surjective.
 
   isWeakEquiv→isEssSurjPrecomp : isWeakEquivalence F → isEssentiallySurj (precomposeF E F)
-  isWeakEquiv→isEssSurjPrecomp w-equiv G = {!!}
+  isWeakEquiv→isEssSurjPrecomp w-equiv G = ∣ Ext , Ext≃ ∣₁
     where
     Obj : (d : D .ob) → Type _
     Obj d = Σ[ e ∈ E .ob ]
@@ -352,3 +353,68 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
               ∙ cong (λ x → x ⋆⟨ E ⟩ Ext-hom g) rf
               ∙ E .⋆Assoc _ _ _))
       (w-equiv .esssurj a) (w-equiv .esssurj b) (w-equiv .esssurj c)
+
+    objFc : (c : C .ob) → Obj (F .F-ob c)
+    objFc c₀ .fst = G .F-ob c₀
+    objFc c₀ .snd .fst c h = F-Iso {F = G} (liftIso {F = F} (w-equiv .fullfaith) h)
+    objFc c₀ .snd .snd c c' h h' f p = sym (G .F-seq _ _)
+      ∙ cong (G .F-hom) (isFullyFaithful→Faithful {F = F} (w-equiv .fullfaith) _ _ _ _ path)
+      where
+      path : _
+      path =
+          F .F-seq _ _
+        ∙ cong (λ x → _ ⋆⟨ D ⟩ x) (cong fst (liftIso≡ {F = F} (w-equiv .fullfaith) h'))
+        ∙ p ∙ sym (cong fst (liftIso≡ {F = F} (w-equiv .fullfaith) h))
+
+    Ext-ob≡ : (c : C .ob) → Ext-ob (F .F-ob c) ≡ G .F-ob c
+    Ext-ob≡ c₀ = cong fst (isContrObj _ .snd (objFc c₀))
+
+    Ext-hom≡ : {c c' : C .ob}(f : C [ c , c' ])
+      → PathP (λ i → E [ Ext-ob≡ c i , Ext-ob≡ c' i ]) (Ext-hom (F .F-hom f)) (G .F-hom f)
+    Ext-hom≡  {c = c} {c' = c'} f i =
+      hcomp (λ j → λ
+        { (i = i0) → isContrMor _ _ _ .snd morFf (~ j) .fst
+        ; (i = i1) → G .F-hom f })
+      (transpGf-filler (~ i))
+      where
+      transpGf-filler = transport-filler (λ i → E [ Ext-ob≡ c (~ i) , Ext-ob≡ c' (~ i) ]) (G .F-hom f)
+
+      morFf : Mor _ _ (F .F-hom f)
+      morFf .fst = transpGf-filler i1
+      morFf .snd c c' h h' l p =
+        transport (λ i → G .F-hom l ⋆⟨ E ⟩ isContrObj _ .snd (objFc _) (~ i) .snd .fst c' h' .fst
+          ≡ isContrObj _ .snd (objFc _) (~ i) .snd .fst c h .fst ⋆⟨ E ⟩ transpGf-filler i) G-path
+        where
+        F-path : _
+        F-path =
+            F .F-seq _ _
+          ∙ cong (λ x → _ ⋆⟨ D ⟩ x) (cong fst (liftIso≡ {F = F} (w-equiv .fullfaith) h')) ∙ p
+          ∙ cong (λ x → x ⋆⟨ D ⟩ _) (sym (cong fst (liftIso≡ {F = F} (w-equiv .fullfaith) h)))
+          ∙ sym (F .F-seq _ _)
+
+        G-path : _
+        G-path =
+            sym (G .F-seq _ _)
+          ∙ cong (G .F-hom) (isFullyFaithful→Faithful {F = F} (w-equiv .fullfaith) _ _ _ _ F-path)
+          ∙ G .F-seq _ _
+
+    Ext≡ : precomposeF E F .F-ob Ext ≡ G
+    Ext≡ = Functor≡ Ext-ob≡ Ext-hom≡
+
+    Ext≃ : CatIso _ (precomposeF E F .F-ob Ext) G
+    Ext≃ = NatIso→Iso _ _ (pathToNatIso Ext≡)
+
+
+  -- As a corollary, if F is weak equivalence and the target category is univalent, (- ∘ F) is an weak equivalence.
+
+  isWeakEquiv→isWeakEquivPrecomp : isWeakEquivalence F → isWeakEquivalence (precomposeF E F)
+  isWeakEquiv→isWeakEquivPrecomp w-equiv .fullfaith =
+    isEssSurj+Full→isFullyFaithfulPrecomp E F (w-equiv .esssurj) (isFullyFaithful→Full {F = F} (w-equiv .fullfaith))
+  isWeakEquiv→isWeakEquivPrecomp w-equiv .esssurj   = isWeakEquiv→isEssSurjPrecomp w-equiv
+
+  -- Moreover, using assumption of being univalent, (- ∘ F) is actually an equivalence.
+
+  isWeakEquiv→isEquivPrecomp : isWeakEquivalence F → isEquivalence (precomposeF E F)
+  isWeakEquiv→isEquivPrecomp w-equiv =
+    isWeakEquiv→isEquiv (isUnivalentFUNCTOR _ _ isUnivE) (isUnivalentFUNCTOR _ _ isUnivE)
+      (isWeakEquiv→isWeakEquivPrecomp w-equiv)

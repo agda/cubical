@@ -70,6 +70,9 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   Iso→NatIso α .trans = α .fst
   Iso→NatIso α .nIso = FUNCTORIso' _ (α .snd)
 
+  NatIso→Iso : {F G : Functor C D} → NatIso F G → CatIso FUNCTOR F G
+  NatIso→Iso α = α .trans , FUNCTORIso _ (α .nIso)
+
   Path→Iso→NatIso : {F G : Functor C D} → (p : F ≡ G) → pathToNatIso p ≡ Iso→NatIso (pathToIso p)
   Path→Iso→NatIso {F = F} p = J (λ _ p → pathToNatIso p ≡ Iso→NatIso (pathToIso p)) (NatIso≡ refl-helper) p
     where
@@ -79,7 +82,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
 
   Iso-FUNCTORIso-NatIso : {F G : Functor C D} → Iso (CatIso FUNCTOR F G) (NatIso F G)
   Iso-FUNCTORIso-NatIso .fun = Iso→NatIso
-  Iso-FUNCTORIso-NatIso .inv α = α .trans , FUNCTORIso _ (α .nIso)
+  Iso-FUNCTORIso-NatIso .inv = NatIso→Iso
   Iso-FUNCTORIso-NatIso .rightInv α i .trans = α .trans
   Iso-FUNCTORIso-NatIso .rightInv α i .nIso =
     isProp→PathP (λ i → isPropΠ (λ _ → isPropIsIso _)) (FUNCTORIso' (α .trans) (FUNCTORIso _ (α .nIso))) (α .nIso) i
