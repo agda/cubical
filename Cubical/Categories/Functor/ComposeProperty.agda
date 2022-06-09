@@ -4,6 +4,8 @@ module Cubical.Categories.Functor.ComposeProperty where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation as Prop
 
@@ -16,7 +18,7 @@ open import Cubical.Categories.Equivalence.WeakEquivalence
 open import Cubical.Categories.Instances.Functors
 
 
--- Composition induced by special functors
+-- Composition by functor with special properties
 
 module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (E : Category ℓE ℓE')
@@ -29,6 +31,8 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   open isIso
 
 
+  -- If F is essential surjective, (- ∘ F) is faithful.
+
   isEssSurj→isFaithfulPrecomp : isEssentiallySurj F → isFaithful (precomposeF E F)
   isEssSurj→isFaithfulPrecomp surj A B α β p =
     makeNatTransPath
@@ -39,6 +43,8 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
         ∙ sym (⋆InvLMove (F-Iso {F = A} f) (β .N-hom (f .fst))))
       (surj x) i)
 
+
+  -- If F is essential surjective and full, (- ∘ F) is full.
 
   isEssSurj+Full→isFullPrecomp : isEssentiallySurj F → isFull F → isFull (precomposeF E F)
   isEssSurj+Full→isFullPrecomp surj full A B α = ∣ ext , ext≡ ∣₁
@@ -125,6 +131,8 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
       ∙ E .⋆IdR _ ∙ E .⋆IdL _) i)
 
 
+    -- As a corollary, if F is essential surjective and full, (- ∘ F) is fully faithfull.
+
     isEssSurj+Full→isFullyFaithfulPrecomp : isEssentiallySurj F → isFull F → isFullyFaithful (precomposeF E F)
     isEssSurj+Full→isFullyFaithfulPrecomp surj full =
       isFull+Faithful→isFullyFaithful {F = precomposeF E F}
@@ -144,6 +152,9 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
   open isWeakEquivalence
   open isUnivalent isUnivE
 
+
+  -- If F is weak equivalence and the target category is univalent, (- ∘ F) is essentially surjective.
+
   isWeakEquiv→isEssSurjPrecomp : isWeakEquivalence F → isEssentiallySurj (precomposeF E F)
   isWeakEquiv→isEssSurjPrecomp w-equiv G = {!!}
     where
@@ -155,36 +166,41 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
           → F .F-hom f ⋆⟨ D ⟩ h' .fst ≡ h .fst
           → G .F-hom f ⋆⟨ E ⟩ k c' h' .fst ≡ k c h .fst)
 
-    module _ (d : D .ob)(c₀ : C .ob)(h₀ : CatIso D (F .F-ob c₀) d) where
+    module _ {d} {c c'} (h : CatIso D (F .F-ob c) d)(h' : CatIso D (F .F-ob c') d) where
 
-      g : (c : C .ob)(h : CatIso D (F .F-ob c) d) → CatIso C c c₀
-      g c h = liftIso {F = F} (w-equiv .fullfaith) (⋆Iso h (invIso h₀))
+      liftH : CatIso C c c'
+      liftH = liftIso {F = F} (w-equiv .fullfaith) (⋆Iso h (invIso h'))
 
-      g-eq : ∀ c h → F .F-hom (g c h .fst) ⋆⟨ D ⟩ h₀ .fst ≡ h .fst
-      g-eq c h =
-          cong (λ x → x ⋆⟨ D ⟩ _) (cong fst (liftIso≡ {F = F} (w-equiv .fullfaith) (⋆Iso h (invIso h₀))))
+      liftH-eq' : F .F-hom (liftH .fst) ≡ h .fst ⋆⟨ D ⟩ h' .snd .inv
+      liftH-eq' = cong fst (liftIso≡ {F = F} (w-equiv .fullfaith) (⋆Iso h (invIso h')))
+
+      liftH-eq : F .F-hom (liftH .fst) ⋆⟨ D ⟩ h' .fst ≡ h .fst
+      liftH-eq =
+          cong (λ x → x ⋆⟨ D ⟩ _) liftH-eq'
         ∙ D .⋆Assoc _ _ _
-        ∙ cong (λ x → _ ⋆⟨ D ⟩ x) (h₀ .snd .sec)
+        ∙ cong (λ x → _ ⋆⟨ D ⟩ x) (h' .snd .sec)
         ∙ D .⋆IdR _
+
+    module _ (d : D .ob)(c₀ : C .ob)(h₀ : CatIso D (F .F-ob c₀) d) where
 
       isContrObj' : isContr (Obj d)
       isContrObj' .fst .fst = G .F-ob c₀
-      isContrObj' .fst .snd .fst c h = F-Iso {F = G} (g c h)
+      isContrObj' .fst .snd .fst c h = F-Iso {F = G} (liftH h h₀)
       isContrObj' .fst .snd .snd c c' h h' f p = sym (G .F-seq _ _) ∙ cong (G .F-hom) g-path
         where
-        g-path : f ⋆⟨ C ⟩ g c' h' .fst ≡ g c h .fst
+        g-path : f ⋆⟨ C ⟩ liftH h' h₀ .fst ≡ liftH h h₀ .fst
         g-path = isFullyFaithful→Faithful {F = F} (w-equiv .fullfaith) _ _ _ _
            (F .F-seq _ _
-          ∙ cong (λ x → _ ⋆⟨ D ⟩ x) (cong fst (liftIso≡ {F = F} (w-equiv .fullfaith) (⋆Iso h' (invIso h₀))))
+          ∙ cong (λ x → _ ⋆⟨ D ⟩ x) (liftH-eq' h' h₀)
           ∙ sym (D .⋆Assoc _ _ _)
           ∙ cong (λ x → x ⋆⟨ D ⟩ invIso h₀ .fst) p
           ∙ cong fst (sym (liftIso≡ {F = F} (w-equiv .fullfaith) (⋆Iso h (invIso h₀)))))
       isContrObj' .snd (e , k , coh) i .fst = CatIsoToPath (k c₀ h₀) i
       isContrObj' .snd (e , k , coh) i .snd .fst c h =
-        let isom₀ = F-Iso {F = G} (g c h) in
+        let isom₀ = F-Iso {F = G} (liftH h h₀) in
         hcomp (λ j → λ
           { (i = i0) → isom₀
-          ; (i = i1) → CatIso≡ (⋆Iso isom₀ (k c₀ h₀)) (k c h) (coh c c₀ h h₀ (g c h .fst) (g-eq c h)) j })
+          ; (i = i1) → CatIso≡ (⋆Iso isom₀ (k c₀ h₀)) (k c h) (coh c c₀ h h₀ (liftH h h₀ .fst) (liftH-eq h h₀)) j })
         (transportIsoToPathIso isUnivE isom₀ _ i)
       isContrObj' .snd x@(e , k , coh) i .snd .snd =
         isProp→PathP (λ i → isPropΠ6 (λ c c' h h' f _ →
@@ -198,3 +214,141 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
 
     Ext-ob : D .ob → E .ob
     Ext-ob d = isContrObj d .fst .fst
+
+    k : {d : D .ob}{c : C .ob}(h : CatIso D (F .F-ob c) d) → CatIso E (G .F-ob c) (Ext-ob d)
+    k = isContrObj _ .fst .snd .fst _
+
+    k-eq : {d : D .ob}{c c' : C .ob}
+      (h : CatIso D (F .F-ob c) d)(h' : CatIso D (F .F-ob c') d)
+      → (f : C [ c , c' ])
+      → F .F-hom f ⋆⟨ D ⟩ h' .fst ≡ h .fst
+      → G .F-hom f ⋆⟨ E ⟩ k h' .fst ≡ k h .fst
+    k-eq = isContrObj _ .fst .snd .snd _ _
+
+    Mor : (d d' : D .ob)(f : D [ d , d' ]) → Type _
+    Mor d d' f =
+      Σ[ g ∈ E [ Ext-ob d , Ext-ob d' ] ]
+        ((c c' : C .ob)(h : CatIso D (F .F-ob c) d)(h' : CatIso D (F .F-ob c') d')
+          → (l : C [ c , c' ])
+          → F .F-hom l ⋆⟨ D ⟩ h' .fst ≡ h .fst ⋆⟨ D ⟩ f
+          → G .F-hom l ⋆⟨ E ⟩ k h' .fst ≡ k h .fst ⋆⟨ E ⟩ g)
+
+    module _ (d d' : D .ob)(f : D [ d , d' ])
+      (c₀ : C .ob)(h₀ : CatIso D (F .F-ob c₀) d )
+      (c₁ : C .ob)(h₁ : CatIso D (F .F-ob c₁) d')
+      (l₀ : C [ c₀ , c₁ ])(p₀ : F .F-hom l₀ ⋆⟨ D ⟩ h₁ .fst ≡ h₀ .fst ⋆⟨ D ⟩ f)
+      where
+
+      g₀ = k h₀ .snd .inv ⋆⟨ E ⟩ G .F-hom l₀ ⋆⟨ E ⟩ k h₁ .fst
+
+      isContrMor' : isContr (Mor d d' f)
+      isContrMor' .fst .fst = g₀
+      isContrMor' .fst .snd c c' h h' l p =
+          cong (λ x → _ ⋆⟨ E ⟩ x) (⋆InvLMove (F-Iso {F = G} m') (k-eq h₁ h' _ m'-eq))
+        ∙ sym (E .⋆Assoc _ _ _)
+        ∙ cong (λ x → x ⋆⟨ E ⟩ k h₁ .fst) Gm-path'
+        ∙ cong (λ x → x ⋆⟨ E ⟩ G .F-hom l₀ ⋆⟨ E ⟩ k h₁ .fst) m-eq'
+        ∙ E .⋆Assoc _ _ _ ∙ E .⋆Assoc _ _ _
+        ∙ cong (λ x → k h .fst ⋆⟨ E ⟩ x) (sym (E .⋆Assoc _ _ _))
+        where
+        m = liftH h₀ h
+        m-eq = liftH-eq h₀ h
+        m' = liftH h₁ h'
+        m'-eq = liftH-eq h₁ h'
+
+        m-eq' : G .F-hom (m .snd .inv) ≡ k h .fst ⋆⟨ E ⟩ k h₀ .snd .inv
+        m-eq' = ⋆InvRMove (k h₀) (sym (⋆InvLMove (F-Iso {F = G} m) (k-eq h₀ h _ m-eq)))
+
+        Fm-path : F .F-hom (l₀ ⋆⟨ C ⟩ m' .fst) ≡ F .F-hom (m .fst ⋆⟨ C ⟩ l)
+        Fm-path =
+            F .F-seq _ _
+          ∙ cong (λ x → F .F-hom l₀ ⋆⟨ D ⟩ x) (liftH-eq' h₁ h')
+          ∙ sym (D .⋆Assoc _ _ _)
+          ∙ cong (λ x → x ⋆⟨ D ⟩ _) p₀
+          ∙ cong (λ x → x ⋆⟨ D ⟩ _ ⋆⟨ D ⟩ _) (sym (D .⋆IdR _))
+          ∙ cong (λ x → _ ⋆⟨ D ⟩ x ⋆⟨ D ⟩ _ ⋆⟨ D ⟩ _) (sym (h .snd .sec))
+          ∙ cong (λ x → x ⋆⟨ D ⟩ _ ⋆⟨ D ⟩ _) (sym (D .⋆Assoc _ _ _))
+          ∙ cong (λ x → x ⋆⟨ D ⟩ _) (D .⋆Assoc _ _ _)
+          ∙ D .⋆Assoc _ _ _
+          ∙ (λ i → ⋆InvRMove h m-eq (~ i) ⋆⟨ D ⟩ ⋆InvRMove h' p (~ i))
+          ∙ sym (F .F-seq _ _)
+
+        m-path : l₀ ⋆⟨ C ⟩ m' .fst ≡ m .fst ⋆⟨ C ⟩ l
+        m-path = isFullyFaithful→Faithful {F = F} (w-equiv .fullfaith) _ _ _ _ Fm-path
+
+        Gm-path : G .F-hom l₀ ⋆⟨ E ⟩ G .F-hom (m' .fst) ≡ G .F-hom (m .fst) ⋆⟨ E ⟩ G .F-hom l
+        Gm-path = sym (G .F-seq _ _) ∙ cong (G .F-hom) m-path ∙ G .F-seq _ _
+
+        Gm-path' : G .F-hom l ⋆⟨ E ⟩ G .F-hom (m' .snd .inv) ≡ G .F-hom (m .snd .inv) ⋆⟨ E ⟩ G .F-hom l₀
+        Gm-path' = ⋆InvLMove (F-Iso {F = G} m) (sym (⋆InvRMove (F-Iso {F = G} m') Gm-path ∙ E .⋆Assoc _ _ _))
+
+      isContrMor' .snd (g₁ , coh₁) i .fst =
+         (⋆InvLMove (k h₀) (sym (isContrMor' .fst .snd c₀ c₁ h₀ h₁ l₀ p₀))
+        ∙ sym (⋆InvLMove (k h₀) (sym (coh₁ c₀ c₁ h₀ h₁ l₀ p₀)))) i
+      isContrMor' .snd x@(g₁ , coh₁) i .snd =
+        isProp→PathP (λ i → isPropΠ6 (λ c c' h h' l _ →
+          E .isSetHom
+            (G .F-hom l ⋆⟨ E ⟩ k h' .fst)
+            (k h .fst ⋆⟨ E ⟩ isContrMor' .snd x i .fst)))
+        (isContrMor' .fst .snd) coh₁ i
+
+    module _ {c c'} {d d'}
+      (f : D [ d , d' ])(h : CatIso D (F .F-ob c) d)(h' : CatIso D (F .F-ob c') d')
+      where
+
+      liftL : C [ c , c' ]
+      liftL = invEq (_ , w-equiv .fullfaith _ _) (h .fst ⋆⟨ D ⟩ f ⋆⟨ D ⟩ h' .snd .inv)
+
+      liftL-eq : F .F-hom liftL ⋆⟨ D ⟩ h' .fst ≡ h .fst ⋆⟨ D ⟩ f
+      liftL-eq =
+        sym (⋆InvRMove (invIso h')
+          (sym (secEq (_ , w-equiv .fullfaith _ _) (h .fst ⋆⟨ D ⟩ f ⋆⟨ D ⟩ h' .snd .inv))))
+
+    isContrMor : (d d' : D .ob)(f : D [ d , d' ]) → isContr (Mor d d' f)
+    isContrMor d d' f = Prop.rec2 isPropIsContr
+      (λ (c₀ , h₀) (c₁ , h₁) →
+        isContrMor' d d' f c₀ h₀ c₁ h₁ (liftL f h₀ h₁) (liftL-eq f h₀ h₁))
+      (w-equiv .esssurj d) (w-equiv .esssurj d')
+
+    Ext-hom : {d d' : D .ob}(f : D [ d , d' ]) → E [ Ext-ob d , Ext-ob d' ]
+    Ext-hom f = isContrMor _ _ f .fst .fst
+
+    liftL⋆ : ∀ {c c' c''} {d d' d''}
+      (f : D [ d , d' ])(g : D [ d' , d'' ])
+      (h : CatIso D (F .F-ob c) d)(h' : CatIso D (F .F-ob c') d')(h'' : CatIso D (F .F-ob c'') d'')
+      → liftL (f ⋆⟨ D ⟩ g) h h'' ≡ liftL f h h' ⋆⟨ C ⟩ liftL g h' h''
+    liftL⋆ f g h h' h'' = isFullyFaithful→Faithful {F = F} (w-equiv .fullfaith) _ _ _ _
+      (⋆CancelR h'' path ∙ sym (F .F-seq _ _))
+      where
+      path : _
+      path = liftL-eq (f ⋆⟨ D ⟩ g) h h''
+        ∙ sym (D .⋆Assoc _ _ _)
+        ∙ cong (λ x → x ⋆⟨ D ⟩ _) (sym (liftL-eq f h h'))
+        ∙ D .⋆Assoc _ _ _
+        ∙ cong (λ x → F .F-hom (liftL f h h') ⋆⟨ D ⟩ x) (sym (liftL-eq g h' h''))
+        ∙ sym (D .⋆Assoc _ _ _)
+
+    Ext : Functor D E
+    Ext .F-ob  = Ext-ob
+    Ext .F-hom = Ext-hom
+    Ext .F-id {x = d} = Prop.rec (E .isSetHom _ _)
+      (λ (c , h) →
+        let r = isContrMor _ _ (D .id {x = d}) .fst .snd _ _ h h (C .id)
+              (cong (λ x → x ⋆⟨ D ⟩ _) (F .F-id) ∙ D .⋆IdL _ ∙ sym (D .⋆IdR _))
+        in  ⋆CancelL (k h) (sym r ∙ cong (λ x → x ⋆⟨ E ⟩ (k h .fst)) (G .F-id) ∙ E .⋆IdL _ ∙ sym (E .⋆IdR _)))
+      (w-equiv .esssurj d)
+    Ext .F-seq {x = a} {y = b} {z = c} f g =
+      Prop.rec3 (E .isSetHom _ _)
+      (λ (_ , ha) (_ , hb) (_ , hc) →
+        let rf = isContrMor _ _ _ .fst .snd _ _ ha hb (liftL f ha hb) (liftL-eq f ha hb)
+            rg = isContrMor _ _ _ .fst .snd _ _ hb hc (liftL g hb hc) (liftL-eq g hb hc)
+            rfg = isContrMor _ _ _ .fst .snd _ _ ha hc (liftL (f ⋆⟨ D ⟩ g) ha hc) (liftL-eq (f ⋆⟨ D ⟩ g) ha hc)
+        in  ⋆CancelL (k ha)
+               (sym rfg
+              ∙ cong (λ x → x ⋆⟨ E ⟩ k hc .fst) (cong (G .F-hom) (liftL⋆ f g ha hb hc) ∙ G .F-seq _ _)
+              ∙ E .⋆Assoc _ _ _
+              ∙ cong (λ x → G .F-hom _ ⋆⟨ E ⟩ x) rg
+              ∙ sym (E .⋆Assoc _ _ _)
+              ∙ cong (λ x → x ⋆⟨ E ⟩ Ext-hom g) rf
+              ∙ E .⋆Assoc _ _ _))
+      (w-equiv .esssurj a) (w-equiv .esssurj b) (w-equiv .esssurj c)
