@@ -369,6 +369,43 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
         compIsConeMor v = {!!}
 
 
+    -- the easier direction, still an explicit lemma
+    lemma3 : ∀ (c : ob C) (cc : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c)
+               (f : C [ c , DLRan F .F-ob (⋁ α) ])
+           → isConeMor (lemma1 c cc) F[⋁α]Cone f
+           → isConeMor cc restCone f
+    lemma3 c cc f isConeMorF (sing i) =
+      subst (λ g → f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)) ≡ g)
+        {!!}
+          assumption
+      where
+      assumption : f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i))
+                 ≡ coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i)
+      assumption = isConeMorF ((α i , α∈L' i) , ind≤⋁ α i)
+    lemma3 c cc f isConeMorF (pair i j i<j) = {!!}
+
+    -- putting it all together
+    lemma4 : ∀ (c : ob C) (cc : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c)
+           → ∃![ f ∈ C [ c , DLRan F .F-ob (⋁ α) ] ] isConeMor cc restCone f
+    lemma4 c cc = uniqueExists
+      (fromUnivProp .fst .fst)
+        (lemma3 c cc _ (fromUnivProp .fst .snd))
+          (λ _ → isPropIsConeMor _ _ _)
+            λ g isConeMorG → cong fst (fromUnivProp .snd (g , lemma2 c cc g isConeMorG))
+      where
+      fromUnivProp : ∃![ f ∈ C [ c , DLRan F .F-ob (⋁ α) ] ] isConeMor (lemma1 c cc) F[⋁α]Cone f
+      fromUnivProp = limitC ⋁α↓ (F* (⋁ α)) .univProp c (lemma1 c cc)
+
+
+
+
+
+
+
+
+
+
+
 ---- the main proof --------------------------------------------------------------------------------
   isDLSheafDLRan : isDLSheafPullback L C (DLRan F)
   fst isDLSheafDLRan x =
