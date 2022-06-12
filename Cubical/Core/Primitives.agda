@@ -30,7 +30,8 @@ import Agda.Builtin.Cubical.Glue
 -- import Agda.Builtin.Cubical.HCompU
 
 open import Agda.Primitive public
-  using    ( Level )
+  using    ( Level
+           ; SSet )
   renaming ( lzero to ℓ-zero
            ; lsuc  to ℓ-suc
            ; _⊔_   to ℓ-max
