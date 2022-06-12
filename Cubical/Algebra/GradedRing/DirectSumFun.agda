@@ -27,12 +27,14 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 
 open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.AbGroup.Instances.NProd
 open import Cubical.Algebra.DirectSum.Equiv-DSHIT-DSFun
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Properties
 open import Cubical.Algebra.DirectSum.DirectSumFun.Base
+open import Cubical.Algebra.AbGroup.Instances.NProd
+open import Cubical.Algebra.AbGroup.Instances.DirectSumFun
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.GradedRing.DirectSumHIT
 open import Cubical.Algebra.CommRing
@@ -88,6 +90,41 @@ module _
                ((Gstr k) ._+_ a b) ⋆ c ≡ Gstr (k +n l) ._+_ (a ⋆ c) (b ⋆ c))
     where
 
+-----------------------------------------------------------------------------
+-- Definition of 1
+
+    -- import for pres
+    open Equiv-Properties G Gstr using
+      ( substG
+      ; fun-trad
+      ; fun-trad-eq
+      ; fun-trad-neq
+      ; ⊕HIT→Fun
+      ; ⊕HIT→⊕Fun
+      ; ⊕HIT→⊕Fun-pres+)
+
+    1Fun : (n : ℕ) → G n
+    1Fun zero = 1⋆
+    1Fun (suc n) = 0g (Gstr (suc n))
+
+    1⊕Fun : ⊕Fun G Gstr
+    1⊕Fun = 1Fun , ∣ 0 , helper ∣₁
+      where
+      helper : AlmostNullProof G Gstr 1Fun 0
+      helper zero r = ⊥.rec (¬-<-zero r)
+      helper (suc n) r = refl
+
+    ⊕HIT→Fun-pres1 : (n : ℕ) → ⊕HIT→Fun (base 0 1⋆) n ≡ 1Fun n
+    ⊕HIT→Fun-pres1 zero with discreteℕ 0 0
+    ... | yes p = cong (λ X → subst G X 1⋆) (isSetℕ _ _ _ _) ∙ transportRefl _
+    ... | no ¬p = ⊥.rec (¬p refl)
+    ⊕HIT→Fun-pres1 (suc n) with discreteℕ (suc n) 0
+    ... | yes p = ⊥.rec (snotz p)
+    ... | no ¬p = refl
+
+    ⊕HIT→⊕Fun-pres1 : ⊕HIT→⊕Fun (base 0 1⋆) ≡ 1⊕Fun
+    ⊕HIT→⊕Fun-pres1 = ΣPathTransport→PathΣ _ _
+                       ((funExt (λ n → ⊕HIT→Fun-pres1 n)) , (squash₁ _ _))
 
 -----------------------------------------------------------------------------
 -- Definition of the ring product
@@ -200,15 +237,6 @@ module _
                              ∙ cong (λ X → subst G X (a ⋆ b)) (isSetℕ _ _ _ _)
 
     -- Proving the base case
-    open Equiv-Properties G Gstr using
-      ( substG
-      ; fun-trad
-      ; fun-trad-eq
-      ; fun-trad-neq
-      ; ⊕HIT→Fun
-      ; ⊕HIT→⊕Fun
-      ; ⊕HIT→⊕Fun-pres+)
-
     open GradedRing-⊕HIT-index (ℕ , (monoidstr 0 _+n_ isM)) G Gstr
     open GradedRing-⊕HIT-⋆ 1⋆ _⋆_ 0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+
 
@@ -298,9 +326,7 @@ module _
     ... | no ¬p = sym (sumFun≠ k a l b n n ≤-refl ¬p)
 
 
---   -----------------------------------------------------------------------------
---   -- Proof that ⊕HIT→⊕Fun preserve the cup product
-
+    -- Proof that ⊕HIT→⊕Fun preserve the cup product
     ⊕HIT→Fun-pres-prodFun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun (x prod y) ≡ ((⊕HIT→Fun x) prodFun (⊕HIT→Fun y))
     ⊕HIT→Fun-pres-prodFun = DS-Ind-Prop.f _ _ _ _
                          (λ x → isPropΠ (λ _ → isSetFun _ _))
@@ -314,6 +340,47 @@ module _
                                                     ∙ sym (prodFunDistL _ _ _)
 
 
-    ⊕HIT→Fun-pres-prodF : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→⊕Fun (x prod y) ≡ ((⊕HIT→⊕Fun x) prodF (⊕HIT→⊕Fun y))
-    ⊕HIT→Fun-pres-prodF x y = ΣPathTransport→PathΣ _ _
+    ⊕HIT→⊕Fun-pres-prodF : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→⊕Fun (x prod y) ≡ ((⊕HIT→⊕Fun x) prodF (⊕HIT→⊕Fun y))
+    ⊕HIT→⊕Fun-pres-prodF x y = ΣPathTransport→PathΣ _ _
                                 ((⊕HIT→Fun-pres-prodFun x y) , (squash₁ _ _))
+
+
+-----------------------------------------------------------------------------
+-- Ring Structure by transport
+
+    open AbGroupStr (snd (⊕Fun-AbGr G Gstr)) using ()
+        renaming
+      ( 0g       to 0⊕Fun
+      ; _+_      to _+⊕Fun_
+      ; -_       to -⊕Fun_
+      ; assoc    to +⊕FunAssoc
+      ; identity to +⊕FunIdR×IdL
+      ; inverse  to +⊕FunInvR×InvL
+      ; comm     to +⊕FunComm
+      ; is-set   to isSet⊕Fun)
+
+    open IsGroupHom
+
+    ⊕FunGradedRing-Ring : Ring ℓ
+    ⊕FunGradedRing-Ring = InducedRing ⊕HITgradedRing-Ring
+                                      0⊕Fun 1⊕Fun _+⊕Fun_ _prodF_ -⊕Fun_
+                                      (fst (Equiv-DirectSum G Gstr))
+                                      (pres1 (snd (Equiv-DirectSum G Gstr)))
+                                      ⊕HIT→⊕Fun-pres1
+                                      (pres· (snd (Equiv-DirectSum G Gstr)))
+                                      ⊕HIT→⊕Fun-pres-prodF
+                                      (presinv (snd (Equiv-DirectSum G Gstr)))
+
+
+-----------------------------------------------------------------------------
+-- Ring Equivalence
+
+    RingEquiv-DirectSumGradedRing : RingEquiv ⊕HITgradedRing-Ring ⊕FunGradedRing-Ring
+    RingEquiv-DirectSumGradedRing = InducedRingEquiv ⊕HITgradedRing-Ring
+                                      0⊕Fun 1⊕Fun _+⊕Fun_ _prodF_ -⊕Fun_
+                                      (fst (Equiv-DirectSum G Gstr))
+                                      (pres1 (snd (Equiv-DirectSum G Gstr)))
+                                      ⊕HIT→⊕Fun-pres1
+                                      (pres· (snd (Equiv-DirectSum G Gstr)))
+                                      ⊕HIT→⊕Fun-pres-prodF
+                                      (presinv (snd (Equiv-DirectSum G Gstr)))
