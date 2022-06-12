@@ -3,15 +3,23 @@ module Cubical.Algebra.DirectSum.DirectSumHIT.Properties where
 
 open import Cubical.Foundations.Prelude
 
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sigma
+
+open import Cubical.Relation.Nullary
+
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
-
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 
 private variable
   ℓ ℓ' : Level
 
-module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupStr (P r)) where
+module AbGroupProperties
+  (Idx : Type ℓ)
+  (P : Idx → Type ℓ')
+  (AGP : (r : Idx) → AbGroupStr (P r))
+  where
 
   inv : ⊕HIT Idx P AGP → ⊕HIT Idx P AGP
   inv = DS-Rec-Set.f Idx P AGP (⊕HIT Idx P AGP) trunc
@@ -54,3 +62,79 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
                         (y add (inv y add neutral))              ≡⟨ cong (λ X → y add X) (addRid (inv y)) ⟩
                         (y add inv y)                            ≡⟨ q ⟩
                         neutral ∎))
+
+module SubstLemma
+  (Idx : Type ℓ)
+  (G    : Idx → Type ℓ')
+  (Gstr : (r : Idx) → AbGroupStr (G r))
+  where
+
+  open AbGroupStr
+
+  subst0g : {l k : Idx} → (p : l ≡ k) → subst G p (0g (Gstr l)) ≡ 0g (Gstr k)
+  subst0g {l} {k} p = J (λ k p → subst G p (0g (Gstr l)) ≡ 0g (Gstr k)) (transportRefl _) p
+
+  subst+ : {l : Idx} → (a b : G l) → {k : Idx} →  (p : l ≡ k) →
+           Gstr k ._+_ (subst G p a) (subst G p b) ≡ subst G p (Gstr l ._+_ a b)
+  subst+ {l} a b {k} p = J (λ k p → Gstr k ._+_ (subst G p a) (subst G p b) ≡ subst G p (Gstr l ._+_ a b))
+                         (cong₂ (Gstr l ._+_) (transportRefl _) (transportRefl _) ∙ sym (transportRefl _))
+                         p
+
+module DecBaseProperties
+  (Idx  : Type ℓ)
+  (decIdx : Discrete Idx)
+  (G    : Idx → Type ℓ')
+  (Gstr : (r : Idx) → AbGroupStr (G r))
+  where
+
+  open AbGroupStr
+  open SubstLemma Idx G Gstr
+
+  πₖ : (k : Idx) → ⊕HIT Idx G Gstr → G k
+  πₖ k = DS-Rec-Set.f _ _ _ _ (is-set (Gstr k))
+         (0g (Gstr k))
+         base-trad
+         (_+_ (Gstr k))
+         (assoc (Gstr k))
+         (rid (Gstr k))
+         (comm (Gstr k))
+         base-neutral-eq
+         base-add-eq
+     where
+     base-trad : (l : Idx) → (a : G l) → G k
+     base-trad l a with decIdx l k
+     ... | yes p = subst G p a
+     ... | no ¬p = 0g (Gstr k)
+
+     base-neutral-eq : _
+     base-neutral-eq l with decIdx l k
+     ... | yes p = subst0g p
+     ... | no ¬p = refl
+
+     base-add-eq : _
+     base-add-eq l a b with decIdx l k
+     ... | yes p = subst+ a b p
+     ... | no ¬p = rid (Gstr k) _
+
+  πₖ-id : {k : Idx} → (a : G k) → πₖ k (base k a) ≡ a
+  πₖ-id {k} a with decIdx k k
+  ... | yes p = cong (λ X → subst G X a) (Discrete→isSet decIdx _ _ _ _) ∙ transportRefl _
+  ... | no ¬p = rec (¬p refl)
+
+  πₖ-0g : {k l : Idx} → (a : G l) → (p : k ≡ l → ⊥) → πₖ k (base l a) ≡ 0g (Gstr k)
+  πₖ-0g {k} {l} a ¬q with decIdx l k
+  ... | yes p = rec (¬q (sym p))
+  ... | no ¬p = refl
+
+  base-inj : {k : Idx} → {a b : G k} → base {AGP = Gstr} k a ≡ base k b → a ≡ b
+  base-inj {k} {a} {b} p = sym (πₖ-id a) ∙ cong (πₖ k) p ∙ πₖ-id b
+
+  base-≢ : {k : Idx} → {a : G k} → {l : Idx} → {b : G l} → (p : k ≡ l → ⊥) →
+           base {AGP = Gstr} k a ≡ base {AGP = Gstr} l b → (a ≡ 0g (Gstr k)) × (b ≡ 0g (Gstr l))
+  base-≢ {k} {a} {l} {b} ¬p q = helper1 , helper2
+    where
+    helper1 : a ≡ 0g (Gstr k)
+    helper1 = sym (πₖ-id a) ∙ cong (πₖ k) q ∙ πₖ-0g b ¬p
+
+    helper2 : b ≡ 0g (Gstr l)
+    helper2 = sym (πₖ-id b) ∙ cong (πₖ l) (sym q) ∙ πₖ-0g a (λ x → ¬p (sym x))

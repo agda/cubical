@@ -20,7 +20,7 @@ private variable
 -----------------------------------------------------------------------------
 -- Def, notation, lemma
 
-module _
+module GradedRing-⊕HIT-index
   (IdM@(Idx , IdxStr) : Monoid ℓ)
   (G : (n : Idx) → Type ℓ')
   (Gstr : (n : Idx) → AbGroupStr (G n))
@@ -54,7 +54,7 @@ module _
     ; comm   to +Comm
     ; is-set to isSetG )
 
-  module _
+  module GradedRing-⊕HIT-⋆
     (1⋆      : G ε)
     (_⋆_     : {k l : Idx} → G k → G l → G (k · l))
     (0-⋆     : {k l : Idx} → (b : G l) → (0g (Gstr k)) ⋆ b ≡ 0g (Gstr (k · l)))

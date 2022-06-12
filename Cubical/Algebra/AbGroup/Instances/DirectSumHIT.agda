@@ -14,10 +14,11 @@ private variable
 module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupStr (P r)) where
 
   open AbGroupStr
+  open AbGroupProperties Idx P AGP
 
   ⊕HIT-AbGr : AbGroup (ℓ-max ℓ ℓ')
   fst ⊕HIT-AbGr = ⊕HIT Idx P AGP
   0g (snd ⊕HIT-AbGr) = neutral
   _+_ (snd ⊕HIT-AbGr) = _add_
-  - snd ⊕HIT-AbGr = inv Idx P AGP
-  isAbGroup (snd ⊕HIT-AbGr) = makeIsAbGroup trunc addAssoc addRid (rinv Idx P AGP) addComm
+  - snd ⊕HIT-AbGr = inv
+  isAbGroup (snd ⊕HIT-AbGr) = makeIsAbGroup trunc addAssoc addRid rinv addComm

@@ -32,7 +32,7 @@ private
   variable
     ℓ : Level
 
-
+open PlusBis
 
 -- Some boring lemmas
 ·₀≡·ℤ : (x y : ℤ) → _·₀_ {n = zero} x y ≡ x ℤ∙ y
@@ -61,12 +61,6 @@ private
 
 comm-·₀ : (x y : ℤ) → _·₀_ {n = 0} x y ≡ y ·₀ x
 comm-·₀ x y = ·₀≡·ℤ x y ∙∙ ∙-comm x y ∙∙ sym (·₀≡·ℤ y x)
-
-+'-assoc : (n m l : ℕ) → (n +' (m +' l)) ≡ ((n +' m) +' l)
-+'-assoc n m l =
-     (λ i → +'≡+ n (+'≡+ m l i) i)
-  ∙∙ +-assoc n m l
-  ∙∙ (λ i → +'≡+ (+'≡+ n m (~ i)) l (~ i))
 
 -- Zero multiplication
 
@@ -642,17 +636,12 @@ module _ {A : Type ℓ} (n m : ℕ) where
 1⌣ : ∀ {ℓ} {A : Type ℓ} → coHom 0 A
 1⌣ = ∣ (λ _ → 1) ∣₂
 
-
-n+'0 : (n : ℕ) → n +' 0 ≡ n
-n+'0 zero = refl
-n+'0 (suc n) = refl
-
 lUnit⌣ₖ : (n : ℕ) (x : coHomK n) → _⌣ₖ_ {n = 0} (pos 1) x ≡ x
 lUnit⌣ₖ zero = λ _ → refl
 lUnit⌣ₖ (suc n) x = rUnitₖ _ x
 
 lUnit⌣ : ∀ {ℓ} {A : Type ℓ} (n : ℕ) (x : coHom n A)
-  → x ⌣ 1⌣ ≡ subst (λ n → coHom n A) (sym (n+'0 n)) x
+  → x ⌣ 1⌣ ≡ subst (λ n → coHom n A) (sym (+'-rid n)) x
 lUnit⌣ zero = ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
   λ f → cong ∣_∣₂ (funExt (λ x → comm-·₀ (f x) (pos 1))) ∙ sym (transportRefl ∣ f ∣₂)
 lUnit⌣ (suc n) =
@@ -688,5 +677,3 @@ rUnit⌣ (suc n) =
   ∙∙ ST.elim2 {C = λ x y → (-ₕ (-ₕ (x ⌣ y))) ≡ x ⌣ y}
             (λ _ _ → isSetPathImplicit)
             (λ f g → cong ∣_∣₂ (funExt λ _ → -ₖ^2 _)) x y
-
--- TODO : Graded ring structure

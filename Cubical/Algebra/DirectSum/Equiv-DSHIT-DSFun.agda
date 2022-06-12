@@ -29,6 +29,7 @@ open import Cubical.Algebra.AbGroup.Instances.NProd
 
 open import Cubical.Algebra.DirectSum.DirectSumFun.Base
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Properties
 open import Cubical.Algebra.DirectSum.DirectSumHIT.PseudoNormalForm
 
 private variable
@@ -120,16 +121,7 @@ module Equiv-Properties
 -----------------------------------------------------------------------------
 -- Some simplification for transport
 
-  subst0 : {k n : ℕ} → (p : k ≡ n) → subst G p (0g (Gstr k)) ≡ 0g (Gstr n)
-  subst0 {k} {n} p = J (λ n p → subst G p (0g (Gstr k)) ≡ 0g (Gstr n))
-                       (transportRefl (0g (Gstr k)))
-                       p
-
-  subst+ : {k : ℕ} →  (x y : G k) → {n : ℕ} → (p : k ≡ n)
-           → subst G p ((Gstr k)._+_ x y) ≡ (Gstr n)._+_ (subst G p x) (subst G p y)
-  subst+ {k} x y {l} p = J (λ n p → subst G p ((Gstr k)._+_ x y) ≡ (Gstr n)._+_ (subst G p x) (subst G p y))
-                         (transportRefl _ ∙ cong₂ ((Gstr k)._+_) (sym (transportRefl _)) (sym (transportRefl _)))
-                         p
+  open SubstLemma ℕ G Gstr
 
   substG : (g : (n : ℕ) → G n) → {k n : ℕ} → (p : k ≡ n) → subst G p (g k) ≡ g n
   substG g {k} {n} p = J (λ n p → subst G p (g k) ≡ g n) (transportRefl _) p
@@ -277,8 +269,8 @@ module Equiv-Properties
   sumFunTail {m} a b dva dvb x n with discreteℕ m n
   ... | yes p = sumFun dva n                   ≡⟨ sym (substSumFun dva n p) ⟩
                 subst G p (sumFun dva m)       ≡⟨ cong (subst G p) (sumFun< dva m ≤-refl) ⟩
-                subst G p (0g (Gstr m))        ≡⟨ subst0 p ⟩
-                0g (Gstr n)                    ≡⟨ sym (subst0 p) ⟩
+                subst G p (0g (Gstr m))        ≡⟨ subst0g p ⟩
+                0g (Gstr n)                    ≡⟨ sym (subst0g p) ⟩
                 subst G p (0g (Gstr m))        ≡⟨ sym (cong (subst G p) (sumFun< dvb m ≤-refl)) ⟩
                 subst G p (sumFun dvb m)       ≡⟨ substSumFun dvb n p ⟩
                 sumFun dvb n ∎

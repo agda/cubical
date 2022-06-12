@@ -24,6 +24,8 @@ private variable
   ℓ : Level
 
 open Iso
+open GradedRing-⊕HIT-index
+open GradedRing-⊕HIT-⋆
 
 module _
   (ARing@(A , Astr) : Ring ℓ)

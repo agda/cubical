@@ -15,6 +15,8 @@ private variable
   ℓ ℓ' : Level
 
 open AbGroupStr
+open GradedRing-⊕HIT-index
+open GradedRing-⊕HIT-⋆
 
 
 -----------------------------------------------------------------------------

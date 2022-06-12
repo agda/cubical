@@ -169,7 +169,13 @@ module DefPNF
                          , q ∙ sym (extendDVLeq k l dvb)))) ∣₁}})
 
 -----------------------------------------------------------------------------
--- Idea
+-- Some idea
+
+{-
+   This file should be generalizable to a general decidable index by adding a second vector
+-}
+
+
 {-
    It maybe possible to give a normal for without need the prop truncation.
    The issue with the current one is that we rely on a underline data type depVec
@@ -183,7 +189,4 @@ module DefPNF
 
    Then prove that if we extract the integer, we get an inceasing list
    with no coefficient being present twice.
-
-   The issue is that it doesn't give a clear normal form so how to use it ?
-   Can it be in a normal form with depVec but without PT ?
 -}

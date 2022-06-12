@@ -10,6 +10,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 
 open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Monoid.Instances.NatPlusBis
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
@@ -36,17 +37,13 @@ open Iso
 -----------------------------------------------------------------------------
 -- Definition Cohomology Ring
 
-IntBis-Monoid : Monoid ℓ-zero
-fst IntBis-Monoid = ℕ
-MonoidStr.ε (snd IntBis-Monoid) = 0
-MonoidStr._·_ (snd IntBis-Monoid) = _+'_
-MonoidStr.isMonoid (snd IntBis-Monoid) = makeIsMonoid isSetℕ +'-assoc n+'0 λ x → refl
+open PlusBis
 
 module _ (A : Type ℓ) where
 
   H*R : Ring ℓ
   H*R = ⊕HITgradedRing-Ring
-        IntBis-Monoid
+        NatPlusBis-Monoid
         (λ k → coHom k A)
         (λ k → snd (coHomGroup k A))
         1⌣
@@ -54,7 +51,7 @@ module _ (A : Type ℓ) where
         (λ {k} {l} → 0ₕ-⌣ k l)
         (λ {k} {l} → ⌣-0ₕ k l)
         (λ _ _ _ → sym (ΣPathTransport→PathΣ _ _ ((sym (+'-assoc _ _ _)) , (sym (assoc-⌣ _ _ _ _ _ _)))))
-        (λ _ → sym (ΣPathTransport→PathΣ _ _ (sym (n+'0 _) , sym (lUnit⌣ _ _))))
+        (λ _ → sym (ΣPathTransport→PathΣ _ _ (sym (+'-rid _) , sym (lUnit⌣ _ _))))
         (λ _ → ΣPathTransport→PathΣ _ _ (refl , transportRefl _ ∙ rUnit⌣ _ _))
         (λ _ _ _ → leftDistr-⌣ _ _ _ _ _)
         λ _ _ _ → rightDistr-⌣ _ _ _ _ _

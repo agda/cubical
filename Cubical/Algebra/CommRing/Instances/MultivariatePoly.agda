@@ -15,10 +15,6 @@ open import Cubical.Algebra.GradedRing.DirectSumHIT
 open import Cubical.Algebra.GradedRing.Instances.Polynomials
 open import Cubical.Algebra.CommRing.Instances.Int
 
-
--- open import Cubical.Algebra.Polynomials.Multivariate.Base
--- open import Cubical.Algebra.Polynomials.Multivariate.Properties
-
 private variable
   ℓ : Level
 
@@ -58,5 +54,5 @@ module _
   Poly : Type ℓ
   Poly = fst (PolyCommRing Ar n)
 
--- Possible renaming
+-- Possible renaming when you import
 -- (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
