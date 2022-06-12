@@ -667,3 +667,421 @@ SmashAssocIso {A = A} {B = B} {C = C} =
       (compIso
         (invIso (Iso₁ C A B))
         ⋀CommIso))
+
+SmashAssocIso→ : (A ⋀ (B ⋀∙ C)) → ((A ⋀∙ B) ⋀ C)
+SmashAssocIso→ = Iso.fun SmashAssocIso
+
+SmashAssocIso← : ((A ⋀∙ B) ⋀ C) → A ⋀ (B ⋀∙ C)
+SmashAssocIso← = Iso.inv SmashAssocIso
+
+module _ (A B C D : Pointed ℓ)
+  where
+  pentagon-l₁ : ((A ⋀∙ B) ⋀∙ C) ⋀ D → (A ⋀∙ B) ⋀ (C ⋀∙ D)
+  pentagon-l₁ = SmashAssocIso←
+
+  pentagon-l₂ : (A ⋀∙ B) ⋀ (C ⋀∙ D) → A ⋀ (B ⋀∙ (C ⋀∙ D))
+  pentagon-l₂ = SmashAssocIso←
+
+  pentagon-r₁ : ((A ⋀∙ B) ⋀∙ C) ⋀ D → (A ⋀∙ (B ⋀∙ C)) ⋀ D
+  pentagon-r₁ = (SmashAssocIso← , refl) ⋀→ idfun∙ D
+
+  pentagon-r₁' : ((A ⋀∙ B) ⋀∙ C) ⋀ D → (A ⋀∙ (B ⋀∙ C)) ⋀ D
+  pentagon-r₁' (inl tt) = inl tt
+  pentagon-r₁' (inr (x , y)) = inr (SmashAssocIso← x , y)
+  pentagon-r₁' (push (inl x) i) = push (inl (SmashAssocIso← x)) i
+  pentagon-r₁' (push (inr x) i) = push (inr x) i
+  pentagon-r₁' (push (push a i₁) i) = push (push a i₁) i
+
+  conn₁' : (A ⋀∙ (B ⋀∙ C)) ⋀ D → (A ⋀∙ B) ⋀ (C ⋀∙ D)
+  conn₁' (inl x) = inl x
+  conn₁' (inr (inl x , d)) = inl tt
+  conn₁' (inr (inr (a , inl x) , d)) = {!!}
+  conn₁' (inr (inr (a , inr x) , d)) = {!!}
+  conn₁' (inr (inr (a , push a₁ i) , d)) = {!!}
+  conn₁' (inr (push a i , d)) = {!!}
+  conn₁' (push a i) = {!!}
+
+  conn₁ : (A ⋀∙ (B ⋀∙ C)) ⋀ D → (A ⋀∙ B) ⋀ (C ⋀∙ D)
+  conn₁ (inl x) = inl x
+  conn₁ (inr (inl x , d)) = inl x
+  conn₁ (inr (inr (a , inl x) , d)) = inl x
+  conn₁ (inr (inr (a , inr (b , c)) , d)) = inr ((inr (a , b)) , (inr (c , d)))
+  conn₁ (inr (inr (a , push (inl x) i) , d)) =
+    (push (inl (inr (a , x))) ∙ (λ i → inr (inr (a , x) , push (inr d) i))) i
+  conn₁ (inr (inr (a , push (inr x) i) , d)) =
+    (push (inr (inr (x , d))) ∙ (λ i → inr (push (inl a) i , inr (x , d)))) i
+  conn₁ (inr (inr (a , push (push tt i₁) i) , d)) = {!!}
+  conn₁ (inr (push (inl x) i , d)) = inl tt
+  conn₁ (inr (push (inr (inl x)) i , d)) = inl tt
+  conn₁ (inr (push (inr (inr (x , y))) i , d)) =
+    (push (inr (inr (y , d))) ∙ (λ i → inr (push (inr x) i , inr (y , d)))) i
+  conn₁ (inr (push (inr (push a i₁)) i , d)) = {!!}
+  conn₁ (inr (push (push a i₁) i , d)) = inl tt
+  conn₁ (push (inl (inl x)) i) = inl tt
+  conn₁ (push (inl (inr (x , inl y))) i) = inl tt
+  conn₁ (push (inl (inr (x , inr y))) i) =
+    {!!}
+  conn₁ (push (inl (inr (x , push a i₁))) i) = {!!}
+  conn₁ (push (inl (push (inl x) i₁)) i) = inl tt
+  conn₁ (push (inl (push (inr (inl x)) i₁)) i) = inl tt
+  conn₁ (push (inl (push (inr (inr x)) i₁)) i) = {!!}
+  conn₁ (push (inl (push (inr (push a i₂)) i₁)) i) = {!!}
+  conn₁ (push (inl (push (push a i₂) i₁)) i) = inl tt
+  conn₁ (push (inr x) i) = inl tt
+  conn₁ (push (push tt i₁) i) = inl tt
+
+  gali : (f : A ⋀ B → A ⋀ B)
+         (p : f (inl tt) ≡ inl tt)
+      → (pr : (x : typ A) (y : typ B) → f (inr (x , y)) ≡ inr (x , y))
+      → ((a : typ A) → PathP (λ i → p i ≡ (pr a (pt B)) i) (cong f (push (inl a))) (push (inl a)))
+      → ((b : typ B) → PathP (λ i → p i ≡ (pr (pt A) b) i) (cong f (push (inr b))) (push (inr b)))
+      → (x : _) → f x ≡ x
+  gali f p pr l r (inl x) = p ∙ (push (inl (pt A)) ∙ sym (push (inr (pt B))))
+  gali f p pr l r (inr (x , y)) = pr x y
+  gali f p pr l r (push (inl x) i) j =
+    hcomp (λ r → λ {(i = i0) → (cong (λ q → p ∙ push (inl (pt A)) ∙ sym q) (λ i → push (push tt (~ i)))
+                                   ∙∙ cong (p ∙_) (rCancel (push (inl (pt A))))
+                                   ∙∙ sym (rUnit p)) (~ r) j
+                   ; (i = i1) → pr x (snd B) j
+                   ; (j = i0) → f (push (inl x) i)
+                   ; (j = i1) → push (inl x) i })
+          (l x j i)
+  gali f p pr l r (push (inr x) i) j =
+    hcomp (λ r → λ {(i = i0) → (cong (λ q → p ∙ push (inl (pt A)) ∙ sym q) (λ i → push (push tt (~ i)))
+                                   ∙∙ cong (p ∙_) (rCancel (push (inl (pt A))))
+                                   ∙∙ sym (rUnit p)) (~ r) j
+                   ; (i = i1) → pr (snd A) x j
+                   ; (j = i0) → f (push (inr x) i)
+                   ; (j = i1) → push (inr x) i })
+          (r x j i)
+  gali f p pr l r (push (push a k) i) j =
+    {!l!}
+
+  gala : (f : A ⋀ B → A ⋀ B)
+    → (f (inl tt) ≡ inl tt) → ((x : typ A) (y : typ B) → f (inr (x , y)) ≡ inr (x , y))
+    → (x : _) → f x ≡ x
+  gala f b p (inl x) = b ∙ (push (inl (pt A))) ∙ sym (push (inr (pt B)))
+  gala f b p (inr x) = p (fst x) (snd x)
+  gala f b p (push (inl x) i) = {!!}
+  gala f b p (push (inr x) i) = {!!}
+  gala f b p (push (push a i₁) i) = {!!}
+
+
+  open import Cubical.Foundations.Path
+  ⋀Fun : ∀ {ℓ} {C : Type ℓ}
+       → (c₀ : C)
+       → (pr : typ A × typ B → C)
+       → (l : (a : typ A) → c₀ ≡ (pr (a , snd B)))
+       → (r : (b : typ B) → c₀ ≡ (pr (snd A , b)))
+       → l (pt A) ≡ r (pt B)
+       → A ⋀ B → C
+  ⋀Fun c₀ pr l r p (inl x) = c₀
+  ⋀Fun c₀ pr l r p (inr x) = pr x
+  ⋀Fun c₀ pr l r p (push (inl x) i) = l x i
+  ⋀Fun c₀ pr l r p (push (inr x) i) = r x i
+  ⋀Fun c₀ pr l r p (push (push a i₁) i) = p i₁ i
+
+  →ss : ∀ {ℓ} {C : Type ℓ} (f g : A ⋀ B → C)
+       → (b : f (inl tt) ≡ g (inl tt))
+     → (p : (x : fst A × fst B) → f (inr x) ≡ g (inr x))
+     → (l : ((a : fst A)
+          → PathP (λ i → b i ≡ p (a , snd B) i)
+             (cong f (push (inl a))) (cong g (push (inl a)))))
+     → (r : ((y : fst B)
+          → PathP (λ i → b i ≡ p (snd A , y) i)
+             (cong f (push (inr y))) (cong g (push (inr y)))))
+     → Cube (l (pt A)) (r (pt B))
+             (λ i j → f (push (push tt i) j)) (λ i j → g (push (push tt i) j))
+             refl refl
+     → (x : _) → f x ≡ g x
+  →ss f g b p l r c (inl x) = b
+  →ss f g b p l r c (inr x) = p x
+  →ss f g b p l r c (push (inl x) i) j = l x j i
+  →ss f g b p l r c (push (inr x) i) j = r x j i
+  →ss f g b p l r c (push (push a k) i) j = c k j i
+
+  br : ∀ {ℓ} {C : Type ℓ} (f g : A ⋀ B → C) (inltt r₀ r1 : A ⋀ B) (l r : inltt ≡ r₀)
+       (pus : l ≡ r) (b : f inltt ≡ g inltt) (l₂ : inltt ≡ r1)
+     → (p : f r1 ≡ g r1)
+     → PathP (λ i → b i ≡ p i) (cong f l₂) (cong g l₂)
+     → PathP (λ i → (cong f (l ∙ sym r) ∙∙ b ∙∙ cong g (l ∙ sym r)) i ≡ p i)
+              (cong f l₂)
+              (cong g l₂)
+  br f g inltt r₀ r1 l r pus b l2 p pp =
+    flipSquare ((cong (λ x → cong f x ∙∙ b ∙∙ cong g x) (cong (λ x → l ∙ sym x) (sym pus) ∙ rCancel l) ∙ sym (rUnit b)) ◁ flipSquare pp)
+
+  brpp : {!∀ {ℓ} {C : Type ℓ} (f g : A ⋀ B → C) (inltt r₀ r1 : A ⋀ B) (l r : inltt ≡ r₀)
+       (pus : l ≡ r) (b : f inltt ≡ g inltt) (l₂ : inltt ≡ r1)
+     → (p : f r1 ≡ g r1)
+     → PathP (λ i → b i ≡ p i) (cong f l₂) (cong g l₂)
+     → PathP (λ i → (cong f (l ∙ sym r) ∙∙ b ∙∙ cong g (l ∙ sym r)) i ≡ p i)
+              (cong f l₂)
+              (cong g l₂)!}
+  brpp = {!!}
+
+  ⋁fun : ∀ {ℓ} (C : A ⋁ B → Type ℓ)
+    (f : (x : typ A) → C (inl x))
+    (g : (x : typ B) → C (inr x))
+    → PathP (λ i → C (push tt i)) (f (pt A)) (g (pt B))
+    →  (x : A ⋁ B) → C x
+  ⋁fun C f g pp (inl x) = f x
+  ⋁fun C f g pp (inr x) = g x
+  ⋁fun C f g pp (push a i) = pp i
+
+  data Id {ℓ : Level} {A : Type ℓ} (x : A) : A → Type ℓ where
+    idp : Id x x
+
+  idconv : ∀ {ℓ} {A : Type ℓ} (x y : A) → Id x y → x ≡ y
+  idconv x y idp = refl
+
+  idconv⁻ : ∀ {ℓ} {A : Type ℓ} (x y : A) → x ≡ y → Id x y
+  idconv⁻ x y = J (λ y p → Id x y) idp
+
+  Id≡ : ∀ {ℓ} {A : Type ℓ} (x y : A) → Iso (Id x y) (x ≡ y)
+  Iso.fun (Id≡ x y) = idconv x y
+  Iso.inv (Id≡ x y) = idconv⁻ x y
+  Iso.rightInv (Id≡ x y) = J (λ y b → idconv x y (idconv⁻ x y b) ≡ b) (cong (idconv x x) (transportRefl idp))
+  Iso.leftInv (Id≡ x .x) idp = transportRefl idp
+
+  ∙p : ∀ {ℓ} {A : Type ℓ} {x y z : A} → (p : Id x y) (q : Id y z) → Id x z 
+  ∙p p idp = p
+
+  wedge→ :  ∀ {ℓ} {C : A ⋁ B → Type ℓ}
+    (f₁ f₂ : (x : typ A) → C (inl x))
+    → f₁ ≡ f₂
+    → (g₁ g₂ : (x : typ B) → C (inr x))
+    → g₁ ≡ g₂
+    → (p₁ : PathP (λ i → C (push tt i)) (f₁ (pt A)) (g₁ (pt B)))
+      (p₂ : PathP (λ i → C (push tt i)) (f₂ (pt A)) (g₂ (pt B)))
+    → (x : _)
+    → ⋁fun C f₁ g₁ p₁ x ≡ ⋁fun C f₂ g₂ p₂ x
+  wedge→ {C = C} f₁ f₂ =
+    J (λ f₂ _ → (g₁ g₂ : (x : typ B) → C (inr x))
+    → g₁ ≡ g₂
+    → (p₁ : PathP (λ i → C (push tt i)) (f₁ (pt A)) (g₁ (pt B)))
+      (p₂ : PathP (λ i → C (push tt i)) (f₂ (pt A)) (g₂ (pt B)))
+    → (x : _)
+    → ⋁fun C f₁ g₁ p₁ x ≡ ⋁fun C f₂ g₂ p₂ x)
+    λ g₁ g₂ → J (λ g₂ _ → (p₁ : PathP (λ i → C (push tt i)) (f₁ (pt A)) (g₁ (pt B)))
+      (p₂ : PathP (λ i → C (push tt i)) (f₁ (pt A)) (g₂ (pt B)))
+      (x : A ⋁ B) →
+      ⋁fun C f₁ g₁ p₁ x ≡ ⋁fun C f₁ g₂ p₂ x)
+      {!!}
+      where
+      help : (f : _) (g : _) → (p₁ p₂ : PathP (λ i → C (push tt i)) (f (pt A)) (g (pt B)))
+        (x : A ⋁ B) →
+        ⋁fun C f g p₁ x ≡ ⋁fun C f g p₂ x
+      help f g p1 p2 (inl x) = {!!} -- refl
+      help f g p1 p2 (inr x) = {!!} -- refl
+      help f g p1 p2 (push a i) = {!!}
+
+  →s' : ∀ {ℓ} {C : Type ℓ} (f g : A ⋀ B → C)
+     → (b : f (inl tt) ≡ g (inl tt))
+     → (p : (x : fst A × fst B) → f (inr x) ≡ g (inr x))
+     → ((a : fst A)
+          → PathP (λ i → b i ≡ p (a , snd B) i)
+             (cong f (push (inl a))) (cong g (push (inl a))))
+     → ((y : fst B)
+          → PathP (λ i → b i ≡ p (snd A , y) i)
+             (cong f (push (inr y))) (cong g (push (inr y))))
+     → (x : _) → f x ≡ g x
+  →s' f g b p l r (inl x) = {!cong f (push (!} ∙∙ b ∙∙ {!!}
+  →s' f g b p l r (inr x) = {!!}
+  →s' f g b p l r (push a i) = {!!}
+
+  →s : ∀ {ℓ} {C : Type ℓ} (f g : A ⋀ B → C)
+     → (b : f (inl tt) ≡ g (inl tt))
+     → (p : (x : fst A × fst B) → f (inr x) ≡ g (inr x))
+     → ((a : fst A)
+          → PathP (λ i → b i ≡ p (a , snd B) i)
+             (cong f (push (inl a))) (cong g (push (inl a))))
+     → ((y : fst B)
+          → PathP (λ i → b i ≡ p (snd A , y) i)
+             (cong f (push (inr y))) (cong g (push (inr y))))
+     → (x : _) → f x ≡ g x
+  →s f g b p l r (inl x) =
+    cong f ((push (inl (snd A))) ∙ (sym (push (inr (snd B)))))
+    ∙∙ b
+    ∙∙ cong g ((push (inl (snd A))) ∙ (sym (push (inr (snd B)))))
+  →s f g b p l r (inr x) = p x
+  →s f g b p l r (push (inl x) i) j =
+    br f g (inl tt) (inr (pt A , pt B)) (inr (x , pt B)) (push (inl (pt A)))
+       (push (inr (pt B))) (λ i → push (push tt i))
+       b (push (inl x)) (p (x , pt B)) (l x) j i
+  →s f g b p l r (push (inr x) i) j =
+    br f g (inl tt) (inr (pt A , pt B)) (inr (pt A , x)) (push (inl (pt A)))
+       (push (inr (pt B))) (λ i → push (push tt i))
+       b (push (inr x)) (p (pt A , x)) (r x) j i
+  →s f g b p l r (push (push a k) i) j = {!!}
+
+  pathsp-contr : (a : typ A) (x : A ⋀ B) (p : inr (a , pt B) ≡ x) → Type ℓ
+  pathsp-contr a (inl x) = λ p → sym (push (inl a)) ≡ p
+  pathsp-contr a (inr x) = λ p → p ≡ p
+  pathsp-contr a (push b i) = {!!}
+    where
+    help : PathP (λ i → Path (A ⋀ B) (inr (a , pt B)) (push b i) → Type ℓ) (λ p → sym (push (inl a)) ≡ p) λ p → p ≡ p
+    help = toPathP (funExt λ p → {!!})
+
+  t1 : (x : ((A ⋀∙ B) ⋀∙ C) ⋀ D) → pentagon-l₁ x ≡ conn₁ (pentagon-r₁ x)
+  t1 (inl x) = refl
+  t1 (inr (inl x , d)) = refl
+  t1 (inr (inr (inl x , c) , d)) = sym (push (inr (inr (c , d))))
+  t1 (inr (inr (inr (x , b) , c) , d)) = refl
+  t1 (inr (inr (push (inl x) i , c) , d)) = {!!}
+  t1 (inr (inr (push (inr x) i , c) , d)) j = {!!}
+  t1 (inr (inr (push (push a i₁) i , c) , d)) = {!!}
+  t1 (inr (push (inl (inl x)) i , d)) j = {!!}
+  t1 (inr (push (inl (inr x)) i , d)) j = {!!}
+  t1 (inr (push (inl (push (inl x) i₁)) i , d)) j = {!!}
+  t1 (inr (push (inl (push (inr x) i₁)) i , d)) j = {!!}
+  t1 (inr (push (inl (push (push a i₂) i₁)) i , d)) j = {!!}
+  t1 (inr (push (inr x) i , d)) j = {!!}
+  t1 (inr (push (push a i₁) i , d)) = {!a!}
+  t1 (push a i) = {!!}
+
+
+--   pentagon-r₂ : (A ⋀∙ (B ⋀∙ C)) ⋀ D → A ⋀ ((B ⋀∙ C) ⋀∙ D)
+--   pentagon-r₂ = SmashAssocIso←
+
+--   pentagon-r₃ : A ⋀ ((B ⋀∙ C) ⋀∙ D) → A ⋀ (B ⋀∙ (C ⋀∙ D))
+--   pentagon-r₃ = idfun∙ A ⋀→ (SmashAssocIso← , refl)
+
+--   pentagon-r₃' : A ⋀ ((B ⋀∙ C) ⋀∙ D) → A ⋀ (B ⋀∙ (C ⋀∙ D))
+--   pentagon-r₃' (inl x) = inl tt
+--   pentagon-r₃' (inr (x , y)) = inr (x , SmashAssocIso← y)
+--   pentagon-r₃' (push (inl x) i) = push (inl x) i
+--   pentagon-r₃' (push (inr x) i) = push (inr (SmashAssocIso← x)) i
+--   pentagon-r₃' (push (push a i₁) i) = push (push tt i₁) i
+
+--   indi-easy : (f g : (A ⋀ B) → (C ⋀ D))
+--             → (b : f (inl tt) ≡ g (inl tt))
+--             → (p : ((x : typ A) (y : typ B) → f (inr (x , y)) ≡ g (inr (x , y))))
+--             → ((x : typ A) → PathP (λ i → b i ≡ p x (pt B) i)
+--                   (cong f (push (inl x))) (cong g (push (inl x))))
+--             → (((x : typ B) → PathP (λ i → b i ≡ p (pt A) x i)
+--                   (cong f (push (inr x))) (cong g (push (inr x)))))
+--             → (((x : _) → f x ≡ g x))
+--   indi-easy f g b p l r (inl x) = b
+--   indi-easy f g b p l r (inr x) = p (fst x) (snd x)
+--   indi-easy f g b p l r (push (inl x) i) j = l x j i
+--     where
+--     help : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
+--       → (b : B)
+--       → (f g : A → B)
+--       → (λ _ → b) ≡ f
+--       → (λ _ → b) ≡ g
+--       → (p : f ≡ g)
+--       → {!!}
+--     help = {!!}
+--   indi-easy f g b p l r (push (inr x) i) j = r x j i
+--   indi-easy f g b p l r (push (push a i₁) i) k = {!b!}
+
+--   indi : (f g : (((A ⋀∙ B) ⋀∙ C) ⋀∙ D) →∙ (A ⋀∙ (B ⋀∙ (C ⋀∙ D))))
+--        → ((x : typ A) (y : typ B) (c : typ C) (d : typ D)
+--              → fst f (inr (inr (inr (x , y) , c) , d))
+--              ≡ fst g (inr (inr (inr (x , y) , c) , d)))
+--        → (x : _) → fst f x ≡ fst g x
+--   indi f g p (inl x) = snd f ∙ (sym (snd g))
+--   indi f g p (inr (x , y)) = {!!}
+--   indi f g p (push a i) = {!!}
+
+
+--   cube₁ : (x : fst A) (y : fst D) (z : fst C) (i j k : I) → A ⋀ (B ⋀∙ (C ⋀∙ D))
+--   cube₁ x y z i j k =
+--     hfill (λ k → λ {(i = i0)
+--                     → pentagon-r₃' (doubleCompPath-filler (push (inl x)) (λ j → inr (x , push (inr y) j)) refl k j)
+--                    ; (i = i1) → inr (x , inr (snd B , inr (z , y)))
+--                    ; (j = i0) → doubleCompPath-filler (push (inl x)) (λ j → (inr (x , push (inr (inr (z , y))) j))) refl k i
+--                    ; (j = i1) → inr (x , push (inr (inr (z , y))) i)}
+--                   )
+--           (inS ((inr (x , push (inr (inr (z , y))) i)))) k
+
+--   cube₂ : (x : fst A) (y : fst D) (z : fst C) (i j k : I) → A ⋀ (B ⋀∙ (C ⋀∙ D))
+--   cube₂ x y z i j k =
+--     hfill (λ k → λ {(i = i0) → pentagon-r₃' (pentagon-r₂
+--                                     (inr (push (inl x) (~ k ∧ j) , y)))
+--                    ; (i = i1) → inr (x , inr (snd B , inr (z , y)))
+--                    ; (j = i0) → pentagon-l₂ (pentagon-l₁ (inr (inr (push (inl x) i , z) , y)))
+--                    ; (j = i1) → pentagon-r₃'
+--                                   (pentagon-r₂
+--                                     (inr (doubleCompPath-filler (λ i₁ → push (inl x) (i₁)) (λ i → (inr (x , push (inr z) i))) refl k i , y)))})
+--            (inS (cube₁ x y z i j i1))
+--            k
+       
+--   cube₂̣₅ : (x : typ A) (y : typ B) (z : typ D) → (j k i : I) → A ⋀ (B ⋀∙ (C ⋀∙ D)) 
+--   cube₂̣₅ x y z j k i =
+--     hfill (λ i → λ {(j = i0) → doubleCompPath-filler refl (λ k → (inr (x , push (inl y) (~ k)))) (sym (push (inl x))) i k
+--                    ; (j = i1) → inr (x , (push (inl y) (~ k)))
+--                    ; (k = i0) → inr (x , inr (y , inl tt))
+--                    ; (k = i1) → pentagon-r₃' (doubleCompPath-filler (push (inl x)) (λ j → (inr (x , push (inr z) j))) refl i j) })
+--           (inS (inr (x , (push (inl y) (~ k)))))
+--           i
+
+--   cube₃ : (x : typ A) (y : typ B) (z : typ D) → (i j k : I) → A ⋀ (B ⋀∙ (C ⋀∙ D))
+--   cube₃ x y z i j k =
+--     hfill (λ k → λ {(i = i0) → cube₂̣₅ x y z j k i1
+--                    ; (i = i1) → inr (x , inr (y , inr (snd C , z)))
+--                    ; (j = i0) → pentagon-l₂ (doubleCompPath-filler (push (inl (inr (x , y)))) (λ i → inr (inr (x , y) , push (inr z) i)) refl k i)
+--                    ; (j = i1) → inr (x , doubleCompPath-filler (push (inl y)) (λ i → inr (y , push (inr z) i)) refl k i)})
+--           (inS (inr (x , inr (y , push (inr z) i))))
+--           k
+
+--   cube₄ : (x : typ A) (y : typ B) (z : typ D) → (i j k : I) → A ⋀ (B ⋀∙ (C ⋀∙ D))
+--   cube₄ x y z i j k =
+--     hfill (λ k → λ {(i = i0) → pentagon-r₃' (pentagon-r₂
+--                                   (inr (push (inl x) (j ∧ ~ k) , z)))
+--                    ; (i = i1) → inr (x , inr (y , inr (snd C , z)))
+--                    ; (j = i0) →
+--                      pentagon-l₂
+--                        (pentagon-l₁ (inr (push (inl (inr (x , y))) i , z)))
+--                    ; (j = i1) →
+--                      pentagon-r₃' (pentagon-r₂
+--                        (inr (doubleCompPath-filler (push (inl x)) (λ i → inr (x , push (inl y) i)) refl k i , z)))})
+--           (inS (cube₃ x y z i j i1))
+--           k
+
+--   pentagon' : (x : _) → pentagon-l₂ (pentagon-l₁ x)
+--                        ≡ pentagon-r₃' (pentagon-r₂ (pentagon-r₁' x))
+--   pentagon' (inl x) = refl
+--   pentagon' (inr (inl x , y)) = refl
+--   pentagon' (inr (inr (inl x , z) , y)) = refl
+--   pentagon' (inr (inr (inr x , z) , y)) = refl
+--   pentagon' (inr (inr (push (inl x) i , z) , y)) j = cube₂ x y z i j i1
+--   pentagon' (inr (inr (push (inr x) i , z) , y)) = refl
+--   pentagon' (inr (inr (push (push a k) i , z) , y)) j = {! (i∧ (inl (push (inl ?) ?)))!}
+--   pentagon' (inr (push (inl (inl x)) i , y)) j =
+--     pentagon-l₂ (doubleCompPath-filler (push (inl (inl x)))
+--                 (λ i → (inr (inl x , push (inr y) i))) refl (~ j) i)
+--   pentagon' (inr (push (inl (inr (x , y))) i , z)) j = cube₄ x y z i j i1
+--   pentagon' (inr (push (inl (push (inl x) k)) i , y)) j =
+--     hcomp (λ r → λ {(i = i0) → {!!}
+--                    ; (i = i1) → {!!}
+--                    ; (j = i0) → {!cube₄ x (pt B) y i j r!}
+--                    ; (j = i1) → {!!}
+--                    ; (k = i0) → {!pentagon-r₁' (inr (push (inl (push (inl x) k)) i , y))!}
+--                    ; (k = i1) → cube₄ x (pt B) y i j i1})
+--           {!!}
+--   pentagon' (inr (push (inl (push (inr x) k)) i , y)) j =
+--     {!k = i0 ⊢ pentagon-l₂ (doubleCompPath-filler (push (inl (inl x)))
+--                 (λ i → (inr (inl x , push (inr y) i))) refl (~ j) i)
+-- k = i1 ⊢ cube₄ x y z i j i1
+-- i = i0 ⊢ inl tt
+-- i = i1 ⊢ pentagon' (inr (inr (i∧ (inl (push (inl x) k))) , y)) j
+-- j = i0 ⊢ pentagon-l₂
+--   (pentagon-l₁ (inr (push (inl (push (inl x) k)) i , y)))
+-- j = i1 ⊢ pentagon-r₃'
+--          (pentagon-r₂
+--           (pentagon-r₁' (inr (push (inl (push (inl x) k)) i , y))))!}
+--   pentagon' (inr (push (inl (push (push a k) r)) i , y)) j = {!!}
+--   pentagon' (inr (push (inr x) i , y)) = refl
+--   pentagon' (inr (push (push a i₁) i , y)) j = {!a!}
+--   pentagon' (push (inl (inl x)) i) = refl -- refl
+--   pentagon' (push (inl (inr (inl x , y))) i) j = {!!}
+--   pentagon' (push (inl (inr (inr (x , y) , z))) i) j = {!y!}
+--   pentagon' (push (inl (inr (push a i₁ , y))) i) j = {!!}
+--   pentagon' (push (inl (push a i₁)) i) j = {!!}
+--   pentagon' (push (inr x) i) = refl -- refl
+--   pentagon' (push (push a i₁) i) = refl -- refl
+
+-- kn : {!∀ {ℓ ℓ'} {A : Type ℓ'} (S : Type ℓ → Type ℓ' → Type ℓ'')!}
+-- kn = {!!}

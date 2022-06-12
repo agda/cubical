@@ -33,8 +33,6 @@ data ⊕ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
   -- set
   trunc        : isSet (⊕ Idx P AGP)
 
-
-
 module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupStr (P r)) where
 
   module DS-Ind-Set
@@ -117,3 +115,62 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
 
     f : ⊕ Idx P AGP → B
     f x = DS-Ind-Prop.f (λ _ → B) (λ _ → isp) neutral* base* _add*_ x
+{-
+open import Cubical.Data.Nat
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as ⊎
+open import Cubical.Relation.Nullary
+module _ (P : ℕ → Type ℓ') (AGP : (r : ℕ) → AbGroupStr (P r)) where
+  CodeHelper : (n r : ℕ) → (n ≡ r) ⊎ (¬ n ≡ r) → (a : P n) (b : P r)
+    → TypeOfHLevel ℓ' 1
+  CodeHelper n r (inl x) a b = (a ≡ subst P (sym x) b) , AbGroupStr.is-set (AGP n) _ _
+  CodeHelper n r (inr x) a b = (a ≡ AbGroupStr.0g (AGP n)) × (b ≡ AbGroupStr.0g (AGP r)) , isProp× (AbGroupStr.is-set (AGP n) _ _) (AbGroupStr.is-set (AGP r) _ _)
+
+  decℕ : (n r : ℕ) → (n ≡ r) ⊎ (¬ n ≡ r)
+  decℕ zero zero = inl refl
+  decℕ zero (suc r) = inr λ p → snotz (sym p)
+  decℕ (suc n) zero = inr snotz
+  decℕ (suc n) (suc r) = ⊎.rec (λ p → inl (cong suc p)) (λ p → inr λ q → p ( (cong predℕ q))) (decℕ n r)
+
+  propLem : (n r : ℕ) → isProp ((n ≡ r) ⊎ (¬ n ≡ r))
+  propLem n r (inl x) (inl y) = {!!}
+  propLem n r (inl x) (inr y) = {!!}
+  propLem n r (inr x) q = {!!}
+
+  funHelper : (n r : ℕ) → (n ≡ r) ⊎ (¬ n ≡ r) → (b : P r) → P n
+  funHelper n r (inl x) b = subst P (sym x) b
+  funHelper n r (inr x) b = AbGroupStr.0g (AGP n)
+
+  projmap : (n : ℕ) → ⊕ ℕ P AGP → P n
+  projmap n neutral = AbGroupStr.0g (AGP n)
+  projmap n (base r x) = funHelper n r (decℕ n r) x
+  projmap n (x add x₁) = AbGroupStr._+_ (AGP n) (projmap n x) (projmap n x₁)
+  projmap n (addAssoc x y z i) =
+    AbGroupStr.assoc (AGP n) (projmap n x) (projmap n y) (projmap n z) i
+  projmap n (addRid x i) = AbGroupStr.rid (AGP n) (projmap n x) i
+  projmap n (addComm x x₁ i) = AbGroupStr.comm (AGP n) (projmap n x) (projmap n x₁) i
+  projmap n (base-neutral r i) = zz (decℕ n r) i
+    where
+    zz : (p : _) → funHelper n r p (AbGroupStr.0g (AGP r)) ≡ AbGroupStr.0g (AGP n)
+    zz (inl x) = J (λ r x → subst P (λ i₁ → x (~ i₁)) (AbGroupStr.0g (AGP r)) ≡ AbGroupStr.0g (AGP n)) (transportRefl _) x
+    zz (inr x) = refl
+  projmap n (base-add r a b i) = zz2 (decℕ n r) i
+    where
+    zz2 : (p : _) → AbGroupStr._+_ (AGP n) (funHelper n r p a) (funHelper n r p b)
+                                          ≡ funHelper n r p ((AGP r AbGroupStr.+ a) b)
+    zz2 (inl x) = J (λ r x → (a b : _) → (AGP n AbGroupStr.+ subst P (λ i₁ → x (~ i₁)) a)
+      (subst P (λ i₁ → x (~ i₁)) b)
+      ≡ subst P (λ i₁ → x (~ i₁)) ((AGP r AbGroupStr.+ a) b))
+        (λ a b → cong₂ (AbGroupStr._+_ (AGP n)) (transportRefl a) (transportRefl b) ∙ sym (transportRefl _)) x a b
+    zz2 (inr x) = AbGroupStr.rid (AGP n) (AbGroupStr.0g (AGP n))
+  projmap n (trunc x x₁ x₂ y i i₁) =
+    AbGroupStr.is-set (AGP n) (projmap n x) (projmap n x₁) (cong (projmap n) x₂) (cong (projmap n) y) i i₁
+
+  lemm : (i j : ℕ) → (¬ i ≡ j)
+       → (a : P i) (b : P j) → Path (⊕ ℕ P AGP) (base i a) (base j b)
+       → (a ≡ AbGroupStr.0g (AGP i))
+        × (b ≡ AbGroupStr.0g (AGP j))
+  fst (lemm i j p a b q) =
+    (sym (transportRefl a) ∙ (λ k → funHelper i i (propLem i i (decℕ i i) (inl refl) (~ k)) a)) ∙∙ cong (projmap i) q ∙∙ ((λ k → funHelper i j (propLem i j (decℕ i j) (inr p) k) b))
+  snd (lemm i j p a b q) = {!!}
+-}
