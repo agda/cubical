@@ -11,6 +11,7 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order hiding (_≤_)
 open import Cubical.Data.FinData
 open import Cubical.Data.FinData.Order
+open import Cubical.Data.Sum
 
 open import Cubical.Relation.Binary.Poset
 open import Cubical.HITs.PropositionalTruncation
@@ -89,7 +90,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
   -- the crucial lemmas that will gives us the cones needed to construct the unique
   -- arrow in our pullback square below
-  module ConeLemmas {n : ℕ} (α : FinVec (fst L) n) (α∈L' : ∀ i → α i ∈ L') where
+  module _ {n : ℕ} (α : FinVec (fst L) n) (α∈L' : ∀ i → α i ∈ L') where
     private -- some notation
       ⋁α↓ = _↓Diag limitC (i ^opF) F (⋁ α)
 
@@ -481,35 +482,39 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       pbPr₂ ⋁Pullback = DLRan F .F-hom (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
       pbCommutes ⋁Pullback = F-square (DLRan F) (is-prop-valued _ _ _ _)
       univProp ⋁Pullback {d = c} f g square = uniqueExists
-        (applyLemma1 f g square .fst .fst)
-          (fromConeMor _ (applyLemma1 f g square .fst .snd))
+        (applyLemma4 f g square .fst .fst)
+          (fromConeMor _ (applyLemma4 f g square .fst .snd))
             (λ _ → isProp× (isSetHom C _ _) (isSetHom C _ _))
-              λ h' trs → cong fst (applyLemma1 f g square .snd -- lemma 2 ensures uniqueness
-                (h' , lemma2 _ (toCone f g square) _ (toConeMor f g square h' trs)))
+              λ h' trs → cong fst (applyLemma4 f g square .snd (h' , toConeMor f g square h' trs))
         where -- this is where we apply our lemmas
-        open ConeLemmas (β ++Fin γ) β++γ∈L'
         theLimit = limitC _ (F* (⋁ (β ++Fin γ)))
         -- should toCone and toConeMor be upstreamed?
         toCone : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
                → f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂
                → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' i))) c
         toCone = {!!}
+        -- coneOut (toCone f g square) (sing i) with FinSumChar.inv n n' i
+        -- ... | (inl i') = {!!} -- missign a transport: g ⋆⟨ C ⟩ coneOut (restCone β β∈L') (sing i')
+        --                    -- beter inductively
+        -- ... | (inr i') = {!!}
+        -- coneOut (toCone f g square) (pair i j i<j) = {!!}
+        -- coneOutCommutes (toCone f g square) = {!!}
+
+        applyLemma4 : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
+                      (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
+                    → ∃![ h ∈ C [ c , ⋁Pullback .pbOb ] ]
+                        isConeMor (toCone f g square) (restCone (β ++Fin γ) β++γ∈L') h
+        applyLemma4 f g square = lemma4 (β ++Fin γ) β++γ∈L' c (toCone f g square)
 
         toConeMor : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
                     (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
                     (h : C [ c , ⋁Pullback .pbOb ])
                   → (f ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) × (g ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
-                  → isConeMor (toCone f g square) restCone h
+                  → isConeMor (toCone f g square) (restCone (β ++Fin γ) β++γ∈L') h
         toConeMor = {!!}
 
-        applyLemma1 : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
-                      (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
-                    → ∃![ h ∈ C [ c , ⋁Pullback .pbOb ] ]
-                        isConeMor (lemma1 c (toCone f g square)) (limCone theLimit) h
-        applyLemma1 f g square = univProp theLimit _ _
-
         fromConeMor : (h : C [ c , ⋁Pullback .pbOb ])
-                    → isConeMor (lemma1 c (toCone f g square)) (limCone theLimit) h
+                    → isConeMor (toCone f g square) (restCone (β ++Fin γ) β++γ∈L') h
                     → (f ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) × (g ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
         fromConeMor h hIsConeMor = {!!}
 
