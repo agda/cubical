@@ -16,4 +16,4 @@ open AbGroupStr
 
 NProd-AbGroup : (G : (n : ℕ) → Type ℓ) → (Gstr : (n : ℕ) → AbGroupStr (G n)) → AbGroup ℓ
 NProd-AbGroup G Gstr = Group→AbGroup (NProd-Group G (λ n → AbGroupStr→GroupStr (Gstr n)))
-                                      λ f g → funExt λ n → comm (Gstr n) _ _
+                                      λ f g → funExt λ n → +Comm (Gstr n) _ _

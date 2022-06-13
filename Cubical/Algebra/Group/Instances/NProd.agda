@@ -19,8 +19,8 @@ fst (NProd-Group G Gstr) = (n : ℕ) → G n
 GroupStr._·_ (snd (NProd-Group G Gstr)) = λ f g n → Gstr n ._·_ (f n) (g n)
 inv (snd (NProd-Group G Gstr)) = λ f n → (Gstr n).inv (f n)
 isGroup (snd (NProd-Group G Gstr)) = makeIsGroup (isSetΠ (λ _ → is-set (Gstr _)))
-                                                 (λ f g h → funExt λ n → assoc (Gstr n) _ _ _)
-                                                 (λ f → funExt λ n → fst (identity (Gstr n) _))
-                                                 (λ f → funExt λ n → snd (identity (Gstr n) _))
-                                                 (λ f → funExt λ n → fst (inverse (Gstr n) _))
-                                                  λ f → funExt λ n → snd (inverse (Gstr n) _)
+                                                 (λ f g h → funExt λ n → ·Assoc (Gstr n) _ _ _)
+                                                 (λ f → funExt λ n → ·IdR (Gstr n) _)
+                                                 (λ f → funExt λ n → ·IdL (Gstr n) _)
+                                                 (λ f → funExt λ n → ·InvR (Gstr n) _)
+                                                  λ f → funExt λ n → ·InvL (Gstr n) _

@@ -56,24 +56,13 @@ module Equiv-Properties
     ( 0g       to 0⊕HIT
     ; _+_      to _+⊕HIT_
     ; -_       to -⊕HIT_
-    ; assoc    to +⊕HIT-Assoc
-    ; identity to +⊕HIT-IdR×IdL
-    ; inverse  to +⊕HIT-InvR×InvL
-    ; comm     to +⊕HIT-Comm
+    ; +Assoc   to +⊕HIT-Assoc
+    ; +IdR     to +⊕HIT-IdR
+    ; +IdL     to +⊕HIT-IdL
+    ; +InvR    to +⊕HIT-InvR
+    ; +InvL    to +⊕HIT-InvL
+    ; +Comm     to +⊕HIT-Comm
     ; is-set   to isSet⊕HIT)
-
-  private
-    +⊕HIT-IdR : (x : ⊕HIT ℕ G Gstr) → x +⊕HIT 0⊕HIT ≡ x
-    +⊕HIT-IdR = λ x → fst (+⊕HIT-IdR×IdL x)
-
-    +⊕HIT-IdL : (x : ⊕HIT ℕ G Gstr) → 0⊕HIT +⊕HIT x  ≡ x
-    +⊕HIT-IdL = λ x → snd (+⊕HIT-IdR×IdL x)
-
-    +⊕HIT-InvR : (x : ⊕HIT ℕ G Gstr) → x +⊕HIT (-⊕HIT x) ≡ 0⊕HIT
-    +⊕HIT-InvR = λ x → fst (+⊕HIT-InvR×InvL x)
-
-    +⊕HIT-InvL : (x : ⊕HIT ℕ G Gstr) → (-⊕HIT x) +⊕HIT x ≡ 0⊕HIT
-    +⊕HIT-InvL = λ x → snd (+⊕HIT-InvR×InvL x)
 
 
   open AbGroupStr (snd (⊕Fun-AbGr G Gstr)) using ()
@@ -81,10 +70,12 @@ module Equiv-Properties
     ( 0g       to 0⊕Fun
     ; _+_      to _+⊕Fun_
     ; -_       to -⊕Fun_
-    ; assoc    to +⊕Fun-Assoc
-    ; identity to +⊕Fun-IdR×IdL
-    ; inverse  to +⊕Fun-InvR×InvL
-    ; comm     to +⊕Fun-Comm
+    ; +Assoc   to +⊕Fun-Assoc
+    ; +IdR     to +⊕Fun-IdR
+    ; +IdL     to +⊕Fun-IdL
+    ; +InvR    to +⊕Fun-InvR
+    ; +InvL    to +⊕Fun-InvL
+    ; +Comm     to +⊕Fun-Comm
     ; is-set   to isSet⊕Fun)
 
 -----------------------------------------------------------------------------
@@ -95,28 +86,13 @@ module Equiv-Properties
     ( 0g       to 0Fun
     ; _+_      to _+Fun_
     ; -_       to -Fun_
-    ; assoc    to +FunAssoc
-    ; identity to +FunIdR×IdL
-    ; inverse  to +FunInvR×InvL
-    ; comm     to +FunComm
+    ; +Assoc   to +FunAssoc
+    ; +IdR     to +FunIdR
+    ; +IdL     to +FunIdL
+    ; +InvR    to +FunInvR
+    ; +InvL    to +FunInvL
+    ; +Comm     to +FunComm
     ; is-set   to isSetFun)
-
-  private
-    Fun : (G : (n : ℕ) → Type ℓ) → (Gstr : (n : ℕ) → AbGroupStr (G n)) → Type ℓ
-    Fun G Gstr = fst (NProd-AbGroup G Gstr)
-
-    +FunIdR : (x : Fun G Gstr) → x +Fun 0Fun ≡ x
-    +FunIdR = λ x → fst (+FunIdR×IdL x)
-
-    +FunIdL : (x : Fun G Gstr) → 0Fun +Fun x  ≡ x
-    +FunIdL = λ x → snd (+FunIdR×IdL x)
-
-    +FunInvR : (x : Fun G Gstr) → x +Fun (-Fun x) ≡ 0Fun
-    +FunInvR = λ x → fst (+FunInvR×InvL x)
-
-    +FunInvL : (x : Fun G Gstr) → (-Fun x) +Fun x ≡ 0Fun
-    +FunInvL = λ x → snd (+FunInvR×InvL x)
-
 
 -----------------------------------------------------------------------------
 -- Some simplification for transport
@@ -151,7 +127,7 @@ module Equiv-Properties
   ... | yes p = ⊥.rec (¬q p)
   ... | no ¬p = refl
 
-  ⊕HIT→Fun : ⊕HIT ℕ G Gstr → Fun G Gstr
+  ⊕HIT→Fun : ⊕HIT ℕ G Gstr → (n : ℕ) → G n
   ⊕HIT→Fun = DS-Rec-Set.f _ _ _ _ isSetFun
               0Fun
               fun-trad
@@ -178,7 +154,7 @@ module Equiv-Properties
                                      ≡ transp (λ i → G (p i)) i0 ((Gstr k + a) b))
                          (cong₂ ((Gstr k)._+_) (transportRefl _) (transportRefl _) ∙ sym (transportRefl _))
                          p
-           ... | no ¬p = fst (identity (Gstr n) (0g (Gstr n)))
+           ... | no ¬p = +IdR (Gstr n)_
 
   ⊕HIT→Fun-pres0 : ⊕HIT→Fun 0⊕HIT ≡ 0Fun
   ⊕HIT→Fun-pres0 = refl
@@ -205,7 +181,7 @@ module Equiv-Properties
                                    (λ { (k , nu) → PT.elim (λ _ → squash₁)
                                     λ { (l , nv) →
                                    ∣ ((k +n l) , (λ n q → cong₂ ((Gstr n)._+_) (nu n (<-+k-trans q)) (nv n (<-k+-trans q))
-                                                          ∙ fst (identity (Gstr n) _))) ∣₁} })
+                                                          ∙ +IdR (Gstr n) _)) ∣₁} })
 
   ---------------------------------------------------------------------------
   -- Translation + Morphism
@@ -228,7 +204,7 @@ module Equiv-Properties
 
   open DefPNF G Gstr
 
-  sumFun : {m : ℕ} → depVec G m → Fun G Gstr
+  sumFun : {m : ℕ} → depVec G m → (n : ℕ) → G n
   sumFun {0} ⋆ = 0Fun
   sumFun {suc m} (a □ dv) = (⊕HIT→Fun (base m a)) +Fun (sumFun dv)
 
@@ -240,13 +216,13 @@ module Equiv-Properties
   sumFun< {0} ⋆ i r = refl
   sumFun< {suc m} (a □ dv) i r with discreteℕ m i
   ... | yes p = ⊥.rec (<→≢ r p)
-  ... | no ¬p = snd (identity (Gstr i) (sumFun dv i)) ∙ sumFun< dv i (≤-trans ≤-sucℕ r)
+  ... | no ¬p = +IdL (Gstr i) _ ∙ sumFun< dv i (≤-trans ≤-sucℕ r)
 
   sumFunHead : {m : ℕ} → (a b : (G m)) → (dva dvb : depVec G m) →
                (x : sumFun (a □ dva) ≡ sumFun (b □ dvb)) → a ≡ b
   sumFunHead {m} a b dva dvb x =
                a
-                        ≡⟨ sym (fst (identity (Gstr m) a)) ⟩
+                        ≡⟨ sym (+IdR (Gstr m) _) ⟩
                (Gstr m)._+_ a (0g (Gstr m))
                         ≡⟨ cong₂ (Gstr m ._+_) (sym (fun-trad-eq m a)) (sym (sumFun< dva m ≤-refl)) ⟩
                (Gstr m)._+_ (fun-trad m a m) (sumFun dva m)
@@ -254,7 +230,7 @@ module Equiv-Properties
                (Gstr m)._+_ (fun-trad m b m) (sumFun dvb m)
                         ≡⟨ cong₂ (Gstr m ._+_) (fun-trad-eq m b) (sumFun< dvb m ≤-refl) ⟩
                (Gstr m)._+_ b (0g (Gstr m))
-                        ≡⟨ fst (identity (Gstr m) b) ⟩
+                        ≡⟨ +IdR (Gstr m) _ ⟩
                b ∎
 
   substSumFun : {m : ℕ} → (dv : depVec G m) → (n : ℕ) → (p : m ≡ n)
@@ -274,13 +250,13 @@ module Equiv-Properties
                 subst G p (0g (Gstr m))        ≡⟨ sym (cong (subst G p) (sumFun< dvb m ≤-refl)) ⟩
                 subst G p (sumFun dvb m)       ≡⟨ substSumFun dvb n p ⟩
                 sumFun dvb n ∎
-  ... | no ¬p = sumFun dva n                                 ≡⟨ sym (snd (identity (Gstr n) _)) ⟩
+  ... | no ¬p = sumFun dva n                                 ≡⟨ sym (+IdL (Gstr n) _) ⟩
                 (Gstr n)._+_ (0g (Gstr n)) (sumFun dva n)    ≡⟨ cong (λ X → (Gstr n)._+_ X (sumFun dva n))
                                                                              (sym (fun-trad-neq m a n ¬p)) ⟩
                 Gstr n ._+_ (fun-trad m a n) (sumFun dva n)  ≡⟨ funExt⁻ x n ⟩
                 Gstr n ._+_ (fun-trad m b n) (sumFun dvb n)  ≡⟨ cong (λ X → Gstr n ._+_ X (sumFun dvb n))
                                                                              (fun-trad-neq m b n ¬p) ⟩
-                (Gstr n)._+_ (0g (Gstr n)) (sumFun dvb n)    ≡⟨ snd (identity (Gstr n) _) ⟩
+                (Gstr n)._+_ (0g (Gstr n)) (sumFun dvb n)    ≡⟨ +IdL (Gstr n) _ ⟩
                 sumFun dvb n ∎
 
   injSumFun : {m : ℕ} → (dva dvb : depVec G m) → sumFun dva ≡ sumFun dvb → dva ≡ dvb
@@ -342,7 +318,7 @@ module Equiv-Properties
   ... | no ¬p = refl
   Strad-m<n g (suc m) n r with discreteℕ (suc m) n
   ... | yes p = ⊥.rec (<→≢ r p)
-  ... | no ¬p = snd (identity (Gstr n) _) ∙ Strad-m<n g m n (<-trans ≤-refl r)
+  ... | no ¬p = +IdL (Gstr n) _ ∙ Strad-m<n g m n (<-trans ≤-refl r)
 
   {- if n ≤ m, prove ⊕HIT→Fun (∑_{i ∈〚0, m〛} base i (g i)) ≡ g n
      then n is equal to only one〚0, m〛=> induction on m
@@ -354,8 +330,8 @@ module Equiv-Properties
   ... | yes p = substG g p
   ... | no ¬p = ⊥.rec (¬p (sym (≤0→≡0 r)))
   Strad-n≤m g (suc m) n r with discreteℕ (suc m) n
-  ... | yes p = cong₂ ((Gstr n)._+_) (substG g p) (Strad-m<n g m n (0 , p)) ∙ fst (identity (Gstr n) _)
-  ... | no ¬p = snd (identity (Gstr n) _) ∙ Strad-n≤m g m n (≤-suc-≢ r λ x → ¬p (sym x))
+  ... | yes p = cong₂ ((Gstr n)._+_) (substG g p) (Strad-m<n g m n (0 , p)) ∙ +IdR (Gstr n) _
+  ... | no ¬p = +IdL (Gstr n) _ ∙ Strad-n≤m g m n (≤-suc-≢ r λ x → ¬p (sym x))
 
 
   ---------------------------------------------------------------------------

@@ -67,22 +67,22 @@ module _
     ⋆Assoc {suc k} {l} {m} a b c = ΣPathTransport→PathΣ _ _ (+-assoc _ _ _ , transportRefl _)
 
     ⋆IdR : {k : ℕ} (a : G k) → _≡_ {A = Σ[ k ∈ ℕ ] G k} (k Cubical.Data.Nat.+ 0 , ⋆ a 1r) (k , a)
-    ⋆IdR {zero} a = ΣPathTransport→PathΣ _ _ (refl , (transportRefl _ ∙ ·Rid _))
+    ⋆IdR {zero} a = ΣPathTransport→PathΣ _ _ (refl , (transportRefl _ ∙ ·IdR _))
     ⋆IdR {suc k} a = ΣPathTransport→PathΣ _ _ ((+-zero _) , (transportRefl _))
 
     ⋆IdL : {l : ℕ} (b : G l) → _≡_ {A = Σ[ k ∈ ℕ ] G k} (l , ⋆ 1r b) (l , b)
-    ⋆IdL {zero} b = ΣPathTransport→PathΣ _ _ (refl , (transportRefl _ ∙ ·Lid _))
+    ⋆IdL {zero} b = ΣPathTransport→PathΣ _ _ (refl , (transportRefl _ ∙ ·IdL _))
     ⋆IdL {suc l} b = ΣPathTransport→PathΣ _ _ (refl , (transportRefl _))
 
     ⋆DistR+ : {k l : ℕ} (a : G k) (b c : G l) →
               ⋆ a (Gstr l .AbGroupStr._+_ b c) ≡ Gstr (k Cubical.Data.Nat.+ l) .AbGroupStr._+_ (⋆ a b) (⋆ a c)
-    ⋆DistR+ {zero} {zero} a b c = ·Rdist+ _ _ _
+    ⋆DistR+ {zero} {zero} a b c = ·DistR+ _ _ _
     ⋆DistR+ {zero} {suc l} a b c = refl
     ⋆DistR+ {suc k} {l} a b c = refl
 
     ⋆DistL+ : {k l : ℕ} (a b : G k) (c : G l) →
               ⋆ (Gstr k .AbGroupStr._+_ a b) c ≡ Gstr (k Cubical.Data.Nat.+ l) .AbGroupStr._+_ (⋆ a c) (⋆ b c)
-    ⋆DistL+ {zero} {zero} a b c = ·Ldist+ _ _ _
+    ⋆DistL+ {zero} {zero} a b c = ·DistL+ _ _ _
     ⋆DistL+ {zero} {suc l} a b c = refl
     ⋆DistL+ {suc k} {l} a b c = refl
 
@@ -99,8 +99,8 @@ module _
       is : Iso A (⊕HIT ℕ G Gstr)
       fun is a = base 0 a
       inv is = DS-Rec-Set.f _ _ _ _ is-set
-               0r (λ {zero a → a ; (suc k) a → 0r }) _+_ +Assoc +Rid +Comm
-               (λ { zero → refl ; (suc k) → refl}) (λ {zero a b → refl ; (suc n) a b → +Rid _})
+               0r (λ {zero a → a ; (suc k) a → 0r }) _+_ +Assoc +IdR +Comm
+               (λ { zero → refl ; (suc k) → refl}) (λ {zero a b → refl ; (suc n) a b → +IdR _})
       rightInv is = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
                     (base-neutral _)
                     (λ { zero a → refl ; (suc k) a → base-neutral _ ∙ sym (base-neutral _)} )

@@ -35,24 +35,13 @@ module DefPNF
     ( 0g       to 0⊕HIT
     ; _+_      to _+⊕HIT_
     ; -_       to -⊕HIT_
-    ; assoc    to +⊕HIT-Assoc
-    ; identity to +⊕HIT-IdR×IdL
-    ; inverse  to +⊕HIT-InvR×InvL
-    ; comm     to +⊕HIT-Comm
+    ; +Assoc    to +⊕HIT-Assoc
+    ; +IdR     to +⊕HIT-IdR
+    ; +IdL     to +⊕HIT-IdL
+    ; +InvR    to +⊕HIT-InvR
+    ; +InvL    to +⊕HIT-InvL
+    ; +Comm     to +⊕HIT-Comm
     ; is-set   to isSet⊕HIT)
-
-  private
-    +⊕HIT-IdR : (x : ⊕HIT ℕ G Gstr) → x +⊕HIT 0⊕HIT ≡ x
-    +⊕HIT-IdR = λ x → fst (+⊕HIT-IdR×IdL x)
-
-    +⊕HIT-IdL : (x : ⊕HIT ℕ G Gstr) → 0⊕HIT +⊕HIT x  ≡ x
-    +⊕HIT-IdL = λ x → snd (+⊕HIT-IdR×IdL x)
-
-    +⊕HIT-InvR : (x : ⊕HIT ℕ G Gstr) → x +⊕HIT (-⊕HIT x) ≡ 0⊕HIT
-    +⊕HIT-InvR = λ x → fst (+⊕HIT-InvR×InvL x)
-
-    +⊕HIT-InvL : (x : ⊕HIT ℕ G Gstr) → (-⊕HIT x) +⊕HIT x ≡ 0⊕HIT
-    +⊕HIT-InvL = λ x → snd (+⊕HIT-InvR×InvL x)
 
 
 -----------------------------------------------------------------------------

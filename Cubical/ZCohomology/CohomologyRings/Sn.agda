@@ -47,6 +47,7 @@ open import Cubical.ZCohomology.RingStructure.CohomologyRing
 open import Cubical.ZCohomology.Groups.Sn
 
 open Iso
+open PlusBis
 
 -----------------------------------------------------------------------------
 -- Somme properties over H⁰-Sⁿ≅ℤ
@@ -384,12 +385,12 @@ module Equiv-Sn-Properties (n : ℕ) where
 
     base-add-eq : (k : ℕ) → (a b : coHom k (S₊ (suc n))) → (x : partℕ k)
                   → base-trad-H* k a x +Pℤ base-trad-H* k b x ≡ base-trad-H* k (a +ₕ b) x
-    base-add-eq k a b (is0 x) = base-poly+ _ _ _
-                                ∙ cong (baseP (0 ∷ [])) (sym (pres· (snd (H⁰-Sⁿ≅ℤ n)) _ _))
-                                ∙ cong (baseP (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (sym (subst-+ k a b 0 x)))
-    base-add-eq k a b (isSn x) =  base-poly+ _ _ _
-                                  ∙ cong (baseP (1 ∷ [])) (sym (pres· (snd (Hⁿ-Sⁿ≅ℤ n)) _ _))
-                                  ∙ cong (baseP (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (sym (subst-+ k a b (suc n) x)))
+    base-add-eq k a b (is0 x) = base-add _ _ _
+                                ∙ cong (base (0 ∷ [])) (sym (pres· (snd (H⁰-Sⁿ≅ℤ n)) _ _))
+                                ∙ cong (base (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (sym (subst-+ k a b 0 x)))
+    base-add-eq k a b (isSn x) =  base-add _ _ _
+                                  ∙ cong (base (1 ∷ [])) (sym (pres· (snd (Hⁿ-Sⁿ≅ℤ n)) _ _))
+                                  ∙ cong (base (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (sym (subst-+ k a b (suc n) x)))
     base-add-eq k a b (else x) = +PℤIdR _
 
 
@@ -451,7 +452,7 @@ module Equiv-Sn-Properties (n : ℕ) where
            base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (base (suc (suc k) ∷ []) a)  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
              where
              helper : _
-             helper = (+PℤIdL _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
+             helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
 
 
 

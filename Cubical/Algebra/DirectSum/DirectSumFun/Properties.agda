@@ -49,7 +49,7 @@ module DSF-properties
             (λ { (k , nf) → λ { (l , ng) →
                ∣ ((k +n l) ,
                  (λ n p → cong₂ ((Gstr n)._+_) (nf n (<-+k-trans p)) (ng n (<-k+-trans p))
-                           ∙ rid (Gstr n) (0g (Gstr n)))) ∣₁ } })
+                           ∙ +IdR (Gstr n) (0g (Gstr n)))) ∣₁ } })
 
 
   Inv⊕Fun : ⊕Fun G Gstr → ⊕Fun G Gstr
@@ -66,16 +66,16 @@ module DSF-properties
   +⊕FunAssoc : (x y z : ⊕Fun G Gstr) → x +⊕Fun (y +⊕Fun z) ≡ (x +⊕Fun y) +⊕Fun z
   +⊕FunAssoc (f , Anf) (g , Ang) (h , Anh) =
              ΣPathTransport→PathΣ _ _
-             (funExt (λ n → Gstr n .assoc _ _ _) , (squash₁ _ _))
+             (funExt (λ n → Gstr n .+Assoc _ _ _) , (squash₁ _ _))
 
   +⊕FunRid : (x : ⊕Fun G Gstr) → x +⊕Fun 0⊕Fun ≡ x
   +⊕FunRid (f , Anf) = ΣPathTransport→PathΣ _ _
-                       ((funExt (λ n → fst (Gstr n .identity _))) , squash₁ _ _)
+                       ((funExt (λ n → +IdR (Gstr n) _)) , squash₁ _ _)
 
   +⊕FunInvR : (x : ⊕Fun G Gstr) → x +⊕Fun Inv⊕Fun x ≡ 0⊕Fun
   +⊕FunInvR (f , Anf) = ΣPathTransport→PathΣ _ _
-                        ((funExt (λ n → fst (Gstr n .inverse _))) , (squash₁ _ _))
+                        ((funExt (λ n → +InvR (Gstr n) _)) , (squash₁ _ _))
 
   +⊕FunComm : (x y : ⊕Fun G Gstr) →  x +⊕Fun y ≡ y +⊕Fun x
   +⊕FunComm (f , Anf) (g , Ang) = ΣPathTransport→PathΣ _ _
-                                  ((funExt (λ n → Gstr n .comm _ _)) , (squash₁ _ _))
+                                  ((funExt (λ n → Gstr n .+Comm _ _)) , (squash₁ _ _))

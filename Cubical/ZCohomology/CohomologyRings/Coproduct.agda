@@ -38,6 +38,7 @@ module Equiv-Coproduct-Properties
   open Iso
   open IsGroupHom
   open GroupStr
+  open PlusBis
 
   open RingStr (snd (H*R X)) using ()
     renaming

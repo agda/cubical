@@ -48,9 +48,9 @@ module _
             (0g Hstr)
             (λ k a → fH k a)
             (Hstr ._+_)
-            (assoc Hstr)
-            (rid Hstr)
-            (comm Hstr)
+            (+Assoc Hstr)
+            (+IdR Hstr)
+            (+Comm Hstr)
             (λ k → pres1 (fHstr k))
             λ k a b → sym (pres· (fHstr k) _ _)
 

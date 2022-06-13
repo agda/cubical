@@ -38,6 +38,9 @@ open Iso
 -- Definition Cohomology Ring
 
 open PlusBis
+open GradedRing-⊕HIT-index
+open GradedRing-⊕HIT-⋆
+
 
 module _ (A : Type ℓ) where
 

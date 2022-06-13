@@ -277,11 +277,11 @@ module Equiv-Unit-Properties where
            base-case (suc n ∷ []) a = eq/ 0Pℤ (base (suc n ∷ []) a) ∣ ((λ x → base (n ∷ []) (-ℤ a)) , foo) ∣₁
              where
              foo : (0Pℤ +Pℤ base (suc n ∷ []) (- a)) ≡ (base (n +n 1 ∷ []) (- a · pos 1) +Pℤ 0Pℤ)
-             foo = (0Pℤ +Pℤ base (suc n ∷ []) (- a)) ≡⟨ +PℤLid _ ⟩
+             foo = (0Pℤ +Pℤ base (suc n ∷ []) (- a)) ≡⟨ +PℤIdL _ ⟩
                    base (suc n ∷ []) (- a) ≡⟨ cong₂ base (cong (λ X → X ∷ []) (sym ((+-suc n 0)
-                                              ∙ (cong suc (+-zero n))))) (sym (·ℤRid _)) ⟩
+                                              ∙ (cong suc (+-zero n))))) (sym (·ℤIdR _)) ⟩
                    base (n +n suc 0 ∷ []) (- a ·ℤ 1ℤ) ≡⟨ refl ⟩
-                   base (n +n 1 ∷ []) (- a · pos 1) ≡⟨ sym (+PℤRid _) ⟩
+                   base (n +n 1 ∷ []) (- a · pos 1) ≡⟨ sym (+PℤIdR _) ⟩
                    (base (n +n 1 ∷ []) (- a · pos 1) +Pℤ 0Pℤ) ∎
 
 
