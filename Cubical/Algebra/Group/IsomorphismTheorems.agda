@@ -68,7 +68,7 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
       ϕ .fst (y G.· G.inv z)        ≡⟨ ϕ.pres· _ _ ⟩
       ϕ .fst y H.· ϕ .fst (G.inv z) ≡⟨ cong (ϕ .fst y H.·_) (ϕ.presinv _) ⟩
       ϕ .fst y H.· H.inv (ϕ .fst z) ≡⟨ (λ i → hy i H.· H.inv (hz i)) ⟩
-      x H.· H.inv x                 ≡⟨ H.invr x ⟩
+      x H.· H.inv x                 ≡⟨ H.·InvR x ⟩
       H.1g                          ∎
 
   f2 : ⟨ G / kerNormalSubgroup ⟩ → ⟨ imϕ ⟩
@@ -78,13 +78,13 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
     where
     rem : (x y : ⟨ G ⟩) → ϕ .fst (x G.· G.inv y) ≡ H.1g → ϕ .fst x ≡ ϕ .fst y
     rem x y r =
-      ϕ .fst x                                      ≡⟨ sym (H.rid _) ⟩
-      ϕ .fst x H.· H.1g                             ≡⟨ cong (ϕ .fst x H.·_) (sym (H.invl _)) ⟩
+      ϕ .fst x                                      ≡⟨ sym (H.·IdR _) ⟩
+      ϕ .fst x H.· H.1g                             ≡⟨ cong (ϕ .fst x H.·_) (sym (H.·InvL _)) ⟩
       ϕ .fst x H.· H.inv (ϕ .fst y) H.· ϕ .fst y    ≡⟨ (λ i → ϕ .fst x H.· ϕ.presinv y (~ i) H.· ϕ .fst y) ⟩
-      ϕ .fst x H.· ϕ .fst (G.inv y) H.· ϕ .fst y    ≡⟨ H.assoc _ _ _ ⟩
+      ϕ .fst x H.· ϕ .fst (G.inv y) H.· ϕ .fst y    ≡⟨ H.·Assoc _ _ _ ⟩
       (ϕ .fst x H.· ϕ .fst (G.inv y)) H.· ϕ .fst y  ≡⟨ cong (H._· _) (sym (ϕ.pres· _ _)) ⟩
       ϕ .fst (x G.· G.inv y) H.· ϕ .fst y           ≡⟨ cong (H._· ϕ .fst y) r ⟩
-      H.1g H.· ϕ .fst y                             ≡⟨ H.lid _ ⟩
+      H.1g H.· ϕ .fst y                             ≡⟨ H.·IdL _ ⟩
       ϕ .fst y ∎
 
   f12 : (x : ⟨ G / kerNormalSubgroup ⟩) → f1 (f2 x) ≡ x

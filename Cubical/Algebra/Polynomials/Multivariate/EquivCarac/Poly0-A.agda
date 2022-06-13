@@ -36,7 +36,7 @@ module Equiv-Poly0-A
              (λ v a → a)
              (_+_ Astr)
              (+Assoc Astr)
-             (+Rid Astr)
+             (+IdR Astr)
              (+Comm Astr)
              (λ _ → refl)
              λ _ a b → refl
@@ -69,8 +69,8 @@ module Equiv-Poly0-A
                     (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set Astr _ _)
                               (sym (RingTheory.0RightAnnihilates (CommRing→Ring Acr) (Poly0→A (base v a))))
                               (λ v' a' → refl)
-                              λ {U V} ind-U ind-V → (cong₂ (Astr ._+_) ind-U ind-V) ∙ sym (·Rdist+ Astr _ _ _))
-                    λ {U V} ind-U ind-V Q → (cong₂ (Astr ._+_) (ind-U Q) (ind-V Q)) ∙ sym (·Ldist+ Astr _ _ _)
+                              λ {U V} ind-U ind-V → (cong₂ (Astr ._+_) ind-U ind-V) ∙ sym (·DistR+ Astr _ _ _))
+                    λ {U V} ind-U ind-V Q → (cong₂ (Astr ._+_) (ind-U Q) (ind-V Q)) ∙ sym (·DistL+ Astr _ _ _)
 
 
 -----------------------------------------------------------------------------

@@ -1,16 +1,18 @@
-{-
-
-Defines groups and adds some smart constructors
-
--}
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.Base where
+{-
+  Defines groups and adds the smart constructors [makeGroup-right] and [makeGroup-left]
+  for constructing groups from less data than the standard [makeGroup] constructor.
+-}
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
+
+open import Cubical.Reflection.RecordEquiv
+
 
 private
   variable
@@ -23,21 +25,12 @@ record IsGroup {G : Type ℓ}
 
   field
     isMonoid  : IsMonoid 1g _·_
-    inverse   : (x : G) → (x · inv x ≡ 1g) × (inv x · x ≡ 1g)
+    ·InvR : (x : G) → x · inv x ≡ 1g
+    ·InvL : (x : G) → inv x · x ≡ 1g
 
   open IsMonoid isMonoid public
 
-  infixl 6 _-_
-
-  -- Useful notation for additive groups
-  _-_ : G → G → G
-  x - y = x · inv y
-
-  invl : (x : G) → inv x · x ≡ 1g
-  invl x = inverse x .snd
-
-  invr : (x : G) → x · inv x ≡ 1g
-  invr x = inverse x .fst
+unquoteDecl IsGroupIsoΣ = declareRecordIsoΣ IsGroupIsoΣ (quote IsGroup)
 
 record GroupStr (G : Type ℓ) : Type ℓ where
 
@@ -67,30 +60,31 @@ isSetGroup G = GroupStr.isGroup (snd G) .IsGroup.isMonoid .IsMonoid.isSemigroup 
 
 makeIsGroup : {G : Type ℓ} {e : G} {_·_ : G → G → G} { inv : G → G}
               (is-setG : isSet G)
-              (assoc : (x y z : G) → x · (y · z) ≡ (x · y) · z)
-              (rid : (x : G) → x · e ≡ x)
-              (lid : (x : G) → e · x ≡ x)
-              (rinv : (x : G) → x · inv x ≡ e)
-              (linv : (x : G) → inv x · x ≡ e)
+              (·Assoc : (x y z : G) → x · (y · z) ≡ (x · y) · z)
+              (·IdR : (x : G) → x · e ≡ x)
+              (·IdL : (x : G) → e · x ≡ x)
+              (·InvR : (x : G) → x · inv x ≡ e)
+              (·InvL : (x : G) → inv x · x ≡ e)
             → IsGroup e _·_ inv
-IsGroup.isMonoid (makeIsGroup is-setG assoc rid lid rinv linv) = makeIsMonoid is-setG assoc rid lid
-IsGroup.inverse (makeIsGroup is-setG assoc rid lid rinv linv) = λ x → rinv x , linv x
+IsGroup.isMonoid (makeIsGroup is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL) = makeIsMonoid is-setG ·Assoc ·IdR ·IdL
+IsGroup.·InvR (makeIsGroup is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL) = ·InvR
+IsGroup.·InvL (makeIsGroup is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL) = ·InvL
 
-makeGroup : {G : Type ℓ} (e : G) (_·_ : G → G → G) (inv : G → G)
+makeGroup : {G : Type ℓ} (1g : G) (_·_ : G → G → G) (inv : G → G)
             (is-setG : isSet G)
-            (assoc : (x y z : G) → x · (y · z) ≡ (x · y) · z)
-            (rid : (x : G) → x · e ≡ x)
-            (lid : (x : G) → e · x ≡ x)
-            (rinv : (x : G) → x · inv x ≡ e)
-            (linv : (x : G) → inv x · x ≡ e)
+            (·Assoc : (x y z : G) → x · (y · z) ≡ (x · y) · z)
+            (·IdR : (x : G) → x · 1g ≡ x)
+            (·IdL : (x : G) → 1g · x ≡ x)
+            (·InvR : (x : G) → x · inv x ≡ 1g)
+            (·InvL : (x : G) → inv x · x ≡ 1g)
           → Group ℓ
-makeGroup e _·_ inv is-setG assoc rid lid rinv linv = _ , helper
+makeGroup 1g _·_ inv is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL = _ , helper
   where
   helper : GroupStr _
-  GroupStr.1g helper = e
+  GroupStr.1g helper = 1g
   GroupStr._·_ helper = _·_
   GroupStr.inv helper = inv
-  GroupStr.isGroup helper = makeIsGroup is-setG assoc rid lid rinv linv
+  GroupStr.isGroup helper = makeIsGroup is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL
 
 Group→Monoid : Group ℓ → Monoid ℓ
 Group→Monoid (A , groupstr  _ _ _ G) = A , monoidstr _ _ (IsGroup.isMonoid G)
@@ -100,43 +94,43 @@ makeGroup-right : {A : Type ℓ}
   → (_·_ : A → A → A)
   → (inv : A → A)
   → (set : isSet A)
-  → (assoc : ∀ a b c → a · (b · c) ≡ (a · b) · c)
-  → (rUnit : ∀ a → a · 1g ≡ a)
-  → (rCancel : ∀ a → a · inv a ≡ 1g)
+  → (·Assoc : ∀ a b c → a · (b · c) ≡ (a · b) · c)
+  → (·IdR : ∀ a → a · 1g ≡ a)
+  → (·InvR : ∀ a → a · inv a ≡ 1g)
   → Group ℓ
-makeGroup-right 1g _·_ inv set assoc rUnit rCancel =
-  makeGroup 1g _·_ inv set assoc rUnit lUnit rCancel lCancel
+makeGroup-right 1g _·_ inv set ·Assoc ·IdR ·InvR =
+  makeGroup 1g _·_ inv set ·Assoc ·IdR ·IdL ·InvR ·InvL
   where
     abstract
-      lCancel : ∀ a → inv a · a ≡ 1g
-      lCancel a =
+      ·InvL : ∀ a → inv a · a ≡ 1g
+      ·InvL a =
         inv a · a
-          ≡⟨ sym (rUnit _)  ⟩
+          ≡⟨ sym (·IdR _)  ⟩
         (inv a · a) · 1g
-          ≡⟨ cong (_·_ _) (sym (rCancel (inv a))) ⟩
+          ≡⟨ cong (_·_ _) (sym (·InvR (inv a))) ⟩
         (inv a · a) · (inv a · (inv (inv a)))
-          ≡⟨ assoc _ _ _ ⟩
+          ≡⟨ ·Assoc _ _ _ ⟩
         ((inv a · a) · (inv a)) · (inv (inv a))
-          ≡⟨ cong (λ □ → □ · _) (sym (assoc _ _ _)) ⟩
+          ≡⟨ cong (λ □ → □ · _) (sym (·Assoc _ _ _)) ⟩
         (inv a · (a · inv a)) · (inv (inv a))
-          ≡⟨ cong (λ □ → (inv a · □) · (inv (inv a))) (rCancel a) ⟩
+          ≡⟨ cong (λ □ → (inv a · □) · (inv (inv a))) (·InvR a) ⟩
         (inv a · 1g) · (inv (inv a))
-          ≡⟨ cong (λ □ → □ · (inv (inv a))) (rUnit (inv a)) ⟩
+          ≡⟨ cong (λ □ → □ · (inv (inv a))) (·IdR (inv a)) ⟩
         inv a · (inv (inv a))
-          ≡⟨ rCancel (inv a) ⟩
+          ≡⟨ ·InvR (inv a) ⟩
         1g
           ∎
 
-      lUnit : ∀ a → 1g · a ≡ a
-      lUnit a =
+      ·IdL : ∀ a → 1g · a ≡ a
+      ·IdL a =
         1g · a
-          ≡⟨ cong (λ b → b · a) (sym (rCancel a)) ⟩
+          ≡⟨ cong (λ b → b · a) (sym (·InvR a)) ⟩
         (a · inv a) · a
-          ≡⟨ sym (assoc _ _ _) ⟩
+          ≡⟨ sym (·Assoc _ _ _) ⟩
         a · (inv a · a)
-          ≡⟨ cong (a ·_) (lCancel a) ⟩
+          ≡⟨ cong (a ·_) (·InvL a) ⟩
         a · 1g
-          ≡⟨ rUnit a ⟩
+          ≡⟨ ·IdR a ⟩
         a
           ∎
 
@@ -145,42 +139,42 @@ makeGroup-left : {A : Type ℓ}
   → (_·_ : A → A → A)
   → (inv : A → A)
   → (set : isSet A)
-  → (assoc : ∀ a b c → a · (b · c) ≡ (a · b) · c)
-  → (lUnit : ∀ a → 1g · a ≡ a)
-  → (lCancel : ∀ a → (inv a) · a ≡ 1g)
+  → (·Assoc : ∀ a b c → a · (b · c) ≡ (a · b) · c)
+  → (·IdL : ∀ a → 1g · a ≡ a)
+  → (·InvL : ∀ a → (inv a) · a ≡ 1g)
   → Group ℓ
-makeGroup-left 1g _·_ inv set assoc lUnit lCancel =
-  makeGroup 1g _·_ inv set assoc rUnit lUnit rCancel lCancel
+makeGroup-left 1g _·_ inv set ·Assoc ·IdL ·InvL =
+  makeGroup 1g _·_ inv set ·Assoc ·IdR ·IdL ·InvR ·InvL
   where
     abstract
-      rCancel : ∀ a → a · inv a ≡ 1g
-      rCancel a =
+      ·InvR : ∀ a → a · inv a ≡ 1g
+      ·InvR a =
         a · inv a
-          ≡⟨ sym (lUnit _)  ⟩
+          ≡⟨ sym (·IdL _)  ⟩
         1g · (a · inv a)
-          ≡⟨ cong (λ b → b · (a · inv a)) (sym (lCancel (inv a))) ⟩
+          ≡⟨ cong (λ b → b · (a · inv a)) (sym (·InvL (inv a))) ⟩
         (inv (inv a) · inv a) · (a · inv a)
-          ≡⟨ sym (assoc (inv (inv a)) (inv a) _) ⟩
+          ≡⟨ sym (·Assoc (inv (inv a)) (inv a) _) ⟩
         inv (inv a) · (inv a · (a · inv a))
-          ≡⟨ cong (inv (inv a) ·_) (assoc (inv a) a (inv a)) ⟩
+          ≡⟨ cong (inv (inv a) ·_) (·Assoc (inv a) a (inv a)) ⟩
         (inv (inv a)) · ((inv a · a) · (inv a))
-          ≡⟨ cong (λ b → (inv (inv a)) · (b · (inv a))) (lCancel a) ⟩
+          ≡⟨ cong (λ b → (inv (inv a)) · (b · (inv a))) (·InvL a) ⟩
         inv (inv a) · (1g · inv a)
-          ≡⟨ cong (inv (inv a) ·_) (lUnit (inv a)) ⟩
+          ≡⟨ cong (inv (inv a) ·_) (·IdL (inv a)) ⟩
         inv (inv a) · inv a
-          ≡⟨ lCancel (inv a) ⟩
+          ≡⟨ ·InvL (inv a) ⟩
         1g
           ∎
 
-      rUnit : ∀ a → a · 1g ≡ a
-      rUnit a =
+      ·IdR : ∀ a → a · 1g ≡ a
+      ·IdR a =
         a · 1g
-          ≡⟨ cong (a ·_) (sym (lCancel a)) ⟩
+          ≡⟨ cong (a ·_) (sym (·InvL a)) ⟩
         a · (inv a · a)
-          ≡⟨ assoc a (inv a) a ⟩
+          ≡⟨ ·Assoc a (inv a) a ⟩
         (a · inv a) · a
-          ≡⟨ cong (λ b → b · a) (rCancel a) ⟩
+          ≡⟨ cong (λ b → b · a) (·InvR a) ⟩
         1g · a
-          ≡⟨ lUnit a ⟩
+          ≡⟨ ·IdL a ⟩
         a
           ∎

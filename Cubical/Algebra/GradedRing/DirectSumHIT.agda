@@ -35,23 +35,23 @@ module GradedRing-⊕HIT-index
     ( 0g     to 0⊕
     ; _+_    to _+⊕_
     ; -_     to -⊕_
-    ; assoc  to +⊕Assoc
-    ; rid    to +⊕IdR
-    ; lid    to +⊕IdL
-    ; invr   to +⊕InvR
-    ; invl   to +⊕InvL
-    ; comm   to +⊕Comm
+    ; +Assoc to +⊕Assoc
+    ; +IdR   to +⊕IdR
+    ; +IdL   to +⊕IdL
+    ; +InvR  to +⊕InvR
+    ; +InvL  to +⊕InvL
+    ; +Comm  to +⊕Comm
     ; is-set to isSet⊕G )
   open AbGroupTheory ⊕G-AbGroup
 
   open AbGroupStr
     renaming
-    ( assoc  to +Assoc
-    ; rid    to +IdR
-    ; lid    to +IdL
-    ; invr   to +InvR
-    ; invl   to +InvL
-    ; comm   to +Comm
+    ( +Assoc to +Assoc
+    ; +IdR   to +IdR
+    ; +IdL   to +IdL
+    ; +InvR  to +InvR
+    ; +InvL  to +InvL
+    ; +Comm  to +Comm
     ; is-set to isSetG )
 
   module GradedRing-⊕HIT-⋆

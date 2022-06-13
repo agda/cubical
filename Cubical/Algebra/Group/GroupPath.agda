@@ -3,24 +3,21 @@
 module Cubical.Algebra.Group.GroupPath where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.SIP
-open import Cubical.Foundations.Function using (_∘_)
-open import Cubical.Foundations.GroupoidLaws hiding (assoc)
+
 open import Cubical.Data.Sigma
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
-
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
 
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties

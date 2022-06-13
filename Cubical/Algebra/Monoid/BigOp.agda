@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.SIP
 
-open import Cubical.Data.Nat hiding (_·_)
+open import Cubical.Data.Nat using (ℕ ; zero ; suc)
 open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Monoid.Base
@@ -26,53 +26,35 @@ module MonoidBigOp (M' : Monoid ℓ) where
 
  bigOpε : ∀ n → bigOp (replicateFinVec n ε) ≡ ε
  bigOpε zero = refl
- bigOpε (suc n) = cong (ε ·_) (bigOpε n) ∙ rid _
+ bigOpε (suc n) = cong (ε ·_) (bigOpε n) ∙ ·IdR _
 
  bigOpLast : ∀ {n} (V : FinVec M (suc n)) → bigOp V ≡ bigOp (V ∘ weakenFin) · V (fromℕ n)
- bigOpLast {n = zero} V = rid _ ∙ sym (lid _)
- bigOpLast {n = suc n} V = cong (V zero ·_) (bigOpLast (V ∘ suc)) ∙ assoc _ _ _
+ bigOpLast {n = zero} V = ·IdR _ ∙ sym (·IdL _)
+ bigOpLast {n = suc n} V = cong (V zero ·_) (bigOpLast (V ∘ suc)) ∙ ·Assoc _ _ _
 
 
  -- requires a commutative monoid:
  bigOpSplit : (∀ x y → x · y ≡ y · x)
             → {n : ℕ} → (V W : FinVec M n) → bigOp (λ i → V i · W i) ≡ bigOp V · bigOp W
- bigOpSplit _ {n = zero} _ _ = sym (rid _)
+ bigOpSplit _ {n = zero} _ _ = sym (·IdR _)
  bigOpSplit comm {n = suc n} V W =
     V zero · W zero · bigOp (λ i → V (suc i) · W (suc i))
   ≡⟨ (λ i → V zero · W zero · bigOpSplit comm (V ∘ suc) (W ∘ suc) i) ⟩
     V zero · W zero · (bigOp (V ∘ suc) · bigOp (W ∘ suc))
-  ≡⟨ sym (assoc _ _ _) ⟩
+  ≡⟨ sym (·Assoc _ _ _) ⟩
     V zero · (W zero · (bigOp (V ∘ suc) · bigOp (W ∘ suc)))
-  ≡⟨ cong (V zero ·_) (assoc _ _ _) ⟩
+  ≡⟨ cong (V zero ·_) (·Assoc _ _ _) ⟩
     V zero · ((W zero · bigOp (V ∘ suc)) · bigOp (W ∘ suc))
   ≡⟨ cong (λ x → V zero · (x · bigOp (W ∘ suc))) (comm _ _) ⟩
     V zero · ((bigOp (V ∘ suc) · W zero) · bigOp (W ∘ suc))
-  ≡⟨ cong (V zero ·_) (sym (assoc _ _ _)) ⟩
+  ≡⟨ cong (V zero ·_) (sym (·Assoc _ _ _)) ⟩
     V zero · (bigOp (V ∘ suc) · (W zero · bigOp (W ∘ suc)))
-  ≡⟨ assoc _ _ _ ⟩
+  ≡⟨ ·Assoc _ _ _ ⟩
     V zero · bigOp (V ∘ suc) · (W zero · bigOp (W ∘ suc)) ∎
 
  bigOpSplit++ : (∀ x y → x · y ≡ y · x)
               → {n m : ℕ} → (V : FinVec M n) → (W : FinVec M m)
               → bigOp (V ++Fin W) ≡ bigOp V · bigOp W
- bigOpSplit++ comm {n = zero} V W = sym (lid _)
- bigOpSplit++ comm {n = suc n} V W = cong (V zero ·_) (bigOpSplit++ comm (V ∘ suc) W) ∙ assoc _ _ _
 
-module _
-  (M' : Monoid ℓ)
-  (N' : Monoid ℓ')
-  (f'@(f , fstr) : MonoidHom M' N')
-  where
-
-  private
-    M = ⟨ M' ⟩
-    N = ⟨ N' ⟩
-
-  open MonoidStr
-  open IsMonoidHom
-  open MonoidBigOp M' renaming (bigOp to ∑M)
-  open MonoidBigOp N' renaming (bigOp to ∑N)
-
-  bigOpMap : (n : ℕ) → (a : FinVec M n) → f (∑M a) ≡ ∑N (λ i → f (a i))
-  bigOpMap zero a = presε fstr
-  bigOpMap (suc n) a = pres· fstr _ _ ∙ cong (λ X → snd N' ._·_ (f (a zero)) X ) (bigOpMap n (a ∘ suc))
+ bigOpSplit++ comm {n = zero} V W = sym (·IdL _)
+ bigOpSplit++ comm {n = suc n} V W = cong (V zero ·_) (bigOpSplit++ comm (V ∘ suc) W) ∙ ·Assoc _ _ _

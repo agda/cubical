@@ -79,9 +79,9 @@ module InvertingElementsBase (R' : CommRing ℓ) where
 
  -- a quick fact
  isContrR[1/0] : isContr R[1/ 0r ]
- fst isContrR[1/0] = [ 1r , 0r , ∣ 1 , sym (·Rid 0r) ∣₁ ] -- everything is equal to 1/0
+ fst isContrR[1/0] = [ 1r , 0r , ∣ 1 , sym (·IdR 0r) ∣₁ ] -- everything is equal to 1/0
  snd isContrR[1/0] = elimProp (λ _ → squash/ _ _)
-                               λ _ → eq/ _ _ ((0r , ∣ 1 , sym (·Rid 0r) ∣₁) , useSolver _ _)
+                               λ _ → eq/ _ _ ((0r , ∣ 1 , sym (·IdR 0r) ∣₁) , useSolver _ _)
   where
   useSolver : ∀ s r → 0r · 1r · s ≡ 0r · r · 0r
   useSolver = solve R'
@@ -94,7 +94,7 @@ module InvertingElementsBase (R' : CommRing ℓ) where
      Exponentiation._^_ R[1/ f ]AsCommRing [ g , 1r , powersFormMultClosedSubset _ .containsOne ] n
  ^-respects-/1 zero = refl
  ^-respects-/1 {f} {g} (suc n) = eq/ _ _ ( (1r , powersFormMultClosedSubset f .containsOne)
-                                         , cong (1r · (g · (g ^ n)) ·_) (·Lid 1r))
+                                         , cong (1r · (g · (g ^ n)) ·_) (·IdL 1r))
                            ∙ cong (CommRingStr._·_ (R[1/ f ]AsCommRing .snd)
                            [ g , 1r , powersFormMultClosedSubset f .containsOne ]) (^-respects-/1 n)
 
@@ -231,7 +231,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
  open RingTheory (CommRing→Ring R')
  open CommRingStr (snd (R[1/_]AsCommRing R' f)) renaming ( _·_ to _·ᶠ_ ; 1r to 1ᶠ
                                                          ; _+_ to _+ᶠ_ ; 0r to 0ᶠ
-                                                         ; ·Lid to ·ᶠ-lid ; ·Rid to ·ᶠ-rid
+                                                         ; ·IdL to ·ᶠ-lid ; ·IdR to ·ᶠ-rid
                                                          ; ·Assoc to ·ᶠ-assoc ; ·Comm to ·ᶠ-comm)
  open IsRingHom
 
@@ -262,17 +262,17 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
          (cong [_]
            (≡-×
              (cong₂ _+_
-               (sym (·Rid _) ∙ (λ i → (·Rid r (~ i)) · (·Rid 1r (~ i))))
-               (sym (·Rid _) ∙ (λ i → (·Rid r' (~ i)) · (·Rid 1r (~ i)))))
+               (sym (·IdR _) ∙ (λ i → (·IdR r (~ i)) · (·IdR 1r (~ i))))
+               (sym (·IdR _) ∙ (λ i → (·IdR r' (~ i)) · (·IdR 1r (~ i)))))
              (Σ≡Prop (λ _ → isPropPropTrunc)
-               (sym (·Lid _) ∙ (λ i → (·Lid 1r (~ i)) · (·Lid 1r (~ i)))))))
+               (sym (·IdL _) ∙ (λ i → (·IdL 1r (~ i)) · (·IdL 1r (~ i)))))))
          (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·ᶠ-lid 1ᶠ))))
 
    lem· : _
    lem· r r' =
      cong [_]
        (≡-×
-         (cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Lid _)))))
+         (cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdL _)))))
          (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·ᶠ-lid 1ᶠ))))
 
  -- this will give us a map R[1/fg] → R[1/f][1/g] by the universal property of localisation
@@ -341,7 +341,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
     path : [ g ^ n · r , 1r , PT.∣ 0 , refl ∣₁ ] ≡ 0ᶠ
     path = [ g ^ n · r , 1r , PT.∣ 0 , refl ∣₁ ]
 
-         ≡⟨ cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid _)))) ⟩
+         ≡⟨ cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR _)))) ⟩
 
            [ g ^ n , 1r , PT.∣ 0 , refl ∣₁ ] ·ᶠ r/1
 
@@ -385,8 +385,8 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
      baseCase m q' = PT.∣ m , path ∣₁
       where
       path : f ^ m · g ^ n · r ≡ 0r
-      path = (λ i → ·Rid (·Assoc (f ^ m) (g ^ n) r (~ i)) (~ i))
-           ∙∙ q' ∙∙ (λ i → ·Rid (0RightAnnihilates (f ^ m) i) i)
+      path = (λ i → ·IdR (·Assoc (f ^ m) (g ^ n) r (~ i)) (~ i))
+           ∙∙ q' ∙∙ (λ i → ·IdR (0RightAnnihilates (f ^ m) i) i)
 
     Σhelper2 : Σ[ m ∈ ℕ ] f ^ m · g ^ n · r ≡ 0r
              → Σ[ u ∈ S[fg] ] fst u · r ≡ 0r
@@ -433,7 +433,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
   open Exponentiation R[1/f]AsCommRing renaming (_^_ to _^ᶠ_)
                                               hiding (·-of-^-is-^-of-+ ; ^-ldist-·)
   open CommRingStr (snd R[1/f][1/g]AsCommRing) renaming (_·_ to _·R[1/f][1/g]_)
-                   hiding (1r ; ·Lid ; ·Rid ; ·Assoc)
+                   hiding (1r ; ·IdL ; ·IdR ; ·Assoc)
   open Units R[1/f][1/g]AsCommRing
   g/1 : R[1/_] R' f
   g/1 = [ g , 1r , powersFormMultClosedSubset R' f .containsOne ]
@@ -707,12 +707,12 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
     ℕcase : (r : R) (n : ℕ)
           → φ [ r , (f · g) ^ n , PT.∣ n , refl ∣₁ ] ≡ χ [ r , (f · g) ^ n , PT.∣ n , refl ∣₁ ]
     ℕcase r n = cong [_] (ΣPathP --look into the components of the double-fractions
-              ( cong [_] (ΣPathP (eq1 , Σ≡Prop (λ x → S'[f] x .snd) (sym (·Lid _))))
+              ( cong [_] (ΣPathP (eq1 , Σ≡Prop (λ x → S'[f] x .snd) (sym (·IdL _))))
               , Σ≡Prop (λ x → S'[f][g] x .snd) --ignore proof that denominator is power of g/1
-              ( cong [_] (ΣPathP (sym (·Lid _) , Σ≡Prop (λ x → S'[f] x .snd) (sym (·Lid _)))))))
+              ( cong [_] (ΣPathP (sym (·IdL _) , Σ≡Prop (λ x → S'[f] x .snd) (sym (·IdL _)))))))
      where
      S'[f] = ([_ⁿ|n≥0] R' f)
      S'[f][g] = ([_ⁿ|n≥0] R[1/f]AsCommRing [ g , 1r , powersFormMultClosedSubset R' f .containsOne ])
 
      eq1 : transp (λ i → fst R') i0 r ≡ r · transp (λ i → fst R') i0 1r
-     eq1 = transportRefl r ∙∙ sym (·Rid r) ∙∙ cong (r ·_) (sym (transportRefl 1r))
+     eq1 = transportRefl r ∙∙ sym (·IdR r) ∙∙ cong (r ·_) (sym (transportRefl 1r))

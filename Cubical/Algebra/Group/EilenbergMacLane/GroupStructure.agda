@@ -33,7 +33,7 @@ private
 module _ {G : AbGroup ℓ} where
   infixr 34 _+ₖ_
   infixr 34 _-ₖ_
-  open AbGroupStr (snd G) renaming (_+_ to _+G_ ; -_ to -G_ ; assoc to assocG)
+  open AbGroupStr (snd G) renaming (_+_ to _+G_ ; -_ to -G_ ; +Assoc to +AssocG)
 
   private
     help : (n : ℕ) → n + (4 + n) ≡ (2 + n) + (2 + n)
@@ -50,7 +50,7 @@ module _ {G : AbGroup ℓ} where
     helper g h =
       comm→PathP
         ((sym (emloop-comp _ h g)
-          ∙∙ cong emloop (comm h g)
+          ∙∙ cong emloop (+Comm h g)
           ∙∙ emloop-comp _ g h))
 
   _+ₖ_ : {n : ℕ} → EM G n → EM G n → EM G n
@@ -93,7 +93,7 @@ module _ {G : AbGroup ℓ} where
             ◁ (flipSquare
                 (flipSquare (emcomp (-G g) (-G h))
                ▷ emloop-sym _ h)
-            ▷ (cong emloop (comm (-G g) (-G h)
+            ▷ (cong emloop (+Comm (-G g) (-G h)
                           ∙ sym (GroupTheory.invDistr (AbGroup→Group G) g h))
              ∙ emloop-sym _ (g +G h)))
   -ₖ_ {n = suc (suc n)} =
@@ -118,14 +118,14 @@ module _ {G : AbGroup ℓ} where
   syntax -'ₖ-syntax n x y = x -[ n ]ₖ y
 
   lUnitₖ : (n : ℕ) (x : EM G n) → 0ₖ n +[ n ]ₖ x ≡ x
-  lUnitₖ zero x = lid x
+  lUnitₖ zero x = +IdL x
   lUnitₖ (suc zero) _ = refl
   lUnitₖ (suc (suc n)) =
     trElim (λ _ → isOfHLevelTruncPath {n = 4 + n})
       λ _ → refl
 
   rUnitₖ : (n : ℕ) (x : EM G n) → x +[ n ]ₖ 0ₖ n ≡ x
-  rUnitₖ zero x = rid x
+  rUnitₖ zero x = +IdR x
   rUnitₖ (suc zero) =
     elimSet _ (λ _ → emsquash _ _)
             refl
@@ -137,7 +137,7 @@ module _ {G : AbGroup ℓ} where
       ∣_∣ ∣_∣ refl)
 
   commₖ : (n : ℕ) (x y : EM G n) → x +[ n ]ₖ y ≡ y +[ n ]ₖ x
-  commₖ zero = comm
+  commₖ zero = +Comm
   commₖ (suc zero) =
     wedgeConEM.fun G G 0 0 (λ _ _ → emsquash _ _)
       (λ x → sym (rUnitₖ 1 x))
@@ -235,7 +235,7 @@ module _ {G : AbGroup ℓ} where
     main x = J (λ x p → decoder x p ≡ sym p) refl
 
   rCancelₖ : (n : ℕ) (x : EM G n) → x +[ n ]ₖ (-[ n ]ₖ x) ≡ 0ₖ n
-  rCancelₖ zero x = invr x
+  rCancelₖ zero x = +InvR x
   rCancelₖ (suc zero) =
     elimSet _ (λ _ → emsquash _ _)
       refl
@@ -266,7 +266,7 @@ module _ {G : AbGroup ℓ} where
 
   assocₖ : (n : ℕ) (x y z : EM G n)
         → (x +[ n ]ₖ (y +[ n ]ₖ z) ≡ (x +[ n ]ₖ y) +[ n ]ₖ z)
-  assocₖ zero = assocG
+  assocₖ zero = +AssocG
   assocₖ (suc zero) =
     elimSet _ (λ _ → isSetΠ2 λ _ _ → emsquash _ _)
       (λ _ _ → refl)

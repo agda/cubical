@@ -53,7 +53,7 @@ module _ (Ring@(R , str) : CommRing ℓ) where
 
   sumDist+ : ∀ {n : ℕ} (α β V : FinVec R n)
            → linearCombination (λ i → α i + β i) V ≡ linearCombination α V + linearCombination β V
-  sumDist+ α β V = ∑Ext (λ i → ·Ldist+ (α i) (β i) (V i)) ∙ ∑Split (λ i → α i · V i) (λ i → β i · V i)
+  sumDist+ α β V = ∑Ext (λ i → ·DistL+ (α i) (β i) (V i)) ∙ ∑Split (λ i → α i · V i) (λ i → β i · V i)
 
   dist- : ∀ {n : ℕ} (α V : FinVec R n)
         → linearCombination (λ i → - α i) V ≡ - linearCombination α V
@@ -159,10 +159,10 @@ module _
   genδ-FinVec-LinearCombi (ℕsuc n) zero a v = cong (λ X → a · (v zero) + X) (cong (λ X → foldrFin _+_ 0r X)
                                                     (funExt (λ x → 0LeftAnnihilates Ar (v (suc x)))))
                                                ∙ cong (λ X → (a · v zero) + X) (Sum.∑0r Ar n)
-                                               ∙ +Rid _
+                                               ∙ +IdR _
   genδ-FinVec-LinearCombi (ℕsuc n) (suc k) a v = cong (λ X → X + foldrFin _+_ 0r (λ x → genδ-FinVec n (toℕ k) a 0r x · v (suc x)))
                                                        (0LeftAnnihilates Ar _)
-                                                  ∙ +Lid _
+                                                  ∙ +IdL _
                                                   ∙ genδ-FinVec-LinearCombi n k a (λ z → v (suc z))
 
 
@@ -174,10 +174,10 @@ module _
                                                        (funExt (λ x → 0LeftAnnihilates Ar (v (suc x)))))
 
                                                       ∙ cong (λ X → (a · v zero) + X) (Sum.∑0r Ar n)
-                                                      ∙ +Rid _
+                                                      ∙ +IdR _
   genδ-FinVec-ℕLinearCombi (ℕsuc n) (ℕsuc k) infkn a v = cong (λ X → X + foldrFin _+_ 0r (λ x → genδ-FinVec n k a 0r x · v (suc x)))
                                                               ((0LeftAnnihilates Ar _))
-                                                          ∙ +Lid _
+                                                          ∙ +IdL _
                                                           ∙ genδ-FinVec-ℕLinearCombi n k (pred-≤-pred infkn) a (λ z → v (suc z))
 
 
@@ -244,7 +244,7 @@ module _ (R' : CommRing ℓ) where
  FGIdealAddLemmaLIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                       → ⟨ U ++Fin V ⟩ ⊆ (⟨ U ⟩ +i ⟨ V ⟩)
  FGIdealAddLemmaLIncl {n = ℕzero} U V x x∈⟨V⟩ =
-                                  ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+Lid x) ∣₁
+                                  ∣ (0r , x) , ⟨ U ⟩ .snd .contains0 , x∈⟨V⟩ , sym (+IdL x) ∣₁
  FGIdealAddLemmaLIncl {n = ℕsuc n} U V x = PT.rec isPropPropTrunc helperΣ
    where
    helperΣ : Σ[ α ∈ FinVec R _ ] (x ≡ ∑ λ i → α i · (U ++Fin V) i) → x ∈ (⟨ U ⟩ +i ⟨ V ⟩)
@@ -362,11 +362,11 @@ module GeneratingPowers (R' : CommRing ℓ) (n : ℕ) where
  lemma ℕzero α U = ∣ α ⁿ , path ∣₁
   where
   path : (α zero · U zero + 0r) ^ (n +ℕ 0) ≡ α zero ^ n · U zero ^ n + 0r
-  path = (α zero · U zero + 0r) ^ (n +ℕ 0) ≡⟨ cong (_^ (n +ℕ 0)) (+Rid _) ⟩
+  path = (α zero · U zero + 0r) ^ (n +ℕ 0) ≡⟨ cong (_^ (n +ℕ 0)) (+IdR _) ⟩
          (α zero · U zero) ^ (n +ℕ 0)      ≡⟨ cong ((α zero · U zero) ^_) (+-zero n) ⟩
-         (α zero · U zero) ^ n             ≡⟨ ^-ldist-· _ _ n ⟩
-         α zero ^ n · U zero ^ n           ≡⟨ sym (+Rid _) ⟩
-         α zero ^ n · U zero ^ n + 0r ∎
+         (α zero · U zero) ^ n              ≡⟨ ^-ldist-· _ _ n ⟩
+          α zero ^ n · U zero ^ n           ≡⟨ sym (+IdR _) ⟩
+          α zero ^ n · U zero ^ n + 0r ∎
 
  lemma (ℕsuc m) α U = subst-∈ ⟨ U ⁿ ⟩ (sym (BinomialThm (n +ℕ (ℕsuc m) ·ℕ n) x y)) ∑Binomial∈⟨Uⁿ⟩
   where

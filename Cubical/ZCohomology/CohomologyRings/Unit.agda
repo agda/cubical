@@ -48,19 +48,13 @@ module Equiv-Unit-Properties where
     ; -_        to -ℤ_
     ; _·_       to _·ℤ_
     ; +Assoc    to +ℤAssoc
-    ; +Identity to +ℤIdentity
-    ; +Lid      to +ℤLid
-    ; +Rid      to +ℤRid
-    ; +Inv      to +ℤInv
-    ; +Linv     to +ℤLinv
-    ; +Rinv     to +ℤRinv
+    ; +IdL      to +ℤIdL
+    ; +IdR      to +ℤIdR
     ; +Comm     to +ℤComm
     ; ·Assoc    to ·ℤAssoc
-    ; ·Identity to ·ℤIdentity
-    ; ·Lid      to ·ℤLid
-    ; ·Rid      to ·ℤRid
-    ; ·Rdist+   to ·ℤRdist+
-    ; ·Ldist+   to ·ℤLdist+
+    ; ·IdL      to ·ℤIdL
+    ; ·IdR      to ·ℤIdR
+    ; ·DistR+   to ·ℤDistR+
     ; is-set    to isSetℤ     )
 
   open RingStr (snd (H*R Unit)) using ()
@@ -71,19 +65,13 @@ module Equiv-Unit-Properties where
     ; -_        to -H*_
     ; _·_       to _cup_
     ; +Assoc    to +H*Assoc
-    ; +Identity to +H*Identity
-    ; +Lid      to +H*Lid
-    ; +Rid      to +H*Rid
-    ; +Inv      to +H*Inv
-    ; +Linv     to +H*Linv
-    ; +Rinv     to +H*Rinv
+    ; +IdL      to +H*IdL
+    ; +IdR      to +H*IdR
     ; +Comm     to +H*Comm
     ; ·Assoc    to ·H*Assoc
-    ; ·Identity to ·H*Identity
-    ; ·Lid      to ·H*Lid
-    ; ·Rid      to ·H*Rid
-    ; ·Rdist+   to ·H*Rdist+
-    ; ·Ldist+   to ·H*Ldist+
+    ; ·IdL      to ·H*IdL
+    ; ·IdR      to ·H*IdR
+    ; ·DistR+   to ·H*DistR+
     ; is-set    to isSetH*     )
 
   open CommRingStr (snd ℤ[X]) using ()
@@ -94,19 +82,13 @@ module Equiv-Unit-Properties where
     ; -_        to -Pℤ_
     ; _·_       to _·Pℤ_
     ; +Assoc    to +PℤAssoc
-    ; +Identity to +PℤIdentity
-    ; +Lid      to +PℤLid
-    ; +Rid      to +PℤRid
-    ; +Inv      to +PℤInv
-    ; +Linv     to +PℤLinv
-    ; +Rinv     to +PℤRinv
+    ; +IdL      to +PℤIdL
+    ; +IdR      to +PℤIdR
     ; +Comm     to +PℤComm
     ; ·Assoc    to ·PℤAssoc
-    ; ·Identity to ·PℤIdentity
-    ; ·Lid      to ·PℤLid
-    ; ·Rid      to ·PℤRid
-    ; ·Rdist+   to ·PℤRdist+
-    ; ·Ldist+   to ·PℤLdist+
+    ; ·IdL      to ·PℤIdL
+    ; ·IdR      to ·PℤIdR
+    ; ·DistR+   to ·PℤDistR+
     ; is-set    to isSetPℤ     )
 
   open CommRingStr (snd ℤ[X]/X) using ()
@@ -117,19 +99,13 @@ module Equiv-Unit-Properties where
     ; -_        to -PℤI_
     ; _·_       to _·PℤI_
     ; +Assoc    to +PℤIAssoc
-    ; +Identity to +PℤIIdentity
-    ; +Lid      to +PℤILid
-    ; +Rid      to +PℤIRid
-    ; +Inv      to +PℤIInv
-    ; +Linv     to +PℤILinv
-    ; +Rinv     to +PℤIRinv
+    ; +IdL      to +PℤIIdL
+    ; +IdR      to +PℤIIdR
     ; +Comm     to +PℤIComm
     ; ·Assoc    to ·PℤIAssoc
-    ; ·Identity to ·PℤIIdentity
-    ; ·Lid      to ·PℤILid
-    ; ·Rid      to ·PℤIRid
-    ; ·Rdist+   to ·PℤIRdist+
-    ; ·Ldist+   to ·PℤILdist+
+    ; ·IdL      to ·PℤIIdL
+    ; ·IdR      to ·PℤIIdR
+    ; ·DistR+   to ·PℤIDistR+
     ; is-set    to isSetPℤI     )
 
 -----------------------------------------------------------------------------
@@ -141,7 +117,7 @@ module Equiv-Unit-Properties where
                   base-trad
                   _+H*_
                   +H*Assoc
-                  +H*Rid
+                  +H*IdR
                   +H*Comm
                   base-neutral-eq
                   base-add-eq
@@ -156,7 +132,7 @@ module Equiv-Unit-Properties where
 
                base-add-eq : _
                base-add-eq (zero ∷ []) a b = base-add _ _ _
-               base-add-eq (suc n ∷ []) a b = +H*Rid _
+               base-add-eq (suc n ∷ []) a b = +H*IdR _
 
   ℤ[x]→H*-Unit-pres1Pℤ : ℤ[x]→H*-Unit (1Pℤ) ≡ 1H*
   ℤ[x]→H*-Unit-pres1Pℤ = refl
@@ -211,7 +187,7 @@ module Equiv-Unit-Properties where
     base-case (n ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R Unit) _))
                            (λ v' b → pres·-base-case-vec (n ∷ []) a v' b)
-                           λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
+                           λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
     -- raising to the product
@@ -239,7 +215,7 @@ module Equiv-Unit-Properties where
                   base-trad
                   _+Pℤ_
                   +PℤAssoc
-                  +PℤRid
+                  +PℤIdR
                   +PℤComm
                   base-neutral-eq
                   base-add-eq
@@ -255,7 +231,8 @@ module Equiv-Unit-Properties where
                base-add-eq : _
                base-add-eq zero a b = base-add _ _ _
                                       ∙ cong (base (0 ∷ [])) (sym (IsGroupHom.pres· (snd H⁰-Unit≅ℤ) a b))
-               base-add-eq (suc n) a b = +PℤRid _
+               base-add-eq (suc n) a b = +PℤIdR _
+
 
   H*-Unit→ℤ[x]-pres+ : (x y : H* Unit) → H*-Unit→ℤ[x] ( x +H* y) ≡ H*-Unit→ℤ[x] x +Pℤ H*-Unit→ℤ[x] y
   H*-Unit→ℤ[x]-pres+ x y = refl

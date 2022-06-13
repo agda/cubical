@@ -3,7 +3,17 @@ module Cubical.Algebra.CommRingSolver.RawAlgebra where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat using (ℕ)
-open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; _·_ to _·ℤ_ ; -_ to -ℤ_ ; _-_ to _-ℤ_ ; +Assoc to +ℤAssoc ; +Comm to +ℤComm ; -DistL· to -ℤDistL·ℤ)
+open import Cubical.Data.Int
+  renaming
+  ( _+_ to _+ℤ_
+  ; _·_ to _·ℤ_
+  ; -_ to -ℤ_
+  ; _-_ to _-ℤ_
+  ; +Assoc to +ℤAssoc
+  ; +Comm to +ℤComm
+  ; -DistL· to -ℤDistL·ℤ
+  ; ·DistR+ to ·ℤDistR+
+  ; ·DistL+ to ·ℤDistL+)
 
 open import Cubical.Algebra.CommRingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Algebra.CommRingSolver.IntAsRawRing
@@ -58,13 +68,13 @@ module _ (R : CommRing ℓ) where
 
   lemmaSuc : (k : ℤ)
           → scalar (sucℤ k) ≡ 1r + scalar k
-  lemmaSuc (pos ℕ.zero) = sym (+Rid _)
+  lemmaSuc (pos ℕ.zero) = sym (+IdR _)
   lemmaSuc (pos (ℕ.suc ℕ.zero)) = refl
   lemmaSuc (pos (ℕ.suc (ℕ.suc n))) = refl
-  lemmaSuc (negsuc ℕ.zero) = sym (+Rinv _)
+  lemmaSuc (negsuc ℕ.zero) = sym (+InvR _)
   lemmaSuc (negsuc (ℕ.suc n)) =
-    scalar (negsuc n)                        ≡⟨ sym (+Lid (scalar (negsuc n))) ⟩
-    0r + scalar (negsuc n)                  ≡[ i ]⟨ +Rinv 1r (~ i) + scalar (negsuc n) ⟩
+    scalar (negsuc n)                        ≡⟨ sym (+IdL (scalar (negsuc n))) ⟩
+    0r + scalar (negsuc n)                  ≡[ i ]⟨ +InvR 1r (~ i) + scalar (negsuc n) ⟩
     (1r - 1r) + scalar (negsuc n)           ≡⟨ sym (+Assoc _ _ _) ⟩
     1r + (- 1r + - scalar (pos (ℕ.suc n))) ≡[ i ]⟨ 1r + -Dist 1r (scalar (pos (ℕ.suc n))) i ⟩
     1r + -(1r + scalar (pos (ℕ.suc n)))    ≡⟨ refl ⟩
@@ -77,15 +87,15 @@ module _ (R : CommRing ℓ) where
     - 1r + scalar k                      ≡[ i ]⟨ - 1r + scalar (sucPred k (~ i)) ⟩
     - 1r + scalar (sucℤ (predℤ k))   ≡[ i ]⟨ - 1r + lemmaSuc (predℤ k) i ⟩
     - 1r + (1r + scalar (predℤ k))     ≡⟨ +Assoc _ _ _ ⟩
-    (- 1r + 1r) + scalar (predℤ k)     ≡[ i ]⟨ +Linv 1r i + scalar (predℤ k) ⟩
-    0r + scalar (predℤ k)              ≡⟨ +Lid _ ⟩
+    (- 1r + 1r) + scalar (predℤ k)     ≡[ i ]⟨ +InvL 1r i + scalar (predℤ k) ⟩
+    0r + scalar (predℤ k)              ≡⟨ +IdL _ ⟩
     scalar (predℤ k)  ∎)
 
   +HomScalar : (k l : ℤ)
                → scalar (k +ℤ l) ≡ (scalar k) + (scalar l)
   +HomScalar (pos ℕ.zero) l =
              scalar (0 +ℤ l)       ≡[ i ]⟨ scalar (sym (pos0+ l) i) ⟩
-             scalar l              ≡⟨ sym (+Lid _) ⟩
+             scalar l              ≡⟨ sym (+IdL _) ⟩
              0r + scalar l         ≡⟨ refl  ⟩
              scalar 0 + scalar l   ∎
 
@@ -129,7 +139,7 @@ module _ (R : CommRing ℓ) where
 
   lemma1 : (n : ℕ)
           → 1r + scalar (pos n) ≡ scalar (pos (ℕ.suc n))
-  lemma1 ℕ.zero = +Rid _
+  lemma1 ℕ.zero = +IdR _
   lemma1 (ℕ.suc k) = refl
 
   lemma-1 : (n : ℕ)
@@ -147,14 +157,14 @@ module _ (R : CommRing ℓ) where
   ·HomScalar (pos (ℕ.suc n)) l =
     scalar (l +ℤ (pos n ·ℤ l))                  ≡⟨ +HomScalar l (pos n ·ℤ l) ⟩
     scalar l + scalar (pos n ·ℤ l)              ≡[ i ]⟨ scalar l + ·HomScalar (pos n) l i ⟩
-    scalar l + (scalar (pos n) · scalar l)      ≡[ i ]⟨ ·Lid (scalar l) (~ i) + (scalar (pos n) · scalar l) ⟩
-    1r · scalar l + (scalar (pos n) · scalar l) ≡⟨ sym (·Ldist+ 1r _ _) ⟩
+    scalar l + (scalar (pos n) · scalar l)      ≡[ i ]⟨ ·IdL (scalar l) (~ i) + (scalar (pos n) · scalar l) ⟩
+    1r · scalar l + (scalar (pos n) · scalar l) ≡⟨ sym (·DistL+ 1r _ _) ⟩
     (1r + scalar (pos n)) · scalar l            ≡[ i ]⟨ lemma1 n i · scalar l ⟩
     scalar (pos (ℕ.suc n)) · scalar l ∎
 
   ·HomScalar (negsuc ℕ.zero) l =
     scalar (-ℤ l)                     ≡⟨ -DistScalar l ⟩
-    - scalar l                        ≡[ i ]⟨ - (·Lid (scalar l) (~ i)) ⟩
+    - scalar l                        ≡[ i ]⟨ - (·IdL (scalar l) (~ i)) ⟩
     - (1r · scalar l)                 ≡⟨ sym (-DistL· _ _) ⟩
     - 1r · scalar l                   ≡⟨ refl ⟩
     scalar (negsuc ℕ.zero) · scalar l ∎
@@ -163,11 +173,11 @@ module _ (R : CommRing ℓ) where
     scalar ((-ℤ l) +ℤ (negsuc n ·ℤ l))             ≡⟨ +HomScalar (-ℤ l) (negsuc n ·ℤ l) ⟩
     scalar (-ℤ l) + scalar (negsuc n ·ℤ l)         ≡[ i ]⟨ -DistScalar l i + scalar (negsuc n ·ℤ l) ⟩
     - scalar l + scalar (negsuc n ·ℤ l)            ≡[ i ]⟨ - scalar l + ·HomScalar (negsuc n) l i ⟩
-    - scalar l + scalar (negsuc n) · scalar l      ≡[ i ]⟨ (- ·Lid (scalar l) (~ i))
+    - scalar l + scalar (negsuc n) · scalar l      ≡[ i ]⟨ (- ·IdL (scalar l) (~ i))
                                                            + scalar (negsuc n) · scalar l ⟩
     - (1r · scalar l) + scalar (negsuc n) · scalar l ≡[ i ]⟨ -DistL· 1r (scalar l) (~ i)
                                                             + scalar (negsuc n) · scalar l ⟩
-    - 1r · scalar l + scalar (negsuc n) · scalar l ≡⟨ sym (·Ldist+ _ _ _) ⟩
+    - 1r · scalar l + scalar (negsuc n) · scalar l ≡⟨ sym (·DistL+ _ _ _) ⟩
     (- 1r + scalar (negsuc n)) · scalar l          ≡[ i ]⟨ lemma-1 n i · scalar l ⟩
     scalar (negsuc (ℕ.suc n)) · scalar l ∎
 

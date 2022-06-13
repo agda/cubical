@@ -97,9 +97,11 @@ fst (πGr n A) = π (suc n) A
 GroupStr._·_ (snd (πGr n A)) = ·π n
 inv (snd (πGr n A)) = -π n
 is-set (isSemigroup (isMonoid (isGroup (snd (πGr n A))))) = squash₂
-assoc (isSemigroup (isMonoid (isGroup (snd (πGr n A))))) = π-assoc n
-identity (isMonoid (isGroup (snd (πGr n A)))) x = (π-rUnit n x) , (π-lUnit n x)
-inverse (isGroup (snd (πGr n A))) x = (π-rCancel n x) , (π-lCancel n x)
+·Assoc (isSemigroup (isMonoid (isGroup (snd (πGr n A))))) = π-assoc n
+·IdR (isMonoid (isGroup (snd (πGr n A)))) x = π-rUnit n x
+·IdL (isMonoid (isGroup (snd (πGr n A)))) x = π-lUnit n x
+·InvR (isGroup (snd (πGr n A))) x = π-rCancel n x
+·InvL (isGroup (snd (πGr n A))) x = π-lCancel n x
 
 -- Group operations on π'.
 -- We define the corresponding structure on the untruncated
@@ -632,10 +634,10 @@ fst (π'Gr n A) = π' (suc n) A
 1g (snd (π'Gr n A)) = 1π' (suc n)
 GroupStr._·_ (snd (π'Gr n A)) = ·π' n
 inv (snd (π'Gr n A)) = -π' n
-is-set (isSemigroup (isMonoid (isGroup (snd (π'Gr n A))))) = squash₂
-assoc (isSemigroup (isMonoid (isGroup (snd (π'Gr n A))))) = π'-assoc n
-identity (isMonoid (isGroup (snd (π'Gr n A)))) x = (π'-rUnit n x) , (π'-lUnit n x)
-inverse (isGroup (snd (π'Gr n A))) x = (π'-rCancel n x) , (π'-lCancel n x)
+isGroup (snd (π'Gr n A)) = makeIsGroup squash₂
+                                       (π'-assoc n)
+                                       (π'-rUnit n) (π'-lUnit n)
+                                       (π'-rCancel n) (π'-lCancel n)
 
 -- and finally, the Iso
 π'Gr≅πGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → GroupIso (π'Gr n A) (πGr n A)

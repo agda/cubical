@@ -115,19 +115,9 @@ module CohomologyRing-Equiv
     ; -_        to -H*X_
     ; _·_       to _cupX_
     ; +Assoc    to +H*XAssoc
-    ; +Identity to +H*XIdentity
-    ; +Lid      to +H*XLid
-    ; +Rid      to +H*XRid
-    ; +Inv      to +H*XInv
-    ; +Linv     to +H*XLinv
-    ; +Rinv     to +H*XRinv
+    ; +IdR      to +H*XIdR
     ; +Comm     to +H*XComm
     ; ·Assoc    to ·H*XAssoc
-    ; ·Identity to ·H*XIdentity
-    ; ·Lid      to ·H*XLid
-    ; ·Rid      to ·H*XRid
-    ; ·Rdist+   to ·H*XRdist+
-    ; ·Ldist+   to ·H*XLdist+
     ; is-set    to isSetH*X     )
 
   open RingStr (snd (H*R Y)) using ()
@@ -138,19 +128,9 @@ module CohomologyRing-Equiv
     ; -_        to -H*Y_
     ; _·_       to _cupY_
     ; +Assoc    to +H*YAssoc
-    ; +Identity to +H*YIdentity
-    ; +Lid      to +H*YLid
-    ; +Rid      to +H*YRid
-    ; +Inv      to +H*YInv
-    ; +Linv     to +H*YLinv
-    ; +Rinv     to +H*YRinv
+    ; +IdR      to +H*YIdR
     ; +Comm     to +H*YComm
     ; ·Assoc    to ·H*YAssoc
-    ; ·Identity to ·H*YIdentity
-    ; ·Lid      to ·H*YLid
-    ; ·Rid      to ·H*YRid
-    ; ·Rdist+   to ·H*YRdist+
-    ; ·Ldist+   to ·H*YLdist+
     ; is-set    to isSetH*Y     )
 
 
@@ -173,7 +153,7 @@ module CohomologyRing-Equiv
                (λ n a → base n (fun (fst coHomGr-Iso) a))
                _+H*Y_
                +H*YAssoc
-               +H*YRid
+               +H*YIdR
                +H*YComm
                (λ n → cong (base n) (pres1 (snd coHomGr-Iso)) ∙ base-neutral n)
                λ n a b → base-add _ _ _ ∙ cong (base n) (sym (pres· (snd coHomGr-Iso) a b))
@@ -184,7 +164,7 @@ module CohomologyRing-Equiv
                (λ m a → base m (inv (fst coHomGr-Iso) a))
                _+H*X_
                +H*XAssoc
-               +H*XRid
+               +H*XIdR
                +H*XComm
                (λ m → cong (base m) (pres1 (snd (invGroupIso coHomGr-Iso))) ∙ base-neutral m)
                λ m a b → base-add _ _ _ ∙ cong (base m) (sym (pres· (snd (invGroupIso coHomGr-Iso)) a b))

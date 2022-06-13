@@ -43,7 +43,7 @@ module _ (R : CommRing ℓ) where
 
   someCalculation : {x : fst R} → _ ≡ _
   someCalculation {x = x} =
-    0r                   ≡⟨ sym (+Rid 0r) ⟩
+    0r                   ≡⟨ sym (+IdR 0r) ⟩
     0r + 0r              ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + 0r ⟩
     0r · x + 0r          ∎
 
@@ -95,7 +95,7 @@ module _ (R : CommRing ℓ) where
   combineCasesEval P Q x xs with isZero νR P ≟ true
   ... | yes p =
        eval (P ·X+ Q) (x ∷ xs)            ≡⟨ computeEvalSummandIsZero P Q xs x p ⟩
-       eval Q xs                          ≡⟨ sym (+Lid _) ⟩
+       eval Q xs                          ≡⟨ sym (+IdL _) ⟩
        0r + eval Q xs                     ≡[ i ]⟨ 0LeftAnnihilates x (~ i) + eval Q xs ⟩
        0r · x + eval Q xs                 ≡[ i ]⟨ (evalIsZero P (x ∷ xs) p (~ i)) · x + eval Q xs ⟩
        (eval P (x ∷ xs)) · x + eval Q xs ∎

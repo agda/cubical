@@ -142,17 +142,19 @@ module Equiv-Poly1-Poly:
   Poly1→Poly:-pres1 : Poly1→Poly: (1r PAstr) ≡ 1r PA:str
   Poly1→Poly:-pres1 = refl
 
-  trad-base-prod : (v v' : Vec ℕ 1) → (a a' : A) →
-                   trad-base (v +n-vec v') (_·_ Astr a a') ≡ _·_ PA:str (trad-base v a) (trad-base v' a')
-  trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l  (a ∷ []) (a' ∷ []))
-                                            ∙ cong (λ X → prod-Xn (k +n l) (X ∷ [])) (+Rid Astr _))
+  trad-base-prod : (v v' : Vec ℕ 1) → (a a' : A) → trad-base (v +n-vec v') (a · a') ≡
+                                                      (trad-base v a poly:* trad-base v' a')
+  trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l  [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+IdR (a · a')))
 
-  Poly1→Poly:-pres· : (P Q : Poly Acr 1) → Poly1→Poly: (_·_ PAstr P Q) ≡ _·_ PA:str (Poly1→Poly: P) (Poly1→Poly: Q)
-  Poly1→Poly:-pres· = DS-Ind-Prop.f _ _ _ _
-                        (λ _ → isPropΠ (λ _ → is-set PA:str _ _))
-                        (λ _ → refl)
-                        (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set PA:str _ _)
-                                  (sym (0RightAnnihilates (CommRing→Ring PA:) _))
+  Poly1→Poly:-pres· : (P Q : Poly A' 1) → Poly1→Poly: (P poly* Q) ≡ (Poly1→Poly: P) poly:* (Poly1→Poly: Q)
+  Poly1→Poly:-pres· = Poly-Ind-Prop.f A' 1
+                        (λ P → (Q : Poly A' 1) → Poly1→Poly: (P poly* Q) ≡ (Poly1→Poly: P poly:* Poly1→Poly: Q))
+                        (λ P p q i Q j → isSetPoly: (Poly1→Poly: (P poly* Q)) (Poly1→Poly: P poly:* Poly1→Poly: Q) (p Q) (q Q) i j)
+                        (λ Q → refl)
+                        (λ v a → Poly-Ind-Prop.f A' 1
+                                  (λ P → Poly1→Poly: (base v a poly* P) ≡ (Poly1→Poly: (base v a) poly:* Poly1→Poly: P))
+                                  (λ _ → isSetPoly: _ _)
+                                  (sym (poly:*AnnihilL (trad-base v a)))
                                   (λ v' a' → trad-base-prod v v' a a')
                                   λ {U V} ind-U ind-V → (cong₂ (_+_ PA:str) ind-U ind-V)
                                                           ∙ sym (·Rdist+ PA:str _ _ _))

@@ -37,7 +37,7 @@ module BinomialThm (R' : CommRing ℓ) where
  n<k→nChooseK≡0 zero zero (m , p) = ⊥.rec (ℕsnotz (sym (+ℕ-comm m 1) ∙ p))
  n<k→nChooseK≡0 zero (suc k) (m , p) = refl
  n<k→nChooseK≡0 (suc n) zero (m , p) = ⊥.rec (ℕsnotz {n = m +ℕ (suc n)} (sym (+-suc _ _) ∙ p))
- n<k→nChooseK≡0 (suc n) (suc k) (m , p) = cong₂ (_+_) p1 p2 ∙ +Lid 0r
+ n<k→nChooseK≡0 (suc n) (suc k) (m , p) = cong₂ (_+_) p1 p2 ∙ +IdL 0r
   where
   p1 : n choose suc k ≡ 0r
   p1 = n<k→nChooseK≡0 n (suc k) (suc m , sym (+-suc _ _) ∙ p)
@@ -58,7 +58,7 @@ module BinomialThm (R' : CommRing ℓ) where
      (x + y) · (x + y) ^ n
   ≡⟨ cong ((x + y) ·_) (BinomialThm n x y) ⟩
      (x + y) · ∑ (BinomialVec n x y)
-  ≡⟨ ·Ldist+ _ _ _ ⟩
+  ≡⟨ ·DistL+ _ _ _ ⟩
      x · ∑ (BinomialVec n x y) + y · ∑ (BinomialVec n x y)
   ≡⟨ cong₂ (_+_) (∑Mulrdist _ (BinomialVec n x y)) (∑Mulrdist _ (BinomialVec n x y)) ⟩
      ∑ (λ i → x · BinomialVec n x y i)
@@ -107,7 +107,7 @@ module BinomialThm (R' : CommRing ℓ) where
 
   xⁿ⁺¹Path : xⁿ⁺¹ ≡ BinomialVec (suc n) x y (fromℕ (suc n))
   xⁿ⁺¹Path = cong (λ m → m · (x · x ^ toℕ (fromℕ n)) · y ^ (n ∸ toℕ (fromℕ n)))
-                  (sym (+Lid _) ∙ cong (_+ (n choose toℕ (fromℕ n)))
+                  (sym (+IdL _) ∙ cong (_+ (n choose toℕ (fromℕ n)))
                   (sym (subst (λ m → (n choose suc m) ≡ 0r) (sym (toFromId n)) (nChooseN+1 n))))
 
   solve3 : ∀ sx sy xⁿ⁺¹ yⁿ⁺¹ → sx + xⁿ⁺¹ + (yⁿ⁺¹ + sy) ≡ yⁿ⁺¹ + (sx + sy) + xⁿ⁺¹

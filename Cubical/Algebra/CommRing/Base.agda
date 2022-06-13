@@ -2,12 +2,9 @@
 module Cubical.Algebra.CommRing.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
@@ -17,10 +14,9 @@ open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring.Base
+
+open import Cubical.Reflection.RecordEquiv
 
 open Iso
 
@@ -38,6 +34,8 @@ record IsCommRing {R : Type ℓ}
     ·Comm : (x y : R) → x · y ≡ y · x
 
   open IsRing isRing public
+
+unquoteDecl IsCommRingIsoΣ = declareRecordIsoΣ IsCommRingIsoΣ (quote IsCommRing)
 
 record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
@@ -63,33 +61,33 @@ CommRing ℓ = TypeWithStr ℓ CommRingStr
 
 makeIsCommRing : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                  (is-setR : isSet R)
-                 (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
-                 (+-rid : (x : R) → x + 0r ≡ x)
-                 (+-rinv : (x : R) → x + (- x) ≡ 0r)
-                 (+-comm : (x y : R) → x + y ≡ y + x)
-                 (·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
-                 (·-rid : (x : R) → x · 1r ≡ x)
-                 (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
-                 (·-comm : (x y : R) → x · y ≡ y · x)
+                 (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+                 (+IdR : (x : R) → x + 0r ≡ x)
+                 (+InvR : (x : R) → x + (- x) ≡ 0r)
+                 (+Comm : (x y : R) → x + y ≡ y + x)
+                 (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+                 (·IdR : (x : R) → x · 1r ≡ x)
+                 (·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+                 (·Comm : (x y : R) → x · y ≡ y · x)
                → IsCommRing 0r 1r _+_ _·_ -_
-makeIsCommRing {_+_ = _+_} is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
-  iscommring (makeIsRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid
-                         (λ x → ·-comm _ _ ∙ ·-rid x) ·-rdist-+
-                         (λ x y z → ·-comm _ _ ∙∙ ·-rdist-+ z x y ∙∙ λ i → (·-comm z x i) + (·-comm z y i))) ·-comm
+makeIsCommRing {_+_ = _+_} is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·DistR+ ·Comm =
+  iscommring (makeIsRing is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR
+                         (λ x → ·Comm _ _ ∙ ·IdR x) ·DistR+
+                         (λ x y z → ·Comm _ _ ∙∙ ·DistR+ z x y ∙∙ λ i → (·Comm z x i) + (·Comm z y i))) ·Comm
 
 makeCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
                (is-setR : isSet R)
-               (+-assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
-               (+-rid : (x : R) → x + 0r ≡ x)
-               (+-rinv : (x : R) → x + (- x) ≡ 0r)
-               (+-comm : (x y : R) → x + y ≡ y + x)
-               (·-assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
-               (·-rid : (x : R) → x · 1r ≡ x)
-               (·-rdist-+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
-               (·-comm : (x y : R) → x · y ≡ y · x)
+               (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+               (+IdR : (x : R) → x + 0r ≡ x)
+               (+InvR : (x : R) → x + (- x) ≡ 0r)
+               (+Comm : (x y : R) → x + y ≡ y + x)
+               (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+               (·IdR : (x : R) → x · 1r ≡ x)
+               (·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+               (·Comm : (x y : R) → x · y ≡ y · x)
              → CommRing ℓ
-makeCommRing 0r 1r _+_ _·_ -_ is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm =
-  _ , commringstr _ _ _ _ _ (makeIsCommRing is-setR +-assoc +-rid +-rinv +-comm ·-assoc ·-rid ·-rdist-+ ·-comm)
+makeCommRing 0r 1r _+_ _·_ -_ is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·DistR+ ·Comm =
+  _ , commringstr _ _ _ _ _ (makeIsCommRing is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·DistR+ ·Comm)
 
 CommRingStr→RingStr : {A : Type ℓ} → CommRingStr A → RingStr A
 CommRingStr→RingStr (commringstr _ _ _ _ _ H) = ringstr _ _ _ _ _ (IsCommRing.isRing H)
@@ -122,15 +120,12 @@ CommRingEquiv→CommRingHom (e , eIsHom) = e .fst , eIsHom
 
 isPropIsCommRing : {R : Type ℓ} (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R)
              → isProp (IsCommRing 0r 1r _+_ _·_ -_)
-isPropIsCommRing 0r 1r _+_ _·_ -_ (iscommring RR RC) (iscommring SR SC) =
-  λ i → iscommring (isPropIsRing _ _ _ _ _ RR SR i)
-                   (isPropComm RC SC i)
+isPropIsCommRing 0r 1r _+_ _·_ -_ =
+  isOfHLevelRetractFromIso 1 IsCommRingIsoΣ
+  (isPropΣ (isPropIsRing 0r 1r _+_ _·_ (-_))
+  (λ ring → isPropΠ2 (λ _ _ → is-set ring _ _)))
   where
-  isSetR : isSet _
-  isSetR = RR .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
-
-  isPropComm : isProp ((x y : _) → x · y ≡ y · x)
-  isPropComm = isPropΠ2 λ _ _ → isSetR _ _
+  open IsRing
 
 𝒮ᴰ-CommRing : DUARel (𝒮-Univ ℓ) CommRingStr ℓ
 𝒮ᴰ-CommRing =

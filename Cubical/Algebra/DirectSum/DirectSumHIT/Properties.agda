@@ -39,7 +39,7 @@ module AbGroupProperties
                        let open GroupTheory (P r , AbGroupStr→GroupStr (AGP r)) in
                        ((base r (- a) add base r (- b))   ≡⟨ (base-add r (- a) (- b)) ⟩
                        base r ((- a) + (- b))             ≡⟨ (cong (base r) (sym (invDistr b a))) ⟩
-                       base r (- (b + a))                 ≡⟨ cong (base r) (cong (-_) (comm b a)) ⟩
+                       base r (- (b + a))                 ≡⟨ cong (base r) (cong (-_) (+Comm b a)) ⟩
                        base r (- (a + b)) ∎))
 
 
@@ -50,7 +50,7 @@ module AbGroupProperties
          (addRid neutral)
          (λ r a → let open AbGroupStr (AGP r) in
                         ((base r a add base r (- a)) ≡⟨ base-add r a (- a) ⟩
-                        base r (a + - a)             ≡⟨ cong (base r) (invr a) ⟩
+                        base r (a + - a)             ≡⟨ cong (base r) (+InvR a) ⟩
                         base r 0g                    ≡⟨ base-neutral r ⟩
                         neutral ∎))
          (λ {x} {y} p q →
@@ -95,9 +95,9 @@ module DecBaseProperties
          (0g (Gstr k))
          base-trad
          (_+_ (Gstr k))
-         (assoc (Gstr k))
-         (rid (Gstr k))
-         (comm (Gstr k))
+         (+Assoc (Gstr k))
+         (+IdR (Gstr k))
+         (+Comm (Gstr k))
          base-neutral-eq
          base-add-eq
      where
@@ -114,7 +114,7 @@ module DecBaseProperties
      base-add-eq : _
      base-add-eq l a b with decIdx l k
      ... | yes p = subst+ a b p
-     ... | no ¬p = rid (Gstr k) _
+     ... | no ¬p = +IdR (Gstr k) _
 
   πₖ-id : {k : Idx} → (a : G k) → πₖ k (base k a) ≡ a
   πₖ-id {k} a with decIdx k k
