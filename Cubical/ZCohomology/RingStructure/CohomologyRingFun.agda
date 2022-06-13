@@ -19,7 +19,6 @@ open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.GradedCommutativity
-open import Cubical.ZCohomology.RingStructure.CohomologyRing
 
 private variable
   ℓ ℓ' : Level
