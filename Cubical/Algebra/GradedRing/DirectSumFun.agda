@@ -55,8 +55,8 @@ module _
 
   -- monoid
   (_+n_ : ℕ → ℕ → ℕ)
-  (_+≡_ : (n m : ℕ) →  n +n m ≡ n +ℕ m) -- needed for the behaviour under -ℕ
   (isM : IsMonoid 0 _+n_)
+  (_+≡_ : (n m : ℕ) →  n +n m ≡ n +ℕ m) -- needed for the behaviour under -ℕ
   (sameFiber : {i n : ℕ} → (i ≤ n) → i +n (n -n i) ≡ n)
   --
   (G : ℕ → Type ℓ)
