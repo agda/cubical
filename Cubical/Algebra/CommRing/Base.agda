@@ -178,3 +178,55 @@ leftInv (CommRingEquivIsoCommRingIso R S) e =
 
 isGroupoidCommRing : isGroupoid (CommRing ℓ)
 isGroupoidCommRing _ _ = isOfHLevelRespectEquiv 2 (CommRingPath _ _) (isSetRingEquiv _ _)
+
+open CommRingStr
+open IsRingHom
+
+-- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
+-- representations
+module _ (R : CommRing ℓ) {A : Type ℓ}
+  (0a 1a : A)
+  (add mul : A → A → A)
+  (inv : A → A)
+  (e : ⟨ R ⟩ ≃ A)
+  (p0 : e .fst (R .snd .0r) ≡ 0a)
+  (p1 : e .fst (R .snd .1r) ≡ 1a)
+  (p+ : ∀ x y → e .fst (R .snd ._+_ x y) ≡ add (e .fst x) (e .fst y))
+  (p· : ∀ x y → e .fst (R .snd ._·_ x y) ≡ mul (e .fst x) (e .fst y))
+  (pinv : ∀ x → e .fst (R .snd .-_ x) ≡ inv (e .fst x))
+  where
+
+  private
+    module R = CommRingStr (R .snd)
+
+    BaseΣ : Type (ℓ-suc ℓ)
+    BaseΣ = Σ[ B ∈ Type ℓ ] B × B × (B → B → B) × (B → B → B) × (B → B)
+
+    FamilyΣ : BaseΣ → Type ℓ
+    FamilyΣ (B , u0 , u1 , a , m , i) = IsCommRing u0 u1 a m i
+
+    inducedΣ : FamilyΣ (A , 0a , 1a , add , mul , inv)
+    inducedΣ =
+      subst FamilyΣ
+        (UARel.≅→≡ (autoUARel BaseΣ) (e , p0 , p1 , p+ , p· , pinv))
+        R.isCommRing
+
+  InducedCommRing : CommRing ℓ
+  InducedCommRing .fst = A
+  0r (InducedCommRing .snd) = 0a
+  1r (InducedCommRing .snd) = 1a
+  _+_ (InducedCommRing .snd) = add
+  _·_ (InducedCommRing .snd) = mul
+  - InducedCommRing .snd = inv
+  isCommRing (InducedCommRing .snd) = inducedΣ
+
+  InducedCommRingEquiv : CommRingEquiv R InducedCommRing
+  fst InducedCommRingEquiv = e
+  pres0 (snd InducedCommRingEquiv) = p0
+  pres1 (snd InducedCommRingEquiv) = p1
+  pres+ (snd InducedCommRingEquiv) = p+
+  pres· (snd InducedCommRingEquiv) = p·
+  pres- (snd InducedCommRingEquiv) = pinv
+
+  -- InducedRingPath : R ≡ InducedRing
+  -- InducedRingPath = RingPath _ _ .fst InducedRingEquiv

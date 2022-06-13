@@ -23,6 +23,7 @@ private variable
 
 open GradedRing-⊕HIT-index
 open GradedRing-⊕HIT-⋆
+open ExtensionCommRing
 
 module _
   (ACommRing@(A , Astr) : CommRing ℓ)

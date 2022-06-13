@@ -136,6 +136,9 @@ module GradedRing-⊕HIT-index
     prodDistL+ : (x y z : ⊕G) → (x +⊕ y) prod z ≡ (x prod z) +⊕ (y prod z)
     prodDistL+ = λ x y z → refl
 
+-----------------------------------------------------------------------------
+-- Ring Instances
+
     ⊕HITgradedRing-Ring : Ring (ℓ-max ℓ ℓ')
     fst ⊕HITgradedRing-Ring = ⊕G
     RingStr.0r (snd ⊕HITgradedRing-Ring) = 0⊕
@@ -147,7 +150,10 @@ module GradedRing-⊕HIT-index
                                                +⊕Assoc +⊕IdR +⊕InvR +⊕Comm
                                                prodAssoc prodIdR prodIdL prodDistR+ prodDistL+
 
-    module _
+-----------------------------------------------------------------------------
+-- CommRing extension
+
+    module ExtensionCommRing
       (⋆Comm : {k l : Idx} → (a : G k) → (b : G l) →
                _≡_ {A = Σ[ k ∈ Idx ] G k} ((k · l) , (a ⋆ b)) ((l · k) , (b ⋆ a)))
       where

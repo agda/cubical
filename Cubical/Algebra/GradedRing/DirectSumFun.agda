@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.GradedRing.DirectSumFun where
 
 {-
@@ -36,6 +36,7 @@ open import Cubical.Algebra.DirectSum.DirectSumFun.Base
 open import Cubical.Algebra.AbGroup.Instances.NProd
 open import Cubical.Algebra.AbGroup.Instances.DirectSumFun
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.GradedRing.Base
 open import Cubical.Algebra.GradedRing.DirectSumHIT
 open import Cubical.Algebra.CommRing
 
@@ -346,7 +347,7 @@ module _
 
 
 -----------------------------------------------------------------------------
--- Ring Structure by transport
+-- Graded Ring Structure
 
     open AbGroupStr (snd (⊕Fun-AbGr G Gstr)) using ()
         renaming
@@ -367,10 +368,6 @@ module _
                                       ⊕HIT→⊕Fun-pres-prodF
                                       (presinv (snd (Equiv-DirectSum G Gstr)))
 
-
------------------------------------------------------------------------------
--- Ring Equivalence
-
     RingEquiv-DirectSumGradedRing : RingEquiv ⊕HITgradedRing-Ring ⊕FunGradedRing-Ring
     RingEquiv-DirectSumGradedRing = InducedRingEquiv ⊕HITgradedRing-Ring
                                       0⊕Fun 1⊕Fun _+⊕Fun_ _prodF_ -⊕Fun_
@@ -380,3 +377,45 @@ module _
                                       (pres· (snd (Equiv-DirectSum G Gstr)))
                                       ⊕HIT→⊕Fun-pres-prodF
                                       (presinv (snd (Equiv-DirectSum G Gstr)))
+
+    ⊕Fun-GradedRing : GradedRing ℓ-zero ℓ
+    ⊕Fun-GradedRing = makeGradedRing
+                      ⊕FunGradedRing-Ring
+                      (ℕ , (monoidstr 0 _+n_ isM))
+                      G Gstr
+                      1⋆ _⋆_
+                      0-⋆ ⋆-0
+                      ⋆Assoc ⋆IdR ⋆IdL
+                      ⋆DistR+ ⋆DistL+
+                      (RingEquivs.invEquivRing RingEquiv-DirectSumGradedRing)
+
+
+-----------------------------------------------------------------------------
+-- CommRing extension
+
+    module _
+      (⋆Comm : {k l : ℕ} → (a : G k) → (b : G l) →
+               _≡_ {A = Σ[ k ∈ ℕ ] G k} ((k +n l) , (a ⋆ b)) ((l +n k) , (b ⋆ a)))
+      where
+
+      open ExtensionCommRing ⋆Comm
+
+      ⊕FunGradedRing-CommRing : CommRing ℓ
+      ⊕FunGradedRing-CommRing = InducedCommRing ⊕HITgradedRing-CommRing
+                                        0⊕Fun 1⊕Fun _+⊕Fun_ _prodF_ -⊕Fun_
+                                        (fst (Equiv-DirectSum G Gstr))
+                                        (pres1 (snd (Equiv-DirectSum G Gstr)))
+                                        ⊕HIT→⊕Fun-pres1
+                                        (pres· (snd (Equiv-DirectSum G Gstr)))
+                                        ⊕HIT→⊕Fun-pres-prodF
+                                        (presinv (snd (Equiv-DirectSum G Gstr)))
+
+      CommRingEquiv-DirectSumGradedRing : CommRingEquiv ⊕HITgradedRing-CommRing ⊕FunGradedRing-CommRing
+      CommRingEquiv-DirectSumGradedRing = InducedCommRingEquiv ⊕HITgradedRing-CommRing
+                                        0⊕Fun 1⊕Fun _+⊕Fun_ _prodF_ -⊕Fun_
+                                        (fst (Equiv-DirectSum G Gstr))
+                                        (pres1 (snd (Equiv-DirectSum G Gstr)))
+                                        ⊕HIT→⊕Fun-pres1
+                                        (pres· (snd (Equiv-DirectSum G Gstr)))
+                                        ⊕HIT→⊕Fun-pres-prodF
+                                        (presinv (snd (Equiv-DirectSum G Gstr)))
