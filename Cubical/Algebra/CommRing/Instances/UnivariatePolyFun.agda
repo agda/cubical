@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.GradedRing.Instances.PolynomialsFun where
+module Cubical.Algebra.CommRing.Instances.UnivariatePolyFun where
 
 open import Cubical.Foundations.Prelude
 
@@ -10,35 +10,39 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.GradedRing.Base
+open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.GradedRing.DirectSumFun
 
 private variable
   ℓ : Level
 
 module _
-  (ARing@(A , Astr) : Ring ℓ)
-  (n : ℕ)
+  (ACommRing@(A , Astr) : CommRing ℓ)
   where
 
-  open RingStr Astr
-  open RingTheory ARing
+  open CommRingStr Astr
+  open RingTheory (CommRing→Ring ACommRing)
 
-  PolyGradedRing : GradedRing ℓ-zero ℓ
-  PolyGradedRing = ⊕Fun-GradedRing
+  UnivariatePolyFun-CommRing : CommRing ℓ
+  UnivariatePolyFun-CommRing = ⊕FunGradedRing-CommRing
                    _+n_ (makeIsMonoid isSetℕ +-assoc +-zero λ _ → refl) (λ _ _ → refl)
                    sameFiber
                    (λ _ → A)
-                   (λ _ → snd (Ring→AbGroup ARing))
+                   (λ _ → snd (Ring→AbGroup (CommRing→Ring ACommRing)))
                    1r _·_ 0LeftAnnihilates 0RightAnnihilates
                    (λ a b c → ΣPathTransport→PathΣ _ _ ((+-assoc _ _ _) , (transportRefl _ ∙ ·Assoc _ _ _)))
                    (λ a → ΣPathTransport→PathΣ _ _ ((+-zero _) , (transportRefl _ ∙ ·IdR _)))
                    (λ a → ΣPathTransport→PathΣ _ _ (refl , (transportRefl _ ∙ ·IdL _)))
                    ·DistR+
                    ·DistL+
+                   λ x y → ΣPathTransport→PathΣ _ _ ((+-comm _ _) , (transportRefl _ ∙ ·Comm _ _))
                  where
                  sameFiber : {i n : ℕ} → i ≤ n → i +n (n ∸ i) ≡ n
                  sameFiber {zero} {zero} p = refl
                  sameFiber {zero} {suc n} p = refl
                  sameFiber {suc i} {zero} p = ⊥.rec (¬-<-zero p)
                  sameFiber {suc i} {suc n} p = cong suc (sameFiber (pred-≤-pred p))
+
+nUnivariatePolyFun : (A' : CommRing ℓ) → (n : ℕ) → CommRing ℓ
+nUnivariatePolyFun A' zero = A'
+nUnivariatePolyFun A' (suc n) = UnivariatePolyFun-CommRing (nUnivariatePolyFun A' n)
