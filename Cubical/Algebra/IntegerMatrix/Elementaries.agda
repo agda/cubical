@@ -89,7 +89,7 @@ module ElemTransformationℤ where
           ∙ b .identity
 
         det≡1 : det2×2 bézout2Mat ≡ 1
-        det≡1 = ·rCancel _ _ _ (detEq ∙ sym (·Lid _)) (¬m≡0→¬gcd≡0 b p)
+        det≡1 = ·rCancel _ _ _ (detEq ∙ sym (·IdL _)) (¬m≡0→¬gcd≡0 b p)
 
       isInvBézout2Mat : isInv bézout2Mat
       isInvBézout2Mat = isInvMat2x2 bézout2Mat (subst (λ r → r ∈ Rˣ) (sym det≡1) RˣContainsOne)

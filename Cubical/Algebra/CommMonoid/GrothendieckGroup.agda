@@ -4,19 +4,17 @@ Module in which the Grothendieck Group ("Groupification") of a commutative monoi
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.CommMonoid.GrothendieckGroup where
 
-open import Cubical.Algebra.CommMonoid.Base
-open import Cubical.Algebra.CommMonoid.CommMonoidProd
-
-open import Cubical.Algebra.AbGroup.Base
-open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Properties
-open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Monoid.Base
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+
+open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.CommMonoid
+open import Cubical.Algebra.CommMonoid.CommMonoidProd
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.AbGroup
 
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.SetQuotients.Properties
@@ -55,7 +53,7 @@ module _ (M : CommMonoid ℓ) where
     x +/ y = setQuotBinOp isReflR isReflR _·_ isCongR x y
       where
       isReflR : isRefl R
-      isReflR (a , b) = ε , cong (ε ·_) (comm a b)
+      isReflR (a , b) = ε , cong (ε ·_) (·Comm a b)
 
       isCongR : ∀ u u' v v' → R u u' → R v v' → R (u · v) (u' · v')
       isCongR (a₁ , b₁) (a₂ , b₂) (a₃ , b₃) (a₄ , b₄) (k , p) (s , q) = k · s , proof
@@ -74,13 +72,13 @@ module _ (M : CommMonoid ℓ) where
 
             -- remove proof when MonoidSolver is done
             lemma : ∀ {k s a b c d} → (k · s) · ((a · b) · (c · d)) ≡ (k · (a · c)) · (s · (b · d))
-            lemma = sym (assoc _ _ _) ∙ lExp (
-                                   (assoc _ _ _) ∙ (assoc _ _ _) ∙ rExp (
-                                       comm _ _ ∙ (assoc _ _ _) ∙ (assoc _ _ _) ∙ rExp (
-                                            comm _ _ ∙ (assoc _ _ _)
-                                       ) ∙ sym (assoc _ _ _)
-                                   ) ∙ sym (assoc _ _ _) ∙ lExp (sym (assoc _ _ _))
-                              ) ∙ (assoc _ _ _)
+            lemma = sym (·Assoc _ _ _) ∙ lExp (
+                                   (·Assoc _ _ _) ∙ (·Assoc _ _ _) ∙ rExp (
+                                       ·Comm _ _ ∙ (·Assoc _ _ _) ∙ (·Assoc _ _ _) ∙ rExp (
+                                            ·Comm _ _ ∙ (·Assoc _ _ _)
+                                       ) ∙ sym (·Assoc _ _ _)
+                                   ) ∙ sym (·Assoc _ _ _) ∙ lExp (sym (·Assoc _ _ _))
+                              ) ∙ (·Assoc _ _ _)
 
     -/_ : M²/R → M²/R
     -/_ = setQuotUnaryOp swap h
@@ -92,17 +90,17 @@ module _ (M : CommMonoid ℓ) where
       h _ _ (k , p) = k , sym p
 
     assoc/R : (x y z : M²/R) → x +/ ( y +/ z) ≡ (x +/ y) +/ z
-    assoc/R = elimProp3 (λ x y z → squash/ _ _) (λ u v w → cong [_] (assoc _ _ _))
+    assoc/R = elimProp3 (λ x y z → squash/ _ _) (λ u v w → cong [_] (·Assoc _ _ _))
 
     rid/R : (x : M²/R) → x +/ 0/R ≡ x
-    rid/R = elimProp (λ x → squash/ _ _) (λ u → cong [_] (rid u))
+    rid/R = elimProp (λ x → squash/ _ _) (λ u → cong [_] (·IdR u))
 
     rinv/R : (x : M²/R) → x +/ (-/ x) ≡ 0/R
     rinv/R = elimProp (λ x → squash/ _ _)
-                      (λ (a , b) →  eq/ _ _ (ε , cong (λ x → ε · (x · ε)) (comm _ _)))
+                      (λ (a , b) →  eq/ _ _ (ε , cong (λ x → ε · (x · ε)) (·Comm _ _)))
 
     comm/R : (x y : M²/R) → x +/ y ≡ y +/ x
-    comm/R = elimProp2 (λ x y → squash/ _ _) (λ u v → cong [_] (comm _ _))
+    comm/R = elimProp2 (λ x y → squash/ _ _) (λ u v → cong [_] (·Comm _ _))
 
   asAbGroup : AbGroup ℓ
   asAbGroup = makeAbGroup 0/R _+/_ -/_ squash/ assoc/R rid/R rinv/R comm/R
@@ -134,7 +132,7 @@ The "groupification" of a monoid comes with a universal morphism and a universal
   universalHom : CommMonoidHom M (AbGroup→CommMonoid (Groupification M))
   fst universalHom = λ m → [ m , ε ]
   pres· (snd universalHom) =
-    λ _ _ → eq/ _ _ (ε , cong (ε ·_) (comm _ _ ∙ cong₂ _·_ (rid ε) refl))
+    λ _ _ → eq/ _ _ (ε , cong (ε ·_) (·Comm _ _ ∙ cong₂ _·_ (·IdR ε) refl))
   presε (snd universalHom) = refl
 
   private
@@ -145,7 +143,7 @@ The "groupification" of a monoid comes with a universal morphism and a universal
 
     open GroupTheory (AbGroup→Group A)
 
-    open AbGroupStr ⦃...⦄ using (-_; _-_; _+_; invr; invl)
+    open AbGroupStr ⦃...⦄ using (-_; _-_; _+_; +InvR; +InvL)
     private
       instance
         AAsGroup  = snd A
@@ -173,19 +171,19 @@ The "groupification" of a monoid comes with a universal morphism and a universal
             lemma : ∀ {a b c d} → f a + f d ≡ f b + f c → f a - f b ≡ f c - f d
             lemma {a} {b} {c} {d} p =
               f a - f b
-                ≡⟨ cong (λ x → x - f b) (sym (rid _)) ⟩
+                ≡⟨ cong (λ x → x - f b) (sym (·IdR _)) ⟩
               f a + ε - f b
-                ≡⟨ cong (λ x → f a + x - f b) (sym (invr _)) ⟩
+                ≡⟨ cong (λ x → f a + x - f b) (sym (+InvR _)) ⟩
               f a + (f d - f d) - f b
-                ≡⟨ cong (λ x → x - f b) (assoc _ _ _) ⟩
+                ≡⟨ cong (λ x → x - f b) (·Assoc _ _ _) ⟩
               f a + f d - f d - f b
                 ≡⟨ cong (λ x → x - f d - f b) p ⟩
               f b + f c - f d - f b
-                ≡⟨ comm _ _ ∙ assoc _ _ _ ⟩
+                ≡⟨ ·Comm _ _ ∙ ·Assoc _ _ _ ⟩
               (- f b + (f b + f c)) - f d
-                ≡⟨ cong (λ x → x - f d) (assoc _ _ _) ⟩
+                ≡⟨ cong (λ x → x - f d) (·Assoc _ _ _) ⟩
               ((- f b + f b) + f c) - f d
-                ≡⟨ cong (λ x → (x + f c) - f d) (invl _) ∙ sym (assoc _ _ _) ∙ lid _ ⟩
+                ≡⟨ cong (λ x → (x + f c) - f d) (+InvL _) ∙ sym (·Assoc _ _ _) ∙ ·IdL _ ⟩
               f c - f d
                 ∎
 
@@ -200,18 +198,18 @@ The "groupification" of a monoid comes with a universal morphism and a universal
         proof : ((a , b) (c , d) : ⟨ M² M ⟩) → (f (a · c)) - (f (b · d)) ≡ (f a - f b) + (f c - f d)
         proof (a , b) (c , d) =
           f (a · c) - f (b · d)     ≡⟨ cong₂ _-_ (φ.pres· _ _) (φ.pres· _ _) ⟩
-          (f a + f c) - (f b + f d) ≡⟨ lExp (invDistr _ _ ∙ comm _ _) ∙ assoc _ _ _ ⟩
+          (f a + f c) - (f b + f d) ≡⟨ lExp (invDistr _ _ ∙ ·Comm _ _) ∙ ·Assoc _ _ _ ⟩
           ((f a + f c) - f b) - f d ≡⟨ lemma ⟩
           (f a - f b) + (f c - f d) ∎
           where
-            lemma = rExp (sym (assoc _ _ _) ∙ lExp (comm _ _) ∙ assoc _ _ _) ∙ sym (assoc _ _ _)
+            lemma = rExp (sym (·Assoc _ _ _) ∙ lExp (·Comm _ _) ∙ ·Assoc _ _ _) ∙ sym (·Assoc _ _ _)
 
-    pres1 (snd inducedHom)   = invr _
+    pres1 (snd inducedHom)   = +InvR _
     presinv (snd inducedHom) = elimProp (λ _ → isSetAbGroup A _ _)
                                         (λ _ → sym (invDistr _ _ ∙ cong₂ _-_ (invInv _) refl))
 
     solution : (m : ⟨ M ⟩) → (fst inducedHom) (i m) ≡ f m
-    solution m = cong ((f m)+_) ((cong (-_) φ.presε) ∙ inv1g) ∙ rid _
+    solution m = cong ((f m)+_) ((cong (-_) φ.presε) ∙ inv1g) ∙ ·IdR _
 
     unique : (ψ : AbGroupHom (Groupification M) A)
              → (ψIsSolution : (m : ⟨ M ⟩) → ψ .fst (i m) ≡ f m)
@@ -222,4 +220,4 @@ The "groupification" of a monoid comes with a universal morphism and a universal
        ψ .fst [ a , ε ] - ψ .fst [ b , ε ] ≡⟨ cong₂ _-_ (ψIsSolution a) (ψIsSolution b) ⟩
        f a - f b                           ∎
        where
-         lemma = cong (ψ .fst) (eq/ _ _ (ε , cong (ε ·_) (assoc _ _ _ ∙ comm _ _)))
+         lemma = cong (ψ .fst) (eq/ _ _ (ε , cong (ε ·_) (·Assoc _ _ _ ∙ ·Comm _ _)))

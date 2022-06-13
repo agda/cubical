@@ -58,24 +58,24 @@ module CupRingProperties (A : Type ℓ) where
                     (λ m b → base (n +' m) (a ⌣ b))
                     _+_
                     -- equations
-                    assoc
-                    rid
-                    comm
+                    +Assoc
+                    +IdR
+                    +Comm
                     (λ m → (cong (base (n +' m)) (⌣-0ₕ n m a)) ∙ (base-neutral (n +' m)))
                     λ m b c → base-add (n +' m) (a ⌣ b) (a ⌣ c) ∙ cong (base (n +' m)) (sym (leftDistr-⌣ n m a b c)))
           (λ U V y → (U y) + (V y))
           -- equations
-          (λ xs ys zs i y → assoc (xs y) (ys y) (zs y) i)
-          (λ xs i y       → rid (xs y) i)
-          (λ xs ys i y    → comm (xs y) (ys y) i)
+          (λ xs ys zs i y → +Assoc (xs y) (ys y) (zs y) i)
+          (λ xs i y       → +IdR (xs y) i)
+          (λ xs ys i y    → +Comm (xs y) (ys y) i)
           (λ n → funExt(
                   DS-Ind-Prop.f ℕ _ _ _ (λ _ → is-set _ _)
                   refl
                   (λ m b → cong (base (n +' m)) (0ₕ-⌣ n m b) ∙ base-neutral (n +' m))
-                  λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V) ∙ (rid 0g)))
+                  λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V) ∙ (+IdR 0g)))
           λ n a b → funExt (
                      DS-Ind-Prop.f ℕ _ _ _ (λ _ → is-set _ _)
-                     (rid 0g)
+                     (+IdR 0g)
                      (λ m c → (base-add (n +' m) (a ⌣ c) (b ⌣ c)) ∙ (cong (base (n +' m)) (sym (rightDistr-⌣ n m a b c))))
                      λ {U V} ind-U ind-V → comm-4 _ _ _ _ ∙ cong₂ _+_ ind-U ind-V)
 
@@ -112,7 +112,7 @@ module CupRingProperties (A : Type ℓ) where
   cupDistR : (x y z : H* A) → x cup (y + z) ≡ (x cup y) + (x cup z)
   cupDistR = DS-Ind-Prop.f ℕ _ _ _
                (λ x p q i y z j → is-set _ _ (p y z) (q y z) i j)
-               (λ y z → sym (rid 0g))
+               (λ y z → sym (+IdR 0g))
                (λ n a y z → refl)
                λ {U V} ind-U ind-V y z → cong₂ _+_ (ind-U y z) (ind-V y z) ∙ comm-4 (U cup y) (U cup z) (V cup y) (V cup z)
 
@@ -156,7 +156,7 @@ module _ (A : Type ℓ) where
   RingStr._·_ (snd H*R) = _cup_
   RingStr.- snd H*R = -_
   RingStr.isRing (snd H*R) = makeIsRing is-set
-                                        assoc rid (λ x → fst (inverse x)) comm
+                                        +Assoc +IdR +InvR +Comm
                                         cupAssoc cupIdR cupIdL cupDistR cupDistL
 
 
@@ -194,19 +194,9 @@ module CohomologyRing-Equiv
     ; -_        to -H*X_
     ; _·_       to _cupX_
     ; +Assoc    to +H*XAssoc
-    ; +Identity to +H*XIdentity
-    ; +Lid      to +H*XLid
-    ; +Rid      to +H*XRid
-    ; +Inv      to +H*XInv
-    ; +Linv     to +H*XLinv
-    ; +Rinv     to +H*XRinv
+    ; +IdR      to +H*XIdR
     ; +Comm     to +H*XComm
     ; ·Assoc    to ·H*XAssoc
-    ; ·Identity to ·H*XIdentity
-    ; ·Lid      to ·H*XLid
-    ; ·Rid      to ·H*XRid
-    ; ·Rdist+   to ·H*XRdist+
-    ; ·Ldist+   to ·H*XLdist+
     ; is-set    to isSetH*X     )
 
   open RingStr (snd (H*R Y)) using ()
@@ -217,19 +207,9 @@ module CohomologyRing-Equiv
     ; -_        to -H*Y_
     ; _·_       to _cupY_
     ; +Assoc    to +H*YAssoc
-    ; +Identity to +H*YIdentity
-    ; +Lid      to +H*YLid
-    ; +Rid      to +H*YRid
-    ; +Inv      to +H*YInv
-    ; +Linv     to +H*YLinv
-    ; +Rinv     to +H*YRinv
+    ; +IdR      to +H*YIdR
     ; +Comm     to +H*YComm
     ; ·Assoc    to ·H*YAssoc
-    ; ·Identity to ·H*YIdentity
-    ; ·Lid      to ·H*YLid
-    ; ·Rid      to ·H*YRid
-    ; ·Rdist+   to ·H*YRdist+
-    ; ·Ldist+   to ·H*YLdist+
     ; is-set    to isSetH*Y     )
 
 
@@ -252,7 +232,7 @@ module CohomologyRing-Equiv
                (λ n a → base n (fun (fst coHomGr-Iso) a))
                _+H*Y_
                +H*YAssoc
-               +H*YRid
+               +H*YIdR
                +H*YComm
                (λ n → cong (base n) (pres1 (snd coHomGr-Iso)) ∙ base-neutral n)
                λ n a b → base-add _ _ _ ∙ cong (base n) (sym (pres· (snd coHomGr-Iso) a b))
@@ -263,7 +243,7 @@ module CohomologyRing-Equiv
                (λ m a → base m (inv (fst coHomGr-Iso) a))
                _+H*X_
                +H*XAssoc
-               +H*XRid
+               +H*XIdR
                +H*XComm
                (λ m → cong (base m) (pres1 (snd (invGroupIso coHomGr-Iso))) ∙ base-neutral m)
                λ m a b → base-add _ _ _ ∙ cong (base m) (sym (pres· (snd (invGroupIso coHomGr-Iso)) a b))

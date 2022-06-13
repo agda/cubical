@@ -60,7 +60,7 @@ module ConstructionUnbounded where
 
   open OrderedCommMonoidStr (snd ℕ↑-+)
     hiding (_≤_; MonotoneL; MonotoneR)
-    renaming (assoc to +Assoc; comm to +Comm; rid to +Rid;
+    renaming (·Assoc to +Assoc; ·Comm to +Comm; ·IdR to +Rid;
               _·_ to _+_; ε to 0↑)
 
   open OrderedCommMonoidStr (snd ℕ≤·)
@@ -70,11 +70,11 @@ module ConstructionUnbounded where
    hiding (_≤_)
    renaming (_·_ to _+ℕ_;
              MonotoneL to +MonotoneL; MonotoneR to +MonotoneR;
-             comm to ℕ+Comm)
+             ·Comm to ℕ+Comm)
 
   open OrderedCommMonoidStr ⦃...⦄
-    using (_·_)
-    renaming (assoc to ·Assoc; comm to ·Comm; rid to ·Rid)
+    using (_·_ ; ·Assoc ; ·Comm )
+    renaming (·IdR to ·Rid)
 
   private
     instance
@@ -157,7 +157,7 @@ module ConstructionBounded where
   ℕ↑-·b = BoundedPropCompletion ℕ≤·
 
   open OrderedCommMonoidStr (snd ℕ≤+)
-    renaming (_·_ to _+ℕ_; rid to +Rid; comm to ℕ+Comm)
+    renaming (_·_ to _+ℕ_; ·IdR to +IdR; ·Comm to ℕ+Comm)
   open OrderedCommMonoidStr (snd ℕ↑-+b)
     renaming (_·_ to _+_; ε to 0↑)
 
@@ -181,7 +181,7 @@ module ConstructionBounded where
      ⇐ n _ =
        PT.rec
          isPropPropTrunc
-         (λ {(m , mIsUpperBound) → ∣ (0 , m) , ((0 , refl) , (mIsUpperBound , n ,  +Rid n)) ∣₁})
+         (λ {(m , mIsUpperBound) → ∣ (0 , m) , ((0 , refl) , (mIsUpperBound , n ,  +IdR n)) ∣₁})
          (snd x)
 
 

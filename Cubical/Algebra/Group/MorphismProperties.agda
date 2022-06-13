@@ -50,22 +50,22 @@ module _ {A : Type ℓ} {B : Type ℓ'} (G : GroupStr A) (f : A → B) (H : Grou
   -- ϕ(1g) ≡ 1g
   hom1g : f G.1g ≡ H.1g
   hom1g =
-    f G.1g                                  ≡⟨ sym (H.rid _) ⟩
-    f G.1g H.· H.1g                         ≡⟨ (λ i → f G.1g H.· H.invr (f G.1g) (~ i)) ⟩
-    f G.1g H.· (f G.1g H.· H.inv (f G.1g))  ≡⟨ H.assoc _ _ _ ⟩
+    f G.1g                                  ≡⟨ sym (H.·IdR _) ⟩
+    f G.1g H.· H.1g                         ≡⟨ (λ i → f G.1g H.· H.·InvR (f G.1g) (~ i)) ⟩
+    f G.1g H.· (f G.1g H.· H.inv (f G.1g))  ≡⟨ H.·Assoc _ _ _ ⟩
     (f G.1g H.· f G.1g) H.· H.inv (f G.1g)  ≡⟨ sym (cong (λ x → x H.· _)
-                                                (sym (cong f (G.lid _)) ∙ pres G.1g G.1g)) ⟩
-    f G.1g H.· H.inv (f G.1g)               ≡⟨ H.invr _ ⟩
+                                                (sym (cong f (G.·IdL _)) ∙ pres G.1g G.1g)) ⟩
+    f G.1g H.· H.inv (f G.1g)               ≡⟨ H.·InvR _ ⟩
     H.1g ∎
 
   -- ϕ(- x) = - ϕ(x)
   homInv : ∀ g → f (G.inv g) ≡ H.inv (f g)
   homInv g =
-    f (G.inv g)                            ≡⟨ sym (H.rid _) ⟩
-    f (G.inv g) H.· H.1g                   ≡⟨ cong (_ H.·_) (sym (H.invr _)) ⟩
-    f (G.inv g) H.· (f g H.· H.inv (f g))  ≡⟨ H.assoc _ _ _ ⟩
-    (f (G.inv g) H.· f g) H.· H.inv (f g)  ≡⟨ cong (H._· _) (sym (pres _ g) ∙∙ cong f (G.invl g) ∙∙ hom1g) ⟩
-    H.1g H.· H.inv (f g)                   ≡⟨ H.lid _ ⟩
+    f (G.inv g)                            ≡⟨ sym (H.·IdR _) ⟩
+    f (G.inv g) H.· H.1g                   ≡⟨ cong (_ H.·_) (sym (H.·InvR _)) ⟩
+    f (G.inv g) H.· (f g H.· H.inv (f g))  ≡⟨ H.·Assoc _ _ _ ⟩
+    (f (G.inv g) H.· f g) H.· H.inv (f g)  ≡⟨ cong (H._· _) (sym (pres _ g) ∙∙ cong f (G.·InvL g) ∙∙ hom1g) ⟩
+    H.1g H.· H.inv (f g)                   ≡⟨ H.·IdL _ ⟩
     H.inv (f g) ∎
 
 module _ {A : Type ℓ} {B : Type ℓ'} {G : GroupStr A} {f : A → B} {H : GroupStr B}
@@ -136,11 +136,11 @@ isMono→isInjective f h x p = h (p ∙ sym (f .snd .pres1))
 
 isInjective→isMono : (f : GroupHom G H) → isInjective f → isMono f
 isInjective→isMono {G = G} {H = H} f h {x = x} {y = y} p =
-  x                      ≡⟨ sym (G.rid _) ⟩
-  x G.· G.1g             ≡⟨ cong (x G.·_) (sym (G.invl _)) ⟩
-  x G.· (G.inv y G.· y)  ≡⟨ G.assoc _ _ _ ⟩
+  x                      ≡⟨ sym (G.·IdR _) ⟩
+  x G.· G.1g             ≡⟨ cong (x G.·_) (sym (G.·InvL _)) ⟩
+  x G.· (G.inv y G.· y)  ≡⟨ G.·Assoc _ _ _ ⟩
   (x G.· G.inv y) G.· y  ≡⟨ cong (G._· y) idHelper ⟩
-  G.1g G.· y             ≡⟨ G.lid _ ⟩
+  G.1g G.· y             ≡⟨ G.·IdL _ ⟩
   y ∎
     where
     module G = GroupStr (snd G)
@@ -150,7 +150,7 @@ isInjective→isMono {G = G} {H = H} f h {x = x} {y = y} p =
     idHelper = h _ (f .snd .pres· _ _ ∙
                     cong (λ a → f .fst x H.· a) (f .snd .presinv y) ∙
                     cong (H._· H.inv (f .fst y)) p ∙
-                    H.invr _)
+                    H.·InvR _)
 
 -- TODO: maybe it would be better to take this as the definition of isInjective?
 isInjective→isContrKer : (f : GroupHom G H) → isInjective f → isContr (Ker f)

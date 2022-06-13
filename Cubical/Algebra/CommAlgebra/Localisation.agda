@@ -51,7 +51,7 @@ module AlgLoc (R' : CommRing ℓ)
  private R = fst R'
  open CommAlgebraStr
  open IsAlgebraHom
- open CommRingStr (snd R') renaming (_+_ to _+r_ ; _·_ to _·r_ ; ·Rid to ·rRid)
+ open CommRingStr (snd R') renaming (_+_ to _+r_ ; _·_ to _·r_ ; ·IdR to ·rRid)
  open RingTheory (CommRing→Ring R')
  open CommRingTheory R'
  open Loc R' S' SMultClosedSubset
@@ -81,7 +81,7 @@ module AlgLoc (R' : CommRing ℓ)
   where
   B = fromCommAlg B' .fst
   φ = fromCommAlg B' .snd
-  open CommRingStr (snd B) renaming (_·_ to _·b_ ; 1r to 1b ; ·Lid to ·bLid)
+  open CommRingStr (snd B) renaming (_·_ to _·b_ ; 1r to 1b ; ·IdL to ·bLid)
 
   χ : CommRingHom S⁻¹RAsCommRing B
   χ = S⁻¹RHasUniversalProp B φ S⋆1⊆Bˣ .fst .fst
@@ -102,7 +102,7 @@ module AlgLoc (R' : CommRing ℓ)
    path = fst χ ((r /1) ·ₗ x)             ≡⟨ IsRingHom.pres· (snd χ) _ _ ⟩
           fst χ (r /1) ·b fst χ x         ≡⟨ cong (_·b fst χ x) (χcomp r) ⟩
           fst φ r ·b fst χ x              ≡⟨ refl ⟩
-          _⋆_  (snd B') r 1b ·b fst χ x   ≡⟨ ⋆-lassoc (snd B') _ _ _ ⟩
+          _⋆_  (snd B') r 1b ·b fst χ x   ≡⟨ ⋆AssocL (snd B') _ _ _ ⟩
           _⋆_  (snd B') r (1b ·b fst χ x) ≡⟨ cong (_⋆_ (snd B') r) (·bLid _) ⟩
           _⋆_  (snd B') r (fst χ x)       ∎
 
@@ -247,7 +247,7 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
 module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
  open Exponentiation R
  open InvertingElementsBase
- open CommRingStr (snd R) hiding (·Rid)
+ open CommRingStr (snd R) hiding (·IdR)
  open isMultClosedSubset
  open DoubleLoc R f g hiding (R[1/fg]≡R[1/f][1/g])
  open CommAlgChar R
@@ -290,7 +290,7 @@ module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
    _ = snd R[1/g]AsCommAlgebra
 
   toUnit1 : ∀ s → s ∈ [_ⁿ|n≥0] R (f · g) → s ⋆ 1a ∈ R[1/g]ˣ
-  toUnit1 s s∈[fgⁿ|n≥0] = subst-∈ R[1/g]ˣ (sym (·Rid (s /1ᵍ)))
+  toUnit1 s s∈[fgⁿ|n≥0] = subst-∈ R[1/g]ˣ (sym (·IdR (s /1ᵍ)))
                             (RadicalLemma.toUnit R g (f · g) (radHelper _ _ g∈√⟨f⟩) s s∈[fgⁿ|n≥0])
    where
    radHelper : ∀ x y → x ∈ᵢ √ ⟨ y ⟩ → x ∈ᵢ √ ⟨ y · x ⟩
@@ -308,7 +308,7 @@ module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
       useSolver = solve R
 
   toUnit2 : ∀ s → s ∈ [_ⁿ|n≥0] R g → s ⋆ 1a ∈ R[1/fg]ˣ
-  toUnit2 s s∈[gⁿ|n≥0] = subst-∈ R[1/fg]ˣ (sym (·Rid (s /1ᶠᵍ)))
+  toUnit2 s s∈[gⁿ|n≥0] = subst-∈ R[1/fg]ˣ (sym (·IdR (s /1ᶠᵍ)))
                            (RadicalLemma.toUnit R (f · g) g radHelper s s∈[gⁿ|n≥0])
    where
    radHelper : (f · g) ∈ᵢ √ ⟨ g ⟩

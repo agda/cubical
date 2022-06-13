@@ -144,7 +144,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
           implication s l n = propTruncRec
                              isPropPropTrunc
                              (λ {((a , b) , wa , (wb , a·b≤n))
-                               → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (comm a b) a·b≤n) ∣₁ })
+                               → ∣ (b , a) , wb , (wa , subst (λ k → fst (k ≤p n)) (·Comm a b) a·b≤n) ∣₁ })
           propPath : (n : fst M) → fst (s ·↑ l) n ≡ fst (l ·↑ s) n
           propPath n = ⇒∶ implication s l n
                        ⇐∶ implication l s n
@@ -155,9 +155,9 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
           ⇒ n = propTruncRec
                   (snd (fst s n))
                   (λ {((a , b) , sa , (1b , a·b≤n))
-                     → (snd s) a n ( subst (_≤ n) (rid a) (is-trans _ _ _ (MonotoneL 1b) a·b≤n)) sa })
+                     → (snd s) a n ( subst (_≤ n) (·IdR a) (is-trans _ _ _ (MonotoneL 1b) a·b≤n)) sa })
           ⇐ : (n : fst M) → typeAt n s → typeAt n (s ·↑ 1↑)
-          ⇐ n = λ sn → ∣ (n , ε) , (sn , (is-refl _ , subst (_≤ n) (sym (rid n)) (is-refl _))) ∣₁
+          ⇐ n = λ sn → ∣ (n , ε) , (sn , (is-refl _ , subst (_≤ n) (sym (·IdR n)) (is-refl _))) ∣₁
 
   ·↑Assoc : (s l k : M↑) → s ·↑ (l ·↑ k) ≡ (s ·↑ l) ·↑ k
   ·↑Assoc s l k = pathFromImplications (s ·↑ (l ·↑ k)) ((s ·↑ l) ·↑ k) (⇒) ⇐
@@ -170,7 +170,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                          (λ {((a' , b') , la' , (kb' , a'·b'≤b))
                          → ∣ ((a · a') , b') , ∣ (a , a') , (sa , (la' , is-refl _)) ∣₁ , kb' ,
                              (let a·⟨a'·b'⟩≤n = (is-trans _ _ _ (MonotoneL a'·b'≤b) a·b≤n)
-                              in subst (_≤ n) (assoc a a' b') a·⟨a'·b'⟩≤n) ∣₁
+                              in subst (_≤ n) (·Assoc a a' b') a·⟨a'·b'⟩≤n) ∣₁
                             }) l·kb
                    }
           ⇐ : _
@@ -182,7 +182,7 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
                          (λ {((a' , b') , s≤a' , (l≤b' , a'·b'≤a))
                          → ∣ (a' , b' · b) , s≤a' , ( ∣ (b' , b) , l≤b' , (k≤b , is-refl _) ∣₁ ,
                              (let ⟨a'·b'⟩·b≤n = (is-trans _ _ _ (MonotoneR a'·b'≤a) a·b≤n)
-                              in subst (_≤ n) (sym (assoc a' b' b)) ⟨a'·b'⟩·b≤n) ) ∣₁
+                              in subst (_≤ n) (sym (·Assoc a' b' b)) ⟨a'·b'⟩·b≤n) ) ∣₁
                             }) s·l≤a
                    }
 

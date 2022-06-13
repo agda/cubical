@@ -168,7 +168,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
    path : [ r · 1r + 0r · s , s · 1r , SMultClosedSubset .multClosed s∈S
                                       (SMultClosedSubset .containsOne) ]
         ≡ [ r , s , s∈S ]
-   path = cong [_] (ΣPathP (eq1 r s , Σ≡Prop (λ x → ∈-isProp S' x) (·Rid _)))
+   path = cong [_] (ΣPathP (eq1 r s , Σ≡Prop (λ x → ∈-isProp S' x) (·IdR _)))
 
  -ₗ_ : S⁻¹R → S⁻¹R
  -ₗ_ = SQ.rec squash/ -ₗ[] -ₗWellDef
@@ -248,7 +248,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
  ·ₗ-rid = SQ.elimProp (λ _ → squash/ _ _) ·ₗ-rid[]
    where
    ·ₗ-rid[] : (a : R × S) → ([ a ] ·ₗ 1ₗ) ≡ [ a ]
-   ·ₗ-rid[] (r , s , s∈S) = cong [_] (ΣPathP ((·Rid _) , Σ≡Prop (λ x → ∈-isProp S' x) (·Rid _)))
+   ·ₗ-rid[] (r , s , s∈S) = cong [_] (ΣPathP ((·IdR _) , Σ≡Prop (λ x → ∈-isProp S' x) (·IdR _)))
 
 
  ·ₗ-rdist-+ₗ : (x y z : S⁻¹R) → x ·ₗ (y +ₗ z) ≡ (x ·ₗ y) +ₗ (x ·ₗ z)

@@ -33,7 +33,8 @@ use the names provided by ```open AbGroupStr (ℤGroup .snd)```.
     right, and then the operation that is distributed over.
 
     ```
-    x · (y + z) ≡ (x · y) + (x · z)
+    ·DistR+ : x · (y + z) ≡ (x · y) + (x · z)
+    ·DistL+ : (x + y) · z ≡ (x · z) + (y · z)
     ```
 
   - `Id` = unit laws

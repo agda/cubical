@@ -45,11 +45,10 @@ record IsLattice {L : Type ℓ}
 
   open IsSemilattice joinSemilattice public
    renaming
-     ( assoc to ∨lAssoc
-     ; identity to ∨lIdentity
-     ; lid to ∨lLid
-     ; rid to ∨lRid
-     ; comm to ∨lComm
+     ( ·Assoc to ∨lAssoc
+     ; ·IdL to ∨lLid
+     ; ·IdR to ∨lRid
+     ; ·Comm to ∨lComm
      ; idem to ∨lIdem
      ; isCommMonoid to ∨lIsCommMonoid
      ; isMonoid to ∨lIsMonoid
@@ -57,11 +56,10 @@ record IsLattice {L : Type ℓ}
 
   open IsSemilattice meetSemilattice public
    renaming
-     ( assoc to ∧lAssoc
-     ; identity to ∧lIdentity
-     ; lid to ∧lLid
-     ; rid to ∧lRid
-     ; comm to ∧lComm
+     ( ·Assoc to ∧lAssoc
+     ; ·IdL to ∧lLid
+     ; ·IdR to ∧lRid
+     ; ·Comm to ∧lComm
      ; idem to ∧lIdem
      ; isCommMonoid to ∧lIsCommMonoid
      ; isMonoid to ∧lIsMonoid

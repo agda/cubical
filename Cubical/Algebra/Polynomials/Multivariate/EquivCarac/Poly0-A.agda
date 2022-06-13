@@ -36,7 +36,7 @@ module Equiv-Poly0-A (A' : CommRing ℓ) where
              (λ v a → a)
              _+_
              +Assoc
-             +Rid
+             +IdR
              +Comm
              (λ _ → refl)
              λ _ a b → refl
@@ -78,8 +78,8 @@ module Equiv-Poly0-A (A' : CommRing ℓ) where
                               (λ _ → isSetA _ _)
                               (sym (RingTheory.0RightAnnihilates (CommRing→Ring A') (Poly0→A (base v a))))
                               (λ v' a' → refl)
-                              λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V) ∙ (sym (·Rdist+ _ _ _)))
-                    λ {U V} ind-U ind-V Q → (cong₂ _+_ (ind-U Q) (ind-V Q)) ∙ (sym (·Ldist+ _ _ _))
+                              λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V) ∙ (sym (·DistR+ _ _ _)))
+                    λ {U V} ind-U ind-V Q → (cong₂ _+_ (ind-U Q) (ind-V Q)) ∙ (sym (·DistL+ _ _ _))
 
 
 -----------------------------------------------------------------------------

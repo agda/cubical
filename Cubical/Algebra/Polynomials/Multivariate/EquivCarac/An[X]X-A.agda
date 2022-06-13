@@ -49,19 +49,16 @@ module Properties-Equiv-QuotientXn-A
     ; -_        to -A_
     ; _·_       to _·A_
     ; +Assoc    to +AAssoc
-    ; +Identity to +AIdentity
-    ; +Lid      to +ALid
-    ; +Rid      to +ARid
-    ; +Inv      to +AInv
-    ; +Linv     to +ALinv
-    ; +Rinv     to +ARinv
+    ; +IdL      to +AIdL
+    ; +IdR      to +AIdR
+    ; +InvL     to +AInvL
+    ; +InvR     to +AInvR
     ; +Comm     to +AComm
     ; ·Assoc    to ·AAssoc
-    ; ·Identity to ·AIdentity
-    ; ·Lid      to ·ALid
-    ; ·Rid      to ·ARid
-    ; ·Rdist+   to ·ARdist+
-    ; ·Ldist+   to ·ALdist+
+    ; ·IdL      to ·AIdL
+    ; ·IdR      to ·AIdR
+    ; ·DistR+   to ·ADistR+
+    ; ·DistL+   to ·ADistL+
     ; is-set    to isSetA     )
 
   open CommRingStr (snd (A[X1,···,Xn] Ar n) ) using ()
@@ -72,20 +69,17 @@ module Properties-Equiv-QuotientXn-A
     ; -_        to -PA_
     ; _·_       to _·PA_
     ; +Assoc    to +PAAssoc
-    ; +Identity to +PAIdentity
-    ; +Lid      to +PALid
-    ; +Rid      to +PARid
-    ; +Inv      to +PAInv
-    ; +Linv     to +PALinv
-    ; +Rinv     to +PARinv
+    ; +IdL      to +PAIdL
+    ; +IdR      to +PAIdR
+    ; +InvL     to +PAInvL
+    ; +InvR     to +PAInvR
     ; +Comm     to +PAComm
     ; ·Assoc    to ·PAAssoc
-    ; ·Identity to ·PAIdentity
-    ; ·Lid      to ·PALid
-    ; ·Rid      to ·PARid
+    ; ·IdL      to ·PAIdL
+    ; ·IdR      to ·PAIdR
     ; ·Comm     to ·PAComm
-    ; ·Rdist+   to ·PARdist+
-    ; ·Ldist+   to ·PALdist+
+    ; ·DistR+   to ·PADistR+
+    ; ·DistL+   to ·PADistL+
     ; is-set    to isSetPA     )
 
   open CommRingStr (snd (A[X1,···,Xn]/<X1,···,Xn> Ar n)) using ()
@@ -96,19 +90,16 @@ module Properties-Equiv-QuotientXn-A
     ; -_        to -PAI_
     ; _·_       to _·PAI_
     ; +Assoc    to +PAIAssoc
-    ; +Identity to +PAIIdentity
-    ; +Lid      to +PAILid
-    ; +Rid      to +PAIRid
-    ; +Inv      to +PAIInv
-    ; +Linv     to +PAILinv
-    ; +Rinv     to +PAIRinv
+    ; +IdL      to +PAIIdL
+    ; +IdR      to +PAIIdR
+    ; +InvL     to +PAIInvL
+    ; +InvR     to +PAIInvR
     ; +Comm     to +PAIComm
     ; ·Assoc    to ·PAIAssoc
-    ; ·Identity to ·PAIIdentity
-    ; ·Lid      to ·PAILid
-    ; ·Rid      to ·PAIRid
-    ; ·Rdist+   to ·PAIRdist+
-    ; ·Ldist+   to ·PAILdist+
+    ; ·IdL      to ·PAIIdL
+    ; ·IdR      to ·PAIIdR
+    ; ·DistR+   to ·PAIDistR+
+    ; ·DistL+   to ·PAIDistL+
     ; is-set    to isSetPAI     )
 
   open RingTheory
@@ -126,7 +117,7 @@ module Properties-Equiv-QuotientXn-A
           base-trad
           _+A_
           +AAssoc
-          +ARid
+          +AIdR
           +AComm
           base-0P-eq
           base-Poly+-eq
@@ -144,7 +135,7 @@ module Properties-Equiv-QuotientXn-A
         base-Poly+-eq : (v : Vec ℕ n) → (a b : A) → base-trad v a +A base-trad v b ≡ base-trad v (a +A b)
         base-Poly+-eq v a b with (discreteVecℕn v (replicate 0))
         ... | yes p = refl
-        ... | no ¬p = +ARid _
+        ... | no ¬p = +AIdR _
 
   PA→A-pres1 :  PA→A 1PA ≡ 1A
   PA→A-pres1 with (discreteVecℕn (replicate 0) (replicate 0))
@@ -161,8 +152,8 @@ module Properties-Equiv-QuotientXn-A
                (λ v a → Poly-Ind-Prop.f _ _ _ (λ Q → isSetA _ _)
                          (sym (0RightAnnihilates (CommRing→Ring Ar) _))
                          (λ v' a' → base-base-eq a a' v v')
-                         λ {U V} ind-U ind-V → cong₂ _+A_ ind-U ind-V ∙ sym (·ARdist+ _ _ _))
-               λ {U V} ind-U ind-V Q → cong₂ _+A_ (ind-U Q) (ind-V Q) ∙ sym (·ALdist+ _ _ _)
+                         λ {U V} ind-U ind-V → cong₂ _+A_ ind-U ind-V ∙ sym (·ADistR+ _ _ _))
+               λ {U V} ind-U ind-V Q → cong₂ _+A_ (ind-U Q) (ind-V Q) ∙ sym (·ADistL+ _ _ _)
                where
                base-base-eq : (a a' : A) → (v v' : Vec ℕ n) →
                               PA→A (base v a ·PA base v' a') ≡ PA→A (base v a) ·A PA→A (base v' a')
@@ -249,10 +240,10 @@ module Properties-Equiv-QuotientXn-A
                where
                helper : _
                helper = cong (λ X → X poly+ base v (-A a)) (base-0P (replicate 0))
-                        ∙ +PALid (base v (-A a))
+                        ∙ +PAIdL (base v (-A a))
                         ∙ sym (
                           genδ-FinVec-ℕLinearCombi ((A[X1,···,Xn] Ar n)) n k infkn (base v' (-A a)) (<X1,···,Xn> Ar n)
-                          ∙ cong₂ base (cong (λ X → v' +n-vec δℕ-Vec n X) (toFromId' n k infkn)) (·ARid _)
+                          ∙ cong₂ base (cong (λ X → v' +n-vec δℕ-Vec n X) (toFromId' n k infkn)) (·AIdR _)
                           ∙ cong (λ X → base X (-A a)) (sym eqvv'))
 
 

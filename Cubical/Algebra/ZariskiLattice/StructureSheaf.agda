@@ -149,7 +149,7 @@ module _ (R' : CommRing ℓ) where
              → 𝔞 ≤ 𝔟 → isContr (CommAlgebraHom R[1/ g ]AsCommAlgebra R[1/ f ]AsCommAlgebra)
    contrHoms 𝔞 𝔟 f g p q 𝔞≤𝔟 = R[1/g]HasAlgUniversalProp R[1/ f ]AsCommAlgebra
      λ s s∈[gⁿ|n≥0] → subst-∈ₚ (R[1/ f ]AsCommRing ˣ)
-       (sym (·Rid (s /1))) --can't apply the lemma directly as we get mult with 1 somewhere
+       (sym (·IdR (s /1))) --can't apply the lemma directly as we get mult with 1 somewhere
          (RadicalLemma.toUnit R' f g f∈√⟨g⟩ s s∈[gⁿ|n≥0])
     where
     open AlgLoc R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
@@ -318,7 +318,7 @@ module _ (R' : CommRing ℓ) where
         path : 1r ≡ linearCombination R[1/ h ]AsCommRing β
                                       λ { zero → f /1 ; (suc zero) → g /1 }
         path = eq/ _ _ ((1r , ∣ 0 , refl ∣₁) , bigPath)
-             ∙ cong (β zero · (f /1) +_) (sym (+Rid (β (suc zero) · (g /1))))
+             ∙ cong (β zero · (f /1) +_) (sym (+IdR (β (suc zero) · (g /1))))
          where
          useSolver1 : ∀ hn → 1r · 1r · ((hn · 1r) · (hn · 1r)) ≡ hn · hn
          useSolver1 = solve R'
@@ -379,13 +379,13 @@ module _ (R' : CommRing ℓ) where
     pres+ (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-×
                                          (cong₂ _+_ (useSolver x) (useSolver y))
                                          (Σ≡Prop (λ _ → isPropPropTrunc) (useSolver 1r))))
-                                         (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r))))
+                                         (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
       where
       useSolver : ∀ a → a ≡ a · 1r · (1r · 1r)
       useSolver = solve R'
     pres· (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-× refl
-                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r)))))
-                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r))))
+                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r)))))
+                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
     pres- (snd /1/1AsCommRingHomFG) x = refl
 
     open Cospan
@@ -399,15 +399,15 @@ module _ (R' : CommRing ℓ) where
 
     isRHomR[1/h][1/f]→R[1/h][1/fg] : theRingCospan .s₂ ∘r /1/1AsCommRingHom f ≡ /1/1AsCommRingHomFG
     isRHomR[1/h][1/f]→R[1/h][1/fg] = RingHom≡ (funExt
-      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·Rid x)
-          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r))))
-          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r)))))
+      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
 
     isRHomR[1/h][1/g]→R[1/h][1/fg] : theRingCospan .s₁ ∘r /1/1AsCommRingHom g ≡ /1/1AsCommRingHomFG
     isRHomR[1/h][1/g]→R[1/h][1/fg] = RingHom≡ (funExt
-      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·Rid x)
-          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r))))
-          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r)))))
+      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
 
 
     open PullbackFromCommRing R' theRingCospan theRingPullback
