@@ -42,6 +42,8 @@ module _ (R' : CommRing ℓ) where
 
   infixr 5 _∷_
 
+  pattern [_] x = x ∷ []
+
 module PolyMod (R' : CommRing ℓ) where
   private
     R = fst R'

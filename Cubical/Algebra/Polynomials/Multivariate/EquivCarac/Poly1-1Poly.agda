@@ -61,7 +61,7 @@ module Equiv-Poly1-Poly:
                  trad-base
                  (_+_ PA:str)
                  (+Assoc PA:str)
-                 (+Rid PA:str)
+                 (+IdR PA:str)
                  (+Comm PA:str)
                  trad-base-neutral
                  trad-base-add
@@ -77,7 +77,7 @@ module Equiv-Poly1-Poly:
   Poly:→Poly1-int : (n : ℕ) → Poly: Acr → Poly Acr 1
   Poly:→Poly1-int n [] = 0r PAstr
   Poly:→Poly1-int n (a ∷ x) = _+_ PAstr (base (n :: <>) a) (Poly:→Poly1-int (suc n) x)
-  Poly:→Poly1-int n (drop0 i) = ((cong (λ X → _+_ PAstr X (0r PAstr)) (base-neutral (n :: <>))) ∙ (+Rid PAstr _)) i
+  Poly:→Poly1-int n (drop0 i) = ((cong (λ X → _+_ PAstr X (0r PAstr)) (base-neutral (n :: <>))) ∙ (+IdR PAstr _)) i
 
   Poly:→Poly1 : Poly: Acr → Poly Acr 1
   Poly:→Poly1 x = Poly:→Poly1-int 0 x
@@ -85,9 +85,9 @@ module Equiv-Poly1-Poly:
   Poly:→Poly1-int-pres+ : (x y : Poly: Acr) → (n : ℕ) →
                               Poly:→Poly1-int n (_+_ PA:str x y) ≡ _+_ PAstr (Poly:→Poly1-int n x) (Poly:→Poly1-int n y)
   Poly:→Poly1-int-pres+ = ElimProp _
-                           (λ y n → cong (Poly:→Poly1-int n) (+Lid PA:str y) ∙ sym (+Lid PAstr _))
+                           (λ y n → cong (Poly:→Poly1-int n) (+IdL PA:str y) ∙ sym (+IdL PAstr _))
                            (λ a x ind-x → ElimProp _
-                                           (λ n → sym (+Rid PAstr (Poly:→Poly1-int n (a ∷ x))))
+                                           (λ n → sym (+IdR PAstr (Poly:→Poly1-int n (a ∷ x))))
                                            (λ b y ind-y n → sym (+ShufflePairs (CommRing→Ring PA) _ _ _ _
                                                                 ∙ cong₂ (_+_ PAstr) (base-add _ _ _) (sym (ind-x y (suc n)))))
                                            (isPropΠ (λ _ → is-set PAstr _ _)))
@@ -115,10 +115,10 @@ module Equiv-Poly1-Poly:
 -- retraction
 
   idde : (m n : ℕ) → (a : A) → Poly:→Poly1-int n (prod-Xn m (a ∷ [])) ≡ base ((n +n m) :: <>) a
-  idde zero n a = +Rid PAstr (base (n :: <>) a)
+  idde zero n a = +IdR PAstr (base (n :: <>) a)
                   ∙ cong (λ X → base (X :: <>) a) (sym (+-zero n))
   idde (suc m) n a = cong (λ X → _+_ PAstr X (Poly:→Poly1-int (suc n) (prod-Xn m (a ∷ [])))) (base-neutral (n :: <>))
-                     ∙ +Lid PAstr (Poly:→Poly1-int (suc n) (prod-Xn m (a ∷ [])))
+                     ∙ +IdL PAstr (Poly:→Poly1-int (suc n) (prod-Xn m (a ∷ [])))
                      ∙ idde m (suc n) a
                      ∙ cong (λ X → base (X :: <>) a) (sym (+-suc n m))
 
@@ -142,24 +142,20 @@ module Equiv-Poly1-Poly:
   Poly1→Poly:-pres1 : Poly1→Poly: (1r PAstr) ≡ 1r PA:str
   Poly1→Poly:-pres1 = refl
 
-  trad-base-prod : (v v' : Vec ℕ 1) → (a a' : A) → trad-base (v +n-vec v') (a · a') ≡
-                                                      (trad-base v a poly:* trad-base v' a')
-  trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l  [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+IdR (a · a')))
+  trad-base-prod : (v v' : Vec ℕ 1) → (a a' : A) → trad-base (v +n-vec v') (Astr ._·_ a a') ≡
+                                                      _·_ PA:str (trad-base v a) (trad-base v' a')
+  trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+IdR Astr _))
 
-  Poly1→Poly:-pres· : (P Q : Poly A' 1) → Poly1→Poly: (P poly* Q) ≡ (Poly1→Poly: P) poly:* (Poly1→Poly: Q)
-  Poly1→Poly:-pres· = Poly-Ind-Prop.f A' 1
-                        (λ P → (Q : Poly A' 1) → Poly1→Poly: (P poly* Q) ≡ (Poly1→Poly: P poly:* Poly1→Poly: Q))
-                        (λ P p q i Q j → isSetPoly: (Poly1→Poly: (P poly* Q)) (Poly1→Poly: P poly:* Poly1→Poly: Q) (p Q) (q Q) i j)
+  Poly1→Poly:-pres· : (P Q : Poly Acr 1) → Poly1→Poly: (_·_ PAstr P Q) ≡ _·_ PA:str (Poly1→Poly: P) (Poly1→Poly: Q)
+  Poly1→Poly:-pres· = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ λ _ → is-set PA:str _ _)
                         (λ Q → refl)
-                        (λ v a → Poly-Ind-Prop.f A' 1
-                                  (λ P → Poly1→Poly: (base v a poly* P) ≡ (Poly1→Poly: (base v a) poly:* Poly1→Poly: P))
-                                  (λ _ → isSetPoly: _ _)
-                                  (sym (poly:*AnnihilL (trad-base v a)))
+                        (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set PA:str _ _)
+                                  (sym (0RightAnnihilates (CommRing→Ring PA:) _))
                                   (λ v' a' → trad-base-prod v v' a a')
                                   λ {U V} ind-U ind-V → (cong₂ (_+_ PA:str) ind-U ind-V)
-                                                          ∙ sym (·Rdist+ PA:str _ _ _))
+                                                          ∙ sym (·DistR+ PA:str _ _ _))
                         λ {U V} ind-U ind-V Q → (cong₂ (_+_ PA:str) (ind-U Q) (ind-V Q))
-                                                 ∙ sym (·Ldist+ PA:str _ _ _)
+                                                 ∙ sym (·DistL+ PA:str _ _ _)
 
 
 

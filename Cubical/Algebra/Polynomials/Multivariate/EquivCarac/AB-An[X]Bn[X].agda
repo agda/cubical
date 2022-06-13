@@ -42,7 +42,7 @@ module _
                                          (λ v a → base v (f a))
                                          (_+_ (snd PB))
                                          (+Assoc (snd PB))
-                                         (+Rid (snd PB))
+                                         (+IdR (snd PB))
                                          (+Comm (snd PB))
                                          (λ v → (cong (base v) (pres0 fstr)) ∙ (base-neutral v))
                                          (λ v a b → (base-add v (f a) (f b)) ∙ (cong (base v) (sym (pres+ fstr a b))))

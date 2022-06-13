@@ -40,7 +40,7 @@ module Comp-Poly-nm
                        (λ v' a → base (v ++ v') a)
                        (_+_ (snd PAn+m))
                        (+Assoc (snd PAn+m))
-                       (+Rid (snd PAn+m))
+                       (+IdR (snd PAn+m))
                        (+Comm (snd PAn+m))
                        (λ v' → base-neutral (v ++ v'))
                        (λ v' a b → base-add (v ++ v') a b)
@@ -51,7 +51,7 @@ module Comp-Poly-nm
                 PAmn→PAn+m-base
                 (_+_ (snd PAn+m))
                 (+Assoc (snd PAn+m))
-                (+Rid (snd PAn+m))
+                (+IdR (snd PAn+m))
                 (+Comm (snd PAn+m))
                 (λ _ → refl)
                 λ _ _ _ → refl
@@ -65,7 +65,7 @@ module Comp-Poly-nm
                 (λ v a → base (fst (sep-vec n m v)) (base (snd (sep-vec n m v)) a))
                 (_+_ (snd PAmn))
                 (+Assoc (snd PAmn))
-                (+Rid (snd PAmn))
+                (+IdR (snd PAmn))
                 (+Comm (snd PAmn))
                 (λ v → (cong (base (fst (sep-vec n m v))) (base-neutral _)) ∙ (base-neutral _))
                  λ v a b → base-add _ _ _ ∙ cong (base (fst (sep-vec n m v))) (base-add _ _ _)
