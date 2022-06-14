@@ -66,6 +66,7 @@ record GradedRingStr (R : Ring (ℓ-max ℓ ℓ')) : Type (ℓ-suc (ℓ-max ℓ 
 
   open IsGradedRing isGradedRing public
 
+
 GradedRing : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
 GradedRing ℓ ℓ' = Σ[ R ∈ Ring (ℓ-max ℓ ℓ') ] GradedRingStr R
 
@@ -98,6 +99,7 @@ makeIsGradedRing 0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+ equivRin
   isgradedring 0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+ equivRing
 
 
+
 makeGradedRing : (R : Ring (ℓ-max ℓ ℓ')) (IdM : Monoid ℓ)
                  (G      : (k : (fst IdM)) → Type ℓ')
                  (Gstr   : (k : fst IdM) → AbGroupStr (G k))
@@ -125,6 +127,8 @@ GradedRingStr.1⋆ (snd (makeGradedRing R IdM G Gstr 1⋆ _⋆_ 0-⋆ ⋆-0 ⋆A
 GradedRingStr._⋆_ (snd (makeGradedRing R IdM G Gstr 1⋆ _⋆_ 0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+ equivRing)) = _⋆_
 GradedRingStr.isGradedRing (snd (makeGradedRing R IdM G Gstr 1⋆ _⋆_ 0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+ equivRing)) =
   makeIsGradedRing 0-⋆ ⋆-0 ⋆Assoc ⋆IdR ⋆IdL ⋆DistR+ ⋆DistL+ equivRing
+
+
 
 makeGradedRingSelf : (IdM : Monoid ℓ)
                      (G      : (k : (fst IdM)) → Type ℓ')
