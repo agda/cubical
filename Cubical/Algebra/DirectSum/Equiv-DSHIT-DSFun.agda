@@ -140,20 +140,14 @@ module Equiv-Properties
            where
            base0-eq : (k : ℕ) → (n : ℕ) → fun-trad k (0g (Gstr k)) n ≡ 0g (Gstr n)
            base0-eq k n with (discreteℕ k n)
-           ... | yes p = J (λ n p → subst G p (0g (Gstr k)) ≡ 0g (Gstr n))
-                           (transportRefl _)
-                           p
+           ... | yes p = subst0g _
            ... | no ¬p = refl
 
            base-add-eq : (k : ℕ) → (a b : G k) → (n : ℕ) →
                          PathP (λ _ → G n) (Gstr n ._+_ (fun-trad k a n) (fun-trad k b n))
                                                          (fun-trad k ((Gstr k + a) b) n)
            base-add-eq k a b n with (discreteℕ k n)
-           ... | yes p = J (λ n p → Gstr n ._+_ (transp (λ i → G (p i)) i0 a)
-                                                (transp (λ i → G (p i)) i0 b)
-                                     ≡ transp (λ i → G (p i)) i0 ((Gstr k + a) b))
-                         (cong₂ ((Gstr k)._+_) (transportRefl _) (transportRefl _) ∙ sym (transportRefl _))
-                         p
+           ... | yes p = subst+ _ _ _
            ... | no ¬p = +IdR (Gstr n)_
 
   ⊕HIT→Fun-pres0 : ⊕HIT→Fun 0⊕HIT ≡ 0Fun
