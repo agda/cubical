@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Polynomials.Univariate.UnivariateFun.Base where
 
-open import Cubical.Algebra.CommRing.Instances.UnivariatePolyFun public
+open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyFun public
 
 {-
 

@@ -33,7 +33,6 @@ module _ (A : Type ℓ) where
       ⊕Fun-GradedRing
       _+'_ (makeIsMonoid isSetℕ +'-assoc +'-rid +'-lid)
       +'≡+
-      sameFiber
       (λ k → coHom k A)
       (λ k → snd (coHomGroup k A))
       1⌣
@@ -45,11 +44,3 @@ module _ (A : Type ℓ) where
       (λ _ → ΣPathTransport→PathΣ _ _ (refl , transportRefl _ ∙ rUnit⌣ _ _))
       (λ _ _ _ → leftDistr-⌣ _ _ _ _ _)
       λ _ _ _ → rightDistr-⌣ _ _ _ _ _
-    where
-    sameFiber : {i n : ℕ} → (i ≤ n) → i +' (n ∸ i) ≡ n
-    sameFiber {zero} {zero} r = refl
-    sameFiber {zero} {suc n} r = refl
-    sameFiber {suc i} {zero} r = ⊥.rec (¬-<-zero r)
-    sameFiber {suc i} {suc n} r = +'≡+ (suc i) (suc n ∸ suc i)
-                                  ∙ cong suc (sym (+'≡+ i (n ∸ i)))
-                                  ∙ cong suc (sameFiber (pred-≤-pred r))

@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Polynomials.Multivariate.Base where
 
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly public
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly public
 
 {-
 

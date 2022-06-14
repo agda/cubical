@@ -27,7 +27,6 @@ module _
   PolyGradedRing : GradedRing ℓ-zero ℓ
   PolyGradedRing = ⊕Fun-GradedRing
                    _+n_ (makeIsMonoid isSetℕ +-assoc +-zero λ _ → refl) (λ _ _ → refl)
-                   sameFiber
                    (λ _ → A)
                    (λ _ → snd (Ring→AbGroup ARing))
                    1r _·_ 0LeftAnnihilates 0RightAnnihilates
@@ -36,9 +35,3 @@ module _
                    (λ a → ΣPathP (refl , (·IdL _)))
                    ·DistR+
                    ·DistL+
-                 where
-                 sameFiber : {i n : ℕ} → i ≤ n → i +n (n ∸ i) ≡ n
-                 sameFiber {zero} {zero} p = refl
-                 sameFiber {zero} {suc n} p = refl
-                 sameFiber {suc i} {zero} p = ⊥.rec (¬-<-zero p)
-                 sameFiber {suc i} {suc n} p = cong suc (sameFiber (pred-≤-pred p))

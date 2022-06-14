@@ -26,7 +26,6 @@ module _
   UnivariatePolyFun-CommRing : CommRing ℓ
   UnivariatePolyFun-CommRing = ⊕FunGradedRing-CommRing
                    _+n_ (makeIsMonoid isSetℕ +-assoc +-zero λ _ → refl) (λ _ _ → refl)
-                   sameFiber
                    (λ _ → A)
                    (λ _ → snd (Ring→AbGroup (CommRing→Ring ACommRing)))
                    1r _·_ 0LeftAnnihilates 0RightAnnihilates
@@ -36,12 +35,6 @@ module _
                    ·DistR+
                    ·DistL+
                    λ x y → ΣPathP ((+-comm _ _) , (·Comm _ _))
-                 where
-                 sameFiber : {i n : ℕ} → i ≤ n → i +n (n ∸ i) ≡ n
-                 sameFiber {zero} {zero} p = refl
-                 sameFiber {zero} {suc n} p = refl
-                 sameFiber {suc i} {zero} p = ⊥.rec (¬-<-zero p)
-                 sameFiber {suc i} {suc n} p = cong suc (sameFiber (pred-≤-pred p))
 
 nUnivariatePolyFun : (A' : CommRing ℓ) → (n : ℕ) → CommRing ℓ
 nUnivariatePolyFun A' zero = A'
