@@ -228,5 +228,5 @@ module _ (R : CommRing ℓ) {A : Type ℓ}
   pres· (snd InducedCommRingEquiv) = p·
   pres- (snd InducedCommRingEquiv) = pinv
 
-  -- InducedRingPath : R ≡ InducedRing
-  -- InducedRingPath = RingPath _ _ .fst InducedRingEquiv
+  InducedCommRingPath : R ≡ InducedCommRing
+  InducedCommRingPath = CommRingPath _ _ .fst InducedCommRingEquiv

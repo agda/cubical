@@ -1,6 +1,14 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.RingStructure.CohomologyRingFun where
 
+{-
+   There is two definitionof the Cohomology Ring.
+   We recommend to use the HIT definition (the other one)
+   as the ring product is eaiser to handle.
+   Nevertheless the equality is harder to handle so
+   this definition can interessting too.
+-}
+
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Relation.Nullary

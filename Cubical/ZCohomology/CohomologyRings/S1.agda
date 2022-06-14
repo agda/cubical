@@ -349,4 +349,4 @@ module _ where
   snd S¹-CohomologyRing = snd ℤ[X]/X²→H*R-S¹
 
   CohomologyRing-S¹ : RingEquiv (H*R (S₊ 1)) (CommRing→Ring ℤ[X]/X²)
-  CohomologyRing-S¹ = RingEquivs.invEquivRing S¹-CohomologyRing
+  CohomologyRing-S¹ = RingEquivs.invRingEquiv S¹-CohomologyRing

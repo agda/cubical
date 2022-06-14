@@ -387,7 +387,7 @@ module _
                       0-⋆ ⋆-0
                       ⋆Assoc ⋆IdR ⋆IdL
                       ⋆DistR+ ⋆DistL+
-                      (RingEquivs.invEquivRing RingEquiv-DirectSumGradedRing)
+                      (RingEquivs.invRingEquiv RingEquiv-DirectSumGradedRing)
 
 
 -----------------------------------------------------------------------------

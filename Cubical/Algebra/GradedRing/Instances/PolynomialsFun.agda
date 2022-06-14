@@ -31,9 +31,9 @@ module _
                    (λ _ → A)
                    (λ _ → snd (Ring→AbGroup ARing))
                    1r _·_ 0LeftAnnihilates 0RightAnnihilates
-                   (λ a b c → ΣPathTransport→PathΣ _ _ ((+-assoc _ _ _) , (transportRefl _ ∙ ·Assoc _ _ _)))
-                   (λ a → ΣPathTransport→PathΣ _ _ ((+-zero _) , (transportRefl _ ∙ ·IdR _)))
-                   (λ a → ΣPathTransport→PathΣ _ _ (refl , (transportRefl _ ∙ ·IdL _)))
+                   (λ a b c → ΣPathP ((+-assoc _ _ _) , (·Assoc _ _ _)))
+                   (λ a → ΣPathP ((+-zero _) , (·IdR _)))
+                   (λ a → ΣPathP (refl , (·IdL _)))
                    ·DistR+
                    ·DistL+
                  where

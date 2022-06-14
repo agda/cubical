@@ -305,10 +305,10 @@ module _ where
   snd Unit-CohomologyRingP = snd ℤ[X]/X→H*R-Unit
 
   CohomologyRing-UnitP : RingEquiv (H*R Unit) (CommRing→Ring ℤ[X]/X)
-  CohomologyRing-UnitP = invEquivRing Unit-CohomologyRingP
+  CohomologyRing-UnitP = invRingEquiv Unit-CohomologyRingP
 
   Unit-CohomologyRingℤ : RingEquiv (CommRing→Ring ℤCR) (H*R Unit)
-  Unit-CohomologyRingℤ = compRingEquiv (invEquivRing Equiv-ℤ[X]/X-ℤ) Unit-CohomologyRingP
+  Unit-CohomologyRingℤ = compRingEquiv (invRingEquiv Equiv-ℤ[X]/X-ℤ) Unit-CohomologyRingP
 
   CohomologyRing-Unitℤ : RingEquiv (H*R Unit) (CommRing→Ring ℤCR)
   CohomologyRing-Unitℤ = compRingEquiv CohomologyRing-UnitP Equiv-ℤ[X]/X-ℤ

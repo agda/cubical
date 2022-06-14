@@ -80,7 +80,7 @@ module SubstLemma
                          (cong₂ (Gstr l ._+_) (transportRefl _) (transportRefl _) ∙ sym (transportRefl _))
                          p
 
-module DecBaseProperties
+module DecIndec-BaseProperties
   (Idx  : Type ℓ)
   (decIdx : Discrete Idx)
   (G    : Idx → Type ℓ')

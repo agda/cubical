@@ -30,12 +30,12 @@ module _
                    (λ _ → A)
                    (λ _ → snd (Ring→AbGroup (CommRing→Ring ACommRing)))
                    1r _·_ 0LeftAnnihilates 0RightAnnihilates
-                   (λ a b c → ΣPathTransport→PathΣ _ _ ((+-assoc _ _ _) , (transportRefl _ ∙ ·Assoc _ _ _)))
-                   (λ a → ΣPathTransport→PathΣ _ _ ((+-zero _) , (transportRefl _ ∙ ·IdR _)))
-                   (λ a → ΣPathTransport→PathΣ _ _ (refl , (transportRefl _ ∙ ·IdL _)))
+                   (λ a b c → ΣPathP ((+-assoc _ _ _) , (·Assoc _ _ _)))
+                   (λ a → ΣPathP ((+-zero _) , (·IdR _)))
+                   (λ a → ΣPathP (refl , (·IdL _)))
                    ·DistR+
                    ·DistL+
-                   λ x y → ΣPathTransport→PathΣ _ _ ((+-comm _ _) , (transportRefl _ ∙ ·Comm _ _))
+                   λ x y → ΣPathP ((+-comm _ _) , (·Comm _ _))
                  where
                  sameFiber : {i n : ℕ} → i ≤ n → i +n (n ∸ i) ≡ n
                  sameFiber {zero} {zero} p = refl
