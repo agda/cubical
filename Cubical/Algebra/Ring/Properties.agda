@@ -242,6 +242,10 @@ module RingEquivs where
   fst (invEquivRing e) = invEquiv (fst e)
   snd (invEquivRing e) = isRingHomInv e
 
+  idEquivRing : (A : Ring ℓ) → RingEquiv A A
+  fst (idEquivRing A) = idEquiv (fst A)
+  snd (idEquivRing A) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+
 module RingHomTheory {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) where
   open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
