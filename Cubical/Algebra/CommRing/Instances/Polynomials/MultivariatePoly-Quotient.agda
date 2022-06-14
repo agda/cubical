@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient where
+module Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient where
 
 open import Cubical.Foundations.Prelude
 
@@ -17,7 +17,7 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
   renaming (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
 
 private variable

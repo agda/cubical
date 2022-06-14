@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.Poly1-1Poly where
+module Cubical.Algebra.Polynomials.Univariate.UnivariateList.Poly1-1Poly where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -12,10 +12,10 @@ open import Cubical.Data.Vec.OperationsNat
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Polynomials.Univariate.Base renaming (Poly to Poly:)
-open import Cubical.Algebra.Polynomials.Univariate.Properties
-open import Cubical.Algebra.CommRing.Instances.UnivariatePoly
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+open import Cubical.Algebra.Polynomials.Univariate.UnivariateList.Base renaming (Poly to Poly:)
+open import Cubical.Algebra.Polynomials.Univariate.UnivariateList.Properties
+open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
 
 private variable
   ℓ : Level
@@ -26,7 +26,7 @@ module Equiv-Poly1-Poly:
   private
     PA = PolyCommRing Acr 1
     PAstr = snd PA
-    PA: = UnivariatePoly Acr
+    PA: = UnivariatePolyList Acr
     PA:str = snd PA:
 
   open PolyMod Acr using (ElimProp)
@@ -166,7 +166,7 @@ module _ (Acr : CommRing ℓ) where
 
   open Equiv-Poly1-Poly: Acr
 
-  CRE-Poly1-Poly: : CommRingEquiv (PolyCommRing Acr 1) (UnivariatePoly Acr)
+  CRE-Poly1-Poly: : CommRingEquiv (PolyCommRing Acr 1) (UnivariatePolyList Acr)
   fst CRE-Poly1-Poly: = isoToEquiv is
     where
     is : Iso _ _

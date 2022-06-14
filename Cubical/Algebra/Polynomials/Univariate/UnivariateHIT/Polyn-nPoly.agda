@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.Polyn-nPolyHIT where
+module Cubical.Algebra.Polynomials.Univariate.UnivariateHIT.Polyn-nPoly where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -14,11 +14,10 @@ open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.GradedRing.DirectSumFun
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.UnivariatePolyHIT
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyHIT
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
 
 open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.Poly0-A
-open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.Poly1-1Poly
 open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.An[Am[X]]-Anm[X]
 open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.AB-An[X]Bn[X]
 

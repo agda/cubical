@@ -18,10 +18,10 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
      renaming (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ
 
 open import Cubical.Relation.Nullary
 

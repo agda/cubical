@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.CommRing.Instances.MultivariatePoly where
+module Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly where
 
 open import Cubical.Foundations.Prelude
 
