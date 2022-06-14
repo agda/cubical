@@ -13,7 +13,7 @@ private
     ℓ ℓ' : Level
 
 {-
-  WARNING : Is someone use dependant vector in a general case.
+  WARNING : If someone use dependent vector in a general case.
             One always think about the following definition.
             Yet because of the definition one to add (toℕ k).
             Which is going to introduce a lot of issues.
