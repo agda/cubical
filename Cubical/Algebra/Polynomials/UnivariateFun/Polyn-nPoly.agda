@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Univariate.UnivariateFun.Polyn-nPoly where
+module Cubical.Algebra.Polynomials.UnivariateFun.Polyn-nPoly where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -17,7 +17,7 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
 open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.Poly0-A
 open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.An[Am[X]]-Anm[X]
 open import Cubical.Algebra.Polynomials.Multivariate.EquivCarac.AB-An[X]Bn[X]
-open import Cubical.Algebra.Polynomials.Univariate.UnivariateHIT.Polyn-nPoly
+open import Cubical.Algebra.Polynomials.UnivariateHIT.Polyn-nPoly
 
 open CommRingEquivs renaming (compCommRingEquiv to _∘-ecr_ ; invCommRingEquiv to inv-ecr)
 

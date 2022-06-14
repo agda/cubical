@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Univariate.UnivariateHIT.Polyn-nPoly where
+module Cubical.Algebra.Polynomials.UnivariateHIT.Polyn-nPoly where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism

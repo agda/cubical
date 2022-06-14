@@ -1,12 +1,5 @@
-{-A
-Polynomials over commutative rings
-==================================
--}
 {-# OPTIONS --safe #-}
-
-----------------------------------
-
-module Cubical.Algebra.Polynomials.Univariate.UnivariateList.Properties where
+module Cubical.Algebra.Polynomials.UnivariateList.Properties where
 
 open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Foundations.Prelude
@@ -22,7 +15,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 
-open import Cubical.Algebra.Polynomials.Univariate.UnivariateList.Base
+open import Cubical.Algebra.Polynomials.UnivariateList.Base
 
 private
   variable

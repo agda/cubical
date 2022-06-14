@@ -6,8 +6,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat using (ℕ ; zero ; suc)
 
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Polynomials.Univariate.UnivariateList.Base
-open import Cubical.Algebra.Polynomials.Univariate.UnivariateList.Properties
+open import Cubical.Algebra.Polynomials.UnivariateList.Base
+open import Cubical.Algebra.Polynomials.UnivariateList.Properties
 
 private
   variable

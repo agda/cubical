@@ -1,12 +1,10 @@
+{-# OPTIONS --safe #-}
+module Cubical.Algebra.Polynomials.UnivariateList.Base where
+
 {-A
 Polynomials over commutative rings
 ==================================
 -}
-{-# OPTIONS --safe #-}
-
-----------------------------------
-
-module Cubical.Algebra.Polynomials.Univariate.UnivariateList.Base where
 
 open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Foundations.Prelude

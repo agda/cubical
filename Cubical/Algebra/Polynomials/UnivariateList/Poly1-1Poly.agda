@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.Algebra.Polynomials.Univariate.UnivariateList.Poly1-1Poly where
+module Cubical.Algebra.Polynomials.UnivariateList.Poly1-1Poly where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -12,8 +12,8 @@ open import Cubical.Data.Vec.OperationsNat
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Polynomials.Univariate.UnivariateList.Base renaming (Poly to Poly:)
-open import Cubical.Algebra.Polynomials.Univariate.UnivariateList.Properties
+open import Cubical.Algebra.Polynomials.UnivariateList.Base renaming (Poly to Poly:)
+open import Cubical.Algebra.Polynomials.UnivariateList.Properties
 open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
 
