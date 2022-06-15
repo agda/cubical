@@ -12,7 +12,7 @@ open import Cubical.Algebra.Monoid.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 module MonoidBigOp (M' : Monoid ℓ) where
  private M = ⟨ M' ⟩
@@ -55,5 +55,6 @@ module MonoidBigOp (M' : Monoid ℓ) where
  bigOpSplit++ : (∀ x y → x · y ≡ y · x)
               → {n m : ℕ} → (V : FinVec M n) → (W : FinVec M m)
               → bigOp (V ++Fin W) ≡ bigOp V · bigOp W
+
  bigOpSplit++ comm {n = zero} V W = sym (·IdL _)
  bigOpSplit++ comm {n = suc n} V W = cong (V zero ·_) (bigOpSplit++ comm (V ∘ suc) W) ∙ ·Assoc _ _ _

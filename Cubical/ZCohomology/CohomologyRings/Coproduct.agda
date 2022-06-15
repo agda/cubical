@@ -17,7 +17,7 @@ open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.DirectProd
-open import Cubical.Algebra.DirectSum.Base
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 
 open import Cubical.HITs.SetTruncation as ST
 
@@ -38,6 +38,7 @@ module Equiv-Coproduct-Properties
   open Iso
   open IsGroupHom
   open GroupStr
+  open PlusBis
 
   open RingStr (snd (H*R X)) using ()
     renaming

@@ -61,7 +61,7 @@ open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.GradedCommutativity
 
-
+open PlusBis
 
 -- There seems to be some problems with the termination checker.
 -- Spelling out integer induction with 3 base cases like this
