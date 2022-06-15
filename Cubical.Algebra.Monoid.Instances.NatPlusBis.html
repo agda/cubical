@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Algebra.Monoid.Instances.NatPlusBis</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Pragma">--experimental-lossy-unification</a> <a id="53" class="Symbol">#-}</a>
+<a id="57" class="Keyword">module</a> <a id="64" href="Cubical.Algebra.Monoid.Instances.NatPlusBis.html" class="Module">Cubical.Algebra.Monoid.Instances.NatPlusBis</a> <a id="108" class="Keyword">where</a>
+
+<a id="115" class="Keyword">open</a> <a id="120" class="Keyword">import</a> <a id="127" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+
+<a id="156" class="Keyword">open</a> <a id="161" class="Keyword">import</a> <a id="168" href="Cubical.Data.Nat.html" class="Module">Cubical.Data.Nat</a>
+
+<a id="186" class="Keyword">open</a> <a id="191" class="Keyword">import</a> <a id="198" href="Cubical.Algebra.Monoid.html" class="Module">Cubical.Algebra.Monoid</a>
+
+<a id="222" class="Keyword">open</a> <a id="227" href="Cubical.Data.Nat.Properties.html#8554" class="Module">PlusBis</a>
+
+<a id="NatPlusBis-Monoid"></a><a id="236" href="Cubical.Algebra.Monoid.Instances.NatPlusBis.html#236" class="Function">NatPlusBis-Monoid</a> <a id="254" class="Symbol">:</a> <a id="256" href="Cubical.Algebra.Monoid.Base.html#1088" class="Function">Monoid</a> <a id="263" href="Agda.Primitive.html#764" class="Primitive">ℓ-zero</a>
+<a id="270" href="Agda.Builtin.Sigma.html#252" class="Field">fst</a> <a id="274" href="Cubical.Algebra.Monoid.Instances.NatPlusBis.html#236" class="Function">NatPlusBis-Monoid</a> <a id="292" class="Symbol">=</a> <a id="294" href="Agda.Builtin.Nat.html#192" class="Datatype">ℕ</a>
+<a id="296" href="Cubical.Algebra.Monoid.Base.html#970" class="Field">MonoidStr.ε</a> <a id="308" class="Symbol">(</a><a id="309" href="Agda.Builtin.Sigma.html#264" class="Field">snd</a> <a id="313" href="Cubical.Algebra.Monoid.Instances.NatPlusBis.html#236" class="Function">NatPlusBis-Monoid</a><a id="330" class="Symbol">)</a> <a id="332" class="Symbol">=</a> <a id="334" class="Number">0</a>
+<a id="336" href="Cubical.Algebra.Monoid.Base.html#987" class="Field Operator">MonoidStr._·_</a> <a id="350" class="Symbol">(</a><a id="351" href="Agda.Builtin.Sigma.html#264" class="Field">snd</a> <a id="355" href="Cubical.Algebra.Monoid.Instances.NatPlusBis.html#236" class="Function">NatPlusBis-Monoid</a><a id="372" class="Symbol">)</a> <a id="374" class="Symbol">=</a> <a id="376" href="Cubical.Data.Nat.Properties.html#8571" class="Function Operator">_+&#39;_</a>
+<a id="381" href="Cubical.Algebra.Monoid.Base.html#1012" class="Field">MonoidStr.isMonoid</a> <a id="400" class="Symbol">(</a><a id="401" href="Agda.Builtin.Sigma.html#264" class="Field">snd</a> <a id="405" href="Cubical.Algebra.Monoid.Instances.NatPlusBis.html#236" class="Function">NatPlusBis-Monoid</a><a id="422" class="Symbol">)</a> <a id="424" class="Symbol">=</a> <a id="426" href="Cubical.Algebra.Monoid.Base.html#1307" class="Function">makeIsMonoid</a> <a id="439" href="Cubical.Data.Nat.Properties.html#3686" class="Function">isSetℕ</a> <a id="446" href="Cubical.Data.Nat.Properties.html#8923" class="Function">+&#39;-assoc</a> <a id="455" href="Cubical.Data.Nat.Properties.html#9107" class="Function">+&#39;-rid</a> <a id="462" href="Cubical.Data.Nat.Properties.html#9185" class="Function">+&#39;-lid</a>
+</pre></body></html>

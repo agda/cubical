@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Algebra.Polynomials.UnivariateHIT.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Algebra.Polynomials.UnivariateHIT.Base.html" class="Module">Cubical.Algebra.Polynomials.UnivariateHIT.Base</a> <a id="78" class="Keyword">where</a>
+
+<a id="85" class="Keyword">open</a> <a id="90" class="Keyword">import</a> <a id="97" href="Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyHIT.html" class="Module">Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyHIT</a> <a id="162" class="Keyword">public</a>
+
+<a id="170" class="Comment">{-
+
+The Univariate Functional Polynomials over a CommRing A is a CommRing.
+The base type is define using an HIT.
+This definition enables to defined a direct sum indexed by ℕ.
+Thus base type and the AbGroup part of the CommRing is define an instance
+of the more general Direct Sum one which can be found here :
+-}</a>
+
+<a id="484" class="Keyword">open</a> <a id="489" class="Keyword">import</a> <a id="496" href="Cubical.Algebra.DirectSum.DirectSumHIT.Base.html" class="Module">Cubical.Algebra.DirectSum.DirectSumHIT.Base</a>
+
+<a id="541" class="Comment">{-
+
+On this definition of the Direct Sum, it is possible to raise a Graded Ring structure.
+Then complete it to be a CommRing. Those version of the polynomials are hence
+a instance of this graded ring structure.
+
+see : for the details of the constructions
+
+-}</a>
+
+<a id="801" class="Keyword">open</a> <a id="806" class="Keyword">import</a> <a id="813" href="Cubical.Algebra.GradedRing.DirectSumHIT.html" class="Module">Cubical.Algebra.GradedRing.DirectSumHIT</a>
+</pre></body></html>
