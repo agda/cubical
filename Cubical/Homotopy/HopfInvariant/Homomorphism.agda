@@ -49,6 +49,8 @@ open import Cubical.HITs.SetTruncation
   renaming (elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation
 
+open PlusBis
+
 -- The pushout describing the hopf invariant of the multiplication (∙Π) of
 -- two maps (S³⁺²ⁿ →∙ S²⁺ⁿ)
 C·Π : (n : ℕ) (f g : S₊∙ (3 +ℕ (n +ℕ n)) →∙ S₊∙ (2 +ℕ n)) → Type _

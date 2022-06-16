@@ -238,9 +238,13 @@ module RingEquivs where
                fcrh = snd e
                g = invEq et
 
-  invEquivRing : {A : Ring ℓ} → {B : Ring ℓ'} → RingEquiv A B → RingEquiv B A
-  fst (invEquivRing e) = invEquiv (fst e)
-  snd (invEquivRing e) = isRingHomInv e
+  invRingEquiv : {A : Ring ℓ} → {B : Ring ℓ'} → RingEquiv A B → RingEquiv B A
+  fst (invRingEquiv e) = invEquiv (fst e)
+  snd (invRingEquiv e) = isRingHomInv e
+
+  idRingEquiv : (A : Ring ℓ) → RingEquiv A A
+  fst (idRingEquiv A) = idEquiv (fst A)
+  snd (idRingEquiv A) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
 
 module RingHomTheory {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) where
   open RingTheory ⦃...⦄

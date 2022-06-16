@@ -37,10 +37,9 @@ open import Cubical.HITs.Susp
 open import Cubical.Algebra.AbGroup.TensorProduct
 open import Cubical.Algebra.Group
 
-open import Cubical.ZCohomology.RingStructure.CupProduct
-  using (_+'_ ; +'≡+ ; +'-comm)
-
 open AbGroupStr renaming (_+_ to _+Gr_ ; -_ to -Gr_)
+
+open PlusBis
 
 private
   variable
