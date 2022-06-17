@@ -296,15 +296,18 @@ module _ (A : Pointed ℓ) (con : (isConnected 3 (typ A))) where
         con (funExt (λ x → cong (fst f) (Iso.rightInv (IsoSphereJoin 1 1) x)))
 
   π₃* : Group ℓ
-  π₃* = InducedGroup (π'Gr 2 A) (sRec2 squash₂ (λ x y → ∣ x +join y ∣₂))
-        (isoToEquiv π₃*Iso)
+  π₃* = InducedGroupFromPres·
+          (π'Gr 2 A)
+          (sRec2 squash₂ (λ x y → ∣ x +join y ∣₂))
+          (isoToEquiv π₃*Iso)
           (sElim2 (λ _ _ → isSetPathImplicit) (λ f g → cong ∣_∣₂ (+join≡∙Π f g)))
 
   π₃≅π₃* : GroupEquiv (π'Gr 2 A) π₃*
   π₃≅π₃* =
-    InducedGroupEquiv (π'Gr 2 A) (sRec2 squash₂ (λ x y → ∣ x +join y ∣₂))
-        (isoToEquiv π₃*Iso)
-          (sElim2 (λ _ _ → isSetPathImplicit) (λ f g → cong ∣_∣₂ (+join≡∙Π f g)))
+    InducedGroupEquivFromPres· (π'Gr 2 A) (sRec2 squash₂ (λ x y → ∣ x +join y ∣₂))
+      (isoToEquiv π₃*Iso)
+      (sElim2 (λ _ _ → isSetPathImplicit) (λ f g → cong ∣_∣₂ (+join≡∙Π f g)))
+
 
 -- Induced homomorphisms (A →∙ B) → (π₃*(A) → π₃*(B))
 -- todo: remove connectivity assumptions

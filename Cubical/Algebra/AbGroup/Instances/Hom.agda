@@ -24,16 +24,16 @@ module _ (A : AbGroup ℓ) (B : AbGroup ℓ') where
   private
     open IsGroupHom
     open AbGroupStr (A .snd) using () renaming (0g to 0A; _+_ to _⋆_; -_ to inv)
-    open AbGroupStr (B .snd) using (_+_; -_; comm; assoc; identity; inverse)
+    open AbGroupStr (B .snd) using (_+_; -_; +Comm; +Assoc; +IdR ; +InvR)
                              renaming (0g to 0B)
     open GroupTheory (AbGroup→Group B) using (invDistr) renaming (inv1g to inv0B)
 
     -- Some lemmas
     idrB : (b : B .fst) → b + 0B ≡ b
-    idrB b = identity b .fst
+    idrB b = +IdR b
 
     invrB : (b : B .fst) → b + (- b) ≡ 0B
-    invrB b = inverse b .fst
+    invrB b = +InvR b
 
     hom0AB : (f : AbGroupHom A B) → f .fst 0A ≡ 0B
     hom0AB f = hom1g (AbGroupStr→GroupStr (A .snd)) (f .fst)
@@ -64,11 +64,11 @@ module _ (A : AbGroup ℓ) (B : AbGroup ℓ') where
     HomAdd .snd .pres· a a' =
         f (a ⋆ a') + g (a ⋆ a')           ≡⟨ cong (_+ g(a ⋆ a')) (f* .snd .pres· _ _) ⟩
         (f a + f a') + g (a ⋆ a')         ≡⟨ cong ((f a + f a') +_) (g* .snd .pres· _ _) ⟩
-        (f a + f a') + (g a + g a')       ≡⟨ sym (assoc _ _ _) ⟩
-        f a + (f a' + (g a + g a'))       ≡⟨ cong (f a +_) (assoc _ _ _) ⟩
-        f a + ((f a' + g a) + g a')       ≡⟨ cong (λ b → (f a + b + g a')) (comm _ _) ⟩
-        f a + ((g a + f a') + g a')       ≡⟨ cong (f a +_) (sym (assoc _ _ _)) ⟩
-        f a + (g a + (f a' + g a'))       ≡⟨ assoc _ _ _ ⟩
+        (f a + f a') + (g a + g a')       ≡⟨ sym (+Assoc _ _ _) ⟩
+        f a + (f a' + (g a + g a'))       ≡⟨ cong (f a +_) (+Assoc _ _ _) ⟩
+        f a + ((f a' + g a) + g a')       ≡⟨ cong (λ b → (f a + b + g a')) (+Comm _ _) ⟩
+        f a + ((g a + f a') + g a')       ≡⟨ cong (f a +_) (sym (+Assoc _ _ _)) ⟩
+        f a + (g a + (f a' + g a'))       ≡⟨ +Assoc _ _ _ ⟩
         (f a + g a) + (f a' + g a')       ∎
 
     HomAdd .snd .pres1 =
@@ -80,7 +80,7 @@ module _ (A : AbGroup ℓ) (B : AbGroup ℓ') where
     HomAdd .snd .presinv a =
         f (inv a) + g (inv a)     ≡⟨ cong (_+ g (inv a)) (homInvAB f* _) ⟩
         (- f a) + g (inv a)       ≡⟨ cong ((- f a) +_) (homInvAB g* _) ⟩
-        (- f a) + (- g a)         ≡⟨ comm _ _ ⟩
+        (- f a) + (- g a)         ≡⟨ +Comm _ _ ⟩
         (- g a) + (- f a)         ≡⟨ sym (invDistr _ _) ⟩
         - (f a + g a)             ∎
 
@@ -96,7 +96,7 @@ module _ (A : AbGroup ℓ) (B : AbGroup ℓ') where
     HomInv .snd .pres· a a' =
         - f (a ⋆ a')            ≡⟨ cong -_ (f* .snd .pres· _ _) ⟩
         - (f a + f a')          ≡⟨ invDistr _ _ ⟩
-        (- f a') + (- f a)      ≡⟨ comm _ _ ⟩
+        (- f a') + (- f a)      ≡⟨ +Comm _ _ ⟩
         (- f a) + (- f a')      ∎
 
     HomInv .snd .pres1 =
@@ -117,11 +117,11 @@ module _ (A : AbGroup ℓ) (B : AbGroup ℓ') where
 
   -- Morphism addition is associative
   HomAdd-assoc : (f g h : AbGroupHom A B) → (f +ₕ (g +ₕ h)) ≡ ((f +ₕ g) +ₕ h)
-  HomAdd-assoc f g h = GroupHom≡ (funExt λ a → assoc _ _ _)
+  HomAdd-assoc f g h = GroupHom≡ (funExt λ a → +Assoc _ _ _)
 
   -- Morphism addition is commutative
   HomAdd-comm : (f g : AbGroupHom A B) → (f +ₕ g) ≡ (g +ₕ f)
-  HomAdd-comm f g = GroupHom≡ (funExt λ a → comm _ _)
+  HomAdd-comm f g = GroupHom≡ (funExt λ a → +Comm _ _)
 
   -- zero is right identity
   HomAdd-zero : (f : AbGroupHom A B) → (f +ₕ zero) ≡ f

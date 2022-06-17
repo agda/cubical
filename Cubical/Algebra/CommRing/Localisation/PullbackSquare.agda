@@ -178,10 +178,10 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                       PT.rec2 (is-set _ _) exponentHelper u∈[fⁿ] v∈[gⁿ]
    where
    ux≡0 : u · x ≡ 0r
-   ux≡0 = sym (·Rid _) ∙ p ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·Rid _)
+   ux≡0 = sym (·IdR _) ∙ p ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·IdR _)
 
    vx≡0 : v · x ≡ 0r
-   vx≡0 = sym (·Rid _) ∙ q ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·Rid _)
+   vx≡0 = sym (·IdR _) ∙ q ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·IdR _)
 
    exponentHelper : Σ[ n ∈ ℕ ] u ≡ f ^ n
                   → Σ[ n ∈ ℕ ] v ≡ g ^ n
@@ -217,18 +217,18 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
      α₁ = α (suc zero)
 
      1≡α₀fˡ+α₁gˡ : 1r ≡ α₀ · f ^ l + α₁ · g ^ l
-     1≡α₀fˡ+α₁gˡ = 1≡α₀fˡ+α₁gˡ+0 ∙ cong (α₀ · f ^ l +_) (+Rid _)
+     1≡α₀fˡ+α₁gˡ = 1≡α₀fˡ+α₁gˡ+0 ∙ cong (α₀ · f ^ l +_) (+IdR _)
 
      path : x ≡ 0r
-     path = x                                   ≡⟨ sym (·Lid _) ⟩
+     path = x                                   ≡⟨ sym (·IdL _) ⟩
             1r · x                              ≡⟨ cong (_· x) 1≡α₀fˡ+α₁gˡ ⟩
-            (α₀ · f ^ l + α₁ · g ^ l) · x       ≡⟨ ·Ldist+ _ _ _ ⟩
+            (α₀ · f ^ l + α₁ · g ^ l) · x       ≡⟨ ·DistL+ _ _ _ ⟩
             α₀ · f ^ l · x + α₁ · g ^ l · x     ≡⟨ cong₂ _+_ (sym (·Assoc _ _ _))
                                                              (sym (·Assoc _ _ _)) ⟩
             α₀ · (f ^ l · x) + α₁ · (g ^ l · x) ≡⟨ cong₂ (λ y z → α₀ · y + α₁ · z)
                                                          fˡx≡0 gˡx≡0 ⟩
             α₀ · 0r + α₁ · 0r                   ≡⟨ cong₂ _+_ (0RightAnnihilates _)
-                                                             (0RightAnnihilates _) ∙ +Rid _ ⟩
+                                                             (0RightAnnihilates _) ∙ +IdR _ ⟩
             0r ∎
 
 
@@ -346,7 +346,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
       α₁ = α (suc zero)
 
       1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ : 1r ≡ α₀ · f ^ 2n+m + α₁ · g ^ 2n+m
-      1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ = linCombi ∙ cong (α₀ · f ^ 2n+m +_) (+Rid _)
+      1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ = linCombi ∙ cong (α₀ · f ^ 2n+m +_) (+IdR _)
 
       -- definition of the element
       z = α₀ · x · f ^ (n +ℕ m) + α₁ · y · g ^ (n +ℕ m)
@@ -473,7 +473,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
                         [ x , f ^ n , ∣ n , refl ∣₁ ] - [ x , f ^ n , ∣ n , refl ∣₁ ]
 
-                      ≡⟨ +Rinv ([ x , f ^ n , ∣ n , refl ∣₁ ]) ⟩
+                      ≡⟨ +InvR ([ x , f ^ n , ∣ n , refl ∣₁ ]) ⟩
 
                         0r ∎
 
@@ -488,7 +488,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
                         [ y , g ^ n , ∣ n , refl ∣₁ ] - [ y , g ^ n , ∣ n , refl ∣₁ ]
 
-                      ≡⟨ +Rinv ([ y , g ^ n , ∣ n , refl ∣₁ ]) ⟩
+                      ≡⟨ +InvR ([ y , g ^ n , ∣ n , refl ∣₁ ]) ⟩
 
                         0r ∎
 

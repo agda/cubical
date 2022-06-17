@@ -100,27 +100,27 @@ module FinMatrixAbGroup (G' : AbGroup ℓ) where
 
   addFinMatrixAssoc : ∀ {m n} → (M N K : FinMatrix G m n)
                     → addFinMatrix M (addFinMatrix N K) ≡ addFinMatrix (addFinMatrix M N) K
-  addFinMatrixAssoc M N K i j k = assoc (M j k) (N j k) (K j k) i
+  addFinMatrixAssoc M N K i j k = +Assoc (M j k) (N j k) (K j k) i
 
   addFinMatrix0r : ∀ {m n} → (M : FinMatrix G m n)
                  → addFinMatrix M zeroFinMatrix ≡ M
-  addFinMatrix0r M i j k = rid (M j k) i
+  addFinMatrix0r M i j k = +IdR (M j k) i
 
   addFinMatrix0l : ∀ {m n} → (M : FinMatrix G m n)
                  → addFinMatrix zeroFinMatrix M ≡ M
-  addFinMatrix0l M i j k = lid (M j k) i
+  addFinMatrix0l M i j k = +IdL (M j k) i
 
   addFinMatrixNegMatrixr : ∀ {m n} → (M : FinMatrix G m n)
                          → addFinMatrix M (negFinMatrix M) ≡ zeroFinMatrix
-  addFinMatrixNegMatrixr M i j k = invr (M j k) i
+  addFinMatrixNegMatrixr M i j k = +InvR (M j k) i
 
   addFinMatrixNegMatrixl : ∀ {m n} → (M : FinMatrix G m n)
                          → addFinMatrix (negFinMatrix M) M ≡ zeroFinMatrix
-  addFinMatrixNegMatrixl M i j k = invl (M j k) i
+  addFinMatrixNegMatrixl M i j k = +InvL (M j k) i
 
   addFinMatrixComm : ∀ {m n} → (M N : FinMatrix G m n)
                    → addFinMatrix M N ≡ addFinMatrix N M
-  addFinMatrixComm M N i k l = comm (M k l) (N k l) i
+  addFinMatrixComm M N i k l = +Comm (M k l) (N k l) i
 
   FinMatrixAbGroup : (m n : ℕ) → AbGroup ℓ
   FinMatrixAbGroup m n =
@@ -135,6 +135,7 @@ module _ (G' : AbGroup ℓ) where
 
   open AbGroupStr (snd G')
   private G = ⟨ G' ⟩
+
   zeroVecMatrix : ∀ {m n} → VecMatrix G m n
   zeroVecMatrix = replicate (replicate 0g)
 
@@ -151,14 +152,32 @@ module _ (G' : AbGroup ℓ) where
 
   open FinMatrixAbGroup
 
+  FinMatrix→VecMatrixPres0 : (m n : ℕ) →
+    FinMatrix→VecMatrix (zeroFinMatrix G') ≡ zeroVecMatrix {m = m} {n = n}
+  FinMatrix→VecMatrixPres0 zero n = refl
+  FinMatrix→VecMatrixPres0 (suc m) n = cong₂ _∷_ (lem0 n) (FinMatrix→VecMatrixPres0 m n)
+    where
+    lem0 : (n : ℕ) → FinVec→Vec (zeroFinMatrix G' (zero {n = m})) ≡ replicate {n = n} 0g
+    lem0 zero = refl
+    lem0 (suc n) = cong (0g ∷_) (lem0 n)
+
+  FinMatrix→VecMatrixPres- : (m n : ℕ) (M : FinMatrix G m n)
+    → FinMatrix→VecMatrix (negFinMatrix G' M) ≡ negVecMatrix (FinMatrix→VecMatrix M)
+  FinMatrix→VecMatrixPres- zero n M = refl
+  FinMatrix→VecMatrixPres- (suc m) n M = cong₂ _∷_ (lem n (M zero)) (FinMatrix→VecMatrixPres- m n (λ i j → M (suc i) j))
+    where
+    lem : (n : ℕ) (V : FinVec G n) → FinVec→Vec (λ i → - V i) ≡ map -_ (FinVec→Vec V)
+    lem zero V = refl
+    lem (suc n) V = cong ((- V zero) ∷_) (lem n (V ∘ suc))
+
   -- Proof that FinMatrix→VecMatrix is a group homorphism
-  FinMatrix→VecMatrixHomAdd : (m n : ℕ) (M N : FinMatrix G m n)
+  FinMatrix→VecMatrixPres+ : (m n : ℕ) (M N : FinMatrix G m n)
     → FinMatrix→VecMatrix (addFinMatrix G' M N) ≡
       addVecMatrix (FinMatrix→VecMatrix M) (FinMatrix→VecMatrix N)
-  FinMatrix→VecMatrixHomAdd zero n M N = refl
-  FinMatrix→VecMatrixHomAdd (suc m) n M N =
+  FinMatrix→VecMatrixPres+ zero n M N = refl
+  FinMatrix→VecMatrixPres+ (suc m) n M N =
     λ i → lem n (M zero) (N zero) i
-        ∷ FinMatrix→VecMatrixHomAdd m n (λ i j → M (suc i) j) (λ i j → N (suc i) j) i
+        ∷ FinMatrix→VecMatrixPres+ m n (λ i j → M (suc i) j) (λ i j → N (suc i) j) i
      where
      lem : (n : ℕ) (V W : FinVec G n)
        → FinVec→Vec (λ j → V j + W j) ≡ addVec (FinVec→Vec V) (FinVec→Vec W)
@@ -169,14 +188,13 @@ module _ (G' : AbGroup ℓ) where
   -- VecMatrix that is equal to the one on FinMatrix
   VecMatrixAbGroup : (m n : ℕ) → AbGroup ℓ
   VecMatrixAbGroup m n =
-    InducedAbGroup (FinMatrixAbGroup G' m n) addVecMatrix
-      FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
+    InducedAbGroup (FinMatrixAbGroup G' m n) addVecMatrix zeroVecMatrix negVecMatrix FinMatrix≃VecMatrix
+      (FinMatrix→VecMatrixPres+ m n) (FinMatrix→VecMatrixPres0 m n) (FinMatrix→VecMatrixPres- m n)
 
   FinMatrixAbGroup≡VecMatrixAbGroup : (m n : ℕ) → FinMatrixAbGroup G' m n ≡ VecMatrixAbGroup m n
   FinMatrixAbGroup≡VecMatrixAbGroup m n =
-    InducedAbGroupPath (FinMatrixAbGroup G' m n) addVecMatrix
-      FinMatrix≃VecMatrix (FinMatrix→VecMatrixHomAdd m n)
-
+    InducedAbGroupPath (FinMatrixAbGroup G' m n) addVecMatrix zeroVecMatrix negVecMatrix FinMatrix≃VecMatrix
+      (FinMatrix→VecMatrixPres+ m n) (FinMatrix→VecMatrixPres0 m n) (FinMatrix→VecMatrixPres- m n)
 
 -- Define identity matrix and matrix multiplication for FinMatrix and
 -- prove that square matrices form a ring
@@ -198,7 +216,7 @@ module _ (R' : Ring ℓ) where
 
   ∑Exchange : ∀ {m n} → (M : FinMatrix R m n) → ∑ (λ i → ∑ (λ j → M i j)) ≡ ∑ (λ j → ∑ (λ i → M i j))
   ∑Exchange {m = zero}  {n = n}     M = sym (∑0r n)
-  ∑Exchange {m = suc m} {n = zero}  M = cong (λ x → 0r + x) (∑0r m) ∙ +Rid 0r
+  ∑Exchange {m = suc m} {n = zero}  M = cong (λ x → 0r + x) (∑0r m) ∙ +IdR 0r
   ∑Exchange {m = suc m} {n = suc n} M =
      let a  = M zero zero
          L  = ∑ λ j → M zero (suc j)
@@ -233,14 +251,14 @@ module _ (R' : Ring ℓ) where
   mulFinMatrixrDistrAddFinMatrix : ∀ {n} (M N K : FinMatrix R n n)
                                  → mulFinMatrix M (addFinMatrix N K) ≡ addFinMatrix (mulFinMatrix M N) (mulFinMatrix M K)
   mulFinMatrixrDistrAddFinMatrix M N K = funExt₂ λ i j →
-    ∑ (λ k → M i k · (N k j + K k j))                 ≡⟨ ∑Ext (λ k → ·Rdist+ (M i k) (N k j) (K k j)) ⟩
+    ∑ (λ k → M i k · (N k j + K k j))                 ≡⟨ ∑Ext (λ k → ·DistR+ (M i k) (N k j) (K k j)) ⟩
     ∑ (λ k → M i k · N k j + M i k · K k j)           ≡⟨ ∑Split (λ k → M i k · N k j) (λ k → M i k · K k j) ⟩
     ∑ (λ k → M i k · N k j) + ∑ (λ k → M i k · K k j) ∎
 
   mulFinMatrixlDistrAddFinMatrix : ∀ {n} (M N K : FinMatrix R n n)
                                  → mulFinMatrix (addFinMatrix M N) K ≡ addFinMatrix (mulFinMatrix M K) (mulFinMatrix N K)
   mulFinMatrixlDistrAddFinMatrix M N K = funExt₂ λ i j →
-    ∑ (λ k → (M i k + N i k) · K k j)                 ≡⟨ ∑Ext (λ k → ·Ldist+ (M i k) (N i k) (K k j)) ⟩
+    ∑ (λ k → (M i k + N i k) · K k j)                 ≡⟨ ∑Ext (λ k → ·DistL+ (M i k) (N i k) (K k j)) ⟩
     ∑ (λ k → M i k · K k j + N i k · K k j)           ≡⟨ ∑Split (λ k → M i k · K k j) (λ k → N i k · K k j) ⟩
     ∑ (λ k → M i k · K k j) + ∑ (λ k → N i k · K k j) ∎
 
@@ -293,7 +311,7 @@ module ProdFin (R' : CommRing ℓ) where
             → (∑ U) · (∑ V) ≡ ∑ (U ··Fin V)
  ∑Dist··Fin {n = zero} U V = 0LeftAnnihilates _
  ∑Dist··Fin {n = suc n} U V =
-  (U zero + ∑ (U ∘ suc)) · (∑ V) ≡⟨ ·Ldist+ _ _ _ ⟩
+  (U zero + ∑ (U ∘ suc)) · (∑ V) ≡⟨ ·DistL+ _ _ _ ⟩
   U zero · (∑ V) + (∑ (U ∘ suc)) · (∑ V) ≡⟨ cong₂ (_+_) (∑Mulrdist _ V) (∑Dist··Fin (U ∘ suc) V) ⟩
   ∑ (λ j → U zero · V j) + ∑ ((U ∘ suc) ··Fin V) ≡⟨ sym (∑Split++ (λ j → U zero · V j) _) ⟩
   ∑ ((λ j → U zero · V j) ++Fin ((U ∘ suc) ··Fin V)) ∎

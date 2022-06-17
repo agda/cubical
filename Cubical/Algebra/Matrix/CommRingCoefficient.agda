@@ -149,7 +149,7 @@ module Coefficient (𝓡 : CommRing ℓ) where
   -- Inversion formula for 2 × 2 matrices
 
   dot2 : (V W : FinVec R 2) → (∑ λ i → V i · W i) ≡ V zero · W zero + V one · W one
-  dot2 V W i = V zero · W zero + (+Rid (V one · W one) i)
+  dot2 V W i = V zero · W zero + (+IdR (V one · W one) i)
 
   mul2 :
       (M : Mat m 2)(N : Mat 2 n)
@@ -321,8 +321,8 @@ module Coefficient (𝓡 : CommRing ℓ) where
 
   isInv⊕ : (M : Mat m m) → isInv M → (isInv (1r ⊕ M))
   isInv⊕ M isInvM .fst = 1r ⊕ isInvM .fst
-  isInv⊕ M isInvM .snd .fst = ⊕-⋆ _ _ _ _ ∙ (λ t → ·Lid 1r t ⊕ isInvM .snd .fst t) ∙ 1⊕𝟙
-  isInv⊕ M isInvM .snd .snd = ⊕-⋆ _ _ _ _ ∙ (λ t → ·Rid 1r t ⊕ isInvM .snd .snd t) ∙ 1⊕𝟙
+  isInv⊕ M isInvM .snd .fst = ⊕-⋆ _ _ _ _ ∙ (λ t → ·IdL 1r t ⊕ isInvM .snd .fst t) ∙ 1⊕𝟙
+  isInv⊕ M isInvM .snd .snd = ⊕-⋆ _ _ _ _ ∙ (λ t → ·IdR 1r t ⊕ isInvM .snd .snd t) ∙ 1⊕𝟙
 
   ⊕SimRel : (a : R){M N : Mat m n} → (sim : SimRel M N) → SimRel (a ⊕ M) (a ⊕ N)
   ⊕SimRel _ sim .transMatL = 1r ⊕ sim .transMatL

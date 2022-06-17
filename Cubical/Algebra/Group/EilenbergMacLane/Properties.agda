@@ -82,7 +82,7 @@ module _ (Ĝ : Group ℓ) where
                                                    ((emloop-comp Ĝ 1g 1g) ⁻¹) ⟩
     emloop (1g · 1g) ∙ (emloop 1g) ⁻¹         ≡⟨ cong (λ g → emloop {Group = Ĝ} g
                                                              ∙ (emloop 1g) ⁻¹)
-                                                      (rid 1g) ⟩
+                                                      (·IdR 1g) ⟩
     emloop 1g ∙ (emloop 1g) ⁻¹                ≡⟨ rCancel (emloop 1g) ⟩
     refl ∎
 
@@ -96,7 +96,7 @@ module _ (Ĝ : Group ℓ) where
                                                       ((emloop-comp Ĝ (inv g) g) ⁻¹) ⟩
     emloop (inv g · g) ∙ (emloop g) ⁻¹          ≡⟨ cong (λ h → emloop {Group = Ĝ} h
                                                             ∙ (emloop g) ⁻¹)
-                                                      (invl g) ⟩
+                                                      (·InvL g) ⟩
     emloop 1g ∙ (emloop g) ⁻¹                 ≡⟨ cong (_∙ (emloop g) ⁻¹) emloop-id ⟩
     refl ∙ (emloop g) ⁻¹                      ≡⟨ (lUnit ((emloop g) ⁻¹)) ⁻¹ ⟩
     (emloop g) ⁻¹ ∎
@@ -116,17 +116,17 @@ module _ (Ĝ : Group ℓ) where
     isom .Iso.fun = _· g
     isom .Iso.inv = _· inv g
     isom .Iso.rightInv h =
-      (h · inv g) · g ≡⟨ (assoc h (inv g) g) ⁻¹ ⟩
-        h · inv g · g ≡⟨ cong (h ·_) (invl g) ⟩
-             h · 1g ≡⟨ rid h ⟩ h ∎
+      (h · inv g) · g ≡⟨ (·Assoc h (inv g) g) ⁻¹ ⟩
+        h · inv g · g ≡⟨ cong (h ·_) (·InvL g) ⟩
+             h · 1g ≡⟨ ·IdR h ⟩ h ∎
     isom .Iso.leftInv h =
-      (h · g) · inv g ≡⟨ (assoc h g (inv g)) ⁻¹ ⟩
-        h · g · inv g ≡⟨ cong (h ·_) (invr g) ⟩
-             h · 1g ≡⟨ rid h ⟩ h ∎
+      (h · g) · inv g ≡⟨ (·Assoc h g (inv g)) ⁻¹ ⟩
+        h · g · inv g ≡⟨ cong (h ·_) (·InvR g) ⟩
+             h · 1g ≡⟨ ·IdR h ⟩ h ∎
 
   compRightEquiv : (g h : G)
     → compEquiv (rightEquiv g) (rightEquiv h) ≡ rightEquiv (g · h)
-  compRightEquiv g h = equivEq (funExt (λ x → (assoc x g h) ⁻¹))
+  compRightEquiv g h = equivEq (funExt (λ x → (·Assoc x g h) ⁻¹))
 
   CodesSet : EM₁ Ĝ → hSet ℓ
   CodesSet = EMrec Ĝ (isOfHLevelTypeOfHLevel 2) (G , is-set) RE REComp
@@ -168,7 +168,7 @@ module _ (Ĝ : Group ℓ) where
     λ g → encode embase (decode embase g) ≡⟨ refl ⟩
           encode embase (emloop g) ≡⟨ refl ⟩
           transport (ua (rightEquiv g)) 1g ≡⟨ uaβ (rightEquiv g) 1g ⟩
-          1g · g ≡⟨ lid g ⟩
+          1g · g ≡⟨ ·IdL g ⟩
           g ∎
 
   ΩEM₁Iso : Iso (Path (EM₁ Ĝ) embase embase) G
@@ -183,7 +183,7 @@ module _ (Ĝ : Group ℓ) where
 --------- Ω (EMₙ₊₁ G) ≃ EMₙ G ---------
 module _ {G : AbGroup ℓ} where
   open AbGroupStr (snd G)
-    renaming (_+_ to _+G_ ; -_ to -G_ ; assoc to assocG)
+    renaming (_+_ to _+G_ ; -_ to -G_ ; +Assoc to +AssocG)
 
   CODE : (n : ℕ) → EM G (suc (suc n)) → TypeOfHLevel ℓ (3 + n)
   CODE n =
