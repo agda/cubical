@@ -211,15 +211,19 @@ module Equiv-Sn-Properties (n : ℕ) where
 -----------------------------------------------------------------------------
 -- Morphism on ℤ[x]
 
+  ϕ₀-pres1 : (m : ℕ) → inv (fst (H⁰-Sⁿ≅ℤ m)) 1 ≡ 1⌣
+  ϕ₀-pres1 zero = refl
+  ϕ₀-pres1 (suc m) = refl
+
   -- doesn't compute without an abstract value !
   ℤ[x]→H*-Sⁿ-pres1 : ℤ[x]→H*-Sⁿ (1Pℤ) ≡ 1H*
-  ℤ[x]→H*-Sⁿ-pres1 = {!!}
+  ℤ[x]→H*-Sⁿ-pres1 = cong (base 0) (ϕ₀-pres1 n)
 
   ℤ[x]→H*-Sⁿ-pres+ : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x +Pℤ y) ≡ ℤ[x]→H*-Sⁿ x +H* ℤ[x]→H*-Sⁿ y
   ℤ[x]→H*-Sⁿ-pres+ x y = refl
 
   ϕ₀-gen : (k : ℕ) → (f : coHom k (S₊ (suc n))) → ϕ₀ (pos 1) ⌣ f ≡ f
-  ϕ₀-gen k = {!!}
+  ϕ₀-gen k f = cong (λ X → X ⌣ f) (ϕ₀-pres1 n) ∙ rUnit⌣ k f
 
   open pres⌣
 
@@ -232,7 +236,7 @@ module Equiv-Sn-Properties (n : ℕ) where
   pres·-base-case-int zero          a (suc (suc l)) b = refl
   pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-Sⁿ (·PℤComm (base (one ∷ []) a) (base (zero ∷ []) b))
                                                          ∙ pres·-base-case-int zero b one a
-                                                         ∙ gradCommRing (S₊ (suc n)) 0 (suc n) (inv (fst (H⁰-Sⁿ≅ℤ n)) b) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)
+                                                         ∙ gradCommRing (S₊ (suc n)) 0 (suc n) _ _
   pres·-base-case-int one           a one           b = sym (base-neutral (suc n +' suc n))
                                                          ∙ cong (base (suc n +' suc n))
                                                            (isOfHLevelRetractFromIso
@@ -244,166 +248,162 @@ module Equiv-Sn-Properties (n : ℕ) where
 
 
 
+  pres·-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
+                ℤ[x]→H*-Sⁿ (base v a ·Pℤ base v' b)
+              ≡ ℤ[x]→H*-Sⁿ (base v a) cup ℤ[x]→H*-Sⁿ (base v' b)
+  pres·-base-case-vec (k ∷ []) a (l ∷ []) b = pres·-base-case-int k a l b
+
+  -- proof of the morphism
+  ℤ[x]→H*-Sⁿ-pres· : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x ·Pℤ y) ≡ ℤ[x]→H*-Sⁿ x cup ℤ[x]→H*-Sⁿ y
+  ℤ[x]→H*-Sⁿ-pres· = DS-Ind-Prop.f _ _ _ _
+                         (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
+                         (λ y → refl)
+                         base-case
+                         λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
+    where
+    base-case : _
+    base-case (k ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+                           (sym (RingTheory.0RightAnnihilates (H*R (S₊ (suc n))) _))
+                           (λ v' b → pres·-base-case-vec (k ∷ []) a v' b)
+                           λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
---   pres·-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
---                 ℤ[x]→H*-Sⁿ (base v a ·Pℤ base v' b)
---               ≡ ℤ[x]→H*-Sⁿ (base v a) cup ℤ[x]→H*-Sⁿ (base v' b)
---   pres·-base-case-vec (k ∷ []) a (l ∷ []) b = pres·-base-case-int k a l b
+-----------------------------------------------------------------------------
+-- Function on ℤ[x]/x + morphism
 
---   -- proof of the morphism
---   ℤ[x]→H*-Sⁿ-pres· : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x ·Pℤ y) ≡ ℤ[x]→H*-Sⁿ x cup ℤ[x]→H*-Sⁿ y
---   ℤ[x]→H*-Sⁿ-pres· = DS-Ind-Prop.f _ _ _ _
---                          (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
---                          (λ y → refl)
---                          base-case
---                          λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
---     where
---     base-case : _
---     base-case (k ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
---                            (sym (RingTheory.0RightAnnihilates (H*R (S₊ (suc n))) _))
---                            (λ v' b → pres·-base-case-vec (k ∷ []) a v' b)
---                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
+  ℤ[x]→H*-Sⁿ-cancelX : (k : Fin 1) → ℤ[x]→H*-Sⁿ (<X²> k) ≡ 0H*
+  ℤ[x]→H*-Sⁿ-cancelX zero = refl
 
+  ℤ[X]→H*-Sⁿ : RingHom (CommRing→Ring ℤ[X]) (H*R (S₊ (suc n)))
+  fst ℤ[X]→H*-Sⁿ = ℤ[x]→H*-Sⁿ
+  snd ℤ[X]→H*-Sⁿ = makeIsRingHom ℤ[x]→H*-Sⁿ-pres1 ℤ[x]→H*-Sⁿ-pres+ ℤ[x]→H*-Sⁿ-pres·
 
--- -----------------------------------------------------------------------------
--- -- Function on ℤ[x]/x + morphism
+  ℤ[X]/X²→H*R-Sⁿ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ (suc n)))
+  ℤ[X]/X²→H*R-Sⁿ =
+    Quotient-FGideal-CommRing-Ring.inducedHom ℤ[X] (H*R (S₊ (suc n))) ℤ[X]→H*-Sⁿ <X²> ℤ[x]→H*-Sⁿ-cancelX
 
---   ℤ[x]→H*-Sⁿ-cancelX : (k : Fin 1) → ℤ[x]→H*-Sⁿ (<X²> k) ≡ 0H*
---   ℤ[x]→H*-Sⁿ-cancelX zero = refl
-
---   ℤ[X]→H*-Sⁿ : RingHom (CommRing→Ring ℤ[X]) (H*R (S₊ (suc n)))
---   fst ℤ[X]→H*-Sⁿ = ℤ[x]→H*-Sⁿ
---   snd ℤ[X]→H*-Sⁿ = makeIsRingHom ℤ[x]→H*-Sⁿ-pres1 ℤ[x]→H*-Sⁿ-pres+ ℤ[x]→H*-Sⁿ-pres·
-
---   ℤ[X]/X²→H*R-Sⁿ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ (suc n)))
---   ℤ[X]/X²→H*R-Sⁿ =
---     Quotient-FGideal-CommRing-Ring.inducedHom ℤ[X] (H*R (S₊ (suc n))) ℤ[X]→H*-Sⁿ <X²> ℤ[x]→H*-Sⁿ-cancelX
-
---   ℤ[x]/x²→H*-Sⁿ : ℤ[x]/x² → H* (S₊ (suc n))
---   ℤ[x]/x²→H*-Sⁿ = fst ℤ[X]/X²→H*R-Sⁿ
-
-
-
--- -----------------------------------------------------------------------------
--- -- Converse Sens on ℤ[X] + ℤ[x]/x
-
---   base-trad-H* : (k : ℕ) → (a : coHom k (S₊ (suc n))) → (x : partℕ k) → ℤ[x]
---   base-trad-H* k a (is0 x) = base (0 ∷ []) (fun (fst (H⁰-Sⁿ≅ℤ n)) (substCoHom x a))
---   base-trad-H* k a (isSn x) = base (1 ∷ []) (fun (fst (Hⁿ-Sⁿ≅ℤ n)) (substCoHom x a))
---   base-trad-H* k a (else x) = 0Pℤ
-
---   H*-Sⁿ→ℤ[x] : H* (S₊ (suc n)) → ℤ[x]
---   H*-Sⁿ→ℤ[x] = DS-Rec-Set.f _ _ _ _ isSetPℤ
---        0Pℤ
---        (λ k a → base-trad-H* k a (part k))
---        _+Pℤ_
---        +PℤAssoc
---        +PℤIdR
---        +PℤComm
---        (λ k → base-neutral-eq k (part k))
---        λ k a b → base-add-eq k a b (part k)
---     where
-
---     base-neutral-eq : (k : ℕ) → (x : partℕ k) → base-trad-H* k (0ₕ k) x ≡ 0Pℤ
---     base-neutral-eq k (is0 x)  = cong (base (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (subst-0 k 0 x))
---                                  ∙ cong (base (0 ∷ [])) (pres1 (snd (H⁰-Sⁿ≅ℤ n)))
---                                  ∙ base-neutral (0 ∷ [])
---     base-neutral-eq k (isSn x) = cong (base (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (subst-0 k (suc n) x))
---                                  ∙ cong (base (1 ∷ [])) (pres1 (snd (Hⁿ-Sⁿ≅ℤ n)))
---                                  ∙ base-neutral (1 ∷ [])
---     base-neutral-eq k (else x) = refl
-
-
---     base-add-eq : (k : ℕ) → (a b : coHom k (S₊ (suc n))) → (x : partℕ k)
---                   → base-trad-H* k a x +Pℤ base-trad-H* k b x ≡ base-trad-H* k (a +ₕ b) x
---     base-add-eq k a b (is0 x) = base-add _ _ _
---                                 ∙ cong (base (0 ∷ [])) (sym (pres· (snd (H⁰-Sⁿ≅ℤ n)) _ _))
---                                 ∙ cong (base (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n))) (sym (subst-+ k a b 0 x)))
---     base-add-eq k a b (isSn x) =  base-add _ _ _
---                                   ∙ cong (base (1 ∷ [])) (sym (pres· (snd (Hⁿ-Sⁿ≅ℤ n)) _ _))
---                                   ∙ cong (base (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n))) (sym (subst-+ k a b (suc n) x)))
---     base-add-eq k a b (else x) = +PℤIdR _
-
-
---   H*-Sⁿ→ℤ[x]-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x] ( x +H* y) ≡ H*-Sⁿ→ℤ[x] x +Pℤ H*-Sⁿ→ℤ[x] y
---   H*-Sⁿ→ℤ[x]-pres+ x y = refl
-
---   H*-Sⁿ→ℤ[x]/x² : H* (S₊ (suc n)) → ℤ[x]/x²
---   H*-Sⁿ→ℤ[x]/x² = [_] ∘ H*-Sⁿ→ℤ[x]
-
---   H*-Sⁿ→ℤ[x]/x²-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x]/x² (x +H* y) ≡ (H*-Sⁿ→ℤ[x]/x² x) +PℤI (H*-Sⁿ→ℤ[x]/x² y)
---   H*-Sⁿ→ℤ[x]/x²-pres+ x y = refl
+  ℤ[x]/x²→H*-Sⁿ : ℤ[x]/x² → H* (S₊ (suc n))
+  ℤ[x]/x²→H*-Sⁿ = fst ℤ[X]/X²→H*R-Sⁿ
 
 
 
--- -----------------------------------------------------------------------------
--- -- Section
+-----------------------------------------------------------------------------
+-- Converse Sens on ℤ[X] + ℤ[x]/x
 
---   e-sect-base : (k : ℕ) → (a : coHom k (S₊ (suc n))) → (x : partℕ k) →
---                 ℤ[x]/x²→H*-Sⁿ [ (base-trad-H* k a x) ] ≡ base k a
---   e-sect-base k a (is0 x)  = cong (base 0) (leftInv (fst (H⁰-Sⁿ≅ℤ n)) (substCoHom x a))
---                              ∙ sym (constSubstCommSlice (λ x → coHom x (S₊ (suc n))) (H* (S₊ (suc n))) base x a)
+  base-trad-H* : (k : ℕ) → (a : coHom k (S₊ (suc n))) → (x : partℕ k) → ℤ[x]
+  base-trad-H* k a (is0 x) = base (0 ∷ []) (ϕ₀⁻¹ (substG x a))
+  base-trad-H* k a (isSn x) = base (1 ∷ []) (ϕₙ⁻¹ (substG x a))
+  base-trad-H* k a (else x) = 0Pℤ
 
---   e-sect-base k a (isSn x) = cong (base (suc n)) (leftInv (fst (Hⁿ-Sⁿ≅ℤ n)) (substCoHom x a))
---                              ∙ sym (constSubstCommSlice (λ x → coHom x (S₊ (suc n))) (H* (S₊ (suc n))) base x a)
---   e-sect-base k a (else x) = sym (base-neutral k)
---                              ∙ constSubstCommSlice ((λ x → coHom x (S₊ (suc n)))) ((H* (S₊ (suc n)))) base (suc-predℕ k (fst x)) (0ₕ k)
---                              ∙ cong (base (suc (predℕ k)))
---                                ((isOfHLevelRetractFromIso 1
---                                        (fst (Hⁿ-Sᵐ≅0 (predℕ k) n λ p → snd x (suc-predℕ k (fst x) ∙ cong suc p)))
---                                        isPropUnit _ _))
---                              ∙ sym (constSubstCommSlice ((λ x → coHom x (S₊ (suc n)))) ((H* (S₊ (suc n)))) base (suc-predℕ k (fst x)) a)
+  H*-Sⁿ→ℤ[x] : H* (S₊ (suc n)) → ℤ[x]
+  H*-Sⁿ→ℤ[x] = DS-Rec-Set.f _ _ _ _ isSetPℤ
+       0Pℤ
+       (λ k a → base-trad-H* k a (part k))
+       _+Pℤ_
+       +PℤAssoc
+       +PℤIdR
+       +PℤComm
+       (λ k → base-neutral-eq k (part k))
+       λ k a b → base-add-eq k a b (part k)
+    where
 
---   e-sect : (x : H* (S₊ (suc n))) → ℤ[x]/x²→H*-Sⁿ (H*-Sⁿ→ℤ[x]/x² x) ≡ x
---   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
---            refl
---            (λ k a → e-sect-base k a (part k))
---            λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
-
-
--- -----------------------------------------------------------------------------
--- -- Retraction
-
---   e-retr : (x : ℤ[x]/x²) → H*-Sⁿ→ℤ[x]/x² (ℤ[x]/x²→H*-Sⁿ x) ≡ x
---   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
---            (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
---            refl
---            base-case
---            λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
---            where
---            base-case : _
---            base-case (zero ∷ []) a = cong [_] (cong (base-trad-H* 0 (inv (fst (H⁰-Sⁿ≅ℤ n)) a)) part0)
---                                      ∙ cong [_] (cong (base (0 ∷ [])) (cong (fun (fst (H⁰-Sⁿ≅ℤ n)))
---                                                                              (substReflCoHom (inv (fst (H⁰-Sⁿ≅ℤ n)) a))))
---                                      ∙ cong [_] (cong (base (0 ∷ [])) (rightInv (fst (H⁰-Sⁿ≅ℤ n)) a))
---            base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a)) (partSn (part (suc n))))
---                                      ∙ cong [_] (cong (base (1 ∷ [])) (cong (fun (fst (Hⁿ-Sⁿ≅ℤ n)))
---                                                                              (substReflCoHom (inv (fst (Hⁿ-Sⁿ≅ℤ n)) a))))
---                                      ∙ cong [_] (cong (base (1 ∷ [])) (rightInv (fst (Hⁿ-Sⁿ≅ℤ n)) a))
---            base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (base (suc (suc k) ∷ []) a)  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
---              where
---              helper : _
---              helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
+    base-neutral-eq : (k : ℕ) → (x : partℕ k) → base-trad-H* k (0ₕ k) x ≡ 0Pℤ
+    base-neutral-eq k (is0 x)  = cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (subst0g x))
+                                 ∙ cong (base (0 ∷ [])) (pres1 ϕ₀⁻¹str)
+                                 ∙ base-neutral (0 ∷ [])
+    base-neutral-eq k (isSn x) = cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (subst0g x))
+                                 ∙ cong (base (1 ∷ [])) (pres1 ϕₙ⁻¹str)
+                                 ∙ base-neutral (1 ∷ [])
+    base-neutral-eq k (else x) = refl
 
 
+    base-add-eq : (k : ℕ) → (a b : coHom k (S₊ (suc n))) → (x : partℕ k)
+                  → base-trad-H* k a x +Pℤ base-trad-H* k b x ≡ base-trad-H* k (a +ₕ b) x
+    base-add-eq k a b (is0 x) = base-add _ _ _
+                                ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _))
+                                ∙ cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (subst+ a b x))
+    base-add-eq k a b (isSn x) =  base-add _ _ _
+                                  ∙ cong (base (1 ∷ [])) (sym (pres· ϕₙ⁻¹str _ _))
+                                  ∙ cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (subst+ a b x))
+    base-add-eq k a b (else x) = +PℤIdR _
 
--- -----------------------------------------------------------------------------
--- -- Computation of the Cohomology Ring
 
--- module _ (n : ℕ) where
+  H*-Sⁿ→ℤ[x]-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x] ( x +H* y) ≡ H*-Sⁿ→ℤ[x] x +Pℤ H*-Sⁿ→ℤ[x] y
+  H*-Sⁿ→ℤ[x]-pres+ x y = refl
 
---   open Equiv-Sn-Properties n
+  H*-Sⁿ→ℤ[x]/x² : H* (S₊ (suc n)) → ℤ[x]/x²
+  H*-Sⁿ→ℤ[x]/x² = [_] ∘ H*-Sⁿ→ℤ[x]
 
---   Sⁿ-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X²) (H*R (S₊ (suc n)))
---   fst Sⁿ-CohomologyRing = isoToEquiv is
---     where
---     is : Iso ℤ[x]/x² (H* (S₊ (suc n)))
---     fun is = ℤ[x]/x²→H*-Sⁿ
---     inv is = H*-Sⁿ→ℤ[x]/x²
---     rightInv is = e-sect
---     leftInv is = e-retr
---   snd Sⁿ-CohomologyRing = snd ℤ[X]/X²→H*R-Sⁿ
+  H*-Sⁿ→ℤ[x]/x²-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x]/x² (x +H* y) ≡ (H*-Sⁿ→ℤ[x]/x² x) +PℤI (H*-Sⁿ→ℤ[x]/x² y)
+  H*-Sⁿ→ℤ[x]/x²-pres+ x y = refl
 
---   CohomologyRing-Sⁿ : RingEquiv (H*R (S₊ (suc n))) (CommRing→Ring ℤ[X]/X²)
---   CohomologyRing-Sⁿ = RingEquivs.invRingEquiv Sⁿ-CohomologyRing
+
+
+-----------------------------------------------------------------------------
+-- Section
+
+  e-sect-base : (k : ℕ) → (a : coHom k (S₊ (suc n))) → (x : partℕ k) →
+                ℤ[x]/x²→H*-Sⁿ [ (base-trad-H* k a x) ] ≡ base k a
+  e-sect-base k a (is0 x)  = cong (base 0) (ϕ₀-sect (substG x a))
+                             ∙ sym (constSubstCommSlice (λ x → coHom x (S₊ (suc n))) (H* (S₊ (suc n))) base x a)
+
+  e-sect-base k a (isSn x) = cong (base (suc n)) (ϕₙ-sect (substG x a))
+                             ∙ sym (constSubstCommSlice (λ x → coHom x (S₊ (suc n))) (H* (S₊ (suc n))) base x a)
+  e-sect-base k a (else x) = sym (base-neutral k)
+                             ∙ constSubstCommSlice ((λ x → coHom x (S₊ (suc n)))) ((H* (S₊ (suc n)))) base (suc-predℕ k (fst x)) (0ₕ k)
+                             ∙ cong (base (suc (predℕ k)))
+                               ((isOfHLevelRetractFromIso 1
+                                       (fst (Hⁿ-Sᵐ≅0 (predℕ k) n λ p → snd x (suc-predℕ k (fst x) ∙ cong suc p)))
+                                       isPropUnit _ _))
+                             ∙ sym (constSubstCommSlice ((λ x → coHom x (S₊ (suc n)))) ((H* (S₊ (suc n)))) base (suc-predℕ k (fst x)) a)
+
+  e-sect : (x : H* (S₊ (suc n))) → ℤ[x]/x²→H*-Sⁿ (H*-Sⁿ→ℤ[x]/x² x) ≡ x
+  e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+           refl
+           (λ k a → e-sect-base k a (part k))
+           λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
+
+
+-----------------------------------------------------------------------------
+-- Retraction
+
+  e-retr : (x : ℤ[x]/x²) → H*-Sⁿ→ℤ[x]/x² (ℤ[x]/x²→H*-Sⁿ x) ≡ x
+  e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
+           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
+           refl
+           base-case
+           λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
+           where
+           base-case : _
+           base-case (zero ∷ []) a = cong [_] (cong (base-trad-H* 0 (ϕ₀ a)) part0)
+                                     ∙ cong [_] (cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a))))
+                                     ∙ cong [_] (cong (base (0 ∷ [])) (ϕ₀-retr a))
+           base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (ϕₙ a)) (partSn (part (suc n))))
+                                     ∙ cong [_] (cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (transportRefl (ϕₙ a))))
+                                     ∙ cong [_] (cong (base (1 ∷ [])) (ϕₙ-retr a))
+           base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (base (suc (suc k) ∷ []) a)  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
+             where
+             helper : _
+             helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
+
+
+
+-----------------------------------------------------------------------------
+-- Computation of the Cohomology Ring
+
+module _ (n : ℕ) where
+
+  open Equiv-Sn-Properties n
+
+  Sⁿ-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X²) (H*R (S₊ (suc n)))
+  fst Sⁿ-CohomologyRing = isoToEquiv is
+    where
+    is : Iso ℤ[x]/x² (H* (S₊ (suc n)))
+    fun is = ℤ[x]/x²→H*-Sⁿ
+    inv is = H*-Sⁿ→ℤ[x]/x²
+    rightInv is = e-sect
+    leftInv is = e-retr
+  snd Sⁿ-CohomologyRing = snd ℤ[X]/X²→H*R-Sⁿ
+
+  CohomologyRing-Sⁿ : RingEquiv (H*R (S₊ (suc n))) (CommRing→Ring ℤ[X]/X²)
+  CohomologyRing-Sⁿ = RingEquivs.invRingEquiv Sⁿ-CohomologyRing
