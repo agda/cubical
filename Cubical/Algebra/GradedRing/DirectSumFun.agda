@@ -104,8 +104,7 @@ module _
 
     -- import for pres
     open Equiv-Properties G Gstr using
-      ( substG
-      ; fun-trad
+      ( fun-trad
       ; fun-trad-eq
       ; fun-trad-neq
       ; ⊕HIT→Fun
