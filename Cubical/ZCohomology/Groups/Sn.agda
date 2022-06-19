@@ -314,7 +314,6 @@ code (suc m) (suc n) with (discreteℕ m n)
 ... | yes p = GroupIso (coHomGr (suc n) (S₊ (suc n))) ℤGroup
 ... | no ¬p = GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup₀
 
-
 Hᵐ-Sⁿ : (m n : ℕ) → code m n
 Hᵐ-Sⁿ zero     zero   = H⁰-S⁰≅ℤ×ℤ
 Hᵐ-Sⁿ zero    (suc n) = H⁰-Sⁿ≅ℤ n
@@ -322,7 +321,6 @@ Hᵐ-Sⁿ (suc m)  zero   = Hⁿ-S⁰≅0 m
 Hᵐ-Sⁿ (suc m) (suc n) with discreteℕ m n
 ... | yes p = Hⁿ-Sⁿ≅ℤ n
 ... | no ¬p = Hⁿ-Sᵐ≅0 n m λ e → ¬p (sym e)
-
 
 
 
