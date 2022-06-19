@@ -99,8 +99,8 @@ module Equiv-Properties
 
   open SubstLemma ℕ G Gstr
 
-  substG : (g : (n : ℕ) → G n) → {k n : ℕ} → (p : k ≡ n) → subst G p (g k) ≡ g n
-  substG g {k} {n} p = J (λ n p → subst G p (g k) ≡ g n) (transportRefl _) p
+  substG-fct : (g : (n : ℕ) → G n) → {k n : ℕ} → (p : k ≡ n) → subst G p (g k) ≡ g n
+  substG-fct g {k} {n} p = J (λ n p → subst G p (g k) ≡ g n) (transportRefl _) p
 
 
 -----------------------------------------------------------------------------
@@ -321,10 +321,10 @@ module Equiv-Properties
                   if n ≢ suc m, then it is in the rest of the sum => recursive call -}
   Strad-n≤m : (g : (n : ℕ) → G n) → (m : ℕ) → (n : ℕ) → (r : n ≤ m) → ⊕HIT→Fun (Strad g m) n ≡ g n
   Strad-n≤m g zero n r with discreteℕ 0 n
-  ... | yes p = substG g p
+  ... | yes p = substG-fct g p
   ... | no ¬p = ⊥.rec (¬p (sym (≤0→≡0 r)))
   Strad-n≤m g (suc m) n r with discreteℕ (suc m) n
-  ... | yes p = cong₂ ((Gstr n)._+_) (substG g p) (Strad-m<n g m n (0 , p)) ∙ +IdR (Gstr n) _
+  ... | yes p = cong₂ ((Gstr n)._+_) (substG-fct g p) (Strad-m<n g m n (0 , p)) ∙ +IdR (Gstr n) _
   ... | no ¬p = +IdL (Gstr n) _ ∙ Strad-n≤m g m n (≤-suc-≢ r λ x → ¬p (sym x))
 
 
