@@ -1,6 +1,9 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.CohomologyRings.CP2 where
 
+{- Warning this file compute the cohomology up to a missing lemma.
+   Lemma that is to be added soon
+-}
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -23,16 +26,16 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.DirectSum.Base
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
+open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ
 
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -49,6 +52,7 @@ open import Cubical.ZCohomology.Groups.CP2
 open import Cubical.ZCohomology.CohomologyRings.CupProductProperties
 
 open Iso
+open gradedRingProperties
 
 module ComputeCP²Notation
   (e₀ : GroupIso ℤGroup (coHomGr 0 CP²))
@@ -73,19 +77,13 @@ module ComputeCP²Notation
     ; -_        to -ℤ_
     ; _·_       to _·ℤ_
     ; +Assoc    to +ℤAssoc
-    ; +Identity to +ℤIdentity
-    ; +Lid      to +ℤLid
-    ; +Rid      to +ℤRid
-    ; +Inv      to +ℤInv
-    ; +Linv     to +ℤLinv
-    ; +Rinv     to +ℤRinv
+    ; +IdL      to +ℤIdL
+    ; +IdR      to +ℤIdR
     ; +Comm     to +ℤComm
     ; ·Assoc    to ·ℤAssoc
-    ; ·Identity to ·ℤIdentity
-    ; ·Lid      to ·ℤLid
-    ; ·Rid      to ·ℤRid
-    ; ·Rdist+   to ·ℤRdist+
-    ; ·Ldist+   to ·ℤLdist+
+    ; ·IdL      to ·ℤIdL
+    ; ·IdR      to ·ℤIdR
+    ; ·DistR+   to ·ℤDistR+
     ; is-set    to isSetℤ     )
 
   open RingStr (snd (H*R CP²)) using ()
@@ -96,19 +94,13 @@ module ComputeCP²Notation
     ; -_        to -H*_
     ; _·_       to _cup_
     ; +Assoc    to +H*Assoc
-    ; +Identity to +H*Identity
-    ; +Lid      to +H*Lid
-    ; +Rid      to +H*Rid
-    ; +Inv      to +H*Inv
-    ; +Linv     to +H*Linv
-    ; +Rinv     to +H*Rinv
+    ; +IdL      to +H*IdL
+    ; +IdR      to +H*IdR
     ; +Comm     to +H*Comm
     ; ·Assoc    to ·H*Assoc
-    ; ·Identity to ·H*Identity
-    ; ·Lid      to ·H*Lid
-    ; ·Rid      to ·H*Rid
-    ; ·Rdist+   to ·H*Rdist+
-    ; ·Ldist+   to ·H*Ldist+
+    ; ·IdL      to ·H*IdL
+    ; ·IdR      to ·H*IdR
+    ; ·DistR+   to ·H*DistR+
     ; is-set    to isSetH*     )
 
   open CommRingStr (snd ℤ[X]) using ()
@@ -119,20 +111,14 @@ module ComputeCP²Notation
     ; -_        to -Pℤ_
     ; _·_       to _·Pℤ_
     ; +Assoc    to +PℤAssoc
-    ; +Identity to +PℤIdentity
-    ; +Lid      to +PℤLid
-    ; +Rid      to +PℤRid
-    ; +Inv      to +PℤInv
-    ; +Linv     to +PℤLinv
-    ; +Rinv     to +PℤRinv
+    ; +IdL      to +PℤIdL
+    ; +IdR      to +PℤIdR
     ; +Comm     to +PℤComm
     ; ·Assoc    to ·PℤAssoc
-    ; ·Identity to ·PℤIdentity
-    ; ·Lid      to ·PℤLid
-    ; ·Rid      to ·PℤRid
+    ; ·IdL      to ·PℤIdL
+    ; ·IdR      to ·PℤIdR
     ; ·Comm     to ·PℤComm
-    ; ·Rdist+   to ·PℤRdist+
-    ; ·Ldist+   to ·PℤLdist+
+    ; ·DistR+   to ·PℤDistR+
     ; is-set    to isSetPℤ     )
 
   open CommRingStr (snd ℤ[X]/X³) using ()
@@ -143,19 +129,13 @@ module ComputeCP²Notation
     ; -_        to -PℤI_
     ; _·_       to _·PℤI_
     ; +Assoc    to +PℤIAssoc
-    ; +Identity to +PℤIIdentity
-    ; +Lid      to +PℤILid
-    ; +Rid      to +PℤIRid
-    ; +Inv      to +PℤIInv
-    ; +Linv     to +PℤILinv
-    ; +Rinv     to +PℤIRinv
+    ; +IdL      to +PℤIIdL
+    ; +IdR      to +PℤIIdR
     ; +Comm     to +PℤIComm
     ; ·Assoc    to ·PℤIAssoc
-    ; ·Identity to ·PℤIIdentity
-    ; ·Lid      to ·PℤILid
-    ; ·Rid      to ·PℤIRid
-    ; ·Rdist+   to ·PℤIRdist+
-    ; ·Ldist+   to ·PℤILdist+
+    ; ·IdL      to ·PℤIIdL
+    ; ·IdR      to ·PℤIIdR
+    ; ·DistR+   to ·PℤIDistR+
     ; is-set    to isSetPℤI     )
 
 
@@ -223,7 +203,7 @@ module ComputeCP²Notation
   part4 : part 4 ≡ is4 refl
   part4 = refl
 
-  open pres
+  open pres⌣
 
   module ComputeCP²Function
     (ϕ₀-pres1 : ϕ₀ 1ℤ ≡ 1⌣)
@@ -237,12 +217,12 @@ module ComputeCP²Notation
 
     -- Function on ℤ[x]
     ℤ[x]→H*-CP² : ℤ[x] → H* CP²
-    ℤ[x]→H*-CP² = Poly-Rec-Set.f _ _ _ isSetH*
+    ℤ[x]→H*-CP² = DS-Rec-Set.f _ _ _ _ isSetH*
          0H*
          ϕ
          _+H*_
          +H*Assoc
-         +H*Rid
+         +H*IdR
          +H*Comm
          base-neutral-eq
          base-add-eq
@@ -263,7 +243,7 @@ module ComputeCP²Notation
       base-add-eq (zero ∷ []) a b = base-add _ _ _ ∙ cong (base 0) (sym (pres· ϕ₀str _ _))
       base-add-eq (one ∷ []) a b  = base-add _ _ _ ∙ cong (base 2) (sym (pres· ϕ₂str _ _))
       base-add-eq (two ∷ []) a b  = base-add _ _ _ ∙ cong (base 4) (sym (pres· ϕ₄str _ _))
-      base-add-eq (suc (suc (suc k)) ∷ []) a b = +H*Rid _
+      base-add-eq (suc (suc (suc k)) ∷ []) a b = +H*IdR _
 
     ℤ[x]→H*-CP²-pres1 : ℤ[x]→H*-CP² (1Pℤ) ≡ 1H*
     ℤ[x]→H*-CP²-pres1 = cong (base 0) ϕ₀-pres1
@@ -275,20 +255,20 @@ module ComputeCP²Notation
    -- Nice packging of the cup product
 
     presCupInt : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
-                   ℤ[x]→H*-CP² (baseP (k ∷ []) a ·Pℤ baseP (l ∷ []) b)
-                 ≡ ℤ[x]→H*-CP² (baseP (k ∷ []) a) cup ℤ[x]→H*-CP² (baseP (l ∷ []) b)
+                   ℤ[x]→H*-CP² (base (k ∷ []) a ·Pℤ base (l ∷ []) b)
+                 ≡ ℤ[x]→H*-CP² (base (k ∷ []) a) cup ℤ[x]→H*-CP² (base (l ∷ []) b)
     presCupInt zero a zero b = cong (base 0) (ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₀ ϕ₀str ϕ₀ ϕ₀str (ϕ₀-gen _ _) _ _)
     presCupInt zero a one b  = cong (base 2) ((ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₂ ϕ₂str ϕ₂ ϕ₂str (ϕ₀-gen _ _) _ _))
     presCupInt zero a two b  = cong (base 4) ((ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₄ ϕ₄str ϕ₄ ϕ₄str (ϕ₀-gen _ _) _ _))
     presCupInt zero a (suc (suc (suc l))) b = refl
-    presCupInt one a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (one ∷ []) a) (baseP (zero ∷ []) b))
+    presCupInt one a zero b = cong ℤ[x]→H*-CP² (·PℤComm (base (one ∷ []) a) (base (zero ∷ []) b))
                               ∙ presCupInt zero b one a
                               ∙ gradCommRing CP² _ _ _ _
     presCupInt one a one b  = cong (base 4) ((ϕₙ⌣ϕₘ ϕ₂ ϕ₂str ϕ₂ ϕ₂str ϕ₄ ϕ₄str eq⌣224 _ _))
     presCupInt one a two b  = sym (base-neutral _)
                               ∙ cong (base 6) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
     presCupInt one a (suc (suc (suc l))) b = refl
-    presCupInt two a zero b = cong ℤ[x]→H*-CP² (·PℤComm (baseP (two ∷ []) a) (baseP (zero ∷ []) b))
+    presCupInt two a zero b = cong ℤ[x]→H*-CP² (·PℤComm (base (two ∷ []) a) (base (zero ∷ []) b))
                               ∙ presCupInt zero b two a
                               ∙ gradCommRing CP² _ _ _ _
     presCupInt two a one b  = sym (base-neutral _)
@@ -300,24 +280,24 @@ module ComputeCP²Notation
 
 
     presCupVec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
-                  ℤ[x]→H*-CP² (baseP v a ·Pℤ baseP v' b)
-                ≡ ℤ[x]→H*-CP² (baseP v a) cup ℤ[x]→H*-CP² (baseP v' b)
+                  ℤ[x]→H*-CP² (base v a ·Pℤ base v' b)
+                ≡ ℤ[x]→H*-CP² (base v a) cup ℤ[x]→H*-CP² (base v' b)
     presCupVec (k ∷ []) a (l ∷ []) b = presCupInt k a l b
 
 
     -- proof
     presCup : (x y : ℤ[x]) → ℤ[x]→H*-CP² (x ·Pℤ y) ≡ ℤ[x]→H*-CP² x cup ℤ[x]→H*-CP² y
-    presCup = Poly-Ind-Prop.f _ _ _
+    presCup = DS-Ind-Prop.f _ _ _ _
                            (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                            (λ y → refl)
                            base-case
                            λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
       where
       base-case : _
-      base-case (k ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
+      base-case (k ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
                              (sym (RingTheory.0RightAnnihilates (H*R CP²) _))
                              (λ v' b → presCupVec (k ∷ []) a v' b)
-                             λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
+                             λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
 
@@ -341,9 +321,9 @@ module ComputeCP²Notation
   -- Converse Sens on ℤ[X] + ℤ[x]/x
 
     ϕ⁻¹ : (k : ℕ) → (a : coHom k CP²) → (x : partℕ k) → ℤ[x]
-    ϕ⁻¹ k a (is0 x) = baseP (0 ∷ []) (ϕ₀⁻¹ (SubstCoHom x a))
-    ϕ⁻¹ k a (is2 x) = baseP (1 ∷ []) (ϕ₂⁻¹ (SubstCoHom x a))
-    ϕ⁻¹ k a (is4 x) = baseP (2 ∷ []) (ϕ₄⁻¹ (SubstCoHom x a))
+    ϕ⁻¹ k a (is0 x) = base (0 ∷ []) (ϕ₀⁻¹ (substG x a))
+    ϕ⁻¹ k a (is2 x) = base (1 ∷ []) (ϕ₂⁻¹ (substG x a))
+    ϕ⁻¹ k a (is4 x) = base (2 ∷ []) (ϕ₄⁻¹ (substG x a))
     ϕ⁻¹ k a (else x) = 0Pℤ
 
     H*-CP²→ℤ[x] : H* CP² → ℤ[x]
@@ -352,37 +332,34 @@ module ComputeCP²Notation
          (λ k a → ϕ⁻¹ k a (part k))
          _+Pℤ_
          +PℤAssoc
-         +PℤRid
+         +PℤIdR
          +PℤComm
          (λ k → base-neutral-eq k (part k))
          λ k a b → base-add-eq k a b (part k)
       where
 
       base-neutral-eq : (k : ℕ) → (x : partℕ k) → ϕ⁻¹ k (0ₕ k) x ≡ 0Pℤ
-      base-neutral-eq k (is0 x) = cong (baseP (0 ∷ [])) (cong ϕ₀⁻¹ (subst-0 k 0 x))
-                                  ∙ cong (baseP (0 ∷ [])) (pres1 ϕ₀⁻¹str)
-                                  ∙ base-0P (0 ∷ [])
-      base-neutral-eq k (is2 x) = cong (baseP (1 ∷ [])) (cong ϕ₂⁻¹ (subst-0 k 2 x))
-                                  ∙ cong (baseP (1 ∷ [])) (pres1 ϕ₂⁻¹str)
-                                  ∙ base-0P (1 ∷ [])
-      base-neutral-eq k (is4 x) = cong (baseP (2 ∷ [])) (cong ϕ₄⁻¹ (subst-0 k 4 x))
-                                  ∙ cong (baseP (2 ∷ [])) (pres1 ϕ₄⁻¹str)
-                                  ∙ base-0P (2 ∷ [])
+      base-neutral-eq k (is0 x) = cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (subst0g x))
+                                  ∙ cong (base (0 ∷ [])) (pres1 ϕ₀⁻¹str)
+                                  ∙ base-neutral (0 ∷ [])
+      base-neutral-eq k (is2 x) = cong (base (1 ∷ [])) (cong ϕ₂⁻¹ (subst0g x))
+                                  ∙ cong (base (1 ∷ [])) (pres1 ϕ₂⁻¹str)
+                                  ∙ base-neutral (1 ∷ [])
+      base-neutral-eq k (is4 x) = cong (base (2 ∷ [])) (cong ϕ₄⁻¹ (subst0g x))
+                                  ∙ cong (base (2 ∷ [])) (pres1 ϕ₄⁻¹str)
+                                  ∙ base-neutral (2 ∷ [])
       base-neutral-eq k (else x) = refl
 
 
       base-add-eq : (k : ℕ) → (a b : coHom k CP²) → (x : partℕ k)
                     → ϕ⁻¹ k a x +Pℤ ϕ⁻¹ k b x ≡ ϕ⁻¹ k (a +ₕ b) x
-      base-add-eq k a b (is0 x) = base-poly+ _ _ _
-                                  ∙ cong (baseP (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _))
-                                  ∙ cong (baseP (0 ∷ [])) (cong ϕ₀⁻¹ (sym (subst-+ k a b 0 x)))
-      base-add-eq k a b (is2 x) = base-poly+ _ _ _
-                                  ∙ cong (baseP (1 ∷ [])) (sym (pres· ϕ₂⁻¹str _ _))
-                                  ∙ cong (baseP (1 ∷ [])) (cong ϕ₂⁻¹ (sym (subst-+ k a b 2 x)))
-      base-add-eq k a b (is4 x) = base-poly+ _ _ _
-                                  ∙ cong (baseP (2 ∷ [])) (sym (pres· ϕ₄⁻¹str _ _))
-                                  ∙ cong (baseP (2 ∷ [])) (cong ϕ₄⁻¹ (sym (subst-+ k a b 4 x)))
-      base-add-eq k a b (else x) = +PℤRid _
+      base-add-eq k a b (is0 x) = base-add _ _ _
+                                  ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (subst+ a b x))
+      base-add-eq k a b (is2 x) = base-add _ _ _
+                                  ∙ cong (base (1 ∷ [])) (sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (subst+ a b x))
+      base-add-eq k a b (is4 x) = base-add _ _ _
+                                  ∙ cong (base (2 ∷ [])) (sym (pres· ϕ₄⁻¹str _ _) ∙ cong ϕ₄⁻¹ (subst+ a b x))
+      base-add-eq k a b (else x) = +PℤIdR _
 
     H*-CP²→ℤ[x]-gmorph : (x y : H* CP²) → H*-CP²→ℤ[x] ( x +H* y) ≡ H*-CP²→ℤ[x] x +Pℤ H*-CP²→ℤ[x] y
     H*-CP²→ℤ[x]-gmorph x y = refl
@@ -399,11 +376,11 @@ module ComputeCP²Notation
 
     e-sect-base : (k : ℕ) → (a : coHom k CP²) → (x : partℕ k) →
                   ℤ[x]/x³→H*-CP² [ (ϕ⁻¹ k a x) ] ≡ base k a
-    e-sect-base k a (is0 x) = cong (base 0) (ϕ₀-sect (SubstCoHom x a))
+    e-sect-base k a (is0 x) = cong (base 0) (ϕ₀-sect (substG x a))
                               ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
-    e-sect-base k a (is2 x) = cong (base 2) (ϕ₂-sect (SubstCoHom x a))
+    e-sect-base k a (is2 x) = cong (base 2) (ϕ₂-sect (substG x a))
                               ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
-    e-sect-base k a (is4 x) = cong (base 4) (ϕ₄-sect (SubstCoHom x a))
+    e-sect-base k a (is4 x) = cong (base 4) (ϕ₄-sect (substG x a))
                               ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
     e-sect-base k a (else x) = sym (base-neutral k)
                                ∙ cong (base k) (trivialGroupSEq (sym (suc-predℕ k (fst x)))
@@ -423,23 +400,23 @@ module ComputeCP²Notation
 
     e-retr : (x : ℤ[x]/x³) → H*-CP²→ℤ[x]/x³ (ℤ[x]/x³→H*-CP² x) ≡ x
     e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-             (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
+             (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
              refl
              base-case
              λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
              where
              base-case : _
-             base-case (zero ∷ []) a = cong [_] (cong (baseP (0 ∷ [])) (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a))))
-                                        ∙ cong [_] (cong (baseP (0 ∷ [])) (ϕ₀-retr a))
-             base-case (one ∷ []) a = cong [_] (cong (baseP (1 ∷ [])) (cong ϕ₂⁻¹ (transportRefl (ϕ₂ a))))
-                                      ∙ cong [_] (cong (baseP (1 ∷ [])) (ϕ₂-retr a))
-             base-case (two ∷ []) a = cong [_] (cong (baseP (2 ∷ [])) (cong ϕ₄⁻¹ (transportRefl (ϕ₄ a))))
-                                      ∙ cong [_] (cong (baseP (2 ∷ [])) (ϕ₄-retr a))
-             base-case (suc (suc (suc k)) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc (suc k)) ∷ []) a)
-                                                    ∣ ((λ x → baseP (k ∷ []) (-ℤ a)) , helper) ∣₁
+             base-case (zero ∷ []) a = cong [_] (cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a))))
+                                        ∙ cong [_] (cong (base (0 ∷ [])) (ϕ₀-retr a))
+             base-case (one ∷ []) a = cong [_] (cong (base (1 ∷ [])) (cong ϕ₂⁻¹ (transportRefl (ϕ₂ a))))
+                                      ∙ cong [_] (cong (base (1 ∷ [])) (ϕ₂-retr a))
+             base-case (two ∷ []) a = cong [_] (cong (base (2 ∷ [])) (cong ϕ₄⁻¹ (transportRefl (ϕ₄ a))))
+                                      ∙ cong [_] (cong (base (2 ∷ [])) (ϕ₄-retr a))
+             base-case (suc (suc (suc k)) ∷ []) a = eq/ 0Pℤ (base (suc (suc (suc k)) ∷ []) a)
+                                                    ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
                where
                helper : _
-               helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+n-comm k 3))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))
+               helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 3))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
 
 
 -- End of the functions
@@ -449,33 +426,34 @@ module ComputeCP²Notation
 -----------------------------------------------------------------------------
 -- Computation of the Cohomology Ring
 
-open ComputeCP²Notation
-     (invGroupIso H⁰CP²≅ℤ)
-     (invGroupIso H²CP²≅ℤ)
-     (invGroupIso H⁴CP²≅ℤ)
+-- open ComputeCP²Notation
+--      (invGroupIso H⁰CP²≅ℤ)
+--      (invGroupIso H²CP²≅ℤ)
+--      (invGroupIso H⁴CP²≅ℤ)
 
-ϕ₀-pres1 : ϕ₀ 1 ≡ 1⌣
-ϕ₀-pres1 = refl
+-- ϕ₀-pres1 : ϕ₀ 1 ≡ 1⌣
+-- ϕ₀-pres1 = refl
 
-ϕ₀-gen : (n : ℕ) → (f : coHom n CP²) → ϕ₀ (pos 1) ⌣ f ≡ f
-ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n CP²)) _ _))
-             λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x)))
+-- ϕ₀-gen : (n : ℕ) → (f : coHom n CP²) → ϕ₀ (pos 1) ⌣ f ≡ f
+-- ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n CP²)) _ _))
+--              λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x)))
 
-ϕ₂⌣ϕ₂≡ϕ₄ : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₄ (pos 1)
-ϕ₂⌣ϕ₂≡ϕ₄ = {!!}
+-- Missing lemma that is to be added
+-- ϕ₂⌣ϕ₂≡ϕ₄ : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₄ (pos 1)
+-- ϕ₂⌣ϕ₂≡ϕ₄ = {!!}
 
 
-open ComputeCP²Function ϕ₀-pres1 ϕ₀-gen ϕ₂⌣ϕ₂≡ϕ₄
+-- open ComputeCP²Function ϕ₀-pres1 ϕ₀-gen ϕ₂⌣ϕ₂≡ϕ₄
 
-CP²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X³) (H*R CP²)
-fst CP²-CohomologyRing = isoToEquiv is
-  where
-  is : Iso ℤ[x]/x³ (H* CP²)
-  fun is = ℤ[x]/x³→H*-CP²
-  inv is = H*-CP²→ℤ[x]/x³
-  rightInv is = e-sect
-  leftInv is = e-retr
-snd CP²-CohomologyRing = snd ℤ[X]/X³→H*R-CP²
+-- CP²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X³) (H*R CP²)
+-- fst CP²-CohomologyRing = isoToEquiv is
+--   where
+--   is : Iso ℤ[x]/x³ (H* CP²)
+--   fun is = ℤ[x]/x³→H*-CP²
+--   inv is = H*-CP²→ℤ[x]/x³
+--   rightInv is = e-sect
+--   leftInv is = e-retr
+-- snd CP²-CohomologyRing = snd ℤ[X]/X³→H*R-CP²
 
-CohomologyRing-CP² : RingEquiv (H*R CP²) (CommRing→Ring ℤ[X]/X³)
-CohomologyRing-CP² = RingEquivs.invEquivRing CP²-CohomologyRing
+-- CohomologyRing-CP² : RingEquiv (H*R CP²) (CommRing→Ring ℤ[X]/X³)
+-- CohomologyRing-CP² = RingEquivs.invEquivRing CP²-CohomologyRing

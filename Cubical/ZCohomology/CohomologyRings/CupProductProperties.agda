@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Unit
-open import Cubical.Data.Nat using (ℕ ; zero ; suc)
+open import Cubical.Data.Nat hiding (_+_ ; _·_)
 open import Cubical.Data.Int using (ℤ ; pos ; negsuc ; -_ ; _+_ ; _·_ ; +Comm)
 
 open import Cubical.Algebra.Group
@@ -15,6 +15,7 @@ open import Cubical.Algebra.Group.Instances.Unit
 open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Properties
 
 open import Cubical.HITs.SetTruncation as ST
 
@@ -23,58 +24,37 @@ open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 
+open PlusBis
+
 
 module _
   {A : Type ℓ-zero}
   where
 
-  SubstCoHom : {k l : ℕ} → (x : k ≡ l) → (a : coHom k A) → coHom l A
-  SubstCoHom x a = subst (λ X → coHom X A) x a
-
-  subst-0 : (k l : ℕ) → (x : k ≡ l) → SubstCoHom x (0ₕ k) ≡ 0ₕ l
-  subst-0 k l x = J (λ l x → SubstCoHom x (0ₕ k) ≡ 0ₕ l) (transportRefl (0ₕ k)) x
-
-  subst-+ : (k : ℕ) → (a b : coHom k A) → (l : ℕ) → (x : k ≡ l)
-            → SubstCoHom x (a +ₕ b) ≡ SubstCoHom x a +ₕ SubstCoHom x b
-  subst-+ k a b l x = J (λ l x → SubstCoHom x (a +ₕ b) ≡ SubstCoHom x a +ₕ SubstCoHom x b)
-                        (transportRefl (a +ₕ b) ∙ sym (cong₂ _+ₕ_ (transportRefl a) (transportRefl b)))
-                        x
+  open SubstLemma ℕ (λ n → coHom n A) (λ n → snd (coHomGroup n A)) public
 
   subst-⌣ : (k : ℕ) → (a b : coHom k A) → (l : ℕ) → (x : k ≡ l)
-            → SubstCoHom (cong₂ _+'_ x x) (a ⌣ b) ≡ SubstCoHom x a ⌣ SubstCoHom x b
-  subst-⌣ k a b l x = J (λ l x → SubstCoHom (cong₂ _+'_ x x) (a ⌣ b) ≡ SubstCoHom x a ⌣ SubstCoHom x b)
+            → substG (cong₂ _+'_ x x) (a ⌣ b) ≡ substG x a ⌣ substG x b
+  subst-⌣ k a b l x = J (λ l x → substG (cong₂ _+'_ x x) (a ⌣ b) ≡ substG x a ⌣ substG x b)
                         (transportRefl (a ⌣ b) ∙ sym (cong₂ _⌣_ (transportRefl a) (transportRefl b)))
                         x
 
+  trivialGroupEq : {n : ℕ} → (e : GroupIso (coHomGr n A) UnitGroup₀) →
+                   (x y : coHom n A) → x ≡ y
+  trivialGroupEq {n} e x y = isOfHLevelRetractFromIso 1 (fst e) isPropUnit _ _
 
-module _
-  {A : Type ℓ-zero}
-  {n : ℕ}
-  (e : GroupIso (coHomGr n A) UnitGroup₀)
-  where
-
-  trivialGroupEq : (x y : coHom n A) → x ≡ y
-  trivialGroupEq x y = isOfHLevelRetractFromIso 1 (fst e) isPropUnit _ _
-
-
-module _
-  {A : Type ℓ-zero}
-  {n k : ℕ}
-  (r : suc k ≡ n)
-  (e : GroupIso (coHomGr (suc k) A) UnitGroup₀)
-  where
-
-  trivialGroupSEq : (x y : coHom n A) → x ≡ y
-  trivialGroupSEq x y = x
-                            ≡⟨ sym (substSubst⁻ (λ X → coHom X A) r _) ⟩
-                        SubstCoHom r (SubstCoHom (sym r) x)
-                            ≡⟨ cong (SubstCoHom r) (isOfHLevelRetractFromIso 1 (fst e) isPropUnit _ _) ⟩
-                        SubstCoHom r (SubstCoHom (sym r) y)
-                            ≡⟨ substSubst⁻ (λ X → coHom X A) r _ ⟩
-                        y ∎
+  trivialGroupSEq : {n k : ℕ} → (r : suc k ≡ n) → (e : GroupIso (coHomGr (suc k) A) UnitGroup₀)
+                    → (x y : coHom n A) → x ≡ y
+  trivialGroupSEq {n} {k} (r) e x y = x
+                                          ≡⟨ sym (substSubst⁻ (λ X → coHom X A) r _) ⟩
+                                      substG r (substG (sym r) x)
+                                          ≡⟨ cong (substG r) (isOfHLevelRetractFromIso 1 (fst e) isPropUnit _ _) ⟩
+                                      substG r (substG (sym r) y)
+                                          ≡⟨ substSubst⁻ (λ X → coHom X A) r _ ⟩
+                                      y ∎
 
 
-module pres
+module pres⌣
   {A : Type ℓ-zero}
   {n m : ℕ}
   (ϕₙ : ℤ → coHom n A)
