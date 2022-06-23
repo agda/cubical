@@ -158,4 +158,3 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
 
           r : (x : Σ A B) → η-inv (η x) ≡ x
           r x = (λ i → h (η x) , p x i) ∙ (almost x)
-
