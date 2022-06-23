@@ -13,9 +13,6 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Unit
-
-
 record Modality ℓ : Type (ℓ-suc ℓ) where
   field
     isModal : Type ℓ → Type ℓ
@@ -162,13 +159,3 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
           r : (x : Σ A B) → η-inv (η x) ≡ x
           r x = (λ i → h (η x) , p x i) ∙ (almost x)
 
-
-identityModality : {ℓ : Level} → Modality ℓ
-Modality.isModal identityModality = const Unit*
-Modality.isPropIsModal identityModality = isPropUnit*
-Modality.◯ identityModality A = A
-Modality.◯-isModal identityModality = tt*
-Modality.η identityModality = idfun _
-Modality.◯-elim identityModality _ f = f
-Modality.◯-elim-β identityModality _ _ _ = refl
-Modality.◯-=-isModal identityModality _ _  = tt*
