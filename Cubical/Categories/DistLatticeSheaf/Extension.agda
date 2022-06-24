@@ -377,12 +377,61 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
            → isConeMor cc restCone f
     lemma3 c cc f isConeMorF (sing i) =
       subst (λ g → f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)) ≡ g)
-        {!!}
+        (transport (λ j → baz j ≡ foo (~ j)) ccᵢ'Path)
           assumption
       where
       assumption : f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i))
                  ≡ coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i)
       assumption = isConeMorF ((α i , α∈L' i) , ind≤⋁ α i)
+
+      -- modulo transport
+      Σpathhelper : (α i , α∈L' i) ≡ (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i))
+      Σpathhelper = Σ≡Prop (λ x → L' x .snd) (β≡ (α i) (ind≤⋁ α i))
+      ccᵢ' : C [ c , F .F-ob  (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)) ]
+      ccᵢ' = subst (λ x → C [ c , F .F-ob x ])
+                   (Σ≡Prop (λ x → L' x .snd) (β≡ (α i) (ind≤⋁ α i)))
+                   (coneOut cc (sing i))
+
+      foo : PathP (λ j → C [ c , F .F-ob (Σpathhelper j) ]) (coneOut cc (sing i)) ccᵢ'
+      foo = subst-filler (λ x → C [ c , F .F-ob x ]) Σpathhelper (coneOut cc (sing i))
+      Σpathhelper2 : (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)) ≡ (α i , α∈L' i)
+      Σpathhelper2 = Σ≡Prop (λ x → L' x .snd) (sym (β≡ (α i) (ind≤⋁ α i)))
+      bar : PathP (λ j → C [ c , F .F-ob (Σpathhelper2 j) ])
+                  (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
+                  (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i))
+      bar = subst-filler (λ x → C [ c , F .F-ob x ]) Σpathhelper2 (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
+
+      Σpathhelperpath : Σpathhelper2 ≡ sym Σpathhelper
+      Σpathhelperpath = isSetL' _ _ _ _
+       where
+       isSetL' : isSet (ob DLSubCat)
+       isSetL' = isSetΣSndProp (isSetDistLattice L) λ x → L' x .snd
+      baz : PathP (λ j → C [ c , F .F-ob (Σpathhelper (~ j)) ])
+                  (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
+                  (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i))
+      baz = subst (λ p → PathP (λ j → C [ c , F .F-ob (p j) ])
+                  (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
+                  (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i)))
+                  Σpathhelperpath bar
+
+      ccᵢ'IsConeMor : isConeMor (βCone c (α i) (α∈L' i) cc)
+                       (F-cone F (B⋁Cone (λ j →  (β (α i) j) , β∈L' (α i) (α∈L' i) j) (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)))) ccᵢ'
+      ccᵢ'IsConeMor (sing i') = path
+       where
+       path : ccᵢ' ⋆⟨ C ⟩ F-hom F (ind≤⋁ (β (α i)) i')
+            ≡ coneOut cc (sing i') ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+       path = ccᵢ' ⋆⟨ C ⟩ F-hom F (ind≤⋁ (β (α i)) i')
+            ≡⟨ {!!} ⟩
+              coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+            ≡⟨ {!!} ⟩
+              coneOut cc (sing i') ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
+      ccᵢ'IsConeMor (pair i' j i'<j) = {!!}
+
+      ccᵢ'Path : uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst ≡ ccᵢ'
+      ccᵢ'Path = cong fst (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .snd (ccᵢ' , ccᵢ'IsConeMor))
+
+
+
     lemma3 c cc f isConeMorF (pair i j i<j) = {!!}
 
     -- putting it all together
@@ -401,7 +450,28 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
 
 
+-- second lemma upstreamed for induction
+  module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L') where
+-- Σ[ n ∈ ℕ ] Σ[ β ∈ FinVec (fst L) n ] (∀ i → β i ∈ L')
+    open Cospan
+    private
+      ⋁Cospan : {n : ℕ} → FinVec (fst L) n → Cospan C
+      l (⋁Cospan β) = DLRan F .F-ob (⋁ γ)
+      m (⋁Cospan β) = DLRan F .F-ob (⋁ β ∧l ⋁ γ)
+      r (⋁Cospan β) = DLRan F .F-ob (⋁ β)
+      s₁ (⋁Cospan β) = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+      s₂ (⋁Cospan β) = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
 
+      β++γ∈L' : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L') → ∀ i → (β ++Fin γ) i ∈ L'
+      β++γ∈L' β∈L' = ++FinPres∈ L' β∈L' γ∈L'
+
+    toCone : (n : ℕ) (β : FinVec (fst L) n) (β∈L' : ∀ i → β i ∈ L')
+             (f : C [ c , (⋁Cospan β) .l ]) (g : C [ c , (⋁Cospan β) .r ])
+           → f ⋆⟨ C ⟩ (⋁Cospan β) .s₁ ≡ g ⋆⟨ C ⟩ (⋁Cospan β) .s₂
+           → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i))) c
+    coneOut (toCone ℕ.zero β β∈L' f g square) = {!!}
+    coneOutCommutes (toCone ℕ.zero β β∈L' f g square) = {!!}
+    toCone (ℕ.suc n) β β∈L' f g square = {!!}
 
 
 
