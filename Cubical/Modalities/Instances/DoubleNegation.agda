@@ -4,10 +4,9 @@ module Cubical.Modalities.Instances.DoubleNegation where
 
 open import Cubical.Modalities.Modality
 
--- TODO: imports
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function using (_∘_; const)
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels using (hProp; isProp→isContrPath)
 open import Cubical.Foundations.Structure using (⟨_⟩)
 
 open import Cubical.Data.Empty using (⊥*; isProp⊥*)
