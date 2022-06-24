@@ -46,7 +46,7 @@ module _ {ℓ : Level} where
   mapNonEmpty f = _∘ (_∘ f)
 
   doubleNegationModality : Modality ℓ
-  Modality.isModal doubleNegationModality = isStableProp -- isEquiv (η A)
+  Modality.isModal doubleNegationModality = isStableProp
   Modality.isPropIsModal doubleNegationModality = isPropIsStableProp
   Modality.◯ doubleNegationModality = NonEmpty
   Modality.◯-isModal doubleNegationModality = isStablePropNonEmpty
