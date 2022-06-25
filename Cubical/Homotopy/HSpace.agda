@@ -3,6 +3,7 @@ module Cubical.Homotopy.HSpace where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.HLevels
@@ -70,6 +71,21 @@ HSpace.μₗᵣ (Iso.leftInv (HSpace-Π∙-Iso A) e k) = flipSquare
 HSpace-Π∙-Equiv : {ℓ : Level} (A : Pointed ℓ) → HSpace A ≃
                   Π∙ A (λ x → A →∙ (typ A , x)) (idfun∙ A)
 HSpace-Π∙-Equiv A = isoToEquiv (HSpace-Π∙-Iso A)
+
+{- every strongly homogeneous structure on A gives rise
+   to a left-invertible H-space structure, by a slight modification -}
+HSpace-homogeneous : {ℓ : Level} (A : Pointed ℓ) → isHomogeneous A → HSpace A
+HSpace-homogeneous A h = Iso.inv (HSpace-Π∙-Iso A) s
+  where
+    k : (x : typ A) → A ≃∙ (typ A , x)
+    k x = pointed-sip⁻ A (typ A , x) (sym (h (pt A)) ∙ h x)
+
+    k₀ : k (pt A) ≡ idEquiv∙ A
+    k₀ = cong′ (pointed-sip⁻ A A) (lCancel (h (pt A))) ∙ pointed-sip⁻-refl A
+
+    s : Π∙ A (λ x → A →∙ (typ A , x)) (idfun∙ A)
+    fst s x = ≃∙map (k x)
+    snd s = cong′ ≃∙map k₀
 
 -- Instances
 open HSpace
