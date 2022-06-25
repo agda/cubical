@@ -8,10 +8,14 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Relation.Nullary
+
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat using (ℕ ; zero ; suc)
+open import Cubical.Data.Nat using (ℕ ; zero ; suc ; discreteℕ)
 open import Cubical.Data.Int
+open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 open import Cubical.Data.Vec
 open import Cubical.Data.FinData
@@ -19,8 +23,9 @@ open import Cubical.Data.FinData
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
+open import Cubical.Algebra.Group.Instances.Unit
 open import Cubical.Algebra.Group.Instances.Bool
+open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 
@@ -48,10 +53,22 @@ open import Cubical.ZCohomology.CohomologyRings.CupProductProperties
 
 open Iso
 
-module Equiv-RP2-Properties where
+module Equiv-RP2-Properties
+  (H⁴-RP²≅ℤ : GroupIso (coHomGr 4 RP²) UnitGroup₀)
+  where
 
 -----------------------------------------------------------------------------
--- Definitions
+-- Definitions and import
+
+  <2X,X²> :  FinVec ℤ[x] 2
+  <2X,X²> zero = base (1 ∷ []) 2
+  <2X,X²> (suc x) = base (2 ∷ []) 1
+
+  ℤ[X]/<2X,X²> : CommRing ℓ-zero
+  ℤ[X]/<2X,X²> = PolyCommRing-Quotient ℤCR <2X,X²>
+
+  ℤ[x]/<2x,x²> : Type ℓ-zero
+  ℤ[x]/<2x,x²> = fst ℤ[X]/<2X,X²>
 
   open IsGroupHom
   open gradedRingProperties
@@ -118,22 +135,22 @@ module Equiv-RP2-Properties where
     ; ·DistR+   to ·PℤDistR+
     ; is-set    to isSetPℤ     )
 
---   open CommRingStr (snd ℤ[X]/X²) using ()
---     renaming
---     ( 0r        to 0PℤI
---     ; 1r        to 1PℤI
---     ; _+_       to _+PℤI_
---     ; -_        to -PℤI_
---     ; _·_       to _·PℤI_
---     ; +Assoc    to +PℤIAssoc
---     ; +IdL      to +PℤIIdL
---     ; +IdR      to +PℤIIdR
---     ; +Comm     to +PℤIComm
---     ; ·Assoc    to ·PℤIAssoc
---     ; ·IdL      to ·PℤIIdL
---     ; ·IdR      to ·PℤIIdR
---     ; ·DistR+   to ·PℤIDistR+
---     ; is-set    to isSetPℤI     )
+  open CommRingStr (snd ℤ[X]/<2X,X²>) using ()
+    renaming
+    ( 0r        to 0PℤI
+    ; 1r        to 1PℤI
+    ; _+_       to _+PℤI_
+    ; -_        to -PℤI_
+    ; _·_       to _·PℤI_
+    ; +Assoc    to +PℤIAssoc
+    ; +IdL      to +PℤIIdL
+    ; +IdR      to +PℤIIdR
+    ; +Comm     to +PℤIComm
+    ; ·Assoc    to ·PℤIAssoc
+    ; ·IdL      to ·PℤIIdL
+    ; ·IdR      to ·PℤIIdR
+    ; ·DistR+   to ·PℤIDistR+
+    ; is-set    to isSetPℤI     )
 
 
   e₀ = invGroupIso H⁰-RP²≅ℤ
@@ -152,6 +169,25 @@ module Equiv-RP2-Properties where
   ϕ₂-sect = rightInv (fst e₂)
   ϕ₂-retr = leftInv (fst e₂)
 
+  data partℕ (k : ℕ) : Type ℓ-zero where
+    is0  : (k ≡ 0)            → partℕ k
+    is2  : (k ≡ 2)            → partℕ k
+    else : ((k ≡ 0 → ⊥)
+           × (k ≡ 2 → ⊥))    → partℕ k
+
+  part : (k : ℕ) → partℕ k
+  part k with (discreteℕ k 0)
+  ... | yes p = is0 p
+  ... | no ¬p with (discreteℕ k 2)
+  ... |       yes q = is2 q
+  ... |       no ¬q = else (¬p , ¬q)
+
+  part0 : part 0 ≡ is0 refl
+  part0 = refl
+
+  part2 : part 2 ≡ is2 refl
+  part2 = refl
+
 -----------------------------------------------------------------------------
 -- Direct Sens on ℤ[x]
 
@@ -164,7 +200,7 @@ module Equiv-RP2-Properties where
   ψ₂str = {!!}
 
   ϕ₂∘ψ₂str : IsGroupHom (snd ℤG) (ϕ₂ ∘ ψ₂) (snd (coHomGr 2 RP²))
-  ϕ₂∘ψ₂str = {!!}
+  ϕ₂∘ψ₂str = isGroupHomComp (ψ₂ , ψ₂str) (ϕ₂ , ϕ₂str)
 
   ℤ[x]→H*-RP² : ℤ[x] → H* RP²
   ℤ[x]→H*-RP² = DS-Rec-Set.f _ _ _ _ isSetH*
@@ -222,7 +258,7 @@ module Equiv-RP2-Properties where
                                                         ∙ pres·-base-case-int 0 b 1 a
                                                         ∙ gradCommRing RP² 0 2 _ _
   pres·-base-case-int one           a one           b = sym (base-neutral 4) ∙
-                                                         cong (base 4) (isOfHLevelRetractFromIso 1 {!!} isPropUnit _ _)
+                                                         cong (base 4) (isOfHLevelRetractFromIso 1 (fst H⁴-RP²≅ℤ) isPropUnit _ _)
   pres·-base-case-int one           a (suc (suc m)) b = refl
   pres·-base-case-int (suc (suc n)) a m             b = refl
 
@@ -266,43 +302,57 @@ module Equiv-RP2-Properties where
 
 
 
--- -----------------------------------------------------------------------------
--- -- Converse Sens on ℤ[X] + ℤ[x]/x
+-----------------------------------------------------------------------------
+-- Converse Sens on ℤ[X] + ℤ[x]/x
 
---   H*-S¹→ℤ[x] : H* (S₊ 1) → ℤ[x]
---   H*-S¹→ℤ[x] = DS-Rec-Set.f _ _ _ _ isSetPℤ
---                   0Pℤ
---                   ϕ⁻¹
---                   _+Pℤ_
---                   +PℤAssoc
---                   +PℤIdR
---                   +PℤComm
---                   base-neutral-eq
---                   base-add-eq
---                where
---                ϕ⁻¹ : _
---                ϕ⁻¹ zero a          = base (0 ∷ []) (ϕ₀⁻¹ a)
---                ϕ⁻¹ one a           = base (1 ∷ []) (ϕ₁⁻¹ a)
---                ϕ⁻¹ (suc (suc n)) a = 0Pℤ
+  -- Because ϕ⁻¹ are not morphism on there own
+  -- We need to define functions directly from H* to Z[X]/<2X, X³>
 
---                base-neutral-eq : _
---                base-neutral-eq zero          = cong (base (0 ∷ [])) (pres1 ϕ₀⁻¹str) ∙ base-neutral _
---                base-neutral-eq one           = cong (base (1 ∷ [])) (pres1 ϕ₁⁻¹str) ∙ base-neutral _
---                base-neutral-eq (suc (suc n)) = refl
+  ψ₂⁻¹ : Bool → ℤ
+  ψ₂⁻¹ false = 1
+  ψ₂⁻¹ true = 0
 
---                base-add-eq : _
---                base-add-eq zero a b        = (base-add _ _ _) ∙ (cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _)))
---                base-add-eq one a b         = (base-add _ _ _) ∙ (cong (base (1 ∷ [])) (sym (pres· ϕ₁⁻¹str _ _)))
---                base-add-eq (suc (suc n)) a b = +PℤIdR _
+  ψ₂⁻¹∘ϕ₂⁻¹str : IsGroupHom (snd (coHomGr 2 RP²)) (ψ₂⁻¹ ∘ ϕ₂⁻¹) (snd ℤG)
+  ψ₂⁻¹∘ϕ₂⁻¹str = {!!}
 
---   H*-S¹→ℤ[x]-pres+ : (x y : H* (S₊ 1)) → H*-S¹→ℤ[x] ( x +H* y) ≡ H*-S¹→ℤ[x] x +Pℤ H*-S¹→ℤ[x] y
---   H*-S¹→ℤ[x]-pres+ x y = refl
+  H*-S¹→ℤ[x]/<2x,x²> : H* RP² → ℤ[x]/<2x,x²>
+  H*-S¹→ℤ[x]/<2x,x²> = DS-Rec-Set.f _ _ _ _ isSetPℤI
+                        0PℤI
+                        (λ { k a → ϕ⁻¹ k a (part k)})
+                        _+PℤI_
+                        +PℤIAssoc
+                        +PℤIIdR
+                        +PℤIComm
+                        (λ k → base-neutral-eq k (part k))
+                        λ k a b → base-add-eq k a b (part k)
+       where
+       ϕ⁻¹ : (k : ℕ) → (a : coHom k RP²) → (x : partℕ k) → ℤ[x]/<2x,x²>
+       ϕ⁻¹ k a (is0 x) = [ (base (0 ∷ []) (ϕ₀⁻¹ (substG x a))) ]
+       ϕ⁻¹ k a (is2 x) = [ (base (1 ∷ []) ((ψ₂⁻¹ ∘ ϕ₂⁻¹) (substG x a))) ]
+       ϕ⁻¹ k a (else x) = 0PℤI
 
---   H*-S¹→ℤ[x]/x² : H* (S₊ 1) → ℤ[x]/x²
---   H*-S¹→ℤ[x]/x² = [_] ∘ H*-S¹→ℤ[x]
+       base-neutral-eq : (k : ℕ) → (x : partℕ k) → ϕ⁻¹ k (0ₕ k) x ≡ 0PℤI
+       base-neutral-eq k (is0 x) = cong [_] (cong (base {AGP = λ _ → snd (Ring→AbGroup (CommRing→Ring ℤCR))} (0 ∷ []))
+                                                  (cong ϕ₀⁻¹ (subst0g x) ∙ pres1 ϕ₀⁻¹str)
+                                            ∙ (base-neutral _))
+       base-neutral-eq k (is2 x) = cong [_] (cong (base {AGP = λ _ → snd (Ring→AbGroup (CommRing→Ring ℤCR))} (1 ∷ []))
+                                                  (cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (subst0g x) ∙ pres1 ψ₂⁻¹∘ϕ₂⁻¹str)
+                                            ∙ (base-neutral _))
+       base-neutral-eq k (else x) = refl
 
---   H*-S¹→ℤ[x]/x²-pres+ : (x y : H* (S₊ 1)) → H*-S¹→ℤ[x]/x² (x +H* y) ≡ (H*-S¹→ℤ[x]/x² x) +PℤI (H*-S¹→ℤ[x]/x² y)
---   H*-S¹→ℤ[x]/x²-pres+ x y = refl
+       base-add-eq : (k : ℕ) → (a b : coHom k RP²) → (x : partℕ k) →
+                     (ϕ⁻¹ k a x) +PℤI (ϕ⁻¹ k b x) ≡ ϕ⁻¹ k (a +ₕ b) x
+       base-add-eq k a b (is0 x) = cong [_] (base-add _ _ _
+                                            ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (subst+ _ _ _)))
+       base-add-eq k a b (is2 x) = cong [_] (base-add _ _ _
+                                            ∙ cong (base (1 ∷ [])) (sym (pres· ψ₂⁻¹∘ϕ₂⁻¹str _ _) ∙ cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (subst+ _ _ _)))
+       base-add-eq k a b (else x) = +PℤIIdR _
+
+  H*-S¹→ℤ[x]/<2x,x²>-pres0 : H*-S¹→ℤ[x]/<2x,x²> 0H* ≡ 0PℤI
+  H*-S¹→ℤ[x]/<2x,x²>-pres0 = refl
+
+  H*-S¹→ℤ[x]/<2x,x²>-pres+ : (x y : H* RP²) → H*-S¹→ℤ[x]/<2x,x²> (x +H* y) ≡ (H*-S¹→ℤ[x]/<2x,x²> x) +PℤI (H*-S¹→ℤ[x]/<2x,x²> y)
+  H*-S¹→ℤ[x]/<2x,x²>-pres+ x y = refl
 
 
 
