@@ -229,8 +229,8 @@ module Equiv-RP2-Properties
                                                     ∙ cong (base 2) (sym (cong ϕ₂ (pres· ψ₂str a b) ∙ pres· ϕ₂str (ψ₂ a) (ψ₂ b)))
                base-add-eq (suc (suc n) ∷ []) a b = +H*IdR _
 
--- -----------------------------------------------------------------------------
--- -- Morphism on ℤ[x]
+-----------------------------------------------------------------------------
+-- Morphism on ℤ[x]
 
 
   ϕ₀-pres1 : ϕ₀ 1 ≡ 1⌣
@@ -283,23 +283,23 @@ module Equiv-RP2-Properties
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
--- -----------------------------------------------------------------------------
--- -- Function on ℤ[x]/x + morphism
+-----------------------------------------------------------------------------
+-- Function on ℤ[x]/x + morphism
 
---   ℤ[x]→H*-S¹-cancelX : (k : Fin 1) → ℤ[x]→H*-S¹ (<X²> k) ≡ 0H*
---   ℤ[x]→H*-S¹-cancelX zero = refl
+  ℤ[x]→H*-RP²-cancelX : (x : Fin 2) → ℤ[x]→H*-RP² (<2X,X²> x) ≡ 0H*
+  ℤ[x]→H*-RP²-cancelX zero = cong (base 2) (pres1 ϕ₂str) ∙ base-neutral _
+  ℤ[x]→H*-RP²-cancelX one = refl
 
---   ℤ[X]→H*-S¹ : RingHom (CommRing→Ring ℤ[X]) (H*R (S₊ 1))
---   fst ℤ[X]→H*-S¹ = ℤ[x]→H*-S¹
---   snd ℤ[X]→H*-S¹ = makeIsRingHom ℤ[x]→H*-S¹-pres1Pℤ ℤ[x]→H*-S¹-pres+ ℤ[x]→H*-S¹-pres·
+  ℤ[X]→H*-RP² : RingHom (CommRing→Ring ℤ[X]) (H*R RP²)
+  fst ℤ[X]→H*-RP² = ℤ[x]→H*-RP²
+  snd ℤ[X]→H*-RP² = makeIsRingHom ℤ[x]→H*-RP²-pres1Pℤ ℤ[x]→H*-RP²-pres+ ℤ[x]→H*-RP²-pres·
 
---   ℤ[X]/X²→H*R-S¹ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
---   ℤ[X]/X²→H*R-S¹ =
---     Quotient-FGideal-CommRing-Ring.inducedHom ℤ[X] (H*R (S₊ 1)) ℤ[X]→H*-S¹ <X²> ℤ[x]→H*-S¹-cancelX
+  ℤ[X]/<2X,X²>→H*R-RP² : RingHom (CommRing→Ring ℤ[X]/<2X,X²>) (H*R RP²)
+  ℤ[X]/<2X,X²>→H*R-RP² =
+    Quotient-FGideal-CommRing-Ring.inducedHom ℤ[X] (H*R RP²) ℤ[X]→H*-RP² <2X,X²> ℤ[x]→H*-RP²-cancelX
 
---   ℤ[x]/x²→H*-S¹ : ℤ[x]/x² → H* (S₊ 1)
---   ℤ[x]/x²→H*-S¹ = fst ℤ[X]/X²→H*R-S¹
-
+  ℤ[x]/<2x,x²>→H*-RP² : ℤ[x]/<2x,x²> → H* RP²
+  ℤ[x]/<2x,x²>→H*-RP² = fst ℤ[X]/<2X,X²>→H*R-RP²
 
 
 -----------------------------------------------------------------------------
@@ -315,8 +315,8 @@ module Equiv-RP2-Properties
   ψ₂⁻¹∘ϕ₂⁻¹str : IsGroupHom (snd (coHomGr 2 RP²)) (ψ₂⁻¹ ∘ ϕ₂⁻¹) (snd ℤG)
   ψ₂⁻¹∘ϕ₂⁻¹str = {!!}
 
-  H*-S¹→ℤ[x]/<2x,x²> : H* RP² → ℤ[x]/<2x,x²>
-  H*-S¹→ℤ[x]/<2x,x²> = DS-Rec-Set.f _ _ _ _ isSetPℤI
+  H*-RP²→ℤ[x]/<2x,x²> : H* RP² → ℤ[x]/<2x,x²>
+  H*-RP²→ℤ[x]/<2x,x²> = DS-Rec-Set.f _ _ _ _ isSetPℤI
                         0PℤI
                         (λ { k a → ϕ⁻¹ k a (part k)})
                         _+PℤI_
@@ -348,29 +348,36 @@ module Equiv-RP2-Properties
                                             ∙ cong (base (1 ∷ [])) (sym (pres· ψ₂⁻¹∘ϕ₂⁻¹str _ _) ∙ cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (subst+ _ _ _)))
        base-add-eq k a b (else x) = +PℤIIdR _
 
-  H*-S¹→ℤ[x]/<2x,x²>-pres0 : H*-S¹→ℤ[x]/<2x,x²> 0H* ≡ 0PℤI
-  H*-S¹→ℤ[x]/<2x,x²>-pres0 = refl
+  H*-RP²→ℤ[x]/<2x,x²>-pres0 : H*-RP²→ℤ[x]/<2x,x²> 0H* ≡ 0PℤI
+  H*-RP²→ℤ[x]/<2x,x²>-pres0 = refl
 
-  H*-S¹→ℤ[x]/<2x,x²>-pres+ : (x y : H* RP²) → H*-S¹→ℤ[x]/<2x,x²> (x +H* y) ≡ (H*-S¹→ℤ[x]/<2x,x²> x) +PℤI (H*-S¹→ℤ[x]/<2x,x²> y)
-  H*-S¹→ℤ[x]/<2x,x²>-pres+ x y = refl
+  H*-RP²→ℤ[x]/<2x,x²>-pres+ : (x y : H* RP²) → H*-RP²→ℤ[x]/<2x,x²> (x +H* y) ≡ (H*-RP²→ℤ[x]/<2x,x²> x) +PℤI (H*-RP²→ℤ[x]/<2x,x²> y)
+  H*-RP²→ℤ[x]/<2x,x²>-pres+ x y = refl
 
 
 
--- -----------------------------------------------------------------------------
--- -- Section
+-----------------------------------------------------------------------------
+-- Section
 
---   e-sect : (x : H* (S₊ 1)) → ℤ[x]/x²→H*-S¹ (H*-S¹→ℤ[x]/x² x) ≡ x
---   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
---            refl
---            base-case
---            λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
---            where
---            base-case : _
---            base-case zero          a = cong (base 0) (ϕ₀-sect _)
---            base-case one           a = cong (base 1) (ϕ₁-sect _)
---            base-case (suc (suc n)) a = (sym (base-neutral (suc (suc n))))
---                                        ∙ cong (base (suc (suc n)))
---                                             (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 (suc n) 0 nsnotz)) isPropUnit _ _)
+  -- e-sect-base : (k : ℕ) → (a : coHom k CP²) → (x : partℕ k) →
+  --                 ℤ[x]/x³→H*-CP² [ (ϕ⁻¹ k a x) ] ≡ base k a
+  --   e-sect-base k a (is0 x) = cong (base 0) (ϕ₀-sect (substG x a))
+  --                             ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
+  --   e-sect-base k a (is2 x) = cong (base 2) (ϕ₂-sect (substG x a))
+  --                             ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
+  --   e-sect-base k a (is4 x) = cong (base 4) (ϕ₄-sect (substG x a))
+  --                             ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
+  --   e-sect-base k a (else x) = sym (base-neutral k)
+  --                              ∙ cong (base k) (trivialGroupSEq (sym (suc-predℕ k (fst x)))
+  --                                                               (Hⁿ-CP²≅0 (predℕ k)
+  --                                                               (λ p → fst (snd x) (suc-predℕ k (fst x) ∙ p))
+  --                                                                λ p → snd (snd x) (suc-predℕ k (fst x) ∙ p)) _ _)
+
+  e-sect : (x : H* RP²) → ℤ[x]/<2x,x²>→H*-RP² (H*-RP²→ℤ[x]/<2x,x²> x) ≡ x
+  e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+           refl
+           {!!}
+           λ {U V} ind-U ind-V → {!cong₂ _+H*_!}
 
 
 -- -----------------------------------------------------------------------------
