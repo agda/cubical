@@ -401,11 +401,7 @@ module Equiv-RP2-Properties
   e-sect-base k a (is2 x) = cong (base 2) (cong ϕ₂ (ψ₂-sect _) ∙ ϕ₂-sect _)
                             ∙ sym (constSubstCommSlice _ _ base x a)
   e-sect-base k a (else x) = sym (base-neutral k)
-                             ∙ cong (base k) {!!}
-  --                              ∙ cong (base k) (trivialGroupSEq (sym (suc-predℕ k (fst x)))
-  --                                                               (Hⁿ-CP²≅0 (predℕ k)
-  --                                                               (λ p → fst (snd x) (suc-predℕ k (fst x) ∙ p))
-  --                                                                λ p → snd (snd x) (suc-predℕ k (fst x) ∙ p)) _ _)
+                             ∙ cong (base k) (trivialGroupEq (Hⁿ-RP²≅ℤ k (fst x) (snd x)) _ _)
 
   e-sect : (x : H* RP²) → ℤ[x]/<2x,x²>→H*-RP² (H*-RP²→ℤ[x]/<2x,x²> x) ≡ x
   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
