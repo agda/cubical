@@ -9,6 +9,7 @@ open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Structures.Pointed
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
@@ -38,10 +39,34 @@ record LeftInvHSpace {ℓ : Level} {A : Pointed ℓ} (e : HSpace A) : Type ℓ w
   field
     μ-equiv : (x : typ A) → isEquiv (HSpace.μ e x)
 
+  open HSpace e
+
+  μ≃ : typ A → typ A ≃ typ A
+  μ≃ x = (μ x , μ-equiv x)
+
+  μ⁻¹ : typ A → typ A → typ A
+  μ⁻¹ x = invIsEq (μ-equiv x)
+
+  μ⁻¹ₗ : (x : typ A) → μ⁻¹ (pt A) x ≡ x
+  μ⁻¹ₗ x = sym (invEq (equivAdjointEquiv (μ≃ (pt A))) (μₗ x))
+
+  μ⁻¹ᵣ : (x : typ A) → μ⁻¹ x x ≡ (pt A)
+  μ⁻¹ᵣ x = sym (invEq (equivAdjointEquiv (μ≃ x)) (μᵣ x))
+
   -- every left-invertible H-space is strongly homogeneous
   isHomogeneousHSp : isHomogeneous A
   isHomogeneousHSp x = pointed-sip A (fst A , x)
                        ((HSpace.μ e x , μ-equiv x) , HSpace.μᵣ e x)
+
+module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (hb : HSpace B)
+         (hi : LeftInvHSpace hb) where
+
+  open HSpace hb
+  open LeftInvHSpace hi
+
+  -- this could be given a direct proof
+  →∙HSpace≡ : {f g : A →∙ B} → f .fst ≡ g .fst → f ≡ g
+  →∙HSpace≡ {f} {g} p = →∙Homogeneous≡ isHomogeneousHSp p
 
 {- H-space structures on A are exactly pointed sections of the evaluation map,
    expressed here with a pointed Π-type -}
@@ -86,6 +111,11 @@ HSpace-homogeneous A h = Iso.inv (HSpace-Π∙-Iso A) s
     s : Π∙ A (λ x → A →∙ (typ A , x)) (idfun∙ A)
     fst s x = ≃∙map (k x)
     snd s = cong′ ≃∙map k₀
+
+LeftInvHSpace-homogeneous : {ℓ : Level} (A : Pointed ℓ) → (h : isHomogeneous A)
+                            → LeftInvHSpace (HSpace-homogeneous A h)
+LeftInvHSpace.μ-equiv (LeftInvHSpace-homogeneous A h) x =
+  equivIsEquiv (fst (pointed-sip⁻ A (typ A , x) (sym (h (pt A)) ∙ h x)))
 
 -- Instances
 open HSpace
