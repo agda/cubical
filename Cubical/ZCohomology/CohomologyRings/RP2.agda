@@ -425,6 +425,8 @@ module Equiv-RP2-Properties
     (IsEvenTrue : (a : ℤ) → isEven a ≡ true → Σ[ m ∈ ℤ ] a ≡ (2 ·ℤ m))
     where
 
+    -- could be prove for : k + 2·m
+    -- then call it with 0 and 1
     e-retr-ψ₂-false : (a : ℤ) → (isEven a ≡ false) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
     e-retr-ψ₂-false a x = cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ x))
                     ∙ eq/ (base (1 ∷ []) 1) (base (1 ∷ []) a)
@@ -476,31 +478,31 @@ module Equiv-RP2-Properties
                          ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+-comm k 2))) (sym (·ℤIdR _))
                          ∙ sym (+PℤIdL _ ∙ +PℤIdR _ )
 
--- --   e-retr : (x : ℤ[x]/<2x,x²>) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² x) ≡ x
--- --   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
--- --            (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
--- --            refl
--- --            (λ { (k ∷ []) a → e-retr-base k a})
--- --            λ {U V} ind-U ind-V → cong H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP²-pres+ [ U ] [ V ])
--- --                                   ∙ cong₂ _+PℤI_ ind-U ind-V)
+    e-retr : (x : ℤ[x]/<2x,x²>) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² x) ≡ x
+    e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
+             (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
+             refl
+             (λ { (k ∷ []) a → e-retr-base k a})
+             λ {U V} ind-U ind-V → cong H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP²-pres+ [ U ] [ V ])
+                                    ∙ cong₂ _+PℤI_ ind-U ind-V)
 
 
--- -- -----------------------------------------------------------------------------
--- -- -- Computation of the Cohomology Ring
+-----------------------------------------------------------------------------
+-- Computation of the Cohomology Ring
 
--- -- -- module _ where
+-- module _ where
 
--- -- --   open Equiv-S1-Properties
+--   open Equiv-S1-Properties
 
--- -- --   S¹-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
--- -- --   fst S¹-CohomologyRing = isoToEquiv is
--- -- --     where
--- -- --     is : Iso ℤ[x]/x² (H* (S₊ 1))
--- -- --     fun is = ℤ[x]/x²→H*-S¹
--- -- --     inv is = H*-S¹→ℤ[x]/x²
--- -- --     rightInv is = e-sect
--- -- --     leftInv is = e-retr
--- -- --   snd S¹-CohomologyRing = snd ℤ[X]/X²→H*R-S¹
+--   S¹-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
+--   fst S¹-CohomologyRing = isoToEquiv is
+--     where
+--     is : Iso ℤ[x]/x² (H* (S₊ 1))
+--     fun is = ℤ[x]/x²→H*-S¹
+--     inv is = H*-S¹→ℤ[x]/x²
+--     rightInv is = e-sect
+--     leftInv is = e-retr
+--   snd S¹-CohomologyRing = snd ℤ[X]/X²→H*R-S¹
 
--- -- --   CohomologyRing-S¹ : RingEquiv (H*R (S₊ 1)) (CommRing→Ring ℤ[X]/X²)
--- -- --   CohomologyRing-S¹ = RingEquivs.invRingEquiv S¹-CohomologyRing
+--   CohomologyRing-S¹ : RingEquiv (H*R (S₊ 1)) (CommRing→Ring ℤ[X]/X²)
+--   CohomologyRing-S¹ = RingEquivs.invRingEquiv S¹-CohomologyRing
