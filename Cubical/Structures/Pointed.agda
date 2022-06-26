@@ -39,11 +39,18 @@ pointed-sip-idEquiv∙ : (A : Pointed ℓ) → pointed-sip A A (idEquiv∙ A) �
 fst (pointed-sip-idEquiv∙ A i j) = uaIdEquiv i j
 snd (pointed-sip-idEquiv∙ A i j) = glue {φ = i ∨ ~ j ∨ j} (λ _ → pt A) (pt A)
 
-pointed-sip⁻ : (A B : Pointed ℓ) → (A ≡ B) → A ≃[ PointedEquivStr ] B
-pointed-sip⁻ A B = invEq (pointedSIP A B)
+{-
+  The following terms have huge normal forms, so they are abstract to avoid
+  type checking speed problems, for example in
 
-pointed-sip⁻-refl : (A : Pointed ℓ) → pointed-sip⁻ A A refl ≡ idEquiv∙ A
-pointed-sip⁻-refl A = sym (invEq (equivAdjointEquiv (pointedSIP A A)) (pointed-sip-idEquiv∙ A))
+    Cubical.Homotopy.HSpace
+-}
+abstract
+  pointed-sip⁻ : (A B : Pointed ℓ) → (A ≡ B) → A ≃[ PointedEquivStr ] B
+  pointed-sip⁻ A B = invEq (pointedSIP A B)
+
+  pointed-sip⁻-refl : (A : Pointed ℓ) → pointed-sip⁻ A A refl ≡ idEquiv∙ A
+  pointed-sip⁻-refl A = sym (invEq (equivAdjointEquiv (pointedSIP A A)) (pointed-sip-idEquiv∙ A))
 
 pointedEquivAction : EquivAction {ℓ} PointedStructure
 pointedEquivAction e = e
