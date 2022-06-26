@@ -13,7 +13,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat using (ℕ ; zero ; suc ; discreteℕ ; suc-predℕ)
+open import Cubical.Data.Nat using (ℕ ; zero ; suc ; discreteℕ ; suc-predℕ ; +-comm)
 open import Cubical.Data.Int
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
@@ -23,6 +23,7 @@ open import Cubical.Data.FinData
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group.Instances.Unit
 open import Cubical.Algebra.Group.Instances.Bool
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
@@ -53,6 +54,7 @@ open import Cubical.ZCohomology.CohomologyRings.CupProductProperties
 
 open Iso
 
+
 module Equiv-RP2-Properties
   (H⁴-RP²≅ℤ : GroupIso (coHomGr 4 RP²) UnitGroup₀)
   (Hⁿ-RP²≅ℤ : (n : ℕ) → (n ≡ 0 → ⊥) → (n ≡ 2 → ⊥) → GroupIso (coHomGr n RP²) UnitGroup₀)
@@ -60,6 +62,9 @@ module Equiv-RP2-Properties
 
 -----------------------------------------------------------------------------
 -- Definitions and import
+
+  private
+    ℤAG = Ring→AbGroup (CommRing→Ring ℤCR)
 
   <2X,X²> :  FinVec ℤ[x] 2
   <2X,X²> zero = base (1 ∷ []) 2
@@ -99,6 +104,7 @@ module Equiv-RP2-Properties
     ; ·IdL      to ·ℤIdL
     ; ·IdR      to ·ℤIdR
     ; ·DistR+   to ·ℤDistR+
+    ; ·Comm     to ·ℤComm
     ; is-set    to isSetℤ     )
 
   open RingStr (snd (H*R RP²)) using ()
@@ -361,7 +367,7 @@ module Equiv-RP2-Properties
                         λ k a b → base-add-eq k a b (part k)
        where
        base-neutral-eq : (k : ℕ) → (x : partℕ k) → ϕ⁻¹ k (0ₕ k) x ≡ 0PℤI
-       base-neutral-eq k (is0 x) = cong [_] (cong (base {AGP = λ _ → snd (Ring→AbGroup (CommRing→Ring ℤCR))} (0 ∷ []))
+       base-neutral-eq k (is0 x) = cong [_] (cong (base {AGP = λ _ → snd ℤAG} (0 ∷ []))
                                                   (cong ϕ₀⁻¹ (subst0g x) ∙ pres1 ϕ₀⁻¹str)
                                             ∙ (base-neutral _))
        base-neutral-eq k (is2 x) = cong [_] (cong (base (1 ∷ []))
@@ -375,7 +381,7 @@ module Equiv-RP2-Properties
        base-add-eq k a b (is0 x) = cong [_] (base-add _ _ _
                                             ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (subst+ _ _ _)))
        base-add-eq k a b (is2 x) = Λ-pres+ (ϕ₂⁻¹ (substG x a)) (ϕ₂⁻¹ (substG x b))
-                                   ∙ cong [_] (cong (λ X → base {AGP = λ _ → snd (Ring→AbGroup (CommRing→Ring ℤCR))} (1 ∷ []) (ψ₂⁻¹ X))
+                                   ∙ cong [_] (cong (λ X → base {AGP = λ _ → snd ℤAG} (1 ∷ []) (ψ₂⁻¹ X))
                                                     ((sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (subst+ _ _ _))))
        base-add-eq k a b (else x) = +PℤIIdR _
 
@@ -410,41 +416,91 @@ module Equiv-RP2-Properties
            λ {U V} ind-U ind-V → ℤ[x]/<2x,x²>→H*-RP²-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
 
 
--- -----------------------------------------------------------------------------
--- -- Retraction
+-----------------------------------------------------------------------------
+-- Retraction
 
---   e-retr : (x : ℤ[x]/x²) → H*-S¹→ℤ[x]/x² (ℤ[x]/x²→H*-S¹ x) ≡ x
---   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
---            (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
---            refl
---            base-case
---            λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
---            where
---            base-case : _
---            base-case (zero ∷ [])        a = cong [_] (cong (base (0 ∷ [])) (ϕ₀-retr _))
---            base-case (one ∷ [])         a = cong [_] (cong (base (1 ∷ [])) (ϕ₁-retr _))
---            base-case (suc (suc n) ∷ []) a = eq/ 0Pℤ (base (suc (suc n) ∷ []) a) ∣ ((λ x → base (n ∷ []) (-ℤ a)) , helper) ∣₁
---              where
---              helper : _
---              helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+-comm n 2))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
+  module MissingLemma
+    (isEven-pres+ : (a b : ℤ) → isEven (a + b) ≡ ((isEven a) +Bool (isEven b)))
+    (IsEvenFalse : (a : ℤ) → isEven a ≡ false → Σ[ m ∈ ℤ ] a ≡ 1 +ℤ (2 ·ℤ m))
+    (IsEvenTrue : (a : ℤ) → isEven a ≡ true → Σ[ m ∈ ℤ ] a ≡ (2 ·ℤ m))
+    where
+
+    e-retr-ψ₂-false : (a : ℤ) → (isEven a ≡ false) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
+    e-retr-ψ₂-false a x = cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ x))
+                    ∙ eq/ (base (1 ∷ []) 1) (base (1 ∷ []) a)
+                      ∣ ((λ {zero → base (0 ∷ []) (-ℤ m) ; one → 0Pℤ }) , helper) ∣₁
+              where
+              m = fst (IsEvenFalse a x)
+
+              helper : _
+              helper = base-add _ _ _
+                       ∙ cong (base (1 ∷ [])) (cong (λ X → 1 +ℤ (-ℤ X)) (snd (IsEvenFalse a x))
+                                               ∙ cong (λ X → 1 +ℤ X) (-Dist+ _ _)
+                                               ∙ +ℤAssoc _ _ _
+                                               ∙ +ℤIdL _)
+                       ∙ sym (cong (λ X → ((base (0 ∷ []) (-ℤ m)) ·Pℤ base (1 ∷ []) 2) +Pℤ X) (+PℤIdR _)
+                             ∙ +PℤIdR _
+                             ∙ cong (base (1 ∷ [])) (sym (-DistL· _ _) ∙ cong -ℤ_ (·ℤComm _ _)))
+
+    e-retr-ψ₂-true : (a : ℤ) → (isEven a ≡ true) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
+    e-retr-ψ₂-true a x = cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ x))
+                         ∙ eq/ (base (1 ∷ []) 0) (base (1 ∷ []) a)
+                         ∣ ((λ { zero → base (0 ∷ []) (-ℤ m) ; one → 0Pℤ }) , helper) ∣₁
+              where
+              m = fst (IsEvenTrue a x)
+
+              helper : _
+              helper = base-add _ _ _
+                       ∙ cong (base (1 ∷ [])) (+ℤIdL _ ∙ cong -ℤ_ (snd (IsEvenTrue a x) ∙ ·ℤComm 2 m))
+                       ∙ sym (cong (λ X → (base (0 ∷ []) (-ℤ m) ·Pℤ base (1 ∷ []) 2) +Pℤ X) (+PℤIdR _)
+                              ∙ +PℤIdR _
+                              ∙ cong (base (1 ∷ [])) (sym (-DistL· _ _)))
 
 
--- -----------------------------------------------------------------------------
--- -- Computation of the Cohomology Ring
+    e-retr-ψ₂ : (a : ℤ) → ((isEven a ≡ false) ⊎ (isEven a ≡ true)) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
+    e-retr-ψ₂ a (inl x) = e-retr-ψ₂-false a x
+    e-retr-ψ₂ a (inr x) = e-retr-ψ₂-true a x
 
--- module _ where
 
---   open Equiv-S1-Properties
+    e-retr-base : (k :  ℕ) → (a : ℤ) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² [ base (k ∷ []) a ]) ≡ [ base (k ∷ []) a ]
+    e-retr-base zero a = cong [_] (cong (base (zero ∷ []))
+                                  (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a)) ∙ ϕ₀-retr a))
+    e-retr-base one a = cong [_] (cong (base (1 ∷ [])) (cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (transportRefl _)))
+                        ∙ cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ (ϕ₂-retr (ψ₂ a))))
+                        ∙ e-retr-ψ₂ a (dichotomyBoolSym (isEven a))
+    e-retr-base (suc (suc k)) a = eq/ 0Pℤ (base ((suc (suc k)) ∷ []) a)
+                                  ∣ ((λ { zero → 0Pℤ ; one → base (k ∷ []) (-ℤ a) }) , helper) ∣₁
+                where
+                helper : _
+                helper = +PℤIdL _
+                         ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+-comm k 2))) (sym (·ℤIdR _))
+                         ∙ sym (+PℤIdL _ ∙ +PℤIdR _ )
 
---   S¹-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
---   fst S¹-CohomologyRing = isoToEquiv is
---     where
---     is : Iso ℤ[x]/x² (H* (S₊ 1))
---     fun is = ℤ[x]/x²→H*-S¹
---     inv is = H*-S¹→ℤ[x]/x²
---     rightInv is = e-sect
---     leftInv is = e-retr
---   snd S¹-CohomologyRing = snd ℤ[X]/X²→H*R-S¹
+-- --   e-retr : (x : ℤ[x]/<2x,x²>) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² x) ≡ x
+-- --   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
+-- --            (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
+-- --            refl
+-- --            (λ { (k ∷ []) a → e-retr-base k a})
+-- --            λ {U V} ind-U ind-V → cong H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP²-pres+ [ U ] [ V ])
+-- --                                   ∙ cong₂ _+PℤI_ ind-U ind-V)
 
---   CohomologyRing-S¹ : RingEquiv (H*R (S₊ 1)) (CommRing→Ring ℤ[X]/X²)
---   CohomologyRing-S¹ = RingEquivs.invRingEquiv S¹-CohomologyRing
+
+-- -- -----------------------------------------------------------------------------
+-- -- -- Computation of the Cohomology Ring
+
+-- -- -- module _ where
+
+-- -- --   open Equiv-S1-Properties
+
+-- -- --   S¹-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
+-- -- --   fst S¹-CohomologyRing = isoToEquiv is
+-- -- --     where
+-- -- --     is : Iso ℤ[x]/x² (H* (S₊ 1))
+-- -- --     fun is = ℤ[x]/x²→H*-S¹
+-- -- --     inv is = H*-S¹→ℤ[x]/x²
+-- -- --     rightInv is = e-sect
+-- -- --     leftInv is = e-retr
+-- -- --   snd S¹-CohomologyRing = snd ℤ[X]/X²→H*R-S¹
+
+-- -- --   CohomologyRing-S¹ : RingEquiv (H*R (S₊ 1)) (CommRing→Ring ℤ[X]/X²)
+-- -- --   CohomologyRing-S¹ = RingEquivs.invRingEquiv S¹-CohomologyRing

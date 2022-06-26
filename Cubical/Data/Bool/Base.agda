@@ -81,6 +81,10 @@ dichotomyBool : (x : Bool) → (x ≡ true) ⊎ (x ≡ false)
 dichotomyBool true  = inl refl
 dichotomyBool false = inr refl
 
+dichotomyBoolSym : (x : Bool) → (x ≡ false) ⊎ (x ≡ true)
+dichotomyBoolSym false = inl refl
+dichotomyBoolSym true = inr refl
+
 -- TODO: this should be uncommented and implemented using instance arguments
 -- _==_ : {dA : Discrete A} → A → A → Bool
 -- _==_ {dA = dA} x y = Dec→Bool (dA x y)
