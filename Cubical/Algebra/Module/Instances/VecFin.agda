@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
