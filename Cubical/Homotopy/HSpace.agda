@@ -14,7 +14,11 @@ open import Cubical.Structures.Pointed
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 
-record HSpace {ℓ : Level} (A : Pointed ℓ) : Type ℓ where
+private
+  variable
+    ℓ ℓ' : Level
+
+record HSpace (A : Pointed ℓ) : Type ℓ where
   constructor HSp
   field
     μ : typ A → typ A → typ A
@@ -22,24 +26,24 @@ record HSpace {ℓ : Level} (A : Pointed ℓ) : Type ℓ where
     μᵣ : (x : typ A) → μ x (pt A) ≡ x
     μₗᵣ : μₗ (pt A) ≡ μᵣ (pt A)
 
-record AssocHSpace {ℓ : Level} {A : Pointed ℓ} (e : HSpace A) : Type ℓ where
+record AssocHSpace {A : Pointed ℓ} (e : HSpace A) : Type ℓ where
   constructor AssocHSp
+  open HSpace e
   field
     μ-assoc : (x y z : _)
-      → HSpace.μ e (HSpace.μ e x y) z ≡ HSpace.μ e x (HSpace.μ e y z)
+      → μ (μ x y) z ≡ μ x (μ y z)
 
     μ-assoc-filler : (y z : typ A)
-      → PathP (λ i → HSpace.μ e (HSpace.μₗ e y i) z
-                    ≡ HSpace.μₗ e (HSpace.μ e y z) i)
+      → PathP (λ i → μ (μₗ y i) z
+                    ≡ μₗ (μ y z) i)
                (μ-assoc (pt A) y z)
                refl
 
-record LeftInvHSpace {ℓ : Level} {A : Pointed ℓ} (e : HSpace A) : Type ℓ where
+record LeftInvHSpace {A : Pointed ℓ} (e : HSpace A) : Type ℓ where
   constructor LeftInvHSp
-  field
-    μ-equiv : (x : typ A) → isEquiv (HSpace.μ e x)
-
   open HSpace e
+  field
+    μ-equiv : (x : typ A) → isEquiv (μ x)
 
   μ≃ : typ A → typ A ≃ typ A
   μ≃ x = (μ x , μ-equiv x)
@@ -53,12 +57,12 @@ record LeftInvHSpace {ℓ : Level} {A : Pointed ℓ} (e : HSpace A) : Type ℓ w
   μ⁻¹ᵣ : (x : typ A) → μ⁻¹ x x ≡ (pt A)
   μ⁻¹ᵣ x = sym (invEq (equivAdjointEquiv (μ≃ x)) (μᵣ x))
 
-  -- every left-invertible H-space is strongly homogeneous
+  -- every left-invertible H-space is (strongly) homogeneous
   isHomogeneousHSp : isHomogeneous A
   isHomogeneousHSp x = pointed-sip A (fst A , x)
-                       ((HSpace.μ e x , μ-equiv x) , HSpace.μᵣ e x)
+                       ((μ x , μ-equiv x) , μᵣ x)
 
-module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (hb : HSpace B)
+module _ {A : Pointed ℓ} {B : Pointed ℓ'} (hb : HSpace B)
          (hi : LeftInvHSpace hb) where
 
   open HSpace hb
@@ -70,7 +74,7 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (hb : HSpace B)
 
 {- H-space structures on A are exactly pointed sections of the evaluation map,
    expressed here with a pointed Π-type -}
-HSpace-Π∙-Iso : {ℓ : Level} (A : Pointed ℓ) → Iso (HSpace A)
+HSpace-Π∙-Iso : (A : Pointed ℓ) → Iso (HSpace A)
                 (Π∙ A (λ x → A →∙ (typ A , x)) (idfun∙ A))
 fst (fst (Iso.fun (HSpace-Π∙-Iso A) e) x) = HSpace.μ e x
 snd (fst (Iso.fun (HSpace-Π∙-Iso A) e) x) = HSpace.μᵣ e x
@@ -93,13 +97,13 @@ HSpace.μᵣ (Iso.leftInv (HSpace-Π∙-Iso A) e k) x = HSpace.μᵣ e x
 HSpace.μₗᵣ (Iso.leftInv (HSpace-Π∙-Iso A) e k) = flipSquare
   (secEq slideSquareEquiv (flipSquare (HSpace.μₗᵣ e)) k)
 
-HSpace-Π∙-Equiv : {ℓ : Level} (A : Pointed ℓ) → HSpace A ≃
+HSpace-Π∙-Equiv : (A : Pointed ℓ) → HSpace A ≃
                   Π∙ A (λ x → A →∙ (typ A , x)) (idfun∙ A)
 HSpace-Π∙-Equiv A = isoToEquiv (HSpace-Π∙-Iso A)
 
-{- every strongly homogeneous structure on A gives rise
+{- every (strongly) homogeneous structure on A gives rise
    to a left-invertible H-space structure, by a slight modification -}
-HSpace-homogeneous : {ℓ : Level} (A : Pointed ℓ) → isHomogeneous A → HSpace A
+HSpace-homogeneous : (A : Pointed ℓ) → isHomogeneous A → HSpace A
 HSpace-homogeneous A h = Iso.inv (HSpace-Π∙-Iso A) s
   where
     k : (x : typ A) → A ≃∙ (typ A , x)
@@ -112,7 +116,7 @@ HSpace-homogeneous A h = Iso.inv (HSpace-Π∙-Iso A) s
     fst s x = ≃∙map (k x)
     snd s = cong′ ≃∙map k₀
 
-LeftInvHSpace-homogeneous : {ℓ : Level} (A : Pointed ℓ) → (h : isHomogeneous A)
+LeftInvHSpace-homogeneous : (A : Pointed ℓ) → (h : isHomogeneous A)
                             → LeftInvHSpace (HSpace-homogeneous A h)
 LeftInvHSpace.μ-equiv (LeftInvHSpace-homogeneous A h) x =
   equivIsEquiv (fst (pointed-sip⁻ A (typ A , x) (sym (h (pt A)) ∙ h x)))
@@ -139,3 +143,59 @@ S1-AssocHSpace : AssocHSpace S1-HSpace
         (λ { base → refl ; (loop i) → refl})
         refl
 μ-assoc-filler S1-AssocHSpace _ _ = refl
+
+-- →∙
+→∙-HSpace : (A : Pointed ℓ) (X : Pointed ℓ') (hX : HSpace X) → HSpace (A →∙ X ∙)
+fst (μ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) f g) a = μX (f .fst a) (g .fst a)
+snd (μ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) f g) =
+  (λ i → μX (f .snd i) (g .fst (pt A))) ∙∙ μXₗ (g .fst (pt A)) ∙∙ g .snd
+fst (μₗ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) g i) a = μXₗ (g .fst a) i
+snd (μₗ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) g i) j = hcomp
+  (λ k → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (g .fst (pt A))) (g .snd) k j
+             ; (i = i1) → g .snd (j ∧ k)
+             ; (j = i0) → μXₗ (g .fst (pt A)) i
+             ; (j = i1) → g .snd k})
+  (μXₗ (g .fst (pt A)) (i ∨ j))
+fst (μᵣ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) f i) a = μXᵣ (f .fst a) i
+snd (μᵣ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) f i) j = hcomp
+  (λ k → λ { (i = i0) → doubleCompPath-filler (λ i' → μX (f .snd i') (pt X)) (μXₗ (pt X)) refl k j
+           ; (i = i1) → f .snd (j ∨ (~ k))
+           ; (j = i0) → μXᵣ (f .snd (~ k)) i
+           ; (j = i1) → pt X }) (hcomp
+     (λ k → λ { (i = i0) → μXₗ (pt X) j
+              ; (i = i1) → pt X
+              ; (j = i0) → μXₗᵣ k i
+              ; (j = i1) → pt X }) (μXₗ (pt X) (i ∨ j)))
+fst (μₗᵣ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) k i) a = μXₗᵣ k i
+snd (μₗᵣ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) k i) j = hcomp
+  (λ h → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (pt X)) refl h j
+           ; (i = i1) → pt X
+           ; (j = i0) → μXₗᵣ k i
+           ; (j = i1) → pt X
+           ; (k = i0) → k0filler i j h
+           ; (k = i1) → k1filler i j h } )
+  (cntfiller i j k)
+    where
+      cntfiller : I → I → I → typ X
+      cntfiller i j = hfill
+        (λ h → λ { (i = i0) → μXₗ (pt X) j
+                  ; (i = i1) → pt X
+                  ; (j = i0) → μXₗᵣ h i
+                  ; (j = i1) → pt X })
+        (inS (μXₗ (pt X) (i ∨ j)))
+
+      k0filler : I → I → I → typ X
+      k0filler i j = hfill
+        (λ h → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (pt X)) refl h j
+                 ; (i = i1) → pt X
+                 ; (j = i0) → μXₗ (pt X) i
+                 ; (j = i1) → pt X})
+        (inS (μXₗ (pt X) (i ∨ j)))
+
+      k1filler : I → I → I → typ X
+      k1filler i j = hfill
+        (λ h → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (pt X)) refl h j
+                 ; (i = i1) → pt X
+                 ; (j = i0) → μXᵣ (pt X) i
+                 ; (j = i1) → pt X })
+        (inS (cntfiller i j i1))
