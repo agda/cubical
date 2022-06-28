@@ -1,13 +1,12 @@
 {-# OPTIONS --safe #-}
 module Cubical.Modalities.Instances.Trivial where
 
--- TODO: imports
 open import Cubical.Modalities.Modality
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
+open import Cubical.Foundations.Function using (const)
 
-open import Cubical.Data.Unit
+open import Cubical.Data.Unit using (Unit*; isContrUnit*; tt*)
 
 
 trivialModality : {ℓ : Level} → Modality ℓ
