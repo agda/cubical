@@ -8,8 +8,6 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.FinData
 
-open import Cubical.Reflection.RecordEquiv
-
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Module
 
