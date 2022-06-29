@@ -10,22 +10,13 @@ open import Cubical.Data.FinData
 
 open import Cubical.Reflection.RecordEquiv
 
-open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Module
 
 module _ {ℓ} (R : Ring ℓ) {n : ℕ} where
 
   open module R' = RingStr (snd R) renaming (_+_ to _+r_; -_ to -r_)
-  open IsMonoid using (isSemigroup; ·IdR; ·IdL)
   open LeftModuleStr
-  open IsLeftModule
-  open IsSemigroup using (is-set; ·Assoc)
-  open IsGroup using (isMonoid; ·InvR; ·InvL)
-  open IsAbGroup
 
   FinVecLeftModule : LeftModule R ℓ
   fst FinVecLeftModule = FinVec ⟨ R ⟩ n
