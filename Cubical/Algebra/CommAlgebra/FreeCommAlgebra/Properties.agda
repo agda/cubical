@@ -352,7 +352,7 @@ Iso.leftInv (homMapIso {R = R} {I = I} A) =
   λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
                (Theory.homRetrievable A f)
 
-homMapPath : {R : CommRing ℓ} {I : Type ℓ} (A : CommAlgebra R ℓ')
+homMapPath : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R (ℓ-max ℓ ℓ'))
              → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
 homMapPath A = isoToPath (homMapIso A)
 

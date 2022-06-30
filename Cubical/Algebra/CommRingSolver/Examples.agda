@@ -49,16 +49,16 @@ module Test (R : CommRing ℓ) where
       ≡ 0r - 0r
   _ = solve R
 
-  _ : (x : fst R) → x ≡ x
+  _ : ∀ x → x ≡ x
   _ = solve R
 
-  _ : (x y : fst R) → x ≡ x
+  _ : ∀ x y → x ≡ x
   _ = solve R
 
-  _ : (x y : fst R) → x + y ≡ y + x
+  _ : ∀ x y → x + y ≡ y + x
   _ = solve R
 
-  _ : (x y : fst R) → (x + y) · (x - y) ≡ x · x - y · y
+  _ : ∀ x y → (x + y) · (x - y) ≡ x · x - y · y
   _ = solve R
 
   {-
