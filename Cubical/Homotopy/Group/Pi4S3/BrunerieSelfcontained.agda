@@ -30,41 +30,6 @@ S¹∙ = (S¹ , base)
 Ω (_ , a) = ((a ≡ a) , refl)
 Ω² p = Ω (Ω p)
 
-HopfS² : S² → Type₀
-HopfS² base = S¹
-HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , idEquiv S¹
-                               ; (i = i1) → _ , idEquiv S¹
-                               ; (j = i0) → _ , idEquiv S¹
-                               ; (j = i1) → _ , _ , rotIsEquiv (loop i) } )
-
-codeS² : S² → hGroupoid _
-codeS² s = ∥ HopfS² s ∥₁ , squash₁
-
-codeTruncS² : ∥ S² ∥₂ → hGroupoid _
-codeTruncS² = rec₂ (isOfHLevelTypeOfHLevel 3) codeS²
-
-encodeTruncS² : Ω ∥ S²∙ ∥₂∙ .fst → ∥ S¹ ∥₁
-encodeTruncS² p = transport (λ i → codeTruncS² (p i) .fst) ∣ base ∣₁
-
-codeS¹ : S¹ → hSet _
-codeS¹ s = ∥ helix s ∥₀ , squash₀
-
-codeTruncS¹ : ∥ S¹ ∥₁ → hSet _
-codeTruncS¹ = rec₁ (isOfHLevelTypeOfHLevel 2) codeS¹
-
-encodeTruncS¹ : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ ℤ ∥₀
-encodeTruncS¹ p = transport (λ i → codeTruncS¹ (p i) .fst) ∣ pos 0 ∣₀
-
-g8 : Ω² ∥ S²∙ ∥₂∙ .fst → Ω ∥ S¹∙ ∥₁∙ .fst
-g8 p i = encodeTruncS² (p i)
-
-g9 : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ ℤ ∥₀
-g9 = encodeTruncS¹
-
--- Use trick to eliminate away the truncation last
-g10 : ∥ ℤ ∥₀ → ℤ
-g10 = rec₀ isSetℤ (λ x → x)
-
 -- The brunerie element can be shown to correspond to the following map
 η₃ : join S¹ S¹ → Susp S²
 η₃ (inl x) = north
@@ -72,35 +37,71 @@ g10 = rec₀ isSetℤ (λ x → x)
 η₃ (push a b i) =
   (toSusp (S² , base) (S¹×S¹→S² a b) ∙ toSusp (S² , base) (S¹×S¹→S² a b)) i
 
-K₂ : Type₀
-K₂ = ∥ S² ∥₂
 
-_+₂_ : K₂ → K₂ → K₂
-_+₂_ = elim₂ (λ _ → isOfHLevelΠ 4 λ _ → squash₂)
-              λ { base x → x
-                ; (surf i j) x → surfc x i j}
-  where
-  surfc : (x : K₂) → Ω² (K₂ , x) .fst
-  surfc = elim₂ (λ _ → isOfHLevelPath 4 (isOfHLevelPath 4 squash₂ _ _) _ _)
-                (S²ToSetElim (λ _ → squash₂ _ _ _ _) λ i j → ∣ surf i j ∣₂)
-
-K₂≃K₂ : (x : S²) → K₂ ≃ K₂
-fst (K₂≃K₂ x) = ∣ x ∣₂ +₂_
-snd (K₂≃K₂ x) = help x
-  where
-  help : (x : _) → isEquiv (λ y → ∣ x ∣₂ +₂ y)
-  help = S²ToSetElim (λ _ → isProp→isSet (isPropIsEquiv _)) (idEquiv _ .snd)
-
-Code : Susp S² → Type₀
-Code north = K₂
-Code south = K₂
-Code (merid a i) = ua (K₂≃K₂ a) i
-
-encode : (x : Susp S²) →  north ≡ x → Code x
-encode x = J (λ x p → Code x) ∣ base ∣₂
-
-f7 : Ω (Susp∙ S²) .fst → K₂
+f7 : Ω (Susp∙ S²) .fst → ∥ S² ∥₂
 f7 = encode north
+  where
+  _+₂_ : ∥ S² ∥₂ → ∥ S² ∥₂ → ∥ S² ∥₂
+  _+₂_ = elim₂ (λ _ → isOfHLevelΠ 4 λ _ → squash₂)
+                λ { base x → x
+                  ; (surf i j) x → surfc x i j}
+    where
+    surfc : (x : ∥ S² ∥₂) → Ω² (∥ S² ∥₂ , x) .fst
+    surfc = elim₂ (λ _ → isOfHLevelPath 4 (isOfHLevelPath 4 squash₂ _ _) _ _)
+                  (S²ToSetElim (λ _ → squash₂ _ _ _ _) λ i j → ∣ surf i j ∣₂)
+
+  ∥S²∥₂≃∥S²∥₂ : (x : S²) → ∥ S² ∥₂ ≃ ∥ S² ∥₂
+  fst (∥S²∥₂≃∥S²∥₂ x) = ∣ x ∣₂ +₂_
+  snd (∥S²∥₂≃∥S²∥₂ x) = help x
+    where
+    help : (x : _) → isEquiv (λ y → ∣ x ∣₂ +₂ y)
+    help = S²ToSetElim (λ _ → isProp→isSet (isPropIsEquiv _)) (idEquiv _ .snd)
+
+  Code : Susp S² → Type₀
+  Code north = ∥ S² ∥₂
+  Code south = ∥ S² ∥₂
+  Code (merid a i) = ua (∥S²∥₂≃∥S²∥₂ a) i
+
+  encode : (x : Susp S²) →  north ≡ x → Code x
+  encode x = J (λ x p → Code x) ∣ base ∣₂
+
+
+
+g8 : Ω² ∥ S²∙ ∥₂∙ .fst → Ω ∥ S¹∙ ∥₁∙ .fst
+g8 p i = encodeTruncS² (p i)
+  where
+  HopfS² : S² → Type₀
+  HopfS² base = S¹
+  HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , idEquiv S¹
+                                 ; (i = i1) → _ , idEquiv S¹
+                                 ; (j = i0) → _ , idEquiv S¹
+                                 ; (j = i1) → _ , _ , rotIsEquiv (loop i) } )
+
+  codeS² : S² → hGroupoid _
+  codeS² s = ∥ HopfS² s ∥₁ , squash₁
+
+  codeTruncS² : ∥ S² ∥₂ → hGroupoid _
+  codeTruncS² = rec₂ (isOfHLevelTypeOfHLevel 3) codeS²
+
+  encodeTruncS² : Ω ∥ S²∙ ∥₂∙ .fst → ∥ S¹ ∥₁
+  encodeTruncS² p = transport (λ i → codeTruncS² (p i) .fst) ∣ base ∣₁
+
+
+
+g9 : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ ℤ ∥₀
+g9 p = transport (λ i → codeTruncS¹ (p i) .fst) ∣ pos 0 ∣₀
+  where
+  codeS¹ : S¹ → hSet _
+  codeS¹ s = ∥ helix s ∥₀ , squash₀
+
+  codeTruncS¹ : ∥ S¹ ∥₁ → hSet _
+  codeTruncS¹ = rec₁ (isOfHLevelTypeOfHLevel 2) codeS¹
+
+
+-- Use trick to eliminate away the truncation last
+g10 : ∥ ℤ ∥₀ → ℤ
+g10 = rec₀ isSetℤ (λ x → x)
+
 
 -- We can define the Brunerie number by
 brunerie : ℤ
@@ -109,3 +110,10 @@ brunerie = g10 (g9 (g8 λ i j → f7 λ k → η₃ (push (loop i) (loop j) k)))
 -- Computing it takes ~1s
 brunerie≡-2 : brunerie ≡ -2
 brunerie≡-2 = refl
+
+-- We can also get a positive number by flipping things:
+brunerie' : ℤ
+brunerie' = g10 (g9 (g8 λ i j → f7 λ k → η₃ (push (loop (~ i)) (loop j) k)))
+
+brunerie'≡2 : brunerie' ≡ pos 2
+brunerie'≡2 = refl
