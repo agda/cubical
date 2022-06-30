@@ -3,7 +3,7 @@ module Cubical.Homotopy.Group.Pi4S3.BrunerieSelfcontained where
 
 open import Cubical.Core.Primitives
 
-open import Cubical.Foundations.Prelude using (_,_ ; fst ; snd ; _≡_ ; transport ; _∙_ ; refl ; isProp→isSet ; J)
+open import Cubical.Foundations.Prelude using (_,_ ; fst ; snd ; _≡_ ; transport ; _∙_ ; refl ; isProp→isSet ; J ; sym)
 open import Cubical.Foundations.Equiv using (_≃_ ; isEquiv ; isPropIsEquiv ; idEquiv)
 open import Cubical.Foundations.Pointed using (Pointed₀ ; pt ; _→∙_)
 open import Cubical.Foundations.HLevels using (hSet ; hGroupoid ; isOfHLevelTypeOfHLevel ; isOfHLevelPath ; isOfHLevelΠ)
@@ -12,15 +12,20 @@ open import Cubical.Foundations.Univalence using (Glue ; ua)
 open import Cubical.Data.Int using (ℤ ; pos ; neg ; isSetℤ)
 
 open import Cubical.HITs.S1 using (S¹ ; base ; loop ; helix ; rotIsEquiv)
-open import Cubical.HITs.S2 using (S² ; base ; surf ; S²∙ ; S¹×S¹→S² ; S²ToSetElim)
+open import Cubical.HITs.S2 using (S² ; base ; surf ; S²ToSetElim)
 open import Cubical.HITs.Join.Base using (join ; inl ; inr ; push)
 open import Cubical.HITs.SetTruncation renaming (∥_∥₂ to ∥_∥₀ ; ∣_∣₂ to ∣_∣₀ ; squash₂ to squash₀ ; rec to rec₀) using ()
 open import Cubical.HITs.GroupoidTruncation renaming (∥_∥₃ to ∥_∥₁ ; ∣_∣₃ to ∣_∣₁ ; squash₃ to squash₁ ; rec to rec₁) using ()
 open import Cubical.HITs.2GroupoidTruncation renaming (∥_∥₄ to ∥_∥₂ ; ∣_∣₄ to ∣_∣₂ ; squash₄ to squash₂ ; rec to rec₂ ; elim to elim₂) using ()
-open import Cubical.HITs.Susp using (Susp ; north ; south ; merid ; Susp∙ ; toSusp)
+open import Cubical.HITs.Susp using (Susp ; north ; south ; merid)
 
-S¹∙ : Pointed₀
+-- Some names for pointed types
+S¹∙ S²∙ : Pointed₀
 S¹∙ = (S¹ , base)
+S²∙ = (S² , base)
+
+Susp∙ : Type₀ → Pointed₀
+Susp∙ A = Susp A , north
 
 ∥_∥₁∙ ∥_∥₂∙ : Pointed₀ → Pointed₀
 ∥ A , a ∥₁∙ = ∥ A ∥₁ , ∣ a ∣₁
@@ -30,12 +35,22 @@ S¹∙ = (S¹ , base)
 Ω (_ , a) = ((a ≡ a) , refl)
 Ω² p = Ω (Ω p)
 
+
+
 -- The brunerie element can be shown to correspond to the following map
 η₃ : join S¹ S¹ → Susp S²
 η₃ (inl x) = north
 η₃ (inr x) = north
-η₃ (push a b i) =
-  (toSusp (S² , base) (S¹×S¹→S² a b) ∙ toSusp (S² , base) (S¹×S¹→S² a b)) i
+η₃ (push a b i) = (σ (S¹×S¹→S² a b) ∙ σ (S¹×S¹→S² a b)) i
+  where
+  σ : S² → Ω (Susp∙ S²) .fst
+  σ x = merid x ∙ sym (merid base)
+
+  S¹×S¹→S² : S¹ → S¹ → S²
+  S¹×S¹→S² base y = base
+  S¹×S¹→S² (loop i) base = base
+  S¹×S¹→S² (loop i) (loop j) = surf i j
+
 
 
 f7 : Ω (Susp∙ S²) .fst → ∥ S² ∥₂
