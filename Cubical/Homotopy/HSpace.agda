@@ -145,57 +145,61 @@ S1-AssocHSpace : AssocHSpace S1-HSpace
 μ-assoc-filler S1-AssocHSpace _ _ = refl
 
 -- →∙
-→∙-HSpace : (A : Pointed ℓ) (X : Pointed ℓ') (hX : HSpace X) → HSpace (A →∙ X ∙)
-fst (μ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) f g) a = μX (f .fst a) (g .fst a)
-snd (μ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) f g) =
-  (λ i → μX (f .snd i) (g .fst (pt A))) ∙∙ μXₗ (g .fst (pt A)) ∙∙ g .snd
-fst (μₗ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) g i) a = μXₗ (g .fst a) i
-snd (μₗ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) g i) j = hcomp
-  (λ k → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (g .fst (pt A))) (g .snd) k j
-             ; (i = i1) → g .snd (j ∧ k)
-             ; (j = i0) → μXₗ (g .fst (pt A)) i
-             ; (j = i1) → g .snd k})
-  (μXₗ (g .fst (pt A)) (i ∨ j))
-fst (μᵣ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) f i) a = μXᵣ (f .fst a) i
-snd (μᵣ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) f i) j = hcomp
-  (λ k → λ { (i = i0) → doubleCompPath-filler (λ i' → μX (f .snd i') (pt X)) (μXₗ (pt X)) refl k j
-           ; (i = i1) → f .snd (j ∨ (~ k))
-           ; (j = i0) → μXᵣ (f .snd (~ k)) i
-           ; (j = i1) → pt X }) (hcomp
-     (λ k → λ { (i = i0) → μXₗ (pt X) j
-              ; (i = i1) → pt X
-              ; (j = i0) → μXₗᵣ k i
-              ; (j = i1) → pt X }) (μXₗ (pt X) (i ∨ j)))
-fst (μₗᵣ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) k i) a = μXₗᵣ k i
-snd (μₗᵣ (→∙-HSpace A X (HSp μX μXₗ μXᵣ μXₗᵣ)) k i) j = hcomp
-  (λ h → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (pt X)) refl h j
-           ; (i = i1) → pt X
-           ; (j = i0) → μXₗᵣ k i
-           ; (j = i1) → pt X
-           ; (k = i0) → k0filler i j h
-           ; (k = i1) → k1filler i j h } )
-  (cntfiller i j k)
-    where
-      cntfiller : I → I → I → typ X
-      cntfiller i j = hfill
-        (λ h → λ { (i = i0) → μXₗ (pt X) j
-                  ; (i = i1) → pt X
-                  ; (j = i0) → μXₗᵣ h i
-                  ; (j = i1) → pt X })
-        (inS (μXₗ (pt X) (i ∨ j)))
+module _ (A : Pointed ℓ) (X : Pointed ℓ') (hX : HSpace X) where
 
-      k0filler : I → I → I → typ X
-      k0filler i j = hfill
-        (λ h → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (pt X)) refl h j
-                 ; (i = i1) → pt X
-                 ; (j = i0) → μXₗ (pt X) i
-                 ; (j = i1) → pt X})
-        (inS (μXₗ (pt X) (i ∨ j)))
+  open HSpace hX renaming (μ to μX ; μₗ to μXₗ ; μᵣ to μXᵣ ; μₗᵣ to μXₗᵣ)
 
-      k1filler : I → I → I → typ X
-      k1filler i j = hfill
-        (λ h → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (pt X)) refl h j
-                 ; (i = i1) → pt X
-                 ; (j = i0) → μXᵣ (pt X) i
-                 ; (j = i1) → pt X })
-        (inS (cntfiller i j i1))
+  →∙-HSpace : HSpace (A →∙ X ∙)
+  fst (μ →∙-HSpace f g) a = μX (f .fst a) (g .fst a)
+  snd (μ →∙-HSpace f g) =
+    (λ i → μX (f .snd i) (g .fst (pt A))) ∙∙ μXₗ (g .fst (pt A)) ∙∙ g .snd
+  fst (μₗ →∙-HSpace g i) a = μXₗ (g .fst a) i
+  snd (μₗ →∙-HSpace g i) j = hcomp
+    (λ k → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (g .fst (pt A))) (g .snd) k j
+               ; (i = i1) → g .snd (j ∧ k)
+               ; (j = i0) → μXₗ (g .fst (pt A)) i
+               ; (j = i1) → g .snd k})
+    (μXₗ (g .fst (pt A)) (i ∨ j))
+  fst (μᵣ →∙-HSpace f i) a = μXᵣ (f .fst a) i
+  snd (μᵣ →∙-HSpace f i) j = hcomp
+    (λ k → λ { (i = i0) → doubleCompPath-filler (λ i' → μX (f .snd i') (pt X)) (μXₗ (pt X)) refl k j
+             ; (i = i1) → f .snd (j ∨ (~ k))
+             ; (j = i0) → μXᵣ (f .snd (~ k)) i
+             ; (j = i1) → pt X }) (hcomp
+       (λ k → λ { (i = i0) → μXₗ (pt X) j
+                ; (i = i1) → pt X
+                ; (j = i0) → μXₗᵣ k i
+                ; (j = i1) → pt X }) (μXₗ (pt X) (i ∨ j)))
+  fst (μₗᵣ →∙-HSpace k i) a = μXₗᵣ k i
+  snd (μₗᵣ →∙-HSpace k i) j = hcomp
+    (λ h → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (pt X)) refl h j
+             ; (i = i1) → pt X
+             ; (j = i0) → μXₗᵣ k i
+             ; (j = i1) → pt X
+             ; (k = i0) → k0filler i j h
+             ; (k = i1) → k1filler i j h } )
+    (cntfiller i j k)
+      where
+        cntfiller : I → I → I → typ X
+        cntfiller i j = hfill
+          (λ h → λ { (i = i0) → μXₗ (pt X) j
+                    ; (i = i1) → pt X
+                    ; (j = i0) → μXₗᵣ h i
+                    ; (j = i1) → pt X })
+          (inS (μXₗ (pt X) (i ∨ j)))
+
+        k0filler : I → I → I → typ X
+        k0filler i j = hfill
+          (λ h → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (pt X)) refl h j
+                   ; (i = i1) → pt X
+                   ; (j = i0) → μXₗ (pt X) i
+                   ; (j = i1) → pt X})
+          (inS (μXₗ (pt X) (i ∨ j)))
+
+        k1filler : I → I → I → typ X
+        k1filler i j = hfill
+          (λ h → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (pt X)) refl h j
+                   ; (i = i1) → pt X
+                   ; (j = i0) → μXᵣ (pt X) i
+                   ; (j = i1) → pt X })
+          (inS (cntfiller i j i1))
