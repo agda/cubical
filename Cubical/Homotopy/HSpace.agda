@@ -156,9 +156,9 @@ module _ (A : Pointed ℓ) (X : Pointed ℓ') (hX : HSpace X) where
   fst (μₗ →∙-HSpace g i) a = μXₗ (g .fst a) i
   snd (μₗ →∙-HSpace g i) j = hcomp
     (λ k → λ { (i = i0) → doubleCompPath-filler refl (μXₗ (g .fst (pt A))) (g .snd) k j
-               ; (i = i1) → g .snd (j ∧ k)
-               ; (j = i0) → μXₗ (g .fst (pt A)) i
-               ; (j = i1) → g .snd k})
+             ; (i = i1) → g .snd (j ∧ k)
+             ; (j = i0) → μXₗ (g .fst (pt A)) i
+             ; (j = i1) → g .snd k})
     (μXₗ (g .fst (pt A)) (i ∨ j))
   fst (μᵣ →∙-HSpace f i) a = μXᵣ (f .fst a) i
   snd (μᵣ →∙-HSpace f i) j = hcomp
@@ -183,9 +183,9 @@ module _ (A : Pointed ℓ) (X : Pointed ℓ') (hX : HSpace X) where
         cntfiller : I → I → I → typ X
         cntfiller i j = hfill
           (λ h → λ { (i = i0) → μXₗ (pt X) j
-                    ; (i = i1) → pt X
-                    ; (j = i0) → μXₗᵣ h i
-                    ; (j = i1) → pt X })
+                   ; (i = i1) → pt X
+                   ; (j = i0) → μXₗᵣ h i
+                   ; (j = i1) → pt X })
           (inS (μXₗ (pt X) (i ∨ j)))
 
         k0filler : I → I → I → typ X
