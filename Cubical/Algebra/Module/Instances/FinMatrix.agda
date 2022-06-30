@@ -15,7 +15,7 @@ open import Cubical.Algebra.Module
 
 module _ {ℓ} (R : Ring ℓ) {m n : ℕ} where
 
-  open module R' = RingStr (snd R) renaming (_+_ to _+r_; -_ to -r_)
+  open module R' = RingStr (str R) renaming (_+_ to _+r_; -_ to -r_)
   open LeftModuleStr
 
   FinVecLeftModule : LeftModule R ℓ
