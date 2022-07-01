@@ -3,7 +3,7 @@ module Cubical.Algebra.Module.Instances.VecFin where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.SIP using (str; ⟨_⟩)
 
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.FinData
@@ -13,7 +13,7 @@ open import Cubical.Algebra.Module
 
 module _ {ℓ} (R : Ring ℓ) {n : ℕ} where
 
-  open module R' = RingStr (snd R) renaming (_+_ to _+r_; -_ to -r_)
+  private open module R' = RingStr (str R) renaming (_+_ to _+r_; -_ to -r_)
   open LeftModuleStr
 
   FinVecLeftModule : LeftModule R ℓ

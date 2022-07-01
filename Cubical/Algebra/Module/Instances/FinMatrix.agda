@@ -3,7 +3,7 @@ module Cubical.Algebra.Module.Instances.FinMatrix where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.SIP using (str; ⟨_⟩)
 
 open import Cubical.Functions.FunExtEquiv using (funExt₂)
 
@@ -13,22 +13,26 @@ open import Cubical.Algebra.Matrix
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Module
 
+open import Cubical.Algebra.Module.Instances.VecFin
+
 module _ {ℓ} (R : Ring ℓ) {m n : ℕ} where
 
-  open module R' = RingStr (str R) renaming (_+_ to _+r_; -_ to -r_)
+  private
+    open module R' = RingStr (str R) renaming (_+_ to _+r_; -_ to -r_)
+    module FV {n} = LeftModuleStr (str (FinVecLeftModule R {n}))
   open LeftModuleStr
 
-  FinVecLeftModule : LeftModule R ℓ
-  fst FinVecLeftModule = FinMatrix ⟨ R ⟩ m n
-  0m  (snd FinVecLeftModule) = λ _ _       → 0r
-  _+_ (snd FinVecLeftModule) = λ xs ys x y → xs x y +r ys x y
-  -_  (snd FinVecLeftModule) = λ xs x y    → -r xs x y
-  _⋆_ (snd FinVecLeftModule) = λ r xs x y  → r · xs x y
-  isLeftModule (snd FinVecLeftModule)    = isLeftModuleR
+  FinMatrixLeftModule : LeftModule R ℓ
+  fst FinMatrixLeftModule = FinMatrix ⟨ R ⟩ m n
+  0m  (snd FinMatrixLeftModule) = λ _       → FV.0m
+  _+_ (snd FinMatrixLeftModule) = λ xs ys x → xs x FV.+ ys x
+  -_  (snd FinMatrixLeftModule) = λ xs x    → FV.- xs x
+  _⋆_ (snd FinMatrixLeftModule) = λ r xs x  → r FV.⋆ xs x
+  isLeftModule (snd FinMatrixLeftModule)    = isLeftModuleR
     where
     isLeftModuleR : IsLeftModule R _ _ _ _
     isLeftModuleR = makeIsLeftModule
-      (isSetΠ2 λ _ _ → R'.is-set)
+      (isSetΠ λ _ → FV.is-set)
       (λ _ _ _ → funExt₂ λ _ _ → R'.+Assoc _ _ _)
       (λ _     → funExt₂ λ _ _ → R'.+IdR _)
       (λ _     → funExt₂ λ _ _ → R'.+InvR _)
