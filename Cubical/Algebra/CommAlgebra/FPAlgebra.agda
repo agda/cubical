@@ -31,7 +31,7 @@ open import Cubical.Algebra.CommRing.FGIdeal using (inclOfFGIdeal)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
   renaming (inducedHom to freeInducedHom)
-open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
+open import Cubical.Algebra.CommAlgebra.QuotientAlgebraAbstract
   renaming (inducedHom to quotientInducedHom)
 open import Cubical.Algebra.CommAlgebra.Ideal
 open import Cubical.Algebra.CommAlgebra.FGIdeal
@@ -133,7 +133,7 @@ module _ {R : CommRing ℓ} where
         (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
         (i : Fin n)
         → fst (inducedHom A values relationsHold) (generator i) ≡ values i
-      inducedHomOnGenerators _ _ _ _ = refl
+      inducedHomOnGenerators _ _ _ _ = {!refl!}
 
       unique :
              {A : CommAlgebra R ℓ}
@@ -150,12 +150,12 @@ module _ {R : CommRing ℓ} where
           (inducedHom A values relationsHold)
           f
           (sym (
-           f'     ≡⟨ sym (inv f') ⟩
+           {!f'     ≡⟨ sym (inv f') ⟩
            freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A)
                                                          (funExt hasCorrectValues) ⟩
            freeInducedHom A values               ≡⟨ cong (freeInducedHom A) refl ⟩
            freeInducedHom A (evaluateAt A iHom') ≡⟨ inv iHom' ⟩
-           iHom' ∎))
+           iHom' ∎!}))
         where
           {-
                      Poly n
@@ -224,12 +224,12 @@ module _ {R : CommRing ℓ} where
       Iso.fun FPHomIso = evaluateAtFP
       Iso.inv FPHomIso = inducedHomFP _
       Iso.rightInv (FPHomIso {A}) =
-        λ b → Σ≡Prop
+        λ b → {!Σ≡Prop
                 (λ x → isPropΠ
                   (λ i → isSetCommAlgebra A
                           (evPoly A (relation i) x)
                           (0a (snd A))))
-                refl
+                refl!}
       Iso.leftInv (FPHomIso {A}) =
         λ a → Σ≡Prop (λ f → isPropIsCommAlgebraHom {ℓ} {R} {ℓ} {ℓ} {FPAlgebra} {A} f)
                  λ i → fst (unique {A}
