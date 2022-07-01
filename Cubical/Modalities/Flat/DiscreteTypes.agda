@@ -13,7 +13,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
-open import Cubical.HITs.PropositionalTruncation as PropTrunc
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Modalities.Flat
 
@@ -77,10 +77,14 @@ BAut : {ℓ : Level}
        → (X : Type ℓ) → X → Type ℓ
 BAut X x = Σ[ y ∈ X ] ∥ y ≡ x ∥₁
 
-♭BAut→BAut♭ : {@♭ ♭ℓ : Level}
-            →  (@♭ X : Type ♭ℓ) (@♭ x : X)
-            → ♭ (BAut X x) → BAut (♭ X) (x ^♭)
-♭BAut→BAut♭ X x ((y , p) ^♭) = (y ^♭) ,
-              crispPropRec PropTrunc.isPropPropTrunc f p
-              where f : (@♭ p : _) → _
-                    f p = ∣ fst (invEquiv (♭≡Comm y x)) (p ^♭) ∣₁
+{- Lemma 5.8 (v4) -}
+module _ {@♭ ♭ℓ : Level} (@♭ X : Type ♭ℓ) (@♭ x : X) where
+  ♭BAut→BAut♭ : ♭ (BAut X x) → BAut (♭ X) (x ^♭)
+  ♭BAut→BAut♭ ((y , p) ^♭) = (y ^♭) ,
+                crispPropRec PT.isPropPropTrunc f p
+                where f : (@♭ p : _) → _
+                      f p = ∣ fst (invEquiv (♭≡Comm y x)) (p ^♭) ∣₁
+
+  ♭BAut♭→♭BAut : ♭ (BAut (♭ X) (x ^♭)) → ♭ (BAut X x)
+  ♭BAut♭→♭BAut (((a ^♭) , p) ^♭) =
+    (a , crispPropRec PT.isPropPropTrunc (λ q → ∣ counit (fst (♭≡Comm a _) q) ∣₁) p) ^♭
