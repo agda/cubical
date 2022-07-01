@@ -190,7 +190,7 @@ punchIn {n = n} v a l k with discreteℕ (toℕ l) (toℕ k)
                            k' = toFin (toℕ k) (<-trans (¬≤-> _ _ l≰k) (toℕ<n l))
 ...         | yes l≤k with k
 ...                 | (suc x) = v x
-...                 | zero    = ⊥.rec (snotz ?)
+...                 | zero    = ⊥.rec (l≠k (≤0→≡0 l≤k))
 
 
 ++FinAssoc : {n m k : ℕ} (U : FinVec A n) (V : FinVec A m) (W : FinVec A k)
