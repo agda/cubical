@@ -1,3 +1,8 @@
+{-
+  This files shows that a couple of types are crisply discrete,
+  where 'discrete' should not be confused with types, that have
+  decidable equality types (even though there are relations).
+-}
 {-# OPTIONS --safe #-}
 module Cubical.Modalities.Flat.DiscreteTypes where
 
@@ -64,7 +69,7 @@ isDiscreteℤ = snd (isoToEquiv (iso counit inv linv rinv))
 {-
   From the article
   https://arxiv.org/pdf/1908.08034.pdf
-  by david Jaz Myers
+  by David Jaz Myers
 -}
 
 {- Definition 5.7 (v4) -}
