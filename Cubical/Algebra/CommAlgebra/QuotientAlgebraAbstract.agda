@@ -51,7 +51,7 @@ module _ {ℓ : Level} {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn 
     inducedHom∘quotientHom : (B : CommAlgebra R ℓ) (ϕ : CommAlgebraHom A B)
                  → (I⊆kerϕ : fst I ⊆ fst (kernel A B ϕ))
                  → inducedHom B ϕ I⊆kerϕ ∘a quotientHom A I ≡ ϕ
-    inducedHom∘quotientHom = {!Impl.inducedHom∘quotientHom!}
+    inducedHom∘quotientHom = Impl.inducedHom∘quotientHom A I
 
     injectivePrecomp : (B : CommAlgebra R ℓ) (f g : CommAlgebraHom (A / I) B)
                        → f ∘a (quotientHom A I) ≡ g ∘a (quotientHom A I)

@@ -133,7 +133,20 @@ module _ {R : CommRing ℓ} where
         (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
         (i : Fin n)
         → fst (inducedHom A values relationsHold) (generator i) ≡ values i
-      inducedHomOnGenerators _ _ _ _ = {!refl!}
+      inducedHomOnGenerators A values relationsHold i =
+        cong (λ f → fst f (var i))
+        (inducedHom∘quotientHom (Polynomials n) relationsIdeal A freeHom isInKernel)
+        where
+          -- TODO: this where block is duplicated
+          freeHom : CommAlgebraHom (Polynomials n) A
+          freeHom = freeInducedHom A values
+          isInKernel :   fst (generatedIdeal (Polynomials n) relation)
+                       ⊆ fst (kernel (Polynomials n) A freeHom)
+          isInKernel = inclOfFGIdeal
+                         (CommAlgebra→CommRing (Polynomials n))
+                         relation
+                         (kernel (Polynomials n) A freeHom)
+                         relationsHold
 
       unique :
              {A : CommAlgebra R ℓ}
@@ -150,12 +163,12 @@ module _ {R : CommRing ℓ} where
           (inducedHom A values relationsHold)
           f
           (sym (
-           {!f'     ≡⟨ sym (inv f') ⟩
+           {!f'                                   ≡⟨ sym (inv f') ⟩
            freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A)
                                                          (funExt hasCorrectValues) ⟩
            freeInducedHom A values               ≡⟨ cong (freeInducedHom A) refl ⟩
            freeInducedHom A (evaluateAt A iHom') ≡⟨ inv iHom' ⟩
-           iHom' ∎!}))
+           iHom'                                 ∎!}))
         where
           {-
                      Poly n
