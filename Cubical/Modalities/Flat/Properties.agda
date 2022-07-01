@@ -14,10 +14,18 @@ open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 open import Cubical.Modalities.Flat.Base
 
-private
-  variable
-    @♭ ♭ℓ ♭ℓ' : Level
-    ℓ ℓ' : Level
+private variable
+  {-
+    Variable generalization mostly doesn't work for crisp contexts,
+    so the crisp levels are not used too much.
+  -}
+  @♭ ♭ℓ ♭ℓ' : Level
+  ℓ ℓ' : Level
+
+crispPropRec : {@♭ ♭ℓ : Level} {@♭ P : Type ♭ℓ} {@♭ A : Type ♭ℓ}
+               → isProp P → ((@♭ y : A) → P) → (@♭ x : ∥ A ∥₁) → P
+crispPropRec Pprop f ∣ x ∣₁ = f x
+crispPropRec Pprop f (squash₁ x y i) = Pprop (crispPropRec Pprop f x) (crispPropRec Pprop f y) i
 
 module ♭Sigma {@♭ ♭ℓ ♭ℓ' : Level} (@♭ A : Type ♭ℓ) (@♭ C : A → Type ♭ℓ') where
   ♭C : ♭ A → Type ♭ℓ'

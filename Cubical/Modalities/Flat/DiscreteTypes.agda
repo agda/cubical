@@ -77,10 +77,6 @@ BAut : {ℓ : Level}
        → (X : Type ℓ) → X → Type ℓ
 BAut X x = Σ[ y ∈ X ] ∥ y ≡ x ∥₁
 
-crispPropRec : {@♭ ♭ℓ : Level} {@♭ P : Type ♭ℓ} {@♭ A : Type ♭ℓ} → isProp P → ((@♭ y : A) → P) → (@♭ x : ∥ A ∥₁) → P
-crispPropRec Pprop f ∣ x ∣₁ = f x
-crispPropRec Pprop f (squash₁ x y i) = Pprop (crispPropRec Pprop f x) (crispPropRec Pprop f y) i
-
 ♭BAut→BAut♭ : {@♭ ♭ℓ : Level}
             →  (@♭ X : Type ♭ℓ) (@♭ x : X)
             → ♭ (BAut X x) → BAut (♭ X) (x ^♭)
