@@ -67,13 +67,14 @@ isDiscreteℤ = snd (isoToEquiv (iso counit inv linv rinv))
   by david Jaz Myers
 -}
 
+{- Definition 5.7 (v4) -}
 BAut : {ℓ : Level}
        → (X : Type ℓ) → X → Type ℓ
-BAut X x = Σ[ y ∈ X ] ∥ y ≡ x ∥
+BAut X x = Σ[ y ∈ X ] ∥ y ≡ x ∥₁
 
-crispPropRec : {@♭ ♭ℓ : Level} {@♭ P : Type ♭ℓ} {@♭ A : Type ♭ℓ} → isProp P → ((@♭ y : A) → P) → (@♭ x : ∥ A ∥) → P
-crispPropRec Pprop f ∣ x ∣ = f x
-crispPropRec Pprop f (squash x y i) = Pprop (crispPropRec Pprop f x) (crispPropRec Pprop f y) i
+crispPropRec : {@♭ ♭ℓ : Level} {@♭ P : Type ♭ℓ} {@♭ A : Type ♭ℓ} → isProp P → ((@♭ y : A) → P) → (@♭ x : ∥ A ∥₁) → P
+crispPropRec Pprop f ∣ x ∣₁ = f x
+crispPropRec Pprop f (squash₁ x y i) = Pprop (crispPropRec Pprop f x) (crispPropRec Pprop f y) i
 
 ♭BAut→BAut♭ : {@♭ ♭ℓ : Level}
             →  (@♭ X : Type ♭ℓ) (@♭ x : X)
@@ -81,5 +82,4 @@ crispPropRec Pprop f (squash x y i) = Pprop (crispPropRec Pprop f x) (crispPropR
 ♭BAut→BAut♭ X x ((y , p) ^♭) = (y ^♭) ,
               crispPropRec PropTrunc.isPropPropTrunc f p
               where f : (@♭ p : _) → _
-                    f p = ∣ fst (invEquiv (♭≡Comm y x)) (p ^♭) ∣
-{- ... tbc ... -}
+                    f p = ∣ fst (invEquiv (♭≡Comm y x)) (p ^♭) ∣₁
