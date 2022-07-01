@@ -77,7 +77,7 @@ BAut : {ℓ : Level}
        → (X : Type ℓ) → X → Type ℓ
 BAut X x = Σ[ y ∈ X ] ∥ y ≡ x ∥₁
 
-{- Lemma 5.8 (v4) -}
+{- Lemma 5.8 (v4) (incomplete) -}
 module _ {@♭ ♭ℓ : Level} (@♭ X : Type ♭ℓ) (@♭ x : X) where
   ♭BAut→BAut♭ : ♭ (BAut X x) → BAut (♭ X) (x ^♭)
   ♭BAut→BAut♭ ((y , p) ^♭) = (y ^♭) ,
