@@ -28,10 +28,10 @@ module _ {ℓ} (R : Ring ℓ) {m n : ℕ} where
   _+_ (snd FinMatrixLeftModule) = λ xs ys x → xs x FV.+ ys x
   -_  (snd FinMatrixLeftModule) = λ xs x    → FV.- xs x
   _⋆_ (snd FinMatrixLeftModule) = λ r xs x  → r FV.⋆ xs x
-  isLeftModule (snd FinMatrixLeftModule)    = isLeftModuleR
+  isLeftModule (snd FinMatrixLeftModule)    = isRLeftModule
     where
-    isLeftModuleR : IsLeftModule R _ _ _ _
-    isLeftModuleR = makeIsLeftModule
+    isRLeftModule : IsLeftModule R _ _ _ _
+    isRLeftModule = makeIsLeftModule
       (isSetΠ λ _ → FV.is-set)
       (λ _ _ _ → funExt₂ λ _ _ → R'.+Assoc _ _ _)
       (λ _     → funExt₂ λ _ _ → R'.+IdR _)
