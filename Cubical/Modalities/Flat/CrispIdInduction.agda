@@ -7,6 +7,9 @@ open import Cubical.Modalities.Flat.Base
 
 {-
   From Theorem 5.6 in Michael Shulman's real cohesion article.
+  It is unclear, if this is provable for path types, but it should work
+  semantically and should be ok to assume as an axiom to reproduce
+  real-cohesion.
 -}
 postulate
   crispIdentityInduction : {@♭ ♭ℓ ♭ℓ′ : Level} {@♭ B : Type ♭ℓ}
