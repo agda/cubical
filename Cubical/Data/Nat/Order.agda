@@ -44,6 +44,10 @@ private
   variable
     k l m n : ℕ
 
+
+<-≤ : n < m → n ≤ m
+<-≤ {m = m} (k , k+sucn≡m) = (suc k) , subst (_≡ m) (+-suc k _) k+sucn≡m
+
 private
   witness-prop : ∀ j → isProp (j + m ≡ n)
   witness-prop {m} {n} j = isSetℕ (j + m) n
@@ -320,6 +324,12 @@ splitℕ-< m n with m ≟ n
 
 <-asym' : ¬ m < n → n ≤ m
 <-asym' = <-asym'-case (_≟_ _ _)
+
+¬≤-> : (n m : ℕ) → ¬ (n ≤ m) → m < n
+¬≤-> n m ¬n≤m with n ≟ m
+... | lt n<m = ⊥.rec (¬n≤m (<-≤ n<m))
+... | eq n≡m = ⊥.rec (¬n≤m (subst (_≤ m) (sym n≡m) ≤-refl))
+... | gt m<n = m<n
 
 private
   acc-suc : Acc _<_ n → Acc _<_ (suc n)

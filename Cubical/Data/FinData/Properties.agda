@@ -181,6 +181,18 @@ enumElim P k p h f i =
     (pred-≤-pred (subst (λ a → toℕ i < a) (sym h) (toℕ<n i))))
 
 
+punchIn : {A : Type ℓ} {n : ℕ} → FinVec A n → A → Fin n → FinVec A (ℕ.suc n)
+punchIn {n = n} v a l k with discreteℕ (toℕ l) (toℕ k)
+... | yes l≡k = a
+... | no l≠k  with (≤Dec (toℕ l) (toℕ k))
+...         | no  l≰k = v k'
+                     where k' : Fin n
+                           k' = toFin (toℕ k) (<-trans (¬≤-> _ _ l≰k) (toℕ<n l))
+...         | yes l≤k with k
+...                 | (suc x) = v x
+...                 | zero    = ⊥.rec (snotz ?)
+
+
 ++FinAssoc : {n m k : ℕ} (U : FinVec A n) (V : FinVec A m) (W : FinVec A k)
            → PathP (λ i → FinVec A (+-assoc n m k i)) (U ++Fin (V ++Fin W)) ((U ++Fin V) ++Fin W)
 ++FinAssoc {n = ℕzero} _ _ _ = refl
