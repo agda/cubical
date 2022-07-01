@@ -32,10 +32,10 @@ Stable A = NonEmpty A → A
 
 -- reexport propositional truncation for uniformity
 open Cubical.HITs.PropositionalTruncation.Base
-  using (∥_∥) public
+  using (∥_∥₁) public
 
 SplitSupport : Type ℓ → Type ℓ
-SplitSupport A = ∥ A ∥ → A
+SplitSupport A = ∥ A ∥₁ → A
 
 Collapsible : Type ℓ → Type ℓ
 Collapsible A = Σ[ f ∈ (A → A) ] 2-Constant f

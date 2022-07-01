@@ -60,7 +60,7 @@ infix 2 ⇒∶_⇐∶_
 infix 2 ⇐∶_⇒∶_
 
 ∥_∥ₚ : Type ℓ → hProp ℓ
-∥ A ∥ₚ = ∥ A ∥ , isPropPropTrunc
+∥ A ∥ₚ = ∥ A ∥₁ , isPropPropTrunc
 
 _≡ₚ_ : (x y : A) → hProp _
 x ≡ₚ y = ∥ x ≡ y ∥ₚ
@@ -120,16 +120,16 @@ x ≢ₚ y = ¬ x ≡ₚ y
 -- Disjunction of mere propositions
 
 _⊔′_ : Type ℓ → Type ℓ' → Type _
-A ⊔′ B = ∥ A ⊎ B ∥
+A ⊔′ B = ∥ A ⊎ B ∥₁
 
 _⊔_ : hProp ℓ → hProp ℓ' → hProp _
 P ⊔ Q = ∥ ⟨ P ⟩ ⊎ ⟨ Q ⟩ ∥ₚ
 
 inl : A → A ⊔′ B
-inl x = ∣ ⊎.inl x ∣
+inl x = ∣ ⊎.inl x ∣₁
 
 inr : B → A ⊔′ B
-inr x = ∣ ⊎.inr x ∣
+inr x = ∣ ⊎.inr x ∣₁
 
 ⊔-elim : (P : hProp ℓ) (Q : hProp ℓ') (R : ⟨ P ⊔ Q ⟩ → hProp ℓ'')
   → (∀ x → ⟨ R (inl x) ⟩) → (∀ y → ⟨ R (inr y) ⟩) → (∀ z → ⟨ R z ⟩)
@@ -194,7 +194,7 @@ Decₚ P = Dec ⟨ P ⟩ , isPropDec (isProp⟨⟩ P)
 ∥¬A∥≡¬∥A∥ _ =
   ⇒∶ (λ ¬A A → PropTrunc.elim (λ _ → ⊥.isProp⊥)
     (PropTrunc.elim (λ _ → isPropΠ λ _ → ⊥.isProp⊥) (λ ¬p p → ¬p p) ¬A) A)
-  ⇐∶ λ ¬p → ∣ (λ p → ¬p ∣ p ∣) ∣
+  ⇐∶ λ ¬p → ∣ (λ p → ¬p ∣ p ∣₁) ∣₁
 
 --------------------------------------------------------------------------------
 -- (hProp, ⊔, ⊥) is a bounded ⊔-semilattice
@@ -209,11 +209,11 @@ Decₚ P = Dec ⟨ P ⟩ , isPropDec (isProp⟨⟩ P)
   ⇐∶ assoc2
   where
     assoc2 : (A ⊔′ B) ⊔′ C → A ⊔′ (B ⊔′ C)
-    assoc2 ∣ ⊎.inr a ∣              = ∣ ⊎.inr ∣ ⊎.inr a ∣ ∣
-    assoc2 ∣ ⊎.inl ∣ ⊎.inr b ∣ ∣  = ∣ ⊎.inr ∣ ⊎.inl b ∣ ∣
-    assoc2 ∣ ⊎.inl ∣ ⊎.inl c ∣ ∣  = ∣ ⊎.inl c ∣
-    assoc2 ∣ ⊎.inl (squash x y i) ∣ = isPropPropTrunc (assoc2 ∣ ⊎.inl x ∣) (assoc2 ∣ ⊎.inl y ∣) i
-    assoc2 (squash x y i)             = isPropPropTrunc (assoc2 x) (assoc2 y) i
+    assoc2 ∣ ⊎.inr a ∣₁              = ∣ ⊎.inr ∣ ⊎.inr a ∣₁ ∣₁
+    assoc2 ∣ ⊎.inl ∣ ⊎.inr b ∣₁ ∣₁  = ∣ ⊎.inr ∣ ⊎.inl b ∣₁ ∣₁
+    assoc2 ∣ ⊎.inl ∣ ⊎.inl c ∣₁ ∣₁  = ∣ ⊎.inl c ∣₁
+    assoc2 ∣ ⊎.inl (squash₁ x y i) ∣₁ = isPropPropTrunc (assoc2 ∣ ⊎.inl x ∣₁) (assoc2 ∣ ⊎.inl y ∣₁) i
+    assoc2 (squash₁ x y i)             = isPropPropTrunc (assoc2 x) (assoc2 y) i
 
 ⊔-idem : (P : hProp ℓ) → P ⊔ P ≡ P
 ⊔-idem P =
@@ -267,8 +267,8 @@ Decₚ P = Dec ⟨ P ⟩ , isPropDec (isProp⟨⟩ P)
   → P ⊓ (Q ⊔ R) ≡ (P ⊓ Q) ⊔ (P ⊓ R)
 ⊓-⊔-distribˡ P Q R =
   ⇒∶ (λ { (x , a) → ⊔-elim Q R (λ _ → (P ⊓ Q) ⊔ (P ⊓ R))
-        (λ y → ∣ ⊎.inl (x , y) ∣ )
-        (λ z → ∣ ⊎.inr (x , z) ∣ ) a })
+        (λ y → ∣ ⊎.inl (x , y) ∣₁ )
+        (λ z → ∣ ⊎.inr (x , z) ∣₁ ) a })
 
   ⇐∶ ⊔-elim (P ⊓ Q) (P ⊓ R) (λ _ → P ⊓ Q ⊔ R)
        (λ y → fst y , inl (snd y))

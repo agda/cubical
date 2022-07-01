@@ -1,22 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Gysin where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Groups.Connected
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.MayerVietorisUnreduced
-open import Cubical.ZCohomology.Groups.Unit
-open import Cubical.ZCohomology.Groups.Wedge
-open import Cubical.ZCohomology.Groups.Sn
-open import Cubical.ZCohomology.RingStructure.CupProduct
-open import Cubical.ZCohomology.RingStructure.RingLaws
-open import Cubical.ZCohomology.RingStructure.GradedCommutativity
-
-open import Cubical.Relation.Nullary
-
-open import Cubical.Functions.Embedding
-
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
@@ -30,37 +14,54 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Pointed.Homogeneous
 
-open import Cubical.Data.Sum
-open import Cubical.Data.Fin
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-open import Cubical.Data.Sigma
-open import Cubical.Data.Int hiding (_+'_)
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
-open import Cubical.Data.Nat.Order
+open import Cubical.Functions.Embedding
+
+open import Cubical.Relation.Nullary
+
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
-open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup ; Unit to UnitGroup) hiding (Bool)
-open import Cubical.Algebra.Group.ZAction
-open import Cubical.Algebra.AbGroup
+open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
+open import Cubical.Data.Nat.Order
+open import Cubical.Data.Int hiding (_+'_)
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
+open import Cubical.Data.Fin
 
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.ZAction
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int
+
+open import Cubical.HITs.Truncation as T
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.Pushout.Flattening
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1 renaming (_·_ to _*_)
-open import Cubical.HITs.Truncation
-  renaming (rec to trRec ; elim to trElim ; elim2 to trElim2)
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim ; elim2 to sElim2 ; map to sMap ; elim3 to sElim3)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim)
 open import Cubical.HITs.Join
 
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Hopf
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Group.Base
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Groups.Connected
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.MayerVietorisUnreduced
+open import Cubical.ZCohomology.Groups.Unit
+open import Cubical.ZCohomology.Groups.Wedge
+open import Cubical.ZCohomology.Groups.Sn
+open import Cubical.ZCohomology.RingStructure.CupProduct
+open import Cubical.ZCohomology.RingStructure.RingLaws
+open import Cubical.ZCohomology.RingStructure.GradedCommutativity
+
+open PlusBis
 
 -- There seems to be some problems with the termination checker.
 -- Spelling out integer induction with 3 base cases like this
@@ -115,26 +116,23 @@ module _ where
   πS : (n : ℕ) → Group ℓ-zero
   fst (πS n) = S₊∙ n →∙ coHomK-ptd n
   1g (snd (πS n)) = (λ _ → 0ₖ n) , refl
-  GroupStr._·_ (snd (πS n)) =
-    λ f g → (λ x → fst f x +ₖ fst g x)
-            , cong₂ _+ₖ_ (snd f) (snd g) ∙ rUnitₖ n (0ₖ n)
+  GroupStr._·_ (snd (πS n)) f g = (λ x → fst f x +ₖ fst g x)
+                                  , cong₂ _+ₖ_ (snd f) (snd g) ∙ rUnitₖ n (0ₖ n)
   inv (snd (πS n)) f = (λ x → -ₖ fst f x) , cong -ₖ_ (snd f) ∙ -0ₖ {n = n}
-  is-set (isSemigroup (isMonoid (isGroup (snd (πS zero))))) =
-    isOfHLevelΣ 2 (isSetΠ (λ _ → isSetℤ))
-      λ _ → isOfHLevelPath 2 isSetℤ _ _
-  is-set (isSemigroup (isMonoid (isGroup (snd (πS (suc n)))))) =
-    isOfHLevel↑∙' 0 n
-  IsSemigroup.assoc (isSemigroup (isMonoid (isGroup (snd (πS n))))) x y z =
-    →∙Homogeneous≡ (isHomogeneousKn n)
-                    (funExt λ w → assocₖ n (fst x w) (fst y w) (fst z w))
-  fst (identity (isMonoid (isGroup (snd (πS n)))) (f , p)) =
-    →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → rUnitₖ n (f x))
-  snd (identity (isMonoid (isGroup (snd (πS n)))) (f , p)) =
-    →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → lUnitₖ n (f x))
-  fst (inverse (isGroup (snd (πS n))) (f , p)) =
-    →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → rCancelₖ n (f x))
-  snd (inverse (isGroup (snd (πS n))) (f , p)) =
-    →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → lCancelₖ n (f x))
+  isGroup (snd (πS n)) = makeIsGroup
+                         (helper n)
+                         (λ x y z → →∙Homogeneous≡
+                                     (isHomogeneousKn n)
+                                     (funExt λ w → assocₖ n (fst x w) (fst y w) (fst z w)))
+                         (λ { (f , p) → →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → rUnitₖ n (f x)) })
+                         (λ { (f , p) → →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → lUnitₖ n (f x)) })
+                         (λ { (f , p) → →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → rCancelₖ n (f x)) })
+                         (λ { (f , p) → →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → lCancelₖ n (f x)) })
+          where
+          helper : (n : ℕ) → isSet (S₊∙ n →∙ coHomK-ptd n)
+          helper zero = isOfHLevelΣ 2 (isSetΠ (λ _ → isSetℤ))  λ _ → isOfHLevelPath 2 isSetℤ _ _
+          helper (suc n) = isOfHLevel↑∙' 0 n
+
 
   isSetπS : (n : ℕ) → isSet (S₊∙ n →∙ coHomK-ptd n)
   isSetπS = λ n → is-set (snd (πS n))
@@ -144,15 +142,15 @@ K : (n : ℕ) → GroupIso (coHomRedGrDir n (S₊∙ n)) (πS n)
 fst (K n) = setTruncIdempotentIso (isSetπS n)
 snd (K zero) =
   makeIsGroupHom
-    (sElim2 (λ _ _ → isOfHLevelPath 2 (isSetπS 0) _ _)
+    (ST.elim2 (λ _ _ → isOfHLevelPath 2 (isSetπS 0) _ _)
       λ f g → →∙Homogeneous≡ (isHomogeneousKn 0) refl)
 snd (K (suc zero)) =
     makeIsGroupHom
-    (sElim2 (λ _ _ → isOfHLevelPath 2 (isSetπS 1) _ _)
+    (ST.elim2 (λ _ _ → isOfHLevelPath 2 (isSetπS 1) _ _)
       λ f g → →∙Homogeneous≡ (isHomogeneousKn 1) refl)
 snd (K (suc (suc n))) =
     makeIsGroupHom
-    (sElim2 (λ _ _ → isOfHLevelPath 2 (isSetπS _) _ _)
+    (ST.elim2 (λ _ _ → isOfHLevelPath 2 (isSetπS _) _ _)
       λ f g → →∙Homogeneous≡ (isHomogeneousKn _) refl)
 
 -- πS has the following generator
@@ -211,11 +209,11 @@ module g-base where
   fst (G n i x) y = (genFunSpace n) .fst y ⌣ₖ x
   snd (G n i x) = cong (_⌣ₖ x) ((genFunSpace n) .snd) ∙ 0ₖ-⌣ₖ n i x
 
-  -ₖ^-Iso : (n : ℕ) (i : ℕ)
+  -ₖ'^-Iso : (n : ℕ) (i : ℕ)
     → (S₊∙ n →∙ coHomK-ptd (i +' n)) ≃ (S₊∙ n →∙ coHomK-ptd (i +' n))
-  -ₖ^-Iso n i = isoToEquiv (iso F F FF FF)
+  -ₖ'^-Iso n i = isoToEquiv (iso F F FF FF)
     where
-    lem : (i n : ℕ) → (-ₖ^ i · n) (snd (coHomK-ptd (i +' n))) ≡ 0ₖ _
+    lem : (i n : ℕ) → (-ₖ'^ i · n) (snd (coHomK-ptd (i +' n))) ≡ 0ₖ _
     lem zero zero = refl
     lem zero (suc zero) = refl
     lem zero (suc (suc n)) = refl
@@ -224,13 +222,13 @@ module g-base where
     lem (suc i) (suc n) = refl
 
     F : S₊∙ n →∙ coHomK-ptd (i +' n) → S₊∙ n →∙ coHomK-ptd (i +' n)
-    fst (F f) x = (-ₖ^ i · n) (fst f x)
-    snd (F f) = cong (-ₖ^ i · n) (snd f) ∙ lem i n
+    fst (F f) x = (-ₖ'^ i · n) (fst f x)
+    snd (F f) = cong (-ₖ'^ i · n) (snd f) ∙ lem i n
 
     FF : (x : _) → F (F x) ≡ x
     FF x =
       →∙Homogeneous≡ (isHomogeneousKn _)
-        (funExt λ y → -ₖ-gen² i n _ _ (fst x y))
+        (funExt λ y → -ₖ'-gen² i n _ _ (fst x y))
 
   transpPres0ₖ : ∀ {k m : ℕ} (p : k ≡ m) → subst coHomK p (0ₖ k) ≡ 0ₖ m
   transpPres0ₖ {k = k} =
@@ -254,9 +252,9 @@ module g-base where
 
   -- g is a composition of G and our two previous equivs.
   g≡ : (n : ℕ) (i : ℕ) → g n i ≡ λ x
-    → fst (compEquiv (indexSwap n i) (-ₖ^-Iso n i)) ((G n i) x)
+    → fst (compEquiv (indexSwap n i) (-ₖ'^-Iso n i)) ((G n i) x)
   g≡ n i = funExt (λ f → →∙Homogeneous≡ (isHomogeneousKn _)
-             (funExt λ y → gradedComm-⌣ₖ _ _ f (genFunSpace n .fst y)))
+             (funExt λ y → gradedComm'-⌣ₖ _ _ f (genFunSpace n .fst y)))
 
   -- We need a third Iso.
 
@@ -514,12 +512,12 @@ module g-base where
   isEquiv-g n i =
     subst isEquiv (sym (g≡ n i))
       (compEquiv (G n i , isEquivG n i)
-        (compEquiv (indexSwap n i) (-ₖ^-Iso n i)) .snd)
+        (compEquiv (indexSwap n i) (-ₖ'^-Iso n i)) .snd)
 
 -- We now generealise the equivalence g to also apply to arbitrary fibrations (Q : B → Type)
 -- satisfying (Q * ≃∙ Sⁿ)
 module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
-         (conB : (x y : typ B) → ∥ x ≡ y ∥)
+         (conB : (x y : typ B) → ∥ x ≡ y ∥₁)
          (n : ℕ) (Q-is : Iso (typ (Q (pt B))) (S₊ n))
          (Q-is-ptd : Iso.fun Q-is (pt (Q (pt B))) ≡ snd (S₊∙ n))
          (c : (b : typ B) → (Q b →∙ coHomK-ptd n))
@@ -557,7 +555,7 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
 
   g-equiv : (b : typ B) (i : ℕ) → isEquiv (g b i)
   g-equiv b i =
-    pRec (isPropIsEquiv _)
+    PT.rec (isPropIsEquiv _)
          (J (λ b _ → isEquiv (g b i))
            (g-base i))
          (conB (pt B) b)
@@ -569,7 +567,7 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
 
   is-setQ→K : (b : typ B) → isSet (Q b →∙ coHomK-ptd n)
   is-setQ→K b =
-    sRec (isProp→isOfHLevelSuc 1 isPropIsSet)
+    ST.rec (isProp→isOfHLevelSuc 1 isPropIsSet)
           (J (λ b _ → isSet (Q b →∙ coHomK-ptd n))
             (subst isSet (cong (_→∙ coHomK-ptd n)
               (ua∙ (isoToEquiv (invIso Q-is))
@@ -581,8 +579,8 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
   isConnB : isConnected 3 (typ B)
   fst isConnB = ∣ pt B ∣
   snd isConnB =
-    trElim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
-           λ a → sRec (isOfHLevelTrunc 3 _ _) (cong ∣_∣ₕ) (conB (pt B) a)
+    T.elim (λ _ → isOfHLevelPath 3 (isOfHLevelTrunc 3) _ _)
+           λ a → ST.rec (isOfHLevelTrunc 3 _ _) (cong ∣_∣ₕ) (conB (pt B) a)
 
   isPropPath : isProp (∥ pt B ≡ pt B ∥₂)
   isPropPath =
@@ -594,13 +592,13 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
   c* : Σ[ c ∈ ((b : typ B) → (Q b →∙ coHomK-ptd n)) ]
          (c (pt B) .fst ≡ ((λ x → genFunSpace n .fst (Iso.fun Q-is x))))
   fst c* b =
-    sRec (is-setQ→K b)
+    ST.rec (is-setQ→K b)
           (J (λ b _ → Q b →∙ coHomK-ptd n)
             ((λ x → genFunSpace n .fst (Iso.fun Q-is x))
            , cong (genFunSpace n .fst) Q-is-ptd ∙ genFunSpace n .snd))
          (conB (pt B) b)
   snd c* =
-    funExt λ x → (λ i → sRec (is-setQ→K (pt B))
+    funExt λ x → (λ i → ST.rec (is-setQ→K (pt B))
                   (J (λ b _ → Q b →∙ coHomK-ptd n)
                    ((λ x₁ → genFunSpace n .fst (Iso.fun Q-is x₁)) ,
                     (λ i → genFunSpace n .fst (Q-is-ptd i))
@@ -618,21 +616,21 @@ module _ {ℓ} (B : Pointed ℓ) (Q : typ B → Pointed ℓ-zero)
   -- This form of c* will make things somewhat easier to work with later on.
   c≡ : (b : fst B) (p : ∥ pt B ≡ b ∥₂)
     → (c* .fst b)
-      ≡ sRec (is-setQ→K b)
+      ≡ ST.rec (is-setQ→K b)
              (λ pp → (λ qb →
                genFunSpace n .fst (Iso.fun Q-is (subst (fst ∘ Q) (sym pp) qb)))
              , cong (genFunSpace n .fst ∘ Iso.fun Q-is) (p-help pp)
              ∙ ((λ i → genFunSpace n .fst (Q-is-ptd i)) ∙ genFunSpace n .snd)) p
   c≡ b =
-    sElim (λ _ → isOfHLevelPath 2 (is-setQ→K b) _ _)
+    ST.elim (λ _ → isOfHLevelPath 2 (is-setQ→K b) _ _)
           (J (λ b a → c* .fst b ≡
-      sRec (is-setQ→K b) (λ pp →
+      ST.rec (is-setQ→K b) (λ pp →
          (λ qb →
             genFunSpace n .fst (Iso.fun Q-is (subst (fst ∘ Q) (sym pp) qb)))
          ,
          cong (genFunSpace n .fst ∘ Iso.fun Q-is) (p-help pp) ∙
          (λ i → genFunSpace n .fst (Q-is-ptd i)) ∙ genFunSpace n .snd) ∣ a ∣₂)
-      ((λ i → sRec (is-setQ→K (pt B))
+      ((λ i → ST.rec (is-setQ→K (pt B))
       (J (λ b₁ _ → Q b₁ →∙ coHomK-ptd n)
        ((λ x → genFunSpace n .fst (Iso.fun Q-is x)) ,
         (λ i → genFunSpace n .fst (Q-is-ptd i)) ∙ genFunSpace n .snd))
@@ -783,7 +781,7 @@ module preThom {ℓ ℓ'} (B : Pointed ℓ) (P : typ B → Type ℓ') where
 -- the nᵗʰ cohomology of B and the (n+i)ᵗʰ reduced cohomology of Ẽ,
 -- as defined above
 module Thom {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
-         (conB : (x y : typ B) → ∥ x ≡ y ∥)
+         (conB : (x y : typ B) → ∥ x ≡ y ∥₁)
          (n : ℕ) (Q-is : Iso (typ (preThom.Q B P (pt B))) (S₊ n))
          (Q-is-ptd : Iso.fun Q-is (pt (preThom.Q B P (pt B))) ≡ snd (S₊∙ n))
          (c : (b : typ B) → (preThom.Q B P b →∙ coHomK-ptd n))
@@ -804,7 +802,7 @@ module Thom {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
             (preThom.ι B P (i +' n))))
   snd (ϕ i) =
     makeIsGroupHom
-    (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    (ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
       λ F G →
         cong ∣_∣₂ (cong (Iso.fun (preThom.ι B P (i +' n)))
                        (funExt (λ a →
@@ -820,8 +818,8 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
          (Q-is-ptd : Iso.fun Q-is (pt (preThom.Q B P (pt B))) ≡ snd (S₊∙ n))
          where
 
-  0-connB : (x y : typ B) → ∥ x ≡ y ∥
-  0-connB x y = sRec (isProp→isSet squash) (∥_∥.∣_∣) (conB x y)
+  0-connB : (x y : typ B) → ∥ x ≡ y ∥₁
+  0-connB x y = ST.rec (isProp→isSet squash₁) (∥_∥₁.∣_∣₁) (conB x y)
 
   c = (c* B (preThom.Q B P) conB n Q-is Q-is-ptd .fst)
   c-ptd = (c* B (preThom.Q B P) conB n Q-is Q-is-ptd .snd)
@@ -856,11 +854,11 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   E-susp : (i : ℕ) →
     GroupHom (coHomGr i E') (coHomRedGrDir (suc i) (E'̃ , inl tt))
   fst (E-susp i) =
-    sMap λ f → (λ { (inl x) → 0ₖ _
+    ST.map λ f → (λ { (inl x) → 0ₖ _
                    ; (inr x) → 0ₖ _
                    ; (push a j) → Kn→ΩKn+1 _ (f a) j}) , refl
   snd (E-susp zero) =
-    makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    makeIsGroupHom (ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
       λ f g →
         cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousKn 1)
           (funExt λ { (inl x) → refl
@@ -869,7 +867,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                       (Kn→ΩKn+1-hom zero (f a) (g a)
                      ∙ ∙≡+₁ (Kn→ΩKn+1 _ (f a)) (Kn→ΩKn+1 _ (g a))) k j})))
   snd (E-susp (suc i)) =
-    makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+    makeIsGroupHom (ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
       λ f g →
         cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousKn _)
           (funExt λ { (inl x) → refl
@@ -881,42 +879,42 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   module cofibSeq where
     j* : (i : ℕ) →
       GroupHom (coHomRedGrDir i (E'̃ , (inl tt))) (coHomGr i (typ B))
-    fst (j* i) = sMap λ f → λ x → fst f (inr x)
+    fst (j* i) = ST.map λ f → λ x → fst f (inr x)
     snd (j* zero) =
       makeIsGroupHom
-        (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _) λ _ _ → refl)
+        (ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _) λ _ _ → refl)
     snd (j* (suc zero)) =
       makeIsGroupHom
-        (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _) λ _ _ → refl)
+        (ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _) λ _ _ → refl)
     snd (j* (suc (suc i₁))) =
       makeIsGroupHom
-        (sElim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _) λ _ _ → refl)
+        (ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _) λ _ _ → refl)
 
     Im-j⊂Ker-p : (i : ℕ) (x : _) → isInIm (j* i) x → isInKer (p-hom i) x
     Im-j⊂Ker-p i =
-      sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
-        λ f → pRec (squash₂ _ _)
-          (uncurry (sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
+      ST.elim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
+        λ f → PT.rec (squash₂ _ _)
+          (uncurry (ST.elim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
             λ g P → subst (isInKer (p-hom i)) P
               (cong ∣_∣₂ (funExt λ x →
                 cong (g .fst) (sym (push x)) ∙ g .snd))))
 
     Ker-p⊂Im-j : (i : ℕ) (x : _) → isInKer (p-hom i) x → isInIm (j* i) x
     Ker-p⊂Im-j i =
-      sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash))
-        λ f ker → pRec squash
+      ST.elim (λ _ → isSetΠ (λ _ → isProp→isSet squash₁))
+        λ f ker → PT.rec squash₁
           (λ id → ∣ ∣ (λ { (inl x) → 0ₖ _
                          ; (inr x) → f x
                          ; (push a i₁) → funExt⁻ id a (~ i₁)}) , refl ∣₂
-                         , refl ∣)
+                         , refl ∣₁)
                    (Iso.fun PathIdTrunc₀Iso ker)
 
   Im-p⊂Ker-Susp : (i : ℕ) (x : _)
                 → isInIm (p-hom i) x → isInKer (E-susp i) x
   Im-p⊂Ker-Susp i =
-    sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
-      λ f → pRec (squash₂ _ _)
-        (uncurry (sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
+    ST.elim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
+      λ f → PT.rec (squash₂ _ _)
+        (uncurry (ST.elim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
           λ g y → subst (isInKer (E-susp i)) y
             (cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousKn _)
               (funExt λ { (inl x) → refl
@@ -926,8 +924,8 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   Ker-Susp⊂Im-p : (i : ℕ) (x : _)
                 → isInKer (E-susp i) x → isInIm (p-hom i) x
   Ker-Susp⊂Im-p i =
-    sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash))
-      λ f ker → pRec squash
+    ST.elim (λ _ → isSetΠ (λ _ → isProp→isSet squash₁))
+      λ f ker → PT.rec squash₁
         (λ id → ∣ ∣ (λ x → ΩKn+1→Kn i (sym (funExt⁻ (cong fst id) (inr x)))) ∣₂
                   , cong ∣_∣₂ (funExt (λ { (a , b) →
                          cong (ΩKn+1→Kn i)
@@ -941,16 +939,16 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                         ∙ (sym (assoc _ _ _)
                         ∙∙ cong (Kn→ΩKn+1 i (f (a , b)) ∙_) (rCancel _)
                         ∙∙ sym (rUnit _)))
-                        ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f (a , b))})) ∣)
+                        ∙ Iso.leftInv (Iso-Kn-ΩKn+1 _) (f (a , b))})) ∣₁)
         (Iso.fun PathIdTrunc₀Iso ker)
 
   Im-Susp⊂Ker-j : (i : ℕ) (x : _)
                → isInIm (E-susp i) x → isInKer (cofibSeq.j* (suc i)) x
   Im-Susp⊂Ker-j i =
-    sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
-      λ g → pRec (squash₂ _ _)
-        (uncurry (sElim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
-          λ f id → pRec (squash₂ _ _)
+    ST.elim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
+      λ g → PT.rec (squash₂ _ _)
+        (uncurry (ST.elim (λ _ → isSetΠ (λ _ → isOfHLevelPath 2 squash₂ _ _))
+          λ f id → PT.rec (squash₂ _ _)
             (λ P → subst (isInKer (cofibSeq.j* (suc i))) (cong ∣_∣₂ P)
               (cong ∣_∣₂ refl))
             (Iso.fun PathIdTrunc₀Iso id)))
@@ -958,16 +956,16 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   Ker-j⊂Im-Susp : (i : ℕ) (x : _)
                 → isInKer (cofibSeq.j* (suc i)) x → isInIm (E-susp i) x
   Ker-j⊂Im-Susp i =
-    sElim (λ _ → isSetΠ (λ _ → isProp→isSet squash))
+    ST.elim (λ _ → isSetΠ (λ _ → isProp→isSet squash₁))
       λ f ker
-       → pRec squash
+       → PT.rec squash₁
           (λ p → ∣ ∣ (λ x → ΩKn+1→Kn _ (sym (snd f)
                                      ∙∙ cong (fst f) (push x)
                                      ∙∙ funExt⁻ p (fst x))) ∣₂
                   , cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousKn _)
                     (funExt (λ { (inl x) → sym (snd f)
                                ; (inr x) → sym (funExt⁻ p x)
-                               ; (push a j) k → h3 f p a k j}))) ∣)
+                               ; (push a j) k → h3 f p a k j}))) ∣₁)
           (Iso.fun PathIdTrunc₀Iso ker)
           where
           h3 : (f : (E'̃ , inl tt) →∙ coHomK-ptd (suc i))
@@ -1037,14 +1035,14 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   Im-ϕ∘j⊂Ker-p : (i : ℕ) (x : _) → isInIm (ϕ∘j i) x → isInKer (p-hom _) x
   Im-ϕ∘j⊂Ker-p i x p =
     cofibSeq.Im-j⊂Ker-p _ x
-      (pRec squash (uncurry (λ f p → ∣ fst (fst (ϕ _)) f , p ∣)) p)
+      (PT.rec squash₁ (uncurry (λ f p → ∣ fst (fst (ϕ _)) f , p ∣₁)) p)
 
   Ker-p⊂Im-ϕ∘j : (i : ℕ) (x : _) → isInKer (p-hom _) x → isInIm (ϕ∘j i) x
   Ker-p⊂Im-ϕ∘j i x p =
-    pRec squash
+    PT.rec squash₁
       (uncurry (λ f p →
           ∣ (invEq (fst (ϕ _)) f)
-         , (cong (fst (cofibSeq.j* _)) (secEq (fst (ϕ _)) f) ∙ p) ∣))
+         , (cong (fst (cofibSeq.j* _)) (secEq (fst (ϕ _)) f) ∙ p) ∣₁))
         (cofibSeq.Ker-p⊂Im-j _ x p)
 
   Im-p⊂KerSusp∘ϕ : (i : ℕ) (x : _)
@@ -1062,7 +1060,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   Im-Susp∘ϕ⊂Ker-ϕ∘j : (i : ℕ) → (x : _)
                     → isInIm (susp∘ϕ i) x → isInKer (ϕ∘j (suc i)) x
   Im-Susp∘ϕ⊂Ker-ϕ∘j i x =
-    pRec (squash₂ _ _)
+    PT.rec (squash₂ _ _)
       (uncurry λ f → J (λ x p → isInKer (ϕ∘j (suc i)) x)
         ((λ i → fst (cofibSeq.j* _) (fst (fst (ϕ _)) (fst (ϕ' _) (fst (E-susp _) f))))
              ∙∙ cong (fst (cofibSeq.j* _))
@@ -1070,7 +1068,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                              (invGroupEquiv (ϕ (suc i))) (+'-suc i n)) (fst (E-susp _) f))
              ∙∙ (natTranspLem _ (λ n → fst (cofibSeq.j* n)) (sym (+'-suc i n))
              ∙ cong (subst (λ z → coHomGr z (typ B) .fst) (sym (+'-suc i n)))
-                    (Im-Susp⊂Ker-j _ (fst (E-susp (i +' n)) f) ∣ f , refl ∣)
+                    (Im-Susp⊂Ker-j _ (fst (E-susp (i +' n)) f) ∣ f , refl ∣₁)
               ∙ tLem i n)))
     where
     tLem : (i n : ℕ) → subst (λ z → coHomGr z (typ B) .fst) (sym (+'-suc i n))
@@ -1083,9 +1081,9 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   Ker-ϕ∘j⊂Im-Susp∘ϕ : (i : ℕ) (x : _)
     → isInKer (ϕ∘j (suc i)) x → isInIm (susp∘ϕ i) x
   Ker-ϕ∘j⊂Im-Susp∘ϕ i x p =
-    pRec squash
+    PT.rec squash₁
       (uncurry (λ f p → ∣ f , cong (fst (fst (thomIso' i))) p
-                        ∙ secEq (fst (thomIso' _)) x ∣))
+                        ∙ secEq (fst (thomIso' _)) x ∣₁))
       (Ker-j⊂Im-Susp _ (invEq (fst (thomIso' _)) x)
         ((cong (cofibSeq.j* (suc (i +' n)) .fst ) lem₁
         ∙ natTranspLem _ (λ n → cofibSeq.j* n .fst) (+'-suc i n))
@@ -1112,7 +1110,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   ϕ∘j≡ : (i : ℕ) → ϕ∘j i ≡ ⌣-hom i
   ϕ∘j≡ i =
     Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-           (funExt (sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+           (funExt (ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
            λ _ → refl))
 
   -- We can now restate the previous resluts for (λ x → x ⌣ e)

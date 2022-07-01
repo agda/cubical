@@ -13,6 +13,8 @@ gₗ, gᵣ are the two generators of H²(S²×S²) and e is the generator of
 H⁴(S²×S²) -- this of interest since it is used in π₄S³≅ℤ/2.
 -}
 
+
+
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.Groups.SphereProduct where
 
@@ -23,38 +25,42 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
+open import Cubical.Relation.Nullary
+
+open import Cubical.Data.Unit
+open import Cubical.Data.Nat
+open import Cubical.Data.Sigma
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int
+
+open import Cubical.HITs.Truncation as T
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.S1
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp
+
+open import Cubical.Homotopy.Loopspace
+
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.RingStructure.CupProduct
 
-open import Cubical.Data.Sigma
-open import Cubical.Data.Nat
-open import Cubical.Data.Unit
-
-open import Cubical.HITs.S1
-open import Cubical.HITs.Sn
-open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation
-open import Cubical.HITs.SetTruncation
-  renaming (elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (map to pMap ; rec to pRec)
-
-open import Cubical.Algebra.Group
-
-open import Cubical.Relation.Nullary
-
-open import Cubical.Homotopy.Loopspace
-
 open Iso
+open PlusBis
 
 private
   ¬lem : (n m : ℕ) → ¬ suc (n + m) ≡ m
   ¬lem n zero = snotz
   ¬lem n (suc m) p =
     ¬lem n m (sym (+-suc n m) ∙ cong predℕ p)
+
+
 
 {- Step 1: Hⁿ⁺ᵐ(Sⁿ×Sᵐ)≅H¹⁺ⁿ⁺ᵐ(S¹⁺ⁿ×Sᵐ) -}
 -- The functions back and forth (suspension on the left component)
@@ -77,7 +83,7 @@ private
 
 ∥HⁿSᵐPath∥ : (n m : ℕ) → (f : S₊ (suc m) → coHomK (suc n))
        → ¬ (n ≡ m)
-       → ∥ f ≡ (λ _ → 0ₖ (suc n)) ∥
+       → ∥ f ≡ (λ _ → 0ₖ (suc n)) ∥₁
 ∥HⁿSᵐPath∥ n m f p =
   fun PathIdTrunc₀Iso
     (isContr→isProp
@@ -91,15 +97,15 @@ private
               (coHomGr (suc (suc ((suc n) + m)))
                   (S₊ (suc (suc n)) × S₊ (suc m)))
 fun (fst (×leftSuspensionIso n m)) =
-  sMap (uncurry ∘ ↑Sⁿ×Sᵐ→Kₙ₊ₘ n m ∘ curry)
+  ST.map (uncurry ∘ ↑Sⁿ×Sᵐ→Kₙ₊ₘ n m ∘ curry)
 inv (fst (×leftSuspensionIso n m)) =
-  sMap ((uncurry ∘ ↓Sⁿ×Sᵐ→Kₙ₊ₘ n m ∘ curry))
+  ST.map ((uncurry ∘ ↓Sⁿ×Sᵐ→Kₙ₊ₘ n m ∘ curry))
 rightInv (fst (×leftSuspensionIso n m)) =
-  sElim (λ _ → isSetPathImplicit)
+  ST.elim (λ _ → isSetPathImplicit)
     λ f → inv PathIdTrunc₀Iso
-      (pRec squash
+      (PT.rec squash₁
         (uncurry (λ g p
-          → pMap (λ gid → funExt λ {(x , y)
+          → PT.map (λ gid → funExt λ {(x , y)
          → (λ i → uncurry (↑Sⁿ×Sᵐ→Kₙ₊ₘ n m
                     (↓Sⁿ×Sᵐ→Kₙ₊ₘ n m (curry (p (~ i))))) (x , y))
                 ∙∙ main g gid x y
@@ -125,7 +131,7 @@ rightInv (fst (×leftSuspensionIso n m)) =
               → typ (Ω (coHomK-ptd (suc (suc (suc n + m)))))) ]
             charac-fun g ≡ f
   rewrte f =
-    pMap (λ p
+    PT.map (λ p
       → (λ x y → sym (funExt⁻ p y)
                 ∙∙ (λ i → f ((merid x ∙ sym (merid (ptSn (suc n)))) i , y))
                 ∙∙ funExt⁻ p y)
@@ -148,14 +154,14 @@ rightInv (fst (×leftSuspensionIso n m)) =
   ∥Path∥ :
     (g : S₊ (suc n) → S₊ (suc m)
          → typ (Ω (coHomK-ptd (suc (suc (suc n + m))))))
-       → ∥ (g (ptSn _)) ≡ (λ _ → refl) ∥
+       → ∥ (g (ptSn _)) ≡ (λ _ → refl) ∥₁
   ∥Path∥ g =
       fun PathIdTrunc₀Iso
         (isContr→isProp
           (isOfHLevelRetractFromIso 0
             ((invIso (fst (coHom≅coHomΩ _ (S₊ (suc m))))))
-             (0ₕ _ , sElim (λ _ → isProp→isSet (squash₂ _ _))
-                 λ f → pRec (squash₂ _ _) (sym ∘ cong ∣_∣₂)
+             (0ₕ _ , ST.elim (λ _ → isProp→isSet (squash₂ _ _))
+                 λ f → PT.rec (squash₂ _ _) (sym ∘ cong ∣_∣₂)
                    (∥HⁿSᵐPath∥ _ _ f (¬lem n m))))
           ∣ g (ptSn (suc n)) ∣₂ ∣ (λ _ → refl) ∣₂)
 
@@ -181,8 +187,8 @@ rightInv (fst (×leftSuspensionIso n m)) =
         ∙∙ (cong (g a y ∙_) (cong sym (funExt⁻ gid y))
           ∙ sym (rUnit (g a y)))
 leftInv (fst (×leftSuspensionIso n m)) =
-  sElim (λ _ → isSetPathImplicit)
-        λ f → pRec (squash₂ _ _)
+  ST.elim (λ _ → isSetPathImplicit)
+        λ f → PT.rec (squash₂ _ _)
           (λ id
             → cong ∣_∣₂
               (funExt (λ {(x , y) → (λ i → ΩKn+1→Kn _ (sym (rCancel≡refl _ i)
@@ -201,7 +207,7 @@ leftInv (fst (×leftSuspensionIso n m)) =
           (∥HⁿSᵐPath∥ (suc n + m) m (λ x → f (ptSn _ , x))
             (¬lem n m))
 snd (×leftSuspensionIso n m) =
-  makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
+  makeIsGroupHom (ST.elim2 (λ _ _ → isSetPathImplicit)
     λ f g → cong ∣_∣₂
       (funExt λ { (north , y) → refl
                 ; (south , y) → refl
@@ -232,12 +238,12 @@ Hⁿ-Sⁿ→Hⁿ-S¹×Sⁿ m f x =
 Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ : (m : ℕ)
   → GroupIso (coHomGr (suc m) (S₊ (suc m)))
               (coHomGr (suc (suc m)) (S₊ (suc zero) × S₊ (suc m)))
-fun (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = sMap (uncurry ∘ Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m)
-inv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = sMap (Hⁿ-Sⁿ→Hⁿ-S¹×Sⁿ m ∘ curry)
+fun (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = ST.map (uncurry ∘ Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m)
+inv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) = ST.map (Hⁿ-Sⁿ→Hⁿ-S¹×Sⁿ m ∘ curry)
 rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
-  sElim (λ _ → isSetPathImplicit)
+  ST.elim (λ _ → isSetPathImplicit)
     λ f → inv PathIdTrunc₀Iso
-      (pMap (uncurry (λ g p
+      (PT.map (uncurry (λ g p
         → funExt λ {(x , y)
           → (λ i → uncurry
                       (Hⁿ-S¹×Sⁿ→Hⁿ-Sⁿ m
@@ -277,7 +283,7 @@ rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
   rewrte : (f : S₊ 1 × S₊ (suc m) → coHomK (suc (suc m)))
      → ∃[ g ∈ (S₊ (suc m) → coHomK (suc m)) ] f ≡ characFun g
   rewrte f =
-    pMap (λ p →
+    PT.map (λ p →
        (λ x → ΩKn+1→Kn _
                 (sym (funExt⁻ p x) ∙∙ (λ i → f (loop i , x)) ∙∙ funExt⁻ p x))
       , funExt λ { (base , y) → funExt⁻ p y
@@ -296,7 +302,7 @@ rightInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
                             (funExt⁻ p x) j i)})
      (∥HⁿSᵐPath∥ (suc m) m (λ x → f (base , x)) (lem m))
 leftInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
-  sElim (λ _ → isSetPathImplicit)
+  ST.elim (λ _ → isSetPathImplicit)
     λ f
       → cong ∣_∣₂ (funExt λ x
         → cong (ΩKn+1→Kn (suc m))
@@ -306,7 +312,7 @@ leftInv (fst (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) =
         ∙ leftInv (Iso-Kn-ΩKn+1 _) (f x))
 snd (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m) =
   makeIsGroupHom
-    (sElim2
+    (ST.elim2
       (λ _ _ → isSetPathImplicit)
       λ f g → cong ∣_∣₂
         (funExt λ { (base , y) → refl
@@ -317,7 +323,7 @@ snd (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m) =
 Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ : (n m : ℕ)
   → GroupIso (coHomGr ((suc n) +' (suc m))
                   (S₊ (suc n) × S₊ (suc m)))
-              ℤ
+              ℤGroup
 Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ zero m =
   compGroupIso (invGroupIso (Hⁿ-Sⁿ≅Hⁿ-S¹×Sⁿ m)) (Hⁿ-Sⁿ≅ℤ m)
 Hⁿ⁺ᵐ-Sⁿ×Sᵐ≅ℤ (suc n) m =

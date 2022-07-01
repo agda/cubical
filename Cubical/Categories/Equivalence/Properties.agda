@@ -52,7 +52,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   isEquiv→Full {F} eq@record { invFunc = G
                              ; η = η
                              ; ε = _ }
-               c c' g = ∣ h , isEquiv→Faithful (symEquiv eq) _ _ _ _ GFh≡Gg ∣ -- apply faithfulness of G
+               c c' g = ∣ h , isEquiv→Faithful (symEquiv eq) _ _ _ _ GFh≡Gg ∣₁ -- apply faithfulness of G
     where
       -- isomorphism between c and GFc
       cIso = isIso→CatIso (η .nIso c)

@@ -6,23 +6,37 @@ Freudenthal suspension theorem
 {-# OPTIONS --safe #-}
 module Cubical.Homotopy.Freudenthal where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Univalence
+
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-open import Cubical.HITs.Nullification
-open import Cubical.HITs.Susp renaming (toSusp to σ)
+
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec ; elim to trElim)
+
+open import Cubical.HITs.Susp renaming (toSusp to σ)
+open import Cubical.HITs.SmashProduct
+open import Cubical.HITs.Nullification
+open import Cubical.HITs.S1 hiding (encode)
+open import Cubical.HITs.S2
+open import Cubical.HITs.S3
+open import Cubical.HITs.Sn
+
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.WedgeConnectivity
 open import Cubical.Homotopy.Loopspace
-open import Cubical.HITs.SmashProduct
 
-open import Cubical.HITs.S1 hiding (encode)
-open import Cubical.HITs.Sn
-open import Cubical.HITs.S2
-open import Cubical.HITs.S3
+
+
 
 module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n)) (typ A)) where
 

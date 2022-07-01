@@ -6,9 +6,24 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
+
 open import Cubical.Data.Nat
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
+open import Cubical.Data.Sigma
+
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Bool
+open import Cubical.Algebra.Group.Instances.Int
+open import Cubical.Algebra.Group.Instances.Unit
+
+open import Cubical.HITs.Sn
+open import Cubical.HITs.S1
+open import Cubical.HITs.Susp
+open import Cubical.HITs.Wedge
+open import Cubical.HITs.Pushout
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
@@ -19,15 +34,7 @@ open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Connected
 open import Cubical.ZCohomology.RingStructure.CupProduct
 
-open import Cubical.HITs.Sn
-open import Cubical.HITs.S1
-open import Cubical.HITs.Susp
-open import Cubical.HITs.Wedge
-open import Cubical.HITs.Pushout
-open import Cubical.HITs.Truncation renaming (elim to trElim) hiding (map ; elim2)
-open import Cubical.HITs.SetTruncation renaming (rec to sRec ; rec2 to sRec2 ; elim to sElim)
 
-open import Cubical.Algebra.Group renaming (ℤ to ℤGroup ; Bool to BoolGroup ; Unit to UnitGroup)
 
 
 S¹⋁S¹ : Type₀
@@ -42,7 +49,7 @@ H⁰-S¹⋁S¹ = H⁰-connected (inl base) (wedgeConnected _ _ (Sn-connected 0) 
 
 ------------- H¹(S¹⋁S¹) ------------
 H¹-S¹⋁S¹ : GroupIso (coHomGr 1 S¹⋁S¹) (DirProd ℤGroup ℤGroup)
-H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ GroupIsoDirProd coHom1S1≃ℤ coHom1S1≃ℤ
+H¹-S¹⋁S¹ =  (Hⁿ-⋁ _ _ 0) □ GroupIsoDirProd H¹-S¹≅ℤ H¹-S¹≅ℤ
 
 ------------- H⁰(S²⋁S¹⋁S¹) ---------
 H⁰-S²⋁S¹⋁S¹ : GroupIso (coHomGr 0 S²⋁S¹⋁S¹) ℤGroup
@@ -66,7 +73,7 @@ H²-S²⋁S¹⋁S¹ : GroupIso (coHomGr 2 S²⋁S¹⋁S¹) ℤGroup
 H²-S²⋁S¹⋁S¹ =
   compGroupIso
   (Hⁿ-⋁ _ _ 1)
-  (GroupIsoDirProd {B = UnitGroup}
+  (GroupIsoDirProd {B = UnitGroup₀}
     (Hⁿ-Sⁿ≅ℤ 1)
     ((Hⁿ-⋁ _ _ 1)  □ GroupIsoDirProd (Hⁿ-S¹≅0 0) (Hⁿ-S¹≅0 0) □ rUnitGroupIso)
   □ rUnitGroupIso)

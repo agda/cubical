@@ -28,6 +28,7 @@ record Functor (C : Category ℓC ℓC') (D : Category ℓD ℓD') :
   isFaithful = (x y : _) (f g : C [ x , y ]) → F-hom f ≡ F-hom g → f ≡ g
   isEssentiallySurj = (d : D .ob) → Σ[ c ∈ C .ob ] CatIso D (F-ob c) d
 
+  -- preservation of commuting squares and triangles
   F-square : {x y u v : C .ob}
              {f : C [ x , y ]} {g : C [ x , u ]}
              {h : C [ u , v ]} {k : C [ y , v ]}
@@ -35,6 +36,11 @@ record Functor (C : Category ℓC ℓC') (D : Category ℓD ℓD') :
            → (F-hom f) ⋆⟨ D ⟩ (F-hom k) ≡ (F-hom g) ⋆⟨ D ⟩ (F-hom h)
   F-square Csquare = sym (F-seq _ _) ∙∙ cong F-hom Csquare ∙∙ F-seq _ _
 
+  F-triangle : {x y z : C .ob}
+               {f : C [ x , y ]} {g : C [ y , z ]} {h : C [ x , z ]}
+             → f ⋆⟨ C ⟩ g ≡ h
+             → (F-hom f) ⋆⟨ D ⟩ (F-hom g) ≡ (F-hom h)
+  F-triangle Ctriangle = sym (F-seq _ _) ∙ cong F-hom Ctriangle
 
 private
   variable

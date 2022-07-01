@@ -4,7 +4,7 @@
 
 {-# OPTIONS --safe #-}
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 
 
 module Cubical.Data.DescendingList.Base

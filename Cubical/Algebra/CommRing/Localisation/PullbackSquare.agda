@@ -57,7 +57,7 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -130,7 +130,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
    where
    unitHelper : ∀ s → s ∈ₚ [ f ⁿ|n≥0] → s /1ᶠᵍ ∈ₚ (R[1/ (f · g) ]AsCommRing) ˣ
    unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᶠᵍ))
-                  λ n → [ g ^ n , (f · g) ^ n , ∣ n , refl ∣ ]
+                  λ n → [ g ^ n , (f · g) ^ n , ∣ n , refl ∣₁ ]
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
                         , path n)
     where
@@ -147,7 +147,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
    where
    unitHelper : ∀ s → s ∈ₚ [ g ⁿ|n≥0] → s /1ᶠᵍ ∈ₚ (R[1/ (f · g) ]AsCommRing) ˣ
    unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᶠᵍ))
-                  λ n → [ f ^ n , (f · g) ^ n , ∣ n , refl ∣ ]
+                  λ n → [ f ^ n , (f · g) ^ n , ∣ n , refl ∣₁ ]
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
                               , path n)
     where
@@ -178,10 +178,10 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                       PT.rec2 (is-set _ _) exponentHelper u∈[fⁿ] v∈[gⁿ]
    where
    ux≡0 : u · x ≡ 0r
-   ux≡0 = sym (·Rid _) ∙ p ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·Rid _)
+   ux≡0 = sym (·IdR _) ∙ p ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·IdR _)
 
    vx≡0 : v · x ≡ 0r
-   vx≡0 = sym (·Rid _) ∙ q ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·Rid _)
+   vx≡0 = sym (·IdR _) ∙ q ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·IdR _)
 
    exponentHelper : Σ[ n ∈ ℕ ] u ≡ f ^ n
                   → Σ[ n ∈ ℕ ] v ≡ g ^ n
@@ -217,18 +217,18 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
      α₁ = α (suc zero)
 
      1≡α₀fˡ+α₁gˡ : 1r ≡ α₀ · f ^ l + α₁ · g ^ l
-     1≡α₀fˡ+α₁gˡ = 1≡α₀fˡ+α₁gˡ+0 ∙ cong (α₀ · f ^ l +_) (+Rid _)
+     1≡α₀fˡ+α₁gˡ = 1≡α₀fˡ+α₁gˡ+0 ∙ cong (α₀ · f ^ l +_) (+IdR _)
 
      path : x ≡ 0r
-     path = x                                   ≡⟨ sym (·Lid _) ⟩
+     path = x                                   ≡⟨ sym (·IdL _) ⟩
             1r · x                              ≡⟨ cong (_· x) 1≡α₀fˡ+α₁gˡ ⟩
-            (α₀ · f ^ l + α₁ · g ^ l) · x       ≡⟨ ·Ldist+ _ _ _ ⟩
+            (α₀ · f ^ l + α₁ · g ^ l) · x       ≡⟨ ·DistL+ _ _ _ ⟩
             α₀ · f ^ l · x + α₁ · g ^ l · x     ≡⟨ cong₂ _+_ (sym (·Assoc _ _ _))
                                                              (sym (·Assoc _ _ _)) ⟩
             α₀ · (f ^ l · x) + α₁ · (g ^ l · x) ≡⟨ cong₂ (λ y z → α₀ · y + α₁ · z)
                                                          fˡx≡0 gˡx≡0 ⟩
             α₀ · 0r + α₁ · 0r                   ≡⟨ cong₂ _+_ (0RightAnnihilates _)
-                                                             (0RightAnnihilates _) ∙ +Rid _ ⟩
+                                                             (0RightAnnihilates _) ∙ +IdR _ ⟩
             0r ∎
 
 
@@ -239,9 +239,9 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
  equalizerLemma 1∈⟨f,g⟩ = invElPropElim2 (λ _ _ → isPropΠ (λ _ → isProp∃!)) baseCase
   where
   baseCase : ∀ (x y : R) (n : ℕ)
-           → fst χ₁ ([ x , f ^ n , ∣ n , refl ∣ ]) ≡ fst χ₂ ([ y , g ^ n , ∣ n , refl ∣ ])
-           → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                        × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+           → fst χ₁ ([ x , f ^ n , ∣ n , refl ∣₁ ]) ≡ fst χ₂ ([ y , g ^ n , ∣ n , refl ∣₁ ])
+           → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                        × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]))
   baseCase x y n χ₁[x/fⁿ]≡χ₂[y/gⁿ] = PT.rec isProp∃! annihilatorHelper exAnnihilator
    where
    -- doesn't compute that well but at least it computes...
@@ -253,8 +253,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
    annihilatorHelper : Σ[ s ∈ Sᶠᵍ ]
      (fst s · (x · transport refl (g ^ n)) · (1r · transport refl ((f · g) ^ n))
     ≡ fst s · (y · transport refl (f ^ n)) · (1r · transport refl ((f · g) ^ n)))
-    → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                 × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+    → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                 × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]))
    annihilatorHelper ((s , s∈[fgⁿ]) , p) = PT.rec isProp∃! exponentHelper s∈[fgⁿ]
     where
     sxgⁿ[fg]ⁿ≡syfⁿ[fg]ⁿ : s · x · g ^ n · (f · g) ^ n ≡ s · y · f ^ n · (f · g) ^ n
@@ -290,8 +290,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
 
     exponentHelper : Σ[ m ∈ ℕ ] s ≡ (f · g) ^ m
-                   → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                                × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+                   → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                                × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]))
     exponentHelper (m , s≡[fg]ᵐ) =
        PT.rec isProp∃! Σhelper (GeneratingPowers.thm R' 2n+m _ fgVec 1∈⟨f,g⟩)
      where
@@ -336,8 +336,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
      2n+m = n +ℕ (n +ℕ m)
      -- extracting information from the fact that R=⟨f,g⟩
      Σhelper : Σ[ α ∈ FinVec R 2 ] 1r ≡ linearCombination R' α (fⁿgⁿVec 2n+m)
-             → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                          × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+             → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                          × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]))
      Σhelper (α , linCombi) = uniqueExists z (z/1≡x/fⁿ , z/1≡y/gⁿ)
                                              (λ _ → isProp× (is-set _ _) (is-set _ _))
                                              uniqueness
@@ -346,13 +346,13 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
       α₁ = α (suc zero)
 
       1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ : 1r ≡ α₀ · f ^ 2n+m + α₁ · g ^ 2n+m
-      1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ = linCombi ∙ cong (α₀ · f ^ 2n+m +_) (+Rid _)
+      1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ = linCombi ∙ cong (α₀ · f ^ 2n+m +_) (+IdR _)
 
       -- definition of the element
       z = α₀ · x · f ^ (n +ℕ m) + α₁ · y · g ^ (n +ℕ m)
 
-      z/1≡x/fⁿ : (z /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣ ]
-      z/1≡x/fⁿ = eq/ _ _ ((f ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣) , path)
+      z/1≡x/fⁿ : (z /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣₁ ]
+      z/1≡x/fⁿ = eq/ _ _ ((f ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣₁) , path)
        where
        useSolver1 : ∀ x y α₀ α₁ fⁿ⁺ᵐ gⁿ⁺ᵐ fⁿ
                   → fⁿ⁺ᵐ · (α₀ · x · fⁿ⁺ᵐ + α₁ · y · gⁿ⁺ᵐ) · fⁿ
@@ -403,8 +403,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
            f ^ (n +ℕ m) · x · 1r ∎
 
-      z/1≡y/gⁿ : (z /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣ ]
-      z/1≡y/gⁿ = eq/ _ _ ((g ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣) , path)
+      z/1≡y/gⁿ : (z /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]
+      z/1≡y/gⁿ = eq/ _ _ ((g ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣₁) , path)
        where
        useSolver1 : ∀ x y α₀ α₁ fⁿ⁺ᵐ gⁿ⁺ᵐ gⁿ
                   → gⁿ⁺ᵐ · (α₀ · x · fⁿ⁺ᵐ + α₁ · y · gⁿ⁺ᵐ) · gⁿ
@@ -456,8 +456,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
            g ^ (n +ℕ m) · y · 1r ∎
 
 
-      uniqueness : ∀ a → ((a /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                       × ((a /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣ ])
+      uniqueness : ∀ a → ((a /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                       × ((a /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣₁ ])
                        → z ≡ a
       uniqueness a (a/1≡x/fⁿ , a/1≡y/gⁿ) = equalByDifference _ _
                    (injectivityLemma 1∈⟨f,g⟩ (z - a) [z-a]/1≡0overF [z-a]/1≡0overG)
@@ -471,9 +471,9 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
                       ≡⟨ cong₂ _-_ z/1≡x/fⁿ a/1≡x/fⁿ ⟩
 
-                        [ x , f ^ n , ∣ n , refl ∣ ] - [ x , f ^ n , ∣ n , refl ∣ ]
+                        [ x , f ^ n , ∣ n , refl ∣₁ ] - [ x , f ^ n , ∣ n , refl ∣₁ ]
 
-                      ≡⟨ +Rinv ([ x , f ^ n , ∣ n , refl ∣ ]) ⟩
+                      ≡⟨ +InvR ([ x , f ^ n , ∣ n , refl ∣₁ ]) ⟩
 
                         0r ∎
 
@@ -486,9 +486,9 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
                       ≡⟨ cong₂ _-_ z/1≡y/gⁿ a/1≡y/gⁿ ⟩
 
-                        [ y , g ^ n , ∣ n , refl ∣ ] - [ y , g ^ n , ∣ n , refl ∣ ]
+                        [ y , g ^ n , ∣ n , refl ∣₁ ] - [ y , g ^ n , ∣ n , refl ∣₁ ]
 
-                      ≡⟨ +Rinv ([ y , g ^ n , ∣ n , refl ∣ ]) ⟩
+                      ≡⟨ +InvR ([ y , g ^ n , ∣ n , refl ∣₁ ]) ⟩
 
                         0r ∎
 

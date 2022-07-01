@@ -8,7 +8,7 @@ This file contains:
 
 - Lemmas for going back and forth between Path and Id
 
-- Function extensionality for Id
+- Function extesionality for Id
 
 - fiber, isContr, equiv all defined using Id
 
@@ -49,9 +49,7 @@ open import Cubical.Foundations.Univalence
   renaming ( EquivContr   to EquivContrPath )
 open import Cubical.Foundations.Isomorphism
 open import Cubical.HITs.PropositionalTruncation public
-  renaming ( squash to squashPath
-           ; rec to recPropTruncPath
-           ; elim to elimPropTruncPath )
+  renaming (rec to recPropTruncPath ; elim to elimPropTruncPath )
 open import Cubical.Core.Id public
   using (Id; ⟨_,_⟩; faceId; pathId; elimId; _≡_)
 
@@ -274,14 +272,14 @@ EquivContr {ℓ = ℓ} A = helper1 f1 f2 f12 (EquivContrPath A)
 
 -- Propositional truncation
 
-∥∥-isProp : ∀ (x y : ∥ A ∥) → x ≡ y
-∥∥-isProp x y = pathToId (squashPath x y)
+∥∥-isProp : ∀ (x y : ∥ A ∥₁) → x ≡ y
+∥∥-isProp x y = pathToId (squash₁ x y)
 
-∥∥-recursion : ∀ {A : Type ℓ} {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥ → P
+∥∥-recursion : ∀ {A : Type ℓ} {P : Type ℓ} → isProp P → (A → P) → ∥ A ∥₁ → P
 ∥∥-recursion Pprop f x = recPropTruncPath (isPropToIsPropPath Pprop) f x
 
-∥∥-induction : ∀ {A : Type ℓ} {P : ∥ A ∥ → Type ℓ} → ((a : ∥ A ∥) → isProp (P a)) →
-                ((x : A) → P ∣ x ∣) → (a : ∥ A ∥) → P a
+∥∥-induction : ∀ {A : Type ℓ} {P : ∥ A ∥₁ → Type ℓ} → ((a : ∥ A ∥₁) → isProp (P a)) →
+                ((x : A) → P ∣ x ∣₁) → (a : ∥ A ∥₁) → P a
 ∥∥-induction Pprop f x = elimPropTruncPath (λ a → isPropToIsPropPath (Pprop a)) f x
 
 

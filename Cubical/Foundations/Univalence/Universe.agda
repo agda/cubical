@@ -44,13 +44,13 @@ module UU-Lemmas where
   reg {A} i z = transp (λ _ → A) i z
 
   nu : ∀ x y → x ≡ y → El x ≃ El y
-  nu x y p = transportEquiv (cong El p)
+  nu x y p = pathToEquiv (cong El p)
 
   cong-un-te
     : ∀ x y (p : El x ≡ El y)
-    → cong El (un x y (transportEquiv p)) ≡ p
+    → cong El (un x y (pathToEquiv p)) ≡ p
   cong-un-te x y p
-    = comp (transportEquiv p) ∙ uaTransportη p
+    = comp (pathToEquiv p) ∙ uaTransportη p
 
   nu-un : ∀ x y (e : El x ≃ El y) → nu x y (un x y e) ≡ e
   nu-un x y e
@@ -94,7 +94,7 @@ equivIso s t .leftInv = un-nu s t
 
 pathIso : ∀ s t → Iso (s ≡ t) (El s ≡ El t)
 pathIso s t .fun = cong El
-pathIso s t .inv = un s t ∘ transportEquiv
+pathIso s t .inv = un s t ∘ pathToEquiv
 pathIso s t .rightInv = cong-un-te s t
 pathIso s t .leftInv = un-nu s t
 

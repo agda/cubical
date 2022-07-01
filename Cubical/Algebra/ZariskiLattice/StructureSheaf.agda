@@ -1,7 +1,8 @@
 {-
 
-   This module defines the basic opens of the Zariski lattice and proves that they're a basis of the lattice.
-   It also contains the construction of the structure presheaf and a proof of the sheaf property on basic opens,
+   This module defines the basic opens of the Zariski lattice and proves that
+   they're a basis of the lattice. It also contains the construction of the
+   structure presheaf and a proof of the sheaf property on basic opens,
    using the theory developed in the module PreSheafFromUniversalProp and its toSheaf.lemma.
    Note that the structure sheaf is a functor into R-algebras and not just commutative rings.
 
@@ -22,7 +23,7 @@ open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence)
                                          renaming (_∈_ to _∈ₚ_ ; subst-∈ to subst-∈ₚ)
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (_≤_)
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
@@ -52,7 +53,7 @@ open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Algebra.CommRingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
@@ -67,7 +68,7 @@ open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Instances.CommAlgebras
 open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.Semilattice
-open import Cubical.Categories.DistLatticeSheaf
+open import Cubical.Categories.DistLatticeSheaf.Base
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -113,14 +114,14 @@ module _ (R' : CommRing ℓ) where
  BO = Σ[ 𝔞 ∈ ZL ] (𝔞 ∈ₚ BasicOpens)
 
  basicOpensAreBasis : IsBasis ZariskiLattice BasicOpens
- contains1 basicOpensAreBasis = ∣ 1r , isZarMapD .pres1 ∣
+ contains1 basicOpensAreBasis = ∣ 1r , isZarMapD .pres1 ∣₁
  ∧lClosed basicOpensAreBasis 𝔞 𝔟 = map2
             λ (f , Df≡𝔞) (g , Dg≡𝔟) → (f · g) , isZarMapD .·≡∧ f g ∙ cong₂ (_∧z_) Df≡𝔞 Dg≡𝔟
  ⋁Basis basicOpensAreBasis = elimProp (λ _ → isPropPropTrunc) Σhelper
   where
   Σhelper : (a : Σ[ n ∈ ℕ ] FinVec R n)
           → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec ZL n ] (∀ i → α i ∈ₚ BasicOpens) × (⋁ α ≡ [ a ])
-  Σhelper (n , α) = ∣ n , (D ∘ α) , (λ i → ∣ α i , refl ∣) , path ∣
+  Σhelper (n , α) = ∣ n , (D ∘ α) , (λ i → ∣ α i , refl ∣₁) , path ∣₁
    where
    path : ⋁ (D ∘ α) ≡ [ n , α ]
    path = funExt⁻ (cong fst ZLUniversalPropCorollary) _
@@ -148,7 +149,7 @@ module _ (R' : CommRing ℓ) where
              → 𝔞 ≤ 𝔟 → isContr (CommAlgebraHom R[1/ g ]AsCommAlgebra R[1/ f ]AsCommAlgebra)
    contrHoms 𝔞 𝔟 f g p q 𝔞≤𝔟 = R[1/g]HasAlgUniversalProp R[1/ f ]AsCommAlgebra
      λ s s∈[gⁿ|n≥0] → subst-∈ₚ (R[1/ f ]AsCommRing ˣ)
-       (sym (·Rid (s /1))) --can't apply the lemma directly as we get mult with 1 somewhere
+       (sym (·IdR (s /1))) --can't apply the lemma directly as we get mult with 1 somewhere
          (RadicalLemma.toUnit R' f g f∈√⟨g⟩ s s∈[gⁿ|n≥0])
     where
     open AlgLoc R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
@@ -180,7 +181,8 @@ module _ (R' : CommRing ℓ) where
  open SheafOnBasis ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ})
                    (TerminalCommAlgebra R') BasicOpens basicOpensAreBasis
 
- isSheafBasisStructurePShf : isDLBasisSheaf BasisStructurePShf
+ -- only proof for weak notion of sheaf on a basis
+ isSheafBasisStructurePShf : isDLBasisSheafPullback BasisStructurePShf
  fst isSheafBasisStructurePShf 0∈BO =
    transport (λ i → F-ob (0z , canonical0∈BO≡0∈BO i) ≡ UnitCommAlgebra R') R[1/0]≡0
    where
@@ -189,7 +191,7 @@ module _ (R' : CommRing ℓ) where
     _ = BasisStructurePShf
 
    canonical0∈BO : 0z ∈ₚ BasicOpens
-   canonical0∈BO = ∣ 0r , isZarMapD .pres0 ∣
+   canonical0∈BO = ∣ 0r , isZarMapD .pres0 ∣₁
 
    canonical0∈BO≡0∈BO : canonical0∈BO ≡ 0∈BO
    canonical0∈BO≡0∈BO = BasicOpens 0z .snd _ _
@@ -236,29 +238,29 @@ module _ (R' : CommRing ℓ) where
    -- write everything explicitly so things can type-check
    thePShfCospan : (a : Σ[ f ∈ R ] D f ≡ 𝔞) (b : Σ[ g ∈ R ] D g ≡ 𝔟)
                  → Cospan (CommAlgebrasCategory R')
-   Cospan.l (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-ob (𝔟 , ∣ g , Dg≡𝔟 ∣)
+   Cospan.l (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-ob (𝔟 , ∣ g , Dg≡𝔟 ∣₁)
    Cospan.m (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-ob
-            (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)
-   Cospan.r (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-ob (𝔞 , ∣ f , Df≡𝔞 ∣)
+            (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣₁ ∣ g , Dg≡𝔟 ∣₁)
+   Cospan.r (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-ob (𝔞 , ∣ f , Df≡𝔞 ∣₁)
    Cospan.s₁ (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-hom
-             {x = (𝔟 , ∣ g , Dg≡𝔟 ∣)}
-             {y = (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)}
+             {x = (𝔟 , ∣ g , Dg≡𝔟 ∣₁)}
+             {y = (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣₁ ∣ g , Dg≡𝔟 ∣₁)}
              (hom-∧₂  ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ}) (TerminalCommAlgebra R') 𝔞 𝔟)
    Cospan.s₂ (thePShfCospan (f , Df≡𝔞) (g , Dg≡𝔟)) = BasisStructurePShf .Functor.F-hom
-             {x = (𝔞 , ∣ f , Df≡𝔞 ∣)}
-             {y = (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)}
+             {x = (𝔞 , ∣ f , Df≡𝔞 ∣₁)}
+             {y = (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣₁ ∣ g , Dg≡𝔟 ∣₁)}
              (hom-∧₁  ZariskiLattice (CommAlgebrasCategory R' {ℓ' = ℓ}) (TerminalCommAlgebra R') 𝔞 𝔟)
 
 
    Σhelper : (a : Σ[ f ∈ R ] D f ≡ 𝔞) (b : Σ[ g ∈ R ] D g ≡ 𝔟) (c : Σ[ h ∈ R ] D h ≡ 𝔞 ∨z 𝔟)
            → isPullback (CommAlgebrasCategory R') (thePShfCospan a b) _ _
-                        (BFsq (𝔞 , ∣ a ∣) (𝔟 , ∣ b ∣) ∣ c ∣ BasisStructurePShf)
+                        (BFsq (𝔞 , ∣ a ∣₁) (𝔟 , ∣ b ∣₁) ∣ c ∣₁ BasisStructurePShf)
    Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = toSheaf.lemma
-           (𝔞 ∨z 𝔟 , ∣ h , Dh≡𝔞∨𝔟 ∣)
-           (𝔞 , ∣ f , Df≡𝔞 ∣)
-           (𝔟 , ∣ g , Dg≡𝔟 ∣)
-           (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣ ∣ g , Dg≡𝔟 ∣)
-           (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣) (𝔟 , ∣ g , Dg≡𝔟 ∣) ∣ h , Dh≡𝔞∨𝔟 ∣)
+           (𝔞 ∨z 𝔟 , ∣ h , Dh≡𝔞∨𝔟 ∣₁)
+           (𝔞 , ∣ f , Df≡𝔞 ∣₁)
+           (𝔟 , ∣ g , Dg≡𝔟 ∣₁)
+           (𝔞 ∧z 𝔟 , basicOpensAreBasis .∧lClosed 𝔞 𝔟 ∣ f , Df≡𝔞 ∣₁ ∣ g , Dg≡𝔟 ∣₁)
+           (Bsq (𝔞 , ∣ f , Df≡𝔞 ∣₁) (𝔟 , ∣ g , Dg≡𝔟 ∣₁) ∣ h , Dh≡𝔞∨𝔟 ∣₁)
            theAlgebraCospan theAlgebraPullback refl gPath fPath fgPath
     where
     open Exponentiation R'
@@ -310,13 +312,13 @@ module _ (R' : CommRing ℓ) where
        helper3 (α , p) = β , path
         where
         β : FinVec R[1/ h ] 2
-        β zero = [ α zero , h ^ n , ∣ n , refl ∣ ]
-        β (suc zero) = [ α (suc zero) , h ^ n , ∣ n , refl ∣ ]
+        β zero = [ α zero , h ^ n , ∣ n , refl ∣₁ ]
+        β (suc zero) = [ α (suc zero) , h ^ n , ∣ n , refl ∣₁ ]
 
         path : 1r ≡ linearCombination R[1/ h ]AsCommRing β
                                       λ { zero → f /1 ; (suc zero) → g /1 }
-        path = eq/ _ _ ((1r , ∣ 0 , refl ∣) , bigPath)
-             ∙ cong (β zero · (f /1) +_) (sym (+Rid (β (suc zero) · (g /1))))
+        path = eq/ _ _ ((1r , ∣ 0 , refl ∣₁) , bigPath)
+             ∙ cong (β zero · (f /1) +_) (sym (+IdR (β (suc zero) · (g /1))))
          where
          useSolver1 : ∀ hn → 1r · 1r · ((hn · 1r) · (hn · 1r)) ≡ hn · hn
          useSolver1 = solve R'
@@ -371,19 +373,19 @@ module _ (R' : CommRing ℓ) where
 
     open IsRingHom
     /1/1AsCommRingHomFG : CommRingHom R' R[1/h][1/fg]AsCommRing
-    fst /1/1AsCommRingHomFG r = [ [ r , 1r , ∣ 0 , refl ∣ ] , 1r , ∣ 0 , refl ∣ ]
+    fst /1/1AsCommRingHomFG r = [ [ r , 1r , ∣ 0 , refl ∣₁ ] , 1r , ∣ 0 , refl ∣₁ ]
     pres0 (snd /1/1AsCommRingHomFG) = refl
     pres1 (snd /1/1AsCommRingHomFG) = refl
     pres+ (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-×
                                          (cong₂ _+_ (useSolver x) (useSolver y))
                                          (Σ≡Prop (λ _ → isPropPropTrunc) (useSolver 1r))))
-                                         (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r))))
+                                         (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
       where
       useSolver : ∀ a → a ≡ a · 1r · (1r · 1r)
       useSolver = solve R'
     pres· (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-× refl
-                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r)))))
-                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·Rid 1r))))
+                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r)))))
+                                            (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
     pres- (snd /1/1AsCommRingHomFG) x = refl
 
     open Cospan
@@ -397,15 +399,15 @@ module _ (R' : CommRing ℓ) where
 
     isRHomR[1/h][1/f]→R[1/h][1/fg] : theRingCospan .s₂ ∘r /1/1AsCommRingHom f ≡ /1/1AsCommRingHomFG
     isRHomR[1/h][1/f]→R[1/h][1/fg] = RingHom≡ (funExt
-      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·Rid x)
-          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r))))
-          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r)))))
+      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
 
     isRHomR[1/h][1/g]→R[1/h][1/fg] : theRingCospan .s₁ ∘r /1/1AsCommRingHom g ≡ /1/1AsCommRingHomFG
     isRHomR[1/h][1/g]→R[1/h][1/fg] = RingHom≡ (funExt
-      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·Rid x)
-          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r))))
-          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·Rid 1r)))))
+      (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
+          (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
 
 
     open PullbackFromCommRing R' theRingCospan theRingPullback

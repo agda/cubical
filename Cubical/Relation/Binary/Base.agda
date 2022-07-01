@@ -23,8 +23,8 @@ PropRel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-s
 PropRel A B ℓ' = Σ[ R ∈ Rel A B ℓ' ] ∀ a b → isProp (R a b)
 
 idPropRel : ∀ {ℓ} (A : Type ℓ) → PropRel A A ℓ
-idPropRel A .fst a a' = ∥ a ≡ a' ∥
-idPropRel A .snd _ _ = squash
+idPropRel A .fst a a' = ∥ a ≡ a' ∥₁
+idPropRel A .snd _ _ = squash₁
 
 invPropRel : ∀ {ℓ ℓ'} {A B : Type ℓ}
   → PropRel A B ℓ' → PropRel B A ℓ'
@@ -33,8 +33,8 @@ invPropRel R .snd b a = R .snd a b
 
 compPropRel : ∀ {ℓ ℓ' ℓ''} {A B C : Type ℓ}
   → PropRel A B ℓ' → PropRel B C ℓ'' → PropRel A C (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
-compPropRel R S .fst a c = ∥ Σ[ b ∈ _ ] (R .fst a b × S .fst b c) ∥
-compPropRel R S .snd _ _ = squash
+compPropRel R S .fst a c = ∥ Σ[ b ∈ _ ] (R .fst a b × S .fst b c) ∥₁
+compPropRel R S .snd _ _ = squash₁
 
 graphRel : ∀ {ℓ} {A B : Type ℓ} → (A → B) → Rel A B ℓ
 graphRel f a b = f a ≡ b

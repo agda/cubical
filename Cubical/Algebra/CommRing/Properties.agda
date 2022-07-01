@@ -42,12 +42,12 @@ module Units (R' : CommRing ℓ) where
  inverseUniqueness r (r' , rr'≡1) (r'' , rr''≡1) = Σ≡Prop (λ _ → is-set _ _) path
   where
   path : r' ≡ r''
-  path = r'             ≡⟨ sym (·Rid _) ⟩
+  path = r'             ≡⟨ sym (·IdR _) ⟩
          r' · 1r        ≡⟨ cong (r' ·_) (sym rr''≡1) ⟩
          r' · (r · r'') ≡⟨ ·Assoc _ _ _ ⟩
          (r' · r) · r'' ≡⟨ cong (_· r'') (·Comm _ _) ⟩
          (r · r') · r'' ≡⟨ cong (_· r'') rr'≡1 ⟩
-         1r · r''       ≡⟨ ·Lid _ ⟩
+         1r · r''       ≡⟨ ·IdL _ ⟩
          r''            ∎
 
 
@@ -77,19 +77,19 @@ module Units (R' : CommRing ℓ) where
          r' · r · (r ⁻¹ · r' ⁻¹) ≡⟨ ·Assoc _ _ _ ⟩
          r' · r · r ⁻¹ · r' ⁻¹   ≡⟨ cong (_· r' ⁻¹) (sym (·Assoc _ _ _)) ⟩
          r' · (r · r ⁻¹) · r' ⁻¹ ≡⟨ cong (λ x → r' · x · r' ⁻¹) (·-rinv _) ⟩
-         r' · 1r · r' ⁻¹         ≡⟨ cong (_· r' ⁻¹) (·Rid _) ⟩
+         r' · 1r · r' ⁻¹         ≡⟨ cong (_· r' ⁻¹) (·IdR _) ⟩
          r' · r' ⁻¹              ≡⟨ ·-rinv _ ⟩
          1r ∎
 
  RˣContainsOne : 1r ∈ Rˣ
- RˣContainsOne = 1r , ·Lid _
+ RˣContainsOne = 1r , ·IdL _
 
  RˣInvClosed : (r : R) ⦃ _ : r ∈ Rˣ ⦄ → r ⁻¹ ∈ Rˣ
  RˣInvClosed r = r , ·-linv _
 
  UnitsAreNotZeroDivisors : (r : R) ⦃ _ : r ∈ Rˣ ⦄
                          → ∀ r' → r' · r ≡ 0r → r' ≡ 0r
- UnitsAreNotZeroDivisors r r' p = r'              ≡⟨ sym (·Rid _) ⟩
+ UnitsAreNotZeroDivisors r r' p = r'              ≡⟨ sym (·IdR _) ⟩
                                   r' · 1r         ≡⟨ cong (r' ·_) (sym (·-rinv _)) ⟩
                                   r' · (r · r ⁻¹) ≡⟨ ·Assoc _ _ _ ⟩
                                   r' · r · r ⁻¹   ≡⟨ cong (_· r ⁻¹) p ⟩
@@ -99,12 +99,12 @@ module Units (R' : CommRing ℓ) where
 
  -- laws keeping the instance arguments
  1⁻¹≡1 : ⦃ 1∈Rˣ' : 1r ∈ Rˣ ⦄ → 1r ⁻¹ ≡ 1r
- 1⁻¹≡1 ⦃ 1∈Rˣ' ⦄ = (sym (·Lid _)) ∙ 1∈Rˣ' .snd
+ 1⁻¹≡1 ⦃ 1∈Rˣ' ⦄ = (sym (·IdL _)) ∙ 1∈Rˣ' .snd
 
  ⁻¹-dist-· : (r r' : R) ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄ ⦃ rr'∈Rˣ : (r · r') ∈ Rˣ ⦄
            → (r · r') ⁻¹ ≡ r ⁻¹ · r' ⁻¹
  ⁻¹-dist-· r r' ⦃ r∈Rˣ ⦄ ⦃ r'∈Rˣ ⦄ ⦃ rr'∈Rˣ ⦄ =
-                 sym path ∙∙ cong (r ⁻¹ · r' ⁻¹ ·_) (rr'∈Rˣ .snd) ∙∙ (·Rid _)
+                 sym path ∙∙ cong (r ⁻¹ · r' ⁻¹ ·_) (rr'∈Rˣ .snd) ∙∙ (·IdR _)
   where
   path : r ⁻¹ · r' ⁻¹ · (r · r' · (r · r') ⁻¹) ≡ (r · r') ⁻¹
   path = r ⁻¹ · r' ⁻¹ · (r · r' · (r · r') ⁻¹)
@@ -118,11 +118,11 @@ module Units (R' : CommRing ℓ) where
          r ⁻¹ · (r' ⁻¹ · r' · r) · (r · r') ⁻¹
        ≡⟨ cong (λ x → r ⁻¹ · (x · r) · (r · r') ⁻¹) (·-linv _) ⟩
          r ⁻¹ · (1r · r) · (r · r') ⁻¹
-       ≡⟨ cong (λ x → r ⁻¹ · x · (r · r') ⁻¹) (·Lid _) ⟩
+       ≡⟨ cong (λ x → r ⁻¹ · x · (r · r') ⁻¹) (·IdL _) ⟩
          r ⁻¹ · r · (r · r') ⁻¹
        ≡⟨ cong (_· (r · r') ⁻¹) (·-linv _) ⟩
          1r · (r · r') ⁻¹
-       ≡⟨ ·Lid _ ⟩
+       ≡⟨ ·IdL _ ⟩
          (r · r') ⁻¹ ∎
 
  unitCong : {r r' : R} → r ≡ r' → ⦃ r∈Rˣ : r ∈ Rˣ ⦄ ⦃ r'∈Rˣ : r' ∈ Rˣ ⦄ → r ⁻¹ ≡ r' ⁻¹
@@ -133,7 +133,7 @@ module Units (R' : CommRing ℓ) where
  ⁻¹-eq-elim {r = r} {r'' = r''} p = cong (_· r ⁻¹) p
                                   ∙ sym (·Assoc _ _ _)
                                   ∙ cong (r'' ·_) (·-rinv _)
-                                  ∙ ·Rid _
+                                  ∙ ·IdR _
 
 
 -- some convenient notation
@@ -187,13 +187,17 @@ module CommRingEquivs where
  fst (invCommRingEquiv A B e) = invEquiv (fst e)
  snd (invCommRingEquiv A B e) = isRingHomInv e
 
+ idCommRingEquiv : (A : CommRing ℓ) → CommRingEquiv A A
+ fst (idCommRingEquiv A) = idEquiv (fst A)
+ snd (idCommRingEquiv A) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+
 module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
  private A = fst A'
  open CommRingStr (snd A') renaming (_·_ to _·A_ ; 1r to 1a)
  open Units B' renaming (Rˣ to Bˣ ; _⁻¹ to _⁻¹ᵇ ; ·-rinv to ·B-rinv)
  open CommRingStr (snd B') renaming  ( _·_ to _·B_ ; 1r to 1b
-                                     ; ·Lid to ·B-lid ; ·Rid to ·B-rid
+                                     ; ·IdL to ·B-lid ; ·IdR to ·B-rid
                                      ; ·Assoc to ·B-assoc)
 
  private
@@ -230,14 +234,14 @@ module Exponentiation (R' : CommRing ℓ) where
  -- and prove some laws
  1ⁿ≡1 : (n : ℕ) → 1r ^ n ≡ 1r
  1ⁿ≡1 zero = refl
- 1ⁿ≡1 (suc n) = ·Lid _ ∙ 1ⁿ≡1 n
+ 1ⁿ≡1 (suc n) = ·IdL _ ∙ 1ⁿ≡1 n
 
  ·-of-^-is-^-of-+ : (f : R) (m n : ℕ) → (f ^ m) · (f ^ n) ≡ f ^ (m +ℕ n)
- ·-of-^-is-^-of-+ f zero n = ·Lid _
+ ·-of-^-is-^-of-+ f zero n = ·IdL _
  ·-of-^-is-^-of-+ f (suc m) n = sym (·Assoc _ _ _) ∙ cong (f ·_) (·-of-^-is-^-of-+ f m n)
 
  ^-ldist-· : (f g : R) (n : ℕ) → (f · g) ^ n ≡ (f ^ n) · (g ^ n)
- ^-ldist-· f g zero = sym (·Lid 1r)
+ ^-ldist-· f g zero = sym (·IdL 1r)
  ^-ldist-· f g (suc n) = path
   where
   path : f · g · ((f · g) ^ n) ≡ f · (f ^ n) · (g · (g ^ n))
@@ -342,7 +346,7 @@ recPT→CommRing : {A : Type ℓ'} (𝓕  : A → CommRing ℓ)
            → (σ : ∀ x y → CommRingEquiv (𝓕 x) (𝓕 y))
            → (∀ x y z → σ x z ≡ compCommRingEquiv (σ x y) (σ y z))
           ------------------------------------------------------
-           → ∥ A ∥ → CommRing ℓ
+           → ∥ A ∥₁ → CommRing ℓ
 recPT→CommRing 𝓕 σ compCoh = GpdElim.rec→Gpd isGroupoidCommRing 𝓕
   (3-ConstantCompChar 𝓕 (λ x y → uaCommRing (σ x y))
                           λ x y z → sym (  cong uaCommRing (compCoh x y z)
