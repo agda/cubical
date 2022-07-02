@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.MonoidSolver.MonoidExpression where
+module Cubical.Tactics.MonoidSolver.MonoidExpression where
 
 open import Cubical.Foundations.Prelude
 

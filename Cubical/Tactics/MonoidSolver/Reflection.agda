@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Algebra.MonoidSolver.Reflection where
+module Cubical.Tactics.MonoidSolver.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)
 
@@ -19,9 +19,9 @@ open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷
 
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.CommMonoid.Base
-open import Cubical.Algebra.MonoidSolver.Solver renaming (solve to naiveSolve)
-open import Cubical.Algebra.MonoidSolver.CommSolver renaming (solve to naiveCommSolve)
-open import Cubical.Algebra.MonoidSolver.MonoidExpression
+open import Cubical.Tactics.MonoidSolver.Solver renaming (solve to naiveSolve)
+open import Cubical.Tactics.MonoidSolver.CommSolver renaming (solve to naiveCommSolve)
+open import Cubical.Tactics.MonoidSolver.MonoidExpression
 
 private
   variable
