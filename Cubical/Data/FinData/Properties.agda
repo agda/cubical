@@ -192,7 +192,20 @@ punchIn {n = n} v a l k with discreteℕ (toℕ l) (toℕ k)
 ...                 | (suc x) = v x
 ...                 | zero    = ⊥.rec (l≠k (≤0→≡0 l≤k))
 
+punchInCompute : {A : Type ℓ} {n : ℕ} → (u : FinVec A n) → (a : A) → (i : Fin n)
+                 → (punchIn u a i) (weakenFin i) ≡ a
+punchInCompute u a i with discreteℕ (toℕ i) (toℕ i)
+... | yes i≡i = {!!}
+... | no i≠i = ⊥.rec (i≠i refl)
 
+punchInIso : {A : Type ℓ} {n : ℕ} (i : Fin n) (a : A)
+  → Iso (FinVec A n) (Σ[ v ∈ (FinVec A (ℕ.suc n)) ] (v (weakenFin i)) ≡ a)
+Iso.fun (punchInIso i a)       u = punchIn u a i , {!!}
+Iso.inv (punchInIso i a) (v , p) = {!!}
+Iso.rightInv (punchInIso i a)    = {!!}
+Iso.leftInv (punchInIso i a)     = {!!}
+
+{-
 ++FinAssoc : {n m k : ℕ} (U : FinVec A n) (V : FinVec A m) (W : FinVec A k)
            → PathP (λ i → FinVec A (+-assoc n m k i)) (U ++Fin (V ++Fin W)) ((U ++Fin V) ++Fin W)
 ++FinAssoc {n = ℕzero} _ _ _ = refl
@@ -327,3 +340,4 @@ module FinProdChar where
     helper (inl p) (inl q) = inl λ { zero j → p j ; (suc i) j → q i j }
     helper (inl _) (inr q) = inr (suc (q .fst) , q .snd .fst , q .snd .snd)
     helper (inr p) _ = inr (zero , p)
+-}
