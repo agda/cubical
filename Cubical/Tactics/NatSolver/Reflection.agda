@@ -6,7 +6,7 @@
   Boilerplate code for calling the ring solver is constructed automatically
   with agda's reflection features.
 -}
-module Cubical.Algebra.NatSolver.Reflection where
+module Cubical.Tactics.NatSolver.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)
 open import Cubical.Functions.Logic
@@ -26,8 +26,8 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
-open import Cubical.Algebra.NatSolver.NatExpression
-open import Cubical.Algebra.NatSolver.Solver
+open import Cubical.Tactics.NatSolver.NatExpression
+open import Cubical.Tactics.NatSolver.Solver
 
 open EqualityToNormalform renaming (solve to natSolve)
 private
