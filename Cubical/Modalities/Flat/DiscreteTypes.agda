@@ -1,7 +1,8 @@
 {-
   This files shows that a couple of types are crisply discrete,
   where 'discrete' should not be confused with types, that have
-  decidable equality types (even though there are relations).
+  decidable equality types. There is an inclusion of decidable types
+  into discrete types in real cohesive HoTT, though.
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Modalities.Flat.DiscreteTypes where

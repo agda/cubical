@@ -14,10 +14,13 @@ open import Cubical.Foundations.Prelude
   that `A` is crisp.
 -}
 
-private
-  variable
-    @♭ ♭ℓ : Level
-    ℓ ℓ' : Level
+private variable
+  {-
+    Variable generalization mostly doesn't work for crisp contexts,
+    so the crisp levels are not used too much.
+  -}
+  @♭ ♭ℓ : Level
+  ℓ ℓ' : Level
 
 data ♭ (@♭ A : Type ♭ℓ) : Type ♭ℓ where
     _^♭ : (@♭ a : A) → ♭ A
