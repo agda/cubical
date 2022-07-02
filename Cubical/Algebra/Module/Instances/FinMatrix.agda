@@ -13,7 +13,7 @@ open import Cubical.Algebra.Matrix
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Module
 
-open import Cubical.Algebra.Module.Instances.VecFin
+open import Cubical.Algebra.Module.Instances.FinVec
 
 module _ {ℓ} (R : Ring ℓ) {m n : ℕ} where
 
