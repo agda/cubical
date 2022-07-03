@@ -61,11 +61,6 @@ module _ {ℓ : Level} {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn 
     injectivePrecomp = Impl.injectivePrecomp A I
 
 module _ {ℓ : Level} {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
-  T : Type ℓ
-  T = CommAlgebraEquiv {ℓ = ℓ} {R = R} {ℓ' = ℓ} {ℓ'' = ℓ} (A Impl./ (1Ideal A)) (UnitCommAlgebra R)
-
-  oneIdealQuotient-0 : T
-  oneIdealQuotient-0 = Impl.oneIdealQuotient A
 
   abstract
     oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal A)) (UnitCommAlgebra R {ℓ' = ℓ})
