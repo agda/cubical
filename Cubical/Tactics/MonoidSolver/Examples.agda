@@ -1,12 +1,11 @@
 {-# OPTIONS --safe #-}
-
-module Cubical.Algebra.MonoidSolver.Examples where
+module Cubical.Tactics.MonoidSolver.Examples where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.CommMonoid.Base
-open import Cubical.Algebra.MonoidSolver.Reflection
+open import Cubical.Tactics.MonoidSolver.Reflection
 
 private
   variable
