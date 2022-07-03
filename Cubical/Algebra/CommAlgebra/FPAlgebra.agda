@@ -458,3 +458,7 @@ module Instances (R : CommRing ℓ) where
         toFrom : toA ∘a fromA ≡ idCAlgHom R/⟨xs⟩
         toFrom = injectivePrecomp (initialCAlg R) ⟨xs⟩ R/⟨xs⟩ (toA ∘a fromA) (idCAlgHom R/⟨xs⟩)
                    (isContr→isProp (initialityContr R R/⟨xs⟩) _ _)
+
+  module _ {m : ℕ} (x : ⟨ R ⟩) where
+    R/⟨x⟩FP : FinitePresentation (initialCAlg R / generatedIdeal (initialCAlg R) (replicateFinVec 1 x))
+    R/⟨x⟩FP = R/⟨xs⟩FP (replicateFinVec 1 x)
