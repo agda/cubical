@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRingSolver.RawAlgebra where
+module Cubical.Tactics.CommRingSolver.RawAlgebra where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat using (ℕ)
@@ -15,8 +15,8 @@ open import Cubical.Data.Int
   ; ·DistR+ to ·ℤDistR+
   ; ·DistL+ to ·ℤDistL+)
 
-open import Cubical.Algebra.CommRingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
-open import Cubical.Algebra.CommRingSolver.IntAsRawRing
+open import Cubical.Tactics.CommRingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
+open import Cubical.Tactics.CommRingSolver.IntAsRawRing
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 

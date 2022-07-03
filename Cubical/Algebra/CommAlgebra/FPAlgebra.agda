@@ -356,88 +356,91 @@ module Instances (R : CommRing ℓ) where
   equiv terminalCAlgFP = equivFrom1≡0 R R[⊥]/⟨1⟩ (sym (⋆IdL 1a) ∙ relationsHold 0 unitGen zero)
     where open CommAlgebraStr (snd R[⊥]/⟨1⟩)
 
-  {-
-    Quotients of the base ring by principal ideals are finitely presented.
-  -}
-  module _ (x : ⟨ R ⟩) where
-    ⟨x⟩ : IdealsIn (initialCAlg R)
-    ⟨x⟩ = generatedIdeal (initialCAlg R) (replicateFinVec 1 x)
 
-    R/⟨x⟩ = (initialCAlg R) / ⟨x⟩
+  {-
+    Quotients of the base ring by finitely generated ideals are finitely presented.
+  -}
+  module _ {m : ℕ} (xs : FinVec ⟨ R ⟩ m) where
+    ⟨xs⟩ : IdealsIn (initialCAlg R)
+    ⟨xs⟩ = generatedIdeal (initialCAlg R) xs
+
+    R/⟨xs⟩ = (initialCAlg R) / ⟨xs⟩
 
     open CommAlgebraStr ⦃...⦄
     private
-      relation : FinVec ⟨ Polynomials {R = R} 0 ⟩ 1
-      relation = replicateFinVec 1 (Construction.const x)
+      rels : FinVec ⟨ Polynomials {R = R} 0 ⟩ m
+      rels = Construction.const ∘ xs
 
-      B = FPAlgebra 0 relation
+      B = FPAlgebra 0 rels
 
-      π = quotientHom (initialCAlg R) ⟨x⟩
+      π = quotientHom (initialCAlg R) ⟨xs⟩
       instance
-        _ = snd R/⟨x⟩
+        _ = snd R/⟨xs⟩
         _ = snd (initialCAlg R)
         _ = snd B
 
-      πx≡0 : π $a x ≡ 0a
-      πx≡0 = isZeroFromIdeal {A = initialCAlg R} {I = ⟨x⟩} x
-               (incInIdeal (initialCAlg R) (replicateFinVec 1 x) zero)
+      πxs≡0 : (i : Fin m) → π $a xs i ≡ 0a
+      πxs≡0 i = isZeroFromIdeal {A = initialCAlg R} {I = ⟨xs⟩} (xs i)
+               (incInIdeal (initialCAlg R) xs i)
 
 
-    R/⟨x⟩FP : FinitePresentation R/⟨x⟩
-    n R/⟨x⟩FP = 0
-    m R/⟨x⟩FP = 1
-    relations R/⟨x⟩FP = relation
-    equiv R/⟨x⟩FP = (isoToEquiv (iso (fst toA) (fst fromA)
+
+    R/⟨xs⟩FP : FinitePresentation R/⟨xs⟩
+    n R/⟨xs⟩FP = 0
+    FinitePresentation.m R/⟨xs⟩FP = m
+    relations R/⟨xs⟩FP = rels
+    equiv R/⟨xs⟩FP = (isoToEquiv (iso (fst toA) (fst fromA)
                                     (λ a i → toFrom i $a a)
                                     λ a i → fromTo i $a a))
                    , (snd toA)
       where
-        toA : CommAlgebraHom B R/⟨x⟩
-        toA = inducedHom 0 relation R/⟨x⟩ (λ ()) relation-holds
+        toA : CommAlgebraHom B R/⟨xs⟩
+        toA = inducedHom 0 rels R/⟨xs⟩ (λ ()) relation-holds
           where
-            vals : FinVec ⟨ R/⟨x⟩ ⟩ 0
+            vals : FinVec ⟨ R/⟨xs⟩ ⟩ 0
             vals ()
             vals' : FinVec ⟨ initialCAlg R ⟩ 0
             vals' ()
-            relation-holds = λ zero →
-              evPoly R/⟨x⟩ (relation zero) (λ ())    ≡⟨ sym
-                                                       (evPolyHomomorphic
-                                                         (initialCAlg R)
-                                                          R/⟨x⟩
-                                                          π
-                                                          (Construction.const x)
-                                                          vals') ⟩
+            relation-holds =  λ i →
+               evPoly R/⟨xs⟩ (rels i) vals    ≡⟨ sym
+                                                (evPolyHomomorphic
+                                                  (initialCAlg R)
+                                                     R/⟨xs⟩
+                                                     π
+                                                     (rels i)
+                                                     vals') ⟩
               π $a (evPoly (initialCAlg R)
-                           (Construction.const x)
-                           vals')                   ≡⟨ cong (π $a_) (·IdR x) ⟩
-              π $a x                                ≡⟨ πx≡0 ⟩
-              0a                               ∎
+                           (rels i)
+                           vals')             ≡⟨ cong (π $a_) (·IdR (xs i)) ⟩
+              π $a xs i                       ≡⟨ πxs≡0 i ⟩
+              0a                              ∎
         {-
-            R ─→   R/⟨x⟩
+            R ─→   R/⟨xs⟩
           id↓       ↓ ∃!
-            R ─→   R[⊥]/⟨const x⟩
+            R ─→   R[⊥]/⟨rels⟩
         -}
-        fromA : CommAlgebraHom R/⟨x⟩ B
+
+        fromA : CommAlgebraHom R/⟨xs⟩ B
         fromA =
           quotientInducedHom
             (initialCAlg R)
-            ⟨x⟩
+            ⟨xs⟩
             B
             (initialMap R B)
             (inclOfFGIdeal
               (CommAlgebra→CommRing (initialCAlg R))
-              (replicateFinVec 1 x)
+              xs
               (kernel (initialCAlg R) B (initialMap R B))
-              λ {Fin.zero → relationsHold 0 relation Fin.zero})
+              (relationsHold 0 rels))
 
         open AlgebraHoms
 
         fromTo : fromA ∘a toA ≡ idCAlgHom B
         fromTo = cong fst
-          (isContr→isProp (universal 0 relation B (λ ()) (relationsHold 0 relation))
+          (isContr→isProp (universal 0 rels B (λ ()) (relationsHold 0 rels))
                           (fromA ∘a toA , (λ ()))
                           (idCAlgHom B , (λ ())))
 
-        toFrom : toA ∘a fromA ≡ idCAlgHom R/⟨x⟩
-        toFrom = injectivePrecomp (initialCAlg R) ⟨x⟩ R/⟨x⟩ (toA ∘a fromA) (idCAlgHom R/⟨x⟩)
-                   (isContr→isProp (initialityContr R R/⟨x⟩) _ _)
+        toFrom : toA ∘a fromA ≡ idCAlgHom R/⟨xs⟩
+        toFrom = injectivePrecomp (initialCAlg R) ⟨xs⟩ R/⟨xs⟩ (toA ∘a fromA) (idCAlgHom R/⟨xs⟩)
+                   (isContr→isProp (initialityContr R R/⟨xs⟩) _ _)

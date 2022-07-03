@@ -15,7 +15,7 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Algebra.Monoid.BigOp
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 private
   variable
