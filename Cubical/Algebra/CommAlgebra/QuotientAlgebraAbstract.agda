@@ -1,33 +1,23 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebra.QuotientAlgebraAbstract where
 
--- many unused imports...
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_)
-open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Structure using (⟨_⟩)
 
-open import Cubical.HITs.SetQuotients hiding (_/_)
-open import Cubical.Data.Unit
-open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
-
-open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing using (CommRing)
 import Cubical.Algebra.CommRing.QuotientRing as CommRing
 import Cubical.Algebra.Ring.QuotientRing as Ring
-open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
+open import Cubical.Algebra.CommRing.Ideal using (CommIdeal→Ideal)
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Ideal
-open import Cubical.Algebra.CommAlgebra.Kernel
-open import Cubical.Algebra.CommAlgebra.Instances.Unit
-import Cubical.Algebra.CommAlgebra.QuotientAlgebra as Impl
-open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
-open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Ring.Ideal using (isIdeal)
-open import Cubical.Algebra.CommRingSolver.Reflection
-open import Cubical.Algebra.Algebra.Properties
+open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn; 1Ideal; 0Ideal)
+open import Cubical.Algebra.CommAlgebra.Kernel using (kernel)
+open import Cubical.Algebra.CommAlgebra.Instances.Unit using (UnitCommAlgebra)
+open import Cubical.Algebra.Ring using (RingEquiv)
+open import Cubical.Algebra.Algebra.Properties using (module AlgebraHoms)
 open AlgebraHoms using (compAlgebraHom)
+
+import Cubical.Algebra.CommAlgebra.QuotientAlgebra as Impl
 
 
 -- Note that anonymous modules have a shared abstract scope.
