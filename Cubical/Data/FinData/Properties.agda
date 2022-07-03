@@ -181,29 +181,40 @@ enumElim P k p h f i =
     (pred-≤-pred (subst (λ a → toℕ i < a) (sym h) (toℕ<n i))))
 
 
-punchIn : {A : Type ℓ} {n : ℕ} → FinVec A n → A → Fin n → FinVec A (ℕ.suc n)
-punchIn {n = n} v a l k with discreteℕ (toℕ l) (toℕ k)
-... | yes l≡k = a
-... | no l≠k  with (≤Dec (toℕ l) (toℕ k))
-...         | no  l≰k = v k'
-                     where k' : Fin n
-                           k' = toFin (toℕ k) (<-trans (¬≤-> _ _ l≰k) (toℕ<n l))
-...         | yes l≤k with k
-...                 | (suc x) = v x
-...                 | zero    = ⊥.rec (l≠k (≤0→≡0 l≤k))
+drop : {A : Type ℓ} {n : ℕ} (l : Fin (ℕ.suc n))
+       → FinVec A (ℕ.suc n) → FinVec A n
+drop l v i with (toℕ l) ≟ (toℕ i)
+... | lt l<i = v (suc i)
+... | eq l≡i = v (suc i)
+... | gt i<l = v (toFin (toℕ i) (<-trans i<l (toℕ<n l)))
 
-punchInCompute : {A : Type ℓ} {n : ℕ} → (u : FinVec A n) → (a : A) → (i : Fin n)
-                 → (punchIn u a i) (weakenFin i) ≡ a
-punchInCompute u a i with discreteℕ (toℕ i) (toℕ i)
-... | yes i≡i = {!!}
-... | no i≠i = ⊥.rec (i≠i refl)
+module _ {A : Type ℓ} {n : ℕ} (l : Fin (ℕ.suc n)) (a : A) where
+  private
+    l' = toℕ l
+    l<n+1 : l' < (ℕ.suc n)
+    l<n+1 = toℕ<n l
 
-punchInIso : {A : Type ℓ} {n : ℕ} (i : Fin n) (a : A)
-  → Iso (FinVec A n) (Σ[ v ∈ (FinVec A (ℕ.suc n)) ] (v (weakenFin i)) ≡ a)
-Iso.fun (punchInIso i a)       u = punchIn u a i , {!!}
-Iso.inv (punchInIso i a) (v , p) = {!!}
-Iso.rightInv (punchInIso i a)    = {!!}
-Iso.leftInv (punchInIso i a)     = {!!}
+  insert : FinVec A n → FinVec A (ℕ.suc n)
+  insert v k with l' ≟ (toℕ k)
+  ... | eq l≡k = a
+  ... | gt k<l = v k'
+           where k' : Fin n
+                 k' = toFin (toℕ k) (<-trans k<l {!l<n+1!})
+  ... | lt l<k with k
+  ...          | suc k-1 = v k-1
+  ...          | zero = ⊥.rec (¬-<-zero l<k)
+
+  insertCompute : (v : FinVec A n) → (insert v) l ≡ a
+  insertCompute v with l' ≟ (toℕ l)
+  ... | lt l<l = ⊥.rec (¬m<m (subst ((toℕ l) <_) (weakenRespToℕ l) {!!}))
+  ... | eq l≡l = refl
+  ... | gt l<l = ⊥.rec (¬m<m (subst (_< (toℕ l)) (weakenRespToℕ l) {!!}))
+
+  insertIso : Iso (FinVec A n) (Σ[ u ∈ (FinVec A (ℕ.suc n)) ] (u l) ≡ a)
+  Iso.fun insertIso v = (insert v) , (insertCompute v)
+  Iso.inv insertIso (u , p) = {!drop !}
+  Iso.rightInv insertIso = {!!}
+  Iso.leftInv insertIso = {!!}
 
 {-
 ++FinAssoc : {n m k : ℕ} (U : FinVec A n) (V : FinVec A m) (W : FinVec A k)
