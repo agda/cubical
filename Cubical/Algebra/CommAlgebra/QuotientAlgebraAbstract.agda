@@ -30,6 +30,8 @@ open import Cubical.Algebra.Algebra.Properties
 open AlgebraHoms using (compAlgebraHom)
 
 
+-- Note that anonymous modules have a shared abstract scope.
+
 module _ {ℓ : Level} {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   abstract
     _/_ : CommAlgebra R ℓ
@@ -59,27 +61,25 @@ module _ {ℓ : Level} {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn 
     injectivePrecomp = Impl.injectivePrecomp A I
 
 module _ {ℓ : Level} {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
+  T : Type ℓ
+  T = CommAlgebraEquiv {ℓ = ℓ} {R = R} {ℓ' = ℓ} {ℓ'' = ℓ} (A Impl./ (1Ideal A)) (UnitCommAlgebra R)
+
+  oneIdealQuotient-0 : T
+  oneIdealQuotient-0 = Impl.oneIdealQuotient A
+
   abstract
-{-
-    -- level problems
-    oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal A)) (UnitCommAlgebra R)
+    oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal A)) (UnitCommAlgebra R {ℓ' = ℓ})
     oneIdealQuotient = Impl.oneIdealQuotient A
--}
 
     zeroIdealQuotient : CommAlgebraEquiv A (A / (0Ideal A))
     zeroIdealQuotient = Impl.zeroIdealQuotient A
 
-{-
--- level problems
 abstract
-
   [_]/ : {ℓ : Level} {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
          → (a : fst A) → fst (A / I)
-  [_]/ = Impl.[_]/
--}
+  [_]/ {A = A} {I = I} = Impl.[_]/ {A = A} {I = I}
 
 module _ {ℓ = ℓ} {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
-
   abstract
     kernel≡I : kernel A (A / I) (quotientHom A I) ≡ I
     kernel≡I = Impl.kernel≡I A I
