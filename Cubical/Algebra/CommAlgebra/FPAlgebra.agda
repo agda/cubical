@@ -163,12 +163,13 @@ module _ {R : CommRing ℓ} where
           (inducedHom A values relationsHold)
           f
           (sym (
-           {!f'                                   ≡⟨ sym (inv f') ⟩
+           f'                                    ≡⟨ sym (inv f') ⟩
            freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A)
                                                          (funExt hasCorrectValues) ⟩
-           freeInducedHom A values               ≡⟨ cong (freeInducedHom A) refl ⟩
+           freeInducedHom A values               ≡⟨ cong (freeInducedHom A)
+                                                         (sym (funExt (inducedHomOnGenerators A values relationsHold))) ⟩
            freeInducedHom A (evaluateAt A iHom') ≡⟨ inv iHom' ⟩
-           iHom'                                 ∎!}))
+           iHom'                                 ∎))
         where
           {-
                      Poly n
@@ -237,12 +238,12 @@ module _ {R : CommRing ℓ} where
       Iso.fun FPHomIso = evaluateAtFP
       Iso.inv FPHomIso = inducedHomFP _
       Iso.rightInv (FPHomIso {A}) =
-        λ b → {!Σ≡Prop
+        λ b → Σ≡Prop
                 (λ x → isPropΠ
                   (λ i → isSetCommAlgebra A
                           (evPoly A (relation i) x)
                           (0a (snd A))))
-                refl!}
+                (funExt (inducedHomOnGenerators A (fst b) (snd b)))
       Iso.leftInv (FPHomIso {A}) =
         λ a → Σ≡Prop (λ f → isPropIsCommAlgebraHom {ℓ} {R} {ℓ} {ℓ} {FPAlgebra} {A} f)
                  λ i → fst (unique {A}
