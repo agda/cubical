@@ -47,6 +47,10 @@ const : {B : Type ℓ} → A → B → A
 const x = λ _ → x
 {-# INLINE const #-}
 
+_$_ : ((x : A) → B x) → ∀ x → B x
+f $ x = f x
+{-# INLINE _$_ #-}
+
 case_of_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → (x : A) → (∀ x → B x) → B x
 case x of f = f x
 {-# INLINE case_of_ #-}
