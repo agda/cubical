@@ -30,6 +30,13 @@ private
   variable
     ℓ : Level
 
+{-
+  The definition of the quotient algebra (_/_ below) is marked abstract to avoid
+  long type checking times. All other definitions that need to "look into" this
+  abstract definition must be in the same abstract scope. Note that anonymous
+  modules share an abstract scope but named modules do not.
+-}
+
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where abstract
   open CommRingStr {{...}} hiding (_-_; -_; ·IdL ; ·DistR+) renaming (_·_ to _·R_; _+_ to _+R_)
   open CommAlgebraStr {{...}}
