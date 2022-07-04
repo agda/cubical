@@ -16,6 +16,8 @@ open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
+open import Cubical.Algebra.Core
+
 open Iso
 
 
@@ -30,7 +32,7 @@ private
 --
 -- Note that as we are using Path for all equations the IsMagma record
 -- would only contain isSet A if we had it.
-record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
+record IsSemigroup {A : Type ℓ} (_·_ : Op₂ A) : Type ℓ where
   no-eta-equality
   constructor issemigroup
 
@@ -45,7 +47,7 @@ record SemigroupStr (A : Type ℓ) : Type ℓ where
   constructor semigroupstr
 
   field
-    _·_         : A → A → A
+    _·_         : Op₂ A
     isSemigroup : IsSemigroup _·_
 
   infixl 7 _·_
@@ -55,7 +57,7 @@ record SemigroupStr (A : Type ℓ) : Type ℓ where
 Semigroup : ∀ ℓ → Type (ℓ-suc ℓ)
 Semigroup ℓ = TypeWithStr ℓ SemigroupStr
 
-module _ (A : Type ℓ) (_·_ : A → A → A) (h : IsSemigroup _·_) where
+module _ (A : Type ℓ) (_·_ : Op₂ A) (h : IsSemigroup _·_) where
   semigroup : Semigroup ℓ
   semigroup .fst = A
   semigroup .snd .SemigroupStr._·_ = _·_
@@ -81,7 +83,7 @@ open IsSemigroupEquiv
 SemigroupEquiv : (M N : Semigroup ℓ) → Type ℓ
 SemigroupEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsSemigroupEquiv (M .snd) e (N .snd)
 
-isPropIsSemigroup : {A : Type ℓ} (_·_ : A → A → A) → isProp (IsSemigroup _·_)
+isPropIsSemigroup : {A : Type ℓ} (_·_ : Op₂ A) → isProp (IsSemigroup _·_)
 isPropIsSemigroup _·_ =
   isOfHLevelRetractFromIso 1 IsSemigroupIsoΣ
     (isPropΣ
