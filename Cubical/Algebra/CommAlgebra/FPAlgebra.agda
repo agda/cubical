@@ -133,7 +133,20 @@ module _ {R : CommRing ℓ} where
         (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
         (i : Fin n)
         → fst (inducedHom A values relationsHold) (generator i) ≡ values i
-      inducedHomOnGenerators _ _ _ _ = refl
+      inducedHomOnGenerators A values relationsHold i =
+        cong (λ f → fst f (var i))
+        (inducedHom∘quotientHom (Polynomials n) relationsIdeal A freeHom isInKernel)
+        where
+          -- TODO: this where block is duplicated
+          freeHom : CommAlgebraHom (Polynomials n) A
+          freeHom = freeInducedHom A values
+          isInKernel :   fst (generatedIdeal (Polynomials n) relation)
+                       ⊆ fst (kernel (Polynomials n) A freeHom)
+          isInKernel = inclOfFGIdeal
+                         (CommAlgebra→CommRing (Polynomials n))
+                         relation
+                         (kernel (Polynomials n) A freeHom)
+                         relationsHold
 
       unique :
              {A : CommAlgebra R ℓ}
@@ -150,12 +163,13 @@ module _ {R : CommRing ℓ} where
           (inducedHom A values relationsHold)
           f
           (sym (
-           f'     ≡⟨ sym (inv f') ⟩
+           f'                                    ≡⟨ sym (inv f') ⟩
            freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A)
                                                          (funExt hasCorrectValues) ⟩
-           freeInducedHom A values               ≡⟨ cong (freeInducedHom A) refl ⟩
+           freeInducedHom A values               ≡⟨ cong (freeInducedHom A)
+                                                         (sym (funExt (inducedHomOnGenerators A values relationsHold))) ⟩
            freeInducedHom A (evaluateAt A iHom') ≡⟨ inv iHom' ⟩
-           iHom' ∎))
+           iHom'                                 ∎))
         where
           {-
                      Poly n
@@ -229,7 +243,7 @@ module _ {R : CommRing ℓ} where
                   (λ i → isSetCommAlgebra A
                           (evPoly A (relation i) x)
                           (0a (snd A))))
-                refl
+                (funExt (inducedHomOnGenerators A (fst b) (snd b)))
       Iso.leftInv (FPHomIso {A}) =
         λ a → Σ≡Prop (λ f → isPropIsCommAlgebraHom {ℓ} {R} {ℓ} {ℓ} {FPAlgebra} {A} f)
                  λ i → fst (unique {A}
@@ -444,3 +458,7 @@ module Instances (R : CommRing ℓ) where
         toFrom : toA ∘a fromA ≡ idCAlgHom R/⟨xs⟩
         toFrom = injectivePrecomp (initialCAlg R) ⟨xs⟩ R/⟨xs⟩ (toA ∘a fromA) (idCAlgHom R/⟨xs⟩)
                    (isContr→isProp (initialityContr R R/⟨xs⟩) _ _)
+
+  module _ {m : ℕ} (x : ⟨ R ⟩) where
+    R/⟨x⟩FP : FinitePresentation (initialCAlg R / generatedIdeal (initialCAlg R) (replicateFinVec 1 x))
+    R/⟨x⟩FP = R/⟨xs⟩FP (replicateFinVec 1 x)

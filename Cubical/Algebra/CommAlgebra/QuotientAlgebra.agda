@@ -142,6 +142,11 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where abstr
   pres- (snd (inducedHom B ϕ kernel⊆I)) = elimProp (λ _ → isSetCommAlgebra B _ _) (pres- (snd ϕ))
   pres⋆ (snd (inducedHom B ϕ kernel⊆I)) = λ r → elimProp (λ _ → isSetCommAlgebra B _ _) (pres⋆ (snd ϕ) r)
 
+  inducedHom∘quotientHom : (B : CommAlgebra R ℓ) (ϕ : CommAlgebraHom A B)
+               → (I⊆kerϕ : fst I ⊆ fst (kernel A B ϕ))
+               → inducedHom B ϕ I⊆kerϕ ∘a quotientHom A I ≡ ϕ
+  inducedHom∘quotientHom B ϕ I⊆kerϕ = Σ≡Prop (isPropIsCommAlgebraHom {M = A} {N = B}) (funExt (λ a → refl))
+
   injectivePrecomp : (B : CommAlgebra R ℓ) (f g : CommAlgebraHom (A / I) B)
                      → f ∘a (quotientHom A I) ≡ g ∘a (quotientHom A I)
                      → f ≡ g
