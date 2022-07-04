@@ -30,19 +30,19 @@ private
   variable
     ℓ : Level
 
-module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where abstract
   open CommRingStr {{...}} hiding (_-_; -_; ·IdL ; ·DistR+) renaming (_·_ to _·R_; _+_ to _+R_)
   open CommAlgebraStr {{...}}
   open RingTheory (CommRing→Ring (CommAlgebra→CommRing A)) using (-DistR·)
   instance
-    _ : CommRingStr _
+    _ : CommRingStr ⟨ R ⟩
     _ = snd R
-    _ : CommAlgebraStr _ _
+    _ : CommAlgebraStr R ⟨ A ⟩
     _ = snd A
 
   _/_ : CommAlgebra R ℓ
   _/_ = commAlgebraFromCommRing
-           ((CommAlgebra→CommRing A) CommRing./ I)
+           A/IAsCommRing
            (λ r → elim (λ _ → squash/) (λ x → [ r ⋆ x ]) (eq r))
            (λ r s → elimProp (λ _ → squash/ _ _)
                              λ x i → [ ((r ·R s) ⋆ x ≡⟨ ⋆Assoc r s x ⟩
@@ -60,8 +60,12 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
                                        r ⋆ (x · y) ∎) i ]
 
           where
+                A/IAsCommRing : CommRing ℓ
+                A/IAsCommRing = (CommAlgebra→CommRing A) CommRing./ I
+                [_]/ : ⟨ A ⟩ → ⟨ A/IAsCommRing ⟩
+                [_]/ = CommRing.[_]/ {R = CommAlgebra→CommRing A} {I = I}
                 open CommIdeal using (isCommIdeal)
-                eq : (r : fst R) (x y : fst A) → x - y ∈ (fst I) →  [ r ⋆ x ] ≡ [ r ⋆ y ]
+                eq : (r : fst R) (x y : fst A) → x - y ∈ (fst I) → [ r ⋆ x ]/ ≡ [ r ⋆ y ]/
                 eq r x y x-y∈I = eq/ _ _
                   (subst (λ u → u ∈ fst I)
                   ((r ⋆ 1a) · (x - y)               ≡⟨ ·DistR+ (r ⋆ 1a) x (- y) ⟩
@@ -69,7 +73,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
                     (r ⋆ 1a) · x - (r ⋆ 1a) · y     ≡[ i ]⟨ ⋆AssocL r 1a x i
                                                             - ⋆AssocL r 1a y i ⟩
                     r ⋆ (1a · x) - r ⋆ (1a · y)     ≡[ i ]⟨ r ⋆ (·IdL x i) - r ⋆ (·IdL y i) ⟩
-                    r ⋆ x - r ⋆ y ∎ )
+                    r ⋆ x - r ⋆ y                   ∎ )
                   (isCommIdeal.·Closed (snd I) _ x-y∈I))
 
   quotientHom : CommAlgebraHom A (_/_)
@@ -81,18 +85,20 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   IsAlgebraHom.pres- (snd quotientHom) _ = refl
   IsAlgebraHom.pres⋆ (snd quotientHom) _ _ = refl
 
-module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where abstract
   open CommRingStr {{...}} hiding (_-_; -_; ·IdL; ·DistR+) renaming (_·_ to _·R_; _+_ to _+R_)
   open CommAlgebraStr ⦃...⦄
 
   instance
-    _ : CommRingStr _
+    _ : CommRingStr ⟨ R ⟩
     _ = snd R
-    _ : CommAlgebraStr _ _
+    _ : CommAlgebraStr R ⟨ A ⟩
     _ = snd A
 
   private
+    LRing : Ring ℓ
     LRing = CommAlgebra→Ring (A / I)
+    RRing : Ring ℓ
     RRing = (CommAlgebra→Ring A) Ring./ (CommIdeal→Ideal I)
 
   -- sanity check / maybe a helper function some day
@@ -147,10 +153,10 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
 
 
 {- trivial quotient -}
-module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where abstract
   open CommAlgebraStr (snd A)
 
-  oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal A)) (UnitCommAlgebra R)
+  oneIdealQuotient : CommAlgebraEquiv (A / (1Ideal A)) (UnitCommAlgebra R {ℓ' = ℓ})
   fst oneIdealQuotient =
     isoToEquiv (iso (fst (terminalMap R (A / (1Ideal A))))
                     (λ _ → [ 0a ])
@@ -168,16 +174,19 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
                     λ _ → refl)
   snd zeroIdealQuotient = snd (quotientHom A (0Ideal A))
 
+-- non-abstract notation
 [_]/ : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
        → (a : fst A) → fst (A / I)
-[ a ]/ = [ a ]
+[_]/ = fst (quotientHom _ _)
 
 
 
-module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where abstract
   open CommIdeal using (isPropIsCommIdeal)
 
-  private
+  private module _ where
+    -- non-abstract abbreviation
+    π : CommAlgebraHom A (A / I)
     π = quotientHom A I
 
   kernel≡I : kernel A (A / I) π ≡ I
@@ -186,21 +195,22 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
                             (isPropIsCommIdeal (CommAlgebra→CommRing A))
                             refl ⟩
     _                  ≡⟨  CommRing.kernel≡I {R = CommAlgebra→CommRing A} I ⟩
-    I ∎
+    I                  ∎
 
 
 private
-  module _ (R : CommRing ℓ) where
+  module _ (R : CommRing ℓ) where abstract
     open CommRingStr (snd R)
     lemma : (y : (fst R)) → y ≡ y - 0r
     lemma = solve R
 
-isZeroFromIdeal : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
-                  → (x : ⟨ A ⟩) → x ∈ (fst I) → fst (quotientHom A I) x ≡ CommAlgebraStr.0a (snd (A / I))
-isZeroFromIdeal {A = A} {I = I} x x∈I = eq/ x 0a (subst (λ y → y ∈ (fst I)) step x∈I )
-  where
-    open CommAlgebraStr (snd A)
-    step : x ≡ x - 0a
-    step = lemma (CommAlgebra→CommRing A) x
-    0' : ⟨ A / I ⟩
-    0' = fst (quotientHom A I) 0a
+abstract
+  isZeroFromIdeal : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
+                    → (x : ⟨ A ⟩) → x ∈ (fst I) → fst (quotientHom A I) x ≡ CommAlgebraStr.0a (snd (A / I))
+  isZeroFromIdeal {A = A} {I = I} x x∈I = eq/ x 0a (subst (λ y → y ∈ (fst I)) step x∈I )
+    where
+      open CommAlgebraStr (snd A)
+      step : x ≡ x - 0a
+      step = lemma (CommAlgebra→CommRing A) x
+      0' : ⟨ A / I ⟩
+      0' = fst (quotientHom A I) 0a
