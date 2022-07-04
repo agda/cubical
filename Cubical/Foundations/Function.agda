@@ -20,6 +20,9 @@ private
 idfun : (A : Type ℓ) → A → A
 idfun _ x = x
 
+id : A → A
+id = idfun _
+
 infixr 9 _∘_
 
 _∘_ : (g : {a : A} → (b : B a) → C a b) → (f : (a : A) → B a) → (a : A) → C a (f a)
