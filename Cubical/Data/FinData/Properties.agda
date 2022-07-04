@@ -181,42 +181,6 @@ enumElim P k p h f i =
     (pred-≤-pred (subst (λ a → toℕ i < a) (sym h) (toℕ<n i))))
 
 
-drop : {A : Type ℓ} {n : ℕ} (l : Fin (ℕ.suc n))
-       → FinVec A (ℕ.suc n) → FinVec A n
-drop l v i with (toℕ l) ≟ (toℕ i)
-... | lt l<i = v (suc i)
-... | eq l≡i = v (suc i)
-... | gt i<l = v (toFin (toℕ i) (<-trans i<l (toℕ<n l)))
-
-module _ {A : Type ℓ} {n : ℕ} (l : Fin (ℕ.suc n)) (a : A) where
-  private
-    l' = toℕ l
-    l<n+1 : l' < (ℕ.suc n)
-    l<n+1 = toℕ<n l
-
-  insert : FinVec A n → FinVec A (ℕ.suc n)
-  insert v k with l' ≟ (toℕ k)
-  ... | eq l≡k = a
-  ... | gt k<l = v k'
-           where k' : Fin n
-                 k' = toFin (toℕ k) (<-trans k<l {!l<n+1!})
-  ... | lt l<k with k
-  ...          | suc k-1 = v k-1
-  ...          | zero = ⊥.rec (¬-<-zero l<k)
-
-  insertCompute : (v : FinVec A n) → (insert v) l ≡ a
-  insertCompute v with l' ≟ (toℕ l)
-  ... | lt l<l = ⊥.rec (¬m<m (subst ((toℕ l) <_) (weakenRespToℕ l) {!!}))
-  ... | eq l≡l = refl
-  ... | gt l<l = ⊥.rec (¬m<m (subst (_< (toℕ l)) (weakenRespToℕ l) {!!}))
-
-  insertIso : Iso (FinVec A n) (Σ[ u ∈ (FinVec A (ℕ.suc n)) ] (u l) ≡ a)
-  Iso.fun insertIso v = (insert v) , (insertCompute v)
-  Iso.inv insertIso (u , p) = {!drop !}
-  Iso.rightInv insertIso = {!!}
-  Iso.leftInv insertIso = {!!}
-
-{-
 ++FinAssoc : {n m k : ℕ} (U : FinVec A n) (V : FinVec A m) (W : FinVec A k)
            → PathP (λ i → FinVec A (+-assoc n m k i)) (U ++Fin (V ++Fin W)) ((U ++Fin V) ++Fin W)
 ++FinAssoc {n = ℕzero} _ _ _ = refl
@@ -351,4 +315,3 @@ module FinProdChar where
     helper (inl p) (inl q) = inl λ { zero j → p j ; (suc i) j → q i j }
     helper (inl _) (inr q) = inr (suc (q .fst) , q .snd .fst , q .snd .snd)
     helper (inr p) _ = inr (zero , p)
--}

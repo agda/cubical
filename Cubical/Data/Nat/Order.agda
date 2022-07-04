@@ -12,8 +12,6 @@ open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Nat.Properties
 
-open import Cubical.Tactics.NatSolver.Reflection
-
 open import Cubical.Induction.WellFounded
 
 open import Cubical.Relation.Nullary
@@ -180,15 +178,6 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 
 <-trans : l < m → m < n → l < n
 <-trans p = ≤<-trans (<-weaken p)
-
-<-trans-suc : l < m → m < suc n → l < n
-<-trans-suc {l = l} {n = n} (c , p) (d , q) =
-  (c + d) , (c + d + suc _   ≡⟨ {!!} ⟩
-             d + (c + suc _) ≡⟨ {!!} ⟩
-             n ∎)
-     where
-       step1 : ∀ x y z → x + y + z ≡ y + (x + z)
-       step1 = {!!}
 
 <-asym : m < n → ¬ n ≤ m
 <-asym m<n = ¬m<m ∘ <≤-trans m<n

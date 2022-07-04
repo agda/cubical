@@ -5,7 +5,6 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
 open import Cubical.Tactics.NatSolver.NatExpression
 open import Cubical.Tactics.NatSolver.HornerForms

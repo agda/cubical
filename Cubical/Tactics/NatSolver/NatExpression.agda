@@ -5,7 +5,6 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
 
 infixl 6 _+'_
