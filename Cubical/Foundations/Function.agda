@@ -20,9 +20,6 @@ private
 idfun : (A : Type ℓ) → A → A
 idfun _ x = x
 
-id : A → A
-id = idfun _
-
 infixr 9 _∘_
 
 _∘_ : (g : {a : A} → (b : B a) → C a b) → (f : (a : A) → B a) → (a : A) → C a (f a)
@@ -49,10 +46,6 @@ flip f y x = f x y
 const : {B : Type ℓ} → A → B → A
 const x = λ _ → x
 {-# INLINE const #-}
-
-_$_ : ((x : A) → B x) → ∀ x → B x
-f $ x = f x
-{-# INLINE _$_ #-}
 
 case_of_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → (x : A) → (∀ x → B x) → B x
 case x of f = f x
