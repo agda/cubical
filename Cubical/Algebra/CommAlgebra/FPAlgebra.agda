@@ -104,21 +104,16 @@ module _ {R : CommRing ℓ} where
                            (incInIdeal (Polynomials n) relation i ) ⟩
         0a (snd FPAlgebra) ∎
 
-      inducedHom :
+      module _
         (A : CommAlgebra R ℓ)
         (values : FinVec ⟨ A ⟩ n)
         (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
-        → CommAlgebraHom FPAlgebra A
-      inducedHom A values relationsHold =
-        quotientInducedHom
-          (Polynomials n)
-          relationsIdeal
-          A
-          freeHom
-          isInKernel
-        where
+        where abstract
+
+        private
           freeHom : CommAlgebraHom (Polynomials n) A
           freeHom = freeInducedHom A values
+
           isInKernel :   fst (generatedIdeal (Polynomials n) relation)
                        ⊆ fst (kernel (Polynomials n) A freeHom)
           isInKernel = inclOfFGIdeal
@@ -127,75 +122,63 @@ module _ {R : CommRing ℓ} where
                          (kernel (Polynomials n) A freeHom)
                          relationsHold
 
-      inducedHomOnGenerators :
-        (A : CommAlgebra R ℓ)
-        (values : FinVec ⟨ A ⟩ n)
-        (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
-        (i : Fin n)
-        → fst (inducedHom A values relationsHold) (generator i) ≡ values i
-      inducedHomOnGenerators A values relationsHold i =
-        cong (λ f → fst f (var i))
-        (inducedHom∘quotientHom (Polynomials n) relationsIdeal A freeHom isInKernel)
-        where
-          -- TODO: this where block is duplicated
-          freeHom : CommAlgebraHom (Polynomials n) A
-          freeHom = freeInducedHom A values
-          isInKernel :   fst (generatedIdeal (Polynomials n) relation)
-                       ⊆ fst (kernel (Polynomials n) A freeHom)
-          isInKernel = inclOfFGIdeal
-                         (CommAlgebra→CommRing (Polynomials n))
-                         relation
-                         (kernel (Polynomials n) A freeHom)
-                         relationsHold
+        inducedHom : CommAlgebraHom FPAlgebra A
+        inducedHom =
+          quotientInducedHom
+            (Polynomials n)
+            relationsIdeal
+            A
+            freeHom
+            isInKernel
 
-      unique :
-             (A : CommAlgebra R ℓ)
-             (values : FinVec ⟨ A ⟩ n)
-             (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
+        inducedHomOnGenerators :
+          (i : Fin n)
+          → fst inducedHom (generator i) ≡ values i
+        inducedHomOnGenerators i =
+          cong (λ f → fst f (var i))
+          (inducedHom∘quotientHom (Polynomials n) relationsIdeal A freeHom isInKernel)
+
+        unique :
              (f : CommAlgebraHom FPAlgebra A)
              → ((i : Fin n) → fst f (generator i) ≡ values i)
-             → inducedHom A values relationsHold ≡ f
-      unique A values relationsHold f hasCorrectValues =
-        injectivePrecomp
-          (Polynomials n)
-          relationsIdeal
-          A
-          (inducedHom A values relationsHold)
-          f
-          (sym (
-           f'                                    ≡⟨ sym (inv f') ⟩
-           freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A)
-                                                         (funExt hasCorrectValues) ⟩
-           freeInducedHom A values               ≡⟨ cong (freeInducedHom A)
-                                                         (sym (funExt (inducedHomOnGenerators A values relationsHold))) ⟩
-           freeInducedHom A (evaluateAt A iHom') ≡⟨ inv iHom' ⟩
-           iHom'                                 ∎))
-        where
-          {-
-                     Poly n
-                      |    \
-            modRelations    f'
-                      ↓      ↘
-                 FPAlgebra ─f→ A
-          -}
-          f' iHom' : CommAlgebraHom (Polynomials n) A
-          f' = compAlgebraHom modRelations f
-          iHom' = compAlgebraHom modRelations (inducedHom A values relationsHold)
+             → inducedHom ≡ f
+        unique f hasCorrectValues =
+          injectivePrecomp
+            (Polynomials n)
+            relationsIdeal
+            A
+            inducedHom
+            f
+            (sym (
+             f'                                    ≡⟨ sym (inv f') ⟩
+             freeInducedHom A (evaluateAt A f')    ≡⟨ cong (freeInducedHom A)
+                                                           (funExt hasCorrectValues) ⟩
+             freeInducedHom A values               ≡⟨ cong (freeInducedHom A)
+                                                           (sym (funExt inducedHomOnGenerators)) ⟩
+             freeInducedHom A (evaluateAt A iHom') ≡⟨ inv iHom' ⟩
+             iHom'                                 ∎))
+          where
+            {-
+                       Poly n
+                        |    \
+              modRelations    f'
+                        ↓      ↘
+                   FPAlgebra ─f→ A
+            -}
+            f' iHom' : CommAlgebraHom (Polynomials n) A
+            f' = compAlgebraHom modRelations f
+            iHom' = compAlgebraHom modRelations inducedHom
 
-          inv : retract (Iso.fun (homMapIso {I = Fin n} A)) (Iso.inv (homMapIso A))
-          inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
+            inv : retract (Iso.fun (homMapIso {I = Fin n} A)) (Iso.inv (homMapIso A))
+            inv = Iso.leftInv (homMapIso {R = R} {I = Fin n} A)
 
-      universal :
-             (A : CommAlgebra R ℓ)
-             (values : FinVec ⟨ A ⟩ n)
-             (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
-             → isContr (Σ[ f ∈ CommAlgebraHom FPAlgebra A ] ((i : Fin n) → fst f (generator i) ≡ values i))
-      universal A values relationsHold =
-        ( (inducedHom A values relationsHold)
-          , (inducedHomOnGenerators A values relationsHold) )
-        , λ {(f , mapsValues)
-            → Σ≡Prop (λ _ → isPropΠ (λ _ → isSetCommAlgebra A _ _))
-                     (unique A values relationsHold f mapsValues)}
+        universal :
+          isContr (Σ[ f ∈ CommAlgebraHom FPAlgebra A ] ((i : Fin n) → fst f (generator i) ≡ values i))
+        universal =
+          (inducedHom , inducedHomOnGenerators)
+          , λ {(f , mapsValues)
+              → Σ≡Prop (λ _ → isPropΠ (λ _ → isSetCommAlgebra A _ _))
+                       (unique f mapsValues)}
 
       {- ∀ A : Comm-R-Algebra,
          ∀ J : Finitely-generated-Ideal,
