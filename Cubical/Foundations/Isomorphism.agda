@@ -13,6 +13,7 @@ module Cubical.Foundations.Isomorphism where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Base
 
@@ -134,6 +135,18 @@ fun idIso = idfun _
 inv idIso = idfun _
 rightInv idIso _ = refl
 leftInv idIso _  = refl
+
+compIsoIdL : (isom : Iso A B) → compIso idIso isom ≡ isom
+fun (compIsoIdL isom i) = fun isom
+inv (compIsoIdL isom i) = inv isom
+rightInv (compIsoIdL isom i) b = lUnit (isom .rightInv b) (~ i)
+leftInv (compIsoIdL isom i) a = rUnit (isom .leftInv a) (~ i)
+
+compIsoIdR : (isom : Iso A B) → compIso isom idIso ≡ isom
+fun (compIsoIdR isom i) = fun isom
+inv (compIsoIdR isom i) = inv isom
+rightInv (compIsoIdR isom i) b = rUnit (isom .rightInv b) (~ i)
+leftInv (compIsoIdR isom i) a = lUnit (isom .leftInv a) (~ i)
 
 LiftIso : Iso A (Lift {i = ℓ} {j = ℓ'} A)
 fun LiftIso = lift

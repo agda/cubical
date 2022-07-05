@@ -7,7 +7,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Data.Int as Int
   renaming ( ℤ to ℤ ; _+_ to _+ℤ_; _·_ to _·ℤ_; -_ to -ℤ_)
 
-open CommRingStr
+open CommRingStr using (0r ; 1r ; _+_ ; _·_ ; -_ ; isCommRing)
 
 ℤCommRing : CommRing ℓ-zero
 fst ℤCommRing = ℤ

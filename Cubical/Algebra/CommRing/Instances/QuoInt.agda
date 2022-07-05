@@ -18,15 +18,15 @@ open CommRingStr
 
 -- The missing additive inversion
 
-+InvL' : ∀ n s → signed (not s) n +ℤ signed s n ≡ signed s zero
-+InvL' zero _ = refl
-+InvL' (suc n) spos = predℤ-+ʳ (neg n) (pos (suc n)) ∙ (λ i → neg n +ℤ predSucℤ (pos n) i) ∙ +InvL' n spos
-+InvL' (suc n) sneg = sucℤ-+ʳ  (pos n) (neg (suc n)) ∙ (λ i → pos n +ℤ sucPredℤ (neg n) i) ∙ +InvL' n sneg
++ℤInvL' : ∀ n s → signed (not s) n +ℤ signed s n ≡ signed s zero
++ℤInvL' zero _ = refl
++ℤInvL' (suc n) spos = predℤ-+ʳ (neg n) (pos (suc n)) ∙ (λ i → neg n +ℤ predSucℤ (pos n) i) ∙ +ℤInvL' n spos
++ℤInvL' (suc n) sneg = sucℤ-+ʳ  (pos n) (neg (suc n)) ∙ (λ i → pos n +ℤ sucPredℤ (neg n) i) ∙ +ℤInvL' n sneg
 
-+InvL : (n : ℤType) → (-ℤ n) +ℤ n ≡ 0
-+InvL (signed spos n) = +InvL' n spos
-+InvL (signed sneg n) = +InvL' n sneg ∙ sym posneg
-+InvL (posneg i) j =
++ℤInvL : (n : ℤType) → (-ℤ n) +ℤ n ≡ 0
++ℤInvL (signed spos n) = +ℤInvL' n spos
++ℤInvL (signed sneg n) = +ℤInvL' n sneg ∙ sym posneg
++ℤInvL (posneg i) j =
   hcomp (λ k → λ
     { (i = i0) → 0
     ; (i = i1) → compPath-filler refl (sym posneg) k j
@@ -34,8 +34,8 @@ open CommRingStr
     ; (j = i1) → posneg (i ∧ ~ k) })
   (posneg i)
 
-+InvR : (n : ℤType) → n +ℤ (-ℤ n) ≡ 0
-+InvR n = +-comm n (-ℤ n) ∙ +InvL n
++ℤInvR : (n : ℤType) → n +ℤ (-ℤ n) ≡ 0
++ℤInvR n = +-comm n (-ℤ n) ∙ +ℤInvL n
 
 
 ℤCommRing : CommRing ℓ-zero
@@ -51,5 +51,5 @@ open CommRingStr
     isCommRingℤ : IsCommRing 0 1 _+ℤ_ _·ℤ_ -ℤ_
     isCommRingℤ = makeIsCommRing
       isSetℤ +-assoc (+-zeroʳ _)
-      +InvR +-comm ·-assoc
+      +ℤInvR +-comm ·-assoc
       ·-identityʳ (λ x y z → sym (·-distribˡ x y z)) ·-comm

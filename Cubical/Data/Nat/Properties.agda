@@ -247,6 +247,9 @@ n∸n (suc n) = n∸n n
 +∸ (suc k) zero = cong suc (+-comm k zero)
 +∸ (suc k) (suc n) = cong (_∸ n) (+-suc k n) ∙ +∸ (suc k) n
 
+∸+ : ∀ k n → (n + k) ∸ n ≡ k
+∸+ k n = cong (λ X → X ∸ n) (+-comm n k) ∙ +∸ k n
+
 ∸-cancelʳ : ∀ m n k → (m + k) ∸ (n + k) ≡ m ∸ n
 ∸-cancelʳ m n k = (λ i → +-comm m k i ∸ +-comm n k i) ∙ ∸-cancelˡ k m n
 
@@ -291,3 +294,31 @@ isPropEvenOrOdd n (inl x) (inl x₁) = cong inl (isPropIsEvenT n x x₁)
 isPropEvenOrOdd n (inl x) (inr x₁) = ⊥.rec (¬evenAndOdd n (x , x₁))
 isPropEvenOrOdd n (inr x) (inl x₁) = ⊥.rec (¬evenAndOdd (suc n) (x , x₁))
 isPropEvenOrOdd n (inr x) (inr x₁) = cong inr (isPropIsEvenT (suc n) x x₁)
+
+module PlusBis where
+
+  _+'_ : ℕ → ℕ → ℕ
+  zero +' b = b
+  suc a +' zero = suc a
+  suc a +' suc b = 2 + (a + b)
+
+  +'≡+ : (n m : ℕ) → n +' m ≡ n + m
+  +'≡+ zero m = refl
+  +'≡+ (suc n) zero = cong suc (sym (+-comm n zero))
+  +'≡+ (suc n) (suc m) = cong suc (sym (+-suc n m))
+
+  +'-comm : (n m : ℕ) → n +' m ≡ m +' n
+  +'-comm n m = +'≡+ n m ∙∙ +-comm n m ∙∙ sym (+'≡+ m n)
+
+  +'-assoc : (n m l : ℕ) → (n +' (m +' l)) ≡ ((n +' m) +' l)
+  +'-assoc n m l =
+       (λ i → +'≡+ n (+'≡+ m l i) i)
+    ∙∙ +-assoc n m l
+    ∙∙ (λ i → +'≡+ (+'≡+ n m (~ i)) l (~ i))
+
+  +'-rid : (n : ℕ) → n +' 0 ≡ n
+  +'-rid zero = refl
+  +'-rid (suc n) = refl
+
+  +'-lid : (n : ℕ) → 0 +' n ≡ n
+  +'-lid n = refl

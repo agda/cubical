@@ -34,7 +34,7 @@ open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 
 open import Cubical.HITs.SetQuotients as SQ
