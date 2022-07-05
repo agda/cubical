@@ -37,7 +37,7 @@ private
   variable
     ℓ : Level
 
-
+open PlusBis
 
 natTranspLem : ∀ {ℓ} {A B : ℕ → Type ℓ} {n m : ℕ} (a : A n)
   (f : (n : ℕ) → (a : A n) → B n) (p : n ≡ m)

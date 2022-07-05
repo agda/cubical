@@ -69,8 +69,8 @@ module _ (C : Category ℓC ℓC')
 
   open isIso
 
-  iso× : {x y : C .ob}{z w : D .ob} → CatIso C x y → CatIso D z w → CatIso (C × D) (x , z) (y , w)
-  iso× f g .fst = f .fst , g .fst
-  iso× f g .snd .inv = f .snd .inv , g .snd .inv
-  iso× f g .snd .sec i = f .snd .sec i , g .snd .sec i
-  iso× f g .snd .ret i = f .snd .ret i , g .snd .ret i
+  CatIso× : {x y : C .ob}{z w : D .ob} → CatIso C x y → CatIso D z w → CatIso (C × D) (x , z) (y , w)
+  CatIso× f g .fst = f .fst , g .fst
+  CatIso× f g .snd .inv = f .snd .inv , g .snd .inv
+  CatIso× f g .snd .sec i = f .snd .sec i , g .snd .sec i
+  CatIso× f g .snd .ret i = f .snd .ret i , g .snd .ret i

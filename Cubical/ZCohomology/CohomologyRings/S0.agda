@@ -5,25 +5,15 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming (_+_ to _+n_ ; _·_ to _·n_ ; snotz to nsnotz)
-open import Cubical.Data.Sigma
-open import Cubical.Data.Sum
+open import Cubical.Data.Unit
 
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.AbGroup.Instances.DirectSum
-open import Cubical.Algebra.DirectSum.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.DirectProd
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
-open import Cubical.Algebra.CommRing.FGIdeal
-open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ
 
 open import Cubical.HITs.Sn
 

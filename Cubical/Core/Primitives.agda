@@ -30,7 +30,8 @@ import Agda.Builtin.Cubical.Glue
 -- import Agda.Builtin.Cubical.HCompU
 
 open import Agda.Primitive public
-  using    ( Level )
+  using    ( Level
+           ; SSet )
   renaming ( lzero to ℓ-zero
            ; lsuc  to ℓ-suc
            ; _⊔_   to ℓ-max
@@ -42,7 +43,7 @@ open import Agda.Builtin.Sigma public
 -- themselves are bound by the Agda files imported above.
 
 -- * The Interval
--- I : Typeω
+-- I : IUniv
 
 -- Endpoints, Connections, Reversal
 -- i0 i1   : I
@@ -76,7 +77,7 @@ Path A a b = PathP (λ _ → A) a b
 -- * @IsOne r@ represents the constraint "r = i1".
 -- Often we will use "φ" for elements of I, when we intend to use them
 -- with IsOne (or Partial[P]).
--- IsOne : I → Typeω
+-- IsOne : I → SSet ℓ-zero
 
 -- i1 is indeed equal to i1.
 -- 1=1 : IsOne i1
@@ -88,8 +89,8 @@ Path A a b = PathP (λ _ → A) a b
 -- extensional judgmental equality.
 -- "PartialP φ A" allows "A" to be defined only on "φ".
 
--- Partial : ∀ {ℓ} → I → Type ℓ → Typeω
--- PartialP : ∀ {ℓ} → (φ : I) → Partial φ (Type ℓ) → Typeω
+-- Partial : ∀ {ℓ} → I → Type ℓ → SSet ℓ
+-- PartialP : ∀ {ℓ} → (φ : I) → Partial φ (Type ℓ) → SSet ℓ
 
 -- Partial elements are introduced by pattern matching with (r = i0)
 -- or (r = i1) constraints, like so:
@@ -118,9 +119,9 @@ private
 
 
 -- * There are cubical subtypes as in CCHM. Note that these are not
--- fibrant (hence in Typeω):
+-- fibrant (hence in SSet ℓ):
 
-_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → _
+_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → SSet ℓ
 A [ φ ↦ u ] = Sub A φ u
 
 infix 4 _[_↦_]
