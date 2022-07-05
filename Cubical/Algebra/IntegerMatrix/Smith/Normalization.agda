@@ -78,7 +78,7 @@ improveRowsTrick M p =
         ; const   =
               (λ i → sym (trickM .addEq i zero)
             ∙ (λ t → improveM .sim .result zero zero + improveM .vanish i t)
-            ∙ +Rid _ ∙ inv₀₀)
+            ∙ +IdR _ ∙ inv₀₀)
         ; nonZero = (λ r → improveM .nonZero (inv₀₀ ∙ r)) }
 
 

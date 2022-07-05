@@ -2,7 +2,7 @@
 
 module Cubical.Categories.Presheaf.Properties where
 
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
@@ -232,7 +232,6 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
 
   module _ where
     open Iso
-    open Morphism renaming (isIso to isIsoC)
     -- the iso we need
     -- a type is isomorphic to the disjoint union of all its fibers
     typeSectionIso : ∀ {A B : Type ℓS} {isSetB : isSet B} → (ϕ : A → B)
@@ -277,7 +276,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
       where
         isIsoCf : ∀ (c : C .ob)
                 → isIsoC _ (ηTrans .N-ob sob .S-hom ⟦ c ⟧)
-        isIsoCf c = CatIso→isIso (Iso→CatIso (typeSectionIso {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧)))
+        isIsoCf c = Morphism.CatIso→isIso (Iso→CatIso (typeSectionIso {isSetB = snd (F ⟅ c ⟆)} (ϕ ⟦ c ⟧)))
 
 
   -- ========================================
@@ -286,7 +285,6 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
 
   module _ where
     open Iso
-    open Morphism renaming (isIso to isIsoC)
     -- the iso we deserve
     -- says that a type family at x is isomorphic to the fiber over x of that type family packaged up
     typeFiberIso : ∀ {ℓ ℓ'} {A : Type ℓ} {isSetA : isSet A} {x} (B : A → Type ℓ')
@@ -375,7 +373,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
       where
         isIsoC' : ∀ (cx : (∫ᴾ F) .ob)
                 → isIsoC (SET _) ((εTrans ⟦ P ⟧) ⟦ cx ⟧)
-        isIsoC' cx@(c , _) = CatIso→isIso (Iso→CatIso (invIso (typeFiberIso {isSetA = snd (F ⟅ c ⟆)} _)))
+        isIsoC' cx@(c , _) = Morphism.CatIso→isIso (Iso→CatIso (invIso (typeFiberIso {isSetA = snd (F ⟅ c ⟆)} _)))
 
 
   -- putting it all together

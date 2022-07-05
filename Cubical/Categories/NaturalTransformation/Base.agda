@@ -6,11 +6,12 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
 open import Cubical.Data.Sigma
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Properties
 open import Cubical.Categories.Commutativity
-open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
+open import Cubical.Categories.Morphism
+open import Cubical.Categories.Isomorphism
 
 private
   variable
@@ -92,6 +93,18 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     ∎
 
   syntax idTrans F = 1[ F ]
+
+
+  -- Natural isomorphism induced by path of functors
+
+  pathToNatTrans : {F G : Functor C D} → F ≡ G → NatTrans F G
+  pathToNatTrans p .N-ob x = pathToIso {C = D} (λ i → p i .F-ob x) .fst
+  pathToNatTrans {F = F} {G = G} p .N-hom {x = x} {y = y} f =
+    pathToIso-Square {C = D} _ _ _ _ (λ i → p i .F-hom f)
+
+  pathToNatIso : {F G : Functor C D} → F ≡ G → NatIso F G
+  pathToNatIso p .trans = pathToNatTrans p
+  pathToNatIso p .nIso x = pathToIso {C = D} _ .snd
 
 
   -- vertical sequencing

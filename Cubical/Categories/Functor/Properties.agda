@@ -3,10 +3,17 @@
 module Cubical.Categories.Functor.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function renaming (_∘_ to _◍_)
 open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
 open import Cubical.Foundations.HLevels
+open import Cubical.Functions.Surjection
+open import Cubical.Functions.Embedding
+open import Cubical.HITs.PropositionalTruncation as Prop
+open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor.Base
 
 
@@ -84,7 +91,7 @@ module _ {F : Functor C D} where
 
   -- functors preserve isomorphisms
   preserveIsosF : ∀ {x y} → CatIso C x y → CatIso D (F ⟅ x ⟆) (F ⟅ y ⟆)
-  preserveIsosF {x} {y} (catiso f f⁻¹ sec' ret') =
+  preserveIsosF {x} {y} (f , isiso f⁻¹ sec' ret') =
     catiso
       g g⁻¹
       -- sec
@@ -138,3 +145,93 @@ isSetFunctor {D = D} {C = C} isSet-D-ob F G p q = w
        (λ i i₁ → isProp→isSet (D .isSetHom (F-hom (w i i₁) _) ((F-hom (w i i₁) _) ⋆⟨ D ⟩ (F-hom (w i i₁) _))))
        (λ i₁ → F-seq (p i₁) _ _) (λ i₁ → F-seq (q i₁) _ _) refl refl i i₁
 
+
+-- Conservative Functor,
+-- namely if a morphism f is mapped to an isomorphism,
+-- the morphism f is itself isomorphism.
+
+isConservative : (F : Functor C D) → Type _
+isConservative {C = C} {D = D} F = {x y : C .ob}{f : C [ x , y ]} → isIso D (F .F-hom f) → isIso C f
+
+
+-- Fully-faithfulness of functors
+
+module _ {F : Functor C D} where
+
+  isFullyFaithful→Full : isFullyFaithful F → isFull F
+  isFullyFaithful→Full fullfaith x y = isEquiv→isSurjection (fullfaith x y)
+
+  isFullyFaithful→Faithful : isFullyFaithful F → isFaithful F
+  isFullyFaithful→Faithful fullfaith x y = isEmbedding→Inj (isEquiv→isEmbedding (fullfaith x y))
+
+  isFull+Faithful→isFullyFaithful : isFull F → isFaithful F → isFullyFaithful F
+  isFull+Faithful→isFullyFaithful full faith x y = isEmbedding×isSurjection→isEquiv
+    (injEmbedding (C .isSetHom) (D .isSetHom) (faith x y _ _) , full x y)
+
+
+  -- Fully-faithful functor is conservative
+
+  open isIso
+
+  isFullyFaithful→Conservative : isFullyFaithful F → isConservative F
+  isFullyFaithful→Conservative fullfaith {x = x} {y = y} {f = f} isoFf = w
+    where
+    w : isIso C f
+    w .inv = invIsEq (fullfaith _ _) (isoFf .inv)
+    w .sec = isFullyFaithful→Faithful fullfaith _ _ _ _
+        (F .F-seq _ _
+      ∙ (λ i → secIsEq (fullfaith _ _) (isoFf .inv) i ⋆⟨ D ⟩ F .F-hom f)
+      ∙ isoFf .sec
+      ∙ sym (F .F-id))
+    w .ret = isFullyFaithful→Faithful fullfaith _ _ _ _
+        (F .F-seq _ _
+      ∙ (λ i → F .F-hom f ⋆⟨ D ⟩ secIsEq (fullfaith _ _) (isoFf .inv) i)
+      ∙ isoFf .ret
+      ∙ sym (F .F-id))
+
+
+-- Functors inducing surjection on objects is essentially surjective
+
+isSurj-ob→isSurj : {F : Functor C D} → isSurjection (F .F-ob) → isEssentiallySurj F
+isSurj-ob→isSurj surj y = Prop.map (λ (x , p) → x , pathToIso p) (surj y)
+
+
+-- Fully-faithful functors induce equivalence on isomorphisms
+
+isFullyFaithful→isEquivF-Iso : {F : Functor C D}
+  → isFullyFaithful F → ∀ x y → isEquiv (F-Iso {F = F} {x = x} {y = y})
+isFullyFaithful→isEquivF-Iso {F = F} fullfaith x y =
+  Σ-cong-equiv-prop (_ , fullfaith x y) isPropIsIso isPropIsIso _
+    (λ f → isFullyFaithful→Conservative {F = F} fullfaith {f = f}) .snd
+
+
+-- Functors involving univalent categories
+
+module _
+  (isUnivD : isUnivalent D)
+  where
+
+  open isUnivalent isUnivD
+
+  -- Essentially surjective functor with univalent target induces surjection on objects
+
+  isSurj→isSurj-ob : {F : Functor C D} → isEssentiallySurj F → isSurjection (F .F-ob)
+  isSurj→isSurj-ob surj y = Prop.map (λ (x , f) → x , CatIsoToPath f) (surj y)
+
+
+module _
+  (isUnivC : isUnivalent C)
+  (isUnivD : isUnivalent D)
+  {F : Functor C D}
+  where
+
+  open isUnivalent
+
+  -- Fully-faithful functor between univalent target induces embedding on objects
+
+  isFullyFaithful→isEmbb-ob : isFullyFaithful F → isEmbedding (F .F-ob)
+  isFullyFaithful→isEmbb-ob fullfaith x y =
+    isEquiv[equivFunA≃B∘f]→isEquiv[f] _ (_ , isUnivD .univ _ _)
+      (subst isEquiv (F-pathToIso-∘ {F = F})
+      (compEquiv (_ , isUnivC .univ _ _)
+        (_ , isFullyFaithful→isEquivF-Iso {F = F} fullfaith x y) .snd))

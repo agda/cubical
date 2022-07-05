@@ -2,11 +2,11 @@
 
 module Cubical.Categories.Instances.Functors where
 
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.NaturalTransformation.Properties
-open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
+open import Cubical.Categories.Morphism
 open import Cubical.Foundations.Prelude
 
 private

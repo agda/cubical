@@ -72,13 +72,13 @@ module _ (G' : Group ℓ) where
 
     assocHG : (x y z : HG) → x ·HG (y ·HG z) ≡ (x ·HG y) ·HG z
     assocHG (x , Hx) (y , Hy) (z , Hz) =
-      ΣPathP (assoc x y z , isProp→PathP (λ i → H (assoc x y z i) .snd) _ _)
+      ΣPathP (·Assoc x y z , isProp→PathP (λ i → H (·Assoc x y z i) .snd) _ _)
 
     ridHG : (x : HG) → x ·HG 1HG ≡ x
-    ridHG (x , Hx) = ΣPathP (rid x , isProp→PathP (λ i → H (rid x i) .snd) _ _)
+    ridHG (x , Hx) = ΣPathP (·IdR x , isProp→PathP (λ i → H (·IdR x i) .snd) _ _)
 
     invrHG : (x : HG) → x ·HG invHG x ≡ 1HG
-    invrHG (x , Hx) = ΣPathP (invr x , isProp→PathP (λ i → H (invr x i) .snd) _ _)
+    invrHG (x , Hx) = ΣPathP (·InvR x , isProp→PathP (λ i → H (·InvR x i) .snd) _ _)
 
 ⟪_⟫ : {G' : Group ℓ} → Subgroup G' → ℙ (G' .fst)
 ⟪ H , _ ⟫ = H
@@ -102,10 +102,10 @@ module _ {G' : Group ℓ} where
     subst-∈ ⟪ H ⟫ rem (Hnormal (inv x) (x · y) Hxy)
       where
       rem : inv x · (x · y) · inv (inv x) ≡ y · x
-      rem = inv x · (x · y) · inv (inv x) ≡⟨ assoc _ _ _ ⟩
-            (inv x · x · y) · inv (inv x) ≡⟨ (λ i → assoc (inv x) x y i · invInv x i) ⟩
-            ((inv x · x) · y) · x         ≡⟨ cong (λ z → (z · y) · x) (invl x) ⟩
-            (1g · y) · x                  ≡⟨ cong (_· x) (lid y) ⟩
+      rem = inv x · (x · y) · inv (inv x) ≡⟨ ·Assoc _ _ _ ⟩
+            (inv x · x · y) · inv (inv x) ≡⟨ (λ i → ·Assoc (inv x) x y i · invInv x i) ⟩
+            ((inv x · x) · y) · x         ≡⟨ cong (λ z → (z · y) · x) (·InvL x) ⟩
+            (1g · y) · x                  ≡⟨ cong (_· x) (·IdL y) ⟩
             y · x                         ∎
 
 
@@ -129,7 +129,7 @@ module _ {G' : Group ℓ} where
 
   isSubgroupTrivialGroup : isSubgroup G' trivialSubset
   id-closed isSubgroupTrivialGroup = refl
-  op-closed isSubgroupTrivialGroup hx hy = cong (_· _) hx ∙∙ lid _ ∙∙ hy
+  op-closed isSubgroupTrivialGroup hx hy = cong (_· _) hx ∙∙ ·IdL _ ∙∙ hy
   inv-closed isSubgroupTrivialGroup hx = cong inv hx ∙ inv1g
 
   trivialSubgroup : Subgroup G'
@@ -138,8 +138,8 @@ module _ {G' : Group ℓ} where
   isNormalTrivialSubgroup : isNormal trivialSubgroup
   isNormalTrivialSubgroup g h h≡1 =
     (g · h · inv g)  ≡⟨ (λ i → g · h≡1 i · inv g) ⟩
-    (g · 1g · inv g) ≡⟨ assoc _ _ _ ∙ cong (_· inv g) (rid g) ⟩
-    (g · inv g)      ≡⟨ invr g ⟩
+    (g · 1g · inv g) ≡⟨ ·Assoc _ _ _ ∙ cong (_· inv g) (·IdR g) ⟩
+    (g · inv g)      ≡⟨ ·InvR g ⟩
     1g ∎
 
 NormalSubgroup : (G : Group ℓ) → Type _
@@ -179,11 +179,11 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
     map λ {(g , p)
       → g ,
       (ϕ .fst g                  ≡⟨ p ⟩
-      y                          ≡⟨ sym (H.rid y) ⟩
-      (y H.· H.1g)               ≡⟨ cong (y H.·_) (sym (H.invr x)) ⟩
-      (y H.· (x H.· H.inv x))    ≡⟨ H.assoc y x (H.inv x) ⟩
+      y                          ≡⟨ sym (H.·IdR y) ⟩
+      (y H.· H.1g)               ≡⟨ cong (y H.·_) (sym (H.·InvR x)) ⟩
+      (y H.· (x H.· H.inv x))    ≡⟨ H.·Assoc y x (H.inv x) ⟩
       ((y H.· x) H.· H.inv x)    ≡⟨ cong (H._· H.inv x) (comm y x) ⟩
-      ((x H.· y) H.· H.inv x)    ≡⟨ sym (H.assoc x y (H.inv x)) ⟩
+      ((x H.· y) H.· H.inv x)    ≡⟨ sym (H.·Assoc x y (H.inv x)) ⟩
       x H.· y H.· H.inv x        ∎ )}
 
   kerSubset : ℙ ⟨ G ⟩
@@ -192,7 +192,7 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
   isSubgroupKer : isSubgroup G kerSubset
   id-closed isSubgroupKer = ϕ.pres1
   op-closed isSubgroupKer {x} {y} hx hy =
-    ϕ.pres· x y ∙∙ (λ i → hx i H.· hy i) ∙∙ H.rid _
+    ϕ.pres· x y ∙∙ (λ i → hx i H.· hy i) ∙∙ H.·IdR _
   inv-closed isSubgroupKer hx = ϕ.presinv _ ∙∙ cong H.inv hx ∙∙ inv1g H
 
   kerSubgroup : Subgroup G
@@ -203,7 +203,7 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
     f (x G.· y G.· G.inv x)         ≡⟨ ϕ.pres· _ _ ⟩
     f x H.· f (y G.· G.inv x)       ≡⟨ cong (f x H.·_) (ϕ.pres· _ _) ⟩
     f x H.· f y H.· f (G.inv x)     ≡⟨ (λ i → f x H.· hy i H.· f (G.inv x)) ⟩
-    f x H.· (H.1g H.· f (G.inv x))  ≡⟨ cong (f x H.·_) (H.lid _) ⟩
+    f x H.· (H.1g H.· f (G.inv x))  ≡⟨ cong (f x H.·_) (H.·IdL _) ⟩
     f x H.· f (G.inv x)             ≡⟨ cong (f x H.·_) (ϕ.presinv x) ⟩
-    f x H.· H.inv (f x)             ≡⟨ H.invr _ ⟩
+    f x H.· H.inv (f x)             ≡⟨ H.·InvR _ ⟩
     H.1g                            ∎
