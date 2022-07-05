@@ -168,7 +168,7 @@ module PullbackFromCommRing (R : CommRing ℓ)
   h₁comm : h₁ ∘r f₅ ≡ f₂
   h₁comm = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd h₁') x 1a
                                       ∙∙ cong (fst f₂ x ·_) (IsAlgebraHom.pres1 (snd h₁'))
-                                      ∙∙ ·Rid _))
+                                      ∙∙ ·IdR _))
    where
    instance
     _ = snd F
@@ -185,7 +185,7 @@ module PullbackFromCommRing (R : CommRing ℓ)
   h₂comm : h₂ ∘r f₅ ≡ f₃
   h₂comm = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd h₂') x 1a
                                       ∙∙ cong (fst f₃ x ·_) (IsAlgebraHom.pres1 (snd h₂'))
-                                      ∙∙ ·Rid _))
+                                      ∙∙ ·IdR _))
    where
    instance
     _ = snd F
@@ -214,8 +214,8 @@ module PullbackFromCommRing (R : CommRing ℓ)
     λ r y → sym (fst f₁ r · fst h₃ y ≡⟨ cong (_· fst h₃ y) (sym (funExt⁻ (cong fst h₃comm) r)) ⟩
                  fst h₃ (fst f₅ r) · fst h₃ y ≡⟨ sym (IsRingHom.pres· (snd h₃) _ _) ⟩
                  fst h₃ (fst f₅ r · y) ≡⟨ refl ⟩
-                 fst h₃ ((r ⋆ 1a) · y) ≡⟨ cong (fst h₃) (⋆-lassoc _ _ _) ⟩
-                 fst h₃ (r ⋆ (1a · y)) ≡⟨ cong (λ x → fst h₃ (r ⋆ x)) (·Lid y) ⟩
+                 fst h₃ ((r ⋆ 1a) · y) ≡⟨ cong (fst h₃) (⋆AssocL _ _ _) ⟩
+                 fst h₃ (r ⋆ (1a · y)) ≡⟨ cong (λ x → fst h₃ (r ⋆ x)) (·IdL y) ⟩
                  fst h₃ (r ⋆ y) ∎)
    where
    instance
@@ -247,7 +247,7 @@ module PullbackFromCommRing (R : CommRing ℓ)
    h₃'IsRHom : h₃' ∘r f₅ ≡ f₁
    h₃'IsRHom = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd k') x 1a
                                      ∙ cong (fst f₁ x ·_) (IsAlgebraHom.pres1 (snd k'))
-                                     ∙ ·Rid (fst f₁ x)))
+                                     ∙ ·IdR (fst f₁ x)))
     where
     instance
      _ = snd F

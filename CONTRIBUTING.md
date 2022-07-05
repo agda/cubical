@@ -84,7 +84,7 @@ When preparing a PR here are some general guidelines:
   problems directly. We don't want to merge files that are very slow
   to typecheck so they will have to optimized at some point and it's
   often much easier to fix these things directly. If you don't know
-  what to try make a draft PR and ask for help.
+  what to try, make a draft PR and ask for help.
 
 - It is often useful to give explicit names to the Iso, Equiv and Path
   version of a result. Try to avoid switching between these when

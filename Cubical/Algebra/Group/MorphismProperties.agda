@@ -30,7 +30,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (map to pMap)
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
-    F G H : Group ℓ
+    E F G H : Group ℓ
 
 open Iso
 open GroupStr
@@ -50,22 +50,22 @@ module _ {A : Type ℓ} {B : Type ℓ'} (G : GroupStr A) (f : A → B) (H : Grou
   -- ϕ(1g) ≡ 1g
   hom1g : f G.1g ≡ H.1g
   hom1g =
-    f G.1g                                  ≡⟨ sym (H.rid _) ⟩
-    f G.1g H.· H.1g                         ≡⟨ (λ i → f G.1g H.· H.invr (f G.1g) (~ i)) ⟩
-    f G.1g H.· (f G.1g H.· H.inv (f G.1g))  ≡⟨ H.assoc _ _ _ ⟩
+    f G.1g                                  ≡⟨ sym (H.·IdR _) ⟩
+    f G.1g H.· H.1g                         ≡⟨ (λ i → f G.1g H.· H.·InvR (f G.1g) (~ i)) ⟩
+    f G.1g H.· (f G.1g H.· H.inv (f G.1g))  ≡⟨ H.·Assoc _ _ _ ⟩
     (f G.1g H.· f G.1g) H.· H.inv (f G.1g)  ≡⟨ sym (cong (λ x → x H.· _)
-                                                (sym (cong f (G.lid _)) ∙ pres G.1g G.1g)) ⟩
-    f G.1g H.· H.inv (f G.1g)               ≡⟨ H.invr _ ⟩
+                                                (sym (cong f (G.·IdL _)) ∙ pres G.1g G.1g)) ⟩
+    f G.1g H.· H.inv (f G.1g)               ≡⟨ H.·InvR _ ⟩
     H.1g ∎
 
   -- ϕ(- x) = - ϕ(x)
   homInv : ∀ g → f (G.inv g) ≡ H.inv (f g)
   homInv g =
-    f (G.inv g)                            ≡⟨ sym (H.rid _) ⟩
-    f (G.inv g) H.· H.1g                   ≡⟨ cong (_ H.·_) (sym (H.invr _)) ⟩
-    f (G.inv g) H.· (f g H.· H.inv (f g))  ≡⟨ H.assoc _ _ _ ⟩
-    (f (G.inv g) H.· f g) H.· H.inv (f g)  ≡⟨ cong (H._· _) (sym (pres _ g) ∙∙ cong f (G.invl g) ∙∙ hom1g) ⟩
-    H.1g H.· H.inv (f g)                   ≡⟨ H.lid _ ⟩
+    f (G.inv g)                            ≡⟨ sym (H.·IdR _) ⟩
+    f (G.inv g) H.· H.1g                   ≡⟨ cong (_ H.·_) (sym (H.·InvR _)) ⟩
+    f (G.inv g) H.· (f g H.· H.inv (f g))  ≡⟨ H.·Assoc _ _ _ ⟩
+    (f (G.inv g) H.· f g) H.· H.inv (f g)  ≡⟨ cong (H._· _) (sym (pres _ g) ∙∙ cong f (G.·InvL g) ∙∙ hom1g) ⟩
+    H.1g H.· H.inv (f g)                   ≡⟨ H.·IdL _ ⟩
     H.inv (f g) ∎
 
 module _ {A : Type ℓ} {B : Type ℓ'} {G : GroupStr A} {f : A → B} {H : GroupStr B}
@@ -136,11 +136,11 @@ isMono→isInjective f h x p = h (p ∙ sym (f .snd .pres1))
 
 isInjective→isMono : (f : GroupHom G H) → isInjective f → isMono f
 isInjective→isMono {G = G} {H = H} f h {x = x} {y = y} p =
-  x                      ≡⟨ sym (G.rid _) ⟩
-  x G.· G.1g             ≡⟨ cong (x G.·_) (sym (G.invl _)) ⟩
-  x G.· (G.inv y G.· y)  ≡⟨ G.assoc _ _ _ ⟩
+  x                      ≡⟨ sym (G.·IdR _) ⟩
+  x G.· G.1g             ≡⟨ cong (x G.·_) (sym (G.·InvL _)) ⟩
+  x G.· (G.inv y G.· y)  ≡⟨ G.·Assoc _ _ _ ⟩
   (x G.· G.inv y) G.· y  ≡⟨ cong (G._· y) idHelper ⟩
-  G.1g G.· y             ≡⟨ G.lid _ ⟩
+  G.1g G.· y             ≡⟨ G.·IdL _ ⟩
   y ∎
     where
     module G = GroupStr (snd G)
@@ -150,7 +150,7 @@ isInjective→isMono {G = G} {H = H} f h {x = x} {y = y} p =
     idHelper = h _ (f .snd .pres· _ _ ∙
                     cong (λ a → f .fst x H.· a) (f .snd .presinv y) ∙
                     cong (H._· H.inv (f .fst y)) p ∙
-                    H.invr _)
+                    H.·InvR _)
 
 -- TODO: maybe it would be better to take this as the definition of isInjective?
 isInjective→isContrKer : (f : GroupHom G H) → isInjective f → isContr (Ker f)
@@ -188,6 +188,13 @@ snd (GroupHom≡ {G = G} {H = H} {f = f} {g = g} p i) = p-hom i
   where
   p-hom : PathP (λ i → IsGroupHom (G .snd) (p i) (H .snd)) (f .snd) (g .snd)
   p-hom = toPathP (isPropIsGroupHom G H _ _)
+
+compGroupHomAssoc : (e : GroupHom E F) → (f : GroupHom F G) → (g : GroupHom G H)
+                  → compGroupHom (compGroupHom e f) g ≡ compGroupHom e (compGroupHom f g)
+compGroupHomAssoc e f g = GroupHom≡ refl
+
+compGroupHomId : (f : GroupHom F G) → compGroupHom f idGroupHom ≡ f
+compGroupHomId f = GroupHom≡ refl
 
 -- The composition of surjective maps is surjective
 compSurjective : ∀ {ℓ ℓ' ℓ''} {G : Group ℓ} {H : Group ℓ'} {L : Group ℓ''}
@@ -254,6 +261,13 @@ leftInv (fst (GroupIsoDirProd iso1 iso2)) a =
 snd (GroupIsoDirProd iso1 iso2) = makeIsGroupHom λ a b →
   ΣPathP (pres· (snd iso1) (fst a) (fst b) , pres· (snd iso2) (snd a) (snd b))
 
+GroupIso≡ : {f g : GroupIso G H} → f .fst ≡ g .fst → f ≡ g
+fst (GroupIso≡ {G = G} {H = H} {f} {g} p i) = p i
+snd (GroupIso≡ {G = G} {H = H} {f} {g} p i) = p-hom i
+  where
+  p-hom : PathP (λ i → IsGroupHom (G .snd) (p i .fun) (H .snd)) (snd f) (snd g)
+  p-hom = toPathP (isPropIsGroupHom G H _ _)
+
 
 -- Conversion functions between different notions of group morphisms
 GroupEquiv→GroupHom : GroupEquiv G H → GroupHom G H
@@ -267,6 +281,9 @@ snd (GroupIso→GroupEquiv i) = snd i
 GroupEquiv→GroupIso : GroupEquiv G H → GroupIso G H
 fst (GroupEquiv→GroupIso e) = equivToIso (fst e)
 snd (GroupEquiv→GroupIso e) = snd e
+
+GroupIso→GroupHom : GroupIso G H → GroupHom G H
+GroupIso→GroupHom i = GroupEquiv→GroupHom (GroupIso→GroupEquiv i)
 
 -- TODO: prove the converse
 BijectionIso→GroupIso : BijectionIso G H → GroupIso G H

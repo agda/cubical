@@ -60,6 +60,7 @@ open import Cubical.Algebra.Group.Instances.Unit
 
 open Iso
 open IsGroupHom
+open PlusBis
 
 -- Some abstract versions of imported lemmas/definitions from
 -- ZCohomology.Groups.SphereProduct for faster type checking.

@@ -23,7 +23,7 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 private
   variable
@@ -94,7 +94,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
          map (λ { (m , [xⁿ]ᵐ∈I) → (n ·ℕ m) , subst-∈ I (sym (^-rdist-·ℕ x n m)) [xⁿ]ᵐ∈I })
 
  ∈→∈√ : ∀ (I : CommIdeal) (x : R) → x ∈ I → x ∈ √ I
- ∈→∈√ I _ x∈I = ∣ 1 , subst-∈ I (sym (·Rid _)) x∈I ∣₁
+ ∈→∈√ I _ x∈I = ∣ 1 , subst-∈ I (sym (·IdR _)) x∈I ∣₁
 
 
 

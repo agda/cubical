@@ -113,16 +113,16 @@ _∣·∣₂_ = rec2 ∥freeGroupoid∥₂IsSet (λ g1 g2 → ∣ g1 · g2 ∣�
 
 ∥freeGroupoid∥₂IsMonoid : IsMonoid {A = ∥ FreeGroupoid A ∥₂} ∣ε∣₂ _∣·∣₂_
 ∥freeGroupoid∥₂IsMonoid = ismonoid ∥freeGroupoid∥₂IsSemiGroup
-  (λ x → elim (λ g → isProp→isSet (squash₂ (g ∣·∣₂ ∣ε∣₂) g)) (λ g → cong (λ g' → ∣ g' ∣₂) (sym (idr g))) x ,
-         elim (λ g → isProp→isSet (squash₂ (∣ε∣₂ ∣·∣₂ g) g)) (λ g → cong (λ g' → ∣ g' ∣₂) (sym (idl g))) x)
+  (λ x → elim (λ g → isProp→isSet (squash₂ (g ∣·∣₂ ∣ε∣₂) g)) (λ g → cong (λ g' → ∣ g' ∣₂) (sym (idr g))) x)
+  (λ x → elim (λ g → isProp→isSet (squash₂ (∣ε∣₂ ∣·∣₂ g) g)) (λ g → cong (λ g' → ∣ g' ∣₂) (sym (idl g))) x)
 
 ∣inv∣₂ : ∥ FreeGroupoid A ∥₂ → ∥ FreeGroupoid A ∥₂
 ∣inv∣₂ = map inv
 
 ∥freeGroupoid∥₂IsGroup : IsGroup {G = ∥ FreeGroupoid A ∥₂} ∣ε∣₂ _∣·∣₂_ ∣inv∣₂
 ∥freeGroupoid∥₂IsGroup = isgroup ∥freeGroupoid∥₂IsMonoid
-  (λ x → elim (λ g → isProp→isSet (squash₂ (g ∣·∣₂ (∣inv∣₂ g)) ∣ε∣₂)) (λ g → cong (λ g' → ∣ g' ∣₂) (invr g)) x ,
-         elim (λ g → isProp→isSet (squash₂ ((∣inv∣₂ g) ∣·∣₂ g) ∣ε∣₂)) (λ g → cong (λ g' → ∣ g' ∣₂) (invl g)) x)
+  (λ x → elim (λ g → isProp→isSet (squash₂ (g ∣·∣₂ (∣inv∣₂ g)) ∣ε∣₂)) (λ g → cong (λ g' → ∣ g' ∣₂) (invr g)) x)
+  (λ x → elim (λ g → isProp→isSet (squash₂ ((∣inv∣₂ g) ∣·∣₂ g) ∣ε∣₂)) (λ g → cong (λ g' → ∣ g' ∣₂) (invl g)) x)
 
 ∥freeGroupoid∥₂GroupStr : GroupStr ∥ FreeGroupoid A ∥₂
 ∥freeGroupoid∥₂GroupStr = groupstr ∣ε∣₂ _∣·∣₂_ ∣inv∣₂ ∥freeGroupoid∥₂IsGroup
