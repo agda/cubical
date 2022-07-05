@@ -211,3 +211,16 @@ isEquiv[f∘equivFunA≃B]→isEquiv[f] f (g , gIsEquiv) f∘gIsEquiv  =
 
       w' : isEquiv (g ∘ equivFun (invEquiv (_ , f∘gIsEquiv)))
       w' = (snd (compEquiv (invEquiv (_ , f∘gIsEquiv) ) (_ , gIsEquiv)))
+
+isEquiv[equivFunA≃B∘f]→isEquiv[f] : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+                 → (f : C → A) (A≃B : A ≃ B)
+                 → isEquiv (equivFun A≃B ∘ f)
+                 → isEquiv f
+isEquiv[equivFunA≃B∘f]→isEquiv[f] f (g , gIsEquiv) g∘fIsEquiv  =
+  composesToId→Equiv _ f w w'
+    where
+      w : equivFun (invEquiv (_ , g∘fIsEquiv)) ∘ g ∘ f ≡ idfun _
+      w = (cong fst (invEquiv-is-rinv (_ , g∘fIsEquiv)))
+
+      w' : isEquiv (equivFun (invEquiv (_ , g∘fIsEquiv)) ∘ g)
+      w' = snd (compEquiv (_ , gIsEquiv) (invEquiv (_ , g∘fIsEquiv)))

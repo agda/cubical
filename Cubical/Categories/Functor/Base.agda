@@ -2,6 +2,7 @@
 module Cubical.Categories.Functor.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 
@@ -26,7 +27,8 @@ record Functor (C : Category ℓC ℓC') (D : Category ℓD ℓD') :
 
   isFull = (x y : _) (F[f] : D [ F-ob x , F-ob y ]) → ∃[ f ∈ C [ x , y ] ] F-hom f ≡ F[f]
   isFaithful = (x y : _) (f g : C [ x , y ]) → F-hom f ≡ F-hom g → f ≡ g
-  isEssentiallySurj = (d : D .ob) → Σ[ c ∈ C .ob ] CatIso D (F-ob c) d
+  isFullyFaithful = (x y : _) → isEquiv (F-hom {x = x} {y = y})
+  isEssentiallySurj = (d : D .ob) → ∃[ c ∈ C .ob ] CatIso D (F-ob c) d
 
   -- preservation of commuting squares and triangles
   F-square : {x y u v : C .ob}
@@ -88,6 +90,10 @@ _⟪_⟫ = F-hom
 𝟙⟨ C ⟩ .F-hom f   = f
 𝟙⟨ C ⟩ .F-id      = refl
 𝟙⟨ C ⟩ .F-seq _ _ = refl
+
+Id : {C : Category ℓ ℓ'} → Functor C C
+Id = 𝟙⟨ _ ⟩
+
 
 -- functor composition
 funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
