@@ -23,16 +23,24 @@ private
 
 module _ (R : CommRing ℓ) where
 
-  initialCAlg : CommAlgebra R ℓ
-  initialCAlg =
-    let open CommRingStr (snd R)
-    in  (fst R , commalgebrastr _ _ _ _ _ (λ r x → r · x)
-                    (makeIsCommAlgebra (isSetRing (CommRing→Ring R))
-                       +Assoc +Rid +Rinv +Comm
-                       ·Assoc ·Lid
-                       ·Ldist+ ·Comm
-                        (λ x y z → sym (·Assoc x y z)) ·Ldist+ ·Rdist+ ·Lid
-                         λ x y z → sym (·Assoc x y z)))
+  module _ where
+    open CommRingStr (snd R)
+
+    initialCAlg : CommAlgebra R ℓ
+    initialCAlg .fst = fst R
+    initialCAlg .snd .CommAlgebraStr.0a = _
+    initialCAlg .snd .CommAlgebraStr.1a = _
+    initialCAlg .snd .CommAlgebraStr._+_ = _
+    initialCAlg .snd .CommAlgebraStr._·_ = _
+    initialCAlg .snd .CommAlgebraStr.-_ = _
+    initialCAlg .snd .CommAlgebraStr._⋆_ r x = r · x
+    initialCAlg .snd .CommAlgebraStr.isCommAlgebra =
+      makeIsCommAlgebra (isSetRing (CommRing→Ring R))
+                         +Assoc +IdR +InvR +Comm
+                         ·Assoc ·IdL
+                         ·DistL+ ·Comm
+                          (λ x y z → sym (·Assoc x y z)) ·DistR+ ·DistL+ ·IdL
+                           λ x y z → sym (·Assoc x y z)
 
   module _ (A : CommAlgebra R ℓ) where
     open CommAlgebraStr ⦃... ⦄
@@ -50,13 +58,13 @@ module _ (R : CommRing ℓ) where
     initialMap =
       makeCommAlgebraHom {M = initialCAlg} {N = A}
         (λ r → r * 1a)
-        (⋆-lid _)
-        (λ x y → ⋆-ldist x y 1a)
-        (λ x y →  (x · y) * 1a ≡⟨ ⋆-assoc _ _ _ ⟩
-                           x * (y * 1a)                   ≡[ i ]⟨ x * (·Lid (y * 1a) (~ i)) ⟩
-                           x * (1a · (y * 1a))            ≡⟨ sym (⋆-lassoc _ _ _) ⟩
+        (⋆IdL _)
+        (λ x y → ⋆DistL+ x y 1a)
+        (λ x y →  (x · y) * 1a ≡⟨ ⋆Assoc _ _ _ ⟩
+                           x * (y * 1a)                   ≡[ i ]⟨ x * (·IdL (y * 1a) (~ i)) ⟩
+                           x * (1a · (y * 1a))            ≡⟨ sym (⋆AssocL _ _ _) ⟩
                            (x * 1a) · (y * 1a) ∎)
-        (λ r x → (r · x) * 1a   ≡⟨ ⋆-assoc _ _ _ ⟩
+        (λ r x → (r · x) * 1a   ≡⟨ ⋆Assoc _ _ _ ⟩
                          (r * (x * 1a)) ∎)
 
     initialMapEq : (f : CommAlgebraHom initialCAlg A)
@@ -66,7 +74,7 @@ module _ (R : CommRing ℓ) where
       in Σ≡Prop
            (isPropIsCommAlgebraHom {M = initialCAlg} {N = A})
              λ i x →
-               ((fst f) x                              ≡⟨ cong (fst f) (sym (·Rid _)) ⟩
+               ((fst f) x                              ≡⟨ cong (fst f) (sym (·IdR _)) ⟩
                fst f (x · 1a)                          ≡⟨ pres⋆ x 1a ⟩
                CommAlgebraStr._⋆_ (snd A) x (fst f 1a) ≡⟨ cong
                                                            (λ u → (snd A CommAlgebraStr.⋆ x) u)

@@ -70,7 +70,6 @@ rec : ∀{k} → (a0 aS : A) → Fin k → A
 rec a0 aS zero = a0
 rec a0 aS (suc x) = aS
 
-
 FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
 FinVec A n = Fin n → A
 

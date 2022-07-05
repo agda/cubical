@@ -61,7 +61,7 @@ open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
 open import Cubical.ZCohomology.RingStructure.GradedCommutativity
 
-
+open PlusBis
 
 -- There seems to be some problems with the termination checker.
 -- Spelling out integer induction with 3 base cases like this
@@ -116,26 +116,23 @@ module _ where
   πS : (n : ℕ) → Group ℓ-zero
   fst (πS n) = S₊∙ n →∙ coHomK-ptd n
   1g (snd (πS n)) = (λ _ → 0ₖ n) , refl
-  GroupStr._·_ (snd (πS n)) =
-    λ f g → (λ x → fst f x +ₖ fst g x)
-            , cong₂ _+ₖ_ (snd f) (snd g) ∙ rUnitₖ n (0ₖ n)
+  GroupStr._·_ (snd (πS n)) f g = (λ x → fst f x +ₖ fst g x)
+                                  , cong₂ _+ₖ_ (snd f) (snd g) ∙ rUnitₖ n (0ₖ n)
   inv (snd (πS n)) f = (λ x → -ₖ fst f x) , cong -ₖ_ (snd f) ∙ -0ₖ {n = n}
-  is-set (isSemigroup (isMonoid (isGroup (snd (πS zero))))) =
-    isOfHLevelΣ 2 (isSetΠ (λ _ → isSetℤ))
-      λ _ → isOfHLevelPath 2 isSetℤ _ _
-  is-set (isSemigroup (isMonoid (isGroup (snd (πS (suc n)))))) =
-    isOfHLevel↑∙' 0 n
-  IsSemigroup.assoc (isSemigroup (isMonoid (isGroup (snd (πS n))))) x y z =
-    →∙Homogeneous≡ (isHomogeneousKn n)
-                    (funExt λ w → assocₖ n (fst x w) (fst y w) (fst z w))
-  fst (identity (isMonoid (isGroup (snd (πS n)))) (f , p)) =
-    →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → rUnitₖ n (f x))
-  snd (identity (isMonoid (isGroup (snd (πS n)))) (f , p)) =
-    →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → lUnitₖ n (f x))
-  fst (inverse (isGroup (snd (πS n))) (f , p)) =
-    →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → rCancelₖ n (f x))
-  snd (inverse (isGroup (snd (πS n))) (f , p)) =
-    →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → lCancelₖ n (f x))
+  isGroup (snd (πS n)) = makeIsGroup
+                         (helper n)
+                         (λ x y z → →∙Homogeneous≡
+                                     (isHomogeneousKn n)
+                                     (funExt λ w → assocₖ n (fst x w) (fst y w) (fst z w)))
+                         (λ { (f , p) → →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → rUnitₖ n (f x)) })
+                         (λ { (f , p) → →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → lUnitₖ n (f x)) })
+                         (λ { (f , p) → →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → rCancelₖ n (f x)) })
+                         (λ { (f , p) → →∙Homogeneous≡ (isHomogeneousKn n) (funExt λ x → lCancelₖ n (f x)) })
+          where
+          helper : (n : ℕ) → isSet (S₊∙ n →∙ coHomK-ptd n)
+          helper zero = isOfHLevelΣ 2 (isSetΠ (λ _ → isSetℤ))  λ _ → isOfHLevelPath 2 isSetℤ _ _
+          helper (suc n) = isOfHLevel↑∙' 0 n
+
 
   isSetπS : (n : ℕ) → isSet (S₊∙ n →∙ coHomK-ptd n)
   isSetπS = λ n → is-set (snd (πS n))
