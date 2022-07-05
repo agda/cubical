@@ -20,7 +20,7 @@ open import Cubical.Data.Nat.Divisibility
   renaming (_∣_ to _∣ℕ_ ; isProp∣ to isProp∣ℕ ; stDivIneq to stDivIneqℕ)
 open import Cubical.Data.Nat.Mod
 open import Cubical.Data.Int
-  hiding   (_+_ ; _·_ ; _-_ ; -_ ; addEq ; ·Comm ; ·Assoc ; +Comm ; +Assoc)
+  hiding   (_+_ ; _·_ ; _-_ ; -_ ; addEq ; ·Comm ; ·Assoc ; +Comm ; +Assoc ; ·DistL+)
 
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
@@ -31,7 +31,7 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 private
   variable

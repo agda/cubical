@@ -22,7 +22,7 @@ open import Cubical.Algebra.CommAlgebra.Instances.Unit
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Algebra.Algebra.Properties
 open AlgebraHoms using (compAlgebraHom)
 
@@ -31,7 +31,7 @@ private
     ℓ : Level
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
-  open CommRingStr {{...}} hiding (_-_; -_; dist; ·Lid; ·Rdist+) renaming (_·_ to _·R_; _+_ to _+R_)
+  open CommRingStr {{...}} hiding (_-_; -_; ·IdL ; ·DistR+) renaming (_·_ to _·R_; _+_ to _+R_)
   open CommAlgebraStr {{...}}
   open RingTheory (CommRing→Ring (CommAlgebra→CommRing A)) using (-DistR·)
   instance
@@ -40,23 +40,23 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
     _ : CommAlgebraStr _ _
     _ = snd A
 
-  _/_ :  CommAlgebra R ℓ
+  _/_ : CommAlgebra R ℓ
   _/_ = commAlgebraFromCommRing
            ((CommAlgebra→CommRing A) CommRing./ I)
            (λ r → elim (λ _ → squash/) (λ x → [ r ⋆ x ]) (eq r))
            (λ r s → elimProp (λ _ → squash/ _ _)
-                             λ x i → [ ((r ·R s) ⋆ x ≡⟨ ⋆-assoc r s x ⟩
+                             λ x i → [ ((r ·R s) ⋆ x ≡⟨ ⋆Assoc r s x ⟩
                                          r ⋆ (s ⋆ x) ∎) i ])
-           (λ r s → elimProp (λ _ → squash/ _ _)
-                             λ x i → [ ((r +R s) ⋆ x ≡⟨ ⋆-ldist r s x ⟩
-                                       r ⋆ x + s ⋆ x ∎) i ])
            (λ r → elimProp2 (λ _ _ → squash/ _ _)
-                            λ x y i → [ (r ⋆ (x + y)  ≡⟨ ⋆-rdist r x y ⟩
+                            λ x y i → [ (r ⋆ (x + y)  ≡⟨ ⋆DistR+ r x y ⟩
                                         r ⋆ x + r ⋆ y ∎) i ])
+           (λ r s → elimProp (λ _ → squash/ _ _)
+                             λ x i → [ ((r +R s) ⋆ x ≡⟨ ⋆DistL+ r s x ⟩
+                                       r ⋆ x + s ⋆ x ∎) i ])
            (elimProp (λ _ → squash/ _ _)
-                     (λ x i →  [ (1r ⋆ x ≡⟨ ⋆-lid x ⟩ x ∎) i ]))
+                     (λ x i →  [ (1r ⋆ x ≡⟨ ⋆IdL x ⟩ x ∎) i ]))
            λ r → elimProp2 (λ _ _ → squash/ _ _)
-                           λ x y i → [ ((r ⋆ x) · y ≡⟨ ⋆-lassoc r x y ⟩
+                           λ x y i → [ ((r ⋆ x) · y ≡⟨ ⋆AssocL r x y ⟩
                                        r ⋆ (x · y) ∎) i ]
 
           where
@@ -64,25 +64,25 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
                 eq : (r : fst R) (x y : fst A) → x - y ∈ (fst I) →  [ r ⋆ x ] ≡ [ r ⋆ y ]
                 eq r x y x-y∈I = eq/ _ _
                   (subst (λ u → u ∈ fst I)
-                  ((r ⋆ 1a) · (x - y)               ≡⟨ ·Rdist+ (r ⋆ 1a) x (- y)  ⟩
+                  ((r ⋆ 1a) · (x - y)               ≡⟨ ·DistR+ (r ⋆ 1a) x (- y) ⟩
                     (r ⋆ 1a) · x + (r ⋆ 1a) · (- y) ≡[ i ]⟨ (r ⋆ 1a) · x + -DistR· (r ⋆ 1a) y i ⟩
-                    (r ⋆ 1a) · x - (r ⋆ 1a) · y     ≡[ i ]⟨ ⋆-lassoc r 1a x i
-                                                            - ⋆-lassoc r 1a y i ⟩
-                    r ⋆ (1a · x) - r ⋆ (1a · y)     ≡[ i ]⟨ r ⋆ (·Lid x i) - r ⋆ (·Lid y i) ⟩
+                    (r ⋆ 1a) · x - (r ⋆ 1a) · y     ≡[ i ]⟨ ⋆AssocL r 1a x i
+                                                            - ⋆AssocL r 1a y i ⟩
+                    r ⋆ (1a · x) - r ⋆ (1a · y)     ≡[ i ]⟨ r ⋆ (·IdL x i) - r ⋆ (·IdL y i) ⟩
                     r ⋆ x - r ⋆ y ∎ )
                   (isCommIdeal.·Closed (snd I) _ x-y∈I))
 
   quotientHom : CommAlgebraHom A (_/_)
-  fst quotientHom = λ x → [ x ]
+  fst quotientHom x = [ x ]
   IsAlgebraHom.pres0 (snd quotientHom) = refl
   IsAlgebraHom.pres1 (snd quotientHom) = refl
-  IsAlgebraHom.pres+ (snd quotientHom) = λ _ _ → refl
-  IsAlgebraHom.pres· (snd quotientHom) = λ _ _ → refl
-  IsAlgebraHom.pres- (snd quotientHom) = λ _ → refl
-  IsAlgebraHom.pres⋆ (snd quotientHom) = λ _ _ → refl
+  IsAlgebraHom.pres+ (snd quotientHom) _ _ = refl
+  IsAlgebraHom.pres· (snd quotientHom) _ _ = refl
+  IsAlgebraHom.pres- (snd quotientHom) _ = refl
+  IsAlgebraHom.pres⋆ (snd quotientHom) _ _ = refl
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
-  open CommRingStr {{...}} hiding (_-_; -_; dist; ·Lid; ·Rdist+) renaming (_·_ to _·R_; _+_ to _+R_)
+  open CommRingStr {{...}} hiding (_-_; -_; ·IdL; ·DistR+) renaming (_·_ to _·R_; _+_ to _+R_)
   open CommAlgebraStr ⦃...⦄
 
   instance
