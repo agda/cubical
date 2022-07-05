@@ -50,7 +50,7 @@ private
 module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                          (limitC : Limits {ℓ} {ℓ} C) (L' : ℙ (fst L)) where
 
- open Category
+ open Category hiding (_∘_)
  open Functor
  open Cone
  open LimCone
@@ -415,7 +415,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                   Σpathhelperpath bar
 
       ccᵢ'IsConeMor : isConeMor (βCone c (α i) (α∈L' i) cc)
-                       (F-cone F (B⋁Cone (λ j →  (β (α i) j) , β∈L' (α i) (α∈L' i) j) (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)))) ccᵢ'
+                       (F-cone F (B⋁Cone (λ j → (β (α i) j) , β∈L' (α i) (α∈L' i) j) (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)))) ccᵢ'
       ccᵢ'IsConeMor (sing i') = path
        where
        path : ccᵢ' ⋆⟨ C ⟩ F-hom F (ind≤⋁ (β (α i)) i')
@@ -465,14 +465,63 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       β++γ∈L' : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L') → ∀ i → (β ++Fin γ) i ∈ L'
       β++γ∈L' β∈L' = ++FinPres∈ L' β∈L' γ∈L'
 
+      funSuc : {n : ℕ} {β : FinVec (fst L) (ℕ.suc n)} (β∈L' : ∀ i → β i ∈ L')
+           → C [ c , DLRan F .F-ob (⋁ β) ] → C [ c , DLRan F .F-ob (⋁ (β ∘ suc)) ]
+      funSuc β∈L' f = f ⋆⟨ C ⟩ DLRan F .F-hom (∨≤LCancel _ _)
+
+      squareSuc : {n : ℕ} (β : FinVec (fst L) (ℕ.suc n)) (β∈L' : ∀ i → β i ∈ L')
+                  (f : C [ c , (⋁Cospan β) .l ]) (g : C [ c , (⋁Cospan β) .r ])
+               → f ⋆⟨ C ⟩ (⋁Cospan β) .s₁ ≡ g ⋆⟨ C ⟩ (⋁Cospan β) .s₂
+               → f ⋆⟨ C ⟩ (⋁Cospan (β ∘ suc)) .s₁ ≡ (funSuc β∈L' g) ⋆⟨ C ⟩ (⋁Cospan (β ∘ suc)) .s₂
+      squareSuc β β∈L' f g square =
+          f ⋆⟨ C ⟩ (⋁Cospan (β ∘ suc)) .s₁
+        ≡⟨ cong (λ x → f ⋆⟨ C ⟩ DLRan F .F-hom x) (is-prop-valued _ _ _ _) ⟩
+          f ⋆⟨ C ⟩ DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)
+            ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (∨≤LCancel _ _)) (≤j→≤m _ _ (is-refl _))))
+        ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x) (DLRan F .F-seq _ _) ⟩
+          f ⋆⟨ C ⟩ ((⋁Cospan β) .s₁
+            ⋆⟨ C ⟩ DLRan F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (∨≤LCancel _ _)) (≤j→≤m _ _ (is-refl _)))))
+        ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+          (f ⋆⟨ C ⟩ (⋁Cospan β) .s₁)
+             ⋆⟨ C ⟩ DLRan F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (∨≤LCancel _ _)) (≤j→≤m _ _ (is-refl _))))
+        ≡⟨ cong (λ x → x ⋆⟨ C ⟩ DLRan F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (∨≤LCancel _ _)) (≤j→≤m _ _ (is-refl _))))) square ⟩
+          (g ⋆⟨ C ⟩ (⋁Cospan β) .s₂)
+             ⋆⟨ C ⟩ DLRan F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (∨≤LCancel _ _)) (≤j→≤m _ _ (is-refl _))))
+        ≡⟨ ⋆Assoc C _ _ _ ⟩
+          g ⋆⟨ C ⟩ ((⋁Cospan β) .s₂
+            ⋆⟨ C ⟩ DLRan F .F-hom (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (∨≤LCancel _ _)) (≤j→≤m _ _ (is-refl _)))))
+        ≡⟨ cong (λ x → g ⋆⟨ C ⟩ x) (sym (DLRan F .F-seq _ _)) ⟩
+          g ⋆⟨ C ⟩ DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)
+            ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (∨≤LCancel _ _)) (≤j→≤m _ _ (is-refl _))))
+        ≡⟨ cong (λ x → g ⋆⟨ C ⟩ DLRan F .F-hom x) (is-prop-valued _ _ _ _) ⟩
+          g ⋆⟨ C ⟩ DLRan F .F-hom (∨≤LCancel _ _ ⋆⟨ DLCat ^op ⟩ ≤m→≤j _ _ (∧≤RCancel _ _))
+        ≡⟨ cong (λ x → g ⋆⟨ C ⟩ x) (DLRan F .F-seq _ _) ⟩
+          g ⋆⟨ C ⟩ (DLRan F .F-hom (∨≤LCancel _ _) ⋆⟨ C ⟩ (⋁Cospan (β ∘ suc)) .s₂)
+        ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+          (g ⋆⟨ C ⟩ DLRan F .F-hom (∨≤LCancel _ _)) ⋆⟨ C ⟩ (⋁Cospan (β ∘ suc)) .s₂ ∎
+
     toCone : (n : ℕ) (β : FinVec (fst L) n) (β∈L' : ∀ i → β i ∈ L')
              (f : C [ c , (⋁Cospan β) .l ]) (g : C [ c , (⋁Cospan β) .r ])
            → f ⋆⟨ C ⟩ (⋁Cospan β) .s₁ ≡ g ⋆⟨ C ⟩ (⋁Cospan β) .s₂
            → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i))) c
-    coneOut (toCone ℕ.zero β β∈L' f g square) = {!!}
-    coneOutCommutes (toCone ℕ.zero β β∈L' f g square) = {!!}
-    toCone (ℕ.suc n) β β∈L' f g square = {!!}
-
+    coneOut (toCone ℕ.zero β β∈L' f g square) v = f ⋆⟨ C ⟩ restCone γ γ∈L' .coneOut v
+    coneOutCommutes (toCone ℕ.zero β β∈L' f g square) e = ⋆Assoc C _ _ _ ∙ cong (λ x → f ⋆⟨ C ⟩ x)
+                                                             (restCone γ γ∈L' .coneOutCommutes e)
+    coneOut (toCone (ℕ.suc n) β β∈L' f g square) (sing zero) = g ⋆⟨ C ⟩ restCone β β∈L' .coneOut (sing zero)
+    coneOut (toCone (ℕ.suc n) β β∈L' f g square) (sing (suc i)) =
+      coneOut (toCone n (β ∘ suc) (β∈L' ∘ suc) f (funSuc β∈L' g) (squareSuc _ β∈L' _ _ square)) (sing i)
+    coneOut (toCone (ℕ.suc n) β β∈L' f g square) (pair zero j i<j) = g ⋆⟨ C ⟩ restCone β β∈L' .coneOut (sing zero)
+                                                                        ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+    coneOut (toCone (ℕ.suc n) β β∈L' f g square) (pair (suc i) (suc j) (s≤s i<j)) =
+      coneOut (toCone n (β ∘ suc) (β∈L' ∘ suc) f (funSuc β∈L' g) (squareSuc _ β∈L' _ _ square)) (pair i j i<j)
+    coneOutCommutes (toCone (ℕ.suc n) β β∈L' f g square) idAr =
+      cong (λ x → (coneOut (toCone (ℕ.suc n) β β∈L' f g square) _) ⋆⟨ C ⟩ x) (F .F-id) ∙ ⋆IdR C _
+    coneOutCommutes (toCone (ℕ.suc n) β β∈L' f g square) (singPairL {i = zero} {j = j} {i<j = i<j}) = refl
+    coneOutCommutes (toCone (ℕ.suc n) β β∈L' f g square) (singPairL {i = suc i} {j = suc j} {i<j = s≤s i<j}) =
+      coneOutCommutes (toCone n (β ∘ suc) (β∈L' ∘ suc) f (funSuc β∈L' g) (squareSuc _ β∈L' _ _ square)) singPairL
+    coneOutCommutes (toCone (ℕ.suc n) β β∈L' f g square) (singPairR {i = zero} {j = suc j} {i<j = i<j}) = {!!}
+    coneOutCommutes (toCone (ℕ.suc n) β β∈L' f g square) (singPairR {i = suc i} {j = suc j} {i<j = s≤s i<j}) =
+      coneOutCommutes (toCone n (β ∘ suc) (β∈L' ∘ suc) f (funSuc β∈L' g) (squareSuc _ β∈L' _ _ square)) singPairR
 
 
 
