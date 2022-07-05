@@ -3,26 +3,27 @@ module Cubical.Algebra.Algebra.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Structures.Axioms
 open import Cubical.Structures.Auto
 open import Cubical.Structures.Macro
-open import Cubical.Algebra.Module
-open import Cubical.Algebra.Ring
-open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Group
+
 open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Module
+
 open import Cubical.Algebra.Algebra.Base
 
 open Iso
@@ -38,15 +39,15 @@ module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
   0-actsNullifying : (x : ⟨ A ⟩) → 0r ⋆ x ≡ 0a
   0-actsNullifying x =
     let idempotent-+ = 0r ⋆ x              ≡⟨ cong (λ u → u ⋆ x) (sym (RingTheory.0Idempotent R)) ⟩
-                       (0r +r 0r) ⋆ x      ≡⟨ ⋆-ldist 0r 0r x ⟩
+                       (0r +r 0r) ⋆ x      ≡⟨ ⋆DistL+ 0r 0r x ⟩
                        (0r ⋆ x) + (0r ⋆ x) ∎
     in RingTheory.+Idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+
 
   ⋆Dist· : (x y : ⟨ R ⟩) (a b : ⟨ A ⟩) → (x ·r y) ⋆ (a · b) ≡ (x ⋆ a) · (y ⋆ b)
-  ⋆Dist· x y a b = (x ·r y) ⋆ (a · b) ≡⟨ ⋆-rassoc _ _ _ ⟩
-                   a · ((x ·r y) ⋆ b) ≡⟨ cong (a ·_) (⋆-assoc _ _ _) ⟩
-                   a · (x ⋆ (y ⋆ b)) ≡⟨ sym (⋆-rassoc _ _ _) ⟩
-                   x ⋆ (a · (y ⋆ b)) ≡⟨ sym (⋆-lassoc _ _ _) ⟩
+  ⋆Dist· x y a b = (x ·r y) ⋆ (a · b) ≡⟨ ⋆AssocR _ _ _ ⟩
+                   a · ((x ·r y) ⋆ b) ≡⟨ cong (a ·_) (⋆Assoc _ _ _) ⟩
+                   a · (x ⋆ (y ⋆ b)) ≡⟨ sym (⋆AssocR _ _ _) ⟩
+                   x ⋆ (a · (y ⋆ b)) ≡⟨ sym (⋆AssocL _ _ _) ⟩
                    (x ⋆ a) · (y ⋆ b) ∎
 
 

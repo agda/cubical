@@ -40,6 +40,13 @@ mutual
 
     univ : ∀ ℓU → UARelDesc (𝒮-Univ ℓU)
 
+    -- Having a special descriptor for non-dependent × helps to avoid
+    -- combinatorial explosion. Automation will try to apply this first.
+    prod : ∀ {ℓA ℓ≅A ℓB ℓ≅B}
+      {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} (dA : UARelDesc 𝒮-A)
+      {B : Type ℓB} {𝒮-B : UARel B ℓ≅B} (dB : UARelDesc 𝒮-B)
+      → UARelDesc (𝒮-A ×𝒮 𝒮-B)
+
     sigma : ∀ {ℓA ℓ≅A ℓB ℓ≅B}
       {A : Type ℓA} {𝒮-A : UARel A ℓ≅A} (dA : UARelDesc 𝒮-A)
       {B : A → Type ℓB} {𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B} (dB : DUARelDesc 𝒮-A 𝒮ᴰ-B)
@@ -110,6 +117,12 @@ mutual
       → UARelReindex f
       → SubstRelDesc 𝒮-A (𝒮ˢ-reindex f (𝒮ˢ-El ℓU))
 
+    prod : ∀ {ℓA ℓ≅A ℓB ℓC}
+      {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+      {B : A → Type ℓB} {𝒮ˢ-B : SubstRel 𝒮-A B} (dB : SubstRelDesc 𝒮-A 𝒮ˢ-B)
+      {C : A → Type ℓC} {𝒮ˢ-C : SubstRel 𝒮-A C} (dC : SubstRelDesc 𝒮-A 𝒮ˢ-C)
+      → SubstRelDesc 𝒮-A (𝒮ˢ-B ×𝒮ˢ 𝒮ˢ-C)
+
     sigma : ∀ {ℓA ℓ≅A ℓB ℓC}
       {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
       {B : A → Type ℓB} {𝒮ˢ-B : SubstRel 𝒮-A B} (dB : SubstRelDesc 𝒮-A 𝒮ˢ-B)
@@ -140,6 +153,12 @@ mutual
       {f : UARelHom 𝒮-A (𝒮-Univ ℓU)}
       → UARelReindex f
       → DUARelDesc 𝒮-A (𝒮ᴰ-reindex f (𝒮ᴰ-El ℓU))
+
+    prod : ∀ {ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C}
+      {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+      {B : A → Type ℓB} {𝒮ᴰ-B : DUARel 𝒮-A B ℓ≅B} (dB : DUARelDesc 𝒮-A 𝒮ᴰ-B)
+      {C : A → Type ℓC} {𝒮ᴰ-C : DUARel 𝒮-A C ℓ≅C} (dC : DUARelDesc 𝒮-A 𝒮ᴰ-C)
+      → DUARelDesc 𝒮-A (𝒮ᴰ-B ×𝒮ᴰ 𝒮ᴰ-C)
 
     sigma : ∀ {ℓA ℓ≅A ℓB ℓ≅B ℓC ℓ≅C}
       {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
@@ -178,7 +197,7 @@ mutual
   autoUARelDesc : ℕ → R.Term → R.TC Unit
   autoUARelDesc zero hole = R.typeError [ R.strErr "Out of fuel" ]
   autoUARelDesc (suc n) hole =
-    tryUniv <|> trySigma <|> tryParam <|> tryPi <|> tryUnit <|> useGeneric
+    tryUniv <|> tryProd <|> trySigma <|> tryParam <|> tryPi <|> tryUnit <|> useGeneric
     where
     tryUniv : R.TC Unit
     tryUniv = R.unify (R.con (quote UARelDesc.univ) [ varg R.unknown ]) hole
@@ -198,6 +217,7 @@ mutual
       R.unify (R.con (quote UARelDesc.param) (paramTy v∷ hole₁ v∷ [])) hole >>
       autoUARelDesc n hole₁
 
+    tryProd = tryBinary (quote UARelDesc.prod)
     trySigma = tryBinary (quote UARelDesc.sigma)
     tryPi = tryBinary (quote UARelDesc.pi)
 
@@ -234,7 +254,7 @@ mutual
   autoSubstRelDesc : ℕ → R.Term → R.TC Unit
   autoSubstRelDesc zero hole = R.typeError [ R.strErr "Out of fuel" ]
   autoSubstRelDesc (suc n) hole =
-    tryConstant <|> tryEl <|> tryEl <|> trySigma <|> tryPi <|> useGeneric
+    tryConstant <|> tryEl <|> tryProd <|> trySigma <|> tryPi <|> useGeneric
     where
     tryConstant : R.TC Unit
     tryConstant =
@@ -254,6 +274,7 @@ mutual
       autoSubstRelDesc n hole₁ >>
       autoSubstRelDesc n hole₂
 
+    tryProd = tryBinary (quote SubstRelDesc.prod)
     trySigma = tryBinary (quote SubstRelDesc.sigma)
     tryPi = tryBinary (quote SubstRelDesc.pi)
 
@@ -263,7 +284,7 @@ mutual
   autoDUARelDesc : ℕ → R.Term → R.TC Unit
   autoDUARelDesc zero hole = R.typeError [ R.strErr "Out of fuel" ]
   autoDUARelDesc (suc n) hole =
-    tryConstant <|> tryEl <|> trySigma <|> tryPiˢ <|> tryPi <|> useGeneric
+    tryConstant <|> tryEl <|> tryProd <|> trySigma <|> tryPiˢ <|> tryPi <|> useGeneric
     where
     tryConstant : R.TC Unit
     tryConstant =
@@ -285,6 +306,7 @@ mutual
       autoDUARelDesc n hole₁ >>
       autoDUARelDesc n hole₂
 
+    tryProd = tryBinary (quote DUARelDesc.prod)
     trySigma = tryBinary (quote DUARelDesc.sigma)
     tryPi = tryBinary (quote DUARelDesc.pi)
 

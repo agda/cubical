@@ -19,7 +19,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Pointed hiding (pt)
 
 open import Cubical.Data.Nat
-open import Cubical.Algebra.NatSolver.Reflection
+open import Cubical.Tactics.NatSolver.Reflection
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 

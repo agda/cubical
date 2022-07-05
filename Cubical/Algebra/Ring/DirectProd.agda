@@ -25,19 +25,16 @@ module _
     ; -_        to -A_
     ; _·_       to _·A_
     ; +Assoc    to +AAssoc
-    ; +Identity to +AIdentity
-    ; +Lid      to +ALid
-    ; +Rid      to +ARid
-    ; +Inv      to +AInv
-    ; +Linv     to +ALinv
-    ; +Rinv     to +ARinv
+    ; +IdR      to +AIdR
+    ; +IdL      to +AIdL
+    ; +InvR     to +AInvR
+    ; +InvL     to +AInvL
     ; +Comm     to +AComm
     ; ·Assoc    to ·AAssoc
-    ; ·Identity to ·AIdentity
-    ; ·Lid      to ·ALid
-    ; ·Rid      to ·ARid
-    ; ·Rdist+   to ·ARdist+
-    ; ·Ldist+   to ·ALdist+
+    ; ·IdL      to ·AIdL
+    ; ·IdR      to ·AIdR
+    ; ·DistR+   to ·ADistR+
+    ; ·DistL+   to ·ADistL+
     ; is-set    to isSetA     )
 
   open RingStr Br using ()
@@ -48,19 +45,16 @@ module _
     ; -_        to -B_
     ; _·_       to _·B_
     ; +Assoc    to +BAssoc
-    ; +Identity to +BIdentity
-    ; +Lid      to +BLid
-    ; +Rid      to +BRid
-    ; +Inv      to +BInv
-    ; +Linv     to +BLinv
-    ; +Rinv     to +BRinv
+    ; +IdR      to +BIdR
+    ; +IdL      to +BIdL
+    ; +InvR     to +BInvR
+    ; +InvL     to +BInvL
     ; +Comm     to +BComm
     ; ·Assoc    to ·BAssoc
-    ; ·Identity to ·BIdentity
-    ; ·Lid      to ·BLid
-    ; ·Rid      to ·BRid
-    ; ·Rdist+   to ·BRdist+
-    ; ·Ldist+   to ·BLdist+
+    ; ·IdL      to ·BIdL
+    ; ·IdR      to ·BIdR
+    ; ·DistR+   to ·BDistR+
+    ; ·DistL+   to ·BDistL+
     ; is-set    to isSetB     )
 
   DirectProd-Ring : Ring (ℓ-max ℓ ℓ')
@@ -73,14 +67,14 @@ module _
   RingStr.isRing (snd DirectProd-Ring) =
     makeIsRing (isSet× isSetA isSetB)
     (λ x y z i → +AAssoc (fst x) (fst y) (fst z) i , +BAssoc (snd x) (snd y) (snd z) i)
-    (λ x i → (+ARid (fst x) i) , (+BRid (snd x) i))
-    (λ x i → (+ARinv (fst x) i) , +BRinv (snd x) i)
+    (λ x i → (+AIdR (fst x) i) , (+BIdR (snd x) i))
+    (λ x i → (+AInvR (fst x) i) , +BInvR (snd x) i)
     (λ x y i → (+AComm (fst x) (fst y) i) , (+BComm (snd x) (snd y) i))
     (λ x y z i → (·AAssoc (fst x) (fst y) (fst z) i) , (·BAssoc (snd x) (snd y) (snd z) i))
-    (λ x i → (·ARid (fst x) i) , (·BRid (snd x) i))
-    (λ x i → (·ALid (fst x) i) , (·BLid (snd x) i))
-    (λ x y z i → (·ARdist+ (fst x) (fst y) (fst z) i) , (·BRdist+ (snd x) (snd y) (snd z) i))
-    (λ x y z i → (·ALdist+ (fst x) (fst y) (fst z) i) , (·BLdist+ (snd x) (snd y) (snd z) i))
+    (λ x i → (·AIdR (fst x) i) , (·BIdR (snd x) i))
+    (λ x i → (·AIdL (fst x) i) , (·BIdL (snd x) i))
+    (λ x y z i → (·ADistR+ (fst x) (fst y) (fst z) i) , (·BDistR+ (snd x) (snd y) (snd z) i))
+    (λ x y z i → (·ADistL+ (fst x) (fst y) (fst z) i) , (·BDistL+ (snd x) (snd y) (snd z) i))
 
 module Coproduct-Equiv
   {Xr@(X , Xstr) : Ring ℓ}

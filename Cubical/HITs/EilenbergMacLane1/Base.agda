@@ -49,7 +49,7 @@ module _ (Group@(G , str) : Group ℓ) where
        lUnit (emloop 1g)
     ∙∙ cong (_∙ emloop 1g) (sym (lCancel (emloop 1g)) )
     ∙∙ sym (assoc∙ _ _ _)
-    ∙∙ cong (sym (emloop 1g) ∙_) (sym (emloop-comp 1g 1g) ∙ cong emloop (lid 1g))
+    ∙∙ cong (sym (emloop 1g) ∙_) (sym (emloop-comp 1g 1g) ∙ cong emloop (·IdL 1g))
     ∙∙ rCancel _
 
   emloop-sym : (g : G) → emloop (inv g) ≡ sym (emloop g)
@@ -57,5 +57,5 @@ module _ (Group@(G , str) : Group ℓ) where
        rUnit _
     ∙∙ cong (emloop (inv g) ∙_) (sym (rCancel (emloop g)))
     ∙∙ assoc∙ _ _ _
-    ∙∙ cong (_∙ sym (emloop g)) (sym (emloop-comp (inv g) g) ∙∙ cong emloop (invl g) ∙∙ emloop-1g)
+    ∙∙ cong (_∙ sym (emloop g)) (sym (emloop-comp (inv g) g) ∙∙ cong emloop (·InvL g) ∙∙ emloop-1g)
     ∙∙ sym (lUnit _)

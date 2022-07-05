@@ -17,7 +17,7 @@ open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.DirectProd
-open import Cubical.Algebra.DirectSum.Base
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 
 open import Cubical.HITs.SetTruncation as ST
 
@@ -38,6 +38,7 @@ module Equiv-Coproduct-Properties
   open Iso
   open IsGroupHom
   open GroupStr
+  open PlusBis
 
   open RingStr (snd (H*R X)) using ()
     renaming
@@ -47,19 +48,12 @@ module Equiv-Coproduct-Properties
     ; -_        to -H*X_
     ; _·_       to _cupX_
     ; +Assoc    to +H*XAssoc
-    ; +Identity to +H*XIdentity
-    ; +Lid      to +H*XLid
-    ; +Rid      to +H*XRid
-    ; +Inv      to +H*XInv
-    ; +Linv     to +H*XLinv
-    ; +Rinv     to +H*XRinv
+    ; +IdL      to +H*XIdL
+    ; +IdR      to +H*XIdR
     ; +Comm     to +H*XComm
     ; ·Assoc    to ·H*XAssoc
-    ; ·Identity to ·H*XIdentity
-    ; ·Lid      to ·H*XLid
-    ; ·Rid      to ·H*XRid
-    ; ·Rdist+   to ·H*XRdist+
-    ; ·Ldist+   to ·H*XLdist+
+    ; ·IdL      to ·H*XIdL
+    ; ·IdR      to ·H*XIdR
     ; is-set    to isSetH*X     )
 
   open RingStr (snd (H*R Y)) using ()
@@ -70,19 +64,12 @@ module Equiv-Coproduct-Properties
     ; -_        to -H*Y_
     ; _·_       to _cupY_
     ; +Assoc    to +H*YAssoc
-    ; +Identity to +H*YIdentity
-    ; +Lid      to +H*YLid
-    ; +Rid      to +H*YRid
-    ; +Inv      to +H*YInv
-    ; +Linv     to +H*YLinv
-    ; +Rinv     to +H*YRinv
+    ; +IdL      to +H*YIdL
+    ; +IdR      to +H*YIdR
     ; +Comm     to +H*YComm
     ; ·Assoc    to ·H*YAssoc
-    ; ·Identity to ·H*YIdentity
-    ; ·Lid      to ·H*YLid
-    ; ·Rid      to ·H*YRid
-    ; ·Rdist+   to ·H*YRdist+
-    ; ·Ldist+   to ·H*YLdist+
+    ; ·IdL      to ·H*YIdL
+    ; ·IdR      to ·H*YIdR
     ; is-set    to isSetH*Y     )
 
   -- warning this does not open H*(X×Y) !
@@ -95,19 +82,12 @@ module Equiv-Coproduct-Properties
     ; -_        to -H*X×Y_
     ; _·_       to _cupX×Y_
     ; +Assoc    to +H*X×YAssoc
-    ; +Identity to +H*X×YIdentity
-    ; +Lid      to +H*X×YLid
-    ; +Rid      to +H*X×YRid
-    ; +Inv      to +H*X×YInv
-    ; +Linv     to +H*X×YLinv
-    ; +Rinv     to +H*X×YRinv
+    ; +IdL      to +H*X×YIdL
+    ; +IdR      to +H*X×YIdR
     ; +Comm     to +H*X×YComm
     ; ·Assoc    to ·H*X×YAssoc
-    ; ·Identity to ·H*X×YIdentity
-    ; ·Lid      to ·H*X×YLid
-    ; ·Rid      to ·H*X×YRid
-    ; ·Rdist+   to ·H*X×YRdist+
-    ; ·Ldist+   to ·H*X×YLdist+
+    ; ·IdL      to ·H*X×YIdL
+    ; ·IdR      to ·H*X×YIdR
     ; is-set    to isSetH*X×Y     )
 
   open RingStr (snd (H*R (X ⊎ Y))) using ()
@@ -118,19 +98,12 @@ module Equiv-Coproduct-Properties
     ; -_        to -H*X⊎Y_
     ; _·_       to _cupX⊎Y_
     ; +Assoc    to +H*X⊎YAssoc
-    ; +Identity to +H*X⊎YIdentity
-    ; +Lid      to +H*X⊎YLid
-    ; +Rid      to +H*X⊎YRid
-    ; +Inv      to +H*X⊎YInv
-    ; +Linv     to +H*X⊎YLinv
-    ; +Rinv     to +H*X⊎YRinv
+    ; +IdL      to +H*X⊎YIdL
+    ; +IdR      to +H*X⊎YIdR
     ; +Comm     to +H*X⊎YComm
     ; ·Assoc    to ·H*X⊎YAssoc
-    ; ·Identity to ·H*X⊎YIdentity
-    ; ·Lid      to ·H*X⊎YLid
-    ; ·Rid      to ·H*X⊎YRid
-    ; ·Rdist+   to ·H*X⊎YRdist+
-    ; ·Ldist+   to ·H*X⊎YLdist+
+    ; ·IdL      to ·H*X⊎YIdL
+    ; ·IdR      to ·H*X⊎YIdR
     ; is-set    to isSetH*X⊎Y     )
 
 
@@ -156,7 +129,7 @@ module Equiv-Coproduct-Properties
     (λ n a → (base n (fst (fun (fst Equiv-Coproduct-CoHom) a))) , (base n (snd (fun (fst Equiv-Coproduct-CoHom) a))))
     _+H*X×Y_
     +H*X×YAssoc
-    +H*X×YRid
+    +H*X×YIdR
     +H*X×YComm
     (λ n → ≡-× ((cong (λ A → baseX n (fst A)) (pres1 (snd Equiv-Coproduct-CoHom))) ∙ base-neutral n)
                (((cong (λ B → baseY n (snd B)) (pres1 (snd Equiv-Coproduct-CoHom))) ∙ base-neutral n)))
@@ -189,13 +162,13 @@ module Equiv-Coproduct-Properties
        (λ n a → base n (inv (fst Equiv-Coproduct-CoHom) (a , (0ₕ n))))
        _+H*X⊎Y_
        +H*X⊎YAssoc
-       +H*X⊎YRid
+       +H*X⊎YIdR
        +H*X⊎YComm
        (λ n → cong (base n) (pres1 (snd (invGroupIso Equiv-Coproduct-CoHom))) ∙ base-neutral n)
        λ n a a' → base-add _ _ _
                    ∙ cong (base n) (sym (pres· (snd (invGroupIso Equiv-Coproduct-CoHom)) _ _))
                    ∙ cong (base n) (cong (inv (fst Equiv-Coproduct-CoHom))
-                                         (≡-× refl (AbGroupStr.lid (snd (coHomGroup n Y)) (0ₕ n))))
+                                         (≡-× refl (AbGroupStr.+IdL (snd (coHomGroup n Y)) (0ₕ n))))
 
   H*-Y→H*-X⊎Y : H*(Y) → H*(X ⊎ Y)
   H*-Y→H*-X⊎Y = DS-Rec-Set.f _ _ _ _ isSetH*X⊎Y
@@ -203,12 +176,12 @@ module Equiv-Coproduct-Properties
        (λ m b → base m (inv (fst Equiv-Coproduct-CoHom) (0ₕ m , b)))
        _+H*X⊎Y_
        +H*X⊎YAssoc
-       +H*X⊎YRid
+       +H*X⊎YIdR
        +H*X⊎YComm
        (λ m → cong (base m) (pres1 (snd (invGroupIso Equiv-Coproduct-CoHom))) ∙ base-neutral m)
        λ m b b' → base-add _ _ _
                    ∙ cong (base m) (sym (pres· (snd (invGroupIso Equiv-Coproduct-CoHom)) (0ₕ m , b) (0ₕ m , b')))
-                   ∙ cong (base m) (cong (inv (fst Equiv-Coproduct-CoHom)) (≡-× (AbGroupStr.lid (snd (coHomGroup m X)) (0ₕ m)) refl))
+                   ∙ cong (base m) (cong (inv (fst Equiv-Coproduct-CoHom)) (≡-× (AbGroupStr.+IdL (snd (coHomGroup m X)) (0ₕ m)) refl))
 
 
   H*-X×H*-Y→H*-X⊎Y : H*(X) × H*(Y) → H*(X ⊎ Y)
@@ -226,7 +199,7 @@ module Equiv-Coproduct-Properties
             (λ n a → ≡-× (cong (base n) (cong fst (rightInv (fst Equiv-Coproduct-CoHom) (a , 0ₕ n))))
                           (cong (base n) (cong snd (rightInv (fst Equiv-Coproduct-CoHom) (a , 0ₕ n))))
                      ∙ ≡-× refl (base-neutral n))
-            λ {U V} ind-U ind-V → cong₂ _+H*X×Y_ ind-U ind-V ∙ ≡-× refl (+H*YRid _)
+            λ {U V} ind-U ind-V → cong₂ _+H*X×Y_ ind-U ind-V ∙ ≡-× refl (+H*YIdR _)
 
   e-sectY : (y : H* Y) → (H*-X⊎Y→H*-X×H*-Y (H*-Y→H*-X⊎Y y)) ≡ (0H*X , y)
   e-sectY = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X×Y _ _)
@@ -234,10 +207,10 @@ module Equiv-Coproduct-Properties
             (λ m b → ≡-× (cong (base m) (cong fst (rightInv (fst Equiv-Coproduct-CoHom) (0ₕ m , b))))
                           (cong (base m) (cong snd (rightInv (fst Equiv-Coproduct-CoHom) (0ₕ m , b))))
                      ∙ ≡-× (base-neutral m) refl)
-            λ {U V} ind-U ind-V → cong₂ _+H*X×Y_ ind-U ind-V ∙ ≡-× (+H*XRid _) refl
+            λ {U V} ind-U ind-V → cong₂ _+H*X×Y_ ind-U ind-V ∙ ≡-× (+H*XIdR _) refl
 
   e-sect : (z : H*(X) × H*(Y)) → H*-X⊎Y→H*-X×H*-Y (H*-X×H*-Y→H*-X⊎Y z) ≡ z
-  e-sect (x , y) = cong₂ _+H*X×Y_ (e-sectX x) (e-sectY y) ∙ ≡-× (+H*XRid x) (+H*YLid y)
+  e-sect (x , y) = cong₂ _+H*X×Y_ (e-sectX x) (e-sectY y) ∙ ≡-× (+H*XIdR x) (+H*YIdL y)
 
 
 
@@ -246,7 +219,7 @@ module Equiv-Coproduct-Properties
 
   e-retr : (x : H*(X ⊎ Y)) → H*-X×H*-Y→H*-X⊎Y (H*-X⊎Y→H*-X×H*-Y x) ≡ x
   e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X⊎Y _ _)
-           (+H*X⊎YRid _)
+           (+H*X⊎YIdR _)
            (λ n a → ((base n (T⁻ ((fst (T a)) , 0ₕ n))) +H*X⊎Y (base n (T⁻ (0ₕ n , snd (T a)))))
                            ≡⟨ base-add n _ _ ⟩
                      base n ((T⁻ ((fst (T a)) , 0ₕ n)) +ₕ (T⁻ (0ₕ n , snd (T a))))
