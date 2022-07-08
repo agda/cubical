@@ -23,18 +23,7 @@ infixr 35 _⌣ₖ_
 infixr 35 _⌣_
 
 --- This definition of ℕ-addition removes some unnecessary transports.
-_+'_ : ℕ → ℕ → ℕ
-zero +' b = b
-suc a +' zero = suc a
-suc a +' suc b = 2 + (a + b)
-
-+'≡+ : (n m : ℕ) → n +' m ≡ n + m
-+'≡+ zero m = refl
-+'≡+ (suc n) zero = cong suc (sym (+-comm n zero))
-+'≡+ (suc n) (suc m) = cong suc (sym (+-suc n m))
-
-+'-comm : (n m : ℕ) → n +' m ≡ m +' n
-+'-comm n m = +'≡+ n m ∙∙ +-comm n m ∙∙ sym (+'≡+ m n)
+open PlusBis
 
 -- Cup product with one integer (K₀) argument
 _·₀_ : {n : ℕ} (m : ℤ) → coHomK n → coHomK n

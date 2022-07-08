@@ -37,10 +37,9 @@ open import Cubical.HITs.Susp
 open import Cubical.Algebra.AbGroup.TensorProduct
 open import Cubical.Algebra.Group
 
-open import Cubical.ZCohomology.RingStructure.CupProduct
-  using (_+'_ ; +'≡+ ; +'-comm)
-
 open AbGroupStr renaming (_+_ to _+Gr_ ; -_ to -Gr_)
+
+open PlusBis
 
 private
   variable
@@ -85,7 +84,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
            compPathR→PathP
              (sym (∙assoc _ _ _
                 ∙∙ cong₂ _∙_ (sym (emloop-comp _ _ _)
-                            ∙ cong emloop (sym (linl g l h))) refl
+                            ∙ cong emloop (sym (⊗DistL+⊗ g l h))) refl
                 ∙∙ rCancel _)))
        λ n f → trRec (isOfHLevelTrunc (4 + n))
                         λ { north → 0ₖ (suc (suc n))
@@ -100,7 +99,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                  (λ h → emloop (g ⊗ h))
                  λ h l → compPathR→PathP
                    (sym (∙assoc _ _ _
-                      ∙∙ cong₂ _∙_ (sym (emloop-comp _ _ _) ∙ cong emloop (sym (linr g h l))) refl
+                      ∙∙ cong₂ _∙_ (sym (emloop-comp _ _ _) ∙ cong emloop (sym (⊗DistR+⊗ g h l))) refl
                       ∙∙ rCancel _)))
                λ n f
                → trRec (isOfHLevelTrunc (4 + n))
@@ -111,10 +110,10 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
    ·₀-distr : (g h : G) → (m : ℕ)  (x : EM H' m) → ·₀ (g +G h) m x ≡ ·₀ g m x +ₖ ·₀ h m x
    ·₀-distr g h =
      elim+2
-       (linl g h)
+       (⊗DistL+⊗ g h)
        (elimSet _ (λ _ → emsquash _ _)
          refl
-         (λ w → compPathR→PathP (sym ((λ i → emloop (linl g h w i)
+         (λ w → compPathR→PathP (sym ((λ i → emloop (⊗DistL+⊗ g h w i)
                                ∙ (lUnit (sym (cong₂+₁ (emloop (g ⊗ w)) (emloop (h ⊗ w)) i)) (~ i)))
               ∙∙ cong₂ _∙_ (emloop-comp _ (g ⊗ w) (h ⊗ w)) refl
               ∙∙ rCancel _))))
@@ -139,22 +138,22 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                                  (cong (·₀ h (suc (suc m))) (cong ∣_∣ₕ (merid a))))
 
    ·₀0 : (m : ℕ) → (g : G) → ·₀ g m (0ₖ m) ≡ 0ₖ m
-   ·₀0 zero = rCancelPrim
+   ·₀0 zero = ⊗AnnihilR
    ·₀0 (suc zero) g = refl
    ·₀0 (suc (suc m)) g = refl
 
    ·₀'0 : (m : ℕ) (h : H) → ·₀' h m (0ₖ m) ≡ 0ₖ m
-   ·₀'0 zero = lCancelPrim
+   ·₀'0 zero = ⊗AnnihilL
    ·₀'0 (suc zero) g = refl
    ·₀'0 (suc (suc m)) g = refl
 
    0·₀ : (m : ℕ) → (x : _) → ·₀ 0G m x ≡ 0ₖ m
    0·₀ =
-     elim+2 lCancelPrim
+     elim+2 ⊗AnnihilL
        (elimSet _ (λ _ → emsquash _ _)
          refl
          λ g → compPathR→PathP ((sym (emloop-1g _)
-                                ∙ cong emloop (sym (lCancelPrim g)))
+                                ∙ cong emloop (sym (⊗AnnihilL g)))
                                 ∙∙ (λ i → rUnit (rUnit (cong (·₀ 0G 1) (emloop g)) i) i)
                                 ∙∙ sym (∙assoc _ _ _)))
        λ n f → trElim (λ _ → isOfHLevelTruncPath)
@@ -166,12 +165,12 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
    0·₀' : (m : ℕ) (g : _) → ·₀' 0H m g ≡ 0ₖ m
    0·₀' =
      elim+2
-       rCancelPrim
+       ⊗AnnihilR
        (elimSet _ (λ _ → emsquash _ _)
          refl
          λ g → compPathR→PathP (sym (∙assoc _ _ _
                               ∙∙ sym (rUnit _) ∙ sym (rUnit _)
-                              ∙∙ (cong emloop (rCancelPrim g)
+                              ∙∙ (cong emloop (⊗AnnihilR g)
                                 ∙ emloop-1g _))))
        λ n f → trElim (λ _ → isOfHLevelTruncPath)
                        λ { north → refl
