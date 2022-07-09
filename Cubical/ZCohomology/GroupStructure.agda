@@ -672,6 +672,11 @@ coHomRedGrDir n A = AbGroup→Group (coHomRedGroupDir n A)
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
 coHomFun n f = ST.rec § λ β → ∣ β ∘ f ∣₂
 
+coHomFunId : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+  → coHomFun {A = A} n (idfun A) ≡ idfun _
+coHomFunId n =
+  funExt (ST.elim (λ _ → isSetPathImplicit) λ _ → refl)
+
 coHomMorph : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → GroupHom (coHomGr n B) (coHomGr n A)
 fst (coHomMorph n f) = coHomFun n f
 snd (coHomMorph n f) = makeIsGroupHom (helper n)
@@ -908,34 +913,3 @@ module lockedCohom (key : Unit') where
 
 lUnitK≡rUnitK : (key : Unit') (n : ℕ) → lockedCohom.lUnitK key n (0ₖ n) ≡ lockedCohom.rUnitK key n (0ₖ n)
 lUnitK≡rUnitK unlock = lUnitₖ≡rUnitₖ
-
-open GroupStr renaming (_·_ to _+gr_)
-open IsGroupHom
-
--- inducedCoHom : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
---   → GroupIso (coHomGr n A) G
---   → Group
--- inducedCoHom {A = A} {G = G} {n = n} e =
---   InducedGroup (coHomGr n A)
---                (coHom n A , λ x y → Iso.inv (isom e) (_+gr_ (snd G) (fun (isom e) x)
---                                                          (fun (isom e) y)))
---                (idEquiv _)
---                λ x y → sym (leftInv (isom e) _)
---                       ∙ cong (Iso.inv (isom e)) (isHom e x y)
-
--- induced+ : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
---   → (e : GroupIso (coHomGr n A) G)
---   → fst (inducedCoHom e) → fst (inducedCoHom e) → fst (inducedCoHom e)
--- induced+ e = _+gr_ (snd (inducedCoHom e))
-
--- inducedCoHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
---                → (e : GroupIso (coHomGr n A) G)
---                → GroupIso (coHomGr n A) (inducedCoHom e)
--- isom (inducedCoHomIso e) = idIso
--- isHom (inducedCoHomIso e) x y = sym (leftInv (isom e) _)
---                               ∙ cong (Iso.inv (isom e)) (isHom e x y)
-
--- inducedCoHomPath : ∀ {ℓ ℓ'} {A : Type ℓ} {G : Group {ℓ'}} {n : ℕ}
---                → (e : GroupIso (coHomGr n A) G)
---                → coHomGr n A ≡ inducedCoHom e
--- inducedCoHomPath e = InducedGroupPath _ _ _ _
