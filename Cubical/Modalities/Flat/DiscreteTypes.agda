@@ -12,6 +12,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Unit
+open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -28,6 +29,19 @@ isDiscreteUnit = snd (isoToEquiv (iso counit inv linv rinv))
     inv = λ {tt → tt ^♭}
     linv = λ {tt → refl}
     rinv = λ {(tt ^♭) → refl}
+
+isDiscreteBool : isCrisplyDiscrete Bool
+isDiscreteBool = snd (isoToEquiv (iso counit inv linv rinv))
+  where
+    inv : Bool → ♭ Bool
+    inv false = false ^♭
+    inv true = true ^♭
+    linv : section (λ z → counit z) inv
+    linv false = refl
+    linv true = refl
+    rinv : retract counit inv
+    rinv (false ^♭) = refl
+    rinv (true ^♭) = refl
 
 private
   counitInvℕ : ℕ → ♭ ℕ
