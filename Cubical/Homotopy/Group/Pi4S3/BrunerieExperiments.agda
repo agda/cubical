@@ -263,6 +263,8 @@ g10 = SetTrunc.rec isSetℤ (idfun ℤ)
 brunerie : ℤ
 brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
 
+
+
 {-
 
 Computation of an alternative definition of the Brunerie number based

@@ -66,6 +66,7 @@ A ⋀ B = Pushout {A = (A ⋁ B)} (λ _ → tt) i∧
 _⋀∙_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋀∙ B = Pushout {A = (A ⋁ B)} (λ _ → tt) i∧ , (inl tt)
 
+
 _⋀→_ : (f : A →∙ C) (g : B →∙ D)  → A ⋀ B → C ⋀ D
 (f ⋀→ g) (inl tt) = inl tt
 ((f , fpt) ⋀→ (g , gpt)) (inr (x , x₁)) = inr (f x , g x₁)
