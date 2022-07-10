@@ -3,6 +3,7 @@ module Cubical.Categories.Functor.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
 
@@ -63,6 +64,29 @@ F-id (Functor≡ {C = C} {D = D} {F = F} {G = G} hOb hHom i) =
 F-seq (Functor≡ {C = C} {D = D} {F = F} {G = G} hOb hHom i) f g =
   isProp→PathP (λ j → isSetHom D (hHom (f ⋆⟨ C ⟩ g) j) ((hHom f j) ⋆⟨ D ⟩ (hHom g j))) (F-seq F f g) (F-seq G f g) i
 
+FunctorSquare :
+  {F₀₀ F₀₁ F₁₀ F₁₁ : Functor C D}
+  (F₀₋ : F₀₀ ≡ F₀₁) (F₁₋ : F₁₀ ≡ F₁₁)
+  (F₋₀ : F₀₀ ≡ F₁₀) (F₋₁ : F₀₁ ≡ F₁₁)
+  → Square (cong F-ob F₀₋) (cong F-ob F₁₋) (cong F-ob F₋₀) (cong F-ob F₋₁)
+  → Square F₀₋ F₁₋ F₋₀ F₋₁
+FunctorSquare {C = C} {D = D} F₀₋ F₁₋ F₋₀ F₋₁ r = sqr
+  where
+  sqr : _
+  sqr i j .F-ob = r i j
+  sqr i j .F-hom {x = x} {y = y} f =
+    isSet→SquareP (λ i j → D .isSetHom {x = sqr i j .F-ob x} {y = sqr i j .F-ob y})
+    (λ i → F₀₋ i .F-hom f) (λ i → F₁₋ i .F-hom f) (λ i → F₋₀ i .F-hom f) (λ i → F₋₁ i .F-hom f) i j
+  sqr i j .F-id {x = x} =
+    isSet→SquareP (λ i j → isProp→isSet (D .isSetHom (sqr i j .F-hom (C .id)) (D .id)))
+    (λ i → F₀₋ i .F-id) (λ i → F₁₋ i .F-id) (λ i → F₋₀ i .F-id) (λ i → F₋₁ i .F-id) i j
+  sqr i j .F-seq f g =
+    isSet→SquareP (λ i j →
+      isProp→isSet (D .isSetHom (sqr i j .F-hom (f ⋆⟨ C ⟩ g)) ((sqr i j .F-hom f) ⋆⟨ D ⟩ (sqr i j .F-hom g))))
+    (λ i → F₀₋ i .F-seq f g) (λ i → F₁₋ i .F-seq f g) (λ i → F₋₀ i .F-seq f g) (λ i → F₋₁ i .F-seq f g) i j
+
+FunctorPath≡ : {F G : Functor C D}{p q : F ≡ G} → cong F-ob p ≡ cong F-ob q → p ≡ q
+FunctorPath≡ {p = p} {q = q} = FunctorSquare p q refl refl
 
 
 -- Helpful notation
