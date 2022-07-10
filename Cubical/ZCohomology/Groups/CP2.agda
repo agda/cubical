@@ -344,7 +344,7 @@ CP²≡CP2 = compIso (equivToIso (symPushout fst (λ _ → tt))) (invIso CP²-is
           fst (fst A≃B) (fst (fst Z≃A) (pos 1))
         ≡ fst (fst Z≃B) (pos 1)
     main {A = A} {B = B} =
-      GroupEquivJ (λ B A≃B → 
+      GroupEquivJ (λ B A≃B →
         (Z≃A : GroupEquiv ℤGroup A)
       → Σ[ Z≃B ∈ GroupEquiv ℤGroup B ]
           fst (fst A≃B) (fst (fst Z≃A) (pos 1))
@@ -356,7 +356,7 @@ CP²≡CP2 = compIso (equivToIso (symPushout fst (λ _ → tt))) (invIso CP²-is
   lem = Iso.leftInv (fst H²CP²≅ℤ) gen'
 
   c = main isEquiv⌣gen' (GroupIso→GroupEquiv (invGroupIso H²CP²≅ℤ))
-  
+
 H⁴CP²≅ℤ-pos : GroupIso (coHomGr 4 CP²) ℤGroup
 H⁴CP²≅ℤ-pos = invGroupIso (GroupEquiv→GroupIso (Σℤ≅H⁴CP² .fst))
 
