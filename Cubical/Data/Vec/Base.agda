@@ -7,6 +7,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData.Base
+open import Cubical.Algebra.Core
 
 private
   variable
@@ -45,7 +46,7 @@ zipWith : ∀ {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {n : ℕ}
 zipWith {n = zero} _∗_ [] [] = []
 zipWith {n = suc n} _∗_ (x ∷ xs) (y ∷ ys) = (x ∗ y) ∷ zipWith _∗_ xs ys
 
-foldr : ∀ {n : ℕ} → (A → B → B) → B → Vec A n → B
+foldr : ∀ {n : ℕ} → (A → Op₁ B) → B → Vec A n → B
 foldr {n = zero} _∗_ x [] = x
 foldr {n = suc n} _∗_ x (y ∷ xs) = y ∗ (foldr _∗_ x xs)
 

@@ -5,6 +5,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 
+open import Cubical.Algebra.Core
+
 infixl 7 _·_
 infix 20 _⁻¹
 
@@ -68,8 +70,8 @@ module ElimProp {B : FreeAbGroup A → Type ℓ'}
 module Rec {B : Type ℓ'} (BType : isSet B)
   (⟦_⟧*       : (x : A) → B)
   (ε*         : B)
-  (_·*_       : B → B → B)
-  (_⁻¹*       : B → B)
+  (_·*_       : Op₂ B)
+  (_⁻¹*       : Op₁ B)
   (assoc*     : (x y z : B) → x ·* (y ·* z) ≡ (x ·* y) ·* z)
   (comm*      : (x y : B)   → x ·* y        ≡ y ·* x)
   (identityᵣ* : (x : B)     → x ·* ε*       ≡ x)

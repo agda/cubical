@@ -8,6 +8,8 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Unit
 open import Cubical.Data.Nat hiding (_+_)
 
+open import Cubical.Algebra.Core
+
 infixl 6 _+₁_
 
 data ℕ₊₁ : Type where
@@ -42,7 +44,7 @@ module ElimProp {ℓ'} {B : ℕ₊₁ → Type ℓ'} (BProp : {n : ℕ₊₁} �
         λ n → isProp→isSet BProp
 
 module Rec {ℓ'} {B : Type ℓ'} (BType : isSet B)
-  (one* : B) (_+₁*_ : B → B → B)
+  (one* : B) (_+₁*_ : Op₂ B)
   (assoc* : (a b c : B) → a +₁* (b +₁* c) ≡ (a +₁* b) +₁* c) where
 
   f : ℕ₊₁ → B

@@ -6,6 +6,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 
+open import Cubical.Algebra.Core
+
 private variable
   ℓ : Level
   A : Type ℓ
@@ -62,7 +64,7 @@ module ElimProp {ℓ'} {B : FreeComMonoid A → Type ℓ'}
 module Rec {ℓ'} {B : Type ℓ'} (BType : isSet B)
   (⟦_⟧*       : (x : A) → B)
   (ε*         : B)
-  (_·*_       : B → B → B)
+  (_·*_       : Op₂ B)
   (comm*      : (x y : B) → x ·* y ≡ y ·* x)
   (identityᵣ* : (x : B) → x ·* ε* ≡ x)
   (identityₗ* : (x : B) → ε* ·* x ≡ x)

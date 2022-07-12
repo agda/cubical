@@ -16,6 +16,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty.Base renaming (rec to ⊥rec )
 open import Cubical.Data.Bool hiding (_≤_)
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
@@ -76,7 +77,7 @@ module PolyMod (R' : CommRing ℓ) where
 
   module Rec (B : Type ℓ')
              ([]* : B)
-             (cons* : R → B → B)
+             (cons* : R → Op₁ B)
              (drop0* : cons* 0r []* ≡ []*)
              (Bset : isSet B) where
     f : Poly R' → B

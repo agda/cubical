@@ -201,7 +201,7 @@ module _ (R : CommRing ℓ) {A : Type ℓ}
     module R = CommRingStr (R .snd)
 
     BaseΣ : Type (ℓ-suc ℓ)
-    BaseΣ = Σ[ B ∈ Type ℓ ] B × B × (B → B → B) × (B → B → B) × (B → B)
+    BaseΣ = Σ[ B ∈ Type ℓ ] B × B × Op₂ B × Op₂ B × Op₁ B
 
     FamilyΣ : BaseΣ → Type ℓ
     FamilyΣ (B , u0 , u1 , a , m , i) = IsCommRing u0 u1 a m i

@@ -24,11 +24,11 @@ module ax {ℓ : Level} (A : Type ℓ) (_+A_ : Op₂ A) (a₀ : A) where
   comm = (x y : A) → x +A y ≡ y +A x
 
 module morphLemmas {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'}
-         (_+A_ : Op₂ A) (_+B_ : B → B → B)
+         (_+A_ : Op₂ A) (_+B_ : Op₂ B)
          (f : A → B) (f-hom : (x y : A) → f (x +A y) ≡ f x +B f y)
          where
 
-  0↦0 : (a₀ : A) (b₀ : B) (-A_ : Op₁ A) (-B_ : B → B)
+  0↦0 : (a₀ : A) (b₀ : B) (-A_ : Op₁ A) (-B_ : Op₁ B)
       → ax.rUnit A _+A_ a₀
       → ax.rUnit B _+B_ b₀
       → ax.rCancel B _+B_ b₀ -B_
@@ -41,7 +41,7 @@ module morphLemmas {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'}
     ∙∙ sym (cong (_+B (-B f a₀)) (cong f (sym (rUnitA a₀)) ∙ f-hom a₀ a₀))
     ∙∙ rCancelB (f a₀)
 
-  distrMinus : (a₀ : A) (b₀ : B) (-A_ : Op₁ A) (-B_ : B → B)
+  distrMinus : (a₀ : A) (b₀ : B) (-A_ : Op₁ A) (-B_ : Op₁ B)
             → ax.lUnit B _+B_ b₀
             → ax.rUnit B _+B_ b₀
             → ax.lCancel A _+A_ a₀ -A_
@@ -56,7 +56,7 @@ module morphLemmas {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'}
     ∙∙ cong (_+B (-B (f x))) (sym (f-hom (-A x) x) ∙∙ cong f (lCancelA x) ∙∙ 0↦0)
     ∙∙ lUnitB _
 
-  distrMinus' : (a₀ : A) (b₀ : B) (-A_ : Op₁ A) (-B_ : B → B)
+  distrMinus' : (a₀ : A) (b₀ : B) (-A_ : Op₁ A) (-B_ : Op₁ B)
              → ax.lUnit B _+B_ b₀
              → ax.rUnit B _+B_ b₀
              → ax.rUnit A _+A_ a₀

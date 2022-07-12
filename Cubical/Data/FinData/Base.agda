@@ -8,6 +8,7 @@ import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat using (ℕ; zero; suc; _+_; _·_; +-assoc)
 open import Cubical.Data.Bool.Base
 open import Cubical.Relation.Nullary
+open import Cubical.Algebra.Core
 
 private
   variable
@@ -51,7 +52,7 @@ predFin : {n : ℕ} → Fin (suc (suc n)) → Fin (suc n)
 predFin zero = zero
 predFin (suc x) = x
 
-foldrFin : ∀ {n} → (A → B → B) → B → (Fin n → A) → B
+foldrFin : ∀ {n} → (A → Op₁ B) → B → (Fin n → A) → B
 foldrFin {n = zero}  _ b _ = b
 foldrFin {n = suc n} f b l = f (l zero) (foldrFin f b (l ∘ suc))
 

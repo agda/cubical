@@ -5,6 +5,7 @@ open import Agda.Builtin.List public
 open import Cubical.Core.Everything
 open import Cubical.Data.Maybe.Base as Maybe
 open import Cubical.Data.Nat.Base
+open import Cubical.Algebra.Core
 
 module _ {ℓ} {A : Type ℓ} where
 
@@ -43,7 +44,7 @@ module _ {ℓ} {A : Type ℓ} where
   filterMap f [] = []
   filterMap f (x ∷ xs) = Maybe.rec (filterMap f xs) (_∷ filterMap f xs) (f x)
 
-  foldr : ∀ {ℓ'} {B : Type ℓ'} → (A → B → B) → B → List A → B
+  foldr : ∀ {ℓ'} {B : Type ℓ'} → (A → Op₁ B) → B → List A → B
   foldr f b [] = b
   foldr f b (x ∷ xs) = f x (foldr f b xs)
 

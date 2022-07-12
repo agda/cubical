@@ -8,6 +8,8 @@ open import Cubical.Data.Sum as ⊎ using (_⊎_; inl; inr)
 
 open import Cubical.Functions.Logic
 
+open import Cubical.Algebra.Core
+
 private
   variable
     ℓ : Level
@@ -70,7 +72,7 @@ module Elim {ℓ}
 
 module Rec {ℓ} {B : Type ℓ}
   ([]* : B)
-  (_∷*_ : (x : A) → B → B)
+  (_∷*_ : (x : A) → Op₁ B)
   (comm* : (x y : A) (xs : B) → (x ∷* (y ∷* xs)) ≡ (y ∷* (x ∷* xs)))
   (dup* : (x : A) (b : B) → (x ∷* (x ∷* b)) ≡ (x ∷* b))
   (trunc* : isSet B) where

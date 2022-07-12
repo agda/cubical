@@ -513,7 +513,7 @@ suspMapΩ→hom {A = A} n p q =
 
 private
   transportLem : ∀ {ℓ} {A B : Type ℓ}
-                   (_+A_ : Op₂ A) (_+B_ : B → B → B)
+                   (_+A_ : Op₂ A) (_+B_ : Op₂ B)
                  → (e : Iso A B)
                  → ((x y : A) → fun e (x +A y) ≡ fun e x +B fun e y)
                  → PathP (λ i → isoToPath e i → isoToPath e i → isoToPath e i)

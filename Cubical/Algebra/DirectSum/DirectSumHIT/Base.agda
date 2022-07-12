@@ -4,6 +4,7 @@ module Cubical.Algebra.DirectSum.DirectSumHIT.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.AbGroup
 
 
@@ -75,7 +76,7 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
     (iss : isSet(B))
     (neutral* : B)
     (base*    : (r : Idx) → P r → B)
-    (_add*_   : B → B → B)
+    (_add*_   : Op₂ B)
     (addAssoc*     : (xs ys zs : B) → (xs add* (ys add* zs)) ≡ ((xs add* ys) add* zs))
     (addRid*       : (xs : B)       → xs add* neutral* ≡ xs)
     (addComm*      : (xs ys : B)    → xs add* ys ≡ ys add* xs)
@@ -112,7 +113,7 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
     (isp      : isProp B)
     (neutral* : B)
     (base*    : (r : Idx) → P r → B)
-    (_add*_   : B → B → B)
+    (_add*_   : Op₂ B)
     where
 
     f : ⊕HIT Idx P AGP → B

@@ -6,6 +6,8 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat   using (ℕ; _+_)
 
+open import Cubical.Algebra.Core
+
 private
   variable
     ℓ : Level
@@ -60,7 +62,7 @@ module ElimProp {ℓ'} {B : AssocList A → Type ℓ'} (BProp : {xs : AssocList 
 
 
 module Rec {ℓ'} {B : Type ℓ'} (BType : isSet B)
-       (⟨⟩* : B) (⟨_,_⟩∷*_ : (x : A) (n : ℕ) → B → B)
+       (⟨⟩* : B) (⟨_,_⟩∷*_ : (x : A) (n : ℕ) → Op₁ B)
        (per* :  (x y : A) (b : B) → (⟨ x , 1 ⟩∷* ⟨ y , 1 ⟩∷* b) ≡ (⟨ y , 1 ⟩∷* ⟨ x , 1 ⟩∷* b))
        (agg* :  (x : A) (m n : ℕ) (b : B) → (⟨ x , m ⟩∷* ⟨ x , n ⟩∷* b) ≡ (⟨ x , m + n ⟩∷* b))
        (del* :  (x : A) (b : B) → (⟨ x , 0 ⟩∷* b) ≡ b) where

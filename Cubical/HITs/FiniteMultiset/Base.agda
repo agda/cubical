@@ -4,6 +4,7 @@ module Cubical.HITs.FiniteMultiset.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.SetTruncation
 open import Cubical.Foundations.HLevels
+open import Cubical.Algebra.Core
 
 private
   variable
@@ -43,7 +44,7 @@ module ElimProp {ℓ'} {B : FMSet A → Type ℓ'} (BProp : {xs : FMSet A} → i
         (λ xs → isProp→isSet BProp)
 
 module Rec {ℓ'} {B : Type ℓ'} (BType : isSet B)
-  ([]* : B) (_∷*_ : A → B → B)
+  ([]* : B) (_∷*_ : A → Op₁ B)
   (comm* : (x y : A) (b : B) → x ∷* (y ∷* b) ≡ y ∷* (x ∷* b)) where
 
   f : FMSet A → B

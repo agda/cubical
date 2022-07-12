@@ -68,7 +68,7 @@ module _ (G : Group ℓ) {A : Type ℓ}
     module G = GroupStr (G .snd)
 
     BaseΣ : Type (ℓ-suc ℓ)
-    BaseΣ = Σ[ B ∈ Type ℓ ] (B → B → B) × B × (B → B)
+    BaseΣ = Σ[ B ∈ Type ℓ ] Op₂ B × B × Op₁ B
 
     FamilyΣ : BaseΣ → Type ℓ
     FamilyΣ (B , m , u , i) = IsGroup u m i
@@ -109,13 +109,13 @@ module _ (G : Group ℓ) {A : Type ℓ}
   private
     module G = GroupStr (G .snd)
 
-    FamilyΣ : Σ[ B ∈ Type ℓ ] (B → B → B) → Type ℓ
-    FamilyΣ (B , n) = Σ[ e ∈ B ] Σ[ i ∈ (B → B) ] IsGroup e n i
+    FamilyΣ : Σ[ B ∈ Type ℓ ] Op₂ B → Type ℓ
+    FamilyΣ (B , n) = Σ[ e ∈ B ] Σ[ i ∈ Op₁ B ] IsGroup e n i
 
     inducedΣ : FamilyΣ (A , m)
     inducedΣ =
       subst FamilyΣ
-        (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] (B → B → B))) (e , p·))
+        (UARel.≅→≡ (autoUARel (Σ[ B ∈ Type ℓ ] Op₂ B)) (e , p·))
         (G.1g , G.inv , G.isGroup)
 
   InducedGroupFromPres· : Group ℓ
