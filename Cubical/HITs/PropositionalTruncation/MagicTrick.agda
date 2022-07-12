@@ -24,6 +24,8 @@ open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.HITs.PropositionalTruncation.Properties
 
+open import Cubical.Algebra.Core
+
 module Recover {ℓ} (A∙ : Pointed ℓ) (h : isHomogeneous A∙) where
   private
     A = typ A∙
@@ -52,7 +54,7 @@ module Recover {ℓ} (A∙ : Pointed ℓ) (h : isHomogeneous A∙) where
     -- notice that the following typechecks because typ (B∙ ∣ x ∣₁) is definitionally equal to to A, but
     --  `recover : ∥ A ∥₁ → A` does not because typ (B∙ tx) is not definitionally equal to A (though it is
     --  judegmentally equal to A by cong typ (snd (toEquivPtd tx)) : A ≡ typ (B∙ tx))
-    obvs2 : A → A
+    obvs2 : Op₁ A
     obvs2 = recover ∘ ∣_∣₁
 
     -- one might wonder if (cong recover (squash₁ ∣ x ∣₁ ∣ y ∣₁)) therefore has type x ≡ y, but thankfully

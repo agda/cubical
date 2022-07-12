@@ -6,11 +6,12 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
+open import Cubical.Algebra.Core
 
-isInvolution : ∀{ℓ} {A : Type ℓ} → (A → A) → Type _
+isInvolution : ∀{ℓ} {A : Type ℓ} → Op₁ A → Type _
 isInvolution f = ∀ x → f (f x) ≡ x
 
-module _ {ℓ} {A : Type ℓ} {f : A → A} (invol : isInvolution f) where
+module _ {ℓ} {A : Type ℓ} {f : Op₁ A} (invol : isInvolution f) where
   open Iso
 
   involIso : Iso A A

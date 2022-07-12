@@ -17,6 +17,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
+open import Cubical.Algebra.Core
 
 private
   variable
@@ -78,7 +79,7 @@ iso→HAEquiv e = f , isHAEquivf
     ε = Iso.rightInv e
     η = Iso.leftInv e
 
-    Hfa≡fHa : (f : A → A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
+    Hfa≡fHa : (f : Op₁ A) → (H : ∀ a → f a ≡ a) → ∀ a → H (f a) ≡ cong f (H a)
     Hfa≡fHa f H = J (λ f p → ∀ a → funExt⁻ (sym p) (f a) ≡ cong f (funExt⁻ (sym p) a))
                     (λ a → refl)
                     (sym (funExt H))

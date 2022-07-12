@@ -10,6 +10,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Group
@@ -67,9 +68,9 @@ record RingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     0r      : A
     1r      : A
-    _+_     : A → A → A
-    _·_     : A → A → A
-    -_      : A → A
+    _+_     : Op₂ A
+    _·_     : Op₂ A
+    -_      : Op₁ A
     isRing  : IsRing 0r 1r _+_ _·_ -_
 
   infix  8 -_
@@ -218,8 +219,8 @@ RingHom≡ = Σ≡Prop λ f → isPropIsRingHom _ f _
 
   -- faster with some sharing
   null = autoDUARel (𝒮-Univ _) (λ A → A)
-  un = autoDUARel (𝒮-Univ _) (λ A → A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+  un = autoDUARel (𝒮-Univ _) (λ A → Op₁ A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → Op₂ A)
 
 RingPath : (R S : Ring ℓ) → RingEquiv R S ≃ (R ≡ S)
 RingPath = ∫ 𝒮ᴰ-Ring .UARel.ua
@@ -237,8 +238,8 @@ open IsRingHom
 -- representations
 module _ (R : Ring ℓ) {A : Type ℓ}
   (0a 1a : A)
-  (add mul : A → A → A)
-  (inv : A → A)
+  (add mul : Op₂ A)
+  (inv : Op₁ A)
   (e : ⟨ R ⟩ ≃ A)
   (p0 : e .fst (R .snd .0r) ≡ 0a)
   (p1 : e .fst (R .snd .1r) ≡ 1a)

@@ -32,6 +32,8 @@ import Agda.Builtin.Reflection as R
 open import Cubical.Reflection.Base
 import Cubical.Reflection.RecordEquiv as RE
 
+open import Cubical.Algebra.Core
+
 {-
   `DUAFields`
   A collection of DURG characterizations for fields of a record is described by an element of this inductive
@@ -208,8 +210,8 @@ private
     record Example (A : Type) : Type where
       no-eta-equality -- works with or without eta equality
       field
-        dog : A → A → A
-        cat : A → A → A
+        dog : Op₂ A
+        cat : Op₂ A
         mouse : Unit
 
     open Example

@@ -8,6 +8,7 @@ module Cubical.Algebra.Group.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
 
@@ -91,8 +92,8 @@ Group→Monoid (A , groupstr  _ _ _ G) = A , monoidstr _ _ (IsGroup.isMonoid G)
 
 makeGroup-right : {A : Type ℓ}
   → (1g : A)
-  → (_·_ : A → A → A)
-  → (inv : A → A)
+  → (_·_ : Op₂ A)
+  → (inv : Op₁ A)
   → (set : isSet A)
   → (·Assoc : ∀ a b c → a · (b · c) ≡ (a · b) · c)
   → (·IdR : ∀ a → a · 1g ≡ a)
@@ -136,8 +137,8 @@ makeGroup-right 1g _·_ inv set ·Assoc ·IdR ·InvR =
 
 makeGroup-left : {A : Type ℓ}
   → (1g : A)
-  → (_·_ : A → A → A)
-  → (inv : A → A)
+  → (_·_ : Op₂ A)
+  → (inv : Op₁ A)
   → (set : isSet A)
   → (·Assoc : ∀ a b c → a · (b · c) ≡ (a · b) · c)
   → (·IdL : ∀ a → 1g · a ≡ a)

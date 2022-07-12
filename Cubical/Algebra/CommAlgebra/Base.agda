@@ -8,6 +8,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommRing
@@ -27,8 +28,8 @@ private
 
 record IsCommAlgebra (R : CommRing ℓ) {A : Type ℓ'}
                      (0a : A) (1a : A)
-                     (_+_ : A → A → A) (_·_ : A → A → A) (-_ : A → A)
-                     (_⋆_ : ⟨ R ⟩ → A → A) : Type (ℓ-max ℓ ℓ') where
+                     (_+_ : Op₂ A) (_·_ : Op₂ A) (-_ : Op₁ A)
+                     (_⋆_ : ⟨ R ⟩ → Op₁ A) : Type (ℓ-max ℓ ℓ') where
 
   constructor iscommalgebra
 
@@ -47,10 +48,10 @@ record CommAlgebraStr (R : CommRing ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ
   field
     0a             : A
     1a             : A
-    _+_            : A → A → A
-    _·_            : A → A → A
-    -_             : A → A
-    _⋆_            : ⟨ R ⟩ → A → A
+    _+_            : Op₂ A
+    _·_            : Op₂ A
+    -_             : Op₁ A
+    _⋆_            : ⟨ R ⟩ → Op₁ A
     isCommAlgebra      : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
   open IsCommAlgebra isCommAlgebra public
@@ -82,7 +83,7 @@ module _ {R : CommRing ℓ} where
 
   module _
       {A : Type ℓ'} {0a 1a : A}
-      {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
+      {_+_ _·_ : Op₂ A} { -_ : Op₁ A} {_⋆_ : ⟨ R ⟩ → Op₁ A}
       (isSet-A : isSet A)
       (+Assoc  :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
       (+IdR    : (x : A) → x + 0a ≡ x)
@@ -233,9 +234,9 @@ module _ {R : CommRing ℓ} where
 
 isPropIsCommAlgebra : (R : CommRing ℓ) {A : Type ℓ'}
   (0a 1a : A)
-  (_+_ _·_ : A → A → A)
-  (-_ : A → A)
-  (_⋆_ : ⟨ R ⟩ → A → A)
+  (_+_ _·_ : Op₂ A)
+  (-_ : Op₁ A)
+  (_⋆_ : ⟨ R ⟩ → Op₁ A)
   → isProp (IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_)
 isPropIsCommAlgebra R _ _ _ _ _ _ =
   isOfHLevelRetractFromIso 1 IsCommAlgebraIsoΣ
@@ -259,7 +260,7 @@ isPropIsCommAlgebra R _ _ _ _ _ _ =
 
   -- faster with some sharing
   nul = autoDUARel (𝒮-Univ _) (λ A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → Op₂ A)
 
 CommAlgebraPath : (R : CommRing ℓ) → (A B : CommAlgebra R ℓ') → (CommAlgebraEquiv A B) ≃ (A ≡ B)
 CommAlgebraPath R = ∫ (𝒮ᴰ-CommAlgebra R) .UARel.ua

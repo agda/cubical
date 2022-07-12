@@ -4,6 +4,7 @@ module Cubical.Algebra.CommSemiring.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP using (TypeWithStr)
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Monoid
 
@@ -37,8 +38,8 @@ record CommSemiringStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     0r      : A
     1r      : A
-    _+_     : A → A → A
-    _·_     : A → A → A
+    _+_     : Op₂ A
+    _·_     : Op₂ A
     isCommSemiring  : IsCommSemiring 0r 1r _+_ _·_
 
   infixl 7 _·_

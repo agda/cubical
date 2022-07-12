@@ -27,6 +27,7 @@ open import Cubical.Core.Glue public
   using (Glue ; glue ; unglue)
 
 open import Cubical.Reflection.StrictEquiv
+open import Cubical.Algebra.Core
 
 private
   variable
@@ -278,12 +279,12 @@ ua→2 h = ua→ (ua→ ∘ h)
 
 -- Useful lemma for unfolding a transported function over ua
 -- If we would have regularity this would be refl
-transportUAop₁ : ∀ {A B : Type ℓ} → (e : A ≃ B) (f : A → A) (x : B)
+transportUAop₁ : ∀ {A B : Type ℓ} → (e : A ≃ B) (f : Op₁ A) (x : B)
                → transport (λ i → ua e i → ua e i) f x ≡ equivFun e (f (invEq e x))
 transportUAop₁ e f x i = transportRefl (equivFun e (f (invEq e (transportRefl x i)))) i
 
 -- Binary version
-transportUAop₂ : ∀ {ℓ} {A B : Type ℓ} → (e : A ≃ B) (f : A → A → A) (x y : B)
+transportUAop₂ : ∀ {ℓ} {A B : Type ℓ} → (e : A ≃ B) (f : Op₂ A) (x y : B)
                → transport (λ i → ua e i → ua e i → ua e i) f x y ≡
                  equivFun e (f (invEq e x) (invEq e y))
 transportUAop₂ e f x y i =

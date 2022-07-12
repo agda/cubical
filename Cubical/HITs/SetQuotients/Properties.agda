@@ -32,6 +32,7 @@ open import Cubical.HITs.PropositionalTruncation as PropTrunc
 open import Cubical.HITs.SetTruncation as SetTrunc
   using (∥_∥₂ ; ∣_∣₂ ; squash₂ ; isSetSetTrunc)
 
+open import Cubical.Algebra.Core
 
 private
   variable
@@ -190,7 +191,7 @@ setQuotUniversal Bset = isoToEquiv (setQuotUniversalIso Bset)
 
 open BinaryRelation
 
-setQuotUnaryOp : (-_ : A → A)
+setQuotUnaryOp : (-_ : Op₁ A)
   → (∀ a a' → R a a' → R (- a) (- a'))
   → (A / R → A / R)
 setQuotUnaryOp -_ h = rec squash/ (λ a → [ - a ]) (λ a b x → eq/ _ _ (h _ _ x))
@@ -236,7 +237,7 @@ setQuotBinOp isReflR isReflS _∗_ h =
     (λ _ _ _ s → eq/ _ _ (h _ _ _ _ (isReflR _) s))
 
 setQuotSymmBinOp : isRefl R → isTrans R
-  → (_∗_ : A → A → A)
+  → (_∗_ : Op₂ A)
   → (∀ a b → R (a ∗ b) (b ∗ a))
   → (∀ a a' b → R a a' → R (a ∗ b) (a' ∗ b))
   → (A / R → A / R → A / R)

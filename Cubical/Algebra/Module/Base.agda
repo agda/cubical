@@ -17,6 +17,7 @@ open import Cubical.Displayed.Universe
 
 open import Cubical.Reflection.RecordEquiv
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group
@@ -55,9 +56,9 @@ record LeftModuleStr (R : Ring ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') wh
 
   field
     0m             : A
-    _+_            : A → A → A
-    -_             : A → A
-    _⋆_            : ⟨ R ⟩ → A → A
+    _+_            : Op₂ A
+    -_             : Op₁ A
+    _⋆_            : ⟨ R ⟩ → Op₁ A
     isLeftModule   : IsLeftModule R 0m _+_ -_ _⋆_
 
   open IsLeftModule isLeftModule public

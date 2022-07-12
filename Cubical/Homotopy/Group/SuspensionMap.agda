@@ -28,6 +28,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
@@ -512,7 +513,7 @@ suspMapΩ→hom {A = A} n p q =
 
 private
   transportLem : ∀ {ℓ} {A B : Type ℓ}
-                   (_+A_ : A → A → A) (_+B_ : B → B → B)
+                   (_+A_ : Op₂ A) (_+B_ : B → B → B)
                  → (e : Iso A B)
                  → ((x y : A) → fun e (x +A y) ≡ fun e x +B fun e y)
                  → PathP (λ i → isoToPath e i → isoToPath e i → isoToPath e i)

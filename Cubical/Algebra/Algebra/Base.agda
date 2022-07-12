@@ -17,6 +17,7 @@ open import Cubical.Displayed.Universe
 
 open import Cubical.Reflection.RecordEquiv
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
@@ -33,8 +34,8 @@ private
     ℓ ℓ' ℓ'' ℓ''' : Level
 
 record IsAlgebra (R : Ring ℓ) {A : Type ℓ'}
-                 (0a 1a : A) (_+_ _·_ : A → A → A) (-_ : A → A)
-                 (_⋆_ : ⟨ R ⟩ → A → A) : Type (ℓ-max ℓ ℓ') where
+                 (0a 1a : A) (_+_ _·_ : Op₂ A) (-_ : Op₁ A)
+                 (_⋆_ : ⟨ R ⟩ → Op₁ A) : Type (ℓ-max ℓ ℓ') where
 
   constructor isalgebra
 
@@ -63,10 +64,10 @@ record AlgebraStr (R : Ring ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
   field
     0a             : A
     1a             : A
-    _+_            : A → A → A
-    _·_            : A → A → A
-    -_             : A → A
-    _⋆_            : ⟨ R ⟩ → A → A
+    _+_            : Op₂ A
+    _·_            : Op₂ A
+    -_             : Op₁ A
+    _⋆_            : ⟨ R ⟩ → Op₁ A
     isAlgebra      : IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
   open IsAlgebra isAlgebra public
@@ -117,7 +118,7 @@ module commonExtractors {R : Ring ℓ} where
 
   module _ {A : Type ℓ'} {0a 1a : A}
                 (isSet-A : isSet A)
-                {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
+                {_+_ _·_ : Op₂ A} { -_ : Op₁ A} {_⋆_ : ⟨ R ⟩ → Op₁ A}
                 (+Assoc  :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
                 (+IdR    : (x : A) → x + 0a ≡ x)
                 (+InvR   : (x : A) → x + (- x) ≡ 0a)
@@ -188,9 +189,9 @@ AlgebraEquiv→AlgebraHom (e , eIsHom) = e .fst , eIsHom
 
 isPropIsAlgebra : (R : Ring ℓ) {A : Type ℓ'}
   (0a 1a : A)
-  (_+_ _·_ : A → A → A)
-  (-_ : A → A)
-  (_⋆_ : ⟨ R ⟩ → A → A)
+  (_+_ _·_ : Op₂ A)
+  (-_ : Op₁ A)
+  (_⋆_ : ⟨ R ⟩ → Op₁ A)
   → isProp (IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_)
 isPropIsAlgebra R _ _ _ _ _ _ = let open IsLeftModule in
   isOfHLevelRetractFromIso 1 IsAlgebraIsoΣ
@@ -244,7 +245,7 @@ AlgebraHom≡ = Σ≡Prop λ f → isPropIsAlgebraHom _ _ f _
 
   -- faster with some sharing
   nul = autoDUARel (𝒮-Univ _) (λ A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → Op₂ A)
 
 AlgebraPath : {R : Ring ℓ} (A B : Algebra R ℓ') → (AlgebraEquiv A B) ≃ (A ≡ B)
 AlgebraPath {R = R} = ∫ (𝒮ᴰ-Algebra R) .UARel.ua

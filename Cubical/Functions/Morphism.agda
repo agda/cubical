@@ -6,16 +6,17 @@ module Cubical.Functions.Morphism where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Algebra.Core
 
 open Iso
-module ax {ℓ : Level} (A : Type ℓ) (_+A_ : A → A → A) (a₀ : A) where
+module ax {ℓ : Level} (A : Type ℓ) (_+A_ : Op₂ A) (a₀ : A) where
   rUnit = (a : A) → a +A a₀ ≡ a
   lUnit = (a : A) → a₀ +A a ≡ a
 
-  rCancel : (-A_ : A → A) → Type ℓ
+  rCancel : (-A_ : Op₁ A) → Type ℓ
   rCancel -A_ = (a : A) → a +A (-A a) ≡ a₀
 
-  lCancel : (-A_ : A → A) → Type ℓ
+  lCancel : (-A_ : Op₁ A) → Type ℓ
   lCancel -A_ = (a : A) → (-A a) +A a ≡ a₀
 
   assoc = (x y z : A) → x +A (y +A z) ≡ ((x +A y) +A z)
@@ -23,11 +24,11 @@ module ax {ℓ : Level} (A : Type ℓ) (_+A_ : A → A → A) (a₀ : A) where
   comm = (x y : A) → x +A y ≡ y +A x
 
 module morphLemmas {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'}
-         (_+A_ : A → A → A) (_+B_ : B → B → B)
+         (_+A_ : Op₂ A) (_+B_ : B → B → B)
          (f : A → B) (f-hom : (x y : A) → f (x +A y) ≡ f x +B f y)
          where
 
-  0↦0 : (a₀ : A) (b₀ : B) (-A_ : A → A) (-B_ : B → B)
+  0↦0 : (a₀ : A) (b₀ : B) (-A_ : Op₁ A) (-B_ : B → B)
       → ax.rUnit A _+A_ a₀
       → ax.rUnit B _+B_ b₀
       → ax.rCancel B _+B_ b₀ -B_
@@ -40,7 +41,7 @@ module morphLemmas {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'}
     ∙∙ sym (cong (_+B (-B f a₀)) (cong f (sym (rUnitA a₀)) ∙ f-hom a₀ a₀))
     ∙∙ rCancelB (f a₀)
 
-  distrMinus : (a₀ : A) (b₀ : B) (-A_ : A → A) (-B_ : B → B)
+  distrMinus : (a₀ : A) (b₀ : B) (-A_ : Op₁ A) (-B_ : B → B)
             → ax.lUnit B _+B_ b₀
             → ax.rUnit B _+B_ b₀
             → ax.lCancel A _+A_ a₀ -A_
@@ -55,7 +56,7 @@ module morphLemmas {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'}
     ∙∙ cong (_+B (-B (f x))) (sym (f-hom (-A x) x) ∙∙ cong f (lCancelA x) ∙∙ 0↦0)
     ∙∙ lUnitB _
 
-  distrMinus' : (a₀ : A) (b₀ : B) (-A_ : A → A) (-B_ : B → B)
+  distrMinus' : (a₀ : A) (b₀ : B) (-A_ : Op₁ A) (-B_ : B → B)
              → ax.lUnit B _+B_ b₀
              → ax.rUnit B _+B_ b₀
              → ax.rUnit A _+A_ a₀

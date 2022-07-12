@@ -17,6 +17,7 @@ open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommMonoid
@@ -62,8 +63,8 @@ record DistLatticeStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     0l            : A
     1l            : A
-    _∨l_         : A → A → A
-    _∧l_         : A → A → A
+    _∨l_         : Op₂ A
+    _∧l_         : Op₂ A
     isDistLattice : IsDistLattice 0l 1l _∨l_ _∧l_
 
   infix 6 _∨l_
@@ -270,7 +271,7 @@ isPropIsDistLattice 0l 1l _∨l_ _∧l_ (isdistlattice LL LD1 LD2) (isdistlattic
 
   -- faster with some sharing
   null = autoDUARel (𝒮-Univ _) (λ A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → Op₂ A)
 
 DistLatticePath : (L M : DistLattice ℓ) → DistLatticeEquiv L M ≃ (L ≡ M)
 DistLatticePath = ∫ 𝒮ᴰ-DistLattice .UARel.ua

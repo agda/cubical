@@ -16,6 +16,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_+_ to _+ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Nat renaming (+-assoc to +-assocℕ ; +-comm to +-commℕ)
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
@@ -791,7 +792,7 @@ isCommΩK-based (suc (suc n)) x =
 Unit' : Type₀
 Unit' = lockUnit {ℓ-zero}
 
-lock : ∀ {ℓ} {A : Type ℓ} → Unit' → A → A
+lock : ∀ {ℓ} {A : Type ℓ} → Unit' → Op₁ A
 lock unlock = λ x → x
 
 module lockedCohom (key : Unit') where

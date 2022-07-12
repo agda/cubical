@@ -19,6 +19,7 @@ open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
@@ -54,9 +55,9 @@ GroupPath = ∫ 𝒮ᴰ-Group .UARel.ua
 -- some type equivalent to a group is a group while also specifying
 -- the binary operation, unit and inverse.
 module _ (G : Group ℓ) {A : Type ℓ}
-  (m : A → A → A)
+  (m : Op₂ A)
   (u : A)
-  (inverse : A → A)
+  (inverse : Op₁ A)
   (e : ⟨ G ⟩ ≃ A)
   (p· : ∀ x y → e .fst (G .snd ._·_ x y) ≡ m (e .fst x) (e .fst y))
   (pu : e .fst (G .snd .1g) ≡ u)
@@ -100,7 +101,7 @@ module _ (G : Group ℓ) {A : Type ℓ}
 -- are. When using this version the unit and inverse will both be
 -- defined by transporting over the unit and inverse from G to A.
 module _ (G : Group ℓ) {A : Type ℓ}
-  (m : A → A → A)
+  (m : Op₂ A)
   (e : ⟨ G ⟩ ≃ A)
   (p· : ∀ x y → e .fst (G .snd ._·_ x y) ≡ m (e .fst x) (e .fst y))
   where

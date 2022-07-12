@@ -13,6 +13,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommMonoid
@@ -80,8 +81,8 @@ record LatticeStr (A : Type ℓ)  : Type (ℓ-suc ℓ) where
   field
     0l : A
     1l : A
-    _∨l_ : A → A → A
-    _∧l_ : A → A → A
+    _∨l_ : Op₂ A
+    _∧l_ : Op₂ A
     isLattice : IsLattice 0l 1l _∨l_ _∧l_
 
   infix 6 _∨l_
@@ -216,7 +217,7 @@ isPropIsLatticeHom R f S = isOfHLevelRetractFromIso 1 IsLatticeHomIsoΣ
 
   -- faster with some sharing
   null = autoDUARel (𝒮-Univ _) (λ A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → Op₂ A)
 
 LatticePath : (L M : Lattice ℓ) → LatticeEquiv L M ≃ (L ≡ M)
 LatticePath = ∫ 𝒮ᴰ-Lattice .UARel.ua

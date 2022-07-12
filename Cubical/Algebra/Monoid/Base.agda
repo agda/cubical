@@ -9,6 +9,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Semigroup
 
 open import Cubical.Displayed.Base
@@ -24,7 +25,7 @@ private
   variable
     ℓ ℓ' : Level
 
-record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
+record IsMonoid {A : Type ℓ} (ε : A) (_·_ : Op₂ A) : Type ℓ where
   constructor ismonoid
 
   field
@@ -41,7 +42,7 @@ record MonoidStr (A : Type ℓ) : Type ℓ where
 
   field
     ε        : A
-    _·_      : A → A → A
+    _·_      : Op₂ A
     isMonoid : IsMonoid ε _·_
 
   infixl 7 _·_
@@ -51,7 +52,7 @@ record MonoidStr (A : Type ℓ) : Type ℓ where
 Monoid : ∀ ℓ → Type (ℓ-suc ℓ)
 Monoid ℓ = TypeWithStr ℓ MonoidStr
 
-monoid : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsMonoid ε _·_) → Monoid ℓ
+monoid : (A : Type ℓ) (ε : A) (_·_ : Op₂ A) (h : IsMonoid ε _·_) → Monoid ℓ
 monoid A ε _·_ h = A , monoidstr ε _·_ h
 
 -- Easier to use constructors

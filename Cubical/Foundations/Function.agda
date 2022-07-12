@@ -5,6 +5,7 @@
 module Cubical.Foundations.Function where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Algebra.Core
 
 private
   variable
@@ -17,7 +18,7 @@ private
     F : (x : A) → (y : B x) → (z : C x y) → (w : D x y z) → (u : E x y z w) → Type ℓ
 
 -- The identity function
-idfun : (A : Type ℓ) → A → A
+idfun : (A : Type ℓ) → Op₁ A
 idfun _ x = x
 
 infixr 9 _∘_
@@ -144,7 +145,7 @@ homotopyNatural {f = f} {g = g} H {x} {y} p i j =
                    ; (j = i1) → cong g p (i ∨ k) })
           (H (p i) j)
 
-homotopySymInv : {f : A → A} (H : ∀ a → f a ≡ a) (a : A)
+homotopySymInv : {f : Op₁ A} (H : ∀ a → f a ≡ a) (a : A)
                → Path (f a ≡ f a) (λ i → H (H a (~ i)) i) refl
 homotopySymInv {f = f} H a j i =
   hcomp (λ k → λ { (i = i0) → f a

@@ -31,6 +31,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Unit.Base
 open import Cubical.Data.Empty.Base
+open import Cubical.Algebra.Core
 
 open import Cubical.Reflection.StrictEquiv
 

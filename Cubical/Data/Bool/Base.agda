@@ -8,6 +8,7 @@ open import Cubical.Data.Sum.Base
 open import Cubical.Data.Unit.Base
 
 open import Cubical.Relation.Nullary.Base
+open import Cubical.Algebra.Core
 
 -- Obtain the booleans
 open import Agda.Builtin.Bool public
@@ -42,7 +43,7 @@ _⊕_ : Bool → Bool → Bool
 false ⊕ x = x
 true  ⊕ x = not x
 
-if_then_else_ : Bool → A → A → A
+if_then_else_ : Bool → Op₂ A
 if true  then x else y = x
 if false then x else y = y
 

@@ -138,7 +138,7 @@ module Presheaf (A' : CommRing ℓ) where
 
 
  𝓞ᴰ : A / R → CommAlgebra A' ℓ
- 𝓞ᴰ = rec→Gpd.fun isGroupoidCommAlgebra (λ a → A[1/ a ]) RCoh LocPathProp
+ 𝓞ᴰ = rec→Gpd.fun isGroupoidCommAlgebra (λ A → A[1/ a ]) RCoh LocPathProp
     where
     RCoh : ∀ a b → R a b → A[1/ a ] ≡ A[1/ b ]
     RCoh a b (a≼b , b≼a) = fst (isContrS₁⁻¹R≡S₂⁻¹R (≼PowerToLoc.lemma _ _ b≼a)

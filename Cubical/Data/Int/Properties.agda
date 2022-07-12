@@ -22,6 +22,8 @@ open import Cubical.Data.Int.Base
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Nullary.DecidableEq
 
+open import Cubical.Algebra.Core
+
 sucPred : ∀ i → sucℤ (predℤ i) ≡ i
 sucPred (pos zero)    = refl
 sucPred (pos (suc n)) = refl
@@ -144,7 +146,7 @@ negsuc0+ (pos (suc n)) = (sym (sucPred (pos n))) ∙ (cong sucℤ (negsuc0+ _))
 negsuc0+ (negsuc zero) = refl
 negsuc0+ (negsuc (suc n)) = cong predℤ (negsuc0+ (negsuc n))
 
-ind-comm : {A : Type₀} (_∙_ : A → A → A) (f : ℕ → A) (g : A → A)
+ind-comm : {A : Type₀} (_∙_ : Op₂ A) (f : ℕ → A) (g : Op₁ A)
            (p : ∀ {n} → f (suc n) ≡ g (f n))
            (g∙ : ∀ a b → g (a ∙ b) ≡ g a ∙ b)
            (∙g : ∀ a b → g (a ∙ b) ≡ a ∙ g b)
@@ -161,8 +163,8 @@ ind-comm _∙_ f g p g∙ ∙g base z (suc n) =
   where
   IH = ind-comm _∙_ f g p g∙ ∙g base z n
 
-ind-assoc : {A : Type₀} (_·_ : A → A → A) (f : ℕ → A)
-        (g : A → A) (p : ∀ a b → g (a · b) ≡ a · (g b))
+ind-assoc : {A : Type₀} (_·_ : Op₂ A) (f : ℕ → A)
+        (g : Op₁ A) (p : ∀ a b → g (a · b) ≡ a · (g b))
         (q : ∀ {c} → f (suc c) ≡ g (f c))
         (base : ∀ m n → (m · n) · (f 0) ≡ m · (n · (f 0)))
         (m n : A) (o : ℕ)

@@ -13,6 +13,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
@@ -60,9 +61,9 @@ record FieldStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     0r         : A
     1r         : A
-    _+_        : A → A → A
-    _·_        : A → A → A
-    -_         : A → A
+    _+_        : Op₂ A
+    _·_        : Op₂ A
+    -_         : Op₁ A
     isField    : IsField 0r 1r _+_ _·_ -_
 
   infix  8 -_
@@ -203,7 +204,7 @@ isPropIsField {R = R} 0r 1r _+_ _·_ -_ H@(isfield RR RC RD) (isfield SR SC SD) 
 
   -- faster with some sharing
   null = autoDUARel (𝒮-Univ _) (λ A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → Op₂ A)
 
 FieldPath : (R S : Field ℓ) → FieldEquiv R S ≃ (R ≡ S)
 FieldPath = ∫ 𝒮ᴰ-Field .UARel.ua

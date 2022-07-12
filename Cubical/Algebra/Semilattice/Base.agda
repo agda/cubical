@@ -21,6 +21,7 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommMonoid
@@ -41,7 +42,7 @@ private
   variable
     ℓ ℓ' : Level
 
-record IsSemilattice {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
+record IsSemilattice {A : Type ℓ} (ε : A) (_·_ : Op₂ A) : Type ℓ where
   constructor issemilattice
 
   field
@@ -57,7 +58,7 @@ record SemilatticeStr (A : Type ℓ) : Type ℓ where
 
   field
     ε        : A
-    _·_      : A → A → A
+    _·_      : Op₂ A
     isSemilattice : IsSemilattice ε _·_
 
   infixl 7 _·_
@@ -67,7 +68,7 @@ record SemilatticeStr (A : Type ℓ) : Type ℓ where
 Semilattice : ∀ ℓ → Type (ℓ-suc ℓ)
 Semilattice ℓ = TypeWithStr ℓ SemilatticeStr
 
-semilattice : (A : Type ℓ) (ε : A) (_·_ : A → A → A) (h : IsSemilattice ε _·_) → Semilattice ℓ
+semilattice : (A : Type ℓ) (ε : A) (_·_ : Op₂ A) (h : IsSemilattice ε _·_) → Semilattice ℓ
 semilattice A ε _·_ h = A , semilatticestr ε _·_ h
 
 -- Easier to use constructors

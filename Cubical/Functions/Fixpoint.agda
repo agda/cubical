@@ -7,25 +7,26 @@ module Cubical.Functions.Fixpoint where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Algebra.Core
 
 private
   variable
     ℓ : Level
     A : Type ℓ
 
-Fixpoint : (A → A) → Type _
+Fixpoint : Op₁ A → Type _
 Fixpoint {A = A} f = Σ A (λ x → f x ≡ x)
 
-fixpoint : {f : A → A} → Fixpoint f → A
+fixpoint : {f : Op₁ A} → Fixpoint f → A
 fixpoint = fst
 
-fixpointPath : {f : A → A} → (p : Fixpoint f) → f (fixpoint p) ≡ fixpoint p
+fixpointPath : {f : Op₁ A} → (p : Fixpoint f) → f (fixpoint p) ≡ fixpoint p
 fixpointPath = snd
 
 -- Kraus' lemma
 -- a version not using cubical features can be found at
 -- https://www.cs.bham.ac.uk/~mhe/GeneralizedHedberg/html/GeneralizedHedberg.html#21576
-2-Constant→isPropFixpoint : (f : A → A) → 2-Constant f → isProp (Fixpoint f)
+2-Constant→isPropFixpoint : (f : Op₁ A) → 2-Constant f → isProp (Fixpoint f)
 2-Constant→isPropFixpoint f fconst (x , p) (y , q) i = s i , t i where
   noose : ∀ x y → f x ≡ f y
   noose x y = sym (fconst x x) ∙ fconst x y

@@ -19,6 +19,7 @@ open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Relation.Nullary.Base
 open import Cubical.HITs.PropositionalTruncation.Base
+open import Cubical.Algebra.Core
 
 private
   variable
@@ -99,7 +100,7 @@ populatedBy {A = A} a (f , fIsConst) = h a where
 
 notEmptyPopulated : ⟪ A ⟫ → NonEmpty A
 notEmptyPopulated {A = A} pop u = u (fixpoint (pop (h , hIsConst))) where
-  h : A → A
+  h : Op₁ A
   h a = ⊥.elim (u a)
   hIsConst : ∀ x y → h x ≡ h y
   hIsConst x y i = ⊥.elim (isProp⊥ (u x) (u y) i)
@@ -119,7 +120,7 @@ PStable→SplitSupport pst = pst ∘ populatedBy
 -- Nevertheless they are logically equivalent
 SplitSupport→Collapsible : SplitSupport A → Collapsible A
 SplitSupport→Collapsible {A = A} hst = h , hIsConst where
-  h : A → A
+  h : Op₁ A
   h p = hst ∣ p ∣₁
   hIsConst : 2-Constant h
   hIsConst p q i = hst (squash₁ ∣ p ∣₁ ∣ q ∣₁ i)

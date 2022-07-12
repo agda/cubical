@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Core where
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Core.Primitives
 
 private variable
   ℓ : Level

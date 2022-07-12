@@ -24,6 +24,7 @@ This file proves a variety of basic results about paths:
 module Cubical.Foundations.Prelude where
 
 open import Cubical.Core.Primitives public
+open import Cubical.Algebra.Core
 
 infixr 30 _∙_
 infixr 30 _∙₂_

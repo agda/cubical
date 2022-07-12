@@ -11,6 +11,7 @@ open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Data.Sigma
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.PropositionalTruncation.Base
+open import Cubical.Algebra.Core
 
 private
   variable

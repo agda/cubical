@@ -13,6 +13,7 @@ open import Cubical.Foundations.SIP
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Group
@@ -34,7 +35,7 @@ private
     ℓ ℓ' : Level
 
 record IsAbGroup {A : Type ℓ}
-                 (0g : A) (_+_ : A → A → A) (-_ : A → A) : Type ℓ where
+                 (0g : A) (_+_ : Op₂ A) (-_ : Op₁ A) : Type ℓ where
 
   constructor isabgroup
 
@@ -53,7 +54,7 @@ record IsAbGroup {A : Type ℓ}
   infixl 6 _-_
 
   -- Useful notation for additive groups
-  _-_ : A → A → A
+  _-_ : Op₂ A
   x - y = x + (- y)
 
 unquoteDecl IsAbGroupIsoΣ = declareRecordIsoΣ IsAbGroupIsoΣ (quote IsAbGroup)
@@ -64,8 +65,8 @@ record AbGroupStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
   field
     0g        : A
-    _+_       : A → A → A
-    -_        : A → A
+    _+_       : Op₂ A
+    -_        : Op₁ A
     isAbGroup : IsAbGroup 0g _+_ -_
 
 
@@ -188,9 +189,9 @@ AbGroupPath = ∫ 𝒮ᴰ-AbGroup .UARel.ua
 -- abelian group while also specifying the binary operation, unit and
 -- inverse. For an example of this see Algebra.Matrix
 module _ (G : AbGroup ℓ) {A : Type ℓ}
-  (m : A → A → A)
+  (m : Op₂ A)
   (u : A)
-  (inverse : A → A)
+  (inverse : Op₁ A)
   (e : ⟨ G ⟩ ≃ A)
   (p+ : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
   (pu : e .fst (G .snd .0g) ≡ u)
@@ -236,7 +237,7 @@ module _ (G : AbGroup ℓ) {A : Type ℓ}
 -- version the unit and inverse will both be defined by transporting
 -- over the unit and inverse from G to A.
 module _ (G : AbGroup ℓ) {A : Type ℓ}
-  (m : A → A → A)
+  (m : Op₂ A)
   (e : ⟨ G ⟩ ≃ A)
   (p· : ∀ x y → e .fst (G .snd ._+_ x y) ≡ m (e .fst x) (e .fst y))
   where
@@ -288,7 +289,7 @@ isAbGroup (snd trivialAbGroup) = makeIsAbGroup
 
 -- useful lemma
 -- duplicate propeerties => this file should be split !
-move4 : ∀ {ℓ} {A : Type ℓ} (x y z w : A) (_+_ : A → A → A)
+move4 : ∀ {ℓ} {A : Type ℓ} (x y z w : A) (_+_ : Op₂ A)
        → ((x y z : A) → x + (y + z) ≡ (x + y) + z)
        → ((x y : A) → x + y ≡ y + x)
       → (x + y) + (z + w) ≡ ((x + z) + (y + w))

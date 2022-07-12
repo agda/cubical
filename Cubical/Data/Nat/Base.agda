@@ -12,6 +12,7 @@ open import Cubical.Data.Bool.Base
 open import Cubical.Data.Sum.Base hiding (elim)
 open import Cubical.Data.Empty.Base hiding (elim)
 open import Cubical.Data.Unit.Base
+open import Cubical.Algebra.Core
 
 predℕ : ℕ → ℕ
 predℕ zero = zero
@@ -31,7 +32,7 @@ doublesℕ zero m = m
 doublesℕ (suc n) m = doublesℕ n (doubleℕ m)
 
 -- iterate
-iter : ∀ {ℓ} {A : Type ℓ} → ℕ → (A → A) → A → A
+iter : ∀ {ℓ} {A : Type ℓ} → ℕ → Op₁ A → Op₁ A
 iter zero f z    = z
 iter (suc n) f z = f (iter n f z)
 

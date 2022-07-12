@@ -23,6 +23,7 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; re
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Morphisms
@@ -507,7 +508,7 @@ addLemma a b = (cong (ΩKn+1→Kn 0) (sym (congFunct ∣_∣ (intLoop a) (intLoo
 Unit' : Type₀
 Unit' = lockUnit {ℓ-zero}
 
-lock : ∀ {ℓ} {A : Type ℓ} → Unit' → A → A
+lock : ∀ {ℓ} {A : Type ℓ} → Unit' → Op₁ A
 lock unlock = λ x → x
 
 module lockedCohom (key : Unit') where

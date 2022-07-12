@@ -19,6 +19,8 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.HITs.Rationals.QuoQ.Base
 
+open import Cubical.Algebra.Core
+
 ℚ-cancelˡ : ∀ {a b} (c : ℕ₊₁) → [ ℕ₊₁→ℤ c ℤ.· a / c ·₊₁ b ] ≡ [ a / b ]
 ℚ-cancelˡ {a} {b} c = eq/ _ _
   (cong (ℤ._· ℕ₊₁→ℤ b) (ℤ.·-comm (ℕ₊₁→ℤ c) a) ∙ sym (ℤ.·-assoc a (ℕ₊₁→ℤ c) (ℕ₊₁→ℤ b)))
@@ -186,7 +188,7 @@ _·_ = onCommonDenomSym
 ·-distribˡ : ∀ x y z → (x · y) + (x · z) ≡ x · (y + z)
 ·-distribˡ = SetQuotient.elimProp3 (λ _ _ _ → isSetℚ _ _)
   (λ { (a , b) (c , d) (e , f) → eq a b c d e f })
-  where lem : ∀ {ℓ} {A : Type ℓ} (_·_ : A → A → A)
+  where lem : ∀ {ℓ} {A : Type ℓ} (_·_ : Op₂ A)
                 (·-comm : ∀ x y → x · y ≡ y · x)
                 (·-assoc : ∀ x y z → x · (y · z) ≡ (x · y) · z)
                 a c b d

@@ -7,6 +7,7 @@ open import Cubical.Functions.Fixpoint
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.HITs.PropositionalTruncation.Base
+open import Cubical.Algebra.Core
 
 private
   variable
@@ -38,7 +39,7 @@ SplitSupport : Type ℓ → Type ℓ
 SplitSupport A = ∥ A ∥₁ → A
 
 Collapsible : Type ℓ → Type ℓ
-Collapsible A = Σ[ f ∈ (A → A) ] 2-Constant f
+Collapsible A = Σ[ f ∈ Op₁ A ] 2-Constant f
 
 Populated ⟪_⟫ : Type ℓ → Type ℓ
 Populated A = (f : Collapsible A) → Fixpoint (f .fst)

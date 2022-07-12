@@ -72,6 +72,8 @@ open import Cubical.Data.Empty
 
 open import Cubical.Relation.Nullary
 
+open import Cubical.Algebra.Core
+
 data Binℕ : Type₀
 data Pos : Type₀
 
@@ -273,7 +275,7 @@ addp i = transp (λ j → Binℕ≡ℕ (~ i ∨ ~ j) → Binℕ≡ℕ (~ i ∨ ~
 record NatImpl (A : Type₀) : Type₀ where
   field
     z : A
-    s : A → A
+    s : Op₁ A
 open NatImpl
 
 NatImplℕ : NatImpl ℕ
@@ -319,13 +321,13 @@ s (NatImplℕ≡Binℕ i) =
 record Double {ℓ} (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     -- doubling function computing 2 · x
-    double : A → A
+    double : Op₁ A
     -- element to double
     elt : A
 open Double
 
 -- Compute: 2^n · x
-doubles : ∀ {ℓ} {A : Type ℓ} (D : Double A) → ℕ → A → A
+doubles : ∀ {ℓ} {A : Type ℓ} (D : Double A) → ℕ → Op₁ A
 doubles D n x = iter n (double D) x
 
 Doubleℕ : Double ℕ

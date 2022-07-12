@@ -14,6 +14,7 @@ open import Cubical.Displayed.Auto
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
+open import Cubical.Algebra.Core
 open import Cubical.Algebra.Ring.Base
 
 open import Cubical.Reflection.RecordEquiv
@@ -44,9 +45,9 @@ record CommRingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
   field
     0r         : A
     1r         : A
-    _+_        : A → A → A
-    _·_        : A → A → A
-    -_         : A → A
+    _+_        : Op₂ A
+    _·_        : Op₂ A
+    -_         : Op₁ A
     isCommRing : IsCommRing 0r 1r _+_ _·_ -_
 
   infix  8 -_
@@ -143,7 +144,7 @@ isPropIsCommRing 0r 1r _+_ _·_ -_ =
 
   -- faster with some sharing
   null = autoDUARel (𝒮-Univ _) (λ A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → Op₂ A)
 
 CommRingPath : (R S : CommRing ℓ) → CommRingEquiv R S ≃ (R ≡ S)
 CommRingPath = ∫ 𝒮ᴰ-CommRing .UARel.ua
@@ -186,8 +187,8 @@ open IsRingHom
 -- representations
 module _ (R : CommRing ℓ) {A : Type ℓ}
   (0a 1a : A)
-  (add mul : A → A → A)
-  (inv : A → A)
+  (add mul : Op₂ A)
+  (inv : Op₁ A)
   (e : ⟨ R ⟩ ≃ A)
   (p0 : e .fst (R .snd .0r) ≡ 0a)
   (p1 : e .fst (R .snd .1r) ≡ 1a)
