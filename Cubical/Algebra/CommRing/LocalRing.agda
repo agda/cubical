@@ -46,3 +46,14 @@ module _ (R : CommRing ℓ) where
 
   isPropIsLocal : isProp isLocal
   isPropIsLocal = isPropImplicitΠ λ _ → isPropΠ2 λ _ _ → squash₁
+
+  module Consequences (local : isLocal) where
+    open RingStr (snd (CommRing→Ring R))
+
+    1≢0 : ¬ (1r ≡ 0r)
+    1≢0 1≡0 = ∥_∥₁.rec isProp⊥ (¬Fin0 ∘ fst) (local xs 0∈Rˣ)
+      where
+      xs : FinVec ⟨ R ⟩ 0
+      xs ()
+      0∈Rˣ : 0r ∈ R ˣ
+      0∈Rˣ = subst (_∈ (R ˣ)) 1≡0 (Units.RˣContainsOne R)
