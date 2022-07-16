@@ -56,8 +56,8 @@ For naming conventions specific to the Algebra subfolder, see
 
 * The `elim` and `rec` should be used as much as possible without
   renaming, but by importing and renaming the module.
-  For instance use "open import Cubical.Data.Empty as ⊥`
-  then use `⊥.rec` or `⊥.elim' rather than doing
+  For instance use `open import Cubical.Data.Empty as ⊥`
+  then use `⊥.rec` or `⊥.elim` rather than doing
   `renaming (rec to rec-⊥)` and using `rec-⊥`.
 
   Some convetional naming :
