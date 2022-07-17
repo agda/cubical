@@ -17,14 +17,15 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.FinData
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Empty using (isProp⊥)
 
 open import Cubical.HITs.PropositionalTruncation as ∥_∥₁
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
+open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.Ring
--- open import Cubical.Algebra.Ring.Ideal renaming (IdealsIn to IdealsInRing)
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Tactics.CommRingSolver.Reflection
 
@@ -49,7 +50,7 @@ module _ (R : CommRing ℓ) where
   isPropIsLocal = isPropImplicitΠ λ _ → isPropΠ2 λ _ _ → isPropPropTrunc
 
   module Consequences (local : isLocal) where
-    open RingStr (snd (CommRing→Ring R))
+    open CommRingStr (snd R)
     open Units R
 
     1≢0 : ¬ (1r ≡ 0r)
@@ -59,6 +60,22 @@ module _ (R : CommRing ℓ) where
       xs ()
       0∈Rˣ : 0r ∈ R ˣ
       0∈Rˣ = subst (_∈ (R ˣ)) 1≡0 RˣContainsOne
+
+    invertibleInBinarySum :
+      {x y : ⟨ R ⟩} →
+      x + y ∈ R ˣ →
+      ∥ (x ∈ R ˣ) ⊎  (y ∈ R ˣ) ∥₁
+    invertibleInBinarySum {x = x} {y = y} x+yInv =
+      ∥_∥₁.map Σ→⊎ (local {n = 2} xy (subst (_∈ R ˣ) (∑xy≡x+y x y) x+yInv))
+      where
+      xy : FinVec ⟨ R ⟩ 2
+      xy zero = x
+      xy one = y
+      ∑xy≡x+y : (x y : ⟨ R ⟩) → x + y ≡ x + (y + 0r)
+      ∑xy≡x+y = solve R
+      Σ→⊎ : Σ[ i ∈ Fin 2 ] xy i ∈ R ˣ → (x ∈ R ˣ) ⊎ (y ∈ R ˣ)
+      Σ→⊎ (zero , xInv) = inl xInv
+      Σ→⊎ (one , yInv) = inr yInv
 
     onLinearCombinations :
       {n : ℕ} →
@@ -86,3 +103,22 @@ module _ (R : CommRing ℓ) where
       ∥_∥₁.rec
         isPropPropTrunc
         λ{(α , 1≡αxs) → onLinearCombinations α xs 1≡αxs}
+
+    private
+      nonInvertibles : ℙ ⟨ R ⟩
+      nonInvertibles = λ x → (¬ (x ∈ R ˣ)) , isPropΠ λ _ → isProp⊥
+
+    open CommIdeal.isCommIdeal
+
+    nonInvertiblesFormIdeal : CommIdeal.isCommIdeal R nonInvertibles
+    +Closed nonInvertiblesFormIdeal {x = x} {y = y} xNonInv yNonInv x+yInv =
+      ∥_∥₁.rec isProp⊥ (⊎.rec xNonInv yNonInv) (invertibleInBinarySum x+yInv)
+    contains0 nonInvertiblesFormIdeal (x , 0x≡1) =
+      1≢0 (sym 0x≡1 ∙ useSolver _)
+      where
+        useSolver : (x : ⟨ R ⟩) → 0r · x ≡ 0r
+        useSolver = solve R
+    ·Closed nonInvertiblesFormIdeal {x = x} r xNonInv rxInv =
+      xNonInv (snd (RˣMultDistributing r x rxInv))
+
+-- TODO: chracterization: x, 1 - x ...
