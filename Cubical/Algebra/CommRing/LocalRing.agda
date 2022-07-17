@@ -11,6 +11,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence using (hPropExt)
 
 -- open import Cubical.Functions.Logic
 
@@ -106,7 +107,7 @@ module _ (R : CommRing ℓ) where
 
     private
       nonInvertibles : ℙ ⟨ R ⟩
-      nonInvertibles = λ x → (¬ (x ∈ R ˣ)) , isPropΠ λ _ → isProp⊥
+      nonInvertibles = λ x → (¬ (x ∈ R ˣ)) , isProp→ isProp⊥
 
     open CommIdeal.isCommIdeal
 
@@ -121,4 +122,39 @@ module _ (R : CommRing ℓ) where
     ·Closed nonInvertiblesFormIdeal {x = x} r xNonInv rxInv =
       xNonInv (snd (RˣMultDistributing r x rxInv))
 
--- TODO: chracterization: x, 1 - x ...
+
+  module Characterizations where
+
+    module OneMinus where
+      open CommRingStr (snd R)
+
+      Alternative : Type ℓ
+      Alternative = (¬ 1r ≡ 0r) × ((x : ⟨ R ⟩) → ∥ (x ∈ R ˣ) ⊎ (1r - x ∈ R ˣ) ∥₁ )
+
+      isPropAlternative : isProp Alternative
+      isPropAlternative =
+        isProp×
+          (isProp→ isProp⊥)
+          (isPropΠ (λ _ → isPropPropTrunc))
+
+      private
+        isLocal→Alternative : isLocal → Alternative
+        isLocal→Alternative local =
+            1≢0
+          , λ x → invertibleInBinarySum (subst (_∈ R ˣ) (1≡x+1-x x) RˣContainsOne)
+          where
+          1≡x+1-x : (x : ⟨ R ⟩) → 1r ≡ x + (1r - x)
+          1≡x+1-x = solve R
+          open Consequences local
+          open Units R
+
+        alternative→isLocal : Alternative → isLocal
+        alternative→isLocal = {!!}
+
+      path : isLocal ≡ Alternative
+      path =
+        hPropExt
+          isPropIsLocal
+          isPropAlternative
+          isLocal→Alternative
+          alternative→isLocal
