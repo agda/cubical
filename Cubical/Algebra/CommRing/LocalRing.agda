@@ -19,7 +19,7 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.FinData
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
-open import Cubical.Data.Empty using (isProp⊥)
+open import Cubical.Data.Empty as ⊥ using (isProp⊥)
 
 open import Cubical.HITs.PropositionalTruncation as ∥_∥₁
 
@@ -123,33 +123,52 @@ module _ (R : CommRing ℓ) where
       xNonInv (snd (RˣMultDistributing r x rxInv))
 
 
+  -- Equivalent characterizations of local rings.
   module Characterizations where
 
-    module OneMinus where
+    -- A characterization in terms of binary sums of ring elements.
+    module BinSum where
       open CommRingStr (snd R)
 
+      BinSum : Type ℓ
+      BinSum = (x y : ⟨ R ⟩) → (x + y ∈ R ˣ) → ∥ (x ∈ R ˣ) ⊎ (y ∈ R ˣ) ∥₁
+
       Alternative : Type ℓ
-      Alternative = (¬ 1r ≡ 0r) × ((x : ⟨ R ⟩) → ∥ (x ∈ R ˣ) ⊎ (1r - x ∈ R ˣ) ∥₁ )
+      Alternative = (¬ 1r ≡ 0r) × BinSum
 
       isPropAlternative : isProp Alternative
       isPropAlternative =
         isProp×
           (isProp→ isProp⊥)
-          (isPropΠ (λ _ → isPropPropTrunc))
+          (isPropΠ3 (λ _ _ _ → isPropPropTrunc))
 
-      private
-        isLocal→Alternative : isLocal → Alternative
-        isLocal→Alternative local =
-            1≢0
-          , λ x → invertibleInBinarySum (subst (_∈ R ˣ) (1≡x+1-x x) RˣContainsOne)
+      isLocal→Alternative : isLocal → Alternative
+      isLocal→Alternative local =
+          1≢0
+        , λ x y → invertibleInBinarySum
+        where
+        open Consequences local
+
+      module _ ((1≢0 , binSum) : Alternative) where
+        alternative→isLocal : isLocal
+        alternative→isLocal {n = ℕ.zero} xs (0⁻¹ , 00⁻¹≡1) =
+          ⊥.rec (1≢0 (sym 00⁻¹≡1 ∙ 0x≡0 0⁻¹))
           where
-          1≡x+1-x : (x : ⟨ R ⟩) → 1r ≡ x + (1r - x)
-          1≡x+1-x = solve R
-          open Consequences local
-          open Units R
-
-        alternative→isLocal : Alternative → isLocal
-        alternative→isLocal = {!!}
+          0x≡0 : (x : ⟨ R ⟩) → 0r · x ≡ 0r
+          0x≡0 = solve R
+        alternative→isLocal {n = ℕ.suc n} xxs x+∑xsInv =
+          ∥_∥₁.rec
+            isPropPropTrunc
+            (⊎.rec
+              (λ xInv → ∣ zero , xInv ∣₁)
+              (  ∥_∥₁.map (λ{(i , xsiInv) → (suc i) , xsiInv})
+               ∘ alternative→isLocal xs))
+            (binSum x (∑ xs) x+∑xsInv)
+          where
+          x : ⟨ R ⟩
+          x = xxs zero
+          xs : FinVec ⟨ R ⟩ n
+          xs = xxs ∘ suc
 
       path : isLocal ≡ Alternative
       path =
@@ -158,3 +177,56 @@ module _ (R : CommRing ℓ) where
           isPropAlternative
           isLocal→Alternative
           alternative→isLocal
+
+    -- A characterization featuring ring elements of the form 1 - x.
+    module OneMinus where
+      open CommRingStr (snd R)
+
+      OneMinus : Type ℓ
+      OneMinus = (x : ⟨ R ⟩) → ∥ (x ∈ R ˣ) ⊎ (1r - x ∈ R ˣ) ∥₁
+
+      Alternative : Type ℓ
+      Alternative = (¬ 1r ≡ 0r) × OneMinus
+
+      isPropAlternative : isProp Alternative
+      isPropAlternative =
+        isProp×
+          (isProp→ isProp⊥)
+          (isPropΠ (λ _ → isPropPropTrunc))
+
+      private
+        binSum→OneMinus : BinSum.BinSum → OneMinus
+        binSum→OneMinus binSum x =
+          binSum x (1r - x) (subst (_∈ R ˣ) (1≡x+1-x x) RˣContainsOne)
+          where
+          1≡x+1-x : (x : ⟨ R ⟩) → 1r ≡ x + (1r - x)
+          1≡x+1-x = solve R
+          open Units R
+
+        oneMinus→BinSum : OneMinus → BinSum.BinSum
+        oneMinus→BinSum oneMinus x y (s⁻¹ , ss⁻¹≡1) =
+          ∥_∥₁.map
+            (⊎.map
+              (fst ∘ RˣMultDistributing x s⁻¹)
+              (fst ∘ RˣMultDistributing y s⁻¹ ∘ subst (_∈ R ˣ) 1-xs⁻¹≡ys⁻¹))
+            (oneMinus (x · s⁻¹))
+          where
+          solveStep : (a b c : ⟨ R ⟩) → (a + b) · c - a · c ≡ b · c
+          solveStep = solve R
+          1-xs⁻¹≡ys⁻¹ : 1r - x · s⁻¹ ≡ y · s⁻¹
+          1-xs⁻¹≡ys⁻¹ =
+            (1r - x · s⁻¹)             ≡⟨ cong (_- _) (sym ss⁻¹≡1) ⟩
+            ((x + y) · s⁻¹ - x · s⁻¹)  ≡⟨ solveStep x y s⁻¹ ⟩
+            (y · s⁻¹)                  ∎
+          open Units R
+
+        pathFromBinSum : BinSum.Alternative ≡ Alternative
+        pathFromBinSum =
+          hPropExt
+            BinSum.isPropAlternative
+            isPropAlternative
+            (λ{ (1≢0 , binSum) → 1≢0 , binSum→OneMinus binSum})
+            (λ{ (1≢0 , oneMinus) → 1≢0 , oneMinus→BinSum oneMinus})
+
+      path : isLocal ≡ Alternative
+      path = BinSum.path ∙ pathFromBinSum
