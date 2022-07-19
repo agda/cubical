@@ -613,35 +613,36 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
         toCone : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
                → f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂
                → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' i))) c
-        coneOut (toCone f g square) (sing i) = -- wouldn't work with with-syntax
-          subst (λ x → C [ c , F-ob F ((β ++Fin γ) x , ++FinPres∈ L' β∈L' γ∈L' x) ])
-                (FSCsec n n' i)
-                (coneOutSingAux (FSCinv n n' i))
-          where
-          coneOutSingAux : (x : Fin n ⊎ Fin n')
-                         → C [ c , F-ob F ((β ++Fin γ) (FSCfun _ _ x)
-                                 , ++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ x)) ]
-          coneOutSingAux (inl i') = subst (λ x → C [ c , F .F-ob x ])
-                                          (Σ≡Prop (λ x → L' x .snd) (++FinInl _ _ β γ i'))
-                                          (g ⋆⟨ C ⟩ coneOut (restCone β β∈L') (sing i'))
-          coneOutSingAux (inr i') = subst (λ x → C [ c , F .F-ob x ])
-                                          (Σ≡Prop (λ x → L' x .snd) (++FinInr _ _ β γ i'))
-                                          (f ⋆⟨ C ⟩ coneOut (restCone γ γ∈L') (sing i'))
-        coneOut (toCone f g square) (pair i j i<j) = {!!}
-          where
-          coneOutPairAux : (x y : Fin n ⊎ Fin n')
-                         → (FSCfun _ _ x) <'Fin (FSCfun _ _ y)
-                         → C [ c , F-ob F
-                             ((β ++Fin γ) (FSCfun _ _ x) ∧l (β ++Fin γ) (FSCfun _ _ y)
-                             , ∧lClosed ((β ++Fin γ) (FSCfun _ _ x)) ((β ++Fin γ) (FSCfun _ _ y))
-                                 (++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ x))
-                                 (++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ y))) ]
-          coneOutPairAux (inl i') (inl j') i'<j' = {!!}
-          coneOutPairAux (inl i') (inr j') i'<j' = {!!}
-          coneOutPairAux (inr i') (inl j') i'<j' = {!!}
-          coneOutPairAux (inr i') (inr j') i'<j' = {!!}
+        toCone = {!!}
+        -- coneOut (toCone f g square) (sing i) = -- wouldn't work with with-syntax
+        --   subst (λ x → C [ c , F-ob F ((β ++Fin γ) x , ++FinPres∈ L' β∈L' γ∈L' x) ])
+        --         (FSCsec n n' i)
+        --         (coneOutSingAux (FSCinv n n' i))
+        --   where
+        --   coneOutSingAux : (x : Fin n ⊎ Fin n')
+        --                  → C [ c , F-ob F ((β ++Fin γ) (FSCfun _ _ x)
+        --                          , ++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ x)) ]
+        --   coneOutSingAux (inl i') = subst (λ x → C [ c , F .F-ob x ])
+        --                                   (Σ≡Prop (λ x → L' x .snd) (++FinInl _ _ β γ i'))
+        --                                   (g ⋆⟨ C ⟩ coneOut (restCone β β∈L') (sing i'))
+        --   coneOutSingAux (inr i') = subst (λ x → C [ c , F .F-ob x ])
+        --                                   (Σ≡Prop (λ x → L' x .snd) (++FinInr _ _ β γ i'))
+        --                                   (f ⋆⟨ C ⟩ coneOut (restCone γ γ∈L') (sing i'))
+        -- coneOut (toCone f g square) (pair i j i<j) = {!!}
+        --   where
+        --   coneOutPairAux : (x y : Fin n ⊎ Fin n')
+        --                  → (FSCfun _ _ x) <'Fin (FSCfun _ _ y)
+        --                  → C [ c , F-ob F
+        --                      ((β ++Fin γ) (FSCfun _ _ x) ∧l (β ++Fin γ) (FSCfun _ _ y)
+        --                      , ∧lClosed ((β ++Fin γ) (FSCfun _ _ x)) ((β ++Fin γ) (FSCfun _ _ y))
+        --                          (++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ x))
+        --                          (++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ y))) ]
+        --   coneOutPairAux (inl i') (inl j') i'<j' = {!!}
+        --   coneOutPairAux (inl i') (inr j') i'<j' = {!!}
+        --   coneOutPairAux (inr i') (inl j') i'<j' = {!!}
+        --   coneOutPairAux (inr i') (inr j') i'<j' = {!!}
 
-        coneOutCommutes (toCone f g square) = {!!}
+        -- coneOutCommutes (toCone f g square) = {!!}
 
         applyLemma4 : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
                       (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
