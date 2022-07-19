@@ -189,10 +189,6 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-predℕ {zero} 0<n = ⊥.rec (¬-<-zero 0<n)
 <-predℕ {suc k} 0<n = <-suc
 
-<-0< : n < k → 0 < k
-<-0< {zero} n<k = n<k
-<-0< {suc n'} n<k = ?
-
 <-+k : m < n → m + k < n + k
 <-+k p = ≤-+k p
 

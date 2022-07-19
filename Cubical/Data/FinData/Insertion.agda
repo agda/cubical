@@ -36,39 +36,6 @@ private variable
        step1 : ∀ x y z → x + y + z ≡ y + (x + z)
        step1 = solve
 
-module _ {n : ℕ} {P : Fin n → Type ℓ'} (i : Fin n)
-       (Plt : (l : Fin n) → (toℕ l < toℕ i) → P l)
-       (P≡  : (l : Fin n) → (toℕ l ≡ toℕ i) → P l)
-       (Pgt : (l : Fin n) → (toℕ i < toℕ l) → P l)
-      where
-
-  trichotomyElim : (l : Fin n) → P l
-  trichotomyElim  l with toℕ l ≟ (toℕ i)
-  ...               | lt l<i = Plt l l<i
-  ...               | eq l≡i = P≡ l l≡i
-  ...               | gt i<l = Pgt l i<l
-
-  trichotomyElimβgt : (l : Fin n) (l<i : toℕ l < toℕ i)
-                      → trichotomyElim l ≡ Plt l l<i
-  trichotomyElimβgt l l<i with toℕ l ≟ (toℕ i)
-  ...                     | lt l<i = subst (λ u → Plt l l<i ≡ Plt l u) (isProp≤ _ _) refl
-  ...                     | eq l≡i = ⊥.rec (<→≢ l<i l≡i)
-  ...                     | gt i<l = ⊥.rec (<-asym l<i (<-weaken i<l))
-
-  trichotomyElimβlt : (l : Fin n) (i<l : toℕ i < toℕ l)
-                      → trichotomyElim l ≡ Pgt l i<l
-  trichotomyElimβlt l i<l with toℕ l ≟ (toℕ i)
-  ...                     | lt l<i = ⊥.rec (<-asym i<l (<-weaken l<i))
-  ...                     | eq l≡i = ⊥.rec (<→≢ i<l (sym l≡i))
-  ...                     | gt i<l = subst (λ u → Pgt l i<l ≡ Pgt l u) (isProp≤ _ _) refl
-
-  trichotomyElimβ≡ : (l : Fin n) (l≡i : toℕ l ≡ toℕ i)
-                      → trichotomyElim l ≡ P≡ l l≡i
-  trichotomyElimβ≡ l l≡i with toℕ l ≟ (toℕ i)
-  ...                    | lt l<i = ⊥.rec (<→≢ l<i l≡i)
-  ...                    | eq l≡i = subst (λ u → P≡ l l≡i ≡ P≡ l u) (isSetℕ _ _ _ _) refl
-  ...                    | gt i<l = ⊥.rec (<→≢ i<l (sym l≡i))
-
 module _ {A : Type ℓ} {n : ℕ} (l : Fin (ℕ.suc n)) where
   drop : FinVec A (ℕ.suc n) → FinVec A n
   drop v i with (toℕ l) ≟ (toℕ i)
@@ -83,13 +50,13 @@ module _ {A : Type ℓ} {n : ℕ} (l : Fin (ℕ.suc n)) (a : A) where
     l<n+1 = toℕ<n l
     strengthen : (k : Fin (ℕ.suc n)) → (toℕ k) < (toℕ l) → Fin n
     strengthen k k<l = toFin (toℕ k) (<-trans-suc k<l l<n+1)
-
+{-
   insert' : (a : A) → FinVec A n → FinVec A (ℕ.suc n)
   insert' a v = trichotomyElim l
     (λ k k<l → v (strengthen k k<l))
     (λ k k≡l → a)
     (λ k l<k → v (toFin (predℕ (toℕ k)) (<-trans-suc (<-predℕ {!!}) (toℕ<n k))))
-
+-}
   insert : FinVec A n → FinVec A (ℕ.suc n)
   insert v k with l' ≟ (toℕ k)
   ... | eq l≡k = a
@@ -105,7 +72,7 @@ module _ {A : Type ℓ} {n : ℕ} (l : Fin (ℕ.suc n)) (a : A) where
   ... | lt l<l = ⊥.rec (¬m<m l<l)
   ... | eq l≡l = refl
   ... | gt l<l = ⊥.rec (¬m<m l<l)
-{-
+
   insertIso : isSet A → Iso (FinVec A n) (Σ[ u ∈ (FinVec A (ℕ.suc n)) ] (u l) ≡ a)
   Iso.fun      (insertIso _)            v = (insert v) , (insertCompute v)
   Iso.inv      (insertIso _)      (u , _) = drop l u
@@ -115,8 +82,7 @@ module _ {A : Type ℓ} {n : ℕ} (l : Fin (ℕ.suc n)) (a : A) where
                q i k | eq l≡k = (a    ≡⟨ sym p ⟩
                                  u l  ≡⟨ cong u (inj-toℕ l≡k) ⟩
                                  u k ∎) i
-               ...   | gt k<l with toℕ l ≟ toℕ (strengthen k k<l)
-               q i k | gt k<l | x = {!!}
+               ...   | gt k<l = {!!}
                ...   | lt l<k with k
                ...            | zero = ⊥.rec (¬-<-zero l<k) i {- with (toℕ l) ≟ zero
                ...                   | lt l<0 = ⊥.rec (¬-<-zero l<k) i
@@ -127,4 +93,3 @@ module _ {A : Type ℓ} {n : ℕ} (l : Fin (ℕ.suc n)) (a : A) where
                ...                      | eq l≡k-1 = u (suc k-1)
                ...                      | gt k-1<l = u (inj-toℕ {!λ j → suc k-1!} i)
   Iso.leftInv  (insertIso _)         v  = {!!}
--- -}
