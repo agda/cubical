@@ -91,3 +91,44 @@ elim : {G : AbGroup ℓ} (n : ℕ) {A : EM G n → Type ℓ'}
 elim zero hlev hyp x = hyp x
 elim (suc zero) hlev hyp x = hyp x
 elim (suc (suc n)) hlev hyp = trElim (λ _ → hlev _) hyp
+
+
+EM' : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → Type ℓ
+EM' G zero = fst G
+EM' G (suc zero) = EM₁-raw (AbGroup→Group G)
+EM' G (suc (suc n)) = EM-raw G (suc (suc n))
+
+EM'∙ : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
+fst (EM'∙ G n) = EM' G n
+snd (EM'∙ G zero) = AbGroupStr.0g (snd G)
+snd (EM'∙ G (suc zero)) = embase-raw
+snd (EM'∙ G (suc (suc n))) = north
+
+EM'→EM : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → EM' G n → EM G n
+EM'→EM G zero x = x
+EM'→EM G (suc zero) x = EM₁-raw→EM₁ _ x
+EM'→EM G (suc (suc n)) x = ∣ x ∣ₕ
+
+EM'→EM∙ : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → EM'→EM G n (EM'∙ G n .snd) ≡ EM∙ G n .snd
+EM'→EM∙ G zero = refl
+EM'→EM∙ G (suc zero) = refl
+EM'→EM∙ G (suc (suc n)) = refl
+
+EM'-elim : ∀ {ℓ ℓ'} (G : AbGroup ℓ) (n : ℕ) {B : EM G n → Type ℓ'}
+         → ((x : _) → isOfHLevel (suc n) (B x))
+         → ((x : EM' G n) → (B (EM'→EM _ _ x)))
+         → (x : _ ) → B x
+EM'-elim G zero {B = B} hlev ind = ind
+EM'-elim G (suc zero) {B = B} hlev ind =
+  elimSet _ hlev (ind embase-raw) λ g → cong ind (emloop-raw g)
+EM'-elim G (suc (suc n)) {B = B} hlev ind =
+  Trunc.elim (λ _ → isOfHLevelSuc (3 + n) (hlev _)) ind
+
+EM'-trivElim : (G : AbGroup ℓ) (n : ℕ) {A : EM' G (suc n) → Type ℓ'}
+            → ((x : _) → isOfHLevel (suc n) (A x) )
+            → A (snd (EM'∙ G (suc n)))
+            → (x : _) → A x
+EM'-trivElim G zero {A = A} prop x embase-raw = x
+EM'-trivElim G zero {A = A} prop x (emloop-raw g i) =
+  isProp→PathP {B = λ i → A (emloop-raw g i)} (λ _ → prop _) x x i
+EM'-trivElim G (suc n) {A = A} = raw-elim G (suc n)

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.AbGroup.Base where
 
 open import Cubical.Foundations.Prelude
@@ -19,6 +19,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.GroupPath
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Auto
@@ -164,6 +165,9 @@ isPropIsAbGroup 0g _+_ -_ =
   open IsGroup
 
 
+invAbGroupEquiv : {G : AbGroup ℓ} {H : AbGroup ℓ'} → AbGroupEquiv G H → AbGroupEquiv H G
+invAbGroupEquiv e = invGroupEquiv e
+
 𝒮ᴰ-AbGroup : DUARel (𝒮-Univ ℓ) AbGroupStr ℓ
 𝒮ᴰ-AbGroup =
   𝒮ᴰ-Record (𝒮-Univ _) IsAbGroupEquiv
@@ -267,6 +271,48 @@ module _ (G : AbGroup ℓ) {A : Type ℓ}
   InducedAbGroupPathFromPres· : G ≡ InducedAbGroupFromPres·
   InducedAbGroupPathFromPres· = AbGroupPath _ _ .fst InducedAbGroupEquivFromPres·
 
+idAbGroupEquiv : (G : AbGroup ℓ) → AbGroupEquiv G G
+idAbGroupEquiv G = idGroupEquiv {G = AbGroup→Group G}
+
+uaAbGroup : {G H : AbGroup ℓ} → AbGroupEquiv G H → G ≡ H
+uaAbGroup = AbGroupPath _ _ .fst
+
+uaAbGroupId : (G : AbGroup ℓ) → uaAbGroup {H = G} (idAbGroupEquiv G) ≡ refl
+uaAbGroupId G = sym (cong (uaAbGroup {H = G}) lem) ∙ secEq (AbGroupPath G G) refl
+  where
+  lem : invEq (AbGroupPath _ _) (refl {x = G}) ≡ idAbGroupEquiv G
+  lem =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+      (Σ≡Prop (λ _ → isPropIsEquiv _)
+        (funExt transportRefl))
+
+GroupPath→AbGroupPath : {G H : AbGroup ℓ} → AbGroup→Group G ≡ AbGroup→Group H → G ≡ H
+fst (GroupPath→AbGroupPath p i) = p i .fst
+0g (snd (GroupPath→AbGroupPath p i)) = GroupStr.1g (p i .snd)
+_+_ (snd (GroupPath→AbGroupPath p i)) = GroupStr._·_ (p i .snd)
+- snd (GroupPath→AbGroupPath p i) = GroupStr.inv (p i .snd)
+isGroup (isAbGroup (snd (GroupPath→AbGroupPath p i))) = GroupStr.isGroup (p i .snd)
++Comm (isAbGroup (snd ((GroupPath→AbGroupPath {G = G} {H = H}) p i))) = help i
+  where
+  help : PathP (λ i → (x y : p i .fst) → (p i .snd · x) y ≡ (p i .snd · y) x)
+               (+Comm (isAbGroup (snd G)))
+               (+Comm (isAbGroup (snd H)))
+  help = toPathP (funExt λ x → funExt λ y → IsGroup.is-set (isGroup (isAbGroup (snd H))) _ _ _ _)
+
+AbGroupEquivJ : {G : AbGroup ℓ} (P : (H : AbGroup ℓ) → AbGroupEquiv G H → Type ℓ')
+            → P G (idAbGroupEquiv _)
+            → ∀ {H} e → P H e
+AbGroupEquivJ {ℓ = ℓ} {ℓ' = ℓ'} {G = G} P e p =
+  transport (λ i → P (uaAbGroup p i)
+    (transp (λ j → AbGroupEquiv G (uaAbGroup p (i ∨ ~ j))) i p))
+            (subst (P G) (sym help) e)
+  where
+  help : transp (λ j → AbGroupEquiv G (uaAbGroup p (~ j))) i0 p ≡ idAbGroupEquiv _
+  help = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+          (Σ≡Prop (λ _ → isPropIsEquiv _)
+            (funExt λ x → (λ i → invEq (fst p)
+                           (transportRefl (fst (fst p) (transportRefl x i)) i))
+                          ∙ retEq (fst p) x))
 
 dirProdAb : AbGroup ℓ → AbGroup ℓ' → AbGroup (ℓ-max ℓ ℓ')
 dirProdAb A B =
