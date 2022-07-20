@@ -1,5 +1,16 @@
 {-
-  Definition of local rings.
+  Definition of (commutative) local rings.
+
+  Note that local rings are more intricate constructively than classically.
+  See for example
+
+    "A Course in Constructive Algebra" by Mines, Richman & Ruitenberg, p. 96,
+
+  where (non-commutative) local rings are defined by the two characterizations
+  given at the end of this file but without the requirement that 1 is different
+  from 0. Or see the nLab page:
+
+    https://ncatlab.org/nlab/show/local+ring
 -}
 
 {-# OPTIONS --safe #-}
