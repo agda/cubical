@@ -109,6 +109,11 @@ module _ {R : CommRing ℓ} where
         (values : FinVec ⟨ A ⟩ n)
         (relationsHold : (i : Fin m) → evPoly A (relation i) values ≡ 0a (snd A))
         where abstract
+        {-
+          We repeat the abstract keyword here because the contents of a child module are not
+          covered by the outer abstract keyword. This behaves like a single big abstract
+          block as long as the child module is anonymous.
+        -}
 
         private
           freeHom : CommAlgebraHom (Polynomials n) A
