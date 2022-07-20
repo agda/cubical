@@ -210,13 +210,13 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where abstr
     I                  ∎
 
 
-private
-  module _ (R : CommRing ℓ) where abstract
-    open CommRingStr (snd R)
-    lemma : (y : (fst R)) → y ≡ y - 0r
-    lemma = solve R
-
 module _ where abstract
+  private
+    module _ (R : CommRing ℓ) where abstract
+      open CommRingStr (snd R)
+      lemma : (y : (fst R)) → y ≡ y - 0r
+      lemma = solve R
+
   isZeroFromIdeal : {R : CommRing ℓ} {A : CommAlgebra R ℓ} {I : IdealsIn A}
                     → (x : ⟨ A ⟩) → x ∈ (fst I) → fst (quotientHom A I) x ≡ CommAlgebraStr.0a (snd (A / I))
   isZeroFromIdeal {A = A} {I = I} x x∈I = eq/ x 0a (subst (λ y → y ∈ (fst I)) step x∈I )
