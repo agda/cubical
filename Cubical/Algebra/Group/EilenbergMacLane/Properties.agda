@@ -691,6 +691,22 @@ Iso→EMIso is zero = inducedFun-EM-rawIso is zero
 Iso→EMIso is (suc zero) = inducedFun-EM-rawIso is 1
 Iso→EMIso is (suc (suc n)) = mapCompIso (inducedFun-EM-rawIso is (suc (suc n)))
 
+Iso→EMIso∙ : {G : AbGroup ℓ} {H : AbGroup ℓ'}
+  → (e : AbGroupEquiv G H)
+  → ∀ n
+  → Iso.fun (Iso→EMIso e n) (EM∙ G n .snd) ≡ EM∙ H n .snd
+Iso→EMIso∙ e zero = IsGroupHom.pres1 (e .snd)
+Iso→EMIso∙ e (suc zero) = refl
+Iso→EMIso∙ e (suc (suc n)) = refl
+
+Iso→EMIso⁻∙ : {G : AbGroup ℓ} {H : AbGroup ℓ'}
+  → (e : AbGroupEquiv G H)
+  → ∀ n
+  → Iso.inv (Iso→EMIso e n) (EM∙ H n .snd) ≡ EM∙ G n .snd
+Iso→EMIso⁻∙ e zero = IsGroupHom.pres1 (invGroupEquiv e .snd)
+Iso→EMIso⁻∙ e (suc zero) = refl
+Iso→EMIso⁻∙ e (suc (suc n)) = refl
+
 Iso→EMIsoInv : {G : AbGroup ℓ} {H : AbGroup ℓ'}
   → (e : AbGroupEquiv G H) → ∀ n
   → Iso.inv (Iso→EMIso e n) ≡ Iso.fun (Iso→EMIso (invAbGroupEquiv e) n)
