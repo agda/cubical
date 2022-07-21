@@ -48,8 +48,8 @@ toFromId (suc n) = cong suc (toFromId n)
 ¬Fin0 (pure ())
 
 _≡ᵇ_ : Fin n → Fin n → Bool
-pure _ ≡ᵇ pure _     = true
-pure _ ≡ᵇ weaken _   = false
+pure _   ≡ᵇ pure _   = true
+pure _   ≡ᵇ weaken _ = false
 weaken _ ≡ᵇ pure _   = false
 weaken p ≡ᵇ weaken q = p ≡ᵇ q
 
