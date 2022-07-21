@@ -448,8 +448,18 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       fromUnivProp = limitC ⋁α↓ (F* (⋁ α)) .univProp c (lemma1 c cc)
 
 
+  module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L')
+                  (ccγ : Cone (funcComp F (BDiag (λ i → γ i , γ∈L' i))) c) where
 
+    private
+      β++γ∈L' : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L') → ∀ i → (β ++Fin γ) i ∈ L'
+      β++γ∈L' β∈L' = ++FinPres∈ L' β∈L' γ∈L'
 
+    toCone : (n : ℕ) (β : FinVec (fst L) n) (β∈L' : ∀ i → β i ∈ L')
+           → Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c
+           -- → (∀ i j → ) something about left and right restriction
+           → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i))) c
+    toCone = {!!}
 
 -- -- second lemma upstreamed for induction
 --   module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L') where
