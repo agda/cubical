@@ -803,6 +803,12 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'} {L'
                        ≡ λ i → _⌣ₖ_ {G' = G} {n = 0} {m = suc (suc n)} x (EM→ΩEM+1 (suc n) y i)
      EM→ΩEM+1-distr₀ₙ = {!!}
 
+     EM→ΩEM+1-distrₙsuc : ∀ {ℓ ℓ'} {G : AbGroup ℓ} {H : AbGroup ℓ'} (n m : ℕ)
+                      → (x : EM G (suc n)) (y : EM H (suc m))
+                      → EM→ΩEM+1 (suc n +' suc m) (_⌣ₖ_ {G' = G} {n = (suc n)} {m = suc m} x y)
+                       ≡ λ i → _⌣ₖ_ {G' = G} {n = suc (suc n)} {m = suc m} (EM→ΩEM+1 (suc n) x i) y
+     EM→ΩEM+1-distrₙsuc = {!!}
+
      EM→ΩEM+1-distrₙ₀ : ∀ {ℓ ℓ'} {G : AbGroup ℓ} {H : AbGroup ℓ'} (n : ℕ)
                       → (x : fst G) (y : EM H (suc n))
                       → EM→ΩEM+1 (suc n) (_⌣ₖ_ {G' = H} {H' = G} {n = suc n} {m = 0} y x)
@@ -897,7 +903,30 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'} {L'
                (EM→ΩEM+1-distr₀ₙ n x (_⌣ₖ_ {n = suc n} {m = zero} (EM-raw→EM _ _ a) z)))
      02-assoc n (suc l) ind =
        assocInd zero (2 + n) (suc l) _ _
-         λ x y z → {!!} ∙ {!!} -- sym (preSubstFunLoop _ (swapFun zero (suc (suc n)) (suc l) _))
+         λ x y z → lem x y z ∙ sym (preSubstFunLoop _
+                            (swapFun zero (suc (suc n)) (suc l)
+                              (x ⌣ₖ (∣ y ∣ ⌣ₖ EM'→EM L' (suc l) z))))
+       where
+       lem : (x : G) (y : EM' H' (suc (suc n))) (z : EM' L' (suc l))
+          → (x ⌣ₖ ∣ y ∣) ⌣ₖ EM'→EM L' (suc l) z
+           ≡ swapFun zero (suc (suc n)) (suc l) (x ⌣ₖ (∣ y ∣ ⌣ₖ EM'→EM L' (suc l) z))
+       lem x north z = refl
+       lem x south z = refl
+       lem x (merid a i) z = flipSquare help' i
+         where
+         help' : (λ i → _⌣ₖ_ {n = suc (suc n)} {m = suc l}
+                  (_⌣ₖ_ {n = zero} {m = suc (suc n)} x ∣ merid a i ∣) (EM'→EM _ _ z))
+            ≡ (cong (swapFun zero (suc (suc n)) (suc l))
+                 (λ i → (_⌣ₖ_ {n = 0} {m = suc (suc n) +' suc l} x
+                   (_⌣ₖ_ {n = suc (suc n)} {m = suc l} ∣ merid a i ∣ₕ (EM'→EM _ _ z)))))
+         help' = (λ _ i → EM→ΩEM+1 _ (cup∙ 0 (suc n) x .fst ((EM-raw→EM _ _ a))) i ⌣ₖ (EM'→EM _ _ z))
+              ∙∙ (sym (EM→ΩEM+1-distrₙsuc n l (cup∙ 0 (suc n) x .fst ((EM-raw→EM _ _ a))) (EM'→EM _ _ z))
+               ∙ cong (EM→ΩEM+1 (suc (suc (n + l)))) (assocConvert ind x (EM-raw→EM _ _ a) (EM'→EM _ _ z)
+                                ∙ preSubstFunLoop _ (Iso.fun (Iso→EMIso ⨂assoc (suc (suc (n + l)))) _)))
+               ∙ sym (EMEqFunct _ _ ((_⌣ₖ_ {n = zero} {m = suc n +' suc l} x (EM-raw→EM H' (suc n) a ⌣ₖ EM'→EM L' (suc l) z))))
+              ∙∙ cong (cong ((swapFun zero (suc (suc n)) (suc l))))
+                  (EM→ΩEM+1-distr₀ₙ _ x (_⌣ₖ_ {n = suc n} {m = suc l} (EM-raw→EM _ _ a) (EM'→EM _ _ z)))
+     
 
      0-assoc : (m l : ℕ) → assL zero m l ≡ assR zero m l
      0-assoc zero = 00-assoc
@@ -953,14 +982,152 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'} {L'
 
      n0-assoc : (n l : ℕ) → assL n zero l ≡ assR n zero l → assL (suc n) zero l ≡ assR (suc n) zero l
      n0-assoc zero l ind = n00-assoc l
-     n0-assoc (suc n) l ind = {!!}
+     n0-assoc (suc n) zero ind =
+       assocInd (suc (suc n)) zero zero _ _ λ x y z → lem x y z ∙ sym (preSubstFunLoop _ ((swapFun (suc (suc n)) zero zero _)))
+       where
+       lem : (x : EM' G' (suc (suc n))) (y : H) (z : L)
+         → fst (assL (suc (suc n)) zero zero)
+             (EM'→EM G' (suc (suc n)) x) .fst (EM'→EM H' zero y) .fst (EM'→EM L' zero z)
+          ≡ _
+       lem north y z = refl
+       lem south y z = refl
+       lem (merid a i) y z = flipSquare help i
+         where
+         help : (λ i → _⌣ₖ_ {n = suc (suc n)} {m = 0} (EM→ΩEM+1 (suc n) (_⌣ₖ_ {n = suc n} {m = zero} (EM-raw→EM _ _ a) y) i) z)
+              ≡ cong (swapFun (suc (suc n)) zero zero) (EM→ΩEM+1 (suc n) (_⌣ₖ_ {n = suc n} {m = zero} (EM-raw→EM _ _ a) (y ⊗ z)))
+         help = sym (EM→ΩEM+1-distrₙ₀ _ z (_⌣ₖ_ {n = suc n} {m = zero} (EM-raw→EM _ _ a) y))
+              ∙ cong (EM→ΩEM+1 (suc n)) (assocConvert ind (EM-raw→EM G' (suc n) a) y z
+                                       ∙ preSubstFunLoop _ ((swapFun (suc n) zero zero
+                                          (_⌣ₖ_ {n = suc n} {m = zero} (EM-raw→EM _ _ a) (y ⊗ z)))))
+              ∙ sym (EMEqFunct _ _ _)
+     n0-assoc (suc n) (suc zero) ind =
+       assocInd (suc (suc n)) zero (suc zero) _ _ λ x y z → lem x y z ∙ sym (preSubstFunLoop _ ((swapFun (suc (suc n)) zero (suc zero) _)))
+       where
+       lem : (x : EM' G' (suc (suc n))) (y : H) (z : EM' L' (suc zero))
+         → fst (assL (suc (suc n)) zero (suc zero))
+             (EM'→EM G' (suc (suc n)) x) .fst (EM'→EM H' zero y) .fst (EM'→EM L' (suc zero) z)
+          ≡ _
+       lem north y z = refl
+       lem south y z = refl
+       lem (merid a i) y z = flipSquare help i
+         where
+         help : (λ i → _⌣ₖ_ {n = suc (suc n)} {m = suc zero}
+                  (EM→ΩEM+1 (suc n) (_⌣ₖ_ {n = suc n} {m = zero} (EM-raw→EM _ _ a) y) i) (EM'→EM _ _ z))
+              ≡ cong (swapFun (suc (suc n)) zero (suc zero))
+                 (EM→ΩEM+1 (suc n +' suc zero)
+                   (cup∙ (suc n) _ (EM-raw→EM _ _ a) .fst (cup∙ zero (suc zero) y .fst (EM'→EM L' (suc zero) z))))
+         help = sym (EM→ΩEM+1-distrₙsuc _ _ _ (EM'→EM L' (suc zero) z))
+             ∙∙ cong (EM→ΩEM+1 (suc n +' suc zero))
+                     (assocConvert ind (EM-raw→EM G' (suc n) a) y (EM'→EM L' (suc zero) z)
+                   ∙ preSubstFunLoop _ (swapFun (suc n) zero (suc zero) _))
+             ∙∙ sym (EMEqFunct _ _ _)
+     n0-assoc (suc n) (suc (suc l)) ind =
+       assocInd (suc (suc n)) zero (suc (suc l)) _ _
+         λ x y z → lem x y z ∙ sym (preSubstFunLoop _ ((swapFun (suc (suc n)) zero (suc (suc l)) _)))
+       where
+       lem : (x : EM' G' (suc (suc n))) (y : H) (z : EM' L' (suc (suc l)))
+         → fst (assL (suc (suc n)) zero (suc (suc l)))
+             (EM'→EM G' (suc (suc n)) x) .fst (EM'→EM H' zero y) .fst (EM'→EM L' (suc (suc l)) z)
+          ≡ _
+       lem north y z = refl
+       lem south y z = refl
+       lem (merid a i) y z = flipSquare help i
+         where
+         help : (λ i → _⌣ₖ_ {n = suc (suc n)} {m = suc (suc l)}
+                  (EM→ΩEM+1 (suc n) (_⌣ₖ_ {n = suc n} {m = zero} (EM-raw→EM _ _ a) y) i) (EM'→EM _ _ z))
+              ≡ cong (swapFun (suc (suc n)) zero (suc (suc l)))
+                 (EM→ΩEM+1 (suc n +' suc (suc l))
+                   (cup∙ (suc n) _ (EM-raw→EM _ _ a) .fst (cup∙ zero (suc (suc l)) y .fst (EM'→EM L' (suc (suc l)) z))))
+         help = sym (EM→ΩEM+1-distrₙsuc _ _ _ (EM'→EM L' (suc (suc l)) z))
+             ∙∙ cong (EM→ΩEM+1 (suc n +' suc (suc l)))
+                     (assocConvert ind (EM-raw→EM G' (suc n) a) y (EM'→EM L' (suc (suc l)) z)
+                   ∙ preSubstFunLoop _ (swapFun (suc n) zero (suc (suc l)) _))
+             ∙∙ sym (EMEqFunct _ _ _)
 
-     --
-     nm0-assoc : (n m : ℕ) → assL n (suc m) zero ≡ assR n (suc m) zero → assL (suc n) (suc m) zero ≡ assR (suc n) (suc m) zero
-     nm0-assoc = {!!}
+     nm0-assoc : (n m : ℕ) → assL n (suc m) zero ≡ assR n (suc m) zero
+               → assL (suc n) (suc m) zero ≡ assR (suc n) (suc m) zero
+     nm0-assoc zero zero ind = assocInd (suc zero) (suc zero) zero _ _
+         λ x y z → lem x y z ∙ sym (preSubstFunLoop _ (swapFun (suc zero) (suc zero) zero _))
+       where
+       lem : (x : EM' G' (suc zero)) (y : EM' H' (suc zero)) (z : L) → _ ≡ _
+       lem embase-raw y z = refl
+       lem (emloop-raw g i) y z = flipSquare help i
+         where
+         help : (λ i → _⌣ₖ_ {n = suc (suc zero)} {m = zero}
+                  (EM→ΩEM+1 (suc zero) (_⌣ₖ_ {n = zero} {m = suc zero} g (EM'→EM _ _ y)) i) z)
+              ≡ cong (swapFun 1 1 zero) (EM→ΩEM+1 1 (·₀ g 1 (_⌣ₖ_ {n = suc zero} {m = zero} (EM'→EM _ _ y) z)))
+         help = sym (EM→ΩEM+1-distrₙ₀ zero z (_⌣ₖ_ {n = zero} {m = suc zero} g (EM'→EM _ _ y)))
+              ∙ cong (EM→ΩEM+1 1) (assocConvert ind g (EM'→EM _ _ y) z
+                                 ∙ preSubstFunLoop _ (swapFun zero (suc zero) zero
+                                   (·₀ g 1 (_⌣ₖ_ {n = suc zero} {m = zero} (EM'→EM _ _ y) z))))
+              ∙ sym (EMEqFunct _ _ (·₀ g 1 (_⌣ₖ_ {n = suc zero} {m = zero} (EM'→EM _ _ y) z)))
+     nm0-assoc zero (suc m) ind =
+       assocInd (suc zero) (suc (suc m)) zero _ _
+         λ x y z → lem x y z ∙ sym (preSubstFunLoop _ (swapFun (suc zero) (suc (suc m)) zero _))
+       where
+       lem : (x : EM' G' (suc zero)) (y : EM' H' (suc (suc m))) (z : L) → _ ≡ _
+       lem embase-raw y z = refl
+       lem (emloop-raw g i) y z = flipSquare help i
+         where
+         help : (λ i → _⌣ₖ_ {n = suc (suc (suc m))} {m = zero} (EM→ΩEM+1 _ (_⌣ₖ_ {n = zero} {m = suc (suc m)} g ∣ y ∣ₕ) i) z)
+              ≡ cong (swapFun 1 (suc (suc m)) zero)
+                 (EM→ΩEM+1 (suc (suc m)) (·₀ g (suc (suc m)) (_⌣ₖ_ {n = suc (suc m)} {m = zero} ∣ y ∣ₕ z)))
+         help = sym (EM→ΩEM+1-distrₙ₀ (suc m) z (_⌣ₖ_ {n = zero} {m = suc (suc m)} g (EM'→EM _ _ y)))
+              ∙ cong (EM→ΩEM+1 (suc (suc m))) (assocConvert ind g (EM'→EM _ _ y) z
+                                 ∙ preSubstFunLoop _ (swapFun zero (suc (suc m)) zero
+                                   (·₀ g (suc (suc m)) (_⌣ₖ_ {n = suc (suc m)} {m = zero} ∣ y ∣ₕ z))))
+              ∙ sym (EMEqFunct _ _ (·₀ g (suc (suc m)) (_⌣ₖ_ {n = suc (suc m)} {m = zero} ∣ y ∣ₕ z)))
+     nm0-assoc (suc n) zero ind =
+       assocInd (suc (suc n)) (suc zero) zero _ _
+         λ x y z → lem x y z ∙ sym (preSubstFunLoop _ (swapFun (suc (suc n)) (suc zero) zero _))
+       where
+       lem : (x : EM' G' (suc (suc n))) (y : EM' H' (suc zero)) (z : L) → _ ≡ _
+       lem north y z = refl
+       lem south y z = refl
+       lem (merid a i) y z = flipSquare help i
+         where
+         help : (λ i → _⌣ₖ_ {n = suc (suc n +' suc zero)} {m = zero}
+                  (EM→ΩEM+1 _ (_⌣ₖ_ {n = suc n} {m = suc zero} (EM-raw→EM _ _ a) (EM'→EM _ _ y)) i) z)
+              ≡ cong (swapFun (suc (suc n)) (suc zero) zero)
+                     (EM→ΩEM+1 (suc (suc (n + 0)))
+                       (_⌣ₖ_ {n = suc n} {m = suc zero} (EM-raw→EM _ _ a) (_⌣ₖ_ {n = suc zero} {m = zero} (EM'→EM _ _ y) z)))
+         help = sym (EM→ΩEM+1-distrₙ₀ _ z (_⌣ₖ_ {n = suc n} {m = suc zero} (EM-raw→EM _ _ a) (EM'→EM _ _ y)))
+             ∙∙ cong (EM→ΩEM+1 (suc (suc (n + 0))))
+                     (assocConvert ind (EM-raw→EM _ _ a) (EM'→EM _ _ y) z
+                   ∙ preSubstFunLoop _ _)
+             ∙∙ sym (EMEqFunct _ _ _)
+     nm0-assoc (suc n) (suc m) ind =
+       assocInd (suc (suc n)) (suc (suc m)) zero _ _
+         λ x y z → lem x y z ∙ sym (preSubstFunLoop _ (swapFun (suc (suc n)) (suc (suc m)) zero _))
+       where
+       lem : (x : EM' G' (suc (suc n))) (y : EM' H' (suc (suc m))) (z : L) → _ ≡ _
+       lem north y z = refl
+       lem south y z = refl
+       lem (merid a i) y z = flipSquare help i
+         where
+         help : (λ i → _⌣ₖ_ {n = suc (suc n +' suc (suc m))} {m = zero}
+                  (EM→ΩEM+1 _ (_⌣ₖ_ {n = suc n} {m = suc (suc m)} (EM-raw→EM _ _ a) (EM'→EM _ _ y)) i) z)
+              ≡ cong (swapFun (suc (suc n)) (suc (suc m)) zero)
+                     (EM→ΩEM+1 (suc n +' (suc (suc m)))
+                       (_⌣ₖ_ {n = suc n} {m = suc (suc m)} (EM-raw→EM _ _ a) (_⌣ₖ_ {n = suc (suc m)} {m = zero} (EM'→EM _ _ y) z)))
+         help = sym (EM→ΩEM+1-distrₙ₀ _ z (_⌣ₖ_ {n = suc n} {m = suc (suc m)} (EM-raw→EM _ _ a) (EM'→EM _ _ y)))
+             ∙∙ cong (EM→ΩEM+1 _)
+                     (assocConvert ind (EM-raw→EM _ _ a) (EM'→EM _ _ y) z
+                   ∙ preSubstFunLoop _ _)
+             ∙∙ sym (EMEqFunct _ _ _)
 
-     mainassoc : (n m l : ℕ) → assL n (suc m) (suc l) ≡ assR n (suc m) (suc l) → assL (suc n) (suc m) (suc l) ≡ assR (suc n) (suc m) (suc l)
-     mainassoc = {!!}
+     mainassoc : (n m l : ℕ)
+               → assL n (suc m) (suc l) ≡ assR n (suc m) (suc l)
+               → assL (suc n) (suc m) (suc l) ≡ assR (suc n) (suc m) (suc l)
+     mainassoc zero m l ind =
+       assocInd (suc zero) (suc m) (suc l) _ _
+         λ x y z → lem x y z ∙ sym (preSubstFunLoop _ (swapFun (suc zero) (suc m) (suc l) _))
+       where
+       lem : (x : EM' G' (suc zero)) (y : EM' H' (suc m)) (z : EM' L' (suc l)) → _ ≡ _
+       lem embase-raw y z = refl
+       lem (emloop-raw g i) y z = {!!}
+
+     mainassoc (suc n) m l ind = {!!}
 
      mainAssoc : (n m l : ℕ) → assL n m l ≡ assR n m l
      mainAssoc zero m l = 0-assoc m l
