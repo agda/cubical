@@ -7,7 +7,7 @@
   Boilerplate code for calling the ring solver is constructed automatically
   with agda's reflection features.
 -}
-module Cubical.Algebra.CommRingSolver.Reflection where
+module Cubical.Tactics.CommRingSolver.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)
 open import Cubical.Functions.Logic
@@ -29,11 +29,11 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
-open import Cubical.Algebra.CommRingSolver.AlgebraExpression
+open import Cubical.Tactics.CommRingSolver.AlgebraExpression
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRingSolver.RawAlgebra
-open import Cubical.Algebra.CommRingSolver.IntAsRawRing
-open import Cubical.Algebra.CommRingSolver.Solver renaming (solve to ringSolve)
+open import Cubical.Tactics.CommRingSolver.RawAlgebra
+open import Cubical.Tactics.CommRingSolver.IntAsRawRing
+open import Cubical.Tactics.CommRingSolver.Solver renaming (solve to ringSolve)
 
 private
   variable

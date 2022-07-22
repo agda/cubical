@@ -24,7 +24,7 @@ open import Cubical.HITs.Rationals.QuoQ
 
 open import Cubical.Algebra.Field
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Algebra.CommRing.Instances.QuoInt
 open import Cubical.Algebra.CommRing.Instances.QuoQ
 

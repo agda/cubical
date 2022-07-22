@@ -1,8 +1,15 @@
 {-# OPTIONS --safe #-}
+{-
+  This is inspired by/copied from:
+  https://github.com/agda/agda-stdlib/blob/master/src/Tactic/MonoidSolver.agda
 
-module Cubical.Algebra.MonoidSolver.Reflection where
+  Boilerplate code for calling the ring solver is constructed automatically
+  with agda's reflection features.
+-}
+module Cubical.Tactics.NatSolver.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)
+open import Cubical.Functions.Logic
 
 open import Agda.Builtin.Reflection hiding (Type)
 open import Agda.Builtin.String
@@ -12,22 +19,20 @@ open import Cubical.Reflection.Base
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
+open import Cubical.Data.Nat.Literals
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Bool
+open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
 
-open import Cubical.Algebra.Monoid.Base
-open import Cubical.Algebra.CommMonoid.Base
-open import Cubical.Algebra.MonoidSolver.Solver renaming (solve to naiveSolve)
-open import Cubical.Algebra.MonoidSolver.CommSolver renaming (solve to naiveCommSolve)
-open import Cubical.Algebra.MonoidSolver.MonoidExpression
+open import Cubical.Tactics.NatSolver.NatExpression
+open import Cubical.Tactics.NatSolver.Solver
 
+open EqualityToNormalform renaming (solve to natSolve)
 private
   variable
     ℓ : Level
-
-module ReflectionSolver (op unit solver : Name) where
 
   _==_ = primQNameEquality
   {-# INLINE _==_ #-}
@@ -69,7 +74,7 @@ module ReflectionSolver (op unit solver : Name) where
   {-
     If the solver needs to be applied during equational reasoning,
     the right hand side of the equation to solve cannot be given to
-    the solver directly. The following function extracts this term y
+    the solver directly. The folllowing function extracts this term y
     from a more complex expression as in:
       x ≡⟨ solve ... ⟩ (y ≡⟨ ... ⟩ z ∎)
   -}
@@ -84,19 +89,19 @@ module ReflectionSolver (op unit solver : Name) where
 
 
   private
-    solverCallAsTerm : Term → Arg Term → Term → Term → Term
-    solverCallAsTerm M varList lhs rhs =
+    solverCallAsTerm : Arg Term → Term → Term → Term
+    solverCallAsTerm varList lhs rhs =
       def
-         solver
-         (varg M ∷ varg lhs ∷ varg rhs
+         (quote natSolve)
+         (varg lhs ∷ varg rhs
            ∷ varList
            ∷ varg (def (quote refl) []) ∷ [])
 
-  solverCallWithLambdas : ℕ → List VarInfo → Term → Term → Term → Term
-  solverCallWithLambdas n varInfos M lhs rhs =
+  solverCallWithLambdas : ℕ → List VarInfo → Term → Term → Term
+  solverCallWithLambdas n varInfos lhs rhs =
     encloseWithIteratedLambda
       (map VarInfo.varName varInfos)
-      (solverCallAsTerm M (variableList (rev varInfos)) lhs rhs)
+      (solverCallAsTerm (variableList (rev varInfos)) lhs rhs)
     where
       encloseWithIteratedLambda : List String → Term → Term
       encloseWithIteratedLambda (varName ∷ xs) t = lam visible (abs varName (encloseWithIteratedLambda xs t))
@@ -109,47 +114,80 @@ module ReflectionSolver (op unit solver : Name) where
 
   solverCallByVarIndices : ℕ → List ℕ → Term → Term → Term → Term
   solverCallByVarIndices n varIndices R lhs rhs =
-      solverCallAsTerm R (variableList (rev varIndices)) lhs rhs
+      solverCallAsTerm (variableList (rev varIndices)) lhs rhs
       where
         variableList : List ℕ → Arg Term
         variableList [] = varg (con (quote emptyVec) [])
         variableList (varIndex ∷ varIndices)
           = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
 
-  module _ (monoid : Term) where
-
-    `ε⊗` : Term
-    `ε⊗` = con (quote ε⊗) []
-
-    mutual
-
-      `_⊗_` : List (Arg Term) → Term
-      `_⊗_` (harg _ ∷ xs) = `_⊗_` xs
-      `_⊗_` (varg _ ∷ varg x ∷ varg y ∷ []) =
-        con
-          (quote _⊗_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
-      `_⊗_` _ = unknown
-
-      finiteNumberAsTerm : ℕ → Term
-      finiteNumberAsTerm ℕ.zero = con (quote fzero) []
-      finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (varg (finiteNumberAsTerm n) ∷ [])
-
-      buildExpression : Term → Term
-      buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
-      buildExpression t@(def n xs) =
-        if (n == op)
-          then `_⊗_` xs
-        else if (n == unit)
-          then `ε⊗`
-        else
-          unknown
-      buildExpression t = unknown
 
 
-    toMonoidExpression : Maybe (Term × Term) → Maybe (Term × Term)
-    toMonoidExpression nothing = nothing
-    toMonoidExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
+module pr {n : ℕ} where
+  0' : Expr n
+  0' = K 0
 
+  1' : Expr n
+  1' = K 1
+
+module _ where
+  open pr
+
+  `0` : List (Arg Term) → Term
+  `0` [] = def (quote 0') []
+  `0` (varg fstcring ∷ xs) = `0` xs
+  `0` (harg _ ∷ xs) = `0` xs
+  `0` _ = unknown
+
+  `1` : List (Arg Term) → Term
+  `1` [] = def (quote 1') []
+  `1` (varg fstcring ∷ xs) = `1` xs
+  `1` (harg _ ∷ xs) = `1` xs
+  `1` _ = unknown
+
+  mutual
+
+    `_·_` : List (Arg Term) → Term
+    `_·_` (harg _ ∷ xs) = `_·_` xs
+    `_·_` (varg x ∷ varg y ∷ []) =
+      con
+        (quote _·'_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
+    `_·_` _ = unknown
+
+    `_+_` : List (Arg Term) → Term
+    `_+_` (harg _ ∷ xs) = `_+_` xs
+    `_+_` (varg x ∷ varg y ∷ []) =
+      con
+        (quote _+'_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
+    `_+_` _ = unknown
+
+    K' : List (Arg Term) → Term
+    K' xs = con (quote K) xs
+
+    finiteNumberAsTerm : ℕ → Term
+    finiteNumberAsTerm ℕ.zero = con (quote fzero) []
+    finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (varg (finiteNumberAsTerm n) ∷ [])
+
+    buildExpression : Term → Term
+    buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
+    buildExpression t@(lit n) = K' (varg t ∷ [])
+    buildExpression t@(def n xs) =
+      switch (n ==_) cases
+        case (quote _·_) ⇒ `_·_` xs   break
+        case (quote _+_) ⇒ `_+_` xs   break
+        default⇒ (K' xs)
+    buildExpression t@(con n xs) =
+      switch (n ==_) cases
+        case (quote _·_) ⇒ `_·_` xs   break
+        case (quote _+_) ⇒ `_+_` xs   break
+        default⇒ (K' xs)
+    buildExpression t = unknown
+
+  toAlgebraExpression : Maybe (Term × Term) → Maybe (Term × Term)
+  toAlgebraExpression nothing = nothing
+  toAlgebraExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
+
+private
   adjustDeBruijnIndex : (n : ℕ) → Term → Term
   adjustDeBruijnIndex n (var k args) = var (k + n) args
   adjustDeBruijnIndex n _ = unknown
@@ -190,8 +228,8 @@ module ReflectionSolver (op unit solver : Name) where
   toListOfTerms (con c (harg t ∷ args)) = toListOfTerms (con c args)
   toListOfTerms _ = nothing
 
-  solve-macro : Term → Term → TC Unit
-  solve-macro monoid hole =
+  solve-macro : Term → TC Unit
+  solve-macro hole =
     do
       hole′ ← inferType hole >>= normalise
       just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
@@ -199,23 +237,15 @@ module ReflectionSolver (op unit solver : Name) where
           nothing
             → typeError (strErr "Something went wrong when getting the variable names in "
                            ∷ termErr hole′ ∷ [])
-      {-
-        The call to the monoid solver will be inside a lamba-expression.
-        That means, that we have to adjust the deBruijn-indices of the variables in 'monoid'
-      -}
-      adjustedMonoid ← returnTC (adjustDeBruijnIndex (length varInfos) monoid)
-      just (lhs , rhs) ← returnTC (toMonoidExpression adjustedMonoid (getArgs equation))
+      just (lhs , rhs) ← returnTC (toAlgebraExpression (getArgs equation))
         where
           nothing
             → typeError(
                 strErr "Error while trying to build ASTs for the equation " ∷
                 termErr equation ∷ [])
-      let solution = solverCallWithLambdas (length varInfos) varInfos adjustedMonoid lhs rhs
+      let solution = solverCallWithLambdas (length varInfos) varInfos lhs rhs
       unify hole solution
 
 macro
-  solveMonoid : Term → Term → TC _
-  solveMonoid = ReflectionSolver.solve-macro (quote MonoidStr._·_) (quote MonoidStr.ε) (quote naiveSolve)
-
-  solveCommMonoid : Term → Term → TC _
-  solveCommMonoid = ReflectionSolver.solve-macro (quote CommMonoidStr._·_) (quote CommMonoidStr.ε) (quote naiveCommSolve)
+  solve : Term → TC _
+  solve = solve-macro

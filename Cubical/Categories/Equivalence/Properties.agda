@@ -3,6 +3,10 @@
 module Cubical.Categories.Equivalence.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+  renaming (isEquiv to isEquivMap)
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -14,8 +18,7 @@ open import Cubical.HITs.PropositionalTruncation.Base
 open Category
 open Functor
 open NatIso
-open CatIso
-open NatTrans
+open isIso
 open isEquivalence
 
 private
@@ -34,9 +37,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
                               ; ε = _ }
                    c c' f g p = f
                               ≡⟨ sqRL η ⟩
-                                cIso .mor ⋆⟨ C ⟩ G ⟪ F ⟪ f ⟫ ⟫ ⋆⟨ C ⟩ c'Iso .inv
-                              ≡⟨ cong (λ v → cIso .mor ⋆⟨ C ⟩ (G ⟪ v ⟫) ⋆⟨ C ⟩ c'Iso .inv) p ⟩
-                                cIso .mor ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⟫ ⋆⟨ C ⟩ c'Iso .inv
+                                cIso .fst ⋆⟨ C ⟩ G ⟪ F ⟪ f ⟫ ⟫ ⋆⟨ C ⟩ c'Iso .snd .inv
+                              ≡⟨ cong (λ v → cIso .fst ⋆⟨ C ⟩ (G ⟪ v ⟫) ⋆⟨ C ⟩ c'Iso .snd .inv) p ⟩
+                                cIso .fst ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⟫ ⋆⟨ C ⟩ c'Iso .snd .inv
                               ≡⟨ sym (sqRL η) ⟩
                                 g
                               ∎
@@ -63,30 +66,95 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       cIso⁻ = symCatIso cIso
       c'Iso⁻ = symCatIso c'Iso
 
-      h = cIso .mor ⋆⟨ C ⟩ G ⟪ g ⟫ ⋆⟨ C ⟩ c'Iso .inv
+      h = cIso .fst ⋆⟨ C ⟩ G ⟪ g ⟫ ⋆⟨ C ⟩ c'Iso .snd .inv
 
       -- we show that both `G ⟪ g ⟫` and `G ⟪ F ⟪ h ⟫ ⟫`
       -- are equal to the same thing
       -- namely : cIso .inv ⋆⟨ C ⟩ h ⋆⟨ C ⟩ c'Iso .mor
-      Gg≡ηhη : G ⟪ g ⟫ ≡ cIso .inv ⋆⟨ C ⟩ h ⋆⟨ C ⟩ c'Iso .mor
+      Gg≡ηhη : G ⟪ g ⟫ ≡ cIso .snd .inv ⋆⟨ C ⟩ h ⋆⟨ C ⟩ c'Iso .fst
       Gg≡ηhη = invMoveL cAreInv move-c' ∙ sym (C .⋆Assoc _ _ _)
         where
-          cAreInv : areInv _ (cIso .mor) (cIso .inv)
+          cAreInv : areInv _ (cIso .fst) (cIso .snd .inv)
           cAreInv = CatIso→areInv cIso
 
-          c'AreInv : areInv _ (c'Iso .mor) (c'Iso .inv)
+          c'AreInv : areInv _ (c'Iso .fst) (c'Iso .snd .inv)
           c'AreInv = CatIso→areInv c'Iso
 
-          move-c' : cIso .mor ⋆⟨ C ⟩ G ⟪ g ⟫ ≡ h ⋆⟨ C ⟩ c'Iso .mor
+          move-c' : cIso .fst ⋆⟨ C ⟩ G ⟪ g ⟫ ≡ h ⋆⟨ C ⟩ c'Iso .fst
           move-c' = invMoveR (symAreInv c'AreInv) refl
 
       GFh≡Gg : G ⟪ F ⟪ h ⟫ ⟫ ≡ G ⟪ g ⟫
       GFh≡Gg = G ⟪ F ⟪ h ⟫ ⟫
              ≡⟨ sqLR η ⟩
-               cIso .inv ⋆⟨ C ⟩ h ⋆⟨ C ⟩ c'Iso .mor
+               cIso .snd .inv ⋆⟨ C ⟩ h ⋆⟨ C ⟩ c'Iso .fst
              ≡⟨ sym Gg≡ηhη ⟩
                G ⟪ g ⟫
              ∎
 
+  isEquiv→FullyFaithful :  ∀ {F : Functor C D} → isEquivalence F → isFullyFaithful F
+  isEquiv→FullyFaithful {F = F} h = isFull+Faithful→isFullyFaithful {F = F} (isEquiv→Full h) (isEquiv→Faithful h)
+
   isEquiv→Surj : ∀ {F : Functor C D} → isEquivalence F → isEssentiallySurj F
-  isEquiv→Surj isE d = (isE .invFunc ⟅ d ⟆) , isIso→CatIso ((isE .ε .nIso) d)
+  isEquiv→Surj isE d = ∣ (isE .invFunc ⟅ d ⟆) , isIso→CatIso ((isE .ε .nIso) d) ∣₁
+
+
+-- A fully-faithful functor that induces equivalence on objects is an equivalence
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {F : Functor C D} where
+
+  isFullyFaithful+isEquivF-ob→isEquiv : isFullyFaithful F → isEquivMap (F .F-ob) → isEquivalence F
+  isFullyFaithful+isEquivF-ob→isEquiv fullfaith isequiv = w
+    where
+    open Iso
+    open IsoOver
+
+    MorC : C .ob × C .ob → Type _
+    MorC (x , y) = C [ x , y ]
+
+    MorD : D .ob × D .ob → Type _
+    MorD (x , y) = D [ x , y ]
+
+    F-Mor : ((x , y) : C .ob × C .ob) → C [ x , y ] → D [ F .F-ob x , F .F-ob y ]
+    F-Mor _ = F .F-hom
+
+    equiv-ob² : C .ob × C .ob ≃ D .ob × D .ob
+    equiv-ob² = ≃-× (_ , isequiv) (_ , isequiv)
+
+    iso-ob  = equivToIso (_ , isequiv)
+    iso-hom = equivOver→IsoOver {P = MorC} {Q = MorD} equiv-ob² F-Mor (λ (x , y) → fullfaith x y)
+
+    w-inv : Functor D C
+    w-inv .F-ob = iso-ob .inv
+    w-inv .F-hom = iso-hom .inv _
+    w-inv .F-id {x = x} = isFullyFaithful→Faithful {F = F} fullfaith _ _ _ _ (p ∙ sym (F .F-id))
+      where
+      p : _
+      p i =
+        comp
+        (λ j → D [ iso-ob .rightInv x (~ j) , iso-ob .rightInv x (~ j) ])
+        (λ j → λ
+          { (i = i0) → iso-hom .rightInv _ (D .id {x = x}) (~ j)
+          ; (i = i1) → D .id {x = iso-ob .rightInv x (~ j)} })
+        (D .id {x = x})
+    w-inv .F-seq {x = x} {z = z} f g = isFullyFaithful→Faithful {F = F} fullfaith _ _ _ _ (p ∙ sym (F .F-seq _ _))
+      where
+      p : _
+      p i =
+        comp
+        (λ j → D [ iso-ob .rightInv x (~ j) , iso-ob .rightInv z (~ j) ])
+        (λ j → λ
+          { (i = i0) → iso-hom .rightInv _ (f ⋆⟨ D ⟩ g) (~ j)
+          ; (i = i1) → iso-hom .rightInv _ f (~ j) ⋆⟨ D ⟩ iso-hom .rightInv _ g (~ j) })
+        (f ⋆⟨ D ⟩ g)
+
+    w-η-path : 𝟙⟨ C ⟩ ≡ w-inv ∘F F
+    w-η-path = Functor≡ (λ x → sym (retIsEq isequiv x)) (λ {x} {y} f → (λ i → iso-hom .leftInv (x , y) f (~ i)))
+
+    w-ε-path : F ∘F w-inv ≡ 𝟙⟨ D ⟩
+    w-ε-path = Functor≡ (λ x → secIsEq isequiv x) (λ {x} {y} f i → iso-hom .rightInv (x , y) f i)
+
+    w : isEquivalence F
+    w .invFunc = w-inv
+    w .η = pathToNatIso w-η-path
+    w .ε = pathToNatIso w-ε-path
