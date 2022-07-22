@@ -32,17 +32,8 @@ open import Cubical.Data.Sum
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Instances.Bool
 
-
-
-
-open GroupStr (snd BoolGroup)
+open GroupStr (snd BoolGroup) using ()
   renaming ( _·_ to _+Bool_ )
-
--- lemma over Bool
-True⊎False : (x : Bool) → (x ≡ false) ⊎ (x ≡ true)
-True⊎False false = inl refl
-True⊎False true = inr refl
-
 
 -----------------------------------------------------------------------------
 -- Lemma over ℤ
@@ -149,7 +140,7 @@ isEvenIsEven→IsEven x y px py = trueIsEven (x + y) ((k + l) , cong₂ _+_ qk q
 
 -- Proof that isEven is morphism
 isEven-pres+ : (x y : ℤ) → isEven (x + y) ≡ isEven x +Bool isEven y
-isEven-pres+ x y with (True⊎False (isEven x)) | True⊎False (isEven y)
+isEven-pres+ x y with (dichotomyBoolSym (isEven x)) | dichotomyBoolSym (isEven y)
 ... | inl xf | inl yf = isOddIsOdd→IsEven x y xf yf ∙ sym (cong₂ _+Bool_ xf yf)
 ... | inl xf | inr yt = isOddIsEven→IsOdd x y xf yt ∙ sym (cong₂ _+Bool_ xf yt)
 ... | inr xt | inl yf = isEvenIsOdd→IsOdd x y xt yf ∙ sym (cong₂ _+Bool_ xt yf)
