@@ -426,34 +426,33 @@ module ComputeCP²Notation
 -----------------------------------------------------------------------------
 -- Computation of the Cohomology Ring
 
--- open ComputeCP²Notation
---      (invGroupIso H⁰CP²≅ℤ)
---      (invGroupIso H²CP²≅ℤ)
---      (invGroupIso H⁴CP²≅ℤ)
+open ComputeCP²Notation
+     (invGroupIso H⁰CP²≅ℤ)
+     (invGroupIso H²CP²≅ℤ)
+     (invGroupIso H⁴CP²≅ℤ-pos)
 
--- ϕ₀-pres1 : ϕ₀ 1 ≡ 1⌣
--- ϕ₀-pres1 = refl
+ϕ₀-pres1 : ϕ₀ 1 ≡ 1⌣
+ϕ₀-pres1 = refl
 
--- ϕ₀-gen : (n : ℕ) → (f : coHom n CP²) → ϕ₀ (pos 1) ⌣ f ≡ f
--- ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n CP²)) _ _))
---              λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x)))
+ϕ₀-gen : (n : ℕ) → (f : coHom n CP²) → ϕ₀ (pos 1) ⌣ f ≡ f
+ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n CP²)) _ _))
+             λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x)))
 
 -- Missing lemma that is to be added
--- ϕ₂⌣ϕ₂≡ϕ₄ : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₄ (pos 1)
--- ϕ₂⌣ϕ₂≡ϕ₄ = {!!}
+ϕ₂⌣ϕ₂≡ϕ₄ : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₄ (pos 1)
+ϕ₂⌣ϕ₂≡ϕ₄ = H⁴CP²≅ℤ-pos-resp⌣
 
+open ComputeCP²Function ϕ₀-pres1 ϕ₀-gen ϕ₂⌣ϕ₂≡ϕ₄
 
--- open ComputeCP²Function ϕ₀-pres1 ϕ₀-gen ϕ₂⌣ϕ₂≡ϕ₄
+CP²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X³) (H*R CP²)
+fst CP²-CohomologyRing = isoToEquiv is
+  where
+  is : Iso ℤ[x]/x³ (H* CP²)
+  fun is = ℤ[x]/x³→H*-CP²
+  inv is = H*-CP²→ℤ[x]/x³
+  rightInv is = e-sect
+  leftInv is = e-retr
+snd CP²-CohomologyRing = snd ℤ[X]/X³→H*R-CP²
 
--- CP²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X³) (H*R CP²)
--- fst CP²-CohomologyRing = isoToEquiv is
---   where
---   is : Iso ℤ[x]/x³ (H* CP²)
---   fun is = ℤ[x]/x³→H*-CP²
---   inv is = H*-CP²→ℤ[x]/x³
---   rightInv is = e-sect
---   leftInv is = e-retr
--- snd CP²-CohomologyRing = snd ℤ[X]/X³→H*R-CP²
-
--- CohomologyRing-CP² : RingEquiv (H*R CP²) (CommRing→Ring ℤ[X]/X³)
--- CohomologyRing-CP² = RingEquivs.invEquivRing CP²-CohomologyRing
+CohomologyRing-CP² : RingEquiv (H*R CP²) (CommRing→Ring ℤ[X]/X³)
+CohomologyRing-CP² = RingEquivs.invRingEquiv CP²-CohomologyRing
