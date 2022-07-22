@@ -55,10 +55,7 @@ open import Cubical.ZCohomology.CohomologyRings.CupProductProperties
 open Iso
 
 
-module Equiv-RP2-Properties
-  (H⁴-RP²≅ℤ : GroupIso (coHomGr 4 RP²) UnitGroup₀)
-  (Hⁿ-RP²≅ℤ : (n : ℕ) → (n ≡ 0 → ⊥) → (n ≡ 2 → ⊥) → GroupIso (coHomGr n RP²) UnitGroup₀)
-  where
+module Equiv-RP2-Properties where
 
 -----------------------------------------------------------------------------
 -- Definitions and import
@@ -176,6 +173,12 @@ module Equiv-RP2-Properties
   ϕ₂-sect = rightInv (fst e₂)
   ϕ₂-retr = leftInv (fst e₂)
 
+  Hⁿ-RP²≅0' : (n : ℕ) → (n ≡ 0 → ⊥) → (n ≡ 2 → ⊥) → GroupIso (coHomGr n RP²) UnitGroup₀
+  Hⁿ-RP²≅0' zero ¬p ¬q = ⊥.rec (¬p refl)
+  Hⁿ-RP²≅0' one ¬p ¬q = H¹-RP²≅0
+  Hⁿ-RP²≅0' two ¬p ¬q = ⊥.rec (¬q refl)
+  Hⁿ-RP²≅0' (suc (suc (suc n))) ¬p ¬q = Hⁿ-RP²≅0 n
+
   data partℕ (k : ℕ) : Type ℓ-zero where
     is0  : (k ≡ 0)            → partℕ k
     is2  : (k ≡ 2)            → partℕ k
@@ -268,7 +271,7 @@ module Equiv-RP2-Properties
                                                         ∙ pres·-base-case-int 0 b 1 a
                                                         ∙ gradCommRing RP² 0 2 _ _
   pres·-base-case-int one           a one           b = sym (base-neutral 4) ∙
-                                                         cong (base 4) (isOfHLevelRetractFromIso 1 (fst H⁴-RP²≅ℤ) isPropUnit _ _)
+                                                         cong (base 4) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-RP²≅0 1)) isPropUnit _ _)
   pres·-base-case-int one           a (suc (suc m)) b = refl
   pres·-base-case-int (suc (suc n)) a m             b = refl
 
@@ -407,7 +410,7 @@ module Equiv-RP2-Properties
   e-sect-base k a (is2 x) = cong (base 2) (cong ϕ₂ (ψ₂-sect _) ∙ ϕ₂-sect _)
                             ∙ sym (constSubstCommSlice _ _ base x a)
   e-sect-base k a (else x) = sym (base-neutral k)
-                             ∙ cong (base k) (trivialGroupEq (Hⁿ-RP²≅ℤ k (fst x) (snd x)) _ _)
+                             ∙ cong (base k) (trivialGroupEq (Hⁿ-RP²≅0' k (fst x) (snd x)) _ _)
 
   e-sect : (x : H* RP²) → ℤ[x]/<2x,x²>→H*-RP² (H*-RP²→ℤ[x]/<2x,x²> x) ≡ x
   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
