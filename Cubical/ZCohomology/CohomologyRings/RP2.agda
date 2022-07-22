@@ -15,6 +15,7 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat using (ℕ ; zero ; suc ; discreteℕ ; suc-predℕ ; +-comm)
 open import Cubical.Data.Int
+open import Cubical.Data.Int.IsEven
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 open import Cubical.Data.Vec
@@ -210,7 +211,7 @@ module Equiv-RP2-Properties where
   ψ₂-pres0 = refl
 
   ψ₂str : IsGroupHom (snd ℤG) ψ₂ (snd BoolGroup)
-  ψ₂str = {!!}
+  ψ₂str = makeIsGroupHom isEven-pres+
 
   ϕ₂∘ψ₂str : IsGroupHom (snd ℤG) (ϕ₂ ∘ ψ₂) (snd (coHomGr 2 RP²))
   ϕ₂∘ψ₂str = isGroupHomComp (ψ₂ , ψ₂str) (ϕ₂ , ϕ₂str)
@@ -422,90 +423,84 @@ module Equiv-RP2-Properties where
 -----------------------------------------------------------------------------
 -- Retraction
 
-  module MissingLemma
-    (isEven-pres+ : (a b : ℤ) → isEven (a + b) ≡ ((isEven a) +Bool (isEven b)))
-    (IsEvenFalse : (a : ℤ) → isEven a ≡ false → Σ[ m ∈ ℤ ] a ≡ 1 +ℤ (2 ·ℤ m))
-    (IsEvenTrue : (a : ℤ) → isEven a ≡ true → Σ[ m ∈ ℤ ] a ≡ (2 ·ℤ m))
-    where
+  -- could be prove for : k + 2·m
+  -- then call it with 0 and 1
+  e-retr-ψ₂-false : (a : ℤ) → (isEven a ≡ false) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
+  e-retr-ψ₂-false a x = cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ x))
+                  ∙ eq/ (base (1 ∷ []) 1) (base (1 ∷ []) a)
+                    ∣ ((λ {zero → base (0 ∷ []) (-ℤ m) ; one → 0Pℤ }) , helper) ∣₁
+            where
+            m = fst (isEvenFalse a x)
 
-    -- could be prove for : k + 2·m
-    -- then call it with 0 and 1
-    e-retr-ψ₂-false : (a : ℤ) → (isEven a ≡ false) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
-    e-retr-ψ₂-false a x = cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ x))
-                    ∙ eq/ (base (1 ∷ []) 1) (base (1 ∷ []) a)
-                      ∣ ((λ {zero → base (0 ∷ []) (-ℤ m) ; one → 0Pℤ }) , helper) ∣₁
+            helper : _
+            helper = base-add _ _ _
+                     ∙ cong (base (1 ∷ [])) (cong (λ X → 1 +ℤ (-ℤ X)) (snd (isEvenFalse a x))
+                                             ∙ cong (λ X → 1 +ℤ X) (-Dist+ _ _)
+                                             ∙ +ℤAssoc _ _ _
+                                             ∙ +ℤIdL _)
+                     ∙ sym (cong (λ X → ((base (0 ∷ []) (-ℤ m)) ·Pℤ base (1 ∷ []) 2) +Pℤ X) (+PℤIdR _)
+                           ∙ +PℤIdR _
+                           ∙ cong (base (1 ∷ [])) (sym (-DistL· _ _) ∙ cong -ℤ_ (·ℤComm _ _)))
+
+  e-retr-ψ₂-true : (a : ℤ) → (isEven a ≡ true) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
+  e-retr-ψ₂-true a x = cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ x))
+                       ∙ eq/ (base (1 ∷ []) 0) (base (1 ∷ []) a)
+                       ∣ ((λ { zero → base (0 ∷ []) (-ℤ m) ; one → 0Pℤ }) , helper) ∣₁
+            where
+            m = fst (isEvenTrue a x)
+
+            helper : _
+            helper = base-add _ _ _
+                     ∙ cong (base (1 ∷ [])) (+ℤIdL _ ∙ cong -ℤ_ (snd (isEvenTrue a x) ∙ ·ℤComm 2 m))
+                     ∙ sym (cong (λ X → (base (0 ∷ []) (-ℤ m) ·Pℤ base (1 ∷ []) 2) +Pℤ X) (+PℤIdR _)
+                            ∙ +PℤIdR _
+                            ∙ cong (base (1 ∷ [])) (sym (-DistL· _ _)))
+
+
+  e-retr-ψ₂ : (a : ℤ) → ((isEven a ≡ false) ⊎ (isEven a ≡ true)) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
+  e-retr-ψ₂ a (inl x) = e-retr-ψ₂-false a x
+  e-retr-ψ₂ a (inr x) = e-retr-ψ₂-true a x
+
+
+  e-retr-base : (k :  ℕ) → (a : ℤ) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² [ base (k ∷ []) a ]) ≡ [ base (k ∷ []) a ]
+  e-retr-base zero a = cong [_] (cong (base (zero ∷ []))
+                                (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a)) ∙ ϕ₀-retr a))
+  e-retr-base one a = cong [_] (cong (base (1 ∷ [])) (cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (transportRefl _)))
+                      ∙ cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ (ϕ₂-retr (ψ₂ a))))
+                      ∙ e-retr-ψ₂ a (dichotomyBoolSym (isEven a))
+  e-retr-base (suc (suc k)) a = eq/ 0Pℤ (base ((suc (suc k)) ∷ []) a)
+                                ∣ ((λ { zero → 0Pℤ ; one → base (k ∷ []) (-ℤ a) }) , helper) ∣₁
               where
-              m = fst (IsEvenFalse a x)
-
               helper : _
-              helper = base-add _ _ _
-                       ∙ cong (base (1 ∷ [])) (cong (λ X → 1 +ℤ (-ℤ X)) (snd (IsEvenFalse a x))
-                                               ∙ cong (λ X → 1 +ℤ X) (-Dist+ _ _)
-                                               ∙ +ℤAssoc _ _ _
-                                               ∙ +ℤIdL _)
-                       ∙ sym (cong (λ X → ((base (0 ∷ []) (-ℤ m)) ·Pℤ base (1 ∷ []) 2) +Pℤ X) (+PℤIdR _)
-                             ∙ +PℤIdR _
-                             ∙ cong (base (1 ∷ [])) (sym (-DistL· _ _) ∙ cong -ℤ_ (·ℤComm _ _)))
+              helper = +PℤIdL _
+                       ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+-comm k 2))) (sym (·ℤIdR _))
+                       ∙ sym (+PℤIdL _ ∙ +PℤIdR _ )
 
-    e-retr-ψ₂-true : (a : ℤ) → (isEven a ≡ true) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
-    e-retr-ψ₂-true a x = cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ x))
-                         ∙ eq/ (base (1 ∷ []) 0) (base (1 ∷ []) a)
-                         ∣ ((λ { zero → base (0 ∷ []) (-ℤ m) ; one → 0Pℤ }) , helper) ∣₁
-              where
-              m = fst (IsEvenTrue a x)
-
-              helper : _
-              helper = base-add _ _ _
-                       ∙ cong (base (1 ∷ [])) (+ℤIdL _ ∙ cong -ℤ_ (snd (IsEvenTrue a x) ∙ ·ℤComm 2 m))
-                       ∙ sym (cong (λ X → (base (0 ∷ []) (-ℤ m) ·Pℤ base (1 ∷ []) 2) +Pℤ X) (+PℤIdR _)
-                              ∙ +PℤIdR _
-                              ∙ cong (base (1 ∷ [])) (sym (-DistL· _ _)))
-
-
-    e-retr-ψ₂ : (a : ℤ) → ((isEven a ≡ false) ⊎ (isEven a ≡ true)) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
-    e-retr-ψ₂ a (inl x) = e-retr-ψ₂-false a x
-    e-retr-ψ₂ a (inr x) = e-retr-ψ₂-true a x
-
-
-    e-retr-base : (k :  ℕ) → (a : ℤ) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² [ base (k ∷ []) a ]) ≡ [ base (k ∷ []) a ]
-    e-retr-base zero a = cong [_] (cong (base (zero ∷ []))
-                                  (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a)) ∙ ϕ₀-retr a))
-    e-retr-base one a = cong [_] (cong (base (1 ∷ [])) (cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (transportRefl _)))
-                        ∙ cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ (ϕ₂-retr (ψ₂ a))))
-                        ∙ e-retr-ψ₂ a (dichotomyBoolSym (isEven a))
-    e-retr-base (suc (suc k)) a = eq/ 0Pℤ (base ((suc (suc k)) ∷ []) a)
-                                  ∣ ((λ { zero → 0Pℤ ; one → base (k ∷ []) (-ℤ a) }) , helper) ∣₁
-                where
-                helper : _
-                helper = +PℤIdL _
-                         ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+-comm k 2))) (sym (·ℤIdR _))
-                         ∙ sym (+PℤIdL _ ∙ +PℤIdR _ )
-
-    e-retr : (x : ℤ[x]/<2x,x²>) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² x) ≡ x
-    e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-             (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
-             refl
-             (λ { (k ∷ []) a → e-retr-base k a})
-             λ {U V} ind-U ind-V → cong H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP²-pres+ [ U ] [ V ])
-                                    ∙ cong₂ _+PℤI_ ind-U ind-V)
+  e-retr : (x : ℤ[x]/<2x,x²>) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² x) ≡ x
+  e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
+           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
+           refl
+           (λ { (k ∷ []) a → e-retr-base k a})
+           λ {U V} ind-U ind-V → cong H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP²-pres+ [ U ] [ V ])
+                                  ∙ cong₂ _+PℤI_ ind-U ind-V)
 
 
 -----------------------------------------------------------------------------
 -- Computation of the Cohomology Ring
 
--- module _ where
+module _ where
 
---   open Equiv-S1-Properties
+  open Equiv-RP2-Properties
 
---   S¹-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
---   fst S¹-CohomologyRing = isoToEquiv is
---     where
---     is : Iso ℤ[x]/x² (H* (S₊ 1))
---     fun is = ℤ[x]/x²→H*-S¹
---     inv is = H*-S¹→ℤ[x]/x²
---     rightInv is = e-sect
---     leftInv is = e-retr
---   snd S¹-CohomologyRing = snd ℤ[X]/X²→H*R-S¹
+  RP²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X]/<2X,X²>) (H*R RP²)
+  fst RP²-CohomologyRing = isoToEquiv is
+    where
+    is : Iso ℤ[x]/<2x,x²> (H* RP²)
+    fun is = ℤ[x]/<2x,x²>→H*-RP²
+    inv is = H*-RP²→ℤ[x]/<2x,x²>
+    rightInv is = e-sect
+    leftInv is = e-retr
+  snd RP²-CohomologyRing = snd ℤ[X]/<2X,X²>→H*R-RP²
 
---   CohomologyRing-S¹ : RingEquiv (H*R (S₊ 1)) (CommRing→Ring ℤ[X]/X²)
---   CohomologyRing-S¹ = RingEquivs.invRingEquiv S¹-CohomologyRing
+  CohomologyRing-RP² : RingEquiv (H*R RP²) (CommRing→Ring ℤ[X]/<2X,X²>)
+  CohomologyRing-RP² = RingEquivs.invRingEquiv RP²-CohomologyRing
