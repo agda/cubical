@@ -47,14 +47,14 @@ module _ (C : Category ℓ ℓ') where
   isPropIsInitial : (x : ob) → isProp (isInitial x)
   isPropIsInitial _ = isPropΠ λ _ → isPropIsContr
 
-  open CatIso
+  open isIso
 
   -- Objects that are initial are isomorphic.
   initialToIso : (x y : Initial) → CatIso C (initialOb x) (initialOb y)
-  mor (initialToIso x y) = initialArrow x (initialOb y)
-  inv (initialToIso x y) = initialArrow y (initialOb x)
-  sec (initialToIso x y) = initialEndoIsId y _
-  ret (initialToIso x y) = initialEndoIsId x _
+  initialToIso x y .fst = initialArrow x (initialOb y)
+  initialToIso x y .snd .inv = initialArrow y (initialOb x)
+  initialToIso x y .snd .sec = initialEndoIsId y _
+  initialToIso x y .snd .ret = initialEndoIsId x _
 
   open isUnivalent
 

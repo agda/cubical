@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRingSolver.Utility where
+module Cubical.Tactics.CommRingSolver.Utility where
 
 open import Cubical.Foundations.Prelude
 

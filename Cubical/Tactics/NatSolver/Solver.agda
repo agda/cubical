@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.NatSolver.Solver where
+module Cubical.Tactics.NatSolver.Solver where
 
 open import Cubical.Foundations.Prelude
 
@@ -7,9 +7,9 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
-open import Cubical.Algebra.NatSolver.NatExpression
-open import Cubical.Algebra.NatSolver.HornerForms
-open import Cubical.Algebra.NatSolver.EvalHom
+open import Cubical.Tactics.NatSolver.NatExpression
+open import Cubical.Tactics.NatSolver.HornerForms
+open import Cubical.Tactics.NatSolver.EvalHom
 
 private
   variable

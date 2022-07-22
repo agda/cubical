@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.NatSolver.HornerForms where
+module Cubical.Tactics.NatSolver.HornerForms where
 
 open import Cubical.Foundations.Prelude
 

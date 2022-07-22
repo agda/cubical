@@ -33,14 +33,14 @@ private
   variable
     ℓ ℓ' : Level
 
-record IsAbGroup {G : Type ℓ}
-                 (0g : G) (_+_ : G → G → G) (-_ : G → G) : Type ℓ where
+record IsAbGroup {A : Type ℓ}
+                 (0g : A) (_+_ : A → A → A) (-_ : A → A) : Type ℓ where
 
   constructor isabgroup
 
   field
     isGroup : IsGroup 0g _+_ -_
-    +Comm    : (x y : G) → x + y ≡ y + x
+    +Comm    : (x y : A) → x + y ≡ y + x
 
   open IsGroup isGroup public
     renaming
@@ -53,7 +53,7 @@ record IsAbGroup {G : Type ℓ}
   infixl 6 _-_
 
   -- Useful notation for additive groups
-  _-_ : G → G → G
+  _-_ : A → A → A
   x - y = x + (- y)
 
 unquoteDecl IsAbGroupIsoΣ = declareRecordIsoΣ IsAbGroupIsoΣ (quote IsAbGroup)
