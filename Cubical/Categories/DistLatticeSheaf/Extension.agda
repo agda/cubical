@@ -367,7 +367,9 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
         compIsConeMor : isConeMor (βCone c u u∈L' cc)
                          (F-cone F (B⋁Cone (λ i → β u i , β∈L' u u∈L' i) (⋁β∈L' u u∈L' u≤⋁α)))
                          (f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ⋁βᵤ)
-        compIsConeMor v = {!!}
+        compIsConeMor = isConeMorSingLemma _ (βCone c u u∈L' cc)
+                          (F-cone F (B⋁Cone (λ i → β u i , β∈L' u u∈L' i) (⋁β∈L' u u∈L' u≤⋁α)))
+                          {!!}
 
 
     -- the other direction, surprisingly hard
@@ -375,65 +377,97 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                (f : C [ c , DLRan F .F-ob (⋁ α) ])
            → isConeMor (lemma1 c cc) F[⋁α]Cone f
            → isConeMor cc restCone f
-    lemma3 c cc f isConeMorF = {!!}
-    -- lemma3 c cc f isConeMorF (sing i) =
-    --   subst (λ g → f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)) ≡ g)
-    --     (transport (λ j → baz j ≡ foo (~ j)) ccᵢ'Path)
-    --       assumption
-    --   where
-    --   assumption : f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i))
-    --              ≡ coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i)
-    --   assumption = isConeMorF ((α i , α∈L' i) , ind≤⋁ α i)
+    lemma3 c cc f isConeMorF = isConeMorSingLemma _ cc restCone singCase
+      where
+      singCase : _
+      singCase i =
+        (subst (λ g → f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)) ≡ g)
+          (transport (λ j → baz j ≡ foo (~ j)) ccᵢ'Path)
+            assumption)
+        where
+        assumption : f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i))
+                   ≡ coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i)
+        assumption = isConeMorF ((α i , α∈L' i) , ind≤⋁ α i)
 
-    --   -- modulo transport
-    --   Σpathhelper : (α i , α∈L' i) ≡ (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i))
-    --   Σpathhelper = Σ≡Prop (λ x → L' x .snd) (β≡ (α i) (ind≤⋁ α i))
-    --   ccᵢ' : C [ c , F .F-ob  (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)) ]
-    --   ccᵢ' = subst (λ x → C [ c , F .F-ob x ])
-    --                (Σ≡Prop (λ x → L' x .snd) (β≡ (α i) (ind≤⋁ α i)))
-    --                (coneOut cc (sing i))
+        -- modulo transport
+        Σpathhelper : (α i , α∈L' i) ≡ (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i))
+        Σpathhelper = Σ≡Prop (λ x → L' x .snd) (β≡ (α i) (ind≤⋁ α i))
 
-    --   foo : PathP (λ j → C [ c , F .F-ob (Σpathhelper j) ]) (coneOut cc (sing i)) ccᵢ'
-    --   foo = subst-filler (λ x → C [ c , F .F-ob x ]) Σpathhelper (coneOut cc (sing i))
-    --   Σpathhelper2 : (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)) ≡ (α i , α∈L' i)
-    --   Σpathhelper2 = Σ≡Prop (λ x → L' x .snd) (sym (β≡ (α i) (ind≤⋁ α i)))
-    --   bar : PathP (λ j → C [ c , F .F-ob (Σpathhelper2 j) ])
-    --               (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
-    --               (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i))
-    --   bar = subst-filler (λ x → C [ c , F .F-ob x ]) Σpathhelper2 (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
+        Σpathhelper2 : (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)) ≡ (α i , α∈L' i)
+        Σpathhelper2 = Σ≡Prop (λ x → L' x .snd) (sym (β≡ (α i) (ind≤⋁ α i)))
 
-    --   Σpathhelperpath : Σpathhelper2 ≡ sym Σpathhelper
-    --   Σpathhelperpath = isSetL' _ _ _ _
-    --    where
-    --    isSetL' : isSet (ob DLSubCat)
-    --    isSetL' = isSetΣSndProp (isSetDistLattice L) λ x → L' x .snd
-    --   baz : PathP (λ j → C [ c , F .F-ob (Σpathhelper (~ j)) ])
-    --               (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
-    --               (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i))
-    --   baz = subst (λ p → PathP (λ j → C [ c , F .F-ob (p j) ])
-    --               (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
-    --               (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i)))
-    --               Σpathhelperpath bar
+        ccᵢ' : C [ c , F .F-ob  (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)) ]
+        ccᵢ' = subst (λ x → C [ c , F .F-ob x ])
+                     (Σ≡Prop (λ x → L' x .snd) (β≡ (α i) (ind≤⋁ α i)))
+                     (coneOut cc (sing i))
 
-    --   ccᵢ'IsConeMor : isConeMor (βCone c (α i) (α∈L' i) cc)
-    --                    (F-cone F (B⋁Cone (λ j → (β (α i) j) , β∈L' (α i) (α∈L' i) j) (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)))) ccᵢ'
-    --   ccᵢ'IsConeMor (sing i') = path
-    --    where
-    --    path : ccᵢ' ⋆⟨ C ⟩ F-hom F (ind≤⋁ (β (α i)) i')
-    --         ≡ coneOut cc (sing i') ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-    --    path = ccᵢ' ⋆⟨ C ⟩ F-hom F (ind≤⋁ (β (α i)) i')
-    --         ≡⟨ {!!} ⟩
-    --           coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
-    --         ≡⟨ {!!} ⟩
-    --           coneOut cc (sing i') ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
-    --   ccᵢ'IsConeMor (pair i' j i'<j) = {!!}
+        foo : PathP (λ j → C [ c , F .F-ob (Σpathhelper j) ]) (coneOut cc (sing i)) ccᵢ'
+        foo = subst-filler (λ x → C [ c , F .F-ob x ]) Σpathhelper (coneOut cc (sing i))
 
-    --   ccᵢ'Path : uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst ≡ ccᵢ'
-    --   ccᵢ'Path = cong fst (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .snd (ccᵢ' , ccᵢ'IsConeMor))
+        bar : PathP (λ j → C [ c , F .F-ob (Σpathhelper2 j) ])
+                    (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
+                    (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i))
+        bar = subst-filler (λ x → C [ c , F .F-ob x ]) Σpathhelper2 (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
+
+        Σpathhelperpath : Σpathhelper2 ≡ sym Σpathhelper
+        Σpathhelperpath = isSetL' _ _ _ _
+         where
+         isSetL' : isSet (ob DLSubCat)
+         isSetL' = isSetΣSndProp (isSetDistLattice L) λ x → L' x .snd
+
+        baz : PathP (λ j → C [ c , F .F-ob (Σpathhelper (~ j)) ])
+                    (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
+                    (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i))
+        baz = subst (λ p → PathP (λ j → C [ c , F .F-ob (p j) ])
+                    (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)
+                    (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i)))
+                    Σpathhelperpath bar
+
+        ccᵢ'IsConeMor : isConeMor (βCone c (α i) (α∈L' i) cc)
+                         (F-cone F (B⋁Cone (λ j → (β (α i) j) , β∈L' (α i) (α∈L' i) j)
+                                            (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i))))
+                         ccᵢ'
+        ccᵢ'IsConeMor = isConeMorSingLemma _ (βCone c (α i) (α∈L' i) cc)
+                         (F-cone F (B⋁Cone (λ j → (β (α i) j) , β∈L' (α i) (α∈L' i) j)
+                                            (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i))))
+                         singCase2
+          where
+          singCase2 : (j : Fin n) → ccᵢ' ⋆⟨ C ⟩ F-hom F (ind≤⋁ (β (α i)) j)
+                                  ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+          singCase2 j = (λ ð → foo (~ ð) ⋆⟨ C ⟩ F .F-hom
+                          (isProp→PathP {B = B} (λ _ → is-prop-valued _ _)
+                            (ind≤⋁ (β (α i)) j) (≤m→≤j _ _ (∧≤RCancel _ _)) ð))
+                      ∙ path
+            where
+            B : I → Type ℓ
+            B = λ ð → (DLSubCat ^op) [ (Σpathhelper (~ ð)) , (α i ∧l α j , β∈L' (α i) (α∈L' i) j) ]
+
+            path : coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+                 ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+            path with (i ≟Fin j)
+            ... | (lt i<j) = coneOutCommutes cc (singPairL {i<j = i<j})
+                           ∙ sym (coneOutCommutes cc singPairR)
+            ... | (gt j<i) = {!!}
+                              -- (coneOutCommutes cc (singPairR {i<j = j<i})
+                              --   ∙ sym (coneOutCommutes cc singPairL))
+              --   coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+              -- ≡⟨ {!!} ⟩
+              --   coneOut cc (pair j i j<i)
+              -- ≡⟨ {!!} ⟩
+              --   coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
+
+            ... | (eq i≡j) =
+                coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+              ≡⟨ {!!} ⟩
+                coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
 
 
 
-    -- lemma3 c cc f isConeMorF (pair i j i<j) = {!!}
+        ccᵢ'Path : uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst ≡ ccᵢ'
+        ccᵢ'Path = cong fst
+                     (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .snd (ccᵢ' , ccᵢ'IsConeMor))
+
+
 
     -- putting it all together
     lemma4 : ∀ (c : ob C) (cc : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c)
@@ -448,18 +482,18 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       fromUnivProp = limitC ⋁α↓ (F* (⋁ α)) .univProp c (lemma1 c cc)
 
 
-  module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L')
-                  (ccγ : Cone (funcComp F (BDiag (λ i → γ i , γ∈L' i))) c) where
+  -- module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L')
+  --                 (ccγ : Cone (funcComp F (BDiag (λ i → γ i , γ∈L' i))) c) where
 
-    private
-      β++γ∈L' : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L') → ∀ i → (β ++Fin γ) i ∈ L'
-      β++γ∈L' β∈L' = ++FinPres∈ L' β∈L' γ∈L'
+  --   private
+  --     β++γ∈L' : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L') → ∀ i → (β ++Fin γ) i ∈ L'
+  --     β++γ∈L' β∈L' = ++FinPres∈ L' β∈L' γ∈L'
 
-    toCone : (n : ℕ) (β : FinVec (fst L) n) (β∈L' : ∀ i → β i ∈ L')
-           → Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c
-           -- → (∀ i j → ) something about left and right restriction
-           → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i))) c
-    toCone = {!!}
+  --   toCone : (n : ℕ) (β : FinVec (fst L) n) (β∈L' : ∀ i → β i ∈ L')
+  --          → Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c
+  --          -- → (∀ i j → ) something about left and right restriction
+  --          → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i))) c
+  --   toCone = {!!}
 
 -- -- second lemma upstreamed for induction
 --   module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L') where
@@ -538,159 +572,159 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
 
 ---- the main proof --------------------------------------------------------------------------------
-  isDLSheafDLRan : isDLSheafPullback L C (DLRan F)
-  fst isDLSheafDLRan x =
-      limArrow (limitC _ (F* 0l)) x (toCone x)
-    , λ f → limArrowUnique (limitC _ (F* 0l)) x (toCone x) f (toConeMor x f)
-    where
-    0↓ = _↓Diag limitC (i ^opF) F 0l
+  -- isDLSheafDLRan : isDLSheafPullback L C (DLRan F)
+  -- fst isDLSheafDLRan x =
+  --     limArrow (limitC _ (F* 0l)) x (toCone x)
+  --   , λ f → limArrowUnique (limitC _ (F* 0l)) x (toCone x) f (toConeMor x f)
+  --   where
+  --   0↓ = _↓Diag limitC (i ^opF) F 0l
 
-    toTerminal : ∀ (u : ob 0↓) → isTerminal C (F .F-ob (u .fst))
-    toTerminal ((u , u∈L') , 0≥u) = subst (λ v → isTerminal C (F .F-ob v))
-                                          (Σ≡Prop (λ y → L' y .snd) 0≡u)
-                                          (DLBasisSheaf→Terminal F isSheafF 0∈L')
-        where
-        0≡u : 0l ≡ u
-        0≡u = is-antisym _ _ (∨lLid _) 0≥u
-        0∈L' : 0l ∈ L'
-        0∈L' = subst-∈ L' (sym 0≡u) u∈L'
+  --   toTerminal : ∀ (u : ob 0↓) → isTerminal C (F .F-ob (u .fst))
+  --   toTerminal ((u , u∈L') , 0≥u) = subst (λ v → isTerminal C (F .F-ob v))
+  --                                         (Σ≡Prop (λ y → L' y .snd) 0≡u)
+  --                                         (DLBasisSheaf→Terminal F isSheafF 0∈L')
+  --       where
+  --       0≡u : 0l ≡ u
+  --       0≡u = is-antisym _ _ (∨lLid _) 0≥u
+  --       0∈L' : 0l ∈ L'
+  --       0∈L' = subst-∈ L' (sym 0≡u) u∈L'
 
-    toCone : (y : ob C) → Cone (F* 0l) y
-    coneOut (toCone y) u = toTerminal u y .fst
-    coneOutCommutes (toCone y) {v = v} e = sym (toTerminal v y .snd _)
+  --   toCone : (y : ob C) → Cone (F* 0l) y
+  --   coneOut (toCone y) u = toTerminal u y .fst
+  --   coneOutCommutes (toCone y) {v = v} e = sym (toTerminal v y .snd _)
 
-    toConeMor : (y : ob C) (f : C [ y , F-ob (DLRan F) 0l ])
-              → isConeMor (toCone y) (limCone (limitC 0↓ (F* 0l))) f
-    toConeMor y f v = sym (toTerminal v y .snd _)
-
-
-  snd isDLSheafDLRan x y = rec2 (isPropIsPullback _ _ _ _ (Fsq L C x y (DLRan F)))
-                             Σhelper (⋁Basis x) (⋁Basis y)
-    where
-    Σhelper : Σ[ n ∈ ℕ ] Σ[ β ∈ FinVec (fst L) n ] (∀ i → β i ∈ L') × (⋁ β ≡ x)
-            → Σ[ m ∈ ℕ ] Σ[ γ ∈ FinVec (fst L) m ] (∀ i → γ i ∈ L') × (⋁ γ ≡ y)
-            → isPullback C _ _ _ (Fsq L C x y (DLRan F))
-    Σhelper (n , β , β∈L' , ⋁β≡x) (n' , γ , γ∈L' , ⋁γ≡y) =
-      transport (λ i → isPullback C (cospanPath i) (pbPr₁PathP i) (pbPr₂PathP i) (squarePathP i))
-                (univProp ⋁Pullback)
-      where
-      open Cospan
-      open Pullback
-      ⋁β++γ≡x∨y : ⋁ (β ++Fin γ) ≡ x ∨l y
-      ⋁β++γ≡x∨y = ⋁Split++ β γ ∙ cong₂ (_∨l_) ⋁β≡x ⋁γ≡y
-
-      β++γ∈L' : ∀ i → (β ++Fin γ) i ∈ L'
-      β++γ∈L' = ++FinPres∈ L' β∈L' γ∈L'
-
-      -- replace x and y by their representations of joins of base elements
-      -- and transport over
-      xyCospan : Cospan C
-      l xyCospan = DLRan F .F-ob y
-      m xyCospan = DLRan F .F-ob (x ∧l y)
-      r xyCospan = DLRan F .F-ob x
-      s₁ xyCospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-      s₂ xyCospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
-
-      ⋁Cospan : Cospan C
-      l ⋁Cospan = DLRan F .F-ob (⋁ γ)
-      m ⋁Cospan = DLRan F .F-ob (⋁ β ∧l ⋁ γ)
-      r ⋁Cospan = DLRan F .F-ob (⋁ β)
-      s₁ ⋁Cospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-      s₂ ⋁Cospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
-
-      cospanPath : ⋁Cospan ≡ xyCospan
-      l (cospanPath i) = DLRan F .F-ob (⋁γ≡y i)
-      m (cospanPath i) = DLRan F .F-ob (⋁β≡x i ∧l ⋁γ≡y i)
-      r (cospanPath i) = DLRan F .F-ob (⋁β≡x i)
-      s₁ (cospanPath i) = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-      s₂ (cospanPath i) = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
-
-      -- the pullback square we want
-      ⋁Pullback : Pullback C ⋁Cospan
-      pbOb ⋁Pullback = DLRan F .F-ob (⋁ (β ++Fin γ))
-      pbPr₁ ⋁Pullback = DLRan F .F-hom (subst (⋁ γ ≤_) (sym (⋁Split++ β γ)) (∨≤LCancel _ _))
-      pbPr₂ ⋁Pullback = DLRan F .F-hom (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
-      pbCommutes ⋁Pullback = F-square (DLRan F) (is-prop-valued _ _ _ _)
-      univProp ⋁Pullback {d = c} f g square = uniqueExists
-        (applyLemma4 f g square .fst .fst)
-          (fromConeMor _ (applyLemma4 f g square .fst .snd))
-            (λ _ → isProp× (isSetHom C _ _) (isSetHom C _ _))
-              λ h' trs → cong fst (applyLemma4 f g square .snd (h' , toConeMor f g square h' trs))
-        where -- this is where we apply our lemmas
-        theLimit = limitC _ (F* (⋁ (β ++Fin γ)))
-        -- should toCone and toConeMor be upstreamed?
-        open FinSumChar renaming (fun to FSCfun ; inv to FSCinv ; sec to FSCsec)
-        toCone : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
-               → f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂
-               → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' i))) c
-        toCone = {!!}
-        -- coneOut (toCone f g square) (sing i) = -- wouldn't work with with-syntax
-        --   subst (λ x → C [ c , F-ob F ((β ++Fin γ) x , ++FinPres∈ L' β∈L' γ∈L' x) ])
-        --         (FSCsec n n' i)
-        --         (coneOutSingAux (FSCinv n n' i))
-        --   where
-        --   coneOutSingAux : (x : Fin n ⊎ Fin n')
-        --                  → C [ c , F-ob F ((β ++Fin γ) (FSCfun _ _ x)
-        --                          , ++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ x)) ]
-        --   coneOutSingAux (inl i') = subst (λ x → C [ c , F .F-ob x ])
-        --                                   (Σ≡Prop (λ x → L' x .snd) (++FinInl _ _ β γ i'))
-        --                                   (g ⋆⟨ C ⟩ coneOut (restCone β β∈L') (sing i'))
-        --   coneOutSingAux (inr i') = subst (λ x → C [ c , F .F-ob x ])
-        --                                   (Σ≡Prop (λ x → L' x .snd) (++FinInr _ _ β γ i'))
-        --                                   (f ⋆⟨ C ⟩ coneOut (restCone γ γ∈L') (sing i'))
-        -- coneOut (toCone f g square) (pair i j i<j) = {!!}
-        --   where
-        --   coneOutPairAux : (x y : Fin n ⊎ Fin n')
-        --                  → (FSCfun _ _ x) <'Fin (FSCfun _ _ y)
-        --                  → C [ c , F-ob F
-        --                      ((β ++Fin γ) (FSCfun _ _ x) ∧l (β ++Fin γ) (FSCfun _ _ y)
-        --                      , ∧lClosed ((β ++Fin γ) (FSCfun _ _ x)) ((β ++Fin γ) (FSCfun _ _ y))
-        --                          (++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ x))
-        --                          (++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ y))) ]
-        --   coneOutPairAux (inl i') (inl j') i'<j' = {!!}
-        --   coneOutPairAux (inl i') (inr j') i'<j' = {!!}
-        --   coneOutPairAux (inr i') (inl j') i'<j' = {!!}
-        --   coneOutPairAux (inr i') (inr j') i'<j' = {!!}
-
-        -- coneOutCommutes (toCone f g square) = {!!}
-
-        applyLemma4 : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
-                      (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
-                    → ∃![ h ∈ C [ c , ⋁Pullback .pbOb ] ]
-                        isConeMor (toCone f g square) (restCone (β ++Fin γ) β++γ∈L') h
-        applyLemma4 f g square = lemma4 (β ++Fin γ) β++γ∈L' c (toCone f g square)
-
-        toConeMor : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
-                    (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
-                    (h : C [ c , ⋁Pullback .pbOb ])
-                  → (f ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) × (g ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
-                  → isConeMor (toCone f g square) (restCone (β ++Fin γ) β++γ∈L') h
-        toConeMor = {!!}
-
-        fromConeMor : (h : C [ c , ⋁Pullback .pbOb ])
-                    → isConeMor (toCone f g square) (restCone (β ++Fin γ) β++γ∈L') h
-                    → (f ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) × (g ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
-        fromConeMor h hIsConeMor = {!!}
+  --   toConeMor : (y : ob C) (f : C [ y , F-ob (DLRan F) 0l ])
+  --             → isConeMor (toCone y) (limCone (limitC 0↓ (F* 0l))) f
+  --   toConeMor y f v = sym (toTerminal v y .snd _)
 
 
-      -- some more names to make the transport readable
-      pbPr₁PathP : PathP (λ i → C [ DLRan F .F-ob (⋁β++γ≡x∨y i) , DLRan F .F-ob (⋁γ≡y i) ])
-                         (pbPr₁ ⋁Pullback) (DLRan F .F-hom (hom-∨₂ L C x y))
-      pbPr₁PathP i = DLRan F .F-hom
-                       (isProp→PathP {B = λ i → (⋁γ≡y i) ≤ (⋁β++γ≡x∨y i)}
-                                     (λ _ → is-prop-valued _ _)
-                                     (subst (⋁ γ ≤_) (sym (⋁Split++ β γ)) (∨≤LCancel _ _))
-                                     (hom-∨₂ L C x y) i)
+  -- snd isDLSheafDLRan x y = rec2 (isPropIsPullback _ _ _ _ (Fsq L C x y (DLRan F)))
+  --                            Σhelper (⋁Basis x) (⋁Basis y)
+  --   where
+  --   Σhelper : Σ[ n ∈ ℕ ] Σ[ β ∈ FinVec (fst L) n ] (∀ i → β i ∈ L') × (⋁ β ≡ x)
+  --           → Σ[ m ∈ ℕ ] Σ[ γ ∈ FinVec (fst L) m ] (∀ i → γ i ∈ L') × (⋁ γ ≡ y)
+  --           → isPullback C _ _ _ (Fsq L C x y (DLRan F))
+  --   Σhelper (n , β , β∈L' , ⋁β≡x) (n' , γ , γ∈L' , ⋁γ≡y) =
+  --     transport (λ i → isPullback C (cospanPath i) (pbPr₁PathP i) (pbPr₂PathP i) (squarePathP i))
+  --               (univProp ⋁Pullback)
+  --     where
+  --     open Cospan
+  --     open Pullback
+  --     ⋁β++γ≡x∨y : ⋁ (β ++Fin γ) ≡ x ∨l y
+  --     ⋁β++γ≡x∨y = ⋁Split++ β γ ∙ cong₂ (_∨l_) ⋁β≡x ⋁γ≡y
 
-      pbPr₂PathP : PathP (λ i → C [ DLRan F .F-ob (⋁β++γ≡x∨y i) , DLRan F .F-ob (⋁β≡x i) ])
-                         (pbPr₂ ⋁Pullback) (DLRan F .F-hom (hom-∨₁ L C x y))
-      pbPr₂PathP i = DLRan F .F-hom
-                       (isProp→PathP {B = λ i → (⋁β≡x i) ≤ (⋁β++γ≡x∨y i)}
-                                     (λ _ → is-prop-valued _ _)
-                                     (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
-                                     (hom-∨₁ L C x y) i)
+  --     β++γ∈L' : ∀ i → (β ++Fin γ) i ∈ L'
+  --     β++γ∈L' = ++FinPres∈ L' β∈L' γ∈L'
 
-      squarePathP : PathP (λ i → pbPr₁PathP i ⋆⟨ C ⟩ cospanPath i .s₁
-                               ≡ pbPr₂PathP i ⋆⟨ C ⟩ cospanPath i .s₂)
-                          (pbCommutes ⋁Pullback) (Fsq L C x y (DLRan F))
-      squarePathP = toPathP (isSetHom C _ _ _ _)
+  --     -- replace x and y by their representations of joins of base elements
+  --     -- and transport over
+  --     xyCospan : Cospan C
+  --     l xyCospan = DLRan F .F-ob y
+  --     m xyCospan = DLRan F .F-ob (x ∧l y)
+  --     r xyCospan = DLRan F .F-ob x
+  --     s₁ xyCospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+  --     s₂ xyCospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+
+  --     ⋁Cospan : Cospan C
+  --     l ⋁Cospan = DLRan F .F-ob (⋁ γ)
+  --     m ⋁Cospan = DLRan F .F-ob (⋁ β ∧l ⋁ γ)
+  --     r ⋁Cospan = DLRan F .F-ob (⋁ β)
+  --     s₁ ⋁Cospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+  --     s₂ ⋁Cospan = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+
+  --     cospanPath : ⋁Cospan ≡ xyCospan
+  --     l (cospanPath i) = DLRan F .F-ob (⋁γ≡y i)
+  --     m (cospanPath i) = DLRan F .F-ob (⋁β≡x i ∧l ⋁γ≡y i)
+  --     r (cospanPath i) = DLRan F .F-ob (⋁β≡x i)
+  --     s₁ (cospanPath i) = DLRan F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+  --     s₂ (cospanPath i) = DLRan F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+
+  --     -- the pullback square we want
+  --     ⋁Pullback : Pullback C ⋁Cospan
+  --     pbOb ⋁Pullback = DLRan F .F-ob (⋁ (β ++Fin γ))
+  --     pbPr₁ ⋁Pullback = DLRan F .F-hom (subst (⋁ γ ≤_) (sym (⋁Split++ β γ)) (∨≤LCancel _ _))
+  --     pbPr₂ ⋁Pullback = DLRan F .F-hom (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
+  --     pbCommutes ⋁Pullback = F-square (DLRan F) (is-prop-valued _ _ _ _)
+  --     univProp ⋁Pullback {d = c} f g square = uniqueExists
+  --       (applyLemma4 f g square .fst .fst)
+  --         (fromConeMor _ (applyLemma4 f g square .fst .snd))
+  --           (λ _ → isProp× (isSetHom C _ _) (isSetHom C _ _))
+  --             λ h' trs → cong fst (applyLemma4 f g square .snd (h' , toConeMor f g square h' trs))
+  --       where -- this is where we apply our lemmas
+  --       theLimit = limitC _ (F* (⋁ (β ++Fin γ)))
+  --       -- should toCone and toConeMor be upstreamed?
+  --       open FinSumChar renaming (fun to FSCfun ; inv to FSCinv ; sec to FSCsec)
+  --       toCone : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
+  --              → f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂
+  --              → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' i))) c
+  --       toCone = {!!}
+  --       -- coneOut (toCone f g square) (sing i) = -- wouldn't work with with-syntax
+  --       --   subst (λ x → C [ c , F-ob F ((β ++Fin γ) x , ++FinPres∈ L' β∈L' γ∈L' x) ])
+  --       --         (FSCsec n n' i)
+  --       --         (coneOutSingAux (FSCinv n n' i))
+  --       --   where
+  --       --   coneOutSingAux : (x : Fin n ⊎ Fin n')
+  --       --                  → C [ c , F-ob F ((β ++Fin γ) (FSCfun _ _ x)
+  --       --                          , ++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ x)) ]
+  --       --   coneOutSingAux (inl i') = subst (λ x → C [ c , F .F-ob x ])
+  --       --                                   (Σ≡Prop (λ x → L' x .snd) (++FinInl _ _ β γ i'))
+  --       --                                   (g ⋆⟨ C ⟩ coneOut (restCone β β∈L') (sing i'))
+  --       --   coneOutSingAux (inr i') = subst (λ x → C [ c , F .F-ob x ])
+  --       --                                   (Σ≡Prop (λ x → L' x .snd) (++FinInr _ _ β γ i'))
+  --       --                                   (f ⋆⟨ C ⟩ coneOut (restCone γ γ∈L') (sing i'))
+  --       -- coneOut (toCone f g square) (pair i j i<j) = {!!}
+  --       --   where
+  --       --   coneOutPairAux : (x y : Fin n ⊎ Fin n')
+  --       --                  → (FSCfun _ _ x) <'Fin (FSCfun _ _ y)
+  --       --                  → C [ c , F-ob F
+  --       --                      ((β ++Fin γ) (FSCfun _ _ x) ∧l (β ++Fin γ) (FSCfun _ _ y)
+  --       --                      , ∧lClosed ((β ++Fin γ) (FSCfun _ _ x)) ((β ++Fin γ) (FSCfun _ _ y))
+  --       --                          (++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ x))
+  --       --                          (++FinPres∈ L' β∈L' γ∈L' (FSCfun _ _ y))) ]
+  --       --   coneOutPairAux (inl i') (inl j') i'<j' = {!!}
+  --       --   coneOutPairAux (inl i') (inr j') i'<j' = {!!}
+  --       --   coneOutPairAux (inr i') (inl j') i'<j' = {!!}
+  --       --   coneOutPairAux (inr i') (inr j') i'<j' = {!!}
+
+  --       -- coneOutCommutes (toCone f g square) = {!!}
+
+  --       applyLemma4 : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
+  --                     (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
+  --                   → ∃![ h ∈ C [ c , ⋁Pullback .pbOb ] ]
+  --                       isConeMor (toCone f g square) (restCone (β ++Fin γ) β++γ∈L') h
+  --       applyLemma4 f g square = lemma4 (β ++Fin γ) β++γ∈L' c (toCone f g square)
+
+  --       toConeMor : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
+  --                   (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
+  --                   (h : C [ c , ⋁Pullback .pbOb ])
+  --                 → (f ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) × (g ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
+  --                 → isConeMor (toCone f g square) (restCone (β ++Fin γ) β++γ∈L') h
+  --       toConeMor = {!!}
+
+  --       fromConeMor : (h : C [ c , ⋁Pullback .pbOb ])
+  --                   → isConeMor (toCone f g square) (restCone (β ++Fin γ) β++γ∈L') h
+  --                   → (f ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) × (g ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
+  --       fromConeMor h hIsConeMor = {!!}
+
+
+  --     -- some more names to make the transport readable
+  --     pbPr₁PathP : PathP (λ i → C [ DLRan F .F-ob (⋁β++γ≡x∨y i) , DLRan F .F-ob (⋁γ≡y i) ])
+  --                        (pbPr₁ ⋁Pullback) (DLRan F .F-hom (hom-∨₂ L C x y))
+  --     pbPr₁PathP i = DLRan F .F-hom
+  --                      (isProp→PathP {B = λ i → (⋁γ≡y i) ≤ (⋁β++γ≡x∨y i)}
+  --                                    (λ _ → is-prop-valued _ _)
+  --                                    (subst (⋁ γ ≤_) (sym (⋁Split++ β γ)) (∨≤LCancel _ _))
+  --                                    (hom-∨₂ L C x y) i)
+
+  --     pbPr₂PathP : PathP (λ i → C [ DLRan F .F-ob (⋁β++γ≡x∨y i) , DLRan F .F-ob (⋁β≡x i) ])
+  --                        (pbPr₂ ⋁Pullback) (DLRan F .F-hom (hom-∨₁ L C x y))
+  --     pbPr₂PathP i = DLRan F .F-hom
+  --                      (isProp→PathP {B = λ i → (⋁β≡x i) ≤ (⋁β++γ≡x∨y i)}
+  --                                    (λ _ → is-prop-valued _ _)
+  --                                    (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
+  --                                    (hom-∨₁ L C x y) i)
+
+  --     squarePathP : PathP (λ i → pbPr₁PathP i ⋆⟨ C ⟩ cospanPath i .s₁
+  --                              ≡ pbPr₂PathP i ⋆⟨ C ⟩ cospanPath i .s₂)
+  --                         (pbCommutes ⋁Pullback) (Fsq L C x y (DLRan F))
+  --     squarePathP = toPathP (isSetHom C _ _ _ _)

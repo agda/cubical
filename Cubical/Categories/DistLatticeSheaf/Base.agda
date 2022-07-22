@@ -630,6 +630,24 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
      coneOut B⋁Cone (pair i _ _) = is-trans _ (α' i) _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ α' i)
      coneOutCommutes B⋁Cone _ = is-prop-valued _ _ _ _
 
+   -- ignore pairs of indices when checking that something is a cone morphsim:
+   isConeMorSingLemma : {F : DLBasisPreSheaf} {c d : ob C} {f : C [ c , d ]}
+                         (cc : Cone (funcComp F BDiag) c) (cd : Cone(funcComp F BDiag) d)
+                       → (∀ i → f ⋆⟨ C ⟩ coneOut cd (sing i) ≡ coneOut cc (sing i))
+                       → isConeMor cc cd f
+   isConeMorSingLemma cc cd singHyp (sing i) = singHyp i
+   isConeMorSingLemma {F = F} {f = f} cc cd singHyp (pair i j i<j) =
+                 f ⋆⟨ C ⟩ coneOut cd (pair i j i<j)
+               ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x) (sym (cd .coneOutCommutes singPairL)) ⟩
+                 f ⋆⟨ C ⟩ (coneOut cd (sing i) ⋆⟨ C ⟩ funcComp F BDiag .F-hom singPairL)
+               ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+                 (f ⋆⟨ C ⟩ coneOut cd (sing i)) ⋆⟨ C ⟩ funcComp F BDiag .F-hom singPairL
+               ≡⟨ cong (λ x → x ⋆⟨ C ⟩ funcComp F BDiag .F-hom singPairL) (singHyp i) ⟩
+                 coneOut cc (sing i) ⋆⟨ C ⟩ funcComp F BDiag .F-hom singPairL
+               ≡⟨ cc .coneOutCommutes singPairL ⟩
+                 coneOut cc (pair i j i<j) ∎
+
+
  isDLBasisSheaf : DLBasisPreSheaf → Type _
  isDLBasisSheaf F = ∀ {n : ℕ} (α : FinVec (ob BasisCat) n) (⋁α∈L' : ⋁ (λ i →  α i .fst) ∈ L')
                   → isLimCone _ _ (F-cone F (B⋁Cone  α ⋁α∈L'))
