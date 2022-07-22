@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.MonoidSolver.Solver where
+module Cubical.Tactics.MonoidSolver.Solver where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
@@ -11,7 +11,7 @@ open import Cubical.Data.Vec using (Vec; lookup)
 
 open import Cubical.Algebra.Monoid
 
-open import Cubical.Algebra.MonoidSolver.MonoidExpression
+open import Cubical.Tactics.MonoidSolver.MonoidExpression
 
 
 private

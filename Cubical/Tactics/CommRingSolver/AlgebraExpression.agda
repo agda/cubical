@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRingSolver.AlgebraExpression where
+module Cubical.Tactics.CommRingSolver.AlgebraExpression where
 
 open import Cubical.Foundations.Prelude
 
@@ -7,8 +7,8 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order using (zero-≤)
 open import Cubical.Data.Vec.Base
-open import Cubical.Algebra.CommRingSolver.RawRing
-open import Cubical.Algebra.CommRingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
+open import Cubical.Tactics.CommRingSolver.RawRing
+open import Cubical.Tactics.CommRingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
 
 private
   variable

@@ -23,6 +23,17 @@ open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Pointed.Properties
 open import Cubical.Structures.Pointed
 
+{-
+  We might say that a type is homogeneous if its automorphism group acts transitively;
+  this could be phrased with a propositional truncation.
+  Here we demand something much stronger, namely that we are given automorphisms
+  that carry the base point to any given point y.
+  If in addition we require this automorphism to be the identity for the base point,
+  then we recover the notion of a left-invertible H-space, and indeed,
+  any homogeneous type in our sense gives rise to such, as shown in:
+
+    Cubical.Homotopy.HSpace
+-}
 isHomogeneous : ∀ {ℓ} → Pointed ℓ → Type (ℓ-suc ℓ)
 isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
 

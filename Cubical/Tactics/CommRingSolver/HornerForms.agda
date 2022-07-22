@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRingSolver.HornerForms where
+module Cubical.Tactics.CommRingSolver.HornerForms where
 
 open import Cubical.Foundations.Prelude
 
@@ -11,12 +11,12 @@ open import Cubical.Data.Bool
 
 open import Cubical.Relation.Nullary.Base using (yes; no)
 
-open import Cubical.Algebra.CommRingSolver.Utility
+open import Cubical.Tactics.CommRingSolver.Utility
 
-open import Cubical.Algebra.CommRingSolver.RawRing
-open import Cubical.Algebra.CommRingSolver.IntAsRawRing
-open import Cubical.Algebra.CommRingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
-open import Cubical.Algebra.CommRingSolver.AlgebraExpression public
+open import Cubical.Tactics.CommRingSolver.RawRing
+open import Cubical.Tactics.CommRingSolver.IntAsRawRing
+open import Cubical.Tactics.CommRingSolver.RawAlgebra renaming (⟨_⟩ to ⟨_⟩ₐ)
+open import Cubical.Tactics.CommRingSolver.AlgebraExpression public
 
 private
   variable

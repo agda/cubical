@@ -27,4 +27,3 @@ record _≃ᶜ_ (C : Category ℓC ℓC') (D : Category ℓD ℓD') :
   field
     func : Functor C D
     isEquiv : isEquivalence func
-
