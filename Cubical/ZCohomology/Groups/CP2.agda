@@ -20,6 +20,7 @@ open import Cubical.Data.Int
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.GroupPath
 open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
@@ -35,6 +36,8 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.Truncation
 
 open import Cubical.Homotopy.Hopf
+open import Cubical.Homotopy.HopfInvariant.HopfMap renaming (CP² to CP2 ; H²CP²≅ℤ to H²CP2≅ℤ)
+open import Cubical.Homotopy.HSpace
 
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Groups.Connected
@@ -44,6 +47,7 @@ open import Cubical.ZCohomology.MayerVietorisUnreduced
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.RingStructure.CupProduct
+open import Cubical.ZCohomology.RingStructure.RingLaws
 
 open S¹Hopf
 open IsGroupHom
@@ -112,6 +116,7 @@ H²CP²≅ℤ = compGroupIso (BijectionIso→GroupIso bij)
     help = M.Ker-i⊂Im-d 1 x p
   BijectionIso.surj bij y =
     M.Ker-Δ⊂Im-i 2 y (isContr→isProp isContrH²TotalHopf _ _)
+
 
 H⁴CP²≅ℤ : GroupIso (coHomGr 4 CP²) ℤGroup
 H⁴CP²≅ℤ = compGroupIso (invGroupIso (BijectionIso→GroupIso bij))
@@ -249,3 +254,112 @@ brunerie2 = ℤ→HⁿCP²→ℤ 1
 |brunerie2|≡1 : abs (ℤ→HⁿCP²→ℤ 1) ≡ 1
 |brunerie2|≡1 = refl
 -}
+
+
+-- Construction of an iso H⁴(CP²) ≅ ℤ sending s.t. the map
+-- ℤ × ℤ → H²(CP²) × H²(CP²) → H⁴(CP²) → ℤ
+-- constructed via the cup product sends (1 , 1) to 1
+-- If brunerie2 computes (to 1), this could be avoided
+
+CP²≡CP2 : Iso CP² CP2
+CP²≡CP2 = compIso (equivToIso (symPushout fst (λ _ → tt))) (invIso CP²-iso)
+  where
+  module m = Hopf S1-AssocHSpace (sphereElim2 0 (λ _ _ → squash₁) ∣ (λ _ → base) ∣₁)
+  F : (x : S₊ 2) → (m.Hopf x) → (HopfSuspS¹ (fun idIso x))
+  F north y = y
+  F south y = y
+  F (merid x i) = toPathP lem i
+    where
+    lem : transport (λ i → m.Hopf (merid x i) → Glue S¹ (Border x i))
+                     (λ x → x)
+                    ≡ λ x → x
+    lem = funExt λ z → commS¹ x (invEq (m.μ-eq x) z) ∙ secEq (m.μ-eq x) z
+
+  F-eq : (x : S₊ 2) → isEquiv (F x)
+  F-eq = suspToPropElim base (λ _ → isPropIsEquiv _) (idIsEquiv _)
+
+  H = m.TotalSpaceHopfPush
+
+  H≃TotalHopf : H ≃ TotalHopf
+  H≃TotalHopf =
+    compEquiv
+    (m.TotalSpaceHopfPush→TotalSpace
+     , m.isEquivTotalSpaceHopfPush→TotalSpace)
+    (Σ-cong-equiv (idEquiv _)
+      λ x → F x , F-eq x)
+
+  CP²-iso : Iso CP2 (Pushout {A = TotalHopf} (λ _ → tt) fst)
+  CP²-iso = pushoutIso _ _ _ _ H≃TotalHopf (idEquiv _) (idEquiv _) refl refl
+
+Σℤ≅H⁴CP² : Σ[ ϕ₄ ∈ GroupEquiv ℤGroup (coHomGr 4 CP²) ]
+           Iso.inv (fst H²CP²≅ℤ) 1 ⌣ Iso.inv (fst H²CP²≅ℤ) 1
+         ≡ fst (fst ϕ₄) 1
+Σℤ≅H⁴CP² = fst c , (cong (inv (fst H²CP²≅ℤ) (pos 1) ⌣_) lem ∙ snd c)
+  where
+  cupIsEquiv : {A B : Type₀}
+    → (f : A ≃ B)
+    → (e : coHom 2 A)
+    → isEquiv {A = coHom 2 A} {B = coHom 4 A} (_⌣ e)
+    → isEquiv {A = coHom 2 B} {B = coHom 4 B} (_⌣ coHomFun 2 (invEq f) e)
+  cupIsEquiv {B = B} =
+    EquivJ (λ A f →
+      (e : coHom 2 A)
+    → isEquiv {A = coHom 2 A} {B = coHom 4 A} (_⌣ e)
+    → isEquiv {B = coHom 4 B} (_⌣ coHomFun 2 (invEq f) e))
+        λ e p → subst isEquiv (help e) p
+    where
+    help : (e : coHom 2 B) → _⌣ e ≡ _⌣ coHomFun 2 (invEq (idEquiv B)) e
+    help e i y = y ⌣ coHomFunId 2 (~ i) e
+
+  gen' : coHom 2 CP²
+  gen' = ∣ (λ { (inl x) → ∣ x ∣ ; (inr x) → 0ₖ 2 ; (push a i) → pp a i}) ∣₂
+    where
+    pp : (a : TotalHopf) → Path (coHomK 2) ∣ fst a ∣ₕ (0ₖ 2)
+    pp = elim-TotalHopf _ (λ _ → (isOfHLevelTrunc 4 _ _)) refl
+
+
+  genId : Iso.fun (fst (coHomIso 2 CP²≡CP2)) genCP² ≡ gen'
+  genId = sym (Iso.leftInv (fst H²CP²≅ℤ) _)
+     ∙∙ cong (Iso.inv (fst H²CP²≅ℤ)) lem
+     ∙∙ Iso.leftInv (fst H²CP²≅ℤ) _
+    where
+    lem : Iso.fun (fst H²CP²≅ℤ) (Iso.fun (fst (coHomIso 2 CP²≡CP2)) genCP²)
+        ≡ Iso.fun (fst H²CP²≅ℤ) gen'
+    lem = refl
+
+  isEquiv⌣gen' : GroupEquiv (coHomGr 2 CP²) (coHomGr 4 CP²)
+  fst (fst isEquiv⌣gen') = _⌣ gen'
+  snd (fst isEquiv⌣gen') =
+    subst isEquiv (λ i x → x ⌣ genId i)
+      ((cupIsEquiv (invEquiv (isoToEquiv CP²≡CP2))) genCP²
+        (subst isEquiv (funExt (λ x → cong (x ⌣_) Gysin-e≡genCP²))
+          (⌣Equiv .fst .snd)))
+  snd isEquiv⌣gen' = makeIsGroupHom λ f g → rightDistr-⌣ _ _ f g _
+
+  abstract
+    main : {A B : Group₀}
+         (A≃B : GroupEquiv A B)
+         (Z≃A : GroupEquiv ℤGroup A)
+      → Σ[ Z≃B ∈ GroupEquiv ℤGroup B ]
+          fst (fst A≃B) (fst (fst Z≃A) (pos 1))
+        ≡ fst (fst Z≃B) (pos 1)
+    main {A = A} {B = B} =
+      GroupEquivJ (λ B A≃B →
+        (Z≃A : GroupEquiv ℤGroup A)
+      → Σ[ Z≃B ∈ GroupEquiv ℤGroup B ]
+          fst (fst A≃B) (fst (fst Z≃A) (pos 1))
+        ≡ fst (fst Z≃B) (pos 1))
+       (GroupEquivJ (λ A Z≃A → Σ[ ϕ ∈ GroupEquiv ℤGroup A ] fst (fst Z≃A) 1 ≡ fst (fst ϕ) 1)
+         (idGroupEquiv , refl))
+
+  lem : inv (fst H²CP²≅ℤ) (pos 1) ≡ gen'
+  lem = Iso.leftInv (fst H²CP²≅ℤ) gen'
+
+  c = main isEquiv⌣gen' (GroupIso→GroupEquiv (invGroupIso H²CP²≅ℤ))
+
+H⁴CP²≅ℤ-pos : GroupIso (coHomGr 4 CP²) ℤGroup
+H⁴CP²≅ℤ-pos = invGroupIso (GroupEquiv→GroupIso (Σℤ≅H⁴CP² .fst))
+
+H⁴CP²≅ℤ-pos-resp⌣ : Iso.inv (fst H²CP²≅ℤ) (pos 1) ⌣ Iso.inv (fst H²CP²≅ℤ) (pos 1)
+                   ≡ Iso.inv (fst H⁴CP²≅ℤ-pos) (pos 1)
+H⁴CP²≅ℤ-pos-resp⌣ = Σℤ≅H⁴CP² .snd
