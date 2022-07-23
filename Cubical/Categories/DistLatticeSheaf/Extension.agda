@@ -382,7 +382,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       singCase : _
       singCase i =
         (subst (λ g → f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)) ≡ g)
-          (transport (λ j → baz j ≡ foo (~ j)) ccᵢ'Path)
+          (transport (λ j → baz j ≡ foo (~ j)) ccᵢSubstPath)
             assumption)
         where
         assumption : f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i))
@@ -396,12 +396,12 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
         Σpathhelper2 : (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)) ≡ (α i , α∈L' i)
         Σpathhelper2 = Σ≡Prop (λ x → L' x .snd) (sym (β≡ (α i) (ind≤⋁ α i)))
 
-        ccᵢ' : C [ c , F .F-ob  (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)) ]
-        ccᵢ' = subst (λ x → C [ c , F .F-ob x ])
+        ccᵢSubst : C [ c , F .F-ob  (⋁ (β (α i)) , ⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i)) ]
+        ccᵢSubst = subst (λ x → C [ c , F .F-ob x ])
                      (Σ≡Prop (λ x → L' x .snd) (β≡ (α i) (ind≤⋁ α i)))
                      (coneOut cc (sing i))
 
-        foo : PathP (λ j → C [ c , F .F-ob (Σpathhelper j) ]) (coneOut cc (sing i)) ccᵢ'
+        foo : PathP (λ j → C [ c , F .F-ob (Σpathhelper j) ]) (coneOut cc (sing i)) ccᵢSubst
         foo = subst-filler (λ x → C [ c , F .F-ob x ]) Σpathhelper (coneOut cc (sing i))
 
         bar : PathP (λ j → C [ c , F .F-ob (Σpathhelper2 j) ])
@@ -423,49 +423,67 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                     (coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i)))
                     Σpathhelperpath bar
 
-        ccᵢ'IsConeMor : isConeMor (βCone c (α i) (α∈L' i) cc)
+        ccᵢSubstIsConeMor : isConeMor (βCone c (α i) (α∈L' i) cc)
                          (F-cone F (B⋁Cone (λ j → (β (α i) j) , β∈L' (α i) (α∈L' i) j)
                                             (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i))))
-                         ccᵢ'
-        ccᵢ'IsConeMor = isConeMorSingLemma _ (βCone c (α i) (α∈L' i) cc)
+                         ccᵢSubst
+        ccᵢSubstIsConeMor = isConeMorSingLemma _ (βCone c (α i) (α∈L' i) cc)
                          (F-cone F (B⋁Cone (λ j → (β (α i) j) , β∈L' (α i) (α∈L' i) j)
                                             (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i))))
                          singCase2
           where
-          singCase2 : (j : Fin n) → ccᵢ' ⋆⟨ C ⟩ F-hom F (ind≤⋁ (β (α i)) j)
+          singCase2 : (j : Fin n) → ccᵢSubst ⋆⟨ C ⟩ F-hom F (ind≤⋁ (β (α i)) j)
                                   ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-          singCase2 j = (λ ð → foo (~ ð) ⋆⟨ C ⟩ F .F-hom
+          singCase2 j = (λ 𝕚 → foo (~ 𝕚) ⋆⟨ C ⟩ F .F-hom
                           (isProp→PathP {B = B} (λ _ → is-prop-valued _ _)
-                            (ind≤⋁ (β (α i)) j) (≤m→≤j _ _ (∧≤RCancel _ _)) ð))
+                            (ind≤⋁ (β (α i)) j) (≤m→≤j _ _ (∧≤RCancel _ _)) 𝕚))
                       ∙ path
             where
             B : I → Type ℓ
-            B = λ ð → (DLSubCat ^op) [ (Σpathhelper (~ ð)) , (α i ∧l α j , β∈L' (α i) (α∈L' i) j) ]
+            B = λ 𝕚 → (DLSubCat ^op) [ (Σpathhelper (~ 𝕚)) , (α i ∧l α j , β∈L' (α i) (α∈L' i) j) ]
 
             path : coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
                  ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
             path with (i ≟Fin j)
             ... | (lt i<j) = coneOutCommutes cc (singPairL {i<j = i<j})
                            ∙ sym (coneOutCommutes cc singPairR)
-            ... | (gt j<i) = {!!}
-                              -- (coneOutCommutes cc (singPairR {i<j = j<i})
-                              --   ∙ sym (coneOutCommutes cc singPairL))
-              --   coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
-              -- ≡⟨ {!!} ⟩
-              --   coneOut cc (pair j i j<i)
-              -- ≡⟨ {!!} ⟩
-              --   coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
+            ... | (gt j<i) = transp B2 i0 almostPath
+              where
+              ∧Path : Path (ob DLSubCat) (α j ∧l α i , β∈L' (α j) (α∈L' j) i)
+                                         (α i ∧l α j , β∈L' (α i) (α∈L' i) j)
+              ∧Path = Σ≡Prop (λ x → L' x .snd) (∧lComm _ _)
+
+              almostPath : coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+                         ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+              almostPath = (coneOutCommutes cc (singPairR {i<j = j<i})
+                         ∙ sym (coneOutCommutes cc singPairL))
+
+              iPathP : PathP (λ 𝕚 → (DLSubCat ^op) [ (α i , α∈L' i) , ∧Path 𝕚 ])
+                             (≤m→≤j _ _ (∧≤LCancel _ _)) (≤m→≤j _ _ (∧≤RCancel _ _))
+              iPathP = toPathP (is-prop-valued _ _ _ _)
+
+              jPathP : PathP (λ 𝕚 → (DLSubCat ^op) [ (α j , α∈L' j) , ∧Path 𝕚 ])
+                             (≤m→≤j _ _ (∧≤RCancel _ _)) (≤m→≤j _ _ (∧≤LCancel _ _))
+              jPathP = toPathP (is-prop-valued _ _ _ _)
+
+              B2 : I → Type ℓ''
+              B2 = λ 𝕚 → coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom {y = ∧Path 𝕚} (iPathP 𝕚)
+                       ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (jPathP 𝕚)
 
             ... | (eq i≡j) =
                 coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
-              ≡⟨ {!!} ⟩
+              ≡⟨ (λ 𝕚 → coneOut cc (sing (i≡j 𝕚)) ⋆⟨ C ⟩ F .F-hom (isProp→PathP {B = B2}
+                           (λ _ → is-prop-valued _ _)
+                           (≤m→≤j _ _ (∧≤RCancel _ _)) (≤m→≤j _ _ (∧≤LCancel _ _)) 𝕚)) ⟩
                 coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
+                where
+                B2 : I → Type ℓ
+                B2 = λ 𝕚 → (DLSubCat ^op) [ (α (i≡j 𝕚) , α∈L' (i≡j 𝕚)) , (α i ∧l α j , β∈L' (α i) (α∈L' i) j) ]
 
 
-
-        ccᵢ'Path : uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst ≡ ccᵢ'
-        ccᵢ'Path = cong fst
-                     (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .snd (ccᵢ' , ccᵢ'IsConeMor))
+        ccᵢSubstPath : uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst ≡ ccᵢSubst
+        ccᵢSubstPath = cong fst
+                     (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .snd (ccᵢSubst , ccᵢSubstIsConeMor))
 
 
 
