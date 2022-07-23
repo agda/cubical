@@ -2,7 +2,8 @@
 
 module Cubical.Algebra.Group.EilenbergMacLane.CupProduct where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base renaming (elim to EM-elim ; elim2 to EM-elim2)
+open import Cubical.Algebra.Group.EilenbergMacLane.Base
+  renaming (elim to EM-elim ; elim2 to EM-elim2)
 open import Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity
 open import Cubical.Algebra.Group.EilenbergMacLane.GroupStructure
 open import Cubical.Algebra.Group.EilenbergMacLane.Properties
@@ -90,7 +91,6 @@ module _ {G'' : CommRing ℓ} where
   snd TensorMultHom =
     makeIsGroupHom λ x y → refl
 
-
   TensorMult3Homₗ : AbGroupHom ((G' ⨂ G') ⨂ G') G'
   TensorMult3Homₗ =
     compGroupHom (inducedHom⨂ TensorMultHom
@@ -100,20 +100,15 @@ module _ {G'' : CommRing ℓ} where
   EMTensorMult : (n : ℕ) → EM (G' ⨂ G') n → EM G' n
   EMTensorMult n = inducedFun-EM TensorMultHom n
 
-  EMTensorMult3ₗ : (n : ℕ) → EM ((G' ⨂ G') ⨂ G') n → EM G' n
-  EMTensorMult3ₗ n = inducedFun-EM TensorMult3Homₗ n
 
-  EMTensorMult3ₗ0ₖ : (n : ℕ) → EMTensorMult3ₗ n (0ₖ n) ≡ 0ₖ n
-  EMTensorMult3ₗ0ₖ zero = RingTheory.0RightAnnihilates (CommRing→Ring G'') (0G ·G 0G)
-  EMTensorMult3ₗ0ₖ (suc zero) = refl
-  EMTensorMult3ₗ0ₖ (suc (suc n)) = refl
-
-  EMTensorMult0ₖ : (n : ℕ) → EMTensorMult n (0ₖ n) ≡ 0ₖ n 
+  EMTensorMult0ₖ : (n : ℕ) → EMTensorMult n (0ₖ n) ≡ 0ₖ n
   EMTensorMult0ₖ zero = RingTheory.0LeftAnnihilates (CommRing→Ring G'') 0G
   EMTensorMult0ₖ (suc zero) = refl
   EMTensorMult0ₖ (suc (suc n)) = refl
 
-  EMTensorMultPres+ : (n : ℕ) (x y : EM (G' ⨂ G') n) → EMTensorMult n (x +ₖ y) ≡ EMTensorMult n x +ₖ EMTensorMult n y
+
+  EMTensorMultPres+ : (n : ℕ) (x y : EM (G' ⨂ G') n)
+    → EMTensorMult n (x +ₖ y) ≡ EMTensorMult n x +ₖ EMTensorMult n y
   EMTensorMultPres+ zero x y = refl
   EMTensorMultPres+ (suc zero) =
     EM-elim2 _ (λ _ _ → isOfHLevelPath 3 (hLevelEM _ 1) _ _)
@@ -129,22 +124,36 @@ module _ {G'' : CommRing ℓ} where
         (λ _ _ → isOfHLevelPath ((suc (suc n)) +ℕ (suc (suc n)))
                   (subst (λ m → isOfHLevel m (EM G' (suc (suc n))))
                     (cong (suc ∘ suc) (+-comm (suc (suc n)) n))
-                    (isOfHLevelPlus' {n = n} (4 +ℕ n) (hLevelEM _ (suc (suc n))))) _ _)
-        (λ x → cong (EMTensorMult (suc (suc n))) (lUnitₖ _ (EM-raw→EM (G' ⨂ G') (suc (suc n)) x))
-             ∙ sym (lUnitₖ _ (EMTensorMult (suc (suc n)) (EM-raw→EM (G' ⨂ G') (suc (suc n)) x))))
-        (λ x → cong (EMTensorMult (suc (suc n))) (rUnitₖ _ (EM-raw→EM (G' ⨂ G') (suc (suc n)) x))
-             ∙ sym (rUnitₖ _ (EMTensorMult (suc (suc n)) (EM-raw→EM (G' ⨂ G') (suc (suc n)) x))))
+                    (isOfHLevelPlus' {n = n} (4 +ℕ n)
+                     (hLevelEM _ (suc (suc n))))) _ _)
+        (λ x → cong (EMTensorMult (suc (suc n)))
+                     (lUnitₖ _ (EM-raw→EM (G' ⨂ G') (suc (suc n)) x))
+             ∙ sym (lUnitₖ _ (EMTensorMult (suc (suc n))
+                   (EM-raw→EM (G' ⨂ G') (suc (suc n)) x))))
+        (λ x → cong (EMTensorMult (suc (suc n)))
+                     (rUnitₖ _ (EM-raw→EM (G' ⨂ G') (suc (suc n)) x))
+             ∙ sym (rUnitₖ _ (EMTensorMult (suc (suc n))
+                   (EM-raw→EM (G' ⨂ G') (suc (suc n)) x))))
         refl)
 
+  EMTensorMult3ₗ : (n : ℕ) → EM ((G' ⨂ G') ⨂ G') n → EM G' n
+  EMTensorMult3ₗ n = inducedFun-EM TensorMult3Homₗ n
+
+  EMTensorMult3ₗ0ₖ : (n : ℕ) → EMTensorMult3ₗ n (0ₖ n) ≡ 0ₖ n
+  EMTensorMult3ₗ0ₖ zero = RingTheory.0RightAnnihilates (CommRing→Ring G'') (0G ·G 0G)
+  EMTensorMult3ₗ0ₖ (suc zero) = refl
+  EMTensorMult3ₗ0ₖ (suc (suc n)) = refl
+
   EMFun-EM→ΩEM+1 : ∀ {ℓ ℓ'} {G : AbGroup ℓ} {H : AbGroup ℓ'} {ϕ : AbGroupHom G H} (n : ℕ) (x : EM G n)
-                 → PathP (λ i → inducedFun-EM0ₖ {ϕ = ϕ} (suc n) (~ i) ≡ inducedFun-EM0ₖ {ϕ = ϕ} (suc n) (~ i))
-                          (EM→ΩEM+1 n (inducedFun-EM ϕ n x))
-                          (cong (inducedFun-EM ϕ (suc n)) (EM→ΩEM+1 n x))
+    → PathP (λ i → inducedFun-EM0ₖ {ϕ = ϕ} (suc n) (~ i)
+                   ≡ inducedFun-EM0ₖ {ϕ = ϕ} (suc n) (~ i))
+             (EM→ΩEM+1 n (inducedFun-EM ϕ n x))
+             (cong (inducedFun-EM ϕ (suc n)) (EM→ΩEM+1 n x))
   EMFun-EM→ΩEM+1 {ϕ = ϕ} zero x = refl
   EMFun-EM→ΩEM+1 {ϕ = ϕ} (suc zero) x =
     cong-∙ ∣_∣ₕ (merid (inducedFun-EM ϕ (suc zero) x)) (sym (merid embase))
     ∙∙ sym (cong-∙ (inducedFun-EM ϕ (suc (suc zero))) (cong ∣_∣ₕ (merid x)) (cong ∣_∣ₕ (sym (merid embase))))
-    ∙∙ cong (cong (inducedFun-EM ϕ (suc (suc zero)))) (sym (cong-∙ ∣_∣ₕ (merid x) (sym (merid embase)))) -- 
+    ∙∙ cong (cong (inducedFun-EM ϕ (suc (suc zero)))) (sym (cong-∙ ∣_∣ₕ (merid x) (sym (merid embase)))) --
   EMFun-EM→ΩEM+1 {ϕ = ϕ} (suc (suc n)) =
     Trunc.elim (λ _ → isOfHLevelPath (4 +ℕ n) (isOfHLevelTrunc (5 +ℕ n) _ _) _ _)
       λ a → cong-∙ ∣_∣ₕ (merid (inducedFun-EM-raw ϕ (2 +ℕ n) a)) (sym (merid north))
@@ -158,39 +167,24 @@ module _ {G'' : CommRing ℓ} where
   EM-raw→EM-funct (suc zero) ψ y = refl
   EM-raw→EM-funct (suc (suc n)) ψ y = refl
 
-  EMTensorMult-EM→ΩEM+1 : (n : ℕ) (x : EM (G' ⨂ G') n)
-                        → PathP (λ i → EMTensorMult0ₖ (suc n) (~ i) ≡ EMTensorMult0ₖ (suc n) (~ i))
-                                 (EM→ΩEM+1 n (EMTensorMult n x))
-                                 (cong (EMTensorMult (suc n)) (EM→ΩEM+1 n x))
-  EMTensorMult-EM→ΩEM+1 zero x = refl
-  EMTensorMult-EM→ΩEM+1 (suc zero) x =
-      cong-∙ ∣_∣ₕ (merid (EMTensorMult (suc zero) x)) (sym (merid embase))
-    ∙∙ sym (cong-∙ (EMTensorMult (suc (suc zero))) (cong ∣_∣ₕ (merid x)) (cong ∣_∣ₕ (sym (merid embase))))
-    ∙∙ cong (cong (EMTensorMult (suc (suc zero)))) (sym (cong-∙ ∣_∣ₕ (merid x) (sym (merid embase)))) -- 
-  EMTensorMult-EM→ΩEM+1 (suc (suc n)) =
-    Trunc.elim (λ _ → isOfHLevelPath (4 +ℕ n) (isOfHLevelTrunc (5 +ℕ n) _ _) _ _)
-      λ a → cong-∙ ∣_∣ₕ (merid (inducedFun-EM-raw TensorMultHom (2 +ℕ n) a)) (sym (merid north))
-          ∙∙ sym (cong-∙ (EMTensorMult (suc (suc (suc n)))) (cong ∣_∣ₕ (merid a)) (cong ∣_∣ₕ (sym (merid north))))
-          ∙∙ cong (cong (EMTensorMult (suc (suc (suc n))))) (sym (cong-∙ ∣_∣ₕ (merid a) (sym (merid north))))
-
-  megaLem : ∀ {ℓ ℓ' ℓ'' ℓ'''} {G : AbGroup ℓ} {H : AbGroup ℓ'} {G' : AbGroup ℓ''} {H' : AbGroup ℓ'''}
+  ⌣ₖ-AbGroupHom-Distr : ∀ {ℓ ℓ' ℓ'' ℓ'''} {G : AbGroup ℓ} {H : AbGroup ℓ'} {G' : AbGroup ℓ''} {H' : AbGroup ℓ'''}
             (ϕ : AbGroupHom G G') (ψ : AbGroupHom H H')
          → (n m : ℕ)
          → (x : EM G n) (y : EM H m)
          → (inducedFun-EM ϕ n x) ⌣ₖ⊗ (inducedFun-EM ψ m y)
           ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (n +' m) (x ⌣ₖ⊗ y)
-  megaLem ϕ ψ zero zero x y = refl
-  megaLem {G = G} {H = H} {G' = G'} {H' = H'} ϕ ψ zero (suc m) x =
-    help m (megaLem ϕ ψ zero m x)
+  ⌣ₖ-AbGroupHom-Distr ϕ ψ zero zero x y = refl
+  ⌣ₖ-AbGroupHom-Distr {G = G} {H = H} {G' = G'} {H' = H'} ϕ ψ zero (suc m) x =
+    help m (⌣ₖ-AbGroupHom-Distr ϕ ψ zero m x)
     where
-    help : (m : ℕ) 
+    help : (m : ℕ)
       → ((y : EM H m)
          → _⌣ₖ⊗_ {n = zero} (inducedFun-EM ϕ zero x) (inducedFun-EM ψ m y)
           ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) m (_⌣ₖ⊗_ {n = zero} x y))
       → (y : EM H (suc m))
       → (_⌣ₖ⊗_ {n = zero} {m = suc m} (inducedFun-EM-raw ϕ zero x) (inducedFun-EM ψ (suc m) y))
        ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (suc m) (_⌣ₖ⊗_ {n = zero} x y)
-    help zero ind = EM'-elim _ _ (λ _ → hLevelEM _ 1 _ _)
+    help zero ind = EM-rawer-elim _ _ (λ _ → hLevelEM _ 1 _ _)
       λ { embase-raw → refl ; (emloop-raw g i) → refl}
     help (suc m) ind =
       Trunc.elim
@@ -210,17 +204,17 @@ module _ {G'' : CommRing ℓ} where
               (EM-raw→EM-funct (suc m) ψ a)
           ∙ ind (EM-raw→EM H (suc m) a))
         ∙ EMFun-EM→ΩEM+1 (suc m) (_⌣ₖ⊗_ {n = zero} x (EM-raw→EM _ _ a))
-  megaLem {G = G} {H = H} {G' = G'} {H' = H'} ϕ ψ (suc n) zero x y =
-    help n (λ x → megaLem ϕ ψ n zero x y) x
+  ⌣ₖ-AbGroupHom-Distr {G = G} {H = H} {G' = G'} {H' = H'} ϕ ψ (suc n) zero x y =
+    help n (λ x → ⌣ₖ-AbGroupHom-Distr ϕ ψ n zero x y) x
     where
-    help : (n : ℕ) 
+    help : (n : ℕ)
       → ((x : EM G n)
          → _⌣ₖ⊗_ {m = zero} (inducedFun-EM ϕ n x) (inducedFun-EM ψ zero y)
           ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (n +' zero) ((_⌣ₖ⊗_ {n = n} x y)))
       → ((x : EM G (suc n))
          → _⌣ₖ⊗_ {m = zero} (inducedFun-EM ϕ (suc n) x) (inducedFun-EM ψ zero y)
           ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (suc n) ((_⌣ₖ⊗_ {n = suc n} {m = zero} x y)))
-    help zero ind = EM'-elim _ _ (λ _ → hLevelEM _ 1 _ _)
+    help zero ind = EM-rawer-elim _ _ (λ _ → hLevelEM _ 1 _ _)
       λ { embase-raw → refl ; (emloop-raw g i) → refl}
     help (suc n) ind = Trunc.elim
         (λ _ → isOfHLevelPath (4 +ℕ n) (isOfHLevelTrunc (4 +ℕ n)) _ _)
@@ -239,8 +233,8 @@ module _ {G'' : CommRing ℓ} where
                        (inducedFun-EM ψ zero y)))
                      ∙ ind (EM-raw→EM _ _ a))
            ∙ EMFun-EM→ΩEM+1 (suc n) _
-  megaLem {G = G} {H = H} {G' = G'} {H' = H'} ϕ ψ (suc n) (suc m) x =
-    funExt⁻ (cong fst (main n m (megaLem ϕ ψ n (suc m)) x))
+  ⌣ₖ-AbGroupHom-Distr {G = G} {H = H} {G' = G'} {H' = H'} ϕ ψ (suc n) (suc m) x =
+    funExt⁻ (cong fst (main n m (⌣ₖ-AbGroupHom-Distr ϕ ψ n (suc m)) x))
     where
     fₗ : (n m : ℕ) → EM G n → EM∙ H m →∙ EM∙ (G' ⨂ H') (n +' m)
     fst (fₗ n m x) y = (inducedFun-EM ϕ n x ⌣ₖ⊗ inducedFun-EM ψ m y)
@@ -257,13 +251,13 @@ module _ {G'' : CommRing ℓ} where
       → ((x : EM G n) (y : EM H (suc m)) → fst (fₗ n (suc m) x) y ≡ fst (fᵣ n (suc m) x) y)
       → (x : EM G (suc n)) → fₗ (suc n) (suc m) x ≡ fᵣ (suc n) (suc m) x
     main n m ind =
-      EM'-elim _ _ (λ _ → isOfHLevelPath' (2 +ℕ n) (isOfHLevel↑∙ (suc n) m) _ _)
+      EM-rawer-elim _ _ (λ _ → isOfHLevelPath' (2 +ℕ n) (isOfHLevel↑∙ (suc n) m) _ _)
         λ x → →∙Homogeneous≡ (isHomogeneousEM _) (funExt (main' n m ind x))
       where
       main' : (n m : ℕ) → ((x : EM G n) (y : EM H (suc m)) → fst (fₗ n (suc m) x) y ≡ fst (fᵣ n (suc m) x) y)
-        →  (x : EM' G (suc n)) (y : EM H (suc m))
-          → (inducedFun-EM ϕ (suc n) (EM'→EM _ _ x) ⌣ₖ⊗ inducedFun-EM ψ (suc m) y)
-           ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (suc n +' suc m) (EM'→EM _ _ x ⌣ₖ⊗ y)
+        →  (x : EM-rawer G (suc n)) (y : EM H (suc m))
+          → (inducedFun-EM ϕ (suc n) (EM-rawer→EM _ _ x) ⌣ₖ⊗ inducedFun-EM ψ (suc m) y)
+           ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (suc n +' suc m) (EM-rawer→EM _ _ x ⌣ₖ⊗ y)
       main' zero m ind embase-raw y = refl
       main' zero m ind (emloop-raw g i) y = flipSquare l i
         where
@@ -276,7 +270,7 @@ module _ {G'' : CommRing ℓ} where
       main' (suc n) m ind (merid a i) y = flipSquare l i
         where
         l : (λ i → (inducedFun-EM ϕ (suc (suc n))
-                     (EM'→EM G (suc (suc n)) (merid a i)) ⌣ₖ⊗ inducedFun-EM ψ (suc m) y))
+                     (EM-rawer→EM G (suc (suc n)) (merid a i)) ⌣ₖ⊗ inducedFun-EM ψ (suc m) y))
           ≡ cong (inducedFun-EM (inducedHom⨂ ϕ ψ) (suc (suc n) +' suc m))
                  (EM→ΩEM+1 (suc n +' suc m) (EM-raw→EM _ _ a ⌣ₖ⊗ y))
         l = cong (EM→ΩEM+1 (suc n +' suc m))
@@ -289,7 +283,7 @@ module _ {G'' : CommRing ℓ} where
   lem n m x y =
       cong (EMTensorMult (n +' m))
         ((λ i → EMTensorMult n x ⌣ₖ⊗ inducedFun-EM-id m y (~ i))
-        ∙ megaLem TensorMultHom idGroupHom n m x y)
+        ∙ ⌣ₖ-AbGroupHom-Distr TensorMultHom idGroupHom n m x y)
     ∙ sym (inducedFun-EM-comp _ _ (n +' m) (x ⌣ₖ⊗ y))
 
   _⌣ₖ_ : {n m : ℕ} → EM G' n → EM G' m → EM G' (n +' m)
@@ -326,7 +320,7 @@ module _ {G'' : CommRing ℓ} where
                (inducedHom⨂ idGroupHom TensorMultHom)
                TensorMultHom (n +' (m +' l)) (x ⌣ₖ⊗ (y ⌣ₖ⊗ z)))
            ∙ cong (inducedFun-EM TensorMultHom (n +' (m +' l)))
-               (sym (megaLem idGroupHom TensorMultHom n (m +' l) x (y ⌣ₖ⊗ z))
+               (sym (⌣ₖ-AbGroupHom-Distr idGroupHom TensorMultHom n (m +' l) x (y ⌣ₖ⊗ z))
              ∙ (λ i → inducedFun-EM-id _ x i ⌣ₖ⊗ inducedFun-EM TensorMultHom (m +' l) (y ⌣ₖ⊗ z))))
           ∙ λ i → inducedFun-EM TensorMultHom _ (x ⌣ₖ⊗ inducedFun-EM TensorMultHom _ (y ⌣ₖ⊗ z)))
     where
