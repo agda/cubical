@@ -2,7 +2,7 @@
 
 module Cubical.Algebra.Group.EilenbergMacLane.GroupStructure where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base
+open import Cubical.Algebra.Group.EilenbergMacLane.Base hiding (elim2)
 open import Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties

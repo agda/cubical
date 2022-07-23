@@ -368,6 +368,21 @@ module UP (AGr : AbGroup ℓ) (BGr : AbGroup ℓ') where
                                     λ x y ind1 ind2 → cong₂ (_+G_ (snd C)) ind1 ind2
                                                        ∙ sym (IsGroupHom.pres· p x y)))
 
+module _ {ℓ ℓ' ℓ'' ℓ''' : Level} {A : AbGroup ℓ}  {B : AbGroup ℓ'} {C : AbGroup ℓ''} {D : AbGroup ℓ'''}
+         (ϕ : AbGroupHom A C) (ψ : AbGroupHom B D) where
+  inducedFun⨂ : A ⨂₁ B → C ⨂₁ D
+  inducedFun⨂ =
+    ⨂→AbGroup-elim (C ⨂ D)
+      (λ x → fst ϕ (fst x) ⊗ fst ψ (snd x))
+      (cong (_⊗ fst ψ _) (IsGroupHom.pres1 (snd ϕ)) ∙ ⊗AnnihilL _)
+      (λ x y z → cong (fst ϕ x ⊗_) (IsGroupHom.pres· (snd ψ) y z) ∙ ⊗DistR+⊗ _ _ _)
+      λ x y z → cong (_⊗ fst ψ z) (IsGroupHom.pres· (snd ϕ) x y) ∙ ⊗DistL+⊗ _ _ _
+
+  inducedHom⨂ : AbGroupHom (A ⨂ B) (C ⨂ D)
+  fst inducedHom⨂ = inducedFun⨂
+  snd inducedHom⨂ =
+    makeIsGroupHom λ _ _ → refl
+
 -------------------- Commutativity ------------------------
 commFun : ∀ {ℓ ℓ'} {A : AbGroup ℓ}  {B : AbGroup ℓ'} → A ⨂₁ B → B ⨂₁ A
 commFun (a ⊗ b) = b ⊗ a

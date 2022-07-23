@@ -642,6 +642,61 @@ inducedFun-EM-raw f =
                   ; south → south
                   ; (merid a i) → merid (ind a) i} )
 
+inducedFun-EM-raw-id : {G' : AbGroup ℓ} (n : ℕ) (x : EM-raw G' n)
+  → inducedFun-EM-raw (idGroupHom {G = AbGroup→Group G'}) n x ≡ x
+inducedFun-EM-raw-id zero x = refl
+inducedFun-EM-raw-id (suc zero) = EM'-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
+    λ { embase-raw → refl ; (emloop-raw g i) → refl}
+inducedFun-EM-raw-id (suc (suc n)) north = refl
+inducedFun-EM-raw-id (suc (suc n)) south = refl
+inducedFun-EM-raw-id (suc (suc n)) (merid a i) j = merid (inducedFun-EM-raw-id (suc n) a j) i
+
+inducedFun-EM-raw-comp : {G' : AbGroup ℓ} {H' : AbGroup ℓ'} {L' : AbGroup ℓ''}
+  (ϕ : AbGroupHom G' H') (ψ : AbGroupHom H' L') (n : ℕ)
+  → (x : EM-raw G' n) → inducedFun-EM-raw (compGroupHom ϕ ψ) n x
+                       ≡ inducedFun-EM-raw ψ n (inducedFun-EM-raw ϕ n x)
+inducedFun-EM-raw-comp ϕ ψ zero x = refl
+inducedFun-EM-raw-comp ϕ ψ (suc zero) =
+  EM'-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
+    λ { embase-raw → refl ; (emloop-raw g i) → refl}
+inducedFun-EM-raw-comp ϕ ψ (suc (suc n)) north = refl
+inducedFun-EM-raw-comp ϕ ψ (suc (suc n)) south = refl
+inducedFun-EM-raw-comp ϕ ψ (suc (suc n)) (merid a i) j =
+  merid (inducedFun-EM-raw-comp ϕ ψ (suc n) a j) i
+
+inducedFun-EM : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
+                     → AbGroupHom G' H'
+                     → ∀ n
+                     → EM G' n → EM H' n
+inducedFun-EM f zero = inducedFun-EM-raw f zero
+inducedFun-EM f (suc zero) = inducedFun-EM-raw f (suc zero)
+inducedFun-EM f (suc (suc n)) = Trunc.map (inducedFun-EM-raw f (2 + n))
+
+inducedFun-EM-id : {G' : AbGroup ℓ} (n : ℕ) (x : EM G' n)
+  → inducedFun-EM (idGroupHom {G = AbGroup→Group G'}) n x ≡ x
+inducedFun-EM-id zero x = refl
+inducedFun-EM-id (suc zero) = inducedFun-EM-raw-id (suc zero)
+inducedFun-EM-id (suc (suc n)) =
+  Trunc.elim (λ _ → isOfHLevelPath (4 + n) (hLevelEM _ (suc (suc n))) _ _)
+    λ x → cong ∣_∣ₕ (inducedFun-EM-raw-id _ x)
+
+
+inducedFun-EM-comp : {G' : AbGroup ℓ} {H' : AbGroup ℓ'} {L' : AbGroup ℓ''}
+  (ϕ : AbGroupHom G' H') (ψ : AbGroupHom H' L') (n : ℕ)
+  → (x : EM G' n) → inducedFun-EM (compGroupHom ϕ ψ) n x
+                       ≡ inducedFun-EM ψ n (inducedFun-EM ϕ n x)
+inducedFun-EM-comp ϕ ψ zero x = refl
+inducedFun-EM-comp ϕ ψ (suc zero) = inducedFun-EM-raw-comp ϕ ψ (suc zero)
+inducedFun-EM-comp ϕ ψ (suc (suc n)) =
+  Trunc.elim (λ _ → isOfHLevelPath (4 + n) (hLevelEM _ (suc (suc n))) _ _)
+    λ x → cong ∣_∣ₕ (inducedFun-EM-raw-comp ϕ ψ (suc (suc n)) x)
+
+inducedFun-EM0ₖ : {G' : AbGroup ℓ} {H' : AbGroup ℓ'} {ϕ : AbGroupHom G' H'} (n : ℕ)
+  → inducedFun-EM ϕ n (0ₖ n) ≡ 0ₖ n
+inducedFun-EM0ₖ {ϕ = ϕ} zero = IsGroupHom.pres1 (snd ϕ)
+inducedFun-EM0ₖ (suc zero) = refl
+inducedFun-EM0ₖ (suc (suc n)) = refl
+
 inducedFun-EM-rawIso : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
                      → AbGroupEquiv G' H'
                      → ∀ n → Iso (EM-raw G' n) (EM-raw H' n)
@@ -674,6 +729,7 @@ Iso.leftInv (inducedFun-EM-rawIso e n) = h n
                ; south → refl
                ; (merid a i) k → merid (p a k) i}
 
+{-
 inducedFun-EM-raw-idAbGroupEquiv :
   {G : AbGroup ℓ} (n : ℕ) (x : EM-raw G n)
   → inducedFun-EM-raw {G' = G} idGroupHom n x ≡ x
@@ -684,12 +740,17 @@ inducedFun-EM-raw-idAbGroupEquiv (suc (suc n)) north = refl
 inducedFun-EM-raw-idAbGroupEquiv (suc (suc n)) south = refl
 inducedFun-EM-raw-idAbGroupEquiv (suc (suc n)) (merid a i) j =
   merid (inducedFun-EM-raw-idAbGroupEquiv (suc n) a j) i
-
+-}
 Iso→EMIso : {G : AbGroup ℓ} {H : AbGroup ℓ'}
   → AbGroupEquiv G H → ∀ n → Iso (EM G n) (EM H n)
-Iso→EMIso is zero = inducedFun-EM-rawIso is zero
-Iso→EMIso is (suc zero) = inducedFun-EM-rawIso is 1
-Iso→EMIso is (suc (suc n)) = mapCompIso (inducedFun-EM-rawIso is (suc (suc n)))
+Iso.fun (Iso→EMIso is n) = inducedFun-EM (GroupEquiv→GroupHom is) n
+Iso.inv (Iso→EMIso is n) = inducedFun-EM (GroupEquiv→GroupHom (invAbGroupEquiv is)) n
+Iso.rightInv (Iso→EMIso is zero) = Iso.rightInv (inducedFun-EM-rawIso is zero)
+Iso.rightInv (Iso→EMIso is (suc zero)) = Iso.rightInv (inducedFun-EM-rawIso is (suc zero))
+Iso.rightInv (Iso→EMIso is (suc (suc n))) = Iso.rightInv (mapCompIso (inducedFun-EM-rawIso is (suc (suc n))))
+Iso.leftInv (Iso→EMIso is zero) = Iso.leftInv (inducedFun-EM-rawIso is zero)
+Iso.leftInv (Iso→EMIso is (suc zero)) = Iso.leftInv (inducedFun-EM-rawIso is (suc zero))
+Iso.leftInv (Iso→EMIso is (suc (suc n))) = Iso.leftInv (mapCompIso (inducedFun-EM-rawIso is (suc (suc n))))
 
 Iso→EMIso∙ : {G : AbGroup ℓ} {H : AbGroup ℓ'}
   → (e : AbGroupEquiv G H)
@@ -713,7 +774,7 @@ Iso→EMIsoInv : {G : AbGroup ℓ} {H : AbGroup ℓ'}
 Iso→EMIsoInv e zero = refl
 Iso→EMIsoInv e (suc zero) = refl
 Iso→EMIsoInv e (suc (suc n)) = refl
-
+{-
 Iso→EMIso-idAbGroupEquiv : {G : AbGroup ℓ} (n : ℕ)
   → isoToEquiv (Iso→EMIso (idAbGroupEquiv G) n)
    ≡ idEquiv _
@@ -727,7 +788,7 @@ Iso→EMIso-idAbGroupEquiv {G = G} n =
   help (suc (suc n)) =
     Trunc.elim (λ _ → isOfHLevelPath (suc (suc (suc (suc n)))) (hLevelEM G (suc (suc n))) _ _)
       λ x → cong ∣_∣ₕ (inducedFun-EM-raw-idAbGroupEquiv (suc (suc n)) x)
-
+-}
 EM⊗-commIso : {G : AbGroup ℓ} {H : AbGroup ℓ'}
   → ∀ n →  Iso (EM (G ⨂ H) n) (EM (H ⨂ G) n)
 EM⊗-commIso {G = G} {H = H} = Iso→EMIso (GroupIso→GroupEquiv ⨂-commIso)

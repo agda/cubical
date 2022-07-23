@@ -18,13 +18,11 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)
+open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; rec2 to trRec2 ; elim to trElim) hiding (elim2)
 open import Cubical.HITs.EilenbergMacLane1 hiding (elim)
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Data.Empty
   renaming (rec to ⊥-rec) hiding (elim)
-open import Cubical.HITs.Truncation
-  renaming (elim to trElim ; rec to trRec ; rec2 to trRec2)
 open import Cubical.Data.Nat hiding (_·_ ; elim)
 open import Cubical.HITs.Susp
 open import Cubical.Functions.Morphism
@@ -92,6 +90,13 @@ elim zero hlev hyp x = hyp x
 elim (suc zero) hlev hyp x = hyp x
 elim (suc (suc n)) hlev hyp = trElim (λ _ → hlev _) hyp
 
+elim2 : ∀ {ℓ''}{G : AbGroup ℓ} {H : AbGroup ℓ'} (n : ℕ) {A : EM G n → EM H n → Type ℓ''}
+        → ((x : _) (y : _) → isOfHLevel (2 + n) (A x y))
+        → ((x : EM-raw G n) (y : EM-raw H n) → A (EM-raw→EM G n x) (EM-raw→EM H n y))
+        → (x : _) (y : _) → A x y
+elim2 n hlev ind =
+  elim n (λ _ → isOfHLevelΠ (2 + n) (λ _ → hlev _ _))
+    λ x → elim n (λ _ → hlev _ _) (ind x)
 
 EM' : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → Type ℓ
 EM' G zero = fst G
