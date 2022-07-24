@@ -21,6 +21,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup.Base
+open import Cubical.Algebra.Ring
 
 
 private
@@ -502,3 +503,45 @@ module _ {ℓ ℓ' ℓ'' : Level} {A : AbGroup ℓ} {B : AbGroup ℓ'} {C : AbGr
   ⨂assoc : AbGroupEquiv (A ⨂ (B ⨂ C)) ((A ⨂ B) ⨂ C)
   fst ⨂assoc = isoToEquiv ⨂assocIso
   snd ⨂assoc = snd assocHom⁻
+
+module _ {G' : Ring ℓ} where
+  private
+    G = Ring→AbGroup G'
+    _·G_ = RingStr._·_ (snd G')
+
+  TensorMult : fst (G ⨂ G) → fst G
+  TensorMult =
+    ⨂→AbGroup-elim G
+      (λ x → fst x ·G snd x)
+       (RingTheory.0LeftAnnihilates G' _)
+       (IsRing.·DistR+ (RingStr.isRing (snd G')))
+       (IsRing.·DistL+ (RingStr.isRing (snd G')))
+
+  TensorMultHom : AbGroupHom (G ⨂ G) G
+  fst TensorMultHom = TensorMult
+  snd TensorMultHom =
+    makeIsGroupHom λ x y → refl
+
+lIncl⨂ : {G : AbGroup ℓ} {H : AbGroup ℓ'} → (h : fst H) → AbGroupHom G (G ⨂ H)
+fst (lIncl⨂ h) g = g ⊗ h
+snd (lIncl⨂ h) = makeIsGroupHom λ x y → ⊗DistL+⊗ x y h
+
+rIncl⨂ : {G : AbGroup ℓ} {H : AbGroup ℓ'} → (g : fst G) → AbGroupHom H (G ⨂ H)
+fst (rIncl⨂ g) h = g ⊗ h
+snd (rIncl⨂ g) = makeIsGroupHom (⊗DistR+⊗ g)
+
+G→G⨂G→Gₗ : {G : Ring ℓ}
+  → Path (AbGroupHom (Ring→AbGroup G) (Ring→AbGroup G))
+          ((compGroupHom (lIncl⨂ (RingStr.1r (snd G))) TensorMultHom))
+          idGroupHom
+G→G⨂G→Gₗ {G = G} =
+  Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+    (funExt (RingStr.·IdR (snd G)))
+
+G→G⨂G→Gᵣ : {G : Ring ℓ}
+  → Path (AbGroupHom (Ring→AbGroup G) (Ring→AbGroup G))
+          ((compGroupHom (rIncl⨂ (RingStr.1r (snd G))) TensorMultHom))
+          idGroupHom
+G→G⨂G→Gᵣ {G = G} =
+  Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+    (funExt (RingStr.·IdL (snd G)))

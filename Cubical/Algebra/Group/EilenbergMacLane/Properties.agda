@@ -2,7 +2,8 @@
 
 module Cubical.Algebra.Group.EilenbergMacLane.Properties where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base renaming (elim to EM-elim)
+open import Cubical.Algebra.Group.EilenbergMacLane.Base
+  renaming (elim to EM-elim ; elim2 to EM-elim2)
 open import Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity
 open import Cubical.Algebra.Group.EilenbergMacLane.GroupStructure
 open import Cubical.Algebra.Group.Base
@@ -345,6 +346,11 @@ module _ {G : AbGroup ℓ} where
   isHomogeneousEM n x =
     ua∙ (isoToEquiv (addIso n x)) (lUnitₖ n x)
 
+  EM→ΩEM+1∘EM-raw→EM : (n : ℕ) (x : EM-raw G (suc n))
+    → EM→ΩEM+1 (suc n) (EM-raw→EM _ _ x) ≡ cong ∣_∣ₕ (merid x ∙ sym (merid ptEM-raw))
+  EM→ΩEM+1∘EM-raw→EM zero x = refl
+  EM→ΩEM+1∘EM-raw→EM (suc n) x = refl
+
 
 -- Some HLevel lemmas about function spaces (EM∙ G n →∙ EM∙ H m), mainly used for
 -- the cup product
@@ -672,6 +678,14 @@ inducedFun-EM f zero = inducedFun-EM-raw f zero
 inducedFun-EM f (suc zero) = inducedFun-EM-raw f (suc zero)
 inducedFun-EM f (suc (suc n)) = Trunc.map (inducedFun-EM-raw f (2 + n))
 
+EM-raw→EM-funct : {G : AbGroup ℓ} {H : AbGroup ℓ'}
+     (n : ℕ) (ψ : AbGroupHom G H) (y : EM-raw G n)
+  → EM-raw→EM _ _ (inducedFun-EM-raw ψ n y)
+   ≡ inducedFun-EM ψ n (EM-raw→EM _ _ y)
+EM-raw→EM-funct zero ψ y = refl
+EM-raw→EM-funct (suc zero) ψ y = refl
+EM-raw→EM-funct (suc (suc n)) ψ y = refl
+
 inducedFun-EM-id : {G' : AbGroup ℓ} (n : ℕ) (x : EM G' n)
   → inducedFun-EM (idGroupHom {G = AbGroup→Group G'}) n x ≡ x
 inducedFun-EM-id zero x = refl
@@ -695,6 +709,82 @@ inducedFun-EM0ₖ : {G' : AbGroup ℓ} {H' : AbGroup ℓ'} {ϕ : AbGroupHom G' H
 inducedFun-EM0ₖ {ϕ = ϕ} zero = IsGroupHom.pres1 (snd ϕ)
 inducedFun-EM0ₖ (suc zero) = refl
 inducedFun-EM0ₖ (suc (suc n)) = refl
+
+inducedFun-EM-pres+ₖ : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
+     (ϕ : AbGroupHom G' H') (n : ℕ) (x y : EM G' n)
+  → inducedFun-EM ϕ n (x +ₖ y) ≡ inducedFun-EM ϕ n x +ₖ inducedFun-EM ϕ n y
+inducedFun-EM-pres+ₖ ϕ zero x y = IsGroupHom.pres· (snd ϕ) x y
+inducedFun-EM-pres+ₖ {G' = G'} {H' = H'} ϕ (suc n) =
+  EM-elim2 (suc n) (λ _ _ → isOfHLevelPath (2 + suc n) (hLevelEM _ (suc n)) _ _)
+    (wedgeConEM.fun _ _ n n
+      (λ _ _ → isOfHLevelPath' (suc n + suc n)
+                 (subst (λ m → isOfHLevel (suc (suc m)) (EM H' (suc n)))
+                   (sym (+-suc n n))
+                   (isOfHLevelPlus' {n = n} (3 + n)
+                     (hLevelEM _ (suc n))))
+                 _ _)
+      (l n)
+      (r n)
+      (l≡r n))
+  where
+  lem : ∀ {ℓ} {G : AbGroup ℓ} (n : ℕ) → EM-raw→EM G (suc n) ptEM-raw ≡ 0ₖ _
+  lem zero = refl
+  lem (suc n) = refl
+
+  l : (n : ℕ) (y : EM-raw G' (suc n))
+    → inducedFun-EM ϕ (suc n) ((EM-raw→EM G' (suc n) ptEM-raw)
+                               +ₖ EM-raw→EM G' (suc n) y)
+     ≡ inducedFun-EM ϕ (suc n) (EM-raw→EM G' (suc n) ptEM-raw)
+     +ₖ inducedFun-EM ϕ (suc n) (EM-raw→EM G' (suc n) y)
+  l n y = (cong (inducedFun-EM ϕ (suc n))
+                (cong (_+ₖ EM-raw→EM G' (suc n) y) (lem n)
+               ∙ lUnitₖ (suc n) (EM-raw→EM G' (suc n) y)))
+        ∙∙ sym (lUnitₖ _ (inducedFun-EM ϕ (suc n) (EM-raw→EM G' (suc n) y)))
+        ∙∙ cong (_+ₖ (inducedFun-EM ϕ (suc n) (EM-raw→EM G' (suc n) y)))
+                (sym (inducedFun-EM0ₖ {ϕ = ϕ} (suc n))
+               ∙ cong (inducedFun-EM ϕ (suc n)) (sym (lem n)))
+
+  r : (n : ℕ) (x : EM-raw G' (suc n))
+      → inducedFun-EM ϕ (suc n)
+          (EM-raw→EM G' (suc n) x +ₖ EM-raw→EM G' (suc n) ptEM-raw)
+       ≡ inducedFun-EM ϕ (suc n) (EM-raw→EM G' (suc n) x)
+       +ₖ inducedFun-EM ϕ (suc n) (EM-raw→EM G' (suc n) ptEM-raw)
+  r n x = cong (inducedFun-EM ϕ (suc n))
+             (cong (EM-raw→EM G' (suc n) x +ₖ_) (lem n)
+            ∙ rUnitₖ (suc n) (EM-raw→EM G' (suc n) x))
+        ∙∙ sym (rUnitₖ _ (inducedFun-EM ϕ (suc n) (EM-raw→EM G' (suc n) x)))
+        ∙∙ cong (inducedFun-EM ϕ (suc n) (EM-raw→EM G' (suc n) x) +ₖ_)
+             (sym (inducedFun-EM0ₖ {ϕ = ϕ} (suc n))
+            ∙ cong (inducedFun-EM ϕ (suc n)) (sym (lem n)))
+
+  l≡r : (n : ℕ) → l n ptEM-raw ≡ r n ptEM-raw
+  l≡r zero = refl
+  l≡r (suc n) = refl
+
+EMFun-EM→ΩEM+1 : {G : AbGroup ℓ} {H : AbGroup ℓ'}
+    {ϕ : AbGroupHom G H} (n : ℕ) (x : EM G n)
+  → PathP (λ i → inducedFun-EM0ₖ {ϕ = ϕ} (suc n) (~ i)
+                 ≡ inducedFun-EM0ₖ {ϕ = ϕ} (suc n) (~ i))
+           (EM→ΩEM+1 n (inducedFun-EM ϕ n x))
+           (cong (inducedFun-EM ϕ (suc n)) (EM→ΩEM+1 n x))
+EMFun-EM→ΩEM+1 {ϕ = ϕ} zero x = refl
+EMFun-EM→ΩEM+1 {ϕ = ϕ} (suc zero) x =
+     cong-∙ ∣_∣ₕ (merid (inducedFun-EM ϕ (suc zero) x))
+                (sym (merid embase))
+  ∙∙ sym (cong-∙ (inducedFun-EM ϕ (suc (suc zero)))
+         (cong ∣_∣ₕ (merid x)) (cong ∣_∣ₕ (sym (merid embase))))
+  ∙∙ cong (cong (inducedFun-EM ϕ (suc (suc zero))))
+          (sym (cong-∙ ∣_∣ₕ (merid x) (sym (merid embase))))
+EMFun-EM→ΩEM+1 {ϕ = ϕ} (suc (suc n)) =
+  Trunc.elim (λ _ → isOfHLevelPath (4 + n)
+                (isOfHLevelTrunc (5 + n) _ _) _ _)
+    λ a → cong-∙ ∣_∣ₕ (merid (inducedFun-EM-raw ϕ (2 + n) a))
+                      (sym (merid north))
+        ∙∙ sym (cong-∙ (inducedFun-EM ϕ (suc (suc (suc n))))
+               (cong ∣_∣ₕ (merid a)) (cong ∣_∣ₕ (sym (merid north))))
+        ∙∙ cong (cong (inducedFun-EM ϕ (suc (suc (suc n)))))
+               (sym (cong-∙ ∣_∣ₕ (merid a) (sym (merid north))))
+
 
 inducedFun-EM-rawIso : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
                      → AbGroupEquiv G' H'
