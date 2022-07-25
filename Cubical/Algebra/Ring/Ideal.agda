@@ -29,6 +29,20 @@ module _ (R' : Ring ℓ) where
       ·-closedLeft : {x : R} → (r : R) → x ∈ I → r · x ∈ I
       ·-closedRight : {x : R} → (r : R) → x ∈ I → x · r ∈ I
 
+  isPropIsIdeal : (I : ℙ R) → isProp (isIdeal I)
+  isPropIsIdeal I isIdeal₀ isIdeal₁ =
+    λ i → record
+      { +-closed = λ x∈I y∈I →    isProp∈I (+-closed isIdeal₀ x∈I y∈I)    (+-closed isIdeal₁ x∈I y∈I)    i
+      ; -closed = λ x∈I →         isProp∈I (-closed isIdeal₀ x∈I)         (-closed isIdeal₁ x∈I)         i
+      ; 0r-closed =               isProp∈I (0r-closed isIdeal₀)           (0r-closed isIdeal₁)           i
+      ; ·-closedLeft  = λ r x∈I → isProp∈I (·-closedLeft  isIdeal₀ r x∈I) (·-closedLeft  isIdeal₁ r x∈I) i
+      ; ·-closedRight = λ r x∈I → isProp∈I (·-closedRight isIdeal₀ r x∈I) (·-closedRight isIdeal₁ r x∈I) i
+      }
+    where
+      open isIdeal
+      isProp∈I : {x : R} → isProp (x ∈ I)
+      isProp∈I {x = x} = snd (I x)
+
   Ideal : Type _
   Ideal = Σ[ I ∈ ℙ R ] isIdeal I
 
@@ -57,7 +71,7 @@ module _ (R' : Ring ℓ) where
   isIdealZeroIdeal : isIdeal zeroSubset
   +-closed isIdealZeroIdeal x≡0 y≡0 =
     _ + _    ≡⟨ cong (λ u → u + _) x≡0 ⟩
-    0r + _   ≡⟨ +Lid _ ⟩
+    0r + _   ≡⟨ +IdL _ ⟩
     _        ≡⟨ y≡0 ⟩
     0r       ∎
   -closed isIdealZeroIdeal x≡0 =

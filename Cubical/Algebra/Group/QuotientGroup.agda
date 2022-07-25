@@ -40,7 +40,7 @@ module _ (G' : Group ℓ) (H' : Subgroup G') (Hnormal : isNormal H') where
   x ~ y = x · inv y ∈ ⟪ H' ⟫
 
   isRefl~ : isRefl _~_
-  isRefl~ x = subst-∈ ⟪ H' ⟫ (sym (invr x)) id-closed
+  isRefl~ x = subst-∈ ⟪ H' ⟫ (sym (·InvR x)) id-closed
 
   G/H : Type ℓ
   G/H = G /s _~_
@@ -62,13 +62,13 @@ module _ (G' : Group ℓ) (H' : Subgroup G') (Hnormal : isNormal H') where
               (op-closed  hbb' (·CommNormalSubgroup H' Hnormal haa'))
 
      rem2 : ((inv a' · a) · b) · inv b' ∈ ⟪ H' ⟫
-     rem2 = subst-∈ ⟪ H' ⟫ (assoc _ _ _) rem1
+     rem2 = subst-∈ ⟪ H' ⟫ (·Assoc _ _ _) rem1
 
      rem3 : inv b' · (inv a' · a) · b ∈ ⟪ H' ⟫
      rem3 = ·CommNormalSubgroup H' Hnormal rem2
 
      rem4 : (inv b' · inv a') · (a · b) ∈ ⟪ H' ⟫
-     rem4 = subst-∈ ⟪ H' ⟫ (cong (inv b' ·_) (sym (assoc _ _ _)) ∙ assoc _ _ _) rem3
+     rem4 = subst-∈ ⟪ H' ⟫ (cong (inv b' ·_) (sym (·Assoc _ _ _)) ∙ ·Assoc _ _ _) rem3
 
      rem5 : (a · b) · inv b' · inv a' ∈ ⟪ H' ⟫
      rem5 = ·CommNormalSubgroup H' Hnormal rem4
@@ -86,13 +86,13 @@ module _ (G' : Group ℓ) (H' : Subgroup G') (Hnormal : isNormal H') where
       rem1 = ·CommNormalSubgroup H' Hnormal ha'a
 
   ·/H-assoc : (a b c : G/H) → (a ·/H (b ·/H c)) ≡ ((a ·/H b) ·/H c)
-  ·/H-assoc = elimProp3 (λ x y z → squash/ _ _) λ x y z → cong [_] (assoc x y z)
+  ·/H-assoc = elimProp3 (λ x y z → squash/ _ _) λ x y z → cong [_] (·Assoc x y z)
 
   ·/H-rid : (a : G/H) → (a ·/H 1/H) ≡ a
-  ·/H-rid = elimProp (λ x → squash/ _ _) λ x → cong [_] (rid x)
+  ·/H-rid = elimProp (λ x → squash/ _ _) λ x → cong [_] (·IdR x)
 
   ·/H-invr : (a : G/H) → (a ·/H inv/H a) ≡ 1/H
-  ·/H-invr = elimProp (λ x → squash/ _ _) λ x → cong [_] (invr x)
+  ·/H-invr = elimProp (λ x → squash/ _ _) λ x → cong [_] (·InvR x)
 
   asGroup : Group ℓ
   asGroup = makeGroup-right 1/H _·/H_ inv/H squash/ ·/H-assoc ·/H-rid ·/H-invr

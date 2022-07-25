@@ -14,7 +14,7 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int
   renaming
-    (_·_ to _*_ ; _+_ to _+ℤ_ ; _-_ to _-ℤ_ ; pos·pos to pos·)
+    (_·_ to _*_ ; _+_ to _+ℤ_ ; _-_ to _-ℤ_ ; pos·pos to pos·) hiding (·Assoc)
 open import Cubical.Data.Nat renaming (_·_ to _·ℕ_ ; _+_ to _+ℕ_)
 open import Cubical.Data.Nat.Mod
 open import Cubical.Data.Nat.Order
@@ -78,11 +78,11 @@ rUnitℤ· G (pos zero) = refl
 rUnitℤ· G (pos (suc n)) =
     cong (_·_ (snd G) (1g (snd G)))
       (rUnitℤ· G (pos n))
-  ∙ lid (snd G) (1g (snd G))
+  ∙ ·IdL (snd G) (1g (snd G))
 rUnitℤ· G (negsuc zero) = GroupTheory.inv1g G
 rUnitℤ· G (negsuc (suc n)) =
     cong₂ (_·_ (snd G)) (GroupTheory.inv1g G) (rUnitℤ· G (negsuc n))
-  ∙ lid (snd G) (1g (snd G))
+  ∙ ·IdL (snd G) (1g (snd G))
 
 rUnitℤ·ℤ : (x : ℤ) → (x ℤ[ ℤGroup ]· 1) ≡ x
 rUnitℤ·ℤ (pos zero) = refl
@@ -94,65 +94,65 @@ rUnitℤ·ℤ (negsuc (suc n)) = cong (-1 +ℤ_) (rUnitℤ·ℤ (negsuc n))
 private
   precommℤ : (G : Group ℓ) (g : fst G) (y : ℤ)
            → (snd G · (y ℤ[ G ]· g)) g ≡ (sucℤ y ℤ[ G ]· g)
-  precommℤ G g (pos zero) = lid (snd G) g ∙ sym (rid (snd G) g)
+  precommℤ G g (pos zero) = ·IdL (snd G) g ∙ sym (·IdR (snd G) g)
   precommℤ G g (pos (suc n)) =
-       sym (assoc (snd G) _ _ _)
+       sym (·Assoc (snd G) _ _ _)
      ∙ cong ((snd G · g)) (precommℤ G g (pos n))
-  precommℤ G g (negsuc zero) = invl (snd G) g
+  precommℤ G g (negsuc zero) = ·InvL (snd G) g
   precommℤ G g (negsuc (suc n)) =
-    sym (assoc (snd G) _ _ _)
+    sym (·Assoc (snd G) _ _ _)
     ∙ cong ((snd G · inv (snd G) g)) (precommℤ G g (negsuc n))
     ∙ negsucLem n
     where
     negsucLem : (n : ℕ) → (snd G · inv (snd G) g)
       (sucℤ (negsuc n) ℤ[ G ]· g)
       ≡ (sucℤ (negsuc (suc n)) ℤ[ G ]· g)
-    negsucLem zero = (rid (snd G) _)
+    negsucLem zero = (·IdR (snd G) _)
     negsucLem (suc n) = refl
 
 module _ (G : Group ℓ) (g : fst G) where
   private
     lem : (y : ℤ) → (predℤ y ℤ[ G ]· g)
                    ≡ (snd G · inv (snd G) g) (y ℤ[ G ]· g)
-    lem (pos zero) = sym (rid (snd G) _)
+    lem (pos zero) = sym (·IdR (snd G) _)
     lem (pos (suc n)) =
-         sym (lid (snd G) ((pos n ℤ[ G ]· g)))
+         sym (·IdL (snd G) ((pos n ℤ[ G ]· g)))
       ∙∙ cong (λ x → _·_ (snd G) x (pos n ℤ[ G ]· g))
-              (sym (invl (snd G) g))
-      ∙∙ sym (assoc (snd G) _ _ _)
+              (sym (·InvL (snd G) g))
+      ∙∙ sym (·Assoc (snd G) _ _ _)
     lem (negsuc n) = refl
 
   distrℤ· : (x y : ℤ) → ((x +ℤ y) ℤ[ G ]· g)
            ≡ _·_ (snd G) (x ℤ[ G ]· g) (y ℤ[ G ]· g)
   distrℤ· (pos zero) y = cong (_ℤ[ G ]· g) (+Comm 0 y)
-                            ∙ sym (lid (snd G) _)
+                            ∙ sym (·IdL (snd G) _)
   distrℤ· (pos (suc n)) (pos n₁) =
       cong (_ℤ[ G ]· g) (sym (pos+ (suc n) n₁))
     ∙ cong (_·_ (snd G) g)
            (cong (_ℤ[ G ]· g) (pos+ n n₁) ∙ distrℤ· (pos n) (pos n₁))
-    ∙ assoc (snd G) _ _ _
+    ∙ ·Assoc (snd G) _ _ _
   distrℤ· (pos (suc n)) (negsuc zero) =
       distrℤ· (pos n) 0
-    ∙ ((rid (snd G) (pos n ℤ[ G ]· g) ∙ sym (lid (snd G) (pos n ℤ[ G ]· g)))
+    ∙ ((·IdR (snd G) (pos n ℤ[ G ]· g) ∙ sym (·IdL (snd G) (pos n ℤ[ G ]· g)))
     ∙ cong (λ x → _·_ (snd G) x (pos n ℤ[ G ]· g))
-           (sym (invl (snd G) g)) ∙ sym (assoc (snd G) _ _ _))
-    ∙ (assoc (snd G) _ _ _)
-    ∙ cong (λ x → _·_ (snd G)  x (pos n ℤ[ G ]· g)) (invl (snd G) g)
-    ∙ lid (snd G) _
-    ∙ sym (rid (snd G) _)
-    ∙ (cong (_·_ (snd G) (pos n ℤ[ G ]· g)) (sym (invr (snd G) g))
-    ∙ assoc (snd G) _ _ _)
+           (sym (·InvL (snd G) g)) ∙ sym (·Assoc (snd G) _ _ _))
+    ∙ (·Assoc (snd G) _ _ _)
+    ∙ cong (λ x → _·_ (snd G)  x (pos n ℤ[ G ]· g)) (·InvL (snd G) g)
+    ∙ ·IdL (snd G) _
+    ∙ sym (·IdR (snd G) _)
+    ∙ (cong (_·_ (snd G) (pos n ℤ[ G ]· g)) (sym (·InvR (snd G) g))
+    ∙ ·Assoc (snd G) _ _ _)
     ∙ cong (λ x → _·_ (snd G)  x (inv (snd G) g))
            (precommℤ G g (pos n))
   distrℤ· (pos (suc n)) (negsuc (suc n₁)) =
        cong (_ℤ[ G ]· g) (predℤ+negsuc n₁ (pos (suc n)))
     ∙∙ distrℤ· (pos n) (negsuc n₁)
     ∙∙ (cong (λ x → _·_ (snd G) x (negsuc n₁ ℤ[ G ]· g))
-             ((sym (rid (snd G) (pos n ℤ[ G ]· g))
-             ∙ cong (_·_ (snd G) (pos n ℤ[ G ]· g)) (sym (invr (snd G) g)))
-           ∙∙ assoc (snd G) _ _ _
+             ((sym (·IdR (snd G) (pos n ℤ[ G ]· g))
+             ∙ cong (_·_ (snd G) (pos n ℤ[ G ]· g)) (sym (·InvR (snd G) g)))
+           ∙∙ ·Assoc (snd G) _ _ _
            ∙∙ cong (λ x → _·_ (snd G) x (inv (snd G) g)) (precommℤ G g (pos n)))
-      ∙ sym (assoc (snd G) _ _ _))
+      ∙ sym (·Assoc (snd G) _ _ _))
   distrℤ· (negsuc zero) y =
       cong (_ℤ[ G ]· g) (+Comm -1 y) ∙ lem y
   distrℤ· (negsuc (suc n)) y =
@@ -160,7 +160,7 @@ module _ (G : Group ℓ) (g : fst G) where
     ∙∙ lem (y +negsuc n)
     ∙∙ cong (snd G · inv (snd G) g)
             (cong (_ℤ[ G ]· g) (+Comm y (negsuc n)) ∙ distrℤ· (negsuc n) y)
-     ∙ (assoc (snd G) _ _ _)
+     ∙ (·Assoc (snd G) _ _ _)
 
 GroupHomℤ→ℤpres- : (e : GroupHom ℤGroup ℤGroup) (a : ℤ)
                   → fst e (- a) ≡ - fst e a
@@ -501,7 +501,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
 
             ∙ pres· (isHomℤ→Fin n) (pos (suc n) * x) b
             ∙ cong (_+ₘ ℤ→Fin n b) (lem x)
-            ∙ GroupStr.lid (snd (ℤGroup/ (suc n))) (ℤ→Fin n b))
+            ∙ GroupStr.·IdL (snd (ℤGroup/ (suc n))) (ℤ→Fin n b))
     where
     lem : (x : ℤ) → ℤ→Fin n (pos (suc n) * x) ≡ 0
     lem (pos x) = cong (ℤ→Fin n) (sym (pos· (suc n) x))
@@ -657,3 +657,65 @@ GroupEquiv-abstractℤ/abs-gen G H L e r f g ex n p = main
       transport (λ i
                → GroupEquiv (abstractℤ/≡ℤ (~ i) (p i)) L)
              (GroupEquivℤ/abs-gen G H L e r f g ex)
+
+1∈Im→isEquivℤ : (h : GroupHom ℤGroup ℤGroup) → isInIm h (pos 1) → isEquiv (fst h)
+1∈Im→isEquivℤ h = Prop.rec (isPropIsEquiv _)
+         λ p → GroupEquivℤ-isEquiv idGroupEquiv 1
+                 (λ r → r , (·Comm 1 r ∙ ℤ·≡· r 1)) h (main p)
+   where
+   main : Σ[ x ∈ ℤ ] fst h x ≡ 1 → (fst h 1 ≡ 1) ⊎ (fst h 1 ≡ -1)
+   main (n , p) =
+     ≡±1-id n
+      (fst h (pos 1))
+      h1-id
+      (λ q → snotz (injPos (sym p
+                 ∙∙ cong (fst h) q
+                 ∙∙ IsGroupHom.pres1 (snd h))))
+       λ q → snotz (injPos (sym p
+                   ∙∙ cong (fst h) (·Comm 1 n ∙ ℤ·≡· n 1)
+                   ∙∙ homPresℤ· h 1 n ∙ (cong (n ℤ[ ℤGroup ]·_) q)
+                   ∙∙ sym (ℤ·≡· n 0)
+                   ∙∙ ·Comm n 0))
+     where
+     h1-id : pos 1 ≡ n * fst h (pos 1)
+     h1-id =
+         sym p
+       ∙ cong (fst h) (sym (ℤ·≡· 1 n)
+       ∙∙ ·Comm 1 n ∙∙ ℤ·≡· n 1)
+       ∙ (homPresℤ· h 1 n)
+       ∙ sym (ℤ·≡· n (fst h 1))
+
+     ≡±1-id : (a b : ℤ) → 1 ≡ a * b
+       → ¬ (a ≡ 0) → ¬ (b ≡ 0)
+       → (b ≡ 1) ⊎ (b ≡ -1)
+     ≡±1-id a (pos zero) p a≠0 b≠0 = ⊥-rec (b≠0 refl)
+     ≡±1-id a (pos (suc zero)) p a≠0 b≠0 = inl refl
+     ≡±1-id (pos zero) (pos (suc (suc n))) p a≠0 b≠0 = ⊥-rec (a≠0 refl)
+     ≡±1-id (pos (suc n₁)) (pos (suc (suc n))) p a≠0 b≠0 =
+       ⊥-rec (snotz
+         (cong predℕ (injPos ((pos· (suc n₁) (suc (suc n)) ∙ sym p)))))
+     ≡±1-id (negsuc n₁) (pos (suc (suc n))) p a≠0 b≠0 =
+       ⊥-rec (snotz (sym (injNegsuc (cong (predℤ ∘ predℤ)
+               (p ∙ negsuc·pos n₁ (suc (suc n))
+               ∙ cong (-_) (sym (pos· (suc n₁) (suc (suc n)))))))))
+     ≡±1-id a (negsuc zero) p a≠0 b≠0 = inr refl
+     ≡±1-id (pos zero) (negsuc (suc n)) p a≠0 b≠0 = ⊥-rec (a≠0 refl)
+     ≡±1-id (pos (suc n₁)) (negsuc (suc n)) p a≠0 b≠0 =
+       ⊥-rec (snotz (sym (injNegsuc
+           (cong (predℤ ∘ predℤ) (p ∙ pos·negsuc (suc n₁) (suc n)
+         ∙ cong (-_) (sym (pos· (suc n₁) (suc (suc n)))))))))
+     ≡±1-id (negsuc n₁) (negsuc (suc n)) p a≠0 b≠0 =
+       ⊥-rec (snotz (injPos
+           (sym (cong predℤ (p ∙ negsuc·negsuc n₁ (suc n)
+          ∙ sym (pos· (suc n₁) (suc (suc n))))))))
+
+1∈Im→isEquiv : ∀ (G : Group₀) (e : GroupEquiv ℤGroup G)
+       → (h : GroupHom G ℤGroup)
+       → isInIm (_ , snd h) 1
+       → isEquiv (fst h)
+1∈Im→isEquiv G =
+  GroupEquivJ
+    (λ H _ → (h : GroupHom H ℤGroup)
+       → isInIm (_ , snd h) 1
+       → isEquiv (fst h))
+    1∈Im→isEquivℤ

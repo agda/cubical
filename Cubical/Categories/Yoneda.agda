@@ -177,3 +177,6 @@ module _ {C : Category ℓ ℓ} where
     hcomp
       (λ j → λ{ (i = i0) → ⋆IdL f j; (i = i1) → ⋆IdL g j})
       (yo-yo-yo _ (p i))
+
+  isFullyFaithfulYO : isFullyFaithful YO
+  isFullyFaithfulYO = isFull+Faithful→isFullyFaithful {F = YO} isFullYO isFaithfulYO

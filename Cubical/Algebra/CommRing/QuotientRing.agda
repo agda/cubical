@@ -2,18 +2,21 @@
 module Cubical.Algebra.CommRing.QuotientRing where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
 
-open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
+open import Cubical.HITs.SetQuotients using ([_]; squash/; elimProp2)
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
+open import Cubical.Algebra.CommRing.Kernel
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Ring.QuotientRing renaming (_/_ to _/Ring_) hiding (asRing)
+import Cubical.Algebra.Ring.QuotientRing as Ring
 
 private
   variable
@@ -26,7 +29,7 @@ R / I =
                              (elimProp2 (λ _ _ → squash/ _ _)
                                         commEq))
    where
-       asRing = (CommRing→Ring R) /Ring (CommIdeal→Ideal I)
+       asRing = (CommRing→Ring R) Ring./ (CommIdeal→Ideal I)
        _·/_ : fst asRing → fst asRing → fst asRing
        _·/_ = RingStr._·_ (snd asRing)
        commEq : (x y : fst R) → ([ x ] ·/ [ y ]) ≡ ([ y ] ·/ [ x ])
@@ -36,71 +39,48 @@ R / I =
 [ a ]/ = [ a ]
 
 
---
-
 module Quotient-FGideal-CommRing-Ring
-  (A'@(A , Ar) : CommRing ℓ)
-  (B'@(B , Br) : Ring ℓ')
-  (g'@(g , gr) : RingHom (CommRing→Ring A') B')
+  (A : CommRing ℓ)
+  (B : Ring ℓ')
+  (g : RingHom (CommRing→Ring A) B)
+  {n : ℕ}
+  (v : FinVec ⟨ A ⟩ n)
+  (gnull : (k : Fin n) → g $ v k ≡ RingStr.0r (snd B))
   where
 
-  open CommRingStr Ar using ()
-    renaming
-    ( 0r        to 0A
-    ; 1r        to 1A
-    ; _+_       to _+A_
-    ; -_        to -A_
-    ; _·_       to _·A_ )
+  open RingStr (snd B) using (0r)
 
-  open RingStr Br using ()
-    renaming
-    ( 0r        to 0B
-    ; 1r        to 1B
-    ; _+_       to _+B_
-    ; -_        to -B_
-    ; _·_       to _·B_
-    ; +Lid     to +BIdL
-    ; is-set    to isSetB)
+  zeroOnGeneratedIdeal : (x : ⟨ A ⟩) → x ∈ fst (generatedIdeal A v) → g $ x ≡ 0r
+  zeroOnGeneratedIdeal x x∈FGIdeal =
+    PT.elim
+      (λ _ → isSetRing B (g $ x) 0r)
+      (λ {(α , isLC) → subst _ (sym isLC) (cancelLinearCombination A B g _ α v gnull)})
+      x∈FGIdeal
 
-  open CommRingStr
-  open IsRingHom
-
-
-  module _
-    {n : ℕ}
-    (v : FinVec A n)
-    (gnull : (k : Fin n) → g ( v k) ≡ 0B)
-    where
-
-    f : RingHom (CommRing→Ring (A' / (generatedIdeal _ v))) B'
-    fst f = SQ.rec (isSetB)
-            g
-            λ a b → PT.rec (isSetB _ _)
-                     λ x → g a                                   ≡⟨ cong g (sym (+Rid Ar a)) ⟩
-                     g (a +A 0A)                                  ≡⟨ cong (λ X → g (a +A X)) (sym (snd (+Inv Ar b))) ⟩
-                     g (a +A ((-A b) +A b))                       ≡⟨ cong g (+Assoc Ar a (-A b) b) ⟩
-                     g ((a +A -A b) +A b)                         ≡⟨ pres+ gr (a +A -A b) b ⟩
-                     (g(a +A -A b) +B g b)                        ≡⟨ cong (λ X → g X +B g b) (snd x) ⟩
-                     (g (linearCombination A' (fst x) v) +B g b)  ≡⟨ cong (λ X → X +B g b) (cancelLinearCombination A' B' g' n (fst x) v gnull) ⟩
-                     0B +B g b                                    ≡⟨ +BIdL (g b) ⟩
-                     g b ∎
-    snd f = makeIsRingHom
-            (pres1 gr)
-            (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
-                      λ a → elimProp (λ _ → isSetB _ _)
-                             λ a' → pres+ gr a a')
-            (elimProp (λ x p q i y j → isSetB _ _ (p y) (q y) i j)
-                      λ a → elimProp (λ _ → isSetB _ _)
-                             λ a' → pres· gr a a')
+  inducedHom : RingHom (CommRing→Ring (A / (generatedIdeal _ v))) B
+  inducedHom = Ring.UniversalProperty.inducedHom (CommRing→Ring A) (CommIdeal→Ideal ideal) g zeroOnGeneratedIdeal
+    where ideal = generatedIdeal A v
 
 module Quotient-FGideal-CommRing-CommRing
-  (A'@(A , Ar) : CommRing ℓ)
-  (B'@(B , Br) : CommRing ℓ')
-  (g'@(g , gr) : CommRingHom A' B')
+  (A : CommRing ℓ)
+  (B : CommRing ℓ')
+  (g : CommRingHom A B)
   {n : ℕ}
-  (v : FinVec A n)
-  (gnull : (k : Fin n) → g ( v k) ≡ CommRingStr.0r (snd B'))
+  (v : FinVec ⟨ A ⟩ n)
+  (gnull : (k : Fin n) → g $ v k ≡ CommRingStr.0r (snd B))
   where
 
-  f : CommRingHom (A' / (generatedIdeal _ v)) B'
-  f = Quotient-FGideal-CommRing-Ring.f A' (CommRing→Ring B') g' v gnull
+  inducedHom : CommRingHom (A / (generatedIdeal _ v)) B
+  inducedHom = Quotient-FGideal-CommRing-Ring.inducedHom A (CommRing→Ring B) g v gnull
+
+
+quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
+quotientHom R I = Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
+
+
+module _ {R : CommRing ℓ} (I : IdealsIn R) where
+  private
+    π = quotientHom R I
+
+  kernel≡I : kernelIdeal R (R / I) π ≡ I
+  kernel≡I = cong Ideal→CommIdeal (Ring.kernel≡I (CommIdeal→Ideal I))

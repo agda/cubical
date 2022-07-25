@@ -166,12 +166,12 @@ module JoinSemilattice (L' : Semilattice ℓ) where
   where
   path : (a b c : L) → a ∨l b ≡ b → b ∨l c ≡ c → a ∨l c ≡ c
   path a b c a∨b≡b b∨c≡c = a ∨l c ≡⟨ cong (a ∨l_) (sym b∨c≡c) ⟩
-                            a ∨l (b ∨l c) ≡⟨ assoc _ _ _ ⟩
+                            a ∨l (b ∨l c) ≡⟨ ·Assoc _ _ _ ⟩
                             (a ∨l b) ∨l c ≡⟨ cong (_∨l c) a∨b≡b ⟩
                             b ∨l c ≡⟨ b∨c≡c ⟩
                             c ∎
  IsPoset.is-antisym (PosetStr.isPoset (snd IndPoset)) =
-   λ _ _ a∨b≡b b∨a≡a → sym b∨a≡a ∙∙ comm _ _ ∙∙ a∨b≡b
+   λ _ _ a∨b≡b b∨a≡a → sym b∨a≡a ∙∙ ·Comm _ _ ∙∙ a∨b≡b
 
  ∨lIsMax : ∀ x y z → x ≤ z → y ≤ z → x ∨l y ≤ z
  ∨lIsMax x y z x≤z y≤z = cong ((x ∨l y) ∨l_) (sym (idem z)) ∙ commAssocSwap x y z z
@@ -182,7 +182,7 @@ module JoinSemilattice (L' : Semilattice ℓ) where
  ∨≤LCancel x y = commAssocl y x y ∙ cong (x ∨l_) (idem y)
 
  ∨≤RCancel : ∀ x y → x ≤ x ∨l y
- ∨≤RCancel x y = assoc _ _ _ ∙ cong (_∨l y) (idem x)
+ ∨≤RCancel x y = ·Assoc _ _ _ ∙ cong (_∨l y) (idem x)
 
  ≤-∨Pres : ∀ x y u w → x ≤ y → u ≤ w → x ∨l u ≤ y ∨l w
  ≤-∨Pres x y u w x≤y u≤w = commAssocSwap x u y w ∙ cong₂ (_∨l_) x≤y u≤w
@@ -211,18 +211,18 @@ module MeetSemilattice (L' : Semilattice ℓ) where
   where
   path : (a b c : L) → a ∧l b ≡ a → b ∧l c ≡ b → a ∧l c ≡ a
   path a b c a∧b≡a b∧c≡b = a ∧l c ≡⟨ cong (_∧l c) (sym a∧b≡a) ⟩
-                            (a ∧l b) ∧l c ≡⟨ sym (assoc _ _ _) ⟩
+                            (a ∧l b) ∧l c ≡⟨ sym (·Assoc _ _ _) ⟩
                             a ∧l (b ∧l c) ≡⟨ cong (a ∧l_) b∧c≡b ⟩
                             a ∧l b ≡⟨ a∧b≡a ⟩
                             a ∎
  IsPoset.is-antisym (PosetStr.isPoset (snd IndPoset)) =
-   λ _ _ a∧b≡a b∧a≡b → sym a∧b≡a ∙∙ comm _ _ ∙∙ b∧a≡b
+   λ _ _ a∧b≡a b∧a≡b → sym a∧b≡a ∙∙ ·Comm _ _ ∙∙ b∧a≡b
 
  ≤-∧LPres : ∀ x y z → x ≤ y → z ∧l x ≤ z ∧l y
  ≤-∧LPres x y z x≤y = commAssocSwap z x z y ∙∙ cong (_∧l (x ∧l y)) (idem z) ∙∙ cong (z ∧l_) x≤y
 
  ∧≤LCancel : ∀ x y → x ∧l y ≤ y
- ∧≤LCancel x y = sym (assoc _ _ _) ∙ cong (x ∧l_) (idem y)
+ ∧≤LCancel x y = sym (·Assoc _ _ _) ∙ cong (x ∧l_) (idem y)
 
  ∧≤RCancel : ∀ x y → x ∧l y ≤ x
  ∧≤RCancel x y = commAssocr x y x ∙ cong (_∧l y) (idem x)

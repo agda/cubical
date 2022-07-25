@@ -22,16 +22,16 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int renaming (ℤGroup to ℤG)
-open import Cubical.Algebra.DirectSum.Base
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
+
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.Polynomials.Multivariate.Base renaming (base to baseP)
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ
 
 open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _/sq_)
@@ -51,6 +51,8 @@ module Equiv-S1-Properties where
 -----------------------------------------------------------------------------
 -- Definitions
 
+  open gradedRingProperties
+
   open CommRingStr (snd ℤCR) using ()
     renaming
     ( 0r        to 0ℤ
@@ -59,19 +61,13 @@ module Equiv-S1-Properties where
     ; -_        to -ℤ_
     ; _·_       to _·ℤ_
     ; +Assoc    to +ℤAssoc
-    ; +Identity to +ℤIdentity
-    ; +Lid      to +ℤLid
-    ; +Rid      to +ℤRid
-    ; +Inv      to +ℤInv
-    ; +Linv     to +ℤLinv
-    ; +Rinv     to +ℤRinv
+    ; +IdL      to +ℤIdL
+    ; +IdR      to +ℤIdR
     ; +Comm     to +ℤComm
     ; ·Assoc    to ·ℤAssoc
-    ; ·Identity to ·ℤIdentity
-    ; ·Lid      to ·ℤLid
-    ; ·Rid      to ·ℤRid
-    ; ·Rdist+   to ·ℤRdist+
-    ; ·Ldist+   to ·ℤLdist+
+    ; ·IdL      to ·ℤIdL
+    ; ·IdR      to ·ℤIdR
+    ; ·DistR+   to ·ℤDistR+
     ; is-set    to isSetℤ     )
 
   open RingStr (snd (H*R (S₊ 1))) using ()
@@ -82,19 +78,13 @@ module Equiv-S1-Properties where
     ; -_        to -H*_
     ; _·_       to _cup_
     ; +Assoc    to +H*Assoc
-    ; +Identity to +H*Identity
-    ; +Lid      to +H*Lid
-    ; +Rid      to +H*Rid
-    ; +Inv      to +H*Inv
-    ; +Linv     to +H*Linv
-    ; +Rinv     to +H*Rinv
+    ; +IdL      to +H*IdL
+    ; +IdR      to +H*IdR
     ; +Comm     to +H*Comm
     ; ·Assoc    to ·H*Assoc
-    ; ·Identity to ·H*Identity
-    ; ·Lid      to ·H*Lid
-    ; ·Rid      to ·H*Rid
-    ; ·Rdist+   to ·H*Rdist+
-    ; ·Ldist+   to ·H*Ldist+
+    ; ·IdL      to ·H*IdL
+    ; ·IdR      to ·H*IdR
+    ; ·DistR+   to ·H*DistR+
     ; is-set    to isSetH*     )
 
   open CommRingStr (snd ℤ[X]) using ()
@@ -105,20 +95,14 @@ module Equiv-S1-Properties where
     ; -_        to -Pℤ_
     ; _·_       to _·Pℤ_
     ; +Assoc    to +PℤAssoc
-    ; +Identity to +PℤIdentity
-    ; +Lid      to +PℤLid
-    ; +Rid      to +PℤRid
-    ; +Inv      to +PℤInv
-    ; +Linv     to +PℤLinv
-    ; +Rinv     to +PℤRinv
+    ; +IdL      to +PℤIdL
+    ; +IdR      to +PℤIdR
     ; +Comm     to +PℤComm
     ; ·Assoc    to ·PℤAssoc
-    ; ·Identity to ·PℤIdentity
-    ; ·Lid      to ·PℤLid
-    ; ·Rid      to ·PℤRid
+    ; ·IdL      to ·PℤIdL
+    ; ·IdR      to ·PℤIdR
     ; ·Comm     to ·PℤComm
-    ; ·Rdist+   to ·PℤRdist+
-    ; ·Ldist+   to ·PℤLdist+
+    ; ·DistR+   to ·PℤDistR+
     ; is-set    to isSetPℤ     )
 
   open CommRingStr (snd ℤ[X]/X²) using ()
@@ -129,31 +113,25 @@ module Equiv-S1-Properties where
     ; -_        to -PℤI_
     ; _·_       to _·PℤI_
     ; +Assoc    to +PℤIAssoc
-    ; +Identity to +PℤIIdentity
-    ; +Lid      to +PℤILid
-    ; +Rid      to +PℤIRid
-    ; +Inv      to +PℤIInv
-    ; +Linv     to +PℤILinv
-    ; +Rinv     to +PℤIRinv
+    ; +IdL      to +PℤIIdL
+    ; +IdR      to +PℤIIdR
     ; +Comm     to +PℤIComm
     ; ·Assoc    to ·PℤIAssoc
-    ; ·Identity to ·PℤIIdentity
-    ; ·Lid      to ·PℤILid
-    ; ·Rid      to ·PℤIRid
-    ; ·Rdist+   to ·PℤIRdist+
-    ; ·Ldist+   to ·PℤILdist+
+    ; ·IdL      to ·PℤIIdL
+    ; ·IdR      to ·PℤIIdR
+    ; ·DistR+   to ·PℤIDistR+
     ; is-set    to isSetPℤI     )
 
 -----------------------------------------------------------------------------
 -- Direct Sens on ℤ[x]
 
   ℤ[x]→H*-S¹ : ℤ[x] → H* (S₊ 1)
-  ℤ[x]→H*-S¹ = Poly-Rec-Set.f _ _ _ isSetH*
+  ℤ[x]→H*-S¹ = DS-Rec-Set.f _ _ _ _ isSetH*
                   0H*
                   base-trad
                   _+H*_
                   +H*Assoc
-                  +H*Rid
+                  +H*IdR
                   +H*Comm
                   base-neutral-eq
                   base-add-eq
@@ -174,7 +152,7 @@ module Equiv-S1-Properties where
                base-add-eq : _
                base-add-eq (zero ∷ []) a b        = (base-add _ _ _) ∙ (cong (base 0) (sym (IsGroupHom.pres· (snd (invGroupIso (Hᵐ-Sⁿ 0 1))) a b)))
                base-add-eq (one ∷ []) a b         = (base-add _ _ _) ∙ (cong (base 1) (sym (IsGroupHom.pres· (snd (invGroupIso (Hᵐ-Sⁿ 1 1))) a b)))
-               base-add-eq (suc (suc n) ∷ []) a b = +H*Rid _
+               base-add-eq (suc (suc n) ∷ []) a b = +H*IdR _
 
 -----------------------------------------------------------------------------
 -- Morphism on ℤ[x]
@@ -225,12 +203,12 @@ module Equiv-S1-Properties where
 
 -- Nice packaging of the proof
   pres·-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
-                ℤ[x]→H*-S¹ (baseP (n ∷ []) a ·Pℤ baseP (m ∷ []) b)
-              ≡ ℤ[x]→H*-S¹ (baseP (n ∷ []) a) cup ℤ[x]→H*-S¹ (baseP (m ∷ []) b)
+                ℤ[x]→H*-S¹ (base (n ∷ []) a ·Pℤ base (m ∷ []) b)
+              ≡ ℤ[x]→H*-S¹ (base (n ∷ []) a) cup ℤ[x]→H*-S¹ (base (m ∷ []) b)
   pres·-base-case-int zero          a zero          b = cong (base 0) (pres·-base-case-00 a b)
   pres·-base-case-int zero          a one           b = cong (base 1) (pres·-base-case-01 a b)
   pres·-base-case-int zero          a (suc (suc m)) b = refl
-  pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-S¹ (·PℤComm (baseP (1 ∷ []) a) (baseP (zero ∷ []) b))
+  pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-S¹ (·PℤComm (base (1 ∷ []) a) (base (zero ∷ []) b))
                                                          ∙ pres·-base-case-int 0 b 1 a
                                                          ∙ gradCommRing (S₊ 1) 0 1 (inv (fst (Hᵐ-Sⁿ 0 1)) b) (inv (fst (Hᵐ-Sⁿ 1 1)) a)
   pres·-base-case-int one           a one           b = sym (base-neutral 2) ∙
@@ -240,23 +218,23 @@ module Equiv-S1-Properties where
 
 
   pres·-base-case-vec : (v : Vec ℕ 1) → (a : ℤ) → (v' : Vec ℕ 1) → (b : ℤ) →
-                ℤ[x]→H*-S¹ (baseP v a ·Pℤ baseP v' b)
-              ≡ ℤ[x]→H*-S¹ (baseP v a) cup ℤ[x]→H*-S¹ (baseP v' b)
+                ℤ[x]→H*-S¹ (base v a ·Pℤ base v' b)
+              ≡ ℤ[x]→H*-S¹ (base v a) cup ℤ[x]→H*-S¹ (base v' b)
   pres·-base-case-vec (n ∷ []) a (m ∷ []) b = pres·-base-case-int n a m b
 
   -- proof of the morphism
   ℤ[x]→H*-S¹-pres· : (x y : ℤ[x]) → ℤ[x]→H*-S¹ (x ·Pℤ y) ≡ ℤ[x]→H*-S¹ x cup ℤ[x]→H*-S¹ y
-  ℤ[x]→H*-S¹-pres· = Poly-Ind-Prop.f _ _ _
+  ℤ[x]→H*-S¹-pres· = DS-Ind-Prop.f _ _ _ _
                          (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                          (λ y → refl)
                          base-case
                          λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
     where
     base-case : _
-    base-case (n ∷ []) a = Poly-Ind-Prop.f _ _ _ (λ _ → isSetH* _ _)
+    base-case (n ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R (S₊ 1)) _))
                            (λ v' b → pres·-base-case-vec (n ∷ []) a v' b)
-                           λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*Rdist+ _ _ _)
+                           λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
 -----------------------------------------------------------------------------
@@ -270,7 +248,8 @@ module Equiv-S1-Properties where
   snd ℤ[X]→H*-S¹ = makeIsRingHom ℤ[x]→H*-S¹-pres1Pℤ ℤ[x]→H*-S¹-pres+ ℤ[x]→H*-S¹-pres·
 
   ℤ[X]/X²→H*R-S¹ : RingHom (CommRing→Ring ℤ[X]/X²) (H*R (S₊ 1))
-  ℤ[X]/X²→H*R-S¹ = Quotient-FGideal-CommRing-Ring.f ℤ[X] (H*R (S₊ 1)) ℤ[X]→H*-S¹ <X²> ℤ[x]→H*-S¹-cancelX
+  ℤ[X]/X²→H*R-S¹ =
+    Quotient-FGideal-CommRing-Ring.inducedHom ℤ[X] (H*R (S₊ 1)) ℤ[X]→H*-S¹ <X²> ℤ[x]→H*-S¹-cancelX
 
   ℤ[x]/x²→H*-S¹ : ℤ[x]/x² → H* (S₊ 1)
   ℤ[x]/x²→H*-S¹ = fst ℤ[X]/X²→H*R-S¹
@@ -286,25 +265,25 @@ module Equiv-S1-Properties where
                   base-trad
                   _+Pℤ_
                   +PℤAssoc
-                  +PℤRid
+                  +PℤIdR
                   +PℤComm
                   base-neutral-eq
                   base-add-eq
                where
                base-trad : _
-               base-trad zero a          = baseP (0 ∷ []) (fun (fst (Hᵐ-Sⁿ 0 1)) a)
-               base-trad one a           = baseP (1 ∷ []) (fun (fst (Hᵐ-Sⁿ 1 1)) a)
+               base-trad zero a          = base (0 ∷ []) (fun (fst (Hᵐ-Sⁿ 0 1)) a)
+               base-trad one a           = base (1 ∷ []) (fun (fst (Hᵐ-Sⁿ 1 1)) a)
                base-trad (suc (suc n)) a = 0Pℤ
 
                base-neutral-eq : _
-               base-neutral-eq zero          = cong (baseP (0 ∷ [])) (IsGroupHom.pres1 (snd (Hᵐ-Sⁿ 0 1))) ∙ base-0P _
-               base-neutral-eq one           = cong (baseP (1 ∷ [])) (IsGroupHom.pres1 (snd (Hᵐ-Sⁿ 1 1))) ∙ base-0P _
+               base-neutral-eq zero          = cong (base (0 ∷ [])) (IsGroupHom.pres1 (snd (Hᵐ-Sⁿ 0 1))) ∙ base-neutral _
+               base-neutral-eq one           = cong (base (1 ∷ [])) (IsGroupHom.pres1 (snd (Hᵐ-Sⁿ 1 1))) ∙ base-neutral _
                base-neutral-eq (suc (suc n)) = refl
 
                base-add-eq : _
-               base-add-eq zero a b        = (base-poly+ _ _ _) ∙ (cong (baseP (0 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 0 1)) a b)))
-               base-add-eq one a b         = (base-poly+ _ _ _) ∙ (cong (baseP (1 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 1 1)) a b)))
-               base-add-eq (suc (suc n)) a b = +PℤRid _
+               base-add-eq zero a b        = (base-add _ _ _) ∙ (cong (base (0 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 0 1)) a b)))
+               base-add-eq one a b         = (base-add _ _ _) ∙ (cong (base (1 ∷ [])) (sym (IsGroupHom.pres· (snd (Hᵐ-Sⁿ 1 1)) a b)))
+               base-add-eq (suc (suc n)) a b = +PℤIdR _
 
   H*-S¹→ℤ[x]-pres+ : (x y : H* (S₊ 1)) → H*-S¹→ℤ[x] ( x +H* y) ≡ H*-S¹→ℤ[x] x +Pℤ H*-S¹→ℤ[x] y
   H*-S¹→ℤ[x]-pres+ x y = refl
@@ -338,19 +317,18 @@ module Equiv-S1-Properties where
 
   e-retr : (x : ℤ[x]/x²) → H*-S¹→ℤ[x]/x² (ℤ[x]/x²→H*-S¹ x) ≡ x
   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-           (Poly-Ind-Prop.f _ _ _ (λ _ → isSetPℤI _ _)
+           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
            refl
            base-case
            λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
            where
            base-case : _
-           base-case (zero ∷ [])        a = cong [_] (cong (baseP (0 ∷ [])) (rightInv (fst (Hᵐ-Sⁿ 0 1)) a))
-           base-case (one ∷ [])         a = cong [_] (cong (baseP (1 ∷ [])) (rightInv (fst (Hᵐ-Sⁿ 1 1)) a))
-           base-case (suc (suc n) ∷ []) a = eq/ 0Pℤ (baseP (suc (suc n) ∷ []) a) ∣ ((λ x → baseP (n ∷ []) (-ℤ a)) , helper) ∣₁
+           base-case (zero ∷ [])        a = cong [_] (cong (base (0 ∷ [])) (rightInv (fst (Hᵐ-Sⁿ 0 1)) a))
+           base-case (one ∷ [])         a = cong [_] (cong (base (1 ∷ [])) (rightInv (fst (Hᵐ-Sⁿ 1 1)) a))
+           base-case (suc (suc n) ∷ []) a = eq/ 0Pℤ (base (suc (suc n) ∷ []) a) ∣ ((λ x → base (n ∷ []) (-ℤ a)) , helper) ∣₁
              where
              helper : _
-             helper = (+PℤLid _) ∙ cong₂ baseP (cong (λ X → X ∷ []) (sym (+-comm n 2))) (sym (·ℤRid _)) ∙ (sym (+PℤRid _))
-
+             helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+-comm n 2))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
 
 
 -----------------------------------------------------------------------------
@@ -371,4 +349,4 @@ module _ where
   snd S¹-CohomologyRing = snd ℤ[X]/X²→H*R-S¹
 
   CohomologyRing-S¹ : RingEquiv (H*R (S₊ 1)) (CommRing→Ring ℤ[X]/X²)
-  CohomologyRing-S¹ = RingEquivs.invEquivRing S¹-CohomologyRing
+  CohomologyRing-S¹ = RingEquivs.invRingEquiv S¹-CohomologyRing

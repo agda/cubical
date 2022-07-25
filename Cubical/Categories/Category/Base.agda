@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Powerset
+open import Cubical.Data.Sigma
 
 private
   variable
@@ -51,39 +52,62 @@ comp' = _∘_
 infixr 16 comp'
 syntax comp' C g f = g ∘⟨ C ⟩ f
 
+
 -- Isomorphisms and paths in categories
-record CatIso (C : Category ℓ ℓ') (x y : C .ob) : Type ℓ' where
-  constructor catiso
+
+record isIso (C : Category ℓ ℓ'){x y : C .ob}(f : C [ x , y ]) : Type ℓ' where
+  constructor isiso
   field
-    mor : C [ x , y ]
     inv : C [ y , x ]
-    sec : inv ⋆⟨ C ⟩ mor ≡ C .id
-    ret : mor ⋆⟨ C ⟩ inv ≡ C .id
+    sec : inv ⋆⟨ C ⟩ f ≡ C .id
+    ret : f ⋆⟨ C ⟩ inv ≡ C .id
+
+open isIso
+
+isPropIsIso : {C : Category ℓ ℓ'}{x y : C .ob}(f : C [ x , y ]) → isProp (isIso C f)
+isPropIsIso {C = C} f p q i .inv =
+    (sym (C .⋆IdL _)
+  ∙ (λ i → q .sec (~ i) ⋆⟨ C ⟩ p .inv)
+  ∙ C .⋆Assoc _ _ _
+  ∙ (λ i → q .inv ⋆⟨ C ⟩ p .ret i)
+  ∙ C .⋆IdR _) i
+isPropIsIso {C = C} f p q i .sec j =
+  isSet→SquareP (λ i j → C .isSetHom)
+    (p .sec) (q .sec) (λ i → isPropIsIso {C = C} f p q i .inv ⋆⟨ C ⟩ f) refl i j
+isPropIsIso {C = C} f p q i .ret j =
+  isSet→SquareP (λ i j → C .isSetHom)
+    (p .ret) (q .ret) (λ i → f ⋆⟨ C ⟩ isPropIsIso {C = C} f p q i .inv) refl i j
+
+
+CatIso : (C : Category ℓ ℓ') (x y : C .ob) → Type ℓ'
+CatIso C x y = Σ[ f ∈ C [ x , y ] ] isIso C f
+
+CatIso≡ : {C : Category ℓ ℓ'}{x y : C .ob}(f g : CatIso C x y) → f .fst ≡ g .fst → f ≡ g
+CatIso≡ f g = Σ≡Prop isPropIsIso
+
+-- `constructor` of CatIso
+catiso : {C : Category ℓ ℓ'}{x y : C .ob}
+  → (mor : C [ x , y ])
+  → (inv : C [ y , x ])
+  → (sec : inv ⋆⟨ C ⟩ mor ≡ C .id)
+  → (ret : mor ⋆⟨ C ⟩ inv ≡ C .id)
+  → CatIso C x y
+catiso mor inv sec ret = mor , isiso inv sec ret
+
 
 idCatIso : {C : Category ℓ ℓ'} {x : C .ob} → CatIso C x x
-idCatIso {C = C} = (catiso (C .id) (C .id) (C .⋆IdL (C .id)) (C .⋆IdL (C .id)))
+idCatIso {C = C} = C .id , isiso (C .id) (C .⋆IdL (C .id)) (C .⋆IdL (C .id))
 
 isSet-CatIso : {C : Category ℓ ℓ'} → ∀ x y → isSet (CatIso C x y)
-isSet-CatIso {C = C} x y F G p q = w
-  where
-    w : _
-    CatIso.mor (w i j) = isSetHom C _ _ (cong CatIso.mor p) (cong CatIso.mor q) i j
-    CatIso.inv (w i j) = isSetHom C _ _ (cong CatIso.inv p) (cong CatIso.inv q) i j
-    CatIso.sec (w i j) =
-       isSet→SquareP
-       (λ i j → isProp→isSet {A = CatIso.inv (w i j) ⋆⟨ C ⟩ CatIso.mor (w i j) ≡ C .id} (isSetHom C _ _))
-       (cong CatIso.sec p) (cong CatIso.sec q) (λ _ → CatIso.sec F) (λ _ → CatIso.sec G) i j
-    CatIso.ret (w i j) =
-       isSet→SquareP
-       (λ i j → isProp→isSet {A = CatIso.mor (w i j) ⋆⟨ C ⟩ CatIso.inv (w i j) ≡ C .id} (isSetHom C _ _))
-       (cong CatIso.ret p) (cong CatIso.ret q) (λ _ → CatIso.ret F) (λ _ → CatIso.ret G) i j
+isSet-CatIso {C = C} x y = isOfHLevelΣ 2 (C .isSetHom) (λ f → isProp→isSet (isPropIsIso f))
 
 
 pathToIso : {C : Category ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → CatIso C x y
-pathToIso {C = C} p = J (λ z _ → CatIso _ _ z) idCatIso p
+pathToIso {C = C} p = J (λ z _ → CatIso C _ z) idCatIso p
 
 pathToIso-refl : {C : Category ℓ ℓ'} {x : C .ob} → pathToIso {C = C} {x} refl ≡ idCatIso
 pathToIso-refl {C = C} {x} = JRefl (λ z _ → CatIso C x z) (idCatIso)
+
 
 -- Univalent Categories
 record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
@@ -96,11 +120,11 @@ record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
 
   -- The function extracting paths from category-theoretic isomorphisms.
   CatIsoToPath : {x y : C .ob} (p : CatIso _ x y) → x ≡ y
-  CatIsoToPath {x = x} {y = y} p =
-    equivFun (invEquiv (univEquiv x y)) p
+  CatIsoToPath = invEq (univEquiv _ _)
 
   isGroupoid-ob : isGroupoid (C .ob)
   isGroupoid-ob = isOfHLevelPath'⁻ 2 (λ _ _ → isOfHLevelRespectEquiv 2 (invEquiv (univEquiv _ _)) (isSet-CatIso _ _))
+
 
 -- Opposite category
 _^op : Category ℓ ℓ' → Category ℓ ℓ'

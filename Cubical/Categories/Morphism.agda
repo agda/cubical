@@ -39,12 +39,6 @@ module _ (C : Category ℓ ℓ') where
       sec : g ⋆ f ≡ id
       ret : f ⋆ g ≡ id
 
-  record isIso (f : Hom[ x , y ]) : Type ℓ' where
-    field
-      inv : Hom[ y , x ]
-      sec : inv ⋆ f ≡ id
-      ret : f ⋆ inv ≡ id
-
 
 -- C can be implicit here
 module _ {C : Category ℓ ℓ'} where
@@ -101,29 +95,24 @@ module _ {C : Category ℓ ℓ'} where
   sec (isIso→areInv isI) = sec isI
   ret (isIso→areInv isI) = ret isI
 
-  open CatIso
 
-  -- isIso agrees with CatIso
+  -- Back and forth between isIso and CatIso
+
   isIso→CatIso : ∀ {f : C [ x , y ]}
                → isIso C f
                → CatIso C x y
-  mor (isIso→CatIso {f = f} x) = f
-  inv (isIso→CatIso x) = inv x
-  sec (isIso→CatIso x) = sec x
-  ret (isIso→CatIso x) = ret x
+  isIso→CatIso x = _ , x
 
   CatIso→isIso : (cIso : CatIso C x y)
-               → isIso C (cIso .mor)
-  inv (CatIso→isIso f) = inv f
-  sec (CatIso→isIso f) = sec f
-  ret (CatIso→isIso f) = ret f
+               → isIso C (cIso .fst)
+  CatIso→isIso = snd
 
   CatIso→areInv : (cIso : CatIso C x y)
-                → areInv C (cIso .mor) (cIso .inv)
+                → areInv C (cIso .fst) (cIso .snd .inv)
   CatIso→areInv cIso = isIso→areInv (CatIso→isIso cIso)
 
   -- reverse of an iso is also an iso
   symCatIso : ∀ {x y}
              → CatIso C x y
              → CatIso C y x
-  symCatIso (catiso mor inv sec ret) = catiso inv mor ret sec
+  symCatIso (mor , isiso inv sec ret) = inv , isiso mor ret sec

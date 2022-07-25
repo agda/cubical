@@ -11,16 +11,17 @@ open import Cubical.Data.Vec
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
 
+open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
 
-open import Cubical.Algebra.Polynomials.Multivariate.Base
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.MultivariatePoly-notationZ
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
+     renaming (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
+open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ
 
 open import Cubical.Relation.Nullary
 
@@ -59,19 +60,16 @@ module Properties-Equiv-QuotientXn-A
     ; -_        to -A_
     ; _·_       to _·A_
     ; +Assoc    to +AAssoc
-    ; +Identity to +AIdentity
-    ; +Lid      to +ALid
-    ; +Rid      to +ARid
-    ; +Inv      to +AInv
-    ; +Linv     to +ALinv
-    ; +Rinv     to +ARinv
+    ; +IdL      to +AIdL
+    ; +IdR      to +AIdR
+    ; +InvL     to +AInvL
+    ; +InvR     to +AInvR
     ; +Comm     to +AComm
     ; ·Assoc    to ·AAssoc
-    ; ·Identity to ·AIdentity
-    ; ·Lid      to ·ALid
-    ; ·Rid      to ·ARid
-    ; ·Rdist+   to ·ARdist+
-    ; ·Ldist+   to ·ALdist+
+    ; ·IdL      to ·AIdL
+    ; ·IdR      to ·AIdR
+    ; ·DistR+   to ·ADistR+
+    ; ·DistL+   to ·ADistL+
     ; is-set    to isSetA     )
 
   open CommRingStr (snd A[X] ) using ()
@@ -82,20 +80,17 @@ module Properties-Equiv-QuotientXn-A
     ; -_        to -PA_
     ; _·_       to _·PA_
     ; +Assoc    to +PAAssoc
-    ; +Identity to +PAIdentity
-    ; +Lid      to +PALid
-    ; +Rid      to +PARid
-    ; +Inv      to +PAInv
-    ; +Linv     to +PALinv
-    ; +Rinv     to +PARinv
+    ; +IdL      to +PAIdL
+    ; +IdR      to +PAIdR
+    ; +InvL     to +PAInvL
+    ; +InvR     to +PAInvR
     ; +Comm     to +PAComm
     ; ·Assoc    to ·PAAssoc
-    ; ·Identity to ·PAIdentity
-    ; ·Lid      to ·PALid
-    ; ·Rid      to ·PARid
+    ; ·IdL      to ·PAIdL
+    ; ·IdR      to ·PAIdR
     ; ·Comm     to ·PAComm
-    ; ·Rdist+   to ·PARdist+
-    ; ·Ldist+   to ·PALdist+
+    ; ·DistR+   to ·PADistR+
+    ; ·DistL+   to ·PADistL+
     ; is-set    to isSetPA     )
 
   open CommRingStr (snd A[X]/X) using ()
@@ -106,19 +101,16 @@ module Properties-Equiv-QuotientXn-A
     ; -_        to -PAI_
     ; _·_       to _·PAI_
     ; +Assoc    to +PAIAssoc
-    ; +Identity to +PAIIdentity
-    ; +Lid      to +PAILid
-    ; +Rid      to +PAIRid
-    ; +Inv      to +PAIInv
-    ; +Linv     to +PAILinv
-    ; +Rinv     to +PAIRinv
+    ; +IdL      to +PAIIdL
+    ; +IdR      to +PAIIdR
+    ; +InvL     to +PAIInvL
+    ; +InvR     to +PAIInvR
     ; +Comm     to +PAIComm
     ; ·Assoc    to ·PAIAssoc
-    ; ·Identity to ·PAIIdentity
-    ; ·Lid      to ·PAILid
-    ; ·Rid      to ·PAIRid
-    ; ·Rdist+   to ·PAIRdist+
-    ; ·Ldist+   to ·PAILdist+
+    ; ·IdL      to ·PAIIdL
+    ; ·IdR      to ·PAIIdR
+    ; ·DistR+   to ·PAIDistR+
+    ; ·DistL+   to ·PAIDistL+
     ; is-set    to isSetPAI     )
 
   open RingTheory
@@ -128,12 +120,12 @@ module Properties-Equiv-QuotientXn-A
 -- Direct sens
 
   A[x]→A : A[x] → A
-  A[x]→A = Poly-Rec-Set.f _ _ _ isSetA
+  A[x]→A = DS-Rec-Set.f _ _ _ _ isSetA
           0A
           base-trad
           _+A_
           +AAssoc
-          +ARid
+          +AIdR
           +AComm
           base-neutral-eq
           base-add-eq
@@ -149,7 +141,7 @@ module Properties-Equiv-QuotientXn-A
 
        base-add-eq : _
        base-add-eq (zero ∷ []) a b = refl
-       base-add-eq (suc k ∷ []) a b = +ARid _
+       base-add-eq (suc k ∷ []) a b = +AIdR _
 
   A[x]→A-pres1 : A[x]→A 1PA ≡ 1A
   A[x]→A-pres1 = refl
@@ -158,14 +150,14 @@ module Properties-Equiv-QuotientXn-A
   A[x]→A-pres+ x y = refl
 
   A[x]→A-pres· : (x y : A[x]) → (A[x]→A (x ·PA y)) ≡ A[x]→A x ·A A[x]→A y
-  A[x]→A-pres· = Poly-Ind-Prop.f _ _ _
+  A[x]→A-pres· = DS-Ind-Prop.f _ _ _ _
                (λ x u v i y → isSetA _ _ (u y) (v y) i)
                (λ y → sym (0LeftAnnihilates (CommRing→Ring Ar) _))
-               (λ v a → Poly-Ind-Prop.f _ _ _ (λ _ → isSetA _ _)
+               (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetA _ _)
                          (sym (0RightAnnihilates (CommRing→Ring Ar) _))
                          (λ v' a' → base-eq a a' v v')
-                         (λ {U V} ind-U ind-V → cong₂ _+A_ ind-U ind-V ∙ sym (·ARdist+ _ _ _)))
-               λ {U V} ind-U ind-V y → cong₂ _+A_ (ind-U y) (ind-V y) ∙ sym (·ALdist+ _ _ _)
+                         (λ {U V} ind-U ind-V → cong₂ _+A_ ind-U ind-V ∙ sym (·ADistR+ _ _ _)))
+               λ {U V} ind-U ind-V y → cong₂ _+A_ (ind-U y) (ind-V y) ∙ sym (·ADistL+ _ _ _)
             where
             base-eq : (a a' : A) → (v v' : Vec ℕ 1) → (A[x]→A (base v a ·PA base v' a')) ≡ A[x]→A (base v a) ·A A[x]→A (base v' a')
             base-eq a a' (zero ∷ []) (zero ∷ []) = refl
@@ -180,7 +172,7 @@ module Properties-Equiv-QuotientXn-A
   A[x]→A-cancel zero = refl
 
   A[X]/X→A : CommRingHom A[X]/X Ar
-  A[X]/X→A = Quotient-FGideal-CommRing-CommRing.f A[X] Ar A[X]→A (<Xkʲ> Ar 1 0 1) A[x]→A-cancel
+  A[X]/X→A = Quotient-FGideal-CommRing-CommRing.inducedHom A[X] Ar A[X]→A (<Xkʲ> Ar 1 0 1) A[x]→A-cancel
 
   A[x]/x→A : A[x]/x → A
   A[x]/x→A = fst A[X]/X→A
@@ -194,7 +186,7 @@ module Properties-Equiv-QuotientXn-A
   A→A[x] a = base (0 ∷ []) a
 
   A→A[x]-pres+ : (a a' : A) → A→A[x] (a +A a') ≡ A→A[x] a +PA A→A[x] a'
-  A→A[x]-pres+ a a' = sym (base-poly+ (0 ∷ []) a a')
+  A→A[x]-pres+ a a' = sym (base-add (0 ∷ []) a a')
 
   A→A[x]/x : A → A[x]/x
   A→A[x]/x = [_] ∘ A→A[x]
@@ -217,8 +209,8 @@ module Properties-Equiv-QuotientXn-A
 
   e-retr : (x : A[x]/x) → A→A[x]/x (A[x]/x→A x) ≡ x
   e-retr = SQ.elimProp (λ x → isSetPAI _ _)
-           (Poly-Ind-Prop.f _ _ _ (λ x → isSetPAI _ _)
-           (cong [_] (base-0P _))
+           (DS-Ind-Prop.f _ _ _ _ (λ x → isSetPAI _ _)
+           (cong [_] (base-neutral _))
            (λ v a → base-eq a v)
            λ {U V} ind-U ind-V → cong [_] ((A→A[x]-pres+ _ _)) ∙ cong₂ _+PAI_ ind-U ind-V)
 
@@ -228,12 +220,12 @@ module Properties-Equiv-QuotientXn-A
          base-eq a (suc k ∷ []) = eq/ (base (0 ∷ []) 0A) (base (suc k ∷ []) a) ∣ ((λ x → base (k ∷ []) (-A a)) , helper) ∣₁
            where
            helper : _
-           helper = cong (λ X → X poly+ base (suc k ∷ []) (-A a)) (base-0P _)
-                     ∙ +PALid _
-                     ∙ sym (+PARid _
+           helper = cong (λ X → X +PA base (suc k ∷ []) (-A a)) (base-neutral _)
+                     ∙ +PAIdL _
+                     ∙ sym (+PAIdR _
                             ∙ cong₂ base
                                     (cong (λ X → X ∷ []) (+-suc _ _ ∙ +-zero _))
-                                    (·ARid _))
+                                    (·AIdR _))
 
 
 module _
