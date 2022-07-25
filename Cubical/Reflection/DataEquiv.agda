@@ -1,3 +1,4 @@
+{-# OPTIONS --no-exact-split --safe #-}
 {-
   Reflection-based isomorphism between a non-recursive data type and a coproduct of Σ-types.
 -}
