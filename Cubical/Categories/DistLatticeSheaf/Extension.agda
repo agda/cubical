@@ -521,7 +521,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       fromUnivProp = limitC ⋁α↓ (F* (⋁ α)) .univProp c (lemma1 c cc)
 
 
-  module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L')
+  module ++Lemmas {c : ob C} {n' : ℕ} {γ : FinVec (fst L) n'} {γ∈L' : ∀ i → γ i ∈ L'}
                   (ccγ : Cone (funcComp F (BDiag (λ i → γ i , γ∈L' i))) c) where
 
     private
@@ -721,12 +721,56 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
               λ h' trs → cong fst (applyLemma4 f g square .snd (h' , toConeMor f g square h' trs))
         where -- this is where we apply our lemmas
         theLimit = limitC _ (F* (⋁ (β ++Fin γ)))
-        -- should toCone and toConeMor be upstreamed?
+
         -- open FinSumChar renaming (fun to FSCfun ; inv to FSCinv ; sec to FSCsec)
         toCone : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
                → f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂
                → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' i))) c
-        toCone = {!!}
+        toCone f g square = ++Lemmas.toCone (f ★ (restCone γ γ∈L')) (g ★ (restCone β β∈L')) indSquare
+          where
+          F[⋁β]Cone = limitC _ (F* (⋁ β)) .limCone
+          F[⋁γ]Cone = limitC _ (F* (⋁ γ)) .limCone
+          F[⋁β∧⋁γ]Cone = limitC _ (F* (⋁ β ∧l ⋁ γ)) .limCone
+
+          indSquare  : ∀ i j →
+              (g ⋆⟨ C ⟩ restCone β β∈L' .coneOut (sing i))
+                 ⋆⟨ C ⟩ F .F-hom {y = _ , ∧lClosed _ _ (β∈L' i) (γ∈L' j)} (≤m→≤j _ _ (∧≤RCancel _ _))
+            ≡ (f ⋆⟨ C ⟩ restCone γ γ∈L' .coneOut (sing j))
+                 ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+          indSquare i j =
+              (g ⋆⟨ C ⟩ restCone β β∈L' .coneOut (sing i))
+                 ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+            ≡⟨ ⋆Assoc C _ _ _ ⟩
+              g ⋆⟨ C ⟩ (restCone β β∈L' .coneOut (sing i)
+                ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)))
+            ≡⟨ cong (λ x → g ⋆⟨ C ⟩ x) (coneOutCommutes F[⋁β]Cone (_ , (is-prop-valued _ _ _ _))) ⟩
+              g ⋆⟨ C ⟩ coneOut F[⋁β]Cone ((β i ∧l γ j , _)
+                                , is-trans _ _ _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ β i))
+            ≡⟨ cong (λ x → g ⋆⟨ C ⟩ x) (sym (limArrowCommutes {!limitC _ (F* (⋁ β ∧l ⋁ γ))!} {!!} {!!} {!!})) ⟩
+              g ⋆⟨ C ⟩ (s₂ ⋁Cospan ⋆⟨ C ⟩ coneOut F[⋁β∧⋁γ]Cone ((β i ∧l γ j , _)
+                , (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (ind≤⋁ β i)) (≤j→≤m _ _ (ind≤⋁ γ j))))))
+            ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+              (g ⋆⟨ C ⟩ s₂ ⋁Cospan) ⋆⟨ C ⟩ coneOut F[⋁β∧⋁γ]Cone ((β i ∧l γ j , _)
+                , (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (ind≤⋁ β i)) (≤j→≤m _ _ (ind≤⋁ γ j)))))
+            ≡⟨ cong (λ x → x ⋆⟨ C ⟩ coneOut F[⋁β∧⋁γ]Cone ((β i ∧l γ j , ∧lClosed _ _ (β∈L' i) (γ∈L' j))
+                  , (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (ind≤⋁ β i)) (≤j→≤m _ _ (ind≤⋁ γ j))))))
+                    (sym square) ⟩
+              (f ⋆⟨ C ⟩ s₁ ⋁Cospan) ⋆⟨ C ⟩ coneOut F[⋁β∧⋁γ]Cone ((β i ∧l γ j , _)
+                , (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (ind≤⋁ β i)) (≤j→≤m _ _ (ind≤⋁ γ j)))))
+            ≡⟨ ⋆Assoc C _ _ _ ⟩
+              f ⋆⟨ C ⟩ (s₁ ⋁Cospan ⋆⟨ C ⟩ coneOut F[⋁β∧⋁γ]Cone ((β i ∧l γ j , _)
+                , (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (ind≤⋁ β i)) (≤j→≤m _ _ (ind≤⋁ γ j))))))
+            ≡⟨ {!!} ⟩
+              f ⋆⟨ C ⟩ coneOut F[⋁γ]Cone ((β i ∧l γ j , _)
+                                , is-trans _ _ _ (≤m→≤j _ _ (∧≤LCancel _ _)) (ind≤⋁ γ j))
+            ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x) (sym (coneOutCommutes F[⋁γ]Cone (_ , (is-prop-valued _ _ _ _)))) ⟩
+              f ⋆⟨ C ⟩ (restCone γ γ∈L' .coneOut (sing j)
+                ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)))
+            ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+              (f ⋆⟨ C ⟩ restCone γ γ∈L' .coneOut (sing j))
+                 ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
+
+
         -- coneOut (toCone f g square) (sing i) = -- wouldn't work with with-syntax
         --   subst (λ x → C [ c , F-ob F ((β ++Fin γ) x , ++FinPres∈ L' β∈L' γ∈L' x) ])
         --         (FSCsec n n' i)
