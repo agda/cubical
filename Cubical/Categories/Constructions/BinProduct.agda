@@ -31,8 +31,24 @@ _×_ : (C : Category ℓC ℓC') → (D : Category ℓD ℓD')
 
 infixr 5 _×_
 
+module _ where
+  private
+    variable
+      C : Category ℓC ℓC'
+      D : Category ℓD ℓD'
+      E : Category ℓE ℓE'
+
+  open Functor
+
+  _,F_ : Functor C D → Functor C E → Functor C (D × E)
+  (G ,F H) .F-ob a = (G ⟅ a ⟆ , H ⟅ a ⟆)
+  (G ,F H) .F-hom g = (G ⟪ g ⟫ , H ⟪ g ⟫)
+  (G ,F H) .F-id = ≡-× (G .F-id) (H .F-id)
+  (G ,F H) .F-seq _ _ = ≡-× (G .F-seq _ _) (H .F-seq _ _)
+
 
 -- Some useful functors
+-- See also: Functor.BinProduct
 module _ (C : Category ℓC ℓC')
          (D : Category ℓD ℓD') where
   open Functor
