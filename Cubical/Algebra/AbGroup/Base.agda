@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.AbGroup.Base where
 
 open import Cubical.Foundations.Prelude
@@ -267,6 +267,7 @@ module _ (G : AbGroup ℓ) {A : Type ℓ}
 
   InducedAbGroupPathFromPres· : G ≡ InducedAbGroupFromPres·
   InducedAbGroupPathFromPres· = AbGroupPath _ _ .fst InducedAbGroupEquivFromPres·
+
 
 dirProdAb : AbGroup ℓ → AbGroup ℓ' → AbGroup (ℓ-max ℓ ℓ')
 dirProdAb A B =

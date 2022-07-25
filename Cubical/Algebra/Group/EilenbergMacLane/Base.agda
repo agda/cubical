@@ -18,7 +18,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; rec2 to trRec2 ; elim to trElim) hiding (elim2)
+open import Cubical.HITs.Truncation as Trunc
+  renaming (rec to trRec; rec2 to trRec2 ; elim to trElim) hiding (elim2)
 open import Cubical.HITs.EilenbergMacLane1 hiding (elim)
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Data.Empty

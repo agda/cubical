@@ -369,7 +369,8 @@ module UP (AGr : AbGroup ℓ) (BGr : AbGroup ℓ') where
                                     λ x y ind1 ind2 → cong₂ (_+G_ (snd C)) ind1 ind2
                                                        ∙ sym (IsGroupHom.pres· p x y)))
 
-module _ {ℓ ℓ' ℓ'' ℓ''' : Level} {A : AbGroup ℓ}  {B : AbGroup ℓ'} {C : AbGroup ℓ''} {D : AbGroup ℓ'''}
+module _ {ℓ'' ℓ''' : Level} {A : AbGroup ℓ}
+         {B : AbGroup ℓ'} {C : AbGroup ℓ''} {D : AbGroup ℓ'''}
          (ϕ : AbGroupHom A C) (ψ : AbGroupHom B D) where
   inducedFun⨂ : A ⨂₁ B → C ⨂₁ D
   inducedFun⨂ =
