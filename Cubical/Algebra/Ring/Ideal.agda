@@ -71,7 +71,7 @@ module _ (R' : Ring ℓ) where
   isIdealZeroIdeal : isIdeal zeroSubset
   +-closed isIdealZeroIdeal x≡0 y≡0 =
     _ + _    ≡⟨ cong (λ u → u + _) x≡0 ⟩
-    0r + _   ≡⟨ +Lid _ ⟩
+    0r + _   ≡⟨ +IdL _ ⟩
     _        ≡⟨ y≡0 ⟩
     0r       ∎
   -closed isIdealZeroIdeal x≡0 =

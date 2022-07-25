@@ -135,8 +135,7 @@ pointerFun∙ f .snd = refl
 
 -- pointed identity equivalence
 idEquiv∙ : (A : Pointed ℓ) → (A ≃∙ A)
-idEquiv∙ A = (isoToEquiv (iso (λ x → x) (λ x → x) (λ _ → refl) (λ _ → refl))) ,
-             refl
+idEquiv∙ A = idEquiv (typ A) , refl
 
 {-
   Equational reasoning for pointed equivalences

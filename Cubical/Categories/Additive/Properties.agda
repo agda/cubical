@@ -18,12 +18,12 @@ module PreaddCategoryTheory (C : PreaddCategory ℓ ℓ') where
   open PreaddCategory C
 
   -- Pure group theory lemmas
-  +idl = λ {x y} → AbGroupStr.lid (homAbStr x y)
-  +idr = λ {x y} → AbGroupStr.rid (homAbStr x y)
-  +invl = λ {x y} → AbGroupStr.invl (homAbStr x y)
-  +invr = λ {x y} → AbGroupStr.invr (homAbStr x y)
-  +assoc = λ {x y} → AbGroupStr.assoc (homAbStr x y)
-  +comm = λ {x y} → AbGroupStr.comm (homAbStr x y)
+  +idl = λ {x y} → AbGroupStr.+IdL (homAbStr x y)
+  +idr = λ {x y} → AbGroupStr.+IdR (homAbStr x y)
+  +invl = λ {x y} → AbGroupStr.+InvL (homAbStr x y)
+  +invr = λ {x y} → AbGroupStr.+InvR (homAbStr x y)
+  +assoc = λ {x y} → AbGroupStr.+Assoc (homAbStr x y)
+  +comm = λ {x y} → AbGroupStr.+Comm (homAbStr x y)
 
   -dist+ : {x y : ob} (f g : Hom[ x , y ]) →
       - (f + g) ≡ (- f) + (- g)

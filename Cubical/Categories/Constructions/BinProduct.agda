@@ -3,11 +3,12 @@
 
 module Cubical.Categories.Constructions.BinProduct where
 
-open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor.Base
-open import Cubical.Data.Sigma renaming (_×_ to _×'_)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Sigma renaming (_×_ to _×'_)
+open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Isomorphism
 
 private
   variable
@@ -62,3 +63,14 @@ module _ (C : Category ℓC ℓC')
     - define inverse to `assoc`, prove isomorphism
     - prove product is commutative up to isomorphism
 -}
+
+
+  -- The isomorphisms in product category
+
+  open isIso
+
+  CatIso× : {x y : C .ob}{z w : D .ob} → CatIso C x y → CatIso D z w → CatIso (C × D) (x , z) (y , w)
+  CatIso× f g .fst = f .fst , g .fst
+  CatIso× f g .snd .inv = f .snd .inv , g .snd .inv
+  CatIso× f g .snd .sec i = f .snd .sec i , g .snd .sec i
+  CatIso× f g .snd .ret i = f .snd .ret i , g .snd .ret i

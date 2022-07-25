@@ -84,19 +84,19 @@ module AbelianizationAsCoeq (G : Group ℓ) where
       squash
       (λ x y → incAb (x · y))
       (λ (a , b , c) d →
-        incAb ((a · (b · c)) · d) ≡⟨ cong (λ x → incAb (x · d)) (assoc _ _ _) ⟩
-        incAb (((a · b) · c) · d) ≡⟨ cong incAb (sym (assoc (a · b) c d)) ⟩
+        incAb ((a · (b · c)) · d) ≡⟨ cong (λ x → incAb (x · d)) (·Assoc _ _ _) ⟩
+        incAb (((a · b) · c) · d) ≡⟨ cong incAb (sym (·Assoc (a · b) c d)) ⟩
         incAb ((a · b) · (c · d)) ≡⟨ comm (a · b) c d ⟩
-        incAb ((a · b) · (d · c)) ≡⟨ cong incAb (sym (assoc _ _ _)) ⟩
-        incAb (a · (b · (d · c))) ≡⟨ cong (λ x → incAb (a · x)) (assoc _ _ _) ⟩
+        incAb ((a · b) · (d · c)) ≡⟨ cong incAb (sym (·Assoc _ _ _)) ⟩
+        incAb (a · (b · (d · c))) ≡⟨ cong (λ x → incAb (a · x)) (·Assoc _ _ _) ⟩
         incAb (a · ((b · d) · c)) ≡⟨ comm a (b · d) c ⟩
-        incAb (a · (c · (b · d))) ≡⟨ cong (λ x → incAb (a · x)) (assoc _ _ _) ⟩
-        incAb (a · ((c · b) · d)) ≡⟨ cong incAb (assoc a (c · b) d) ⟩
+        incAb (a · (c · (b · d))) ≡⟨ cong (λ x → incAb (a · x)) (·Assoc _ _ _) ⟩
+        incAb (a · ((c · b) · d)) ≡⟨ cong incAb (·Assoc a (c · b) d) ⟩
         incAb ((a · (c · b)) · d) ∎)
       (λ (b , c , d) a →
-        incAb (a · (b · (c · d))) ≡⟨ cong incAb (assoc _ _ _) ⟩
+        incAb (a · (b · (c · d))) ≡⟨ cong incAb (·Assoc _ _ _) ⟩
         incAb ((a · b) · (c · d)) ≡⟨ comm (a · b) c d ⟩
-        incAb ((a · b) · (d · c)) ≡⟨ cong incAb (sym (assoc _ _ _)) ⟩
+        incAb ((a · b) · (d · c)) ≡⟨ cong incAb (sym (·Assoc _ _ _)) ⟩
         incAb (a · (b · (d · c))) ∎)
 
   1Ab : Abelianization
@@ -112,15 +112,15 @@ module AbelianizationAsCoeq (G : Group ℓ) where
         incAb (inv (b · c) · inv a)            ≡⟨ cong (λ x → incAb (x · inv a)) (invDistr b c) ⟩
         incAb ((inv c · inv b) · inv a)        ≡⟨ cong
                                                     incAb
-                                                    (sym (lid ((inv c · inv b) · inv a))) ⟩
+                                                    (sym (·IdL ((inv c · inv b) · inv a))) ⟩
         incAb (1g · ((inv c · inv b) · inv a)) ≡⟨ comm 1g (inv c · inv b) (inv a) ⟩
-        incAb (1g · (inv a · (inv c · inv b))) ≡⟨ cong incAb (lid (inv a · (inv c · inv b))) ⟩
+        incAb (1g · (inv a · (inv c · inv b))) ≡⟨ cong incAb (·IdL (inv a · (inv c · inv b))) ⟩
         incAb (inv a · (inv c · inv b))        ≡⟨ comm (inv a) (inv c) (inv b) ⟩
         incAb (inv a · (inv b · inv c))        ≡⟨ cong
                                                     incAb
-                                                    (sym (lid (inv a · (inv b · inv c)))) ⟩
+                                                    (sym (·IdL (inv a · (inv b · inv c)))) ⟩
         incAb (1g · (inv a · (inv b · inv c))) ≡⟨ comm 1g (inv a) (inv b · inv c) ⟩
-        incAb (1g · ((inv b · inv c) · inv a)) ≡⟨ cong incAb (lid ((inv b · inv c) · inv a)) ⟩
+        incAb (1g · ((inv b · inv c) · inv a)) ≡⟨ cong incAb (·IdL ((inv b · inv c) · inv a)) ⟩
         incAb ((inv b · inv c) · inv a)        ≡⟨ cong
                                                     (λ x → incAb (x · inv a))
                                                     (sym (invDistr c b)) ⟩
@@ -132,13 +132,13 @@ module AbelianizationAsCoeq (G : Group ℓ) where
     elimProp3
       (λ x y z → squash (x ·Ab (y ·Ab z))
       ((x ·Ab y) ·Ab z))
-      (λ x y z → cong incAb (assoc x y z))
+      (λ x y z → cong incAb (·Assoc x y z))
 
   ridAb : (x : Abelianization) → x ·Ab 1Ab ≡ x
   ridAb =
     elimProp
       (λ x → squash (x ·Ab 1Ab) x)
-      (λ x → cong incAb (rid x))
+      (λ x → cong incAb (·IdR x))
 
   rinvAb : (x : Abelianization) → x ·Ab (invAb x) ≡ 1Ab
   rinvAb =
@@ -146,7 +146,7 @@ module AbelianizationAsCoeq (G : Group ℓ) where
       (λ x → squash (x ·Ab (invAb x)) 1Ab)
       (λ x → (incAb x) ·Ab (invAb (incAb x)) ≡⟨ refl ⟩
              (incAb x) ·Ab (incAb (inv x))   ≡⟨ refl ⟩
-             incAb (x · (inv x))             ≡⟨ cong incAb (fst (inverse x)) ⟩
+             incAb (x · (inv x))             ≡⟨ cong incAb (·InvR x) ⟩
              incAb 1g                        ≡⟨ refl ⟩
              1Ab ∎)
 
@@ -155,9 +155,9 @@ module AbelianizationAsCoeq (G : Group ℓ) where
     elimProp2
       (λ x y → squash (x ·Ab y) (y ·Ab x))
       (λ x y → (incAb x) ·Ab (incAb y) ≡⟨ refl ⟩
-               incAb (x · y)           ≡⟨ cong incAb (sym (lid (x · y))) ⟩
+               incAb (x · y)           ≡⟨ cong incAb (sym (·IdL (x · y))) ⟩
                incAb (1g · (x · y))    ≡⟨ comm 1g x y ⟩
-               incAb (1g · (y · x))    ≡⟨ cong incAb (lid (y · x)) ⟩
+               incAb (1g · (y · x))    ≡⟨ cong incAb (·IdL (y · x)) ⟩
                incAb (y · x)           ≡⟨ refl ⟩
                (incAb y) ·Ab (incAb x) ∎)
 
@@ -219,7 +219,7 @@ module UniversalPropertyCoeq (G : Group ℓ) where
                     f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
                     (f' a) · (f' (b · c))    ≡⟨ cong (λ x → (f' a) · x) ((snd f).pres· b c) ⟩
                     (f' a) · (f' b) · (f' c) ≡⟨ cong (λ x → (f' a) · x)
-                                                     ((snd H).AbGroupStr.comm (f' b) (f' c)) ⟩
+                                                     ((snd H).AbGroupStr.+Comm (f' b) (f' c)) ⟩
                     (f' a) · (f' c) · (f' b) ≡⟨ cong (λ x → (f' a) · x)
                                                      (sym ((snd f).pres· c b)) ⟩
                     (f' a) · (f' (c · b))    ≡⟨ sym ((snd f).pres· a (c · b)) ⟩

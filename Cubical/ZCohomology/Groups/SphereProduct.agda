@@ -52,6 +52,7 @@ open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.RingStructure.CupProduct
 
 open Iso
+open PlusBis
 
 private
   ¬lem : (n m : ℕ) → ¬ suc (n + m) ≡ m

@@ -2,6 +2,9 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.FinData.Properties where
 
+-- WARNING : fromℕ' is in triple ! => to clean !
+-- sort file + mix with Fin folder
+
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Transport
@@ -16,7 +19,7 @@ open import Cubical.Data.FinData.Base as Fin
 open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc
                                       ;znots to ℕznots ; snotz to  ℕsnotz)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Relation.Nullary
 
 private
@@ -25,16 +28,9 @@ private
    A : Type ℓ
    m n k : ℕ
 
--- alternative from
-fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
-fromℕ' ℕzero k infkn = Empty.rec (¬-<-zero infkn)
-fromℕ' (ℕsuc n) ℕzero infkn = zero
-fromℕ' (ℕsuc n) (ℕsuc k) infkn = suc (fromℕ' n k (pred-≤-pred infkn))
-
-toFromId' : (n : ℕ) → (k : ℕ) → (infkn : k < n) → toℕ (fromℕ' n k infkn) ≡ k
-toFromId' ℕzero k infkn = Empty.rec (¬-<-zero infkn)
-toFromId' (ℕsuc n) ℕzero infkn = refl
-toFromId' (ℕsuc n) (ℕsuc k) infkn = cong ℕsuc (toFromId' n k (pred-≤-pred infkn))
+toℕ<n : ∀ {n} (i : Fin n) → toℕ i < n
+toℕ<n {n = ℕsuc n} zero = n , +-comm n 1
+toℕ<n {n = ℕsuc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong ℕsuc (toℕ<n i .snd)
 
 znots : ∀{k} {m : Fin k} → ¬ (zero ≡ (suc m))
 znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
@@ -42,8 +38,32 @@ znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
 snotz : ∀{k} {m : Fin k} → ¬ ((suc m) ≡ zero)
 snotz {k} {m} x = subst (Fin.rec ⊥ (Fin k)) x m
 
+-- alternative from
+fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
+fromℕ' ℕzero k infkn = ⊥.rec (¬-<-zero infkn)
+fromℕ' (ℕsuc n) ℕzero infkn = zero
+fromℕ' (ℕsuc n) (ℕsuc k) infkn = suc (fromℕ' n k (pred-≤-pred infkn))
+
+toFromId' : (n : ℕ) → (k : ℕ) → (infkn : k < n) → toℕ (fromℕ' n k infkn) ≡ k
+toFromId' ℕzero k infkn = ⊥.rec (¬-<-zero infkn)
+toFromId' (ℕsuc n) ℕzero infkn = refl
+toFromId' (ℕsuc n) (ℕsuc k) infkn = cong ℕsuc (toFromId' n k (pred-≤-pred infkn))
+
+fromToId' : (n : ℕ) → (k : Fin n ) → (r : toℕ k < n) → fromℕ' n (toℕ k) r ≡ k
+fromToId' (ℕsuc n) zero r = refl
+fromToId' (ℕsuc n) (suc k) r = cong suc (fromToId' n k (pred-≤-pred r))
+
+inj-toℕ : {n : ℕ} → {k l : Fin n} → (toℕ k ≡ toℕ l) → k ≡ l
+inj-toℕ {ℕsuc n}  {zero} {zero}   x = refl
+inj-toℕ {ℕsuc n}  {zero} {suc l} x = ⊥.rec (ℕznots x)
+inj-toℕ {ℕsuc n} {suc k} {zero}   x = ⊥.rec (ℕsnotz x)
+inj-toℕ {ℕsuc n} {suc k} {suc l}  x = cong suc (inj-toℕ (injSuc x))
+
+inj-cong : {n : ℕ} → {k l : Fin n} → (p : toℕ k ≡ toℕ l) → cong toℕ (inj-toℕ p) ≡ p
+inj-cong p = isSetℕ _ _ _ _
+
 isPropFin0 : isProp (Fin 0)
-isPropFin0 = Empty.rec ∘ ¬Fin0
+isPropFin0 = ⊥.rec ∘ ¬Fin0
 
 isContrFin1 : isContr (Fin 1)
 isContrFin1 .fst = zero
@@ -93,18 +113,14 @@ weakenRespToℕ : ∀ {n} (i : Fin n) → toℕ (weakenFin i) ≡ toℕ i
 weakenRespToℕ zero = refl
 weakenRespToℕ (suc i) = cong ℕsuc (weakenRespToℕ i)
 
-toℕ<n : ∀ {n} (i : Fin n) → toℕ i < n
-toℕ<n {n = ℕsuc n} zero = n , +-comm n 1
-toℕ<n {n = ℕsuc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong ℕsuc (toℕ<n i .snd)
-
 toFin : {n : ℕ} (m : ℕ) → m < n → Fin n
-toFin {n = ℕzero} _ m<0 = Empty.rec (¬-<-zero m<0)
+toFin {n = ℕzero} _ m<0 = ⊥.rec (¬-<-zero m<0)
 toFin {n = ℕsuc n} _ (ℕzero , _) = fromℕ n --in this case we have m≡n
 toFin {n = ℕsuc n} m (ℕsuc k , p) = weakenFin (toFin m (k , cong predℕ p))
 
 toFin0≡0 : {n : ℕ} (p : 0 < ℕsuc n) → toFin 0 p ≡ zero
 toFin0≡0 (ℕzero , p) = subst (λ x → fromℕ x ≡ zero) (cong predℕ p) refl
-toFin0≡0 {ℕzero} (ℕsuc k , p) = Empty.rec (ℕsnotz (+-comm 1 k ∙ (cong predℕ p)))
+toFin0≡0 {ℕzero} (ℕsuc k , p) = ⊥.rec (ℕsnotz (+-comm 1 k ∙ (cong predℕ p)))
 toFin0≡0 {ℕsuc n} (ℕsuc k , p) =
          subst (λ x → weakenFin x ≡ zero) (sym (toFin0≡0 (k , cong predℕ p))) refl
 
@@ -125,7 +141,7 @@ genδ-FinVec' n k a b x with discreteℕ (toℕ x) k
 
 -- doing induction on toFin is awkward, so the following alternative
 enum : (m : ℕ) → m < n → Fin n
-enum {n = ℕzero} _ m<0 = Empty.rec (¬-<-zero m<0)
+enum {n = ℕzero} _ m<0 = ⊥.rec (¬-<-zero m<0)
 enum {n = ℕsuc n} 0 _ = zero
 enum {n = ℕsuc n} (ℕsuc m) p = suc (enum m (pred-≤-pred p))
 
@@ -134,7 +150,7 @@ enum∘toℕ {n = ℕsuc n} zero _ = refl
 enum∘toℕ {n = ℕsuc n} (suc i) p t = suc (enum∘toℕ i (pred-≤-pred p) t)
 
 toℕ∘enum : (m : ℕ)(p : m < n) → toℕ (enum m p) ≡ m
-toℕ∘enum {n = ℕzero} _ m<0 = Empty.rec (¬-<-zero m<0)
+toℕ∘enum {n = ℕzero} _ m<0 = ⊥.rec (¬-<-zero m<0)
 toℕ∘enum {n = ℕsuc n} 0 _ = refl
 toℕ∘enum {n = ℕsuc n} (ℕsuc m) p i = ℕsuc (toℕ∘enum m (pred-≤-pred p) i)
 
@@ -173,7 +189,7 @@ enumElim P k p h f i =
 
 ++FinRid : {n : ℕ} (U : FinVec A n) (V : FinVec A 0)
          → PathP (λ i → FinVec A (+-zero n i)) (U ++Fin V) U
-++FinRid {n = ℕzero} U V = funExt λ i → Empty.rec (¬Fin0 i)
+++FinRid {n = ℕzero} U V = funExt λ i → ⊥.rec (¬Fin0 i)
 ++FinRid {n = ℕsuc n} U V i zero = U zero
 ++FinRid {n = ℕsuc n} U V i (suc ind) = ++FinRid (U ∘ suc) V i ind
 
