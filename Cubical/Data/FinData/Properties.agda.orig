@@ -7,7 +7,6 @@ module Cubical.Data.FinData.Properties where
 
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Powerset
@@ -42,10 +41,11 @@ znotsP p = ℕznots (congP (λ i → toℕ) p)
 snotz : ∀{k} {m : Fin k} → ¬ ((suc m) ≡ zero)
 snotz {k} {m} x = subst (Fin.rec ⊥ (Fin k)) x m
 
+<<<<<<< HEAD
 snotzP : ∀ {k0 k1 : ℕ} {k : k0 ≡ k1} {m0 : Fin k0}
   → ¬ PathP (λ i → Fin (ℕsuc (k i))) (suc m0) zero
 snotzP p = ℕsnotz (congP (λ i → toℕ) p)
-
+=======
 -- alternative from
 fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
 fromℕ' ℕzero k infkn = ⊥.rec (¬-<-zero infkn)
@@ -69,6 +69,7 @@ inj-toℕ {ℕsuc n} {suc k} {suc l}  x = cong suc (inj-toℕ (injSuc x))
 
 inj-cong : {n : ℕ} → {k l : Fin n} → (p : toℕ k ≡ toℕ l) → cong toℕ (inj-toℕ p) ≡ p
 inj-cong p = isSetℕ _ _ _ _
+>>>>>>> master
 
 isPropFin0 : isProp (Fin 0)
 isPropFin0 = ⊥.rec ∘ ¬Fin0
@@ -88,8 +89,8 @@ injSucFinP {one} {one} {n} {zero} {zero} sucp =
   transport (λ j → PathP (λ i → Fin (eqn j i)) zero zero) refl
   where eqn : refl ≡ n
         eqn = isSetℕ one one refl n
-injSucFinP {one} {ℕsuc (ℕsuc n1)} {n} {p0} {p1} sucp = ⊥.rec (ℕznots (injSuc n))
-injSucFinP {ℕsuc (ℕsuc n0)} {one} {n} {p0} {p1} sucp = ⊥.rec (ℕsnotz (injSuc n))
+injSucFinP {one} {ℕsuc (ℕsuc n1)} {n} {p0} {p1} sucp = Empty.rec (ℕznots (injSuc n))
+injSucFinP {ℕsuc (ℕsuc n0)} {one} {n} {p0} {p1} sucp = Empty.rec (ℕsnotz (injSuc n))
 injSucFinP {ℕsuc (ℕsuc n0)} {ℕsuc (ℕsuc n1)} {n} {p0} {p1} sucp =
   transport (λ j → PathP (λ i → Fin (eqn j i)) p0 p1) (
       congP (λ i → predFin) (
