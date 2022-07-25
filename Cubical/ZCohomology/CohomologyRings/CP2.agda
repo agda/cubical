@@ -1,10 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.CohomologyRings.CP2 where
 
-{- Warning this file compute the cohomology up to a missing lemma.
-   Lemma that is to be added soon
--}
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
