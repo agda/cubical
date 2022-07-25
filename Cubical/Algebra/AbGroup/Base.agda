@@ -19,7 +19,6 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.DirProd
-open import Cubical.Algebra.Group.GroupPath
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Auto
