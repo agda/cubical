@@ -25,6 +25,8 @@ private
 
 freePresheaf : (C : Category ℓ ℓ') → NonPresheaf C ℓS → Presheaf C {!!}
 fst (F-ob (freePresheaf C X) c) = Σ[ d ∈ ob C ] C [ c , d ] × fst (X d)
+  -- This should be an end instead.
+  -- Define HasEnds via twisted arrow category.
 snd (F-ob (freePresheaf C X) c) = {!isSetΣ!}
 F-hom (freePresheaf C X) = {!!}
 F-id (freePresheaf C X) = {!!}
