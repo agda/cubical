@@ -50,3 +50,8 @@ module _ {ℓ} {A : Type ℓ} where
   foldl : ∀ {ℓ'} {B : Type ℓ'} → (B → A → B) → B → List A → B
   foldl f b [] = b
   foldl f b (x ∷ xs) = foldl f (f b x) xs
+
+  drop : ℕ → List A → List A
+  drop zero as = as
+  drop (suc n) [] = []
+  drop (suc n) (a ∷ as) = drop n as
