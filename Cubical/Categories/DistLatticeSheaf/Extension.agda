@@ -369,8 +369,29 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                          (f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ⋁βᵤ)
         compIsConeMor = isConeMorSingLemma _ (βCone c u u∈L' cc)
                           (F-cone F (B⋁Cone (λ i → β u i , β∈L' u u∈L' i) (⋁β∈L' u u∈L' u≤⋁α)))
-                          {!!}
+                          singCase
+          where
+          u∧αᵢ≤⋁α : ∀ i → (DLCat ^op) [ ⋁ α , u ∧l α i ]
+          u∧αᵢ≤⋁α _ = is-trans _ _ _ (≤m→≤j _ _ (∧≤RCancel _ _)) u≤⋁α
 
+          singCase : ∀ i → (f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ⋁βᵤ) ⋆⟨ C ⟩ F .F-hom (ind≤⋁ (β u) i)
+                         ≡ coneOut (βCone c u u∈L' cc) (sing i)
+          singCase i =
+              (f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ⋁βᵤ) ⋆⟨ C ⟩ F .F-hom (ind≤⋁ (β u) i)
+            ≡⟨ ⋆Assoc C _ _ _ ⟩
+              f ⋆⟨ C ⟩ (coneOut F[⋁α]Cone ⋁βᵤ ⋆⟨ C ⟩ F .F-hom (ind≤⋁ (β u) i))
+            ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x)
+                    (coneOutCommutes F[⋁α]Cone (ind≤⋁ (β u) i , is-prop-valued _ _ _ _)) ⟩
+              f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ((u ∧l α i , ∧lClosed _ _ u∈L' (α∈L' i)) , u∧αᵢ≤⋁α i)
+            ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x) (sym (coneOutCommutes F[⋁α]Cone
+                    (≤m→≤j _ _ (∧≤LCancel _ _) , is-prop-valued _ _ _ _))) ⟩
+              f ⋆⟨ C ⟩ (coneOut F[⋁α]Cone ((α i , α∈L' i) , ind≤⋁ α i)
+                ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)))
+            ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+              (f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ((α i , α∈L' i) , ind≤⋁ α i))
+                 ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+            ≡⟨ cong (λ x → x ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))) (isRestConeMorf (sing i)) ⟩
+              coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
 
     -- the other direction, surprisingly hard
     lemma3 : ∀ (c : ob C) (cc : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c)
@@ -379,7 +400,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
            → isConeMor cc restCone f
     lemma3 c cc f isConeMorF = isConeMorSingLemma _ cc restCone singCase
       where
-      singCase : _
+      singCase : ∀ i → f ⋆⟨ C ⟩ coneOut restCone (sing i) ≡ coneOut cc (sing i)
       singCase i =
         (subst (λ g → f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)) ≡ g)
           (transport (λ j → baz j ≡ foo (~ j)) ccᵢSubstPath)
