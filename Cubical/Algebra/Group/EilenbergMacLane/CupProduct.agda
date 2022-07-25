@@ -6,8 +6,8 @@ open import Cubical.Algebra.Group.EilenbergMacLane.Base
 open import Cubical.Algebra.Group.EilenbergMacLane.GroupStructure
 open import Cubical.Algebra.Group.EilenbergMacLane.Properties
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.EilenbergMacLane.CupProductTensor renaming
-  (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
+open import Cubical.Algebra.Group.EilenbergMacLane.CupProductTensor
+  renaming (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
 open import Cubical.Algebra.AbGroup.TensorProduct
 
 open import Cubical.Algebra.Ring
@@ -39,24 +39,9 @@ private
 
 module _ {G'' : Ring ℓ} where
   private
-    G' : AbGroup ℓ
     G' = Ring→AbGroup G''
-
     G = fst G'
-
-    strG = snd G'
-
-    ringStrG = snd G''
-
-    0G = 0g strG
-
-    _+G_ = _+Gr_ strG
-
-    -G_ = -Gr_ strG
-
-    _·G_ = RingStr._·_ ringStrG
-
-    E = EM G'
+    _+G_ = _+Gr_ (snd G')
 
   TensorMult3Homₗ : AbGroupHom ((G' ⨂ G') ⨂ G') G'
   TensorMult3Homₗ =
@@ -70,7 +55,7 @@ module _ {G'' : Ring ℓ} where
   EMTensorMult3ₗ : (n : ℕ) → EM ((G' ⨂ G') ⨂ G') n → EM G' n
   EMTensorMult3ₗ n = inducedFun-EM TensorMult3Homₗ n
 
-  EMTensorMultDistrLem : (n m : ℕ) (x : EM (G' ⨂ G') n) (y : E m)
+  EMTensorMultDistrLem : (n m : ℕ) (x : EM (G' ⨂ G') n) (y : EM G' m)
     → EMTensorMult _ (EMTensorMult n x ⌣ₖ⊗ y) ≡ EMTensorMult3ₗ _ (x ⌣ₖ⊗ y)
   EMTensorMultDistrLem n m x y =
       cong (EMTensorMult (n +' m))
@@ -82,7 +67,7 @@ module _ {G'' : Ring ℓ} where
   x ⌣ₖ y = EMTensorMult _ (x ⌣ₖ⊗ y)
 
   1ₖ : EM G' zero
-  1ₖ = 1r ringStrG
+  1ₖ = 1r (snd G'')
 
   ⌣ₖ-0ₖ : (n m : ℕ) (x : EM G' n) → (x ⌣ₖ 0ₖ m) ≡ 0ₖ (n +' m)
   ⌣ₖ-0ₖ n m x = cong (EMTensorMult (n +' m)) (⌣ₖ-0ₖ⊗ n m x) ∙ inducedFun-EM0ₖ _
@@ -145,11 +130,11 @@ module _ {G'' : Ring ℓ} where
     lem : compGroupHom (GroupEquiv→GroupHom ⨂assoc) TensorMult3Homₗ
          ≡ compGroupHom (inducedHom⨂ idGroupHom TensorMultHom) TensorMultHom
     lem = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-            (funExt (⊗elimProp (λ _ → is-set strG _ _)
-              (λ a → ⊗elimProp (λ _ → is-set strG _ _)
-                       (λ b c → sym (·Assoc ringStrG a b c))
+            (funExt (⊗elimProp (λ _ → is-set (snd G') _ _)
+              (λ a → ⊗elimProp (λ _ → is-set (snd G') _ _)
+                       (λ b c → sym (·Assoc (snd G'') a b c))
                        λ b c ind ind2
                        → cong₂ _+G_ ind ind2
-                        ∙ sym (·DistR+ ringStrG a
+                        ∙ sym (·DistR+ (snd G'') a
                               (fst TensorMultHom b) (fst TensorMultHom c)))
               λ x y ind ind2 → cong₂ _+G_ ind ind2))
