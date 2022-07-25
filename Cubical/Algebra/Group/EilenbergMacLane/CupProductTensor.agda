@@ -868,7 +868,6 @@ EM→ΩEM+1-distrₙ₀ {G = G} {H = H} (suc n) x =
         ∙∙ λ j i → _⌣ₖ_ {n = suc (suc (suc n))} {m = 0}
                (cong-∙ ∣_∣ₕ (merid a) (sym (merid north)) (~ j) i) x
 
-
 module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
              {H' : AbGroup ℓ'} {L' : AbGroup ℓ''} where
   private
@@ -1591,7 +1590,4 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                ∙ ind (EM-raw→EM _ _ a) y)
         ∙ EMFun-EM→ΩEM+1 _ _
 
-
--- TODO: Summarise distributivity proofs
 -- TODO: Graded commutativity, following Cubical.ZCohomology.RingStructure
--- The following lemmas will be needed to make the types match up.
