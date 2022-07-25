@@ -7,7 +7,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 open import Cubical.Data.Sigma
-open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat using (ℕ ; _+_)
 open import Cubical.Data.Nat.Order hiding (_≤_)
 open import Cubical.Data.FinData
 open import Cubical.Data.FinData.Order
@@ -521,18 +521,116 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       fromUnivProp = limitC ⋁α↓ (F* (⋁ α)) .univProp c (lemma1 c cc)
 
 
-  -- module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L')
-  --                 (ccγ : Cone (funcComp F (BDiag (λ i → γ i , γ∈L' i))) c) where
+  module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L')
+                  (ccγ : Cone (funcComp F (BDiag (λ i → γ i , γ∈L' i))) c) where
 
-  --   private
-  --     β++γ∈L' : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L') → ∀ i → (β ++Fin γ) i ∈ L'
-  --     β++γ∈L' β∈L' = ++FinPres∈ L' β∈L' γ∈L'
+    private
+      β++γ∈L' : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L') → ∀ i → (β ++Fin γ) i ∈ L'
+      β++γ∈L' β∈L' = ++FinPres∈ L' β∈L' γ∈L'
 
-  --   toCone : (n : ℕ) (β : FinVec (fst L) n) (β∈L' : ∀ i → β i ∈ L')
-  --          → Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c
-  --          -- → (∀ i j → ) something about left and right restriction
-  --          → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i))) c
-  --   toCone = {!!}
+      β∧γ : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L')
+          → Fin n → Fin n' → ob DLSubCat
+      β∧γ {β = β} β∈L' i j = (β i ∧l γ j) , ∧lClosed _ _ (β∈L' i) (γ∈L' j)
+
+      β≥β∧γ : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L')
+            → ∀ i j → (DLSubCat ^op) [ (β i , β∈L' i) , β∧γ β∈L' i j ]
+      β≥β∧γ β∈L' i j = ≤m→≤j _ _ (∧≤RCancel _ _)
+
+      γ≥β∧γ : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L')
+            → ∀ i j → (DLSubCat ^op) [ (γ j , γ∈L' j) , β∧γ β∈L' i j ]
+      γ≥β∧γ β∈L' i j = ≤m→≤j _ _ (∧≤LCancel _ _)
+
+      CommHypType : {n : ℕ} {β : FinVec (fst L) n} (β∈L' : ∀ i → β i ∈ L')
+                    (ccβ : Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c)
+                  → Type ℓ''
+      CommHypType β∈L' ccβ = ∀ i j → ccβ .coneOut (sing i)
+                                        ⋆⟨ C ⟩ F .F-hom {y = _ , ∧lClosed _ _ (β∈L' i) (γ∈L' j)} (β≥β∧γ β∈L' i j)
+                                   ≡ ccγ .coneOut (sing j) ⋆⟨ C ⟩ F .F-hom (γ≥β∧γ β∈L' i j)
+
+      coneSuc : {n : ℕ} {β : FinVec (fst L) (ℕ.suc n)} {β∈L' : ∀ i → β i ∈ L'}
+              → Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c
+              → Cone (funcComp F (BDiag (λ i → β (suc i) , β∈L' (suc i)))) c
+      coneOut (coneSuc ccβ) (sing i) = coneOut ccβ (sing (suc i))
+      coneOut (coneSuc ccβ) (pair i j i<j) = coneOut ccβ (pair (suc i) (suc j) (s≤s i<j))
+      coneOutCommutes (coneSuc ccβ) {u = sing i} idAr = coneOutCommutes ccβ idAr
+      coneOutCommutes (coneSuc ccβ) {u = pair i j i<j} idAr = coneOutCommutes ccβ idAr
+      coneOutCommutes (coneSuc ccβ) singPairL = coneOutCommutes ccβ singPairL
+      coneOutCommutes (coneSuc ccβ) singPairR = coneOutCommutes ccβ singPairR
+
+      --make this explicit to avoid yellow
+      commHypSuc : {n : ℕ} {β : FinVec (fst L) (ℕ.suc n)} {β∈L' : ∀ i → β i ∈ L'}
+                   {ccβ : Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c}
+                 → CommHypType β∈L' ccβ
+                 → CommHypType (β∈L' ∘ suc) (coneSuc ccβ)
+      commHypSuc commHyp i j = commHyp (suc i) j
+
+      toConeOut : (n : ℕ) (β : FinVec (fst L) n) (β∈L' : ∀ i → β i ∈ L')
+                  (ccβ : Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c)
+                  (ch : CommHypType β∈L' ccβ)
+               → ∀ (v : DLShfDiagOb (n + n'))
+               → C [ c , funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i)) .F-ob v ]
+      toConeOut ℕ.zero β β∈L' ccβ ch (sing i) = ccγ .coneOut (sing i)
+      toConeOut ℕ.zero β β∈L' ccβ ch (pair i j i<j) = ccγ .coneOut (pair i j i<j)
+      toConeOut (ℕ.suc n) β β∈L' ccβ ch (sing zero) = ccβ .coneOut (sing zero)
+      toConeOut (ℕ.suc n) β β∈L' ccβ ch (sing (suc i)) =
+                  toConeOut n (β ∘ suc) (β∈L' ∘ suc) (coneSuc ccβ) (commHypSuc ch) (sing i)
+      toConeOut (ℕ.suc n) β β∈L' ccβ ch (pair zero j 0<j) =
+                  ccβ .coneOut (sing zero) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+      toConeOut (ℕ.suc n) β β∈L' ccβ ch (pair (suc i) zero ())
+      toConeOut (ℕ.suc n) β β∈L' ccβ ch (pair (suc i) (suc j) (s≤s i<j)) =
+                  toConeOut n (β ∘ suc) (β∈L' ∘ suc) (coneSuc ccβ) (commHypSuc ch) (pair i j i<j)
+
+      -- crucial step in proving that this defines a cone is another induction
+      toConeOutLemma :  (n : ℕ) (β : FinVec (fst L) (ℕ.suc n)) (β∈L' : ∀ i → β i ∈ L')
+                        (ccβ : Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c)
+                        (ch : CommHypType β∈L' ccβ)
+                     → ∀ j → (toConeOut n (β ∘ suc) (β∈L' ∘ suc) (coneSuc ccβ) (commHypSuc ch) (sing j))
+                                 ⋆⟨ C ⟩  funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i)) .F-hom
+                                        (singPairR {i = zero} {j = suc j} {i<j = s≤s z≤})
+                            ≡ ccβ .coneOut (sing zero) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+      toConeOutLemma ℕ.zero β β∈L' ccβ ch j = sym (ch zero j)
+      toConeOutLemma (ℕ.suc n) β β∈L' ccβ ch zero =
+               coneOutCommutes ccβ (singPairR {i = zero} {j = one} {i<j = s≤s z≤})
+        ∙ sym (coneOutCommutes ccβ (singPairL {i = zero} {j = one} {i<j = s≤s z≤}))
+      toConeOutLemma (ℕ.suc n) β β∈L' ccβ ch (suc j) = {!toConeOutLemma n (β ∘ suc) (β∈L' ∘ suc) (coneSuc ccβ) (commHypSuc ch) j!}
+        where
+        test1 : (toConeOut (ℕ.suc n) (β ∘ suc) (β∈L' ∘ suc) (coneSuc ccβ) (commHypSuc ch) (sing (suc j)))
+              ≡ (toConeOut n ((λ x → β (suc x)) ∘ suc) ((λ x → β∈L' (suc x)) ∘ suc) (coneSuc (coneSuc ccβ)) (commHypSuc {ccβ = coneSuc ccβ} (commHypSuc ch)) (sing j))
+        test1 = refl
+
+      toConeOutCommutes : (n : ℕ) (β : FinVec (fst L) n) (β∈L' : ∀ i → β i ∈ L')
+                          (ccβ : Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c)
+                          (ch : CommHypType β∈L' ccβ)
+                        → ∀ {u} {v} e
+                        → toConeOut _ _ _ ccβ ch u
+                             ⋆⟨ C ⟩ (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i)) .F-hom e)
+                        ≡ toConeOut _ _ _ ccβ ch v
+      toConeOutCommutes ℕ.zero _ _ _ _ {u = sing i} {v = sing .i} idAr = coneOutCommutes ccγ idAr
+      toConeOutCommutes ℕ.zero _ _ _ _ {u = sing i} {v = pair .i j i<j} singPairL = coneOutCommutes ccγ singPairL
+      toConeOutCommutes ℕ.zero _ _ _ _ {u = sing j} {v = pair i .j i<j} singPairR = coneOutCommutes ccγ singPairR
+      toConeOutCommutes ℕ.zero _ _ _ _ {u = pair i j i<j} {v = sing k} ()
+      toConeOutCommutes ℕ.zero _ _ _ _ {u = pair i j i<j} {v = pair .i .j .i<j} idAr = coneOutCommutes ccγ idAr
+      toConeOutCommutes (ℕ.suc n) β β∈L' ccβ ch idAr =
+        cong (λ x → toConeOut _ _ _ ccβ ch _ ⋆⟨ C ⟩ x) (F .F-id) ∙ ⋆IdR C _
+      toConeOutCommutes (ℕ.suc n) β β∈L' ccβ ch (singPairL {i = zero} {j = j} {i<j = i<j}) = refl
+      toConeOutCommutes (ℕ.suc n) β β∈L' ccβ ch (singPairL {i = suc i} {j = zero} {i<j = ()})
+      toConeOutCommutes (ℕ.suc n) β β∈L' ccβ ch (singPairL {i = suc i} {j = suc j} {i<j = s≤s i<j}) =
+        toConeOutCommutes n (β ∘ suc) (β∈L' ∘ suc) (coneSuc ccβ) (commHypSuc ch) singPairL
+      toConeOutCommutes (ℕ.suc n) β β∈L' ccβ ch (singPairR {i = suc i} {j = suc j} {i<j = s≤s i<j}) =
+        toConeOutCommutes n (β ∘ suc) (β∈L' ∘ suc) (coneSuc ccβ) (commHypSuc ch) singPairR
+      toConeOutCommutes (ℕ.suc n) β β∈L' ccβ ch (singPairR {i = zero} {j = suc j} {i<j = s≤s z≤}) =
+        toConeOutLemma n _ _ _ ch j
+
+    toCone : {n : ℕ} {β : FinVec (fst L) n} {β∈L' : ∀ i → β i ∈ L'}
+             (ccβ : Cone (funcComp F (BDiag (λ i → β i , β∈L' i))) c)
+             (ch : CommHypType β∈L' ccβ)
+           → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' β∈L' i))) c
+    coneOut (toCone ccβ ch) = toConeOut _ _ _ ccβ ch
+    coneOutCommutes (toCone ccβ ch) = toConeOutCommutes _ _ _ ccβ ch
+    --  idAr =
+    --   cong (λ x → toConeOut _ _ _ ccβ ch _ ⋆⟨ C ⟩ x) (F .F-id) ∙ ⋆IdR C _
+    -- coneOutCommutes (toCone ccβ ch) (singPairL {i = i} {j = j} {i<j = i<j}) = {!i!}
+    -- coneOutCommutes (toCone ccβ ch) (singPairR {i = i} {j = j} {i<j = i<j}) = {!!}
 
 -- -- second lemma upstreamed for induction
 --   module ++Lemmas (c : ob C) (n' : ℕ) (γ : FinVec (fst L) n') (γ∈L' : ∀ i → γ i ∈ L') where
