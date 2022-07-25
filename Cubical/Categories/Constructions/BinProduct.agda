@@ -9,6 +9,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Isomorphism
+open import Cubical.Categories.Functors.Constant
 
 private
   variable
@@ -80,16 +81,10 @@ module _ (C : Category ℓC ℓC')
 
   -- Left/right injections into product
   linj : (d : ob D) → Functor C (C ×C D)
-  linj d .F-ob c = (c , d)
-  linj d .F-hom f = (f , id D)
-  linj d .F-id = refl
-  linj d .F-seq f g = ≡-× refl (sym (⋆IdL D _))
+  linj d = Id ,F Constant C D d
 
   rinj : (c : ob C) → Functor D (C ×C D)
-  rinj c .F-ob d = (c , d)
-  rinj c .F-hom f = (id C , f)
-  rinj c .F-id = refl
-  rinj c .F-seq f g = ≡-× (sym (⋆IdL C _)) refl
+  rinj c = Constant D C c ,F Id
 
 {-
   TODO:
