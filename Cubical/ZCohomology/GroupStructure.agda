@@ -649,7 +649,7 @@ AbGroupStr.0g (snd (coHomGroup n A)) = 0ₕ n
 AbGroupStr._+_ (snd (coHomGroup n A)) = _+ₕ_ {n = n}
 AbGroupStr.- snd (coHomGroup n A) = -ₕ_ {n = n}
 IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (coHomGroup n A))) = isGroup (snd (coHomGr n A))
-IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomGroup n A))) = commₕ n
+IsAbGroup.+Comm (AbGroupStr.isAbGroup (snd (coHomGroup n A))) = commₕ n
 
 -- Reduced cohomology group (direct def)
 
@@ -663,7 +663,7 @@ IsAbGroup.isGroup (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = helper
   abstract
     helper : IsGroup {G = coHomRed n A} (0ₕ∙ n) (_+ₕ∙_ {n = n}) (-ₕ∙_ {n = n})
     helper = makeIsGroup § (assocₕ∙ n) (rUnitₕ∙ n) (lUnitₕ∙ n) (rCancelₕ∙ n) (lCancelₕ∙ n)
-IsAbGroup.comm (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = commₕ∙ n
+IsAbGroup.+Comm (AbGroupStr.isAbGroup (snd (coHomRedGroupDir n A))) = commₕ∙ n
 
 coHomRedGrDir : (n : ℕ) (A : Pointed ℓ) → Group ℓ
 coHomRedGrDir n A = AbGroup→Group (coHomRedGroupDir n A)
@@ -671,6 +671,11 @@ coHomRedGrDir n A = AbGroup→Group (coHomRedGroupDir n A)
 -- Induced map
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
 coHomFun n f = ST.rec § λ β → ∣ β ∘ f ∣₂
+
+coHomFunId : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+  → coHomFun {A = A} n (idfun A) ≡ idfun _
+coHomFunId n =
+  funExt (ST.elim (λ _ → isSetPathImplicit) λ _ → refl)
 
 coHomMorph : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → GroupHom (coHomGr n B) (coHomGr n A)
 fst (coHomMorph n f) = coHomFun n f

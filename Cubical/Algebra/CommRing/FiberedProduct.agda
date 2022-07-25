@@ -59,12 +59,12 @@ module _ (A B C : CommRing ℓ) (α : CommRingHom A C) (β : CommRingHom B C) wh
   isCommRing (snd fiberedProduct) =
     makeIsCommRing (isSetΣSndProp (isSet× (is-set (snd A)) (is-set (snd B))) λ x → is-set (snd C) _ _)
                    (λ _ _ _ → fbT≡ (A.+Assoc _ _ _) (B.+Assoc _ _ _))
-                   (λ _ → fbT≡ (A.+Rid _) (B.+Rid _))
-                   (λ _ → fbT≡ (A.+Rinv _) (B.+Rinv _))
+                   (λ _ → fbT≡ (A.+IdR _) (B.+IdR _))
+                   (λ _ → fbT≡ (A.+InvR _) (B.+InvR _))
                    (λ _ _ → fbT≡ (A.+Comm _ _) (B.+Comm _ _))
                    (λ _ _ _ → fbT≡ (A.·Assoc _ _ _) (B.·Assoc _ _ _))
-                   (λ _ → fbT≡ (A.·Rid _) (B.·Rid _))
-                   (λ _ _ _ → fbT≡ (A.·Rdist+ _ _ _) (B.·Rdist+ _ _ _))
+                   (λ _ → fbT≡ (A.·IdR _) (B.·IdR _))
+                   (λ _ _ _ → fbT≡ (A.·DistR+ _ _ _) (B.·DistR+ _ _ _))
                    (λ _ _ → fbT≡ (A.·Comm _ _) (B.·Comm _ _))
 
   fiberedProductPr₁ : CommRingHom fiberedProduct A

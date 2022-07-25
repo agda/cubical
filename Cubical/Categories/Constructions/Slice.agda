@@ -7,8 +7,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport using (transpFill)
 
-open import Cubical.Categories.Category
-open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
+open import Cubical.Categories.Morphism
 
 open import Cubical.Data.Sigma
 
@@ -148,7 +148,7 @@ isSetHom SliceCat {a} {b} (slicehom f c₁) (slicehom g c₂) p q = cong isoP p'
 -- SliceCat is univalent if C is univalent
 
 module _ ⦃ isU : isUnivalent C ⦄ where
-  open CatIso
+  open isIsoC
   open Iso
 
   module _ { xf yg : SliceOb } where
@@ -168,12 +168,12 @@ module _ ⦃ isU : isUnivalent C ⦄ where
     pToIIso' = equivToIso pathIsoEquiv
 
     -- the iso in SliceCat we're given induces an iso in C between x and y
-    module _ ( cIso@(catiso kc lc s r) : CatIso SliceCat xf yg ) where
+    module _ ( cIso@(kc , isiso lc s r) : CatIso SliceCat xf yg ) where
       extractIso' : CatIso C x y
-      extractIso' .mor = kc .S-hom
-      extractIso' .inv = lc .S-hom
-      extractIso' .sec i = (s i) .S-hom
-      extractIso' .ret i = (r i) .S-hom
+      extractIso' .fst = kc .S-hom
+      extractIso' .snd .inv = lc .S-hom
+      extractIso' .snd .sec i = (s i) .S-hom
+      extractIso' .snd .ret i = (r i) .S-hom
 
   instance
     preservesUnivalenceSlice : isUnivalent SliceCat
@@ -187,7 +187,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
         -- the meat of the proof
         sIso : Iso (xf ≡ yg) (CatIso _ xf yg)
         sIso .fun p = pathToIso p -- we use the normal pathToIso via path induction to get an isomorphism
-        sIso .inv is@(catiso kc lc s r) = SliceOb-≡-intro x≡y (symP (sym (lc .S-comm) ◁ lf≡f))
+        sIso .inv is@(kc , isiso lc s r) = SliceOb-≡-intro x≡y (symP (sym (lc .S-comm) ◁ lf≡f))
           where
             -- we get a path between xf and yg by combining paths between
             -- x and y, and f and g
@@ -210,17 +210,17 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
             -- to show that f ≡ g, we show that l ≡ id
             -- by using C's isomorphism
-            pToI≡id : PathP (λ i → C [ x≡y (~ i) , x ]) (pathToIso {C = C} x≡y .inv) (C .id)
-            pToI≡id = J (λ y p → PathP (λ i → C [ p (~ i) , x ]) (pathToIso {C = C} p .inv) (C .id))
-                        (λ j → JRefl pToIFam pToIBase j .inv)
+            pToI≡id : PathP (λ i → C [ x≡y (~ i) , x ]) (pathToIso {C = C} x≡y .snd .inv) (C .id)
+            pToI≡id = J (λ y p → PathP (λ i → C [ p (~ i) , x ]) (pathToIso {C = C} p .snd .inv) (C .id))
+                        (λ j → JRefl pToIFam pToIBase j .snd .inv)
                         x≡y
               where
                 idx = C .id
                 pToIFam = (λ z _ → CatIso C x z)
                 pToIBase = catiso (C .id) idx (C .⋆IdL idx) (C .⋆IdL idx)
 
-            l≡pToI : l ≡ pathToIso {C = C} x≡y .inv
-            l≡pToI i = pToIIso .rightInv extractIso (~ i) .inv
+            l≡pToI : l ≡ pathToIso {C = C} x≡y .snd .inv
+            l≡pToI i = pToIIso .rightInv extractIso (~ i) .snd .inv
 
             l≡id : PathP (λ i → C [ x≡y (~ i) , x ]) l (C .id)
             l≡id = l≡pToI ◁ pToI≡id
@@ -228,11 +228,11 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             lf≡f : PathP (λ i → C [ x≡y (~ i) , c ]) (l ⋆⟨ C ⟩ f) f
             lf≡f = (λ i → (l≡id i) ⋆⟨ C ⟩ f) ▷ C .⋆IdL _
 
-        sIso .rightInv is@(catiso kc lc s r) i = catiso (kc'≡kc i) (lc'≡lc i) (s'≡s i) (r'≡r i)
+        sIso .rightInv is@(kc , isiso lc s r) i = catiso (kc'≡kc i) (lc'≡lc i) (s'≡s i) (r'≡r i)
           -- we prove rightInv using a combination of univalence and the fact that homs are an h-set
           where
-            kc' = (sIso .fun) (sIso .inv is) .mor
-            lc' = (sIso .fun) (sIso .inv is) .inv
+            kc' = (sIso .fun) (sIso .inv is) .fst
+            lc' = (sIso .fun) (sIso .inv is) .snd .inv
             k' = kc' .S-hom
             l' = lc' .S-hom
             k = kc .S-hom
@@ -246,7 +246,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             -- mor
 
             k'≡k : k' ≡ k
-            k'≡k i = (pToIIso .rightInv extractIso) i .mor
+            k'≡k i = (pToIIso .rightInv extractIso) i .fst
 
             kcom'≡kcom : PathP (λ j → (k'≡k j) ⋆⟨ C ⟩ g ≡ f) (kc' .S-comm) (kc .S-comm)
             kcom'≡kcom = isSetHomP1 {C = C} _ _ λ i → (k'≡k i) ⋆⟨ C ⟩ g
@@ -256,7 +256,7 @@ module _ ⦃ isU : isUnivalent C ⦄ where
             -- inv
 
             l'≡l : l' ≡ l
-            l'≡l i = (pToIIso .rightInv extractIso) i .inv
+            l'≡l i = (pToIIso .rightInv extractIso) i .snd .inv
 
             lcom'≡lcom : PathP (λ j → (l'≡l j) ⋆⟨ C ⟩ f ≡ g) (lc' .S-comm) (lc .S-comm)
             lcom'≡lcom = isSetHomP1 {C = C} _ _ λ i → (l'≡l i) ⋆⟨ C ⟩ f
@@ -266,13 +266,13 @@ module _ ⦃ isU : isUnivalent C ⦄ where
 
             -- sec
 
-            s' = (sIso .fun) (sIso .inv is) .sec
+            s' = (sIso .fun) (sIso .inv is) .snd .sec
             s'≡s : PathP (λ i → lc'≡lc i ⋆⟨ SliceCat ⟩ kc'≡kc i ≡ SliceCat .id) s' s
             s'≡s = isSetHomP1 {C = SliceCat} _ _ λ i → lc'≡lc i ⋆⟨ SliceCat ⟩ kc'≡kc i
 
             -- ret
 
-            r' = (sIso .fun) (sIso .inv is) .ret
+            r' = (sIso .fun) (sIso .inv is) .snd .ret
             r'≡r : PathP (λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i ≡ SliceCat .id) r' r
             r'≡r = isSetHomP1 {C = SliceCat} _ _ λ i → kc'≡kc i ⋆⟨ SliceCat ⟩ lc'≡lc i
 

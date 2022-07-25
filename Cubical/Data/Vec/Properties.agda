@@ -4,6 +4,7 @@ module Cubical.Data.Vec.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 
 import Cubical.Data.Empty as ⊥
@@ -113,6 +114,14 @@ module VecPath {A : Type ℓ}
              → decode v v' (encode v v' p) ≡ p
       retr v v' p = J (λ v' p → decode v v' (encode v v' p) ≡ p)
                     (cong (decode v v) (encodeRefl v) ∙ decodeRefl v) p
+
+
+  isOfHLevelVec : (h : HLevel) (n : ℕ)
+                  → isOfHLevel (suc (suc h)) A → isOfHLevel (suc (suc h)) (Vec A n)
+  isOfHLevelVec h zero ofLevelA [] [] = isOfHLevelRespectEquiv (suc h) (invEquiv (≡Vec≃codeVec [] []))
+                                        (isOfHLevelUnit* (suc h))
+  isOfHLevelVec h (suc n) ofLevelA (x ∷ v) (x' ∷ v') = isOfHLevelRespectEquiv (suc h) (invEquiv (≡Vec≃codeVec _ _))
+                                                       (isOfHLevelΣ (suc h) (ofLevelA x x') (λ _ → isOfHLevelVec h n ofLevelA v v'))
 
 
   discreteA→discreteVecA : Discrete A → (n : ℕ) → Discrete (Vec A n)

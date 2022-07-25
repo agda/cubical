@@ -4,13 +4,16 @@
 module Cubical.Categories.NaturalTransformation.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
 open import Cubical.Data.Sigma
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
+open import Cubical.Categories.Morphism
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation.Base
 
 private
@@ -100,3 +103,30 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       isSetRetract (fun NatTransIsoΣ) (inv NatTransIsoΣ) (leftInv NatTransIsoΣ)
                    (isSetΣSndProp (isSetΠ (λ _ → isSetHom D))
                                   (λ _ → isPropImplicitΠ2 (λ _ _ → isPropΠ (λ _ → isSetHom D _ _))))
+
+
+-- Natural isomorphism is path when the target category is univalent.
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}(isUnivD : isUnivalent D)
+  {F G : Functor C D} where
+
+  open isUnivalent isUnivD
+
+  NatIsoToPath : NatIso F G → F ≡ G
+  NatIsoToPath niso =
+    Functor≡ (λ x → CatIsoToPath (_ , niso .nIso x))
+      (λ f → isoToPath-Square isUnivD _ _ _ _ (niso .trans .N-hom f))
+
+  NatIso→Path→NatIso : (niso : NatIso F G) → pathToNatIso (NatIsoToPath niso) ≡ niso
+  NatIso→Path→NatIso niso = NatIso≡ (λ i x → secEq (univEquiv _ _) (_ , niso .nIso x) i .fst)
+
+  Path→NatIso→Path : (p : F ≡ G) → NatIsoToPath (pathToNatIso p) ≡ p
+  Path→NatIso→Path p = FunctorPath≡ (λ i j x → retEq (univEquiv _ _) (λ i → p i .F-ob x) i j)
+
+  Iso-Path-NatIso : Iso (F ≡ G) (NatIso F G)
+  Iso-Path-NatIso = iso pathToNatIso NatIsoToPath NatIso→Path→NatIso Path→NatIso→Path
+
+  Path≃NatIso : (F ≡ G) ≃ NatIso F G
+  Path≃NatIso = isoToEquiv Iso-Path-NatIso

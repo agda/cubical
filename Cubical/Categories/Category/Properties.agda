@@ -29,15 +29,6 @@ module _ {C : Category ℓ ℓ'} where
               → isOfHLevelDep 2 (λ y → C [ x , y ])
   isSetHomP2r = isOfHLevel→isOfHLevelDep 2 (λ a → isSetHom C {y = a})
 
-  open CatIso
-
-  CatIso≡ : {x y : C .ob} (f g : CatIso C x y) → f .mor ≡ g .mor → f .inv ≡ g .inv → f ≡ g
-  mor (CatIso≡ f g p q i)   = p i
-  inv (CatIso≡ f g p q i)   = q i
-  sec (CatIso≡ f g p q i) j =
-    isSet→isSet' (isSetHom C) (λ i → seq' C (q i) (p i)) (λ _ → C .id) (sec f) (sec g) j i
-  ret (CatIso≡ f g p q i) j =
-    isSet→isSet' (isSetHom C) (λ i → seq' C (p i) (q i)) (λ _ → C .id) (ret f) (ret g) j i
 
 -- opposite of opposite is definitionally equal to itself
 involutiveOp : ∀ {C : Category ℓ ℓ'} → C ^op ^op ≡ C
