@@ -722,7 +722,6 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
         where -- this is where we apply our lemmas
         theLimit = limitC _ (F* (⋁ (β ++Fin γ)))
 
-        -- open FinSumChar renaming (fun to FSCfun ; inv to FSCinv ; sec to FSCsec)
         toCone : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
                → f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂
                → Cone (funcComp F (BDiag (λ i → (β ++Fin γ) i , β++γ∈L' i))) c
@@ -745,8 +744,9 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                 ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)))
             ≡⟨ cong (λ x → g ⋆⟨ C ⟩ x) (coneOutCommutes F[⋁β]Cone (_ , (is-prop-valued _ _ _ _))) ⟩
               g ⋆⟨ C ⟩ coneOut F[⋁β]Cone ((β i ∧l γ j , _)
-                                , is-trans _ _ _ (≤m→≤j _ _ (∧≤RCancel _ _)) (ind≤⋁ β i))
-            ≡⟨ cong (λ x → g ⋆⟨ C ⟩ x) (sym (limArrowCommutes {!limitC _ (F* (⋁ β ∧l ⋁ γ))!} {!!} {!!} {!!})) ⟩
+                , is-trans _ _ _ (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (ind≤⋁ β i)) (≤j→≤m _ _ (ind≤⋁ γ j))))
+                                 (≤m→≤j _ _ (∧≤RCancel _ _)))
+            ≡⟨ cong (λ x → g ⋆⟨ C ⟩ x) (sym (limArrowCommutes (limitC _ (F* (⋁ β ∧l ⋁ γ))) _ _ _)) ⟩
               g ⋆⟨ C ⟩ (s₂ ⋁Cospan ⋆⟨ C ⟩ coneOut F[⋁β∧⋁γ]Cone ((β i ∧l γ j , _)
                 , (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (ind≤⋁ β i)) (≤j→≤m _ _ (ind≤⋁ γ j))))))
             ≡⟨ sym (⋆Assoc C _ _ _) ⟩
@@ -760,9 +760,10 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
             ≡⟨ ⋆Assoc C _ _ _ ⟩
               f ⋆⟨ C ⟩ (s₁ ⋁Cospan ⋆⟨ C ⟩ coneOut F[⋁β∧⋁γ]Cone ((β i ∧l γ j , _)
                 , (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (ind≤⋁ β i)) (≤j→≤m _ _ (ind≤⋁ γ j))))))
-            ≡⟨ {!!} ⟩
+            ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x) (limArrowCommutes (limitC _ (F* (⋁ β ∧l ⋁ γ))) _ _ _) ⟩
               f ⋆⟨ C ⟩ coneOut F[⋁γ]Cone ((β i ∧l γ j , _)
-                                , is-trans _ _ _ (≤m→≤j _ _ (∧≤LCancel _ _)) (ind≤⋁ γ j))
+                , is-trans _ _ _ (≤m→≤j _ _ (≤-∧Pres _ _ _ _ (≤j→≤m _ _ (ind≤⋁ β i)) (≤j→≤m _ _ (ind≤⋁ γ j))))
+                                 (≤m→≤j _ _ (∧≤LCancel _ _)))
             ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x) (sym (coneOutCommutes F[⋁γ]Cone (_ , (is-prop-valued _ _ _ _)))) ⟩
               f ⋆⟨ C ⟩ (restCone γ γ∈L' .coneOut (sing j)
                 ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)))
@@ -771,6 +772,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                  ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
 
 
+        -- open FinSumChar renaming (fun to FSCfun ; inv to FSCinv ; sec to FSCsec)
         -- coneOut (toCone f g square) (sing i) = -- wouldn't work with with-syntax
         --   subst (λ x → C [ c , F-ob F ((β ++Fin γ) x , ++FinPres∈ L' β∈L' γ∈L' x) ])
         --         (FSCsec n n' i)
