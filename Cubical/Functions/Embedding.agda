@@ -55,24 +55,7 @@ isEmbedding→Inj
 isEmbedding→Inj {f = f} embb w x p
   = equiv-proof (embb w x) p .fst .fst
 
--- If A and B are h-sets, then injective functions between
--- them are embeddings.
---
--- Note: It doesn't appear to be possible to omit either of
--- the `isSet` hypotheses.
-injEmbedding
-  : {f : A → B}
-  → isSet A → isSet B
-  → (∀{w x} → f w ≡ f x → w ≡ x)
-  → isEmbedding f
-injEmbedding {f = f} iSA iSB inj w x
-  = isoToIsEquiv (iso (cong f) inj sect retr)
-  where
-  sect : section (cong f) inj
-  sect p = iSB (f w) (f x) _ p
-
-  retr : retract (cong f) inj
-  retr p = iSA w x _ p
+-- The converse implication holds if B is an h-set, see injEmbedding below.
 
 
 -- If `f` is an embedding, we'd expect the fibers of `f` to be
@@ -162,6 +145,23 @@ isEmbedding≡hasPropFibers
            hasPropFibers→isEmbedding
            (λ _ → hasPropFibersIsProp _ _)
            (λ _ → isPropIsEmbedding _ _))
+
+-- We use the characterization as hasPropFibers to show that naive injectivity
+-- implies isEmbedding as long as B is an h-set.
+module _
+  {f : A → B}
+  (iSB : isSet B)
+  (inj : ∀{w x} → f w ≡ f x → w ≡ x)
+  where
+
+  injective→hasPropFibers : hasPropFibers f
+  injective→hasPropFibers y (x , fx≡y) (x' , fx'≡y) =
+    Σ≡Prop
+      (λ _ → iSB _ _)
+      (inj (fx≡y ∙ sym (fx'≡y)))
+
+  injEmbedding : isEmbedding f
+  injEmbedding = hasPropFibers→isEmbedding injective→hasPropFibers
 
 isEquiv→hasPropFibers : isEquiv f → hasPropFibers f
 isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
