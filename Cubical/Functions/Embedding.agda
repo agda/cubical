@@ -187,24 +187,6 @@ isEmbedding→Injection :
   ∀ x → (a (f x) ≡ a (g x)) ≡ (f x ≡ g x)
 isEmbedding→Injection a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
 
--- if `f` has a retract, then `cong f` has, as well. If `B` is a set, then `cong f`
--- further has a section, making `f` an embedding.
-module _ {f : A → B} (retf : hasRetract f) where
-  open Σ retf renaming (fst to g ; snd to ϕ)
-
-  congRetract : f w ≡ f x → w ≡ x
-  congRetract {w = w} {x = x} p = sym (ϕ w) ∙∙ cong g p ∙∙ ϕ x
-
-  isRetractCongRetract : retract (cong {x = w} {y = x} f) congRetract
-  isRetractCongRetract p = transport (PathP≡doubleCompPathˡ _ _ _ _) (λ i j → ϕ (p j) i)
-
-  hasRetract→hasRetractCong : hasRetract (cong {x = w} {y = x} f)
-  hasRetract→hasRetractCong = congRetract , isRetractCongRetract
-
-  retractableIntoSet→isEmbedding : isSet B → isEmbedding f
-  retractableIntoSet→isEmbedding setB w x =
-    isoToIsEquiv (iso (cong f) congRetract (λ _ → setB _ _ _ _) (hasRetract→hasRetractCong .snd))
-
 Embedding-into-Discrete→Discrete : A ↪ B → Discrete B → Discrete A
 Embedding-into-Discrete→Discrete (f , isEmbeddingF) _≟_ x y with f x ≟ f y
 ... | yes p = yes (invIsEq (isEmbeddingF x y) p)
