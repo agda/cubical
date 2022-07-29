@@ -278,10 +278,10 @@ isEquivRel→isEffective : isPropValued R → isEquivRel R → isEffective R
 isEquivRel→isEffective Rprop Req a b =
   isoToIsEquiv (invIso (isEquivRel→effectiveIso Rprop Req a b))
 
-discreteSetQuotients : Discrete A → isPropValued R → isEquivRel R
+discreteSetQuotients : isPropValued R → isEquivRel R
   → (∀ a₀ a₁ → Dec (R a₀ a₁))
   → Discrete (A / R)
-discreteSetQuotients {A = A} {R = R} Adis Rprop Req Rdec =
+discreteSetQuotients {A = A} {R = R} Rprop Req Rdec =
   elim (λ a₀ → isSetΠ (λ a₁ → isProp→isSet (isPropDec (squash/ a₀ a₁))))
     discreteSetQuotients' discreteSetQuotients'-eq
   where
