@@ -11,6 +11,8 @@ private
 
 
 -- Pulling back a relation along a function.
+-- This can for example be used when restricting an equivalence relation to a subset:
+--   _~'_ = on fst _~_
 
 module _
   (f : A → B)
