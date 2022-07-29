@@ -87,6 +87,16 @@ module NaturalBijection where
   -- definitions
   module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 
+    {-
+      Here, we define adjunctions in terms of more general concepts:
+      - Relative adjunctions (see e.g. the nLab)
+      - Adhoc adjunctions: Sometimes a functor F does not have a right adjoint functor G defined on all objects, but for a
+        specific object d, there may be an object gd that behaves as the image of d under the right adjoint to F.
+        Examples are:
+        - the local right Kan extension (when the global Kan extension does not exist)
+        - a limit of a specific diagram (when not all diagrams of the same shape may have a limit).
+    -}
+
     -- Adhoc adjunction (quite useless in itself)
     -- Note that the arrow direction is arbitrary.
     [_↦_]⊣[_↦_] : ob C → ob D → ob D → ob C → Type (ℓ-max ℓC' ℓD')
