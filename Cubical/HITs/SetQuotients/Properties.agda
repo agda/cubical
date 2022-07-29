@@ -278,35 +278,19 @@ isEquivRel→isEffective : isPropValued R → isEquivRel R → isEffective R
 isEquivRel→isEffective Rprop Req a b =
   isoToIsEquiv (invIso (isEquivRel→effectiveIso Rprop Req a b))
 
+-- TODO: isPropValued R is also not needed...
 discreteSetQuotients : isPropValued R → isEquivRel R
   → (∀ a₀ a₁ → Dec (R a₀ a₁))
   → Discrete (A / R)
 discreteSetQuotients {A = A} {R = R} Rprop Req Rdec =
-  elim (λ a₀ → isSetΠ (λ a₁ → isProp→isSet (isPropDec (squash/ a₀ a₁))))
-    discreteSetQuotients' discreteSetQuotients'-eq
+  elimProp2
+    (λ _ _ → isPropDec (squash/ _ _))
+    dis
   where
-  discreteSetQuotients' : (a : A) (y : A / R) → Dec ([ a ] ≡ y)
-  discreteSetQuotients' a₀ =
-    elim (λ a₁ → isProp→isSet (isPropDec (squash/ [ a₀ ] a₁))) dis dis-eq
-    where
-    dis : (a₁ : A) → Dec ([ a₀ ] ≡ [ a₁ ])
-    dis a₁ with Rdec a₀ a₁
-    ... | (yes p) = yes (eq/ a₀ a₁ p)
-    ... | (no ¬p) = no λ eq → ¬p (effective Rprop Req a₀ a₁ eq )
-
-    dis-eq : (a b : A) (r : R a b) →
-      PathP (λ i → Dec ([ a₀ ] ≡ eq/ a b r i)) (dis a) (dis b)
-    dis-eq a b ab = J (λ b ab → ∀ k → PathP (λ i → Dec ([ a₀ ] ≡ ab i)) (dis a) k)
-                      (λ k → isPropDec (squash/ _ _) _  _) (eq/ a b ab) (dis b)
-
-  discreteSetQuotients'-eq : (a b : A) (r : R a b) →
-    PathP (λ i → (y : A / R) → Dec (eq/ a b r i ≡ y))
-          (discreteSetQuotients' a) (discreteSetQuotients' b)
-  discreteSetQuotients'-eq a b ab =
-    J (λ b ab → ∀ k → PathP (λ i → (y : A / R) → Dec (ab i ≡ y))
-                            (discreteSetQuotients' a) k)
-      (λ k → funExt (λ x → isPropDec (squash/ _ _) _ _)) (eq/ a b ab) (discreteSetQuotients' b)
-
+  dis : (a₀ a₁ : A) → Dec ([ a₀ ] ≡ [ a₁ ])
+  dis a₀ a₁ with Rdec a₀ a₁
+  ... | (yes p) = yes (eq/ a₀ a₁ p)
+  ... | (no ¬p) = no λ eq → ¬p (effective Rprop Req a₀ a₁ eq )
 
 -- Quotienting by the truncated relation is equivalent to quotienting by untruncated relation
 truncRelIso : Iso (A / R) (A / (λ a b → ∥ R a b ∥₁))
