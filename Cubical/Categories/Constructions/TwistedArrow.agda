@@ -9,6 +9,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Constructions.Elements
+open Covariant
 open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Constructions.BinProduct
 

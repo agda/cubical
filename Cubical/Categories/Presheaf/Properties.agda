@@ -35,7 +35,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
   open NatTrans
   open NatIso
   open Slice (PresheafCategory C ℓS) F
-  open Elements {C = C}
+  open Elements.Contravariant {C = C}
 
   open Fibration.ForSets
 

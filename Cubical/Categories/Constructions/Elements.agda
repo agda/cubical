@@ -20,7 +20,7 @@ import Cubical.Categories.Constructions.Slice as Slice
 open Category
 open Functor
 
-module _ {ℓ ℓ'} {C : Category ℓ ℓ'} where
+module Covariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
 
     getIsSet : ∀ {ℓS} {C : Category ℓ ℓ'} (F : Functor C (SET ℓS)) → (c : C .ob) → isSet (fst (F ⟅ c ⟆))
     getIsSet F c = snd (F ⟅ c ⟆)
@@ -78,7 +78,9 @@ module _ {ℓ ℓ'} {C : Category ℓ ℓ'} where
     F-id (ForgetElements F) = refl
     F-seq (ForgetElements F) _ _ = refl
 
-module _ {ℓ ℓ'} {C : Category ℓ ℓ'} where
+module Contravariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
+    open Covariant {C = C ^op}
+
     -- same thing but for presheaves
     ∫ᴾ_ : ∀ {ℓS} → Functor (C ^op) (SET ℓS) → Category (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
     ∫ᴾ F = (∫ F) ^op
