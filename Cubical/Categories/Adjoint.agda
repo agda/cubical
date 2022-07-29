@@ -28,7 +28,7 @@ equivalence.
 
 private
   variable
-    ℓB ℓB' ℓC ℓC' ℓD ℓD' : Level
+    ℓA ℓA' ℓB ℓB' ℓC ℓC' ℓD ℓD' : Level
 
 {-
 ==============================================
@@ -91,15 +91,8 @@ module NaturalBijection where
     -- Note that the arrow direction is arbitrary.
     [_↦_]⊣[_↦_] : ob C → ob D → ob D → ob C → Type (ℓ-max ℓC' ℓD')
     [ c ↦ fc ]⊣[ d ↦ gd ] = Iso (D [ fc , d ]) (C [ c , gd ])
-
-    {-♭-adhoc-syntax : ∀ {c fc d gd} → [ c ↦ fc ]⊣[ d ↦ gd ] → D [ fc , d ] → C [ c , gd ]
-    ♭-adhoc-syntax = fun
-
-    ♯-adhoc-syntax : ∀ {c fc d gd} → [ c ↦ fc ]⊣[ d ↦ gd ] → C [ c , gd ] → D [ fc , d ]
-    ♯-adhoc-syntax = inv
-
-    syntax ♭-adhoc-syntax α φ = φ ♭⟪ α ⟫
-    syntax ♯-adhoc-syntax α φ = φ ♯⟪ α ⟫-}
+    -- Idea: We could generalize further by having a profunctor (instead of just Hom) on both sides of the iso.
+    -- This way, an isomorphism with the cone profunctor could be used to define limits.
 
     -- Left-relative right-adhoc adjunction
     -- Note that the arrow direction is arbitrary.
@@ -136,15 +129,25 @@ module NaturalBijection where
         record isLeftRelativeRightAdhocAdjunction : Type (ℓ-max (ℓ-max ℓB ℓB') (ℓ-max ℓC' ℓD')) where
 
           field
-            funNatL : FunNatL
-            invNatL : InvNatL
+            funNatL : FunNatL -- was adjNatInC'
+            invNatL : InvNatL -- was adjNatInC
+
+        open isLeftRelativeRightAdhocAdjunction
+
+        FunNatL→isLeftRelativeRightAdhocAdjunction : FunNatL → isLeftRelativeRightAdhocAdjunction
+        funNatL (FunNatL→isLeftRelativeRightAdhocAdjunction funNatL') = funNatL'
+        invNatL (FunNatL→isLeftRelativeRightAdhocAdjunction funNatL') = FunNatL→InvNatL funNatL'
+
+        InvNatL→isLeftRelativeRightAdhocAdjunction : InvNatL → isLeftRelativeRightAdhocAdjunction
+        funNatL (InvNatL→isLeftRelativeRightAdhocAdjunction invNatL') = InvNatL→FunNatL invNatL'
+        invNatL (InvNatL→isLeftRelativeRightAdhocAdjunction invNatL') = invNatL'
 
       [_⇒_]⊣[_↦_] : Type (ℓ-max (ℓ-max (ℓ-max ℓC' ℓD') ℓB) ℓB')
       [_⇒_]⊣[_↦_] = Σ[ α ∈ _ ] isLeftRelativeRightAdhocAdjunction α
 
     -- Right-adhoc adjunction
     module _ (F : Functor C D) (d : ob D) (gd : ob C) where
-      module _ (α : ∀ b → [ b ↦ F ⟅ b ⟆ ]⊣[ d ↦ gd ]) where
+      module _ (α : ∀ c → [ c ↦ F ⟅ c ⟆ ]⊣[ d ↦ gd ]) where
         isRightAdhocAdjunction : Type (ℓ-max (ℓ-max ℓC ℓC') ℓD')
         isRightAdhocAdjunction = isLeftRelativeRightAdhocAdjunction Id F d gd α
 
@@ -156,8 +159,9 @@ module NaturalBijection where
       _⊣[_↦_] = [ Id ⇒ F ]⊣[ d ↦ gd ]
 
       module _ (adjunction : _⊣[_↦_]) where
-        α = fst adjunction
-        adjA = snd adjunction
+        private
+          α = fst adjunction
+          adjA = snd adjunction
 
         ε-adhoc : D [ F ⟅ gd ⟆ , d ]
         ε-adhoc = α gd .inv (id C)
@@ -174,66 +178,217 @@ module NaturalBijection where
 
     -- Left-adhoc right-relative adjunction
     -- Note that the arrow direction is arbitrary.
+    module _ {B : Category ℓB ℓB'} (c : ob C) (fc : ob D) (J : Functor B D) (G : Functor B C) where
+      module _ (α : ∀ b → [ c ↦ fc ]⊣[ J ⟅ b ⟆ ↦ G ⟅ b ⟆ ]) where
 
-    -- Right-adhoc adjunction
+        FunNatR : Type (ℓ-max (ℓ-max ℓB ℓB') (ℓ-max ℓC' ℓD'))
+        FunNatR = ∀ {b1 b2} → (β : B [ b1 , b2 ]) → (φ : D [ fc , J ⟅ b1 ⟆ ])
+          → α b2 .fun (φ ⋆⟨ D ⟩ J ⟪ β ⟫) ≡ α b1 .fun φ ⋆⟨ C ⟩ G ⟪ β ⟫
+        InvNatR : Type (ℓ-max (ℓ-max ℓB ℓB') (ℓ-max ℓC' ℓD'))
+        InvNatR = ∀ {b1 b2} → (β : B [ b1 , b2 ]) → (ψ : C [ c , G ⟅ b1 ⟆ ])
+          → α b2 .inv (ψ ⋆⟨ C ⟩ G ⟪ β ⟫) ≡ α b1 .inv ψ ⋆⟨ D ⟩ J ⟪ β ⟫
+
+        FunNatR→InvNatR : FunNatR → InvNatR
+        FunNatR→InvNatR funNatR {b1} {b2} β ψ =
+          α b2 .inv (ψ ⋆⟨ C ⟩ G ⟪ β ⟫)
+            ≡⟨ cong (α b2 .inv) (cong (λ ψ' → ψ' ⋆⟨ C ⟩ G ⟪ β ⟫) (sym (α b1 .rightInv ψ))) ⟩
+          α b2 .inv (α b1 .fun (α b1 .inv ψ) ⋆⟨ C ⟩ G ⟪ β ⟫)
+            ≡⟨ cong (α b2 .inv) (sym (funNatR β (α b1 .inv ψ))) ⟩
+          α b2 .inv (α b2 .fun (α b1 .inv ψ ⋆⟨ D ⟩ J ⟪ β ⟫))
+            ≡⟨ α b2 .leftInv _ ⟩
+          α b1 .inv ψ ⋆⟨ D ⟩ J ⟪ β ⟫ ∎
+
+        InvNatR→FunNatR : InvNatR → FunNatR
+        InvNatR→FunNatR invNatR {b1} {b2} β φ =
+          α b2 .fun (φ ⋆⟨ D ⟩ J ⟪ β ⟫)
+            ≡⟨ cong (α b2 .fun) (cong (λ φ' → φ' ⋆⟨ D ⟩ J ⟪ β ⟫) (sym (α b1 .leftInv φ))) ⟩
+          α b2 .fun (α b1 .inv (α b1 .fun φ) ⋆⟨ D ⟩ J ⟪ β ⟫)
+            ≡⟨ cong (α b2 .fun) (sym (invNatR β (α b1 .fun φ))) ⟩
+          α b2 .fun (α b2 .inv (α b1 .fun φ ⋆⟨ C ⟩ G ⟪ β ⟫))
+            ≡⟨ α b2 .rightInv _ ⟩
+          α b1 .fun φ ⋆⟨ C ⟩ G ⟪ β ⟫ ∎
+
+        record isLeftAdhocRightRelativeAdjunction : Type (ℓ-max (ℓ-max ℓB ℓB') (ℓ-max ℓC' ℓD')) where
+
+          field
+            funNatR : FunNatR -- was adjNatInD
+            invNatR : InvNatR -- was adjNatInD'
+
+        open isLeftAdhocRightRelativeAdjunction
+
+        FunNatR→isLeftAdhocRightRelativeAdjunction : FunNatR → isLeftAdhocRightRelativeAdjunction
+        funNatR (FunNatR→isLeftAdhocRightRelativeAdjunction funNatR') = funNatR'
+        invNatR (FunNatR→isLeftAdhocRightRelativeAdjunction funNatR') = FunNatR→InvNatR funNatR'
+
+        InvNatR→isLeftAdhocRightRelativeAdjunction : InvNatR → isLeftAdhocRightRelativeAdjunction
+        funNatR (InvNatR→isLeftAdhocRightRelativeAdjunction invNatR') = InvNatR→FunNatR invNatR'
+        invNatR (InvNatR→isLeftAdhocRightRelativeAdjunction invNatR') = invNatR'
+
+      [_↦_]⊣[_⇒_] : Type (ℓ-max (ℓ-max (ℓ-max ℓC' ℓD') ℓB) ℓB')
+      [_↦_]⊣[_⇒_] = Σ[ α ∈ _ ] isLeftAdhocRightRelativeAdjunction α
+
+    -- Left-adhoc adjunction
+    module _ (c : ob C) (fc : ob D) (G : Functor D C) where
+      module _ (α : ∀ d → [ c ↦ fc ]⊣[ d ↦ G ⟅ d ⟆ ]) where
+        isLeftAdhocAdjunction : Type (ℓ-max (ℓ-max ℓC' ℓD) ℓD')
+        isLeftAdhocAdjunction = isLeftAdhocRightRelativeAdjunction c fc Id G α
+
+        module isLeftAdhocAdjunction = isLeftAdhocRightRelativeAdjunction
+
+      open isLeftAdhocAdjunction
+
+      [_↦_]⊣_ : Type (ℓ-max (ℓ-max ℓC' ℓD) ℓD')
+      [_↦_]⊣_ = [ c ↦ fc ]⊣[ Id ⇒ G ]
+
+      module _ (adjunction : [_↦_]⊣_) where
+        private
+          α = fst adjunction
+          adjA = snd adjunction
+
+        η-adhoc : C [ c , G ⟅ fc ⟆ ]
+        η-adhoc = α fc .fun (id D)
+
+        transposeFromUnit : {d : ob D} → (φ : D [ fc , d ]) → α d .fun φ ≡ η-adhoc ⋆⟨ C ⟩ G ⟪ φ ⟫
+        transposeFromUnit {d} φ =
+          α d .fun φ
+            ≡⟨ cong (α d .fun) (sym (⋆IdL D φ)) ⟩
+          α d .fun (id D ⋆⟨ D ⟩ φ)
+            ≡⟨ funNatR {α = α} adjA φ (id D) ⟩
+          α fc .fun (id D) ⋆⟨ C ⟩ G ⟪ φ ⟫
+            ≡⟨⟩
+          η-adhoc ⋆⟨ C ⟩ G ⟪ φ ⟫ ∎
 
     -- Birelative adjunction
     -- Note that the arrow direction is arbitrary.
+    module _ {A : Category ℓA ℓA'} {B : Category ℓB ℓB'}
+      (I : Functor A C) (F : Functor A D) (J : Functor B D) (G : Functor B C) where
+      module _ (α : ∀ (a : ob A) (b : ob B) → [ I ⟅ a ⟆ ↦ F ⟅ a ⟆ ]⊣[ J ⟅ b ⟆ ↦ G ⟅ b ⟆ ]) where
+        isBirelativeAdjunction : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC' ℓD') ℓA) ℓA') ℓB) ℓB')
+        isBirelativeAdjunction = (∀ (b : ob B) → isLeftRelativeRightAdhocAdjunction I F (J ⟅ b ⟆) (G ⟅ b ⟆) (λ a → α a b))
+                               × (∀ (a : ob A) → isLeftAdhocRightRelativeAdjunction (I ⟅ a ⟆) (F ⟅ a ⟆) J G (α a))
+
+      [_⇒_]⊣[_⇒_] : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC' ℓD') ℓA) ℓA') ℓB) ℓB')
+      [_⇒_]⊣[_⇒_] = Σ[ α ∈ _ ] isBirelativeAdjunction α
+
+      module [_⇒_]⊣[_⇒_] (adjunction : [_⇒_]⊣[_⇒_]) where
+
+        adjIso : ∀ {a b} → Iso (D [ F ⟅ a ⟆ , J ⟅ b ⟆ ]) (C [ I ⟅ a ⟆ , G ⟅ b ⟆ ])
+        adjIso {a} {b} = adjunction .fst a b
+        infix 40 _♭
+        infix 40 _♯
+        _♭ : ∀ {a b} → (D [ F ⟅ a ⟆ , J ⟅ b ⟆ ]) → (C [ I ⟅ a ⟆ , G ⟅ b ⟆ ])
+        (_♭) {_} {_} = adjIso .fun
+
+        _♯ : ∀ {a b} → (C [ I ⟅ a ⟆ , G ⟅ b ⟆ ]) → (D [ F ⟅ a ⟆ , J ⟅ b ⟆ ])
+        (_♯) {_} {_} = adjIso .inv
+
+        module _ {a : ob A} where
+          open isLeftAdhocRightRelativeAdjunction {c = I ⟅ a ⟆} {F ⟅ a ⟆} {J} {G} {λ b → adjunction .fst a b}
+            (adjunction .snd .snd a) public
+
+        module _ {b : ob B} where
+          open isLeftRelativeRightAdhocAdjunction {I = I} {F} {J ⟅ b ⟆} {G ⟅ b ⟆} {λ a → adjunction .fst a b}
+            (adjunction .snd .fst b) public
 
     -- Left-relative adjunction
+    module _ {A : Category ℓA ℓA'} (I : Functor A C) (F : Functor A D) (G : Functor D C) where
+      module _ (α : ∀ (a : ob A) (d : ob D) → [ I ⟅ a ⟆ ↦ F ⟅ a ⟆ ]⊣[ d ↦ G ⟅ d ⟆ ]) where
+        isLeftRelativeAdjunction : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC' ℓD) ℓD') ℓA) ℓA')
+        isLeftRelativeAdjunction = isBirelativeAdjunction I F Id G α
+
+      [_⇒_]⊣_ : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC' ℓD) ℓD') ℓA) ℓA')
+      [_⇒_]⊣_ = [ I ⇒ F ]⊣[ Id ⇒ G ]
+
+    -- Left functoriality and naturality for free for a left-relative adjunction
+    -- Whoever needs this can dualize the proof below.
 
     -- Right-relative adjunction
+    module _ {B : Category ℓB ℓB'} (F : Functor C D) (J : Functor B D) (G : Functor B C) where
+      module _ (α : ∀ (c : ob C) (b : ob B) → [ c ↦ F ⟅ c ⟆ ]⊣[ J ⟅ b ⟆ ↦ G ⟅ b ⟆ ]) where
+        isRightRelativeAdjunction : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓB) ℓB')
+        isRightRelativeAdjunction = isBirelativeAdjunction Id F J G α
+
+      _⊣[_⇒_] : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓB) ℓB')
+      _⊣[_⇒_] = [ Id ⇒ F ]⊣[ J ⇒ G ]
+
+    -- Right functoriality and naturality for free for a right-relative adjunction
+    module RightFunctoriality {B : Category ℓB ℓB'} (F : Functor C D) (J : Functor B D) (obG : ob B → ob C) where
+      module _ (α : ∀ (c : ob C) (b : ob B) → [ c ↦ F ⟅ c ⟆ ]⊣[ J ⟅ b ⟆ ↦ obG b ])
+               (adjA : ∀ b → isRightAdhocAdjunction F (J ⟅ b ⟆) (obG b) (λ c → α c b)) where
+
+        homG : ∀ {b1 b2} → B [ b1 , b2 ] → C [ obG b1 , obG b2 ]
+        homG {b1}{b2} β = α _ _ .fun (ε-adhoc F (J ⟅ b1 ⟆) (obG b1) ((λ c → α c b1) , (adjA b1)) ⋆⟨ D ⟩ J ⟪ β ⟫)
+
+        open isRightAdhocAdjunction
+
+        funNatR : ∀ {c}{b1}{b2} → (β : B [ b1 , b2 ]) → (φ : D [ F ⟅ c ⟆ , J ⟅ b1 ⟆ ]) →
+          α c b2 .fun (φ ⋆⟨ D ⟩ J ⟪ β ⟫) ≡ α c b1 .fun φ ⋆⟨ C ⟩ homG β
+        funNatR {c}{b1}{b2} β φ  =
+          α c b2 .fun (φ ⋆⟨ D ⟩ J ⟪ β ⟫)
+            ≡⟨ cong (α c b2 .fun) (cong₂ (seq' D) (sym (α c b1 .leftInv φ)) refl) ⟩
+          α c b2 .fun (α c b1 .inv (α c b1 .fun φ) ⋆⟨ D ⟩ J ⟪ β ⟫)
+            ≡⟨ cong (α c b2 .fun) (cong₂ (seq' D) (cong (α c b1 .inv) (sym (⋆IdR C (α c b1 .fun φ)))) refl) ⟩
+          α c b2 .fun (α c b1 .inv (α c b1 .fun φ ⋆⟨ C ⟩ id C) ⋆⟨ D ⟩ J ⟪ β ⟫)
+            ≡⟨ cong (α c b2 .fun) (cong₂ (seq' D)
+                (invNatL {F = F} {α = λ c' → α c' b1} (adjA b1) (α c b1 .fun φ) (id C))
+                refl
+              ) ⟩
+          α c b2 .fun ((F ⟪ α c b1 .fun φ ⟫ ⋆⟨ D ⟩ α (obG b1) b1 .inv (id C)) ⋆⟨ D ⟩ J ⟪ β ⟫)
+            ≡⟨ cong (α c b2 .fun) (⋆Assoc D _ _ _) ⟩
+          α c b2 .fun (F ⟪ α c b1 .fun φ ⟫ ⋆⟨ D ⟩ (α (obG b1) b1 .inv (id C) ⋆⟨ D ⟩ J ⟪ β ⟫))
+            ≡⟨⟩
+          α c b2 .fun (F ⟪ α c b1 .fun φ ⟫ ⋆⟨ D ⟩ (ε-adhoc F (J ⟅ b1 ⟆) (obG b1) ((λ c → α c b1) , (adjA b1)) ⋆⟨ D ⟩ J ⟪ β ⟫))
+            ≡⟨ funNatL {F = F} {α = λ c' → α c' b1} (adjA b2) (α c b1 .fun φ)
+               (ε-adhoc F (J ⟅ b1 ⟆) (obG b1) ((λ c → α c b1) , (adjA b1)) ⋆⟨ D ⟩ J ⟪ β ⟫) ⟩
+          α c b1 .fun φ ⋆⟨ C ⟩ α (obG b1) b2 .fun (ε-adhoc F (J ⟅ b1 ⟆) (obG b1) ((λ c → α c b1) , (adjA b1)) ⋆⟨ D ⟩ J ⟪ β ⟫)
+            ≡⟨⟩
+          α c b1 .fun φ ⋆⟨ C ⟩ homG β ∎
+
+        open Functor
+        G : Functor B C
+        F-ob G = obG
+        F-hom G = homG
+        F-id G {b} =
+          F-hom G (B .id)
+            ≡⟨⟩
+          α (obG b) b .fun (α (obG b) b .inv (id C) ⋆⟨ D ⟩ F-hom J (B .id))
+            ≡⟨ cong (α (obG b) b .fun) (cong₂ (seq' D) refl (F-id J)) ⟩
+          α (obG b) b .fun (α (obG b) b .inv (id C) ⋆⟨ D ⟩ D .id)
+            ≡⟨ cong (α (obG b) b .fun) (⋆IdR D (α (obG b) b .inv (id C))) ⟩
+          α (obG b) b .fun (α (obG b) b .inv (id C))
+            ≡⟨ α (obG b) b .rightInv (id C) ⟩
+          C .id ∎
+        F-seq G {b1}{b2}{b3} β β' =
+          homG (β ⋆⟨ B ⟩ β')
+            ≡⟨⟩
+          α (obG b1) b3 .fun (α (obG b1) b1 .inv (id C) ⋆⟨ D ⟩ (J ⟪ β ⋆⟨ B ⟩ β' ⟫))
+            ≡⟨ cong (α (obG b1) b3 .fun) (cong₂ (seq' D) refl (F-seq J β β')) ⟩
+          α (obG b1) b3 .fun (α (obG b1) b1 .inv (id C) ⋆⟨ D ⟩ (J ⟪ β ⟫ ⋆⟨ D ⟩ J ⟪ β' ⟫))
+            ≡⟨ cong (α (obG b1) b3 .fun) (sym (⋆Assoc D _ _ _)) ⟩
+          α (obG b1) b3 .fun ((α (obG b1) b1 .inv (id C) ⋆⟨ D ⟩ J ⟪ β ⟫) ⋆⟨ D ⟩ J ⟪ β' ⟫)
+            ≡⟨ funNatR β' (α (obG b1) b1 .inv (id C) ⋆⟨ D ⟩ J ⟪ β ⟫) ⟩
+          α (obG b1) b2 .fun (α (obG b1) b1 .inv (id C) ⋆⟨ D ⟩ J ⟪ β ⟫) ⋆⟨ C ⟩ homG β'
+            ≡⟨⟩
+          homG β ⋆⟨ C ⟩ homG β' ∎
 
     -- Adjunction
+    module _ (F : Functor C D) (G : Functor D C) where
+      module _ (α : ∀ (c : ob C) (d : ob D) → [ c ↦ F ⟅ c ⟆ ]⊣[ d ↦ G ⟅ d ⟆ ]) where
+        isAdjunction : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+        isAdjunction = isBirelativeAdjunction Id F Id G α
 
-{-
-  -- Adjoint def 2: natural bijection
-  record _⊣_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
-    field
-      adjIso : ∀ {c d} → Iso (D [ F ⟅ c ⟆ , d ]) (C [ c , G ⟅ d ⟆ ])
+      _⊣_ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+      _⊣_ = [ Id ⇒ F ]⊣[ Id ⇒ G ]
 
-    infix 40 _♭
-    infix 40 _♯
-    _♭ : ∀ {c d} → (D [ F ⟅ c ⟆ , d ]) → (C [ c , G ⟅ d ⟆ ])
-    (_♭) {_} {_} = adjIso .fun
+      module _⊣_ (adjunction : _⊣_) where
 
-    _♯ : ∀ {c d} → (C [ c , G ⟅ d ⟆ ]) → (D [ F ⟅ c ⟆ , d ])
-    (_♯) {_} {_} = adjIso .inv
+        open [_⇒_]⊣[_⇒_] Id F Id G adjunction public
 
-    field
-      adjNatInD : ∀ {c : C .ob} {d d'} (f : D [ F ⟅ c ⟆ , d ]) (k : D [ d , d' ])
-                → (f ⋆⟨ D ⟩ k) ♭ ≡ f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫
+    isLeftAdjoint : (F : Functor C D) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+    isLeftAdjoint F = Σ[ G ∈ Functor D C ] F ⊣ G
 
-      adjNatInC : ∀ {c' c d} (g : C [ c , G ⟅ d ⟆ ]) (h : C [ c' , c ])
-                → (h ⋆⟨ C ⟩ g) ♯ ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯
-
-    adjNatInD' : ∀ {c : C .ob} {d d'} (g : C [ c , G ⟅ d ⟆ ]) (k : D [ d , d' ])
-                → g ♯ ⋆⟨ D ⟩ k ≡ (g ⋆⟨ C ⟩ G ⟪ k ⟫) ♯
-    adjNatInD' {c} {d} {d'} g k =
-      g ♯ ⋆⟨ D ⟩ k
-        ≡⟨ sym (adjIso .leftInv (g ♯ ⋆⟨ D ⟩ k)) ⟩
-      ((g ♯ ⋆⟨ D ⟩ k) ♭) ♯
-        ≡⟨ cong _♯ (adjNatInD (g ♯) k) ⟩
-      ((g ♯) ♭ ⋆⟨ C ⟩ G ⟪ k ⟫) ♯
-        ≡⟨ cong _♯ (cong (λ g' → seq' C g' (G ⟪ k ⟫)) (adjIso .rightInv g)) ⟩
-      (g ⋆⟨ C ⟩ G ⟪ k ⟫) ♯ ∎
-
-    adjNatInC' : ∀ {c' c d} (f : D [ F ⟅ c ⟆ , d ]) (h : C [ c' , c ])
-                → h ⋆⟨ C ⟩ (f ♭) ≡ (F ⟪ h ⟫ ⋆⟨ D ⟩ f) ♭
-    adjNatInC' {c'} {c} {d} f h =
-      h ⋆⟨ C ⟩ (f ♭)
-        ≡⟨ sym (adjIso .rightInv (h ⋆⟨ C ⟩ (f ♭))) ⟩
-      ((h ⋆⟨ C ⟩ (f ♭)) ♯) ♭
-        ≡⟨ cong _♭ (adjNatInC (f ♭) h) ⟩
-      ((F ⟪ h ⟫ ⋆⟨ D ⟩ (f ♭) ♯) ♭)
-        ≡⟨ cong _♭ (cong (λ f' → seq' D (F ⟪ h ⟫) f') (adjIso .leftInv f)) ⟩
-      (F ⟪ h ⟫ ⋆⟨ D ⟩ f) ♭ ∎
-
-  isLeftAdjoint : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
-  isLeftAdjoint {C = C}{D} F = Σ[ G ∈ Functor D C ] F ⊣ G
-
-  isRightAdjoint : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (G : Functor D C) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
-  isRightAdjoint {C = C}{D} G = Σ[ F ∈ Functor C D ] F ⊣ G
+    isRightAdjoint : (G : Functor D C) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+    isRightAdjoint G = Σ[ F ∈ Functor C D ] F ⊣ G
 
 {-
 ==============================================
@@ -251,7 +406,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
   open UnitCounit
   open NaturalBijection renaming (_⊣_ to _⊣²_)
   module _ (adj : F ⊣² G) where
-    open _⊣²_ adj
+    open _⊣²_ F G adj
     open _⊣_
 
     -- Naturality condition implies that a commutative square in C
@@ -260,30 +415,30 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
     adjNat' : ∀ {c c' d d'} {f : D [ F ⟅ c ⟆ , d ]} {k : D [ d , d' ]}
             → {h : C [ c , c' ]} {g : C [ c' , G ⟅ d' ⟆ ]}
             -- commutativity of squares is iff
-            → ((f ⋆⟨ D ⟩ k ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯) → (f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫ ≡ h ⋆⟨ C ⟩ g))
-            × ((f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫ ≡ h ⋆⟨ C ⟩ g) → (f ⋆⟨ D ⟩ k ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯))
+            → ((f ⋆⟨ D ⟩ k ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ (g ♯)) → (f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫ ≡ h ⋆⟨ C ⟩ g))
+            × ((f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫ ≡ h ⋆⟨ C ⟩ g) → (f ⋆⟨ D ⟩ k ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ (g ♯)))
     adjNat' {c} {c'} {d} {d'} {f} {k} {h} {g} = D→C , C→D
       where
-        D→C : (f ⋆⟨ D ⟩ k ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯) → (f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫ ≡ h ⋆⟨ C ⟩ g)
+        D→C : (f ⋆⟨ D ⟩ k ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ (g ♯)) → (f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫ ≡ h ⋆⟨ C ⟩ g)
         D→C eq = f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫
-              ≡⟨ sym (adjNatInD _ _) ⟩
+              ≡⟨ sym (funNatR _ _) ⟩
                 ((f ⋆⟨ D ⟩ k) ♭)
               ≡⟨ cong _♭ eq ⟩
                 (F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯) ♭
-              ≡⟨ sym (cong _♭ (adjNatInC _ _)) ⟩
+              ≡⟨ sym (cong _♭ (invNatL _ _)) ⟩
                 (h ⋆⟨ C ⟩ g) ♯ ♭
               ≡⟨ adjIso .rightInv _ ⟩
                 h ⋆⟨ C ⟩ g
               ∎
-        C→D : (f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫ ≡ h ⋆⟨ C ⟩ g) → (f ⋆⟨ D ⟩ k ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯)
+        C→D : (f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫ ≡ h ⋆⟨ C ⟩ g) → (f ⋆⟨ D ⟩ k ≡ F ⟪ h ⟫ ⋆⟨ D ⟩ (g ♯))
         C→D eq = f ⋆⟨ D ⟩ k
               ≡⟨ sym (adjIso .leftInv _) ⟩
                 (f ⋆⟨ D ⟩ k) ♭ ♯
-              ≡⟨ cong _♯ (adjNatInD _ _) ⟩
+              ≡⟨ cong _♯ (funNatR _ _) ⟩
                 (f ♭ ⋆⟨ C ⟩ G ⟪ k ⟫) ♯
               ≡⟨ cong _♯ eq ⟩
                 (h ⋆⟨ C ⟩ g) ♯
-              ≡⟨ adjNatInC _ _ ⟩
+              ≡⟨ invNatL _ _ ⟩
                 F ⟪ h ⟫ ⋆⟨ D ⟩ g ♯
               ∎
 
@@ -401,14 +556,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
 
 
     adj→adj' : F ⊣² G
-    -- ∀ {c d} → Iso (D [ F ⟅ c ⟆ , d ]) (C [ c , G ⟅ d ⟆ ])
-    -- takes f to Gf precomposed with the unit
-    adj→adj' .adjIso {c = c} .fun f = η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ f ⟫
-    -- takes g to Fg postcomposed with the counit
-    adj→adj' .adjIso {d = d} .inv g = F ⟪ g ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧
-    -- invertibility follows from the triangle identities
-    adj→adj' .adjIso {c = c} {d} .rightInv g
-      = η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧ ⟫ -- step0 ∙ step1 ∙ step2 ∙ (C .⋆IdR _)
+    fun (fst adj→adj' c d) f = η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ f ⟫
+    inv (fst adj→adj' c d) g = F ⟪ g ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧
+    rightInv (fst adj→adj' c d) g =
+        η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧ ⟫ -- step0 ∙ step1 ∙ step2 ∙ (C .⋆IdR _)
       ≡⟨ cong (λ v → η ⟦ c ⟧ ⋆⟨ C ⟩ v) (G .F-seq _ _) ⟩
         η ⟦ c ⟧ ⋆⟨ C ⟩ (G ⟪ F ⟪ g ⟫ ⟫ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫)
       ≡⟨ sym (C .⋆Assoc _ _ _) ⟩
@@ -426,8 +577,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
       where
         natu : η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⟫ ≡ g ⋆⟨ C ⟩ η ⟦ G ⟅ d ⟆ ⟧
         natu = sym (η .N-hom _)
-    adj→adj' .adjIso {c = c} {d} .leftInv f
-      = F ⟪ η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ f ⟫ ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧
+    leftInv (fst adj→adj' c d) f =
+        F ⟪ η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ f ⟫ ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧
       ≡⟨ cong (λ v → v ⋆⟨ D ⟩ ε ⟦ d ⟧) (F .F-seq _ _) ⟩
         F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ F ⟪ G ⟪ f ⟫ ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧
       ≡⟨ D .⋆Assoc _ _ _ ⟩
@@ -446,7 +597,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
       where
         natu : F ⟪ G ⟪ f ⟫ ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧ ≡ ε ⟦ F ⟅ c ⟆ ⟧ ⋆⟨ D ⟩ f
         natu = ε .N-hom _
-    -- follows directly from functoriality
-    adj→adj' .adjNatInD {c = c} f k = cong (λ v → η ⟦ c ⟧ ⋆⟨ C ⟩ v) (G .F-seq _ _) ∙ (sym (C .⋆Assoc _ _ _))
-    adj→adj' .adjNatInC {d = d} g h = cong (λ v → v ⋆⟨ D ⟩ ε ⟦ d ⟧) (F .F-seq _ _) ∙ D .⋆Assoc _ _ _
--}
+    fst (snd adj→adj') d = InvNatL→isLeftRelativeRightAdhocAdjunction _ _ _ _ _
+      λ {b1} {b2} β ψ → cong (λ v → v ⋆⟨ D ⟩ ε ⟦ d ⟧) (F .F-seq _ _) ∙ D .⋆Assoc _ _ _
+    snd (snd adj→adj') c = FunNatR→isLeftAdhocRightRelativeAdjunction _ _ _ _ _
+      λ {b1} {b2} β φ → cong (λ v → η ⟦ c ⟧ ⋆⟨ C ⟩ v) (G .F-seq _ _) ∙ (sym (C .⋆Assoc _ _ _))
