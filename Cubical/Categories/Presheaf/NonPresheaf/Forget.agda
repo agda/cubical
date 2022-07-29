@@ -9,6 +9,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.Product
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Instances.Discrete
 
 open import Cubical.Categories.Presheaf.Base
 
