@@ -139,17 +139,18 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
     )
 
   emAdjunction : FreeEMAlgebra ⊣ ForgetEMAlgebra
-  adjIso emAdjunction {a} {algebra b β , isEMB} = emBijection a (algebra b β , isEMB)
-  adjNatInD emAdjunction {a} {algebra b β , isEMB} {algebra c γ , isEMC}
-    (algebraHom f isalgF) (algebraHom g isalgG) =
-    sym (C.⋆Assoc _ _ _)
-  adjNatInC emAdjunction {a} {b} {algebra c γ , isEMC} f g = AlgebraHom≡ M (
+  fst emAdjunction a (algebra b β , isEMB) = emBijection a (algebra b β , isEMB)
+  fst (snd emAdjunction) (algebra c γ , isEMC) = InvNatL→isLeftRelativeRightAdhocAdjunction _ _ _ _ _
+    λ {a} {b} g f → AlgebraHom≡ M (
     (F-hom M (g C.⋆ f) C.⋆ γ)
       ≡⟨ cong (C._⋆ γ) (F-seq M _ _) ⟩
     ((F-hom M g C.⋆ F-hom M f) C.⋆ γ)
       ≡⟨ C.⋆Assoc _ _ _ ⟩
     (F-hom M g C.⋆ (F-hom M f C.⋆ γ)) ∎
     )
+  snd (snd emAdjunction) a = FunNatR→isLeftAdhocRightRelativeAdjunction _ _ _ _ _
+    λ {(algebra b β , isEMB)} {(algebra c γ , isEMC)} (algebraHom g isalgG) (algebraHom f isalgF) →
+      sym (C.⋆Assoc _ _ _)
 
 module _ {C : Category ℓC ℓC'} {monadM monadN : Monad C} (monadν : MonadHom monadM monadN) where
 
