@@ -164,7 +164,8 @@ module SumUnit where
   SumUnit→Maybe→SumUnit (inr _) = refl
 
 Maybe≡SumUnit : Maybe A ≡ Unit ⊎ A
-Maybe≡SumUnit = isoToPath (iso SumUnit.Maybe→SumUnit SumUnit.SumUnit→Maybe SumUnit.SumUnit→Maybe→SumUnit SumUnit.Maybe→SumUnit→Maybe)
+Maybe≡SumUnit = isoToPath (iso Maybe→SumUnit SumUnit→Maybe SumUnit→Maybe→SumUnit Maybe→SumUnit→Maybe)
+  where open SumUnit
 
 congMaybeEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → A ≃ B → Maybe A ≃ Maybe B
