@@ -14,12 +14,26 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Relation.Nullary
 open import Cubical.Data.Sum
+open import Cubical.Data.Sigma
 
-open import Cubical.Data.Maybe.Base
+open import Cubical.Data.Maybe.Base as Maybe
 
 Maybe∙ : ∀ {ℓ} (A : Type ℓ) → Pointed ℓ
 Maybe∙ A .fst = Maybe A
 Maybe∙ A .snd = nothing
+
+-- Maybe∙ is the "free pointing" functor, that is, left adjoint to the
+-- forgetful functor forgetting the base point.
+module _ {ℓ} (A : Type ℓ) {ℓ'} (B : Pointed ℓ') where
+
+  freelyPointedIso : Iso (Maybe∙ A →∙ B) (A → typ B)
+  Iso.fun freelyPointedIso f∙ = fst f∙ ∘ just
+  Iso.inv freelyPointedIso f = Maybe.rec (pt B) f , refl
+  Iso.rightInv freelyPointedIso f = refl
+  Iso.leftInv freelyPointedIso f∙ =
+    ΣPathP
+      ( funExt (Maybe.elim _ (sym (snd f∙)) (λ a → refl))
+      , λ i j → snd f∙ (~ i ∨ j))
 
 map-Maybe-id : ∀ {ℓ} {A : Type ℓ} → ∀ m → map-Maybe (idfun A) m ≡ m
 map-Maybe-id nothing = refl
