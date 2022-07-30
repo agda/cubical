@@ -1,20 +1,23 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Maybe.Properties where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Function
+open import Cubical.Foundations.Function using (_∘_; idfun)
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Pointed.Base
-open import Cubical.Functions.Embedding
-open import Cubical.Data.Empty as ⊥
+open import Cubical.Foundations.Pointed.Base using (Pointed; _→∙_; pt)
+open import Cubical.Foundations.Structure using (⟨_⟩)
+
+open import Cubical.Functions.Embedding using (isEmbedding)
+
+open import Cubical.Data.Empty as ⊥ using (⊥; isProp⊥)
 open import Cubical.Data.Unit
-open import Cubical.Data.Nat
-open import Cubical.Relation.Nullary
-open import Cubical.Data.Sum
-open import Cubical.Data.Sigma
+open import Cubical.Data.Nat using (suc)
+open import Cubical.Data.Sum using (_⊎_; inl; inr)
+open import Cubical.Data.Sigma using (ΣPathP)
+
+open import Cubical.Relation.Nullary using (¬_; Discrete; yes; no)
 
 open import Cubical.Data.Maybe.Base as Maybe
 
@@ -26,7 +29,7 @@ Maybe∙ A .snd = nothing
 -- forgetful functor forgetting the base point.
 module _ {ℓ} (A : Type ℓ) {ℓ'} (B : Pointed ℓ') where
 
-  freelyPointedIso : Iso (Maybe∙ A →∙ B) (A → typ B)
+  freelyPointedIso : Iso (Maybe∙ A →∙ B) (A → ⟨ B ⟩)
   Iso.fun freelyPointedIso f∙ = fst f∙ ∘ just
   Iso.inv freelyPointedIso f = Maybe.rec (pt B) f , refl
   Iso.rightInv freelyPointedIso f = refl
