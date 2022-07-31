@@ -523,7 +523,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
   -- a little notation that is used in the following module but should be outside
   open FinSumChar using (++FinInl ; ++FinInr)
-                  renaming (fun to FSCfun ; inv to FSCinv)
+                  renaming (fun to FSCfun ; inv to FSCinv ; sec to FSCsec)
 
   private
       β++γ∈L' : {n : ℕ} {n' : ℕ} {γ : FinVec (fst L) n'} {β : FinVec (fst L) n}
@@ -830,10 +830,51 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                                      ((pbPr₂ ⋁Pullback) ★ (restCone β β∈L'))
                                      (to++ConeSquare _ _ (pbCommutes ⋁Pullback))
 
-        -- needs an induction i.e. upstreamed to ++Lemmas
         ++LimCone≡ : ∀ i → ++LimCone' .coneOut (sing i)
                          ≡ restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L') .coneOut (sing i)
-        ++LimCone≡ i = {!!}
+        ++LimCone≡ i = subst (λ x → ++LimCone' .coneOut (sing x)
+                                  ≡ restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L') .coneOut (sing x))
+                             (FSCsec _ _ i) (++LimCone≡Aux (FSCinv _ _ i))
+          where
+          ++LimCone≡Aux : (x : Fin n ⊎ Fin n') → ++LimCone' .coneOut (sing (FSCfun _ _ x))
+                        ≡ restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L') .coneOut (sing (FSCfun _ _ x))
+          ++LimCone≡Aux (inl i) = sym (fromPathP (++Lemmas.toConeOutPathPL
+                                                 ((pbPr₁ ⋁Pullback) ★ (restCone γ γ∈L'))
+                                                 ((pbPr₂ ⋁Pullback) ★ (restCone β β∈L'))
+                                                 (to++ConeSquare _ _ (pbCommutes ⋁Pullback)) i))
+                                     ∙∙ cong  (λ x → transport (λ 𝕚 → C [ DLRan F .F-ob (⋁ (β ++Fin γ)) ,
+                                                                       F .F-ob (++FinInlΣ β∈L' γ∈L' i 𝕚) ]) x)
+                                              (limArrowCommutes (limitC _ (F* (⋁ β))) _ _ _)
+                                     ∙∙ fromPathP helperPathP
+            where
+            βᵢ≤⋁β++γ = is-trans _ _ _ (ind≤⋁ β i) (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
+
+            helperPathP : PathP (λ 𝕚 → C [ DLRan F .F-ob (⋁ (β ++Fin γ)) , F .F-ob (++FinInlΣ β∈L' γ∈L' i 𝕚) ])
+                                (F[⋁β++γ]Cone .coneOut ((β i , β∈L' i) , βᵢ≤⋁β++γ))
+                                (restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L') .coneOut (sing (FSCfun _ _ (inl i))))
+            helperPathP 𝕚 =  F[⋁β++γ]Cone .coneOut (++FinInlΣ β∈L' γ∈L' i 𝕚 ,
+                               isProp→PathP {B = λ 𝕛 → ++FinInlΣ β∈L' γ∈L' i 𝕛 .fst ≤ ⋁ (β ++Fin γ)}
+                                             (λ _ → is-prop-valued _ _) βᵢ≤⋁β++γ (ind≤⋁ (β ++Fin γ) (FSCfun _ _ (inl i))) 𝕚)
+
+          ++LimCone≡Aux (inr i) = sym (fromPathP (++Lemmas.toConeOutPathPR
+                                                 ((pbPr₁ ⋁Pullback) ★ (restCone γ γ∈L'))
+                                                 ((pbPr₂ ⋁Pullback) ★ (restCone β β∈L'))
+                                                 (to++ConeSquare _ _ (pbCommutes ⋁Pullback)) i))
+                                     ∙∙ cong  (λ x → transport (λ 𝕚 → C [ DLRan F .F-ob (⋁ (β ++Fin γ)) ,
+                                                                       F .F-ob (++FinInrΣ β∈L' γ∈L' i 𝕚) ]) x)
+                                              (limArrowCommutes (limitC _ (F* (⋁ γ))) _ _ _)
+                                     ∙∙ fromPathP helperPathP
+            where
+            γᵢ≤⋁β++γ = is-trans _ _ _ (ind≤⋁ γ i) (subst (⋁ γ ≤_) (sym (⋁Split++ β γ)) (∨≤LCancel _ _))
+
+            helperPathP : PathP (λ 𝕚 → C [ DLRan F .F-ob (⋁ (β ++Fin γ)) , F .F-ob (++FinInrΣ β∈L' γ∈L' i 𝕚) ])
+                                (F[⋁β++γ]Cone .coneOut ((γ i , γ∈L' i) , γᵢ≤⋁β++γ))
+                                (restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L') .coneOut (sing (FSCfun _ _ (inr i))))
+            helperPathP 𝕚 =  F[⋁β++γ]Cone .coneOut (++FinInrΣ β∈L' γ∈L' i 𝕚 ,
+                               isProp→PathP {B = λ 𝕛 → ++FinInrΣ β∈L' γ∈L' i 𝕛 .fst ≤ ⋁ (β ++Fin γ)}
+                                             (λ _ → is-prop-valued _ _) γᵢ≤⋁β++γ (ind≤⋁ (β ++Fin γ) (FSCfun _ _ (inr i))) 𝕚)
+
+
 
         toConeMor : (f : C [ c , ⋁Cospan .l ]) (g : C [ c , ⋁Cospan .r ])
                     (square : f ⋆⟨ C ⟩ ⋁Cospan .s₁ ≡ g ⋆⟨ C ⟩ ⋁Cospan .s₂)
@@ -844,7 +885,6 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                                                                    (restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L'))
                                                                    singCase
           where
-          open FinSumChar renaming (fun to FSCfun ; inv to FSCinv ; sec to FSCsec)
           singCaseAux : ∀ (x : Fin n ⊎ Fin n')
                       → h ⋆⟨ C ⟩ (coneOut ++LimCone' (sing (FSCfun _ _ x)))
                       ≡ coneOut (toCone f g square) (sing (FSCfun _ _ x))
@@ -911,7 +951,24 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
             where
             singCase : ∀ i → (h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) ⋆⟨ C ⟩ restCone γ γ∈L' .coneOut (sing i)
                            ≡ f ⋆⟨ C ⟩ restCone γ γ∈L' .coneOut (sing i)
-            singCase i = {!!}
+            singCase i = ⋆Assoc C _ _ _ ∙
+                     transp (λ 𝕚 → h ⋆⟨ C ⟩
+                                  (++Lemmas.toConeOutPathPR ((pbPr₁ ⋁Pullback) ★ (restCone γ γ∈L'))
+                                                            ((pbPr₂ ⋁Pullback) ★ (restCone β β∈L'))
+                                                            (to++ConeSquare _ _ (pbCommutes ⋁Pullback)) i (~ 𝕚))
+                                 ≡ ++Lemmas.toConeOutPathPR (f ★ (restCone γ γ∈L'))
+                                                            (g ★ (restCone β β∈L'))
+                                                            (to++ConeSquare _ _ square) i (~ 𝕚)) i0 singCaseHelper
+              where
+              fromAssumption : h ⋆⟨ C ⟩ (coneOut (restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L')) (sing (FSCfun _ _ (inr i))))
+                                    ≡ coneOut (toCone f g square) (sing (FSCfun _ _ (inr i)))
+              fromAssumption = hIsConeMor (sing (FSCfun _ _ (inr i)))
+
+              singCaseHelper :  h ⋆⟨ C ⟩ (coneOut ++LimCone' (sing (FSCfun _ _ (inr i))))
+                                    ≡ coneOut (toCone f g square) (sing (FSCfun _ _ (inr i)))
+              singCaseHelper = subst (λ x → h ⋆⟨ C ⟩ x ≡ coneOut (toCone f g square) (sing (FSCfun _ _ (inr i))))
+                                     (sym (++LimCone≡ (FSCfun _ _ (inr i)))) fromAssumption
+
         snd (fromConeMor h hIsConeMor) = sym (preCompUnique g (restCone β β∈L')
                                                               (lemma4 β β∈L')
                                                               (h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
@@ -925,7 +982,24 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
             where
             singCase : ∀ i → (h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂) ⋆⟨ C ⟩ restCone β β∈L' .coneOut (sing i)
                            ≡ g ⋆⟨ C ⟩ restCone β β∈L' .coneOut (sing i)
-            singCase i = {!!}
+            singCase i = ⋆Assoc C _ _ _ ∙
+                     transp (λ 𝕚 → h ⋆⟨ C ⟩
+                                  (++Lemmas.toConeOutPathPL ((pbPr₁ ⋁Pullback) ★ (restCone γ γ∈L'))
+                                                            ((pbPr₂ ⋁Pullback) ★ (restCone β β∈L'))
+                                                            (to++ConeSquare _ _ (pbCommutes ⋁Pullback)) i (~ 𝕚))
+                                 ≡ ++Lemmas.toConeOutPathPL (f ★ (restCone γ γ∈L'))
+                                                            (g ★ (restCone β β∈L'))
+                                                            (to++ConeSquare _ _ square) i (~ 𝕚)) i0 singCaseHelper
+              where
+              fromAssumption : h ⋆⟨ C ⟩ (coneOut (restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L')) (sing (FSCfun _ _ (inl i))))
+                                    ≡ coneOut (toCone f g square) (sing (FSCfun _ _ (inl i)))
+              fromAssumption = hIsConeMor (sing (FSCfun _ _ (inl i)))
+
+              singCaseHelper :  h ⋆⟨ C ⟩ (coneOut ++LimCone' (sing (FSCfun _ _ (inl i))))
+                                    ≡ coneOut (toCone f g square) (sing (FSCfun _ _ (inl i)))
+              singCaseHelper = subst (λ x → h ⋆⟨ C ⟩ x ≡ coneOut (toCone f g square) (sing (FSCfun _ _ (inl i))))
+                                     (sym (++LimCone≡ (FSCfun _ _ (inl i)))) fromAssumption
+
 
 
 
