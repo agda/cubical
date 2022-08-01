@@ -132,3 +132,16 @@ mapOverSpan-∘ : ∀ {ℓI ℓA ℓA' ℓA'' ℓB ℓB' ℓB''}
 mapOverSpan-∘ f f' f'' g1 g2 [] j [] = []
 mapOverSpan-∘ {B' = B'} f f' f'' g1 g2 (i ∷ is) j (b ∷ bs) =
   g2 i (g1 i b) ∷ mapOverSpan-∘ {B' = B'} f f' f'' g1 g2 is j bs
+
+mapOverSpan∘Idfun : ∀ {ℓI ℓA ℓA'' ℓB ℓB' ℓB''}
+  {I : Type ℓI}
+  {A : Type ℓA} {A'' : Type ℓA''}
+  {B : A → Type ℓB} {B' : A → Type ℓB'} {B'' : A'' → Type ℓB''}
+  (f' : I → A) (f'' : I → A'')
+  (g1 : ∀ a → B a → B' a )
+  (g2 : ∀ i → B' (f' i) → B'' (f'' i)) →
+  ∀ is → mapOverSpan {B = B} {B' = B''} f' f'' (λ i → g2 i ∘ g1 (f' i)) is ≡
+          mapOverSpan {B = B'} f' f'' g2 is ∘ mapOverIdfun g1 (map f' is)
+mapOverSpan∘Idfun f' f'' g1 g2 [] j [] = []
+mapOverSpan∘Idfun f' f'' g1 g2 (i ∷ is) j (b ∷ bs) =
+  g2 i (g1 (f' i) b) ∷ mapOverSpan∘Idfun f' f'' g1 g2 is j bs
