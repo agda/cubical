@@ -109,3 +109,8 @@ mapOverIdfun-∘ : ∀ {ℓA ℓB ℓB' ℓB''} {A : Type ℓA} {B : A → Type 
   → mapOverIdfun (λ a → h a ∘ g a) as ≡ mapOverIdfun h as ∘ mapOverIdfun g as
 mapOverIdfun-∘ h g [] i [] = []
 mapOverIdfun-∘ h g (a ∷ as) i (b ∷ bs) = h a (g a b) ∷ mapOverIdfun-∘ h g as i bs
+
+mapOverSpan : ∀ {ℓI ℓA ℓA' ℓB ℓB'} {I : Type ℓI} {A : Type ℓA} {A' : Type ℓA'} {B : A → Type ℓB} {B' : A' → Type ℓB'}
+  (f : I → A) (f' : I → A') (g : ∀ i → B (f i) → B' (f' i)) → ∀ is → ListP B (map f is) → ListP B' (map f' is)
+mapOverSpan f f' g [] [] = []
+mapOverSpan f f' g (i ∷ is) (b ∷ bs) = g i b ∷ mapOverSpan f f' g is bs
