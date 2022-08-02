@@ -84,3 +84,14 @@ Hⁿ-S²⋁S⁴≅0-bis (suc (suc zero)) (¬p , ¬q , ¬r) = ⊥.rec (¬q refl)
 Hⁿ-S²⋁S⁴≅0-bis (suc (suc (suc zero))) (¬p , ¬q , ¬r) = H³-S²⋁S⁴≅0
 Hⁿ-S²⋁S⁴≅0-bis (suc (suc (suc (suc zero)))) (¬p , ¬q , ¬r) = ⊥.rec (¬r refl)
 Hⁿ-S²⋁S⁴≅0-bis (suc (suc (suc (suc (suc n))))) (¬p , ¬q , ¬r) = Hⁿ-S²⋁S⁴≅0 n
+
+
+------------- Cup product is null for H² ------------
+
+open Iso
+open IsGroupHom
+
+null-H² : (a b : ℤ) → (inv (fst H²-S²⋁S⁴≅ℤ) a) ⌣ (inv (fst H²-S²⋁S⁴≅ℤ) b) ≡ 0ₕ 4
+null-H² a b = sym (leftInv (fst H⁴-S²⋁S⁴≅ℤ) _)
+              ∙ cong (inv (fst H⁴-S²⋁S⁴≅ℤ)) refl
+              ∙ pres1 (snd (invGroupIso H⁴-S²⋁S⁴≅ℤ))

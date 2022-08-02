@@ -277,6 +277,7 @@ module Equiv-RP2-Properties where
   ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n S²⋁S⁴)) _ _))
                      (λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x))))
 
+
   pres·-int : (n m : ℕ) → (a : ℤ) → (k l : ℕ) → (b : ℤ) →
                  ℤ[x,y]→H*-S²⋁S⁴ (base (n ∷ m ∷ []) a ·Pℤ base (k ∷ l ∷ []) b)
               ≡ ℤ[x,y]→H*-S²⋁S⁴ (base (n ∷ m ∷ []) a) cup ℤ[x,y]→H*-S²⋁S⁴ (base (k ∷ l ∷ []) b)
@@ -311,7 +312,8 @@ module Equiv-RP2-Properties where
                                               ∙ pres·-int 0 1 b 1 0 a
                                               ∙ gradCommRing S²⋁S⁴ _ _ _ _
   pres·-int one zero a zero (suc (suc l)) b = refl
-  pres·-int one zero a one zero           b = {!!}
+  pres·-int one zero a one zero           b = sym (base-neutral 4)
+                                              ∙ cong (base 4) (sym (null-H² _ _))
   pres·-int one zero a one (suc l)        b = refl
   pres·-int one zero a (suc (suc k)) l    b = refl
     -- trivial case (1,m+1)
@@ -319,6 +321,7 @@ module Equiv-RP2-Properties where
   pres·-int one (suc m) a (suc k) l b = refl
     -- trivial case (n+2,m)
   pres·-int (suc (suc n)) m a k l b = refl
+
 
 
   pres·-base-case-vec : (v : Vec ℕ 2) → (a : ℤ) → (v' : Vec ℕ 2) → (b : ℤ) →
