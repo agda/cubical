@@ -277,7 +277,8 @@ module Equiv-RP2-Properties where
   ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n S²⋁S⁴)) _ _))
                      (λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x))))
 
-
+  -- note that the proof might be simpliale by adding a second partition on T
+  -- side, though it might complicated a bunch of things
   pres·-int : (n m : ℕ) → (a : ℤ) → (k l : ℕ) → (b : ℤ) →
                  ℤ[x,y]→H*-S²⋁S⁴ (base (n ∷ m ∷ []) a ·Pℤ base (k ∷ l ∷ []) b)
               ≡ ℤ[x,y]→H*-S²⋁S⁴ (base (n ∷ m ∷ []) a) cup ℤ[x,y]→H*-S²⋁S⁴ (base (k ∷ l ∷ []) b)
@@ -344,108 +345,98 @@ module Equiv-RP2-Properties where
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
--- -----------------------------------------------------------------------------
--- -- Function on ℤ[x]/x + morphism
+-----------------------------------------------------------------------------
+-- Function on ℤ[x]/x + morphism
 
---   -- not a trivial cancel
---   ℤ[x]→H*-RP²-cancelX : (x : Fin 2) → ℤ[x]→H*-RP² (<2X,X²> x) ≡ 0H*
---   ℤ[x]→H*-RP²-cancelX zero = cong (base 2) (pres1 ϕ₂str) ∙ base-neutral _
---   ℤ[x]→H*-RP²-cancelX one = refl
+  -- not a trivial cancel ?
+  ℤ[x,y]→H*-S²⋁S⁴-cancel : (x : Fin 3) → ℤ[x,y]→H*-S²⋁S⁴ (<XY,X²,Y²> x) ≡ 0H*
+  ℤ[x,y]→H*-S²⋁S⁴-cancel zero = refl
+  ℤ[x,y]→H*-S²⋁S⁴-cancel one = refl
+  ℤ[x,y]→H*-S²⋁S⁴-cancel two = refl
 
---   ℤ[X]→H*-RP² : RingHom (CommRing→Ring ℤ[X]) (H*R RP²)
---   fst ℤ[X]→H*-RP² = ℤ[x]→H*-RP²
---   snd ℤ[X]→H*-RP² = makeIsRingHom ℤ[x]→H*-RP²-pres1Pℤ ℤ[x]→H*-RP²-pres+ ℤ[x]→H*-RP²-pres·
+  ℤ[X,Y]→H*-S²⋁S⁴ : RingHom (CommRing→Ring ℤ[X,Y]) (H*R S²⋁S⁴)
+  fst ℤ[X,Y]→H*-S²⋁S⁴ = ℤ[x,y]→H*-S²⋁S⁴
+  snd ℤ[X,Y]→H*-S²⋁S⁴ = makeIsRingHom ℤ[x,y]→H*-S²⋁S⁴-pres1Pℤ
+                                        ℤ[x,y]→H*-S²⋁S⁴-pres+
+                                        ℤ[x,y]→H*-S²⋁S⁴-pres·
 
---   -- hence not a trivial pres+, yet pres0 still is
---   ℤ[X]/<2X,X²>→H*R-RP² : RingHom (CommRing→Ring ℤ[X]/<2X,X²>) (H*R RP²)
---   ℤ[X]/<2X,X²>→H*R-RP² =
---     Quotient-FGideal-CommRing-Ring.inducedHom ℤ[X] (H*R RP²) ℤ[X]→H*-RP² <2X,X²> ℤ[x]→H*-RP²-cancelX
+  -- hence not a trivial pres+, yet pres0 still is
+  ℤ[X,Y]/<XY,X²,Y²>→H*R-S²⋁S⁴ : RingHom (CommRing→Ring ℤ[X,Y]/<XY,X²,Y²>) (H*R S²⋁S⁴)
+  ℤ[X,Y]/<XY,X²,Y²>→H*R-S²⋁S⁴ = Quotient-FGideal-CommRing-Ring.inducedHom
+                                  ℤ[X,Y] (H*R S²⋁S⁴) ℤ[X,Y]→H*-S²⋁S⁴
+                                  <XY,X²,Y²> ℤ[x,y]→H*-S²⋁S⁴-cancel
 
---   ℤ[x]/<2x,x²>→H*-RP² : ℤ[x]/<2x,x²> → H* RP²
---   ℤ[x]/<2x,x²>→H*-RP² = fst ℤ[X]/<2X,X²>→H*R-RP²
+  ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ : ℤ[x,y]/<xy,x²,y²> → H* S²⋁S⁴
+  ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ = fst ℤ[X,Y]/<XY,X²,Y²>→H*R-S²⋁S⁴
 
---   ℤ[x]/<2x,x²>→H*-RP²-pres0 : ℤ[x]/<2x,x²>→H*-RP² 0PℤI ≡ 0H*
---   ℤ[x]/<2x,x²>→H*-RP²-pres0 = refl
+  ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴-pres0 : ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ 0PℤI ≡ 0H*
+  ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴-pres0 = refl
 
---   ℤ[x]/<2x,x²>→H*-RP²-pres+ : (x y : ℤ[x]/<2x,x²>) → ℤ[x]/<2x,x²>→H*-RP² ( x +PℤI y) ≡ ℤ[x]/<2x,x²>→H*-RP² x +H* ℤ[x]/<2x,x²>→H*-RP² y
---   ℤ[x]/<2x,x²>→H*-RP²-pres+ x y = IsRingHom.pres+ (snd ℤ[X]/<2X,X²>→H*R-RP²) x y
-
-
--- -----------------------------------------------------------------------------
--- -- Converse Sens on ℤ[X] + ℤ[x]/x
-
---   -- Because ϕ⁻¹ are not morphism on there own
---   -- We need to define functions directly from H* to Z[X]/<2X, X³>
-
---   ψ₂⁻¹ : Bool → ℤ
---   ψ₂⁻¹ false = 1
---   ψ₂⁻¹ true = 0
-
---   private
---   -- Those lemma are requiered because ψ₂⁻¹
---   -- is a morphism only under the quotient
---     Λ : (x : Bool) → ℤ[x]/<2x,x²>
---     Λ x = [ (base (1 ∷ []) (ψ₂⁻¹ x)) ]
-
---     Λ-pres+ : (x y : Bool) → Λ x +PℤI Λ y ≡ Λ (x +Bool y)
---     Λ-pres+ false false = cong [_] (base-add _ _ _)
---                           ∙ eq/ (base (1 ∷ []) 2)
---                                 (base (1 ∷ []) 0)
---                                 ∣ ((λ {zero → base (0 ∷ []) 1 ; one → 0Pℤ}) , helper) ∣₁
---             where
---             helper : _
---             helper = base-add _ _ _
---                      ∙ sym (cong (λ X → ((base (1 ∷ []) 2) +Pℤ X)) (+PℤIdR _) ∙ +PℤIdR _)
---     Λ-pres+ false true = cong [_] (base-add _ _ _)
---     Λ-pres+ true false = cong [_] (base-add _ _ _)
---     Λ-pres+ true true = cong [_] (base-add _ _ _)
+  ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴-pres+ : (x y : ℤ[x,y]/<xy,x²,y²>) →
+                                           ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ ( x +PℤI y)
+                                        ≡ ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ x +H* ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ y
+  ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴-pres+ x y = IsRingHom.pres+ (snd ℤ[X,Y]/<XY,X²,Y²>→H*R-S²⋁S⁴) x y
 
 
---   ϕ⁻¹ : (k : ℕ) → (a : coHom k RP²) → (x : partℕ k) → ℤ[x]/<2x,x²>
---   ϕ⁻¹ k a (is0 x) = [ (base (0 ∷ []) (ϕ₀⁻¹ (substG x a))) ]
---   ϕ⁻¹ k a (is2 x) = [ (base (1 ∷ []) ((ψ₂⁻¹ ∘ ϕ₂⁻¹) (substG x a))) ]
---   ϕ⁻¹ k a (else x) = 0PℤI
+-----------------------------------------------------------------------------
+-- Converse Sens on H* → ℤ[X,Y]
 
---   H*-RP²→ℤ[x]/<2x,x²> : H* RP² → ℤ[x]/<2x,x²>
---   H*-RP²→ℤ[x]/<2x,x²> = DS-Rec-Set.f _ _ _ _ isSetPℤI
---                         0PℤI
---                         (λ { k a → ϕ⁻¹ k a (part k)})
---                         _+PℤI_
---                         +PℤIAssoc
---                         +PℤIIdR
---                         +PℤIComm
---                         (λ k → base-neutral-eq k (part k))
---                         λ k a b → base-add-eq k a b (part k)
---        where
---        base-neutral-eq : (k : ℕ) → (x : partℕ k) → ϕ⁻¹ k (0ₕ k) x ≡ 0PℤI
---        base-neutral-eq k (is0 x) = cong [_] (cong (base {AGP = λ _ → snd ℤAG} (0 ∷ []))
---                                                   (cong ϕ₀⁻¹ (subst0g x) ∙ pres1 ϕ₀⁻¹str)
---                                             ∙ (base-neutral _))
---        base-neutral-eq k (is2 x) = cong [_] (cong (base (1 ∷ []))
---                                                   (cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (subst0g x)
---                                                   ∙ cong ψ₂⁻¹ (pres1 ϕ₂⁻¹str)) -- ψ₂⁻¹ pres1 by refl
---                                             ∙ base-neutral _)
---        base-neutral-eq k (else x) = refl
+  ϕ⁻¹ : (k : ℕ) → (a : coHom k S²⋁S⁴) → (x : partℕ k) → ℤ[x,y]
+  ϕ⁻¹ k a (is0 x) = base (0 ∷ 0 ∷ []) (ϕ₀⁻¹ (substG x a))
+  ϕ⁻¹ k a (is2 x) = base (1 ∷ 0 ∷ []) (ϕ₂⁻¹ (substG x a))
+  ϕ⁻¹ k a (is4 x) = base (0 ∷ 1 ∷ []) (ϕ₄⁻¹ (substG x a))
+  ϕ⁻¹ k a (else x) = 0Pℤ
 
---        base-add-eq : (k : ℕ) → (a b : coHom k RP²) → (x : partℕ k) →
---                      (ϕ⁻¹ k a x) +PℤI (ϕ⁻¹ k b x) ≡ ϕ⁻¹ k (a +ₕ b) x
---        base-add-eq k a b (is0 x) = cong [_] (base-add _ _ _
---                                             ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (subst+ _ _ _)))
---        base-add-eq k a b (is2 x) = Λ-pres+ (ϕ₂⁻¹ (substG x a)) (ϕ₂⁻¹ (substG x b))
---                                    ∙ cong [_] (cong (λ X → base {AGP = λ _ → snd ℤAG} (1 ∷ []) (ψ₂⁻¹ X))
---                                                     ((sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (subst+ _ _ _))))
---        base-add-eq k a b (else x) = +PℤIIdR _
+  H*-S²⋁S⁴→ℤ[x,y] : H* S²⋁S⁴ → ℤ[x,y]
+  H*-S²⋁S⁴→ℤ[x,y] = DS-Rec-Set.f _ _ _ _ isSetPℤ
+       0Pℤ
+       (λ k a → ϕ⁻¹ k a (part k))
+       _+Pℤ_
+       +PℤAssoc
+       +PℤIdR
+       +PℤComm
+       (λ k → base-neutral-eq k (part k))
+       λ k a b → base-add-eq k a b (part k)
+    where
 
---   H*-RP²→ℤ[x]/<2x,x²>-pres0 : H*-RP²→ℤ[x]/<2x,x²> 0H* ≡ 0PℤI
---   H*-RP²→ℤ[x]/<2x,x²>-pres0 = refl
+    base-neutral-eq : (k : ℕ) → (x : partℕ k) → ϕ⁻¹ k (0ₕ k) x ≡ 0Pℤ
+    base-neutral-eq k (is0 x) = cong (base (0 ∷ 0 ∷ [])) (cong ϕ₀⁻¹ (subst0g x))
+                                ∙ cong (base (0 ∷ 0 ∷ [])) (pres1 ϕ₀⁻¹str)
+                                ∙ base-neutral (0 ∷ 0 ∷ [])
+    base-neutral-eq k (is2 x) = cong (base (1 ∷ 0 ∷ [])) (cong ϕ₂⁻¹ (subst0g x))
+                                ∙ cong (base (1 ∷ 0 ∷ [])) (pres1 ϕ₂⁻¹str)
+                                ∙ base-neutral (1 ∷ 0 ∷ [])
+    base-neutral-eq k (is4 x) = cong (base (0 ∷ 1 ∷ [])) (cong ϕ₄⁻¹ (subst0g x))
+                                ∙ cong (base (0 ∷ 1 ∷ [])) (pres1 ϕ₄⁻¹str)
+                                ∙ base-neutral (0 ∷ 1 ∷ [])
+    base-neutral-eq k (else x) = refl
 
---   H*-RP²→ℤ[x]/<2x,x²>-pres+ : (x y : H* RP²) → H*-RP²→ℤ[x]/<2x,x²> (x +H* y) ≡ (H*-RP²→ℤ[x]/<2x,x²> x) +PℤI (H*-RP²→ℤ[x]/<2x,x²> y)
---   H*-RP²→ℤ[x]/<2x,x²>-pres+ x y = refl
+    base-add-eq : (k : ℕ) → (a b : coHom k S²⋁S⁴) → (x : partℕ k)
+                  → ϕ⁻¹ k a x +Pℤ ϕ⁻¹ k b x ≡ ϕ⁻¹ k (a +ₕ b) x
+    base-add-eq k a b (is0 x) = base-add _ _ _
+                                ∙ cong (base (0 ∷ 0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (subst+ a b x))
+    base-add-eq k a b (is2 x) = base-add _ _ _
+                                ∙ cong (base (1 ∷ 0 ∷ [])) (sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (subst+ a b x))
+    base-add-eq k a b (is4 x) = base-add _ _ _
+                                ∙ cong (base (0 ∷ 1 ∷ [])) (sym (pres· ϕ₄⁻¹str _ _) ∙ cong ϕ₄⁻¹ (subst+ a b x))
+    base-add-eq k a b (else x) = +PℤIdR _
+
+
+  H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> : H* S²⋁S⁴ → ℤ[x,y]/<xy,x²,y²>
+  H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> = [_] ∘ H*-S²⋁S⁴→ℤ[x,y]
+
+  H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²>-pres0 : H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> 0H* ≡ 0PℤI
+  H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²>-pres0 = refl
+
+  H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²>-pres+ : (x y : H* S²⋁S⁴) →
+                                             H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> (x +H* y)
+                                         ≡ (H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> x) +PℤI (H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> y)
+  H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²>-pres+ x y = refl
 
 
 
--- -----------------------------------------------------------------------------
--- -- Section
+-----------------------------------------------------------------------------
+-- Section
 
 --   ψ₂-sect : (x : Bool) → ψ₂ (ψ₂⁻¹ x) ≡ x
 --   ψ₂-sect false = refl
