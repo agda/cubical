@@ -438,89 +438,47 @@ module Equiv-RP2-Properties where
 -----------------------------------------------------------------------------
 -- Section
 
---   ψ₂-sect : (x : Bool) → ψ₂ (ψ₂⁻¹ x) ≡ x
---   ψ₂-sect false = refl
---   ψ₂-sect true = refl
+  e-sect-base : (k : ℕ) → (a : coHom k S²⋁S⁴) → (x : partℕ k) →
+                ℤ[x,y]→H*-S²⋁S⁴ (ϕ⁻¹ k a x) ≡ base k a
+  e-sect-base k a (is0 x) = cong (base 0) (ϕ₀-sect (substG x a))
+                            ∙ sym (constSubstCommSlice _ _ base x a)
+  e-sect-base k a (is2 x) = cong (base 2) (ϕ₂-sect _)
+                            ∙ sym (constSubstCommSlice _ _ base x a)
+  e-sect-base k a (is4 x) = cong (base 4) (ϕ₄-sect _)
+                            ∙ sym (constSubstCommSlice _ _ base x a)
+  e-sect-base k a (else x) = sym (base-neutral k)
+                             ∙ cong (base k) (trivialGroupEq (Hⁿ-S²⋁S⁴≅0-bis k x) _ _)
 
---   e-sect-base : (k : ℕ) → (a : coHom k RP²) → (x : partℕ k) →
---                   ℤ[x]/<2x,x²>→H*-RP² (ϕ⁻¹ k a x) ≡ base k a
---   e-sect-base k a (is0 x) = cong (base 0) (ϕ₀-sect (substG x a))
---                             ∙ sym (constSubstCommSlice _ _ base x a)
---   e-sect-base k a (is2 x) = cong (base 2) (cong ϕ₂ (ψ₂-sect _) ∙ ϕ₂-sect _)
---                             ∙ sym (constSubstCommSlice _ _ base x a)
---   e-sect-base k a (else x) = sym (base-neutral k)
---                              ∙ cong (base k) (trivialGroupEq (Hⁿ-RP²≅0' k (fst x) (snd x)) _ _)
-
---   e-sect : (x : H* RP²) → ℤ[x]/<2x,x²>→H*-RP² (H*-RP²→ℤ[x]/<2x,x²> x) ≡ x
---   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
---            refl
---            (λ k a → e-sect-base k a (part k))
---            λ {U V} ind-U ind-V → ℤ[x]/<2x,x²>→H*-RP²-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
+  e-sect : (x : H* S²⋁S⁴) → ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ (H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> x) ≡ x
+  e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+           refl
+           (λ k a → e-sect-base k a (part k))
+           λ {U V} ind-U ind-V → ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
 
 
--- -----------------------------------------------------------------------------
--- -- Retraction
 
---   -- could be prove for : k + 2·m
---   -- then call it with 0 and 1
---   e-retr-ψ₂-false : (a : ℤ) → (isEven a ≡ false) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
---   e-retr-ψ₂-false a x = cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ x))
---                   ∙ eq/ (base (1 ∷ []) 1) (base (1 ∷ []) a)
---                     ∣ ((λ {zero → base (0 ∷ []) (-ℤ m) ; one → 0Pℤ }) , helper) ∣₁
---             where
---             m = fst (isEvenFalse a x)
+-----------------------------------------------------------------------------
+-- Retraction
 
---             helper : _
---             helper = base-add _ _ _
---                      ∙ cong (base (1 ∷ [])) (cong (λ X → 1 +ℤ (-ℤ X)) (snd (isEvenFalse a x))
---                                              ∙ cong (λ X → 1 +ℤ X) (-Dist+ _ _)
---                                              ∙ +ℤAssoc _ _ _
---                                              ∙ +ℤIdL _)
---                      ∙ sym (cong (λ X → ((base (0 ∷ []) (-ℤ m)) ·Pℤ base (1 ∷ []) 2) +Pℤ X) (+PℤIdR _)
---                            ∙ +PℤIdR _
---                            ∙ cong (base (1 ∷ [])) (sym (-DistL· _ _) ∙ cong -ℤ_ (·ℤComm _ _)))
-
---   e-retr-ψ₂-true : (a : ℤ) → (isEven a ≡ true) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
---   e-retr-ψ₂-true a x = cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ x))
---                        ∙ eq/ (base (1 ∷ []) 0) (base (1 ∷ []) a)
---                        ∣ ((λ { zero → base (0 ∷ []) (-ℤ m) ; one → 0Pℤ }) , helper) ∣₁
---             where
---             m = fst (isEvenTrue a x)
-
---             helper : _
---             helper = base-add _ _ _
---                      ∙ cong (base (1 ∷ [])) (+ℤIdL _ ∙ cong -ℤ_ (snd (isEvenTrue a x) ∙ ·ℤComm 2 m))
---                      ∙ sym (cong (λ X → (base (0 ∷ []) (-ℤ m) ·Pℤ base (1 ∷ []) 2) +Pℤ X) (+PℤIdR _)
---                             ∙ +PℤIdR _
---                             ∙ cong (base (1 ∷ [])) (sym (-DistL· _ _)))
-
-
---   e-retr-ψ₂ : (a : ℤ) → ((isEven a ≡ false) ⊎ (isEven a ≡ true)) → Λ (ψ₂ a) ≡ [ base (1 ∷ []) a ]
---   e-retr-ψ₂ a (inl x) = e-retr-ψ₂-false a x
---   e-retr-ψ₂ a (inr x) = e-retr-ψ₂-true a x
-
-
---   e-retr-base : (k :  ℕ) → (a : ℤ) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² [ base (k ∷ []) a ]) ≡ [ base (k ∷ []) a ]
---   e-retr-base zero a = cong [_] (cong (base (zero ∷ []))
---                                 (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a)) ∙ ϕ₀-retr a))
---   e-retr-base one a = cong [_] (cong (base (1 ∷ [])) (cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (transportRefl _)))
---                       ∙ cong [_] (cong (base (1 ∷ [])) (cong ψ₂⁻¹ (ϕ₂-retr (ψ₂ a))))
---                       ∙ e-retr-ψ₂ a (dichotomyBoolSym (isEven a))
---   e-retr-base (suc (suc k)) a = eq/ 0Pℤ (base ((suc (suc k)) ∷ []) a)
---                                 ∣ ((λ { zero → 0Pℤ ; one → base (k ∷ []) (-ℤ a) }) , helper) ∣₁
---               where
---               helper : _
---               helper = +PℤIdL _
---                        ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+-comm k 2))) (sym (·ℤIdR _))
---                        ∙ sym (+PℤIdL _ ∙ +PℤIdR _ )
-
---   e-retr : (x : ℤ[x]/<2x,x²>) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² x) ≡ x
---   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
---            (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
---            refl
---            (λ { (k ∷ []) a → e-retr-base k a})
---            λ {U V} ind-U ind-V → cong H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP²-pres+ [ U ] [ V ])
---                                   ∙ cong₂ _+PℤI_ ind-U ind-V)
+    -- e-retr : (x : ℤ[x]/x³) → H*-CP²→ℤ[x]/x³ (ℤ[x]/x³→H*-CP² x) ≡ x
+    -- e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
+    --          (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
+    --          refl
+    --          base-case
+    --          λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
+    --          where
+    --          base-case : _
+    --          base-case (zero ∷ []) a = cong [_] (cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a))))
+    --                                     ∙ cong [_] (cong (base (0 ∷ [])) (ϕ₀-retr a))
+    --          base-case (one ∷ []) a = cong [_] (cong (base (1 ∷ [])) (cong ϕ₂⁻¹ (transportRefl (ϕ₂ a))))
+    --                                   ∙ cong [_] (cong (base (1 ∷ [])) (ϕ₂-retr a))
+    --          base-case (two ∷ []) a = cong [_] (cong (base (2 ∷ [])) (cong ϕ₄⁻¹ (transportRefl (ϕ₄ a))))
+    --                                   ∙ cong [_] (cong (base (2 ∷ [])) (ϕ₄-retr a))
+    --          base-case (suc (suc (suc k)) ∷ []) a = eq/ 0Pℤ (base (suc (suc (suc k)) ∷ []) a)
+    --                                                 ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
+    --            where
+    --            helper : _
+    --            helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 3))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
 
 
 -- -----------------------------------------------------------------------------
