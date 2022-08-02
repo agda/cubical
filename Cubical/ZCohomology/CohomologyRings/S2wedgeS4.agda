@@ -460,12 +460,30 @@ module Equiv-RP2-Properties where
 -----------------------------------------------------------------------------
 -- Retraction
 
-    -- e-retr : (x : ℤ[x]/x³) → H*-CP²→ℤ[x]/x³ (ℤ[x]/x³→H*-CP² x) ≡ x
-    -- e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-    --          (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
-    --          refl
-    --          base-case
-    --          λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
+  -- don't fucking type check !!! Yet everything seems to be axactly the same !
+  abstract
+    helphelp : (a : ℤ) → ϕ₄⁻¹ (ϕ₄ a) ≡ a
+    helphelp a = {!ϕ₄-retr a!}
+
+  e-retr-base : (v : Vec ℕ 2) → (a : ℤ) →
+                H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> (ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ [ base v a ]) ≡ [ base v a ]
+  e-retr-base (zero        ∷ zero        ∷ []) a = cong [_] (cong (base (0 ∷ 0 ∷ [])) (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a))))
+                                                    ∙ cong [_] (cong (base (0 ∷ 0 ∷ [])) (ϕ₀-retr a))
+  e-retr-base (zero        ∷ one         ∷ []) a = cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ϕ₄⁻¹ (transportRefl (ϕ₄ a))))
+                                                    ∙ cong [_] (cong (base (0 ∷ 1 ∷ [])) {!ϕ₄-retr a!})
+  e-retr-base (zero        ∷ suc (suc m) ∷ []) a = {!!}
+  e-retr-base (one         ∷ zero        ∷ []) a = cong [_] (cong (base (1 ∷ 0 ∷ [])) (cong ϕ₂⁻¹ (transportRefl (ϕ₂ a))))
+                                                    ∙ cong [_] (cong (base (1 ∷ 0 ∷ [])) (ϕ₂-retr a))
+  e-retr-base (one         ∷ suc m       ∷ []) a = {!!}
+  e-retr-base (suc (suc n) ∷ m           ∷ []) a = {!!}
+
+  e-retr : (x : ℤ[x,y]/<xy,x²,y²>) → H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> (ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ x) ≡ x
+  e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
+           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
+           refl
+           e-retr-base
+           λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
+
     --          where
     --          base-case : _
     --          base-case (zero ∷ []) a = cong [_] (cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a))))
