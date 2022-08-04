@@ -151,17 +151,26 @@ isEmbedding≡hasPropFibers
 module _
   {f : A → B}
   (isSetB : isSet B)
-  (inj : ∀{w x} → f w ≡ f x → w ≡ x)
   where
 
-  injective→hasPropFibers : hasPropFibers f
-  injective→hasPropFibers y (x , fx≡y) (x' , fx'≡y) =
-    Σ≡Prop
-      (λ _ → isSetB _ _)
-      (inj (fx≡y ∙ sym (fx'≡y)))
+  module _
+    (inj : ∀{w x} → f w ≡ f x → w ≡ x)
+    where
 
-  injEmbedding : isEmbedding f
-  injEmbedding = hasPropFibers→isEmbedding injective→hasPropFibers
+    injective→hasPropFibers : hasPropFibers f
+    injective→hasPropFibers y (x , fx≡y) (x' , fx'≡y) =
+      Σ≡Prop
+        (λ _ → isSetB _ _)
+        (inj (fx≡y ∙ sym (fx'≡y)))
+
+    injEmbedding : isEmbedding f
+    injEmbedding = hasPropFibers→isEmbedding injective→hasPropFibers
+
+  retractableIntoSet→isEmbedding : hasRetract f → isEmbedding f
+  retractableIntoSet→isEmbedding (g , ret) = injEmbedding inj
+    where
+    inj : f w ≡ f x → w ≡ x
+    inj {w = w} {x = x} p = sym (ret w) ∙∙ cong g p ∙∙ ret x
 
 isEquiv→hasPropFibers : isEquiv f → hasPropFibers f
 isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
