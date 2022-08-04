@@ -21,21 +21,21 @@ module _
 
   open BinaryRelation
 
-  on : Rel A A ℓ
-  on x y = R (f x) (f y)
+  pulledbackRel : Rel A A ℓ
+  pulledbackRel x y = R (f x) (f y)
 
-  isReflOn : isRefl R → isRefl on
-  isReflOn isReflR a = isReflR (f a)
+  isReflPulledbackRel : isRefl R → isRefl pulledbackRel
+  isReflPulledbackRel isReflR a = isReflR (f a)
 
-  isSymOn : isSym R → isSym on
-  isSymOn isSymR a a' = isSymR (f a) (f a')
+  isSymPulledbackRel : isSym R → isSym pulledbackRel
+  isSymPulledbackRel isSymR a a' = isSymR (f a) (f a')
 
-  isTransOn : isTrans R → isTrans on
-  isTransOn isTransR a a' a'' = isTransR (f a) (f a') (f a'')
+  isTransPulledbackRel : isTrans R → isTrans pulledbackRel
+  isTransPulledbackRel isTransR a a' a'' = isTransR (f a) (f a') (f a'')
 
   open isEquivRel
 
-  isEquivRelOn : isEquivRel R → isEquivRel on
-  reflexive (isEquivRelOn isEquivRelR) = isReflOn (reflexive isEquivRelR)
-  symmetric (isEquivRelOn isEquivRelR) = isSymOn (symmetric isEquivRelR)
-  transitive (isEquivRelOn isEquivRelR) = isTransOn (transitive isEquivRelR)
+  isEquivRelPulledbackRel : isEquivRel R → isEquivRel pulledbackRel
+  reflexive (isEquivRelPulledbackRel isEquivRelR) = isReflPulledbackRel (reflexive isEquivRelR)
+  symmetric (isEquivRelPulledbackRel isEquivRelR) = isSymPulledbackRel (symmetric isEquivRelR)
+  transitive (isEquivRelPulledbackRel isEquivRelR) = isTransPulledbackRel (transitive isEquivRelR)
