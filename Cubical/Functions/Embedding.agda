@@ -150,14 +150,14 @@ isEmbedding≡hasPropFibers
 -- implies isEmbedding as long as B is an h-set.
 module _
   {f : A → B}
-  (iSB : isSet B)
+  (isSetB : isSet B)
   (inj : ∀{w x} → f w ≡ f x → w ≡ x)
   where
 
   injective→hasPropFibers : hasPropFibers f
   injective→hasPropFibers y (x , fx≡y) (x' , fx'≡y) =
     Σ≡Prop
-      (λ _ → iSB _ _)
+      (λ _ → isSetB _ _)
       (inj (fx≡y ∙ sym (fx'≡y)))
 
   injEmbedding : isEmbedding f
