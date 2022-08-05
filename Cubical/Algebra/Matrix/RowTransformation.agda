@@ -19,12 +19,12 @@ open import Cubical.Data.FinData renaming (znots to znotsFin ; snotz to snotzFin
 open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.Matrix
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Algebra.Matrix.CommRingCoefficient
 
 private

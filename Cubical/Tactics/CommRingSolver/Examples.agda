@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRingSolver.Examples where
+module Cubical.Tactics.CommRingSolver.Examples where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
@@ -10,7 +10,7 @@ open import Cubical.Data.List
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 private
   variable
@@ -49,16 +49,16 @@ module Test (R : CommRing ℓ) where
       ≡ 0r - 0r
   _ = solve R
 
-  _ : (x : fst R) → x ≡ x
+  _ : ∀ x → x ≡ x
   _ = solve R
 
-  _ : (x y : fst R) → x ≡ x
+  _ : ∀ x y → x ≡ x
   _ = solve R
 
-  _ : (x y : fst R) → x + y ≡ y + x
+  _ : ∀ x y → x + y ≡ y + x
   _ = solve R
 
-  _ : (x y : fst R) → (x + y) · (x - y) ≡ x · x - y · y
+  _ : ∀ x y → (x + y) · (x - y) ≡ x · x - y · y
   _ = solve R
 
   {-

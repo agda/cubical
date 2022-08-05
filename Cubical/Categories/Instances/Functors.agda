@@ -2,12 +2,16 @@
 
 module Cubical.Categories.Instances.Functors where
 
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.NaturalTransformation.Properties
-open import Cubical.Categories.Morphism renaming (isIso to isIsoC)
+open import Cubical.Categories.Morphism
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 
 private
   variable
@@ -50,3 +54,48 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
       areInv-αd = isIso→areInv (is d)
   FUNCTORIso α is .sec = makeNatTransPath (funExt (λ c → (is c) .sec))
   FUNCTORIso α is .ret = makeNatTransPath (funExt (λ c → (is c) .ret))
+
+  -- iso is componentwise iso in Functor
+  FUNCTORIso' : ∀ {F G : Functor C D} (α : F ⇒ G)
+             → isIsoC FUNCTOR α
+             → ((c : C .ob) → isIsoC D (α ⟦ c ⟧))
+  FUNCTORIso' α isom c .invC = isom .invC .N-ob c
+  FUNCTORIso' α isom c .sec i = isom .sec i .N-ob c
+  FUNCTORIso' α isom c .ret i = isom .ret i .N-ob c
+
+  open Iso
+  open NatIso
+
+  Iso→NatIso : {F G : Functor C D} → CatIso FUNCTOR F G → NatIso F G
+  Iso→NatIso α .trans = α .fst
+  Iso→NatIso α .nIso = FUNCTORIso' _ (α .snd)
+
+  Path→Iso→NatIso : {F G : Functor C D} → (p : F ≡ G) → pathToNatIso p ≡ Iso→NatIso (pathToIso p)
+  Path→Iso→NatIso {F = F} p = J (λ _ p → pathToNatIso p ≡ Iso→NatIso (pathToIso p)) (NatIso≡ refl-helper) p
+    where
+    refl-helper : _
+    refl-helper i x = ((λ i → pathToIso-refl {C = D} {x = F .F-ob x} i .fst)
+      ∙ (λ i → pathToIso-refl {C = FUNCTOR} {x = F} (~ i) .fst .N-ob x)) i
+
+  Iso-FUNCTORIso-NatIso : {F G : Functor C D} → Iso (CatIso FUNCTOR F G) (NatIso F G)
+  Iso-FUNCTORIso-NatIso .fun = Iso→NatIso
+  Iso-FUNCTORIso-NatIso .inv α = α .trans , FUNCTORIso _ (α .nIso)
+  Iso-FUNCTORIso-NatIso .rightInv α i .trans = α .trans
+  Iso-FUNCTORIso-NatIso .rightInv α i .nIso =
+    isProp→PathP (λ i → isPropΠ (λ _ → isPropIsIso _)) (FUNCTORIso' (α .trans) (FUNCTORIso _ (α .nIso))) (α .nIso) i
+  Iso-FUNCTORIso-NatIso .leftInv α i .fst = α .fst
+  Iso-FUNCTORIso-NatIso .leftInv α i .snd =
+    isProp→PathP (λ i → isPropIsIso _) (FUNCTORIso _ (FUNCTORIso' _ (α .snd))) (α .snd) i
+
+  FUNCTORIso≃NatIso : {F G : Functor C D} → CatIso FUNCTOR F G ≃ NatIso F G
+  FUNCTORIso≃NatIso = isoToEquiv Iso-FUNCTORIso-NatIso
+
+
+  -- Functor Category is Univalent if the Target Category is Univalent
+
+  open isUnivalent
+
+  isUnivalentFUNCTOR : isUnivalent D → isUnivalent FUNCTOR
+  isUnivalentFUNCTOR isUnivD .univ _ _ =
+    isEquiv[equivFunA≃B∘f]→isEquiv[f] _ FUNCTORIso≃NatIso
+      (subst isEquiv (λ i p → Path→Iso→NatIso p i) (Path≃NatIso isUnivD .snd))
