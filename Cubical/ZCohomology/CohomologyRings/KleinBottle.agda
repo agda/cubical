@@ -61,7 +61,11 @@ open Iso
    Y : (0,1)
 -}
 
-module Equiv-K²-Properties where
+module Equiv-K²-Properties
+  (e₁ : GroupIso ℤGroup (coHomGr 1 KleinBottle))
+  (e₂ : GroupIso BoolGroup (coHomGr 2 KleinBottle))
+  where
+
 
 -----------------------------------------------------------------------------
 -- Definitions, Import with notations, Partition
@@ -79,8 +83,8 @@ module Equiv-K²-Properties where
   ℤ[X,Y]/<X²,XY,2Y,Y²> : CommRing ℓ-zero
   ℤ[X,Y]/<X²,XY,2Y,Y²> = PolyCommRing-Quotient ℤCR <X²,XY,2Y,Y²>
 
-  ℤ[x,y]/<xy,x²,y²> : Type ℓ-zero
-  ℤ[x,y]/<xy,x²,y²> = fst ℤ[X,Y]/<X²,XY,2Y,Y²>
+  ℤ[x,y]/<x²,xy,2y,y²> : Type ℓ-zero
+  ℤ[x,y]/<x²,xy,2y,y²> = fst ℤ[X,Y]/<X²,XY,2Y,Y²>
 
   -- Import with notation
   open IsGroupHom
@@ -165,7 +169,6 @@ module Equiv-K²-Properties where
   ϕ₀-sect = rightInv (fst e₀)
   ϕ₀-retr = leftInv (fst e₀)
 
-  e₁ = invGroupIso H¹-𝕂²≅ℤ
   ϕ₁ = fun (fst e₁)
   ϕ₁str = snd e₁
   ϕ₁⁻¹ = inv (fst e₁)
@@ -173,17 +176,16 @@ module Equiv-K²-Properties where
   ϕ₁-sect = rightInv (fst e₁)
   ϕ₁-retr = leftInv (fst e₁)
 
+  ϕ₂ = fun (fst e₂)
+  ϕ₂str = snd e₂
+  ϕ₂⁻¹ = inv (fst e₂)
+  ϕ₂⁻¹str = snd (invGroupIso e₂)
+  ϕ₂-sect = rightInv (fst e₂)
+  ϕ₂-retr = leftInv (fst e₂)
+
   module PblComp
-    (e₂ : GroupIso BoolGroup (coHomGr 2 KleinBottle))
+    (null-H¹  : (a b : ℤ) → (ϕ₁ a) ⌣  (ϕ₁ b) ≡ 0ₕ 2)
     where
-
-    ϕ₂ = fun (fst e₂)
-    ϕ₂str = snd e₂
-    ϕ₂⁻¹ = inv (fst e₂)
-    ϕ₂⁻¹str = snd (invGroupIso e₂)
-    ϕ₂-sect = rightInv (fst e₂)
-    ϕ₂-retr = leftInv (fst e₂)
-
 
   -----------------------------------------------------------------------------
   -- Direct Sens on ℤ[x,y]
@@ -232,8 +234,8 @@ module Equiv-K²-Properties where
   -----------------------------------------------------------------------------
   -- Morphism on ℤ[x]
 
-    ℤ[x,y]→H*-𝕂²-pres1Pℤ : ℤ[x,y]→H*-𝕂² (1Pℤ) ≡ 1H*
-    ℤ[x,y]→H*-𝕂²-pres1Pℤ = refl
+    ℤ[x,y]→H*-𝕂²-pres1 : ℤ[x,y]→H*-𝕂² (1Pℤ) ≡ 1H*
+    ℤ[x,y]→H*-𝕂²-pres1 = refl
 
     ℤ[x,y]→H*-𝕂²-pres+ : (x y : ℤ[x,y]) → ℤ[x,y]→H*-𝕂² (x +Pℤ y) ≡ ℤ[x,y]→H*-𝕂² x +H* ℤ[x,y]→H*-𝕂² y
     ℤ[x,y]→H*-𝕂²-pres+ x y = refl
@@ -265,109 +267,111 @@ module Equiv-K²-Properties where
     ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n KleinBottle)) _ _))
                        (λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x))))
 
---     -- note that the proof might be simpliale by adding a second partition on T
---     -- side, though it might complicated a bunch of things
---     pres·-int : (n m : ℕ) → (a : ℤ) → (k l : ℕ) → (b : ℤ) →
---                    ℤ[x,y]→H*-𝕂² (base (n ∷ m ∷ []) a ·Pℤ base (k ∷ l ∷ []) b)
---                 ≡ ℤ[x,y]→H*-𝕂² (base (n ∷ m ∷ []) a) cup ℤ[x,y]→H*-𝕂² (base (k ∷ l ∷ []) b)
+    -- note that the proof might be simpliale by adding a second partition on T
+    -- side, though it might complicated a bunch of things
+    pres·-int : (n m : ℕ) → (a : ℤ) → (k l : ℕ) → (b : ℤ) →
+                   ℤ[x,y]→H*-𝕂² (base (n ∷ m ∷ []) a ·Pℤ base (k ∷ l ∷ []) b)
+                ≡ ℤ[x,y]→H*-𝕂² (base (n ∷ m ∷ []) a) cup ℤ[x,y]→H*-𝕂² (base (k ∷ l ∷ []) b)
 
---       -- non trivial case (0,0)
---     pres·-int zero zero a zero zero          b = cong (base 0) (ϕₙ⌣ϕₘ _ ϕ₀str _ ϕ₀str _ ϕ₀str (ϕ₀-gen _ _) _ _)
---     pres·-int zero zero a zero one           b = cong (base 4) (ϕₙ⌣ϕₘ _ ϕ₀str _ ϕ₄str _ ϕ₄str (ϕ₀-gen _ _) _ _)
---     pres·-int zero zero a zero (suc (suc l)) b = refl
---     pres·-int zero zero a one zero           b = cong (base 2) (ϕₙ⌣ϕₘ _ ϕ₀str _ ϕ₂str _ ϕ₂str (ϕ₀-gen _ _) _ _)
---     pres·-int zero zero a one (suc l)        b = refl
---     pres·-int zero zero a (suc (suc k)) l    b = refl
---       -- non trivial case (0,1)
---     pres·-int zero one a zero  zero         b = cong ℤ[x,y]→H*-𝕂² (·PℤComm (base (0 ∷ 1 ∷ []) a) (base (0 ∷ 0 ∷ []) b))
---                                                 ∙ pres·-int 0 0 b 0 1 a
---                                                 ∙ gradCommRing 𝕂² _ _ _ _
---     pres·-int zero one a zero  one          b = sym (base-neutral 8)
---                                                 ∙ cong (base 8) (trivialGroupEq (Hⁿ-𝕂²≅0 _) _ _)
---     pres·-int zero one a zero (suc (suc l)) b = refl
---     pres·-int zero one a one zero           b = sym (base-neutral 6)
---                                                 ∙ cong (base 6) (trivialGroupEq (Hⁿ-𝕂²≅0 _) _ _)
---     pres·-int zero one a one (suc l)        b = refl
---     pres·-int zero one a (suc (suc k)) l    b = refl
---       -- trivial case (0, m+2)
---     pres·-int zero (suc (suc m)) a  zero         l b = refl
---     pres·-int zero (suc (suc m)) a  one          l b = refl
---     pres·-int zero (suc (suc m)) a (suc (suc k)) l b = refl
---       -- non trivial case (1,0)
---     pres·-int one zero a zero zero          b = cong ℤ[x,y]→H*-𝕂² (·PℤComm (base (1 ∷ 0 ∷ []) a) (base (0 ∷ 0 ∷ []) b))
---                                                 ∙ pres·-int 0 0 b 1 0 a
---                                                 ∙ gradCommRing 𝕂² _ _ _ _
---     pres·-int one zero a zero one           b = cong ℤ[x,y]→H*-𝕂² (·PℤComm (base (1 ∷ 0 ∷ []) a) (base (0 ∷ 1 ∷ []) b))
---                                                 ∙ pres·-int 0 1 b 1 0 a
---                                                 ∙ gradCommRing 𝕂² _ _ _ _
---     pres·-int one zero a zero (suc (suc l)) b = refl
---     pres·-int one zero a one zero           b = sym (base-neutral 4)
---                                                 ∙ cong (base 4) (sym (null-H² _ _))
---     pres·-int one zero a one (suc l)        b = refl
---     pres·-int one zero a (suc (suc k)) l    b = refl
---       -- trivial case (1,m+1)
---     pres·-int one (suc m) a  zero   l b = refl
---     pres·-int one (suc m) a (suc k) l b = refl
---       -- trivial case (n+2,m)
---     pres·-int (suc (suc n)) m a k l b = refl
-
-
-
---     pres·-base-case-vec : (v : Vec ℕ 2) → (a : ℤ) → (v' : Vec ℕ 2) → (b : ℤ) →
---                              ℤ[x,y]→H*-𝕂² (base v a ·Pℤ base v' b)
---                           ≡ ℤ[x,y]→H*-𝕂² (base v a) cup ℤ[x,y]→H*-𝕂² (base v' b)
---     pres·-base-case-vec (n ∷ m ∷ []) a (k ∷ l ∷ []) b = pres·-int n m a k l b
-
---     -- proof of the morphism
---     ℤ[x,y]→H*-𝕂²-pres· : (x y : ℤ[x,y]) → ℤ[x,y]→H*-𝕂² (x ·Pℤ y) ≡ ℤ[x,y]→H*-𝕂² x cup ℤ[x,y]→H*-𝕂² y
---     ℤ[x,y]→H*-𝕂²-pres· = DS-Ind-Prop.f _ _ _ _
---                            (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
---                            (λ y → refl)
---                            base-case
---                            λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
---       where
---       base-case : _
---       base-case v a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
---                              (sym (RingTheory.0RightAnnihilates (H*R 𝕂²) _))
---                              (λ v' b → pres·-base-case-vec v a v' b )
---                              λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
+      -- non trivial case (0,0)
+    pres·-int zero zero a zero zero          b = cong (base 0) (ϕₙ⌣ϕₘ _ ϕ₀str _ ϕ₀str _ ϕ₀str (ϕ₀-gen _ _) _ _)
+    pres·-int zero zero a zero one           b = cong (base 2) (ϕₙ⌣ϕₘ _ ϕ₀str _ ϕ₂∘ψ₂str _ ϕ₂∘ψ₂str (ϕ₀-gen _ _) _ _)
+    pres·-int zero zero a zero (suc (suc l)) b = refl
+    pres·-int zero zero a one zero           b = cong (base 1) (ϕₙ⌣ϕₘ _ ϕ₀str _ ϕ₁str _ ϕ₁str (ϕ₀-gen _ _) _ _)
+    pres·-int zero zero a one (suc l)        b = refl
+    pres·-int zero zero a (suc (suc k)) l    b = refl
+      -- non trivial case (0,1)
+    pres·-int zero one a zero  zero         b = cong ℤ[x,y]→H*-𝕂² (·PℤComm (base (0 ∷ 1 ∷ []) a) (base (0 ∷ 0 ∷ []) b))
+                                                ∙ pres·-int 0 0 b 0 1 a
+                                                ∙ gradCommRing KleinBottle _ _ _ _
+    pres·-int zero one a zero  one          b = sym (base-neutral 4)
+                                                ∙ cong (base 4) (trivialGroupEq (Hⁿ⁺³-𝕂²≅0 1) _ _)
+    pres·-int zero one a zero (suc (suc l)) b = refl
+    pres·-int zero one a one zero           b = sym (base-neutral 3)
+                                                ∙ cong (base 3) (trivialGroupEq (Hⁿ⁺³-𝕂²≅0 0) _ _)
+    pres·-int zero one a one (suc l)        b = refl
+    pres·-int zero one a (suc (suc k)) l    b = refl
+      -- trivial case (0, m+2)
+    pres·-int zero (suc (suc m)) a  zero         l b = refl
+    pres·-int zero (suc (suc m)) a  one          l b = refl
+    pres·-int zero (suc (suc m)) a (suc (suc k)) l b = refl
+      -- non trivial case (1,0)
+    pres·-int one zero a zero zero          b = cong ℤ[x,y]→H*-𝕂² (·PℤComm (base (1 ∷ 0 ∷ []) a) (base (0 ∷ 0 ∷ []) b))
+                                                ∙ pres·-int 0 0 b 1 0 a
+                                                ∙ gradCommRing KleinBottle _ _ _ _
+    pres·-int one zero a zero one           b = cong ℤ[x,y]→H*-𝕂² (·PℤComm (base (1 ∷ 0 ∷ []) a) (base (0 ∷ 1 ∷ []) b))
+                                                ∙ pres·-int 0 1 b 1 0 a
+                                                ∙ gradCommRing KleinBottle _ _ _ _
+    pres·-int one zero a zero (suc (suc l)) b = refl
+    pres·-int one zero a one zero           b = sym (base-neutral 2)
+                                                ∙ cong (base 2) (sym (null-H¹ _ _))
+    pres·-int one zero a one (suc l)        b = refl
+    pres·-int one zero a (suc (suc k)) l    b = refl
+      -- trivial case (1,m+1)
+    pres·-int one (suc m) a  zero   l b = refl
+    pres·-int one (suc m) a (suc k) l b = refl
+      -- trivial case (n+2,m)
+    pres·-int (suc (suc n)) m a k l b = refl
 
 
---   -----------------------------------------------------------------------------
---   -- Function on ℤ[x]/x + morphism
 
---     -- not a trivial cancel ?
---     ℤ[x,y]→H*-𝕂²-cancel : (x : Fin 3) → ℤ[x,y]→H*-𝕂² (<X²,XY,2Y,Y²> x) ≡ 0H*
---     ℤ[x,y]→H*-𝕂²-cancel zero = refl
---     ℤ[x,y]→H*-𝕂²-cancel one = refl
---     ℤ[x,y]→H*-𝕂²-cancel two = refl
+    pres·-base-case-vec : (v : Vec ℕ 2) → (a : ℤ) → (v' : Vec ℕ 2) → (b : ℤ) →
+                             ℤ[x,y]→H*-𝕂² (base v a ·Pℤ base v' b)
+                          ≡ ℤ[x,y]→H*-𝕂² (base v a) cup ℤ[x,y]→H*-𝕂² (base v' b)
+    pres·-base-case-vec (n ∷ m ∷ []) a (k ∷ l ∷ []) b = pres·-int n m a k l b
 
---     ℤ[X,Y]→H*-𝕂² : RingHom (CommRing→Ring ℤ[X,Y]) (H*R 𝕂²)
---     fst ℤ[X,Y]→H*-𝕂² = ℤ[x,y]→H*-𝕂²
---     snd ℤ[X,Y]→H*-𝕂² = makeIsRingHom ℤ[x,y]→H*-𝕂²-pres1Pℤ
---                                           ℤ[x,y]→H*-𝕂²-pres+
---                                           ℤ[x,y]→H*-𝕂²-pres·
-
---     -- hence not a trivial pres+, yet pres0 still is
---     ℤ[X,Y]/<X²,XY,2Y,Y²>→H*R-𝕂² : RingHom (CommRing→Ring ℤ[X,Y]/<X²,XY,2Y,Y²>) (H*R 𝕂²)
---     ℤ[X,Y]/<X²,XY,2Y,Y²>→H*R-𝕂² = Quotient-FGideal-CommRing-Ring.inducedHom
---                                     ℤ[X,Y] (H*R 𝕂²) ℤ[X,Y]→H*-𝕂²
---                                     <X²,XY,2Y,Y²> ℤ[x,y]→H*-𝕂²-cancel
-
---     ℤ[x,y]/<xy,x²,y²>→H*-𝕂² : ℤ[x,y]/<xy,x²,y²> → H* 𝕂²
---     ℤ[x,y]/<xy,x²,y²>→H*-𝕂² = fst ℤ[X,Y]/<X²,XY,2Y,Y²>→H*R-𝕂²
-
---     ℤ[x,y]/<xy,x²,y²>→H*-𝕂²-pres0 : ℤ[x,y]/<xy,x²,y²>→H*-𝕂² 0PℤI ≡ 0H*
---     ℤ[x,y]/<xy,x²,y²>→H*-𝕂²-pres0 = refl
-
---     ℤ[x,y]/<xy,x²,y²>→H*-𝕂²-pres+ : (x y : ℤ[x,y]/<xy,x²,y²>) →
---                                              ℤ[x,y]/<xy,x²,y²>→H*-𝕂² ( x +PℤI y)
---                                           ≡ ℤ[x,y]/<xy,x²,y²>→H*-𝕂² x +H* ℤ[x,y]/<xy,x²,y²>→H*-𝕂² y
---     ℤ[x,y]/<xy,x²,y²>→H*-𝕂²-pres+ x y = IsRingHom.pres+ (snd ℤ[X,Y]/<X²,XY,2Y,Y²>→H*R-𝕂²) x y
+    -- proof of the morphism
+    ℤ[x,y]→H*-𝕂²-pres· : (x y : ℤ[x,y]) → ℤ[x,y]→H*-𝕂² (x ·Pℤ y) ≡ ℤ[x,y]→H*-𝕂² x cup ℤ[x,y]→H*-𝕂² y
+    ℤ[x,y]→H*-𝕂²-pres· = DS-Ind-Prop.f _ _ _ _
+                           (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
+                           (λ y → refl)
+                           base-case
+                           λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
+      where
+      base-case : _
+      base-case v a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+                             (sym (RingTheory.0RightAnnihilates (H*R KleinBottle) _))
+                             (λ v' b → pres·-base-case-vec v a v' b )
+                             λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
---   -----------------------------------------------------------------------------
---   -- Converse Sens on H* → ℤ[X,Y]
+  -----------------------------------------------------------------------------
+  -- Function on ℤ[x]/x + morphism
+
+    -- not a trivial cancel ?
+    ℤ[x,y]→H*-𝕂²-cancel : (x : Fin 4) → ℤ[x,y]→H*-𝕂² (<X²,XY,2Y,Y²> x) ≡ 0H*
+    ℤ[x,y]→H*-𝕂²-cancel zero = refl
+    ℤ[x,y]→H*-𝕂²-cancel one = refl
+    ℤ[x,y]→H*-𝕂²-cancel two = cong (base 2) (pres1 ϕ₂str) ∙ base-neutral _
+    ℤ[x,y]→H*-𝕂²-cancel three = refl
+
+
+    ℤ[X,Y]→H*-𝕂² : RingHom (CommRing→Ring ℤ[X,Y]) (H*R KleinBottle)
+    fst ℤ[X,Y]→H*-𝕂² = ℤ[x,y]→H*-𝕂²
+    snd ℤ[X,Y]→H*-𝕂² = makeIsRingHom ℤ[x,y]→H*-𝕂²-pres1
+                                       ℤ[x,y]→H*-𝕂²-pres+
+                                       ℤ[x,y]→H*-𝕂²-pres·
+
+    -- hence not a trivial pres+, yet pres0 still is
+    ℤ[X,Y]/<X²,XY,2Y,Y²>→H*R-𝕂² : RingHom (CommRing→Ring ℤ[X,Y]/<X²,XY,2Y,Y²>) (H*R KleinBottle)
+    ℤ[X,Y]/<X²,XY,2Y,Y²>→H*R-𝕂² = Quotient-FGideal-CommRing-Ring.inducedHom
+                                    ℤ[X,Y] (H*R KleinBottle) ℤ[X,Y]→H*-𝕂²
+                                    <X²,XY,2Y,Y²> ℤ[x,y]→H*-𝕂²-cancel
+
+    ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² : ℤ[x,y]/<x²,xy,2y,y²> → H* KleinBottle
+    ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² = fst ℤ[X,Y]/<X²,XY,2Y,Y²>→H*R-𝕂²
+
+    ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂²-pres0 : ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² 0PℤI ≡ 0H*
+    ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂²-pres0 = refl
+
+    ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂²-pres+ : (x y : ℤ[x,y]/<x²,xy,2y,y²>) →
+                                             ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² ( x +PℤI y)
+                                          ≡ ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² x +H* ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² y
+    ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂²-pres+ x y = IsRingHom.pres+ (snd ℤ[X,Y]/<X²,XY,2Y,Y²>→H*R-𝕂²) x y
+
+
+  -----------------------------------------------------------------------------
+  -- Converse Sens on H* → ℤ[X,Y]
 
 --     ϕ⁻¹ : (k : ℕ) → (a : coHom k 𝕂²) → (x : partℕ k) → ℤ[x,y]
 --     ϕ⁻¹ k a (is0 x) = base (0 ∷ 0 ∷ []) (ϕ₀⁻¹ (substG x a))
@@ -410,16 +414,16 @@ module Equiv-K²-Properties where
 --       base-add-eq k a b (else x) = +PℤIdR _
 
 
---     H*-𝕂²→ℤ[x,y]/<xy,x²,y²> : H* 𝕂² → ℤ[x,y]/<xy,x²,y²>
---     H*-𝕂²→ℤ[x,y]/<xy,x²,y²> = [_] ∘ H*-𝕂²→ℤ[x,y]
+--     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> : H* 𝕂² → ℤ[x,y]/<x²,xy,2y,y²>
+--     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> = [_] ∘ H*-𝕂²→ℤ[x,y]
 
---     H*-𝕂²→ℤ[x,y]/<xy,x²,y²>-pres0 : H*-𝕂²→ℤ[x,y]/<xy,x²,y²> 0H* ≡ 0PℤI
---     H*-𝕂²→ℤ[x,y]/<xy,x²,y²>-pres0 = refl
+--     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres0 : H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> 0H* ≡ 0PℤI
+--     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres0 = refl
 
---     H*-𝕂²→ℤ[x,y]/<xy,x²,y²>-pres+ : (x y : H* 𝕂²) →
---                                                H*-𝕂²→ℤ[x,y]/<xy,x²,y²> (x +H* y)
---                                            ≡ (H*-𝕂²→ℤ[x,y]/<xy,x²,y²> x) +PℤI (H*-𝕂²→ℤ[x,y]/<xy,x²,y²> y)
---     H*-𝕂²→ℤ[x,y]/<xy,x²,y²>-pres+ x y = refl
+--     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres+ : (x y : H* 𝕂²) →
+--                                                H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> (x +H* y)
+--                                            ≡ (H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> x) +PℤI (H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> y)
+--     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres+ x y = refl
 
 
 
@@ -437,11 +441,11 @@ module Equiv-K²-Properties where
 --     e-sect-base k a (else x) = sym (base-neutral k)
 --                                ∙ cong (base k) (trivialGroupEq (Hⁿ-𝕂²≅0-bis k x) _ _)
 
---     e-sect : (x : H* 𝕂²) → ℤ[x,y]/<xy,x²,y²>→H*-𝕂² (H*-𝕂²→ℤ[x,y]/<xy,x²,y²> x) ≡ x
+--     e-sect : (x : H* 𝕂²) → ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² (H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> x) ≡ x
 --     e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
 --              refl
 --              (λ k a → e-sect-base k a (part k))
---              λ {U V} ind-U ind-V → ℤ[x,y]/<xy,x²,y²>→H*-𝕂²-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
+--              λ {U V} ind-U ind-V → ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂²-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
 
 
 
@@ -449,7 +453,7 @@ module Equiv-K²-Properties where
 --   -- Retraction
 
 --     e-retr-base : (v : Vec ℕ 2) → (a : ℤ) →
---                   H*-𝕂²→ℤ[x,y]/<xy,x²,y²> (ℤ[x,y]/<xy,x²,y²>→H*-𝕂² [ base v a ]) ≡ [ base v a ]
+--                   H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> (ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² [ base v a ]) ≡ [ base v a ]
 --     e-retr-base (zero        ∷ zero        ∷ []) a = cong [_] (cong (base (0 ∷ 0 ∷ [])) (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a))))
 --                                                       ∙ cong [_] (cong (base (0 ∷ 0 ∷ [])) (ϕ₀-retr a))
 --     e-retr-base (zero        ∷ one         ∷ []) a = cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ϕ₄⁻¹ (transportRefl (ϕ₄ a))))
@@ -475,7 +479,7 @@ module Equiv-K²-Properties where
 --                 helper = +PℤIdL _ ∙ sym (+PℤIdL _ ∙
 --                          cong₂ _+Pℤ_ (cong₂ base  (cong₂ (λ X → λ Y → X ∷ Y ∷ []) (+-comm _ _) (+-comm _ _)) (·ℤIdR _))
 --                          (+PℤIdL _) ∙ +PℤIdR _)
---     e-retr : (x : ℤ[x,y]/<xy,x²,y²>) → H*-𝕂²→ℤ[x,y]/<xy,x²,y²> (ℤ[x,y]/<xy,x²,y²>→H*-𝕂² x) ≡ x
+--     e-retr : (x : ℤ[x,y]/<x²,xy,2y,y²>) → H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> (ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² x) ≡ x
 --     e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
 --              (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
 --              refl
@@ -493,9 +497,9 @@ module Equiv-K²-Properties where
 --   𝕂²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X,Y]/<X²,XY,2Y,Y²>) (H*R 𝕂²)
 --   fst 𝕂²-CohomologyRing = isoToEquiv is
 --     where
---     is : Iso ℤ[x,y]/<xy,x²,y²> (H* 𝕂²)
---     fun is = ℤ[x,y]/<xy,x²,y²>→H*-𝕂²
---     inv is = H*-𝕂²→ℤ[x,y]/<xy,x²,y²>
+--     is : Iso ℤ[x,y]/<x²,xy,2y,y²> (H* 𝕂²)
+--     fun is = ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂²
+--     inv is = H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>
 --     rightInv is = e-sect
 --     leftInv is = e-retr
 --   snd 𝕂²-CohomologyRing = snd ℤ[X,Y]/<X²,XY,2Y,Y²>→H*R-𝕂²
