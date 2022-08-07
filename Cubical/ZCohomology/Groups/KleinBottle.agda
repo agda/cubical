@@ -41,6 +41,7 @@ open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
+open import Cubical.ZCohomology.RingStructure.CupProduct
 
 open IsGroupHom
 open Iso
@@ -455,3 +456,14 @@ isContrHⁿ-𝕂² n =
 
 Hⁿ⁺³-𝕂²≅0 : (n : ℕ) → GroupIso (coHomGr (3 + n) KleinBottle) UnitGroup₀
 Hⁿ⁺³-𝕂²≅0 n = contrGroupIsoUnit (isContrHⁿ-𝕂² n)
+
+
+-- Proof that the cup product is trivial
+
+-- try : (a b : ℤ) → fun (fst H²-𝕂²≅Bool) ((inv (fst H¹-𝕂²≅ℤ) a) ⌣ (inv (fst H¹-𝕂²≅ℤ) b)) ≡ fun (fst H²-𝕂²≅Bool) (0ₕ 2)
+-- try a b = {!refl!}
+
+-- null-H¹ : (a b : ℤ) → (inv (fst H¹-𝕂²≅ℤ) a) ⌣ (inv (fst H¹-𝕂²≅ℤ) b) ≡ 0ₕ 2
+-- null-H¹ a b = sym (leftInv (fst H²-𝕂²≅Bool) _)
+--               ∙ {!cong (inv (H²-𝕂²≅Bool)) refl !}
+--               ∙ pres1 (snd (invGroupIso H²-𝕂²≅Bool))
