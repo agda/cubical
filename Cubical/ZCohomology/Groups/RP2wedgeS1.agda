@@ -47,53 +47,33 @@ RP²⋁S¹ = (RP² , point) ⋁ (S₊∙ 1)
 H⁰-RP²⋁S¹≅ℤ : GroupIso (coHomGr 0 RP²⋁S¹) ℤGroup
 H⁰-RP²⋁S¹≅ℤ = H⁰-connected (inl point) (wedgeConnected _ _ connectedRP¹ (Sn-connected 0))
 
--- ------------- H¹(RP²⋁S¹) ------------
--- H¹-RP²⋁S¹≅0 : GroupIso (coHomGr 1 RP²⋁S¹) UnitGroup₀
--- H¹-RP²⋁S¹≅0 = (Hⁿ-⋁ _ _ 0)
---               □ ((GroupIsoDirProd (Hⁿ-Sᵐ 1 2) (Hⁿ-Sᵐ 1 4))
---               □ lUnitGroupIso)
+------------- H¹(RP²⋁S¹) ------------
+H¹-RP²⋁S¹≅ℤ : GroupIso (coHomGr 1 RP²⋁S¹) ℤGroup
+H¹-RP²⋁S¹≅ℤ = (Hⁿ-⋁ _ _ 0)
+              □ ((GroupIsoDirProd H¹-RP²≅0 (Hⁿ-Sᵐ 1 1))
+              □ lUnitGroupIso)
 
 -- ------------- H²(RP²⋁S¹) ------------
--- H²-RP²⋁S¹≅ℤ : GroupIso (coHomGr 2 RP²⋁S¹) ℤGroup
--- H²-RP²⋁S¹≅ℤ = (Hⁿ-⋁ _ _ 1)
---               □ ((GroupIsoDirProd (Hⁿ-Sᵐ 2 2) (Hⁿ-Sᵐ 2 4))
---               □ rUnitGroupIso)
+H²-RP²⋁S¹≅Bool : GroupIso (coHomGr 2 RP²⋁S¹) BoolGroup
+H²-RP²⋁S¹≅Bool = (Hⁿ-⋁ _ _ 1)
+                 □ ((GroupIsoDirProd H²-RP²≅Bool (Hⁿ-Sᵐ 2 1))
+                 □ rUnitGroupIso)
 
--- ------------- H³(RP²⋁S¹) ------------
--- H³-RP²⋁S¹≅0 : GroupIso (coHomGr 3 RP²⋁S¹) UnitGroup₀
--- H³-RP²⋁S¹≅0 = (Hⁿ-⋁ _ _ 2)
---               □ ((GroupIsoDirProd (Hⁿ-Sᵐ 3 2) (Hⁿ-Sᵐ 3 4))
---               □ lUnitGroupIso)
+------------- Hⁿ(RP²⋁S¹) for n ≥ 3 ------------
+Hⁿ-RP²⋁S¹≅0 : (n : ℕ) → GroupIso (coHomGr (3 + n) RP²⋁S¹) UnitGroup₀
+Hⁿ-RP²⋁S¹≅0 n = (Hⁿ-⋁ _ _ (2 + n))
+               □ ((GroupIsoDirProd (Hⁿ-RP²≅0 n) (Hⁿ-Sᵐ (3 + n) 1))
+               □ lUnitGroupIso)
 
--- ------------- H⁴(RP²⋁S¹) ------------
--- H⁴-RP²⋁S¹≅ℤ : GroupIso (coHomGr 4 RP²⋁S¹) ℤGroup
--- H⁴-RP²⋁S¹≅ℤ = (Hⁿ-⋁ _ _ 3)
---               □ ((GroupIsoDirProd (Hⁿ-Sᵐ 4 2) (Hⁿ-Sᵐ 4 4))
---               □ lUnitGroupIso)
+------------- Cup product is null for H² ------------
 
--- ------------- Hⁿ(RP²⋁S¹) for n ≥ 5 ------------
--- Hⁿ-RP²⋁S¹≅0 : (n : ℕ) → GroupIso (coHomGr (5 + n) RP²⋁S¹) UnitGroup₀
--- Hⁿ-RP²⋁S¹≅0 n = (Hⁿ-⋁ _ _ (4 + n))
---                □ ((GroupIsoDirProd (Hⁿ-Sᵐ (5 + n) 2) (Hⁿ-Sᵐ (5 + n) 4))
---                □ lUnitGroupIso)
+open Iso
+open IsGroupHom
 
--- ------------- Hⁿ(RP²⋁S¹) for n ≠ 0, ≠ 2 and ≠ 4 ------------
--- Hⁿ-RP²⋁S¹≅0-bis : (n : ℕ) → (n ≡ 0 → ⊥) × ((n ≡ 2 → ⊥) × (n ≡ 4 → ⊥))
---                 → GroupIso (coHomGr n RP²⋁S¹) UnitGroup₀
--- Hⁿ-RP²⋁S¹≅0-bis zero (¬p , ¬q , ¬r) = ⊥.rec (¬p refl)
--- Hⁿ-RP²⋁S¹≅0-bis (suc zero) (¬p , ¬q , ¬r) = H¹-RP²⋁S¹≅0
--- Hⁿ-RP²⋁S¹≅0-bis (suc (suc zero)) (¬p , ¬q , ¬r) = ⊥.rec (¬q refl)
--- Hⁿ-RP²⋁S¹≅0-bis (suc (suc (suc zero))) (¬p , ¬q , ¬r) = H³-RP²⋁S¹≅0
--- Hⁿ-RP²⋁S¹≅0-bis (suc (suc (suc (suc zero)))) (¬p , ¬q , ¬r) = ⊥.rec (¬r refl)
--- Hⁿ-RP²⋁S¹≅0-bis (suc (suc (suc (suc (suc n))))) (¬p , ¬q , ¬r) = Hⁿ-RP²⋁S¹≅0 n
+-- lem : (a b : ℤ) → fun (fst H²-RP²⋁S¹≅Bool) ((inv (fst H¹-RP²⋁S¹≅ℤ) a) ⌣ (inv (fst H¹-RP²⋁S¹≅ℤ) b)) ≡ fun (fst H²-RP²⋁S¹≅Bool) (0ₕ 2)
+-- lem a b = {!refl!}
 
-
--- ------------- Cup product is null for H² ------------
-
--- open Iso
--- open IsGroupHom
-
--- null-H² : (a b : ℤ) → (inv (fst H²-RP²⋁S¹≅ℤ) a) ⌣ (inv (fst H²-RP²⋁S¹≅ℤ) b) ≡ 0ₕ 4
--- null-H² a b = sym (leftInv (fst H⁴-RP²⋁S¹≅ℤ) _)
---               ∙ cong (inv (fst H⁴-RP²⋁S¹≅ℤ)) refl
---               ∙ pres1 (snd (invGroupIso H⁴-RP²⋁S¹≅ℤ))
+-- null-H¹ : (a b : ℤ) → (inv (fst H¹-RP²⋁S¹≅ℤ) a) ⌣ (inv (fst H¹-RP²⋁S¹≅ℤ) b) ≡ 0ₕ 2
+-- null-H¹ a b = sym (leftInv (fst H²-RP²⋁S¹≅Bool) _)
+--               ∙ cong (inv (fst H²-RP²⋁S¹≅Bool)) {!refl!}
+--               ∙ pres1 (snd (invGroupIso H²-RP²⋁S¹≅Bool))

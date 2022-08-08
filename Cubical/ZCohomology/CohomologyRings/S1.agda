@@ -126,7 +126,7 @@ module Equiv-S1-Properties where
     ; is-set    to isSetPℤI     )
 
 
-  e₀ = invGroupIso (Hᵐ-Sⁿ 0 1)
+  e₀ = invGroupIso (Hⁿ-Sᵐ 0 1)
   ϕ₀ = fun (fst e₀)
   ϕ₀str = snd e₀
   ϕ₀⁻¹ = inv (fst e₀)
@@ -134,7 +134,7 @@ module Equiv-S1-Properties where
   ϕ₀-sect = rightInv (fst e₀)
   ϕ₀-retr = leftInv (fst e₀)
 
-  e₁ = invGroupIso (Hᵐ-Sⁿ 1 1)
+  e₁ = invGroupIso (Hⁿ-Sᵐ 1 1)
   ϕ₁ = fun (fst e₁)
   ϕ₁str = snd e₁
   ϕ₁⁻¹ = inv (fst e₁)
@@ -157,7 +157,7 @@ module Equiv-S1-Properties where
                   base-add-eq
                where
                e : _
-               e = Hᵐ-Sⁿ
+               e = Hⁿ-Sᵐ
 
                ϕ : _
                ϕ (zero ∷ [])        a = base 0 (ϕ₀ a)
@@ -198,7 +198,7 @@ module Equiv-S1-Properties where
   pres·-base-case-int zero          a (suc (suc m)) b = refl
   pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-S¹ (·PℤComm (base (1 ∷ []) a) (base (zero ∷ []) b))
                                                          ∙ pres·-base-case-int 0 b 1 a
-                                                         ∙ gradCommRing (S₊ 1) 0 1 (inv (fst (Hᵐ-Sⁿ 0 1)) b) (inv (fst (Hᵐ-Sⁿ 1 1)) a)
+                                                         ∙ gradCommRing (S₊ 1) 0 1 (inv (fst (Hⁿ-Sᵐ 0 1)) b) (inv (fst (Hⁿ-Sᵐ 1 1)) a)
   pres·-base-case-int one           a one           b = sym (base-neutral 2) ∙
                                                          cong (base 2) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-Sᵐ≅0 1 0 nsnotz)) isPropUnit _ _)
   pres·-base-case-int one           a (suc (suc m)) b = refl
