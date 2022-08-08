@@ -450,30 +450,32 @@ module Equiv-K²-Properties
 
 
 
---   -----------------------------------------------------------------------------
---   -- Section
+  -----------------------------------------------------------------------------
+  -- Section
 
---     e-sect-base : (k : ℕ) → (a : coHom k 𝕂²) → (x : partℕ k) →
---                   ℤ[x,y]→H*-𝕂² (ϕ⁻¹ k a x) ≡ base k a
---     e-sect-base k a (is0 x) = cong (base 0) (ϕ₀-sect (substG x a))
---                               ∙ sym (constSubstCommSlice _ _ base x a)
---     e-sect-base k a (is2 x) = cong (base 2) (ϕ₂-sect _)
---                               ∙ sym (constSubstCommSlice _ _ base x a)
---     e-sect-base k a (is4 x) = cong (base 4) (ϕ₄-sect _)
---                               ∙ sym (constSubstCommSlice _ _ base x a)
---     e-sect-base k a (else x) = sym (base-neutral k)
---                                ∙ cong (base k) (trivialGroupEq (Hⁿ-𝕂²≅0-bis k x) _ _)
-
---     e-sect : (x : H* 𝕂²) → ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² (H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> x) ≡ x
---     e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
---              refl
---              (λ k a → e-sect-base k a (part k))
---              λ {U V} ind-U ind-V → ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂²-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
+    ψ₂-sect : (x : Bool) → ψ₂ (ψ₂⁻¹ x) ≡ x
+    ψ₂-sect false = refl
+    ψ₂-sect true = refl
 
 
+    e-sect-base : (k : ℕ) → (a : coHom k KleinBottle) →
+                  ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² (ϕ⁻¹ k a) ≡ base k a
+    e-sect-base zero a = cong (base 0) (ϕ₀-sect a)
+    e-sect-base one a = cong (base 1) (ϕ₁-sect a)
+    e-sect-base two a = cong (base 2) (cong ϕ₂ (ψ₂-sect _) ∙ ϕ₂-sect a)
+    e-sect-base (suc (suc (suc k))) a = sym (base-neutral (suc (suc (suc k))))
+                                        ∙ cong (base (suc (suc (suc k)))) (trivialGroupEq (Hⁿ⁺³-𝕂²≅0 k) _ _)
 
---   -----------------------------------------------------------------------------
---   -- Retraction
+    e-sect : (x : H* KleinBottle) → ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² (H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> x) ≡ x
+    e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+             refl
+             e-sect-base
+             λ {U V} ind-U ind-V → ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂²-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
+
+
+
+  -----------------------------------------------------------------------------
+  -- Retraction
 
 --     e-retr-base : (v : Vec ℕ 2) → (a : ℤ) →
 --                   H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> (ℤ[x,y]/<x²,xy,2y,y²>→H*-𝕂² [ base v a ]) ≡ [ base v a ]
