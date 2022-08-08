@@ -90,6 +90,16 @@ module Equiv-K²-Properties
   open IsGroupHom
   open gradedRingProperties
 
+  open GroupStr (snd BoolGroup) using ()
+    renaming
+    ( 1g        to 0gBool
+    ; _·_       to _+Bool_
+    ; inv       to -Bool_
+    ; ·Assoc    to +BoolAssoc
+    ; ·IdL      to +BoolIdL
+    ; ·IdR      to +BoolIdR
+    ; is-set    to isSetBool   )
+
   open CommRingStr (snd ℤCR) using ()
     renaming
     ( 0r        to 0ℤ
@@ -373,57 +383,70 @@ module Equiv-K²-Properties
   -----------------------------------------------------------------------------
   -- Converse Sens on H* → ℤ[X,Y]
 
---     ϕ⁻¹ : (k : ℕ) → (a : coHom k 𝕂²) → (x : partℕ k) → ℤ[x,y]
---     ϕ⁻¹ k a (is0 x) = base (0 ∷ 0 ∷ []) (ϕ₀⁻¹ (substG x a))
---     ϕ⁻¹ k a (is2 x) = base (1 ∷ 0 ∷ []) (ϕ₂⁻¹ (substG x a))
---     ϕ⁻¹ k a (is4 x) = base (0 ∷ 1 ∷ []) (ϕ₄⁻¹ (substG x a))
---     ϕ⁻¹ k a (else x) = 0Pℤ
+    ψ₂⁻¹ : Bool → ℤ
+    ψ₂⁻¹ false = 1
+    ψ₂⁻¹ true = 0
 
---     H*-𝕂²→ℤ[x,y] : H* 𝕂² → ℤ[x,y]
---     H*-𝕂²→ℤ[x,y] = DS-Rec-Set.f _ _ _ _ isSetPℤ
---          0Pℤ
---          (λ k a → ϕ⁻¹ k a (part k))
---          _+Pℤ_
---          +PℤAssoc
---          +PℤIdR
---          +PℤComm
---          (λ k → base-neutral-eq k (part k))
---          λ k a b → base-add-eq k a b (part k)
---       where
+    private
+    -- Those lemma are requiered because ψ₂⁻¹
+    -- is a morphism only under the quotient
+      Λ : (x : Bool) → ℤ[x,y]/<x²,xy,2y,y²>
+      Λ x = [ (base (0 ∷ 1 ∷ []) (ψ₂⁻¹ x)) ]
 
---       base-neutral-eq : (k : ℕ) → (x : partℕ k) → ϕ⁻¹ k (0ₕ k) x ≡ 0Pℤ
---       base-neutral-eq k (is0 x) = cong (base (0 ∷ 0 ∷ [])) (cong ϕ₀⁻¹ (subst0g x))
---                                   ∙ cong (base (0 ∷ 0 ∷ [])) (pres1 ϕ₀⁻¹str)
---                                   ∙ base-neutral (0 ∷ 0 ∷ [])
---       base-neutral-eq k (is2 x) = cong (base (1 ∷ 0 ∷ [])) (cong ϕ₂⁻¹ (subst0g x))
---                                   ∙ cong (base (1 ∷ 0 ∷ [])) (pres1 ϕ₂⁻¹str)
---                                   ∙ base-neutral (1 ∷ 0 ∷ [])
---       base-neutral-eq k (is4 x) = cong (base (0 ∷ 1 ∷ [])) (cong ϕ₄⁻¹ (subst0g x))
---                                   ∙ cong (base (0 ∷ 1 ∷ [])) (pres1 ϕ₄⁻¹str)
---                                   ∙ base-neutral (0 ∷ 1 ∷ [])
---       base-neutral-eq k (else x) = refl
+      Λ-pres+ : (x y : Bool) → Λ x +PℤI Λ y ≡ Λ (x +Bool y)
+      Λ-pres+ false false = cong [_] (base-add _ _ _)
+                            ∙ eq/ (base (0 ∷ 1 ∷ []) 2)
+                                  (base (0 ∷ 1 ∷ []) 0)
+                                  ∣ ((λ {zero → 0Pℤ ; one → 0Pℤ ; two → base (0 ∷ 0 ∷ []) 1 ; three → 0Pℤ}) , helper) ∣₁
+              where
+              helper : _
+              helper = base-add  _ _ _
+                       ∙ sym (+PℤIdL _ ∙ +PℤIdL _ ∙ cong₂ _+Pℤ_ refl (+PℤIdR _) ∙ +PℤIdR _)
+      Λ-pres+ false true = cong [_] (base-add _ _ _)
+      Λ-pres+ true false = cong [_] (base-add _ _ _)
+      Λ-pres+ true true = cong [_] (base-add _ _ _)
 
---       base-add-eq : (k : ℕ) → (a b : coHom k 𝕂²) → (x : partℕ k)
---                     → ϕ⁻¹ k a x +Pℤ ϕ⁻¹ k b x ≡ ϕ⁻¹ k (a +ₕ b) x
---       base-add-eq k a b (is0 x) = base-add _ _ _
---                                   ∙ cong (base (0 ∷ 0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (subst+ a b x))
---       base-add-eq k a b (is2 x) = base-add _ _ _
---                                   ∙ cong (base (1 ∷ 0 ∷ [])) (sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (subst+ a b x))
---       base-add-eq k a b (is4 x) = base-add _ _ _
---                                   ∙ cong (base (0 ∷ 1 ∷ [])) (sym (pres· ϕ₄⁻¹str _ _) ∙ cong ϕ₄⁻¹ (subst+ a b x))
---       base-add-eq k a b (else x) = +PℤIdR _
+    ϕ⁻¹ : (k : ℕ) → (a : coHom k KleinBottle) → ℤ[x,y]/<x²,xy,2y,y²>
+    ϕ⁻¹ zero a = [ base (0 ∷ 0 ∷ []) (ϕ₀⁻¹ a) ]
+    ϕ⁻¹ one a = [ base (1 ∷ 0 ∷ []) (ϕ₁⁻¹ a) ]
+    ϕ⁻¹ two a = [ base (0 ∷ 1 ∷ []) ((ψ₂⁻¹ ∘ ϕ₂⁻¹) a) ]
+    ϕ⁻¹ (suc (suc (suc k))) a = 0PℤI
 
+    H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> : H* KleinBottle → ℤ[x,y]/<x²,xy,2y,y²>
+    H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> = DS-Rec-Set.f _ _ _ _ isSetPℤI
+         0PℤI
+         ϕ⁻¹
+         _+PℤI_
+         +PℤIAssoc
+         +PℤIIdR
+         +PℤIComm
+         base-neutral-eq
+         base-add-eq
+      where
 
---     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> : H* 𝕂² → ℤ[x,y]/<x²,xy,2y,y²>
---     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> = [_] ∘ H*-𝕂²→ℤ[x,y]
+      base-neutral-eq : _
+      base-neutral-eq zero = cong [_] (cong (base {AGP = λ _ → snd ℤAG} (0 ∷ 0 ∷ [])) (pres1 ϕ₀⁻¹str)
+                                       ∙ (base-neutral _))
+      base-neutral-eq one = cong [_] (cong (base {AGP = λ _ → snd ℤAG} (1 ∷ 0 ∷ [])) (pres1 ϕ₁⁻¹str)
+                                       ∙ (base-neutral _))
+      base-neutral-eq two = cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ψ₂⁻¹ (pres1 ϕ₂⁻¹str))
+                                     ∙ base-neutral _)
+      base-neutral-eq (suc (suc (suc k))) = refl
 
---     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres0 : H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> 0H* ≡ 0PℤI
---     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres0 = refl
+      base-add-eq : _
+      base-add-eq zero a b = cong [_] (base-add _ _ _ ∙ cong (base (0 ∷ 0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _)))
+      base-add-eq one a b = cong [_] (base-add _ _ _ ∙ cong (base (1 ∷ 0 ∷ [])) (sym (pres· ϕ₁⁻¹str _ _)))
+      base-add-eq two a b = Λ-pres+ (ϕ₂⁻¹ a) (ϕ₂⁻¹ b)
+                            ∙ cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ψ₂⁻¹ (sym (pres· ϕ₂⁻¹str _ _))))
+      base-add-eq (suc (suc (suc k))) a b = +PℤIIdR _
 
---     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres+ : (x y : H* 𝕂²) →
---                                                H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> (x +H* y)
---                                            ≡ (H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> x) +PℤI (H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> y)
---     H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres+ x y = refl
+    H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres0 : H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> 0H* ≡ 0PℤI
+    H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres0 = refl
+
+    H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres+ : (x y : H* KleinBottle) →
+                                               H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> (x +H* y)
+                                           ≡ (H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> x) +PℤI (H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²> y)
+    H*-𝕂²→ℤ[x,y]/<x²,xy,2y,y²>-pres+ x y = refl
 
 
 
