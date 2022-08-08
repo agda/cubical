@@ -477,10 +477,49 @@ module Equiv-𝕂²-Properties
   -----------------------------------------------------------------------------
   -- Retraction
 
+    e-retr-ψ₂-false : (a : ℤ) → (isEven a ≡ false) → Λ (ψ₂ a) ≡ [ base (0 ∷ 1 ∷ []) a ]
+    e-retr-ψ₂-false a x = cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ψ₂⁻¹ x))
+                    ∙ eq/ (base (0 ∷ 1 ∷ []) 1) (base (0 ∷ 1 ∷ []) a)
+                      ∣ ((λ {zero → base (0 ∷ 0 ∷ []) (-ℤ m) ; one → 0Pℤ ; two → 0Pℤ ; three → 0Pℤ}) , helper) ∣₁
+              where
+              m = fst (isEvenFalse a x)
+
+              helper : _
+              helper = base-add _ _ _
+                       ∙ cong (base (0 ∷ 1 ∷ [])) (cong (λ X → 1 +ℤ (-ℤ X)) (snd (isEvenFalse a x))
+                                               ∙ cong (λ X → 1 +ℤ X) (-Dist+ _ _)
+                                               ∙ +ℤAssoc _ _ _
+                                               ∙ +ℤIdL _)
+                       ∙ sym (cong₂ _+Pℤ_ (cong (base (0 ∷ 1 ∷ [])) (sym (-DistL· _ _) ∙ cong -ℤ_ (·ℤComm _ _)))
+                                          (+PℤIdL _ ∙ +PℤIdL _ ∙ +PℤIdL _)
+                             ∙ +PℤIdR _)
+
+    e-retr-ψ₂-true : (a : ℤ) → (isEven a ≡ true) → Λ (ψ₂ a) ≡ [ base (0 ∷ 1 ∷ []) a ]
+    e-retr-ψ₂-true a x = cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ψ₂⁻¹ x))
+                    ∙ eq/ (base (0 ∷ 1 ∷ []) 0) (base (0 ∷ 1 ∷ []) a)
+                      ∣ ((λ {zero → base (0 ∷ 0 ∷ []) (-ℤ m) ; one → 0Pℤ ; two → 0Pℤ ; three → 0Pℤ}) , helper) ∣₁
+              where
+              m = fst (isEvenTrue a x)
+
+              helper : _
+              helper = base-add _ _ _
+                       ∙ cong (base (0 ∷ 1 ∷ [])) (+ℤIdL _ ∙ cong -ℤ_ (snd (isEvenTrue a x)))
+                       ∙ sym (cong₂ _+Pℤ_ (cong (base (0 ∷ 1 ∷ [])) (sym (-DistL· _ _) ∙ cong -ℤ_ (·ℤComm _ _)))
+                                          (+PℤIdL _ ∙ +PℤIdL _ ∙ +PℤIdL _)
+                             ∙ +PℤIdR _)
+
+
+    e-retr-ψ₂ : (a : ℤ) → ((isEven a ≡ false) ⊎ (isEven a ≡ true)) → Λ (ψ₂ a) ≡ [ base (0 ∷ 1 ∷ []) a ]
+    e-retr-ψ₂ a (inl x) = e-retr-ψ₂-false a x
+    e-retr-ψ₂ a (inr x) = e-retr-ψ₂-true a x
+
+
+
     e-retr-base : (v : Vec ℕ 2) → (a : ℤ) →
                   H*-𝕂²→ℤ[x,y]/<2y,y²,xy,x²> (ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂² [ base v a ]) ≡ [ base v a ]
     e-retr-base (zero        ∷ zero        ∷ []) a = cong [_] (cong (base (0 ∷ 0 ∷ [])) (ϕ₀-retr a))
-    e-retr-base (zero        ∷ one         ∷ []) a = {!!}
+    e-retr-base (zero        ∷ one         ∷ []) a = cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ψ₂⁻¹ (ϕ₂-retr (ψ₂ a))))
+                                                      ∙ e-retr-ψ₂ a (dichotomyBoolSym (isEven a))
     e-retr-base (zero        ∷ suc (suc m) ∷ []) a = eq/ _ _ ∣ (v , helper) ∣₁
            where
            v = λ { zero → 0Pℤ ; one → base (0 ∷ m ∷ []) (-ℤ a) ; two → 0Pℤ ; three → 0Pℤ }
