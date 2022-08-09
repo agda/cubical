@@ -48,8 +48,8 @@ open import Cubical.Foundations.Id public
            ; _≃_            -- The type of equivalences between two given types.
            ; EquivContr     -- A formulation of univalence.
 
-           ; ∥_∥             -- Propositional truncation.
-           ; ∣_∣             -- Map into the propositional truncation.
+           ; ∥_∥₁            -- Propositional truncation.
+           ; ∣_∣₁             -- Map into the propositional truncation.
            ; ∥∥-isProp       -- A truncated type is a proposition.
            ; ∥∥-recursion    -- Non-dependent elimination.
            ; ∥∥-induction    -- Dependent elimination.

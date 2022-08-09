@@ -92,19 +92,19 @@ isNotZero : ℕ → ℕ
 isNotZero 0 = 0
 isNotZero (suc n) = 1
 
-SumFin∥∥≃ : (n : ℕ) → ∥ Fin n ∥ ≃ Fin (isNotZero n)
+SumFin∥∥≃ : (n : ℕ) → ∥ Fin n ∥₁ ≃ Fin (isNotZero n)
 SumFin∥∥≃ 0 = propTruncIdempotent≃ (isProp⊥)
 SumFin∥∥≃ (suc n) =
-    isContr→≃Unit (inhProp→isContr ∣ inl tt ∣ isPropPropTrunc)
+    isContr→≃Unit (inhProp→isContr ∣ inl tt ∣₁ isPropPropTrunc)
   ⋆ isContr→≃Unit (isContrUnit) ⋆ invEquiv (⊎-⊥-≃)
 
 ℕ→Bool : ℕ → Bool
 ℕ→Bool 0 = false
 ℕ→Bool (suc n) = true
 
-SumFin∥∥DecProp : (n : ℕ) → ∥ Fin n ∥ ≃ Bool→Type (ℕ→Bool n)
+SumFin∥∥DecProp : (n : ℕ) → ∥ Fin n ∥₁ ≃ Bool→Type (ℕ→Bool n)
 SumFin∥∥DecProp 0 = uninhabEquiv (Prop.rec isProp⊥ ⊥.rec) ⊥.rec
-SumFin∥∥DecProp (suc n) = isContr→≃Unit (inhProp→isContr ∣ inl tt ∣ isPropPropTrunc)
+SumFin∥∥DecProp (suc n) = isContr→≃Unit (inhProp→isContr ∣ inl tt ∣₁ isPropPropTrunc)
 
 -- negation of SumFin
 
@@ -179,11 +179,11 @@ SumFin∃← (suc n) f =
   ∘ map-⊎ (invEq (ΣUnit (Bool→Type ∘ f ∘ inl))) (SumFin∃← n (f ∘ inr))
   ∘ Bool→Type⊎ _ _
 
-SumFin∃≃ : (n : ℕ)(f : Fin n → Bool) → ∥ Σ (Fin n) (Bool→Type ∘ f) ∥ ≃ Bool→Type (trueForSome n f)
+SumFin∃≃ : (n : ℕ)(f : Fin n → Bool) → ∥ Σ (Fin n) (Bool→Type ∘ f) ∥₁ ≃ Bool→Type (trueForSome n f)
 SumFin∃≃ n f =
   propBiimpl→Equiv isPropPropTrunc isPropBool→Type
     (Prop.rec isPropBool→Type (SumFin∃→ n f))
-    (∣_∣ ∘ SumFin∃← n f)
+    (∣_∣₁ ∘ SumFin∃← n f)
 
 SumFin∀≃ : (n : ℕ)(f : Fin n → Bool) → ((x : Fin n) → Bool→Type (f x)) ≃ Bool→Type (trueForAll n f)
 SumFin∀≃ 0 _ = isContr→≃Unit (isContrΠ⊥)
@@ -222,7 +222,7 @@ DecFin (suc n) = yes fzero
 
 -- propositional truncation of Fin
 
-Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥
+Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥₁
 Dec∥Fin∥ n = Dec∥∥ (DecFin n)
 
 -- some properties about cardinality

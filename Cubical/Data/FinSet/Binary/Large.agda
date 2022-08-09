@@ -21,7 +21,7 @@ private
     ℓ : Level
 
 isBinary : Type ℓ → Type ℓ
-isBinary B = ∥ Bool ≃ B ∥
+isBinary B = ∥ Bool ≃ B ∥₁
 
 Binary : ∀ ℓ → Type _
 Binary ℓ = Σ (Type ℓ) isBinary
@@ -60,7 +60,7 @@ BinaryEmbedding w x = isoToIsEquiv theIso
 
 Base : Binary _
 Base .fst = Bool
-Base .snd = ∣ idEquiv Bool ∣
+Base .snd = ∣ idEquiv Bool ∣₁
 
 Loop : Base ≡ Base
 Loop i .fst = notEq i
@@ -97,18 +97,18 @@ structure₀ .BinStructure.trunc = isGroupoidBinary
 
 module Parameterized (B : Type ℓ) where
   Baseᴾ : Bool ≃ B → Binary ℓ
-  Baseᴾ P = B , ∣ P ∣
+  Baseᴾ P = B , ∣ P ∣₁
 
   Loopᴾ : (P Q : Bool ≃ B) → Baseᴾ P ≡ Baseᴾ Q
   Loopᴾ P Q i = λ where
       .fst → ua first i
-      .snd → ∥∥-isPropDep (Bool ≃_) ∣ P ∣ ∣ Q ∣ (ua first) i
+      .snd → ∥∥-isPropDep (Bool ≃_) ∣ P ∣₁ ∣ Q ∣₁ (ua first) i
     where
     first : B ≃ B
     first = compEquiv (invEquiv P) Q
 
   Loopᴾ² : (P Q R : Bool ≃ B) → Square (Loopᴾ P Q) (Loopᴾ P R) refl (Loopᴾ Q R)
-  Loopᴾ² P Q R i = Σ≡Prop (λ _ → squash) (S i)
+  Loopᴾ² P Q R i = Σ≡Prop (λ _ → squash₁) (S i)
     where
     PQ : B ≃ B
     PQ = compEquiv (invEquiv P) Q

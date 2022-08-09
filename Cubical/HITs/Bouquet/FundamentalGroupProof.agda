@@ -183,17 +183,17 @@ left-homotopy l = decodeEncode base l
 
 -- Truncated proofs of right homotopy of winding/looping functions
 
-truncatedPathEquality : (g : FreeGroupoid A) → ∥ cong code (looping g) ≡ ua (equivs g) ∥
+truncatedPathEquality : (g : FreeGroupoid A) → ∥ cong code (looping g) ≡ ua (equivs g) ∥₁
 truncatedPathEquality = elimProp
             Bprop
-            (λ a → ∣ η-ind a ∣)
-            (λ g1 g2 → λ ∣ind1∣ ∣ind2∣ → rec2 squash (λ ind1 ind2 → ∣ ·-ind g1 g2 ind1 ind2 ∣) ∣ind1∣ ∣ind2∣)
-            ∣ ε-ind ∣
-            (λ g → λ ∣ind∣ → propRec squash (λ ind → ∣ inv-ind g ind ∣) ∣ind∣) where
+            (λ a → ∣ η-ind a ∣₁)
+            (λ g1 g2 → λ ∣ind1∣₁ ∣ind2∣₁ → rec2 squash₁ (λ ind1 ind2 → ∣ ·-ind g1 g2 ind1 ind2 ∣₁) ∣ind1∣₁ ∣ind2∣₁)
+            ∣ ε-ind ∣₁
+            (λ g → λ ∣ind∣₁ → propRec squash₁ (λ ind → ∣ inv-ind g ind ∣₁) ∣ind∣₁) where
   B : ∀ g → Type _
   B g = cong code (looping g) ≡ ua (equivs g)
-  Bprop : ∀ g → isProp ∥ B g ∥
-  Bprop g = squash
+  Bprop : ∀ g → isProp ∥ B g ∥₁
+  Bprop g = squash₁
   η-ind : ∀ a → B (η a)
   η-ind a = refl
   ·-ind : ∀ g1 g2 → B g1 → B g2 → B (g1 · g2)
@@ -218,10 +218,10 @@ truncatedPathEquality = elimProp
     ≡⟨ sym (invPathsInUNaturality g) ⟩
     ua (equivs (inv g)) ∎
 
-truncatedRight-homotopy : (g : FreeGroupoid A) → ∥ winding (looping g) ≡ g ∥
-truncatedRight-homotopy g = propRec squash recursion (truncatedPathEquality g) where
-  recursion : cong code (looping g) ≡ ua (equivs g) → ∥ winding (looping g) ≡ g ∥
-  recursion hyp = ∣ aux ∣ where
+truncatedRight-homotopy : (g : FreeGroupoid A) → ∥ winding (looping g) ≡ g ∥₁
+truncatedRight-homotopy g = propRec squash₁ recursion (truncatedPathEquality g) where
+  recursion : cong code (looping g) ≡ ua (equivs g) → ∥ winding (looping g) ≡ g ∥₁
+  recursion hyp = ∣ aux ∣₁ where
     aux : winding (looping g) ≡ g
     aux =
       winding (looping g)
@@ -237,13 +237,13 @@ right-homotopyInTruncatedGroupoid g = Iso.inv PathIdTrunc₀Iso (truncatedRight-
 
 -- Truncated encodeDecode over all fibrations
 
-truncatedEncodeDecode : (x : Bouquet A) → (g : code x) → ∥ encode x (decode x g) ≡ g ∥
+truncatedEncodeDecode : (x : Bouquet A) → (g : code x) → ∥ encode x (decode x g) ≡ g ∥₁
 truncatedEncodeDecode base = truncatedRight-homotopy
 truncatedEncodeDecode (loop a i) = isProp→PathP prop truncatedRight-homotopy truncatedRight-homotopy i where
-  prop : ∀ i → isProp (∀ (g : code (loop a i)) → ∥ encode (loop a i) (decode (loop a i) g) ≡ g ∥)
+  prop : ∀ i → isProp (∀ (g : code (loop a i)) → ∥ encode (loop a i) (decode (loop a i) g) ≡ g ∥₁)
   prop i f g = funExt pointwise where
-    pointwise : (x : code (loop a i)) → PathP (λ _ → ∥ encode (loop a i) (decode (loop a i) x) ≡ x ∥) (f x) (g x)
-    pointwise x = isProp→PathP (λ i → squash) (f x) (g x)
+    pointwise : (x : code (loop a i)) → PathP (λ _ → ∥ encode (loop a i) (decode (loop a i) x) ≡ x ∥₁) (f x) (g x)
+    pointwise x = isProp→PathP (λ i → squash₁) (f x) (g x)
 
 encodeDecodeInTruncatedGroupoid : (x : Bouquet A) → (g : code x) → ∣ encode x (decode x g) ∣₂ ≡ ∣ g ∣₂
 encodeDecodeInTruncatedGroupoid x g = Iso.inv PathIdTrunc₀Iso (truncatedEncodeDecode x g)

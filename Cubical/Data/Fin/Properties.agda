@@ -141,7 +141,7 @@ private
   expand×Emb : ∀ k → isEmbedding (expand× {k})
   expand×Emb 0 = Empty.rec ∘ ¬Fin0 ∘ fst
   expand×Emb (suc k)
-    = injEmbedding (isSetΣ isSetFin (λ _ → isSetℕ)) isSetℕ (expand×Inj k)
+    = injEmbedding isSetℕ (expand×Inj k)
 
 -- A Residue is a family of types representing evidence that a
 -- natural is congruent to a value of a finite type.
@@ -492,7 +492,7 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
     io′≡ip′ : (fst o , toℕ (snd o)) ≡ (fst p , toℕ (snd p))
     io′≡ip′ = expand×Inj _ (cong fst io≡ip)
   isEmbeddingIntro : isEmbedding intro
-  isEmbeddingIntro = injEmbedding (isSet× isSetFin isSetFin) isSetFin intro-injective
+  isEmbeddingIntro = injEmbedding isSetFin intro-injective
 
   elimF : ∀ nm → fiber intro nm
   elimF nm = ((nn , nn<n) , (mm , mm<m)) , toℕ-injective (reduce n (toℕ nm) .snd) where
@@ -516,7 +516,7 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
     mm<m = <-·sk-cancel mm·sn<m·sn
 
   isSurjectionIntro : isSurjection intro
-  isSurjectionIntro = ∣_∣ ∘ elimF
+  isSurjectionIntro = ∣_∣₁ ∘ elimF
 
 -- Fin (m + n) ≡ Fin m ⊎ Fin n
 -- ===========================
@@ -645,7 +645,7 @@ DecFin (suc n) = yes fzero
 
 -- propositional truncation of Fin
 
-Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥
+Dec∥Fin∥ : (n : ℕ) → Dec ∥ Fin n ∥₁
 Dec∥Fin∥ n = Dec∥∥ (DecFin n)
 
 -- some properties about cardinality

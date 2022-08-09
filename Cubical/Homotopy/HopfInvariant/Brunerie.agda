@@ -55,11 +55,12 @@ open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Instances.Unit
 
 open Iso
 open IsGroupHom
+open PlusBis
 
 -- Some abstract versions of imported lemmas/definitions from
 -- ZCohomology.Groups.SphereProduct for faster type checking.

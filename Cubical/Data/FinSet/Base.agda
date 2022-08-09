@@ -32,13 +32,13 @@ private
 
 -- this definition makes cardinality computation more efficient
 isFinSet : Type ℓ → Type ℓ
-isFinSet A = Σ[ n ∈ ℕ ] ∥ A ≃ Fin n ∥
+isFinSet A = Σ[ n ∈ ℕ ] ∥ A ≃ Fin n ∥₁
 
 isFinOrd : Type ℓ → Type ℓ
 isFinOrd A = Σ[ n ∈ ℕ ] A ≃ Fin n
 
 isFinOrd→isFinSet : isFinOrd A → isFinSet A
-isFinOrd→isFinSet (_ , p) = _ , ∣ p ∣
+isFinOrd→isFinSet (_ , p) = _ , ∣ p ∣₁
 
 -- finite sets are sets
 
@@ -63,13 +63,13 @@ isSetIsFinOrd = isOfHLevelΣ 2 isSetℕ (λ _ → isOfHLevel⁺≃ᵣ 1 isSetFin
 -- alternative definition of isFinSet
 
 isFinSet' : Type ℓ → Type ℓ
-isFinSet' A = ∥ Σ[ n ∈ ℕ ] A ≃ Fin n ∥
+isFinSet' A = ∥ Σ[ n ∈ ℕ ] A ≃ Fin n ∥₁
 
 isFinSet→isFinSet' : isFinSet A → isFinSet' A
-isFinSet→isFinSet' (_ , p) = Prop.rec isPropPropTrunc (λ p → ∣ _ , p ∣) p
+isFinSet→isFinSet' (_ , p) = Prop.rec isPropPropTrunc (λ p → ∣ _ , p ∣₁) p
 
 isFinSet'→isFinSet : isFinSet' A → isFinSet A
-isFinSet'→isFinSet = Prop.rec isPropIsFinSet (λ (n , p) → _ , ∣ p ∣ )
+isFinSet'→isFinSet = Prop.rec isPropIsFinSet (λ (n , p) → _ , ∣ p ∣₁ )
 
 isFinSet≡isFinSet' : isFinSet A ≡ isFinSet' A
 isFinSet≡isFinSet' = hPropExt isPropIsFinSet isPropPropTrunc isFinSet→isFinSet' isFinSet'→isFinSet

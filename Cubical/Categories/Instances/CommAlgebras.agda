@@ -168,7 +168,7 @@ module PullbackFromCommRing (R : CommRing ℓ)
   h₁comm : h₁ ∘r f₅ ≡ f₂
   h₁comm = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd h₁') x 1a
                                       ∙∙ cong (fst f₂ x ·_) (IsAlgebraHom.pres1 (snd h₁'))
-                                      ∙∙ ·Rid _))
+                                      ∙∙ ·IdR _))
    where
    instance
     _ = snd F
@@ -185,7 +185,7 @@ module PullbackFromCommRing (R : CommRing ℓ)
   h₂comm : h₂ ∘r f₅ ≡ f₃
   h₂comm = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd h₂') x 1a
                                       ∙∙ cong (fst f₃ x ·_) (IsAlgebraHom.pres1 (snd h₂'))
-                                      ∙∙ ·Rid _))
+                                      ∙∙ ·IdR _))
    where
    instance
     _ = snd F
@@ -214,8 +214,8 @@ module PullbackFromCommRing (R : CommRing ℓ)
     λ r y → sym (fst f₁ r · fst h₃ y ≡⟨ cong (_· fst h₃ y) (sym (funExt⁻ (cong fst h₃comm) r)) ⟩
                  fst h₃ (fst f₅ r) · fst h₃ y ≡⟨ sym (IsRingHom.pres· (snd h₃) _ _) ⟩
                  fst h₃ (fst f₅ r · y) ≡⟨ refl ⟩
-                 fst h₃ ((r ⋆ 1a) · y) ≡⟨ cong (fst h₃) (⋆-lassoc _ _ _) ⟩
-                 fst h₃ (r ⋆ (1a · y)) ≡⟨ cong (λ x → fst h₃ (r ⋆ x)) (·Lid y) ⟩
+                 fst h₃ ((r ⋆ 1a) · y) ≡⟨ cong (fst h₃) (⋆AssocL _ _ _) ⟩
+                 fst h₃ (r ⋆ (1a · y)) ≡⟨ cong (λ x → fst h₃ (r ⋆ x)) (·IdL y) ⟩
                  fst h₃ (r ⋆ y) ∎)
    where
    instance
@@ -247,7 +247,7 @@ module PullbackFromCommRing (R : CommRing ℓ)
    h₃'IsRHom : h₃' ∘r f₅ ≡ f₁
    h₃'IsRHom = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd k') x 1a
                                      ∙ cong (fst f₁ x ·_) (IsAlgebraHom.pres1 (snd k'))
-                                     ∙ ·Rid (fst f₁ x)))
+                                     ∙ ·IdR (fst f₁ x)))
     where
     instance
      _ = snd F
@@ -272,19 +272,19 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
 
  private
   ∥P∥ : ℙ (ob C)
-  ∥P∥ x  = ∥ P x ∥ , isPropPropTrunc
+  ∥P∥ x  = ∥ P x ∥₁ , isPropPropTrunc
   ΣC∥P∥Cat = ΣPropCat C ∥P∥
   CommAlgCat = CommAlgebrasCategory {ℓ = ℓ''} R {ℓ' = ℓ''}
 
  𝓕UniqueEquiv : (x : ob C) (p q : P x) → isContr (CommAlgebraEquiv (𝓕 (x , p)) (𝓕 (x , q)))
  𝓕UniqueEquiv x = contrCommAlgebraHom→contrCommAlgebraEquiv (curry 𝓕 x) λ p q → uniqueHom _ _ (id C)
 
- theMap : (x : ob C) → ∥ P x ∥ → CommAlgebra R ℓ''
+ theMap : (x : ob C) → ∥ P x ∥₁ → CommAlgebra R ℓ''
  theMap x = recPT→CommAlgebra (curry 𝓕 x) (λ p q → 𝓕UniqueEquiv x p q .fst)
                                          λ p q r → 𝓕UniqueEquiv x p r .snd _
 
  theAction : (x y : ob C) → C [ x , y ]
-           → (p : ∥ P x ∥) (q : ∥ P y ∥) → isContr (CommAlgebraHom (theMap y q) (theMap x p))
+           → (p : ∥ P x ∥₁) (q : ∥ P y ∥₁) → isContr (CommAlgebraHom (theMap y q) (theMap x p))
  theAction _ _ f = elim2 (λ _ _ → isPropIsContr) λ _ _ → uniqueHom _ _ f
 
  open Functor

@@ -12,10 +12,14 @@ Proof is adapted from Evan Cavallo's master's thesis.
 {-# OPTIONS --safe #-}
 module Cubical.Homotopy.MayerVietorisCofiber where
 
-open import Cubical.Core.Everything
-open import Cubical.Foundations.Everything
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Pointed
+
 open import Cubical.Data.Unit
+
 open import Cubical.HITs.MappingCones
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp

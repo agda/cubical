@@ -26,19 +26,16 @@ module _
     ; -_        to -AB_
     ; _·_       to _·AB_
     ; +Assoc    to +ABAssoc
-    ; +Identity to +ABIdentity
-    ; +Lid      to +ABLid
-    ; +Rid      to +ABRid
-    ; +Inv      to +ABInv
-    ; +Linv     to +ABLinv
-    ; +Rinv     to +ABRinv
+    ; +IdL      to +ABIdL
+    ; +IdR      to +ABIdR
+    ; +InvL     to +ABInvL
+    ; +InvR     to +ABInvR
     ; +Comm     to +ABComm
     ; ·Assoc    to ·ABAssoc
-    ; ·Identity to ·ABIdentity
-    ; ·Lid      to ·ABLid
-    ; ·Rid      to ·ABRid
-    ; ·Rdist+   to ·ABRdist+
-    ; ·Ldist+   to ·ABLdist+
+    ; ·IdR      to ·ABIdR
+    ; ·IdL      to ·ABIdL
+    ; ·DistR+   to ·ABDistR+
+    ; ·DistL+   to ·ABDistL+
     ; is-set    to isSetAB     )
 
   DirectProd-CommRing : CommRing (ℓ-max ℓ ℓ')
@@ -52,10 +49,10 @@ module _
     makeIsCommRing
     isSetAB
     +ABAssoc
-    +ABRid
-    +ABRinv
+    +ABIdR
+    +ABInvR
     +ABComm
     ·ABAssoc
-    ·ABRid
-    ·ABRdist+
+    ·ABIdR
+    ·ABDistR+
     λ x y i → (CommRingStr.·Comm Ar (fst x) (fst y) i) , (CommRingStr.·Comm Br (snd x) (snd y) i)

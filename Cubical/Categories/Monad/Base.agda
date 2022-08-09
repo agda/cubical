@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
 open import Cubical.Categories.NaturalTransformation.Base
+open import Cubical.Categories.NaturalTransformation.Properties
 open import Cubical.Categories.Functors.HomFunctor
 
 private
@@ -52,3 +53,27 @@ module _ {C : Category ℓ ℓ'} (M : Functor C C) where
 module _ (C : Category ℓ ℓ') where
   Monad : Type (ℓ-max ℓ ℓ')
   Monad = Σ[ M ∈ Functor C C ] IsMonad M
+
+module _ {C : Category ℓ ℓ'} (monadM monadN : Monad C) (ν : NatTrans (fst monadM) (fst monadN)) where
+
+  private
+    M N : Functor C C
+    M = fst monadM
+    N = fst monadN
+    module M = IsMonad (snd monadM)
+    module N = IsMonad (snd monadN)
+
+  record IsMonadHom : Type (ℓ-max ℓ ℓ') where
+    constructor proveMonadHom
+    field
+      N-η : compTrans ν M.η ≡ N.η
+      N-μ : compTrans ν M.μ ≡ compTrans N.μ (whiskerTrans ν ν)
+  open IsMonadHom
+
+  isProp-IsMonadHom : isProp (IsMonadHom)
+  N-η (isProp-IsMonadHom (proveMonadHom N-η1 N-μ1) (proveMonadHom N-η2 N-μ2) i) = isSetNatTrans _ _ N-η1 N-η2 i
+  N-μ (isProp-IsMonadHom (proveMonadHom N-η1 N-μ1) (proveMonadHom N-η2 N-μ2) i) = isSetNatTrans _ _ N-μ1 N-μ2 i
+
+module _ {C : Category ℓ ℓ'} (monadM monadN : Monad C) where
+  MonadHom : Type (ℓ-max ℓ ℓ')
+  MonadHom = Σ[ ν ∈ NatTrans (fst monadM) (fst monadN) ] IsMonadHom monadM monadN ν

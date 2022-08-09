@@ -17,6 +17,10 @@ open import Cubical.Induction.WellFounded
 
 open import Cubical.Relation.Nullary
 
+private
+  variable
+    ℓ : Level
+
 infix 4 _≤_ _<_ _≥_ _>_
 
 _≤_ : ℕ → ℕ → Type₀
@@ -61,11 +65,17 @@ suc-≤-suc (k , p) = k , (+-suc k _) ∙ (cong suc p)
 ≤-+k {m} {k = k} (i , p)
   = i , +-assoc i m k ∙ cong (_+ k) p
 
+≤SumRight : n ≤ k + n
+≤SumRight {n} {k} = ≤-+k zero-≤
+
 ≤-k+ : m ≤ n → k + m ≤ k + n
 ≤-k+ {m} {n} {k}
   = subst (_≤ k + n) (+-comm m k)
   ∘ subst (m + k ≤_) (+-comm n k)
   ∘ ≤-+k
+
+≤SumLeft : n ≤ n + k
+≤SumLeft {n} {k} = subst (n ≤_) (+-comm k n) (≤-+k zero-≤)
 
 pred-≤-pred : suc m ≤ suc n → m ≤ n
 pred-≤-pred (k , p) = k , injSuc ((sym (+-suc k _)) ∙ p)
@@ -119,6 +129,12 @@ suc-< p = pred-≤-pred (≤-suc p)
  cancelled : l + m ≡ n
  cancelled = inj-+m (sym (+-assoc l m k) ∙ p)
 
+≤-+k-trans : (m + k ≤ n) → m ≤ n
+≤-+k-trans {m} {k} {n} p = ≤-trans (k , +-comm k m) p
+
+≤-k+-trans : (k + m ≤ n) → m ≤ n
+≤-k+-trans {m} {k} {n} p = ≤-trans (m , refl) p
+
 ≤-·k : m ≤ n → m · k ≤ n · k
 ≤-·k {m} {n} {k} (d , r) = d · k , reason where
   reason : d · k + m · k ≡ n · k
@@ -169,6 +185,12 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 <-k+ : m < n → k + m < k + n
 <-k+ {m} {n} {k} p = subst (λ km → km ≤ k + n) (+-suc k m) (≤-k+ p)
 
+<-+k-trans : (m + k < n) → m < n
+<-+k-trans {m} {k} {n} p = ≤<-trans (k , +-comm k m) p
+
+<-k+-trans : (k + m < n) → m < n
+<-k+-trans {m} {k} {n} p = ≤<-trans (m , refl) p
+
 <-+-< : m < n → k < l → m + k < n + l
 <-+-<  m<n k<l = <-trans (<-+k m<n) (<-k+ k<l)
 
@@ -198,6 +220,10 @@ predℕ-≤-predℕ {suc m} {suc n} ineq = pred-≤-pred ineq
 ≤-∸-suc {zero} {n} m≤n = refl
 ≤-∸-suc {suc m} {zero} m≤n = ⊥.rec (¬-<-zero m≤n)
 ≤-∸-suc {suc m} {suc n} m+1≤n+1 = ≤-∸-suc (pred-≤-pred m+1≤n+1)
+
+≤-∸-k : m ≤ n → k + (n ∸ m) ≡ (k + n) ∸ m
+≤-∸-k {m} {n} {zero} r = refl
+≤-∸-k {m} {n} {suc k} r = cong suc (≤-∸-k r) ∙ ≤-∸-suc (≤-trans r (k , refl))
 
 left-≤-max : m ≤ max m n
 left-≤-max {zero} {n} = zero-≤
@@ -240,6 +266,26 @@ zero ≟ suc n = lt (n , +-comm n 1)
 suc m ≟ zero = gt (m , +-comm m 1)
 suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 
+splitℕ-≤ : (m n : ℕ) → (m ≤ n) ⊎ (n < m)
+splitℕ-≤ m n with m ≟ n
+... | lt x = inl (<-weaken x)
+... | eq x = inl (0 , x)
+... | gt x = inr x
+
+splitℕ-< : (m n : ℕ) → (m < n) ⊎ (n ≤ m)
+splitℕ-< m n with m ≟ n
+... | lt x = inl x
+... | eq x = inr (0 , (sym x))
+... | gt x = inr (<-weaken x)
+
+≤CaseInduction : {P : ℕ → ℕ → Type ℓ} {n m : ℕ}
+  → (n ≤ m → P n m) → (m ≤ n → P n m)
+  → P n m
+≤CaseInduction {n = n} {m = m} p q with n ≟ m
+... | lt x = p (<-weaken x)
+... | eq x = p (subst (n ≤_) x ≤-refl)
+... | gt x = q (<-weaken x)
+
 <-split : m < suc n → (m < n) ⊎ (m ≡ n)
 <-split {n = zero} = inr ∘ snd ∘ m+n≡0→m≡0×n≡0 ∘ snd ∘ pred-≤-pred
 <-split {zero} {suc n} = λ _ → inl (suc-≤-suc zero-≤)
@@ -253,6 +299,9 @@ suc m ≟ suc n = Trichotomy-suc (m ≟ n)
   case (≤-split p) of
     λ { (inl r) → r
       ; (inr r) → ⊥.rec (q r) }
+
+≤-suc-≢ : m ≤ suc n → (m ≡ suc n → ⊥ ) → m ≤ n
+≤-suc-≢ p ¬q = pred-≤-pred (≤→< p ¬q)
 
 ≤-+-split : ∀ n m k → k ≤ n + m → (n ≤ k) ⊎ (m ≤ (n + m) ∸ k)
 ≤-+-split n m k k≤n+m with n ≟ k
@@ -385,7 +434,7 @@ suc∸-fst zero (suc m) p = ⊥.rec (¬-<-zero p)
 suc∸-fst (suc n) zero p = refl
 suc∸-fst (suc n) (suc m) p = (suc∸-fst n m (pred-≤-pred p))
 
-n∸m≡0 : (n m : ℕ) → n < m → (n ∸ m) ≡ 0
+n∸m≡0 : (n m : ℕ) → n ≤ m → (n ∸ m) ≡ 0
 n∸m≡0 zero zero p = refl
 n∸m≡0 (suc n) zero p = ⊥.rec (¬-<-zero p)
 n∸m≡0 zero (suc m) p = refl
@@ -394,6 +443,12 @@ n∸m≡0 (suc n) (suc m) p = n∸m≡0 n m (pred-≤-pred p)
 n∸n≡0 : (n : ℕ) → n ∸ n ≡ 0
 n∸n≡0 zero = refl
 n∸n≡0 (suc n) = n∸n≡0 n
+
+n∸l>0 : (n l : ℕ) → (l < n) → 0 < (n ∸ l)
+n∸l>0  zero    zero   r = ⊥.rec (¬-<-zero r)
+n∸l>0  zero   (suc l) r = ⊥.rec (¬-<-zero r)
+n∸l>0 (suc n)  zero   r = suc-≤-suc zero-≤
+n∸l>0 (suc n) (suc l) r = n∸l>0 n l (pred-≤-pred r)
 
 -- automation
 
@@ -439,3 +494,24 @@ pattern s<s {m} {n} m<n = s≤s {m} {n} m<n
 ≤'IsPropValued zero n z≤ z≤ = refl
 ≤'IsPropValued (suc m) zero ()
 ≤'IsPropValued (suc m) (suc n) (s≤s x) (s≤s y) = cong s≤s (≤'IsPropValued m n x y)
+
+≤-∸-≤ : ∀ m n l → m ≤ n → m ∸ l ≤ n ∸ l
+≤-∸-≤  m       n       zero   r = r
+≤-∸-≤  zero    zero   (suc l) r = ≤-refl
+≤-∸-≤  zero   (suc n) (suc l) r = (n ∸ l) , (+-zero _)
+≤-∸-≤ (suc m)  zero   (suc l) r = ⊥.rec (¬-<-zero r)
+≤-∸-≤ (suc m) (suc n) (suc l) r = ≤-∸-≤ m n l (pred-≤-pred r)
+
+<-∸-< : ∀ m n l → m < n → l < n → m ∸ l < n ∸ l
+<-∸-<  m       n       zero   r q = r
+<-∸-<  zero    zero   (suc l) r q = ⊥.rec (¬-<-zero r)
+<-∸-<  zero   (suc n) (suc l) r q = n∸l>0 (suc n) (suc l) q
+<-∸-< (suc m)  zero   (suc l) r q = ⊥.rec (¬-<-zero r)
+<-∸-< (suc m) (suc n) (suc l) r q = <-∸-< m n l (pred-≤-pred r) (pred-≤-pred q)
+
+≤-∸-≥ : ∀ n l k → l ≤ k → n ∸ k ≤ n ∸ l
+≤-∸-≥ n  zero    zero   r = ≤-refl
+≤-∸-≥ n  zero   (suc k) r = ∸-≤ n (suc k)
+≤-∸-≥ n (suc l)  zero   r = ⊥.rec (¬-<-zero r)
+≤-∸-≥  zero   (suc l) (suc k) r = ≤-refl
+≤-∸-≥ (suc n) (suc l) (suc k) r = ≤-∸-≥ n l k (pred-≤-pred r)

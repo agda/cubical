@@ -32,7 +32,6 @@ open import Cubical.Algebra.IntegerMatrix.Smith.NormalForm
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
-  renaming (ℤ to ℤRing)
 
 open import Cubical.Relation.Nullary
 open import Cubical.Induction.WellFounded
@@ -41,13 +40,13 @@ private
   variable
     m n k : ℕ
 
-open CommRingStr (ℤRing .snd)
-open Coefficient  ℤRing
+open CommRingStr (ℤCommRing .snd)
+open Coefficient  ℤCommRing
 open Sim
 
 -- The elementary transformations needed
 
-open ElemTransformation ℤRing
+open ElemTransformation ℤCommRing
 open ElemTransformationℤ
 open SwapFirstRow
 open SwapPivot
@@ -79,7 +78,7 @@ improveRowsTrick M p =
         ; const   =
               (λ i → sym (trickM .addEq i zero)
             ∙ (λ t → improveM .sim .result zero zero + improveM .vanish i t)
-            ∙ +Rid _ ∙ inv₀₀)
+            ∙ +IdR _ ∙ inv₀₀)
         ; nonZero = (λ r → improveM .nonZero (inv₀₀ ∙ r)) }
 
 

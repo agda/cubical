@@ -1,12 +1,21 @@
 {-# OPTIONS --safe #-}
 module Cubical.Homotopy.WedgeConnectivity where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
+
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation as Trunc
+
 open import Cubical.Homotopy.Connected
+
+
 
 module WedgeConnectivity {ℓ ℓ' ℓ''} (n m : ℕ)
   (A : Pointed ℓ) (connA : isConnected (suc n) (typ A))

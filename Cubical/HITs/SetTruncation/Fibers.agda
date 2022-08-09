@@ -68,7 +68,7 @@ module _
         Set.elim2 (λ _ _ → isProp→isSet (isPropΠ (λ _ → isSetFiber∥∥₂ _ _))) λ _ _ p →
         ΣPathP (p , isSet→isSet' squash₂ _ _ _ _)
 
-    mereFiber→∥fiber∥₂/R : (x : X) → ∥ f x ≡ y ∥ → ∥ fiber f y ∥₂ / fiberRel
+    mereFiber→∥fiber∥₂/R : (x : X) → ∥ f x ≡ y ∥₁ → ∥ fiber f y ∥₂ / fiberRel
     mereFiber→∥fiber∥₂/R x = Prop.rec→Set squash/ (λ p → [ ∣ _ , p ∣₂ ]) (λ _ _ → eq/ _ _ refl)
 
     fiber∥∥₂→∥fiber∥₂/R : fiber ∥f∥₂ ∣ y ∣₂ → ∥ fiber f y ∥₂ / fiberRel
@@ -132,7 +132,7 @@ module _
     ∣transport∣ = Set.rec2 squash₂ (λ s (x , q) → ∣ x , q ∙ s ∣₂)
 
     fiberRel2 : (x x' : ∥ fiber f y ∥₂) → Type (ℓ-max ℓ ℓ')
-    fiberRel2 x x' = ∥ Σ[ s ∈ ∥ y ≡ y ∥₂ ] ∣transport∣ s x ≡ x' ∥
+    fiberRel2 x x' = ∥ Σ[ s ∈ ∥ y ≡ y ∥₂ ] ∣transport∣ s x ≡ x' ∥₁
 
     fiberRel2→1 : ∀ x x' → fiberRel2 x x' → fiberRel x x'
     fiberRel2→1 =
@@ -144,13 +144,13 @@ module _
 
     fiberRel1→2 : ∀ x x' → fiberRel x x' → fiberRel2 x x'
     fiberRel1→2 =
-      Set.elim2 (λ _ _ → isSetΠ λ _ → isProp→isSet squash) λ a b p →
-      Prop.rec squash
+      Set.elim2 (λ _ _ → isSetΠ λ _ → isProp→isSet squash₁) λ a b p →
+      Prop.rec squash₁
         (λ q →
           let
             filler = doubleCompPath-filler (sym (a .snd)) (cong f q) (b .snd)
           in
-            ∣ ∣ filler i1 ∣₂ , cong ∣_∣₂ (ΣPathP (q , adjustLemma (flipSquare filler))) ∣)
+            ∣ ∣ filler i1 ∣₂ , cong ∣_∣₂ (ΣPathP (q , adjustLemma (flipSquare filler))) ∣₁)
         (PathIdTrunc₀Iso .Iso.fun p)
       where
       adjustLemma : {x y z w : Y} {p : x ≡ y} {q : x ≡ z} {r : z ≡ w} {s : y ≡ w}
@@ -167,4 +167,4 @@ module _
 
     fiberRel1≃2 : ∀ x x' → fiberRel x x' ≃ fiberRel2 x x'
     fiberRel1≃2 _ _ =
-      propBiimpl→Equiv (squash₂ _ _) squash (fiberRel1→2 _ _) (fiberRel2→1 _ _)
+      propBiimpl→Equiv (squash₂ _ _) squash₁ (fiberRel1→2 _ _) (fiberRel2→1 _ _)

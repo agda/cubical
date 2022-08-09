@@ -40,10 +40,10 @@ freeGroupIsSemiGroup : IsSemigroup {A = FreeGroup A} _·_
 freeGroupIsSemiGroup = issemigroup freeGroupIsSet assoc
 
 freeGroupIsMonoid : IsMonoid {A = FreeGroup A} ε _·_
-freeGroupIsMonoid = ismonoid freeGroupIsSemiGroup (λ x → sym (idr x) , sym (idl x))
+freeGroupIsMonoid = ismonoid freeGroupIsSemiGroup (λ x → sym (idr x)) (λ x → sym (idl x))
 
 freeGroupIsGroup : IsGroup {G = FreeGroup A} ε _·_ inv
-freeGroupIsGroup = isgroup freeGroupIsMonoid (λ x → invr x , invl x)
+freeGroupIsGroup = isgroup freeGroupIsMonoid invr invl
 
 freeGroupGroupStr : GroupStr (FreeGroup A)
 freeGroupGroupStr = groupstr ε _·_ inv freeGroupIsGroup
@@ -54,18 +54,20 @@ freeGroupGroup A = FreeGroup A , freeGroupGroupStr
 
 -- The recursion principle for the FreeGroup
 rec : {Group : Group ℓ'} → (A → Group .fst) → GroupHom (freeGroupGroup A) Group
-rec {Group = G , (groupstr 1g _·g_ invg (isgroup (ismonoid isSemigroupg identityg) inverseg))} f = f' , isHom where
+rec {Group = G , groupstr 1g _·g_ invg (isgroup (ismonoid isSemigroupg ·gIdR ·gIdL) ·gInvR ·gInvL)} f = f' , isHom
+  where
   f' : FreeGroup _ → G
   f' (η a)                  = f a
   f' (g1 · g2)              = (f' g1) ·g (f' g2)
   f' ε                      = 1g
   f' (inv g)                = invg (f' g)
-  f' (assoc g1 g2 g3 i)     = IsSemigroup.assoc isSemigroupg (f' g1) (f' g2) (f' g3) i
-  f' (idr g i)              = sym (fst (identityg (f' g))) i
-  f' (idl g i)              = sym (snd (identityg (f' g))) i
-  f' (invr g i)             = fst (inverseg (f' g)) i
-  f' (invl g i)             = snd (inverseg (f' g)) i
+  f' (assoc g1 g2 g3 i)     = IsSemigroup.·Assoc isSemigroupg (f' g1) (f' g2) (f' g3) i
+  f' (idr g i)              = sym (·gIdR (f' g)) i
+  f' (idl g i)              = sym (·gIdL (f' g)) i
+  f' (invr g i)             = ·gInvR (f' g) i
+  f' (invl g i)             = ·gInvL (f' g) i
   f' (trunc g1 g2 p q i i₁) = IsSemigroup.is-set isSemigroupg (f' g1) (f' g2) (cong f' p) (cong f' q) i i₁
+
   isHom : IsGroupHom freeGroupGroupStr f' _
   IsGroupHom.pres·   isHom = λ g1 g2 → refl
   IsGroupHom.pres1   isHom = refl

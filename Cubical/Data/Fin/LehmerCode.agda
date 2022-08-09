@@ -106,9 +106,9 @@ punchOut∘In {n} i j | inr (i′ , _) with n
 isEquivPunchOut : {i : Fin (suc n)} → isEquiv (punchOut i)
 isEquivPunchOut {i = i} = isEmbedding×isSurjection→isEquiv (isEmbPunchOut , isSurPunchOut) where
   isEmbPunchOut : isEmbedding (punchOut i)
-  isEmbPunchOut = injEmbedding isSetFinExcept isSetFin λ {_} {_} → punchOut-injective i _ _
+  isEmbPunchOut = injEmbedding isSetFin λ {_} {_} → punchOut-injective i _ _
   isSurPunchOut : isSurjection (punchOut i)
-  isSurPunchOut b = ∣ _ , punchOut∘In i b ∣
+  isSurPunchOut b = ∥_∥₁.∣ _ , (punchOut∘In i b) ∣₁
 
 punchOutEquiv : {i : Fin (suc n)} → FinExcept i ≃ Fin n
 punchOutEquiv = _ , isEquivPunchOut

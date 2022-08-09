@@ -37,7 +37,7 @@ open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.GroupPath
 
 open import Cubical.HITs.Pushout
@@ -48,6 +48,8 @@ open import Cubical.HITs.Truncation
 open import Cubical.HITs.SetTruncation
   renaming (elim to sElim ; elim2 to sElim2 ; map to sMap)
 open import Cubical.HITs.PropositionalTruncation
+
+open PlusBis
 
 -- The pushout describing the hopf invariant of the multiplication (∙Π) of
 -- two maps (S³⁺²ⁿ →∙ S²⁺ⁿ)
