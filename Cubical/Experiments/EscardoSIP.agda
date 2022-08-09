@@ -8,9 +8,15 @@ It would be interesting to compare the proves with the one in Cubical.Foundation
 {-# OPTIONS --safe #-}
 module Cubical.Experiments.EscardoSIP where
 
-open import Cubical.Core.Everything
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Univalence
+
 open import Cubical.Data.Sigma.Properties
 
 private

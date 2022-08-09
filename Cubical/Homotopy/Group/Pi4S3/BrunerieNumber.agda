@@ -281,9 +281,9 @@ isSurjective-π₃S³→π₃TotalPushoutPath× =
 
   isSurjective-π₃S³→π₃TotalPushoutPath×' : isSurjective π₃S³→π₃TotalPushoutPath×
   isSurjective-π₃S³→π₃TotalPushoutPath×' =
-    sElim (λ _ → isProp→isSet squash)
-      λ p → trRec squash
-        (λ s → ∣ ∣ fst s ∣₂ , (cong ∣_∣₂ (snd s)) ∣)
+    sElim (λ _ → isProp→isSet squash₁)
+      λ p → trRec squash₁
+        (λ s → ∣ ∣ fst s ∣₂ , (cong ∣_∣₂ (snd s)) ∣₁)
         (((isConnectedΩ^→ 3 3 (S³→TotalPushoutPath× , refl)
           isConnected-toPullback) p) .fst)
 
@@ -306,11 +306,11 @@ S³→S²→Pushout→Unit'' =
   extendExact4Surjective _ _ _ _ _ _ _ _ _
     isSurjective-π₃S³→π₃TotalPushoutPath×
     (extendExact4Surjective _ _ _ _ _ _ _ _ _
-      ((sElim (λ _ → isProp→isSet squash)
+      ((sElim (λ _ → isProp→isSet squash₁)
       (λ f → ∣ ∣ (λ x → (tt , fst f x .fst) , sym (fst f x .snd))
       , ΣPathP ((ΣPathP (refl , cong fst (snd f)))
                        , λ j i → snd f j  .snd (~ i)) ∣₂
-              , cong ∣_∣₂ (ΣPathP (refl , sym (rUnit _))) ∣)))
+              , cong ∣_∣₂ (ΣPathP (refl , sym (rUnit _))) ∣₁)))
       P→S²→Pushout→P')
 
 -- Step 3: We need to show that the map π₃S³ → π₃S² in the above sequence
@@ -407,14 +407,14 @@ fold∘W≡Whitehead =
   where
   indΠ₃S₂ : ∀ {ℓ} {A : Pointed ℓ}
     → (f g : A →∙ S₊∙ 2)
-      → fst f ≡ fst g → ∥ f ≡ g ∥
+      → fst f ≡ fst g → ∥ f ≡ g ∥₁
   indΠ₃S₂ {A = A} f g p =
-    trRec squash
-     (λ r → ∣ ΣPathP (p , r) ∣)
+    trRec squash₁
+     (λ r → ∣ ΣPathP (p , r) ∣₁)
       (isConnectedPathP 1 {A = (λ i → p i (snd A) ≡ north)}
         (isConnectedPathSⁿ 1 (fst g (pt A)) north) (snd f) (snd g) .fst )
 
-BrunerieIsoAbstract : GroupEquiv (π'Gr 3 (S₊∙ 3)) (abstractℤ/ Brunerie)
+BrunerieIsoAbstract : GroupEquiv (π'Gr 3 (S₊∙ 3)) (abstractℤGroup/ Brunerie)
 BrunerieIsoAbstract =
   compGroupEquiv π₄S³≅π₃coFib-fold∘W∙
     (invGroupEquiv
@@ -442,6 +442,6 @@ BrunerieIsoAbstract =
 
 -- And, finally, we get the actual iso
 -- (as in Corollary 3.4.5 in Brunerie's thesis)
-BrunerieIso : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤ/ Brunerie)
+BrunerieIso : GroupEquiv (π'Gr 3 (S₊∙ 3)) (ℤGroup/ Brunerie)
 BrunerieIso =
   compGroupEquiv BrunerieIsoAbstract (abstractℤ/≅ℤ Brunerie)

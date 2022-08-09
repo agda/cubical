@@ -19,14 +19,10 @@ elim : ∀ {ℓ} (C : S¹ → Type ℓ) (b : C base) (l : PathP (λ i → C (loo
 elim _ b l base     = b
 elim _ b l (loop i) = l i
 
--- Not sure about this name
-ind : ∀ {ℓ} (C : S¹ → Type ℓ) (b : C base) (l : subst C loop b ≡ b) → (x : S¹) → C x
-ind _ b l = elim _ b (toPathP l)
-
-isConnectedS¹ : (s : S¹) → ∥ base ≡ s ∥
-isConnectedS¹ base = ∣ refl ∣
+isConnectedS¹ : (s : S¹) → ∥ base ≡ s ∥₁
+isConnectedS¹ base = ∣ refl ∣₁
 isConnectedS¹ (loop i) =
-  squash ∣ (λ j → loop (i ∧ j)) ∣ ∣ (λ j → loop (i ∨ ~ j)) ∣ i
+  squash₁ ∣ (λ j → loop (i ∧ j)) ∣₁ ∣ (λ j → loop (i ∨ ~ j)) ∣₁ i
 
 isGroupoidS¹ : isGroupoid S¹
 isGroupoidS¹ s t =

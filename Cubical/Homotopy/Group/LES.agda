@@ -520,10 +520,10 @@ module setTruncLemmas {ℓ ℓ' ℓ'' : Level}
   ker⊂im : ((x : typ (Ω ((Ω^ m) B))) → isInKer∙ g x → isInIm∙ f x)
          → (x : π (suc m) B) → isInKer (_ , e₂) x → isInIm (_  , e₁) x
   ker⊂im ind =
-    sElim (λ _ → isSetΠ λ _ → isProp→isSet squash)
+    sElim (λ _ → isSetΠ λ _ → isProp→isSet squash₁)
       λ p ker →
-        pRec squash
-        (λ ker∙ → ∣ ∣ ind p ker∙ .fst ∣₂ , cong ∣_∣₂ (ind p ker∙ .snd) ∣ )
+        pRec squash₁
+        (λ ker∙ → ∣ ∣ ind p ker∙ .fst ∣₂ , cong ∣_∣₂ (ind p ker∙ .snd) ∣₁ )
         (fun PathIdTrunc₀Iso ker)
 
   im⊂ker : ((x : typ (Ω ((Ω^ m) B))) → isInIm∙ f x → isInKer∙ g x)

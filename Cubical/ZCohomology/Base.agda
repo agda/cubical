@@ -1,18 +1,19 @@
 {-# OPTIONS --safe #-}
 module Cubical.ZCohomology.Base where
 
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Pointed.Base
+
 open import Cubical.Data.Int.Base hiding (_+_)
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma
-
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed.Base
 
 open import Cubical.HITs.Nullification.Base
 open import Cubical.HITs.SetTruncation.Base
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.Susp.Base
 open import Cubical.HITs.Truncation.Base
+
 open import Cubical.Homotopy.Loopspace
 
 private

@@ -140,10 +140,10 @@ strRelQuotientComparison {ρ = ρ} θ α R (eq/ s t r i) =
   ρs =
     subst (λ R' → ρ R' s s)
       (funExt₂ λ x x' →
-        hPropExt squash (R .fst .snd x x')
+        hPropExt squash₁ (R .fst .snd x x')
           (Trunc.rec (R .fst .snd x x')
             (λ {(_ , r , r') → R .snd .transitive _ _ _ r (R .snd .symmetric _ _ r')}))
-          (λ r → ∣ x' , r , R .snd .reflexive x' ∣))
+          (λ r → ∣ x' , r , R .snd .reflexive x' ∣₁))
       (θ .transitive (R .fst) (invPropRel (R .fst)) r (θ .symmetric (R .fst) r))
 
   leftEq : θ .quo (_ , s) R ρs .fst .fst ≡ α .actStr [_] s
@@ -248,7 +248,7 @@ structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .rel =
   correction : [R] .fst ≡ graphRel (E.Thm .fst)
   correction =
     funExt₂ λ qx qy →
-      (hPropExt squash (squash/ _ _)
+      (hPropExt squash₁ (squash/ _ _)
         (Trunc.rec (squash/ _ _)
           (λ {(y , qr , py) →
             Trunc.rec
@@ -259,10 +259,10 @@ structuredQER→structuredEquiv {ρ = ρ} θ (X , s) (Y , t) R r .rel =
                 ∙ py})
               qr}))
         (elimProp {P = λ qx → E.Thm .fst qx ≡ qy → [R] .fst qx qy}
-          (λ _ → isPropΠ λ _ → squash)
+          (λ _ → isPropΠ λ _ → squash₁)
           (λ x →
             elimProp {P = λ qy → E.Thm .fst [ x ] ≡ qy → [R] .fst [ x ] qy}
-              (λ _ → isPropΠ λ _ → squash)
-              (λ y p → ∣ _ , ∣ _ , refl , E.fwd≡ToRel p ∣ , refl ∣)
+              (λ _ → isPropΠ λ _ → squash₁)
+              (λ y p → ∣ _ , ∣ _ , refl , E.fwd≡ToRel p ∣₁ , refl ∣₁)
               qy)
           qx))

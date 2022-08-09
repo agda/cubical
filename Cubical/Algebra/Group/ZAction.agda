@@ -14,7 +14,7 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int
   renaming
-    (_·_ to _*_ ; _+_ to _+ℤ_ ; _-_ to _-ℤ_ ; pos·pos to pos·)
+    (_·_ to _*_ ; _+_ to _+ℤ_ ; _-_ to _-ℤ_ ; pos·pos to pos·) hiding (·Assoc)
 open import Cubical.Data.Nat renaming (_·_ to _·ℕ_ ; _+_ to _+ℕ_)
 open import Cubical.Data.Nat.Mod
 open import Cubical.Data.Nat.Order
@@ -31,7 +31,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Instances.Unit
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.Group.DirProd
@@ -78,11 +78,11 @@ rUnitℤ· G (pos zero) = refl
 rUnitℤ· G (pos (suc n)) =
     cong (_·_ (snd G) (1g (snd G)))
       (rUnitℤ· G (pos n))
-  ∙ lid (snd G) (1g (snd G))
+  ∙ ·IdL (snd G) (1g (snd G))
 rUnitℤ· G (negsuc zero) = GroupTheory.inv1g G
 rUnitℤ· G (negsuc (suc n)) =
     cong₂ (_·_ (snd G)) (GroupTheory.inv1g G) (rUnitℤ· G (negsuc n))
-  ∙ lid (snd G) (1g (snd G))
+  ∙ ·IdL (snd G) (1g (snd G))
 
 rUnitℤ·ℤ : (x : ℤ) → (x ℤ[ ℤGroup ]· 1) ≡ x
 rUnitℤ·ℤ (pos zero) = refl
@@ -94,65 +94,65 @@ rUnitℤ·ℤ (negsuc (suc n)) = cong (-1 +ℤ_) (rUnitℤ·ℤ (negsuc n))
 private
   precommℤ : (G : Group ℓ) (g : fst G) (y : ℤ)
            → (snd G · (y ℤ[ G ]· g)) g ≡ (sucℤ y ℤ[ G ]· g)
-  precommℤ G g (pos zero) = lid (snd G) g ∙ sym (rid (snd G) g)
+  precommℤ G g (pos zero) = ·IdL (snd G) g ∙ sym (·IdR (snd G) g)
   precommℤ G g (pos (suc n)) =
-       sym (assoc (snd G) _ _ _)
+       sym (·Assoc (snd G) _ _ _)
      ∙ cong ((snd G · g)) (precommℤ G g (pos n))
-  precommℤ G g (negsuc zero) = invl (snd G) g
+  precommℤ G g (negsuc zero) = ·InvL (snd G) g
   precommℤ G g (negsuc (suc n)) =
-    sym (assoc (snd G) _ _ _)
+    sym (·Assoc (snd G) _ _ _)
     ∙ cong ((snd G · inv (snd G) g)) (precommℤ G g (negsuc n))
     ∙ negsucLem n
     where
     negsucLem : (n : ℕ) → (snd G · inv (snd G) g)
       (sucℤ (negsuc n) ℤ[ G ]· g)
       ≡ (sucℤ (negsuc (suc n)) ℤ[ G ]· g)
-    negsucLem zero = (rid (snd G) _)
+    negsucLem zero = (·IdR (snd G) _)
     negsucLem (suc n) = refl
 
 module _ (G : Group ℓ) (g : fst G) where
   private
     lem : (y : ℤ) → (predℤ y ℤ[ G ]· g)
                    ≡ (snd G · inv (snd G) g) (y ℤ[ G ]· g)
-    lem (pos zero) = sym (rid (snd G) _)
+    lem (pos zero) = sym (·IdR (snd G) _)
     lem (pos (suc n)) =
-         sym (lid (snd G) ((pos n ℤ[ G ]· g)))
+         sym (·IdL (snd G) ((pos n ℤ[ G ]· g)))
       ∙∙ cong (λ x → _·_ (snd G) x (pos n ℤ[ G ]· g))
-              (sym (invl (snd G) g))
-      ∙∙ sym (assoc (snd G) _ _ _)
+              (sym (·InvL (snd G) g))
+      ∙∙ sym (·Assoc (snd G) _ _ _)
     lem (negsuc n) = refl
 
   distrℤ· : (x y : ℤ) → ((x +ℤ y) ℤ[ G ]· g)
            ≡ _·_ (snd G) (x ℤ[ G ]· g) (y ℤ[ G ]· g)
   distrℤ· (pos zero) y = cong (_ℤ[ G ]· g) (+Comm 0 y)
-                            ∙ sym (lid (snd G) _)
+                            ∙ sym (·IdL (snd G) _)
   distrℤ· (pos (suc n)) (pos n₁) =
       cong (_ℤ[ G ]· g) (sym (pos+ (suc n) n₁))
     ∙ cong (_·_ (snd G) g)
            (cong (_ℤ[ G ]· g) (pos+ n n₁) ∙ distrℤ· (pos n) (pos n₁))
-    ∙ assoc (snd G) _ _ _
+    ∙ ·Assoc (snd G) _ _ _
   distrℤ· (pos (suc n)) (negsuc zero) =
       distrℤ· (pos n) 0
-    ∙ ((rid (snd G) (pos n ℤ[ G ]· g) ∙ sym (lid (snd G) (pos n ℤ[ G ]· g)))
+    ∙ ((·IdR (snd G) (pos n ℤ[ G ]· g) ∙ sym (·IdL (snd G) (pos n ℤ[ G ]· g)))
     ∙ cong (λ x → _·_ (snd G) x (pos n ℤ[ G ]· g))
-           (sym (invl (snd G) g)) ∙ sym (assoc (snd G) _ _ _))
-    ∙ (assoc (snd G) _ _ _)
-    ∙ cong (λ x → _·_ (snd G)  x (pos n ℤ[ G ]· g)) (invl (snd G) g)
-    ∙ lid (snd G) _
-    ∙ sym (rid (snd G) _)
-    ∙ (cong (_·_ (snd G) (pos n ℤ[ G ]· g)) (sym (invr (snd G) g))
-    ∙ assoc (snd G) _ _ _)
+           (sym (·InvL (snd G) g)) ∙ sym (·Assoc (snd G) _ _ _))
+    ∙ (·Assoc (snd G) _ _ _)
+    ∙ cong (λ x → _·_ (snd G)  x (pos n ℤ[ G ]· g)) (·InvL (snd G) g)
+    ∙ ·IdL (snd G) _
+    ∙ sym (·IdR (snd G) _)
+    ∙ (cong (_·_ (snd G) (pos n ℤ[ G ]· g)) (sym (·InvR (snd G) g))
+    ∙ ·Assoc (snd G) _ _ _)
     ∙ cong (λ x → _·_ (snd G)  x (inv (snd G) g))
            (precommℤ G g (pos n))
   distrℤ· (pos (suc n)) (negsuc (suc n₁)) =
        cong (_ℤ[ G ]· g) (predℤ+negsuc n₁ (pos (suc n)))
     ∙∙ distrℤ· (pos n) (negsuc n₁)
     ∙∙ (cong (λ x → _·_ (snd G) x (negsuc n₁ ℤ[ G ]· g))
-             ((sym (rid (snd G) (pos n ℤ[ G ]· g))
-             ∙ cong (_·_ (snd G) (pos n ℤ[ G ]· g)) (sym (invr (snd G) g)))
-           ∙∙ assoc (snd G) _ _ _
+             ((sym (·IdR (snd G) (pos n ℤ[ G ]· g))
+             ∙ cong (_·_ (snd G) (pos n ℤ[ G ]· g)) (sym (·InvR (snd G) g)))
+           ∙∙ ·Assoc (snd G) _ _ _
            ∙∙ cong (λ x → _·_ (snd G) x (inv (snd G) g)) (precommℤ G g (pos n)))
-      ∙ sym (assoc (snd G) _ _ _))
+      ∙ sym (·Assoc (snd G) _ _ _))
   distrℤ· (negsuc zero) y =
       cong (_ℤ[ G ]· g) (+Comm -1 y) ∙ lem y
   distrℤ· (negsuc (suc n)) y =
@@ -160,7 +160,7 @@ module _ (G : Group ℓ) (g : fst G) where
     ∙∙ lem (y +negsuc n)
     ∙∙ cong (snd G · inv (snd G) g)
             (cong (_ℤ[ G ]· g) (+Comm y (negsuc n)) ∙ distrℤ· (negsuc n) y)
-     ∙ (assoc (snd G) _ _ _)
+     ∙ (·Assoc (snd G) _ _ _)
 
 GroupHomℤ→ℤpres- : (e : GroupHom ℤGroup ℤGroup) (a : ℤ)
                   → fst e (- a) ≡ - fst e a
@@ -492,7 +492,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
         ∙ GroupTheory.invInv ℤGroup y}
 
   ℤHom→ℤ/im≅ℤ/im1 : (n : ℕ) →  fst f 1 ≡ pos (suc n)
-    → BijectionIso (ℤGroup / imℤHomSubGroup f) (ℤ/ (suc n))
+    → BijectionIso (ℤGroup / imℤHomSubGroup f) (ℤGroup/ (suc n))
   fst (BijectionIso.fun (ℤHom→ℤ/im≅ℤ/im1 n p)) =
       sRec isSetFin (ℤ→Fin n) λ a b
       → rec (isSetFin _ _) (uncurry λ x q
@@ -501,7 +501,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
 
             ∙ pres· (isHomℤ→Fin n) (pos (suc n) * x) b
             ∙ cong (_+ₘ ℤ→Fin n b) (lem x)
-            ∙ GroupStr.lid (snd (ℤ/ (suc n))) (ℤ→Fin n b))
+            ∙ GroupStr.·IdL (snd (ℤGroup/ (suc n))) (ℤ→Fin n b))
     where
     lem : (x : ℤ) → ℤ→Fin n (pos (suc n) * x) ≡ 0
     lem (pos x) = cong (ℤ→Fin n) (sym (pos· (suc n) x))
@@ -514,7 +514,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
       ∙∙ cong -ₘ_ (Σ≡Prop (λ _ → isProp≤)
                     (cong (_mod (suc n)) (·-comm (suc n) (suc x))
                     ∙ zero-charac-gen (suc n) (suc x)))
-      ∙∙ GroupTheory.inv1g (ℤ/ (suc n))
+      ∙∙ GroupTheory.inv1g (ℤGroup/ (suc n))
 
     cancel-lem : (a b x : ℤ) → a +ℤ (- b) ≡ x → a ≡ x +ℤ b
     cancel-lem a b x p = sym (minusPlus b a) ∙ cong (_+ℤ b) p
@@ -528,7 +528,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                           (funExt⁻ (cong fst (characGroupHomℤ f ∙ cong ℤHom p)) ((pos (quotient x / (suc n))))
                           ∙ sym (pos· (suc n) (quotient x / (suc n)))
                           ∙ cong pos ((λ i → q (~ i) .fst +ℕ suc n ·ℕ (quotient x / suc n)))
-                          ∙ cong pos (≡remainder+quotient (suc n) x))) ∣ ;
+                          ∙ cong pos (≡remainder+quotient (suc n) x))) ∣₁ ;
            (negsuc x) q → eq/ (negsuc x) 0
                           ∣ (((- pos (quotient suc x / (suc n)))) ,
                           presinv (snd f) (pos (quotient suc x / (suc n)))
@@ -536,27 +536,27 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                                        (pos (quotient (suc x) / (suc n))))
                           ∙∙ cong -_ (sym (pos· (suc n) (quotient suc x / (suc n)))
                                     ∙ (λ i → pos (fst ((sym (GroupTheory.invInv
-                                                              (ℤ/ (suc n))
+                                                              (ℤGroup/ (suc n))
                                                   ((suc x mod suc n) , mod< n (suc x)))
                                                  ∙ cong -ₘ_ q
-                                                 ∙ GroupTheory.inv1g (ℤ/ (suc n))) (~ i))
+                                                 ∙ GroupTheory.inv1g (ℤGroup/ (suc n))) (~ i))
                                                  +ℕ suc n ·ℕ quotient (suc x) / suc n)))
-                          ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))))) ∣})
+                          ∙∙ cong -_ (cong pos (≡remainder+quotient (suc n) (suc x))))) ∣₁})
   BijectionIso.surj (ℤHom→ℤ/im≅ℤ/im1 n p) x =
       ∣ [ pos (fst x) ]
-    , (Σ≡Prop (λ _ → isProp≤) (modIndBase n (fst x) (snd x))) ∣
+    , (Σ≡Prop (λ _ → isProp≤) (modIndBase n (fst x) (snd x))) ∣₁
 
 -- main result
 ℤ/imIso : (f : GroupHom ℤGroup ℤGroup)
-  → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤ/ abs (fst f 1))
+  → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤGroup/ abs (fst f 1))
 ℤ/imIso f = helpIso _ refl
   where
   helpIso : (a : ℤ)
-       → fst f 1 ≡ a → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤ/ abs a)
+       → fst f 1 ≡ a → GroupIso (ℤGroup / imℤHomSubGroup f) (ℤGroup/ abs a)
   helpIso (pos zero) p = invGroupIso (trivHom→ℤ≅ℤ/im f p)
   helpIso (pos (suc n)) p = BijectionIso→GroupIso (ℤHom→ℤ/im≅ℤ/im1 f n p)
   helpIso (negsuc n) p =
-    subst ((λ x → GroupIso (ℤGroup / x) (ℤ/ abs (negsuc n))))
+    subst ((λ x → GroupIso (ℤGroup / x) (ℤGroup/ abs (negsuc n))))
           (sym lem1)
           (BijectionIso→GroupIso
             (ℤHom→ℤ/im≅ℤ/im1 extendHom n (cong -_ p)))
@@ -573,8 +573,8 @@ module _ (f : GroupHom ℤGroup ℤGroup) where
                                                    ∙ GroupTheory.invInv ℤGroup (fst f x)
                                                    ∙ q }))
                  (Prop.map (λ { (x , q) → (- x) , (presinv (snd f) x ∙ q) }))
-                 ((λ _ → squash _ _))
-                 (λ _ → squash _ _)))))
+                 ((λ _ → squash₁ _ _))
+                 (λ _ → squash₁ _ _)))))
 
 -- Goal: given G -ᶠ→ H → L → Unit exact, with G ≅ H ≅ ℤ, we get
 -- an iso ℤ/abs (f 1) ≅ H, where f 1 and 1 are viewed as integers
@@ -600,7 +600,7 @@ module _ (f : GroupHom ℤGroup ℤGroup) (G : Group₀)
   ℤ/im≅ℤ/ker =
     GroupEquiv→GroupIso (invEq (GroupPath _ _) (cong (ℤGroup /_) imf≡kerg))
 
-  GroupIsoℤ/abs : GroupIso (ℤ/ abs (fst f (pos 1))) G
+  GroupIsoℤ/abs : GroupIso (ℤGroup/ abs (fst f (pos 1))) G
   GroupIsoℤ/abs =
     compGroupIso
       (invGroupIso (ℤ/imIso f))
@@ -616,29 +616,29 @@ GroupEquivℤ/abs-gen : (G H L : Group₀)
   → (r : GroupEquiv ℤGroup H)
   → (f : GroupHom G H) (g : GroupHom H L)
   → Exact4 G H L UnitGroup₀ f g (→UnitHom L)
-  → GroupEquiv (ℤ/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L
+  → GroupEquiv (ℤGroup/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L
 GroupEquivℤ/abs-gen G H L =
   GroupEquivJ (λ G e
     → (r : GroupEquiv ℤGroup H)
      → (f : GroupHom G H) (g : GroupHom H L)
      → Exact4 G H L UnitGroup₀ f g (→UnitHom L)
-     → GroupEquiv (ℤ/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L)
+     → GroupEquiv (ℤGroup/ abs (invEq (fst r) (fst f (fst (fst e) 1)))) L)
     (GroupEquivJ (λ H r
       → (f : GroupHom ℤGroup H) (g : GroupHom H L) →
       Exact4 ℤGroup H L UnitGroup₀ f g (→UnitHom L) →
       GroupEquiv
-      (ℤ/ abs (invEq (fst r) (fst f 1))) L)
+      (ℤGroup/ abs (invEq (fst r) (fst f 1))) L)
       λ f g ex → GroupIso→GroupEquiv (GroupIsoℤ/abs f L g ex))
 
 -- for type checking reasons, let's also do it with an abstract type
 abstract
-  abstractℤ/_ : ℕ → Group₀
-  abstractℤ/_ n = ℤ/ n
+  abstractℤGroup/_ : ℕ → Group₀
+  abstractℤGroup/_ n = ℤGroup/ n
 
-  abstractℤ/≡ℤ : abstractℤ/_ ≡ ℤ/_
+  abstractℤ/≡ℤ : abstractℤGroup/_ ≡ ℤGroup/_
   abstractℤ/≡ℤ = refl
 
-  abstractℤ/≅ℤ : (n : ℕ) → GroupEquiv (abstractℤ/ n) (ℤ/ n)
+  abstractℤ/≅ℤ : (n : ℕ) → GroupEquiv (abstractℤGroup/_ n) (ℤGroup/ n)
   abstractℤ/≅ℤ n = idGroupEquiv
 
 GroupEquiv-abstractℤ/abs-gen : (G H L : Group₀)
@@ -648,12 +648,74 @@ GroupEquiv-abstractℤ/abs-gen : (G H L : Group₀)
   → Exact4 G H L UnitGroup₀ f g (→UnitHom L)
   → (n : ℕ)
   → abs (invEq (fst r) (fst f (fst (fst e) 1))) ≡ n
-  → GroupEquiv (abstractℤ/ n) L
+  → GroupEquiv (abstractℤGroup/_ n) L
 GroupEquiv-abstractℤ/abs-gen G H L e r f g ex n p = main
   where
   abstract
-    main : GroupEquiv (abstractℤ/ n) L
+    main : GroupEquiv (abstractℤGroup/_ n) L
     main =
       transport (λ i
                → GroupEquiv (abstractℤ/≡ℤ (~ i) (p i)) L)
              (GroupEquivℤ/abs-gen G H L e r f g ex)
+
+1∈Im→isEquivℤ : (h : GroupHom ℤGroup ℤGroup) → isInIm h (pos 1) → isEquiv (fst h)
+1∈Im→isEquivℤ h = Prop.rec (isPropIsEquiv _)
+         λ p → GroupEquivℤ-isEquiv idGroupEquiv 1
+                 (λ r → r , (·Comm 1 r ∙ ℤ·≡· r 1)) h (main p)
+   where
+   main : Σ[ x ∈ ℤ ] fst h x ≡ 1 → (fst h 1 ≡ 1) ⊎ (fst h 1 ≡ -1)
+   main (n , p) =
+     ≡±1-id n
+      (fst h (pos 1))
+      h1-id
+      (λ q → snotz (injPos (sym p
+                 ∙∙ cong (fst h) q
+                 ∙∙ IsGroupHom.pres1 (snd h))))
+       λ q → snotz (injPos (sym p
+                   ∙∙ cong (fst h) (·Comm 1 n ∙ ℤ·≡· n 1)
+                   ∙∙ homPresℤ· h 1 n ∙ (cong (n ℤ[ ℤGroup ]·_) q)
+                   ∙∙ sym (ℤ·≡· n 0)
+                   ∙∙ ·Comm n 0))
+     where
+     h1-id : pos 1 ≡ n * fst h (pos 1)
+     h1-id =
+         sym p
+       ∙ cong (fst h) (sym (ℤ·≡· 1 n)
+       ∙∙ ·Comm 1 n ∙∙ ℤ·≡· n 1)
+       ∙ (homPresℤ· h 1 n)
+       ∙ sym (ℤ·≡· n (fst h 1))
+
+     ≡±1-id : (a b : ℤ) → 1 ≡ a * b
+       → ¬ (a ≡ 0) → ¬ (b ≡ 0)
+       → (b ≡ 1) ⊎ (b ≡ -1)
+     ≡±1-id a (pos zero) p a≠0 b≠0 = ⊥-rec (b≠0 refl)
+     ≡±1-id a (pos (suc zero)) p a≠0 b≠0 = inl refl
+     ≡±1-id (pos zero) (pos (suc (suc n))) p a≠0 b≠0 = ⊥-rec (a≠0 refl)
+     ≡±1-id (pos (suc n₁)) (pos (suc (suc n))) p a≠0 b≠0 =
+       ⊥-rec (snotz
+         (cong predℕ (injPos ((pos· (suc n₁) (suc (suc n)) ∙ sym p)))))
+     ≡±1-id (negsuc n₁) (pos (suc (suc n))) p a≠0 b≠0 =
+       ⊥-rec (snotz (sym (injNegsuc (cong (predℤ ∘ predℤ)
+               (p ∙ negsuc·pos n₁ (suc (suc n))
+               ∙ cong (-_) (sym (pos· (suc n₁) (suc (suc n)))))))))
+     ≡±1-id a (negsuc zero) p a≠0 b≠0 = inr refl
+     ≡±1-id (pos zero) (negsuc (suc n)) p a≠0 b≠0 = ⊥-rec (a≠0 refl)
+     ≡±1-id (pos (suc n₁)) (negsuc (suc n)) p a≠0 b≠0 =
+       ⊥-rec (snotz (sym (injNegsuc
+           (cong (predℤ ∘ predℤ) (p ∙ pos·negsuc (suc n₁) (suc n)
+         ∙ cong (-_) (sym (pos· (suc n₁) (suc (suc n)))))))))
+     ≡±1-id (negsuc n₁) (negsuc (suc n)) p a≠0 b≠0 =
+       ⊥-rec (snotz (injPos
+           (sym (cong predℤ (p ∙ negsuc·negsuc n₁ (suc n)
+          ∙ sym (pos· (suc n₁) (suc (suc n))))))))
+
+1∈Im→isEquiv : ∀ (G : Group₀) (e : GroupEquiv ℤGroup G)
+       → (h : GroupHom G ℤGroup)
+       → isInIm (_ , snd h) 1
+       → isEquiv (fst h)
+1∈Im→isEquiv G =
+  GroupEquivJ
+    (λ H _ → (h : GroupHom H ℤGroup)
+       → isInIm (_ , snd h) 1
+       → isEquiv (fst h))
+    1∈Im→isEquivℤ

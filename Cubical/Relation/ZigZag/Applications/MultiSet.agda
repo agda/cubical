@@ -181,8 +181,8 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
   QuasiR .fst .fst = R
   QuasiR .fst .snd _ _ = isPropΠ λ _ → isSetℕ _ _
   QuasiR .snd .zigzag r r' r'' a = (r a) ∙∙ sym (r' a) ∙∙ (r'' a)
-  QuasiR .snd .fwd a = ∣ φ a , η a ∣
-  QuasiR .snd .bwd b = ∣ ψ b , ε b ∣
+  QuasiR .snd .fwd a = ∣ φ a , η a ∣₁
+  QuasiR .snd .bwd b = ∣ ψ b , ε b ∣₁
 
   isStructuredInsert : (x : A) {xs : List A} {ys : AList A}
     → R xs ys → R (L.insert x xs) (AL.insert x ys)
@@ -270,7 +270,7 @@ module Lists&ALists {A : Type ℓ} (discA : Discrete A) where
 
     γ : ∀ a b xs → Rᴸ (a ∷ b ∷ xs) (b ∷ a ∷ xs)
     γ a b xs =
-      ∣ φ (a ∷ b ∷ xs) , η (a ∷ b ∷ xs) , (λ c → δ c b a xs ∙ η (a ∷ b ∷ xs) c) ∣
+      ∣ φ (a ∷ b ∷ xs) , η (a ∷ b ∷ xs) , (λ c → δ c b a xs ∙ η (a ∷ b ∷ xs) c) ∣₁
 
     β : ∀ a b [xs] → a ∷/ b ∷/ [xs] ≡ b ∷/ a ∷/ [xs]
     β a b = elimProp (λ _ → squash/ _ _) (λ xs → eq/ _ _ (γ a b xs))

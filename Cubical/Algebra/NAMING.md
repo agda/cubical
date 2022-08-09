@@ -2,6 +2,11 @@ NAMING
 ======
 
 This file provides a guide for naming definitions in the Algebra folder.
+You may divert from the naming scheme for sufficiently 'local' names,
+e.g. names which are ```private``` or in a ```where```/```let``` clause.
+If you need the operations and properties, of,
+say the ```Group``` ```ℤGroup```,
+use the names provided by ```open AbGroupStr (ℤGroup .snd)```.
 
 * To name a property of an operation, write the name of the operation
   first, then the property. For example, `+Comm` or `·Assoc`.
@@ -28,7 +33,8 @@ This file provides a guide for naming definitions in the Algebra folder.
     right, and then the operation that is distributed over.
 
     ```
-    x · (y + z) ≡ (x · y) + (x · z)
+    ·DistR+ : x · (y + z) ≡ (x · y) + (x · z)
+    ·DistL+ : (x + y) · z ≡ (x · z) + (y · z)
     ```
 
   - `Id` = unit laws
@@ -81,3 +87,10 @@ This file provides a guide for naming definitions in the Algebra folder.
 
 * An instance of an algebraic structure should include the
   name of the structure. For example `UnitGroup` and `ℤGroup`.
+
+* Use traditional names for constructions in algebra as they could appear in a common textbook,
+  like e.g. Serge Lang's 'Algebra'.
+  So for exmaple, 'DirectSum' is to be preffered over 'Coproduct'.
+
+* If there are two canonical subfolders for a construction or instance of an algebraic structure,
+  use both and make one use the other.

@@ -76,12 +76,12 @@ EquivPresDec : ∀ {ℓ ℓ'}{A : Type ℓ} {B : Type ℓ'} → A ≃ B
           → Dec A → Dec B
 EquivPresDec p = mapDec (p .fst) (λ f → f ∘ invEq p)
 
-¬→¬∥∥ : ¬ A → ¬ ∥ A ∥
-¬→¬∥∥ ¬p ∣ a ∣ = ¬p a
-¬→¬∥∥ ¬p (squash x y i) = isProp⊥ (¬→¬∥∥ ¬p x) (¬→¬∥∥ ¬p y) i
+¬→¬∥∥ : ¬ A → ¬ ∥ A ∥₁
+¬→¬∥∥ ¬p ∣ a ∣₁ = ¬p a
+¬→¬∥∥ ¬p (squash₁ x y i) = isProp⊥ (¬→¬∥∥ ¬p x) (¬→¬∥∥ ¬p y) i
 
-Dec∥∥ : Dec A → Dec ∥ A ∥
-Dec∥∥ = mapDec ∣_∣ ¬→¬∥∥
+Dec∥∥ : Dec A → Dec ∥ A ∥₁
+Dec∥∥ = mapDec ∣_∣₁ ¬→¬∥∥
 
 -- we have the following implications
 -- X ── ∣_∣ ─→ ∥ X ∥
@@ -90,13 +90,12 @@ Dec∥∥ = mapDec ∣_∣ ¬→¬∥∥
 
 -- reexport propositional truncation for uniformity
 open Cubical.HITs.PropositionalTruncation.Base
-  using (∣_∣) public
 
-populatedBy : ∥ A ∥ → ⟪ A ⟫
+populatedBy : ∥ A ∥₁ → ⟪ A ⟫
 populatedBy {A = A} a (f , fIsConst) = h a where
-  h : ∥ A ∥ → Fixpoint f
-  h ∣ a ∣ = f a , fIsConst (f a) a
-  h (squash a b i) = 2-Constant→isPropFixpoint f fIsConst (h a) (h b) i
+  h : ∥ A ∥₁ → Fixpoint f
+  h ∣ a ∣₁ = f a , fIsConst (f a) a
+  h (squash₁ a b i) = 2-Constant→isPropFixpoint f fIsConst (h a) (h b) i
 
 notEmptyPopulated : ⟪ A ⟫ → NonEmpty A
 notEmptyPopulated {A = A} pop u = u (fixpoint (pop (h , hIsConst))) where
@@ -121,9 +120,9 @@ PStable→SplitSupport pst = pst ∘ populatedBy
 SplitSupport→Collapsible : SplitSupport A → Collapsible A
 SplitSupport→Collapsible {A = A} hst = h , hIsConst where
   h : A → A
-  h p = hst ∣ p ∣
+  h p = hst ∣ p ∣₁
   hIsConst : 2-Constant h
-  hIsConst p q i = hst (squash ∣ p ∣ ∣ q ∣ i)
+  hIsConst p q i = hst (squash₁ ∣ p ∣₁ ∣ q ∣₁ i)
 
 Collapsible→SplitSupport : Collapsible A → SplitSupport A
 Collapsible→SplitSupport f x = fixpoint (populatedBy x f)
@@ -155,9 +154,9 @@ HSeparated→isSet = Collapsible≡→isSet ∘ HSeparated→Collapsible≡
 
 isSet→HSeparated : isSet A → HSeparated A
 isSet→HSeparated setA x y = extract where
-  extract : ∥ x ≡ y ∥ → x ≡ y
-  extract ∣ p ∣ = p
-  extract (squash p q i) = setA x y (extract p) (extract q) i
+  extract : ∥ x ≡ y ∥₁ → x ≡ y
+  extract ∣ p ∣₁ = p
+  extract (squash₁ p q i) = setA x y (extract p) (extract q) i
 
 -- by the above more sufficient conditions to inhibit isSet A are given
 PStable≡→HSeparated : PStable≡ A → HSeparated A

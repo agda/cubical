@@ -99,3 +99,20 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
   𝒮ˢ-Σ .uaˢ p _ =
     fromPathP
       (DUARel.uaᴰ (𝒮ᴰ-Σ (Subst→DUA 𝒮ˢ-B) (Subst→DUA 𝒮ˢ-C))  _ p _ .fst (refl , refl))
+
+-- SubstRel on a non-dependent product
+
+module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
+  {B : A → Type ℓB} (𝒮ˢ-B : SubstRel 𝒮-A B)
+  {C : A → Type ℓC} (𝒮ˢ-C : SubstRel 𝒮-A C)
+  where
+
+  open UARel 𝒮-A
+  open SubstRel
+  private
+    module B = SubstRel 𝒮ˢ-B
+    module C = SubstRel 𝒮ˢ-C
+
+  _×𝒮ˢ_ : SubstRel 𝒮-A (λ a → B a × C a)
+  _×𝒮ˢ_ .act p = ≃-× (B.act p) (C.act p)
+  _×𝒮ˢ_ .uaˢ p (b , c) = ΣPathP (B.uaˢ p b , C.uaˢ p c)

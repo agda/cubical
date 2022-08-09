@@ -32,8 +32,8 @@ data V (ℓ : Level) : Type (ℓ-suc ℓ)
 _∈_ : (S T : V ℓ) → hProp (ℓ-suc ℓ)
 
 eqImage : {X Y : Type ℓ} (ix : X → V ℓ) (iy : Y → V ℓ) → Type (ℓ-suc ℓ)
-eqImage {X = X} {Y = Y} ix iy = (∀ (a : X) → ∥ fiber iy (ix a) ∥) ⊓′
-                                (∀ (b : Y) → ∥ fiber ix (iy b) ∥)
+eqImage {X = X} {Y = Y} ix iy = (∀ (a : X) → ∥ fiber iy (ix a) ∥₁) ⊓′
+                                (∀ (b : Y) → ∥ fiber ix (iy b) ∥₁)
 
 data V ℓ where
   sett : (X : Type ℓ) → (X → V ℓ) → V ℓ
@@ -43,8 +43,8 @@ data V ℓ where
 A ∈ sett X ix = ∥ Σ[ i ∈ X ] (ix i ≡ A) ∥ₚ
 A ∈ seteq X Y ix iy (f , g) i =
   ⇔toPath {P = A ∈ sett X ix} {Q = A ∈ sett Y iy}
-    (λ ax → do (x , xa) ← ax ; (y , ya) ← f x ; ∣ y , ya ∙ xa ∣)
-    (λ ay → do (y , ya) ← ay ; (x , xa) ← g y ; ∣ x , xa ∙ ya ∣) i
+    (λ ax → do (x , xa) ← ax ; (y , ya) ← f x ; ∣ y , ya ∙ xa ∣₁)
+    (λ ay → do (y , ya) ← ay ; (x , xa) ← g y ; ∣ x , xa ∙ ya ∣₁) i
   where open PropMonad
 A ∈ setIsSet a b p q i j = isSetHProp (A ∈ a) (A ∈ b) (λ j → A ∈ p j) (λ j → A ∈ q j) i j
 
@@ -84,16 +84,16 @@ module _ {Z : (s : V ℓ) → Type ℓ'} {isSetZ : ∀ s → isSet (Z s)} (E : E
     -- using a local definition of Prop.rec satisfies the termination checker
     rec₁→₂ x₁ = localRec₁ (eq .fst x₁) where
       localRec₁ :
-          ∥ fiber ix₂ (ix₁ x₁) ∥
+          ∥ fiber ix₂ (ix₁ x₁) ∥₁
         → ∃[ (x₂ , p) ∈ fiber ix₂ (ix₁ x₁) ] PathP (λ i → Z (p i)) (elim (ix₂ x₂)) (elim (ix₁ x₁))
-      localRec₁ ∣ x₂ , xx ∣ = ∣ (x₂ , xx) , (λ i → elim (xx i)) ∣
-      localRec₁ (squash x y i) = squash (localRec₁ x) (localRec₁ y) i
+      localRec₁ ∣ x₂ , xx ∣₁ = ∣ (x₂ , xx) , (λ i → elim (xx i)) ∣₁
+      localRec₁ (squash₁ x y i) = squash₁ (localRec₁ x) (localRec₁ y) i
     rec₂→₁ x₂ = localRec₂ (eq .snd x₂) where
       localRec₂ :
-          ∥ fiber ix₁ (ix₂ x₂) ∥
+          ∥ fiber ix₁ (ix₂ x₂) ∥₁
         → ∃[ (x₁ , p) ∈ fiber ix₁ (ix₂ x₂) ] PathP (λ i → Z (p i)) (elim (ix₁ x₁)) (elim (ix₂ x₂))
-      localRec₂ ∣ x₁ , xx ∣ = ∣ (x₁ , xx) , (λ i → elim (xx i)) ∣
-      localRec₂ (squash x y i) = squash (localRec₂ x) (localRec₂ y) i
+      localRec₂ ∣ x₁ , xx ∣₁ = ∣ (x₁ , xx) , (λ i → elim (xx i)) ∣₁
+      localRec₂ (squash₁ x y i) = squash₁ (localRec₂ x) (localRec₂ y) i
   elim (setIsSet S T x y i j) = isProp→PathP propPathP (cong elim x) (cong elim y) i j where
     propPathP : (i : I) → isProp (PathP (λ j → Z (setIsSet S T x y i j)) (elim S) (elim T))
     propPathP _ = subst isProp (sym (PathP≡Path _ _ _)) (isSetZ _ _ _)
@@ -188,8 +188,8 @@ module _ {Z : (s t : V ℓ) → Type ℓ'} {isSetZ : ∀ s t → isSet (Z s t)} 
         ∀ (y₂ : Y₂)
         → ∃[ (y₁ , p) ∈ fiber iy₁ (iy₂ y₂) ]
              PathP (λ i → ∀ x → Z (ix x) (p i)) (λ x → rec x (iy₁ y₁)) (λ x → rec x (iy₂ y₂))
-      rec₁→₂ y₁ = do (y₂ , yy) ← fst eq y₁ ; ∣ (y₂ , yy) , (λ i x → rec x (yy i)) ∣
-      rec₂→₁ y₂ = do (y₁ , yy) ← snd eq y₂ ; ∣ (y₁ , yy) , (λ i x → rec x (yy i)) ∣
+      rec₁→₂ y₁ = do (y₂ , yy) ← fst eq y₁ ; ∣ (y₂ , yy) , (λ i x → rec x (yy i)) ∣₁
+      rec₂→₁ y₂ = do (y₁ , yy) ← snd eq y₂ ; ∣ (y₁ , yy) , (λ i x → rec x (yy i)) ∣₁
 
     elimImplS :
       ∀ (X : Type ℓ) (ix : X → V ℓ)
@@ -230,8 +230,8 @@ module _ {Z : (s t : V ℓ) → Type ℓ'} {isSetZ : ∀ s t → isSet (Z s t)} 
           ∀ (x₂ : X₂)
           → ∃[ (x₁ , p) ∈ fiber ix₁ (ix₂ x₂) ]
                PathP (λ i → ∀ y → Z (p i) (iy y)) (λ y → rec₁ x₁ (iy y)) (λ y → rec₂ x₂ (iy y))
-        rec₁→₂Impl x₁ = do ((x₂ , xx) , rx) ← rec₁→₂ x₁ ; ∣ (x₂ , xx) , (λ i y → rx i (iy y)) ∣
-        rec₂→₁Impl x₂ = do ((x₁ , xx) , rx) ← rec₂→₁ x₂ ; ∣ (x₁ , xx) , (λ i y → rx i (iy y)) ∣
+        rec₁→₂Impl x₁ = do ((x₂ , xx) , rx) ← rec₁→₂ x₁ ; ∣ (x₂ , xx) , (λ i y → rx i (iy y)) ∣₁
+        rec₂→₁Impl x₂ = do ((x₁ , xx) , rx) ← rec₂→₁ x₂ ; ∣ (x₁ , xx) , (λ i y → rx i (iy y)) ∣₁
 
     pElim : ElimSet isSetPElim
     ElimSett pElim = elimImplS

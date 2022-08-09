@@ -1,7 +1,16 @@
 {-# OPTIONS --safe #-}
 
-open import Cubical.Foundations.Everything renaming (Iso to _≅_)
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism renaming (Iso to _≅_)
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
+
 open import Cubical.Data.List
+open import Cubical.Data.FinData
+open import Cubical.Data.List.FinData
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod hiding (map)
 open import Cubical.Data.Nat
@@ -13,6 +22,10 @@ open _≅_
 data ListP {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) : (as : List A) → Type (ℓ-max ℓA ℓB) where
   [] : ListP B []
   _∷_ : {x : A} (y : B x) {xs : List A} (ys : ListP B xs) → ListP B (x ∷ xs)
+
+infixr 5 _∷_
+
+--------------------------
 
 -- Represent ListP via known operations in order to derive properties more easily.
 RepListP : ∀ {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) (as : List A) → Type (ℓ-max ℓA ℓB)
@@ -54,6 +67,29 @@ isOfHLevelSucSuc-ListP n {A} {B} isHB {as} =
 
 --------------------------
 
+lookupP : ∀ {ℓA ℓB} {A : Type ℓA} {B : A → Type ℓB} {as} (bs : ListP B as) → (p : Fin (length as)) → B (lookup as p)
+lookupP (b ∷ bs) zero = b
+lookupP (b ∷ bs) (suc p) = lookupP bs p
+
+{- It seems sensible to reserve the name tabulateP for a function that mentions tabulate (rather than lookup) in its type.
+-}
+tabulateOverLookup : ∀ {ℓA ℓB} {A : Type ℓA} {B : A → Type ℓB} as (^b : (p : Fin (length as)) → B (lookup as p))
+  → ListP B as
+tabulateOverLookup [] ^b = []
+tabulateOverLookup (a ∷ as) ^b = ^b zero ∷ tabulateOverLookup as (^b ∘ suc)
+
+tabulateOverLookup-lookupP : ∀ {ℓA ℓB} {A : Type ℓA} {B : A → Type ℓB} {as} (bs : ListP B as) →
+  tabulateOverLookup as (lookupP bs) ≡ bs
+tabulateOverLookup-lookupP [] = refl
+tabulateOverLookup-lookupP (b ∷ bs) = cong (b ∷_) (tabulateOverLookup-lookupP bs)
+
+lookupP-tabulateOverLookup : ∀ {ℓA ℓB} {A : Type ℓA} (B : A → Type ℓB) as (^b : (p : Fin (length as)) → B (lookup as p))
+  → lookupP (tabulateOverLookup {B = B} as ^b) ≡ ^b
+lookupP-tabulateOverLookup B (a ∷ as) ^b i zero = ^b zero
+lookupP-tabulateOverLookup B (a ∷ as) ^b i (suc p) = lookupP-tabulateOverLookup B as (^b ∘ suc) i p
+
+--------------------------
+
 mapP : ∀ {ℓA ℓA' ℓB ℓB'} {A : Type ℓA} {A' : Type ℓA'} {B : A → Type ℓB} {B' : A' → Type ℓB'}
   (f : A → A') (g : (a : A) → B a → B' (f a)) → ∀ as → ListP B as → ListP B' (map f as)
 mapP f g [] [] = []
@@ -73,4 +109,3 @@ mapOverIdfun-∘ : ∀ {ℓA ℓB ℓB' ℓB''} {A : Type ℓA} {B : A → Type 
   → mapOverIdfun (λ a → h a ∘ g a) as ≡ mapOverIdfun h as ∘ mapOverIdfun g as
 mapOverIdfun-∘ h g [] i [] = []
 mapOverIdfun-∘ h g (a ∷ as) i (b ∷ bs) = h a (g a b) ∷ mapOverIdfun-∘ h g as i bs
-

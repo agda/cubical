@@ -5,24 +5,10 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.GroupStructure
-
-open import Cubical.HITs.Sn
-open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; elim to sElim ; elim2 to sElim2)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim to pElim ; elim2 to pElim2 ; ∥_∥ to ∥_∥₋₁ ; ∣_∣ to ∣_∣₋₁)
-
-open import Cubical.Data.Int hiding (ℤ ; _+_ ; +Comm)
-open import Cubical.Data.Nat
 open import Cubical.Data.Unit
+open import Cubical.Data.Nat
+open import Cubical.Data.Int hiding (ℤ ; _+_ ; +Comm)
 open import Cubical.Data.Sigma
-
-open import Cubical.Homotopy.Connected
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
@@ -30,17 +16,28 @@ open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Instances.Unit
 
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.Sn
+open import Cubical.HITs.Susp
+open import Cubical.HITs.Truncation
+
+open import Cubical.Homotopy.Connected
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
+
 
 -- H⁰(Unit)
 open IsGroupHom
 open Iso
 
-H⁰-Unit≅ℤ : GroupIso (coHomGr 0 Unit) ℤ
-fun (fst H⁰-Unit≅ℤ) = sRec isSetℤ (λ f → f tt)
+H⁰-Unit≅ℤ : GroupIso (coHomGr 0 Unit) ℤGroup
+fun (fst H⁰-Unit≅ℤ) = ST.rec isSetℤ (λ f → f tt)
 inv (fst H⁰-Unit≅ℤ) a = ∣ (λ _ → a) ∣₂
 rightInv (fst H⁰-Unit≅ℤ) _ = refl
-leftInv (fst H⁰-Unit≅ℤ) = sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _) λ a → refl
-snd H⁰-Unit≅ℤ = makeIsGroupHom (sElim2 (λ _ _ → isOfHLevelPath 2 isSetℤ _ _) λ a b → refl)
+leftInv (fst H⁰-Unit≅ℤ) = ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _) λ a → refl
+snd H⁰-Unit≅ℤ = makeIsGroupHom (ST.elim2 (λ _ _ → isOfHLevelPath 2 isSetℤ _ _) λ a b → refl)
 
 {- Hⁿ(Unit) for n ≥ 1 -}
 isContrHⁿ-Unit : (n : ℕ) → isContr (coHom (suc n) Unit)
@@ -91,7 +88,7 @@ snd (Hⁿ-contrType≅0 n contr) = makeIsGroupHom λ _ _ → refl
 isContr-HⁿRed-Unit : (n : ℕ) → isContr (coHomRed n (Unit , tt))
 fst (isContr-HⁿRed-Unit n) = 0ₕ∙ _
 snd (isContr-HⁿRed-Unit n) =
-  sElim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
+  ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ {(f , p) → cong ∣_∣₂ (ΣPathP (funExt (λ _ → sym p)
                                      , λ i j → p (~ i ∨ j)))}
 

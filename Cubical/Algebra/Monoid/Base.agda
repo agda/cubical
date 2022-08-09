@@ -2,13 +2,9 @@
 module Cubical.Algebra.Monoid.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
@@ -33,15 +29,10 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
 
   field
     isSemigroup : IsSemigroup _·_
-    identity    : (x : A) → (x · ε ≡ x) × (ε · x ≡ x)
+    ·IdR : (x : A) → x · ε ≡ x
+    ·IdL : (x : A) → ε · x ≡ x
 
   open IsSemigroup isSemigroup public
-
-  lid : (x : A) → ε · x ≡ x
-  lid x = identity x .snd
-
-  rid : (x : A) → x · ε ≡ x
-  rid x = identity x .fst
 
 unquoteDecl IsMonoidIsoΣ = declareRecordIsoΣ IsMonoidIsoΣ (quote IsMonoid)
 
@@ -67,21 +58,22 @@ monoid A ε _·_ h = A , monoidstr ε _·_ h
 
 makeIsMonoid : {M : Type ℓ} {ε : M} {_·_ : M → M → M}
                (is-setM : isSet M)
-               (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-               (rid : (x : M) → x · ε ≡ x)
-               (lid : (x : M) → ε · x ≡ x)
+               (·Assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+               (·IdR : (x : M) → x · ε ≡ x)
+               (·IdL : (x : M) → ε · x ≡ x)
              → IsMonoid ε _·_
-IsMonoid.isSemigroup (makeIsMonoid is-setM assoc rid lid) = issemigroup is-setM assoc
-IsMonoid.identity (makeIsMonoid is-setM assoc rid lid) = λ x → rid x , lid x
+IsMonoid.isSemigroup (makeIsMonoid is-setM ·Assoc ·IdR ·IdL) = issemigroup is-setM ·Assoc
+IsMonoid.·IdR (makeIsMonoid is-setM ·Assoc ·IdR ·IdL) = ·IdR
+IsMonoid.·IdL (makeIsMonoid is-setM ·Assoc ·IdR ·IdL) = ·IdL
 
 makeMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M)
              (is-setM : isSet M)
-             (assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
-             (rid : (x : M) → x · ε ≡ x)
-             (lid : (x : M) → ε · x ≡ x)
+             (·Assoc : (x y z : M) → x · (y · z) ≡ (x · y) · z)
+             (·IdR : (x : M) → x · ε ≡ x)
+             (·IdL : (x : M) → ε · x ≡ x)
            → Monoid ℓ
-makeMonoid ε _·_ is-setM assoc rid lid =
-  monoid _ ε _·_ (makeIsMonoid is-setM assoc rid lid)
+makeMonoid ε _·_ is-setM ·Assoc ·IdR ·IdL =
+  monoid _ ε _·_ (makeIsMonoid is-setM ·Assoc ·IdR ·IdL)
 
 record IsMonoidHom {A : Type ℓ} {B : Type ℓ'}
   (M : MonoidStr A) (f : A → B) (N : MonoidStr B)
@@ -114,9 +106,9 @@ MonoidEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsMonoidEquiv (M .snd) e (
 isPropIsMonoid : {M : Type ℓ} (ε : M) (_·_ : M → M → M) → isProp (IsMonoid ε _·_)
 isPropIsMonoid ε _·_ =
   isOfHLevelRetractFromIso 1 IsMonoidIsoΣ
-    (isPropΣ
-      (isPropIsSemigroup _·_)
-      (λ semi → isPropΠ λ _ → isProp× (semi .is-set _ _) (semi .is-set _ _)))
+    (isPropΣ (isPropIsSemigroup _·_)
+             (λ semi → isProp× (isPropΠ (λ _ → is-set semi _ _))
+                                (isPropΠ (λ _ → is-set semi _ _))))
   where
   open IsSemigroup
 
@@ -142,10 +134,9 @@ module MonoidTheory {ℓ} (M : Monoid ℓ) where
   -- If there exists a inverse of an element it is unique
   inv-lemma : (x y z : ⟨ M ⟩) → y · x ≡ ε → x · z ≡ ε → y ≡ z
   inv-lemma x y z left-inverse right-inverse =
-    y           ≡⟨ sym (rid y) ⟩
+    y           ≡⟨ sym (·IdR y) ⟩
     y · ε       ≡⟨ cong (λ - → y · -) (sym right-inverse) ⟩
-    y · (x · z) ≡⟨ assoc y x z ⟩
+    y · (x · z) ≡⟨ ·Assoc y x z ⟩
     (y · x) · z ≡⟨ cong (λ - → - · z) left-inverse ⟩
-    ε · z       ≡⟨ lid z ⟩
+    ε · z       ≡⟨ ·IdL z ⟩
     z ∎
-
