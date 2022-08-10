@@ -8,7 +8,6 @@ open import Cubical.HITs.Pushout.Base
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Wedge
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 
 data Smash {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') : Type (ℓ-max ℓ ℓ') where
@@ -22,6 +21,12 @@ private
   variable
     ℓ ℓ' : Level
     A B C D : Pointed ℓ
+
+SmashPt : (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
+SmashPt A B = (Smash A B , basel)
+
+SmashPtProj : (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
+SmashPtProj A B = Smash A B , (proj (snd A) (snd B))
 
 Smash-map : (f : A →∙ C) (g : B →∙ D) → Smash A B → Smash C D
 Smash-map f g basel = basel
@@ -44,14 +49,6 @@ commK baser       = refl
 commK (proj x y)  = refl
 commK (gluel a x) = refl
 commK (gluer b x) = refl
-
--- WIP below
-
-SmashPt : (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
-SmashPt A B = (Smash A B , basel)
-
-SmashPtProj : (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
-SmashPtProj A B = Smash A B , (proj (snd A) (snd B))
 
 --- Alternative definition
 
