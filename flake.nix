@@ -11,7 +11,13 @@
             pname = "cubical";
             version = "0.4";
 
-            src = ./.;
+            src = pkgs.lib.cleanSourceWith {
+              filter = name: type:
+                !(pkgs.lib.hasSuffix ".nix" name)
+              ;
+              src = ./.;
+            };
+
 
             LC_ALL = "en_US.UTF-8";
 
@@ -26,7 +32,10 @@
             meta = {};
           };
     in rec {
-      packages.cubical = cubical;
+      packages = {
+        cubical = cubical;
+        agdaWithCubical = pkgs.agda.withPackages [cubical];
+      };
       defaultPackage = cubical;
     });
 }
