@@ -18,7 +18,6 @@ open import Cubical.Functions.Embedding
 open import Cubical.Functions.Surjection
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 open import Cubical.Data.Unit as ⊤
 open import Cubical.Data.Empty as ⊥
