@@ -3,6 +3,8 @@
 module Cubical.Foundations.CartesianKanOps where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Transport
 
 coe0→1 : ∀ {ℓ} (A : I → Type ℓ) → A i0 → A i1
 coe0→1 A a = transp (\ i → A i) i0 a
@@ -79,9 +81,38 @@ coei→i1 A i a = refl
 coei1→i : ∀ {ℓ} (A : I → Type ℓ) (i : I) (a : A i1) → coei→j A i1 i a ≡ coe1→i A i a
 coei1→i A i a = refl
 
--- only non-definitional equation
+-- only non-definitional equation, but definitional at the ends
 coei→i : ∀ {ℓ} (A : I → Type ℓ) (i : I) (a : A i) → coei→j A i i a ≡ a
-coei→i A i = coe0→i (λ i → (a : A i) → coei→j A i i a ≡ a) i (λ _ → refl)
+coei→i A i a j =
+  comp (λ k → A (i ∧ (j ∨ k)))
+  (λ k → λ
+    { (i = i0) → a
+    ; (i = i1) → coe1→i A (j ∨ k) a
+    ; (j = i1) → a })
+  (transpFill {A = A i0} (~ i) (λ t → inS (A (i ∧ ~ t))) a (~ j))
+
+coe0→0 : ∀ {ℓ} (A : I → Type ℓ) (a : A i0) → coei→i A i0 a ≡ refl
+coe0→0 A a = refl
+
+coe1→1 : ∀ {ℓ} (A : I → Type ℓ) (a : A i1) → coei→i A i1 a ≡ refl
+coe1→1 A a = refl
+
+-- coercion when there already exists a path
+coePath : ∀ {ℓ} (A : I → Type ℓ) (p : (i : I) → A i) → (i j : I) → coei→j A i j (p i) ≡ p j
+coePath A p i j =
+  hcomp (λ k → λ
+    { (i = i0)(j = i0) → rUnit refl (~ k)
+    ; (i = i1)(j = i1) → rUnit refl (~ k) })
+  (diag ∙ coei→i A j (p j))
+  where
+  diag : coei→j A i j (p i) ≡ coei→j A j j (p j)
+  diag k = coei→j A _ j (p ((j ∨ (i ∧ ~ k)) ∧ (i ∨ (j ∧ k))))
+
+coePathi0 : ∀ {ℓ} (A : I → Type ℓ) (p : (i : I) → A i) → coePath A p i0 i0 ≡ refl
+coePathi0 A p = refl
+
+coePathi1 : ∀ {ℓ} (A : I → Type ℓ) (p : (i : I) → A i) → coePath A p i1 i1 ≡ refl
+coePathi1 A p = refl
 
 -- do the same for fill
 
