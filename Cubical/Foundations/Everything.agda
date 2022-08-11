@@ -22,8 +22,8 @@ open import Cubical.Foundations.Id
            ; isEquiv       to isEquivId
            ; equivIsEquiv  to equivIsEquivId
            ; refl          to reflId
-           ; ∥_∥           to propTruncId
-           ; ∣_∣           to incId
+           ; ∥_∥₁           to propTruncId
+           ; ∣_∣₁           to incId
            ; isPropIsContr to isPropIsContrId
            ; isPropIsEquiv to isPropIsEquivId
            )
@@ -36,6 +36,7 @@ open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Foundations.Equiv.PathSplit public
 open import Cubical.Foundations.Equiv.BiInvertible public
 open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.Path public
 open import Cubical.Foundations.Pointed public

@@ -84,7 +84,7 @@ When preparing a PR here are some general guidelines:
   problems directly. We don't want to merge files that are very slow
   to typecheck so they will have to optimized at some point and it's
   often much easier to fix these things directly. If you don't know
-  what to try make a draft PR and ask for help.
+  what to try, make a draft PR and ask for help.
 
 - It is often useful to give explicit names to the Iso, Equiv and Path
   version of a result. Try to avoid switching between these when
@@ -111,6 +111,8 @@ When preparing a PR here are some general guidelines:
 - Avoid importing `Foundations.Everything`; import only the modules in
   `Foundations` you are using. Be reasonably specific in general when
   importing.
+  In particular, avoid importing useless files or useless renaming
+  and try to group them by folder like `Foundations` or `Data`
 
 - Avoid `public` imports, except in modules that are specifically meant
   to collect and re-export results from several modules.

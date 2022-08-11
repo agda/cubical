@@ -20,7 +20,6 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 sucPred : ∀ i → sucℤ (predℤ i) ≡ i
 sucPred (pos zero)    = refl
@@ -552,3 +551,9 @@ private
 
 ·rCancel : (c m n : ℤ) → m · c ≡ n · c → ¬ c ≡ 0 → m ≡ n
 ·rCancel c m n p h = ·lCancel c m n (·Comm c m ∙ p ∙ ·Comm n c) h
+
+
+-- ℤ is non-trivial
+
+0≢1-ℤ : ¬ 0 ≡ 1
+0≢1-ℤ p = encodeℕ _ _ (injPos p)

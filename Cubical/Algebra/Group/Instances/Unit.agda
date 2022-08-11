@@ -6,7 +6,9 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
-open import Cubical.Data.Unit renaming (Unit to UnitType; Unit* to UnitType*)
+
+open import Cubical.Data.Unit
+
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.Morphisms
@@ -21,7 +23,7 @@ private
     ℓ : Level
 
 UnitGroup₀ : Group₀
-fst UnitGroup₀ = UnitType
+fst UnitGroup₀ = Unit
 1g (snd UnitGroup₀) = tt
 _·_ (snd UnitGroup₀) = λ _ _ → tt
 inv (snd UnitGroup₀) = λ _ → tt
@@ -30,7 +32,7 @@ isGroup (snd UnitGroup₀) =
                         (λ _ → refl) (λ _ → refl)
 
 UnitGroup : Group ℓ
-fst UnitGroup = UnitType*
+fst UnitGroup = Unit*
 1g (snd UnitGroup) = tt*
 _·_ (snd UnitGroup) = λ _ _ → tt*
 inv (snd UnitGroup) = λ _ → tt*

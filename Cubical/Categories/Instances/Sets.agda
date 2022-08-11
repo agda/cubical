@@ -66,24 +66,24 @@ module _ {C : Category ℓ ℓ'} {F : Functor C (SET ℓ')} where
 
 -- properties
 -- TODO: move to own file
-open CatIso renaming (inv to cInv)
+open isIso renaming (inv to cInv)
 open Iso
 
 module _ {A B : (SET ℓ) .ob } where
 
   Iso→CatIso : Iso (fst A) (fst B)
              → CatIso (SET ℓ) A B
-  Iso→CatIso is .mor = is .fun
-  Iso→CatIso is .cInv = is .inv
-  Iso→CatIso is .sec = funExt λ b → is .rightInv b -- is .rightInv
-  Iso→CatIso is .ret = funExt λ b → is .leftInv b -- is .rightInv
+  Iso→CatIso is .fst = is .fun
+  Iso→CatIso is .snd .cInv = is .inv
+  Iso→CatIso is .snd .sec = funExt λ b → is .rightInv b -- is .rightInv
+  Iso→CatIso is .snd .ret = funExt λ b → is .leftInv b -- is .rightInv
 
   CatIso→Iso : CatIso (SET ℓ) A B
              → Iso (fst A) (fst B)
-  CatIso→Iso cis .fun = cis .mor
-  CatIso→Iso cis .inv = cis .cInv
-  CatIso→Iso cis .rightInv = funExt⁻ λ b → cis .sec b
-  CatIso→Iso cis .leftInv = funExt⁻ λ b → cis .ret b
+  CatIso→Iso cis .fun = cis .fst
+  CatIso→Iso cis .inv = cis .snd .cInv
+  CatIso→Iso cis .rightInv = funExt⁻ λ b → cis .snd .sec b
+  CatIso→Iso cis .leftInv  = funExt⁻ λ b → cis .snd .ret b
 
 
   Iso-Iso-CatIso : Iso (Iso (fst A) (fst B)) (CatIso (SET ℓ) A B)
@@ -110,8 +110,8 @@ isUnivalent.univ isUnivalentSET (A , isSet-A) (B , isSet-B)  =
        invEq
          (congEquiv (isoToEquiv (invIso Iso-Iso-CatIso)))
          (SetsIso≡-ext isSet-A isSet-B
-            (λ x i → transp (λ _ → B) i (ci .mor  (transp (λ _ → A) i x)))
-            (λ x i → transp (λ _ → A) i (ci .cInv (transp (λ _ → B) i x))))
+            (λ x i → transp (λ _ → B) i (ci .fst (transp (λ _ → A) i x)))
+            (λ x i → transp (λ _ → A) i (ci .snd .cInv (transp (λ _ → B) i x))))
 
 -- SET is complete
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Categories.Instances.EilenbergMoore where
 
 open import Cubical.Foundations.Prelude
@@ -21,8 +21,9 @@ private
 
 module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
 
-  M : Functor C C
-  M = fst monadM
+  private
+    M : Functor C C
+    M = fst monadM
 
   --open Category
   private
@@ -49,7 +50,8 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
   EMAlgebra : Type (ℓ-max ℓC ℓC')
   EMAlgebra = Σ[ algA ∈ Algebra M ] IsEMAlgebra algA
 
-  EMCategory : Category (ℓ-max ℓC ℓC') ℓC'
+  EMCategory : Category (ℓ-max (ℓ-max ℓC ℓC') ℓC') ℓC'
+    -- cannot simplify level: --experimental-lossy-unification won't allow it.
   EMCategory = FullSubcategory (AlgebrasCategory M) IsEMAlgebra
 
   ForgetEM : Functor EMCategory (AlgebrasCategory M)
@@ -148,3 +150,58 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
       ≡⟨ C.⋆Assoc _ _ _ ⟩
     (F-hom M g C.⋆ (F-hom M f C.⋆ γ)) ∎
     )
+
+module _ {C : Category ℓC ℓC'} {monadM monadN : Monad C} (monadν : MonadHom monadM monadN) where
+
+  open Category C
+  open Functor
+  open IsEMAlgebra
+  open NatTrans
+
+  private
+    M N : Functor C C
+    M = fst monadM
+    N = fst monadN
+    module M = IsMonad (snd monadM)
+    module N = IsMonad (snd monadN)
+    ν : NatTrans M N
+    ν = fst monadν
+    module ν = IsMonadHom (snd monadν)
+
+  mapIsEMAlgebra : (algA : Algebra N) → IsEMAlgebra monadN algA → IsEMAlgebra monadM (F-ob (AlgebrasFunctor ν) algA)
+  str-η (mapIsEMAlgebra (algebra a αN) isEMA) =
+    N-ob M.η a ⋆ (N-ob ν a ⋆ αN)
+      ≡⟨ sym (⋆Assoc _ _ _) ⟩
+    (N-ob M.η a ⋆ N-ob ν a) ⋆ αN
+      ≡⟨ cong (_⋆ αN) (cong (λ θ → N-ob θ a) ν.N-η) ⟩
+    N-ob N.η a ⋆ αN
+      ≡⟨ isEMA .str-η ⟩
+    id ∎
+  str-μ (mapIsEMAlgebra (algebra a αN) isEMA) =
+    N-ob M.μ a ⋆ (N-ob ν a ⋆ αN)
+      ≡⟨ sym (⋆Assoc _ _ _) ⟩
+    (N-ob M.μ a ⋆ N-ob ν a) ⋆ αN
+      ≡⟨ cong (_⋆ αN) (cong (λ θ → N-ob θ a) ν.N-μ) ⟩
+    ((F-hom M (N-ob ν a) ⋆ N-ob ν (F-ob N a)) ⋆ N-ob N.μ a) ⋆ αN
+      ≡⟨ ⋆Assoc _ _ _ ⟩
+    (F-hom M (N-ob ν a) ⋆ N-ob ν (F-ob N a)) ⋆ (N-ob N.μ a ⋆ αN)
+      ≡⟨ cong ((F-hom M (N-ob ν a) ⋆ N-ob ν (F-ob N a)) ⋆_) (isEMA .str-μ) ⟩
+    (F-hom M (N-ob ν a) ⋆ N-ob ν (F-ob N a)) ⋆ (F-hom N αN ⋆ αN)
+      ≡⟨ sym (⋆Assoc _ _ _) ⟩
+    ((F-hom M (N-ob ν a) ⋆ N-ob ν (F-ob N a)) ⋆ F-hom N αN) ⋆ αN
+      ≡⟨ cong (_⋆ αN) (⋆Assoc _ _ _) ⟩
+    (F-hom M (N-ob ν a) ⋆ (N-ob ν (F-ob N a) ⋆ F-hom N αN)) ⋆ αN
+      ≡⟨ cong (_⋆ αN) (cong (F-hom M (N-ob ν a) ⋆_) (sym (N-hom ν αN))) ⟩
+    (F-hom M (N-ob ν a) ⋆ (F-hom M αN ⋆ N-ob ν a)) ⋆ αN
+      ≡⟨ cong (_⋆ αN) (sym (⋆Assoc _ _ _)) ⟩
+    ((F-hom M (N-ob ν a) ⋆ F-hom M αN) ⋆ N-ob ν a) ⋆ αN
+      ≡⟨ cong (_⋆ αN) (cong (_⋆ N-ob ν a) (sym (F-seq M _ _))) ⟩
+    (F-hom M (N-ob ν a ⋆ αN) ⋆ N-ob ν a) ⋆ αN
+      ≡⟨ ⋆Assoc _ _ _ ⟩
+    F-hom M (N-ob ν a ⋆ αN) ⋆ (N-ob ν a ⋆ αN) ∎
+
+  EMFunctor : Functor (EMCategory monadN) (EMCategory monadM)
+  EMFunctor = MapFullSubcategory
+    (AlgebrasCategory N) (IsEMAlgebra monadN)
+    (AlgebrasCategory M) (IsEMAlgebra monadM)
+    (AlgebrasFunctor ν) mapIsEMAlgebra

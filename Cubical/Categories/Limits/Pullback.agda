@@ -89,7 +89,7 @@ module _ (C : Category ℓ ℓ') where
   Pullbacks = (cspn : Cospan) → Pullback cspn
 
   hasPullbacks : Type (ℓ-max ℓ ℓ')
-  hasPullbacks = ∥ Pullbacks ∥
+  hasPullbacks = ∥ Pullbacks ∥₁
 
 
 -- Pullbacks from limits

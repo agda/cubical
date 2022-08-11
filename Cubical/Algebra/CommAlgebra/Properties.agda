@@ -77,25 +77,25 @@ module CommAlgChar (R : CommRing ℓ) where
   CommAlgebraStr.- ACommAlgStr = -_
   CommAlgebraStr._⋆_ ACommAlgStr r a = (φ r) · a
   CommAlgebraStr.isCommAlgebra ACommAlgStr = makeIsCommAlgebra
-   is-set +Assoc +Rid +Rinv +Comm ·Assoc ·Lid ·Ldist+ ·Comm
+   is-set +Assoc +IdR +InvR +Comm ·Assoc ·IdL ·DistL+ ·Comm
    (λ _ _ x → cong (λ y →  y · x) (pres· φIsHom _ _) ∙ sym (·Assoc _ _ _))
-   (λ _ _ x → cong (λ y → y · x) (pres+ φIsHom _ _) ∙ ·Ldist+ _ _ _)
-   (λ _ _ _ → ·Rdist+ _ _ _)
-   (λ x → cong (λ y → y · x) (pres1 φIsHom) ∙ ·Lid x)
+   (λ _ _ _ → ·DistR+ _ _ _)
+   (λ _ _ x → cong (λ y → y · x) (pres+ φIsHom _ _) ∙ ·DistL+ _ _ _)
+   (λ x → cong (λ y → y · x) (pres1 φIsHom) ∙ ·IdL x)
    (λ _ _ _ → sym (·Assoc _ _ _))
 
 
  fromCommAlg : CommAlgebra R ℓ → CommRingWithHom
  fromCommAlg A = (CommAlgebra→CommRing A) , φ , φIsHom
   where
-  open CommRingStr (snd R) renaming (_·_ to _·r_) hiding (·Lid)
+  open CommRingStr (snd R) renaming (_·_ to _·r_) hiding (·IdL)
   open CommAlgebraStr (snd A)
   open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
   φ : ⟨ R ⟩ → ⟨ A ⟩
   φ r = r ⋆ 1a
   φIsHom : IsRingHom (CommRing→Ring R .snd) φ (CommRing→Ring (CommAlgebra→CommRing A) .snd)
-  φIsHom = makeIsRingHom (⋆-lid _) (λ _ _ → ⋆-ldist _ _ _)
-           λ x y → cong (λ a → (x ·r y) ⋆ a) (sym (·Lid _)) ∙ ⋆Dist· _ _ _ _
+  φIsHom = makeIsRingHom (⋆IdL _) (λ _ _ → ⋆DistL+ _ _ _)
+           λ x y → cong (λ a → (x ·r y) ⋆ a) (sym (·IdL _)) ∙ ⋆Dist· _ _ _ _
 
 
  CommRingWithHomRoundTrip : (Aφ : CommRingWithHom) → fromCommAlg (toCommAlg Aφ) ≡ Aφ
@@ -115,7 +115,7 @@ module CommAlgChar (R : CommRing ℓ) where
 
   -- this only works because fst (APath i) = fst A definitionally!
   φPathP : PathP (λ i → CommRingHom R (APath i)) (snd (fromCommAlg (toCommAlg (A , φ)))) φ
-  φPathP = RingHomPathP _ _ _ _ _ _ λ i x → ·Rid (snd A) (fst φ x) i
+  φPathP = RingHomPathP _ _ _ _ _ _ λ i x → ·IdR (snd A) (fst φ x) i
 
 
  CommAlgRoundTrip : (A : CommAlgebra R ℓ) → toCommAlg (fromCommAlg A) ≡ A
@@ -130,7 +130,7 @@ module CommAlgChar (R : CommRing ℓ) where
   CommAlgebraStr._+_ (AlgStrPathP i) = _+_
   CommAlgebraStr._·_ (AlgStrPathP i) = _·_
   CommAlgebraStr.-_ (AlgStrPathP i) = -_
-  CommAlgebraStr._⋆_ (AlgStrPathP i) r x = (⋆-lassoc r 1a x ∙ cong (r ⋆_) (·Lid x)) i
+  CommAlgebraStr._⋆_ (AlgStrPathP i) r x = (⋆AssocL r 1a x ∙ cong (r ⋆_) (·IdL x)) i
   CommAlgebraStr.isCommAlgebra (AlgStrPathP i) = isProp→PathP
     (λ i → isPropIsCommAlgebra _ _ _ _ _ _ (CommAlgebraStr._⋆_ (AlgStrPathP i)))
     (CommAlgebraStr.isCommAlgebra (snd (toCommAlg (fromCommAlg A)))) isCommAlgebra i
@@ -300,7 +300,7 @@ recPT→CommAlgebra : {R : CommRing ℓ} {A : Type ℓ'} (𝓕  : A → CommAlge
            → (σ : ∀ x y → CommAlgebraEquiv (𝓕 x) (𝓕 y))
            → (∀ x y z → σ x z ≡ compCommAlgebraEquiv (σ x y) (σ y z))
           ------------------------------------------------------
-           → ∥ A ∥ → CommAlgebra R ℓ''
+           → ∥ A ∥₁ → CommAlgebra R ℓ''
 recPT→CommAlgebra 𝓕 σ compCoh = GpdElim.rec→Gpd isGroupoidCommAlgebra 𝓕
   (3-ConstantCompChar 𝓕 (λ x y → uaCommAlgebra (σ x y))
                           λ x y z → sym (  cong uaCommAlgebra (compCoh x y z)

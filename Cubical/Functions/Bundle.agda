@@ -42,9 +42,9 @@ module _ {ℓb ℓf} (B : Type ℓb) (ℓ : Level) (F : Type ℓf) where
      a map `p : E → B` with fibers merely equivalent to F.
 -}
 
-  bundleEquiv : (B → TypeEqvTo ℓ' F) ≃ (Σ[ E ∈ Type ℓ' ] Σ[ p ∈ (E → B) ] ∀ x → ∥ fiber p x ≃ F ∥)
+  bundleEquiv : (B → TypeEqvTo ℓ' F) ≃ (Σ[ E ∈ Type ℓ' ] Σ[ p ∈ (E → B) ] ∀ x → ∥ fiber p x ≃ F ∥₁)
   bundleEquiv = compEquiv (compEquiv Σ-Π-≃ (pathToEquiv p)) Σ-assoc-≃
     where e = fibrationEquiv B ℓ
-          p :   (Σ[ p⁻¹ ∈ (B → Type ℓ') ]            ∀ x → ∥ p⁻¹ x ≃ F ∥)
-              ≡ (Σ[ p ∈ (Σ[ E ∈ Type ℓ' ] (E → B)) ] ∀ x → ∥ fiber (snd p) x ≃ F ∥ )
-          p i = Σ[ q ∈ ua e (~ i) ] ∀ x → ∥ ua-unglue e (~ i) q x ≃ F ∥
+          p :   (Σ[ p⁻¹ ∈ (B → Type ℓ') ]            ∀ x → ∥ p⁻¹ x ≃ F ∥₁)
+              ≡ (Σ[ p ∈ (Σ[ E ∈ Type ℓ' ] (E → B)) ] ∀ x → ∥ fiber (snd p) x ≃ F ∥₁ )
+          p i = Σ[ q ∈ ua e (~ i) ] ∀ x → ∥ ua-unglue e (~ i) q x ≃ F ∥₁

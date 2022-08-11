@@ -42,7 +42,7 @@ private
            λ _ → refl
 
 module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
-            (e-ass : AssocHSpace e) (conA : ((x y : typ A) → ∥ x ≡ y ∥)) where
+            (e-ass : AssocHSpace e) (conA : ((x y : typ A) → ∥ x ≡ y ∥₁)) where
   isEquiv-μ : (x : typ A) → isEquiv (λ z → (μ e z x))
   isEquiv-μ x = pRec (isPropIsEquiv _)
                      (J (λ x _ → isEquiv (λ z → μ e z x))

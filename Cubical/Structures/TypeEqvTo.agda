@@ -17,22 +17,22 @@ private
     ℓ ℓ' ℓ'' : Level
 
 TypeEqvTo : (ℓ : Level) (X : Type ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
-TypeEqvTo ℓ X = TypeWithStr ℓ (λ Y → ∥ Y ≃ X ∥)
+TypeEqvTo ℓ X = TypeWithStr ℓ (λ Y → ∥ Y ≃ X ∥₁)
 
 PointedEqvTo : (ℓ : Level) (X : Type ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
-PointedEqvTo ℓ X = TypeWithStr ℓ (λ Y → Y × ∥ Y ≃ X ∥)
+PointedEqvTo ℓ X = TypeWithStr ℓ (λ Y → Y × ∥ Y ≃ X ∥₁)
 
 module _ (X : Type ℓ') where
 
   PointedEqvToStructure : Type ℓ → Type (ℓ-max ℓ ℓ')
-  PointedEqvToStructure = AxiomsStructure PointedStructure (λ Y _ → ∥ Y ≃ X ∥)
+  PointedEqvToStructure = AxiomsStructure PointedStructure (λ Y _ → ∥ Y ≃ X ∥₁)
 
   PointedEqvToEquivStr : StrEquiv PointedEqvToStructure ℓ''
-  PointedEqvToEquivStr = AxiomsEquivStr PointedEquivStr (λ Y _ → ∥ Y ≃ X ∥)
+  PointedEqvToEquivStr = AxiomsEquivStr PointedEquivStr (λ Y _ → ∥ Y ≃ X ∥₁)
 
   pointedEqvToUnivalentStr : UnivalentStr {ℓ} PointedEqvToStructure PointedEqvToEquivStr
-  pointedEqvToUnivalentStr = axiomsUnivalentStr PointedEquivStr {axioms = λ Y _ → ∥ Y ≃ X ∥}
-                                          (λ _ _ → squash) pointedUnivalentStr
+  pointedEqvToUnivalentStr = axiomsUnivalentStr PointedEquivStr {axioms = λ Y _ → ∥ Y ≃ X ∥₁}
+                                          (λ _ _ → squash₁) pointedUnivalentStr
 
   PointedEqvToSIP : (A B : PointedEqvTo ℓ X) → A ≃[ PointedEqvToEquivStr ] B ≃ (A ≡ B)
   PointedEqvToSIP = SIP pointedEqvToUnivalentStr

@@ -29,37 +29,37 @@ module Recover {ℓ} (A∙ : Pointed ℓ) (h : isHomogeneous A∙) where
     A = typ A∙
     a = pt A∙
 
-  toEquivPtd : ∥ A ∥ → Σ[ B∙ ∈ Pointed ℓ ] (A , a) ≡ B∙
+  toEquivPtd : ∥ A ∥₁ → Σ[ B∙ ∈ Pointed ℓ ] (A , a) ≡ B∙
   toEquivPtd = rec isPropSingl (λ x → (A , x) , h x)
   private
-    B∙ : ∥ A ∥ → Pointed ℓ
+    B∙ : ∥ A ∥₁ → Pointed ℓ
     B∙ tx = fst (toEquivPtd tx)
 
-  -- the key observation is that B∙ ∣ x ∣ is definitionally equal to (A , x)
+  -- the key observation is that B∙ ∣ x ∣₁ is definitionally equal to (A , x)
   private
-    obvs : ∀ x → B∙ ∣ x ∣ ≡ (A , x)
-    obvs x = refl -- try it: `C-c C-n B∙ ∣ x ∣` gives `(A , x)`
+    obvs : ∀ x → B∙ ∣ x ∣₁ ≡ (A , x)
+    obvs x = refl -- try it: `C-c C-n B∙ ∣ x ∣₁` gives `(A , x)`
 
   -- thus any truncated element (of a homogeneous type) can be recovered by agda's normalizer!
 
-  recover : ∀ (tx : ∥ A ∥) → typ (B∙ tx)
+  recover : ∀ (tx : ∥ A ∥₁) → typ (B∙ tx)
   recover tx = pt (B∙ tx)
 
-  recover∣∣ : ∀ (x : A) → recover ∣ x ∣ ≡ x
-  recover∣∣ x = refl -- try it: `C-c C-n recover ∣ x ∣` gives `x`
+  recover∣∣ : ∀ (x : A) → recover ∣ x ∣₁ ≡ x
+  recover∣∣ x = refl -- try it: `C-c C-n recover ∣ x ∣₁` gives `x`
 
   private
-    -- notice that the following typechecks because typ (B∙ ∣ x ∣) is definitionally equal to to A, but
-    --  `recover : ∥ A ∥ → A` does not because typ (B∙ tx) is not definitionally equal to A (though it is
+    -- notice that the following typechecks because typ (B∙ ∣ x ∣₁) is definitionally equal to to A, but
+    --  `recover : ∥ A ∥₁ → A` does not because typ (B∙ tx) is not definitionally equal to A (though it is
     --  judegmentally equal to A by cong typ (snd (toEquivPtd tx)) : A ≡ typ (B∙ tx))
     obvs2 : A → A
-    obvs2 = recover ∘ ∣_∣
+    obvs2 = recover ∘ ∣_∣₁
 
-    -- one might wonder if (cong recover (squash ∣ x ∣ ∣ y ∣)) therefore has type x ≡ y, but thankfully
-    --  typ (B∙ (squash ∣ x ∣ ∣ y ∣ i)) is *not* A (it's a messy hcomp involving h x and h y)
-    recover-squash : ∀ x y → -- x ≡ y -- this raises an error
-                             PathP (λ i → typ (B∙ (squash ∣ x ∣ ∣ y ∣ i))) x y
-    recover-squash x y = cong recover (squash ∣ x ∣ ∣ y ∣)
+    -- one might wonder if (cong recover (squash₁ ∣ x ∣₁ ∣ y ∣₁)) therefore has type x ≡ y, but thankfully
+    --  typ (B∙ (squash₁ ∣ x ∣₁ ∣ y ∣₁ i)) is *not* A (it's a messy hcomp involving h x and h y)
+    recover-squash₁ : ∀ x y → -- x ≡ y -- this raises an error
+                             PathP (λ i → typ (B∙ (squash₁ ∣ x ∣₁ ∣ y ∣₁ i))) x y
+    recover-squash₁ x y = cong recover (squash₁ ∣ x ∣₁ ∣ y ∣₁)
 
 
 -- Demo, adapted from:
@@ -75,8 +75,8 @@ private
       hidden : ℕ
       hidden = 17
 
-    ∣hidden∣ : ∥ ℕ ∥
-    ∣hidden∣ = ∣ hidden ∣
+    ∣hidden∣ : ∥ ℕ ∥₁
+    ∣hidden∣ = ∣ hidden ∣₁
 
   -- we can still recover the value, even though agda can no longer see `hidden`!
   test : recover ∣hidden∣ ≡ 17
@@ -84,5 +84,5 @@ private
               --         `C-c C-n hidden` gives an error
 
   -- Finally, note that the definition of recover is independent of the proof that A is homogeneous. Thus we
-  --  still can definitionally recover information hidden by ∣_∣ as long as we permit holes. Try replacing
+  --  still can definitionally recover information hidden by ∣_∣₁ as long as we permit holes. Try replacing
   --  `isHomogeneousDiscrete discreteℕ` above with a hole (`?`) and notice that everything still works

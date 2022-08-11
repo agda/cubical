@@ -23,4 +23,4 @@ fst UnitAbGroup = UnitType
 _+_ (snd UnitAbGroup) = λ _ _ → tt*
 - snd UnitAbGroup = λ _ → tt*
 isGroup (isAbGroup (snd UnitAbGroup)) = GroupStr.isGroup (snd UnitGroup)
-comm (isAbGroup (snd UnitAbGroup)) = λ _ _ → refl
++Comm (isAbGroup (snd UnitAbGroup)) = λ _ _ → refl

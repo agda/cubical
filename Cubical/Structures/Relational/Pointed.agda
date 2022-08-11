@@ -30,7 +30,7 @@ PointedRelStr R = R
 pointedSuitableRel : SuitableStrRel {ℓ = ℓ} PointedStructure PointedRelStr
 pointedSuitableRel .quo _ _ _ = isContrSingl _
 pointedSuitableRel .symmetric _ r = r
-pointedSuitableRel .transitive _ _ r r' = ∣ _ , r , r' ∣
+pointedSuitableRel .transitive _ _ r r' = ∣ _ , r , r' ∣₁
 pointedSuitableRel .set setX = setX
 pointedSuitableRel .prop propR = propR
 
@@ -44,7 +44,7 @@ pointedRelAction .actRel α = α
 
 pointedPositiveRel : PositiveStrRel {ℓ = ℓ} pointedSuitableRel
 pointedPositiveRel .act = pointedRelAction
-pointedPositiveRel .reflexive x = ∣ refl ∣
+pointedPositiveRel .reflexive x = ∣ refl ∣₁
 pointedPositiveRel .detransitive R R' rr' = rr'
 pointedPositiveRel .quo R = isoToIsEquiv isom
   where

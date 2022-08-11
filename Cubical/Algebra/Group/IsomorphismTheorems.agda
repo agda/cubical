@@ -68,23 +68,23 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
       ϕ .fst (y G.· G.inv z)        ≡⟨ ϕ.pres· _ _ ⟩
       ϕ .fst y H.· ϕ .fst (G.inv z) ≡⟨ cong (ϕ .fst y H.·_) (ϕ.presinv _) ⟩
       ϕ .fst y H.· H.inv (ϕ .fst z) ≡⟨ (λ i → hy i H.· H.inv (hz i)) ⟩
-      x H.· H.inv x                 ≡⟨ H.invr x ⟩
+      x H.· H.inv x                 ≡⟨ H.·InvR x ⟩
       H.1g                          ∎
 
   f2 : ⟨ G / kerNormalSubgroup ⟩ → ⟨ imϕ ⟩
-  f2 = recS imG.is-set (λ y → ϕ .fst y , ∣ y , refl ∣)
-                       (λ x y r → Σ≡Prop (λ _ → squash)
+  f2 = recS imG.is-set (λ y → ϕ .fst y , ∣ y , refl ∣₁)
+                       (λ x y r → Σ≡Prop (λ _ → squash₁)
                        (rem x y r))
     where
     rem : (x y : ⟨ G ⟩) → ϕ .fst (x G.· G.inv y) ≡ H.1g → ϕ .fst x ≡ ϕ .fst y
     rem x y r =
-      ϕ .fst x                                      ≡⟨ sym (H.rid _) ⟩
-      ϕ .fst x H.· H.1g                             ≡⟨ cong (ϕ .fst x H.·_) (sym (H.invl _)) ⟩
+      ϕ .fst x                                      ≡⟨ sym (H.·IdR _) ⟩
+      ϕ .fst x H.· H.1g                             ≡⟨ cong (ϕ .fst x H.·_) (sym (H.·InvL _)) ⟩
       ϕ .fst x H.· H.inv (ϕ .fst y) H.· ϕ .fst y    ≡⟨ (λ i → ϕ .fst x H.· ϕ.presinv y (~ i) H.· ϕ .fst y) ⟩
-      ϕ .fst x H.· ϕ .fst (G.inv y) H.· ϕ .fst y    ≡⟨ H.assoc _ _ _ ⟩
+      ϕ .fst x H.· ϕ .fst (G.inv y) H.· ϕ .fst y    ≡⟨ H.·Assoc _ _ _ ⟩
       (ϕ .fst x H.· ϕ .fst (G.inv y)) H.· ϕ .fst y  ≡⟨ cong (H._· _) (sym (ϕ.pres· _ _)) ⟩
       ϕ .fst (x G.· G.inv y) H.· ϕ .fst y           ≡⟨ cong (H._· ϕ .fst y) r ⟩
-      H.1g H.· ϕ .fst y                             ≡⟨ H.lid _ ⟩
+      H.1g H.· ϕ .fst y                             ≡⟨ H.·IdL _ ⟩
       ϕ .fst y ∎
 
   f12 : (x : ⟨ G / kerNormalSubgroup ⟩) → f1 (f2 x) ≡ x
@@ -93,7 +93,7 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
   f21 : (x : ⟨ imϕ ⟩) → f2 (f1 x) ≡ x
   f21 (x , hx) = elim {P = λ hx → f2 (f1 (x , hx)) ≡ (x , hx)}
                       (λ _ → imG.is-set _ _)
-                      (λ {(x , hx) → Σ≡Prop (λ _ → squash) hx})
+                      (λ {(x , hx) → Σ≡Prop (λ _ → squash₁) hx})
                       hx
 
   f1-isHom : (x y : ⟨ imϕ ⟩) → f1 (x imG.· y) ≡ f1 x kerG.· f1 y
@@ -120,8 +120,8 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
               (uncurry
                 (λ h → elim (λ _ → isPropΠ (λ _ → imG.is-set _ _))
                   (uncurry λ g y
-                    → λ inker → Σ≡Prop (λ _ → squash) inker)))
-              λ b → map (λ x → (b , ∣ x ∣) , refl) (surj b))
+                    → λ inker → Σ≡Prop (λ _ → squash₁) inker)))
+              λ b → map (λ x → (b , ∣ x ∣₁) , refl) (surj b))
     where
     indHom : GroupHom imϕ H
     fst indHom = fst

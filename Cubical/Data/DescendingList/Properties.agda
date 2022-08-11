@@ -12,14 +12,14 @@
 
 {-# OPTIONS --safe #-}
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.List using (List ; [] ; _∷_)
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 open import Cubical.HITs.FiniteMultiset as FMSet hiding ([_])
 

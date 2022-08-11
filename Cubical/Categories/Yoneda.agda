@@ -170,10 +170,13 @@ module _ {C : Category ℓ ℓ} where
 
 
   isFullYO : isFull YO
-  isFullYO x y F[f] = ∣ yo-yo-yo _ F[f] , yoIso {x} (yo y) .Iso.leftInv F[f] ∣
+  isFullYO x y F[f] = ∣ yo-yo-yo _ F[f] , yoIso {x} (yo y) .Iso.leftInv F[f] ∣₁
 
   isFaithfulYO : isFaithful YO
   isFaithfulYO x y f g p i =
     hcomp
       (λ j → λ{ (i = i0) → ⋆IdL f j; (i = i1) → ⋆IdL g j})
       (yo-yo-yo _ (p i))
+
+  isFullyFaithfulYO : isFullyFaithful YO
+  isFullyFaithfulYO = isFull+Faithful→isFullyFaithful {F = YO} isFullYO isFaithfulYO

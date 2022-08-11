@@ -91,22 +91,22 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
 
  data H : Type ℓ where
   η : A → H
-  ε : ∀ (a b : A) → ∥ a ≡ b ∥ → η a ≡ η b -- prop. trunc. of a≡b
-  δ : ∀ (a b : A) (p : a ≡ b) → ε a b ∣ p ∣ ≡ cong η p
+  ε : ∀ (a b : A) → ∥ a ≡ b ∥₁ → η a ≡ η b -- prop. trunc. of a≡b
+  δ : ∀ (a b : A) (p : a ≡ b) → ε a b ∣ p ∣₁ ≡ cong η p
   gtrunc : isGroupoid H
 
  -- write elimination principle for H
  module Helim {P : H → Type ℓ''} (Pgpd : ∀ h → isGroupoid (P h))
               (η* : (a : A) → P (η a))
-              (ε* : ∀ (a b : A) (∣p∣ : ∥ a ≡ b ∥)
-                  → PathP (λ i → P (ε a b ∣p∣ i)) (η* a) (η* b))
+              (ε* : ∀ (a b : A) (∣p∣₁ : ∥ a ≡ b ∥₁)
+                  → PathP (λ i → P (ε a b ∣p∣₁ i)) (η* a) (η* b))
               (δ* : ∀ (a b : A) (p : a ≡ b)
                   → PathP (λ i → PathP (λ j → P (δ a b p i j)) (η* a) (η* b))
-                          (ε* a b ∣ p ∣) (cong η* p)) where
+                          (ε* a b ∣ p ∣₁) (cong η* p)) where
 
   fun : (h : H) → P h
   fun (η a) = η* a
-  fun (ε a b ∣p∣ i) = ε* a b ∣p∣ i
+  fun (ε a b ∣p∣₁ i) = ε* a b ∣p∣₁ i
   fun (δ a b p i j) = δ* a b p i j
   fun (gtrunc x y p q α β i j k) = isOfHLevel→isOfHLevelDep 3 Pgpd
                                    (fun x) (fun y)
@@ -116,12 +116,12 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
 
  module Hrec {C : Type ℓ''} (Cgpd : isGroupoid C)
              (η* : A → C)
-             (ε* : ∀ (a b : A) → ∥ a ≡ b ∥ → η* a ≡ η* b)
-             (δ* : ∀ (a b : A) (p : a ≡ b) → ε* a b ∣ p ∣ ≡ cong η* p) where
+             (ε* : ∀ (a b : A) → ∥ a ≡ b ∥₁ → η* a ≡ η* b)
+             (δ* : ∀ (a b : A) (p : a ≡ b) → ε* a b ∣ p ∣₁ ≡ cong η* p) where
 
   fun : H → C
   fun (η a) = η* a
-  fun (ε a b ∣p∣ i) = ε* a b ∣p∣ i
+  fun (ε a b ∣p∣₁ i) = ε* a b ∣p∣₁ i
   fun (δ a b p i j) = δ* a b p i j
   fun (gtrunc x y p q α β i j k) = Cgpd (fun x) (fun y) (cong fun p) (cong fun q)
                                    (cong (cong fun) α) (cong (cong fun) β) i j k
@@ -131,7 +131,7 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
 
   fun : ∀ h → P h
   fun = Helim.fun (λ _ → isSet→isGroupoid (isProp→isSet (Pprop _))) η*
-                  (λ a b ∣p∣ → isOfHLevel→isOfHLevelDep 1 Pprop _ _ (ε a b ∣p∣))
+                  (λ a b ∣p∣₁ → isOfHLevel→isOfHLevelDep 1 Pprop _ _ (ε a b ∣p∣₁))
                    λ a b p → isOfHLevel→isOfHLevelDep 1
                               {B = λ p → PathP (λ i → P (p i)) (η* a) (η* b)}
                               (λ _ → isOfHLevelPathP 1 (Pprop _) _ _) _ _ (δ a b p)
@@ -147,7 +147,7 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
                              {B = λ p → PathP (λ i → P (p i)) (η* a) (η* b)}
                              (λ _ → isOfHLevelPathP' 1 (Pset _) _ _) _ _ (δ a b p)
    where
-   ε* : (a b : A) (∣p∣ : ∥ a ≡ b ∥) → PathP (λ i → P (ε a b ∣p∣ i)) (η* a) (η* b)
+   ε* : (a b : A) (∣p∣₁ : ∥ a ≡ b ∥₁) → PathP (λ i → P (ε a b ∣p∣₁ i)) (η* a) (η* b)
    ε* a b = pElim (λ _ → isOfHLevelPathP' 1 (Pset _) (η* a) (η* b))
                    λ p → subst (λ x → PathP (λ i → P (x i)) (η* a) (η* b))
                                (sym (δ a b p)) (cong η* p)
@@ -173,11 +173,11 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
  Hset = HelimProp.fun (λ _ → isPropΠ λ _ → isPropIsProp) baseCaseLeft
   where
   baseCaseLeft : (a₀ : A) (y : H) → isProp (η a₀ ≡ y)
-  baseCaseLeft a₀ = localHedbergLemma (λ x → Q x .fst) (λ x → Q x .snd) Q→≡ _ ∣ refl ∣
+  baseCaseLeft a₀ = localHedbergLemma (λ x → Q x .fst) (λ x → Q x .snd) Q→≡ _ ∣ refl ∣₁
    where
    Q : H → hProp ℓ
-   Q = HelimSet.fun (λ _ → isSetHProp) λ b → ∥ a₀ ≡ b ∥ , isPropPropTrunc
-   -- Q (η b) = ∥ a ≡ b ∥
+   Q = HelimSet.fun (λ _ → isSetHProp) λ b → ∥ a₀ ≡ b ∥₁ , isPropPropTrunc
+   -- Q (η b) = ∥ a ≡ b ∥₁
 
    Q→≡ : (x : H) → Q x .fst → (y : H) → Q y .fst → x ≡ y
    Q→≡ = HelimSet.fun (λ _ → isSetΠ3 λ _ _ _ → gtrunc _ _)
@@ -192,10 +192,10 @@ module rec→Gpd {A : Type ℓ} {B : Type ℓ'} (Bgpd : isGroupoid B) (f : A →
   f₁ : H → B
   f₁ = Hrec.fun Bgpd f εᶠ λ _ _ _ → refl
    where
-   εᶠ : (a b : A) → ∥ a ≡ b ∥ → f a ≡ f b
+   εᶠ : (a b : A) → ∥ a ≡ b ∥₁ → f a ≡ f b
    εᶠ a b = rec→Set (Bgpd _ _) (cong f) λ p q → congFConst a b p q
    -- this is the inductive step,
-   -- we use that maps ∥ A ∥ → B for an hset B
+   -- we use that maps ∥ A ∥₁ → B for an hset B
    -- correspond to 2-Constant maps A → B (which cong f is by assumption)
   f₂ : ∥ A ∥₂ → H
   f₂ = rec Hset η
@@ -318,11 +318,11 @@ Iso.leftInv IsoSetTruncateSndΣ =
   elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
          λ _ → refl
 
-PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ b ∥
+PathIdTrunc₀Iso : {a b : A} → Iso (∣ a ∣₂ ≡ ∣ b ∣₂) ∥ a ≡ b ∥₁
 Iso.fun (PathIdTrunc₀Iso {b = b}) p =
   transport (λ i → rec {B = TypeOfHLevel _ 1} (isOfHLevelTypeOfHLevel 1)
-                        (λ a → ∥ a ≡ b ∥ , squash) (p (~ i)) .fst)
-            ∣ refl ∣
+                        (λ a → ∥ a ≡ b ∥₁ , squash₁) (p (~ i)) .fst)
+            ∣ refl ∣₁
 Iso.inv PathIdTrunc₀Iso = pRec (squash₂ _ _) (cong ∣_∣₂)
-Iso.rightInv PathIdTrunc₀Iso _ = squash _ _
+Iso.rightInv PathIdTrunc₀Iso _ = squash₁ _ _
 Iso.leftInv PathIdTrunc₀Iso _ = squash₂ _ _ _ _

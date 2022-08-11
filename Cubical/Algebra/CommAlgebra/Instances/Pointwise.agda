@@ -19,8 +19,8 @@ pointwiseAlgebra {R = R} X A =
   in commAlgebraFromCommRing
        (pointwiseRing X (CommAlgebra→CommRing A))
        (λ r f → (λ x → r ⋆ (f x)))
-       (λ r s f i x → ⋆-assoc r s (f x) i)
-       (λ r s f i x → ⋆-ldist r s (f x) i)
-       (λ r f g i x → ⋆-rdist r (f x) (g x) i)
-       (λ f i x → ⋆-lid (f x) i)
-       λ r f g i x → ⋆-lassoc r (f x) (g x) i
+       (λ r s f i x → ⋆Assoc r s (f x) i)
+       (λ r f g i x → ⋆DistR+ r (f x) (g x) i)
+       (λ r s f i x → ⋆DistL+ r s (f x) i)
+       (λ f i x → ⋆IdL (f x) i)
+       λ r f g i x → ⋆AssocL r (f x) (g x) i

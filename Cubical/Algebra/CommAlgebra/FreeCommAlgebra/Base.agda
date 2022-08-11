@@ -97,7 +97,7 @@ module Construction (R : CommRing ℓ) where
   isCommAlgebra = makeIsCommAlgebra 0-trunc
                                     +-assoc +-rid +-rinv +-comm
                                     ·-assoc ·-lid ldist ·-comm
-                                    ⋆-assoc ⋆-ldist-+ ⋆-rdist-+ ·-lid ⋆-assoc-·
+                                    ⋆-assoc ⋆-rdist-+ ⋆-ldist-+ ·-lid ⋆-assoc-·
 
 _[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
 (R [ I ]) = R[ I ] , commalgebrastr 0a 1a _+_ _·_ -_ _⋆_ isCommAlgebra
