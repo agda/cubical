@@ -21,7 +21,7 @@ can check out the tag `v0.1` of this library.
 For some introductory lecture notes see the material for the Cubical Agda course
 of the [EPIT 2021 spring school](https://github.com/HoTT/EPIT-2020/blob/main/04-cubical-type-theory/).
 
-For a paper on with details about Cubical Agda, see [Cubical Agda: a dependently typed
+For a paper with details about Cubical Agda, see [Cubical Agda: a dependently typed
 programming language with univalence and higher inductive
 types](https://dl.acm.org/doi/10.1145/3341691) by Andrea Vezzosi, Anders
 Mörtberg, and Andreas Abel.
