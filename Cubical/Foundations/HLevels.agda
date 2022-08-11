@@ -4,7 +4,7 @@ Basic theory about h-levels/n-types:
 
 - Basic properties of isContr, isProp and isSet (definitions are in Prelude)
 
-- Hedberg's theorem can be found in Cubical/Relation/Nullary/DecidableEq
+- Hedberg's theorem can be found in Cubical/Relation/Nullary/Properties
 
 -}
 {-# OPTIONS --safe #-}

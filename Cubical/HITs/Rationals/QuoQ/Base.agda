@@ -59,8 +59,7 @@ eq/⁻¹ : ∀ x y → Path ℚ [ x ] [ y ] → x ∼ y
 eq/⁻¹ = SetQuotient.effective (λ _ _ → isSetℤ _ _) isEquivRel∼
 
 discreteℚ : Discrete ℚ
-discreteℚ = discreteSetQuotients (discreteΣ discreteℤ (λ _ → subst Discrete 1+Path discreteℕ))
-                                 (λ _ _ → isSetℤ _ _) isEquivRel∼ (λ _ _ → discreteℤ _ _)
+discreteℚ = discreteSetQuotients isEquivRel∼ (λ _ _ → discreteℤ _ _)
 
 
 -- Natural number and negative integer literals for ℚ
