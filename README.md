@@ -57,7 +57,7 @@ we should request a review, by one of the reviewers below.
 If that doesn't happen, you can also request a reviewer yourself,
 to make us aware of the open PR.
 
-* [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)
+* [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/) (*Most topics*)
 
 * [Evan Cavallo](https://staff.math.su.se/evan.cavallo/)
 
