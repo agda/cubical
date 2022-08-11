@@ -72,6 +72,6 @@ to make us aware of the open PR.
 | [Axel Ljungström](https://www.su.se/english/profiles/axlj4439-1.450268) | [aljungstrom](https://github.com/aljungstrom) | *Synthetic homotopy theory and cohomology* |
 | [Andrea Vezzosi](http://saizan.github.io/)                              | [Saizan](https://github.com/Saizan)   | *Inactive*                                 |
 
-[Overview of the current open PRs, descending time since last action](https://github.com/agda/cubical/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-asc+draft%3Afalse)
+[Overview](https://github.com/agda/cubical/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-asc+draft%3Afalse) of the current open PRs, descending time since last action.
 
 [![Build Status](https://travis-ci.org/agda/cubical.svg?branch=master)](https://travis-ci.org/agda/cubical)
