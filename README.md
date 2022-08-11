@@ -63,9 +63,9 @@ to make us aware of the open PR.
 
 * [Felix Cherubini](https://felix-cherubini.de) (*Mainly algebra related topics*)
 
-* [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461)
+* [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461) (*Algebra related topics*)
 
-* [Axel Ljungström](https://www.su.se/english/profiles/axlj4439-1.450268)
+* [Axel Ljungström](https://www.su.se/english/profiles/axlj4439-1.450268) (*Synthetic homotopy theory and cohomology*)
 
 * [Andrea Vezzosi](http://saizan.github.io/) (*inactive*)
 
