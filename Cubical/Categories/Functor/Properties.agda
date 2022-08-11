@@ -166,7 +166,7 @@ module _ {F : Functor C D} where
 
   isFull+Faithful→isFullyFaithful : isFull F → isFaithful F → isFullyFaithful F
   isFull+Faithful→isFullyFaithful full faith x y = isEmbedding×isSurjection→isEquiv
-    (injEmbedding (C .isSetHom) (D .isSetHom) (faith x y _ _) , full x y)
+    (injEmbedding (D .isSetHom) (faith x y _ _) , full x y)
 
 
   -- Fully-faithful functor is conservative

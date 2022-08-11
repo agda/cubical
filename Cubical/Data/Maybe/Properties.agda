@@ -1,25 +1,42 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Maybe.Properties where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Function
+open import Cubical.Foundations.Function using (_∘_; idfun)
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Pointed.Base
-open import Cubical.Functions.Embedding
-open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Unit
-open import Cubical.Data.Nat
-open import Cubical.Relation.Nullary
-open import Cubical.Data.Sum
+open import Cubical.Foundations.Pointed.Base using (Pointed; _→∙_; pt)
+open import Cubical.Foundations.Structure using (⟨_⟩)
 
-open import Cubical.Data.Maybe.Base
+open import Cubical.Functions.Embedding using (isEmbedding)
+
+open import Cubical.Data.Empty as ⊥ using (⊥; isProp⊥)
+open import Cubical.Data.Unit
+open import Cubical.Data.Nat using (suc)
+open import Cubical.Data.Sum using (_⊎_; inl; inr)
+open import Cubical.Data.Sigma using (ΣPathP)
+
+open import Cubical.Relation.Nullary using (¬_; Discrete; yes; no)
+
+open import Cubical.Data.Maybe.Base as Maybe
 
 Maybe∙ : ∀ {ℓ} (A : Type ℓ) → Pointed ℓ
 Maybe∙ A .fst = Maybe A
 Maybe∙ A .snd = nothing
+
+-- Maybe∙ is the "free pointing" functor, that is, left adjoint to the
+-- forgetful functor forgetting the base point.
+module _ {ℓ} (A : Type ℓ) {ℓ'} (B : Pointed ℓ') where
+
+  freelyPointedIso : Iso (Maybe∙ A →∙ B) (A → ⟨ B ⟩)
+  Iso.fun freelyPointedIso f∙ = fst f∙ ∘ just
+  Iso.inv freelyPointedIso f = Maybe.rec (pt B) f , refl
+  Iso.rightInv freelyPointedIso f = refl
+  Iso.leftInv freelyPointedIso f∙ =
+    ΣPathP
+      ( funExt (Maybe.elim _ (sym (snd f∙)) (λ a → refl))
+      , λ i j → snd f∙ (~ i ∨ j))
 
 map-Maybe-id : ∀ {ℓ} {A : Type ℓ} → ∀ m → map-Maybe (idfun A) m ≡ m
 map-Maybe-id nothing = refl
@@ -147,7 +164,8 @@ module SumUnit where
   SumUnit→Maybe→SumUnit (inr _) = refl
 
 Maybe≡SumUnit : Maybe A ≡ Unit ⊎ A
-Maybe≡SumUnit = isoToPath (iso SumUnit.Maybe→SumUnit SumUnit.SumUnit→Maybe SumUnit.SumUnit→Maybe→SumUnit SumUnit.Maybe→SumUnit→Maybe)
+Maybe≡SumUnit = isoToPath (iso Maybe→SumUnit SumUnit→Maybe SumUnit→Maybe→SumUnit Maybe→SumUnit→Maybe)
+  where open SumUnit
 
 congMaybeEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
   → A ≃ B → Maybe A ≃ Maybe B

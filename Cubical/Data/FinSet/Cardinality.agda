@@ -597,7 +597,7 @@ injBool→FinProp true false p = Empty.rec (snotz (cong (card ∘ fst) p))
 injBool→FinProp false true p = Empty.rec (znots (cong (card ∘ fst) p))
 
 isEmbeddingBool→FinProp : isEmbedding (Bool→FinProp {ℓ = ℓ})
-isEmbeddingBool→FinProp = injEmbedding isSetBool isSetFinProp (λ {x} {y} → injBool→FinProp x y)
+isEmbeddingBool→FinProp = injEmbedding isSetFinProp (λ {x} {y} → injBool→FinProp x y)
 
 card-case : (P : FinProp ℓ) → {n : ℕ} → card (P .fst) ≡ n → Σ[ x ∈ Bool ] Bool→FinProp x ≡ P
 card-case P {n = 0} p = false , FinProp≡ (𝟘 , isProp⊥*) P .fst (cong fst (sym (card≡0 {X = P .fst} p)))

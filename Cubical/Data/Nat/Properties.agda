@@ -13,7 +13,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum.Base
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
