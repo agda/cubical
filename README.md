@@ -54,7 +54,7 @@ Reviewing of pull requests
 If you switch your draft pull request (PR) to 'ready to merge',
 or directly create an open PR,
 we should request a review, by one of the reviewers below.
-If that doesn't happen, you can also request a reviewer yourself,
+If that doesn't happen, you can also request a reviewer yourself (for reviewer expertise see below),
 to make us aware of the open PR.
 
 * [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/) (*Most topics*)
