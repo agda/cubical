@@ -48,15 +48,23 @@ Huber, Anders Mörtberg.
 
 This makes it possible to directly represent higher inductive types.
 
-Maintainers
------------
+
+Reviewing of pull requests
+--------------------------
+If you switch your draft pull request (PR) to 'ready to merge',
+or directly create an open PR,
+we should request a review, by one of the reviewers below.
+If that doesn't happen, you can also request a review yourself,
+to make us aware of the open PR.
 
 * [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)
 
-* [Andrea Vezzosi](http://saizan.github.io/)
-
 * [Evan Cavallo](https://staff.math.su.se/evan.cavallo/)
 
-[![Build Status](https://travis-ci.org/agda/cubical.svg?branch=master)](https://travis-ci.org/agda/cubical)
+* [Andrea Vezzosi](http://saizan.github.io/) (*inactive*)
 
-[![Gitter](https://badges.gitter.im/agda/cubical.svg)](https://gitter.im/agda/cubical?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+* [Felix Cherubini](https://felix-cherubini.de) (*Limited roughly to algebra related topics*)
+
+[Overview of the current open PRs, descending time since last action](https://github.com/agda/cubical/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-asc+draft%3Afalse)
+
+[![Build Status](https://travis-ci.org/agda/cubical.svg?branch=master)](https://travis-ci.org/agda/cubical)
