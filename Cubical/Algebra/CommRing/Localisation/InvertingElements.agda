@@ -113,6 +113,7 @@ module InvertingElementsBase (R' : CommRing ℓ) where
    Σhelper : Σ[ n ∈ ℕ ] s ≡ f ^ n → P [ r , s , s∈S[f] ]
    Σhelper (n , p) = subst P (cong [_] (≡-× refl (Σ≡Prop (λ _ → isPropPropTrunc) (sym p)))) (base r n)
 
+
  invElPropElim2 : {f g : R} {P : R[1/ f ] → R[1/ g ] → Type ℓ'}
                 → (∀ x y →  isProp (P x y))
                 → (∀ (r s : R) (n : ℕ) → P [ r , (f ^ n) , PT.∣ n , refl ∣₁ ]
@@ -165,6 +166,21 @@ module InvertingElementsBase (R' : CommRing ℓ) where
               s · g ^ (l ∸ m +ℕ m)           ≡⟨ cong (λ k → s · g ^ k) (≤-∸-+-cancel left-≤-max) ⟩
               s · g ^ l                      ≡⟨ useSolver2 _ _ ⟩
               1r · s · g ^ l ∎
+
+
+ invElPropElimN : (n : ℕ) (f : FinVec R (suc n)) (P : ((i : Fin (suc n)) → R[1/ (f i) ]) → Type ℓ')
+          → (∀ x → isProp (P x))
+          → (∀ (r : FinVec R (suc n)) (m : ℕ) → P (λ i → [ r i , (f i ^ m) , PT.∣ m , refl ∣₁ ]))
+          -------------------------------------------------------------------------------------
+          → ∀ x → P x
+ invElPropElimN zero f P isPropP baseCase x =
+              subst P (funExt (λ { zero → refl })) (invElPropElim {P = Q} (λ _ → isPropP _)
+     (λ r n → subst P (funExt (λ { zero → refl })) (baseCase (λ {zero → r}) n)) (x zero))
+   where
+   Q : R[1/ (f zero) ] → Type _
+   Q x = P (λ {zero → x})
+
+ invElPropElimN (suc n) f P isPropP baseCase = {!!}
 
 
  -- For predicates over the set of powers
