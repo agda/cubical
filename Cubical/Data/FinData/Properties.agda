@@ -20,7 +20,11 @@ open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc
                                       ;znots to ℕznots ; snotz to  ℕsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Maybe
+
 open import Cubical.Relation.Nullary
+
+open import Cubical.Structures.Pointed
 
 private
  variable
@@ -215,6 +219,22 @@ enumElim P k p h f i =
 ... | no ¬i<m = toFin (toℕ i ∸ m)
                   (subst (λ x → toℕ i ∸ m < x) (+-comm m n) (≤<-trans (∸-≤ (toℕ i) m) (toℕ<n i)))
 
+
+finSucMaybeIso : Iso (Fin (ℕ.suc n)) (Maybe (Fin n))
+Iso.fun finSucMaybeIso zero = nothing
+Iso.fun finSucMaybeIso (suc i) = just i
+Iso.inv finSucMaybeIso nothing = zero
+Iso.inv finSucMaybeIso (just i) = suc i
+Iso.rightInv finSucMaybeIso nothing = refl
+Iso.rightInv finSucMaybeIso (just i) = refl
+Iso.leftInv finSucMaybeIso zero = refl
+Iso.leftInv finSucMaybeIso (suc i) = refl
+
+finSuc≡Maybe : Fin (ℕ.suc n) ≡ Maybe (Fin n)
+finSuc≡Maybe = isoToPath finSucMaybeIso
+
+finSuc≡Maybe∙ : (Fin (ℕ.suc n) , zero) ≡ Maybe∙ (Fin n)
+finSuc≡Maybe∙ = pointed-sip _ _ ((isoToEquiv finSucMaybeIso) , refl)
 
 -- Proof that Fin n ⊎ Fin m ≃ Fin (n+m)
 module FinSumChar where
