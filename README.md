@@ -57,17 +57,14 @@ we should request a review, by one of the reviewers below.
 If that doesn't happen, you can also request a reviewer yourself (for reviewer expertise see below),
 to make us aware of the open PR.
 
-* [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/) (*Most topics*)
-
-* [Evan Cavallo](https://staff.math.su.se/evan.cavallo/)
-
-* [Felix Cherubini](https://felix-cherubini.de) (*Mainly algebra related topics*)
-
-* [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461) (*Algebra related topics*)
-
-* [Axel Ljungström](https://www.su.se/english/profiles/axlj4439-1.450268) (*Synthetic homotopy theory and cohomology*)
-
-* [Andrea Vezzosi](http://saizan.github.io/) (*Inactive*)
+| Reviewer                                                                | github handle | Area of expertise                           |
+|-------------------------------------------------------------------------|---------------|---------------------------------------------|
+| [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)            | [mortberg](https://github.com/mortberg) | *Most topics*  |
+| [Evan Cavallo](https://staff.math.su.se/evan.cavallo/)                  | [ecavallo](https://github.com/ecavallo) |                |
+| [Felix Cherubini](https://felix-cherubini.de)                           | [felixwellen](https://github.com/felixwellen) | *Mainly algebra related topics* |
+| [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461)      | [mzeuner](https://github.com/mzeuner) | *Algebra related topics*                   |
+| [Axel Ljungström](https://www.su.se/english/profiles/axlj4439-1.450268) | [aljungstrom](https://github.com/aljungstrom) | *Synthetic homotopy theory and cohomology* |
+| [Andrea Vezzosi](http://saizan.github.io/)                              | [Saizan](https://github.com/Saizan)   | *Inactive*                                 |
 
 [Overview of the current open PRs, descending time since last action](https://github.com/agda/cubical/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-asc+draft%3Afalse)
 
