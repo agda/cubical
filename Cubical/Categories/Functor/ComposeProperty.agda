@@ -402,11 +402,7 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
     Ext≡ = Functor≡ Ext-ob≡ Ext-hom≡
 
     Ext≃ : CatIso _ (precomposeF E F .F-ob Ext) G
-<<<<<<< HEAD
-    Ext≃ = NatIso→Iso _ _ (pathToNatIso Ext≡)
-=======
     Ext≃ = NatIso→FUNCTORIso _ _ (pathToNatIso Ext≡)
->>>>>>> master
 
 
   -- As a corollary, if F is weak equivalence and the target category is univalent, (- ∘ F) is an weak equivalence.

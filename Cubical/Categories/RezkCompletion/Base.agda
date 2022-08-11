@@ -15,10 +15,7 @@ open import Cubical.Categories.Functor.ComposeProperty
 open import Cubical.Categories.Equivalence
 open import Cubical.Categories.Equivalence.WeakEquivalence
 open import Cubical.Categories.Instances.Functors
-<<<<<<< HEAD
-=======
 open import Cubical.Data.Prod
->>>>>>> master
 
 private
   variable
@@ -32,22 +29,6 @@ private
 -- because the universal property is naturally universal polymorphic,
 -- and so the predicate is not inside any universe of finite level.
 
-<<<<<<< HEAD
--- The product type with one parameter in Typeω
-record _×ω_ {a} (A : Type a) (B : Typeω) : Typeω where
-  constructor _,_
-  field
-    fst : A
-    snd : B
-
-open _×ω_ public
-
-isRezkCompletion : (F : Functor C D) → Typeω
-isRezkCompletion {D = D} F = isUnivalent D ×ω ({ℓ ℓ' : Level}{E : Category ℓ ℓ'} → isUnivalent E → isEquivalence (precomposeF E F))
-
--- The critrion of being Rezk completion, c.f. HoTT Book Chapter 9.9.
-=======
-
 isRezkCompletion : (F : Functor C D) → Typeω
 isRezkCompletion {D = D} F =
       isUnivalent D
@@ -56,7 +37,6 @@ isRezkCompletion {D = D} F =
 -- The criterion of being Rezk completion, c.f. HoTT Book Chapter 9.9.
 
 open _×ω_
->>>>>>> master
 
 makeIsRezkCompletion : {F : Functor C D} → isUnivalent D → isWeakEquivalence F → isRezkCompletion F
 makeIsRezkCompletion univ w-equiv .fst = univ

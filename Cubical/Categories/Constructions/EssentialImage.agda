@@ -8,7 +8,7 @@ module Cubical.Categories.Constructions.EssentialImage where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
-open import Cubical.HITs.PropositionalTruncation as Prop
+open import Cubical.HITs.PropositionalTruncation as PropTrunc
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -27,7 +27,7 @@ module _
   open Functor
 
 
-  isInEssentialImage : D .ob → Type(ℓ-max ℓC ℓD')
+  isInEssentialImage : D .ob → Type (ℓ-max ℓC ℓD')
   isInEssentialImage d = ∃[ c ∈ C .ob ] CatIso D (F .F-ob c) d
 
   isPropIsInEssentialImage : (d : D .ob) → isProp (isInEssentialImage d)
@@ -53,7 +53,7 @@ module _
 
 
   isEssentiallySurjToEssentialImage : isEssentiallySurj ToEssentialImage
-  isEssentiallySurjToEssentialImage (d , p) = Prop.map (λ (c , f) → c , Incl-Iso-inv _ _ _ _ f) p
+  isEssentiallySurjToEssentialImage (d , p) = PropTrunc.map (λ (c , f) → c , Incl-Iso-inv _ _ _ _ f) p
 
   isFullyFaithfulFromEssentialImage : isFullyFaithful FromEssentialImage
   isFullyFaithfulFromEssentialImage = isFullyFaithfulIncl D isInEssentialImage
