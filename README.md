@@ -63,7 +63,7 @@ to make us aware of the open PR.
 
 * [Andrea Vezzosi](http://saizan.github.io/) (*inactive*)
 
-* [Felix Cherubini](https://felix-cherubini.de) (*Limited roughly to algebra related topics*)
+* [Felix Cherubini](https://felix-cherubini.de) (*Mainly algebra related topics*)
 
 [Overview of the current open PRs, descending time since last action](https://github.com/agda/cubical/pulls?q=is%3Apr+is%3Aopen+sort%3Aupdated-asc+draft%3Afalse)
 
