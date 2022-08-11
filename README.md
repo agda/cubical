@@ -1,13 +1,15 @@
 A standard library for Cubical Agda
 ===================================
 
+The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.README.html).
+
+Compiling, using and installing
+-------------------------------
 This library compiles with the latest official release of
 [Agda](https://github.com/agda/agda/). For detailed install
 instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
 file.
-
-The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.README.html).
 
 If you want to use Agda 2.6.2 instead of the latest release version, you
 can check out the tag `v0.3` of this library.
@@ -18,6 +20,8 @@ can check out the tag `v0.2` of this library.
 If you want to use Agda 2.6.0.1 instead of the latest release version, you
 can check out the tag `v0.1` of this library.
 
+Learning materials
+------------------
 For some introductory lecture notes see the material for the Cubical Agda course
 of the [EPIT 2021 spring school](https://github.com/HoTT/EPIT-2020/blob/main/04-cubical-type-theory/).
 
@@ -30,6 +34,8 @@ For an introduction to this library, see this [blog
 post](https://homotopytypetheory.org/2018/12/06/cubical-agda/). Note that many
 files and results have moved since this blog post was written.
 
+Theoretical background
+----------------------
 The type theory that Cubical Agda implements is a variation of the
 cubical type theory of:
 
