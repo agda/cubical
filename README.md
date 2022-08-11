@@ -25,17 +25,17 @@ Learning materials
 For some introductory lecture notes see the material for the Cubical Agda course
 of the [EPIT 2021 spring school](https://github.com/HoTT/EPIT-2020/blob/main/04-cubical-type-theory/).
 
-For a paper with details about Cubical Agda, see [Cubical Agda: a dependently typed
-programming language with univalence and higher inductive
-types](https://dl.acm.org/doi/10.1145/3341691) by Andrea Vezzosi, Anders
-Mörtberg, and Andreas Abel.
-
 For an introduction to this library, see this [blog
 post](https://homotopytypetheory.org/2018/12/06/cubical-agda/). Note that many
 files and results have moved since this blog post was written.
 
 Theoretical background
 ----------------------
+For a paper with details about Cubical Agda, see [Cubical Agda: a dependently typed
+programming language with univalence and higher inductive
+types](https://dl.acm.org/doi/10.1145/3341691) by Andrea Vezzosi, Anders
+Mörtberg, and Andreas Abel.
+
 The type theory that Cubical Agda implements is a variation of the
 cubical type theory of:
 
