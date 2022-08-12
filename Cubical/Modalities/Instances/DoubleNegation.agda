@@ -13,7 +13,7 @@ open import Cubical.Data.Empty using (⊥*; isProp⊥*)
 open import Cubical.Data.Sigma using (_×_; ΣPathP)
 
 
-module _ {ℓ : Level} (Y : hProp ℓ) where
+module GeneralizedDoubleNegation {ℓ : Level} (Y : hProp ℓ) where
 
   -- Generalized negation with respect to the proposition Y.
   ¬ : Type ℓ → Type ℓ
@@ -52,20 +52,20 @@ module _ {ℓ : Level} (Y : hProp ℓ) where
   map¬¬ : {A B : Type ℓ} → (A → B) → ¬¬ A → ¬¬ B
   map¬¬ f = _∘ (_∘ f)
 
-  generalizedDoubleNegationModality : Modality ℓ
-  Modality.isModal generalizedDoubleNegationModality = isStableProp
-  Modality.isPropIsModal generalizedDoubleNegationModality = isPropIsStableProp
-  Modality.◯ generalizedDoubleNegationModality = ¬¬
-  Modality.◯-isModal generalizedDoubleNegationModality = isStableProp¬¬
-  Modality.η generalizedDoubleNegationModality = η
-  Modality.◯-elim generalizedDoubleNegationModality {A = A} {B = B} B-modal f x =
+  modality : Modality ℓ
+  Modality.isModal modality = isStableProp
+  Modality.isPropIsModal modality = isPropIsStableProp
+  Modality.◯ modality = ¬¬
+  Modality.◯-isModal modality = isStableProp¬¬
+  Modality.η modality = η
+  Modality.◯-elim modality {A = A} {B = B} B-modal f x =
     snd (B-modal x) (map¬¬ (λ a → substB (f a)) x)
     where
       substB : {x y : ¬¬ A} → B x → B y
       substB {x} {y} = subst B (isProp¬¬ x y)
-  Modality.◯-elim-β generalizedDoubleNegationModality B-modal f a = fst (B-modal _) _ _
-  Modality.◯-=-isModal generalizedDoubleNegationModality x y =
+  Modality.◯-elim-β modality B-modal f a = fst (B-modal _) _ _
+  Modality.◯-=-isModal modality x y =
     isContr→isStableProp (isProp→isContrPath isProp¬¬ _ _)
 
 doubleNegationModality : {ℓ : Level} → Modality ℓ
-doubleNegationModality = generalizedDoubleNegationModality (⊥* , isProp⊥*)
+doubleNegationModality = GeneralizedDoubleNegation.modality (⊥* , isProp⊥*)
