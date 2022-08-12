@@ -60,11 +60,11 @@ FinData→FinWeak→FinData (weaken p) =
   weaken (FinData→FinWeak (FinWeak→FinData p))       ≡⟨ cong weaken (FinData→FinWeak→FinData p)        ⟩
   weaken p ∎
 
-FinDataIsoFinWeak : Iso (Fin n) (FD.Fin n)
-fun FinDataIsoFinWeak = FinWeak→FinData
-inv FinDataIsoFinWeak = FinData→FinWeak
-rightInv FinDataIsoFinWeak = FinWeak→FinData→FinWeak
-leftInv FinDataIsoFinWeak = FinData→FinWeak→FinData
+FinWeakIsoFinData : Iso (Fin n) (FD.Fin n)
+fun FinWeakIsoFinData = FinWeak→FinData
+inv FinWeakIsoFinData = FinData→FinWeak
+rightInv FinWeakIsoFinData = FinWeak→FinData→FinWeak
+leftInv FinWeakIsoFinData = FinData→FinWeak→FinData
 
-FinData≡FinWeak : Fin n ≡ FD.Fin n
-FinData≡FinWeak = isoToPath FinDataIsoFinWeak
+FinWeak≡FinData : Fin n ≡ FD.Fin n
+FinWeak≡FinData = isoToPath FinWeakIsoFinData
