@@ -4,8 +4,15 @@ module Cubical.Categories.Constructions.FullSubcategory where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.Isomorphism
+
+open import Cubical.Functions.Embedding
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
 
 private
@@ -33,6 +40,37 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
   F-hom FullInclusion = idfun _
   F-id FullInclusion = refl
   F-seq FullInclusion f g = refl
+
+  isFullyFaithfulIncl : isFullyFaithful FullInclusion
+  isFullyFaithfulIncl _ _ = idEquiv _ .snd
+
+  module _ (x y : FullSubcategory .ob) where
+
+    open isIso
+
+    Incl-Iso = F-Iso {F = FullInclusion} {x = x} {y = y}
+
+    Incl-Iso-inv : CatIso C (x .fst) (y .fst) → CatIso FullSubcategory x y
+    Incl-Iso-inv f .fst = f .fst
+    Incl-Iso-inv f .snd .inv = f .snd .inv
+    Incl-Iso-inv f .snd .sec = f .snd .sec
+    Incl-Iso-inv f .snd .ret = f .snd .ret
+
+    Incl-Iso-sec : ∀ f → Incl-Iso (Incl-Iso-inv f) ≡ f
+    Incl-Iso-sec f = CatIso≡ _ _ refl
+
+    Incl-Iso-ret : ∀ f → Incl-Iso-inv (Incl-Iso f) ≡ f
+    Incl-Iso-ret f = CatIso≡ _ _ refl
+
+    Incl-Iso-Iso : Iso (CatIso FullSubcategory x y) (CatIso C (x .fst) (y .fst))
+    Incl-Iso-Iso = iso Incl-Iso Incl-Iso-inv Incl-Iso-sec Incl-Iso-ret
+
+    Incl-Iso≃ : CatIso FullSubcategory x y ≃ CatIso C (x .fst) (y .fst)
+    Incl-Iso≃ = isoToEquiv Incl-Iso-Iso
+
+    isEquivIncl-Iso : isEquiv Incl-Iso
+    isEquivIncl-Iso = Incl-Iso≃ .snd
+
 
 module _ (C : Category ℓC ℓC')
          (D : Category ℓD ℓD') (Q : Category.ob D → Type ℓQ) where
@@ -94,3 +132,30 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP)
   MapFullSubcategory-seq F f G g = Functor≡
     (λ (c , p) → refl)
     (λ γ → refl)
+
+
+-- Full subcategory (injective on objects)
+
+open Category
+
+module _
+  (C : Category ℓC ℓC')
+  {P : C .ob → Type ℓP}(isPropP : (c : C .ob) → isProp (P c))
+  where
+
+  open Functor
+  open isUnivalent
+
+
+  -- Full subcategory (injective on objects) is injective on objects.
+
+  isEmbdIncl-ob : isEmbedding (FullInclusion C P .F-ob)
+  isEmbdIncl-ob _ _ = isEmbeddingFstΣProp isPropP
+
+
+  -- Full subcategory (injective on objects) of univalent category is univalent.
+
+  isUnivalentFullSub : isUnivalent C → isUnivalent (FullSubcategory C P)
+  isUnivalentFullSub isUnivC .univ _ _ = isEquiv[equivFunA≃B∘f]→isEquiv[f] _ (Incl-Iso≃ C P _ _)
+    (subst isEquiv (sym (F-pathToIso-∘ {F = FullInclusion C P}))
+      (compEquiv (_ , isEmbdIncl-ob _ _) (_ , isUnivC .univ _ _) .snd))

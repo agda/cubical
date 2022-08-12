@@ -29,7 +29,6 @@ private
 -- because the universal property is naturally universal polymorphic,
 -- and so the predicate is not inside any universe of finite level.
 
-
 isRezkCompletion : (F : Functor C D) → Typeω
 isRezkCompletion {D = D} F =
       isUnivalent D
