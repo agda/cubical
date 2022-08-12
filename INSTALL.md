@@ -277,8 +277,8 @@ $ cat .agda/libraries
 /path/to/cubical.agda-lib
 ```
 
-Using the cubical library in your nix flake
-===========================================
+Nix flakes instructions
+=======================
 
 Create a nix flake like this one:
 ```nix
