@@ -27,7 +27,7 @@ open isWeakEquivalence
 
 -- There are two different ways to construct the Rezk completion,
 -- one is using the essential image of the Yoneda embbeding,
--- another one is using higher inductive type
+-- another one is using a higher inductive type
 -- (c.f. HoTT Book Chaper 9.9).
 
 -- Yoneda embbeding can give a very simple and quick construction.
