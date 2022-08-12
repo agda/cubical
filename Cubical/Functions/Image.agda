@@ -7,6 +7,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Fiberwise
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Functions.Logic
 open import Cubical.Functions.Embedding
@@ -43,3 +45,31 @@ module _ (f : A → B) where
            (λ (x , fx≡y)
              → ∣ x , Σ≡Prop (λ _ → isPropPropTrunc) fx≡y ∣₁)
            y∈im
+
+
+
+{-
+  The following is also true for a general modality in place of ∥_∥₁,
+  i.e. the modal-connected factor of a modal map is an equivalence.
+-}
+module _ (f : A ↪ B) where
+  private
+    f' = fst f
+    r = restrictToImage f'
+    propFibers = isEmbedding→hasPropFibers (snd f)
+
+    restrictionHasSameFibers : ((y , y∈im) : image f') →  fiber r (y , y∈im) ≃ fiber f' y
+    restrictionHasSameFibers (y , y∈im) =
+            _ ,
+           totalEquiv (λ x → r x ≡ (y , y∈im)) (λ x → fst (r x) ≡ y)
+                      (λ x → cong fst )
+                      λ x → snd (imageInclusion f') (r x) (y , y∈im)
+
+  isEquivEmbeddingOntoImage : isEquiv (restrictToImage (fst f))
+  isEquivEmbeddingOntoImage =
+    isEmbedding×isSurjection→isEquiv
+      (hasPropFibers→isEmbedding
+        (λ y → isOfHLevelRetractFromIso 1
+                 (equivToIso (restrictionHasSameFibers y))
+                 (isEmbedding→hasPropFibers (snd f) (fst y)) ) ,
+      (isSurjectionImageRestriction (fst f)))
