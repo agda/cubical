@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Bool
+open import Cubical.Data.Maybe
 open import Cubical.Data.Nat using (ℕ; zero; suc)
 
 open import Cubical.Relation.Nullary
@@ -12,13 +13,15 @@ open import Cubical.Relation.Nullary
 private variable
   n : ℕ
 
--- The only difference between FinPure and FinData is that
--- zero in FinPure can be just FinPure 1
--- and not Fin n like in FinData
+-- FinPure is a proposition and it means n - 1
 data FinPure : ℕ → Type where
   zero : FinPure 1
   suc  : FinPure n → FinPure (suc n)
 
+-- Fin n can be two cases:
+-- Pure, that means n - 1
+-- Weaken, that means a value that is less than n - 1
+-- This Fin decreases on pattern match, different from FinData that increases
 data Fin : ℕ → Type where
   pure   : FinPure n → Fin n
   weaken : Fin n     → Fin (suc n)
@@ -57,3 +60,12 @@ weaken p ≡ᵇ weaken q = p ≡ᵇ q
 
 predFinPure : FinPure (suc (suc n)) → FinPure (suc n)
 predFinPure (suc p) = p
+
+-- A simple example of how this data structure can be useful
+-- This function can calculate the successor of Fin n in Fin n
+-- In pure case, we already know that Fin n is `n - 1`. so it is already the maximum
+-- In weaken case, it is less than n - 1, so it is possible to calculate the successor
+private
+  sucFinOrMax : Fin n → Maybe (Fin n)
+  sucFinOrMax (pure _) = nothing
+  sucFinOrMax (weaken x) = just (sucFin x)
