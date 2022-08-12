@@ -33,7 +33,7 @@ open isWeakEquivalence
 -- Yoneda embbeding can give a very simple and quick construction.
 -- Unfortunately, this construction increases the universe level.
 
--- HIT construction, on the other hand, keeps the universe level,
+-- The HIT construction, on the other hand, keeps the universe level,
 -- but its proof is a bit long and tedious, still easy though.
 
 
