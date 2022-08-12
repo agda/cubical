@@ -20,7 +20,6 @@ open import Cubical.Data.Unit
 open import Cubical.Data.List using (List ; [] ; _∷_)
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 open import Cubical.HITs.FiniteMultiset as FMSet hiding ([_])
 

@@ -189,6 +189,17 @@ module _ {F : Functor C D} where
       ∙ isoFf .ret
       ∙ sym (F .F-id))
 
+  -- Lifting isomorphism upwards a fully faithful functor
+
+  module _ (fullfaith : isFullyFaithful F) where
+
+    liftIso : {x y : C .ob} → CatIso D (F .F-ob x) (F .F-ob y) → CatIso C x y
+    liftIso f .fst = invEq (_ , fullfaith _ _) (f .fst)
+    liftIso f .snd = isFullyFaithful→Conservative fullfaith (subst (isIso D) (sym (secEq (_ , fullfaith _ _) (f .fst))) (f .snd))
+
+    liftIso≡ : {x y : C .ob} → (f : CatIso D (F .F-ob x) (F .F-ob y)) → F-Iso {F = F} (liftIso f) ≡ f
+    liftIso≡ f = CatIso≡ _ _ (secEq (_ , fullfaith _ _) (f .fst))
+
 
 -- Functors inducing surjection on objects is essentially surjective
 
@@ -229,8 +240,8 @@ module _
 
   -- Fully-faithful functor between univalent target induces embedding on objects
 
-  isFullyFaithful→isEmbb-ob : isFullyFaithful F → isEmbedding (F .F-ob)
-  isFullyFaithful→isEmbb-ob fullfaith x y =
+  isFullyFaithful→isEmbd-ob : isFullyFaithful F → isEmbedding (F .F-ob)
+  isFullyFaithful→isEmbd-ob fullfaith x y =
     isEquiv[equivFunA≃B∘f]→isEquiv[f] _ (_ , isUnivD .univ _ _)
       (subst isEquiv (F-pathToIso-∘ {F = F})
       (compEquiv (_ , isUnivC .univ _ _)
