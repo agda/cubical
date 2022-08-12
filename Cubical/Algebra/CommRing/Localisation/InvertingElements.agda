@@ -174,13 +174,81 @@ module InvertingElementsBase (R' : CommRing ℓ) where
           -------------------------------------------------------------------------------------
           → ∀ x → P x
  invElPropElimN zero f P isPropP baseCase x =
-              subst P (funExt (λ { zero → refl })) (invElPropElim {P = Q} (λ _ → isPropP _)
+              subst P (funExt (λ { zero → refl })) (invElPropElim {P = P'} (λ _ → isPropP _)
      (λ r n → subst P (funExt (λ { zero → refl })) (baseCase (λ {zero → r}) n)) (x zero))
    where
-   Q : R[1/ (f zero) ] → Type _
-   Q x = P (λ {zero → x})
+   P' : R[1/ (f zero) ] → Type _
+   P' x = P (λ {zero → x})
 
- invElPropElimN (suc n) f P isPropP baseCase = {!!}
+ invElPropElimN (suc n) f P isPropP baseCase x =
+   subst P (funExt (λ { zero → refl ; (suc i) → refl }))
+           (invElPropElimN n (f ∘ suc) P' (λ _ → isPropP _) baseCase' (x ∘ suc))
+   where
+   P' : ((i : Fin (suc n)) → R[1/ (f (suc i)) ]) → Type _
+   P' y = P (λ { zero → x zero ; (suc i) → y i })
+
+   baseCase' : ∀ (rₛ : FinVec R (suc n)) (m : ℕ)
+             → P' (λ i → [ rₛ i , f (suc i) ^ m , ∣ m , refl ∣₁ ])
+   baseCase' rₛ m =
+     subst P (funExt (λ { zero → refl ; (suc i) → refl }))
+       (invElPropElim {P = P''} (λ _ → isPropP _) baseCase'' (x zero))
+     where
+     P'' : R[1/ (f zero) ] → Type _
+     P'' y = P (λ { zero → y ; (suc i) → [ rₛ i , f (suc i) ^ m , ∣ m , refl ∣₁ ]})
+
+     baseCase'' : ∀ (r₀ : R) (k : ℕ) → P'' [ r₀ , f zero ^ k , ∣ k , refl ∣₁ ]
+     baseCase'' r₀ k = subst P (funExt (λ { zero → vecPaths zero ; (suc i) → vecPaths (suc i) }))
+                              (baseCase newEnumVec l)
+      where
+      l = max m k
+
+      newEnumVec : FinVec R (suc (suc n))
+      newEnumVec zero = r₀ · (f zero) ^ (l ∸ k)
+      newEnumVec (suc i) = rₛ i · (f (suc i)) ^ (l ∸ m)
+
+      oldBaseVec : (i : Fin (suc (suc n))) → R[1/ (f i) ]
+      oldBaseVec = λ { zero → [ r₀ , f zero ^ k , ∣ k , refl ∣₁ ]
+                     ; (suc i) → [ rₛ i , f (suc i) ^ m , ∣ m , (λ _ → f (suc i) ^ m) ∣₁ ] }
+
+      newBaseVec : (i : Fin (suc (suc n))) → R[1/ (f i) ]
+      newBaseVec zero = [ r₀ · (f zero) ^ (l ∸ k) , (f zero) ^ l , ∣ l , refl ∣₁ ]
+      newBaseVec (suc i) = [ rₛ i · (f (suc i)) ^ (l ∸ m) , (f (suc i)) ^ l , ∣ l , refl ∣₁ ]
+
+      vecPaths : ∀ i → newBaseVec i ≡ oldBaseVec i
+      vecPaths zero = eq/ _ _ ((1r , ∣ 0 , refl ∣₁) , path)
+        where
+        useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
+        useSolver1 = solve R'
+        useSolver2 : ∀ a b → a · b ≡ 1r · a · b
+        useSolver2 = solve R'
+        path : 1r · (r₀ · f zero ^ (l ∸ k)) · f zero ^ k ≡ 1r · r₀ · f zero ^ l
+        path = 1r · (r₀ · f zero ^ (l ∸ k)) · f zero ^ k
+             ≡⟨ useSolver1 _ _ _ ⟩
+               r₀ · (f zero ^ (l ∸ k) · f zero ^ k)
+             ≡⟨ cong (r₀ ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+               r₀ · f zero ^ (l ∸ k +ℕ k)
+             ≡⟨ cong (λ k' → r₀ · f zero ^ k') (≤-∸-+-cancel right-≤-max) ⟩
+               r₀ · f zero ^ l
+             ≡⟨ useSolver2 _ _ ⟩
+               1r · r₀ · f zero ^ l ∎
+
+      vecPaths (suc i) = eq/ _ _ ((1r , ∣ 0 , refl ∣₁) , path)
+        where
+        useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
+        useSolver1 = solve R'
+        useSolver2 : ∀ a b → a · b ≡ 1r · a · b
+        useSolver2 = solve R'
+        path : 1r · (rₛ i · f (suc i) ^ (l ∸ m)) · f (suc i) ^ m ≡ 1r · rₛ i · f (suc i) ^ l
+        path = 1r · (rₛ i · f (suc i) ^ (l ∸ m)) · f (suc i) ^ m
+             ≡⟨ useSolver1 _ _ _ ⟩
+               rₛ i · (f (suc i) ^ (l ∸ m) · f (suc i) ^ m)
+             ≡⟨ cong (rₛ i ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+               rₛ i · f (suc i) ^ (l ∸ m +ℕ m)
+             ≡⟨ cong (λ m' → rₛ i · f (suc i) ^ m') (≤-∸-+-cancel left-≤-max) ⟩
+               rₛ i · f (suc i) ^ l
+             ≡⟨ useSolver2 _ _ ⟩
+               1r · rₛ i · f (suc i) ^ l ∎
+
 
 
  -- For predicates over the set of powers
