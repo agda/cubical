@@ -50,3 +50,10 @@ module _ {ℓ} {A : Type ℓ} where
   foldl : ∀ {ℓ'} {B : Type ℓ'} → (B → A → B) → B → List A → B
   foldl f b [] = b
   foldl f b (x ∷ xs) = foldl f (f b x) xs
+
+  ind : ∀ {ℓ'} {B : List A → Type ℓ'}
+           → B []
+           → (∀ {a l} → B l → B (a ∷ l))
+           → ∀ l → B l
+  ind b _ [] = b
+  ind {B = B} b[] b (a ∷ l) = b (ind {B = B} b[] b l )
