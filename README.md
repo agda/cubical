@@ -68,7 +68,7 @@ to make us aware of the open PR.
 | Reviewer                                                                | github handle | Area of expertise                           | Queue |
 |-------------------------------------------------------------------------|---------------|---------------------------------------------|------|
 | [Anders Mörtberg](https://staff.math.su.se/anders.mortberg/)            | [mortberg](https://github.com/mortberg) | *Most topics*  | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Amortberg+) |
-| [Evan Cavallo](https://staff.math.su.se/evan.cavallo/)                  | [ecavallo](https://github.com/ecavallo) |                | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Aecavallo+) |
+| [Evan Cavallo](https://staff.math.su.se/evan.cavallo/)                  | [ecavallo](https://github.com/ecavallo) | *Most topics*  | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Aecavallo+) |
 | [Felix Cherubini](https://felix-cherubini.de)                           | [felixwellen](https://github.com/felixwellen) | *Mainly algebra related topics* | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Afelixwellen+) |
 | [Max Zeuner](https://www.su.se/english/profiles/maze1512-1.450461)      | [mzeuner](https://github.com/mzeuner) | *Algebra related topics*                   | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Amzeuner+) |
 | [Axel Ljungström](https://www.su.se/english/profiles/axlj4439-1.450268) | [aljungstrom](https://github.com/aljungstrom) | *Synthetic homotopy theory and cohomology* | [link](https://github.com/agda/cubical/pulls?q=is%3Apr+review-requested%3Aaljungstrom+) |
