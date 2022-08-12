@@ -3,12 +3,15 @@ module Cubical.Data.FinWeak.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat using (ℕ; zero; suc)
 open import Cubical.Data.FinWeak.Base
 import Cubical.Data.FinData as FD
 
 open import Cubical.Relation.Nullary
+
+open Iso
 
 private variable
   n : ℕ
@@ -27,16 +30,16 @@ FinWeak→FinData (weaken p) = FD.weakenFin (FinWeak→FinData p)
 
 FinData→FinWeak : FD.Fin n → Fin n
 FinData→FinWeak {one} FD.zero = pure zero
-FinData→FinWeak {suc (suc n)} FD.zero = weaken (FinData→FinWeak FD.zero)
+FinData→FinWeak {suc (suc _)} FD.zero = weaken (FinData→FinWeak FD.zero)
 FinData→FinWeak (FD.suc p) = sucFin (FinData→FinWeak p)
 
 finWeakSuc : (p : Fin n) → FinWeak→FinData (sucFin p) ≡ FD.suc (FinWeak→FinData p)
-finWeakSuc (pure p)   = refl
+finWeakSuc (pure _)   = refl
 finWeakSuc (weaken p) = cong FD.weakenFin (finWeakSuc p)
 
 FinWeak→FinData→FinWeak : (p : FD.Fin n) → FinWeak→FinData (FinData→FinWeak p) ≡ p
 FinWeak→FinData→FinWeak {one} FD.zero = refl
-FinWeak→FinData→FinWeak {suc (suc n)} FD.zero = cong FD.weakenFin (FinWeak→FinData→FinWeak FD.zero)
+FinWeak→FinData→FinWeak {suc (suc _)} FD.zero = cong FD.weakenFin (FinWeak→FinData→FinWeak FD.zero)
 FinWeak→FinData→FinWeak (FD.suc p) =
   FinWeak→FinData (sucFin (FinData→FinWeak p)) ≡⟨ finWeakSuc ((FinData→FinWeak p))        ⟩
   FD.suc (FinWeak→FinData (FinData→FinWeak p)) ≡⟨ cong FD.suc (FinWeak→FinData→FinWeak p) ⟩
@@ -56,3 +59,12 @@ FinData→FinWeak→FinData (weaken p) =
   FinData→FinWeak (FD.weakenFin (FinWeak→FinData p)) ≡⟨ weakeningFinData→FinWeak ((FinWeak→FinData p)) ⟩
   weaken (FinData→FinWeak (FinWeak→FinData p))       ≡⟨ cong weaken (FinData→FinWeak→FinData p)        ⟩
   weaken p ∎
+
+FinDataIsoFinWeak : Iso (Fin n) (FD.Fin n)
+fun FinDataIsoFinWeak = FinWeak→FinData
+inv FinDataIsoFinWeak = FinData→FinWeak
+rightInv FinDataIsoFinWeak = FinWeak→FinData→FinWeak
+leftInv FinDataIsoFinWeak = FinData→FinWeak→FinData
+
+FinData≡FinWeak : Fin n ≡ FD.Fin n
+FinData≡FinWeak = isoToPath FinDataIsoFinWeak

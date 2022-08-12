@@ -12,6 +12,9 @@ open import Cubical.Relation.Nullary
 private variable
   n : ℕ
 
+-- The only difference between FinPure and FinData is that
+-- zero in FinPure can be just FinPure 1
+-- and not Fin n like in FinData
 data FinPure : ℕ → Type where
   zero : FinPure 1
   suc  : FinPure n → FinPure (suc n)
@@ -20,7 +23,6 @@ data Fin : ℕ → Type where
   pure   : FinPure n → Fin n
   weaken : Fin n     → Fin (suc n)
 
--- useful patterns
 pattern one = suc zero
 pattern two = suc one
 
