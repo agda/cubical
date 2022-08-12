@@ -3,6 +3,7 @@ module Cubical.Functions.Image where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Equiv
@@ -25,11 +26,19 @@ module _ (f : A → B) where
   image : Type _
   image = Σ[ y ∈ B ] isInImage y
 
+  imageInclusion : image ↪ B
+  imageInclusion = fst ,
+    hasPropFibers→isEmbedding {f = fst}
+      λ y → isOfHLevelRetractFromIso 1 (ϕ y) isPropPropTrunc
+      where
+        ϕ : (y : B) → Iso _ _
+        ϕ y = invIso (fiberProjIso B isInImage y)
+
   restrictToImage : A → image
   restrictToImage x = (f x) , ∣ x , refl ∣₁
 
-  isSurjectionImageRestrion : isSurjection restrictToImage
-  isSurjectionImageRestrion (y , y∈im) =
+  isSurjectionImageRestriction : isSurjection restrictToImage
+  isSurjectionImageRestriction (y , y∈im) =
     PT.rec isPropPropTrunc
            (λ (x , fx≡y)
              → ∣ x , Σ≡Prop (λ _ → isPropPropTrunc) fx≡y ∣₁)
