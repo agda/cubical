@@ -405,7 +405,7 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
     Ext≃ = NatIso→FUNCTORIso _ _ (pathToNatIso Ext≡)
 
 
-  -- As a corollary, if F is weak equivalence and the target category is univalent, (- ∘ F) is an weak equivalence.
+  -- As a corollary, if F is weak equivalence and the target category is univalent, (- ∘ F) is a weak equivalence.
 
   isWeakEquiv→isWeakEquivPrecomp : isWeakEquivalence F → isWeakEquivalence (precomposeF E F)
   isWeakEquiv→isWeakEquivPrecomp w-equiv .fullfaith =
