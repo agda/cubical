@@ -9,12 +9,14 @@ open import Cubical.Foundations.Function using (const)
 open import Cubical.Data.Unit using (Unit*; isContrUnit*; tt*)
 
 
+open Modality
+
 zeroModality : {ℓ : Level} → Modality ℓ
-Modality.isModal zeroModality = isContr
-Modality.isPropIsModal zeroModality = isPropIsContr
-Modality.◯ zeroModality = const Unit*
-Modality.◯-isModal zeroModality = isContrUnit*
-Modality.η zeroModality = const tt*
-Modality.◯-elim zeroModality B-modal _ tt* = fst (B-modal tt*)
-Modality.◯-elim-β zeroModality B-modal _ _ = snd (B-modal tt*) _
-Modality.◯-=-isModal zeroModality tt* tt* = refl , λ p → refl
+isModal zeroModality = isContr
+isPropIsModal zeroModality = isPropIsContr
+◯ zeroModality = const Unit*
+◯-isModal zeroModality = isContrUnit*
+η zeroModality = const tt*
+◯-elim zeroModality B-modal _ tt* = fst (B-modal tt*)
+◯-elim-β zeroModality B-modal _ _ = snd (B-modal tt*) _
+◯-=-isModal zeroModality tt* tt* = refl , λ p → refl

@@ -9,12 +9,14 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Unit
 
 
+open Modality
+
 identityModality : {ℓ : Level} → Modality ℓ
-Modality.isModal identityModality = const Unit*
-Modality.isPropIsModal identityModality = isPropUnit*
-Modality.◯ identityModality A = A
-Modality.◯-isModal identityModality = tt*
-Modality.η identityModality = idfun _
-Modality.◯-elim identityModality _ f = f
-Modality.◯-elim-β identityModality _ _ _ = refl
-Modality.◯-=-isModal identityModality _ _  = tt*
+isModal identityModality = const Unit*
+isPropIsModal identityModality = isPropUnit*
+◯ identityModality A = A
+◯-isModal identityModality = tt*
+η identityModality = idfun _
+◯-elim identityModality _ f = f
+◯-elim-β identityModality _ _ _ = refl
+◯-=-isModal identityModality _ _  = tt*
