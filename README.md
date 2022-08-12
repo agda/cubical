@@ -3,6 +3,8 @@ A standard library for Cubical Agda
 
 The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.README.html).
 
+[Discord](https://discord.gg/5c7ZDMFn).
+
 Compiling, using and installing
 -------------------------------
 This library compiles with the latest official release of
