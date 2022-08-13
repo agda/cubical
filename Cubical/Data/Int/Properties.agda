@@ -20,7 +20,6 @@ open import Cubical.Data.Sum
 open import Cubical.Data.Int.Base
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 sucPred : ∀ i → sucℤ (predℤ i) ≡ i
 sucPred (pos zero)    = refl
