@@ -52,9 +52,9 @@ lookup-tabulate : ∀ n → (^a : Fin n → A)
 lookup-tabulate (suc n) ^a i zero = ^a zero
 lookup-tabulate (suc n) ^a i (suc p) = lookup-tabulate n (^a ∘ suc) i p
 
-lookup-tabulateT : ∀ n → (^a : Fin n → A)
-  →  lookup (tabulate n ^a) ∘ subst⁻ Fin (length-tabulate n ^a) ≡ ^a
-lookup-tabulateT n ^a = funExt (λ _ → sym (transportRefl _)) ∙ fromPathP (lookup-tabulate n ^a)
+lookup-tabulateT : ∀ n → (^a : Fin n → A) → ∀ k
+    → lookup (tabulate n ^a) (subst⁻ Fin (length-tabulate n ^a) k) ≡ ^a k
+lookup-tabulateT n ^a k = (sym (transportRefl _)) ∙ funExt⁻ (fromPathP (lookup-tabulate n ^a)) k
 
 permute : ∀ {n} (l : List A) → Fin n ≃ Fin (length l) → List A
 permute l e = tabulate _ (lookup l ∘ (equivFun e))
@@ -73,9 +73,9 @@ x ↔ y =
 
 ↔permute : ∀ {n} (l : List A) → (e : Fin n ≃ Fin (length l))
                 → l ↔ (permute l e) 
-↔permute {n = n} l e = invEquiv e ∙ₑ ≡→Fin≃ (sym (length-permute l e)) ,
+↔permute l e = invEquiv e ∙ₑ ≡→Fin≃ (sym (length-permute l e)) ,
     λ k → cong (lookup l) (sym (secEq e k))
-      ∙ λ i → lookup-tabulateT n (λ x₁ → lookup l (fst e x₁)) (~ i) (invEq e k)
+      ∙ sym (lookup-tabulateT _ (lookup l ∘ (fst e)) (invEq e k))
 
 isRefl↔ : BinaryRelation.isRefl (_↔_ {A = A})
 isRefl↔ = (λ _ → idEquiv _ , (λ _ → refl))
@@ -167,9 +167,7 @@ snd (cong↔++R {A = A} {xs = xs} {ys} x l) k =
        k))
    ∙ sym (recMap (equivFun (fst x)) (lookup ys) (idfun _) (lookup l)
       (invEq
-       (FinSumChar.Equiv (length xs) (length l) ∙ₑ
-        ≡→Fin≃ (λ i → length++ xs l (~ i)))
-       k))
+       (FinSumChar.Equiv (length xs) (length l) ∙ₑ ≡→Fin≃ (sym (length++ xs l))) k))
    ∙ cong (⊎.rec (lookup ys) (lookup l))
       (h (transp (λ j → Fin (length++ xs l j)) i0 k))
    ∙ sym (lookup-FinSumChar {xs = ys} {l} _)
@@ -275,7 +273,7 @@ h-swap (x ∷ x₁ ∷ l) (suc (suc k)) = cong (x ∷fm_) (h-swap (x₁ ∷ l) (
               ∙ injSuc pX)
            (↔permute ys' ((invEquiv e' ∙ₑ ≡→Fin≃ (sym (length-tabulate _ _)))))
            ∙ cong (List→FMSet ∘ tabulate (length ys))
-             (cong (_∘ invEq e') (lookup-tabulateT _ _) ∙
+             (cong (_∘ invEq e') (funExt (lookup-tabulateT _ _)) ∙
               cong (((
                  lookup (y ∷ ys) ∘ 
                   (equivFun (PunchInOut≃ (equivFun e zero))) ∘  suc) ∘_) ∘ fst) ((invEquiv-is-linv e'))))
