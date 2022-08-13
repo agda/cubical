@@ -174,3 +174,7 @@ discreteList eqA (x ∷ xs) (y ∷ ys) with eqA x y | discreteList eqA xs ys
 foldrCons : (xs : List A) → foldr _∷_ [] xs ≡ xs
 foldrCons [] = refl
 foldrCons (x ∷ xs) = cong (x ∷_) (foldrCons xs)
+
+length++ : (xs ys : List A) → length (xs ++ ys) ≡ length xs + length ys
+length++ [] ys = refl
+length++ (x ∷ xs) ys = cong suc (length++ xs ys)

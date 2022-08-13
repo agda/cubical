@@ -13,6 +13,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
@@ -343,6 +344,14 @@ module FinProdChar where
 sucPerm : Fin n ≃ Fin m → Fin (ℕsuc n) ≃ Fin (ℕsuc m)  
 sucPerm {n} {m} e = invEquiv (FinSumChar.Equiv 1 n) ∙ₑ ⊎-equiv (idEquiv _) e ∙ₑ FinSumChar.Equiv 1 m 
 
+-- suc' : ∀ {n} → Fin n → Fin (ℕsuc n)
+-- suc' {n} x = fromℕ' _ (toℕ x) (suc-≤-suc (<-weaken (toℕ<n x)))
+ 
+
+-- sucPerm' : Fin n ≃ Fin m → Fin (ℕsuc n) ≃ Fin (ℕsuc m)  
+-- sucPerm' {n} {m} e = {!!}
+
+
 swapHead : ∀ {n} → Fin (ℕsuc (ℕsuc n)) ≃ Fin (ℕsuc (ℕsuc n))  
 swapHead = isoToEquiv w
   where
@@ -437,3 +446,25 @@ isInjectiveFin≃ {ℕzero} {ℕzero} x = refl
 isInjectiveFin≃ {ℕzero} {ℕsuc m} x = ⊥.rec (¬Fin0 (invEq x zero))
 isInjectiveFin≃ {ℕsuc n} {ℕzero} x = ⊥.rec (¬Fin0 (equivFun x zero))
 isInjectiveFin≃ {ℕsuc n} {ℕsuc m} x = cong ℕsuc (isInjectiveFin≃ (fst (Fin≃SucEquiv'' x)))
+
+≡→Fin≃ : n ≡ m → Fin n ≃ Fin m
+≡→Fin≃ = pathToEquiv ∘ cong Fin
+
+-- ≡→Fin≃' : n ≡ m → Fin n ≃ Fin m
+-- ≡→Fin≃' {ℕzero} {ℕzero} = const (idEquiv (Fin ℕzero))
+-- ≡→Fin≃' {ℕzero} {ℕsuc m} = ⊥.rec ∘ ℕznots
+-- ≡→Fin≃' {ℕsuc n} {ℕzero} = ⊥.rec ∘ ℕsnotz
+-- ≡→Fin≃' {ℕsuc n} {ℕsuc m} = sucPerm ∘ ≡→Fin≃' ∘ injSuc
+
+transportFinFix : (p' : n ≡ m) → (p : (ℕsuc n) ≡ (ℕsuc m)) → ∀ k
+                  → (subst Fin p (suc k)) ≡ suc (subst Fin p' k)
+transportFinFix {n} {m} = J (λ m p' → (p : (ℕsuc n) ≡ (ℕsuc m)) → ∀ k
+                  → (subst Fin p (suc k)) ≡ suc (subst Fin p' k))
+                   λ p k → isSet-subst {B = Fin} isSetℕ _ _ ∙ cong suc (sym (transportRefl k)) 
+
+transportFinFix-zero : (p : (ℕsuc n) ≡ (ℕsuc m)) 
+                  → zero ≡ subst Fin p zero
+transportFinFix-zero {n} {m} =
+  J (λ {ℕzero _ → Unit ; (ℕsuc k) p → zero ≡ subst Fin p zero })
+    (sym (transportRefl zero))
+  

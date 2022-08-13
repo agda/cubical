@@ -4,6 +4,7 @@ module Cubical.Data.Sum.Properties where
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
 open import Cubical.Functions.Embedding
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
@@ -11,7 +12,7 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
-open import Cubical.Data.Sum.Base
+open import Cubical.Data.Sum.Base as ⊎
 
 open Iso
 
@@ -188,3 +189,8 @@ leftInv Σ⊎Iso (inr b , eb) = refl
 map-⊎ : (A → C) → (B → D) → A ⊎ B → C ⊎ D
 map-⊎ f _ (inl a) = inl (f a)
 map-⊎ _ g (inr b) = inr (g b)
+
+recMap : ∀ {ℓe} → {E : Type ℓe}
+      → (f : A → B) → (f' : B → C) → (g : D → E) → (g' : E → C)
+      → ∀ x → ⊎.rec f' g' (map f g x) ≡ ⊎.rec (f' ∘ f) (g' ∘ g) x
+recMap _ _ _ _ = ⊎.elim (λ _ → refl) λ _ → refl
