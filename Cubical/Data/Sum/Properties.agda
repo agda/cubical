@@ -191,6 +191,6 @@ map-⊎ f _ (inl a) = inl (f a)
 map-⊎ _ g (inr b) = inr (g b)
 
 recMap : ∀ {ℓe} → {E : Type ℓe}
-      → (f : A → B) → (f' : B → C) → (g : D → E) → (g' : E → C)
+      → {f : A → B} → {f' : B → C} → {g : D → E} → {g' : E → C}
       → ∀ x → ⊎.rec f' g' (map f g x) ≡ ⊎.rec (f' ∘ f) (g' ∘ g) x
-recMap _ _ _ _ = ⊎.elim (λ _ → refl) λ _ → refl
+recMap = ⊎.elim (λ _ → refl) λ _ → refl

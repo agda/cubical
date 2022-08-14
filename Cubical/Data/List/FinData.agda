@@ -154,26 +154,24 @@ lookup-FinSumChar {xs = x ∷ xs} {ys} (suc k) =
 
 cong↔++R : ∀ {xs ys : List A} → xs ↔ ys → ∀ l → xs ++ l ↔ ys ++ l
 fst (cong↔++R {xs = xs} {ys} x l) =
-     ≡→Fin≃ (length++ xs l) ∙ₑ
-    (invEquiv (FinSumChar.Equiv (length xs) (length l))
+        ≡→Fin≃ (length++ xs l)
+     ∙ₑ (invEquiv (FinSumChar.Equiv (length xs) (length l))
      ∙ₑ ⊎-equiv (fst x) (idEquiv _)
      ∙ₑ FinSumChar.Equiv (length ys) (length l) )
      ∙ₑ ≡→Fin≃ (sym (length++ ys l))
-snd (cong↔++R {A = A} {xs = xs} {ys} x l) k =
-  lookup-FinSumChar {xs = xs} {l} k ∙
-   (λ i → ⊎.rec (λ k' → snd x k' i) (lookup l) (invEq
-       (FinSumChar.Equiv (length xs) (length l) ∙ₑ
-        ≡→Fin≃ (sym (length++ xs l)))
-       k))
-   ∙ sym (recMap (equivFun (fst x)) (lookup ys) (idfun _) (lookup l)
-      (invEq
-       (FinSumChar.Equiv (length xs) (length l) ∙ₑ ≡→Fin≃ (sym (length++ xs l))) k))
-   ∙ cong (⊎.rec (lookup ys) (lookup l))
-      (h (transp (λ j → Fin (length++ xs l j)) i0 k))
-   ∙ sym (lookup-FinSumChar {xs = ys} {l} _)
+snd (cong↔++R {xs = xs} {ys} (e , p) l) k =
+  _ ≡⟨ lookup-FinSumChar {xs = xs} _ ⟩
+  _ ≡⟨ cong (λ g → ⊎.rec g (lookup l) f ) (funExt p) ⟩
+  _ ≡⟨ sym (recMap f)⟩
+  _ ≡⟨ cong (⊎.rec _ _) h ⟩
+  _ ≡⟨ sym (lookup-FinSumChar {xs = ys} _) ⟩
+  _ ∎
+
   where
-    h : (k : Fin (length xs + length l)) →           
-         ⊎.map (fst (fst x)) (λ x₁ → x₁)
+    f = (invEq (FinSumChar.Equiv _ _ ∙ₑ ≡→Fin≃ (sym _)) k)
+ 
+    h : {k : Fin (length xs + length l)} →           
+         ⊎.map (fst e) (λ x₁ → x₁)
          (FinSumChar.inv (length xs) (length l)
           (transp (λ i → Fin (length xs + length l)) i0
            (k)))
@@ -183,29 +181,29 @@ snd (cong↔++R {A = A} {xs = xs} {ys} x l) k =
           (transp (λ j → Fin (length++ ys l j)) i0
            (transp (λ i → Fin (length++ ys l (~ i))) i0
             (FinSumChar.fun (length ys) (length l)
-             (⊎Iso (equivToIso (fst x)) (equivToIso (idEquiv (Fin (length l))))
+             (⊎Iso (equivToIso e) (equivToIso (idEquiv (Fin (length l))))
               .Iso.fun
               (FinSumChar.inv (length xs) (length l)
                k))))))
-    h k =
-         cong (⊎.map (fst (fst x)) (λ x₁ → x₁) ∘ (FinSumChar.inv (length xs) (length l)))
+    h {k} =
+         cong (⊎.map (fst e) (λ x₁ → x₁) ∘ (FinSumChar.inv (length xs) (length l)))
            (transportRefl k)
       ∙  (⊎.elim
-           {C = (λ y → ⊎.map (fst (fst x)) (λ x₁ → x₁) y ≡
-                  ⊎Iso (equivToIso (fst x)) (equivToIso (idEquiv (Fin (length l))))
+           {C = (λ y → ⊎.map (fst e) (λ x₁ → x₁) y ≡
+                  ⊎Iso (equivToIso e) (equivToIso (idEquiv (Fin (length l))))
                       .Iso.fun y)}
            (λ _ → refl) (λ _ → refl)
           (FinSumChar.inv (length xs) (length l) k)) 
       ∙ sym (FinSumChar.ret (length ys) (length l) _)
       ∙ cong (FinSumChar.inv (length ys) (length l))
             (sym (transportRefl (FinSumChar.fun (length ys) (length l)
-        (⊎Iso (equivToIso (fst x)) (equivToIso (idEquiv (Fin (length l))))
+        (⊎Iso (equivToIso e) (equivToIso (idEquiv (Fin (length l))))
          .Iso.fun (FinSumChar.inv (length xs) (length l) k)))))
       ∙ cong (FinSumChar.inv (length ys) (length l)
            ∘ transp (λ i → Fin (length ys + length l)) i0)
             (sym (transportTransport⁻ (cong Fin (length++ ys l))
               (FinSumChar.fun (length ys) (length l)
-             (⊎Iso (equivToIso (fst x)) (equivToIso (idEquiv (Fin (length l))))
+             (⊎Iso (equivToIso e) (equivToIso (idEquiv (Fin (length l))))
               .Iso.fun
               (FinSumChar.inv (length xs) (length l)
                k)))))
