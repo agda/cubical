@@ -2,9 +2,9 @@
 module Cubical.ZCohomology.CohomologyRings.Sn where
 
 {-
-   This file compute the cohomology Ring of Sn (n ≥ 1)
+   This file computes the cohomology Ring of Sn (n ≥ 1)
    The big difference with Sn compared to S 1 is the fact that
-   to do it for a general n, one need to add a partion.
+   to do it for a general n, one need to add a partition.
    This implies notably some transport operation that
    complicates the definition and the proofs.
 -}
@@ -240,9 +240,9 @@ module Equiv-Sn-Properties (n : ℕ) where
   pres·-base-case-int one           a one           b = sym (base-neutral (suc n +' suc n))
                                                          ∙ cong (base (suc n +' suc n))
                                                            (isOfHLevelRetractFromIso
-                                                                1
-                                                                (fst (Hⁿ-Sᵐ≅0 (suc (n +n n)) n (λ p → <→≢ (n , (+n-comm n (suc n))) (sym p))))
-                                                                isPropUnit _ _)
+                                                           1
+                                                           (fst (Hⁿ-Sᵐ≅0 (suc (n +n n)) n (λ p → <→≢ (n , (+n-comm n (suc n))) (sym p))))
+                                                           isPropUnit _ _)
   pres·-base-case-int one           a (suc (suc l)) b = refl
   pres·-base-case-int (suc (suc k)) a             l b = refl
 
