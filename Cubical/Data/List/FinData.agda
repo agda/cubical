@@ -130,35 +130,35 @@ lookup-FinSumChar : ∀ {xs ys : List A} →
             ∙ₑ ≡→Fin≃ (sym (length++ xs ys))) k)
 lookup-FinSumChar {xs = []} {ys} k = cong (lookup ys) (sym (transport⁻Transport refl k))
 lookup-FinSumChar {xs = x ∷ xs} {ys} zero = 
-  cong (⊎.rec (lookup (x ∷ xs)) (lookup ys) ∘ (FinSumChar.inv (suc (length xs)) (length ys)))
-  (transportFinFix-zero _ ∙ substComposite Fin _ refl zero)
+  cong (⊎.rec (lookup (x ∷ xs)) (lookup ys) ∘ (FinSumChar.inv _ _))
+  (transportFinFix-zero _ ∙ substComposite Fin _ _ zero)
 
-lookup-FinSumChar {xs = x ∷ xs} {ys} (suc k) =  
-  lookup-FinSumChar {xs = xs} {ys} k
-   ∙ funExt⁻ q (FinSumChar.inv (length xs) (length ys)
-        (transp (λ i → Fin (length xs + length ys)) i0
-         (transp (λ i → Fin (length++ xs ys i)) i0 k)))
-    ∙ cong (⊎.rec (lookup (x ∷ xs)) (lookup ys) ∘ FinSumChar.inv (suc (length xs)) (length ys))
-        (  sym (cong {B = λ _ → Fin _} suc (substComposite Fin (λ j →  ( (length++ xs ys j))) refl k))  
-          ∙ sym (transportFinFix (length++ xs ys ∙ refl) _ k) ∙ substComposite Fin (λ j →  (suc (length++ xs ys j)))
-         refl (suc k)) 
+lookup-FinSumChar {xs = x ∷ xs} {ys} (suc k) =
+   _ ≡⟨ lookup-FinSumChar {xs = xs} {ys} k ⟩
+   _ ≡⟨ h (FinSumChar.inv _ _ _) ⟩
+   _ ≡⟨ cong (⊎.rec (lookup (x ∷ xs)) (lookup ys) ∘ FinSumChar.inv _ _)
+           (_ ≡⟨ sym (cong {B = λ _ → Fin _} suc (substComposite Fin _ _ k)) ⟩
+            _ ≡⟨ sym (transportFinFix _ _ k) ⟩
+            _ ≡⟨ substComposite Fin _ _ (suc k) ⟩ _
+            ∎) ⟩
+   _ ∎ 
+
   where
 
-      q : ⊎.rec (lookup xs) (lookup ys)
-            ≡
-            ⊎.rec (lookup (x ∷ xs)) (lookup ys) ∘
-            (FinSumChar.invSucAux (length xs) (length ys))
-      q i (inl x) = lookup xs x
-      q i (inr x) = lookup ys x
+    h : ∀ z → ⊎.rec (lookup xs) (lookup ys) z ≡
+              ⊎.rec (lookup (x ∷ xs)) (lookup ys)
+              (FinSumChar.invSucAux _ _ z)
+    h (inl _) = refl
+    h (inr _) = refl
 
 
 cong↔++R : ∀ {xs ys : List A} → xs ↔ ys → ∀ l → xs ++ l ↔ ys ++ l
 fst (cong↔++R {xs = xs} {ys} x l) =
-  ≡→Fin≃ (length++ xs l) ∙ₑ
+     ≡→Fin≃ (length++ xs l) ∙ₑ
     (invEquiv (FinSumChar.Equiv (length xs) (length l))
      ∙ₑ ⊎-equiv (fst x) (idEquiv _)
      ∙ₑ FinSumChar.Equiv (length ys) (length l) )
-   ∙ₑ ≡→Fin≃ (sym (length++ ys l))
+     ∙ₑ ≡→Fin≃ (sym (length++ ys l))
 snd (cong↔++R {A = A} {xs = xs} {ys} x l) k =
   lookup-FinSumChar {xs = xs} {l} k ∙
    (λ i → ⊎.rec (λ k' → snd x k' i) (lookup l) (invEq
