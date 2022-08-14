@@ -555,9 +555,9 @@ module Equiv-𝕂²-Properties
 module _ where
 
   open Equiv-𝕂²-Properties (invGroupIso H¹-𝕂²≅ℤ) (invGroupIso H²-𝕂²≅Bool)
-  open pres⌣trivial
-  open cupTrivial
-  open PblComp (λ a b → sym (ϕₙ⌣ϕₘ-0 ϕ₁ ϕ₁str ϕ₁ ϕ₁str (trivial⌣ refl {!H²-𝕂²≅ℤ!} (ϕ₁ (pos 1))) a b))
+  -- open pres⌣trivial
+  -- open cupTrivial
+  -- open PblComp (λ a b → sym (ϕₙ⌣ϕₘ-0 ϕ₁ ϕ₁str ϕ₁ ϕ₁str (trivial⌣ refl {!H²-𝕂²≅ℤ!} (ϕ₁ (pos 1))) a b))
 
 --   𝕂²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>) (H*R KleinBottle)
 --   fst 𝕂²-CohomologyRing = isoToEquiv is
