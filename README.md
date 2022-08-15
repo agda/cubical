@@ -3,7 +3,7 @@ A standard library for Cubical Agda
 
 The source code has a glorious clickable [rendered version](https://agda.github.io/cubical/Cubical.README.html).
 
-[Discord](https://discord.gg/5c7ZDMFn).
+There is also a [discord server](https://discord.gg/5c7ZDMFn), shared with [agda-unimath](https://unimath.github.io/agda-unimath/) and the [1lab](https://1lab.dev/).
 
 Compiling, using and installing
 -------------------------------
