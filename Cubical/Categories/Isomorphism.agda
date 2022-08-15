@@ -19,6 +19,16 @@ module _ {C : Category ℓC ℓC'} where
   open isIso
 
 
+  invIso : {x y : ob} → CatIso C x y → CatIso C y x
+  invIso f .fst = f .snd .inv
+  invIso f .snd .inv = f .fst
+  invIso f .snd .sec = f .snd .ret
+  invIso f .snd .ret = f .snd .sec
+
+  invIsoIdem : {x y : ob} → (f : CatIso C x y) → invIso (invIso f) ≡ f
+  invIsoIdem f = refl
+
+
   ⋆Iso : {x y z : ob} → (f : CatIso C x y)(g : CatIso C y z) → CatIso C x z
   ⋆Iso f g .fst = f .fst ⋆ g .fst
   ⋆Iso f g .snd .inv = g .snd .inv ⋆ f .snd .inv
@@ -43,6 +53,9 @@ module _ {C : Category ℓC ℓC'} where
   ⋆IsoIdR : {x y : ob} → (f : CatIso C x y) → ⋆Iso f idCatIso ≡ f
   ⋆IsoIdR _ = CatIso≡ _ _ (⋆IdR _)
 
+  ⋆IsoInvRev : {x y z : ob} → (f : CatIso C x y)(g : CatIso C y z) → invIso (⋆Iso f g) ≡ ⋆Iso (invIso g) (invIso f)
+  ⋆IsoInvRev _ _ = refl
+
 
   pathToIso-∙ : {x y z : ob}(p : x ≡ y)(q : y ≡ z) → pathToIso (p ∙ q) ≡ ⋆Iso (pathToIso p) (pathToIso q)
   pathToIso-∙ p q = J2 (λ y p z q → pathToIso (p ∙ q) ≡ ⋆Iso (pathToIso p) (pathToIso q)) pathToIso-∙-refl p q
@@ -51,6 +64,11 @@ module _ {C : Category ℓC ℓC'} where
     pathToIso-∙-refl = cong pathToIso (sym compPathRefl)
       ∙ sym (⋆IsoIdL _)
       ∙ (λ i → ⋆Iso (pathToIso-refl (~ i)) (pathToIso refl))
+
+
+  transportPathToIso : {x y z : ob}(f : C [ x , y ])(p : y ≡ z) → PathP (λ i → C [ x , p i ]) f (f ⋆ pathToIso {C = C} p .fst)
+  transportPathToIso {x = x} f = J (λ _ p → PathP (λ i → C [ x , p i ]) f (f ⋆ pathToIso {C = C} p .fst))
+    (sym (⋆IdR _) ∙ cong (λ x → f ⋆ x) (sym (cong fst (pathToIso-refl {C = C}))))
 
 
   pathToIso-Comm : {x y z w : ob}
@@ -96,6 +114,22 @@ module _ {C : Category ℓC ℓC'} where
 
     open isUnivalent isUnivC
 
+
+    transportIsoToPath : {x y z : ob}(f : C [ x , y ])(p : CatIso C y z)
+      → PathP (λ i → C [ x , CatIsoToPath p i ]) f (f ⋆ p .fst)
+    transportIsoToPath f p i =
+      hcomp (λ j → λ
+        { (i = i0) → f
+        ; (i = i1) → f ⋆ secEq (univEquiv _ _) p j .fst })
+      (transportPathToIso f (CatIsoToPath p) i)
+
+    transportIsoToPathIso : {x y z : ob}(f : CatIso C x y)(p : CatIso C y z)
+      → PathP (λ i → CatIso C x (CatIsoToPath p i)) f (⋆Iso f p)
+    transportIsoToPathIso f p i .fst = transportIsoToPath (f .fst) p i
+    transportIsoToPathIso f p i .snd =
+      isProp→PathP (λ i → isPropIsIso (transportIsoToPath (f .fst) p i)) (f .snd) (⋆Iso f p .snd) i
+
+
     isoToPath-Square : {x y z w : ob}
       → (p : CatIso C x y)(q : CatIso C z w)
       → (f : Hom[ x , z ])(g : Hom[ y , w ])
@@ -104,6 +138,60 @@ module _ {C : Category ℓC ℓC'} where
     isoToPath-Square p q f g comm =
       pathToIso-Square (CatIsoToPath p) (CatIsoToPath q) _ _
         ((λ i → f ⋆ secEq (univEquiv _ _) q i .fst) ∙ comm ∙ (λ i → secEq (univEquiv _ _) p (~ i) .fst ⋆ g))
+
+
+module _ {C : Category ℓC ℓC'} where
+
+  open Category C
+  open isIso
+
+  ⋆InvLMove : {x y z : ob}
+    (f : CatIso C x y)
+    {g : Hom[ y , z ]}{h : Hom[ x , z ]}
+    → f .fst ⋆ g ≡ h
+    → g ≡ f .snd .inv ⋆ h
+  ⋆InvLMove f {g = g} p =
+      sym (⋆IdL _)
+    ∙ (λ i → f .snd .sec (~ i) ⋆ g)
+    ∙ ⋆Assoc _ _ _
+    ∙ (λ i → f .snd .inv ⋆ p i)
+
+  ⋆InvRMove : {x y z : ob}
+    (f : CatIso C y z)
+    {g : Hom[ x , y ]}{h : Hom[ x , z ]}
+    → g ⋆ f .fst ≡ h
+    → g ≡ h ⋆ f .snd .inv
+  ⋆InvRMove f {g = g} p =
+      sym (⋆IdR _)
+    ∙ (λ i → g ⋆ f .snd .ret (~ i))
+    ∙ sym (⋆Assoc _ _ _)
+    ∙ (λ i → p i ⋆ f .snd .inv)
+
+  ⋆CancelL : {x y z : ob}
+    (f : CatIso C x y){g h : Hom[ y , z ]}
+    → f .fst ⋆ g ≡ f .fst ⋆ h
+    → g ≡ h
+  ⋆CancelL f {g = g} {h = h} p =
+      sym (⋆IdL _)
+    ∙ (λ i → f .snd .sec (~ i) ⋆ g)
+    ∙ ⋆Assoc _ _ _
+    ∙ (λ i → f .snd .inv ⋆ p i)
+    ∙ sym (⋆Assoc _ _ _)
+    ∙ (λ i → f .snd .sec i ⋆ h)
+    ∙ ⋆IdL _
+
+  ⋆CancelR : {x y z : ob}
+    (f : CatIso C y z){g h : Hom[ x , y ]}
+    → g ⋆ f .fst ≡ h ⋆ f .fst
+    → g ≡ h
+  ⋆CancelR f {g = g} {h = h} p =
+      sym (⋆IdR _)
+    ∙ (λ i → g ⋆ f .snd .ret (~ i))
+    ∙ sym (⋆Assoc _ _ _)
+    ∙ (λ i → p i ⋆ f .snd .inv)
+    ∙ ⋆Assoc _ _ _
+    ∙ (λ i → h ⋆ f .snd .ret i)
+    ∙ ⋆IdR _
 
 
 module _ {C : Category ℓC ℓC'} where

@@ -65,7 +65,7 @@ module _
 
   isEquivF-ob : {F : Functor C D} → isWeakEquivalence F → isEquivMap (F .F-ob)
   isEquivF-ob {F = F} is-w-equiv = isEmbedding×isSurjection→isEquiv
-    (isFullyFaithful→isEmbb-ob isUnivC isUnivD {F = F} (is-w-equiv .fullfaith) ,
+    (isFullyFaithful→isEmbd-ob isUnivC isUnivD {F = F} (is-w-equiv .fullfaith) ,
      isSurj→isSurj-ob isUnivD {F = F} (is-w-equiv .esssurj))
 
   isWeakEquiv→isEquiv : {F : Functor C D} → isWeakEquivalence F → isEquivalence F
