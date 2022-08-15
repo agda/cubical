@@ -7,6 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Bool
 open import Cubical.Data.Maybe
 open import Cubical.Data.Nat using (ℕ; zero; suc)
+open import Cubical.Data.FinData as FD using (isWeaken?)
 
 open import Cubical.Relation.Nullary
 
@@ -65,7 +66,15 @@ predFinPure (suc p) = p
 -- This function can calculate the successor of Fin n in Fin n
 -- In pure case, we already know that Fin n is `n - 1`. so it is already the maximum
 -- In weaken case, it is less than n - 1, so it is possible to calculate the successor
+sucFinOrMax : Fin n → Maybe (Fin n)
+sucFinOrMax (pure _) = nothing
+sucFinOrMax (weaken x) = just (sucFin x)
+
+-- This is another way to calculate `sucFinOrMax` using regular FinData
+-- This case is a little bit harder because it is necessary to use with instead of just pattern match
+-- like in the case before.
 private
-  sucFinOrMax : Fin n → Maybe (Fin n)
-  sucFinOrMax (pure _) = nothing
-  sucFinOrMax (weaken x) = just (sucFin x)
+  sucFinDataOrMax : FD.Fin n → Maybe (FD.Fin n)
+  sucFinDataOrMax {suc n} p with isWeaken? p
+  ... | no _ = nothing
+  ... | yes (q , _) = just (FD.suc q)
