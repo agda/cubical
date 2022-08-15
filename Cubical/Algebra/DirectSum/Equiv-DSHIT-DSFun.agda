@@ -239,8 +239,6 @@ module Equiv-Properties
   sumFunTail {m} a b dva dvb x n with discreteℕ m n
   ... | yes p = sumFun dva n                   ≡⟨ sym (substSumFun dva n p) ⟩
                 subst G p (sumFun dva m)       ≡⟨ cong (subst G p) (sumFun< dva m ≤-refl) ⟩
-                subst G p (0g (Gstr m))        ≡⟨ substG0 p ⟩
-                0g (Gstr n)                    ≡⟨ sym (substG0 p) ⟩
                 subst G p (0g (Gstr m))        ≡⟨ sym (cong (subst G p) (sumFun< dvb m ≤-refl)) ⟩
                 subst G p (sumFun dvb m)       ≡⟨ substSumFun dvb n p ⟩
                 sumFun dvb n ∎
