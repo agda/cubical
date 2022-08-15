@@ -14,7 +14,7 @@ open import Cubical.Relation.Nullary
 private variable
   n : ℕ
 
--- FinPure is a proposition and it means n - 1
+-- k : FinPure n is a proposition that means k is n - 1
 data FinPure : ℕ → Type where
   zero : FinPure 1
   suc  : FinPure n → FinPure (suc n)
