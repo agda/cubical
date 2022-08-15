@@ -198,24 +198,65 @@ h-swap (x ∷ l) zero = cong List→FMSet (sym (tabulate-lookup (x ∷ l)))
 h-swap (x ∷ x₁ ∷ l) one i = comm x x₁ (List→FMSet (tabulate-lookup l (~ i))) i
 h-swap (x ∷ x₁ ∷ l) (suc (suc k)) = cong (x ∷fm_) (h-swap (x₁ ∷ l) (suc k)) ∙ comm _ _ _
 
+
+lookup-tabulate-lookup : (xs : List A) → ∀ m → ∀ e → ∀ k →   
+      lookup xs k ≡ lookup (tabulate m (lookup xs ∘ invEq e))
+         (subst Fin (sym (length-tabulate m (lookup xs ∘ invEq e))) (equivFun e k))
+lookup-tabulate-lookup xs m e k =
+   cong (lookup xs) (sym (retEq e k)) ∙ sym (lookup-tabulateT _ _ (equivFun e k))
+
+
+-- (k : Fin (length xs)) →
+--       lookup xs k ≡
+--       lookup
+--       (tabulate (length ys)
+--        (λ x₁ →
+--           lookup xs
+--           (snd (fst (Fin≃SucEquiv'' e)) .equiv-proof x₁ .fst .fst)))
+--       (transp
+--        (λ i →
+--           Fin
+--           (length-tabulate (length ys)
+--            (λ x₁ →
+--               lookup xs (snd (fst (Fin≃SucEquiv'' e)) .equiv-proof x₁ .fst .fst))
+--            (~ i)))
+--        i0 (fst (Fin≃SucEquiv'' e) .fst k))
+
 ↔→FMSet≡ : (a b : List A) → a ↔ b → List→FMSet a ≡ List→FMSet b
-↔→FMSet≡ [] [] r = {!!}
+↔→FMSet≡ [] [] r = refl
 ↔→FMSet≡ [] (x ∷ b) r = {!!}
 ↔→FMSet≡ (x ∷ a) [] r = {!!}
-↔→FMSet≡ (x ∷ xs) (y ∷ ys) r@(e , p) = 
+↔→FMSet≡ (x ∷ xs) (y ∷ ys) r@(e , p) =  
    let (e' , p') = Fin≃SucEquiv'' e
        xs' = permute xs (invEquiv e')
-       y' = lookup (y ∷ ys) (equivFun (PunchInOut≃ (equivFun e zero)) zero)
-       ys' = tabulate (length xs)
-                (lookup (y ∷ ys) ∘ 
-                   (equivFun (sucPerm e' ∙ₑ PunchInOut≃ (equivFun e zero))) ∘ suc)
-   in 
-     (cong (x ∷fm_)
+       k' = subst Fin (↔→length≡ r ∙ cong suc (sym (length-tabulate (length ys) _))) (invEq e zero)
+       (_ , p⁻) = isSym↔ _ _ r 
+       -- y' = lookup (y ∷ ys) (equivFun (PunchInOut≃ (equivFun e zero)) zero)
+       -- ys' = tabulate (length xs)
+       --          (lookup (y ∷ ys) ∘ 
+                   -- (equivFun (sucPerm e' ∙ₑ PunchInOut≃ (equivFun e zero))) ∘ suc)
+   in _ ≡⟨ (cong (x ∷fm_)
         (↔→FMSet≡ xs xs' ( e' ∙ₑ ≡→Fin≃ (sym (length-permute xs (invEquiv e')))
-             , {!!})))
-        ∙ h-swap (x ∷ xs')
-           (subst Fin (↔→length≡ r ∙ cong suc (sym (length-tabulate (length ys) _))) (invEq e zero))
-        ∙ cong List→FMSet {!!}
+             , λ k → cong (lookup xs) (sym (retEq e' k)) ∙ sym (lookup-tabulateT _ _ (equivFun e' k))))) ⟩
+      _ ≡⟨ h-swap (x ∷ xs') k' ⟩
+      _
+      ≡⟨ cong List→FMSet (
+        permute (x ∷ xs') (PunchInOut≃ k')
+             ≡⟨ {!!} ⟩
+        permute (permute (x ∷ xs) (sucPerm (invEquiv e'))) (PunchInOut≃ k')
+             ≡⟨ {!!} ⟩
+        permute (x ∷ xs) (invEquiv (sucPerm e' ∙ₑ PunchInOut≃ (equivFun e zero)))
+             ≡⟨ cong (permute (x ∷ xs) ∘ invEquiv) (sym p') ⟩
+        permute (x ∷ xs) (invEquiv e)
+             ≡⟨ sym (cong (tabulate _) (funExt p⁻)) ⟩
+          _  ≡⟨ tabulate-lookup _ ⟩
+          (y ∷ ys) ∎
+        ) ⟩
+       List→FMSet (y ∷ ys) ∎
+      
+     -- sucPerm e' ∙ₑ PunchInOut≃ (equivFun e zero)
+        -- ∙ 
+     --    ∙ cong List→FMSet {!!}
             -- (cong₂ _∷_
             --   ( {!!}
             --    ∙ p (invEq e zero)
