@@ -448,13 +448,7 @@ isInjectiveFin≃ {ℕsuc n} {ℕzero} x = ⊥.rec (¬Fin0 (equivFun x zero))
 isInjectiveFin≃ {ℕsuc n} {ℕsuc m} x = cong ℕsuc (isInjectiveFin≃ (fst (Fin≃SucEquiv'' x)))
 
 ≡→Fin≃ : n ≡ m → Fin n ≃ Fin m
-≡→Fin≃ = pathToEquiv ∘ cong Fin
-
--- ≡→Fin≃' : n ≡ m → Fin n ≃ Fin m
--- ≡→Fin≃' {ℕzero} {ℕzero} = const (idEquiv (Fin ℕzero))
--- ≡→Fin≃' {ℕzero} {ℕsuc m} = ⊥.rec ∘ ℕznots
--- ≡→Fin≃' {ℕsuc n} {ℕzero} = ⊥.rec ∘ ℕsnotz
--- ≡→Fin≃' {ℕsuc n} {ℕsuc m} = sucPerm ∘ ≡→Fin≃' ∘ injSuc
+≡→Fin≃ = isoToEquiv ∘ pathToIso ∘ cong Fin
 
 transportFinFix : (p' : n ≡ m) → (p : (ℕsuc n) ≡ (ℕsuc m)) → ∀ k
                   → (subst Fin p (suc k)) ≡ suc (subst Fin p' k)
