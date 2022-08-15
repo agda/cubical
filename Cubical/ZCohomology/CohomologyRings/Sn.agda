@@ -308,10 +308,10 @@ module Equiv-Sn-Properties (n : ℕ) where
     where
 
     base-neutral-eq : (k : ℕ) → (x : partℕ k) → base-trad-H* k (0ₕ k) x ≡ 0Pℤ
-    base-neutral-eq k (is0 x)  = cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (subst0g x))
+    base-neutral-eq k (is0 x)  = cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (substG0 x))
                                  ∙ cong (base (0 ∷ [])) (pres1 ϕ₀⁻¹str)
                                  ∙ base-neutral (0 ∷ [])
-    base-neutral-eq k (isSn x) = cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (subst0g x))
+    base-neutral-eq k (isSn x) = cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (substG0 x))
                                  ∙ cong (base (1 ∷ [])) (pres1 ϕₙ⁻¹str)
                                  ∙ base-neutral (1 ∷ [])
     base-neutral-eq k (else x) = refl
@@ -321,10 +321,10 @@ module Equiv-Sn-Properties (n : ℕ) where
                   → base-trad-H* k a x +Pℤ base-trad-H* k b x ≡ base-trad-H* k (a +ₕ b) x
     base-add-eq k a b (is0 x) = base-add _ _ _
                                 ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _))
-                                ∙ cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (subst+ a b x))
+                                ∙ cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (substG+ a b x))
     base-add-eq k a b (isSn x) =  base-add _ _ _
                                   ∙ cong (base (1 ∷ [])) (sym (pres· ϕₙ⁻¹str _ _))
-                                  ∙ cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (subst+ a b x))
+                                  ∙ cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (substG+ a b x))
     base-add-eq k a b (else x) = +PℤIdR _
 
 

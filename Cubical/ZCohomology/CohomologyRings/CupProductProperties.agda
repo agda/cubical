@@ -33,9 +33,9 @@ module _
 
   open SubstLemma ℕ (λ n → coHom n A) (λ n → snd (coHomGroup n A)) public
 
-  subst-⌣ : (k : ℕ) → (a b : coHom k A) → (l : ℕ) → (x : k ≡ l)
+  substG⌣ : (k : ℕ) → (a b : coHom k A) → (l : ℕ) → (x : k ≡ l)
             → substG (cong₂ _+'_ x x) (a ⌣ b) ≡ substG x a ⌣ substG x b
-  subst-⌣ k a b l x = J (λ l x → substG (cong₂ _+'_ x x) (a ⌣ b) ≡ substG x a ⌣ substG x b)
+  substG⌣ k a b l x = J (λ l x → substG (cong₂ _+'_ x x) (a ⌣ b) ≡ substG x a ⌣ substG x b)
                         (transportRefl (a ⌣ b) ∙ sym (cong₂ _⌣_ (transportRefl a) (transportRefl b)))
                         x
 
