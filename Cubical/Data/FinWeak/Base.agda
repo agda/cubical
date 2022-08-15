@@ -75,6 +75,6 @@ sucFinOrMax (weaken x) = just (sucFin x)
 -- like in the case before.
 private
   sucFinDataOrMax : FD.Fin n → Maybe (FD.Fin n)
-  sucFinDataOrMax {suc n} p with isWeaken? p
+  sucFinDataOrMax {suc _} p with isWeaken? p
   ... | no _ = nothing
   ... | yes (q , _) = just (FD.suc q)
