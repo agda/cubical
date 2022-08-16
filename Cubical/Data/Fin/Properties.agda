@@ -26,7 +26,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.FinData.Base renaming (Fin to FinData) hiding (¬Fin0 ; toℕ)
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 open import Cubical.Induction.WellFounded
 
@@ -141,7 +140,7 @@ private
   expand×Emb : ∀ k → isEmbedding (expand× {k})
   expand×Emb 0 = Empty.rec ∘ ¬Fin0 ∘ fst
   expand×Emb (suc k)
-    = injEmbedding (isSetΣ isSetFin (λ _ → isSetℕ)) isSetℕ (expand×Inj k)
+    = injEmbedding isSetℕ (expand×Inj k)
 
 -- A Residue is a family of types representing evidence that a
 -- natural is congruent to a value of a finite type.
@@ -492,7 +491,7 @@ factorEquiv {suc n} {m} = intro , isEmbedding×isSurjection→isEquiv (isEmbeddi
     io′≡ip′ : (fst o , toℕ (snd o)) ≡ (fst p , toℕ (snd p))
     io′≡ip′ = expand×Inj _ (cong fst io≡ip)
   isEmbeddingIntro : isEmbedding intro
-  isEmbeddingIntro = injEmbedding (isSet× isSetFin isSetFin) isSetFin intro-injective
+  isEmbeddingIntro = injEmbedding isSetFin intro-injective
 
   elimF : ∀ nm → fiber intro nm
   elimF nm = ((nn , nn<n) , (mm , mm<m)) , toℕ-injective (reduce n (toℕ nm) .snd) where
