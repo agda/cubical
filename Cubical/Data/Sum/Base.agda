@@ -28,7 +28,7 @@ map f _ (inl x) = inl (f x)
 map _ g (inr y) = inr (g y)
 
 mapl : (A → C) → A ⊎ B → C ⊎ B
-mapl f = map f (λ b → b) 
+mapl f = map f (λ b → b)
 
 _⊎?_ : {P Q : Type ℓ} → Dec P → Dec Q → Dec (P ⊎ Q)
 P? ⊎? Q? with P? | Q?
