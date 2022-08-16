@@ -11,7 +11,6 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.SIP
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 open import Cubical.Structures.MultiSet
 

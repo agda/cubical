@@ -23,7 +23,6 @@ open import Cubical.Data.SumFin
 open import Cubical.Data.FinSet.Base
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 open import Cubical.Relation.Nullary.HLevels
 
 private

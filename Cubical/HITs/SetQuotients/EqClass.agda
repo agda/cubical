@@ -124,7 +124,7 @@ module _
       (λ x y q → Prop.rec (squash/ _ _) (λ r → eq/ _ _ r) (inj/→∥' x y q))
 
   isEmbedding/→∥ : isEmbedding /→∥
-  isEmbedding/→∥ = injEmbedding squash/ (isSet∥ X R) (λ {x} {y} → inj/→∥ x y)
+  isEmbedding/→∥ = injEmbedding (isSet∥ X R) (λ {x} {y} → inj/→∥ x y)
 
   surj/→∥ : (P : X ∥ R) → ((x , _) : Σ[ x ∈ X ] ((a : X) → P .fst a .fst ≃ ∥ R a x ∥₁)) → ∥R∥ x ≡ P
   surj/→∥ P (x , p) i .fst a .fst = ua (p a) (~ i)
