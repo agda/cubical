@@ -27,7 +27,7 @@ open import Cubical.Reflection.Base
 Projections = List R.Name
 
 -- Intended to represent a bijection between two record types by an association list
--- between (possibly nested) fields of the one and the other. The "Maybe"s are included to
+-- between (possibly nested) fields of the one and the other. The `Maybe`s are included to
 -- allow dropping fields of Unit (or other definitionally unique) type.
 --
 -- For example, the correspondence
@@ -41,7 +41,7 @@ Projections = List R.Name
 --   [ (just ["fst"; "fst"] , just ["snd"])
 --   ; (just ["snd"; "fst"] , just ["fst"])
 --   ; (just ["snd"] , nothing)
-
+--   ]
 RecordAssoc = List (Maybe Projections × Maybe Projections)
 
 -- Describes a correspondence between a non-nested record and an iterated Σ-type; more
