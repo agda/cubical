@@ -159,6 +159,8 @@ convertClauses al term = fixIfEmpty (List.filterMap makeClause al)
     goTm (π ∷ projs) = R.def π [ varg (goTm projs) ]
   makeClause (_ , nothing) = nothing
 
+  -- If there end up being zero clauses, then S should be a type with a definitionally
+  -- unique element, so we return a single clause defined by an unsolved metavariable.
   fixIfEmpty : List R.Clause → List R.Clause
   fixIfEmpty [] = [ R.clause [] [] R.unknown ]
   fixIfEmpty (c ∷ cs) = c ∷ cs
