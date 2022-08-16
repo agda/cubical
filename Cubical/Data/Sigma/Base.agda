@@ -25,6 +25,8 @@ A × B = Σ A (λ _ → B)
 
 infixr 5 _×_
 
+swap : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A × B → B × A
+swap (a , b) = b , a
 
 -- Mere existence
 
