@@ -351,9 +351,9 @@ sucPerm {n} {m} e =
 
 isInjectiveSucPerm : (e f : Fin n ≃ Fin m) → sucPerm e ≡ sucPerm f → e ≡ f
 isInjectiveSucPerm {ℕzero} {ℕzero} _ _ _ = equivEq (funExt (⊥.rec ∘ ¬Fin0))
-isInjectiveSucPerm {ℕzero} {ℕsuc m} e _ _ = ⊥.rec (¬Fin0 (invEq e zero)) 
+isInjectiveSucPerm {ℕzero} {ℕsuc m} e _ _ = ⊥.rec (¬Fin0 (invEq e zero))
 isInjectiveSucPerm {ℕsuc _} {ℕzero} e _ _ = ⊥.rec (¬Fin0 (equivFun e zero))
-isInjectiveSucPerm {ℕsuc _} {ℕsuc _} _ _ p = 
+isInjectiveSucPerm {ℕsuc _} {ℕsuc _} _ _ p =
   equivEq (funExt (cong predFin ∘ funExt⁻ (cong fst p) ∘ suc))
 
 
