@@ -52,7 +52,7 @@ open Iso
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
     A : Type ℓ
 
 module InvertingElementsBase (R' : CommRing ℓ) where
@@ -304,6 +304,7 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
  toUnit f∈√⟨g⟩ = powersPropElim (λ x → Units.inverseUniqueness _ (x /1))
                λ n → subst-∈ (R[1/ f ]AsCommRing ˣ) (sym (^-respects-/1 n))
                       (Exponentiation.^-presUnit _ _ n (unitHelper f∈√⟨g⟩))
+
 
 
 module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
@@ -800,3 +801,54 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
      eq1 : transp (λ i → fst R') i0 r ≡ r · transp (λ i → fst R') i0 1r
      eq1 = transportRefl r ∙∙ sym (·IdR r) ∙∙ cong (r ·_) (sym (transportRefl 1r))
+
+
+
+-- This lemma proves that if ⟨ f₁ ,..., fₙ ⟩ ≡ R
+-- then we get an exact sequence
+--   0 → R → ∏ᵢ R[1/fᵢ]
+-- sending r : R to r/1 in R[1/fᵢ] for each i
+-- should be moved later
+module LocInjectivity (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
+ open isMultClosedSubset
+ open CommRingTheory R'
+ open RingTheory (CommRing→Ring R')
+ open CommIdeal R' hiding (subst-∈) renaming (_∈_ to _∈ᵢ_)
+ open InvertingElementsBase R'
+ open Exponentiation R'
+ open CommRingStr ⦃...⦄
+
+ private
+  R = fst R'
+  ⟨f₁,⋯,fₙ⟩ = ⟨ f ⟩[ R' ]
+
+  instance
+   _ = R' .snd
+
+  module L i = Loc R' [ (f i) ⁿ|n≥0] (powersFormMultClosedSubset (f i))
+  module U i = S⁻¹RUniversalProp R' [ (f i) ⁿ|n≥0] (powersFormMultClosedSubset (f i))
+
+  -- a lot of syntax to make things readable
+  0at : (i : Fin n) →  R[1/ (f i) ]
+  0at i = R[1/ (f i) ]AsCommRing .snd .CommRingStr.0r
+
+  _/1at_ : R → (i : Fin n) →  R[1/ (f i) ]
+  r /1at i = U._/1 i r
+
+
+ -- to be upstreamed
+ recFin : {B : Type ℓ''} (isPropB : isProp B) {m : ℕ} {P : Fin m → Type ℓ'}
+        → ((∀ i → P i) → B)
+       ---------------------
+        → ((∀ i → ∥ P i ∥₁) → B)
+ recFin = {!!}
+
+ lemma : 1r ∈ᵢ ⟨f₁,⋯,fₙ⟩ → ∀ (x : R) → (∀ i → x /1at i ≡ 0at i) → x ≡ 0r
+ lemma 1∈⟨f₁,⋯,fₙ⟩ x x/1≡0 = recFin (is-set _ _) annihilatorHelper exAnnihilator
+  where
+  exAnnihilator : ∀ i → ∃[ s ∈ L.S i ] (fst s · x · 1r ≡ fst s · 0r · 1r)
+  exAnnihilator i = isEquivRel→TruncIso (L.locIsEquivRel i) _ _ .fun (x/1≡0 i)
+
+  annihilatorHelper : (∀ i → Σ[ s ∈ L.S i ] (fst s · x · 1r ≡ fst s · 0r · 1r))
+                    → x ≡ 0r
+  annihilatorHelper = {!!}
