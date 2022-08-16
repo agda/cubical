@@ -5,12 +5,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
-open import Cubical.Foundations.Univalence
 
-open import Cubical.Functions.Logic
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Surjection
 
@@ -25,10 +22,13 @@ module _ (f : A → B) where
   isInImage : B → Type _
   isInImage y = ∃[ x ∈ A ] f x ≡ y
 
-  image : Type _
-  image = Σ[ y ∈ B ] isInImage y
+  isPropIsInImage : (x : B) → isProp (isInImage x)
+  isPropIsInImage x = isPropPropTrunc
 
-  imageInclusion : image ↪ B
+  Image : Type _
+  Image = Σ[ y ∈ B ] isInImage y
+
+  imageInclusion : Image ↪ B
   imageInclusion = fst ,
     hasPropFibers→isEmbedding {f = fst}
       λ y → isOfHLevelRetractFromIso 1 (ϕ y) isPropPropTrunc
@@ -36,14 +36,14 @@ module _ (f : A → B) where
         ϕ : (y : B) → Iso _ _
         ϕ y = invIso (fiberProjIso B isInImage y)
 
-  restrictToImage : A → image
+  restrictToImage : A → Image
   restrictToImage x = (f x) , ∣ x , refl ∣₁
 
   isSurjectionImageRestriction : isSurjection restrictToImage
   isSurjectionImageRestriction (y , y∈im) =
     PT.rec isPropPropTrunc
            (λ (x , fx≡y)
-             → ∣ x , Σ≡Prop (λ _ → isPropPropTrunc) fx≡y ∣₁)
+             → ∣ x , Σ≡Prop isPropIsInImage fx≡y ∣₁)
            y∈im
 
 
@@ -58,7 +58,7 @@ module _ (f : A ↪ B) where
     r = restrictToImage f'
     propFibers = isEmbedding→hasPropFibers (snd f)
 
-    restrictionHasSameFibers : ((y , y∈im) : image f') →  fiber r (y , y∈im) ≃ fiber f' y
+    restrictionHasSameFibers : ((y , y∈im) : Image f') →  fiber r (y , y∈im) ≃ fiber f' y
     restrictionHasSameFibers (y , y∈im) =
             _ ,
            totalEquiv (λ x → r x ≡ (y , y∈im)) (λ x → fst (r x) ≡ y)
