@@ -30,7 +30,7 @@ open Iso
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ''' : Level
+    ℓ ℓ' ℓ'' ℓ''' ℓ'''' : Level
 
 module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
   open RingStr (snd R) renaming (_+_ to _+r_ ; _·_ to _·r_)
@@ -63,40 +63,55 @@ module AlgebraHoms {R : Ring ℓ} where
   pres- (snd (idAlgebraHom A)) x = refl
   pres⋆ (snd (idAlgebraHom A)) r x = refl
 
-  compIsAlgebraHom : {A : Algebra R ℓ'} {B : Algebra R ℓ''} {C : Algebra R ℓ'''}
-    {g : ⟨ B ⟩ → ⟨ C ⟩} {f : ⟨ A ⟩ → ⟨ B ⟩}
-    → IsAlgebraHom (B .snd) g (C .snd)
-    → IsAlgebraHom (A .snd) f (B .snd)
-    → IsAlgebraHom (A .snd) (g ∘ f) (C .snd)
-  compIsAlgebraHom {g = g} {f} gh fh .pres0 = cong g (fh .pres0) ∙ gh .pres0
-  compIsAlgebraHom {g = g} {f} gh fh .pres1 = cong g (fh .pres1) ∙ gh .pres1
-  compIsAlgebraHom {g = g} {f} gh fh .pres+ x y = cong g (fh .pres+ x y) ∙ gh .pres+ (f x) (f y)
-  compIsAlgebraHom {g = g} {f} gh fh .pres· x y = cong g (fh .pres· x y) ∙ gh .pres· (f x) (f y)
-  compIsAlgebraHom {g = g} {f} gh fh .pres- x = cong g (fh .pres- x) ∙ gh .pres- (f x)
-  compIsAlgebraHom {g = g} {f} gh fh .pres⋆ r x = cong g (fh .pres⋆ r x) ∙ gh .pres⋆ r (f x)
+  module _
+    {A : Algebra R ℓ'}
+    {B : Algebra R ℓ''}
+    {C : Algebra R ℓ'''}
+    where
 
-  _∘≃a_ : {A B C : Algebra R ℓ'}
-         → AlgebraEquiv B C → AlgebraEquiv A B → AlgebraEquiv A C
-  _∘≃a_  g f .fst = compEquiv (fst f) (fst g)
-  _∘≃a_  g f .snd = compIsAlgebraHom (g .snd) (f .snd)
+    compIsAlgebraHom :
+      {g : ⟨ B ⟩ → ⟨ C ⟩} {f : ⟨ A ⟩ → ⟨ B ⟩}
+      → IsAlgebraHom (B .snd) g (C .snd)
+      → IsAlgebraHom (A .snd) f (B .snd)
+      → IsAlgebraHom (A .snd) (g ∘ f) (C .snd)
+    compIsAlgebraHom {g = g} {f} gh fh .pres0 = cong g (fh .pres0) ∙ gh .pres0
+    compIsAlgebraHom {g = g} {f} gh fh .pres1 = cong g (fh .pres1) ∙ gh .pres1
+    compIsAlgebraHom {g = g} {f} gh fh .pres+ x y = cong g (fh .pres+ x y) ∙ gh .pres+ (f x) (f y)
+    compIsAlgebraHom {g = g} {f} gh fh .pres· x y = cong g (fh .pres· x y) ∙ gh .pres· (f x) (f y)
+    compIsAlgebraHom {g = g} {f} gh fh .pres- x = cong g (fh .pres- x) ∙ gh .pres- (f x)
+    compIsAlgebraHom {g = g} {f} gh fh .pres⋆ r x = cong g (fh .pres⋆ r x) ∙ gh .pres⋆ r (f x)
 
-  compAlgebraHom : {A : Algebra R ℓ'} {B : Algebra R ℓ''} {C : Algebra R ℓ'''}
-              → AlgebraHom A B → AlgebraHom B C → AlgebraHom A C
-  compAlgebraHom f g .fst = g .fst ∘ f .fst
-  compAlgebraHom f g .snd = compIsAlgebraHom (g .snd) (f .snd)
+    _∘≃a_ : AlgebraEquiv B C → AlgebraEquiv A B → AlgebraEquiv A C
+    _∘≃a_  g f .fst = compEquiv (fst f) (fst g)
+    _∘≃a_  g f .snd = compIsAlgebraHom (g .snd) (f .snd)
 
-  syntax compAlgebraHom f g = g ∘a f
+    compAlgebraHom : AlgebraHom A B → AlgebraHom B C → AlgebraHom A C
+    compAlgebraHom f g .fst = g .fst ∘ f .fst
+    compAlgebraHom f g .snd = compIsAlgebraHom (g .snd) (f .snd)
 
-  compIdAlgebraHom : {A B : Algebra R ℓ'} (φ : AlgebraHom A B) → compAlgebraHom (idAlgebraHom A) φ ≡ φ
-  compIdAlgebraHom φ = AlgebraHom≡ refl
+    syntax compAlgebraHom f g = g ∘a f
 
-  idCompAlgebraHom : {A B : Algebra R ℓ'} (φ : AlgebraHom A B) → compAlgebraHom φ (idAlgebraHom B) ≡ φ
-  idCompAlgebraHom φ = AlgebraHom≡ refl
+  module _
+    {A : Algebra R ℓ'}
+    {B : Algebra R ℓ''}
+    where
 
-  compAssocAlgebraHom : {A B C D : Algebra R ℓ'}
-                        (φ : AlgebraHom A B) (ψ : AlgebraHom B C) (χ : AlgebraHom C D)
-                      → compAlgebraHom (compAlgebraHom φ ψ) χ ≡ compAlgebraHom φ (compAlgebraHom ψ χ)
-  compAssocAlgebraHom _ _ _ = AlgebraHom≡ refl
+    compIdAlgebraHom : (φ : AlgebraHom A B) → compAlgebraHom (idAlgebraHom A) φ ≡ φ
+    compIdAlgebraHom φ = AlgebraHom≡ refl
+
+    idCompAlgebraHom :(φ : AlgebraHom A B) → compAlgebraHom φ (idAlgebraHom B) ≡ φ
+    idCompAlgebraHom φ = AlgebraHom≡ refl
+
+  module _
+    {A : Algebra R ℓ'}
+    {B : Algebra R ℓ''}
+    {C : Algebra R ℓ'''}
+    {D : Algebra R ℓ''''}
+    where
+
+    compAssocAlgebraHom : (φ : AlgebraHom A B) (ψ : AlgebraHom B C) (χ : AlgebraHom C D)
+                        → compAlgebraHom (compAlgebraHom φ ψ) χ ≡ compAlgebraHom φ (compAlgebraHom ψ χ)
+    compAssocAlgebraHom _ _ _ = AlgebraHom≡ refl
 
 
 module AlgebraEquivs {R : Ring ℓ} where
