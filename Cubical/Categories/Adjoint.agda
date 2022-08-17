@@ -385,7 +385,11 @@ module NaturalBijection where
     module _ (F : Functor C D) (G : Functor D C) where
       module _ (α : ∀ (c : ob C) (d : ob D) → [ c ↦ F ⟅ c ⟆ ]⊣[ d ↦ G ⟅ d ⟆ ]) where
         isAdjunction : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
-        isAdjunction = isBirelativeAdjunction Id F Id G α
+        isAdjunction = (∀ (d : ob D) → isRightAdhocAdjunction F d (G ⟅ d ⟆) (λ c → α c d))
+                     × (∀ (c : ob C) → isLeftAdhocAdjunction c (F ⟅ c ⟆) G (α c))
+        private
+          testAdjunction : isAdjunction ≡ isBirelativeAdjunction Id F Id G α
+          testAdjunction = refl
 
       _⊣_ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
       _⊣_ = [ Id ⇒ F ]⊣[ Id ⇒ G ]
