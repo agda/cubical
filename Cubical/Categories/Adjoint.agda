@@ -163,6 +163,14 @@ module NaturalBijection where
 
         module isRightAdhocAdjunction = isLeftRelativeRightAdhocAdjunction
 
+        open isRightAdhocAdjunction
+
+        FunNatL→isRightAdhocAdjunction : FunNatL Id F d gd α → isRightAdhocAdjunction
+        FunNatL→isRightAdhocAdjunction = FunNatL→isLeftRelativeRightAdhocAdjunction Id F d gd α
+
+        InvNatL→isRightAdhocAdjunction : InvNatL Id F d gd α → isRightAdhocAdjunction
+        InvNatL→isRightAdhocAdjunction = InvNatL→isLeftRelativeRightAdhocAdjunction Id F d gd α
+
       open isRightAdhocAdjunction
 
       _⊣[_↦_] : Type (ℓ-max (ℓ-max ℓC ℓC') ℓD')
@@ -245,6 +253,14 @@ module NaturalBijection where
 
         module isLeftAdhocAdjunction = isLeftAdhocRightRelativeAdjunction
 
+        open isLeftAdhocAdjunction
+
+        FunNatR→isLeftAdhocAdjunction : FunNatR c fc Id G α → isLeftAdhocAdjunction
+        FunNatR→isLeftAdhocAdjunction = FunNatR→isLeftAdhocRightRelativeAdjunction c fc Id G α
+
+        InvNatR→isLeftAdhocAdjunction : InvNatR c fc Id G α → isLeftAdhocAdjunction
+        InvNatR→isLeftAdhocAdjunction = InvNatR→isLeftAdhocRightRelativeAdjunction c fc Id G α
+
       open isLeftAdhocAdjunction
 
       [_↦_]⊣_ : Type (ℓ-max (ℓ-max ℓC' ℓD) ℓD')
@@ -304,7 +320,11 @@ module NaturalBijection where
     module _ {A : Category ℓA ℓA'} (I : Functor A C) (F : Functor A D) (G : Functor D C) where
       module _ (α : ∀ (a : ob A) (d : ob D) → [ I ⟅ a ⟆ ↦ F ⟅ a ⟆ ]⊣[ d ↦ G ⟅ d ⟆ ]) where
         isLeftRelativeAdjunction : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC' ℓD) ℓD') ℓA) ℓA')
-        isLeftRelativeAdjunction = isBirelativeAdjunction I F Id G α
+        isLeftRelativeAdjunction = (∀ (d : ob D) → isLeftRelativeRightAdhocAdjunction I F d (G ⟅ d ⟆) (λ a → α a d))
+                                 × (∀ (a : ob A) → isLeftAdhocAdjunction (I ⟅ a ⟆) (F ⟅ a ⟆) G (α a))
+        private
+          testAdjunction : isLeftRelativeAdjunction ≡ isBirelativeAdjunction I F Id G α
+          testAdjunction = refl
 
       [_⇒_]⊣_ : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC' ℓD) ℓD') ℓA) ℓA')
       [_⇒_]⊣_ = [ I ⇒ F ]⊣[ Id ⇒ G ]
@@ -316,7 +336,11 @@ module NaturalBijection where
     module _ {B : Category ℓB ℓB'} (F : Functor C D) (J : Functor B D) (G : Functor B C) where
       module _ (α : ∀ (c : ob C) (b : ob B) → [ c ↦ F ⟅ c ⟆ ]⊣[ J ⟅ b ⟆ ↦ G ⟅ b ⟆ ]) where
         isRightRelativeAdjunction : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓB) ℓB')
-        isRightRelativeAdjunction = isBirelativeAdjunction Id F J G α
+        isRightRelativeAdjunction = (∀ (b : ob B) → isRightAdhocAdjunction F (J ⟅ b ⟆) (G ⟅ b ⟆) (λ c → α c b))
+                                  × (∀ (c : ob C) → isLeftAdhocRightRelativeAdjunction c (F ⟅ c ⟆) J G (α c))
+        private
+          testAdjunction : isRightRelativeAdjunction ≡ isBirelativeAdjunction Id F J G α
+          testAdjunction = refl
 
       _⊣[_⇒_] : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓB) ℓB')
       _⊣[_⇒_] = [ Id ⇒ F ]⊣[ J ⇒ G ]
