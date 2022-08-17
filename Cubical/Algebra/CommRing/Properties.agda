@@ -81,6 +81,15 @@ module Units (R' : CommRing ℓ) where
          r' · r' ⁻¹              ≡⟨ ·-rinv _ ⟩
          1r ∎
 
+ RˣMultDistributing : (r r' : R)
+                    → r · r' ∈ Rˣ → (r ∈ Rˣ) × (r' ∈ Rˣ)
+ RˣMultDistributing r r' rr'∈Rˣ =
+     firstHalf r r' rr'∈Rˣ
+   , firstHalf r' r (subst (_∈ Rˣ) (·Comm _ _) rr'∈Rˣ)
+   where
+   firstHalf : (r r' : R) → r · r' ∈ Rˣ → (r ∈ Rˣ)
+   firstHalf r r' (s , rr's≡1) = r' · s , ·Assoc r r' s ∙ rr's≡1
+
  RˣContainsOne : 1r ∈ Rˣ
  RˣContainsOne = 1r , ·IdL _
 

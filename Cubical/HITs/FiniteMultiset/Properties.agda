@@ -8,7 +8,6 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Relation.Nullary
 open import Cubical.HITs.FiniteMultiset.Base
 open import Cubical.Structures.MultiSet
-open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable

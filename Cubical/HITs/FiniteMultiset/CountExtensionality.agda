@@ -12,7 +12,6 @@ open import Cubical.Relation.Nullary
 open import Cubical.HITs.FiniteMultiset.Base
 open import Cubical.HITs.FiniteMultiset.Properties as FMS
 open import Cubical.Structures.MultiSet
-open import Cubical.Relation.Nullary.DecidableEq
 
 
 private

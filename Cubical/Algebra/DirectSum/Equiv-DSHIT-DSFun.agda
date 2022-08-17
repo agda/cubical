@@ -140,14 +140,14 @@ module Equiv-Properties
            where
            base0-eq : (k : ℕ) → (n : ℕ) → fun-trad k (0g (Gstr k)) n ≡ 0g (Gstr n)
            base0-eq k n with (discreteℕ k n)
-           ... | yes p = subst0g _
+           ... | yes p = substG0 _
            ... | no ¬p = refl
 
            base-add-eq : (k : ℕ) → (a b : G k) → (n : ℕ) →
                          PathP (λ _ → G n) (Gstr n ._+_ (fun-trad k a n) (fun-trad k b n))
                                                          (fun-trad k ((Gstr k + a) b) n)
            base-add-eq k a b n with (discreteℕ k n)
-           ... | yes p = subst+ _ _ _
+           ... | yes p = substG+ _ _ _
            ... | no ¬p = +IdR (Gstr n)_
 
   ⊕HIT→Fun-pres0 : ⊕HIT→Fun 0⊕HIT ≡ 0Fun
@@ -239,8 +239,6 @@ module Equiv-Properties
   sumFunTail {m} a b dva dvb x n with discreteℕ m n
   ... | yes p = sumFun dva n                   ≡⟨ sym (substSumFun dva n p) ⟩
                 subst G p (sumFun dva m)       ≡⟨ cong (subst G p) (sumFun< dva m ≤-refl) ⟩
-                subst G p (0g (Gstr m))        ≡⟨ subst0g p ⟩
-                0g (Gstr n)                    ≡⟨ sym (subst0g p) ⟩
                 subst G p (0g (Gstr m))        ≡⟨ sym (cong (subst G p) (sumFun< dvb m ≤-refl)) ⟩
                 subst G p (sumFun dvb m)       ≡⟨ substSumFun dvb n p ⟩
                 sumFun dvb n ∎

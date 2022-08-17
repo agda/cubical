@@ -33,19 +33,19 @@ module _
 
   open SubstLemma ℕ (λ n → coHom n A) (λ n → snd (coHomGroup n A)) public
 
-  subst-⌣ : (k : ℕ) → (a b : coHom k A) → (l : ℕ) → (x : k ≡ l)
+  substG⌣ : (k : ℕ) → (a b : coHom k A) → (l : ℕ) → (x : k ≡ l)
             → substG (cong₂ _+'_ x x) (a ⌣ b) ≡ substG x a ⌣ substG x b
-  subst-⌣ k a b l x = J (λ l x → substG (cong₂ _+'_ x x) (a ⌣ b) ≡ substG x a ⌣ substG x b)
+  substG⌣ k a b l x = J (λ l x → substG (cong₂ _+'_ x x) (a ⌣ b) ≡ substG x a ⌣ substG x b)
                         (transportRefl (a ⌣ b) ∙ sym (cong₂ _⌣_ (transportRefl a) (transportRefl b)))
                         x
 
-  trivialGroupEq : {n : ℕ} → (e : GroupIso (coHomGr n A) UnitGroup₀) →
+  unitGroupEq : {n : ℕ} → (e : GroupIso (coHomGr n A) UnitGroup₀) →
                    (x y : coHom n A) → x ≡ y
-  trivialGroupEq {n} e x y = isOfHLevelRetractFromIso 1 (fst e) isPropUnit _ _
+  unitGroupEq {n} e x y = isOfHLevelRetractFromIso 1 (fst e) isPropUnit _ _
 
-  trivialGroupSEq : {n k : ℕ} → (r : suc k ≡ n) → (e : GroupIso (coHomGr (suc k) A) UnitGroup₀)
+  unitGroupSEq : {n k : ℕ} → (r : suc k ≡ n) → (e : GroupIso (coHomGr (suc k) A) UnitGroup₀)
                     → (x y : coHom n A) → x ≡ y
-  trivialGroupSEq {n} {k} (r) e x y = x
+  unitGroupSEq {n} {k} (r) e x y = x
                                           ≡⟨ sym (substSubst⁻ (λ X → coHom X A) r _) ⟩
                                       substG r (substG (sym r) x)
                                           ≡⟨ cong (substG r) (isOfHLevelRetractFromIso 1 (fst e) isPropUnit _ _) ⟩

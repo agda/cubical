@@ -29,7 +29,7 @@ open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT

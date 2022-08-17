@@ -93,6 +93,6 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quot
 ℤ'[X]/X : CommRing ℓ-zero
 ℤ'[X]/X = A[X1,···,Xn]/<X1,···,Xn> ℤCommRing 1
 
--- there is a unification problem that keep pop in up everytime I modify something
+-- there is a unification problem that keep poping up everytime I modify something
 -- equivℤ[X] : ℤ'[X]/X ≡ ℤ[X]/X
 -- equivℤ[X] = cong₂ _/_ refl (cong (λ X → genIdeal (A[X1,···,Xn] ℤCommRing {!!}) X) {!!})

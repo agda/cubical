@@ -47,24 +47,16 @@ isEmbedding f = ∀ w x → isEquiv {A = w ≡ x} (cong f)
 isPropIsEmbedding : isProp (isEmbedding f)
 isPropIsEmbedding {f = f} = isPropΠ2 λ _ _ → isPropIsEquiv (cong f)
 
--- If A and B are h-sets, then injective functions between
--- them are embeddings.
---
--- Note: It doesn't appear to be possible to omit either of
--- the `isSet` hypotheses.
-injEmbedding
+-- Embedding is injection in the aforementioned sense:
+isEmbedding→Inj
   : {f : A → B}
-  → isSet A → isSet B
-  → (∀{w x} → f w ≡ f x → w ≡ x)
   → isEmbedding f
-injEmbedding {f = f} iSA iSB inj w x
-  = isoToIsEquiv (iso (cong f) inj sect retr)
-  where
-  sect : section (cong f) inj
-  sect p = iSB (f w) (f x) _ p
+  → ∀ w x → f w ≡ f x → w ≡ x
+isEmbedding→Inj {f = f} embb w x p
+  = equiv-proof (embb w x) p .fst .fst
 
-  retr : retract (cong f) inj
-  retr p = iSA w x _ p
+-- The converse implication holds if B is an h-set, see injEmbedding below.
+
 
 -- If `f` is an embedding, we'd expect the fibers of `f` to be
 -- propositions, like an injective function.
@@ -154,6 +146,32 @@ isEmbedding≡hasPropFibers
            (λ _ → hasPropFibersIsProp _ _)
            (λ _ → isPropIsEmbedding _ _))
 
+-- We use the characterization as hasPropFibers to show that naive injectivity
+-- implies isEmbedding as long as B is an h-set.
+module _
+  {f : A → B}
+  (isSetB : isSet B)
+  where
+
+  module _
+    (inj : ∀{w x} → f w ≡ f x → w ≡ x)
+    where
+
+    injective→hasPropFibers : hasPropFibers f
+    injective→hasPropFibers y (x , fx≡y) (x' , fx'≡y) =
+      Σ≡Prop
+        (λ _ → isSetB _ _)
+        (inj (fx≡y ∙ sym (fx'≡y)))
+
+    injEmbedding : isEmbedding f
+    injEmbedding = hasPropFibers→isEmbedding injective→hasPropFibers
+
+  retractableIntoSet→isEmbedding : hasRetract f → isEmbedding f
+  retractableIntoSet→isEmbedding (g , ret) = injEmbedding inj
+    where
+    inj : f w ≡ f x → w ≡ x
+    inj {w = w} {x = x} p = sym (ret w) ∙∙ cong g p ∙∙ ret x
+
 isEquiv→hasPropFibers : isEquiv f → hasPropFibers f
 isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
 
@@ -177,24 +195,6 @@ isEmbedding→Injection :
   → ∀ {f g : C → A} →
   ∀ x → (a (f x) ≡ a (g x)) ≡ (f x ≡ g x)
 isEmbedding→Injection a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
-
--- if `f` has a retract, then `cong f` has, as well. If `B` is a set, then `cong f`
--- further has a section, making `f` an embedding.
-module _ {f : A → B} (retf : hasRetract f) where
-  open Σ retf renaming (fst to g ; snd to ϕ)
-
-  congRetract : f w ≡ f x → w ≡ x
-  congRetract {w = w} {x = x} p = sym (ϕ w) ∙∙ cong g p ∙∙ ϕ x
-
-  isRetractCongRetract : retract (cong {x = w} {y = x} f) congRetract
-  isRetractCongRetract p = transport (PathP≡doubleCompPathˡ _ _ _ _) (λ i j → ϕ (p j) i)
-
-  hasRetract→hasRetractCong : hasRetract (cong {x = w} {y = x} f)
-  hasRetract→hasRetractCong = congRetract , isRetractCongRetract
-
-  retractableIntoSet→isEmbedding : isSet B → isEmbedding f
-  retractableIntoSet→isEmbedding setB w x =
-    isoToIsEquiv (iso (cong f) congRetract (λ _ → setB _ _ _ _) (hasRetract→hasRetractCong .snd))
 
 Embedding-into-Discrete→Discrete : A ↪ B → Discrete B → Discrete A
 Embedding-into-Discrete→Discrete (f , isEmbeddingF) _≟_ x y with f x ≟ f y
