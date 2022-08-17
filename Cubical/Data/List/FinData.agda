@@ -215,17 +215,7 @@ _∷/_ {A = A} a = SQ.rec squash/ ([_]/ ∘ (a ∷_))
 List→FMSet : List A → FMSet A
 List→FMSet {A = A} = foldr {B = FMSet A} _∷fm_ []fm
 
-h-swap' : (l : List A) → ∀ k
-   → List→FMSet l ≡ List→FMSet (permute l (invEquiv (PunchInOut≃ k)))
-h-swap' (x ∷ l) zero = cong List→FMSet (sym (tabulate-lookup (x ∷ l)))
-h-swap' (x ∷ x₁ ∷ l) one i =
-  comm x x₁ (List→FMSet ( (tabulate-lookup l) (~ i))) i
-h-swap' (x ∷ x₁ ∷ l) (suc (suc k)) =
-  _ ≡⟨ comm x x₁ _ ⟩
-  _ ≡⟨ cong (x₁ ∷fm_) {!!} ⟩
-  (x₁ ∷fm List→FMSet (tabulate (suc (length l))
-     (lookup (x ∷ x₁ ∷ l) ∘  invEq (swap0and1 ∙ₑ
-         (sucPerm (PunchInOut≃ (suc k)))) ∘ suc))) ∎
+
 
 h-swap : (l : List A) → ∀ k
   → List→FMSet l ≡ List→FMSet (permute l (PunchInOut≃ k))
@@ -235,6 +225,29 @@ h-swap (x ∷ x₁ ∷ l) one i =
   comm x x₁ (List→FMSet (tabulate-lookup l (~ i))) i
 h-swap (x ∷ x₁ ∷ l) (suc (suc k)) =
   cong (x ∷fm_) (h-swap (x₁ ∷ l) (suc k)) ∙ comm _ _ _
+
+
+lookup-swap : ∀ (x y : A) (l : List A) → ∀ k →
+               lookup (x ∷ y ∷ l) k
+                ≡
+               lookup (y ∷ x ∷ l) (equivFun swap0and1 k)
+lookup-swap x y l zero = refl
+lookup-swap x y l one = refl
+lookup-swap x y l (suc (suc k)) = refl
+
+h-swap' : ∀ (x : A) (l : List A) → ∀ k
+      → List→FMSet (x ∷ l) ≡
+         List→FMSet (permute (x ∷ l) (invEquiv (PunchInOut≃ k)))
+h-swap' x l zero = cong (List→FMSet ∘ (x ∷_))  (sym (tabulate-lookup l))
+h-swap' x (x₁ ∷ l) one i =
+  comm x x₁ (List→FMSet ((tabulate-lookup l) (~ i))) i
+h-swap' x (x₁ ∷ l) (suc (suc k)) =
+  _ ≡⟨ comm _ _ _ ⟩
+  _ ≡⟨ cong (x₁ ∷fm_) (h-swap' x l (suc k)) ⟩
+  _ ≡⟨ cong ((x₁ ∷fm_) ∘ List→FMSet ∘ tabulate (suc (length l)))
+     (funExt (lookup-swap x₁ x l ∘
+        suc ∘ equivFun (invEquiv (PunchInOut≃ (suc k))))) ⟩
+  _ ∎
 
 
 lookup-tabulate-lookup : (xs : List A) → ∀ m → ∀ e → ∀ k →
@@ -258,7 +271,7 @@ lookup-tabulate-lookup xs m e k =
        pL = sym (length-tabulate _ (lookup (x ∷ xs) ∘ invEq (sucPerm e')))
    in
       _ ≡⟨ cong (x ∷fm_) (↔→FMSet≡ xs xs' (↔permute xs (invEquiv e'))) ⟩
-      _ ≡⟨ h-swap' (x ∷ xs') (subst Fin pL k') ⟩
+      _ ≡⟨ h-swap' x xs' (subst Fin pL k') ⟩
       _ ≡⟨ cong List→FMSet
           (_ ≡⟨ sym (congP (λ _ → permute (x ∷ xs'))
                     (PunchInOut≃∙ₑ≡→Fin≃ pL k')) ⟩
