@@ -74,12 +74,12 @@ module SubstLemma
   substG : {k l : Idx} → (x : k ≡ l) → (a : G k) → G l
   substG x a = subst G x a
 
-  subst0g : {k l : Idx} → (p : k ≡ l) → subst G p (0g (Gstr k)) ≡ 0g (Gstr l)
-  subst0g {k} {l} p = J (λ l p → subst G p (0g (Gstr k)) ≡ 0g (Gstr l)) (transportRefl _) p
+  substG0 : {k l : Idx} → (p : k ≡ l) → subst G p (0g (Gstr k)) ≡ 0g (Gstr l)
+  substG0 {k} {l} p = J (λ l p → subst G p (0g (Gstr k)) ≡ 0g (Gstr l)) (transportRefl _) p
 
-  subst+ : {k : Idx} → (a b : G k) → {l : Idx} →  (p : k ≡ l) →
+  substG+ : {k : Idx} → (a b : G k) → {l : Idx} →  (p : k ≡ l) →
            Gstr l ._+_ (subst G p a) (subst G p b) ≡ subst G p (Gstr k ._+_ a b)
-  subst+ {k} a b {l} p = J (λ l p → Gstr l ._+_ (subst G p a) (subst G p b) ≡ subst G p (Gstr k ._+_ a b))
+  substG+ {k} a b {l} p = J (λ l p → Gstr l ._+_ (subst G p a) (subst G p b) ≡ subst G p (Gstr k ._+_ a b))
                          (cong₂ (Gstr k ._+_) (transportRefl _) (transportRefl _) ∙ sym (transportRefl _))
                          p
 
@@ -113,12 +113,12 @@ module DecIndec-BaseProperties
 
      base-neutral-eq : _
      base-neutral-eq l with decIdx l k
-     ... | yes p = subst0g p
+     ... | yes p = substG0 p
      ... | no ¬p = refl
 
      base-add-eq : _
      base-add-eq l a b with decIdx l k
-     ... | yes p = subst+ a b p
+     ... | yes p = substG+ a b p
      ... | no ¬p = +IdR (Gstr k) _
 
   πₖ-id : {k : Idx} → (a : G k) → πₖ k (base k a) ≡ a

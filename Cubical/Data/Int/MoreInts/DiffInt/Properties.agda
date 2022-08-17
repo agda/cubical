@@ -44,11 +44,8 @@ relIsEquiv = equivRel {A = ℕ × ℕ} relIsRefl relIsSym relIsTrans
             b0 +ℕ (b1 +ℕ (c0 +ℕ a1)) ≡⟨ ℕ.+-assoc b0 b1 (c0 +ℕ a1)⟩
             (b0 +ℕ b1) +ℕ (c0 +ℕ a1) ∎ )
 
-relIsProp : BinaryRelation.isPropValued rel
-relIsProp a b x y = isSetℕ _ _ _ _
-
 discreteℤ : Discrete ℤ
-discreteℤ = discreteSetQuotients (discreteΣ discreteℕ λ _ → discreteℕ) relIsProp relIsEquiv (λ _ _ → discreteℕ _ _)
+discreteℤ = discreteSetQuotients relIsEquiv (λ _ _ → discreteℕ _ _)
 
 private
   _ : Dec→Bool (discreteℤ [ (3 , 5) ] [ (4 , 6) ]) ≡ true

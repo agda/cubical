@@ -10,7 +10,6 @@ open import Cubical.Data.Sum using (_⊎_; inl; inr) public
 open import Cubical.Data.Nat hiding (elim)
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
