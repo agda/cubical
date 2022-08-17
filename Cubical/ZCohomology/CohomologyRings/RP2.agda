@@ -372,10 +372,10 @@ module Equiv-RP2-Properties where
        where
        base-neutral-eq : (k : ℕ) → (x : partℕ k) → ϕ⁻¹ k (0ₕ k) x ≡ 0PℤI
        base-neutral-eq k (is0 x) = cong [_] (cong (base {AGP = λ _ → snd ℤAG} (0 ∷ []))
-                                                  (cong ϕ₀⁻¹ (subst0g x) ∙ pres1 ϕ₀⁻¹str)
+                                                  (cong ϕ₀⁻¹ (substG0 x) ∙ pres1 ϕ₀⁻¹str)
                                             ∙ (base-neutral _))
        base-neutral-eq k (is2 x) = cong [_] (cong (base (1 ∷ []))
-                                                  (cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (subst0g x)
+                                                  (cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (substG0 x)
                                                   ∙ cong ψ₂⁻¹ (pres1 ϕ₂⁻¹str)) -- ψ₂⁻¹ pres1 by refl
                                             ∙ base-neutral _)
        base-neutral-eq k (else x) = refl
@@ -383,10 +383,10 @@ module Equiv-RP2-Properties where
        base-add-eq : (k : ℕ) → (a b : coHom k RP²) → (x : partℕ k) →
                      (ϕ⁻¹ k a x) +PℤI (ϕ⁻¹ k b x) ≡ ϕ⁻¹ k (a +ₕ b) x
        base-add-eq k a b (is0 x) = cong [_] (base-add _ _ _
-                                            ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (subst+ _ _ _)))
+                                            ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (substG+ _ _ _)))
        base-add-eq k a b (is2 x) = Λ-pres+ (ϕ₂⁻¹ (substG x a)) (ϕ₂⁻¹ (substG x b))
                                    ∙ cong [_] (cong (λ X → base {AGP = λ _ → snd ℤAG} (1 ∷ []) (ψ₂⁻¹ X))
-                                                    ((sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (subst+ _ _ _))))
+                                                    ((sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (substG+ _ _ _))))
        base-add-eq k a b (else x) = +PℤIIdR _
 
   H*-RP²→ℤ[x]/<2x,x²>-pres0 : H*-RP²→ℤ[x]/<2x,x²> 0H* ≡ 0PℤI
@@ -411,7 +411,7 @@ module Equiv-RP2-Properties where
   e-sect-base k a (is2 x) = cong (base 2) (cong ϕ₂ (ψ₂-sect _) ∙ ϕ₂-sect _)
                             ∙ sym (constSubstCommSlice _ _ base x a)
   e-sect-base k a (else x) = sym (base-neutral k)
-                             ∙ cong (base k) (trivialGroupEq (Hⁿ-RP²≅0' k (fst x) (snd x)) _ _)
+                             ∙ cong (base k) (unitGroupEq (Hⁿ-RP²≅0' k (fst x) (snd x)) _ _)
 
   e-sect : (x : H* RP²) → ℤ[x]/<2x,x²>→H*-RP² (H*-RP²→ℤ[x]/<2x,x²> x) ≡ x
   e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)

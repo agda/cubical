@@ -4,7 +4,7 @@ Basic theory about h-levels/n-types:
 
 - Basic properties of isContr, isProp and isSet (definitions are in Prelude)
 
-- Hedberg's theorem can be found in Cubical/Relation/Nullary/DecidableEq
+- Hedberg's theorem can be found in Cubical/Relation/Nullary/Properties
 
 -}
 {-# OPTIONS --safe #-}
@@ -36,6 +36,7 @@ private
     D : (x : A) (y : B x) → C x y → Type ℓ
     E : (x : A) (y : B x) → (z : C x y) → D x y z → Type ℓ
     F : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) → Type ℓ
+    G : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) (u : F x y z w v) → Type ℓ
     w x y z : A
     n : HLevel
 
@@ -433,8 +434,12 @@ isPropΠ4 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) → isProp (E x y z
 isPropΠ4 h = isPropΠ λ _ → isPropΠ3 (h _)
 
 isPropΠ5 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) → isProp (F x y z w v))
-            → isProp ((x : A) (y : B x) (z : C x y) (w : D x y z)  (v : E x y z w) → F x y z w v)
+            → isProp ((x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) → F x y z w v)
 isPropΠ5 h = isPropΠ λ _ → isPropΠ4 (h _)
+
+isPropΠ6 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) (u : F x y z w v) → isProp (G x y z w v u))
+            → isProp ((x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) (u : F x y z w v) → G x y z w v u)
+isPropΠ6 h = isPropΠ λ _ → isPropΠ5 (h _)
 
 isPropImplicitΠ : (h : (x : A) → isProp (B x)) → isProp ({x : A} → B x)
 isPropImplicitΠ h f g i {x} = h x (f {x}) (g {x}) i

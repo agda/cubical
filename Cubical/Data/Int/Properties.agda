@@ -551,6 +551,11 @@ private
 ·rCancel c m n p h = ·lCancel c m n (·Comm c m ∙ p ∙ ·Comm n c) h
 
 
+-Cancel'' : ∀ z → z ≡ - z → z ≡ 0
+-Cancel'' z r = isIntegralℤ 2 z
+                (cong (λ X → z + X) r ∙ -Cancel z)
+                λ r → ⊥.rec (snotz (injPos r))
+
 -- ℤ is non-trivial
 
 0≢1-ℤ : ¬ 0 ≡ 1

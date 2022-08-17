@@ -296,10 +296,10 @@ module Equiv-RP²⋁S¹-Properties
                                                 ∙ pres·-int 0 0 b 0 1 a
                                                 ∙ gradCommRing RP²⋁S¹ _ _ _ _
     pres·-int zero one a zero  one          b = sym (base-neutral 4)
-                                                ∙ cong (base 4) (trivialGroupEq (Hⁿ-RP²⋁S¹≅0 1) _ _)
+                                                ∙ cong (base 4) (unitGroupEq (Hⁿ-RP²⋁S¹≅0 1) _ _)
     pres·-int zero one a zero (suc (suc l)) b = refl
     pres·-int zero one a one zero           b = sym (base-neutral 3)
-                                                ∙ cong (base 3) (trivialGroupEq (Hⁿ-RP²⋁S¹≅0 0) _ _)
+                                                ∙ cong (base 3) (unitGroupEq (Hⁿ-RP²⋁S¹≅0 0) _ _)
     pres·-int zero one a one (suc l)        b = refl
     pres·-int zero one a (suc (suc k)) l    b = refl
       -- trivial case (0, m+2)
@@ -465,7 +465,7 @@ module Equiv-RP²⋁S¹-Properties
     e-sect-base one a = cong (base 1) (ϕ₁-sect a)
     e-sect-base two a = cong (base 2) (cong ϕ₂ (ψ₂-sect _) ∙ ϕ₂-sect a)
     e-sect-base (suc (suc (suc k))) a = sym (base-neutral (suc (suc (suc k))))
-                                        ∙ cong (base (suc (suc (suc k)))) (trivialGroupEq (Hⁿ-RP²⋁S¹≅0 k) _ _)
+                                        ∙ cong (base (suc (suc (suc k)))) (unitGroupEq (Hⁿ-RP²⋁S¹≅0 k) _ _)
 
     e-sect : (x : H* RP²⋁S¹) → ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ (H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> x) ≡ x
     e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)

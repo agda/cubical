@@ -295,10 +295,10 @@ module Equiv-𝕂²-Properties
                                                 ∙ pres·-int 0 0 b 0 1 a
                                                 ∙ gradCommRing KleinBottle _ _ _ _
     pres·-int zero one a zero  one          b = sym (base-neutral 4)
-                                                ∙ cong (base 4) (trivialGroupEq (Hⁿ⁺³-𝕂²≅0 1) _ _)
+                                                ∙ cong (base 4) (unitGroupEq (Hⁿ⁺³-𝕂²≅0 1) _ _)
     pres·-int zero one a zero (suc (suc l)) b = refl
     pres·-int zero one a one zero           b = sym (base-neutral 3)
-                                                ∙ cong (base 3) (trivialGroupEq (Hⁿ⁺³-𝕂²≅0 0) _ _)
+                                                ∙ cong (base 3) (unitGroupEq (Hⁿ⁺³-𝕂²≅0 0) _ _)
     pres·-int zero one a one (suc l)        b = refl
     pres·-int zero one a (suc (suc k)) l    b = refl
       -- trivial case (0, m+2)
@@ -464,7 +464,7 @@ module Equiv-𝕂²-Properties
     e-sect-base one a = cong (base 1) (ϕ₁-sect a)
     e-sect-base two a = cong (base 2) (cong ϕ₂ (ψ₂-sect _) ∙ ϕ₂-sect a)
     e-sect-base (suc (suc (suc k))) a = sym (base-neutral (suc (suc (suc k))))
-                                        ∙ cong (base (suc (suc (suc k)))) (trivialGroupEq (Hⁿ⁺³-𝕂²≅0 k) _ _)
+                                        ∙ cong (base (suc (suc (suc k)))) (unitGroupEq (Hⁿ⁺³-𝕂²≅0 k) _ _)
 
     e-sect : (x : H* KleinBottle) → ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂² (H*-𝕂²→ℤ[x,y]/<2y,y²,xy,x²> x) ≡ x
     e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
@@ -555,7 +555,9 @@ module Equiv-𝕂²-Properties
 module _ where
 
   open Equiv-𝕂²-Properties (invGroupIso H¹-𝕂²≅ℤ) (invGroupIso H²-𝕂²≅Bool)
-  -- open PblComp
+  -- open pres⌣trivial
+  -- open cupTrivial
+  -- open PblComp (λ a b → sym (ϕₙ⌣ϕₘ-0 ϕ₁ ϕ₁str ϕ₁ ϕ₁str (trivial⌣ refl {!H²-𝕂²≅ℤ!} (ϕ₁ (pos 1))) a b))
 
 --   𝕂²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>) (H*R KleinBottle)
 --   fst 𝕂²-CohomologyRing = isoToEquiv is

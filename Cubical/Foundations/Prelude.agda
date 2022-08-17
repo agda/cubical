@@ -321,15 +321,15 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
 -- Multi-variable versions of J
 
 module _ {x : A}
-  {P : (y : A) → x ≡ y → Type ℓ'}{d : (y : A)(p : x ≡ y) → P y p}
-  (Q : (y : A)(p : x ≡ y)(z : P y p) → d y p ≡ z → Type ℓ'')
+  {P : (y : A) → x ≡ y → Type ℓ'} {d : (y : A) (p : x ≡ y) → P y p}
+  (Q : (y : A) (p : x ≡ y) (z : P y p) → d y p ≡ z → Type ℓ'')
   (r : Q _ refl _ refl) where
 
   private
     ΠQ : (y : A) → x ≡ y → _
     ΠQ y p = ∀ z q → Q y p z q
 
-  J2 : {y : A}(p : x ≡ y){z : P y p}(q : d y p ≡ z) → Q _ p _ q
+  J2 : {y : A} (p : x ≡ y) {z : P y p} (q : d y p ≡ z) → Q _ p _ q
   J2 p = J ΠQ (λ _ → J (Q x refl) r) p _
 
   J2Refl : J2 refl refl ≡ r
