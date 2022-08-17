@@ -36,12 +36,14 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
+open import Cubical.Algebra.Semilattice.Instances.NatMax
 
 open import Cubical.Tactics.CommRingSolver.Reflection
 
@@ -804,6 +806,14 @@ module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
 
 
 
+
+
+
+
+
+
+
+
 -- This lemma proves that if ⟨ f₁ ,..., fₙ ⟩ ≡ R
 -- then we get an exact sequence
 --   0 → R → ∏ᵢ R[1/fᵢ]
@@ -813,6 +823,7 @@ module LocInjectivity (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) wher
  open isMultClosedSubset
  open CommRingTheory R'
  open RingTheory (CommRing→Ring R')
+ open Sum (CommRing→Ring R')
  open CommIdeal R' hiding (subst-∈) renaming (_∈_ to _∈ᵢ_)
  open InvertingElementsBase R'
  open Exponentiation R'
@@ -837,11 +848,23 @@ module LocInjectivity (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) wher
 
 
  -- to be upstreamed
- recFin : {B : Type ℓ''} (isPropB : isProp B) {m : ℕ} {P : Fin m → Type ℓ'}
+ recFin : {m : ℕ} {P : Fin m → Type ℓ'}
+          {B : Type ℓ''} (isPropB : isProp B)
         → ((∀ i → P i) → B)
        ---------------------
         → ((∀ i → ∥ P i ∥₁) → B)
- recFin = {!!}
+ recFin {m = zero} _ untruncHyp _ = untruncHyp (λ ())
+ recFin {m = suc m} {P = P} {B = B} isPropB untruncHyp truncFam =
+   CurriedishTrunc (truncFam zero) (truncFam ∘ suc)
+   where
+   Curriedish : P zero → (∀ i → ∥ P (suc i) ∥₁) → B
+   Curriedish p₀ truncFamSuc = recFin isPropB
+                              (λ famSuc → untruncHyp (λ { zero → p₀ ; (suc i) → famSuc i }))
+                                truncFamSuc
+
+   CurriedishTrunc : ∥ P zero ∥₁ → (∀ i → ∥ P (suc i) ∥₁) → B
+   CurriedishTrunc = PT.rec (isProp→ isPropB) Curriedish
+
 
  lemma : 1r ∈ᵢ ⟨f₁,⋯,fₙ⟩ → ∀ (x : R) → (∀ i → x /1at i ≡ 0at i) → x ≡ 0r
  lemma 1∈⟨f₁,⋯,fₙ⟩ x x/1≡0 = recFin (is-set _ _) annihilatorHelper exAnnihilator
@@ -851,4 +874,52 @@ module LocInjectivity (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) wher
 
   annihilatorHelper : (∀ i → Σ[ s ∈ L.S i ] (fst s · x · 1r ≡ fst s · 0r · 1r))
                     → x ≡ 0r
-  annihilatorHelper = {!!}
+  annihilatorHelper ann = recFin (is-set _ _) exponentHelper uIsPower
+    where
+    u : FinVec R n
+    u i = ann i .fst .fst
+
+    uIsPower : ∀ i → u i ∈ [ (f i) ⁿ|n≥0]
+    uIsPower i = ann i .fst .snd
+
+    ux≡0 : ∀ i → u i · x ≡ 0r
+    ux≡0 i = sym (·IdR _) ∙ ann i .snd ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·IdR _)
+
+    exponentHelper : (∀ i → Σ[ m ∈ ℕ ] u i ≡ f i ^ m)
+                   → x ≡ 0r
+    exponentHelper pows = PT.rec (is-set _ _) Σhelper (GeneratingPowers.thm R' l _ _ 1∈⟨f₁,⋯,fₙ⟩)
+      where
+      m : FinVec ℕ n
+      m i = pows i .fst
+
+      u≡fᵐ : ∀ i → u i ≡ f i ^ m i
+      u≡fᵐ i = pows i .snd
+
+      l = Max m
+
+      fˡ : FinVec R n
+      fˡ i = f i ^ l
+
+      fˡx≡0 : ∀ i → f i ^ l · x ≡ 0r
+      fˡx≡0 i =
+        f i ^ l · x                     ≡⟨ cong (λ k → f i ^ k · x)
+                                                (sym (≤-∸-+-cancel (ind≤Max _ i))) ⟩
+        f i ^ ((l ∸ m i) +ℕ m i) · x    ≡⟨ cong (_· x) (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
+        f i ^ (l ∸ m i) · f i ^ m i · x ≡⟨ cong (λ y → f i ^ (l ∸ m i) · y · x) (sym (u≡fᵐ i)) ⟩
+        f i ^ (l ∸ m i) · u i · x       ≡⟨ sym (·Assoc _ _ _) ⟩
+        f i ^ (l ∸ m i) · (u i · x)     ≡⟨ cong (f i ^ (l ∸ m i) ·_) (ux≡0 i) ⟩
+        f i ^ (l ∸ m i) · 0r            ≡⟨ 0RightAnnihilates _ ⟩
+        0r ∎
+
+
+      Σhelper : Σ[ α ∈ FinVec R n ] 1r ≡ ∑ (λ i → α i · f i ^ l)
+              → x ≡ 0r
+      Σhelper (α , 1≡∑αfˡ) =
+            x                                   ≡⟨ sym (·IdL _) ⟩
+            1r · x                              ≡⟨ cong (_· x) 1≡∑αfˡ ⟩
+            ∑ (λ i → α i · f i ^ l) · x         ≡⟨ ∑Mulldist _ _ ⟩
+            ∑ (λ i → α i · f i ^ l · x)         ≡⟨ ∑Ext (λ i → sym (·Assoc _ _ _)) ⟩
+            ∑ (λ i → α i · (f i ^ l · x))       ≡⟨ ∑Ext (λ i → cong (α i ·_) (fˡx≡0 i)) ⟩
+            ∑ (λ i → α i · 0r)                  ≡⟨ ∑Ext (λ _ → 0RightAnnihilates _) ⟩
+            ∑ (replicateFinVec n 0r)            ≡⟨ ∑0r n ⟩
+            0r ∎
