@@ -396,16 +396,6 @@ swap∘PunchInOut≃-zero : (k : Fin (ℕsuc n)) →
 swap∘PunchInOut≃-zero zero = refl
 swap∘PunchInOut≃-zero (suc k) = refl
 
-
-swap∘PunchInOut≃-zero' : (k : Fin (ℕsuc n)) →
-        equivFun swap0and1 (suc (invEq (PunchInOut≃ (suc k)) zero)) ≡ two
-swap∘PunchInOut≃-zero' zero = refl
-swap∘PunchInOut≃-zero' (suc k) = refl
-
-PunchInOut≃-zero' : (k : Fin (ℕsuc n)) → (equivFun (invEquiv (PunchInOut≃ (suc k))) zero) ≡ one
-PunchInOut≃-zero' zero = refl
-PunchInOut≃-zero' (suc k) = refl
-
 PunchInOut≃-k  : (k : Fin (ℕsuc n)) → invEq (PunchInOut≃ k) k ≡ zero
 PunchInOut≃-k k = sym (invEq (equivAdjointEquiv (PunchInOut≃ k)) (PunchInOut≃-zero k))
 

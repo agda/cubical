@@ -63,11 +63,6 @@ length-permute : ∀ {n} (l : List A) → (e : Fin n ≃ Fin (length l)) →
                   length (permute l e) ≡ n
 length-permute _ _ = length-tabulate _ _
 
-length-permute' : ∀ {n} (l : List A) → (e : Fin n ≃ Fin (length l)) →
-                  length (permute l e) ≡ length l
-length-permute' l e = length-permute l e ∙ isInjectiveFin≃ e
-
-
 tabulate∘ : ∀ {n m} → (e : Fin n → A)
                (g : Fin m → Fin n)  →
                 tabulate m (lookup (tabulate n e)
@@ -145,44 +140,6 @@ _↔∷ʳ_ {xs = xs} {ys} r _ =
    (isTrans↔ _ _ (ys ∷ʳ _) (_ ∷↔ r) (isSym↔ (ys ∷ʳ _) (_ ∷ ys)  (ys ∷↔∷ʳ _)))
 
 
-lookup-FinSumChar : ∀ {xs ys : List A} →
-        ∀ k → lookup (xs ++ ys) k ≡
-         ⊎.rec (lookup xs) (lookup ys)
-           (FinSumChar.inv (length xs) (length ys)
-             (subst Fin (length++ xs ys) k))
-lookup-FinSumChar {xs = []} {ys} _ = cong (lookup ys) (sym (transportRefl _))
-lookup-FinSumChar {xs = x ∷ xs} {ys} zero =
-   cong (⊎.rec (lookup (x ∷ xs)) (lookup ys) ∘ (FinSumChar.inv _ _))
-     (transportFin-zero _)
-lookup-FinSumChar {xs = x ∷ xs} {ys} (suc _) =
-   _ ≡⟨ lookup-FinSumChar {xs = xs} _ ⟩
-   _ ≡⟨ h (FinSumChar.inv _ _ _) ⟩
-   _ ≡⟨ cong (⊎.rec (lookup (x ∷ xs)) (lookup ys) ∘ FinSumChar.inv _ _)
-           (sym (transportFin-suc (length++ xs ys) _ _)) ⟩ _ ∎
-
-  where
-    h : ∀ z → ⊎.rec _ _ z ≡ ⊎.rec (lookup (x ∷ xs)) _ (FinSumChar.invSucAux _ _ z)
-    h (inl _) = refl
-    h (inr _) = refl
-
-cong↔++R : ∀ {xs ys : List A} → xs ↔ ys → ∀ l → xs ++ l ↔ ys ++ l
-cong↔++R {xs = xs} {ys} (e , p) _ =
- let hh = ⊎-equiv e (idEquiv _)
- in ≡→Fin≃ _ ∙ₑ invEquiv (FinSumChar.Equiv _ _) ∙ₑ hh
-      ∙ₑ FinSumChar.Equiv _ _  ∙ₑ ≡→Fin≃ _
- , λ _ →
-   let k' = FinSumChar.inv _ _ _
-   in _ ≡⟨ lookup-FinSumChar {xs = xs} _ ⟩
-      _ ≡⟨ cong (λ g → ⊎.rec g _ k') (funExt p) ⟩
-      _ ≡⟨ recMap k' ⟩
-      _ ≡⟨ cong (⊎.rec _ _)
-           ( _ ≡⟨ ⊎.elim {C = (λ y → ⊎.mapl _ y ≡ equivFun hh y)} (λ _ → refl) (λ _ → refl) k' ⟩
-             _ ≡⟨ sym (FinSumChar.ret _ _ _) ⟩
-             _ ≡⟨ cong (FinSumChar.inv _ _)
-                  (sym (transportTransport⁻ (cong Fin _) _)) ⟩ _ ∎ ) ⟩
-      _ ≡⟨ sym (lookup-FinSumChar {xs = ys} _) ⟩ _ ∎
-
-
 _++↔_ : (x y : List A) → x ++ y ↔ y ++ x
 x ++↔ [] = ≡→↔ (++-unit-r x)
 [] ++↔ y@(_ ∷ _) = ≡→↔ (sym (++-unit-r y) )
@@ -193,6 +150,44 @@ x ++↔ [] = ≡→↔ (++-unit-r x)
         (y ∷↔ isTrans↔ _ ((ys ++ [ x ]) ++ xs) (ys ++ x ∷ xs)
          (cong↔++R {ys = ( ys ∷ʳ x)} (isSym↔ ( ys ∷ʳ x) _ (ys ∷↔∷ʳ x)) xs)
          (≡→↔ (++-assoc ys [ x ] xs))))
+  where
+
+  lookup-FinSumChar : ∀ {xs ys : List A} →
+          ∀ k → lookup (xs ++ ys) k ≡
+           ⊎.rec (lookup xs) (lookup ys)
+             (FinSumChar.inv (length xs) (length ys)
+               (subst Fin (length++ xs ys) k))
+  lookup-FinSumChar {xs = []} {ys} _ = cong (lookup ys) (sym (transportRefl _))
+  lookup-FinSumChar {xs = x ∷ xs} {ys} zero =
+     cong (⊎.rec (lookup (x ∷ xs)) (lookup ys) ∘ (FinSumChar.inv _ _))
+       (transportFin-zero _)
+  lookup-FinSumChar {xs = x ∷ xs} {ys} (suc _) =
+     _ ≡⟨ lookup-FinSumChar {xs = xs} _ ⟩
+     _ ≡⟨ h (FinSumChar.inv _ _ _) ⟩
+     _ ≡⟨ cong (⊎.rec (lookup (x ∷ xs)) (lookup ys) ∘ FinSumChar.inv _ _)
+             (sym (transportFin-suc (length++ xs ys) _ _)) ⟩ _ ∎
+
+    where
+      h : ∀ z → ⊎.rec _ _ z ≡ ⊎.rec (lookup (x ∷ xs)) _ (FinSumChar.invSucAux _ _ z)
+      h (inl _) = refl
+      h (inr _) = refl
+
+  cong↔++R : ∀ {xs ys : List A} → xs ↔ ys → ∀ l → xs ++ l ↔ ys ++ l
+  cong↔++R {xs = xs} {ys} (e , p) _ =
+   let hh = ⊎-equiv e (idEquiv _)
+   in ≡→Fin≃ _ ∙ₑ invEquiv (FinSumChar.Equiv _ _) ∙ₑ hh
+        ∙ₑ FinSumChar.Equiv _ _  ∙ₑ ≡→Fin≃ _
+   , λ _ →
+     let k' = FinSumChar.inv _ _ _
+     in _ ≡⟨ lookup-FinSumChar {xs = xs} _ ⟩
+        _ ≡⟨ cong (λ g → ⊎.rec g _ k') (funExt p) ⟩
+        _ ≡⟨ recMap k' ⟩
+        _ ≡⟨ cong (⊎.rec _ _)
+             ( _ ≡⟨ ⊎.elim {C = (λ y → ⊎.mapl _ y ≡ equivFun hh y)} (λ _ → refl) (λ _ → refl) k' ⟩
+               _ ≡⟨ sym (FinSumChar.ret _ _ _) ⟩
+               _ ≡⟨ cong (FinSumChar.inv _ _)
+                    (sym (transportTransport⁻ (cong Fin _) _)) ⟩ _ ∎ ) ⟩
+        _ ≡⟨ sym (lookup-FinSumChar {xs = ys} _) ⟩ _ ∎
 
 
 rev↔ : (xs : List A) → xs ↔ rev xs
@@ -214,7 +209,6 @@ _∷/_ {A = A} a = SQ.rec squash/ ([_]/ ∘ (a ∷_))
 
 List→FMSet : List A → FMSet A
 List→FMSet {A = A} = foldr {B = FMSet A} _∷fm_ []fm
-
 
 
 h-swap : (l : List A) → ∀ k
@@ -244,20 +238,10 @@ h-swap' x (x₁ ∷ l) one i =
 h-swap' x (x₁ ∷ l) (suc (suc k)) =
   _ ≡⟨ comm _ _ _ ⟩
   _ ≡⟨ cong (x₁ ∷fm_) (h-swap' x l (suc k)) ⟩
-  _ ≡⟨ cong ((x₁ ∷fm_) ∘ List→FMSet ∘ tabulate (suc (length l)))
-     (funExt (lookup-swap x₁ x l ∘
-        suc ∘ equivFun (invEquiv (PunchInOut≃ (suc k))))) ⟩
+  _ ≡⟨ cong ((x₁ ∷fm_) ∘ List→FMSet ∘ tabulate (suc _))
+       (funExt (lookup-swap x₁ x l ∘
+          suc ∘ equivFun (invEquiv (PunchInOut≃ (suc k))))) ⟩
   _ ∎
-
-
-lookup-tabulate-lookup : (xs : List A) → ∀ m → ∀ e → ∀ k →
-      lookup xs k ≡ lookup (tabulate m (lookup xs ∘ invEq e))
-         (subst Fin (sym (length-tabulate m (lookup xs ∘ invEq e)))
-           (equivFun e k))
-lookup-tabulate-lookup xs m e k =
-     cong (lookup xs) (sym (retEq e k))
-   ∙ sym (lookup-tabulateT _ _ (equivFun e k))
-
 
 ↔→FMSet≡ : (a b : List A) → a ↔ b → List→FMSet a ≡ List→FMSet b
 ↔→FMSet≡ [] [] _ = refl
