@@ -406,13 +406,13 @@ module Equiv-RP2-Properties where
       where
 
       base-neutral-eq : (k : ℕ) → (x : partℕ k) → ϕ⁻¹ k (0ₕ k) x ≡ 0Pℤ
-      base-neutral-eq k (is0 x) = cong (base (0 ∷ 0 ∷ [])) (cong ϕ₀⁻¹ (subst0g x))
+      base-neutral-eq k (is0 x) = cong (base (0 ∷ 0 ∷ [])) (cong ϕ₀⁻¹ (substG0 x))
                                   ∙ cong (base (0 ∷ 0 ∷ [])) (pres1 ϕ₀⁻¹str)
                                   ∙ base-neutral (0 ∷ 0 ∷ [])
-      base-neutral-eq k (is2 x) = cong (base (1 ∷ 0 ∷ [])) (cong ϕ₂⁻¹ (subst0g x))
+      base-neutral-eq k (is2 x) = cong (base (1 ∷ 0 ∷ [])) (cong ϕ₂⁻¹ (substG0 x))
                                   ∙ cong (base (1 ∷ 0 ∷ [])) (pres1 ϕ₂⁻¹str)
                                   ∙ base-neutral (1 ∷ 0 ∷ [])
-      base-neutral-eq k (is4 x) = cong (base (0 ∷ 1 ∷ [])) (cong ϕ₄⁻¹ (subst0g x))
+      base-neutral-eq k (is4 x) = cong (base (0 ∷ 1 ∷ [])) (cong ϕ₄⁻¹ (substG0 x))
                                   ∙ cong (base (0 ∷ 1 ∷ [])) (pres1 ϕ₄⁻¹str)
                                   ∙ base-neutral (0 ∷ 1 ∷ [])
       base-neutral-eq k (else x) = refl
@@ -420,11 +420,11 @@ module Equiv-RP2-Properties where
       base-add-eq : (k : ℕ) → (a b : coHom k S²⋁S⁴) → (x : partℕ k)
                     → ϕ⁻¹ k a x +Pℤ ϕ⁻¹ k b x ≡ ϕ⁻¹ k (a +ₕ b) x
       base-add-eq k a b (is0 x) = base-add _ _ _
-                                  ∙ cong (base (0 ∷ 0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (subst+ a b x))
+                                  ∙ cong (base (0 ∷ 0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (substG+ a b x))
       base-add-eq k a b (is2 x) = base-add _ _ _
-                                  ∙ cong (base (1 ∷ 0 ∷ [])) (sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (subst+ a b x))
+                                  ∙ cong (base (1 ∷ 0 ∷ [])) (sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (substG+ a b x))
       base-add-eq k a b (is4 x) = base-add _ _ _
-                                  ∙ cong (base (0 ∷ 1 ∷ [])) (sym (pres· ϕ₄⁻¹str _ _) ∙ cong ϕ₄⁻¹ (subst+ a b x))
+                                  ∙ cong (base (0 ∷ 1 ∷ [])) (sym (pres· ϕ₄⁻¹str _ _) ∙ cong ϕ₄⁻¹ (substG+ a b x))
       base-add-eq k a b (else x) = +PℤIdR _
 
 
