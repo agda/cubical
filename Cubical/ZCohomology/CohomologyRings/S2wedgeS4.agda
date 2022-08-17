@@ -301,10 +301,10 @@ module Equiv-RP2-Properties where
                                                 ∙ pres·-int 0 0 b 0 1 a
                                                 ∙ gradCommRing S²⋁S⁴ _ _ _ _
     pres·-int zero one a zero  one          b = sym (base-neutral 8)
-                                                ∙ cong (base 8) (trivialGroupEq (Hⁿ-S²⋁S⁴≅0 _) _ _)
+                                                ∙ cong (base 8) (unitGroupEq (Hⁿ-S²⋁S⁴≅0 _) _ _)
     pres·-int zero one a zero (suc (suc l)) b = refl
     pres·-int zero one a one zero           b = sym (base-neutral 6)
-                                                ∙ cong (base 6) (trivialGroupEq (Hⁿ-S²⋁S⁴≅0 _) _ _)
+                                                ∙ cong (base 6) (unitGroupEq (Hⁿ-S²⋁S⁴≅0 _) _ _)
     pres·-int zero one a one (suc l)        b = refl
     pres·-int zero one a (suc (suc k)) l    b = refl
       -- trivial case (0, m+2)
@@ -453,7 +453,7 @@ module Equiv-RP2-Properties where
     e-sect-base k a (is4 x) = cong (base 4) (ϕ₄-sect _)
                               ∙ sym (constSubstCommSlice _ _ base x a)
     e-sect-base k a (else x) = sym (base-neutral k)
-                               ∙ cong (base k) (trivialGroupEq (Hⁿ-S²⋁S⁴≅0-bis k x) _ _)
+                               ∙ cong (base k) (unitGroupEq (Hⁿ-S²⋁S⁴≅0-bis k x) _ _)
 
     e-sect : (x : H* S²⋁S⁴) → ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ (H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> x) ≡ x
     e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
