@@ -17,7 +17,11 @@ open import Cubical.Data.Nat
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Sum
 
+<<<<<<< HEAD
 open import Cubical.Data.Int.Base
+=======
+open import Cubical.Relation.Nullary
+>>>>>>> master
 
 sucPred : ∀ i → sucℤ (predℤ i) ≡ i
 sucPred (pos zero)    = refl

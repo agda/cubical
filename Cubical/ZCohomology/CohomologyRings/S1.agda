@@ -156,9 +156,12 @@ module Equiv-S1-Properties where
                   base-neutral-eq
                   base-add-eq
                where
+<<<<<<< HEAD
                e : _
                e = Hᵐ-Sⁿ
 
+=======
+>>>>>>> master
                ϕ : _
                ϕ (zero ∷ [])        a = base 0 (ϕ₀ a)
                ϕ (one ∷ [])         a = base 1 (ϕ₁ a)
