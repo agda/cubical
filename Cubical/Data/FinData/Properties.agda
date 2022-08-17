@@ -81,25 +81,25 @@ injSucFin : ∀ {n} {p q : Fin n} → suc p ≡ suc q → p ≡ q
 injSucFin {ℕsuc ℕzero} {zero} {zero} pf = refl
 injSucFin {ℕsuc (ℕsuc n)} pf = cong predFin pf
 
-injSucFinP : ∀ {n0 n1 : ℕ} {n : n0 ≡ n1} {p0 : Fin n0} {p1 : Fin n1}
-  → PathP (λ i → Fin (ℕsuc (n i))) (suc p0) (suc p1)
-  → PathP (λ i → Fin (n i)) p0 p1
-injSucFinP {one} {one} {n} {zero} {zero} sucp =
+injSucFinP : ∀ {n0 n1 : ℕ} {pn : n0 ≡ n1} {p0 : Fin n0} {p1 : Fin n1}
+  → PathP (λ i → Fin (ℕsuc (pn i))) (suc p0) (suc p1)
+  → PathP (λ i → Fin (pn i)) p0 p1
+injSucFinP {one} {one} {pn} {zero} {zero} sucp =
   transport (λ j → PathP (λ i → Fin (eqn j i)) zero zero) refl
-  where eqn : refl ≡ n
-        eqn = isSetℕ one one refl n
-injSucFinP {one} {ℕsuc (ℕsuc n1)} {n} {p0} {p1} sucp = ⊥.rec (ℕznots (injSuc n))
-injSucFinP {ℕsuc (ℕsuc n0)} {one} {n} {p0} {p1} sucp = ⊥.rec (ℕsnotz (injSuc n))
-injSucFinP {ℕsuc (ℕsuc n0)} {ℕsuc (ℕsuc n1)} {n} {p0} {p1} sucp =
+  where eqn : refl ≡ pn
+        eqn = isSetℕ one one refl pn
+injSucFinP {one} {ℕsuc (ℕsuc n1)} {pn} {p0} {p1} sucp = ⊥.rec (ℕznots (injSuc pn))
+injSucFinP {ℕsuc (ℕsuc n0)} {one} {pn} {p0} {p1} sucp = ⊥.rec (ℕsnotz (injSuc pn))
+injSucFinP {ℕsuc (ℕsuc n0)} {ℕsuc (ℕsuc n1)} {pn} {p0} {p1} sucp =
   transport (λ j → PathP (λ i → Fin (eqn j i)) p0 p1) (
       congP (λ i → predFin) (
         transport (λ j → PathP (λ i → Fin (ℕsuc (eqn (~ j) i))) (suc p0) (suc p1)) sucp
       )
     )
-  where n' : 2 + n0 ≡ 2 + n1
-        n' = cong ℕsuc (injSuc n)
-        eqn : n' ≡ n
-        eqn = isSetℕ (2 + n0) (2 + n1) n' n
+  where pn' : 2 + n0 ≡ 2 + n1
+        pn' = cong ℕsuc (injSuc pn)
+        eqn : pn' ≡ pn
+        eqn = isSetℕ (2 + n0) (2 + n1) pn' pn
 
 discreteFin : ∀{k} → Discrete (Fin k)
 discreteFin zero zero = yes refl
