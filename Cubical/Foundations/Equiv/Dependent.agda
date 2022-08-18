@@ -222,3 +222,33 @@ equivOver→IsoOver {P = P} {Q = Q} e f equiv = w
   w .inv = isom .inv
   w .rightInv = isom .rightInv
   w .leftInv  = isom .leftInv
+
+
+-- Turn isomorphism over HAE into relative equivalence,
+-- i.e. the inverse of the previous precedure.
+
+isoToEquivOver :
+  {A : Type ℓ } {P : A → Type ℓ'' }
+  {B : Type ℓ'} {Q : B → Type ℓ'''}
+  (f : A → B) (hae : isHAEquiv f)
+  (isom' : IsoOver (isHAEquiv→Iso hae) P Q)
+  → isEquivOver {Q = Q} (isom' .fun)
+isoToEquivOver {A = A} {P} {Q = Q} f hae isom' a = isoToEquiv (fibiso a) .snd
+  where
+  isom = isHAEquiv→Iso hae
+  finv = isom .inv
+
+  fibiso : (a : A) → Iso (P a) (Q (f a))
+  fibiso a .fun = isom' .fun a
+  fibiso a .inv x = transport (λ i → P (isom .leftInv a i)) (isom' .inv (f a) x)
+  fibiso a .leftInv  x = transport
+      (λ i → transport-filler (λ i → P (isom .leftInv a i)) (isom' .inv (f a) (isom' .fun a x)) i
+          ≡ isom' .leftInv a x i) refl
+  fibiso a .rightInv x = transport (λ i → p-path i) (transport (λ i → c-path (~ i)) (isom' .rightInv _ _))
+    where
+    p-path : I → Type _
+    p-path j = PathP (λ i → Q (f (isom .leftInv a (i ∨ j))))
+      (isom' .fun _ (transp (λ i → P (isom .leftInv a (i ∧ j))) (~ j) (isom' .inv (f a) x))) x
+
+    c-path : I → Type _
+    c-path j = PathP (λ i → Q (hae .com a j i)) (isom' .fun _ (isom' .inv (f a) x)) x
