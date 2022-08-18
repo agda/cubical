@@ -18,7 +18,6 @@ open import Cubical.Functions.Embedding
 open import Cubical.Functions.Surjection
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 open import Cubical.Data.Unit as ⊤
 open import Cubical.Data.Empty as ⊥
@@ -106,7 +105,7 @@ punchOut∘In {n} i j | inr (i′ , _) with n
 isEquivPunchOut : {i : Fin (suc n)} → isEquiv (punchOut i)
 isEquivPunchOut {i = i} = isEmbedding×isSurjection→isEquiv (isEmbPunchOut , isSurPunchOut) where
   isEmbPunchOut : isEmbedding (punchOut i)
-  isEmbPunchOut = injEmbedding isSetFinExcept isSetFin λ {_} {_} → punchOut-injective i _ _
+  isEmbPunchOut = injEmbedding isSetFin λ {_} {_} → punchOut-injective i _ _
   isSurPunchOut : isSurjection (punchOut i)
   isSurPunchOut b = ∥_∥₁.∣ _ , (punchOut∘In i b) ∣₁
 

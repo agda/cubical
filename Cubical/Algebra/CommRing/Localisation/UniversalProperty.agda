@@ -390,7 +390,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
   S⁻¹R≃A = fst χ , isEmbedding×isSurjection→isEquiv (Embχ , Surχ)
    where
    Embχ : isEmbedding (fst χ)
-   Embχ = injEmbedding squash/ Aset (ker≡0→inj λ {x} → kerχ≡0 x)
+   Embχ = injEmbedding Aset (ker≡0→inj λ {x} → kerχ≡0 x)
     where
     kerχ≡0 : (r/s : S⁻¹R) → fst χ r/s ≡ 0a → r/s ≡ 0ₗ
     kerχ≡0 = SQ.elimProp (λ _ → isPropΠ λ _ → squash/ _ _) kerχ≡[]

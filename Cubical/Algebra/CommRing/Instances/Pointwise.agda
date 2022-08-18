@@ -8,9 +8,9 @@ open import Cubical.Algebra.CommRing.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
-pointwiseRing : (X : Type ℓ) (R : CommRing ℓ) → CommRing ℓ
+pointwiseRing : (X : Type ℓ) (R : CommRing ℓ') → CommRing _
 pointwiseRing X R = (X → fst R) , str
     where
       open CommRingStr (snd R)

@@ -59,6 +59,14 @@ transportTransport⁻ : ∀ {ℓ} {A B : Type ℓ} → (p : A ≡ B) → (b : B)
                         transport p (transport⁻ p b) ≡ b
 transportTransport⁻ p b j = transport-fillerExt⁻ p j (transport⁻-fillerExt⁻ p j b)
 
+subst⁻Subst : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y)
+              → (u : B x) → subst⁻ B p (subst B p u) ≡ u
+subst⁻Subst {x = x} {y = y} B p u = transport⁻Transport {A = B x} {B = B y} (cong B p) u
+
+substSubst⁻ : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y)
+              → (v : B y) → subst B p (subst⁻ B p v) ≡ v
+substSubst⁻ {x = x} {y = y} B p v = transportTransport⁻ {A = B x} {B = B y} (cong B p) v
+
 substEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {a a' : A} (P : A → Type ℓ') (p : a ≡ a') → P a ≃ P a'
 substEquiv P p = (subst P p , isEquivTransport (λ i → P (p i)))
 

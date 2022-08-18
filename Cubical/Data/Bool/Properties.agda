@@ -24,7 +24,6 @@ open import Cubical.Data.Unit using (Unit; isPropUnit)
 open import Cubical.HITs.PropositionalTruncation hiding (rec)
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
