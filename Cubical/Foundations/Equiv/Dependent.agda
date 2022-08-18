@@ -166,7 +166,7 @@ fiberIso→IsoOver isom .leftInv  a = isom a .leftInv
 -- Only half-adjoint equivalence can be lifted.
 -- This is another clue that HAE is more natural than isomorphism.
 
-open isHAEquiv
+open isHAEquiv hiding (g)
 
 pullbackIsoOver :
   {ℓA ℓB ℓP : Level}
@@ -252,3 +252,37 @@ isoToEquivOver {A = A} {P} {Q = Q} f hae isom' a = isoToEquiv (fibiso a) .snd
 
     c-path : I → Type _
     c-path j = PathP (λ i → Q (hae .com a j i)) (isom' .fun _ (isom' .inv (f a) x)) x
+
+
+-- A dependent version of `isoToHAEquiv`
+
+iso→HAEquivOver :
+  {isom : Iso A B}
+  → (isom' : IsoOver isom P Q)
+  → IsoOver (isHAEquiv→Iso (iso→HAEquiv isom .snd)) P Q
+iso→HAEquivOver isom' .fun = isom' .fun
+iso→HAEquivOver isom' .inv = isom' .inv
+iso→HAEquivOver isom' .leftInv = isom' .leftInv
+iso→HAEquivOver {Q = Q} {isom = isom} isom' .rightInv b x i =
+  comp (λ j → Q (sq i j))
+  (λ j → λ
+    { (i = i0) → ε' _ (f' _ (g' _ x)) j
+    ; (i = i1) → ε' _ x j })
+  (f' _ (η' _ (g' _ x) i))
+  where
+    f = isom .fun
+    g = isom .inv
+    ε = isom .rightInv
+    η = isom .leftInv
+
+    f' = isom' .fun
+    g' = isom' .inv
+    ε' = isom' .rightInv
+    η' = isom' .leftInv
+
+    sq : I → I → _
+    sq i j =
+      hfill (λ j → λ
+        { (i = i0) → ε (f (g b)) j
+        ; (i = i1) → ε b j })
+      (inS (f (η (g b) i))) j
