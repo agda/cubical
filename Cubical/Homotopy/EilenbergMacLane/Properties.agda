@@ -829,35 +829,31 @@ Iso.leftInv (inducedFun-EM-rawIso e n) = h n
                ; south → refl
                ; (merid a i) k → merid (p a k) i}
 
-module _ {G : AbGroup ℓ} {H : AbGroup ℓ'} where
-  Iso→EMIso : AbGroupEquiv G H → ∀ n → Iso (EM G n) (EM H n)
-  Iso.fun (Iso→EMIso is n) = inducedFun-EM (GroupEquiv→GroupHom is) n
-  Iso.inv (Iso→EMIso is n) = inducedFun-EM (GroupEquiv→GroupHom (invGroupEquiv is)) n
-  Iso.rightInv (Iso→EMIso is zero) = Iso.rightInv (inducedFun-EM-rawIso is zero)
-  Iso.rightInv (Iso→EMIso is (suc zero)) =
-    Iso.rightInv (inducedFun-EM-rawIso is (suc zero))
-  Iso.rightInv (Iso→EMIso is (suc (suc n))) =
-    Iso.rightInv (mapCompIso (inducedFun-EM-rawIso is (suc (suc n))))
-  Iso.leftInv (Iso→EMIso is zero) =
-    Iso.leftInv (inducedFun-EM-rawIso is zero)
-  Iso.leftInv (Iso→EMIso is (suc zero)) =
-    Iso.leftInv (inducedFun-EM-rawIso is (suc zero))
-  Iso.leftInv (Iso→EMIso is (suc (suc n))) =
-    Iso.leftInv (mapCompIso (inducedFun-EM-rawIso is (suc (suc n))))
+module _ {G : AbGroup ℓ} {H : AbGroup ℓ'} (e : AbGroupEquiv G H) where
+  Iso→EMIso : ∀ n → Iso (EM G n) (EM H n)
+  Iso.fun (Iso→EMIso n) = inducedFun-EM (GroupEquiv→GroupHom e) n
+  Iso.inv (Iso→EMIso n) = inducedFun-EM (GroupEquiv→GroupHom (invGroupEquiv e)) n
+  Iso.rightInv (Iso→EMIso zero) = Iso.rightInv (inducedFun-EM-rawIso e zero)
+  Iso.rightInv (Iso→EMIso (suc zero)) =
+    Iso.rightInv (inducedFun-EM-rawIso e (suc zero))
+  Iso.rightInv (Iso→EMIso (suc (suc n))) =
+    Iso.rightInv (mapCompIso (inducedFun-EM-rawIso e (suc (suc n))))
+  Iso.leftInv (Iso→EMIso zero) =
+    Iso.leftInv (inducedFun-EM-rawIso e zero)
+  Iso.leftInv (Iso→EMIso (suc zero)) =
+    Iso.leftInv (inducedFun-EM-rawIso e (suc zero))
+  Iso.leftInv (Iso→EMIso (suc (suc n))) =
+    Iso.leftInv (mapCompIso (inducedFun-EM-rawIso e (suc (suc n))))
 
-  Iso→EMIso∙ : (e : AbGroupEquiv G H)
-    → ∀ n
-    → Iso.fun (Iso→EMIso e n) (EM∙ G n .snd) ≡ EM∙ H n .snd
-  Iso→EMIso∙ e zero = IsGroupHom.pres1 (e .snd)
-  Iso→EMIso∙ e (suc zero) = refl
-  Iso→EMIso∙ e (suc (suc n)) = refl
+  Iso→EMIso∙ : ∀ n → Iso.fun (Iso→EMIso n) (EM∙ G n .snd) ≡ EM∙ H n .snd
+  Iso→EMIso∙ zero = IsGroupHom.pres1 (e .snd)
+  Iso→EMIso∙ (suc zero) = refl
+  Iso→EMIso∙ (suc (suc n)) = refl
 
-  Iso→EMIso⁻∙ : (e : AbGroupEquiv G H)
-    → ∀ n
-    → Iso.inv (Iso→EMIso e n) (EM∙ H n .snd) ≡ EM∙ G n .snd
-  Iso→EMIso⁻∙ e zero = IsGroupHom.pres1 (invGroupEquiv e .snd)
-  Iso→EMIso⁻∙ e (suc zero) = refl
-  Iso→EMIso⁻∙ e (suc (suc n)) = refl
+  Iso→EMIso⁻∙ : ∀ n → Iso.inv (Iso→EMIso n) (EM∙ H n .snd) ≡ EM∙ G n .snd
+  Iso→EMIso⁻∙ zero = IsGroupHom.pres1 (invGroupEquiv e .snd)
+  Iso→EMIso⁻∙ (suc zero) = refl
+  Iso→EMIso⁻∙ (suc (suc n)) = refl
 
 Iso→EMIsoInv : {G : AbGroup ℓ} {H : AbGroup ℓ'} (e : AbGroupEquiv G H)
   → ∀ n → Iso.inv (Iso→EMIso e n) ≡ Iso.fun (Iso→EMIso (invGroupEquiv e) n)
