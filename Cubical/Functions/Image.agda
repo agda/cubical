@@ -76,7 +76,7 @@ module _ (f : A ↪ B) where
       (isSurjectionImageRestriction (fst f)))
 
 {-
-  This is the extension to a 'iff', which is also a general modal fact.
+  This is the extension to an 'iff', which is also a general modal fact.
 -}
 isEmbeddingFromIsEquivToImage : (f : A → B) → isEquiv (restrictToImage f) → isEmbedding f
 isEmbeddingFromIsEquivToImage f isEquiv-r = isEmbedding-∘ (snd (imageInclusion f)) (isEquiv→isEmbedding isEquiv-r)
