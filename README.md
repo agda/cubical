@@ -24,12 +24,17 @@ can check out the tag `v0.1` of this library.
 
 Learning materials
 ------------------
-For some introductory lecture notes see the material for the Cubical Agda course
-of the [EPIT 2021 spring school](https://github.com/HoTT/EPIT-2020/blob/main/04-cubical-type-theory/).
+* Introductory material from the HoTTest summer school:
+  [literate agda files](https://github.com/martinescardo/HoTTEST-Summer-School/tree/main/Agda/Cubical)
+  [recordings on youtube](https://www.youtube.com/channel/UC-9jDbJ-HegCFuWuam1SfvQ)
 
-For an introduction to this library, see this [blog
-post](https://homotopytypetheory.org/2018/12/06/cubical-agda/). Note that many
-files and results have moved since this blog post was written.
+* For an introduction to this library, see this [blog
+  post](https://homotopytypetheory.org/2018/12/06/cubical-agda/). Note that many
+  files and results have moved since this blog post was written.
+
+* For some introductory lecture notes see the material for the Cubical Agda course
+  of the [EPIT 2021 spring school](https://github.com/HoTT/EPIT-2020/blob/main/04-cubical-type-theory/).
+
 
 Theoretical background
 ----------------------
