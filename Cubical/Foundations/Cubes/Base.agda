@@ -10,8 +10,7 @@ This file contains:
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Cubes.Base where
 
-open import Cubical.Foundations.Prelude  hiding (Cube)
-open import Cubical.Foundations.Function hiding (const)
+open import Cubical.Foundations.Prelude hiding (Cube)
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
