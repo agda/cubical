@@ -345,6 +345,51 @@ module _ {G : AbGroup ℓ} where
   isHomogeneousEM n x =
     ua∙ (isoToEquiv (addIso n x)) (lUnitₖ n x)
 
+  
+  isCommΩEM-base : (n : ℕ) (x : _) (p q : typ (Ω (EM G  (suc n) , x))) → p ∙ q ≡ q ∙ p
+  isCommΩEM-base n x =
+    transport (λ i → (p q : typ (Ω (isHomogeneousEM (suc n) x i))) → p ∙ q ≡ q ∙ p)
+              (isCommΩEM n)
+
+  ΩEM+1→EM-gen : (n : ℕ) (x : EM G (suc n)) → x ≡ x → EM G n
+  ΩEM+1→EM-gen zero =
+    elimSet _ (λ _ → isSetΠ λ _ → is-set) (ΩEM+1→EM 0)
+      λ g → toPathP (funExt
+        λ q → transportRefl (ΩEM+1→EM 0
+                (transport (λ i → Path (EM G (suc zero)) (emloop g (~ i)) (emloop g (~ i))) q))
+      ∙ cong (ΩEM+1→EM 0)
+           (fromPathP
+             (doubleCompPath-filler (emloop g) q (sym (emloop g))
+           ▷ (doubleCompPath≡compPath _ _ _
+           ∙∙ cong (emloop g ∙_) (isCommΩEM 0 q (sym (emloop g)))
+           ∙∙ ∙assoc _ _ _
+           ∙∙ cong (_∙ q) (rCancel (emloop g))
+           ∙∙ sym (lUnit q)))))
+  ΩEM+1→EM-gen (suc n) =
+    trElim (λ _ → isOfHLevelΠ (4 + n) λ _ → isOfHLevelSuc (3 + n) (hLevelEM _ (suc n)))
+      λ { north → ΩEM+1→EM (suc n)
+        ; south p → ΩEM+1→EM (suc n) (cong ∣_∣ₕ (merid ptEM-raw) ∙∙ p ∙∙ cong ∣_∣ₕ (sym (merid ptEM-raw)))
+        ; (merid a i) → help a i}
+        where
+        help : (a : EM-raw G (suc n))
+             → PathP (λ i → Path (EM G (suc (suc n))) ∣ merid a i ∣ ∣ merid a i ∣ → EM G (suc n))
+                      (ΩEM+1→EM (suc n))
+                      λ p → ΩEM+1→EM (suc n) (cong ∣_∣ₕ (merid ptEM-raw) ∙∙ p ∙∙ cong ∣_∣ₕ (sym (merid ptEM-raw)))
+        help a =
+          toPathP (funExt (λ p →
+            (transportRefl (ΩEM+1→EM (suc n) (transport (λ i → Path (EM G (suc (suc n))) ∣ merid a (~ i) ∣ ∣ merid a (~ i) ∣) p))
+           ∙ cong (ΩEM+1→EM (suc n))
+             (flipTransport (((rUnit p
+                             ∙ cong (p ∙_) (sym (lCancel _)))
+                            ∙ isCommΩEM-base (suc n) ∣ south ∣ p _)
+                          ∙∙ sym (∙assoc _ _ p)
+                          ∙∙ cong₂ _∙_ (cong (cong ∣_∣ₕ) (sym (cong sym (symDistr (sym (merid a)) (merid ptEM-raw)))))
+                                       (isCommΩEM-base _ _ _ p)
+                          ∙∙ sym (doubleCompPath≡compPath _ _ _)
+                          ∙∙ λ j → transp (λ i → Path (EM G (suc (suc n))) ∣ merid a (i ∨ ~ j) ∣ ∣ merid a (i ∨ ~ j) ∣) (~ j)
+                                           (cong ∣_∣ₕ (compPath-filler' (sym (merid a)) (merid ptEM-raw) (~ j))
+                                         ∙∙ p
+                                         ∙∙ cong ∣_∣ₕ (compPath-filler (sym (merid ptEM-raw)) (merid a) (~ j))))))))
 
 -- Some HLevel lemmas about function spaces (EM∙ G n →∙ EM∙ H m), mainly used for
 -- the cup product

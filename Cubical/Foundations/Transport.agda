@@ -176,6 +176,12 @@ substInPaths {a = a} f g p q =
            ≡⟨ substRefl {B = (λ y → f y ≡ g y)} q ⟩ q
            ≡⟨ (rUnit q) ∙ lUnit (q ∙ refl) ⟩ refl ∙ q ∙ refl ∎
 
+flipTransport : ∀ {ℓ} {A : I → Type ℓ} {x : A i0} {y : A i1}
+  → x ≡ transport (λ i → A (~ i)) y
+  → transport (λ i → A i) x ≡ y
+flipTransport {A = A} {y = y} p =
+  cong (transport (λ i → A i)) p ∙ transportTransport⁻ (λ i → A i) y
+
 -- special cases of substInPaths from lemma 2.11.2 in The Book
 module _ {ℓ : Level} {A : Type ℓ} {a x1 x2 : A} (p : x1 ≡ x2) where
   substInPathsL : (q : a ≡ x1) → subst (λ x → a ≡ x) p q ≡ q ∙ p
