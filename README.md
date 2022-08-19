@@ -63,7 +63,7 @@ If you switch your draft pull request (PR) to 'ready to merge',
 or directly create an open PR,
 we should request a review, by one of the reviewers below.
 If that doesn't happen, you can also request a reviewer yourself (for reviewer expertise see below),
-to make us aware of the open PR.
+to make us aware of the open PR. Feel free to use Discord to get in touch with a reviewer in case reviewing is taking a very long time.
 
 | Reviewer                                                                | github handle | Area of expertise                           | Queue |
 |-------------------------------------------------------------------------|---------------|---------------------------------------------|------|
