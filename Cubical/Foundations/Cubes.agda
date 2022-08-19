@@ -28,10 +28,10 @@ By mutual recursion, one can define the type of
 - n-Cubes:
   Cube : (n : ℕ)(A : Type ℓ) → Type ℓ
 
-- Boundary of n-cubes:
+- Boundary of n-Cubes:
   ∂Cube : ℕ → Type ℓ → Type ℓ
 
-- n-Cubes with Fixed Boundary:
+- n-Cubes with Specified Boundary:
   CubeRel : (n : ℕ)(A : Type ℓ) → ∂Cube n A → Type ℓ the type of n-cubes `Cube`,
 
 Their definitions are put in `Cubical.Foundations.Cubes.Base`,
