@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-module Cubical.Algebra.Group.EilenbergMacLane.Base where
+module Cubical.Homotopy.EilenbergMacLane.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism

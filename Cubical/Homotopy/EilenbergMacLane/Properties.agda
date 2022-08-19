@@ -1,11 +1,12 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-module Cubical.Algebra.Group.EilenbergMacLane.Properties where
+module Cubical.Homotopy.EilenbergMacLane.Properties where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base
+open import Cubical.Homotopy.EilenbergMacLane.Base
   renaming (elim to EM-elim ; elim2 to EM-elim2)
-open import Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity
-open import Cubical.Algebra.Group.EilenbergMacLane.GroupStructure
+open import Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity
+open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
+
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms

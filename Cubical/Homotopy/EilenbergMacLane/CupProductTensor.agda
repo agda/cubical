@@ -19,13 +19,14 @@ This file contains:
 
 -}
 
-module Cubical.Algebra.Group.EilenbergMacLane.CupProductTensor where
+module Cubical.Homotopy.EilenbergMacLane.CupProductTensor where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base
+open import Cubical.Homotopy.EilenbergMacLane.Base
   renaming (elim to EM-elim ; elim2 to EM-elim2)
-open import Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity
-open import Cubical.Algebra.Group.EilenbergMacLane.GroupStructure
-open import Cubical.Algebra.Group.EilenbergMacLane.Properties
+open import Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity
+open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
+open import Cubical.Homotopy.EilenbergMacLane.Properties
+
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms

@@ -1,14 +1,15 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-module Cubical.Algebra.Group.EilenbergMacLane.CupProduct where
+module Cubical.Homotopy.EilenbergMacLane.CupProduct where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base
-open import Cubical.Algebra.Group.EilenbergMacLane.GroupStructure
-open import Cubical.Algebra.Group.EilenbergMacLane.Properties
-open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.EilenbergMacLane.CupProductTensor
+open import Cubical.Homotopy.EilenbergMacLane.Base
+open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
+open import Cubical.Homotopy.EilenbergMacLane.Properties
+open import Cubical.Homotopy.EilenbergMacLane.CupProductTensor
   renaming (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
+
 open import Cubical.Algebra.AbGroup.TensorProduct
+open import Cubical.Algebra.Group.MorphismProperties
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Monoid.Base
