@@ -206,7 +206,7 @@ module _ {A B : Pointed ℓ} where
                      ; (i = i1) → push north b (~ k ∨ j)
                      ; (j = i0) → push (merid (pt A) (~ i)) b (~ k)
                      ; (j = i1) → push south b (~ k ∨ i)})
-            (inS (inr b))
+            (inr b)
             k
 
     suspJoin→joinSuspFiller :
@@ -216,7 +216,7 @@ module _ {A B : Pointed ℓ} where
                      ; (i = i1) → push south b (~ k)
                      ; (j = i0) → push (merid a i) b (~ k)
                      ; (j = i1) → push (merid (pt A) i) b (~ k)})
-            (inS (inr b))
+            (inr b)
             k
 
     joinSuspFiller :
@@ -226,7 +226,7 @@ module _ {A B : Pointed ℓ} where
                      ; (i = i1) → north
                      ; (j = i0) → north
                      ; (j = i1) → merid (push (pt A) b (~ k)) (~ i)})
-            (inS (merid (inr b) (~ i ∧ j)))
+            (merid (inr b) (~ i ∧ j))
             k
 
   suspJoin→joinSusp : Susp (join (typ A) (typ B)) → join (Susp (typ A)) (typ B)

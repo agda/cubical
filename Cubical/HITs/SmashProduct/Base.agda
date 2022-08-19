@@ -163,7 +163,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (i = i1) → base
                    ; (j = i0) → gluel (pt A) a i
                    ; (j = i1) → gluer a (pt C) (i ∨ k)})
-       (inS (gluel≡gluer a j i))
+       (gluel≡gluer a j i)
        r
 
   filler₂ : typ C → (i j k : I) → ⋀×3
@@ -172,7 +172,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                     ; (i = i1) → base
                     ; (j = i0) → gluem (pt A) c i
                     ; (j = i1) → gluer (pt B) c (i ∨ k)})
-        (inS (gluem≡gluer c j i))
+        (gluem≡gluer c j i)
         r
 
   filler₃ : typ B → (i j r : I) → A ⋀ (B ⋀∙ C)
@@ -183,7 +183,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (i = i1) → push (inr (push (inl b) k)) (~ j)
                    ; (j = i0) → inr (pt A , push (inl b) k)
                    ; (j = i1) → inl tt})
-           (inS (push (push tt i) (~ j)))
+           (push (push tt i) (~ j))
            r
 
   filler₄ : typ C → (i j r : I) → A ⋀ (B ⋀∙ C)
@@ -194,7 +194,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (i = i1) → push (inr (push (inr c) k)) (~ j)
                    ; (j = i0) → inr (pt A , push (inr c) k)
                    ; (j = i1) → inl tt})
-           (inS (push (push tt i) (~ j)))
+           (push (push tt i) (~ j))
            r
 
   filler₅ : (i j k : I) → A ⋀ (B ⋀∙ C)
@@ -203,7 +203,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (i = i1) → push (inr (inl tt)) (j ∧ ~ k)
                    ; (j = i0) → inl tt
                    ; (j = i1) → push (inr (inl tt)) (~ i ∨ ~ k)})
-          (inS (push (push tt i) j))
+          (push (push tt i) j)
           r
 
   coh-filler : (i j k r : I) → ⋀×3
@@ -214,7 +214,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i1) → base
                    ; (k = i0) → gluel≡gluem (pt A) i j
                    ; (k = i1) → gluer (snd B) (snd C) (j ∨ r)})
-          (inS (coh i k j))
+          (coh i k j)
           r
 
   coh-filler₂ : (i j k r : I) → A ⋀ (B ⋀∙ C)
@@ -227,7 +227,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i1) → push (inr (push (push tt i) r)) (~ k)
                    ; (k = i0) → inr (pt A , push (push tt i) r)
                    ; (k = i1) → inl tt})
-          (inS (push (push tt j) (~ k)))
+          (push (push tt j) (~ k))
           r
 
   ⋀→⋀×3 : A ⋀ (B ⋀∙ C) → ⋀×3
@@ -269,7 +269,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                         (λ i → (inr (x , (push (inl y) (~ i)))))
                         (sym (push (inl x))) k i)
                    ; (j = i1) → gluel x y (i ∨ ~ k) })
-          (inS base)
+          base
           k
 
   gluem-fill : (x : typ A) (z : typ C) (i j k : I) → ⋀×3
@@ -280,7 +280,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                                   (λ i → (inr (x , (push (inr z) (~ i)))))
                                   (sym (push (inl x))) k i)
                    ; (j = i1) → gluem x z (i ∨ ~ k)})
-          (inS base)
+          base
           k
 
   gluel≡gluer₁ : (y : typ B) (i j r k : I) → ⋀×3
@@ -291,7 +291,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                      ; (i = i1) → gluer y (snd C) (~ r ∨ k)
                      ; (j = i0) → filler₁ y (~ r) i k
                      ; (j = i1) → gluer y (snd C) ((i ∧ k) ∨ ~ r)})
-            (inS (gluel≡gluer y (j ∨ i) (~ r)))
+            (gluel≡gluer y (j ∨ i) (~ r))
            k
 
 
@@ -303,7 +303,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i1) → gluer (snd B) z (~ r ∨ (k ∧ i))
                    ; (r = i0) → base
                    ; (r = i1) → gluer (snd B) z (i ∧ k)})
-              (inS (gluem≡gluer z (j ∨ i) (~ r)))
+              (gluem≡gluer z (j ∨ i) (~ r))
               k
 
   gluel≡gluer₂ : (y : typ B) (k i j r : I) → ⋀×3
@@ -314,7 +314,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i1) → gluel≡gluer y k (i ∨ ~ r)
                    ; (k = i0) → gluel-fill (pt A) y i j r
                    ; (k = i1) → gluel≡gluer₁ y i j r i1})
-           (inS base)
+           base
            r
 
   gluem≡gluer₂ : (y : typ C) (k i j r : I) → ⋀×3
@@ -325,7 +325,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i1) → gluem≡gluer y k (i ∨ ~ r)
                    ; (k = i0) → gluem-fill (pt A) y i j r
                    ; (k = i1) → gluem≡gluer₁ y i j r i1})
-           (inS base)
+           base
            r
 
   gluel≡gluem-fill : (a : typ A) (i j k r : I) → ⋀×3
@@ -337,7 +337,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i1) → gluel≡gluem a k (i ∨ ~ r)
                    ; (k = i0) → gluel-fill a (pt B) i j r
                    ; (k = i1) → gluem-fill a (pt C) i j r})
-           (inS base)
+           base
            r
 
   ⋀×3→⋀→⋀×3 : (x : ⋀×3) → ⋀→⋀×3 (⋀×3→⋀ x) ≡ x
@@ -396,7 +396,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                                   (λ i₁ → inr (x , (push (inl a) (~ i₁))))
                                   (sym (push (inl x))) k i
                    ; (j = i1) → inr (x , push (inl a) (~ i ∧ k)) })
-          (inS (push (inl x) (j ∨ ~ i)))
+          (push (inl x) (j ∨ ~ i))
           k
 
   filler₇ : (x : typ A) (a : typ C) (i j k : I) → A ⋀ (B ⋀ C , inl tt)
@@ -407,7 +407,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                                   (λ i₁ → inr (x , (push (inr a) (~ i₁))))
                                   (sym (push (inl x))) k i
                    ; (j = i1) → inr (x , push (inr a) (~ i ∧ k)) })
-          (inS (push (inl x) (j ∨ ~ i)))
+          (push (inl x) (j ∨ ~ i))
           k
 
   filler₈ : (x : typ A) (i j k r : I) → A ⋀ (B ⋀ C , inl tt)
@@ -418,7 +418,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                                   (λ j → inr (x , push (push tt k) (~ j)))
                                   (sym (push (inl x))) r i
                    ; (j = i1) → inr (x , push (push tt k) (~ i ∧ r)) })
-          (inS ((push (inl x) (j ∨ ~ i))))
+          ((push (inl x) (j ∨ ~ i)))
           r
 
   btm-fill : (i j k r : I) → A ⋀ (B ⋀∙ C)
@@ -429,7 +429,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                               ; (j = i0) → push (inl (pt A)) (~ i ∨ k)
                               ; (k = i0) → filler₅ j (~ i) (~ r)
                               ; (k = i1) → push (inr (inl tt)) (~ j)})
-                     (inS (filler₅ j (~ i ∨ k) i1))
+                     (filler₅ j (~ i ∨ k) i1)
            r
 
   lr-fill₁ : (b : typ C) (i j k r : I) → A ⋀ (B ⋀∙ C)
@@ -440,7 +440,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i0) → filler₇ (pt A) a i k r
                    ; (k = i0) → filler₄ a j i r
                    ; (k = i1) → push (inr (push (inr a) (~ i ∧ r))) (~ j)})
-              (inS (btm-fill i j k i1))
+              (btm-fill i j k i1)
              r
 
   ll-fill₁ : (a : typ B) (i j k r : I) →  A ⋀ (B ⋀∙ C)
@@ -451,7 +451,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i0) → filler₆ (pt A) a i k r
                    ; (k = i0) → filler₃ a j i r
                    ; (k = i1) → push (inr (push (inl a) (~ i ∧ r))) (~ j)})
-             (inS (btm-fill i j k i1))
+             (btm-fill i j k i1)
              r
 
   ll-fill₂ : (a : typ B) (i j k r : I) → A ⋀ (B ⋀∙ C)
@@ -462,7 +462,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i0) → filler₆ (pt A) a i k i1
                    ; (k = i0) → ⋀×3→⋀ (filler₁ a i j r)
                    ; (k = i1) → push (inr (push (inl a) (~ i))) (~ j) })
-      (inS (ll-fill₁ a i j k i1))
+      (ll-fill₁ a i j k i1)
       r
 
   lr-fill₂ : (a : typ C) (i j k r : I) → A ⋀ (B ⋀∙ C)
@@ -473,7 +473,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i0) → filler₇ (pt A) a i k i1
                    ; (k = i0) → ⋀×3→⋀ (filler₂ a i j r)
                    ; (k = i1) → push (inr (push (inr a) (~ i))) (~ j) })
-      (inS (lr-fill₁ a i j k i1))
+      (lr-fill₁ a i j k i1)
       r
 
   ⋀→⋀×3→⋀ : (x : A ⋀ (B ⋀∙ C))
@@ -543,7 +543,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i1) → gluem≡gluer (snd B) (~ i ∧ ~ r) k
                    ; (k = i0) → proj (pt C) (pt A) (snd B)
                    ; (k = i1) → base})
-          (inS (coh j (~ i) k))
+          (coh j (~ i) k)
           r
 
   permute-fill← : (i j k r : I) → ⋀×3 A B C
@@ -554,7 +554,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i1) → gluel≡gluer (pt B) (i ∧ ~ r) k
                    ; (k = i0) → proj (snd A) (pt B) (pt C)
                    ; (k = i1) → base})
-          (inS (coh (~ j) i k))
+          (coh (~ j) i k)
           r
 
   ⋀×3-permuteFun : ⋀×3 A B C → ⋀×3 C A B

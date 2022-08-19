@@ -100,7 +100,7 @@ toSuspPresInvS² (surf i j) k r =
                  ; (j = i1) → rCancel (merid base) r k
                  ; (k = i0) → north
                  ; (k = i1) → north})
-          (inS (toSusp S²∙ (surf i j) k))
+          (toSusp S²∙ (surf i j) k)
           r
 
   l1 : (Ω^ 3) (Susp∙ S²) .fst

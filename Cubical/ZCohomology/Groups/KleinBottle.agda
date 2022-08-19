@@ -333,7 +333,7 @@ evenCharac (negsuc zero) isisEven = ⊥.rec (true≢false (sym isisEven))
 evenCharac (negsuc (suc zero)) isisEven =
   cong ∣_∣₂ ((λ i → 0ₖ 1
                   , λ i₁ → hfill (doubleComp-faces (λ i₂ → ∣ base ∣) (λ _ → ∣ base ∣) i₁)
-                                  (inS ∣ compPath≡compPath' (sym loop) (sym loop) i i₁ ∣) (~ i))
+                                  ∣ compPath≡compPath' (sym loop) (sym loop) i i₁ ∣ (~ i))
           ∙ ΣPathP ((cong ∣_∣ (sym loop)) , λ i j → ∣ (sym loop ∙' sym loop) (i ∨ j) ∣))
 evenCharac (negsuc (suc (suc n))) isisEven =
      cong ∣_∣₂ (λ i → 0ₖ 1 , Kn→ΩKn+1-hom 0 (negsuc n) -2 i)
@@ -347,7 +347,7 @@ oddCharac : (x : ℤ) → isEven x ≡ false
 oddCharac (pos zero) isOdd = ⊥.rec (true≢false isOdd)
 oddCharac (pos (suc zero)) isOdd i =
   ∣ (0ₖ 1 , λ j → hfill (doubleComp-faces (λ i₂ → ∣ base ∣) (λ _ → ∣ base ∣) j)
-                         (inS ∣ lUnit loop (~ i) j ∣) (~ i)) ∣₂
+                         ∣ lUnit loop (~ i) j ∣ (~ i)) ∣₂
 oddCharac (pos (suc (suc n))) isOdd =
   (λ i → ∣ 0ₖ 1 , Kn→ΩKn+1-hom 0 (pos n) 2 i ∣₂)
   ∙∙ sym (*=∙ (Kn→ΩKn+1 0 (pos n)) (Kn→ΩKn+1 0 2))

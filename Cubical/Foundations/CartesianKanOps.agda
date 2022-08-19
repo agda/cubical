@@ -89,7 +89,7 @@ coei→i A i a j =
     { (i = i0) → a
     ; (i = i1) → coe1→i A (j ∨ k) a
     ; (j = i1) → a })
-  (transpFill {A = A i0} (~ i) (λ t → inS (A (i ∧ ~ t))) a (~ j))
+  (transpFill {A = A i0} (~ i) (λ t → A (i ∧ ~ t)) a (~ j))
 
 coe0→0 : ∀ {ℓ} (A : I → Type ℓ) (a : A i0) → coei→i A i0 a ≡ refl
 coe0→0 A a = refl

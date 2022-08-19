@@ -57,7 +57,7 @@ module _
       hfill (λ j → λ
         { (i = i0) → push (x , xs) (~ j)
         ; (i = i1) → push (x₀ , x ∷ xs) (~ j) })
-      (inS (inr (unit (x ∷ xs) i))) j
+      (inr (unit (x ∷ xs) i)) j
 
     square2 : (xs : James)(i j : I) → Total
     square2 xs i j =
@@ -66,7 +66,7 @@ module _
         ; (i = i1) → square1 x₀ xs j k
         ; (j = i0) → push (x₀ , xs) (~ k)
         ; (j = i1) → push (x₀ , unit xs i) (~ k) })
-      (Pushout.inr (flipSquare xs i j))
+      (inr (flipSquare xs i j))
 
     center : Total
     center = inl []
@@ -92,7 +92,7 @@ module _
       ; (i = i1) → doubleCompPath-filler (pathL (x ∷ xs)) (push (x₀ , x ∷ xs)) (λ i → inr (unit (x ∷ xs) (~ i))) k j
       ; (j = i0) → pathL (x ∷ xs) (~ k)
       ; (j = i1) → square1 x xs (~ k) (~ i) })
-    (Pushout.push (x₀ , x ∷ xs) (i ∧ j))
+    (push (x₀ , x ∷ xs) (i ∧ j))
 
   module _
     (conn : isConnected 2 X) where

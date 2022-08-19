@@ -394,7 +394,7 @@ Gysin-e≡genCP² =
                 ; (i  = i1) → ∣ merid base (~ j ∨ ~ k) ∣
                 ; (j = i0) → ∣ merid a (~ k ∨ i) ∣
                 ; (j = i1) → ∣ merid base (~ i ∨ ~ k) ∣ₕ})
-             (inS ∣ south ∣))
+             ∣ south ∣)
 
   setHelp : (x : S₊ 2)
     → isSet (preThom.Q (CP² , inl tt) fibr (inr x) →∙ coHomK-ptd 2)

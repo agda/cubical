@@ -153,7 +153,7 @@ fwd-sucPred (pos (suc n)) i j
                    ; (i = i1) → suc (fwd (pos n))
                    ; (j = i1) → suc-adj (fwd (pos n)) k i
                    })
-          (inS (suc (sym-filler (pred-suc (fwd (pos n))) i j)))
+          (suc (sym-filler (pred-suc (fwd (pos n))) i j))
           -- overloaded constructors are my Achilles heel
 
 fwd-sucPred (negsuc n) i j
@@ -248,13 +248,13 @@ suc'ᵖ (predr z) = z , suc-predr z
 suc'ᵖ (suc-predr z i) = let filler : I → I → BiInvℤ
                             filler j i = hfill (λ j → λ { (i = i0) → suc (suc (predr z))
                                                         ; (i = i1) → suc≡suc' z j })
-                                               (inS (suc (suc-predr z i))) j
+                                               (suc (suc-predr z i)) j
                          in filler i1 i , λ j → filler j i
 suc'ᵖ (predl z) = z , suc-predl z
 suc'ᵖ (predl-suc z i) = let filler : I → I → BiInvℤ
                             filler j i = hfill (λ j → λ { (i = i0) → suc-predl (suc z) j
                                                         ; (i = i1) → suc≡suc' z j })
-                                               (inS (suc (predl-suc z i))) j
+                                               (suc (predl-suc z i)) j
                          in filler i1 i , λ j → filler j i
 
 private
@@ -274,13 +274,13 @@ predr'ᵖ (predr z) = predr (predr z) , refl
 predr'ᵖ (suc-predr z i) = let filler : I → I → BiInvℤ
                               filler j i = hfill (λ j → λ { (i = i0) → predr-suc (predr z) j
                                                           ; (i = i1) → predr≡predr' z j })
-                                                 (inS (predr (suc-predr z i))) j
+                                                 (predr (suc-predr z i)) j
                            in filler i1 i , λ j → filler j i
 predr'ᵖ (predl z) = predr (predl z) , refl
 predr'ᵖ (predl-suc z i) = let filler : I → I → BiInvℤ
                               filler j i = hfill (λ j → λ { (i = i0) → predr (predl (suc z))
                                                           ; (i = i1) → predr≡predr' z j })
-                                                 (inS (predr (predl-suc z i))) j
+                                                 (predr (predl-suc z i)) j
                            in filler i1 i , λ j → filler j i
 
 predl'ᵖ : (z : BiInvℤ) -> Σ BiInvℤ (predl z ≡_)
@@ -293,13 +293,13 @@ predl'ᵖ (predr z) = predl (predr z) , refl
 predl'ᵖ (suc-predr z i) = let filler : I → I → BiInvℤ
                               filler j i = hfill (λ j → λ { (i = i0) → predl-suc (predr z) j
                                                           ; (i = i1) → predl≡predl' z j })
-                                                 (inS (predl (suc-predr z i))) j
+                                                 (predl (suc-predr z i)) j
                            in filler i1 i , λ j → filler j i
 predl'ᵖ (predl z) = predl (predl z) , refl
 predl'ᵖ (predl-suc z i) = let filler : I → I → BiInvℤ
                               filler j i = hfill (λ j → λ { (i = i0) → predl (predl (suc z))
                                                           ; (i = i1) → predl≡predl' z j })
-                                                 (inS (predl (predl-suc z i))) j
+                                                 (predl (predl-suc z i)) j
                            in filler i1 i , λ j → filler j i
 
 private
@@ -308,4 +308,3 @@ private
 
   predl'-suc : ∀ z → predl' (suc z) ≡ z
   predl'-suc z = refl
-

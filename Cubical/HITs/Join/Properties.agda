@@ -308,7 +308,7 @@ joinSwitch = isoToEquiv (iso switch switch invol invol)
         ; (j = i0) → push (inr b) a (~ i)
         ; (j = i1) → push (inl c) a (~ i ∧ ~ k)
         })
-      (inS (push (push c b (~ j)) a (~ i)))
+      (push (push c b (~ j)) a (~ i))
 
   invol : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
     (u : join (join A B) C) → switch (switch u) ≡ u
@@ -336,7 +336,7 @@ joinSwitch = isoToEquiv (iso switch switch invol invol)
           ; (j = i1) → push (inl a) c (i ∨ (~ k ∨ l))
           ; (l = i1) → push (push a b i) c j
           })
-        (inS (push (push a b i) c j)))
+        (push (push a b i) c j))
 
 {-
   Direct proof of associativity.
@@ -361,7 +361,7 @@ joinAssocDirect {A = A} {B} {C} =
         ; (j = i0) → push a (inl b) i
         ; (j = i1) → push a (inr c) (i ∨ k)
         })
-      (inS (push a (push b c j) i))
+      (push a (push b c j) i)
 
   back : join A (join B C) → join (join A B) C
   back (inl a) = inl (inl a)
@@ -378,7 +378,7 @@ joinAssocDirect {A = A} {B} {C} =
         ; (j = i0) → inl (push a b i)
         ; (j = i1) → push (inl a) c (i ∨ ~ k)
         })
-      (inS (push (push a b i) c j))
+      (push (push a b i) c j)
 
   forwardBack : ∀ u → forward (back u) ≡ u
   forwardBack (inl a) = refl
@@ -405,7 +405,7 @@ joinAssocDirect {A = A} {B} {C} =
           ; (j = i1) → push a (inr c) (i ∨ (k ∧ ~ l))
           ; (l = i1) → push a (push b c j) i
           })
-        (inS (push a (push b c j) i)))
+        (push a (push b c j) i))
 
   backForward : ∀ u → back (forward u) ≡ u
   backForward (inl (inl a)) = refl
@@ -432,7 +432,7 @@ joinAssocDirect {A = A} {B} {C} =
           ; (j = i1) → push (inl a) c (i ∨ (~ k ∨ l))
           ; (l = i1) → push (push a b i) c j
           })
-        (inS (push (push a b i) c j)))
+        (push (push a b i) c j))
 
 -- commutativity
 join-commFun : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'} → join A B → join B A

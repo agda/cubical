@@ -84,7 +84,7 @@ X→∙ΩYEquiv (X , x₀) (Y , y₀) =
                       ; (i = i1) → f x j
                       ; (j = i0) → y₀
                       ; (j = i1) → b i (~ k') })
-            (inS (f x j)) k
+            (f x j) k
 
     bottom : ((X , x₀) →∙ Ω∙ 1 (Y , y₀)) → (i j k : I) → Y
     bottom (f , b) i j k =

@@ -104,7 +104,7 @@ coHomPointedElimT² n {B = B} isprop indp =
                      ; (i = i1) → doubleCompPath-filler (sym fId) (cong f (λ i → (base , loop i))) fId k j
                      ; (j = i0) → doubleCompPath-filler (sym fId) (cong f (λ i → (loop i , base))) fId k i
                      ; (j = i1) → doubleCompPath-filler (sym fId) (cong f (λ i → (loop i , base))) fId k i})
-            (inS (f ((loop i) , (loop j))))
+            (f (loop i , loop j))
             k
 
 private
