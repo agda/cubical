@@ -80,13 +80,6 @@ module _ ((G , str) : Group ℓG) where
     where
       g = elimSet Bset b bloop
 
-  elimSet' : {B : EM₁ (G , str) → Type ℓ}
-          → ((x : EM₁ (G , str)) → isSet (B x))
-          → ((b : EM₁-raw (G , str)) → B (EM₁-raw→EM₁ (G , str) b))
-          → (x : EM₁ (G , str))
-          → B x
-  elimSet' Bset ind = elimSet Bset (ind embase-raw) (λ g → cong ind (emloop-raw g))
-
   elimProp : {B : EM₁ (G , str) → Type ℓ}
              → ((x : EM₁ (G , str)) → isProp (B x))
              → B embase

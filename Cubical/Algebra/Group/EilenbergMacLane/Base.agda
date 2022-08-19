@@ -39,6 +39,11 @@ EM-raw G zero = fst G
 EM-raw G (suc zero) = EM₁ (G *)
 EM-raw G (suc (suc n)) = Susp (EM-raw G (suc n))
 
+EM-raw' : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → Type ℓ
+EM-raw' G zero = fst G
+EM-raw' G (suc zero) = EM₁-raw (AbGroup→Group G)
+EM-raw' G (suc (suc n)) = EM-raw G (suc (suc n))
+
 ptEM-raw : {n : ℕ} {G : AbGroup ℓ} → EM-raw G n
 ptEM-raw {n = zero} {G = G} = AbGroupStr.0g (snd G)
 ptEM-raw {n = suc zero} {G = G} = embase
@@ -73,6 +78,12 @@ EM∙ G n = EM G n , (0ₖ n)
 EM-raw∙ : (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
 EM-raw∙ G n = EM-raw G n , ptEM-raw
 
+EM-raw'∙ : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
+fst (EM-raw'∙ G n) = EM-raw' G n
+snd (EM-raw'∙ G zero) = AbGroupStr.0g (snd G)
+snd (EM-raw'∙ G (suc zero)) = embase-raw
+snd (EM-raw'∙ G (suc (suc n))) = north
+
 hLevelEM : (G : AbGroup ℓ) (n : ℕ) → isOfHLevel (2 + n) (EM G n)
 hLevelEM G zero = AbGroupStr.is-set (snd G)
 hLevelEM G (suc zero) = emsquash
@@ -99,43 +110,32 @@ elim2 n hlev ind =
   elim n (λ _ → isOfHLevelΠ (2 + n) (λ _ → hlev _ _))
     λ x → elim n (λ _ → hlev _ _) (ind x)
 
-EM-rawer : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → Type ℓ
-EM-rawer G zero = fst G
-EM-rawer G (suc zero) = EM₁-raw (AbGroup→Group G)
-EM-rawer G (suc (suc n)) = EM-raw G (suc (suc n))
+EM-raw'→EM : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → EM-raw' G n → EM G n
+EM-raw'→EM G zero x = x
+EM-raw'→EM G (suc zero) x = EM₁-raw→EM₁ _ x
+EM-raw'→EM G (suc (suc n)) x = ∣ x ∣ₕ
 
-EM-rawer∙ : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
-fst (EM-rawer∙ G n) = EM-rawer G n
-snd (EM-rawer∙ G zero) = AbGroupStr.0g (snd G)
-snd (EM-rawer∙ G (suc zero)) = embase-raw
-snd (EM-rawer∙ G (suc (suc n))) = north
+EM-raw'→EM∙ : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ)
+  → EM-raw'→EM G n (EM-raw'∙ G n .snd) ≡ EM∙ G n .snd
+EM-raw'→EM∙ G zero = refl
+EM-raw'→EM∙ G (suc zero) = refl
+EM-raw'→EM∙ G (suc (suc n)) = refl
 
-EM-rawer→EM : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → EM-rawer G n → EM G n
-EM-rawer→EM G zero x = x
-EM-rawer→EM G (suc zero) x = EM₁-raw→EM₁ _ x
-EM-rawer→EM G (suc (suc n)) x = ∣ x ∣ₕ
-
-EM-rawer→EM∙ : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ)
-  → EM-rawer→EM G n (EM-rawer∙ G n .snd) ≡ EM∙ G n .snd
-EM-rawer→EM∙ G zero = refl
-EM-rawer→EM∙ G (suc zero) = refl
-EM-rawer→EM∙ G (suc (suc n)) = refl
-
-EM-rawer-elim : ∀ {ℓ ℓ'} (G : AbGroup ℓ) (n : ℕ) {B : EM G n → Type ℓ'}
+EM-raw'-elim : ∀ {ℓ ℓ'} (G : AbGroup ℓ) (n : ℕ) {B : EM G n → Type ℓ'}
          → ((x : _) → isOfHLevel (suc n) (B x))
-         → ((x : EM-rawer G n) → (B (EM-rawer→EM _ _ x)))
+         → ((x : EM-raw' G n) → (B (EM-raw'→EM _ _ x)))
          → (x : _ ) → B x
-EM-rawer-elim G zero {B = B} hlev ind = ind
-EM-rawer-elim G (suc zero) {B = B} hlev ind =
+EM-raw'-elim G zero {B = B} hlev ind = ind
+EM-raw'-elim G (suc zero) {B = B} hlev ind =
   elimSet _ hlev (ind embase-raw) λ g → cong ind (emloop-raw g)
-EM-rawer-elim G (suc (suc n)) {B = B} hlev ind =
+EM-raw'-elim G (suc (suc n)) {B = B} hlev ind =
   Trunc.elim (λ _ → isOfHLevelSuc (3 + n) (hlev _)) ind
 
-EM-rawer-trivElim : (G : AbGroup ℓ) (n : ℕ) {A : EM-rawer G (suc n) → Type ℓ'}
+EM-raw'-trivElim : (G : AbGroup ℓ) (n : ℕ) {A : EM-raw' G (suc n) → Type ℓ'}
             → ((x : _) → isOfHLevel (suc n) (A x) )
-            → A (snd (EM-rawer∙ G (suc n)))
+            → A (snd (EM-raw'∙ G (suc n)))
             → (x : _) → A x
-EM-rawer-trivElim G zero {A = A} prop x embase-raw = x
-EM-rawer-trivElim G zero {A = A} prop x (emloop-raw g i) =
+EM-raw'-trivElim G zero {A = A} prop x embase-raw = x
+EM-raw'-trivElim G zero {A = A} prop x (emloop-raw g i) =
   isProp→PathP {B = λ i → A (emloop-raw g i)} (λ _ → prop _) x x i
-EM-rawer-trivElim G (suc n) {A = A} = raw-elim G (suc n)
+EM-raw'-trivElim G (suc n) {A = A} = raw-elim G (suc n)

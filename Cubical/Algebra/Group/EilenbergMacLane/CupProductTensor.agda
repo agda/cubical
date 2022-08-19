@@ -1,5 +1,24 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
+{-
+This file contains:
+1. Construction of the cup product ⌣ₖ : K(G,n) × K(H,m) → K(G ⊗ H , n + m) together with
+  proofs that 0ₖ ⌣ₖ x = x ⌣ₖ 0ₖ = 0ₖ
+2. Proof that, for rings G and H, we have 1ᵣ ⌣ x = x and x ⌣ 1ₕ = x
+   (in module Neutral)
+3. Proofs of left and right distributivity
+    (LeftDistributivity.main and RightDistributivity.main)
+4. Proofs of associativity (Assoc.main)
+5. Proof that the cup product repects homomorphisms G -ϕ→ G' , H -ψ→ H', i.e.
+                              ⌣ₖ
+           K(G,n) × K(H,m) -----→ K(G ⊗ H, n + m)
+                  ∣                     ∣
+ K(ϕ,n) × K(ψ,m)  ∣                     ∣ K(ϕ ⊗ ψ, n+m)
+                  ̌            ⌣ₖ      ̌
+           K(G',n) × K(H',m) ----> K(G' ⊗ H' , m)
+
+-}
+
 module Cubical.Algebra.Group.EilenbergMacLane.CupProductTensor where
 
 open import Cubical.Algebra.Group.EilenbergMacLane.Base
@@ -46,20 +65,15 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
-+'-suc : (n m : ℕ) → suc (n +' m) ≡ suc n +' m
-+'-suc zero zero = refl
-+'-suc zero (suc m) = refl
-+'-suc (suc n) zero = refl
-+'-suc (suc n) (suc m) = refl
-
 -- Lemma for distributativity of cup product (used later)
-pathType : {G : AbGroup ℓ} (n : ℕ) (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x) → Type ℓ
-pathType n x p = sym (rUnitₖ (2 + n) x) ∙ (λ i → x +ₖ p i)
-               ≡ sym (lUnitₖ (2 + n) x) ∙ λ i → p i +ₖ x
+private
+  pathType : {G : AbGroup ℓ} (n : ℕ) (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x) → Type ℓ
+  pathType n x p = sym (rUnitₖ (2 + n) x) ∙ (λ i → x +ₖ p i)
+                 ≡ sym (lUnitₖ (2 + n) x) ∙ λ i → p i +ₖ x
 
-pathTypeMake : {G : AbGroup ℓ} (n : ℕ) (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x)
-    → pathType n x p
-pathTypeMake n x = J (λ x p → pathType n x p) refl
+  pathTypeMake : {G : AbGroup ℓ} (n : ℕ) (x : EM G (2 + n)) (p : 0ₖ (2 + n) ≡ x)
+      → pathType n x p
+  pathTypeMake n x = J (λ x p → pathType n x p) refl
 
 -- Definition of cup product (⌣ₖ, given by ·₀ when first argument is in K(G,0))
 module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
@@ -256,7 +270,7 @@ module Neutral {G'' : Ring ℓ} {H'' : Ring ℓ'} where
   1ₖ-⌣ₖ : (m : ℕ) (x : EM H' m)
     → (_⌣ₖ_ {G' = G'} {n = zero} {m = m} 1G x) ≡ inducedFun-EM (rIncl⨂ 1G) m x
   1ₖ-⌣ₖ zero x = refl
-  1ₖ-⌣ₖ (suc zero) = EM-rawer-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
+  1ₖ-⌣ₖ (suc zero) = EM-raw'-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
     λ { embase-raw → refl ; (emloop-raw g i) → refl}
   1ₖ-⌣ₖ (suc (suc m)) =
     Trunc.elim (λ _ → isOfHLevelPath (4 + m) (hLevelEM _ (2 + m)) _ _)
@@ -285,7 +299,7 @@ module Neutral {G'' : Ring ℓ} {H'' : Ring ℓ'} where
     pre-⌣ₖ-1ₖ : (n : ℕ) (x : EM G' (suc n))
       → _⌣ₖ_ {H' = H'} {n = (suc n)} {m = zero} x 1H
        ≡ inducedFun-EM (lIncl⨂ 1H) (suc n) x
-    pre-⌣ₖ-1ₖ zero = EM-rawer-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
+    pre-⌣ₖ-1ₖ zero = EM-raw'-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
       λ { embase-raw → refl ; (emloop-raw g i) → refl}
     pre-⌣ₖ-1ₖ (suc n) =
       Trunc.elim (λ _ → isOfHLevelPath (4 + n) (hLevelEM _ (2 + n)) _ _)
@@ -427,7 +441,7 @@ module LeftDistributivity {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
              ∙ sym (rUnitₖ _ (c (suc m) x (EM-raw→EM H' (2 + m) y))))
         refl
   main (suc n) zero =
-    EM-rawer-elim G' (suc n) (λ _ → isOfHLevelΠ2 (suc (suc n)) λ _ _ → hLevelEM _ (suc n) _ _)
+    EM-raw'-elim G' (suc n) (λ _ → isOfHLevelΠ2 (suc (suc n)) λ _ _ → hLevelEM _ (suc n) _ _)
       (lem n (main n zero))
     where
     cup : (n : ℕ) → _
@@ -435,9 +449,9 @@ module LeftDistributivity {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
 
     lem : (n : ℕ) (ind : (x : EM G' n) (y z : fst H')
             → cup n x (y +ₖ z) ≡ cup n x y +ₖ cup n x z)
-          (x : EM-rawer G' (suc n)) (y z : fst H')
-        → cup (suc n) (EM-rawer→EM G' (suc n) x) (y +ₖ z)
-        ≡ cup (suc n) (EM-rawer→EM G' (suc n) x) y +ₖ cup (suc n) (EM-rawer→EM G' (suc n) x) z
+          (x : EM-raw' G' (suc n)) (y z : fst H')
+        → cup (suc n) (EM-raw'→EM G' (suc n) x) (y +ₖ z)
+        ≡ cup (suc n) (EM-raw'→EM G' (suc n) x) y +ₖ cup (suc n) (EM-raw'→EM G' (suc n) x) z
     lem zero ind embase-raw y z = refl
     lem zero ind (emloop-raw g i) y z = flipSquare help i
       where
@@ -548,7 +562,7 @@ module RightDistributivity {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
     → ((x +ₖ y) ⌣ₖ z) ≡ (x ⌣ₖ z) +ₖ (y ⌣ₖ z)
   main zero zero = ⊗DistL+⊗
   main zero (suc m) x y =
-    EM-rawer-elim _ _ (λ _ → hLevelEM _ (suc m) _ _)
+    EM-raw'-elim _ _ (λ _ → hLevelEM _ (suc m) _ _)
       (lem m (main zero m) x y)
     where
     cup : (m : ℕ) (x : G) → _
@@ -556,9 +570,9 @@ module RightDistributivity {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
 
     lem : (m : ℕ)
       → ((x y : G) (z : EM H' m) → cup m (x +G y) z ≡ cup m x z +ₖ cup m y z)
-      → ((x y : G) (z : EM-rawer H' (suc m))
-      → cup (suc m) (x +G y) (EM-rawer→EM _ _ z)
-       ≡ cup (suc m) x (EM-rawer→EM _ _ z) +ₖ cup (suc m) y (EM-rawer→EM _ _ z))
+      → ((x y : G) (z : EM-raw' H' (suc m))
+      → cup (suc m) (x +G y) (EM-raw'→EM _ _ z)
+       ≡ cup (suc m) x (EM-raw'→EM _ _ z) +ₖ cup (suc m) y (EM-raw'→EM _ _ z))
     lem zero ind x y embase-raw = refl
     lem zero ind x y (emloop-raw g i) = flipSquare help i
       where
@@ -628,13 +642,13 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
 
    assocInd : (n m l : ℕ)
         (f g : (EM∙ G' n →∙ (EM∙ H' m →∙ (EM∙ L' l →∙ EM∙ K' ((n +' m) +' l) ∙) ∙)))
-     → ((x : EM-rawer G' n) (y : EM-rawer H' m) (z : EM-rawer L' l)
-     → fst f (EM-rawer→EM _ n x) .fst (EM-rawer→EM _ m y) .fst (EM-rawer→EM _ l z)
-      ≡ fst g (EM-rawer→EM _ n x) .fst (EM-rawer→EM _ m y) .fst (EM-rawer→EM _ l z))
+     → ((x : EM-raw' G' n) (y : EM-raw' H' m) (z : EM-raw' L' l)
+     → fst f (EM-raw'→EM _ n x) .fst (EM-raw'→EM _ m y) .fst (EM-raw'→EM _ l z)
+      ≡ fst g (EM-raw'→EM _ n x) .fst (EM-raw'→EM _ m y) .fst (EM-raw'→EM _ l z))
      → f ≡ g
    assocInd n m l f g ind =
      →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneous→∙ (isHomogeneousEM _)))
-       (funExt (EM-rawer-elim _ _
+       (funExt (EM-raw'-elim _ _
                 (λ _ → isOfHLevelPath' (suc n) (isOfHLevel↑∙∙1 n m l) _ _)
          λ x → →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousEM _))
            (funExt λ y → →∙Homogeneous≡ (isHomogeneousEM _)
@@ -646,7 +660,7 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
 
      substFun' : ∀ {ℓ} (m l : ℕ) {n r : ℕ} {G : AbGroup ℓ} → n ≡ r → _
      substFun' m l {G = G} =
-       subst (λ x → isOfHLevel (suc (suc m)) (EM-rawer∙ G l →∙ EM∙ K' x))
+       subst (λ x → isOfHLevel (suc (suc m)) (EM-raw'∙ G l →∙ EM∙ K' x))
 
      isOfHLevel↑∙∙1 : (n m l : ℕ)
        → isOfHLevel (suc (suc n)) (EM∙ H' m →∙ (EM∙ L' l →∙ EM∙ K' ((n +' m) +' l) ∙))
@@ -676,7 +690,7 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
 
      isOfHLevel↑∙∙2 : (n m l : ℕ)
        → isOfHLevel (suc (suc m))
-           (EM∙ L' l →∙ (EM-rawer∙ G' n →∙ EM∙ K' ((n +' m) +' l) ∙))
+           (EM∙ L' l →∙ (EM-raw'∙ G' n →∙ EM∙ K' ((n +' m) +' l) ∙))
      isOfHLevel↑∙∙2 zero m zero =
        isOfHLevel→∙ (suc (suc m)) (isOfHLevel→∙ (suc (suc m))
          (subst (λ x → isOfHLevel (suc (suc m)) (EM K' x))
@@ -693,7 +707,7 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
           (isOfHLevel↑∙' m (suc n)))
      isOfHLevel↑∙∙2 (suc n) m (suc l) =
        subst (λ x → isOfHLevel (suc (suc m))
-             (EM∙ L' (suc l) →∙ (EM-rawer∙ G' (suc n) →∙ EM∙ K' x ∙)))
+             (EM∙ L' (suc l) →∙ (EM-raw'∙ G' (suc n) →∙ EM∙ K' x ∙)))
              (cong (2 +_) (sym (+-assoc m l n)
                        ∙∙ cong (m +_) (+-comm l n)
                        ∙∙ (+-assoc m n l
@@ -704,7 +718,7 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
 
      isOfHLevel↑∙∙3 : (n m l : ℕ)
        → isOfHLevel (suc (suc l))
-           (EM-rawer∙ H' m →∙ (EM-rawer∙ G' n →∙ EM∙ K' ((n +' m) +' l) ∙))
+           (EM-raw'∙ H' m →∙ (EM-raw'∙ G' n →∙ EM∙ K' ((n +' m) +' l) ∙))
      isOfHLevel↑∙∙3 zero zero l =
        isOfHLevel→∙ (suc (suc l)) (isOfHLevel→∙ (suc (suc l)) (hLevelEM _ l))
      isOfHLevel↑∙∙3 zero (suc m) l =
@@ -717,7 +731,7 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
         (isOfHLevel↑∙' l (suc n)))
      isOfHLevel↑∙∙3 (suc n) (suc m) l =
        subst (λ x → isOfHLevel (suc (suc l))
-             (EM-rawer∙ H' (suc m) →∙ (EM-rawer∙ G' (suc n) →∙ EM∙ K' x ∙)))
+             (EM-raw'∙ H' (suc m) →∙ (EM-raw'∙ G' (suc n) →∙ EM∙ K' x ∙)))
           (cong (λ x → suc (suc x))
             ((sym (+-assoc l m n) ∙ cong (l +_) (+-comm m n)) ∙ +-comm l (n + m))
           ∙ sym (+'≡+ (suc (suc (n + m))) l))
@@ -726,39 +740,39 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level} {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
      flip₁ : (f : (EM∙ G' n →∙ (EM∙ H' m
                             →∙ (EM∙ L' l →∙ EM∙ K' ((n +' m) +' l) ∙) ∙)))
           → EM H' m → (EM∙ L' l
-                    →∙ (EM-rawer∙ G' n →∙ EM∙ K' ((n +' m) +' l) ∙))
-     fst (fst (flip₁ f y) z) x = fst f (EM-rawer→EM _ _ x) .fst y .fst z
+                    →∙ (EM-raw'∙ G' n →∙ EM∙ K' ((n +' m) +' l) ∙))
+     fst (fst (flip₁ f y) z) x = fst f (EM-raw'→EM _ _ x) .fst y .fst z
      snd (fst (flip₁ f y) z) =
-        (λ i → fst f (EM-rawer→EM∙ G' n i) .fst y .fst z)
+        (λ i → fst f (EM-raw'→EM∙ G' n i) .fst y .fst z)
        ∙ λ i → snd f i .fst y .fst z
      snd (flip₁ f y) =
        →∙Homogeneous≡ (isHomogeneousEM _)
-         (funExt λ z → fst f (EM-rawer→EM G' n z) .fst y .snd)
+         (funExt λ z → fst f (EM-raw'→EM G' n z) .fst y .snd)
 
      flip₂ : (f : (EM∙ G' n →∙ (EM∙ H' m
                             →∙ (EM∙ L' l →∙ EM∙ K' ((n +' m) +' l) ∙) ∙)))
-          → EM L' l → EM-rawer∙ H' m
-                    →∙ (EM-rawer∙ G' n →∙ EM∙ K' ((n +' m) +' l) ∙)
+          → EM L' l → EM-raw'∙ H' m
+                    →∙ (EM-raw'∙ G' n →∙ EM∙ K' ((n +' m) +' l) ∙)
      fst (fst (flip₂ f z) y) x =
-       fst f (EM-rawer→EM _ _ x) .fst (EM-rawer→EM _ _ y) .fst z
+       fst f (EM-raw'→EM _ _ x) .fst (EM-raw'→EM _ _ y) .fst z
      snd (fst (flip₂ f z) y) =
-         (λ i → fst f (EM-rawer→EM∙ G' n i) .fst (EM-rawer→EM H' m y) .fst z)
-       ∙ λ i → snd f i .fst (EM-rawer→EM H' m y) .fst z
+         (λ i → fst f (EM-raw'→EM∙ G' n i) .fst (EM-raw'→EM H' m y) .fst z)
+       ∙ λ i → snd f i .fst (EM-raw'→EM H' m y) .fst z
      snd (flip₂ f z) =
        →∙Homogeneous≡ (isHomogeneousEM _)
-          ((λ i x → fst f (EM-rawer→EM G' n x) .fst (EM-rawer→EM∙ H' m i) .fst z)
-         ∙ λ i x → fst f (EM-rawer→EM G' n x) .snd i .fst z)
+          ((λ i x → fst f (EM-raw'→EM G' n x) .fst (EM-raw'→EM∙ H' m i) .fst z)
+         ∙ λ i x → fst f (EM-raw'→EM G' n x) .snd i .fst z)
 
      flip₂Id : (x : EM L' l) → flip₂ f x ≡ flip₂ g x
      flip₂Id =
-       EM-rawer-elim _ _ (λ _ → isOfHLevelPath' (suc l) (isOfHLevel↑∙∙3 n m l) _ _)
+       EM-raw'-elim _ _ (λ _ → isOfHLevelPath' (suc l) (isOfHLevel↑∙∙3 n m l) _ _)
          λ z → →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousEM _))
                  (funExt λ y → →∙Homogeneous≡ (isHomogeneousEM _)
                    (funExt λ x → ind x y z))
 
      flip₁Id : (x : EM H' m) → flip₁ f x ≡ flip₁ g x
      flip₁Id =
-       EM-rawer-elim _ _ (λ _ → isOfHLevelPath' (suc m) (isOfHLevel↑∙∙2 n m l) _ _)
+       EM-raw'-elim _ _ (λ _ → isOfHLevelPath' (suc m) (isOfHLevel↑∙∙2 n m l) _ _)
          λ y → →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousEM _))
                  (funExt λ z → →∙Homogeneous≡ (isHomogeneousEM _)
                    (cong fst (funExt⁻ (cong fst (flip₂Id z)) y)))
@@ -958,11 +972,11 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
       assocInd zero zero 1 _ _
         λ x y z →
           help x y z
-        ∙ sym (transportRefl (swapFun zero zero 1 (x ⌣ₖ (y ⌣ₖ EM-rawer→EM _ _ z))))
+        ∙ sym (transportRefl (swapFun zero zero 1 (x ⌣ₖ (y ⌣ₖ EM-raw'→EM _ _ z))))
       where
-      help : (x : G) (y : H) (z : EM-rawer L' 1)
-        → (cup∙ 0 1 (cup∙ 0 0 x .fst y) .fst (EM-rawer→EM _ _ z))
-         ≡ swapFun zero zero 1  (x ⌣ₖ (y ⌣ₖ (EM-rawer→EM _ _ z)))
+      help : (x : G) (y : H) (z : EM-raw' L' 1)
+        → (cup∙ 0 1 (cup∙ 0 0 x .fst y) .fst (EM-raw'→EM _ _ z))
+         ≡ swapFun zero zero 1  (x ⌣ₖ (y ⌣ₖ (EM-raw'→EM _ _ z)))
       help x y embase-raw = refl
       help x y (emloop-raw g i) = refl
     assoc₀₀ₗ (suc (suc l)) =
@@ -970,10 +984,10 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
         λ x y z → help (assoc₀₀ₗ (suc l)) x y z
                  ∙ sym (preSubstFunLoop _
                         (swapFun zero zero (2 + l)
-                         (x ⌣ₖ (y ⌣ₖ EM-rawer→EM _ _ z))))
+                         (x ⌣ₖ (y ⌣ₖ EM-raw'→EM _ _ z))))
       where
       help : assL zero zero (suc l) ≡ assR zero zero (suc l)
-        → (x : G) (y : H) (z : EM-rawer L' (suc (suc l)))
+        → (x : G) (y : H) (z : EM-raw' L' (suc (suc l)))
         → (cup∙ 0 (suc (suc l)) (cup∙ 0 0 x .fst y) .fst ∣ z ∣ₕ)
          ≡ swapFun zero zero (suc (suc l)) (x ⌣ₖ (y ⌣ₖ ∣ z ∣))
       help p x y north = refl
@@ -1004,35 +1018,35 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                  ∙ sym (preSubstFunLoop _
                         (swapFun zero (suc zero) (suc l)
                          (_⌣ₖ_ {n = zero} x (_⌣ₖ_ {n = (suc zero)} {m = suc l}
-                         (EM-rawer→EM _ _ y) (EM-rawer→EM _ _ z)))))
+                         (EM-raw'→EM _ _ y) (EM-raw'→EM _ _ z)))))
       where
       help : assL zero 1 l ≡ assR zero 1 l
-        → (z : EM-rawer L' (suc l)) (y : EM₁-raw (AbGroup→Group H')) (x : fst G')
+        → (z : EM-raw' L' (suc l)) (y : EM₁-raw (AbGroup→Group H')) (x : fst G')
          → fst (assL zero 1 (suc l))
-             (EM-rawer→EM (fst G' , snd G') zero x) .fst
-               (EM-rawer→EM H' 1 y) .fst (EM-rawer→EM L' (suc l) z)
+             (EM-raw'→EM (fst G' , snd G') zero x) .fst
+               (EM-raw'→EM H' 1 y) .fst (EM-raw'→EM L' (suc l) z)
          ≡ swapFun zero (suc zero) (suc l)
                    (_⌣ₖ_ {n = zero} x (_⌣ₖ_ {n = (suc zero)} {m = suc l}
-                    (EM-rawer→EM _ _ y) (EM-rawer→EM _ _ z)))
+                    (EM-raw'→EM _ _ y) (EM-raw'→EM _ _ z)))
       help ind z embase-raw x = refl
       help ind z (emloop-raw g i) x = flipSquare help2 i
         where
         help2 : cong (λ y → fst (assL zero 1 (suc l))
-                     (EM-rawer→EM (fst G' , snd G') zero x) .fst y .fst
-                       (EM-rawer→EM L' (suc l) z)) (emloop g)
+                     (EM-raw'→EM (fst G' , snd G') zero x) .fst y .fst
+                       (EM-raw'→EM L' (suc l) z)) (emloop g)
               ≡ cong (swapFun zero (suc zero) (suc l))
                 λ i → _⌣ₖ_ {n = zero} x (_⌣ₖ_ {n = (suc zero)} {m = suc l}
-                  (emloop g i) (EM-rawer→EM _ _ z))
+                  (emloop g i) (EM-raw'→EM _ _ z))
         help2 = cong (EM→ΩEM+1 (suc l))
-                     (assocConvert (assoc₀₀ₗ (suc l)) x g (EM-rawer→EM _ _ z)
+                     (assocConvert (assoc₀₀ₗ (suc l)) x g (EM-raw'→EM _ _ z)
                     ∙ preSubstFunLoop _
                        (swapFun zero zero (suc l)
                         (cup∙ zero (suc l) x .fst
-                         (cup∙ zero (suc l) g .fst (EM-rawer→EM L' (suc l) z)))))
+                         (cup∙ zero (suc l) g .fst (EM-raw'→EM L' (suc l) z)))))
              ∙∙ EMFun-EM→ΩEM+1 (suc l) _
              ∙∙ cong (cong (swapFun zero (suc zero) (suc l)))
                      (EM→ΩEM+1-distr₀ₙ l x
-                      (_⌣ₖ_ {n = zero} {m = suc l} g (EM-rawer→EM _ _ z)))
+                      (_⌣ₖ_ {n = zero} {m = suc l} g (EM-raw'→EM _ _ z)))
 
     assoc₀ₘₗ : (n l : ℕ)
       → assL zero (suc n) l ≡ assR zero (suc n) l
@@ -1043,11 +1057,11 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                  ∙ sym (preSubstFunLoop (+'-assoc zero (suc (suc n)) zero)
                        (swapFun zero (suc (suc n)) zero _))
       where
-      help : (x : G) (a : EM-rawer H' (suc (suc n))) (z : L)
+      help : (x : G) (a : EM-raw' H' (suc (suc n))) (z : L)
         → cup∙ _ 0 (cup∙ 0 (suc (suc n)) x .fst ∣ a ∣) .fst z
          ≡ swapFun zero (suc (suc n)) zero
              (_⌣ₖ_ {n = 0} {m = suc (suc n)} x
-               (_⌣ₖ_ {n = suc (suc n)} {m = 0} (EM-rawer→EM _ _ a) z))
+               (_⌣ₖ_ {n = suc (suc n)} {m = 0} (EM-raw'→EM _ _ a) z))
       help x north z = refl
       help x south z = refl
       help x (merid a i) z = flipSquare main i
@@ -1073,37 +1087,37 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
       assocInd zero (2 + n) (suc l) _ _
         λ x y z → lem x y z ∙ sym (preSubstFunLoop _
                            (swapFun zero (suc (suc n)) (suc l)
-                             (x ⌣ₖ (∣ y ∣ ⌣ₖ EM-rawer→EM L' (suc l) z))))
+                             (x ⌣ₖ (∣ y ∣ ⌣ₖ EM-raw'→EM L' (suc l) z))))
       where
-      lem : (x : G) (y : EM-rawer H' (suc (suc n))) (z : EM-rawer L' (suc l))
-         → (x ⌣ₖ ∣ y ∣) ⌣ₖ EM-rawer→EM L' (suc l) z
+      lem : (x : G) (y : EM-raw' H' (suc (suc n))) (z : EM-raw' L' (suc l))
+         → (x ⌣ₖ ∣ y ∣) ⌣ₖ EM-raw'→EM L' (suc l) z
           ≡ swapFun zero (suc (suc n)) (suc l)
-             (x ⌣ₖ (∣ y ∣ ⌣ₖ EM-rawer→EM L' (suc l) z))
+             (x ⌣ₖ (∣ y ∣ ⌣ₖ EM-raw'→EM L' (suc l) z))
       lem x north z = refl
       lem x south z = refl
       lem x (merid a i) z = flipSquare main i
         where
         main : (λ i → _⌣ₖ_ {n = suc (suc n)} {m = suc l}
                  (_⌣ₖ_ {n = zero} {m = suc (suc n)} x ∣ merid a i ∣)
-                  (EM-rawer→EM _ _ z))
+                  (EM-raw'→EM _ _ z))
            ≡ (cong (swapFun zero (suc (suc n)) (suc l))
                 (λ i → (_⌣ₖ_ {n = 0} {m = suc (suc n) +' suc l} x
                   (_⌣ₖ_ {n = suc (suc n)} {m = suc l} ∣ merid a i ∣ₕ
-                   (EM-rawer→EM _ _ z)))))
+                   (EM-raw'→EM _ _ z)))))
         main = (λ _ i → EM→ΩEM+1 _
                   (cup∙ 0 (suc n) x .fst ((EM-raw→EM _ _ a))) i
-                   ⌣ₖ (EM-rawer→EM _ _ z))
+                   ⌣ₖ (EM-raw'→EM _ _ z))
              ∙∙ (sym (EM→ΩEM+1-distrₙsuc n l (cup∙ 0 (suc n) x .fst
-                     (EM-raw→EM _ _ a)) (EM-rawer→EM _ _ z))
+                     (EM-raw→EM _ _ a)) (EM-raw'→EM _ _ z))
               ∙ cong (EM→ΩEM+1 (suc (suc (n + l))))
-                     (assocConvert ind x (EM-raw→EM _ _ a) (EM-rawer→EM _ _ z)
+                     (assocConvert ind x (EM-raw→EM _ _ a) (EM-raw'→EM _ _ z)
                     ∙ preSubstFunLoop _
                        (Iso.fun (Iso→EMIso ⨂assoc (suc (suc (n + l)))) _)))
               ∙ (EMFun-EM→ΩEM+1 _ (_⌣ₖ_ {n = zero} {m = suc n +' suc l}
-                     x (EM-raw→EM H' (suc n) a ⌣ₖ EM-rawer→EM L' (suc l) z)))
+                     x (EM-raw→EM H' (suc n) a ⌣ₖ EM-raw'→EM L' (suc l) z)))
              ∙∙ cong (cong ((swapFun zero (suc (suc n)) (suc l))))
                  (EM→ΩEM+1-distr₀ₙ _ x (_⌣ₖ_ {n = suc n} {m = suc l}
-                  (EM-raw→EM _ _ a) (EM-rawer→EM _ _ z)))
+                  (EM-raw→EM _ _ a) (EM-raw'→EM _ _ z)))
 
 
     mainAssoc₀ₘₗ : (m l : ℕ) → assL zero m l ≡ assR zero m l
@@ -1120,34 +1134,34 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
              λ n ind → assocInd 1 zero (suc (suc n)) _ _
               λ x y z → l₃ n ind x y z ∙ sym (funExt⁻ (lem n) _)
       where
-      l₁ : (x : EM-rawer G' 1) (y : H) (z : L)
-        → fst (assL 1 zero 0) (EM-rawer→EM G' 1 x)
-          .fst (EM-rawer→EM H' zero y)
-          .fst (EM-rawer→EM L' zero z)
-        ≡ swapFun 1 zero 0 (EM-rawer→EM _ _ x ⌣ₖ (y ⌣ₖ z))
+      l₁ : (x : EM-raw' G' 1) (y : H) (z : L)
+        → fst (assL 1 zero 0) (EM-raw'→EM G' 1 x)
+          .fst (EM-raw'→EM H' zero y)
+          .fst (EM-raw'→EM L' zero z)
+        ≡ swapFun 1 zero 0 (EM-raw'→EM _ _ x ⌣ₖ (y ⌣ₖ z))
       l₁ embase-raw y z = refl
       l₁ (emloop-raw g i) y z = refl
 
-      l₂ : (z : EM-rawer L' 1) (y : EM-rawer H' zero) (x : EM-rawer G' 1)
-        → fst (assL 1 zero 1) (EM-rawer→EM G' 1 x)
-          .fst (EM-rawer→EM H' zero y)
-          .fst (EM-rawer→EM L' 1 z)
-        ≡ swapFun 1 zero 1 (EM-rawer→EM _ _ x ⌣ₖ (y ⌣ₖ EM-rawer→EM _ _ z))
+      l₂ : (z : EM-raw' L' 1) (y : EM-raw' H' zero) (x : EM-raw' G' 1)
+        → fst (assL 1 zero 1) (EM-raw'→EM G' 1 x)
+          .fst (EM-raw'→EM H' zero y)
+          .fst (EM-raw'→EM L' 1 z)
+        ≡ swapFun 1 zero 1 (EM-raw'→EM _ _ x ⌣ₖ (y ⌣ₖ EM-raw'→EM _ _ z))
       l₂ z y embase-raw = refl
       l₂ z y (emloop-raw g i) = sym (flipSquare help i)
         where
-        help : cong (λ x → swapFun 1 zero 1 (x ⌣ₖ (y ⌣ₖ EM-rawer→EM _ _ z)))
+        help : cong (λ x → swapFun 1 zero 1 (x ⌣ₖ (y ⌣ₖ EM-raw'→EM _ _ z)))
                     (emloop g)
              ≡ cong (λ x → (_⌣ₖ_ {n = suc zero} {m = suc zero}
                     (_⌣ₖ_ {G' = G'} {H' = H'} {n = suc zero} {m = 0} x y)
-                     (EM-rawer→EM _ _ z))) (emloop g)
+                     (EM-raw'→EM _ _ z))) (emloop g)
         help = (sym (EMFun-EM→ΩEM+1 (suc zero)
-          (cup∙ zero 1 g .fst (cup∙ zero 1 y .fst (EM-rawer→EM _ _ z)))))
+          (cup∙ zero 1 g .fst (cup∙ zero 1 y .fst (EM-raw'→EM _ _ z)))))
              ∙ cong (EM→ΩEM+1 1)
                   (sym (transportRefl _)
                  ∙ sym (funExt⁻ (cong fst (funExt⁻
                     (cong fst (funExt⁻ (cong fst (mainAssoc₀ₘₗ zero 1)) g)) y))
-                     (EM-rawer→EM _ _ z)))
+                     (EM-raw'→EM _ _ z)))
 
       lem : (n : ℕ) → substFun 1 zero (suc (suc n)) ≡ idfun _
       lem n = (λ i → subst (EM ((G' ⨂ H') ⨂ L'))
@@ -1155,12 +1169,12 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
             ∙ funExt transportRefl
 
       l₃ : (n : ℕ) → assL 1 zero (suc n) ≡ assR 1 zero (suc n)
-        → (x : EM-rawer G' 1) (y : EM-rawer H' zero)
-           (z : EM-rawer L' (suc (suc n)))
-        → fst (assL 1 zero (suc (suc n))) (EM-rawer→EM G' 1 x) .fst
-            (EM-rawer→EM H' zero y) .fst (EM-rawer→EM L' (suc (suc n)) z)
+        → (x : EM-raw' G' 1) (y : EM-raw' H' zero)
+           (z : EM-raw' L' (suc (suc n)))
+        → fst (assL 1 zero (suc (suc n))) (EM-raw'→EM G' 1 x) .fst
+            (EM-raw'→EM H' zero y) .fst (EM-raw'→EM L' (suc (suc n)) z)
         ≡ (swapFun 1 zero (suc (suc n))
-            (EM-rawer→EM _ _ x ⌣ₖ (y ⌣ₖ ∣ z ∣)))
+            (EM-raw'→EM _ _ x ⌣ₖ (y ⌣ₖ ∣ z ∣)))
       l₃ n ind embase-raw y z = refl
       l₃ n ind (emloop-raw g i) y z = flipSquare help i
         where
@@ -1184,10 +1198,10 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
         λ x y z → lem x y z
          ∙ sym (preSubstFunLoop _ ((swapFun (suc (suc n)) zero zero _)))
       where
-      lem : (x : EM-rawer G' (suc (suc n))) (y : H) (z : L)
+      lem : (x : EM-raw' G' (suc (suc n))) (y : H) (z : L)
         → fst (assL (suc (suc n)) zero zero)
-            (EM-rawer→EM G' (suc (suc n)) x) .fst (EM-rawer→EM H' zero y)
-            .fst (EM-rawer→EM L' zero z)
+            (EM-raw'→EM G' (suc (suc n)) x) .fst (EM-raw'→EM H' zero y)
+            .fst (EM-raw'→EM L' zero z)
          ≡ _
       lem north y z = refl
       lem south y z = refl
@@ -1213,12 +1227,12 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
            lem x y z
          ∙ sym (preSubstFunLoop _ (swapFun (suc (suc n)) zero (suc zero) _))
       where
-      lem : (x : EM-rawer G' (suc (suc n))) (y : H)
-            (z : EM-rawer L' (suc zero))
+      lem : (x : EM-raw' G' (suc (suc n))) (y : H)
+            (z : EM-raw' L' (suc zero))
         → fst (assL (suc (suc n)) zero (suc zero))
-            (EM-rawer→EM G' (suc (suc n)) x)
-             .fst (EM-rawer→EM H' zero y)
-              .fst (EM-rawer→EM L' (suc zero) z)
+            (EM-raw'→EM G' (suc (suc n)) x)
+             .fst (EM-raw'→EM H' zero y)
+              .fst (EM-raw'→EM L' (suc zero) z)
          ≡ _
       lem north y z = refl
       lem south y z = refl
@@ -1226,17 +1240,17 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
         where
         help : (λ i → _⌣ₖ_ {n = suc (suc n)} {m = suc zero}
                  (EM→ΩEM+1 (suc n) (_⌣ₖ_ {n = suc n} {m = zero}
-                  (EM-raw→EM _ _ a) y) i) (EM-rawer→EM _ _ z))
+                  (EM-raw→EM _ _ a) y) i) (EM-raw'→EM _ _ z))
              ≡ cong (swapFun (suc (suc n)) zero (suc zero))
                 (EM→ΩEM+1 (suc n +' suc zero)
                   (cup∙ (suc n) _ (EM-raw→EM _ _ a)
                    .fst (cup∙ zero (suc zero) y
-                    .fst (EM-rawer→EM L' (suc zero) z))))
+                    .fst (EM-raw'→EM L' (suc zero) z))))
         help = sym (EM→ΩEM+1-distrₙsuc _ _ _
-                     (EM-rawer→EM L' (suc zero) z))
+                     (EM-raw'→EM L' (suc zero) z))
             ∙∙ cong (EM→ΩEM+1 (suc n +' suc zero))
                     (assocConvert ind
-                     (EM-raw→EM G' (suc n) a) y (EM-rawer→EM L' (suc zero) z)
+                     (EM-raw→EM G' (suc n) a) y (EM-raw'→EM L' (suc zero) z)
                   ∙ preSubstFunLoop _ (swapFun (suc n) zero (suc zero) _))
             ∙∙ EMFun-EM→ΩEM+1 _ _
     assocₙ₀ₗ (suc n) (suc (suc l)) ind =
@@ -1245,12 +1259,12 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
             lem x y z
           ∙ sym (preSubstFunLoop _ (swapFun (suc (suc n)) zero (suc (suc l)) _))
       where
-      lem : (x : EM-rawer G' (suc (suc n))) (y : H)
-            (z : EM-rawer L' (suc (suc l)))
+      lem : (x : EM-raw' G' (suc (suc n))) (y : H)
+            (z : EM-raw' L' (suc (suc l)))
         → fst (assL (suc (suc n)) zero (suc (suc l)))
-            (EM-rawer→EM G' (suc (suc n)) x) .fst
-             (EM-rawer→EM H' zero y) .fst
-              (EM-rawer→EM L' (suc (suc l)) z)
+            (EM-raw'→EM G' (suc (suc n)) x) .fst
+             (EM-raw'→EM H' zero y) .fst
+              (EM-raw'→EM L' (suc (suc l)) z)
          ≡ _
       lem north y z = refl
       lem south y z = refl
@@ -1258,17 +1272,17 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
         where
         help : (λ i → _⌣ₖ_ {n = suc (suc n)} {m = suc (suc l)}
                  (EM→ΩEM+1 (suc n) (_⌣ₖ_ {n = suc n} {m = zero}
-                  (EM-raw→EM _ _ a) y) i) (EM-rawer→EM _ _ z))
+                  (EM-raw→EM _ _ a) y) i) (EM-raw'→EM _ _ z))
              ≡ cong (swapFun (suc (suc n)) zero (suc (suc l)))
                 (EM→ΩEM+1 (suc n +' suc (suc l))
                   (cup∙ (suc n) _ (EM-raw→EM _ _ a) .fst
                    (cup∙ zero (suc (suc l)) y .fst
-                    (EM-rawer→EM L' (suc (suc l)) z))))
+                    (EM-raw'→EM L' (suc (suc l)) z))))
         help = sym (EM→ΩEM+1-distrₙsuc _ _ _
-                    (EM-rawer→EM L' (suc (suc l)) z))
+                    (EM-raw'→EM L' (suc (suc l)) z))
             ∙∙ cong (EM→ΩEM+1 (suc n +' suc (suc l)))
                     (assocConvert ind
-                     (EM-raw→EM G' (suc n) a) y (EM-rawer→EM L' (suc (suc l)) z)
+                     (EM-raw→EM G' (suc n) a) y (EM-raw'→EM L' (suc (suc l)) z)
                   ∙ preSubstFunLoop _ (swapFun (suc n) zero (suc (suc l)) _))
             ∙∙ EMFun-EM→ΩEM+1 _ _
 
@@ -1280,34 +1294,34 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
             lem x y z
           ∙ sym (preSubstFunLoop _ (swapFun (suc zero) (suc zero) zero _))
       where
-      lem : (x : EM-rawer G' (suc zero)) (y : EM-rawer H' (suc zero)) (z : L)
+      lem : (x : EM-raw' G' (suc zero)) (y : EM-raw' H' (suc zero)) (z : L)
         → _ ≡ _
       lem embase-raw y z = refl
       lem (emloop-raw g i) y z = flipSquare help i
         where
         help : (λ i → _⌣ₖ_ {n = suc (suc zero)} {m = zero}
                  (EM→ΩEM+1 (suc zero)
-                  (_⌣ₖ_ {n = zero} {m = suc zero} g (EM-rawer→EM _ _ y)) i) z)
+                  (_⌣ₖ_ {n = zero} {m = suc zero} g (EM-raw'→EM _ _ y)) i) z)
              ≡ cong (swapFun 1 1 zero)
                 (EM→ΩEM+1 1 (·₀ g 1
-                 (_⌣ₖ_ {n = suc zero} {m = zero} (EM-rawer→EM _ _ y) z)))
+                 (_⌣ₖ_ {n = suc zero} {m = zero} (EM-raw'→EM _ _ y) z)))
         help = sym (EM→ΩEM+1-distrₙ₀ zero z
-                    (_⌣ₖ_ {n = zero} {m = suc zero} g (EM-rawer→EM _ _ y)))
+                    (_⌣ₖ_ {n = zero} {m = suc zero} g (EM-raw'→EM _ _ y)))
              ∙ cong (EM→ΩEM+1 1)
-                 (assocConvert ind g (EM-rawer→EM _ _ y) z
+                 (assocConvert ind g (EM-raw'→EM _ _ y) z
                 ∙ preSubstFunLoop _ (swapFun zero (suc zero) zero
                   (·₀ g 1 (_⌣ₖ_ {n = suc zero} {m = zero}
-                   (EM-rawer→EM _ _ y) z))))
+                   (EM-raw'→EM _ _ y) z))))
              ∙ EMFun-EM→ΩEM+1 _
                 (·₀ g 1 (_⌣ₖ_ {n = suc zero} {m = zero}
-                 (EM-rawer→EM _ _ y) z))
+                 (EM-raw'→EM _ _ y) z))
     assocₙₘ₀ zero (suc m) ind =
       assocInd (suc zero) (suc (suc m)) zero _ _
         λ x y z →
             lem x y z
           ∙ sym (preSubstFunLoop _ (swapFun (suc zero) (suc (suc m)) zero _))
       where
-      lem : (x : EM-rawer G' (suc zero)) (y : EM-rawer H' (suc (suc m))) (z : L)
+      lem : (x : EM-raw' G' (suc zero)) (y : EM-raw' H' (suc (suc m))) (z : L)
         → _ ≡ _
       lem embase-raw y z = refl
       lem (emloop-raw g i) y z = flipSquare help i
@@ -1318,9 +1332,9 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                 (EM→ΩEM+1 (suc (suc m)) (·₀ g (suc (suc m))
                  (_⌣ₖ_ {n = suc (suc m)} {m = zero} ∣ y ∣ₕ z)))
         help = sym (EM→ΩEM+1-distrₙ₀ (suc m) z
-                     (_⌣ₖ_ {n = zero} {m = suc (suc m)} g (EM-rawer→EM _ _ y)))
+                     (_⌣ₖ_ {n = zero} {m = suc (suc m)} g (EM-raw'→EM _ _ y)))
              ∙ cong (EM→ΩEM+1 (suc (suc m)))
-                   (assocConvert ind g (EM-rawer→EM _ _ y) z
+                   (assocConvert ind g (EM-raw'→EM _ _ y) z
                   ∙ preSubstFunLoop _ (swapFun zero (suc (suc m)) zero
                     (·₀ g (suc (suc m)) (_⌣ₖ_ {n = suc (suc m)} {m = zero}
                       ∣ y ∣ₕ z))))
@@ -1333,7 +1347,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
             lem x y z
           ∙ sym (preSubstFunLoop _ (swapFun (suc (suc n)) (suc zero) zero _))
       where
-      lem : (x : EM-rawer G' (suc (suc n))) (y : EM-rawer H' (suc zero)) (z : L)
+      lem : (x : EM-raw' G' (suc (suc n))) (y : EM-raw' H' (suc zero)) (z : L)
        → _ ≡ _
       lem north y z = refl
       lem south y z = refl
@@ -1341,16 +1355,16 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
         where
         help : (λ i → _⌣ₖ_ {n = suc (suc n +' suc zero)} {m = zero}
                  (EM→ΩEM+1 _ (_⌣ₖ_ {n = suc n} {m = suc zero}
-                  (EM-raw→EM _ _ a) (EM-rawer→EM _ _ y)) i) z)
+                  (EM-raw→EM _ _ a) (EM-raw'→EM _ _ y)) i) z)
              ≡ cong (swapFun (suc (suc n)) (suc zero) zero)
                     (EM→ΩEM+1 (suc (suc (n + 0)))
                       (_⌣ₖ_ {n = suc n} {m = suc zero}
                        (EM-raw→EM _ _ a)
-                        (_⌣ₖ_ {n = suc zero} {m = zero} (EM-rawer→EM _ _ y) z)))
+                        (_⌣ₖ_ {n = suc zero} {m = zero} (EM-raw'→EM _ _ y) z)))
         help = sym (EM→ΩEM+1-distrₙ₀ _ z (_⌣ₖ_ {n = suc n} {m = suc zero}
-                   (EM-raw→EM _ _ a) (EM-rawer→EM _ _ y)))
+                   (EM-raw→EM _ _ a) (EM-raw'→EM _ _ y)))
             ∙∙ cong (EM→ΩEM+1 (suc (suc (n + 0))))
-                    (assocConvert ind (EM-raw→EM _ _ a) (EM-rawer→EM _ _ y) z
+                    (assocConvert ind (EM-raw→EM _ _ a) (EM-raw'→EM _ _ y) z
                   ∙ preSubstFunLoop _ _)
             ∙∙ EMFun-EM→ΩEM+1 _ _
     assocₙₘ₀ (suc n) (suc m) ind =
@@ -1359,7 +1373,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
            lem x y z
          ∙ sym (preSubstFunLoop _ (swapFun (suc (suc n)) (suc (suc m)) zero _))
       where
-      lem : (x : EM-rawer G' (suc (suc n))) (y : EM-rawer H' (suc (suc m))) (z : L)
+      lem : (x : EM-raw' G' (suc (suc n))) (y : EM-raw' H' (suc (suc m))) (z : L)
         → _ ≡ _
       lem north y z = refl
       lem south y z = refl
@@ -1367,16 +1381,16 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
         where
         help : (λ i → _⌣ₖ_ {n = suc (suc n +' suc (suc m))} {m = zero}
                  (EM→ΩEM+1 _ (_⌣ₖ_ {n = suc n} {m = suc (suc m)}
-                  (EM-raw→EM _ _ a) (EM-rawer→EM _ _ y)) i) z)
+                  (EM-raw→EM _ _ a) (EM-raw'→EM _ _ y)) i) z)
              ≡ cong (swapFun (suc (suc n)) (suc (suc m)) zero)
                     (EM→ΩEM+1 (suc n +' (suc (suc m)))
                       (_⌣ₖ_ {n = suc n} {m = suc (suc m)}
                        (EM-raw→EM _ _ a) (_⌣ₖ_ {n = suc (suc m)} {m = zero}
-                        (EM-rawer→EM _ _ y) z)))
+                        (EM-raw'→EM _ _ y) z)))
         help = sym (EM→ΩEM+1-distrₙ₀ _ z (_⌣ₖ_ {n = suc n} {m = suc (suc m)}
-                   (EM-raw→EM _ _ a) (EM-rawer→EM _ _ y)))
+                   (EM-raw→EM _ _ a) (EM-raw'→EM _ _ y)))
             ∙∙ cong (EM→ΩEM+1 _)
-                    (assocConvert ind (EM-raw→EM _ _ a) (EM-rawer→EM _ _ y) z
+                    (assocConvert ind (EM-raw→EM _ _ a) (EM-raw'→EM _ _ y) z
                   ∙ preSubstFunLoop _ _)
             ∙∙ EMFun-EM→ΩEM+1 _ _
 
@@ -1389,27 +1403,27 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
             lem x y z
           ∙ sym (preSubstFunLoop _ (swapFun (suc zero) (suc m) (suc l) _))
       where
-      lem : (x : EM-rawer G' (suc zero))
-            (y : EM-rawer H' (suc m))
-            (z : EM-rawer L' (suc l)) → _ ≡ _
+      lem : (x : EM-raw' G' (suc zero))
+            (y : EM-raw' H' (suc m))
+            (z : EM-raw' L' (suc l)) → _ ≡ _
       lem embase-raw y z = refl
       lem (emloop-raw g i) y z = flipSquare help i
         where
         help : (λ i → ((_⌣ₖ_ {n = 1} {m = suc m} (emloop g i)
-                 (EM-rawer→EM H' (suc m) y)) ⌣ₖ EM-rawer→EM L' (suc l) z))
+                 (EM-raw'→EM H' (suc m) y)) ⌣ₖ EM-raw'→EM L' (suc l) z))
           ≡ cong (swapFun 1 (suc m) (suc l))
              (EM→ΩEM+1 (suc (suc (m + l)))
               (·₀ g (suc (suc (m + l)))
-               (EM-rawer→EM H' (suc m) y ⌣ₖ EM-rawer→EM L' (suc l) z)))
+               (EM-raw'→EM H' (suc m) y ⌣ₖ EM-raw'→EM L' (suc l) z)))
         help = sym (EM→ΩEM+1-distrₙsuc m l
-                    (·₀ g (suc m) (EM-rawer→EM H' (suc m) y))
-                                  (EM-rawer→EM L' (suc l) z))
+                    (·₀ g (suc m) (EM-raw'→EM H' (suc m) y))
+                                  (EM-raw'→EM L' (suc l) z))
             ∙∙ cong (EM→ΩEM+1 (suc (suc (m + l))))
                     (assocConvert ind g
-                     (EM-rawer→EM H' (suc m) y) (EM-rawer→EM L' (suc l) z)
+                     (EM-raw'→EM H' (suc m) y) (EM-raw'→EM L' (suc l) z)
                   ∙ preSubstFunLoop _ (swapFun zero (suc m) (suc l)
                       (·₀ g (suc (suc (m + l)))
-                       (EM-rawer→EM H' (suc m) y ⌣ₖ EM-rawer→EM L' (suc l) z))))
+                       (EM-raw'→EM H' (suc m) y ⌣ₖ EM-raw'→EM L' (suc l) z))))
             ∙∙ EMFun-EM→ΩEM+1 _ _
     assocₙₘₗ₊ (suc n) m l ind =
       assocInd (suc (suc n)) (suc m) (suc l) _ _
@@ -1422,25 +1436,25 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
       transplem n = J> λ x → cong (EM→ΩEM+1 (suc n)) (transportRefl x)
                  ∙ λ i j → transportRefl (EM→ΩEM+1 (suc n) x j) (~ i)
 
-      help : (a : EM-raw G' (suc n)) (y : EM-rawer H' (suc m))
-             (z : EM-rawer L' (suc l))
+      help : (a : EM-raw G' (suc n)) (y : EM-raw' H' (suc m))
+             (z : EM-raw' L' (suc l))
         → (λ i → _⌣ₖ_ {n = suc (suc n +' suc m)} {m = suc l}
                    (EM→ΩEM+1 _ (cup∙ (suc n) (suc m) (EM-raw→EM _ _ a) .fst
-                     (EM-rawer→EM H' (suc m) y)) i)
-                   (EM-rawer→EM L' (suc l) z))
+                     (EM-raw'→EM H' (suc m) y)) i)
+                   (EM-raw'→EM L' (suc l) z))
          ≡ cong (substFun (suc (suc n)) (suc m) (suc l))
             (cong (swapFun (suc (suc n)) (suc m) (suc l))
               (EM→ΩEM+1 (suc n +' (suc m +' suc l))
                 (cup∙ (suc n) (suc m +' suc l) (EM-raw→EM _ _ a) .fst
-                 (cup∙ (suc m) (suc l) (EM-rawer→EM H' (suc m) y) .fst
-                   (EM-rawer→EM L' (suc l) z)))))
+                 (cup∙ (suc m) (suc l) (EM-raw'→EM H' (suc m) y) .fst
+                   (EM-raw'→EM L' (suc l) z)))))
       help a y z =
            sym (EM→ΩEM+1-distrₙsuc _ l
                  (cup∙ (suc n) (suc m) (EM-raw→EM _ _ a) .fst
-                   (EM-rawer→EM H' (suc m) y)) (EM-rawer→EM L' (suc l) z))
+                   (EM-raw'→EM H' (suc m) y)) (EM-raw'→EM L' (suc l) z))
         ∙∙ cong (EM→ΩEM+1 (suc (suc (suc (n + m + l)))))
             (assocConvert ind (EM-raw→EM _ _ a)
-              (EM-rawer→EM H' (suc m) y) (EM-rawer→EM L' (suc l) z))
+              (EM-raw'→EM H' (suc m) y) (EM-raw'→EM L' (suc l) z))
         ∙∙ (λ i j → transp
               (λ j → EM ((G' ⨂ H') ⨂ L')
                        (suc (+'-assoc (suc n) (suc m) (suc l) (~ i ∨ j)))) (~ i)
@@ -1451,8 +1465,8 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
                           (cup∙ (suc n) (suc (suc (m + l)))
                            (EM-raw→EM G' (suc n) a) .fst
                             (cup∙ (suc m) (suc l)
-                             (EM-rawer→EM H' (suc m) y) .fst
-                              (EM-rawer→EM L' (suc l) z))))) ) j))
+                             (EM-raw'→EM H' (suc m) y) .fst
+                              (EM-raw'→EM L' (suc l) z))))) ) j))
           ∙ cong (cong (substFun (suc (suc n)) (suc m) (suc l)))
                  (EMFun-EM→ΩEM+1 _ _)
 
@@ -1490,7 +1504,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
     → (_⌣ₖ_ {n = zero} {m = suc m}
         (inducedFun-EM-raw ϕ zero x) (inducedFun-EM ψ (suc m) y))
      ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (suc m) (_⌣ₖ_ {n = zero} x y)
-  help zero ind = EM-rawer-elim _ _ (λ _ → hLevelEM _ 1 _ _)
+  help zero ind = EM-raw'-elim _ _ (λ _ → hLevelEM _ 1 _ _)
     λ { embase-raw → refl ; (emloop-raw g i) → refl}
   help (suc m) ind =
     Trunc.elim
@@ -1520,7 +1534,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
     → ((x : EM G (suc n))
        → _⌣ₖ_ {m = zero} (inducedFun-EM ϕ (suc n) x) (inducedFun-EM ψ zero y)
         ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (suc n) ((_⌣ₖ_ {n = suc n} {m = zero} x y)))
-  help zero ind = EM-rawer-elim _ _ (λ _ → hLevelEM _ 1 _ _)
+  help zero ind = EM-raw'-elim _ _ (λ _ → hLevelEM _ 1 _ _)
     λ { embase-raw → refl ; (emloop-raw g i) → refl}
   help (suc n) ind = Trunc.elim
       (λ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
@@ -1558,14 +1572,14 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
       → fst (fₗ n (suc m) x) y ≡ fst (fᵣ n (suc m) x) y)
     → (x : EM G (suc n)) → fₗ (suc n) (suc m) x ≡ fᵣ (suc n) (suc m) x
   main n m ind =
-    EM-rawer-elim _ _ (λ _ → isOfHLevelPath' (2 + n) (isOfHLevel↑∙ (suc n) m) _ _)
+    EM-raw'-elim _ _ (λ _ → isOfHLevelPath' (2 + n) (isOfHLevel↑∙ (suc n) m) _ _)
       λ x → →∙Homogeneous≡ (isHomogeneousEM _) (funExt (main' n m ind x))
     where
     main' : (n m : ℕ) → ((x : EM G n) (y : EM H (suc m))
        → fst (fₗ n (suc m) x) y ≡ fst (fᵣ n (suc m) x) y)
-      →  (x : EM-rawer G (suc n)) (y : EM H (suc m))
-      → (inducedFun-EM ϕ (suc n) (EM-rawer→EM _ _ x) ⌣ₖ inducedFun-EM ψ (suc m) y)
-       ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (suc n +' suc m) (EM-rawer→EM _ _ x ⌣ₖ y)
+      →  (x : EM-raw' G (suc n)) (y : EM H (suc m))
+      → (inducedFun-EM ϕ (suc n) (EM-raw'→EM _ _ x) ⌣ₖ inducedFun-EM ψ (suc m) y)
+       ≡ inducedFun-EM (inducedHom⨂ ϕ ψ) (suc n +' suc m) (EM-raw'→EM _ _ x ⌣ₖ y)
     main' zero m ind embase-raw y = refl
     main' zero m ind (emloop-raw g i) y = flipSquare l i
       where
@@ -1581,7 +1595,7 @@ module Assoc {ℓ ℓ' ℓ'' : Level} {G' : AbGroup ℓ}
     main' (suc n) m ind (merid a i) y = flipSquare l i
       where
       l : (λ i → (inducedFun-EM ϕ (suc (suc n))
-                   (EM-rawer→EM G (suc (suc n)) (merid a i))
+                   (EM-raw'→EM G (suc (suc n)) (merid a i))
                  ⌣ₖ inducedFun-EM ψ (suc m) y))
         ≡ cong (inducedFun-EM (inducedHom⨂ ϕ ψ) (suc (suc n) +' suc m))
                (EM→ΩEM+1 (suc n +' suc m) (EM-raw→EM _ _ a ⌣ₖ y))

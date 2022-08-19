@@ -487,7 +487,7 @@ isOfHLevelΠ⁻ 1 h x y z = funExt⁻ (h (const y) (const z)) x
 isOfHLevelΠ⁻ (suc (suc n)) h x y z =
   isOfHLevelΠ⁻ (suc n) (isOfHLevelRetractFromIso (suc n) funExtIso (h _ _)) x
 
-isOfHLevel→∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+isOfHLevel→∙ : {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
   → isOfHLevel n (fst B) → isOfHLevel n (A →∙ B)
 isOfHLevel→∙ n hlev =
   isOfHLevelΣ n (isOfHLevelΠ n (λ _ → hlev))

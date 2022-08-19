@@ -412,7 +412,7 @@ module _ where
   isOfHLevel↑∙-lem (suc n) m = isOfHLevel→∙EM (suc (n + m)) (suc n) (isOfHLevel↑∙-lem n m)
 
   EM₁→∙Iso : {G : AbGroup ℓ} {H : AbGroup ℓ'} (m : ℕ)
-    → Iso (EM-rawer∙ G 1 →∙ EM∙ H (suc m)) (fst G → typ (Ω (EM∙ H (suc m))))
+    → Iso (EM-raw'∙ G 1 →∙ EM∙ H (suc m)) (fst G → typ (Ω (EM∙ H (suc m))))
   Iso.fun (EM₁→∙Iso m) f g = sym (snd f) ∙∙ cong (fst f) (emloop-raw g) ∙∙ snd f
   fst (Iso.inv (EM₁→∙Iso m) f) embase-raw = 0ₖ (suc m)
   fst (Iso.inv (EM₁→∙Iso m) f) (emloop-raw g i) = f g i
@@ -425,7 +425,7 @@ module _ where
                → doubleCompPath-filler (sym p) (cong f (emloop-raw g)) p (~ j) i})
 
   isOfHLevel↑∙' : {G : AbGroup ℓ} {H : AbGroup ℓ'}
-            → ∀ n m → isOfHLevel (2 + n) (EM-rawer∙ G m →∙ EM∙ H (n + m))
+            → ∀ n m → isOfHLevel (2 + n) (EM-raw'∙ G m →∙ EM∙ H (n + m))
   isOfHLevel↑∙' {H = H} zero zero =
     isOfHLevelΣ 2 (isOfHLevelΠ 2 (λ _ → AbGroupStr.is-set (snd H)))
                    λ _ → isOfHLevelPath 2 (AbGroupStr.is-set (snd H)) _ _
@@ -444,11 +444,11 @@ module _ where
                     (hLevelEM H (suc n))) _ _
   isOfHLevel↑∙' {G = G} {H = H} (suc n) (suc zero) =
     subst (isOfHLevel (2 + suc n)) (sym (isoToPath (EM₁→∙Iso (suc n)))
-                                   ∙ λ i → EM-rawer∙ G 1 →∙ EM∙ H (suc (+-comm 1 n i)))
+                                   ∙ λ i → EM-raw'∙ G 1 →∙ EM∙ H (suc (+-comm 1 n i)))
           (isOfHLevelΠ (2 + suc n) λ x →  (isOfHLevelTrunc (4 + n) _ _))
   isOfHLevel↑∙' {G = G} {H = H} (suc n) (suc (suc m)) =
     subst (isOfHLevel (2 + suc n))
-      (λ i → (EM-rawer∙ G (suc (suc m))
+      (λ i → (EM-raw'∙ G (suc (suc m))
            →∙ EM∙ H (suc (+-suc n (suc m) (~ i)))))
       (isOfHLevel↑∙-lem (suc n) (suc m))
 
@@ -481,46 +481,46 @@ module _ where
             (λ _ → isOfHLevel↑∙ (suc n) m _ _) p)
 
     contr∙-lem' : {G : AbGroup ℓ} {H : AbGroup ℓ'} {L : AbGroup ℓ''} (n m : ℕ)
-      → isContr (EM∙ G (suc n) →∙ (EM-rawer∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙))
+      → isContr (EM∙ G (suc n) →∙ (EM-raw'∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙))
     fst (contr∙-lem' n m) = (λ _ → (λ _ → 0ₖ _) , refl) , refl
     snd (contr∙-lem' {G = G} {H = H} {L = L} n m) (f , p) =
       →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousEM _))
         (funExt λ x → sym (help' n f p x))
       where
-      help' : (n : ℕ) → (f : EM G (suc n) → EM-rawer∙ H (suc m) →∙ EM∙ L (suc (n + m)))
-        → f (snd (EM∙ G (suc n))) ≡ snd (EM-rawer∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙)
+      help' : (n : ℕ) → (f : EM G (suc n) → EM-raw'∙ H (suc m) →∙ EM∙ L (suc (n + m)))
+        → f (snd (EM∙ G (suc n))) ≡ snd (EM-raw'∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙)
         → (x : _) → (f x) ≡ ((λ _ → 0ₖ _) , refl)
       help' zero f p =
         raw-elim _ zero (λ _ → isOfHLevel↑∙' zero (suc m) _ _) p
       help' (suc n) f p =
         Trunc.elim (λ _ → isOfHLevelPath (4 + n)
-                           (subst2 (λ x y → isOfHLevel x (EM-rawer∙ H (suc m) →∙ EM∙ L y))
+                           (subst2 (λ x y → isOfHLevel x (EM-raw'∙ H (suc m) →∙ EM∙ L y))
                              (λ i → suc (suc (suc (+-comm n 1 i))))
                              (cong suc (+-suc n m))
                              (isOfHLevelPlus' {n = 1} (suc (suc (suc n)))
                              (isOfHLevel↑∙' {G = H} {H = L} (suc n) (suc m)))) _ _)
                    (raw-elim _ (suc n) (λ _ → isOfHLevelPath' (2 + n)
                      (subst (λ y → isOfHLevel (suc (suc (suc n)))
-                            (EM-rawer∙ H (suc m) →∙ EM∙ L y))
+                            (EM-raw'∙ H (suc m) →∙ EM∙ L y))
                      (+-suc (suc n) m)
                      (isOfHLevel↑∙' {G = H} {H = L} (suc n) (suc m))) _ _) p)
 
     contr∙-lem'' :  {G : AbGroup ℓ} {H : AbGroup ℓ'} {L : AbGroup ℓ''} (n m : ℕ)
-                → isContr (EM-rawer∙ G (suc n)
-                →∙ (EM-rawer∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙))
+                → isContr (EM-raw'∙ G (suc n)
+                →∙ (EM-raw'∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙))
     fst (contr∙-lem'' n m) = (λ _ → (λ _ → 0ₖ (suc (n + m))) , refl) , refl
     snd (contr∙-lem'' {G = G} {H = H} {L = L} n m) (f , p) =
       →∙Homogeneous≡ (isHomogeneous→∙ (isHomogeneousEM _))
         (funExt λ x → sym (help n f p x))
       where
-      help : (n : ℕ) → (f : EM-rawer G (suc n) → EM-rawer∙ H (suc m) →∙ EM∙ L (suc (n + m)))
-          → f (snd (EM-rawer∙ G (suc n))) ≡ snd (EM-rawer∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙)
+      help : (n : ℕ) → (f : EM-raw' G (suc n) → EM-raw'∙ H (suc m) →∙ EM∙ L (suc (n + m)))
+          → f (snd (EM-raw'∙ G (suc n))) ≡ snd (EM-raw'∙ H (suc m) →∙ EM∙ L (suc (n + m)) ∙)
           → (x : _) → (f x) ≡ ((λ _ → 0ₖ _) , refl)
       help zero f p =
-        EM-rawer-trivElim G zero (λ _ → isOfHLevel↑∙' _ _ _ _) p
+        EM-raw'-trivElim G zero (λ _ → isOfHLevel↑∙' _ _ _ _) p
       help (suc n) f p =
-        EM-rawer-trivElim _ _ (λ _ → isOfHLevelPath' (suc (suc n))
-          (subst (λ y → isOfHLevel (suc (suc (suc n))) (EM-rawer∙ H (suc m) →∙ EM∙ L y))
+        EM-raw'-trivElim _ _ (λ _ → isOfHLevelPath' (suc (suc n))
+          (subst (λ y → isOfHLevel (suc (suc (suc n))) (EM-raw'∙ H (suc m) →∙ EM∙ L y))
                          (cong suc (+-suc n m))
                          (isOfHLevel↑∙' {G = H} {H = L} (suc n) (suc m))) _ _) p
 
@@ -563,7 +563,7 @@ module _ where
 
   isOfHLevel↑∙∙' : {G : AbGroup ℓ} {H : AbGroup ℓ'} {L : AbGroup ℓ''}
      → ∀ n m l → isOfHLevel (2 + l) (EM∙ G (suc n)
-                                  →∙ (EM-rawer∙ H (suc m)
+                                  →∙ (EM-raw'∙ H (suc m)
                                    →∙ EM∙ L (suc (suc (l + n + m))) ∙))
   isOfHLevel↑∙∙' {G = G} {H = H} {L = L} n m zero =
     isOfHLevelΩ→isOfHLevel 0
@@ -574,11 +574,11 @@ module _ where
           lem)
     where
     lem : isProp (EM∙ G (suc n)
-             →∙ (Ω (EM-rawer∙ H (suc m)
+             →∙ (Ω (EM-raw'∙ H (suc m)
               →∙ EM∙ L (suc (suc (n + m))) ∙)))
     lem = subst isProp
         (λ i → EM∙ G (suc n)
-            →∙ (→∙EMPath {G = L} (EM-rawer∙ H (suc m)) (suc (n + m)) (~ i)))
+            →∙ (→∙EMPath {G = L} (EM-raw'∙ H (suc m)) (suc (n + m)) (~ i)))
         (isContr→isProp (contr∙-lem' n m))
   isOfHLevel↑∙∙' {G = G} {H = H} {L = L} n m (suc l) =
     isOfHLevelΩ→isOfHLevel (suc l)
@@ -590,17 +590,17 @@ module _ where
     where
     lem : isOfHLevel (2 + l)
          (EM∙ G (suc n)
-           →∙ (Ω (EM-rawer∙ H (suc m)
+           →∙ (Ω (EM-raw'∙ H (suc m)
              →∙ EM∙ L (suc (suc (suc (l + n + m)))) ∙)))
     lem =
       subst (isOfHLevel (2 + l))
         (λ i → EM∙ G (suc n)
-             →∙ →∙EMPath {G = L} (EM-rawer∙ H (suc m)) (suc (suc (l + n + m))) (~ i))
+             →∙ →∙EMPath {G = L} (EM-raw'∙ H (suc m)) (suc (suc (l + n + m))) (~ i))
         (isOfHLevel↑∙∙' n m l)
 
   isOfHLevel↑∙∙'' : {G : AbGroup ℓ} {H : AbGroup ℓ'} {L : AbGroup ℓ''}
-     → ∀ n m l → isOfHLevel (2 + l) (EM-rawer∙ G (suc n)
-                                  →∙ (EM-rawer∙ H (suc m)
+     → ∀ n m l → isOfHLevel (2 + l) (EM-raw'∙ G (suc n)
+                                  →∙ (EM-raw'∙ H (suc m)
                                    →∙ EM∙ L (suc (suc (l + n + m))) ∙))
   isOfHLevel↑∙∙'' {G = G} {H = H} {L = L} n m zero =
     isOfHLevelΩ→isOfHLevel 0
@@ -610,12 +610,12 @@ module _ where
           (isOfHLevelRetractFromIso 1 (ΩfunExtIso _ _)
           lem)
     where
-    lem : isProp (EM-rawer∙ G (suc n)
-             →∙ (Ω (EM-rawer∙ H (suc m)
+    lem : isProp (EM-raw'∙ G (suc n)
+             →∙ (Ω (EM-raw'∙ H (suc m)
               →∙ EM∙ L (suc (suc (n + m))) ∙)))
     lem = subst isProp
-        (λ i → EM-rawer∙ G (suc n)
-            →∙ (→∙EMPath {G = L} (EM-rawer∙ H (suc m)) (suc (n + m)) (~ i)))
+        (λ i → EM-raw'∙ G (suc n)
+            →∙ (→∙EMPath {G = L} (EM-raw'∙ H (suc m)) (suc (n + m)) (~ i)))
         (isContr→isProp (contr∙-lem'' _ _))
   isOfHLevel↑∙∙'' {G = G} {H = H} {L = L} n m (suc l) =
     isOfHLevelΩ→isOfHLevel (suc l)
@@ -626,13 +626,13 @@ module _ where
           (isOfHLevelRetractFromIso (2 + l) (ΩfunExtIso _ _) lem)
     where
     lem : isOfHLevel (2 + l)
-         (EM-rawer∙ G (suc n)
-           →∙ (Ω (EM-rawer∙ H (suc m)
+         (EM-raw'∙ G (suc n)
+           →∙ (Ω (EM-raw'∙ H (suc m)
              →∙ EM∙ L (suc (suc (suc (l + n + m)))) ∙)))
     lem =
       subst (isOfHLevel (2 + l))
-        (λ i → EM-rawer∙ G (suc n)
-             →∙ →∙EMPath {G = L} (EM-rawer∙ H (suc m)) (suc (suc (l + n + m))) (~ i))
+        (λ i → EM-raw'∙ G (suc n)
+             →∙ →∙EMPath {G = L} (EM-raw'∙ H (suc m)) (suc (suc (l + n + m))) (~ i))
         (isOfHLevel↑∙∙'' n m l)
 
 -- A homomorphism φ : G → H of AbGroups induces a homomorphism
@@ -660,7 +660,7 @@ inducedFun-EM-raw f =
 inducedFun-EM-raw-id : {G' : AbGroup ℓ} (n : ℕ) (x : EM-raw G' n)
   → inducedFun-EM-raw (idGroupHom {G = AbGroup→Group G'}) n x ≡ x
 inducedFun-EM-raw-id zero x = refl
-inducedFun-EM-raw-id (suc zero) = EM-rawer-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
+inducedFun-EM-raw-id (suc zero) = EM-raw'-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
     λ { embase-raw → refl ; (emloop-raw g i) → refl}
 inducedFun-EM-raw-id (suc (suc n)) north = refl
 inducedFun-EM-raw-id (suc (suc n)) south = refl
@@ -672,7 +672,7 @@ inducedFun-EM-raw-comp : {G' : AbGroup ℓ} {H' : AbGroup ℓ'} {L' : AbGroup �
                        ≡ inducedFun-EM-raw ψ n (inducedFun-EM-raw ϕ n x)
 inducedFun-EM-raw-comp ϕ ψ zero x = refl
 inducedFun-EM-raw-comp ϕ ψ (suc zero) =
-  EM-rawer-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
+  EM-raw'-elim _ 1 (λ _ → hLevelEM _ 1 _ _)
     λ { embase-raw → refl ; (emloop-raw g i) → refl}
 inducedFun-EM-raw-comp ϕ ψ (suc (suc n)) north = refl
 inducedFun-EM-raw-comp ϕ ψ (suc (suc n)) south = refl
@@ -828,41 +828,38 @@ Iso.leftInv (inducedFun-EM-rawIso e n) = h n
                ; south → refl
                ; (merid a i) k → merid (p a k) i}
 
-Iso→EMIso : {G : AbGroup ℓ} {H : AbGroup ℓ'}
-  → AbGroupEquiv G H → ∀ n → Iso (EM G n) (EM H n)
-Iso.fun (Iso→EMIso is n) = inducedFun-EM (GroupEquiv→GroupHom is) n
-Iso.inv (Iso→EMIso is n) = inducedFun-EM (GroupEquiv→GroupHom (invGroupEquiv is)) n
-Iso.rightInv (Iso→EMIso is zero) = Iso.rightInv (inducedFun-EM-rawIso is zero)
-Iso.rightInv (Iso→EMIso is (suc zero)) =
-  Iso.rightInv (inducedFun-EM-rawIso is (suc zero))
-Iso.rightInv (Iso→EMIso is (suc (suc n))) =
-  Iso.rightInv (mapCompIso (inducedFun-EM-rawIso is (suc (suc n))))
-Iso.leftInv (Iso→EMIso is zero) =
-  Iso.leftInv (inducedFun-EM-rawIso is zero)
-Iso.leftInv (Iso→EMIso is (suc zero)) =
-  Iso.leftInv (inducedFun-EM-rawIso is (suc zero))
-Iso.leftInv (Iso→EMIso is (suc (suc n))) =
-  Iso.leftInv (mapCompIso (inducedFun-EM-rawIso is (suc (suc n))))
+module _ {G : AbGroup ℓ} {H : AbGroup ℓ'} where
+  Iso→EMIso : AbGroupEquiv G H → ∀ n → Iso (EM G n) (EM H n)
+  Iso.fun (Iso→EMIso is n) = inducedFun-EM (GroupEquiv→GroupHom is) n
+  Iso.inv (Iso→EMIso is n) = inducedFun-EM (GroupEquiv→GroupHom (invGroupEquiv is)) n
+  Iso.rightInv (Iso→EMIso is zero) = Iso.rightInv (inducedFun-EM-rawIso is zero)
+  Iso.rightInv (Iso→EMIso is (suc zero)) =
+    Iso.rightInv (inducedFun-EM-rawIso is (suc zero))
+  Iso.rightInv (Iso→EMIso is (suc (suc n))) =
+    Iso.rightInv (mapCompIso (inducedFun-EM-rawIso is (suc (suc n))))
+  Iso.leftInv (Iso→EMIso is zero) =
+    Iso.leftInv (inducedFun-EM-rawIso is zero)
+  Iso.leftInv (Iso→EMIso is (suc zero)) =
+    Iso.leftInv (inducedFun-EM-rawIso is (suc zero))
+  Iso.leftInv (Iso→EMIso is (suc (suc n))) =
+    Iso.leftInv (mapCompIso (inducedFun-EM-rawIso is (suc (suc n))))
 
-Iso→EMIso∙ : {G : AbGroup ℓ} {H : AbGroup ℓ'}
-  → (e : AbGroupEquiv G H)
-  → ∀ n
-  → Iso.fun (Iso→EMIso e n) (EM∙ G n .snd) ≡ EM∙ H n .snd
-Iso→EMIso∙ e zero = IsGroupHom.pres1 (e .snd)
-Iso→EMIso∙ e (suc zero) = refl
-Iso→EMIso∙ e (suc (suc n)) = refl
+  Iso→EMIso∙ : (e : AbGroupEquiv G H)
+    → ∀ n
+    → Iso.fun (Iso→EMIso e n) (EM∙ G n .snd) ≡ EM∙ H n .snd
+  Iso→EMIso∙ e zero = IsGroupHom.pres1 (e .snd)
+  Iso→EMIso∙ e (suc zero) = refl
+  Iso→EMIso∙ e (suc (suc n)) = refl
 
-Iso→EMIso⁻∙ : {G : AbGroup ℓ} {H : AbGroup ℓ'}
-  → (e : AbGroupEquiv G H)
-  → ∀ n
-  → Iso.inv (Iso→EMIso e n) (EM∙ H n .snd) ≡ EM∙ G n .snd
-Iso→EMIso⁻∙ e zero = IsGroupHom.pres1 (invGroupEquiv e .snd)
-Iso→EMIso⁻∙ e (suc zero) = refl
-Iso→EMIso⁻∙ e (suc (suc n)) = refl
+  Iso→EMIso⁻∙ : (e : AbGroupEquiv G H)
+    → ∀ n
+    → Iso.inv (Iso→EMIso e n) (EM∙ H n .snd) ≡ EM∙ G n .snd
+  Iso→EMIso⁻∙ e zero = IsGroupHom.pres1 (invGroupEquiv e .snd)
+  Iso→EMIso⁻∙ e (suc zero) = refl
+  Iso→EMIso⁻∙ e (suc (suc n)) = refl
 
-Iso→EMIsoInv : {G : AbGroup ℓ} {H : AbGroup ℓ'}
-  → (e : AbGroupEquiv G H) → ∀ n
-  → Iso.inv (Iso→EMIso e n) ≡ Iso.fun (Iso→EMIso (invGroupEquiv e) n)
+Iso→EMIsoInv : {G : AbGroup ℓ} {H : AbGroup ℓ'} (e : AbGroupEquiv G H)
+  → ∀ n → Iso.inv (Iso→EMIso e n) ≡ Iso.fun (Iso→EMIso (invGroupEquiv e) n)
 Iso→EMIsoInv e zero = refl
 Iso→EMIsoInv e (suc zero) = refl
 Iso→EMIsoInv e (suc (suc n)) = refl
