@@ -7,8 +7,13 @@ The Internal n-Cubes
 module Cubical.Foundations.Cubes where
 
 open import Cubical.Foundations.Prelude hiding (Cube)
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Cubes.Base public
-open import Cubical.Data.Nat
+open import Cubical.Foundations.Cubes.Subtypes
+
+open import Cubical.Data.Nat.Base
+open import Cubical.Data.Sigma.Properties
 
 private
   variable
@@ -168,23 +173,82 @@ private
 
 -}
 
+
 -- The property that, given an n-boundary, there always exists an n-cube extending this boundary
 -- The case n=0 is not very meaningful, so we use `isContr` instead to keep its relation with h-levels.
+-- It generalizes `isSet'` and `isGroupoid'`.
 
 isCubeFilled : ℕ → Type ℓ → Type ℓ
 isCubeFilled 0 = isContr
 isCubeFilled (suc n) A = (∂ : ∂Cube (suc n) A) → CubeRel (suc n) A ∂
 
 
-{-
+-- Some preliminary results to relate cube-filling to h-levels.
 
-TODO:
+isCubeFilledPath : ℕ → Type ℓ → Type ℓ
+isCubeFilledPath n A = (x y : A) → isCubeFilled n (x ≡ y)
 
--- It's not too difficult to show this for a specific n,
--- the trickiest part is to make it for all n.
+isCubeFilledPath≡isCubeFilledSuc : (n : ℕ) (A : Type ℓ)
+  → isCubeFilledPath (suc n) A ≡ isCubeFilled (suc (suc n)) A
+isCubeFilledPath≡isCubeFilledSuc n A =
+    (λ i → (x y : A)(∂ : ∂Cube₀₁≡∂CubePath {n = suc n} {a₀ = x} {y} (~ i))
+        → CubeRel₀₁≡CubeRelPath (~ i) ∂)
+  ∙ (λ i → (x : A) → isoToPath (curryIso {A = A}
+      {B = λ y → ∂Cube₀₁ (suc n) A x y} {C = λ _ ∂ → CubeRel₀₁ (suc n) A ∂}) (~ i))
+  ∙ sym (isoToPath curryIso)
+  ∙ (λ i → (∂ : ∂CubeConst₀₁≡∂Cube {n = suc n} {A} i) → CubeRelConst₀₁≡CubeRel₀₁ {n = suc n} i ∂)
+
+isCubeFilledPath→isCubeFilledSuc : (n : ℕ) (A : Type ℓ)
+  → isCubeFilledPath n A → isCubeFilled (suc n) A
+isCubeFilledPath→isCubeFilledSuc 0 A h (x , y) = h x y .fst
+isCubeFilledPath→isCubeFilledSuc (suc n) A = transport (isCubeFilledPath≡isCubeFilledSuc n A)
+
+isCubeFilledSuc→isCubeFilledPath : (n : ℕ) (A : Type ℓ)
+  → isCubeFilled (suc n) A → isCubeFilledPath n A
+isCubeFilledSuc→isCubeFilledPath 0 A h = isProp→isContrPath (λ x y → h (x , y))
+isCubeFilledSuc→isCubeFilledPath (suc n) A = transport (sym (isCubeFilledPath≡isCubeFilledSuc n A))
+
+
+-- The characterization of h-levels by cube-filling
 
 isOfHLevel→isCubeFilled : (n : HLevel) → isOfHLevel n A → isCubeFilled n A
+isOfHLevel→isCubeFilled 0 h = h
+isOfHLevel→isCubeFilled (suc n) h = isCubeFilledPath→isCubeFilledSuc _ _
+  (λ x y → isOfHLevel→isCubeFilled n (isOfHLevelPath' n h x y))
 
 isCubeFilled→isOfHLevel : (n : HLevel) → isCubeFilled n A → isOfHLevel n A
+isCubeFilled→isOfHLevel 0 h = h
+isCubeFilled→isOfHLevel (suc n) h = isOfHLevelPath'⁻ _
+  (λ x y → isCubeFilled→isOfHLevel _ (isCubeFilledSuc→isCubeFilledPath _ _ h x y))
 
--}
+
+-- Some special cases
+-- TODO: Write a macro to generate them!!!
+
+fill1Cube :
+  (h : isOfHLevel 1 A)
+  (u : (i : I) → Partial (i ∨ ~ i) A)
+  (i : I) → A [ _ ↦ u i ]
+fill1Cube h u i =
+  inS (from1Cube (to∂1Cube u , isOfHLevel→isCubeFilled 1 h (to∂1Cube u)) i)
+
+fill2Cube :
+  (h : isOfHLevel 2 A)
+  (u : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
+  (i j : I) → A [ _ ↦ u i j ]
+fill2Cube h u i j =
+  inS (from2Cube (to∂2Cube u , isOfHLevel→isCubeFilled 2 h (to∂2Cube u)) i j)
+
+fill3Cube :
+  (h : isOfHLevel 3 A)
+  (u : (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A)
+  (i j k : I) → A [ _ ↦ u i j k ]
+fill3Cube h u i j k =
+  inS (from3Cube (to∂3Cube u , isOfHLevel→isCubeFilled 3 h (to∂3Cube u)) i j k)
+
+fill4Cube :
+  (h : isOfHLevel 4 A)
+  (u : (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A)
+  (i j k l : I) → A [ _ ↦ u i j k l ]
+fill4Cube h u i j k l =
+  inS (from4Cube (to∂4Cube u , isOfHLevel→isCubeFilled 4 h (to∂4Cube u)) i j k l)
