@@ -112,7 +112,7 @@ module _
       ; (i = i1) → x₀ ∷ 𝕁1→𝕁Red→𝕁1 xs j
       ; (j = i0) → x₀ ∷ 𝕁Red→𝕁1 (𝕁1→𝕁Red xs)
       ; (j = i1) → unit xs (i ∨ ~ k)})
-    (x₀ ∷ 𝕁1→𝕁Red→𝕁1 xs j)
+    (inS (x₀ ∷ 𝕁1→𝕁Red→𝕁1 xs j))
   𝕁1→𝕁Red→𝕁1 (coh xs i j) t = coh (𝕁1→𝕁Red→𝕁1 xs t) i j
 
   𝕁Red∞→𝕁1∞ : 𝕁Red∞ → 𝕁1∞

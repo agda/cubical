@@ -53,7 +53,7 @@ contrDunce (surf i j) k
                                 ; (k = i1) → base
                                 ; (l = i0) → loop (k ∨ i)
                                 ; (l = i1) → surf k i })
-                       (inS (loop k)) i
+                       (loop k) i
 
 isContr-Dunce : isContr Dunce
 fst isContr-Dunce = base

@@ -133,7 +133,7 @@ module Pushout⋁↪fold⋁S²WedgeCon {ℓ : Level } {A : Type ℓ}
                                             (cong g (push (inr base))) (~ k) j
                    ; (j = i0) → f (push (push tt i) (~ k))
                    ; (j = i1) → g (push (push tt i) (~ k))})
-      (inS (r≡l base i j))
+      (r≡l base i j)
       k
 
   lp-base≡rp-base : lp base ≡ rp base
@@ -157,7 +157,7 @@ module Pushout⋁↪fold⋁S²WedgeCon {ℓ : Level } {A : Type ℓ}
                                    (cong g (push (inl x))) k j
                     ; (j = i0) → f (push (inl x) (i ∧ k))
                     ; (j = i1) → g (push (inl x) (i ∧ k))})
-          (inS (lp x j))
+          (lp x j)
           k
 
   inrfill : (x : S²) → I → I → I → A
@@ -169,7 +169,7 @@ module Pushout⋁↪fold⋁S²WedgeCon {ℓ : Level } {A : Type ℓ}
                     ; (i = i1) → f∘inr≡g∘inr x j
                     ; (j = i0) → f (push (inr x) (i ∨ ~ k))
                     ; (j = i1) → g (push (inr x) (i ∨ ~ k))})
-                      (inS (r≡l x (~ i) j))
+                      (r≡l x (~ i) j)
                       k
 
   main : (x : Pushout⋁↪fold⋁S²) → f x ≡ g x
@@ -249,7 +249,7 @@ In order to define this, we need the following cubes/coherences in
                                ; (j = i0) → push (push tt (~ r)) (~ k)
                                ; (r = i0) → push (inr (surf i j)) (~ k)
                                ; (r = i1) → push (inl (surf i j)) (~ k)})
-                     (inr (surf i j)) ∣ₕ
+                     (Pushout.inr (surf i j)) ∣ₕ
 
 →Ω²∥Pushout⋁↪fold⋁S²∥₅Id : (x : S²)
   → →Ω²∥Pushout⋁↪fold⋁S²∥₅ x base ≡  λ i j → ∣ inl (x , surf i j) ∣ₕ
@@ -264,7 +264,7 @@ In order to define this, we need the following cubes/coherences in
                                ; (j = i0) → push (push tt (~ r)) (~ k)
                                ; (r = i0) → push (inr (surf i j)) (~ k)
                                ; (r = i1) → push (inl (surf i j)) (~ k)})
-                     (inr (surf i j)) ∣ₕ
+                     (Pushout.inr (surf i j)) ∣ₕ
 
 push-inl∙push-inr⁻ : (y : S²) → Path Pushout⋁↪fold⋁S² (inl (y , base)) (inl (base , y))
 push-inl∙push-inr⁻ y i = (push (inl y) ∙ sym (push (inr y))) i
@@ -282,7 +282,7 @@ push-inl∙push-inr⁻-filler r i j k =
                   ; (j = i1) → push-inl∙push-inr⁻∙ (~ r) k
                   ; (k = i0) → inl (surf i j , base)
                   ; (k = i1) → inl (surf i j , base)})
-        (inS (inl (surf i j , base)))
+        (Pushout.inl (surf i j , base))
         r
 
 push-inl∙push-inr⁻-hLevFiller : (y : S²)
@@ -326,7 +326,7 @@ S²→Pushout⋁↪fold⋁S²↺' (surf i j) (push (push a k) l) =
                    ; (k = i1) → inl (surf i j , base)
                    ; (l = i0) → inl (surf i j , base)
                    ; (l = i1) → inl (surf i j , base)})
-         (inl (surf i j , base)) ∣ₕ
+         (Pushout.inl (surf i j , base)) ∣ₕ
 
 {- For easier treatment later, we state its inverse explicitly -}
 S²→Pushout⋁↪fold⋁S²↺'⁻ : (x : S²) → Pushout⋁↪fold⋁S² → ∥Pushout⋁↪fold⋁S²∥₅
@@ -431,7 +431,7 @@ secS²→Pushout⋁↪fold⋁S²↺ x =
                        ; (j = i1) → push (push tt k) (~ r)
                        ; (k = i0) → push (inl (surf i j)) (~ r)
                        ; (k = i1) → push (inr (surf i j)) (~ r)})
-               (inr (surf i j)) ∣ₕ
+               (Pushout.inr (surf i j)) ∣ₕ
 
       μ-coh : Path (Square {A = ∥Pushout⋁↪fold⋁S²∥₅}
              (λ _ → ∣ inl (base , base) ∣) (λ _ → ∣ inl (base , base) ∣)

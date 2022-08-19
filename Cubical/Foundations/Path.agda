@@ -59,12 +59,12 @@ PathPIsoPath A x y .Iso.rightInv q k i =
       (λ j → λ
         { (i = i0) → x
         ; (i = i1) → q j })
-      (inS (transp (λ j → A (i ∧ j)) (~ i) x))
+      (transp (λ j → A (i ∧ j)) (~ i) x)
 
   slide : I → _
   slide i = transp (λ l → A (i ∨ l)) i (transp (λ l → A (i ∧ l)) (~ i) x)
 
-  ∧∨Square : I → I → _
+  ∧∨Square : I → I → A _
   ∧∨Square i j =
     hcomp
       (λ l → λ
@@ -81,8 +81,8 @@ PathPIsoPath A x y .Iso.leftInv q k i =
         { (i = i0) → x
         ; (i = i1) → transp (λ l → A (j ∨ l)) j (q j)
         })
-      (inS (transp (λ l → A (i ∧ l)) (~ i) x))
-      (λ j → inS (transp (λ l → A (i ∧ (j ∨ l))) (~ i ∨ j) (q (i ∧ j)))))
+      (transp (λ l → A (i ∧ l)) (~ i) x)
+      (λ j → transp (λ l → A (i ∧ (j ∨ l))) (~ i ∨ j) (q (i ∧ j))))
     k
 
 PathP≃Path : (A : I → Type ℓ) (x : A i0) (y : A i1) →
@@ -119,7 +119,7 @@ compPathl-cancel p q = p ∙ (sym p ∙ q) ≡⟨ assoc p (sym p) q ⟩
 
 compPathr-cancel : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : z ≡ y) (q : x ≡ y) → (q ∙ sym p) ∙ p ≡ q
 compPathr-cancel {x = x} p q i j =
-  hcomp-equivFiller (doubleComp-faces (λ _ → x) (sym p) j) (inS (q j)) (~ i)
+  hcomp-equivFiller (doubleComp-faces (λ _ → x) (sym p) j) (q j) (~ i)
 
 compPathl-isEquiv : {x y z : A} (p : x ≡ y) → isEquiv (λ (q : y ≡ z) → p ∙ q)
 compPathl-isEquiv p = isoToIsEquiv (iso (p ∙_) (sym p ∙_) (compPathl-cancel p) (compPathl-cancel (sym p)))
@@ -193,9 +193,9 @@ module _ {a₀₀ a₁₁ : A} {a₋ : a₀₀ ≡ a₁₁}
     slideSquareInv : Square refl a₁₋ a₋₀ a₋ → Square a₋ a₁₋ a₋₀ refl
     slideSquareInv sq i j = hcomp (λ k → slideSquareFaces i j (~ k)) (sq i j)
     fillerTo : ∀ p → slideSquare (slideSquareInv p) ≡ p
-    fillerTo p k i j = hcomp-equivFiller (λ k → slideSquareFaces i j (~ k)) (inS (p i j)) (~ k)
+    fillerTo p k i j = hcomp-equivFiller (λ k → slideSquareFaces i j (~ k)) (p i j) (~ k)
     fillerFrom : ∀ p → slideSquareInv (slideSquare p) ≡ p
-    fillerFrom p k i j = hcomp-equivFiller (slideSquareFaces i j) (inS (p i j)) (~ k)
+    fillerFrom p k i j = hcomp-equivFiller (slideSquareFaces i j) (p i j) (~ k)
 
 -- The type of fillers of a square is equivalent to the double composition identites
 Square≃doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
@@ -289,7 +289,7 @@ congPathIso {A = A} {B} e {a₀} {a₁} .Iso.rightInv q k i =
               { (i = i0) → retEq (e i0) a₀ j
               ; (i = i1) → retEq (e i1) a₁ j
               })
-            (inS (invEq (e i) (q i)))
+            (invEq (e i) (q i))
             j)
       ; (k = i1) → q i
       })

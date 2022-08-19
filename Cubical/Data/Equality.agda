@@ -204,11 +204,11 @@ isPropIsContr (a0 , p0) (a1 , p1) j =
   ( eqToPath (p0 a1) j ,
     hcomp (λ i → λ { (j = i0) →  λ x → pathToEq-eqToPath (p0 x) i
                    ; (j = i1) →  λ x → pathToEq-eqToPath (p1 x) i })
-          (λ x → pathToEq (λ i → hcomp (λ k → λ { (i = i0) → eqToPath (p0 a1) j
+          (inS (λ x → pathToEq (λ i → hcomp (λ k → λ { (i = i0) → eqToPath (p0 a1) j
                                                 ; (i = i1) → eqToPath (p0 x) (j ∨ k)
                                                 ; (j = i0) → eqToPath (p0 x) (i ∧ k)
                                                 ; (j = i1) → eqToPath (p1 x) i })
-                                       (eqToPath (p0 (eqToPath (p1 x) i)) j))))
+                                       (eqToPath (p0 (eqToPath (p1 x) i)) j)))))
 
 -- We now prove that isEquiv is a proposition
 isPropIsEquiv : {A B : Type ℓ} {f : A → B} (h1 h2 : isEquiv f) → Path _ h1 h2

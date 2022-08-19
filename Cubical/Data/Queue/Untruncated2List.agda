@@ -104,7 +104,7 @@ module Untruncated2List {ℓ} (A : Type ℓ) (Aset : isSet A) where
          { (j = i0) → Q⟨ ++-assoc xs [ z ] (rev ys) i , [] ⟩
          ; (j = i1) → tilt xs (rev (rev ys)) z i
          })
-       (inS (flushEq' (xs ++ [ z ]) (rev ys) j))
+       (flushEq' (xs ++ [ z ]) (rev ys) j)
        i
 
    helper : I → Q

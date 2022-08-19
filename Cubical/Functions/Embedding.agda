@@ -91,7 +91,7 @@ private
       → hfill (λ j → λ { (i = i0) → (x , refl)
                       ; (i = i1) → (w , sq j)
                       })
-          (inS (q (~ i) , λ j → f (q (~ i ∨ j))))
+          (q (~ i) , λ j → f (q (~ i ∨ j)))
           i1
       }
 

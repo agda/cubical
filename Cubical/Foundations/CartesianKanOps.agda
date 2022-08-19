@@ -54,7 +54,7 @@ coei→j A i j a =
     (λ j → λ { (i = i0) → coe0→i A j a
              ; (i = i1) → coe1→i A j a
              })
-    (inS (coei→0 A i a))
+    (coei→0 A i a)
     j
 
 -- "squeeze"
@@ -125,8 +125,8 @@ fill1→i : ∀ {ℓ} (A : ∀ i → Type ℓ)
 fill1→i A {φ = φ} u u1 i =
   comp (λ j → A (i ∨ ~ j))
        (λ j → λ { (φ = i1) → u (i ∨ ~ j) 1=1
-                ; (i = i1) → outS u1 })
-       (outS u1)
+                ; (i = i1) → u1 })
+       u1
 
 filli→0 : ∀ {ℓ} (A : ∀ i → Type ℓ)
        {φ : I}
@@ -138,8 +138,8 @@ filli→0 : ∀ {ℓ} (A : ∀ i → Type ℓ)
 filli→0 A {φ = φ} u i ui =
   comp (λ j → A (i ∧ ~ j))
        (λ j → λ { (φ = i1) → u (i ∧ ~ j) 1=1
-                ; (i = i0) → outS ui })
-       (outS ui)
+                ; (i = i0) → ui })
+       ui
 
 filli→j : ∀ {ℓ} (A : ∀ i → Type ℓ)
        {φ : I}
@@ -154,7 +154,7 @@ filli→j A {φ = φ} u i ui j =
              ; (i = i0) → fill (\ i → A i) (\ i → u i) ui j
              ; (i = i1) → fill1→i A u ui j
              })
-    (inS (filli→0 A u i ui))
+    (filli→0 A u i ui)
     j
 
 -- We can reconstruct fill from hfill, coei→j, and the path coei→i ≡ id.
@@ -166,15 +166,15 @@ fill' : ∀ {ℓ} (A : I → Type ℓ)
        ---------------------------
        (i : I) → A i [ φ ↦ u i ]
 fill' A {φ = φ} u u0 i =
-  inS (hcomp (λ j → λ {(φ = i1) → coei→i A i (u i 1=1) j; (i = i0) → coei→i A i (outS u0) j}) t)
+  inS (hcomp (λ j → λ {(φ = i1) → coei→i A i (u i 1=1) j; (i = i0) → coei→i A i u0 j}) t)
   where
   t : A i
-  t = hfill {φ = φ} (λ j v → coei→j A j i (u j v)) (inS (coe0→i A i (outS u0))) i
+  t = hfill {φ = φ} (λ j v → coei→j A j i (u j v)) (coe0→i A i u0) i
 
 fill'-cap :  ∀ {ℓ} (A : I → Type ℓ)
              {φ : I}
              (u : ∀ i → Partial φ (A i))
              (u0 : A i0 [ φ ↦ u i0 ])
              ---------------------------
-             → outS (fill' A u u0 i0) ≡ outS (u0)
+             → (fill' A u u0 i0) ≡ (u0)
 fill'-cap A u u0 = refl

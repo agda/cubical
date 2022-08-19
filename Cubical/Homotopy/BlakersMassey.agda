@@ -282,7 +282,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                      ; (u = i1) → fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd l v
                      ; (v = i0) → push q₁₀ ((i ∨ l) ∧ ~ u)
                      ; (v = i1) → push q₁₀ ((i ∧ ~ l) ∨ u) })
-            (push q₁₀ ((i ∨ (v ∧ u)) ∧ (v ∨ (i ∧ ~ u))))
+            (PushoutGen.push q₁₀ ((i ∨ (v ∧ u)) ∧ (v ∨ (i ∧ ~ u))))
 
   {- Definitions of fiber←→ -}
 
@@ -344,7 +344,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                      ; (u = i1) → fiber←[q₀₀=q₀₁=q₁₁] q₀₁ i r p .snd l v
                      ; (v = i0) → push q₀₁ ((i ∨ u) ∧ ~ l)
                      ; (v = i1) → push q₀₁ ((i ∧ ~ u) ∨ l) })
-           (push q₀₁ ((i ∨ (~ v ∧ u)) ∧ (~ v ∨ (i ∧ ~ u))))
+           (PushoutGen.push q₀₁ ((i ∨ (~ v ∧ u)) ∧ (~ v ∨ (i ∧ ~ u))))
 
   module Fiber→
     {x₁ : X}{y₀ : Y}(q₁₀ : Q x₁ y₀) =
@@ -601,7 +601,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                          ; (i = i1) → r (j ∧ k)
                          ; (j = i0) → push q₀₀ (~ i)
                          ; (j = i1) → r (i ∧ k) })
-                (inS (q i j)) k'
+                (q i j) k'
 
     transpLeftCodeβ' :
         {p : PushoutQ} → (r : inl x₀ ≡ p) → (q : fiberSquare q₀₀ q₀₀ refl refl)

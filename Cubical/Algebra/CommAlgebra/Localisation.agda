@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification -vtc.conv.coerce:30 #-}
 module Cubical.Algebra.CommAlgebra.Localisation where
 
 open import Cubical.Foundations.Prelude
@@ -76,7 +76,7 @@ module AlgLoc (R' : CommRing ℓ)
                     (S/1⊆S⁻¹Rˣ s s∈S')
 
 
- S⁻¹RHasAlgUniversalProp : hasLocAlgUniversalProp S⁻¹RAsCommAlg S⋆1⊆S⁻¹Rˣ
+ S⁻¹RHasAlgUniversalProp : hasLocAlgUniversalProp S⁻¹RAsCommAlg (λ x y → S⋆1⊆S⁻¹Rˣ x y)
  S⁻¹RHasAlgUniversalProp B' S⋆1⊆Bˣ = χᴬ , χᴬuniqueness
   where
   B = fromCommAlg B' .fst
@@ -131,7 +131,7 @@ module AlgLoc (R' : CommRing ℓ)
 
  -- an immediate corollary:
  isContrHomS⁻¹RS⁻¹R : isContr (CommAlgebraHom S⁻¹RAsCommAlg S⁻¹RAsCommAlg)
- isContrHomS⁻¹RS⁻¹R = S⁻¹RHasAlgUniversalProp S⁻¹RAsCommAlg S⋆1⊆S⁻¹Rˣ
+ isContrHomS⁻¹RS⁻¹R = S⁻¹RHasAlgUniversalProp S⁻¹RAsCommAlg λ x y → S⋆1⊆S⁻¹Rˣ x y
 
  S⁻¹RAlgCharEquiv : (A' : CommRing ℓ) (φ : CommRingHom R' A')
                   → PathToS⁻¹R  R' S' SMultClosedSubset A' φ
@@ -191,10 +191,10 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
                                               isContrS₁⁻¹R≅S₂⁻¹R
   where
   χ₁ : CommAlgebraHom S₁⁻¹RAsCommAlg S₂⁻¹RAsCommAlg
-  χ₁ = S₁⁻¹RHasAlgUniversalProp S₂⁻¹RAsCommAlg S₁⊆S₂⁻¹Rˣ .fst
+  χ₁ = S₁⁻¹RHasAlgUniversalProp S₂⁻¹RAsCommAlg (λ x y → S₁⊆S₂⁻¹Rˣ x y) .fst
 
   χ₂ : CommAlgebraHom S₂⁻¹RAsCommAlg S₁⁻¹RAsCommAlg
-  χ₂ = S₂⁻¹RHasAlgUniversalProp S₁⁻¹RAsCommAlg S₂⊆S₁⁻¹Rˣ .fst
+  χ₂ = S₂⁻¹RHasAlgUniversalProp S₁⁻¹RAsCommAlg (λ x y → S₂⊆S₁⁻¹Rˣ x y) .fst
 
   χ₁∘χ₂≡id : χ₁ ∘a χ₂ ≡ idCommAlgebraHom _
   χ₁∘χ₂≡id = isContr→isProp isContrHomS₂⁻¹RS₂⁻¹R _ _
@@ -223,13 +223,13 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
    uniqueness : (φ : CommAlgebraEquiv S₁⁻¹RAsCommAlg S₂⁻¹RAsCommAlg) → center ≡ φ
    uniqueness φ = Σ≡Prop (λ _ → isPropIsAlgebraHom _ _ _ _)
                          (equivEq (cong fst
-                           (S₁⁻¹RHasAlgUniversalProp S₂⁻¹RAsCommAlg S₁⊆S₂⁻¹Rˣ .snd
+                           (S₁⁻¹RHasAlgUniversalProp S₂⁻¹RAsCommAlg (λ x y → S₁⊆S₂⁻¹Rˣ x y) .snd
                              (AlgebraEquiv→AlgebraHom φ))))
 
 
  isPropS₁⁻¹R≡S₂⁻¹R  : isProp (S₁⁻¹RAsCommAlg ≡ S₂⁻¹RAsCommAlg)
  isPropS₁⁻¹R≡S₂⁻¹R S₁⁻¹R≡S₂⁻¹R  =
-   isContr→isProp (isContrS₁⁻¹R≡S₂⁻¹R  S₁⊆S₂⁻¹Rˣ S₂⊆S₁⁻¹Rˣ) S₁⁻¹R≡S₂⁻¹R
+   isContr→isProp (isContrS₁⁻¹R≡S₂⁻¹R S₁⊆S₂⁻¹Rˣ S₂⊆S₁⁻¹Rˣ) S₁⁻¹R≡S₂⁻¹R
     where
     S₁⊆S₂⁻¹Rˣ : ∀ s₁ → s₁ ∈ S₁ → s₁ ⋆ 1a ∈ S₂⁻¹Rˣ
     S₁⊆S₂⁻¹Rˣ s₁ s₁∈S₁ =
@@ -240,7 +240,6 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
     S₂⊆S₁⁻¹Rˣ s₂ s₂∈S₂ =
       transport (λ i → _⋆_ ⦃ (sym S₁⁻¹R≡S₂⁻¹R) i .snd ⦄ s₂ (1a ⦃ (sym S₁⁻¹R≡S₂⁻¹R) i .snd ⦄)
                      ∈ (CommAlgebra→CommRing ((sym S₁⁻¹R≡S₂⁻¹R) i)) ˣ) (S₂⋆1⊆S₂⁻¹Rˣ s₂ s₂∈S₂)
-
 
 
 -- A crucial result for the construction of the structure sheaf

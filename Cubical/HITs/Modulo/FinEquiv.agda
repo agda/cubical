@@ -57,7 +57,7 @@ module Reduction {k₀ : ℕ} where
             ; (i = i1) → snd (lemma₁ n ii) j
             ; (j = i1) → step n i
             })
-        (inS (rstep≡ n (residuePath n) i j))
+        (rstep≡ n (residuePath n) i j)
         i1
 
   residue : Modulo k → Fin k

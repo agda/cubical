@@ -57,7 +57,7 @@ kleinBottle≃Σ = isoToEquiv (iso fro to froTo toFro)
         { (j = i0) → loop1Inv g l
         ; (j = i1) → loop1 g
         })
-      (inS (loop1 (unglue (j ∨ ~ j) g)))
+      (loop1 (unglue (j ∨ ~ j) g))
       l
 
   to : Σ S¹ invS¹Loop → KleinBottle

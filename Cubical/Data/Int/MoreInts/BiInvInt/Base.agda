@@ -153,7 +153,8 @@ fwd-sucPred (pos (suc n)) i j
                    ; (i = i1) → suc (fwd (pos n))
                    ; (j = i1) → suc-adj (fwd (pos n)) k i
                    })
-          (suc (sym-filler (pred-suc (fwd (pos n))) i j))
+          (inS (suc (sym-filler (pred-suc (fwd (pos n))) i j)))
+          -- overloaded constructors are my Achilles heel
 
 fwd-sucPred (negsuc n) i j
   = hcomp (λ k → λ { (j = i0) → fwd (negsuc n)

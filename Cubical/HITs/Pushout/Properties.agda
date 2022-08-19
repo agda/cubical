@@ -265,7 +265,7 @@ record 3x3-span : Type₁ where
                                  ; (i = i1) → inr (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) (~ t) j)
                                  ; (j = i0) → forward-l (doubleCompPath-filler (λ k → inl (H11 a k)) (push (f21 a)) (λ k → inr (H31 a (~ k))) t i)
                                  ; (j = i1) → forward-r (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) t i) })
-                        (inS (push (push a j) i))
+                        (Pushout.push (push a j) i)
 
   A□○→A○□ : A□○ → A○□
   A□○→A○□ (inl x) = forward-l x
@@ -290,7 +290,7 @@ record 3x3-span : Type₁ where
                                  ; (i = i1) → inr (doubleCompPath-filler (λ k → inl (H13 a k)) (push (f23 a)) (λ k → inr (H33 a (~ k))) (~ t) j)
                                  ; (j = i0) → backward-l (doubleCompPath-filler (λ k → inl (H11 a (~ k))) (push (f12 a)) (λ k → inr (H13 a k)) t i)
                                  ; (j = i1) → backward-r (doubleCompPath-filler (λ k → inl (H31 a (~ k))) (push (f32 a)) (λ k → inr (H33 a k)) t i) })
-                        (inS (push (push a j) i))
+                        (Pushout.push (push a j) i)
 
   A○□→A□○ : A○□ → A□○
   A○□→A□○ (inl x) = backward-l x

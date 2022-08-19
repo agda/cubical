@@ -83,31 +83,31 @@ test1 : ℤ
 test1 = winding2 (λ i j → surf j i)
 
 test2 : ℤ
-test2 = winding2 (λ i j → hcomp (λ _ → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))
+test2 = winding2 (λ i j → hcomp (λ _ → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (S².surf i j))
 
 test3 : ℤ
-test3 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
+test3 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) S².base)
 
 test4 : ℤ
-test4 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
+test4 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) S².base)
 
 test5 : ℤ
-test5 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) base)
+test5 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) S².base)
 
 test6 : ℤ
-test6 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) base)
+test6 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) S².base)
 
 test7 : ℤ
-test7 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → surf j k ; (j = i0) → base ; (j = i1) → base}) (surf i j))
+test7 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → surf j k ; (j = i0) → base ; (j = i1) → base}) (S².surf i j))
 
 test8 : ℤ
-test8 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) (surf i j))
+test8 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) (S².surf i j))
 
 test9 : ℤ
-test9 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) (surf i j))
+test9 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) (S².surf i j))
 
 test10 : ℤ
-test10 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))
+test10 = winding2 (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (S².surf i j))
 
 
 
@@ -123,28 +123,28 @@ test1' : ℤ
 test1' = winding2' (λ i j → surf j i)
 
 test2' : ℤ
-test2' = winding2' (λ i j → hcomp (λ _ → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))
+test2' = winding2' (λ i j → hcomp (λ _ → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (S².surf i j))
 
 test3' : ℤ
-test3' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
+test3' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) S².base)
 
 test4' : ℤ
-test4' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) base)
+test4' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) S².base)
 
 test5' : ℤ
-test5' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) base)
+test5' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) S².base)
 
 test6' : ℤ
-test6' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) base)
+test6' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) S².base)
 
 test7' : ℤ
-test7' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → surf j k ; (j = i0) → base ; (j = i1) → base}) (surf i j))
+test7' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → surf j k ; (j = i0) → base ; (j = i1) → base}) (S².surf i j))
 
 test8' : ℤ
-test8' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) (surf i j))
+test8' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → surf k i ; (j = i1) → base}) (S².surf i j))
 
 test9' : ℤ
-test9' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) (surf i j))
+test9' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → base ; (i = i1) → base ; (j = i0) → base ; (j = i1) → surf k i}) (S².surf i j))
 
 test10' : ℤ
-test10' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (surf i j))
+test10' = winding2' (λ i j → hcomp (λ k → λ { (i = i0) → surf j k ; (i = i1) → base ; (j = i0) → base ; (j = i1) → base}) (S².surf i j))

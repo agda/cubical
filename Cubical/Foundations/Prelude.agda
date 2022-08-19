@@ -114,7 +114,7 @@ _∙∙_∙∙_ : w ≡ x → x ≡ y → y ≡ z → w ≡ z
 doubleCompPath-filler : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
                       → PathP (λ j → p (~ j) ≡ r j) q (p ∙∙ q ∙∙ r)
 doubleCompPath-filler p q r j i =
-  hfill (doubleComp-faces p r i) (inS (q i)) j
+  hfill (doubleComp-faces p r i) (q i) j
 
 -- any two definitions of double composition are equal
 compPath-unique : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
@@ -127,7 +127,7 @@ compPath-unique p q r (α , α-filler) (β , β-filler) t
                                 ; (t = i1) → β-filler j i
                                 ; (i = i0) → p (~ j)
                                 ; (i = i1) → r j })
-                       (inS (q i)) j
+                       (q i) j
 
 {- For single homogenous path composition, we take `p = refl`:
 
@@ -211,7 +211,7 @@ compPathP-filler {A = A} {x = x} {B = B} p q j i =
   fill (λ j → compPath-filler (λ i → A i) B j i)
        (λ j → λ { (i = i0) → x ;
                   (i = i1) → q j })
-       (inS (p i)) j
+       (p i) j
 
 compPathP'-filler : {B : A → Type ℓ'} {x' : B x} {y' : B y} {z' : B z} {p : x ≡ y} {q : y ≡ z}
   (P : PathP (λ i → B (p i)) x' y') (Q : PathP (λ i → B (q i)) y' z')
@@ -220,7 +220,7 @@ compPathP'-filler {B = B} {x' = x'} {p = p} {q = q} P Q j i =
   fill (λ j → B (compPath-filler p q j i))
        (λ j → λ { (i = i0) → x'  ;
                   (i = i1) → Q j })
-       (inS (P i))
+       (P i)
        j
 
 -- Syntax for chains of equational reasoning
@@ -370,7 +370,7 @@ doubleWhiskFiller :
                (p ◁ pq ▷ q)
 doubleWhiskFiller p pq q k i =
   hfill (λ j → λ {(i = i0) → p (~ j) ; (i = i1) → q j})
-        (inS (pq i))
+        (pq i)
         k
 
 _◁_ : ∀ {ℓ} {A : I → Type ℓ} {a₀ a₀' : A i0} {a₁ : A i1}
@@ -414,7 +414,7 @@ isContrSingl a .snd p i .snd j = p .snd (i ∧ j)
 isContrSinglP : (A : I → Type ℓ) (a : A i0) → isContr (singlP A a)
 isContrSinglP A a .fst = _ , transport-filler (λ i → A i) a
 isContrSinglP A a .snd (x , p) i =
-  _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) (inS a) j
+  _ , λ j → fill A (λ j → λ {(i = i0) → transport-filler (λ i → A i) a j; (i = i1) → p j}) a j
 
 -- Higher cube types
 

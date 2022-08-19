@@ -96,7 +96,7 @@ _⋀→_ {A = A} {C = C} {B = B} {D = D} (f , fpt) (g , gpt) (push (push tt j) i
                                                 ((λ i → inr (fpt (~ k) , gpt (~ i)))) k i
                   ; (j = i1) → compPath-filler (push (inr (gpt (~ k))))
                                                 ((λ i → inr (fpt (~ i) , gpt (~ k)))) k i})
-        (push (push tt j) i)
+        (Pushout.push (push tt j) i)
 
 _⋀→refl_ : ∀ {ℓ ℓ'} {C : Type ℓ} {D : Type ℓ'}
   → (f : typ A → C)
@@ -522,7 +522,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (A : Pointed ℓ) (B : Pointed ℓ') (C : Poin
                    ; (j = i1) → push (inl (snd A)) k
                    ; (k = i0) → inl tt
                    ; (k = i1) → push (push tt i) (j ∨ ~ r)})
-          (push (push tt (~ j ∧ i)) k)
+          (Pushout.push (push tt (~ j ∧ i)) k)
 
   -- The main result of step 1
   Iso-⋀-⋀×3 : Iso (A ⋀ (B ⋀∙ C)) ⋀×3

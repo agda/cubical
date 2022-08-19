@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --experimental-lossy-unification -vtc.conv.term.sort:10 #-}
 module Cubical.ZCohomology.RingStructure.RingLaws where
 
 open import Cubical.Foundations.HLevels

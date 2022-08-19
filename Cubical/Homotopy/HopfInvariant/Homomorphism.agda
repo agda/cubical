@@ -171,7 +171,7 @@ H²C*≅ℤ n f g = compGroupIso is (Hⁿ-Sⁿ≅ℤ (suc n))
       lem₂ i j = h (hcomp (λ k → λ { (i = i1) → inr (fst f north)
                                      ; (j = i0) → inr (snd f (~ i))
                                      ; (j = i1) → push (inl north) (i ∨ ~ k)})
-                           (inr (snd f (~ i ∧ ~ j))))
+                           (Pushout.inr (snd f (~ i ∧ ~ j))))
 
   is : GroupIso (coHomGr (2 +ℕ n) (C* n f g)) (coHomGr (2 +ℕ n) (S₊ (2 +ℕ n)))
   Iso.fun (fst is) = ∘inr

@@ -125,7 +125,7 @@ module _
       ; (i = i1) → inr (unit [] (~ j ∧ k))
       ; (j = i0) → compPath-filler (push []) (λ i → inr (unit [] i)) k i
       ; (j = i1) → push [] i })
-    (push [] i)
+    (Pushout.push [] i)
 
   X⋁X→P0→X⋁X : (x : X∙ ⋁ X∙) → P0→X⋁X (X⋁X→P0 x) ≡ x
   X⋁X→P0→X⋁X (inl x) = refl
@@ -136,7 +136,7 @@ module _
       ; (i = i1) → inr x₀
       ; (j = i0) → P0→X⋁X (compPath-filler (push []) refl k i)
       ; (j = i1) → push tt i })
-    (push tt i)
+    (Pushout.push tt i)
 
   P0≃X⋁X : 𝕁amesPush 0 ≃ X∙ ⋁ X∙
   P0≃X⋁X = isoToEquiv (iso P0→X⋁X X⋁X→P0 X⋁X→P0→X⋁X P0→X⋁X→P0)

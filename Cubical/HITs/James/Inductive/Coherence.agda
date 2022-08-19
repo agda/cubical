@@ -34,7 +34,7 @@ private
         ; (i = i1) → doubleCompPath-filler (refl {x = a}) refl refl k j
         ; (j = i0) → a
         ; (j = i1) → a})
-      (inS a) k
+        a k
 
     degenerate1' : (i j k : I) → A
     degenerate1' i j k =
@@ -43,7 +43,7 @@ private
         ; (i = i1) → compPath-filler (refl {x = a}) refl k j
         ; (j = i0) → a
         ; (j = i1) → a})
-      (inS a) k
+      a k
 
     degenerate1'' : (i j k : I) → A
     degenerate1'' i j k =
@@ -52,7 +52,7 @@ private
         ; (i = i1) → compPath-filler (refl {x = a}) (refl ∙ refl) k j
         ; (j = i0) → a
         ; (j = i1) → degenerate1 i k i1})
-      (inS a) k
+      a k
 
     module _
       {B : Type ℓ'}(f : A → B) where
@@ -64,7 +64,7 @@ private
           ; (i = i1) → doubleCompPath-filler (refl {x = f a}) refl refl k j
           ; (j = i0) → f a
           ; (j = i1) → f a })
-        (inS (f a)) k
+        (f a) k
 
       degenerate3 : (i j k : I) → B
       degenerate3 i j k =
@@ -73,7 +73,7 @@ private
           ; (i = i1) → doubleCompPath-filler (refl {x = f a}) refl refl k j
           ; (j = i0) → f a
           ; (j = i1) → f a })
-        (inS (f a)) k
+        (f a) k
 
       someCommonDegenerateCube : (i j k : I) → B
       someCommonDegenerateCube i j k =
@@ -93,7 +93,7 @@ private
         ; (i = i1) → doubleCompPath-filler (refl {x = a}) refl refl j k
         ; (j = i0) → a
         ; (j = i1) → (refl {x = a} ∙∙ refl ∙∙ refl) k })
-      (inS a) k
+      a k
 
     degenerate5 : (i j k : I) → A
     degenerate5 i j k =
@@ -113,7 +113,7 @@ private
         ; (i = i1) → a
         ; (j = i0) → a
         ; (j = i1) → compPath-filler (refl {x = a}) refl (~ i) k })
-      (inS a) k
+      a k
 
 
 -- Cubes of which mostly are constructed by J rule
@@ -173,7 +173,7 @@ module _
       ; (i = i1) → doubleCompPath-filler p' q' r' k j
       ; (j = i0) → h   i (~ k)
       ; (j = i1) → h'' i  k })
-    (inS (h' i j)) k
+    (h' i j) k
 
   doubleCompPath-cong : (f : A → B)
     (p : a ≡ b)(q : b ≡ c)(r : c ≡ d)
@@ -226,7 +226,7 @@ module _
       ; (i = i1) → q j
       ; (j = i0) → f a
       ; (j = i1) → f c })
-    (inS (comp-cong-square' _ _ _ h i j)) k
+    (comp-cong-square' _ _ _ h i j) k
 
   comp-cong-helper : cong f (p ∙ r) ≡ q
   comp-cong-helper i j =

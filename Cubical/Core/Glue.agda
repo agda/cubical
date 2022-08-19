@@ -71,7 +71,7 @@ private
     -- Glue can be seen as a subtype of Type that, at φ, is definitionally equal to the left type
     -- of the given equivalences.
     Glue-S : Type ℓ' [ φ ↦ T ]
-    Glue-S = inS (Glue A Te)
+    Glue-S = Glue A Te
 
     -- Which means partial elements of T are partial elements of Glue
     coeT→G :
@@ -136,4 +136,4 @@ private
     -- transport in Glue reduces to transport in A + the application of the equivalences in forward and backward
     -- direction.
     transp-S : (t0 : T0) → T1 [ i1 ↦ (λ _ → invEq e1 (transportA (equivFun e0 t0))) ]
-    transp-S t0 = inS (transport (λ i → Glue (A i) (Te i)) t0)
+    transp-S t0 = transport (λ i → Glue (A i) (Te i)) t0

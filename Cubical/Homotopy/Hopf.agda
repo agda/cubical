@@ -107,7 +107,7 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
                       ; (i = i1) → inr (secEq (μ-eq' a) b (~ k ∨ j))
                       ; (j = i0) → push a (secEq (μ-eq' a) b (~ k)) i
                       ; (j = i1) → push a b i})
-               (push a b i))
+               (inS (push a b i)))
 
     r : retract F G
     r (inl x) = refl
@@ -118,10 +118,10 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
                       ; (j = i0) → (push (x , invEq (μ-eq' x) (μ e x y))
                                   ∙ (λ i₁ → inr (retEq≡secEq (μ-eq' x) y (~ k) i₁))) i
                       ; (j = i1) → push (x , y) i})
-         (hcomp (λ k → λ { (i = i0) → inl x
+         (outS (hcomp (λ k → λ { (i = i0) → inl x
                       ; (i = i1) → inr (μ e x (retEq (μ-eq' x) y k))
                       ; (j = i1) → push (x , retEq (μ-eq' x) y k) i})
-                ((push (x , invEq (μ-eq' x) (μ e x y))) i))
+                (Pushout.push (x , invEq (μ-eq' x) (μ e x y)) i)))
 
     theIso : Iso TotalSpaceHopfPush (join (typ A) (typ A))
     fun theIso = F
@@ -140,7 +140,7 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
     inv' (merid a i , y) =
       hcomp (λ k → λ { (i = i0) → push (y , a) (~ k)
                       ; (i = i1) → inr y})
-            (inr (ua-unglue (μ-eq a) i y))
+            (Pushout.inr (ua-unglue (μ-eq a) i y))
       where
 
       pp : PathP (λ i → ua (μ-eq a) i → TotalSpaceHopfPush)
@@ -184,7 +184,7 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
       hcomp (λ k → λ { (i = i0) → push (x , y) (~ k)
                       ; (i = i1) → inr (μ e x y)
                       ; (j = i1) → push (x , y) (i ∨ ~ k)})
-            (inr (μ e x y))
+            (Pushout.inr (μ e x y))
 
     theIso : Iso TotalSpaceHopfPush (Σ (Susp (typ A)) Hopf)
     fun theIso = TotalSpaceHopfPush→TotalSpace
@@ -205,7 +205,7 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
     fill (λ k → ua (μ-eq y) i)
          (λ j → λ { (i = i0) → μ e z x
                   ; (i = i1) → μ-assoc e-ass z x y j})
-          (inS (ua-gluePt (μ-eq y) i (μ e z x)))
+          (ua-gluePt (μ-eq y) i (μ e z x))
           j
 
   TotalSpaceHopfPush→≃Hopf : (x : TotalSpaceHopfPush) → typ A ≃ Hopf (induced x)
@@ -326,7 +326,7 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
     hcomp (λ k → λ { (i = i0) → inl x
                     ; (i = i1)
                      → inr (secEq (_ , Push→TotalSpaceHopf-equiv x) y k)})
-      (push (x , invEq (_ , Push→TotalSpaceHopf-equiv x) y) i)
+      (Pushout.push (x , invEq (_ , Push→TotalSpaceHopf-equiv x) y) i)
 
   IsoTotalSpacePush²'ΣPush : Iso TotalSpacePush²'
            (Pushout {A = typ A × Σ (Susp (typ A)) Hopf} fst snd)
@@ -344,14 +344,14 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
                              ; (i = i1)
                               → inr (secEq (_
                                     , Push→TotalSpaceHopf-equiv x) y k)})
-                          (inS (push (x
+                          (Pushout.push (x
                                     , invEq (_
-                                     , Push→TotalSpaceHopf-equiv x) y) i)) k)
+                                     , Push→TotalSpaceHopf-equiv x) y) i) k)
                     ; (j = i1)
                      → push (x
                            , (secEq (_
                             , Push→TotalSpaceHopf-equiv x) y k)) i})
-          (push (x , (secEq (_ , Push→TotalSpaceHopf-equiv x) y i0)) i)
+          (Pushout.push (x , (secEq (_ , Push→TotalSpaceHopf-equiv x) y i0)) i)
   leftInv IsoTotalSpacePush²'ΣPush (inl x) = refl
   leftInv IsoTotalSpacePush²'ΣPush (inr x) = refl
   leftInv IsoTotalSpacePush²'ΣPush (push (x , y) i) j =
@@ -360,7 +360,7 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
                                            , Push→TotalSpaceHopf-equiv x)
                                         (Push→TotalSpaceHopf x y) (j ∨ k))
                     ; (j = i1) → push (x , y) i})
-          (hcomp (λ k → λ { (i = i0) → inl x
+          (outS (hcomp (λ k → λ { (i = i0) → inl x
                            ; (i = i1) → inr (retEq≡secEq
                                               (Push→TotalSpaceHopf x
                                              , Push→TotalSpaceHopf-equiv x)
@@ -370,8 +370,8 @@ module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
                                                (Push→TotalSpaceHopf x
                                               , Push→TotalSpaceHopf-equiv x)
                                                (Push→TotalSpaceHopf x y)) i})
-            (push (x , retEq (Push→TotalSpaceHopf x
-                            , Push→TotalSpaceHopf-equiv x) y j) i))
+            (Pushout.push (x , retEq (Push→TotalSpaceHopf x
+                            , Push→TotalSpaceHopf-equiv x) y j) i)))
 
   joinIso₂ : Iso TotalSpacePush² (join (typ A) (join (typ A) (typ A)))
   joinIso₂ =
@@ -542,7 +542,7 @@ module S¹Hopf where
                    ; (i = i1) → push (rotInv-3 y x t) x j
                    ; (j = i0) → inl (assocSquare-3 i t x y)
                    ; (j = i1) → inr x })
-          (push ((rotInv-2 x y (i ∨ j)) · (invLooper (invLooper y · x))) (rotInv-2 x y (i ∨ j)) j)
+          (join.push ((rotInv-2 x y (i ∨ j)) · (invLooper (invLooper y · x))) (rotInv-2 x y (i ∨ j)) j)
 
   JoinS¹S¹→TotalHopf→JoinS¹S¹ : ∀ x → TotalHopf→JoinS¹S¹ (JoinS¹S¹→TotalHopf x) ≡ x
   JoinS¹S¹→TotalHopf→JoinS¹S¹ (inl x) i = inl x
@@ -574,7 +574,7 @@ module S¹Hopf where
                    ; (x = i0) (y = i1) → base
                    ; (x = i1) (y = i0) → base
                    ; (x = i1) (y = i1) → base })
-          (inS (rotInv-2 (loop y · loop x) (loop y · loop x · loop (~ y)) i)) j
+          (rotInv-2 (loop y · loop x) (loop y · loop x · loop (~ y)) i) j
 
   -- See assocFiller-3-endpoint
   -- TODO : use cubical extension types when available to remove assocFiller-4-endpoint
@@ -620,7 +620,7 @@ module S¹Hopf where
     hfill (λ t → λ { (j = i0) → ((invLooper (y · x · invLooper y) · (y · x) , I0)
                                 , invLooper (y · x · invLooper y) · (y · x) · (rotInv-1 x y t))
                    ; (j = i1) → ((invLooper (x · invLooper y) · x , I1) , x) })
-          (inS ((invLooper (x' · invLooper y) · x' , seg j) , rotInv-2 x' (x' · invLooper y) j)) i
+          ((invLooper (x' · invLooper y) · x' , seg j) , rotInv-2 x' (x' · invLooper y) j) i
 
   filler-4-1 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → PseudoHopf
   filler-4-1 i j y x =
@@ -628,7 +628,7 @@ module S¹Hopf where
     hfill (λ t → λ { (j = i0) → ((invLooper (y · x · invLooper y) · (y · x) , I0)
                                 , (rotInv-4 y (y · x) (~ t)) · x)
                    ; (j = i1) → ((invLooper (x · invLooper y) · x , I1) , x) })
-          (inS ((invLooper (x' · invLooper y) · x' , seg j) , unglue (j ∨ ~ j) x)) i
+          ((invLooper (x' · invLooper y) · x' , seg j) , unglue (j ∨ ~ j) x) i
 
   filler-4-2 : (_ j : I) → (y : S¹) → Glue S¹ (Border y j) → TotalHopf
   filler-4-2 i j y x =

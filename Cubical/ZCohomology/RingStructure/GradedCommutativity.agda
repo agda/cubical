@@ -926,7 +926,7 @@ gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b
        ; (r = i1) → -ₖ'-gen (suc (suc n)) (suc (suc m)) p q
                        (subst coHomK (+'-comm (suc (suc m)) (suc (suc n)))
                         (help₁ l i j))})
-   (hcomp (λ l →
+   (outS (hcomp (λ l →
      λ { (i = i0) → -ₖ'-gen (suc (suc n)) (suc (suc m)) p q
                       (subst coHomK (+'-comm (suc (suc m)) (suc (suc n)))
                         (Kn→ΩKn+10ₖ _ (~ r ∨ ~ l) j))
@@ -946,14 +946,14 @@ gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b
                                                              (_⌣ₖ_ {n = suc (suc n)} {m = suc m} ∣ merid a i ∣ₕ ∣ b ∣ₕ)))
                                              ∙∙ cong (-ₖ'-gen (suc m) (suc (suc n)) (evenOrOdd (suc m)) p) (transp0₂ n m)) i) j)
                           (Kn→ΩKn+10ₖ _) (~ l) i j))})
-        (hcomp (λ l →
+        (outS (hcomp (λ l →
           λ { (i = i0) → ∣ north ∣
             ; (i = i1) → ∣ north ∣
             ; (j = i0) → Kn→ΩKn+10ₖ _ r i
             ; (j = i1) → Kn→ΩKn+10ₖ _ r i
             ; (r = i0) → lem₄ n m q p a b i1 j i
             ; (r = i1) → lem₅ n m p q a b (~ l) i j})
-            (hcomp (λ l →
+            (outS (hcomp (λ l →
               λ { (i = i0) → ∣ north ∣
                 ; (i = i1) → ∣ north ∣
                 ; (j = i0) → Kn→ΩKn+10ₖ _ (r ∨ ~ l) i
@@ -968,7 +968,7 @@ gradedComm'-elimCase (suc (suc k)) (suc n) (suc m) term p q (merid a i) (merid b
                                                 (gradedComm'-elimCase k n m
                                                   (+-comm n m ∙∙ cong predℕ (+-comm (suc m) n) ∙∙ cong (predℕ ∘ predℕ) term)
                                                   (evenOrOdd (suc n)) (evenOrOdd (suc m)) a b (~ l))))) i j})
-                (lem₆ n m p q a b r i j))))
+                (lem₆ n m p q a b r i j)))))))
   where
   help₁ : I → I → I → coHomK _
   help₁ l i j =
