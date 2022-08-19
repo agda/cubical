@@ -240,34 +240,57 @@ CubeRelConst₀₁ (suc n) A ∂₀₁ = CubeRel₀₁ (suc n) A (∂₀₁ .snd
 
 -- The equivalence between fixed/not-fixed-faces cubes
 
+
+-- Some preliminary lemmas
+private
+
+  path1 : (n : ℕ) → ∂Cube (suc (suc n)) A → I → ∂Cube (suc (suc n)) A
+  path1 {A = A} n (a₀ , a₁ , ∂₋) i =
+    const₀ .snd i , const₁ .snd i ,
+    transport-filler (λ i → ∂Cube∂₀₁ (suc n) A (const₀ .snd i) (const₁ .snd i)) ∂₋ i
+    where
+    const₀ = makeConst {n = suc n} a₀
+    const₁ = makeConst {n = suc n} a₁
+
+  square1 : (n : ℕ) → ∂CubeConst₀₁ (suc n) A → I → I → ∂CubeConst₀₁ (suc n) A
+  square1 {A = A} n (a₀ , a₁ , ∂₋) i j =
+    _ , _ ,
+    hfill (λ j → λ
+      { (i = i0) → transport (λ t → ∂Cube∂₀₁ (suc n) A (cu₀ i0 .snd t) (cu₁ i0 .snd t)) ∂₋
+      ; (i = i1) → transportRefl ∂₋ j })
+    (inS (transport (λ t → ∂Cube∂₀₁ (suc n) A (cu₀ i .snd t) (cu₁ i .snd t)) ∂₋)) j
+    where
+    cu₀ = makeConstUniq {n = suc n} a₀
+    cu₁ = makeConstUniq {n = suc n} a₁
+
+
 ∂CubeConst₀₁→∂Cube : {n : ℕ}{A : Type ℓ} → ∂CubeConst₀₁ n A → ∂Cube (suc n) A
-∂CubeConst₀₁→∂Cube {n = 0} (a₀ , a₁) = a₀ , a₁
-∂CubeConst₀₁→∂Cube {n = suc n} {A} (a₀ , a₁ , ∂₋) = const _ a₀ , const _ a₁ , ∂₋
+∂CubeConst₀₁→∂Cube {n = 0} x = x
+∂CubeConst₀₁→∂Cube {n = suc n} (a₀ , a₁ , ∂₋) = const _ a₀ , const _ a₁ , ∂₋
 
 ∂Cube→∂CubeConst₀₁ : {n : ℕ}{A : Type ℓ} → ∂Cube (suc n) A → ∂CubeConst₀₁ n A
 ∂Cube→∂CubeConst₀₁ {n = 0} (a₀ , a₁) = a₀ , a₁
-∂Cube→∂CubeConst₀₁ {n = suc n} {A} (a₀ , a₁ , ∂₋) =
-  let const₀ = makeConst {n = suc n} a₀ ; const₁ = makeConst {n = suc n} a₁ in
-  _ , _ , transport (λ i → ∂Cube∂₀₁ (suc n) A (const₀ .snd i) (const₁ .snd i)) ∂₋
+∂Cube→∂CubeConst₀₁ {n = suc n} ∂ = _ , _ , path1 n ∂ i1 .snd .snd
 
 ∂Cube→∂CubeConst₀₁→∂Cube : {n : ℕ}{A : Type ℓ}
   → (∂ : ∂Cube (suc n) A) → ∂CubeConst₀₁→∂Cube (∂Cube→∂CubeConst₀₁ ∂) ≡ ∂
 ∂Cube→∂CubeConst₀₁→∂Cube {n = 0} _ = refl
-∂Cube→∂CubeConst₀₁→∂Cube {n = suc n} {A} (a₀ , a₁ , ∂₋) i =
-  let const₀ = makeConst {n = suc n} a₀ ; const₁ = makeConst {n = suc n} a₁ in
-  const₀ .snd (~ i) , const₁ .snd (~ i) ,
-  transport-filler (λ i → ∂Cube∂₀₁ (suc n) A (const₀ .snd i) (const₁ .snd i)) ∂₋ (~ i)
+∂Cube→∂CubeConst₀₁→∂Cube {n = suc n} ∂₀₁ i = path1 n ∂₀₁ (~ i)
 
 ∂CubeConst₀₁→∂Cube→∂CubeConst₀₁ : {n : ℕ}{A : Type ℓ}
   → (∂₀₁ : ∂CubeConst₀₁ n A) → ∂Cube→∂CubeConst₀₁ (∂CubeConst₀₁→∂Cube ∂₀₁) ≡ ∂₀₁
 ∂CubeConst₀₁→∂Cube→∂CubeConst₀₁ {n = 0} _ = refl
-∂CubeConst₀₁→∂Cube→∂CubeConst₀₁ {n = suc n} {A} (a₀ , a₁ , ∂₋) i =
-  let cu₀ = makeConstUniq {n = suc n} a₀ ; cu₁ = makeConstUniq {n = suc n} a₁ in
-  _ , _ ,
-  hcomp (λ j → λ
-    { (i = i0) → transport (λ t → ∂Cube∂₀₁ (suc n) A (cu₀ i0 .snd t) (cu₁ i0 .snd t)) ∂₋
-    ; (i = i1) → transportRefl ∂₋ j })
-  (transport (λ t → ∂Cube∂₀₁ (suc n) A (cu₀ i .snd t) (cu₁ i .snd t)) ∂₋)
+∂CubeConst₀₁→∂Cube→∂CubeConst₀₁ {n = suc n} ∂₀₁ i = square1 n ∂₀₁ i i1
+
+
+-- Some preliminary lemmas
+private
+
+  path2 : (n : ℕ) {∂ : ∂Cube (suc (suc n)) A}
+    → (a₋ : CubeRel (suc (suc n)) A ∂)
+    → (i : I) → CubeRel (suc (suc n)) A (path1 n ∂ i)
+  path2 {A = A} n {∂} a₋ i =
+    transport-filler (λ i → CubeRel (suc (suc n)) A (path1 n ∂ i)) a₋ i
 
 
 CubeRelConst₀₁→CubeRel : {n : ℕ}{A : Type ℓ}
@@ -278,52 +301,38 @@ CubeRelConst₀₁→CubeRel {n = suc n} _ a₋ = a₋
 CubeRel→CubeRelConst₀₁ : {n : ℕ}{A : Type ℓ}
   → (∂ : ∂Cube (suc n) A) → CubeRel (suc n) A ∂ → CubeRelConst₀₁ n A (∂Cube→∂CubeConst₀₁ ∂)
 CubeRel→CubeRelConst₀₁ {n = 0} _ p = p
-CubeRel→CubeRelConst₀₁ {n = suc n} {A} (a₀ , a₁ , ∂₋) a₋ =
-  let const₀ = makeConst {n = suc n} a₀ ; const₁ = makeConst {n = suc n} a₁ in
-  let path = transport-filler (λ i → ∂Cube∂₀₁ (suc n) A (const₀ .snd i) (const₁ .snd i)) ∂₋ in
-  transport (λ i → CubeRel (suc (suc n)) A (const₀ .snd i , const₁ .snd i , path i)) a₋
+CubeRel→CubeRelConst₀₁ {n = suc n} _ a₋ = path2 n a₋ i1
 
 CubeRel→CubeRelConst₀₁→CubeRel : {n : ℕ} {A : Type ℓ}
   → (∂ : ∂Cube (suc n) A) (a : CubeRel (suc n) A ∂)
   → PathP (λ i → CubeRel (suc n) A (∂Cube→∂CubeConst₀₁→∂Cube ∂ i))
     (CubeRelConst₀₁→CubeRel (∂Cube→∂CubeConst₀₁ ∂) (CubeRel→CubeRelConst₀₁ ∂ a)) a
 CubeRel→CubeRelConst₀₁→CubeRel {n = 0} _ _ = refl
-CubeRel→CubeRelConst₀₁→CubeRel {n = suc n} {A} (a₀ , a₁ , ∂₋) a₋ t =
-  let const₀ = makeConst {n = suc n} a₀ ; const₁ = makeConst {n = suc n} a₁ in
-  let path = transport-filler (λ i → ∂Cube∂₀₁ (suc n) A (const₀ .snd i) (const₁ .snd i)) ∂₋ in
-  transport-filler (λ i → CubeRel (suc (suc n)) A (const₀ .snd i , const₁ .snd i , path i)) a₋ (~ t)
+CubeRel→CubeRelConst₀₁→CubeRel {n = suc n} _ a₋ i = path2 n a₋ (~ i)
 
 CubeRelConst₀₁→CubeRel→CubeRelConst₀₁ : {n : ℕ} {A : Type ℓ}
   → (∂₀₁ : ∂CubeConst₀₁ n A) (a : CubeRelConst₀₁ n A ∂₀₁)
   → PathP (λ i → CubeRelConst₀₁ n A (∂CubeConst₀₁→∂Cube→∂CubeConst₀₁ ∂₀₁ i))
     (CubeRel→CubeRelConst₀₁ (∂CubeConst₀₁→∂Cube ∂₀₁) (CubeRelConst₀₁→CubeRel ∂₀₁ a)) a
 CubeRelConst₀₁→CubeRel→CubeRelConst₀₁ {n = 0} _ _ = refl
-CubeRelConst₀₁→CubeRel→CubeRelConst₀₁ {n = suc n} {A} (a₀ , a₁ , ∂₋) a₋ i =
-  comp (λ j → CubeRelConst₀₁ (suc n) A (_ , _ , t-path j))
+CubeRelConst₀₁→CubeRel→CubeRelConst₀₁ {n = suc n} {A} ∂₀₁@(a₀ , a₁ , ∂₋) a₋ i =
+  comp (λ j → CubeRelConst₀₁ (suc n) A (square1 n ∂₀₁ i j))
   (λ j → λ
     { (i = i0) → path i0
-    ; (i = i1) → transportRefl' j })
+    ; (i = i1) → tp-refl j })
   (path i)
-
   where
   cu₀ = makeConstUniq {n = suc n} a₀
   cu₁ = makeConstUniq {n = suc n} a₁
 
-  t-path : I → _
-  t-path j =
-    hfill (λ j → λ
-      { (i = i0) → transport (λ t → ∂Cube∂₀₁ (suc n) A (cu₀ i0 .snd t) (cu₁ i0 .snd t)) ∂₋
-      ; (i = i1) → transportRefl ∂₋ j })
-    (inS (transport (λ t → ∂Cube∂₀₁ (suc n) A (cu₀ i .snd t) (cu₁ i .snd t)) ∂₋)) j
+  ∂path : (i t : I) → ∂Cube∂₀₁ (suc n) A (cu₀ i .snd t) (cu₁ i .snd t)
+  ∂path i t = transport-filler (λ t → ∂Cube∂₀₁ (suc n) A (cu₀ i .snd t) (cu₁ i .snd t)) ∂₋ t
 
-  path' : (i t : I) → ∂Cube∂₀₁ (suc n) A (cu₀ i .snd t) (cu₁ i .snd t)
-  path' i t = transport-filler (λ t → ∂Cube∂₀₁ (suc n) A (cu₀ i .snd t) (cu₁ i .snd t)) ∂₋ t
+  path : (i : I) → CubeRel (suc (suc n)) A (cu₀ i .snd i1 , cu₁ i .snd i1 , ∂path i i1)
+  path i = transport (λ t → CubeRel (suc (suc n)) A (cu₀ i .snd t , cu₁ i .snd t , ∂path i t)) a₋
 
-  path : (i : I) → CubeRel (suc (suc n)) A (cu₀ i .snd i1 , cu₁ i .snd i1 , path' i i1)
-  path i = transport (λ t → CubeRel (suc (suc n)) A (cu₀ i .snd t , cu₁ i .snd t , path' i t)) a₋
-
-  transportRefl' : PathP (λ i → CubeRelConst₀₁ (suc n) A (_ , _ , transportRefl ∂₋ i)) (path i1) a₋
-  transportRefl' i = transport-filler (λ t → CubeRel (suc (suc n)) A (cu₀ i1 .snd t , cu₁ i1 .snd t , path' i1 t)) a₋ (~ i)
+  tp-refl : PathP (λ i → CubeRelConst₀₁ (suc n) A (_ , _ , transportRefl ∂₋ i)) (path i1) a₋
+  tp-refl i = transport-filler (λ t → CubeRel (suc (suc n)) A (const _ a₀ , const _ a₁ , ∂path i1 t)) a₋ (~ i)
 
 
 Iso-∂CubeConst₀₁-∂Cube : {n : ℕ}{A : Type ℓ} → Iso (∂CubeConst₀₁ n A) (∂Cube (suc n) A)
