@@ -32,16 +32,16 @@ private
 
 interleaved mutual
 
-  Cube : (n : ℕ)(A : Type ℓ) → Type ℓ
-  ∂Cube : ℕ → Type ℓ → Type ℓ
-  CubeRel : (n : ℕ)(A : Type ℓ) → ∂Cube n A → Type ℓ
+  Cube    : (n : ℕ) (A : Type ℓ) → Type ℓ
+  ∂Cube   : (n : ℕ) (A : Type ℓ) → Type ℓ
+  CubeRel : (n : ℕ) (A : Type ℓ) → ∂Cube n A → Type ℓ
 
-  Cube 0 A = A
-  Cube (suc n) A = Σ[ ∂ ∈ ∂Cube (suc n) A ] CubeRel (suc n) A ∂
+  Cube    0 A = A
+  Cube    (suc n) A = Σ[ ∂ ∈ ∂Cube (suc n) A ] CubeRel (suc n) A ∂
 
-  ∂Cube 0 A = Unit*
-  ∂Cube 1 A = A × A
-  ∂Cube (suc (suc n)) A = Σ[ a₀ ∈ Cube (suc n) A ] Σ[ a₁ ∈ Cube (suc n) A ] a₀ .fst ≡ a₁ .fst
+  ∂Cube   0 A = Unit*
+  ∂Cube   1 A = A × A
+  ∂Cube   (suc (suc n)) A = Σ[ a₀ ∈ Cube (suc n) A ] Σ[ a₁ ∈ Cube (suc n) A ] a₀ .fst ≡ a₁ .fst
 
   CubeRel 0 A _ = A
   CubeRel 1 A ∂ = ∂ .fst ≡ ∂ .snd
