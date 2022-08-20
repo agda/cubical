@@ -98,26 +98,25 @@ module AlgebraHoms where
   compAssocAlgebraHom _ _ _ = AlgebraHom≡ refl
 
 
-module AlgebraEquivs {R : Ring ℓ} where
+module AlgebraEquivs where
   open IsAlgebraHom
   open AlgebraHoms
 
-  compIsAlgebraEquiv : {A : Algebra R ℓ'} {B : Algebra R ℓ''} {C : Algebra R ℓ'''}
+  compIsAlgebraEquiv :
     {g : ⟨ B ⟩ ≃ ⟨ C ⟩} {f : ⟨ A ⟩ ≃ ⟨ B ⟩}
     → IsAlgebraEquiv (B .snd) g (C .snd)
     → IsAlgebraEquiv (A .snd) f (B .snd)
     → IsAlgebraEquiv (A .snd) (compEquiv f g) (C .snd)
   compIsAlgebraEquiv {g = g} {f} gh fh = compIsAlgebraHom {g = g .fst} {f .fst} gh fh
 
-  compAlgebraEquiv : {A : Algebra R ℓ'} {B : Algebra R ℓ''} {C : Algebra R ℓ'''}
-                → AlgebraEquiv A B → AlgebraEquiv B C → AlgebraEquiv A C
+  compAlgebraEquiv : AlgebraEquiv A B → AlgebraEquiv B C → AlgebraEquiv A C
   fst (compAlgebraEquiv f g) = compEquiv (f .fst) (g .fst)
   snd (compAlgebraEquiv f g) = compIsAlgebraEquiv {g = g .fst} {f = f .fst} (g .snd) (f .snd)
 
 
 
 -- the Algebra version of uaCompEquiv
-module AlgebraUAFunctoriality {R : Ring ℓ} where
+module AlgebraUAFunctoriality where
  open AlgebraStr
  open AlgebraEquivs
 
@@ -144,7 +143,7 @@ module AlgebraUAFunctoriality {R : Ring ℓ} where
    rightInv theIso _ = refl
    leftInv theIso _ = refl
 
- caracAlgebra≡ : {A B : Algebra R ℓ'} (p q : A ≡ B) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
+ caracAlgebra≡ : (p q : A ≡ B) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
  caracAlgebra≡ {A = A} {B = B} p q P =
    sym (transportTransport⁻ (ua (Algebra≡ A B)) p)
                                     ∙∙ cong (transport (ua (Algebra≡ A B))) helper
@@ -162,7 +161,7 @@ module AlgebraUAFunctoriality {R : Ring ℓ} where
                           λ _ → isOfHLevelPathP 1 (isPropIsAlgebra _ _ _ _ _ _ _) _ _)
                (transportRefl (cong ⟨_⟩ p) ∙ P ∙ sym (transportRefl (cong ⟨_⟩ q)))
 
- uaCompAlgebraEquiv : {A B C : Algebra R ℓ'} (f : AlgebraEquiv A B) (g : AlgebraEquiv B C)
+ uaCompAlgebraEquiv : (f : AlgebraEquiv A B) (g : AlgebraEquiv B C)
                   → uaAlgebra (compAlgebraEquiv f g) ≡ uaAlgebra f ∙ uaAlgebra g
  uaCompAlgebraEquiv f g = caracAlgebra≡ _ _ (
    cong ⟨_⟩ (uaAlgebra (compAlgebraEquiv f g))
