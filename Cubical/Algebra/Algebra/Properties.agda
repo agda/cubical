@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
@@ -102,6 +103,54 @@ module AlgebraEquivs where
   open IsAlgebraHom
   open AlgebraHoms
 
+  module _ where
+
+    invAlgebraEquiv : AlgebraEquiv A B → AlgebraEquiv B A
+    (invAlgebraEquiv f').fst = invEquiv (fst f')
+    (invAlgebraEquiv {A = A} {B = B} f').snd = hom
+      where
+        open AlgebraStr {{...}}
+        private instance
+          _ = snd A
+          _ = snd B
+
+        f⁻¹ = fst (invEquiv (fst f'))
+        f = fst (fst f')
+        f⁻¹∘f≡id : (x : _) → f⁻¹ (f x) ≡ x
+        f⁻¹∘f≡id = snd (isEquiv→hasRetract (snd (fst f')))
+        f∘f⁻¹≡id : (y : _) → f (f⁻¹ y) ≡ y
+        f∘f⁻¹≡id = snd (isEquiv→hasSection (snd (fst f')))
+
+        hom : IsAlgebraHom (B .snd) f⁻¹ (A .snd)
+        pres0 hom =
+          f⁻¹ 0a     ≡⟨ sym (cong f⁻¹ (snd f' .pres0)) ⟩
+          f⁻¹ (f 0a) ≡⟨ f⁻¹∘f≡id 0a ⟩
+          0a ∎
+        pres1 hom =
+          f⁻¹ 1a     ≡⟨ sym (cong f⁻¹ (snd f' .pres1)) ⟩
+          f⁻¹ (f 1a) ≡⟨ f⁻¹∘f≡id 1a ⟩
+          1a ∎
+        pres+ hom x y =
+          f⁻¹ (x + y)                  ≡[ i ]⟨ f⁻¹ ((f∘f⁻¹≡id x (~ i)) + (f∘f⁻¹≡id y (~ i))) ⟩
+          f⁻¹ (f (f⁻¹ x) + f (f⁻¹ y))  ≡⟨ sym (cong f⁻¹ (snd f' .pres+ _ _)) ⟩
+          f⁻¹ (f (f⁻¹ x + f⁻¹ y))      ≡⟨ f⁻¹∘f≡id _ ⟩
+          f⁻¹ x + f⁻¹ y ∎
+        pres· hom x y =
+          f⁻¹ (x · y)                  ≡[ i ]⟨ f⁻¹ ((f∘f⁻¹≡id x (~ i)) · (f∘f⁻¹≡id y (~ i))) ⟩
+          f⁻¹ (f (f⁻¹ x) · f (f⁻¹ y))  ≡⟨ sym (cong f⁻¹ (snd f' .pres· _ _)) ⟩
+          f⁻¹ (f (f⁻¹ x · f⁻¹ y))      ≡⟨ f⁻¹∘f≡id _ ⟩
+          f⁻¹ x · f⁻¹ y ∎
+        pres- hom x =
+          f⁻¹ (- x)            ≡⟨ sym (cong (λ u → f⁻¹ (- u)) (f∘f⁻¹≡id _)) ⟩
+          f⁻¹ (- f (f⁻¹ x))    ≡⟨ sym (cong f⁻¹ (snd f' .pres- (f⁻¹ x)) ) ⟩
+          f⁻¹ (f (- f⁻¹ x))    ≡⟨ f⁻¹∘f≡id _ ⟩
+          (- f⁻¹ x) ∎
+        pres⋆ hom r x =
+          f⁻¹ (r ⋆ x)           ≡⟨ cong (λ u → f⁻¹ (r ⋆ u)) (sym (f∘f⁻¹≡id _)) ⟩
+          f⁻¹ (r ⋆ f (f⁻¹ x))   ≡⟨ sym (cong f⁻¹ (snd f' .pres⋆ r (f⁻¹ x))) ⟩
+          f⁻¹ (f (r ⋆ (f⁻¹ x))) ≡⟨ f⁻¹∘f≡id _ ⟩
+          r ⋆ (f⁻¹ x) ∎
+
   compIsAlgebraEquiv :
     {g : ⟨ B ⟩ ≃ ⟨ C ⟩} {f : ⟨ A ⟩ ≃ ⟨ B ⟩}
     → IsAlgebraEquiv (B .snd) g (C .snd)
@@ -113,7 +162,28 @@ module AlgebraEquivs where
   fst (compAlgebraEquiv f g) = compEquiv (f .fst) (g .fst)
   snd (compAlgebraEquiv f g) = compIsAlgebraEquiv {g = g .fst} {f = f .fst} (g .snd) (f .snd)
 
+  preCompAlgEquiv :
+    AlgebraEquiv A B → AlgebraHom B C ≃ AlgebraHom A C
+  (preCompAlgEquiv f).fst g = g ∘a (AlgebraEquiv→AlgebraHom f)
+  (preCompAlgEquiv {A = A} {B = B} {C = C} f).snd = snd (isoToEquiv isoOnHoms)
+    where
+      isoOnTypes : Iso (fst B → fst C) (fst A → fst C)
+      isoOnTypes = equivToIso (_ , (snd (preCompEquiv (fst f))))
 
+      f⁻¹ : AlgebraEquiv B A
+      f⁻¹ = invAlgebraEquiv f
+
+      isoOnHoms : Iso (AlgebraHom B C) (AlgebraHom A C)
+      fun isoOnHoms g = g ∘a AlgebraEquiv→AlgebraHom f
+      inv isoOnHoms h = h ∘a AlgebraEquiv→AlgebraHom f⁻¹
+      rightInv isoOnHoms h =
+        Σ≡Prop
+          (λ h → isPropIsAlgebraHom _ (A .snd) h (C .snd))
+          (isoOnTypes .rightInv (h .fst))
+      leftInv isoOnHoms g =
+        Σ≡Prop
+          (λ g → isPropIsAlgebraHom _ (B .snd) g (C .snd))
+          (isoOnTypes .leftInv (g .fst))
 
 -- the Algebra version of uaCompEquiv
 module AlgebraUAFunctoriality where
