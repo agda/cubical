@@ -77,8 +77,5 @@ import Cubical.Displayed.Everything
 -- Various axioms and consequences
 import Cubical.Axiom.Everything
 
--- Syntax typeclasses
-import Cubical.Syntax.Everything
-
 -- Automatic proving, solvers
 import Cubical.Tactics.Everything

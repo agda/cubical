@@ -1,6 +1,16 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.CohomologyRings.Unit where
 
+{-
+   This file computes the cohomology ring of the Unit type as ℤ[X]/⟨X⟩ and as ℤ.
+   This file is simpler than Sn and CP2 because
+   - There is only one non trivial cohomology group.
+   - The isomorphism function of H⁰ is simpler so it
+     makes some properties hold definitionally.
+
+   Though the file is almost written like Sn excet some simplification.
+-}
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
@@ -35,6 +45,7 @@ open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.CohomologyRing
 open import Cubical.ZCohomology.Groups.Unit
+open import Cubical.ZCohomology.CohomologyRings.CupProductProperties
 
 open Iso
 
@@ -108,13 +119,22 @@ module Equiv-Unit-Properties where
     ; ·DistR+   to ·PℤIDistR+
     ; is-set    to isSetPℤI     )
 
+  e₀ = invGroupIso H⁰-Unit≅ℤ
+  ϕ₀ = fun (fst e₀)
+  ϕ₀str = snd e₀
+  ϕ₀⁻¹ = inv (fst e₀)
+  ϕ₀⁻¹str = snd (invGroupIso e₀)
+  ϕ₀-sect = rightInv (fst e₀)
+  ϕ₀-retr = leftInv (fst e₀)
+
+
 -----------------------------------------------------------------------------
 -- Direct Sens on ℤ[x]
 
   ℤ[x]→H*-Unit : ℤ[x] → H* Unit
   ℤ[x]→H*-Unit = DS-Rec-Set.f _ _ _ _ isSetH*
                   0H*
-                  base-trad
+                  ϕ
                   _+H*_
                   +H*Assoc
                   +H*IdR
@@ -122,9 +142,9 @@ module Equiv-Unit-Properties where
                   base-neutral-eq
                   base-add-eq
                where
-               base-trad : _
-               base-trad (zero ∷ []) a = base zero (inv (fst H⁰-Unit≅ℤ) a)
-               base-trad (suc n ∷ []) a = 0H*
+               ϕ : _
+               ϕ (zero ∷ []) a = base zero (ϕ₀ a)
+               ϕ (suc n ∷ []) a = 0H*
 
                base-neutral-eq :  _
                base-neutral-eq (zero ∷ []) = base-neutral _
@@ -141,32 +161,14 @@ module Equiv-Unit-Properties where
   ℤ[x]→H*-Unit-pres+ x y = refl
 
 
--- -- Proving the morphism on the cup product
+-- Proving the morphism on the cup product
 
-  T0 : (z : ℤ) → coHom 0 Unit
-  T0 = λ z → inv (fst H⁰-Unit≅ℤ) z
-
-  T0g : IsGroupHom (ℤG .snd) (fst (invGroupIso H⁰-Unit≅ℤ) .fun) (coHomGr 0 Unit .snd)
-  T0g = snd (invGroupIso H⁰-Unit≅ℤ)
-
-
-    -- idea : control of the unfolding + simplification of T0 on the left
-  pres·-base-case-00 : (a : ℤ) → (b : ℤ) →
-                        T0 (a ·ℤ b) ≡ (T0 a) ⌣ (T0 b)
-  pres·-base-case-00 (pos zero)       b = (IsGroupHom.pres1 T0g)
-  pres·-base-case-00 (pos (suc n))    b = ((IsGroupHom.pres· T0g b (pos n ·ℤ b)))
-                                          ∙ (cong (λ X → (T0 b) +ₕ X) (pres·-base-case-00 (pos n) b))
-  pres·-base-case-00 (negsuc zero)    b = IsGroupHom.presinv T0g b
-  pres·-base-case-00 (negsuc (suc n)) b = cong T0 (+ℤComm (-ℤ b) (negsuc n ·ℤ b)) -- ·ℤ and ·₀ are defined asymetrically !
-                                          ∙ IsGroupHom.pres· T0g (negsuc n ·ℤ b) (-ℤ b)
-                                          ∙ cong₂ _+ₕ_ (pres·-base-case-00 (negsuc n) b)
-                                                         (IsGroupHom.presinv T0g b)
-
+  open pres⌣
 
   pres·-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
                 ℤ[x]→H*-Unit (base (n ∷ []) a ·Pℤ base (m ∷ []) b)
               ≡ ℤ[x]→H*-Unit (base (n ∷ []) a) cup ℤ[x]→H*-Unit (base (m ∷ []) b)
-  pres·-base-case-int zero    a zero    b = cong (base 0) (pres·-base-case-00 a b)
+  pres·-base-case-int zero    a zero    b = cong (base 0) (ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₀ ϕ₀str ϕ₀ ϕ₀str refl a b)
   pres·-base-case-int zero    a (suc m) b = refl
   pres·-base-case-int (suc n) a m       b = refl
 
@@ -190,7 +192,7 @@ module Equiv-Unit-Properties where
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
-    -- raising to the product
+  -- raising to the product
   ℤ[x]→H*-Unit-cancelX : (k : Fin 1) → ℤ[x]→H*-Unit (<X> k) ≡ 0H*
   ℤ[x]→H*-Unit-cancelX zero = refl
 
@@ -212,7 +214,7 @@ module Equiv-Unit-Properties where
   H*-Unit→ℤ[x] : H* Unit → ℤ[x]
   H*-Unit→ℤ[x] = DS-Rec-Set.f _ _ _ _ isSetPℤ
                   0Pℤ
-                  base-trad
+                  ϕ⁻¹
                   _+Pℤ_
                   +PℤAssoc
                   +PℤIdR
@@ -220,9 +222,9 @@ module Equiv-Unit-Properties where
                   base-neutral-eq
                   base-add-eq
                where
-               base-trad : (n : ℕ) → coHom n Unit → ℤ[x]
-               base-trad zero a = base (0 ∷ []) (fun (fst H⁰-Unit≅ℤ) a)
-               base-trad (suc n) a = 0Pℤ
+               ϕ⁻¹ : (n : ℕ) → coHom n Unit → ℤ[x]
+               ϕ⁻¹ zero a = base (0 ∷ []) (ϕ₀⁻¹ a)
+               ϕ⁻¹ (suc n) a = 0Pℤ
 
                base-neutral-eq : _
                base-neutral-eq zero = base-neutral _
@@ -230,11 +232,11 @@ module Equiv-Unit-Properties where
 
                base-add-eq : _
                base-add-eq zero a b = base-add _ _ _
-                                      ∙ cong (base (0 ∷ [])) (sym (IsGroupHom.pres· (snd H⁰-Unit≅ℤ) a b))
+                                      ∙ cong (base (0 ∷ [])) (sym (IsGroupHom.pres· ϕ₀⁻¹str a b))
                base-add-eq (suc n) a b = +PℤIdR _
 
 
-  H*-Unit→ℤ[x]-pres+ : (x y : H* Unit) → H*-Unit→ℤ[x] ( x +H* y) ≡ H*-Unit→ℤ[x] x +Pℤ H*-Unit→ℤ[x] y
+  H*-Unit→ℤ[x]-pres+ : (x y : H* Unit) → H*-Unit→ℤ[x] (x +H* y) ≡ H*-Unit→ℤ[x] x +Pℤ H*-Unit→ℤ[x] y
   H*-Unit→ℤ[x]-pres+ x y = refl
 
   H*-Unit→ℤ[x]/x : H* Unit → ℤ[x]/x
@@ -257,7 +259,7 @@ module Equiv-Unit-Properties where
                                   ∙ cong₂ _+H*_ ind-U ind-V
            where
            base-case : _
-           base-case zero a = cong (base 0) (leftInv (fst H⁰-Unit≅ℤ) a)
+           base-case zero a = cong (base 0) (ϕ₀-sect _)
            base-case (suc n) a = (sym (base-neutral (suc n)))
                                  ∙ (cong (base (suc n)) ((isContr→isProp (isContrHⁿ-Unit n) _ a)))
 
