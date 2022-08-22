@@ -672,6 +672,11 @@ coHomRedGrDir n A = AbGroup→Group (coHomRedGroupDir n A)
 coHomFun : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → coHom n B → coHom n A
 coHomFun n f = ST.rec § λ β → ∣ β ∘ f ∣₂
 
+coHomFunId : ∀ {ℓ} {A : Type ℓ} (n : ℕ)
+  → coHomFun {A = A} n (idfun A) ≡ idfun _
+coHomFunId n =
+  funExt (ST.elim (λ _ → isSetPathImplicit) λ _ → refl)
+
 coHomMorph : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) (f : A → B) → GroupHom (coHomGr n B) (coHomGr n A)
 fst (coHomMorph n f) = coHomFun n f
 snd (coHomMorph n f) = makeIsGroupHom (helper n)
