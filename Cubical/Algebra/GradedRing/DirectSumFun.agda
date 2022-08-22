@@ -104,8 +104,7 @@ module _
 
     -- import for pres
     open Equiv-Properties G Gstr using
-      ( substG
-      ; fun-trad
+      ( fun-trad
       ; fun-trad-eq
       ; fun-trad-neq
       ; ⊕HIT→Fun
@@ -152,7 +151,7 @@ module _
       where
       sumF0 : (i n : ℕ) → (pp : k +ℕ l < n) → (r : i ≤ n) → sumFun i n r f g ≡ 0g (Gstr n)
       sumF0 zero n pp r = cong (subst G (sameFiber r))
-                               (cong (λ X → f 0 ⋆ X) (ng (n -ℕ zero) (<-k+-trans pp)) ∙ ⋆-0 _) ∙ subst0g _
+                               (cong (λ X → f 0 ⋆ X) (ng (n -ℕ zero) (<-k+-trans pp)) ∙ ⋆-0 _) ∙ substG0 _
       sumF0 (suc i) n pp r with splitℕ-≤ (suc i) k
       ... | inl x = cong₂ (Gstr n ._+_)
                         (cong (subst G (sameFiber r))
@@ -165,7 +164,7 @@ module _
                               ∙ ⋆-0 (f (suc i))))
                         (sumF0 i n pp (≤-trans ≤-sucℕ r))
                   ∙ +IdR (Gstr n) _
-                  ∙ subst0g _
+                  ∙ substG0 _
 
       ... | inr x = cong₂ (Gstr n ._+_)
                           (cong (subst G (sameFiber r))
@@ -173,7 +172,7 @@ module _
                                 ∙ 0-⋆ _))
                           (sumF0 i n pp (≤-trans ≤-sucℕ r))
                     ∙ +IdR (Gstr n) _
-                    ∙ subst0g _
+                    ∙ substG0 _
 
     _prodF_ : ⊕Fun G Gstr → ⊕Fun G Gstr → ⊕Fun G Gstr
     _prodF_(f , Anf) (g , Ang) = (f prodFun g) , helper Anf Ang
@@ -190,33 +189,33 @@ module _
     prodFunAnnihilL f = funExt (λ n → sumF0 n n ≤-refl)
       where
       sumF0 : (i n : ℕ) → (r : i ≤ n) → sumFun i n r 0Fun f ≡ 0g (Gstr n)
-      sumF0 zero n r = cong (subst G (sameFiber r)) (0-⋆ _) ∙ subst0g _
+      sumF0 zero n r = cong (subst G (sameFiber r)) (0-⋆ _) ∙ substG0 _
       sumF0 (suc i) n r = cong₂ (Gstr n ._+_)
                                 (cong (subst G (sameFiber r)) (0-⋆ _))
                                 (sumF0 i n (≤-trans ≤-sucℕ r))
                           ∙ +IdR (Gstr n) _
-                          ∙ subst0g _
+                          ∙ substG0 _
 
 
     prodFunAnnihilR : (f : (n : ℕ) → (G n)) → f prodFun 0Fun ≡ 0Fun
     prodFunAnnihilR f = funExt (λ n → sumF0 n n ≤-refl)
       where
       sumF0 : (i n : ℕ) → (r : i ≤ n) → sumFun i n r f 0Fun ≡ 0g (Gstr n)
-      sumF0 zero n r = cong (subst G (sameFiber r)) (⋆-0 _) ∙ subst0g _
+      sumF0 zero n r = cong (subst G (sameFiber r)) (⋆-0 _) ∙ substG0 _
       sumF0 (suc i) n r = cong₂ (Gstr n ._+_)
                                 (cong (subst G (sameFiber r)) (⋆-0 _))
                                 (sumF0 i n (≤-trans ≤-sucℕ r))
                           ∙ +IdR (Gstr n) _
-                          ∙ subst0g _
+                          ∙ substG0 _
 
     prodFunDistR : (f g h : (n : ℕ) → G n) → f prodFun (g +Fun h) ≡ (f prodFun g) +Fun (f prodFun h)
     prodFunDistR f g h = funExt (λ n → sumFAssoc n n ≤-refl)
      where
      sumFAssoc : (i n : ℕ) → (r : i ≤ n) → sumFun i n r f (g +Fun h) ≡ (Gstr n) ._+_ (sumFun i n r f g) (sumFun i n r f h)
      sumFAssoc zero n r = cong (subst G (sameFiber r)) (⋆DistR+ _ _ _)
-                          ∙ sym (subst+ _ _ _)
+                          ∙ sym (substG+ _ _ _)
      sumFAssoc (suc i) n r = cong₂ (Gstr n ._+_)
-                                   (cong (subst G (sameFiber r)) (⋆DistR+ _ _ _) ∙ sym (subst+ _ _ _))
+                                   (cong (subst G (sameFiber r)) (⋆DistR+ _ _ _) ∙ sym (substG+ _ _ _))
                                    (sumFAssoc i n (≤-trans ≤-sucℕ r))
                              ∙ comm-4 ((G n) , (Gstr n)) _ _ _ _
 
@@ -225,9 +224,9 @@ module _
      where
      sumFAssoc : (i n : ℕ) → (r : i ≤ n) → sumFun i n r (f +Fun g) h ≡ (Gstr n) ._+_ (sumFun i n r f h) (sumFun i n r g h)
      sumFAssoc zero n r = cong (subst G (sameFiber r)) (⋆DistL+ _ _ _)
-                          ∙ sym (subst+ _ _ _)
+                          ∙ sym (substG+ _ _ _)
      sumFAssoc (suc i) n r = cong₂ (Gstr n ._+_)
-                                   (cong (subst G (sameFiber r)) (⋆DistL+ _ _ _) ∙ sym (subst+ _ _ _))
+                                   (cong (subst G (sameFiber r)) (⋆DistL+ _ _ _) ∙ sym (substG+ _ _ _))
                                    (sumFAssoc i n (≤-trans ≤-sucℕ r))
                              ∙ comm-4 ((G n) , (Gstr n)) _ _ _ _
 
@@ -254,26 +253,26 @@ module _
               sumFun i n r (fun-trad k a) (fun-trad l b) ≡ 0g (Gstr n)
     sumFun≠ k a l b zero n r ¬pp with discreteℕ k 0 | discreteℕ l n
     ... | yes p | yes q = ⊥.rec (¬pp ((k +≡ l) ∙ cong₂ _+ℕ_ p q) )
-    ... | yes p | no ¬q = cong (subst G (sameFiber r)) (⋆-0 _) ∙ subst0g _
-    ... | no ¬p | yes q = cong (subst G (sameFiber r)) (0-⋆ _) ∙ subst0g _
-    ... | no ¬p | no ¬q = cong (subst G (sameFiber r)) (0-⋆ _) ∙ subst0g _
+    ... | yes p | no ¬q = cong (subst G (sameFiber r)) (⋆-0 _) ∙ substG0 _
+    ... | no ¬p | yes q = cong (subst G (sameFiber r)) (0-⋆ _) ∙ substG0 _
+    ... | no ¬p | no ¬q = cong (subst G (sameFiber r)) (0-⋆ _) ∙ substG0 _
     sumFun≠ k a l b (suc i) n r ¬pp with discreteℕ k (suc i) | discreteℕ l (n -ℕ (suc i))
     ... | yes p | yes q = ⊥.rec (¬pp (cong₂ _+n_ p q ∙ sameFiber r))
     ... | yes p | no ¬q = cong₂ (Gstr n ._+_)
                                 (cong (subst G (sameFiber r)) (⋆-0 _))
                                 (sumFun≠ k a l b i n (≤-trans ≤-sucℕ r) ¬pp)
                           ∙ +IdR (Gstr n) _
-                          ∙ subst0g _
+                          ∙ substG0 _
     ... | no ¬p | yes q = cong₂ (Gstr n ._+_)
                                 (cong (subst G (sameFiber r)) (0-⋆ _))
                                 (sumFun≠ k a l b i n (≤-trans ≤-sucℕ r) ¬pp)
                           ∙ +IdR (Gstr n) _
-                          ∙ subst0g _
+                          ∙ substG0 _
     ... | no ¬p | no ¬q = cong₂ (Gstr n ._+_)
                                 (cong (subst G (sameFiber r)) (0-⋆ _))
                                 (sumFun≠ k a l b i n (≤-trans ≤-sucℕ r) ¬pp)
                           ∙ +IdR (Gstr n) _
-                          ∙ subst0g _
+                          ∙ substG0 _
 
 
     -- If k +n l ≡ n then, we unwrap the sum until we reach k.
@@ -283,14 +282,14 @@ module _
               sumFun i n r (fun-trad k a) (fun-trad l b) ≡ 0g (Gstr n)
     sumFun< k a l b zero n r pp with discreteℕ k 0
     ... | yes p = ⊥.rec (<→≢ pp (sym p))
-    ... | no ¬p = cong (subst G (sameFiber r)) (0-⋆ _) ∙ subst0g _
+    ... | no ¬p = cong (subst G (sameFiber r)) (0-⋆ _) ∙ substG0 _
     sumFun< k a l b (suc i) n r pp with discreteℕ k (suc i)
     ... | yes p = ⊥.rec (<→≢ pp (sym p))
     ... | no ¬p = cong₂ (Gstr n ._+_)
                         (cong (subst G (sameFiber r)) (0-⋆ _))
                         (sumFun< k a l b i n (≤-trans ≤-sucℕ r) (<-trans ≤-refl pp))
                   ∙ +IdR (Gstr n) _
-                  ∙ subst0g _
+                  ∙ substG0 _
 
     sumFun≤ : (k : ℕ) → (a : G k) → (l : ℕ) →  (b : G l ) →
               (i n : ℕ) → (r : i ≤ n) → (pp : k +n l ≡ n) → (k ≤ i) →
@@ -321,7 +320,7 @@ module _
                                               ∙ sym (sameFiber r)
                                               ∙ ((suc i) +≡ (n -ℕ suc i)))))
     ... | no ¬p | no ¬q = cong₂ (Gstr n ._+_)
-                                (cong (subst G (sameFiber r)) (0-⋆ _) ∙ subst0g _)
+                                (cong (subst G (sameFiber r)) (0-⋆ _) ∙ substG0 _)
                                 (sumFun≤ k a l b i n (≤-trans ≤-sucℕ r) pp (≤-suc-≢ rr ¬p))
                           ∙ +IdL (Gstr n) _
 

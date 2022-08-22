@@ -321,3 +321,9 @@ module PlusBis where
 
   +'-lid : (n : ℕ) → 0 +' n ≡ n
   +'-lid n = refl
+
+  +'-suc : (n m : ℕ) → suc (n +' m) ≡ suc n +' m
+  +'-suc zero zero = refl
+  +'-suc zero (suc m) = refl
+  +'-suc (suc n) zero = refl
+  +'-suc (suc n) (suc m) = refl

@@ -175,6 +175,12 @@ foldrCons : (xs : List A) → foldr _∷_ [] xs ≡ xs
 foldrCons [] = refl
 foldrCons (x ∷ xs) = cong (x ∷_) (foldrCons xs)
 
+length-map : ∀ {ℓA ℓB} {A : Type ℓA} {B : Type ℓB} → (f : A → B) → (as : List A)
+  → length (map f as) ≡ length as
+length-map f [] = refl
+length-map f (a ∷ as) = cong suc (length-map f as)
+
 length++ : (xs ys : List A) → length (xs ++ ys) ≡ length xs + length ys
 length++ [] ys = refl
 length++ (x ∷ xs) ys = cong suc (length++ xs ys)
+

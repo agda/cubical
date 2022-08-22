@@ -126,6 +126,35 @@ isEquiv→hasRetract = fst ∘ isEquiv→isContrHasRetract
 isContr-hasRetract : (e : A ≃ B) → isContr (hasRetract (fst e))
 isContr-hasRetract e = isEquiv→isContrHasRetract (snd e)
 
+isEquiv→retractIsEquiv : {f : A → B} {g : B → A} → isEquiv f → retract f g → isEquiv g
+isEquiv→retractIsEquiv {f = f} {g = g} isEquiv-f retract-g = subst isEquiv f⁻¹≡g (snd f⁻¹)
+  where f⁻¹ = invEquiv (f , isEquiv-f)
+
+        retract-f⁻¹ : retract f (fst f⁻¹)
+        retract-f⁻¹ = snd (isEquiv→hasRetract isEquiv-f)
+
+        f⁻¹≡g : fst f⁻¹ ≡ g
+        f⁻¹≡g =
+          cong fst
+               (isContr→isProp (isEquiv→isContrHasRetract isEquiv-f)
+                               (fst f⁻¹ , retract-f⁻¹)
+                               (g , retract-g))
+
+
+isEquiv→sectionIsEquiv : {f : A → B} {g : B → A} → isEquiv f → section f g → isEquiv g
+isEquiv→sectionIsEquiv {f = f} {g = g} isEquiv-f section-g = subst isEquiv f⁻¹≡g (snd f⁻¹)
+  where f⁻¹ = invEquiv (f , isEquiv-f)
+
+        section-f⁻¹ : section f (fst f⁻¹)
+        section-f⁻¹ = snd (isEquiv→hasSection isEquiv-f)
+
+        f⁻¹≡g : fst f⁻¹ ≡ g
+        f⁻¹≡g =
+          cong fst
+               (isContr→isProp (isEquiv→isContrHasSection isEquiv-f)
+                               (fst f⁻¹ , section-f⁻¹)
+                               (g , section-g))
+
 cong≃ : (F : Type ℓ → Type ℓ') → (A ≃ B) → F A ≃ F B
 cong≃ F e = pathToEquiv (cong F (ua e))
 

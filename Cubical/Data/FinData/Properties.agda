@@ -43,8 +43,16 @@ toℕ<n {n = ℕsuc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong ℕsuc (to�
 znots : ∀{k} {m : Fin k} → ¬ (zero ≡ (suc m))
 znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
 
+znotsP : ∀ {k0 k1 : ℕ} {k : k0 ≡ k1} {m1 : Fin k1}
+  → ¬ PathP (λ i → Fin (ℕsuc (k i))) zero (suc m1)
+znotsP p = ℕznots (congP (λ i → toℕ) p)
+
 snotz : ∀{k} {m : Fin k} → ¬ ((suc m) ≡ zero)
 snotz {k} {m} x = subst (Fin.rec ⊥ (Fin k)) x m
+
+snotzP : ∀ {k0 k1 : ℕ} {k : k0 ≡ k1} {m0 : Fin k0}
+  → ¬ PathP (λ i → Fin (ℕsuc (k i))) (suc m0) zero
+snotzP p = ℕsnotz (congP (λ i → toℕ) p)
 
 -- alternative from
 fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
@@ -81,9 +89,25 @@ injSucFin : ∀ {n} {p q : Fin n} → suc p ≡ suc q → p ≡ q
 injSucFin {ℕsuc ℕzero} {zero} {zero} pf = refl
 injSucFin {ℕsuc (ℕsuc n)} pf = cong predFin pf
 
-suc-predFin : (k : Fin (ℕsuc (ℕsuc n))) → ¬ k ≡ zero → k ≡ suc (predFin k)
-suc-predFin zero x = ⊥.rec (x refl)
-suc-predFin (suc k) x = refl
+injSucFinP : ∀ {n0 n1 : ℕ} {pn : n0 ≡ n1} {p0 : Fin n0} {p1 : Fin n1}
+  → PathP (λ i → Fin (ℕsuc (pn i))) (suc p0) (suc p1)
+  → PathP (λ i → Fin (pn i)) p0 p1
+injSucFinP {one} {one} {pn} {zero} {zero} sucp =
+  transport (λ j → PathP (λ i → Fin (eqn j i)) zero zero) refl
+  where eqn : refl ≡ pn
+        eqn = isSetℕ one one refl pn
+injSucFinP {one} {ℕsuc (ℕsuc n1)} {pn} {p0} {p1} sucp = ⊥.rec (ℕznots (injSuc pn))
+injSucFinP {ℕsuc (ℕsuc n0)} {one} {pn} {p0} {p1} sucp = ⊥.rec (ℕsnotz (injSuc pn))
+injSucFinP {ℕsuc (ℕsuc n0)} {ℕsuc (ℕsuc n1)} {pn} {p0} {p1} sucp =
+  transport (λ j → PathP (λ i → Fin (eqn j i)) p0 p1) (
+      congP (λ i → predFin) (
+        transport (λ j → PathP (λ i → Fin (ℕsuc (eqn (~ j) i))) (suc p0) (suc p1)) sucp
+      )
+    )
+  where pn' : 2 + n0 ≡ 2 + n1
+        pn' = cong ℕsuc (injSuc pn)
+        eqn : pn' ≡ pn
+        eqn = isSetℕ (2 + n0) (2 + n1) pn' pn
 
 discreteFin : ∀{k} → Discrete (Fin k)
 discreteFin zero zero = yes refl
@@ -342,6 +366,10 @@ module FinProdChar where
     helper (inl p) (inl q) = inl λ { zero j → p j ; (suc i) j → q i j }
     helper (inl _) (inr q) = inr (suc (q .fst) , q .snd .fst , q .snd .snd)
     helper (inr p) _ = inr (zero , p)
+
+suc-predFin : (k : Fin (ℕsuc (ℕsuc n))) → ¬ k ≡ zero → k ≡ suc (predFin k)
+suc-predFin zero x = ⊥.rec (x refl)
+suc-predFin (suc k) x = refl
 
 sucPerm : Fin n ≃ Fin m → Fin (ℕsuc n) ≃ Fin (ℕsuc m)
 sucPerm {n} {m} e =

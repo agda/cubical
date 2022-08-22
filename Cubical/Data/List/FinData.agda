@@ -11,8 +11,9 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Relation.Binary
 open import Cubical.Relation.Nullary
 
-open import Cubical.Data.List
+open import Cubical.Data.List renaming (map to mapList)
 open import Cubical.Data.FinData
+
 open import Cubical.Data.Nat renaming (snotz to ℕsnotz ; znots to ℕznots)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
@@ -26,14 +27,25 @@ open import Cubical.HITs.FiniteMultiset as FM
 open import Cubical.HITs.FreeComMonoids using (FreeComMonoid;AssocList≃FreeComMonoid)
 open import Cubical.HITs.AssocList using (FMSet≃AssocList)
 
+
 variable
   ℓ : Level
-  A : Type ℓ
+  A B : Type ℓ
 
 -- copy-paste from agda-stdlib
 lookup : ∀ (xs : List A) → Fin (length xs) → A
 lookup (x ∷ xs) zero    = x
 lookup (x ∷ xs) (suc i) = lookup xs i
+
+lookup-map : ∀ (f : A → B) (xs : List A)
+  → (p0 : Fin (length (mapList f xs)))
+  → (p1 : Fin (length xs))
+  → (p : PathP (λ i → Fin (length-map f xs i)) p0 p1)
+  → lookup (mapList f xs) p0 ≡ f (lookup xs p1)
+lookup-map f (x ∷ xs) zero zero p = refl
+lookup-map f (x ∷ xs) zero (suc p1) p = ⊥.rec (znotsP p)
+lookup-map f (x ∷ xs) (suc p0) zero p = ⊥.rec (snotzP p)
+lookup-map f (x ∷ xs) (suc p0) (suc p1) p = lookup-map f xs p0 p1 (injSucFinP p)
 
 tabulate : ∀ n → (Fin n → A) → List A
 tabulate zero ^a = []
