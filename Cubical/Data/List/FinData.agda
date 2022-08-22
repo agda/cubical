@@ -113,7 +113,7 @@ F≃ (↔permute l e) = invEquiv e ∙ₑ ≡→Fin≃ (sym (length-permute l e)
 l≡ (↔permute l e) k =
         cong (lookup l) (sym (secEq e k))
       ∙ sym (lookup-tabulateT _ (lookup l ∘ (fst e)) (invEq e k))
-  
+
 
 isRefl↔ : BinaryRelation.isRefl (_↔_ {A = A})
 F≃ (isRefl↔ a) = idEquiv _
@@ -179,13 +179,13 @@ _∷↔∷ʳ_ =
           ∙↔ headSwap↔
 
 _↔∷ʳ_ : ∀ {xs ys} → xs ↔ ys → ∀ (a : A) → xs ∷ʳ a ↔ ys ∷ʳ a
-r ↔∷ʳ _ = (_ ∷↔∷ʳ _) ∙↔ (_ ∷↔ r) ∙↔ sym↔ (_ ∷↔∷ʳ _) 
+r ↔∷ʳ _ = (_ ∷↔∷ʳ _) ∙↔ (_ ∷↔ r) ∙↔ sym↔ (_ ∷↔∷ʳ _)
 
 
 _++↔_ : (x y : List A) → x ++ y ↔ y ++ x
 x ++↔ [] = ≡→↔ (++-unit-r x)
 [] ++↔ y@(_ ∷ _) = ≡→↔ (sym (++-unit-r y) )
-(x ∷ xs) ++↔ (y ∷ ys) =  
+(x ∷ xs) ++↔ (y ∷ ys) =
        (x ∷↔ ((xs ++↔ (y ∷ ys))))
     ∙↔ headSwap↔
     ∙↔ (y ∷↔ (cong↔++R (sym↔ (ys ∷↔∷ʳ x)) xs)
@@ -305,7 +305,7 @@ IsoList/↔FMSet = w
     fromFM = FM.Rec.f squash/
         []/ _∷/_
         λ _ _ → elimProp (λ _ → squash/ _ _)
-          λ _ → eq/ _ _ (prm swap0and1≃ 
+          λ _ → eq/ _ _ (prm swap0and1≃
              λ { zero → refl ; one → refl ; (suc (suc k)) → refl})
 
     w : Iso _ _
