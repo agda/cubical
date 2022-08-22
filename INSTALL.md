@@ -284,7 +284,7 @@ Create a nix flake like this one:
 ```nix
 {
   inputs.cubical = {
-    url = github:agda/cubical;
+    url = "github:agda/cubical";
     inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = { self, nixpkgs, cubical }:
