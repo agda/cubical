@@ -1,14 +1,14 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-module Cubical.Algebra.Group.EilenbergMacLane.GroupStructure where
+module Cubical.Homotopy.EilenbergMacLane.GroupStructure where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base
-open import Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity
+open import Cubical.Homotopy.EilenbergMacLane.Base hiding (elim2)
+open import Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity
+open import Cubical.Homotopy.Loopspace
+
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.AbGroup.Base
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Semigroup
 
 open import Cubical.Data.Nat
 
@@ -19,8 +19,6 @@ open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Path
-
-open import Cubical.Homotopy.Loopspace
 
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Truncation
@@ -417,80 +415,3 @@ module _ {G : AbGroup ℓ} where
     sym (assocₖ n y x (-[ n ]ₖ x))
     ∙∙ cong (λ x → y +[ n ]ₖ x) (rCancelₖ n x)
     ∙∙ rUnitₖ n y
-
-
--- cohomology groups
-coHom : (n : ℕ) (G : AbGroup ℓ) (A : Type ℓ) → Type ℓ
-coHom n G A = ∥ (A → EM G n) ∥₂
-
-module _ {n : ℕ} {G : AbGroup ℓ} {A : Type ℓ} where
-  _+ₕ_ : coHom n G A → coHom n G A → coHom n G A
-  _+ₕ_ = ST.rec2 squash₂ λ f g → ∣ (λ x → f x +ₖ g x) ∣₂
-
-  -ₕ_ : coHom n G A → coHom n G A
-  -ₕ_ = ST.map λ f x → -ₖ f x
-
-  _-ₕ_ : coHom n G A → coHom n G A → coHom n G A
-  _-ₕ_ = ST.rec2 squash₂ λ f g → ∣ (λ x → f x -ₖ g x) ∣₂
-
-module _ (n : ℕ) {G : AbGroup ℓ} {A : Type ℓ} where
-  +ₕ-syntax : coHom n G A → coHom n G A → coHom n G A
-  +ₕ-syntax = _+ₕ_
-
-  -ₕ-syntax : coHom n G A → coHom n G A
-  -ₕ-syntax = -ₕ_
-
-  -'ₕ-syntax : coHom n G A → coHom n G A → coHom n G A
-  -'ₕ-syntax = _-ₕ_
-
-  syntax +ₕ-syntax n x y = x +[ n ]ₕ y
-  syntax -ₕ-syntax n x = -[ n ]ₕ x
-  syntax -'ₕ-syntax n x y = x -[ n ]ₕ y
-
-module _ (n : ℕ) {G : AbGroup ℓ} {A : Type ℓ} where
-  0ₕ : coHom n G A
-  0ₕ = ∣ (λ _ → 0ₖ n) ∣₂
-
-  rUnitₕ : (x : coHom n G A) → x +ₕ 0ₕ ≡ x
-  rUnitₕ = ST.elim (λ _ → isSetPathImplicit)
-           λ f → cong ∣_∣₂ (funExt λ x → rUnitₖ n (f x))
-
-  lUnitₕ : (x : coHom n G A) → 0ₕ +[ n ]ₕ x ≡ x
-  lUnitₕ = ST.elim (λ _ → isSetPathImplicit)
-           λ f → cong ∣_∣₂ (funExt λ x → lUnitₖ n (f x))
-
-  commₕ : (x y : coHom n G A) → x +ₕ y ≡ y +ₕ x
-  commₕ = ST.elim2 (λ _ _ → isSetPathImplicit)
-           λ f g → cong ∣_∣₂ (funExt λ x → commₖ n (f x) (g x))
-
-  assocₕ : (x y z : coHom n G A) → x +ₕ (y +ₕ z) ≡ (x +ₕ y) +ₕ z
-  assocₕ = ST.elim3 (λ _ _ _ → isSetPathImplicit)
-           λ f g h → cong ∣_∣₂ (funExt λ x → assocₖ n (f x) (g x) (h x))
-
-  rCancelₕ : (x : coHom n G A) → x +ₕ (-ₕ x) ≡ 0ₕ
-  rCancelₕ = ST.elim (λ _ → isSetPathImplicit)
-           λ f → cong ∣_∣₂ (funExt λ x → rCancelₖ n (f x))
-
-  lCancelₕ : (x : coHom n G A) → (-ₕ x) +ₕ x ≡ 0ₕ
-  lCancelₕ = ST.elim (λ _ → isSetPathImplicit)
-           λ f → cong ∣_∣₂ (funExt λ x → lCancelₖ n (f x))
-
-open IsAbGroup
-open IsGroup
-open IsSemigroup
-
-open IsMonoid
-open AbGroupStr
-
-coHomGr : (n : ℕ) (G : AbGroup ℓ) (A : Type ℓ) → AbGroup ℓ
-fst (coHomGr n G A) = coHom n G A
-0g (snd (coHomGr n G A)) = 0ₕ n
-AbGroupStr._+_ (snd (coHomGr n G A)) = _+ₕ_
-- snd (coHomGr n G A) = -ₕ_
-is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd (coHomGr n G A)))))) = squash₂
-·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd (coHomGr n G A)))))) = assocₕ n
-·IdR (isMonoid (isGroup (isAbGroup (snd (coHomGr n G A))))) = rUnitₕ n
-·IdL (isMonoid (isGroup (isAbGroup (snd (coHomGr n G A))))) = lUnitₕ n
-·InvR (isGroup (isAbGroup (snd (coHomGr n G A)))) = rCancelₕ n
-·InvL (isGroup (isAbGroup (snd (coHomGr n G A)))) = lCancelₕ n
-+Comm (isAbGroup (snd (coHomGr n G A))) = commₕ n
