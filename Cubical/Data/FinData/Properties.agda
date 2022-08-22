@@ -384,48 +384,46 @@ isInjectiveSucPerm {ℕsuc _} {ℕzero} e _ _ = ⊥.rec (¬Fin0 (equivFun e zero
 isInjectiveSucPerm {ℕsuc _} {ℕsuc _} _ _ p =
   equivEq (funExt (cong predFin ∘ funExt⁻ (cong fst p) ∘ suc))
 
+swap0and1 : Fin (ℕsuc (ℕsuc n)) → Fin (ℕsuc (ℕsuc n))
+swap0and1 zero = one
+swap0and1 one = zero
+swap0and1 (suc (suc x)) = suc (suc x)
 
-swap0and1 : ∀ {n} → Fin (ℕsuc (ℕsuc n)) ≃ Fin (ℕsuc (ℕsuc n))
-swap0and1 = isoToEquiv w
+swap0and1≃ : Fin (ℕsuc (ℕsuc n)) ≃ Fin (ℕsuc (ℕsuc n))
+swap0and1≃ = isoToEquiv w
   where
-    f : _
-    f zero = one
-    f one = zero
-    f (suc (suc x)) = suc (suc x)
-
     f∘f : _
     f∘f zero = refl
     f∘f one = refl
     f∘f (suc (suc b)) = refl
 
     w : Iso _ _
-    Iso.fun w = f
-    Iso.inv w = f
+    Iso.fun w = swap0and1
+    Iso.inv w = swap0and1
     Iso.rightInv w = f∘f
     Iso.leftInv w = f∘f
 
-swap0and1²=idEquiv : swap0and1 ∙ₑ swap0and1 ≡ idEquiv (Fin (ℕsuc (ℕsuc n)))
-swap0and1²=idEquiv =
+swap0and1≃²=idEquiv : swap0and1≃ ∙ₑ swap0and1≃ ≡ idEquiv (Fin (ℕsuc (ℕsuc n)))
+swap0and1≃²=idEquiv =
   equivEq
     λ { _ zero → zero ; _ one → one ; _ (suc (suc k)) → suc (suc k) }
 
-PunchInOut≃ : Fin n →  Fin n ≃ Fin n
-PunchInOut≃ zero = idEquiv _
-PunchInOut≃ one = swap0and1
-PunchInOut≃ (suc (suc x)) = swap0and1 ∙ₑ sucPerm (PunchInOut≃ (suc x))
 
-PunchInOut≃-zero : (k : Fin (ℕsuc n)) → equivFun (PunchInOut≃ k) zero ≡ k
-PunchInOut≃-zero zero = refl
-PunchInOut≃-zero one = refl
-PunchInOut≃-zero (suc (suc k)) = cong suc (PunchInOut≃-zero (suc k))
+-- x = 0       ⇒  k
+-- 0 < x =< k  ⇒  x - 1
+-- k < x       ⇒  x
+PunchHeadInOut≃ : Fin n →  Fin n ≃ Fin n
+PunchHeadInOut≃ zero = idEquiv _
+PunchHeadInOut≃ one = swap0and1≃
+PunchHeadInOut≃ (suc (suc x)) = swap0and1≃ ∙ₑ sucPerm (PunchHeadInOut≃ (suc x))
 
-swap∘PunchInOut≃-zero : (k : Fin (ℕsuc n)) →
-        equivFun swap0and1 (suc (invEq (PunchInOut≃ (suc k)) zero)) ≡ two
-swap∘PunchInOut≃-zero zero = refl
-swap∘PunchInOut≃-zero (suc k) = refl
+PunchHeadInOut≃-zero : (k : Fin (ℕsuc n)) → equivFun (PunchHeadInOut≃ k) zero ≡ k
+PunchHeadInOut≃-zero zero = refl
+PunchHeadInOut≃-zero one = refl
+PunchHeadInOut≃-zero (suc (suc k)) = cong suc (PunchHeadInOut≃-zero (suc k))
 
-PunchInOut≃-k  : (k : Fin (ℕsuc n)) → invEq (PunchInOut≃ k) k ≡ zero
-PunchInOut≃-k k = sym (invEq (equivAdjointEquiv (PunchInOut≃ k)) (PunchInOut≃-zero k))
+PunchHeadInOut≃-k  : (k : Fin (ℕsuc n)) → invEq (PunchHeadInOut≃ k) k ≡ zero
+PunchHeadInOut≃-k k = sym (invEq (equivAdjointEquiv (PunchHeadInOut≃ k)) (PunchHeadInOut≃-zero k))
 
 ¬Fin1≃Fin[suc[sucN]] : ¬ Fin 1 ≃ Fin (ℕsuc (ℕsuc n))
 ¬Fin1≃Fin[suc[sucN]] e =
@@ -435,16 +433,16 @@ PunchInOut≃-k k = sym (invEq (equivAdjointEquiv (PunchInOut≃ k)) (PunchInOut
 
 unwindPermHead : (e : Fin (ℕsuc n) ≃ Fin (ℕsuc m))
                      → Σ (Fin n ≃ Fin m) λ e'
-                       → e ≡ sucPerm e' ∙ₑ PunchInOut≃ (equivFun e zero)
+                       → e ≡ sucPerm e' ∙ₑ PunchHeadInOut≃ (equivFun e zero)
 unwindPermHead {ℕzero} {ℕzero} e =
-  idEquiv _ , equivEq λ { i zero → (PunchInOut≃-zero (equivFun e zero)) (~ i)}
+  idEquiv _ , equivEq λ { i zero → (PunchHeadInOut≃-zero (equivFun e zero)) (~ i)}
 unwindPermHead {ℕzero} {ℕsuc _} = ⊥.rec ∘ ¬Fin1≃Fin[suc[sucN]]
 unwindPermHead {ℕsuc _} {ℕzero} = ⊥.rec ∘ ¬Fin1≃Fin[suc[sucN]] ∘ invEquiv
 unwindPermHead {ℕsuc _} {ℕsuc _} e = isoToEquiv w , equivEq (funExt ww)
 
   where
-    e' = e ∙ₑ invEquiv (PunchInOut≃ (equivFun e zero))
-    p = sym (PunchInOut≃-k (equivFun e zero))
+    e' = e ∙ₑ invEquiv (PunchHeadInOut≃ (equivFun e zero))
+    p = sym (PunchHeadInOut≃-k (equivFun e zero))
 
     w : Iso _ _
     Iso.fun w = predFin ∘ fst e' ∘ suc
@@ -459,25 +457,25 @@ unwindPermHead {ℕsuc _} {ℕsuc _} e = isoToEquiv w , equivEq (funExt ww)
        ∙ cong predFin (retEq e' (suc a))
 
     ww : _
-    ww zero = sym (PunchInOut≃-zero (equivFun e zero))
-    ww (suc x) = sym (secEq (PunchInOut≃ (equivFun e zero)) _)
-         ∙ cong (equivFun (PunchInOut≃ (equivFun e zero)))
+    ww zero = sym (PunchHeadInOut≃-zero (equivFun e zero))
+    ww (suc x) = sym (secEq (PunchHeadInOut≃ (equivFun e zero)) _)
+         ∙ cong (equivFun (PunchHeadInOut≃ (equivFun e zero)))
             (suc-predFin _ λ x₁ →
               znots
-               (invEq (congEquiv (e ∙ₑ invEquiv (PunchInOut≃ (equivFun e zero))))
-                (PunchInOut≃-k (equivFun e zero) ∙ (sym x₁))) )
+               (invEq (congEquiv (e ∙ₑ invEquiv (PunchHeadInOut≃ (equivFun e zero))))
+                (PunchHeadInOut≃-k (equivFun e zero) ∙ (sym x₁))) )
 
 unwindPermHeadIso : Iso (Fin (ℕsuc n) ≃ Fin (ℕsuc m))
                         (Fin (ℕsuc m) × (Fin n ≃ Fin m) )
 Iso.fun unwindPermHeadIso e = equivFun e zero , fst (unwindPermHead e)
-Iso.inv unwindPermHeadIso (k , e') = sucPerm e' ∙ₑ PunchInOut≃ k
+Iso.inv unwindPermHeadIso (k , e') = sucPerm e' ∙ₑ PunchHeadInOut≃ k
 Iso.rightInv unwindPermHeadIso (k , e') =
-  ΣPathP (PunchInOut≃-zero _ ,
+  ΣPathP (PunchHeadInOut≃-zero _ ,
     isInjectiveSucPerm _ _
-     ( equivPostCompCancel _ _ (PunchInOut≃ k)
-         (cong (sucPerm (fst (unwindPermHead (sucPerm e' ∙ₑ PunchInOut≃ k))) ∙ₑ_)
-            (cong PunchInOut≃ (sym (PunchInOut≃-zero k)))
-          ∙ sym (snd (unwindPermHead (sucPerm e' ∙ₑ PunchInOut≃ k))))  ))
+     ( f∙ₑh≡g∙ₑh→f≡g _ _ (PunchHeadInOut≃ k)
+         (cong (sucPerm (fst (unwindPermHead (sucPerm e' ∙ₑ PunchHeadInOut≃ k))) ∙ₑ_)
+            (cong PunchHeadInOut≃ (sym (PunchHeadInOut≃-zero k)))
+          ∙ sym (snd (unwindPermHead (sucPerm e' ∙ₑ PunchHeadInOut≃ k))))  ))
 Iso.leftInv unwindPermHeadIso e = sym (snd (unwindPermHead e))
 
 
@@ -490,16 +488,16 @@ isInjectiveFin≃ {ℕsuc _} {ℕsuc _} x = cong ℕsuc (isInjectiveFin≃ (fst 
 ≡→Fin≃ : n ≡ m → Fin n ≃ Fin m
 ≡→Fin≃ = isoToEquiv ∘ pathToIso ∘ cong Fin
 
-PunchInOut≃∙ₑ≡→Fin≃ : (p : n ≡ m) → ∀ k →
+PunchHeadInOut≃∙ₑ≡→Fin≃ : (p : n ≡ m) → ∀ k →
    PathP (λ i → Fin (p i) ≃ Fin m)
-      (invEquiv (PunchInOut≃ k) ∙ₑ ≡→Fin≃ p)
-      (invEquiv (PunchInOut≃ (subst Fin p k)))
-PunchInOut≃∙ₑ≡→Fin≃ =
+      (invEquiv (PunchHeadInOut≃ k) ∙ₑ ≡→Fin≃ p)
+      (invEquiv (PunchHeadInOut≃ (subst Fin p k)))
+PunchHeadInOut≃∙ₑ≡→Fin≃ =
   J (λ m p → ∀ k →  PathP (λ i → Fin (p i) ≃ Fin m)
-      (invEquiv (PunchInOut≃ k) ∙ₑ ≡→Fin≃ p)
-      (invEquiv (PunchInOut≃ (subst Fin p k))))
+      (invEquiv (PunchHeadInOut≃ k) ∙ₑ ≡→Fin≃ p)
+      (invEquiv (PunchHeadInOut≃ (subst Fin p k))))
        λ k → equivEq (funExt λ _ → transportRefl _)
-         ∙ cong (invEquiv ∘ PunchInOut≃) (sym (transportRefl k))
+         ∙ cong (invEquiv ∘ PunchHeadInOut≃) (sym (transportRefl k))
 
 transportFin-suc : (p' : n ≡ m) → (p : (ℕsuc n) ≡ (ℕsuc m)) → ∀ k
                   → (subst Fin p (suc k)) ≡ suc (subst Fin p' k)
@@ -512,4 +510,3 @@ transportFin-zero : (p : (ℕsuc n) ≡ (ℕsuc m))
 transportFin-zero =
   J (λ {ℕzero _ → Unit ; (ℕsuc _) p → zero ≡ subst Fin p zero })
     (sym (transportRefl zero))
-
