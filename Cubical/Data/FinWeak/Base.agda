@@ -73,8 +73,7 @@ sucFinOrMax (weaken x) = just (sucFin x)
 -- This is another way to calculate `sucFinOrMax` using regular FinData
 -- This case is a little bit harder because it is necessary to use with instead of just pattern match
 -- like in the case before.
-private
-  sucFinDataOrMax : FD.Fin n → Maybe (FD.Fin n)
-  sucFinDataOrMax {suc _} p with isWeaken? p
-  ... | no _ = nothing
-  ... | yes (q , _) = just (FD.suc q)
+sucFinDataOrMax : FD.Fin n → Maybe (FD.Fin n)
+sucFinDataOrMax {suc _} p with isWeaken? p
+... | no _ = nothing
+... | yes (q , _) = just (FD.suc q)
