@@ -73,13 +73,15 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) w
   preservesInitial : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
   preservesInitial = ∀ (x : ob C) → isInitial C x → isInitial D (F-ob F x)
 
-  isLeftAdjoint→preservesInitial : isLeftAdjoint F → preservesInitial
+  isLeftAdjoint→preservesInitial : isLeftAdjoint _ _ F → preservesInitial
   fst (isLeftAdjoint→preservesInitial (G , F⊣G) x initX y) = fst (initX (F-ob G y)) ♯
-    where open _⊣_ F G F⊣G
+    where open Definitions _ _ F G
+          open Adjunction F⊣G
   snd (isLeftAdjoint→preservesInitial (G , F⊣G) x initX y) ψ =
     fst (initX (F-ob G y)) ♯
       ≡⟨ cong _♯ (snd (initX (F-ob G y)) (ψ ♭)) ⟩
     (ψ ♭) ♯
       ≡⟨ leftInv adjIso ψ ⟩
     ψ ∎
-    where open _⊣_ F G F⊣G
+    where open Definitions _ _ F G
+          open Adjunction F⊣G

@@ -89,7 +89,8 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
     AlgebraHom≡ M (sym (isalgF))
 
   open NaturalBijection
-  open _⊣_
+  open Definitions
+  open Adjunction
   open _≅_
 
   emBijection : ∀ a emB →
@@ -138,9 +139,12 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
     f ∎
     )
 
-  emAdjunction : FreeEMAlgebra ⊣ ForgetEMAlgebra
+  emAdjunction : Adjunction _ _ FreeEMAlgebra ForgetEMAlgebra
   fst emAdjunction a (algebra b β , isEMB) = emBijection a (algebra b β , isEMB)
-  fst (snd emAdjunction) (algebra c γ , isEMC) = InvNatL→isLeftRelativeRightAdhocAdjunction _ _ _ _ _
+  fst (snd emAdjunction) a = FunNatR→isLeftAdhocAdjunction _ _ FreeEMAlgebra _ _ _ _ λ where
+    {(algebra b β , isEMB)} {(algebra c γ , isEMC)} (algebraHom g isalgG) (algebraHom f isalgF) →
+      sym (C.⋆Assoc _ _ _)
+  snd (snd emAdjunction) (algebra c γ , isEMC) = InvNatL→isRightAdhocAdjunction _ _ _ ForgetEMAlgebra _ _ _
     λ {a} {b} g f → AlgebraHom≡ M (
     (F-hom M (g C.⋆ f) C.⋆ γ)
       ≡⟨ cong (C._⋆ γ) (F-seq M _ _) ⟩
@@ -148,9 +152,6 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
       ≡⟨ C.⋆Assoc _ _ _ ⟩
     (F-hom M g C.⋆ (F-hom M f C.⋆ γ)) ∎
     )
-  snd (snd emAdjunction) a = FunNatR→isLeftAdhocRightRelativeAdjunction _ _ _ _ _
-    λ {(algebra b β , isEMB)} {(algebra c γ , isEMC)} (algebraHom g isalgG) (algebraHom f isalgF) →
-      sym (C.⋆Assoc _ _ _)
 
 module _ {C : Category ℓC ℓC'} {monadM monadN : Monad C} (monadν : MonadHom monadM monadN) where
 
