@@ -66,6 +66,9 @@ cong : (f : (a : A) → B a) (p : x ≡ y) →
 cong f p i = f (p i)
 {-# INLINE cong #-}
 
+{- `S` stands for simply typed. Using `congS` instead of `cong`
+   can help Agda to solve metavariables that may otherwise remain unsolved.
+-}
 congS : ∀ {B : Type ℓ} → (f : A → B) (p : x ≡ y) → f x ≡ f y
 congS f p i = f (p i)
 {-# INLINE congS #-}
@@ -308,6 +311,9 @@ funExt⁻ eq x i = eq i x
 
 _≡$_ = funExt⁻
 
+{- `S` stands for simply typed. Using `funExtS⁻` instead of `funExt⁻`
+   can help Agda to solve metavariables that may otherwise remain unsolved.
+-}
 funExtS⁻ : {B : I → Type ℓ'}
   {f : (x : A) → B i0} {g : (x : A) → B i1}
   → PathP (λ i → (x : A) → B i) f g
