@@ -472,7 +472,7 @@ Iso.inv unwindPermHeadIso (k , e') = sucPerm e' ∙ₑ PunchHeadInOut≃ k
 Iso.rightInv unwindPermHeadIso (k , e') =
   ΣPathP (PunchHeadInOut≃-zero _ ,
     isInjectiveSucPerm _ _
-     ( f∙ₑh≡g∙ₑh→f≡g _ _ (PunchHeadInOut≃ k)
+     ( ∙ₑrightCancel _ _ (PunchHeadInOut≃ k)
          (cong (sucPerm (fst (unwindPermHead (sucPerm e' ∙ₑ PunchHeadInOut≃ k))) ∙ₑ_)
             (cong PunchHeadInOut≃ (sym (PunchHeadInOut≃-zero k)))
           ∙ sym (snd (unwindPermHead (sucPerm e' ∙ₑ PunchHeadInOut≃ k))))  ))

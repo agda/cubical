@@ -254,8 +254,8 @@ isEquiv[equivFunA≃B∘f]→isEquiv[f] f (g , gIsEquiv) g∘fIsEquiv  =
       w' : isEquiv (equivFun (invEquiv (_ , g∘fIsEquiv)) ∘ g)
       w' = snd (compEquiv (_ , gIsEquiv) (invEquiv (_ , g∘fIsEquiv)))
 
-f∙ₑh≡g∙ₑh→f≡g : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+∙ₑrightCancel : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
                  → (f g : A ≃ B) (h : B ≃ C)
                  → f ∙ₑ h ≡ g ∙ₑ h → f ≡ g
-f∙ₑh≡g∙ₑh→f≡g _ _ h =
+∙ₑrightCancel _ _ h =
   equivEq ∘ invEq (congEquiv (postCompEquiv h)) ∘ cong fst
