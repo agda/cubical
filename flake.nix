@@ -40,7 +40,7 @@
       packages = {
         cubical = cubical;
         agdaWithCubical = pkgs.agda.withPackages [cubical];
+        default = cubical;
       };
-      defaultPackage = cubical;
     });
 }
