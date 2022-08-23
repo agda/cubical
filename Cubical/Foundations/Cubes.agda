@@ -7,13 +7,9 @@ The Internal n-Cubes
 module Cubical.Foundations.Cubes where
 
 open import Cubical.Foundations.Prelude hiding (Cube)
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Cubes.Base public
-open import Cubical.Foundations.Cubes.Subtypes
-
-open import Cubical.Data.Nat.Base
-open import Cubical.Data.Sigma.Properties
+open import Cubical.Foundations.Cubes.HLevels
 
 private
   variable
@@ -26,16 +22,23 @@ private
 By mutual recursion, one can define the type of
 
 - n-Cubes:
-  Cube : (n : ℕ)(A : Type ℓ) → Type ℓ
+  Cube    : (n : ℕ) (A : Type ℓ) → Type ℓ
 
 - Boundary of n-Cubes:
-  ∂Cube : ℕ → Type ℓ → Type ℓ
+  ∂Cube   : (n : ℕ) (A : Type ℓ) → Type ℓ
 
 - n-Cubes with Specified Boundary:
-  CubeRel : (n : ℕ)(A : Type ℓ) → ∂Cube n A → Type ℓ the type of n-cubes `Cube`,
+  CubeRel : (n : ℕ) (A : Type ℓ) → ∂Cube n A → Type ℓ
 
 Their definitions are put in `Cubical.Foundations.Cubes.Base`,
 to avoid cyclic dependence.
+
+They also have dependent versions,
+of which definitions and properties are given in `Cubical.Foundations.Cubes.Dependent`.
+
+CubeDep    : {A : Type ℓ} (B : A → Type ℓ') →  Cube n A → Type ℓ'
+∂CubeDep   : {A : Type ℓ} (B : A → Type ℓ') → ∂Cube n A → Type ℓ'
+CubeDepRel : {A : Type ℓ} {B : A → Type ℓ'} (a₋ : Cube n A) → ∂CubeDep {n = n} B (∂ a₋) → Type ℓ'
 
 -}
 
@@ -174,6 +177,8 @@ private
 -}
 
 
+{-
+
 -- The property that, given an n-boundary, there always exists an n-cube extending this boundary
 -- The case n=0 is not very meaningful, so we use `isContr` instead to keep its relation with h-levels.
 -- It generalizes `isSet'` and `isGroupoid'`.
@@ -183,43 +188,16 @@ isCubeFilled 0 = isContr
 isCubeFilled (suc n) A = (∂ : ∂Cube (suc n) A) → CubeRel (suc n) A ∂
 
 
--- Some preliminary results to relate cube-filling to h-levels.
-
-isCubeFilledPath : ℕ → Type ℓ → Type ℓ
-isCubeFilledPath n A = (x y : A) → isCubeFilled n (x ≡ y)
-
-isCubeFilledPath≡isCubeFilledSuc : (n : ℕ) (A : Type ℓ)
-  → isCubeFilledPath (suc n) A ≡ isCubeFilled (suc (suc n)) A
-isCubeFilledPath≡isCubeFilledSuc n A =
-    (λ i → (x y : A)(∂ : ∂Cube₀₁≡∂CubePath {n = suc n} {a₀ = x} {y} (~ i))
-        → CubeRel₀₁≡CubeRelPath (~ i) ∂)
-  ∙ (λ i → (x : A) → isoToPath (curryIso {A = A}
-      {B = λ y → ∂Cube₀₁ (suc n) A x y} {C = λ _ ∂ → CubeRel₀₁ (suc n) A ∂}) (~ i))
-  ∙ sym (isoToPath curryIso)
-  ∙ (λ i → (∂ : ∂CubeConst₀₁≡∂Cube {n = suc n} {A} i) → CubeRelConst₀₁≡CubeRel₀₁ {n = suc n} i ∂)
-
-isCubeFilledPath→isCubeFilledSuc : (n : ℕ) (A : Type ℓ)
-  → isCubeFilledPath n A → isCubeFilled (suc n) A
-isCubeFilledPath→isCubeFilledSuc 0 A h (x , y) = h x y .fst
-isCubeFilledPath→isCubeFilledSuc (suc n) A = transport (isCubeFilledPath≡isCubeFilledSuc n A)
-
-isCubeFilledSuc→isCubeFilledPath : (n : ℕ) (A : Type ℓ)
-  → isCubeFilled (suc n) A → isCubeFilledPath n A
-isCubeFilledSuc→isCubeFilledPath 0 A h = isProp→isContrPath (λ x y → h (x , y))
-isCubeFilledSuc→isCubeFilledPath (suc n) A = transport (sym (isCubeFilledPath≡isCubeFilledSuc n A))
-
-
--- The characterization of h-levels by cube-filling
+-- We have the following logical equivalences between h-levels and cube-filling
 
 isOfHLevel→isCubeFilled : (n : HLevel) → isOfHLevel n A → isCubeFilled n A
-isOfHLevel→isCubeFilled 0 h = h
-isOfHLevel→isCubeFilled (suc n) h = isCubeFilledPath→isCubeFilledSuc _ _
-  (λ x y → isOfHLevel→isCubeFilled n (isOfHLevelPath' n h x y))
 
 isCubeFilled→isOfHLevel : (n : HLevel) → isCubeFilled n A → isOfHLevel n A
-isCubeFilled→isOfHLevel 0 h = h
-isCubeFilled→isOfHLevel (suc n) h = isOfHLevelPath'⁻ _
-  (λ x y → isCubeFilled→isOfHLevel _ (isCubeFilledSuc→isCubeFilledPath _ _ h x y))
+
+
+Their proofs are put in `Cubical.Foundations.Cubes.HLevels`.
+
+-}
 
 
 -- Some special cases

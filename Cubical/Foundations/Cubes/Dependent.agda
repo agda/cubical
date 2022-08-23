@@ -4,9 +4,11 @@ Cubes over Cubes
 
 This file contains:
 
-- The definition of the type of n-cubes;
+- The definition of the type of dependent n-cubes;
 
-- Some basic operations.
+- Dependent cubes over a constant cube is equivalent to the (non-dependent) cubes in the fiber.
+
+- The dependent version of cube-filling-is-equal-to-hlevels.
 
 -}
 {-# OPTIONS --safe #-}
@@ -21,7 +23,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Univalence.Dependent
 open import Cubical.Foundations.Cubes.Base
-open import Cubical.Foundations.Cubes
+open import Cubical.Foundations.Cubes.HLevels
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma.Base
@@ -57,12 +59,17 @@ interleaved mutual
     PathP (λ i → CubeDepRel {n = suc n} (_ , a₋ .snd i) (∂₋ i)) (b₀ .snd) (b₁ .snd)
 
 
+
+-- Cubes over constant cube
+
 ∂CubeDepConst : (n : ℕ) (B : A → Type ℓ') (a : A) → Type ℓ'
 ∂CubeDepConst n B a = ∂CubeDep {n = n} B (∂ (const n a))
 
 CubeDepConstRel : {n : ℕ} {B : A → Type ℓ'} {a : A} → ∂CubeDepConst n B a → Type ℓ'
 CubeDepConstRel {n = n} {a = a} ∂ = CubeDepRel {n = n} (const n a) ∂
 
+
+-- The equivalence between cubes over constant cube and cubes in the fiber.
 
 interleaved mutual
 
@@ -177,10 +184,15 @@ CubeDepConstRel≡CubeRel : (n : ℕ) (B : A → Type ℓ') (a : A)
 CubeDepConstRel≡CubeRel _ _ _ = isoToPathOver _ _ (iso→HAEquivOver (IsoOver-CubeDepConstRel-CubeRel _ _ _))
 
 
+
+-- Dependent cube filling
+
 isCubeFilledDep : (n : ℕ) {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
 isCubeFilledDep 0 B = isOfHLevelDep 0 B
 isCubeFilledDep (suc n) {A} B = {a₋ : Cube (suc n) A} (∂ : ∂CubeDep B (∂ a₋)) → CubeDepRel {n = suc n} a₋ ∂
 
+
+-- Some preliminary lemmas
 
 isCubeFilledDepConst : (n : ℕ) (B : A → Type ℓ') (a : A) → Type ℓ'
 isCubeFilledDepConst 0 B a = isContr (B a)
@@ -202,6 +214,8 @@ isCubeFilledFiber→isCubeFilledDepConst : (n : ℕ) (B : A → Type ℓ') (a : 
 isCubeFilledFiber→isCubeFilledDepConst _ _ _ =
   transport (sym (isCubeFilledDepConst≡isCubeFilledFiber _ _ _))
 
+
+-- The dependent cube-filling characterization of dependent h-levels
 
 isOfHLevelDep→isCubeFilledDep : (n : HLevel) {B : A → Type ℓ'} → isOfHLevelDep n B → isCubeFilledDep n B
 isOfHLevelDep→isCubeFilledDep 0 {B} h = h

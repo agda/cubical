@@ -2,7 +2,7 @@
 
 This file contains:
 
-- Some cases of internal cubical subtypes;
+- Some cases of internal cubical subtypes (extension types);
 
 - Cubes with a pair of fixed constant opposite faces is equivalent to cubes in the path type;
 
