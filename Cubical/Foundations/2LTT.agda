@@ -18,8 +18,8 @@ open import Cubical.Data.Nat.Base
 open import Cubical.Foundations.Prelude
 open import Agda.Primitive public renaming (SSet to Typeᵉ)
 
-open import Agda.Builtin.Reflection hiding (Type)
 open import Agda.Builtin.List
+open import Agda.Builtin.Reflection hiding (Type)
 open import Cubical.Reflection.Base
 
 private
@@ -27,26 +27,10 @@ private
     ℓ ℓ' : Level
 
 
-{- Lift Internal Types to the External Universes -}
-
-data Exo (A : Type ℓ) : Typeᵉ ℓ where
-  exo : A → Exo A
-
--- Transform the external inhabitants to internal ones
-
-int : {A : Type ℓ} → Exo A → A
-int (exo a) = a
-
-
 {- External Identity Type -}
 
 data _≡ᵉ_ {A : Typeᵉ ℓ} : A → A → Typeᵉ ℓ where
   reflᵉ : {a : A} → a ≡ᵉ a
-
--- Transform exteral propositional equality to internal path
-
-coerceᵉ : {A : Type ℓ} {a b : Exo A} → a ≡ᵉ b → int a ≡ int b
-coerceᵉ reflᵉ = refl
 
 -- Basic operations
 
@@ -66,6 +50,30 @@ transportᵉ reflᵉ a = a
 
 Kᵉ : {A : Typeᵉ ℓ} {a b : A} → (p q : a ≡ᵉ b) → p ≡ᵉ q
 Kᵉ reflᵉ reflᵉ = reflᵉ
+
+
+{- Lift Internal Types to the External Universes -}
+
+data Exo (A : Type ℓ) : Typeᵉ ℓ where
+  exo : A → Exo A
+
+-- Transform the external inhabitants to internal ones
+
+int : {A : Type ℓ} → Exo A → A
+int (exo a) = a
+
+-- Lifted types are exo-equivalent to the original internal ones.
+
+int-exo : {A : Type ℓ} → (a : Exo A) → exo (int a) ≡ᵉ a
+int-exo (exo a) = reflᵉ
+
+exo-int : {A : Type ℓ} → (a : A) → int (exo a) ≡ a
+exo-int a = refl
+
+-- Transform exteral propositional equality to internal path
+
+coerceᵉ : {A : Type ℓ} {a b : Exo A} → a ≡ᵉ b → int a ≡ int b
+coerceᵉ reflᵉ = refl
 
 
 {- External Natural Number -}

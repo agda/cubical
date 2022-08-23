@@ -1,6 +1,13 @@
 {-
 
-The Internal n-Cubes
+Macros about Cubes
+
+Basically they're those operations defined in
+`Cubical.Foundations.Cubes.External` and `Cubical.Foundations.Cubes.HLevels`,
+but for the convenience of users,
+we want to write the internal natural numbers instead of external ones.
+
+The examples are given in `Cubical.Foundations.Cubes`.
 
 -}
 {-# OPTIONS --safe #-}
@@ -8,14 +15,14 @@ module Cubical.Foundations.Cubes.Macros where
 
 open import Cubical.Foundations.Prelude hiding (Cube)
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.2LTT
 open import Cubical.Foundations.Cubes.HLevels
-open import Cubical.Foundations.Cubes.External
-
 open import Cubical.Data.Nat.Base
 
-open import Agda.Builtin.Reflection hiding (Type)
+open import Cubical.Foundations.2LTT
+open import Cubical.Foundations.Cubes.External
+
 open import Agda.Builtin.List
+open import Agda.Builtin.Reflection hiding (Type)
 open import Cubical.Reflection.Base
 
 private
