@@ -71,7 +71,6 @@ open import Cubical.Foundations.Univalence
 β : coHom 1 ℤ/2 KleinBottle
 β = ∣ Klein→-fun embase refl (emloop 1) (λ _ i → emloop 1 i) ∣₂
 
-
 open import Cubical.Algebra.Ring
 
 Z/2r : Ring ℓ-zero
@@ -96,6 +95,7 @@ IsRing.·DistL+ (RingStr.isRing (snd Z/2r)) =
   (ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl))
 
 open import Cubical.Algebra.AbGroup.TensorProduct
+open import Cubical.Cohomology.EilenbergMacLane.CupProduct
 open import Cubical.Homotopy.EilenbergMacLane.CupProduct
 open import Cubical.Homotopy.EilenbergMacLane.CupProductTensor
   renaming (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
@@ -166,6 +166,19 @@ emloop''2 p i = (cong₂Funct-cong-sym p FF (~ i)
                               ∙ λ j → 0ₖ-⌣ₖ⊗ 1 1 (p j) i))
   ∙∙ sym (rUnit refl))
 
+gr : ∀ {ℓ} {A : Type ℓ} {x y z w t : A} (p : x ≡ y) (q : y ≡ z) (r : z ≡ w) (s : w ≡ t)
+  → ((p ∙ q) ∙∙ r ∙∙ s) ≡ (p ∙∙ (q ∙ r) ∙∙ s)
+gr p q r s i = compPath-filler p q (~ i) ∙∙ compPath-filler' q r i ∙∙ s
+
+emloop''' : (p : fst (Ω (EM∙ ℤ/2 1)))
+  → cong sym (emloop' (sym p))
+  ≡ (((cong₂Funct (_⌣ₖ⊗_ {G' = ℤ/2} {H' = ℤ/2} {n = 1} {m = 1}) p p))
+  ∙∙ (sym (myF p) ∙ ((λ i → (λ j → ⌣ₖ-0ₖ⊗ 1 1 (p j) i)
+                              ∙ λ j → 0ₖ-⌣ₖ⊗ 1 1 (p j) i)))
+  ∙∙ sym (rUnit refl))
+emloop''' p = emloop''2 p ∙ gr (cong₂Funct FF p p) (sym (myF p)) (λ i → (λ j → ⌣ₖ-0ₖ⊗ 1 1 (p j) i) ∙ (λ j → embase ⌣ₖ⊗ p j)) (sym (rUnit refl))
+
+
 Klein→-funβ : (x : KleinBottle) → (_⌣ₖ⊗_ {G' = ℤ/2}{n = 1} {m = 1} (β-raw x) (β-raw x)) ≡ ∣ north ∣ₕ
 Klein→-funβ point = refl
 Klein→-funβ (line1 i) = refl
@@ -175,295 +188,252 @@ Klein→-funβ (square i j) k = emloop' (emloop 1) k j
 ℤ/2→ : fst ℤ/2 → fst ((Ω^ 2) (EM∙ (ℤ/2 ⨂ ℤ/2) 2))
 ℤ/2→ g = (sym (EM→ΩEM+1-0ₖ 1) ∙∙ cong (EM→ΩEM+1 1) (EM→ΩEM+1 0 (g ⊗ g)) ∙∙ EM→ΩEM+1-0ₖ 1)
 
-Cube₂ : Cube (λ j k → ∣ north ∣) (λ j k → ∣ north ∣)
-             (λ i k → emloop' (λ i₁ → α-raw (line1 i₁)) k (~ i))
-             (λ i k → emloop''2 (emloop 1) i1 k (~ i))
-             (λ i j → FF (emloop 1 (~ i)) (emloop 1 (~ i)))
-             (ℤ/2→ (fsuc fzero))
-Cube₂ i j k = hcomp (λ r →
-                λ {(i = i0) → ∣ north ∣ -- ∣ rCancel (merid ptEM-raw) r (j ∧ k) ∣
-                 ; (i = i1) → ∣ north ∣ -- ∣ rCancel (merid ptEM-raw) r (j ∧ k) ∣
-                 ; (j = i0) → emloop' (emloop 1) (~ r ∨ k) (~ i)
-                 ; (j = i1) → {!doubleCompPath-filler (sym (EM→ΩEM+1-0ₖ 1)) (cong (EM→ΩEM+1 1) (EM→ΩEM+1 0 (1 ⊗ 1))) (EM→ΩEM+1-0ₖ 1) r i j!}
-                 ; (k = i0) → emloop' (emloop 1) (~ r) (~ i)
-                 ; (k = i1) → ℤ/2→ (fsuc fzero) i j})
-                 {!!}
-  where -- i k r
-  c : Cube (λ k r → ∣ north ∣) (λ _ _ → ∣ north ∣)
-           (λ i r → emloop' (emloop 1) (~ r) (~ i)) (λ _ _ → ∣ north ∣ )
-           {!ℤ/2→ (fsuc fzero)!} λ i k → emloop''2 (emloop 1) i1 k (~ i)
-  c = {!!}
+ℤ/2→' : fst ℤ/2 → fst ((Ω^ 2) (EM∙ ℤ/2 2))
+ℤ/2→' g = (sym (EM→ΩEM+1-0ₖ 1) ∙∙ cong (EM→ΩEM+1 1) (EM→ΩEM+1 0 g) ∙∙ EM→ΩEM+1-0ₖ 1)
 
-Cube₁ : I → I → I → EM (ℤ/2 ⨂ ℤ/2) 2
-Cube₁ i j k =
+ℤ/2→Flip'' : ℤ/2→ (fsuc fzero) ≡ sym (ℤ/2→ (fsuc fzero))
+ℤ/2→Flip'' i j = hcomp (λ k → λ {(j = i0) → EM→ΩEM+1-0ₖ 1 k
+                       ; (j = i1) → EM→ΩEM+1-0ₖ 1 k})
+               (braa i j)
+  where
+  braa : cong (EM→ΩEM+1 {G = ℤ/2 ⨂ ℤ/2} 1) (emloop (1 ⊗ 1))
+       ≡ cong (EM→ΩEM+1 {G = ℤ/2 ⨂ ℤ/2} 1) (sym (emloop (1 ⊗ 1)))
+  braa = cong (cong (EM→ΩEM+1 {G = ℤ/2 ⨂ ℤ/2} 1)) (emloop-inv (AbGroup→Group (ℤ/2 ⨂ ℤ/2)) (1 ⊗ 1))
+
+
+ℤ/2→Flip : ℤ/2→ (fsuc fzero) ≡ λ k i → ℤ/2→ (fsuc fzero) k (~ i)
+ℤ/2→Flip = ℤ/2→Flip'' ∙ sym≡cong-sym (ℤ/2→ (fsuc fzero))
+
+ℤ/2→Flip' : ℤ/2→ (fsuc fzero) ≡ flipSquare (ℤ/2→ (fsuc fzero))
+ℤ/2→Flip' = ℤ/2→Flip ∙∙ sym (sym≡cong-sym (ℤ/2→ (fsuc fzero))) ∙∙ sym≡flipSquare (ℤ/2→ (fsuc fzero))
+
+
+Cube1 : (i k r : I) → EM (ℤ/2 ⨂ ℤ/2) 2
+Cube1 i k r =
+  hcomp (λ j →
+    λ {(i = i0) → ∣ north ∣ 
+     ; (i = i1) → ∣ north ∣
+     ; (k = i0) → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 (~ i)) (~ r ∨ ~ j)
+     ; (k = i1) → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 (~ i)) (~ r ∨ ~ j)
+     ; (r = i0) → ℤ/2→ (fsuc fzero) k i
+     ; (r = i1) → doubleCompPath-filler (sym (EM→ΩEM+1-0ₖ 1))
+                                         (λ i j → EM→ΩEM+1 1 (emloop (1 ⊗ 1) i) j)
+                                         (EM→ΩEM+1-0ₖ 1) (~ j) k (~ i) })
+         (ℤ/2→Flip r k i)
+
+Cube2 : (i k r : I) → EM (ℤ/2 ⨂ ℤ/2) 2
+Cube2 i k r =
+  hcomp (λ j →
+      λ {(i = i0) → ∣ north ∣
+       ; (i = i1) → ∣ north ∣
+       ; (k = i0) → rUnit (λ j → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) (~ r)) j (~ i)
+       ; (k = i1) → rUnit (λ j → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) (~ r)) j (~ i)})
+   (Cube1 i k r)
+
+Cube3 : (i k r : I) → EM (ℤ/2 ⨂ ℤ/2) 2
+Cube3 i k r =
+  hcomp (λ j →
+     λ {(i = i0) →  ∣ north ∣
+      ; (i = i1) →  ∣ north ∣
+      ; (k = i0) → ((λ j → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) (~ r))
+                   ∙ λ j → 0ₖ-⌣ₖ⊗ 1 1 (emloop 1 j) (~ r)) (~ i)
+      ; (k = i1) → ((λ k → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 k) (~ r ∨ j))
+                    ∙ λ k → 0ₖ-⌣ₖ⊗ 1 1 (emloop 1 k) (~ r ∨ j)) (~ i)
+      ; (r = i0) → (sym (rUnit refl) ∙∙ ℤ/2→ (fsuc fzero) ∙∙ rUnit refl) k i
+      ; (r = i1) → compPath-filler (sym (myF (emloop 1)))
+                     (((λ i → (λ j → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) i)
+                                                  ∙ λ j → 0ₖ-⌣ₖ⊗ 1 1 (emloop 1 j) i)))
+                     j k (~ i)})
+  (Cube2 i k r)
+
+Cube4 : (i k r : I) → EM (ℤ/2 ⨂ ℤ/2) 2
+Cube4 i k r =
+  hcomp (λ j →
+   λ {(i = i0) → ∣ north ∣
+    ; (i = i1) → ∣ north ∣
+    ; (k = i1) → rUnit (λ _ → FF embase embase) (~ j) i
+    ; (r = i0) → doubleCompPath-filler (sym (rUnit (λ _ → FF embase embase))) (ℤ/2→ (fsuc fzero)) (rUnit (λ _ → FF embase embase)) (~ j) k i
+    ; (r = i1) → doubleCompPath-filler (((cong₂Funct FF (emloop 1) (emloop 1))))
+                     (sym (myF (emloop 1)) ∙ ((λ i → (λ j → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) i)
+                                                ∙ λ j → 0ₖ-⌣ₖ⊗ 1 1 (emloop 1 j) i)))
+                    (sym (rUnit refl)) j k (~ i)})
+   (Cube3 i k r)
+
+Cube5 : Cube (λ j k → ∣ north ∣) (λ j k → ∣ north ∣)
+             (λ i k → emloop' (λ i₁ → α-raw (line1 i₁)) k (~ i))
+             (λ i k → emloop''' (emloop 1) i1 k (~ i))
+             (λ i j → FF (emloop 1 (~ i)) (emloop 1 (~ i)))
+             (flipSquare (ℤ/2→ (fsuc fzero)))
+Cube5 i j k = hcomp (λ r →
+                λ {(i = i0) → ∣ north ∣
+                 ; (i = i1) → ∣ north ∣
+                 ; (j = i0) → emloop' (emloop 1) (~ r ∨ k) (~ i)
+                 ; (j = i1) → Cube4 i k r
+                 ; (k = i0) → emloop' (emloop 1) (~ r) (~ i)
+                 ; (k = i1) → ℤ/2→ (fsuc fzero) j i})
+                 (ℤ/2→ (fsuc fzero) (j ∧ k) i)
+
+Cube6 : I → I → I → EM (ℤ/2 ⨂ ℤ/2) 2
+Cube6 i j k =
   hcomp (λ r →
                 λ {(i = i0) → ∣ north ∣
                  ; (i = i1) → ∣ north ∣ -- ∣ north ∣
                  ; (j = i0) → emloop' (λ i₁ → α-raw (line1 i₁)) k (~ i)
-                 ; (j = i1) → emloop''2 (emloop 1) (~ r) k (~ i)
+                 ; (j = i1) → emloop''' (emloop 1) (~ r) k (~ i)
                  ; (k = i0) → FF (emloop 1 (~ i)) (emloop 1 (~ i))
-                 ; (k = i1) → ℤ/2→ (fsuc fzero) i j})
-                 (Cube₂ i j k)
+                 ; (k = i1) → ℤ/2→ (fsuc fzero) j i})
+                 (Cube5 i j k)
+
+Cube7 : I → I → I → EM (ℤ/2 ⨂ ℤ/2) 2
+Cube7 i j k = 
+  hcomp (λ r →
+                λ {(i = i0) → ∣ north ∣
+                 ; (i = i1) → ∣ north ∣
+                 ; (j = i0) → emloop' (λ i₁ → α-raw (line1 i₁)) k (~ i)
+                 ; (j = i1) → emloop' (λ i₁ → α-raw (square i₁ r)) k i
+                 ; (k = i0) → FF (α-raw (square i (j ∧ r))) (α-raw (square i (j ∧ r)))
+                 ; (k = i1) → ℤ/2→ (fsuc fzero) j i})
+           (Cube6 i j k)
+
+Klein→-funβα : (x : KleinBottle) → (_⌣ₖ⊗_ {G' = ℤ/2}{n = 1} {m = 1} (β-raw x) (α-raw x))
+                                  ≡ Klein→-fun (0ₖ 2) refl refl (ℤ/2→ 1) x
+Klein→-funβα point = refl
+Klein→-funβα (line1 i) k = ∣ north ∣
+Klein→-funβα (line2 i) = ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 i)
+Klein→-funβα (square i j) k =
+  hcomp (λ r → λ {(i = i0) → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) k
+                ; (i  = i1) → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) k
+                 ; (j = i0) → ∣ north ∣
+                 ; (j = i1) → ∣ north ∣
+                 ; (k = i0) → FF (emloop 1 j) (α-raw (square i (j ∧ r)))
+                 ; (k = i1) → (ℤ/2→ (fsuc fzero)) i j})
+    (hcomp (λ r → λ {(i = i0) → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) (k ∨ ~ r)
+                ; (i  = i1) → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) (k ∨ ~ r)
+                 ; (j = i0) → ∣ north ∣
+                 ; (j = i1) → ∣ north ∣
+                 ; (k = i0) → doubleCompPath-filler (sym (EM→ΩEM+1-0ₖ 1)) (cong (EM→ΩEM+1 1) (EM→ΩEM+1 0 (1 ⊗ 1) )) (EM→ΩEM+1-0ₖ 1) (~ r) (~ i) j
+                 ; (k = i1) → (ℤ/2→ (fsuc fzero)) i j})
+        (ℤ/2→Flip'' (~ k) i j))
+{-
+
+-}
+{-
+i = i0 ⊢ ⌣ₖ-0ₖ⊗ 1 1 (β-raw (line2 j)) k
+i = i1 ⊢ ⌣ₖ-0ₖ⊗ 1 1 (β-raw (line2 j)) k
+j = i0 ⊢ ∣ north ∣
+j = i1 ⊢ ∣ north ∣
+k = i0 ⊢ β-raw (square i j) ⌣ₖ⊗ α-raw (square i j)
+k = i1 ⊢ flipSquare (ℤ/2→ (fsuc fzero)) i j
+-}
+
+Klein→-funα⊗ : (x : KleinBottle) → (_⌣ₖ⊗_ {G' = ℤ/2} {n = 1} {m = 1} (α-raw x) (α-raw x))
+                                    ≡ Klein→-fun (0ₖ 2) refl refl (ℤ/2→ 1) x
+Klein→-funα⊗ x = Klein→-funα' x ∙ λ i → Klein→-fun (0ₖ 2) refl refl (ℤ/2→Flip' (~ i)) x
+  where
+  Klein→-funα' : (x : KleinBottle) → (_⌣ₖ⊗_ {G' = ℤ/2}{n = 1} {m = 1} (α-raw x) (α-raw x))
+                                    ≡ Klein→-fun (0ₖ 2) refl refl (flipSquare (ℤ/2→ 1)) x
+  Klein→-funα' point = refl
+  Klein→-funα' (line1 i) k = emloop' (cong α-raw line1) k i
+  Klein→-funα' (line2 i) = refl
+  Klein→-funα' (square i j) k = Cube7 i j k
+
+Klein' : (x : KleinBottle)
+  → (Klein→-fun (0ₖ 2) refl refl (ℤ/2→ 1) x)
+   ≡ Klein→-fun (0ₖ 2) refl (EM→ΩEM+1 1 embase) (λ i → (EM→ΩEM+1 1 (emloop (1 ⊗ 1) i))) x
+Klein' point = refl
+Klein' (line1 i) = refl
+Klein' (line2 i) j = EM→ΩEM+1-0ₖ 1 (~ j) i
+Klein' (square i k) j =
+  hcomp (λ r → λ {(i = i0) → EM→ΩEM+1-0ₖ 1 (~ j ∧ r) k
+                 ; (i = i1) → EM→ΩEM+1-0ₖ 1 (~ j ∧ r) k
+                 ; (j = i1) → EM→ΩEM+1 1 (emloop (1 ⊗ 1) i) k
+                 ; (k = i0) → ∣ north ∣
+                 ; (k = i1) → ∣ north ∣})
+        (EM→ΩEM+1 1 (emloop (1 ⊗ 1) i) k)
+
+Klein'' : (x : KleinBottle)
+  → (Klein→-fun (0ₖ 2) refl refl (ℤ/2→' 1) x)
+   ≡ Klein→-fun (0ₖ 2) refl (EM→ΩEM+1 1 embase) (λ i → (EM→ΩEM+1 1 (emloop 1 i))) x
+Klein'' point = refl
+Klein'' (line1 i) = refl
+Klein'' (line2 i) j = EM→ΩEM+1-0ₖ 1 (~ j) i
+Klein'' (square i k) j =
+  hcomp (λ r → λ {(i = i0) → EM→ΩEM+1-0ₖ 1 (~ j ∧ r) k
+                 ; (i = i1) → EM→ΩEM+1-0ₖ 1 (~ j ∧ r) k
+                 ; (j = i1) → EM→ΩEM+1 1 (emloop 1 i) k
+                 ; (k = i0) → ∣ north ∣
+                 ; (k = i1) → ∣ north ∣})
+        (EM→ΩEM+1 1 (emloop 1 i) k)
+
+Klein→-funα⊗'' : (x : _) → EMTensorMult {G'' = Z/2r} 2 (Klein→-fun (0ₖ 2) refl (EM→ΩEM+1 1 embase) (λ i → (EM→ΩEM+1 1 (emloop (1 ⊗ 1) i))) x)
+                          ≡ (Klein→-fun (0ₖ 2) refl (EM→ΩEM+1 1 embase) (λ i → (EM→ΩEM+1 1 (emloop 1 i))) x)
+Klein→-funα⊗'' point = refl
+Klein→-funα⊗'' (line1 i) = refl
+Klein→-funα⊗'' (line2 i) k = ∣ cong-∙ (inducedFun-EM-raw TensorMultHom 2) (merid embase) (sym (merid embase)) k i ∣ₕ
+Klein→-funα⊗'' (square i j) k = ∣ cong-∙ (inducedFun-EM-raw TensorMultHom 2) (merid (emloop (1 ⊗ 1) i)) (sym (merid embase)) k j ∣ₕ
+
+Klein→-funβ⊗'' : (x : _) → EMTensorMult {G'' = Z/2r} 2 ∣ north ∣
+                          ≡ (Klein→-fun (0ₖ 2) refl refl refl x) 
+Klein→-funβ⊗'' point = refl
+Klein→-funβ⊗'' (line1 i) = refl
+Klein→-funβ⊗'' (line2 i) = refl
+Klein→-funβ⊗'' (square i j) = refl
 
 
+lem2 : G→Ω²K² 1 ≡ ℤ/2→' 1
+lem2 k i j = hcomp (λ r → λ {(i = i0) → transportRefl (EM→ΩEM+1-0ₖ 1) k r j
+                            ; (i = i1) → transportRefl (EM→ΩEM+1-0ₖ 1) k r j
+                            ; (j = i0) → ∣ north ∣
+                            ; (j = i1) → ∣ north ∣ })
+                   (EM→ΩEM+1 1 (EM→ΩEM+1 0 1 i) j)
 
--- Klein→-funα : (x : KleinBottle) → (_⌣ₖ⊗_ {G' = ℤ/2}{n = 1} {m = 1} (α-raw x) (α-raw x))
---                                   ≡ Klein→-fun (0ₖ 2) refl refl (ℤ/2→ 1) x
--- Klein→-funα point = refl
--- Klein→-funα (line1 i) k = emloop' (cong α-raw line1) k i
--- Klein→-funα (line2 i) = refl
--- Klein→-funα (square i j) k =
---     hcomp (λ r →
---                 λ {(i = i0) → ∣ north ∣
---                  ; (i = i1) → ∣ north ∣
---                  ; (j = i0) → emloop' (λ i₁ → α-raw (line1 i₁)) k (~ i)
---                  ; (j = i1) → emloop' (λ i₁ → α-raw (square i₁ r)) k i
---                  ; (k = i0) → α-raw (square i (j ∧ r)) ⌣ₖ⊗ α-raw (square i (j ∧ r))
---                  ; (k = i1) → ℤ/2→ (fsuc fzero) i j})
---            {!!}
--- {-
+                   
+almostα : (x : KleinBottle) → _⌣ₖ_ {G'' = Z/2r} {n = 1} {m = 1} (α-raw x) (α-raw x)
+                           ≡ Klein→-fun (0ₖ 2) refl refl (G→Ω²K² 1) x
+almostα x = cong (EMTensorMult {G'' = Z/2r} 2) (Klein→-funα⊗ x ∙ Klein' x)
+        ∙∙ Klein→-funα⊗'' x
+        ∙∙ sym (Klein'' x)
+         ∙ λ i → Klein→-fun (0ₖ 2) refl refl (lem2 (~ i)) x
 
--- Klein→-funα : (x : KleinBottle) → (_⌣ₖ⊗_ {G' = ℤ/2}{n = 1} {m = 1} (α-raw x) (α-raw x))
---                                   ≡ Klein→-fun (0ₖ 2) refl refl (ℤ/2→ 1) x
--- Klein→-funα point = refl
--- Klein→-funα (line1 i) k = emloop' (cong α-raw line1) k i
--- Klein→-funα (line2 i) = refl
--- Klein→-funα (square i j) k =
---   hcomp (λ r →
---                 λ {(i = i0) → ∣ north ∣
---                  ; (i = i1) → ∣ north ∣
---                  ; (j = i0) → emloop' (λ i₁ → α-raw (line1 i₁)) k (~ i)
---                  ; (j = i1) → emloop' (λ i₁ → α-raw (square i₁ r)) k i
---                  ; (k = i0) → α-raw (square i (j ∧ r)) ⌣ₖ⊗ α-raw (square i (j ∧ r))
---                  ; (k = i1) → ℤ/2→ (fsuc fzero) i j})
---         (hcomp (λ r →
---                 λ {(i = i0) → ∣ north ∣
---                  ; (i = i1) → ∣ north ∣ -- ∣ north ∣
---                  ; (j = i0) → emloop' (λ i₁ → α-raw (line1 i₁)) k (~ i)
---                  ; (j = i1) → emloop''2 (emloop 1) (~ r) k (~ i)
---                  ; (k = i0) → FF (emloop 1 (~ i)) (emloop 1 (~ i))
---                  ; (k = i1) → ℤ/2→ (fsuc fzero) i j})
---         {!!})
---         {- (hcomp (λ r →
---                 λ {(i = i0) → ∣ north ∣
---                  ; (i = i1) → ∣ north ∣
---                  ; (j = i0) → emloop' (λ i₁ → α-raw (line1 i₁)) (k ∨ ~ r) (~ i)
---                  {- doubleCompPath-filler (cong₂Funct FF (emloop 1) (emloop 1))
---                               ((λ i → (λ j → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) i)
---                                ∙ λ j → 0ₖ-⌣ₖ⊗ 1 1 (emloop 1 j) i))
---                              (sym (rUnit refl)) r k (~ i) -}
---                  ; (j = i1) → {!emloop' (λ i₁ → α-raw (line1 i₁)) (k ∧ r) (~ i)!}
---                  {- doubleCompPath-filler (cong₂Funct FF (emloop 1) (emloop 1) ∙ sym (myF (emloop 1)))
---                               ((λ i → (λ j → ⌣ₖ-0ₖ⊗ 1 1 (emloop 1 j) i)
---                                ∙ λ j → 0ₖ-⌣ₖ⊗ 1 1 (emloop 1 j) i))
---                              (sym (rUnit refl)) r k (~ i) -}
---                  ; (k = i0) → emloop' (λ i₁ → α-raw (line1 i₁)) (~ r) (~ i)
---                  ; (k = i1) → {!!}})
---                {!!})) -}
---   where -- r i j
---   h : Cube {!λ!} {!!}
---     (λ r j → {!!}) {!!}
---     {!!} {!!}
---   h = {!!}
--- -}
--- {-
--- i = i0 ⊢ α-raw (line2 j) ⌣ₖ⊗ α-raw (line2 j)
--- i = i1 ⊢ α-raw (line2 j) ⌣ₖ⊗ α-raw (line2 j)
--- j = i0 ⊢ emloop' (λ i₁ → α-raw (line1 i₁)) k (~ i)
--- j = i1 ⊢ emloop' (λ i₁ → α-raw (line1 i₁)) k i
--- k = i0 ⊢ α-raw (square i j) ⌣ₖ⊗ α-raw (square i j)
--- k = i1 ⊢ ℤ/2→ (fsuc fzero) i j
--- -}
+cupIdα : _⌣_ {G'' = Z/2r} {n = 1} {m = 1} α α
+       ≡ G→H²K² 1
+cupIdα = cong ∣_∣₂ (funExt almostα)
 
--- -- -- α⌣α non-zero?
--- -- -- is non-zero
--- -- Klein→-fun'' : (x : KleinBottle) → F (α-raw x) (β-raw x) ≡ ∣ north ∣
--- -- Klein→-fun'' point = Fr embase
--- -- Klein→-fun'' (line1 i) k = Fr (emloop 1 i) k 
--- -- Klein→-fun'' (line2 i) k = (Fr≡Fl ◁ cong Fl (emloop 1) ▷ sym Fr≡Fl) i k
--- -- Klein→-fun'' (square i j) k =
--- --   hcomp (λ r →
--- --       λ {(i = i0) → (Fr≡Fl ◁ (λ i₁ → Fl (emloop (fsuc fzero) i₁)) ▷
--- --           (λ i₁ → Fr≡Fl (~ i₁)))
--- --          j k
--- --                  ; (i = i1) → (Fr≡Fl ◁ (λ i₁ → Fl (emloop (fsuc fzero) i₁)) ▷
--- --           (λ i₁ → Fr≡Fl (~ i₁)))
--- --          j k
--- --                  ; (j = i0) → Fr (emloop-inv (AbGroup→Group ℤ/2) 1 r i) k
--- --                  ; (j = i1) → Fr (emloop (fsuc fzero) i) k
--- --                  ; (k = i0) → F (emloop-inv (AbGroup→Group ℤ/2) 1 (~ j ∧ r) i) (emloop 1 j)
--- --                  ; (k = i1) → ∣ north ∣})
--- --         (PP i j k)
--- -- {-
--- -- i = i0 ⊢ (Fr≡Fl ◁ (λ i₁ → Fl (emloop (fsuc fzero) i₁)) ▷
--- --           (λ i₁ → Fr≡Fl (~ i₁)))
--- --          j k
--- -- i = i1 ⊢ (Fr≡Fl ◁ (λ i₁ → Fl (emloop (fsuc fzero) i₁)) ▷
--- --           (λ i₁ → Fr≡Fl (~ i₁)))
--- --          j k
--- -- j = i0 ⊢ Fr (emloop (fsuc fzero) (~ i)) k
--- -- j = i1 ⊢ Fr (emloop (fsuc fzero) i) k
--- -- k = i0 ⊢ F (α-raw (square i j)) (β-raw (square i j))
--- -- k = i1 ⊢ ∣ north ∣
--- -- -}
--- -- {-
--- --   KleinElim
--- --     (λ _ → ∣ north ∣)
--- --     (λ k i → ∣ rCancel (merid ptEM-raw) i k ∣)
--- --     (λ _ _ → ∣ north ∣)
--- --     λ k i j → hcomp (λ r →
--- --       λ {(i = i0) → {!⌣ₖ-0ₖ⊗ {G' = ℤ/2} {H' = ℤ/2} 1 1 (emloop 1 k) (r ∧ ~ j)!}
--- --                  ; (i = i1) → {!!}
--- --                  ; (j = i0) → cong₂Funct (_⌣ₖ⊗_ {G' = ℤ/2} {H' = ℤ/2} {n = 1} {m = 1})
--- --                                 (λ j → (emloop-inv (AbGroup→Group ℤ/2) 1 (~ j) k))
--- --                                 (emloop 1) (~ r) i
--- --                  ; (j = i1) → {!cong₂Funct (_⌣ₖ⊗_ {G' = ℤ/2} {H' = ℤ/2} {n = 1} {m = 1})
--- --                                 (λ j → (emloop-inv (AbGroup→Group ℤ/2) 1 (~ j) k))
--- --                                 (emloop 1) (~ r) !}
--- --                  ; (k = i0) → {!!}
--- --                  ; (k = i1) → {!!}})
--- --                      {!!}
--- -- -}
+G→Ω²K²-refl : G→Ω²K² 0 ≡ refl
+G→Ω²K²-refl = Iso.leftInv Iso-Ω²K²-G refl
 
--- -- -- Klein→-fun'' : (x : KleinBottle) → _⌣ₖ⊗_ {G' = ℤ/2}{n = 1} {m = 1} (α-raw x) (β-raw x) ≡ 0ₖ 2
--- -- -- Klein→-fun'' point i = ∣ north ∣
--- -- -- Klein→-fun'' (line1 i) k = ∣ rCancel (merid ptEM-raw) k i ∣
--- -- -- Klein→-fun'' (line2 i) k = ∣ north ∣
--- -- -- Klein→-fun'' (square i j) k =
--- -- --   {!  hcomp (λ r → λ {(i = i0) → cong₂Funct (_⌣ₖ⊗_ {G' = ℤ/2} {H' = ℤ/2} {n = 1} {m = 1})
--- -- --                                 (λ j → embase)
--- -- --                                 (emloop 1) (~ r ∧ ~ k) j
--- -- --                  ; (i = i1) → cong₂Funct (_⌣ₖ⊗_ {G' = ℤ/2} {H' = ℤ/2} {n = 1} {m = 1})
--- -- --                                 (λ j → embase)
--- -- --                                 (emloop 1) (~ r ∧ ~ k) j
--- -- --                  ; (j = i0) → {!∣ rCancel (merid ptEM-raw) (k ∧ r) i ∣!}
--- -- --                  ; (j = i1) → ? -- ∣ rCancel (merid ptEM-raw) k i ∣
--- -- --                  ; (k = i0) → cong₂Funct (_⌣ₖ⊗_ {G' = ℤ/2} {H' = ℤ/2} {n = 1} {m = 1})
--- -- --                                 (λ j → (emloop-inv (AbGroup→Group ℤ/2) 1 (~ j) i))
--- -- --                                 (emloop 1) (~ r) j
--- -- --                  ; (k = i1) → ∣ north ∣})
--- -- --         {!!}!}
--- -- -- {-
+cupIdΒ : _⌣_ {G'' = Z/2r} {n = 1} {m = 1} β β
+       ≡ ∣ Klein→-fun (0ₖ 2) refl refl (G→Ω²K² 0) ∣₂
+cupIdΒ = cong ∣_∣₂ (funExt λ x → cong (EMTensorMult {G'' = Z/2r} 2) (Klein→-funβ x)
+                        ∙ Klein→-funβ⊗'' x
+                        ∙ λ i → Klein→-fun ∣ north ∣ refl refl (G→Ω²K²-refl (~ i)) x)
 
--- -- -- -}
+βα↦1 : H²K²→G (_⌣_ {G'' = Z/2r} {n = 1} {m = 1} β α) ≡ 1
+βα↦1 = cong H²K²→G (cong ∣_∣₂ (funExt (λ x → cong (EMTensorMult {G'' = Z/2r} 2) (Klein→-funβα x ∙ Klein' x)
+                   ∙∙ (Klein→-funα⊗'' x  ∙ sym (Klein'' x))
+                   ∙∙ λ i → Klein→-fun ∣ north ∣ refl refl (lem2 (~ i)) x)))
+      ∙ G→H²K²→G 1
 
--- -- -- -- {-
--- -- -- -- Klein→-fun'' point = refl -- λ i → _⌣ₖ⊗_ {G' = ℤ/2}{n = 1} {m = 1} (emloop 1 i) (emloop 1 i) -- refl
--- -- -- -- Klein→-fun'' (line1 i) j = emloop' (emloop 1) j i -- emloop' (emloop 1) j i -- gl' (emloop 1) j i
--- -- -- -- Klein→-fun'' (line2 i) = refl -- refl
--- -- -- -- Klein→-fun'' (square i j) k =
--- -- -- --   hcomp (λ r → λ {(i = i0) → ∣ north ∣ -- ∣ north ∣
--- -- -- --                  ; (i = i1) → ∣ north ∣ -- ∣ north ∣
--- -- -- --                  ; (j = i0) → {!cool i k r!} -- 
--- -- -- --                  ; (j = i1) → emloop' (emloop 1) (~ r ∨ k) i
--- -- -- --                  ; (k = i0) → emloop' (cong α-raw (λ i → square i j)) (~ r) i
--- -- -- --                  ; (k = i1) → ∣ north ∣})
--- -- -- --         ∣ north ∣
--- -- -- --   where
--- -- -- --   grr : ∀ {ℓ} {A B : Type ℓ} (g : A → A → B) {x : A} (f : (p : x ≡ x) → cong₂ g p p ≡ refl)
--- -- -- --     (p : x ≡ x) → p ≡ sym p
--- -- -- --     → Cube {A = B}
--- -- -- --          (λ _ _ → g x x) (λ _ _ → g x x)
--- -- -- --          (λ i r → f p (~ r) i) (λ _ _ → g x x)
--- -- -- --          (λ _ _ → g x x) λ i k → f (sym p) k (~ i)
--- -- -- --   grr g {x = x} f p st i k r =
--- -- -- --     hcomp (λ j → λ {(i = i0) → g x x
--- -- -- --                  ; (i = i1) → g x x
--- -- -- --                  ; (k = i0) → {!g (st j (~ i)) (st j (~ i))!}
--- -- -- --                  ; (k = i1) → {!!}
--- -- -- --                  ; (r = i0) → {!!}
--- -- -- --                  ; (r = i1) → f (st j) k (~ i)})
--- -- -- --            {!!}
--- -- -- -- {-
--- -- -- -- i = i0 ⊢ g x x
--- -- -- -- i = i1 ⊢ g x x
--- -- -- -- k = i0 ⊢ f p (~ r) i
--- -- -- -- k = i1 ⊢ g x x
--- -- -- -- r = i0 ⊢ g x x
--- -- -- -- r = i1 ⊢ f (sym p) k (~ i)
--- -- -- -- -}
--- -- -- --   bztt : ∀ {ℓ} {A B : Type ℓ} (g : A → A → B) {x : A} (f : (p : x ≡ x) → cong₂ g p p ≡ refl)
--- -- -- --          (p : x ≡ x) → (q : p ≡ sym p)
--- -- -- --       → (λ i → cong₂ g (q (~ i)) (q (~ i))) ∙ (f p) ≡ f (sym p)
--- -- -- --   bztt g f p q =
--- -- -- --       (λ i → (λ j → cong₂ g (q (~ j ∨ i)) (q (~ j ∨ i))) ∙ f (q i))
--- -- -- --     ∙ sym (lUnit _)
+β↦0,1 : H¹K²→G+G β ≡ (0 , 1)
+β↦0,1 = refl
 
--- -- -- --   bzzt2 : ∀ {ℓ} {A B : Type ℓ} (g : A → A → B) {x : A} (f : (p : x ≡ x) → cong₂ g p p ≡ refl)
--- -- -- --          (q p : x ≡ x) → (s : q ≡ p) → f refl ≡ refl
--- -- -- --       → (λ i → cong₂ g (s i) (s i)) ∙ f p
--- -- -- --        ≡ {!!}
--- -- -- --          ∙ cong sym (f p) -- (λ i → sym (cong₂ g (q i) (q i))) ∙ cong sym (f p)
--- -- -- --   bzzt2 g {x} f q p = {!!} -- J> λ r → sym (lUnit _) ∙∙ r ∙ cong (cong sym) (sym r) ∙∙ lUnit _
-
--- -- -- --   bztt3 : ∀ {ℓ} {A B : Type ℓ} (g : A → A → B) {x y : A} (f : (p : x ≡ x) → cong₂ g p p ≡ refl)
--- -- -- --          (p : x ≡ x) (q : p ≡ sym p)
--- -- -- --          → {!!}
--- -- -- --          → cong sym (f p) ≡ f (sym p)
--- -- -- --   bztt3 = {!!}
--- -- -- -- -}
+β²↦1 : H²K²→G (_⌣_ {G'' = Z/2r} {n = 1} {m = 1} β β) ≡ 0
+β²↦1 = cong H²K²→G cupIdΒ ∙ G→H²K²→G 0
 
 
--- -- -- -- --   asd : ∀ {ℓ} {A B : Type ℓ} {x : A} (p : x ≡ x) (q : refl ≡ p)
--- -- -- -- --       → PathP {!!} (cong sym q) (sym q)
--- -- -- -- --   asd = {!!}
+α↦1 : H¹K²→G+G α ≡ (1 , 0)
+α↦1 = refl
 
+α⌣α↦1 : H²K²→G (_⌣_ {G'' = Z/2r} {n = 1} {m = 1} α α) ≡ 1
+α⌣α↦1 = cong H²K²→G cupIdα ∙ G→H²K²→G 1
 
--- -- -- -- --   bzt : cong sym (emloop' (sym (emloop 1))) ≡ emloop' (emloop 1)
--- -- -- -- --   bzt i j k =
--- -- -- -- --     hcomp (λ r → λ {(i = i0) → emloop' (emloop-inv (AbGroup→Group ℤ/2) 1 r) j (~ k)
--- -- -- -- --                    ; (i = i1) → {!emloop' (emloop 1)!}
--- -- -- -- --                    ; (j = i0) → {!emloop' (emloop-inv (AbGroup→Group ℤ/2) 1 r)!}
--- -- -- -- --                    ; (j = i1) → {!!}
--- -- -- -- --                    ; (k = i0) → {!!}
--- -- -- -- --                    ; (k = i1) → {!!}})
--- -- -- -- --           {!!}
-
--- -- -- -- --   cool : Cube (λ k r → ∣ north ∣) (λ k r → ∣ north ∣)
--- -- -- -- --               (λ i r → emloop' (sym (emloop 1)) (~ r) i) (λ i r → ∣ north ∣) 
--- -- -- -- --               (λ _ _ → ∣ north ∣) λ i k →  emloop' (emloop (fsuc fzero)) k (~ i) -- λ i k → emloop' (emloop (fsuc fzero)) k (~ i)
--- -- -- -- --   cool i k r = 
--- -- -- -- --     hcomp (λ j → λ {(i = i0) → emloop' (sym (emloop 1)) (~ r) (~ j)
--- -- -- -- --                  ; (i = i1) → {!!}
--- -- -- -- --                  ; (k = i0) → emloop' (sym (emloop 1)) (~ r) (i ∨ ~ j)
--- -- -- -- --                  ; (k = i1) → {!!}
--- -- -- -- --                  ; (r = i0) → {!!}
--- -- -- -- --                  ; (r = i1) → {!emloop' (emloop (fsuc fzero)) k (~ i ∧ j) !}})
--- -- -- -- --            {!!} 
--- -- -- -- --     where
--- -- -- -- --     sd : emloop' (sym (emloop (fsuc fzero)))
--- -- -- -- --       ≡ (λ i j → _⌣ₖ⊗_ {G' = ℤ/2}{n = 1} {m = 1} (emloop-sym (AbGroup→Group ℤ/2) 1 (~ i) j) (emloop-sym (AbGroup→Group ℤ/2) 1 (~ i) j))
--- -- -- -- --       ∙ emloop' (emloop 1) 
--- -- -- -- --     sd = {!!}
--- -- -- -- -- {- -- cong α-raw (λ i → square i j)
--- -- -- -- -- i = i0 ⊢ α-raw (line2 j) ⌣ₖ⊗ α-raw (line2 j)
--- -- -- -- -- i = i1 ⊢ α-raw (line2 j) ⌣ₖ⊗ α-raw (line2 j)
--- -- -- -- -- j = i0 ⊢ emloop' (emloop (fsuc fzero)) k (~ i)
--- -- -- -- -- j = i1 ⊢ emloop' (emloop (fsuc fzero)) k i
--- -- -- -- -- k = i0 ⊢ α-raw (square i j) ⌣ₖ⊗ α-raw (square i j)
--- -- -- -- -- k = i1 ⊢ ∣ north ∣
--- -- -- -- -- -}
-
--- -- -- -- -- -- Klein→-fun' : (λ x →  _⌣ₖ_ {G'' = Z/2r}{n = 1} {m = 1} (α-raw x) (α-raw x))
--- -- -- -- -- --               ≡ Klein→-fun (0ₖ {G = ℤ/2} 2)
--- -- -- -- -- --                      (λ i → _⌣ₖ_ {G'' = Z/2r}{n = 1} {m = 1} (emloop 1 i) (emloop 1 i))
--- -- -- -- -- --                      refl (flipSquare (sym (br ∣ north ∣ λ i → _⌣ₖ_ {G'' = Z/2r}{n = 1} {m = 1} (emloop 1 i) (emloop 1 i))))
--- -- -- -- -- -- Klein→-fun' = funExt λ { point → refl
--- -- -- -- -- --                        ; (line1 i) → refl
--- -- -- -- -- --                        ; (line2 i) → refl
--- -- -- -- -- --                        ; (square i j) → {!!}}
--- -- -- -- -- --   where
--- -- -- -- -- --   bzt : (λ j i → _⌣ₖ_ {G'' = Z/2r}{n = 1} {m = 1} (emloop-inv (AbGroup→Group ℤ/2) 1 (~ j) i) (emloop-inv (AbGroup→Group ℤ/2) 1 (~ j) i))
--- -- -- -- -- --       ≡ sym (br ∣ north ∣ λ i → _⌣ₖ_ {G'' = Z/2r}{n = 1} {m = 1} (emloop 1 i) (emloop 1 i))
--- -- -- -- -- --   bzt = {!!}
-
-
-
--- -- -- -- -- -- ⌣₂ : (x : EM ℤ/2 1) → (_⌣ₖ_ {G'' = Z/2r}{n = 1} {m = 1} x x) ≡ 0ₖ 2
--- -- -- -- -- -- ⌣₂ = elimGroupoid _ (λ _ → hLevelEM _ 2 _ _)
--- -- -- -- -- --        refl
--- -- -- -- -- --        (λ g → flipSquare (sym (br ∣ north ∣ₕ {!br ∣ north ∣!}) ∙ {!!}))
--- -- -- -- -- --        {!!}
-
--- -- -- -- -- -- α⌣α : (x : _) → ((α-raw x) ⌣ₖ (α-raw x)) ≡ {!!} 
--- -- -- -- -- -- α⌣α = {!!}
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Homogeneous
+FF-comm : (x : EM ℤ/2 1) → cup∙ {G' = ℤ/2} {H' = ℤ/2} 1 1 x ≡ ((λ y → FF y x) , (0ₖ-⌣ₖ⊗ 1 1 x))
+FF-comm =
+  EM-raw'-elim ℤ/2 1 (λ _ → isOfHLevel↑∙ 1 0 _ _)
+    λ x → →∙Homogeneous≡ (isHomogeneousEM _)
+      {!!}
+  where -- isOfHLevel↑∙'
+  Rs' : (y : EM ℤ/2 1) → Path (EM-raw'∙ ℤ/2 1 →∙ EM∙ (ℤ/2 ⨂ ℤ/2) 2) ((λ x → FF {!EM-raw→EM'!} {!!}) , {!!}) {!!}
+  Rs' = {!!}
