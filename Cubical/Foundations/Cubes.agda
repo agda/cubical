@@ -10,10 +10,15 @@ open import Cubical.Foundations.Prelude hiding (Cube)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Cubes.Base public
+open import Cubical.Foundations.Cubes.External
 open import Cubical.Foundations.Cubes.Subtypes
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma.Properties
+
+open import Agda.Builtin.List
+open import Agda.Builtin.Reflection hiding (Type)
+open import Cubical.Reflection.Base
 
 private
   variable
@@ -26,13 +31,13 @@ private
 By mutual recursion, one can define the type of
 
 - n-Cubes:
-  Cube : (n : ℕ)(A : Type ℓ) → Type ℓ
+  Cube    : (n : ℕ) (A : Type ℓ) → Type ℓ
 
 - Boundary of n-Cubes:
-  ∂Cube : ℕ → Type ℓ → Type ℓ
+  ∂Cube   : (n : ℕ) (A : Type ℓ) → Type ℓ
 
 - n-Cubes with Specified Boundary:
-  CubeRel : (n : ℕ)(A : Type ℓ) → ∂Cube n A → Type ℓ the type of n-cubes `Cube`,
+  CubeRel : (n : ℕ) (A : Type ℓ) → ∂Cube n A → Type ℓ
 
 Their definitions are put in `Cubical.Foundations.Cubes.Base`,
 to avoid cyclic dependence.
@@ -40,111 +45,102 @@ to avoid cyclic dependence.
 -}
 
 
-{-
-
-  Relation with the external (partial) cubes
-
--}
-
--- Concatenate two sides and parts in between to get a partial element.
-concat :
-  {φ : I} (a₋ : (i : I) → Partial φ A)
-  (a₀ : A [ φ ↦ a₋ i0 ]) (a₁ : A [ φ ↦ a₋ i1 ])
-  (i : I) → Partial (i ∨ ~ i ∨ φ) A
-concat {φ = φ} a₋ a₀ a₁ i (i = i0) = outS a₀
-concat {φ = φ} a₋ a₀ a₁ i (i = i1) = outS a₁
-concat {φ = φ} a₋ a₀ a₁ i (φ = i1) = a₋ i 1=1
-
--- And the reverse procedure.
-module _ (φ : I) (a₋ : (i : I) → Partial (i ∨ ~ i ∨ φ) A) where
-
-  detach₀ : A
-  detach₀ = a₋ i0 1=1
-
-  detach₁ : A
-  detach₁ = a₋ i1 1=1
-
-  detach₋ : (i : I) → Partial φ A
-  detach₋ i (φ = i1) = a₋ i 1=1
-
-
 {- Lower Cubes Back and Forth -}
 
 -- Notice that the functions are meta-inductively defined,
 -- except for the first two cases when n = 0 or 1.
 
--- TODO : Write macros to generate them!!!
+private
+  add2Impl : List (Arg Term) →  List (Arg Term)
+  add2Impl t =
+    harg {quantity-ω} unknown ∷
+    harg {quantity-ω} unknown ∷ t
+
+macro
+
+  fromCube : (n : ℕ) → Term → Term → TC Unit
+  fromCube 0 p t = unify p t
+  fromCube (suc n) p t = unify t
+    (def (quote Cube→ΠCubeᵉ) (add2Impl (ℕ→ℕᵉTerm (suc n) v∷ p v∷ [])))
+
+  toCube : (n : ℕ) → Term → Term → TC Unit
+  toCube 0 p t = unify p t
+  toCube (suc n) p t = unify t
+    (def (quote ΠCubeᵉ→Cube) (add2Impl (ℕ→ℕᵉTerm (suc n) v∷ p v∷ [])))
+
+  from∂Cube : (n : ℕ) → Term → TC Unit
+  from∂Cube 0 t = typeError
+    (strErr "Only work for n>0." ∷ [])
+  from∂Cube (suc n) t = unify t
+    (def (quote ∂Cube→∂ΠCubeᵉ) (add2Impl (ℕ→ℕᵉTerm (suc n) v∷ [])))
+
+  to∂Cube : (n : ℕ) → Term → TC Unit
+  to∂Cube 0 t = typeError
+    (strErr "Only work for n>0." ∷ [])
+  to∂Cube (suc n) t = unify t
+    (def (quote ∂ΠCubeᵉ→∂Cube) (add2Impl (ℕ→ℕᵉTerm (suc n) v∷ [])))
+
+
+-- Special cases of low dimension
 
 from0Cube : Cube 0 A → A
-from0Cube p = p
+from0Cube p = fromCube 0 p
 
 from1Cube : Cube 1 A → (i : I) → A
-from1Cube p i = p .snd i
+from1Cube p = fromCube 1 p
 
 from2Cube : Cube 2 A → (i j : I) → A
-from2Cube p i j = p .snd i j
+from2Cube p = fromCube 2 p
 
 from3Cube : Cube 3 A → (i j k : I) → A
-from3Cube p i j k = p .snd i j k
+from3Cube p = fromCube 3 p
 
 from4Cube : Cube 4 A → (i j k l : I) → A
-from4Cube p i j k l = p .snd i j k l
+from4Cube p = fromCube 4 p
 
 
 to0Cube : A → Cube 0 A
-to0Cube p = p
+to0Cube p = toCube 0 p
 
 to1Cube : ((i : I) → A) → Cube 1 A
-to1Cube p = (p i0 , p i1) , λ i → p i
+to1Cube p = toCube 1 p
 
 to2Cube : ((i j : I) → A) → Cube 2 A
-to2Cube p = pathCube 0 (λ i → (to1Cube (λ j → p i j)))
+to2Cube p = toCube 2 p
 
 to3Cube : ((i j k : I) → A) → Cube 3 A
-to3Cube p = pathCube 1 (λ i → (to2Cube (λ j → p i j)))
+to3Cube p = toCube 3 p
 
 to4Cube : ((i j k l : I) → A) → Cube 4 A
-to4Cube p = pathCube 2 (λ i → (to3Cube (λ j → p i j)))
+to4Cube p = toCube 4 p
 
 
 -- The 0-cube has no (or empty) boundary...
 
 from∂1Cube : ∂Cube 1 A → (i : I) → Partial (i ∨ ~ i) A
-from∂1Cube (a , b) i = λ { (i = i0) → a ; (i = i1) → b }
+from∂1Cube p = from∂Cube 1 p
 
 from∂2Cube : ∂Cube 2 A → (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
-from∂2Cube (a₀ , a₁ , ∂₋) i j =
-  concat (λ t → from∂1Cube (∂₋ t) j)
-    (inS (from1Cube a₀ j)) (inS (from1Cube a₁ j)) i
+from∂2Cube p = from∂Cube 2 p
 
 from∂3Cube : ∂Cube 3 A → (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A
-from∂3Cube (a₀ , a₁ , ∂₋) i j k =
-  concat (λ t → from∂2Cube (∂₋ t) j k)
-    (inS (from2Cube a₀ j k)) (inS (from2Cube a₁ j k)) i
+from∂3Cube p = from∂Cube 3 p
 
 from∂4Cube : ∂Cube 4 A → (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A
-from∂4Cube (a₀ , a₁ , ∂₋) i j k l =
-  concat (λ t → from∂3Cube (∂₋ t) j k l)
-    (inS (from3Cube a₀ j k l)) (inS (from3Cube a₁ j k l)) i
+from∂4Cube p = from∂Cube 4 p
 
 
 to∂1Cube : ((i : I) → Partial (i ∨ ~ i) A) → ∂Cube 1 A
-to∂1Cube p = p i0 1=1 , p i1 1=1
+to∂1Cube p = to∂Cube 1 p
 
 to∂2Cube : ((i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A) → ∂Cube 2 A
-to∂2Cube p .fst      = to1Cube (λ j → detach₀ (j ∨ ~ j) (λ i → p i j))
-to∂2Cube p .snd .fst = to1Cube (λ j → detach₁ (j ∨ ~ j) (λ i → p i j))
-to∂2Cube p .snd .snd t = to∂1Cube (λ j → detach₋ _ (λ i → p i j) t)
+to∂2Cube p = to∂Cube 2 p
 
 to∂3Cube : ((i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A) → ∂Cube 3 A
-to∂3Cube p .fst      = to2Cube (λ j k → detach₀ (j ∨ ~ j ∨ k ∨ ~ k) (λ i → p i j k))
-to∂3Cube p .snd .fst = to2Cube (λ j k → detach₁ (j ∨ ~ j ∨ k ∨ ~ k) (λ i → p i j k))
-to∂3Cube p .snd .snd t = to∂2Cube (λ j k → detach₋ _ (λ i → p i j k) t)
+to∂3Cube p = to∂Cube 3 p
 
 to∂4Cube : ((i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A) → ∂Cube 4 A
-to∂4Cube p .fst      = to3Cube (λ j k l → detach₀ (j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) (λ i → p i j k l))
-to∂4Cube p .snd .fst = to3Cube (λ j k l → detach₁ (j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) (λ i → p i j k l))
-to∂4Cube p .snd .snd t = to∂3Cube (λ j k l → detach₋ _ (λ i → p i j k l) t)
+to∂4Cube p = to∂Cube 4 p
 
 
 -- They're strict isomorphisms actually.
@@ -163,8 +159,7 @@ private
 
   sec-∂2Cube : (p : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
     → (i j : I) → PartialP (i ∨ ~ i ∨ j ∨ ~ j) (λ o → from∂2Cube (to∂2Cube p) i j o ≡ p i j o)
-  sec-∂2Cube p i j = λ
-    { (i = i0) → refl ; (i = i1) → refl ; (j = i0) → refl ; (j = i1) → refl }
+  sec-∂2Cube p i j = λ { (i = i0) → refl ; (i = i1) → refl ; (j = i0) → refl ; (j = i1) → refl }
 
 
 {-
@@ -223,32 +218,42 @@ isCubeFilled→isOfHLevel (suc n) h = isOfHLevelPath'⁻ _
 
 
 -- Some special cases
--- TODO: Write a macro to generate them!!!
+
+fillCubeSuc :
+  (n : ℕᵉ) (h : isOfHLevel (ℕᵉ→ℕ (suc n)) A)
+  (u : ∂ΠCubeᵉ (suc n) A) → _
+fillCubeSuc n h u =
+  let ∂ = ∂ΠCubeᵉ→∂Cube (suc n) u in
+  CubeRel→ΠCubeRelᵉ (suc n) ∂ (isOfHLevel→isCubeFilled (ℕᵉ→ℕ (suc n)) h ∂)
+
+macro
+  fillCube : (n : ℕ) → Term → TC Unit
+  fillCube 0 t = typeError
+    (strErr "Only work for n>0." ∷ [])
+  fillCube (suc n) t = unify t
+    (def (quote fillCubeSuc) (add2Impl (ℕ→ℕᵉTerm n v∷ [])))
+
 
 fill1Cube :
   (h : isOfHLevel 1 A)
   (u : (i : I) → Partial (i ∨ ~ i) A)
   (i : I) → A [ _ ↦ u i ]
-fill1Cube h u i =
-  inS (from1Cube (to∂1Cube u , isOfHLevel→isCubeFilled 1 h (to∂1Cube u)) i)
+fill1Cube h u = fillCube 1 h u
 
 fill2Cube :
   (h : isOfHLevel 2 A)
   (u : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
   (i j : I) → A [ _ ↦ u i j ]
-fill2Cube h u i j =
-  inS (from2Cube (to∂2Cube u , isOfHLevel→isCubeFilled 2 h (to∂2Cube u)) i j)
+fill2Cube h u = fillCube 2 h u
 
 fill3Cube :
   (h : isOfHLevel 3 A)
   (u : (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A)
   (i j k : I) → A [ _ ↦ u i j k ]
-fill3Cube h u i j k =
-  inS (from3Cube (to∂3Cube u , isOfHLevel→isCubeFilled 3 h (to∂3Cube u)) i j k)
+fill3Cube h u = fillCube 3 h u
 
 fill4Cube :
   (h : isOfHLevel 4 A)
   (u : (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A)
   (i j k l : I) → A [ _ ↦ u i j k l ]
-fill4Cube h u i j k l =
-  inS (from4Cube (to∂4Cube u , isOfHLevel→isCubeFilled 4 h (to∂4Cube u)) i j k l)
+fill4Cube h u = fillCube 4 h u
