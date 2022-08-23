@@ -9,18 +9,14 @@ module Cubical.Foundations.Cubes where
 open import Cubical.Foundations.Prelude hiding (Cube)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Cubes.Base public
-<<<<<<< HEAD
+open import Cubical.Foundations.Cubes.HLevels
 open import Cubical.Foundations.Cubes.External
-open import Cubical.Foundations.Cubes.Subtypes
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma.Properties
-=======
-open import Cubical.Foundations.Cubes.HLevels
->>>>>>> cubefill
 
-open import Agda.Builtin.List
 open import Agda.Builtin.Reflection hiding (Type)
+open import Agda.Builtin.List
 open import Cubical.Reflection.Base
 
 private
@@ -48,10 +44,7 @@ to avoid cyclic dependence.
 -}
 
 
-{- Lower Cubes Back and Forth -}
-
--- Notice that the functions are meta-inductively defined,
--- except for the first two cases when n = 0 or 1.
+-- The macro to transform between external and internal cubes
 
 private
   add2Impl : List (Arg Term) →  List (Arg Term)
@@ -84,22 +77,23 @@ macro
     (def (quote ∂ΠCubeᵉ→∂Cube) (add2Impl (ℕ→ℕᵉTerm (suc n) v∷ [])))
 
 
--- Special cases of low dimension
+{- Lower Cubes Back and Forth -}
 
-from0Cube : Cube 0 A → A
-from0Cube p = fromCube 0 p
 
-from1Cube : Cube 1 A → (i : I) → A
-from1Cube p = fromCube 1 p
+fromCube0 : Cube 0 A → A
+fromCube0 p = fromCube 0 p
 
-from2Cube : Cube 2 A → (i j : I) → A
-from2Cube p = fromCube 2 p
+fromCube1 : Cube 1 A → (i : I) → A
+fromCube1 p = fromCube 1 p
 
-from3Cube : Cube 3 A → (i j k : I) → A
-from3Cube p = fromCube 3 p
+fromCube2 : Cube 2 A → (i j : I) → A
+fromCube2 p = fromCube 2 p
 
-from4Cube : Cube 4 A → (i j k l : I) → A
-from4Cube p = fromCube 4 p
+fromCube3 : Cube 3 A → (i j k : I) → A
+fromCube3 p = fromCube 3 p
+
+fromCube4 : Cube 4 A → (i j k l : I) → A
+fromCube4 p = fromCube 4 p
 
 
 to0Cube : A → Cube 0 A
@@ -108,11 +102,11 @@ to0Cube p = toCube 0 p
 to1Cube : ((i : I) → A) → Cube 1 A
 to1Cube p = toCube 1 p
 
-to2Cube : ((i j : I) → A) → Cube 2 A
-to2Cube p = toCube 2 p
+toCube2 : ((i j : I) → A) → Cube 2 A
+toCube2 p = toCube 2 p
 
-to3Cube : ((i j k : I) → A) → Cube 3 A
-to3Cube p = toCube 3 p
+toCube3 : ((i j k : I) → A) → Cube 3 A
+toCube3 p = toCube 3 p
 
 to4Cube : ((i j k l : I) → A) → Cube 4 A
 to4Cube p = toCube 4 p
@@ -123,11 +117,11 @@ to4Cube p = toCube 4 p
 from∂1Cube : ∂Cube 1 A → (i : I) → Partial (i ∨ ~ i) A
 from∂1Cube p = from∂Cube 1 p
 
-from∂2Cube : ∂Cube 2 A → (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
-from∂2Cube p = from∂Cube 2 p
+from∂Cube2 : ∂Cube 2 A → (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
+from∂Cube2 p = from∂Cube 2 p
 
-from∂3Cube : ∂Cube 3 A → (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A
-from∂3Cube p = from∂Cube 3 p
+from∂Cube3 : ∂Cube 3 A → (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A
+from∂Cube3 p = from∂Cube 3 p
 
 from∂4Cube : ∂Cube 4 A → (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A
 from∂4Cube p = from∂Cube 4 p
@@ -136,11 +130,11 @@ from∂4Cube p = from∂Cube 4 p
 to∂1Cube : ((i : I) → Partial (i ∨ ~ i) A) → ∂Cube 1 A
 to∂1Cube p = to∂Cube 1 p
 
-to∂2Cube : ((i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A) → ∂Cube 2 A
-to∂2Cube p = to∂Cube 2 p
+to∂Cube2 : ((i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A) → ∂Cube 2 A
+to∂Cube2 p = to∂Cube 2 p
 
-to∂3Cube : ((i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A) → ∂Cube 3 A
-to∂3Cube p = to∂Cube 3 p
+to∂Cube3 : ((i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A) → ∂Cube 3 A
+to∂Cube3 p = to∂Cube 3 p
 
 to∂4Cube : ((i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A) → ∂Cube 4 A
 to∂4Cube p = to∂Cube 4 p
@@ -151,18 +145,18 @@ to∂4Cube p = to∂Cube 4 p
 
 private
 
-  ret-2Cube : {A : Type ℓ} (a : Cube 2 A) → to2Cube (from2Cube a) ≡ a
-  ret-2Cube a = refl
+  ret-Cube2 : {A : Type ℓ} (a : Cube 2 A) → toCube2 (fromCube2 a) ≡ a
+  ret-Cube2 a = refl
 
-  sec-2Cube : (p : (i j : I) → A) → (i j : I) → from2Cube (to2Cube p) i j ≡ p i j
-  sec-2Cube p i j = refl
+  sec-Cube2 : (p : (i j : I) → A) → (i j : I) → fromCube2 (toCube2 p) i j ≡ p i j
+  sec-Cube2 p i j = refl
 
-  ret-∂2Cube : {A : Type ℓ} (a : ∂Cube 2 A) → to∂2Cube (from∂2Cube a) ≡ a
-  ret-∂2Cube a = refl
+  ret-∂Cube2 : {A : Type ℓ} (a : ∂Cube 2 A) → to∂Cube2 (from∂Cube2 a) ≡ a
+  ret-∂Cube2 a = refl
 
-  sec-∂2Cube : (p : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
-    → (i j : I) → PartialP (i ∨ ~ i ∨ j ∨ ~ j) (λ o → from∂2Cube (to∂2Cube p) i j o ≡ p i j o)
-  sec-∂2Cube p i j = λ { (i = i0) → refl ; (i = i1) → refl ; (j = i0) → refl ; (j = i1) → refl }
+  sec-∂Cube2 : (p : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
+    → (i j : I) → PartialP (i ∨ ~ i ∨ j ∨ ~ j) (λ o → from∂Cube2 (to∂Cube2 p) i j o ≡ p i j o)
+  sec-∂Cube2 p i j = λ { (i = i0) → refl ; (i = i1) → refl ; (j = i0) → refl ; (j = i1) → refl }
 
 
 {-
@@ -195,7 +189,7 @@ Their proofs are put in `Cubical.Foundations.Cubes.HLevels`.
 -}
 
 
--- Some special cases
+-- The macro to fill cubes under h-level assumptions
 
 fillCubeSuc :
   (n : ℕᵉ) (h : isOfHLevel (ℕᵉ→ℕ (suc n)) A)
@@ -212,23 +206,25 @@ macro
     (def (quote fillCubeSuc) (add2Impl (ℕ→ℕᵉTerm n v∷ [])))
 
 
-fill1Cube :
+-- Some special cases
+
+fillCube1 :
   (h : isOfHLevel 1 A)
   (u : (i : I) → Partial (i ∨ ~ i) A)
   (i : I) → A [ _ ↦ u i ]
-fill1Cube h u = fillCube 1 h u
+fillCube1 h u = fillCube 1 h u
 
-fill2Cube :
+fillCube2 :
   (h : isOfHLevel 2 A)
   (u : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
   (i j : I) → A [ _ ↦ u i j ]
-fill2Cube h u = fillCube 2 h u
+fillCube2 h u = fillCube 2 h u
 
-fill3Cube :
+fillCube3 :
   (h : isOfHLevel 3 A)
   (u : (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A)
   (i j k : I) → A [ _ ↦ u i j k ]
-fill3Cube h u = fillCube 3 h u
+fillCube3 h u = fillCube 3 h u
 
 fill4Cube :
   (h : isOfHLevel 4 A)
