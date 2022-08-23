@@ -11,6 +11,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Cubes.Base public
 open import Cubical.Foundations.Cubes.HLevels
 open import Cubical.Foundations.Cubes.External
+open import Cubical.Foundations.Cubes.Macros
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma.Properties
@@ -44,41 +45,7 @@ to avoid cyclic dependence.
 -}
 
 
--- The macro to transform between external and internal cubes
-
-private
-  add2Impl : List (Arg Term) →  List (Arg Term)
-  add2Impl t =
-    harg {quantity-ω} unknown ∷
-    harg {quantity-ω} unknown ∷ t
-
-macro
-
-  fromCube : (n : ℕ) → Term → Term → TC Unit
-  fromCube 0 p t = unify p t
-  fromCube (suc n) p t = unify t
-    (def (quote Cube→ΠCubeᵉ) (add2Impl (ℕ→ℕᵉTerm (suc n) v∷ p v∷ [])))
-
-  toCube : (n : ℕ) → Term → Term → TC Unit
-  toCube 0 p t = unify p t
-  toCube (suc n) p t = unify t
-    (def (quote ΠCubeᵉ→Cube) (add2Impl (ℕ→ℕᵉTerm (suc n) v∷ p v∷ [])))
-
-  from∂Cube : (n : ℕ) → Term → TC Unit
-  from∂Cube 0 t = typeError
-    (strErr "Only work for n>0." ∷ [])
-  from∂Cube (suc n) t = unify t
-    (def (quote ∂Cube→∂ΠCubeᵉ) (add2Impl (ℕ→ℕᵉTerm (suc n) v∷ [])))
-
-  to∂Cube : (n : ℕ) → Term → TC Unit
-  to∂Cube 0 t = typeError
-    (strErr "Only work for n>0." ∷ [])
-  to∂Cube (suc n) t = unify t
-    (def (quote ∂ΠCubeᵉ→∂Cube) (add2Impl (ℕ→ℕᵉTerm (suc n) v∷ [])))
-
-
 {- Lower Cubes Back and Forth -}
-
 
 fromCube0 : Cube 0 A → A
 fromCube0 p = fromCube 0 p
@@ -165,46 +132,25 @@ private
 
 -}
 
-
 {-
 
--- The property that, given an n-boundary, there always exists an n-cube extending this boundary
--- The case n=0 is not very meaningful, so we use `isContr` instead to keep its relation with h-levels.
--- It generalizes `isSet'` and `isGroupoid'`.
+The property that, given an n-boundary, there always exists an n-cube extending this boundary:
 
 isCubeFilled : ℕ → Type ℓ → Type ℓ
 isCubeFilled 0 = isContr
 isCubeFilled (suc n) A = (∂ : ∂Cube (suc n) A) → CubeRel (suc n) A ∂
 
+The case n=0 is not very meaningful, so we use `isContr` instead to keep its relation with h-levels.
+It generalizes `isSet'` and `isGroupoid'`.
 
--- We have the following logical equivalences between h-levels and cube-filling
+We have the following logical equivalences between h-levels and cube-filling
 
 isOfHLevel→isCubeFilled : (n : HLevel) → isOfHLevel n A → isCubeFilled n A
-
 isCubeFilled→isOfHLevel : (n : HLevel) → isCubeFilled n A → isOfHLevel n A
-
 
 Their proofs are put in `Cubical.Foundations.Cubes.HLevels`.
 
 -}
-
-
--- The macro to fill cubes under h-level assumptions
-
-fillCubeSuc :
-  (n : ℕᵉ) (h : isOfHLevel (ℕᵉ→ℕ (suc n)) A)
-  (u : ∂ΠCubeᵉ (suc n) A) → _
-fillCubeSuc n h u =
-  let ∂ = ∂ΠCubeᵉ→∂Cube (suc n) u in
-  CubeRel→ΠCubeRelᵉ (suc n) ∂ (isOfHLevel→isCubeFilled (ℕᵉ→ℕ (suc n)) h ∂)
-
-macro
-  fillCube : (n : ℕ) → Term → TC Unit
-  fillCube 0 t = typeError
-    (strErr "Only work for n>0." ∷ [])
-  fillCube (suc n) t = unify t
-    (def (quote fillCubeSuc) (add2Impl (ℕ→ℕᵉTerm n v∷ [])))
-
 
 -- Some special cases
 
