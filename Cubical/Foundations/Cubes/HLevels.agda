@@ -44,9 +44,9 @@ isCubeFilled (suc n) A = (∂ : ∂Cube (suc n) A) → CubeRel (suc n) A ∂
 isCubeFilledPath : ℕ → Type ℓ → Type ℓ
 isCubeFilledPath n A = (x y : A) → isCubeFilled n (x ≡ y)
 
-isCubeFilledPath≡isCubeFilledSuc : (n : ℕ) (A : Type ℓ)
+isCubeFilledPath≡Suc : (n : ℕ) (A : Type ℓ)
   → isCubeFilledPath (suc n) A ≡ isCubeFilled (suc (suc n)) A
-isCubeFilledPath≡isCubeFilledSuc n A =
+isCubeFilledPath≡Suc n A =
     (λ i → (x y : A)(∂ : ∂Cube₀₁≡∂CubePath {n = suc n} {a₀ = x} {y} (~ i))
         → CubeRel₀₁≡CubeRelPath (~ i) ∂)
   ∙ (λ i → (x : A) → isoToPath (curryIso {A = A}
@@ -54,28 +54,28 @@ isCubeFilledPath≡isCubeFilledSuc n A =
   ∙ sym (isoToPath curryIso)
   ∙ (λ i → (∂ : ∂CubeConst₀₁≡∂Cube {n = suc n} {A} i) → CubeRelConst₀₁≡CubeRel₀₁ {n = suc n} i ∂)
 
-isCubeFilledPath→isCubeFilledSuc : (n : ℕ) (A : Type ℓ)
+isCubeFilledPath→Suc : (n : ℕ) (A : Type ℓ)
   → isCubeFilledPath n A → isCubeFilled (suc n) A
-isCubeFilledPath→isCubeFilledSuc 0 A h (x , y) = h x y .fst
-isCubeFilledPath→isCubeFilledSuc (suc n) A = transport (isCubeFilledPath≡isCubeFilledSuc n A)
+isCubeFilledPath→Suc 0 A h (x , y) = h x y .fst
+isCubeFilledPath→Suc (suc n) A = transport (isCubeFilledPath≡Suc n A)
 
-isCubeFilledSuc→isCubeFilledPath : (n : ℕ) (A : Type ℓ)
+isCubeFilledSuc→Path : (n : ℕ) (A : Type ℓ)
   → isCubeFilled (suc n) A → isCubeFilledPath n A
-isCubeFilledSuc→isCubeFilledPath 0 A h = isProp→isContrPath (λ x y → h (x , y))
-isCubeFilledSuc→isCubeFilledPath (suc n) A = transport (sym (isCubeFilledPath≡isCubeFilledSuc n A))
+isCubeFilledSuc→Path 0 A h = isProp→isContrPath (λ x y → h (x , y))
+isCubeFilledSuc→Path (suc n) A = transport (sym (isCubeFilledPath≡Suc n A))
 
 
 -- The characterization of h-levels by cube-filling
 
 isOfHLevel→isCubeFilled : (n : HLevel) → isOfHLevel n A → isCubeFilled n A
 isOfHLevel→isCubeFilled 0 h = h
-isOfHLevel→isCubeFilled (suc n) h = isCubeFilledPath→isCubeFilledSuc _ _
+isOfHLevel→isCubeFilled (suc n) h = isCubeFilledPath→Suc _ _
   (λ x y → isOfHLevel→isCubeFilled n (isOfHLevelPath' n h x y))
 
 isCubeFilled→isOfHLevel : (n : HLevel) → isCubeFilled n A → isOfHLevel n A
 isCubeFilled→isOfHLevel 0 h = h
 isCubeFilled→isOfHLevel (suc n) h = isOfHLevelPath'⁻ _
-  (λ x y → isCubeFilled→isOfHLevel _ (isCubeFilledSuc→isCubeFilledPath _ _ h x y))
+  (λ x y → isCubeFilled→isOfHLevel _ (isCubeFilledSuc→Path _ _ h x y))
 
 
 {-
@@ -98,21 +98,22 @@ isCubeFilledDepConst : (n : ℕ) (B : A → Type ℓ') (a : A) → Type ℓ'
 isCubeFilledDepConst 0 B a = isContr (B a)
 isCubeFilledDepConst (suc n) B a = (∂ : ∂CubeDepConst (suc n) B a) → CubeDepConstRel ∂
 
-isCubeFilledDepConst≡isCubeFilledFiber : (n : ℕ) (B : A → Type ℓ') (a : A)
+
+isCubeFilledDepConst≡Fiber : (n : ℕ) (B : A → Type ℓ') (a : A)
   → isCubeFilledDepConst n B a ≡ isCubeFilled n (B a)
-isCubeFilledDepConst≡isCubeFilledFiber 0 B a = refl
-isCubeFilledDepConst≡isCubeFilledFiber (suc n) B a i =
+isCubeFilledDepConst≡Fiber 0 B a = refl
+isCubeFilledDepConst≡Fiber (suc n) B a i =
   (∂ : ∂CubeDepConst≡∂Cube (suc n) B a i) → (CubeDepConstRel≡CubeRel (suc n) B a i ∂)
 
-isCubeFilledDepConst→isCubeFilledFiber : (n : ℕ) (B : A → Type ℓ') (a : A)
+isCubeFilledDepConst→Fiber : (n : ℕ) (B : A → Type ℓ') (a : A)
   → isCubeFilledDepConst n B a → isCubeFilled n (B a)
-isCubeFilledDepConst→isCubeFilledFiber _ _ _ =
-  transport (isCubeFilledDepConst≡isCubeFilledFiber _ _ _)
+isCubeFilledDepConst→Fiber _ _ _ =
+  transport (isCubeFilledDepConst≡Fiber _ _ _)
 
-isCubeFilledFiber→isCubeFilledDepConst : (n : ℕ) (B : A → Type ℓ') (a : A)
+isCubeFilledFiber→DepConst : (n : ℕ) (B : A → Type ℓ') (a : A)
   → isCubeFilled n (B a) → isCubeFilledDepConst n B a
-isCubeFilledFiber→isCubeFilledDepConst _ _ _ =
-  transport (sym (isCubeFilledDepConst≡isCubeFilledFiber _ _ _))
+isCubeFilledFiber→DepConst _ _ _ =
+  transport (sym (isCubeFilledDepConst≡Fiber _ _ _))
 
 
 -- The dependent cube-filling characterization of dependent h-levels
@@ -126,10 +127,10 @@ isOfHLevelDep→isCubeFilledDep {A = A} (suc n) {B} h =
   q = {!!}
 
   d : (a : A) → (∂ : ∂CubeDepConst (suc n) B a) → CubeDepConstRel ∂
-  d a = isCubeFilledFiber→isCubeFilledDepConst (suc n) B a (isOfHLevel→isCubeFilled (suc n) (q a))
+  d a = isCubeFilledFiber→DepConst (suc n) B a (isOfHLevel→isCubeFilled (suc n) (q a))
 
 isCubeFilledDep→isOfHLevelDep : (n : HLevel) {B : A → Type ℓ'} → isCubeFilledDep n B → isOfHLevelDep n B
 isCubeFilledDep→isOfHLevelDep 0 {B} h = h
 isCubeFilledDep→isOfHLevelDep {A = A} (suc n) {B} h =
   isOfHLevel→isOfHLevelDep (suc n) (λ a →
-    isCubeFilled→isOfHLevel (suc n) (isCubeFilledDepConst→isCubeFilledFiber (suc n) B a h))
+    isCubeFilled→isOfHLevel (suc n) (isCubeFilledDepConst→Fiber (suc n) B a h))

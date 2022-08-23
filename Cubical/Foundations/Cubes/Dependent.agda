@@ -8,8 +8,6 @@ This file contains:
 
 - Dependent cubes over a constant cube is equivalent to the (non-dependent) cubes in the fiber.
 
-- The dependent version of cube-filling-is-equal-to-hlevels.
-
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Cubes.Dependent where
@@ -54,7 +52,6 @@ interleaved mutual
   CubeDepRel {n = 1} {B = B} a₋ (b₀ , b₁) = PathP (λ i → B (a₋ .snd i)) b₀ b₁ --∂ .fst ≡ ∂ .snd
   CubeDepRel {n = suc (suc n)} a₋ (b₀ , b₁ , ∂₋) =
     PathP (λ i → CubeDepRel {n = suc n} (_ , a₋ .snd i) (∂₋ i)) (b₀ .snd) (b₁ .snd)
-
 
 
 -- Cubes over constant cube
