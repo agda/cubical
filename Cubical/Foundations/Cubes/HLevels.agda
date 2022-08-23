@@ -70,7 +70,7 @@ isCubeFilledSuc→Path (suc n) A = transport (sym (isCubeFilledPath≡Suc n A))
 isOfHLevel→isCubeFilled : (n : HLevel) → isOfHLevel n A → isCubeFilled n A
 isOfHLevel→isCubeFilled 0 h = h
 isOfHLevel→isCubeFilled (suc n) h = isCubeFilledPath→Suc _ _
-  (λ x y → isOfHLevel→isCubeFilled n (isOfHLevelPath' n h x y))
+  (λ x y → isOfHLevel→isCubeFilled _ (isOfHLevelPath' _ h x y))
 
 isCubeFilled→isOfHLevel : (n : HLevel) → isCubeFilled n A → isOfHLevel n A
 isCubeFilled→isOfHLevel 0 h = h
@@ -123,14 +123,12 @@ isOfHLevelDep→isCubeFilledDep 0 {B} h = h
 isOfHLevelDep→isCubeFilledDep {A = A} (suc n) {B} h =
   JCube (λ a₋ → (∂b : ∂CubeDep B (∂ a₋)) → CubeDepRel {n = suc n} a₋ ∂b) d _
   where
-  q : (a : A) → isOfHLevel (suc n) (B a)
-  q = {!!}
-
-  d : (a : A) → (∂ : ∂CubeDepConst (suc n) B a) → CubeDepConstRel ∂
-  d a = isCubeFilledFiber→DepConst (suc n) B a (isOfHLevel→isCubeFilled (suc n) (q a))
+  d : _
+  d a = isCubeFilledFiber→DepConst _ B a
+    (isOfHLevel→isCubeFilled _ (isOfHLevelDep→isOfHLevel _ h a))
 
 isCubeFilledDep→isOfHLevelDep : (n : HLevel) {B : A → Type ℓ'} → isCubeFilledDep n B → isOfHLevelDep n B
 isCubeFilledDep→isOfHLevelDep 0 {B} h = h
 isCubeFilledDep→isOfHLevelDep {A = A} (suc n) {B} h =
-  isOfHLevel→isOfHLevelDep (suc n) (λ a →
-    isCubeFilled→isOfHLevel (suc n) (isCubeFilledDepConst→Fiber (suc n) B a h))
+  isOfHLevel→isOfHLevelDep _ (λ a →
+    isCubeFilled→isOfHLevel _ (isCubeFilledDepConst→Fiber _ B a h))
