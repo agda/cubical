@@ -4,7 +4,7 @@ Basic theory about h-levels/n-types:
 
 - Basic properties of isContr, isProp and isSet (definitions are in Prelude)
 
-- Hedberg's theorem can be found in Cubical/Relation/Nullary/DecidableEq
+- Hedberg's theorem can be found in Cubical/Relation/Nullary/Properties
 
 -}
 {-# OPTIONS --safe #-}
@@ -15,6 +15,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
@@ -36,6 +37,7 @@ private
     D : (x : A) (y : B x) → C x y → Type ℓ
     E : (x : A) (y : B x) → (z : C x y) → D x y z → Type ℓ
     F : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) → Type ℓ
+    G : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) (u : F x y z w v) → Type ℓ
     w x y z : A
     n : HLevel
 
@@ -433,8 +435,12 @@ isPropΠ4 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) → isProp (E x y z
 isPropΠ4 h = isPropΠ λ _ → isPropΠ3 (h _)
 
 isPropΠ5 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) → isProp (F x y z w v))
-            → isProp ((x : A) (y : B x) (z : C x y) (w : D x y z)  (v : E x y z w) → F x y z w v)
+            → isProp ((x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) → F x y z w v)
 isPropΠ5 h = isPropΠ λ _ → isPropΠ4 (h _)
+
+isPropΠ6 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) (u : F x y z w v) → isProp (G x y z w v u))
+            → isProp ((x : A) (y : B x) (z : C x y) (w : D x y z) (v : E x y z w) (u : F x y z w v) → G x y z w v u)
+isPropΠ6 h = isPropΠ λ _ → isPropΠ5 (h _)
 
 isPropImplicitΠ : (h : (x : A) → isProp (B x)) → isProp ({x : A} → B x)
 isPropImplicitΠ h f g i {x} = h x (f {x}) (g {x}) i
@@ -485,6 +491,12 @@ isOfHLevelΠ⁻ 0 h x = fst h x , λ y → funExt⁻ (snd h (const y)) x
 isOfHLevelΠ⁻ 1 h x y z = funExt⁻ (h (const y) (const z)) x
 isOfHLevelΠ⁻ (suc (suc n)) h x y z =
   isOfHLevelΠ⁻ (suc n) (isOfHLevelRetractFromIso (suc n) funExtIso (h _ _)) x
+
+isOfHLevel→∙ : {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+  → isOfHLevel n (fst B) → isOfHLevel n (A →∙ B)
+isOfHLevel→∙ n hlev =
+  isOfHLevelΣ n (isOfHLevelΠ n (λ _ → hlev))
+    λ _ → isOfHLevelPath n hlev _ _
 
 -- h-level of A ≃ B and A ≡ B
 

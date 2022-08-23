@@ -30,6 +30,7 @@ infixr 30 _∙₂_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
+infixl 4 _≡$_ _≡$S_
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
@@ -64,6 +65,13 @@ cong : (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
 cong f p i = f (p i)
 {-# INLINE cong #-}
+
+{- `S` stands for simply typed. Using `congS` instead of `cong`
+   can help Agda to solve metavariables that may otherwise remain unsolved.
+-}
+congS : ∀ {B : Type ℓ} → (f : A → B) (p : x ≡ y) → f x ≡ f y
+congS f p i = f (p i)
+{-# INLINE congS #-}
 
 congP : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
   (f : (i : I) → (a : A i) → B i a) {x : A i0} {y : A i1}
@@ -301,6 +309,19 @@ funExt⁻ : {B : A → I → Type ℓ'}
   → ((x : A) → PathP (B x) (f x) (g x))
 funExt⁻ eq x i = eq i x
 
+_≡$_ = funExt⁻
+
+{- `S` stands for simply typed. Using `funExtS⁻` instead of `funExt⁻`
+   can help Agda to solve metavariables that may otherwise remain unsolved.
+-}
+funExtS⁻ : {B : I → Type ℓ'}
+  {f : (x : A) → B i0} {g : (x : A) → B i1}
+  → PathP (λ i → (x : A) → B i) f g
+  → ((x : A) → PathP (λ i → B i) (f x) (g x))
+funExtS⁻ eq x i = eq i x
+
+_≡$S_ = funExtS⁻
+
 -- J for paths and its computation rule
 
 module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
@@ -321,15 +342,15 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
 -- Multi-variable versions of J
 
 module _ {x : A}
-  {P : (y : A) → x ≡ y → Type ℓ'}{d : (y : A)(p : x ≡ y) → P y p}
-  (Q : (y : A)(p : x ≡ y)(z : P y p) → d y p ≡ z → Type ℓ'')
+  {P : (y : A) → x ≡ y → Type ℓ'} {d : (y : A) (p : x ≡ y) → P y p}
+  (Q : (y : A) (p : x ≡ y) (z : P y p) → d y p ≡ z → Type ℓ'')
   (r : Q _ refl _ refl) where
 
   private
     ΠQ : (y : A) → x ≡ y → _
     ΠQ y p = ∀ z q → Q y p z q
 
-  J2 : {y : A}(p : x ≡ y){z : P y p}(q : d y p ≡ z) → Q _ p _ q
+  J2 : {y : A} (p : x ≡ y) {z : P y p} (q : d y p ≡ z) → Q _ p _ q
   J2 p = J ΠQ (λ _ → J (Q x refl) r) p _
 
   J2Refl : J2 refl refl ≡ r
