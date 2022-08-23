@@ -40,6 +40,12 @@ rec2 Pprop f ∣ x ∣₁ ∣ y ∣₁ = f x y
 rec2 Pprop f ∣ x ∣₁ (squash₁ y z i) = Pprop (rec2 Pprop f ∣ x ∣₁ y) (rec2 Pprop f ∣ x ∣₁ z) i
 rec2 Pprop f (squash₁ x y i) z = Pprop (rec2 Pprop f x z) (rec2 Pprop f y z) i
 
+rec3 : {P : Type ℓ} → isProp P → (A → B → C → P) → ∥ A ∥₁ → ∥ B ∥₁ → ∥ C ∥₁ → P
+rec3 Pprop f ∣ x ∣₁ ∣ y ∣₁ ∣ z ∣₁ = f x y z
+rec3 Pprop f ∣ x ∣₁ ∣ y ∣₁ (squash₁ z w i) = Pprop (rec3 Pprop f ∣ x ∣₁ ∣ y ∣₁ z) (rec3 Pprop f ∣ x ∣₁ ∣ y ∣₁ w) i
+rec3 Pprop f ∣ x ∣₁ (squash₁ y z i) w = Pprop (rec3 Pprop f ∣ x ∣₁ y w) (rec3 Pprop f ∣ x ∣₁ z w) i
+rec3 Pprop f (squash₁ x y i) z w = Pprop (rec3 Pprop f x z w) (rec3 Pprop f y z w) i
+
 -- Old version
 -- rec2 : ∀ {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
 -- rec2 Pprop f = rec (isProp→ Pprop) (λ a → rec Pprop (f a))

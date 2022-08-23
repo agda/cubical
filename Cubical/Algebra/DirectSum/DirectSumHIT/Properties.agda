@@ -71,14 +71,19 @@ module SubstLemma
 
   open AbGroupStr
 
-  subst0g : {l k : Idx} → (p : l ≡ k) → subst G p (0g (Gstr l)) ≡ 0g (Gstr k)
-  subst0g {l} {k} p = J (λ k p → subst G p (0g (Gstr l)) ≡ 0g (Gstr k)) (transportRefl _) p
+  substG : {k l : Idx} → (x : k ≡ l) → (a : G k) → G l
+  substG x a = subst G x a
 
-  subst+ : {l : Idx} → (a b : G l) → {k : Idx} →  (p : l ≡ k) →
-           Gstr k ._+_ (subst G p a) (subst G p b) ≡ subst G p (Gstr l ._+_ a b)
-  subst+ {l} a b {k} p = J (λ k p → Gstr k ._+_ (subst G p a) (subst G p b) ≡ subst G p (Gstr l ._+_ a b))
-                         (cong₂ (Gstr l ._+_) (transportRefl _) (transportRefl _) ∙ sym (transportRefl _))
+  substG0 : {k l : Idx} → (p : k ≡ l) → subst G p (0g (Gstr k)) ≡ 0g (Gstr l)
+  substG0 {k} {l} p = J (λ l p → subst G p (0g (Gstr k)) ≡ 0g (Gstr l)) (transportRefl _) p
+
+  substG+ : {k : Idx} → (a b : G k) → {l : Idx} →  (p : k ≡ l) →
+           Gstr l ._+_ (subst G p a) (subst G p b) ≡ subst G p (Gstr k ._+_ a b)
+  substG+ {k} a b {l} p = J (λ l p → Gstr l ._+_ (subst G p a) (subst G p b) ≡ subst G p (Gstr k ._+_ a b))
+                         (cong₂ (Gstr k ._+_) (transportRefl _) (transportRefl _) ∙ sym (transportRefl _))
                          p
+
+
 
 module DecIndec-BaseProperties
   (Idx  : Type ℓ)
@@ -108,12 +113,12 @@ module DecIndec-BaseProperties
 
      base-neutral-eq : _
      base-neutral-eq l with decIdx l k
-     ... | yes p = subst0g p
+     ... | yes p = substG0 p
      ... | no ¬p = refl
 
      base-add-eq : _
      base-add-eq l a b with decIdx l k
-     ... | yes p = subst+ a b p
+     ... | yes p = substG+ a b p
      ... | no ¬p = +IdR (Gstr k) _
 
   πₖ-id : {k : Idx} → (a : G k) → πₖ k (base k a) ≡ a
