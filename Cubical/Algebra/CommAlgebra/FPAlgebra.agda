@@ -45,7 +45,7 @@ open import Cubical.Algebra.Algebra
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 module _ {R : CommRing ℓ} where
   open Construction using (var)
@@ -249,14 +249,14 @@ module _ {R : CommRing ℓ} where
                        (isSetAlgebraHom (CommAlgebra→Algebra FPAlgebra) (CommAlgebra→Algebra A))
                        (homMapPathFP A)
 
-  record FinitePresentation (A : CommAlgebra R ℓ) : Type ℓ where
+  record FinitePresentation (A : CommAlgebra R ℓ') : Type (ℓ-max ℓ ℓ') where
     field
       n : ℕ
       m : ℕ
       relations : FinVec ⟨ Polynomials n ⟩ m
       equiv : CommAlgebraEquiv (FPAlgebra n relations) A
 
-  isFPAlgebra : (A : CommAlgebra R ℓ) → Type _
+  isFPAlgebra : (A : CommAlgebra R ℓ') → Type _
   isFPAlgebra A = ∥ FinitePresentation A ∥₁
 
   isFPAlgebraIsProp : {A : CommAlgebra R ℓ} → isProp (isFPAlgebra A)

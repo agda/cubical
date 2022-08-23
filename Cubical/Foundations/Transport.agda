@@ -30,6 +30,10 @@ transport⁻ p = transport (λ i → p (~ i))
 subst⁻ : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y) → B y → B x
 subst⁻ B p pa = transport⁻ (λ i → B (p i)) pa
 
+subst⁻-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y) (b : B y)
+  → PathP (λ i → B (p (~ i))) b (subst⁻ B p b)
+subst⁻-filler B p = subst-filler B (sym p)
+
 transport-fillerExt : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B)
                     → PathP (λ i → A → p i) (λ x → x) (transport p)
 transport-fillerExt p i x = transport-filler p x i
@@ -58,6 +62,14 @@ transport⁻Transport p a j = transport⁻-fillerExt p (~ j) (transport-fillerEx
 transportTransport⁻ : ∀ {ℓ} {A B : Type ℓ} → (p : A ≡ B) → (b : B) →
                         transport p (transport⁻ p b) ≡ b
 transportTransport⁻ p b j = transport-fillerExt⁻ p j (transport⁻-fillerExt⁻ p j b)
+
+subst⁻Subst : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y)
+              → (u : B x) → subst⁻ B p (subst B p u) ≡ u
+subst⁻Subst {x = x} {y = y} B p u = transport⁻Transport {A = B x} {B = B y} (cong B p) u
+
+substSubst⁻ : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y)
+              → (v : B y) → subst B p (subst⁻ B p v) ≡ v
+substSubst⁻ {x = x} {y = y} B p v = transportTransport⁻ {A = B x} {B = B y} (cong B p) v
 
 substEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {a a' : A} (P : A → Type ℓ') (p : a ≡ a') → P a ≃ P a'
 substEquiv P p = (subst P p , isEquivTransport (λ i → P (p i)))

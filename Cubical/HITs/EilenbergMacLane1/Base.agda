@@ -59,3 +59,11 @@ module _ (Group@(G , str) : Group ℓ) where
     ∙∙ assoc∙ _ _ _
     ∙∙ cong (_∙ sym (emloop g)) (sym (emloop-comp (inv g) g) ∙∙ cong emloop (·InvL g) ∙∙ emloop-1g)
     ∙∙ sym (lUnit _)
+
+  data EM₁-raw : Type ℓ where
+    embase-raw : EM₁-raw
+    emloop-raw : (g : G) → embase-raw ≡ embase-raw
+
+  EM₁-raw→EM₁ : EM₁-raw → EM₁
+  EM₁-raw→EM₁ embase-raw = embase
+  EM₁-raw→EM₁ (emloop-raw g i) = emloop g i

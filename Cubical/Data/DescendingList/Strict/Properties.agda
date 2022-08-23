@@ -17,7 +17,6 @@ open import Cubical.Data.DescendingList.Strict A _>_
 open import Cubical.HITs.ListedFiniteSet as LFSet renaming (_∈_ to _∈ʰ_)
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Relation.Nullary.DecidableEq
 
 open import Cubical.Relation.Nullary using (Dec; Discrete) renaming (¬_ to Type¬_)
 
