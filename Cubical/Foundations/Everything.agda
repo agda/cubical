@@ -55,3 +55,4 @@ open import Cubical.Foundations.Cubes
 open import Cubical.Foundations.Cubes.Subtypes
 open import Cubical.Foundations.Cubes.External
 open import Cubical.Foundations.Cubes.Macros
+open import Cubical.Foundations.2LTT
