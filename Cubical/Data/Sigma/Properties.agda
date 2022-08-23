@@ -230,7 +230,7 @@ leftInv (Σ-cong-iso-fst {A = A} {B = B} isom) (x , y) = ΣPathP (leftInv isom x
       coh i j = fill (λ k → B (α≡ρ i (~ k))) (λ k → (λ
         { (i = i0) → ctrP (~ k)
         ; (i = i1) → σ (~ k)
-        })) (inS b) (~ j)
+        })) b (~ j)
 
 Σ-cong-fst : (p : A ≡ A') → Σ A (B ∘ transport p) ≡ Σ A' B
 Σ-cong-fst {B = B} p i = Σ (p i) (B ∘ transp (λ j → p (i ∨ j)) i)

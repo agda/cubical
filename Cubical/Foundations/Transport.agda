@@ -19,10 +19,10 @@ open import Cubical.Foundations.Function using (_∘_)
 transpFill : ∀ {ℓ} {A : Type ℓ}
              (φ : I)
              (A : (i : I) → Type ℓ [ φ ↦ (λ _ → A) ])
-             (u0 : outS (A i0))
+             (u0 : outS (A i0)) -- TODO: Sorts
            → --------------------------------------
-             PathP (λ i → outS (A i)) u0 (transp (λ i → outS (A i)) φ u0)
-transpFill φ A u0 i = transp (λ j → outS (A (i ∧ j))) (~ i ∨ φ) u0
+             PathP (λ i → A i) u0 (transp (λ i → A i) φ u0)
+transpFill φ A u0 i = transp (λ j → A (i ∧ j)) (~ i ∨ φ) u0
 
 transport⁻ : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → B → A
 transport⁻ p = transport (λ i → p (~ i))

@@ -9,16 +9,13 @@ module Cubical.Core.Primitives where
 
 open import Agda.Builtin.Cubical.Path public
 open import Agda.Builtin.Cubical.Sub public
-  renaming ( inc to inS
-           ; primSubOut to outS
-           )
+  renaming ( primSubOut to outS )
 open import Agda.Primitive.Cubical public
   renaming ( primIMin       to _∧_  -- I → I → I
            ; primIMax       to _∨_  -- I → I → I
            ; primINeg       to ~_   -- I → I
            ; isOneEmpty     to empty
            ; primComp       to comp
-           ; primHComp      to hcomp
            ; primTransp     to transp
            ; itIsOne        to 1=1 )
 
@@ -38,6 +35,9 @@ open import Agda.Primitive public
            ; Set   to Type
            ; Setω  to Typeω )
 open import Agda.Builtin.Sigma public
+
+hcomp : ∀ {ℓ} {A : Type ℓ} {φ} (u : I → Partial φ A) (u0 : Sub A φ (u i0)) → Sub A φ (u i1)
+hcomp u u0 = primHComp u u0
 
 -- This file document the Cubical Agda primitives. The primitives
 -- themselves are bound by the Agda files imported above.
@@ -174,8 +174,8 @@ hfill : {A : Type ℓ}
         (i : I) → A
 hfill {φ = φ} u u0 i =
   hcomp (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
-                 ; (i = i0) → outS u0 })
-        (outS u0)
+                 ; (i = i0) → u0 })
+        (outS u0) -- want ext at φ∨i, have ext at φ, can't coerce
 
 -- Heterogeneous composition can defined as in CHM, however we use the
 -- builtin one as it doesn't require u0 to be a cubical subtype. This
@@ -200,8 +200,8 @@ fill : (A : ∀ i → Type (ℓ' i))
 fill A {φ = φ} u u0 i =
   comp (λ j → A (i ∧ j))
        (λ j → λ { (φ = i1) → u (i ∧ j) 1=1
-                ; (i = i0) → outS u0 })
-       (outS u0)
+                ; (i = i0) → u0 })
+       u0
 
 -- Σ-types
 infix 2 Σ-syntax

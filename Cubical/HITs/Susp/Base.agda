@@ -70,7 +70,7 @@ S¹→SuspBool→S¹ : (x : S¹) → SuspBool→S¹ (S¹→SuspBool x) ≡ x
 S¹→SuspBool→S¹ base       = refl
 S¹→SuspBool→S¹ (loop i) j = hfill (λ k → λ { (i = i0) → base
                                            ; (i = i1) → base })
-                                  (inS (loop i)) (~ j)
+                                  (loop i) (~ j)
 
 S¹IsoSuspBool : Iso S¹ SuspBool
 fun S¹IsoSuspBool      = S¹→SuspBool
@@ -100,7 +100,7 @@ meridian-contraction i j l = hfill (λ k → λ { (i = i0) → north
                                             ; (i = i1) → merid base (~ k)
                                             ; (j = i0) → merid base (~ k ∧ i)
                                             ; (j = i1) → merid base (~ k ∧ i) })
-                                   (inS (merid (loop j) i)) l
+                                   (merid (loop j) i) l
 
 S²→SuspS¹ : S² → SuspS¹
 S²→SuspS¹ base = north
@@ -146,7 +146,7 @@ meridian-contraction-2 i j k l = hfill (λ m → λ { (i = i0) → north
                                                 ; (j = i1) → merid base (~ m ∧ i)
                                                 ; (k = i0) → merid base (~ m ∧ i)
                                                 ; (k = i1) → merid base (~ m ∧ i) })
-                                       (inS (merid (surf j k) i)) l
+                                       (merid (surf j k) i) l
 
 S³→SuspS² : S³ → SuspS²
 S³→SuspS² base = north

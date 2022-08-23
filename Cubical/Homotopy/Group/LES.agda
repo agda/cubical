@@ -47,7 +47,7 @@ module _ {ℓ : Level} {A : Type ℓ} {x y : A} (p : x ≡ x) (q : x ≡ y) wher
                  ; (i = i1) → y
                  ; (j = i0) → q (i ∨ k)
                  ; (j = i1) → q (i ∨ k)})
-        (inS (PP j i))
+        (PP j i)
         k
 
   ←∙∙lCancel-fill : sym q ∙∙ p ∙∙ q ≡ refl → I → I → I → A
@@ -56,7 +56,7 @@ module _ {ℓ : Level} {A : Type ℓ} {x y : A} (p : x ≡ x) (q : x ≡ y) wher
                    ; (i = i1) → q (j ∨ ~ k)
                    ; (j = i0) → doubleCompPath-filler (sym q) p q (~ k) i
                    ; (j = i1) → y})
-          (inS (PP j i))
+          (PP j i)
           k
 
   →∙∙lCancel : PathP (λ i → p i ≡ y) q q → sym q ∙∙ p ∙∙ q ≡ refl

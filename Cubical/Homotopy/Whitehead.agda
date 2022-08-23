@@ -177,7 +177,7 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
                     ; (j = i0) → push tt (i ∨ ~ k)
                     ; (j = i1) → compPath-filler' (push tt)
                                                   (λ i → inr (merid b₀ i)) k i})
-                        (inr (compPath-filler (merid a)
+                        (Pushout.inr (compPath-filler (merid a)
                                               (sym (merid b₀)) (~ i) j))
 
   rightInv Iso-A0□-⋁ (push a i) j = push tt (i ∧ j)
@@ -234,7 +234,7 @@ module _ (A B : Type) (a₀ : A) (b₀ : B) where
                                    (push (idfun B a)) k j
                     ; (j = i0) → inl (merid a₀ (~ i ∧ k))
                     ; (j = i1) → push a (i ∧ k)})
-          (inl (merid a₀ j))
+          (Pushout.inl (merid a₀ j))
 
   Iso-A□2-Susp× : Iso (A□2 whitehead3x3) (Susp A × B)
   fun Iso-A□2-Susp× (inl x) = north , x

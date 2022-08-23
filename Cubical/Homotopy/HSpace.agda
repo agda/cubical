@@ -186,7 +186,7 @@ module _ (A : Pointed ℓ) (X : Pointed ℓ') (hX : HSpace X) where
                    ; (i = i1) → pt X
                    ; (j = i0) → μXₗᵣ h i
                    ; (j = i1) → pt X })
-          (inS (μXₗ (pt X) (i ∨ j)))
+          (μXₗ (pt X) (i ∨ j))
 
         k0filler : I → I → I → typ X
         k0filler i j = hfill
@@ -194,7 +194,7 @@ module _ (A : Pointed ℓ) (X : Pointed ℓ') (hX : HSpace X) where
                    ; (i = i1) → pt X
                    ; (j = i0) → μXₗ (pt X) i
                    ; (j = i1) → pt X})
-          (inS (μXₗ (pt X) (i ∨ j)))
+          (μXₗ (pt X) (i ∨ j))
 
         k1filler : I → I → I → typ X
         k1filler i j = hfill
@@ -202,4 +202,4 @@ module _ (A : Pointed ℓ) (X : Pointed ℓ') (hX : HSpace X) where
                    ; (i = i1) → pt X
                    ; (j = i0) → μXᵣ (pt X) i
                    ; (j = i1) → pt X })
-          (inS (cntfiller i j i1))
+          (cntfiller i j i1)

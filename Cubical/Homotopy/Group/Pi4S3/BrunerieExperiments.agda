@@ -91,7 +91,7 @@ tee12 (surf i j) y =
       ; (j = i0) → base y
       ; (j = i1) → base (rotLoopInv y (~ i) k)
       })
-    (loop (unglue (i ∨ ~ i ∨ j ∨ ~ j) y) i j)
+    (PostTotalHopf.loop (unglue (i ∨ ~ i ∨ j ∨ ~ j) y) i j)
 
 tee34 : PostTotalHopf → join S¹ S¹
 tee34 (base x) = inl x

@@ -155,7 +155,7 @@ module _
           ; (i = i1) → square-helper (j ∨ ~ k) i1
           ; (j = i0) → square-helper (~ k) i
           ; (j = i1) → inl (unit x₀ xs i) })
-        (inS (push-square x₀ xs j i)) k
+        (push-square x₀ xs j i) k
         where
           square-helper : (i j : I) → 𝕁ames
           square-helper i j =

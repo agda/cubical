@@ -24,9 +24,7 @@ module Helpers where
   compPathD : {ℓ ℓ' : _} {X : Type ℓ} (F : X → Type ℓ') {A B C : X} (P : A ≡ B) (Q : B ≡ C)
               → ∀ {x y z} → (\ i → F (P i)) [ x ≡ y ] → (\ i → F (Q i)) [ y ≡ z ] → (\ i → F ((P ∙ Q) i)) [ x ≡ z ]
   compPathD F {A = A} P Q {x} p q i =
-     comp (\ j → F (hfill (λ j → \ { (i = i0) → A ; (i = i1) → Q j })
-                          (inS (P i))
-                          j))
+     comp (\ j → F (hfill (λ j → \ { (i = i0) → A ; (i = i1) → Q j }) (P i) j))
           (λ j → \ { (i = i0) → x; (i = i1) → q j })
           (p i)
 

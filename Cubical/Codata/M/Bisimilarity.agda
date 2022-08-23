@@ -65,7 +65,7 @@ module _ {X : Type₀} {C : IxCont X} where
   -- We predefine `u'` so that Agda will agree that `contr-T-fst` is productive.
   private
     module Tails x a φ (u : Partial φ (T {x} a)) y (p : C .snd x (hcomp (λ i .o → u o .snd .head≈ i) (a .head)) y) where
-      q = transp (\ i → C .snd x (hfill (\ i o → u o .snd .head≈ i) (inS (a .head)) (~ i)) y) i0 p
+      q = transp (\ i → C .snd x (hfill (\ i o → u o .snd .head≈ i) (a .head) (~ i)) y) i0 p
       a' = a .tails y q
       u' : Partial φ (T a')
       u' (φ = i1) = u 1=1 .fst .tails y p
@@ -82,7 +82,7 @@ module _ {X : Type₀} {C : IxCont X} where
   -- the main argument of transport, which is guardedness-preserving.
   {-# TERMINATING #-}
   contr-T-snd : ∀ x a φ → (u : Partial φ (T {x} a)) → a ≈ contr-T-fst x a φ u
-  contr-T-snd x a φ u .head≈ i = hfill (λ { i (φ = i1) → u 1=1 .snd .head≈ i }) (inS (a .head)) i
+  contr-T-snd x a φ u .head≈ i = hfill (λ { i (φ = i1) → u 1=1 .snd .head≈ i }) (a .head) i
   contr-T-snd x a φ u .tails≈ y pa pb peq =
     let r = contr-T-snd y (a .tails y pa) φ (\ { (φ = i1) → u 1=1 .fst .tails y pb , u 1=1 .snd .tails≈ y pa pb peq }) in
       transport (\ i → a .tails y pa
@@ -100,7 +100,7 @@ module _ {X : Type₀} {C : IxCont X} where
   contr-T-φ-fst x a u i .head = u 1=1 .fst .head
   contr-T-φ-fst x a u i .tails y p
    = let
-        q = (transp (\ i → C .snd x (hfill (\ i o → u o .snd .head≈ i) (inS (a .head)) (~ i)) y) i0 p)
+        q = (transp (\ i → C .snd x (hfill (\ i o → u o .snd .head≈ i) (a .head) (~ i)) y) i0 p)
       in contr-T-φ-fst y (a .tails y q)
                        (\ o → u o .fst .tails y p
                             , u o .snd .tails≈ y q p \ j → transp (\ i → C .snd x (u 1=1 .snd .head≈ (~ i ∨ j)) y) j p)
@@ -135,7 +135,7 @@ module _ {X : Type₀} {C : IxCont X} where
                         , u _ .snd .tails≈ y (transp (λ k → C .snd x (u _ .snd .head≈ (~ k ∧ l)) y) (~ l) (peq l)) pb
                                \ j → lemma (C .snd x (u 1=1 .fst .head) y) (λ h → C .snd x (eqh h) y) pa pb peq l j)
                    z)
-           (transpFill {A = F i0} i0 (\ i → inS (F i)) u0 l)
+           (transpFill {A = F i0} i0 (\ i → F i) u0 l)
            (u _ .snd .tails≈ y pa pb peq))
          r
          i

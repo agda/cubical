@@ -80,7 +80,7 @@ snd (Ω→ {A = A} {B = B} (f , p)) = ∙∙lCancel p
             (sym (snd f)) (cong (fst f) q) (snd f) k) j
        ; (j = i0) → snd f k
        ; (j = i1) → snd f k})
-    (inS (cong-∙ (fst f) p q i j))
+    (cong-∙ (fst f) p q i j)
     k
 
 Ω→pres∙ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B)
@@ -228,7 +228,7 @@ EH-filler {A = A} n α β i j z =
                                 ∙ cong (λ x → rUnit x (~ k)) α) j
                   ; (j = i0) → rUnit refl (~ k)
                   ; (j = i1) → rUnit refl (~ k)})
-        (inS (mainPath n α β i j)) z
+        (mainPath n α β i j) z
 
 {- Eckmann-Hilton -}
 EH : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ) → isComm∙ ((Ω^ (suc n)) A)
@@ -329,7 +329,7 @@ syllepsis {A = A} n α β k i j =
     hfill (λ k → λ { (i = i1) → refl
                     ; (j = i0) → rUnit refl (~ i)
                     ; (j = i1) → lUnit guy (~ i ∧ k)})
-          (inS (rUnit refl (~ i ∧ ~ j))) z
+          (rUnit refl (~ i ∧ ~ j)) z
 
   i=i1 : I → I → I → typ (Ω (Ω A))
   i=i1 r j k =

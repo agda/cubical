@@ -52,6 +52,7 @@ open import Cubical.HITs.PropositionalTruncation public
   renaming (rec to recPropTruncPath ; elim to elimPropTruncPath )
 open import Cubical.Core.Id public
   using (Id; ⟨_,_⟩; faceId; pathId; elimId; _≡_)
+  renaming (reflId to refl)
 
 private
   variable
@@ -62,21 +63,15 @@ private
 -- explicit. This is sometimes useful when it is needed for
 -- typechecking (see JId below).
 conId : ∀ {x : A} φ (y : A [ φ ↦ (λ _ → x) ])
-          (w : (Path _ x (outS y)) [ φ ↦ (λ { (φ = i1) → λ _ → x}) ]) →
-          x ≡ outS y
-conId φ _ w = ⟨ φ , outS w ⟩
-
--- Reflexivity
-refl : ∀ {x : A} → x ≡ x
-refl {x = x} = ⟨ i1 , (λ _ → x) ⟩
+          (w : (Path _ x y) [ φ ↦ (λ { (φ = i1) → λ _ → x}) ]) →
+          x ≡ y
+conId φ _ w = ⟨ φ , w ⟩
 
 
 -- Definition of J for Id
 module _ {x : A} (P : ∀ (y : A) → Id x y → Type ℓ') (d : P x refl) where
   J : ∀ {y : A} (w : x ≡ y) → P y w
-  J {y = y} = elimId P (λ φ y w → comp (λ i → P _ (conId (φ ∨ ~ i) (inS (outS w i))
-                                                                   (inS (λ j → outS w (i ∧ j)))))
-                                       (λ i → λ { (φ = i1) → d}) d) {y = y}
+  J {y = y} refl = d
 
   -- Check that J of refl is the identity function
   Jdefeq : Path _ (J refl) d
@@ -86,16 +81,16 @@ module _ {x : A} (P : ∀ (y : A) → Id x y → Type ℓ') (d : P x refl) where
 -- Basic theory about Id, proved using J
 transport : ∀ (B : A → Type ℓ') {x y : A}
            → x ≡ y → B x → B y
-transport B {x} p b = J (λ y p → B y) b p
+transport B {x} refl b = b
 
 _⁻¹ : {x y : A} → x ≡ y → y ≡ x
-_⁻¹ {x = x} p = J (λ z _ → z ≡ x) refl p
+_⁻¹ refl = refl
 
 ap : ∀ {B : Type ℓ'} (f : A → B) → ∀ {x y : A} → x ≡ y → f x ≡ f y
-ap f {x} = J (λ z _ → f x ≡ f z) refl
+ap f {x} refl = refl
 
 _∙_ : ∀ {x y z : A} → x ≡ y → y ≡ z → x ≡ z
-_∙_ {x = x} p = J (λ y _ → x ≡ y) p
+refl ∙ q = q
 
 infix  4 _∙_
 infix  3 _∎
@@ -115,7 +110,7 @@ pathToIdRefl : ∀ {x : A} → Path _ (pathToId (λ _ → x)) refl
 pathToIdRefl {x = x} = JPathRefl (λ y _ → Id x y) refl
 
 idToPath : ∀ {x y : A} → Id x y → Path _ x y
-idToPath {x = x} = J (λ y _ → Path _ x y) (λ _ → x)
+idToPath {x = x} refl i = x
 
 idToPathRefl : ∀ {x : A} → Path _ (idToPath {x = x} refl) reflPath
 idToPathRefl {x = x} _ _ = x
@@ -125,7 +120,7 @@ pathToIdToPath {x = x} = JPath (λ y p → Path _ (idToPath (pathToId p)) p)
                                (λ i → idToPath (pathToIdRefl i))
 
 idToPathToId : ∀ {x y : A} → (p : Id x y) → Path _ (pathToId (idToPath p)) p
-idToPathToId {x = x} = J (λ b p → Path _ (pathToId (idToPath p)) p) pathToIdRefl
+idToPathToId {x = x} refl = pathToIdRefl
 
 
 -- We get function extensionality by going back and forth between Path and Id
@@ -230,11 +225,11 @@ isPropIsContr (a0 , p0) (a1 , p1) j =
   ( idToPath (p0 a1) j ,
     hcomp (λ i → λ { (j = i0) →  λ x → idToPathToId (p0 x) i
                    ; (j = i1) →  λ x → idToPathToId (p1 x) i })
-          (λ x → pathToId (λ i → hcomp (λ k → λ { (i = i0) → idToPath (p0 a1) j
+          (inS (λ x → pathToId (λ i → hcomp (λ k → λ { (i = i0) → idToPath (p0 a1) j
                                                 ; (i = i1) → idToPath (p0 x) (j ∨ k)
                                                 ; (j = i0) → idToPath (p0 x) (i ∧ k)
                                                 ; (j = i1) → idToPath (p1 x) i })
-                                       (idToPath (p0 (idToPath (p1 x) i)) j))))
+                                       (idToPath (p0 (idToPath (p1 x) i)) j)))))
 
 -- We now prove that isEquiv is a proposition
 isPropIsEquiv : ∀ {A : Type ℓ} {B : Type ℓ} → {f : A → B} → (h1 h2 : isEquiv f) → Path _ h1 h2

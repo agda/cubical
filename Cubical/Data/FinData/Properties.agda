@@ -71,7 +71,7 @@ inj-toℕ {ℕsuc n}  {zero} {suc l} x = ⊥.rec (ℕznots x)
 inj-toℕ {ℕsuc n} {suc k} {zero}   x = ⊥.rec (ℕsnotz x)
 inj-toℕ {ℕsuc n} {suc k} {suc l}  x = cong suc (inj-toℕ (injSuc x))
 
-inj-cong : {n : ℕ} → {k l : Fin n} → (p : toℕ k ≡ toℕ l) → cong toℕ (inj-toℕ p) ≡ p
+inj-cong : {n : ℕ} → {k l : Fin n} → (p : toℕ k ≡ toℕ l) → cong toℕ (inj-toℕ {k = k} {l} p) ≡ p
 inj-cong p = isSetℕ _ _ _ _
 
 isPropFin0 : isProp (Fin 0)

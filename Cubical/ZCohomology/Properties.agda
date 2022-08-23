@@ -464,13 +464,13 @@ Kn≃ΩKn+1∙ {n = n} = ua∙ Kn≃ΩKn+1 (Kn→ΩKn+10ₖ n)
 
 Kn→ΩKn+1-hom : (n : ℕ) (x y : coHomK n) → Kn→ΩKn+1 n (x +[ n ]ₖ y) ≡ Kn→ΩKn+1 n x ∙ Kn→ΩKn+1 n y
 Kn→ΩKn+1-hom zero x y = (λ j i → hfill (doubleComp-faces (λ i₁ → ∣ base ∣) (λ _ → ∣ base ∣) i)
-                                         (inS (∣ intLoop (x ℤ+ y) i ∣)) (~ j))
+                                         ∣ intLoop (x ℤ+ y) i ∣ (~ j))
                       ∙∙ (λ j i → ∣ intLoop-hom x y (~ j) i ∣)
                       ∙∙ (congFunct ∣_∣ (intLoop x) (intLoop y)
                         ∙ cong₂ _∙_ (λ j i → hfill (doubleComp-faces (λ i₁ → ∣ base ∣) (λ _ → ∣ base ∣) i)
-                                                    (inS (∣ intLoop x i ∣)) j)
+                                                    ∣ intLoop x i ∣ j)
                                      λ j i → hfill (doubleComp-faces (λ i₁ → ∣ base ∣) (λ _ → ∣ base ∣) i)
-                                                    (inS (∣ intLoop y i ∣)) j)
+                                                    ∣ intLoop y i ∣ j)
 Kn→ΩKn+1-hom (suc n) = σ-hom
 
 ΩKn+1→Kn-hom : (n : ℕ) (x y : Path (coHomK (suc n)) (0ₖ _) (0ₖ _))

@@ -67,16 +67,16 @@ module DLShfDiagHomPath where
   isSetCode (sing i) (pair j k j<k) =
     isSet⊎
       (isSetΣ (isProp→isSet (isSetFin _ _))
-        λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued _ _))
-        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _)
+        λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued (suc i) (weakenFin k)))
+        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued (suc j) (weakenFin k))) _ _)
       (isSetΣ (isProp→isSet (isSetFin _ _))
-        λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued _ _))
-        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _)
+        λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued (suc j) (weakenFin i)))
+        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued (suc j) (weakenFin k))) _ _)
   isSetCode (pair _ _ _) (sing _) = isProp→isSet isProp⊥
-  isSetCode (pair _ _ _) (pair _ _ _) =
+  isSetCode (pair i j _) (pair k l _) =
     isSetΣ
       (isSet× (isProp→isSet (isSetFin _ _)) (isProp→isSet (isSetFin _ _)))
-        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _
+        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued (suc k) (weakenFin l))) _ _
 
   encode : (x y : DLShfDiagOb n) → DLShfDiagHom n x y → Code x y
   encode (sing i) (sing .i) idAr = refl
@@ -90,8 +90,8 @@ module DLShfDiagHomPath where
     transport (λ ι → DLShfDiagHom _ (sing i) (pair (p ι) k (q ι))) singPairL
   decode (sing i) (pair k j k<j) (inr (p , k<i , q)) =
     transport (λ ι → DLShfDiagHom _ (sing i) (pair k (p ι) (q ι))) singPairR
-  decode (pair i j i<j) (pair k l k<l) (_ , p) =
-    transport (λ ι → DLShfDiagHom _ (pair _ _ i<j) (pair _ _ (p ι))) idAr
+  decode (pair i j i<j) (pair k l k<l) (p , q) =
+    transport (λ ι → DLShfDiagHom _ (pair i j i<j) (pair (p .fst ι) (p .snd ι) (q ι))) idAr
 
   codeRetract : ∀ (x y : DLShfDiagOb n) (f : DLShfDiagHom n x y)
               → decode x y (encode x y f) ≡ f

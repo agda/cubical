@@ -84,13 +84,13 @@ module MV {ℓ ℓ' ℓ''} (A : Type ℓ) (B : Type ℓ') (C : Type ℓ'') (f : 
                     ; (i = i1) → lUnitₖ (suc n) (0ₖ (suc n)) (~ j)
                     ; (j = i0) → Kn→ΩKn+1-hom n (h a) (l a) (~ k) i
                     ; (j = i1) → cong₂Funct (λ x y → x +[ (suc n) ]ₖ y) (Kn→ΩKn+1 n (h a)) (Kn→ΩKn+1 n (l a)) (~ k) i })
-          (hcomp (λ k → λ { (i = i0) → rUnitₖ (suc n) (0ₖ (suc n)) (~ j)
+          (outS (hcomp (λ k → λ { (i = i0) → rUnitₖ (suc n) (0ₖ (suc n)) (~ j)
                            ; (i = i1) → lUnitₖ (suc n) (Kn→ΩKn+1 n (l a) k) (~ j)})
-                 (hcomp (λ k → λ { (i = i0) → rUnitₖ (suc n) (0ₖ (suc n)) (~ j)
+                 (outS (hcomp (λ k → λ { (i = i0) → rUnitₖ (suc n) (0ₖ (suc n)) (~ j)
                                   ; (i = i1) → lUnitₖ≡rUnitₖ (suc n) (~ k) (~ j)
                                   ; (j = i0) → Kn→ΩKn+1 n (h a) i
                                   ; (j = i1) → (Kn→ΩKn+1 n (h a) i) +[ (suc n) ]ₖ coHom-pt (suc n)})
-                        (rUnitₖ (suc n) (Kn→ΩKn+1 n (h a) i) (~ j))))
+                        (rUnitₖ (suc n) (Kn→ΩKn+1 n (h a) i) (~ j))))))
 
   dIsHom : (n : ℕ) → IsGroupHom (coHomGr n C .snd) (ST.rec isSetSetTrunc λ a → ∣ d-pre n a ∣₂) (coHomGr (suc n) (Pushout f g) .snd)
   dIsHom n =

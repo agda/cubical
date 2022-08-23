@@ -103,7 +103,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                        ; (i = i1) → p k j
                        ; (j = i0) → push q₁₀ (i ∧ ~ k)
                        ; (j = i1) → push q₁₁ k })
-              (inS (push q₁₀ (i ∧ ~ j))) k'
+              (push q₁₀ (i ∧ ~ j)) k'
 
       fiber→[q₀₀=q₁₀] : fiber push r
       fiber→[q₀₀=q₁₀] .fst = q₁₁
@@ -124,7 +124,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                        ; (i = i1) → p k j
                        ; (j = i0) → push q₀₀ (~ k)
                        ; (j = i1) → push q₁₀ (~ i ∨ k) })
-              (inS (push q₁₀ (~ i ∨ ~ j))) k'
+              (push q₁₀ (~ i ∨ ~ j)) k'
 
       fiber→[q₁₁=q₁₀] : fiber push r
       fiber→[q₁₁=q₁₀] .fst = q₀₀
@@ -145,7 +145,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                      ; (j = i1) → p l k
                      ; (k = i0) → push q₁₀ ((i ∨ j) ∧ ~ l)
                      ; (k = i1) → push q₁₀ ((i ∧ ~ j) ∨ l) })
-            (inS (push q₁₀ ((i ∨ (~ k ∧ j)) ∧ (~ k ∨ (i ∧ ~ j))))) l'
+            (push q₁₀ ((i ∨ (~ k ∧ j)) ∧ (~ k ∨ (i ∧ ~ j)))) l'
 
     fiber→[q₀₀=q₁₀=q₁₁] : fiber→[q₀₀=q₁₀] q₁₀ ≡ fiber→[q₁₁=q₁₀] q₁₀
     fiber→[q₀₀=q₁₀=q₁₁] i r p .fst = q₁₀
@@ -171,7 +171,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                        ; (i = i1) → p k j
                        ; (j = i0) → push q₀₀ (~ i ∧ k)
                        ; (j = i1) → push q₀₁ i })
-              (inS (push q₀₁ (i ∧ j))) k'
+              (push q₀₁ (i ∧ j)) k'
 
       fiber←[q₁₁=q₀₁] : fiber'Push  q₀₀ q₀₁ r
       fiber←[q₁₁=q₀₁] .fst = q₀₀
@@ -192,7 +192,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                        ; (i = i1) → p k j
                        ; (j = i0) → push q₀₁ (~ i)
                        ; (j = i1) → push q₁₁ (i ∨ ~ k) })
-              (inS (push q₀₁ (~ i ∨ j))) k'
+              (push q₀₁ (~ i ∨ j)) k'
 
       fiber←[q₀₀=q₀₁] : fiber'Push q₀₁ q₁₁ r
       fiber←[q₀₀=q₀₁] .fst = q₁₁
@@ -213,7 +213,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                      ; (j = i1) → p l k
                      ; (k = i0) → push q₀₁ ((i ∨ l) ∧ ~ j)
                      ; (k = i1) → push q₀₁ ((i ∧ ~ l) ∨ j) })
-            (inS (push q₀₁ ((i ∨ (k ∧ j)) ∧ (k ∨ (i ∧ ~ j))))) l'
+            (push q₀₁ ((i ∨ (k ∧ j)) ∧ (k ∨ (i ∧ ~ j)))) l'
 
     fiber←[q₀₀=q₀₁=q₁₁] : fiber←[q₁₁=q₀₁] q₀₁ ≡ fiber←[q₀₀=q₀₁] q₀₁
     fiber←[q₀₀=q₀₁=q₁₁] i r p .fst = q₀₁
@@ -242,7 +242,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                        ; (j = i1) → p' l k
                        ; (k = i0) → push q₁₀ (~ j ∧ l)
                        ; (k = i1) → push q₁₁ j })
-              (inS (push q₁₁ (j ∧ k))) l'
+              (push q₁₁ (j ∧ k)) l'
 
       fiber→←[q₀₀=q₁₀] : fiber←[q₁₁=q₀₁] q₁₁ q₁₀ r (fiber→[q₀₀=q₁₀] q₁₀ q₁₁ r p .snd) .snd ≡ p
       fiber→←[q₀₀=q₁₀] i j k = fiber→←[q₀₀=q₁₀]-filler i j k i1
@@ -262,7 +262,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                        ; (j = i1) → p' l k
                        ; (k = i0) → push q₀₀ (~ j)
                        ; (k = i1) → push q₁₀ (j ∨ ~ l) })
-              (inS (push q₀₀ (~ j ∨ k))) l'
+              (push q₀₀ (~ j ∨ k)) l'
 
       fiber→←[q₁₁=q₁₀] : fiber←[q₀₀=q₀₁] q₀₀ q₁₀ r (fiber→[q₁₁=q₁₀] q₁₀ q₀₀ r p .snd) .snd ≡ p
       fiber→←[q₁₁=q₁₀] i j k = fiber→←[q₁₁=q₁₀]-filler i j k i1
@@ -282,7 +282,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                      ; (u = i1) → fiber→[q₀₀=q₁₀=q₁₁] q₁₀ i r p .snd l v
                      ; (v = i0) → push q₁₀ ((i ∨ l) ∧ ~ u)
                      ; (v = i1) → push q₁₀ ((i ∧ ~ l) ∨ u) })
-            (push q₁₀ ((i ∨ (v ∧ u)) ∧ (v ∨ (i ∧ ~ u))))
+            (PushoutGen.push q₁₀ ((i ∨ (v ∧ u)) ∧ (v ∨ (i ∧ ~ u))))
 
   {- Definitions of fiber←→ -}
 
@@ -304,7 +304,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                        ; (j = i1) → p' l k
                        ; (k = i0) → push q₀₀ (j ∧ ~ l)
                        ; (k = i1) → push q₀₁ l })
-              (inS (push q₀₀ (j ∧ ~ k))) l'
+              (push q₀₀ (j ∧ ~ k)) l'
 
       fiber←→[q₁₁=q₀₁] : fiber→[q₀₀=q₁₀] q₀₀ q₀₁ r (fiber←[q₁₁=q₀₁] q₀₁ q₀₀ r p .snd) .snd ≡ p
       fiber←→[q₁₁=q₀₁] i j k = fiber←→[q₁₁=q₀₁]-filler i j k i1
@@ -324,7 +324,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                        ; (j = i1) → p' l k
                        ; (k = i0) → push q₀₁ (~ l)
                        ; (k = i1) → push q₁₁ (~ j ∨ l) })
-              (inS (push q₁₁ (~ j ∨ ~ k))) l'
+              (push q₁₁ (~ j ∨ ~ k)) l'
 
       fiber←→[q₀₀=q₀₁] : fiber→[q₁₁=q₁₀] q₁₁ q₀₁ r (fiber←[q₀₀=q₀₁] q₀₁ q₁₁ r p .snd) .snd ≡ p
       fiber←→[q₀₀=q₀₁] i j k = fiber←→[q₀₀=q₀₁]-filler i j k i1
@@ -344,7 +344,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                      ; (u = i1) → fiber←[q₀₀=q₀₁=q₁₁] q₀₁ i r p .snd l v
                      ; (v = i0) → push q₀₁ ((i ∨ u) ∧ ~ l)
                      ; (v = i1) → push q₀₁ ((i ∧ ~ u) ∨ l) })
-           (push q₀₁ ((i ∨ (~ v ∧ u)) ∧ (~ v ∨ (i ∧ ~ u))))
+           (PushoutGen.push q₀₁ ((i ∨ (~ v ∧ u)) ∧ (~ v ∨ (i ∧ ~ u))))
 
   module Fiber→
     {x₁ : X}{y₀ : Y}(q₁₀ : Q x₁ y₀) =
@@ -601,7 +601,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
                          ; (i = i1) → r (j ∧ k)
                          ; (j = i0) → push q₀₀ (~ i)
                          ; (j = i1) → r (i ∧ k) })
-                (inS (q i j)) k'
+                (q i j) k'
 
     transpLeftCodeβ' :
         {p : PushoutQ} → (r : inl x₀ ≡ p) → (q : fiberSquare q₀₀ q₀₀ refl refl)

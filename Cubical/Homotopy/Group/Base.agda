@@ -213,7 +213,7 @@ isNaturalΩSphereMap A B homogB f 0 g =
         { (i = i0) → post∘∙ _ f .snd j
         ; (i = i1) → post∘∙ _ f .snd j
         })
-      (inS (f ∘∙ g i))
+      (f ∘∙ g i)
       j .fst false
 isNaturalΩSphereMap A B homogB f (n@(suc _)) g =
   →∙Homogeneous≡ homogB (funExt lem)
@@ -228,7 +228,7 @@ isNaturalΩSphereMap A B homogB f (n@(suc _)) g =
         { (i = i0) → post∘∙ _ f .snd j
         ; (i = i1) → post∘∙ _ f .snd j
         })
-      (inS (f ∘∙ g i))
+      (f ∘∙ g i)
       j .fst a
 
 SphereMapΩ : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)

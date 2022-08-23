@@ -66,7 +66,7 @@ module _ {ℓX ℓB ℓC} {X : Pointed ℓX} {B : Type ℓB} {C : Type ℓC} (f 
           { (j = i0) → inl* (Y .snd) (~ i)
           ; (j = i1) → inr* (Z .snd) (~ i)
           })
-        (inS (inj* (push (X .snd) j)))
+        (inj* (push (X .snd) j))
         (~ i)
 
     cap0 : (j : I) → D hub
@@ -79,7 +79,7 @@ module _ {ℓX ℓB ℓC} {X : Pointed ℓX} {B : Type ℓB} {C : Type ℓC} (f 
           { (k = i0) → cap0 j
           ; (k = i1) → hub*
           })
-        (inS hub*)
+        hub*
         j
 
     inrFiller : ∀ z → (k i : I) → D (spoke (inr z) i)
@@ -89,7 +89,7 @@ module _ {ℓX ℓB ℓC} {X : Pointed ℓX} {B : Type ℓB} {C : Type ℓC} (f 
          { (i = i0) → face-i≡0 k i1
          ; (i = i1) → inj* (inr z)
          })
-       (inS (inr* z i))
+       (inr* z i)
        k
 
     fun : ∀ c → D c
@@ -125,7 +125,7 @@ module _ {ℓX ℓB ℓC} {X : Pointed ℓX} {B : Type ℓB} {C : Type ℓC} (f 
           { (i = i0) → spoke (inl (f x)) (~ k)
           ; (i = i1) → spoke (inr (g x)) (~ k)
           })
-        (inj (push x i))
+        (Cone.inj (push x i))
 
     bwdPushout : (w : Pushout f g) → bwd (pushoutToSusp w) ≡ inj w
     bwdPushout (inl y) = spoke (inl y)
@@ -136,7 +136,7 @@ module _ {ℓX ℓB ℓC} {X : Pointed ℓX} {B : Type ℓB} {C : Type ℓC} (f 
           { (i = i0) → spoke (inl (f x)) (~ k)
           ; (i = i1) → spoke (inr (g x)) (~ k)
           })
-        (inS (inj (push x i)))
+        (Cone.inj (push x i))
         (~ k)
 
     bwdMeridPt : refl ≡ cong bwd (merid (X .snd))
@@ -147,7 +147,7 @@ module _ {ℓX ℓB ℓC} {X : Pointed ℓX} {B : Type ℓB} {C : Type ℓC} (f 
           ; (i = i1) → spoke (inr (Z .snd)) (~ k)
           ; (j = i0) → spoke (push _ i) (~ k)
           })
-        (inj (push (X .snd) i))
+        (Cone.inj (push (X .snd) i))
 
     bwdFwd : (c : Cone wedgeToPushout) → bwd (fwd c) ≡ c
     bwdFwd =
@@ -163,7 +163,7 @@ module _ {ℓX ℓB ℓC} {X : Pointed ℓX} {B : Type ℓB} {C : Type ℓC} (f 
               ; (k = i0) → bwdMeridPt l i
               ; (k = i1) → spoke (inr z) i
               })
-            (spoke (inr z) (i ∧ k)))
+            (Cone.spoke (inr z) (i ∧ k)))
 
     fwdBwd : (s : Susp (X .fst)) → fwd (bwd s) ≡ s
     fwdBwd north = refl
@@ -175,5 +175,5 @@ module _ {ℓX ℓB ℓC} {X : Pointed ℓX} {B : Type ℓB} {C : Type ℓC} (f 
           { (i = i0) → north
           ; (i = i1) → merid (X .snd) (~ j)
           })
-        (inS (merid a i))
+        (Susp.merid a i)
         (~ j)

@@ -61,17 +61,17 @@ module _ (i : Iso A B) where
       fill0 : I → I → A
       fill0 i = hfill (λ k → λ { (i = i1) → t x0 k
                                ; (i = i0) → g y })
-                      (inS (g (p0 (~ i))))
+                      (g (p0 (~ i)))
 
       fill1 : I → I → A
       fill1 i = hfill (λ k → λ { (i = i1) → t x1 k
                                ; (i = i0) → g y })
-                      (inS (g (p1 (~ i))))
+                      (g (p1 (~ i)))
 
       fill2 : I → I → A
       fill2 i = hfill (λ k → λ { (i = i1) → fill1 k i1
                                ; (i = i0) → fill0 k i1 })
-                      (inS (g y))
+                      (g y)
 
       p : x0 ≡ x1
       p i = fill2 i i1

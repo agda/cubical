@@ -57,7 +57,7 @@ module _
       hfill (λ j → λ
         { (i = i0) → push (x , xs) (~ j)
         ; (i = i1) → push (x₀ , x ∷ xs) (~ j) })
-      (inS (inr (unit (x ∷ xs) i))) j
+      (inr (unit (x ∷ xs) i)) j
 
     square2 : (xs : James)(i j : I) → Total
     square2 xs i j =

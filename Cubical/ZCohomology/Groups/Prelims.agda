@@ -75,10 +75,10 @@ coHomPointedElimSⁿ n m {B = B} isprop ind =
                                                                              ; (i = i1) → compPath'-filler (sym fId)
                                                                                                             (cong f (merid (ptSn (suc m)))) k j
                                                                              ; (j = i1) → f (merid a i)})
-                                                                    (hcomp (λ k → λ {(i = i0) → f north ;
+                                                                    (outS (hcomp (λ k → λ {(i = i0) → f north ;
                                                                                       (i = i1) → f (merid (ptSn (suc m)) (j ∨ ~ k)) ;
                                                                                       (j = i1) → f (merid a i)})
-                                                                           (f (merid a i)))})))
+                                                                           (f (merid a i))))})))
                        (ind λ a → sym fId ∙∙ cong f (merid a) ∙ cong f (sym (merid (ptSn (suc m)))) ∙∙ fId)
 
 0₀ = 0ₖ 0
