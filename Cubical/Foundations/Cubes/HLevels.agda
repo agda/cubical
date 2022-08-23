@@ -11,14 +11,16 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Cubes.Base
 open import Cubical.Foundations.Cubes.Subtypes
+open import Cubical.Foundations.Cubes.Dependent
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Sigma.Properties
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
+    B : A → Type ℓ'
 
 
 {-
@@ -74,3 +76,60 @@ isCubeFilled→isOfHLevel : (n : HLevel) → isCubeFilled n A → isOfHLevel n A
 isCubeFilled→isOfHLevel 0 h = h
 isCubeFilled→isOfHLevel (suc n) h = isOfHLevelPath'⁻ _
   (λ x y → isCubeFilled→isOfHLevel _ (isCubeFilledSuc→isCubeFilledPath _ _ h x y))
+
+
+{-
+
+  The dependent-n-cubes-can-always-be-filled is equivalent to be of dependent h-level n
+
+-}
+
+
+-- Dependent cube filling
+
+isCubeFilledDep : (n : ℕ) {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isCubeFilledDep 0 B = isOfHLevelDep 0 B
+isCubeFilledDep (suc n) {A} B = {a₋ : Cube (suc n) A} (∂ : ∂CubeDep B (∂ a₋)) → CubeDepRel {n = suc n} a₋ ∂
+
+
+-- Some preliminary lemmas
+
+isCubeFilledDepConst : (n : ℕ) (B : A → Type ℓ') (a : A) → Type ℓ'
+isCubeFilledDepConst 0 B a = isContr (B a)
+isCubeFilledDepConst (suc n) B a = (∂ : ∂CubeDepConst (suc n) B a) → CubeDepConstRel ∂
+
+isCubeFilledDepConst≡isCubeFilledFiber : (n : ℕ) (B : A → Type ℓ') (a : A)
+  → isCubeFilledDepConst n B a ≡ isCubeFilled n (B a)
+isCubeFilledDepConst≡isCubeFilledFiber 0 B a = refl
+isCubeFilledDepConst≡isCubeFilledFiber (suc n) B a i =
+  (∂ : ∂CubeDepConst≡∂Cube (suc n) B a i) → (CubeDepConstRel≡CubeRel (suc n) B a i ∂)
+
+isCubeFilledDepConst→isCubeFilledFiber : (n : ℕ) (B : A → Type ℓ') (a : A)
+  → isCubeFilledDepConst n B a → isCubeFilled n (B a)
+isCubeFilledDepConst→isCubeFilledFiber _ _ _ =
+  transport (isCubeFilledDepConst≡isCubeFilledFiber _ _ _)
+
+isCubeFilledFiber→isCubeFilledDepConst : (n : ℕ) (B : A → Type ℓ') (a : A)
+  → isCubeFilled n (B a) → isCubeFilledDepConst n B a
+isCubeFilledFiber→isCubeFilledDepConst _ _ _ =
+  transport (sym (isCubeFilledDepConst≡isCubeFilledFiber _ _ _))
+
+
+-- The dependent cube-filling characterization of dependent h-levels
+
+isOfHLevelDep→isCubeFilledDep : (n : HLevel) {B : A → Type ℓ'} → isOfHLevelDep n B → isCubeFilledDep n B
+isOfHLevelDep→isCubeFilledDep 0 {B} h = h
+isOfHLevelDep→isCubeFilledDep {A = A} (suc n) {B} h =
+  JCube (λ a₋ → (∂b : ∂CubeDep B (∂ a₋)) → CubeDepRel {n = suc n} a₋ ∂b) d _
+  where
+  q : (a : A) → isOfHLevel (suc n) (B a)
+  q = {!!}
+
+  d : (a : A) → (∂ : ∂CubeDepConst (suc n) B a) → CubeDepConstRel ∂
+  d a = isCubeFilledFiber→isCubeFilledDepConst (suc n) B a (isOfHLevel→isCubeFilled (suc n) (q a))
+
+isCubeFilledDep→isOfHLevelDep : (n : HLevel) {B : A → Type ℓ'} → isCubeFilledDep n B → isOfHLevelDep n B
+isCubeFilledDep→isOfHLevelDep 0 {B} h = h
+isCubeFilledDep→isOfHLevelDep {A = A} (suc n) {B} h =
+  isOfHLevel→isOfHLevelDep (suc n) (λ a →
+    isCubeFilled→isOfHLevel (suc n) (isCubeFilledDepConst→isCubeFilledFiber (suc n) B a h))
