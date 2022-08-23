@@ -14,3 +14,5 @@ Post-release
    include: .
    depend:
   ```
+
+* Update Nix Flakes running this command `nix flake lock --update-input nixpkgs`.

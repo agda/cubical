@@ -1,7 +1,6 @@
 {
   description = "Cubical Agda";
 
-  inputs.nixpkgs.url = "nixpkgs/nixos-22.05";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, flake-utils, nixpkgs }:
