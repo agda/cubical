@@ -304,6 +304,7 @@ funExt⁻ eq x i = eq i x
 -- J for paths and its computation rule
 
 module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
+
   J : (p : x ≡ y) → P y p
   J p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
 
@@ -319,6 +320,17 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
       (J (λ j → compPath-filler p q (~ k) j))
 
 -- Multi-variable versions of J
+
+module _ {x : A}
+  {B : A → Type ℓ''} {b : B x}
+  (P : (y : A) (p : x ≡ y) (z : B y) (q : PathP (λ i → B (p i)) b z) → Type ℓ'')
+  (d : P _ refl _ refl) where
+
+  JDep : {y : A} (p : x ≡ y) {z : B y} (q : PathP (λ i → B (p i)) b z) → P _ p _ q
+  JDep _ q = transport (λ i → P _ _ _ (λ j → q (i ∧ j))) d
+
+  JDepRefl : JDep refl refl ≡ d
+  JDepRefl = transportRefl d
 
 module _ {x : A}
   {P : (y : A) → x ≡ y → Type ℓ'} {d : (y : A) (p : x ≡ y) → P y p}
@@ -338,6 +350,7 @@ module _ {x : A}
 -- A prefix operator version of J that is more suitable to be nested
 
 module _ {P : ∀ y → x ≡ y → Type ℓ'} (d : P x refl) where
+
   J>_ : ∀ y → (p : x ≡ y) → P y p
   J>_ _ p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
 
