@@ -1,6 +1,7 @@
 {
   description = "Cubical Agda";
 
+  inputs.nixpkgs.url = "nixpkgs/nixpkgs-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, flake-utils, nixpkgs }:
@@ -21,8 +22,6 @@
 
           LC_ALL = "C.UTF-8";
 
-          preConfigure = ''export AGDA_EXEC=agda'';
-
           # The cubical library has several `Everything.agda` files, which are
           # compiled through the make file they provide.
           nativeBuildInputs = [ final.ghc ];
@@ -37,9 +36,11 @@
         };
         agdaWithCubical = final.agdaPackages.agda.withPackages [final.cubical];
       };
+      overlays = [ overlay ];
     in
+    { overlays.default = overlay; } //
     flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = import nixpkgs { inherit system; overlays = [ overlay ]; };
+      let pkgs = import nixpkgs { inherit system overlays; };
       in rec {
         packages = with pkgs; rec {
           inherit cubical agdaWithCubical;

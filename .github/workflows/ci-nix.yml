@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    paths:
+      - '**.nix'
+      - 'flake.lock'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
