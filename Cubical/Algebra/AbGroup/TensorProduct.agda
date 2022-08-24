@@ -235,7 +235,6 @@ module _ where
   AbGroupStr.- snd (A ⨂ B) = -⊗
   isAbGroup (snd (A ⨂ B)) = makeIsAbGroup ⊗squash +⊗Assoc +⊗IdR +⊗InvR +⊗Comm
 
-
 -------------- Elimination principle into AbGroups --------------
 module _ {ℓ ℓ' : Level} {A : AbGroup ℓ}  {B : AbGroup ℓ'} where
   private
