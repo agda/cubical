@@ -10,15 +10,7 @@ open import Cubical.Foundations.Prelude hiding (Cube)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Cubes.Base public
 open import Cubical.Foundations.Cubes.HLevels
-open import Cubical.Foundations.Cubes.External
 open import Cubical.Foundations.Cubes.Macros
-
-open import Cubical.Data.Nat.Base
-open import Cubical.Data.Sigma.Properties
-
-open import Agda.Builtin.Reflection hiding (Type)
-open import Agda.Builtin.List
-open import Cubical.Reflection.Base
 
 private
   variable
@@ -42,6 +34,13 @@ By mutual recursion, one can define the type of
 Their definitions are put in `Cubical.Foundations.Cubes.Base`,
 to avoid cyclic dependence.
 
+They also have dependent versions,
+of which definitions and properties are given in `Cubical.Foundations.Cubes.Dependent`.
+
+CubeDep    : {A : Type ℓ} (B : A → Type ℓ') →  Cube n A → Type ℓ'
+∂CubeDep   : {A : Type ℓ} (B : A → Type ℓ') → ∂Cube n A → Type ℓ'
+CubeDepRel : {A : Type ℓ} {B : A → Type ℓ'} (a₋ : Cube n A) → ∂CubeDep {n = n} B (∂ a₋) → Type ℓ'
+
 -}
 
 
@@ -56,55 +55,55 @@ fromCube1 p = fromCube 1 p
 fromCube2 : Cube 2 A → (i j : I) → A
 fromCube2 p = fromCube 2 p
 
-fromCube3 : Cube 3 A → (i j k : I) → A
-fromCube3 p = fromCube 3 p
+from3Cube : Cube 3 A → (i j k : I) → A
+from3Cube p = fromCube 3 p
 
 fromCube4 : Cube 4 A → (i j k l : I) → A
 fromCube4 p = fromCube 4 p
 
 
-to0Cube : A → Cube 0 A
-to0Cube p = toCube 0 p
+toCube0 : A → Cube 0 A
+toCube0 p = toCube 0 p
 
-to1Cube : ((i : I) → A) → Cube 1 A
-to1Cube p = toCube 1 p
+toCube1 : ((i : I) → A) → Cube 1 A
+toCube1 p = toCube 1 p
 
 toCube2 : ((i j : I) → A) → Cube 2 A
 toCube2 p = toCube 2 p
 
-toCube3 : ((i j k : I) → A) → Cube 3 A
-toCube3 p = toCube 3 p
+to3Cube : ((i j k : I) → A) → Cube 3 A
+to3Cube p = toCube 3 p
 
-to4Cube : ((i j k l : I) → A) → Cube 4 A
-to4Cube p = toCube 4 p
+toCube4 : ((i j k l : I) → A) → Cube 4 A
+toCube4 p = toCube 4 p
 
 
 -- The 0-cube has no (or empty) boundary...
 
-from∂1Cube : ∂Cube 1 A → (i : I) → Partial (i ∨ ~ i) A
-from∂1Cube p = from∂Cube 1 p
+from∂Cube1 : ∂Cube 1 A → (i : I) → Partial (i ∨ ~ i) A
+from∂Cube1 p = from∂Cube 1 p
 
 from∂Cube2 : ∂Cube 2 A → (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
 from∂Cube2 p = from∂Cube 2 p
 
-from∂Cube3 : ∂Cube 3 A → (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A
-from∂Cube3 p = from∂Cube 3 p
+from∂3Cube : ∂Cube 3 A → (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A
+from∂3Cube p = from∂Cube 3 p
 
-from∂4Cube : ∂Cube 4 A → (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A
-from∂4Cube p = from∂Cube 4 p
+from∂Cube4 : ∂Cube 4 A → (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A
+from∂Cube4 p = from∂Cube 4 p
 
 
-to∂1Cube : ((i : I) → Partial (i ∨ ~ i) A) → ∂Cube 1 A
-to∂1Cube p = to∂Cube 1 p
+to∂Cube1 : ((i : I) → Partial (i ∨ ~ i) A) → ∂Cube 1 A
+to∂Cube1 p = to∂Cube 1 p
 
 to∂Cube2 : ((i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A) → ∂Cube 2 A
 to∂Cube2 p = to∂Cube 2 p
 
-to∂Cube3 : ((i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A) → ∂Cube 3 A
-to∂Cube3 p = to∂Cube 3 p
+to∂3Cube : ((i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A) → ∂Cube 3 A
+to∂3Cube p = to∂Cube 3 p
 
-to∂4Cube : ((i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A) → ∂Cube 4 A
-to∂4Cube p = to∂Cube 4 p
+to∂Cube4 : ((i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A) → ∂Cube 4 A
+to∂Cube4 p = to∂Cube 4 p
 
 
 -- They're strict isomorphisms actually.
@@ -123,7 +122,8 @@ private
 
   sec-∂Cube2 : (p : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
     → (i j : I) → PartialP (i ∨ ~ i ∨ j ∨ ~ j) (λ o → from∂Cube2 (to∂Cube2 p) i j o ≡ p i j o)
-  sec-∂Cube2 p i j = λ { (i = i0) → refl ; (i = i1) → refl ; (j = i0) → refl ; (j = i1) → refl }
+  sec-∂Cube2 p i j = λ
+    { (i = i0) → refl ; (i = i1) → refl ; (j = i0) → refl ; (j = i1) → refl }
 
 
 {-
@@ -131,6 +131,7 @@ private
   The n-cubes-can-always-be-filled is equivalent to be of h-level n
 
 -}
+
 
 {-
 
@@ -140,19 +141,27 @@ isCubeFilled : ℕ → Type ℓ → Type ℓ
 isCubeFilled 0 = isContr
 isCubeFilled (suc n) A = (∂ : ∂Cube (suc n) A) → CubeRel (suc n) A ∂
 
+isCubeFilledDep : (n : ℕ) {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
+isCubeFilledDep 0 B = isOfHLevelDep 0 B
+isCubeFilledDep (suc n) {A} B = {a₋ : Cube (suc n) A} (∂ : ∂CubeDep B (∂ a₋)) → CubeDepRel {n = suc n} a₋ ∂
+
 The case n=0 is not very meaningful, so we use `isContr` instead to keep its relation with h-levels.
 It generalizes `isSet'` and `isGroupoid'`.
 
-We have the following logical equivalences between h-levels and cube-filling
+We have the following logical equivalences between h-levels and cube-filling:
 
 isOfHLevel→isCubeFilled : (n : HLevel) → isOfHLevel n A → isCubeFilled n A
+isOfHLevelDep→isCubeFilledDep : (n : HLevel) {B : A → Type ℓ'} → isOfHLevelDep n B → isCubeFilledDep n B
+
 isCubeFilled→isOfHLevel : (n : HLevel) → isCubeFilled n A → isOfHLevel n A
+isCubeFilledDep→isOfHLevelDep : (n : HLevel) {B : A → Type ℓ'} → isCubeFilledDep n B → isOfHLevelDep n B
 
 Their proofs are put in `Cubical.Foundations.Cubes.HLevels`.
 
 -}
 
--- Some special cases
+
+-- Lower-dimensional special cases
 
 fillCube1 :
   (h : isOfHLevel 1 A)
@@ -172,8 +181,8 @@ fillCube3 :
   (i j k : I) → A [ _ ↦ u i j k ]
 fillCube3 h u = fillCube 3 h u
 
-fill4Cube :
+fillCube4 :
   (h : isOfHLevel 4 A)
   (u : (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A)
   (i j k l : I) → A [ _ ↦ u i j k l ]
-fill4Cube h u = fillCube 4 h u
+fillCube4 h u = fillCube 4 h u

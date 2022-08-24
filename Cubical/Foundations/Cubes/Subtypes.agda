@@ -192,7 +192,7 @@ interleaved mutual
     CubeRelPath→CubeRel₀₁→CubeRelPath {n = suc n} (a₋ j) i
 
 
-open isHAEquiv hiding (g)
+open isHAEquiv
 
 Iso-∂Cube₀₁-∂CubePath : {n : ℕ}{A : Type ℓ}{a₀ a₁ : A} → Iso (∂Cube₀₁ n A a₀ a₁) (∂Cube n (a₀ ≡ a₁))
 Iso-∂Cube₀₁-∂CubePath =
@@ -216,8 +216,6 @@ IsoOver-CubeRel₀₁-CubeRelPath {n = n} =
 CubeRel₀₁≡CubeRelPath : {n : ℕ}{A : Type ℓ}{a₀ a₁ : A}
   → PathP (λ i → ∂Cube₀₁≡∂CubePath {n = n} {A} {a₀} {a₁} i → Type ℓ) (CubeRel₀₁ n A) (CubeRel n (a₀ ≡ a₁))
 CubeRel₀₁≡CubeRelPath = isoToPathOver _ _ (iso→HAEquivOver IsoOver-CubeRel₀₁-CubeRelPath)
-
-
 
 
 {-
