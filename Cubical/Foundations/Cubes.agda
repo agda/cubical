@@ -9,13 +9,17 @@ module Cubical.Foundations.Cubes where
 open import Cubical.Foundations.Prelude hiding (Cube)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Cubes.Base public
-open import Cubical.Foundations.Cubes.HLevels
+open import Cubical.Foundations.Cubes.Dependent
+
+open import Cubical.Foundations.2LTT
+open import Cubical.Foundations.Cubes.External
 open import Cubical.Foundations.Cubes.Macros
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
+    B : A → Type ℓ'
 
 
 {-
@@ -55,8 +59,8 @@ fromCube1 p = fromCube 1 p
 fromCube2 : Cube 2 A → (i j : I) → A
 fromCube2 p = fromCube 2 p
 
-from3Cube : Cube 3 A → (i j k : I) → A
-from3Cube p = fromCube 3 p
+fromCube3 : Cube 3 A → (i j k : I) → A
+fromCube3 p = fromCube 3 p
 
 fromCube4 : Cube 4 A → (i j k l : I) → A
 fromCube4 p = fromCube 4 p
@@ -71,8 +75,8 @@ toCube1 p = toCube 1 p
 toCube2 : ((i j : I) → A) → Cube 2 A
 toCube2 p = toCube 2 p
 
-to3Cube : ((i j k : I) → A) → Cube 3 A
-to3Cube p = toCube 3 p
+toCube3 : ((i j k : I) → A) → Cube 3 A
+toCube3 p = toCube 3 p
 
 toCube4 : ((i j k l : I) → A) → Cube 4 A
 toCube4 p = toCube 4 p
@@ -86,8 +90,8 @@ from∂Cube1 p = from∂Cube 1 p
 from∂Cube2 : ∂Cube 2 A → (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
 from∂Cube2 p = from∂Cube 2 p
 
-from∂3Cube : ∂Cube 3 A → (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A
-from∂3Cube p = from∂Cube 3 p
+from∂Cube3 : ∂Cube 3 A → (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A
+from∂Cube3 p = from∂Cube 3 p
 
 from∂Cube4 : ∂Cube 4 A → (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A
 from∂Cube4 p = from∂Cube 4 p
@@ -99,8 +103,8 @@ to∂Cube1 p = to∂Cube 1 p
 to∂Cube2 : ((i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A) → ∂Cube 2 A
 to∂Cube2 p = to∂Cube 2 p
 
-to∂3Cube : ((i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A) → ∂Cube 3 A
-to∂3Cube p = to∂Cube 3 p
+to∂Cube3 : ((i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A) → ∂Cube 3 A
+to∂Cube3 p = to∂Cube 3 p
 
 to∂Cube4 : ((i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A) → ∂Cube 4 A
 to∂Cube4 p = to∂Cube 4 p
@@ -124,6 +128,69 @@ private
     → (i j : I) → PartialP (i ∨ ~ i ∨ j ∨ ~ j) (λ o → from∂Cube2 (to∂Cube2 p) i j o ≡ p i j o)
   sec-∂Cube2 p i j = λ
     { (i = i0) → refl ; (i = i1) → refl ; (j = i0) → refl ; (j = i1) → refl }
+
+
+{- Dependent Cubes -}
+
+fromCubeDep0 :
+  {a : Cube 0 A} (b : CubeDep {n = 0} B a)
+  → B (fromCube 0 a)
+fromCubeDep0 {B = B} {a = a} b = fromCubeDep 0 B a b
+
+fromCubeDep1 :
+  {a : Cube 1 A} (b : CubeDep {n = 1} B a)
+  (i : I) → B (fromCube 1 a i)
+fromCubeDep1 {B = B} {a = a} b = fromCubeDep 1 B a b
+
+fromCubeDep2 :
+  {a : Cube 2 A} (b : CubeDep {n = 2} B a)
+  (i j : I) → B (fromCube 2 a i j)
+fromCubeDep2 {B = B} {a = a} b = fromCubeDep 2 B a b
+
+
+toCubeDep0 :
+  {a : A} (b : B a)
+  → CubeDep {n = 0} B (toCube0 a)
+toCubeDep0 {B = B} {a = a} b = toCubeDep 0 B a b
+
+toCubeDep1 :
+  {a : (i : I) → A} (b : (i : I) → B (a i))
+  → CubeDep {n = 1} B (toCube1 a)
+toCubeDep1 {B = B} {a = a} b = toCubeDep 1 B a b
+
+toCubeDep2 :
+  {a : (i j : I) → A} (b : (i j : I) → B (a i j))
+  → CubeDep {n = 2} B (toCube2 a)
+toCubeDep2 {B = B} {a = a} b = toCubeDep 2 B a b
+
+toCubeDep3 :
+  {a : (i j k : I) → A} (b : (i j k : I) → B (a i j k))
+  → CubeDep {n = 3} B (toCube3 a)
+toCubeDep3 {B = B} {a = a} b = toCubeDep 3 B a b
+
+
+from∂CubeDep1 :
+  (∂a : ∂Cube 1 A) (∂b : ∂CubeDep {n = 1} B ∂a)
+  (i : I) → PartialP _ (λ o → B (from∂Cube1 ∂a i o))
+from∂CubeDep1 {B = B} _ ∂b = from∂CubeDep 1 B _ ∂b
+
+from∂CubeDep2 :
+  (∂a : ∂Cube 2 A) (∂b : ∂CubeDep {n = 2} B ∂a)
+  (i j : I) → PartialP _ (λ o → B (from∂Cube2 ∂a i j o))
+from∂CubeDep2 {B = B} ∂a ∂b = from∂CubeDep 2 B ∂a ∂b
+
+
+to∂CubeDep1 :
+  (∂a : (i : I) → Partial (i ∨ ~ i) A)
+  (∂b : (i : I) → PartialP _ (λ o → B (∂a i o)))
+  → ∂CubeDep {n = 1} B (to∂Cube1 ∂a)
+to∂CubeDep1 {B = B} ∂a ∂b = to∂CubeDep 1 B _ ∂b
+
+to∂CubeDep2 :
+  (∂a : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
+  (∂b : (i j : I) → PartialP _ (λ o → B (∂a i j o)))
+  → ∂CubeDep {n = 2} B (to∂Cube2 ∂a)
+to∂CubeDep2 {B = B} ∂a ∂b = to∂CubeDep 2 B _ ∂b
 
 
 {-
@@ -173,7 +240,7 @@ fillCube2 :
   (h : isOfHLevel 2 A)
   (u : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
   (i j : I) → A [ _ ↦ u i j ]
-fillCube2 h u = fillCube 2 h u
+fillCube2 h = fillCube 2 h
 
 fillCube3 :
   (h : isOfHLevel 3 A)
@@ -186,3 +253,34 @@ fillCube4 :
   (u : (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A)
   (i j k l : I) → A [ _ ↦ u i j k l ]
 fillCube4 h u = fillCube 4 h u
+
+
+-- Dependent cube-filling
+
+fillCubeDep1 :
+  (h : isOfHLevelDep 1 B)
+  (a : (i : I) → A)
+  (u : (i : I) → Partial (i ∨ ~ i) (B (a i)))
+  (i : I) → B (a i) [ _ ↦ u i ]
+fillCubeDep1 h a u = fillCubeDep 1 h a u
+
+fillCubeDep2 :
+  (h : isOfHLevelDep 2 B)
+  (a : (i j : I) → A)
+  (u : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) (B (a i j)))
+  (i j : I) → B (a i j) [ _ ↦ u i j ]
+fillCubeDep2 h a u = fillCubeDep 2 h a u
+
+fillCubeDep3 :
+  (h : isOfHLevelDep 3 B)
+  (a : (i j k : I) → A)
+  (u : (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) (B (a i j k)))
+  (i j k : I) → B (a i j k) [ _ ↦ u i j k ]
+fillCubeDep3 h a u = fillCubeDep 3 h a u
+
+fillCubeDep4 :
+  (h : isOfHLevelDep 4 B)
+  (a : (i j k l : I) → A)
+  (u : (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) (B (a i j k l)))
+  (i j k l : I) → B (a i j k l) [ _ ↦ u i j k l ]
+fillCubeDep4 h a u = fillCubeDep 4 h a u

@@ -32,13 +32,23 @@ private
 data _≡ᵉ_ {A : Typeᵉ ℓ} : A → A → Typeᵉ ℓ where
   reflᵉ : {a : A} → a ≡ᵉ a
 
+infix 4 _≡ᵉ_
+
+Idᵉ = _≡ᵉ_
+
 -- Basic operations
+
+_∙ᵉ_ : {A : Typeᵉ ℓ} {a b c : A} → a ≡ᵉ b → a ≡ᵉ c → a ≡ᵉ c
+reflᵉ ∙ᵉ reflᵉ = reflᵉ
 
 symᵉ : {A : Typeᵉ ℓ} {a b : A} → a ≡ᵉ b → b ≡ᵉ a
 symᵉ reflᵉ = reflᵉ
 
 congᵉ : {A : Typeᵉ ℓ} {B : Typeᵉ ℓ'} → (f : A → B) → {a b : A} → a ≡ᵉ b → f a ≡ᵉ f b
 congᵉ f reflᵉ = reflᵉ
+
+cong' : {A : Typeᵉ ℓ} {B : Type ℓ'} → (f : A → B) → {a b : A} → a ≡ᵉ b → f a ≡ f b
+cong' f reflᵉ = refl
 
 substᵉ : {A : Typeᵉ ℓ} (P : A → Typeᵉ ℓ') {a b : A} → a ≡ᵉ b → P a → P b
 substᵉ P reflᵉ p = p
@@ -50,6 +60,42 @@ transportᵉ reflᵉ a = a
 
 Kᵉ : {A : Typeᵉ ℓ} {a b : A} → (p q : a ≡ᵉ b) → p ≡ᵉ q
 Kᵉ reflᵉ reflᵉ = reflᵉ
+
+
+{- External Inhomogeneous Equality -}
+
+data IdPᵉ {A : Typeᵉ ℓ} {B : A → Typeᵉ ℓ'} :
+  {a b : A} → a ≡ᵉ b → B a → B b → Typeᵉ (ℓ-max ℓ ℓ')
+  where
+  reflᵉ : {a : A} {b : B a} → IdPᵉ reflᵉ b b
+
+-- Basic operations
+
+symPᵉ :
+  {A : Typeᵉ ℓ} {B : A → Typeᵉ ℓ'}
+  {a b : A} (p : a ≡ᵉ b)
+  {x : B a} {y : B b}
+  → IdPᵉ p x y → IdPᵉ (symᵉ p) y x
+symPᵉ reflᵉ reflᵉ = reflᵉ
+
+congPᵉ :
+  {A : Typeᵉ ℓ} {B : A → Typeᵉ ℓ'}
+  (f : (a : A) → B a)
+  {a b : A} (p : a ≡ᵉ b)
+  → IdPᵉ p (f a) (f b)
+congPᵉ f reflᵉ = reflᵉ
+
+substᵉ-filler :
+  {A : Typeᵉ ℓ} {B : A → Typeᵉ ℓ'}
+  {a b : A} (p : a ≡ᵉ b) (b : B a)
+  → IdPᵉ p b (substᵉ B p b)
+substᵉ-filler reflᵉ b = reflᵉ
+
+transport-fillerᵉ :
+  {A B : Typeᵉ ℓ}
+  (p : A ≡ᵉ B) (a : A)
+  → IdPᵉ p a (transportᵉ p a)
+transport-fillerᵉ reflᵉ a = reflᵉ
 
 
 {- Lift Internal Types to the External Universes -}
