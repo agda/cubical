@@ -35,11 +35,11 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
-open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order hiding (_<_)
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
-open import Cubical.Data.FinData.Order
+open import Cubical.Data.FinData.Order renaming (_<'Fin_ to _<_)
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
@@ -231,24 +231,49 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
      path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
 
 
+ -- to be upstreamed / what should it be called
+ recFin< : {m : ℕ} {P : {i j : Fin m} → i < j → Type ℓ'}
+            {B : Type ℓ''} (isPropB : isProp B)
+          → ((∀ {i} {j} (i<j : i < j) → P i<j) → B)
+         ---------------------------------------------------
+          → ((∀ {i} {j} (i<j : i < j) → ∥ P i<j ∥₁) → B)
+ recFin< {m = zero} isPropB untruncHyp truncs = untruncHyp (λ {i} → ⊥.rec (¬Fin0 i))
+ recFin< {m = suc m} {P = P} {B = B} isPropB untruncHyp truncs =
+   curriedishTrunc {!!}
+                     λ i<j → truncs (s≤s i<j)
+   where
+   curriedish : (∀ j (0<j : zero < j) → P 0<j)
+              → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
+              → B
+   curriedish p₀ truncFamSuc = recFin< isPropB
+     (λ famSuc → untruncHyp (λ { {i = zero} 0<j → p₀ _ 0<j
+                               ; {i = suc i} {j = zero} ()
+                               ; {i = suc i} {j = suc j} (s≤s i<j) → famSuc i<j}))
+          truncFamSuc
+
+   curriedishTrunc : (∀ j → ∥ ((0<j : zero < j) → P 0<j) ∥₁)
+                   → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
+                   → B
+   curriedishTrunc = recFin (isProp→ isPropB) curriedish
+
  -- this will do all the heavy lifting
  equalizerLemma : 1r ∈ ⟨f₀,⋯,fₙ⟩
                 → ∀ (x : (i : Fin (suc n)) → R[1/ f i ]) -- s.t.
-                → (∀ {i} {j} → i <'Fin j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
+                → (∀ {i} {j} → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
                 → ∃![ y ∈ R ] (∀ i → y /1ˢ ≡ x i)
  equalizerLemma 1∈⟨f₀,⋯,fₙ⟩ = invElPropElimN n f _
                                               (λ _ → isPropΠ (λ _ → isProp∃!))
                                                 baseCase
    where
    baseCase : ∀ (r : FinVec R (suc n)) (m : ℕ)
-            → (∀ {i} {j} → i <'Fin j
+            → (∀ {i} {j} → i < j
                  → χˡ i j .fst ([ r i , f i ^ m , ∣ m , refl ∣₁ ])
                  ≡ χʳ i j .fst ([ r j , f j ^ m , ∣ m , refl ∣₁ ]))
             → ∃![ y ∈ R ] ∀ i → (y /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
-   baseCase r m pairHyp = {!!}
+   baseCase r m pairHyp = recFin< isProp∃! annihilatorHelper exAnnihilator
      where
      -- This computes because we defined the χ by hand
-     exAnnihilator : ∀ {i} {j} → i <'Fin j
+     exAnnihilator : ∀ {i} {j} → i < j
                    → ∃[ s ∈ LP.S i j ] -- s.t.
                        fst s · (r i · transport refl (f j ^ m))
                              · (1r · transport refl ((f i · f j) ^ m))
@@ -257,4 +282,47 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
      exAnnihilator i<j = isEquivRel→TruncIso (LP.locIsEquivRel _ _) _ _ .fun
                                              (pairHyp i<j)
      -- sᵢⱼ = fᵢfⱼ ^ lᵢⱼ, so need to take max over all of these...
-     -- also need a rec<Fin???
+     annihilatorHelper : (∀ {i} {j} → i < j
+                           → Σ[ s ∈ LP.S i j ] -- s.t.
+                               fst s · (r i · transport refl (f j ^ m))
+                                     · (1r · transport refl ((f i · f j) ^ m))
+                             ≡ fst s · (r j · transport refl (f i ^ m))
+                                     · (1r · transport refl ((f i · f j) ^ m)))
+                       → ∃![ y ∈ R ] ∀ i → (y /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
+     annihilatorHelper anns = recFin< isProp∃! exponentHelper sIsPow
+       where
+       -- notation
+       s : {i j : Fin (suc n)} → i < j → R
+       s i<j = anns i<j .fst .fst
+
+       sIsPow : ∀ {i} {j} (i<j : i < j) → s i<j ∈ₚ [ (f i · f j) ⁿ|n≥0]
+       sIsPow i<j = anns i<j .fst .snd
+
+       sIsAnn : ∀ {i} {j} (i<j : i < j)
+              → s i<j · r i · f j ^ m · (f i · f j) ^ m
+              ≡ s i<j · r j · f i ^ m · (f i · f j) ^ m
+       sIsAnn {i = i} {j = j} i<j =
+           s i<j · r i · f j ^ m · (f i · f j) ^ m
+         ≡⟨ transpHelper _ _ _ _ ⟩
+           s i<j · r i · transport refl (f j ^ m) · transport refl ((f i · f j) ^ m)
+         ≡⟨ useSolver _ _ _ _ ⟩
+           s i<j · (r i · transport refl (f j ^ m))
+                 · (1r · transport refl ((f i · f j) ^ m))
+         ≡⟨ anns i<j .snd ⟩
+           s i<j · (r j · transport refl (f i ^ m))
+                 · (1r · transport refl ((f i · f j) ^ m))
+         ≡⟨ sym (useSolver _ _ _ _) ⟩
+           s i<j · r j · transport refl (f i ^ m) · transport refl ((f i · f j) ^ m)
+         ≡⟨ sym (transpHelper _ _ _ _) ⟩
+           s i<j · r j · f i ^ m · (f i · f j) ^ m ∎
+         where
+         transpHelper : ∀ a b c d → a · b · c · d
+                                  ≡ a · b · transport refl c · transport refl d
+         transpHelper a b c d i = a · b · transportRefl c (~ i) · transportRefl d (~ i)
+         useSolver : ∀ a b c d → a · b · c · d ≡ a · (b · c) · (1r · d)
+         useSolver = solve R'
+
+       exponentHelper : (∀ {i} {j} (i<j : i < j)
+                           → Σ[ l ∈ ℕ ] s i<j ≡ (f i · f j) ^ l)
+                      → ∃![ y ∈ R ] ∀ i → (y /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
+       exponentHelper = {!!}
