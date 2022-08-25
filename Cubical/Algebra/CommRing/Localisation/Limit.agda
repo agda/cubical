@@ -39,6 +39,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
+open import Cubical.Data.FinData.Order
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
@@ -71,8 +72,8 @@ private
     ℓ ℓ' ℓ'' : Level
 
 
-
-module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
+-- TODO: deal with case zero later
+module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  open isMultClosedSubset
  open CommRingTheory R'
  open RingTheory (CommRing→Ring R')
@@ -86,7 +87,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
   R = fst R'
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
-  ⟨f₁,⋯,fₙ⟩ = ⟨ f ⟩[ R' ]
+  ⟨f₀,⋯,fₙ⟩ = ⟨ f ⟩[ R' ]
 
   instance
    _ = R' .snd
@@ -97,13 +98,13 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
   module UP i j = S⁻¹RUniversalProp R' [ f i · f j ⁿ|n≥0] (powersFormMultClosedSubset (f i · f j))
 
   -- a lot of syntax to make things readable
-  0at : (i : Fin n) →  R[1/ (f i) ]
+  0at : (i : Fin (suc n)) →  R[1/ (f i) ]
   0at i = R[1/ (f i) ]AsCommRing .snd .CommRingStr.0r
 
-  _/1ˢ : R → {i : Fin n} →  R[1/ (f i) ]
+  _/1ˢ : R → {i : Fin (suc n)} →  R[1/ (f i) ]
   (r /1ˢ) {i = i} = U._/1 i r
 
-  _/1ᵖ : R → {i j : Fin n} →  R[1/ (f i) · (f j) ]
+  _/1ᵖ : R → {i j : Fin (suc n)} →  R[1/ (f i) · (f j) ]
   (r /1ᵖ) {i = i} {j = j} = UP._/1 i j r
 
  -- to be upstreamed
@@ -125,12 +126,12 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
    CurriedishTrunc = PT.rec (isProp→ isPropB) Curriedish
 
 
- -- This lemma proves that if ⟨ f₁ ,..., fₙ ⟩ ≡ R,
+ -- This lemma proves that if ⟨ f₀ ,..., fₙ ⟩ ≡ R,
  -- then we get an exact sequence
  --   0 → R → ∏ᵢ R[1/fᵢ]
  -- sending r : R to r/1 in R[1/fᵢ] for each i
- injectivityLemma : 1r ∈ ⟨f₁,⋯,fₙ⟩ → ∀ (x : R) → (∀ i → x /1ˢ ≡ 0at i) → x ≡ 0r
- injectivityLemma 1∈⟨f₁,⋯,fₙ⟩ x x/1≡0 = recFin (is-set _ _) annihilatorHelper exAnnihilator
+ injectivityLemma : 1r ∈ ⟨f₀,⋯,fₙ⟩ → ∀ (x : R) → (∀ i → x /1ˢ ≡ 0at i) → x ≡ 0r
+ injectivityLemma 1∈⟨f₀,⋯,fₙ⟩ x x/1≡0 = recFin (is-set _ _) annihilatorHelper exAnnihilator
   where
   exAnnihilator : ∀ i → ∃[ s ∈ L.S i ] (fst s · x · 1r ≡ fst s · 0r · 1r)
   exAnnihilator i = isEquivRel→TruncIso (L.locIsEquivRel i) _ _ .fun (x/1≡0 i)
@@ -139,7 +140,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
                     → x ≡ 0r
   annihilatorHelper ann = recFin (is-set _ _) exponentHelper uIsPower
     where
-    u : FinVec R n
+    u : FinVec R (suc n)
     u i = ann i .fst .fst
 
     uIsPower : ∀ i → u i ∈ₚ [ (f i) ⁿ|n≥0]
@@ -150,9 +151,9 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
 
     exponentHelper : (∀ i → Σ[ m ∈ ℕ ] u i ≡ f i ^ m)
                    → x ≡ 0r
-    exponentHelper pows = PT.rec (is-set _ _) Σhelper (GeneratingPowers.thm R' l _ _ 1∈⟨f₁,⋯,fₙ⟩)
+    exponentHelper pows = PT.rec (is-set _ _) Σhelper (GeneratingPowers.thm R' l _ _ 1∈⟨f₀,⋯,fₙ⟩)
       where
-      m : FinVec ℕ n
+      m : FinVec ℕ (suc n)
       m i = pows i .fst
 
       u≡fᵐ : ∀ i → u i ≡ f i ^ m i
@@ -160,69 +161,100 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
 
       l = Max m
 
-      fˡ : FinVec R n
+      fˡ : FinVec R (suc n)
       fˡ i = f i ^ l
 
       fˡx≡0 : ∀ i → f i ^ l · x ≡ 0r
       fˡx≡0 i =
         f i ^ l · x                     ≡⟨ cong (λ k → f i ^ k · x)
-                                                (sym (≤-∸-+-cancel (ind≤Max _ i))) ⟩
+                                             (sym (≤-∸-+-cancel (ind≤Max m i))) ⟩
         f i ^ ((l ∸ m i) +ℕ m i) · x    ≡⟨ cong (_· x) (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
-        f i ^ (l ∸ m i) · f i ^ m i · x ≡⟨ cong (λ y → f i ^ (l ∸ m i) · y · x) (sym (u≡fᵐ i)) ⟩
+        f i ^ (l ∸ m i) · f i ^ m i · x ≡⟨ cong (λ y → f i ^ (l ∸ m i) · y · x)
+                                                (sym (u≡fᵐ i)) ⟩
         f i ^ (l ∸ m i) · u i · x       ≡⟨ sym (·Assoc _ _ _) ⟩
         f i ^ (l ∸ m i) · (u i · x)     ≡⟨ cong (f i ^ (l ∸ m i) ·_) (ux≡0 i) ⟩
         f i ^ (l ∸ m i) · 0r            ≡⟨ 0RightAnnihilates _ ⟩
         0r ∎
 
 
-      Σhelper : Σ[ α ∈ FinVec R n ] 1r ≡ ∑ (λ i → α i · f i ^ l)
+      Σhelper : Σ[ α ∈ FinVec R (suc n) ] 1r ≡ ∑ (λ i → α i · f i ^ l)
               → x ≡ 0r
       Σhelper (α , 1≡∑αfˡ) =
-            x                                   ≡⟨ sym (·IdL _) ⟩
-            1r · x                              ≡⟨ cong (_· x) 1≡∑αfˡ ⟩
-            ∑ (λ i → α i · f i ^ l) · x         ≡⟨ ∑Mulldist _ _ ⟩
-            ∑ (λ i → α i · f i ^ l · x)         ≡⟨ ∑Ext (λ i → sym (·Assoc _ _ _)) ⟩
-            ∑ (λ i → α i · (f i ^ l · x))       ≡⟨ ∑Ext (λ i → cong (α i ·_) (fˡx≡0 i)) ⟩
-            ∑ (λ i → α i · 0r)                  ≡⟨ ∑Ext (λ _ → 0RightAnnihilates _) ⟩
-            ∑ (replicateFinVec n 0r)            ≡⟨ ∑0r n ⟩
-            0r ∎
+        x                                   ≡⟨ sym (·IdL _) ⟩
+        1r · x                              ≡⟨ cong (_· x) 1≡∑αfˡ ⟩
+        ∑ (λ i → α i · f i ^ l) · x         ≡⟨ ∑Mulldist _ _ ⟩
+        ∑ (λ i → α i · f i ^ l · x)         ≡⟨ ∑Ext (λ i → sym (·Assoc (α i)
+                                                                  (f i ^ l) x)) ⟩
+        ∑ (λ i → α i · (f i ^ l · x))       ≡⟨ ∑Ext (λ i → cong (α i ·_) (fˡx≡0 i)) ⟩
+        ∑ (λ i → α i · 0r)                  ≡⟨ ∑Ext (λ i → 0RightAnnihilates (α i)) ⟩
+        ∑ (replicateFinVec (suc n) 0r)      ≡⟨ ∑0r (suc n) ⟩
+        0r ∎
 
 
-  -- the morphisms into localisations at products from the left/right
-  -- we need to define them by hand as using RadicalLemma wouldn't compute later
-  χˡ : (i j : Fin n) → CommRingHom R[1/ f i ]AsCommRing
-                                   R[1/ f i · f j ]AsCommRing
-  χˡ i j = U.S⁻¹RHasUniversalProp i _ (UP./1AsCommRingHom i j) unitHelper .fst .fst
-    where
-    unitHelper : ∀ s → s ∈ₚ [ (f i) ⁿ|n≥0] → s /1ᵖ ∈ₚ (R[1/ f i · f j ]AsCommRing) ˣ
-    unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᵖ))
-                   λ m → [ f j ^ m , (f i · f j) ^ m , ∣ m , refl ∣₁ ]
-                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
-                         , path m)
-      where
-      useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ a · b
-      useSolver1 = solve R'
-      useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
-      useSolver2 = solve R'
+ -- the morphisms into localisations at products from the left/right
+ -- we need to define them by hand as using RadicalLemma wouldn't compute later
+ χˡ : (i j : Fin (suc n)) → CommRingHom R[1/ f i ]AsCommRing
+                                        R[1/ f i · f j ]AsCommRing
+ χˡ i j = U.S⁻¹RHasUniversalProp i _ (UP./1AsCommRingHom i j) unitHelper .fst .fst
+   where
+   unitHelper : ∀ s → s ∈ₚ [ (f i) ⁿ|n≥0] → s /1ᵖ ∈ₚ (R[1/ f i · f j ]AsCommRing) ˣ
+   unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᵖ))
+                  λ m → [ f j ^ m , (f i · f j) ^ m , ∣ m , refl ∣₁ ]
+                        , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
+                        , path m)
+     where
+     useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ a · b
+     useSolver1 = solve R'
+     useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
+     useSolver2 = solve R'
 
-      path : (n : ℕ) → 1r · (f i ^ n · f j ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
-      path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
+     path : (n : ℕ) → 1r · (f i ^ n · f j ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
+     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
 
 
-  χʳ : (i j : Fin n) → CommRingHom R[1/ f j ]AsCommRing
-                                   R[1/ f i · f j ]AsCommRing
-  χʳ i j = U.S⁻¹RHasUniversalProp j _ (UP./1AsCommRingHom i j) unitHelper .fst .fst
-    where
-    unitHelper : ∀ s → s ∈ₚ [ (f j) ⁿ|n≥0] → s /1ᵖ ∈ₚ (R[1/ f i · f j ]AsCommRing) ˣ
-    unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᵖ))
-                   λ m → [ f i ^ m , (f i · f j) ^ m , ∣ m , refl ∣₁ ]
-                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
-                         , path m)
-      where
-      useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ b · a
-      useSolver1 = solve R'
-      useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
-      useSolver2 = solve R'
+ χʳ : (i j : Fin (suc n)) → CommRingHom R[1/ f j ]AsCommRing
+                                        R[1/ f i · f j ]AsCommRing
+ χʳ i j = U.S⁻¹RHasUniversalProp j _ (UP./1AsCommRingHom i j) unitHelper .fst .fst
+   where
+   unitHelper : ∀ s → s ∈ₚ [ (f j) ⁿ|n≥0] → s /1ᵖ ∈ₚ (R[1/ f i · f j ]AsCommRing) ˣ
+   unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᵖ))
+                  λ m → [ f i ^ m , (f i · f j) ^ m , ∣ m , refl ∣₁ ]
+                        , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
+                        , path m)
+     where
+     useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ b · a
+     useSolver1 = solve R'
+     useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
+     useSolver2 = solve R'
 
-      path : (n : ℕ) → 1r · (f j ^ n · f i ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
-      path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
+     path : (n : ℕ) → 1r · (f j ^ n · f i ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
+     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
+
+
+ -- this will do all the heavy lifting
+ equalizerLemma : 1r ∈ ⟨f₀,⋯,fₙ⟩
+                → ∀ (x : (i : Fin (suc n)) → R[1/ f i ]) -- s.t.
+                → (∀ {i} {j} → i <'Fin j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
+                → ∃![ y ∈ R ] (∀ i → y /1ˢ ≡ x i)
+ equalizerLemma 1∈⟨f₀,⋯,fₙ⟩ = invElPropElimN n f _
+                                              (λ _ → isPropΠ (λ _ → isProp∃!))
+                                                baseCase
+   where
+   baseCase : ∀ (r : FinVec R (suc n)) (m : ℕ)
+            → (∀ {i} {j} → i <'Fin j
+                 → χˡ i j .fst ([ r i , f i ^ m , ∣ m , refl ∣₁ ])
+                 ≡ χʳ i j .fst ([ r j , f j ^ m , ∣ m , refl ∣₁ ]))
+            → ∃![ y ∈ R ] ∀ i → (y /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
+   baseCase r m pairHyp = {!!}
+     where
+     -- This computes because we defined the χ by hand
+     exAnnihilator : ∀ {i} {j} → i <'Fin j
+                   → ∃[ s ∈ LP.S i j ] -- s.t.
+                       fst s · (r i · transport refl (f j ^ m))
+                             · (1r · transport refl ((f i · f j) ^ m))
+                     ≡ fst s · (r j · transport refl (f i ^ m))
+                             · (1r · transport refl ((f i · f j) ^ m))
+     exAnnihilator i<j = isEquivRel→TruncIso (LP.locIsEquivRel _ _) _ _ .fun
+                                             (pairHyp i<j)
+     -- sᵢⱼ = fᵢfⱼ ^ lᵢⱼ, so need to take max over all of these...
+     -- also need a rec<Fin???
