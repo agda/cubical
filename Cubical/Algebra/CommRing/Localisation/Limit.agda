@@ -239,22 +239,34 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
           → ((∀ {i} {j} (i<j : i < j) → ∥ P i<j ∥₁) → B)
  recFin< {m = zero} isPropB untruncHyp truncs = untruncHyp (λ {i} → ⊥.rec (¬Fin0 i))
  recFin< {m = suc m} {P = P} {B = B} isPropB untruncHyp truncs =
-   curriedishTrunc {!!}
-                     λ i<j → truncs (s≤s i<j)
+   curriedishTrunc (λ 0<j → truncs 0<j) λ i<j → truncs (s≤s i<j)
    where
-   curriedish : (∀ j (0<j : zero < j) → P 0<j)
+   curriedish : (∀ {j} (0<j : zero < j) → P 0<j)
               → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
               → B
    curriedish p₀ truncFamSuc = recFin< isPropB
-     (λ famSuc → untruncHyp (λ { {i = zero} 0<j → p₀ _ 0<j
+     (λ famSuc → untruncHyp (λ { {i = zero} 0<j → p₀ 0<j
                                ; {i = suc i} {j = zero} ()
                                ; {i = suc i} {j = suc j} (s≤s i<j) → famSuc i<j}))
           truncFamSuc
 
-   curriedishTrunc : (∀ j → ∥ ((0<j : zero < j) → P 0<j) ∥₁)
+   recFin0< : {m' : ℕ} {P' : {j : Fin (suc m')} → zero < j → Type ℓ'}
+            {B' : Type ℓ''} (isPropB' : isProp B')
+          → ((∀ {j} (0<j : zero < j) → P' 0<j) → B')
+         ---------------------------------------------------
+          → ((∀ {j} (0<j : zero < j) → ∥ P' 0<j ∥₁) → B')
+   recFin0< {P' = P'} isPropB' untruncHyp₀ truncs₀ =
+      recFin {P = λ j → P' (s≤s (z≤ {toℕ (weakenFin j)}))}
+              isPropB' (λ famSuc → untruncHyp₀
+                         λ { {j = zero} → λ () ; {j = suc j} (s≤s z≤) → famSuc j})
+                          λ _ → truncs₀ (s≤s z≤)
+
+   curriedishTrunc : (∀ {j} (0<j : zero < j) → ∥ P 0<j ∥₁)
                    → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
                    → B
-   curriedishTrunc = recFin (isProp→ isPropB) curriedish
+   curriedishTrunc = recFin0< {m' = m} (isProp→ isPropB) curriedish
+
+
 
  -- this will do all the heavy lifting
  equalizerLemma : 1r ∈ ⟨f₀,⋯,fₙ⟩
