@@ -8,6 +8,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Bool
 open import Cubical.Data.Nat
 open import Cubical.Data.Int renaming (_+_ to _ℤ+_)
 open import Cubical.Data.Sigma
@@ -77,3 +78,6 @@ open IsGroupHom
 -- null-H¹ a b = sym (leftInv (fst H²-RP²⋁S¹≅Bool) _)
 --               ∙ cong (inv (fst H²-RP²⋁S¹≅Bool)) {!refl!}
 --               ∙ pres1 (snd (invGroupIso H²-RP²⋁S¹≅Bool))
+
+tryf : (a b : ℤ) → (fun (fst H²-RP²⋁S¹≅Bool) ((inv (fst H¹-RP²⋁S¹≅ℤ) (pos 1)) ⌣ (inv (fst H¹-RP²⋁S¹≅ℤ) (pos 1)))) ≡ true
+tryf a b = {!refl!}
