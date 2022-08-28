@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Vec
@@ -229,16 +230,16 @@ module Properties-Equiv-QuotientXn-A
 
 
 module _
-  (Ar@(A , Astr) : CommRing ℓ)
+  (A : CommRing ℓ)
   where
 
   open Iso
-  open Properties-Equiv-QuotientXn-A Ar
+  open Properties-Equiv-QuotientXn-A A
 
-  Equiv-A[X]/X-A : CommRingEquiv (A[X1,···,Xn]/<Xkʲ> Ar 1 0 1) Ar
+  Equiv-A[X]/X-A : CommRingEquiv (A[X1,···,Xn]/<Xkʲ> A 1 0 1) A
   fst Equiv-A[X]/X-A = isoToEquiv is
     where
-    is : Iso (A[x1,···,xn]/<xkʲ> Ar 1 0 1) A
+    is : Iso (A[x1,···,xn]/<xkʲ> A 1 0 1) ⟨ A ⟩
     fun is = A[x]/x→A
     inv is = A→A[x]/x
     rightInv is = e-sect
