@@ -37,23 +37,23 @@ private variable
 
 
 module Properties-Equiv-QuotientXn-A
-  (Ar@(A , Astr) : CommRing ℓ)
+  (A : CommRing ℓ)
   where
 
   private
     A[X] : CommRing ℓ
-    A[X] = A[X1,···,Xn] Ar 1
+    A[X] = A[X1,···,Xn] A 1
 
     A[x] : Type ℓ
-    A[x] = A[x1,···,xn] Ar 1
+    A[x] = A[x1,···,xn] A 1
 
     A[X]/X : CommRing ℓ
-    A[X]/X = A[X1,···,Xn]/<Xkʲ> Ar 1 0 1
+    A[X]/X = A[X1,···,Xn]/<Xkʲ> A 1 0 1
 
     A[x]/x : Type ℓ
-    A[x]/x = A[x1,···,xn]/<xkʲ> Ar 1 0 1
+    A[x]/x = A[x1,···,xn]/<xkʲ> A 1 0 1
 
-  open CommRingStr Astr using ()
+  open CommRingStr (snd A) using ()
     renaming
     ( 0r        to 0A
     ; 1r        to 1A
@@ -120,7 +120,7 @@ module Properties-Equiv-QuotientXn-A
 -----------------------------------------------------------------------------
 -- Direct sens
 
-  A[x]→A : A[x] → A
+  A[x]→A : A[x] → ⟨ A ⟩
   A[x]→A = DS-Rec-Set.f _ _ _ _ isSetA
           0A
           base-trad
@@ -153,30 +153,30 @@ module Properties-Equiv-QuotientXn-A
   A[x]→A-pres· : (x y : A[x]) → (A[x]→A (x ·PA y)) ≡ A[x]→A x ·A A[x]→A y
   A[x]→A-pres· = DS-Ind-Prop.f _ _ _ _
                (λ x u v i y → isSetA _ _ (u y) (v y) i)
-               (λ y → sym (0LeftAnnihilates (CommRing→Ring Ar) _))
+               (λ y → sym (0LeftAnnihilates (CommRing→Ring A) _))
                (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetA _ _)
-                         (sym (0RightAnnihilates (CommRing→Ring Ar) _))
+                         (sym (0RightAnnihilates (CommRing→Ring A) _))
                          (λ v' a' → base-eq a a' v v')
                          (λ {U V} ind-U ind-V → cong₂ _+A_ ind-U ind-V ∙ sym (·ADistR+ _ _ _)))
                λ {U V} ind-U ind-V y → cong₂ _+A_ (ind-U y) (ind-V y) ∙ sym (·ADistL+ _ _ _)
             where
-            base-eq : (a a' : A) → (v v' : Vec ℕ 1) → (A[x]→A (base v a ·PA base v' a')) ≡ A[x]→A (base v a) ·A A[x]→A (base v' a')
+            base-eq : (a a' : ⟨ A ⟩) → (v v' : Vec ℕ 1) → (A[x]→A (base v a ·PA base v' a')) ≡ A[x]→A (base v a) ·A A[x]→A (base v' a')
             base-eq a a' (zero ∷ []) (zero ∷ []) = refl
-            base-eq a a' (zero ∷ []) (suc k' ∷ []) = sym (0RightAnnihilates (CommRing→Ring Ar) _)
-            base-eq a a' (suc k ∷ []) (k' ∷ []) = sym (0LeftAnnihilates (CommRing→Ring Ar) _)
+            base-eq a a' (zero ∷ []) (suc k' ∷ []) = sym (0RightAnnihilates (CommRing→Ring A) _)
+            base-eq a a' (suc k ∷ []) (k' ∷ []) = sym (0LeftAnnihilates (CommRing→Ring A) _)
 
-  A[X]→A : CommRingHom A[X] Ar
+  A[X]→A : CommRingHom A[X] A
   fst A[X]→A = A[x]→A
   snd A[X]→A = makeIsRingHom A[x]→A-pres1 A[x]→A-pres+ A[x]→A-pres·
 
-  A[x]→A-cancel : (k : Fin 1) → A[x]→A (<Xkʲ> Ar 1 0 1 k) ≡ 0A
+  A[x]→A-cancel : (k : Fin 1) → A[x]→A (<Xkʲ> A 1 0 1 k) ≡ 0A
   A[x]→A-cancel zero = refl
 
-  A[X]/X→A : CommRingHom A[X]/X Ar
-  A[X]/X→A = Quotient-FGideal-CommRing-CommRing.inducedHom A[X] Ar A[X]→A (<Xkʲ> Ar 1 0 1) A[x]→A-cancel
+  A[X]/X→A : CommRingHom A[X]/X A
+  A[X]/X→A = Quotient-FGideal-CommRing-CommRing.inducedHom A[X] A A[X]→A (<Xkʲ> A 1 0 1) A[x]→A-cancel
 
   A[x]/x→A : A[x]/x → A
-  A[x]/x→A = fst A[X]/X→A
+  A[x]/x→A = ⟨ A[X]/X→A ⟩
 
 
 
