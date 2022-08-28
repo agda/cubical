@@ -9,30 +9,16 @@ open import Cubical.Homotopy.EilenbergMacLane.CupProduct
 
 open import Cubical.Cohomology.EilenbergMacLane.Base
 
-
-
-
-open import Cubical.Algebra.AbGroup.TensorProduct
-open import Cubical.Algebra.Group.MorphismProperties
-
+open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Monoid.Base
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Transport
 
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.SetTruncation as ST
-open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation
 
-open import Cubical.Algebra.AbGroup.Base
-open import Cubical.Data.Nat hiding (_·_) renaming (elim to ℕelim ; _+_ to _+ℕ_)
-open import Cubical.Data.Sigma
-
-open import Cubical.Algebra.Ring
+open import Cubical.Data.Nat
 
 open AbGroupStr renaming (_+_ to _+Gr_ ; -_ to -Gr_)
 open RingStr
@@ -62,15 +48,22 @@ module _ {G'' : Ring ℓ} {A : Type ℓ'} where
   _⌣_ = ST.rec2 squash₂ λ f g → ∣ (λ x → f x ⌣ₖ g x) ∣₂
 
   ⌣-0ₕ : (n m : ℕ) (x : coHom n G' A) → (x ⌣ 0ₕ m) ≡ 0ₕ (n +' m)
-  ⌣-0ₕ n m = ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → ⌣ₖ-0ₖ n m (f x))
+  ⌣-0ₕ n m =
+    ST.elim (λ _ → isSetPathImplicit)
+      λ f → cong ∣_∣₂ (funExt λ x → ⌣ₖ-0ₖ n m (f x))
 
   0ₕ-⌣ : (n m : ℕ) (x : coHom m G' A) → (0ₕ n ⌣ x) ≡ 0ₕ (n +' m)
-  0ₕ-⌣ n m = ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → 0ₖ-⌣ₖ n m (f x))
+  0ₕ-⌣ n m =
+    ST.elim (λ _ → isSetPathImplicit)
+      λ f → cong ∣_∣₂ (funExt λ x → 0ₖ-⌣ₖ n m (f x))
 
-  ⌣-1ₕ : (n : ℕ) (x : coHom n G' A) → (x ⌣ 1ₕ) ≡ subst (λ n → coHom n G' A) (+'-comm zero n) x
-  ⌣-1ₕ n = ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂
+  ⌣-1ₕ : (n : ℕ) (x : coHom n G' A)
+    → (x ⌣ 1ₕ) ≡ subst (λ n → coHom n G' A) (+'-comm zero n) x
+  ⌣-1ₕ n =
+    ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂
             (funExt λ x → ⌣ₖ-1ₖ n (f x)
-           ∙ cong (transp (λ i → EM G' (+'-comm zero n i)) i0) (cong f (sym (transportRefl x))))
+           ∙ cong (transport (λ i → EM G' (+'-comm zero n i)))
+                  (cong f (sym (transportRefl x))))
 
   1ₕ-⌣ : (n : ℕ) (x : coHom n G' A) → (1ₕ ⌣ x) ≡ x
   1ₕ-⌣ n = ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂
@@ -78,22 +71,25 @@ module _ {G'' : Ring ℓ} {A : Type ℓ'} where
 
   distrR⌣ : (n m : ℕ) (x y : coHom n G' A) (z : coHom m G' A)
           → ((x +ₕ y) ⌣ z) ≡ (x ⌣ z) +ₕ (y ⌣ z)
-  distrR⌣ n m = ST.elim2 (λ _ _ → isSetΠ (λ _ → isSetPathImplicit))
-                λ f g → ST.elim (λ _ → isSetPathImplicit)
-                  λ h → cong ∣_∣₂ (funExt (λ x → distrR⌣ₖ n m (f x) (g x) (h x)))
+  distrR⌣ n m =
+    ST.elim2 (λ _ _ → isSetΠ (λ _ → isSetPathImplicit))
+      λ f g → ST.elim (λ _ → isSetPathImplicit)
+        λ h → cong ∣_∣₂ (funExt (λ x → distrR⌣ₖ n m (f x) (g x) (h x)))
 
   distrL⌣ : (n m : ℕ) (x : coHom n G' A) (y z : coHom m G' A)
           → (x ⌣ (y +ₕ z)) ≡ (x ⌣ y) +ₕ (x ⌣ z)
-  distrL⌣ n m = ST.elim (λ _ → isSetΠ2 (λ _ _ → isSetPathImplicit))
-                λ f → ST.elim2 (λ _ _ → isSetPathImplicit)
-                  λ g h → cong ∣_∣₂ (funExt (λ x → distrL⌣ₖ n m (f x) (g x) (h x)))
+  distrL⌣ n m =
+    ST.elim (λ _ → isSetΠ2 (λ _ _ → isSetPathImplicit))
+      λ f → ST.elim2 (λ _ _ → isSetPathImplicit)
+        λ g h → cong ∣_∣₂ (funExt (λ x → distrL⌣ₖ n m (f x) (g x) (h x)))
 
-  assoc⌣ : (n m l : ℕ) (x : coHom n G' A) (y : coHom m G' A) (z : coHom l G' A)
-         → ((x ⌣ y) ⌣ z) ≡ subst (λ n → coHom n G' A) (+'-assoc n m l) (x ⌣ (y ⌣ z))
+  assoc⌣ : (n m l : ℕ)
+       (x : coHom n G' A) (y : coHom m G' A) (z : coHom l G' A)
+    → ((x ⌣ y) ⌣ z) ≡ subst (λ n → coHom n G' A) (+'-assoc n m l) (x ⌣ (y ⌣ z))
   assoc⌣ n m l =
     ST.elim (λ _ → isSetΠ2 (λ _ _ → isSetPathImplicit))
       λ f → ST.elim (λ _ → isSetΠ (λ _ → isSetPathImplicit))
         λ g → ST.elim (λ _ → isSetPathImplicit)
           λ h → cong ∣_∣₂ (funExt λ x → assoc⌣ₖ n m l (f x) (g x) (h x)
-            ∙ cong (transp (λ i → EM G' (+'-assoc n m l i)) i0)
+            ∙ cong (transport (λ i → EM G' (+'-assoc n m l i)))
                (cong (λ x → (f x ⌣ₖ (g x ⌣ₖ h x))) (sym (transportRefl x))))

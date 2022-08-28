@@ -26,11 +26,6 @@ open IsSemigroup
 open IsRing
 open AbGroupStr
 
-ℤ/2-elim : ∀ {ℓ} {A : Fin 2 → Type ℓ} → A 0 → A 1 → (x : _) → A x
-ℤ/2-elim {A = A} a₀ a₁ (zero , p) = subst (λ p → A (zero , p)) (isProp≤ (0 .snd) p) a₀
-ℤ/2-elim {A = A} a₀ a₁ (suc zero , p) = subst (λ p → A (1 , p)) (isProp≤ (1 .snd) p) a₁
-ℤ/2-elim {A = A} a₀ a₁ (suc (suc x) , p) = ⊥.rec (snotz (cong (λ x → predℕ (predℕ x)) (+-comm _ _ ∙ snd p)))
-
 ℤ/2CommRing : CommRing ℓ-zero
 fst ℤ/2CommRing = fst (Group→AbGroup (ℤGroup/ 2) +ₘ-comm)
 0r (snd ℤ/2CommRing) = fzero
