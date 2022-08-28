@@ -6,7 +6,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _·n_)
 open import Cubical.Data.Vec
 
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
@@ -24,7 +23,10 @@ module Equiv-Poly0-A
   private
     PA = PolyCommRing A 0
 
-  open CommRingStr
+  open CommRingStr ⦃...⦄
+  private instance
+    _ = snd A
+    _ = snd PA
 
 
 
@@ -32,13 +34,13 @@ module Equiv-Poly0-A
 -- Equivalence
 
   Poly0→A : Poly A 0 → ⟨ A ⟩
-  Poly0→A = DS-Rec-Set.f _ _ _ _ (is-set (snd A))
-             (0r (snd A))
+  Poly0→A = DS-Rec-Set.f _ _ _ _ is-set
+             0r
              (λ v a → a)
-             (_+_ (snd A))
-             (+Assoc (snd A))
-             (+IdR (snd A))
-             (+Comm (snd A))
+             _+_
+             +Assoc
+             +IdR
+             +Comm
              (λ _ → refl)
              λ _ a b → refl
 
@@ -52,39 +54,39 @@ module Equiv-Poly0-A
   e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
            (base-neutral [])
            (λ { [] a → refl })
-           λ {U V} ind-U ind-V → (sym (base-add _ _ _)) ∙ (cong₂ (snd PA ._+_ ) ind-U ind-V)
+           λ {U V} ind-U ind-V → (sym (base-add _ _ _)) ∙ (cong₂ _+_ ind-U ind-V)
 
 
 -----------------------------------------------------------------------------
 -- Ring homomorphism
 
-  Poly0→A-pres1 : Poly0→A (snd PA .1r) ≡ 1r (snd A)
+  Poly0→A-pres1 : Poly0→A (snd PA .1r) ≡ 1r
   Poly0→A-pres1 = refl
 
-  Poly0→A-pres+ : (P Q : Poly A 0) → Poly0→A (snd PA ._+_ P Q) ≡ (snd A) ._+_ (Poly0→A P) (Poly0→A Q)
+  Poly0→A-pres+ : (P Q : Poly A 0) → Poly0→A (P + Q) ≡ Poly0→A P + Poly0→A Q
   Poly0→A-pres+ P Q = refl
 
-  Poly0→A-pres· : (P Q : Poly A 0) → Poly0→A ( snd PA ._·_ P Q) ≡ (snd A) ._·_ (Poly0→A P) (Poly0→A Q)
-  Poly0→A-pres· = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ λ _ → is-set (snd A) _ _)
+  Poly0→A-pres· : (P Q : Poly A 0) → Poly0→A (P · Q) ≡ Poly0→A P · Poly0→A Q
+  Poly0→A-pres· = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ λ _ → is-set  _ _)
                     (λ Q → sym (RingTheory.0LeftAnnihilates (CommRing→Ring A) (Poly0→A Q)))
-                    (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set (snd A) _ _)
+                    (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set  _ _)
                               (sym (RingTheory.0RightAnnihilates (CommRing→Ring A) (Poly0→A (base v a))))
                               (λ v' a' → refl)
-                              λ {U V} ind-U ind-V → (cong₂ ((snd A) ._+_) ind-U ind-V) ∙ sym (·DistR+ (snd A) _ _ _))
-                    λ {U V} ind-U ind-V Q → (cong₂ ((snd A) ._+_) (ind-U Q) (ind-V Q)) ∙ sym (·DistL+ (snd A) _ _ _)
+                              λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V) ∙ sym (·DistR+ _ _ _))
+                    λ {U V} ind-U ind-V Q → (cong₂ _+_ (ind-U Q) (ind-V Q)) ∙ sym (·DistL+ _ _ _)
 
 
 -----------------------------------------------------------------------------
 -- Ring Equivalence
 
-module _ (A' : CommRing ℓ) where
+module _ (A : CommRing ℓ) where
 
-  open Equiv-Poly0-A A'
+  open Equiv-Poly0-A A
 
-  CRE-Poly0-A : CommRingEquiv (PolyCommRing A' 0) A'
+  CRE-Poly0-A : CommRingEquiv (PolyCommRing A 0) A
   fst CRE-Poly0-A = isoToEquiv is
     where
-    is : Iso (Poly A' 0) (A' .fst)
+    is : Iso (Poly A 0) (A .fst)
     Iso.fun is = Poly0→A
     Iso.inv is = A→Poly0
     Iso.rightInv is = e-sect
