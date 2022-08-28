@@ -8,14 +8,10 @@ open import Cubical.Data.Vec
 open import Cubical.Data.Vec.OperationsNat
 open import Cubical.Data.FinData
 
-open import Cubical.Relation.Nullary
-
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
-open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.QuotientRing
-open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
 
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
   renaming (PolyCommRing to A[X1,···,Xn] ; Poly to A[x1,···,xn])
