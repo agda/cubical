@@ -2,6 +2,7 @@
 module Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Vec
@@ -30,24 +31,24 @@ PolyCommRing-Quotient A {n} {m} v = A[X1,···,Xn] A n / genIdeal (A[X1,···,
 -- Notation in the general case and some real cases 1, 2, 3
 
 module _
-  (Ar@(A , Astr) : CommRing ℓ)
+  (A : CommRing ℓ)
   (n : ℕ)
   where
 
-  <Xkʲ> : (k j : ℕ) →  FinVec (A[x1,···,xn] Ar n) 1
-  <Xkʲ> k j zero = base (genδℕ-Vec n k j 0) (CommRingStr.1r Astr)
+  <Xkʲ> : (k j : ℕ) →  FinVec (A[x1,···,xn] A n) 1
+  <Xkʲ> k j zero = base (genδℕ-Vec n k j 0) (CommRingStr.1r (snd A))
 
   A[X1,···,Xn]/<Xkʲ> : (k j : ℕ) → CommRing ℓ
-  A[X1,···,Xn]/<Xkʲ> k j = (A[X1,···,Xn] Ar n) / (genIdeal ((A[X1,···,Xn] Ar n)) (<Xkʲ> k j))
+  A[X1,···,Xn]/<Xkʲ> k j = (A[X1,···,Xn] A n) / (genIdeal ((A[X1,···,Xn] A n)) (<Xkʲ> k j))
 
   A[x1,···,xn]/<xkʲ> : (k j : ℕ) → Type ℓ
-  A[x1,···,xn]/<xkʲ> k j = fst (A[X1,···,Xn]/<Xkʲ> k j)
+  A[x1,···,xn]/<xkʲ> k j = ⟨ A[X1,···,Xn]/<Xkʲ> k j ⟩
 
-  <X1,···,Xn> : FinVec (A[x1,···,xn] Ar n) n
-  <X1,···,Xn> = λ k → base (δℕ-Vec n (toℕ k)) (CommRingStr.1r Astr)
+  <X1,···,Xn> : FinVec (A[x1,···,xn] A n) n
+  <X1,···,Xn> = λ k → base (δℕ-Vec n (toℕ k)) (CommRingStr.1r (snd A))
 
   A[X1,···,Xn]/<X1,···,Xn> : CommRing ℓ
-  A[X1,···,Xn]/<X1,···,Xn> = (A[X1,···,Xn] Ar n) / (genIdeal ((A[X1,···,Xn] Ar n)) <X1,···,Xn>)
+  A[X1,···,Xn]/<X1,···,Xn> = (A[X1,···,Xn] A n) / (genIdeal ((A[X1,···,Xn] A n)) <X1,···,Xn>)
 
   A[x1,···,xn]/<x1,···,xn> : Type ℓ
-  A[x1,···,xn]/<x1,···,xn> = fst A[X1,···,Xn]/<X1,···,Xn>
+  A[x1,···,xn]/<x1,···,xn> = ⟨ A[X1,···,Xn]/<X1,···,Xn> ⟩
