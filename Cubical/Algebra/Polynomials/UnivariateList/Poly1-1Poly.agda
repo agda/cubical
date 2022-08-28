@@ -26,9 +26,7 @@ module Equiv-Poly1-Poly:
 
   private
     PA = PolyCommRing A 1
-    PAstr = snd PA
     PA: = UnivariatePolyList A
-    PA:str = snd PA:
 
   open PolyMod A using (ElimProp)
   open PolyModTheory A
@@ -36,7 +34,11 @@ module Equiv-Poly1-Poly:
     renaming
     (prod-Xn-0P to prod-Xn-0P:)
 
-  open CommRingStr
+  open CommRingStr ⦃...⦄
+  private instance
+    _ = snd A
+    _ = snd PA:
+    _ = snd PA
   open RingTheory
 
 -- Notation P, Q, R, ... for Poly 1
@@ -50,24 +52,24 @@ module Equiv-Poly1-Poly:
   trad-base : (v : Vec ℕ 1) → ⟨ A ⟩ → Poly: A
   trad-base (n :: <>) a = prod-Xn n (a ∷ [])
 
-  trad-base-neutral : (v : Vec ℕ 1) → trad-base v (0r (snd A)) ≡ []
+  trad-base-neutral : (v : Vec ℕ 1) → trad-base v 0r ≡ []
   trad-base-neutral (n :: <>) = cong (prod-Xn n) drop0 ∙ prod-Xn-0P: n
 
-  trad-base-add : (v : Vec ℕ 1) → (a b : ⟨ A ⟩) → _+_ PA:str (trad-base v a) (trad-base v b) ≡ trad-base v (_+_ (snd A) a b)
+  trad-base-add : (v : Vec ℕ 1) → (a b : ⟨ A ⟩) → (trad-base v a) + (trad-base v b) ≡ trad-base v (a + b)
   trad-base-add (n :: <>) a b = prod-Xn-sum n (a ∷ []) (b ∷ [])
 
   Poly1→Poly: : Poly A 1 → Poly: A
-  Poly1→Poly: = DS-Rec-Set.f _ _ _ _ (is-set PA:str)
+  Poly1→Poly: = DS-Rec-Set.f _ _ _ _ is-set
                  []
                  trad-base
-                 (_+_ PA:str)
-                 (+Assoc PA:str)
-                 (+IdR PA:str)
-                 (+Comm PA:str)
+                 _+_
+                 +Assoc
+                 +IdR
+                 +Comm
                  trad-base-neutral
                  trad-base-add
 
-  Poly1→Poly:-pres+ : (P Q : Poly A 1) → Poly1→Poly: (_+_ PAstr P Q) ≡ _+_ PA:str (Poly1→Poly: P) (Poly1→Poly: Q)
+  Poly1→Poly:-pres+ : (P Q : Poly A 1) → Poly1→Poly: (P + Q) ≡ Poly1→Poly: P + Poly1→Poly: Q
   Poly1→Poly:-pres+ P Q = refl
 
 
@@ -76,25 +78,25 @@ module Equiv-Poly1-Poly:
 -- converse
 
   Poly:→Poly1-int : (n : ℕ) → Poly: A → Poly A 1
-  Poly:→Poly1-int n [] = 0r PAstr
-  Poly:→Poly1-int n (a ∷ x) = _+_ PAstr (base (n :: <>) a) (Poly:→Poly1-int (suc n) x)
-  Poly:→Poly1-int n (drop0 i) = ((cong (λ X → _+_ PAstr X (0r PAstr)) (base-neutral (n :: <>))) ∙ (+IdR PAstr _)) i
+  Poly:→Poly1-int n [] = 0r
+  Poly:→Poly1-int n (a ∷ x) = base (n :: <>) a + Poly:→Poly1-int (suc n) x
+  Poly:→Poly1-int n (drop0 i) = ((cong (λ X → X + 0r) (base-neutral (n :: <>))) ∙ (+IdR _)) i
 
   Poly:→Poly1 : Poly: A → Poly A 1
   Poly:→Poly1 x = Poly:→Poly1-int 0 x
 
   Poly:→Poly1-int-pres+ : (x y : Poly: A) → (n : ℕ) →
-                              Poly:→Poly1-int n (_+_ PA:str x y) ≡ _+_ PAstr (Poly:→Poly1-int n x) (Poly:→Poly1-int n y)
+                              Poly:→Poly1-int n (x + y) ≡ Poly:→Poly1-int n x + Poly:→Poly1-int n y
   Poly:→Poly1-int-pres+ = ElimProp _
-                           (λ y n → cong (Poly:→Poly1-int n) (+IdL PA:str y) ∙ sym (+IdL PAstr _))
+                           (λ y n → cong (Poly:→Poly1-int n) (+IdL y) ∙ sym (+IdL _))
                            (λ a x ind-x → ElimProp _
-                                           (λ n → sym (+IdR PAstr (Poly:→Poly1-int n (a ∷ x))))
+                                           (λ n → sym (+IdR (Poly:→Poly1-int n (a ∷ x))))
                                            (λ b y ind-y n → sym (+ShufflePairs (CommRing→Ring PA) _ _ _ _
-                                                                ∙ cong₂ (_+_ PAstr) (base-add _ _ _) (sym (ind-x y (suc n)))))
-                                           (isPropΠ (λ _ → is-set PAstr _ _)))
-                           (isPropΠ2 (λ _ _ → is-set PAstr _ _))
+                                                                ∙ cong₂ _+_ (base-add _ _ _) (sym (ind-x y (suc n)))))
+                                           (isPropΠ (λ _ → is-set _ _)))
+                           (isPropΠ2 (λ _ _ → is-set _ _))
 
-  Poly:→Poly1-pres+ : (x y : Poly: A) → Poly:→Poly1 (_+_ PA:str x y) ≡ _+_ PAstr (Poly:→Poly1 x) (Poly:→Poly1 y)
+  Poly:→Poly1-pres+ : (x y : Poly: A) → Poly:→Poly1 (x + y) ≡ Poly:→Poly1 x + Poly:→Poly1 y
   Poly:→Poly1-pres+ x y = Poly:→Poly1-int-pres+ x y 0
 
 -----------------------------------------------------------------------------
@@ -103,9 +105,9 @@ module Equiv-Poly1-Poly:
   e-sect-int : (x : Poly: A) → (n : ℕ) → Poly1→Poly: (Poly:→Poly1-int n x) ≡ prod-Xn n x
   e-sect-int = ElimProp _
                (λ n → sym (prod-Xn-0P: n))
-               (λ a x ind-x n → cong (λ X → _+_ PA:str (prod-Xn n (a ∷ [])) X) (ind-x (suc n))
+               (λ a x ind-x n → cong (λ X → prod-Xn n (a ∷ []) + X) (ind-x (suc n))
                                  ∙ prod-Xn-∷ n a x)
-               (isPropΠ (λ _ → is-set PA:str _ _))
+               (isPropΠ (λ _ → is-set _ _))
 
   e-sect : (x : Poly: A) → Poly1→Poly: (Poly:→Poly1 x) ≡ x
   e-sect x = e-sect-int x 0
@@ -116,10 +118,10 @@ module Equiv-Poly1-Poly:
 -- retraction
 
   idde : (m n : ℕ) → (a : ⟨ A ⟩) → Poly:→Poly1-int n (prod-Xn m (a ∷ [])) ≡ base ((n +n m) :: <>) a
-  idde zero n a = +IdR PAstr (base (n :: <>) a)
+  idde zero n a = +IdR (base (n :: <>) a)
                   ∙ cong (λ X → base (X :: <>) a) (sym (+-zero n))
-  idde (suc m) n a = cong (λ X → _+_ PAstr X (Poly:→Poly1-int (suc n) (prod-Xn m (a ∷ [])))) (base-neutral (n :: <>))
-                     ∙ +IdL PAstr (Poly:→Poly1-int (suc n) (prod-Xn m (a ∷ [])))
+  idde (suc m) n a = cong (λ X → X + (Poly:→Poly1-int (suc n) (prod-Xn m (a ∷ [])))) (base-neutral (n :: <>))
+                     ∙ +IdL (Poly:→Poly1-int (suc n) (prod-Xn m (a ∷ [])))
                      ∙ idde m (suc n) a
                      ∙ cong (λ X → base (X :: <>) a) (sym (+-suc n m))
 
@@ -133,30 +135,30 @@ module Equiv-Poly1-Poly:
            (λ v a → idde-v v a)
            λ {P Q} ind-P ind-Q → cong Poly:→Poly1 (Poly1→Poly:-pres+ P Q)
                                  ∙ Poly:→Poly1-pres+ (Poly1→Poly: P) (Poly1→Poly: Q)
-                                 ∙ cong₂ (_+_ PAstr) ind-P ind-Q
+                                 ∙ cong₂ _+_ ind-P ind-Q
 
 
 
 -----------------------------------------------------------------------------
 -- Ring morphism
 
-  Poly1→Poly:-pres1 : Poly1→Poly: (1r PAstr) ≡ 1r PA:str
+  Poly1→Poly:-pres1 : Poly1→Poly: 1r ≡ 1r
   Poly1→Poly:-pres1 = refl
 
-  trad-base-prod : (v v' : Vec ℕ 1) → (a a' : ⟨ A ⟩) → trad-base (v +n-vec v') ((snd A) ._·_ a a') ≡
-                                                      _·_ PA:str (trad-base v a) (trad-base v' a')
-  trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+IdR (snd A) _))
+  trad-base-prod : (v v' : Vec ℕ 1) → (a a' : ⟨ A ⟩) → trad-base (v +n-vec v') (a · a') ≡
+                                                      trad-base v a · trad-base v' a'
+  trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+IdR _))
 
-  Poly1→Poly:-pres· : (P Q : Poly A 1) → Poly1→Poly: (_·_ PAstr P Q) ≡ _·_ PA:str (Poly1→Poly: P) (Poly1→Poly: Q)
-  Poly1→Poly:-pres· = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ λ _ → is-set PA:str _ _)
+  Poly1→Poly:-pres· : (P Q : Poly A 1) → Poly1→Poly: (P · Q) ≡ Poly1→Poly: P · Poly1→Poly: Q
+  Poly1→Poly:-pres· = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ λ _ → is-set _ _)
                         (λ Q → refl)
-                        (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set PA:str _ _)
+                        (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set _ _)
                                   (sym (0RightAnnihilates (CommRing→Ring PA:) _))
                                   (λ v' a' → trad-base-prod v v' a a')
-                                  λ {U V} ind-U ind-V → (cong₂ (_+_ PA:str) ind-U ind-V)
-                                                          ∙ sym (·DistR+ PA:str _ _ _))
-                        λ {U V} ind-U ind-V Q → (cong₂ (_+_ PA:str) (ind-U Q) (ind-V Q))
-                                                 ∙ sym (·DistL+ PA:str _ _ _)
+                                  λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V)
+                                                          ∙ sym (·DistR+ _ _ _))
+                        λ {U V} ind-U ind-V Q → (cong₂ _+_ (ind-U Q) (ind-V Q))
+                                                 ∙ sym (·DistL+ _ _ _)
 
 
 
