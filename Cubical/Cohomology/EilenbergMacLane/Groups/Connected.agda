@@ -4,13 +4,7 @@ module Cubical.Cohomology.EilenbergMacLane.Groups.Connected where
 
 open import Cubical.Cohomology.EilenbergMacLane.Base
 
-open import Cubical.Homotopy.EilenbergMacLane.Base
-open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
-open import Cubical.Homotopy.EilenbergMacLane.Properties
-open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
-open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
-
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -18,20 +12,15 @@ open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Nat
 
-open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup.Base
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Semigroup
 
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as Trunc
-open import Cubical.HITs.KleinBottle
 
 private
   variable
     ℓ ℓ' : Level
-
 
 module _ {A : Type ℓ} (conA : isConnected 2 A) (G : AbGroup ℓ') where
   private
@@ -41,7 +30,6 @@ module _ {A : Type ℓ} (conA : isConnected 2 A) (G : AbGroup ℓ') where
 
     a* : hLevelTrunc 2 A
     a* = conA .fst
-
 
   H⁰→G' : hLevelTrunc 2 A → H⁰A → fst G
   H⁰→G' = Trunc.rec (isSetΠ (λ _ → is-set))
@@ -71,16 +59,16 @@ module _ {A : Type ℓ} (conA : isConnected 2 A) (G : AbGroup ℓ') where
                              (isContr→isProp conA ∣ a ∣ ∣ x ∣))))
                  a*
 
-
-  H⁰conn' : AbGroupEquiv G (coHomGr zero G A)
-  fst H⁰conn' = isoToEquiv is
-    where
-    is : Iso _ _
-    Iso.fun is = G→H⁰
-    Iso.inv is = H⁰→G
-    Iso.rightInv is = H⁰→G→H⁰
-    Iso.leftInv is = G→H⁰→G
-  snd H⁰conn' = makeIsGroupHom λ _ _ → refl
+  private
+    H⁰conn' : AbGroupEquiv G (coHomGr zero G A)
+    fst H⁰conn' = isoToEquiv is
+      where
+      is : Iso _ _
+      Iso.fun is = G→H⁰
+      Iso.inv is = H⁰→G
+      Iso.rightInv is = H⁰→G→H⁰
+      Iso.leftInv is = G→H⁰→G
+    snd H⁰conn' = makeIsGroupHom λ _ _ → refl
 
   H⁰conn : AbGroupEquiv (coHomGr zero G A) G
   H⁰conn = invGroupEquiv H⁰conn'

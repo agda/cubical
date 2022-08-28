@@ -23,8 +23,6 @@ open import Cubical.Foundations.Path
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Truncation
   renaming (elim to trElim ; rec to trRec ; rec2 to trRec2)
-open import Cubical.HITs.SetTruncation as ST
-  hiding (rec ; map ; elim ; elim2 ; elim3)
 open import Cubical.HITs.Susp
 
 open import Cubical.Functions.Morphism

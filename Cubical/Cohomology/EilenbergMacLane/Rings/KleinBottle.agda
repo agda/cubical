@@ -1,8 +1,8 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-module Cubical.Cohomology.EilenbergMacLane.Rings.K2 where
+module Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle where
 
-open import Cubical.Cohomology.EilenbergMacLane.Groups.K2
+open import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle
 open import Cubical.Cohomology.EilenbergMacLane.Base
 open import Cubical.Cohomology.EilenbergMacLane.CupProduct
 

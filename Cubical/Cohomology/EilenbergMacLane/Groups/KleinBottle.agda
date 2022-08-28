@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-module Cubical.Cohomology.EilenbergMacLane.Groups.K2 where
+module Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle where
 
 open import Cubical.Cohomology.EilenbergMacLane.Base
 open import Cubical.Cohomology.EilenbergMacLane.Groups.Connected
