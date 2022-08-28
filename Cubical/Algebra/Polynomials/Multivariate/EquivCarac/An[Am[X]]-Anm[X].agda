@@ -77,21 +77,21 @@ module Comp-Poly-nm
   e-sect = ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
            refl
            (λ v a → cong (λ X → base X a) (sep-vec-id n m v))
-           (λ {U V} ind-U ind-V → cong₂ (_+_ (snd PAn+m)) ind-U ind-V)
+           (λ ind-U ind-V → cong₂ (_+_ (snd PAn+m)) ind-U ind-V)
 
 
 -----------------------------------------------------------------------------
 -- Retraction
 
   e-retr : (P : Poly (PolyCommRing Acr m) n) → PAn+m→PAmn (PAmn→PAn+m P) ≡ P
-  e-retr = ⊕elimProp _ _ _ _ (λ _ → trunc  _ _)
+  e-retr = ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
            refl
            (λ v → ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
                    (sym (base-neutral _))
                    (λ v' a → cong₂ base (sep-vec-fst n m v v')
                                           (cong (λ X → base X a) (sep-vec-snd n m v v')))
-                   λ {U V} ind-U ind-V → (cong₂ (_+_ (snd PAmn)) ind-U ind-V) ∙ (base-add _ _ _))
-           (λ {U V} ind-U ind-V → cong₂ (_+_ (snd PAmn)) ind-U ind-V)
+                   λ ind-U ind-V → (cong₂ (_+_ (snd PAmn)) ind-U ind-V) ∙ (base-add _ _ _))
+           (λ ind-U ind-V → cong₂ (_+_ (snd PAmn)) ind-U ind-V)
 
 -----------------------------------------------------------------------------
 -- Morphism of ring
@@ -115,26 +115,26 @@ module Comp-Poly-nm
                        (λ w → ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
                                refl
                                (λ w' b → cong (λ X → base X (Astr ._·_ a b)) (+n-vec-concat _ _ _ _ _ _))
-                               λ {U V} ind-U ind-V → cong (λ X → PAmn→PAn+m (snd PAmn ._·_ (base v (base v' a)) X))
+                               λ ind-U ind-V → cong (λ X → PAmn→PAn+m (snd PAmn ._·_ (base v (base v' a)) X))
                                                            (sym (base-add _ _ _))
                                                       ∙ cong₂ (snd PAn+m ._+_) ind-U ind-V
                                                       ∙ sym (cong (λ X → snd PAn+m ._·_ (PAmn→PAn+m (base v (base v' a)))
                                                                   (PAmn→PAn+m X)) (base-add _ _ _)))
-                       λ {U V} ind-U ind-V → cong₂ (snd PAn+m ._+_) ind-U ind-V)
-            λ {U V} ind-U ind-V Q → cong (λ X → PAmn→PAn+m (snd PAmn ._·_ X Q)) (sym (base-add _ _ _))
+                       λ ind-U ind-V → cong₂ (snd PAn+m ._+_) ind-U ind-V)
+            λ ind-U ind-V Q → cong (λ X → PAmn→PAn+m (snd PAmn ._·_ X Q)) (sym (base-add _ _ _))
                                      ∙ cong₂ (snd PAn+m ._+_) (ind-U Q) (ind-V Q)
                                      ∙ sym (cong (λ X → snd PAn+m ._·_ (PAmn→PAn+m X) (PAmn→PAn+m Q)) (base-add _ _ _)))
-    λ {U V} ind-U ind-V Q → cong₂ (_+_ (snd PAn+m)) (ind-U Q) (ind-V Q)
+    λ ind-U ind-V Q → cong₂ (_+_ (snd PAn+m)) (ind-U Q) (ind-V Q)
 
 
 -----------------------------------------------------------------------------
 -- Ring Equivalence
 
-module _ (A' : CommRing ℓ) (n m : ℕ) where
+module _ (A : CommRing ℓ) (n m : ℕ) where
 
-  open Comp-Poly-nm A' n m
+  open Comp-Poly-nm A n m
 
-  CRE-PolyN∘M-PolyN+M : CommRingEquiv (PolyCommRing (PolyCommRing A' m) n) (PolyCommRing A' (n +n m))
+  CRE-PolyN∘M-PolyN+M : CommRingEquiv (PolyCommRing (PolyCommRing A m) n) (PolyCommRing A (n +n m))
   fst CRE-PolyN∘M-PolyN+M = isoToEquiv is
     where
     is : Iso _ _
