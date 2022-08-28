@@ -336,10 +336,10 @@ module _
 
     -- Proof that ⊕HIT→⊕Fun preserve the cup product
     ⊕HIT→Fun-pres-prodFun : (x y : ⊕HIT ℕ G Gstr) → ⊕HIT→Fun (x prod y) ≡ ((⊕HIT→Fun x) prodFun (⊕HIT→Fun y))
-    ⊕HIT→Fun-pres-prodFun = DS-Ind-Prop.f _ _ _ _
+    ⊕HIT→Fun-pres-prodFun = ⊕elimProp _ _ _ _
                          (λ x → isPropΠ (λ _ → isSetFun _ _))
                          (λ y → sym (prodFunAnnihilL (⊕HIT→Fun y)))
-                         (λ k a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetFun _ _)
+                         (λ k a → ⊕elimProp _ _ _ _ (λ _ → isSetFun _ _)
                                    (sym (prodFunAnnihilR (⊕HIT→Fun (base k a))))
                                    (λ l b → funExt λ n → sumFBase k a l b n)
                                    λ {U V} ind-U ind-V → cong₂ _+Fun_ ind-U ind-V

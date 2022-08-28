@@ -59,7 +59,7 @@ module Equiv-Poly1-Poly:
   trad-base-add (n :: <>) a b = prod-Xn-sum n (a ∷ []) (b ∷ [])
 
   Poly1→Poly: : Poly A 1 → Poly: A
-  Poly1→Poly: = DS-Rec-Set.f _ _ _ _ is-set
+  Poly1→Poly: = ⊕recSet _ _ _ _ is-set
                  []
                  trad-base
                  _+_
@@ -130,7 +130,7 @@ module Equiv-Poly1-Poly:
 
 
   e-retr : (P : Poly A 1) → Poly:→Poly1 (Poly1→Poly: P) ≡ P
-  e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
+  e-retr = ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
            refl
            (λ v a → idde-v v a)
            λ {P Q} ind-P ind-Q → cong Poly:→Poly1 (Poly1→Poly:-pres+ P Q)
@@ -150,9 +150,9 @@ module Equiv-Poly1-Poly:
   trad-base-prod (k :: <>) (l :: <>) a a' = sym ((prod-Xn-prod k l [ a ]  [ a' ]) ∙ cong (λ X → prod-Xn (k +n l) [ X ]) (+IdR _))
 
   Poly1→Poly:-pres· : (P Q : Poly A 1) → Poly1→Poly: (P · Q) ≡ Poly1→Poly: P · Poly1→Poly: Q
-  Poly1→Poly:-pres· = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ λ _ → is-set _ _)
+  Poly1→Poly:-pres· = ⊕elimProp _ _ _ _ (λ _ → isPropΠ λ _ → is-set _ _)
                         (λ Q → refl)
-                        (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set _ _)
+                        (λ v a → ⊕elimProp _ _ _ _ (λ _ → is-set _ _)
                                   (sym (0RightAnnihilates (CommRing→Ring PA:) _))
                                   (λ v' a' → trad-base-prod v v' a a')
                                   λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V)

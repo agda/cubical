@@ -121,7 +121,7 @@ module Properties-Equiv-QuotientXn-A
 -- Direct sens
 
   A[x]→A : A[x] → ⟨ A ⟩
-  A[x]→A = DS-Rec-Set.f _ _ _ _ isSetA
+  A[x]→A = ⊕recSet _ _ _ _ isSetA
           0A
           base-trad
           _+A_
@@ -151,10 +151,10 @@ module Properties-Equiv-QuotientXn-A
   A[x]→A-pres+ x y = refl
 
   A[x]→A-pres· : (x y : A[x]) → (A[x]→A (x ·PA y)) ≡ A[x]→A x ·A A[x]→A y
-  A[x]→A-pres· = DS-Ind-Prop.f _ _ _ _
+  A[x]→A-pres· = ⊕elimProp _ _ _ _
                (λ x u v i y → isSetA _ _ (u y) (v y) i)
                (λ y → sym (0LeftAnnihilates (CommRing→Ring A) _))
-               (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetA _ _)
+               (λ v a → ⊕elimProp _ _ _ _ (λ _ → isSetA _ _)
                          (sym (0RightAnnihilates (CommRing→Ring A) _))
                          (λ v' a' → base-eq a a' v v')
                          (λ {U V} ind-U ind-V → cong₂ _+A_ ind-U ind-V ∙ sym (·ADistR+ _ _ _)))
@@ -175,31 +175,31 @@ module Properties-Equiv-QuotientXn-A
   A[X]/X→A : CommRingHom A[X]/X A
   A[X]/X→A = Quotient-FGideal-CommRing-CommRing.inducedHom A[X] A A[X]→A (<Xkʲ> A 1 0 1) A[x]→A-cancel
 
-  A[x]/x→A : A[x]/x → A
-  A[x]/x→A = ⟨ A[X]/X→A ⟩
+  A[x]/x→A : A[x]/x → ⟨ A ⟩
+  A[x]/x→A = fst A[X]/X→A
 
 
 
 -----------------------------------------------------------------------------
 -- Converse
 
-  A→A[x] : A → A[x]
+  A→A[x] : ⟨ A ⟩ → A[x]
   A→A[x] a = base (0 ∷ []) a
 
-  A→A[x]-pres+ : (a a' : A) → A→A[x] (a +A a') ≡ A→A[x] a +PA A→A[x] a'
+  A→A[x]-pres+ : (a a' : ⟨ A ⟩) → A→A[x] (a +A a') ≡ A→A[x] a +PA A→A[x] a'
   A→A[x]-pres+ a a' = sym (base-add (0 ∷ []) a a')
 
-  A→A[x]/x : A → A[x]/x
+  A→A[x]/x : ⟨ A ⟩ → A[x]/x
   A→A[x]/x = [_] ∘ A→A[x]
 
-  A→A[x]/x-pres+ : (a a' : A) → A→A[x]/x (a +A a') ≡ A→A[x]/x a +PAI A→A[x]/x a'
+  A→A[x]/x-pres+ : (a a' : ⟨ A ⟩) → A→A[x]/x (a +A a') ≡ A→A[x]/x a +PAI A→A[x]/x a'
   A→A[x]/x-pres+ a a' = cong [_] (A→A[x]-pres+ a a')
 
 
 -----------------------------------------------------------------------------
 -- Section
 
-  e-sect : (a : A) → A[x]→A (A→A[x] a) ≡ a
+  e-sect : (a : ⟨ A ⟩) → A[x]→A (A→A[x] a) ≡ a
   e-sect a = refl
 
 
@@ -210,13 +210,13 @@ module Properties-Equiv-QuotientXn-A
 
   e-retr : (x : A[x]/x) → A→A[x]/x (A[x]/x→A x) ≡ x
   e-retr = SQ.elimProp (λ x → isSetPAI _ _)
-           (DS-Ind-Prop.f _ _ _ _ (λ x → isSetPAI _ _)
+           (⊕elimProp _ _ _ _ (λ x → isSetPAI _ _)
            (cong [_] (base-neutral _))
            (λ v a → base-eq a v)
            λ {U V} ind-U ind-V → cong [_] ((A→A[x]-pres+ _ _)) ∙ cong₂ _+PAI_ ind-U ind-V)
 
          where
-         base-eq : (a : A) → (v : Vec ℕ 1) → A→A[x]/x (A[x]/x→A [ (base v a) ]) ≡ [ (base v a) ]
+         base-eq : (a : ⟨ A ⟩) → (v : Vec ℕ 1) → A→A[x]/x (A[x]/x→A [ (base v a) ]) ≡ [ (base v a) ]
          base-eq a (zero ∷ []) = cong [_] refl
          base-eq a (suc k ∷ []) = eq/ (base (0 ∷ []) 0A) (base (suc k ∷ []) a) ∣ ((λ x → base (k ∷ []) (-A a)) , helper) ∣₁
            where

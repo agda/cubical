@@ -181,7 +181,7 @@ module Equiv-Sn-Properties (n : ℕ) where
 -- Direct Sens on ℤ[x]
 
   ℤ[x]→H*-Sⁿ : ℤ[x] → H* (S₊ (suc n))
-  ℤ[x]→H*-Sⁿ = DS-Rec-Set.f _ _ _ _ isSetH*
+  ℤ[x]→H*-Sⁿ = ⊕recSet _ _ _ _ isSetH*
        0H*
        ϕ
        _+H*_
@@ -255,14 +255,14 @@ module Equiv-Sn-Properties (n : ℕ) where
 
   -- proof of the morphism
   ℤ[x]→H*-Sⁿ-pres· : (x y : ℤ[x]) → ℤ[x]→H*-Sⁿ (x ·Pℤ y) ≡ ℤ[x]→H*-Sⁿ x cup ℤ[x]→H*-Sⁿ y
-  ℤ[x]→H*-Sⁿ-pres· = DS-Ind-Prop.f _ _ _ _
+  ℤ[x]→H*-Sⁿ-pres· = ⊕elimProp _ _ _ _
                          (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                          (λ y → refl)
                          base-case
                          λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
     where
     base-case : _
-    base-case (k ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+    base-case (k ∷ []) a = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R (S₊ (suc n))) _))
                            (λ v' b → pres·-base-case-vec (k ∷ []) a v' b)
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
@@ -296,7 +296,7 @@ module Equiv-Sn-Properties (n : ℕ) where
   base-trad-H* k a (else x) = 0Pℤ
 
   H*-Sⁿ→ℤ[x] : H* (S₊ (suc n)) → ℤ[x]
-  H*-Sⁿ→ℤ[x] = DS-Rec-Set.f _ _ _ _ isSetPℤ
+  H*-Sⁿ→ℤ[x] = ⊕recSet _ _ _ _ isSetPℤ
        0Pℤ
        (λ k a → base-trad-H* k a (part k))
        _+Pℤ_
@@ -358,7 +358,7 @@ module Equiv-Sn-Properties (n : ℕ) where
                              ∙ sym (constSubstCommSlice ((λ x → coHom x (S₊ (suc n)))) ((H* (S₊ (suc n)))) base (suc-predℕ k (fst x)) a)
 
   e-sect : (x : H* (S₊ (suc n))) → ℤ[x]/x²→H*-Sⁿ (H*-Sⁿ→ℤ[x]/x² x) ≡ x
-  e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+  e-sect = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
            refl
            (λ k a → e-sect-base k a (part k))
            λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
@@ -369,7 +369,7 @@ module Equiv-Sn-Properties (n : ℕ) where
 
   e-retr : (x : ℤ[x]/x²) → H*-Sⁿ→ℤ[x]/x² (ℤ[x]/x²→H*-Sⁿ x) ≡ x
   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
+           (⊕elimProp _ _ _ _ (λ _ → isSetPℤI _ _)
            refl
            base-case
            λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)

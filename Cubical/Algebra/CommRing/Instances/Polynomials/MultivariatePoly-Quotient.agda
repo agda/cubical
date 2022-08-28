@@ -24,7 +24,7 @@ private variable
 -- General Nth polynome / quotient
 -- Better to declare an alias
 
-PolyCommRing-Quotient : (A : CommRing ℓ) → {n m : ℕ} → FinVec (fst (A[X1,···,Xn] A n)) m → CommRing ℓ
+PolyCommRing-Quotient : (A : CommRing ℓ) → {n m : ℕ} → FinVec ⟨ A[X1,···,Xn] A n ⟩ m → CommRing ℓ
 PolyCommRing-Quotient A {n} {m} v = A[X1,···,Xn] A n / genIdeal (A[X1,···,Xn] A n) v
 
 -----------------------------------------------------------------------------

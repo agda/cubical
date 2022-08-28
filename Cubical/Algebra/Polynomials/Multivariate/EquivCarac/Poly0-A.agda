@@ -34,7 +34,7 @@ module Equiv-Poly0-A
 -- Equivalence
 
   Poly0→A : Poly A 0 → ⟨ A ⟩
-  Poly0→A = DS-Rec-Set.f _ _ _ _ is-set
+  Poly0→A = ⊕recSet _ _ _ _ is-set
              0r
              (λ v a → a)
              _+_
@@ -51,7 +51,7 @@ module Equiv-Poly0-A
   e-sect a = refl
 
   e-retr : (P : Poly A 0) → A→Poly0 (Poly0→A P) ≡ P
-  e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
+  e-retr = ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
            (base-neutral [])
            (λ { [] a → refl })
            λ {U V} ind-U ind-V → (sym (base-add _ _ _)) ∙ (cong₂ _+_ ind-U ind-V)
@@ -67,9 +67,9 @@ module Equiv-Poly0-A
   Poly0→A-pres+ P Q = refl
 
   Poly0→A-pres· : (P Q : Poly A 0) → Poly0→A (P · Q) ≡ Poly0→A P · Poly0→A Q
-  Poly0→A-pres· = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ λ _ → is-set  _ _)
+  Poly0→A-pres· = ⊕elimProp _ _ _ _ (λ _ → isPropΠ λ _ → is-set  _ _)
                     (λ Q → sym (RingTheory.0LeftAnnihilates (CommRing→Ring A) (Poly0→A Q)))
-                    (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set  _ _)
+                    (λ v a → ⊕elimProp _ _ _ _ (λ _ → is-set  _ _)
                               (sym (RingTheory.0RightAnnihilates (CommRing→Ring A) (Poly0→A (base v a))))
                               (λ v' a' → refl)
                               λ {U V} ind-U ind-V → (cong₂ _+_ ind-U ind-V) ∙ sym (·DistR+ _ _ _))
