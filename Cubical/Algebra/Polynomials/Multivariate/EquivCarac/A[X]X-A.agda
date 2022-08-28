@@ -181,7 +181,7 @@ module Properties-Equiv-QuotientXn-A
 
 
 -----------------------------------------------------------------------------
--- Converse sens
+-- Converse
 
   A→A[x] : A → A[x]
   A→A[x] a = base (0 ∷ []) a
@@ -197,14 +197,14 @@ module Properties-Equiv-QuotientXn-A
 
 
 -----------------------------------------------------------------------------
--- Section sens
+-- Section
 
   e-sect : (a : A) → A[x]→A (A→A[x] a) ≡ a
   e-sect a = refl
 
 
 -----------------------------------------------------------------------------
--- Retraction sens
+-- Retraction
 
   open IsRing
 
