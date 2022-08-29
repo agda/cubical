@@ -31,16 +31,16 @@ private
 
 interleaved mutual
 
-  Cube : (n : ℕ)(A : Type ℓ) → Type ℓ
-  ∂Cube : ℕ → Type ℓ → Type ℓ
-  CubeRel : (n : ℕ)(A : Type ℓ) → ∂Cube n A → Type ℓ
+  Cube    : (n : ℕ) (A : Type ℓ) → Type ℓ
+  ∂Cube   : (n : ℕ) (A : Type ℓ) → Type ℓ
+  CubeRel : (n : ℕ) (A : Type ℓ) → ∂Cube n A → Type ℓ
 
-  Cube 0 A = A
-  Cube (suc n) A = Σ[ ∂ ∈ ∂Cube (suc n) A ] CubeRel (suc n) A ∂
+  Cube    0 A = A
+  Cube    (suc n) A = Σ[ ∂ ∈ ∂Cube (suc n) A ] CubeRel (suc n) A ∂
 
-  ∂Cube 0 A = Unit*
-  ∂Cube 1 A = A × A
-  ∂Cube (suc (suc n)) A = Σ[ a₀ ∈ Cube (suc n) A ] Σ[ a₁ ∈ Cube (suc n) A ] a₀ .fst ≡ a₁ .fst
+  ∂Cube   0 A = Unit*
+  ∂Cube   1 A = A × A
+  ∂Cube   (suc (suc n)) A = Σ[ a₀ ∈ Cube (suc n) A ] Σ[ a₁ ∈ Cube (suc n) A ] a₀ .fst ≡ a₁ .fst
 
   CubeRel 0 A _ = A
   CubeRel 1 A ∂ = ∂ .fst ≡ ∂ .snd
@@ -81,6 +81,7 @@ makeCube {n = suc n} a₋ = _ , λ i → a₋ i .snd
 -- A cube is just a path of cubes of one-lower-dimension.
 -- Unfortunately the following function cannot begin at 0,
 -- because Agda doesn't support pattern matching on ℕ towards pre-types.
+-- P.S. It will be fixed in Agda 2.6.3 when I → A becomes fibrant.
 pathCube : (n : ℕ) → (I → Cube (suc n) A) → Cube (suc (suc n)) A
 pathCube n p = _ , λ i → p i .snd
 

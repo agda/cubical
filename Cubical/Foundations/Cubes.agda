@@ -21,13 +21,13 @@ private
 By mutual recursion, one can define the type of
 
 - n-Cubes:
-  Cube : (n : ℕ)(A : Type ℓ) → Type ℓ
+  Cube    : (n : ℕ) (A : Type ℓ) → Type ℓ
 
 - Boundary of n-cubes:
-  ∂Cube : ℕ → Type ℓ → Type ℓ
+  ∂Cube   : (n : ℕ) (A : Type ℓ) → Type ℓ
 
 - n-Cubes with Fixed Boundary:
-  CubeRel : (n : ℕ)(A : Type ℓ) → ∂Cube n A → Type ℓ the type of n-cubes `Cube`,
+  CubeRel : (n : ℕ) (A : Type ℓ) → ∂Cube n A → Type ℓ
 
 Their definitions are put in `Cubical.Foundations.Cubes.Base`,
 to avoid cyclic dependence.

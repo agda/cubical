@@ -28,7 +28,6 @@ open import Cubical.Foundations.Id
            ; isPropIsEquiv to isPropIsEquivId
            )
 
-open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.Function public
 open import Cubical.Foundations.Equiv public
 open import Cubical.Foundations.Equiv.Properties public
