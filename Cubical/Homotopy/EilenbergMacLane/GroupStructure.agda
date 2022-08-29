@@ -413,3 +413,7 @@ module _ {G : AbGroup ℓ} where
     sym (assocₖ n y x (-[ n ]ₖ x))
     ∙∙ cong (λ x → y +[ n ]ₖ x) (rCancelₖ n x)
     ∙∙ rUnitₖ n y
+
+  -0ₖ : (n : ℕ) → -[ suc n ]ₖ (0ₖ {G = G} (suc n)) ≡ 0ₖ {G = G} (suc n)
+  -0ₖ zero = refl
+  -0ₖ (suc n) = refl
