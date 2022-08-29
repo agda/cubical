@@ -47,7 +47,6 @@ CubeDepRel : {A : Type ℓ} {B : A → Type ℓ'} (a₋ : Cube n A) → ∂CubeD
 
 -}
 
-
 {- Lower Cubes Back and Forth -}
 
 fromCube0 : Cube 0 A → A
@@ -147,26 +146,41 @@ fromCubeDep2 :
   (i j : I) → B (fromCube 2 a i j)
 fromCubeDep2 {B = B} {a = a} b = fromCubeDep 2 B a b
 
+fromCubeDep3 :
+  {a : Cube 3 A} (b : CubeDep {n = 3} B a)
+  (i j k : I) → B (fromCube 3 a i j k)
+fromCubeDep3 {B = B} {a = a} b = fromCubeDep 3 B a b
+
+fromCubeDep4 :
+  {a : Cube 4 A} (b : CubeDep {n = 4} B a)
+  (i j k l : I) → B (fromCube 4 a i j k l)
+fromCubeDep4 {B = B} {a = a} b = fromCubeDep 4 B a b
+
 
 toCubeDep0 :
   {a : A} (b : B a)
-  → CubeDep {n = 0} B (toCube0 a)
+  → CubeDep {n = 0} B (toCube 0 a)
 toCubeDep0 {B = B} {a = a} b = toCubeDep 0 B a b
 
 toCubeDep1 :
   {a : (i : I) → A} (b : (i : I) → B (a i))
-  → CubeDep {n = 1} B (toCube1 a)
+  → CubeDep {n = 1} B (toCube 1 a)
 toCubeDep1 {B = B} {a = a} b = toCubeDep 1 B a b
 
 toCubeDep2 :
   {a : (i j : I) → A} (b : (i j : I) → B (a i j))
-  → CubeDep {n = 2} B (toCube2 a)
+  → CubeDep {n = 2} B (toCube 2 a)
 toCubeDep2 {B = B} {a = a} b = toCubeDep 2 B a b
 
 toCubeDep3 :
   {a : (i j k : I) → A} (b : (i j k : I) → B (a i j k))
-  → CubeDep {n = 3} B (toCube3 a)
+  → CubeDep {n = 3} B (toCube 3 a)
 toCubeDep3 {B = B} {a = a} b = toCubeDep 3 B a b
+
+toCubeDep4 :
+  {a : (i j k l : I) → A} (b : (i j k l : I) → B (a i j k l))
+  → CubeDep {n = 4} B (toCube 4 a)
+toCubeDep4 {B = B} {a = a} b = toCubeDep 4 B a b
 
 
 from∂CubeDep1 :
@@ -179,18 +193,40 @@ from∂CubeDep2 :
   (i j : I) → PartialP _ (λ o → B (from∂Cube2 ∂a i j o))
 from∂CubeDep2 {B = B} ∂a ∂b = from∂CubeDep 2 B ∂a ∂b
 
+from∂CubeDep3 :
+  (∂a : ∂Cube 3 A) (∂b : ∂CubeDep {n = 3} B ∂a)
+  (i j k : I) → PartialP _ (λ o → B (from∂Cube3 ∂a i j k o))
+from∂CubeDep3 {B = B} ∂a ∂b = from∂CubeDep 3 B ∂a ∂b
+
+from∂CubeDep4 :
+  (∂a : ∂Cube 4 A) (∂b : ∂CubeDep {n = 4} B ∂a)
+  (i j k l : I) → PartialP _ (λ o → B (from∂Cube4 ∂a i j k l o))
+from∂CubeDep4 {B = B} ∂a ∂b = from∂CubeDep 4 B ∂a ∂b
+
 
 to∂CubeDep1 :
   (∂a : (i : I) → Partial (i ∨ ~ i) A)
   (∂b : (i : I) → PartialP _ (λ o → B (∂a i o)))
-  → ∂CubeDep {n = 1} B (to∂Cube1 ∂a)
+  → ∂CubeDep {n = 1} B (to∂Cube 1 ∂a)
 to∂CubeDep1 {B = B} ∂a ∂b = to∂CubeDep 1 B _ ∂b
 
 to∂CubeDep2 :
   (∂a : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
   (∂b : (i j : I) → PartialP _ (λ o → B (∂a i j o)))
-  → ∂CubeDep {n = 2} B (to∂Cube2 ∂a)
+  → ∂CubeDep {n = 2} B (to∂Cube 2 ∂a)
 to∂CubeDep2 {B = B} ∂a ∂b = to∂CubeDep 2 B _ ∂b
+
+to∂CubeDep3 :
+  (∂a : (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A)
+  (∂b : (i j k : I) → PartialP _ (λ o → B (∂a i j k o)))
+  → ∂CubeDep {n = 3} B (to∂Cube 3 ∂a)
+to∂CubeDep3 {B = B} ∂a ∂b = to∂CubeDep 3 B _ ∂b
+
+to∂CubeDep4 :
+  (∂a : (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A)
+  (∂b : (i j k l : I) → PartialP _ (λ o → B (∂a i j k l o)))
+  → ∂CubeDep {n = 4} B (to∂Cube 4 ∂a)
+to∂CubeDep4 {B = B} ∂a ∂b = to∂CubeDep 4 B _ ∂b
 
 
 {-
@@ -198,7 +234,6 @@ to∂CubeDep2 {B = B} ∂a ∂b = to∂CubeDep 2 B _ ∂b
   The n-cubes-can-always-be-filled is equivalent to be of h-level n
 
 -}
-
 
 {-
 
@@ -240,7 +275,7 @@ fillCube2 :
   (h : isOfHLevel 2 A)
   (u : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
   (i j : I) → A [ _ ↦ u i j ]
-fillCube2 h = fillCube 2 h
+fillCube2 h u = fillCube 2 h u
 
 fillCube3 :
   (h : isOfHLevel 3 A)
@@ -254,8 +289,6 @@ fillCube4 :
   (i j k l : I) → A [ _ ↦ u i j k l ]
 fillCube4 h u = fillCube 4 h u
 
-
--- Dependent cube-filling
 
 fillCubeDep1 :
   (h : isOfHLevelDep 1 B)

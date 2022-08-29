@@ -2,7 +2,7 @@
 
 Macros about Cubes
 
-Basically they're those operations defined in
+Basically they're no more than those operations defined in
 `Cubical.Foundations.Cubes.External` and `Cubical.Foundations.Cubes.HLevels`,
 but for the convenience of users,
 we want to write the internal natural numbers instead of external ones.
@@ -32,7 +32,7 @@ private
     B : A → Type ℓ'
 
 
--- Transform between external and internal cubes
+-- Quickly adding implicit arguments
 
 private
   addImpl : ℕ → List (Arg Term) →  List (Arg Term)
@@ -40,7 +40,25 @@ private
   addImpl (suc n) t = harg {quantity-ω} unknown ∷ addImpl n t
 
 
--- The non-dependent cases
+{-
+
+  Transformations between external and internal cubes
+
+-}
+
+{-
+
+For the non-dependent cubes:
+
+fromCube : (n : ℕ) → Cube n A → (i₁ ... iₙ : I) → A
+
+toCube   : (n : ℕ) → ((i₁ ... iₙ : I) → A) → Cube n A
+
+from∂Cube : (n : ℕ) → ∂Cube n A → (i₁ ... iₙ : I) → Partial (i₁ ∨ ~ i₁ ∨ ... ∨ iₙ ∨ ~ iₙ) A
+
+to∂Cube   : (n : ℕ) → ((i₁ ... iₙ : I) → Partial (i₁ ∨ ~ i₁ ∨ ... ∨ iₙ ∨ ~ iₙ) A) → ∂Cube n A
+
+-}
 
 macro
 
@@ -67,7 +85,33 @@ macro
     (def (quote ∂ΠCubeᵉ→∂Cube) (addImpl 2 (ℕ→ℕᵉTerm (suc n) v∷ [])))
 
 
--- The dependent cases
+{-
+
+For the dependent cubes:
+
+fromCubeDep :
+  (n : ℕ) (B : A → Type ℓ')
+  (a : Cube n A) (b : CubeDep B a)
+  (i₁ ... iₙ : I) → B (fromCube n a i₁ ... iₙ)
+
+toCubeDep :
+  (n : ℕ) (B : A → Type ℓ')
+  (a : (i₁ ... iₙ : I) → A)
+  (b : (i₁ ... iₙ : I) → B (a i₁ ... iₙ))
+  → CubeDep B (toCube n a)
+
+from∂CubeDep :
+  (n : ℕ) (B : A → Type ℓ')
+  (∂a : ∂Cube 1 A) (∂b : ∂CubeDep B ∂a)
+  (i₁ ... iₙ : I) → PartialP _ (λ o → B (from∂Cube n ∂a i₁ ... iₙ o))
+
+to∂CubeDep :
+  (n : ℕ) (B : A → Type ℓ')
+  (∂a : (i₁ ... iₙ : I) → Partial (i₁ ∨ ~ i₁ ∨ ... ∨ iₙ ∨ ~ iₙ) A)
+  (∂b : (i₁ ... iₙ : I) → PartialP _ (λ o → B (∂a i₁ ... iₙ o)))
+  → ∂CubeDep B (to∂Cube n ∂a)
+
+-}
 
 macro
 
@@ -94,7 +138,17 @@ macro
     (def (quote ∂ΠCubeDepᵉ→∂CubeDep) (addImpl 3 (ℕ→ℕᵉTerm (suc n) v∷ [])))
 
 
--- To fill non-dependent cubes under h-level assumptions
+{-
+
+The non-dependent cube-filling macro:
+
+fillCube :
+  {A : Type ℓ}
+  (n : ℕ) (h : isOfHLevel n A)
+  (u : (i₁ ... iₙ : I) → Partial (i₁ ∨ ~ i₁ ∨ ... ∨ iₙ ∨ ~ iₙ) A)
+  (i₁ ... iₙ : I) → A [ _ ↦ u i₁ ... iₙ ]
+
+-}
 
 fillCubeSuc :
   (n : ℕᵉ) (h : isOfHLevel (ℕᵉ→ℕ (suc n)) A)
@@ -111,7 +165,18 @@ macro
     (def (quote fillCubeSuc) (addImpl 2 (ℕ→ℕᵉTerm n v∷ [])))
 
 
--- To fill dependent cubes under h-level assumptions
+{-
+
+The dependent cube-filling macro:
+
+fillCubeDep :
+  {A : Type ℓ} {B : A → Type ℓ')
+  (n : ℕ) (h : isOfHLevel n B)
+  (a : (i₁ ... iₙ : I) → A)
+  (u : (i₁ ... iₙ : I) → Partial (i₁ ∨ ~ i₁ ∨ ... ∨ iₙ ∨ ~ iₙ) (B (a i₁ ... iₙ)))
+  (i₁ ... iₙ : I) → B (a i₁ ... iₙ) [ _ ↦ u i₁ ... iₙ ]
+
+-}
 
 fillCubeDepSuc :
   (n : ℕᵉ) (h : isOfHLevelDep (ℕᵉ→ℕ (suc n)) B)

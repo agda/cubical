@@ -62,7 +62,7 @@ Kᵉ : {A : Typeᵉ ℓ} {a b : A} → (p q : a ≡ᵉ b) → p ≡ᵉ q
 Kᵉ reflᵉ reflᵉ = reflᵉ
 
 
-{- External Inhomogeneous Equality -}
+{- External heterogeneous Equality -}
 
 data IdPᵉ {A : Typeᵉ ℓ} {B : A → Typeᵉ ℓ'} :
   {a b : A} → a ≡ᵉ b → B a → B b → Typeᵉ (ℓ-max ℓ ℓ')
@@ -178,6 +178,8 @@ open Σᵉ public
 
 Σᵉ-syntax : ∀ {ℓ ℓ'} (A : Typeᵉ ℓ) (B : A → Typeᵉ ℓ') → Typeᵉ (ℓ-max ℓ ℓ')
 Σᵉ-syntax = Σᵉ
+
+infix 2 Σᵉ-syntax
 
 syntax Σᵉ-syntax A (λ x → B) = Σᵉ[ x ∈ A ] B
 

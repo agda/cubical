@@ -4,7 +4,7 @@ External Cubes, and Their Relations with the Internal Ones
 
 This file contains:
 
-- The definition of external n-cubes, in both curried/uncurried forms;
+- The definitions of non-dependent and dependent external n-cubes, in both curried/uncurried forms;
 
 - Transformation between external/internal cubes;
 
@@ -324,17 +324,6 @@ interleaved mutual
     CubeRelᵉ→CubeRel (suc n) (λ φ → detachη (λ i → a₋ (i , φ)) i)
 
 
--- Commutativity of ∂ and internal/external transformation
-
-∂ᵉComm : {n : ℕᵉ} {a : Cube (ℕᵉ→ℕ n) A} → ∂ᵉ (Cube→Cubeᵉ n a) ≡ᵉ ∂Cube→∂Cubeᵉ n (∂ a)
-∂ᵉComm {n = 0ᵉ} = reflᵉ
-∂ᵉComm {n = suc n} = reflᵉ
-
-∂Comm : {n : ℕᵉ} {a : Cubeᵉ n A} → ∂ (Cubeᵉ→Cube n a) ≡ ∂Cubeᵉ→∂Cube n (∂ᵉ a)
-∂Comm {n = 0ᵉ} = refl
-∂Comm {n = suc n} = refl
-
-
 -- External n-cubes, in curried form
 
 ΠCubeᵉ : (n : ℕᵉ) (A : Type ℓ) → Typeᵉ ℓ
@@ -403,15 +392,9 @@ CubeRel→ΠCubeRelᵉ {A = A} (suc n) ∂ a =
 ∂CubeDepᵉ {n = 0ᵉ} _ _ = Unit*ᵉ
 ∂CubeDepᵉ {n = suc n} B ∂a = (φ : Iˣ (suc n)) → PartialP (∂Iˣ φ) (λ o → B (∂a φ o))
 
-lift∂ᵉ :
-  {n : ℕᵉ} {A : Type ℓ} (B : A → Type ℓ')
-  (a₋ : Cubeᵉ (suc n) A) (∂ᵉ : ∂CubeDepᵉ B (∂ᵉ a₋))
-  (φ : Iˣ (suc n)) → Partial (∂Iˣ φ) (B (outS (a₋ .snd φ)))
-lift∂ᵉ B (∂a , a₋) ∂ᵉ φ = part B (a₋ φ) (∂ᵉ φ)
-
 CubeDepRelᵉ : {n : ℕᵉ} {A : Type ℓ} (B : A → Type ℓ') (a₋ : Cubeᵉ n A) → ∂CubeDepᵉ B (∂ᵉ a₋) → Typeᵉ ℓ'
 CubeDepRelᵉ {n = 0ᵉ} B (exo a) _ = Exo (B a)
-CubeDepRelᵉ {n = suc n} B a₋ ∂ᵉ = (φ : Iˣ (suc n)) → B (outS (a₋ .snd φ)) [ _ ↦ lift∂ᵉ B a₋ ∂ᵉ φ ]
+CubeDepRelᵉ {n = suc n} B a₋ ∂ᵉ = (φ : Iˣ (suc n)) → B (outS (a₋ .snd φ)) [ _ ↦ part B (a₋ .snd φ) (∂ᵉ φ) ]
 
 CubeDepᵉ : {n : ℕᵉ} {A : Type ℓ} (B : A → Type ℓ') → Cubeᵉ n A → Typeᵉ ℓ'
 CubeDepᵉ {n = 0ᵉ} B (exo a) = Exo (B a)
@@ -528,39 +511,11 @@ CubeDep→ΠCubeDepᵉ n B _ b = curryCubeDepᵉ B _ (CubeDep→CubeDepᵉ n B b
 ∂ΠCubeDepᵉ→∂CubeDep n B _ ∂b = ∂CubeDepᵉ→∂CubeDep n B (uncurry∂CubeDepᵉ B _ ∂b)
 
 
--- Uncurried form
+{-
 
-CubeLiftᵉ : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ') → Cubeᵉ n A → Typeᵉ ℓ'
-CubeLiftᵉ 0ᵉ B (exo a) = Unit*ᵉ
-CubeLiftᵉ (suc n) B a  = (φ : _) → Partial (∂Iˣ φ) (B (outS (a .snd φ)))
+  Types that encode the dependent cube-filling problems
 
-CubeLiftedᵉ : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ') (a : Cubeᵉ n A) → CubeLiftᵉ n B a → Typeᵉ ℓ'
-CubeLiftedᵉ 0ᵉ B (exo a) _ = Exo (B a)
-CubeLiftedᵉ (suc n) B a ∂b = (φ : _) → B (outS (a .snd φ)) [ _ ↦ ∂b φ ]
-
-
-CubeLiftᵉ→∂CubeDepᵉ : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ')
-  (a : Cubeᵉ n A) → CubeLiftᵉ n B a → ∂CubeDepᵉ B (∂ᵉ a)
-CubeLiftᵉ→∂CubeDepᵉ 0ᵉ B _ _ = tt*ᵉ
-CubeLiftᵉ→∂CubeDepᵉ (suc n) B a ∂b φ = partP B (a .snd φ) (∂b φ)
-
-CubeLiftedᵉ→CubeDepRelᵉ : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ')
-  (a : Cubeᵉ n A) (∂b : CubeLiftᵉ n B a) → CubeLiftedᵉ n B a ∂b → CubeDepRelᵉ B a (CubeLiftᵉ→∂CubeDepᵉ n B a ∂b)
-CubeLiftedᵉ→CubeDepRelᵉ 0ᵉ B (exo a) _ b = b
-CubeLiftedᵉ→CubeDepRelᵉ (suc n) B a ∂b b φ = partP-part B _ (b φ)
-
-CubeDepRelᵉ→CubeLiftᵉ : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ')
-  (a : Cubeᵉ n A) (∂b : ∂CubeDepᵉ B (∂ᵉ a)) → CubeDepRelᵉ B a ∂b → CubeLiftᵉ n B a
-CubeDepRelᵉ→CubeLiftᵉ 0ᵉ B (exo a) _ _ = tt*ᵉ
-CubeDepRelᵉ→CubeLiftᵉ (suc n) B a ∂b b φ = part B (a .snd φ) (∂b φ)
-
-CubeDepRelᵉ→CubeLiftedᵉ : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ')
-  (a : Cubeᵉ n A) (∂b : ∂CubeDepᵉ B (∂ᵉ a)) (b : CubeDepRelᵉ B a ∂b) → CubeLiftedᵉ n B a (CubeDepRelᵉ→CubeLiftᵉ n B a ∂b b)
-CubeDepRelᵉ→CubeLiftedᵉ 0ᵉ B (exo a) _ b = b
-CubeDepRelᵉ→CubeLiftedᵉ (suc n) B a ∂b b φ = b φ
-
-
--- Curried form
+-}
 
 ΠCubeLiftᵉ : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ') → ΠCubeᵉ n A → Typeᵉ ℓ'
 ΠCubeLiftᵉ 0ᵉ B (exo a) = Unit*ᵉ
@@ -570,25 +525,18 @@ CubeDepRelᵉ→CubeLiftedᵉ (suc n) B a ∂b b φ = b φ
 ΠCubeLiftedᵉ 0ᵉ B (exo a) _ = Exo (B a)
 ΠCubeLiftedᵉ (suc n) B a ∂b = CurryIˣFunᵉ {n = suc n} (λ φ → B (uncurryIˣ a φ) [ _ ↦ uncurryIˣᵉ ∂b φ ])
 
-ΠCubeLiftᵉ→CubeLiftᵉ : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ')
-  (a : ΠCubeᵉ n A) → ΠCubeLiftᵉ n B a → CubeLiftᵉ n B (uncurryCubeᵉ a)
-ΠCubeLiftᵉ→CubeLiftᵉ 0ᵉ B (exo a) b = b
-ΠCubeLiftᵉ→CubeLiftᵉ (suc n) B a ∂b = uncurryIˣᵉ ∂b
+ΠCubeLiftᵉ→∂CubeDepᵉ : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ')
+  (a : ΠCubeᵉ n A) → ΠCubeLiftᵉ n B a → ∂CubeDepᵉ B (∂ᵉ {n = n} (uncurryCubeᵉ a))
+ΠCubeLiftᵉ→∂CubeDepᵉ 0ᵉ B _ _ = tt*ᵉ
+ΠCubeLiftᵉ→∂CubeDepᵉ (suc n) B a ∂b φ = partP B (uncurryCubeᵉ a .snd φ) (uncurryIˣᵉ ∂b φ)
 
 
--- Direct translation of lifting problems
+-- Direct translation between lifting problems
 
 ΠCubeLiftᵉ→∂CubeDep : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ')
   (a : ΠCubeᵉ n A) → ΠCubeLiftᵉ n B a → ∂CubeDep B _
-ΠCubeLiftᵉ→∂CubeDep n B a ∂b =
-  ∂CubeDepᵉ→∂CubeDep n B (CubeLiftᵉ→∂CubeDepᵉ n B (uncurryCubeᵉ a) (ΠCubeLiftᵉ→CubeLiftᵉ n B a ∂b))
-
-CubeDepRelᵉ→ΠCubeLiftedᵉSuc : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ')
-  (a : Cubeᵉ (suc n) A) (∂b : ∂CubeDepᵉ B (∂ᵉ a)) (b : CubeDepRelᵉ B a ∂b)
-  → CurryIˣFunᵉ {n = suc n} (λ φ → B (outS (a .snd φ)) [ _ ↦ part B (a .snd φ) (∂b φ) ])
-CubeDepRelᵉ→ΠCubeLiftedᵉSuc n B a ∂b b = curryIˣᵉ b
+ΠCubeLiftᵉ→∂CubeDep n B a ∂b = ∂CubeDepᵉ→∂CubeDep n B (ΠCubeLiftᵉ→∂CubeDepᵉ n B a ∂b)
 
 CubeDepRel→ΠCubeLiftedᵉSuc : (n : ℕᵉ) {A : Type ℓ} (B : A → Type ℓ')
   {a : Cube (ℕᵉ→ℕ (suc n)) A} (∂b : ∂CubeDep B (∂ a)) (b : CubeDepRel {n = ℕᵉ→ℕ (suc n)} a ∂b) → _
-CubeDepRel→ΠCubeLiftedᵉSuc n B {a = a} ∂b b =
-  CubeDepRelᵉ→ΠCubeLiftedᵉSuc n B _ _ (CubeDepRel→CubeDepRelᵉSuc n B b)
+CubeDepRel→ΠCubeLiftedᵉSuc n B ∂b b = curryIˣᵉ (CubeDepRel→CubeDepRelᵉSuc n B b)

@@ -2,6 +2,8 @@
 *~
 \.*#*
 \#*
+.DS_Store
+*.log
 Cubical/*/Everything.agda
 !Cubical/Core/Everything.agda
 !Cubical/Foundations/Everything.agda
