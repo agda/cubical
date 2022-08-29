@@ -1,9 +1,11 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-module Cubical.Algebra.Group.EilenbergMacLane.GroupStructure where
+module Cubical.Homotopy.EilenbergMacLane.GroupStructure where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base
-open import Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity
+open import Cubical.Homotopy.EilenbergMacLane.Base hiding (elim2)
+open import Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity
+open import Cubical.Homotopy.Loopspace
+
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.AbGroup.Base
@@ -17,8 +19,6 @@ open import Cubical.Foundations.GroupoidLaws renaming (assoc to ∙assoc)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Path
-
-open import Cubical.Homotopy.Loopspace
 
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Truncation

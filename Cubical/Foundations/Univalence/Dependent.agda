@@ -10,10 +10,8 @@ c.f. `Cubical.Foundations.Equiv.Dependent`.
 module Cubical.Foundations.Univalence.Dependent where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Univalence
 
@@ -24,6 +22,8 @@ private
 
 -- Dependent Univalence
 
+-- A quicker proof provided by @ecavallo: uaOver e F equiv = ua→ (λ a → ua (_ , equiv a))
+-- Unfortunately it gives a larger term overall.
 uaOver :
   {A B : Type ℓ} {P : A → Type ℓ'} {Q : B → Type ℓ'}
   (e : A ≃ B) (F : mapOver (e .fst) P Q)
