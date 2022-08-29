@@ -31,7 +31,6 @@ open import Cubical.Foundations.Transport
 open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
@@ -268,6 +267,29 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
 
 
+ -- very technical stuff
+ MaxOver< : {m : ℕ} (f : {i j : Fin m} → i < j → ℕ) → ℕ
+ MaxOver< {m = zero} f = 0
+ MaxOver< {m = suc m} f = max (Max {n = m} (λ i → f {i = zero} {j = suc i} (s≤s z≤)))
+                              (MaxOver< (f ∘ s≤s))
+
+ ind≤MaxOver< : ∀ {m : ℕ} (f : {i j : Fin m} → i < j → ℕ)
+              → ∀ {i j : Fin m} (i<j : i < j) → f i<j ≤ MaxOver< f
+ ind≤MaxOver< {m = suc m} f {i = zero} {j = zero} ()
+ ind≤MaxOver< {m = suc m} f {i = zero} {j = suc j} (s≤s z≤) = {!!}
+ ind≤MaxOver< {m = suc m} f {i = suc i} = {!!}
+
+ χ≡PropElim : (x : (i : Fin (suc n)) → R[1/ f i ])
+              {B : ((i : Fin (suc n)) → R[1/ f i ]) → Type ℓ''} (isPropB : ∀ x → isProp (B x))
+            → (∀ (r : FinVec R (suc n)) (m l : ℕ)
+                  → (∀ {i j : Fin (suc n)} → i < j
+                        → r i · f j ^ m · (f i · f j) ^ l ≡ r j · f i ^ m · (f i · f j) ^ l)
+                  → B (λ i → [ r i , f i ^ m , ∣ m , refl ∣₁ ]))
+          -------------------------------------------------------------------------------------
+           → (∀ {i j : Fin (suc n)} → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
+           → B x
+ χ≡PropElim = {!!}
+
  -- this will do all the heavy lifting
  equalizerLemma : 1r ∈ ⟨f₀,⋯,fₙ⟩
                 → ∀ (x : (i : Fin (suc n)) → R[1/ f i ]) -- s.t.
@@ -337,4 +359,48 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
        exponentHelper : (∀ {i} {j} (i<j : i < j)
                            → Σ[ l ∈ ℕ ] s i<j ≡ (f i · f j) ^ l)
                       → ∃![ y ∈ R ] ∀ i → (y /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
-       exponentHelper = {!!}
+       exponentHelper pows = {!!}
+         where
+         l : {i j : Fin (suc n)} → i < j → ℕ
+         l i<j = pows i<j .fst
+
+         sPath : ∀ {i} {j} (i<j : i < j) → s i<j ≡ (f i · f j) ^ l i<j
+         sPath i<j = pows i<j .snd
+
+         -- the path we get from our assumptions spelled out and cleaned up
+         assumPath : ∀ {i} {j} (i<j : i < j)
+                   → r i · f j ^ m · (f i · f j) ^ (m +ℕ l i<j)
+                   ≡ r j · f i ^ m · (f i · f j) ^ (m +ℕ l i<j)
+         assumPath {i} {j} i<j =
+             r i · f j ^ m · (f i · f j) ^ (m +ℕ l i<j)
+
+           ≡⟨ cong (r i · f j ^ m ·_) (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
+
+             r i · f j ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i<j)
+
+           ≡⟨ useSolver _ _ _ _ ⟩
+
+             (f i · f j) ^ l i<j · r i · f j ^ m · (f i · f j) ^ m
+
+           ≡⟨ cong (λ a → a · r i · f j ^ m · (f i · f j) ^ m) (sym (sPath i<j)) ⟩
+
+             s i<j · r i · f j ^ m · (f i · f j) ^ m
+
+           ≡⟨ sIsAnn i<j ⟩
+
+             s i<j · r j · f i ^ m · (f i · f j) ^ m
+
+           ≡⟨ cong (λ a → a · r j · f i ^ m · (f i · f j) ^ m) (sPath i<j) ⟩
+
+            (f i · f j) ^ l i<j  · r j · f i ^ m · (f i · f j) ^ m
+
+           ≡⟨ sym (useSolver _ _ _ _) ⟩
+
+             r j · f i ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i<j)
+
+           ≡⟨ cong (r j · f i ^ m ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+
+             r j · f i ^ m · (f i · f j) ^ (m +ℕ l i<j) ∎
+           where
+           useSolver : ∀ a b c d → a · b · (c · d) ≡ d · a · b · c
+           useSolver = solve R'
