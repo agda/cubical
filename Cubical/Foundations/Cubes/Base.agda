@@ -82,6 +82,7 @@ makeCube {n = suc n} a₋ = _ , λ i → a₋ i .snd
 -- A cube is just a path of cubes of one-lower-dimension.
 -- Unfortunately the following function cannot begin at 0,
 -- because Agda doesn't support pattern matching on ℕ towards pre-types.
+-- P.S. It will be fixed in Agda 2.9.3 when I → A becomes fibrant.
 pathCube : (n : ℕ) → (I → Cube (suc n) A) → Cube (suc (suc n)) A
 pathCube n p = _ , λ i → p i .snd
 
