@@ -46,7 +46,8 @@ module _ (f : A → B) where
              → ∣ x , Σ≡Prop isPropIsInImage fx≡y ∣₁)
            y∈im
 
-
+  imageFactorization : fst imageInclusion ∘ restrictToImage ≡ f
+  imageFactorization = refl
 
 {-
   The following is also true for a general modality in place of ∥_∥₁,
@@ -73,3 +74,9 @@ module _ (f : A ↪ B) where
                  (equivToIso (restrictionHasSameFibers y))
                  (isEmbedding→hasPropFibers (snd f) (fst y)) ) ,
       (isSurjectionImageRestriction (fst f)))
+
+{-
+  This is the extension to an 'iff', which is also a general modal fact.
+-}
+isEmbeddingFromIsEquivToImage : (f : A → B) → isEquiv (restrictToImage f) → isEmbedding f
+isEmbeddingFromIsEquivToImage f isEquiv-r = isEmbedding-∘ (snd (imageInclusion f)) (isEquiv→isEmbedding isEquiv-r)

@@ -80,7 +80,7 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
   {- equivalences preserve being modal -}
 
   equivPreservesIsModal : {A B : Type ℓ} → A ≃ B → isModal A → isModal B
-  equivPreservesIsModal eq = fst (pathToEquiv (cong isModal (ua eq)))
+  equivPreservesIsModal eq = subst isModal (ua eq)
 
 
   {- modal types and [η] being an equivalence -}

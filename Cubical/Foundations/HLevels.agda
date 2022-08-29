@@ -15,6 +15,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
@@ -490,6 +491,12 @@ isOfHLevelΠ⁻ 0 h x = fst h x , λ y → funExt⁻ (snd h (const y)) x
 isOfHLevelΠ⁻ 1 h x y z = funExt⁻ (h (const y) (const z)) x
 isOfHLevelΠ⁻ (suc (suc n)) h x y z =
   isOfHLevelΠ⁻ (suc n) (isOfHLevelRetractFromIso (suc n) funExtIso (h _ _)) x
+
+isOfHLevel→∙ : {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+  → isOfHLevel n (fst B) → isOfHLevel n (A →∙ B)
+isOfHLevel→∙ n hlev =
+  isOfHLevelΣ n (isOfHLevelΠ n (λ _ → hlev))
+    λ _ → isOfHLevelPath n hlev _ _
 
 -- h-level of A ≃ B and A ≡ B
 

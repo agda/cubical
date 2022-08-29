@@ -175,4 +175,4 @@ IsoOver-CubeDepConstRel-CubeRel _ _ _ =
 
 CubeDepConstRel≡CubeRel : (n : ℕ) (B : A → Type ℓ') (a : A)
   → PathP (λ i → ∂CubeDepConst≡∂Cube n B a i → Type ℓ') CubeDepConstRel (CubeRel n (B a))
-CubeDepConstRel≡CubeRel _ _ _ = isoToPathOver _ _ (iso→HAEquivOver (IsoOver-CubeDepConstRel-CubeRel _ _ _))
+CubeDepConstRel≡CubeRel _ _ _ = isoToPathOver _ _ (IsoOverIso→IsoOverHAEquiv (IsoOver-CubeDepConstRel-CubeRel _ _ _))

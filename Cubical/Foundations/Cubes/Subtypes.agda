@@ -215,9 +215,7 @@ IsoOver-CubeRel₀₁-CubeRelPath {n = n} =
 
 CubeRel₀₁≡CubeRelPath : {n : ℕ}{A : Type ℓ}{a₀ a₁ : A}
   → PathP (λ i → ∂Cube₀₁≡∂CubePath {n = n} {A} {a₀} {a₁} i → Type ℓ) (CubeRel₀₁ n A) (CubeRel n (a₀ ≡ a₁))
-CubeRel₀₁≡CubeRelPath = isoToPathOver _ _ (iso→HAEquivOver IsoOver-CubeRel₀₁-CubeRelPath)
-
-
+CubeRel₀₁≡CubeRelPath = isoToPathOver _ _ (IsoOverIso→IsoOverHAEquiv IsoOver-CubeRel₀₁-CubeRelPath)
 
 
 {-
@@ -358,4 +356,4 @@ IsoOver-CubeRelConst₀₁-CubeRel₀₁ =
 CubeRelConst₀₁≡CubeRel₀₁ : {n : ℕ}{A : Type ℓ}
   → PathP (λ i → ∂CubeConst₀₁≡∂Cube {n = n} i → Type ℓ) (CubeRelConst₀₁ n A) (CubeRel (suc n) A)
 CubeRelConst₀₁≡CubeRel₀₁ =
-  isoToPathOver _ _ (iso→HAEquivOver IsoOver-CubeRelConst₀₁-CubeRel₀₁)
+  isoToPathOver _ _ (IsoOverIso→IsoOverHAEquiv IsoOver-CubeRelConst₀₁-CubeRel₀₁)
