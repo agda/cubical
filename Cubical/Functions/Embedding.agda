@@ -29,7 +29,7 @@ open import Cubical.Data.Sigma
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A B : Type ℓ
+    A B C : Type ℓ
     f h : A → B
     w x : A
     y z : B
@@ -258,6 +258,10 @@ Subset≡Embedding = ua Subset≃Embedding
 isEmbedding-∘ : isEmbedding f → isEmbedding h → isEmbedding (f ∘ h)
 isEmbedding-∘ {f = f} {h = h} Embf Embh w x
   = compEquiv (cong h , Embh w x) (cong f , Embf (h w) (h x)) .snd
+
+compEmbedding : (B ↪ C) → (A ↪ B) → (A ↪ C)
+(compEmbedding (g , _ ) (f , _ )).fst = g ∘ f
+(compEmbedding (_ , g↪) (_ , f↪)).snd = isEmbedding-∘ g↪ f↪
 
 isEmbedding→embedsFibersIntoSingl
   : isEmbedding f

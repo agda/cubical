@@ -28,7 +28,6 @@ open import Cubical.Foundations.Id
            ; isPropIsEquiv to isPropIsEquivId
            )
 
-open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.Function public
 open import Cubical.Foundations.Equiv public
 open import Cubical.Foundations.Equiv.Properties public
@@ -45,6 +44,7 @@ open import Cubical.Foundations.Structure public
 open import Cubical.Foundations.Transport public
 open import Cubical.Foundations.Univalence public
 open import Cubical.Foundations.Univalence.Universe
+open import Cubical.Foundations.Univalence.Dependent
 open import Cubical.Foundations.GroupoidLaws public
 open import Cubical.Foundations.Isomorphism public
 open import Cubical.Foundations.CartesianKanOps
