@@ -5,22 +5,23 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyHIT pub
 
 {-
 
-The Univariate Functional Polynomials over a CommRing A is a CommRing.
-The base type is define using an HIT.
-This definition enables to defined a direct sum indexed by ℕ.
-Thus base type and the AbGroup part of the CommRing is define an instance
-of the more general Direct Sum one which can be found here :
+The Univariate Functional Polynomials over a CommRing A are a CommRing.
+The base type is defined using a HIT.
+This definition enables us to define a direct sum indexed by ℕ.
+Thus base type and the AbGroup part of the CommRing is defined as an instance
+of the more general Direct Sum which can be found here:
+
 -}
 
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 
 {-
 
-On this definition of the Direct Sum, it is possible to raise a Graded Ring structure.
+On this definition of the Direct Sum, it is possible to define a Graded Ring structure.
 Then complete it to be a CommRing. Those version of the polynomials are hence
-a instance of this graded ring structure.
+an instance of this graded ring structure.
 
-see : for the details of the constructions
+Follow the import below, for the details of the constructions:
 
 -}
 
