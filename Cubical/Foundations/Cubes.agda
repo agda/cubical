@@ -22,7 +22,7 @@ private
 By mutual recursion, one can define the type of
 
 - n-Cubes:
-  Cube    : (n : ℕ) (A : Type ℓ) → Type ℓ
+  Cube       : (n : ℕ)  (A : Type ℓ) → Type ℓ
 
 - Boundary of n-Cubes:
   ∂Cube   : (n : ℕ) (A : Type ℓ) → Type ℓ

@@ -100,6 +100,19 @@ isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
                     ; (k = i0) → s i j a₀})
           (s i j a₀)
 
+→∙HomogeneousSquare : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'} {f∙ g∙ h∙ l∙ : A∙ →∙ B∙}
+  (h : isHomogeneous B∙) → (s : f∙ ≡ h∙) (t : g∙ ≡ l∙) (p : f∙ ≡ g∙) (q : h∙ ≡ l∙)
+    → Square (cong fst p) (cong fst q) (cong fst s) (cong fst t)
+    → Square p q s t
+→∙HomogeneousSquare {f∙ = f∙} {g∙ = g∙} {h∙ = h∙} {l∙ = l∙} h =
+  J (λ h∙ s → (t : g∙ ≡ l∙) (p : f∙ ≡ g∙) (q : h∙ ≡ l∙) →
+      Square (cong fst p) (cong fst q) (cong fst s) (cong fst t) →
+      Square p q s t)
+   (J (λ l∙ t → (p : f∙ ≡ g∙) (q : f∙ ≡ l∙)
+      → Square (cong fst p) (cong fst q) refl (cong fst t)
+      → Square p q refl t)
+      (→∙Homogeneous≡Path {f∙ = f∙} {g∙ = g∙} h))
+
 isHomogeneousPi : ∀ {ℓ ℓ'} {A : Type ℓ} {B∙ : A → Pointed ℓ'}
                  → (∀ a → isHomogeneous (B∙ a)) → isHomogeneous (Πᵘ∙ A B∙)
 isHomogeneousPi h f i .fst = ∀ a → typ (h a (f a) i)

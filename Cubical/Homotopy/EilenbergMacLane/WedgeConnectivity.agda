@@ -1,8 +1,8 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-module Cubical.Algebra.Group.EilenbergMacLane.WedgeConnectivity where
+module Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity where
 
-open import Cubical.Algebra.Group.EilenbergMacLane.Base
+open import Cubical.Homotopy.EilenbergMacLane.Base
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
