@@ -317,3 +317,15 @@ fillCubeDep4 :
   (u : (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) (B (a i j k l)))
   (i j k l : I) → B (a i j k l) [ _ ↦ u i j k l ]
 fillCubeDep4 h a u = fillCubeDep 4 h a u
+
+
+-- An example of cube-filling,
+-- by using S¹ is a groupoid and to fill-in the 3-cube with constant boundary.
+
+private module _ where
+
+  open import Cubical.HITs.S1
+
+  -- Sadly it seems this cube cannot be normalized...
+  f : (i j k : I) → S¹
+  f i j k = outS (fillCube 3 isGroupoidS¹ (from∂Cube 3 (const∂ 3 base)) i j k)

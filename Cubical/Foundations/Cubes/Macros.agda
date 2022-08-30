@@ -170,7 +170,7 @@ macro
 The dependent cube-filling macro:
 
 fillCubeDep :
-  {A : Type ℓ} {B : A → Type ℓ')
+  {A : Type ℓ} (B : A → Type ℓ')
   (n : ℕ) (h : isOfHLevel n B)
   (a : (i₁ ... iₙ : I) → A)
   (u : (i₁ ... iₙ : I) → Partial (i₁ ∨ ~ i₁ ∨ ... ∨ iₙ ∨ ~ iₙ) (B (a i₁ ... iₙ)))
