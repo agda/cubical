@@ -45,12 +45,12 @@ isCubeFilledPath n A = (x y : A) → isCubeFilled n (x ≡ y)
 isCubeFilledPath≡isCubeFilledSuc : (n : ℕ) (A : Type ℓ)
   → isCubeFilledPath (suc n) A ≡ isCubeFilled (suc (suc n)) A
 isCubeFilledPath≡isCubeFilledSuc n A =
-    (λ i → (x y : A)(∂ : ∂Cube₀₁≡∂CubePath {n = suc n} {a₀ = x} {y} (~ i))
-        → CubeRel₀₁≡CubeRelPath (~ i) ∂)
+    (λ i → (x y : A)(∂ : ∂CubeConst₀₁≡∂CubePath {n = suc n} {a₀ = x} {y} (~ i))
+        → CubeRelConst₀₁≡CubeRelPath (~ i) ∂)
   ∙ (λ i → (x : A) → isoToPath (curryIso {A = A}
-      {B = λ y → ∂Cube₀₁ (suc n) A x y} {C = λ _ ∂ → CubeRel₀₁ (suc n) A ∂}) (~ i))
+      {B = λ y → ∂CubeConst₀₁ (suc n) A x y} {C = λ _ ∂ → CubeRelConst₀₁ (suc n) A ∂}) (~ i))
   ∙ sym (isoToPath curryIso)
-  ∙ (λ i → (∂ : ∂CubeConst₀₁≡∂Cube {n = suc n} {A} i) → CubeRelConst₀₁≡CubeRel₀₁ {n = suc n} i ∂)
+  ∙ (λ i → (∂ : ∂CubeConst₀₁≡∂CubeSuc {A = A} i) → CubeRelConst₀₁≡CubeRelSuc {n = n} i ∂)
 
 isCubeFilledPath→isCubeFilledSuc : (n : ℕ) (A : Type ℓ)
   → isCubeFilledPath n A → isCubeFilled (suc n) A
