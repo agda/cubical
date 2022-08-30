@@ -194,7 +194,6 @@ module PolyModTheory (R' : CommRing ℓ) where
                                            ([ 0r ] Poly+ [ 0r ]) ≡⟨ cong (λ X → _∷_ {R' = R'} X []) 0Idempotent  ∙ drop0 ⟩
                                            [] ∎
 
-
 --------------------
 --Definition
 --Identity for Poly*
@@ -217,6 +216,16 @@ module PolyModTheory (R' : CommRing ℓ) where
                                refl
                                (λ r p prf → cong (0r ∷_) prf ∙ drop0)
                                λ x y → isSetPoly _ _ x y
+
+
+  -- A homomorphism property of the multiplication, needed for the CommAlgebra-structure on polynomials
+  PolyConst*Hom : (r s : R) → [ r ] Poly* [ s ] ≡ [ r · s ]
+  PolyConst*Hom r s =
+    ([ r ] Poly* [ s ])                                ≡⟨⟩
+    (r PolyConst* [ s ]) Poly+ (0r ∷ ([] Poly* [ s ])) ≡[ i ]⟨ (r PolyConst* [ s ]) Poly+ (0r ∷ 0PRightAnnihilates [ s ] i) ⟩
+    (r PolyConst* [ s ]) Poly+ (0r ∷ [])               ≡[ i ]⟨ (r PolyConst* [ s ]) Poly+ (drop0 i) ⟩
+    (r PolyConst* [ s ]) Poly+ []                      ≡⟨ Poly+Rid _ ⟩
+    [ r · s ] ∎
 
 
   -- For any polynomial p we have: p Poly* [ 1r ] = p
