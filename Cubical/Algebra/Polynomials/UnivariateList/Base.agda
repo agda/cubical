@@ -62,17 +62,31 @@ module PolyMod (R' : CommRing ℓ) where
    f (x ∷ p) = cons* x p (f p)
    f (drop0 i) = drop0* i
 
-
   -- Given a proposition (as type) ϕ ranging over polynomials, we prove it by:
   -- ElimProp.f ϕ ⌜proof for base case []⌝ ⌜proof for induction case a ∷ p⌝
   --           ⌜proof that ϕ actually is a proposition over the domain of polynomials⌝
   module _ (B : Poly R' → Type ℓ')
-                  ([]* : B [])
-                  (cons* : (r : R) (p : Poly R') (b : B p) → B (r ∷ p))
-                  (BProp : {p : Poly R'} → isProp (B p)) where
+           ([]* : B [])
+           (cons* : (r : R) (p : Poly R') (b : B p) → B (r ∷ p))
+           (BProp : {p : Poly R'} → isProp (B p)) where
    ElimProp : (p : Poly R') → B p
    ElimProp = Elim.f B []* cons* (toPathP (BProp (transport (λ i → B (drop0 i)) (cons* 0r [] []*)) []*))
 
+
+  module _ (B         : Poly R' → Poly R' → Type ℓ')
+           ([][]*     : B [] [])
+           (cons[]*   : (r : R) (p : Poly R') (b : B p []) → B (r ∷ p) [])
+           ([]cons*   : (r : R) (p : Poly R') (b : B [] p) → B [] (r ∷ p))
+           (conscons* : (r s : R) (p q : Poly R') (b : B p q) → B (r ∷ p) (s ∷ q))
+           (BProp     : {p q : Poly R'} → isProp (B p q)) where
+
+    elimProp2 : (p q : Poly R') → B p q
+    elimProp2 =
+      ElimProp
+        (λ p → (q : Poly R') → B p q)
+        (ElimProp (B []) [][]* (λ r p b → []cons* r p b) BProp)
+        (λ r p b → ElimProp (λ q → B (r ∷ p) q) (cons[]* r p (b [])) (λ s q b' → conscons* r s p q (b q)) BProp)
+        (isPropΠ (λ _ → BProp))
 
   module Rec (B : Type ℓ')
              ([]* : B)
