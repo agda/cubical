@@ -46,6 +46,13 @@ module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
                        (0r ⋆ x) + (0r ⋆ x) ∎
     in RingTheory.+Idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+
 
+  0a-absorbs : (r : ⟨ R ⟩) → r ⋆ 0a ≡ 0a
+  0a-absorbs r = RingTheory.+Idempotency→0 (Algebra→Ring A) (r ⋆ 0a) helper
+    where helper =
+             r ⋆ 0a              ≡⟨ cong (λ u → r ⋆ u) (sym (RingTheory.0Idempotent (Algebra→Ring A))) ⟩
+             r ⋆ (0a + 0a)       ≡⟨ ⋆DistR+ r 0a 0a ⟩
+             (r ⋆ 0a) + (r ⋆ 0a) ∎
+
   ⋆Dist· : (x y : ⟨ R ⟩) (a b : ⟨ A ⟩) → (x ·r y) ⋆ (a · b) ≡ (x ⋆ a) · (y ⋆ b)
   ⋆Dist· x y a b = (x ·r y) ⋆ (a · b) ≡⟨ ⋆AssocR _ _ _ ⟩
                    a · ((x ·r y) ⋆ b) ≡⟨ cong (a ·_) (⋆Assoc _ _ _) ⟩
