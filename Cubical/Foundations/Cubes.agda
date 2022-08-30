@@ -7,8 +7,9 @@ The Internal n-Cubes
 module Cubical.Foundations.Cubes where
 
 open import Cubical.Foundations.Prelude hiding (Cube)
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Cubes.Base public
-open import Cubical.Data.Nat
+open import Cubical.Foundations.Cubes.HLevels
 
 private
   variable
@@ -23,10 +24,10 @@ By mutual recursion, one can define the type of
 - n-Cubes:
   Cube    : (n : ℕ) (A : Type ℓ) → Type ℓ
 
-- Boundary of n-cubes:
+- Boundary of n-Cubes:
   ∂Cube   : (n : ℕ) (A : Type ℓ) → Type ℓ
 
-- n-Cubes with Fixed Boundary:
+- n-Cubes with Specified Boundary:
   CubeRel : (n : ℕ) (A : Type ℓ) → ∂Cube n A → Type ℓ
 
 Their definitions are put in `Cubical.Foundations.Cubes.Base`,
@@ -168,23 +169,57 @@ private
 
 -}
 
+
+{-
+
 -- The property that, given an n-boundary, there always exists an n-cube extending this boundary
 -- The case n=0 is not very meaningful, so we use `isContr` instead to keep its relation with h-levels.
+-- It generalizes `isSet'` and `isGroupoid'`.
 
 isCubeFilled : ℕ → Type ℓ → Type ℓ
 isCubeFilled 0 = isContr
 isCubeFilled (suc n) A = (∂ : ∂Cube (suc n) A) → CubeRel (suc n) A ∂
 
 
-{-
-
-TODO:
-
--- It's not too difficult to show this for a specific n,
--- the trickiest part is to make it for all n.
+-- We have the following logical equivalences between h-levels and cube-filling
 
 isOfHLevel→isCubeFilled : (n : HLevel) → isOfHLevel n A → isCubeFilled n A
 
 isCubeFilled→isOfHLevel : (n : HLevel) → isCubeFilled n A → isOfHLevel n A
 
+
+Their proofs are put in `Cubical.Foundations.Cubes.HLevels`.
+
 -}
+
+
+-- Some special cases
+-- TODO: Write a macro to generate them!!!
+
+fill1Cube :
+  (h : isOfHLevel 1 A)
+  (u : (i : I) → Partial (i ∨ ~ i) A)
+  (i : I) → A [ _ ↦ u i ]
+fill1Cube h u i =
+  inS (from1Cube (to∂1Cube u , isOfHLevel→isCubeFilled 1 h (to∂1Cube u)) i)
+
+fill2Cube :
+  (h : isOfHLevel 2 A)
+  (u : (i j : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A)
+  (i j : I) → A [ _ ↦ u i j ]
+fill2Cube h u i j =
+  inS (from2Cube (to∂2Cube u , isOfHLevel→isCubeFilled 2 h (to∂2Cube u)) i j)
+
+fill3Cube :
+  (h : isOfHLevel 3 A)
+  (u : (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k) A)
+  (i j k : I) → A [ _ ↦ u i j k ]
+fill3Cube h u i j k =
+  inS (from3Cube (to∂3Cube u , isOfHLevel→isCubeFilled 3 h (to∂3Cube u)) i j k)
+
+fill4Cube :
+  (h : isOfHLevel 4 A)
+  (u : (i j k l : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j ∨ k ∨ ~ k ∨ l ∨ ~ l) A)
+  (i j k l : I) → A [ _ ↦ u i j k l ]
+fill4Cube h u i j k l =
+  inS (from4Cube (to∂4Cube u , isOfHLevel→isCubeFilled 4 h (to∂4Cube u)) i j k l)
