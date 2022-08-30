@@ -19,7 +19,7 @@ open import Cubical.Data.Sigma.Base
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
 
 
@@ -160,3 +160,26 @@ makeConstUniq {n = n} a i .snd j = isEquivConst .equiv-proof (const n a) .snd (a
 
 const∂ : (n : ℕ){A : Type ℓ} → A → ∂Cube n A
 const∂ n a = ∂ (const n a)
+
+
+-- J-rule for n-cubes,
+-- in some sense a generalization of the usual (symmetric form of) J-rule,
+-- which is equivalent to the case n=1.
+
+module _ {n : ℕ} {A : Type ℓ}
+  (P : Cube n A → Type ℓ') (d : (a : A) → P (const _ a)) where
+
+  JCube : (a₋ : Cube n A) → P a₋
+  JCube a₋ =
+    let c-path = makeConst {n = n} a₋ in
+    transport (λ i → P (c-path .snd (~ i))) (d (c-path .fst))
+
+  JCubeβ : (a : A) → JCube (const _ a) ≡ d a
+  JCubeβ a i =
+    let c-square = makeConstUniq {n = n} a in
+    let c-path = transport-filler (λ i → P (c-square i0 .snd (~ i))) (d (c-square i0 .fst)) in
+    comp (λ j → P (c-square j .snd i))
+    (λ j → λ
+      { (i = i0) → c-path i1
+      ; (i = i1) → d _ })
+    (c-path (~ i))

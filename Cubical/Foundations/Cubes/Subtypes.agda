@@ -154,7 +154,7 @@ interleaved mutual
     CubeRelPath→Const₀₁→Path {n = suc n} (a₋ j) i
 
 
-open isHAEquiv hiding (g)
+open isHAEquiv
 
 Iso-∂CubeConst₀₁-Path : {n : ℕ}{A : Type ℓ}{a₀ a₁ : A} → Iso (∂CubeConst₀₁ n A a₀ a₁) (∂Cube n (a₀ ≡ a₁))
 Iso-∂CubeConst₀₁-Path =
