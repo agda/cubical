@@ -51,3 +51,4 @@ open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Cubes
+open import Cubical.Foundations.Cubes.Subtypes

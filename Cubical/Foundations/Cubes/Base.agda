@@ -10,8 +10,7 @@ This file contains:
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Cubes.Base where
 
-open import Cubical.Foundations.Prelude  hiding (Cube)
-open import Cubical.Foundations.Function hiding (const)
+open import Cubical.Foundations.Prelude hiding (Cube)
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
@@ -33,15 +32,19 @@ private
 interleaved mutual
 
   Cube    : (n : ℕ) (A : Type ℓ) → Type ℓ
+  ∂Cube₀₁ : (n : ℕ) (A : Type ℓ) (a₀ a₁ : Cube n A) → Type ℓ
   ∂Cube   : (n : ℕ) (A : Type ℓ) → Type ℓ
   CubeRel : (n : ℕ) (A : Type ℓ) → ∂Cube n A → Type ℓ
 
   Cube    0 A = A
   Cube    (suc n) A = Σ[ ∂ ∈ ∂Cube (suc n) A ] CubeRel (suc n) A ∂
 
+  ∂Cube₀₁ 0 A _ _ = Unit*
+  ∂Cube₀₁ (suc n) A a₀ a₁ = a₀ .fst ≡ a₁ .fst
+
   ∂Cube   0 A = Unit*
   ∂Cube   1 A = A × A
-  ∂Cube   (suc (suc n)) A = Σ[ a₀ ∈ Cube (suc n) A ] Σ[ a₁ ∈ Cube (suc n) A ] a₀ .fst ≡ a₁ .fst
+  ∂Cube   (suc (suc n)) A = Σ[ a₀ ∈ Cube (suc n) A ] Σ[ a₁ ∈ Cube (suc n) A ] ∂Cube₀₁ (suc n) A a₀ a₁
 
   CubeRel 0 A _ = A
   CubeRel 1 A ∂ = ∂ .fst ≡ ∂ .snd
@@ -86,6 +89,11 @@ makeCube {n = suc n} a₋ = _ , λ i → a₋ i .snd
 pathCube : (n : ℕ) → (I → Cube (suc n) A) → Cube (suc (suc n)) A
 pathCube n p = _ , λ i → p i .snd
 
+
+∂Cube₀₁→∂Cube : {n : ℕ}{A : Type ℓ}{a₀ a₁ : Cube n A} → ∂Cube₀₁ n A a₀ a₁ → ∂Cube (suc n) A
+∂Cube₀₁→∂Cube {n = 0} {a₀ = a₀} {a₁} _ = a₀ , a₁
+∂Cube₀₁→∂Cube {n = suc n} {a₀ = a₀} {a₁} ∂ = a₀ , a₁ , ∂
+
 CubeRel→Cube : {n : ℕ}{A : Type ℓ}{∂ : ∂Cube n A} → CubeRel n A ∂ → Cube n A
 CubeRel→Cube {n = 0} a = a
 CubeRel→Cube {n = suc n} cube = _ , cube
@@ -119,12 +127,12 @@ retConst : {n : ℕ}{A : Type ℓ} → (cube : Cube n A) → ∂₀ (constCube {
 retConst {n = 0} _ = refl
 retConst {n = suc n} _ = refl
 
-setConst : {n : ℕ}{A : Type ℓ} → (cube : Cube (suc n) A) → constCube (∂₀ cube) ≡ cube
-setConst {n = 0} (_ , p) i = _ , λ j → p (i ∧ j)
-setConst {n = suc n} (_ , p) i  = _ , λ j → p (i ∧ j)
+secConst : {n : ℕ}{A : Type ℓ} → (cube : Cube (suc n) A) → constCube (∂₀ cube) ≡ cube
+secConst {n = 0} (_ , p) i = _ , λ j → p (i ∧ j)
+secConst {n = suc n} (_ , p) i  = _ , λ j → p (i ∧ j)
 
 isEquivConstCube : {n : ℕ}{A : Type ℓ} → isEquiv (constCube {n = n} {A = A})
-isEquivConstCube {n = n} = isoToEquiv (iso constCube ∂₀ setConst (retConst {n = n})) .snd
+isEquivConstCube {n = n} = isoToEquiv (iso constCube ∂₀ secConst (retConst {n = n})) .snd
 
 
 -- Constant cubes
@@ -151,6 +159,4 @@ makeConstUniq {n = n} a i .snd j = isEquivConst .equiv-proof (const n a) .snd (a
 -- Cube with constant boundary
 
 const∂ : (n : ℕ){A : Type ℓ} → A → ∂Cube n A
-const∂ 0 _ = tt*
-const∂ 1 a = a , a
-const∂ (suc (suc n)) a = const _ a , const _ a , refl
+const∂ n a = ∂ (const n a)
