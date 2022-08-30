@@ -69,10 +69,7 @@ isSemilattice maxSemilatticeStr = makeIsSemilattice isSetℕ maxAssoc maxRId max
 
 
 --characterisation of inequality
-open JoinSemilattice (ℕ , maxSemilatticeStr)
-private
-  maxPoset = IndPoset
-  _≤max_ = _≤_
+open JoinSemilattice (ℕ , maxSemilatticeStr) renaming (_≤_ to _≤max_)
 
 ≤max→≤ℕ : ∀ x y → x ≤max y → x ≤ℕ y
 ≤max→≤ℕ zero y _ = zero-≤

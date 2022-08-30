@@ -40,6 +40,9 @@ open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
 open import Cubical.Data.FinData.Order renaming (_<'Fin_ to _<_)
 
+open import Cubical.Relation.Binary
+open import Cubical.Relation.Binary.Poset
+
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
@@ -52,8 +55,10 @@ open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
+open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Semilattice.Instances.NatMax
 
+-- open import Cubical.Tactics.NatSolver.Reflection renaming (solve to natSolve)
 open import Cubical.Tactics.CommRingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -229,178 +234,346 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
      path : (n : ℕ) → 1r · (f j ^ n · f i ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
      path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
 
+ χSwap : ∀ i j → χˡ i j ≡ subst (λ r → CommRingHom R[1/ f i ]AsCommRing R[1/ r ]AsCommRing)
+                                 (·Comm (f j) (f i)) (χʳ j i)
+ χSwap i j = RingHom≡ (funExt (invElPropElim (λ _ → squash/ _ _)
+     λ r m → cong [_]
+              (ΣPathP (sym (transportRefl _ ∙ cong (_· transport refl (f j ^ m)) (transportRefl _))
+                , Σ≡Prop (∈-isProp _)
+              (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))))
 
  -- to be upstreamed / what should it be called
- recFin< : {m : ℕ} {P : {i j : Fin m} → i < j → Type ℓ'}
-            {B : Type ℓ''} (isPropB : isProp B)
-          → ((∀ {i} {j} (i<j : i < j) → P i<j) → B)
-         ---------------------------------------------------
-          → ((∀ {i} {j} (i<j : i < j) → ∥ P i<j ∥₁) → B)
- recFin< {m = zero} isPropB untruncHyp truncs = untruncHyp (λ {i} → ⊥.rec (¬Fin0 i))
- recFin< {m = suc m} {P = P} {B = B} isPropB untruncHyp truncs =
-   curriedishTrunc (λ 0<j → truncs 0<j) λ i<j → truncs (s≤s i<j)
-   where
-   curriedish : (∀ {j} (0<j : zero < j) → P 0<j)
-              → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
-              → B
-   curriedish p₀ truncFamSuc = recFin< isPropB
-     (λ famSuc → untruncHyp (λ { {i = zero} 0<j → p₀ 0<j
-                               ; {i = suc i} {j = zero} ()
-                               ; {i = suc i} {j = suc j} (s≤s i<j) → famSuc i<j}))
-          truncFamSuc
+ -- recFin< : {m : ℕ} {P : {i j : Fin m} → i < j → Type ℓ'}
+ --            {B : Type ℓ''} (isPropB : isProp B)
+ --          → ((∀ {i} {j} (i<j : i < j) → P i<j) → B)
+ --         ---------------------------------------------------
+ --          → ((∀ {i} {j} (i<j : i < j) → ∥ P i<j ∥₁) → B)
+ -- recFin< {m = zero} isPropB untruncHyp truncs = untruncHyp (λ {i} → ⊥.rec (¬Fin0 i))
+ -- recFin< {m = suc m} {P = P} {B = B} isPropB untruncHyp truncs =
+ --   curriedishTrunc (λ 0<j → truncs 0<j) λ i<j → truncs (s≤s i<j)
+ --   where
+ --   curriedish : (∀ {j} (0<j : zero < j) → P 0<j)
+ --              → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
+ --              → B
+ --   curriedish p₀ truncFamSuc = recFin< isPropB
+ --     (λ famSuc → untruncHyp (λ { {i = zero} 0<j → p₀ 0<j
+ --                               ; {i = suc i} {j = zero} ()
+ --                               ; {i = suc i} {j = suc j} (s≤s i<j) → famSuc i<j}))
+ --          truncFamSuc
 
-   recFin0< : {m' : ℕ} {P' : {j : Fin (suc m')} → zero < j → Type ℓ'}
-            {B' : Type ℓ''} (isPropB' : isProp B')
-          → ((∀ {j} (0<j : zero < j) → P' 0<j) → B')
-         ---------------------------------------------------
-          → ((∀ {j} (0<j : zero < j) → ∥ P' 0<j ∥₁) → B')
-   recFin0< {P' = P'} isPropB' untruncHyp₀ truncs₀ =
-      recFin {P = λ j → P' (s≤s (z≤ {toℕ (weakenFin j)}))}
-              isPropB' (λ famSuc → untruncHyp₀
-                         λ { {j = zero} → λ () ; {j = suc j} (s≤s z≤) → famSuc j})
-                          λ _ → truncs₀ (s≤s z≤)
+ --   recFin0< : {m' : ℕ} {P' : {j : Fin (suc m')} → zero < j → Type ℓ'}
+ --            {B' : Type ℓ''} (isPropB' : isProp B')
+ --          → ((∀ {j} (0<j : zero < j) → P' 0<j) → B')
+ --         ---------------------------------------------------
+ --          → ((∀ {j} (0<j : zero < j) → ∥ P' 0<j ∥₁) → B')
+ --   recFin0< {P' = P'} isPropB' untruncHyp₀ truncs₀ =
+ --      recFin {P = λ j → P' (s≤s (z≤ {toℕ (weakenFin j)}))}
+ --              isPropB' (λ famSuc → untruncHyp₀
+ --                         λ { {j = zero} → λ () ; {j = suc j} (s≤s z≤) → famSuc j})
+ --                          λ _ → truncs₀ (s≤s z≤)
 
-   curriedishTrunc : (∀ {j} (0<j : zero < j) → ∥ P 0<j ∥₁)
-                   → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
-                   → B
-   curriedishTrunc = recFin0< {m' = m} (isProp→ isPropB) curriedish
+ --   curriedishTrunc : (∀ {j} (0<j : zero < j) → ∥ P 0<j ∥₁)
+ --                   → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
+ --                   → B
+ --   curriedishTrunc = recFin0< {m' = m} (isProp→ isPropB) curriedish
 
 
 
- -- very technical stuff
- MaxOver< : {m : ℕ} (f : {i j : Fin m} → i < j → ℕ) → ℕ
- MaxOver< {m = zero} f = 0
- MaxOver< {m = suc m} f = max (Max {n = m} (λ i → f {i = zero} {j = suc i} (s≤s z≤)))
-                              (MaxOver< (f ∘ s≤s))
+ -- -- very technical stuff
+ -- MaxOver< : {m : ℕ} (f : {i j : Fin m} → i < j → ℕ) → ℕ
+ -- MaxOver< {m = zero} f = 0
+ -- MaxOver< {m = suc m} f = max (Max {n = m} (λ i → f {i = zero} {j = suc i} (s≤s z≤)))
+ --                              (MaxOver< (f ∘ s≤s))
 
- ind≤MaxOver< : ∀ {m : ℕ} (f : {i j : Fin m} → i < j → ℕ)
-              → ∀ {i j : Fin m} (i<j : i < j) → f i<j ≤ MaxOver< f
- ind≤MaxOver< {m = suc m} f {i = zero} {j = zero} ()
- ind≤MaxOver< {m = suc m} f {i = zero} {j = suc j} (s≤s z≤) = {!!}
- ind≤MaxOver< {m = suc m} f {i = suc i} = {!!}
+ -- ind≤MaxOver< : ∀ {m : ℕ} (f : {i j : Fin m} → i < j → ℕ)
+ --              → ∀ {i j : Fin m} (i<j : i < j) → f i<j ≤ MaxOver< f
+ -- ind≤MaxOver< {m = suc m} f {i = zero} {j = zero} ()
+ -- ind≤MaxOver< {m = suc m} f {i = zero} {j = suc j} (s≤s z≤) = ≤-trans (ind≤Max _ _) left-≤-max
+ -- ind≤MaxOver< {m = suc m} f {i = suc i} {j = zero} ()
+ -- ind≤MaxOver< {m = suc m} f {i = suc i} {j = suc j} (s≤s i<j) =
+ --                ≤-trans (ind≤MaxOver< (f ∘ s≤s) i<j) right-≤-max
 
- χ≡PropElim : (x : (i : Fin (suc n)) → R[1/ f i ])
-              {B : ((i : Fin (suc n)) → R[1/ f i ]) → Type ℓ''} (isPropB : ∀ x → isProp (B x))
+ χ≡PropElim : {B : ((i : Fin (suc n)) → R[1/ f i ]) → Type ℓ''} (isPropB : ∀ {x} → isProp (B x))
             → (∀ (r : FinVec R (suc n)) (m l : ℕ)
-                  → (∀ {i j : Fin (suc n)} → i < j
-                        → r i · f j ^ m · (f i · f j) ^ l ≡ r j · f i ^ m · (f i · f j) ^ l)
+                  → (∀ i j → r i · f j ^ m · (f i · f j) ^ l ≡ r j · f i ^ m · (f i · f j) ^ l)
                   → B (λ i → [ r i , f i ^ m , ∣ m , refl ∣₁ ]))
           -------------------------------------------------------------------------------------
-           → (∀ {i j : Fin (suc n)} → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
+           → (x : (i : Fin (suc n)) → R[1/ f i ])
+           → (∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
            → B x
- χ≡PropElim = {!!}
+ χ≡PropElim {B = B} isPropB baseHyp = invElPropElimN n f _ (λ _ → isProp→ isPropB) baseCase
+   where
+   baseCase : ∀ (r : FinVec R (suc n)) (m : ℕ)
+            → (∀ i j → χˡ i j .fst ([ r i , f i ^ m , ∣ m , refl ∣₁ ])
+                     ≡ χʳ i j .fst ([ r j , f j ^ m , ∣ m , refl ∣₁ ]))
+            → B (λ i → [ r i , f i ^ m , ∣ m , refl ∣₁ ])
+   baseCase r m pairHyp = {!!} --  recFin< isPropB  annihilatorHelper exAnnihilator
+     -- where
+     -- -- This computes because we defined the χ by hand
+     -- exAnnihilator : ∀ {i} {j} → i < j
+     --               → ∃[ s ∈ LP.S i j ] -- s.t.
+     --                   fst s · (r i · transport refl (f j ^ m))
+     --                         · (1r · transport refl ((f i · f j) ^ m))
+     --                 ≡ fst s · (r j · transport refl (f i ^ m))
+     --                         · (1r · transport refl ((f i · f j) ^ m))
+     -- exAnnihilator i<j = isEquivRel→TruncIso (LP.locIsEquivRel _ _) _ _ .fun
+     --                                         (pairHyp i<j)
+
+     -- annihilatorHelper : (∀ {i} {j} → i < j
+     --                       → Σ[ s ∈ LP.S i j ] -- s.t.
+     --                           fst s · (r i · transport refl (f j ^ m))
+     --                                 · (1r · transport refl ((f i · f j) ^ m))
+     --                         ≡ fst s · (r j · transport refl (f i ^ m))
+     --                                 · (1r · transport refl ((f i · f j) ^ m)))
+     --                   → B (λ i → [ r i , f i ^ m , ∣ m , refl ∣₁ ])
+     -- annihilatorHelper anns = recFin< isPropB exponentHelper sIsPow
+     --   where
+     --   -- notation
+     --   s : {i j : Fin (suc n)} → i < j → R
+     --   s i<j = anns i<j .fst .fst
+
+     --   sIsPow : ∀ {i} {j} (i<j : i < j) → s i<j ∈ₚ [ (f i · f j) ⁿ|n≥0]
+     --   sIsPow i<j = anns i<j .fst .snd
+
+     --   sIsAnn : ∀ {i} {j} (i<j : i < j)
+     --          → s i<j · r i · f j ^ m · (f i · f j) ^ m
+     --          ≡ s i<j · r j · f i ^ m · (f i · f j) ^ m
+     --   sIsAnn {i = i} {j = j} i<j =
+     --       s i<j · r i · f j ^ m · (f i · f j) ^ m
+     --     ≡⟨ transpHelper _ _ _ _ ⟩
+     --       s i<j · r i · transport refl (f j ^ m) · transport refl ((f i · f j) ^ m)
+     --     ≡⟨ useSolver _ _ _ _ ⟩
+     --       s i<j · (r i · transport refl (f j ^ m))
+     --             · (1r · transport refl ((f i · f j) ^ m))
+     --     ≡⟨ anns i<j .snd ⟩
+     --       s i<j · (r j · transport refl (f i ^ m))
+     --             · (1r · transport refl ((f i · f j) ^ m))
+     --     ≡⟨ sym (useSolver _ _ _ _) ⟩
+     --       s i<j · r j · transport refl (f i ^ m) · transport refl ((f i · f j) ^ m)
+     --     ≡⟨ sym (transpHelper _ _ _ _) ⟩
+     --       s i<j · r j · f i ^ m · (f i · f j) ^ m ∎
+     --     where
+     --     transpHelper : ∀ a b c d → a · b · c · d
+     --                              ≡ a · b · transport refl c · transport refl d
+     --     transpHelper a b c d i = a · b · transportRefl c (~ i) · transportRefl d (~ i)
+     --     useSolver : ∀ a b c d → a · b · c · d ≡ a · (b · c) · (1r · d)
+     --     useSolver = solve R'
+
+     --   exponentHelper : (∀ {i} {j} (i<j : i < j)
+     --                       → Σ[ l ∈ ℕ ] s i<j ≡ (f i · f j) ^ l)
+     --                  → B (λ i → [ r i , f i ^ m , ∣ m , refl ∣₁ ])
+     --   exponentHelper pows = baseHyp r m (m +ℕ k) <Paths
+     --     where
+     --     -- sᵢⱼ = fᵢfⱼ ^ lᵢⱼ, so need to take max over all of these...
+     --     l : {i j : Fin (suc n)} → i < j → ℕ
+     --     l i<j = pows i<j .fst
+
+     --     k = MaxOver< l
+
+     --     sPath : ∀ {i} {j} (i<j : i < j) → s i<j ≡ (f i · f j) ^ l i<j
+     --     sPath i<j = pows i<j .snd
+
+     --     -- the path we get from our assumptions spelled out and cleaned up
+     --     assumPath : ∀ {i} {j} (i<j : i < j)
+     --               → r i · f j ^ m · (f i · f j) ^ (m +ℕ l i<j)
+     --               ≡ r j · f i ^ m · (f i · f j) ^ (m +ℕ l i<j)
+     --     assumPath {i} {j} i<j =
+     --         r i · f j ^ m · (f i · f j) ^ (m +ℕ l i<j)
+
+     --       ≡⟨ cong (r i · f j ^ m ·_) (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
+
+     --         r i · f j ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i<j)
+
+     --       ≡⟨ useSolver _ _ _ _ ⟩
+
+     --         (f i · f j) ^ l i<j · r i · f j ^ m · (f i · f j) ^ m
+
+     --       ≡⟨ cong (λ a → a · r i · f j ^ m · (f i · f j) ^ m) (sym (sPath i<j)) ⟩
+
+     --         s i<j · r i · f j ^ m · (f i · f j) ^ m
+
+     --       ≡⟨ sIsAnn i<j ⟩
+
+     --         s i<j · r j · f i ^ m · (f i · f j) ^ m
+
+     --       ≡⟨ cong (λ a → a · r j · f i ^ m · (f i · f j) ^ m) (sPath i<j) ⟩
+
+     --        (f i · f j) ^ l i<j  · r j · f i ^ m · (f i · f j) ^ m
+
+     --       ≡⟨ sym (useSolver _ _ _ _) ⟩
+
+     --         r j · f i ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i<j)
+
+     --       ≡⟨ cong (r j · f i ^ m ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+
+     --         r j · f i ^ m · (f i · f j) ^ (m +ℕ l i<j) ∎
+     --       where
+     --       useSolver : ∀ a b c d → a · b · (c · d) ≡ d · a · b · c
+     --       useSolver = solve R'
+
+     --     <Paths : ∀ {i} {j} → i < j → r i · f j ^ m · (f i · f j) ^ (m +ℕ k)
+     --                                ≡ r j · f i ^ m · (f i · f j) ^ (m +ℕ k)
+     --     <Paths {i = i} {j = j} i<j =
+     --         r i · f j ^ m · (f i · f j) ^ (m +ℕ k)
+
+     --       ≡⟨ cong (λ x → r i · f j ^ m · (f i · f j) ^ (m +ℕ x))
+     --               (sym (≤-∸-+-cancel (ind≤MaxOver< l i<j))) ⟩
+
+     --         r i · f j ^ m · (f i · f j) ^ (m +ℕ (k ∸ l i<j +ℕ l i<j))
+
+     --       ≡⟨ cong (λ x → r i · f j ^ m · (f i · f j) ^ x)
+     --               (cong (m +ℕ_) (+ℕ-comm _ _) ∙ +ℕ-assoc _ _ _) ⟩
+
+     --         r i · f j ^ m · (f i · f j) ^ (m +ℕ l i<j +ℕ (k ∸ l i<j))
+
+     --       ≡⟨ cong (r i · f j ^ m ·_) (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
+
+     --         r i · f j ^ m · ((f i · f j) ^ (m +ℕ l i<j) · (f i · f j) ^ (k ∸ l i<j))
+
+     --       ≡⟨ ·Assoc _ _ _ ⟩
+
+     --         r i · f j ^ m · (f i · f j) ^ (m +ℕ l i<j) · (f i · f j) ^ (k ∸ l i<j)
+
+     --       ≡⟨ cong (_· (f i · f j) ^ (k ∸ l i<j)) (assumPath i<j) ⟩
+
+     --         r j · f i ^ m · (f i · f j) ^ (m +ℕ l i<j) · (f i · f j) ^ (k ∸ l i<j)
+
+     --       ≡⟨ sym (·Assoc _ _ _) ⟩
+
+     --         r j · f i ^ m · ((f i · f j) ^ (m +ℕ l i<j) · (f i · f j) ^ (k ∸ l i<j))
+
+     --       ≡⟨ cong (r j · f i ^ m ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
+
+     --         r j · f i ^ m · (f i · f j) ^ (m +ℕ l i<j +ℕ (k ∸ l i<j))
+
+     --       ≡⟨ cong (λ x → r j · f i ^ m · (f i · f j) ^ x)
+     --               (sym (+ℕ-assoc _ _ _) ∙ cong (m +ℕ_) (+ℕ-comm _ _)) ⟩
+
+     --         r j · f i ^ m · (f i · f j) ^ (m +ℕ (k ∸ l i<j +ℕ l i<j))
+
+     --       ≡⟨ cong (λ x → r j · f i ^ m · (f i · f j) ^ (m +ℕ x))
+     --                (≤-∸-+-cancel (ind≤MaxOver< l i<j)) ⟩
+
+     --         r j · f i ^ m · (f i · f j) ^ (m +ℕ k) ∎
+
+
+
+
+
+
 
  -- this will do all the heavy lifting
  equalizerLemma : 1r ∈ ⟨f₀,⋯,fₙ⟩
                 → ∀ (x : (i : Fin (suc n)) → R[1/ f i ]) -- s.t.
-                → (∀ {i} {j} → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
+                → (∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
                 → ∃![ y ∈ R ] (∀ i → y /1ˢ ≡ x i)
- equalizerLemma 1∈⟨f₀,⋯,fₙ⟩ = invElPropElimN n f _
-                                              (λ _ → isPropΠ (λ _ → isProp∃!))
-                                                baseCase
+ equalizerLemma 1∈⟨f₀,⋯,fₙ⟩ = χ≡PropElim isProp∃! baseCase
    where
-   baseCase : ∀ (r : FinVec R (suc n)) (m : ℕ)
-            → (∀ {i} {j} → i < j
-                 → χˡ i j .fst ([ r i , f i ^ m , ∣ m , refl ∣₁ ])
-                 ≡ χʳ i j .fst ([ r j , f j ^ m , ∣ m , refl ∣₁ ]))
-            → ∃![ y ∈ R ] ∀ i → (y /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
-   baseCase r m pairHyp = recFin< isProp∃! annihilatorHelper exAnnihilator
+   baseCase : ∀ (r : FinVec R (suc n)) (m l : ℕ)
+            → (∀ i j → r i · f j ^ m · (f i · f j) ^ l ≡ r j · f i ^ m · (f i · f j) ^ l)
+            → ∃![ y ∈ R ] (∀ i → y /1ˢ ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ])
+   baseCase r m l <Paths = PT.rec isProp∃! Σhelper (GeneratingPowers.thm R' 2m+l _ _ 1∈⟨f₀,⋯,fₙ⟩)
      where
-     -- This computes because we defined the χ by hand
-     exAnnihilator : ∀ {i} {j} → i < j
-                   → ∃[ s ∈ LP.S i j ] -- s.t.
-                       fst s · (r i · transport refl (f j ^ m))
-                             · (1r · transport refl ((f i · f j) ^ m))
-                     ≡ fst s · (r j · transport refl (f i ^ m))
-                             · (1r · transport refl ((f i · f j) ^ m))
-     exAnnihilator i<j = isEquivRel→TruncIso (LP.locIsEquivRel _ _) _ _ .fun
-                                             (pairHyp i<j)
-     -- sᵢⱼ = fᵢfⱼ ^ lᵢⱼ, so need to take max over all of these...
-     annihilatorHelper : (∀ {i} {j} → i < j
-                           → Σ[ s ∈ LP.S i j ] -- s.t.
-                               fst s · (r i · transport refl (f j ^ m))
-                                     · (1r · transport refl ((f i · f j) ^ m))
-                             ≡ fst s · (r j · transport refl (f i ^ m))
-                                     · (1r · transport refl ((f i · f j) ^ m)))
-                       → ∃![ y ∈ R ] ∀ i → (y /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
-     annihilatorHelper anns = recFin< isProp∃! exponentHelper sIsPow
+     -- critical exponent
+     2m+l = m +ℕ (m +ℕ l)
+
+     f²ᵐ⁺ˡ : FinVec R (suc n)
+     f²ᵐ⁺ˡ i = f i ^ 2m+l
+
+     Σhelper : Σ[ α ∈ FinVec R (suc n) ] 1r ≡ linearCombination R' α f²ᵐ⁺ˡ
+             → ∃![ y ∈ R ] (∀ i → y /1ˢ ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ])
+     Σhelper (α , linCombi) = (z , z≡r/fᵐ)
+                            , λ y' → Σ≡Prop (λ _ → isPropΠ (λ _ → squash/ _ _)) (unique _ (y' .snd))
        where
-       -- notation
-       s : {i j : Fin (suc n)} → i < j → R
-       s i<j = anns i<j .fst .fst
+       z = ∑ λ i → α i · r i · f i ^ (m +ℕ l)
 
-       sIsPow : ∀ {i} {j} (i<j : i < j) → s i<j ∈ₚ [ (f i · f j) ⁿ|n≥0]
-       sIsPow i<j = anns i<j .fst .snd
-
-       sIsAnn : ∀ {i} {j} (i<j : i < j)
-              → s i<j · r i · f j ^ m · (f i · f j) ^ m
-              ≡ s i<j · r j · f i ^ m · (f i · f j) ^ m
-       sIsAnn {i = i} {j = j} i<j =
-           s i<j · r i · f j ^ m · (f i · f j) ^ m
-         ≡⟨ transpHelper _ _ _ _ ⟩
-           s i<j · r i · transport refl (f j ^ m) · transport refl ((f i · f j) ^ m)
-         ≡⟨ useSolver _ _ _ _ ⟩
-           s i<j · (r i · transport refl (f j ^ m))
-                 · (1r · transport refl ((f i · f j) ^ m))
-         ≡⟨ anns i<j .snd ⟩
-           s i<j · (r j · transport refl (f i ^ m))
-                 · (1r · transport refl ((f i · f j) ^ m))
-         ≡⟨ sym (useSolver _ _ _ _) ⟩
-           s i<j · r j · transport refl (f i ^ m) · transport refl ((f i · f j) ^ m)
-         ≡⟨ sym (transpHelper _ _ _ _) ⟩
-           s i<j · r j · f i ^ m · (f i · f j) ^ m ∎
+       z≡r/fᵐ : ∀ i → (z /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
+       z≡r/fᵐ i = eq/ _ _ ((f i ^ (m +ℕ l) , ∣ m +ℕ l , refl ∣₁) , path)
          where
-         transpHelper : ∀ a b c d → a · b · c · d
-                                  ≡ a · b · transport refl c · transport refl d
-         transpHelper a b c d i = a · b · transportRefl c (~ i) · transportRefl d (~ i)
-         useSolver : ∀ a b c d → a · b · c · d ≡ a · (b · c) · (1r · d)
-         useSolver = solve R'
+         useSolver1 : ∀ a b c d e g → (a · b) · (c · d · (e · g)) · a
+                                    ≡ c · (d · a · (b · g)) · (a · e)
+         useSolver1 = solve R'
 
-       exponentHelper : (∀ {i} {j} (i<j : i < j)
-                           → Σ[ l ∈ ℕ ] s i<j ≡ (f i · f j) ^ l)
-                      → ∃![ y ∈ R ] ∀ i → (y /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
-       exponentHelper pows = {!!}
+         useSolver2 : ∀ a b c d e g → a · (b · c · (d · e)) · (g · c)
+                                    ≡ (g · d) · b · (a · (c · (c · e)))
+         useSolver2 = solve R'
+
+         path : f i ^ (m +ℕ l) · z · f i ^ m ≡ f i ^ (m +ℕ l) · r i · 1r
+         path =
+             f i ^ (m +ℕ l) · z · f i ^ m
+
+           ≡⟨ cong (_· f i ^ m) (∑Mulrdist _ _) ⟩
+
+             (∑ λ j → f i ^ (m +ℕ l) · (α j · r j · f j ^ (m +ℕ l))) · f i ^ m
+
+           ≡⟨ ∑Mulldist _ _ ⟩
+
+             (∑ λ j → f i ^ (m +ℕ l) · (α j · r j · f j ^ (m +ℕ l)) · f i ^ m)
+
+           ≡⟨ ∑Ext (λ j → cong₂ (λ x y → x · (α j · r j · y) · f i ^ m)
+                                (sym (·-of-^-is-^-of-+ (f i) m l))
+                                (sym (·-of-^-is-^-of-+ (f j) m l))) ⟩
+
+             (∑ λ j → (f i ^ m · f i ^ l) · (α j · r j · (f j ^ m · f j ^ l)) · f i ^ m)
+
+           ≡⟨ ∑Ext (λ j → useSolver1 (f i ^ m) (f i ^ l) (α j) (r j) (f j ^ m) (f j ^ l)) ⟩
+
+             (∑ λ j → α j · (r j · f i ^ m · (f i ^ l · f j ^ l)) · (f i ^ m · f j ^ m))
+
+           ≡⟨ ∑Ext (λ j → cong₂ (λ x y → α j · (r j · f i ^ m · x) · y)
+                                (sym (^-ldist-· (f i) (f j) l))
+                                (sym (^-ldist-· (f i) (f j) m))) ⟩
+
+             (∑ λ j → α j · (r j · f i ^ m · (f i · f j) ^ l) · (f i · f j) ^ m)
+
+           ≡⟨ ∑Ext (λ j → cong (λ x → α j · x · (f i · f j) ^ m) (sym (<Paths i j))) ⟩
+
+             (∑ λ j → α j · (r i · f j ^ m · (f i · f j) ^ l) · (f i · f j) ^ m)
+
+           ≡⟨ ∑Ext (λ j → cong₂ (λ x y → α j · (r i · f j ^ m · x) · y)
+                                (^-ldist-· (f i) (f j) l)
+                                (^-ldist-· (f i) (f j) m)) ⟩
+
+             (∑ λ j → α j · (r i · f j ^ m · (f i ^ l · f j ^ l)) · (f i ^ m · f j ^ m))
+
+           ≡⟨ ∑Ext (λ j → useSolver2 (α j) (r i) (f j ^ m) (f i ^ l) (f j ^ l) (f i ^ m)) ⟩
+
+             (∑ λ j → (f i ^ m · f i ^ l) · r i · (α j · (f j ^ m · (f j ^ m · f j ^ l))))
+
+           ≡⟨ sym (∑Mulrdist _ _) ⟩
+
+             (f i ^ m · f i ^ l) · r i · (∑ λ j → α j · (f j ^ m · (f j ^ m · f j ^ l)))
+
+           ≡⟨ cong₂ (λ x y → (x · r i) · y)
+                    (·-of-^-is-^-of-+ (f i) m l)
+                    (∑Ext (λ j → cong (α j ·_)
+                                      (cong (f j ^ m ·_) (·-of-^-is-^-of-+ (f j) m l) ∙
+                                                         (·-of-^-is-^-of-+ (f j) m (m +ℕ l))))) ⟩
+
+             f i ^ (m +ℕ l) · r i · (∑ λ j → α j · (f j ^ 2m+l))
+
+           ≡⟨ cong (f i ^ (m +ℕ l) · r i ·_) (sym linCombi) ⟩
+
+             f i ^ (m +ℕ l) · r i · 1r ∎
+
+       unique : ∀ y → (∀ i → (y /1ˢ) ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ]) → z ≡ y
+       unique y y≡r/fᵐ = equalByDifference _ _ (injectivityLemma 1∈⟨f₀,⋯,fₙ⟩ (z - y) [z-y]/1≡0)
          where
-         l : {i j : Fin (suc n)} → i < j → ℕ
-         l i<j = pows i<j .fst
+         [z-y]/1≡0 : ∀ i → (z - y) /1ˢ ≡ 0at i
+         [z-y]/1≡0 i =
+             (z - y) /1ˢ
 
-         sPath : ∀ {i} {j} (i<j : i < j) → s i<j ≡ (f i · f j) ^ l i<j
-         sPath i<j = pows i<j .snd
+           ≡⟨ U./1AsCommRingHom i .snd .pres+ _ _ ⟩ -- (-a)/1=-(a/1) by refl
 
-         -- the path we get from our assumptions spelled out and cleaned up
-         assumPath : ∀ {i} {j} (i<j : i < j)
-                   → r i · f j ^ m · (f i · f j) ^ (m +ℕ l i<j)
-                   ≡ r j · f i ^ m · (f i · f j) ^ (m +ℕ l i<j)
-         assumPath {i} {j} i<j =
-             r i · f j ^ m · (f i · f j) ^ (m +ℕ l i<j)
+             z /1ˢ - y /1ˢ
 
-           ≡⟨ cong (r i · f j ^ m ·_) (sym (·-of-^-is-^-of-+ _ _ _)) ⟩
+           ≡⟨ cong₂ (_-_) (z≡r/fᵐ i) (y≡r/fᵐ i) ⟩
 
-             r i · f j ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i<j)
+             [ r i , f i ^ m , ∣ m , refl ∣₁ ] - [ r i , f i ^ m , ∣ m , refl ∣₁ ]
 
-           ≡⟨ useSolver _ _ _ _ ⟩
+           ≡⟨ +InvR ([ r i , f i ^ m , ∣ m , refl ∣₁ ]) ⟩
 
-             (f i · f j) ^ l i<j · r i · f j ^ m · (f i · f j) ^ m
-
-           ≡⟨ cong (λ a → a · r i · f j ^ m · (f i · f j) ^ m) (sym (sPath i<j)) ⟩
-
-             s i<j · r i · f j ^ m · (f i · f j) ^ m
-
-           ≡⟨ sIsAnn i<j ⟩
-
-             s i<j · r j · f i ^ m · (f i · f j) ^ m
-
-           ≡⟨ cong (λ a → a · r j · f i ^ m · (f i · f j) ^ m) (sPath i<j) ⟩
-
-            (f i · f j) ^ l i<j  · r j · f i ^ m · (f i · f j) ^ m
-
-           ≡⟨ sym (useSolver _ _ _ _) ⟩
-
-             r j · f i ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i<j)
-
-           ≡⟨ cong (r j · f i ^ m ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
-
-             r j · f i ^ m · (f i · f j) ^ (m +ℕ l i<j) ∎
+             0at i ∎
            where
-           useSolver : ∀ a b c d → a · b · (c · d) ≡ d · a · b · c
-           useSolver = solve R'
+           instance _ = L.S⁻¹RAsCommRing i .snd
+           open IsRingHom

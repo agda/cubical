@@ -191,6 +191,9 @@ module JoinSemilattice (L' : Semilattice ℓ) where
  ≤-∨LPres : ∀ x y z → x ≤ y → z ∨l x ≤ z ∨l y
  ≤-∨LPres x y z x≤y = ≤-∨Pres _ _ _ _ (idem z) x≤y
 
+ ≤-∨RPres : ∀ x y z → x ≤ y → x ∨l z ≤ y ∨l z
+ ≤-∨RPres x y z x≤y = ≤-∨Pres _ _ _ _ x≤y (idem z)
+
  -- inequalities of bigOps
  open IsPoset (PosetStr.isPoset (snd IndPoset))
  open PosetReasoning IndPoset
