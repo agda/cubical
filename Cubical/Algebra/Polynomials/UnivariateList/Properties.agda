@@ -194,6 +194,7 @@ module PolyModTheory (R' : CommRing ℓ) where
                                            ([ 0r ] Poly+ [ 0r ]) ≡⟨ cong (λ X → _∷_ {R' = R'} X []) 0Idempotent  ∙ drop0 ⟩
                                            [] ∎
 
+
 --------------------
 --Definition
 --Identity for Poly*
