@@ -4,6 +4,8 @@ module Cubical.Algebra.CommAlgebra.UnivariatePolyList where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 
+open import Cubical.Data.Sigma
+
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.AbGroup
@@ -13,11 +15,13 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
 open import Cubical.Algebra.Polynomials.UnivariateList.Base
 open import Cubical.Algebra.Polynomials.UnivariateList.Properties
 
+open import Cubical.Tactics.CommRingSolver.Reflection
+
 private variable
   ℓ ℓ' : Level
 
 module _ (R : CommRing ℓ) where
-  open RingStr ⦃...⦄    -- Not CommRingStr, so it can be used in together with AlgebraStr
+  open RingStr ⦃...⦄    -- Not CommRingStr, so it can be used together with AlgebraStr
   open PolyModTheory R
   private
     ListPoly = UnivariatePolyList R
@@ -182,7 +186,35 @@ module _ (R : CommRing ℓ) where
                   step8 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
                   step8 r p i = sym (⋆AssocL r 1a (inducedMap q)) i + (x · inducedMap p) · inducedMap q
 
-      open IsAlgebraHom
       inducedHom : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A
       fst inducedHom = inducedMap
       snd inducedHom = makeIsAlgebraHom inducedMap1 inducedMap+ inducedMap· inducedMap⋆
+
+      {- Uniqueness -}
+      inducedHomUnique : (f : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A)
+                         → fst f X ≡ x
+                         → f ≡ inducedHom
+      inducedHomUnique f fX≡x =
+        Σ≡Prop
+          (λ _ → isPropIsAlgebraHom _ _ _ _)
+          λ i p → pwEq p i
+        where
+        open IsAlgebraHom (snd f)
+        pwEq : (p : ⟨ ListPolyCommAlgebra ⟩) → fst f p ≡ fst inducedHom p
+        pwEq =
+          ElimProp R
+            (λ p → fst f p ≡ fst inducedHom p)
+            pres0
+            (λ r p IH →
+              fst f (r ∷ p)                    ≡[ i ]⟨ fst f ((sym (+IdR r) i) ∷ sym (Poly+Lid p) i) ⟩
+              fst f ([ r ] + (0r ∷ p))         ≡[ i ]⟨ fst f ([ useSolver r i ] + sym (X*Poly p) i) ⟩
+              fst f (r ⋆ 1a + X · p)           ≡⟨ pres+ (r ⋆ 1a) (X · p) ⟩
+              fst f (r ⋆ 1a) + fst f (X · p)   ≡[ i ]⟨ pres⋆ r 1a i + pres· X p i ⟩
+              r ⋆ fst f 1a + fst f X · fst f p ≡[ i ]⟨ r ⋆ pres1 i + fX≡x i · fst f p ⟩
+              r ⋆ 1a + x · fst f p             ≡[ i ]⟨ r ⋆ 1a + (x · IH i) ⟩
+              r ⋆ 1a + x · inducedMap p        ≡⟨⟩
+              inducedMap (r ∷ p) ∎)
+            (is-set _ _)
+          where
+            useSolver : (r : ⟨ R ⟩) → r ≡ (r · 1r) + 0r
+            useSolver = solve R
