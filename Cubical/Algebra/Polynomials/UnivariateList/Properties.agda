@@ -639,6 +639,38 @@ module PolyModTheory (R' : CommRing ℓ) where
   prod-Xn-prod (suc n) m x y = cong₂ _Poly+_ ((0rLeftAnnihilatesPoly (prod-Xn m y)) ∙ drop0) (cong (λ X → 0r ∷ X) (prod-Xn-prod n m x y))
 
 
+---------------------------------------------------------------------------
+-- The indeterminate is a regular element, i.e. multiplication with it is injective
+
+  prod-X-injective : (p : Poly R') → (0r ∷ p) ≡ 0P → p ≡ 0P
+  prod-X-injective p Xp≡0 = p≡0
+    where
+      shift = shiftFun (Poly→PolyFun p)
+
+      0r∷p≡shift : Poly→PolyFun (0r ∷ p) ≡ shift
+      0r∷p≡shift =
+        Σ≡Prop (λ _ → isPropPropTrunc)
+               λ {i zero → 0r; i (suc n) → fst (Poly→PolyFun p) n}
+
+      shift0 : (n : ℕ) → fst shift n ≡ 0r
+      shift0 n =
+        fst shift n                   ≡⟨ sym (cong (λ u → fst u n) 0r∷p≡shift) ⟩
+        fst (Poly→PolyFun (0r ∷ p)) n ≡[ i ]⟨ fst (Poly→PolyFun (Xp≡0 i)) n ⟩
+        0r ∎
+
+      Funp≡0 : (n : ℕ) → fst (Poly→PolyFun p) n ≡ 0r
+      Funp≡0 n = shift0 (suc n)
+
+      p≡0 : p ≡ 0P
+      p≡0 =
+        p                              ≡⟨ sym (PolyFun→Poly→PolyFun p) ⟩
+        PolyFun→Poly (Poly→PolyFun p)  ≡⟨ cong PolyFun→Poly
+                     (Poly→PolyFun p ≡⟨ ( Σ≡Prop (λ (f : ℕ → R) → isPropPropTrunc) λ i n → Funp≡0 n i) ⟩
+                     Poly→PolyFun [] ∎) ⟩
+        PolyFun→Poly (Poly→PolyFun []) ≡⟨ PolyFun→Poly→PolyFun 0P ⟩
+        0P ∎
+
+
 
 ----------------------------------------------------------------------------------------------
 -- An instantiation of Polynomials as a commutative ring can be found in CommRing/Instances --
