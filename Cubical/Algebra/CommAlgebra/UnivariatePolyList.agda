@@ -71,120 +71,122 @@ module _ (R : CommRing ℓ) where
                0a ∎
 
       private
-        inducedMap1 : inducedMap (1r ∷ []) ≡ 1a
+        ϕ = inducedMap
+        inducedMap1 : ϕ (1r ∷ []) ≡ 1a
         inducedMap1 =
-          inducedMap [ 1r ]   ≡⟨⟩
+          ϕ [ 1r ]            ≡⟨⟩
           1r ⋆ 1a + (x · 0a)  ≡[ i ]⟨ ⋆IdL 1a i + 0RightAnnihilates (Algebra→Ring A) x i ⟩
           1a + 0a             ≡⟨ +IdR 1a ⟩
           1a ∎
 
-        inducedMapGenerator : inducedMap X ≡ x
+        inducedMapGenerator : ϕ X ≡ x
         inducedMapGenerator =
-          0r ⋆ 1a + (x · inducedMap (1r ∷ [])) ≡[ i ]⟨  0-actsNullifying
-                                               (CommRing→Ring R) A 1a i + (x · inducedMap (1r ∷ [])) ⟩
-          0a + (x · inducedMap (1r ∷ []))     ≡⟨ +IdL _ ⟩
-          x · inducedMap (1r ∷ [])            ≡[ i ]⟨ x · inducedMap1 i ⟩
-          x · 1a                              ≡⟨ ·IdR _ ⟩
+          0r ⋆ 1a + (x · ϕ (1r ∷ [])) ≡[ i ]⟨  0-actsNullifying
+                                       (CommRing→Ring R) A 1a i + (x · ϕ (1r ∷ [])) ⟩
+          0a + (x · ϕ (1r ∷ []))      ≡⟨ +IdL _ ⟩
+          x · ϕ (1r ∷ [])             ≡[ i ]⟨ x · inducedMap1 i ⟩
+          x · 1a                      ≡⟨ ·IdR _ ⟩
           x ∎
 
-        inducedMapPolyConst⋆ : (r : ⟨ R ⟩) (p : _) → inducedMap (r PolyConst* p) ≡ r ⋆ inducedMap p
+        inducedMapPolyConst⋆ : (r : ⟨ R ⟩) (p : _) → ϕ (r PolyConst* p) ≡ r ⋆ ϕ p
         inducedMapPolyConst⋆ r =
           ElimProp R
-            (λ p → inducedMap (r PolyConst* p) ≡ r ⋆ inducedMap p)
-            (inducedMap (r PolyConst* []) ≡⟨⟩
-             inducedMap []       ≡⟨⟩
+            (λ p → ϕ (r PolyConst* p) ≡ r ⋆ ϕ p)
+            (ϕ (r PolyConst* []) ≡⟨⟩
+             ϕ []       ≡⟨⟩
              0a                  ≡⟨ sym (0a-absorbs (CommRing→Ring R) A r) ⟩
              r ⋆ 0a ∎)
             (λ s p IH →
-              inducedMap (r PolyConst* (s ∷ p))              ≡⟨⟩
-              inducedMap ((r · s) ∷ (r PolyConst* p))        ≡⟨⟩
-              (r · s) ⋆ 1a + x · inducedMap (r PolyConst* p) ≡[ i ]⟨ ⋆Assoc r s 1a i + x · IH i ⟩
-              r ⋆ (s ⋆ 1a) + x · (r ⋆ inducedMap p)          ≡⟨ step s p ⟩
-              r ⋆ (s ⋆ 1a) + r ⋆ (x · inducedMap p)          ≡⟨ sym (⋆DistR+ r (s ⋆ 1a) (x · inducedMap p)) ⟩
-              r ⋆ (s ⋆ 1a + x · inducedMap p)                ≡⟨⟩
-              r ⋆ inducedMap (s ∷ p) ∎)
+              ϕ (r PolyConst* (s ∷ p))              ≡⟨⟩
+              ϕ ((r · s) ∷ (r PolyConst* p))        ≡⟨⟩
+              (r · s) ⋆ 1a + x · ϕ (r PolyConst* p) ≡[ i ]⟨ ⋆Assoc r s 1a i + x · IH i ⟩
+              r ⋆ (s ⋆ 1a) + x · (r ⋆ ϕ p)          ≡⟨ step s p ⟩
+              r ⋆ (s ⋆ 1a) + r ⋆ (x · ϕ p)          ≡⟨ sym (⋆DistR+ r (s ⋆ 1a) (x · ϕ p)) ⟩
+              r ⋆ (s ⋆ 1a + x · ϕ p)                ≡⟨⟩
+              r ⋆ ϕ (s ∷ p) ∎)
             (is-set _ _)
             where
               step : (s : ⟨ R ⟩) (p : _) → _ ≡ _
-              step s p i = r ⋆ (s ⋆ 1a) + sym (⋆AssocR r x (inducedMap p)) i
+              step s p i = r ⋆ (s ⋆ 1a) + sym (⋆AssocR r x (ϕ p)) i
 
-        inducedMap⋆ : (r : ⟨ R ⟩) (p : _) → inducedMap (r ⋆ p) ≡ r ⋆ inducedMap p
+        inducedMap⋆ : (r : ⟨ R ⟩) (p : _) → ϕ (r ⋆ p) ≡ r ⋆ ϕ p
         inducedMap⋆ r p =
-          inducedMap (r ⋆ p)          ≡⟨ cong inducedMap (sym (PolyConst*≡Poly* r p)) ⟩
-          inducedMap (r PolyConst* p) ≡⟨ inducedMapPolyConst⋆ r p ⟩
-          r ⋆ inducedMap p ∎
+          ϕ (r ⋆ p)                   ≡⟨ cong ϕ (sym (PolyConst*≡Poly* r p)) ⟩
+          ϕ (r PolyConst* p)          ≡⟨ inducedMapPolyConst⋆ r p ⟩
+          r ⋆ ϕ p ∎
 
-        inducedMap+ : (p q : _) → inducedMap (p + q) ≡ inducedMap p + inducedMap q
+        inducedMap+ : (p q : _) → ϕ (p + q) ≡ ϕ p + ϕ q
         inducedMap+ =
           elimProp2 R
-            (λ x y → inducedMap (x + y) ≡ inducedMap x + inducedMap y)
+            (λ x y → ϕ (x + y) ≡ ϕ x + ϕ y)
             (0a ≡⟨ sym (+IdR _) ⟩ 0a + 0a ∎)
             (λ r p _ →
-              inducedMap ((r ∷ p) + []) ≡⟨⟩
-              inducedMap (r ∷ p)        ≡⟨ sym (+IdR _) ⟩
-              (inducedMap (r ∷ p) + 0a) ∎)
+              ϕ ((r ∷ p) + []) ≡⟨⟩
+              ϕ (r ∷ p)        ≡⟨ sym (+IdR _) ⟩
+              (ϕ (r ∷ p) + 0a) ∎)
             (λ s q _ →
-              inducedMap ([] + (s ∷ q)) ≡⟨⟩
-              inducedMap (s ∷ q)        ≡⟨ sym (+IdL _) ⟩
-              0a + inducedMap (s ∷ q)   ∎)
+              ϕ ([] + (s ∷ q)) ≡⟨⟩
+              ϕ (s ∷ q)        ≡⟨ sym (+IdL _) ⟩
+              0a + ϕ (s ∷ q)   ∎)
             (λ r s p q IH →
-              inducedMap ((r ∷ p) + (s ∷ q))                            ≡⟨⟩
-              inducedMap (r + s ∷ p + q)                                ≡⟨⟩
-              (r + s) ⋆ 1a + x · inducedMap (p + q)                     ≡[ i ]⟨ (r + s) ⋆ 1a + x · IH i ⟩
-              (r + s) ⋆ 1a + (x · (inducedMap p + inducedMap q))        ≡[ i ]⟨ step1 r s p q i ⟩
-              (r ⋆ 1a + s ⋆ 1a) + (x · inducedMap p + x · inducedMap q) ≡⟨ comm-4 (Algebra→AbGroup A) _ _ _ _ ⟩
-              (r ⋆ 1a + x · inducedMap p) + (s ⋆ 1a + x · inducedMap q) ≡⟨⟩
-              inducedMap (r ∷ p) + inducedMap (s ∷ q) ∎)
+              ϕ ((r ∷ p) + (s ∷ q))                   ≡⟨⟩
+              ϕ (r + s ∷ p + q)                       ≡⟨⟩
+              (r + s) ⋆ 1a + x · ϕ (p + q)            ≡[ i ]⟨ (r + s) ⋆ 1a + x · IH i ⟩
+              (r + s) ⋆ 1a + (x · (ϕ p + ϕ q))        ≡[ i ]⟨ step1 r s p q i ⟩
+              (r ⋆ 1a + s ⋆ 1a) + (x · ϕ p + x · ϕ q) ≡⟨ comm-4 (Algebra→AbGroup A) _ _ _ _ ⟩
+              (r ⋆ 1a + x · ϕ p) + (s ⋆ 1a + x · ϕ q) ≡⟨⟩
+              ϕ (r ∷ p) + ϕ (s ∷ q) ∎)
             (is-set _ _)
             where step1 : (r s : ⟨ R ⟩) (p q : _) → _ ≡ _
-                  step1 r s p q i = ⋆DistL+ r s 1a i + ·DistR+ x (inducedMap p) (inducedMap q) i
+                  step1 r s p q i = ⋆DistL+ r s 1a i + ·DistR+ x (ϕ p) (ϕ q) i
                   M = (AbGroup→CommMonoid (Algebra→AbGroup A))
 
-        inducedMap· : (p q : _) → inducedMap (p · q) ≡ inducedMap p · inducedMap q
+        inducedMap· : (p q : _) → ϕ (p · q) ≡ ϕ p · ϕ q
         inducedMap· p q =
           ElimProp R
-            (λ p → inducedMap (p · q) ≡ inducedMap p · inducedMap q)
-            (inducedMap ([] · q)      ≡⟨⟩
-             inducedMap []            ≡⟨⟩
+            (λ p → ϕ (p · q) ≡ ϕ p · ϕ q)
+            (ϕ ([] · q)      ≡⟨⟩
+             ϕ []            ≡⟨⟩
              0a                       ≡⟨ sym (0LeftAnnihilates (Algebra→Ring A) _) ⟩
-             0a · inducedMap q ∎)
+             0a · ϕ q ∎)
             (λ r p IH →
-              inducedMap ((r ∷ p) · q)                                    ≡⟨⟩
-              inducedMap ((r PolyConst* q) + (0r ∷ (p · q)))              ≡⟨ step1 r p ⟩
-              inducedMap (r PolyConst* q) + inducedMap (0r ∷ (p · q))     ≡⟨ step2 r p ⟩
-              inducedMap (r ⋆ q) + inducedMap (0r ∷ (p · q))              ≡⟨ step3 r p ⟩
-              r ⋆ inducedMap q + inducedMap (0r ∷ (p · q))                ≡⟨ step4 r p ⟩
-              r ⋆ inducedMap q + (0a + x · inducedMap (p · q))            ≡⟨ step5 r p ⟩
-              r ⋆ inducedMap q + x · inducedMap (p · q)                   ≡⟨ step6 r p IH ⟩
-              r ⋆ inducedMap q + x · (inducedMap p · inducedMap q)        ≡⟨ step7 r p ⟩
-              r ⋆ (1a · inducedMap q) + (x · inducedMap p) · inducedMap q ≡⟨ step8 r p ⟩
-              (r ⋆ 1a) · inducedMap q + (x · inducedMap p) · inducedMap q ≡⟨ sym (·DistL+ _ _ _) ⟩
-              (r ⋆ 1a + x · inducedMap p) · inducedMap q                  ≡⟨⟩
-              inducedMap (r ∷ p) · inducedMap q ∎)
+              ϕ ((r ∷ p) · q)                           ≡⟨⟩
+              ϕ ((r PolyConst* q) + (0r ∷ (p · q)))     ≡⟨ step1 r p ⟩
+              ϕ (r PolyConst* q) + ϕ (0r ∷ (p · q))     ≡⟨ step2 r p ⟩
+              ϕ (r ⋆ q) + ϕ (0r ∷ (p · q))              ≡⟨ step3 r p ⟩
+              r ⋆ ϕ q + ϕ (0r ∷ (p · q))                ≡⟨ step4 r p ⟩
+              r ⋆ ϕ q + (0a + x · ϕ (p · q))            ≡⟨ step5 r p ⟩
+              r ⋆ ϕ q + x · ϕ (p · q)                   ≡⟨ step6 r p IH ⟩
+              r ⋆ ϕ q + x · (ϕ p · ϕ q)                 ≡⟨ step7 r p ⟩
+              r ⋆ (1a · ϕ q) + (x · ϕ p) · ϕ q          ≡⟨ step8 r p ⟩
+              (r ⋆ 1a) · ϕ q + (x · ϕ p) · ϕ q          ≡⟨ sym (·DistL+ _ _ _) ⟩
+              (r ⋆ 1a + x · ϕ p) · ϕ q                  ≡⟨⟩
+              ϕ (r ∷ p) · ϕ q ∎)
             (is-set _ _) p
-            where step1 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
-                  step1 r p = inducedMap+ (r PolyConst* q) (0r ∷ (p Poly* q))
+          where
+            step1 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
+            step1 r p = inducedMap+ (r PolyConst* q) (0r ∷ (p Poly* q))
 
-                  step2 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
-                  step2 r p i = inducedMap (PolyConst*≡Poly* r q i) + inducedMap (0r ∷ (p Poly* q))
+            step2 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
+            step2 r p i = ϕ (PolyConst*≡Poly* r q i) + ϕ (0r ∷ (p Poly* q))
 
-                  step3 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
-                  step3 r p i = inducedMap⋆ r q i + inducedMap (0r ∷ (p Poly* q))
+            step3 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
+            step3 r p i = inducedMap⋆ r q i + ϕ (0r ∷ (p Poly* q))
 
-                  step4 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
-                  step4 r p i = r ⋆ inducedMap q + (0-actsNullifying (CommRing→Ring R) A 1a i + x · inducedMap (p · q))
+            step4 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
+            step4 r p i = r ⋆ ϕ q + (0-actsNullifying (CommRing→Ring R) A 1a i + x · ϕ (p · q))
 
-                  step5 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
-                  step5 r p i = r ⋆ inducedMap q + +IdL (x · inducedMap (p · q)) i
+            step5 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
+            step5 r p i = r ⋆ ϕ q + +IdL (x · ϕ (p · q)) i
 
-                  step6 : (r : ⟨ R ⟩) (p : _) → _ → _ ≡ _
-                  step6 r p IH i = r ⋆ inducedMap q + x · IH i
+            step6 : (r : ⟨ R ⟩) (p : _) → _ → _ ≡ _
+            step6 r p IH i = r ⋆ ϕ q + x · IH i
 
-                  step7 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
-                  step7 r p i = r ⋆ (sym (·IdL (inducedMap q)) i) + ·Assoc x (inducedMap p) (inducedMap q) i
+            step7 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
+            step7 r p i = r ⋆ (sym (·IdL (ϕ q)) i) + ·Assoc x (ϕ p) (ϕ q) i
 
-                  step8 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
-                  step8 r p i = sym (⋆AssocL r 1a (inducedMap q)) i + (x · inducedMap p) · inducedMap q
+            step8 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
+            step8 r p i = sym (⋆AssocL r 1a (ϕ q)) i + (x · ϕ p) · ϕ q
 
       inducedHom : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A
       fst inducedHom = inducedMap
