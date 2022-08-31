@@ -192,6 +192,9 @@ module _ (R : CommRing ℓ) where
       fst inducedHom = inducedMap
       snd inducedHom = makeIsAlgebraHom inducedMap1 inducedMap+ inducedMap· inducedMap⋆
 
+      inducedHomOnGenerator : fst inducedHom X ≡ x
+      inducedHomOnGenerator = inducedMapGenerator
+
       {- Uniqueness -}
       inducedHomUnique : (f : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A)
                          → fst f X ≡ x
