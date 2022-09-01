@@ -440,6 +440,9 @@ singlP A a = Σ[ x ∈ A i1 ] PathP A a x
 singl : (a : A) → Type _
 singl {A = A} a = singlP (λ _ → A) a
 
+singl' : (a : A) → Type _
+singl' {A = A} a = Σ[ x ∈ A ] x ≡ a
+
 isContrSingl : (a : A) → isContr (singl a)
 isContrSingl a .fst = (a , refl)
 isContrSingl a .snd p i .fst = p .snd i
