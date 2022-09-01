@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
 {-
   Kan extension of a functor C → D to a functor PresheafCategory C ℓ → PresheafCategory D ℓ
