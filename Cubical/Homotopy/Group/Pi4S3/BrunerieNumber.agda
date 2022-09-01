@@ -5,7 +5,7 @@ where β is a natural number (aka "the Brunerie number",
 defined below).
 
 -}
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.BrunerieNumber where
 
 open import Cubical.Homotopy.Loopspace

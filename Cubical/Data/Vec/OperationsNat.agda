@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Data.Vec.OperationsNat where
 
 open import Cubical.Foundations.Prelude
