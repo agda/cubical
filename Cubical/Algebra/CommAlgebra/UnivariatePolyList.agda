@@ -42,6 +42,13 @@ module _ (R : CommRing ℓ) where
       (λ x → ·IdL x)
       λ r x y → sym (·Assoc [ r ] x y)
 
+  private
+    X : ⟨ ListPolyCommAlgebra ⟩
+    X = 0r ∷ 1r ∷ []
+
+  {- export the generator 'X' -}
+  generator = X
+
   {- Universal Property -}
   module _ (A : Algebra (CommRing→Ring R) ℓ') where
     open AlgebraStr ⦃...⦄ using (_⋆_; 0a; 1a; ⋆IdL; ⋆DistL+; ⋆DistR+; ⋆AssocL; ⋆AssocR; ⋆Assoc)
@@ -55,10 +62,6 @@ module _ (R : CommRing ℓ) where
       open RingTheory using (0RightAnnihilates; 0LeftAnnihilates)
       open AbGroupTheory using (comm-4)
       open PolyMod using (ElimProp; elimProp2; isSetPoly)
-
-      private
-        X : ⟨ ListPolyCommAlgebra ⟩
-        X = 0r ∷ 1r ∷ []
 
       inducedMap : ⟨ ListPolyCommAlgebra ⟩ → ⟨ A ⟩
       inducedMap [] = 0a
