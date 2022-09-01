@@ -352,6 +352,21 @@ Iso.leftInv (homMapIso {R = R} {I = I} A) =
   λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
                (Theory.homRetrievable A f)
 
+inducedHomUnique :
+  {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'') (φ : I → fst A )
+  → (f : CommAlgebraHom (R [ I ]) A) → ((i : I) → fst f (Construction.var i) ≡ φ i)
+  → f ≡ inducedHom A φ
+inducedHomUnique {I = I} A φ f p =
+  f                                            ≡⟨ sym (Iso.leftInv (homMapIso A) f) ⟩
+  inducedHom A (evaluateAt A f)                ≡⟨ ind∘ev≡ ⟩
+  inducedHom A (evaluateAt A (inducedHom A φ)) ≡⟨ Iso.leftInv (homMapIso A) _ ⟩
+  inducedHom A φ ∎
+  where ev≡ : (i : I) → evaluateAt A f i ≡ evaluateAt A (inducedHom A φ) i
+        ev≡ i = p i
+
+        ind∘ev≡ : inducedHom A (evaluateAt A f) ≡ inducedHom A (evaluateAt A (inducedHom A φ))
+        ind∘ev≡ = cong (inducedHom A) (λ j i → ev≡ i j)
+
 homMapPath : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R (ℓ-max ℓ ℓ'))
              → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
 homMapPath A = isoToPath (homMapIso A)
