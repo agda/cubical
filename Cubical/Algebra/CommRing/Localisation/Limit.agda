@@ -260,77 +260,39 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
 
  -- super technical stuff, please don't look at it
- χSwap : ∀ i j → χˡ i j ≡ subst (λ r → CommRingHom R[1/ f i ]AsCommRing R[1/ r ]AsCommRing)
-                                 (·Comm (f j) (f i)) (χʳ j i)
- χSwap i j = RingHom≡ (funExt (invElPropElim (λ _ → squash/ _ _)
-     λ r m → cong [_]
-              (ΣPathP (sym (transportRefl _ ∙ cong (_· transport refl (f j ^ m)) (transportRefl _))
-                , Σ≡Prop (∈-isProp _)
-              (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))))
-
- χ<To≡ : (x  : (i : Fin (suc n)) → R[1/ f i ])
-       → (∀ {i} {j} → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
-       → ∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
- χ<To≡ x <hyp i j = {!i ≟ j!}
+ χ≡Elim< : (x  : (i : Fin (suc n)) → R[1/ f i ])
+         → (∀ {i} {j} → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
+         → ∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
+ χ≡Elim< x <hyp i j = aux (i ≟ j) -- doesn't type check in reasonable time using with syntax
    where
-   aux : i ≟ j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
-   aux a = ?
- -- takes forever to type check
- -- with (i ≟Fin j)
- -- ... | (lt i<j) = ?
- -- ... | (eq i≡j) = ?
- -- ... | (gt j<i) = ?
+   aux : FinTrichotomy i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
+   aux (lt i<j) = <hyp i<j
+   aux (eq i≡j) = subst (λ j' → χˡ i j' .fst (x i) ≡ χʳ i j' .fst (x j')) i≡j (χId i (x i))
+     where
+     χId : ∀ i x → χˡ i i .fst x ≡ χʳ i i .fst x
+     χId i = invElPropElim (λ _ → squash/ _ _)
+               (λ r m → cong [_] (ΣPathP (refl , Σ≡Prop (∈-isProp _) refl)))
 
- -- to be upstreamed / what should it be called
- -- recFin< : {m : ℕ} {P : {i j : Fin m} → i < j → Type ℓ'}
- --            {B : Type ℓ''} (isPropB : isProp B)
- --          → ((∀ {i} {j} (i<j : i < j) → P i<j) → B)
- --         ---------------------------------------------------
- --          → ((∀ {i} {j} (i<j : i < j) → ∥ P i<j ∥₁) → B)
- -- recFin< {m = zero} isPropB untruncHyp truncs = untruncHyp (λ {i} → ⊥.rec (¬Fin0 i))
- -- recFin< {m = suc m} {P = P} {B = B} isPropB untruncHyp truncs =
- --   curriedishTrunc (λ 0<j → truncs 0<j) λ i<j → truncs (s≤s i<j)
- --   where
- --   curriedish : (∀ {j} (0<j : zero < j) → P 0<j)
- --              → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
- --              → B
- --   curriedish p₀ truncFamSuc = recFin< isPropB
- --     (λ famSuc → untruncHyp (λ { {i = zero} 0<j → p₀ 0<j
- --                               ; {i = suc i} {j = zero} ()
- --                               ; {i = suc i} {j = suc j} (s≤s i<j) → famSuc i<j}))
- --          truncFamSuc
+   aux (gt j<i) =
+     χˡ i j .fst (x i) ≡⟨ χSwapL→R i j (x i) ⟩
+     χʳsubst i j (x i) ≡⟨ cong (subst (λ r → R[1/ r ]) (·Comm (f j) (f i))) (sym (<hyp j<i)) ⟩
+     χˡsubst i j (x j) ≡⟨ sym (χSwapR→L i j (x j)) ⟩
+     χʳ i j .fst (x j) ∎
+     where
+     χʳsubst : (i j : Fin (suc n)) → R[1/ f i ] → R[1/ f i · f j ]
+     χʳsubst i j x = subst (λ r → R[1/ r ]) (·Comm (f j) (f i)) (χʳ j i .fst x)
 
- --   recFin0< : {m' : ℕ} {P' : {j : Fin (suc m')} → zero < j → Type ℓ'}
- --            {B' : Type ℓ''} (isPropB' : isProp B')
- --          → ((∀ {j} (0<j : zero < j) → P' 0<j) → B')
- --         ---------------------------------------------------
- --          → ((∀ {j} (0<j : zero < j) → ∥ P' 0<j ∥₁) → B')
- --   recFin0< {P' = P'} isPropB' untruncHyp₀ truncs₀ =
- --      recFin {P = λ j → P' (s≤s (z≤ {toℕ (weakenFin j)}))}
- --              isPropB' (λ famSuc → untruncHyp₀
- --                         λ { {j = zero} → λ () ; {j = suc j} (s≤s z≤) → famSuc j})
- --                          λ _ → truncs₀ (s≤s z≤)
+     χSwapL→R : ∀ i j x → χˡ i j .fst x ≡ χʳsubst i j x
+     χSwapL→R i j = invElPropElim (λ _ → squash/ _ _)
+            λ r m → cong [_] (ΣPathP (sym (transportRefl _) , Σ≡Prop (∈-isProp _)
+                     (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))
+     χˡsubst : (i j : Fin (suc n)) → R[1/ f j ] → R[1/ f i · f j ]
+     χˡsubst i j x = subst (λ r → R[1/ r ]) (·Comm (f j) (f i)) (χˡ j i .fst x)
 
- --   curriedishTrunc : (∀ {j} (0<j : zero < j) → ∥ P 0<j ∥₁)
- --                   → (∀ {i j : Fin m} (i<j : i < j) → ∥ P (s≤s i<j) ∥₁)
- --                   → B
- --   curriedishTrunc = recFin0< {m' = m} (isProp→ isPropB) curriedish
-
-
-
- -- -- very technical stuff
- -- MaxOver< : {m : ℕ} (f : {i j : Fin m} → i < j → ℕ) → ℕ
- -- MaxOver< {m = zero} f = 0
- -- MaxOver< {m = suc m} f = max (Max {n = m} (λ i → f {i = zero} {j = suc i} (s≤s z≤)))
- --                              (MaxOver< (f ∘ s≤s))
-
- -- ind≤MaxOver< : ∀ {m : ℕ} (f : {i j : Fin m} → i < j → ℕ)
- --              → ∀ {i j : Fin m} (i<j : i < j) → f i<j ≤ MaxOver< f
- -- ind≤MaxOver< {m = suc m} f {i = zero} {j = zero} ()
- -- ind≤MaxOver< {m = suc m} f {i = zero} {j = suc j} (s≤s z≤) = ≤-trans (ind≤Max _ _) left-≤-max
- -- ind≤MaxOver< {m = suc m} f {i = suc i} {j = zero} ()
- -- ind≤MaxOver< {m = suc m} f {i = suc i} {j = suc j} (s≤s i<j) =
- --                ≤-trans (ind≤MaxOver< (f ∘ s≤s) i<j) right-≤-max
+     χSwapR→L : ∀ i j x → χʳ i j .fst x ≡ χˡsubst i j x
+     χSwapR→L i j = invElPropElim (λ _ → squash/ _ _)
+            λ r m → cong [_] (ΣPathP (sym (transportRefl _) , Σ≡Prop (∈-isProp _)
+                     (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))
 
  χ≡PropElim : {B : ((i : Fin (suc n)) → R[1/ f i ]) → Type ℓ''} (isPropB : ∀ {x} → isProp (B x))
             → (∀ (r : FinVec R (suc n)) (m l : ℕ)

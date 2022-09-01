@@ -44,7 +44,7 @@ open BinaryRelation
 ≤'FinIsPropValued _ _ = ≤'IsPropValued _ _
 
 
-data FinTrichotomy {n : ℕ} (i j : Fin n) : Type where
+data FinTrichotomy {n : ℕ} (i j : Fin n) : Type₀ where
   lt : i <'Fin j → FinTrichotomy i j
   eq : i ≡ j → FinTrichotomy i j
   gt : j <'Fin i → FinTrichotomy i j
