@@ -65,6 +65,7 @@ open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.DistLatticeSheaf.Diagram
@@ -76,7 +77,8 @@ private
     ℓ ℓ' ℓ'' : Level
 
 
--- TODO: deal with case zero later
+-- were not dealing with case 0 here
+-- but then R = 0 = lim {} (the empty diagram)
 module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  open isMultClosedSubset
  open CommRingTheory R'
@@ -101,7 +103,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
   module LP i j = Loc R' [ f i · f j ⁿ|n≥0] (powersFormMultClosedSubset (f i · f j))
   module UP i j = S⁻¹RUniversalProp R' [ f i · f j ⁿ|n≥0] (powersFormMultClosedSubset (f i · f j))
 
-  -- a lot of syntax to make things readable
+  -- some syntax to make things readable
   0at : (i : Fin (suc n)) →  R[1/ (f i) ]
   0at i = R[1/ (f i) ]AsCommRing .snd .CommRingStr.0r
 
@@ -221,9 +223,10 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
  -- the morphisms into localisations at products from the left/right
  -- we need to define them by hand as using RadicalLemma wouldn't compute later
- χˡ : (i j : Fin (suc n)) → CommRingHom R[1/ f i ]AsCommRing
-                                        R[1/ f i · f j ]AsCommRing
- χˡ i j = U.S⁻¹RHasUniversalProp i _ (UP./1AsCommRingHom i j) unitHelper .fst .fst
+ χˡUnique : (i j : Fin (suc n))
+          → ∃![ χ ∈ CommRingHom R[1/ f i ]AsCommRing R[1/ f i · f j ]AsCommRing ]
+                (fst χ) ∘ (U._/1 i) ≡ (UP._/1 i j)
+ χˡUnique i j = U.S⁻¹RHasUniversalProp i _ (UP./1AsCommRingHom i j) unitHelper
    where
    unitHelper : ∀ s → s ∈ₚ [ (f i) ⁿ|n≥0] → s /1ᵖ ∈ₚ (R[1/ f i · f j ]AsCommRing) ˣ
    unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᵖ))
@@ -239,10 +242,13 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
      path : (n : ℕ) → 1r · (f i ^ n · f j ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
      path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
 
+ χˡ : (i j : Fin (suc n)) → CommRingHom R[1/ f i ]AsCommRing R[1/ f i · f j ]AsCommRing
+ χˡ i j = χˡUnique i j .fst .fst
 
- χʳ : (i j : Fin (suc n)) → CommRingHom R[1/ f j ]AsCommRing
-                                        R[1/ f i · f j ]AsCommRing
- χʳ i j = U.S⁻¹RHasUniversalProp j _ (UP./1AsCommRingHom i j) unitHelper .fst .fst
+ χʳUnique : (i j : Fin (suc n))
+          →  ∃![ χ ∈ CommRingHom R[1/ f j ]AsCommRing R[1/ f i · f j ]AsCommRing ]
+                (fst χ) ∘ (U._/1 j) ≡ (UP._/1 i j)
+ χʳUnique i j = U.S⁻¹RHasUniversalProp j _ (UP./1AsCommRingHom i j) unitHelper
    where
    unitHelper : ∀ s → s ∈ₚ [ (f j) ⁿ|n≥0] → s /1ᵖ ∈ₚ (R[1/ f i · f j ]AsCommRing) ˣ
    unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᵖ))
@@ -258,15 +264,19 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
      path : (n : ℕ) → 1r · (f j ^ n · f i ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
      path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
 
+ χʳ : (i j : Fin (suc n)) → CommRingHom R[1/ f j ]AsCommRing R[1/ f i · f j ]AsCommRing
+ χʳ i j = χʳUnique i j .fst .fst
+
+
 
  -- super technical stuff, please don't look at it
  χ≡Elim< : (x  : (i : Fin (suc n)) → R[1/ f i ])
-         → (∀ {i} {j} → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
+         → (∀ i j → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
          → ∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
  χ≡Elim< x <hyp i j = aux (i ≟ j) -- doesn't type check in reasonable time using with syntax
    where
    aux : FinTrichotomy i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
-   aux (lt i<j) = <hyp i<j
+   aux (lt i<j) = <hyp _ _ i<j
    aux (eq i≡j) = subst (λ j' → χˡ i j' .fst (x i) ≡ χʳ i j' .fst (x j')) i≡j (χId i (x i))
      where
      χId : ∀ i x → χˡ i i .fst x ≡ χʳ i i .fst x
@@ -275,7 +285,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
    aux (gt j<i) =
      χˡ i j .fst (x i) ≡⟨ χSwapL→R i j (x i) ⟩
-     χʳsubst i j (x i) ≡⟨ cong (subst (λ r → R[1/ r ]) (·Comm (f j) (f i))) (sym (<hyp j<i)) ⟩
+     χʳsubst i j (x i) ≡⟨ cong (subst (λ r → R[1/ r ]) (·Comm (f j) (f i))) (sym (<hyp _ _ j<i)) ⟩
      χˡsubst i j (x j) ≡⟨ sym (χSwapR→L i j (x j)) ⟩
      χʳ i j .fst (x j) ∎
      where
@@ -581,3 +591,93 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
            where
            instance _ = L.S⁻¹RAsCommRing i .snd
            open IsRingHom
+
+
+
+{-
+
+ Putting everything together with the limit machinery:
+ If ⟨ f₁ , ... , fₙ ⟩ = R, then R = lim { R[1/fᵢ] → R[1/fᵢfⱼ] ← R[1/fⱼ] }
+
+-}
+ open Category (CommRingsCategory {ℓ})
+ open Cone
+ open Functor
+
+ locDiagram : Functor (DLShfDiag (suc n)) CommRingsCategory
+ F-ob locDiagram (sing i) = R[1/ f i ]AsCommRing
+ F-ob locDiagram (pair i j _) = R[1/ f i · f j ]AsCommRing
+ F-hom locDiagram idAr = idCommRingHom _
+ F-hom locDiagram singPairL = χˡ _ _
+ F-hom locDiagram singPairR = χʳ _ _
+ F-id locDiagram = refl
+ F-seq locDiagram idAr _ = sym (⋆IdL _)
+ F-seq locDiagram singPairL idAr = sym (⋆IdR _)
+ F-seq locDiagram singPairR idAr = sym (⋆IdR _)
+
+ locCone : Cone locDiagram R'
+ coneOut locCone (sing i) = U./1AsCommRingHom i
+ coneOut locCone (pair i j _) = UP./1AsCommRingHom i j
+ coneOutCommutes locCone idAr = ⋆IdR _
+ coneOutCommutes locCone singPairL = RingHom≡ (χˡUnique _ _ .fst .snd)
+ coneOutCommutes locCone singPairR = RingHom≡ (χʳUnique _ _ .fst .snd)
+
+ isLimConeLocCone : 1r ∈ ⟨f₀,⋯,fₙ⟩ → isLimCone _ _ locCone
+ isLimConeLocCone 1∈⟨f₀,⋯,fₙ⟩ A' cᴬ = (ψ , isConeMorψ) , ψUniqueness
+   where
+   A = fst A'
+   instance
+    _ = snd A'
+
+   φ : (i : Fin (suc n)) → CommRingHom A' R[1/ f i ]AsCommRing
+   φ i = cᴬ .coneOut (sing i)
+
+   applyEqualizerLemma : ∀ a → ∃![ r ∈ R ] ∀ i → r /1ˢ ≡ φ i .fst a
+   applyEqualizerLemma a = equalizerLemma 1∈⟨f₀,⋯,fₙ⟩ (λ i → φ i .fst a) (χ≡Elim< _ χφSquare<)
+    where
+    χφSquare< : ∀ i j → i < j → χˡ i j .fst (φ i .fst a) ≡ χʳ i j .fst (φ j .fst a)
+    χφSquare< i j i<j =
+      χˡ i j .fst (φ i .fst a)          ≡⟨ cong (_$ a) (cᴬ .coneOutCommutes singPairL) ⟩
+      cᴬ .coneOut (pair i j i<j) .fst a ≡⟨ cong (_$ a) (sym (cᴬ .coneOutCommutes singPairR)) ⟩
+      χʳ i j .fst (φ j .fst a)          ∎
+
+
+   ψ : CommRingHom A' R'
+   fst ψ a = applyEqualizerLemma a .fst .fst
+   snd ψ = makeIsRingHom
+            (cong fst (applyEqualizerLemma 1r .snd (1r , 1Coh)))
+              (λ x y → cong fst (applyEqualizerLemma (x + y) .snd (_ , +Coh x y)))
+                λ x y → cong fst (applyEqualizerLemma (x · y) .snd (_ , ·Coh x y))
+     where
+     open IsRingHom
+     1Coh : ∀ i → (1r /1ˢ ≡ φ i .fst 1r)
+     1Coh i = sym (φ i .snd .pres1)
+
+     +Coh : ∀ x y i → ((fst ψ x + fst ψ y) /1ˢ ≡ φ i .fst (x + y))
+     +Coh x y i = let instance _ = snd R[1/ f i ]AsCommRing in
+             U./1AsCommRingHom i .snd .pres+ _ _
+          ∙∙ cong₂ _+_ (applyEqualizerLemma x .fst .snd i) (applyEqualizerLemma y .fst .snd i)
+          ∙∙ sym (φ i .snd .pres+ x y)
+
+     ·Coh : ∀ x y i → ((fst ψ x · fst ψ y) /1ˢ ≡ φ i .fst (x · y))
+     ·Coh x y i = let instance _ = snd R[1/ f i ]AsCommRing in
+             U./1AsCommRingHom i .snd .pres· _ _
+          ∙∙ cong₂ _·_ (applyEqualizerLemma x .fst .snd i) (applyEqualizerLemma y .fst .snd i)
+          ∙∙ sym (φ i .snd .pres· x y)
+
+   -- TODO: Can you use lemma from other PR to eliminate pair case
+   isConeMorψ : isConeMor cᴬ locCone ψ
+   isConeMorψ (sing i) = RingHom≡ (funExt (λ a → applyEqualizerLemma a .fst .snd i))
+   isConeMorψ (pair i j i<j) =
+     ψ ⋆ UP./1AsCommRingHom i j         ≡⟨ cong (ψ ⋆_) (sym (RingHom≡ (χˡUnique _ _ .fst .snd))) ⟩
+     ψ ⋆ U./1AsCommRingHom i ⋆ χˡ i j   ≡⟨ sym (⋆Assoc _ _ _) ⟩
+     (ψ ⋆ U./1AsCommRingHom i) ⋆ χˡ i j ≡⟨ cong (_⋆ χˡ i j) (isConeMorψ (sing i)) ⟩
+     φ i ⋆ χˡ i j                       ≡⟨ coneOutCommutes cᴬ singPairL ⟩
+     coneOut cᴬ (pair i j i<j)          ∎
+
+   ψUniqueness : (y : Σ[ θ ∈ CommRingHom A' R' ] isConeMor cᴬ locCone θ) → (ψ , isConeMorψ) ≡ y
+   ψUniqueness (θ , isConeMorθ) = Σ≡Prop (λ _ → isPropIsConeMor _ _ _)
+     (RingHom≡ (funExt λ a → cong fst (applyEqualizerLemma a .snd (θtriple a))))
+     where
+     θtriple : (a : A) → Σ[ x ∈ R ] ∀ i → x /1ˢ ≡ φ i .fst a
+     θtriple a = fst θ a , λ i → cong (_$ a) (isConeMorθ (sing i))
