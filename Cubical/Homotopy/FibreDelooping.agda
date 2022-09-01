@@ -34,6 +34,14 @@ rightInv (addSinglIso x) a = refl
 leftInv (addSinglIso x) (b , _) =
   Σ≡Prop (λ _ → isContr→isProp (isContrSingl _)) refl
 
+addSignlIsoDep : {ℓ ℓ' : Level} {A : Type ℓ} {B : A → Type ℓ'}
+  → (f : (x : A) → B x)
+  → Iso A (Σ[ x ∈ A ] singl (f x))
+fun (addSignlIsoDep f) a = a , isContrSingl _ .fst
+inv (addSignlIsoDep f) = fst
+rightInv (addSignlIsoDep f) _ = Σ≡Prop (λ _ → isContr→isProp (isContrSingl _)) refl
+leftInv (addSignlIsoDep f) a = refl
+
 singlΣIso : {ℓ ℓ' : Level} {A : Type ℓ} {x : A} {B : singl x → Type ℓ'}
   → Iso (Σ (singl x) B) (B (x , refl))
 fun (singlΣIso {B = B}) =
@@ -238,5 +246,93 @@ module _ {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} where
           singlΣIso
           (invIso Σ-assoc-Iso)))
 
-  hId : {a : A} {b : B} (h : a ≡ a → b ≡ b) → F h refl ≡ (h , {!!})
-  hId = {!!}
+  G : {a : A} {b : B} (h : Ω (A , a) →∙ Ω (B , b)) → F (fst h) refl ≡ h
+  G h = →∙Homogeneous≡ (isHomogeneousPath _ _)
+          (funExt λ x → cong₂ _∙_ (cong sym (snd h)) (cong (fst h) (sym (lUnit x)))
+          ∙ sym (lUnit (fst h x)))
+
+  R2 : {a : A} {b : B} (g : Ω (A , a) →∙ Ω (B , b)) →
+    Iso (Σ[ h ∈ Ω (A , a) →∙ Ω (B , b) ] ((e : a ≡ a) → F (fst h) e ≡ g))
+        (Σ[ w ∈ ((e : a ≡ a) → F (fst g) e ≡ g) ] w refl ≡ G g)
+  R2 {a = a} {b = b} g =
+    compIso (Σ-cong-iso-snd
+      (λ h → compIso (compIso (addSignlIsoDep λ w → G h ⁻¹ ∙ w refl)
+               idIso)
+              (invIso Σ-assoc-Iso)))
+      (compIso
+        (invIso Σ-assoc-Iso)
+        (compIso
+          (Σ-cong-iso-fst
+            (compIso (Σ-cong-iso-snd (λ h → Σ-swap-Iso))
+              ((invIso Σ-assoc-Iso))))
+          (compIso
+            Σ-assoc-Iso
+            (compIso
+              (Σ-cong-iso-fst
+                {B = λ h → Σ[ z ∈ ((e : (a ≡ a))
+                           → F (fst (fst h)) e ≡ g) ] G (fst h) ⁻¹ ∙ z (λ _ → a)
+                            ≡ sym (snd h)} (invIso singl≅signl'))
+              (compIso
+                singlΣIso
+                (Σ-cong-iso-snd
+                  λ h → compIso (congIso (equivToIso (compPathlEquiv (G g))))
+                                 (equivToIso
+                                    (compEquiv
+                                      (compPathrEquiv
+                                        (sym (rUnit (G g))))
+                                      (compPathlEquiv
+                                      (lUnit (h refl)
+                                    ∙ cong (_∙ h refl)
+                                        (sym (rCancel (G g)))
+                                    ∙ sym (assoc _ _ _)))))))))))
+
+
+  C₀ : {a : A} {b : B} (g : Ω (A , a) →∙ Ω (B , b)) →
+    Iso  (Σ[ y ∈ B ] C a y g)
+        (Σ[ w ∈ ((e : a ≡ a) → F (fst g) e ≡ g) ] w refl ≡ G g)
+  C₀ g = compIso (C'-base g) (R2 g)
+
+  
+  pre-main : (n k : ℕ) {a : A} {b : B} (g : Ω (A , a) →∙ Ω (B , b))
+    → isConnected (suc (suc n)) A
+       → isOfHLevel (suc (suc (n + n + k))) B
+       → isOfHLevel k ((Σ[ w ∈ ((e : a ≡ a) → F (fst g) e ≡ g) ] w refl ≡ G g))
+  pre-main n k {a = a} {b = b} g conA hLevB =
+    isOfHLevelPointedFib n k r
+      λ q → subst (λ m → isOfHLevel m (F (fst g) q ≡ g))
+                   (+-comm n k)
+                   (isOfHLevelPath' (n + k) l _ _)
+    where
+    r : isConnected (suc n) (fst (Ω (A , a)))
+    r = isConnectedPath (suc n) conA _ _
+
+    l : isOfHLevel (suc (n + k)) (Ω (A , a) →∙ Ω (B , b))
+    l = isOfHLevelPointedFib n (suc (n + k)) r {B = λ _ → b ≡ b}
+          λ _ → subst (λ m → isOfHLevel m (b ≡ b))
+                   (cong suc
+                             (sym (+-assoc n n k)
+                             ∙ cong (n +_) (+-comm n k)
+                             ∙ +-assoc n k n))
+                   (isOfHLevelPath' (suc (n + n + k)) hLevB _ _)
+
+  main : (n k : ℕ) {a : A} {b : B} (g : Ω (A , a) →∙ Ω (B , b))
+    → isConnected (suc (suc n)) A
+    → isOfHLevel (suc (suc (n + n + k))) B
+    → isOfHLevel k (fiber Ω→ g)
+  main n k {a = a} {b = b} g conA hLevB =
+    isOfHLevelRetractFromIso k
+      (invIso (Ω→-fib g))
+      (isOfHLevelΠ k
+        (invEq (_ , L)
+          λ _ →
+            isOfHLevelRetractFromIso k
+              (C₀ g)
+              (pre-main n k g conA hLevB)))
+    where
+    L = elim.isEquivPrecompose (λ (x : Unit) → a) 1
+         (λ x → isOfHLevel k (Σ-syntax B (λ y → C x y g))
+              , isPropIsOfHLevel k)
+         λ p → isConnectedSubtr 1 n
+           (subst (λ m → isConnected m (fiber (λ (x : Unit) → a) p))
+                  (+-comm 1 n)
+                  (isConnectedPoint (suc n) conA a p))
