@@ -34,11 +34,11 @@ import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
-open import Cubical.Data.Nat.Order hiding (_<_)
+open import Cubical.Data.Nat.Order hiding (_<_ ; _≟_)
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
-open import Cubical.Data.FinData.Order renaming (_<'Fin_ to _<_)
+open import Cubical.Data.FinData.Order renaming (_<'Fin_ to _<_ ; _≟Fin_ to _≟_)
 
 open import Cubical.Relation.Binary
 open import Cubical.Relation.Binary.Poset
@@ -271,10 +271,10 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  χ<To≡ : (x  : (i : Fin (suc n)) → R[1/ f i ])
        → (∀ {i} {j} → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
        → ∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
- χ<To≡ x <hyp i j = {!i ≟Fin j!}
-   -- where
-   -- aux : i ≟Fin j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
-   -- aux a = ?
+ χ<To≡ x <hyp i j = {!i ≟ j!}
+   where
+   aux : i ≟ j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
+   aux a = ?
  -- takes forever to type check
  -- with (i ≟Fin j)
  -- ... | (lt i<j) = ?
