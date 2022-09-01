@@ -1,4 +1,13 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-
+
+   This module defines the basic opens of the Zariski lattice and proves that they're a basis of the lattice.
+   It also contains the construction of the structure presheaf and a proof of the sheaf property on basic opens,
+   using the theory developed in the module PreSheafFromUniversalProp and its toSheaf.lemma.
+   Note that the structure sheaf is a functor into R-algebras and not just commutative rings.
+
+-}
+
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.ZariskiLattice.StructureSheaf where
 
 

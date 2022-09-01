@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 {-
 This file contains:
 1. The long exact sequence of loop spaces Ωⁿ (fib f) → Ωⁿ A → Ωⁿ B
