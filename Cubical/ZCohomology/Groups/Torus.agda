@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.ZCohomology.Groups.Torus where
 
 open import Cubical.ZCohomology.Base

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.Equiv-PolynQuotient-A where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Homotopy.Group.SuspensionMap where
 
 open import Cubical.Homotopy.Group.Base

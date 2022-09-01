@@ -6,7 +6,7 @@ product. The proof follows Proposition 5.4.4. in Brunerie (2016)
 closely, but, for simplicity, considers only the case n = 2.
 -}
 
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Homotopy.HopfInvariant.Brunerie where
 
 open import Cubical.Homotopy.HopfInvariant.Base

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.ZCohomology.Groups.KleinBottle where
 
 open import Cubical.ZCohomology.Base

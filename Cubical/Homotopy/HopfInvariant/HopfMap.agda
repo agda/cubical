@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 {-
 This file contains a proof that the generator of Π₃S² has
 hopf invariant ±1.

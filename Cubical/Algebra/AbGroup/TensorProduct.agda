@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.AbGroup.TensorProduct where
 
 open import Cubical.Algebra.AbGroup.Base

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.ZCohomology.Groups.RP2 where
 
 open import Cubical.Foundations.HLevels

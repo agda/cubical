@@ -19,7 +19,7 @@
  -}
 
 
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.PullbackSquare where
 
 open import Cubical.Foundations.Prelude

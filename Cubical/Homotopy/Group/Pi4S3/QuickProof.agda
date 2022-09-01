@@ -34,7 +34,7 @@ defined in Cubical.HITs.Sphere.Properties, kills off a good deal of
 4. Conclude that π₄(S³) ≅ ℤ/2ℤ.
 
 -}
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.QuickProof where
 
 open import Cubical.Homotopy.Loopspace
