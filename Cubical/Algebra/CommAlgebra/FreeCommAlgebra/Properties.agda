@@ -431,3 +431,7 @@ module _ {R : CommRing ℓ} where
                      isoToEquiv
                        (iso to from (λ x → isContr→isOfHLevel 1 isContr⊥→A _ _) from-to)
                in isOfHLevelRespectEquiv 0 (invEquiv equiv) isContr⊥→A
+
+module _ {R : CommRing ℓ} {I : Type ℓ} where
+  baseRingHom : CommRingHom R (CommAlgebra→CommRing (R [ I ]))
+  baseRingHom = snd (Iso.fun (CommAlgChar.CommAlgIso R) (R [ I ]))
