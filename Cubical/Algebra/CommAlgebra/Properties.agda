@@ -367,3 +367,17 @@ module _ {R S : CommRing ℓ} (f : CommRingHom S R) where
     where
       asRingHom : CommAlgChar.CommRingWithHom R
       asRingHom = Iso.fun (CommAlgChar.CommAlgIso R) A
+
+  baseChangeHom : {A B : CommAlgebra R ℓ} → CommAlgebraHom A B → CommAlgebraHom (baseChange A) (baseChange B)
+  baseChangeHom {A = A} {B = B} ϕ =
+    CommAlgChar.toCommAlgebraHom S (fst homA , snd homA ∘r f) (fst homB , snd homB ∘r f) (fst pbSliceHom) (snd pbSliceHom)
+    where open RingHoms
+          homA = Iso.fun (CommAlgChar.CommAlgIso R) A
+          homB = Iso.fun (CommAlgChar.CommAlgIso R) B
+
+          asSliceHom : Σ[ h ∈ CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B) ] h ∘r (snd homA) ≡ snd homB
+          asSliceHom = CommAlgChar.fromCommAlgebraHom R A B ϕ
+
+          pbSliceHom : Σ[ k ∈ CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B) ]
+                       k ∘r ((snd homA) ∘r f) ≡ ((snd homB) ∘r f)
+          pbSliceHom = fst asSliceHom , Σ≡Prop (λ _ → isPropIsRingHom _ _ _) λ i x → fst ((snd asSliceHom) i) (fst f x)
