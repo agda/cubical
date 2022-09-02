@@ -177,7 +177,7 @@ substInPaths {a = a} f g p q =
            ≡⟨ (rUnit q) ∙ lUnit (q ∙ refl) ⟩ refl ∙ q ∙ refl ∎
 
 flipTransport : ∀ {ℓ} {A : I → Type ℓ} {x : A i0} {y : A i1}
-  → x ≡ transport (λ i → A (~ i)) y
+  → x ≡ transport⁻ (λ i → A i) y
   → transport (λ i → A i) x ≡ y
 flipTransport {A = A} {y = y} p =
   cong (transport (λ i → A i)) p ∙ transportTransport⁻ (λ i → A i) y
