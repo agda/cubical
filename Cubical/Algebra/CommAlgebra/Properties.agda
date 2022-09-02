@@ -365,3 +365,12 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ} where
   pres· (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres· (snd ϕ)
   pres- (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres- (snd ϕ)
   pres⋆ (snd (CommAlgebraHomFromRingHom ϕ pres*)) = pres*
+
+
+module _ {R S : CommRing ℓ} (f : CommRingHom S R) where
+  baseChange : CommAlgebra R ℓ → CommAlgebra S ℓ
+  baseChange A =
+    Iso.inv (CommAlgChar.CommAlgIso S) (fst asRingHom , compCommRingHom _ _ _ f (snd asRingHom))
+    where
+      asRingHom : CommAlgChar.CommRingWithHom R
+      asRingHom = Iso.fun (CommAlgChar.CommAlgIso R) A
