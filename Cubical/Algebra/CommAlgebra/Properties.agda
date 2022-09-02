@@ -135,13 +135,6 @@ module CommAlgChar (R : CommRing ℓ) where
     (λ i → isPropIsCommAlgebra _ _ _ _ _ _ (CommAlgebraStr._⋆_ (AlgStrPathP i)))
     (CommAlgebraStr.isCommAlgebra (snd (toCommAlg (fromCommAlg A)))) isCommAlgebra i
 
-  CommAlgIso : Iso (CommAlgebra R ℓ) CommRingWithHom
-  fun CommAlgIso = fromCommAlg
-  inv CommAlgIso = toCommAlg
-  rightInv CommAlgIso = CommRingWithHomRoundTrip
-  leftInv CommAlgIso = CommAlgRoundTrip
-
-
  CommAlgIso : Iso (CommAlgebra R ℓ) CommRingWithHom
  fun CommAlgIso = fromCommAlg
  inv CommAlgIso = toCommAlg
