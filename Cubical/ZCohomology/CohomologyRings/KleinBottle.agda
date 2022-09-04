@@ -555,19 +555,18 @@ module Equiv-𝕂²-Properties
 module _ where
 
   open Equiv-𝕂²-Properties (invGroupIso H¹-𝕂²≅ℤ) (invGroupIso H²-𝕂²≅Bool)
-  -- open pres⌣trivial
-  -- open cupTrivial
-  -- open PblComp (λ a b → sym (ϕₙ⌣ϕₘ-0 ϕ₁ ϕ₁str ϕ₁ ϕ₁str (trivial⌣ refl {!H²-𝕂²≅ℤ!} (ϕ₁ (pos 1))) a b))
+  open pres⌣trivial
+  open PblComp (λ a b → sym (ϕₙ⌣ϕₘ-0 ϕ₁ ϕ₁str ϕ₁ ϕ₁str trivial-cup a b))
 
---   𝕂²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>) (H*R KleinBottle)
---   fst 𝕂²-CohomologyRing = isoToEquiv is
---     where
---     is : Iso ℤ[x,y]/<2y,y²,xy,x²> (H* KleinBottle)
---     fun is = ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂²
---     inv is = H*-𝕂²→ℤ[x,y]/<2y,y²,xy,x²>
---     rightInv is = e-sect
---     leftInv is = e-retr
---   snd 𝕂²-CohomologyRing = snd ℤ[X,Y]/<2Y,Y²,XY,X²>→H*R-𝕂²
+  𝕂²-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>) (H*R KleinBottle)
+  fst 𝕂²-CohomologyRing = isoToEquiv is
+    where
+    is : Iso ℤ[x,y]/<2y,y²,xy,x²> (H* KleinBottle)
+    fun is = ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂²
+    inv is = H*-𝕂²→ℤ[x,y]/<2y,y²,xy,x²>
+    rightInv is = e-sect
+    leftInv is = e-retr
+  snd 𝕂²-CohomologyRing = snd ℤ[X,Y]/<2Y,Y²,XY,X²>→H*R-𝕂²
 
---   CohomologyRing-𝕂² : RingEquiv (H*R 𝕂²) (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>)
---   CohomologyRing-𝕂² = RingEquivs.invRingEquiv 𝕂²-CohomologyRing
+  CohomologyRing-𝕂² : RingEquiv (H*R KleinBottle) (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>)
+  CohomologyRing-𝕂² = RingEquivs.invRingEquiv 𝕂²-CohomologyRing
