@@ -21,6 +21,8 @@ open import Cubical.Algebra.Group.Instances.Bool
 open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.Instances.Unit
 
+open import Cubical.HITs.SetTruncation
+open import Cubical.HITs.Truncation
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1
 open import Cubical.HITs.RPn.Base
@@ -71,13 +73,35 @@ Hⁿ-RP²⋁S¹≅0 n = (Hⁿ-⋁ _ _ (2 + n))
 open Iso
 open IsGroupHom
 
--- lem : (a b : ℤ) → fun (fst H²-RP²⋁S¹≅Bool) ((inv (fst H¹-RP²⋁S¹≅ℤ) a) ⌣ (inv (fst H¹-RP²⋁S¹≅ℤ) b)) ≡ fun (fst H²-RP²⋁S¹≅Bool) (0ₕ 2)
--- lem a b = {!refl!}
+-- genS¹ : coHom 1 S¹
+-- genS¹ = ∣ (λ {   base → ∣ base ∣
+--              ; (loop i) → ∣ (loop i) ∣ }) ∣₂
 
--- null-H¹ : (a b : ℤ) → (inv (fst H¹-RP²⋁S¹≅ℤ) a) ⌣ (inv (fst H¹-RP²⋁S¹≅ℤ) b) ≡ 0ₕ 2
--- null-H¹ a b = sym (leftInv (fst H²-RP²⋁S¹≅Bool) _)
---               ∙ cong (inv (fst H²-RP²⋁S¹≅Bool)) {!refl!}
---               ∙ pres1 (snd (invGroupIso H²-RP²⋁S¹≅Bool))
+-- proofGenS¹ : Iso.fun (fst H¹-S¹≅ℤ) genS¹ ≡ 1
+-- proofGenS¹ = refl
 
-tryf : (a b : ℤ) → (fun (fst H²-RP²⋁S¹≅Bool) ((inv (fst H¹-RP²⋁S¹≅ℤ) (pos 1)) ⌣ (inv (fst H¹-RP²⋁S¹≅ℤ) (pos 1)))) ≡ true
-tryf a b = {!refl!}
+-- Not sure why it is the generator
+-- Copying x this way is clearly cheating too !
+α : coHom 1 RP²⋁S¹
+α = ∣ (λ { (inl x) → ∣ base ∣
+                 ; (inr x) → ∣ x ∣
+                 ; (push a i) → ∣ (loop i) ∣ }) ∣₂
+
+α↦1 : Iso.fun (fst H¹-RP²⋁S¹≅ℤ) α ≡ 1
+α↦1 = refl
+
+1↦α : Iso.inv (fst H¹-RP²⋁S¹≅ℤ) 1 ≡ α
+1↦α = cong (Iso.inv (fst H¹-RP²⋁S¹≅ℤ)) (sym α↦1)
+       ∙ leftInv (fst H¹-RP²⋁S¹≅ℤ) α
+
+-- computes !
+lem-α²≡0 : Iso.fun (fst H²-RP²⋁S¹≅Bool) (α ⌣ α) ≡ true
+lem-α²≡0 = refl
+
+α²≡0 : α ⌣ α ≡ 0ₕ 2
+α²≡0 = sym (leftInv (fst H²-RP²⋁S¹≅Bool) (α ⌣ α))
+       ∙ cong (Iso.inv (fst H²-RP²⋁S¹≅Bool)) lem-α²≡0
+       ∙ pres1 (snd (invGroupIso H²-RP²⋁S¹≅Bool))
+
+trivial-cup : Iso.inv (fst H¹-RP²⋁S¹≅ℤ) 1 ⌣ Iso.inv (fst H¹-RP²⋁S¹≅ℤ) 1 ≡ 0ₕ 2
+trivial-cup = cong₂ _⌣_ 1↦α 1↦α ∙ α²≡0
