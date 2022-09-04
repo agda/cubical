@@ -556,17 +556,18 @@ module Equiv-RP²⋁S¹-Properties
 module _ where
 
   open Equiv-RP²⋁S¹-Properties (invGroupIso H¹-RP²⋁S¹≅ℤ) (invGroupIso H²-RP²⋁S¹≅Bool)
-  -- open PblComp
+  open pres⌣trivial
+  open PblComp (λ a b → sym (ϕₙ⌣ϕₘ-0 ϕ₁ ϕ₁str ϕ₁ ϕ₁str trivial-cup a b))
 
---   RP²⋁S¹-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>) (H*R RP²⋁S¹)
---   fst RP²⋁S¹-CohomologyRing = isoToEquiv is
---     where
---     is : Iso ℤ[x,y]/<2y,y²,xy,x²> (H* RP²⋁S¹)
---     fun is = ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹
---     inv is = H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²>
---     rightInv is = e-sect
---     leftInv is = e-retr
---   snd RP²⋁S¹-CohomologyRing = snd ℤ[X,Y]/<2Y,Y²,XY,X²>→H*R-RP²⋁S¹
+  RP²⋁S¹-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>) (H*R RP²⋁S¹)
+  fst RP²⋁S¹-CohomologyRing = isoToEquiv is
+    where
+    is : Iso ℤ[x,y]/<2y,y²,xy,x²> (H* RP²⋁S¹)
+    fun is = ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹
+    inv is = H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²>
+    rightInv is = e-sect
+    leftInv is = e-retr
+  snd RP²⋁S¹-CohomologyRing = snd ℤ[X,Y]/<2Y,Y²,XY,X²>→H*R-RP²⋁S¹
 
---   CohomologyRing-RP²⋁S¹ : RingEquiv (H*R RP²⋁S¹) (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>)
---   CohomologyRing-RP²⋁S¹ = RingEquivs.invRingEquiv RP²⋁S¹-CohomologyRing
+  CohomologyRing-RP²⋁S¹ : RingEquiv (H*R RP²⋁S¹) (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>)
+  CohomologyRing-RP²⋁S¹ = RingEquivs.invRingEquiv RP²⋁S¹-CohomologyRing
