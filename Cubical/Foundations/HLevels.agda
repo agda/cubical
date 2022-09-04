@@ -15,6 +15,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Pointed.Base
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
@@ -491,6 +492,12 @@ isOfHLevelΠ⁻ 1 h x y z = funExt⁻ (h (const y) (const z)) x
 isOfHLevelΠ⁻ (suc (suc n)) h x y z =
   isOfHLevelΠ⁻ (suc n) (isOfHLevelRetractFromIso (suc n) funExtIso (h _ _)) x
 
+isOfHLevel→∙ : {A : Pointed ℓ} {B : Pointed ℓ'} (n : ℕ)
+  → isOfHLevel n (fst B) → isOfHLevel n (A →∙ B)
+isOfHLevel→∙ n hlev =
+  isOfHLevelΣ n (isOfHLevelΠ n (λ _ → hlev))
+    λ _ → isOfHLevelPath n hlev _ _
+
 -- h-level of A ≃ B and A ≡ B
 
 isOfHLevel≃
@@ -596,7 +603,7 @@ isContrPartial→isContr {A = A} extend law
 
 isOfHLevelDep : HLevel → {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
 isOfHLevelDep 0 {A = A} B = {a : A} → Σ[ b ∈ B a ] ({a' : A} (b' : B a') (p : a ≡ a') → PathP (λ i → B (p i)) b b')
-isOfHLevelDep 1 {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 ≡ a1)  → PathP (λ i → B (p i)) b0 b1
+isOfHLevelDep 1 {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 ≡ a1) → PathP (λ i → B (p i)) b0 b1
 isOfHLevelDep (suc (suc  n)) {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) → isOfHLevelDep (suc n) {A = a0 ≡ a1} (λ p → PathP (λ i → B (p i)) b0 b1)
 
 isContrDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
@@ -613,6 +620,12 @@ isContrDep∘ f cB {a} = λ where
 
 isPropDep∘ : {A' : Type ℓ} (f : A' → A) → isPropDep B → isPropDep (B ∘ f)
 isPropDep∘ f pB b0 b1 = pB b0 b1 ∘ cong f
+
+isOfHLevelDep→isOfHLevel : (n : HLevel)
+  → {A : Type ℓ} {B : A → Type ℓ'} → isOfHLevelDep n {A = A} B → (a : A) → isOfHLevel n (B a)
+isOfHLevelDep→isOfHLevel 0 h a = h .fst , λ b → h .snd b refl
+isOfHLevelDep→isOfHLevel 1 h a x y = h x y refl
+isOfHLevelDep→isOfHLevel (suc (suc n)) h a x y = isOfHLevelDep→isOfHLevel (suc n) (h x y) refl
 
 isOfHLevel→isOfHLevelDep : (n : HLevel)
   → {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isOfHLevel n (B a)) → isOfHLevelDep n {A = A} B
