@@ -26,7 +26,7 @@ open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Unit
 
-open import Cubical.HITs.Pushout
+open import Cubical.HITs.Pushout as Pushout
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
@@ -72,7 +72,7 @@ leftInv characFunSpaceCP² _ =
 H⁰CP²≅ℤ : GroupIso (coHomGr 0 CP²) ℤGroup
 H⁰CP²≅ℤ =
   H⁰-connected (inr tt)
-    (PushoutToProp (λ _ → squash₁)
+    (Pushout.elimProp _ (λ _ → squash₁)
       (sphereElim _ (λ _ → isOfHLevelSuc 1 squash₁)
         ∣ sym (push (north , base)) ∣₁)
     λ _ → ∣ refl ∣₁)
