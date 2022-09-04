@@ -388,16 +388,16 @@ module g-base where
      ∙∙ ∙≡+₂ _ _ _
 
   private
-    +'-suc : (n m : ℕ) → suc n +' m ≡ suc (n +' m)
-    +'-suc zero zero = refl
-    +'-suc (suc n) zero = refl
-    +'-suc zero (suc m) = refl
-    +'-suc (suc n) (suc m) = refl
+    +'-suc' : (n m : ℕ) → suc n +' m ≡ suc (n +' m)
+    +'-suc' zero zero = refl
+    +'-suc' (suc n) zero = refl
+    +'-suc' zero (suc m) = refl
+    +'-suc' (suc n) (suc m) = refl
 
   decomposeG : (i n : ℕ) (x : coHomK i)
     → G (suc n) i x
      ≡ subst (λ x → S₊∙ (suc n) →∙ coHomK-ptd x)
-              (sym (+'-suc n i))
+              (sym (+'-suc' n i))
               (Iso.inv (suspKn-Iso n _) (G n i x))
   decomposeG zero zero x =
     →∙Homogeneous≡ (isHomogeneousKn _)
@@ -506,7 +506,7 @@ module g-base where
     subst isEquiv (sym (funExt (decomposeG i n)))
       (compEquiv (compEquiv (G n i , isEquivG n i)
         (isoToEquiv (invIso (suspKn-Iso n (n +' i)))))
-        (pathToEquiv (λ j → S₊∙ (suc n) →∙ coHomK-ptd (+'-suc n i (~ j)))) .snd)
+        (pathToEquiv (λ j → S₊∙ (suc n) →∙ coHomK-ptd (+'-suc' n i (~ j)))) .snd)
 
   isEquiv-g : (n i : ℕ) → isEquiv (g n i)
   isEquiv-g n i =
@@ -989,11 +989,11 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   ϕ∘j i = compGroupHom (fst (fst (ϕ i)) , snd (ϕ i)) (cofibSeq.j* (i +' n))
 
   private
-    +'-suc : (i n : ℕ) → (suc i +' n) ≡ suc (i +' n)
-    +'-suc zero zero = refl
-    +'-suc (suc i₁) zero = refl
-    +'-suc zero (suc n) = refl
-    +'-suc (suc i₁) (suc n) = refl
+    +'-suc' : (i n : ℕ) → (suc i +' n) ≡ suc (i +' n)
+    +'-suc' zero zero = refl
+    +'-suc' (suc i₁) zero = refl
+    +'-suc' zero (suc n) = refl
+    +'-suc' (suc i₁) (suc n) = refl
 
     Path→GroupPath : ∀ {ℓ ℓ'} {n m : ℕ} (G : ℕ → Group ℓ) (H : Group ℓ')
          (p : n ≡ m)
@@ -1022,7 +1022,7 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
   thomIso' : (i : ℕ) → GroupEquiv (coHomRedGrDir (suc (i +' n)) (E'̃ , inl tt))
                             (coHomGr (suc i) (typ B))
   thomIso' i = (Path→GroupPath
-                (λ n → coHomRedGrDir n (E'̃ , inl tt)) _ (+'-suc i n)
+                (λ n → coHomRedGrDir n (E'̃ , inl tt)) _ (+'-suc' i n)
                   (invGroupEquiv (ϕ (suc i))))
 
   ϕ' : (i : ℕ) → GroupHom (coHomRedGrDir (suc (i +' n)) (E'̃ , inl tt))
@@ -1065,13 +1065,13 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
         ((λ i → fst (cofibSeq.j* _) (fst (fst (ϕ _)) (fst (ϕ' _) (fst (E-susp _) f))))
              ∙∙ cong (fst (cofibSeq.j* _))
                      ((h-ret (λ n → coHomRedGrDir n (E'̃ , inl tt)) _
-                             (invGroupEquiv (ϕ (suc i))) (+'-suc i n)) (fst (E-susp _) f))
-             ∙∙ (natTranspLem _ (λ n → fst (cofibSeq.j* n)) (sym (+'-suc i n))
-             ∙ cong (subst (λ z → coHomGr z (typ B) .fst) (sym (+'-suc i n)))
+                             (invGroupEquiv (ϕ (suc i))) (+'-suc' i n)) (fst (E-susp _) f))
+             ∙∙ (natTranspLem _ (λ n → fst (cofibSeq.j* n)) (sym (+'-suc' i n))
+             ∙ cong (subst (λ z → coHomGr z (typ B) .fst) (sym (+'-suc' i n)))
                     (Im-Susp⊂Ker-j _ (fst (E-susp (i +' n)) f) ∣ f , refl ∣₁)
               ∙ tLem i n)))
     where
-    tLem : (i n : ℕ) → subst (λ z → coHomGr z (typ B) .fst) (sym (+'-suc i n))
+    tLem : (i n : ℕ) → subst (λ z → coHomGr z (typ B) .fst) (sym (+'-suc' i n))
                                (0ₕ _) ≡ 0ₕ _
     tLem zero zero = refl
     tLem zero (suc n) = refl
@@ -1086,19 +1086,19 @@ module Gysin {ℓ} (B : Pointed ℓ) (P : typ B → Type ℓ-zero)
                         ∙ secEq (fst (thomIso' _)) x ∣₁))
       (Ker-j⊂Im-Susp _ (invEq (fst (thomIso' _)) x)
         ((cong (cofibSeq.j* (suc (i +' n)) .fst ) lem₁
-        ∙ natTranspLem _ (λ n → cofibSeq.j* n .fst) (+'-suc i n))
-        ∙∙ cong (transport (λ j → (coHomGr (+'-suc i n j) (typ B) .fst))) p
+        ∙ natTranspLem _ (λ n → cofibSeq.j* n .fst) (+'-suc' i n))
+        ∙∙ cong (transport (λ j → (coHomGr (+'-suc' i n j) (typ B) .fst))) p
         ∙∙ lem₂ i n))
     where
     lem₁ : invEq (fst (thomIso' i)) x
-         ≡ transport (λ j → coHomRed (+'-suc i n j)
+         ≡ transport (λ j → coHomRed (+'-suc' i n j)
                      (E'̃ , inl tt)) (fst (fst (ϕ _)) x)
-    lem₁ = cong (transport (λ j → coHomRed (+'-suc i n j) (E'̃ , inl tt)))
+    lem₁ = cong (transport (λ j → coHomRed (+'-suc' i n j) (E'̃ , inl tt)))
                 (transportRefl _ ∙ cong (fst (fst (ϕ _)))
                   λ i → transportRefl (transportRefl x i) i)
 
     lem₂ : (i n : ℕ)
-         → transport (λ j → coHomGr (+'-suc i n j) (typ B) .fst)
+         → transport (λ j → coHomGr (+'-suc' i n j) (typ B) .fst)
                       (GroupStr.1g (coHomGr (suc i +' n) (typ B) .snd)) ≡ 0ₕ _
     lem₂ zero zero = refl
     lem₂ zero (suc n) = refl

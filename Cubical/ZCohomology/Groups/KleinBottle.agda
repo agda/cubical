@@ -43,6 +43,9 @@ open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.RingStructure.CupProduct
 
+open import Cubical.ZCohomology.RingStructure.CupProduct
+open import Cubical.ZCohomology.RingStructure.RingLaws
+
 open IsGroupHom
 open Iso
 
@@ -457,13 +460,36 @@ isContrHⁿ-𝕂² n =
 Hⁿ⁺³-𝕂²≅0 : (n : ℕ) → GroupIso (coHomGr (3 + n) KleinBottle) UnitGroup₀
 Hⁿ⁺³-𝕂²≅0 n = contrGroupIsoUnit (isContrHⁿ-𝕂² n)
 
+-- Triviality of cup product
 
--- Proof that the cup product is trivial
+α : coHom 1 KleinBottle
+α = ∣ (λ { point → 0ₖ 1
+        ; (line1 i) → 0ₖ 1
+        ; (line2 i) → Kn→ΩKn+1 0 1 i
+        ; (square i i₁) → Kn→ΩKn+1 0 (pos 1) i₁}) ∣₂
 
--- try : (a b : ℤ) → fun (fst H²-𝕂²≅Bool) ((inv (fst H¹-𝕂²≅ℤ) a) ⌣ (inv (fst H¹-𝕂²≅ℤ) b)) ≡ fun (fst H²-𝕂²≅Bool) (0ₕ 2)
--- try a b = {!refl!}
+-- Because ℤ is discrete it computes nicely
+α↦1 : Iso.fun (fst H¹-𝕂²≅ℤ) α ≡ 1
+α↦1 = refl
 
--- null-H¹ : (a b : ℤ) → (inv (fst H¹-𝕂²≅ℤ) a) ⌣ (inv (fst H¹-𝕂²≅ℤ) b) ≡ 0ₕ 2
--- null-H¹ a b = sym (leftInv (fst H²-𝕂²≅Bool) _)
---               ∙ {!cong (inv (H²-𝕂²≅Bool)) refl !}
---               ∙ pres1 (snd (invGroupIso H²-𝕂²≅Bool))
+1↦α : Iso.inv (fst H¹-𝕂²≅ℤ) 1 ≡ α
+1↦α = cong (Iso.inv (fst H¹-𝕂²≅ℤ)) (sym α↦1)
+      ∙ leftInv (fst H¹-𝕂²≅ℤ) α
+
+
+private
+  lem : (p : 0ₖ 1 ≡ 0ₖ 1) → cong₂ (_⌣ₖ_) p p ≡ refl
+  lem p = cong₂Funct _⌣ₖ_ p p
+       ∙∙ sym (rUnit _)
+       ∙∙ λ j i → ⌣ₖ-0ₖ 1 1 (p i) j
+
+α²≡0 : α ⌣ α ≡ 0ₕ 2
+α²≡0 = cong ∣_∣₂
+  (funExt λ { point → refl
+            ; (line1 i) → refl
+            ; (line2 i) j → lem (Kn→ΩKn+1 0 1) j i
+            ; (square _ i) j → lem (Kn→ΩKn+1 0 1) j i})
+
+-- proof that the cup product is trivial
+trivial-cup : Iso.inv (fst H¹-𝕂²≅ℤ) 1 ⌣ Iso.inv (fst H¹-𝕂²≅ℤ) 1 ≡ 0ₕ 2
+trivial-cup = cong₂ _⌣_ 1↦α 1↦α ∙ α²≡0
