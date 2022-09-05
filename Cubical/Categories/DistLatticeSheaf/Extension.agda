@@ -643,8 +643,8 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
 
 ---- the main proof --------------------------------------------------------------------------------
-  isDLSheafDLRan : isDLSheafPullback L C (DLRan F)
-  fst isDLSheafDLRan x =
+  isDLSheafPullbackDLRan : isDLSheafPullback L C (DLRan F)
+  fst isDLSheafPullbackDLRan x =
       limArrow (limitC _ (F* 0l)) x (toCone x)
     , λ f → limArrowUnique (limitC _ (F* 0l)) x (toCone x) f (toConeMor x f)
     where
@@ -669,7 +669,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
     toConeMor y f v = sym (toTerminal v y .snd _)
 
 
-  snd isDLSheafDLRan x y = rec2 (isPropIsPullback _ _ _ _ (Fsq L C x y (DLRan F)))
+  snd isDLSheafPullbackDLRan x y = rec2 (isPropIsPullback _ _ _ _ (Fsq L C x y (DLRan F)))
                              Σhelper (⋁Basis x) (⋁Basis y)
     where
     Σhelper : Σ[ n ∈ ℕ ] Σ[ β ∈ FinVec (fst L) n ] (∀ i → β i ∈ L') × (⋁ β ≡ x)
@@ -1003,3 +1003,8 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                                ≡ pbPr₂PathP i ⋆⟨ C ⟩ cospanPath i .s₂)
                           (pbCommutes ⋁Pullback) (Fsq L C x y (DLRan F))
       squarePathP = toPathP (isSetHom C _ _ _ _)
+
+
+  -- main result, putting everything together:
+  isDLSheafDLRan : isDLSheaf L C (DLRan F)
+  isDLSheafDLRan = let open EquivalenceOfDefs L C (DLRan F) in P→L isDLSheafPullbackDLRan
