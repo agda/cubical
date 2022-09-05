@@ -10,16 +10,7 @@
 module Cubical.Algebra.Semilattice.Instances.NatMax where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP
 
-open import Cubical.Data.Sigma
 open import Cubical.Data.Empty.Base as ⊥
 open import Cubical.Data.FinData hiding (snotz)
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
@@ -27,31 +18,21 @@ open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Nat.Order renaming (_≤_ to _≤ℕ_)
 
-
-open import Cubical.Algebra.Semigroup
-open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Monoid.BigOp
-open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Semilattice.Base
 
-open import Cubical.Relation.Binary
-open import Cubical.Relation.Binary.Poset
 
-open Iso
 open SemilatticeStr
 
 private
   variable
     ℓ ℓ' : Level
 
-
--- a better name?
 maxSemilatticeStr : SemilatticeStr ℕ
 ε maxSemilatticeStr = 0
 _·_ maxSemilatticeStr = max
 isSemilattice maxSemilatticeStr = makeIsSemilattice isSetℕ maxAssoc maxRId maxComm maxIdem
   where
-  -- should all be upstreamed?
   maxAssoc : (x y z : ℕ) → max x (max y z) ≡ max (max x y) z
   maxAssoc zero y z = refl
   maxAssoc (suc x) zero z = refl

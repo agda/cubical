@@ -9,43 +9,30 @@
   where the two maps ∏ᵢ R[1/fᵢ] → ∏ᵢⱼ R[1/fᵢfⱼ] are induced by the two canonical maps
   R[1/fᵢ] → R[1/fᵢfⱼ] and R[1/fⱼ] → R[1/fᵢfⱼ].
 
-  But expressed as limits, that's what we need for structure sheaf
-  in the case n=2 this will give us what is in Localisation.Pullback
+  Using the well-known correspondence between equalizers of products and limits,
+  we express the above fact through limits over the diagrams defined in
+  Cubical.Categories.DistLatticeSheaf.Diagram
 
 -}
-
-
-
 
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.Limit where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset renaming (_∈_ to _∈ₚ_)
-open import Cubical.Foundations.Transport
-open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Nat.Order hiding (_<_ ; _≟_)
-open import Cubical.Data.Sigma.Base
-open import Cubical.Data.Sigma.Properties
+open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
 open import Cubical.Data.FinData.Order renaming (_<'Fin_ to _<_ ; _≟Fin_ to _≟_)
 
-open import Cubical.Relation.Binary
-open import Cubical.Relation.Binary.Poset
-
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
@@ -55,10 +42,8 @@ open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
-open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Semilattice.Instances.NatMax
 
--- open import Cubical.Tactics.NatSolver.Reflection renaming (solve to natSolve)
 open import Cubical.Tactics.CommRingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -78,7 +63,7 @@ private
 
 
 -- were not dealing with case 0 here
--- but then R = 0 = lim {} (the empty diagram)
+-- but then R = 0 = lim {} (limit of the empty diagram)
 module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  open isMultClosedSubset
  open CommRingTheory R'
@@ -112,48 +97,6 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
   _/1ᵖ : R → {i j : Fin (suc n)} →  R[1/ (f i) · (f j) ]
   (r /1ᵖ) {i = i} {j = j} = UP._/1 i j r
-
-
-
- -- to be upstreamed; should probably go to PropTrunc.Properties
- recFin : {m : ℕ} {P : Fin m → Type ℓ'}
-          {B : Type ℓ''} (isPropB : isProp B)
-        → ((∀ i → P i) → B)
-       ---------------------
-        → ((∀ i → ∥ P i ∥₁) → B)
- recFin {m = zero} _ untruncHyp _ = untruncHyp (λ ())
- recFin {m = suc m} {P = P} {B = B} isPropB untruncHyp truncFam =
-   curriedishTrunc (truncFam zero) (truncFam ∘ suc)
-   where
-   curriedish : P zero → (∀ i → ∥ P (suc i) ∥₁) → B
-   curriedish p₀ truncFamSuc = recFin isPropB
-                              (λ famSuc → untruncHyp (λ { zero → p₀ ; (suc i) → famSuc i }))
-                                truncFamSuc
-
-   curriedishTrunc : ∥ P zero ∥₁ → (∀ i → ∥ P (suc i) ∥₁) → B
-   curriedishTrunc = PT.rec (isProp→ isPropB) curriedish
-
- recFin2 : {m1 m2 : ℕ} {P : Fin m1 → Fin m2 → Type ℓ'}
-           {B : Type ℓ''} (isPropB : isProp B)
-         → ((∀ i j → P i j) → B)
-        --------------------------
-         → (∀ i j → ∥ P i j ∥₁)
-         → B
- recFin2 {m1 = zero} _ untruncHyp _ = untruncHyp λ ()
- recFin2 {m1 = suc m1} {P = P} {B = B} isPropB untruncHyp truncFam =
-   curriedishTrunc (truncFam zero) (truncFam ∘ suc)
-   where
-   curriedish : (∀ j → P zero j) → (∀ i j → ∥ P (suc i) j ∥₁) → B
-   curriedish p₀ truncFamSuc = recFin2 isPropB
-                              (λ famSuc → untruncHyp λ { zero → p₀ ; (suc i) → famSuc i })
-                                truncFamSuc
-
-   curriedishTrunc : (∀ j → ∥ P zero j ∥₁) → (∀ i j → ∥ P (suc i) j ∥₁) → B
-   curriedishTrunc = recFin (isProp→ isPropB) curriedish
-
-
-
-
 
 
  -- This lemma proves that if ⟨ f₀ ,..., fₙ ⟩ ≡ R,
@@ -221,7 +164,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
         0r ∎
 
 
- -- the morphisms into localisations at products from the left/right
+ -- the morphisms into localisations of products from the left/right
  -- we need to define them by hand as using RadicalLemma wouldn't compute later
  χˡUnique : (i j : Fin (suc n))
           → ∃![ χ ∈ CommRingHom R[1/ f i ]AsCommRing R[1/ f i · f j ]AsCommRing ]
@@ -270,39 +213,40 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
 
  -- super technical stuff, please don't look at it
- χ≡Elim< : (x  : (i : Fin (suc n)) → R[1/ f i ])
-         → (∀ i j → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
-         → ∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
- χ≡Elim< x <hyp i j = aux (i ≟ j) -- doesn't type check in reasonable time using with syntax
-   where
-   aux : FinTrichotomy i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
-   aux (lt i<j) = <hyp _ _ i<j
-   aux (eq i≡j) = subst (λ j' → χˡ i j' .fst (x i) ≡ χʳ i j' .fst (x j')) i≡j (χId i (x i))
-     where
-     χId : ∀ i x → χˡ i i .fst x ≡ χʳ i i .fst x
-     χId i = invElPropElim (λ _ → squash/ _ _)
-               (λ r m → cong [_] (ΣPathP (refl , Σ≡Prop (∈-isProp _) refl)))
+ private
+  χ≡Elim<Only : (x  : (i : Fin (suc n)) → R[1/ f i ])
+          → (∀ i j → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
+          → ∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
+  χ≡Elim<Only x <hyp i j = aux (i ≟ j) -- doesn't type check in reasonable time using with syntax
+    where
+    aux : FinTrichotomy i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
+    aux (lt i<j) = <hyp _ _ i<j
+    aux (eq i≡j) = subst (λ j' → χˡ i j' .fst (x i) ≡ χʳ i j' .fst (x j')) i≡j (χId i (x i))
+      where
+      χId : ∀ i x → χˡ i i .fst x ≡ χʳ i i .fst x
+      χId i = invElPropElim (λ _ → squash/ _ _)
+                (λ r m → cong [_] (ΣPathP (refl , Σ≡Prop (∈-isProp _) refl)))
 
-   aux (gt j<i) =
-     χˡ i j .fst (x i) ≡⟨ χSwapL→R i j (x i) ⟩
-     χʳsubst i j (x i) ≡⟨ cong (subst (λ r → R[1/ r ]) (·Comm (f j) (f i))) (sym (<hyp _ _ j<i)) ⟩
-     χˡsubst i j (x j) ≡⟨ sym (χSwapR→L i j (x j)) ⟩
-     χʳ i j .fst (x j) ∎
-     where
-     χʳsubst : (i j : Fin (suc n)) → R[1/ f i ] → R[1/ f i · f j ]
-     χʳsubst i j x = subst (λ r → R[1/ r ]) (·Comm (f j) (f i)) (χʳ j i .fst x)
+    aux (gt j<i) =
+      χˡ i j .fst (x i) ≡⟨ χSwapL→R i j (x i) ⟩
+      χʳsubst i j (x i) ≡⟨ cong (subst (λ r → R[1/ r ]) (·Comm (f j) (f i))) (sym (<hyp _ _ j<i)) ⟩
+      χˡsubst i j (x j) ≡⟨ sym (χSwapR→L i j (x j)) ⟩
+      χʳ i j .fst (x j) ∎
+      where
+      χʳsubst : (i j : Fin (suc n)) → R[1/ f i ] → R[1/ f i · f j ]
+      χʳsubst i j x = subst (λ r → R[1/ r ]) (·Comm (f j) (f i)) (χʳ j i .fst x)
 
-     χSwapL→R : ∀ i j x → χˡ i j .fst x ≡ χʳsubst i j x
-     χSwapL→R i j = invElPropElim (λ _ → squash/ _ _)
-            λ r m → cong [_] (ΣPathP (sym (transportRefl _) , Σ≡Prop (∈-isProp _)
-                     (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))
-     χˡsubst : (i j : Fin (suc n)) → R[1/ f j ] → R[1/ f i · f j ]
-     χˡsubst i j x = subst (λ r → R[1/ r ]) (·Comm (f j) (f i)) (χˡ j i .fst x)
+      χSwapL→R : ∀ i j x → χˡ i j .fst x ≡ χʳsubst i j x
+      χSwapL→R i j = invElPropElim (λ _ → squash/ _ _)
+             λ r m → cong [_] (ΣPathP (sym (transportRefl _) , Σ≡Prop (∈-isProp _)
+                      (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))
+      χˡsubst : (i j : Fin (suc n)) → R[1/ f j ] → R[1/ f i · f j ]
+      χˡsubst i j x = subst (λ r → R[1/ r ]) (·Comm (f j) (f i)) (χˡ j i .fst x)
 
-     χSwapR→L : ∀ i j x → χʳ i j .fst x ≡ χˡsubst i j x
-     χSwapR→L i j = invElPropElim (λ _ → squash/ _ _)
-            λ r m → cong [_] (ΣPathP (sym (transportRefl _) , Σ≡Prop (∈-isProp _)
-                     (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))
+      χSwapR→L : ∀ i j x → χʳ i j .fst x ≡ χˡsubst i j x
+      χSwapR→L i j = invElPropElim (λ _ → squash/ _ _)
+             λ r m → cong [_] (ΣPathP (sym (transportRefl _) , Σ≡Prop (∈-isProp _)
+                      (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))
 
  χ≡PropElim : {B : ((i : Fin (suc n)) → R[1/ f i ]) → Type ℓ''} (isPropB : ∀ {x} → isProp (B x))
             → (∀ (r : FinVec R (suc n)) (m l : ℕ)
@@ -472,10 +416,6 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
 
 
-
-
-
-
  -- this will do all the heavy lifting
  equalizerLemma : 1r ∈ ⟨f₀,⋯,fₙ⟩
                 → ∀ (x : (i : Fin (suc n)) → R[1/ f i ]) -- s.t.
@@ -633,7 +573,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
    φ i = cᴬ .coneOut (sing i)
 
    applyEqualizerLemma : ∀ a → ∃![ r ∈ R ] ∀ i → r /1ˢ ≡ φ i .fst a
-   applyEqualizerLemma a = equalizerLemma 1∈⟨f₀,⋯,fₙ⟩ (λ i → φ i .fst a) (χ≡Elim< _ χφSquare<)
+   applyEqualizerLemma a = equalizerLemma 1∈⟨f₀,⋯,fₙ⟩ (λ i → φ i .fst a) (χ≡Elim<Only _ χφSquare<)
     where
     χφSquare< : ∀ i j → i < j → χˡ i j .fst (φ i .fst a) ≡ χʳ i j .fst (φ j .fst a)
     χφSquare< i j i<j =
