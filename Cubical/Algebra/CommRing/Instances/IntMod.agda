@@ -5,6 +5,7 @@ module Cubical.Algebra.CommRing.Instances.IntMod where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.AbGroup
 
@@ -38,3 +39,6 @@ isCommRing (snd ℤ/2CommRing) = is-ring
         (ℤ/2-elim (ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl))
           (ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl)))
         (ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl))
+
+ℤ/2Ring : Ring ℓ-zero
+ℤ/2Ring = CommRing→Ring ℤ/2CommRing
