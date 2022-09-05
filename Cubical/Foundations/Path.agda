@@ -391,3 +391,22 @@ comm→PathP {p = p} {q = q} {r = r} {s = s} P i j =
       ; (j = i1) → compPath-filler' r q (~ k) i
       })
     (P j i)
+
+Square→compPath : ∀ {ℓ} {A : Type ℓ} {x y z w : A} {p : x ≡ y} {q : y ≡ z} {r : x ≡ w} {s : w ≡ z}
+  → Square r q p s → p ∙ q ≡ r ∙ s
+Square→compPath {p = p} {q = q} {r = r} {s = s} sq i j =
+  hcomp (λ k → λ {(i = i0) → compPath-filler p q k j
+                 ; (i = i1) → compPath-filler' r s k j
+                 ; (j = i0) → r (~ k ∧ i)
+                 ; (j = i1) → q (k ∨ i)})
+        (sq j i)
+
+Square→compPathΩ² : ∀ {ℓ} {A : Type ℓ} {x : A} (sq : Square (λ _ → x) refl refl refl)
+             → Square→compPath sq ≡ cong (_∙ refl) (flipSquare sq)
+Square→compPathΩ² {x = x} sq k i j =
+  hcomp (λ r → λ {(i = i0) → rUnit (λ _ → x) r j
+                 ; (i = i1) → rUnit (λ _ → x) r j
+                 ; (j = i0) → x
+                 ; (j = i1) → x
+                 ; (k = i1) → cong (λ x → rUnit x r) (flipSquare sq) i j})
+        (sq j i)
