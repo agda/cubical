@@ -353,9 +353,9 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       where
       singCase : ∀ i → f ⋆⟨ C ⟩ coneOut restCone (sing i) ≡ coneOut cc (sing i)
       singCase i =
-        (subst (λ g → f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)) ≡ g)
+        subst (λ g → f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i)) ≡ g)
           (transport (λ j → helperPathP j ≡ ccᵢSubstFiller (~ j)) ccᵢSubstPath)
-            assumption)
+            assumption
         where
         assumption : f ⋆⟨ C ⟩ (F[⋁α]Cone .coneOut ((α i , α∈L' i) , ind≤⋁ α i))
                    ≡ coneOut (lemma1 c cc) ((α i , α∈L' i) , ind≤⋁ α i)
@@ -421,7 +421,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
             path with (i ≟Fin j)
             ... | (lt i<j) = coneOutCommutes cc (singPairL {i<j = i<j})
                            ∙ sym (coneOutCommutes cc singPairR)
-            ... | (gt j<i) = transp B2 i0 almostPath
+            ... | (gt j<i) = transport (λ 𝕚 → B2 𝕚) almostPath
               where
               ∧Path : Path (ob DLSubCat) (α j ∧l α i , β∈L' (α j) (α∈L' j) i)
                                          (α i ∧l α j , β∈L' (α i) (α∈L' i) j)
