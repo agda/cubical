@@ -293,6 +293,11 @@ module _ {G : AbGroup ℓ} where
 
   Iso-EM-ΩEM+1 : (n : ℕ) → Iso (EM G n) (typ (Ω (EM∙ G (suc n))))
   Iso-EM-ΩEM+1 zero = invIso (ΩEM₁Iso (AbGroup→Group G))
+  Iso.fun (Iso-EM-ΩEM+1 (suc n)) = decode' n (0ₖ (2 + n))
+  Iso.inv (Iso-EM-ΩEM+1 (suc n)) = encode' n ∣ north ∣
+  Iso.rightInv (Iso-EM-ΩEM+1 (suc n)) = decode'-encode' _ _
+  Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) = encode'-decode' _
+{-  
   Iso.fun (Iso-EM-ΩEM+1 (suc zero)) = decode' 0 (0ₖ 2)
   Iso.inv (Iso-EM-ΩEM+1 (suc zero)) = encode' 0 (0ₖ 2)
   Iso.rightInv (Iso-EM-ΩEM+1 (suc zero)) = decode'-encode' 0 (0ₖ 2)
@@ -301,7 +306,7 @@ module _ {G : AbGroup ℓ} where
   Iso.inv (Iso-EM-ΩEM+1 (suc (suc n))) = encode' (suc n) (0ₖ (3 + n))
   Iso.rightInv (Iso-EM-ΩEM+1 (suc (suc n))) = decode'-encode' (suc n) (0ₖ (3 + n))
   Iso.leftInv (Iso-EM-ΩEM+1 (suc (suc n))) = encode'-decode' (suc n)
-
+-}
   EM≃ΩEM+1 : (n : ℕ) → EM G n ≃ typ (Ω (EM∙ G (suc n)))
   EM≃ΩEM+1 n = isoToEquiv (Iso-EM-ΩEM+1 n)
 

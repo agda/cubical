@@ -370,6 +370,7 @@ open import Cubical.Algebra.Semigroup.Base
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
+open import Cubical.Algebra.CommRing.Instances.IntMod
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
@@ -386,40 +387,6 @@ open AbGroupStr renaming (_+_ to _+G_)
 open import Cubical.Data.Nat.Order
 
 -- ℤ/2 lemmas
-ℤ/2-elim : ∀ {ℓ} {A : Fin 2 → Type ℓ} → A 0 → A 1 → (x : _) → A x
-ℤ/2-elim {A = A} a₀ a₁ (zero , p) = subst (λ p → A (zero , p)) (isProp≤ (0 .snd) p) a₀
-ℤ/2-elim {A = A} a₀ a₁ (suc zero , p) = subst (λ p → A (1 , p)) (isProp≤ (1 .snd) p) a₁
-ℤ/2-elim {A = A} a₀ a₁ (suc (suc x) , p) =
-  ⊥.rec (snotz (cong (λ x → predℕ (predℕ x)) (+-comm (3 + x) (fst p) ∙ snd p)))
-
--Const-ℤ/2 : (x : fst (ℤGroup/ 2)) → -ₘ x ≡ x
--Const-ℤ/2 = ℤ/2-elim refl refl
-
-ℤ/2CommRing : CommRing ℓ-zero
-fst ℤ/2CommRing = fst (Group→AbGroup (ℤGroup/ 2) +ₘ-comm)
-0r (snd ℤ/2CommRing) = fzero
-1r (snd ℤ/2CommRing) = 1
-_+R_ (snd ℤ/2CommRing) = _+ₘ_
-CommRingStr._·_ (snd ℤ/2CommRing) = _·ₘ_
-CommRingStr.- snd ℤ/2CommRing = -ₘ_
-+IsAbGroup (isRing (isCommRing (snd ℤ/2CommRing))) =
-  isAbGroup (Group→AbGroup (ℤGroup/ 2) +ₘ-comm .snd)
-is-set (isSemigroup (·IsMonoid (isRing (isCommRing (snd ℤ/2CommRing))))) = isSetFin
-IsSemigroup.·Assoc (isSemigroup (·IsMonoid (isRing (isCommRing (snd ℤ/2CommRing))))) =
-  ℤ/2-elim (ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl))
-  (ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl))
-·IdR (·IsMonoid (isRing (isCommRing (snd ℤ/2CommRing)))) = ℤ/2-elim refl refl
-·IdL (·IsMonoid (isRing (isCommRing (snd ℤ/2CommRing)))) = ℤ/2-elim refl refl
-IsRing.·DistR+ (isRing (isCommRing (snd ℤ/2CommRing))) =
-  ℤ/2-elim (λ y z → refl) (ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl))
-IsRing.·DistL+ (isRing (isCommRing (snd ℤ/2CommRing))) =
-  ℤ/2-elim (ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl))
-  (ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl))
-IsCommRing.·Comm (isCommRing (snd ℤ/2CommRing)) =
-  ℤ/2-elim (ℤ/2-elim refl refl) (ℤ/2-elim refl refl)
-
-ℤ/2Ring : Ring ℓ-zero
-ℤ/2Ring = CommRing→Ring ℤ/2CommRing
 
 K : (n : ℕ) → Type
 K n = EM (Ring→AbGroup ℤ/2Ring ) n
