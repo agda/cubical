@@ -26,7 +26,9 @@ open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation as TR
 
+open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Group.Instances.IntMod
+open import Cubical.Algebra.CommRing.Instances.IntMod
 open import Cubical.Algebra.AbGroup.Base
 
 open AbGroupStr
