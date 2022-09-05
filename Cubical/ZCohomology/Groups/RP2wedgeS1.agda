@@ -84,8 +84,8 @@ open IsGroupHom
 -- Copying x this way is clearly cheating too !
 α : coHom 1 RP²⋁S¹
 α = ∣ (λ { (inl x) → ∣ base ∣
-                 ; (inr x) → ∣ x ∣
-                 ; (push a i) → ∣ (loop i) ∣ }) ∣₂
+         ; (inr x) → ∣ x ∣
+         ; (push a i) → ∣ base ∣ }) ∣₂
 
 α↦1 : Iso.fun (fst H¹-RP²⋁S¹≅ℤ) α ≡ 1
 α↦1 = refl
