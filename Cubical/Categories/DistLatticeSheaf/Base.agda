@@ -122,30 +122,6 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
     open Cospan
 
 
-    -- a lemma for eliminating pair cases
-    -- when checking that somthing is a cone morphism
-    isConeMorSingLemma : {F : DLPreSheaf} {n : ℕ} (α : FinVec (fst L) n)
-                         {c d : ob C} {f : C [ c , d ]}
-                         (cc : Cone (funcComp F (FinVec→Diag L α)) c)
-                         (cd : Cone (funcComp F (FinVec→Diag L α)) d)
-                       → (∀ i → f ⋆⟨ C ⟩ coneOut cd (sing i) ≡ coneOut cc (sing i))
-                       → isConeMor cc cd f
-    isConeMorSingLemma α cc cd singHyp (sing i) = singHyp i
-    isConeMorSingLemma {F = F} α {f = f} cc cd singHyp (pair i j i<j) =
-                   f ⋆⟨ C ⟩ coneOut cd (pair i j i<j)
-                 ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x) (sym (cd .coneOutCommutes singPairL)) ⟩
-                   f ⋆⟨ C ⟩ (coneOut cd (sing i)
-                     ⋆⟨ C ⟩ funcComp F (FinVec→Diag L α) .F-hom singPairL)
-                 ≡⟨ sym (⋆Assoc C _ _ _) ⟩
-                   (f ⋆⟨ C ⟩ coneOut cd (sing i))
-                      ⋆⟨ C ⟩ funcComp F (FinVec→Diag L α) .F-hom singPairL
-                 ≡⟨ cong (λ x → x ⋆⟨ C ⟩ funcComp F (FinVec→Diag L α) .F-hom singPairL)
-                         (singHyp i) ⟩
-                   coneOut cc (sing i) ⋆⟨ C ⟩ funcComp F (FinVec→Diag L α) .F-hom singPairL
-                 ≡⟨ cc .coneOutCommutes singPairL ⟩
-                   coneOut cc (pair i j i<j) ∎
-
-
     L→P : isDLSheaf F → isDLSheafPullback F
     fst (L→P isSheafF) = isTerminalF0
       where -- F(0) ≡ terminal obj.
@@ -385,7 +361,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
      o = f ⋆⟨ C ⟩ s₂ theCospan
 
      isConeMorK : isConeMor cc∧Suc (F-cone F (⋁Cone L β)) k
-     isConeMorK = isConeMorSingLemma β cc∧Suc (F-cone F (⋁Cone L β)) singCase
+     isConeMorK = isConeMorSingLemma cc∧Suc (F-cone F (⋁Cone L β)) singCase
        where
        singCase : ∀ i → k ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L β)) (sing i))
                       ≡ coneOut cc∧Suc (sing i)
@@ -414,7 +390,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
 
 
      isConeMorO : isConeMor cc∧Suc (F-cone F (⋁Cone L β)) o
-     isConeMorO  = isConeMorSingLemma β cc∧Suc (F-cone F (⋁Cone L β)) singCase
+     isConeMorO  = isConeMorSingLemma cc∧Suc (F-cone F (⋁Cone L β)) singCase
        where
        singCase : ∀ i → o ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L β)) (sing i))
                       ≡ coneOut cc∧Suc (sing i)
@@ -440,8 +416,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
      toIsConeMor : ∀ (h : C [ c , F .F-ob (⋁ α) ])
                  → (g ≡ h ⋆⟨ C ⟩ pbPr₁ thePB) × (f ≡ h ⋆⟨ C ⟩ pbPr₂ thePB)
                  → isConeMor cc (F-cone F (⋁Cone L α)) h
-     toIsConeMor h (gTriangle , fTriangle) = isConeMorSingLemma α cc (F-cone F (⋁Cone L α))
-                                                                singCase
+     toIsConeMor h (gTriangle , fTriangle) = isConeMorSingLemma cc (F-cone F (⋁Cone L α)) singCase
        where
        singCase : ∀ i → h ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L α)) (sing i))
                       ≡ coneOut cc (sing i)
@@ -468,8 +443,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
        where
        s = h ⋆⟨ C ⟩ pbPr₁ thePB
        isConeMorS : isConeMor ccSuc (F-cone F (⋁Cone L (α ∘ suc))) s
-       isConeMorS = isConeMorSingLemma (α ∘ suc) ccSuc (F-cone F (⋁Cone L (α ∘ suc)))
-                                       singCase
+       isConeMorS = isConeMorSingLemma ccSuc (F-cone F (⋁Cone L (α ∘ suc))) singCase
          where
          singCase : ∀ i → s ⋆⟨ C ⟩ (coneOut (F-cone F (⋁Cone L (α ∘ suc))) (sing i))
                         ≡ coneOut ccSuc (sing i)
@@ -598,23 +572,6 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
      coneOut B⋁Cone (pair i _ _) = is-trans _ (α' i) _ (≤m→≤j _ _ (∧≤RCancel _ _))
                                                        (ind≤⋁ α' i)
      coneOutCommutes B⋁Cone _ = is-prop-valued _ _ _ _
-
-   -- ignore pairs of indices when checking that something is a cone morphsim:
-   isConeMorSingLemmaBase : {F : DLBasisPreSheaf} {c d : ob C} {f : C [ c , d ]}
-                         (cc : Cone (funcComp F BDiag) c) (cd : Cone(funcComp F BDiag) d)
-                       → (∀ i → f ⋆⟨ C ⟩ coneOut cd (sing i) ≡ coneOut cc (sing i))
-                       → isConeMor cc cd f
-   isConeMorSingLemmaBase cc cd singHyp (sing i) = singHyp i
-   isConeMorSingLemmaBase {F = F} {f = f} cc cd singHyp (pair i j i<j) =
-                 f ⋆⟨ C ⟩ coneOut cd (pair i j i<j)
-               ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x) (sym (cd .coneOutCommutes singPairL)) ⟩
-                 f ⋆⟨ C ⟩ (coneOut cd (sing i) ⋆⟨ C ⟩ funcComp F BDiag .F-hom singPairL)
-               ≡⟨ sym (⋆Assoc C _ _ _) ⟩
-                 (f ⋆⟨ C ⟩ coneOut cd (sing i)) ⋆⟨ C ⟩ funcComp F BDiag .F-hom singPairL
-               ≡⟨ cong (λ x → x ⋆⟨ C ⟩ funcComp F BDiag .F-hom singPairL) (singHyp i) ⟩
-                 coneOut cc (sing i) ⋆⟨ C ⟩ funcComp F BDiag .F-hom singPairL
-               ≡⟨ cc .coneOutCommutes singPairL ⟩
-                 coneOut cc (pair i j i<j) ∎
 
 
  isDLBasisSheaf : DLBasisPreSheaf → Type _
