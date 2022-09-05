@@ -16,8 +16,6 @@ open import Cubical.Data.Sum
 open import Cubical.Relation.Binary.Poset
 open import Cubical.HITs.PropositionalTruncation
 
-open import Cubical.Algebra.Ring
-open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
@@ -26,18 +24,14 @@ open import Cubical.Algebra.DistLattice.BigOps
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Terminal
-open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.Limits.RightKan
-open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Instances.Poset
 open import Cubical.Categories.Instances.Semilattice
 open import Cubical.Categories.Instances.Lattice
 open import Cubical.Categories.Instances.DistLattice
-
 
 open import Cubical.Categories.DistLatticeSheaf.Diagram
 open import Cubical.Categories.DistLatticeSheaf.Base
@@ -229,7 +223,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
         compIsConeMor : isConeMor (βCone c v v∈L' cc)
                          (F-cone F (B⋁Cone (λ i → β v i , β∈L' v v∈L' i) (⋁β∈L' v v∈L' v≤⋁α)))
                          (fᵤ ⋆⟨ C ⟩ e)
-        compIsConeMor = isConeMorSingLemma _ (βCone c v v∈L' cc)
+        compIsConeMor = isConeMorSingLemmaBase _ (βCone c v v∈L' cc)
                           (F-cone F (B⋁Cone (λ i → β v i , β∈L' v v∈L' i) (⋁β∈L' v v∈L' v≤⋁α)))
                           singCase
           where
@@ -324,7 +318,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
         compIsConeMor : isConeMor (βCone c u u∈L' cc)
                          (F-cone F (B⋁Cone (λ i → β u i , β∈L' u u∈L' i) (⋁β∈L' u u∈L' u≤⋁α)))
                          (f ⋆⟨ C ⟩ coneOut F[⋁α]Cone ⋁βᵤ)
-        compIsConeMor = isConeMorSingLemma _ (βCone c u u∈L' cc)
+        compIsConeMor = isConeMorSingLemmaBase _ (βCone c u u∈L' cc)
                           (F-cone F (B⋁Cone (λ i → β u i , β∈L' u u∈L' i) (⋁β∈L' u u∈L' u≤⋁α)))
                           singCase
           where
@@ -355,7 +349,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                (f : C [ c , DLRan F .F-ob (⋁ α) ])
            → isConeMor (lemma1 c cc) F[⋁α]Cone f
            → isConeMor cc restCone f
-    lemma3 c cc f isConeMorF = isConeMorSingLemma _ cc restCone singCase
+    lemma3 c cc f isConeMorF = isConeMorSingLemmaBase _ cc restCone singCase
       where
       singCase : ∀ i → f ⋆⟨ C ⟩ coneOut restCone (sing i) ≡ coneOut cc (sing i)
       singCase i =
@@ -407,7 +401,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                          (F-cone F (B⋁Cone (λ j → (β (α i) j) , β∈L' (α i) (α∈L' i) j)
                                             (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i))))
                          ccᵢSubst
-        ccᵢSubstIsConeMor = isConeMorSingLemma _ (βCone c (α i) (α∈L' i) cc)
+        ccᵢSubstIsConeMor = isConeMorSingLemmaBase _ (βCone c (α i) (α∈L' i) cc)
                          (F-cone F (B⋁Cone (λ j → (β (α i) j) , β∈L' (α i) (α∈L' i) j)
                                             (⋁β∈L' (α i) (α∈L' i) (ind≤⋁ α i))))
                          singCase2
@@ -863,7 +857,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                     (h : C [ c , ⋁Pullback .pbOb ])
                   → (f ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁) × (g ≡ h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
                   → isConeMor (toCone f g square) (restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L')) h
-        toConeMor f g square h  (tr₁ , tr₂) = isConeMorSingLemma _
+        toConeMor f g square h  (tr₁ , tr₂) = isConeMorSingLemmaBase _
                                                (toCone f g square)
                                                (restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L'))
                                                 singCase
@@ -928,7 +922,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
           where
           compIsConeMor : isConeMor (f ★ (restCone γ γ∈L')) (restCone γ γ∈L')
                                     (h ⋆⟨ C ⟩ ⋁Pullback .pbPr₁)
-          compIsConeMor = isConeMorSingLemma _ (preCompCone f (restCone γ γ∈L'))
+          compIsConeMor = isConeMorSingLemmaBase _ (preCompCone f (restCone γ γ∈L'))
                                                (restCone γ γ∈L')
                                                singCase
             where
@@ -960,7 +954,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
           where
           compIsConeMor : isConeMor (g ★ (restCone β β∈L')) (restCone β β∈L')
                                     (h ⋆⟨ C ⟩ ⋁Pullback .pbPr₂)
-          compIsConeMor = isConeMorSingLemma _ (g ★ (restCone β β∈L'))
+          compIsConeMor = isConeMorSingLemmaBase _ (g ★ (restCone β β∈L'))
                                                (restCone β β∈L')
                                                singCase
             where
