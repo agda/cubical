@@ -30,6 +30,10 @@ transport⁻ p = transport (λ i → p (~ i))
 subst⁻ : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y) → B y → B x
 subst⁻ B p pa = transport⁻ (λ i → B (p i)) pa
 
+subst⁻-filler : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y) (b : B y)
+  → PathP (λ i → B (p (~ i))) b (subst⁻ B p b)
+subst⁻-filler B p = subst-filler B (sym p)
+
 transport-fillerExt : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B)
                     → PathP (λ i → A → p i) (λ x → x) (transport p)
 transport-fillerExt p i x = transport-filler p x i
@@ -58,6 +62,14 @@ transport⁻Transport p a j = transport⁻-fillerExt p (~ j) (transport-fillerEx
 transportTransport⁻ : ∀ {ℓ} {A B : Type ℓ} → (p : A ≡ B) → (b : B) →
                         transport p (transport⁻ p b) ≡ b
 transportTransport⁻ p b j = transport-fillerExt⁻ p j (transport⁻-fillerExt⁻ p j b)
+
+subst⁻Subst : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y)
+              → (u : B x) → subst⁻ B p (subst B p u) ≡ u
+subst⁻Subst {x = x} {y = y} B p u = transport⁻Transport {A = B x} {B = B y} (cong B p) u
+
+substSubst⁻ : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y)
+              → (v : B y) → subst B p (subst⁻ B p v) ≡ v
+substSubst⁻ {x = x} {y = y} B p v = transportTransport⁻ {A = B x} {B = B y} (cong B p) v
 
 substEquiv : ∀ {ℓ ℓ'} {A : Type ℓ} {a a' : A} (P : A → Type ℓ') (p : a ≡ a') → P a ≃ P a'
 substEquiv P p = (subst P p , isEquivTransport (λ i → P (p i)))
@@ -122,17 +134,17 @@ transportComposite : ∀ {ℓ} {A B C : Type ℓ} (p : A ≡ B) (q : B ≡ C) (x
 transportComposite = substComposite (λ D → D)
 
 -- substitution commutes with morphisms in slices
-substCommSlice : ∀ {ℓ ℓ′} {A : Type ℓ}
-                   → (B C : A → Type ℓ′)
+substCommSlice : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ}
+                   → (B : A → Type ℓ') (C : A → Type ℓ'')
                    → (F : ∀ a → B a → C a)
                    → {x y : A} (p : x ≡ y) (u : B x)
                    → subst C p (F x u) ≡ F y (subst B p u)
 substCommSlice B C F p Bx a =
   transport-fillerExt⁻ (cong C p) a (F _ (transport-fillerExt (cong B p) a Bx))
 
-constSubstCommSlice : ∀ {ℓ ℓ'} {A : Type ℓ}
+constSubstCommSlice : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ}
                    → (B : A → Type ℓ')
-                   → (C : Type ℓ')
+                   → (C : Type ℓ'')
                    → (F : ∀ a → B a → C)
                    → {x y : A} (p : x ≡ y) (u : B x)
                    →  (F x u) ≡ F y (subst B p u)
@@ -167,6 +179,12 @@ substInPaths {a = a} f g p q =
     p=refl = subst (λ y → f y ≡ g y) refl q
            ≡⟨ substRefl {B = (λ y → f y ≡ g y)} q ⟩ q
            ≡⟨ (rUnit q) ∙ lUnit (q ∙ refl) ⟩ refl ∙ q ∙ refl ∎
+
+flipTransport : ∀ {ℓ} {A : I → Type ℓ} {x : A i0} {y : A i1}
+  → x ≡ transport⁻ (λ i → A i) y
+  → transport (λ i → A i) x ≡ y
+flipTransport {A = A} {y = y} p =
+  cong (transport (λ i → A i)) p ∙ transportTransport⁻ (λ i → A i) y
 
 -- special cases of substInPaths from lemma 2.11.2 in The Book
 module _ {ℓ : Level} {A : Type ℓ} {a x1 x2 : A} (p : x1 ≡ x2) where

@@ -207,7 +207,8 @@ module CommAlgebraHoms {R : CommRing ℓ} where
   compCommAlgebraHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') (C : CommAlgebra R ℓ''')
                   → CommAlgebraHom A B → CommAlgebraHom B C → CommAlgebraHom A C
   compCommAlgebraHom A B C = compAlgebraHom {A = CommAlgebra→Algebra A}
-                                            {CommAlgebra→Algebra B} {CommAlgebra→Algebra C}
+                                            {B = CommAlgebra→Algebra B}
+                                            {C = CommAlgebra→Algebra C}
 
   _∘ca_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
         → CommAlgebraHom B C → CommAlgebraHom A B → CommAlgebraHom A C

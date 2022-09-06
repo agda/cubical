@@ -97,7 +97,6 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   module _ where
     open NatTransP
 
-    -- if the target category has hom Sets, then any natural transformation is a set
     isSetNatTrans : {F G : Functor C D} → isSet (NatTrans F G)
     isSetNatTrans =
       isSetRetract (fun NatTransIsoΣ) (inv NatTransIsoΣ) (leftInv NatTransIsoΣ)
