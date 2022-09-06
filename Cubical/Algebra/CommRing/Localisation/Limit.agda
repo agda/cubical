@@ -605,15 +605,9 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
           ∙∙ cong₂ _·_ (applyEqualizerLemma x .fst .snd i) (applyEqualizerLemma y .fst .snd i)
           ∙∙ sym (φ i .snd .pres· x y)
 
-   -- TODO: Can you use lemma from other PR to eliminate pair case
    isConeMorψ : isConeMor cᴬ locCone ψ
-   isConeMorψ (sing i) = RingHom≡ (funExt (λ a → applyEqualizerLemma a .fst .snd i))
-   isConeMorψ (pair i j i<j) =
-     ψ ⋆ UP./1AsCommRingHom i j         ≡⟨ cong (ψ ⋆_) (sym (RingHom≡ (χˡUnique _ _ .fst .snd))) ⟩
-     ψ ⋆ U./1AsCommRingHom i ⋆ χˡ i j   ≡⟨ sym (⋆Assoc _ _ _) ⟩
-     (ψ ⋆ U./1AsCommRingHom i) ⋆ χˡ i j ≡⟨ cong (_⋆ χˡ i j) (isConeMorψ (sing i)) ⟩
-     φ i ⋆ χˡ i j                       ≡⟨ coneOutCommutes cᴬ singPairL ⟩
-     coneOut cᴬ (pair i j i<j)          ∎
+   isConeMorψ = isConeMorSingLemma cᴬ locCone
+                  λ i → RingHom≡ (funExt (λ a → applyEqualizerLemma a .fst .snd i))
 
    ψUniqueness : (y : Σ[ θ ∈ CommRingHom A' R' ] isConeMor cᴬ locCone θ) → (ψ , isConeMorψ) ≡ y
    ψUniqueness (θ , isConeMorθ) = Σ≡Prop (λ _ → isPropIsConeMor _ _ _)
