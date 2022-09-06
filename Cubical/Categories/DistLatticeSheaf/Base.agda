@@ -122,6 +122,16 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
     open Cospan
 
 
+    ≤PathPLemma : ∀ {x y z w : ob DLCat} (p : x ≡ y) (q : z ≡ w)
+                    (x≥z : (DLCat ^op) [ x , z ]) (y≥w : (DLCat ^op) [ y , w ])
+      → PathP (λ i → (DLCat ^op) [ p i , q i ]) x≥z y≥w
+    ≤PathPLemma p q x≥z y≥w = isProp→PathP (λ j → is-prop-valued (q j) (p j)) x≥z y≥w
+
+    F≤PathPLemma : ∀ {x y z w : ob DLCat} (p : x ≡ y) (q : z ≡ w)
+                    (x≥z : (DLCat ^op) [ x , z ]) (y≥w : (DLCat ^op) [ y , w ])
+      → PathP (λ i → C [ F .F-ob (p i) , F .F-ob (q i) ]) (F .F-hom x≥z) (F .F-hom y≥w)
+    F≤PathPLemma p q x≥z y≥w i = F .F-hom (≤PathPLemma p q x≥z y≥w i)
+
     L→P : isDLSheaf F → isDLSheafPullback F
     fst (L→P isSheafF) = isTerminalF0
       where -- F(0) ≡ terminal obj.
@@ -195,12 +205,8 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
          helperPathP :
            ∀ v → PathP (λ i → C [ limPath i , F-ob (funcComp F (FinVec→Diag L xyVec)) v ])
                        (coneOut (limCone inducedLimCone) v) (coneOut theCone v)
-         helperPathP (sing zero) i = F .F-hom
-           (isProp→PathP {B = λ j → (DLCat ^op) [ xyPath j , y ]}
-                         (λ _ → is-prop-valued _ _) (ind≤⋁ xyVec zero) (hom-∨₂ x y) i)
-         helperPathP (sing one) i = F .F-hom
-           (isProp→PathP {B = λ j → (DLCat ^op) [ xyPath j , x ]}
-                         (λ _ → is-prop-valued _ _) (ind≤⋁ xyVec one) (hom-∨₁ x y) i)
+         helperPathP (sing zero) = F≤PathPLemma xyPath refl (ind≤⋁ xyVec zero) (hom-∨₂ x y)
+         helperPathP (sing one) = F≤PathPLemma xyPath refl (ind≤⋁ xyVec one) (hom-∨₁ x y)
          helperPathP (pair zero zero ())
          helperPathP (pair zero one (s≤s z≤)) =
            subst (λ f → PathP (λ i → C [ limPath i  , F .F-ob (x ∧l y) ])
@@ -210,11 +216,9 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
            helperHelperPathP : PathP (λ i → C [ limPath i  , F .F-ob (x ∧l y) ])
                                 (coneOut (limCone inducedLimCone) (pair zero one (s≤s z≤)))
                                     (F .F-hom (hom-∨₂ x y ⋆⟨ (DLCat ^op) ⟩ hom-∧₂ x y))
-           helperHelperPathP i = F .F-hom
-             (isProp→PathP {B = λ j → (DLCat ^op) [ xyPath j , x ∧l y ]}
-                (λ _ → is-prop-valued _ _)
+           helperHelperPathP = F≤PathPLemma xyPath refl
                 (is-trans _ (xyVec zero) _ (≤m→≤j _ _ (∧≤LCancel _ _)) (ind≤⋁ xyVec zero))
-                (hom-∨₂ x y ⋆⟨ (DLCat ^op) ⟩ hom-∧₂ x y) i)
+                (hom-∨₂ x y ⋆⟨ (DLCat ^op) ⟩ hom-∧₂ x y)
          helperPathP (pair one zero ())
          helperPathP (pair one one (s≤s ()))
          helperPathP (pair (suc (suc _)) one (s≤s ()))
@@ -256,17 +260,12 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
      pbCommutes thePB = F-square F (is-prop-valued _ _ _ _)
      univProp thePB f g square = presPBSq (α zero) (⋁ (α ∘ suc)) f g squarePath
       where
-      p : PathP (λ i → (DLCat ^op) [ ⋁ (α ∘ suc) , αβPath i ])
-                (hom-∧₂ _ _) (≤-⋁Ext _ _ λ _ → hom-∧₁ _ _)
-      p = toPathP (is-prop-valued _ _ _ _)
-
-      q : PathP (λ i → (DLCat ^op) [ α zero , αβPath i ])
-                (hom-∧₁ _ _) (⋁IsMax _ _ λ _ → hom-∧₂ _ _)
-      q = toPathP (is-prop-valued _ _ _ _)
-
       squarePath : f ⋆⟨ C ⟩ F .F-hom (hom-∧₂ _ _) ≡ g ⋆⟨ C ⟩ F .F-hom (hom-∧₁ _ _)
       squarePath = transport
-                     (λ i → f ⋆⟨ C ⟩ F .F-hom (p (~ i)) ≡ g ⋆⟨ C ⟩ F .F-hom (q (~ i)))
+                     (λ i → f ⋆⟨ C ⟩ F≤PathPLemma refl αβPath
+                                       (hom-∧₂ _ _) (≤-⋁Ext _ _ λ _ → hom-∧₁ _ _) (~ i)
+                          ≡ g ⋆⟨ C ⟩ F≤PathPLemma refl αβPath
+                                       (hom-∧₁ _ _) (⋁IsMax _ _ λ _ → hom-∧₂ _ _) (~ i))
                        square
 
      -- the two induced cones on which we use the ind. hyp.

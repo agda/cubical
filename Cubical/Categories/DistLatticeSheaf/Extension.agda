@@ -75,12 +75,22 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       using (∧≤RCancel ; ∧≤LCancel ; ≤-∧Pres ; ≤-∧RPres ; ≤-∧LPres)
   open PosetStr (IndPoset .snd) hiding (_≤_)
   open IsBasis ⦃...⦄
+  open EquivalenceOfDefs L C (DLRan F)
   open condCone
+
   private
    instance
     _ = isBasisL'
 
    F* = T* limitC (i ^opF) F
+
+  -- a neat lemma
+  F≤PathPLemmaBase : ∀ {x y z w : ob DLSubCat} (p : x ≡ y) (q : z ≡ w)
+                      (x≥z : (DLSubCat ^op) [ x , z ]) (y≥w : (DLSubCat ^op) [ y , w ])
+       → PathP (λ i → C [ F .F-ob (p i) , F .F-ob (q i) ]) (F .F-hom x≥z) (F .F-hom y≥w)
+  F≤PathPLemmaBase p q x≥z y≥w i =
+       F .F-hom (isProp→PathP (λ j → is-prop-valued (q j .fst) (p j .fst)) x≥z y≥w i)
+
 
   -- the crucial lemmas that will gives us the cones needed to construct the unique
   -- arrow in our pullback square below
@@ -410,20 +420,19 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
           where
           singCase2 : (j : Fin n) → ccᵢSubst ⋆⟨ C ⟩ F-hom F (ind≤⋁ (β (α i)) j)
                                   ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
-          singCase2 j = (λ 𝕚 → ccᵢSubstFiller (~ 𝕚) ⋆⟨ C ⟩ F .F-hom
-                          (isProp→PathP {B = B} (λ _ → is-prop-valued _ _)
-                            (ind≤⋁ (β (α i)) j) (≤m→≤j _ _ (∧≤RCancel _ _)) 𝕚))
-                      ∙ path
+          singCase2 j =
+              (λ 𝕚 → ccᵢSubstFiller (~ 𝕚)
+                       ⋆⟨ C ⟩ F≤PathPLemmaBase
+                                (sym Σpathhelper) refl
+                                (ind≤⋁ (β (α i)) j) (≤m→≤j _ _ (∧≤RCancel _ _)) 𝕚)
+             ∙ path
             where
-            B : I → Type ℓ
-            B = λ 𝕚 → (DLSubCat ^op) [ (Σpathhelper (~ 𝕚)) , (α i ∧l α j , β∈L' (α i) (α∈L' i) j) ]
-
             path : coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
                  ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
             path with (i ≟Fin j)
             ... | (lt i<j) = coneOutCommutes cc (singPairL {i<j = i<j})
                            ∙ sym (coneOutCommutes cc singPairR)
-            ... | (gt j<i) = transport (λ 𝕚 → B2 𝕚) almostPath
+            ... | (gt j<i) = transport (λ 𝕚 → B 𝕚) almostPath
               where
               ∧Path : Path (ob DLSubCat) (α j ∧l α i , β∈L' (α j) (α∈L' j) i)
                                          (α i ∧l α j , β∈L' (α i) (α∈L' i) j)
@@ -434,28 +443,22 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
               almostPath = (coneOutCommutes cc (singPairR {i<j = j<i})
                          ∙ sym (coneOutCommutes cc singPairL))
 
-              iPathP : PathP (λ 𝕚 → (DLSubCat ^op) [ (α i , α∈L' i) , ∧Path 𝕚 ])
-                             (≤m→≤j _ _ (∧≤LCancel _ _)) (≤m→≤j _ _ (∧≤RCancel _ _))
-              iPathP = toPathP (is-prop-valued _ _ _ _)
-
-              jPathP : PathP (λ 𝕚 → (DLSubCat ^op) [ (α j , α∈L' j) , ∧Path 𝕚 ])
-                             (≤m→≤j _ _ (∧≤RCancel _ _)) (≤m→≤j _ _ (∧≤LCancel _ _))
-              jPathP = toPathP (is-prop-valued _ _ _ _)
-
-              B2 : I → Type ℓ''
-              B2 = λ 𝕚 → coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom {y = ∧Path 𝕚} (iPathP 𝕚)
-                       ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (jPathP 𝕚)
+              B : I → Type ℓ''
+              B = λ 𝕚 → coneOut cc (sing i) ⋆⟨ C ⟩ F≤PathPLemmaBase refl ∧Path
+                                                     (≤m→≤j _ _ (∧≤LCancel _ _))
+                                                     (≤m→≤j _ _ (∧≤RCancel _ _)) 𝕚
+                      ≡ coneOut cc (sing j) ⋆⟨ C ⟩ F≤PathPLemmaBase refl ∧Path
+                                                     (≤m→≤j _ _ (∧≤RCancel _ _))
+                                                     (≤m→≤j _ _ (∧≤LCancel _ _)) 𝕚
 
             ... | (eq i≡j) =
                 coneOut cc (sing i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
-              ≡⟨ (λ 𝕚 → coneOut cc (sing (i≡j 𝕚)) ⋆⟨ C ⟩ F .F-hom (isProp→PathP {B = B2}
-                           (λ _ → is-prop-valued _ _)
-                           (≤m→≤j _ _ (∧≤RCancel _ _)) (≤m→≤j _ _ (∧≤LCancel _ _)) 𝕚)) ⟩
+              ≡⟨ (λ 𝕚 → coneOut cc (sing (i≡j 𝕚))
+                          ⋆⟨ C ⟩ F≤PathPLemmaBase (λ 𝕛 → α (i≡j 𝕛) , α∈L' (i≡j 𝕛))
+                                                 refl
+                                                 (≤m→≤j _ _ (∧≤RCancel _ _))
+                                                 (≤m→≤j _ _ (∧≤LCancel _ _)) 𝕚) ⟩
                 coneOut cc (sing j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ∎
-                where
-                B2 : I → Type ℓ
-                B2 = λ 𝕚 → (DLSubCat ^op) [ (α (i≡j 𝕚) , α∈L' (i≡j 𝕚))
-                                          , (α i ∧l α j , β∈L' (α i) (α∈L' i) j) ]
 
 
         ccᵢSubstPath : uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst ≡ ccᵢSubst
@@ -824,10 +827,9 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                     (F[⋁β++γ]Cone .coneOut ((β i , β∈L' i) , βᵢ≤⋁β++γ))
                     (restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L') .coneOut (sing (FSCfun _ _ (inl i))))
             helperPathP 𝕚 =  F[⋁β++γ]Cone .coneOut (++FinInlΣ β∈L' γ∈L' i 𝕚 ,
-                              isProp→PathP {B = λ 𝕛 → ++FinInlΣ β∈L' γ∈L' i 𝕛 .fst ≤ ⋁ (β ++Fin γ)}
-                                             (λ _ → is-prop-valued _ _)
-                                               βᵢ≤⋁β++γ
-                                                 (ind≤⋁ (β ++Fin γ) (FSCfun _ _ (inl i))) 𝕚)
+                               ≤PathPLemma refl (λ 𝕛 → ++FinInlΣ β∈L' γ∈L' i 𝕛 .fst)
+                                           βᵢ≤⋁β++γ
+                                           (ind≤⋁ (β ++Fin γ) (FSCfun _ _ (inl i))) 𝕚)
 
           ++LimCone≡Aux (inr i) =
                       sym (fromPathP (++Lemmas.toConeOutPathPR
@@ -847,10 +849,9 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
                     (F[⋁β++γ]Cone .coneOut ((γ i , γ∈L' i) , γᵢ≤⋁β++γ))
                     (restCone (β ++Fin γ) (β++γ∈L' β∈L' γ∈L') .coneOut (sing (FSCfun _ _ (inr i))))
             helperPathP 𝕚 =  F[⋁β++γ]Cone .coneOut (++FinInrΣ β∈L' γ∈L' i 𝕚 ,
-                               isProp→PathP {B = λ 𝕛 → ++FinInrΣ β∈L' γ∈L' i 𝕛 .fst ≤ ⋁ (β ++Fin γ)}
-                                             (λ _ → is-prop-valued _ _)
-                                               γᵢ≤⋁β++γ
-                                                 (ind≤⋁ (β ++Fin γ) (FSCfun _ _ (inr i))) 𝕚)
+                               ≤PathPLemma refl (λ 𝕛 → ++FinInrΣ β∈L' γ∈L' i 𝕛 .fst)
+                                           γᵢ≤⋁β++γ
+                                           (ind≤⋁ (β ++Fin γ) (FSCfun _ _ (inr i))) 𝕚)
 
 
 
@@ -983,19 +984,15 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       -- some more names to make the transport readable
       pbPr₁PathP : PathP (λ i → C [ DLRan F .F-ob (⋁β++γ≡x∨y i) , DLRan F .F-ob (⋁γ≡y i) ])
                          (pbPr₁ ⋁Pullback) (DLRan F .F-hom (hom-∨₂ L C x y))
-      pbPr₁PathP i = DLRan F .F-hom
-                       (isProp→PathP {B = λ i → (⋁γ≡y i) ≤ (⋁β++γ≡x∨y i)}
-                                     (λ _ → is-prop-valued _ _)
-                                     (subst (⋁ γ ≤_) (sym (⋁Split++ β γ)) (∨≤LCancel _ _))
-                                     (hom-∨₂ L C x y) i)
+      pbPr₁PathP = F≤PathPLemma ⋁β++γ≡x∨y ⋁γ≡y
+                                (subst (⋁ γ ≤_) (sym (⋁Split++ β γ)) (∨≤LCancel _ _))
+                                (hom-∨₂ L C x y)
 
       pbPr₂PathP : PathP (λ i → C [ DLRan F .F-ob (⋁β++γ≡x∨y i) , DLRan F .F-ob (⋁β≡x i) ])
                          (pbPr₂ ⋁Pullback) (DLRan F .F-hom (hom-∨₁ L C x y))
-      pbPr₂PathP i = DLRan F .F-hom
-                       (isProp→PathP {B = λ i → (⋁β≡x i) ≤ (⋁β++γ≡x∨y i)}
-                                     (λ _ → is-prop-valued _ _)
-                                     (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
-                                     (hom-∨₁ L C x y) i)
+      pbPr₂PathP = F≤PathPLemma ⋁β++γ≡x∨y ⋁β≡x
+                                (subst (⋁ β ≤_) (sym (⋁Split++ β γ)) (∨≤RCancel _ _))
+                                (hom-∨₁ L C x y)
 
       squarePathP : PathP (λ i → pbPr₁PathP i ⋆⟨ C ⟩ cospanPath i .s₁
                                ≡ pbPr₂PathP i ⋆⟨ C ⟩ cospanPath i .s₂)
@@ -1005,4 +1002,4 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
   -- main result, putting everything together:
   isDLSheafDLRan : isDLSheaf L C (DLRan F)
-  isDLSheafDLRan = let open EquivalenceOfDefs L C (DLRan F) in P→L isDLSheafPullbackDLRan
+  isDLSheafDLRan = P→L isDLSheafPullbackDLRan
