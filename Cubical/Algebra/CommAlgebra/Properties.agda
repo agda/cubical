@@ -410,8 +410,11 @@ module _ {R S T : CommRing ℓ} (f : CommRingHom S R) (g : CommRingHom T S) wher
       isoR = CommAlgChar.CommAlgIso R
       isoS = CommAlgChar.CommAlgIso S
       isoT = CommAlgChar.CommAlgIso T
+
       compAndBundle : Σ[ W ∈ CommRing ℓ ] CommRingHom _ W → CommAlgebra T ℓ
       compAndBundle (W , r) = Iso.inv isoT (W , (r ∘r g))
       asHomA = Iso.fun isoR A
       changedAasHom = fst asHomA , (snd asHomA) ∘r f
-      congStep = λ i → Iso.inv isoT (fst asHomA , sym (compAssocRingHom g f (snd asHomA)) i)
+
+      congStep : Iso.inv isoT (fst asHomA , ((snd asHomA) ∘r f) ∘r g) ≡ baseChange (compRingHom g f) A
+      congStep i = Iso.inv isoT (fst asHomA , sym (compAssocRingHom g f (snd asHomA)) i)
