@@ -12,11 +12,13 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.Polynomials.TypevariateHIT
-            renaming (inducedHomUnique to inducedHomUniqueHIT)
+            renaming (inducedHomUnique to inducedHomUniqueHIT;
+                      isIdByUMP to isIdByUMP-HIT)
 open import Cubical.Algebra.Polynomials.UnivariateList.UniversalProperty
             renaming (generator to generatorList;
                       inducedHom to inducedHomList;
-                      inducedHomUnique to inducedHomUniqueList)
+                      inducedHomUnique to inducedHomUniqueList;
+                      isIdByUMP to isIdByUMP-List)
 
 private variable
   ℓ : Level
@@ -34,6 +36,7 @@ module _ {R : CommRing ℓ} where
     Just using the universal properties to manually show that the two algebras are isomorphic
   -}
   private
+    open AlgebraHoms
     to : CommAlgebraHom (R [ Unit ]) (ListPolyCommAlgebra R)
     to = inducedHomHIT (ListPolyCommAlgebra R) (λ _ → X-List)
 
@@ -50,35 +53,10 @@ module _ {R : CommRing ℓ} where
     idHIT = AlgebraHoms.idAlgebraHom (CommAlgebra→Algebra (R [ Unit ]))
 
     toFrom : (x : ⟨ ListPolyCommAlgebra R ⟩) → fst to (fst from x) ≡ x
-    toFrom x = fst to (fst from x)               ≡⟨ cong (λ u → fst u x) ∘≡indHom ⟩
-               fst (inducedHomList R _ X-List) x ≡⟨ cong (λ u → fst u x) (sym id≡indHom) ⟩
-               x ∎
-      where ∘≡indHom : _ ≡ _
-            ∘≡indHom =
-              inducedHomUniqueList R (CommAlgebra→Algebra (ListPolyCommAlgebra R))
-                               X-List
-                               (AlgebraHoms.compAlgebraHom from to)
-                               (cong (fst to) fromPresX)
-
-            id≡indHom : idList ≡ _
-            id≡indHom =
-              inducedHomUniqueList R (CommAlgebra→Algebra (ListPolyCommAlgebra R))
-                               X-List idList refl
+    toFrom = isIdByUMP-List R (to ∘a from) (cong (fst to) fromPresX)
 
     fromTo : (x : ⟨ R [ Unit ] ⟩) → fst from (fst to x) ≡ x
-    fromTo x = fst from (fst to x)                              ≡⟨ cong (λ u → fst u x) ∘≡indHom ⟩
-               fst (inducedHomHIT (R [ Unit ]) (λ _ → X-HIT)) x ≡⟨ cong (λ u → fst u x) (sym id≡indHom) ⟩
-               x ∎
-      where ∘≡indHom  : _ ≡ _
-            ∘≡indHom =
-              inducedHomUniqueHIT (R [ Unit ]) (λ _ → X-HIT)
-                               (AlgebraHoms.compAlgebraHom to from)
-                               λ {tt → fromPresX}
-
-            id≡indHom : idHIT ≡ _
-            id≡indHom =
-              inducedHomUniqueHIT (R [ Unit ]) (λ _ → X-HIT)
-                                  idHIT λ {tt → refl}
+    fromTo = isIdByUMP-HIT (from ∘a to) λ {tt → fromPresX}
 
     asIso : Iso ⟨ R [ Unit ] ⟩  ⟨ ListPolyCommAlgebra R ⟩
     Iso.fun asIso = fst to
