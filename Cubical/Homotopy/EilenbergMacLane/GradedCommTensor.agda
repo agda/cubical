@@ -711,6 +711,126 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                         ∙∙ x) (r2 n)
                 ∙ sym (rUnit _)
 
-   comm₂ : (n m : ℕ) (p : isEvenT (suc n) ⊎ isOddT (suc n)) (q : isEvenT (suc m) ⊎ isOddT (suc m))
+   comm₂ : (n m : ℕ)
+     (p : isEvenT (suc n) ⊎ isOddT (suc n))
+     (q : isEvenT (suc m) ⊎ isOddT (suc m))
      → cp∙∙ (suc n) (suc m) ≡ cp*∙∙ (suc n) (suc m) p q
-   comm₂ = {!!}
+   comm₂ =
+     ℕ-elim2
+       {!!}
+       {!!}
+       λ n m ind p q → cpInd _ _ _ _ (main n m (ind .fst) (ind .snd) p q)
+       where
+       module _ (n m : ℕ)
+         (indₗ : ((p₁ : isEvenT (suc (suc n)) ⊎ isOddT (suc (suc n)))
+                 (q₁ : isEvenT (suc m) ⊎ isOddT (suc m))
+              → cp∙∙ (suc (suc n)) (suc m) ≡ cp*∙∙ (suc (suc n)) (suc m) p₁ q₁))
+         (indᵣ : ((p₁ : isEvenT (suc n) ⊎ isOddT (suc n))
+                  (q₁ : isEvenT (suc (suc m)) ⊎ isOddT (suc (suc m)))
+              → cp∙∙ (suc n) (suc (suc m)) ≡ cp*∙∙ (suc n) (suc (suc m)) p₁ q₁))
+         where
+         Fᵣ : (p : _) (q : _) → EM (H' ⨂ G') (suc (suc m) +' suc n) → EM (G' ⨂ H') (2 +ℕ (n +ℕ suc m))
+         Fᵣ p q x = subst (EM (G' ⨂ H')) (cong (2 +ℕ_) (+-comm (suc m) n))
+              (-ₖ^[ suc n · suc (suc m) ] (suc (suc m) +' (suc n)) p q
+              (commF (suc (suc m) +' suc n)  x))
+
+         Fₗ : (p : _) (q : _) → EM (G' ⨂ H') (suc (suc n) +' suc m) → EM (H' ⨂ G') (suc m +' suc (suc n))
+         Fₗ p q x =
+           Iso.inv (Iso→EMIso ⨂-comm _)
+              (-ₖ^[ suc (suc n) · suc m ] _ p q
+               (subst (EM (G' ⨂ H')) (cong (2 +ℕ_) (sym (+-comm m (suc n)))) x))
+
+         betterᵣ : (p : _) (q : _) (x : EM G' (suc n)) (y : EM H' (suc (suc m)))
+           → _⌣ₖ_ {n = suc n} {m = (suc (suc m))} x y
+           ≡ Fᵣ p q (_⌣ₖ_ {n = suc (suc m)} {m = suc n} y x)
+         betterᵣ p q x y =
+            (λ i → indᵣ p q i .fst x .fst y)
+           ∙ λ i → subst (EM (G' ⨂ H'))
+             (isSetℕ _ _ (+'-comm (suc (suc m)) (suc n)) (cong (2 +ℕ_) (+-comm (suc m) n)) i)
+              (-ₖ^[ suc n · suc (suc m) ] (suc (suc m) +' (suc n)) p q
+              (commF (suc (suc m) +' suc n) (_⌣ₖ_ {n = suc (suc m)} {m = suc n} y x)))
+
+         betterₗ : (p : _) (q : _) (x : EM G' (suc (suc n))) (y : EM H' (suc m))
+           → _⌣ₖ_ {n = suc m} {m = suc (suc n)} y x
+           ≡ Fₗ p q (_⌣ₖ_ {n = suc (suc n)} {m = (suc m)} x y)
+         betterₗ p q x y =
+           {!_⌣ₖ_ {n = suc (suc n)} {m = (suc m)} x y
+           ≡ subst (EM (G' ⨂ H')) (cong (2 +ℕ_) (+-comm m (suc n)))
+              (-ₖ^[ suc (suc n) · suc m ] (suc m +' (suc (suc n))) p q
+              (commF (suc m +' suc (suc n)) (_⌣ₖ_ {n = suc m} {m = suc (suc n)} y x)))!}
+         {-
+              (λ i → indₗ p q i .fst x .fst y)
+             ∙ λ i → subst (EM (G' ⨂ H'))
+               (isSetℕ _ _ (+'-comm (suc m) (suc (suc n)))
+                            (cong (2 +ℕ_) (+-comm m (suc n))) i)
+                (-ₖ^[ suc (suc n) · suc m ] (suc m +' (suc (suc n))) p q
+                 (commF (suc m +' suc (suc n))
+                  (_⌣ₖ_ {n = suc m} {m = suc (suc n)} y x)))
+         -}
+         {-
+         subst (EM (G' ⨂ H')) (+'-comm m n)
+         (-ₖ^[ n · m ] (m +' n) p q
+         (commF (m +' n) (y ⌣ₖ x)))
+         -}
+
+         st : (p : isEvenT (suc (suc n)) ⊎ isOddT (suc (suc n)))
+              (q : isEvenT (suc (suc m)) ⊎ isOddT (suc (suc m)))
+           → EM (H' ⨂ G') ((2 +ℕ m) +' (2 +ℕ n)) → EM (G' ⨂ H') ((2 +ℕ n) +' (2 +ℕ m))
+         st p q x = subst (EM (G' ⨂ H')) (+'-comm (2 +ℕ m) (2 +ℕ n))
+                   (-ₖ^[ (2 +ℕ n) · (2 +ℕ m) ] ((2 +ℕ m) +' (2 +ℕ n)) p q
+                    (commF ((2 +ℕ m) +' (2 +ℕ n)) x ))
+
+         main : (p : _) (q : _)
+           → (x : EM-raw' G' (suc (suc n))) (y : EM-raw' H' (suc (suc m)))
+              →    cp∙∙ (suc (suc n)) (suc (suc m)) .fst
+                    (EM-raw'→EM G' (suc (suc n)) x) .fst
+                    (EM-raw'→EM H' (suc (suc m)) y)
+                    ≡
+                    cp*∙∙ (suc (suc n)) (suc (suc m)) p q .fst
+                    (EM-raw'→EM G' (suc (suc n)) x) .fst
+                    (EM-raw'→EM H' (suc (suc m)) y)
+         main p q north north = refl
+         main p q south north = refl
+         main p q (merid a i) north k =
+            (cong (EM→ΩEM+1 (suc (suc (n +ℕ suc m)))) (betterᵣ (evenOrOdd (suc n)) q (EM-raw→EM _ _ a) ∣ north ∣)
+           ∙ EM→ΩEM+1-0ₖ _) k i
+         main p q north south = refl
+         main p q south south = refl
+         main p q (merid a i) south k =
+           (cong (EM→ΩEM+1 (suc (suc (n +ℕ suc m)))) (betterᵣ (evenOrOdd (suc n)) q (EM-raw→EM _ _ a) ∣ south ∣)
+           ∙ EM→ΩEM+1-0ₖ _) k i
+         main p q north (merid a i) k =
+           st p q ((cong (EM→ΩEM+1 (suc (suc (m +ℕ suc n))))
+                (betterₗ p (evenOrOdd (suc m))  ∣ north ∣ (EM-raw→EM _ _ a))
+              ∙ EM→ΩEM+1-0ₖ _) (~ k) i)
+         main p q south (merid a i) k =
+           st p q ((cong (EM→ΩEM+1 (suc (suc (m +ℕ suc n))))
+                    (betterₗ p (evenOrOdd (suc m)) ∣ south ∣ (EM-raw→EM _ _ a))
+                  ∙ EM→ΩEM+1-0ₖ _) (~ k) i)
+         main p q (merid b i) (merid a j) k =
+           hcomp (λ r → λ {(i = i0) → st p q (compPath-filler' (cong (EM→ΩEM+1 (suc (suc (m +ℕ suc n))))
+                                          (betterₗ p (evenOrOdd (suc m)) ∣ north ∣ (EM-raw→EM _ _ a)))
+                                          (EM→ΩEM+1-0ₖ _) r (~ k) j)
+                          ; (i = i1) → st p q (compPath-filler' (cong (EM→ΩEM+1 (suc (suc (m +ℕ suc n))))
+                                          (betterₗ p (evenOrOdd (suc m)) ∣ south ∣ (EM-raw→EM _ _ a)))
+                                          (EM→ΩEM+1-0ₖ _) r (~ k) j)
+                          ; (j = i0) → {!!}
+                          ; (j = i1) → {!!}
+                          ; (k = i0) → EM→ΩEM+1 (suc (suc (m +ℕ suc n))) {!betterᵣ (evenOrOdd (suc n)) q (EM-raw→EM _ _ a) ∣ merid b j ∣ !} i
+                          ; (k = i1) → st p q
+                                         (EM→ΩEM+1 _
+                                          (betterₗ p (evenOrOdd (suc m)) ∣ (merid b i) ∣
+                                            (EM-raw→EM _ _ a) (~ r)) j)})
+                 {!!}
+{-
+i = i0 ⊢ main p q north (merid a j) k
+i = i1 ⊢ main p q south (merid a j) k
+j = i0 ⊢ main p q (merid b i) north k
+j = i1 ⊢ main p q (merid b i) south k
+k = i0 ⊢ cp∙∙ (suc (suc n)) (suc (suc m)) .fst
+         (EM-raw'→EM G' (suc (suc n)) (merid b i)) .fst
+         (EM-raw'→EM H' (suc (suc m)) (merid a j))
+k = i1 ⊢ cp*∙∙ (suc (suc n)) (suc (suc m)) p q .fst
+         (EM-raw'→EM G' (suc (suc n)) (merid b i)) .fst
+         (EM-raw'→EM H' (suc (suc m)) (merid a j))
+-}
