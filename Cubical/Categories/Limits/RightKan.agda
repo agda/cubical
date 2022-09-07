@@ -5,15 +5,17 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Equiv
+-- open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Category renaming (isIso to isIsoC)
+open import Cubical.Categories.Category -- renaming (isIso to isIsoC)
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.Limits
 
-
+-- open Iso
 
 module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
          {C : Category ℓC ℓC'}
@@ -122,5 +124,49 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
    ≡⟨ sym (coneOutCommutes (RanCone (id C)) (f , ⋆IdL C _)) ⟩
      coneOut (RanCone (id C)) (u , id C) ⋆⟨ A ⟩ T .F-hom f ∎
 
- -- TODO: show that this nat. trans. is a "universal arrow" and that is a nat. iso.
- -- if K is full and faithful...
+ open isIso
+ open NatIso
+
+ -- upstreamed?
+ -- isFullyFaithfulToIso : {ℓD ℓD' ℓE ℓE' : Level} {D : Category ℓD ℓD'} {E : Category ℓE ℓE'}
+ --                        (F : Functor D E)
+ --                      → isFullyFaithful F
+ --                      → ∀ x y → Iso (D [ x , y ]) (E [ F .F-ob x , F .F-ob y ])
+ -- isFullyFaithfulToIso F isFFF x y = {!equivToIso!}
+
+ RanNatIsIso : isFullyFaithful K → ∀ (u : ob M) → isIso A (N-ob RanNatTrans u)
+ inv (RanNatIsIso isFFK u) = limArrow KuCone (T .F-ob u) invCone
+   where
+   KuCone = (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u)))
+
+   invKHom : (u v : ob M) → C [ K .F-ob u , K .F-ob v ] → M [ u , v ]
+   invKHom u v f = invEq (K .F-hom , (isFFK u v)) f
+
+   retKHom : ∀ (u v : ob M) (f : M [ u , v ])
+           → invKHom u v (K .F-hom f) ≡ f
+   retKHom u v f = retEq (K .F-hom , (isFFK u v)) f
+
+   secKHom : ∀ (u v : ob M) (f : C [ K .F-ob u , K .F-ob v ])
+           → K .F-hom (invKHom u v f) ≡ f
+   secKHom u v f = secEq (K .F-hom , (isFFK u v)) f
+
+   invKSeq : ∀ u v w f g → invKHom u w (f ⋆⟨ C ⟩ g) ≡ invKHom u v f ⋆⟨ M ⟩ invKHom v w g
+   invKSeq u v w f g = isFullyFaithful→Faithful {F = K} isFFK _ _ _ _ (sym path)
+    where
+    path : F-hom K (invKHom u v f ⋆⟨ M ⟩ invKHom v w g) ≡ F-hom K (invKHom u w (f ⋆⟨ C ⟩ g))
+    path = K .F-seq _ _ ∙∙ cong₂ (seq' C) (secKHom _ _ _) (secKHom _ _ _) ∙∙ sym (secKHom _ _ _)
+
+   invCone : Cone (T* (K .F-ob u)) (T .F-ob u)
+   coneOut invCone (v , f) = T .F-hom (invKHom u v f)
+   coneOutCommutes invCone {v , f} {w , g} (h , tr) = sym (T .F-seq _ _) ∙ cong (F-hom T) path
+     where
+     path : invKHom u v f ⋆⟨ M ⟩ h ≡ invKHom u w g
+     path = invKHom u v f ⋆⟨ M ⟩ h                        ≡⟨ cong (λ x → invKHom u v f ⋆⟨ M ⟩ x)
+                                                                 (sym (retKHom v w h)) ⟩
+            invKHom u v f ⋆⟨ M ⟩ invKHom v w (K .F-hom h) ≡⟨ sym (invKSeq _ _ _ _ _) ⟩
+            invKHom u w (f ⋆⟨ C ⟩ K .F-hom h)             ≡⟨ cong (invKHom u w) tr ⟩
+            invKHom u w g ∎
+
+
+ sec (RanNatIsIso isFFK u) = {!!}
+ ret (RanNatIsIso isFFK u) = {!!}
