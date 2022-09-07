@@ -226,3 +226,21 @@ module _ (R : CommRing ℓ) where
           where
             useSolver : (r : ⟨ R ⟩) → r ≡ (r · 1r) + 0r
             useSolver = solve R
+
+  {- A corollary, which is useful for constructing isomorphisms to
+     algebras with the same universal property -}
+  isIdByUMP : (f : CommAlgebraHom ListPolyCommAlgebra ListPolyCommAlgebra)
+              → fst f X ≡ X
+              → (x : ⟨ ListPolyCommAlgebra ⟩) → fst f x ≡ x
+  isIdByUMP f p x =
+    fst f x                                                        ≡⟨ step1 ⟩
+    fst (inducedHom (CommAlgebra→Algebra ListPolyCommAlgebra) X) x ≡⟨ step2 ⟩
+    x ∎
+    where
+      step1 = cong (λ u → fst u x) (inducedHomUnique (CommAlgebra→Algebra ListPolyCommAlgebra) X f p)
+      step2 = cong (λ u → fst u x)
+                   (sym (inducedHomUnique
+                          (CommAlgebra→Algebra ListPolyCommAlgebra)
+                          X
+                          (idCAlgHom ListPolyCommAlgebra)
+                          refl))
