@@ -50,6 +50,14 @@ module _ (R : CommRing ℓ) where
                                             refl (λ _ _ → refl) (λ _ _ → refl) (λ _ _ → refl)
   snd (snd TerminalCommAlgebra A) f = AlgebraHom≡ (funExt (λ _ → refl))
 
+  -- the forgetful functor into CommRings
+  open Functor
+  ForgetfulCommAlgebra→CommRing : Functor (CommAlgebrasCategory {ℓ' = ℓ'}) CommRingsCategory
+  F-ob ForgetfulCommAlgebra→CommRing = CommAlgebra→CommRing {R = R}
+  F-hom ForgetfulCommAlgebra→CommRing = CommAlgebraHom→CommRingHom _ _
+  F-id ForgetfulCommAlgebra→CommRing = RingHom≡ refl
+  F-seq ForgetfulCommAlgebra→CommRing _ _ = RingHom≡ refl
+
 module PullbackFromCommRing (R : CommRing ℓ)
                             (commRingCospan : Cospan (CommRingsCategory {ℓ = ℓ}))
                             (commRingPB : Pullback _ commRingCospan)

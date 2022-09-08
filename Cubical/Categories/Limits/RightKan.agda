@@ -6,10 +6,9 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Equiv
--- open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Category -- renaming (isIso to isIsoC)
+open import Cubical.Categories.Category
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation

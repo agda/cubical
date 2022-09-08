@@ -129,7 +129,7 @@ module _ {ℓJ ℓJ' : Level} where
   open LimCone
   open Cone
 
-  LimitsCommRingsCategory : Limits {ℓJ} {ℓJ'} CommRingsCategory
+  LimitsCommRingsCategory : Limits {ℓJ} {ℓJ'} (CommRingsCategory {ℓ = ℓ-max ℓJ ℓJ'})
   fst (lim (LimitsCommRingsCategory J D)) =
     lim {J = J} (completeSET J (funcComp forgetfulFunctor D)) .fst
   0r (snd (lim (LimitsCommRingsCategory J D))) =
