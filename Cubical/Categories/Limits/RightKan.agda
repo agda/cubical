@@ -13,6 +13,7 @@ open import Cubical.Categories.Category -- renaming (isIso to isIsoC)
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Limits.Initial
 open import Cubical.Categories.Limits.Limits
 
 -- open Iso
@@ -127,46 +128,24 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
  open isIso
  open NatIso
 
- -- upstreamed?
- -- isFullyFaithfulToIso : {ℓD ℓD' ℓE ℓE' : Level} {D : Category ℓD ℓD'} {E : Category ℓE ℓE'}
- --                        (F : Functor D E)
- --                      → isFullyFaithful F
- --                      → ∀ x y → Iso (D [ x , y ]) (E [ F .F-ob x , F .F-ob y ])
- -- isFullyFaithfulToIso F isFFF x y = {!equivToIso!}
-
- RanNatIsIso : isFullyFaithful K → ∀ (u : ob M) → isIso A (N-ob RanNatTrans u)
- inv (RanNatIsIso isFFK u) = limArrow KuCone (T .F-ob u) invCone
+ RanNatIso : isFullyFaithful K → NatIso (funcComp Ran K) T
+ trans (RanNatIso isFFK) = RanNatTrans
+ nIso (RanNatIso isFFK) u = LimIso _ (limitA (K .F-ob u ↓Diag) (T* (K .F-ob u)))
+                                     (Initial→LimCone _ uInitial) .snd
    where
-   KuCone = (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u)))
+   invKHom : {u v : ob M} → C [ K .F-ob u , K .F-ob v ] → M [ u , v ]
+   invKHom f = invEq (K .F-hom , (isFFK _ _)) f
 
-   invKHom : (u v : ob M) → C [ K .F-ob u , K .F-ob v ] → M [ u , v ]
-   invKHom u v f = invEq (K .F-hom , (isFFK u v)) f
+   secKHom : ∀ {u v : ob M} (f : C [ K .F-ob u , K .F-ob v ])
+           → K .F-hom (invKHom f) ≡ f
+   secKHom f = secEq (K .F-hom , (isFFK _ _)) f
 
-   retKHom : ∀ (u v : ob M) (f : M [ u , v ])
-           → invKHom u v (K .F-hom f) ≡ f
-   retKHom u v f = retEq (K .F-hom , (isFFK u v)) f
-
-   secKHom : ∀ (u v : ob M) (f : C [ K .F-ob u , K .F-ob v ])
-           → K .F-hom (invKHom u v f) ≡ f
-   secKHom u v f = secEq (K .F-hom , (isFFK u v)) f
-
-   invKSeq : ∀ u v w f g → invKHom u w (f ⋆⟨ C ⟩ g) ≡ invKHom u v f ⋆⟨ M ⟩ invKHom v w g
-   invKSeq u v w f g = isFullyFaithful→Faithful {F = K} isFFK _ _ _ _ (sym path)
-    where
-    path : F-hom K (invKHom u v f ⋆⟨ M ⟩ invKHom v w g) ≡ F-hom K (invKHom u w (f ⋆⟨ C ⟩ g))
-    path = K .F-seq _ _ ∙∙ cong₂ (seq' C) (secKHom _ _ _) (secKHom _ _ _) ∙∙ sym (secKHom _ _ _)
-
-   invCone : Cone (T* (K .F-ob u)) (T .F-ob u)
-   coneOut invCone (v , f) = T .F-hom (invKHom u v f)
-   coneOutCommutes invCone {v , f} {w , g} (h , tr) = sym (T .F-seq _ _) ∙ cong (F-hom T) path
+   uInitial : Initial (K .F-ob u ↓Diag)
+   fst uInitial = u , id C ⋆⟨ C ⟩ id C
+   fst (snd uInitial (v , f)) = invKHom f -- the unique arrow u→v in Ku↓
+                              , cong₂ (seq' C) (⋆IdL C _) (secKHom f) ∙ ⋆IdL C f
+   snd (snd uInitial (v , f)) (g , tr) = Σ≡Prop (λ _ → isSetHom C _ _) path -- is indeed unique
      where
-     path : invKHom u v f ⋆⟨ M ⟩ h ≡ invKHom u w g
-     path = invKHom u v f ⋆⟨ M ⟩ h                        ≡⟨ cong (λ x → invKHom u v f ⋆⟨ M ⟩ x)
-                                                                 (sym (retKHom v w h)) ⟩
-            invKHom u v f ⋆⟨ M ⟩ invKHom v w (K .F-hom h) ≡⟨ sym (invKSeq _ _ _ _ _) ⟩
-            invKHom u w (f ⋆⟨ C ⟩ K .F-hom h)             ≡⟨ cong (invKHom u w) tr ⟩
-            invKHom u w g ∎
-
-
- sec (RanNatIsIso isFFK u) = {!!}
- ret (RanNatIsIso isFFK u) = {!!}
+     path : invKHom f ≡ g
+     path = isFullyFaithful→Faithful {F = K} isFFK _ _ _ _
+              (secKHom f ∙∙ sym tr ∙∙ cong (λ x → x ⋆⟨ C ⟩ K .F-hom g) (⋆IdL C _) ∙ ⋆IdL C _)
