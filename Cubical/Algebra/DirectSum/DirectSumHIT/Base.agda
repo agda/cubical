@@ -6,7 +6,6 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Algebra.AbGroup
 
-
 -- Conventions :
 -- Elements of the index are named r, s, t...
 -- Elements of the groups are called a, b, c...
