@@ -19,6 +19,8 @@ open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum hiding (rec ; elim ; map)
+open import Cubical.Data.Nat using (ℕ ; zero ; suc)
+open import Cubical.Data.FinData using (Fin ; zero ; suc)
 
 open import Cubical.HITs.PropositionalTruncation.Base
 
@@ -49,6 +51,43 @@ rec3 Pprop f (squash₁ x y i) z w = Pprop (rec3 Pprop f x z w) (rec3 Pprop f y 
 -- Old version
 -- rec2 : ∀ {P : Type ℓ} → isProp P → (A → A → P) → ∥ A ∥ → ∥ A ∥ → P
 -- rec2 Pprop f = rec (isProp→ Pprop) (λ a → rec Pprop (f a))
+
+-- n-ary recursor, stated using a dependent FinVecs
+recFin : {m : ℕ} {P : Fin m → Type ℓ}
+         {B : Type ℓ'} (isPropB : isProp B)
+       → ((∀ i → P i) → B)
+      ---------------------
+       → ((∀ i → ∥ P i ∥₁) → B)
+recFin {m = zero} _ untruncHyp _ = untruncHyp (λ ())
+recFin {m = suc m} {P = P} {B = B} isPropB untruncHyp truncFam =
+  curriedishTrunc (truncFam zero) (truncFam ∘ suc)
+  where
+  curriedish : P zero → (∀ i → ∥ P (suc i) ∥₁) → B
+  curriedish p₀ truncFamSuc = recFin isPropB
+                             (λ famSuc → untruncHyp (λ { zero → p₀ ; (suc i) → famSuc i }))
+                               truncFamSuc
+
+  curriedishTrunc : ∥ P zero ∥₁ → (∀ i → ∥ P (suc i) ∥₁) → B
+  curriedishTrunc = rec (isProp→ isPropB) curriedish
+
+recFin2 : {m1 m2 : ℕ} {P : Fin m1 → Fin m2 → Type ℓ}
+          {B : Type ℓ'} (isPropB : isProp B)
+        → ((∀ i j → P i j) → B)
+       --------------------------
+        → (∀ i j → ∥ P i j ∥₁)
+        → B
+recFin2 {m1 = zero} _ untruncHyp _ = untruncHyp λ ()
+recFin2 {m1 = suc m1} {P = P} {B = B} isPropB untruncHyp truncFam =
+  curriedishTrunc (truncFam zero) (truncFam ∘ suc)
+  where
+  curriedish : (∀ j → P zero j) → (∀ i j → ∥ P (suc i) j ∥₁) → B
+  curriedish p₀ truncFamSuc = recFin2 isPropB
+                             (λ famSuc → untruncHyp λ { zero → p₀ ; (suc i) → famSuc i })
+                               truncFamSuc
+
+  curriedishTrunc : (∀ j → ∥ P zero j ∥₁) → (∀ i j → ∥ P (suc i) j ∥₁) → B
+  curriedishTrunc = recFin (isProp→ isPropB) curriedish
+
 
 elim : {P : ∥ A ∥₁ → Type ℓ} → ((a : ∥ A ∥₁) → isProp (P a))
      → ((x : A) → P ∣ x ∣₁) → (a : ∥ A ∥₁) → P a
