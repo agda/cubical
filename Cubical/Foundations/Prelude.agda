@@ -491,7 +491,8 @@ Cube :
 Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
   PathP (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋
 
--- Vertical composition of squares
+-- Horizontal composition of squares (along their second dimension)
+-- See Cubical.Foundations.Path for vertical composition
 
 _∙₂_ :
   {a₀₀ a₀₁ a₀₂ : A} {a₀₋ : a₀₀ ≡ a₀₁} {b₀₋ : a₀₁ ≡ a₀₂}
