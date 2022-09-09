@@ -7,7 +7,7 @@
 
   where '⊎' is the disjoint sum.
 -}
-module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.CommCoproduct where
+module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.OnCoproduct where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
