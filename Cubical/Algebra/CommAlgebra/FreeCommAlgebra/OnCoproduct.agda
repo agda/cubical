@@ -228,6 +228,10 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
   toFromOverR[I] : (x : ⟨ R[I][J]overR[I] ⟩) → fst (toOverR[I] ∘a fromOverR[I]) x ≡ x
   toFromOverR[I] = isIdByUMP (toOverR[I] ∘a fromOverR[I]) λ _ → refl
 
+{- export bundled results -}
+module _ {R : CommRing ℓ} {I J : Type ℓ} where
+  open CalculateFreeCommAlgebraOnCoproduct R I J
+
   equivFreeCommSum : CommAlgebraEquiv (R [ I ⊎ J ]) R[I][J]
   equivFreeCommSum = (biInvEquiv→Equiv-left asBiInv) , snd to
     where
