@@ -642,7 +642,7 @@ module PolyModTheory (R' : CommRing ℓ) where
 ---------------------------------------------------------------------------
 -- The indeterminate is a regular element, i.e. multiplication with it is injective
 
-  prod-X-injective : (p : Poly R') → (0r ∷ p) ≡ 0P → p ≡ 0P
+  prod-X-injective : (p : Poly R') → prod-Xn 1 p ≡ 0P → p ≡ 0P
   prod-X-injective p Xp≡0 = p≡0
     where
       shift = shiftFun (Poly→PolyFun p)
