@@ -166,7 +166,9 @@ module Equiv-RP2-Properties where
   ϕ₂-sect = rightInv (fst e₂)
   ϕ₂-retr = leftInv (fst e₂)
 
-  module WhyWontYouWork
+  -- This equivalence need to be put in module
+  -- However, it never type checks
+  module IssueComputation
     (HH : GroupIso ℤGroup (coHomGr 4 S²⋁S⁴))
     where
 
@@ -506,7 +508,7 @@ module Equiv-RP2-Properties where
 module _ where
 
   open Equiv-RP2-Properties
-  open WhyWontYouWork (invGroupIso H⁴-S²⋁S⁴≅ℤ)
+  open IssueComputation (invGroupIso H⁴-S²⋁S⁴≅ℤ)
 
   S²⋁S⁴-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X,Y]/<XY,X²,Y²>) (H*R S²⋁S⁴)
   fst S²⋁S⁴-CohomologyRing = isoToEquiv is

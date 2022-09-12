@@ -306,14 +306,6 @@ Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
 
 -------------- A nice packaging for the Hⁿ-Sⁿ  ----------------
 
--- code : (m n : ℕ) → Type ℓ-zero
--- code zero     zero   = GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
--- code zero    (suc n) = GroupIso (coHomGr 0 (S₊ (suc n))) ℤGroup
--- code (suc m)  zero   = GroupIso (coHomGr (suc m) (S₊ 0)) UnitGroup₀
--- code (suc m) (suc n) with (discreteℕ m n)
--- ... | yes p = GroupIso (coHomGr (suc n) (S₊ (suc n))) ℤGroup
--- ... | no ¬p = GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup₀
-
 code : (n m : ℕ) → Type ℓ-zero
 code  zero    zero   = GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
 code  zero   (suc m) = GroupIso (coHomGr 0 (S₊ (suc m))) ℤGroup
