@@ -193,9 +193,11 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
   globalSections : 𝓞 .F-ob (D 1r) ≡ R'
   globalSections =
     𝓞 .F-ob 1l                                  ≡⟨ toBasisPath 1r ⟩
-    𝓞ᴮ .F-ob (1l , ∣ 1r , refl ∣₁)             ≡⟨ {!!} ⟩
+    𝓞ᴮ .F-ob (1l , ∣ 1r , refl ∣₁)             ≡⟨ refl ⟩
+    (funcComp (ForgetfulCommAlgebra→CommRing R') universalPShf) .F-ob (1l , ∣ 1r , refl ∣₁)          ≡⟨ funcCompOb≡ (ForgetfulCommAlgebra→CommRing R') universalPShf _ ⟩
+    (ForgetfulCommAlgebra→CommRing R') .F-ob (universalPShf .F-ob (1l , ∣ 1r , refl ∣₁))             ≡⟨ refl ⟩
     -- does not compute by refl, even though foo does
-    -- ForgetfulCommAlgebra→CommRing R' {ℓ' = ℓ} .F-ob R[1/ 1r ]AsCommAlgebra ≡⟨ refl ⟩
+    ForgetfulCommAlgebra→CommRing R' {ℓ' = ℓ} .F-ob R[1/ 1r ]AsCommAlgebra ≡⟨ refl ⟩
     CommAlgebra→CommRing R[1/ 1r ]AsCommAlgebra ≡⟨ invElCommAlgebra→CommRingPath 1r ⟩
     R[1/ 1r ]AsCommRing                         ≡⟨ invertingUnitsPath _ _ (Units.RˣContainsOne _) ⟩
     R' ∎
