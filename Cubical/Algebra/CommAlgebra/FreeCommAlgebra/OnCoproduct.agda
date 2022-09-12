@@ -90,7 +90,7 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
     baseChange baseRingHom R[I⊎J]overR[I]                                                     ≡⟨⟩
     Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , (snd asHomOverR[I]) ∘r baseRingHom) ≡⟨ step1 ⟩
     Iso.inv isoR (CommAlgebra→CommRing (R [ I ⊎ J ]) , baseRingHom)                           ≡⟨⟩
-    Iso.inv isoR asHomOverR                                                                   ≡⟨ Iso.leftInv isoR (R [ I ⊎ J ]) ⟩
+    Iso.inv isoR asHomOverR                                                                   ≡⟨ step2 ⟩
     R [ I ⊎ J ] ∎
     where
       hom≡ : (snd asHomOverR[I]) ∘r baseRingHom ≡ baseRingHom
@@ -100,6 +100,8 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
       step1 : Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , (snd asHomOverR[I]) ∘r baseRingHom)
               ≡ Iso.inv isoR (CommAlgebra→CommRing (R [ I ⊎ J ]) , baseRingHom)
       step1 i = Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , hom≡ i)
+
+      step2 = Iso.leftInv isoR (R [ I ⊎ J ])
 
   fst≡R[I⊎J] : cong fst ≡R[I⊎J] ≡ refl
   fst≡R[I⊎J] =
@@ -212,8 +214,11 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
             ·HomConst
             λ r x →
               const (const r · x)                                       ≡⟨ ·HomConst (const r) x ⟩
-              const (const r) · const x                                 ≡[ i ]⟨ const (sym (·IdR (const r)) i) · const x ⟩
-              const (const r · const 1r) · const x                      ≡[ i ]⟨ sym (·IdR (const (const r · const 1r))) i · const x ⟩
+              const (const r) · const x                                 ≡[ i ]⟨
+                                                                        const (sym (·IdR (const r)) i) · const x ⟩
+              const (const r · const 1r) · const x                      ≡[ i ]⟨
+                                                                        sym (·IdR (const (const r · const 1r))) i
+                                                                           · const x ⟩
               (const (const r · const 1r) · const (const 1r)) · const x ≡⟨⟩
               CommAlgebraStr._⋆_ (snd R[I][J]) r (const x) ∎
 
