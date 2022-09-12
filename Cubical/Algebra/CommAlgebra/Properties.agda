@@ -97,24 +97,29 @@ module CommAlgChar (R : CommRing ℓ) where
   φIsHom = makeIsRingHom (⋆IdL _) (λ _ _ → ⋆DistL+ _ _ _)
            λ x y → cong (λ a → (x ·r y) ⋆ a) (sym (·IdL _)) ∙ ⋆Dist· _ _ _ _
 
+ -- helpful for localisations
+ module _ (Aφ : CommRingWithHom) where
+   open CommRingStr
+   private
+     A = fst Aφ
+   froToCommRingPath : CommAlgebra→CommRing (toCommAlg Aφ) ≡ fst Aφ
+   fst (froToCommRingPath i) = fst A
+   0r (snd (froToCommRingPath i)) = 0r (snd A)
+   1r (snd (froToCommRingPath i)) = 1r (snd A)
+   _+_ (snd (froToCommRingPath i)) = _+_ (snd A)
+   _·_ (snd (froToCommRingPath i)) = _·_ (snd A)
+   -_ (snd (froToCommRingPath i)) = -_ (snd A)
+   -- note that the proofs of the axioms might differ!
+   isCommRing (snd (froToCommRingPath i)) = isProp→PathP (λ i → isPropIsCommRing _ _ _ _ _ )
+              (isCommRing (snd (CommAlgebra→CommRing (toCommAlg Aφ)))) (isCommRing (snd A)) i
 
  CommRingWithHomRoundTrip : (Aφ : CommRingWithHom) → fromCommAlg (toCommAlg Aφ) ≡ Aφ
- CommRingWithHomRoundTrip (A , φ) = ΣPathP (APath , φPathP)
+ CommRingWithHomRoundTrip (A , φ) = ΣPathP (froToCommRingPath (A , φ) , φPathP)
   where
   open CommRingStr
-  -- note that the proofs of the axioms might differ!
-  APath : fst (fromCommAlg (toCommAlg (A , φ))) ≡ A
-  fst (APath i) = ⟨ A ⟩
-  0r (snd (APath i)) = 0r (snd A)
-  1r (snd (APath i)) = 1r (snd A)
-  _+_ (snd (APath i)) = _+_ (snd A)
-  _·_ (snd (APath i)) = _·_ (snd A)
-  -_ (snd (APath i)) = -_ (snd A)
-  isCommRing (snd (APath i)) = isProp→PathP (λ i → isPropIsCommRing _ _ _ _ _ )
-             (isCommRing (snd (fst (fromCommAlg (toCommAlg (A , φ)))))) (isCommRing (snd A)) i
-
-  -- this only works because fst (APath i) = fst A definitionally!
-  φPathP : PathP (λ i → CommRingHom R (APath i)) (snd (fromCommAlg (toCommAlg (A , φ)))) φ
+  -- this only works because fst (froToCommRingPath (A , φ) i) = fst A definitionally!
+  φPathP : PathP (λ i → CommRingHom R (froToCommRingPath (A , φ) i))
+                 (snd (fromCommAlg (toCommAlg (A , φ)))) φ
   φPathP = RingHomPathP _ _ _ _ _ _ λ i x → ·IdR (snd A) (fst φ x) i
 
 

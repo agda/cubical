@@ -262,6 +262,29 @@ module InvertingElementsBase (R' : CommRing ℓ) where
                 PT.rec (PisProp s) λ (n , p) → subst P (sym p) (base n)
 
 
+module _ (R : CommRing ℓ) (f : fst R) where
+ open CommRingTheory R
+ open RingTheory (CommRing→Ring R)
+ open Units R
+ open Exponentiation R
+ open InvertingElementsBase R
+ open isMultClosedSubset (powersFormMultClosedSubset f)
+ open S⁻¹RUniversalProp R [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+ open CommRingStr (snd R)
+ open PathToS⁻¹R
+
+ invertingUnitsPath : f ∈ R ˣ → R[1/ f ]AsCommRing ≡ R
+ invertingUnitsPath f∈Rˣ = S⁻¹RChar _ _ _ _ (idCommRingHom R) (char f∈Rˣ)
+   where
+   char : f ∈ R ˣ → PathToS⁻¹R _ _ (powersFormMultClosedSubset f)
+                                 _ (idCommRingHom R)
+   φS⊆Aˣ (char f∈Rˣ) = powersPropElim (∈-isProp _)
+                           λ n → ^-presUnit _ n f∈Rˣ
+   kerφ⊆annS (char _) _ r≡0 = ∣ (1r , containsOne) , ·IdL _ ∙ r≡0 ∣₁
+   surχ (char _) r = ∣ (r , 1r , containsOne)
+                                , cong (r ·_) (transportRefl _) ∙ ·IdR _ ∣₁
+
+
 module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
  open IsRingHom
  open isMultClosedSubset
@@ -307,8 +330,7 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
                       (Exponentiation.^-presUnit _ _ n (unitHelper f∈√⟨g⟩))
 
 
-
-module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
+module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
  open isMultClosedSubset
  open CommRingStr (snd R')
  open CommRingTheory R'

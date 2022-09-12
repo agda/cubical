@@ -171,24 +171,31 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
  open Functor
  open DistLatticeStr ⦃...⦄
  private instance _ = (snd ZariskiLattice)
- foo : universalPShf .F-ob (1l , ∣ 1r , refl ∣₁) ≡ R[1/ 1r ]AsCommAlgebra
- foo = refl
-
- -- The extension
- 𝓞 : Functor (ZariskiCat ^op) (CommRingsCategory {ℓ = ℓ}) -- need SmallZarLat here!!!
- 𝓞 = PreSheafExtension.DLRan ZariskiLattice CommRingsCategory {!LimitsCommRingsCategory!} BasicOpens 𝓞ᴮ
-
-
- open InvertingElementsBase R'
- globalSections : 𝓞 .F-ob (D 1r) ≡ R'
- globalSections =
-   𝓞 .F-ob (D 1r)                                         ≡⟨ refl ⟩
-   𝓞 .F-ob 1l                                             ≡⟨ {!!} ⟩
-   𝓞ᴮ .F-ob (1l , ∣ 1r , refl ∣₁)                        ≡⟨ {!refl!} ⟩
-                                                          -- does not compute even though foo does
-   ForgetfulCommAlgebra→CommRing R' {ℓ' = ℓ} .F-ob R[1/ 1r ]AsCommAlgebra ≡⟨ refl ⟩
-   CommAlgebra→CommRing {R = R'} R[1/ 1r ]AsCommAlgebra ≡⟨ {!!} ⟩
-   R[1/ 1r ]AsCommRing ≡⟨ {!!} ⟩
-   R' ∎
+ abstract
+   foo : ∀ f → universalPShf .F-ob (D f , ∣ f , refl ∣₁) ≡ R[1/ f ]AsCommAlgebra
+   foo f = refl
 
  -- TODO: prove that 𝓞ᴮ is a sheaf!!!
+
+ -- The extension
+ module _ (commRingLimits : Limits CommRingsCategory) where
+  -- should be LimitsCommRingsCategory but then need SmallZarLat here!!!
+  open PreSheafExtension {ℓ'' = ℓ} ZariskiLattice CommRingsCategory commRingLimits BasicOpens
+  𝓞 : Functor (ZariskiCat ^op) (CommRingsCategory {ℓ = ℓ})
+  𝓞 = DLRan 𝓞ᴮ
+
+  toBasisPath : ∀ f → 𝓞 .F-ob (D f) ≡ 𝓞ᴮ .F-ob (D f , ∣ f , refl ∣₁)
+  toBasisPath f = cong (λ F → F .F-ob (D f , ∣ f , refl ∣₁))
+                       (NatIsoToPath isUnivalentCommRingsCategory (DLRanNatIso 𝓞ᴮ))
+
+
+  open InvertingElementsBase R'
+  globalSections : 𝓞 .F-ob (D 1r) ≡ R'
+  globalSections =
+    𝓞 .F-ob 1l                                  ≡⟨ toBasisPath 1r ⟩
+    𝓞ᴮ .F-ob (1l , ∣ 1r , refl ∣₁)             ≡⟨ {!!} ⟩
+    -- does not compute by refl, even though foo does
+    -- ForgetfulCommAlgebra→CommRing R' {ℓ' = ℓ} .F-ob R[1/ 1r ]AsCommAlgebra ≡⟨ refl ⟩
+    CommAlgebra→CommRing R[1/ 1r ]AsCommAlgebra ≡⟨ invElCommAlgebra→CommRingPath 1r ⟩
+    R[1/ 1r ]AsCommRing                         ≡⟨ invertingUnitsPath _ _ (Units.RˣContainsOne _) ⟩
+    R' ∎
