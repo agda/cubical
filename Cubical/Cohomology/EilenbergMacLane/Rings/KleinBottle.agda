@@ -45,24 +45,6 @@ open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Data.Fin.Arithmetic
 
-+ₖ≡id-ℤ/2 : (n : ℕ) (x : EM ℤ/2 n) → x +ₖ x ≡ 0ₖ n
-+ₖ≡id-ℤ/2 zero = ℤ/2-elim refl refl
-+ₖ≡id-ℤ/2 (suc n) x = cong (x +ₖ_) (sym (-ₖConst-ℤ/2 n x)) ∙ rCancelₖ (suc n) x
-
-+ₕ≡id-ℤ/2 : ∀ {ℓ}  {A : Type ℓ} (n : ℕ) (x : coHom n ℤ/2 A) → x +ₕ x ≡ 0ₕ n
-+ₕ≡id-ℤ/2 n =
-  ST.elim (λ _ → isSetPathImplicit)
-    λ f → cong ∣_∣₂ (funExt λ x → +ₖ≡id-ℤ/2 n (f x))
-
--ₕConst-ℤ/2 : ∀{ℓ} (n : ℕ) {A : Type ℓ} (x : coHom n ℤ/2 A) → -ₕ x ≡ x
--ₕConst-ℤ/2 zero = ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → -Const-ℤ/2 (f x))
--ₕConst-ℤ/2 (suc n) = ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → -ₖConst-ℤ/2 n (f x))
-
-ℤ/2-rec : ∀ {ℓ} {A : Type ℓ} → A → A → ℤ/2 .fst → A
-ℤ/2-rec {A = A} a₀ a₁ (zero , p) = a₀
-ℤ/2-rec {A = A} a₀ a₁ (suc zero , p) = a₁
-ℤ/2-rec {A = A} a₀ a₁ (suc (suc x) , p) =
-  ⊥.rec (snotz (cong (λ x → predℕ (predℕ x)) (+-comm (3 + x) (fst p) ∙ snd p)))
 
 private
   K[ℤ₂⊗ℤ₂,2] = EM (ℤ/2 ⨂ ℤ/2) 2
@@ -603,20 +585,15 @@ open Iso
 -}
 open RingStr renaming (_+_ to _+r_ ; _·_ to _·r_)
 private
-    ℤ/2[X,Y] : CommRing ℓ-zero
-    ℤ/2[X,Y] = PolyCommRing ℤ/2CommRing 2
+   ℤ/2[X,Y] : CommRing ℓ-zero
+   ℤ/2[X,Y] = PolyCommRing ℤ/2CommRing 2
 
-    ℤ/2[X,Y]R = CommRing→Ring ℤ/2[X,Y]
+   ℤ/2[X,Y]R = CommRing→Ring ℤ/2[X,Y]
 
 
 
-    -Z/2 = -_ (snd ℤ/2[X,Y]R)
-    _·Z/2_ = _·r_ (snd ℤ/2[X,Y]R)
-    _+Z/2_ = _+r_ (snd ℤ/2[X,Y]R)
-    _·H*_ = _·r_ (snd (H*R ℤ/2Ring KleinBottle)) -- _·r_ (snd (H* ?))
-module Equiv-𝕂²-Properties
-  where
-
+   -Z/2 = -_ (snd ℤ/2[X,Y]R)
+   _·Z/2_ = _·r_ (snd ℤ/2[X,Y]R)
 
 -----------------------------------------------------------------------------
 -- Definitions, Import with notations, Partition
@@ -624,720 +601,515 @@ module Equiv-𝕂²-Properties
   -- Definition
 
 
-  -≡id-ℤ/2[X,Y] : (x : fst ℤ/2[X,Y]) → -Z/2 x ≡ x
-  -≡id-ℤ/2[X,Y] = DS-Ind-Prop.f _ _ _ _
-    (λ _ → is-set (snd ℤ/2[X,Y]R) _ _)
-    refl
-    (λ r a → cong (base r) (-Const-ℤ/2  _))
-    λ {x} {y} p q → GroupTheory.invDistr (Ring→Group ℤ/2[X,Y]R) x y
-                  ∙ addComm _ _
-                  ∙ cong₂ _add_ p q
+-≡id-ℤ/2[X,Y] : (x : fst ℤ/2[X,Y]) → -Z/2 x ≡ x
+-≡id-ℤ/2[X,Y] = DS-Ind-Prop.f _ _ _ _
+  (λ _ → is-set (snd ℤ/2[X,Y]R) _ _)
+  refl
+  (λ r a → cong (base r) (-Const-ℤ/2  _))
+  λ {x} {y} p q → GroupTheory.invDistr (Ring→Group ℤ/2[X,Y]R) x y
+                ∙ addComm _ _
+                ∙ cong₂ _add_ p q
 
-  +Trivℤ/2[X,Y] : (x : fst ℤ/2[X,Y]) → x add x ≡ neutral
-  +Trivℤ/2[X,Y] x = cong (x add_ ) (sym (-≡id-ℤ/2[X,Y] x))
-                   ∙ +InvR (snd ℤ/2[X,Y]R) x
++Trivℤ/2[X,Y] : (x : fst ℤ/2[X,Y]) → x add x ≡ neutral
++Trivℤ/2[X,Y] x = cong (x add_ ) (sym (-≡id-ℤ/2[X,Y] x))
+                 ∙ +InvR (snd ℤ/2[X,Y]R) x
 
-  -ConstH* : ∀ {ℓ} {A : Type ℓ} → (x : fst (H*R ℤ/2Ring A))
-    → -_ (snd (H*R ℤ/2Ring A)) x ≡ x
-  -ConstH* {A = A} = DS-Ind-Prop.f _ _ _ _
+-ConstH* : ∀ {ℓ} {A : Type ℓ} → (x : fst (H*R ℤ/2Ring A))
+  → -_ (snd (H*R ℤ/2Ring A)) x ≡ x
+-ConstH* {A = A} = DS-Ind-Prop.f _ _ _ _
+  (λ _ → trunc _ _)
+  refl
+  (λ r a → cong (base r) (-ₕConst-ℤ/2 r a))
+  λ {x} {y} ind1 ind2 → RingTheory.-Dist (H*R ℤ/2Ring A) x y
+                      ∙ cong₂ _add_ ind1 ind2
+
++TrinvH* : ∀ {ℓ} {A : Type ℓ} → (x : fst (H*R ℤ/2Ring A)) → x add x ≡ neutral
++TrinvH* {A = A} x = cong (x add_) (sym (-ConstH* x))
+             ∙ +InvR (snd (H*R ℤ/2Ring A)) x
+
+X³ : fst ℤ/2[X,Y]
+X³ = base (3 ∷ (0 ∷ [])) 1
+
+Y² : fst ℤ/2[X,Y]
+Y² = base (0 ∷ (2 ∷ [])) 1
+
+XY : fst ℤ/2[X,Y]
+XY = base (1 ∷ (1 ∷ [])) 1
+
+X² : fst ℤ/2[X,Y]
+X² = base (2 ∷ (0 ∷ [])) 1
+
+<X³,Y²,XY+X²> : FinVec (fst ℤ/2[X,Y]) 3
+<X³,Y²,XY+X²> zero = X³
+<X³,Y²,XY+X²> one = Y²
+<X³,Y²,XY+X²> two = XY add X²
+
+ℤ/2[X,Y]/<X³,Y²,XY+X²> : CommRing ℓ-zero
+ℤ/2[X,Y]/<X³,Y²,XY+X²> = PolyCommRing-Quotient ℤ/2CommRing <X³,Y²,XY+X²>
+
+_·Z/_ = _·r_ (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>))
+
+ℤ/2[X,Y]/<X³,Y²,XY+X²>→Prop-pre :
+  ∀ {ℓ} {A : fst ℤ/2[X,Y]/<X³,Y²,XY+X²> → Type ℓ}
+    → A [ neutral ]
+    → ((x y : ℕ) → A [ base (x ∷ (y ∷ [])) 1 ])
+    → (x y : ℕ) (z : fst ℤ/2) → A [ base (x ∷ (y ∷ [])) z ]
+ℤ/2[X,Y]/<X³,Y²,XY+X²>→Prop-pre {A = A} b ind x y =
+  ℤ/2-elim
+   (subst A (cong [_] (sym (base-neutral _))) b)
+   (ind x y)
+
+open import Cubical.Algebra.Group.Morphisms
+
+ℤ/2→ : ∀ {ℓ'} {R : Ring ℓ'} (f : fst ℤ/2[X,Y] → fst R)
+  → IsRingHom (snd (CommRing→Ring ℤ/2[X,Y])) f (snd R)
+  → f X³ ≡ 0r (snd R)
+  → f Y² ≡ 0r (snd R)
+  → f (XY add X²) ≡ 0r (snd R)
+  → RingHom (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>) R
+ℤ/2→ {R = R} f ishom id1 id2 id3 =
+  Quotient-FGideal-CommRing-Ring.inducedHom
+    ℤ/2[X,Y]
+    R
+    (f , ishom)
+    <X³,Y²,XY+X²>
+    λ { zero → id1 ; one → id2 ; two → id3}
+open import Cubical.Foundations.Equiv
+
+H*→Z[x,y]' : (n : ℕ) → coHom n ℤ/2 KleinBottle → fst ℤ/2[X,Y]/<X³,Y²,XY+X²> 
+H*→Z[x,y]' zero a = [ base (0 ∷ 0 ∷ []) (H⁰[K²,ℤ/2]≅ℤ/2 .fst .fst a) ]
+H*→Z[x,y]' one a = [ base (1 ∷ 0 ∷ [])  (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst a .fst)
+                add base (0 ∷ 1 ∷ [])  (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst a .snd) ]
+H*→Z[x,y]' two a = [ base (2 ∷ 0 ∷ []) (H²[K²,ℤ/2]≅ℤ/2 .fst .fst a) ]
+H*→Z[x,y]' (suc (suc (suc n))) _ = [ neutral ]
+
+open import Cubical.Data.Sigma
+open import Cubical.Foundations.HLevels
+open PlusBis
+L : (x y : ℕ) → coHom (x +' y) ℤ/2 KleinBottle
+L zero zero = 1ₕ {G'' = ℤ/2Ring}
+L zero one = K²gen.β
+L zero (suc (suc y)) = 0ₕ _
+L one zero = K²gen.α
+L one one = _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.β
+L one (suc (suc y)) = 0ₕ _
+L two zero = _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α
+L two (suc y) = 0ₕ _
+L (suc (suc (suc x))) y = 0ₕ _
+
+incL : (x : ℕ) → coHom x ℤ/2 KleinBottle
+incL =
+               λ { zero → 1ₕ {G'' = ℤ/2Ring}
+                 ; one → K²gen.α
+                 ; two → _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α
+                 ; (suc (suc (suc n))) → 0ₕ _}
+
+incL-pres⌣ : (n m : ℕ)
+          → incL (n +' m) ≡ (_⌣_ {G'' = ℤ/2Ring} (incL n) (incL m))
+incL-pres⌣ zero m = sym (1ₕ-⌣ m (incL m))
+incL-pres⌣ one zero = sym (transportRefl (incL 1)) ∙ sym (⌣-1ₕ 1 (incL one))
+incL-pres⌣ one one = refl
+incL-pres⌣ one (suc (suc m)) =
+  isContr→isProp (isContr-HⁿKleinBottle m ℤ/2) _ _
+incL-pres⌣ two zero = sym (transportRefl (incL 2)) ∙ sym (⌣-1ₕ 2 (incL 2))
+incL-pres⌣ two (suc m) =
+  isContr→isProp (isContr-HⁿKleinBottle m ℤ/2) _ _
+incL-pres⌣ (suc (suc (suc n))) m =
+  isContr→isProp (subst (λ n → isContr (coHom n ℤ/2 KleinBottle))
+     (sym (+'≡+ (3 + n) m))
+     (isContr-HⁿKleinBottle (n + m) ℤ/2)) _ _
+
+incR : (x : ℕ) → coHom x ℤ/2 KleinBottle
+incR = 
+               λ { zero → 1ₕ {G'' = ℤ/2Ring}
+                 ; one → K²gen.β
+                 ; (suc (suc n)) → 0ₕ _}
+
+incR-pres⌣ : (n m : ℕ)
+          → incR (n +' m) ≡ (_⌣_ {G'' = ℤ/2Ring} (incR n) (incR m))
+incR-pres⌣ zero m = sym (1ₕ-⌣ m (incR m))
+incR-pres⌣ one zero = sym (transportRefl (incR 1)) ∙ sym (⌣-1ₕ 1 (incR one))
+incR-pres⌣ one one = sym (IsGroupHom.pres1 (snd (invGroupEquiv H²[K²,ℤ/2]≅ℤ/2)))
+                   ∙∙ sym (cong (ℤ/2→H²K²) β²↦0)
+                   ∙∙ H²K²→ℤ/2→H²K² (_⌣_ {G'' = ℤ/2Ring} K²gen.β K²gen.β)
+incR-pres⌣ one (suc (suc m)) =
+  isContr→isProp (isContr-HⁿKleinBottle m ℤ/2) _ _
+incR-pres⌣ (suc (suc n)) zero =
+  sym (transportRefl (incR (2 + n))) ∙ sym (⌣-1ₕ (suc (suc n)) (incR (suc (suc n))))
+incR-pres⌣ (suc (suc n)) (suc m) =
+  sym (0ₕ-⌣ (suc (suc n)) (suc m) (incR (suc m)))
+
+V : Cubical.Data.Fin.Fin 2
+   → (r : Vec ℕ 2)
+   → fst (H*R ℤ/2Ring KleinBottle)
+V = ℤ/2-rec (λ _ → neutral)
+       λ {(x ∷ y ∷ []) → base (x +' y) (incL x ⌣ incR y)}
+
+L2 : (a b : Cubical.Data.Fin.Fin 2) (r : Vec ℕ 2)  →
+  (V a r add V b r) ≡ V ((snd (CommRing→Ring ℤ/2CommRing) +r a) b) r
+L2 = ℤ/2-elim (ℤ/2-elim (λ r → addRid _)
+              λ r → +IdL (snd (H*R ℤ/2Ring KleinBottle)) (V 1 r))
+              (ℤ/2-elim (λ r → +IdR (snd (H*R ℤ/2Ring KleinBottle)) (V 1 r))
+                λ r → +TrinvH* (V 1 r))
+_⌣'_ = _·r_ (snd (H*R ℤ/2Ring KleinBottle))
+
+pre : fst ℤ/2[X,Y] → fst (H*R ℤ/2Ring KleinBottle)
+pre = DS-Rec-Set.f _ _ _ _
+  trunc
+  neutral
+  (λ x y → V y x)
+  _add_
+  addAssoc
+  addRid
+  addComm
+  (λ _ → refl)
+  λ r a b → L2 a b r
+
+ts : IsRingHom (snd ℤ/2[X,Y]R)  pre (snd (H*R ℤ/2Ring KleinBottle)) 
+ts = makeIsRingHom refl (λ _ _ → refl)
+  (DS-Ind-Prop.f _ _ _ _
+    (λ _ → isPropΠ λ _ → trunc _ _)
+    (λ y → cong pre (RingTheory.0LeftAnnihilates (ℤ/2[X,Y]R) y)
+      ∙ sym (RingTheory.0LeftAnnihilates (H*R ℤ/2Ring KleinBottle) (pre y)))
+    (λ r a → DS-Ind-Prop.f _ _ _ _
+      (λ _ → trunc _ _)
+      (cong pre (RingTheory.0RightAnnihilates (ℤ/2[X,Y]R) (base r a))
+      ∙ sym (RingTheory.0RightAnnihilates (H*R ℤ/2Ring KleinBottle) _))
+       (λ r2 a2 → lem a a2 r r2)
+         λ ind ind2 → cong₂ (_+r_ (snd (H*R ℤ/2Ring KleinBottle))) ind ind2
+                     ∙ sym (·DistR+ (snd (H*R ℤ/2Ring KleinBottle)) _ _ _))
+    λ ind ind2 y → cong₂ (_+r_ (snd (H*R ℤ/2Ring KleinBottle))) (ind y) (ind2 y))
+  where
+  lem : (a b : fst ℤ/2) (r s : Vec ℕ 2) → pre (base r a ·Z/2 base s b)
+                                          ≡ (pre (base r a) ⌣' pre (base s b))
+  lem = ℤ/2-elim
+         (ℤ/2-elim
+          (λ r s → cong pre (base-neutral _)
+                  ∙ cong₂ _⌣'_ (cong pre (sym (base-neutral r)))
+                                (cong pre (sym (base-neutral s))))
+          λ r s → cong pre (cong (_·Z/2 (base s 1)) (base-neutral _))
+                 ∙ cong (_⌣' pre (base s 1)) (cong pre (sym (base-neutral r))))
+         (ℤ/2-elim
+           (λ r s → cong pre (cong (base r 1 ·Z/2_) (base-neutral s))
+                   ∙ sym (RingTheory.0RightAnnihilates
+                         (H*R ℤ/2Ring KleinBottle) (pre (base r 1)))
+                   ∙ cong (pre (base r 1) ⌣'_) (cong pre (sym (base-neutral s))))
+           λ {(x ∷ y ∷ []) (x2 ∷ y2 ∷ [])
+             → (λ i → base ((+'≡+ x x2 (~ i)) +' (+'≡+ y y2 (~ i)))
+                  (incL (+'≡+ x x2 (~ i)) ⌣ incR (+'≡+ y y2 (~ i))))
+              ∙ cong (base ((x +' x2) +' (y +' y2)))
+                     (cong₂ _⌣_ (incL-pres⌣ x x2) (incR-pres⌣ y y2))
+              ∙  PathP-lem _ _ (sym (+'-assoc x x2 (y +' y2))) _ _
+                               (assoc⌣Dep x x2 (y +' y2) (incL x) (incL x2) (incR y ⌣ incR y2))
+              ∙ PathP-lem _ _ (cong (x +'_) (+'-assoc x2 y y2)) _
+                  _
+                  (λ i → _⌣_ {G'' = ℤ/2Ring} (incL x) (assoc⌣Dep x2 y y2 (incL x2) (incR y) (incR y2) (~ i)))
+              ∙ PathP-lem _ _ (λ i → x +' ((+'-comm x2 y i) +' y2))
+                _ _ (λ i → _⌣_ {G'' = ℤ/2Ring} (incL x)
+                      (_⌣_ {G'' = ℤ/2Ring}
+                       (⌣-comm-Klein x2 y (incL x2) (incR y) i) (incR y2)))
+              ∙ PathP-lem _ _ (cong (x +'_) (sym (+'-assoc y x2 y2))) _
+                  _
+                  (λ i → _⌣_ {G'' = ℤ/2Ring} (incL x) (assoc⌣Dep y x2 y2 (incR y) (incL x2) (incR y2) i))
+              ∙ PathP-lem _ _ (+'-assoc x y (x2 +' y2)) _ _
+                               (λ i → assoc⌣Dep x y (x2 +' y2) (incL x) (incR y)
+                                 (_⌣_ {G'' = ℤ/2Ring} (incL x2) (incR y2)) (~ i))})
+     where
+     PathP-lem : (n m : ℕ) (p : n ≡ m) (x : coHom n ℤ/2 KleinBottle) (y : coHom m ℤ/2 KleinBottle)
+       → PathP (λ i → coHom (p i) ℤ/2 KleinBottle) x y
+       → Path (H*R ℤ/2Ring KleinBottle .fst) (base n x) (base m y)
+     PathP-lem n = J> λ x → J> refl
+
+
+αβ≡ : _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.β ≡ _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α
+αβ≡ = sym (H²K²→ℤ/2→H²K² (_⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.β))
+   ∙∙ cong ℤ/2→H²K² (αβ↦1 ∙ sym α²↦1)
+   ∙∙ H²K²→ℤ/2→H²K² (_⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α)
+
+R2 : RingHom (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>) (H*R ℤ/2Ring KleinBottle) 
+R2 = ℤ/2→ pre ts (base-neutral _) (base-neutral _)
+                  (IsRingHom.pres+ ts XY X²
+                  ∙ base-add 2 _ _
+                  ∙ cong (base 2)
+                     (cong₂ (_+ₕ_) αβ≡
+                           (⌣-1ₕ 2 (incL 2) ∙ transportRefl (incL 2))
+                     ∙ +ₕ≡id-ℤ/2 2 (_⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α))
+                  ∙ base-neutral 2)
+
+H*→Z[x,y]'' : fst (H*R ℤ/2Ring KleinBottle) → fst (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)
+H*→Z[x,y]'' =
+  DS-Rec-Set.f _ _ _ _ squash/ [ neutral ]
+    H*→Z[x,y]' 
+    (_+r_ (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
+    (+Assoc (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
+    (+IdR (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
+    (+Comm (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
+    (λ { zero → cong [_] (base-neutral _)
+      ; one → cong [_] (cong₂ _add_ (base-neutral _) (base-neutral _) ∙ addRid neutral)
+      ; two → cong [_] (cong (base (2 ∷ 0 ∷ [])) (IsGroupHom.pres1 (snd (H²[K²,ℤ/2]≅ℤ/2)))
+                      ∙ base-neutral _)
+      ; (suc (suc (suc r))) → refl})
+    λ { zero a b → cong [_] (base-add _ _ _ ∙ cong (base (0 ∷ 0 ∷ []))
+                     (sym (IsGroupHom.pres· (snd (H⁰[K²,ℤ/2]≅ℤ/2)) a b)))
+      ; one a b → cong [_] (move4 _ _ _ _ _add_ addAssoc addComm
+                          ∙ cong₂ _add_ (base-add _ _ _ ∙ cong (base (1 ∷ 0 ∷ []))
+                                        (cong fst (sym (IsGroupHom.pres· (snd (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2)) a b))))
+                                        ((base-add _ _ _ ∙ cong (base (0 ∷ 1 ∷ []))
+                                        (cong snd (sym (IsGroupHom.pres· (snd (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2)) a b))))))
+      ; two a b → cong [_] (base-add _ _ _ ∙ cong (base (2 ∷ 0 ∷ [])) (sym (IsGroupHom.pres· (snd (H²[K²,ℤ/2]≅ℤ/2)) a b)))
+      ; (suc (suc (suc n))) → λ a b → cong [_] (addRid neutral)}
+
+theEq : RingEquiv (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>) (H*R ℤ/2Ring KleinBottle) 
+fst theEq = isoToEquiv is
+  where
+  is : Iso  _ _
+  fun is = R2 .fst
+  inv is = H*→Z[x,y]''
+  rightInv is = DS-Ind-Prop.f _ _ _ _
     (λ _ → trunc _ _)
     refl
-    (λ r a → cong (base r) (-ₕConst-ℤ/2 r a))
-    λ {x} {y} ind1 ind2 → RingTheory.-Dist (H*R ℤ/2Ring A) x y
+    (λ { zero a → lem₀ a _ refl
+      ; one a → lem₁ a _ _ refl
+      ; two a → lem₂ a  _ refl
+      ; (suc (suc (suc r))) a →
+          sym (base-neutral _)
+        ∙ cong (base (3 + r)) (isContr→isProp (isContr-HⁿKleinBottle r ℤ/2) (0ₕ (3 + r)) a)})
+    λ {x} {y} ind1 ind2 → IsRingHom.pres+ (R2 .snd) (H*→Z[x,y]'' x) (H*→Z[x,y]'' y)
                         ∙ cong₂ _add_ ind1 ind2
-
-  +TrinvH* : ∀ {ℓ} {A : Type ℓ} → (x : fst (H*R ℤ/2Ring A)) → x add x ≡ neutral
-  +TrinvH* {A = A} x = cong (x add_) (sym (-ConstH* x))
-               ∙ +InvR (snd (H*R ℤ/2Ring A)) x
-
-  X³ : fst ℤ/2[X,Y]
-  X³ = base (3 ∷ (0 ∷ [])) 1
-
-  Y² : fst ℤ/2[X,Y]
-  Y² = base (0 ∷ (2 ∷ [])) 1
-
-  XY : fst ℤ/2[X,Y]
-  XY = base (1 ∷ (1 ∷ [])) 1
-
-  X² : fst ℤ/2[X,Y]
-  X² = base (2 ∷ (0 ∷ [])) 1
-
-  <X³,Y²,XY+X²> : FinVec (fst ℤ/2[X,Y]) 3
-  <X³,Y²,XY+X²> zero = X³
-  <X³,Y²,XY+X²> one = Y²
-  <X³,Y²,XY+X²> two = XY add X²
-
-  ℤ/2[X,Y]/<X³,Y²,XY+X²> : CommRing ℓ-zero
-  ℤ/2[X,Y]/<X³,Y²,XY+X²> = PolyCommRing-Quotient ℤ/2CommRing <X³,Y²,XY+X²>
-
-  _·Z/_ = _·r_ (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>))
-
-  ℤ/2[X,Y]/<X³,Y²,XY+X²>→Prop-pre :
-    ∀ {ℓ} {A : fst ℤ/2[X,Y]/<X³,Y²,XY+X²> → Type ℓ}
-      → A [ neutral ]
-      → ((x y : ℕ) → A [ base (x ∷ (y ∷ [])) 1 ])
-      → (x y : ℕ) (z : fst ℤ/2) → A [ base (x ∷ (y ∷ [])) z ]
-  ℤ/2[X,Y]/<X³,Y²,XY+X²>→Prop-pre {A = A} b ind x y =
-    ℤ/2-elim
-     (subst A (cong [_] (sym (base-neutral _))) b)
-     (ind x y)
-
-  ℤ/2[X,Y]/<X³,Y²,XY+X²>→Prop :
-    ∀ {ℓ} {A : fst ℤ/2[X,Y]/<X³,Y²,XY+X²> → Type ℓ}
-      → ((x : _) → isProp (A x))
-      → A [ neutral ]
-      → A [ (base (0 ∷ 0 ∷ []) 1) ]
-      → A [ (base (1 ∷ 0 ∷ []) 1) ]
-      → A [ (base (0 ∷ 1 ∷ []) 1) ]
-      → A [ X² ]
-      → ((x y : _) → A [ x ] → A [ y ] → A [ x add y ])
-      → ((x y : _) → A [ x ] → A [ y ] → A [ x ·Z/2 y ])
-      → (x : _) → A x
-  ℤ/2[X,Y]/<X³,Y²,XY+X²>→Prop {A = A} pr bn b001 b101 b011 bX² addhyp multhyp =
-    SQ.elimProp pr
-      (DS-Ind-Prop.f _ _ _ _ (λ _ → pr _) bn
-        (λ { (x ∷ y ∷ []) a
-          → ℤ/2[X,Y]/<X³,Y²,XY+X²>→Prop-pre {A = A}
-              bn
-              lem
-              x y a})
-        λ {x} {y} → addhyp _ _)
     where
-    bX³ = subst A (eq/ _ X³
-          (PT.map (λ p → (fst p) , ((+IdL (snd ℤ/2[X,Y]R)
-            (-Z/2 X³) ∙ -≡id-ℤ/2[X,Y] X³) ∙ snd p))
-           (indInIdeal ℤ/2[X,Y] <X³,Y²,XY+X²>  zero))) bn
-
-    lem : (x₁ y₁ : ℕ) → A [ base (x₁ ∷ y₁ ∷ []) 1 ]
-    lem zero zero = b001
-    lem zero one = b011
-    lem zero (suc (suc y)) =
-      multhyp Y² (base (zero ∷ y ∷ []) 1)
-        (subst A (eq/ _ _
-          (PT.map (λ p → (fst p) , ((+IdL (snd ℤ/2[X,Y]R)
-            (-Z/2 Y²) ∙ -≡id-ℤ/2[X,Y] Y²) ∙ snd p))
-           (indInIdeal ℤ/2[X,Y] <X³,Y²,XY+X²>  one))) bn)
-        (lem zero y)
-    lem one zero = b101
-    lem two zero = bX²
-    lem (suc (suc (suc x))) zero =
-      multhyp X³ (base (x ∷ zero ∷ []) 1) bX³ (lem x zero)
-    lem one one =
-      subst A (eq/ _ _ ∣ (λ {zero → neutral ; one → neutral ; two → 1r (snd ℤ/2[X,Y]R)})
-                       , (addComm _ _
-                       ∙ cong (_add X²) (-≡id-ℤ/2[X,Y]  XY))
-                       ∙ (λ i →
-                           +IdL (snd ℤ/2[X,Y]R)
-                             (+IdL (snd ℤ/2[X,Y]R)
-                              (addRid (·IdL (snd ℤ/2[X,Y]R)
-                               (XY add X²) (~ i)) (~ i)) (~ i)) (~ i)) ∣₁)
-        bX²
-    lem (suc (suc n)) one =
-      subst A
-        (eq/ _ _ ∣ (λ {zero → (1r (snd ℤ/2[X,Y]R) add (base (n ∷ (zero ∷ [])) 1))
-                     ; one → neutral
-                     ; two → base ((suc n) ∷ (zero ∷ [])) 1})
-                , ((λ _ → X³ add (base (suc (suc n) ∷ one ∷ []) 1))
-                 ∙ cong (X³ add_)
-                    ((λ i → base (suc (+-comm 1 n i) ∷ 1 ∷ []) (fsuc fzero))
-                    ∙∙ sym (+IdL (snd ℤ/2[X,Y]R) (base (suc (n + 1) ∷ 1 ∷ []) 1))
-                    ∙∙ cong (_add base (suc (n + 1) ∷ 1 ∷ []) 1)
-                         (sym (+InvR (snd ℤ/2[X,Y]R) (base (n + 3 ∷ zero ∷ []) 1))
-                        ∙ cong (base (n + 3 ∷ zero ∷ []) 1 add_)
-                            λ i → -≡id-ℤ/2[X,Y] (base (+-suc n 2 i ∷ zero ∷ []) 1) (~ i))
-                    ∙∙ sym (+Assoc (snd ℤ/2[X,Y]R) _ _ _)
-                    ∙∙ cong (base (n + 3 ∷ zero ∷ []) 1 add_)
-                            (addComm _ _))
-                ∙∙ (+Assoc (snd ℤ/2[X,Y]R) X³ _ _)
-                ∙∙ cong₂ _add_
-                     (cong₂ _add_
-                       (sym (·IdL (snd ℤ/2[X,Y]R) X³))
-                       (λ _ → base ((n + 3) ∷ zero ∷ []) (fsuc fzero)))
-                     (cong₂ _add_
-                       (λ _ → (base ((suc n + 1) ∷ 1 ∷ []) 1))
-                       (λ _ → (base (suc n + 2 ∷ zero ∷ []) 1)))
-                ∙∙ cong₂ _add_ (sym (·DistL+ (snd ℤ/2[X,Y]R) (1r (snd ℤ/2[X,Y]R)) (base (n ∷ (zero ∷ [])) 1) X³))
-                               (sym (·DistR+ (snd ℤ/2[X,Y]R) (base (suc n ∷ zero ∷ []) 1) XY X² ))
-                ∙∙ λ i → ((1r (snd ℤ/2[X,Y]R) add (base (n ∷ (zero ∷ [])) 1)) ·Z/2 X³)
-                            add (+IdL (snd ℤ/2[X,Y]R)
-                             (addRid ((base ((suc n) ∷ (zero ∷ [])) 1) ·Z/2 (XY add X²)) (~ i))) (~ i)) ∣₁)
-        bX³
-    lem (suc x) (suc (suc y)) =
-      {!!}
-
-    linea = linearCombination
-
-  open import Cubical.Algebra.Group.Morphisms
-
-  ℤ/2→ : ∀ {ℓ'} {R : Ring ℓ'} (f : fst ℤ/2[X,Y] → fst R)
-    → IsRingHom (snd (CommRing→Ring ℤ/2[X,Y])) f (snd R)
-    → f X³ ≡ 0r (snd R)
-    → f Y² ≡ 0r (snd R)
-    → f (XY add X²) ≡ 0r (snd R)
-    → RingHom (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>) R
-  fst (ℤ/2→ {R = R} f ishom id1 id2 id3) [ a ] = f a
-  fst (ℤ/2→ {R = R} f ishom id1 id2 id3) (eq/ a b r i) = {!!}
-  fst (ℤ/2→ {R = R} f ishom id1 id2 id3) (squash/ x x₁ p q i i₁) = {!!}
-  snd (ℤ/2→ {R = R} f ishom id1 id2 id3) = {!!}
-  {-
-    Quotient-FGideal-CommRing-Ring.inducedHom
-      ℤ/2[X,Y]
-      R
-      (f , ishom)
-      <X³,Y²,XY+X²>
-      λ { zero → id1 ; one → id2 ; two → id3}
-  -}
-  open import Cubical.Foundations.Equiv
-
-  H*→Z[x,y]' : (n : ℕ) → coHom n ℤ/2 KleinBottle → fst ℤ/2[X,Y]/<X³,Y²,XY+X²> 
-  H*→Z[x,y]' zero a = [ base (0 ∷ 0 ∷ []) (H⁰[K²,ℤ/2]≅ℤ/2 .fst .fst a) ]
-  H*→Z[x,y]' one a = [ base (1 ∷ 0 ∷ [])  (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst a .fst)
-                  add base (0 ∷ 1 ∷ [])  (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst a .snd) ]
-  H*→Z[x,y]' two a = [ base (2 ∷ 0 ∷ []) (H²[K²,ℤ/2]≅ℤ/2 .fst .fst a) ]
-  H*→Z[x,y]' (suc (suc (suc n))) _ = [ neutral ]
-
-  H¹K²-elim : ∀ {ℓ} {A : coHom 2 ℤ/2 KleinBottle → Type ℓ}
-            → A (0ₕ 2)
-            → A (_⌣_ {G'' = ℤ/2Ring} {n = 1} {m = 1} K²gen.α K²gen.α)
-            → (x : _) → A x
-  H¹K²-elim {A = A} 0r 1r x = h _ refl
-    where
-    h : (k : fst ℤ/2) → H²[K²,ℤ/2]≅ℤ/2 .fst .fst x ≡ k → A x
-    h = ℤ/2-elim (λ p → subst A (sym (IsGroupHom.pres1 (snd (invGroupEquiv H²[K²,ℤ/2]≅ℤ/2)))
-                                ∙∙ sym (cong ℤ/2→H²K² p)
-                                ∙∙ retEq (H²[K²,ℤ/2]≅ℤ/2 .fst) x) 0r)
-                 λ p → subst A ({!!} -- sym (retEq (H²[K²,ℤ/2]≅ℤ/2 .fst) (K²gen.α ⌣ K²gen.α))
-                             ∙∙ cong ℤ/2→H²K² α²↦1
-                             ∙∙ sym (cong ℤ/2→H²K² p)
-                              ∙ retEq (H²[K²,ℤ/2]≅ℤ/2 .fst) x)
-                                1r
-
-  open import Cubical.Data.Sigma
-  open import Cubical.Foundations.HLevels
-  open PlusBis
-  L : (x y : ℕ) → coHom (x +' y) ℤ/2 KleinBottle
-  L zero zero = 1ₕ {G'' = ℤ/2Ring}
-  L zero one = K²gen.β
-  L zero (suc (suc y)) = 0ₕ _
-  L one zero = K²gen.α
-  L one one = _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.β
-  L one (suc (suc y)) = 0ₕ _
-  L two zero = _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α
-  L two (suc y) = 0ₕ _
-  L (suc (suc (suc x))) y = 0ₕ _
-
-  incL : (x : ℕ) → coHom x ℤ/2 KleinBottle
-  incL =
-                 λ { zero → 1ₕ {G'' = ℤ/2Ring}
-                   ; one → K²gen.α
-                   ; two → _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α
-                   ; (suc (suc (suc n))) → 0ₕ _}
-
-  incL-pres⌣ : (n m : ℕ)
-            → incL (n +' m) ≡ (_⌣_ {G'' = ℤ/2Ring} (incL n) (incL m))
-  incL-pres⌣ zero m = sym (1ₕ-⌣ m (incL m))
-  incL-pres⌣ one zero = sym (transportRefl (incL 1)) ∙ sym (⌣-1ₕ 1 (incL one))
-  incL-pres⌣ one one = refl
-  incL-pres⌣ one (suc (suc m)) =
-    isContr→isProp (isContr-HⁿKleinBottle m ℤ/2) _ _
-  incL-pres⌣ two zero = sym (transportRefl (incL 2)) ∙ sym (⌣-1ₕ 2 (incL 2))
-  incL-pres⌣ two (suc m) =
-    isContr→isProp (isContr-HⁿKleinBottle m ℤ/2) _ _
-  incL-pres⌣ (suc (suc (suc n))) m =
-    isContr→isProp (subst (λ n → isContr (coHom n ℤ/2 KleinBottle))
-       (sym (+'≡+ (3 + n) m))
-       (isContr-HⁿKleinBottle (n + m) ℤ/2)) _ _
-
-  incR : (x : ℕ) → coHom x ℤ/2 KleinBottle
-  incR = 
-                 λ { zero → 1ₕ {G'' = ℤ/2Ring}
-                   ; one → K²gen.β
-                   ; (suc (suc n)) → 0ₕ _}
-
-  incR-pres⌣ : (n m : ℕ)
-            → incR (n +' m) ≡ (_⌣_ {G'' = ℤ/2Ring} (incR n) (incR m))
-  incR-pres⌣ zero m = sym (1ₕ-⌣ m (incR m))
-  incR-pres⌣ one zero = sym (transportRefl (incR 1)) ∙ sym (⌣-1ₕ 1 (incR one))
-  incR-pres⌣ one one = sym (IsGroupHom.pres1 (snd (invGroupEquiv H²[K²,ℤ/2]≅ℤ/2)))
-                     ∙∙ sym (cong (ℤ/2→H²K²) β²↦0)
-                     ∙∙ H²K²→ℤ/2→H²K² (_⌣_ {G'' = ℤ/2Ring} K²gen.β K²gen.β)
-  incR-pres⌣ one (suc (suc m)) =
-    isContr→isProp (isContr-HⁿKleinBottle m ℤ/2) _ _
-  incR-pres⌣ (suc (suc n)) zero =
-    sym (transportRefl (incR (2 + n))) ∙ sym (⌣-1ₕ (suc (suc n)) (incR (suc (suc n))))
-  incR-pres⌣ (suc (suc n)) (suc m) =
-    sym (0ₕ-⌣ (suc (suc n)) (suc m) (incR (suc m)))
-
-  V : Cubical.Data.Fin.Fin 2
-     → (r : Vec ℕ 2)
-     → fst (H*R ℤ/2Ring KleinBottle)
-  V = ℤ/2-rec (λ _ → neutral)
-         λ {(x ∷ y ∷ []) → base (x +' y) (incL x ⌣ incR y)}
-
-
-{-
-  V : Cubical.Data.Fin.Fin 2 → (r : Vec ℕ 2)
-     → fst (H*R ℤ/2Ring KleinBottle)
-  V = ℤ/2-rec (λ _ → neutral)
-       λ { (zero ∷ zero ∷ []) → base 0 1ₕ
-         ; (one ∷ zero ∷ []) → base 1 (K²gen.α)
-         ; (two ∷ zero ∷ []) → base 2 (K²gen.α ⌣ K²gen.α)
-         ; (suc (suc (suc x)) ∷ zero ∷ []) → neutral
-         ; (zero ∷ one ∷ []) → base 1 (K²gen.β)
-         ; (one ∷ one ∷ []) → base 2 (K²gen.α ⌣ K²gen.α)
-         ; (two ∷ one ∷ []) → neutral
-         ; (suc (suc (suc x)) ∷ one ∷ []) → neutral
-         ; (zero ∷ suc (suc y) ∷ []) → neutral
-         ; (one ∷ suc (suc y) ∷ []) → neutral
-         ; (two ∷ suc (suc y) ∷ []) → neutral
-         ; (suc (suc (suc x)) ∷ suc (suc y) ∷ []) → neutral }
-         -}
-
-  L2 : (a b : Cubical.Data.Fin.Fin 2) (r : Vec ℕ 2)  →
-    (V a r add V b r) ≡ V ((snd (CommRing→Ring ℤ/2CommRing) +r a) b) r
-  L2 = ℤ/2-elim (ℤ/2-elim (λ r → addRid _)
-                λ r → +IdL (snd (H*R ℤ/2Ring KleinBottle)) (V 1 r))
-                (ℤ/2-elim (λ r → +IdR (snd (H*R ℤ/2Ring KleinBottle)) (V 1 r))
-                  λ r → +TrinvH* (V 1 r))
-  _⌣'_ = _·r_ (snd (H*R ℤ/2Ring KleinBottle))
-
-  pre : fst ℤ/2[X,Y] → fst (H*R ℤ/2Ring KleinBottle)
-  pre = DS-Rec-Set.f _ _ _ _
-    trunc
-    neutral
-    (λ x y → V y x)
-    _add_
-    addAssoc
-    addRid
-    addComm
-    (λ _ → refl)
-    λ r a b → L2 a b r
-
-  ts : IsRingHom (snd ℤ/2[X,Y]R)  pre (snd (H*R ℤ/2Ring KleinBottle)) 
-  ts = makeIsRingHom refl (λ _ _ → refl)
-    (DS-Ind-Prop.f _ _ _ _
-      (λ _ → isPropΠ λ _ → trunc _ _)
-      (λ y → cong pre (RingTheory.0LeftAnnihilates (ℤ/2[X,Y]R) y)
-        ∙ sym (RingTheory.0LeftAnnihilates (H*R ℤ/2Ring KleinBottle) (pre y)))
-      (λ r a → DS-Ind-Prop.f _ _ _ _
-        (λ _ → trunc _ _)
-        (cong pre (RingTheory.0RightAnnihilates (ℤ/2[X,Y]R) (base r a))
-        ∙ sym (RingTheory.0RightAnnihilates (H*R ℤ/2Ring KleinBottle) _))
-         (λ r2 a2 → lem a a2 r r2)
-           λ ind ind2 → cong₂ (_+r_ (snd (H*R ℤ/2Ring KleinBottle))) ind ind2
-                       ∙ sym (·DistR+ (snd (H*R ℤ/2Ring KleinBottle)) _ _ _))
-      λ ind ind2 y → cong₂ (_+r_ (snd (H*R ℤ/2Ring KleinBottle))) (ind y) (ind2 y))
-    where
-    lem : (a b : fst ℤ/2) (r s : Vec ℕ 2) → pre (base r a ·Z/2 base s b)
-                                            ≡ (pre (base r a) ⌣' pre (base s b))
-    lem = ℤ/2-elim
-           (ℤ/2-elim
-            (λ r s → cong pre (base-neutral _)
-                    ∙ cong₂ _⌣'_ (cong pre (sym (base-neutral r)))
-                                  (cong pre (sym (base-neutral s))))
-            λ r s → cong pre (cong (_·Z/2 (base s 1)) (base-neutral _))
-                   ∙ cong (_⌣' pre (base s 1)) (cong pre (sym (base-neutral r))))
-           (ℤ/2-elim
-             (λ r s → cong pre (cong (base r 1 ·Z/2_) (base-neutral s))
-                     ∙ sym (RingTheory.0RightAnnihilates
-                           (H*R ℤ/2Ring KleinBottle) (pre (base r 1)))
-                     ∙ cong (pre (base r 1) ⌣'_) (cong pre (sym (base-neutral s))))
-             λ {(x ∷ y ∷ []) (x2 ∷ y2 ∷ [])
-               → (λ i → base ((+'≡+ x x2 (~ i)) +' (+'≡+ y y2 (~ i))) (incL (+'≡+ x x2 (~ i)) ⌣ incR (+'≡+ y y2 (~ i))))
-                ∙ cong (base ((x +' x2) +' (y +' y2)))
-                       (cong₂ _⌣_ (incL-pres⌣ x x2) (incR-pres⌣ y y2))
-                ∙  PathP-lem _ _ (sym (+'-assoc x x2 (y +' y2))) _ _
-                                 (assoc⌣Dep x x2 (y +' y2) (incL x) (incL x2) (incR y ⌣ incR y2))
-                ∙ PathP-lem _ _ (cong (x +'_) (+'-assoc x2 y y2)) _
-                    _
-                    (λ i → _⌣_ {G'' = ℤ/2Ring} (incL x) (assoc⌣Dep x2 y y2 (incL x2) (incR y) (incR y2) (~ i)))
-                ∙ PathP-lem _ _ (λ i → x +' ((+'-comm x2 y i) +' y2))
-                  _ _ (λ i → _⌣_ {G'' = ℤ/2Ring} (incL x)
-                        (_⌣_ {G'' = ℤ/2Ring}
-                         (⌣-comm-Klein x2 y (incL x2) (incR y) i) (incR y2)))
-                ∙ PathP-lem _ _ (cong (x +'_) (sym (+'-assoc y x2 y2))) _
-                    _
-                    (λ i → _⌣_ {G'' = ℤ/2Ring} (incL x) (assoc⌣Dep y x2 y2 (incR y) (incL x2) (incR y2) i))
-                ∙ PathP-lem _ _ (+'-assoc x y (x2 +' y2)) _ _
-                                 (λ i → assoc⌣Dep x y (x2 +' y2) (incL x) (incR y)
-                                   (_⌣_ {G'' = ℤ/2Ring} (incL x2) (incR y2)) (~ i))})
-       where
-       PathP-lem : (n m : ℕ) (p : n ≡ m) (x : coHom n ℤ/2 KleinBottle) (y : coHom m ℤ/2 KleinBottle)
-         → PathP (λ i → coHom (p i) ℤ/2 KleinBottle) x y
-         → Path (H*R ℤ/2Ring KleinBottle .fst) (base n x) (base m y)
-       PathP-lem n = J> λ x → J> refl
-
-
-  αβ≡ : _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.β ≡ _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α
-  αβ≡ = sym (H²K²→ℤ/2→H²K² (_⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.β))
-     ∙∙ cong ℤ/2→H²K² (αβ↦1 ∙ sym α²↦1)
-     ∙∙ H²K²→ℤ/2→H²K² (_⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α)
-
-  R2 : RingHom (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>) (H*R ℤ/2Ring KleinBottle) 
-  R2 = ℤ/2→ pre ts (base-neutral _) (base-neutral _)
-                    (IsRingHom.pres+ ts XY X²
-                    ∙ base-add 2 _ _
-                    ∙ cong (base 2)
-                       (cong₂ (_+ₕ_) αβ≡
-                             (⌣-1ₕ 2 (incL 2) ∙ transportRefl (incL 2))
-                       ∙ +ₕ≡id-ℤ/2 2 (_⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α))
-                    ∙ base-neutral 2)
-
-  H*→Z[x,y]'' : fst (H*R ℤ/2Ring KleinBottle) → fst (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)
-  H*→Z[x,y]'' =
-    DS-Rec-Set.f _ _ _ _ squash/ [ neutral ]
-      H*→Z[x,y]' 
-      (_+r_ (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
-      (+Assoc (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
-      (+IdR (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
-      (+Comm (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
-      (λ { zero → cong [_] (base-neutral _)
-        ; one → cong [_] (cong₂ _add_ (base-neutral _) (base-neutral _) ∙ addRid neutral)
-        ; two → cong [_] (cong (base (2 ∷ 0 ∷ [])) (IsGroupHom.pres1 (snd (H²[K²,ℤ/2]≅ℤ/2)))
-                        ∙ base-neutral _)
-        ; (suc (suc (suc r))) → refl})
-      λ { zero a b → cong [_] (base-add _ _ _ ∙ cong (base (0 ∷ 0 ∷ [])) (sym (IsGroupHom.pres· (snd (H⁰[K²,ℤ/2]≅ℤ/2)) a b)))
-        ; one a b → cong [_] (move4 _ _ _ _ _add_ addAssoc addComm
-                            ∙ cong₂ _add_ (base-add _ _ _ ∙ cong (base (1 ∷ 0 ∷ []))
-                                          (cong fst (sym (IsGroupHom.pres· (snd (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2)) a b))))
-                                          ((base-add _ _ _ ∙ cong (base (0 ∷ 1 ∷ []))
-                                          (cong snd (sym (IsGroupHom.pres· (snd (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2)) a b))))))
-        ; two a b → cong [_] (base-add _ _ _ ∙ cong (base (2 ∷ 0 ∷ [])) (sym (IsGroupHom.pres· (snd (H²[K²,ℤ/2]≅ℤ/2)) a b)))
-        ; (suc (suc (suc n))) → λ a b → cong [_] (addRid neutral)}
-
-  theEq : RingEquiv (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>) (H*R ℤ/2Ring KleinBottle) 
-  fst theEq = isoToEquiv is
-    where
-    is : Iso  _ _
-    fun is = R2 .fst
-    inv is = H*→Z[x,y]''
-    rightInv is = DS-Ind-Prop.f _ _ _ _
-      (λ _ → trunc _ _)
-      refl
-      (λ { zero a → lem₀ a _ refl
-        ; one a → lem₁ a _ _ refl
-        ; two a → lem₂ a  _ refl
-        ; (suc (suc (suc r))) a →
-            sym (base-neutral _)
-          ∙ cong (base (3 + r)) (isContr→isProp (isContr-HⁿKleinBottle r ℤ/2) (0ₕ (3 + r)) a)})
-      λ {x} {y} ind1 ind2 → IsRingHom.pres+ (R2 .snd) (H*→Z[x,y]'' x) (H*→Z[x,y]'' y)
-                          ∙ cong₂ _add_ ind1 ind2
+    lem₂ : (a : _) (x : _) → H²[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ x
+      → R2 .fst (H*→Z[x,y]'' (base two a)) ≡ base two a
+    lem₂ a =
+      ℤ/2-elim
+        (λ id → cong (R2 .fst ∘ H*→Z[x,y]'')
+                  (cong (base 2) (l1 id) ∙ base-neutral _)
+              ∙∙ sym (base-neutral _)
+              ∙∙ cong (base 2) (sym (l1 id)))
+        λ id → cong (R2 .fst) (cong [_] (cong (base (2 ∷ 0 ∷ []))
+                     (cong H²K²→ℤ/2 (l2 id)
+                     ∙ α²↦1) ))
+             ∙∙ cong (base 2) (⌣-1ₕ 2 (incL 2) ∙ transportRefl (incL 2))
+             ∙∙ cong (base two) (sym (l2 id))
       where
-      lem₂ : (a : _) (x : _) → H²[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ x
-        → R2 .fst (H*→Z[x,y]'' (base two a)) ≡ base two a
-      lem₂ a =
-        ℤ/2-elim
-          (λ id → cong (R2 .fst ∘ H*→Z[x,y]'')
-                    (cong (base 2) (l1 id) ∙ base-neutral _)
-                ∙∙ sym (base-neutral _)
-                ∙∙ cong (base 2) (sym (l1 id)))
-          λ id → cong (R2 .fst) (cong [_] (cong (base (2 ∷ 0 ∷ []))
-                       (cong H²K²→ℤ/2 (l2 id)
-                       ∙ α²↦1) ))
-               ∙∙ cong (base 2) (⌣-1ₕ 2 (incL 2) ∙ transportRefl (incL 2))
-               ∙∙ cong (base two) (sym (l2 id))
-        where
-        l1 : H²[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ 0 → a ≡ 0ₕ 2
-        l1 p = sym (retEq (H²[K²,ℤ/2]≅ℤ/2 .fst) a)
-          ∙ cong (invEq (H²[K²,ℤ/2]≅ℤ/2 .fst)) p
-          ∙ IsGroupHom.pres1 (isGroupHomInv H²[K²,ℤ/2]≅ℤ/2)
+      l1 : H²[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ 0 → a ≡ 0ₕ 2
+      l1 p = sym (retEq (H²[K²,ℤ/2]≅ℤ/2 .fst) a)
+        ∙ cong (invEq (H²[K²,ℤ/2]≅ℤ/2 .fst)) p
+        ∙ IsGroupHom.pres1 (isGroupHomInv H²[K²,ℤ/2]≅ℤ/2)
 
-        l2 : H²[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ 1 → a ≡ _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α
-        l2 p = sym (retEq (H²[K²,ℤ/2]≅ℤ/2 .fst) a)
-            ∙∙ cong (invEq (H²[K²,ℤ/2]≅ℤ/2 .fst)) (p ∙ sym α²↦1)
-            ∙∙ retEq (H²[K²,ℤ/2]≅ℤ/2 .fst)
-                 (_⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α)
+      l2 : H²[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ 1 → a ≡ _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α
+      l2 p = sym (retEq (H²[K²,ℤ/2]≅ℤ/2 .fst) a)
+          ∙∙ cong (invEq (H²[K²,ℤ/2]≅ℤ/2 .fst)) (p ∙ sym α²↦1)
+          ∙∙ retEq (H²[K²,ℤ/2]≅ℤ/2 .fst)
+               (_⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α)
 
-      lem₁ : (a : _) → (x y : _)
-        → H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst a ≡ (x , y)
-        → R2 .fst (H*→Z[x,y]'' (base one a)) ≡ base one a
-      lem₁ a =
-        ℤ/2-elim
-          (ℤ/2-elim
-            (λ id → cong (R2 .fst ∘ [_])
-              (cong₂ _add_ (cong (base (1 ∷ 0 ∷ []))
-                (cong fst id))
-                (cong (base (0 ∷ 1 ∷ []))
-                (cong snd id)))
-                ∙ addRid neutral
-                ∙ sym (l1 a id))
-            λ id → cong (R2 .fst ∘ [_])
-                     (cong₂ _add_
-                       (cong (base (1 ∷ 0 ∷ [])) (cong fst id)
-                       ∙ base-neutral _)
-                       (cong (base (0 ∷ 1 ∷ [])) (cong snd id))
-                     ∙ addComm _ _ ∙ addRid _)
-                 ∙∙ cong (base 1) (1ₕ-⌣ 1 K²gen.β)
-                 ∙∙ cong (base 1) (sym (retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) K²gen.β)
-                       ∙∙ cong (invEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst)) (β↦0,1 ∙ sym id)
-                       ∙∙ retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) a))
-          (ℤ/2-elim
-            (λ id → (cong (R2 .fst ∘ [_])
-                     (cong₂ _add_
-                       (cong (base (1 ∷ 0 ∷ [])) (cong fst id))
-                       (cong (base (0 ∷ 1 ∷ [])) (cong snd id) ∙ base-neutral _)
-                     ∙ addRid _)
-                  ∙ cong (base 1)
-                     (    (⌣-1ₕ 1 K²gen.α ∙ transportRefl K²gen.α)
-                        ∙ (sym (retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) K²gen.α)
-                       ∙∙ cong (invEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst)) (α↦1 ∙ sym id)
-                       ∙∙ retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) a))))
-            λ id → cong (R2 .fst ∘ [_])
-                     (cong₂ _add_
-                       (cong (base (1 ∷ 0 ∷ [])) (cong fst id))
-                       (cong (base (0 ∷ 1 ∷ [])) (cong snd id)))
-                  ∙ IsRingHom.pres+ (snd R2) [ base (1 ∷ 0 ∷ []) 1 ] [ base (0 ∷ 1 ∷ []) 1 ]
-                  ∙ cong₂ _add_
-                          (cong (base one) (⌣-1ₕ 1 (incL 1) ∙ transportRefl K²gen.α))
-                          (cong (base one) (1ₕ-⌣ 1 (incR 1)))
-                  ∙ base-add 1 K²gen.α K²gen.β
-                  ∙ cong (base one)
-                     (sym (retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) (K²gen.α +ₕ K²gen.β))
-                     ∙∙ (cong (invEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst)) (α+β↦1,1 ∙ sym id))
+    lem₁ : (a : _) → (x y : _)
+      → H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst a ≡ (x , y)
+      → R2 .fst (H*→Z[x,y]'' (base one a)) ≡ base one a
+    lem₁ a =
+      ℤ/2-elim
+        (ℤ/2-elim
+          (λ id → cong (R2 .fst ∘ [_])
+            (cong₂ _add_ (cong (base (1 ∷ 0 ∷ []))
+              (cong fst id))
+              (cong (base (0 ∷ 1 ∷ []))
+              (cong snd id)))
+              ∙ addRid neutral
+              ∙ sym (l1 a id))
+          λ id → cong (R2 .fst ∘ [_])
+                   (cong₂ _add_
+                     (cong (base (1 ∷ 0 ∷ [])) (cong fst id)
+                     ∙ base-neutral _)
+                     (cong (base (0 ∷ 1 ∷ [])) (cong snd id))
+                   ∙ addComm _ _ ∙ addRid _)
+               ∙∙ cong (base 1) (1ₕ-⌣ 1 K²gen.β)
+               ∙∙ cong (base 1) (sym (retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) K²gen.β)
+                     ∙∙ cong (invEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst)) (β↦0,1 ∙ sym id)
                      ∙∙ retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) a))
-        where
-        α+β↦1,1 : H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst (K²gen.α +ₕ K²gen.β) ≡ (1 , 1)
-        α+β↦1,1 = refl
+        (ℤ/2-elim
+          (λ id → (cong (R2 .fst ∘ [_])
+                   (cong₂ _add_
+                     (cong (base (1 ∷ 0 ∷ [])) (cong fst id))
+                     (cong (base (0 ∷ 1 ∷ [])) (cong snd id) ∙ base-neutral _)
+                   ∙ addRid _)
+                ∙ cong (base 1)
+                   (    (⌣-1ₕ 1 K²gen.α ∙ transportRefl K²gen.α)
+                      ∙ (sym (retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) K²gen.α)
+                     ∙∙ cong (invEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst)) (α↦1 ∙ sym id)
+                     ∙∙ retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) a))))
+          λ id → cong (R2 .fst ∘ [_])
+                   (cong₂ _add_
+                     (cong (base (1 ∷ 0 ∷ [])) (cong fst id))
+                     (cong (base (0 ∷ 1 ∷ [])) (cong snd id)))
+                ∙ IsRingHom.pres+ (snd R2) [ base (1 ∷ 0 ∷ []) 1 ] [ base (0 ∷ 1 ∷ []) 1 ]
+                ∙ cong₂ _add_
+                        (cong (base one) (⌣-1ₕ 1 (incL 1) ∙ transportRefl K²gen.α))
+                        (cong (base one) (1ₕ-⌣ 1 (incR 1)))
+                ∙ base-add 1 K²gen.α K²gen.β
+                ∙ cong (base one)
+                   (sym (retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) (K²gen.α +ₕ K²gen.β))
+                   ∙∙ (cong (invEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst)) (α+β↦1,1 ∙ sym id))
+                   ∙∙ retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) a))
+      where
+      α+β↦1,1 : H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst (K²gen.α +ₕ K²gen.β) ≡ (1 , 1)
+      α+β↦1,1 = refl
 
-        l1 : (a : _) → H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst a ≡ (0 , 0)
-          → Path (fst (H*R ℤ/2Ring KleinBottle)) (base one a) neutral
-        l1 a p =
-             (sym (cong (base one) (sym (cong (invEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst)) p
-                           ∙ IsGroupHom.pres1 (isGroupHomInv (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2)))
-                           ∙ retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) a)))
-           ∙ base-neutral one
+      l1 : (a : _) → H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst .fst a ≡ (0 , 0)
+        → Path (fst (H*R ℤ/2Ring KleinBottle)) (base one a) neutral
+      l1 a p =
+           (sym (cong (base one) (sym (cong (invEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst)) p
+                         ∙ IsGroupHom.pres1 (isGroupHomInv (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2)))
+                         ∙ retEq (H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 .fst) a)))
+         ∙ base-neutral one
 
-      lem₀ : (a : _) (x : _)  → H⁰[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ x → R2 .fst (H*→Z[x,y]'' (base zero a)) ≡ base zero a
-      lem₀ a = ℤ/2-elim (λ id →  cong (R2 .fst ∘ H*→Z[x,y]'') (l1 id)
-                                ∙ sym (l1 id))
-                        λ id → cong (R2 .fst) (cong [_] (cong (base (0 ∷ 0 ∷ [])) id))
-                             ∙∙ (λ _ → base zero (1ₕ))
-                             ∙∙ cong (base zero) ((sym (cong (invEq (H⁰[K²,ℤ/2]≅ℤ/2 .fst)) id))
-                                                 ∙ retEq (fst H⁰[K²,ℤ/2]≅ℤ/2) a)
-        where
-        l1 : H⁰[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ 0
-          → Path (fst (H*R ℤ/2Ring KleinBottle)) (base zero a) neutral
-        l1 id' = sym (cong (base zero) (sym (cong (invEq (H⁰[K²,ℤ/2]≅ℤ/2 .fst)) id'
-                                ∙ IsGroupHom.pres1 (isGroupHomInv (H⁰[K²,ℤ/2]≅ℤ/2)))
-                                ∙ retEq (fst H⁰[K²,ℤ/2]≅ℤ/2) a))
-               ∙ base-neutral zero
-    leftInv is =
-      SQ.elimProp
+    lem₀ : (a : _) (x : _)  → H⁰[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ x → R2 .fst (H*→Z[x,y]'' (base zero a)) ≡ base zero a
+    lem₀ a = ℤ/2-elim (λ id →  cong (R2 .fst ∘ H*→Z[x,y]'') (l1 id)
+                              ∙ sym (l1 id))
+                      λ id → cong (R2 .fst) (cong [_] (cong (base (0 ∷ 0 ∷ [])) id))
+                           ∙∙ (λ _ → base zero (1ₕ))
+                           ∙∙ cong (base zero) ((sym (cong (invEq (H⁰[K²,ℤ/2]≅ℤ/2 .fst)) id))
+                                               ∙ retEq (fst H⁰[K²,ℤ/2]≅ℤ/2) a)
+      where
+      l1 : H⁰[K²,ℤ/2]≅ℤ/2 .fst .fst a ≡ 0
+        → Path (fst (H*R ℤ/2Ring KleinBottle)) (base zero a) neutral
+      l1 id' = sym (cong (base zero) (sym (cong (invEq (H⁰[K²,ℤ/2]≅ℤ/2 .fst)) id'
+                              ∙ IsGroupHom.pres1 (isGroupHomInv (H⁰[K²,ℤ/2]≅ℤ/2)))
+                              ∙ retEq (fst H⁰[K²,ℤ/2]≅ℤ/2) a))
+             ∙ base-neutral zero
+  leftInv is =
+    SQ.elimProp
+      (λ _ → squash/ _ _)
+      (DS-Ind-Prop.f _ _ _ _
         (λ _ → squash/ _ _)
-        (DS-Ind-Prop.f _ _ _ _
-          (λ _ → squash/ _ _)
-          refl
-          (λ r a → main a r)
-          λ {x} {y} ind1 ind2 → cong₂ (_+r_ (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>))) ind1 ind2
-                               ∙ refl)
-    {- ℤ/2[X,Y]/<X³,Y²,XY+X²>→Prop
-      (λ _ → squash/ _ _ )
-      {!!}
-      {!!}
-      {!!}
-      {!!}
-      {!!}
-      {!!}
-      λ x y id1 id2 → cong H*→Z[x,y]'' (IsRingHom.pres· (snd R2) [ x ] [ y ])
-                     ∙ {!fst R2 [ x ]!}
-                     ∙ {!!}
+        refl
+        (λ r a → main a r)
+        λ {x} {y} ind1 ind2 → cong₂ (_+r_ (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>))) ind1 ind2)
+    where
+    main : (a : ℤ/2 .fst) (r : _) → H*→Z[x,y]'' (R2 .fst [ base r a ]) ≡ [ base r a ]
+    main = ℤ/2-elim (λ r → cong (H*→Z[x,y]'' ∘ R2 .fst) (cong [_] (base-neutral r))
+                          ∙ cong [_] (sym (base-neutral r)))
+                    λ { (zero ∷ zero ∷ []) → refl
+                      ; (zero ∷ one ∷ []) → cong (H*→Z[x,y]'')
+                                              (cong (base 1) (1ₕ-⌣ 1 (incR 1)))
+                                           ∙ cong [_] (cong₂ _add_ (base-neutral _)
+                                                      (λ _ → base (0 ∷ 1 ∷ []) 1)
+                                                    ∙ addComm _ _ ∙ addRid _)
+                      ; (zero ∷ (suc (suc y)) ∷ []) → cong H*→Z[x,y]'' (l2 y)
+                                                     ∙ eq/ _ _
+                                                       ∣ (λ {zero → neutral
+                                                           ; one → base (0 ∷ (y ∷ [])) 1
+                                                           ; two → neutral})
+                                                      , cong (neutral add_)
+                                                         (((λ i → base (0 ∷ (+-comm 2 y i) ∷ []) 1)
+                                                        ∙ sym (addRid (base (0 ∷ (y + 2) ∷ []) (fsuc fzero))))
+                                                       ∙ cong (base (0 ∷ (y + 2) ∷ []) (fsuc fzero) add_) (sym (addRid _))) ∣₁
+                      ; (one ∷ zero ∷ []) → cong H*→Z[x,y]'' (cong (base 1) (⌣-1ₕ 1 (incL one) ∙ transportRefl _))
+                                           ∙ cong [_] (cong₂ _add_ (cong (base (1 ∷ 0 ∷ [])) (cong fst α↦1))
+                                                                   (base-neutral _)
+                                                     ∙ addRid _)
+                      ; (one ∷ one ∷ []) → TypeCheckLem
+                                          ∙ (λ _ → [ base (2 ∷ 0 ∷ []) 1 ])
+                                          ∙ eq/ _ _ ∣ (λ {zero → neutral
+                                                        ; one → neutral
+                                                        ; two → base (0 ∷ 0 ∷ []) 1})
+                                                  , ((addComm _ _
+                                                   ∙ sym (addRid _)
+                                                   ∙ addComm (base (1 ∷ 1 ∷ []) 1 add (base (2 ∷ 0 ∷ []) 1)) neutral
+                                                   ∙ sym (addRid _)
+                                                   ∙ addComm (neutral add (base (1 ∷ 1 ∷ []) 1 add (base (2 ∷ 0 ∷ []) 1))) neutral) -- X² + XY
+                                                   ∙ λ i → neutral add (neutral add (addRid (base (1 ∷ 1 ∷ []) 1 add (base (2 ∷ 0 ∷ []) 1)) (~ i)))) ∣₁
+                      ; (one ∷ suc (suc y) ∷ []) → cong H*→Z[x,y]'' (l3 one y) ∙ sym (XY≡X² y)
+                      ; (two ∷ zero ∷ []) → l4 -- l4
+                      ; (two ∷ suc y ∷ []) → eq/ neutral _ ∣ (λ {zero → base (0 ∷ y ∷ []) 1
+                                                                ; one → neutral
+                                                                ; two → base (1 ∷ y ∷ []) 1})
+                                                            , ((addComm _ _ ∙ addRid _
+                                                            ∙ ((((λ i → base (2 ∷ +-comm 1 y i ∷ []) (fsuc fzero))
+                                                              ∙ sym (addRid _))
+                                                              ∙ cong (base (2 ∷ y + 1 ∷ []) (fsuc fzero) add_)
+                                                                 (sym (base-neutral _) ∙ sym (base-add (3 ∷ y + 0 ∷ []) 1 1)))
+                                                            ∙ addComm _ _)
+                                                            ∙ sym (addAssoc _ _ _))
+                                                            ∙∙ cong (base (3 ∷ y + 0 ∷ []) (fsuc fzero) add_)
+                                                               (addComm _ _
+                                                               ∙ sym (addComm _ _ ∙ addRid _))
+                                                            ∙∙ (λ i → base (3 ∷ (y + 0) ∷ []) 1
+                                                                 add (neutral add addRid (base (2 ∷ (y + 1) ∷ []) 1
+                                                                 add base (3 ∷ (y + 0) ∷ []) 1 ) (~ i)))) ∣₁
+                      ; (suc (suc (suc x)) ∷ y ∷ [])
+                        → clem x y
+                          ∙ eq/ neutral _
+                            ∣ (λ {zero → base (x ∷ y ∷ []) 1
+                               ; one → neutral
+                               ; two → neutral})
+                            , ((addComm neutral (base (suc (suc (suc x)) ∷ y ∷ []) (fsuc fzero))
+                            ∙ cong (base ((3 + x) ∷ y ∷ []) 1 add_) (sym (addRid neutral)))
+                             ∙ λ i → base ((+-comm 3 x i) ∷ (+-comm 0 y i) ∷ []) 1 add (neutral add (addRid neutral (~ i)))) ∣₁}
       where
-      lem1 : (x y : fst (H*R ℤ/2Ring KleinBottle))
-        → {!H*→Z[x,y]'' ? ≡ ?!} -- _·r_ (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)) x y
-        ≡ {!H*→Z[x,y]'!}
-      lem1 = {!!} -}
-      where
-      main : (a : ℤ/2 .fst) (r : _) → H*→Z[x,y]'' (R2 .fst [ base r a ]) ≡ [ base r a ]
-      main = ℤ/2-elim (λ r → cong (H*→Z[x,y]'' ∘ R2 .fst) (cong [_] (base-neutral r))
-                            ∙ cong [_] (sym (base-neutral r)))
-                      λ { (zero ∷ zero ∷ []) → refl
-                        ; (zero ∷ one ∷ []) → cong (H*→Z[x,y]'')
-                                                (cong (base 1) (1ₕ-⌣ 1 (incR 1)))
-                                             ∙ cong [_] (cong₂ _add_ (base-neutral _)
-                                                        (λ _ → base (0 ∷ 1 ∷ []) 1)
-                                                      ∙ addComm _ _ ∙ addRid _)
-                        ; (zero ∷ (suc (suc y)) ∷ []) → cong H*→Z[x,y]'' (l2 y)
-                                                       ∙ eq/ _ _
-                                                         ∣ (λ {zero → neutral
-                                                             ; one → base (0 ∷ (y ∷ [])) 1
-                                                             ; two → neutral})
-                                                        , cong (neutral add_)
-                                                           (((λ i → base (0 ∷ (+-comm 2 y i) ∷ []) 1)
-                                                          ∙ sym (addRid (base (0 ∷ (y + 2) ∷ []) (fsuc fzero))))
-                                                         ∙ cong (base (0 ∷ (y + 2) ∷ []) (fsuc fzero) add_) (sym (addRid _))) ∣₁
-                        ; (one ∷ zero ∷ []) → cong H*→Z[x,y]'' (cong (base 1) (⌣-1ₕ 1 (incL one) ∙ transportRefl _))
-                                             ∙ cong [_] (cong₂ _add_ (cong (base (1 ∷ 0 ∷ [])) (cong fst α↦1))
-                                                                     (base-neutral _)
-                                                       ∙ addRid _)
-                        ; (one ∷ one ∷ []) → TypeCheckLem
-                                            ∙ (λ _ → [ base (2 ∷ 0 ∷ []) 1 ])
-                                            ∙ eq/ _ _ ∣ (λ {zero → neutral
-                                                          ; one → neutral
-                                                          ; two → base (0 ∷ 0 ∷ []) 1})
-                                                    , ((addComm _ _
-                                                     ∙ sym (addRid _)
-                                                     ∙ addComm (base (1 ∷ 1 ∷ []) 1 add (base (2 ∷ 0 ∷ []) 1)) neutral
-                                                     ∙ sym (addRid _)
-                                                     ∙ addComm (neutral add (base (1 ∷ 1 ∷ []) 1 add (base (2 ∷ 0 ∷ []) 1))) neutral) -- X² + XY
-                                                     ∙ λ i → neutral add (neutral add (addRid (base (1 ∷ 1 ∷ []) 1 add (base (2 ∷ 0 ∷ []) 1)) (~ i)))) ∣₁
-                        ; (one ∷ suc (suc y) ∷ []) → {!!}
-                        ; (suc (suc x) ∷ y ∷ []) → {!!}}
-        where
-        lem : H²K²→ℤ/2 (_⌣_ {G'' = ℤ/2Ring} (incL 1) (incR 1)) ≡ fsuc fzero
-        lem = cong H²K²→ℤ/2 (λ _ → _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.β)
-            ∙ αβ↦1
+      clem : (x y : ℕ) → H*→Z[x,y]''
+         (R2 .fst [ base (suc (suc (suc x)) ∷ y ∷ []) (fsuc fzero) ])
+         ≡ [ neutral ]
+      clem x zero = refl
+      clem x (suc n) = refl
 
-        XY≡X² : (y : ℕ) →
-          Path (fst (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>))
-               [ base (one ∷ suc (suc y) ∷ []) (fsuc fzero) ]
-               [ neutral ]
-        XY≡X² y = eq/ _ _ ∣ (λ { zero → {!!} ; (suc x) → {!!}}) -- XY²⁺ⁿ = 
-                          , {!!} ∣₁
+      lem : H²K²→ℤ/2 (_⌣_ {G'' = ℤ/2Ring} (incL 1) (incR 1)) ≡ fsuc fzero
+      lem = cong H²K²→ℤ/2 (λ _ → _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.β)
+          ∙ αβ↦1
 
-        abstract
-          H*→Z[x,y]* : fst (H*R ℤ/2Ring KleinBottle) → fst (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)
-          H*→Z[x,y]* = H*→Z[x,y]''
-          H*→Z[x,y]*≡ : H*→Z[x,y]* ≡ H*→Z[x,y]''
-          H*→Z[x,y]*≡ = refl
+      XY≡X² : (y : ℕ) →
+        Path (fst (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>))
+             [ base (one ∷ suc (suc y) ∷ []) (fsuc fzero) ]
+             [ neutral ]
+      XY≡X² y = eq/ _ _ ∣ (λ { zero → neutral
+                            ; one → base (1 ∷ y ∷ []) 1
+                            ; two → neutral}) -- XY²⁺ⁿ = XYⁿ*Y²
+                        , (sym (addRid _)
+                         ∙ addComm (base (1 ∷ suc (suc y) ∷ []) (fsuc fzero) add neutral) neutral)
+                        ∙ (λ i → neutral add (base (1 ∷ (+-comm 2 y i) ∷ []) 1 add (addRid neutral (~ i)))) ∣₁
 
-          H*→Z[x,y]*≡2 : H*→Z[x,y]* (R2 .fst [ base (one ∷ one ∷ []) (fsuc fzero) ])
-                       ≡ [ base (2 ∷ 0 ∷ []) (H²[K²,ℤ/2]≅ℤ/2 .fst .fst (_⌣_ {G'' = ℤ/2Ring} (incL 1) (incR 1))) ]
-          H*→Z[x,y]*≡2 = refl
+      abstract
+        -- abstract lemmas for faster type checking
+        H*→Z[x,y]* : fst (H*R ℤ/2Ring KleinBottle) → fst (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)
+        H*→Z[x,y]* = H*→Z[x,y]''
 
-          lem3 : (x : _) → H²[K²,ℤ/2]≅ℤ/2 .fst .fst (_⌣_ {G'' = ℤ/2Ring} (incL 1) (incR 1)) ≡ x
-            → H*→Z[x,y]* (R2 .fst [ base (one ∷ one ∷ []) (fsuc fzero) ])
-            ≡ [ base (2 ∷ 0 ∷ []) x ]
-          lem3 = J> refl
+        H*→Z[x,y]*≡ : H*→Z[x,y]* ≡ H*→Z[x,y]''
+        H*→Z[x,y]*≡ = refl
 
-        TypeCheckLem : H*→Z[x,y]'' (R2 .fst [ base (one ∷ one ∷ []) (fsuc fzero) ]) ≡ [ base (2 ∷ 0 ∷ []) (fsuc fzero) ]
-        TypeCheckLem = sym (funExt⁻ H*→Z[x,y]*≡ (R2 .fst [ base (one ∷ one ∷ []) (fsuc fzero) ]))
-                     ∙ lem3 1 lem
-                     
-        l2 : (y : ℕ) → R2 .fst [ base (zero ∷ suc (suc y) ∷ []) (fsuc fzero) ] ≡ neutral
-        l2 zero = cong (base 2) (1ₕ-⌣ 2 (incR two))
-                ∙ base-neutral _
-        l2 (suc y) = base-neutral _
+        H*→Z[x,y]*≡2 : H*→Z[x,y]* (R2 .fst [ base (one ∷ one ∷ []) (fsuc fzero) ])
+                     ≡ [ base (2 ∷ 0 ∷ []) (H²[K²,ℤ/2]≅ℤ/2 .fst .fst (_⌣_ {G'' = ℤ/2Ring} (incL 1) (incR 1))) ]
+        H*→Z[x,y]*≡2 = refl
 
-        l3 : (x y : ℕ) → R2 .fst [ base (x ∷ suc (suc y) ∷ []) (fsuc fzero) ] ≡ neutral
-        l3 zero y = l2 y
-        l3 (suc x) y = (λ i → base (suc (suc (+-suc x y i)))
-                               (transp (λ j → coHom (suc (suc (+-suc x y (i ∧ j)))) ℤ/2 KleinBottle) (~ i)
-                                (_⌣_ {G'' = ℤ/2Ring} (incL (suc x)) (incR (suc (suc y))))))
-                     ∙ cong (base (suc (suc (suc (x + y)))))
-                        (isContr→isProp (isContr-HⁿKleinBottle (x + y) ℤ/2) _ _)
-                     ∙ base-neutral _
-  snd theEq = R2 .snd
+        H²K²→ℤ/2*gen : H*→Z[x,y]* (base 2 (incL two)) ≡ [ base (two ∷ zero ∷ []) (fsuc fzero) ]
+        H²K²→ℤ/2*gen = cong [_] (cong (base (2 ∷ 0 ∷ [])) α²↦1)
 
---   H*→Z[x,y] : RingHom (H*R ℤ/2Ring KleinBottle) (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)
---   fst H*→Z[x,y] = H*→Z[x,y]''
---   snd H*→Z[x,y] =
---     makeIsRingHom refl
---       (λ _ _ → refl)
---       lem+
---     where
---     lem+ : (x y : _) → H*→Z[x,y]'' (x ⌣' y) ≡ (H*→Z[x,y]'' x ·Z/ H*→Z[x,y]'' y) -- H*→Z[x,y]'' ? ≡ (H*→Z[x,y]'' x) ·Z/2 (H*→Z[x,y]'' y)
---     lem+ = DS-Ind-Prop.f _ _ _ _
---             (λ _ → isPropΠ λ _ → squash/ _ _)
---             (λ y → sym (RingTheory.0LeftAnnihilates (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>) (H*→Z[x,y]'' y)))
---             {!!}
---             λ {x} {y} ind1 ind2
---              → λ z
---              → cong (H*→Z[x,y]'') {!·DistR+ (snd (H*R ℤ/2Ring KleinBottle)) x y z!} ∙ {!!}
-    
+        lem3 : (x : _) → H²[K²,ℤ/2]≅ℤ/2 .fst .fst (_⌣_ {G'' = ℤ/2Ring} (incL 1) (incR 1)) ≡ x
+          → H*→Z[x,y]* (R2 .fst [ base (one ∷ one ∷ []) (fsuc fzero) ])
+          ≡ [ base (2 ∷ 0 ∷ []) x ]
+        lem3 = J> refl
 
--- H : ℕ → AbGroup ℓ-zero
--- H zero = ℤ/2
--- H one = dirProdAb ℤ/2 ℤ/2 
--- H two = ℤ/2
--- H (suc (suc (suc n))) = trivialAbGroup
--- open import Cubical.Data.Sigma
--- open import Cubical.Foundations.Equiv
+      H²K²→ℤ/2-lem : (x : _) (p : _⌣_ {G'' = ℤ/2Ring} K²gen.α K²gen.α ≡ x) → H²K²→ℤ/2 x ≡ fsuc fzero
+      H²K²→ℤ/2-lem = J> α²↦1
 
--- Jℕ→AbGroup : ∀ {ℓ} (f : ℕ → AbGroup ℓ-zero)
---     (A : (g : ℕ → AbGroup ℓ-zero) → ((n : ℕ) → AbGroupEquiv (f n) (g n)) → Type ℓ)
---   → A f (λ n → idGroupEquiv)
---   → (g : _) (p : _) → A g p
--- Jℕ→AbGroup f A p g r =
---   transport (λ i → A (l i .fst) (l i .snd)) p
---   where
---   l : Path (Σ[ g ∈ (ℕ → AbGroup ℓ-zero) ] ((n : ℕ) → AbGroupEquiv (f n) (g n)))
---            (f , λ _ → idGroupEquiv)
---            (g , r)
---   l = ΣPathP ((funExt (λ x → AbGroupPath _ _ .fst (r x)))
---            , toPathP (funExt λ n → Σ≡Prop (λ _ → isPropIsGroupHom _ _)
---                (Σ≡Prop (λ _ → isPropIsEquiv _)
---                 (funExt λ x → λ i → transportRefl (fst (fst (r n)) (transportRefl x i)) i))))
+      TypeCheckLem : H*→Z[x,y]'' (R2 .fst [ base (one ∷ one ∷ []) (fsuc fzero) ]) ≡ [ base (2 ∷ 0 ∷ []) (fsuc fzero) ]
+      TypeCheckLem = sym (funExt⁻ H*→Z[x,y]*≡ (R2 .fst [ base (one ∷ one ∷ []) (fsuc fzero) ]))
+                   ∙ lem3 1 lem
 
+      l2 : (y : ℕ) → R2 .fst [ base (zero ∷ suc (suc y) ∷ []) (fsuc fzero) ] ≡ neutral
+      l2 zero = cong (base 2) (1ₕ-⌣ 2 (incR two))
+              ∙ base-neutral _
+      l2 (suc y) = base-neutral _
 
+      l3 : (x y : ℕ) → R2 .fst [ base (x ∷ suc (suc y) ∷ []) (fsuc fzero) ] ≡ neutral
+      l3 zero y = l2 y
+      l3 (suc x) y = (λ i → base (suc (suc (+-suc x y i)))
+                             (transp (λ j → coHom (suc (suc (+-suc x y (i ∧ j)))) ℤ/2 KleinBottle) (~ i)
+                              (_⌣_ {G'' = ℤ/2Ring} (incL (suc x)) (incR (suc (suc y))))))
+                   ∙ cong (base (suc (suc (suc (x + y)))))
+                      (isContr→isProp (isContr-HⁿKleinBottle (x + y) ℤ/2) _ _)
+                   ∙ base-neutral _
 
-
--- open import Cubical.Algebra.GradedRing.DirectSumHIT
--- open PlusBis
--- open GradedRing-⊕HIT-index
--- open GradedRing-⊕HIT-⋆
-
--- -- ⊕HITgradedRing-Ring
-
--- module _ (_·H_ : {n m : ℕ} → H n .fst → H m .fst → H (n +' m) .fst) where
---   cool : Ring ℓ-zero
---   cool = ⊕HITgradedRing-Ring
---            {!!}
---            {!!}
---            {!!}
---            {!!}
---            {!!}
---            {!!}
---            {!!}
---            {!!}
---            {!!}
---            {!!}
---            {!!}
---            {!!}
-
-
---   -- ℤ/2→ : ∀ {ℓ'} {R : Ring ℓ'} (f : fst ℤ/2[X,Y] → fst R)
---   --   → IsRingHom (snd (CommRing→Ring ℤ/2[X,Y])) f (snd R)
---   --   → f (base (3 ∷ (0 ∷ [])) 1) ≡ 0r (snd R)
---   --   → f (base (0 ∷ (2 ∷ [])) 1) ≡ 0r (snd R)
---   --   → f ((base (1 ∷ (1 ∷ [])) 1) add (base (2 ∷ (0 ∷ [])) 1)) ≡ 0r (snd R)
---   --   → RingHom (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>) R
---   -- fst (ℤ/2→ {R = R} f ishom id1 id2 id3) =
---   --   SQ.rec (is-set (snd R)) f
---   --     λ a b
---   --    → PT.rec (is-set (snd R) _ _)
---   --      (uncurry λ F p → sym (sym (IsRingHom.pres+ ishom (a -Z b) b)
---   --                      ∙ cong f (sym (+Assoc (snd Z) a (-Z b) b)
---   --                             ∙ cong (a +Z_) (+InvL (snd Z) b)
---   --                             ∙ +IdR (snd Z) a))
---   --                     ∙∙ cong (_+R (f b)) (cong f p)
---   --                     ∙∙ (cong (_+R (f b))
---   --                         ((λ _ → f (((F zero) ·Z {!!}) +Z {!!}))
---   --                         ∙∙ {!!}
---   --                         ∙∙ {!!})
---   --                      ∙ +IdL (snd R) (f b)))
---   --   where
---   --   _+R_ = _+r_ (snd R)
---   --   -R_ = -_ (snd R)
---   --   _-R_ : fst R → fst R → fst R
---   --   x -R y = x +R (-R y)
-
---   --   Z = CommRing→Ring ℤ/2[X,Y]
-
---   --   _·Z_ = _·r_ (snd Z)
---   --   _+Z_ = _+r_ (snd Z)
---   --   -Z_ = -_ (snd Z)
---   --   _-Z_ : fst Z → fst Z → fst Z
---   --   x -Z y = x +Z (-Z y)
---   -- snd (ℤ/2→ f ishom id1 id2 id3) = {!!}
-  
-
---   -- -- <2Y,Y²,XY,X²> zero  = base (0 ∷ 1 ∷ []) 2
---   -- -- <2Y,Y²,XY,X²> one   = base (0 ∷ 2 ∷ []) 1
---   -- -- <2Y,Y²,XY,X²> two   = base (1 ∷ 1 ∷ []) 1
---   -- -- <2Y,Y²,XY,X²> three = base (2 ∷ 0 ∷ []) 1
-
---   -- -- -- ℤ[X,Y]/<2Y,Y²,XY,X²> : CommRing ℓ-zero
---   -- -- -- ℤ[X,Y]/<2Y,Y²,XY,X²> = PolyCommRing-Quotient ℤCR <2Y,Y²,XY,X²>
-
---   -- -- -- ℤ[x,y]/<2y,y²,xy,x²> : Type ℓ-zero
---   -- -- -- ℤ[x,y]/<2y,y²,xy,x²> = fst ℤ[X,Y]/<2Y,Y²,XY,X²>
+      l4 : H*→Z[x,y]'' (R2 .fst [ base (two ∷ zero ∷ []) (fsuc fzero) ])
+         ≡ [ base (two ∷ zero ∷ []) (fsuc fzero) ]
+      l4 = sym (funExt⁻ H*→Z[x,y]*≡ (base 2 (⌣-1ₕ 2 (incL 2) i0)))
+        ∙ cong H*→Z[x,y]* (cong (base 2) (⌣-1ₕ 2 (incL 2) ∙ transportRefl (incL two)))
+        ∙ H²K²→ℤ/2*gen
+snd theEq = R2 .snd
