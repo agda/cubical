@@ -368,8 +368,8 @@ module _ {R S : CommRing ℓ} (f : CommRingHom S R) where
       asRingHom : CommAlgChar.CommRingWithHom R
       asRingHom = Iso.fun (CommAlgChar.CommAlgIso R) A
 
-  baseChangeHom : {A B : CommAlgebra R ℓ} → CommAlgebraHom A B → CommAlgebraHom (baseChange A) (baseChange B)
-  baseChangeHom {A = A} {B = B} ϕ =
+  baseChangeHom : (A B : CommAlgebra R ℓ) → CommAlgebraHom A B → CommAlgebraHom (baseChange A) (baseChange B)
+  baseChangeHom A B ϕ =
     CommAlgChar.toCommAlgebraHom S (fst homA , snd homA ∘r f) (fst homB , snd homB ∘r f) (fst pbSliceHom) (snd pbSliceHom)
     where open RingHoms
           homA = Iso.fun (CommAlgChar.CommAlgIso R) A
