@@ -38,11 +38,10 @@ open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Localisation.InvertingElements
-open import Cubical.Algebra.CommRing.Localisation.PullbackSquare
+open import Cubical.Algebra.CommRing.Localisation.Limit
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Algebra.CommAlgebra.Instances.Unit
 open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
@@ -95,14 +94,11 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
    _ = snd R'
   ⟨_⟩ₛ : R → CommIdeal -- s is for singleton
   ⟨ f ⟩ₛ = ⟨ replicateFinVec 1 f ⟩[ R' ]
-  ⟨_⟩ₚ : R × R → CommIdeal -- p is for pair
-  ⟨ f , g ⟩ₚ = ⟨ replicateFinVec 1 f ++Fin replicateFinVec 1 g ⟩[ R' ]
-
 
  BasicOpens : ℙ ZL
  BasicOpens 𝔞 = (∃[ f ∈ R ] (D f ≡ 𝔞)) , isPropPropTrunc
 
- BO : Type (ℓ-suc ℓ)
+ BO : Type ℓ
  BO = Σ[ 𝔞 ∈ ZL ] (𝔞 ∈ₚ BasicOpens)
 
  basicOpensAreBasis : IsBasis ZariskiLattice BasicOpens
@@ -122,7 +118,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
  -- The structure presheaf on BO
  ZariskiCat = DistLatticeCategory ZariskiLattice
 
- BOCat : Category (ℓ-suc ℓ) (ℓ-suc ℓ)
+ BOCat : Category ℓ ℓ
  BOCat = ΣPropCat ZariskiCat BasicOpens
 
  private
@@ -156,48 +152,45 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
     Df≤Dg : D f ≤ D g
     Df≤Dg = subst2 _≤_ (sym p) (sym q) 𝔞≤𝔟
 
-    radicalHelper : √ ⟨ f , g ⟩ₚ ≡ √ ⟨ g ⟩ₛ
-    radicalHelper =
-      isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun Df≤Dg
-
     f∈√⟨g⟩ : f ∈ √ ⟨ g ⟩ₛ
-    f∈√⟨g⟩ = subst (f ∈_) radicalHelper (∈→∈√ _ _ (indInIdeal _ _ zero))
+    f∈√⟨g⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst zero
 
 
  open PreSheafFromUniversalProp ZariskiCat P 𝓕 uniqueHom
  𝓞ᴮ : Functor (BOCat ^op) CommRingsCategory
  𝓞ᴮ = funcComp (ForgetfulCommAlgebra→CommRing R') universalPShf
 
+ -- The extension
  open Functor
- open DistLatticeStr ⦃...⦄
- private instance _ = (snd ZariskiLattice)
- abstract
-   foo : ∀ f → universalPShf .F-ob (D f , ∣ f , refl ∣₁) ≡ R[1/ f ]AsCommAlgebra
-   foo f = refl
+ open PreSheafExtension ZariskiLattice CommRingsCategory LimitsCommRingsCategory BasicOpens
+ 𝓞 : Functor (ZariskiCat ^op) CommRingsCategory
+ 𝓞 = DLRan 𝓞ᴮ
+
+ toBasisPath : ∀ f → 𝓞 .F-ob (D f) ≡ 𝓞ᴮ .F-ob (D f , ∣ f , refl ∣₁)
+ toBasisPath f = cong (λ F → F .F-ob (D f , ∣ f , refl ∣₁))
+                      (NatIsoToPath isUnivalentCommRingsCategory (DLRanNatIso 𝓞ᴮ))
+
+
+ open InvertingElementsBase R'
+ globalSections : 𝓞 .F-ob (D 1r) ≡ R'
+ globalSections =
+   𝓞 .F-ob (D 1r)                              ≡⟨ toBasisPath 1r ⟩
+   𝓞ᴮ .F-ob (D 1r , ∣ 1r , refl ∣₁)           ≡⟨ refl ⟩
+   -- all of this should hold by refl -----------------------------------------------------------
+   -- but somehow Agda takes forever to type-check if you don't use -----------------------------
+   -- the lemma funcCompOb≡ (which is just refl itself) or if you leave out ---------------------
+   -- any of the intermediate refl steps --------------------------------------------------------
+     (funcComp (ForgetfulCommAlgebra→CommRing R') universalPShf) .F-ob (D 1r , ∣ 1r , refl ∣₁)
+   ≡⟨ funcCompOb≡ (ForgetfulCommAlgebra→CommRing R') universalPShf _ ⟩
+     ForgetfulCommAlgebra→CommRing R' {ℓ' = ℓ} .F-ob R[1/ 1r ]AsCommAlgebra
+   ≡⟨ refl ⟩
+   ----------------------------------------------------------------------------------------------
+   CommAlgebra→CommRing R[1/ 1r ]AsCommAlgebra ≡⟨ invElCommAlgebra→CommRingPath 1r ⟩
+   R[1/ 1r ]AsCommRing                         ≡⟨ invertingUnitsPath _ _ (Units.RˣContainsOne _) ⟩
+   R' ∎
+
 
  -- TODO: prove that 𝓞ᴮ is a sheaf!!!
-
- -- The extension
- module _ (commRingLimits : Limits CommRingsCategory) where
-  -- should be LimitsCommRingsCategory but then need SmallZarLat here!!!
-  open PreSheafExtension {ℓ'' = ℓ} ZariskiLattice CommRingsCategory commRingLimits BasicOpens
-  𝓞 : Functor (ZariskiCat ^op) (CommRingsCategory {ℓ = ℓ})
-  𝓞 = DLRan 𝓞ᴮ
-
-  toBasisPath : ∀ f → 𝓞 .F-ob (D f) ≡ 𝓞ᴮ .F-ob (D f , ∣ f , refl ∣₁)
-  toBasisPath f = cong (λ F → F .F-ob (D f , ∣ f , refl ∣₁))
-                       (NatIsoToPath isUnivalentCommRingsCategory (DLRanNatIso 𝓞ᴮ))
-
-
-  open InvertingElementsBase R'
-  globalSections : 𝓞 .F-ob (D 1r) ≡ R'
-  globalSections =
-    𝓞 .F-ob 1l                                  ≡⟨ toBasisPath 1r ⟩
-    𝓞ᴮ .F-ob (1l , ∣ 1r , refl ∣₁)             ≡⟨ refl ⟩
-    (funcComp (ForgetfulCommAlgebra→CommRing R') universalPShf) .F-ob (1l , ∣ 1r , refl ∣₁)          ≡⟨ funcCompOb≡ (ForgetfulCommAlgebra→CommRing R') universalPShf _ ⟩
-    (ForgetfulCommAlgebra→CommRing R') .F-ob (universalPShf .F-ob (1l , ∣ 1r , refl ∣₁))             ≡⟨ refl ⟩
-    -- does not compute by refl, even though foo does
-    ForgetfulCommAlgebra→CommRing R' {ℓ' = ℓ} .F-ob R[1/ 1r ]AsCommAlgebra ≡⟨ refl ⟩
-    CommAlgebra→CommRing R[1/ 1r ]AsCommAlgebra ≡⟨ invElCommAlgebra→CommRingPath 1r ⟩
-    R[1/ 1r ]AsCommRing                         ≡⟨ invertingUnitsPath _ _ (Units.RˣContainsOne _) ⟩
-    R' ∎
+ open SheafOnBasis ZariskiLattice (CommRingsCategory {ℓ = ℓ}) BasicOpens basicOpensAreBasis
+ isSheaf𝓞 : isDLBasisSheaf 𝓞ᴮ → isDLSheaf _ _ 𝓞
+ isSheaf𝓞 = isDLSheafDLRan _ _

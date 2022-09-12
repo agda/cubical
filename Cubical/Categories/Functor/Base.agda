@@ -129,6 +129,7 @@ funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
 infixr 30 funcComp
 syntax funcComp G F = G ∘F F
 
+-- hacky lemma to stop Agda from computing too much
 funcCompOb≡ : ∀ (G : Functor D E) (F : Functor C D) (c : ob C)
             → funcComp G F .F-ob c ≡ G .F-ob (F .F-ob c)
 funcCompOb≡ G F c = refl

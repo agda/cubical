@@ -111,7 +111,7 @@ module _ (R' : CommRing ℓ) where
  BasicOpens : ℙ ZL
  BasicOpens 𝔞 = (∃[ f ∈ R ] (D f ≡ 𝔞)) , isPropPropTrunc
 
- BO : Type (ℓ-suc ℓ)
+ BO : Type ℓ
  BO = Σ[ 𝔞 ∈ ZL ] (𝔞 ∈ₚ BasicOpens)
 
  basicOpensAreBasis : IsBasis ZariskiLattice BasicOpens
@@ -131,7 +131,7 @@ module _ (R' : CommRing ℓ) where
  -- The structure presheaf on BO
  ZariskiCat = DistLatticeCategory ZariskiLattice
 
- BOCat : Category (ℓ-suc ℓ) (ℓ-suc ℓ)
+ BOCat : Category ℓ ℓ
  BOCat = ΣPropCat ZariskiCat BasicOpens
 
  private
@@ -165,12 +165,8 @@ module _ (R' : CommRing ℓ) where
     Df≤Dg : D f ≤ D g
     Df≤Dg = subst2 _≤_ (sym p) (sym q) 𝔞≤𝔟
 
-    radicalHelper : √ ⟨ f , g ⟩ₚ ≡ √ ⟨ g ⟩
-    radicalHelper =
-      isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun Df≤Dg
-
     f∈√⟨g⟩ : f ∈ √ ⟨ g ⟩
-    f∈√⟨g⟩ = subst (f ∈_) radicalHelper (∈→∈√ _ _ (indInIdeal _ _ zero))
+    f∈√⟨g⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst zero
 
 
  open PreSheafFromUniversalProp ZariskiCat P 𝓕 uniqueHom
@@ -278,23 +274,23 @@ module _ (R' : CommRing ℓ) where
     ⟨ x , y ⟩ₕ = ⟨ replicateFinVec 1 x ++Fin replicateFinVec 1 y ⟩[ R[1/ h ]AsCommRing ]
 
     -- the crucial algebraic fact:
-    radicalPath : √ ⟨ h ⟩ ≡ √ ⟨ f , g ⟩ₚ
-    radicalPath = isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun DHelper
-     where
-     DHelper : D h ≡ D f ∨z D g
-     DHelper = Dh≡𝔞∨𝔟 ∙ cong₂ (_∨z_) (sym Df≡𝔞) (sym Dg≡𝔟)
+    -- radicalPath : √ ⟨ h ⟩ ≡ √ ⟨ f , g ⟩ₚ
+    -- radicalPath = isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun DHelper
+    --  where
+    DHelper : D h ≡ D f ∨z D g
+    DHelper = Dh≡𝔞∨𝔟 ∙ cong₂ (_∨z_) (sym Df≡𝔞) (sym Dg≡𝔟)
 
     f∈√⟨h⟩ : f ∈ √ ⟨ h ⟩
-    f∈√⟨h⟩ = subst (f ∈_) (sym radicalPath) (∈→∈√ _ _ (indInIdeal _ _ zero))
+    f∈√⟨h⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun (sym DHelper) .fst zero
 
     g∈√⟨h⟩ : g ∈ √ ⟨ h ⟩
-    g∈√⟨h⟩ = subst (g ∈_) (sym radicalPath) (∈→∈√ _ _ (indInIdeal _ _ (suc zero)))
+    g∈√⟨h⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun (sym DHelper) .fst one
 
     fg∈√⟨h⟩ : (f · g) ∈ √ ⟨ h ⟩
     fg∈√⟨h⟩ = √ ⟨ h ⟩ .snd .·Closed f g∈√⟨h⟩
 
     1∈fgIdeal : 1r ∈ₕ ⟨ (f /1) , (g /1) ⟩ₕ
-    1∈fgIdeal = helper1 (subst (h ∈_) radicalPath (∈→∈√ _ _ (indInIdeal _ _ zero)))
+    1∈fgIdeal = helper1 (isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun DHelper .fst zero)
      where
      helper1 : h ∈ √ ⟨ f , g ⟩ₚ
              → 1r ∈ₕ ⟨ (f /1) , (g /1) ⟩ₕ

@@ -9,7 +9,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset renaming ( _∈_ to _∈p_ ; _⊆_ to _⊆p_
-                                                  ; subst-∈ to subst-∈p )
+                                                  ; subst-∈ to subst-∈p)
 
 open import Cubical.Functions.Logic
 
