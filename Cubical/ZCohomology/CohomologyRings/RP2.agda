@@ -397,7 +397,7 @@ module Equiv-RP2-Properties where
   H*-RP²→ℤ[x]/<2x,x²>-pres0 = refl
 
   H*-RP²→ℤ[x]/<2x,x²>-pres+ : (x y : H* RP²) →
-                                H*-RP²→ℤ[x]/<2x,x²> (x +H* y) ≡ (H*-RP²→ℤ[x]/<2x,x²> x) +PℤI (H*-RP²→ℤ[x]/<2x,x²> y)
+                              H*-RP²→ℤ[x]/<2x,x²> (x +H* y) ≡ (H*-RP²→ℤ[x]/<2x,x²> x) +PℤI (H*-RP²→ℤ[x]/<2x,x²> y)
   H*-RP²→ℤ[x]/<2x,x²>-pres+ x y = refl
 
 

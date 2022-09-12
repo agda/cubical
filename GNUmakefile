@@ -51,7 +51,6 @@ check-README:
 .PHONY : check
 check: gen-everythings
 	$(AGDA) Cubical/README.agda
-	$(AGDA) Cubical/WithK.agda
 
 .PHONY : timings
 timings: clean gen-everythings
