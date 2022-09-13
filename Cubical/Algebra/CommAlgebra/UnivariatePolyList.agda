@@ -3,6 +3,7 @@ module Cubical.Algebra.CommAlgebra.UnivariatePolyList where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
 
@@ -31,16 +32,9 @@ module _ (R : CommRing ℓ) where
 
   ListPolyCommAlgebra : CommAlgebra R ℓ
   ListPolyCommAlgebra =
-    commAlgebraFromCommRing
-      ListPoly
-      (λ r x → [ r ] · x)
-      (λ r s x → ([ r · s ] · x)      ≡[ i ]⟨ sym (PolyConst*Hom r s) i · x ⟩
-                 ([ r ] · [ s ]) · x  ≡⟨ sym (·Assoc [ r ] [ s ] x) ⟩
-                  [ r ] · ([ s ] · x) ∎)
-      (λ r x y → ·DistR+ [ r ] x y)
-      (λ r s x → ·DistL+ [ r ] [ s ] x)
-      (λ x → ·IdL x)
-      λ r x y → sym (·Assoc [ r ] x y)
+    Iso.inv (CommAlgChar.CommAlgIso R)
+            (ListPoly ,
+             constantPolynomialHom R)
 
   private
     X : ⟨ ListPolyCommAlgebra ⟩

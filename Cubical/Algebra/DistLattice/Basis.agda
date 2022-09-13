@@ -74,6 +74,5 @@ module _ (L' : DistLattice ℓ) where
    (isSetΣ (isSetDistLattice L') λ _ → isProp→isSet (S _ .snd))
      (λ _ _ _ → Σ≡Prop (λ _ → S _ .snd) (∧lAssoc _ _ _))
        (λ _ → Σ≡Prop (λ _ → S _ .snd) (∧lRid _))
-         (λ _ → Σ≡Prop (λ _ → S _ .snd) (∧lLid _))
            (λ _ _ → Σ≡Prop (λ _ → S _ .snd) (∧lComm _ _))
              λ _ → Σ≡Prop (λ _ → S _ .snd) (∧lIdem _)

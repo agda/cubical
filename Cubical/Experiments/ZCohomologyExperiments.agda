@@ -4,7 +4,7 @@ open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Sn
-open import Cubical.ZCohomology.Groups.WedgeOfSpheres
+open import Cubical.ZCohomology.Groups.S2wedgeS1wedgeS1
 open import Cubical.Foundations.Prelude
 
 open import Cubical.HITs.Truncation
