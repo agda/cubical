@@ -352,20 +352,16 @@ Iso.leftInv (homMapIso {R = R} {I = I} A) =
   λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
                (Theory.homRetrievable A f)
 
+homMapPath : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R (ℓ-max ℓ ℓ'))
+             → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
+homMapPath A = isoToPath (homMapIso A)
+
 inducedHomUnique :
   {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'') (φ : I → fst A )
   → (f : CommAlgebraHom (R [ I ]) A) → ((i : I) → fst f (Construction.var i) ≡ φ i)
   → f ≡ inducedHom A φ
 inducedHomUnique {I = I} A φ f p =
-  f                                            ≡⟨ sym (Iso.leftInv (homMapIso A) f) ⟩
-  inducedHom A (evaluateAt A f)                ≡⟨ ind∘ev≡ ⟩
-  inducedHom A (evaluateAt A (inducedHom A φ)) ≡⟨ Iso.leftInv (homMapIso A) _ ⟩
-  inducedHom A φ ∎
-  where ev≡ : (i : I) → evaluateAt A f i ≡ evaluateAt A (inducedHom A φ) i
-        ev≡ i = p i
-
-        ind∘ev≡ : inducedHom A (evaluateAt A f) ≡ inducedHom A (evaluateAt A (inducedHom A φ))
-        ind∘ev≡ = cong (inducedHom A) (λ j i → ev≡ i j)
+  isoFunInjective (homMapIso A) f (inducedHom A φ) λ j i → p i j
 
 {- Corollary: Two homomorphisms with the same values on generators are equal -}
 equalByUMP : {R : CommRing ℓ} {I : Type ℓ'}
@@ -373,16 +369,7 @@ equalByUMP : {R : CommRing ℓ} {I : Type ℓ'}
            → (f g : CommAlgebraHom (R [ I ]) A)
            → ((i : I) → fst f (Construction.var i) ≡ fst g (Construction.var i))
            → (x : ⟨ R [ I ] ⟩) → fst f x ≡ fst g x
-equalByUMP {R = R} {I = I} A f g p x =
-    fst f x                                                 ≡⟨ step1 ⟩
-    fst (inducedHom A (λ i → fst f (Construction.var i))) x ≡⟨ step2 ⟩
-    fst (inducedHom A (λ i → fst g (Construction.var i))) x ≡⟨ step3 ⟩
-    fst g x ∎
-    where
-      step1 = cong (λ u → fst u x) (inducedHomUnique A (λ i → fst f (Construction.var i)) f (λ _ → refl))
-      step2 : _ ≡ _
-      step2 i = fst (inducedHom A (λ j → p j i)) x
-      step3 = cong (λ u → fst u x) (sym (inducedHomUnique A (λ i → fst g (Construction.var i)) g (λ _ → refl)))
+equalByUMP {R = R} {I = I} A f g = funExt⁻ ∘ cong fst ∘ isoFunInjective (homMapIso A) f g ∘ funExt
 
 {- A corollary, which is useful for constructing isomorphisms to
    algebras with the same universal property -}
@@ -391,10 +378,6 @@ isIdByUMP : {R : CommRing ℓ} {I : Type ℓ'}
           → ((i : I) → fst f (Construction.var i) ≡ Construction.var i)
           → (x : ⟨ R [ I ] ⟩) → fst f x ≡ x
 isIdByUMP {R = R} {I = I} f p = equalByUMP (R [ I ]) f (idCAlgHom (R [ I ])) p
-
-homMapPath : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R (ℓ-max ℓ ℓ'))
-             → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
-homMapPath A = isoToPath (homMapIso A)
 
 -- The homomorphism induced by the variables is the identity.
 inducedHomVar : (R : CommRing ℓ) (I : Type ℓ')
