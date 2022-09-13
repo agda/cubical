@@ -1,12 +1,12 @@
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.Polynomials.UnivariateList.Base where
 
-{-A
+{-
 Polynomials over commutative rings
 ==================================
 -}
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
@@ -62,17 +62,31 @@ module PolyMod (R' : CommRing ℓ) where
    f (x ∷ p) = cons* x p (f p)
    f (drop0 i) = drop0* i
 
-
   -- Given a proposition (as type) ϕ ranging over polynomials, we prove it by:
   -- ElimProp.f ϕ ⌜proof for base case []⌝ ⌜proof for induction case a ∷ p⌝
   --           ⌜proof that ϕ actually is a proposition over the domain of polynomials⌝
   module _ (B : Poly R' → Type ℓ')
-                  ([]* : B [])
-                  (cons* : (r : R) (p : Poly R') (b : B p) → B (r ∷ p))
-                  (BProp : {p : Poly R'} → isProp (B p)) where
+           ([]* : B [])
+           (cons* : (r : R) (p : Poly R') (b : B p) → B (r ∷ p))
+           (BProp : {p : Poly R'} → isProp (B p)) where
    ElimProp : (p : Poly R') → B p
    ElimProp = Elim.f B []* cons* (toPathP (BProp (transport (λ i → B (drop0 i)) (cons* 0r [] []*)) []*))
 
+
+  module _ (B         : Poly R' → Poly R' → Type ℓ')
+           ([][]*     : B [] [])
+           (cons[]*   : (r : R) (p : Poly R') (b : B p []) → B (r ∷ p) [])
+           ([]cons*   : (r : R) (p : Poly R') (b : B [] p) → B [] (r ∷ p))
+           (conscons* : (r s : R) (p q : Poly R') (b : B p q) → B (r ∷ p) (s ∷ q))
+           (BProp     : {p q : Poly R'} → isProp (B p q)) where
+
+    elimProp2 : (p q : Poly R') → B p q
+    elimProp2 =
+      ElimProp
+        (λ p → (q : Poly R') → B p q)
+        (ElimProp (B []) [][]* (λ r p b → []cons* r p b) BProp)
+        (λ r p b → ElimProp (λ q → B (r ∷ p) q) (cons[]* r p (b [])) (λ s q b' → conscons* r s p q (b q)) BProp)
+        (isPropΠ (λ _ → BProp))
 
   module Rec (B : Type ℓ')
              ([]* : B)
@@ -132,6 +146,21 @@ module PolyMod (R' : CommRing ℓ) where
   Poly→PolyFun : Poly R' → PolyFun
   Poly→PolyFun p = (Poly→Fun p) , (Poly→Prf p)
 
+  -- this function corresponds to multiplication by the indeterminate X and
+  -- is used to show that multiplication by X is injective on Poly R'
+  shiftFun : PolyFun → PolyFun
+  fst (shiftFun _) zero = 0r
+  fst (shiftFun (f , _)) (suc n) = f n
+  snd (shiftFun (f , f-vanishes)) =
+    PT.rec
+      isPropPropTrunc
+      (λ (k , vanishes-at-k)
+        → ∣ (suc k) ,
+            (λ {zero → λ _ → refl;
+                (suc m) → λ k+1≤m+1 → vanishes-at-k m (pred-≤-pred k+1≤m+1)
+               })
+          ∣₁)
+      f-vanishes
 
 ----------------------------------------------------
 -- Start of code by Anders Mörtberg and Evan Cavallo
