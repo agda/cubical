@@ -95,16 +95,9 @@ module CommAlgChar (R : CommRing ℓ) where
  CommRingWithHomRoundTrip (A , φ) = ΣPathP (APath , φPathP)
   where
   open CommRingStr
-  -- note that the proofs of the axioms might differ!
+
   APath : fst (fromCommAlg (toCommAlg (A , φ))) ≡ A
-  fst (APath i) = ⟨ A ⟩
-  0r (snd (APath i)) = 0r (snd A)
-  1r (snd (APath i)) = 1r (snd A)
-  _+_ (snd (APath i)) = _+_ (snd A)
-  _·_ (snd (APath i)) = _·_ (snd A)
-  -_ (snd (APath i)) = -_ (snd A)
-  isCommRing (snd (APath i)) = isProp→PathP (λ i → isPropIsCommRing _ _ _ _ _ )
-             (isCommRing (snd (fst (fromCommAlg (toCommAlg (A , φ)))))) (isCommRing (snd A)) i
+  APath = commAlgebraFromCommRing→CommRing A _ _ _ _ _ _
 
   -- this only works because fst (APath i) = fst A definitionally!
   φPathP : PathP (λ i → CommRingHom R (APath i)) (snd (fromCommAlg (toCommAlg (A , φ)))) φ
