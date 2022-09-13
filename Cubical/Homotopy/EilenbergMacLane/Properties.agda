@@ -323,6 +323,22 @@ module _ {G : AbGroup ℓ} where
   EM→ΩEM+1-hom (suc zero) x y = σ-EM'-hom zero x y
   EM→ΩEM+1-hom (suc (suc n)) x y = σ-EM'-hom (suc n) x y
 
+  EM→ΩEM+1-sym : (n : ℕ) (x : EM G n) → EM→ΩEM+1 n (-ₖ x) ≡ sym (EM→ΩEM+1 n x)
+  EM→ΩEM+1-sym n =
+    morphLemmas.distrMinus _+ₖ_ _∙_ (EM→ΩEM+1 n) (EM→ΩEM+1-hom n)
+      (0ₖ n) refl
+      -ₖ_ sym
+      (λ x → sym (lUnit x)) (λ x → sym (rUnit x))
+      (lCancelₖ n) rCancel
+      ∙assoc
+      (EM→ΩEM+1-0ₖ n)
+
+  ΩEM+1→EM-sym : (n : ℕ) (p : typ (Ω (EM∙ G (suc n))))
+    → ΩEM+1→EM n (sym p) ≡ -ₖ (ΩEM+1→EM n p)
+  ΩEM+1→EM-sym n p = sym (cong (ΩEM+1→EM n) (EM→ΩEM+1-sym n (ΩEM+1→EM n p)
+                    ∙ cong sym (Iso.rightInv (Iso-EM-ΩEM+1 n) p)))
+                    ∙ Iso.leftInv (Iso-EM-ΩEM+1 n) (-ₖ ΩEM+1→EM n p)
+
   ΩEM+1→EM-hom : (n : ℕ) → (p q : typ (Ω (EM∙ G (suc n))))
     → ΩEM+1→EM n (p ∙ q) ≡ (ΩEM+1→EM n p) +[ n ]ₖ (ΩEM+1→EM n q)
   ΩEM+1→EM-hom n =
@@ -347,6 +363,82 @@ module _ {G : AbGroup ℓ} where
   isHomogeneousEM : (n : ℕ) → isHomogeneous (EM∙ G n)
   isHomogeneousEM n x =
     ua∙ (isoToEquiv (addIso n x)) (lUnitₖ n x)
+
+  isCommΩEM-base : (n : ℕ) (x : _)
+    (p q : typ (Ω (EM G  (suc n) , x))) → p ∙ q ≡ q ∙ p
+  isCommΩEM-base n =
+    EM-raw'-elim _ _ (λ _ → isOfHLevelΠ2 (2 + n)
+                     λ _ _ → isOfHLevelPath (2 + n)
+                              (hLevelEM _ (suc n) _ _) _ _)
+    (EM-raw'-trivElim _ _
+     (λ _ → isOfHLevelΠ2 (suc n) λ _ _ → hLevelEM _ (suc n) _ _ _ _)
+      (lem n))
+    where
+    * : (n : ℕ) → _
+    * n = EM-raw'→EM G (suc n) (snd (EM-raw'∙ G (suc n)))
+
+    lem : (n : ℕ) (p q : typ (Ω (EM G (suc n) , * n)))
+             →  p ∙ q ≡ q ∙ p
+    lem zero = isCommΩEM zero
+    lem (suc n) = isCommΩEM (suc n)
+
+  -- ΩEM+1→EM for arbitrarily based loops. Defining it by pattern
+  -- matching is more involved but should give better computational
+  -- properties.
+  ΩEM+1→EM-gen : (n : ℕ) (x : EM G (suc n)) → x ≡ x → EM G n
+  ΩEM+1→EM-gen zero =
+    elimSet _ (λ _ → isSetΠ λ _ → is-set) (ΩEM+1→EM 0)
+      λ g → toPathP (funExt
+        λ q → transportRefl (ΩEM+1→EM 0
+                (transport (λ i → Path (EM G (suc zero))
+                   (emloop g (~ i)) (emloop g (~ i))) q))
+      ∙ cong (ΩEM+1→EM 0)
+           (fromPathP
+             (doubleCompPath-filler (emloop g) q (sym (emloop g))
+           ▷ (doubleCompPath≡compPath _ _ _
+           ∙∙ cong (emloop g ∙_) (isCommΩEM 0 q (sym (emloop g)))
+           ∙∙ ∙assoc _ _ _
+           ∙∙ cong (_∙ q) (rCancel (emloop g))
+           ∙∙ sym (lUnit q)))))
+  ΩEM+1→EM-gen (suc n) =
+    trElim (λ _ → isOfHLevelΠ (4 + n)
+             λ _ → isOfHLevelSuc (3 + n) (hLevelEM _ (suc n)))
+      λ { north → ΩEM+1→EM (suc n)
+        ; south p → ΩEM+1→EM (suc n) (cong ∣_∣ₕ (merid ptEM-raw)
+                                    ∙∙ p
+                                    ∙∙ cong ∣_∣ₕ (sym (merid ptEM-raw)))
+        ; (merid a i) → help a i}
+        where
+        help : (a : EM-raw G (suc n))
+          → PathP (λ i → Path (EM G (suc (suc n))) ∣ merid a i ∣ ∣ merid a i ∣
+                        → EM G (suc n))
+                   (ΩEM+1→EM (suc n))
+                   λ p → ΩEM+1→EM (suc n) (cong ∣_∣ₕ (merid ptEM-raw)
+                                         ∙∙ p
+                                         ∙∙ cong ∣_∣ₕ (sym (merid ptEM-raw)))
+        help a =
+          toPathP (funExt (λ p →
+            (transportRefl (ΩEM+1→EM (suc n)
+              (transport (λ i → Path (EM G (suc (suc n)))
+                                  ∣ merid a (~ i) ∣ ∣ merid a (~ i) ∣) p))
+           ∙ cong (ΩEM+1→EM (suc n))
+             (flipTransport
+               (((rUnit p
+                 ∙ cong (p ∙_) (sym (lCancel _)))
+                ∙ isCommΩEM-base (suc n) ∣ south ∣ p _)
+              ∙∙ sym (∙assoc _ _ p)
+              ∙∙ cong₂ _∙_ (cong (cong ∣_∣ₕ)
+                            (sym (cong sym (symDistr
+                             (sym (merid a)) (merid ptEM-raw)))))
+                           (isCommΩEM-base _ _ _ p)
+              ∙∙ sym (doubleCompPath≡compPath _ _ _)
+              ∙∙ λ j → transp (λ i → Path (EM G (suc (suc n)))
+                              ∣ merid a (i ∨ ~ j) ∣ ∣ merid a (i ∨ ~ j) ∣) (~ j)
+                       (cong ∣_∣ₕ (compPath-filler'
+                          (sym (merid a)) (merid ptEM-raw) (~ j))
+                     ∙∙ p
+                     ∙∙ cong ∣_∣ₕ (compPath-filler
+                         (sym (merid ptEM-raw)) (merid a) (~ j))))))))
 
   EM→ΩEM+1∘EM-raw→EM : (n : ℕ) (x : EM-raw G (suc n))
     → EM→ΩEM+1 (suc n) (EM-raw→EM _ _ x) ≡ cong ∣_∣ₕ (merid x ∙ sym (merid ptEM-raw))

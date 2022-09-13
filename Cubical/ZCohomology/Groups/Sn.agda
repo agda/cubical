@@ -306,23 +306,21 @@ Hⁿ-Sᵐ≅0 (suc n) (suc m) pf = suspensionAx-Sn n m
 
 -------------- A nice packaging for the Hⁿ-Sⁿ  ----------------
 
-code : (m n : ℕ) → Type ℓ-zero
-code zero     zero   = GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
-code zero    (suc n) = GroupIso (coHomGr 0 (S₊ (suc n))) ℤGroup
-code (suc m)  zero   = GroupIso (coHomGr (suc m) (S₊ 0)) UnitGroup₀
-code (suc m) (suc n) with (discreteℕ m n)
+code : (n m : ℕ) → Type ℓ-zero
+code  zero    zero   = GroupIso (coHomGr 0 (S₊ 0)) (DirProd ℤGroup ℤGroup)
+code  zero   (suc m) = GroupIso (coHomGr 0 (S₊ (suc m))) ℤGroup
+code (suc n)  zero   = GroupIso (coHomGr (suc n) (S₊ 0)) UnitGroup₀
+code (suc n) (suc m) with (discreteℕ n m)
 ... | yes p = GroupIso (coHomGr (suc n) (S₊ (suc n))) ℤGroup
 ... | no ¬p = GroupIso (coHomGr (suc n) (S₊ (suc m))) UnitGroup₀
 
-Hᵐ-Sⁿ : (m n : ℕ) → code m n
-Hᵐ-Sⁿ zero     zero   = H⁰-S⁰≅ℤ×ℤ
-Hᵐ-Sⁿ zero    (suc n) = H⁰-Sⁿ≅ℤ n
-Hᵐ-Sⁿ (suc m)  zero   = Hⁿ-S⁰≅0 m
-Hᵐ-Sⁿ (suc m) (suc n) with discreteℕ m n
+Hⁿ-Sᵐ : (n m : ℕ) → code n m
+Hⁿ-Sᵐ  zero    zero   = H⁰-S⁰≅ℤ×ℤ
+Hⁿ-Sᵐ  zero   (suc m) = H⁰-Sⁿ≅ℤ m
+Hⁿ-Sᵐ (suc n)  zero   = Hⁿ-S⁰≅0 n
+Hⁿ-Sᵐ (suc n) (suc m) with discreteℕ n m
 ... | yes p = Hⁿ-Sⁿ≅ℤ n
-... | no ¬p = Hⁿ-Sᵐ≅0 n m λ e → ¬p (sym e)
-
-
+... | no ¬p = Hⁿ-Sᵐ≅0 n m ¬p
 
 -- Test functions
 private

@@ -48,7 +48,7 @@ module _ {G : AbGroup ℓ} where
       → PathP (λ i → Path (EM₁ (AbGroup→Group G))
                (emloop h i) (emloop h i)) (emloop g) (emloop g)
     helper g h =
-      comm→PathP
+      compPath→Square
         ((sym (emloop-comp _ h g)
           ∙∙ cong emloop (+Comm h g)
           ∙∙ emloop-comp _ g h))
