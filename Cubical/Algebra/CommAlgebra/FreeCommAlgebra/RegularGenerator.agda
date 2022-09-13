@@ -10,6 +10,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Unit
 
@@ -67,3 +68,13 @@ module _ {R : CommRing ℓ} where
       fst (fst List→HIT) X-List · fst (fst List→HIT) (fst (fst HIT→List) p) ≡[ i ]⟨ typevariateListPolyInvGenerator i · fst (fst List→HIT) (fst (fst HIT→List) p) ⟩
       X · fst (fst List→HIT) (fst (fst HIT→List) p)                         ≡[ i ]⟨ X · (Iso.leftInv typevariateListPolyIso p i ) ⟩
       X · p ∎
+
+  prod-X-isEmbedding : isEmbedding (X ·_)
+  prod-X-isEmbedding =
+    subst isEmbedding
+          (λ i p → commutes p i)
+          (isEmbedding-∘ {f = (fst (fst List→HIT))}
+            (isEquiv→isEmbedding (snd (fst List→HIT)))
+            (isEmbedding-∘ {f = prod-Xn 1} {h = fst (fst HIT→List)}
+              (prod-X-embedding R)
+              (isEquiv→isEmbedding (snd (fst HIT→List)))))
