@@ -20,9 +20,12 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat using (ℕ ; zero ; suc)
+open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Monoid.BigOp
 open import Cubical.Algebra.CommMonoid
 
 open import Cubical.Displayed.Base
@@ -75,24 +78,22 @@ makeIsSemilattice : {L : Type ℓ} {ε : L} {_·_ : L → L → L}
                (is-setL : isSet L)
                (assoc : (x y z : L) → x · (y · z) ≡ (x · y) · z)
                (rid : (x : L) → x · ε ≡ x)
-               (lid : (x : L) → ε · x ≡ x)
                (comm : (x y : L) → x · y ≡ y · x)
                (idem : (x : L) → x · x ≡ x)
              → IsSemilattice ε _·_
-IsSemilattice.isCommMonoid (makeIsSemilattice is-setL assoc rid lid comm idem) =
+IsSemilattice.isCommMonoid (makeIsSemilattice is-setL assoc rid comm idem) =
                                         makeIsCommMonoid is-setL assoc rid comm
-IsSemilattice.idem (makeIsSemilattice is-setL assoc rid lid comm idem) = idem
+IsSemilattice.idem (makeIsSemilattice is-setL assoc rid comm idem) = idem
 
 makeSemilattice : {L : Type ℓ} (ε : L) (_·_ : L → L → L)
              (is-setL : isSet L)
              (assoc : (x y z : L) → x · (y · z) ≡ (x · y) · z)
              (rid : (x : L) → x · ε ≡ x)
-             (lid : (x : L) → ε · x ≡ x)
              (comm : (x y : L) → x · y ≡ y · x)
              (idem : (x : L) → x · x ≡ x)
              → Semilattice ℓ
-makeSemilattice ε _·_ is-setL assoc rid lid comm idem =
-  semilattice _ ε _·_ (makeIsSemilattice is-setL assoc rid lid comm idem)
+makeSemilattice ε _·_ is-setL assoc rid comm idem =
+  semilattice _ ε _·_ (makeIsSemilattice is-setL assoc rid comm idem)
 
 
 SemilatticeStr→MonoidStr : {A : Type ℓ} → SemilatticeStr A → MonoidStr A
@@ -147,9 +148,9 @@ SemilatticePath = ∫ 𝒮ᴰ-Semilattice .UARel.ua
 -- TODO: decide if that's the right approach
 module JoinSemilattice (L' : Semilattice ℓ) where
  private L = fst L'
- open SemilatticeStr (snd L') renaming (_·_ to _∨l_ ; ε to 1l)
+ open SemilatticeStr (snd L') renaming (_·_ to _∨l_ ; ε to 0l)
  open CommMonoidTheory (Semilattice→CommMonoid L')
-
+ open MonoidBigOp (Semilattice→Monoid L')
 
  _≤_ : L → L → Type ℓ
  x ≤ y = x ∨l y ≡ y
@@ -190,10 +191,34 @@ module JoinSemilattice (L' : Semilattice ℓ) where
  ≤-∨LPres : ∀ x y z → x ≤ y → z ∨l x ≤ z ∨l y
  ≤-∨LPres x y z x≤y = ≤-∨Pres _ _ _ _ (idem z) x≤y
 
+ ≤-∨RPres : ∀ x y z → x ≤ y → x ∨l z ≤ y ∨l z
+ ≤-∨RPres x y z x≤y = ≤-∨Pres _ _ _ _ x≤y (idem z)
+
+ -- inequalities of bigOps
+ open IsPoset (PosetStr.isPoset (snd IndPoset))
+ open PosetReasoning IndPoset
+
+
+ ind≤bigOp : {n : ℕ} (U : FinVec L n) (i : Fin n) → U i ≤ bigOp U
+ ind≤bigOp {n = suc n} U zero = ∨≤RCancel _ _
+ ind≤bigOp {n = suc n} U (suc i) = is-trans _ (bigOp (U ∘ suc)) _ (ind≤bigOp (U ∘ suc) i)
+                                                                  (∨≤LCancel _ _)
+
+ bigOpIsMax : {n : ℕ} (U : FinVec L n) (x : L) → (∀ i → U i ≤ x) → bigOp U ≤ x
+ bigOpIsMax {n = zero} _ _ _ = ·IdL _
+ bigOpIsMax {n = suc n} U x U≤x =
+   bigOp U                   ≤⟨ is-refl _ ⟩
+   U zero ∨l bigOp (U ∘ suc) ≤⟨ ≤-∨LPres _ _ _ (bigOpIsMax _ _ (U≤x ∘ suc)) ⟩
+   U zero ∨l x               ≤⟨ ∨lIsMax _ _ _ (U≤x zero) (is-refl x) ⟩
+   x ◾
+
+ ≤-bigOpExt : {n : ℕ} (U W : FinVec L n) → (∀ i → U i ≤ W i) → bigOp U ≤ bigOp W
+ ≤-bigOpExt {n = zero} U W U≤W = is-refl 0l
+ ≤-bigOpExt {n = suc n} U W U≤W = ≤-∨Pres _ _ _ _ (U≤W zero) (≤-bigOpExt _ _ (U≤W ∘ suc))
 
 module MeetSemilattice (L' : Semilattice ℓ) where
  private L = fst L'
- open SemilatticeStr (snd L') renaming (_·_ to _∧l_ ; ε to 0l)
+ open SemilatticeStr (snd L') renaming (_·_ to _∧l_ ; ε to 1l)
  open CommMonoidTheory (Semilattice→CommMonoid L')
 
  _≤_ : L → L → Type ℓ
@@ -220,6 +245,12 @@ module MeetSemilattice (L' : Semilattice ℓ) where
 
  ≤-∧LPres : ∀ x y z → x ≤ y → z ∧l x ≤ z ∧l y
  ≤-∧LPres x y z x≤y = commAssocSwap z x z y ∙∙ cong (_∧l (x ∧l y)) (idem z) ∙∙ cong (z ∧l_) x≤y
+
+ ≤-∧RPres : ∀ x y z → x ≤ y → x ∧l z ≤ y ∧l z
+ ≤-∧RPres x y z x≤y = commAssocSwap x z y z ∙∙ cong (x ∧l y ∧l_) (idem z) ∙∙ cong (_∧l z) x≤y
+
+ ≤-∧Pres : ∀ x y z w → x ≤ y → z ≤ w → x ∧l z ≤ y ∧l w
+ ≤-∧Pres x y z w x≤y z≤w = commAssocSwap x z y w ∙ cong₂ _∧l_ x≤y z≤w
 
  ∧≤LCancel : ∀ x y → x ∧l y ≤ y
  ∧≤LCancel x y = sym (·Assoc _ _ _) ∙ cong (x ∧l_) (idem y)
