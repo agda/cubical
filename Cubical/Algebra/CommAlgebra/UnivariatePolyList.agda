@@ -3,12 +3,17 @@ module Cubical.Algebra.CommAlgebra.UnivariatePolyList where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat using (ℕ)
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
@@ -244,3 +249,22 @@ module _ (R : CommRing ℓ) where
                           X
                           (idCAlgHom ListPolyCommAlgebra)
                           refl))
+
+
+  {- The goal of this section is to show that the map 'X ·_' is an embedding -}
+  ListPolyGroup = AbGroup→Group (Algebra→AbGroup (CommAlgebra→Algebra ListPolyCommAlgebra))
+
+  prod-Xn-GroupHom : (n : ℕ) → GroupHom ListPolyGroup ListPolyGroup
+  fst (prod-Xn-GroupHom n) = prod-Xn n
+  snd (prod-Xn-GroupHom n) = makeIsGroupHom (λ x y → sym (prod-Xn-sum n x y))
+
+  prod-X-embedding : isEmbedding (prod-Xn 1)
+  prod-X-embedding =
+    isContrKer→isEmbedding X· isContrKerX·
+    where
+      X· = prod-Xn-GroupHom 1
+      open IsGroupHom (snd X·)
+      isContrKerX· = ((0r , pres1) ,
+                      λ (y , X·y≡0)
+                        → Σ≡Prop (λ _ → is-set _ _)
+                                 (sym (prod-X-injective y X·y≡0)))
