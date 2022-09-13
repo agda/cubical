@@ -164,6 +164,13 @@ isContrKer→isInjective {G = G} f ((a , b) , c) x y = cong fst (sym (c (x , y))
   rem : (a , b) ≡ (1g (snd G) , pres1 (snd f))
   rem = c (1g (snd G) , pres1 (snd f))
 
+{- Put everything together and stregthen it, using the lemma that monos into sets are embeddings -}
+isContrKer→isEmbedding : (f : GroupHom G H) → isContr (Ker f) → isEmbedding (fst f)
+isContrKer→isEmbedding {H = H} f isContrKer =
+  injEmbedding (is-set (snd H))
+               (isInjective→isMono
+                 f
+                 (isContrKer→isInjective f isContrKer))
 
 -- Special homomorphisms and operations (id, composition...)
 idGroupHom : GroupHom G G
