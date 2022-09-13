@@ -386,13 +386,13 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open RingHoms
   baseChangeId : baseChange (idRingHom (CommRing→Ring R)) A ≡ A
   baseChangeId =
-    baseChange (idRingHom (CommRing→Ring R)) A ≡⟨⟩
+    baseChange (idCommRingHom R) A                               ≡⟨⟩
     Iso.inv isoToRingHom (fst asRingHom , (snd asRingHom) ∘r id) ≡⟨ congIdComp ⟩
     Iso.inv isoToRingHom asRingHom                               ≡⟨ useIso ⟩
     A ∎
     where
       isoToRingHom = CommAlgChar.CommAlgIso R
-      id = idRingHom (CommRing→Ring R)
+      id = idCommRingHom R
       asRingHom : CommAlgChar.CommRingWithHom R
       asRingHom = Iso.fun isoToRingHom A
       congIdComp = λ i → Iso.inv isoToRingHom (fst asRingHom , compIdRingHom (snd asRingHom) i)
@@ -405,7 +405,7 @@ module _ {R S T : CommRing ℓ} (f : CommRingHom S R) (g : CommRingHom T S) wher
   baseChangeComp A =
       compAndBundle (Iso.fun isoS (Iso.inv isoS changedAasHom)) ≡⟨ cong compAndBundle (Iso.rightInv isoS changedAasHom) ⟩
       Iso.inv isoT (fst asHomA , ((snd asHomA) ∘r f) ∘r g)      ≡⟨ congStep  ⟩
-      baseChange (compRingHom g f) A ∎
+      baseChange (f ∘r g) A ∎
     where
       isoR = CommAlgChar.CommAlgIso R
       isoS = CommAlgChar.CommAlgIso S
@@ -416,5 +416,5 @@ module _ {R S T : CommRing ℓ} (f : CommRingHom S R) (g : CommRingHom T S) wher
       asHomA = Iso.fun isoR A
       changedAasHom = fst asHomA , (snd asHomA) ∘r f
 
-      congStep : Iso.inv isoT (fst asHomA , ((snd asHomA) ∘r f) ∘r g) ≡ baseChange (compRingHom g f) A
+      congStep : Iso.inv isoT (fst asHomA , ((snd asHomA) ∘r f) ∘r g) ≡ baseChange (f ∘r g) A
       congStep i = Iso.inv isoT (fst asHomA , sym (compAssocRingHom g f (snd asHomA)) i)
