@@ -482,10 +482,12 @@ module _ where
              ◁ ((λ i → 0ₖ (PlusBis.+'-comm 0 n i))
              ▷ sym (⌣ₖ-0ₖ n 0 y)))
                (λ y → 1ₖ-⌣ₖ n y
-               ◁ (λ i → transp (λ j →  EM ℤ/2 (PlusBis.+'-comm 0 n (i ∧ j))) (~ i) y)
+               ◁ (λ i → transp (λ j →  EM ℤ/2 (PlusBis.+'-comm 0 n (i ∧ j)))
+                                (~ i) y)
                ▷ sym (⌣ₖ-1ₖ n y))
 
-⌣-comm-Klein : (n m : ℕ) (x : coHom n ℤ/2 KleinBottle) (y : coHom m ℤ/2 KleinBottle)
+⌣-comm-Klein : (n m : ℕ)
+  (x : coHom n ℤ/2 KleinBottle) (y : coHom m ℤ/2 KleinBottle)
   → PathP (λ i → coHom (PlusBis.+'-comm n m i) ℤ/2 KleinBottle)
            (_⌣_ {G'' = ℤ/2Ring} x y)
            (_⌣_ {G'' = ℤ/2Ring} y x)

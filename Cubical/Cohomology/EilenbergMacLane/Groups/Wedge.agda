@@ -34,11 +34,6 @@ private
   variable
     ℓ ℓ' : Level
 
--0ₖ : {G : AbGroup ℓ'} (n : ℕ) → -[ n ]ₖ (0ₖ {G = G} n) ≡ 0ₖ n
--0ₖ {G = G} zero = GroupTheory.inv1g (AbGroup→Group G)
--0ₖ (suc zero) = refl
--0ₖ (suc (suc n)) = refl
-
 module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
   A∨B = A ⋁ B
 
@@ -46,7 +41,8 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
 
   private
     ×H : (n : ℕ) → AbGroup _
-    ×H n = dirProdAb (coHomGr (suc n) G (fst A)) (coHomGr (suc n) G (fst B))
+    ×H n = dirProdAb (coHomGr (suc n) G (fst A))
+                     (coHomGr (suc n) G (fst B))
 
   Hⁿ×→Hⁿ-⋁ : (n : ℕ) → (A ⋁ B → EM G (suc n))
     → (fst A → EM G (suc n)) × (fst B → EM G (suc n))
@@ -74,18 +70,19 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
   Iso.rightInv (Hⁿ⋁-Iso n) =
     uncurry (ST.elim2
       (λ _ _ → isOfHLevelPath 2 (isSet× squash₂ squash₂) _ _)
-      λ f g → ΣPathP (Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
-                         (λ p → cong ∣_∣₂ (funExt λ x → cong (λ z → f x +[ (suc n) ]ₖ z)
-                                          (cong (λ z → -[ (suc n) ]ₖ z) p ∙ -0ₖ (suc n))
-                                       ∙ rUnitₖ (suc n) (f x)))
-                       (isConnectedPath (suc n)
-                        (isConnectedEM (suc n)) (f (pt A)) (0ₖ (suc n)) .fst)
-                     , Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
-                         (λ p → cong ∣_∣₂ (funExt λ x → cong (λ z → g x +[ (suc n) ]ₖ z)
-                                          (cong (λ z → -[ (suc n) ]ₖ z) p ∙ -0ₖ (suc n))
-                                       ∙ rUnitₖ (suc n) (g x)))
-                       (isConnectedPath (suc n)
-                        (isConnectedEM (suc n)) (g (pt B)) (0ₖ (suc n)) .fst)))
+      λ f g
+      → ΣPathP (Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
+                (λ p → cong ∣_∣₂ (funExt λ x → cong (λ z → f x +[ (suc n) ]ₖ z)
+                                 (cong (λ z → -[ (suc n) ]ₖ z) p ∙ -0ₖ (suc n))
+                              ∙ rUnitₖ (suc n) (f x)))
+              (isConnectedPath (suc n)
+               (isConnectedEM (suc n)) (f (pt A)) (0ₖ (suc n)) .fst)
+            , Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
+                (λ p → cong ∣_∣₂ (funExt λ x → cong (λ z → g x +[ (suc n) ]ₖ z)
+                                 (cong (λ z → -[ (suc n) ]ₖ z) p ∙ -0ₖ (suc n))
+                              ∙ rUnitₖ (suc n) (g x)))
+              (isConnectedPath (suc n)
+               (isConnectedEM (suc n)) (g (pt B)) (0ₖ (suc n)) .fst)))
   Iso.leftInv (Hⁿ⋁-Iso n) =
     ST.elim (λ _ → isSetPathImplicit)
       λ f → Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
@@ -116,8 +113,8 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
                    (pgen (inl (pt A)))
                    (p₂ (pt B))
       Sq i j =
-        hcomp (λ k → λ {(i = i0) → (rCancelₖ (suc n) (f (inl (pt A))) ∙
-                                     (sym (rCancelₖ (suc n) (f (push tt k))))) j
+        hcomp (λ k → λ {(i = i0) → (rCancelₖ (suc n) (f (inl (pt A)))
+                                   ∙ sym (rCancelₖ (suc n) (f (push tt k)))) j
                        ; (i = i1) → f (push tt (k ∧ j))
                        ; (j = i0) → pgen (inl (pt A)) i
                        ; (j = i1) → ((λ j → f (push tt k) -[ (suc n) ]ₖ

@@ -413,3 +413,8 @@ module _ {G : AbGroup ℓ} where
     sym (assocₖ n y x (-[ n ]ₖ x))
     ∙∙ cong (λ x → y +[ n ]ₖ x) (rCancelₖ n x)
     ∙∙ rUnitₖ n y
+
+-0ₖ : ∀ {ℓ} {G : AbGroup ℓ} (n : ℕ) → -[ n ]ₖ (0ₖ {G = G} n) ≡ 0ₖ n
+-0ₖ {G = G} zero = GroupTheory.inv1g (AbGroup→Group G)
+-0ₖ (suc zero) = refl
+-0ₖ (suc (suc n)) = refl
