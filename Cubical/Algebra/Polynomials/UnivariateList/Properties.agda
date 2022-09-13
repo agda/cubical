@@ -600,6 +600,7 @@ module PolyModTheory (R' : CommRing ℓ) where
 
 -----------------------------------------------------------------------------
 -- Product by Xn and operationsproperties on it
+-- The name is justified by 'X*Poly'
 
   prod-Xn : (n : ℕ) → Poly R' → Poly R'
   prod-Xn zero x = x
@@ -669,8 +670,6 @@ module PolyModTheory (R' : CommRing ℓ) where
                      Poly→PolyFun [] ∎) ⟩
         PolyFun→Poly (Poly→PolyFun []) ≡⟨ PolyFun→Poly→PolyFun 0P ⟩
         0P ∎
-
-
 
 ----------------------------------------------------------------------------------------------
 -- An instantiation of Polynomials as a commutative ring can be found in CommRing/Instances --
