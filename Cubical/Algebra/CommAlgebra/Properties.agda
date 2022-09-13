@@ -58,7 +58,6 @@ A ≃CAlg⟨ f ⟩ g = g ∘≃a f
 -- An R-algebra is the same as a CommRing A with a CommRingHom φ : R → A
 module CommAlgChar (R : CommRing ℓ) where
  open Iso
- open IsRingHom
  open CommRingTheory
 
 
@@ -66,24 +65,18 @@ module CommAlgChar (R : CommRing ℓ) where
  CommRingWithHom = Σ[ A ∈ CommRing ℓ ] CommRingHom R A
 
  toCommAlg : CommRingWithHom → CommAlgebra R ℓ
- toCommAlg (A , φ , φIsHom) = ⟨ A ⟩ , ACommAlgStr
+ toCommAlg (A , φ , φIsHom) =
+  commAlgebraFromCommRing
+    A
+    (λ r a → (φ r) · a)
+    (λ r s x → cong (_· x) (pres· r s) ∙ sym (·Assoc _ _ _))
+    (λ r x y → ·DistR+ _ _ _)
+    (λ r s x → cong (_· x) (pres+ r s) ∙ ·DistL+ _ _ _)
+    (λ x → cong (_· x) pres1 ∙ ·IdL x)
+    λ r x y → sym (·Assoc _ _ _)
   where
   open CommRingStr (snd A)
-  ACommAlgStr : CommAlgebraStr R ⟨ A ⟩
-  CommAlgebraStr.0a ACommAlgStr = 0r
-  CommAlgebraStr.1a ACommAlgStr = 1r
-  CommAlgebraStr._+_ ACommAlgStr = _+_
-  CommAlgebraStr._·_ ACommAlgStr = _·_
-  CommAlgebraStr.- ACommAlgStr = -_
-  CommAlgebraStr._⋆_ ACommAlgStr r a = (φ r) · a
-  CommAlgebraStr.isCommAlgebra ACommAlgStr = makeIsCommAlgebra
-   is-set +Assoc +IdR +InvR +Comm ·Assoc ·IdL ·DistL+ ·Comm
-   (λ _ _ x → cong (λ y →  y · x) (pres· φIsHom _ _) ∙ sym (·Assoc _ _ _))
-   (λ _ _ _ → ·DistR+ _ _ _)
-   (λ _ _ x → cong (λ y → y · x) (pres+ φIsHom _ _) ∙ ·DistL+ _ _ _)
-   (λ x → cong (λ y → y · x) (pres1 φIsHom) ∙ ·IdL x)
-   (λ _ _ _ → sym (·Assoc _ _ _))
-
+  open IsRingHom φIsHom
 
  fromCommAlg : CommAlgebra R ℓ → CommRingWithHom
  fromCommAlg A = (CommAlgebra→CommRing A) , φ , φIsHom
@@ -149,6 +142,8 @@ module CommAlgChar (R : CommRing ℓ) where
  leftInv CommAlgIso = CommAlgRoundTrip
 
  open RingHoms
+ open IsRingHom
+
  isCommRingWithHomHom : (A B : CommRingWithHom) → CommRingHom (fst A) (fst B) → Type ℓ
  isCommRingWithHomHom (_ , f) (_ , g) h = h ∘r f ≡ g
 
