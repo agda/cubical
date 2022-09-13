@@ -71,3 +71,11 @@ module _ {R : CommRing ℓ} where
   typevariateListPolyGenerator :
     fst (fst typevariateListPolyEquiv) X-HIT ≡ X-List
   typevariateListPolyGenerator = refl
+
+  typevariateListPolyEquivInv : CommAlgebraEquiv (ListPolyCommAlgebra R) (R [ Unit ])
+  fst typevariateListPolyEquivInv = isoToEquiv (invIso asIso)
+  snd typevariateListPolyEquivInv = snd from
+
+  typevariateListPolyInvGenerator :
+    fst (fst typevariateListPolyEquivInv) X-List ≡ X-HIT
+  typevariateListPolyInvGenerator = fromPresX
