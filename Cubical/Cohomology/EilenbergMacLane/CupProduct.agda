@@ -99,12 +99,6 @@ module _ {G'' : Ring ℓ} {A : Type ℓ'} where
 module _ {G'' : Ring ℓ} {A : Type ℓ'} where
   private
     G' = Ring→AbGroup G''
-    G = fst G'
-    _+G_ = _+Gr_ (snd G')
-
-    cup : (n m : ℕ) → EM G' n → EM G' m → EM G' (n +' m)
-    cup n m x y = x ⌣ₖ y
-
 
   ⌣-1ₕDep : (n : ℕ) (x : coHom n G' A)
     → PathP (λ i → coHom (+'-comm zero n (~ i)) G' A) (x ⌣ 1ₕ) x
