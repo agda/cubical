@@ -209,22 +209,40 @@ cong-∙ : ∀ {B : Type ℓ} (f : A → B) (p : x ≡ y) (q : y ≡ z)
          → cong f (p ∙ q) ≡ (cong f p) ∙ (cong f q)
 cong-∙ f p q = cong-∙∙ f refl p q
 
-hcomp-unique : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
-               (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
-               → (hcomp u (outS u0) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
+hcomp-unique : ∀ {ℓ} {A : Type ℓ} {φ}
+             → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ])
+             → (h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
+             → (hcomp u (outS u0) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
 hcomp-unique {φ = φ} u u0 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u k 1=1
-                                                            ; (i = i1) → outS (h2 k) })
-                                                   (outS u0))
+                                                         ; (i = i1) → outS (h2 k) })
+                                                (outS u0))
 
 
-lid-unique : ∀ {ℓ} {A : Type ℓ} {φ} → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ]) →
-               (h1 h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
-               → (outS (h1 i1) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
-lid-unique {φ = φ} u u0 h1 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u k 1=1
-                                                            ; (i = i0) → outS (h1 k)
-                                                            ; (i = i1) → outS (h2 k) })
-                                                   (outS u0))
+hlid-unique : ∀ {ℓ} {A : Type ℓ} {φ}
+            → (u : I → Partial φ A) → (u0 : A [ φ ↦ u i0 ])
+            → (h1 h2 : ∀ i → A [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
+            → (outS (h1 i1) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
+hlid-unique {φ = φ} u u0 h1 h2 = inS (\ i → hcomp (\ k → \ { (φ = i1) → u k 1=1
+                                                           ; (i = i0) → outS (h1 k)
+                                                           ; (i = i1) → outS (h2 k) })
+                                                  (outS u0))
 
+comp-unique : ∀ {ℓ} {A : I → Type ℓ} {φ}
+            → (u : (i : I) → Partial φ (A i)) → (u0 : A i0 [ φ ↦ u i0 ])
+            → (h2 : ∀ i → A i [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
+            → (comp A u (outS u0) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
+comp-unique {A = A} {φ = φ} u u0 h2 = inS (\ i → comp A (\ k → \ { (φ = i1) → u k 1=1
+                                                                 ; (i = i1) → outS (h2 k) })
+                                                        (outS u0))
+
+lid-unique : ∀ {ℓ} {A : I → Type ℓ} {φ}
+           → (u : (i : I) → Partial φ (A i)) → (u0 : A i0 [ φ ↦ u i0 ])
+           → (h1 h2 : ∀ i → A i [ (φ ∨ ~ i) ↦ (\ { (φ = i1) → u i 1=1; (i = i0) → outS u0}) ])
+           → (outS (h1 i1) ≡ outS (h2 i1)) [ φ ↦ (\ { (φ = i1) → (\ i → u i1 1=1)}) ]
+lid-unique {A = A} {φ = φ} u u0 h1 h2 = inS (\ i → comp A (\ k → \ { (φ = i1) → u k 1=1
+                                                                   ; (i = i0) → outS (h1 k)
+                                                                   ; (i = i1) → outS (h2 k) })
+                                                          (outS u0))
 
 transp-hcomp : ∀ {ℓ} (φ : I) {A' : Type ℓ}
                      (A : (i : I) → Type ℓ [ φ ↦ (λ _ → A') ]) (let B = \ (i : I) → outS (A i))
