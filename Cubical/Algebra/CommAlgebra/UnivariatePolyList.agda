@@ -26,7 +26,7 @@ module _ (R : CommRing ℓ) where
     commAlgebraFromCommRing
       ListPoly
       (λ r x → [ r ] · x)
-      (λ r s x → ([ r · s ] · x)      ≡[ i ]⟨ sym (PolyConst*Hom r s) i · x ⟩
+      (λ r s x → ([ r · s ] · x)      ≡[ i ]⟨ sym (MultHom[-] r s) i · x ⟩
                  ([ r ] · [ s ]) · x  ≡⟨ sym (·Assoc [ r ] [ s ] x) ⟩
                   [ r ] · ([ s ] · x) ∎)
       (λ r x y → ·DistR+ [ r ] x y)

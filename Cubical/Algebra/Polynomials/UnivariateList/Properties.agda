@@ -220,8 +220,8 @@ module PolyModTheory (R' : CommRing ℓ) where
 
 
   -- A homomorphism property of the multiplication, needed for the CommAlgebra-structure on polynomials
-  PolyConst*Hom : (r s : R) → [ r ] Poly* [ s ] ≡ [ r · s ]
-  PolyConst*Hom r s =
+  MultHom[-] : (r s : R) → [ r ] Poly* [ s ] ≡ [ r · s ]
+  MultHom[-] r s =
     ([ r ] Poly* [ s ])                                ≡⟨⟩
     (r PolyConst* [ s ]) Poly+ (0r ∷ ([] Poly* [ s ])) ≡[ i ]⟨ (r PolyConst* [ s ]) Poly+ (0r ∷ 0PRightAnnihilates [ s ] i) ⟩
     (r PolyConst* [ s ]) Poly+ (0r ∷ [])               ≡[ i ]⟨ (r PolyConst* [ s ]) Poly+ (drop0 i) ⟩
