@@ -58,14 +58,14 @@ module _ {R : CommRing ℓ} where
     fromTo : (x : ⟨ R [ Unit ] ⟩) → fst from (fst to x) ≡ x
     fromTo = isIdByUMP-HIT (from ∘a to) λ {tt → fromPresX}
 
-    asIso : Iso ⟨ R [ Unit ] ⟩  ⟨ ListPolyCommAlgebra R ⟩
-    Iso.fun asIso = fst to
-    Iso.inv asIso = fst from
-    Iso.rightInv asIso = toFrom
-    Iso.leftInv asIso = fromTo
+  typevariateListPolyIso : Iso ⟨ R [ Unit ] ⟩  ⟨ ListPolyCommAlgebra R ⟩
+  Iso.fun typevariateListPolyIso = fst to
+  Iso.inv typevariateListPolyIso = fst from
+  Iso.rightInv typevariateListPolyIso = toFrom
+  Iso.leftInv typevariateListPolyIso = fromTo
 
   typevariateListPolyEquiv : CommAlgebraEquiv (R [ Unit ]) (ListPolyCommAlgebra R)
-  fst typevariateListPolyEquiv = isoToEquiv asIso
+  fst typevariateListPolyEquiv = isoToEquiv typevariateListPolyIso
   snd typevariateListPolyEquiv = snd to
 
   typevariateListPolyGenerator :
@@ -73,7 +73,7 @@ module _ {R : CommRing ℓ} where
   typevariateListPolyGenerator = refl
 
   typevariateListPolyEquivInv : CommAlgebraEquiv (ListPolyCommAlgebra R) (R [ Unit ])
-  fst typevariateListPolyEquivInv = isoToEquiv (invIso asIso)
+  fst typevariateListPolyEquivInv = isoToEquiv (invIso typevariateListPolyIso)
   snd typevariateListPolyEquivInv = snd from
 
   typevariateListPolyInvGenerator :

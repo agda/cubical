@@ -8,6 +8,7 @@ module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.RegularGenerator where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Unit
@@ -40,10 +41,11 @@ private variable
 -}
 module _ {R : CommRing ℓ} where
   open AlgebraHoms
-  open PolyModTheory R using (prod-Xn)
+  open PolyModTheory R using (prod-Xn; X*Poly)
   open CommAlgebraStr ⦃...⦄
   private
     instance _ = snd (R [ Unit ])
+             _ = snd (ListPolyCommAlgebra R)
 
     HIT→List : CommAlgebraEquiv (R [ Unit ]) (ListPolyCommAlgebra R)
     HIT→List = typevariateListPolyEquiv
@@ -51,10 +53,17 @@ module _ {R : CommRing ℓ} where
     List→HIT : CommAlgebraEquiv (ListPolyCommAlgebra R) (R [ Unit ])
     List→HIT = typevariateListPolyEquivInv
 
+    open IsAlgebraHom (snd List→HIT)
+
     X : ⟨ R [ Unit ] ⟩
     X = generatorHIT tt
 
+    X-List = generator R
+
     commutes : (p : ⟨ R [ Unit ] ⟩) → fst (fst List→HIT) (prod-Xn 1 (fst (fst HIT→List) p)) ≡ X · p
     commutes p =
-      fst (fst List→HIT) (prod-Xn 1 (fst (fst HIT→List) p))     ≡⟨ {!!} ⟩
-      (X · p) ∎
+      fst (fst List→HIT) (prod-Xn 1 (fst (fst HIT→List) p))                 ≡⟨ cong (fst (fst List→HIT)) (sym (X*Poly (fst (fst HIT→List) p))) ⟩
+      fst (fst List→HIT) (X-List · (fst (fst HIT→List) p))                  ≡⟨ pres· X-List (fst (fst HIT→List) p) ⟩
+      fst (fst List→HIT) X-List · fst (fst List→HIT) (fst (fst HIT→List) p) ≡[ i ]⟨ typevariateListPolyInvGenerator i · fst (fst List→HIT) (fst (fst HIT→List) p) ⟩
+      X · fst (fst List→HIT) (fst (fst HIT→List) p)                         ≡[ i ]⟨ X · (Iso.leftInv typevariateListPolyIso p i ) ⟩
+      X · p ∎
