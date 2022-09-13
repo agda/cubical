@@ -103,3 +103,7 @@ _[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
 (R [ I ]) = R[ I ] , commalgebrastr 0a 1a _+_ _·_ -_ _⋆_ isCommAlgebra
   where
   open Construction R
+
+generator : {R : CommRing ℓ} {I : Type ℓ'} → I → fst (R [ I ])
+generator i = var i
+  where open Construction
