@@ -34,7 +34,7 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
   open CommAlgebraStr ⦃...⦄
 
   {-
-     We start by defining as R[I][J] and R[I⊎J] as R[I] algebras,
+     We start by defining R[I][J] and R[I⊎J] as R[I] algebras,
      which we need later to use universal properties
   -}
   R[I][J]overR[I] : CommAlgebra (CommAlgebra→CommRing (R [ I ])) ℓ
@@ -48,11 +48,6 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
 
   ψ : CommRingHom (CommAlgebra→CommRing (R [ I ])) (CommAlgebra→CommRing (R [ I ⊎ J ]))
   ψ = CommAlgebraHom→CommRingHom (R [ I ]) (R [ I ⊎ J ]) ψOverR
-
-  to : CommAlgebraHom (R [ I ⊎ J ]) R[I][J]
-  to = inducedHom R[I][J]
-                  (⊎.rec (λ i → const (var i))
-                         λ j → var j)
 
   R[I⊎J]overR[I] : CommAlgebra (CommAlgebra→CommRing (R [ I ])) ℓ
   R[I⊎J]overR[I] = Iso.inv (CommAlgChar.CommAlgIso (CommAlgebra→CommRing (R [ I ])))
@@ -71,20 +66,27 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
   module R[I⊎J]overR[I] = CommAlgebraStr (snd R[I⊎J]overR[I])
   module R[I⊎J] = CommAlgebraStr (snd (R [ I ⊎ J ]))
 
+  to : CommAlgebraHom (R [ I ⊎ J ]) R[I][J]
+  to = inducedHom R[I][J]
+                  (⊎.rec (λ i → const (var i))
+                         λ j → var j)
+
   isoR = CommAlgChar.CommAlgIso R
   isoR[I] = CommAlgChar.CommAlgIso (CommAlgebra→CommRing (R [ I ]))
   asHomOverR[I] = Iso.fun isoR[I] R[I⊎J]overR[I]
   asHomOverR = Iso.fun isoR (R [ I ⊎ J ])
 
-  ≡RingHoms : (x : ⟨ R ⟩) → fst (snd asHomOverR[I] ∘r baseRingHom) x ≡ fst baseRingHom x
-  ≡RingHoms x =
-    fst (snd asHomOverR[I] ∘r baseRingHom) x ≡⟨⟩
-    fst (snd asHomOverR[I]) (const x · 1a)   ≡⟨⟩
-    (const x · 1a) ⋆ 1a                      ≡⟨ cong (_⋆ 1a) (·IdR (const x)) ⟩
-    const x ⋆ 1a                             ≡⟨⟩
-    (fst ψ (const x)) · 1a                   ≡⟨⟩
-    (const x · const 1r) · 1a                ≡⟨ cong (_· 1a) (·IdR (const x)) ⟩
-    const x · 1a ∎
+  ≡RingHoms : snd asHomOverR[I] ∘r baseRingHom ≡ baseRingHom
+  ≡RingHoms =
+    RingHom≡
+      (funExt λ x →
+        fst (snd asHomOverR[I] ∘r baseRingHom) x ≡⟨⟩
+        fst (snd asHomOverR[I]) (const x · 1a)   ≡⟨⟩
+        (const x · 1a) ⋆ 1a                      ≡⟨ cong (_⋆ 1a) (·IdR (const x)) ⟩
+        const x ⋆ 1a                             ≡⟨⟩
+        (fst ψ (const x)) · 1a                   ≡⟨⟩
+        (const x · const 1r) · 1a                ≡⟨ cong (_· 1a) (·IdR (const x)) ⟩
+        const x · 1a ∎)
 
   ≡R[I⊎J] =
     baseChange baseRingHom R[I⊎J]overR[I]                                                     ≡⟨⟩
@@ -93,13 +95,9 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
     Iso.inv isoR asHomOverR                                                                   ≡⟨ step2 ⟩
     R [ I ⊎ J ] ∎
     where
-      hom≡ : (snd asHomOverR[I]) ∘r baseRingHom ≡ baseRingHom
-      hom≡ = Σ≡Prop (λ _ → isPropIsRingHom _ _ _)
-                    (λ j x → ≡RingHoms x j)
-
       step1 : Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , (snd asHomOverR[I]) ∘r baseRingHom)
               ≡ Iso.inv isoR (CommAlgebra→CommRing (R [ I ⊎ J ]) , baseRingHom)
-      step1 i = Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , hom≡ i)
+      step1 i = Iso.inv isoR ((CommAlgebra→CommRing R[I⊎J]overR[I]) , ≡RingHoms i)
 
       step2 = Iso.leftInv isoR (R [ I ⊎ J ])
 
