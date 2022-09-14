@@ -36,10 +36,13 @@ Then, execute following:
 > cabal v2-update
 > git clone https://github.com/agda/agda
 > cd agda
+> git checkout RELEASE
 > touch doc/user-manual.pdf
 > cabal v2-install agda agda-mode
 ```
 
+where RELEASE  is the latest release of agda, for example v2.6.2.2, use 
+```git tag --list``` for a full list of releases.
 This should put the agda and agda-mode executables in the folder
 `~/.cabal/bin` (the location can be configured with `--symlink-bindir` flag).
 
@@ -113,11 +116,14 @@ in a cabal sandbox do the following:
 ```
 > git clone https://github.com/agda/agda
 > cd agda
+> git checkout RELEASE
 > cabal sandbox init
 > cabal update
 > make
 ```
 
+where RELEASE is the latest release of agda, for example v2.6.2.2, use 
+```git tag --list``` for a full list of releases.
 If you have cabal v2 installed the sandbox command should be replaced
 by `cabal v1-sandbox init`.
 
