@@ -41,8 +41,7 @@ Then, execute following:
 > cabal v2-install agda agda-mode
 ```
 
-where RELEASE  is the [latest release](https://wiki.portal.chalmers.se/agda/Main/Download) of agda, for example v2.6.2.2, use
-```git tag --list``` for a full list of releases.
+where RELEASE  is the [latest release](https://wiki.portal.chalmers.se/agda/Main/Download) of agda, for example v2.6.2.2. You can use ```git tag --list``` for a full list of releases.
 This should put the agda and agda-mode executables in the folder
 `~/.cabal/bin` (the location can be configured with `--symlink-bindir` flag).
 
@@ -122,8 +121,7 @@ in a cabal sandbox do the following:
 > make
 ```
 
-where RELEASE is the [latest release](https://wiki.portal.chalmers.se/agda/Main/Download) of agda, for example v2.6.2.2, use
-```git tag --list``` for a full list of releases.
+where RELEASE is the [latest release](https://wiki.portal.chalmers.se/agda/Main/Download) of agda, for example v2.6.2.2. You can use ```git tag --list``` for a full list of releases.
 If you have cabal v2 installed the sandbox command should be replaced
 by `cabal v1-sandbox init`.
 
@@ -199,8 +197,7 @@ In order to install Agda using stack do the following:
 > stack build --stack-yaml stack-VERSION.yaml
 ```
 
-Where RELEASE is the [latest release](https://wiki.portal.chalmers.se/agda/Main/Download) of agda (for example v2.6.2.2, use
-```git tag --list``` for a full list of releases) and
+Where RELEASE is the [latest release](https://wiki.portal.chalmers.se/agda/Main/Download) of agda (for example v2.6.2.2, use ```git tag --list``` for a full list of releases) and
 VERSION is a suitable version of ghc (for example 8.6.3). This
 should put the agda and agda-mode executables in the folder
 `agda/.stack-work/install/.../.../.../bin`.
