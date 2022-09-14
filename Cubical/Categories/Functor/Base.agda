@@ -48,7 +48,7 @@ record Functor (C : Category ℓC ℓC') (D : Category ℓD ℓD') :
 private
   variable
     ℓ ℓ' : Level
-    C D E : Category ℓ ℓ'
+    B C D E : Category ℓ ℓ'
 
 open Category
 open Functor

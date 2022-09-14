@@ -41,14 +41,23 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
     isProp→PathP (λ j → isSetHom C (h u j ⋆⟨ C ⟩ D .F-hom e) (h v j))
                  (coneOutCommutes c1 e) (coneOutCommutes c2 e) i
 
-  -- dependent version
-  conePathP : {D : Functor J C} {c c' : ob C} {c1 : Cone D c} {c2 : Cone D c'} {p : c ≡ c'}
+  -- dependent versions
+  conePathPOb : {D : Functor J C} {c c' : ob C} {c1 : Cone D c} {c2 : Cone D c'} {p : c ≡ c'}
             → (∀ (v : ob J) → PathP (λ i → C [ p i , F-ob D v ]) (coneOut c1 v) (coneOut c2 v))
             → PathP (λ i → Cone D (p i)) c1 c2
-  coneOut (conePathP coneOutPathP i) v = coneOutPathP v i
-  coneOutCommutes (conePathP {D} {_} {_} {c1} {c2} coneOutPathP i) {u} {v} e =
+  coneOut (conePathPOb coneOutPathP i) v = coneOutPathP v i
+  coneOutCommutes (conePathPOb {D} {_} {_} {c1} {c2} coneOutPathP i) {u} {v} e =
     isProp→PathP (λ j → isSetHom C ((coneOutPathP u j) ⋆⟨ C ⟩ (D .F-hom e)) (coneOutPathP v j))
                  (coneOutCommutes c1 e) (coneOutCommutes c2 e) i
+
+  conePathPDiag : {D₁ D₂ : Functor J C} {c : ob C} {cc₁ : Cone D₁ c} {cc₂ : Cone D₂ c} {p : D₁ ≡ D₂}
+                → (∀ v → PathP (λ i → C [ c , p i .F-ob v ]) (cc₁ .coneOut v) (cc₂ .coneOut v))
+                → PathP (λ i → Cone (p i) c) cc₁ cc₂
+  coneOut (conePathPDiag coneOutPathP i) v = coneOutPathP v i
+  coneOutCommutes (conePathPDiag {cc₁ = cc₁} {cc₂ = cc₂} {p = p} coneOutPathP i) {u} {v} e =
+    isProp→PathP (λ j → isSetHom C (coneOutPathP u j ⋆⟨ C ⟩ p j .F-hom e)
+                                   (coneOutPathP v j))
+                 (coneOutCommutes cc₁ e) (coneOutCommutes cc₂ e) i
 
   -- TODO: can we automate this a bit?
   isSetCone : (D : Functor J C) (c : ob C) → isSet (Cone D c)

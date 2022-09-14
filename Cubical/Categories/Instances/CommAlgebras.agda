@@ -16,9 +16,10 @@ open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Pullback
+open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.Instances.CommRings
 
 open import Cubical.HITs.PropositionalTruncation
@@ -303,7 +304,7 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
  F-seq universalPShf {x = x} {z = z} f g = theAction _ _ (g ⋆⟨ C ⟩ f) (z .snd) (x .snd) .snd _
 
 
- -- a big transport to help verifying the sheaf property
+ -- a big transport to help verifying the pullback sheaf property
  module toSheaf (x y u v : ob ΣC∥P∥Cat)
                 {f : C [ v .fst , y . fst ]} {g : C [ v .fst , u .fst ]}
                 {h : C [ u .fst , x . fst ]} {k : C [ y .fst , x .fst ]}
@@ -371,3 +372,51 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
    lemma = transport (λ i → isPullback CommAlgCat (cospanPath i) {c = p₁ i}
                                                   (hPathP i) (kPathP i) (squarePathP i))
                      (AlgPB .univProp)
+
+
+ module _ {ℓJ ℓJ' : Level} {J : Category ℓJ ℓJ'}
+          {D : Functor J (ΣC∥P∥Cat ^op)} {c : ob ΣC∥P∥Cat} (cc : Cone D c) -- will be B⋁Cone
+          {algDiag : Functor J CommAlgCat} {A : ob CommAlgCat}
+          (algCone : Cone algDiag (F-ob universalPShf c))
+          (p : (v : ob J) → F-ob algDiag v ≡ F-ob (universalPShf ∘F D) v) where
+
+  open Cone
+  private
+   diagPath : algDiag ≡ universalPShf ∘F D
+   diagPath = Functor≡ p diagHomPathPs
+     where
+     diagHomPathPs : ∀ {u v : ob J} (f : J [ u , v ])
+                   → PathP (λ i → CommAlgebraHom (p u i) (p v i))
+                           (F-hom algDiag f)
+                           (F-hom universalPShf (F-hom D f))
+     diagHomPathPs f = toPathP (sym (theAction _ _ (F-hom D f) _ _ .snd _))
+
+   conePathP : PathP (λ i → Cone (diagPath i) (F-ob universalPShf c))
+                     algCone (F-cone universalPShf cc)
+   conePathP = conePathPDiag coneHomPathPs
+     where
+     coneHomPathPs : ∀ (v : ob J)
+                   → PathP (λ i → CommAlgebraHom (universalPShf .F-ob c) (diagPath i .F-ob v))
+                           (algCone .coneOut v) (F-cone universalPShf cc .coneOut v)
+     coneHomPathPs v = toPathP (sym (theAction _ _ (cc .coneOut v) _ _ .snd _))
+
+   -- now for composition with forgetful functor (should work with any functor really)
+   CommRingsCat = CommRingsCategory {ℓ = ℓ''}
+   Forgetful = ForgetfulCommAlgebra→CommRing {ℓ = ℓ''} R {ℓ' = ℓ''}
+   𝓖 = Forgetful ∘F universalPShf
+
+  module _ (crDiag : Functor J CommRingsCat) (A : ob CommRingsCat)
+           (crCone : Cone crDiag A) -- will be locCone
+           (q : crDiag ≡ Forgetful ∘F algDiag)
+           (r : A ≡ 𝓖 .F-ob c) where
+
+   private
+    diagPathF : crDiag ≡ 𝓖 ∘F D
+    diagPathF = q ∙∙ cong (funcComp Forgetful) diagPath ∙∙ F-assoc
+
+    conePathPF : PathP (λ i → Cone (diagPathF i) (r i)) crCone (F-cone 𝓖 cc)
+    conePathPF = {!!}
+
+   abstract
+    toLimCone : isLimCone _ _ crCone → isLimCone _ _ (F-cone 𝓖 cc)
+    toLimCone univProp = transport (λ i → isLimCone (diagPathF i) (r i) (conePathPF i)) univProp

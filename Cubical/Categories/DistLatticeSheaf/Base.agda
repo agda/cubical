@@ -200,7 +200,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
 
        limConePathP : PathP (λ i → Cone (funcComp F (FinVec→Diag L xyVec)) (limPath i))
                             (limCone inducedLimCone) theCone
-       limConePathP = conePathP helperPathP
+       limConePathP = conePathPOb helperPathP
          where
          helperPathP :
            ∀ v → PathP (λ i → C [ limPath i , F-ob (funcComp F (FinVec→Diag L xyVec)) v ])
