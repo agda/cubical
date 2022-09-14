@@ -1,7 +1,7 @@
 Installation of agda/cubical
 ============================
 
-The cubical library should compile on the latest official release
+The cubical library should compile on the [latest official release](https://wiki.portal.chalmers.se/agda/Main/Download)
 of Agda:
 
 https://github.com/agda/agda
@@ -189,10 +189,13 @@ In order to install Agda using stack do the following:
 ```
 > git clone https://github.com/agda/agda
 > cd agda
-> stack build --stack-yaml stack-"version".yaml
+> git checkout RELEASE
+> stack build --stack-yaml stack-VERSION.yaml
 ```
 
-Where "version" is a suitable version of ghc (for example 8.6.3). This
+Where RELEASE is the latest release of agda (for example v2.6.2.2, use 
+```git tag --list``` for a full list of releases) and 
+VERSION is a suitable version of ghc (for example 8.6.3). This
 should put the agda and agda-mode executables in the folder
 `agda/.stack-work/install/.../.../.../bin`.
 
