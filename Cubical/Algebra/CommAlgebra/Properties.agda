@@ -135,13 +135,6 @@ module CommAlgChar (R : CommRing ℓ) where
     (λ i → isPropIsCommAlgebra _ _ _ _ _ _ (CommAlgebraStr._⋆_ (AlgStrPathP i)))
     (CommAlgebraStr.isCommAlgebra (snd (toCommAlg (fromCommAlg A)))) isCommAlgebra i
 
-  CommAlgIso : Iso (CommAlgebra R ℓ) CommRingWithHom
-  fun CommAlgIso = fromCommAlg
-  inv CommAlgIso = toCommAlg
-  rightInv CommAlgIso = CommRingWithHomRoundTrip
-  leftInv CommAlgIso = CommAlgRoundTrip
-
-
  CommAlgIso : Iso (CommAlgebra R ℓ) CommRingWithHom
  fun CommAlgIso = fromCommAlg
  inv CommAlgIso = toCommAlg
@@ -365,3 +358,26 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ} where
   pres· (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres· (snd ϕ)
   pres- (snd (CommAlgebraHomFromRingHom ϕ pres*)) = IsRingHom.pres- (snd ϕ)
   pres⋆ (snd (CommAlgebraHomFromRingHom ϕ pres*)) = pres*
+
+
+module _ {R S : CommRing ℓ} (f : CommRingHom S R) where
+  baseChange : CommAlgebra R ℓ → CommAlgebra S ℓ
+  baseChange A =
+    Iso.inv (CommAlgChar.CommAlgIso S) (fst asRingHom , compCommRingHom _ _ _ f (snd asRingHom))
+    where
+      asRingHom : CommAlgChar.CommRingWithHom R
+      asRingHom = Iso.fun (CommAlgChar.CommAlgIso R) A
+
+  baseChangeHom : (A B : CommAlgebra R ℓ) → CommAlgebraHom A B → CommAlgebraHom (baseChange A) (baseChange B)
+  baseChangeHom A B ϕ =
+    CommAlgChar.toCommAlgebraHom S (fst homA , snd homA ∘r f) (fst homB , snd homB ∘r f) (fst pbSliceHom) (snd pbSliceHom)
+    where open RingHoms
+          homA = Iso.fun (CommAlgChar.CommAlgIso R) A
+          homB = Iso.fun (CommAlgChar.CommAlgIso R) B
+
+          asSliceHom : Σ[ h ∈ CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B) ] h ∘r (snd homA) ≡ snd homB
+          asSliceHom = CommAlgChar.fromCommAlgebraHom R A B ϕ
+
+          pbSliceHom : Σ[ k ∈ CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B) ]
+                       k ∘r ((snd homA) ∘r f) ≡ ((snd homB) ∘r f)
+          pbSliceHom = fst asSliceHom , Σ≡Prop (λ _ → isPropIsRingHom _ _ _) λ i x → fst ((snd asSliceHom) i) (fst f x)
