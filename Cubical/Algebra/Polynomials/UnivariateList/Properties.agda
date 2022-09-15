@@ -219,6 +219,16 @@ module PolyModTheory (R' : CommRing ℓ) where
                                λ x y → isSetPoly _ _ x y
 
 
+  -- A homomorphism property of the multiplication, needed for the CommAlgebra-structure on polynomials
+  MultHom[-] : (r s : R) → [ r ] Poly* [ s ] ≡ [ r · s ]
+  MultHom[-] r s =
+    ([ r ] Poly* [ s ])                                ≡⟨⟩
+    (r PolyConst* [ s ]) Poly+ (0r ∷ ([] Poly* [ s ])) ≡[ i ]⟨ (r PolyConst* [ s ]) Poly+ (0r ∷ 0PRightAnnihilates [ s ] i) ⟩
+    (r PolyConst* [ s ]) Poly+ (0r ∷ [])               ≡[ i ]⟨ (r PolyConst* [ s ]) Poly+ (drop0 i) ⟩
+    (r PolyConst* [ s ]) Poly+ []                      ≡⟨ Poly+Rid _ ⟩
+    [ r · s ] ∎
+
+
   -- For any polynomial p we have: p Poly* [ 1r ] = p
   Poly*Lid : ∀ q → 1P Poly* q ≡ q
   Poly*Lid =
@@ -598,4 +608,7 @@ module PolyModTheory (R' : CommRing ℓ) where
 
 ----------------------------------------------------------------------------------------------
 -- An instantiation of Polynomials as a commutative ring can be found in CommRing/Instances --
+----------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
+-- An instantiation of Polynomials as a commutative algebra is in CommAlgebra               --
 ----------------------------------------------------------------------------------------------
