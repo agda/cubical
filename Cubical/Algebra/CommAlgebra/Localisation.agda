@@ -155,7 +155,7 @@ module _  {R : CommRing ℓ} (f : fst R) where
   open InvertingElementsBase R
   open AlgLoc R [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
-  invElCommAlgebra→CommRingPath : CommAlgebra→CommRing (R[1/ f ]AsCommAlgebra) ≡ R[1/ f ]AsCommRing
+  invElCommAlgebra→CommRingPath : CommAlgebra→CommRing R[1/ f ]AsCommAlgebra ≡ R[1/ f ]AsCommRing
   invElCommAlgebra→CommRingPath = LocCommAlg→CommRingPath
 
 module AlgLocTwoSubsets (R' : CommRing ℓ)

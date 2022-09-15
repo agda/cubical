@@ -432,7 +432,7 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
     -- diagPathF : crDiag ≡ 𝓖 ∘F D
     -- diagPathF = q ∙∙ cong (funcComp Forgetful) diagPathAlg ∙∙ F-assoc
 
-    -- conePathPF : PathP (λ i → Cone (diagPathF i) (r i)) crCone (F-cone 𝓖 cc)
+    -- conePathPF : PathP (λ i → Cone (diagPathF i) (r ·· refl ·· refl i)) crCone (F-cone 𝓖 cc)
     -- conePathPF = {!!} --conePathP λ v i → {!!}
 
    abstract
