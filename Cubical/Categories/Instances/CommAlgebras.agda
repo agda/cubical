@@ -376,47 +376,68 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
 
  module _ {ℓJ ℓJ' : Level} {J : Category ℓJ ℓJ'}
           {D : Functor J (ΣC∥P∥Cat ^op)} {c : ob ΣC∥P∥Cat} (cc : Cone D c) -- will be B⋁Cone
-          {algDiag : Functor J CommAlgCat} {A : ob CommAlgCat}
+          {algDiag : Functor J CommAlgCat}
           (algCone : Cone algDiag (F-ob universalPShf c))
           (p : (v : ob J) → F-ob algDiag v ≡ F-ob (universalPShf ∘F D) v) where
 
   open Cone
   private
-   diagPath : algDiag ≡ universalPShf ∘F D
-   diagPath = Functor≡ p diagHomPathPs
-     where
-     diagHomPathPs : ∀ {u v : ob J} (f : J [ u , v ])
-                   → PathP (λ i → CommAlgebraHom (p u i) (p v i))
-                           (F-hom algDiag f)
-                           (F-hom universalPShf (F-hom D f))
-     diagHomPathPs f = toPathP (sym (theAction _ _ (F-hom D f) _ _ .snd _))
+   diagHomPathPs : ∀ {u v : ob J} (f : J [ u , v ])
+                 → PathP (λ i → CommAlgebraHom (p u i) (p v i))
+                         (F-hom algDiag f)
+                         (F-hom universalPShf (F-hom D f))
+   diagHomPathPs f = toPathP (sym (theAction _ _ (F-hom D f) _ _ .snd _))
 
-   conePathP : PathP (λ i → Cone (diagPath i) (F-ob universalPShf c))
+   diagPathAlg : algDiag ≡ universalPShf ∘F D
+   diagPathAlg = Functor≡ p diagHomPathPs
+
+   coneHomPathPs : ∀ (v : ob J)
+                 → PathP (λ i → CommAlgebraHom (universalPShf .F-ob c) (diagPathAlg i .F-ob v))
+                         (algCone .coneOut v) (F-cone universalPShf cc .coneOut v)
+   coneHomPathPs v = toPathP (sym (theAction _ _ (cc .coneOut v) _ _ .snd _))
+
+
+   conePathPAlg : PathP (λ i → Cone (diagPathAlg i) (F-ob universalPShf c))
                      algCone (F-cone universalPShf cc)
-   conePathP = conePathPDiag coneHomPathPs
-     where
-     coneHomPathPs : ∀ (v : ob J)
-                   → PathP (λ i → CommAlgebraHom (universalPShf .F-ob c) (diagPath i .F-ob v))
-                           (algCone .coneOut v) (F-cone universalPShf cc .coneOut v)
-     coneHomPathPs v = toPathP (sym (theAction _ _ (cc .coneOut v) _ _ .snd _))
+   conePathPAlg = conePathPDiag coneHomPathPs
 
    -- now for composition with forgetful functor (should work with any functor really)
    CommRingsCat = CommRingsCategory {ℓ = ℓ''}
    Forgetful = ForgetfulCommAlgebra→CommRing {ℓ = ℓ''} R {ℓ' = ℓ''}
    𝓖 = Forgetful ∘F universalPShf
 
-  module _ (crDiag : Functor J CommRingsCat) (A : ob CommRingsCat)
+  module _ {crDiag : Functor J CommRingsCat} {A : ob CommRingsCat}
            (crCone : Cone crDiag A) -- will be locCone
            (q : crDiag ≡ Forgetful ∘F algDiag)
-           (r : A ≡ 𝓖 .F-ob c) where
+           (r : A ≡ 𝓖 .F-ob c)
+           (s : ∀ v → PathP (λ i → CommRingHom (r i)  (q i .F-ob v))
+                             (crCone .coneOut v) ((F-cone Forgetful algCone) .coneOut v)) where
 
    private
-    diagPathF : crDiag ≡ 𝓖 ∘F D
-    diagPathF = q ∙∙ cong (funcComp Forgetful) diagPath ∙∙ F-assoc
+    foo : PathP (λ i → Cone (q i) (r i)) crCone (F-cone Forgetful algCone)
+    foo = conePathP s
 
-    conePathPF : PathP (λ i → Cone (diagPathF i) (r i)) crCone (F-cone 𝓖 cc)
-    conePathPF = {!!}
+    baz : PathP (λ i → Cone (Forgetful ∘F (diagPathAlg i)) (F-ob (Forgetful ∘F universalPShf) c))
+                (F-cone Forgetful algCone) (F-cone Forgetful (F-cone universalPShf cc))
+    baz = congP (λ _ → F-cone Forgetful) conePathPAlg
+
+    diagBar : Forgetful ∘F (universalPShf ∘F D) ≡ 𝓖 ∘F D
+    diagBar = F-assoc
+
+    bar : PathP (λ i → Cone (diagBar i) (F-ob (Forgetful ∘F universalPShf) c))
+                (F-cone Forgetful (F-cone universalPShf cc)) (F-cone 𝓖 cc)
+    bar = conePathPDiag -- why does everything have to be explicit?
+            (λ v _ → (Forgetful ∘F universalPShf) .F-hom {x = c} {y = D .F-ob v} (cc .coneOut v))
+
+    -- diagPathF : crDiag ≡ 𝓖 ∘F D
+    -- diagPathF = q ∙∙ cong (funcComp Forgetful) diagPathAlg ∙∙ F-assoc
+
+    -- conePathPF : PathP (λ i → Cone (diagPathF i) (r i)) crCone (F-cone 𝓖 cc)
+    -- conePathPF = {!!} --conePathP λ v i → {!!}
 
    abstract
     toLimCone : isLimCone _ _ crCone → isLimCone _ _ (F-cone 𝓖 cc)
-    toLimCone univProp = transport (λ i → isLimCone (diagPathF i) (r i) (conePathPF i)) univProp
+    toLimCone univProp = transport (λ i → isLimCone _ _ (bar i))
+                           (transport (λ i → isLimCone _ _ (baz i))
+                             (transport (λ i → isLimCone _ _ (foo i)) univProp))
+    --transport (λ i → isLimCone (diagPathF i) (r i) (conePathPF i)) univProp

@@ -42,22 +42,26 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
                  (coneOutCommutes c1 e) (coneOutCommutes c2 e) i
 
   -- dependent versions
+  conePathP : {D₁ D₂ : Functor J C} {c₁ c₂ : ob C} {cc₁ : Cone D₁ c₁} {cc₂ : Cone D₂ c₂}
+              {p : D₁ ≡ D₂} {q : c₁ ≡ c₂}
+            → (∀ v → PathP (λ i → C [ q i , p i .F-ob v ]) (cc₁ .coneOut v) (cc₂ .coneOut v))
+            → PathP (λ i → Cone (p i) (q i)) cc₁ cc₂
+  coneOut (conePathP coneOutPathP i) v = coneOutPathP v i
+  coneOutCommutes (conePathP {cc₁ = cc₁} {cc₂ = cc₂} {p = p} coneOutPathP i) {u} {v} e =
+    isProp→PathP (λ j → isSetHom C (coneOutPathP u j ⋆⟨ C ⟩ p j .F-hom e)
+                                   (coneOutPathP v j))
+                 (coneOutCommutes cc₁ e) (coneOutCommutes cc₂ e) i
+
   conePathPOb : {D : Functor J C} {c c' : ob C} {c1 : Cone D c} {c2 : Cone D c'} {p : c ≡ c'}
             → (∀ (v : ob J) → PathP (λ i → C [ p i , F-ob D v ]) (coneOut c1 v) (coneOut c2 v))
             → PathP (λ i → Cone D (p i)) c1 c2
-  coneOut (conePathPOb coneOutPathP i) v = coneOutPathP v i
-  coneOutCommutes (conePathPOb {D} {_} {_} {c1} {c2} coneOutPathP i) {u} {v} e =
-    isProp→PathP (λ j → isSetHom C ((coneOutPathP u j) ⋆⟨ C ⟩ (D .F-hom e)) (coneOutPathP v j))
-                 (coneOutCommutes c1 e) (coneOutCommutes c2 e) i
+  conePathPOb coneOutPathP = conePathP {p = refl} coneOutPathP
 
   conePathPDiag : {D₁ D₂ : Functor J C} {c : ob C} {cc₁ : Cone D₁ c} {cc₂ : Cone D₂ c} {p : D₁ ≡ D₂}
                 → (∀ v → PathP (λ i → C [ c , p i .F-ob v ]) (cc₁ .coneOut v) (cc₂ .coneOut v))
                 → PathP (λ i → Cone (p i) c) cc₁ cc₂
-  coneOut (conePathPDiag coneOutPathP i) v = coneOutPathP v i
-  coneOutCommutes (conePathPDiag {cc₁ = cc₁} {cc₂ = cc₂} {p = p} coneOutPathP i) {u} {v} e =
-    isProp→PathP (λ j → isSetHom C (coneOutPathP u j ⋆⟨ C ⟩ p j .F-hom e)
-                                   (coneOutPathP v j))
-                 (coneOutCommutes cc₁ e) (coneOutCommutes cc₂ e) i
+  conePathPDiag coneOutPathP = conePathP {q = refl} coneOutPathP
+
 
   -- TODO: can we automate this a bit?
   isSetCone : (D : Functor J C) (c : ob C) → isSet (Cone D c)

@@ -58,6 +58,13 @@ F-assoc {F = F} {G} {H} i .F-hom f = H ⟪ G ⟪ F ⟪ f ⟫ ⟫ ⟫
 F-assoc {F = F} {G} {H} i .F-id {x} =  congAssoc (G ⟪_⟫) (H ⟪_⟫) (F .F-id {x}) (G .F-id {F ⟅ x ⟆}) (H .F-id) (~ i)
 F-assoc {F = F} {G} {H} i .F-seq f g =  congAssoc (G ⟪_⟫) (H ⟪_⟫) (F .F-seq f g) (G .F-seq _ _) (H .F-seq _ _) (~ i)
 
+-- is the above version in any way preferable?
+-- think this computes better:
+F-assoc' : {F : Functor B C} {G : Functor C D} {H : Functor D E}
+         → H ∘F (G ∘F F) ≡ (H ∘F G) ∘F F
+F-assoc' = Functor≡ (λ _ → refl) (λ _ → refl)
+
+
 -- Results about functors
 
 module _ {F : Functor C D} where
