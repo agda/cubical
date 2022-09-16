@@ -309,13 +309,6 @@ module Equiv-RP²⋁S¹-Properties
                           (ϕ₀⌣IdL _ ∙ cong ϕₙ (sym (·ℤ/2IdL _)))
                           a
 
-    foo : AbGroup ℓ-zero
-    foo = ℤ/2
-
-    fo : AbGroup ℓ-zero
-    fo = coHomGr 1 ℤ/2 RP²⋁S¹
-
-
     unitGroupEq : {n : ℕ} → (e : AbGroupIso (coHomGr n ℤ/2 RP²⋁S¹) (UnitAbGroup {ℓ = ℓ-zero})) →
                      (x y : coHom n ℤ/2 RP²⋁S¹) → x ≡ y
     unitGroupEq {n} e x y = isOfHLevelRetractFromIso {ℓ' = ℓ-zero} 1 (fst e) isPropUnit* _ _
@@ -346,7 +339,8 @@ module Equiv-RP²⋁S¹-Properties
       ϕₙ⌣ϕₘ-Trivial : (a b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)
       ϕₙ⌣ϕₘ-Trivial = {!!}
 
-
+    foo : 0 +' 1 ≡ 1 +' 0
+    foo = refl
 
     -- note that the proof might be simpliale by adding a second partition on T
     -- side, though it might complicated a bunch of things
@@ -365,7 +359,10 @@ module Equiv-RP²⋁S¹-Properties
     -- case (0,1) not trivial
     pres·-int zero one a zero zero b = cong (base' 1) (sym (ϕₙ⌣ϕₘ-notTrivial
                                        ϕ₁left ϕ₁leftStr ϕ₀ ϕ₀str ϕ₁left ϕ₁leftStr
-                                       ((cong (λ X → ϕ₁left 1ℤ/2 ⌣ℤ/2 X) {!ϕ₀str!}) ∙ {!!})
+                                       ((cong (λ X → ϕ₁left 1ℤ/2 ⌣ℤ/2 X) ϕ₀-pres1)
+                                         ∙ ⌣-1ₕ {G'' = ℤ/2Ring} _ _
+                                         ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₁ (1ℤ/2 , 0ℤ/2))) (isSetℕ _ _ (+'-comm zero 1) (refl {x = 1}))
+                                         ∙ substRefl _)
                                        _ _))
       -- case α²
     pres·-int zero one a zero one b = cong (base' 2) (sym (ϕₙ⌣ϕₘ-notTrivial ϕ₁left ϕ₁leftStr ϕ₁left ϕ₁leftStr ϕ₂ ϕ₂str ϕ₁-1010-notTrivial a b))
@@ -376,7 +373,13 @@ module Equiv-RP²⋁S¹-Properties
     pres·-int zero one a one (suc l) b = refl
     pres·-int zero one a (suc (suc k)) l b = refl
     -- case (0,2) trivial right, by trivial goups
-    pres·-int zero two a zero zero b = {!0 case!}
+    pres·-int zero two a zero zero b = cong (base' 2) (sym (ϕₙ⌣ϕₘ-notTrivial
+                                       ϕ₂ ϕ₂str ϕ₀ ϕ₀str ϕ₂ ϕ₂str
+                                       ((cong (λ X → ϕ₂ 1ℤ/2 ⌣ℤ/2 X) ϕ₀-pres1)
+                                         ∙ ⌣-1ₕ {G'' = ℤ/2Ring} _ _
+                                         ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₂ 1ℤ/2)) (isSetℕ _ _ (+'-comm zero 2) (refl {x = 2}))
+                                         ∙ substRefl _)
+                                       _ _))
     pres·-int zero two a zero one b = sym (base-neutral _) ∙ cong (base' 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
     pres·-int zero two a zero two b = sym (base-neutral _) ∙ cong (base' 4) (unitGroupEq (eₙ₊₃ 4 (1 , refl)) _ _)
     pres·-int zero two a zero (suc (suc (suc l))) b = refl
@@ -392,7 +395,13 @@ module Equiv-RP²⋁S¹-Properties
     pres·-int zero (suc (suc (suc m))) a one (suc l) b = refl
     pres·-int zero (suc (suc (suc m))) a (suc (suc k)) l b = refl
     -- case (1,0) not trivial
-    pres·-int one zero a zero zero b = {!because 0!}
+    pres·-int one zero a zero zero b = cong (base' 1) (sym (ϕₙ⌣ϕₘ-notTrivial
+                                       ϕ₁right ϕ₁rightStr ϕ₀ ϕ₀str ϕ₁right ϕ₁rightStr
+                                       (cong (λ X → ϕ₁right 1ℤ/2 ⌣ℤ/2 X) ϕ₀-pres1
+                                       ∙ ⌣-1ₕ {G'' = ℤ/2Ring} _ (ϕ₁right 1ℤ/2)
+                                       ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₁right 1ℤ/2)) (isSetℕ _ _ (+'-comm zero 1) (refl {x = 1}))
+                                       ∙ substRefl _)
+                                       a b))
       -- case βα
     pres·-int one zero a zero one b = sym (cong (base' 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁right ϕ₁rightStr ϕ₁left ϕ₁leftStr ϕ₁-0110-trivial a b) ∙ base-neutral _)
     pres·-int one zero a zero two b = sym (base-neutral _) ∙ cong (base' 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
