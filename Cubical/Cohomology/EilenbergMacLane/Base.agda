@@ -84,7 +84,7 @@ module _ (n : ℕ) {G : AbGroup ℓ} {A : Type ℓ'} where
   lCancelₕ = ST.elim (λ _ → isSetPathImplicit)
            λ f → cong ∣_∣₂ (funExt λ x → lCancelₖ n (f x))
 
-coHomGr : (n : ℕ) (G : AbGroup ℓ) (A : Type ℓ') → AbGroup _
+coHomGr : (n : ℕ) (G : AbGroup ℓ) (A : Type ℓ') → AbGroup (ℓ-max ℓ ℓ')
 fst (coHomGr n G A) = coHom n G A
 0g (snd (coHomGr n G A)) = 0ₕ n
 AbGroupStr._+_ (snd (coHomGr n G A)) = _+ₕ_
