@@ -325,7 +325,19 @@ module Equiv-RP²⋁S¹-Properties
       where
 
       ϕₙ⌣ϕₘ-notTrivial : (a b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (a ·ℤ/2 b)
-      ϕₙ⌣ϕₘ-notTrivial = {!!}
+      ϕₙ⌣ϕₘ-notTrivial a = ℤ/2-elim {A = λ a → (b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (a ·ℤ/2 b)}
+                              (λ b → cong (λ X → X ⌣ℤ/2 ϕₘ b) (pres1 ϕₙstr)
+                                      ∙ 0ₕ-⌣ _ _ _
+                                      ∙ sym (pres1 ϕₙ₊ₘstr)
+                                      ∙ cong ϕₙ₊ₘ (sym (0LeftAnnihilates ℤ/2Ring _)))
+                              (λ b → ℤ/2-elim {A = λ b → ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (1ℤ/2 ·ℤ/2 b)}
+                                      (cong (λ X → ϕₙ 1ℤ/2 ⌣ℤ/2 X) (pres1 ϕₘstr)
+                                      ∙ ⌣-0ₕ {G'' = ℤ/2Ring} n m (ϕₙ 1ℤ/2)
+                                      ∙ sym (pres1 ϕₙ₊ₘstr)
+                                      ∙ cong ϕₙ₊ₘ (sym (0RightAnnihilates ℤ/2Ring _)))
+                                      cup-comp
+                                      b)
+                              a
 
     module _
       {n m : ℕ}
@@ -337,7 +349,15 @@ module Equiv-RP²⋁S¹-Properties
       where
 
       ϕₙ⌣ϕₘ-Trivial : (a b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)
-      ϕₙ⌣ϕₘ-Trivial = {!!}
+      ϕₙ⌣ϕₘ-Trivial a = ℤ/2-elim {A = λ a → (b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)}
+                         (λ b → cong (λ X → X ⌣ℤ/2 ϕₘ b) (pres1 ϕₙstr)
+                                      ∙ 0ₕ-⌣ _ _ _)
+                         (λ b → ℤ/2-elim {A = λ b → ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)}
+                                (cong (λ X → ϕₙ 1ℤ/2 ⌣ℤ/2 X) (pres1 ϕₘstr)
+                                      ∙ ⌣-0ₕ {G'' = ℤ/2Ring} n m (ϕₙ 1ℤ/2))
+                                cup-comp
+                         b)
+                         a
 
     foo : 0 +' 1 ≡ 1 +' 0
     foo = refl
@@ -416,24 +436,24 @@ module Equiv-RP²⋁S¹-Properties
     -- case (1,m+1) trivial left, by def
     pres·-int (suc (suc n)) m a k l b = refl
 
---     pres·-base-case-vec : (v : Vec ℕ 2) → (a : ℤ) → (v' : Vec ℕ 2) → (b : ℤ) →
---                              ℤ[x,y]→H*-RP²⋁S¹ (base v a ·Pℤ base v' b)
---                           ≡ ℤ[x,y]→H*-RP²⋁S¹ (base v a) cup ℤ[x,y]→H*-RP²⋁S¹ (base v' b)
---     pres·-base-case-vec (n ∷ m ∷ []) a (k ∷ l ∷ []) b = pres·-int n m a k l b
+    pres·-base-case-vec : (v : Vec ℕ 2) → (a : fst ℤ/2) → (v' : Vec ℕ 2) → (b : fst ℤ/2) →
+                             ℤ/2[x,y]→H*-RP²⋁S¹ (base v a ·Pℤ/2 base v' b)
+                          ≡ ℤ/2[x,y]→H*-RP²⋁S¹ (base v a) cup ℤ/2[x,y]→H*-RP²⋁S¹ (base v' b)
+    pres·-base-case-vec (n ∷ m ∷ []) a (k ∷ l ∷ []) b = pres·-int n m a k l b
 
---     -- proof of the morphism
---     ℤ[x,y]→H*-RP²⋁S¹-pres· : (x y : ℤ[x,y]) → ℤ[x,y]→H*-RP²⋁S¹ (x ·Pℤ y) ≡ ℤ[x,y]→H*-RP²⋁S¹ x cup ℤ[x,y]→H*-RP²⋁S¹ y
---     ℤ[x,y]→H*-RP²⋁S¹-pres· = DS-Ind-Prop.f _ _ _ _
---                            (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
---                            (λ y → refl)
---                            base-case
---                            λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
---       where
---       base-case : _
---       base-case v a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
---                              (sym (RingTheory.0RightAnnihilates (H*R RP²⋁S¹) _))
---                              (λ v' b → pres·-base-case-vec v a v' b )
---                              λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
+    -- proof of the morphism
+    ℤ/2[x,y]→H*-RP²⋁S¹-pres· : (x y : ℤ/2[x,y]) → ℤ/2[x,y]→H*-RP²⋁S¹ (x ·Pℤ/2 y) ≡ ℤ/2[x,y]→H*-RP²⋁S¹ x cup ℤ/2[x,y]→H*-RP²⋁S¹ y
+    ℤ/2[x,y]→H*-RP²⋁S¹-pres· = DS-Ind-Prop.f _ _ _ _
+                           (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
+                           (λ y → refl)
+                           base-case
+                           λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
+      where
+      base-case : _
+      base-case v a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+                             (sym (RingTheory.0RightAnnihilates (H*Rℤ/2 RP²⋁S¹) _))
+                             (λ v' b → pres·-base-case-vec v a v' b )
+                             λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
 --   -----------------------------------------------------------------------------
