@@ -18,7 +18,7 @@ open import Cubical.Data.Int.IsEven
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 open import Cubical.Data.Vec
-open import Cubical.Data.FinData
+open import Cubical.Data.FinData renaming (Fin to FinI)
 open import Cubical.Data.Fin
 
 open import Cubical.Algebra.Group
@@ -74,11 +74,13 @@ H*ℤ/2 A = H* ℤ/2Ring A
 H*Rℤ/2 : {ℓ : Level} → (A : Type ℓ) → Ring ℓ
 H*Rℤ/2 A = H*R ℤ/2Ring A
 
--- He can't seem to be able to find P and AGP in some case
+-- He can't seem to be able to find P and AGP in some case especially with cong
 -- Sometimes it works, sometimes not, the reason is currently unknown
-base' : (n : ℕ) → (a : coHom n ℤ/2 RP²⋁S¹) → H*ℤ/2 RP²⋁S¹
-base' n a = base {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP²⋁S¹} {AGP = λ n → snd (coHomGr n ℤ/2 RP²⋁S¹)} n a
+baseH* : (n : ℕ) → (a : coHom n ℤ/2 RP²⋁S¹) → H*ℤ/2 RP²⋁S¹
+baseH* n a = base {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP²⋁S¹} {AGP = λ n → snd (coHomGr n ℤ/2 RP²⋁S¹)} n a
 
+baseP : (n : Vec ℕ 2) → (a : fst ℤ/2) → ℤ/2[x,y]
+baseP n a = base {Idx = Vec ℕ 2} {P = λ n → fst ℤ/2} {AGP = λ n → snd ℤ/2} n a
 
 {- Convention over ℤ[X,Y]
    X : (1,0)
@@ -126,8 +128,8 @@ module Equiv-RP²⋁S¹-Properties
   ℤ/2[X,Y]/<Y³,XY,X²> : CommRing ℓ-zero
   ℤ/2[X,Y]/<Y³,XY,X²> = PolyCommRing-Quotient ℤ/2CommRing <Y³,XY,X²>
 
-  ℤ/2[x,y]/<2y,y²,xy,x²> : Type ℓ-zero
-  ℤ/2[x,y]/<2y,y²,xy,x²> = fst ℤ/2[X,Y]/<Y³,XY,X²>
+  ℤ/2[x,y]/<y³,xy,x²> : Type ℓ-zero
+  ℤ/2[x,y]/<y³,xy,x²> = fst ℤ/2[X,Y]/<Y³,XY,X²>
 
   open RingStr (snd (H*Rℤ/2 RP²⋁S¹)) using ()
     renaming
@@ -258,10 +260,10 @@ module Equiv-RP²⋁S¹-Properties
 
      base-add-eq : _
      base-add-eq (zero        ∷ zero              ∷ []) a b = base-add _ _ _ ∙ cong (base 0) (sym ((pres· ϕ₀str _ _)))
-     base-add-eq (zero        ∷ one               ∷ []) a b = base-add _ _ _ ∙ cong (base' 1) ((sym (pres· ϕ₁str _ _)))
-     base-add-eq (zero        ∷ two               ∷ []) a b = base-add 2 (ϕ₂ a) (ϕ₂ b) ∙ cong (base' 2) (sym (pres· ϕ₂str _ _))
+     base-add-eq (zero        ∷ one               ∷ []) a b = base-add _ _ _ ∙ cong (baseH* 1) ((sym (pres· ϕ₁str _ _)))
+     base-add-eq (zero        ∷ two               ∷ []) a b = base-add 2 (ϕ₂ a) (ϕ₂ b) ∙ cong (baseH* 2) (sym (pres· ϕ₂str _ _))
      base-add-eq (zero        ∷ suc (suc (suc m)) ∷ []) a b = +H*IdR _
-     base-add-eq (one         ∷ zero              ∷ []) a b = base-add _ _ _ ∙ cong (base' 1) ((sym (pres· ϕ₁str _ _)))
+     base-add-eq (one         ∷ zero              ∷ []) a b = base-add _ _ _ ∙ cong (baseH* 1) ((sym (pres· ϕ₁str _ _)))
      base-add-eq (one         ∷ suc m             ∷ []) a b = +H*IdR _
      base-add-eq (suc (suc n) ∷ m                 ∷ []) a b = +H*IdR _
 
@@ -368,16 +370,16 @@ module Equiv-RP²⋁S¹-Properties
                    ℤ/2[x,y]→H*-RP²⋁S¹ (base (n ∷ m ∷ []) a ·Pℤ/2 base (k ∷ l ∷ []) b)
                 ≡ ℤ/2[x,y]→H*-RP²⋁S¹ (base (n ∷ m ∷ []) a) cup ℤ/2[x,y]→H*-RP²⋁S¹ (base (k ∷ l ∷ []) b)
     -- non trivial case (0,0)
-    pres·-int zero zero a zero zero b = cong (base' 0) (sym (lem-ϕ₀⌣ _ _ ϕ₀ ϕ₀str))
-    pres·-int zero zero a zero one b = cong (base' 1) (sym (lem-ϕ₀⌣ _ _ ϕ₁left ϕ₁leftStr))
-    pres·-int zero zero a zero two b = cong (base' 2) (sym (lem-ϕ₀⌣ _ _ ϕ₂ ϕ₂str))
+    pres·-int zero zero a zero zero b = cong (baseH* 0) (sym (lem-ϕ₀⌣ _ _ ϕ₀ ϕ₀str))
+    pres·-int zero zero a zero one b = cong (baseH* 1) (sym (lem-ϕ₀⌣ _ _ ϕ₁left ϕ₁leftStr))
+    pres·-int zero zero a zero two b = cong (baseH* 2) (sym (lem-ϕ₀⌣ _ _ ϕ₂ ϕ₂str))
     pres·-int zero zero a zero (suc (suc (suc l))) b = refl
-    pres·-int zero zero a one zero b = cong (base' 1) (sym (lem-ϕ₀⌣ _ _ (λ b → ϕ₁ (0ℤ/2 , b))
+    pres·-int zero zero a one zero b = cong (baseH* 1) (sym (lem-ϕ₀⌣ _ _ (λ b → ϕ₁ (0ℤ/2 , b))
                                                       (makeIsGroupHom (λ a b → pres· ϕ₁str _ _))))
     pres·-int zero zero a one (suc l) b = refl
     pres·-int zero zero a (suc (suc k)) l b = refl
     -- case (0,1) not trivial
-    pres·-int zero one a zero zero b = cong (base' 1) (sym (ϕₙ⌣ϕₘ-notTrivial
+    pres·-int zero one a zero zero b = cong (baseH* 1) (sym (ϕₙ⌣ϕₘ-notTrivial
                                        ϕ₁left ϕ₁leftStr ϕ₀ ϕ₀str ϕ₁left ϕ₁leftStr
                                        ((cong (λ X → ϕ₁left 1ℤ/2 ⌣ℤ/2 X) ϕ₀-pres1)
                                          ∙ ⌣-1ₕ {G'' = ℤ/2Ring} _ _
@@ -385,25 +387,25 @@ module Equiv-RP²⋁S¹-Properties
                                          ∙ substRefl _)
                                        _ _))
       -- case α²
-    pres·-int zero one a zero one b = cong (base' 2) (sym (ϕₙ⌣ϕₘ-notTrivial ϕ₁left ϕ₁leftStr ϕ₁left ϕ₁leftStr ϕ₂ ϕ₂str ϕ₁-1010-notTrivial a b))
-    pres·-int zero one a zero two b = sym (base-neutral _) ∙ cong (base' 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
+    pres·-int zero one a zero one b = cong (baseH* 2) (sym (ϕₙ⌣ϕₘ-notTrivial ϕ₁left ϕ₁leftStr ϕ₁left ϕ₁leftStr ϕ₂ ϕ₂str ϕ₁-1010-notTrivial a b))
+    pres·-int zero one a zero two b = sym (base-neutral _) ∙ cong (baseH* 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
     pres·-int zero one a zero (suc (suc (suc l))) b = refl
       -- case αβ
-    pres·-int zero one a one zero b = sym (cong (base' 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁left ϕ₁leftStr ϕ₁right ϕ₁rightStr ϕ₁-1001-trivial a b) ∙ base-neutral 2)
+    pres·-int zero one a one zero b = sym (cong (baseH* 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁left ϕ₁leftStr ϕ₁right ϕ₁rightStr ϕ₁-1001-trivial a b) ∙ base-neutral 2)
     pres·-int zero one a one (suc l) b = refl
     pres·-int zero one a (suc (suc k)) l b = refl
     -- case (0,2) trivial right, by trivial goups
-    pres·-int zero two a zero zero b = cong (base' 2) (sym (ϕₙ⌣ϕₘ-notTrivial
+    pres·-int zero two a zero zero b = cong (baseH* 2) (sym (ϕₙ⌣ϕₘ-notTrivial
                                        ϕ₂ ϕ₂str ϕ₀ ϕ₀str ϕ₂ ϕ₂str
                                        ((cong (λ X → ϕ₂ 1ℤ/2 ⌣ℤ/2 X) ϕ₀-pres1)
                                          ∙ ⌣-1ₕ {G'' = ℤ/2Ring} _ _
                                          ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₂ 1ℤ/2)) (isSetℕ _ _ (+'-comm zero 2) (refl {x = 2}))
                                          ∙ substRefl _)
                                        _ _))
-    pres·-int zero two a zero one b = sym (base-neutral _) ∙ cong (base' 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
-    pres·-int zero two a zero two b = sym (base-neutral _) ∙ cong (base' 4) (unitGroupEq (eₙ₊₃ 4 (1 , refl)) _ _)
+    pres·-int zero two a zero one b = sym (base-neutral _) ∙ cong (baseH* 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
+    pres·-int zero two a zero two b = sym (base-neutral _) ∙ cong (baseH* 4) (unitGroupEq (eₙ₊₃ 4 (1 , refl)) _ _)
     pres·-int zero two a zero (suc (suc (suc l))) b = refl
-    pres·-int zero two a one zero b = sym (base-neutral _) ∙ cong (base' 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
+    pres·-int zero two a one zero b = sym (base-neutral _) ∙ cong (baseH* 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
     pres·-int zero two a one (suc l) b = refl
     pres·-int zero two a (suc (suc k)) l b = refl
     -- case (0,m+2) trivial left, by def
@@ -415,7 +417,7 @@ module Equiv-RP²⋁S¹-Properties
     pres·-int zero (suc (suc (suc m))) a one (suc l) b = refl
     pres·-int zero (suc (suc (suc m))) a (suc (suc k)) l b = refl
     -- case (1,0) not trivial
-    pres·-int one zero a zero zero b = cong (base' 1) (sym (ϕₙ⌣ϕₘ-notTrivial
+    pres·-int one zero a zero zero b = cong (baseH* 1) (sym (ϕₙ⌣ϕₘ-notTrivial
                                        ϕ₁right ϕ₁rightStr ϕ₀ ϕ₀str ϕ₁right ϕ₁rightStr
                                        (cong (λ X → ϕ₁right 1ℤ/2 ⌣ℤ/2 X) ϕ₀-pres1
                                        ∙ ⌣-1ₕ {G'' = ℤ/2Ring} _ (ϕ₁right 1ℤ/2)
@@ -423,11 +425,11 @@ module Equiv-RP²⋁S¹-Properties
                                        ∙ substRefl _)
                                        a b))
       -- case βα
-    pres·-int one zero a zero one b = sym (cong (base' 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁right ϕ₁rightStr ϕ₁left ϕ₁leftStr ϕ₁-0110-trivial a b) ∙ base-neutral _)
-    pres·-int one zero a zero two b = sym (base-neutral _) ∙ cong (base' 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
+    pres·-int one zero a zero one b = sym (cong (baseH* 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁right ϕ₁rightStr ϕ₁left ϕ₁leftStr ϕ₁-0110-trivial a b) ∙ base-neutral _)
+    pres·-int one zero a zero two b = sym (base-neutral _) ∙ cong (baseH* 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
     pres·-int one zero a zero (suc (suc (suc l))) b = refl
       -- case β²
-    pres·-int one zero a one zero b = sym (cong (base' 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁right ϕ₁rightStr ϕ₁right ϕ₁rightStr ϕ₁-0101-trivial a b) ∙ base-neutral _)
+    pres·-int one zero a one zero b = sym (cong (baseH* 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁right ϕ₁rightStr ϕ₁right ϕ₁rightStr ϕ₁-0101-trivial a b) ∙ base-neutral _)
     pres·-int one zero a one (suc l) b = refl
     pres·-int one zero a (suc (suc k)) l b = refl
     -- case (1,m+1) trivial left, by def
@@ -456,137 +458,117 @@ module Equiv-RP²⋁S¹-Properties
                              λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
 
 
---   -----------------------------------------------------------------------------
---   -- Function on ℤ[x]/x + morphism
+  -----------------------------------------------------------------------------
+  -- Function on ℤ/2[x]/x + morphism
 
---     -- not a trivial cancel ?
---     ℤ[x,y]→H*-RP²⋁S¹-cancel : (x : Fin 4) → ℤ[x,y]→H*-RP²⋁S¹ (<Y³,XY,X²> x) ≡ 0H*
---     ℤ[x,y]→H*-RP²⋁S¹-cancel zero = cong (base 2) (pres1 ϕ₂str) ∙ base-neutral _
---     ℤ[x,y]→H*-RP²⋁S¹-cancel one = refl
---     ℤ[x,y]→H*-RP²⋁S¹-cancel two = refl
---     ℤ[x,y]→H*-RP²⋁S¹-cancel three = refl
+    -- not a trivial cancel ?
+    ℤ/2[x,y]→H*-RP²⋁S¹-cancel : (x : FinI 3) → ℤ/2[x,y]→H*-RP²⋁S¹ (<Y³,XY,X²> x) ≡ 0H*
+    ℤ/2[x,y]→H*-RP²⋁S¹-cancel zero = refl
+    ℤ/2[x,y]→H*-RP²⋁S¹-cancel one = refl
+    ℤ/2[x,y]→H*-RP²⋁S¹-cancel two = refl
 
+    ℤ/2[X,Y]→H*-RP²⋁S¹ : RingHom (CommRing→Ring ℤ/2[X,Y]) (H*Rℤ/2 RP²⋁S¹)
+    fst ℤ/2[X,Y]→H*-RP²⋁S¹ = ℤ/2[x,y]→H*-RP²⋁S¹
+    snd ℤ/2[X,Y]→H*-RP²⋁S¹ = makeIsRingHom ℤ/2[x,y]→H*-RP²⋁S¹-pres1
+                                       ℤ/2[x,y]→H*-RP²⋁S¹-pres+
+                                       ℤ/2[x,y]→H*-RP²⋁S¹-pres·
 
---     ℤ[X,Y]→H*-RP²⋁S¹ : RingHom (CommRing→Ring ℤ[X,Y]) (H*R RP²⋁S¹)
---     fst ℤ[X,Y]→H*-RP²⋁S¹ = ℤ[x,y]→H*-RP²⋁S¹
---     snd ℤ[X,Y]→H*-RP²⋁S¹ = makeIsRingHom ℤ[x,y]→H*-RP²⋁S¹-pres1
---                                        ℤ[x,y]→H*-RP²⋁S¹-pres+
---                                        ℤ[x,y]→H*-RP²⋁S¹-pres·
+    -- hence not a trivial pres+, yet pres0 still is
+    ℤ/2[X,Y]/<Y³,XY,X²>→H*R-RP²⋁S¹ : RingHom (CommRing→Ring ℤ/2[X,Y]/<Y³,XY,X²>) (H*Rℤ/2 RP²⋁S¹)
+    ℤ/2[X,Y]/<Y³,XY,X²>→H*R-RP²⋁S¹ = Quotient-FGideal-CommRing-Ring.inducedHom
+                                    ℤ/2[X,Y] (H*Rℤ/2 RP²⋁S¹) ℤ/2[X,Y]→H*-RP²⋁S¹
+                                    <Y³,XY,X²> ℤ/2[x,y]→H*-RP²⋁S¹-cancel
 
---     -- hence not a trivial pres+, yet pres0 still is
---     ℤ[X,Y]/<Y³,XY,X²>→H*R-RP²⋁S¹ : RingHom (CommRing→Ring ℤ[X,Y]/<Y³,XY,X²>) (H*R RP²⋁S¹)
---     ℤ[X,Y]/<Y³,XY,X²>→H*R-RP²⋁S¹ = Quotient-FGideal-CommRing-Ring.inducedHom
---                                     ℤ[X,Y] (H*R RP²⋁S¹) ℤ[X,Y]→H*-RP²⋁S¹
---                                     <Y³,XY,X²> ℤ[x,y]→H*-RP²⋁S¹-cancel
+    ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ : ℤ/2[x,y]/<y³,xy,x²> → H*ℤ/2 RP²⋁S¹
+    ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ = fst ℤ/2[X,Y]/<Y³,XY,X²>→H*R-RP²⋁S¹
 
---     ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ : ℤ[x,y]/<2y,y²,xy,x²> → H* RP²⋁S¹
---     ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ = fst ℤ[X,Y]/<Y³,XY,X²>→H*R-RP²⋁S¹
+    ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹-pres0 : ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ 0Pℤ/2I ≡ 0H*
+    ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹-pres0 = refl
 
---     ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹-pres0 : ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ 0PℤI ≡ 0H*
---     ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹-pres0 = refl
-
---     ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹-pres+ : (x y : ℤ[x,y]/<2y,y²,xy,x²>) →
---                                              ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ ( x +PℤI y)
---                                           ≡ ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ x +H* ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ y
---     ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹-pres+ x y = IsRingHom.pres+ (snd ℤ[X,Y]/<Y³,XY,X²>→H*R-RP²⋁S¹) x y
+    ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹-pres+ : (x y : ℤ/2[x,y]/<y³,xy,x²>) →
+                                             ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ ( x +Pℤ/2I y)
+                                          ≡ ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ x +H* ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ y
+    ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹-pres+ x y = IsRingHom.pres+ (snd ℤ/2[X,Y]/<Y³,XY,X²>→H*R-RP²⋁S¹) x y
 
 
---   -----------------------------------------------------------------------------
---   -- Converse Sens on H* → ℤ[X,Y]
+  -----------------------------------------------------------------------------
+  -- Converse Sens on H* → ℤ/2[X,Y]
 
---     ψ₂⁻¹ : Bool → ℤ
---     ψ₂⁻¹ false = 1
---     ψ₂⁻¹ true = 0
+    ϕ⁻¹ : (k : ℕ) → (a : coHom k ℤ/2 RP²⋁S¹) → ℤ/2[x,y]
+    ϕ⁻¹ zero a = base (0 ∷ 0 ∷ []) (ϕ₀⁻¹ a)
+    ϕ⁻¹ one a = (base (0 ∷ 1 ∷ []) (fst (ϕ₁⁻¹ a))) +Pℤ/2 base (1 ∷ 0 ∷ []) (snd (ϕ₁⁻¹ a))
+    ϕ⁻¹ two a = base (0 ∷ 2 ∷ []) (ϕ₂⁻¹ a)
+    ϕ⁻¹ (suc (suc (suc k))) a = 0Pℤ/2
 
---     private
---     -- Those lemma are requiered because ψ₂⁻¹
---     -- is a morphism only under the quotient
---       Λ : (x : Bool) → ℤ[x,y]/<2y,y²,xy,x²>
---       Λ x = [ (base (0 ∷ 1 ∷ []) (ψ₂⁻¹ x)) ]
+    H*-RP²⋁S¹→ℤ/2[x,y] : H*ℤ/2 RP²⋁S¹ → ℤ/2[x,y]
+    H*-RP²⋁S¹→ℤ/2[x,y] = DS-Rec-Set.f _ _ _ _ isSetPℤ/2
+         0Pℤ/2
+         ϕ⁻¹
+         _+Pℤ/2_
+         +Pℤ/2Assoc
+         +Pℤ/2IdR
+         +Pℤ/2Comm
+         base-neutral-eq
+         base-add-eq
+      where
 
---       Λ-pres+ : (x y : Bool) → Λ x +PℤI Λ y ≡ Λ (x +Bool y)
---       Λ-pres+ false false = cong [_] (base-add _ _ _)
---                             ∙ eq/ (base (0 ∷ 1 ∷ []) 2)
---                                   (base (0 ∷ 1 ∷ []) 0)
---                                   ∣ ((λ {zero → base (0 ∷ 0 ∷ []) 1 ; one → 0Pℤ ; two → 0Pℤ ; three → 0Pℤ}) , helper) ∣₁
---               where
---               helper : _
---               helper = base-add  _ _ _
---                        ∙ sym (cong₂ _+Pℤ_ refl (+PℤIdL _ ∙ +PℤIdL _ ∙ +PℤIdL _) ∙ +PℤIdR _)
---       Λ-pres+ false true = cong [_] (base-add _ _ _)
---       Λ-pres+ true false = cong [_] (base-add _ _ _)
---       Λ-pres+ true true = cong [_] (base-add _ _ _)
+      base-neutral-eq : _
+      base-neutral-eq zero = cong (baseP (0 ∷ 0 ∷ [])) (pres1 ϕ₀⁻¹str) ∙ base-neutral _
+      base-neutral-eq one = cong₂ _+Pℤ/2_
+                                  (cong (baseP (0 ∷ 1 ∷ [])) (cong fst (pres1 ϕ₁⁻¹str)) ∙ base-neutral _)
+                                  (cong (baseP (1 ∷ 0 ∷ [])) (cong snd (pres1 ϕ₁⁻¹str)) ∙ base-neutral _)
+                            ∙ +Pℤ/2IdR 0Pℤ/2
+      base-neutral-eq two = cong (baseP (0 ∷ 2 ∷ [])) (pres1 ϕ₂⁻¹str) ∙ base-neutral _
+      base-neutral-eq (suc (suc (suc k))) = refl
 
---     ϕ⁻¹ : (k : ℕ) → (a : coHom k RP²⋁S¹) → ℤ[x,y]/<2y,y²,xy,x²>
---     ϕ⁻¹ zero a = [ base (0 ∷ 0 ∷ []) (ϕ₀⁻¹ a) ]
---     ϕ⁻¹ one a = [ base (1 ∷ 0 ∷ []) (ϕ₁⁻¹ a) ]
---     ϕ⁻¹ two a = [ base (0 ∷ 1 ∷ []) ((ψ₂⁻¹ ∘ ϕ₂⁻¹) a) ]
---     ϕ⁻¹ (suc (suc (suc k))) a = 0PℤI
+      base-add-eq : _
+      base-add-eq zero a b = base-add _ _ _ ∙ cong (baseP (0 ∷ 0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _))
+      base-add-eq one a b = +ShufflePairs (CommRing→Ring ℤ/2[X,Y]) _ _ _ _
+                            ∙ cong₂ _+Pℤ/2_
+                                    (base-add _ _ _ ∙ cong (baseP (0 ∷ 1 ∷ [])) (cong fst ((sym (pres· ϕ₁⁻¹str _ _)))))
+                                    (base-add _ _ _ ∙ cong (baseP (1 ∷ 0 ∷ [])) (cong snd ((sym (pres· ϕ₁⁻¹str _ _)))))
+      base-add-eq two a b = base-add _ _ _ ∙ cong (baseP (0 ∷ 2 ∷ [])) (sym (pres· ϕ₂⁻¹str _ _))
+      base-add-eq (suc (suc (suc k))) a b = +Pℤ/2IdR _
 
---     H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> : H* RP²⋁S¹ → ℤ[x,y]/<2y,y²,xy,x²>
---     H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> = DS-Rec-Set.f _ _ _ _ isSetPℤI
---          0PℤI
---          ϕ⁻¹
---          _+PℤI_
---          +PℤIAssoc
---          +PℤIIdR
---          +PℤIComm
---          base-neutral-eq
---          base-add-eq
---       where
 
---       base-neutral-eq : _
---       base-neutral-eq zero = cong [_] (cong (base {AGP = λ _ → snd ℤAG} (0 ∷ 0 ∷ [])) (pres1 ϕ₀⁻¹str)
---                                        ∙ (base-neutral _))
---       base-neutral-eq one = cong [_] (cong (base {AGP = λ _ → snd ℤAG} (1 ∷ 0 ∷ [])) (pres1 ϕ₁⁻¹str)
---                                        ∙ (base-neutral _))
---       base-neutral-eq two = cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ψ₂⁻¹ (pres1 ϕ₂⁻¹str))
---                                      ∙ base-neutral _)
---       base-neutral-eq (suc (suc (suc k))) = refl
+    H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> : H*ℤ/2 RP²⋁S¹ → ℤ/2[x,y]/<y³,xy,x²>
+    H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> = [_] ∘ H*-RP²⋁S¹→ℤ/2[x,y]
 
---       base-add-eq : _
---       base-add-eq zero a b = cong [_] (base-add _ _ _ ∙ cong (base (0 ∷ 0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _)))
---       base-add-eq one a b = cong [_] (base-add _ _ _ ∙ cong (base (1 ∷ 0 ∷ [])) (sym (pres· ϕ₁⁻¹str _ _)))
---       base-add-eq two a b = Λ-pres+ (ϕ₂⁻¹ a) (ϕ₂⁻¹ b)
---                             ∙ cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ψ₂⁻¹ (sym (pres· ϕ₂⁻¹str _ _))))
---       base-add-eq (suc (suc (suc k))) a b = +PℤIIdR _
+    H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²>-pres0 : H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> 0H* ≡ 0Pℤ/2I
+    H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²>-pres0 = refl
 
---     H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²>-pres0 : H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> 0H* ≡ 0PℤI
---     H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²>-pres0 = refl
+    H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²>-pres+ : (x y : H*ℤ/2 RP²⋁S¹) →
+                                               H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> (x +H* y)
+                                           ≡ (H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> x) +Pℤ/2I (H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> y)
+    H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²>-pres+ x y = refl
 
---     H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²>-pres+ : (x y : H* RP²⋁S¹) →
---                                                H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> (x +H* y)
---                                            ≡ (H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> x) +PℤI (H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> y)
---     H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²>-pres+ x y = refl
+
+  -----------------------------------------------------------------------------
+  -- Section
 
 
 
---   -----------------------------------------------------------------------------
---   -- Section
-
---     ψ₂-sect : (x : Bool) → ψ₂ (ψ₂⁻¹ x) ≡ x
---     ψ₂-sect false = refl
---     ψ₂-sect true = refl
-
-
---     e-sect-base : (k : ℕ) → (a : coHom k RP²⋁S¹) →
---                   ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ (ϕ⁻¹ k a) ≡ base k a
---     e-sect-base zero a = cong (base 0) (ϕ₀-sect a)
---     e-sect-base one a = cong (base 1) (ϕ₁-sect a)
---     e-sect-base two a = cong (base 2) (cong ϕ₂ (ψ₂-sect _) ∙ ϕ₂-sect a)
---     e-sect-base (suc (suc (suc k))) a = sym (base-neutral (suc (suc (suc k))))
---                                         ∙ cong (base (suc (suc (suc k)))) (unitGroupEq (Hⁿ-RP²⋁S¹≅0 k) _ _)
-
---     e-sect : (x : H* RP²⋁S¹) → ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ (H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> x) ≡ x
---     e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
---              refl
---              e-sect-base
---              λ {U V} ind-U ind-V → ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
+    e-sect-base : (k : ℕ) → (a : coHom k ℤ/2 RP²⋁S¹) →
+                  ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ ([ ϕ⁻¹ k a ]) ≡ base k a
+    e-sect-base zero a = cong (baseH* 0) (ϕ₀-sect a)
+    e-sect-base one a = base-add _ _ _
+                        ∙ cong (baseH* 1) (sym (pres· ϕ₁str _ _)
+                                          ∙ cong ϕ₁ (cong₂ _,_ (+ℤ/2IdR _) (+ℤ/2IdL _))
+                                          ∙ ϕ₁-sect a)
+    e-sect-base two a = cong (baseH* 2) (ϕ₂-sect a)
+    e-sect-base (suc (suc (suc k))) a = sym (base-neutral (suc (suc (suc k))))
+                                        ∙ cong (baseH* (suc (suc (suc k))))
+                                               (unitGroupEq (eₙ₊₃ (suc (suc (suc k))) (k , (+-comm _ _))) _ _)
 
 
+    e-sect : (x : H*ℤ/2 RP²⋁S¹) → ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ (H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> x) ≡ x
+    e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+             refl
+             e-sect-base
+             λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
 
---   -----------------------------------------------------------------------------
---   -- Retraction
+  -----------------------------------------------------------------------------
+  -- Retraction
 
 --     e-retr-ψ₂-false : (a : ℤ) → (isEven a ≡ false) → Λ (ψ₂ a) ≡ [ base (0 ∷ 1 ∷ []) a ]
 --     e-retr-ψ₂-false a x = cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ψ₂⁻¹ x))
@@ -627,7 +609,7 @@ module Equiv-RP²⋁S¹-Properties
 
 
 --     e-retr-base : (v : Vec ℕ 2) → (a : ℤ) →
---                   H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> (ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ [ base v a ]) ≡ [ base v a ]
+--                   H*-RP²⋁S¹→ℤ[x,y]/<y³,xy,x²> (ℤ[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ [ base v a ]) ≡ [ base v a ]
 --     e-retr-base (zero        ∷ zero        ∷ []) a = cong [_] (cong (base (0 ∷ 0 ∷ [])) (ϕ₀-retr a))
 --     e-retr-base (zero        ∷ one         ∷ []) a = cong [_] (cong (base (0 ∷ 1 ∷ [])) (cong ψ₂⁻¹ (ϕ₂-retr (ψ₂ a))))
 --                                                       ∙ e-retr-ψ₂ a (dichotomyBoolSym (isEven a))
@@ -652,7 +634,7 @@ module Equiv-RP²⋁S¹-Properties
 --            helper = +PℤIdL _ ∙ sym (+PℤIdL _ ∙ +PℤIdL _ ∙ +PℤIdL _ ∙ +PℤIdR _
 --                     ∙ cong₂ base (cong₂ (λ X → λ Y → X ∷ Y ∷ []) (+-comm _ _) (+-comm _ _)) (·ℤIdR _))
 
---     e-retr : (x : ℤ[x,y]/<2y,y²,xy,x²>) → H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²> (ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹ x) ≡ x
+--     e-retr : (x : ℤ[x,y]/<y³,xy,x²>) → H*-RP²⋁S¹→ℤ[x,y]/<y³,xy,x²> (ℤ[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ x) ≡ x
 --     e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
 --              (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
 --              refl
@@ -672,9 +654,9 @@ module Equiv-RP²⋁S¹-Properties
 --   RP²⋁S¹-CohomologyRing : RingEquiv (CommRing→Ring ℤ[X,Y]/<Y³,XY,X²>) (H*R RP²⋁S¹)
 --   fst RP²⋁S¹-CohomologyRing = isoToEquiv is
 --     where
---     is : Iso ℤ[x,y]/<2y,y²,xy,x²> (H* RP²⋁S¹)
---     fun is = ℤ[x,y]/<2y,y²,xy,x²>→H*-RP²⋁S¹
---     inv is = H*-RP²⋁S¹→ℤ[x,y]/<2y,y²,xy,x²>
+--     is : Iso ℤ[x,y]/<y³,xy,x²> (H* RP²⋁S¹)
+--     fun is = ℤ[x,y]/<y³,xy,x²>→H*-RP²⋁S¹
+--     inv is = H*-RP²⋁S¹→ℤ[x,y]/<y³,xy,x²>
 --     rightInv is = e-sect
 --     leftInv is = e-retr
 --   snd RP²⋁S¹-CohomologyRing = snd ℤ[X,Y]/<Y³,XY,X²>→H*R-RP²⋁S¹
