@@ -50,10 +50,10 @@ open import Cubical.HITs.Pushout
 
 open import Cubical.Homotopy.EilenbergMacLane.Order2
 
-open import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle
 open import Cubical.Cohomology.EilenbergMacLane.Base
 open import Cubical.Cohomology.EilenbergMacLane.CupProduct
 open import Cubical.Cohomology.EilenbergMacLane.RingStructure
+open import Cubical.Cohomology.EilenbergMacLane.Rings.Z2-properties
 
 open Iso
 open PlusBis
@@ -62,16 +62,7 @@ open RingTheory
 RP²⋁S¹ : Type ℓ-zero
 RP²⋁S¹ = (RP² , point) ⋁ (S₊∙ 1)
 
--- This notation is needed as G'' shouldn't have been put implicit
-_⌣ℤ/2_ : {n m : ℕ} → coHom n ℤ/2 RP²⋁S¹ → coHom m ℤ/2 RP²⋁S¹ → coHom (n +' m) ℤ/2 RP²⋁S¹
-_⌣ℤ/2_ x y = _⌣_ {G'' = ℤ/2Ring} x y
-
--- Pratical notations
-H*ℤ/2 : {ℓ : Level} → (A : Type ℓ) → Type ℓ
-H*ℤ/2 A = H* ℤ/2Ring A
-
-H*Rℤ/2 : {ℓ : Level} → (A : Type ℓ) → Ring ℓ
-H*Rℤ/2 A = H*R ℤ/2Ring A
+open CbnCupProduct RP²⋁S¹
 
 -- He can't seem to be able to find P and AGP in some case especially with cong
 -- Sometimes it works, sometimes not, the reason is currently unknown
@@ -312,56 +303,6 @@ module Equiv-RP²⋁S¹-Properties
                             ∙ cong ϕₙ (sym (0LeftAnnihilates ℤ/2Ring _)))
                           (ϕ₀⌣IdL _ ∙ cong ϕₙ (sym (·ℤ/2IdL _)))
                           a
-
-    unitGroupEq : {n : ℕ} → (e : AbGroupIso (coHomGr n ℤ/2 RP²⋁S¹) (UnitAbGroup {ℓ = ℓ-zero})) →
-                     (x y : coHom n ℤ/2 RP²⋁S¹) → x ≡ y
-    unitGroupEq {n} e x y = isOfHLevelRetractFromIso {ℓ' = ℓ-zero} 1 (fst e) isPropUnit* _ _
-
-    module _
-      {n m : ℕ}
-      (ϕₙ : fst ℤ/2 → coHom n ℤ/2 RP²⋁S¹)
-      (ϕₙstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₙ (snd (AbGroup→Group (coHomGr n ℤ/2 RP²⋁S¹))))
-      (ϕₘ : fst ℤ/2 → coHom m ℤ/2 RP²⋁S¹)
-      (ϕₘstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₘ (snd (AbGroup→Group (coHomGr m ℤ/2 RP²⋁S¹))))
-      (ϕₙ₊ₘ : fst ℤ/2 → coHom (n +' m) ℤ/2 RP²⋁S¹)
-      (ϕₙ₊ₘstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₙ₊ₘ (snd (AbGroup→Group (coHomGr (n +' m) ℤ/2 RP²⋁S¹))))
-      (cup-comp : ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ 1ℤ/2 ≡ ϕₙ₊ₘ 1ℤ/2)
-      where
-
-      ϕₙ⌣ϕₘ-notTrivial : (a b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (a ·ℤ/2 b)
-      ϕₙ⌣ϕₘ-notTrivial a = ℤ/2-elim {A = λ a → (b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (a ·ℤ/2 b)}
-                              (λ b → cong (λ X → X ⌣ℤ/2 ϕₘ b) (pres1 ϕₙstr)
-                                      ∙ 0ₕ-⌣ _ _ _
-                                      ∙ sym (pres1 ϕₙ₊ₘstr)
-                                      ∙ cong ϕₙ₊ₘ (sym (0LeftAnnihilates ℤ/2Ring _)))
-                              (λ b → ℤ/2-elim {A = λ b → ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (1ℤ/2 ·ℤ/2 b)}
-                                      (cong (λ X → ϕₙ 1ℤ/2 ⌣ℤ/2 X) (pres1 ϕₘstr)
-                                      ∙ ⌣-0ₕ {G'' = ℤ/2Ring} n m (ϕₙ 1ℤ/2)
-                                      ∙ sym (pres1 ϕₙ₊ₘstr)
-                                      ∙ cong ϕₙ₊ₘ (sym (0RightAnnihilates ℤ/2Ring _)))
-                                      cup-comp
-                                      b)
-                              a
-
-    module _
-      {n m : ℕ}
-      (ϕₙ : fst ℤ/2 → coHom n ℤ/2 RP²⋁S¹)
-      (ϕₙstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₙ (snd (AbGroup→Group (coHomGr n ℤ/2 RP²⋁S¹))))
-      (ϕₘ : fst ℤ/2 → coHom m ℤ/2 RP²⋁S¹)
-      (ϕₘstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₘ (snd (AbGroup→Group (coHomGr m ℤ/2 RP²⋁S¹))))
-      (cup-comp : ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ 1ℤ/2 ≡ 0ₕ (n +' m))
-      where
-
-      ϕₙ⌣ϕₘ-Trivial : (a b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)
-      ϕₙ⌣ϕₘ-Trivial a = ℤ/2-elim {A = λ a → (b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)}
-                         (λ b → cong (λ X → X ⌣ℤ/2 ϕₘ b) (pres1 ϕₙstr)
-                                      ∙ 0ₕ-⌣ _ _ _)
-                         (λ b → ℤ/2-elim {A = λ b → ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)}
-                                (cong (λ X → ϕₙ 1ℤ/2 ⌣ℤ/2 X) (pres1 ϕₘstr)
-                                      ∙ ⌣-0ₕ {G'' = ℤ/2Ring} n m (ϕₙ 1ℤ/2))
-                                cup-comp
-                         b)
-                         a
 
     pres·-int : (n m : ℕ) → (a : fst ℤ/2) → (k l : ℕ) → (b : fst ℤ/2) →
                    ℤ/2[x,y]→H*-RP²⋁S¹ (base (n ∷ m ∷ []) a ·Pℤ/2 base (k ∷ l ∷ []) b)
