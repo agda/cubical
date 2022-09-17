@@ -1,5 +1,4 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-
 module Cubical.Cohomology.EilenbergMacLane.Rings.RP2wedgeS1 where
 
 open import Cubical.Foundations.Prelude
@@ -228,7 +227,6 @@ module Equiv-RP²⋁S¹-Properties
   -----------------------------------------------------------------------------
   -- Direct Sens on ℤ/2[x,y]
 
-
     ℤ/2[x,y]→H*-RP²⋁S¹ : ℤ/2[x,y] → (H*ℤ/2  RP²⋁S¹)
     ℤ/2[x,y]→H*-RP²⋁S¹ = DS-Rec-Set.f _ _ _ _ isSetH*
                         0H*
@@ -275,26 +273,30 @@ module Equiv-RP²⋁S¹-Properties
     ℤ/2[x,y]→H*-RP²⋁S¹-pres1 : ℤ/2[x,y]→H*-RP²⋁S¹ (1Pℤ/2) ≡ 1H*
     ℤ/2[x,y]→H*-RP²⋁S¹-pres1 = cong (base 0) ϕ₀-pres1
 
-    ℤ/2[x,y]→H*-RP²⋁S¹-pres+ : (x y : ℤ/2[x,y]) → ℤ/2[x,y]→H*-RP²⋁S¹ (x +Pℤ/2 y) ≡ ℤ/2[x,y]→H*-RP²⋁S¹ x +H* ℤ/2[x,y]→H*-RP²⋁S¹ y
+    ℤ/2[x,y]→H*-RP²⋁S¹-pres+ : (x y : ℤ/2[x,y]) →
+                                    ℤ/2[x,y]→H*-RP²⋁S¹ (x +Pℤ/2 y)
+                                  ≡ ℤ/2[x,y]→H*-RP²⋁S¹ x +H* ℤ/2[x,y]→H*-RP²⋁S¹ y
     ℤ/2[x,y]→H*-RP²⋁S¹-pres+ x y = refl
 
---     --           Explanation of the product proof
---     --
---     --           -------------------------------------------------------
---     --           | (0,0) | (0,1) | (0,m+2) | (1,0) | (1,m+1) | (n+2,m) |
---     -- -----------------------------------------------------------------
---     -- | (0,0)   |   H⁰  |   H⁰  |    0    |   H⁰  |    0    |    0    |
---     -- -----------------------------------------------------------------
---     -- | (0,1)   |  Sym  |   0₄  |    0    |   0₃  |    0    |    0    |
---     -- -----------------------------------------------------------------
---     -- | (0,m+2) | ==========================================> triv    |
---     -- -----------------------------------------------------------------
---     -- | (1,0)   |  Sym  |  Sym  |    0    |   ★  |    0    |    0    |
---     -- -----------------------------------------------------------------
---     -- | (1,m+1) | ==========================================> triv    |
---     -- -----------------------------------------------------------------
---     -- | (n+2,m) | ==========================================> triv    |
---     -- -----------------------------------------------------------------
+--                Explanation of the product proof
+--
+--                ---------------------------------------------------------------
+--                | (0,0) | (0,1) | (0,2) | (0,m+2) | (1,0) | (1,m+1) | (n+2,m) |
+--      -------------------------------------------------------------------------
+--      | (0,0)   |   H⁰  |   H⁰  |   H⁰  |   triv  |  H⁰   |  triv   |  triv   |
+--      -------------------------------------------------------------------------
+--      | (0,1)   |  H⁰   |   β²  |   0₃  |   triv  |  βα   |  triv   |  triv   |
+--      -------------------------------------------------------------------------
+--      | (0,2)   |  H⁰   |   0₄  |   0₄  |   triv  |  0₂   |  triv   |  triv   |
+--      -------------------------------------------------------------------------
+--      | (0,m+2) | ====================================================> triv  |
+--      -------------------------------------------------------------------------
+--      | (1,0)   |  H⁰   |   αβ  |   0₃  |   triv  |   α   |  triv   |  triv   |
+--      -------------------------------------------------------------------------
+--      | (1,m+1) | ==================================================> triv    |
+--      -------------------------------------------------------------------------
+--      | (n+2,m) | ==================================================> triv    |
+--      -------------------------------------------------------------------------
 
 
     ϕ₀⌣IdL : {n : ℕ} → (f : coHom n ℤ/2 RP²⋁S¹) → ϕ₀ (1ℤ/2) ⌣ℤ/2 f ≡ f
@@ -361,11 +363,6 @@ module Equiv-RP²⋁S¹-Properties
                          b)
                          a
 
-    foo : 0 +' 1 ≡ 1 +' 0
-    foo = refl
-
-    -- note that the proof might be simpliale by adding a second partition on T
-    -- side, though it might complicated a bunch of things
     pres·-int : (n m : ℕ) → (a : fst ℤ/2) → (k l : ℕ) → (b : fst ℤ/2) →
                    ℤ/2[x,y]→H*-RP²⋁S¹ (base (n ∷ m ∷ []) a ·Pℤ/2 base (k ∷ l ∷ []) b)
                 ≡ ℤ/2[x,y]→H*-RP²⋁S¹ (base (n ∷ m ∷ []) a) cup ℤ/2[x,y]→H*-RP²⋁S¹ (base (k ∷ l ∷ []) b)
@@ -383,15 +380,19 @@ module Equiv-RP²⋁S¹-Properties
                                        ϕ₁left ϕ₁leftStr ϕ₀ ϕ₀str ϕ₁left ϕ₁leftStr
                                        ((cong (λ X → ϕ₁left 1ℤ/2 ⌣ℤ/2 X) ϕ₀-pres1)
                                          ∙ ⌣-1ₕ {G'' = ℤ/2Ring} _ _
-                                         ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₁ (1ℤ/2 , 0ℤ/2))) (isSetℕ _ _ (+'-comm zero 1) (refl {x = 1}))
+                                         ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₁ (1ℤ/2 , 0ℤ/2)))
+                                                (isSetℕ _ _ (+'-comm zero 1) (refl {x = 1}))
                                          ∙ substRefl _)
                                        _ _))
       -- case α²
-    pres·-int zero one a zero one b = cong (baseH* 2) (sym (ϕₙ⌣ϕₘ-notTrivial ϕ₁left ϕ₁leftStr ϕ₁left ϕ₁leftStr ϕ₂ ϕ₂str ϕ₁-1010-notTrivial a b))
+    pres·-int zero one a zero one b = cong (baseH* 2)
+                                           (sym (ϕₙ⌣ϕₘ-notTrivial ϕ₁left ϕ₁leftStr ϕ₁left ϕ₁leftStr ϕ₂ ϕ₂str ϕ₁-1010-notTrivial a b))
     pres·-int zero one a zero two b = sym (base-neutral _) ∙ cong (baseH* 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
     pres·-int zero one a zero (suc (suc (suc l))) b = refl
       -- case αβ
-    pres·-int zero one a one zero b = sym (cong (baseH* 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁left ϕ₁leftStr ϕ₁right ϕ₁rightStr ϕ₁-1001-trivial a b) ∙ base-neutral 2)
+    pres·-int zero one a one zero b = sym (cong (baseH* 2)
+                                                (ϕₙ⌣ϕₘ-Trivial ϕ₁left ϕ₁leftStr ϕ₁right ϕ₁rightStr ϕ₁-1001-trivial a b)
+                                          ∙ base-neutral 2)
     pres·-int zero one a one (suc l) b = refl
     pres·-int zero one a (suc (suc k)) l b = refl
     -- case (0,2) trivial right, by trivial goups
@@ -399,7 +400,8 @@ module Equiv-RP²⋁S¹-Properties
                                        ϕ₂ ϕ₂str ϕ₀ ϕ₀str ϕ₂ ϕ₂str
                                        ((cong (λ X → ϕ₂ 1ℤ/2 ⌣ℤ/2 X) ϕ₀-pres1)
                                          ∙ ⌣-1ₕ {G'' = ℤ/2Ring} _ _
-                                         ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₂ 1ℤ/2)) (isSetℕ _ _ (+'-comm zero 2) (refl {x = 2}))
+                                         ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₂ 1ℤ/2))
+                                                (isSetℕ _ _ (+'-comm zero 2) (refl {x = 2}))
                                          ∙ substRefl _)
                                        _ _))
     pres·-int zero two a zero one b = sym (base-neutral _) ∙ cong (baseH* 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
@@ -421,15 +423,20 @@ module Equiv-RP²⋁S¹-Properties
                                        ϕ₁right ϕ₁rightStr ϕ₀ ϕ₀str ϕ₁right ϕ₁rightStr
                                        (cong (λ X → ϕ₁right 1ℤ/2 ⌣ℤ/2 X) ϕ₀-pres1
                                        ∙ ⌣-1ₕ {G'' = ℤ/2Ring} _ (ϕ₁right 1ℤ/2)
-                                       ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₁right 1ℤ/2)) (isSetℕ _ _ (+'-comm zero 1) (refl {x = 1}))
+                                       ∙ cong (λ X → subst (λ Y → coHom Y ℤ/2 RP²⋁S¹) X (ϕ₁right 1ℤ/2))
+                                              (isSetℕ _ _ (+'-comm zero 1) (refl {x = 1}))
                                        ∙ substRefl _)
                                        a b))
       -- case βα
-    pres·-int one zero a zero one b = sym (cong (baseH* 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁right ϕ₁rightStr ϕ₁left ϕ₁leftStr ϕ₁-0110-trivial a b) ∙ base-neutral _)
+    pres·-int one zero a zero one b = sym (cong (baseH* 2)
+                                                (ϕₙ⌣ϕₘ-Trivial ϕ₁right ϕ₁rightStr ϕ₁left ϕ₁leftStr ϕ₁-0110-trivial a b)
+                                      ∙ base-neutral _)
     pres·-int one zero a zero two b = sym (base-neutral _) ∙ cong (baseH* 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
     pres·-int one zero a zero (suc (suc (suc l))) b = refl
       -- case β²
-    pres·-int one zero a one zero b = sym (cong (baseH* 2) (ϕₙ⌣ϕₘ-Trivial ϕ₁right ϕ₁rightStr ϕ₁right ϕ₁rightStr ϕ₁-0101-trivial a b) ∙ base-neutral _)
+    pres·-int one zero a one zero b = sym (cong (baseH* 2)
+                                                (ϕₙ⌣ϕₘ-Trivial ϕ₁right ϕ₁rightStr ϕ₁right ϕ₁rightStr ϕ₁-0101-trivial a b)
+                                          ∙ base-neutral _)
     pres·-int one zero a one (suc l) b = refl
     pres·-int one zero a (suc (suc k)) l b = refl
     -- case (1,m+1) trivial left, by def
@@ -444,7 +451,9 @@ module Equiv-RP²⋁S¹-Properties
     pres·-base-case-vec (n ∷ m ∷ []) a (k ∷ l ∷ []) b = pres·-int n m a k l b
 
     -- proof of the morphism
-    ℤ/2[x,y]→H*-RP²⋁S¹-pres· : (x y : ℤ/2[x,y]) → ℤ/2[x,y]→H*-RP²⋁S¹ (x ·Pℤ/2 y) ≡ ℤ/2[x,y]→H*-RP²⋁S¹ x cup ℤ/2[x,y]→H*-RP²⋁S¹ y
+    ℤ/2[x,y]→H*-RP²⋁S¹-pres· : (x y : ℤ/2[x,y]) →
+                                   ℤ/2[x,y]→H*-RP²⋁S¹ (x ·Pℤ/2 y)
+                                 ≡ ℤ/2[x,y]→H*-RP²⋁S¹ x cup ℤ/2[x,y]→H*-RP²⋁S¹ y
     ℤ/2[x,y]→H*-RP²⋁S¹-pres· = DS-Ind-Prop.f _ _ _ _
                            (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                            (λ y → refl)
@@ -461,7 +470,6 @@ module Equiv-RP²⋁S¹-Properties
   -----------------------------------------------------------------------------
   -- Function on ℤ/2[x]/x + morphism
 
-    -- not a trivial cancel ?
     ℤ/2[x,y]→H*-RP²⋁S¹-cancel : (x : FinI 3) → ℤ/2[x,y]→H*-RP²⋁S¹ (<Y³,XY,X²> x) ≡ 0H*
     ℤ/2[x,y]→H*-RP²⋁S¹-cancel zero = refl
     ℤ/2[x,y]→H*-RP²⋁S¹-cancel one = refl
@@ -546,8 +554,6 @@ module Equiv-RP²⋁S¹-Properties
   -----------------------------------------------------------------------------
   -- Section
 
-
-
     e-sect-base : (k : ℕ) → (a : coHom k ℤ/2 RP²⋁S¹) →
                   ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ ([ ϕ⁻¹ k a ]) ≡ base k a
     e-sect-base zero a = cong (baseH* 0) (ϕ₀-sect a)
@@ -570,8 +576,6 @@ module Equiv-RP²⋁S¹-Properties
   -----------------------------------------------------------------------------
   -- Retraction
 
-
-
     e-retr-base : (v : Vec ℕ 2) → (a : fst ℤ/2) →
                   H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> (ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ [ base v a ]) ≡ [ base v a ]
     e-retr-base (zero ∷ zero ∷ []) a = cong [_] (cong (baseP (0 ∷ 0 ∷ [])) (ϕ₀-retr a))
@@ -584,8 +588,9 @@ module Equiv-RP²⋁S¹-Properties
       where
       v = λ { zero → base (0 ∷ m ∷ []) (-ℤ/2 a) ; one → 0Pℤ/2 ; two → 0Pℤ/2 }
       helper : _
-      helper = +Pℤ/2IdL _ ∙
-               sym (cong₂ _+Pℤ/2_ (cong₂ baseP (cong (λ X → 0 ∷ X ∷ []) (+-comm _ _)) (·ℤ/2IdR _)) (+Pℤ/2IdL _ ∙ +Pℤ/2IdL _) ∙ +Pℤ/2IdR _)
+      helper = +Pℤ/2IdL _ ∙ sym (cong₂ _+Pℤ/2_
+                                       (cong₂ baseP (cong (λ X → 0 ∷ X ∷ []) (+-comm _ _))
+                                       (·ℤ/2IdR _)) (+Pℤ/2IdL _ ∙ +Pℤ/2IdL _) ∙ +Pℤ/2IdR _)
     e-retr-base (one ∷ zero ∷ []) a = cong [_] (cong₂ _+Pℤ/2_
                                                       (cong (baseP (0 ∷ 1 ∷ [])) (cong fst (ϕ₁-retr _)) ∙ base-neutral _)
                                                       (cong (baseP (1 ∷ 0 ∷ [])) (cong snd (ϕ₁-retr _)))
@@ -595,12 +600,15 @@ module Equiv-RP²⋁S¹-Properties
       v = λ { zero → 0Pℤ/2 ; one → base (0 ∷ m ∷ []) (-ℤ/2 a) ; two → 0Pℤ/2 }
       helper : _
       helper = +Pℤ/2IdL _ ∙
-               sym (+Pℤ/2IdL _ ∙ cong₂ _+Pℤ/2_ (cong₂ baseP (cong (λ X → 1 ∷ X ∷ []) (+-comm _ _)) (·ℤ/2IdR _)) (+Pℤ/2IdR _) ∙ +Pℤ/2IdR _)
+               sym (+Pℤ/2IdL _ ∙ cong₂ _+Pℤ/2_ (cong₂ baseP (cong (λ X → 1 ∷ X ∷ []) (+-comm _ _))
+                                                (·ℤ/2IdR _)) (+Pℤ/2IdR _) ∙ +Pℤ/2IdR _)
     e-retr-base (suc (suc n) ∷ m ∷ []) a = eq/ _ _ ∣ v , helper ∣₁
       where
       v = λ { zero → 0Pℤ/2 ; one → 0Pℤ/2 ; two → base (n ∷ m ∷ []) (-ℤ/2 a) }
       helper : _
-      helper = +Pℤ/2IdL _ ∙ sym (+Pℤ/2IdL _ ∙ +Pℤ/2IdL _ ∙ +Pℤ/2IdR _ ∙ cong₂ baseP (cong₂ (λ X Y → X ∷ Y ∷ []) (+-comm _ _) (+-comm _ _)) (·ℤ/2IdR _))
+      helper = +Pℤ/2IdL _ ∙ sym (+Pℤ/2IdL _ ∙ +Pℤ/2IdL _ ∙ +Pℤ/2IdR _
+                                 ∙ cong₂ baseP (cong₂ (λ X Y → X ∷ Y ∷ []) (+-comm _ _) (+-comm _ _))
+                                               (·ℤ/2IdR _))
 
     e-retr : (x : ℤ/2[x,y]/<y³,xy,x²>) → H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> (ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ x) ≡ x
     e-retr = SQ.elimProp (λ _ → isSetPℤ/2I _ _)
