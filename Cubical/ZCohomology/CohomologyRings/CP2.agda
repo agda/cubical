@@ -314,7 +314,7 @@ module ComputeCP²Notation
 
 
   -----------------------------------------------------------------------------
-  -- Converse Sens on ℤ[X] + ℤ[x]/x
+  -- Converse direction on ℤ[X] + ℤ[x]/x
 
     ϕ⁻¹ : (k : ℕ) → (a : coHom k CP²) → (x : partℕ k) → ℤ[x]
     ϕ⁻¹ k a (is0 x) = base (0 ∷ []) (ϕ₀⁻¹ (substG x a))
