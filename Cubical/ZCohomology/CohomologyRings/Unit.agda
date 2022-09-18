@@ -8,7 +8,7 @@ module Cubical.ZCohomology.CohomologyRings.Unit where
    - The ismorphism function of H⁰ is simpler so it
      makes some properties definitionally.
 
-   Though the file is almost written like Sn excet some simplification.
+   Though the file is almost written like Sn except for some simplification.
 -}
 
 open import Cubical.Foundations.Prelude
