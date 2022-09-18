@@ -2,7 +2,7 @@
 
 -- This file could be proven using the file Sn
 -- However the proofs are easier than in Sn
--- And so kept for pedagogic reasons
+-- And so kept for pedagogical reasons
 
 module Cubical.ZCohomology.CohomologyRings.S1 where
 
