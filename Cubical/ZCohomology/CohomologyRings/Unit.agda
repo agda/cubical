@@ -6,7 +6,7 @@ module Cubical.ZCohomology.CohomologyRings.Unit where
    This file is simpler than Sn or CP2 because
    - There is only one non trivial cohomology group.
    - The ismorphism function of H⁰ is simpler so it
-     makes a some properties definitionally.
+     makes some properties definitionally.
 
    Though the file is almost written like Sn excet some simplification.
 -}
