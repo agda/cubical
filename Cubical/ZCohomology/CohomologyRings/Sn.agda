@@ -4,7 +4,7 @@ module Cubical.ZCohomology.CohomologyRings.Sn where
 {-
    This file compute the cohomology Ring of Sn (n ≥ 1)
    The big difference with Sn compared to S 1 is the fact that
-   to do it for a general n, one need to add a partion.
+   to do it for a general n, one needs to add a partition.
    This implies notably some transport operation that
    complicates the definition and the proofs.
 -}
