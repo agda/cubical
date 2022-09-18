@@ -248,7 +248,7 @@ module ComputeCP²Notation
     ℤ[x]→H*-CP²-map+ x y = refl
 
 
-   -- Nice packging of the cup product
+   -- Nice packaging of the cup product
 
     presCupInt : (k : ℕ) → (a : ℤ) → (l : ℕ) → (b : ℤ) →
                    ℤ[x]→H*-CP² (base (k ∷ []) a ·Pℤ base (l ∷ []) b)
