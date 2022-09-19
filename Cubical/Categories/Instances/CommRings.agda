@@ -98,11 +98,12 @@ univ isUnivalentCommRingsCategory R S = subst isEquiv (funExt rem) (≡≃CatIso
   rem p = CatIso≡ _ _
     (RingHom≡ (funExt λ x → cong (transport (cong fst p)) (sym (transportRefl x))))
 
-TerminalCommRing : Terminal {ℓ-suc ℓ-zero} CommRingsCategory
-fst TerminalCommRing = UnitCommRing
-fst (fst (snd TerminalCommRing y)) _ = tt*
-snd (fst (snd TerminalCommRing y)) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
-snd (snd TerminalCommRing y) f = RingHom≡ (funExt (λ _ → refl))
+module _ {ℓ : Level} where
+  TerminalCommRing : Terminal CommRingsCategory
+  fst TerminalCommRing = UnitCommRing {ℓ = ℓ}
+  fst (fst (snd TerminalCommRing y)) _ = tt*
+  snd (fst (snd TerminalCommRing y)) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+  snd (snd TerminalCommRing y) f = RingHom≡ (funExt (λ _ → refl))
 
 open Pullback
 

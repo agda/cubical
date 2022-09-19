@@ -10,7 +10,8 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence)
-                                         renaming (_∈_ to _∈ₚ_ ; subst-∈ to subst-∈ₚ)
+                                         renaming ( _∈_ to _∈ₚ_ ; subst-∈ to subst-∈ₚ
+                                                  ; ∈-isProp to ∈ₚ-isProp)
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool hiding (_≤_)
@@ -39,6 +40,7 @@ open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommRing.Localisation.Limit
+open import Cubical.Algebra.CommRing.Instances.Unit
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
@@ -55,6 +57,7 @@ open import Cubical.Categories.Category.Base hiding (_[_,_])
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.Limits
+open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.RightKan
 
 open import Cubical.Categories.Instances.CommRings
@@ -172,25 +175,57 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
 
 
  open InvertingElementsBase R'
- globalSections : 𝓞 .F-ob (D 1r) ≡ R'
- globalSections =
-   𝓞 .F-ob (D 1r)                              ≡⟨ toBasisPath 1r ⟩
-   𝓞ᴮ .F-ob (D 1r , ∣ 1r , refl ∣₁)           ≡⟨ refl ⟩
-   -- all of this should hold by refl -----------------------------------------------------------
-   -- but somehow Agda takes forever to type-check if you don't use -----------------------------
-   -- the lemma funcCompOb≡ (which is just refl itself) or if you leave out ---------------------
-   -- any of the intermediate refl steps --------------------------------------------------------
-     (funcComp (ForgetfulCommAlgebra→CommRing R') universalPShf) .F-ob (D 1r , ∣ 1r , refl ∣₁)
-   ≡⟨ funcCompOb≡ (ForgetfulCommAlgebra→CommRing R') universalPShf _ ⟩
-     ForgetfulCommAlgebra→CommRing R' {ℓ' = ℓ} .F-ob R[1/ 1r ]AsCommAlgebra
-   ≡⟨ refl ⟩
-   ----------------------------------------------------------------------------------------------
-   CommAlgebra→CommRing R[1/ 1r ]AsCommAlgebra ≡⟨ invElCommAlgebra→CommRingPath 1r ⟩
-   R[1/ 1r ]AsCommRing                         ≡⟨ invertingUnitsPath _ _ (Units.RˣContainsOne _) ⟩
-   R' ∎
+ private
+   Forgetful = ForgetfulCommAlgebra→CommRing R' {ℓ' = ℓ}
+
+   𝓞ᴮOb≡ : ∀ f → 𝓞ᴮ .F-ob (D f , ∣ f , refl ∣₁) ≡ R[1/ f ]AsCommRing
+   𝓞ᴮOb≡ f = 𝓞ᴮ .F-ob (D f , ∣ f , refl ∣₁)     ≡⟨ refl ⟩
+     -- all of this should hold by refl -----------------------------------------------------------
+     -- but somehow Agda takes forever to type-check if you don't use -----------------------------
+     -- the lemma funcCompOb≡ (which is just refl itself) or if you leave out ---------------------
+     -- any of the intermediate refl steps --------------------------------------------------------
+       (funcComp (ForgetfulCommAlgebra→CommRing R') universalPShf) .F-ob (D f , ∣ f , refl ∣₁)
+     ≡⟨ funcCompOb≡ Forgetful universalPShf _ ⟩
+       Forgetful .F-ob R[1/ f ]AsCommAlgebra
+     ≡⟨ refl ⟩
+     ----------------------------------------------------------------------------------------------
+     CommAlgebra→CommRing R[1/ f ]AsCommAlgebra ≡⟨ invElCommAlgebra→CommRingPath f ⟩
+     R[1/ f ]AsCommRing                         ∎
+
+ baseSections : ∀ f → 𝓞 .F-ob (D f) ≡ R[1/ f ]AsCommRing
+ baseSections f = toBasisPath f ∙ 𝓞ᴮOb≡ f
+
+ globalSection : 𝓞 .F-ob (D 1r) ≡ R'
+ globalSection = baseSections 1r ∙  invertingUnitsPath _ _ (Units.RˣContainsOne _)
 
 
  -- TODO: prove that 𝓞ᴮ is a sheaf!!!
  open SheafOnBasis ZariskiLattice (CommRingsCategory {ℓ = ℓ}) BasicOpens basicOpensAreBasis
- isSheaf𝓞 : isDLBasisSheaf 𝓞ᴮ → isDLSheaf _ _ 𝓞
- isSheaf𝓞 = isDLSheafDLRan _ _
+ open DistLatticeStr ⦃...⦄
+ private instance _ = snd ZariskiLattice
+
+ isSheaf𝓞ᴮ : isDLBasisSheaf 𝓞ᴮ
+ isSheaf𝓞ᴮ {n = zero} α isBO⋁α A cᴬ = uniqueExists
+   (isTerminal𝓞ᴮ[0] A .fst)
+     (λ {(sing ()) ; (pair () _ _) }) -- the unique morphism is a cone morphism
+       (isPropIsConeMor _ _)
+         λ φ _ → isTerminal𝓞ᴮ[0] A .snd φ
+   where
+   -- D(0) is not 0 of the Zariski  lattice by refl!
+   p : 𝓞ᴮ .F-ob (0l , isBO⋁α) ≡ R[1/ 0r ]AsCommRing
+   p = 𝓞ᴮ .F-ob (0l , isBO⋁α)
+     ≡⟨ cong (𝓞ᴮ .F-ob) (Σ≡Prop (λ _ → ∈ₚ-isProp _ _)
+             (eq/ _ _ ((λ ()) , λ {zero → ∣ 1 , ∣ (λ ()) , 0LeftAnnihilates _ ∣₁ ∣₁ }))) ⟩
+       𝓞ᴮ .F-ob (D 0r , ∣ 0r , refl ∣₁)
+     ≡⟨ 𝓞ᴮOb≡ 0r ⟩
+       R[1/ 0r ]AsCommRing ∎
+
+   isTerminal𝓞ᴮ[0] : isTerminal CommRingsCategory (𝓞ᴮ .F-ob (0l , isBO⋁α))
+   isTerminal𝓞ᴮ[0] = subst (isTerminal CommRingsCategory)
+                           (sym (p ∙ R[1/0]≡0)) (TerminalCommRing .snd)
+
+ isSheaf𝓞ᴮ {n = suc n} = {!!}
+
+ -- our main result
+ isSheaf𝓞 : isDLSheaf _ _ 𝓞
+ isSheaf𝓞 = isDLSheafDLRan _ _ isSheaf𝓞ᴮ
