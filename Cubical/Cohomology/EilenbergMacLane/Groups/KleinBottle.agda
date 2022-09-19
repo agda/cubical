@@ -335,26 +335,27 @@ snd H²[K²,ℤ/2]≅ℤ/2 =
         (ℤ/2-elim (IsAbGroup.+IdR e 1)
           (IsAbGroup.+InvR e 1))))
 
+isContr-HⁿKleinBottle : (n : ℕ) (G : AbGroup ℓ)
+  → isContr (coHom (suc (suc (suc n))) G KleinBottle)
+fst (isContr-HⁿKleinBottle n G) = ∣ (KleinFun ∣ north ∣ refl refl refl) ∣₂
+snd (isContr-HⁿKleinBottle n G) = ST.elim (λ _ → isSetPathImplicit)
+         (ConnK².elim₂ (isConnectedSubtr 3 (suc n)
+           (subst (λ m → isConnected m (EM G (3 +ℕ n)))
+             (cong suc (+-comm 3 n))
+             (isConnectedEM (3 +ℕ n)))) (λ _ → squash₂ _ _)
+            (0ₖ (3 +ℕ n))
+            λ p → TR.rec (squash₂ _ _)
+              (λ q → cong ∣_∣₂ (cong (KleinFun ∣ north ∣ refl refl) q))
+              (isConnectedPath 1
+                (isConnectedPath 2
+                  (isConnectedPath 3
+                    ((isConnectedSubtr 4 n
+                     (subst (λ m → isConnected m (EM G (3 +ℕ n)))
+                       (+-comm 4 n)
+                       (isConnectedEM (3 +ℕ n))))) _ _) _ _)
+                         refl p .fst))
+
 H³⁺ⁿK²≅0 : (n : ℕ) (G : AbGroup ℓ)
   → AbGroupEquiv (coHomGr (3 +ℕ n) G KleinBottle) (trivialAbGroup {ℓ})
-fst (H³⁺ⁿK²≅0 n G) = isContr→Equiv lem isContrUnit*
-  where
-  lem : isContr (coHom (suc (suc (suc n))) G KleinBottle)
-  fst lem = ∣ (KleinFun ∣ north ∣ refl refl refl) ∣₂
-  snd lem = ST.elim (λ _ → isSetPathImplicit)
-           (ConnK².elim₂ (isConnectedSubtr 3 (suc n)
-             (subst (λ m → isConnected m (EM G (3 +ℕ n)))
-               (cong suc (+-comm 3 n))
-               (isConnectedEM (3 +ℕ n)))) (λ _ → squash₂ _ _)
-              (0ₖ (3 +ℕ n))
-              λ p → TR.rec (squash₂ _ _)
-                (λ q → cong ∣_∣₂ (cong (KleinFun ∣ north ∣ refl refl) q))
-                (isConnectedPath 1
-                  (isConnectedPath 2
-                    (isConnectedPath 3
-                      ((isConnectedSubtr 4 n
-                       (subst (λ m → isConnected m (EM G (3 +ℕ n)))
-                         (+-comm 4 n)
-                         (isConnectedEM (3 +ℕ n))))) _ _) _ _)
-                           refl p .fst))
+fst (H³⁺ⁿK²≅0 n G) = isContr→Equiv (isContr-HⁿKleinBottle n G) isContrUnit*
 snd (H³⁺ⁿK²≅0 n G) = makeIsGroupHom λ _ _ → refl
