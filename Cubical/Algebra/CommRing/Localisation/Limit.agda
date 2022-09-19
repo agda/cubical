@@ -1,18 +1,13 @@
 {-
-
   This file contains a proof of the following fact:
   For a commutative ring R with elements f₁ , ... , fₙ ∈ R such that
   ⟨ f₁ , ... , fₙ ⟩ = ⟨ 1 ⟩ = R we get an (exact) equalizer diagram of the following form:
-
       0 → R → ∏ᵢ R[1/fᵢ] ⇉ ∏ᵢⱼ R[1/fᵢfⱼ]
-
   where the two maps ∏ᵢ R[1/fᵢ] → ∏ᵢⱼ R[1/fᵢfⱼ] are induced by the two canonical maps
   R[1/fᵢ] → R[1/fᵢfⱼ] and R[1/fⱼ] → R[1/fᵢfⱼ].
-
   Using the well-known correspondence between equalizers of products and limits,
   we express the above fact through limits over the diagrams defined in
   Cubical.Categories.DistLatticeSheaf.Diagram
-
 -}
 
 {-# OPTIONS --safe --experimental-lossy-unification #-}
@@ -42,8 +37,6 @@ open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
-open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Localisation
 open import Cubical.Algebra.Semilattice.Instances.NatMax
 
 open import Cubical.Tactics.CommRingSolver.Reflection
@@ -54,7 +47,6 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.CommRings
-open import Cubical.Categories.Instances.CommAlgebras
 open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.DistLatticeSheaf.Diagram
 
@@ -75,7 +67,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  open CommIdeal R' hiding (subst-∈)
  open InvertingElementsBase R'
  open Exponentiation R'
- open CommRingStr (R' .snd)
+ open CommRingStr ⦃...⦄
 
  private
   R = fst R'
@@ -83,6 +75,8 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
   ⟨f₀,⋯,fₙ⟩ = ⟨ f ⟩[ R' ]
 
+  instance
+   _ = R' .snd
 
   module L i = Loc R' [ f i ⁿ|n≥0] (powersFormMultClosedSubset (f i))
   module U i = S⁻¹RUniversalProp R' [ f i ⁿ|n≥0] (powersFormMultClosedSubset (f i))
@@ -520,33 +514,28 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
            ≡⟨ U./1AsCommRingHom i .snd .pres+ _ _ ⟩ -- (-a)/1=-(a/1) by refl
 
-             z /1ˢ -ᵢ y /1ˢ
+             z /1ˢ - y /1ˢ
 
-           ≡⟨ cong₂ (_-ᵢ_) (z≡r/fᵐ i) (y≡r/fᵐ i) ⟩
+           ≡⟨ cong₂ (_-_) (z≡r/fᵐ i) (y≡r/fᵐ i) ⟩
 
-             [ r i , f i ^ m , ∣ m , refl ∣₁ ] -ᵢ [ r i , f i ^ m , ∣ m , refl ∣₁ ]
+             [ r i , f i ^ m , ∣ m , refl ∣₁ ] - [ r i , f i ^ m , ∣ m , refl ∣₁ ]
 
-           ≡⟨ +InvRᵢ ([ r i , f i ^ m , ∣ m , refl ∣₁ ]) ⟩
+           ≡⟨ +InvR ([ r i , f i ^ m , ∣ m , refl ∣₁ ]) ⟩
 
              0at i ∎
            where
-           open CommRingStr (L.S⁻¹RAsCommRing i .snd) renaming (_-_ to _-ᵢ_ ; +InvR to +InvRᵢ)
+           instance _ = L.S⁻¹RAsCommRing i .snd
            open IsRingHom
 
 
 
 {-
-
  Putting everything together with the limit machinery:
  If ⟨ f₁ , ... , fₙ ⟩ = R, then R = lim { R[1/fᵢ] → R[1/fᵢfⱼ] ← R[1/fⱼ] }
-
 -}
- open Category hiding (_∘_ ; _⋆_)
+ open Category (CommRingsCategory {ℓ})
  open Cone
  open Functor
-
- private
-  CommRingsCat = CommRingsCategory {ℓ}
 
  locDiagram : Functor (DLShfDiag (suc n)) CommRingsCategory
  F-ob locDiagram (sing i) = R[1/ f i ]AsCommRing
@@ -555,14 +544,14 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  F-hom locDiagram singPairL = χˡ _ _
  F-hom locDiagram singPairR = χʳ _ _
  F-id locDiagram = refl
- F-seq locDiagram idAr _ = sym (⋆IdL CommRingsCat _)
- F-seq locDiagram singPairL idAr = sym (⋆IdR CommRingsCat _)
- F-seq locDiagram singPairR idAr = sym (⋆IdR CommRingsCat _)
+ F-seq locDiagram idAr _ = sym (⋆IdL _)
+ F-seq locDiagram singPairL idAr = sym (⋆IdR _)
+ F-seq locDiagram singPairR idAr = sym (⋆IdR _)
 
  locCone : Cone locDiagram R'
  coneOut locCone (sing i) = U./1AsCommRingHom i
  coneOut locCone (pair i j _) = UP./1AsCommRingHom i j
- coneOutCommutes locCone idAr = ⋆IdR CommRingsCat _
+ coneOutCommutes locCone idAr = ⋆IdR _
  coneOutCommutes locCone singPairL = RingHom≡ (χˡUnique _ _ .fst .snd)
  coneOutCommutes locCone singPairR = RingHom≡ (χʳUnique _ _ .fst .snd)
 
@@ -570,7 +559,8 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  isLimConeLocCone 1∈⟨f₀,⋯,fₙ⟩ A' cᴬ = (ψ , isConeMorψ) , ψUniqueness
    where
    A = fst A'
-   open CommRingStr (snd A') renaming (_+_ to _+A_ ; _·_ to _·A_ ; 1r to 1A)
+   instance
+    _ = snd A'
 
    φ : (i : Fin (suc n)) → CommRingHom A' R[1/ f i ]AsCommRing
    φ i = cᴬ .coneOut (sing i)
@@ -588,29 +578,35 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
    ψ : CommRingHom A' R'
    fst ψ a = applyEqualizerLemma a .fst .fst
    snd ψ = makeIsRingHom
-            (cong fst (applyEqualizerLemma 1A .snd (1r , 1Coh)))
-              (λ x y → cong fst (applyEqualizerLemma (x +A y) .snd (_ , +Coh x y)))
-                λ x y → cong fst (applyEqualizerLemma (x ·A y) .snd (_ , ·Coh x y))
+            (cong fst (applyEqualizerLemma 1r .snd (1r , 1Coh)))
+              (λ x y → cong fst (applyEqualizerLemma (x + y) .snd (_ , +Coh x y)))
+                λ x y → cong fst (applyEqualizerLemma (x · y) .snd (_ , ·Coh x y))
      where
      open IsRingHom
-     1Coh : ∀ i → (1r /1ˢ ≡ φ i .fst 1A)
+     1Coh : ∀ i → (1r /1ˢ ≡ φ i .fst 1r)
      1Coh i = sym (φ i .snd .pres1)
 
-     +Coh : ∀ x y i → ((fst ψ x + fst ψ y) /1ˢ ≡ φ i .fst (x +A y))
-     +Coh x y i = let open CommRingStr (snd R[1/ f i ]AsCommRing) renaming (_+_ to _+ᵢ_) in
+     +Coh : ∀ x y i → ((fst ψ x + fst ψ y) /1ˢ ≡ φ i .fst (x + y))
+     +Coh x y i = let instance _ = snd R[1/ f i ]AsCommRing in
              U./1AsCommRingHom i .snd .pres+ _ _
-          ∙∙ cong₂ _+ᵢ_ (applyEqualizerLemma x .fst .snd i) (applyEqualizerLemma y .fst .snd i)
+          ∙∙ cong₂ _+_ (applyEqualizerLemma x .fst .snd i) (applyEqualizerLemma y .fst .snd i)
           ∙∙ sym (φ i .snd .pres+ x y)
 
-     ·Coh : ∀ x y i → ((fst ψ x · fst ψ y) /1ˢ ≡ φ i .fst (x ·A y))
-     ·Coh x y i = let open CommRingStr (snd R[1/ f i ]AsCommRing) renaming (_·_ to _·ᵢ_) in
+     ·Coh : ∀ x y i → ((fst ψ x · fst ψ y) /1ˢ ≡ φ i .fst (x · y))
+     ·Coh x y i = let instance _ = snd R[1/ f i ]AsCommRing in
              U./1AsCommRingHom i .snd .pres· _ _
-          ∙∙ cong₂ _·ᵢ_ (applyEqualizerLemma x .fst .snd i) (applyEqualizerLemma y .fst .snd i)
+          ∙∙ cong₂ _·_ (applyEqualizerLemma x .fst .snd i) (applyEqualizerLemma y .fst .snd i)
           ∙∙ sym (φ i .snd .pres· x y)
 
+   -- TODO: Can you use lemma from other PR to eliminate pair case
    isConeMorψ : isConeMor cᴬ locCone ψ
-   isConeMorψ = isConeMorSingLemma cᴬ locCone
-                  λ i → RingHom≡ (funExt (λ a → applyEqualizerLemma a .fst .snd i))
+   isConeMorψ (sing i) = RingHom≡ (funExt (λ a → applyEqualizerLemma a .fst .snd i))
+   isConeMorψ (pair i j i<j) =
+     ψ ⋆ UP./1AsCommRingHom i j         ≡⟨ cong (ψ ⋆_) (sym (RingHom≡ (χˡUnique _ _ .fst .snd))) ⟩
+     ψ ⋆ U./1AsCommRingHom i ⋆ χˡ i j   ≡⟨ sym (⋆Assoc _ _ _) ⟩
+     (ψ ⋆ U./1AsCommRingHom i) ⋆ χˡ i j ≡⟨ cong (_⋆ χˡ i j) (isConeMorψ (sing i)) ⟩
+     φ i ⋆ χˡ i j                       ≡⟨ coneOutCommutes cᴬ singPairL ⟩
+     coneOut cᴬ (pair i j i<j)          ∎
 
    ψUniqueness : (y : Σ[ θ ∈ CommRingHom A' R' ] isConeMor cᴬ locCone θ) → (ψ , isConeMorψ) ≡ y
    ψUniqueness (θ , isConeMorθ) = Σ≡Prop (λ _ → isPropIsConeMor _ _ _)
@@ -618,109 +614,3 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
      where
      θtriple : (a : A) → Σ[ x ∈ R ] ∀ i → x /1ˢ ≡ φ i .fst a
      θtriple a = fst θ a , λ i → cong (_$ a) (isConeMorθ (sing i))
-
-
- -- do the diagram/Cone in CommAlgebras and prove equality
- -- should this be here?
- private
-  RAlgCat = CommAlgebrasCategory R' {ℓ}
-  Forgetful = ForgetfulCommAlgebra→CommRing {ℓ = ℓ} R' {ℓ' = ℓ}
-
-  R[1/_]AsCommAlg : R → CommAlgebra R' ℓ
-  R[1/_]AsCommAlg f = S⁻¹RAsCommAlg [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
-    where
-    open AlgLoc R'
-
-  module LA i = AlgLoc R' [ f i ⁿ|n≥0] (powersFormMultClosedSubset (f i))
-  module LPA i j = AlgLoc R' [ f i · f j ⁿ|n≥0] (powersFormMultClosedSubset (f i · f j))
-
- χˡᵃUnique : (i j : Fin (suc n))
-          → isContr (CommAlgebraHom R[1/ f i ]AsCommAlg R[1/ f i · f j ]AsCommAlg)
- χˡᵃUnique i j = LA.S⁻¹RHasAlgUniversalProp i _ unitHelper
-   where
-   open CommAlgebraStr (snd R[1/ f i · f j ]AsCommAlg) using (1a ; _⋆_)
-   unitHelper : ∀ s → s ∈ₚ [ (f i) ⁿ|n≥0]
-                     → (s ⋆ 1a)  ∈ₚ (CommAlgebra→CommRing R[1/ f i · f j ]AsCommAlg) ˣ
-   unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s ⋆ 1a))
-                  λ m → [ f j ^ m , (f i · f j) ^ m , ∣ m , refl ∣₁ ]
-                        , eq/ _ _ ((1r , (powersFormMultClosedSubset (f i · f j) .containsOne))
-                        , path m)
-     where
-     useSolver1 : ∀ a b → 1r · ((a · 1r) · b) · 1r ≡ a · b
-     useSolver1 = solve R'
-     useSolver2 : ∀ a → a ≡ (1r · 1r) · ((1r · 1r) · a)
-     useSolver2 = solve R'
-
-     path : ∀ n → 1r · ((f i ^ n · 1r) · f j ^ n) · 1r ≡ (1r · 1r) · ((1r · 1r) · ((f i · f j) ^ n))
-     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
-
- χˡᵃ : (i j : Fin (suc n)) → CommAlgebraHom R[1/ f i ]AsCommAlg R[1/ f i · f j ]AsCommAlg
- χˡᵃ i j = χˡᵃUnique i j .fst
-
- χʳᵃUnique : (i j : Fin (suc n))
-          → isContr (CommAlgebraHom R[1/ f j ]AsCommAlg R[1/ f i · f j ]AsCommAlg)
- χʳᵃUnique i j = LA.S⁻¹RHasAlgUniversalProp j _ unitHelper
-   where
-   open CommAlgebraStr (snd R[1/ f i · f j ]AsCommAlg) using (1a ; _⋆_)
-   unitHelper : ∀ s → s ∈ₚ [ (f j) ⁿ|n≥0]
-                     → (s ⋆ 1a)  ∈ₚ (CommAlgebra→CommRing R[1/ f i · f j ]AsCommAlg) ˣ
-   unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s ⋆ 1a))
-                  λ m → [ f i ^ m , (f i · f j) ^ m , ∣ m , refl ∣₁ ]
-                        , eq/ _ _ ((1r , (powersFormMultClosedSubset (f i · f j) .containsOne))
-                        , path m)
-     where
-     useSolver1 : ∀ a b → 1r · ((a · 1r) · b) · 1r ≡ b · a
-     useSolver1 = solve R'
-     useSolver2 : ∀ a → a ≡ (1r · 1r) · ((1r · 1r) · a)
-     useSolver2 = solve R'
-
-     path : ∀ n → 1r · ((f j ^ n · 1r) · f i ^ n) · 1r ≡ (1r · 1r) · ((1r · 1r) · ((f i · f j) ^ n))
-     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
-
- χʳᵃ : (i j : Fin (suc n)) → CommAlgebraHom R[1/ f j ]AsCommAlg R[1/ f i · f j ]AsCommAlg
- χʳᵃ i j = χʳᵃUnique i j .fst
-
-
- open CommAlgebraHoms
- locAlgDiagram : Functor (DLShfDiag (suc n)) RAlgCat
- F-ob locAlgDiagram (sing i) = R[1/ f i ]AsCommAlg
- F-ob locAlgDiagram (pair i j _) = R[1/ f i · f j ]AsCommAlg
- F-hom locAlgDiagram idAr = idCommAlgebraHom _
- F-hom locAlgDiagram singPairL = χˡᵃ _ _
- F-hom locAlgDiagram singPairR = χʳᵃ _ _
- F-id locAlgDiagram = refl
- F-seq locAlgDiagram idAr _ = sym (⋆IdL RAlgCat _)
- F-seq locAlgDiagram singPairL idAr = sym (⋆IdR RAlgCat _)
- F-seq locAlgDiagram singPairR idAr = sym (⋆IdR RAlgCat _)
-
- -- will things compute?
- locDiagramPath : locDiagram ≡ Forgetful ∘F locAlgDiagram
- locDiagramPath = Functor≡ obPath homPathP
-   where
-   obPath : ∀ v → F-ob locDiagram v ≡ F-ob (funcComp Forgetful locAlgDiagram) v
-   obPath (sing i) = sym (invElCommAlgebra→CommRingPath (f i))
-   obPath (pair i j _) = sym (invElCommAlgebra→CommRingPath {R = R'} (f i · f j))
-
-   funPathP : ∀ u v e → PathP (λ i → (obPath u i) .fst → (obPath v i) .fst)
-                               ((locDiagram .F-hom e) .fst)
-                               ((Forgetful .F-hom (locAlgDiagram .F-hom e)) .fst)
-   funPathP (sing _) .(sing _) idAr = funExt (λ _ → refl)
-   funPathP (pair _ _ _) .(pair _ _ _) idAr = funExt (λ _ → refl)
-   funPathP .(sing _) .(pair _ _ _) singPairL = funExt (invElPropElim
-             (λ _ → isSetCommRing R[1/ f _ · f _ ]AsCommRing _ _)
-              --this should be a lemma
-              λ r m → cong [_]
-                           (ΣPathP (cong (_· transport (λ _ → R) (f _ ^ m)) (sym (·IdR r))
-                           , (Σ≡Prop (λ _ → ∈-isProp _ _)
-                           (cong (_· transport (λ _ → R) ((f _ · f _) ^ m)) (sym (·IdR 1r)))))))
-
-   funPathP .(sing _) .(pair _ _ _) singPairR = funExt (invElPropElim
-             (λ _ → isSetCommRing R[1/ f _ · f _ ]AsCommRing _ _)
-              λ r m → cong [_]
-                           (ΣPathP (cong (_· transport (λ _ → R) (f _ ^ m)) (sym (·IdR r))
-                           , (Σ≡Prop (λ _ → ∈-isProp _ _)
-                           (cong (_· transport (λ _ → R) ((f _ · f _) ^ m)) (sym (·IdR 1r)))))))
-
-   homPathP : ∀ {u} {v} e → PathP (λ i → CommRingHom (obPath u i) (obPath v i))
-                                   (F-hom locDiagram e) (F-hom (funcComp Forgetful locAlgDiagram) e)
-   homPathP e = toPathP (RingHom≡ (fromPathP (funPathP _ _ e)))
