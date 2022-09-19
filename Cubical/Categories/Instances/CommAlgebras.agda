@@ -401,11 +401,33 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
                      algCone (F-cone universalPShf cc)
    conePathPAlg = conePathPDiag coneHomPathPs
 
-   -- now for composition with forgetful functor (should work with any functor really)
+   intermediateTransport : isLimCone _ _ algCone → isLimCone _ _ (F-cone universalPShf cc)
+   intermediateTransport univProp = transport (λ i → isLimCone _ _ (conePathPAlg i)) univProp
+
+   -- now for composition with forgetful functor
    CommRingsCat = CommRingsCategory {ℓ = ℓ''}
    Forgetful = ForgetfulCommAlgebra→CommRing {ℓ = ℓ''} R {ℓ' = ℓ''}
    𝓖 = Forgetful ∘F universalPShf
 
+  module _ (presLimForgetful : preservesLimit {ℓJ = ℓJ} {ℓJ' = ℓJ'} Forgetful)
+           (isLimAlgCone : isLimCone _ _ algCone) where
+
+   private
+    assocDiagPath : Forgetful ∘F (universalPShf ∘F D) ≡ 𝓖 ∘F D
+    assocDiagPath = F-assoc
+
+    conePathPCR : PathP (λ i → Cone (assocDiagPath i) (F-ob (Forgetful ∘F universalPShf) c))
+                   (F-cone Forgetful (F-cone universalPShf cc)) (F-cone 𝓖 cc)
+    conePathPCR = conePathPDiag -- why does everything have to be explicit?
+            (λ v _ → (Forgetful ∘F universalPShf) .F-hom {x = c} {y = D .F-ob v} (cc .coneOut v))
+
+   abstract
+    toLimCone : isLimCone _ _ (F-cone 𝓖 cc)
+    toLimCone = transport (λ i → isLimCone _ _ (conePathPCR i))
+                          (presLimForgetful _ (intermediateTransport isLimAlgCone))
+
+
+  -- old stuff for doing things the ad-hoc way
   module _ {crDiag : Functor J CommRingsCat} {A : ob CommRingsCat}
            (crCone : Cone crDiag A) -- will be locCone
            (q : crDiag ≡ Forgetful ∘F algDiag)
@@ -436,8 +458,8 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
     -- conePathPF = {!!} --conePathP λ v i → {!!}
 
    abstract
-    toLimCone : isLimCone _ _ crCone → isLimCone _ _ (F-cone 𝓖 cc)
-    toLimCone univProp = transport (λ i → isLimCone _ _ (bar i))
+    toLimCone' : isLimCone _ _ crCone → isLimCone _ _ (F-cone 𝓖 cc)
+    toLimCone' univProp = transport (λ i → isLimCone _ _ (bar i))
                            (transport (λ i → isLimCone _ _ (baz i))
                              (transport (λ i → isLimCone _ _ (foo i)) univProp))
     --transport (λ i → isLimCone (diagPathF i) (r i) (conePathPF i)) univProp

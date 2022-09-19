@@ -223,16 +223,6 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
                                                               (sym (isInitJ j .snd _)) (D .F-id))
                             ∙∙ ⋆IdR C f)
 
---precomposition with a functor
-open Category
-open Functor
-open Cone
-F-cone : {ℓJ ℓJ' ℓC ℓC' ℓE ℓE' : Level} {J : Category ℓJ ℓJ'} {C : Category ℓC ℓC'} {E : Category ℓE ℓE'}
-         {c : ob C} {D : Functor J C}
-       → (F : Functor C E) → Cone D c → Cone (funcComp F D) (F .F-ob c)
-coneOut (F-cone F cc) v = F .F-hom (cc .coneOut v)
-coneOutCommutes (F-cone F cc) e = F-triangle F (cc .coneOutCommutes e)
-
 
 -- A category is complete if it has all limits
 Limits : {ℓJ ℓJ' ℓC ℓC' : Level} → Category ℓC ℓC' → Type _
@@ -246,7 +236,7 @@ LimitsOfShape : {ℓJ ℓJ' ℓC ℓC' : Level} → Category ℓJ ℓJ' → Cate
 LimitsOfShape J C = (D : Functor J C) → LimCone D
 
 
--- Preservation of limits
+-- precomposition with a functor and preservation of limits
 module _ {ℓJ ℓJ' ℓC1 ℓC1' ℓC2 ℓC2' : Level}
          {C1 : Category ℓC1 ℓC1'} {C2 : Category ℓC2 ℓC2'}
          (F : Functor C1 C2) where
@@ -254,18 +244,16 @@ module _ {ℓJ ℓJ' ℓC1 ℓC1' ℓC2 ℓC2' : Level}
   open Functor
   open Cone
 
-  private
-    ℓ = ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓJ ℓJ') ℓC1) ℓC1') ℓC2) ℓC2'
-
   -- same as F-cone!!!
-  mapCone : {J : Category ℓJ ℓJ'} (D : Functor J C1) {x : ob C1} (ccx : Cone D x) → Cone (funcComp F D) (F .F-ob x)
-  coneOut (mapCone D ccx) v = F .F-hom (coneOut ccx v)
-  coneOutCommutes (mapCone D ccx) e =
-    sym (F-seq F (coneOut ccx _) (D ⟪ e ⟫)) ∙ cong (F .F-hom) (coneOutCommutes ccx e)
+  F-cone : {J : Category ℓJ ℓJ'} {D : Functor J C1} {x : ob C1}
+          → Cone D x → Cone (funcComp F D) (F .F-ob x)
+  coneOut (F-cone ccx) v = F .F-hom (coneOut ccx v)
+  coneOutCommutes (F-cone ccx) e =
+    sym (F-seq F (coneOut ccx _) _) ∙ cong (F .F-hom) (coneOutCommutes ccx e)
 
-  preservesLimit : {J : Category ℓJ ℓJ'} (D : Functor J C1)
-                 → (L : ob C1) → Cone D L → Type ℓ
-  preservesLimit D L ccL =
-    isLimCone D L ccL → isLimCone (funcComp F D) (F .F-ob L) (mapCone D ccL)
+  preservesLimit : Type _
+  preservesLimit = ∀ {J : Category ℓJ ℓJ'} {D : Functor J C1} {L : ob C1}
+                      (ccL : Cone D L)
+                 → isLimCone _ _ ccL → isLimCone (funcComp F D) (F .F-ob L) (F-cone ccL)
 
   -- TODO: prove that right adjoints preserve limits
