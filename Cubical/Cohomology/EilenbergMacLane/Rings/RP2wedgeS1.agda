@@ -248,11 +248,15 @@ module Equiv-RP²⋁S¹-Properties
      base-neutral-eq (suc (suc n) ∷ m                 ∷ []) = refl
 
      base-add-eq : _
-     base-add-eq (zero        ∷ zero              ∷ []) a b = base-add _ _ _ ∙ cong (base 0) (sym ((pres· ϕ₀str _ _)))
-     base-add-eq (zero        ∷ one               ∷ []) a b = base-add _ _ _ ∙ cong (baseH* 1) ((sym (pres· ϕ₁str _ _)))
-     base-add-eq (zero        ∷ two               ∷ []) a b = base-add 2 (ϕ₂ a) (ϕ₂ b) ∙ cong (baseH* 2) (sym (pres· ϕ₂str _ _))
+     base-add-eq (zero        ∷ zero              ∷ []) a b = base-add _ _ _
+                                                              ∙ cong (base 0) (sym ((pres· ϕ₀str _ _)))
+     base-add-eq (zero        ∷ one               ∷ []) a b = base-add _ _ _
+                                                              ∙ cong (baseH* 1) ((sym (pres· ϕ₁str _ _)))
+     base-add-eq (zero        ∷ two               ∷ []) a b = base-add 2 (ϕ₂ a) (ϕ₂ b)
+                                                              ∙ cong (baseH* 2) (sym (pres· ϕ₂str _ _))
      base-add-eq (zero        ∷ suc (suc (suc m)) ∷ []) a b = +H*IdR _
-     base-add-eq (one         ∷ zero              ∷ []) a b = base-add _ _ _ ∙ cong (baseH* 1) ((sym (pres· ϕ₁str _ _)))
+     base-add-eq (one         ∷ zero              ∷ []) a b = base-add _ _ _
+                                                              ∙ cong (baseH* 1) ((sym (pres· ϕ₁str _ _)))
      base-add-eq (one         ∷ suc m             ∷ []) a b = +H*IdR _
      base-add-eq (suc (suc n) ∷ m                 ∷ []) a b = +H*IdR _
 
@@ -326,13 +330,15 @@ module Equiv-RP²⋁S¹-Properties
                                          ∙ substRefl _)
                                        _ _))
       -- case α²
-    pres·-int zero one a zero one b = cong (baseH* 2)
-                                           (sym (ϕₙ⌣ϕₘ-notTrivial ϕ₁left ϕ₁leftStr ϕ₁left ϕ₁leftStr ϕ₂ ϕ₂str ϕ₁-1010-notTrivial a b))
+    pres·-int zero one a zero one b = cong (baseH* 2) (sym (ϕₙ⌣ϕₘ-notTrivial
+                                                            ϕ₁left ϕ₁leftStr ϕ₁left ϕ₁leftStr ϕ₂ ϕ₂str
+                                                            ϕ₁-1010-notTrivial a b))
     pres·-int zero one a zero two b = sym (base-neutral _) ∙ cong (baseH* 3) (unitGroupEq (eₙ₊₃ 3 (0 , refl)) _ _)
     pres·-int zero one a zero (suc (suc (suc l))) b = refl
       -- case αβ
-    pres·-int zero one a one zero b = sym (cong (baseH* 2)
-                                                (ϕₙ⌣ϕₘ-Trivial ϕ₁left ϕ₁leftStr ϕ₁right ϕ₁rightStr ϕ₁-1001-trivial a b)
+    pres·-int zero one a one zero b = sym (cong (baseH* 2) (ϕₙ⌣ϕₘ-Trivial
+                                                            ϕ₁left ϕ₁leftStr ϕ₁right ϕ₁rightStr
+                                                            ϕ₁-1001-trivial a b)
                                           ∙ base-neutral 2)
     pres·-int zero one a one (suc l) b = refl
     pres·-int zero one a (suc (suc k)) l b = refl
@@ -441,7 +447,7 @@ module Equiv-RP²⋁S¹-Properties
 
 
   -----------------------------------------------------------------------------
-  -- Converse Sens on H* → ℤ/2[X,Y]
+  -- Converse direction on H* → ℤ/2[X,Y]
 
     ϕ⁻¹ : (k : ℕ) → (a : coHom k ℤ/2 RP²⋁S¹) → ℤ/2[x,y]
     ϕ⁻¹ zero a = base (0 ∷ 0 ∷ []) (ϕ₀⁻¹ a)
@@ -520,10 +526,11 @@ module Equiv-RP²⋁S¹-Properties
     e-retr-base : (v : Vec ℕ 2) → (a : fst ℤ/2) →
                   H*-RP²⋁S¹→ℤ/2[x,y]/<y³,xy,x²> (ℤ/2[x,y]/<y³,xy,x²>→H*-RP²⋁S¹ [ base v a ]) ≡ [ base v a ]
     e-retr-base (zero ∷ zero ∷ []) a = cong [_] (cong (baseP (0 ∷ 0 ∷ [])) (ϕ₀-retr a))
-    e-retr-base (zero ∷ one ∷ []) a = cong [_] (cong₂ _+Pℤ/2_
-                                                      (cong (baseP (0 ∷ 1 ∷ [])) (cong fst (ϕ₁-retr _)))
-                                                      (cong (baseP (1 ∷ 0 ∷ [])) (cong snd (ϕ₁-retr _)) ∙ base-neutral _)
-                                               ∙ +Pℤ/2IdR _)
+    e-retr-base (zero ∷ one ∷ []) a =
+      cong [_] (cong₂ _+Pℤ/2_
+                     (cong (baseP (0 ∷ 1 ∷ [])) (cong fst (ϕ₁-retr _)))
+                     (cong (baseP (1 ∷ 0 ∷ [])) (cong snd (ϕ₁-retr _)) ∙ base-neutral _)
+              ∙ +Pℤ/2IdR _)
     e-retr-base (zero ∷ two ∷ []) a = cong [_] (cong (baseP (0 ∷ 2 ∷ [])) (ϕ₂-retr a))
     e-retr-base (zero ∷ suc (suc (suc m)) ∷ []) a = eq/ _ _ ∣ (v , helper) ∣₁
       where
@@ -532,10 +539,11 @@ module Equiv-RP²⋁S¹-Properties
       helper = +Pℤ/2IdL _ ∙ sym (cong₂ _+Pℤ/2_
                                        (cong₂ baseP (cong (λ X → 0 ∷ X ∷ []) (+-comm _ _))
                                        (·ℤ/2IdR _)) (+Pℤ/2IdL _ ∙ +Pℤ/2IdL _) ∙ +Pℤ/2IdR _)
-    e-retr-base (one ∷ zero ∷ []) a = cong [_] (cong₂ _+Pℤ/2_
-                                                      (cong (baseP (0 ∷ 1 ∷ [])) (cong fst (ϕ₁-retr _)) ∙ base-neutral _)
-                                                      (cong (baseP (1 ∷ 0 ∷ [])) (cong snd (ϕ₁-retr _)))
-                                               ∙ +Pℤ/2IdL _)
+    e-retr-base (one ∷ zero ∷ []) a =
+      cong [_] (cong₂ _+Pℤ/2_
+                     (cong (baseP (0 ∷ 1 ∷ [])) (cong fst (ϕ₁-retr _)) ∙ base-neutral _)
+                     (cong (baseP (1 ∷ 0 ∷ [])) (cong snd (ϕ₁-retr _)))
+              ∙ +Pℤ/2IdL _)
     e-retr-base (one ∷ suc m ∷ []) a = eq/ _ _ ∣ (v , helper) ∣₁
       where
       v = λ { zero → 0Pℤ/2 ; one → base (0 ∷ m ∷ []) (-ℤ/2 a) ; two → 0Pℤ/2 }
