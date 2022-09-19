@@ -38,12 +38,9 @@ open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
-open import Cubical.Relation.Nullary
-open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup

@@ -60,7 +60,6 @@ falseIsEven : (n : ℕ) → Σ[ m ∈ ℕ ] n ≡ (1 + 2 · m) → (isEven n ≡
 falseIsEven zero (m , p) = ⊥.rec (znots p)
 falseIsEven (suc n) (m , p) = ¬IsEvenTrue n (trueIsEven n (m , (injSuc p)))
 
-
 -- Some lemma for EvenT and OddT
 
 evenOrOdd-Even : (n : ℕ) → (isEven n ≡ true) → Σ[ x ∈ isEvenT n ] evenOrOdd n ≡ inl x

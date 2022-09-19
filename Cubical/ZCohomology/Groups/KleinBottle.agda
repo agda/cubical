@@ -477,6 +477,10 @@ Hⁿ⁺³-𝕂²≅0 n = contrGroupIsoUnit (isContrHⁿ-𝕂² n)
       ∙ leftInv (fst H¹-𝕂²≅ℤ) α
 
 
+-- still too long to compute, but works for RP2⋁S1
+-- lem-α²≡0 : Iso.fun (fst H²-𝕂²≅Bool) (α ⌣ α) ≡ true
+-- lem-α²≡0 = {!refl!}
+
 private
   lem : (p : 0ₖ 1 ≡ 0ₖ 1) → cong₂ (_⌣ₖ_) p p ≡ refl
   lem p = cong₂Funct _⌣ₖ_ p p
