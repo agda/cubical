@@ -381,10 +381,13 @@ module Equiv-Sn-Properties (n : ℕ) where
            base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (ϕₙ a)) (partSn (part (suc n))))
                                      ∙ cong [_] (cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (transportRefl (ϕₙ a))))
                                      ∙ cong [_] (cong (base (1 ∷ [])) (ϕₙ-retr a))
-           base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (base (suc (suc k) ∷ []) a)  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
+           base-case (suc (suc k) ∷ []) a = eq/ _ _  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
              where
              helper : _
-             helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
+             helper = (+PℤIdL _)
+                      ∙ cong₂ base (cong (λ X → X ∷ [])
+                                   (sym (+n-comm k 2))) (sym (·ℤIdR _))
+                      ∙ (sym (+PℤIdR _))
 
 
 

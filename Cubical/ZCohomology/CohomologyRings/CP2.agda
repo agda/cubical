@@ -262,15 +262,15 @@ module ComputeCP²Notation
                               ∙ gradCommRing CP² _ _ _ _
     presCupInt one a one b  = cong (base 4) ((ϕₙ⌣ϕₘ ϕ₂ ϕ₂str ϕ₂ ϕ₂str ϕ₄ ϕ₄str eq⌣224 _ _))
     presCupInt one a two b  = sym (base-neutral _)
-                              ∙ cong (base 6) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
+                              ∙ cong (base 6) (unitGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
     presCupInt one a (suc (suc (suc l))) b = refl
     presCupInt two a zero b = cong ℤ[x]→H*-CP² (·PℤComm (base (two ∷ []) a) (base (zero ∷ []) b))
                               ∙ presCupInt zero b two a
                               ∙ gradCommRing CP² _ _ _ _
     presCupInt two a one b  = sym (base-neutral _)
-                              ∙ cong (base 6) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
+                              ∙ cong (base 6) (unitGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
     presCupInt two a two b  = sym (base-neutral _)
-                              ∙ cong (base 8) (trivialGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
+                              ∙ cong (base 8) (unitGroupEq (Hⁿ-CP²≅0 _ (compute-eqℕ _ _) (compute-eqℕ _ _)) _ _)
     presCupInt two a (suc (suc (suc l))) b = refl
     presCupInt (suc (suc (suc k))) a l b = refl
 
@@ -335,13 +335,13 @@ module ComputeCP²Notation
       where
 
       base-neutral-eq : (k : ℕ) → (x : partℕ k) → ϕ⁻¹ k (0ₕ k) x ≡ 0Pℤ
-      base-neutral-eq k (is0 x) = cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (subst0g x))
+      base-neutral-eq k (is0 x) = cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (substG0 x))
                                   ∙ cong (base (0 ∷ [])) (pres1 ϕ₀⁻¹str)
                                   ∙ base-neutral (0 ∷ [])
-      base-neutral-eq k (is2 x) = cong (base (1 ∷ [])) (cong ϕ₂⁻¹ (subst0g x))
+      base-neutral-eq k (is2 x) = cong (base (1 ∷ [])) (cong ϕ₂⁻¹ (substG0 x))
                                   ∙ cong (base (1 ∷ [])) (pres1 ϕ₂⁻¹str)
                                   ∙ base-neutral (1 ∷ [])
-      base-neutral-eq k (is4 x) = cong (base (2 ∷ [])) (cong ϕ₄⁻¹ (subst0g x))
+      base-neutral-eq k (is4 x) = cong (base (2 ∷ [])) (cong ϕ₄⁻¹ (substG0 x))
                                   ∙ cong (base (2 ∷ [])) (pres1 ϕ₄⁻¹str)
                                   ∙ base-neutral (2 ∷ [])
       base-neutral-eq k (else x) = refl
@@ -350,11 +350,11 @@ module ComputeCP²Notation
       base-add-eq : (k : ℕ) → (a b : coHom k CP²) → (x : partℕ k)
                     → ϕ⁻¹ k a x +Pℤ ϕ⁻¹ k b x ≡ ϕ⁻¹ k (a +ₕ b) x
       base-add-eq k a b (is0 x) = base-add _ _ _
-                                  ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (subst+ a b x))
+                                  ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (substG+ a b x))
       base-add-eq k a b (is2 x) = base-add _ _ _
-                                  ∙ cong (base (1 ∷ [])) (sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (subst+ a b x))
+                                  ∙ cong (base (1 ∷ [])) (sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (substG+ a b x))
       base-add-eq k a b (is4 x) = base-add _ _ _
-                                  ∙ cong (base (2 ∷ [])) (sym (pres· ϕ₄⁻¹str _ _) ∙ cong ϕ₄⁻¹ (subst+ a b x))
+                                  ∙ cong (base (2 ∷ [])) (sym (pres· ϕ₄⁻¹str _ _) ∙ cong ϕ₄⁻¹ (substG+ a b x))
       base-add-eq k a b (else x) = +PℤIdR _
 
     H*-CP²→ℤ[x]-gmorph : (x y : H* CP²) → H*-CP²→ℤ[x] ( x +H* y) ≡ H*-CP²→ℤ[x] x +Pℤ H*-CP²→ℤ[x] y
@@ -379,7 +379,7 @@ module ComputeCP²Notation
     e-sect-base k a (is4 x) = cong (base 4) (ϕ₄-sect (substG x a))
                               ∙ sym (constSubstCommSlice (λ x → coHom x CP²) (H* CP²) base x a)
     e-sect-base k a (else x) = sym (base-neutral k)
-                               ∙ cong (base k) (trivialGroupSEq (sym (suc-predℕ k (fst x)))
+                               ∙ cong (base k) (unitGroupSEq (sym (suc-predℕ k (fst x)))
                                                                 (Hⁿ-CP²≅0 (predℕ k)
                                                                 (λ p → fst (snd x) (suc-predℕ k (fst x) ∙ p))
                                                                  λ p → snd (snd x) (suc-predℕ k (fst x) ∙ p)) _ _)
