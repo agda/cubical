@@ -1,7 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.ZCohomology.CohomologyRings.CupProductProperties where
 
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
