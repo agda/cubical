@@ -20,7 +20,10 @@ open import Cubical.Data.Int
 open import Cubical.Data.Sum
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Bool
+open import Cubical.Algebra.Group.Instances.Int
 
 open GroupStr (snd BoolGroup) using ()
   renaming ( _·_ to _+Bool_ )
@@ -135,3 +138,6 @@ isEven-pres+ x y with (dichotomyBoolSym (isEven x)) | dichotomyBoolSym (isEven y
 ... | inl xf | inr yt = isOddIsEven→IsOdd x y xf yt ∙ sym (cong₂ _+Bool_ xf yt)
 ... | inr xt | inl yf = isEvenIsOdd→IsOdd x y xt yf ∙ sym (cong₂ _+Bool_ xt yf)
 ... | inr xt | inr yt = isEvenIsEven→IsEven x y xt yt ∙ sym (cong₂ _+Bool_ xt yt)
+
+isEven-GroupMorphism : IsGroupHom (snd ℤGroup) isEven (snd BoolGroup)
+isEven-GroupMorphism = makeIsGroupHom isEven-pres+

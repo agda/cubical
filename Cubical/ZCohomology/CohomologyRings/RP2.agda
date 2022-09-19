@@ -270,11 +270,13 @@ module Equiv-RP2-Properties where
   pres·-base-case-int zero          a one           b =
     cong (base 2) (ϕₙ⌣ϕₘ ϕ₀ ϕ₀str (ϕ₂ ∘ ψ₂) ϕ₂∘ψ₂str (ϕ₂ ∘ ψ₂) ϕ₂∘ψ₂str (ϕ₀-gen _ _) a b)
   pres·-base-case-int zero          a (suc (suc m)) b = refl
-  pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-RP² (·PℤComm (base (1 ∷ []) a) (base (0 ∷ []) b))
+  pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-RP²
+                                                             (·PℤComm (base (1 ∷ []) a) (base (0 ∷ []) b))
                                                         ∙ pres·-base-case-int 0 b 1 a
                                                         ∙ gradCommRing RP² 0 2 _ _
   pres·-base-case-int one           a one           b = sym (base-neutral 4) ∙
-                                                        cong (base 4) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-RP²≅0 1)) isPropUnit _ _)
+                                                        cong (base 4)
+                                                             (isOfHLevelRetractFromIso 1 (fst (Hⁿ-RP²≅0 1)) isPropUnit _ _)
   pres·-base-case-int one           a (suc (suc m)) b = refl
   pres·-base-case-int (suc (suc n)) a m             b = refl
 
@@ -328,7 +330,7 @@ module Equiv-RP2-Properties where
 
 
 -----------------------------------------------------------------------------
--- Converse Sens on ℤ[X] + ℤ[x]/x
+-- Converse direction on ℤ[X] + ℤ[x]/x
 
   -- Because ϕ⁻¹ are not morphism on there own
   -- We need to define functions directly from H* to Z[X]/<2X, X³>
@@ -338,7 +340,7 @@ module Equiv-RP2-Properties where
   ψ₂⁻¹ true = 0
 
   private
-  -- Those lemma are requiered because ψ₂⁻¹
+  -- These lemma are required because ψ₂⁻¹
   -- is a morphism only under the quotient
     Λ : (x : Bool) → ℤ[x]/<2x,x²>
     Λ x = [ (base (1 ∷ []) (ψ₂⁻¹ x)) ]
