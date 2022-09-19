@@ -63,7 +63,7 @@ module _
   {X : Type ℓ-zero}
   where
 
-  -- This notation is needed as G'' shouldn't have been put implicit
+  -- This notation is needed as G'' as Agda can't figure it out. TODO: add a x ⌣[ R ] y notation?
   _⌣ℤ/2_ : {n m : ℕ} → coHom n ℤ/2 X → coHom m ℤ/2 X → coHom (n +' m) ℤ/2 X
   _⌣ℤ/2_ x y = _⌣_ {G'' = ℤ/2Ring} x y
 
