@@ -51,8 +51,9 @@ module _
 -----------------------------------------------------------------------------
 -- to simplify the cup product over ℤ using bilearity of the product
 
-eq+-1 : (n : ℕ) → negsuc (suc n) ≡ (- (pos 1)) + negsuc n
-eq+-1 n = sym (+Comm (- pos 1) (negsuc n))
+private
+  eq+-1 : (n : ℕ) → negsuc (suc n) ≡ (- (pos 1)) + negsuc n
+  eq+-1 n = sym (+Comm (- pos 1) (negsuc n))
 
 module pres⌣
   {A : Type ℓ-zero}
