@@ -277,7 +277,7 @@ module Equiv-𝕂²-Properties
     ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n KleinBottle)) _ _))
                        (λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x))))
 
-    -- note that the proof might be simpliale by adding a second partition on T
+    -- note that the proof might be simplified by adding a second partition on T
     -- side, though it might complicated a bunch of things
     pres·-int : (n m : ℕ) → (a : ℤ) → (k l : ℕ) → (b : ℤ) →
                    ℤ[x,y]→H*-𝕂² (base (n ∷ m ∷ []) a ·Pℤ base (k ∷ l ∷ []) b)
