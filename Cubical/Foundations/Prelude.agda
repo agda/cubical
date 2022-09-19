@@ -285,6 +285,11 @@ subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
   → PathP (λ i → B (p i)) b (subst B p b)
 subst-filler B p = transport-filler (cong B p)
 
+subst2-filler : {B : Type ℓ'} {z w : B} (C : A → B → Type ℓ'')
+                (p : x ≡ y) (q : z ≡ w) (c : C x z)
+              → PathP (λ i → C (p i) (q i)) c (subst2 C p q c)
+subst2-filler C p q = transport-filler (cong₂ C p q)
+
 -- Function extensionality
 
 funExt : {B : A → I → Type ℓ'}
@@ -486,7 +491,8 @@ Cube :
 Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
   PathP (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋
 
--- Vertical composition of squares
+-- Horizontal composition of squares (along their second dimension)
+-- See Cubical.Foundations.Path for vertical composition
 
 _∙₂_ :
   {a₀₀ a₀₁ a₀₂ : A} {a₀₋ : a₀₀ ≡ a₀₁} {b₀₋ : a₀₁ ≡ a₀₂}

@@ -265,14 +265,16 @@ module Equiv-RP2-Properties where
   pres·-base-case-int : (n : ℕ) → (a : ℤ) → (m : ℕ) → (b : ℤ) →
                 ℤ[x]→H*-RP² (base (n ∷ []) a ·Pℤ base (m ∷ []) b)
               ≡ ℤ[x]→H*-RP² (base (n ∷ []) a) cup ℤ[x]→H*-RP² (base (m ∷ []) b)
-  pres·-base-case-int zero          a zero          b = cong (base 0) (ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₀ ϕ₀str ϕ₀ ϕ₀str (ϕ₀-gen _ _) a b)
-  pres·-base-case-int zero          a one           b = cong (base 2) (ϕₙ⌣ϕₘ ϕ₀ ϕ₀str (ϕ₂ ∘ ψ₂) ϕ₂∘ψ₂str (ϕ₂ ∘ ψ₂) ϕ₂∘ψ₂str (ϕ₀-gen _ _) a b)
+  pres·-base-case-int zero          a zero          b =
+    cong (base 0) (ϕₙ⌣ϕₘ ϕ₀ ϕ₀str ϕ₀ ϕ₀str ϕ₀ ϕ₀str (ϕ₀-gen _ _) a b)
+  pres·-base-case-int zero          a one           b =
+    cong (base 2) (ϕₙ⌣ϕₘ ϕ₀ ϕ₀str (ϕ₂ ∘ ψ₂) ϕ₂∘ψ₂str (ϕ₂ ∘ ψ₂) ϕ₂∘ψ₂str (ϕ₀-gen _ _) a b)
   pres·-base-case-int zero          a (suc (suc m)) b = refl
   pres·-base-case-int one           a zero          b = cong ℤ[x]→H*-RP² (·PℤComm (base (1 ∷ []) a) (base (0 ∷ []) b))
                                                         ∙ pres·-base-case-int 0 b 1 a
                                                         ∙ gradCommRing RP² 0 2 _ _
   pres·-base-case-int one           a one           b = sym (base-neutral 4) ∙
-                                                         cong (base 4) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-RP²≅0 1)) isPropUnit _ _)
+                                                        cong (base 4) (isOfHLevelRetractFromIso 1 (fst (Hⁿ-RP²≅0 1)) isPropUnit _ _)
   pres·-base-case-int one           a (suc (suc m)) b = refl
   pres·-base-case-int (suc (suc n)) a m             b = refl
 
@@ -320,7 +322,8 @@ module Equiv-RP2-Properties where
   ℤ[x]/<2x,x²>→H*-RP²-pres0 : ℤ[x]/<2x,x²>→H*-RP² 0PℤI ≡ 0H*
   ℤ[x]/<2x,x²>→H*-RP²-pres0 = refl
 
-  ℤ[x]/<2x,x²>→H*-RP²-pres+ : (x y : ℤ[x]/<2x,x²>) → ℤ[x]/<2x,x²>→H*-RP² ( x +PℤI y) ≡ ℤ[x]/<2x,x²>→H*-RP² x +H* ℤ[x]/<2x,x²>→H*-RP² y
+  ℤ[x]/<2x,x²>→H*-RP²-pres+ : (x y : ℤ[x]/<2x,x²>) →
+                                ℤ[x]/<2x,x²>→H*-RP² ( x +PℤI y) ≡ ℤ[x]/<2x,x²>→H*-RP² x +H* ℤ[x]/<2x,x²>→H*-RP² y
   ℤ[x]/<2x,x²>→H*-RP²-pres+ x y = IsRingHom.pres+ (snd ℤ[X]/<2X,X²>→H*R-RP²) x y
 
 
@@ -383,7 +386,8 @@ module Equiv-RP2-Properties where
        base-add-eq : (k : ℕ) → (a b : coHom k RP²) → (x : partℕ k) →
                      (ϕ⁻¹ k a x) +PℤI (ϕ⁻¹ k b x) ≡ ϕ⁻¹ k (a +ₕ b) x
        base-add-eq k a b (is0 x) = cong [_] (base-add _ _ _
-                                            ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _) ∙ cong ϕ₀⁻¹ (substG+ _ _ _)))
+                                            ∙ cong (base (0 ∷ [])) (sym (pres· ϕ₀⁻¹str _ _)
+                                            ∙ cong ϕ₀⁻¹ (substG+ _ _ _)))
        base-add-eq k a b (is2 x) = Λ-pres+ (ϕ₂⁻¹ (substG x a)) (ϕ₂⁻¹ (substG x b))
                                    ∙ cong [_] (cong (λ X → base {AGP = λ _ → snd ℤAG} (1 ∷ []) (ψ₂⁻¹ X))
                                                     ((sym (pres· ϕ₂⁻¹str _ _) ∙ cong ϕ₂⁻¹ (substG+ _ _ _))))
@@ -392,7 +396,8 @@ module Equiv-RP2-Properties where
   H*-RP²→ℤ[x]/<2x,x²>-pres0 : H*-RP²→ℤ[x]/<2x,x²> 0H* ≡ 0PℤI
   H*-RP²→ℤ[x]/<2x,x²>-pres0 = refl
 
-  H*-RP²→ℤ[x]/<2x,x²>-pres+ : (x y : H* RP²) → H*-RP²→ℤ[x]/<2x,x²> (x +H* y) ≡ (H*-RP²→ℤ[x]/<2x,x²> x) +PℤI (H*-RP²→ℤ[x]/<2x,x²> y)
+  H*-RP²→ℤ[x]/<2x,x²>-pres+ : (x y : H* RP²) →
+                              H*-RP²→ℤ[x]/<2x,x²> (x +H* y) ≡ (H*-RP²→ℤ[x]/<2x,x²> x) +PℤI (H*-RP²→ℤ[x]/<2x,x²> y)
   H*-RP²→ℤ[x]/<2x,x²>-pres+ x y = refl
 
 
@@ -462,7 +467,8 @@ module Equiv-RP2-Properties where
   e-retr-ψ₂ a (inr x) = e-retr-ψ₂-true a x
 
 
-  e-retr-base : (k :  ℕ) → (a : ℤ) → H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² [ base (k ∷ []) a ]) ≡ [ base (k ∷ []) a ]
+  e-retr-base : (k :  ℕ) → (a : ℤ) →
+                H*-RP²→ℤ[x]/<2x,x²> (ℤ[x]/<2x,x²>→H*-RP² [ base (k ∷ []) a ]) ≡ [ base (k ∷ []) a ]
   e-retr-base zero a = cong [_] (cong (base (zero ∷ []))
                                 (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a)) ∙ ϕ₀-retr a))
   e-retr-base one a = cong [_] (cong (base (1 ∷ [])) (cong (ψ₂⁻¹ ∘ ϕ₂⁻¹) (transportRefl _)))

@@ -58,18 +58,18 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
   F-seq (j f) _ _ = Σ≡Prop (λ _ → isSetHom C _ _) refl
 
 
-  T* : (x : ob C) → Functor (x ↓Diag) A
-  T* x = funcComp T (i x)
+ T* : (x : ob C) → Functor (x ↓Diag) A
+ T* x = funcComp T (i x)
 
-  RanOb : ob C → ob A
-  RanOb x = limitA (x ↓Diag) (T* x) .lim
-
-
-  RanCone : {x y : ob C} → C [ x , y ] → Cone (T* y) (RanOb x)
-  coneOut (RanCone {x = x} f) v = limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob v)
-  coneOutCommutes (RanCone {x = x} f) h = limOutCommutes (limitA (x ↓Diag) (T* x)) (j f .F-hom h)
+ RanOb : ob C → ob A
+ RanOb x = limitA (x ↓Diag) (T* x) .lim
 
 
+ RanCone : {x y : ob C} → C [ x , y ] → Cone (T* y) (RanOb x)
+ coneOut (RanCone {x = x} f) v = limOut (limitA (x ↓Diag) (T* x)) (j f .F-ob v)
+ coneOutCommutes (RanCone {x = x} f) h = limOutCommutes (limitA (x ↓Diag) (T* x)) (j f .F-hom h)
+
+ private
    -- technical lemmas for proving functoriality
   RanConeRefl : ∀ {x} v →
                 limOut (limitA (x ↓Diag) (T* x)) v
