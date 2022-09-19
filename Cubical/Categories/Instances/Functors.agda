@@ -66,20 +66,23 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   open Iso
   open NatIso
 
-  Iso→NatIso : {F G : Functor C D} → CatIso FUNCTOR F G → NatIso F G
-  Iso→NatIso α .trans = α .fst
-  Iso→NatIso α .nIso = FUNCTORIso' _ (α .snd)
+  FUNCTORIso→NatIso : {F G : Functor C D} → CatIso FUNCTOR F G → NatIso F G
+  FUNCTORIso→NatIso α .trans = α .fst
+  FUNCTORIso→NatIso α .nIso = FUNCTORIso' _ (α .snd)
 
-  Path→Iso→NatIso : {F G : Functor C D} → (p : F ≡ G) → pathToNatIso p ≡ Iso→NatIso (pathToIso p)
-  Path→Iso→NatIso {F = F} p = J (λ _ p → pathToNatIso p ≡ Iso→NatIso (pathToIso p)) (NatIso≡ refl-helper) p
+  NatIso→FUNCTORIso : {F G : Functor C D} → NatIso F G → CatIso FUNCTOR F G
+  NatIso→FUNCTORIso α = α .trans , FUNCTORIso _ (α .nIso)
+
+  Path→FUNCTORIso→NatIso : {F G : Functor C D} → (p : F ≡ G) → pathToNatIso p ≡ FUNCTORIso→NatIso (pathToIso p)
+  Path→FUNCTORIso→NatIso {F = F} p = J (λ _ p → pathToNatIso p ≡ FUNCTORIso→NatIso (pathToIso p)) (NatIso≡ refl-helper) p
     where
     refl-helper : _
     refl-helper i x = ((λ i → pathToIso-refl {C = D} {x = F .F-ob x} i .fst)
       ∙ (λ i → pathToIso-refl {C = FUNCTOR} {x = F} (~ i) .fst .N-ob x)) i
 
   Iso-FUNCTORIso-NatIso : {F G : Functor C D} → Iso (CatIso FUNCTOR F G) (NatIso F G)
-  Iso-FUNCTORIso-NatIso .fun = Iso→NatIso
-  Iso-FUNCTORIso-NatIso .inv α = α .trans , FUNCTORIso _ (α .nIso)
+  Iso-FUNCTORIso-NatIso .fun = FUNCTORIso→NatIso
+  Iso-FUNCTORIso-NatIso .inv = NatIso→FUNCTORIso
   Iso-FUNCTORIso-NatIso .rightInv α i .trans = α .trans
   Iso-FUNCTORIso-NatIso .rightInv α i .nIso =
     isProp→PathP (λ i → isPropΠ (λ _ → isPropIsIso _)) (FUNCTORIso' (α .trans) (FUNCTORIso _ (α .nIso))) (α .nIso) i
@@ -98,4 +101,4 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   isUnivalentFUNCTOR : isUnivalent D → isUnivalent FUNCTOR
   isUnivalentFUNCTOR isUnivD .univ _ _ =
     isEquiv[equivFunA≃B∘f]→isEquiv[f] _ FUNCTORIso≃NatIso
-      (subst isEquiv (λ i p → Path→Iso→NatIso p i) (Path≃NatIso isUnivD .snd))
+      (subst isEquiv (λ i p → Path→FUNCTORIso→NatIso p i) (Path≃NatIso isUnivD .snd))

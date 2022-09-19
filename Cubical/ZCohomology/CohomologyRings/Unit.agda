@@ -2,13 +2,13 @@
 module Cubical.ZCohomology.CohomologyRings.Unit where
 
 {-
-   This file computes the cohomology ring of Unit as ℤ[X]/⟨X⟩ and as ℤ.
-   This file is simpler than Sn or CP2 because
+   This file computes the cohomology ring of the Unit type as ℤ[X]/⟨X⟩ and as ℤ.
+   This file is simpler than Sn and CP2 because
    - There is only one non trivial cohomology group.
-   - The isomorphism function for H⁰ is simpler so it
-     makes some properties definitionally.
+   - The isomorphism function of H⁰ is simpler so it
+     makes some properties hold definitionally.
 
-   Though the file is almost written like Sn except for some simplification.
+   Though the file is almost written like Sn excet some simplification.
 -}
 
 open import Cubical.Foundations.Prelude

@@ -94,6 +94,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 
   syntax idTrans F = 1[ F ]
 
+  idNatIso : (F : Functor C D) → NatIso F F
+  idNatIso F .trans = idTrans F
+  idNatIso F .nIso _ = idCatIso .snd
+
+
   -- Natural isomorphism induced by path of functors
 
   pathToNatTrans : {F G : Functor C D} → F ≡ G → NatTrans F G

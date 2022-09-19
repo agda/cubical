@@ -29,7 +29,7 @@ open import Cubical.Data.Sigma
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A B : Type ℓ
+    A B C : Type ℓ
     f h : A → B
     w x : A
     y z : B
@@ -55,24 +55,7 @@ isEmbedding→Inj
 isEmbedding→Inj {f = f} embb w x p
   = equiv-proof (embb w x) p .fst .fst
 
--- If A and B are h-sets, then injective functions between
--- them are embeddings.
---
--- Note: It doesn't appear to be possible to omit either of
--- the `isSet` hypotheses.
-injEmbedding
-  : {f : A → B}
-  → isSet A → isSet B
-  → (∀{w x} → f w ≡ f x → w ≡ x)
-  → isEmbedding f
-injEmbedding {f = f} iSA iSB inj w x
-  = isoToIsEquiv (iso (cong f) inj sect retr)
-  where
-  sect : section (cong f) inj
-  sect p = iSB (f w) (f x) _ p
-
-  retr : retract (cong f) inj
-  retr p = iSA w x _ p
+-- The converse implication holds if B is an h-set, see injEmbedding below.
 
 
 -- If `f` is an embedding, we'd expect the fibers of `f` to be
@@ -163,6 +146,32 @@ isEmbedding≡hasPropFibers
            (λ _ → hasPropFibersIsProp _ _)
            (λ _ → isPropIsEmbedding _ _))
 
+-- We use the characterization as hasPropFibers to show that naive injectivity
+-- implies isEmbedding as long as B is an h-set.
+module _
+  {f : A → B}
+  (isSetB : isSet B)
+  where
+
+  module _
+    (inj : ∀{w x} → f w ≡ f x → w ≡ x)
+    where
+
+    injective→hasPropFibers : hasPropFibers f
+    injective→hasPropFibers y (x , fx≡y) (x' , fx'≡y) =
+      Σ≡Prop
+        (λ _ → isSetB _ _)
+        (inj (fx≡y ∙ sym (fx'≡y)))
+
+    injEmbedding : isEmbedding f
+    injEmbedding = hasPropFibers→isEmbedding injective→hasPropFibers
+
+  retractableIntoSet→isEmbedding : hasRetract f → isEmbedding f
+  retractableIntoSet→isEmbedding (g , ret) = injEmbedding inj
+    where
+    inj : f w ≡ f x → w ≡ x
+    inj {w = w} {x = x} p = sym (ret w) ∙∙ cong g p ∙∙ ret x
+
 isEquiv→hasPropFibers : isEquiv f → hasPropFibers f
 isEquiv→hasPropFibers e b = isContr→isProp (equiv-proof e b)
 
@@ -186,24 +195,6 @@ isEmbedding→Injection :
   → ∀ {f g : C → A} →
   ∀ x → (a (f x) ≡ a (g x)) ≡ (f x ≡ g x)
 isEmbedding→Injection a e {f = f} {g} x = sym (ua (cong a , e (f x) (g x)))
-
--- if `f` has a retract, then `cong f` has, as well. If `B` is a set, then `cong f`
--- further has a section, making `f` an embedding.
-module _ {f : A → B} (retf : hasRetract f) where
-  open Σ retf renaming (fst to g ; snd to ϕ)
-
-  congRetract : f w ≡ f x → w ≡ x
-  congRetract {w = w} {x = x} p = sym (ϕ w) ∙∙ cong g p ∙∙ ϕ x
-
-  isRetractCongRetract : retract (cong {x = w} {y = x} f) congRetract
-  isRetractCongRetract p = transport (PathP≡doubleCompPathˡ _ _ _ _) (λ i j → ϕ (p j) i)
-
-  hasRetract→hasRetractCong : hasRetract (cong {x = w} {y = x} f)
-  hasRetract→hasRetractCong = congRetract , isRetractCongRetract
-
-  retractableIntoSet→isEmbedding : isSet B → isEmbedding f
-  retractableIntoSet→isEmbedding setB w x =
-    isoToIsEquiv (iso (cong f) congRetract (λ _ → setB _ _ _ _) (hasRetract→hasRetractCong .snd))
 
 Embedding-into-Discrete→Discrete : A ↪ B → Discrete B → Discrete A
 Embedding-into-Discrete→Discrete (f , isEmbeddingF) _≟_ x y with f x ≟ f y
@@ -267,6 +258,10 @@ Subset≡Embedding = ua Subset≃Embedding
 isEmbedding-∘ : isEmbedding f → isEmbedding h → isEmbedding (f ∘ h)
 isEmbedding-∘ {f = f} {h = h} Embf Embh w x
   = compEquiv (cong h , Embh w x) (cong f , Embf (h w) (h x)) .snd
+
+compEmbedding : (B ↪ C) → (A ↪ B) → (A ↪ C)
+(compEmbedding (g , _ ) (f , _ )).fst = g ∘ f
+(compEmbedding (_ , g↪) (_ , f↪)).snd = isEmbedding-∘ g↪ f↪
 
 isEmbedding→embedsFibersIntoSingl
   : isEmbedding f
@@ -443,17 +438,3 @@ _≃Emb_ = EmbeddingIdentityPrinciple.f≃g
 
 EmbeddingIP : {B : Type ℓ} (f g : Embedding B ℓ') → f ≃Emb g ≃ (f ≡ g)
 EmbeddingIP = EmbeddingIdentityPrinciple.EmbeddingIP
-
-module _ {A : Type ℓ} (P : A → hProp ℓ') where
-  private
-    subtypeHasPropFibers : hasPropFibers (λ (x : Σ[ y ∈ A ] fst (P y)) → fst x)
-    subtypeHasPropFibers x = isPropFiber
-      where isPropFiber : isProp (fiber fst x)
-            isPropFiber = isOfHLevelRespectEquiv 1 (invEquiv (fiberEquiv (λ x → fst (P x)) x)) (snd (P x))
-
-  subtypePathReflection : (x y : Σ[ a ∈ A ] fst (P a))
-                          → fst x ≡ fst y → x ≡ y
-  subtypePathReflection x y q = Iso.inv
-                                    (equivToIso
-                                     (_ , hasPropFibers→isEmbedding subtypeHasPropFibers x y))
-                                    q

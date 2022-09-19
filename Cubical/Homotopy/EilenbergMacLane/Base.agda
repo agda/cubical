@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-module Cubical.Algebra.Group.EilenbergMacLane.Base where
+module Cubical.Homotopy.EilenbergMacLane.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -18,13 +18,12 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec; elim to trElim)
+open import Cubical.HITs.Truncation as Trunc
+  renaming (rec to trRec; rec2 to trRec2 ; elim to trElim) hiding (elim2)
 open import Cubical.HITs.EilenbergMacLane1 hiding (elim)
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Data.Empty
   renaming (rec to ⊥-rec) hiding (elim)
-open import Cubical.HITs.Truncation
-  renaming (elim to trElim ; rec to trRec ; rec2 to trRec2)
 open import Cubical.Data.Nat hiding (_·_ ; elim)
 open import Cubical.HITs.Susp
 open import Cubical.Functions.Morphism
@@ -39,6 +38,11 @@ EM-raw : (G : AbGroup ℓ) (n : ℕ) → Type ℓ
 EM-raw G zero = fst G
 EM-raw G (suc zero) = EM₁ (G *)
 EM-raw G (suc (suc n)) = Susp (EM-raw G (suc n))
+
+EM-raw' : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → Type ℓ
+EM-raw' G zero = fst G
+EM-raw' G (suc zero) = EM₁-raw (AbGroup→Group G)
+EM-raw' G (suc (suc n)) = EM-raw G (suc (suc n))
 
 ptEM-raw : {n : ℕ} {G : AbGroup ℓ} → EM-raw G n
 ptEM-raw {n = zero} {G = G} = AbGroupStr.0g (snd G)
@@ -74,6 +78,12 @@ EM∙ G n = EM G n , (0ₖ n)
 EM-raw∙ : (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
 EM-raw∙ G n = EM-raw G n , ptEM-raw
 
+EM-raw'∙ : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → Pointed ℓ
+fst (EM-raw'∙ G n) = EM-raw' G n
+snd (EM-raw'∙ G zero) = AbGroupStr.0g (snd G)
+snd (EM-raw'∙ G (suc zero)) = embase-raw
+snd (EM-raw'∙ G (suc (suc n))) = north
+
 hLevelEM : (G : AbGroup ℓ) (n : ℕ) → isOfHLevel (2 + n) (EM G n)
 hLevelEM G zero = AbGroupStr.is-set (snd G)
 hLevelEM G (suc zero) = emsquash
@@ -91,3 +101,41 @@ elim : {G : AbGroup ℓ} (n : ℕ) {A : EM G n → Type ℓ'}
 elim zero hlev hyp x = hyp x
 elim (suc zero) hlev hyp x = hyp x
 elim (suc (suc n)) hlev hyp = trElim (λ _ → hlev _) hyp
+
+elim2 : ∀ {ℓ''}{G : AbGroup ℓ} {H : AbGroup ℓ'} (n : ℕ) {A : EM G n → EM H n → Type ℓ''}
+        → ((x : _) (y : _) → isOfHLevel (2 + n) (A x y))
+        → ((x : EM-raw G n) (y : EM-raw H n) → A (EM-raw→EM G n x) (EM-raw→EM H n y))
+        → (x : _) (y : _) → A x y
+elim2 n hlev ind =
+  elim n (λ _ → isOfHLevelΠ (2 + n) (λ _ → hlev _ _))
+    λ x → elim n (λ _ → hlev _ _) (ind x)
+
+EM-raw'→EM : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ) → EM-raw' G n → EM G n
+EM-raw'→EM G zero x = x
+EM-raw'→EM G (suc zero) x = EM₁-raw→EM₁ _ x
+EM-raw'→EM G (suc (suc n)) x = ∣ x ∣ₕ
+
+EM-raw'→EM∙ : ∀ {ℓ} (G : AbGroup ℓ) (n : ℕ)
+  → EM-raw'→EM G n (EM-raw'∙ G n .snd) ≡ EM∙ G n .snd
+EM-raw'→EM∙ G zero = refl
+EM-raw'→EM∙ G (suc zero) = refl
+EM-raw'→EM∙ G (suc (suc n)) = refl
+
+EM-raw'-elim : ∀ {ℓ ℓ'} (G : AbGroup ℓ) (n : ℕ) {B : EM G n → Type ℓ'}
+         → ((x : _) → isOfHLevel (suc n) (B x))
+         → ((x : EM-raw' G n) → (B (EM-raw'→EM _ _ x)))
+         → (x : _ ) → B x
+EM-raw'-elim G zero {B = B} hlev ind = ind
+EM-raw'-elim G (suc zero) {B = B} hlev ind =
+  elimSet _ hlev (ind embase-raw) λ g → cong ind (emloop-raw g)
+EM-raw'-elim G (suc (suc n)) {B = B} hlev ind =
+  Trunc.elim (λ _ → isOfHLevelSuc (3 + n) (hlev _)) ind
+
+EM-raw'-trivElim : (G : AbGroup ℓ) (n : ℕ) {A : EM-raw' G (suc n) → Type ℓ'}
+            → ((x : _) → isOfHLevel (suc n) (A x) )
+            → A (snd (EM-raw'∙ G (suc n)))
+            → (x : _) → A x
+EM-raw'-trivElim G zero {A = A} prop x embase-raw = x
+EM-raw'-trivElim G zero {A = A} prop x (emloop-raw g i) =
+  isProp→PathP {B = λ i → A (emloop-raw g i)} (λ _ → prop _) x x i
+EM-raw'-trivElim G (suc n) {A = A} = raw-elim G (suc n)

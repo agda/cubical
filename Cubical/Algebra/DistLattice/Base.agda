@@ -97,8 +97,8 @@ makeIsDistLattice∧lOver∨l {_∨l_ = _∨l_} {_∧l_ = _∧l_} is-setL
                                                       ∨l-assoc ∨l-rid ∨l-comm
                                                       ∧l-assoc ∧l-rid ∧l-comm
                                                       ∧l-absorb-∨l ∧l-ldist-∨l =
- isdistlattice (makeIsLattice is-setL ∨l-assoc ∨l-rid (λ x → ∨l-comm _ x ∙ ∨l-rid x) ∨l-comm
-                                      ∧l-assoc ∧l-rid (λ x → ∧l-comm _ x ∙ ∧l-rid x) ∧l-comm
+ isdistlattice (makeIsLattice is-setL ∨l-assoc ∨l-rid ∨l-comm
+                                      ∧l-assoc ∧l-rid ∧l-comm
                                       ∨l-absorb-∧l ∧l-absorb-∨l)
                (λ x y z → ∨l-ldist-∧l _ _ _ , ∨l-rdist-∧l _ _ _)
                (λ x y z → ∧l-ldist-∨l _ _ _ , ∧l-rdist-∨l _ _ _)
@@ -164,8 +164,8 @@ makeIsDistLattice∨lOver∧l {_∨l_ = _∨l_} {_∧l_ = _∧l_} is-setL
                                                       ∧l-assoc ∧l-rid ∧l-comm
                                                       ∨l-absorb-∧l ∨l-ldist-∧l =
   isdistlattice
-  (makeIsLattice is-setL ∨l-assoc ∨l-rid (λ x → ∨l-comm _ x ∙ ∨l-rid x) ∨l-comm
-                         ∧l-assoc ∧l-rid (λ x → ∧l-comm _ x ∙ ∧l-rid x) ∧l-comm
+  (makeIsLattice is-setL ∨l-assoc ∨l-rid ∨l-comm
+                         ∧l-assoc ∧l-rid ∧l-comm
                          ∨l-absorb-∧l ∧l-absorb-∨l)
                          (λ x y z → ∨l-ldist-∧l _ _ _ , ∨l-rdist-∧l _ _ _)
                          (λ x y z → ∧l-ldist-∨l _ _ _ , ∧l-rdist-∨l _ _ _)
