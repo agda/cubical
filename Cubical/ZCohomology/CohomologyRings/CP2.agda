@@ -412,7 +412,10 @@ module ComputeCP²Notation
                                                     ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
                where
                helper : _
-               helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 3))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
+               helper = (+PℤIdL _)
+                        ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 3)))
+                                     (sym (·ℤIdR _))
+                        ∙ (sym (+PℤIdR _))
 
 
 -- End of the functions
@@ -434,7 +437,6 @@ open ComputeCP²Notation
 ϕ₀-gen n = ST.elim (λ _ → isProp→isSet (GroupStr.is-set (snd (coHomGr n CP²)) _ _))
              λ f → cong ∣_∣₂ (funExt (λ x → rUnitₖ n (f x)))
 
--- Missing lemma that is to be added
 ϕ₂⌣ϕ₂≡ϕ₄ : ϕ₂ (pos 1) ⌣ ϕ₂ (pos 1) ≡ ϕ₄ (pos 1)
 ϕ₂⌣ϕ₂≡ϕ₄ = H⁴CP²≅ℤ-pos-resp⌣
 
