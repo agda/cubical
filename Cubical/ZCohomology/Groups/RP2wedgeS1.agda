@@ -73,15 +73,6 @@ Hⁿ-RP²⋁S¹≅0 n = (Hⁿ-⋁ _ _ (2 + n))
 open Iso
 open IsGroupHom
 
--- genS¹ : coHom 1 S¹
--- genS¹ = ∣ (λ {   base → ∣ base ∣
---              ; (loop i) → ∣ (loop i) ∣ }) ∣₂
-
--- proofGenS¹ : Iso.fun (fst H¹-S¹≅ℤ) genS¹ ≡ 1
--- proofGenS¹ = refl
-
--- Not sure why it is the generator
--- Copying x this way is clearly cheating too !
 α : coHom 1 RP²⋁S¹
 α = ∣ (λ { (inl x) → ∣ base ∣
          ; (inr x) → ∣ x ∣
