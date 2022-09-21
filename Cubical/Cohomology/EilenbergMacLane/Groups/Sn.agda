@@ -3,40 +3,25 @@
 module Cubical.Cohomology.EilenbergMacLane.Groups.Sn where
 
 open import Cubical.Cohomology.EilenbergMacLane.Base
-open import Cubical.Cohomology.EilenbergMacLane.Groups.Connected
-open import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle
 
 open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
-open import Cubical.Homotopy.EilenbergMacLane.Order2
 open import Cubical.Homotopy.EilenbergMacLane.Properties
 open import Cubical.Homotopy.EilenbergMacLane.Base
 open import Cubical.Homotopy.Connected
-open import Cubical.Homotopy.Loopspace
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Path
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
-open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
-open import Cubical.Data.Fin
-open import Cubical.Data.Fin.Arithmetic
-open import Cubical.Data.Sigma
 
-open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup.Base
 
-open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.PropositionalTruncation as PT

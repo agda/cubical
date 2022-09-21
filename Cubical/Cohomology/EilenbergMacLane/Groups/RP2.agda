@@ -3,7 +3,6 @@
 module Cubical.Cohomology.EilenbergMacLane.Groups.RP2 where
 
 open import Cubical.Cohomology.EilenbergMacLane.Base
-open import Cubical.Cohomology.EilenbergMacLane.Groups.Connected
 open import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle
 
 open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
@@ -18,30 +17,20 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
-open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
 open import Cubical.Data.Fin
-open import Cubical.Data.Fin.Arithmetic
-open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup.Base
 
-open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as TR
-open import Cubical.HITs.PropositionalTruncation as PT
-open import Cubical.HITs.EilenbergMacLane1 hiding (elimProp ; elimSet)
-open import Cubical.HITs.Susp
+open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.RPn
 
 open AbGroupStr
@@ -50,33 +39,6 @@ private
   variable
     ℓ ℓ' : Level
     A : Type ℓ
-RP²Fun : (a : A) (p : a ≡ a) (p∼p⁻¹ : p ≡ sym p)
-  → RP² → A
-RP²Fun a p p∼p⁻¹ point = a
-RP²Fun a p p∼p⁻¹ (line i) = p i
-RP²Fun a p p∼p⁻¹ (square i i₁) = p∼p⁻¹ i i₁
-
-
-elimSetRP² : {A : RP² → Type ℓ} → ((x : RP²) → isSet (A x))
-  → (point* : A point)
-  → PathP (λ i → A (line i)) point* point*
-  → (x : RP²) → A x
-elimSetRP² set point* p point = point*
-elimSetRP² set point* p (line i) = p i
-elimSetRP² {A = A} set point* p (square i j) =
-  isOfHLevel→isOfHLevelDep 2 {B = A} set point* point* p (symP p) square i j
-
-elimPropRP² : {A : RP² → Type ℓ} → ((x : RP²) → isProp (A x))
-  → (point* : A point)
-  → (x : RP²) → A x
-elimPropRP² pr point* =
-  elimSetRP² (λ x → isProp→isSet (pr _))
-    point* (isProp→PathP (λ _ → pr _) _ _)
-
-characRP²Fun : ∀ {ℓ} {A : Type ℓ} (f : RP² → A)
-  → RP²Fun (f point) (cong f line) (λ i j → f (square i j)) ≡ f
-characRP²Fun f =
-  funExt λ { point → refl ; (line i) → refl ; (square i i₁) → refl}
 
 module RP²Conn {B : (RP² → A) → Type ℓ} where
   elim₁ :

@@ -27,7 +27,6 @@ open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as Trunc
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Wedge
-open import Cubical.Foundations.HLevels
 
 private
   variable

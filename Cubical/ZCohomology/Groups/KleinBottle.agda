@@ -42,11 +42,8 @@ open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.RingStructure.CupProduct
-<<<<<<< HEAD
-=======
 
 open import Cubical.ZCohomology.RingStructure.CupProduct
->>>>>>> 1acc15f9ed097287f9958534193f486e46aa2cb9
 open import Cubical.ZCohomology.RingStructure.RingLaws
 
 open IsGroupHom
@@ -471,11 +468,6 @@ Hⁿ⁺³-𝕂²≅0 n = contrGroupIsoUnit (isContrHⁿ-𝕂² n)
         ; (line2 i) → Kn→ΩKn+1 0 1 i
         ; (square i i₁) → Kn→ΩKn+1 0 (pos 1) i₁}) ∣₂
 
-<<<<<<< HEAD
-α↦1 : Iso.fun (fst H¹-𝕂²≅ℤ) α ≡ 1
-α↦1 = refl
-
-=======
 -- Because ℤ is discrete it computes nicely
 α↦1 : Iso.fun (fst H¹-𝕂²≅ℤ) α ≡ 1
 α↦1 = refl
@@ -489,7 +481,6 @@ Hⁿ⁺³-𝕂²≅0 n = contrGroupIsoUnit (isContrHⁿ-𝕂² n)
 -- lem-α²≡0 : Iso.fun (fst H²-𝕂²≅Bool) (α ⌣ α) ≡ true
 -- lem-α²≡0 = {!refl!}
 
->>>>>>> 1acc15f9ed097287f9958534193f486e46aa2cb9
 private
   lem : (p : 0ₖ 1 ≡ 0ₖ 1) → cong₂ (_⌣ₖ_) p p ≡ refl
   lem p = cong₂Funct _⌣ₖ_ p p
@@ -503,12 +494,6 @@ private
             ; (line2 i) j → lem (Kn→ΩKn+1 0 1) j i
             ; (square _ i) j → lem (Kn→ΩKn+1 0 1) j i})
 
-<<<<<<< HEAD
-α²↦0 : Iso.fun (fst H²-𝕂²≅Bool) (α ⌣ α) ≡ true
-α²↦0 = cong (fun (fst H²-𝕂²≅Bool)) α²≡0
-      ∙ IsGroupHom.pres1 (snd H²-𝕂²≅Bool)
-=======
 -- proof that the cup product is trivial
 trivial-cup : Iso.inv (fst H¹-𝕂²≅ℤ) 1 ⌣ Iso.inv (fst H¹-𝕂²≅ℤ) 1 ≡ 0ₕ 2
 trivial-cup = cong₂ _⌣_ 1↦α 1↦α ∙ α²≡0
->>>>>>> 1acc15f9ed097287f9958534193f486e46aa2cb9
