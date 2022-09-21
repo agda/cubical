@@ -13,8 +13,8 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Semigroup
 
-open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat hiding (_+_)
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Fin
 open import Cubical.Data.Fin.Arithmetic
 

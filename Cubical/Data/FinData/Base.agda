@@ -19,8 +19,11 @@ data Fin : ℕ → Type₀ where
   suc  : {n : ℕ} (i : Fin n) → Fin (suc n)
 
 -- useful patterns
-pattern one = suc zero
-pattern two = suc one
+pattern one   = suc zero
+pattern two   = suc one
+pattern three = suc two
+pattern four  = suc three
+pattern five  = suc four
 
 toℕ : ∀ {n} → Fin n → ℕ
 toℕ zero    = 0

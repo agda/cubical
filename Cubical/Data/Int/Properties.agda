@@ -4,22 +4,20 @@ module Cubical.Data.Int.Properties where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Function
-
-open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Nat
-  hiding   (+-assoc ; +-comm)
-  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
-open import Cubical.Data.Bool
-open import Cubical.Data.Sum
-open import Cubical.Data.Int.Base
 
 open import Cubical.Relation.Nullary
+
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Bool
+open import Cubical.Data.Nat
+  hiding   (+-assoc ; +-comm)
+  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
+open import Cubical.Data.Sum
+
+open import Cubical.Data.Int.Base
 
 sucPred : ∀ i → sucℤ (predℤ i) ≡ i
 sucPred (pos zero)    = refl
@@ -524,20 +522,20 @@ abs· (negsuc m) (negsuc n) = cong abs (negsuc·negsuc m n) ∙ absPos·Pos (suc
 -- ℤ is integral domain
 
 isIntegralℤPosPos : (c m : ℕ) → pos c · pos m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
-isIntegralℤPosPos 0 m _ q = Empty.rec (q refl)
+isIntegralℤPosPos 0 m _ q = ⊥.rec (q refl)
 isIntegralℤPosPos (suc c) m p _ =
   sym (0≡n·sm→0≡n {n = m} {m = c} (sym (injPos (pos·pos (suc c) m ∙ p)) ∙ ·ℕ-comm (suc c) m))
 
 isIntegralℤ : (c m : ℤ) → c · m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
 isIntegralℤ (pos c) (pos m) p h i = pos (isIntegralℤPosPos c m p (λ r → h (cong pos r)) i)
 isIntegralℤ (pos c) (negsuc m) p h =
-  Empty.rec (snotz (isIntegralℤPosPos c (suc m)
+  ⊥.rec (snotz (isIntegralℤPosPos c (suc m)
     (sym (-Involutive _) ∙ cong (-_) (sym (pos·negsuc c m) ∙ p)) (λ r → h (cong pos r))))
 isIntegralℤ (negsuc c) (pos m) p _ i =
   pos (isIntegralℤPosPos (suc c) m
     (sym (-Involutive _) ∙ cong (-_) (sym (negsuc·pos c m) ∙ p)) snotz i)
 isIntegralℤ (negsuc c) (negsuc m) p _ =
-  Empty.rec (snotz (isIntegralℤPosPos (suc c) (suc m) (sym (negsuc·negsuc c m) ∙ p) snotz))
+  ⊥.rec (snotz (isIntegralℤPosPos (suc c) (suc m) (sym (negsuc·negsuc c m) ∙ p) snotz))
 
 private
   ·lCancel-helper : (c m n : ℤ) → c · m ≡ c · n → c · (m - n) ≡ 0
@@ -552,6 +550,11 @@ private
 ·rCancel : (c m n : ℤ) → m · c ≡ n · c → ¬ c ≡ 0 → m ≡ n
 ·rCancel c m n p h = ·lCancel c m n (·Comm c m ∙ p ∙ ·Comm n c) h
 
+
+-Cancel'' : ∀ z → z ≡ - z → z ≡ 0
+-Cancel'' z r = isIntegralℤ 2 z
+                (cong (λ X → z + X) r ∙ -Cancel z)
+                λ r → ⊥.rec (snotz (injPos r))
 
 -- ℤ is non-trivial
 

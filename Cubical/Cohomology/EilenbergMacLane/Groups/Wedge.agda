@@ -20,25 +20,28 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.AbGroup.Base
 
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as Trunc
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Wedge
+open import Cubical.Foundations.HLevels
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓ' : Level
 
-module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ'') where
+module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
   A∨B = A ⋁ B
 
   open AbGroupStr (snd G) renaming (_+_ to _+G_ ; -_ to -G_)
 
   private
     ×H : (n : ℕ) → AbGroup _
-    ×H n = dirProdAb (coHomGr (suc n) G (fst A)) (coHomGr (suc n) G (fst B))
+    ×H n = dirProdAb (coHomGr (suc n) G (fst A))
+                     (coHomGr (suc n) G (fst B))
 
   Hⁿ×→Hⁿ-⋁ : (n : ℕ) → (A ⋁ B → EM G (suc n))
     → (fst A → EM G (suc n)) × (fst B → EM G (suc n))
@@ -66,23 +69,24 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ'') where
   Iso.rightInv (Hⁿ⋁-Iso n) =
     uncurry (ST.elim2
       (λ _ _ → isOfHLevelPath 2 (isSet× squash₂ squash₂) _ _)
-      λ f g → ΣPathP (lem A f , lem B g))
-    where
-    lem : ∀ {ℓ} (A : Pointed ℓ) (f : fst A → EM G (suc n))
-         → Path (coHom (suc n) G (fst A))
-             ∣ (λ x → f x -[ suc n ]ₖ f (pt A)) ∣₂ ∣ f ∣₂
-    lem A f = Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
-               (λ p → cong ∣_∣₂ (funExt λ x
-                 → cong (λ y → f x -[ suc n ]ₖ y) p
-                              ∙∙ cong (λ y → f x +[ suc n ]ₖ y) (-0ₖ n)
-                              ∙∙ rUnitₖ (suc n) (f x)))
-               (isConnectedPath (suc n) (isConnectedEM (suc n))
-                 (f (pt A)) (0ₖ (suc n)) .fst)
+      λ f g
+      → ΣPathP (Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
+                (λ p → cong ∣_∣₂ (funExt λ x → cong (λ z → f x +[ (suc n) ]ₖ z)
+                                 (cong (λ z → -[ (suc n) ]ₖ z) p ∙ -0ₖ (suc n))
+                              ∙ rUnitₖ (suc n) (f x)))
+              (isConnectedPath (suc n)
+               (isConnectedEM (suc n)) (f (pt A)) (0ₖ (suc n)) .fst)
+            , Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
+                (λ p → cong ∣_∣₂ (funExt λ x → cong (λ z → g x +[ (suc n) ]ₖ z)
+                                 (cong (λ z → -[ (suc n) ]ₖ z) p ∙ -0ₖ (suc n))
+                              ∙ rUnitₖ (suc n) (g x)))
+              (isConnectedPath (suc n)
+               (isConnectedEM (suc n)) (g (pt B)) (0ₖ (suc n)) .fst)))
   Iso.leftInv (Hⁿ⋁-Iso n) =
     ST.elim (λ _ → isSetPathImplicit)
       λ f → Trunc.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
         (λ p → cong ∣_∣₂
-          (funExt λ { (inl x) → p₁ f p (inl x)
+          (funExt λ { (inl x) → pgen f p (inl x)
                     ; (inr x) → p₂ f p x
                     ; (push a i) j → Sq f p j i}))
         (Iso.fun (PathIdTruncIso (suc n))
@@ -91,36 +95,36 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ'') where
     where
     module _ (f : (A ⋁ B → EM G (suc n))) (p : f (inl (pt A)) ≡ 0ₖ (suc n))
       where
-      p₁ : (x : A ⋁ B) → f x -[ suc n ]ₖ f (inl (pt A)) ≡ f x
-      p₁ x =
+      pgen : (x : A ⋁ B) → _ ≡ _
+      pgen x =
           (λ j → f x -[ (suc n) ]ₖ (p j))
-       ∙∙ (λ j → f x +[ (suc n) ]ₖ (-0ₖ n j))
+       ∙∙ (λ j → f x +[ (suc n) ]ₖ (-0ₖ (suc n) j))
        ∙∙ rUnitₖ (suc n) (f x)
 
-      p₂ : (x : typ B) → f (inr x) -[ suc n ]ₖ f (inr (pt B)) ≡ f (inr x)
+      p₂ : (x : typ B) → _ ≡ _
       p₂ x = (λ j → f (inr x) -[ (suc n) ]ₖ (f (sym (push tt) j)))
-            ∙ p₁ (inr x)
+            ∙ pgen (inr x)
 
 
       Sq : Square (rCancelₖ (suc n) (f (inl (pt A)))
                     ∙ sym (rCancelₖ (suc n) (f (inr (pt B)))))
                    (cong f (push tt))
-                   (p₁ (inl (pt A)))
+                   (pgen (inl (pt A)))
                    (p₂ (pt B))
       Sq i j =
-        hcomp (λ k → λ {(i = i0) → (rCancelₖ (suc n) (f (inl (pt A))) ∙
-                                     (sym (rCancelₖ (suc n) (f (push tt k))))) j
+        hcomp (λ k → λ {(i = i0) → (rCancelₖ (suc n) (f (inl (pt A)))
+                                   ∙ sym (rCancelₖ (suc n) (f (push tt k)))) j
                        ; (i = i1) → f (push tt (k ∧ j))
-                       ; (j = i0) → p₁ (inl (pt A)) i
+                       ; (j = i0) → pgen (inl (pt A)) i
                        ; (j = i1) → ((λ j → f (push tt k) -[ (suc n) ]ₖ
                                              (f (sym (push tt) (j ∨ ~ k))))
-                                    ∙ p₁ (push tt k)) i})
+                                    ∙ pgen (push tt k)) i})
          (hcomp (λ k → λ {(i = i0) → rCancel (rCancelₖ (suc n)
                                                (f (inl (pt A)))) (~ k) j
                          ; (i = i1) → f (inl (pt A))
-                         ; (j = i0) → p₁ (inl (pt A)) i
-                         ; (j = i1) → lUnit (p₁ (inl (pt A))) k i})
-                (p₁ (inl (pt A)) i))
+                         ; (j = i0) → pgen (inl (pt A)) i
+                         ; (j = i1) → lUnit (pgen (inl (pt A))) k i})
+                (pgen (inl (pt A)) i))
 
   Hⁿ-⋁≅Hⁿ×Hⁿ : (n : ℕ)
     → AbGroupEquiv

@@ -233,14 +233,14 @@ snd H²[RP²,ℤ/2]≅ℤ/2 =
 
 ----- Hⁿ(RP²,G), n ≥ 3 -----
 H³⁺ⁿ[RP²,G]≅G : (n : ℕ) (G : AbGroup ℓ)
-  → AbGroupEquiv (coHomGr (3 +ℕ n) ℤ/2 RP²) (trivialAbGroup {ℓ})
+  → AbGroupEquiv (coHomGr (3 +ℕ n) G RP²) (trivialAbGroup {ℓ})
 fst (H³⁺ⁿ[RP²,G]≅G n G) =
   isoToEquiv (isContr→Iso
     (∣ RP²Fun (0ₖ (3 +ℕ n)) refl refl ∣₂
     , (ST.elim (λ _ → isSetPathImplicit)
        (RP²Conn.elim₃
          (isConnectedSubtr 4 n
-           (subst (λ x → isConnected x (EM ℤ/2 (3 +ℕ n)))
+           (subst (λ x → isConnected x (EM G (3 +ℕ n)))
              (+-comm 4 n)
              (isConnectedEM (3 +ℕ n))))
          (λ _ → squash₂ _ _)

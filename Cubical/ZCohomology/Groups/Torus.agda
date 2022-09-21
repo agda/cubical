@@ -46,7 +46,7 @@ open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Groups.Prelims
 open import Cubical.ZCohomology.RingStructure.CupProduct
-open import Cubical.ZCohomology.Groups.WedgeOfSpheres
+open import Cubical.ZCohomology.Groups.S2wedgeS1wedgeS1
   renaming (to₂ to to₂-∨ ; from₂ to from₂-∨ ; from₁ to from₁-∨ ; to₁ to to₁-∨) hiding (to₀ ; from₀)
 
 open IsGroupHom

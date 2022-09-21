@@ -26,7 +26,9 @@ open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation as TR
 
+open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Group.Instances.IntMod
+open import Cubical.Algebra.CommRing.Instances.IntMod
 open import Cubical.Algebra.AbGroup.Base
 
 open AbGroupStr
@@ -213,3 +215,7 @@ symConst-ℤ/2 = EMZ/2.symConstEM
 
 symConst-ℤ/2-refl : {n : ℕ} → symConst-ℤ/2 n (0ₖ n) refl ≡ refl
 symConst-ℤ/2-refl = EMZ/2.symConstEM-refl
+
++ₖ≡id-ℤ/2 : (n : ℕ) (x : EM ℤ/2 n) → x +ₖ x ≡ 0ₖ n
++ₖ≡id-ℤ/2 zero = ℤ/2-elim refl refl
++ₖ≡id-ℤ/2 (suc n) x = cong (x +ₖ_) (sym (-ₖConst-ℤ/2 n x)) ∙ rCancelₖ (suc n) x

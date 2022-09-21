@@ -39,6 +39,7 @@ open import Cubical.Algebra.Group.DirProd
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup.Base
+open import Cubical.Algebra.AbGroup.Instances.Unit
 
 open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.SetTruncation as ST
@@ -51,8 +52,6 @@ open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.RPn
 open import Cubical.HITs.Wedge
-
--- rUnitGroupIso
 
 open AbGroupStr
 
@@ -87,3 +86,19 @@ H²[RP²∨S¹,ℤ/2]≅ℤ/2 =
         (compGroupEquiv (Hᵐ⁺ⁿ[Sⁿ,G]≅0 ℤ/2 0 0)
           (contrGroupEquivUnit {G = AbGroup→Group (trivialAbGroup {ℓ-zero})} isContrUnit*)))
       (GroupIso→GroupEquiv (rUnitGroupIso {G = AbGroup→Group ℤ/2})))
+
+H³⁺ⁿ[RP²∨S¹,ℤ/2]≅Unit : (n : ℕ)
+  → AbGroupEquiv (coHomGr (3 +ℕ n) ℤ/2 ((RP² , point) ⋁ S₊∙ 1)) (UnitAbGroup {ℓ = ℓ-zero})
+H³⁺ⁿ[RP²∨S¹,ℤ/2]≅Unit n =
+  compGroupEquiv (Hⁿ-⋁≅Hⁿ×Hⁿ ℤ/2 (2 +ℕ n))
+    (compGroupEquiv
+      (GroupEquivDirProd (H³⁺ⁿ[RP²,G]≅G n ℤ/2)
+                         (compGroupEquiv
+                         (subst (GroupEquiv _)
+                           (cong (λ n → AbGroup→Group (coHomGr n ℤ/2 S¹))
+                             (cong (suc ∘ suc) (cong suc (+-comm 0 n) ∙ sym (+-suc n 0))))
+                           idGroupEquiv)
+                         (Hᵐ⁺ⁿ[Sⁿ,G]≅0 ℤ/2 0 (suc n))))
+      (GroupIso→GroupEquiv
+        ((iso (λ {(x , y) → tt*}) (λ x → (tt* , tt*)) (λ { (lift lower₁) → refl }) λ {(lift l , lift l2) → refl})
+        , makeIsGroupHom λ _ _ → refl)))
