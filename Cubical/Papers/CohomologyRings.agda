@@ -64,7 +64,7 @@ import Cubical.ZCohomology.CohomologyRings.Sn                     as H*Sᵐ
 open import Cubical.Homotopy.Hopf                                 as HopfFibration
 import Cubical.ZCohomology.Groups.CP2                             as HⁿℂP²
 import Cubical.ZCohomology.CohomologyRings.CP2                    as H*ℂP²
-import Cubical.HITs.Wedge                                         as ∨
+import Cubical.HITs.Wedge                                         as ⋁
 import Cubical.ZCohomology.Groups.S2wedgeS4                       as HⁿS²∨S⁴
 import Cubical.ZCohomology.CohomologyRings.S2wedgeS4              as H*S²∨S⁴
 import Cubical.Cohomology.EilenbergMacLane.RingStructure          as GCohomologyRing
@@ -92,7 +92,7 @@ open S1 using (S¹)
 𝕋² = S¹ × S¹
 
 -- "Mickey mouse space”
-open HⁿS²∨S¹∨S¹ using (S²∨S¹∨S¹)
+open HⁿS²∨S¹∨S¹ using (S²⋁S¹⋁S¹)
 
 
 ----- 2. BACKGROUND -----
@@ -253,35 +253,35 @@ open HⁿℂP² using (H⁴CP²≅ℤ-pos-resp⌣)
 open H*ℂP² using (CohomologyRing-CP²)
 
 -- Definition of S² ∨ S⁴
-open ∨ using (_∨_)
-open HⁿS²∨S⁴ using (S²∨S⁴)
+open ⋁ using (_⋁_)
+open HⁿS²∨S⁴ using (S²⋁S⁴)
 
--- Proposition 5.3, Cohomology groups and Rings of S² ∨ S⁴
-open HⁿS²∨S⁴ using (H⁰-S²∨S⁴≅ℤ ; H²-S²∨S⁴≅ℤ ; H⁴-S²∨S⁴≅ℤ ; Hⁿ-S²∨S⁴≅0-bis)
-open H*S²∨S⁴ using (CohomologyRing-S²∨S⁴)
+-- Proposition 5.3, Cohomology groups and Rings of S² ⋁ S⁴
+open HⁿS²∨S⁴ using (H⁰-S²⋁S⁴≅ℤ ; H²-S²⋁S⁴≅ℤ ; H⁴-S²⋁S⁴≅ℤ ; Hⁿ-S²⋁S⁴≅0-bis)
+open H*S²∨S⁴ using (CohomologyRing-S²⋁S⁴)
 
 
 -- 5.3 The Klein bottle and the real projective plane with an adjoined circle
 
--- Definition of Klein bottle, ℝP², and ℝP² ∨ S¹
+-- Definition of Klein bottle, ℝP², and ℝP² ⋁ S¹
 open 𝕂² using (KleinBottle)
 open ℝP² using (RP²)
-open HⁿℝP²∨S¹ using (RP²∨S¹)
+open HⁿℝP²∨S¹ using (RP²⋁S¹)
 
--- ℤ Cohomology groups of the Klein Bottle and ℝP² ∨ S¹
+-- ℤ Cohomology groups of the Klein Bottle and ℝP² ⋁ S¹
 open Hⁿ𝕂² using (H⁰-𝕂²≅ℤ ; H¹-𝕂²≅ℤ ; H²-𝕂²≅Bool ; Hⁿ⁺³-𝕂²≅0)
-open HⁿℝP²∨S¹ using (H⁰-RP²∨S¹≅ℤ ; H¹-RP²∨S¹≅ℤ ; H²-RP²∨S¹≅Bool ; Hⁿ-RP²∨S¹≅0)
+open HⁿℝP²∨S¹ using (H⁰-RP²⋁S¹≅ℤ ; H¹-RP²⋁S¹≅ℤ ; H²-RP²⋁S¹≅Bool ; Hⁿ-RP²⋁S¹≅0)
 
--- Proposition 5.5, ℤ Cohomology Rings of the Klein Bottle and ℝP² ∨ S¹
+-- Proposition 5.5, ℤ Cohomology Rings of the Klein Bottle and ℝP² ⋁ S¹
 open H*𝕂² using (CohomologyRing-𝕂²)
-open H*ℝP²∨S¹ using (CohomologyRing-RP²∨S¹)
+open H*ℝP²∨S¹ using (CohomologyRing-RP²⋁S¹)
 
--- ℤ/2ℤ Cohomology groups of the Klein Bottle and ℝP² ∨ S¹
+-- ℤ/2ℤ Cohomology groups of the Klein Bottle and ℝP² ⋁ S¹
 open ℤ/2-Hⁿ𝕂² using (H⁰[K²,ℤ/2]≅ℤ/2 ; H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 ; H²[K²,ℤ/2]≅ℤ/2 ; H³⁺ⁿK²≅0)
 open ℤ/2-HⁿℝP²∨S¹ using (H⁰[RP²∨S¹,ℤ/2]≅ℤ/2 ; H¹[RP²∨S¹,ℤ/2]≅ℤ/2×ℤ/2 ; H²[RP²∨S¹,ℤ/2]≅ℤ/2 ; H³⁺ⁿ[RP²∨S¹,ℤ/2]≅Unit)
 
 -- Proposition 5.6, ℤ/2ℤ cohomology ring of the Klein Bottle
 open ℤ/2-H*𝕂² using (H*KleinBottle≅ℤ/2[X,Y]/<X³,Y²,XY+X²>)
 
--- Proposition 5.7, ℤ/2ℤ cohomology ring of the ℝP² ∨ S¹
+-- Proposition 5.7, ℤ/2ℤ cohomology ring of the ℝP² ⋁ S¹
 open ℤ/2-H*ℝP²∨S¹ using (H*RP²∨S¹≅ℤ/2[X,Y]/<Y³,XY,X²>)
