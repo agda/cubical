@@ -6,8 +6,6 @@ This file contains pointers to the code examples and main results from
 the paper:
 
 Computing Cohomology Rings in Cubical Agda
-Anonymous Author(s)
-Certified Programs and Proofs (CPP) 2023
 
 -}
 
