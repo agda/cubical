@@ -324,17 +324,17 @@ private
             ; (k = i1) → ℤ/2→Ω²K₂⨂ 1 j i})
             (▣₅ i j k)
 
-  ▣₇ : I → I → I → K[ℤ₂⊗ℤ₂,2]
-  ▣₇ i j k =
-    hcomp (λ r →
-          λ {(i = i0) → ∣ north ∣
-           ; (i = i1) → ∣ north ∣
-           ; (j = i0) → cong₂-⌣ (λ i₁ → K²gen.α-raw (line1 i₁)) k (~ i)
-           ; (j = i1) → cong₂-⌣ (λ i₁ → K²gen.α-raw (square i₁ r)) k i
-           ; (k = i0) → cp (K²gen.α-raw (square i (j ∧ r)))
-                            (K²gen.α-raw (square i (j ∧ r)))
-           ; (k = i1) → ℤ/2→Ω²K₂⨂ 1 j i})
-           (▣₆ i j k)
+▣₇ : I → I → I → K[ℤ₂⊗ℤ₂,2]
+▣₇ i j k =
+  hcomp (λ r →
+        λ {(i = i0) → ∣ north ∣
+         ; (i = i1) → ∣ north ∣
+         ; (j = i0) → cong₂-⌣ (λ i₁ → K²gen.α-raw (line1 i₁)) k (~ i)
+         ; (j = i1) → cong₂-⌣ (λ i₁ → K²gen.α-raw (square i₁ r)) k i
+         ; (k = i0) → cp (K²gen.α-raw (square i (j ∧ r)))
+                          (K²gen.α-raw (square i (j ∧ r)))
+         ; (k = i1) → ℤ/2→Ω²K₂⨂ 1 j i})
+         (▣₆ i j k)
 
 KleinFun-α⊗ : (x : KleinBottle)
   → cp (K²gen.α-raw x) (K²gen.α-raw x)

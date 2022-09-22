@@ -28,8 +28,6 @@ open import Cubical.HITs.Truncation as Trunc
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Wedge
 
-open import Cubical.Foundations.HLevels
-
 private
   variable
     ℓ ℓ' : Level
@@ -126,3 +124,13 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
                          ; (j = i0) → pgen (inl (pt A)) i
                          ; (j = i1) → lUnit (pgen (inl (pt A))) k i})
                 (pgen (inl (pt A)) i))
+
+  Hⁿ-⋁≅Hⁿ×Hⁿ : (n : ℕ)
+    → AbGroupEquiv
+        (coHomGr (suc n) G (A ⋁ B))
+        (dirProdAb (coHomGr (suc n) G (fst A)) (coHomGr (suc n) G (fst B)))
+  fst (Hⁿ-⋁≅Hⁿ×Hⁿ n) = isoToEquiv (Hⁿ⋁-Iso n)
+  snd (Hⁿ-⋁≅Hⁿ×Hⁿ n) =
+    makeIsGroupHom
+      (ST.elim2 (λ _ _ → isOfHLevelPath 2 (isSet× squash₂ squash₂) _ _)
+      λ f g → refl)

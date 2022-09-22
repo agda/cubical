@@ -303,6 +303,24 @@ H²K²→ℤ/2-pres0 = cong H²K²→ℤ/2 KleinFun-trivₕ
        ∙ H²K²→ℤ/2-rewrite (λ _ _ → ∣ north ∣ₕ)
        ∙ refl
 
+Isoℤ/2-morph : {A : Type} (f : A ≃ fst ℤ/2) (0A : A)
+  → 0 ≡ fst f 0A → (_+'_ : A → A → A) (-m : A → A)
+  → (λ x → x) ≡ -m
+  → (e : IsAbGroup 0A _+'_ -m)
+  → IsGroupHom (AbGroup→Group (A , abgroupstr 0A _+'_ (λ x → -m x) e) .snd)
+                (fst f) ((ℤGroup/ 2) .snd)
+Isoℤ/2-morph =
+  EquivJ (λ A f → (0A : A) → 0 ≡ fst f 0A → (_+'_ : A → A → A) (-m : A → A)
+  → (λ x → x) ≡ -m
+  → (e : IsAbGroup 0A _+'_ -m)
+  → IsGroupHom (AbGroup→Group (A , abgroupstr 0A _+'_ (λ x → -m x) e) .snd)
+                (fst f) ((ℤGroup/ 2) .snd))
+  (J> λ _+'_ → J>
+    λ e → makeIsGroupHom (ℤ/2-elim (ℤ/2-elim (IsAbGroup.+IdR e fzero)
+      (IsAbGroup.+IdL e 1))
+      (ℤ/2-elim (IsAbGroup.+IdR e 1)
+        (IsAbGroup.+InvR e 1))))
+
 H²[K²,ℤ/2]≅ℤ/2 : AbGroupEquiv (coHomGr 2 ℤ/2 KleinBottle) ℤ/2
 fst H²[K²,ℤ/2]≅ℤ/2 = isoToEquiv is
   where
@@ -316,24 +334,6 @@ snd H²[K²,ℤ/2]≅ℤ/2 =
     (funExt (ST.elim (λ _ → isSetPathImplicit)
       (λ f → cong ∣_∣₂ (funExt λ x → sym (-ₖConst-ℤ/2 1 (f x))))))
     (AbGroupStr.isAbGroup (coHomGr 2 ℤ/2 KleinBottle .snd))
-  where
-  Isoℤ/2-morph : {A : Type} (f : A ≃ fst ℤ/2) (0A : A)
-    → 0 ≡ fst f 0A → (_+'_ : A → A → A) (-m : A → A)
-    → (λ x → x) ≡ -m
-    → (e : IsAbGroup 0A _+'_ -m)
-    → IsGroupHom (AbGroup→Group (A , abgroupstr 0A _+'_ (λ x → -m x) e) .snd)
-                  (fst f) ((ℤGroup/ 2) .snd)
-  Isoℤ/2-morph =
-    EquivJ (λ A f → (0A : A) → 0 ≡ fst f 0A → (_+'_ : A → A → A) (-m : A → A)
-    → (λ x → x) ≡ -m
-    → (e : IsAbGroup 0A _+'_ -m)
-    → IsGroupHom (AbGroup→Group (A , abgroupstr 0A _+'_ (λ x → -m x) e) .snd)
-                  (fst f) ((ℤGroup/ 2) .snd))
-    (J> λ _+'_ → J>
-      λ e → makeIsGroupHom (ℤ/2-elim (ℤ/2-elim (IsAbGroup.+IdR e fzero)
-        (IsAbGroup.+IdL e 1))
-        (ℤ/2-elim (IsAbGroup.+IdR e 1)
-          (IsAbGroup.+InvR e 1))))
 
 isContr-HⁿKleinBottle : (n : ℕ) (G : AbGroup ℓ)
   → isContr (coHom (suc (suc (suc n))) G KleinBottle)
