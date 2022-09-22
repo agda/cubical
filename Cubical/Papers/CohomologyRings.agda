@@ -227,7 +227,7 @@ open S1   using (S¹)
 open HⁿSᵐ using (Hⁿ-Sⁿ≅ℤ ; Hⁿ-Sᵐ≅0) -- includes the ones of S1 as special cases
 open H*S¹ using (CohomologyRing-S¹)
 
--- Cohomology groups and ring of Sᵐ
+-- Proposition 5.2, Cohomology groups and ring of Sⁿ
 open Suspension using (Susp)
 open Sn using (S₊)
 open HⁿSᵐ using (Hⁿ-Sⁿ≅ℤ ; Hⁿ-Sᵐ≅0)
@@ -244,7 +244,7 @@ open H*Sᵐ using (CohomologyRing-Sⁿ)
 open S¹Hopf using (TotalHopf)
 open HⁿℂP² using (CP²)
 
--- Proposition 5.2, Cohomology groups and Ring of ℂP²
+-- Proposition 5.3, Cohomology groups and ring of ℂP²
 open HⁿℂP² using (H⁰CP²≅ℤ ; H²CP²≅ℤ ; H⁴CP²≅ℤ ; Hⁿ-CP²≅0)
   -- the cup product
 open HⁿℂP² using (H⁴CP²≅ℤ-pos-resp⌣)
@@ -254,7 +254,7 @@ open H*ℂP² using (CohomologyRing-CP²)
 open ⋁ using (_⋁_)
 open HⁿS²∨S⁴ using (S²⋁S⁴)
 
--- Proposition 5.3, Cohomology groups and Rings of S² ⋁ S⁴
+-- Proposition 5.4, Cohomology groups and ring of S² ⋁ S⁴
 open HⁿS²∨S⁴ using (H⁰-S²⋁S⁴≅ℤ ; H²-S²⋁S⁴≅ℤ ; H⁴-S²⋁S⁴≅ℤ ; Hⁿ-S²⋁S⁴≅0-bis)
 open H*S²∨S⁴ using (CohomologyRing-S²⋁S⁴)
 
@@ -270,7 +270,7 @@ open HⁿℝP²∨S¹ using (RP²⋁S¹)
 open Hⁿ𝕂² using (H⁰-𝕂²≅ℤ ; H¹-𝕂²≅ℤ ; H²-𝕂²≅Bool ; Hⁿ⁺³-𝕂²≅0)
 open HⁿℝP²∨S¹ using (H⁰-RP²⋁S¹≅ℤ ; H¹-RP²⋁S¹≅ℤ ; H²-RP²⋁S¹≅Bool ; Hⁿ-RP²⋁S¹≅0)
 
--- Proposition 5.5, ℤ Cohomology Rings of the Klein Bottle and ℝP² ⋁ S¹
+-- Proposition 5.6, ℤ cohomology ring of the Klein Bottle and ℝP² ⋁ S¹
 open H*𝕂² using (CohomologyRing-𝕂²)
 open H*ℝP²∨S¹ using (CohomologyRing-RP²⋁S¹)
 
@@ -278,8 +278,8 @@ open H*ℝP²∨S¹ using (CohomologyRing-RP²⋁S¹)
 open ℤ/2-Hⁿ𝕂² using (H⁰[K²,ℤ/2]≅ℤ/2 ; H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 ; H²[K²,ℤ/2]≅ℤ/2 ; H³⁺ⁿK²≅0)
 open ℤ/2-HⁿℝP²∨S¹ using (H⁰[RP²∨S¹,ℤ/2]≅ℤ/2 ; H¹[RP²∨S¹,ℤ/2]≅ℤ/2×ℤ/2 ; H²[RP²∨S¹,ℤ/2]≅ℤ/2 ; H³⁺ⁿ[RP²∨S¹,ℤ/2]≅Unit)
 
--- Proposition 5.6, ℤ/2ℤ cohomology ring of the Klein Bottle
+-- Proposition 5.7, ℤ/2ℤ cohomology ring of the Klein Bottle
 open ℤ/2-H*𝕂² using (H*KleinBottle≅ℤ/2[X,Y]/<X³,Y²,XY+X²>)
 
--- Proposition 5.7, ℤ/2ℤ cohomology ring of the ℝP² ⋁ S¹
+-- Proposition 5.8, ℤ/2ℤ cohomology ring of ℝP² ⋁ S¹
 open ℤ/2-H*ℝP²∨S¹ using (H*RP²∨S¹≅ℤ/2[X,Y]/<Y³,XY,X²>)
