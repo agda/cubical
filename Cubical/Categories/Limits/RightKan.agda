@@ -130,7 +130,7 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
  RanNatIso : isFullyFaithful K → NatIso (funcComp Ran K) T
  trans (RanNatIso isFFK) = RanNatTrans
  nIso (RanNatIso isFFK) u = LimIso _ (limitA (K .F-ob u ↓Diag) (T* (K .F-ob u)))
-                                     (Initial→LimCone _ uInitial) .snd
+                                     (Initial→LimCone _ uInitial) .fst .fst .snd
    where
    invKHom : {u v : ob M} → C [ K .F-ob u , K .F-ob v ] → M [ u , v ]
    invKHom f = invEq (K .F-hom , (isFFK _ _)) f

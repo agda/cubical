@@ -11,6 +11,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Limits.Initial
@@ -102,6 +103,13 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
               → isConeMor cc cc (id C)
   isConeMorId _ _ = ⋆IdL C _
 
+  isConeMorSeq : {c1 c2 c3 : ob C} {D : Functor J C}
+                 (cc1 : Cone D c1) (cc2 : Cone D c2) (cc3  : Cone D c3)
+                 {f : C [ c1 , c2 ]} {g : C [ c2 , c3 ]}
+               → isConeMor cc1 cc2 f → isConeMor cc2 cc3 g → isConeMor cc1 cc3 (f ⋆⟨ C ⟩ g)
+  isConeMorSeq cc1 cc2 cc3 {f} {g} isConeMorF isConeMorG v =
+    ⋆Assoc C _ _ _ ∙∙ cong (λ x → f ⋆⟨ C ⟩ x) (isConeMorG v) ∙∙ isConeMorF v
+
   preCompConeMor : {c1 c2 : ob C} (f : C [ c1 , c2 ]) {D : Functor J C} (cc : Cone D c2)
                  → isConeMor (f ★ cc) cc f
   preCompConeMor f cc v = refl
@@ -164,13 +172,14 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
      limOut CC₁ u ⋆⟨ C ⟩ D₁ .F-hom e ⋆⟨ C ⟩ f v   ≡⟨ cong (λ x → x ⋆⟨ C ⟩ f v) (limOutCommutes CC₁ e) ⟩
      limOut CC₁ v ⋆⟨ C ⟩ f v ∎
 
-  -- any two limits are isomorphic
+  -- any two limits are isomorphic up to a unique cone isomorphism
   open isIso
-  LimIso : (D : Functor J C) (L₁ L₂ : LimCone D) → CatIso C (lim L₁) (lim L₂)
-  fst (LimIso D L₁ L₂) = limArrow L₂ _ (limCone L₁)
-  inv (snd (LimIso D L₁ L₂)) = limArrow L₁ _ (limCone L₂)
-  sec (snd (LimIso D L₁ L₂)) = cong fst (isContr→isProp (univProp L₂ _ (limCone L₂))
-                                          (_ , isConeMorComp) (id C , isConeMorId (limCone L₂)))
+  LimIso : (D : Functor J C) (L₁ L₂ : LimCone D)
+         → ∃![ e ∈ CatIso C (lim L₁) (lim L₂) ] isConeMor (limCone L₁) (limCone L₂) (fst e)
+  fst (fst (fst (LimIso D L₁ L₂))) = limArrow L₂ _ (limCone L₁)
+  inv (snd (fst (fst (LimIso D L₁ L₂)))) = limArrow L₁ _ (limCone L₂)
+  sec (snd (fst (fst (LimIso D L₁ L₂)))) = cong fst (isContr→isProp (univProp L₂ _ (limCone L₂))
+                                            (_ , isConeMorComp) (id C , isConeMorId (limCone L₂)))
     where
     isConeMorComp : isConeMor (limCone L₂) (limCone L₂)
                       (limArrow L₁ (lim L₂) (limCone L₂) ⋆⟨ C ⟩ limArrow L₂ (lim L₁) (limCone L₁))
@@ -186,8 +195,8 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
           ⋆⟨ C ⟩ (coneOut (limCone L₁) v)
       ≡⟨ limArrowCommutes L₁ _ (limCone L₂) v ⟩
         coneOut (limCone L₂) v ∎
-  ret (snd (LimIso D L₁ L₂)) = cong fst (isContr→isProp (univProp L₁ _ (limCone L₁))
-                                        (_ , isConeMorComp) (id C , isConeMorId (limCone L₁)))
+  ret (snd (fst (fst (LimIso D L₁ L₂)))) = cong fst (isContr→isProp (univProp L₁ _ (limCone L₁))
+                                            (_ , isConeMorComp) (id C , isConeMorId (limCone L₁)))
     where
     isConeMorComp : isConeMor (limCone L₁) (limCone L₁)
                       (limArrow L₂ (lim L₁) (limCone L₁) ⋆⟨ C ⟩ limArrow L₁ (lim L₂) (limCone L₂))
@@ -203,6 +212,11 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
           ⋆⟨ C ⟩ (coneOut (limCone L₂) v)
       ≡⟨ limArrowCommutes L₂ _ (limCone L₁) v ⟩
         coneOut (limCone L₁) v ∎
+
+  snd (fst (LimIso D L₁ L₂)) = limArrowCommutes L₂ _ _
+  snd (LimIso D L₁ L₂) (e , isConeMorE) = Σ≡Prop
+      (λ _ → isPropIsConeMor (limCone L₁) (limCone L₂) _)
+      (CatIso≡ _ _ (limArrowUnique L₂ _ _ (fst e) isConeMorE))
 
   -- if the index category of the diagram has an initial object,
   -- we get a canonical limiting cone
@@ -223,6 +237,38 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
                                                               (sym (isInitJ j .snd _)) (D .F-id))
                             ∙∙ ⋆IdR C f)
 
+  -- cones that respect isomorphsims are limiting cones
+  Iso→LimCone : {D : Functor J C} {c₁ c₂ : ob C} (cc₁ : Cone D c₁) (e : CatIso C c₁ c₂)
+              → isLimCone _ _ cc₁
+              → ∀ (cc₂ : Cone D c₂)
+              → isConeMor cc₁ cc₂ (e .fst)
+              → isLimCone _ _ cc₂
+  fst (fst (Iso→LimCone cc₁ e isLimConeCC₁ cc₂ isConeMorE d cd)) =
+    isLimConeCC₁ d cd .fst .fst ⋆⟨ C ⟩ e .fst
+  snd (fst (Iso→LimCone cc₁ e isLimConeCC₁ cc₂ isConeMorE d cd)) =
+    isConeMorSeq cd cc₁ cc₂ (isLimConeCC₁ d cd .fst .snd) isConeMorE
+  snd (Iso→LimCone cc₁ e isLimConeCC₁ cc₂ isConeMorE d cd) (f , isConeMorF) =
+    Σ≡Prop (isPropIsConeMor cd cc₂) path
+    where
+    isConeMorE⁻¹ : isConeMor cc₂ cc₁ (e .snd .inv)
+    isConeMorE⁻¹ v =
+      e .snd .inv ⋆⟨ C ⟩ coneOut cc₁ v ≡⟨ cong (λ x → e .snd .inv ⋆⟨ C ⟩ x) (sym (isConeMorE v)) ⟩
+      e .snd .inv ⋆⟨ C ⟩ (e .fst ⋆⟨ C ⟩ coneOut cc₂ v) ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+      (e .snd .inv ⋆⟨ C ⟩ e .fst) ⋆⟨ C ⟩ coneOut cc₂ v ≡⟨ cong (λ x → x ⋆⟨ C ⟩ coneOut cc₂ v)
+                                                              (e .snd .sec) ⟩
+      id C ⋆⟨ C ⟩ coneOut cc₂ v ≡⟨ ⋆IdL C _ ⟩
+      coneOut cc₂ v ∎
+
+    p : isLimConeCC₁ d cd .fst .fst ≡ f ⋆⟨ C ⟩ e .snd .inv
+    p = cong fst (isLimConeCC₁ d cd .snd ( f ⋆⟨ C ⟩ e .snd .inv
+                                         , isConeMorSeq cd cc₂ cc₁ isConeMorF isConeMorE⁻¹))
+
+    path : isLimConeCC₁ d cd .fst .fst ⋆⟨ C ⟩ e .fst ≡ f
+    path = isLimConeCC₁ d cd .fst .fst ⋆⟨ C ⟩ e .fst ≡⟨ cong (λ x → x ⋆⟨ C ⟩ e .fst) p ⟩
+           (f ⋆⟨ C ⟩ e .snd .inv) ⋆⟨ C ⟩ e .fst ≡⟨ ⋆Assoc C _ _ _ ⟩
+           f ⋆⟨ C ⟩ (e .snd .inv ⋆⟨ C ⟩ e .fst) ≡⟨ cong (λ x → f ⋆⟨ C ⟩ x) (e .snd .sec) ⟩
+           f ⋆⟨ C ⟩ id C ≡⟨ ⋆IdR C _ ⟩
+           f ∎
 
 -- A category is complete if it has all limits
 Limits : {ℓJ ℓJ' ℓC ℓC' : Level} → Category ℓC ℓC' → Type _
@@ -255,5 +301,30 @@ module _ {ℓJ ℓJ' ℓC1 ℓC1' ℓC2 ℓC2' : Level}
   preservesLimits = ∀ {J : Category ℓJ ℓJ'} {D : Functor J C1} {L : ob C1}
                       (ccL : Cone D L)
                   → isLimCone _ _ ccL → isLimCone (funcComp F D) (F .F-ob L) (F-cone ccL)
+
+  -- characterizing limit preserving functors
+  open LimCone
+
+  preservesLimitsChar : (L₁ : Limits {ℓJ} {ℓJ'} C1) (L₂ : Limits {ℓJ} {ℓJ'} C2)
+     → (e : ∀ J D → CatIso C2 (L₂ J (F ∘F D) .lim) (F .F-ob (L₁ J D .lim)))
+     → (∀ J D → isConeMor (L₂ J (F ∘F D) .limCone) (F-cone (L₁ J D .limCone)) (e J D .fst))
+     → preservesLimits
+  preservesLimitsChar L₁ L₂ e isConeMorE {J = J} {D = D} {L = c} cc isLimConeCC =
+    Iso→LimCone (L₂ J (F ∘F D) .limCone) f (L₂ J (F ∘F D) .univProp) (F-cone cc) isConeMorF
+    where
+    theCLimCone : LimCone D
+    lim theCLimCone = c
+    limCone theCLimCone = cc
+    univProp theCLimCone = isLimConeCC
+
+    f : CatIso C2 (lim (L₂ J (funcComp F D))) (F .F-ob c)
+    f = ⋆Iso (e J D) (F-Iso {F = F} (LimIso D (L₁ J D) theCLimCone .fst .fst))
+
+    isConeMorF : isConeMor (L₂ J (funcComp F D) .limCone) (F-cone cc) (f .fst)
+    isConeMorF = isConeMorSeq (L₂ J (funcComp F D) .limCone)
+                              (F-cone (L₁ J D .limCone))
+                              (F-cone cc)
+                  (isConeMorE J D)
+                  (λ v → F-triangle F (limArrowCommutes theCLimCone _ _ _))
 
   -- TODO: prove that right adjoints preserve limits
