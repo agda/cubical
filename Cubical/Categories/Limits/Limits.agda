@@ -251,9 +251,9 @@ module _ {ℓJ ℓJ' ℓC1 ℓC1' ℓC2 ℓC2' : Level}
   coneOutCommutes (F-cone ccx) e =
     sym (F-seq F (coneOut ccx _) _) ∙ cong (F .F-hom) (coneOutCommutes ccx e)
 
-  preservesLimit : Type _
-  preservesLimit = ∀ {J : Category ℓJ ℓJ'} {D : Functor J C1} {L : ob C1}
+  preservesLimits : Type _
+  preservesLimits = ∀ {J : Category ℓJ ℓJ'} {D : Functor J C1} {L : ob C1}
                       (ccL : Cone D L)
-                 → isLimCone _ _ ccL → isLimCone (funcComp F D) (F .F-ob L) (F-cone ccL)
+                  → isLimCone _ _ ccL → isLimCone (funcComp F D) (F .F-ob L) (F-cone ccL)
 
   -- TODO: prove that right adjoints preserve limits
