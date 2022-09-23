@@ -42,6 +42,7 @@ open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.CommRing.Instances.IntMod
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.AbGroup.TensorProduct
+open import Cubical.Algebra.Group.MorphismProperties
 
 open AbGroupStr renaming (_+_ to _+Gr_ ; -_ to -Gr_)
 
@@ -319,6 +320,16 @@ module _ {G' : AbGroup ℓ} where
      doubleCompPath-filler
        (sym (EM→ΩEM+1-0ₖ n)) (cong (EM→ΩEM+1 n) p) (EM→ΩEM+1-0ₖ n)
 
+
+   cong-cong-ₖ^[_·_]₂ : (n m k : ℕ)
+       (p : isEvenT n ⊎ isOddT n)
+       (q : isEvenT m ⊎ isOddT m)
+      → (x : Path (EM G' (2 +ℕ k)) (0ₖ (2 +ℕ k)) (0ₖ (2 +ℕ k)))
+      → cong (cong (-ₖ^[ n · m ] (suc (suc (suc k))) p q)) (wrap (suc (suc k)) x)
+      ≡ wrap (suc (suc k)) (cong (-ₖ^[ n · m ] (suc (suc k)) p q) x)
+   cong-cong-ₖ^[ n · m ]₂ k p q x = {!!}
+
+
 module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
    private
      G = fst G'
@@ -424,9 +435,67 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
      cong-cong-commF : (n : ℕ) (p : fst (Ω (EM∙ (H' ⨂ G') (suc (suc n)))))
        → cong (cong (commF (suc (suc (suc n))))) (wrap (suc (suc n)) p)
        ≡ wrap (suc (suc n)) (cong (commF (suc (suc n))) p)
-     cong-cong-commF n p k i j =
-       hcomp {!!}
-             {!!}
+     cong-cong-commF n p =
+       TR.rec (hLevelEM _ (suc (suc (suc n))) _ _ _ _ _ _)
+         (uncurry (λ x q k i j
+           → hcomp (λ r → λ {(i = i0) → commF (suc (suc (suc n)))
+                                     (EM→ΩEM+1-0ₖ (suc (suc n)) (r ∨ k) j)
+                      ; (i = i1) → commF (suc (suc (suc n)))
+                                     (EM→ΩEM+1-0ₖ (suc (suc n)) (r ∨ k) j)
+                      ; (j = i0) → 0ₖ (3 +ℕ n)
+                      ; (j = i1) → 0ₖ (3 +ℕ n)
+                      ; (k = i0) → commF (suc (suc (suc n))) (pp-wrap (2 +ℕ n) (q r) r i j)
+                      ; (k = i1) → wrap (suc (suc n)) (cong (commF (suc (suc n))) (q r)) i j})
+                    (hcomp (λ r → λ {(i = i0) → commF (suc (suc (suc n)))
+                                      ∣ rCancel-filler (merid north) r k j ∣ₕ
+                      ; (i = i1) → commF (suc (suc (suc n)))
+                                      ∣ rCancel-filler (merid north) r k j ∣ₕ
+                      ; (j = i0) → 0ₖ (3 +ℕ n)
+                      ; (j = i1) → ∣ merid north (~ r ∧ ~ k) ∣ₕ
+                      ; (k = i0) → commF (suc (suc (suc n)))
+                                    ∣ compPath-filler (merid (x i)) (sym (merid north)) r j ∣ₕ
+                      ; (k = i1) → wrap (suc (suc n)) (cong (commF (suc (suc n))) (cong ∣_∣ₕ x)) i j})
+                      (hcomp (λ r → λ {
+                         (i = i0) → ∣ rCancel-filler (merid north) (~ r) k j ∣ₕ
+                       ; (i = i1) → ∣ rCancel-filler (merid north) (~ r) k j ∣ₕ
+                       ; (j = i0) → 0ₖ (3 +ℕ n)
+                       ; (j = i1) → ∣ merid north (r ∧ ~ k) ∣ₕ
+                       ; (k = i0) → ∣ compPath-filler
+                                      (merid (inducedFun-EM-raw (GroupEquiv→GroupHom ⨂-comm)
+                                        (suc (suc n)) (x i))) (sym (merid north)) (~ r) j ∣ₕ
+                       ; (k = i1) → wrap (suc (suc n))
+                                     (cong (commF (suc (suc n))) (cong ∣_∣ₕ x)) i j})
+                       (pp-wrap (suc (suc n))
+                                     (cong (commF (suc (suc n))) (cong ∣_∣ₕ x)) k i j)))))
+         (asd n p)
+           where
+           asd : (n : ℕ) (p : fst (Ω (EM∙ (H' ⨂ G') (suc (suc n)))))
+             → hLevelTrunc (2 +ℕ n)
+              (Σ[ x ∈ north ≡ north ] cong ∣_∣ₕ x ≡ p)
+           asd n p = TR.map (λ {(x , p) → (fst (asd4 n x)) , (sym (snd (asd4 n x)) ∙ p)})
+                            (asd2 n p (asd3 n p))
+             where
+             asd3 : (n : ℕ) (p : fst (Ω (EM∙ (H' ⨂ G') (suc (suc n)))))
+                  → Σ[ x ∈ EM (H' ⨂ G') (suc n) ] EM→ΩEM+1 (suc n) x ≡ p
+             asd3 n p = _ , Iso.rightInv (Iso-EM-ΩEM+1 (suc n)) p
+   
+             asd2 : (n : ℕ) (p : fst (Ω (EM∙ (H' ⨂ G') (suc (suc n)))))
+                   → Σ[ x ∈ EM (H' ⨂ G') (suc n) ] EM→ΩEM+1 (suc n) x ≡ p
+                   → hLevelTrunc (2 +ℕ n) (Σ[ x ∈ EM-raw' (H' ⨂ G') (suc n) ]
+                       EM→ΩEM+1 (suc n) (EM-raw'→EM _ _ x) ≡ p)
+             asd2 n p =
+               uncurry (EM-raw'-elim _ _
+                 (λ _ → isOfHLevelΠ (2 +ℕ n)
+                  λ _ → (isOfHLevelTrunc (2 +ℕ n)))
+                 λ x → J (λ p _ → hLevelTrunc (2 +ℕ n) (Σ[ x ∈ EM-raw' (H' ⨂ G') (suc n) ]
+                       EM→ΩEM+1 (suc n) (EM-raw'→EM _ _ x) ≡ p))
+                   ∣ x , refl ∣)
+
+             asd4 : (n : ℕ)
+                     (x : EM-raw' (H' ⨂ G') (suc n))
+                  → Σ[ r ∈ north ≡ north ] EM→ΩEM+1 (suc n) (EM-raw'→EM _ _ x) ≡ cong ∣_∣ₕ r
+             asd4 zero x = _ , refl
+             asd4 (suc n) x = _ , refl
 
      cp*∙∙ : (n m : ℕ) (p : isEvenT n ⊎ isOddT n) (q : isEvenT m ⊎ isOddT m)
        → EM∙ G' n →∙ (EM∙ H' m →∙ EM∙ (G' ⨂ H') (n +' m) ∙)
@@ -865,13 +934,15 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
           l2 = {!!}
 
           Q = (cong (Fₗ p (evenOrOdd (suc m)))
-                                 (EM→ΩEM+1 (suc n +' suc m)
-                                  (_⌣ₖ_ {n = suc n} {m = suc m}
-                                   (EM-raw→EM G' (suc n) b)
-                                   (EM-raw→EM H' (suc m) a))))
+                 (EM→ΩEM+1 (suc n +' suc m)
+                  (_⌣ₖ_ {n = suc n} {m = suc m}
+                   (EM-raw→EM G' (suc n) b)
+                   (EM-raw→EM H' (suc m) a))))
 
           ℕP1 : suc (suc (m +ℕ suc n)) ≡ suc (suc (n +ℕ suc m))
           ℕP1 = cong (2 +ℕ_) (+-comm m (suc n) ∙ sym (+-suc n m))
+
+          p3 = transport (λ i → fst (Ω (EM∙ (H' ⨂ G') (ℕpath i)))) Q
 
           final : flipSquare
                     (wrap (suc (suc (n +ℕ suc m)))
@@ -883,8 +954,17 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                 ≡ cong (cong (st p q))
                        (wrap (suc m +' suc (suc n)) Q)
           final = sym (sym≡flipSquare _)
-                ∙ ({!ℕpath!}
-                ∙∙ {!cong (cong (cong (-ₖ^[ (2 +ℕ n) · (2 +ℕ m) ] (suc (suc (suc (n +ℕ suc m)))) p q)))!}
+                ∙ cong (sym ∘ wrap (suc (suc (n +ℕ suc m))))
+                       ((λ _ → (cong (Fᵣ (evenOrOdd (suc n)) q)
+                                 (EM→ΩEM+1 (suc m +' suc n)
+                                  (_⌣ₖ_ {n = suc m} {m = suc n}
+                                   (EM-raw→EM H' (suc m) a)
+                                   (EM-raw→EM G' (suc n) b)))))
+                      ∙ {!!})
+                ∙ cong sym (sym (cong-cong-ₖ^[ (2 +ℕ n) · (2 +ℕ m) ]₂
+                        (n +ℕ suc m) p q (cong (commF (suc (suc (n +ℕ suc m)))) (sym p3))))
+                ∙∙ cong (cong (cong (-ₖ^[ (2 +ℕ n) · (2 +ℕ m) ] (suc (ℕpath i1)) p q)))
+                        (sym (cong-cong-commF _ p3))
                 ∙∙ λ k i j
                  → transp (λ j
                    → EM (G' ⨂ H') (suc (ℕpath (j ∨ ~ k))))
@@ -893,7 +973,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                       (commF (suc (ℕpath (~ k)))
                         (wrap (ℕpath (~ k))
                           (transp (λ i → fst (Ω (EM∙ (H' ⨂ G') (ℕpath (~ k ∧ i))))) k
-                           Q) i j))))
+                           Q) i j)))
                 {- λ k i j
                 → subst (EM (G' ⨂ H'))
                     (isSetℕ _ _ (cong suc {!ℕP1!})
