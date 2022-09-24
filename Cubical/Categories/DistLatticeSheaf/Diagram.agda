@@ -13,11 +13,11 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order hiding (_<_)
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
-open import Cubical.Data.FinData.Order
+open import Cubical.Data.FinData.Order renaming (_<'Fin_ to _<_)
 open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
@@ -38,95 +38,96 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
-data DLShfDiagOb (n : ℕ) : Type where
-  sing : Fin n → DLShfDiagOb n
-  pair : (i j : Fin n) → i <'Fin j → DLShfDiagOb n
+module _ {ℓ : Level} where
+  data DLShfDiagOb (n : ℕ) : Type ℓ where
+    sing : Fin n → DLShfDiagOb n
+    pair : (i j : Fin n) → i < j → DLShfDiagOb n
 
-data DLShfDiagHom (n : ℕ) : DLShfDiagOb n → DLShfDiagOb n → Type where
-  idAr : {x : DLShfDiagOb n} → DLShfDiagHom n x x
-  singPairL : {i j : Fin n} {i<j : i <'Fin j}  → DLShfDiagHom n (sing i) (pair i j i<j)
-  singPairR : {i j : Fin n} {i<j : i <'Fin j}→ DLShfDiagHom n (sing j) (pair i j i<j)
+  data DLShfDiagHom (n : ℕ) : DLShfDiagOb n → DLShfDiagOb n → Type ℓ where
+    idAr : {x : DLShfDiagOb n} → DLShfDiagHom n x x
+    singPairL : {i j : Fin n} {i<j : i < j}  → DLShfDiagHom n (sing i) (pair i j i<j)
+    singPairR : {i j : Fin n} {i<j : i < j}→ DLShfDiagHom n (sing j) (pair i j i<j)
 
 
-module DLShfDiagHomPath where
-  variable
-   n : ℕ
+  module DLShfDiagHomPath where
+    variable
+     n : ℕ
 
-  -- DLShfDiagHom n x y is a retract of Code x y
-  Code : (x y : DLShfDiagOb n) → Type
-  Code (sing i) (sing j) = i ≡ j
-  Code (sing i) (pair j k j<k) =
-      (Σ[ p ∈ (i ≡ j) ] Σ[ i<k ∈ i <'Fin k ] PathP (λ ι → p ι <'Fin k) i<k j<k)
-    ⊎ (Σ[ p ∈ (i ≡ k) ] Σ[ j<i ∈ j <'Fin i ] PathP (λ ι → j <'Fin p ι) j<i j<k)
-  Code (pair i j i<j) (sing k) = ⊥
-  Code (pair i j i<j) (pair k l k<l) =
-    Σ[ p ∈ (i ≡ k) × (j ≡ l) ] PathP (λ ι → fst p ι <'Fin snd p ι) i<j k<l
+    -- DLShfDiagHom n x y is a retract of Code x y
+    Code : (x y : DLShfDiagOb n) → Type
+    Code (sing i) (sing j) = i ≡ j
+    Code (sing i) (pair j k j<k) =
+        (Σ[ p ∈ (i ≡ j) ] Σ[ i<k ∈ i < k ] PathP (λ ι → p ι < k) i<k j<k)
+      ⊎ (Σ[ p ∈ (i ≡ k) ] Σ[ j<i ∈ j < i ] PathP (λ ι → j < p ι) j<i j<k)
+    Code (pair i j i<j) (sing k) = ⊥
+    Code (pair i j i<j) (pair k l k<l) =
+      Σ[ p ∈ (i ≡ k) × (j ≡ l) ] PathP (λ ι → fst p ι < snd p ι) i<j k<l
 
-  isSetCode : ∀ (x y : DLShfDiagOb n) → isSet (Code x y)
-  isSetCode (sing _) (sing _) = isProp→isSet (isSetFin _ _)
-  isSetCode (sing i) (pair j k j<k) =
-    isSet⊎
-      (isSetΣ (isProp→isSet (isSetFin _ _))
-        λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued _ _))
-        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _)
-      (isSetΣ (isProp→isSet (isSetFin _ _))
-        λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued _ _))
-        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _)
-  isSetCode (pair _ _ _) (sing _) = isProp→isSet isProp⊥
-  isSetCode (pair _ _ _) (pair _ _ _) =
-    isSetΣ
-      (isSet× (isProp→isSet (isSetFin _ _)) (isProp→isSet (isSetFin _ _)))
-        λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _
+    isSetCode : ∀ (x y : DLShfDiagOb n) → isSet (Code x y)
+    isSetCode (sing _) (sing _) = isProp→isSet (isSetFin _ _)
+    isSetCode (sing i) (pair j k j<k) =
+      isSet⊎
+        (isSetΣ (isProp→isSet (isSetFin _ _))
+          λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued _ _))
+          λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _)
+        (isSetΣ (isProp→isSet (isSetFin _ _))
+          λ _ → isSetΣ (isProp→isSet (≤'FinIsPropValued _ _))
+          λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _)
+    isSetCode (pair _ _ _) (sing _) = isProp→isSet isProp⊥
+    isSetCode (pair _ _ _) (pair _ _ _) =
+      isSetΣ
+        (isSet× (isProp→isSet (isSetFin _ _)) (isProp→isSet (isSetFin _ _)))
+          λ _ → isOfHLevelPathP 2 (isProp→isSet (≤'FinIsPropValued _ _)) _ _
 
-  encode : (x y : DLShfDiagOb n) → DLShfDiagHom n x y → Code x y
-  encode (sing i) (sing .i) idAr = refl
-  encode (sing i) (pair .i j i<j) singPairL = inl (refl , i<j , refl)
-  encode (sing j) (pair i .j i<j) singPairR = inr (refl , i<j , refl)
-  encode (pair i j i<j) (pair .i .j .i<j) idAr = (refl , refl) , refl
+    encode : (x y : DLShfDiagOb n) → DLShfDiagHom n x y → Code x y
+    encode (sing i) (sing .i) idAr = refl
+    encode (sing i) (pair .i j i<j) singPairL = inl (refl , i<j , refl)
+    encode (sing j) (pair i .j i<j) singPairR = inr (refl , i<j , refl)
+    encode (pair i j i<j) (pair .i .j .i<j) idAr = (refl , refl) , refl
 
-  decode : (x y : DLShfDiagOb n) → Code x y → DLShfDiagHom n x y
-  decode (sing i) (sing j) p = subst (λ k → DLShfDiagHom _ (sing i) (sing k)) p idAr
-  decode (sing i) (pair j k j<k) (inl (p , i<k , q)) =
-    transport (λ ι → DLShfDiagHom _ (sing i) (pair (p ι) k (q ι))) singPairL
-  decode (sing i) (pair k j k<j) (inr (p , k<i , q)) =
-    transport (λ ι → DLShfDiagHom _ (sing i) (pair k (p ι) (q ι))) singPairR
-  decode (pair i j i<j) (pair k l k<l) (_ , p) =
-    transport (λ ι → DLShfDiagHom _ (pair _ _ i<j) (pair _ _ (p ι))) idAr
+    decode : (x y : DLShfDiagOb n) → Code x y → DLShfDiagHom n x y
+    decode (sing i) (sing j) p = subst (λ k → DLShfDiagHom _ (sing i) (sing k)) p idAr
+    decode (sing i) (pair j k j<k) (inl (p , i<k , q)) =
+      transport (λ ι → DLShfDiagHom _ (sing i) (pair (p ι) k (q ι))) singPairL
+    decode (sing i) (pair k j k<j) (inr (p , k<i , q)) =
+      transport (λ ι → DLShfDiagHom _ (sing i) (pair k (p ι) (q ι))) singPairR
+    decode (pair i j i<j) (pair k l k<l) (_ , p) =
+      transport (λ ι → DLShfDiagHom _ (pair _ _ i<j) (pair _ _ (p ι))) idAr
 
-  codeRetract : ∀ (x y : DLShfDiagOb n) (f : DLShfDiagHom n x y)
-              → decode x y (encode x y f) ≡ f
-  codeRetract (sing i) (sing .i) idAr = transportRefl idAr
-  codeRetract (sing i) (pair .i k i<k) singPairL = transportRefl singPairL
-  codeRetract (sing i) (pair j .i j<i) singPairR = transportRefl singPairR
-  codeRetract (pair i j i<j) (pair .i .j .i<j) idAr = transportRefl idAr
+    codeRetract : ∀ (x y : DLShfDiagOb n) (f : DLShfDiagHom n x y)
+                → decode x y (encode x y f) ≡ f
+    codeRetract (sing i) (sing .i) idAr = transportRefl idAr
+    codeRetract (sing i) (pair .i k i<k) singPairL = transportRefl singPairL
+    codeRetract (sing i) (pair j .i j<i) singPairR = transportRefl singPairR
+    codeRetract (pair i j i<j) (pair .i .j .i<j) idAr = transportRefl idAr
 
-  isSetDLShfDiagHom : ∀ (x y : DLShfDiagOb n) → isSet (DLShfDiagHom n x y)
-  isSetDLShfDiagHom x y = isSetRetract (encode x y) (decode x y)
-                                         (codeRetract x y) (isSetCode x y)
+    isSetDLShfDiagHom : ∀ (x y : DLShfDiagOb n) → isSet (DLShfDiagHom n x y)
+    isSetDLShfDiagHom x y = isSetRetract (encode x y) (decode x y)
+                                           (codeRetract x y) (isSetCode x y)
 
 
 
 open Category
-DLShfDiag : ℕ → Category ℓ-zero ℓ-zero
-ob (DLShfDiag n) = DLShfDiagOb n
-Hom[_,_] (DLShfDiag n) = DLShfDiagHom n
-id (DLShfDiag n) = idAr
-_⋆_ (DLShfDiag n) idAr f = f
-_⋆_ (DLShfDiag n) singPairL idAr = singPairL
-_⋆_ (DLShfDiag n) singPairR idAr = singPairR
-⋆IdL (DLShfDiag n) _ = refl
-⋆IdR (DLShfDiag n) idAr = refl
-⋆IdR (DLShfDiag n) singPairL = refl
-⋆IdR (DLShfDiag n) singPairR = refl
-⋆Assoc (DLShfDiag n) idAr _ _ = refl
-⋆Assoc (DLShfDiag n) singPairL idAr _ = refl
-⋆Assoc (DLShfDiag n) singPairR idAr _ = refl
-isSetHom (DLShfDiag n) = let open DLShfDiagHomPath in (isSetDLShfDiagHom _ _)
+DLShfDiag : ℕ → (ℓ : Level) → Category ℓ ℓ
+ob (DLShfDiag n ℓ) = DLShfDiagOb n
+Hom[_,_] (DLShfDiag n ℓ) = DLShfDiagHom n
+id (DLShfDiag n ℓ) = idAr
+_⋆_ (DLShfDiag n ℓ) idAr f = f
+_⋆_ (DLShfDiag n ℓ) singPairL idAr = singPairL
+_⋆_ (DLShfDiag n ℓ) singPairR idAr = singPairR
+⋆IdL (DLShfDiag n ℓ) _ = refl
+⋆IdR (DLShfDiag n ℓ) idAr = refl
+⋆IdR (DLShfDiag n ℓ) singPairL = refl
+⋆IdR (DLShfDiag n ℓ) singPairR = refl
+⋆Assoc (DLShfDiag n ℓ) idAr _ _ = refl
+⋆Assoc (DLShfDiag n ℓ) singPairL idAr _ = refl
+⋆Assoc (DLShfDiag n ℓ) singPairR idAr _ = refl
+isSetHom (DLShfDiag n ℓ) = let open DLShfDiagHomPath in (isSetDLShfDiagHom _ _)
 
 
 -- a lemma for eliminating pair cases
 -- when checking that somthing is a cone morphism
-module _ {C : Category ℓ ℓ'} {n : ℕ} {F : Functor (DLShfDiag n) C} where
+module _ {C : Category ℓ ℓ'} {n : ℕ} {F : Functor (DLShfDiag n ℓ'') C} where
   open Category
   open Functor F
   open Cone
@@ -168,7 +169,7 @@ module _ (L' : DistLattice ℓ) where
  open Cone
 
 
- FinVec→Diag : {n : ℕ} → FinVec L n → Functor (DLShfDiag n) LCat
+ FinVec→Diag : {n : ℕ} → FinVec L n → Functor (DLShfDiag n ℓ) LCat
  F-ob (FinVec→Diag α) (sing i) = α i
  F-ob (FinVec→Diag α) (pair i j _) = α j ∧l α i
  F-hom (FinVec→Diag α) idAr = is-refl _
@@ -189,7 +190,8 @@ module _ (L' : DistLattice ℓ) where
                                            (is-prop-valued _ _ _ _)
 
 
-module PullbacksAsDLShfDiags (C : Category ℓ ℓ')
+module PullbacksAsDLShfDiags {ℓ'' : Level}
+                             (C : Category ℓ ℓ')
                              (cspan : Cospan C)
                              (pback : Pullback C cspan) where
 
@@ -201,7 +203,7 @@ module PullbacksAsDLShfDiags (C : Category ℓ ℓ')
   _ = cspan
   _ = pback
 
- cospanAsDiag : Functor (DLShfDiag 2) C
+ cospanAsDiag : Functor (DLShfDiag 2 ℓ'') C
  F-ob cospanAsDiag (sing zero) = l
  F-ob cospanAsDiag (sing one) = r
  F-ob cospanAsDiag (pair _ _ _) = m
@@ -279,7 +281,7 @@ module PullbacksAsDLShfDiags (C : Category ℓ ℓ')
 
 
 module DLShfDiagsAsPullbacks (C : Category ℓ ℓ')
-                             (F : Functor (DLShfDiag 2) C)
+                             (F : Functor (DLShfDiag 2 ℓ'') C)
                              (limF : LimCone F) where
 
 

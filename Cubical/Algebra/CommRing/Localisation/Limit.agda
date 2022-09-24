@@ -537,7 +537,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  open Cone
  open Functor
 
- locDiagram : Functor (DLShfDiag (suc n)) CommRingsCategory
+ locDiagram : Functor (DLShfDiag (suc n) ℓ) CommRingsCategory
  F-ob locDiagram (sing i) = R[1/ f i ]AsCommRing
  F-ob locDiagram (pair i j _) = R[1/ f i · f j ]AsCommRing
  F-hom locDiagram idAr = idCommRingHom _
