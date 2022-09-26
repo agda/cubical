@@ -868,6 +868,16 @@ inducedFun-EM-pres+ₖ {G' = G'} {H' = H'} ϕ (suc n) =
   l≡r zero = refl
   l≡r (suc n) = refl
 
+inducedFun-EM-pres-ₖ : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
+     (ϕ : AbGroupHom G' H') (n : ℕ) (x : EM G' n)
+  → inducedFun-EM ϕ n (-ₖ x) ≡ -ₖ (inducedFun-EM ϕ n x)
+inducedFun-EM-pres-ₖ ϕ n =
+  morphLemmas.distrMinus _+ₖ_ _+ₖ_
+    (inducedFun-EM ϕ n) (inducedFun-EM-pres+ₖ ϕ n) (0ₖ n) (0ₖ n) (-ₖ_) (-ₖ_)
+    (lUnitₖ n) (rUnitₖ n)
+    (lCancelₖ n) (rCancelₖ n)
+    (assocₖ n) (inducedFun-EM0ₖ n)
+
 EMFun-EM→ΩEM+1 : {G : AbGroup ℓ} {H : AbGroup ℓ'}
     {ϕ : AbGroupHom G H} (n : ℕ) (x : EM G n)
   → PathP (λ i → inducedFun-EM0ₖ {ϕ = ϕ} (suc n) (~ i)

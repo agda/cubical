@@ -49,13 +49,14 @@ open AbGroupStr renaming (_+_ to _+Gr_ ; -_ to -Gr_)
 ℕ-elim2 : ∀ {ℓ} {A : ℕ → ℕ → Type ℓ}
   → ((n : ℕ) → A zero n)
   → ((n : ℕ) → A (suc n) zero)
-  → ((n m : ℕ) → A (suc n) m × A n (suc m) → A (suc n) (suc m))
+  → ((n m : ℕ) → A (suc n) m × A n (suc m) × A n m → A (suc n) (suc m))
   → (n m : ℕ) → A n m
 ℕ-elim2 l r ind zero m = l m
 ℕ-elim2 l r ind (suc n) zero = r n
 ℕ-elim2 {A = A} l r ind (suc n) (suc m) =
   ind n m ((ℕ-elim2 {A = A} l r ind (suc n) m)
-          , ℕ-elim2 {A = A} l r ind n (suc m))
+          , ℕ-elim2 {A = A} l r ind n (suc m)
+          , ℕ-elim2 {A = A} l r ind n m)
 
 cong-subst' : ∀ {ℓ} (n m : ℕ) (q' : n ≡ m) (q : suc n ≡ suc m)
       (A : ℕ → Pointed ℓ)
@@ -320,7 +321,6 @@ module _ {G' : AbGroup ℓ} where
      doubleCompPath-filler
        (sym (EM→ΩEM+1-0ₖ n)) (cong (EM→ΩEM+1 n) p) (EM→ΩEM+1-0ₖ n)
 
-
    cong-cong-ₖ^[_·_]₂ : (n m k : ℕ)
        (p : isEvenT n ⊎ isOddT n)
        (q : isEvenT m ⊎ isOddT m)
@@ -431,6 +431,46 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
 
      commF : (n : ℕ) → EM (H' ⨂ G') n → EM (G' ⨂ H') n
      commF n = Iso.fun (Iso→EMIso ⨂-comm _)
+
+     commF' : (n : ℕ) → EM (H' ⨂ G') n → EM (G' ⨂ H') n
+     commF' = λ n → Iso.inv (Iso→EMIso ⨂-comm _)
+
+     commF≡commF' : (n : ℕ) → (x : _) → commF n x ≡ commF' n x
+     commF≡commF' n =
+       funExt⁻ (cong (λ F → inducedFun-EM F n) h)
+       where
+       h : Path (AbGroupHom (H' ⨂ G') (G' ⨂ H'))
+                (GroupEquiv→GroupHom ⨂-comm)
+                (GroupEquiv→GroupHom (invGroupEquiv ⨂-comm))
+       h = Σ≡Prop (λ _ → isPropIsGroupHom _ _) refl
+
+     -ₖ^[_·_]-Induced : ∀ {ℓ ℓ'} {G : AbGroup ℓ} {H : AbGroup ℓ'}
+       (n m k : ℕ) (p : isEvenT n ⊎ isOddT n) (q : isEvenT m ⊎ isOddT m)
+       (ϕ : AbGroupHom G H) (x : EM G k)
+       → inducedFun-EM ϕ k (-ₖ^[ n · m ] k p q x)
+        ≡ -ₖ^[ n · m ] k p q (inducedFun-EM ϕ k x)
+     -ₖ^[ n · m ]-Induced k (inl x₁) q ϕ x =
+       cong (inducedFun-EM ϕ k) (-ₖ^[ n · m ]-inl-left k x₁ q x)
+       ∙ sym (-ₖ^[ n · m ]-inl-left k x₁ q _)
+     -ₖ^[ n · m ]-Induced k (inr x₁) (inl x₂) ϕ x =
+       cong (inducedFun-EM ϕ k) (-ₖ^[ n · m ]-inl-right k (inr x₁) x₂ x)
+       ∙ sym (-ₖ^[ n · m ]-inl-right k (inr x₁) x₂ _)
+     -ₖ^[ n · m ]-Induced k (inr x₁) (inr x₂) ϕ x =
+         cong (inducedFun-EM ϕ k) (-ₖ^[ n · m ]-inr k x₁ x₂ x)
+       ∙ inducedFun-EM-pres-ₖ ϕ k x
+       ∙ sym (-ₖ^[ n · m ]-inr k x₁ x₂ _)
+     
+
+{-
+cong-ₖ^[_·_]₂ : (n m k : ℕ)
+       (p : isEvenT n ⊎ isOddT n)
+       (q : isEvenT m ⊎ isOddT m)
+      → (x : EM G' (suc k))
+-}
+
+     cong-commF : (n : ℕ) (x : _)
+       → cong (commF (suc (suc n))) (EM→ΩEM+1 (suc n) x) ≡ EM→ΩEM+1 (suc n) (commF (suc n) x)
+     cong-commF n x = sym (EMFun-EM→ΩEM+1 (suc n) x)
 
      cong-cong-commF : (n : ℕ) (p : fst (Ω (EM∙ (H' ⨂ G') (suc (suc n)))))
        → cong (cong (commF (suc (suc (suc n))))) (wrap (suc (suc n)) p)
@@ -795,7 +835,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
      ℕ-elim2
        {!!}
        {!!}
-       λ n m ind p q → cpInd _ _ _ _ {!!} -- (main n m (ind .fst) (ind .snd) p q)
+       λ n m ind p q → cpInd _ _ _ _ {!ind .snd .snd!} -- (main n m (ind .fst) (ind .snd) p q)
        where
        module _ (n m : ℕ)
          (indₗ : ((p₁ : isEvenT (suc (suc n)) ⊎ isOddT (suc (suc n)))
@@ -804,6 +844,9 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
          (indᵣ : ((p₁ : isEvenT (suc n) ⊎ isOddT (suc n))
                   (q₁ : isEvenT (suc (suc m)) ⊎ isOddT (suc (suc m)))
               → cp∙∙ (suc n) (suc (suc m)) ≡ cp*∙∙ (suc n) (suc (suc m)) p₁ q₁))
+         (indₘ : (p₁ : isEvenT (suc n) ⊎ isOddT (suc n))
+                 (q₁ : isEvenT (suc m) ⊎ isOddT (suc m)) →
+                 cp∙∙ (suc n) (suc m) ≡ cp*∙∙ (suc n) (suc m) p₁ q₁)
          where
          Fᵣ : (p : _) (q : _) → EM (H' ⨂ G') (suc (suc m) +' suc n) → EM (G' ⨂ H') (2 +ℕ (n +ℕ suc m))
          Fᵣ p q x = subst (EM (G' ⨂ H')) (cong (2 +ℕ_) (+-comm (suc m) n))
@@ -831,10 +874,9 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
            → _⌣ₖ_ {n = suc m} {m = suc (suc n)} y x
            ≡ Fₗ p q (_⌣ₖ_ {n = suc (suc n)} {m = (suc m)} x y)
          betterₗ p q x y =
-           {!_⌣ₖ_ {n = suc (suc n)} {m = (suc m)} x y
-           ≡ subst (EM (G' ⨂ H')) (cong (2 +ℕ_) (+-comm m (suc n)))
-              (-ₖ^[ suc (suc n) · suc m ] (suc m +' (suc (suc n))) p q
-              (commF (suc m +' suc (suc n)) (_⌣ₖ_ {n = suc m} {m = suc (suc n)} y x)))!}
+           (({!!}
+           ∙ cong (Fₗ p q) {!λ i → subst (EM (G' ⨂ H')) (isSetℕ _ _ (sym (+-comm m (suc n))) (+'-comm (suc m) (suc (suc n))) i) ?!})
+           ∙ sym (cong (Fₗ p q) (λ i → indₗ p q i .fst x .fst y)))
          {-
               (λ i → indₗ p q i .fst x .fst y)
              ∙ λ i → subst (EM (G' ⨂ H'))
@@ -854,7 +896,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
          st : (p : isEvenT (suc (suc n)) ⊎ isOddT (suc (suc n)))
               (q : isEvenT (suc (suc m)) ⊎ isOddT (suc (suc m)))
            → EM (H' ⨂ G') ((2 +ℕ m) +' (2 +ℕ n)) → EM (G' ⨂ H') ((2 +ℕ n) +' (2 +ℕ m))
-         st p q x = subst (EM (G' ⨂ H')) (cong suc ℕpath) -- (+'-comm (2 +ℕ m) (2 +ℕ n))
+         st p q x = subst (EM (G' ⨂ H')) (cong suc ℕpath)
                    (-ₖ^[ (2 +ℕ n) · (2 +ℕ m) ] ((2 +ℕ m) +' (2 +ℕ n)) p q
                     (commF ((2 +ℕ m) +' (2 +ℕ n)) x ))
 
@@ -866,12 +908,6 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                     ≡ st p q (
                      _⌣ₖ_ {n = suc (suc m)} {m = suc (suc n)}
                       (EM-raw'→EM H' (suc (suc m)) y) (EM-raw'→EM G' (suc (suc n)) x))
-                    {-
-                    cp*∙∙ (suc (suc n)) (suc (suc m)) p q .fst
-                    (EM-raw'→EM G' (suc (suc n)) x) .fst
-                    (EM-raw'→EM H' (suc (suc m)) y)
-                    
-                    -}
          main p q north north = refl
          main p q south north = refl
          main p q (merid a i) north k =
@@ -927,7 +963,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                                   (_⌣ₖ_ {n = suc n} {m = suc m}
                                    (EM-raw→EM G' (suc n) b)
                                    (EM-raw→EM H' (suc m) a)))) (~ r) i j)})
-                (final k i j))
+                {!!}) -- (final k i j))
           where
           l2 : cong (cong (st p q)) (EM→ΩEM+1-0ₖ (suc (suc (m +ℕ suc n))))
               ≡ {!!}
@@ -938,11 +974,156 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                   (_⌣ₖ_ {n = suc n} {m = suc m}
                    (EM-raw→EM G' (suc n) b)
                    (EM-raw→EM H' (suc m) a))))
+{-
+           Iso.inv (Iso→EMIso ⨂-comm _)
+              (-ₖ^[ suc (suc n) · suc m ] _ p q
+               (subst (EM (G' ⨂ H')) (cong (2 +ℕ_) (sym (+-comm m (suc n)))) x))
+
+-}
+
+          cong-transpLem : (x : _)
+            → cong (subst (EM (G' ⨂ H')) (cong (2 +ℕ_) (sym (+-comm m (suc n)))))
+                (EM→ΩEM+1 (suc n +' suc m) x)
+              ≡ EM→ΩEM+1 (suc (m +ℕ suc n))
+                 (subst (EM (G' ⨂ H')) (cong suc (sym (+-comm m (suc n))))
+                   x)
+          cong-transpLem x j i =
+            transp (λ i → EM (G' ⨂ H') (2 +ℕ (+-comm m (suc n) (~ i ∧ ~ j)))) j
+              (EM→ΩEM+1 (suc (+-comm m (suc n) (~ j)))
+                (transp (λ i → EM (G' ⨂ H') (suc (+-comm m (suc n) (~ i ∨ ~ j)))) (~ j) x) i)
+
+          Q'' : (x : EM (H' ⨂ G') (suc m +' suc n))
+                (p : isEvenT (2 +ℕ n) ⊎ isOddT (2 +ℕ n))
+                (q : (isEvenT (suc m) ⊎ isOddT (suc m)))
+                (p' : _) → EM (H' ⨂ G') (suc (m +ℕ suc n))
+          Q'' x p q p' =
+            Iso.inv (Iso→EMIso ⨂-comm _)
+              (-ₖ^[ suc (suc n) · suc m ] (suc (m +ℕ suc n)) p q
+                (subst (EM (G' ⨂ H')) (cong suc (sym (+-comm m (suc n))))
+                  (subst (EM (G' ⨂ H')) (+'-comm (suc m) (suc n))
+                    (-ₖ^[ suc n · suc m ] (suc m +' suc n) p' q
+                      ((commF (suc m +' suc n) x))))))
+
+          Q''' : (x : EM (H' ⨂ G') (suc m +' suc n))
+                (p : isEvenT (2 +ℕ n) ⊎ isOddT (2 +ℕ n))
+                (q : (isEvenT (suc m) ⊎ isOddT (suc m)))
+                (p' : _) → EM (H' ⨂ G') (suc (m +ℕ suc n))
+          Q''' x p q p' =
+            subst (EM (H' ⨂ G')) (cong suc (sym (+-suc m n)))
+              (-ₖ^[ suc (suc n) · suc m ] (suc m +' suc n) p q
+                (-ₖ^[ suc n · suc m ] (suc m +' suc n) p' q
+                  x))
+
+          Q'-param : (x : EM (G' ⨂ H') (suc n +' suc m))
+                (p : isEvenT (2 +ℕ n) ⊎ isOddT (2 +ℕ n))
+                (q : (isEvenT (suc m) ⊎ isOddT (suc m)))
+                (p' : _) → EM (H' ⨂ G') (suc (m +ℕ suc n))
+          Q'-param x p q p' =
+            Iso.inv (Iso→EMIso ⨂-comm _)
+              (-ₖ^[ suc (suc n) · suc m ] (suc (m +ℕ suc n)) p q
+              (subst (EM (G' ⨂ H')) (cong suc (sym (+-comm m (suc n))))
+               x))
+
+          substℕ-lem : ∀ {ℓ} {A : ℕ → Type ℓ} (n m : ℕ) (p : n ≡ m) (l : ℕ) (q : m ≡ l) (r : n ≡ l)
+             → {x : _}
+             → subst A q (subst A p x)
+             ≡ subst A r x
+          substℕ-lem {A = A}n = J> (J> λ r {x} → transportRefl (transport refl x)
+                           ∙ λ i → subst A(isSetℕ _ _ refl r i) x)
+
+
+          Q' = (Iso.inv (Iso→EMIso ⨂-comm _)
+                            (-ₖ^[ suc (suc n) · suc m ] (suc (m +ℕ suc n)) p (evenOrOdd (suc m))
+                            (subst (EM (G' ⨂ H')) (cong suc (sym (+-comm m (suc n))))
+                              (_⌣ₖ_ {n = suc n} {m = suc m}
+                                (EM-raw→EM G' (suc n) b)
+                                (EM-raw→EM H' (suc m) a)))))
+
+          Q'≡Q'' : Q' ≡ Q''' (_⌣ₖ_ {n = suc m} {m = suc n}
+                             (EM-raw→EM H' (suc m) a) (EM-raw→EM G' (suc n) b)) p
+                             (evenOrOdd (suc m)) (evenOrOdd (suc n))
+          Q'≡Q'' = cong (Iso.inv (Iso→EMIso ⨂-comm _))
+                        (cong (-ₖ^[ suc (suc n) · suc m ] (suc (m +ℕ suc n)) p (evenOrOdd (suc m)))
+                         (cong (subst (EM (G' ⨂ H')) (cong suc (sym (+-comm m (suc n)))))
+                             (λ i → indₘ (evenOrOdd (suc n))
+                                          (evenOrOdd (suc m)) i .fst
+                                          (EM-raw→EM G' (suc n) b) .fst
+                                          (EM-raw→EM H' (suc m) a)
+                                         )
+                      ∙ substℕ-lem _ _ (+'-comm (suc m) (suc n)) _
+                                    (sym (cong suc (+-comm m (suc n))))
+                                    (cong suc (sym (+-suc m n)))
+                       ∙ cong (subst (EM (G' ⨂ H')) (cong suc (sym (+-suc m n))))
+                              (sym (-ₖ^[ suc n · suc m ]-Induced (suc m +' suc n)
+                                  (evenOrOdd (suc n)) (evenOrOdd (suc m)) (GroupEquiv→GroupHom ⨂-comm)
+                                  (_⌣ₖ_ {n = suc m} {m = suc n}
+                                  (EM-raw→EM H' (suc m) a) (EM-raw→EM G' (suc n) b))))))
+                 ∙ sym (substCommSlice (EM (G' ⨂ H')) (EM (H' ⨂ G'))
+                     (λ k x → Iso.inv (Iso→EMIso ⨂-comm k)
+                                (-ₖ^[ suc (suc n) · suc m ] k p
+                                 (evenOrOdd (suc m)) x))
+                     (cong suc (sym (+-suc m n)))
+                     _)
+                 ∙ cong (subst (EM (H' ⨂ G')) (cong suc (sym (+-suc m n))))
+                        (cong (Iso.inv (Iso→EMIso ⨂-comm _))
+                          (sym (-ₖ^[ suc (suc n) · suc m ]-Induced (suc (suc (m +ℕ n)))
+                                p (evenOrOdd (suc m)) (GroupEquiv→GroupHom ⨂-comm) _))
+                       ∙ Iso.leftInv (Iso→EMIso ⨂-comm (suc (suc (m +ℕ n)))) _)
+          cong-Fₗ-Q : Q ≡ EM→ΩEM+1 (suc (m +ℕ suc n))
+            (Q''' (_⌣ₖ_ {n = suc m} {m = suc n}
+                  (EM-raw→EM H' (suc m) a) (EM-raw→EM G' (suc n) b)) p
+                  (evenOrOdd (suc m)) (evenOrOdd (suc n)))
+          cong-Fₗ-Q = cong (cong (Iso.inv (Iso→EMIso ⨂-comm _) ∘ 
+                            (-ₖ^[ suc (suc n) · suc m ] _ p (evenOrOdd (suc m)))))
+                          (cong-transpLem (_⌣ₖ_ {n = suc n} {m = suc m}
+                             (EM-raw→EM G' (suc n) b)
+                             (EM-raw→EM H' (suc m) a)))
+                   ∙ cong (cong (Iso.inv (Iso→EMIso ⨂-comm _)))
+                          (cong-ₖ^[ suc (suc n) · suc m ]₂ _ p (evenOrOdd (suc m)) _)
+                   ∙ sym (EMFun-EM→ΩEM+1 _ _)
+                   ∙ cong (EM→ΩEM+1 (suc (m +ℕ suc n))) Q'≡Q''
+
+          Q* = Q''' (_⌣ₖ_ {n = suc m} {m = suc n}
+                             (EM-raw→EM H' (suc m) a) (EM-raw→EM G' (suc n) b)) p
+                             (evenOrOdd (suc m)) (evenOrOdd (suc n))
 
           ℕP1 : suc (suc (m +ℕ suc n)) ≡ suc (suc (n +ℕ suc m))
           ℕP1 = cong (2 +ℕ_) (+-comm m (suc n) ∙ sym (+-suc n m))
 
           p3 = transport (λ i → fst (Ω (EM∙ (H' ⨂ G') (ℕpath i)))) Q
+
+          lem₁ : cong (-ₖ^[ 2 +ℕ n · 2 +ℕ m ] (suc (suc (n +ℕ suc m))) p q)
+                  (λ i₁ → commF (suc (suc (n +ℕ suc m))) (p3 (~ i₁)))
+                 ≡ transport (λ i → fst (Ω (EM∙ (G' ⨂ H') (ℕpath i))))
+                     (cong (-ₖ^[ 2 +ℕ n · 2 +ℕ m ] (suc (suc (m +ℕ suc n))) p q)
+                       (cong (commF (suc (suc (m +ℕ suc n))))
+                        (EM→ΩEM+1 (suc (m +ℕ suc n)) (-ₖ Q*))))
+          lem₁ = (λ i → transp (λ j → fst (Ω (EM∙ (G' ⨂ H') (ℕpath (~ i ∨ j))))) (~ i)
+                               (cong (-ₖ^[ 2 +ℕ n · 2 +ℕ m ] (ℕpath (~ i)) p q)
+                                 (cong (commF (ℕpath (~ i)))
+                                  (transp (λ j → fst (Ω (EM∙ (H' ⨂ G') (ℕpath (~ i ∧ j))))) i
+                                    (sym Q)))))
+               ∙ cong (transport (λ i → fst (Ω (EM∙ (G' ⨂ H') (ℕpath i))))
+                      ∘ (cong (-ₖ^[ 2 +ℕ n · 2 +ℕ m ] (suc (suc (m +ℕ suc n))) p q)
+                      ∘ (cong (commF (suc (suc (m +ℕ suc n)))))))
+                      (cong sym cong-Fₗ-Q
+                      ∙ sym (EM→ΩEM+1-sym (suc (m +ℕ suc n)) Q*))
+               ∙ refl
+
+          lem₂ : (x : EM (H' ⨂ G') (suc m +' suc n))
+            → cong (Fᵣ (evenOrOdd (suc n)) q) (EM→ΩEM+1 (suc m +' suc n) x)
+            ≡ transport (λ i₁ → fst (Ω (EM∙ (G' ⨂ H') (ℕpath i₁))))
+               (EM→ΩEM+1 (suc (m +ℕ suc n))
+                ((-ₖ^[ suc n · suc (suc m) ] ((suc (m +ℕ suc n))) (evenOrOdd (suc n)) q
+                  (commF ((suc (m +ℕ suc n)))
+                    {!!})))) 
+          lem₂ = {!ℕpath i0!}
+
+          lem₃ : {n : ℕ} (m : ℕ) (p : n ≡ m) (x : typ (Ω (EM∙ (G' ⨂ H') _)))
+            → subst (λ n → typ (Ω (EM∙ (G' ⨂ H') n))) (cong (suc ∘ suc) p)
+                    x
+            ≡ cong (subst (EM (G' ⨂ H')) (cong (suc ∘ suc) p)) x
+          lem₃ = J> λ x → transportRefl x ∙ λ j i → transportRefl (x i) (~ j)
 
           final : flipSquare
                     (wrap (suc (suc (n +ℕ suc m)))
@@ -960,7 +1141,43 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
                                   (_⌣ₖ_ {n = suc m} {m = suc n}
                                    (EM-raw→EM H' (suc m) a)
                                    (EM-raw→EM G' (suc n) b)))))
-                      ∙ {!!})
+                      ∙ (sym (lem₃ _ (+-comm (suc m) n) (cong 
+                       (-ₖ^[ suc n · suc (suc m) ] (suc (suc m) +' (suc n)) (evenOrOdd (suc n)) q
+                         ∘ (commF (suc (suc m) +' suc n)))
+                       (EM→ΩEM+1 (suc m +' suc n)
+                                  (_⌣ₖ_ {n = suc m} {m = suc n}
+                                   (EM-raw→EM H' (suc m) a)
+                                   (EM-raw→EM G' (suc n) b)))))
+                     ∙ cong (subst (λ n → typ (Ω (EM∙ (G' ⨂ H') n)))
+                                   (cong (suc ∘ suc) (+-comm (suc m) n)))
+                            (cong (cong (-ₖ^[ suc n · suc (suc m) ] (suc (suc m) +' suc n)
+                                  (evenOrOdd (suc n)) q))
+                                  (sym (EMFun-EM→ΩEM+1 _ (_⌣ₖ_ {n = suc m} {m = suc n}
+                                     (EM-raw→EM H' (suc m) a)
+                                     (EM-raw→EM G' (suc n) b))))
+                           ∙ cong-ₖ^[ suc n · suc (suc m) ]₂ _ (evenOrOdd (suc n)) q
+                               (commF _ (_⌣ₖ_ {n = suc m} {m = suc n}
+                                     (EM-raw→EM H' (suc m) a)
+                                     (EM-raw→EM G' (suc n) b)))
+                           ∙ cong (EM→ΩEM+1 (suc (suc (m +ℕ n))))
+                                  ({!!}
+                                 ∙ {!!})))
+                      ∙ sym (substℕ-lem {A = λ n → typ (Ω (EM∙ (G' ⨂ H') n))} _ _
+                             (cong (suc ∘ suc) (sym (+-suc m n))) _ ℕpath
+                            (cong (suc ∘ suc) (+-comm (suc m) n)))
+                      ∙ cong (transport (λ i₁ → fst (Ω (EM∙ (G' ⨂ H') (ℕpath i₁)))))
+                             
+                             ((substCommSlice (EM (H' ⨂ G')) (λ n → typ (Ω (EM∙ (G' ⨂ H') (suc n))))
+                               (λ k x → EM→ΩEM+1 k (-ₖ^[ 2 +ℕ n · 2 +ℕ m ] k p q (commF k (-ₖ x))))
+                               (cong suc (sym (+-suc m n)))
+                               ((-ₖ^[ suc (suc n) · suc m ] (suc m +' suc n) p (evenOrOdd (suc m))
+                                (-ₖ^[ suc n · suc m ] (suc m +' suc n) (evenOrOdd (suc n)) (evenOrOdd (suc m))
+                                  ((_⌣ₖ_ {n = suc m} {m = suc n}
+                                 (EM-raw→EM H' (suc m) a) (EM-raw→EM G' (suc n) b)))))))
+                            ∙ sym (cong-ₖ^[ 2 +ℕ n · 2 +ℕ m ]₂ (m +ℕ suc n) p q _)
+                            ∙ cong (cong (-ₖ^[ 2 +ℕ n · 2 +ℕ m ] (suc (suc (m +ℕ suc n))) p q))
+                                (EMFun-EM→ΩEM+1 _ _))
+                      ∙ sym lem₁)
                 ∙ cong sym (sym (cong-cong-ₖ^[ (2 +ℕ n) · (2 +ℕ m) ]₂
                         (n +ℕ suc m) p q (cong (commF (suc (suc (n +ℕ suc m)))) (sym p3))))
                 ∙∙ cong (cong (cong (-ₖ^[ (2 +ℕ n) · (2 +ℕ m) ] (suc (ℕpath i1)) p q)))
