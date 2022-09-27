@@ -1328,13 +1328,4 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
      ∙ λ i → subst (EM (G' ⨂ H')) (isSetℕ _ _ refl (+'-comm zero (suc n)) i)
       (-ₖ^[ suc n · zero ] (suc n) (evenOrOdd (suc n)) (inl tt)
        (commF (suc n) (_⌣ₖ_ {n = zero} {m = suc n} y x)))
-  ⌣ₖ-comm (suc n) (suc m) x y = {!!}
-
-{-
-(n m : ℕ) (p : isEvenT n ⊎ isOddT n) (q : isEvenT m ⊎ isOddT m)
-     → EM∙ G' n →∙ (EM∙ H' m →∙ EM∙ (G' ⨂ H') (n +' m) ∙)
-   fst (fst (cp*∙∙ n m p q) x) y =
-     subst (EM (G' ⨂ H')) (+'-comm m n)
-       (-ₖ^[ n · m ] (m +' n) p q
-       (commF (m +' n) (y ⌣ₖ x)))
--}
+  ⌣ₖ-comm (suc n) (suc m) x y i = comm₂ n m (evenOrOdd (suc n)) (evenOrOdd (suc m)) i .fst x .fst y
