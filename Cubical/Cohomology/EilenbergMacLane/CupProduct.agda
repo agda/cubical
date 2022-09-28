@@ -21,6 +21,7 @@ open import Cubical.Algebra.Group.Instances.IntMod
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Transport
 
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.SetTruncation as ST
@@ -100,7 +101,6 @@ module _ {G'' : Ring ℓ} {A : Type ℓ'} where
           λ h → cong ∣_∣₂ (funExt λ x → assoc⌣ₖ n m l (f x) (g x) (h x)
             ∙ cong (transport (λ i → EM G' (+'-assoc n m l i)))
                (cong (λ x → (f x ⌣ₖ (g x ⌣ₖ h x))) (sym (transportRefl x))))
-
 
 -- Graded commutativity
 -ₕ^[_·_] : {G' : AbGroup ℓ} {A : Type ℓ'} (n m : ℕ) {k : ℕ}
@@ -182,3 +182,30 @@ comm⌣ℤ/2 {A = A} n m x y = comm⌣ {G'' = ℤ/2CommRing} n m x y
      → -ₕ^[ n · m ] (y ⌣[ ℤ/2Ring ] x) ≡ (y ⌣ x)
   lem = ST.elim2 (λ _ _ → isSetPathImplicit)
           λ _ _ → cong ∣_∣₂ (funExt λ _ → -ₖ^[ n · m ]-const _)
+
+module _ {G'' : Ring ℓ} {A : Type ℓ'} where
+  private
+    G' = Ring→AbGroup G''
+
+  ⌣-1ₕDep : (n : ℕ) (x : coHom n G' A)
+    → PathP (λ i → coHom (+'-comm zero n (~ i)) G' A) (x ⌣ 1ₕ) x
+  ⌣-1ₕDep n x = toPathP {A = λ i → coHom (+'-comm zero n (~ i)) G' A}
+                        (flipTransport (⌣-1ₕ n x))
+
+  assoc⌣Dep : (n m l : ℕ)
+       (x : coHom n G' A) (y : coHom m G' A) (z : coHom l G' A)
+    → PathP (λ i → coHom (+'-assoc n m l (~ i)) G' A) ((x ⌣ y) ⌣ z) (x ⌣ (y ⌣ z))
+  assoc⌣Dep n m l x y z = toPathP {A = λ i → coHom (+'-assoc n m l (~ i)) G' A}
+                                  (flipTransport (assoc⌣ n m l x y z))
+
+module _ {G'' : CommRing ℓ} {A : Type ℓ'} where
+  private
+    G' = CommRing→AbGroup G''
+  comm⌣Dep : (n m : ℕ)
+    → (x : coHom n G' A)
+       (y : coHom m G' A)
+    → PathP (λ i → coHom (+'-comm m n (~ i)) G' A)
+             (x ⌣ y) (-ₕ^[ n · m ] (y ⌣ x))
+  comm⌣Dep n m x y =
+    toPathP {A = λ i → coHom (+'-comm m n (~ i)) G' A}
+      (flipTransport (comm⌣ n m x y))

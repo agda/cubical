@@ -232,6 +232,10 @@ symConst-ℤ/2 = EMZ/2.symConstEM
 symConst-ℤ/2-refl : {n : ℕ} → symConst-ℤ/2 n (0ₖ n) refl ≡ refl
 symConst-ℤ/2-refl = EMZ/2.symConstEM-refl
 
++ₖ≡id-ℤ/2 : (n : ℕ) (x : EM ℤ/2 n) → x +ₖ x ≡ 0ₖ n
++ₖ≡id-ℤ/2 zero = ℤ/2-elim refl refl
++ₖ≡id-ℤ/2 (suc n) x = cong (x +ₖ_) (sym (-ₖConst-ℤ/2 n x)) ∙ rCancelₖ (suc n) x
+
 -- Commutativity of cup product with ℤ/2 coeffs
 -ₖ^[_·_]-const : (n m : ℕ) {k : ℕ} (x : EM ℤ/2 k) → -ₖ^[ n · m ] x ≡ x
 -ₖ^[_·_]-const n m x =

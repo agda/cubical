@@ -48,7 +48,7 @@ module _ {G : AbGroup ℓ} where
       → PathP (λ i → Path (EM₁ (AbGroup→Group G))
                (emloop h i) (emloop h i)) (emloop g) (emloop g)
     helper g h =
-      comm→PathP
+      compPath→Square
         ((sym (emloop-comp _ h g)
           ∙∙ cong emloop (+Comm h g)
           ∙∙ emloop-comp _ g h))
@@ -413,6 +413,11 @@ module _ {G : AbGroup ℓ} where
     sym (assocₖ n y x (-[ n ]ₖ x))
     ∙∙ cong (λ x → y +[ n ]ₖ x) (rCancelₖ n x)
     ∙∙ rUnitₖ n y
+
+-0ₖ : ∀ {ℓ} {G : AbGroup ℓ} (n : ℕ) → -[ n ]ₖ (0ₖ {G = G} n) ≡ 0ₖ n
+-0ₖ {G = G} zero = GroupTheory.inv1g (AbGroup→Group G)
+-0ₖ (suc zero) = refl
+-0ₖ (suc (suc n)) = refl
 
 -ₖ² : ∀ {ℓ} {G : AbGroup ℓ} (k : ℕ) (x : EM G k) → (-ₖ (-ₖ x)) ≡ x
 -ₖ² {G = G} zero x = GroupTheory.invInv (AbGroup→Group G) x

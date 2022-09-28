@@ -39,6 +39,15 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
     isProp→PathP (λ j → isSetHom C (h u j ⋆⟨ C ⟩ D .F-hom e) (h v j))
                  (coneOutCommutes c1 e) (coneOutCommutes c2 e) i
 
+  -- dependent version
+  conePathP : {D : Functor J C} {c c' : ob C} {c1 : Cone D c} {c2 : Cone D c'} {p : c ≡ c'}
+            → (∀ (v : ob J) → PathP (λ i → C [ p i , F-ob D v ]) (coneOut c1 v) (coneOut c2 v))
+            → PathP (λ i → Cone D (p i)) c1 c2
+  coneOut (conePathP coneOutPathP i) v = coneOutPathP v i
+  coneOutCommutes (conePathP {D} {_} {_} {c1} {c2} coneOutPathP i) {u} {v} e =
+    isProp→PathP (λ j → isSetHom C ((coneOutPathP u j) ⋆⟨ C ⟩ (D .F-hom e)) (coneOutPathP v j))
+                 (coneOutCommutes c1 e) (coneOutCommutes c2 e) i
+
   -- TODO: can we automate this a bit?
   isSetCone : (D : Functor J C) (c : ob C) → isSet (Cone D c)
   isSetCone D c = isSetRetract toConeΣ fromConeΣ (λ _ → refl)
@@ -56,6 +65,13 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
     coneOut (fromConeΣ x) = fst x
     coneOutCommutes (fromConeΣ x) = snd x
 
+  preCompCone : {c1 c2 : ob C} (f : C [ c1 , c2 ]) {D : Functor J C}
+              → Cone D c2 → Cone D c1
+  coneOut (preCompCone f cc) v = f ⋆⟨ C ⟩ coneOut cc v
+  coneOutCommutes (preCompCone f cc) e = ⋆Assoc C _ _ _ ∙ cong (λ x → f ⋆⟨ C ⟩ x) (coneOutCommutes cc e)
+
+  syntax preCompCone f cc = f ★ cc
+
   isConeMor : {c1 c2 : ob C} {D : Functor J C}
               (cc1 : Cone D c1) (cc2 : Cone D c2)
             → C [ c1 , c2 ] → Type (ℓ-max ℓJ ℓC')
@@ -66,6 +82,10 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
                   → isProp (isConeMor cc1 cc2 f)
   isPropIsConeMor cc1 cc2 f = isPropΠ (λ _ → isSetHom C _ _)
 
+  preCompConeMor : {c1 c2 : ob C} (f : C [ c1 , c2 ]) {D : Functor J C} (cc : Cone D c2)
+                 → isConeMor (f ★ cc) cc f
+  preCompConeMor f cc v = refl
+
   isLimCone : (D : Functor J C) (c0 : ob C) → Cone D c0 → Type ℓ
   isLimCone D c0 cc0 = (c : ob C) → (cc : Cone D c)
                      → ∃![ f ∈ C [ c , c0 ] ] isConeMor cc cc0 f
@@ -73,6 +93,12 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
   isPropIsLimCone : (D : Functor J C) (c0 : ob C) (cc0 : Cone D c0)
                   → isProp (isLimCone D c0 cc0)
   isPropIsLimCone D c0 cc0 = isPropΠ2 λ _ _ → isProp∃!
+
+  preCompUnique : {c1 c2 : ob C} (f : C [ c1 , c2 ]) {D : Functor J C} (cc : Cone D c2)
+                → isLimCone D c2 cc
+                → ∀ (g : C [ c1 , c2 ]) → isConeMor (f ★ cc) cc g → g ≡ f
+  preCompUnique f cc ccIsLimCone g gIsConeMor =
+     cong fst (isContr→isProp (ccIsLimCone _ (f ★ cc)) (g , gIsConeMor) (f , preCompConeMor f cc))
 
   record LimCone (D : Functor J C) : Type ℓ where
     constructor climCone

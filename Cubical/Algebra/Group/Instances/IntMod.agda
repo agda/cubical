@@ -207,5 +207,11 @@ isHomℤ→Fin n =
 ℤ/2-elim {A = A} a₀ a₁ (suc (suc x) , p) =
   ⊥.rec (snotz (cong (λ x → predℕ (predℕ x)) (+-comm (3 +ℕ x) (fst p) ∙ snd p)))
 
+ℤ/2-rec : ∀ {ℓ} {A : Type ℓ} → A → A → Fin 2 → A
+ℤ/2-rec {A = A} a₀ a₁ (zero , p) = a₀
+ℤ/2-rec {A = A} a₀ a₁ (suc zero , p) = a₁
+ℤ/2-rec {A = A} a₀ a₁ (suc (suc x) , p) =
+  ⊥.rec (snotz (cong (λ x → predℕ (predℕ x)) (+-comm (3 +ℕ x) (fst p) ∙ snd p)))
+
 -Const-ℤ/2 : (x : fst (ℤGroup/ 2)) → -ₘ x ≡ x
 -Const-ℤ/2 = ℤ/2-elim refl refl
