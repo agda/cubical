@@ -11,6 +11,8 @@ open import Cubical.Homotopy.EilenbergMacLane.Base as EM
 open import Cubical.Homotopy.EilenbergMacLane.CupProduct
 open import Cubical.Homotopy.EilenbergMacLane.CupProductTensor
   renaming (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
+open import Cubical.Homotopy.EilenbergMacLane.GradedCommTensor
+  hiding (⌣ₖ-comm)
 
 open import Cubical.Homotopy.Loopspace
 
@@ -27,6 +29,7 @@ open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; elim to ℕelim)
 open import Cubical.Data.Fin
 open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as ⊎
 
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Susp
@@ -39,6 +42,7 @@ open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.AbGroup.TensorProduct
 
 open AbGroupStr
+open PlusBis
 
 module EM2 {ℓ : Level} (G : AbGroup ℓ)
          (-Const : (x : fst G) → -_ (snd G) x ≡ x) where
@@ -218,133 +222,29 @@ private
 -ₖConst-ℤ/2 : (n : ℕ) → (x : EM ℤ/2 (suc n)) → -ₖ x ≡ x
 -ₖConst-ℤ/2 = EMZ/2.-ₖConst
 
+-ₖConst-ℤ/2-gen : (n : ℕ) → (x : EM ℤ/2 n) → -ₖ x ≡ x
+-ₖConst-ℤ/2-gen zero = -Const-ℤ/2
+-ₖConst-ℤ/2-gen (suc n) = -ₖConst-ℤ/2 n
+
 symConst-ℤ/2 : (n : ℕ) (x : EM ℤ/2 n) (p : x ≡ x) → p ≡ sym p
 symConst-ℤ/2 = EMZ/2.symConstEM
 
 symConst-ℤ/2-refl : {n : ℕ} → symConst-ℤ/2 n (0ₖ n) refl ≡ refl
 symConst-ℤ/2-refl = EMZ/2.symConstEM-refl
 
--- Commutativity of cup product
+-- Commutativity of cup product with ℤ/2 coeffs
+-ₖ^[_·_]-const : (n m : ℕ) {k : ℕ} (x : EM ℤ/2 k) → -ₖ^[ n · m ] x ≡ x
+-ₖ^[_·_]-const n m x =
+  ⊎.rec
+   (λ p → -ₖ^[ n · m ]-even (inl p) x)
+   (λ p → ⊎.rec
+     (λ q → -ₖ^[ n · m ]-even (inr q) x)
+     (λ q → -ₖ^[ n · m ]-odd (p , q) x ∙ -ₖConst-ℤ/2-gen _ x)
+     (evenOrOdd m))
+   (evenOrOdd n)
 
-module _ where
-  private
-    open PlusBis
-    cp⊗ : (n m : ℕ) (x : EM ℤ/2 n) (y : EM ℤ/2 m)
-      → EM (ℤ/2 ⨂ ℤ/2) (n +' m)
-    cp⊗ n m x y = x ⌣ₖ⊗ y
-
-    cp⊗∙ : (n m : ℕ) (x : EM ℤ/2 n) → EM∙ ℤ/2 m →∙ EM∙ (ℤ/2 ⨂ ℤ/2) (n +' m)
-    cp⊗∙ n m x = cup∙ n m x
-
-    subst' : (n m : ℕ) → EM (ℤ/2 ⨂ ℤ/2) (m +' n) → EM (ℤ/2 ⨂ ℤ/2) (n +' m)
-    subst' n m = subst (EM (ℤ/2 ⨂ ℤ/2)) (+'-comm m n)
-
-    commFun1 : (n m : ℕ) (x : EM ℤ/2 n) → EM∙ ℤ/2 m →∙ EM∙ (ℤ/2 ⨂ ℤ/2) (n +' m)
-    fst (commFun1 n m x) y = subst (EM (ℤ/2 ⨂ ℤ/2)) (+'-comm m n) (y ⌣ₖ⊗ x)
-    snd (commFun1 n m x) =
-        cong (subst (EM (ℤ/2 ⨂ ℤ/2)) (+'-comm m n)) (0ₖ-⌣ₖ⊗ m n x)
-      ∙ substCommSlice (λ _ → EM (ℤ/2 ⨂ ℤ/2) (n +' m))
-          (EM (ℤ/2 ⨂ ℤ/2)) (λ a _ → 0ₖ a) (+'-comm m n) (0ₖ (n +' m))
-
-  ℕ-elim2 : ∀ {ℓ} {P : ℕ → ℕ → Type ℓ}
-          → ((n : ℕ) → P zero n)
-          → ((n : ℕ) → P (suc n) zero)
-          → ((n m : ℕ) → P (suc n) m × P n (suc m) → P (suc n) (suc m))
-          → (n m : ℕ) → P n m
-  ℕ-elim2 l r ind zero = l
-  ℕ-elim2 l r ind (suc n) zero = r n
-  ℕ-elim2 {P = P} l r ind (suc n) (suc m) =
-    ind n m ((ℕ-elim2 {P = P} l r ind (suc n) m)
-           , (ℕ-elim2 {P = P} l r ind n (suc m)))
-
-  0-case : (x y : fst ℤ/2) → cp⊗∙ zero zero x .fst y ≡ cp⊗∙ zero zero y .fst x
-  0-case =
-    (ℤ/2-elim
-           (ℤ/2-elim refl
-             (0ₖ-⌣ₖ⊗ zero zero 1
-             ∙ sym (⌣ₖ-0ₖ⊗ zero zero 1)))
-           (ℤ/2-elim
-             (⌣ₖ-0ₖ⊗ zero zero 1
-             ∙ sym (0ₖ-⌣ₖ⊗ zero zero 1)) refl))
-
-  pre-comm : (n m : ℕ) (x : EM ℤ/2 n) → cp⊗∙ n m x ≡ commFun1 n m x
-  pre-comm zero m x =
-    →∙Homogeneous≡ (isHomogeneousEM _)
-      (funExt (l m x))
-    where
-    l : (m : ℕ) (x : fst ℤ/2) (y : EM ℤ/2 m) →
-      cp⊗∙ zero m x .fst y ≡
-      subst (EM (ℤ/2 ⨂ ℤ/2)) (+'-comm m zero) (y ⌣ₖ⊗ x)
-    l = elim+2
-         (λ x y → 0-case x y ∙ sym (transportRefl _))
-         (λ x y → lem x y ∙ sym (transportRefl (cp⊗ 1 zero y x)))
-         λ n ind x y → lem2 n ind x y
-                      ∙ sym ((λ i → subst (EM (ℤ/2 ⨂ ℤ/2)) (isSetℕ _ _ (+'-comm (suc (suc n)) zero) refl i)
-                                   (cp⊗ (suc (suc n)) zero y x))
-                           ∙ transportRefl _)
-      where
-      lem : (x : fst ℤ/2) (y : EM ℤ/2 1) → cp⊗∙ zero 1 x .fst y ≡ cp⊗ 1 zero y x
-      lem x = EM-raw'-elim ℤ/2 1
-        (λ _ → hLevelEM _ 1 _ _)
-        λ { embase-raw → refl
-         ; (emloop-raw g i) j
-           → EM→ΩEM+1 0 (0-case x g j) i}
-
-      lem2 : (m : ℕ) (ind : (x : fst ℤ/2) (y : EM ℤ/2 (suc m))
-        → cp⊗∙ zero (suc m) x .fst y
-        ≡ subst (EM (ℤ/2 ⨂ ℤ/2)) (+'-comm (suc m) zero) (y ⌣ₖ⊗ x)) (x : fst ℤ/2) (y : EM ℤ/2 (suc (suc m)))
-          → cp⊗∙ zero (suc (suc m)) x .fst y ≡ cp⊗ (suc (suc m)) zero y x
-      lem2 m ind x = TR.elim (λ _ → isOfHLevelPath (4 +ℕ m) (hLevelEM _ (suc (suc m))) _ _)
-             λ { north → refl
-               ; south → refl
-               ; (merid a i) j
-               → EM→ΩEM+1 (suc m) ((ind x (EM-raw→EM ℤ/2 _ a)
-                                  ∙∙ (λ i → subst (EM (ℤ/2 ⨂ ℤ/2)) (isSetℕ _ _ (+'-comm (suc m) zero) refl i)
-                                              (cp⊗ (suc m) zero (EM-raw→EM ℤ/2 (suc m) a) x))
-                                  ∙∙ transportRefl (cp⊗ (suc m) zero (EM-raw→EM ℤ/2 (suc m) a) x)) j) i}
-  pre-comm (suc n) zero x =
-    →∙Homogeneous≡ (isHomogeneousEM _)
-      (funExt λ y
-       → (l y n x ∙ sym (transportRefl _))
-        ∙ λ i → subst (EM (ℤ/2 ⨂ ℤ/2))
-                       (isSetℕ _ _ refl (+'-comm zero (suc n)) i)
-                       (cp⊗ zero (suc n) y x))
-    where
-    l : (y : fst ℤ/2)  (n : ℕ)(x : EM ℤ/2 (suc n)) →
-      cp⊗∙ (suc n) zero x .fst y  ≡ cp⊗ zero (suc n) y x
-    l y = ℕelim
-         (EM-raw'-elim ℤ/2 1
-          (λ _ → hLevelEM _ 1 _ _)
-          (λ { embase-raw → refl
-            ; (emloop-raw g i) j → EM→ΩEM+1 _ (0-case g y j) i}))
-         λ n ind → TR.elim (λ _ → isOfHLevelPath (4 +ℕ n) (hLevelEM _ (suc (suc n))) _ _)
-           λ { north → refl
-             ; south → refl
-             ; (merid a i) j → EM→ΩEM+1 _ (ind (EM-raw→EM ℤ/2 (suc n) a) j) i}
-  pre-comm (suc n) (suc m) =
-    EM-raw'-elim ℤ/2 (suc n)
-      (λ _ → isOfHLevelPath' (suc (suc n)) {!isOfHLevel↑∙ n (suc m)!} _ _) {!!}
-    where
-    cp⊗' : (n m : ℕ) → EM ℤ/2 (suc m) → EM-raw'∙ ℤ/2 (suc n) →∙ EM∙ (ℤ/2 ⨂ ℤ/2) (suc n +' suc m)
-    fst (cp⊗' n m y) x = cp⊗ (suc n) (suc m) (EM-raw'→EM _ _ x) y
-    snd (cp⊗' n m y) = cong (λ x → cp⊗ (suc n) (suc m) x y) (EM-raw'→EM∙ ℤ/2 (suc n))
-                      ∙ 0ₖ-⌣ₖ⊗ (suc n) (suc m) y
-
-    commFun' : (n m : ℕ) → EM ℤ/2 (suc m) → EM-raw'∙ ℤ/2 (suc n) →∙ EM∙ (ℤ/2 ⨂ ℤ/2) (suc n +' suc m)
-    fst (commFun' n m y) x = {!!}
-    snd (commFun' n m y) = {!!}
-
-    1-1 : {!!}
-    1-1 = {!!}
-
-    main : (n m : ℕ) → (x : EM ℤ/2 (suc n)) → cp⊗∙ (suc n) (suc m) x ≡ commFun1 (suc n) (suc m) x
-    main =
-      ℕ-elim2
-        (ℕelim {!!}
-                {!(x : EM ℤ/2 1) → cp⊗∙ 1 1 x ≡ commFun1 1 1 x!})
-        {!!}
-        {!!}
-
-  gradedComm : (n m : ℕ) (x : EM ℤ/2 n) (y : EM ℤ/2 m)
-    → x ⌣ₖ⊗ y ≡ subst (EM (ℤ/2 ⨂ ℤ/2)) (+'-comm m n) (y ⌣ₖ⊗ x)
-  gradedComm n m x y = {!!}
+⌣ₖ-commℤ/2 : (n m : ℕ) (x : EM ℤ/2 n) (y : EM ℤ/2 m)
+  → (x ⌣[ ℤ/2Ring ]ₖ y) ≡ subst (EM ℤ/2) (+'-comm m n) (y ⌣[ ℤ/2Ring ]ₖ x)
+⌣ₖ-commℤ/2 n m x y = ⌣ₖ-comm {G'' = ℤ/2CommRing} n m x y
+                   ∙ cong (subst (EM ℤ/2) (+'-comm m n))
+                      (-ₖ^[ n · m ]-const _)

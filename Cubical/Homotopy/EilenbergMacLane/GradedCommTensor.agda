@@ -46,8 +46,9 @@ open import Cubical.Algebra.Group.MorphismProperties
 open AbGroupStr renaming (_+_ to _+Gr_ ; -_ to -Gr_)
 open PlusBis
 
-variable
-  ℓ ℓ' : Level
+private
+  variable
+    ℓ ℓ' : Level
 
 -- specialised lemmas
 private
@@ -65,7 +66,7 @@ private
             , ⌣-ℕ-elim2 {A = A} l r ind n m)
 
   -- lemma about cong (subst ...)
-  cong-subst' : (n m : ℕ) (q' : n ≡ m) (q : suc n ≡ suc m)
+  cong-subst-lem : (n m : ℕ) (q' : n ≡ m) (q : suc n ≡ suc m)
         (A : ℕ → Pointed ℓ)
         (F : (x : ℕ) → fst (A x) → fst (Ω (A (suc x))))
         (F∙ : (x : ℕ) → F x (pt (A x)) ≡ refl)
@@ -75,7 +76,7 @@ private
      → ((n : ℕ) → s n n refl ≡ sym (transportRefl _))
      → (cong (subst (λ n → A n .fst) q) (F n x))
      ≡ (sym (s _ _ q) ∙∙ F m (subst (λ n → A n .fst) q' x) ∙∙ s _ _ q)
-  cong-subst' {ℓ} n = J> λ q → lem2 q (isSetℕ _ _ refl q)
+  cong-subst-lem {ℓ} n = J> λ q → lem2 q (isSetℕ _ _ refl q)
     where
     lem2 : (q : suc n ≡ suc n) (r : refl ≡ q)
       → (A : ℕ → Pointed ℓ)
@@ -98,6 +99,10 @@ private
 
 -- Preliminary definition of -ₖⁿ*ᵐ (easier to work with)
 module _ {G' : AbGroup ℓ} where
+   private
+     _+G_ = _+Gr_ (snd G')
+     -G_ = -Gr_ (snd G')
+
    -ₖ^<_·_> : (n m k : ℕ)
      → isEvenT n ⊎ isOddT n
      → isEvenT m ⊎ isOddT m
@@ -239,34 +244,6 @@ module _ {G' : AbGroup ℓ} where
            ∙∙ cong-₂ k (EM→ΩEM+1 (suc k) x)
            ∙∙ sym (EM→ΩEM+1-sym (suc k) x)
             ∙ cong (EM→ΩEM+1 (suc k)) (sym (-ₖ^< n · m >-inr (suc k) p q x))
-
-   -- move to .GroupStructure
-   -ₖ² : ∀ {ℓ} {G : AbGroup ℓ} (k : ℕ) (x : EM G k) → (-ₖ (-ₖ x)) ≡ x
-   -ₖ² {G = G} zero x = GroupTheory.invInv (AbGroup→Group G) x
-   -ₖ² (suc zero) = EM-raw'-elim _ _ (λ _ → hLevelEM _ 1 _ _)
-     λ { embase-raw → refl ; (emloop-raw g i) → refl}
-   -ₖ² {G = G} (suc (suc k)) =
-     TR.elim (λ _ → isOfHLevelPath (4 +ℕ k) (isOfHLevelTrunc (4 +ℕ k)) _ _)
-       λ { north → refl
-         ; south → cong ∣_∣ₕ (merid ptEM-raw)
-         ; (merid a i) → help a i}
-       where
-       help : (a : _)
-         → PathP (λ i → Path (EM G (suc (suc k)))
-                           (-ₖ (-ₖ ∣ merid a i ∣ₕ)) ∣ merid a i ∣ₕ)
-                  refl
-                  (cong ∣_∣ₕ (merid ptEM-raw))
-       help a = flipSquare (
-            cong (cong (-ₖ_ {n = suc (suc k)}))
-            (cong (cong ∣_∣ₕ) (symDistr (merid a) (sym (merid ptEM-raw)))
-          ∙ cong-∙ ∣_∣ₕ (merid (ptEM-raw)) (sym (merid a)))
-          ∙ cong-∙ (-ₖ_ {n = suc (suc k)})
-             (cong ∣_∣ₕ (merid ptEM-raw)) (sym (cong ∣_∣ₕ (merid a)))
-          ∙ cong (_∙ cong (-ₖ_ {n = suc (suc k)})
-                       (sym (cong ∣_∣ₕ (merid a))))
-                 (λ i j → ∣ rCancel (merid ptEM-raw) i (~ j) ∣ₕ)
-          ∙ sym (lUnit _)
-          ◁ λ i j → ∣ compPath-filler (merid a) (sym (merid ptEM-raw)) (~ i) j ∣ₕ)
 
    -- -ₖⁿ*ᵐ is its own inverse
    -ₖ^<_·_>² : (n m k : ℕ)
@@ -469,7 +446,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
        ptd = →∙Homogeneous≡ (isHomogeneousEM _)
               (funExt λ y → 0ₖ-⌣ₖ n m y)
 
-   -- commuting cup product, pointed 
+   -- commuting cup product, pointed
    cp'∙ : (n m : ℕ) → EM G' n → EM∙ H' m →∙ EM∙ (H' ⨂ G') (m +' n)
    fst (cp'∙ n m x) y = y ⌣ₖ x
    snd (cp'∙ n m x) = 0ₖ-⌣ₖ m n x
@@ -852,7 +829,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
               ≡ refl
            substPres0-refl n = transportRefl _
 
-           lem = cong-subst' _ _
+           lem = cong-subst-lem _ _
                   (+'-comm (suc n) 1) (+'-comm (suc (suc n)) 1) (EM∙ (G' ⨂ H'))
                    EM→ΩEM+1 (λ x → EM→ΩEM+1-0ₖ _)
                    ((-ₖ^< 1 · suc (suc n) > (suc (suc (n +ℕ 0))) (inr tt) p
@@ -936,7 +913,7 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
          -- recurring path
          ℕpath = cong (2 +ℕ_) (+-comm m (suc n) ∙ sym (+-suc n m))
 
-         -- improved coherence functions (better comp. behaviour) 
+         -- improved coherence functions (better comp. behaviour)
          Fᵣ : (p : _) (q : _)
            → EM (H' ⨂ G') (suc (suc m) +' suc n)
            → EM (G' ⨂ H') (2 +ℕ (n +ℕ suc m))
