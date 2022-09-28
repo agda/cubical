@@ -403,26 +403,6 @@ isConnectedPoint2 n {A = A} a connMap = indMapEquiv→conType _ λ B → isoToIs
     Iso.rightInv theIso f = funExt λ y → sym (helper f y)
     Iso.leftInv theIso _ = refl
 
-isOfHLevelPointedFib : ∀ {ℓ ℓ'} {A : Type ℓ} {a : A} (n k : ℕ)
-  → isConnected (suc n) A
-  → {B : A → Type ℓ'}
-  → {b₀ : B a}
-  → ((x : A) → isOfHLevel (k + n) (B x))
-  → isOfHLevel k (Σ[ f ∈ ((a : A) → B a) ] f a ≡ b₀)
-isOfHLevelPointedFib {A = A} {a = a} n k iscon {B = B} {b₀ = b}  hlev =
-  isOfHLevelRetractFromIso k help
-    ((isOfHLevelPrecomposeConnected k n (λ  x → B x , hlev x)
-    (λ _ → a) (isConnectedPoint n iscon a)
-     λ _ → b))
-  where
-  help : Iso (Σ-syntax ((a₁ : A) → B a₁) (λ f → f a ≡ b))
-          (fiber (λ (s : (x : A) → B x)
-                  → s ∘ (λ (_ : Unit) → a)) λ _ → b)
-  Iso.fun help (x , p) = x , (funExt (λ _ → p))
-  Iso.inv help (x , p) = x , funExt⁻ p tt
-  Iso.rightInv help _ = refl
-  Iso.leftInv help _ = refl
-
 connectedTruncIso : ∀ {ℓ} {A B : Type ℓ} (n : HLevel) (f : A → B)
                    → isConnectedFun n f
                    → Iso (hLevelTrunc n A) (hLevelTrunc n B)

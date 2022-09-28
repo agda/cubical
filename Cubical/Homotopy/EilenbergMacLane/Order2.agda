@@ -212,7 +212,6 @@ module EM2 {ℓ : Level} (G : AbGroup ℓ)
   symConstEM-refl {n = suc zero} = transportRefl refl
   symConstEM-refl {n = suc (suc n)} = transportRefl refl
 
-
 ℤ/2 : AbGroup ℓ-zero
 ℤ/2 = Group→AbGroup (ℤGroup/ 2) +ₘ-comm
 

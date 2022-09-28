@@ -401,7 +401,7 @@ Iso.rightInv toProdIso (f , g) = refl
 Iso.leftInv toProdIso b = refl
 
 module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''} where
-  curryIso : Iso ((a : Σ A B) → C (fst a) (snd a)) ((a : A) → (b : B a) → C a b)
+  curryIso : Iso (((a , b) : Σ A B) → C a b) ((a : A) → (b : B a) → C a b)
   Iso.fun curryIso f a b = f (a , b)
   Iso.inv curryIso f a = f (fst a) (snd a)
   Iso.rightInv curryIso a = refl
@@ -446,7 +446,3 @@ module _
 
     fiberProjEquiv : B a ≃ fiber proj a
     fiberProjEquiv = isoToEquiv fiberProjIso
-
-
-singl≅signl' : {a : A} → Iso (singl a) (singl' a)
-singl≅signl' = Σ-cong-iso-snd λ a → symIso
