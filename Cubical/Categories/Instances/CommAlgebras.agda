@@ -161,10 +161,10 @@ module _ (R : CommRing ℓ) where
       where
       open isIso
       canonicalIso : (J : Category (ℓ-max ℓ ℓJ) ℓJ')
-                                               (D : Functor J CommAlgebrasCategory)
-        → CatIso CommRingsCategory
-                 (LimitsCommRingsCategory J (ffA→R ∘F D) .lim)
-                 (ffA→R {ℓ' = theℓ} .F-ob (LimitsCommAlgebrasCategory J D .lim))
+                     (D : Functor J CommAlgebrasCategory)
+                   → CatIso CommRingsCategory
+                            (LimitsCommRingsCategory J (ffA→R ∘F D) .lim)
+                            (ffA→R {ℓ' = theℓ} .F-ob (LimitsCommAlgebrasCategory J D .lim))
       coneOut (fst (fst (canonicalIso J D)) cc) = coneOut cc
       coneOutCommutes (fst (fst (canonicalIso J D)) cc) = coneOutCommutes cc
       snd (fst (canonicalIso J D)) = makeIsRingHom refl (λ _ _ → refl) λ _ _ → refl
@@ -392,6 +392,45 @@ module PullbackFromCommRing (R : CommRing ℓ)
    -- basically saying that h₃≡h₃' but we have to give all the commuting triangles
    uniqHelper : uniqueH₃ .fst ≡ ((h₃' , h₃'IsRHom) , h₃'Comm₂ , h₃'Comm₁)
    uniqHelper = uniqueH₃ .snd ((h₃' , h₃'IsRHom) , h₃'Comm₂ , h₃'Comm₁)
+
+
+
+module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
+                         (J : Category ℓJ ℓJ')
+                         (crDiag : Functor J (CommRingsCategory {ℓ = ℓ}))
+                         (crCone : Cone crDiag A)
+                         (toAlgCone : Cone crDiag R)
+                         (φ : CommRingHom R A)
+                         (isConeMorφ : isConeMor toAlgCone crCone φ)
+                         where
+
+  open Functor
+  open Cone
+  open CommAlgChar R
+
+  algDiag : Functor J (CommAlgebrasCategory R {ℓ' = ℓ})
+  F-ob algDiag v = toCommAlg (F-ob crDiag v , coneOut toAlgCone v)
+  F-hom algDiag f = toCommAlgebraHom _ _ (F-hom crDiag f) (coneOutCommutes toAlgCone f)
+  F-id algDiag = AlgebraHom≡ (cong fst (F-id crDiag))
+  F-seq algDiag f g = AlgebraHom≡ (cong fst (F-seq crDiag f g))
+
+  B = toCommAlg (A , φ)
+
+  algCone : Cone algDiag B
+  coneOut algCone v = toCommAlgebraHom _ _ (coneOut crCone v) (isConeMorφ v)
+  coneOutCommutes algCone f = AlgebraHom≡ (cong fst (coneOutCommutes crCone f))
+
+  reflectsLimits : isLimCone _ _ crCone → isLimCone _ _ algCone
+  reflectsLimits univProp C cc = uniqueExists {!!} {!!} (isPropIsConeMor _ _) {!!}
+    where
+    S = fromCommAlg C .fst
+    ψ = fromCommAlg C .snd
+
+    sc : Cone crDiag S
+    coneOut sc v = subst (λ x → CommRingsCategory [ S , x ])
+                         (cong fst (CommRingWithHomRoundTrip _))
+                         (fromCommAlgebraHom _ _ (cc .coneOut v) .fst)
+    coneOutCommutes sc f = {!!}
 
 
 
