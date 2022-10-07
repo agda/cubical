@@ -241,8 +241,16 @@ module _ {G' : AbGroup ℓ} {H' : AbGroup ℓ'} where
        trElim (λ _ → isOfHLevel↑∙ (2 + n) m)
          λ { north → (λ _ → 0ₖ (3 + (n + m))) , refl
            ; south → (λ _ → 0ₖ (3 + (n + m))) , refl
-           ; (merid a i) → Iso.inv (ΩfunExtIso _ _)
-                             (EM→ΩEM+1∙ _ ∘∙ ind (suc m) (EM-raw→EM _ _ a)) i}
+           ; (merid a i) →
+             (λ x → EM→ΩEM+1 (2 + (n + m)) (ind (suc m) (EM-raw→EM _ _ a) .fst x) i)
+                  , λ j → pp a j i}
+        where
+        pp : (a : _)
+          → EM→ΩEM+1 (suc (suc (n + m)))
+              (ind (suc m) (EM-raw→EM G' (suc n) a) .fst (snd (EM∙ H' (suc m))))
+          ≡ refl
+        pp a = cong (EM→ΩEM+1 (suc (suc (n + m)))) (ind (suc m) (EM-raw→EM G' (suc n) a) .snd)
+             ∙ EM→ΩEM+1-0ₖ _
 
    _⌣ₖ_ : {n m : ℕ} (x : EM G' n) (y : EM H' m) → EM (G' ⨂ H') (n +' m)
    _⌣ₖ_ x y = cup∙ _ _ x .fst y

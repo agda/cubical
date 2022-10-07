@@ -6,11 +6,18 @@ open import Cubical.Homotopy.EilenbergMacLane.Base
 open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
 open import Cubical.Homotopy.EilenbergMacLane.Properties
 open import Cubical.Homotopy.EilenbergMacLane.CupProduct
+open import Cubical.Homotopy.EilenbergMacLane.Order2
+open import Cubical.Homotopy.EilenbergMacLane.GradedCommTensor
+  hiding (⌣ₖ-comm)
 
 open import Cubical.Cohomology.EilenbergMacLane.Base
 
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Instances.IntMod
+open import Cubical.Algebra.Group.Instances.IntMod
+
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -20,6 +27,8 @@ open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.SetTruncation as ST
 
 open import Cubical.Data.Nat
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 
 open AbGroupStr renaming (_+_ to _+Gr_ ; -_ to -Gr_)
 open RingStr
@@ -95,7 +104,87 @@ module _ {G'' : Ring ℓ} {A : Type ℓ'} where
             ∙ cong (transport (λ i → EM G' (+'-assoc n m l i)))
                (cong (λ x → (f x ⌣ₖ (g x ⌣ₖ h x))) (sym (transportRefl x))))
 
--- dependent versions
+-- Graded commutativity
+-ₕ^[_·_] : {G' : AbGroup ℓ} {A : Type ℓ'} (n m : ℕ) {k : ℕ}
+  → coHom k G' A → coHom k G' A
+-ₕ^[ n · m ] = ST.map λ f x → -ₖ^[ n · m ] (f x)
+
+-ₕ^[_·_]-even : {G' : AbGroup ℓ} {A : Type ℓ'} (n m : ℕ) {k : ℕ}
+  → isEvenT n ⊎ isEvenT m
+  → (x : coHom k G' A) → -ₕ^[ n · m ] x ≡ x
+-ₕ^[ n · m ]-even {k = k} p =
+  ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ (funExt λ x → -ₖ^[ n · m ]-even p (f x))
+
+-ₕ^[_·_]-odd : {G' : AbGroup ℓ} {A : Type ℓ'} (n m : ℕ) {k : ℕ}
+  → isOddT n × isOddT m
+  → (x : coHom k G' A) → -ₕ^[ n · m ] x ≡ -ₕ x
+-ₕ^[ n · m ]-odd {k = k} p =
+  ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ (funExt λ x → -ₖ^[ n · m ]-odd p (f x))
+
+comm⌣ : {G'' : CommRing ℓ} {A : Type ℓ'} (n m : ℕ)
+  → (x : coHom n (CommRing→AbGroup G'') A)
+     (y : coHom m (CommRing→AbGroup G'') A)
+  → x ⌣ y ≡ subst (λ n → coHom n (CommRing→AbGroup G'') A)
+                   (+'-comm m n)
+                   (-ₕ^[ n · m ] (y ⌣ x))
+comm⌣ {G'' = R} {A = A} n m =
+  ST.elim2 (λ _ _ → isSetPathImplicit)
+   λ f g →
+     cong ∣_∣₂ (funExt λ x → ⌣ₖ-comm n m (f x) (g x)
+            ∙ cong (subst (λ n → EM (CommRing→AbGroup R) n) (+'-comm m n))
+                 (cong -ₖ^[ n · m ]
+                   (cong₂ _⌣ₖ_ (cong g (sym (transportRefl x)))
+                               (cong f (sym (transportRefl x))))))
+
+
+-- some syntax
+⌣[]-syntax : {A : Type ℓ} {n m : ℕ} (R : Ring ℓ')
+  → coHom n (Ring→AbGroup R) A
+  → coHom m (Ring→AbGroup R) A
+  → coHom (n +' m) (Ring→AbGroup R) A
+⌣[]-syntax R x y = x ⌣ y
+
+⌣[]C-syntax : {A : Type ℓ} {n m : ℕ} (R : CommRing ℓ')
+  → coHom n (CommRing→AbGroup R) A
+  → coHom m (CommRing→AbGroup R) A
+  → coHom (n +' m) (CommRing→AbGroup R) A
+⌣[]C-syntax R x y = x ⌣ y
+
+⌣[,,]-syntax : {A : Type ℓ} (n m : ℕ) (R : Ring ℓ')
+  → coHom n (Ring→AbGroup R) A
+  → coHom m (Ring→AbGroup R) A
+  → coHom (n +' m) (Ring→AbGroup R) A
+⌣[,,]-syntax n m R x y = x ⌣ y
+
+⌣[,,]C-syntax : {A : Type ℓ} (n m : ℕ) (R : CommRing ℓ')
+  → coHom n (CommRing→AbGroup R) A
+  → coHom m (CommRing→AbGroup R) A
+  → coHom (n +' m) (CommRing→AbGroup R) A
+⌣[,,]C-syntax n m R x y = x ⌣ y
+
+syntax ⌣[]-syntax R x y = x ⌣[ R ] y
+syntax ⌣[]C-syntax R x y = x ⌣[ R ]C y
+syntax ⌣[,,]-syntax n m R x y = x ⌣[ R , n , m ] y
+syntax ⌣[,,]C-syntax n m R x y = x ⌣[ R , n , m ]C y
+
+-- Commutativity in ℤ/2 coeffs
+comm⌣ℤ/2 : {A : Type ℓ'} (n m : ℕ)
+  → (x : coHom n ℤ/2 A)
+     (y : coHom m ℤ/2 A)
+  → x ⌣[ ℤ/2Ring ] y
+   ≡ subst (λ n → coHom n ℤ/2 A) (+'-comm m n)
+           (y ⌣[ ℤ/2Ring ] x)
+comm⌣ℤ/2 {A = A} n m x y = comm⌣ {G'' = ℤ/2CommRing} n m x y
+                 ∙ cong (subst (λ n₁ → coHom n₁ ℤ/2 A) (+'-comm m n))
+                        (lem x y)
+  where
+  lem : (x : coHom n ℤ/2 A) (y : coHom m ℤ/2 A)
+     → -ₕ^[ n · m ] (y ⌣[ ℤ/2Ring ] x) ≡ (y ⌣ x)
+  lem = ST.elim2 (λ _ _ → isSetPathImplicit)
+          λ _ _ → cong ∣_∣₂ (funExt λ _ → -ₖ^[ n · m ]-const _)
+
 module _ {G'' : Ring ℓ} {A : Type ℓ'} where
   private
     G' = Ring→AbGroup G''
@@ -110,3 +199,13 @@ module _ {G'' : Ring ℓ} {A : Type ℓ'} where
     → PathP (λ i → coHom (+'-assoc n m l (~ i)) G' A) ((x ⌣ y) ⌣ z) (x ⌣ (y ⌣ z))
   assoc⌣Dep n m l x y z = toPathP {A = λ i → coHom (+'-assoc n m l (~ i)) G' A}
                                   (flipTransport (assoc⌣ n m l x y z))
+
+module _ {G'' : CommRing ℓ} {A : Type ℓ'} where
+  private
+    G' = CommRing→AbGroup G''
+  comm⌣Dep : (n m : ℕ)  (x : coHom n G' A) (y : coHom m G' A)
+    → PathP (λ i → coHom (+'-comm m n (~ i)) G' A)
+             (x ⌣ y) (-ₕ^[ n · m ] (y ⌣ x))
+  comm⌣Dep n m x y =
+    toPathP {A = λ i → coHom (+'-comm m n (~ i)) G' A}
+      (flipTransport (comm⌣ n m x y))

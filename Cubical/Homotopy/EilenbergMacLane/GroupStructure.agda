@@ -21,7 +21,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Path
 
 open import Cubical.HITs.EilenbergMacLane1
-open import Cubical.HITs.Truncation
+open import Cubical.HITs.Truncation as TR
   renaming (elim to trElim ; rec to trRec ; rec2 to trRec2)
 open import Cubical.HITs.Susp
 
@@ -418,3 +418,30 @@ module _ {G : AbGroup ℓ} where
 -0ₖ {G = G} zero = GroupTheory.inv1g (AbGroup→Group G)
 -0ₖ (suc zero) = refl
 -0ₖ (suc (suc n)) = refl
+
+-ₖ² : ∀ {ℓ} {G : AbGroup ℓ} (k : ℕ) (x : EM G k) → (-ₖ (-ₖ x)) ≡ x
+-ₖ² {G = G} zero x = GroupTheory.invInv (AbGroup→Group G) x
+-ₖ² (suc zero) = EM-raw'-elim _ _ (λ _ → hLevelEM _ 1 _ _)
+  λ { embase-raw → refl ; (emloop-raw g i) → refl}
+-ₖ² {G = G} (suc (suc k)) =
+  TR.elim (λ _ → isOfHLevelPath (4 + k) (isOfHLevelTrunc (4 + k)) _ _)
+    λ { north → refl
+      ; south → cong ∣_∣ₕ (merid ptEM-raw)
+      ; (merid a i) → help a i}
+    where
+    help : (a : _)
+      → PathP (λ i → Path (EM G (suc (suc k)))
+                        (-ₖ (-ₖ ∣ merid a i ∣ₕ)) ∣ merid a i ∣ₕ)
+               refl
+               (cong ∣_∣ₕ (merid ptEM-raw))
+    help a = flipSquare (
+         cong (cong (-ₖ_ {n = suc (suc k)}))
+         (cong (cong ∣_∣ₕ) (symDistr (merid a) (sym (merid ptEM-raw)))
+       ∙ cong-∙ ∣_∣ₕ (merid (ptEM-raw)) (sym (merid a)))
+       ∙ cong-∙ (-ₖ_ {n = suc (suc k)})
+          (cong ∣_∣ₕ (merid ptEM-raw)) (sym (cong ∣_∣ₕ (merid a)))
+       ∙ cong (_∙ cong (-ₖ_ {n = suc (suc k)})
+                    (sym (cong ∣_∣ₕ (merid a))))
+              (λ i j → ∣ rCancel (merid ptEM-raw) i (~ j) ∣ₕ)
+       ∙ sym (lUnit _)
+       ◁ λ i j → ∣ compPath-filler (merid a) (sym (merid ptEM-raw)) (~ i) j ∣ₕ)

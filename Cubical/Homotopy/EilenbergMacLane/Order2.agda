@@ -8,6 +8,11 @@ module Cubical.Homotopy.EilenbergMacLane.Order2 where
 open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
 open import Cubical.Homotopy.EilenbergMacLane.Properties
 open import Cubical.Homotopy.EilenbergMacLane.Base as EM
+open import Cubical.Homotopy.EilenbergMacLane.CupProduct
+open import Cubical.Homotopy.EilenbergMacLane.CupProductTensor
+  renaming (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
+open import Cubical.Homotopy.EilenbergMacLane.GradedCommTensor
+  hiding (⌣ₖ-comm)
 
 open import Cubical.Homotopy.Loopspace
 
@@ -17,10 +22,14 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Homogeneous
 
-open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
+
+open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; elim to ℕelim)
+open import Cubical.Data.Fin
 open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as ⊎
 
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Susp
@@ -30,8 +39,10 @@ open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.CommRing.Instances.IntMod
 open import Cubical.Algebra.AbGroup.Base
+open import Cubical.Algebra.AbGroup.TensorProduct
 
 open AbGroupStr
+open PlusBis
 
 module EM2 {ℓ : Level} (G : AbGroup ℓ)
          (-Const : (x : fst G) → -_ (snd G) x ≡ x) where
@@ -210,6 +221,10 @@ private
 -ₖConst-ℤ/2 : (n : ℕ) → (x : EM ℤ/2 (suc n)) → -ₖ x ≡ x
 -ₖConst-ℤ/2 = EMZ/2.-ₖConst
 
+-ₖConst-ℤ/2-gen : (n : ℕ) → (x : EM ℤ/2 n) → -ₖ x ≡ x
+-ₖConst-ℤ/2-gen zero = -Const-ℤ/2
+-ₖConst-ℤ/2-gen (suc n) = -ₖConst-ℤ/2 n
+
 symConst-ℤ/2 : (n : ℕ) (x : EM ℤ/2 n) (p : x ≡ x) → p ≡ sym p
 symConst-ℤ/2 = EMZ/2.symConstEM
 
@@ -219,3 +234,20 @@ symConst-ℤ/2-refl = EMZ/2.symConstEM-refl
 +ₖ≡id-ℤ/2 : (n : ℕ) (x : EM ℤ/2 n) → x +ₖ x ≡ 0ₖ n
 +ₖ≡id-ℤ/2 zero = ℤ/2-elim refl refl
 +ₖ≡id-ℤ/2 (suc n) x = cong (x +ₖ_) (sym (-ₖConst-ℤ/2 n x)) ∙ rCancelₖ (suc n) x
+
+-- Commutativity of cup product with ℤ/2 coeffs
+-ₖ^[_·_]-const : (n m : ℕ) {k : ℕ} (x : EM ℤ/2 k) → -ₖ^[ n · m ] x ≡ x
+-ₖ^[_·_]-const n m x =
+  ⊎.rec
+   (λ p → -ₖ^[ n · m ]-even (inl p) x)
+   (λ p → ⊎.rec
+     (λ q → -ₖ^[ n · m ]-even (inr q) x)
+     (λ q → -ₖ^[ n · m ]-odd (p , q) x ∙ -ₖConst-ℤ/2-gen _ x)
+     (evenOrOdd m))
+   (evenOrOdd n)
+
+⌣ₖ-commℤ/2 : (n m : ℕ) (x : EM ℤ/2 n) (y : EM ℤ/2 m)
+  → (x ⌣[ ℤ/2Ring ]ₖ y) ≡ subst (EM ℤ/2) (+'-comm m n) (y ⌣[ ℤ/2Ring ]ₖ x)
+⌣ₖ-commℤ/2 n m x y = ⌣ₖ-comm {G'' = ℤ/2CommRing} n m x y
+                   ∙ cong (subst (EM ℤ/2) (+'-comm m n))
+                      (-ₖ^[ n · m ]-const _)
