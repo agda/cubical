@@ -400,13 +400,14 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
                          (crDiag : Functor J (CommRingsCategory {ℓ = ℓ}))
                          (crCone : Cone crDiag A)
                          (toAlgCone : Cone crDiag R)
-                         (φ : CommRingHom R A)
-                         (isConeMorφ : isConeMor toAlgCone crCone φ)
                          where
 
   open Functor
   open Cone
+
+  open AlgebraHoms
   open CommAlgChar R
+  open CommAlgebraStr ⦃...⦄
 
   algDiag : Functor J (CommAlgebrasCategory R {ℓ' = ℓ})
   F-ob algDiag v = toCommAlg (F-ob crDiag v , coneOut toAlgCone v)
@@ -414,23 +415,116 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
   F-id algDiag = AlgebraHom≡ (cong fst (F-id crDiag))
   F-seq algDiag f g = AlgebraHom≡ (cong fst (F-seq crDiag f g))
 
-  B = toCommAlg (A , φ)
+  module _ (φ : CommRingHom R A)
+           (isConeMorφ : isConeMor toAlgCone crCone φ)
+           (univProp : isLimCone _ _ crCone) where
 
-  algCone : Cone algDiag B
-  coneOut algCone v = toCommAlgebraHom _ _ (coneOut crCone v) (isConeMorφ v)
-  coneOutCommutes algCone f = AlgebraHom≡ (cong fst (coneOutCommutes crCone f))
+    univPropWithHom : ∀ (C,ψ : CommRingWithHom) (cc : Cone crDiag (fst C,ψ))
+                    → isConeMor toAlgCone cc (snd C,ψ)
+                    → ∃![ χ ∈ CommRingWithHomHom C,ψ (A , φ) ]
+                          isConeMor cc crCone (fst χ)
+    univPropWithHom (C , ψ) cc isConeMorψ = uniqueExists
+      (χ , triangle)
+        (univProp C cc .fst .snd)
+          (λ _ → isPropIsConeMor _ _ _)
+            λ _ x → Σ≡Prop (λ _ → isSetRingHom _ _ _ _)
+                           (cong fst (univProp C cc .snd (_ , x)))
+      where
+      χ = univProp C cc .fst .fst
 
-  reflectsLimits : isLimCone _ _ crCone → isLimCone _ _ algCone
-  reflectsLimits univProp C cc = uniqueExists {!!} {!!} (isPropIsConeMor _ _) {!!}
-    where
-    S = fromCommAlg C .fst
-    ψ = fromCommAlg C .snd
+      triangle : χ ∘cr ψ ≡ φ
+      triangle = cong fst (isContr→isProp (univProp R toAlgCone)
+                                          (χ ∘cr ψ , isConeMorComp) (φ , isConeMorφ))
+        where
+        isConeMorComp : isConeMor toAlgCone crCone (χ ∘cr ψ)
+        isConeMorComp = isConeMorSeq toAlgCone cc crCone
+                          isConeMorψ (univProp C cc .fst .snd)
 
-    sc : Cone crDiag S
-    coneOut sc v = subst (λ x → CommRingsCategory [ S , x ])
-                         (cong fst (CommRingWithHomRoundTrip _))
-                         (fromCommAlgebraHom _ _ (cc .coneOut v) .fst)
-    coneOutCommutes sc f = {!!}
+    B = toCommAlg (A , φ)
+
+    algCone : Cone algDiag B
+    coneOut algCone v = toCommAlgebraHom _ _ (coneOut crCone v) (isConeMorφ v)
+    coneOutCommutes algCone f = AlgebraHom≡ (cong fst (coneOutCommutes crCone f))
+
+    reflectsLimits : isLimCone _ _ algCone
+    reflectsLimits D cd = uniqueExists ξ isConeMorξ
+                            (λ _ → isPropIsConeMor _ _ _)
+                            uniqueξ
+      where
+      C = fromCommAlg D .fst
+      ψ = fromCommAlg D .snd
+
+      cc : Cone crDiag C
+      fst (coneOut cc v) = fst (coneOut cd v)
+      IsRingHom.pres0 (snd (coneOut cc v)) = IsAlgebraHom.pres0 (snd (coneOut cd v))
+      IsRingHom.pres1 (snd (coneOut cc v)) = IsAlgebraHom.pres1 (snd (coneOut cd v))
+      IsRingHom.pres+ (snd (coneOut cc v)) = IsAlgebraHom.pres+ (snd (coneOut cd v))
+      IsRingHom.pres· (snd (coneOut cc v)) = IsAlgebraHom.pres· (snd (coneOut cd v))
+      IsRingHom.pres- (snd (coneOut cc v)) = IsAlgebraHom.pres- (snd (coneOut cd v))
+      coneOutCommutes cc f = RingHom≡ (cong fst (coneOutCommutes cd f))
+
+      isConeMorψ : isConeMor toAlgCone cc ψ
+      isConeMorψ v = RingHom≡ (funExt (λ x →
+           IsAlgebraHom.pres⋆ (snd (coneOut cd v)) x 1a
+        ∙∙ cong (fst (coneOut toAlgCone v) x ·_) (IsAlgebraHom.pres1 (snd (coneOut cd v)))
+        ∙∙ ·IdR _))
+        where
+        instance
+          _ = snd D
+          _ = snd (F-ob algDiag v)
+
+      uniqueχ : ∃![ χ ∈ CommRingWithHomHom (C , ψ) (A , φ) ] isConeMor cc crCone (fst χ)
+      uniqueχ = univPropWithHom _ cc isConeMorψ
+
+      χ = uniqueχ .fst .fst .fst
+      χComm = uniqueχ .fst .fst .snd
+
+      ξ : CommAlgebraHom D B
+      fst ξ = fst χ
+      IsAlgebraHom.pres0 (snd ξ) = IsRingHom.pres0 (snd χ)
+      IsAlgebraHom.pres1 (snd ξ) = IsRingHom.pres1 (snd χ)
+      IsAlgebraHom.pres+ (snd ξ) = IsRingHom.pres+ (snd χ)
+      IsAlgebraHom.pres· (snd ξ) = IsRingHom.pres· (snd χ)
+      IsAlgebraHom.pres- (snd ξ) = IsRingHom.pres- (snd χ)
+      IsAlgebraHom.pres⋆ (snd ξ) = λ r y → sym (
+        fst φ r · fst χ y         ≡⟨ cong (_· fst χ y) (sym (funExt⁻ (cong fst χComm) r)) ⟩
+        fst χ (fst ψ r) · fst χ y ≡⟨ sym (IsRingHom.pres· (snd χ) _ _) ⟩
+        fst χ (fst ψ r · y)       ≡⟨ refl ⟩
+        fst χ ((r ⋆ 1a) · y)      ≡⟨ cong (fst χ) (⋆AssocL _ _ _) ⟩
+        fst χ (r ⋆ (1a · y))      ≡⟨ cong (λ x → fst χ (r ⋆ x)) (·IdL y) ⟩
+        fst χ (r ⋆ y) ∎)
+        where
+        instance
+          _ = snd D
+          _ = snd B
+
+      isConeMorξ : isConeMor cd algCone ξ
+      isConeMorξ v = AlgebraHom≡ (cong fst (uniqueχ .fst .snd v))
+
+      uniqueξ : (ζ : CommAlgebraHom D B) → isConeMor cd algCone ζ → ξ ≡ ζ
+      uniqueξ ζ isConeMorζ = AlgebraHom≡ (cong (fst ∘ fst ∘ fst)
+                                         (uniqueχ .snd ((ϑ , triangleϑ) , isConeMorϑ)))
+        where
+        ϑ : CommRingHom C A
+        fst ϑ = fst ζ
+        IsRingHom.pres0 (snd ϑ) = IsAlgebraHom.pres0 (snd ζ)
+        IsRingHom.pres1 (snd ϑ) = IsAlgebraHom.pres1 (snd ζ)
+        IsRingHom.pres+ (snd ϑ) = IsAlgebraHom.pres+ (snd ζ)
+        IsRingHom.pres· (snd ϑ) = IsAlgebraHom.pres· (snd ζ)
+        IsRingHom.pres- (snd ϑ) = IsAlgebraHom.pres- (snd ζ)
+
+        triangleϑ : ϑ ∘cr ψ ≡ φ
+        triangleϑ = RingHom≡ (funExt (λ x →
+             IsAlgebraHom.pres⋆ (snd ζ) x 1a
+          ∙∙ cong (fst φ x ·_) (IsAlgebraHom.pres1 (snd ζ))
+          ∙∙ ·IdR (fst φ x)))
+          where
+          instance
+           _ = snd D
+           _ = snd B
+
+        isConeMorϑ : isConeMor cc crCone ϑ
+        isConeMorϑ v = RingHom≡ (cong fst (isConeMorζ v))
 
 
 
