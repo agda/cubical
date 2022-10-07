@@ -203,9 +203,7 @@ module _ {G'' : Ring ℓ} {A : Type ℓ'} where
 module _ {G'' : CommRing ℓ} {A : Type ℓ'} where
   private
     G' = CommRing→AbGroup G''
-  comm⌣Dep : (n m : ℕ)
-    → (x : coHom n G' A)
-       (y : coHom m G' A)
+  comm⌣Dep : (n m : ℕ)  (x : coHom n G' A) (y : coHom m G' A)
     → PathP (λ i → coHom (+'-comm m n (~ i)) G' A)
              (x ⌣ y) (-ₕ^[ n · m ] (y ⌣ x))
   comm⌣Dep n m x y =

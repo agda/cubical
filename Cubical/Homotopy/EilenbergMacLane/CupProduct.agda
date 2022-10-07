@@ -146,7 +146,7 @@ module _ {G'' : Ring ℓ} where
 -- graded commutativity
 module _ {G'' : CommRing ℓ} where
   private
-    G' = Ring→AbGroup (CommRing→Ring G'')
+    G' = CommRing→AbGroup G''
     G = fst G'
     _+G_ = _+Gr_ (snd G')
 

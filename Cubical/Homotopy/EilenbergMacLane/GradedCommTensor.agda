@@ -1,15 +1,11 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
 
-{- This file contains properties of K(G,n) for G of order 2
-(in particular of ℤ/2) -}
-
 module Cubical.Homotopy.EilenbergMacLane.GradedCommTensor where
 
 open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
 open import Cubical.Homotopy.EilenbergMacLane.Properties
 open import Cubical.Homotopy.EilenbergMacLane.Base as EM
 open import Cubical.Homotopy.EilenbergMacLane.CupProductTensor
-
 open import Cubical.Homotopy.Loopspace
 
 open import Cubical.Foundations.Prelude
@@ -29,6 +25,7 @@ open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sum
 
 open import Cubical.HITs.EilenbergMacLane1 as EM₁
 open import Cubical.HITs.Susp
@@ -36,9 +33,7 @@ open import Cubical.HITs.Truncation as TR
 
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Group.Properties
-open import Cubical.Data.Sum
-open import Cubical.Algebra.Group.Instances.IntMod
-open import Cubical.Algebra.CommRing.Instances.IntMod
+
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.AbGroup.TensorProduct
 open import Cubical.Algebra.Group.MorphismProperties
