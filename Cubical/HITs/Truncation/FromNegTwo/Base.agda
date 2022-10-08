@@ -22,7 +22,7 @@ open import Cubical.HITs.Sn.Base
 --   ≡spoke : ∀ {x y} (p : S (-1+ n) → x ≡ y) (s : S (-1+ n)) → ≡hub p ≡ p s
 
 hLevelTrunc : ∀ {ℓ} → HLevel → Type ℓ → Type ℓ
-hLevelTrunc n A = Null (S (-1+ n)) A
+hLevelTrunc n A = Null {A = Unit} (λ _ → S (-1+ n)) A
 
 -- Note that relative to the HoTT book, this notation is off by +2
 ∥_∥_ : ∀ {ℓ} → Type ℓ → HLevel → Type ℓ
