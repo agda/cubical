@@ -416,8 +416,15 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
   F-seq algDiag f g = AlgebraHom≡ (cong fst (F-seq crDiag f g))
 
   module _ (φ : CommRingHom R A)
-           (isConeMorφ : isConeMor toAlgCone crCone φ)
-           (univProp : isLimCone _ _ crCone) where
+           (isConeMorφ : isConeMor toAlgCone crCone φ) where
+
+   B = toCommAlg (A , φ)
+
+   algCone : Cone algDiag B
+   coneOut algCone v = toCommAlgebraHom _ _ (coneOut crCone v) (isConeMorφ v)
+   coneOutCommutes algCone f = AlgebraHom≡ (cong fst (coneOutCommutes crCone f))
+
+   module _ (univProp : isLimCone _ _ crCone) where
 
     univPropWithHom : ∀ (C,ψ : CommRingWithHom) (cc : Cone crDiag (fst C,ψ))
                     → isConeMor toAlgCone cc (snd C,ψ)
@@ -439,12 +446,6 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
         isConeMorComp : isConeMor toAlgCone crCone (χ ∘cr ψ)
         isConeMorComp = isConeMorSeq toAlgCone cc crCone
                           isConeMorψ (univProp C cc .fst .snd)
-
-    B = toCommAlg (A , φ)
-
-    algCone : Cone algDiag B
-    coneOut algCone v = toCommAlgebraHom _ _ (coneOut crCone v) (isConeMorφ v)
-    coneOutCommutes algCone f = AlgebraHom≡ (cong fst (coneOutCommutes crCone f))
 
     reflectsLimits : isLimCone _ _ algCone
     reflectsLimits D cd = uniqueExists ξ isConeMorξ
@@ -559,7 +560,8 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
 
 
  -- a big transport to help verifying the pullback sheaf property
- module toSheaf (x y u v : ob ΣC∥P∥Cat)
+ module toSheafPB
+                (x y u v : ob ΣC∥P∥Cat)
                 {f : C [ v .fst , y . fst ]} {g : C [ v .fst , u .fst ]}
                 {h : C [ u .fst , x . fst ]} {k : C [ y .fst , x .fst ]}
                 (Csquare : g ⋆⟨ C ⟩ h ≡ f ⋆⟨ C ⟩ k)
@@ -628,7 +630,9 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
                      (AlgPB .univProp)
 
 
- module _ {J : Category ℓ'' ℓ''} -- don't know how to make Agda happy with universe levels otherwise
+ module toSheaf
+          {J : Category ℓ'' ℓ''}
+          -- don't know how to make Agda happy with universe levels otherwise
           {D : Functor J (ΣC∥P∥Cat ^op)} {c : ob ΣC∥P∥Cat} (cc : Cone D c) -- will be B⋁Cone
           {algDiag : Functor J CommAlgCat}
           (algCone : Cone algDiag (F-ob universalPShf c))

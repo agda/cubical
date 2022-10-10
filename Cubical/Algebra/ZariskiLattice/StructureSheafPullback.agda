@@ -252,7 +252,7 @@ module _ (R' : CommRing ℓ) where
    Σhelper : (a : Σ[ f ∈ R ] D f ≡ 𝔞) (b : Σ[ g ∈ R ] D g ≡ 𝔟) (c : Σ[ h ∈ R ] D h ≡ 𝔞 ∨z 𝔟)
            → isPullback (CommAlgebrasCategory R') (thePShfCospan a b) _ _
                         (BFsq (𝔞 , ∣ a ∣₁) (𝔟 , ∣ b ∣₁) ∣ c ∣₁ BasisStructurePShf)
-   Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = toSheaf.lemma
+   Σhelper (f , Df≡𝔞) (g , Dg≡𝔟) (h , Dh≡𝔞∨𝔟) = toSheafPB.lemma
            (𝔞 ∨z 𝔟 , ∣ h , Dh≡𝔞∨𝔟 ∣₁)
            (𝔞 , ∣ f , Df≡𝔞 ∣₁)
            (𝔟 , ∣ g , Dg≡𝔟 ∣₁)

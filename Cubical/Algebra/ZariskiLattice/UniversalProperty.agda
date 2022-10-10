@@ -309,3 +309,9 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
  ZLUniversalPropCorollary = cong fst
                               (ZLHasUniversalProp ZariskiLattice D isZarMapD .snd
                                  (idDistLatticeHom ZariskiLattice , refl))
+
+ -- and another corollary
+ module _ where
+  open Join ZariskiLattice
+  ⋁D≡ : {n : ℕ} (α : FinVec R n) → ⋁ (D ∘ α) ≡ [ n , α ]
+  ⋁D≡ _ = funExt⁻ (cong fst ZLUniversalPropCorollary) _

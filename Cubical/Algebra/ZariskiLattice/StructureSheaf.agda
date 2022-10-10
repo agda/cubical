@@ -112,10 +112,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
   where
   Σhelper : (a : Σ[ n ∈ ℕ ] FinVec R n)
           → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec ZL n ] (∀ i → α i ∈ₚ BasicOpens) × (⋁ α ≡ [ a ])
-  Σhelper (n , α) = ∣ n , (D ∘ α) , (λ i → ∣ α i , refl ∣₁) , path ∣₁
-   where
-   path : ⋁ (D ∘ α) ≡ [ n , α ]
-   path = funExt⁻ (cong fst ZLUniversalPropCorollary) _
+  Σhelper (n , α) = ∣ n , (D ∘ α) , (λ i → ∣ α i , refl ∣₁) , ⋁D≡ α ∣₁
 
 
  -- The structure presheaf on BO
@@ -224,7 +221,206 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
    isTerminal𝓞ᴮ[0] = subst (isTerminal CommRingsCategory)
                            (sym (p ∙ R[1/0]≡0)) (TerminalCommRing .snd)
 
- isSheaf𝓞ᴮ {n = suc n} = {!!}
+ isSheaf𝓞ᴮ {n = suc n} α = curriedHelper (fst ∘ α) (snd ∘ α) -- lemma?????
+  where
+  curriedHelper : (𝔞 : FinVec ZL (suc n)) (𝔞∈BO : ∀ i → 𝔞 i ∈ₚ BasicOpens)
+                  (⋁𝔞∈BO : ⋁ 𝔞 ∈ₚ BasicOpens)
+                → isLimCone _ _ (F-cone 𝓞ᴮ
+                                (condCone.B⋁Cone (λ i → 𝔞 i , 𝔞∈BO i) ⋁𝔞∈BO))
+  curriedHelper 𝔞 = PT.elimFin (λ _ → isPropΠ (λ _ → isPropIsLimCone _ _ _))
+                     λ x → PT.elim (λ _ → isPropIsLimCone _ _ _) (Σhelper x)
+    where
+    Σhelper : (x : ∀ i → Σ[ f ∈ R ] D f ≡ 𝔞 i)
+              (y : Σ[ g ∈ R ] D g ≡ ⋁ 𝔞)
+            → isLimCone _ _ (F-cone 𝓞ᴮ
+                            (condCone.B⋁Cone (λ i → 𝔞 i , ∣ x i ∣₁) ∣ y ∣₁))
+    Σhelper x y = toLimCone isLimConeDoubleLocAlgCone
+      where
+      f = fst ∘ x
+      h = fst y
+      Df≡𝔞 = snd ∘ x
+      Dh≡⋁𝔞 = snd y
+
+      open condCone (λ i → 𝔞 i , ∣ f i , Df≡𝔞 i ∣₁)
+      theSheafCone = B⋁Cone ∣ h , Dh≡⋁𝔞 ∣₁
+
+      DHelper : D h ≡ [ suc n , f ] --⋁ (D ∘ f)
+      DHelper = Dh≡⋁𝔞 ∙ ⋁Ext (λ i → sym (Df≡𝔞 i)) ∙ ⋁D≡ f
+
+      open Exponentiation R'
+      open RadicalIdeal R'
+      open DoubleLoc R' h
+      open isMultClosedSubset (powersFormMultClosedSubset h)
+      open S⁻¹RUniversalProp R' [ h ⁿ|n≥0] (powersFormMultClosedSubset h)
+      open CommIdeal R[1/ h ]AsCommRing using ()
+                                        renaming (CommIdeal to CommIdealₕ ; _∈_ to _∈ₕ_)
+
+      instance
+       _ = snd R[1/ h ]AsCommRing
+
+      -- crucial facts about radical ideals
+      h∈√⟨f⟩ : h ∈ √ ⟨ f ⟩[ R' ]
+      h∈√⟨f⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun DHelper .fst zero
+
+      f∈√⟨h⟩ : ∀ i → f i ∈ √ ⟨ h ⟩ₛ
+      f∈√⟨h⟩ i = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun
+                   (sym DHelper) .fst i
+
+      ff∈√⟨h⟩ : ∀ i j → f i · f j ∈ √ ⟨ h ⟩ₛ
+      ff∈√⟨h⟩ i j = √ ⟨ h ⟩ₛ .snd .·Closed (f i) (f∈√⟨h⟩ j)
+
+      f/1 : FinVec (R[1/ h ]) (suc n)
+      f/1 i = (f i) /1
+
+      1∈⟨f/1⟩ : 1r ∈ₕ ⟨ f/1 ⟩[ R[1/ h ]AsCommRing ]
+      1∈⟨f/1⟩ = fromFact h∈√⟨f⟩
+       where
+       fromFact : h ∈ √ ⟨ f ⟩[ R' ] → 1r ∈ₕ ⟨ f/1 ⟩[ R[1/ h ]AsCommRing ]
+       fromFact = PT.rec isPropPropTrunc (uncurry helper1)
+        where
+        helper1 : (m : ℕ) → h ^ m ∈ ⟨ f ⟩[ R' ] → 1r ∈ₕ ⟨ f/1 ⟩[ R[1/ h ]AsCommRing ]
+        helper1 m = PT.map helper2
+         where
+         helper2 : Σ[ α ∈ FinVec R (suc n) ]
+                     h ^ m ≡ linearCombination R' α f
+                 → Σ[ β ∈ FinVec R[1/ h ] (suc n) ]
+                     1r ≡ linearCombination R[1/ h ]AsCommRing β f/1
+         helper2 (α , hᵐ≡∑αf) = β , path
+          where
+          open Units R[1/ h ]AsCommRing
+          open Sum (CommRing→Ring R[1/ h ]AsCommRing)
+          open IsRingHom (snd /1AsCommRingHom)
+          open SumMap _ _ /1AsCommRingHom
+          instance
+           h⁻ᵐ : (h ^ m) /1 ∈ₚ (R[1/ h ]AsCommRing ˣ)
+           h⁻ᵐ = [ 1r , h ^ m , ∣ m , refl ∣₁ ]
+               , eq/ _ _ ((1r , containsOne) , path (h ^ m))
+            where
+            path : ∀ x → 1r · (x · 1r) · 1r ≡ 1r · 1r · (1r · x)
+            path = solve R'
+
+          β : FinVec R[1/ h ] (suc n)
+          β i = ((h ^ m) /1) ⁻¹ · α i /1
+
+          /1Path : (h ^ m) /1 ≡ ∑ (λ i → α i /1 · f i /1)
+          /1Path = (h ^ m) /1
+                 ≡⟨ cong (_/1) hᵐ≡∑αf ⟩
+                   (linearCombination R' α f) /1
+                 ≡⟨ ∑Map (λ i → α i · f i) ⟩
+                   ∑ (λ i → (α i · f i) /1)
+                 ≡⟨ ∑Ext (λ i → pres· (α i) (f i)) ⟩
+                   ∑ (λ i → α i /1 · f i /1) ∎
+
+          path : 1r ≡ ∑ (λ i →  β i · f/1 i)
+          path = 1r
+               ≡⟨ sym (·-linv ((h ^ m) /1)) ⟩
+                 ((h ^ m) /1) ⁻¹ · (h ^ m) /1
+               ≡⟨ cong (((h ^ m) /1) ⁻¹ ·_) /1Path ⟩
+                 ((h ^ m) /1) ⁻¹ · ∑ (λ i → α i /1 · f i /1)
+               ≡⟨ ∑Mulrdist (((h ^ m) /1) ⁻¹) (λ i → α i /1 · f i /1) ⟩
+                 ∑ (λ i →  ((h ^ m) /1) ⁻¹ · (α i /1 · f i /1))
+               ≡⟨ ∑Ext (λ i → ·Assoc (((h ^ m) /1) ⁻¹) (α i /1) (f i /1)) ⟩
+                 ∑ (λ i →  β i · f/1 i) ∎
+
+
+      -- Putting everything together:
+      -- First, the diagram and limiting cone we get from our lemma
+      -- in Cubical.Algebra.Localisation.Limit with R=R[1/h]
+      --      ⟨ f₁/1 , ... , fₙ/1 ⟩ = R[1/h]
+      --   ⇒  R[1/h] = lim { R[1/h][1/fᵢ] → R[1/h][1/fᵢfⱼ] ← R[1/h][1/fⱼ] }
+      doubleLocDiag = locDiagram R[1/ h ]AsCommRing f/1
+      doubleLocCone = locCone R[1/ h ]AsCommRing f/1
+      isLimConeDoubleLocCone : isLimCone _ _ doubleLocCone
+      isLimConeDoubleLocCone = isLimConeLocCone R[1/ h ]AsCommRing f/1 1∈⟨f/1⟩
+
+      -- this gives a limiting cone in R-algebras via _/1/1 : R → R[1/h][1/fᵢ]
+      -- note that the pair case looks more complicated as
+      -- R[1/h][(fᵢfⱼ)/1/1] =/= R[1/h][(fᵢ/1 · fⱼ/1)/1]
+      -- definitionally
+      open Cone
+      open IsRingHom
+
+      module D i = DoubleLoc R' h (f i)
+
+      /1/1Cone : Cone doubleLocDiag R'
+      coneOut /1/1Cone (sing i) = D./1/1AsCommRingHom i
+      fst (coneOut /1/1Cone (pair i j i<j)) r =
+          [ [ r , 1r , ∣ 0 , refl ∣₁ ] , 1r , ∣ 0 , refl ∣₁ ]
+      pres0 (snd (coneOut /1/1Cone (pair i j i<j))) = refl
+      pres1 (snd (coneOut /1/1Cone (pair i j i<j))) = refl
+      pres+ (snd (coneOut /1/1Cone (pair i j i<j))) x y =
+        cong [_] (≡-× (cong [_] (≡-×
+                      (cong₂ _+_ (useSolver x) (useSolver y))
+                      (Σ≡Prop (λ _ → isPropPropTrunc) (useSolver 1r))))
+                      (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
+        where
+        useSolver : ∀ a → a ≡ a · 1r · (1r · 1r)
+        useSolver = solve R'
+      pres· (snd (coneOut /1/1Cone (pair i j i<j))) x y =
+        cong [_] (≡-× (cong [_] (≡-× refl
+                      (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r)))))
+                      (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
+      pres- (snd (coneOut /1/1Cone (pair i j i<j))) _ = refl
+      coneOutCommutes /1/1Cone idAr = idCompCommRingHom _
+      coneOutCommutes /1/1Cone singPairL = RingHom≡ (funExt
+        (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
+        (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
+        (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
+      coneOutCommutes /1/1Cone singPairR = RingHom≡ (funExt
+        (λ x → cong [_] (≡-× (cong [_] (≡-× (cong (x ·_) (transportRefl 1r) ∙ ·IdR x)
+        (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
+        (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
+
+      open LimitFromCommRing R' R[1/ h ]AsCommRing (DLShfDiag (suc n) ℓ)
+                             doubleLocDiag doubleLocCone /1/1Cone
+
+      -- get the desired cone in algebras:
+      isConeMor/1 : isConeMor /1/1Cone doubleLocCone /1AsCommRingHom
+      isConeMor/1 = isConeMorSingLemma /1/1Cone doubleLocCone
+                      (λ _ → RingHom≡ (funExt (λ _ → refl)))
+
+      doubleLocAlgCone = algCone /1AsCommRingHom isConeMor/1
+      isLimConeDoubleLocAlgCone : isLimCone _ _ doubleLocAlgCone
+      isLimConeDoubleLocAlgCone = reflectsLimits /1AsCommRingHom isConeMor/1
+                                                 isLimConeDoubleLocCone
+
+      -- we only give the paths on objects
+      -- R[1/h][1/fᵢ] ≡ [1/fᵢ]
+      -- R[1/h][1/fᵢfⱼ] ≡ R[1/fᵢfⱼ]
+      algPaths : ∀ v → F-ob algDiag v ≡ F-ob (funcComp universalPShf BDiag) v
+      algPaths (sing i) = doubleLocCancel (f∈√⟨h⟩ i)
+        where
+        open DoubleAlgLoc R' h (f i)
+      algPaths (pair i j i<j) = path ∙ doubleLocCancel (ff∈√⟨h⟩ i j)
+        where
+        open DoubleAlgLoc R' h (f i · f j)
+        open CommAlgChar R'
+
+        -- the naive def.
+        R[1/h][1/fᵢfⱼ]AsCommRingReg = InvertingElementsBase.R[1/_]AsCommRing
+                                        R[1/ h ]AsCommRing ((f i · f j) /1)
+
+        path : toCommAlg ( F-ob doubleLocDiag (pair i j i<j)
+                         , coneOut /1/1Cone (pair i j i<j))
+             ≡ toCommAlg (R[1/h][1/fᵢfⱼ]AsCommRingReg , /1/1AsCommRingHom (f i · f j))
+        path =  cong toCommAlg (ΣPathP (p , q))
+          where
+          eqInR[1/h] : (f i /1) · (f j /1) ≡ (f i · f j) /1
+          eqInR[1/h] = sym (/1AsCommRingHom .snd .pres· (f i) (f j))
+
+          p : F-ob doubleLocDiag (pair i j i<j) ≡ R[1/h][1/fᵢfⱼ]AsCommRingReg
+          p i = InvertingElementsBase.R[1/_]AsCommRing R[1/ h ]AsCommRing (eqInR[1/h] i)
+
+          q : PathP (λ i → CommRingHom R' (p i)) (coneOut /1/1Cone (pair i j i<j))
+                                                 (/1/1AsCommRingHom (f i · f j))
+          q = toPathP (RingHom≡ (funExt (
+                λ r → cong [_] (≡-× (cong [_] (≡-× (transportRefl _ ∙ transportRefl r)
+                    (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))
+                    (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))))
+
+      -- now everything is ready to apply our final lemma
+      open toSheaf theSheafCone doubleLocAlgCone algPaths
+
 
  -- our main result
  isSheaf𝓞 : isDLSheaf _ _ 𝓞
