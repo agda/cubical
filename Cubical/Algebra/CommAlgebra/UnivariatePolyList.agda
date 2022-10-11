@@ -45,7 +45,7 @@ module _ (R : CommRing ℓ) where
       _ = snd (CommAlgebra→Algebra ListPolyCommAlgebra)
 
     module _ (x : ⟨ A ⟩) where
-      open AlgebraTheory using (0-actsNullifying; 0a-absorbs)
+      open AlgebraTheory using (⋆AnnihilL; ⋆AnnihilR)
       open RingTheory using (0RightAnnihilates; 0LeftAnnihilates)
       open AbGroupTheory using (comm-4)
       open PolyMod using (ElimProp; elimProp2; isSetPoly)
@@ -59,7 +59,7 @@ module _ (R : CommRing ℓ) where
       inducedMap (a ∷ p) = a ⋆ 1a + (x · inducedMap p)
       inducedMap (drop0 i) = eq i
         where
-          eq = 0r ⋆ 1a + (x · 0a) ≡[ i ]⟨  0-actsNullifying (CommRing→Ring R) A 1a i + (x · 0a) ⟩
+          eq = 0r ⋆ 1a + (x · 0a) ≡[ i ]⟨  ⋆AnnihilL (CommRing→Ring R) A 1a i + (x · 0a) ⟩
                0a + (x · 0a)      ≡⟨ +IdL (x · 0a) ⟩
                x · 0a             ≡⟨ 0RightAnnihilates (Algebra→Ring A) x ⟩
                0a ∎
@@ -75,7 +75,7 @@ module _ (R : CommRing ℓ) where
 
         inducedMapGenerator : ϕ X ≡ x
         inducedMapGenerator =
-          0r ⋆ 1a + (x · ϕ (1r ∷ [])) ≡[ i ]⟨  0-actsNullifying
+          0r ⋆ 1a + (x · ϕ (1r ∷ [])) ≡[ i ]⟨  ⋆AnnihilL
                                        (CommRing→Ring R) A 1a i + (x · ϕ (1r ∷ [])) ⟩
           0a + (x · ϕ (1r ∷ []))      ≡⟨ +IdL _ ⟩
           x · ϕ (1r ∷ [])             ≡[ i ]⟨ x · inducedMap1 i ⟩
@@ -88,7 +88,7 @@ module _ (R : CommRing ℓ) where
             (λ p → ϕ (r PolyConst* p) ≡ r ⋆ ϕ p)
             (ϕ (r PolyConst* []) ≡⟨⟩
              ϕ []       ≡⟨⟩
-             0a                  ≡⟨ sym (0a-absorbs (CommRing→Ring R) A r) ⟩
+             0a                  ≡⟨ sym (⋆AnnihilR (CommRing→Ring R) A r) ⟩
              r ⋆ 0a ∎)
             (λ s p IH →
               ϕ (r PolyConst* (s ∷ p))              ≡⟨⟩
@@ -168,7 +168,7 @@ module _ (R : CommRing ℓ) where
             step3 r p i = inducedMap⋆ r q i + ϕ (0r ∷ (p Poly* q))
 
             step4 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
-            step4 r p i = r ⋆ ϕ q + (0-actsNullifying (CommRing→Ring R) A 1a i + x · ϕ (p · q))
+            step4 r p i = r ⋆ ϕ q + (⋆AnnihilL (CommRing→Ring R) A 1a i + x · ϕ (p · q))
 
             step5 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
             step5 r p i = r ⋆ ϕ q + +IdL (x · ϕ (p · q)) i
