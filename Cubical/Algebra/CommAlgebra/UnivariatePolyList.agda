@@ -73,15 +73,6 @@ module _ (R : CommRing ℓ) where
           1a + 0a             ≡⟨ +IdR 1a ⟩
           1a ∎
 
-        inducedMapGenerator : ϕ X ≡ x
-        inducedMapGenerator =
-          0r ⋆ 1a + (x · ϕ (1r ∷ [])) ≡[ i ]⟨  ⋆AnnihilL
-                                       (CommRing→Ring R) A 1a i + (x · ϕ (1r ∷ [])) ⟩
-          0a + (x · ϕ (1r ∷ []))      ≡⟨ +IdL _ ⟩
-          x · ϕ (1r ∷ [])             ≡[ i ]⟨ x · inducedMap1 i ⟩
-          x · 1a                      ≡⟨ ·IdR _ ⟩
-          x ∎
-
         inducedMapPolyConst⋆ : (r : ⟨ R ⟩) (p : _) → ϕ (r PolyConst* p) ≡ r ⋆ ϕ p
         inducedMapPolyConst⋆ r =
           ElimProp R
@@ -186,8 +177,14 @@ module _ (R : CommRing ℓ) where
       fst inducedHom = inducedMap
       snd inducedHom = makeIsAlgebraHom inducedMap1 inducedMap+ inducedMap· inducedMap⋆
 
-      inducedHomOnGenerator : fst inducedHom X ≡ x
-      inducedHomOnGenerator = inducedMapGenerator
+      inducedMapGenerator : ϕ X ≡ x
+      inducedMapGenerator =
+        0r ⋆ 1a + (x · ϕ (1r ∷ [])) ≡[ i ]⟨  ⋆AnnihilL
+                                     (CommRing→Ring R) A 1a i + (x · ϕ (1r ∷ [])) ⟩
+        0a + (x · ϕ (1r ∷ []))      ≡⟨ +IdL _ ⟩
+        x · ϕ (1r ∷ [])             ≡[ i ]⟨ x · inducedMap1 i ⟩
+        x · 1a                      ≡⟨ ·IdR _ ⟩
+        x ∎
 
       {- Uniqueness -}
       inducedHomUnique : (f : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A)
