@@ -41,6 +41,7 @@ open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.Groups.Unit
 open import Cubical.ZCohomology.Groups.Sn
+open import Cubical.ZCohomology.RingStructure.CupProduct
 
 open import Cubical.ZCohomology.RingStructure.CupProduct
 open import Cubical.ZCohomology.RingStructure.RingLaws
@@ -96,12 +97,12 @@ private
     helper : (p : x ≡ x) → Iso (p ∙ q ≡ q) ((p ∙ q) ∙ sym q ≡ q ∙ sym q)
     helper p = congIso (equivToIso (_ , compPathr-isEquiv (sym q)))
 
------- H¹(𝕂²) ≅ 0 --------------
-H⁰-𝕂² : GroupIso (coHomGr 0 KleinBottle) ℤGroup
-fun (fst H⁰-𝕂²) = ST.rec isSetℤ λ f → f point
-inv (fst H⁰-𝕂²) x = ∣ (λ _ → x) ∣₂
-rightInv (fst H⁰-𝕂²) _ = refl
-leftInv (fst H⁰-𝕂²) =
+------ H⁰(𝕂²) ≅ ℤ --------------
+H⁰-𝕂²≅ℤ : GroupIso (coHomGr 0 KleinBottle) ℤGroup
+fun (fst H⁰-𝕂²≅ℤ) = ST.rec isSetℤ λ f → f point
+inv (fst H⁰-𝕂²≅ℤ) x = ∣ (λ _ → x) ∣₂
+rightInv (fst H⁰-𝕂²≅ℤ) _ = refl
+leftInv (fst H⁰-𝕂²≅ℤ) =
   ST.elim (λ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
         λ f → cong ∣_∣₂ (funExt (λ {point → refl
                                  ; (line1 i) j → isSetℤ (f point) (f point) refl (cong f line1) j i
@@ -116,10 +117,10 @@ leftInv (fst H⁰-𝕂²) =
                 refl
                 λ i j → f (square i j)
   helper f = isGroupoid→isGroupoid' (isOfHLevelSuc 2 isSetℤ) _ _ _ _ _ _
-snd H⁰-𝕂² =
+snd H⁰-𝕂²≅ℤ =
   makeIsGroupHom (ST.elim2 (λ _ _ → isOfHLevelPath 2 isSetℤ _ _) λ _ _ → refl)
 
------- H¹(𝕂¹) ≅ ℤ ------------
+------ H¹(𝕂²) ≅ ℤ ------------
 {-
 Step one :
 H¹(𝕂²) := ∥ 𝕂² → K₁ ∥₂
@@ -467,8 +468,18 @@ Hⁿ⁺³-𝕂²≅0 n = contrGroupIsoUnit (isContrHⁿ-𝕂² n)
         ; (line2 i) → Kn→ΩKn+1 0 1 i
         ; (square i i₁) → Kn→ΩKn+1 0 (pos 1) i₁}) ∣₂
 
+-- Because ℤ is discrete it computes nicely
 α↦1 : Iso.fun (fst H¹-𝕂²≅ℤ) α ≡ 1
 α↦1 = refl
+
+1↦α : Iso.inv (fst H¹-𝕂²≅ℤ) 1 ≡ α
+1↦α = cong (Iso.inv (fst H¹-𝕂²≅ℤ)) (sym α↦1)
+      ∙ leftInv (fst H¹-𝕂²≅ℤ) α
+
+
+-- still too long to compute, but works for RP2⋁S1
+-- lem-α²≡0 : Iso.fun (fst H²-𝕂²≅Bool) (α ⌣ α) ≡ true
+-- lem-α²≡0 = {!refl!}
 
 private
   lem : (p : 0ₖ 1 ≡ 0ₖ 1) → cong₂ (_⌣ₖ_) p p ≡ refl
@@ -483,6 +494,6 @@ private
             ; (line2 i) j → lem (Kn→ΩKn+1 0 1) j i
             ; (square _ i) j → lem (Kn→ΩKn+1 0 1) j i})
 
-α²↦0 : Iso.fun (fst H²-𝕂²≅Bool) (α ⌣ α) ≡ true
-α²↦0 = cong (fun (fst H²-𝕂²≅Bool)) α²≡0
-      ∙ IsGroupHom.pres1 (snd H²-𝕂²≅Bool)
+-- proof that the cup product is trivial
+trivial-cup : Iso.inv (fst H¹-𝕂²≅ℤ) 1 ⌣ Iso.inv (fst H¹-𝕂²≅ℤ) 1 ≡ 0ₕ 2
+trivial-cup = cong₂ _⌣_ 1↦α 1↦α ∙ α²≡0

@@ -40,8 +40,8 @@ isSphereFilled : ℕ₋₁ → Type ℓ → Type ℓ
 isSphereFilled n A = (f : S n → A) → sphereFill n f
 
 isSphereFilledTrunc : {n : HLevel} → isSphereFilled (-1+ n) (hLevelTrunc n A)
-isSphereFilledTrunc {n = zero}  f = hub f , ⊥.elim
-isSphereFilledTrunc {n = suc n} f = hub f , spoke f
+isSphereFilledTrunc {n = zero}  f = hub tt f , ⊥.elim
+isSphereFilledTrunc {n = suc n} f = hub tt f , spoke tt f
 
 isSphereFilled→isOfHLevelSuc : {n : HLevel} → isSphereFilled (ℕ→ℕ₋₁ n) A → isOfHLevel (suc n) A
 isSphereFilled→isOfHLevelSuc {A = A} {zero} h x y = sym (snd (h f) north) ∙ snd (h f) south
@@ -97,18 +97,18 @@ isOfHLevel→isSphereFilled {A = A} {suc (suc n)} h = helper λ x y → isOfHLev
 
 -- isNull (S n) A ≃ (isSphereFilled n A) × (∀ (x y : A) → isSphereFilled n (x ≡ y))
 
-isOfHLevel→isSnNull : {n : HLevel} → isOfHLevel n A → isNull (S (-1+ n)) A
-fst (sec (isOfHLevel→isSnNull h)) f     = fst (isOfHLevel→isSphereFilled h f)
-snd (sec (isOfHLevel→isSnNull h)) f i s = snd (isOfHLevel→isSphereFilled h f) s i
-fst (secCong (isOfHLevel→isSnNull h) x y) p = fst (isOfHLevel→isSphereFilled (isOfHLevelPath _ h x y) (funExt⁻ p))
-snd (secCong (isOfHLevel→isSnNull h) x y) p i j s = snd (isOfHLevel→isSphereFilled (isOfHLevelPath _ h x y) (funExt⁻ p)) s i j
+isOfHLevel→isSnNull : {n : HLevel} → isOfHLevel n A → isNull {A = Unit} (λ _ → S (-1+ n)) A
+fst (sec (isOfHLevel→isSnNull h _)) f     = fst (isOfHLevel→isSphereFilled h f)
+snd (sec (isOfHLevel→isSnNull h _)) f i s = snd (isOfHLevel→isSphereFilled h f) s i
+fst (secCong (isOfHLevel→isSnNull h _) x y) p = fst (isOfHLevel→isSphereFilled (isOfHLevelPath _ h x y) (funExt⁻ p))
+snd (secCong (isOfHLevel→isSnNull h _) x y) p i j s = snd (isOfHLevel→isSphereFilled (isOfHLevelPath _ h x y) (funExt⁻ p)) s i j
 
-isSnNull→isOfHLevel : {n : HLevel} → isNull (S (-1+ n)) A → isOfHLevel n A
-isSnNull→isOfHLevel {n = zero}  nA = fst (sec nA) ⊥.rec , λ y → fst (secCong nA _ y) (funExt ⊥.elim)
-isSnNull→isOfHLevel {n = suc n} nA = isSphereFilled→isOfHLevelSuc (λ f → fst (sec nA) f , λ s i → snd (sec nA) f i s)
+isSnNull→isOfHLevel : {n : HLevel} → isNull {A = Unit} (λ _ → S (-1+ n)) A → isOfHLevel n A
+isSnNull→isOfHLevel {n = zero}  nA = fst (sec (nA tt)) ⊥.rec , λ y → fst (secCong (nA tt) _ y) (funExt ⊥.elim)
+isSnNull→isOfHLevel {n = suc n} nA = isSphereFilled→isOfHLevelSuc (λ f → fst (sec (nA tt)) f , λ s i → snd (sec (nA tt)) f i s)
 
 isOfHLevelTrunc : (n : HLevel) → isOfHLevel n (hLevelTrunc n A)
-isOfHLevelTrunc zero    = hub ⊥.rec , λ _ → ≡hub ⊥.rec
+isOfHLevelTrunc zero    = hub tt ⊥.rec , λ _ → ≡hub ⊥.rec
 isOfHLevelTrunc (suc n) = isSphereFilled→isOfHLevelSuc isSphereFilledTrunc
 
 -- isOfHLevelTrunc n = isSnNull→isOfHLevel isNull-Null

@@ -2,7 +2,7 @@
 
 -- This file could be proven using the file Sn
 -- However the proofs are easier than in Sn
--- And so kept for pedagogic reasons
+-- And so kept for pedagogical reasons
 
 module Cubical.ZCohomology.CohomologyRings.S1 where
 
@@ -133,6 +133,7 @@ module Equiv-S1-Properties where
   ϕ₀⁻¹str = snd (invGroupIso e₀)
   ϕ₀-sect = rightInv (fst e₀)
   ϕ₀-retr = leftInv (fst e₀)
+
 
   e₁ = invGroupIso (Hⁿ-Sᵐ 1 1)
   ϕ₁ = fun (fst e₁)

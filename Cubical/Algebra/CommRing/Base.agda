@@ -15,6 +15,7 @@ open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
 open import Cubical.Algebra.Ring.Base
+open import Cubical.Algebra.AbGroup
 
 open import Cubical.Reflection.RecordEquiv
 
@@ -94,6 +95,9 @@ CommRingStr→RingStr (commringstr _ _ _ _ _ H) = ringstr _ _ _ _ _ (IsCommRing.
 
 CommRing→Ring : CommRing ℓ → Ring ℓ
 CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
+
+CommRing→AbGroup : CommRing ℓ → AbGroup ℓ
+CommRing→AbGroup R = Ring→AbGroup (CommRing→Ring R)
 
 Ring→CommRing : (R : Ring ℓ) → ((x y : (fst R)) → (RingStr._·_ (snd R) x y ≡ RingStr._·_ (snd R) y x)) → CommRing ℓ
 fst (Ring→CommRing R p) = fst R
