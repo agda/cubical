@@ -4,6 +4,7 @@ module Cubical.Algebra.CommAlgebra.UnivariatePolyList where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 
@@ -43,6 +44,9 @@ module _ (R : CommRing ℓ) where
       _ = snd A
       _ = snd (Algebra→Ring A)
       _ = snd (CommAlgebra→Algebra ListPolyCommAlgebra)
+    private
+      X : ⟨ ListPolyCommAlgebra ⟩
+      X = 0r ∷ 1r ∷ []
 
     module _ (x : ⟨ A ⟩) where
       open AlgebraTheory using (⋆AnnihilL; ⋆AnnihilR)
@@ -50,9 +54,6 @@ module _ (R : CommRing ℓ) where
       open AbGroupTheory using (comm-4)
       open PolyMod using (ElimProp; elimProp2; isSetPoly)
 
-      private
-        X : ⟨ ListPolyCommAlgebra ⟩
-        X = 0r ∷ 1r ∷ []
 
       inducedMap : ⟨ ListPolyCommAlgebra ⟩ → ⟨ A ⟩
       inducedMap [] = 0a
@@ -214,3 +215,11 @@ module _ (R : CommRing ℓ) where
           where
             useSolver : (r : ⟨ R ⟩) → r ≡ (r · 1r) + 0r
             useSolver = solve R
+
+    {- Reforumlation in terms of the R-AlgebraHom from R[X] to A -}
+    indcuedHomEquivalence : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A ≃ ⟨ A ⟩
+    fst indcuedHomEquivalence f = fst f X
+    fst (fst (equiv-proof (snd indcuedHomEquivalence) x)) = inducedHom x
+    snd (fst (equiv-proof (snd indcuedHomEquivalence) x)) = inducedMapGenerator x
+    snd (equiv-proof (snd indcuedHomEquivalence) x) (g , gX≡x) =
+      Σ≡Prop (λ _ → isSetAlgebra A _ _) (sym (inducedHomUnique x g gX≡x))
