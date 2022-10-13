@@ -106,6 +106,8 @@ module ZarLat (R' : CommRing ℓ) where
  ∼→≡ r = CommIdeal≡Char (√FGIdealCharRImpl _ ⟨ _ ⟩ (fst r))
                         (√FGIdealCharRImpl _ ⟨ _ ⟩ (snd r))
 
+ ∼≃≡ : ∀ {a b : A} → (a ∼ b) ≃ (a ∼≡ b)
+ ∼≃≡ = propBiimpl→Equiv (∼PropValued _ _) (isSetCommIdeal _ _) ∼→≡ ≡→∼
 
  0z : ZL
  0z = [ 0 , (λ ()) ]

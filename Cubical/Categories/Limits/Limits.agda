@@ -237,10 +237,10 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
                                                               (sym (isInitJ j .snd _)) (D .F-id))
                             ∙∙ ⋆IdR C f)
 
-  -- cones that respect isomorphsims are limiting cones
+  -- cones that respect isomorphisms are limiting cones
   Iso→LimCone : {D : Functor J C} {c₁ c₂ : ob C} (cc₁ : Cone D c₁) (e : CatIso C c₁ c₂)
               → isLimCone _ _ cc₁
-              → ∀ (cc₂ : Cone D c₂)
+              → (cc₂ : Cone D c₂)
               → isConeMor cc₁ cc₂ (e .fst)
               → isLimCone _ _ cc₂
   fst (fst (Iso→LimCone cc₁ e isLimConeCC₁ cc₂ isConeMorE d cd)) =

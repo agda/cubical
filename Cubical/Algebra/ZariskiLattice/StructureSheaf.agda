@@ -196,7 +196,6 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
  globalSection = baseSections 1r ∙  invertingUnitsPath _ _ (Units.RˣContainsOne _)
 
 
- -- TODO: prove that 𝓞ᴮ is a sheaf!!!
  open SheafOnBasis ZariskiLattice (CommRingsCategory {ℓ = ℓ}) BasicOpens basicOpensAreBasis
  open DistLatticeStr ⦃...⦄
  private instance _ = snd ZariskiLattice
@@ -221,7 +220,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
    isTerminal𝓞ᴮ[0] = subst (isTerminal CommRingsCategory)
                            (sym (p ∙ R[1/0]≡0)) (TerminalCommRing .snd)
 
- isSheaf𝓞ᴮ {n = suc n} α = curriedHelper (fst ∘ α) (snd ∘ α) -- lemma?????
+ isSheaf𝓞ᴮ {n = suc n} α = curriedHelper (fst ∘ α) (snd ∘ α)
   where
   curriedHelper : (𝔞 : FinVec ZL (suc n)) (𝔞∈BO : ∀ i → 𝔞 i ∈ₚ BasicOpens)
                   (⋁𝔞∈BO : ⋁ 𝔞 ∈ₚ BasicOpens)
@@ -234,7 +233,8 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
               (y : Σ[ g ∈ R ] D g ≡ ⋁ 𝔞)
             → isLimCone _ _ (F-cone 𝓞ᴮ
                             (condCone.B⋁Cone (λ i → 𝔞 i , ∣ x i ∣₁) ∣ y ∣₁))
-    Σhelper x y = toLimCone isLimConeDoubleLocAlgCone
+    Σhelper x y = toSheaf.toLimCone theSheafCone doubleLocAlgCone
+                                    algPaths isLimConeDoubleLocAlgCone
       where
       f = fst ∘ x
       h = fst y
@@ -417,9 +417,6 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
                 λ r → cong [_] (≡-× (cong [_] (≡-× (transportRefl _ ∙ transportRefl r)
                     (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))
                     (Σ≡Prop (λ _ → isPropPropTrunc) (transportRefl 1r))))))
-
-      -- now everything is ready to apply our final lemma
-      open toSheaf theSheafCone doubleLocAlgCone algPaths
 
 
  -- our main result

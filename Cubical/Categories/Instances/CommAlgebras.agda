@@ -632,7 +632,6 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
 
  module toSheaf
           {J : Category ℓ'' ℓ''}
-          -- don't know how to make Agda happy with universe levels otherwise
           {D : Functor J (ΣC∥P∥Cat ^op)} {c : ob ΣC∥P∥Cat} (cc : Cone D c) -- will be B⋁Cone
           {algDiag : Functor J CommAlgCat}
           (algCone : Cone algDiag (F-ob universalPShf c))
@@ -681,45 +680,7 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
     conePathPCR = conePathPDiag -- why does everything have to be explicit?
             (λ v _ → (Forgetful ∘F universalPShf) .F-hom {x = c} {y = D .F-ob v} (cc .coneOut v))
 
-   abstract
-    toLimCone : isLimCone _ _ (F-cone 𝓖 cc)
-    toLimCone = transport (λ i → isLimCone _ _ (conePathPCR i))
-                          (presLimForgetful _ (intermediateTransport isLimAlgCone))
 
-
-  -- old stuff for doing things the ad-hoc way
-  -- module _ {crDiag : Functor J CommRingsCat} {A : ob CommRingsCat}
-  --          (crCone : Cone crDiag A) -- will be locCone
-  --          (q : crDiag ≡ Forgetful ∘F algDiag)
-  --          (r : A ≡ 𝓖 .F-ob c)
-  --          (s : ∀ v → PathP (λ i → CommRingHom (r i)  (q i .F-ob v))
-  --                            (crCone .coneOut v) ((F-cone Forgetful algCone) .coneOut v)) where
-
-  --  private
-  --   foo : PathP (λ i → Cone (q i) (r i)) crCone (F-cone Forgetful algCone)
-  --   foo = conePathP s
-
-  --   baz : PathP (λ i → Cone (Forgetful ∘F (diagPathAlg i)) (F-ob (Forgetful ∘F universalPShf) c))
-  --               (F-cone Forgetful algCone) (F-cone Forgetful (F-cone universalPShf cc))
-  --   baz = congP (λ _ → F-cone Forgetful) conePathPAlg
-
-  --   diagBar : Forgetful ∘F (universalPShf ∘F D) ≡ 𝓖 ∘F D
-  --   diagBar = F-assoc
-
-  --   bar : PathP (λ i → Cone (diagBar i) (F-ob (Forgetful ∘F universalPShf) c))
-  --               (F-cone Forgetful (F-cone universalPShf cc)) (F-cone 𝓖 cc)
-  --   bar = conePathPDiag -- why does everything have to be explicit?
-  --           (λ v _ → (Forgetful ∘F universalPShf) .F-hom {x = c} {y = D .F-ob v} (cc .coneOut v))
-
-  --   -- diagPathF : crDiag ≡ 𝓖 ∘F D
-  --   -- diagPathF = q ∙∙ cong (funcComp Forgetful) diagPathAlg ∙∙ F-assoc
-
-  --   -- conePathPF : PathP (λ i → Cone (diagPathF i) (r ·· refl ·· refl i)) crCone (F-cone 𝓖 cc)
-  --   -- conePathPF = {!!} --conePathP λ v i → {!!}
-
-  --  abstract
-  --   toLimCone' : isLimCone _ _ crCone → isLimCone _ _ (F-cone 𝓖 cc)
-  --   toLimCone' univProp = transport (λ i → isLimCone _ _ (bar i))
-  --                          (transport (λ i → isLimCone _ _ (baz i))
-  --                            (transport (λ i → isLimCone _ _ (foo i)) univProp))
-  --   --transport (λ i → isLimCone (diagPathF i) (r i) (conePathPF i)) univProp
+   toLimCone : isLimCone _ _ (F-cone 𝓖 cc)
+   toLimCone = transport (λ i → isLimCone _ _ (conePathPCR i))
+                         (presLimForgetful _ (intermediateTransport isLimAlgCone))
