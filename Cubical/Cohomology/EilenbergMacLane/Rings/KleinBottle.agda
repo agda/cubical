@@ -41,7 +41,7 @@ open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommRing.Instances.IntMod
-open import Cubical.Algebra.CommRing.QuotientRing
+open import Cubical.Algebra.CommRing.Quotient
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
 open import Cubical.Algebra.AbGroup.TensorProduct

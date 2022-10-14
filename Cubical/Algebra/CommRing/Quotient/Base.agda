@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRing.QuotientRing where
+module Cubical.Algebra.CommRing.Quotient.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
@@ -16,7 +16,7 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.Kernel
 open import Cubical.Algebra.Ring
-import Cubical.Algebra.Ring.QuotientRing as Ring
+import Cubical.Algebra.Ring.Quotient as Ring
 
 private
   variable

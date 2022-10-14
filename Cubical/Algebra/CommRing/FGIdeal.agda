@@ -31,7 +31,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.Ideal.Sum
 open import Cubical.Algebra.CommRing.BinomialThm
-open import Cubical.Algebra.Ring.QuotientRing
+open import Cubical.Algebra.Ring.Quotient
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.Matrix
