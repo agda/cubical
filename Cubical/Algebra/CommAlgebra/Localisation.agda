@@ -25,9 +25,7 @@ open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
-open import Cubical.Algebra.CommRing.Localisation.Base
-open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
-open import Cubical.Algebra.CommRing.Localisation.InvertingElements
+open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra.Base

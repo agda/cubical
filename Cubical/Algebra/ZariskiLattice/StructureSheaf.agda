@@ -36,10 +36,7 @@ open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
-open import Cubical.Algebra.CommRing.Localisation.Base
-open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
-open import Cubical.Algebra.CommRing.Localisation.InvertingElements
-open import Cubical.Algebra.CommRing.Localisation.Limit
+open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.CommRing.Instances.Unit
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
