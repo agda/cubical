@@ -274,9 +274,6 @@ module _ (R' : CommRing ℓ) where
     ⟨ x , y ⟩ₕ = ⟨ replicateFinVec 1 x ++Fin replicateFinVec 1 y ⟩[ R[1/ h ]AsCommRing ]
 
     -- the crucial algebraic fact:
-    -- radicalPath : √ ⟨ h ⟩ ≡ √ ⟨ f , g ⟩ₚ
-    -- radicalPath = isEquivRel→effectiveIso (λ _ _ → isSetCommIdeal _ _) ∼EquivRel _ _ .fun DHelper
-    --  where
     DHelper : D h ≡ D f ∨z D g
     DHelper = Dh≡𝔞∨𝔟 ∙ cong₂ (_∨z_) (sym Df≡𝔞) (sym Dg≡𝔟)
 

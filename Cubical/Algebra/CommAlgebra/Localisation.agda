@@ -63,7 +63,7 @@ module AlgLoc (R' : CommRing ℓ)
  S⁻¹RAsCommAlg = toCommAlg (S⁻¹RAsCommRing , /1AsCommRingHom)
 
  LocCommAlg→CommRingPath : CommAlgebra→CommRing S⁻¹RAsCommAlg ≡ S⁻¹RAsCommRing
- LocCommAlg→CommRingPath = froToCommRingPath (S⁻¹RAsCommRing , /1AsCommRingHom)
+ LocCommAlg→CommRingPath = CommAlgebra→CommRing≡ (S⁻¹RAsCommRing , /1AsCommRingHom)
 
  hasLocAlgUniversalProp : (A : CommAlgebra R' ℓ)
                         → (∀ s → s ∈ S' → _⋆_ (snd A) s (1a (snd A)) ∈ (CommAlgebra→CommRing A) ˣ)

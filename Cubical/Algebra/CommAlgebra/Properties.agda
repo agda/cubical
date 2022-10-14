@@ -102,23 +102,23 @@ module CommAlgChar (R : CommRing ℓ) where
    open CommRingStr
    private
      A = fst Aφ
-   froToCommRingPath : CommAlgebra→CommRing (toCommAlg Aφ) ≡ fst Aφ
-   fst (froToCommRingPath i) = fst A
-   0r (snd (froToCommRingPath i)) = 0r (snd A)
-   1r (snd (froToCommRingPath i)) = 1r (snd A)
-   _+_ (snd (froToCommRingPath i)) = _+_ (snd A)
-   _·_ (snd (froToCommRingPath i)) = _·_ (snd A)
-   -_ (snd (froToCommRingPath i)) = -_ (snd A)
+   CommAlgebra→CommRing≡ : CommAlgebra→CommRing (toCommAlg Aφ) ≡ A
+   fst (CommAlgebra→CommRing≡ i) = fst A
+   0r (snd (CommAlgebra→CommRing≡ i)) = 0r (snd A)
+   1r (snd (CommAlgebra→CommRing≡ i)) = 1r (snd A)
+   _+_ (snd (CommAlgebra→CommRing≡ i)) = _+_ (snd A)
+   _·_ (snd (CommAlgebra→CommRing≡ i)) = _·_ (snd A)
+   -_ (snd (CommAlgebra→CommRing≡ i)) = -_ (snd A)
    -- note that the proofs of the axioms might differ!
-   isCommRing (snd (froToCommRingPath i)) = isProp→PathP (λ i → isPropIsCommRing _ _ _ _ _ )
+   isCommRing (snd (CommAlgebra→CommRing≡ i)) = isProp→PathP (λ i → isPropIsCommRing _ _ _ _ _ )
               (isCommRing (snd (CommAlgebra→CommRing (toCommAlg Aφ)))) (isCommRing (snd A)) i
 
  CommRingWithHomRoundTrip : (Aφ : CommRingWithHom) → fromCommAlg (toCommAlg Aφ) ≡ Aφ
- CommRingWithHomRoundTrip (A , φ) = ΣPathP (froToCommRingPath (A , φ) , φPathP)
+ CommRingWithHomRoundTrip (A , φ) = ΣPathP (CommAlgebra→CommRing≡ (A , φ) , φPathP)
   where
   open CommRingStr
-  -- this only works because fst (froToCommRingPath (A , φ) i) = fst A definitionally!
-  φPathP : PathP (λ i → CommRingHom R (froToCommRingPath (A , φ) i))
+  -- this only works because fst (CommAlgebra→CommRing≡ (A , φ) i) = fst A definitionally!
+  φPathP : PathP (λ i → CommRingHom R (CommAlgebra→CommRing≡ (A , φ) i))
                  (snd (fromCommAlg (toCommAlg (A , φ)))) φ
   φPathP = RingHomPathP _ _ _ _ _ _ λ i x → ·IdR (snd A) (fst φ x) i
 
