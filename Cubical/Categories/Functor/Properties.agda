@@ -25,8 +25,6 @@ private
 open Category
 open Functor
 
--- is the above version in any way preferable?
--- think this computes better:
 F-assoc : {F : Functor B C} {G : Functor C D} {H : Functor D E}
         → H ∘F (G ∘F F) ≡ (H ∘F G) ∘F F
 F-assoc = Functor≡ (λ _ → refl) (λ _ → refl)
