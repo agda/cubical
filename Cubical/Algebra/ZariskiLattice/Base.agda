@@ -30,6 +30,7 @@ open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.Ideal.Sum
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Tactics.CommRingSolver.Reflection
@@ -60,6 +61,7 @@ module ZarLat (R' : CommRing ℓ) where
  open RadicalIdeal R'
  open isCommIdeal
  open ProdFin R'
+ open IdealSum R'
 
  private
   R = fst R'

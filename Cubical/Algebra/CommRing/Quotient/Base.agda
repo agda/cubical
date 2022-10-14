@@ -4,6 +4,7 @@ module Cubical.Algebra.CommRing.Quotient.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
+open import Cubical.Functions.Surjection
 
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
@@ -77,6 +78,9 @@ module Quotient-FGideal-CommRing-CommRing
 quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
 quotientHom R I = Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
 
+quotientHomSurjective : (R : CommRing ℓ) → (I : IdealsIn R)
+                        → isSurjection (fst (quotientHom R I))
+quotientHomSurjective R I = Ring.quotientHomSurjective (CommRing→Ring R) (CommIdeal→Ideal I)
 
 module _ {R : CommRing ℓ} (I : IdealsIn R) where
   private

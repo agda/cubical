@@ -11,7 +11,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Functions.Surjection
 
 open import Cubical.Algebra.Ring.Base using (IsRingHom)
-open import Cubical.Algebra.Ring.Ideal.SurjectiveImage renaming (imageIdeal to ringImageIdeal)
+import Cubical.Algebra.Ring.Ideal.SurjectiveImage as Ring
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommRing.Ideal.Base
 
@@ -23,4 +23,4 @@ imageIdeal : {R S : CommRing ℓ}
              (f : CommRingHom R S) (f-epi : isSurjection (fst f))
              (I : IdealsIn R)
               → IdealsIn S
-imageIdeal f f-epi I = Ideal→CommIdeal (ringImageIdeal f f-epi (CommIdeal→Ideal I))
+imageIdeal f f-epi I = Ideal→CommIdeal (Ring.imageIdeal f f-epi (CommIdeal→Ideal I))
