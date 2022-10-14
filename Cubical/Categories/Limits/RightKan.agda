@@ -5,15 +5,17 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Category renaming (isIso to isIsoC)
+open import Cubical.Categories.Category
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Limits.Initial
 open import Cubical.Categories.Limits.Limits
 
-
+-- open Iso
 
 module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
          {C : Category ℓC ℓC'}
@@ -122,5 +124,27 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
    ≡⟨ sym (coneOutCommutes (RanCone (id C)) (f , ⋆IdL C _)) ⟩
      coneOut (RanCone (id C)) (u , id C) ⋆⟨ A ⟩ T .F-hom f ∎
 
- -- TODO: show that this nat. trans. is a "universal arrow" and that is a nat. iso.
- -- if K is full and faithful...
+ open isIso
+ open NatIso
+
+ RanNatIso : isFullyFaithful K → NatIso (funcComp Ran K) T
+ trans (RanNatIso isFFK) = RanNatTrans
+ nIso (RanNatIso isFFK) u = LimIso _ (limitA (K .F-ob u ↓Diag) (T* (K .F-ob u)))
+                                     (Initial→LimCone _ uInitial) .fst .fst .snd
+   where
+   invKHom : {u v : ob M} → C [ K .F-ob u , K .F-ob v ] → M [ u , v ]
+   invKHom f = invEq (K .F-hom , (isFFK _ _)) f
+
+   secKHom : ∀ {u v : ob M} (f : C [ K .F-ob u , K .F-ob v ])
+           → K .F-hom (invKHom f) ≡ f
+   secKHom f = secEq (K .F-hom , (isFFK _ _)) f
+
+   uInitial : Initial (K .F-ob u ↓Diag)
+   fst uInitial = u , id C ⋆⟨ C ⟩ id C
+   fst (snd uInitial (v , f)) = invKHom f -- the unique arrow u→v in Ku↓
+                              , cong₂ (seq' C) (⋆IdL C _) (secKHom f) ∙ ⋆IdL C f
+   snd (snd uInitial (v , f)) (g , tr) = Σ≡Prop (λ _ → isSetHom C _ _) path -- is indeed unique
+     where
+     path : invKHom f ≡ g
+     path = isFullyFaithful→Faithful {F = K} isFFK _ _ _ _
+              (secKHom f ∙∙ sym tr ∙∙ cong (λ x → x ⋆⟨ C ⟩ K .F-hom g) (⋆IdL C _) ∙ ⋆IdL C _)

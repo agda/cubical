@@ -1,18 +1,13 @@
 {-
-
   This file contains a proof of the following fact:
   For a commutative ring R with elements f₁ , ... , fₙ ∈ R such that
   ⟨ f₁ , ... , fₙ ⟩ = ⟨ 1 ⟩ = R we get an (exact) equalizer diagram of the following form:
-
       0 → R → ∏ᵢ R[1/fᵢ] ⇉ ∏ᵢⱼ R[1/fᵢfⱼ]
-
   where the two maps ∏ᵢ R[1/fᵢ] → ∏ᵢⱼ R[1/fᵢfⱼ] are induced by the two canonical maps
   R[1/fᵢ] → R[1/fᵢfⱼ] and R[1/fⱼ] → R[1/fᵢfⱼ].
-
   Using the well-known correspondence between equalizers of products and limits,
   we express the above fact through limits over the diagrams defined in
   Cubical.Categories.DistLatticeSheaf.Diagram
-
 -}
 
 {-# OPTIONS --safe --experimental-lossy-unification #-}
@@ -535,16 +530,14 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
 
 {-
-
  Putting everything together with the limit machinery:
  If ⟨ f₁ , ... , fₙ ⟩ = R, then R = lim { R[1/fᵢ] → R[1/fᵢfⱼ] ← R[1/fⱼ] }
-
 -}
  open Category (CommRingsCategory {ℓ})
  open Cone
  open Functor
 
- locDiagram : Functor (DLShfDiag (suc n)) CommRingsCategory
+ locDiagram : Functor (DLShfDiag (suc n) ℓ) CommRingsCategory
  F-ob locDiagram (sing i) = R[1/ f i ]AsCommRing
  F-ob locDiagram (pair i j _) = R[1/ f i · f j ]AsCommRing
  F-hom locDiagram idAr = idCommRingHom _
