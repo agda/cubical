@@ -38,7 +38,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
     open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
 
     imageOf0Works : 0r ⋆ 1a ≡ 0a
-    imageOf0Works = 0-actsNullifying 1a
+    imageOf0Works = ⋆AnnihilL 1a
 
     imageOf1Works : 1r ⋆ 1a ≡ 1a
     imageOf1Works = ⋆IdL 1a
@@ -91,7 +91,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
 
       inducedHom : CommAlgebraHom (R [ I ]) A
       inducedHom .fst = inducedMap
-      inducedHom .snd .pres0 = 0-actsNullifying _
+      inducedHom .snd .pres0 = ⋆AnnihilL _
       inducedHom .snd .pres1 = imageOf1Works
       inducedHom .snd .pres+ x y = refl
       inducedHom .snd .pres· x y = refl

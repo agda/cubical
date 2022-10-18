@@ -228,6 +228,17 @@ module PolyModTheory (R' : CommRing ℓ) where
     (r PolyConst* [ s ]) Poly+ []                      ≡⟨ Poly+Rid _ ⟩
     [ r · s ] ∎
 
+  PolyConst*≡Poly* : (r : R) (x : Poly R') → r PolyConst* x ≡ [ r ] Poly* x
+  PolyConst*≡Poly* r =
+    ElimProp
+      (λ x → (r PolyConst* x) ≡ ([ r ] Poly* x))
+      (sym drop0)
+      (λ s x IH →
+         r PolyConst* (s ∷ x)                   ≡⟨⟩
+         (r PolyConst* (s ∷ x)) Poly+ []        ≡[ i ]⟨ (r PolyConst* (s ∷ x)) Poly+ (sym drop0 i) ⟩
+         (r PolyConst* (s ∷ x)) Poly+ (0r ∷ []) ≡⟨⟩
+         [ r ] Poly* (s ∷ x)    ∎)
+      (isSetPoly _ _)
 
   -- For any polynomial p we have: p Poly* [ 1r ] = p
   Poly*Lid : ∀ q → 1P Poly* q ≡ q
@@ -244,6 +255,29 @@ module PolyModTheory (R' : CommRing ℓ) where
                            1r · r ∷ (1r PolyConst* p) ≡⟨ cong (_∷ 1r PolyConst* p) (·IdL r) ⟩
                            r ∷ (1r PolyConst* p) ≡⟨ cong (r ∷_) (PolyConst*Lid p) ⟩
                            r ∷ p ∎
+
+
+
+  X*Poly : (p : Poly R') → (0r ∷ 1r ∷ []) Poly* p ≡ 0r ∷ p
+  X*Poly =
+    ElimProp (λ p → (0r ∷ 1r ∷ []) Poly* p ≡ 0r ∷ p)
+             ((0r ∷ [ 1r ]) Poly* [] ≡⟨ (0PLeftAnnihilates (0r ∷ [ 1r ])) ⟩
+              []     ≡⟨ sym drop0 ⟩
+              [ 0r ] ∎)
+             (λ r p _ →
+                (0r ∷ [ 1r ]) Poly* (r ∷ p)                                  ≡⟨⟩
+                (0r PolyConst* (r ∷ p)) Poly+ (0r ∷ ([ 1r ] Poly* (r ∷ p)))  ≡⟨ step r p ⟩
+                [ 0r ] Poly+ (0r ∷ ([ 1r ] Poly* (r ∷ p)))                   ≡⟨ step2 r p ⟩
+                [] Poly+ (0r ∷ (r ∷ p))                                      ≡⟨⟩
+                0r ∷ r ∷ p ∎)
+             (isSetPoly _ _)
+
+             where
+               step : (r : _) → (p : _) → _ ≡ _
+               step r p i = (0rLeftAnnihilatesPoly (r ∷ p) i) Poly+ (0r ∷ ([ 1r ] Poly* (r ∷ p)))
+
+               step2 : (r : _) → (p : _) → _ ≡ _
+               step2 r p i = drop0 i Poly+ (0r ∷ Poly*Lid (r ∷ p) i)
 
 
   -- Distribution of indeterminate: (p + q)x = px + qx
