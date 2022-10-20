@@ -2,9 +2,9 @@
 module Cubical.ZCohomology.CohomologyRings.Sn where
 
 {-
-   This file computes the cohomology Ring of Sn (n ≥ 1)
+   This file computes the cohomology ring of Sn (n ≥ 1)
    The big difference with Sn compared to S 1 is the fact that
-   to do it for a general n, one need to add a partition.
+   to do it for a general n, one needs to add a partition.
    This implies notably some transport operation that
    complicates the definition and the proofs.
 -}
@@ -381,10 +381,13 @@ module Equiv-Sn-Properties (n : ℕ) where
            base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (ϕₙ a)) (partSn (part (suc n))))
                                      ∙ cong [_] (cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (transportRefl (ϕₙ a))))
                                      ∙ cong [_] (cong (base (1 ∷ [])) (ϕₙ-retr a))
-           base-case (suc (suc k) ∷ []) a = eq/ 0Pℤ (base (suc (suc k) ∷ []) a)  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
+           base-case (suc (suc k) ∷ []) a = eq/ _ _  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
              where
              helper : _
-             helper = (+PℤIdL _) ∙ cong₂ base (cong (λ X → X ∷ []) (sym (+n-comm k 2))) (sym (·ℤIdR _)) ∙ (sym (+PℤIdR _))
+             helper = (+PℤIdL _)
+                      ∙ cong₂ base (cong (λ X → X ∷ [])
+                                   (sym (+n-comm k 2))) (sym (·ℤIdR _))
+                      ∙ (sym (+PℤIdR _))
 
 
 

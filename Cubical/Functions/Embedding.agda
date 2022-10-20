@@ -438,17 +438,3 @@ _≃Emb_ = EmbeddingIdentityPrinciple.f≃g
 
 EmbeddingIP : {B : Type ℓ} (f g : Embedding B ℓ') → f ≃Emb g ≃ (f ≡ g)
 EmbeddingIP = EmbeddingIdentityPrinciple.EmbeddingIP
-
-module _ {A : Type ℓ} (P : A → hProp ℓ') where
-  private
-    subtypeHasPropFibers : hasPropFibers (λ (x : Σ[ y ∈ A ] fst (P y)) → fst x)
-    subtypeHasPropFibers x = isPropFiber
-      where isPropFiber : isProp (fiber fst x)
-            isPropFiber = isOfHLevelRespectEquiv 1 (invEquiv (fiberEquiv (λ x → fst (P x)) x)) (snd (P x))
-
-  subtypePathReflection : (x y : Σ[ a ∈ A ] fst (P a))
-                          → fst x ≡ fst y → x ≡ y
-  subtypePathReflection x y q = Iso.inv
-                                    (equivToIso
-                                     (_ , hasPropFibers→isEmbedding subtypeHasPropFibers x y))
-                                    q

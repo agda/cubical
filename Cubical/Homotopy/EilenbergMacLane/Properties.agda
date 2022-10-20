@@ -293,14 +293,10 @@ module _ {G : AbGroup ℓ} where
 
   Iso-EM-ΩEM+1 : (n : ℕ) → Iso (EM G n) (typ (Ω (EM∙ G (suc n))))
   Iso-EM-ΩEM+1 zero = invIso (ΩEM₁Iso (AbGroup→Group G))
-  Iso.fun (Iso-EM-ΩEM+1 (suc zero)) = decode' 0 (0ₖ 2)
-  Iso.inv (Iso-EM-ΩEM+1 (suc zero)) = encode' 0 (0ₖ 2)
-  Iso.rightInv (Iso-EM-ΩEM+1 (suc zero)) = decode'-encode' 0 (0ₖ 2)
-  Iso.leftInv (Iso-EM-ΩEM+1 (suc zero)) = encode'-decode' 0
-  Iso.fun (Iso-EM-ΩEM+1 (suc (suc n))) = decode' (suc n) (0ₖ (3 + n))
-  Iso.inv (Iso-EM-ΩEM+1 (suc (suc n))) = encode' (suc n) (0ₖ (3 + n))
-  Iso.rightInv (Iso-EM-ΩEM+1 (suc (suc n))) = decode'-encode' (suc n) (0ₖ (3 + n))
-  Iso.leftInv (Iso-EM-ΩEM+1 (suc (suc n))) = encode'-decode' (suc n)
+  Iso.fun (Iso-EM-ΩEM+1 (suc n)) = decode' n (0ₖ (2 + n))
+  Iso.inv (Iso-EM-ΩEM+1 (suc n)) = encode' n ∣ north ∣
+  Iso.rightInv (Iso-EM-ΩEM+1 (suc n)) = decode'-encode' _ _
+  Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) = encode'-decode' _
 
   EM≃ΩEM+1 : (n : ℕ) → EM G n ≃ typ (Ω (EM∙ G (suc n)))
   EM≃ΩEM+1 n = isoToEquiv (Iso-EM-ΩEM+1 n)
@@ -862,6 +858,16 @@ inducedFun-EM-pres+ₖ {G' = G'} {H' = H'} ϕ (suc n) =
   l≡r : (n : ℕ) → l n ptEM-raw ≡ r n ptEM-raw
   l≡r zero = refl
   l≡r (suc n) = refl
+
+inducedFun-EM-pres-ₖ : {G' : AbGroup ℓ} {H' : AbGroup ℓ'}
+     (ϕ : AbGroupHom G' H') (n : ℕ) (x : EM G' n)
+  → inducedFun-EM ϕ n (-ₖ x) ≡ -ₖ (inducedFun-EM ϕ n x)
+inducedFun-EM-pres-ₖ ϕ n =
+  morphLemmas.distrMinus _+ₖ_ _+ₖ_
+    (inducedFun-EM ϕ n) (inducedFun-EM-pres+ₖ ϕ n) (0ₖ n) (0ₖ n) (-ₖ_) (-ₖ_)
+    (lUnitₖ n) (rUnitₖ n)
+    (lCancelₖ n) (rCancelₖ n)
+    (assocₖ n) (inducedFun-EM0ₖ n)
 
 EMFun-EM→ΩEM+1 : {G : AbGroup ℓ} {H : AbGroup ℓ'}
     {ϕ : AbGroupHom G H} (n : ℕ) (x : EM G n)

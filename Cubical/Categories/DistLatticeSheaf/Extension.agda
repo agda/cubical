@@ -3,6 +3,7 @@ module Cubical.Categories.DistLatticeSheaf.Extension where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
@@ -24,6 +25,7 @@ open import Cubical.Algebra.DistLattice.BigOps
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Terminal
@@ -63,6 +65,9 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
  DLRan : DLSubPreSheaf → DLPreSheaf
  DLRan = Ran limitC (i ^opF)
+
+ DLRanNatIso : (F : DLSubPreSheaf) → NatIso (funcComp (DLRan F) (i ^opF)) F
+ DLRanNatIso F = RanNatIso _ _ _ (λ _ _ → idIsEquiv _)
 
  module _ (isBasisL' : IsBasis L L') (F : DLSubPreSheaf)
           (isSheafF : SheafOnBasis.isDLBasisSheaf L C L' isBasisL' F) where

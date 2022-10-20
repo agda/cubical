@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
+open import Cubical.Data.Sum
 
 -- negation result
 ¬IsEvenFalse : (n : ℕ) → (isEven n ≡ false) → isOdd n ≡ true
@@ -58,3 +59,15 @@ trueIsEven (suc (suc n)) (suc m , p) = trueIsEven n (m , (injSuc (injSuc (p ∙ 
 falseIsEven : (n : ℕ) → Σ[ m ∈ ℕ ] n ≡ (1 + 2 · m) → (isEven n ≡ false)
 falseIsEven zero (m , p) = ⊥.rec (znots p)
 falseIsEven (suc n) (m , p) = ¬IsEvenTrue n (trueIsEven n (m , (injSuc p)))
+
+-- Some lemma for EvenT and OddT
+
+evenOrOdd-Even : (n : ℕ) → (isEven n ≡ true) → Σ[ x ∈ isEvenT n ] evenOrOdd n ≡ inl x
+evenOrOdd-Even zero p = tt , refl
+evenOrOdd-Even (suc zero) p = ⊥.rec (false≢true p)
+evenOrOdd-Even (suc (suc n)) p = evenOrOdd-Even n p
+
+evenOrOdd-Odd : (n : ℕ) → (isEven n ≡ false) → Σ[ x ∈ isOddT n ] evenOrOdd n ≡ inr x
+evenOrOdd-Odd zero p = ⊥.rec (true≢false p)
+evenOrOdd-Odd (suc zero) p = tt , refl
+evenOrOdd-Odd (suc (suc n)) p = evenOrOdd-Odd n p
