@@ -4,6 +4,7 @@ module Cubical.Algebra.CommAlgebra.UnivariatePolyList where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 
@@ -43,23 +44,23 @@ module _ (R : CommRing ℓ) where
       _ = snd A
       _ = snd (Algebra→Ring A)
       _ = snd (CommAlgebra→Algebra ListPolyCommAlgebra)
+    private
+      X : ⟨ ListPolyCommAlgebra ⟩
+      X = 0r ∷ 1r ∷ []
 
     module _ (x : ⟨ A ⟩) where
-      open AlgebraTheory using (0-actsNullifying; 0a-absorbs)
+      open AlgebraTheory using (⋆AnnihilL; ⋆AnnihilR)
       open RingTheory using (0RightAnnihilates; 0LeftAnnihilates)
       open AbGroupTheory using (comm-4)
       open PolyMod using (ElimProp; elimProp2; isSetPoly)
 
-      private
-        X : ⟨ ListPolyCommAlgebra ⟩
-        X = 0r ∷ 1r ∷ []
 
       inducedMap : ⟨ ListPolyCommAlgebra ⟩ → ⟨ A ⟩
       inducedMap [] = 0a
       inducedMap (a ∷ p) = a ⋆ 1a + (x · inducedMap p)
       inducedMap (drop0 i) = eq i
         where
-          eq = 0r ⋆ 1a + (x · 0a) ≡[ i ]⟨  0-actsNullifying (CommRing→Ring R) A 1a i + (x · 0a) ⟩
+          eq = 0r ⋆ 1a + (x · 0a) ≡[ i ]⟨  ⋆AnnihilL (CommRing→Ring R) A 1a i + (x · 0a) ⟩
                0a + (x · 0a)      ≡⟨ +IdL (x · 0a) ⟩
                x · 0a             ≡⟨ 0RightAnnihilates (Algebra→Ring A) x ⟩
                0a ∎
@@ -73,22 +74,13 @@ module _ (R : CommRing ℓ) where
           1a + 0a             ≡⟨ +IdR 1a ⟩
           1a ∎
 
-        inducedMapGenerator : ϕ X ≡ x
-        inducedMapGenerator =
-          0r ⋆ 1a + (x · ϕ (1r ∷ [])) ≡[ i ]⟨  0-actsNullifying
-                                       (CommRing→Ring R) A 1a i + (x · ϕ (1r ∷ [])) ⟩
-          0a + (x · ϕ (1r ∷ []))      ≡⟨ +IdL _ ⟩
-          x · ϕ (1r ∷ [])             ≡[ i ]⟨ x · inducedMap1 i ⟩
-          x · 1a                      ≡⟨ ·IdR _ ⟩
-          x ∎
-
         inducedMapPolyConst⋆ : (r : ⟨ R ⟩) (p : _) → ϕ (r PolyConst* p) ≡ r ⋆ ϕ p
         inducedMapPolyConst⋆ r =
           ElimProp R
             (λ p → ϕ (r PolyConst* p) ≡ r ⋆ ϕ p)
             (ϕ (r PolyConst* []) ≡⟨⟩
              ϕ []       ≡⟨⟩
-             0a                  ≡⟨ sym (0a-absorbs (CommRing→Ring R) A r) ⟩
+             0a                  ≡⟨ sym (⋆AnnihilR (CommRing→Ring R) A r) ⟩
              r ⋆ 0a ∎)
             (λ s p IH →
               ϕ (r PolyConst* (s ∷ p))              ≡⟨⟩
@@ -168,7 +160,7 @@ module _ (R : CommRing ℓ) where
             step3 r p i = inducedMap⋆ r q i + ϕ (0r ∷ (p Poly* q))
 
             step4 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
-            step4 r p i = r ⋆ ϕ q + (0-actsNullifying (CommRing→Ring R) A 1a i + x · ϕ (p · q))
+            step4 r p i = r ⋆ ϕ q + (⋆AnnihilL (CommRing→Ring R) A 1a i + x · ϕ (p · q))
 
             step5 : (r : ⟨ R ⟩) (p : _) → _ ≡ _
             step5 r p i = r ⋆ ϕ q + +IdL (x · ϕ (p · q)) i
@@ -186,8 +178,14 @@ module _ (R : CommRing ℓ) where
       fst inducedHom = inducedMap
       snd inducedHom = makeIsAlgebraHom inducedMap1 inducedMap+ inducedMap· inducedMap⋆
 
-      inducedHomOnGenerator : fst inducedHom X ≡ x
-      inducedHomOnGenerator = inducedMapGenerator
+      inducedMapGenerator : ϕ X ≡ x
+      inducedMapGenerator =
+        0r ⋆ 1a + (x · ϕ (1r ∷ [])) ≡[ i ]⟨  ⋆AnnihilL
+                                     (CommRing→Ring R) A 1a i + (x · ϕ (1r ∷ [])) ⟩
+        0a + (x · ϕ (1r ∷ []))      ≡⟨ +IdL _ ⟩
+        x · ϕ (1r ∷ [])             ≡[ i ]⟨ x · inducedMap1 i ⟩
+        x · 1a                      ≡⟨ ·IdR _ ⟩
+        x ∎
 
       {- Uniqueness -}
       inducedHomUnique : (f : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A)
@@ -217,3 +215,11 @@ module _ (R : CommRing ℓ) where
           where
             useSolver : (r : ⟨ R ⟩) → r ≡ (r · 1r) + 0r
             useSolver = solve R
+
+    {- Reforumlation in terms of the R-AlgebraHom from R[X] to A -}
+    indcuedHomEquivalence : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A ≃ ⟨ A ⟩
+    fst indcuedHomEquivalence f = fst f X
+    fst (fst (equiv-proof (snd indcuedHomEquivalence) x)) = inducedHom x
+    snd (fst (equiv-proof (snd indcuedHomEquivalence) x)) = inducedMapGenerator x
+    snd (equiv-proof (snd indcuedHomEquivalence) x) (g , gX≡x) =
+      Σ≡Prop (λ _ → isSetAlgebra A _ _) (sym (inducedHomUnique x g gX≡x))

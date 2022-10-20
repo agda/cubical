@@ -5,7 +5,7 @@ module Cubical.Categories.Functor.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
-open import Cubical.Foundations.Function renaming (_∘_ to _◍_)
+open import Cubical.Foundations.Function hiding (_∘_)
 open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
 open import Cubical.Foundations.HLevels
 open import Cubical.Functions.Surjection
@@ -25,38 +25,10 @@ private
 open Category
 open Functor
 
-{-
-x ---p--- x'
-         ⇓ᵍ
-       g x' ---q--- y
-                   ⇓ʰ
-                 h y ---r--- z
-
-The path from `h (g x) ≡ z` obtained by
-  1. first applying cong to p and composing with q; then applying cong again and composing with r
-  2. first applying cong to q and composing with r; then applying a double cong to p and precomposing
-are path equal.
--}
-congAssoc : ∀ {X : Type ℓ} {Y : Type ℓ'} {Z : Type ℓ''} (g : X → Y) (h : Y → Z) {x x' : X} {y : Y} {z : Z}
-          → (p : x ≡ x') (q : g x' ≡ y) (r : h y ≡ z)
-          → cong (h ◍ g) p ∙ (cong h q ∙ r) ≡ cong h (cong g p ∙ q) ∙ r
-congAssoc g h p q r
-  = cong (h ◍ g) p ∙ (cong h q ∙ r)
-  ≡⟨ assoc _ _ _ ⟩
-    ((cong (h ◍ g) p) ∙ (cong h q)) ∙ r
-  ≡⟨ refl ⟩
-    (cong h (cong g p) ∙ (cong h q)) ∙ r
-  ≡⟨ cong (_∙ r) (sym (cong-∙ h _ _)) ⟩
-    cong h (cong g p ∙ q) ∙ r
-  ∎
-
--- composition is associative
 F-assoc : {F : Functor B C} {G : Functor C D} {H : Functor D E}
         → H ∘F (G ∘F F) ≡ (H ∘F G) ∘F F
-F-assoc {F = F} {G} {H} i .F-ob x = H ⟅ G ⟅ F ⟅ x ⟆ ⟆ ⟆
-F-assoc {F = F} {G} {H} i .F-hom f = H ⟪ G ⟪ F ⟪ f ⟫ ⟫ ⟫
-F-assoc {F = F} {G} {H} i .F-id {x} =  congAssoc (G ⟪_⟫) (H ⟪_⟫) (F .F-id {x}) (G .F-id {F ⟅ x ⟆}) (H .F-id) (~ i)
-F-assoc {F = F} {G} {H} i .F-seq f g =  congAssoc (G ⟪_⟫) (H ⟪_⟫) (F .F-seq f g) (G .F-seq _ _) (H .F-seq _ _) (~ i)
+F-assoc = Functor≡ (λ _ → refl) (λ _ → refl)
+
 
 -- Results about functors
 

@@ -7,6 +7,8 @@ open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
 open import Cubical.Homotopy.EilenbergMacLane.Properties
 open import Cubical.Homotopy.EilenbergMacLane.CupProductTensor
   renaming (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
+open import Cubical.Homotopy.EilenbergMacLane.GradedCommTensor
+  renaming (⌣ₖ-comm to ⌣ₖ⊗-comm)
 
 open import Cubical.Algebra.AbGroup.TensorProduct
 open import Cubical.Algebra.Group.MorphismProperties
@@ -28,6 +30,7 @@ open import Cubical.Data.Nat hiding (_·_) renaming (elim to ℕelim ; _+_ to _+
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Ring
+open import Cubical.Algebra.CommRing
 
 open AbGroupStr renaming (_+_ to _+Gr_ ; -_ to -Gr_)
 open RingStr
@@ -139,3 +142,63 @@ module _ {G'' : Ring ℓ} where
                         ∙ sym (·DistR+ (snd G'') a
                               (fst TensorMultHom b) (fst TensorMultHom c)))
               λ x y ind ind2 → cong₂ _+G_ ind ind2))
+
+-- graded commutativity
+module _ {G'' : CommRing ℓ} where
+  private
+    G' = CommRing→AbGroup G''
+    G = fst G'
+    _+G_ = _+Gr_ (snd G')
+
+  ⌣ₖ-comm : (n m : ℕ) (x : EM G' n) (y : EM G' m)
+           → x ⌣ₖ y ≡ subst (EM G') (+'-comm m n) (-ₖ^[ n · m ] (y ⌣ₖ x))
+  ⌣ₖ-comm n m x y =
+      cong (EMTensorMult (n +' m)) (⌣ₖ⊗-comm n m x y)
+    ∙ sym (substCommSlice (EM (G' ⨂ G')) (EM G')
+            EMTensorMult (+'-comm m n)
+            (-ₖ^[ n · m ] (comm⨂-EM (m +' n) (y ⌣ₖ⊗ x))))
+    ∙ cong (subst (EM G') (+'-comm m n))
+        (-ₖ^< n · m >-Induced (m +' n) (evenOrOdd n) (evenOrOdd m) _ _
+      ∙ cong (-ₖ^[ n · m ])
+        (sym (inducedFun-EM-comp
+         (GroupEquiv→GroupHom ⨂-comm) TensorMultHom (m +' n) _)
+      ∙ λ i → inducedFun-EM (isTrivComm i) (m +' n) (y ⌣ₖ⊗ x)))
+
+    where
+    isTrivComm : compGroupHom (GroupEquiv→GroupHom ⨂-comm)
+                  (TensorMultHom {G' = CommRing→Ring G''})
+               ≡ TensorMultHom
+    isTrivComm =
+      Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+        (funExt (⊗elimProp (λ _ → CommRingStr.is-set (snd G'') _ _)
+          (λ a b → CommRingStr.·Comm (snd G'') b a)
+          λ p q r s → cong₂ _+G_ r s))
+
+⌣[]ₖ-syntax : ∀ {ℓ} {n m : ℕ} (R : Ring ℓ)
+  → EM (Ring→AbGroup R) n
+  → EM (Ring→AbGroup R) m
+  → EM (Ring→AbGroup R) (n +' m)
+⌣[]ₖ-syntax R x y = x ⌣ₖ y
+
+⌣[]Cₖ-syntax : ∀ {ℓ} {n m : ℕ} (R : CommRing ℓ)
+  → EM (Ring→AbGroup (CommRing→Ring R)) n
+  → EM (Ring→AbGroup (CommRing→Ring R)) m
+  → EM (Ring→AbGroup (CommRing→Ring R)) (n +' m)
+⌣[]Cₖ-syntax R x y = x ⌣ₖ y
+
+⌣[,,]ₖ-syntax : ∀ {ℓ} (n m : ℕ) (R : Ring ℓ)
+  → EM (Ring→AbGroup R) n
+  → EM (Ring→AbGroup R) m
+  → EM (Ring→AbGroup R) (n +' m)
+⌣[,,]ₖ-syntax n m R x y = x ⌣ₖ y
+
+⌣[,,]Cₖ-syntax : ∀ {ℓ} (n m : ℕ) (R : CommRing ℓ)
+  → EM (Ring→AbGroup (CommRing→Ring R)) n
+  → EM (Ring→AbGroup (CommRing→Ring R)) m
+  → EM (Ring→AbGroup (CommRing→Ring R)) (n +' m)
+⌣[,,]Cₖ-syntax n m R x y = x ⌣ₖ y
+
+syntax ⌣[]ₖ-syntax R x y = x ⌣[ R ]ₖ y
+syntax ⌣[]Cₖ-syntax R x y = x ⌣[ R ]Cₖ y
+syntax ⌣[,,]ₖ-syntax n m R x y = x ⌣[ R , n , m ]ₖ y
+syntax ⌣[,,]Cₖ-syntax n m R x y = x ⌣[ R , n , m ]Cₖ y
