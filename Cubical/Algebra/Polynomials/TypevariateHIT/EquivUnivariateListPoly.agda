@@ -47,7 +47,7 @@ module _ {R : CommRing ℓ} where
     toPresX = refl
 
     fromPresX : fst from X-List ≡ X-HIT
-    fromPresX = inducedHomOnGenerator R (CommAlgebra→Algebra (R [ Unit ])) X-HIT
+    fromPresX = inducedMapGenerator R (CommAlgebra→Algebra (R [ Unit ])) X-HIT
 
     idList = AlgebraHoms.idAlgebraHom (CommAlgebra→Algebra (ListPolyCommAlgebra R))
     idHIT = AlgebraHoms.idAlgebraHom (CommAlgebra→Algebra (R [ Unit ]))
