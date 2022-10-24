@@ -148,10 +148,10 @@ module PolyMod (R' : CommRing ℓ) where
 
   -- this function corresponds to multiplication by the indeterminate X and
   -- is used to show that multiplication by X is injective on Poly R'
-  shiftFun : PolyFun → PolyFun
-  fst (shiftFun _) zero = 0r
-  fst (shiftFun (f , _)) (suc n) = f n
-  snd (shiftFun (f , f-vanishes)) =
+  shiftPolyFun : PolyFun → PolyFun
+  fst (shiftPolyFun _) zero = 0r
+  fst (shiftPolyFun (f , _)) (suc n) = f n
+  snd (shiftPolyFun (f , f-vanishes)) =
     PT.rec
       isPropPropTrunc
       (λ (k , vanishes-at-k)
@@ -161,6 +161,11 @@ module PolyMod (R' : CommRing ℓ) where
                })
           ∣₁)
       f-vanishes
+
+  shiftPolyFunPrepends0 : (p : Poly R') → shiftPolyFun (Poly→PolyFun p) ≡ Poly→PolyFun (0r ∷ p)
+  shiftPolyFunPrepends0 p =
+    Σ≡Prop (λ _ → isPropPropTrunc)
+            λ {i zero → 0r; i (suc n) → fst (Poly→PolyFun p) n}
 
 ----------------------------------------------------
 -- Start of code by Anders Mörtberg and Evan Cavallo

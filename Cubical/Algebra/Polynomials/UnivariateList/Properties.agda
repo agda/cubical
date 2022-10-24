@@ -645,16 +645,11 @@ module PolyModTheory (R' : CommRing ℓ) where
   prod-X-injective : (p : Poly R') → prod-Xn 1 p ≡ 0P → p ≡ 0P
   prod-X-injective p Xp≡0 = p≡0
     where
-      shift = shiftFun (Poly→PolyFun p)
-
-      0r∷p≡shift : Poly→PolyFun (0r ∷ p) ≡ shift
-      0r∷p≡shift =
-        Σ≡Prop (λ _ → isPropPropTrunc)
-               λ {i zero → 0r; i (suc n) → fst (Poly→PolyFun p) n}
+      shift = shiftPolyFun (Poly→PolyFun p)
 
       shift0 : (n : ℕ) → fst shift n ≡ 0r
       shift0 n =
-        fst shift n                   ≡⟨ sym (cong (λ u → fst u n) 0r∷p≡shift) ⟩
+        fst shift n                   ≡⟨ cong (λ u → fst u n) (shiftPolyFunPrepends0 p) ⟩
         fst (Poly→PolyFun (0r ∷ p)) n ≡[ i ]⟨ fst (Poly→PolyFun (Xp≡0 i)) n ⟩
         0r ∎
 
