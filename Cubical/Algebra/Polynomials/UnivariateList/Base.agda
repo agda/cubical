@@ -6,7 +6,7 @@ Polynomials over commutative rings
 ==================================
 -}
 
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
@@ -146,6 +146,26 @@ module PolyMod (R' : CommRing ℓ) where
   Poly→PolyFun : Poly R' → PolyFun
   Poly→PolyFun p = (Poly→Fun p) , (Poly→Prf p)
 
+  -- this function corresponds to multiplication by the indeterminate X and
+  -- is used to show that multiplication by X is injective on Poly R'
+  shiftPolyFun : PolyFun → PolyFun
+  fst (shiftPolyFun _) zero = 0r
+  fst (shiftPolyFun (f , _)) (suc n) = f n
+  snd (shiftPolyFun (f , f-vanishes)) =
+    PT.rec
+      isPropPropTrunc
+      (λ (k , vanishes-at-k)
+        → ∣ (suc k) ,
+            (λ {zero → λ _ → refl;
+                (suc m) → λ k+1≤m+1 → vanishes-at-k m (pred-≤-pred k+1≤m+1)
+               })
+          ∣₁)
+      f-vanishes
+
+  shiftPolyFunPrepends0 : (p : Poly R') → shiftPolyFun (Poly→PolyFun p) ≡ Poly→PolyFun (0r ∷ p)
+  shiftPolyFunPrepends0 p =
+    Σ≡Prop (λ _ → isPropPropTrunc)
+            λ {i zero → 0r; i (suc n) → fst (Poly→PolyFun p) n}
 
 ----------------------------------------------------
 -- Start of code by Anders Mörtberg and Evan Cavallo
