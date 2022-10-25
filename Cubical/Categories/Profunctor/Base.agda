@@ -1,3 +1,26 @@
+{-
+
+  Definition of profunctors (https://ncatlab.org/nlab/show/profunctor)
+  and some basic facts about them.
+
+  We define a profunctor C -/-> D as a functor C^o x D -> Set. We pick
+  the universe levels such that the hom sets of C and D match Set,
+  which roughly matches the set-theoretic notion of "locally small"
+  categories.
+
+  We give some convenient notation for thinking of profunctors as a
+  notion of "heteromorphism" between objects of different categories,
+  with appropriate composition.
+
+  A main use of profunctors is in defining universal properties as
+  profunctors representable as a functor. The first definition is the
+  isomorphism Hom[ F - , = ] =~ R[ - , = ] and the second is a
+  generalization of the definition of an adjoint by giving "universal
+  morphisms". These notions are equivalent, though for now we have
+  only shown logical equivalence.
+
+-}
+
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Profunctor.Base where
 
@@ -68,7 +91,7 @@ module Profunctors (ℓ ℓ' : Level) where
       ((f ⋆C f') ⋆L⟨ r ⟩⋆R D.id) ≡⟨ (λ i → (f ⋆C f') ⋆L⟨ r ⟩⋆R sym (D.⋆IdL D.id) i) ⟩
       ((f ⋆C f') ⋆L⟨ r ⟩⋆R (D.id ⋆D D.id)) ≡⟨ ⋆L⟨⟩⋆RAssoc f f' r D.id D.id ⟩
       f ⋆L f' ⋆L r ∎
-            
+
 
     _⋆R_ : {c : C.ob} {d' d : D.ob}
          → Het[ c , d' ]
@@ -116,7 +139,7 @@ module Profunctors (ℓ ℓ' : Level) where
 
     _⋆LP⟨_⟩⋆R_ = P._⋆L⟨_⟩⋆R_
     _⋆LQ⟨_⟩⋆R_ = Q._⋆L⟨_⟩⋆R_
-    
+
     field
       asNatTrans : PROF C D [ P.asFunc , Q.asFunc ]
 
@@ -174,7 +197,7 @@ module Profunctors (ℓ ℓ' : Level) where
       -- aka the η-expansion principle
       extensionality : ∀ {c d} (f : D.Hom[ F₀ c , d ]) → f ≡ induction (unit ⋆R f)
 
-    weak-extensionality : ∀ {c} → D.id ≡ induction (unit {c = c}) 
+    weak-extensionality : ∀ {c} → D.id ≡ induction (unit {c = c})
     weak-extensionality = D.id ≡⟨ extensionality D.id ⟩ induction (unit ⋆R D.id) ≡⟨ (λ i → induction (R.⋆RId unit i)) ⟩ induction unit ∎
 
     naturality : ∀ {c : C.ob}{d d' : D.ob}(r : R.Het[ c , d' ]) (k : D.Hom[ d' , d ])
@@ -210,7 +233,7 @@ module Profunctors (ℓ ℓ' : Level) where
 
     induction⁻¹ : (HomProf D profF[ F , Id ]) ⊸ R
     induction⁻¹ = natTrans (λ x r → unduction r) λ f⋆g i r → unduction-is-natural (fst f⋆g) (snd f⋆g) r i
-      where 
+      where
             unduction-is-natural : ∀ {c c' d' d}
                                  → (f : C.Hom[ c , c' ])(g : D.Hom[ d' , d ])(IP : D.Hom[ F₀ c' , d' ])
                                  → unduction ((F ⟪ f ⟫ ⋆D IP) ⋆D g) ≡ f ⋆L⟨ unduction IP ⟩⋆R g
@@ -233,7 +256,7 @@ module Profunctors (ℓ ℓ' : Level) where
               IP ∎
 
             induction⁻¹-induction≡id : ∀ {c d}(r : R.Het[ c , d ]) → unduction (induction r) ≡ r
-            induction⁻¹-induction≡id r = computation r 
+            induction⁻¹-induction≡id r = computation r
 
   Repr⇒Repr' : ∀ {C D} (R : Profunctor C D) → Representable R → Representable' R
   Repr⇒Repr' {C}{D} R (F , F-repr-R)= record
@@ -279,7 +302,6 @@ module Profunctors (ℓ ℓ' : Level) where
             induction (unduction ((F.F-hom C.id ⋆D D.id) ⋆D f)) ≡⟨ (λ i → induction (unduction-homo.homomorphism C.id D.id f i)) ⟩
             induction (C.id ⋆L⟨ unduction D.id ⟩⋆R f) ∎
 
-          
 
   Repr'⇒Repr : ∀ {C D} (R : Profunctor C D) → Representable' R → Representable R
   Repr'⇒Repr R R-representable = (Representable'.F R-representable) , Representable'.F-represents-R R-representable
