@@ -64,7 +64,7 @@ module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   sectionOfEquiv : (f : A → B) → isEquiv f → hasSection f
   sectionOfEquiv f e = sectionOfEquiv' f e , isSec f e
 
-module _ {ℓ} {A B : Type ℓ} where
+module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
 
   fromIsEquiv : (f : A → B) → isEquiv f → isPathSplitEquiv f
   sec (fromIsEquiv f pf) = sectionOfEquiv' f pf , isSec f pf
