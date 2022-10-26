@@ -85,7 +85,7 @@ module _ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type 
 
 -- nullification is a modality
 
-NullModality : ∀ {ℓα ℓs} {A : Type ℓα} (S : A → Type ℓs) → Modality (ℓ-max ℓα ℓs)
+NullModality : ∀ {ℓα ℓs ℓ} {A : Type ℓα} (S : A → Type ℓs) → Modality (ℓ-max ℓ (ℓ-max ℓα ℓs))
 isModal       (NullModality S) = isNull S
 isPropIsModal (NullModality S) = isPropΠ (λ α → isPropIsPathSplitEquiv _)
 ◯             (NullModality S) = Null S
@@ -99,8 +99,8 @@ isPropIsModal (NullModality S) = isPropΠ (λ α → isPropIsPathSplitEquiv _)
                                      (λ p → ua-gluePath funExtEquiv {x = const p} {y = cong const p} refl (~ i)))
                       (isEquivCong (_ , toIsEquiv _ (isNull-Null S α)))
 
-idemNull : ∀ {ℓ} {A : Type ℓ} (S : A → Type ℓ) (X : Type ℓ) → isNull S A → A ≃ Null S A
-idemNull S A nA = ∣_∣ , isModalToIsEquiv (NullModality S) nA
+idemNull : ∀ {ℓa ℓs ℓ} {A : Type ℓa} (S : A → Type ℓs) (X : Type (ℓ-max ℓ (ℓ-max ℓa ℓs))) → isNull S X → X ≃ Null S X
+idemNull {ℓ = ℓ} S A nA = ∣_∣ , isModalToIsEquiv (NullModality {ℓ = ℓ} S) nA
 
 -- nullification is localization at a family of maps (S α → 1)
 
