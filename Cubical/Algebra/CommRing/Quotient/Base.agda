@@ -40,6 +40,7 @@ R / I =
 [ a ]/ = [ a ]
 
 
+
 module Quotient-FGideal-CommRing-Ring
   (A : CommRing ℓ)
   (B : Ring ℓ')
@@ -83,8 +84,14 @@ quotientHomSurjective : (R : CommRing ℓ) → (I : IdealsIn R)
 quotientHomSurjective R I = Ring.quotientHomSurjective (CommRing→Ring R) (CommIdeal→Ideal I)
 
 module _ {R : CommRing ℓ} (I : IdealsIn R) where
+  open CommRingStr ⦃...⦄
   private
     π = quotientHom R I
+    instance _ = snd R
+             _ = snd (R / I)
 
   kernel≡I : kernelIdeal R (R / I) π ≡ I
   kernel≡I = cong Ideal→CommIdeal (Ring.kernel≡I (CommIdeal→Ideal I))
+
+  zeroOnIdeal : (x : ⟨ R ⟩) → x ∈ fst I → fst π x ≡ 0r
+  zeroOnIdeal x x∈I = subst (λ P → fst ((fst P) x)) (sym kernel≡I) x∈I
