@@ -75,6 +75,16 @@ module Quotient-FGideal-CommRing-CommRing
   inducedHom : CommRingHom (A / (generatedIdeal _ v)) B
   inducedHom = Quotient-FGideal-CommRing-Ring.inducedHom A (CommRing→Ring B) g v gnull
 
+module UniversalProperty
+  (R S : CommRing ℓ)
+  (I : IdealsIn R)
+  (f : CommRingHom R S)
+  (I⊆ker : (x : ⟨ R ⟩) → x ∈ fst I → fst f x ≡ CommRingStr.0r (snd S))
+  where
+
+  inducedHom : CommRingHom (R / I) S
+  inducedHom = Ring.UniversalProperty.inducedHom (CommRing→Ring R) (CommIdeal→Ideal I) f I⊆ker
+
 
 quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
 quotientHom R I = Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
