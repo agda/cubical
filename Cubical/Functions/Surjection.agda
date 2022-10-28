@@ -10,14 +10,12 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Functions.Embedding
-open import Cubical.HITs.PropositionalTruncation as PropTrunc
+open import Cubical.HITs.PropositionalTruncation as PT
 
-private
-  variable
-    ℓ ℓ' : Level
-    A : Type ℓ
-    B : Type ℓ'
-    f : A → B
+private variable
+  ℓ ℓ' : Level
+  A B C : Type ℓ
+  f : A → B
 
 isSurjection : (A → B) → Type _
 isSurjection f = ∀ b → ∥ fiber f b ∥₁
@@ -39,7 +37,7 @@ isEquiv→isEmbedding×isSurjection e = isEquiv→isEmbedding e , isEquiv→isSu
 
 isEmbedding×isSurjection→isEquiv : isEmbedding f × isSurjection f → isEquiv f
 equiv-proof (isEmbedding×isSurjection→isEquiv {f = f} (emb , sur)) b =
-  inhProp→isContr (PropTrunc.rec fib' (λ x → x) fib) fib'
+  inhProp→isContr (PT.rec fib' (λ x → x) fib) fib'
   where
   hpf : hasPropFibers f
   hpf = isEmbedding→hasPropFibers emb
@@ -78,3 +76,17 @@ epi⇒surjective f rc y = transport (fact₂ y) tt*
 
           fact₂ : ∀ y → Unit* ≡ hasPreimage f y
           fact₂ = rc _ _ fact₁
+
+{-
+  If f and is surjective and
+
+       A ─f↠ C
+       g↘   ↗h
+          B
+
+  commutes, then h is surjective.
+-}
+rightFactorSurjective : (f : A ↠ C) (g : A → B) (h : B → C)
+                        → ((x : A) → h (g x) ≡ fst f x)
+                        → isSurjection h
+rightFactorSurjective f g h gh≡f c = rec isPropPropTrunc (λ (x , fx≡c) → ∣ g x , gh≡f x ∙ fx≡c ∣₁ ) (snd f c)
