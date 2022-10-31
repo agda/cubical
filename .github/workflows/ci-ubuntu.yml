@@ -12,7 +12,7 @@ on:
 ########################################################################
 ## CONFIGURATION
 ##
-## See SETTINGS for the most important configuration variable: AGDA_COMMIT.
+## See SETTINGS for the most important configuration variable: AGDA_BRANCH.
 ## It has to be defined as a build step because it is potentially branch
 ## dependent.
 ##
@@ -51,7 +51,7 @@ jobs:
       - name: Initialise variables
         run: |
           # Pick Agda version
-          echo "AGDA_BRANCH=v2.6.2.2" >> $GITHUB_ENV
+          echo "AGDA_BRANCH=master" >> $GITHUB_ENV
 
 
       ########################################################################
