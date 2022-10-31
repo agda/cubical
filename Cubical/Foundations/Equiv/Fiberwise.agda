@@ -89,3 +89,11 @@ fundamentalTheoremOfId : {A : Type ℓ} (Eq : A → A → Type ℓ')
   → ((x : A) → isContr (Σ[ y ∈ A ] Eq x y))
   → (x y : A) → (x ≡ y) ≃ (Eq x y)
 fundamentalTheoremOfId Eq eqRefl eqContr x = recognizeId (Eq x) (eqRefl x) (eqContr x)
+
+fundamentalTheoremOfIdβ :
+  {A : Type ℓ} (Eq : A → A → Type ℓ')
+  → (eqRefl : (x : A) → Eq x x)
+  → (eqContr : (x : A) → isContr (Σ[ y ∈ A ] Eq x y))
+  → (x : A)
+  → fst (fundamentalTheoremOfId Eq eqRefl eqContr x x) refl ≡ eqRefl x
+fundamentalTheoremOfIdβ Eq eqRefl eqContr x = JRefl (λ y p → Eq x y) (eqRefl x)
