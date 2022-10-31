@@ -18,9 +18,9 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
   record SymmMonStr : Type (ℓ-max ℓ ℓ') where
     field
-      braidedmonstr : BraidedMonStr C
+      braidedstr : BraidedStr C
 
-    open BraidedMonStr braidedmonstr public
+    open BraidedStr braidedstr public
 
     field
       -- a symmetric monoidal category is just a braided monoidal category

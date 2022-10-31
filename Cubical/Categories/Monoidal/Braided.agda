@@ -15,30 +15,28 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
   open Category C
   open Functor
 
-  -- private record to define the functors that describe the braiding
-  -- and nice names to define the actual braiding
   private
-    record BraidedStr : Type (ℓ-max ℓ ℓ') where
-      field
-        monstr : MonoidalStr C
+    -- swaps the arguments of a bifunctor
+    Swap : Functor (C × C) C → Functor (C × C) C
+    F-ob (Swap F)  (x , y) = F .F-ob (y , x)
+    F-hom (Swap F) (f , g) = F .F-hom (g , f)
+    F-id  (Swap F)         = F .F-id
+    F-seq (Swap F) f g     = F .F-seq (snd f , fst f) (snd g , fst g)
 
-      open MonoidalStr monstr public
+  record BraidedStr : Type (ℓ-max ℓ ℓ') where
+    field
+      monstr : MonoidalStr C
 
+    open MonoidalStr monstr public
+
+    -- private names to make the braiding look nice
+    private
       [x⊗y] : Functor (C × C) C
       [x⊗y] = ─⊗─
 
       -- just ─⊗─ but swaps the arguments
       [y⊗x] : Functor (C × C) C
-      F-ob  [y⊗x] (x , y) = y ⊗ x
-      F-hom [y⊗x] (f , g) = g ⊗ₕ f
-      F-id  [y⊗x]         = ─⊗─ .F-id
-      F-seq [y⊗x] f g     = ─⊗─ .F-seq (snd f , fst f) (snd g , fst g)
-
-  record BraidedMonStr : Type (ℓ-max ℓ ℓ') where
-    field
-      braidedstr : BraidedStr
-
-    open BraidedStr braidedstr public
+      [y⊗x] = Swap ─⊗─
 
     field
       -- the braiding
@@ -69,7 +67,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 record BraidedMonCategory ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   field
     C : Category ℓ ℓ'
-    braidedmonstr : BraidedMonStr C
+    braidedstr : BraidedStr C
 
   open Category C public
-  open BraidedMonStr braidedmonstr public
+  open BraidedStr braidedstr public
