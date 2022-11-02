@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --experimental-lossy-unification #-}
 module Cubical.Algebra.CommRing.Quotient.Base where
 
 open import Cubical.Foundations.Prelude
