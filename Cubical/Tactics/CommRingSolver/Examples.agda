@@ -58,6 +58,12 @@ module Test (R : CommRing ℓ) where
   _ : ∀ x y → x + y ≡ y + x
   _ = solve R
 
+  _ : ∀ x y → y ≡ (y - x) + x
+  _ = solve R
+
+  _ : ∀ x y → x ≡ (x - y) + y
+  _ = solve R
+
   _ : ∀ x y → (x + y) · (x - y) ≡ x · x - y · y
   _ = solve R
 
