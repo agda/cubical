@@ -58,3 +58,10 @@ module _ {R S : Ring ℓ} (f′ : RingHom R S) where
   kernelIdeal : IdealsIn R
   fst kernelIdeal = kernel
   snd kernelIdeal = kernelIsIdeal
+
+
+  kernelFiber : (x y : ⟨ R ⟩) → f x ≡ f y → x - y ∈ kernel
+  kernelFiber x y fx≡fy = f (x - y)     ≡⟨ pres+ x (- y) ⟩
+                          f x + f (- y) ≡[ i ]⟨ fx≡fy i + pres- y i ⟩
+                          f y - f y     ≡⟨ +InvR (f y) ⟩
+                          0r ∎
