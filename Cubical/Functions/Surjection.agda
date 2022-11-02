@@ -90,3 +90,11 @@ rightFactorSurjective : (f : A ↠ C) (g : A → B) (h : B → C)
                         → ((x : A) → h (g x) ≡ fst f x)
                         → isSurjection h
 rightFactorSurjective f g h gh≡f c = rec isPropPropTrunc (λ (x , fx≡c) → ∣ g x , gh≡f x ∙ fx≡c ∣₁ ) (snd f c)
+
+compSurjection : (f : A ↠ B) (g : B ↠ C)
+                 → A ↠ C
+compSurjection (f , sur-f) (g , sur-g) =
+  (λ x → g (f x)) ,
+   λ c → PT.rec isPropPropTrunc
+                (λ (b , gb≡c) → PT.rec isPropPropTrunc (λ (a , fa≡b) → ∣ a , (cong g fa≡b ∙ gb≡c) ∣₁) (sur-f b))
+                (sur-g c)
