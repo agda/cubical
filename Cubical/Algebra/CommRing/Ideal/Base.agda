@@ -80,6 +80,12 @@ module CommIdeal (R' : CommRing ℓ) where
  CommIdeal≡Char : {I J : CommIdeal} → I ⊆ J → J ⊆ I → I ≡ J
  CommIdeal≡Char I⊆J J⊆I = Σ≡Prop isPropIsCommIdeal (⊆-extensionality _ _ (I⊆J , J⊆I))
 
+ -Closed : (I : CommIdeal) (x : R)
+         → x ∈ I → (- x) ∈ I
+ -Closed I x x∈I = subst (_∈ I) (useSolver x) (·Closed (snd I) (- 1r) x∈I)
+   where useSolver : (x : R) → - 1r · x ≡ - x
+         useSolver = solve R'
+
  ∑Closed : (I : CommIdeal) {n : ℕ} (V : FinVec R n)
          → (∀ i → V i ∈ I) → ∑ V ∈ I
  ∑Closed I {n = zero} _ _ = I .snd .contains0
