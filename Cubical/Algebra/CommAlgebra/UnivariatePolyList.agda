@@ -228,21 +228,22 @@ module _ (R : CommRing ℓ) where
     snd (equiv-proof (snd indcuedHomEquivalence) x) (g , gX≡x) =
       Σ≡Prop (λ _ → isSetAlgebra A _ _) (sym (inducedHomUnique x g gX≡x))
 
+    equalByUMP : (f g : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A)
+                 → fst f X ≡ fst g X
+                 → (x : ⟨ ListPolyCommAlgebra ⟩) → fst f x ≡ fst g x
+    equalByUMP f g fX≡gX x =
+      fst f x                      ≡[ i ]⟨ fst (inducedHomUnique (fst f X) f refl i) x  ⟩
+      fst (inducedHom (fst f X)) x ≡[ i ]⟨ fst (inducedHom (fX≡gX i)) x ⟩
+      fst (inducedHom (fst g X)) x ≡[ i ]⟨ fst (inducedHomUnique (fst g X) g refl (~ i)) x ⟩
+      fst g x ∎
 
   {- A corollary, which is useful for constructing isomorphisms to
      algebras with the same universal property -}
   isIdByUMP : (f : CommAlgebraHom ListPolyCommAlgebra ListPolyCommAlgebra)
               → fst f X ≡ X
               → (x : ⟨ ListPolyCommAlgebra ⟩) → fst f x ≡ x
-  isIdByUMP f p x =
-    fst f x                                                        ≡⟨ step1 ⟩
-    fst (inducedHom (CommAlgebra→Algebra ListPolyCommAlgebra) X) x ≡⟨ step2 ⟩
-    x ∎
-    where
-      step1 = cong (λ u → fst u x) (inducedHomUnique (CommAlgebra→Algebra ListPolyCommAlgebra) X f p)
-      step2 = cong (λ u → fst u x)
-                   (sym (inducedHomUnique
-                          (CommAlgebra→Algebra ListPolyCommAlgebra)
-                          X
-                          (idCAlgHom ListPolyCommAlgebra)
-                          refl))
+  isIdByUMP f =
+    equalByUMP (CommAlgebra→Algebra ListPolyCommAlgebra)
+               f
+               (idAlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra))
+    where open AlgebraHoms using (idAlgebraHom)
