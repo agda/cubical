@@ -26,8 +26,9 @@ private variable
 module _ {R : CommRing ℓ} where
   open Theory renaming (inducedHom to inducedHomHIT)
   open CommRingStr ⦃...⦄
-  private instance
-    _ = snd R
+  private
+    instance
+      _ = snd R
     X-HIT = Construction.var {R = R} {I = Unit} tt
     X-List = generatorList R
 
