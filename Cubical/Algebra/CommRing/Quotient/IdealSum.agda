@@ -157,6 +157,9 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
       (fst ψ)
       λ x → refl
 
+module _ {R : CommRing ℓ} (I J : IdealsIn R) where
+  open Construction I J
+
   quotientIdealSumEquiv : CommRingEquiv (R / (I +i J)) ((R / I) / π₁J)
   fst (fst quotientIdealSumEquiv) = fst ψ
   snd (fst quotientIdealSumEquiv) =
