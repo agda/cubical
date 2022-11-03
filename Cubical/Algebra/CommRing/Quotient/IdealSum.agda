@@ -124,7 +124,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
 
   {- workaround for slow type checking, more specifically,
     ψ x was slow to normalise and normalisation was triggered
-    on plugging ϕ-injective into embedding.
+    on plugging 'ϕ-injective' into 'injEmbedding'.
   -}
   abstract
     ϕ : CommRingHom (R / (I +i J)) ((R / I) / π₁J)
