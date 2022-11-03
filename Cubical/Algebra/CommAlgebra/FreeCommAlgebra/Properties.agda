@@ -352,16 +352,16 @@ Iso.leftInv (homMapIso {R = R} {I = I} A) =
   λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
                (Theory.homRetrievable A f)
 
-homMapPath : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R (ℓ-max ℓ ℓ'))
-             → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
-homMapPath A = isoToPath (homMapIso A)
-
 inducedHomUnique :
   {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'') (φ : I → fst A )
   → (f : CommAlgebraHom (R [ I ]) A) → ((i : I) → fst f (Construction.var i) ≡ φ i)
   → f ≡ inducedHom A φ
 inducedHomUnique {I = I} A φ f p =
   isoFunInjective (homMapIso A) f (inducedHom A φ) λ j i → p i j
+
+homMapPath : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R (ℓ-max ℓ ℓ'))
+             → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
+homMapPath A = isoToPath (homMapIso A)
 
 {- Corollary: Two homomorphisms with the same values on generators are equal -}
 equalByUMP : {R : CommRing ℓ} {I : Type ℓ'}

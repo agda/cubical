@@ -37,6 +37,13 @@ module _ (R : CommRing ℓ) where
             (ListPoly ,
              constantPolynomialHom R)
 
+  private
+    X : ⟨ ListPolyCommAlgebra ⟩
+    X = 0r ∷ 1r ∷ []
+
+  {- export the generator 'X' -}
+  generator = X
+
   {- Universal Property -}
   module _ (A : Algebra (CommRing→Ring R) ℓ') where
     open AlgebraStr ⦃...⦄ using (_⋆_; 0a; 1a; ⋆IdL; ⋆DistL+; ⋆DistR+; ⋆AssocL; ⋆AssocR; ⋆Assoc)
@@ -44,16 +51,12 @@ module _ (R : CommRing ℓ) where
       _ = snd A
       _ = snd (Algebra→Ring A)
       _ = snd (CommAlgebra→Algebra ListPolyCommAlgebra)
-    private
-      X : ⟨ ListPolyCommAlgebra ⟩
-      X = 0r ∷ 1r ∷ []
 
     module _ (x : ⟨ A ⟩) where
       open AlgebraTheory using (⋆AnnihilL; ⋆AnnihilR)
       open RingTheory using (0RightAnnihilates; 0LeftAnnihilates)
       open AbGroupTheory using (comm-4)
       open PolyMod using (ElimProp; elimProp2; isSetPoly)
-
 
       inducedMap : ⟨ ListPolyCommAlgebra ⟩ → ⟨ A ⟩
       inducedMap [] = 0a
@@ -216,6 +219,7 @@ module _ (R : CommRing ℓ) where
             useSolver : (r : ⟨ R ⟩) → r ≡ (r · 1r) + 0r
             useSolver = solve R
 
+
     {- Reforumlation in terms of the R-AlgebraHom from R[X] to A -}
     indcuedHomEquivalence : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A ≃ ⟨ A ⟩
     fst indcuedHomEquivalence f = fst f X
@@ -223,3 +227,23 @@ module _ (R : CommRing ℓ) where
     snd (fst (equiv-proof (snd indcuedHomEquivalence) x)) = inducedMapGenerator x
     snd (equiv-proof (snd indcuedHomEquivalence) x) (g , gX≡x) =
       Σ≡Prop (λ _ → isSetAlgebra A _ _) (sym (inducedHomUnique x g gX≡x))
+
+    equalByUMP : (f g : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A)
+                 → fst f X ≡ fst g X
+                 → (x : ⟨ ListPolyCommAlgebra ⟩) → fst f x ≡ fst g x
+    equalByUMP f g fX≡gX x =
+      fst f x                      ≡[ i ]⟨ fst (inducedHomUnique (fst f X) f refl i) x  ⟩
+      fst (inducedHom (fst f X)) x ≡[ i ]⟨ fst (inducedHom (fX≡gX i)) x ⟩
+      fst (inducedHom (fst g X)) x ≡[ i ]⟨ fst (inducedHomUnique (fst g X) g refl (~ i)) x ⟩
+      fst g x ∎
+
+  {- A corollary, which is useful for constructing isomorphisms to
+     algebras with the same universal property -}
+  isIdByUMP : (f : CommAlgebraHom ListPolyCommAlgebra ListPolyCommAlgebra)
+              → fst f X ≡ X
+              → (x : ⟨ ListPolyCommAlgebra ⟩) → fst f x ≡ x
+  isIdByUMP f =
+    equalByUMP (CommAlgebra→Algebra ListPolyCommAlgebra)
+               f
+               (idAlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra))
+    where open AlgebraHoms using (idAlgebraHom)
