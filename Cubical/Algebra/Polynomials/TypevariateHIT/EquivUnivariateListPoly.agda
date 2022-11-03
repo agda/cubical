@@ -38,6 +38,7 @@ module _ {R : CommRing ℓ} where
   -}
   private
     open AlgebraHoms
+    open Iso
     to : CommAlgebraHom (R [ Unit ]) (ListPolyCommAlgebra R)
     to = inducedHomHIT (ListPolyCommAlgebra R) (λ _ → X-List)
 
@@ -59,14 +60,14 @@ module _ {R : CommRing ℓ} where
     fromTo : (x : ⟨ R [ Unit ] ⟩) → fst from (fst to x) ≡ x
     fromTo = isIdByUMP-HIT (from ∘a to) λ {tt → fromPresX}
 
-    asIso : Iso ⟨ R [ Unit ] ⟩  ⟨ ListPolyCommAlgebra R ⟩
-    Iso.fun asIso = fst to
-    Iso.inv asIso = fst from
-    Iso.rightInv asIso = toFrom
-    Iso.leftInv asIso = fromTo
+  typevariateListPolyIso : Iso ⟨ R [ Unit ] ⟩  ⟨ ListPolyCommAlgebra R ⟩
+  fun typevariateListPolyIso = fst to
+  inv typevariateListPolyIso = fst from
+  rightInv typevariateListPolyIso = toFrom
+  leftInv typevariateListPolyIso = fromTo
 
   typevariateListPolyEquiv : CommAlgebraEquiv (R [ Unit ]) (ListPolyCommAlgebra R)
-  fst typevariateListPolyEquiv = isoToEquiv asIso
+  fst typevariateListPolyEquiv = isoToEquiv typevariateListPolyIso
   snd typevariateListPolyEquiv = snd to
 
   typevariateListPolyGenerator :
