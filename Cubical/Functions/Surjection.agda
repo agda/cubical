@@ -78,7 +78,7 @@ epi⇒surjective f rc y = transport (fact₂ y) tt*
           fact₂ = rc _ _ fact₁
 
 {-
-  If f and is surjective and
+  If f is surjective and
 
        A ─f↠ C
        g↘   ↗h
