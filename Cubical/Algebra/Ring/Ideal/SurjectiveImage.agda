@@ -9,6 +9,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
+open import Cubical.Functions.Image
 
 open import Cubical.Functions.Surjection
 
@@ -32,7 +33,7 @@ module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) (I : 
                    _ = snd S
 
   imageIdeal : IdealsIn S
-  fst imageIdeal = λ y → (∃[ x ∈ ⟨ R ⟩ ] (x ∈ fst I) × (fst f x ≡ y)) , isPropPropTrunc
+  fst imageIdeal = SubsetImage (fst f) (fst I)
   (snd imageIdeal) .0r-closed     = ∣ 0r , 0r-closed (snd I) , pres0 (snd f) ∣₁
   (snd imageIdeal) .+-closed      =
     rec2 isPropPropTrunc
