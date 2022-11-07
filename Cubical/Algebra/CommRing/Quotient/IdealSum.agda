@@ -152,10 +152,9 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
   surjective : isSurjection (fst ψ)
   surjective =
     rightFactorSurjective
-      (fst π , snd (compSurjection (_ , quotientHomSurjective R I) (_ , quotientHomSurjective (R / I) π₁J)))
       (fst π+)
       (fst ψ)
-      λ x → refl
+      (snd (compSurjection (_ , quotientHomSurjective R I) (_ , quotientHomSurjective (R / I) π₁J)))
 
 module _ {R : CommRing ℓ} (I J : IdealsIn R) where
   open Construction I J

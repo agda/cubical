@@ -1,15 +1,16 @@
 {-# OPTIONS --safe #-}
 module Cubical.Functions.Surjection where
 
-open import Cubical.Core.Everything
-open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Function
 open import Cubical.Functions.Embedding
+
+open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 open import Cubical.HITs.PropositionalTruncation as PT
 
 private variable
@@ -80,16 +81,16 @@ epi⇒surjective f rc y = transport (fact₂ y) tt*
 {-
   If f is surjective and
 
-       A ─f↠ C
+       A ──↠ C
        g↘   ↗h
           B
 
   commutes, then h is surjective.
 -}
-rightFactorSurjective : (f : A ↠ C) (g : A → B) (h : B → C)
-                        → ((x : A) → h (g x) ≡ fst f x)
+rightFactorSurjective : (g : A → B) (h : B → C)
+                        → isSurjection (h ∘ g)
                         → isSurjection h
-rightFactorSurjective f g h gh≡f c = rec isPropPropTrunc (λ (x , fx≡c) → ∣ g x , gh≡f x ∙ fx≡c ∣₁ ) (snd f c)
+rightFactorSurjective g h sur-h∘g c = PT.rec isPropPropTrunc (λ (x , hgx≡c) → ∣ g x , hgx≡c ∣₁) (sur-h∘g c)
 
 compSurjection : (f : A ↠ B) (g : B ↠ C)
                  → A ↠ C
