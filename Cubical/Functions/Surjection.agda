@@ -78,19 +78,11 @@ epi⇒surjective f rc y = transport (fact₂ y) tt*
           fact₂ : ∀ y → Unit* ≡ hasPreimage f y
           fact₂ = rc _ _ fact₁
 
-{-
-  If f is surjective and
-
-       A ──↠ C
-       g↘   ↗h
-          B
-
-  commutes, then h is surjective.
--}
-rightFactorSurjective : (g : A → B) (h : B → C)
+-- If h ∘ g is surjective, then h is surjective.
+leftFactorSurjective : (g : A → B) (h : B → C)
                         → isSurjection (h ∘ g)
                         → isSurjection h
-rightFactorSurjective g h sur-h∘g c = PT.rec isPropPropTrunc (λ (x , hgx≡c) → ∣ g x , hgx≡c ∣₁) (sur-h∘g c)
+leftFactorSurjective g h sur-h∘g c = PT.rec isPropPropTrunc (λ (x , hgx≡c) → ∣ g x , hgx≡c ∣₁) (sur-h∘g c)
 
 compSurjection : (f : A ↠ B) (g : B ↠ C)
                  → A ↠ C
