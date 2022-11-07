@@ -27,19 +27,19 @@ private
 
 module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) (I : IdealsIn R) where
   open isIdeal
-  open IsRingHom
+  open IsRingHom (snd f)
   open RingStr ⦃...⦄
   private instance _ = snd R
                    _ = snd S
 
   imageIdeal : IdealsIn S
   fst imageIdeal = SubsetImage (fst f) (fst I)
-  (snd imageIdeal) .0r-closed     = ∣ 0r , 0r-closed (snd I) , pres0 (snd f) ∣₁
+  (snd imageIdeal) .0r-closed     = ∣ 0r , 0r-closed (snd I) , pres0 ∣₁
   (snd imageIdeal) .+-closed      =
     rec2 isPropPropTrunc
          λ (x , (x∈I , fx≡-)) (y , (y∈I , fy≡-))
            → ∣ (x + y) , (+-closed (snd I) x∈I y∈I ,
-                         (fst f (x + y)     ≡⟨ pres+ (snd f) _ _ ⟩
+                         (fst f (x + y)     ≡⟨ pres+ _ _ ⟩
                           fst f x + fst f y ≡[ i ]⟨ fx≡- i + fy≡- i ⟩
                            _ + _ ∎)) ∣₁
 
@@ -47,7 +47,7 @@ module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) (I : 
     rec isPropPropTrunc
         λ (x , (x∈I , fx≡-))
           → ∣ (- x) , (-closed (snd I) x∈I ,
-                       (fst f (- x) ≡⟨ pres- (snd f) _ ⟩
+                       (fst f (- x) ≡⟨ pres- _ ⟩
                         - fst f x   ≡[ i ]⟨ - fx≡- i ⟩
                         (- _) ∎)) ∣₁
 
@@ -57,7 +57,7 @@ module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) (I : 
            → rec isPropPropTrunc
                  λ (x , (x∈I , fx≡-))
                    → ∣ (s · x) , (·-closedLeft (snd I) s x∈I) ,
-                                 (fst f (s · x)     ≡⟨ pres· (snd f) s x ⟩
+                                 (fst f (s · x)     ≡⟨ pres· s x ⟩
                                   fst f s · fst f x ≡[ i ]⟨ fs≡r i · fx≡- i ⟩
                                    (r · _) ∎) ∣₁)
     (f-epi r)
@@ -68,7 +68,7 @@ module _ {R S : Ring ℓ} (f : RingHom R S) (f-epi : isSurjection (fst f)) (I : 
            → rec isPropPropTrunc
                  λ (x , (x∈I , fx≡-))
                    → ∣ (x · s) , (·-closedRight (snd I) s x∈I) ,
-                                 (fst f (x · s)     ≡⟨ pres· (snd f) x s ⟩
+                                 (fst f (x · s)     ≡⟨ pres· x s ⟩
                                   fst f x · fst f s ≡[ i ]⟨ fx≡- i · fs≡r i ⟩
                                    (_ · r) ∎) ∣₁)
     (f-epi r)
