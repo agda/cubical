@@ -11,7 +11,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
-open import Cubical.Algebra.CommRing.QuotientRing
+open import Cubical.Algebra.CommRing.Quotient
 open import Cubical.Algebra.CommRing.Instances.Int
 
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly

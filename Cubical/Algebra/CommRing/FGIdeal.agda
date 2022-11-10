@@ -29,12 +29,13 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.Ideal.Sum
 open import Cubical.Algebra.CommRing.BinomialThm
-open import Cubical.Algebra.Ring.QuotientRing
+open import Cubical.Algebra.Ring.Quotient
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Algebra.Matrix
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 private
   variable
@@ -203,6 +204,7 @@ module _ (R' : CommRing ℓ) where
  open CommIdeal R'
  open Sum (CommRing→Ring R')
  open KroneckerDelta (CommRing→Ring R')
+ open IdealSum R'
  private
   R = fst R'
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal

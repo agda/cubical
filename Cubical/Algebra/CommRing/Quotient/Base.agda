@@ -1,9 +1,10 @@
-{-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRing.QuotientRing where
+{-# OPTIONS --safe --experimental-lossy-unification #-}
+module Cubical.Algebra.CommRing.Quotient.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset
+open import Cubical.Functions.Surjection
 
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
@@ -16,7 +17,7 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.Kernel
 open import Cubical.Algebra.Ring
-import Cubical.Algebra.Ring.QuotientRing as Ring
+import Cubical.Algebra.Ring.Quotient as Ring
 
 private
   variable
@@ -37,6 +38,7 @@ R / I =
 
 [_]/ : {R : CommRing ℓ} {I : IdealsIn R} → (a : fst R) → fst (R / I)
 [ a ]/ = [ a ]
+
 
 
 module Quotient-FGideal-CommRing-Ring
@@ -73,14 +75,33 @@ module Quotient-FGideal-CommRing-CommRing
   inducedHom : CommRingHom (A / (generatedIdeal _ v)) B
   inducedHom = Quotient-FGideal-CommRing-Ring.inducedHom A (CommRing→Ring B) g v gnull
 
+module UniversalProperty
+  (R S : CommRing ℓ)
+  (I : IdealsIn R)
+  (f : CommRingHom R S)
+  (I⊆ker : (x : ⟨ R ⟩) → x ∈ fst I → fst f x ≡ CommRingStr.0r (snd S))
+  where
+
+  inducedHom : CommRingHom (R / I) S
+  inducedHom = Ring.UniversalProperty.inducedHom (CommRing→Ring R) (CommIdeal→Ideal I) f I⊆ker
+
 
 quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
 quotientHom R I = Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
 
+quotientHomSurjective : (R : CommRing ℓ) → (I : IdealsIn R)
+                        → isSurjection (fst (quotientHom R I))
+quotientHomSurjective R I = Ring.quotientHomSurjective (CommRing→Ring R) (CommIdeal→Ideal I)
 
 module _ {R : CommRing ℓ} (I : IdealsIn R) where
+  open CommRingStr ⦃...⦄
   private
     π = quotientHom R I
+    instance _ = snd R
+             _ = snd (R / I)
 
   kernel≡I : kernelIdeal R (R / I) π ≡ I
   kernel≡I = cong Ideal→CommIdeal (Ring.kernel≡I (CommIdeal→Ideal I))
+
+  zeroOnIdeal : (x : ⟨ R ⟩) → x ∈ fst I → fst π x ≡ 0r
+  zeroOnIdeal x x∈I = subst (λ P → fst ((fst P) x)) (sym kernel≡I) x∈I

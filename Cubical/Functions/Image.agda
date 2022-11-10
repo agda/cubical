@@ -7,6 +7,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Surjection
@@ -48,6 +49,19 @@ module _ (f : A → B) where
 
   imageFactorization : fst imageInclusion ∘ restrictToImage ≡ f
   imageFactorization = refl
+
+{-
+  Images of subsets.
+  The universe level of domain and codomain is equal, so we can use
+  the notion of powerset ℙ - so subsets of a type A : Type ℓ, are
+  maps A → hProp ℓ.
+-}
+module _ {A B : Type ℓ} (f : A → B) where
+  isInSubsetImage : ℙ A → B → Type _
+  isInSubsetImage U y = ∃[ x ∈ A ] (x ∈ U) × (f x ≡ y)
+
+  SubsetImage : ℙ A → ℙ B
+  SubsetImage U y = isInSubsetImage U y , isPropPropTrunc
 
 {-
   The following is also true for a general modality in place of ∥_∥₁,
