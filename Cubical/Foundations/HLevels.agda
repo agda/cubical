@@ -576,6 +576,9 @@ isGroupoidHSet = isOfHLevelTypeOfHLevel 2
 isOfHLevelLift : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} → isOfHLevel n A → isOfHLevel n (Lift {j = ℓ'} A)
 isOfHLevelLift n = isOfHLevelRetract n lower lift λ _ → refl
 
+isOfHLevelLower : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} → isOfHLevel n (Lift {j = ℓ'} A) → isOfHLevel n A
+isOfHLevelLower n = isOfHLevelRetract n lift lower λ _ → refl
+
 ----------------------------
 
 -- More consequences of isProp and isContr
