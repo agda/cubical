@@ -348,7 +348,7 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
 -- Multi-variable versions of J
 
 module _ {x : A}
-  {B : A → Type ℓ''} {b : B x}
+  {B : A → Type ℓ'} {b : B x}
   (P : (y : A) (p : x ≡ y) (z : B y) (q : PathP (λ i → B (p i)) b z) → Type ℓ'')
   (d : P _ refl _ refl) where
 
