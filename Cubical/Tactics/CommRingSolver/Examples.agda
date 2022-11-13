@@ -85,15 +85,6 @@ module Test (R : CommRing ℓ) where
   _ : (x y z : (fst R)) → x · (y - z) ≡ x · y - x · z
   _ = solve R
 
-  {-
-    Keep in mind, that the solver can lead to wrong error locations.
-    For example, the commented code below tries to solve an equation that does not hold,
-    with the result of an error at the wrong location.
-
-  _ : (x y : (fst R)) → x ≡ y
-  _ = solve R
-  -}
-
 module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
   open CommAlgebraStr {{...}}
   private
