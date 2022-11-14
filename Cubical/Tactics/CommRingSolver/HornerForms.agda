@@ -81,7 +81,7 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
   ... | true = refl
   ... | false = byBoolAbsurdity (snd (extractFromAnd _ _ isZeroSum))
 
-module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
+module HornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
 
   private
@@ -177,8 +177,8 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   RawRing.- (asRawRing n) =  -ₕ
 
 Variable : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ') (k : Fin n) → HornerForms n
-Variable n R k = IteratedHornerOperations.X R n k
+Variable n R k = HornerOperations.X R n k
 
 Constant : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ') (r : ℤ) → HornerForms n
 Constant ℕ.zero R r = const r
-Constant (ℕ.suc n) R r = IteratedHornerOperations.0ₕ R ·X+ Constant n R r
+Constant (ℕ.suc n) R r = HornerOperations.0ₕ R ·X+ Constant n R r

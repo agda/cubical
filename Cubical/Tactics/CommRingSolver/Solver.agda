@@ -25,7 +25,7 @@ module EqualityToNormalform (R : CommRing ℓ) where
   open CommRingStr (snd R)
   open RingTheory (CommRing→Ring R)
   open Eval ℤAsRawRing νR
-  open IteratedHornerOperations νR
+  open HornerOperations νR
   open HomomorphismProperties R
   open HornerEval νR
 

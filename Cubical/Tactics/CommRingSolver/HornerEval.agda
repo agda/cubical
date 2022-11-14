@@ -41,7 +41,7 @@ module _ (R : CommRing ℓ) where
     νR = CommRing→RawℤAlgebra R
   open CommRingStr (snd R)
   open RingTheory (CommRing→Ring R)
-  open IteratedHornerOperations νR
+  open HornerOperations νR
   open HornerEval νR
   
   someCalculation : {x : fst R} → _ ≡ _
