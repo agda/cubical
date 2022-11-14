@@ -32,7 +32,7 @@ module EqualityToNormalform (R : CommRing ℓ) where
   ℤExpr : (n : ℕ) → Type _
   ℤExpr = Expr ℤAsRawRing (fst R)
 
-  normalize : {n : ℕ} → ℤExpr n → IteratedHornerForms n
+  normalize : {n : ℕ} → ℤExpr n → HornerForms n
   normalize {n = n} (K r) = Constant n νR r
   normalize {n = n} (∣ k) = Variable n νR k
   normalize (x +' y) =

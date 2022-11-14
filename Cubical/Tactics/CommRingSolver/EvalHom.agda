@@ -30,7 +30,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
   open IteratedHornerOperations νR
   open HornerEval νR
   
-  EvalHom+0 : {n : ℕ} (P : IteratedHornerForms n) (xs : Vec ⟨ νR ⟩ n)
+  EvalHom+0 : {n : ℕ} (P : HornerForms n) (xs : Vec ⟨ νR ⟩ n)
       → eval (0ₕ +ₕ P) xs ≡ eval P xs
   EvalHom+0 {n = ℕ.zero} (const x) [] = cong (scalar R) (+Ridℤ x)
   EvalHom+0 {n = ℕ.suc _} P xs = refl
@@ -56,7 +56,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
     1r ∎
 
   -EvalDist :
-    {n : ℕ} (P : IteratedHornerForms n) (xs : Vec ⟨ νR ⟩ n)
+    {n : ℕ} (P : HornerForms n) (xs : Vec ⟨ νR ⟩ n)
     → eval (-ₕ P) xs ≡ - eval P xs
   -EvalDist (const x) []   = -DistScalar R x
   -EvalDist 0H  xs =
@@ -81,8 +81,8 @@ module HomomorphismProperties (R : CommRing ℓ) where
     ≡[ i ]⟨ - combineCasesEval R P Q x xs (~ i) ⟩
       - eval (P ·X+ Q) (x ∷ xs) ∎
 
-  combineCases+ : {n : ℕ} (P Q : IteratedHornerForms (ℕ.suc n))
-                  (r s : IteratedHornerForms n)
+  combineCases+ : {n : ℕ} (P Q : HornerForms (ℕ.suc n))
+                  (r s : HornerForms n)
                   (x : fst R) (xs : Vec (fst R) n)
                   → eval ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs)
                   ≡ eval ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
@@ -91,7 +91,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
   ... | no p = compute+ₕEvalNotBothZero R n P Q r s x xs (¬true→false _ p)
 
   +Homeval :
-    {n : ℕ} (P Q : IteratedHornerForms n) (xs : Vec ⟨ νR ⟩ n)
+    {n : ℕ} (P Q : HornerForms n) (xs : Vec ⟨ νR ⟩ n)
     → eval (P +ₕ Q) xs ≡ (eval P xs) + (eval Q xs)
   +Homeval (const x) (const y) [] = +HomScalar R x y
   +Homeval 0H Q xs =
@@ -127,27 +127,27 @@ module HomomorphismProperties (R : CommRing ℓ) where
     + eval (S ·X+ T) (x ∷ xs) ∎
 
   ⋆Homeval : {n : ℕ}
-             (r : IteratedHornerForms n)
-             (P : IteratedHornerForms (ℕ.suc n)) (x : ⟨ νR ⟩) (xs : Vec ⟨ νR ⟩ n)
+             (r : HornerForms n)
+             (P : HornerForms (ℕ.suc n)) (x : ⟨ νR ⟩) (xs : Vec ⟨ νR ⟩ n)
            → eval (r ⋆ P) (x ∷ xs) ≡ eval r xs · eval P (x ∷ xs)
 
   ⋆0LeftAnnihilates :
-    {n : ℕ} (P : IteratedHornerForms (ℕ.suc n)) (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
+    {n : ℕ} (P : HornerForms (ℕ.suc n)) (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
     → eval (0ₕ ⋆ P) xs ≡ 0r
   ⋆0LeftAnnihilates 0H xs = Eval0H xs
   ⋆0LeftAnnihilates {n = ℕ.zero} (P ·X+ Q) (x ∷ xs) = refl
   ⋆0LeftAnnihilates {n = ℕ.suc _} (P ·X+ Q) (x ∷ xs) = refl
 
   ⋆isZeroLeftAnnihilates :
-    {n : ℕ} (r : IteratedHornerForms n)
-            (P : IteratedHornerForms (ℕ.suc n))
+    {n : ℕ} (r : HornerForms n)
+            (P : HornerForms (ℕ.suc n))
     (xs : Vec ⟨ νR ⟩ (ℕ.suc n))
     → isZero νR r ≡ true
     → eval (r ⋆ P) xs ≡ 0r
   ⋆isZeroLeftAnnihilates r P xs isZero-r = evalIsZero R (r ⋆ P) xs (isZeroPresLeft⋆ r P isZero-r)
 
   ·0LeftAnnihilates :
-    {n : ℕ} (P : IteratedHornerForms n) (xs : Vec ⟨ νR ⟩ n)
+    {n : ℕ} (P : HornerForms n) (xs : Vec ⟨ νR ⟩ n)
     → eval (0ₕ ·ₕ P) xs ≡ 0r
   ·0LeftAnnihilates (const x) xs =
     eval (const _) xs ≡⟨ Eval0H xs ⟩ 0r ∎
@@ -155,19 +155,19 @@ module HomomorphismProperties (R : CommRing ℓ) where
   ·0LeftAnnihilates (P ·X+ P₁) xs = Eval0H xs
 
   ·isZeroLeftAnnihilates :
-    {n : ℕ} (P Q : IteratedHornerForms n)
+    {n : ℕ} (P Q : HornerForms n)
     (xs : Vec (fst R) n)
     → isZero νR P ≡ true
     → eval (P ·ₕ Q) xs ≡ 0r
   ·isZeroLeftAnnihilates P Q xs isZeroP = evalIsZero R (P ·ₕ Q) xs (isZeroPresLeft·ₕ P Q isZeroP)
 
-  ·Homeval : {n : ℕ} (P Q : IteratedHornerForms n) (xs : Vec ⟨ νR ⟩ n)
+  ·Homeval : {n : ℕ} (P Q : HornerForms n) (xs : Vec ⟨ νR ⟩ n)
     → eval (P ·ₕ Q) xs ≡ (eval P xs) · (eval Q xs)
 
   combineCases⋆ : {n : ℕ} (x : fst R) (xs : Vec (fst R) n)
-                → (r : IteratedHornerForms n)
-                → (P : IteratedHornerForms (ℕ.suc n))
-                → (Q : IteratedHornerForms n)
+                → (r : HornerForms n)
+                → (P : HornerForms (ℕ.suc n))
+                → (Q : HornerForms n)
                 → eval (r ⋆ (P ·X+ Q)) (x ∷ xs) ≡ eval ((r ⋆ P) ·X+ (r ·ₕ Q)) (x ∷ xs)
   combineCases⋆ x xs r P Q with isZero νR r ≟ true
   ... | yes p =
@@ -205,7 +205,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
       eval r xs · eval (P ·X+ Q) (x ∷ xs) ∎
 
   lemmaForCombineCases· :
-    {n : ℕ} (Q : IteratedHornerForms n) (P S : IteratedHornerForms (ℕ.suc n))
+    {n : ℕ} (Q : HornerForms n) (P S : HornerForms (ℕ.suc n))
     (xs : Vec (fst R) (ℕ.suc n))
     →  isZero νR (P ·ₕ S) ≡ true
     → eval ((P ·X+ Q) ·ₕ S) xs ≡ eval (Q ⋆ S) xs
@@ -214,7 +214,7 @@ module HomomorphismProperties (R : CommRing ℓ) where
   ... | false = byBoolAbsurdity isZeroProd
 
   combineCases· :
-    {n : ℕ} (Q : IteratedHornerForms n) (P S : IteratedHornerForms (ℕ.suc n))
+    {n : ℕ} (Q : HornerForms n) (P S : HornerForms (ℕ.suc n))
     (xs : Vec (fst R) (ℕ.suc n))
     → eval ((P ·X+ Q) ·ₕ S) xs ≡ eval (((P ·ₕ S) ·X+ 0ₕ) +ₕ (Q ⋆ S)) xs
   combineCases· Q P S (x ∷ xs) with isZero νR (P ·ₕ S) ≟ true

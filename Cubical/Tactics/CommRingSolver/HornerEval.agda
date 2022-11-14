@@ -25,7 +25,7 @@ module HornerEval (A : RawAlgebra ℤAsRawRing ℓ') where
   open RawAlgebra A
   
   eval : {n : ℕ}
-         → (P : IteratedHornerForms n)
+         → (P : HornerForms n)
          → Vec ⟨ A ⟩ n → ⟨ A ⟩
   eval (const r) [] = RawAlgebra.scalar A r
   eval 0H (_ ∷ _) = 0r
@@ -51,7 +51,7 @@ module _ (R : CommRing ℓ) where
     0r · x + 0r          ∎
 
 
-  evalIsZero : {n : ℕ} (P : IteratedHornerForms n)
+  evalIsZero : {n : ℕ} (P : HornerForms n)
              → (l : Vec (fst R) n)
              → isZero νR P ≡ true
              → eval P l ≡ 0r
@@ -68,8 +68,8 @@ module _ (R : CommRing ℓ) where
 
   computeEvalSummandIsZero :
                {n : ℕ}
-               (P : IteratedHornerForms (ℕ.suc n))
-               (Q : IteratedHornerForms n)
+               (P : HornerForms (ℕ.suc n))
+               (Q : HornerForms n)
              → (xs : Vec (fst R) n)
              → (x : (fst R))
              → isZero νR P ≡ true
@@ -80,8 +80,8 @@ module _ (R : CommRing ℓ) where
 
   computeEvalNotZero :
                {n : ℕ}
-               (P : IteratedHornerForms (ℕ.suc n))
-               (Q : IteratedHornerForms n)
+               (P : HornerForms (ℕ.suc n))
+               (Q : HornerForms n)
              → (xs : Vec (fst R) n)
              → (x : (fst R))
              → ¬ (isZero νR P ≡ true)
@@ -91,7 +91,7 @@ module _ (R : CommRing ℓ) where
   ... | false = refl
 
   combineCasesEval :
-    {n : ℕ}  (P : IteratedHornerForms (ℕ.suc n)) (Q : IteratedHornerForms n)
+    {n : ℕ}  (P : HornerForms (ℕ.suc n)) (Q : HornerForms n)
     (x : (fst R)) (xs : Vec (fst R) n)
     →   eval (P ·X+ Q) (x ∷ xs)
       ≡ (eval P (x ∷ xs)) · x + eval Q xs
@@ -106,8 +106,8 @@ module _ (R : CommRing ℓ) where
 
 
   compute+ₕEvalBothZero :
-    (n : ℕ) (P Q : IteratedHornerForms (ℕ.suc n))
-    (r s : IteratedHornerForms n)
+    (n : ℕ) (P Q : HornerForms (ℕ.suc n))
+    (r s : HornerForms n)
     (x : (fst R)) (xs : Vec (fst R) n)
     → (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≡ true
     → eval ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs) ≡ eval ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
@@ -125,8 +125,8 @@ module _ (R : CommRing ℓ) where
   ... | false | p = byBoolAbsurdity p
 
   compute+ₕEvalNotBothZero :
-    (n : ℕ) (P Q : IteratedHornerForms (ℕ.suc n))
-    (r s : IteratedHornerForms n)
+    (n : ℕ) (P Q : HornerForms (ℕ.suc n))
+    (r s : HornerForms n)
     (x : (fst R)) (xs : Vec (fst R) n)
     → (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≡ false
     → eval ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs) ≡ eval ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
