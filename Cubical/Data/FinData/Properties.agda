@@ -20,7 +20,11 @@ open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc
                                       ;znots to ℕznots ; snotz to  ℕsnotz)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Maybe
+
 open import Cubical.Relation.Nullary
+
+open import Cubical.Structures.Pointed
 
 private
  variable
@@ -35,8 +39,16 @@ toℕ<n {n = ℕsuc n} (suc i) = toℕ<n i .fst , +-suc _ _ ∙ cong ℕsuc (to�
 znots : ∀{k} {m : Fin k} → ¬ (zero ≡ (suc m))
 znots {k} {m} x = subst (Fin.rec (Fin k) ⊥) x m
 
+znotsP : ∀ {k0 k1 : ℕ} {k : k0 ≡ k1} {m1 : Fin k1}
+  → ¬ PathP (λ i → Fin (ℕsuc (k i))) zero (suc m1)
+znotsP p = ℕznots (congP (λ i → toℕ) p)
+
 snotz : ∀{k} {m : Fin k} → ¬ ((suc m) ≡ zero)
 snotz {k} {m} x = subst (Fin.rec ⊥ (Fin k)) x m
+
+snotzP : ∀ {k0 k1 : ℕ} {k : k0 ≡ k1} {m0 : Fin k0}
+  → ¬ PathP (λ i → Fin (ℕsuc (k i))) (suc m0) zero
+snotzP p = ℕsnotz (congP (λ i → toℕ) p)
 
 -- alternative from
 fromℕ' : (n : ℕ) → (k : ℕ) → (k < n) → Fin n
@@ -73,6 +85,25 @@ injSucFin : ∀ {n} {p q : Fin n} → suc p ≡ suc q → p ≡ q
 injSucFin {ℕsuc ℕzero} {zero} {zero} pf = refl
 injSucFin {ℕsuc (ℕsuc n)} pf = cong predFin pf
 
+injSucFinP : ∀ {n0 n1 : ℕ} {pn : n0 ≡ n1} {p0 : Fin n0} {p1 : Fin n1}
+  → PathP (λ i → Fin (ℕsuc (pn i))) (suc p0) (suc p1)
+  → PathP (λ i → Fin (pn i)) p0 p1
+injSucFinP {one} {one} {pn} {zero} {zero} sucp =
+  transport (λ j → PathP (λ i → Fin (eqn j i)) zero zero) refl
+  where eqn : refl ≡ pn
+        eqn = isSetℕ one one refl pn
+injSucFinP {one} {ℕsuc (ℕsuc n1)} {pn} {p0} {p1} sucp = ⊥.rec (ℕznots (injSuc pn))
+injSucFinP {ℕsuc (ℕsuc n0)} {one} {pn} {p0} {p1} sucp = ⊥.rec (ℕsnotz (injSuc pn))
+injSucFinP {ℕsuc (ℕsuc n0)} {ℕsuc (ℕsuc n1)} {pn} {p0} {p1} sucp =
+  transport (λ j → PathP (λ i → Fin (eqn j i)) p0 p1) (
+      congP (λ i → predFin) (
+        transport (λ j → PathP (λ i → Fin (ℕsuc (eqn (~ j) i))) (suc p0) (suc p1)) sucp
+      )
+    )
+  where pn' : 2 + n0 ≡ 2 + n1
+        pn' = cong ℕsuc (injSuc pn)
+        eqn : pn' ≡ pn
+        eqn = isSetℕ (2 + n0) (2 + n1) pn' pn
 
 discreteFin : ∀{k} → Discrete (Fin k)
 discreteFin zero zero = yes refl
@@ -85,6 +116,15 @@ discreteFin (suc x) (suc y) with discreteFin x y
 isSetFin : ∀{k} → isSet (Fin k)
 isSetFin = Discrete→isSet discreteFin
 
+isWeaken? : ∀ {n} (p : Fin (ℕsuc n)) → Dec (Σ[ q ∈ Fin n ] p ≡ weakenFin q)
+isWeaken? {ℕzero} zero = no λ (q , eqn) → case q of λ ()
+isWeaken? {ℕsuc n} zero = yes (zero , refl)
+isWeaken? {ℕsuc n} (suc p) with isWeaken? {n} p
+... | yes (q , p≡wq) = yes (suc q , cong suc p≡wq)
+... | no  p≢wq = no λ
+  { (zero , sp≡wq) → snotz sp≡wq
+  ; (suc q , sp≡wq) → p≢wq (q , cong predFin sp≡wq)
+  }
 
 data biEq {n : ℕ} (i j : Fin n) : Type where
   eq  :   i ≡ j → biEq i j
@@ -215,6 +255,22 @@ enumElim P k p h f i =
 ... | no ¬i<m = toFin (toℕ i ∸ m)
                   (subst (λ x → toℕ i ∸ m < x) (+-comm m n) (≤<-trans (∸-≤ (toℕ i) m) (toℕ<n i)))
 
+
+finSucMaybeIso : Iso (Fin (ℕ.suc n)) (Maybe (Fin n))
+Iso.fun finSucMaybeIso zero = nothing
+Iso.fun finSucMaybeIso (suc i) = just i
+Iso.inv finSucMaybeIso nothing = zero
+Iso.inv finSucMaybeIso (just i) = suc i
+Iso.rightInv finSucMaybeIso nothing = refl
+Iso.rightInv finSucMaybeIso (just i) = refl
+Iso.leftInv finSucMaybeIso zero = refl
+Iso.leftInv finSucMaybeIso (suc i) = refl
+
+finSuc≡Maybe : Fin (ℕ.suc n) ≡ Maybe (Fin n)
+finSuc≡Maybe = isoToPath finSucMaybeIso
+
+finSuc≡Maybe∙ : (Fin (ℕ.suc n) , zero) ≡ Maybe∙ (Fin n)
+finSuc≡Maybe∙ = pointed-sip _ _ ((isoToEquiv finSucMaybeIso) , refl)
 
 -- Proof that Fin n ⊎ Fin m ≃ Fin (n+m)
 module FinSumChar where

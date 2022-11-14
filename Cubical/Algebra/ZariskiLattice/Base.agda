@@ -30,6 +30,7 @@ open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.Ideal.Sum
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Tactics.CommRingSolver.Reflection
@@ -60,6 +61,7 @@ module ZarLat (R' : CommRing ℓ) where
  open RadicalIdeal R'
  open isCommIdeal
  open ProdFin R'
+ open IdealSum R'
 
  private
   R = fst R'
@@ -67,16 +69,47 @@ module ZarLat (R' : CommRing ℓ) where
   ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
   ⟨ V ⟩ = ⟨ V ⟩[ R' ]
 
- _∼_ : A → A → Type (ℓ-suc ℓ)
- (_ , α) ∼ (_ , β) = √ ⟨ α ⟩ ≡ √ ⟨ β ⟩
+ -- This is small!
+ _≼_ : A → A → Type ℓ
+ (_ , α) ≼ (_ , β) = ∀ i → α i ∈ √ ⟨ β ⟩
+
+ private
+  isRefl≼ : ∀ {a} → a ≼ a
+  isRefl≼ i = ∈→∈√ _ _ (indInIdeal _ _ i)
+
+  isTrans≼ : ∀ {a b c : A} → a ≼ b → b ≼ c → a ≼ c
+  isTrans≼ a≼b b≼c i = (√FGIdealCharRImpl _ _ b≼c) _ (a≼b i)
+
+ _∼_ :  A → A → Type ℓ -- \sim
+ α ∼ β = (α ≼ β) × (β ≼ α)
+
+ ∼PropValued : isPropValued (_∼_)
+ ∼PropValued (_ , α) (_ , β) = isProp× (isPropΠ (λ i → √ ⟨ β ⟩ .fst (α i) .snd))
+                                       (isPropΠ (λ i → √ ⟨ α ⟩ .fst (β i) .snd))
 
  ∼EquivRel : isEquivRel (_∼_)
- reflexive ∼EquivRel _ = refl
- symmetric ∼EquivRel _ _ = sym
- transitive ∼EquivRel _ _ _ = _∙_
+ reflexive ∼EquivRel _ = isRefl≼ , isRefl≼
+ symmetric ∼EquivRel _ _ = Σ-swap-Iso .fun
+ transitive ∼EquivRel _ _ _ a∼b b∼c = isTrans≼ (fst a∼b) (fst b∼c) , isTrans≼ (snd b∼c) (snd a∼b)
 
- ZL : Type (ℓ-suc ℓ)
- ZL = A / _∼_
+ -- lives in the same universe as R
+ ZL : Type ℓ
+ ZL = A / (_∼_)
+
+ --  need something big in our proofs though:
+ _∼≡_ : A → A → Type (ℓ-suc ℓ)
+ (_ , α) ∼≡ (_ , β) = √ ⟨ α ⟩ ≡ √ ⟨ β ⟩
+
+ ≡→∼ : ∀ {a b : A} → a ∼≡ b → a ∼ b
+ ≡→∼ r = √FGIdealCharLImpl _ ⟨ _ ⟩ (λ x h → subst (λ p → x ∈ p) r h)
+       , √FGIdealCharLImpl _ ⟨ _ ⟩ (λ x h → subst (λ p → x ∈ p) (sym r) h)
+
+ ∼→≡ : ∀ {a b : A} → a ∼ b → a ∼≡ b
+ ∼→≡ r = CommIdeal≡Char (√FGIdealCharRImpl _ ⟨ _ ⟩ (fst r))
+                        (√FGIdealCharRImpl _ ⟨ _ ⟩ (snd r))
+
+ ∼≃≡ : ∀ {a b : A} → (a ∼ b) ≃ (a ∼≡ b)
+ ∼≃≡ = propBiimpl→Equiv (∼PropValued _ _) (isSetCommIdeal _ _) ∼→≡ ≡→∼
 
  0z : ZL
  0z = [ 0 , (λ ()) ]
@@ -87,39 +120,41 @@ module ZarLat (R' : CommRing ℓ) where
  _∨z_ : ZL → ZL → ZL
  _∨z_ = setQuotSymmBinOp (reflexive ∼EquivRel) (transitive ∼EquivRel)
                           (λ (_ , α) (_ , β) → (_ , α ++Fin β))
-   (λ (_ , α) (_ , β) → cong √ (FGIdealAddLemma _ α β ∙∙ +iComm _ _ ∙∙ sym (FGIdealAddLemma _ β α)))
-    λ (_ , α) (_ , β) (_ , γ) α∼β → --need to show α∨γ ∼ β∨γ
+                          (λ (_ , α) (_ , β) → ≡→∼ (cong √
+                             (FGIdealAddLemma _ α β ∙∙ +iComm _ _ ∙∙ sym (FGIdealAddLemma _ β α))))
+    λ (_ , α) (_ , β) (_ , γ) α∼β → ≡→∼ (--need to show α∨γ ∼ β∨γ
       √ ⟨ α ++Fin γ ⟩      ≡⟨ cong √ (FGIdealAddLemma _ α γ) ⟩
       √ (⟨ α ⟩ +i ⟨ γ ⟩)    ≡⟨ sym (√+LContr _ _) ⟩
-      √ (√ ⟨ α ⟩ +i ⟨ γ ⟩) ≡⟨ cong (λ I → √ (I +i ⟨ γ ⟩)) α∼β ⟩
+      √ (√ ⟨ α ⟩ +i ⟨ γ ⟩) ≡⟨ cong (λ I → √ (I +i ⟨ γ ⟩)) (∼→≡ α∼β) ⟩
       √ (√ ⟨ β ⟩ +i ⟨ γ ⟩) ≡⟨ √+LContr _ _ ⟩
       √ (⟨ β ⟩ +i ⟨ γ ⟩)    ≡⟨ cong √ (sym (FGIdealAddLemma _ β γ)) ⟩
-      √ ⟨ β ++Fin γ ⟩ ∎
+      √ ⟨ β ++Fin γ ⟩ ∎)
 
  _∧z_ : ZL → ZL → ZL
  _∧z_ = setQuotSymmBinOp (reflexive ∼EquivRel) (transitive ∼EquivRel)
                           (λ (_ , α) (_ , β) → (_ , α ··Fin β))
-   (λ (_ , α) (_ , β) → cong √ (FGIdealMultLemma _ α β ∙∙ ·iComm _ _ ∙∙ sym (FGIdealMultLemma _ β α)))
-    λ (_ , α) (_ , β) (_ , γ) α∼β → --need to show α∧γ ∼ β∧γ
+                          (λ (_ , α) (_ , β) → ≡→∼ (cong √
+                             (FGIdealMultLemma _ α β ∙∙ ·iComm _ _ ∙∙ sym (FGIdealMultLemma _ β α))))
+    λ (_ , α) (_ , β) (_ , γ) α∼β → ≡→∼ (--need to show α∧γ ∼ β∧γ
       √ ⟨ α ··Fin γ ⟩       ≡⟨ cong √ (FGIdealMultLemma _ α γ) ⟩
       √ (⟨ α ⟩ ·i ⟨ γ ⟩)    ≡⟨ sym (√·LContr _ _) ⟩
-      √ (√ ⟨ α ⟩ ·i ⟨ γ ⟩) ≡⟨ cong (λ I → √ (I ·i ⟨ γ ⟩)) α∼β ⟩
+      √ (√ ⟨ α ⟩ ·i ⟨ γ ⟩) ≡⟨ cong (λ I → √ (I ·i ⟨ γ ⟩)) (∼→≡ α∼β) ⟩
       √ (√ ⟨ β ⟩ ·i ⟨ γ ⟩) ≡⟨ √·LContr _ _ ⟩
       √ (⟨ β ⟩ ·i ⟨ γ ⟩)    ≡⟨ cong √ (sym (FGIdealMultLemma _ β γ)) ⟩
-      √ ⟨ β ··Fin γ ⟩ ∎
+      √ ⟨ β ··Fin γ ⟩ ∎)
 
  -- join axioms
  ∨zAssoc : ∀ (𝔞 𝔟 𝔠 : ZL) → 𝔞 ∨z (𝔟 ∨z 𝔠) ≡ (𝔞 ∨z 𝔟) ∨z 𝔠
  ∨zAssoc = SQ.elimProp3 (λ _ _ _ → squash/ _ _)
-          λ (_ , α) (_ , β) (_ , γ) → eq/ _ _ (cong √ (IdealAddAssoc _ _ _ _))
+          λ (_ , α) (_ , β) (_ , γ) → eq/ _ _ (≡→∼ (cong √ (IdealAddAssoc _ _ _ _)))
 
  ∨zComm : ∀ (𝔞 𝔟 : ZL) → 𝔞 ∨z 𝔟 ≡ 𝔟 ∨z 𝔞
  ∨zComm = SQ.elimProp2 (λ _ _ → squash/ _ _)
         λ (_ , α) (_ , β) → eq/ _ _
-          (cong √ (FGIdealAddLemma _ α β ∙∙ +iComm _ _ ∙∙ sym (FGIdealAddLemma _ β α)))
+          (≡→∼ (cong √ (FGIdealAddLemma _ α β ∙∙ +iComm _ _ ∙∙ sym (FGIdealAddLemma _ β α))))
 
  ∨zLid : ∀ (𝔞 : ZL) → 0z ∨z 𝔞 ≡ 𝔞
- ∨zLid = SQ.elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ refl
+ ∨zLid = SQ.elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ (reflexive ∼EquivRel _)
 
  ∨zRid : ∀ (𝔞 : ZL) → 𝔞 ∨z 0z ≡ 𝔞
  ∨zRid _ = ∨zComm _ _ ∙ ∨zLid _
@@ -128,40 +163,40 @@ module ZarLat (R' : CommRing ℓ) where
  -- -- meet axioms
  ∧zAssoc : ∀ (𝔞 𝔟 𝔠 : ZL) → 𝔞 ∧z (𝔟 ∧z 𝔠) ≡ (𝔞 ∧z 𝔟) ∧z 𝔠
  ∧zAssoc = SQ.elimProp3 (λ _ _ _ → squash/ _ _)
-    λ (_ , α) (_ , β) (_ , γ) → eq/ _ _
+    λ (_ , α) (_ , β) (_ , γ) → eq/ _ _ (≡→∼
       (√ ⟨ α ··Fin (β ··Fin γ) ⟩     ≡⟨ cong √ (FGIdealMultLemma _ _ _) ⟩
        √ (⟨ α ⟩ ·i ⟨ β ··Fin γ ⟩)    ≡⟨ cong (λ x → √ (⟨ α ⟩ ·i x)) (FGIdealMultLemma _ _ _) ⟩
        √ (⟨ α ⟩ ·i (⟨ β ⟩ ·i ⟨ γ ⟩)) ≡⟨ cong √ (·iAssoc _ _ _) ⟩
        √ ((⟨ α ⟩ ·i ⟨ β ⟩) ·i ⟨ γ ⟩) ≡⟨ cong (λ x → √ (x ·i ⟨ γ ⟩)) (sym (FGIdealMultLemma _ _ _)) ⟩
        √ (⟨ α ··Fin β ⟩ ·i ⟨ γ ⟩)    ≡⟨ cong √ (sym (FGIdealMultLemma _ _ _)) ⟩
-       √ ⟨ (α ··Fin β) ··Fin γ ⟩     ∎)
+       √ ⟨ (α ··Fin β) ··Fin γ ⟩     ∎))
 
  ∧zComm : ∀ (𝔞 𝔟 : ZL) → 𝔞 ∧z 𝔟 ≡ 𝔟 ∧z 𝔞
  ∧zComm = SQ.elimProp2 (λ _ _ → squash/ _ _)
-        λ (_ , α) (_ , β) → eq/ _ _
-          (cong √ (FGIdealMultLemma _ α β ∙∙ ·iComm _ _ ∙∙ sym (FGIdealMultLemma _ β α)))
+        λ (_ , α) (_ , β) → eq/ _ _ (≡→∼
+          (cong √ (FGIdealMultLemma _ α β ∙∙ ·iComm _ _ ∙∙ sym (FGIdealMultLemma _ β α))))
 
  ∧zRid : ∀ (𝔞 : ZL) → 𝔞 ∧z 1z ≡ 𝔞
  ∧zRid = SQ.elimProp (λ _ → squash/ _ _)
-   λ (_ , α) → eq/ _ _ (cong √
+   λ (_ , α) → eq/ _ _ (≡→∼ (cong √
      (⟨ α ··Fin (replicateFinVec 1 1r) ⟩ ≡⟨ FGIdealMultLemma _ _ _ ⟩
       ⟨ α ⟩ ·i ⟨ (replicateFinVec 1 1r) ⟩ ≡⟨ cong (⟨ α ⟩ ·i_) (contains1Is1 _ (indInIdeal _ _ zero)) ⟩
       ⟨ α ⟩ ·i 1Ideal                     ≡⟨ ·iRid _ ⟩
-      ⟨ α ⟩ ∎))
+      ⟨ α ⟩ ∎)))
 
 
  -- absorption and distributivity
  ∧zAbsorb∨z : ∀ (𝔞 𝔟 : ZL) → 𝔞 ∧z (𝔞 ∨z 𝔟) ≡ 𝔞
  ∧zAbsorb∨z = SQ.elimProp2 (λ _ _ → squash/ _ _)
-            λ (_ , α) (_ , β) → eq/ _ _
+            λ (_ , α) (_ , β) → eq/ _ _ (≡→∼
               (√ ⟨ α ··Fin (α ++Fin β) ⟩     ≡⟨ cong √ (FGIdealMultLemma _ α (α ++Fin β)) ⟩
                √ (⟨ α ⟩ ·i ⟨ α ++Fin β ⟩)    ≡⟨ cong (λ x → √ (⟨ α ⟩ ·i x)) (FGIdealAddLemma _ α β) ⟩
                √ (⟨ α ⟩ ·i (⟨ α ⟩ +i ⟨ β ⟩)) ≡⟨ √·Absorb+ _ _ ⟩
-               √ ⟨ α ⟩ ∎)
+               √ ⟨ α ⟩ ∎))
 
  ∧zLDist∨z : ∀ (𝔞 𝔟 𝔠 : ZL) → 𝔞 ∧z (𝔟 ∨z 𝔠) ≡ (𝔞 ∧z 𝔟) ∨z (𝔞 ∧z 𝔠)
  ∧zLDist∨z = SQ.elimProp3 (λ _ _ _ → squash/ _ _)
-   λ (_ , α) (_ , β) (_ , γ) → eq/ _ _
+   λ (_ , α) (_ , β) (_ , γ) → eq/ _ _ (≡→∼
      (√ ⟨ α ··Fin (β ++Fin γ) ⟩            ≡⟨ cong √ (FGIdealMultLemma _ _ _) ⟩
       √ (⟨ α ⟩ ·i ⟨ β ++Fin γ ⟩)           ≡⟨ cong (λ x → √ (⟨ α ⟩ ·i x)) (FGIdealAddLemma _ _ _) ⟩
       √ (⟨ α ⟩ ·i (⟨ β ⟩ +i ⟨ γ ⟩))        ≡⟨ cong √ (·iRdist+i _ _ _) ⟩
@@ -171,10 +206,10 @@ module ZarLat (R' : CommRing ℓ) where
                                                      (sym (FGIdealMultLemma _ _ _))
                                                      (sym (FGIdealMultLemma _ _ _)) ⟩
       √ (⟨ α ··Fin β ⟩ +i ⟨ α ··Fin γ ⟩)   ≡⟨ cong √ (sym (FGIdealAddLemma _ _ _)) ⟩
-      √ ⟨ (α ··Fin β) ++Fin (α ··Fin γ) ⟩  ∎)
+      √ ⟨ (α ··Fin β) ++Fin (α ··Fin γ) ⟩  ∎))
 
 
- ZariskiLattice : DistLattice (ℓ-suc ℓ)
+ ZariskiLattice : DistLattice ℓ
  fst ZariskiLattice = ZL
  DistLatticeStr.0l (snd ZariskiLattice) = 0z
  DistLatticeStr.1l (snd ZariskiLattice) = 1z
@@ -183,44 +218,3 @@ module ZarLat (R' : CommRing ℓ) where
  DistLatticeStr.isDistLattice (snd ZariskiLattice) =
    makeIsDistLattice∧lOver∨l squash/ ∨zAssoc ∨zRid ∨zComm
                                        ∧zAssoc ∧zRid ∧zComm ∧zAbsorb∨z ∧zLDist∨z
-
-
--- An equivalent definition that doesn't bump up the unviverse level
-module SmallZarLat (R' : CommRing ℓ) where
- open CommRingStr (snd R')
- open CommIdeal R'
- open RadicalIdeal R'
- open ZarLat R'
-
- open Iso
-
- private
-  R = fst R'
-  A = Σ[ n ∈ ℕ ] (FinVec R n)
-  ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
-  ⟨ V ⟩ = ⟨ V ⟩[ R' ]
-  -- This is small!
-  _≼_ : A → A → Type ℓ
-  (_ , α) ≼ (_ , β) = ∀ i → α i ∈ √ ⟨ β ⟩
-
- _∼'_ :  A → A → Type ℓ
- α ∼' β = (α ≼ β) × (β ≼ α)
-
- -- lives in the same universe as R
- ZL' : Type ℓ
- ZL' = A / (_∼'_)
-
-
- IsoLarLatSmall : Iso ZL ZL'
- IsoLarLatSmall = relBiimpl→TruncIso ~→∼' ~'→∼
-  where
-  ~→∼' : ∀ {a b : A} → a ∼ b → a ∼' b
-  ~→∼' r = √FGIdealCharLImpl _ ⟨ _ ⟩ (λ x h → subst (λ p → x ∈ p) r h)
-         , √FGIdealCharLImpl _ ⟨ _ ⟩ (λ x h → subst (λ p → x ∈ p) (sym r) h)
-
-  ~'→∼ : ∀ {a b : A} → a ∼' b → a ∼ b
-  ~'→∼ r = CommIdeal≡Char (√FGIdealCharRImpl _ ⟨ _ ⟩ (fst r))
-                          (√FGIdealCharRImpl _ ⟨ _ ⟩ (snd r))
-
- ZL≃ZL' : ZL ≃ ZL'
- ZL≃ZL' = isoToEquiv IsoLarLatSmall

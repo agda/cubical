@@ -13,7 +13,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum.Base
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
@@ -322,3 +321,19 @@ module PlusBis where
 
   +'-lid : (n : ℕ) → 0 +' n ≡ n
   +'-lid n = refl
+
+  +'-suc : (n m : ℕ) → suc (n +' m) ≡ suc n +' m
+  +'-suc zero zero = refl
+  +'-suc zero (suc m) = refl
+  +'-suc (suc n) zero = refl
+  +'-suc (suc n) (suc m) = refl
+
+-- Neat transport lemma for ℕ
+compSubstℕ : ∀ {ℓ} {A : ℕ → Type ℓ} {n m l : ℕ}
+   (p : n ≡ m) (q : m ≡ l) (r : n ≡ l)
+   → {x : _}
+   → subst A q (subst A p x)
+   ≡ subst A r x
+compSubstℕ {A = A} p q r {x = x} =
+  sym (substComposite A p q x)
+  ∙ λ i → subst A (isSetℕ _ _ (p ∙ q) r i) x

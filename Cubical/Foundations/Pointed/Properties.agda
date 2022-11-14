@@ -7,6 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
 
@@ -166,3 +167,17 @@ post∘∙equiv {A = A} {B = B} {C = C} eq = main
   Iso.inv main = from A B C eq
   Iso.rightInv main = J-lem eq .snd
   Iso.leftInv main = J-lem eq .fst
+
+flip→∙∙ : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓA}
+  → (A →∙ (B →∙ C ∙)) → B →∙ (A →∙ C ∙)
+fst (fst (flip→∙∙ f) x) a = fst f a .fst x
+snd (fst (flip→∙∙ f) x) i = snd f i .fst x
+fst (snd (flip→∙∙ f) i) a = fst f a .snd i
+snd (snd (flip→∙∙ f) i) j = snd f j .snd i
+
+flip→∙∙Iso : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓA}
+  → Iso (A →∙ (B →∙ C ∙)) (B →∙ (A →∙ C ∙))
+Iso.fun flip→∙∙Iso = flip→∙∙
+Iso.inv flip→∙∙Iso = flip→∙∙
+Iso.rightInv flip→∙∙Iso _ = refl
+Iso.leftInv flip→∙∙Iso _ = refl
