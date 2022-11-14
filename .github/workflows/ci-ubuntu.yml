@@ -133,10 +133,7 @@ jobs:
         run: |
           make test \
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
-########################################################################	    
-## DEACTIVATE FOR NOW	    
-##            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
-########################################################################	    
+            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
 
       ########################################################################
@@ -148,10 +145,7 @@ jobs:
         run: |
           make listings \
             AGDA_EXEC='~/.cabal/bin/agda -W error' \
-########################################################################	    
-## DEACTIVATE FOR NOW	    
-##            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
-########################################################################	    
+            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
 
       - name: Deploy to GitHub Pages
