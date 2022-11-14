@@ -3,7 +3,7 @@
 
     R / (I + J) = (R / I) / J
 -}
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Quotient.IdealSum where
 
 open import Cubical.Foundations.Prelude
