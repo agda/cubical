@@ -27,11 +27,12 @@ module EqualityToNormalform (R : CommRing ℓ) where
   open Eval ℤAsRawRing νR
   open IteratedHornerOperations νR
   open HomomorphismProperties R
+  open HornerEval νR
 
   ℤExpr : (n : ℕ) → Type _
   ℤExpr = Expr ℤAsRawRing (fst R)
 
-  normalize : {n : ℕ} → ℤExpr n → IteratedHornerForms νR n
+  normalize : {n : ℕ} → ℤExpr n → IteratedHornerForms n
   normalize {n = n} (K r) = Constant n νR r
   normalize {n = n} (∣ k) = Variable n νR k
   normalize (x +' y) =
@@ -138,8 +139,10 @@ module EqualityToNormalform (R : CommRing ℓ) where
         → _
 ℤExpr R n = EqualityToNormalform.ℤExpr R n
 
-solve : (R : CommRing ℓ)
-        {n : ℕ} (e₁ e₂ : ℤExpr R n) (xs : Vec (fst R) n)
-        (p : eval (EqualityToNormalform.normalize R e₁) xs ≡ eval (EqualityToNormalform.normalize R e₂) xs)
-        → _
-solve R = EqualityToNormalform.solve R
+module _ (R : CommRing ℓ) where
+  open HornerEval (CommRing→RawℤAlgebra R)
+  
+  solve : {n : ℕ} (e₁ e₂ : ℤExpr R n) (xs : Vec (fst R) n)
+          (p : eval (EqualityToNormalform.normalize R e₁) xs ≡ eval (EqualityToNormalform.normalize R e₂) xs)
+          → _
+  solve = EqualityToNormalform.solve R

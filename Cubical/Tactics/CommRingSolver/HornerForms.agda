@@ -40,11 +40,11 @@ private
 
 -}
 
-data IteratedHornerForms (A : RawAlgebra ℤAsRawRing ℓ) : ℕ → Type ℓ where
-  const : ℤ → IteratedHornerForms A ℕ.zero
-  0H : {n : ℕ} → IteratedHornerForms A (ℕ.suc n)
-  _·X+_ : {n : ℕ} → IteratedHornerForms A (ℕ.suc n) → IteratedHornerForms A n
-                  → IteratedHornerForms A (ℕ.suc n)
+data IteratedHornerForms : ℕ → Type where
+  const : ℤ → IteratedHornerForms ℕ.zero
+  0H : {n : ℕ} → IteratedHornerForms (ℕ.suc n)
+  _·X+_ : {n : ℕ} → IteratedHornerForms (ℕ.suc n) → IteratedHornerForms n
+                  → IteratedHornerForms (ℕ.suc n)
 
 
 {-
@@ -55,7 +55,7 @@ data IteratedHornerForms (A : RawAlgebra ℤAsRawRing ℓ) : ℕ → Type ℓ wh
 -}
 module _ (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
-  isZero : {n : ℕ} → IteratedHornerForms A n
+  isZero : {n : ℕ} → IteratedHornerForms n
                    → Bool
   isZero (const (pos ℕ.zero)) = true
   isZero (const (pos (ℕ.suc _))) = false
@@ -64,8 +64,8 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
   isZero (P ·X+ Q) = (isZero P) and (isZero Q)
 
   leftIsZero : {n : ℕ}
-               (P : IteratedHornerForms A (ℕ.suc n))
-               (Q : IteratedHornerForms A n)
+               (P : IteratedHornerForms (ℕ.suc n))
+               (Q : IteratedHornerForms n)
                → isZero (P ·X+ Q) ≡ true
                → isZero P ≡ true
   leftIsZero P Q isZeroSum with isZero P
@@ -73,8 +73,8 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
   ... | false = byBoolAbsurdity (fst (extractFromAnd _ _ isZeroSum))
 
   rightIsZero : {n : ℕ}
-               (P : IteratedHornerForms A (ℕ.suc n))
-               (Q : IteratedHornerForms A n)
+               (P : IteratedHornerForms (ℕ.suc n))
+               (Q : IteratedHornerForms n)
                → isZero (P ·X+ Q) ≡ true
                → isZero Q ≡ true
   rightIsZero P Q isZeroSum with isZero Q
@@ -85,26 +85,26 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   open RawRing ℤAsRawRing
 
   private
-    1H' : (n : ℕ) → IteratedHornerForms A n
+    1H' : (n : ℕ) → IteratedHornerForms n
     1H' ℕ.zero = const 1r
     1H' (ℕ.suc n) = 0H ·X+ 1H' n
 
-    0H' : (n : ℕ) → IteratedHornerForms A n
+    0H' : (n : ℕ) → IteratedHornerForms n
     0H' ℕ.zero = const 0r
     0H' (ℕ.suc n) = 0H
 
-  1ₕ : {n : ℕ} → IteratedHornerForms A n
+  1ₕ : {n : ℕ} → IteratedHornerForms n
   1ₕ {n = n} = 1H' n
 
-  0ₕ : {n : ℕ} → IteratedHornerForms A n
+  0ₕ : {n : ℕ} → IteratedHornerForms n
   0ₕ {n = n} = 0H' n
 
-  X : (n : ℕ) (k : Fin n) → IteratedHornerForms A n
+  X : (n : ℕ) (k : Fin n) → IteratedHornerForms n
   X (ℕ.suc m) zero = 1ₕ ·X+ 0ₕ
   X (ℕ.suc m) (suc k) = 0ₕ ·X+ X m k
 
-  _+ₕ_ : {n : ℕ} → IteratedHornerForms A n → IteratedHornerForms A n
-               → IteratedHornerForms A n
+  _+ₕ_ : {n : ℕ} → IteratedHornerForms n → IteratedHornerForms n
+               → IteratedHornerForms n
   (const r) +ₕ (const s) = const (r + s)
   0H +ₕ Q = Q
   (P ·X+ r) +ₕ 0H = P ·X+ r
@@ -115,15 +115,15 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
        then 0ₕ
        else left ·X+ right
 
-  -ₕ : {n : ℕ} → IteratedHornerForms A n → IteratedHornerForms A n
+  -ₕ : {n : ℕ} → IteratedHornerForms n → IteratedHornerForms n
   -ₕ (const x) = const (- x)
   -ₕ 0H = 0H
   -ₕ (P ·X+ Q) = (-ₕ P) ·X+ (-ₕ Q)
 
-  _⋆_ : {n : ℕ} → IteratedHornerForms A n → IteratedHornerForms A (ℕ.suc n)
-                → IteratedHornerForms A (ℕ.suc n)
-  _·ₕ_ : {n : ℕ} → IteratedHornerForms A n → IteratedHornerForms A n
-                → IteratedHornerForms A n
+  _⋆_ : {n : ℕ} → IteratedHornerForms n → IteratedHornerForms (ℕ.suc n)
+                → IteratedHornerForms (ℕ.suc n)
+  _·ₕ_ : {n : ℕ} → IteratedHornerForms n → IteratedHornerForms n
+                → IteratedHornerForms n
   r ⋆ 0H = 0H
   r ⋆ (P ·X+ Q) =
     if (isZero A r)
@@ -141,8 +141,8 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
 
   isZeroPresLeft⋆ :
     {n : ℕ}
-    (r : IteratedHornerForms A n)
-    (P : IteratedHornerForms A (ℕ.suc n))
+    (r : IteratedHornerForms n)
+    (P : IteratedHornerForms (ℕ.suc n))
     → isZero A r ≡ true
     → isZero A (r ⋆ P) ≡ true
   isZeroPresLeft⋆ r 0H isZero-r = refl
@@ -151,7 +151,7 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
   ...  | false = byBoolAbsurdity isZero-r
 
   isZeroPresLeft·ₕ :
-    {n : ℕ} (P Q : IteratedHornerForms A n)
+    {n : ℕ} (P Q : IteratedHornerForms n)
     → isZero A P ≡ true
     → isZero A (P ·ₕ Q) ≡ true
   isZeroPresLeft·ₕ (const (pos ℕ.zero)) (const _) isZeroP = refl
@@ -168,17 +168,17 @@ module IteratedHornerOperations (A : RawAlgebra ℤAsRawRing ℓ) where
                       where isZeroQ = extractFromAndRight isZeroSum
   ...        | false = byBoolAbsurdity p
 
-  asRawRing : (n : ℕ) → RawRing ℓ
-  RawRing.Carrier (asRawRing n) = IteratedHornerForms A n
+  asRawRing : (n : ℕ) → RawRing ℓ-zero
+  RawRing.Carrier (asRawRing n) = IteratedHornerForms n
   RawRing.0r (asRawRing n) = 0ₕ
   RawRing.1r (asRawRing n) = 1ₕ
   RawRing._+_ (asRawRing n) = _+ₕ_
   RawRing._·_ (asRawRing n) = _·ₕ_
   RawRing.- (asRawRing n) =  -ₕ
 
-Variable : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ') (k : Fin n) → IteratedHornerForms R n
+Variable : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ') (k : Fin n) → IteratedHornerForms n
 Variable n R k = IteratedHornerOperations.X R n k
 
-Constant : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ') (r : ℤ) → IteratedHornerForms R n
+Constant : (n : ℕ) (R : RawAlgebra ℤAsRawRing ℓ') (r : ℤ) → IteratedHornerForms n
 Constant ℕ.zero R r = const r
 Constant (ℕ.suc n) R r = IteratedHornerOperations.0ₕ R ·X+ Constant n R r

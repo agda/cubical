@@ -21,18 +21,20 @@ private
   variable
     ℓ ℓ' : Level
 
-eval : {A : RawAlgebra ℤAsRawRing ℓ'}
-       {n : ℕ} (P : IteratedHornerForms A n)
-       → Vec ⟨ A ⟩ n → ⟨ A ⟩
-eval {A = A} (const r) [] = RawAlgebra.scalar A r
-eval {A = A} 0H (_ ∷ _) = RawAlgebra.0r A
-eval {A = A} (P ·X+ Q) (x ∷ xs) =
-     let open RawAlgebra A
-         P' = (eval P (x ∷ xs))
-         Q' = eval Q xs
-     in if (isZero A P)
-        then Q'
-        else P' · x + Q'
+module HornerEval (A : RawAlgebra ℤAsRawRing ℓ') where
+  open RawAlgebra A
+  
+  eval : {n : ℕ}
+         → (P : IteratedHornerForms n)
+         → Vec ⟨ A ⟩ n → ⟨ A ⟩
+  eval (const r) [] = RawAlgebra.scalar A r
+  eval 0H (_ ∷ _) = 0r
+  eval (P ·X+ Q) (x ∷ xs) =
+       let P' = (eval P (x ∷ xs))
+           Q' = eval Q xs
+       in if (isZero A P)
+          then Q'
+          else P' · x + Q'
 
 module _ (R : CommRing ℓ) where
   private
@@ -40,7 +42,8 @@ module _ (R : CommRing ℓ) where
   open CommRingStr (snd R)
   open RingTheory (CommRing→Ring R)
   open IteratedHornerOperations νR
-
+  open HornerEval νR
+  
   someCalculation : {x : fst R} → _ ≡ _
   someCalculation {x = x} =
     0r                   ≡⟨ sym (+IdR 0r) ⟩
@@ -48,7 +51,7 @@ module _ (R : CommRing ℓ) where
     0r · x + 0r          ∎
 
 
-  evalIsZero : {n : ℕ} (P : IteratedHornerForms νR n)
+  evalIsZero : {n : ℕ} (P : IteratedHornerForms n)
              → (l : Vec (fst R) n)
              → isZero νR P ≡ true
              → eval P l ≡ 0r
@@ -65,8 +68,8 @@ module _ (R : CommRing ℓ) where
 
   computeEvalSummandIsZero :
                {n : ℕ}
-               (P : IteratedHornerForms νR (ℕ.suc n))
-               (Q : IteratedHornerForms νR n)
+               (P : IteratedHornerForms (ℕ.suc n))
+               (Q : IteratedHornerForms n)
              → (xs : Vec (fst R) n)
              → (x : (fst R))
              → isZero νR P ≡ true
@@ -77,8 +80,8 @@ module _ (R : CommRing ℓ) where
 
   computeEvalNotZero :
                {n : ℕ}
-               (P : IteratedHornerForms νR (ℕ.suc n))
-               (Q : IteratedHornerForms νR n)
+               (P : IteratedHornerForms (ℕ.suc n))
+               (Q : IteratedHornerForms n)
              → (xs : Vec (fst R) n)
              → (x : (fst R))
              → ¬ (isZero νR P ≡ true)
@@ -88,7 +91,7 @@ module _ (R : CommRing ℓ) where
   ... | false = refl
 
   combineCasesEval :
-    {n : ℕ}  (P : IteratedHornerForms νR (ℕ.suc n)) (Q : IteratedHornerForms νR n)
+    {n : ℕ}  (P : IteratedHornerForms (ℕ.suc n)) (Q : IteratedHornerForms n)
     (x : (fst R)) (xs : Vec (fst R) n)
     →   eval (P ·X+ Q) (x ∷ xs)
       ≡ (eval P (x ∷ xs)) · x + eval Q xs
@@ -103,14 +106,14 @@ module _ (R : CommRing ℓ) where
 
 
   compute+ₕEvalBothZero :
-    (n : ℕ) (P Q : IteratedHornerForms νR (ℕ.suc n))
-    (r s : IteratedHornerForms νR n)
+    (n : ℕ) (P Q : IteratedHornerForms (ℕ.suc n))
+    (r s : IteratedHornerForms n)
     (x : (fst R)) (xs : Vec (fst R) n)
     → (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≡ true
     → eval ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs) ≡ eval ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
   compute+ₕEvalBothZero n P Q r s x xs bothZero with isZero νR (P +ₕ Q) and isZero νR (r +ₕ s) | bothZero
   ... | true | p =
-               eval {A = νR} 0H (x ∷ xs)                            ≡⟨ refl ⟩
+               eval 0H (x ∷ xs)                            ≡⟨ refl ⟩
                0r                                                   ≡⟨ someCalculation ⟩
                0r · x + 0r                                          ≡⟨ step1  ⟩
                (eval (P +ₕ Q) (x ∷ xs)) · x + eval (r +ₕ s) xs       ≡⟨ step2 ⟩
@@ -122,8 +125,8 @@ module _ (R : CommRing ℓ) where
   ... | false | p = byBoolAbsurdity p
 
   compute+ₕEvalNotBothZero :
-    (n : ℕ) (P Q : IteratedHornerForms νR (ℕ.suc n))
-    (r s : IteratedHornerForms νR n)
+    (n : ℕ) (P Q : IteratedHornerForms (ℕ.suc n))
+    (r s : IteratedHornerForms n)
     (x : (fst R)) (xs : Vec (fst R) n)
     → (isZero νR (P +ₕ Q) and isZero νR (r +ₕ s)) ≡ false
     → eval ((P ·X+ r) +ₕ (Q ·X+ s)) (x ∷ xs) ≡ eval ((P +ₕ Q) ·X+ (r +ₕ s)) (x ∷ xs)
