@@ -46,6 +46,12 @@ data HornerForms : ℕ → Type where
   _·X+_ : {n : ℕ} → HornerForms (ℕ.suc n) → HornerForms n
                   → HornerForms (ℕ.suc n)
 
+{-
+  Example:
+  
+  x³+2x¹+3x⁰ = ((((0H ·X+ 1) ·X+ 0) ·X+ 2) ·X+ 3)
+-}
+
 
 {-
   The following function returns true, if there is some
