@@ -3,7 +3,7 @@
   Definition of profunctors (https://ncatlab.org/nlab/show/profunctor)
   and some basic facts about them.
 
-  We define a profunctor C -/-> D as a functor C^o x D -> Set. We pick
+  We define a profunctor C ⊶ D as a functor C^o x D -> Set. We pick
   the universe levels such that the hom sets of C and D match Set,
   which roughly matches the set-theoretic notion of "locally small"
   categories.
@@ -50,18 +50,28 @@ module _ (ℓ ℓ' : Level) where
   Cat : Type _
   Cat = Cubical.Categories.Category.Category ℓ ℓ'
 
-  -- There are two common, but opposite conventions for profunctors
-  -- PROF C D: C^op × D → Set and D^op × C → Set
+  -- There are two common, but opposite conventions for what a
+  --  profunctor "from C to D" means: either
+  --  C^op × D → Set 
+  --  D^op × C → Set
 
-  -- We follow the former because it matches the order in which the
-  -- variables in Hom sets are written.
-  PROF : (C D : Cat) → Category _ _
-  PROF C D = FUNCTOR ((C ^op) × D) (SET ℓ')
+  -- To avoid confusion, we use a notation that supports both
+  -- (suggested by Mike Shulman):
+  -- 1. C ⊶ D means C^op × D → Set
+  -- 2. C ⊷ D means D^op × C → Set
 
-  record Profunctor (C D : Cat) : Type (ℓ-max ℓ (ℓ-suc ℓ')) where
+  -- The mnemonic is that the open side of the symbol indicates the
+  -- contravariant variable in that it is similar to an "op"
+  PROF⊶ : (C D : Cat) → Category _ _
+  PROF⊶ C D = FUNCTOR ((C ^op) × D) (SET ℓ')
+
+  PROF⊷ : (C D : Cat) → Category _ _
+  PROF⊷ C D = PROF⊶ D C
+
+  record Profunctor⊶ (C D : Cat) : Type (ℓ-max ℓ (ℓ-suc ℓ')) where
     constructor fromFunc
     field
-      asFunc : Category.ob (PROF C D)
+      asFunc : Category.ob (PROF⊶ C D)
 
     private
       R = asFunc
@@ -149,17 +159,24 @@ module _ (ℓ ℓ' : Level) where
       f ⋆L⟨ r ⟩⋆R g   ≡⟨ sym (⋆L⋆R-unary-binaryR f r g) ⟩
       (f ⋆L (r ⋆R g)) ∎
 
-  record Homomorphism {C D : Cat} (P Q : Profunctor C D) : Type (ℓ-max ℓ ℓ') where
+  _⊶_ = Profunctor⊶ 
+
+  Profunctor⊷ : ∀ (C D : Cat) → Type _
+  Profunctor⊷ C D = Profunctor⊶ D C
+
+  _⊷_ = Profunctor⊷
+
+  record Homomorphism {C D : Cat} (P Q : C ⊶ D) : Type (ℓ-max ℓ ℓ') where
     module C = Category C
     module D = Category D
-    module P = Profunctor P
-    module Q = Profunctor Q
+    module P = Profunctor⊶ P
+    module Q = Profunctor⊶ Q
 
     _⋆LP⟨_⟩⋆R_ = P._⋆L⟨_⟩⋆R_
     _⋆LQ⟨_⟩⋆R_ = Q._⋆L⟨_⟩⋆R_
 
     field
-      asNatTrans : PROF C D [ P.asFunc , Q.asFunc ]
+      asNatTrans : PROF⊶ C D [ P.asFunc , Q.asFunc ]
 
     app : ∀ {c d} → P.Het[ c , d ] → Q.Het[ c , d ]
     app {c}{d} p = NatTrans.N-ob asNatTrans (c , d) p
@@ -168,37 +185,37 @@ module _ (ℓ ℓ' : Level) where
                → app (f ⋆LP⟨ p ⟩⋆R g) ≡ (f ⋆LQ⟨ app p ⟩⋆R g)
     homomorphism f p g = λ i → NatTrans.N-hom asNatTrans (f , g) i p
 
-  _⊸_ : {C D : Cat} → Profunctor C D → Profunctor C D → Type _
-  _⊸_ {C} {D} P Q = PROF C D [ Profunctor.asFunc P , Profunctor.asFunc Q ]
+  homomorphism : {C D : Cat} → C ⊶ D → C ⊶ D → Type _
+  homomorphism {C} {D} P Q = PROF⊶ C D [ Profunctor⊶.asFunc P , Profunctor⊶.asFunc Q ]
 
-  swap : {C D : Cat} → Profunctor C D → Profunctor (D ^op) (C ^op)
+  swap : {C D : Cat} → C ⊶ D → (D ^op) ⊶ (C ^op)
   swap R = fromFunc
     record { F-ob  = λ (d , c) → R.F-ob (c , d)
            ; F-hom = λ (f , g) → R.F-hom (g , f)
            ; F-id  = R.F-id
            ; F-seq = λ (fl , fr) (gl , gr) → R.F-seq (fr , fl) (gr , gl)
            }
-    where module R = Functor (Profunctor.asFunc R)
+    where module R = Functor (Profunctor⊶.asFunc R)
 
-  HomProf : (C : Cat) → Profunctor C C
+  HomProf : (C : Cat) → C ⊶ C
   HomProf C = fromFunc (HomFunctor C)
 
-  _profF[_,_] : {B C D E : Cat}
-             → (R : Profunctor D E)
+  _profF⊶[_,_] : {B C D E : Cat}
+             → (R : D ⊶ E)
              → (F : Functor B D)
              → (G : Functor C E)
-             → Profunctor B C
-  R profF[ F , G ] = fromFunc ((Profunctor.asFunc R) ∘F ((F ^opF) ×F G))
+             → B ⊶ C
+  R profF⊶[ F , G ] = fromFunc ((Profunctor⊶.asFunc R) ∘F ((F ^opF) ×F G))
 
-  _Represents_ : {C D : Cat} (F : Functor C D) (R : Profunctor C D) → Type _
+  _Represents_ : {C D : Cat} (F : Functor C D) (R : C ⊶ D) → Type _
   _Represents_ {C}{D} F R =
-    NatIso (Profunctor.asFunc (HomProf D profF[ F , Id {C = D} ])) (Profunctor.asFunc R)
+    NatIso (Profunctor⊶.asFunc (HomProf D profF⊶[ F , Id {C = D} ])) (Profunctor⊶.asFunc R)
 
-  Representable : {C D : Cat} → Profunctor C D → Type _
+  Representable : {C D : Cat} → C ⊶ D → Type _
   Representable {C}{D} R = Σ[ F ∈ Functor C D ] (F Represents R)
 
-  record Representable' {C D : Cat} (R : Profunctor C D) : Type (ℓ-max ℓ (ℓ-suc ℓ')) where
-    module R = Profunctor R
+  record Representable' {C D : Cat} (R : C ⊶ D) : Type (ℓ-max ℓ (ℓ-suc ℓ')) where
+    module R = Profunctor⊶ R
     open R
     field
       F₀             : C.ob → D.ob
@@ -247,7 +264,7 @@ module _ (ℓ ℓ' : Level) where
     unduction : ∀ {c : C.ob} {d : D.ob} → D.Hom[ F₀ c , d ] → Het[ c , d ]
     unduction f = unit ⋆R f
 
-    induction⁻¹ : (HomProf D profF[ F , Id ]) ⊸ R
+    induction⁻¹ : homomorphism (HomProf D profF⊶[ F , Id ]) R
     induction⁻¹ = natTrans (λ x r → unduction r) λ f⋆g i r → unduction-is-natural (fst f⋆g) (snd f⋆g) r i
       where
       unduction-is-natural : ∀ {c c' d' d}
@@ -284,7 +301,7 @@ module _ (ℓ ℓ' : Level) where
 
 
 
-  Repr⇒Repr' : ∀ {C D} (R : Profunctor C D) → Representable R → Representable' R
+  Repr⇒Repr' : ∀ {C D} (R : C ⊶ D) → Representable R → Representable' R
   Repr⇒Repr' {C}{D} R (F , F-repr-R) = record
                                      { F₀ = F.F-ob
                                      ; unit = unduction D.id
@@ -293,14 +310,14 @@ module _ (ℓ ℓ' : Level) where
                                      ; extensionality = extensionality
                                      }
     where
-    module R = Profunctor R
+    module R = Profunctor⊶ R
     open R
     module F = Functor F
     module F-repr-R = NatIso F-repr-R
     induction : ∀ {c d} → Het[ c , d ] → D.Hom[ F.F-ob c , d ]
     induction r = isIso.inv (NatIso.nIso F-repr-R (_ , _)) r
 
-    unduction-homo : Homomorphism (HomProf D profF[ F , Id ]) R
+    unduction-homo : Homomorphism (HomProf D profF⊶[ F , Id ]) R
     unduction-homo = record { asNatTrans = F-repr-R.trans }
 
     module unduction-homo = Homomorphism unduction-homo
@@ -327,6 +344,6 @@ module _ (ℓ ℓ' : Level) where
       induction (C.id ⋆L⟨ unduction D.id ⟩⋆R f) ∎
 
 
-  Repr'⇒Repr : ∀ {C D} (R : Profunctor C D) → Representable' R → Representable R
+  Repr'⇒Repr : ∀ {C D} (R : C ⊶ D) → Representable' R → Representable R
   Repr'⇒Repr R R-representable =
     (Representable'.F R-representable) , Representable'.F-represents-R R-representable
