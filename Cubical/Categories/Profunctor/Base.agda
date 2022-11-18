@@ -52,7 +52,7 @@ module _ (ℓ ℓ' : Level) where
 
   -- There are two common, but opposite conventions for what a
   --  profunctor "from C to D" means: either
-  --  C^op × D → Set 
+  --  C^op × D → Set
   --  D^op × C → Set
 
   -- To avoid confusion, we use a notation that supports both
@@ -159,7 +159,7 @@ module _ (ℓ ℓ' : Level) where
       f ⋆L⟨ r ⟩⋆R g   ≡⟨ sym (⋆L⋆R-unary-binaryR f r g) ⟩
       (f ⋆L (r ⋆R g)) ∎
 
-  _⊶_ = Profunctor⊶ 
+  _⊶_ = Profunctor⊶
 
   Profunctor⊷ : ∀ (C D : Cat) → Type _
   Profunctor⊷ C D = Profunctor⊶ D C
