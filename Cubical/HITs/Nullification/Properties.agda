@@ -10,6 +10,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.PathSplit
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Univalence
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Modalities.Modality
 
@@ -21,6 +22,34 @@ open import Cubical.HITs.Nullification.Base
 
 open Modality
 open isPathSplitEquiv
+
+private
+  variable
+    ℓα ℓs ℓ ℓ' : Level
+
+isNull≡ : {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} (nX : isNull S X) {x y : X} → isNull S (x ≡ y)
+isNull≡ {A = A} {S = S} nX {x = x} {y = y} α =
+  fromIsEquiv (λ p _ i → p i)
+              (isEquiv[equivFunA≃B∘f]→isEquiv[f] (λ p _ → p) funExtEquiv (isEquivCong (const , toIsEquiv _ (nX α))))
+
+isNullΠ : {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : X → Type ℓ'} → ((x : X) → isNull S (Y x)) →
+                 isNull S ((x : X) → Y x)
+isNullΠ {S = S} {X = X} {Y = Y} nY α = fromIsEquiv _ (snd e)
+  where
+    flipIso : Iso ((x : X) → S α → Y x) (S α → (x : X) → Y x)
+    Iso.fun flipIso f = flip f
+    Iso.inv flipIso f = flip f
+    Iso.rightInv flipIso f = refl
+    Iso.leftInv flipIso f = refl
+
+    e : ((x : X) → Y x) ≃ (S α → ((x : X) → Y x))
+    e =
+      ((x : X) → Y x)
+        ≃⟨ equivΠCod (λ x → const , (toIsEquiv _ (nY x α))) ⟩
+      ((x : X) → (S α → Y x))
+        ≃⟨ isoToEquiv flipIso ⟩
+      (S α → ((x : X) → Y x))
+        ■
 
 rec : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'}
       → (nB : isNull S Y) → (X → Y) → Null S X → Y
@@ -82,6 +111,26 @@ module _ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type 
                         (λ i s → transport (λ j → Y (≡spoke p s (~ j) i)) (elim nY g (p s i))))
                      (λ i → elim nY g (p s i))
           q₂ j i = toPathP⁻ (λ j → Y (≡spoke p s j i)) (λ j → q₁ j i) j
+
+NullRecIsPathSplitEquiv : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'} → (isNull S Y) →
+                          isPathSplitEquiv {A = (Null S X) → Y} (λ f → f ∘ ∣_∣)
+sec (NullRecIsPathSplitEquiv nY) = rec nY , λ _ → refl
+secCong (NullRecIsPathSplitEquiv nY) f f' = (λ p → funExt (elim (λ _ → isNull≡ nY) (funExt⁻ p))) , λ _ → refl
+
+NullRecIsEquiv : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'} →  (isNull S Y) →
+                          isEquiv {A = (Null S X) → Y} (λ f → f ∘ ∣_∣)
+NullRecIsEquiv nY = toIsEquiv _ (NullRecIsPathSplitEquiv nY)
+
+NullRecEquiv : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'} → (isNull S Y) →
+                          ((Null S X) → Y) ≃ (X → Y)
+NullRecEquiv nY = (λ f → f ∘ ∣_∣) , (NullRecIsEquiv nY)
+
+
+NullPreservesProp : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} →
+                    (isProp X) → isProp (Null S X)
+
+NullPreservesProp {S = S} pX u = elim (λ v' → isNull≡ (isNull-Null S))
+  (λ y → elim (λ u' → isNull≡ (isNull-Null S) {x = u'}) (λ x → cong ∣_∣ (pX x y)) u)
 
 -- nullification is a modality
 

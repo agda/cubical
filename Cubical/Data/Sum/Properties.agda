@@ -10,6 +10,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Empty
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
+open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Sum.Base
 
@@ -106,6 +107,14 @@ isGroupoid⊎ = isOfHLevel⊎ 1
 
 is2Groupoid⊎ : is2Groupoid A → is2Groupoid B → is2Groupoid (A ⊎ B)
 is2Groupoid⊎ = isOfHLevel⊎ 2
+
+discrete⊎ : Discrete A → Discrete B → Discrete (A ⊎ B)
+discrete⊎ decA decB (inl a) (inl a') =
+  mapDec (cong inl) (λ p q → p (isEmbedding→Inj isEmbedding-inl _ _ q)) (decA a a')
+discrete⊎ decA decB (inl a) (inr b') = no (λ p → lower (⊎Path.encode (inl a) (inr b') p))
+discrete⊎ decA decB (inr b) (inl a') = no ((λ p → lower (⊎Path.encode (inr b) (inl a') p)))
+discrete⊎ decA decB (inr b) (inr b') =
+  mapDec (cong inr) (λ p q → p (isEmbedding→Inj isEmbedding-inr _ _ q)) (decB b b')
 
 ⊎Iso : Iso A C → Iso B D → Iso (A ⊎ B) (C ⊎ D)
 fun (⊎Iso iac ibd) (inl x) = inl (iac .fun x)
