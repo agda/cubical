@@ -3,8 +3,12 @@
 
   inputs.nixpkgs.url = "nixpkgs/nixpkgs-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.flake-compat = {
+    url = "github:edolstra/flake-compat";
+    flake = false;
+  };
 
-  outputs = { self, flake-utils, nixpkgs }:
+  outputs = { self, flake-compat, flake-utils, nixpkgs }:
     let
       inherit (nixpkgs.lib) cleanSourceWith hasSuffix;
       overlay = final: prev: {
