@@ -445,3 +445,26 @@ module _ {G : AbGroup ℓ} where
               (λ i j → ∣ rCancel (merid ptEM-raw) i (~ j) ∣ₕ)
        ∙ sym (lUnit _)
        ◁ λ i j → ∣ compPath-filler (merid a) (sym (merid ptEM-raw)) (~ i) j ∣ₕ)
+
+-distrₖ : {G : AbGroup ℓ} (n : ℕ) (x y : EM G n)
+  → -[ n ]ₖ (x +[ n ]ₖ y) ≡ (-[ n ]ₖ x) +[ n ]ₖ (-[ n ]ₖ y)
+-distrₖ {G = G} zero x y =
+    GroupTheory.invDistr (AbGroup→Group G) x y
+  ∙ AbGroupStr.+Comm (snd G) (AbGroupStr.-_ (snd G) y) (AbGroupStr.-_ (snd G) x)
+-distrₖ {G = G} (suc zero) =
+  wedgeConEM.fun G G 0 0
+    (λ _ _ → hLevelEM _ 1 _ _)
+    (λ x → sym (lUnitₖ 1 (-[ 1 ]ₖ x)))
+    (λ x → cong (λ x → -[ 1 ]ₖ x) (rUnitₖ 1 x) ∙ sym (rUnitₖ 1 (-[ 1 ]ₖ x)))
+    (rUnit refl)
+-distrₖ {G = G} (suc (suc n)) =
+  TR.elim2 (λ _ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
+    (wedgeConEM.fun _ _ (suc n) (suc n)
+      (λ _ _ → isOfHLevelPath ((2 + n) + (2 + n))
+        (subst (λ r → isOfHLevel r (EM G (suc (suc n))))
+          (cong (λ x → suc (suc x)) (+-comm (suc (suc n)) n))
+          (isOfHLevelPlus' {n = n} (4 + n) (hLevelEM G (suc (suc n))))) _ _)
+      (λ x → sym (lUnitₖ (2 + n) (-[ (2 + n) ]ₖ ∣ x ∣)))
+      (λ x → cong (λ x → -[ (2 + n) ]ₖ x) (rUnitₖ (2 + n) ∣ x ∣ )
+         ∙ sym (rUnitₖ (2 + n) (-[ (2 + n) ]ₖ ∣ x ∣)))
+      (rUnit refl))
