@@ -25,9 +25,7 @@ open import Cubical.Algebra.CommRing.Properties
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
-open import Cubical.Algebra.CommRing.Localisation.Base
-open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
-open import Cubical.Algebra.CommRing.Localisation.InvertingElements
+open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra.Base
@@ -62,6 +60,8 @@ module AlgLoc (R' : CommRing ℓ)
  S⁻¹RAsCommAlg : CommAlgebra R' ℓ
  S⁻¹RAsCommAlg = toCommAlg (S⁻¹RAsCommRing , /1AsCommRingHom)
 
+ LocCommAlg→CommRingPath : CommAlgebra→CommRing S⁻¹RAsCommAlg ≡ S⁻¹RAsCommRing
+ LocCommAlg→CommRingPath = CommAlgebra→CommRing≡ (S⁻¹RAsCommRing , /1AsCommRingHom)
 
  hasLocAlgUniversalProp : (A : CommAlgebra R' ℓ)
                         → (∀ s → s ∈ S' → _⋆_ (snd A) s (1a (snd A)) ∈ (CommAlgebra→CommRing A) ˣ)
@@ -149,6 +149,12 @@ R[1/_]AsCommAlgebra {R = R} f = S⁻¹RAsCommAlg [ f ⁿ|n≥0] (powersFormMultC
  open AlgLoc R
  open InvertingElementsBase R
 
+module _  {R : CommRing ℓ} (f : fst R) where
+  open InvertingElementsBase R
+  open AlgLoc R [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+
+  invElCommAlgebra→CommRingPath : CommAlgebra→CommRing R[1/ f ]AsCommAlgebra ≡ R[1/ f ]AsCommRing
+  invElCommAlgebra→CommRingPath = LocCommAlg→CommRingPath
 
 module AlgLocTwoSubsets (R' : CommRing ℓ)
                         (S₁ : ℙ (fst R')) (S₁MultClosedSubset : isMultClosedSubset R' S₁)

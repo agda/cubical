@@ -61,24 +61,26 @@ private
   pathIso {p = p} = compIso (congIso (equivToIso (_ , compPathr-isEquiv p)))
                             (pathToIso (cong (p ∙ p ≡_) (lCancel p)))
 
+
 --- H⁰(RP²) ≅ ℤ ----
+connectedRP¹ : (x : RP²) → ∥ point ≡ x ∥₁
+connectedRP¹ point = ∣ refl ∣₁
+connectedRP¹ (line i) =
+  isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥₁}
+    (λ _ → isPropPropTrunc) ∣ refl ∣₁ ∣ refl ∣₁ line i
+connectedRP¹ (square i j) = helper i j
+  where
+  helper : SquareP (λ i j → ∥ point ≡ square i j ∥₁)
+                   (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥₁}
+                     (λ _ → isPropPropTrunc) ∣ refl ∣₁ ∣ refl ∣₁ line)
+                   (symP (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥₁}
+                           (λ _ → isPropPropTrunc) ∣ refl ∣₁ ∣ refl ∣₁ line))
+                   refl refl
+  helper = toPathP (isOfHLevelPathP 1 isPropPropTrunc _ _ _ _)
+
+
 H⁰-RP²≅ℤ : GroupIso (coHomGr 0 RP²) ℤGroup
 H⁰-RP²≅ℤ = H⁰-connected point connectedRP¹
-  where
-  connectedRP¹ : (x : RP²) → ∥ point ≡ x ∥₁
-  connectedRP¹ point = ∣ refl ∣₁
-  connectedRP¹ (line i) =
-    isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥₁}
-      (λ _ → isPropPropTrunc) ∣ refl ∣₁ ∣ refl ∣₁ line i
-  connectedRP¹ (square i j) = helper i j
-    where
-    helper : SquareP (λ i j → ∥ point ≡ square i j ∥₁)
-                     (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥₁}
-                       (λ _ → isPropPropTrunc) ∣ refl ∣₁ ∣ refl ∣₁ line)
-                     (symP (isOfHLevel→isOfHLevelDep 1 {B = λ x → ∥ point ≡ x ∥₁}
-                             (λ _ → isPropPropTrunc) ∣ refl ∣₁ ∣ refl ∣₁ line))
-                     refl refl
-    helper = toPathP (isOfHLevelPathP 1 isPropPropTrunc _ _ _ _)
 
 --- H¹(RP²) ≅ 0 ----
 isContr-H¹-RP²-helper : isContr ∥ Σ[ x ∈ coHomK 1 ] Σ[ p ∈ x ≡ x ] p ∙ p ≡ refl ∥₂

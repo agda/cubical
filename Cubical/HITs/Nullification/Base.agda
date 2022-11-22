@@ -6,20 +6,21 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.PathSplit
 open isPathSplitEquiv
 
-isNull : ∀ {ℓ ℓ'} (S : Type ℓ) (A : Type ℓ') → Type (ℓ-max ℓ ℓ')
-isNull S A = isPathSplitEquiv (const {A = A} {B = S})
+module _ {ℓα ℓs} {A : Type ℓα} (S : A → Type ℓs) where
+  isNull : ∀ {ℓ} (X : Type ℓ) → Type (ℓ-max (ℓ-max ℓα ℓs) ℓ)
+  isNull X = (α : A) → isPathSplitEquiv (const {A = X} {B = S α})
 
-data Null {ℓ ℓ'} (S : Type ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
-  ∣_∣ : A → Null S A
-  -- the image of every map (S → Null S A) is contractible in Null S A
-  hub   : (f : S → Null S A) → Null S A
-  spoke : (f : S → Null S A) (s : S) → hub f ≡ f s
-  -- the image of every map (S → x ≡ y) for x y : A is contractible in x ≡ y
-  ≡hub   : ∀ {x y} (p : S → x ≡ y) → x ≡ y
-  ≡spoke : ∀ {x y} (p : S → x ≡ y) (s : S) → ≡hub p ≡ p s
+  data Null {ℓ} (X : Type ℓ) : Type (ℓ-max (ℓ-max ℓα ℓs) ℓ) where
+    ∣_∣ : X → Null X
+    -- the image of every map (S α → Null S X) is contractible in Null S X
+    hub   : (α : A) → (f : (S α) → Null X) → Null X
+    spoke : (α : A) → (f : (S α) → Null X) (s : S α) → hub α f ≡ f s
+    -- the image of every map (S α → x ≡ y) for x y : X is contractible in x ≡ y
+    ≡hub   : ∀ {x y} {α} (p : S α → x ≡ y) → x ≡ y
+    ≡spoke : ∀ {x y} {α} (p : S α → x ≡ y) (s : S α) → ≡hub p ≡ p s
 
-isNull-Null : ∀ {ℓ ℓ'} {S : Type ℓ} {A : Type ℓ'} → isNull S (Null S A)
-fst (sec isNull-Null) f     = hub   f
-snd (sec isNull-Null) f i s = spoke f s i
-fst (secCong isNull-Null x y) p i     = ≡hub   (funExt⁻ p) i
-snd (secCong isNull-Null x y) p i j s = ≡spoke (funExt⁻ p) s i j
+  isNull-Null : ∀ {ℓ} {X : Type ℓ} → isNull (Null X)
+  fst (sec (isNull-Null α)) f =     hub   α f
+  snd (sec (isNull-Null α)) f i s = spoke α f s i
+  fst (secCong (isNull-Null α) x y) p i     = ≡hub   (funExt⁻ p) i
+  snd (secCong (isNull-Null α) x y) p i j s = ≡spoke (funExt⁻ p) s i j

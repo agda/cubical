@@ -152,7 +152,7 @@ module _ {A : Type ℓ} {A' : Type ℓ'} where
   unquoteDecl Σ-swap-≃ = declStrictIsoToEquiv Σ-swap-≃ Σ-swap-Iso
 
 module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''} where
-  Σ-assoc-Iso : Iso (Σ[ (a , b) ∈ Σ A B ] C a b) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+  Σ-assoc-Iso : Iso (Σ[ a ∈ Σ A B ] C (fst a) (snd a)) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
   fun Σ-assoc-Iso ((x , y) , z) = (x , (y , z))
   inv Σ-assoc-Iso (x , (y , z)) = ((x , y) , z)
   rightInv Σ-assoc-Iso _ = refl
@@ -446,3 +446,13 @@ module _
 
     fiberProjEquiv : B a ≃ fiber proj a
     fiberProjEquiv = isoToEquiv fiberProjIso
+
+separatedΣ : Separated A → ((a : A) → Separated (B a)) → Separated (Σ A B)
+separatedΣ {B = B} sepA sepB (a , b) (a' , b') p = ΣPathTransport→PathΣ _ _ (pA , pB)
+  where
+    pA : a ≡ a'
+    pA = sepA a a' (λ q → p (λ r → q (cong fst r)))
+
+    pB : subst B pA b ≡ b'
+    pB = sepB _ _ _ (λ q → p (λ r → q (cong (λ r' → subst B r' b)
+                                (Separated→isSet sepA _ _ pA (cong fst r)) ∙ snd (PathΣ→ΣPathTransport _ _ r))))

@@ -2,6 +2,8 @@
 module Cubical.Categories.Instances.CommAlgebras where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.HLevels
@@ -16,9 +18,11 @@ open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Pullback
+open import Cubical.Categories.Limits.Limits
+open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.CommRings
 
 open import Cubical.HITs.PropositionalTruncation
@@ -49,6 +53,132 @@ module _ (R : CommRing ℓ) where
   snd (fst (snd TerminalCommAlgebra A)) = makeIsAlgebraHom
                                             refl (λ _ _ → refl) (λ _ _ → refl) (λ _ _ → refl)
   snd (snd TerminalCommAlgebra A) f = AlgebraHom≡ (funExt (λ _ → refl))
+
+  -- the forgetful functor into CommRings and SET
+  open Functor
+  ForgetfulCommAlgebra→CommRing : Functor (CommAlgebrasCategory {ℓ' = ℓ'}) CommRingsCategory
+  F-ob ForgetfulCommAlgebra→CommRing      = CommAlgebra→CommRing {R = R}
+  F-hom ForgetfulCommAlgebra→CommRing     = CommAlgebraHom→CommRingHom _ _
+  F-id ForgetfulCommAlgebra→CommRing      = RingHom≡ refl
+  F-seq ForgetfulCommAlgebra→CommRing _ _ = RingHom≡ refl
+
+  ForgetfulCommAlgebra→Set : Functor (CommAlgebrasCategory {ℓ' = ℓ'}) (SET (ℓ-max ℓ ℓ'))
+  F-ob ForgetfulCommAlgebra→Set A    = A .fst , A .snd .CommAlgebraStr.is-set
+  F-hom ForgetfulCommAlgebra→Set     = fst
+  F-id ForgetfulCommAlgebra→Set      = refl
+  F-seq ForgetfulCommAlgebra→Set _ _ = refl
+
+  -- general limits
+  module _ {ℓJ ℓJ' : Level} where
+
+    open LimCone
+    open Cone
+
+    private
+      theℓ = ℓ-max (ℓ-max ℓ ℓJ) ℓJ'
+      ffA→SET = ForgetfulCommAlgebra→Set
+      ffR→SET = ForgetfulCommRing→Set
+      ffA→R = ForgetfulCommAlgebra→CommRing
+
+    module _ where
+
+      open CommAlgebraStr
+      open IsAlgebraHom
+
+      LimitsCommAlgebrasCategory : Limits {ℓ-max ℓ ℓJ} {ℓJ'} (CommAlgebrasCategory {ℓ' = theℓ})
+      fst (lim (LimitsCommAlgebrasCategory J D)) = lim (completeSET J (ffA→SET ∘F D)) .fst
+      0a (snd (lim (LimitsCommAlgebrasCategory J D))) =
+        cone (λ v _ → 0a (snd (F-ob D v)))
+             (λ e → funExt (λ _ → F-hom D e .snd .pres0))
+      1a (snd (lim (LimitsCommAlgebrasCategory J D))) =
+        cone (λ v _ → 1a (snd (F-ob D v)))
+             (λ e → funExt (λ _ → F-hom D e .snd .pres1))
+      _+_ (snd (lim (LimitsCommAlgebrasCategory J D))) x y =
+        cone (λ v _ → _+_ (snd (F-ob D v)) _ _)
+             ( λ e → funExt (λ _ → F-hom D e .snd .pres+ _ _
+             ∙ λ i → _+_ (snd (F-ob D _)) (coneOutCommutes x e i tt*) (coneOutCommutes y e i tt*)))
+      _·_ (snd (lim (LimitsCommAlgebrasCategory J D))) x y =
+        cone (λ v _ → _·_ (snd (F-ob D v)) _ _)
+             ( λ e → funExt (λ _ → F-hom D e .snd .pres· _ _
+             ∙ λ i → _·_ (snd (F-ob D _)) (coneOutCommutes x e i tt*) (coneOutCommutes y e i tt*)))
+      (- snd (lim (LimitsCommAlgebrasCategory J D))) x =
+        cone (λ v _ → -_ (snd (F-ob D v)) _)
+             ( λ e → funExt (λ z → F-hom D e .snd .pres- _
+             ∙ λ i → -_ (snd (F-ob D _)) (coneOutCommutes x e i tt*)))
+      _⋆_ (snd (lim (LimitsCommAlgebrasCategory J D))) = λ r x →
+        -- why can't Agda parse with r x on the lhs?
+        cone (λ v _ → _⋆_ (snd (F-ob D v)) r (coneOut x v tt*))
+             ( λ e → funExt (λ z → F-hom D e .snd .pres⋆ _ _
+             ∙ λ i → _⋆_ (snd (F-ob D _)) r (coneOutCommutes x e i tt*)))
+      isCommAlgebra (snd (lim (LimitsCommAlgebrasCategory J D))) = makeIsCommAlgebra
+        (isSetCone (ffA→SET ∘F D) (Unit* , _))
+        (λ _ _ _ → cone≡ (λ v → funExt (λ _ → snd (F-ob D v) .+Assoc _ _ _)))
+        (λ _ → cone≡ (λ v → funExt (λ _ → +IdR (snd (F-ob D v)) _)))
+        (λ _ → cone≡ (λ v → funExt (λ _ → +InvR (snd (F-ob D v)) _)))
+        (λ _ _ → cone≡ (λ v → funExt (λ _ → snd (F-ob D v) .+Comm _ _)))
+        (λ _ _ _ → cone≡ λ v → funExt λ _ → ·Assoc (snd (F-ob D v)) _ _ _)
+        (λ _ → cone≡ (λ v → funExt (λ _ → ·IdL (snd (F-ob D v)) _)))
+        (λ _ _ _ → cone≡ (λ v → funExt (λ _ → ·DistL+ (snd (F-ob D v)) _ _ _)))
+        (λ _ _ → cone≡ (λ v → funExt (λ _ → snd (F-ob D v) .·Comm _ _)))
+        (λ _ _ _ → cone≡ λ v → funExt λ _ → ⋆Assoc (snd (F-ob D v)) _ _ _)
+        (λ _ _ _ → cone≡ (λ v → funExt (λ _ → ⋆DistR+ (snd (F-ob D v)) _ _ _)))
+        (λ _ _ _ → cone≡ (λ v → funExt (λ _ → ⋆DistL+ (snd (F-ob D v)) _ _ _)))
+        (λ _ → cone≡ (λ v → funExt (λ _ → ⋆IdL (snd (F-ob D v)) _)))
+        λ _ _ _ → cone≡ λ v → funExt λ _ → ⋆AssocL (snd (F-ob D v)) _ _ _
+      fst (coneOut (limCone (LimitsCommAlgebrasCategory J D)) v) =
+        coneOut (limCone (completeSET J (funcComp ffA→SET D))) v
+      pres0 (snd (coneOut (limCone (LimitsCommAlgebrasCategory J D)) v)) = refl
+      pres1 (snd (coneOut (limCone (LimitsCommAlgebrasCategory J D)) v)) = refl
+      pres+ (snd (coneOut (limCone (LimitsCommAlgebrasCategory J D)) v)) = λ _ _ → refl
+      pres· (snd (coneOut (limCone (LimitsCommAlgebrasCategory J D)) v)) = λ _ _ → refl
+      pres- (snd (coneOut (limCone (LimitsCommAlgebrasCategory J D)) v)) = λ _ → refl
+      pres⋆ (snd (coneOut (limCone (LimitsCommAlgebrasCategory J D)) v)) = λ _ _ → refl
+      coneOutCommutes (limCone (LimitsCommAlgebrasCategory J D)) e =
+        AlgebraHom≡ (coneOutCommutes (limCone (completeSET J (funcComp ffA→SET D))) e)
+      univProp (LimitsCommAlgebrasCategory J D) c cc = uniqueExists
+        ( ( λ x → limArrow (completeSET J (funcComp ffA→SET D))
+                          (fst c , snd c .is-set)
+                          (cone (λ v _ → coneOut cc v .fst x)
+                                (λ e → funExt (λ _ → funExt⁻ (cong fst (coneOutCommutes cc e)) x))) x)
+          , makeIsAlgebraHom
+            (cone≡ (λ v → funExt (λ _ → coneOut cc v .snd .pres1)))
+            (λ x y → cone≡ (λ v → funExt (λ _ → coneOut cc v .snd .pres+ _ _)))
+            (λ x y → cone≡ (λ v → funExt (λ _ → coneOut cc v .snd .pres· _ _)))
+            (λ x y → cone≡ (λ v → funExt (λ _ → coneOut cc v .snd .pres⋆ _ _))))
+        (λ _ → AlgebraHom≡ refl)
+        (isPropIsConeMor cc (limCone (LimitsCommAlgebrasCategory J D)))
+        (λ a' x → Σ≡Prop (λ _ → isPropIsAlgebraHom _ _ _ _)
+                         (funExt (λ y → cone≡ λ v → funExt (λ _ → sym (funExt⁻ (cong fst (x v)) y)))))
+
+    -- forgetful functor preserves limits
+    ForgetfulCommAlgebra→CommRingPresLim : preservesLimits {ℓJ = (ℓ-max ℓ ℓJ)} {ℓJ' = ℓJ'}
+                                             (ffA→R {ℓ' = theℓ})
+    ForgetfulCommAlgebra→CommRingPresLim = preservesLimitsChar ffA→R
+                                             LimitsCommAlgebrasCategory
+                                             LimitsCommRingsCategory
+                                             canonicalIso
+                                             isConeMorCanonicalIso
+      where
+      open isIso
+      canonicalIso : (J : Category (ℓ-max ℓ ℓJ) ℓJ')
+                     (D : Functor J CommAlgebrasCategory)
+                   → CatIso CommRingsCategory
+                            (LimitsCommRingsCategory J (ffA→R ∘F D) .lim)
+                            (ffA→R {ℓ' = theℓ} .F-ob (LimitsCommAlgebrasCategory J D .lim))
+      coneOut (fst (fst (canonicalIso J D)) cc) = coneOut cc
+      coneOutCommutes (fst (fst (canonicalIso J D)) cc) = coneOutCommutes cc
+      snd (fst (canonicalIso J D)) = makeIsRingHom refl (λ _ _ → refl) λ _ _ → refl
+      coneOut (fst (inv (snd (canonicalIso J D))) cc) = coneOut cc
+      coneOutCommutes (fst (inv (snd (canonicalIso J D))) cc) = coneOutCommutes cc
+      snd (inv (snd (canonicalIso J D))) = makeIsRingHom refl (λ _ _ → refl) λ _ _ → refl
+      sec (snd (canonicalIso J D)) = RingHom≡ refl
+      ret (snd (canonicalIso J D)) = RingHom≡ refl
+
+      isConeMorCanonicalIso : ∀ J D → isConeMor (LimitsCommRingsCategory J (funcComp ffA→R D) .limCone)
+                                                (F-cone ffA→R (LimitsCommAlgebrasCategory J D .limCone))
+                                                (canonicalIso J D .fst)
+      isConeMorCanonicalIso J D v = RingHom≡ refl
+
 
 module PullbackFromCommRing (R : CommRing ℓ)
                             (commRingCospan : Cospan (CommRingsCategory {ℓ = ℓ}))
@@ -265,6 +395,140 @@ module PullbackFromCommRing (R : CommRing ℓ)
 
 
 
+module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
+                         (J : Category ℓJ ℓJ')
+                         (crDiag : Functor J (CommRingsCategory {ℓ = ℓ}))
+                         (crCone : Cone crDiag A)
+                         (toAlgCone : Cone crDiag R)
+                         where
+
+  open Functor
+  open Cone
+
+  open AlgebraHoms
+  open CommAlgChar R
+  open CommAlgebraStr ⦃...⦄
+
+  algDiag : Functor J (CommAlgebrasCategory R {ℓ' = ℓ})
+  F-ob algDiag v = toCommAlg (F-ob crDiag v , coneOut toAlgCone v)
+  F-hom algDiag f = toCommAlgebraHom _ _ (F-hom crDiag f) (coneOutCommutes toAlgCone f)
+  F-id algDiag = AlgebraHom≡ (cong fst (F-id crDiag))
+  F-seq algDiag f g = AlgebraHom≡ (cong fst (F-seq crDiag f g))
+
+  module _ (φ : CommRingHom R A)
+           (isConeMorφ : isConeMor toAlgCone crCone φ) where
+
+   B = toCommAlg (A , φ)
+
+   algCone : Cone algDiag B
+   coneOut algCone v = toCommAlgebraHom _ _ (coneOut crCone v) (isConeMorφ v)
+   coneOutCommutes algCone f = AlgebraHom≡ (cong fst (coneOutCommutes crCone f))
+
+   module _ (univProp : isLimCone _ _ crCone) where
+
+    univPropWithHom : ∀ (C,ψ : CommRingWithHom) (cc : Cone crDiag (fst C,ψ))
+                    → isConeMor toAlgCone cc (snd C,ψ)
+                    → ∃![ χ ∈ CommRingWithHomHom C,ψ (A , φ) ]
+                          isConeMor cc crCone (fst χ)
+    univPropWithHom (C , ψ) cc isConeMorψ = uniqueExists
+      (χ , triangle)
+        (univProp C cc .fst .snd)
+          (λ _ → isPropIsConeMor _ _ _)
+            λ _ x → Σ≡Prop (λ _ → isSetRingHom _ _ _ _)
+                           (cong fst (univProp C cc .snd (_ , x)))
+      where
+      χ = univProp C cc .fst .fst
+
+      triangle : χ ∘cr ψ ≡ φ
+      triangle = cong fst (isContr→isProp (univProp R toAlgCone)
+                                          (χ ∘cr ψ , isConeMorComp) (φ , isConeMorφ))
+        where
+        isConeMorComp : isConeMor toAlgCone crCone (χ ∘cr ψ)
+        isConeMorComp = isConeMorSeq toAlgCone cc crCone
+                          isConeMorψ (univProp C cc .fst .snd)
+
+    reflectsLimits : isLimCone _ _ algCone
+    reflectsLimits D cd = uniqueExists ξ isConeMorξ
+                            (λ _ → isPropIsConeMor _ _ _)
+                            uniqueξ
+      where
+      C = fromCommAlg D .fst
+      ψ = fromCommAlg D .snd
+
+      cc : Cone crDiag C
+      fst (coneOut cc v) = fst (coneOut cd v)
+      IsRingHom.pres0 (snd (coneOut cc v)) = IsAlgebraHom.pres0 (snd (coneOut cd v))
+      IsRingHom.pres1 (snd (coneOut cc v)) = IsAlgebraHom.pres1 (snd (coneOut cd v))
+      IsRingHom.pres+ (snd (coneOut cc v)) = IsAlgebraHom.pres+ (snd (coneOut cd v))
+      IsRingHom.pres· (snd (coneOut cc v)) = IsAlgebraHom.pres· (snd (coneOut cd v))
+      IsRingHom.pres- (snd (coneOut cc v)) = IsAlgebraHom.pres- (snd (coneOut cd v))
+      coneOutCommutes cc f = RingHom≡ (cong fst (coneOutCommutes cd f))
+
+      isConeMorψ : isConeMor toAlgCone cc ψ
+      isConeMorψ v = RingHom≡ (funExt (λ x →
+           IsAlgebraHom.pres⋆ (snd (coneOut cd v)) x 1a
+        ∙∙ cong (fst (coneOut toAlgCone v) x ·_) (IsAlgebraHom.pres1 (snd (coneOut cd v)))
+        ∙∙ ·IdR _))
+        where
+        instance
+          _ = snd D
+          _ = snd (F-ob algDiag v)
+
+      uniqueχ : ∃![ χ ∈ CommRingWithHomHom (C , ψ) (A , φ) ] isConeMor cc crCone (fst χ)
+      uniqueχ = univPropWithHom _ cc isConeMorψ
+
+      χ = uniqueχ .fst .fst .fst
+      χComm = uniqueχ .fst .fst .snd
+
+      ξ : CommAlgebraHom D B
+      fst ξ = fst χ
+      IsAlgebraHom.pres0 (snd ξ) = IsRingHom.pres0 (snd χ)
+      IsAlgebraHom.pres1 (snd ξ) = IsRingHom.pres1 (snd χ)
+      IsAlgebraHom.pres+ (snd ξ) = IsRingHom.pres+ (snd χ)
+      IsAlgebraHom.pres· (snd ξ) = IsRingHom.pres· (snd χ)
+      IsAlgebraHom.pres- (snd ξ) = IsRingHom.pres- (snd χ)
+      IsAlgebraHom.pres⋆ (snd ξ) = λ r y → sym (
+        fst φ r · fst χ y         ≡⟨ cong (_· fst χ y) (sym (funExt⁻ (cong fst χComm) r)) ⟩
+        fst χ (fst ψ r) · fst χ y ≡⟨ sym (IsRingHom.pres· (snd χ) _ _) ⟩
+        fst χ (fst ψ r · y)       ≡⟨ refl ⟩
+        fst χ ((r ⋆ 1a) · y)      ≡⟨ cong (fst χ) (⋆AssocL _ _ _) ⟩
+        fst χ (r ⋆ (1a · y))      ≡⟨ cong (λ x → fst χ (r ⋆ x)) (·IdL y) ⟩
+        fst χ (r ⋆ y) ∎)
+        where
+        instance
+          _ = snd D
+          _ = snd B
+
+      isConeMorξ : isConeMor cd algCone ξ
+      isConeMorξ v = AlgebraHom≡ (cong fst (uniqueχ .fst .snd v))
+
+      uniqueξ : (ζ : CommAlgebraHom D B) → isConeMor cd algCone ζ → ξ ≡ ζ
+      uniqueξ ζ isConeMorζ = AlgebraHom≡ (cong (fst ∘ fst ∘ fst)
+                                         (uniqueχ .snd ((ϑ , triangleϑ) , isConeMorϑ)))
+        where
+        ϑ : CommRingHom C A
+        fst ϑ = fst ζ
+        IsRingHom.pres0 (snd ϑ) = IsAlgebraHom.pres0 (snd ζ)
+        IsRingHom.pres1 (snd ϑ) = IsAlgebraHom.pres1 (snd ζ)
+        IsRingHom.pres+ (snd ϑ) = IsAlgebraHom.pres+ (snd ζ)
+        IsRingHom.pres· (snd ϑ) = IsAlgebraHom.pres· (snd ζ)
+        IsRingHom.pres- (snd ϑ) = IsAlgebraHom.pres- (snd ζ)
+
+        triangleϑ : ϑ ∘cr ψ ≡ φ
+        triangleϑ = RingHom≡ (funExt (λ x →
+             IsAlgebraHom.pres⋆ (snd ζ) x 1a
+          ∙∙ cong (fst φ x ·_) (IsAlgebraHom.pres1 (snd ζ))
+          ∙∙ ·IdR (fst φ x)))
+          where
+          instance
+           _ = snd D
+           _ = snd B
+
+        isConeMorϑ : isConeMor cc crCone ϑ
+        isConeMorϑ v = RingHom≡ (cong fst (isConeMorζ v))
+
+
+
 module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
          {R : CommRing ℓ''} (𝓕 : Σ (ob C) P → CommAlgebra R ℓ'')
          (uniqueHom : ∀ x y → C [ fst x , fst y ] → isContr (CommAlgebraHom (𝓕 y) (𝓕 x)))
@@ -295,8 +559,9 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
  F-seq universalPShf {x = x} {z = z} f g = theAction _ _ (g ⋆⟨ C ⟩ f) (z .snd) (x .snd) .snd _
 
 
- -- a big transport to help verifying the sheaf property
- module toSheaf (x y u v : ob ΣC∥P∥Cat)
+ -- a big transport to help verifying the pullback sheaf property
+ module toSheafPB
+                (x y u v : ob ΣC∥P∥Cat)
                 {f : C [ v .fst , y . fst ]} {g : C [ v .fst , u .fst ]}
                 {h : C [ u .fst , x . fst ]} {k : C [ y .fst , x .fst ]}
                 (Csquare : g ⋆⟨ C ⟩ h ≡ f ⋆⟨ C ⟩ k)
@@ -363,3 +628,59 @@ module PreSheafFromUniversalProp (C : Category ℓ ℓ') (P : ob C → Type ℓ)
    lemma = transport (λ i → isPullback CommAlgCat (cospanPath i) {c = p₁ i}
                                                   (hPathP i) (kPathP i) (squarePathP i))
                      (AlgPB .univProp)
+
+
+ module toSheaf
+          {J : Category ℓ'' ℓ''}
+          {D : Functor J (ΣC∥P∥Cat ^op)} {c : ob ΣC∥P∥Cat} (cc : Cone D c) -- will be B⋁Cone
+          {algDiag : Functor J CommAlgCat}
+          (algCone : Cone algDiag (F-ob universalPShf c))
+          (p : (v : ob J) → F-ob algDiag v ≡ F-ob (universalPShf ∘F D) v) where
+
+  open Cone
+  private
+   diagHomPathPs : ∀ {u v : ob J} (f : J [ u , v ])
+                 → PathP (λ i → CommAlgebraHom (p u i) (p v i))
+                         (F-hom algDiag f)
+                         (F-hom universalPShf (F-hom D f))
+   diagHomPathPs f = toPathP (sym (theAction _ _ (F-hom D f) _ _ .snd _))
+
+   diagPathAlg : algDiag ≡ universalPShf ∘F D
+   diagPathAlg = Functor≡ p diagHomPathPs
+
+   coneHomPathPs : ∀ (v : ob J)
+                 → PathP (λ i → CommAlgebraHom (universalPShf .F-ob c) (diagPathAlg i .F-ob v))
+                         (algCone .coneOut v) (F-cone universalPShf cc .coneOut v)
+   coneHomPathPs v = toPathP (sym (theAction _ _ (cc .coneOut v) _ _ .snd _))
+
+
+   conePathPAlg : PathP (λ i → Cone (diagPathAlg i) (F-ob universalPShf c))
+                     algCone (F-cone universalPShf cc)
+   conePathPAlg = conePathPDiag coneHomPathPs
+
+   intermediateTransport : isLimCone _ _ algCone → isLimCone _ _ (F-cone universalPShf cc)
+   intermediateTransport univProp = transport (λ i → isLimCone _ _ (conePathPAlg i)) univProp
+
+   -- now for composition with forgetful functor
+   CommRingsCat = CommRingsCategory {ℓ = ℓ''}
+   Forgetful = ForgetfulCommAlgebra→CommRing {ℓ = ℓ''} R {ℓ' = ℓ''}
+   𝓖 = Forgetful ∘F universalPShf
+
+  module _ (isLimAlgCone : isLimCone _ _ algCone) where
+
+   private
+    presLimForgetful : preservesLimits Forgetful
+    presLimForgetful = ForgetfulCommAlgebra→CommRingPresLim R {ℓJ = ℓ''} {ℓJ' = ℓ''}
+
+    assocDiagPath : Forgetful ∘F (universalPShf ∘F D) ≡ 𝓖 ∘F D
+    assocDiagPath = F-assoc
+
+    conePathPCR : PathP (λ i → Cone (assocDiagPath i) (F-ob (Forgetful ∘F universalPShf) c))
+                   (F-cone Forgetful (F-cone universalPShf cc)) (F-cone 𝓖 cc)
+    conePathPCR = conePathPDiag -- why does everything have to be explicit?
+            (λ v _ → (Forgetful ∘F universalPShf) .F-hom {x = c} {y = D .F-ob v} (cc .coneOut v))
+
+
+   toLimCone : isLimCone _ _ (F-cone 𝓖 cc)
+   toLimCone = transport (λ i → isLimCone _ _ (conePathPCR i))
+                         (presLimForgetful _ (intermediateTransport isLimAlgCone))

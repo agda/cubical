@@ -30,6 +30,7 @@ infixr 30 _∙₂_
 infix  3 _∎
 infixr 2 _≡⟨_⟩_ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
+infixl 4 _≡$_ _≡$S_
 
 -- Basic theory about paths. These proofs should typically be
 -- inlined. This module also makes equational reasoning work with
@@ -64,6 +65,13 @@ cong : (f : (a : A) → B a) (p : x ≡ y) →
        PathP (λ i → B (p i)) (f x) (f y)
 cong f p i = f (p i)
 {-# INLINE cong #-}
+
+{- `S` stands for simply typed. Using `congS` instead of `cong`
+   can help Agda to solve metavariables that may otherwise remain unsolved.
+-}
+congS : ∀ {B : Type ℓ} → (f : A → B) (p : x ≡ y) → f x ≡ f y
+congS f p i = f (p i)
+{-# INLINE congS #-}
 
 congP : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
   (f : (i : I) → (a : A i) → B i a) {x : A i0} {y : A i1}
@@ -277,6 +285,11 @@ subst-filler : (B : A → Type ℓ') (p : x ≡ y) (b : B x)
   → PathP (λ i → B (p i)) b (subst B p b)
 subst-filler B p = transport-filler (cong B p)
 
+subst2-filler : {B : Type ℓ'} {z w : B} (C : A → B → Type ℓ'')
+                (p : x ≡ y) (q : z ≡ w) (c : C x z)
+              → PathP (λ i → C (p i) (q i)) c (subst2 C p q c)
+subst2-filler C p q = transport-filler (cong₂ C p q)
+
 -- Function extensionality
 
 funExt : {B : A → I → Type ℓ'}
@@ -301,9 +314,23 @@ funExt⁻ : {B : A → I → Type ℓ'}
   → ((x : A) → PathP (B x) (f x) (g x))
 funExt⁻ eq x i = eq i x
 
+_≡$_ = funExt⁻
+
+{- `S` stands for simply typed. Using `funExtS⁻` instead of `funExt⁻`
+   can help Agda to solve metavariables that may otherwise remain unsolved.
+-}
+funExtS⁻ : {B : I → Type ℓ'}
+  {f : (x : A) → B i0} {g : (x : A) → B i1}
+  → PathP (λ i → (x : A) → B i) f g
+  → ((x : A) → PathP (λ i → B i) (f x) (g x))
+funExtS⁻ eq x i = eq i x
+
+_≡$S_ = funExtS⁻
+
 -- J for paths and its computation rule
 
 module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
+
   J : (p : x ≡ y) → P y p
   J p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
 
@@ -320,16 +347,26 @@ module _ (P : ∀ y → x ≡ y → Type ℓ') (d : P x refl) where
 
 -- Multi-variable versions of J
 
+module _ {b : B x}
+  (P : (y : A) (p : x ≡ y) (z : B y) (q : PathP (λ i → B (p i)) b z) → Type ℓ'')
+  (d : P _ refl _ refl) where
+
+  JDep : {y : A} (p : x ≡ y) {z : B y} (q : PathP (λ i → B (p i)) b z) → P _ p _ q
+  JDep _ q = transport (λ i → P _ _ _ (λ j → q (i ∧ j))) d
+
+  JDepRefl : JDep refl refl ≡ d
+  JDepRefl = transportRefl d
+
 module _ {x : A}
-  {P : (y : A) → x ≡ y → Type ℓ'}{d : (y : A)(p : x ≡ y) → P y p}
-  (Q : (y : A)(p : x ≡ y)(z : P y p) → d y p ≡ z → Type ℓ'')
+  {P : (y : A) → x ≡ y → Type ℓ'} {d : (y : A) (p : x ≡ y) → P y p}
+  (Q : (y : A) (p : x ≡ y) (z : P y p) → d y p ≡ z → Type ℓ'')
   (r : Q _ refl _ refl) where
 
   private
     ΠQ : (y : A) → x ≡ y → _
     ΠQ y p = ∀ z q → Q y p z q
 
-  J2 : {y : A}(p : x ≡ y){z : P y p}(q : d y p ≡ z) → Q _ p _ q
+  J2 : {y : A} (p : x ≡ y) {z : P y p} (q : d y p ≡ z) → Q _ p _ q
   J2 p = J ΠQ (λ _ → J (Q x refl) r) p _
 
   J2Refl : J2 refl refl ≡ r
@@ -338,6 +375,7 @@ module _ {x : A}
 -- A prefix operator version of J that is more suitable to be nested
 
 module _ {P : ∀ y → x ≡ y → Type ℓ'} (d : P x refl) where
+
   J>_ : ∀ y → (p : x ≡ y) → P y p
   J>_ _ p = transport (λ i → P (p i) (λ j → p (i ∧ j))) d
 
@@ -452,7 +490,8 @@ Cube :
 Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
   PathP (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋
 
--- Vertical composition of squares
+-- Horizontal composition of squares (along their second dimension)
+-- See Cubical.Foundations.Path for vertical composition
 
 _∙₂_ :
   {a₀₀ a₀₁ a₀₂ : A} {a₀₋ : a₀₀ ≡ a₀₁} {b₀₋ : a₀₁ ≡ a₀₂}

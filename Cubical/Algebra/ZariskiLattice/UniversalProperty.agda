@@ -148,11 +148,12 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
  D x = [ 1 , replicateFinVec 1 x ] -- λ x → √⟨x⟩
 
  isZarMapD : IsZarMap R' ZariskiLattice D
- pres0 isZarMapD = eq/ _ _ (cong √ (0FGIdeal _ ∙ sym (emptyFGIdeal _ _)))
+ pres0 isZarMapD = eq/ _ _ (≡→∼ (cong √ (0FGIdeal _ ∙ sym (emptyFGIdeal _ _))))
  pres1 isZarMapD = refl
  ·≡∧ isZarMapD x y = cong {B = λ _ → ZL} (λ U → [ 1 , U ]) (Length1··Fin x y)
- +≤∨ isZarMapD x y = eq/ _ _ (cong √ (CommIdeal≡Char (inclOfFGIdeal _ 3Vec ⟨ 2Vec ⟩ 3Vec⊆2Vec)
-                                                       (inclOfFGIdeal _ 2Vec ⟨ 3Vec ⟩ 2Vec⊆3Vec)))
+ +≤∨ isZarMapD x y = eq/ _ _ (≡→∼ (cong √ (CommIdeal≡Char
+                                           (inclOfFGIdeal _ 3Vec ⟨ 2Vec ⟩ 3Vec⊆2Vec)
+                                           (inclOfFGIdeal _ 2Vec ⟨ 3Vec ⟩ 2Vec⊆3Vec))))
   where
   2Vec = replicateFinVec 1 x ++Fin replicateFinVec 1 y
   3Vec = replicateFinVec 1 (x + y) ++Fin (replicateFinVec 1 x ++Fin replicateFinVec 1 y)
@@ -193,8 +194,8 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
                          λ (_ , α) (_ , β) → curriedHelper α β
    where
    curriedHelper : {n m : ℕ} (α : FinVec R n) (β : FinVec R m)
-                 → √ ⟨ α ⟩ ≡ √ ⟨ β ⟩ → ⋁ (d ∘ α) ≡ ⋁ (d ∘ β)
-   curriedHelper α β √⟨α⟩≡√⟨β⟩ = is-antisym _ _ ineq1 ineq2
+                 → (n , α) ∼ (m , β) → ⋁ (d ∘ α) ≡ ⋁ (d ∘ β)
+   curriedHelper α β α∼β = is-antisym _ _ ineq1 ineq2
     where
     open Order (DistLattice→Lattice L')
     open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L'))
@@ -202,14 +203,14 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
     open PosetStr (IndPoset .snd) hiding (_≤_)
 
     incl1 : √ ⟨ α ⟩ ⊆ √ ⟨ β ⟩
-    incl1 = ⊆-refl-consequence _ _ (cong fst √⟨α⟩≡√⟨β⟩) .fst
+    incl1 = ⊆-refl-consequence _ _ (cong fst (∼→≡ α∼β)) .fst
 
     ineq1 : ⋁ (d ∘ α) ≤ ⋁ (d ∘ β)
     ineq1 = ⋁IsMax (d ∘ α) (⋁ (d ∘ β))
             λ i → ZarMapRadicalIneq isZarMapd β (α i) (√FGIdealCharLImpl α ⟨ β ⟩ incl1 i)
 
     incl2 : √ ⟨ β ⟩ ⊆ √ ⟨ α ⟩
-    incl2 = ⊆-refl-consequence _ _ (cong fst √⟨α⟩≡√⟨β⟩) .snd
+    incl2 = ⊆-refl-consequence _ _ (cong fst (∼→≡ α∼β)) .snd
 
     ineq2 : ⋁ (d ∘ β) ≤ ⋁ (d ∘ α)
     ineq2 = ⋁IsMax (d ∘ β) (⋁ (d ∘ α))
@@ -308,3 +309,9 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
  ZLUniversalPropCorollary = cong fst
                               (ZLHasUniversalProp ZariskiLattice D isZarMapD .snd
                                  (idDistLatticeHom ZariskiLattice , refl))
+
+ -- and another corollary
+ module _ where
+  open Join ZariskiLattice
+  ⋁D≡ : {n : ℕ} (α : FinVec R n) → ⋁ (D ∘ α) ≡ [ n , α ]
+  ⋁D≡ _ = funExt⁻ (cong fst ZLUniversalPropCorollary) _

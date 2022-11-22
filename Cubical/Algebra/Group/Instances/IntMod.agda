@@ -199,3 +199,19 @@ isHomℤ→Fin n =
         ≡ ℤ→Fin n (pos (suc (suc x)))
     lem x =
       Σ≡Prop (λ _ → isProp≤) (sym (mod+mod≡mod (suc n) 1 (suc x)))
+
+-- ℤ/2 lemmas
+ℤ/2-elim : ∀ {ℓ} {A : Fin 2 → Type ℓ} → A 0 → A 1 → (x : _) → A x
+ℤ/2-elim {A = A} a₀ a₁ (zero , p) = subst (λ p → A (zero , p)) (isProp≤ (0 .snd) p) a₀
+ℤ/2-elim {A = A} a₀ a₁ (suc zero , p) = subst (λ p → A (1 , p)) (isProp≤ (1 .snd) p) a₁
+ℤ/2-elim {A = A} a₀ a₁ (suc (suc x) , p) =
+  ⊥.rec (snotz (cong (λ x → predℕ (predℕ x)) (+-comm (3 +ℕ x) (fst p) ∙ snd p)))
+
+ℤ/2-rec : ∀ {ℓ} {A : Type ℓ} → A → A → Fin 2 → A
+ℤ/2-rec {A = A} a₀ a₁ (zero , p) = a₀
+ℤ/2-rec {A = A} a₀ a₁ (suc zero , p) = a₁
+ℤ/2-rec {A = A} a₀ a₁ (suc (suc x) , p) =
+  ⊥.rec (snotz (cong (λ x → predℕ (predℕ x)) (+-comm (3 +ℕ x) (fst p) ∙ snd p)))
+
+-Const-ℤ/2 : (x : fst (ℤGroup/ 2)) → -ₘ x ≡ x
+-Const-ℤ/2 = ℤ/2-elim refl refl

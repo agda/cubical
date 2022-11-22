@@ -19,6 +19,7 @@ open import Cubical.Data.Nat.Order
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.Ideal.Sum
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.Properties
@@ -39,7 +40,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
  open BinomialThm R'
  open CommIdeal R'
  open isCommIdeal
-
+ open IdealSum R'
 
  √ : CommIdeal → CommIdeal
  fst (√ I) x = (∃[ n ∈ ℕ ] x ^ n ∈ I) , isPropPropTrunc

@@ -29,7 +29,7 @@ open import Cubical.Data.Sigma
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A B : Type ℓ
+    A B C : Type ℓ
     f h : A → B
     w x : A
     y z : B
@@ -259,6 +259,10 @@ isEmbedding-∘ : isEmbedding f → isEmbedding h → isEmbedding (f ∘ h)
 isEmbedding-∘ {f = f} {h = h} Embf Embh w x
   = compEquiv (cong h , Embh w x) (cong f , Embf (h w) (h x)) .snd
 
+compEmbedding : (B ↪ C) → (A ↪ B) → (A ↪ C)
+(compEmbedding (g , _ ) (f , _ )).fst = g ∘ f
+(compEmbedding (_ , g↪) (_ , f↪)).snd = isEmbedding-∘ g↪ f↪
+
 isEmbedding→embedsFibersIntoSingl
   : isEmbedding f
   → ∀ z → fiber f z ↪ singl z
@@ -434,17 +438,3 @@ _≃Emb_ = EmbeddingIdentityPrinciple.f≃g
 
 EmbeddingIP : {B : Type ℓ} (f g : Embedding B ℓ') → f ≃Emb g ≃ (f ≡ g)
 EmbeddingIP = EmbeddingIdentityPrinciple.EmbeddingIP
-
-module _ {A : Type ℓ} (P : A → hProp ℓ') where
-  private
-    subtypeHasPropFibers : hasPropFibers (λ (x : Σ[ y ∈ A ] fst (P y)) → fst x)
-    subtypeHasPropFibers x = isPropFiber
-      where isPropFiber : isProp (fiber fst x)
-            isPropFiber = isOfHLevelRespectEquiv 1 (invEquiv (fiberEquiv (λ x → fst (P x)) x)) (snd (P x))
-
-  subtypePathReflection : (x y : Σ[ a ∈ A ] fst (P a))
-                          → fst x ≡ fst y → x ≡ y
-  subtypePathReflection x y q = Iso.inv
-                                    (equivToIso
-                                     (_ , hasPropFibers→isEmbedding subtypeHasPropFibers x y))
-                                    q
