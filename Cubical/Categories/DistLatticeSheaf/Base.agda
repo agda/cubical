@@ -200,7 +200,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
 
        limConePathP : PathP (λ i → Cone (funcComp F (FinVec→Diag L xyVec)) (limPath i))
                             (limCone inducedLimCone) theCone
-       limConePathP = conePathP helperPathP
+       limConePathP = conePathPOb helperPathP
          where
          helperPathP :
            ∀ v → PathP (λ i → C [ limPath i , F-ob (funcComp F (FinVec→Diag L xyVec)) v ])
@@ -550,7 +550,7 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
    open Order (DistLattice→Lattice L)
    open Cone
 
-   BDiag : Functor (DLShfDiag n) (BasisCat ^op)
+   BDiag : Functor (DLShfDiag n ℓ) (BasisCat ^op)
    F-ob BDiag (sing i) = α i
    F-ob BDiag (pair i j _) = α i · α j -- α i ∧ α j + basis is closed under ∧
    F-hom BDiag idAr = is-refl _

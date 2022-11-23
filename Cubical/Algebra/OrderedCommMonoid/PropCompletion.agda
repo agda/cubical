@@ -104,12 +104,11 @@ module PropCompletion (ℓ : Level) (M : OrderedCommMonoid ℓ ℓ) where
   M↑Path {s = s} {l = l} pwPath = path
      where
        seqPath : fst s ≡ fst l
-       seqPath i n = subtypePathReflection (λ A → isProp A , isPropIsProp)
-                                           (fst s n)
-                                           (fst l n)
-                                           (pwPath n) i
+       seqPath i n =
+         Σ≡Prop (λ _ → isPropIsProp) {u = fst s n} {v = fst l n} (pwPath n) i
+
        path : s ≡ l
-       path = subtypePathReflection (λ s → isUpwardClosed s , isPropUpwardClosed s) s l seqPath
+       path = Σ≡Prop isPropUpwardClosed seqPath
 
   pathFromImplications : (s l : M↑)
            → ((n : fst M) → typeAt n s → typeAt n l)

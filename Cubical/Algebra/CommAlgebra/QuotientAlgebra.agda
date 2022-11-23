@@ -12,8 +12,8 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
-import Cubical.Algebra.CommRing.QuotientRing as CommRing
-import Cubical.Algebra.Ring.QuotientRing as Ring
+import Cubical.Algebra.CommRing.Quotient as CommRing
+import Cubical.Algebra.Ring.Quotient as Ring
 open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal

@@ -12,10 +12,12 @@ open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Foundations.Path
 
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Bool
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.IsEven
 open import Cubical.Data.Int
   renaming (_+_ to _ℤ+_ ; _·_ to _ℤ∙_ ; +Comm to +ℤ-comm ; ·Comm to ∙-comm ; +Assoc to ℤ+-assoc ; -_ to -ℤ_)
-  hiding (_+'_ ; +'≡+)
+  hiding (_+'_ ; +'≡+ ; isEven)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 
@@ -1131,3 +1133,30 @@ gradedComm'-⌣ n m =
 gradedComm-⌣ : ∀ {ℓ} {A : Type ℓ} (n m : ℕ) (a : coHom n A) (b : coHom m A)
   → a ⌣ b ≡ (-ₕ^ n · m) (subst (λ n → coHom n A) (+'-comm m n) (b ⌣ a))
 gradedComm-⌣ n m a b = (gradedComm'-⌣ n m a b) ∙ (sym (-ₕ^-eq n m (subst (λ n₁ → coHom n₁ _) (+'-comm m n) (b ⌣ a))))
+
+
+-----------------------------------------------------------------------------
+-- Simplify -ₕ^
+
+module _
+  {ℓ : Level}
+  {A : Type ℓ}
+  (n : ℕ)
+  (m : ℕ)
+  where
+
+  -ₕ^-EvenEven : (isEven n ≡ true) → (isEven m ≡ true) →
+                 (x : coHom (m +' n) A) → (-ₕ^ n · m) x ≡ x
+  -ₕ^-EvenEven p q x = cong₂ (λ X Y → -ₕ^-gen n m X Y x) (snd (evenOrOdd-Even n p)) (snd (evenOrOdd-Even m q))
+
+  -ₕ^-EvenOdd : (isEven n ≡ true) → (isEven m ≡ false) →
+                 (x : coHom (m +' n) A) → (-ₕ^ n · m) x ≡ x
+  -ₕ^-EvenOdd p q x = cong₂ (λ X Y → -ₕ^-gen n m X Y x) (snd (evenOrOdd-Even n p)) (snd (evenOrOdd-Odd m q))
+
+  -ₕ^-OddEven : (isEven n ≡ false) → (isEven m ≡ true) →
+                 (x : coHom (m +' n) A) → (-ₕ^ n · m) x ≡ x
+  -ₕ^-OddEven p q x = cong₂ (λ X Y → -ₕ^-gen n m X Y x) (snd (evenOrOdd-Odd n p)) (snd (evenOrOdd-Even m q))
+
+  -ₕ^-OddOdd : (isEven n ≡ false) → (isEven m ≡ false) →
+                 (x : coHom (m +' n) A) → (-ₕ^ n · m) x ≡ -ₕ x
+  -ₕ^-OddOdd p q x = cong₂ (λ X Y → -ₕ^-gen n m X Y x) (snd (evenOrOdd-Odd n p)) (snd (evenOrOdd-Odd m q))

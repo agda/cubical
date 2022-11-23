@@ -14,3 +14,7 @@ Post-release
    include: .
    depend:
   ```
+
+* Increment the `version` field in `flake.nix`.
+
+* Update flake inputs by running `nix flake update`.

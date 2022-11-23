@@ -20,6 +20,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Unit
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
@@ -37,6 +38,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Instances.Unit
 open import Cubical.Algebra.CommRing.Localisation.Base
 open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
 open import Cubical.Algebra.CommRing.Ideal
@@ -89,6 +91,21 @@ module InvertingElementsBase (R' : CommRing ℓ) where
 
  R[1/_]AsCommRing : R → CommRing ℓ
  R[1/ f ]AsCommRing = Loc.S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+
+ R[1/0]≡0 : R[1/ 0r ]AsCommRing ≡ UnitCommRing
+ R[1/0]≡0 = uaCommRing (e , eIsRHom)
+  where
+  open IsRingHom
+
+  e : R[1/ 0r ]AsCommRing .fst ≃ UnitCommRing .fst
+  e = isContr→Equiv isContrR[1/0] isContrUnit*
+
+  eIsRHom : IsCommRingEquiv (R[1/ 0r ]AsCommRing .snd) e (UnitCommRing .snd)
+  pres0 eIsRHom = refl
+  pres1 eIsRHom = refl
+  pres+ eIsRHom _ _ = refl
+  pres· eIsRHom _ _ = refl
+  pres- eIsRHom _ = refl
 
  -- A useful lemma: (gⁿ/1)≡(g/1)ⁿ in R[1/f]
  ^-respects-/1 : {f g : R} (n : ℕ) → [ (g ^ n) , 1r , PT.∣ 0 , (λ _ → 1r) ∣₁ ] ≡
@@ -262,6 +279,29 @@ module InvertingElementsBase (R' : CommRing ℓ) where
                 PT.rec (PisProp s) λ (n , p) → subst P (sym p) (base n)
 
 
+module _ (R : CommRing ℓ) (f : fst R) where
+ open CommRingTheory R
+ open RingTheory (CommRing→Ring R)
+ open Units R
+ open Exponentiation R
+ open InvertingElementsBase R
+ open isMultClosedSubset (powersFormMultClosedSubset f)
+ open S⁻¹RUniversalProp R [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+ open CommRingStr (snd R)
+ open PathToS⁻¹R
+
+ invertingUnitsPath : f ∈ R ˣ → R[1/ f ]AsCommRing ≡ R
+ invertingUnitsPath f∈Rˣ = S⁻¹RChar _ _ _ _ (idCommRingHom R) (char f∈Rˣ)
+   where
+   char : f ∈ R ˣ → PathToS⁻¹R _ _ (powersFormMultClosedSubset f)
+                                 _ (idCommRingHom R)
+   φS⊆Aˣ (char f∈Rˣ) = powersPropElim (∈-isProp _)
+                           λ n → ^-presUnit _ n f∈Rˣ
+   kerφ⊆annS (char _) _ r≡0 = ∣ (1r , containsOne) , ·IdL _ ∙ r≡0 ∣₁
+   surχ (char _) r = ∣ (r , 1r , containsOne)
+                                , cong (r ·_) (transportRefl _) ∙ ·IdR _ ∣₁
+
+
 module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
  open IsRingHom
  open isMultClosedSubset
@@ -307,8 +347,7 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
                       (Exponentiation.^-presUnit _ _ n (unitHelper f∈√⟨g⟩))
 
 
-
-module DoubleLoc (R' : CommRing ℓ) (f g : (fst R')) where
+module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
  open isMultClosedSubset
  open CommRingStr (snd R')
  open CommRingTheory R'

@@ -139,3 +139,12 @@ EM-raw'-trivElim G zero {A = A} prop x embase-raw = x
 EM-raw'-trivElim G zero {A = A} prop x (emloop-raw g i) =
   isProp→PathP {B = λ i → A (emloop-raw g i)} (λ _ → prop _) x x i
 EM-raw'-trivElim G (suc n) {A = A} = raw-elim G (suc n)
+
+EM→Prop : (G : AbGroup ℓ) (n : ℕ) {A : EM G (suc n) → Type ℓ'}
+  → ((x : _) → isProp (A x) )
+  → A (0ₖ (suc n))
+  → (x : _) → A x
+EM→Prop G zero {A = A} p h = elimProp (AbGroup→Group G) p h
+EM→Prop G (suc n) {A = A} p h =
+  Trunc.elim (λ _ → isProp→isOfHLevelSuc (suc (suc (suc n))) (p _))
+    (suspToPropElim ptEM-raw (λ _ → p _) h)

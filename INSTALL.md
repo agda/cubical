@@ -1,7 +1,7 @@
 Installation of agda/cubical
 ============================
 
-The cubical library should compile on the latest official release
+The cubical library should compile on the [latest official release](https://wiki.portal.chalmers.se/agda/Main/Download)
 of Agda:
 
 https://github.com/agda/agda
@@ -36,10 +36,12 @@ Then, execute following:
 > cabal v2-update
 > git clone https://github.com/agda/agda
 > cd agda
+> git checkout RELEASE
 > touch doc/user-manual.pdf
 > cabal v2-install agda agda-mode
 ```
 
+where RELEASE  is the [latest release](https://wiki.portal.chalmers.se/agda/Main/Download) of agda, for example v2.6.2.2. You can use ```git tag --list``` for a full list of releases.
 This should put the agda and agda-mode executables in the folder
 `~/.cabal/bin` (the location can be configured with `--symlink-bindir` flag).
 
@@ -113,11 +115,13 @@ in a cabal sandbox do the following:
 ```
 > git clone https://github.com/agda/agda
 > cd agda
+> git checkout RELEASE
 > cabal sandbox init
 > cabal update
 > make
 ```
 
+where RELEASE is the [latest release](https://wiki.portal.chalmers.se/agda/Main/Download) of agda, for example v2.6.2.2. You can use ```git tag --list``` for a full list of releases.
 If you have cabal v2 installed the sandbox command should be replaced
 by `cabal v1-sandbox init`.
 
@@ -189,10 +193,12 @@ In order to install Agda using stack do the following:
 ```
 > git clone https://github.com/agda/agda
 > cd agda
-> stack build --stack-yaml stack-"version".yaml
+> git checkout RELEASE
+> stack build --stack-yaml stack-VERSION.yaml
 ```
 
-Where "version" is a suitable version of ghc (for example 8.6.3). This
+Where RELEASE is the [latest release](https://wiki.portal.chalmers.se/agda/Main/Download) of agda (for example v2.6.2.2, use ```git tag --list``` for a full list of releases) and
+VERSION is a suitable version of ghc (for example 8.6.3). This
 should put the agda and agda-mode executables in the folder
 `agda/.stack-work/install/.../.../.../bin`.
 
@@ -275,4 +281,43 @@ $ cat .agda/defaults
 cubical
 $ cat .agda/libraries
 /path/to/cubical.agda-lib
+```
+
+Nix flakes instructions
+=======================
+
+Create a nix flake like this one:
+```nix
+{
+  inputs.cubical = {
+    url = "github:agda/cubical";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+  outputs = { self, nixpkgs, cubical }:
+  let system = "x86_64-linux";
+      cub-packages = cubical.packages.${system};
+      cubical-lbry = cub-packages.cubical;
+  in
+  with import nixpkgs { system = system; };
+  rec {
+    packages.${system} = {
+      cubical = cubical-lbry;
+      agda = agda.withPackages [cubical-lbry];
+    };
+    defaultPackage.${system} = packages.${system}.agda;
+  };
+}
+```
+cubical-lbry is the cubical library that you have to add in Agda packages.
+
+You can test if Agda with the cubical library is working after adding this file:
+`test.agda`
+```agda
+{-# OPTIONS --cubical #-}
+open import Cubical.Foundations.Prelude
+```
+And running:
+```shell
+nix --extra-experimental-features "nix-command flakes" shell
+agda -l cubical -i . test.agda
 ```

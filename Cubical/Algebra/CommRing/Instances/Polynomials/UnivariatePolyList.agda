@@ -5,6 +5,7 @@ module Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat using (ℕ ; zero ; suc)
 
+open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Polynomials.UnivariateList.Base
 open import Cubical.Algebra.Polynomials.UnivariateList.Properties
@@ -30,6 +31,14 @@ module _ (R : CommRing ℓ) where
   isCommRing (snd UnivariatePolyList) = makeIsCommRing isSetPoly
                                     Poly+Assoc Poly+Rid Poly+Inverses Poly+Comm
                                     Poly*Associative Poly*Rid Poly*LDistrPoly+ Poly*Commutative
+
+
+  constantPolynomialHom : CommRingHom R UnivariatePolyList
+  constantPolynomialHom = [_] ,
+                          makeIsRingHom
+                            refl
+                            (λ r s → refl)
+                            λ r s → sym (MultHom[-] r s)
 
 
 nUnivariatePolyList : (A' : CommRing ℓ) → (n : ℕ) → CommRing ℓ

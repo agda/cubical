@@ -54,7 +54,7 @@ open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Groups.Wedge
 open import Cubical.ZCohomology.Groups.Torus
 open import Cubical.ZCohomology.Groups.KleinBottle
-open import Cubical.ZCohomology.Groups.WedgeOfSpheres
+open import Cubical.ZCohomology.Groups.S2wedgeS1wedgeS1
 open import Cubical.ZCohomology.Groups.RP2
 open import Cubical.ZCohomology.Groups.CP2
 

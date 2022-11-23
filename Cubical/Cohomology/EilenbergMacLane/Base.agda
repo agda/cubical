@@ -4,6 +4,7 @@ module Cubical.Cohomology.EilenbergMacLane.Base where
 
 open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
 open import Cubical.Homotopy.EilenbergMacLane.Base
+open import Cubical.Homotopy.EilenbergMacLane.Order2
 
 open import Cubical.Foundations.Prelude
 
@@ -13,6 +14,7 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
+open import Cubical.Algebra.Group.Instances.IntMod
 
 open import Cubical.HITs.SetTruncation as ST
   hiding (rec ; map ; elim ; elim2 ; elim3)
@@ -84,7 +86,7 @@ module _ (n : ℕ) {G : AbGroup ℓ} {A : Type ℓ'} where
   lCancelₕ = ST.elim (λ _ → isSetPathImplicit)
            λ f → cong ∣_∣₂ (funExt λ x → lCancelₖ n (f x))
 
-coHomGr : (n : ℕ) (G : AbGroup ℓ) (A : Type ℓ') → AbGroup _
+coHomGr : (n : ℕ) (G : AbGroup ℓ) (A : Type ℓ') → AbGroup (ℓ-max ℓ ℓ')
 fst (coHomGr n G A) = coHom n G A
 0g (snd (coHomGr n G A)) = 0ₕ n
 AbGroupStr._+_ (snd (coHomGr n G A)) = _+ₕ_
@@ -96,3 +98,18 @@ is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd (coHomGr n G A)))))) = sq
 ·InvR (isGroup (isAbGroup (snd (coHomGr n G A)))) = rCancelₕ n
 ·InvL (isGroup (isAbGroup (snd (coHomGr n G A)))) = lCancelₕ n
 +Comm (isAbGroup (snd (coHomGr n G A))) = commₕ n
+
+
+-- ℤ/2 lemmas
++ₕ≡id-ℤ/2 : ∀ {ℓ}  {A : Type ℓ} (n : ℕ) (x : coHom n ℤ/2 A) → x +ₕ x ≡ 0ₕ n
++ₕ≡id-ℤ/2 n =
+  ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ (funExt λ x → +ₖ≡id-ℤ/2 n (f x))
+
+-ₕConst-ℤ/2 : ∀{ℓ} (n : ℕ) {A : Type ℓ} (x : coHom n ℤ/2 A) → -ₕ x ≡ x
+-ₕConst-ℤ/2 zero =
+  ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ (funExt λ x → -Const-ℤ/2 (f x))
+-ₕConst-ℤ/2 (suc n) =
+  ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ (funExt λ x → -ₖConst-ℤ/2 n (f x))
