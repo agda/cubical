@@ -14,7 +14,7 @@
       overlay = final: prev: {
         cubical = final.agdaPackages.mkDerivation rec {
           pname = "cubical";
-          version = "0.4";
+          version = "0.5";
 
           src = cleanSourceWith {
             filter = name: type:
