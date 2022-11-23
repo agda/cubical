@@ -12,15 +12,15 @@ This library compiles with the latest official release of
 instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
 file.
+The following table shows, which version of Agda you should use with which version of this library.
+Versions as written below, correspond to tags.
 
-If you want to use Agda 2.6.2 instead of the latest release version, you
-can check out the tag `v0.3` of this library.
-
-If you want to use Agda 2.6.1.3 instead of the latest release version, you
-can check out the tag `v0.2` of this library.
-
-If you want to use Agda 2.6.0.1 instead of the latest release version, you
-can check out the tag `v0.1` of this library.
+| Agda version   | cubical library version |
+|----------------|-------------------------|
+| `v2.6.2.2`     | `v0.4`                  |
+| `v2.6.2`       | `v0.3`                  |
+| `v2.6.1.3`     | `v0.2`                  |
+| `v2.6.0.1`     | `v0.1`                  |
 
 Learning materials
 ------------------
