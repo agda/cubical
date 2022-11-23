@@ -282,3 +282,42 @@ cubical
 $ cat .agda/libraries
 /path/to/cubical.agda-lib
 ```
+
+Nix flakes instructions
+=======================
+
+Create a nix flake like this one:
+```nix
+{
+  inputs.cubical = {
+    url = "github:agda/cubical";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+  outputs = { self, nixpkgs, cubical }:
+  let system = "x86_64-linux";
+      cub-packages = cubical.packages.${system};
+      cubical-lbry = cub-packages.cubical;
+  in
+  with import nixpkgs { system = system; };
+  rec {
+    packages.${system} = {
+      cubical = cubical-lbry;
+      agda = agda.withPackages [cubical-lbry];
+    };
+    defaultPackage.${system} = packages.${system}.agda;
+  };
+}
+```
+cubical-lbry is the cubical library that you have to add in Agda packages.
+
+You can test if Agda with the cubical library is working after adding this file:
+`test.agda`
+```agda
+{-# OPTIONS --cubical #-}
+open import Cubical.Foundations.Prelude
+```
+And running:
+```shell
+nix --extra-experimental-features "nix-command flakes" shell
+agda -l cubical -i . test.agda
+```
