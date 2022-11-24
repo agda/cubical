@@ -14,7 +14,8 @@ private variable
 
 module ModuleTheory (R : Ring ℓ') (M : LeftModule R ℓ) where
   open LeftModuleStr ⦃...⦄
-  module R = RingStr (snd R)
+  private
+    module R = RingStr (snd R)
   private instance
     _ = snd M
 
@@ -31,3 +32,14 @@ module ModuleTheory (R : Ring ℓ') (M : LeftModule R ℓ) where
              r ⋆ 0m              ≡⟨ cong (λ u → r ⋆ u) (sym (+IdL (0m))) ⟩
              r ⋆ (0m + 0m)       ≡⟨ ⋆DistR+ r 0m 0m ⟩
              (r ⋆ 0m) + (r ⋆ 0m) ∎
+
+
+  minusByMult : (x : ⟨ M ⟩) → (R.- R.1r) ⋆ x ≡ - x
+  minusByMult x =
+    implicitInverse
+      (LeftModule→AbGroup M)
+      (        x + (R.- R.1r) ⋆ x  ≡⟨ cong (_+ (R.- R.1r) ⋆ x) (sym (⋆IdL x)) ⟩
+        R.1r ⋆ x + (R.- R.1r) ⋆ x  ≡⟨ sym (⋆DistL+ R.1r (R.- R.1r) x) ⟩
+       (R.1r R.+ (R.- R.1r))  ⋆ x  ≡⟨ cong (_⋆ x) (R.+InvR R.1r) ⟩
+       R.0r                   ⋆ x  ≡⟨ ⋆AnnihilL x ⟩
+       0m ∎)
