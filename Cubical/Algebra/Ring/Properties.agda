@@ -16,6 +16,8 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Ring.Base
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup.Base
 
 open import Cubical.HITs.PropositionalTruncation
 
@@ -61,13 +63,8 @@ module RingTheory (R' : Ring ℓ) where
   0Idempotent = +IdL 0r
 
   +Idempotency→0 : (x : R) → x ≡ x + x → x ≡ 0r
-  +Idempotency→0 x p =
-    x               ≡⟨ sym (+IdR x) ⟩
-    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+InvR _)) ⟩
-    x + (x + (- x)) ≡⟨ +Assoc _ _ _ ⟩
-    (x + x) + (- x) ≡⟨ cong (λ u → u + (- x)) (sym p) ⟩
-    x + (- x)       ≡⟨ +InvR _ ⟩
-    0r              ∎
+  +Idempotency→0 = let open GroupTheory (AbGroup→Group (Ring→AbGroup R'))
+                   in idFromIdempotency
 
   -Idempotent : (x : R) → -(- x) ≡ x
   -Idempotent x =  - (- x)   ≡⟨ sym (implicitInverse (- x) x (+InvL _)) ⟩
