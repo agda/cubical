@@ -103,7 +103,6 @@ record isIsoOver {ℓ ℓ'} {A : Type ℓ}{B : Type ℓ'}
 open IsoOver
 open isIsoOver
 
-
 isIsoOver→IsoOver :
   {isom : Iso A B}
   {fun : mapOver (isom .fun) P Q}
@@ -121,7 +120,6 @@ IsoOver→isIsoOver :
 IsoOver→isIsoOver isom .inv = isom .inv
 IsoOver→isIsoOver isom .rightInv = isom .rightInv
 IsoOver→isIsoOver isom .leftInv  = isom .leftInv
-
 
 compIsoOver :
   {ℓA ℓB ℓC ℓP ℓQ ℓR : Level}
