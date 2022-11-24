@@ -7,8 +7,9 @@
     url = "github:edolstra/flake-compat";
     flake = false;
   };
+  inputs.agda.url = "github:agda/agda/release-2.6.3";
 
-  outputs = { self, flake-compat, flake-utils, nixpkgs }:
+  outputs = { self, flake-compat, flake-utils, nixpkgs, agda }:
     let
       inherit (nixpkgs.lib) cleanSourceWith hasSuffix;
       overlay = final: prev: {
@@ -40,7 +41,7 @@
         };
         agdaWithCubical = final.agdaPackages.agda.withPackages [final.cubical];
       };
-      overlays = [ overlay ];
+      overlays = [ agda.overlay overlay ];
     in
     { overlays.default = overlay; } //
     flake-utils.lib.eachDefaultSystem (system:
