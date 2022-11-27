@@ -18,6 +18,10 @@ open import Cubical.Homotopy.EilenbergMacLane.Order2
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Group.Base
 
+open import Cubical.Cohomology.EilenbergMacLane.CupProduct
+
+open import Cubical.Functions.Morphism
+
 open import Cubical.Foundations.Equiv.Dependent
 
 open import Cubical.Functions.Embedding
@@ -74,6 +78,21 @@ open import Cubical.HITs.S1
 
 open import Cubical.HITs.Truncation as TR
 
+_+ₖ∙_ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {G : AbGroup ℓ'} {n : ℕ}
+  → (A →∙ EM∙ G n) → (A →∙ EM∙ G n)
+  → A →∙ EM∙ G n
+fst (f +ₖ∙ g) x = fst f x +ₖ fst g x
+snd (_+ₖ∙_ {A = A} {n = n} f g) = s
+  where
+  abstract
+    s : fst f (pt A) +ₖ fst g (pt A) ≡ 0ₖ n
+    s = cong₂ _+ₖ_ (snd f) (snd g) ∙ rUnitₖ _ (0ₖ _)
+
+_+ₖ∙'_ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {G : AbGroup ℓ'} {n : ℕ}
+  → (A →∙ EM∙ G n) → (A →∙ EM∙ G n)
+  → A →∙ EM∙ G n
+fst (f +ₖ∙' g) = λ x → fst f x +ₖ fst g x
+snd (f +ₖ∙' g) = cong₂ _+ₖ_ (snd f) (snd g) ∙ rUnitₖ _ (0ₖ _)
 
 EM→ΩEM+1-gen : ∀ {ℓ} {G : AbGroup ℓ} (n : ℕ) (x : EM G (suc n))
   → EM G n → x ≡ x
@@ -544,6 +563,7 @@ module pre-Thom (R' : CommRing ℓ'') where
             (funExt λ y → subst⁻Subst EMR (+'≡+ i n) (r ⌣ₖ gen-HⁿSⁿ R n .fst y)))
 
 
+open import Cubical.Data.Nat.Order hiding (eq)
 module pre-Thom' (B : Pointed ℓ)
          (Q : fst B → Pointed ℓ')
          (conB : isConnected 2 (fst B))
@@ -574,18 +594,39 @@ module pre-Thom' (B : Pointed ℓ)
              (funExt λ y → cong (λ y → x ⌣[ R , i , n ]Cₖ y)
                (funExt⁻ (cong fst r) y))
 
-  isEquiv-g : (i : ℕ) (b : fst B) → isEquiv (g i b)
-  isEquiv-g i = Iso.inv (elim.isIsoPrecompose
-       (λ (x : Unit) → pt B) 1 (λ b → isEquiv (g i b) , isPropIsEquiv _)
-       (isConnectedPoint 1 conB (pt B)))
-       λ _ → isEquiv-g-pt i
+  abstract
+    isEquiv-g : (i : ℕ) (b : fst B) → isEquiv (g i b)
+    isEquiv-g i = Iso.inv (elim.isIsoPrecompose
+         (λ (x : Unit) → pt B) 1 (λ b → isEquiv (g i b) , isPropIsEquiv _)
+         (isConnectedPoint 1 conB (pt B)))
+         λ _ → isEquiv-g-pt i
 
   g-equiv : (i : ℕ) (b : fst B) → EMR i ≃ Q b →∙ EMR∙ (i +' n)
   g-equiv i b = g i b , isEquiv-g i b
 
+  g⁻ : (i : ℕ) (b : fst B) → Q b →∙ EMR∙ (i +' n) → EMR i
+  g⁻ i b = invEq (g-equiv i b)
+
+  private
+    g-pres+' : (i : ℕ) (b : fst B) (x y : EMR i) (z : _)
+             → g i b (x +ₖ y) .fst z ≡ (g i b x +ₖ∙ g i b y) .fst z
+    g-pres+' i b x y z =
+      distrR⌣ₖ {G'' = CommRing→Ring R} i n x y (c b .fst z)
+
   g-pres+ : (i : ℕ) (b : fst B) (x y : EMR i)
-             (z : Q b .fst) → g i b (x +ₖ y) .fst z ≡ g i b x .fst z +ₖ g i b y .fst z
-  g-pres+ = {!!}
+             → g i b (x +ₖ y) ≡ g i b x +ₖ∙ g i b y
+  g-pres+ i b x y = →∙Homogeneous≡ (isHomogeneousEM (i +' n))
+    (funExt (g-pres+' i b x y))
+
+  g⁻-pres+ : (i : ℕ) (b : fst B) (x y : _)
+    → g⁻ i b (x +ₖ∙ y) ≡ g⁻ i b x +ₖ g⁻ i b y
+  g⁻-pres+ i b =
+    morphLemmas.isMorphInv _+ₖ_ _+ₖ∙_
+      (g i b)
+      (g-pres+ i b)
+      (g⁻ i b)
+      (secEq (g-equiv i b))
+      (retEq (g-equiv i b))
 
   pre-ϕ : (i : ℕ) → (fst B → EMR i) → (b : fst B) → Q b →∙ EMR∙ (i +' n)
   fst (pre-ϕ i β b) x = β b ⌣ₖ c b .fst x
@@ -599,126 +640,18 @@ module pre-Thom' (B : Pointed ℓ)
   Iso.rightInv (pre-ϕIso i) t j b = secEq (g-equiv i b) (t b) j
   Iso.leftInv (pre-ϕIso i) t j b = retEq (g-equiv i b) (t b) j
 
-  invEq-g-pres-+ : (i : ℕ) (b : fst B)
-    (x y : Q b →∙ EMR∙ (i +' n)) → invEq (g-equiv i b) x +ₖ invEq (g-equiv i b) y
-    ≡ invEq (g-equiv i b)
-      ((λ z → fst x z +ₖ fst y z)
-      , (cong₂ _+ₖ_ (snd x) (snd y) ∙ rUnitₖ (i +' n) (0ₖ (i +' n))))
-  invEq-g-pres-+ = {!!}
+  pre-ϕ-pres+ : (i : ℕ) → (f g : fst B → EMR i)
+    → pre-ϕ i (λ b → f b +ₖ g b) ≡ λ b → pre-ϕ i f b +ₖ∙ pre-ϕ i g b
+  pre-ϕ-pres+ i f g = funExt (λ b → →∙Homogeneous≡ (isHomogeneousEM _)
+    (funExt (g-pres+' i b (f b) (g b))))
+
+  pre-ϕ⁻-pres+ : (i : ℕ) (f g : (b : fst B) → Q b →∙ EMR∙ (i +' n))
+    → Iso.inv (pre-ϕIso i) (λ b → f b +ₖ∙ g b)
+    ≡ λ b → (Iso.inv (pre-ϕIso i) f b) +ₖ (Iso.inv (pre-ϕIso i) g b)
+  pre-ϕ⁻-pres+ i f g = funExt (λ b → g⁻-pres+ i b (f b) (g b))
 
   isEq-ϕ : (i : ℕ) → isEquiv (pre-ϕ i)
   isEq-ϕ i = isoToIsEquiv (pre-ϕIso i)
-
-  TotalP : Type _
-  TotalP = Σ[ x ∈ fst B ] Q x .fst
-
-  TotalP∙ : Pointed _
-  fst TotalP∙ = TotalP
-  snd TotalP∙ = pt B , Q (pt B) .snd
-
-  open import Cubical.Data.Nat.Order
-  k = ≤-∸-+-cancel
-
-  path : (i : ℕ) → (n ≤ i) → i ≡ (i ∸ n) +' n
-  path i p = sym (≤-∸-+-cancel p) ∙ sym (+'≡+ (i ∸ n) n)
-  
-  cupᵣ : (i : ℕ) → (n ≤ i)
-    → coHom i RR TotalP
-    → coHom (i ∸ n) RR (fst B)
-  cupᵣ i t = ST.map λ f
-    → Iso.inv (pre-ϕIso (i ∸ n))
-        λ b → (λ s → subst EMR (path i t)
-                (f (b , s) -ₖ f (b , pt (Q b))))
-             , cong (subst EMR (path i t))
-                    (rCancelₖ _ (f (b , snd (Q b))))
-             ∙ pre-Thom.substEMR R (path i t)
-
-  gys₁ : (i : ℕ) → (n ≤ i)
-    → AbGroupHom (coHomGr i RR TotalP)
-                  (coHomGr (i ∸ n) RR (fst B))
-  fst (gys₁ i p) = cupᵣ i p
-  snd (gys₁ i p) = makeIsGroupHom
-    (ST.elim2 (λ _ _ → isSetPathImplicit)
-      λ f g → cong ∣_∣₂ (funExt λ b
-        → cong (invEq (g-equiv (i ∸ n) b))
-            (→∙Homogeneous≡ (isHomogeneousEM _)
-              (funExt λ s → {!!}))
-          ∙ sym (invEq-g-pres-+ (i ∸ n) b _ _)))
-
-  cup' : (i : ℕ) → (n ≤ i)
-       → coHom (i ∸ n) RR (fst B)
-       → coHom i RR (fst B)
-  cup' i p = ST.map λ f → λ b
-    → subst EMR (sym (path i p))
-        (pre-ϕ (i ∸ n) f b .fst (pt (Q b)))
-
-  gys₂ : (i : ℕ) → (n ≤ i)
-    → AbGroupHom (coHomGr (i ∸ n) RR (fst B))
-                  (coHomGr i RR (fst B))
-  fst (gys₂ i p) = cup' i p
-  snd (gys₂ i p) =
-    makeIsGroupHom
-    (ST.elim2 (λ _ _ → isSetPathImplicit)
-      λ f g → cong ∣_∣₂
-        (funExt
-         λ x → {!!}))
-
-  gys₃ : (i : ℕ) → (n ≤ i)
-       → AbGroupHom (coHomGr i RR (fst B))
-                     (coHomGr i RR (TotalP))
-  gys₃ i p = coHomHom i fst
-
-  Im₁⊂Ker₂ : (i : ℕ) (t : n ≤ i)
-    → (x : _)
-    → isInIm (gys₁ i t) x
-    → isInKer (gys₂ i t) x
-  Im₁⊂Ker₂ i t x =
-    PT.rec (squash₂ _ _)
-      (uncurry
-      (ST.elim (λ _ → isSetΠ λ _ → isProp→isSet (squash₂ _ _))
-        λ f → J (λ x y → isInKer (gys₂ i t) x)
-          (cong ∣_∣₂ (funExt λ b
-            → cong (subst EMR (sym (path i t)))
-                (cong₂ (λ x y → x ⌣[ R , (i ∸ n) , n ]Cₖ y)
-                  refl
-                  (c b .snd)
-              ∙ ⌣ₖ-0ₖ (i ∸ n) n _)
-             ∙ {!!}))))
-
-  Ker₂⊂Im₁ : (i : ℕ) (t : n ≤ i)
-    → (x : _)
-    → isInKer (gys₂ i t) x
-    → isInIm (gys₁ i t) x
-  Ker₂⊂Im₁ = {!!}
-
-  cup'' : (i : ℕ) → (n ≤ i)
-       → coHom i RR (fst B)
-       → coHom i RR (TotalP)
-  cup'' i t = coHomFun i fst 
-  
-  --     subst EMR (sym (path i p))
-    --      (pre-ϕ (i ∸ n) f ? .fst ?)
-  {- ST.map λ f
-    → uncurry λ x y
-      → subst EMR (sym (path i p))
-          (pre-ϕ (i ∸ n) f x .fst y)
--}
-  pst : (i : ℕ) → (n ≤ i)
-    → coHom i RR TotalP
-    → {!coHom !}
-  pst = {!!}
-
-    {-
-        λ b
-    → (λ s → subst EMR (path i t) (fst f (b , s)))
-       , cong (subst EMR (path i t))
-           {!fst f ?!}
-         ∙ {!!} -}
-    {- λ b
-    → (λ s → subst EMR (path i t) (fst f (b , s)))
-    , cong (subst EMR (path i t))
-        {!!}
-      ∙ {!!}-} 
 
 module Thom (B : Pointed ℓ)
          (Q : fst B → Pointed ℓ')
@@ -776,3 +709,442 @@ module Thom (B : Pointed ℓ)
     → Iso (fst B → EMR i) ((b : fst B) → Q b →∙ EMR∙ (i +' n))
   ϕIso = Thom-inst.pre-ϕIso
 
+module Spaces (B : Pointed ℓ)
+         (P : fst B → Pointed ℓ')
+         (conB : isConnected 2 (fst B))
+         (R : CommRing ℓ'')
+         where
+  private
+    RR = (CommRing→AbGroup R)
+    EMR = EM RR
+    EMR∙ = EM∙ RR
+    * = snd B
+    P* = snd (P *)
+
+  E = Σ[ x ∈ fst B ] (P x .fst)
+
+  E∙ : Pointed _
+  fst E∙ = E
+  snd E∙ = * , P*
+
+  πE : E → fst B
+  πE = fst
+  open import Cubical.HITs.Pushout
+
+  EP : Type _
+  EP = Pushout (λ _ → tt) πE
+
+  EP∙ : Pointed _
+  fst EP∙ = EP
+  snd EP∙ = inr (pt B)
+
+  Q : fst B → Pointed ℓ'
+  Q b = Susp (P b .fst) , north
+
+  F = Σ[ x ∈ fst B ] (Q x .fst)
+
+  B→F : fst B → F
+  B→F b = b , north  
+
+  FP : Type _
+  FP = Pushout (λ _ → tt) B→F
+
+  FP∙ : Pointed _
+  fst FP∙ = FP
+  snd FP∙ = inr (pt B , north)
+
+  EP→FP : EP → FP
+  EP→FP (inl x) = inl x
+  EP→FP (inr x) = inr (x , south)
+  EP→FP (push (e , p) i) = (push e ∙ λ j → inr (e , merid p j)) i
+
+  FP→EP : FP → EP
+  FP→EP (inl x) = inl x
+  FP→EP (inr (x , north)) = inl tt
+  FP→EP (inr (x , south)) = inr x
+  FP→EP (inr (x , merid a i)) = push (x , a) i
+  FP→EP (push a i) = inl tt
+
+  Iso-EP-FP : Iso EP FP
+  Iso.fun Iso-EP-FP = EP→FP
+  Iso.inv Iso-EP-FP = FP→EP
+  Iso.rightInv Iso-EP-FP (inl x) = refl
+  Iso.rightInv Iso-EP-FP (inr (x , north)) = push x
+  Iso.rightInv Iso-EP-FP (inr (x , south)) = refl
+  Iso.rightInv Iso-EP-FP (inr (x , merid a i)) j =
+    compPath-filler' (push x) (λ j₁ → inr (x , merid a j₁)) (~ j) i
+
+  Iso.rightInv Iso-EP-FP (push a i) j = push a (i ∧ j)
+  Iso.leftInv Iso-EP-FP (inl x) = refl
+  Iso.leftInv Iso-EP-FP (inr x) = refl -- push (x , P x .snd)
+  Iso.leftInv Iso-EP-FP (push (b , p) i) j =
+    (cong-∙ FP→EP (push b) (λ j → inr (b , merid p j)) ∙ sym (lUnit (push (b , p)))) j i
+
+  EP∙≃FP∙ : EP∙ ≃∙ FP∙
+  fst EP∙≃FP∙ = isoToEquiv Iso-EP-FP
+  snd EP∙≃FP∙ i = inr (pt B , merid (P (pt B) .snd) (~ i))
+
+  mapIso : ∀ {ℓ} {A : Pointed ℓ}
+    → (isHomogeneous A)
+    → Iso ((FP , inr ((pt B) , north)) →∙ A)
+           ((b : fst B) → Q b →∙ A)
+  fst (Iso.fun (mapIso isHom) r b) y = fst r (inr (b , y))
+  snd (Iso.fun (mapIso isHom) r b) = cong (fst r) (sym (push b) ∙ push (snd B)) ∙ snd r
+  fst (Iso.inv (mapIso {A = A} isHom) r) (inl x) = pt A
+  fst (Iso.inv (mapIso isHom) r) (inr (b , p)) = r b .fst p
+  fst (Iso.inv (mapIso isHom) r) (push a i) = r a .snd (~ i)
+  snd (Iso.inv (mapIso isHom) r) = r (pt B) .snd
+  Iso.rightInv (mapIso isHom) r = funExt λ b → →∙Homogeneous≡ isHom refl
+  Iso.leftInv (mapIso isHom) r =
+    →∙Homogeneous≡ isHom
+      (funExt λ { (inl x) → sym (snd r) ∙ cong (fst r) (sym (push (pt B)))
+                ; (inr x) → refl
+                ; (push a i) j → h a i j})
+    where
+    h : (a : fst B)
+      → Square (sym (snd r) ∙ cong (fst r) (sym (push (pt B))))
+               refl
+               (sym (cong (fst r) (sym (push a) ∙ push (pt B)) ∙ snd r))
+               (cong (r .fst) (push a))
+    h a = flipSquare
+      ((symDistr (cong (fst r) (sym (push a) ∙ push (pt B)))
+                       (snd r)
+        ∙∙ cong (sym (snd r) ∙_)
+            (cong (cong (fst r)) (symDistr (sym (push a)) (push (pt B)))
+            ∙ cong-∙ (fst r) (sym (push (pt B))) (push a))
+        ∙∙ assoc (sym (snd r))
+                 (cong (fst r) (sym (push (pt B))))
+                 (cong (fst r) (push a)))
+      ◁ flipSquare
+         λ i j → compPath-filler' (sym (snd r)
+                         ∙ cong (fst r) (sym (push (pt B))))
+                         (cong (fst r) (push a)) (~ j) i)
+
+  ι : (k : ℕ) → Iso ((b : fst B) → Q b →∙ EMR∙ k) (EP∙ →∙ EMR∙ k)
+  ι k =
+    compIso (invIso (mapIso (isHomogeneousEM _)))
+      (post∘∙equiv (invEquiv∙ EP∙≃FP∙))
+
+  ι⁻-pres+ : (k : ℕ) (f g : EP∙ →∙ EMR∙ k)
+    → Iso.inv (ι k) (f +ₖ∙ g) ≡ λ b → (Iso.inv (ι k) f b) +ₖ∙ (Iso.inv (ι k) g b)
+  ι⁻-pres+ k f g = funExt λ b
+    → →∙Homogeneous≡
+      (isHomogeneousEM k)
+      (funExt λ { north → refl
+                ; south → refl
+                ; (merid a i) → refl})
+
+  ι-pres+ : (k : ℕ) (f g : (b : fst B) → Q b →∙ EMR∙ k)
+    → Iso.fun (ι k) (λ b → f b +ₖ∙ g b)
+     ≡ Iso.fun (ι k) f +ₖ∙ Iso.fun (ι k) g
+  ι-pres+ k = morphLemmas.isMorphInv _+ₖ∙_ (λ f g b → f b +ₖ∙ g b)
+              (Iso.inv (ι k)) (ι⁻-pres+ k)
+              (Iso.fun (ι k))
+              (Iso.leftInv (ι k)) (Iso.rightInv (ι k))
+
+  module _  (n : ℕ) (e : P (pt B) ≃∙ S₊∙ n) where
+    Q≃ : Q (pt B) ≃∙ S₊∙ (suc n)
+    Q≃ = compEquiv∙
+          (isoToEquiv
+           (congSuspIso
+            (equivToIso (fst e))) , refl)
+            (isoToEquiv (invIso (IsoSucSphereSusp n))
+              , IsoSucSphereSusp∙ n)
+
+    module con (c : (b : fst B) → Q b →∙ EM∙ (CommRing→AbGroup R) (suc n))
+           (r : c (pt B) ≡ (gen-HⁿSⁿ (CommRing→Ring R) (suc n) ∘∙ ≃∙map Q≃))
+           where
+      module M = pre-Thom' B Q conB R (suc n) Q≃ c r
+
+      ϕ-equiv : (i : ℕ) → coHom i RR (fst B) ≃ coHomRed (i +' suc n) RR EP∙
+      ϕ-equiv i = isoToEquiv (setTruncIso (compIso (M.pre-ϕIso i) (ι (i +' (suc n)))))
+
+      ϕ : (i : ℕ) → coHom i RR (fst B) → coHomRed (i +' suc n) RR EP∙
+      ϕ i = ϕ-equiv i .fst
+
+      isHomϕ : (i : ℕ) → (x y : coHom i RR (fst B)) → ϕ i (x +ₕ y) ≡ ϕ i x +ₕ∙ ϕ i y
+      isHomϕ i =
+        ST.elim2 (λ _ _ → isSetPathImplicit)
+          λ f g → cong ∣_∣₂ (cong (Iso.fun (ι (i +' suc n)))
+                             (M.pre-ϕ-pres+ i f g)
+                          ∙ ι-pres+ (i +' suc n)
+                             (λ b → M.g i b (f b)) (λ b → M.g i b (g b))
+                          ∙ →∙Homogeneous≡ (isHomogeneousEM (i +' suc n)) refl)
+
+      ϕHom : (i : ℕ) → AbGroupHom (coHomGr i RR (fst B)) (coHomRedGr (i +' suc n) RR EP∙)
+      fst (ϕHom i) = ϕ i
+      snd (ϕHom i) = makeIsGroupHom (isHomϕ i)
+
+      ϕGrEquiv : (i : ℕ) → AbGroupEquiv (coHomGr i RR (fst B)) (coHomRedGr (i +' suc n) RR EP∙)
+      fst (ϕGrEquiv i) = ϕ-equiv i
+      snd (ϕGrEquiv i) = ϕHom i .snd
+
+  j* : (i : ℕ) → AbGroupHom (coHomRedGr i RR EP∙) (coHomGr i RR (fst B)) 
+  fst (j* i) = ST.map λ f b → fst f (inr b)
+  snd (j* i) = makeIsGroupHom
+    (ST.elim2 (λ _ _ → isSetPathImplicit) λ f g → refl)
+
+  p* : (i : ℕ) → AbGroupHom (coHomGr i RR (fst B)) (coHomGr i RR E) 
+  p* i = coHomHom i fst
+
+  pre-E↑ : (i : ℕ) → (E → EM RR i) → EP∙ →∙ EM∙ RR (suc i)
+  fst (pre-E↑ i f) (inl x) = 0ₖ (suc i)
+  fst (pre-E↑ i f) (inr x) = 0ₖ (suc i)
+  fst (pre-E↑ i f) (push a i₁) = EM→ΩEM+1 i (f a) i₁
+  snd (pre-E↑ i f) = refl
+
+  E↑ : (i : ℕ) → AbGroupHom (coHomGr i RR E) (coHomRedGr (suc i) RR EP∙)
+  fst (E↑ i) = ST.map (pre-E↑ i)
+  snd (E↑ i) =
+    makeIsGroupHom
+      (ST.elim2 (λ _ _ → isSetPathImplicit)
+        λ f g → cong ∣_∣₂
+          (→∙Homogeneous≡ (isHomogeneousEM (suc i))
+           (funExt λ { (inl x) → sym (rUnitₖ (suc i) (0ₖ (suc i)))
+                     ; (inr x) → sym (rUnitₖ (suc i) (0ₖ (suc i)))
+                     ; (push a j) → flipSquare (help i (f a) (g a)) j})))
+    where
+    help : (i : ℕ) (x y : EM RR i)
+      → PathP (λ j → rUnitₖ {G = RR} (suc i) (0ₖ (suc i)) (~ j)
+                   ≡ rUnitₖ (suc i) (0ₖ (suc i)) (~ j))
+               (EM→ΩEM+1 {G = RR} i (x +ₖ y))
+               (cong₂ _+ₖ_ (EM→ΩEM+1 i x) (EM→ΩEM+1 i y))
+    help zero x y = EM→ΩEM+1-hom zero x y
+                  ∙ sym (cong₂+₁ (EM→ΩEM+1 zero x) (EM→ΩEM+1 zero y))
+    help (suc n) x y = EM→ΩEM+1-hom (suc n) x y
+                  ∙ sym (cong₂+₂ n (EM→ΩEM+1 (suc n) x)
+                                 (EM→ΩEM+1 (suc n) y))
+
+  Im-j*⊂Ker-p* : (i : ℕ) (x : _)
+    → isInIm (j* i) x
+    → isInKer (p* i) x
+  Im-j*⊂Ker-p* i =
+    ST.elim
+      (λ f → isSetΠ λ _ → isSetPathImplicit)
+      λ f → PT.rec (squash₂ _ _)
+        (uncurry (ST.elim (λ _ → isSetΠ
+          λ _ → isSetPathImplicit)
+          λ g p → PT.rec (squash₂ _ _)
+            (J (λ f _ → isInKer (p* i) ∣ f ∣₂)
+              (cong ∣_∣₂ (funExt (λ a
+              → cong (fst g) (sym (push a) ∙ push (pt B , P (pt B) .snd))
+              ∙ snd g))))
+            (Iso.fun PathIdTrunc₀Iso p)))
+
+  Im-p*⊂Ker-j* : (i : ℕ) (x : _)
+    → isInKer (p* i) x
+    → isInIm (j* i) x
+  Im-p*⊂Ker-j* i =
+    ST.elim (λ _ → isSetΠ λ _ → isProp→isSet squash₁)
+     λ f p → PT.map
+       (λ p → ∣ (λ { (inl x) → 0ₖ i
+                   ; (inr x) → f x
+                   ; (push a i) → p (~ i) a})
+             , funExt⁻ p (pt B , snd (P (pt B))) ∣₂
+             , refl)
+       (Iso.fun PathIdTrunc₀Iso p)
+
+  Im-p*⊂Ker-E↑ : (i : ℕ) (x : _)
+    → isInIm (p* i) x
+    → isInKer (E↑ i) x
+  Im-p*⊂Ker-E↑ i = ST.elim
+      (λ f → isSetΠ λ _ → isSetPathImplicit)
+      λ f → PT.rec (squash₂ _ _)
+         (uncurry (ST.elim (λ _ → isSetΠ
+          λ _ → isSetPathImplicit)
+          λ g p → PT.rec (squash₂ _ _)
+            (J (λ f _ → isInKer (E↑ i) ∣ f ∣₂)
+              (cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM _)
+                (funExt λ { (inl x) → refl
+                          ; (inr x) → sym (EM→ΩEM+1 i (g x))
+                          ; (push a j) k → EM→ΩEM+1 i (g (fst a)) (j ∧ ~ k)}))))
+            (Iso.fun PathIdTrunc₀Iso p)))
+
+  Ker-E↑⊂Im-p* : (i : ℕ) (x : _)
+    → isInKer (E↑ i) x
+    → isInIm (p* i) x
+  Ker-E↑⊂Im-p* i =
+    ST.elim (λ _ → isSetΠ λ _ → isProp→isSet squash₁)
+      λ f p → PT.map
+       (λ p → ∣ (λ b → f (b , P b .snd)) ∣₂
+            , cong ∣_∣₂ (funExt λ a →
+                       (help f (funExt⁻ (cong fst p))
+                          (fst a , P (fst a) .snd)
+                         (cong (funExt⁻ (cong fst p))
+                           (push (fst a , P (fst a) .snd))))
+                      ∙ sym (help f (funExt⁻ (cong fst p)) a
+                      (cong (funExt⁻ (cong fst p)) (push a)))))
+       (Iso.fun PathIdTrunc₀Iso p)
+     where
+     help : (f : E → EM RR i) (p : (a : _) → pre-E↑ i f .fst a ≡ 0ₖ (suc i))
+       → (a : E) → PathP (λ i₁ → EM→ΩEM+1 i (f a) i₁ ≡ 0ₖ (suc i))
+                      (p (inl tt))
+                      (p (inr (fst a)))
+       → f a ≡ (ΩEM+1→EM i  (p (inl tt))) -ₖ ΩEM+1→EM i (p (inr (fst a)))
+     help f p a pp  =
+         (sym (rUnitₖ i (f a))
+        ∙ cong (f a +ₖ_)
+            (sym (rCancelₖ i (ΩEM+1→EM i (p (inr (fst a)))))))
+         ∙ assocₖ i (f a)
+             (ΩEM+1→EM i (p (inr (fst a))))
+             (-ₖ (ΩEM+1→EM i (p (inr (fst a)))))
+         ∙ cong (λ x → x -ₖ ΩEM+1→EM i (p (inr (fst a))))
+           ((cong (_+ₖ ΩEM+1→EM i (p (inr (fst a))))
+            (sym (Iso.leftInv (Iso-EM-ΩEM+1 i) (f a))))
+         ∙ sym (ΩEM+1→EM-hom i (EM→ΩEM+1 i (f a)) (p (inr (fst a))))
+       ∙ cong (ΩEM+1→EM i)
+         (cong (EM→ΩEM+1 i (f a) ∙_) (rUnit (p (inr (fst a))))
+         ∙ sym (PathP→compPathR pp)))
+
+  Im-E↑⊂Ker-j* : (i : ℕ) (x : _)
+    → isInIm (E↑ i) x
+    → isInKer (j* (suc i)) x
+  Im-E↑⊂Ker-j* i = ST.elim
+      (λ f → isSetΠ λ _ → isSetPathImplicit)
+      λ f → PT.rec (squash₂ _ _)
+         (uncurry (ST.elim (λ _ → isSetΠ
+          λ _ → isSetPathImplicit)
+          λ g p → PT.rec (squash₂ _ _)
+            (J (λ f _ → isInKer (j* (suc i)) ∣ f ∣₂) refl)
+            (Iso.fun PathIdTrunc₀Iso p)))
+
+  Ker-j*⊂Im-E↑ : (i : ℕ) (x : _)
+    → isInKer (j* (suc i)) x
+    → isInIm (E↑ i) x
+  Ker-j*⊂Im-E↑ i =
+    ST.elim (λ _ → isSetΠ λ _ → isProp→isSet squash₁)
+      λ f p → PT.map
+       (λ p → ∣ (λ b → ΩEM+1→EM i (pth b f (funExt⁻ p))) ∣₂
+            , cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM _)
+              (funExt λ { (inl x) → sym (snd f)
+                                   ∙ cong (fst f) (sym (push (* , P*)))
+                        ; (inr x) → sym (funExt⁻ p x)
+                        ; (push a j) → main a f (funExt⁻ p) j})))
+       (Iso.fun PathIdTrunc₀Iso p)
+    where
+    pth : (a : E) (f : EP∙ →∙ EM∙ RR (suc i))
+       (p : (b : fst B) → fst f (inr b) ≡ 0ₖ (suc i))
+     → fst (Ω (EMR∙ (suc i)))
+    pth a f p = sym (snd f) ∙ cong (fst f) (sym (push (* , P*)))
+             ∙∙ cong (fst f) (push a)
+             ∙∙ p (fst a)
+
+    main : (a : E) (f : EP∙ →∙ EM∙ RR (suc i))
+       (p : (b : fst B) → fst f (inr b) ≡ 0ₖ (suc i))
+       →  PathP (λ j → EM→ΩEM+1 i (ΩEM+1→EM i (pth a f p)) j
+                 ≡ f .fst (push a j))
+            (sym (snd f) ∙ cong (fst f) (sym (push (* , P*))))
+            (sym (p (fst a)))
+    main a f p =
+      flipSquare (Iso.rightInv (Iso-EM-ΩEM+1 i) (pth a f p)
+               ◁ λ j i → doubleCompPath-filler
+                    (sym (snd f) ∙ cong (fst f) (sym (push (* , P*))))
+                    (cong (fst f) (push a))
+                    (p (fst a)) (~ j) i)
+
+module Gysin (B : Pointed ℓ)
+         (P : fst B → Pointed ℓ')
+         (conB : isConnected 3 (fst B))
+         (R : CommRing ℓ'')
+         
+         where
+  private
+    RR = (CommRing→AbGroup R)
+    EMR = EM RR
+    EMR∙ = EM∙ RR
+    * = snd B
+    P* = snd (P *)
+  module M = Spaces B P (isConnectedSubtr 2 1 conB) R
+  open M
+
+  module N = Thom B Q conB R
+  open N renaming (c to c')
+  
+  module _ (n : ℕ)
+         (eq : P (pt B) ≃∙ S₊∙ n) where
+    module L = con n eq (c' (suc n) (Q≃ n eq)) (c-id (suc n) (Q≃ n eq))
+    open L
+    c = c' (suc n) (Q≃ n eq)
+    e : coHom (suc n) RR (fst B)
+
+    e = ∣ (λ b → c b .fst south) ∣₂
+
+    minusPath : (i : ℕ) → (suc n ≤ i) → (i ∸ suc n) +' suc n ≡ i
+    minusPath = {!!}
+
+    ⌣-hom : (i : ℕ) → (suc n ≤ i)
+      → AbGroupHom (coHomGr (i ∸ suc n) RR (fst B))
+                    (coHomGr i RR (fst B))
+    fst (⌣-hom i t) f =
+      subst (λ i → coHom i RR (fst B)) (minusPath i t) (f ⌣ e)
+    snd (⌣-hom i t) =
+      makeIsGroupHom
+          (λ f g → cong (subst (λ i₁ → coHom i₁ RR (fst B)) (minusPath i t))
+                      (distrR⌣ (i ∸ suc n) (suc n) f g e)
+                  ∙ IsGroupHom.pres· (snd (substℕ-coHom (minusPath i t)))
+                      (f ⌣ e) (g ⌣ e))
+
+    alt-hom : (i : ℕ) → (suc n ≤ i)
+      → AbGroupHom (coHomGr (i ∸ suc n) RR (fst B))
+                    (coHomGr i RR (fst B)) 
+    alt-hom i t =
+      compGroupHom (ϕHom (i ∸ suc n))
+        (compGroupHom (j* _)
+        (GroupEquiv→GroupHom (substℕ-coHom (minusPath i t))))
+
+    ⌣≡alt : (i : ℕ) (t : suc n ≤ i)
+      → ⌣-hom i t ≡ alt-hom i t
+    ⌣≡alt i t = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+      (funExt (ST.elim (λ _ → isSetPathImplicit) λ _ → refl))
+
+    private
+      helpIso : (i : ℕ) → suc n ≤ suc i
+        → AbGroupEquiv (coHomRedGr (suc i) RR EP∙)
+            (coHomGr (suc i ∸ suc n) RR (fst B))
+      helpIso i t = 
+        compGroupEquiv (substℕ-coHomRed (sym (minusPath (suc i) t)))
+            (invGroupEquiv (ϕGrEquiv (suc i ∸ suc n)))
+
+    mapₗ : (i : ℕ) → suc n ≤ suc i
+        → AbGroupHom (coHomGr i RR E)
+                      (coHomGr (suc i ∸ suc n) RR (fst B))
+    mapₗ i t =
+      compGroupHom (E↑ i)
+         (GroupEquiv→GroupHom
+           (helpIso i t))
+
+    mapᵣ : (i : ℕ)
+        → AbGroupHom (coHomGr i RR (fst B))
+                      (coHomGr i RR E)
+    mapᵣ i = p* i
+
+
+    Im-mapᵣ⊂Ker-mapₗ : (i : ℕ) (t : suc n ≤ suc i) (x : coHom i RR E)
+      → isInIm (mapᵣ i) x
+      → isInKer (mapₗ i t) x
+    Im-mapᵣ⊂Ker-mapₗ i t x s =
+        cong (invEq (fst (ϕGrEquiv (suc i ∸ suc n))))
+          (cong (subst (λ i → coHomRed i RR EP∙) (sym (minusPath (suc i) t)))
+            (M.Im-p*⊂Ker-E↑ i x s))
+      ∙ IsGroupHom.pres1 (helpIso i t .snd)
+
+    Ker-mapₗ⊂Im-mapᵣ : (i : ℕ) (t : suc n ≤ suc i) (x : coHom i RR E)
+      → isInKer (mapₗ i t) x
+      → isInIm (mapᵣ i) x
+    Ker-mapₗ⊂Im-mapᵣ i t x p =
+      Ker-E↑⊂Im-p* i x
+        (sym (retEq (fst (helpIso i t)) (E↑ i .fst x))
+        ∙ cong (invEq (fst (helpIso i t))) p
+        ∙ IsGroupHom.pres1 (invGroupEquiv (helpIso i t) .snd))
+
+    Ker-⌣⊂Im-mapₗ : (i : ℕ) (t : suc n ≤  suc i)
+      (x : coHom (suc i ∸ suc n) RR (fst B))
+      → isInKer (⌣-hom (suc i) t) x
+      → isInIm (mapₗ i t) x
+    Ker-⌣⊂Im-mapₗ i t x s =
+      →Im (Ker-j*⊂Im-E↑ i _ {!!})
+      where
+      →Im : isInIm (E↑ i) (invEq (fst (helpIso i t)) x) → isInIm (mapₗ i t) x
+      →Im = PT.map (uncurry λ f p → f , cong (fst (fst (helpIso i t))) p
+                                        ∙ secEq (fst (helpIso i t)) _)
+ -- (subst (λ p → isInKer p x) (⌣≡alt (suc i) t) s)
