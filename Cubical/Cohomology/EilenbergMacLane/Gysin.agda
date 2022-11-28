@@ -78,6 +78,8 @@ open import Cubical.HITs.S1
 
 open import Cubical.HITs.Truncation as TR
 
+
+-- move to cohom eilenerg base
 _+ₖ∙_ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {G : AbGroup ℓ'} {n : ℕ}
   → (A →∙ EM∙ G n) → (A →∙ EM∙ G n)
   → A →∙ EM∙ G n
@@ -88,12 +90,14 @@ snd (_+ₖ∙_ {A = A} {n = n} f g) = s
     s : fst f (pt A) +ₖ fst g (pt A) ≡ 0ₖ n
     s = cong₂ _+ₖ_ (snd f) (snd g) ∙ rUnitₖ _ (0ₖ _)
 
+-- same
 _+ₖ∙'_ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {G : AbGroup ℓ'} {n : ℕ}
   → (A →∙ EM∙ G n) → (A →∙ EM∙ G n)
   → A →∙ EM∙ G n
 fst (f +ₖ∙' g) = λ x → fst f x +ₖ fst g x
 snd (f +ₖ∙' g) = cong₂ _+ₖ_ (snd f) (snd g) ∙ rUnitₖ _ (0ₖ _)
 
+-- mvoe to eilenberg properties
 EM→ΩEM+1-gen : ∀ {ℓ} {G : AbGroup ℓ} (n : ℕ) (x : EM G (suc n))
   → EM G n → x ≡ x
 EM→ΩEM+1-gen n x p =
@@ -160,21 +164,21 @@ Iso.leftInv (Iso-EM-ΩEM+1-gen n x) = EM→ΩEM+1→EM-gen n x
   lem zero = ΩEM+1→EM-refl 0
   lem (suc n) = ΩEM+1→EM-refl (suc n)
 
-
-hLev-map : (G : AbGroup ℓ) (n : ℕ) → isSet (S₊∙ n →∙ EM∙ G n)
-hLev-map G n =
-  subst isSet (sym (help n)
-            ∙ isoToPath (invIso (IsoSphereMapΩ n)))
-    (AbGroupStr.is-set (snd G))
-  where
-  help : (n : ℕ) → fst ((Ω^ n) (EM∙ G n)) ≡ fst G
-  help zero = refl
-  help (suc n) =
-      cong fst (flipΩPath n)
-    ∙ cong (fst ∘ (Ω^ n))
-       (ua∙ (isoToEquiv (invIso (Iso-EM-ΩEM+1 n)))
-            (ΩEM+1→EM-refl n))
-    ∙ help n
+private
+  hLev-map : (G : AbGroup ℓ) (n : ℕ) → isSet (S₊∙ n →∙ EM∙ G n)
+  hLev-map G n =
+    subst isSet (sym (help n)
+              ∙ isoToPath (invIso (IsoSphereMapΩ n)))
+      (AbGroupStr.is-set (snd G))
+    where
+    help : (n : ℕ) → fst ((Ω^ n) (EM∙ G n)) ≡ fst G
+    help zero = refl
+    help (suc n) =
+        cong fst (flipΩPath n)
+      ∙ cong (fst ∘ (Ω^ n))
+         (ua∙ (isoToEquiv (invIso (Iso-EM-ΩEM+1 n)))
+              (ΩEM+1→EM-refl n))
+      ∙ help n
 
 
 
@@ -234,11 +238,14 @@ gen-HⁿSⁿ↦1 R (suc zero) = transportRefl _
 gen-HⁿSⁿ↦1 R (suc (suc n)) =
     cong (fst (Hⁿ[Sⁿ,G]≅G (Ring→AbGroup R) n) .fst)
       (cong ∣_∣₂ (funExt λ x
-        → (cong (ΩEM+1→EM (suc n)) (cong-∙ (fst (gen-HⁿSⁿ R (suc (suc n)))) (merid x) (sym (merid (ptSn (suc n)))))
+        → (cong (ΩEM+1→EM (suc n))
+             (cong-∙ (fst (gen-HⁿSⁿ R (suc (suc n))))
+               (merid x) (sym (merid (ptSn (suc n)))))
         ∙ ΩEM+1→EM-hom (suc n) _ _)
         ∙ cong₂ _+ₖ_ (Iso.leftInv (Iso-EM-ΩEM+1 (suc n))
                         (gen-HⁿSⁿ R (suc n) .fst x))
-                     (((λ i → ΩEM+1→EM-sym (suc n) (EM→ΩEM+1 (suc n) (snd (gen-HⁿSⁿ R (suc n)) i)) i)
+                     (((λ i → ΩEM+1→EM-sym (suc n)
+                       (EM→ΩEM+1 (suc n) (snd (gen-HⁿSⁿ R (suc n)) i)) i)
                      ∙ cong -ₖ_ (Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) (0ₖ (suc n)))
                      ∙ -0ₖ (suc n)))
         ∙ rUnitₖ (suc n) _))
@@ -931,10 +938,10 @@ module Spaces (B : Pointed ℓ)
               ∙ snd g))))
             (Iso.fun PathIdTrunc₀Iso p)))
 
-  Im-p*⊂Ker-j* : (i : ℕ) (x : _)
+  Ker-p*⊂Im-j* : (i : ℕ) (x : _)
     → isInKer (p* i) x
     → isInIm (j* i) x
-  Im-p*⊂Ker-j* i =
+  Ker-p*⊂Im-j* i =
     ST.elim (λ _ → isSetΠ λ _ → isProp→isSet squash₁)
      λ f p → PT.map
        (λ p → ∣ (λ { (inl x) → 0ₖ i
@@ -1052,8 +1059,6 @@ module Gysin (B : Pointed ℓ)
     RR = (CommRing→AbGroup R)
     EMR = EM RR
     EMR∙ = EM∙ RR
-    * = snd B
-    P* = snd (P *)
   module M = Spaces B P (isConnectedSubtr 2 1 conB) R
   open M
 
@@ -1070,7 +1075,7 @@ module Gysin (B : Pointed ℓ)
     e = ∣ (λ b → c b .fst south) ∣₂
 
     minusPath : (i : ℕ) → (suc n ≤ i) → (i ∸ suc n) +' suc n ≡ i
-    minusPath = {!!}
+    minusPath i p = +'≡+ (i ∸ suc n) (suc n) ∙ ≤-∸-+-cancel p
 
     ⌣-hom : (i : ℕ) → (suc n ≤ i)
       → AbGroupHom (coHomGr (i ∸ suc n) RR (fst B))
@@ -1083,6 +1088,15 @@ module Gysin (B : Pointed ℓ)
                       (distrR⌣ (i ∸ suc n) (suc n) f g e)
                   ∙ IsGroupHom.pres· (snd (substℕ-coHom (minusPath i t)))
                       (f ⌣ e) (g ⌣ e))
+
+    private
+      helpIso : (i : ℕ) → suc n ≤ i
+        → AbGroupEquiv (coHomRedGr i RR EP∙)
+            (coHomGr (i ∸ suc n) RR (fst B))
+      helpIso i t = 
+        compGroupEquiv (substℕ-coHomRed (sym (minusPath i t)))
+            (invGroupEquiv (ϕGrEquiv (i ∸ suc n)))
+
 
     alt-hom : (i : ℕ) → (suc n ≤ i)
       → AbGroupHom (coHomGr (i ∸ suc n) RR (fst B))
@@ -1097,13 +1111,6 @@ module Gysin (B : Pointed ℓ)
     ⌣≡alt i t = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
       (funExt (ST.elim (λ _ → isSetPathImplicit) λ _ → refl))
 
-    private
-      helpIso : (i : ℕ) → suc n ≤ suc i
-        → AbGroupEquiv (coHomRedGr (suc i) RR EP∙)
-            (coHomGr (suc i ∸ suc n) RR (fst B))
-      helpIso i t = 
-        compGroupEquiv (substℕ-coHomRed (sym (minusPath (suc i) t)))
-            (invGroupEquiv (ϕGrEquiv (suc i ∸ suc n)))
 
     mapₗ : (i : ℕ) → suc n ≤ suc i
         → AbGroupHom (coHomGr i RR E)
@@ -1111,7 +1118,7 @@ module Gysin (B : Pointed ℓ)
     mapₗ i t =
       compGroupHom (E↑ i)
          (GroupEquiv→GroupHom
-           (helpIso i t))
+           (helpIso (suc i) t))
 
     mapᵣ : (i : ℕ)
         → AbGroupHom (coHomGr i RR (fst B))
@@ -1126,25 +1133,88 @@ module Gysin (B : Pointed ℓ)
         cong (invEq (fst (ϕGrEquiv (suc i ∸ suc n))))
           (cong (subst (λ i → coHomRed i RR EP∙) (sym (minusPath (suc i) t)))
             (M.Im-p*⊂Ker-E↑ i x s))
-      ∙ IsGroupHom.pres1 (helpIso i t .snd)
+      ∙ IsGroupHom.pres1 (helpIso (suc i) t .snd)
 
     Ker-mapₗ⊂Im-mapᵣ : (i : ℕ) (t : suc n ≤ suc i) (x : coHom i RR E)
       → isInKer (mapₗ i t) x
       → isInIm (mapᵣ i) x
     Ker-mapₗ⊂Im-mapᵣ i t x p =
       Ker-E↑⊂Im-p* i x
-        (sym (retEq (fst (helpIso i t)) (E↑ i .fst x))
-        ∙ cong (invEq (fst (helpIso i t))) p
-        ∙ IsGroupHom.pres1 (invGroupEquiv (helpIso i t) .snd))
+        (sym (retEq (fst (helpIso (suc i) t)) (E↑ i .fst x))
+        ∙ cong (invEq (fst (helpIso (suc i) t))) p
+        ∙ IsGroupHom.pres1 (invGroupEquiv (helpIso (suc i) t) .snd))
+
+    private
+      j*≡ : (i : ℕ) (t : suc n ≤  i)
+         → (x : _) → j* i .fst x
+                     ≡ fst (alt-hom i t)
+                        (fst (helpIso i t) .fst x)
+      j*≡ i t f = cong (j* i .fst)
+               (sym (substSubst⁻ (λ i → coHomRed i RR EP∙) (minusPath i t) f))
+            ∙  sym (substCommSlice (λ i → coHomRed i RR EP∙)
+                 (λ i → coHom i RR (fst B)) (λ i → j* i .fst) (minusPath i t)
+                 (subst (λ i → coHomRed i RR EP∙) (sym (minusPath i t)) f))
+            ∙ cong (subst (λ i → coHom i RR (fst B)) (minusPath i t))
+                (cong (j* ((i ∸ suc n) +' (suc n)) .fst)
+                  (sym (secEq (ϕGrEquiv (i ∸ suc n) .fst)
+                    (subst (λ i → coHomRed i RR EP∙) (sym (minusPath i t))
+                      f))))
 
     Ker-⌣⊂Im-mapₗ : (i : ℕ) (t : suc n ≤  suc i)
       (x : coHom (suc i ∸ suc n) RR (fst B))
       → isInKer (⌣-hom (suc i) t) x
       → isInIm (mapₗ i t) x
     Ker-⌣⊂Im-mapₗ i t x s =
-      →Im (Ker-j*⊂Im-E↑ i _ {!!})
+      →Im (Ker-j*⊂Im-E↑ i _
+          ((j*≡ (suc i) t _
+          ∙ cong (fst (alt-hom (suc i) t))
+            (secEq (fst (helpIso (suc i) t)) x))
+        ∙ funExt⁻ (cong fst (sym (⌣≡alt (suc i) t))) x ∙ s))
       where
-      →Im : isInIm (E↑ i) (invEq (fst (helpIso i t)) x) → isInIm (mapₗ i t) x
-      →Im = PT.map (uncurry λ f p → f , cong (fst (fst (helpIso i t))) p
-                                        ∙ secEq (fst (helpIso i t)) _)
- -- (subst (λ p → isInKer p x) (⌣≡alt (suc i) t) s)
+      →Im : isInIm (E↑ i) (invEq (fst (helpIso (suc i) t)) x) → isInIm (mapₗ i t) x
+      →Im = PT.map (uncurry λ f p → f , cong (fst (fst (helpIso (suc i) t))) p
+                                        ∙ secEq (fst (helpIso (suc i) t)) _)
+
+
+    Im-mapₗ⊂Ker-⌣ : (i : ℕ) (t : suc n ≤  suc i)
+        (x : coHom (suc i ∸ suc n) RR (fst B))
+        → isInIm (mapₗ i t) x
+        → isInKer (⌣-hom (suc i) t) x
+    Im-mapₗ⊂Ker-⌣ i t x p =
+        (((λ j → ⌣≡alt (suc i) t j .fst x)
+      ∙ cong (fst (alt-hom (suc i) t)) (sym (secEq (fst (helpIso (suc i) t)) x)))
+      ∙ sym (j*≡ (suc i) t (invEq (helpIso (suc i) t .fst) x)))
+      ∙ Im-E↑⊂Ker-j* i _ (Im-transf x p)
+      where
+      Im-transf : (x : _) → isInIm (mapₗ i t) x
+        → isInIm (E↑ i) (invEq (helpIso (suc i) t .fst) x)
+      Im-transf f = PT.map (uncurry λ g p → g
+        , sym (retEq (helpIso (suc i) t .fst) (E↑ i .fst g))
+        ∙ cong (invEq (helpIso (suc i) t .fst)) p)
+
+    Im--⌣⊂Ker-mapᵣ : (i : ℕ) (t : suc n ≤ i) (x : coHom i RR (fst B))
+      → isInIm (⌣-hom i t) x
+      → isInKer (mapᵣ i) x
+    Im--⌣⊂Ker-mapᵣ i t x p =
+      Im-j*⊂Ker-p* i x
+        (PT.map
+          (uncurry (λ f p → invEq (helpIso i t .fst) f
+          , ((j*≡ i t (invEq (helpIso i t .fst) f)
+          ∙ cong (alt-hom i t .fst)
+             (secEq (fst (helpIso i t)) f))
+          ∙ ((λ j → ⌣≡alt i t (~ j) .fst f)))
+           ∙ refl
+          ∙ p)) p)
+
+
+    Ker-mapᵣ⊂Im--⌣ : (i : ℕ) (t : suc n ≤ i) (x : coHom i RR (fst B))
+      → isInKer (mapᵣ i) x
+      → isInIm (⌣-hom i t) x
+    Ker-mapᵣ⊂Im--⌣ i t x p =
+      subst (λ f → isInIm f x) (sym (⌣≡alt i t))
+        (→Im x (Ker-p*⊂Im-j* i x p))
+      where
+      →Im : (x : _) → isInIm (j* i) x → isInIm (alt-hom i t) x
+      →Im x = PT.map (uncurry λ f p → (fst (helpIso i t .fst) f)
+        , sym (j*≡ i t f)
+         ∙ p)

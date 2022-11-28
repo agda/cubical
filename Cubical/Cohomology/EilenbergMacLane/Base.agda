@@ -314,7 +314,7 @@ substℕ-coHom : {A : Type ℓ} {G : AbGroup ℓ'} {n m : ℕ}
   → (p : n ≡ m)
   → AbGroupEquiv (coHomGr n G A) (coHomGr m G A)
 fst (substℕ-coHom {A = A} {G = G} p) =
-  substEquiv (λ i → coHom i G A) p
+  substEquiv' (λ i → coHom i G A) p
 snd (substℕ-coHom {A = A} {G = G} p) =
   makeIsGroupHom
     λ x y →
@@ -328,7 +328,7 @@ substℕ-coHomRed : {A : Pointed ℓ} {G : AbGroup ℓ'} {n m : ℕ}
   → (p : n ≡ m)
   → AbGroupEquiv (coHomRedGr n G A) (coHomRedGr m G A)
 fst (substℕ-coHomRed {A = A} {G = G} p) =
-  substEquiv (λ i → coHomRed i G A) p
+  substEquiv' (λ i → coHomRed i G A) p
 snd (substℕ-coHomRed {A = A} {G = G} p) =
   makeIsGroupHom
     λ x y →
