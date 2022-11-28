@@ -441,6 +441,79 @@ module _ {G : AbGroup ℓ} where
   EM→ΩEM+1∘EM-raw→EM zero x = refl
   EM→ΩEM+1∘EM-raw→EM (suc n) x = refl
 
+  EM→ΩEM+1-gen : (n : ℕ) (x : EM G (suc n))
+    → EM G n → x ≡ x
+  EM→ΩEM+1-gen n x p =
+       sym (rUnitₖ (suc n) x)
+    ∙∙ cong (x +ₖ_) (EM→ΩEM+1 n p)
+    ∙∙ rUnitₖ (suc n) x
+
+  ΩEM+1-gen→EM-0ₖ : (n : ℕ) (x : _)
+    → ΩEM+1→EM-gen n (0ₖ (suc n)) x
+    ≡ ΩEM+1→EM n x
+  ΩEM+1-gen→EM-0ₖ zero p = refl
+  ΩEM+1-gen→EM-0ₖ (suc n) p = refl
+
+  EM→ΩEM+1-gen-0ₖ : (n : ℕ) (x : _)
+    → EM→ΩEM+1-gen n (0ₖ (suc n)) x
+    ≡ EM→ΩEM+1 n x
+  EM→ΩEM+1-gen-0ₖ zero x = sym (rUnit _)
+    ∙ λ j i → lUnitₖ 1 (EM→ΩEM+1 zero x i) j
+  EM→ΩEM+1-gen-0ₖ (suc n) x = sym (rUnit _)
+    ∙ λ j i → lUnitₖ (suc (suc n)) (EM→ΩEM+1 (suc n) x i) j
+
+  EM→ΩEM+1→EM-gen : (n : ℕ) (x : EM G (suc n))
+    → (y : EM G n) → ΩEM+1→EM-gen n x (EM→ΩEM+1-gen n x y) ≡ y
+  EM→ΩEM+1→EM-gen n =
+    EM-raw'-elim _ _
+      (λ _ → isOfHLevelΠ (suc (suc n))
+            (λ _ → isOfHLevelPath (suc (suc n))
+            (hLevelEM _ n) _ _))
+     (EM-raw'-trivElim _ n
+       (λ _ → isOfHLevelΠ (suc n) λ _ → hLevelEM _ n _ _)
+       λ y → cong (λ p → ΩEM+1→EM-gen n p
+                     (EM→ΩEM+1-gen n p y))
+              (EM-raw'→EM∙ G (suc n))
+            ∙ (λ i → ΩEM+1-gen→EM-0ₖ n (EM→ΩEM+1-gen-0ₖ n y i) i)
+            ∙ Iso.leftInv (Iso-EM-ΩEM+1 n) y)
+
+  ΩEM+1→EM→ΩEM+1-gen : (n : ℕ) (x : EM G (suc n))
+    → (y : x ≡ x) → EM→ΩEM+1-gen n x (ΩEM+1→EM-gen n x y) ≡ y
+  ΩEM+1→EM→ΩEM+1-gen n =
+    EM-raw'-elim _ _
+      (λ _ → isOfHLevelΠ (suc (suc n))
+              (λ _ → isOfHLevelPath (suc (suc n))
+              (hLevelEM _ (suc n) _ _) _ _))
+     (EM-raw'-trivElim _ n
+       (λ _ → isOfHLevelΠ (suc n)
+         λ _ → hLevelEM _ (suc n) _ _ _ _)
+     (subst (λ p → (y : p ≡ p)
+       → EM→ΩEM+1-gen n p (ΩEM+1→EM-gen n p y) ≡ y)
+       (sym (EM-raw'→EM∙ _ (suc n)))
+       λ p → (λ i → EM→ΩEM+1-gen-0ₖ n (ΩEM+1-gen→EM-0ₖ n p i) i)
+            ∙ Iso.rightInv (Iso-EM-ΩEM+1 n) p))
+
+  Iso-EM-ΩEM+1-gen : (n : ℕ) (x : EM G (suc n))
+    → Iso (EM G n) (x ≡ x)
+  Iso.fun (Iso-EM-ΩEM+1-gen n x) = EM→ΩEM+1-gen n x
+  Iso.inv (Iso-EM-ΩEM+1-gen n x) = ΩEM+1→EM-gen n x
+  Iso.rightInv (Iso-EM-ΩEM+1-gen n x) = ΩEM+1→EM→ΩEM+1-gen n x
+  Iso.leftInv (Iso-EM-ΩEM+1-gen n x) = EM→ΩEM+1→EM-gen n x
+
+  ΩEM+1→EM-gen-refl : (n : ℕ) (x : EM G (suc n))
+    → ΩEM+1→EM-gen n x refl ≡ 0ₖ n
+  ΩEM+1→EM-gen-refl n =
+    EM-raw'-elim _ (suc n)
+      (λ _ → isOfHLevelPath (suc (suc n)) (hLevelEM _ n) _ _)
+      (EM-raw'-trivElim _ n
+        (λ _ → hLevelEM _ n _ _)
+        (lem n))
+    where
+    lem : (n : ℕ) → ΩEM+1→EM-gen n
+      (EM-raw'→EM G (suc n) (snd (EM-raw'∙ G (suc n)))) refl
+      ≡ 0ₖ n
+    lem zero = ΩEM+1→EM-refl 0
+    lem (suc n) = ΩEM+1→EM-refl (suc n)
 
 -- Some HLevel lemmas about function spaces (EM∙ G n →∙ EM∙ H m), mainly used for
 -- the cup product

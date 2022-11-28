@@ -445,3 +445,13 @@ module _ {G : AbGroup ℓ} where
               (λ i j → ∣ rCancel (merid ptEM-raw) i (~ j) ∣ₕ)
        ∙ sym (lUnit _)
        ◁ λ i j → ∣ compPath-filler (merid a) (sym (merid ptEM-raw)) (~ i) j ∣ₕ)
+
+_+ₖ∙_ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {G : AbGroup ℓ'} {n : ℕ}
+  → (A →∙ EM∙ G n) → (A →∙ EM∙ G n)
+  → A →∙ EM∙ G n
+fst (f +ₖ∙ g) x = fst f x +ₖ fst g x
+snd (_+ₖ∙_ {A = A} {n = n} f g) = s
+  where
+  abstract
+    s : fst f (pt A) +ₖ fst g (pt A) ≡ 0ₖ n
+    s = cong₂ _+ₖ_ (snd f) (snd g) ∙ rUnitₖ _ (0ₖ _)
