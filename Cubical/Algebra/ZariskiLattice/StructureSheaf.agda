@@ -111,6 +111,30 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
           → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec ZL n ] (∀ i → α i ∈ₚ BasicOpens) × (⋁ α ≡ [ a ])
   Σhelper (n , α) = ∣ n , (D ∘ α) , (λ i → ∣ α i , refl ∣₁) , ⋁D≡ α ∣₁
 
+ -- important fact that D(f)≤D(g) → isContr (R-Hom R[1/f] R[1/g])
+ module _ where
+   open InvertingElementsBase R'
+
+   contrHoms : (f g : R)
+             → D f ≤ D g
+             → isContr (CommAlgebraHom R[1/ g ]AsCommAlgebra R[1/ f ]AsCommAlgebra)
+   contrHoms f g Df≤Dg = R[1/g]HasAlgUniversalProp R[1/ f ]AsCommAlgebra
+     λ s s∈[gⁿ|n≥0] → subst-∈ₚ (R[1/ f ]AsCommRing ˣ)
+       (sym (·IdR (s /1))) --can't apply the lemma directly as we get mult with 1 somewhere
+         (RadicalLemma.toUnit R' f g f∈√⟨g⟩ s s∈[gⁿ|n≥0])
+    where
+    open AlgLoc R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
+         renaming (S⁻¹RHasAlgUniversalProp to R[1/g]HasAlgUniversalProp)
+    open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f) using (_/1)
+    open RadicalIdeal R'
+
+    private
+     instance
+      _ = snd R[1/ f ]AsCommRing
+
+    f∈√⟨g⟩ : f ∈ √ ⟨ g ⟩ₛ
+    f∈√⟨g⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst zero
+
 
  -- The structure presheaf on BO
  ZariskiCat = DistLatticeCategory ZariskiLattice
@@ -126,31 +150,11 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
   𝓕 (_ , f , _) = R[1/ f ]AsCommAlgebra -- D(f) ↦ R[1/f]
 
   uniqueHom : ∀ (x y : Σ ZL P) → (fst x) ≤ (fst y) → isContr (CommAlgebraHom (𝓕 y) (𝓕 x))
-  uniqueHom (𝔞 , f , p) (𝔟 , g , q) = contrHoms 𝔞 𝔟 f g p q
-   where
-   open InvertingElementsBase R'
-
-   contrHoms : (𝔞 𝔟 : ZL) (f g : R) (p : D f ≡ 𝔞) (q : D g ≡ 𝔟)
-             → 𝔞 ≤ 𝔟 → isContr (CommAlgebraHom R[1/ g ]AsCommAlgebra R[1/ f ]AsCommAlgebra)
-   contrHoms 𝔞 𝔟 f g p q 𝔞≤𝔟 = R[1/g]HasAlgUniversalProp R[1/ f ]AsCommAlgebra
-     λ s s∈[gⁿ|n≥0] → subst-∈ₚ (R[1/ f ]AsCommRing ˣ)
-       (sym (·IdR (s /1))) --can't apply the lemma directly as we get mult with 1 somewhere
-         (RadicalLemma.toUnit R' f g f∈√⟨g⟩ s s∈[gⁿ|n≥0])
+  uniqueHom (𝔞 , f , p) (𝔟 , g , q) 𝔞≤𝔟 = contrHoms f g Df≤Dg
     where
-    open AlgLoc R' [ g ⁿ|n≥0] (powersFormMultClosedSubset g)
-         renaming (S⁻¹RHasAlgUniversalProp to R[1/g]HasAlgUniversalProp)
-    open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f) using (_/1)
-    open RadicalIdeal R'
-
-    private
-     instance
-      _ = snd R[1/ f ]AsCommRing
-
     Df≤Dg : D f ≤ D g
     Df≤Dg = subst2 _≤_ (sym p) (sym q) 𝔞≤𝔟
 
-    f∈√⟨g⟩ : f ∈ √ ⟨ g ⟩ₛ
-    f∈√⟨g⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun Df≤Dg .fst zero
 
 
  open PreSheafFromUniversalProp ZariskiCat P 𝓕 uniqueHom
