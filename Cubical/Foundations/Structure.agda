@@ -25,6 +25,10 @@ str = snd
 ⟨_⟩ : TypeWithStr ℓ S → Type ℓ
 ⟨_⟩ = typ
 
+instance
+  mkTypeWithStr : ∀ {ℓ} {S : Type ℓ → Type ℓ'} {X} → {{S X}} → TypeWithStr ℓ S
+  mkTypeWithStr {{i}} = _ , i
+
 -- An S-structure should have a notion of S-homomorphism, or rather S-isomorphism.
 -- This will be implemented by a function ι : StrEquiv S ℓ'
 -- that gives us for any two types with S-structure (X , s) and (Y , t) a family:
@@ -41,4 +45,3 @@ EquivAction {ℓ} S = {X Y : Type ℓ} → X ≃ Y → S X ≃ S Y
 EquivAction→StrEquiv : {S : Type ℓ → Type ℓ''}
   → EquivAction S → StrEquiv S ℓ''
 EquivAction→StrEquiv α (X , s) (Y , t) e = equivFun (α e) s ≡ t
-
