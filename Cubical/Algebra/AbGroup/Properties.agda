@@ -9,7 +9,7 @@ open import Cubical.Algebra.Group
 private variable
   ℓ : Level
 
-module _ (A : AbGroup ℓ) where
+module AbGroupTheory (A : AbGroup ℓ) where
   open GroupTheory (AbGroup→Group A)
   open AbGroupStr (snd A)
 

@@ -36,8 +36,8 @@ module ModuleTheory (R : Ring ℓ') (M : LeftModule R ℓ) where
 
   minusByMult : (x : ⟨ M ⟩) → (R.- R.1r) ⋆ x ≡ - x
   minusByMult x =
-    implicitInverse
-      (LeftModule→AbGroup M)
+    let open AbGroupTheory (LeftModule→AbGroup M)
+    in implicitInverse
       (        x + (R.- R.1r) ⋆ x  ≡⟨ cong (_+ (R.- R.1r) ⋆ x) (sym (⋆IdL x)) ⟩
         R.1r ⋆ x + (R.- R.1r) ⋆ x  ≡⟨ sym (⋆DistL+ R.1r (R.- R.1r) x) ⟩
        (R.1r R.+ (R.- R.1r))  ⋆ x  ≡⟨ cong (_⋆ x) (R.+InvR R.1r) ⟩
