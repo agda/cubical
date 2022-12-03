@@ -123,3 +123,20 @@ module _ ((G , str) : Group ℓG) where
       → (x : EM₁ (G , str))
       → B
   rec Bgpd = elim (λ _ → Bgpd)
+
+  rec' : {B : Type ℓ}
+      → isGroupoid B
+      → (b : B)
+      → (bloop : G → b ≡ b)
+      → ((g h : G) → bloop (g · h) ≡ bloop g ∙ bloop h)
+      → (x : EM₁ (G , str))
+      → B
+  rec' Bgpd b bloop square =
+    rec Bgpd b bloop
+      (λ g h →  compPath→Square (sym (withRefl g h)))
+    where withRefl : (g h : G)
+                   → bloop g ∙ bloop h ≡ refl ∙ bloop (g · h)
+          withRefl g h =
+            bloop g ∙ bloop h    ≡⟨ sym ( square g h) ⟩
+            bloop (g · h)        ≡⟨ lUnit (bloop (g · h)) ⟩
+            refl ∙ bloop (g · h) ∎
