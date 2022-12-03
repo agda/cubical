@@ -7,27 +7,23 @@ Eilenberg–Mac Lane type K(G, 1)
 {-# OPTIONS --cubical --no-import-sorts --safe  --experimental-lossy-unification #-}
 module Cubical.HITs.EilenbergMacLane1.Properties where
 
-open import Cubical.HITs.EilenbergMacLane1.Base
-
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Path
+open import Cubical.Functions.Morphism
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty renaming (rec to ⊥-rec) hiding (elim)
 
-
-open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Properties
-
+open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup.Base
 
-open import Cubical.Functions.Morphism
+open import Cubical.HITs.EilenbergMacLane1.Base
+
 
 private
   variable
