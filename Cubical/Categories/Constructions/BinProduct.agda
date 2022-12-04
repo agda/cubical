@@ -58,6 +58,13 @@ module _ (C : Category ℓC ℓC')
   rinj c .F-id = refl
   rinj c .F-seq f g = ≡-× (sym (⋆IdL C _)) refl
 
+  -- Commutativity of product
+  ×C-comm : Functor (C × D) (D × C)
+  ×C-comm .F-ob (x , y) = y , x
+  ×C-comm .F-hom (f , g) = g , f
+  ×C-comm .F-id = refl
+  ×C-comm .F-seq _ _ = refl
+
 {-
   TODO:
     - define inverse to `assoc`, prove isomorphism

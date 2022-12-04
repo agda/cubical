@@ -1,27 +1,19 @@
 -- Braided Monoidal Categories
+-- as defined here:
+-- https://ncatlab.org/nlab/show/braided+monoidal+category
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Monoidal.Braided where
 
+open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functor.BinProduct
-open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Monoidal.Base
 
 module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
   open Category C
   open Functor
-
-  private
-    -- swaps the arguments of a bifunctor
-    Swap : Functor (C × C) C → Functor (C × C) C
-    F-ob (Swap F)  (x , y) = F .F-ob (y , x)
-    F-hom (Swap F) (f , g) = F .F-hom (g , f)
-    F-id  (Swap F)         = F .F-id
-    F-seq (Swap F) f g     = F .F-seq (snd f , fst f) (snd g , fst g)
 
   record BraidedStr : Type (ℓ-max ℓ ℓ') where
     field
@@ -36,7 +28,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
       -- just ─⊗─ but swaps the arguments
       [y⊗x] : Functor (C × C) C
-      [y⊗x] = Swap ─⊗─
+      [y⊗x] = ─⊗─ ∘F ×C-comm C C
 
     field
       -- the braiding
