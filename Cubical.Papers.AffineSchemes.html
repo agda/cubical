@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Papers.AffineSchemes</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">{-
+
+Please do not move this file. Changes should only be made if necessary.
+
+This file contains pointers to the code examples and main results from
+the paper:
+
+A Univalent Formalization of Affine Schemes
+
+Anders Mörtberg, Max Zeuner
+
+Preprint: !!! arXiv link !!!
+
+
+-}</a>
+
+<a id="270" class="Comment">-- The &quot;--safe&quot; flag ensures that there are no postulates or unfinished goals</a>
+<a id="348" class="Symbol">{-#</a> <a id="352" class="Keyword">OPTIONS</a> <a id="360" class="Pragma">--safe</a> <a id="367" class="Symbol">#-}</a>
+<a id="371" class="Keyword">module</a> <a id="378" href="Cubical.Papers.AffineSchemes.html" class="Module">Cubical.Papers.AffineSchemes</a> <a id="407" class="Keyword">where</a>
+
+
+
+<a id="416" class="Comment">-- 2: Background</a>
+<a id="433" class="Comment">-- 2.2: Cubical Agda</a>
+<a id="454" class="Keyword">import</a> <a id="461" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>                              <a id="518" class="Symbol">as</a> <a id="521" class="Module">Prelude</a>
+<a id="529" class="Keyword">import</a> <a id="536" href="Cubical.Foundations.HLevels.html" class="Module">Cubical.Foundations.HLevels</a>                              <a id="593" class="Symbol">as</a> <a id="596" class="Module">HLevels</a>
+<a id="604" class="Keyword">import</a> <a id="611" href="Cubical.Foundations.Univalence.html" class="Module">Cubical.Foundations.Univalence</a>                           <a id="668" class="Symbol">as</a> <a id="671" class="Module">Univalence</a>
+<a id="682" class="Keyword">import</a> <a id="689" href="Cubical.Data.Sigma.html" class="Module">Cubical.Data.Sigma</a>                                       <a id="746" class="Symbol">as</a> <a id="749" class="Module">Sigma</a>
+<a id="755" class="Keyword">import</a> <a id="762" href="Cubical.HITs.PropositionalTruncation.html" class="Module">Cubical.HITs.PropositionalTruncation</a>                     <a id="819" class="Symbol">as</a> <a id="822" class="Module">PT</a>
+<a id="825" class="Keyword">import</a> <a id="832" href="Cubical.Algebra.DistLattice.Basis.html" class="Module">Cubical.Algebra.DistLattice.Basis</a>                        <a id="889" class="Symbol">as</a> <a id="892" class="Module">DistLatticeBasis</a>
+<a id="909" class="Keyword">import</a> <a id="916" href="Cubical.HITs.SetQuotients.html" class="Module">Cubical.HITs.SetQuotients</a>                                <a id="973" class="Symbol">as</a> <a id="976" class="Module">SQ</a>
+
+
+<a id="981" class="Comment">-- 3: Commutative Algebra</a>
+<a id="1007" class="Comment">-- 3.1: Localization</a>
+<a id="1028" class="Keyword">import</a> <a id="1035" href="Cubical.Algebra.CommRing.Localisation.Base.html" class="Module">Cubical.Algebra.CommRing.Localisation.Base</a>               <a id="1092" class="Symbol">as</a> <a id="1095" class="Module">L</a>
+<a id="1097" class="Keyword">module</a> <a id="Localization"></a><a id="1104" href="Cubical.Papers.AffineSchemes.html#1104" class="Module">Localization</a> <a id="1117" class="Symbol">=</a> <a id="1119" href="Cubical.Algebra.CommRing.Localisation.Base.html#1750" class="Module">L.Loc</a>
+
+<a id="1126" class="Keyword">import</a> <a id="1133" href="Cubical.Algebra.CommRing.Localisation.UniversalProperty.html" class="Module">Cubical.Algebra.CommRing.Localisation.UniversalProperty</a>  <a id="1190" class="Symbol">as</a> <a id="1193" class="Module">LocalizationUnivProp</a>
+<a id="1214" class="Keyword">import</a> <a id="1221" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html" class="Module">Cubical.Algebra.CommRing.Localisation.InvertingElements</a>  <a id="1278" class="Symbol">as</a> <a id="1281" class="Module">LocalizationInvEl</a>
+<a id="1299" class="Keyword">import</a> <a id="1306" href="Cubical.Algebra.CommAlgebra.html" class="Module">Cubical.Algebra.CommAlgebra</a>                              <a id="1363" class="Symbol">as</a> <a id="1366" class="Module">R-Algs</a>
+<a id="1373" class="Keyword">import</a> <a id="1380" href="Cubical.Algebra.CommAlgebra.Localisation.html" class="Module">Cubical.Algebra.CommAlgebra.Localisation</a>                 <a id="1437" class="Symbol">as</a> <a id="1440" class="Module">LocalizationR-Alg</a>
+
+
+<a id="1460" class="Comment">-- 3.2: The Zariski Lattice</a>
+<a id="1488" class="Keyword">import</a> <a id="1495" href="Cubical.Data.FinData.Base.html" class="Module">Cubical.Data.FinData.Base</a>                                <a id="1552" class="Symbol">as</a> <a id="1555" class="Module">FiniteTypes</a>
+<a id="1567" class="Keyword">import</a> <a id="1574" href="Cubical.Algebra.Matrix.html" class="Module">Cubical.Algebra.Matrix</a>                                   <a id="1631" class="Symbol">as</a> <a id="1634" class="Module">Matrices</a>
+<a id="1643" class="Keyword">import</a> <a id="1650" href="Cubical.Algebra.CommRing.FGIdeal.html" class="Module">Cubical.Algebra.CommRing.FGIdeal</a>                         <a id="1707" class="Symbol">as</a> <a id="1710" class="Module">FinGenIdeals</a>
+
+<a id="1724" class="Keyword">import</a> <a id="1731" href="Cubical.Algebra.ZariskiLattice.Base.html" class="Module">Cubical.Algebra.ZariskiLattice.Base</a>                      <a id="1788" class="Symbol">as</a> <a id="1791" class="Module">ZLB</a>
+<a id="1795" class="Keyword">module</a> <a id="ZariskiLatDef"></a><a id="1802" href="Cubical.Papers.AffineSchemes.html#1802" class="Module">ZariskiLatDef</a> <a id="1816" class="Symbol">=</a> <a id="1818" href="Cubical.Algebra.ZariskiLattice.Base.html#1748" class="Module">ZLB.ZarLat</a>
+
+<a id="1830" class="Keyword">import</a> <a id="1837" href="Cubical.Algebra.ZariskiLattice.UniversalProperty.html" class="Module">Cubical.Algebra.ZariskiLattice.UniversalProperty</a>         <a id="1894" class="Symbol">as</a> <a id="1897" class="Module">ZLUP</a>
+<a id="1902" class="Keyword">module</a> <a id="ZariskiLatUnivProp"></a><a id="1909" href="Cubical.Papers.AffineSchemes.html#1909" class="Module">ZariskiLatUnivProp</a> <a id="1928" class="Symbol">=</a> <a id="1930" href="Cubical.Algebra.ZariskiLattice.UniversalProperty.html#4736" class="Module">ZLUP.ZarLatUniversalProp</a>
+
+
+<a id="1957" class="Comment">-- 4: Category Theory</a>
+<a id="1979" class="Comment">-- background theory not explicitly mentioned</a>
+<a id="2025" class="Keyword">import</a> <a id="2032" href="Cubical.Categories.Category.Base.html" class="Module">Cubical.Categories.Category.Base</a>                         <a id="2089" class="Symbol">as</a> <a id="2092" class="Module">CatTheory</a>
+<a id="2102" class="Keyword">import</a> <a id="2109" href="Cubical.Categories.Limits.html" class="Module">Cubical.Categories.Limits</a>                                <a id="2166" class="Symbol">as</a> <a id="2169" class="Module">GeneralLimits</a>
+<a id="2183" class="Keyword">import</a> <a id="2190" href="Cubical.Categories.Limits.RightKan.html" class="Module">Cubical.Categories.Limits.RightKan</a>                       <a id="2247" class="Symbol">as</a> <a id="2250" class="Module">GeneralKanExtension</a>
+
+<a id="2271" class="Keyword">import</a> <a id="2278" href="Cubical.Categories.DistLatticeSheaf.Diagram.html" class="Module">Cubical.Categories.DistLatticeSheaf.Diagram</a>              <a id="2335" class="Symbol">as</a> <a id="2338" class="Module">SheafDiagShapes</a>
+<a id="2354" class="Keyword">import</a> <a id="2361" href="Cubical.Categories.DistLatticeSheaf.Base.html" class="Module">Cubical.Categories.DistLatticeSheaf.Base</a>                 <a id="2418" class="Symbol">as</a> <a id="2421" class="Module">Sheaves</a>
+
+<a id="2430" class="Keyword">import</a> <a id="2437" href="Cubical.Categories.DistLatticeSheaf.Extension.html" class="Module">Cubical.Categories.DistLatticeSheaf.Extension</a>            <a id="2494" class="Symbol">as</a> <a id="2497" class="Module">E</a>
+<a id="2499" class="Keyword">module</a> <a id="SheafExtension"></a><a id="2506" href="Cubical.Papers.AffineSchemes.html#2506" class="Module">SheafExtension</a> <a id="2521" class="Symbol">=</a> <a id="2523" href="Cubical.Categories.DistLatticeSheaf.Extension.html#1572" class="Module">E.PreSheafExtension</a>
+
+
+<a id="2545" class="Comment">-- 5: The Structure Sheaf</a>
+<a id="2571" class="Keyword">import</a> <a id="2578" href="Cubical.Categories.Instances.CommAlgebras.html" class="Module">Cubical.Categories.Instances.CommAlgebras</a>                <a id="2635" class="Symbol">as</a> <a id="2638" class="Module">R-AlgConstructions</a>
+<a id="2657" class="Keyword">import</a> <a id="2664" href="Cubical.Algebra.CommRing.Localisation.Limit.html" class="Module">Cubical.Algebra.CommRing.Localisation.Limit</a>              <a id="2721" class="Symbol">as</a> <a id="2724" class="Module">LocalizationLimit</a>
+<a id="2742" class="Keyword">import</a> <a id="2749" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">Cubical.Algebra.ZariskiLattice.StructureSheaf</a>            <a id="2806" class="Symbol">as</a> <a id="2809" class="Module">StructureSheaf</a>
+
+
+
+
+<a id="2828" class="Comment">---------- 2: Background  ----------</a>
+<a id="2865" class="Comment">---------- 2.2: A brief introduction to Cubical Agda ----------</a>
+
+<a id="2930" class="Comment">-- path type in Cubical Agda</a>
+<a id="2959" class="Keyword">open</a> <a id="2964" href="Cubical.Foundations.Prelude.html" class="Module">Prelude</a> <a id="2972" class="Keyword">using</a> <a id="2978" class="Symbol">(</a><a id="2979" href="Agda.Builtin.Cubical.Path.html#388" class="Function Operator">_≡_</a> <a id="2983" class="Symbol">;</a> <a id="2985" href="Agda.Builtin.Cubical.Path.html#197" class="Postulate">PathP</a><a id="2990" class="Symbol">)</a>
+
+<a id="2993" class="Comment">-- univalence and the cubical SIP</a>
+<a id="3027" class="Keyword">open</a> <a id="3032" href="Cubical.Foundations.Univalence.html" class="Module">Univalence</a> <a id="3043" class="Keyword">using</a> <a id="3049" class="Symbol">(</a><a id="3050" href="Cubical.Foundations.Univalence.html#928" class="Function">ua</a><a id="3052" class="Symbol">)</a>
+<a id="3054" class="Keyword">import</a> <a id="3061" href="Cubical.Foundations.SIP.html" class="Module">Cubical.Foundations.SIP</a>
+<a id="3085" class="Keyword">open</a> <a id="3090" href="Cubical.Algebra.CommAlgebra.html" class="Module">R-Algs</a> <a id="3097" class="Keyword">renaming</a> <a id="3106" class="Symbol">(</a><a id="3107" href="Cubical.Algebra.CommAlgebra.Base.html#10912" class="Function">uaCommAlgebra</a> <a id="3121" class="Symbol">to</a> <a id="3124" class="Function">sip</a><a id="3127" class="Symbol">)</a>
+
+<a id="3130" class="Comment">-- the first three h-levels</a>
+<a id="3158" class="Keyword">open</a> <a id="3163" href="Cubical.Foundations.Prelude.html" class="Module">Prelude</a> <a id="3171" class="Keyword">using</a> <a id="3177" class="Symbol">(</a><a id="3178" href="Cubical.Foundations.Prelude.html#13946" class="Function">isContr</a> <a id="3186" class="Symbol">;</a> <a id="3188" href="Cubical.Foundations.Prelude.html#14010" class="Function">isProp</a> <a id="3195" class="Symbol">;</a> <a id="3197" href="Cubical.Foundations.Prelude.html#14065" class="Function">isSet</a><a id="3202" class="Symbol">)</a>
+<a id="3204" class="Keyword">open</a> <a id="3209" href="Cubical.Foundations.HLevels.html" class="Module">HLevels</a> <a id="3217" class="Keyword">using</a> <a id="3223" class="Symbol">(</a><a id="3224" href="Cubical.Foundations.HLevels.html#2018" class="Function">hProp</a><a id="3229" class="Symbol">)</a>
+
+<a id="3232" class="Comment">-- propositional truncation; In the agda/cubical library the indexing of</a>
+<a id="3305" class="Comment">-- truncations is shifted by +2 and start at 0 instead of -2, hence</a>
+<a id="3373" class="Comment">-- propositional truncation is ∥_∥₁.</a>
+<a id="3410" class="Keyword">open</a> <a id="3415" href="Cubical.HITs.PropositionalTruncation.html" class="Module">PT</a> <a id="3418" class="Keyword">renaming</a> <a id="3427" class="Symbol">(</a><a id="3428" href="Cubical.HITs.PropositionalTruncation.Base.html#249" class="Datatype Operator">∥_∥₁</a> <a id="3433" class="Symbol">to</a> <a id="3436" class="Datatype Operator">∥_∥</a><a id="3439" class="Symbol">)</a>
+
+<a id="3442" class="Comment">-- ∃ notation in Cubical Agda</a>
+<a id="3472" class="Keyword">open</a> <a id="3477" href="Cubical.Data.Sigma.html" class="Module">Sigma</a> <a id="3483" class="Keyword">using</a> <a id="3489" class="Symbol">(</a><a id="3490" href="Cubical.Data.Sigma.Base.html#682" class="Function">∃-syntax</a><a id="3498" class="Symbol">)</a>
+
+<a id="3501" class="Comment">-- example of a basis of a distributive lattice</a>
+<a id="3549" class="Keyword">open</a> <a id="3554" href="Cubical.Algebra.DistLattice.Basis.html" class="Module">DistLatticeBasis</a> <a id="3571" class="Keyword">using</a> <a id="3577" class="Symbol">(</a><a id="3578" href="Cubical.Algebra.DistLattice.Basis.html#1765" class="Record">IsBasis</a><a id="3585" class="Symbol">)</a>
+
+<a id="3588" class="Comment">-- Set quotients</a>
+<a id="3605" class="Keyword">open</a> <a id="3610" href="Cubical.HITs.SetQuotients.html" class="Module">SQ</a> <a id="3613" class="Keyword">using</a> <a id="3619" class="Symbol">(</a><a id="3620" href="Cubical.HITs.SetQuotients.Base.html#215" class="Datatype Operator">_/_</a><a id="3623" class="Symbol">)</a>
+
+
+
+<a id="3628" class="Comment">---------- 3: Commutative Algebra  ----------</a>
+<a id="3674" class="Comment">---------- 3.1: Localization ----------</a>
+
+<a id="3715" class="Comment">-- definition of localization</a>
+<a id="3745" class="Keyword">open</a> <a id="3750" href="Cubical.Papers.AffineSchemes.html#1104" class="Module">Localization</a> <a id="3763" class="Keyword">using</a> <a id="3769" class="Symbol">(</a><a id="3770" href="Cubical.Algebra.CommRing.Localisation.Base.html#2086" class="Function Operator">_≈_</a> <a id="3774" class="Symbol">;</a> <a id="3776" href="Cubical.Algebra.CommRing.Localisation.Base.html#2197" class="Function">S⁻¹R</a> <a id="3781" class="Symbol">;</a> <a id="3783" href="Cubical.Algebra.CommRing.Localisation.Base.html#10088" class="Function">S⁻¹RAsCommRing</a><a id="3797" class="Symbol">)</a>
+
+<a id="3800" class="Comment">-- Remark 1</a>
+<a id="3812" class="Keyword">open</a> <a id="3817" href="Cubical.HITs.SetQuotients.html" class="Module">SQ</a> <a id="3820" class="Keyword">using</a> <a id="3826" class="Symbol">(</a><a id="3827" href="Cubical.HITs.SetQuotients.Properties.html#9912" class="Function">truncRelEquiv</a><a id="3840" class="Symbol">)</a>
+
+<a id="3843" class="Comment">-- canonical homomorphism</a>
+<a id="3869" class="Keyword">open</a> <a id="3874" href="Cubical.Algebra.CommRing.Localisation.UniversalProperty.html#2601" class="Module">LocalizationUnivProp.S⁻¹RUniversalProp</a> <a id="3913" class="Keyword">using</a> <a id="3919" class="Symbol">(</a><a id="3920" href="Cubical.Algebra.CommRing.Localisation.UniversalProperty.html#2662" class="Function Operator">_/1</a><a id="3923" class="Symbol">)</a>
+
+<a id="3926" class="Comment">-- universal property</a>
+<a id="3948" class="Keyword">open</a> <a id="3953" href="Cubical.Algebra.CommRing.Localisation.UniversalProperty.html#2601" class="Module">LocalizationUnivProp.S⁻¹RUniversalProp</a> <a id="3992" class="Keyword">using</a> <a id="3998" class="Symbol">(</a><a id="3999" href="Cubical.Algebra.CommRing.Localisation.UniversalProperty.html#3349" class="Function">S⁻¹RHasUniversalProp</a><a id="4019" class="Symbol">)</a>
+
+<a id="4022" class="Comment">-- R-algebras as pairs</a>
+<a id="4045" class="Keyword">open</a> <a id="4050" href="Cubical.Algebra.CommAlgebra.Properties.html#1753" class="Module">R-Algs.CommAlgChar</a>
+
+<a id="4070" class="Comment">-- universal property for localizations as R-algebras</a>
+<a id="4124" class="Keyword">open</a> <a id="4129" href="Cubical.Algebra.CommAlgebra.Localisation.html#1514" class="Module">LocalizationR-Alg.AlgLoc</a> <a id="4154" class="Keyword">using</a> <a id="4160" class="Symbol">(</a><a id="4161" href="Cubical.Algebra.CommAlgebra.Localisation.html#2868" class="Function">S⁻¹RHasAlgUniversalProp</a><a id="4184" class="Symbol">)</a>
+
+<a id="4187" class="Comment">-- Lemma 2</a>
+<a id="4198" class="Keyword">open</a> <a id="4203" href="Cubical.Algebra.CommRing.Localisation.UniversalProperty.html" class="Module">LocalizationUnivProp</a> <a id="4224" class="Keyword">using</a> <a id="4230" class="Symbol">(</a><a id="4231" href="Cubical.Algebra.CommRing.Localisation.UniversalProperty.html#16601" class="Function">S⁻¹RChar</a><a id="4239" class="Symbol">)</a>
+<a id="4241" class="Keyword">open</a> <a id="4246" href="Cubical.Algebra.CommAlgebra.Localisation.html#1514" class="Module">LocalizationR-Alg.AlgLoc</a> <a id="4271" class="Keyword">using</a> <a id="4277" class="Symbol">(</a><a id="4278" href="Cubical.Algebra.CommAlgebra.Localisation.html#5126" class="Function">S⁻¹RAlgCharEquiv</a><a id="4294" class="Symbol">)</a>
+
+<a id="4297" class="Comment">-- localization away from element</a>
+<a id="4331" class="Keyword">open</a> <a id="4336" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#2241" class="Module">LocalizationInvEl.InvertingElementsBase</a> <a id="4376" class="Keyword">using</a> <a id="4382" class="Symbol">(</a><a id="4383" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#2422" class="Function Operator">[_ⁿ|n≥0]</a> <a id="4392" class="Symbol">;</a> <a id="4394" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#2926" class="Function Operator">R[1/_]</a> <a id="4401" class="Symbol">;</a> <a id="4403" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#3377" class="Function Operator">R[1/_]AsCommRing</a><a id="4419" class="Symbol">)</a>
+
+<a id="4422" class="Comment">-- Lemma 3</a>
+<a id="4433" class="Comment">-- 1.</a>
+<a id="4439" class="Keyword">open</a> <a id="4444" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#14347" class="Module">LocalizationInvEl.DoubleLoc</a> <a id="4472" class="Keyword">using</a> <a id="4478" class="Symbol">(</a><a id="4479" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#26665" class="Function">R[1/fg]≡R[1/f][1/g]</a><a id="4498" class="Symbol">)</a>
+<a id="4500" class="Keyword">open</a> <a id="4505" href="Cubical.Algebra.CommAlgebra.Localisation.html#10287" class="Module">LocalizationR-Alg.DoubleAlgLoc</a> <a id="4536" class="Keyword">using</a> <a id="4542" class="Symbol">(</a><a id="4543" href="Cubical.Algebra.CommAlgebra.Localisation.html#11274" class="Function">R[1/fg]≡R[1/f][1/g]</a><a id="4562" class="Symbol">)</a>
+<a id="4564" class="Comment">-- 2.</a>
+<a id="4570" class="Keyword">open</a> <a id="4575" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html" class="Module">LocalizationInvEl</a> <a id="4593" class="Keyword">using</a> <a id="4599" class="Symbol">(</a><a id="4600" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#12208" class="Function">invertingUnitsPath</a><a id="4618" class="Symbol">)</a>
+<a id="4620" class="Comment">-- 3.</a>
+<a id="4626" class="Keyword">open</a> <a id="4631" href="Cubical.Algebra.CommAlgebra.Localisation.html#6135" class="Module">LocalizationR-Alg.AlgLocTwoSubsets</a> <a id="4666" class="Keyword">using</a> <a id="4672" class="Symbol">(</a><a id="4673" href="Cubical.Algebra.CommAlgebra.Localisation.html#7674" class="Function">isContrS₁⁻¹R≡S₂⁻¹R</a><a id="4691" class="Symbol">)</a>
+
+
+
+<a id="4696" class="Comment">---------- 3.2: Zariski Lattice ----------</a>
+
+<a id="4740" class="Comment">-- Zariski lattice as set-quotient and</a>
+<a id="4779" class="Comment">-- equivalence of quotienting relations</a>
+<a id="4819" class="Keyword">open</a> <a id="4824" href="Cubical.Papers.AffineSchemes.html#1802" class="Module">ZariskiLatDef</a> <a id="4838" class="Keyword">using</a> <a id="4844" class="Symbol">(</a><a id="4845" href="Cubical.Algebra.ZariskiLattice.Base.html#2426" class="Function Operator">_∼_</a> <a id="4849" class="Symbol">;</a> <a id="4851" href="Cubical.Algebra.ZariskiLattice.Base.html#2933" class="Function">ZL</a><a id="4853" class="Symbol">)</a> <a id="4855" class="Keyword">renaming</a> <a id="4864" class="Symbol">(</a><a id="4865" href="Cubical.Algebra.ZariskiLattice.Base.html#3009" class="Function Operator">_∼≡_</a> <a id="4870" class="Symbol">to</a> <a id="4873" class="Function Operator">_≋_</a><a id="4876" class="Symbol">)</a>
+<a id="4878" class="Keyword">open</a> <a id="4883" href="Cubical.Papers.AffineSchemes.html#1802" class="Module">ZariskiLatDef</a> <a id="4897" class="Keyword">using</a> <a id="4903" class="Symbol">(</a><a id="4904" href="Cubical.Algebra.ZariskiLattice.Base.html#3081" class="Function">≡→∼</a> <a id="4908" class="Symbol">;</a> <a id="4910" href="Cubical.Algebra.ZariskiLattice.Base.html#3262" class="Function">∼→≡</a><a id="4913" class="Symbol">)</a>
+
+<a id="4916" class="Comment">-- _++_ and relation to ideal addition</a>
+<a id="4955" class="Keyword">open</a> <a id="4960" href="Cubical.Data.FinData.Base.html" class="Module">FiniteTypes</a> <a id="4972" class="Keyword">renaming</a> <a id="4981" class="Symbol">(</a><a id="4982" href="Cubical.Data.FinData.Base.html#1854" class="Function Operator">_++Fin_</a> <a id="4990" class="Symbol">to</a> <a id="4993" class="Function Operator">_++_</a><a id="4997" class="Symbol">)</a>
+<a id="4999" class="Keyword">open</a> <a id="5004" href="Cubical.Algebra.CommRing.FGIdeal.html" class="Module">FinGenIdeals</a> <a id="5017" class="Keyword">using</a> <a id="5023" class="Symbol">(</a><a id="5024" href="Cubical.Algebra.CommRing.FGIdeal.html#12607" class="Function">FGIdealAddLemma</a><a id="5039" class="Symbol">)</a>
+
+<a id="5042" class="Comment">-- _··_ and relation to ideal multiplication</a>
+<a id="5087" class="Keyword">open</a> <a id="5092" href="Cubical.Algebra.Matrix.html#13013" class="Module">Matrices.ProdFin</a> <a id="5109" class="Keyword">renaming</a> <a id="5118" class="Symbol">(</a><a id="5119" href="Cubical.Algebra.Matrix.html#13350" class="Function Operator">_··Fin_</a> <a id="5127" class="Symbol">to</a> <a id="5130" class="Function Operator">_··_</a><a id="5134" class="Symbol">)</a>
+<a id="5136" class="Keyword">open</a> <a id="5141" href="Cubical.Algebra.CommRing.FGIdeal.html" class="Module">FinGenIdeals</a> <a id="5154" class="Keyword">using</a> <a id="5160" class="Symbol">(</a><a id="5161" href="Cubical.Algebra.CommRing.FGIdeal.html#15166" class="Function">FGIdealMultLemma</a><a id="5177" class="Symbol">)</a>
+
+<a id="5180" class="Comment">-- lattice structure and laws</a>
+<a id="5210" class="Keyword">open</a> <a id="5215" href="Cubical.Papers.AffineSchemes.html#1802" class="Module">ZariskiLatDef</a> <a id="5229" class="Keyword">using</a> <a id="5235" class="Symbol">(</a><a id="5236" href="Cubical.Algebra.ZariskiLattice.Base.html#8148" class="Function">ZariskiLattice</a><a id="5250" class="Symbol">)</a>
+
+<a id="5253" class="Comment">-- support map D and universal property</a>
+<a id="5293" class="Keyword">open</a> <a id="5298" href="Cubical.Papers.AffineSchemes.html#1909" class="Module">ZariskiLatUnivProp</a> <a id="5317" class="Keyword">using</a> <a id="5323" class="Symbol">(</a><a id="5324" href="Cubical.Algebra.ZariskiLattice.UniversalProperty.html#5138" class="Function">D</a> <a id="5326" class="Symbol">;</a> <a id="5328" href="Cubical.Algebra.ZariskiLattice.UniversalProperty.html#5200" class="Function">isZarMapD</a><a id="5337" class="Symbol">)</a>
+<a id="5339" class="Keyword">open</a> <a id="5344" href="Cubical.Papers.AffineSchemes.html#1909" class="Module">ZariskiLatUnivProp</a> <a id="5363" class="Keyword">using</a> <a id="5369" class="Symbol">(</a><a id="5370" href="Cubical.Algebra.ZariskiLattice.UniversalProperty.html#6858" class="Function">ZLHasUniversalProp</a><a id="5388" class="Symbol">)</a>
+
+<a id="5391" class="Comment">-- D(g) ≤ D(f) ⇔ isContr (R-Hom R[1/f] R[1/g])</a>
+<a id="5438" class="Keyword">open</a> <a id="5443" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">StructureSheaf</a> <a id="5458" class="Keyword">using</a> <a id="5464" class="Symbol">(</a><a id="5465" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#4328" class="Function">contrHoms</a><a id="5474" class="Symbol">)</a>
+
+<a id="5477" class="Comment">-- basic opens</a>
+<a id="5492" class="Keyword">open</a> <a id="5497" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">StructureSheaf</a> <a id="5512" class="Keyword">using</a> <a id="5518" class="Symbol">(</a><a id="5519" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#3560" class="Function">BasicOpens</a> <a id="5530" class="Symbol">;</a> <a id="5532" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#3637" class="Function">BO</a><a id="5534" class="Symbol">)</a>
+
+<a id="5537" class="Comment">-- basic opens form basis</a>
+<a id="5563" class="Keyword">open</a> <a id="5568" href="Cubical.Papers.AffineSchemes.html#1909" class="Module">ZariskiLatUnivProp</a> <a id="5587" class="Keyword">using</a> <a id="5593" class="Symbol">(</a><a id="5594" href="Cubical.Algebra.ZariskiLattice.UniversalProperty.html#11555" class="Function">ZLUniversalPropCorollary</a> <a id="5619" class="Symbol">;</a> <a id="5621" href="Cubical.Algebra.ZariskiLattice.UniversalProperty.html#11964" class="Function">⋁D≡</a><a id="5624" class="Symbol">)</a>
+<a id="5626" class="Keyword">open</a> <a id="5631" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">StructureSheaf</a> <a id="5646" class="Keyword">using</a> <a id="5652" class="Symbol">(</a><a id="5653" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#3687" class="Function">basicOpensAreBasis</a><a id="5671" class="Symbol">)</a>
+
+
+
+<a id="5676" class="Comment">---------- 4: Category Theory  ----------</a>
+
+<a id="5719" class="Comment">-- Σ-subcategories</a>
+<a id="5738" class="Keyword">open</a> <a id="5743" href="Cubical.Categories.Category.Base.html" class="Module">CatTheory</a> <a id="5753" class="Keyword">using</a> <a id="5759" class="Symbol">(</a><a id="5760" href="Cubical.Categories.Category.Base.html#4398" class="Function">ΣPropCat</a><a id="5768" class="Symbol">)</a>
+
+<a id="5771" class="Comment">-- Kan-extension for distributive lattices</a>
+<a id="5814" class="Keyword">open</a> <a id="5819" href="Cubical.Papers.AffineSchemes.html#2506" class="Module">SheafExtension</a> <a id="5834" class="Keyword">using</a> <a id="5840" class="Symbol">(</a><a id="5841" href="Cubical.Categories.DistLatticeSheaf.Extension.html#2030" class="Function">DLRan</a> <a id="5847" class="Symbol">;</a> <a id="5849" href="Cubical.Categories.DistLatticeSheaf.Extension.html#2096" class="Function">DLRanNatIso</a><a id="5860" class="Symbol">)</a>
+
+<a id="5863" class="Comment">-- Definition 4</a>
+<a id="5879" class="Keyword">open</a> <a id="5884" href="Cubical.Categories.DistLatticeSheaf.Diagram.html" class="Module">SheafDiagShapes</a> <a id="5900" class="Keyword">using</a> <a id="5906" class="Symbol">(</a><a id="5907" href="Cubical.Categories.DistLatticeSheaf.Diagram.html#1184" class="Datatype">DLShfDiagOb</a> <a id="5919" class="Symbol">;</a> <a id="5921" href="Cubical.Categories.DistLatticeSheaf.Diagram.html#1309" class="Datatype">DLShfDiagHom</a> <a id="5934" class="Symbol">;</a> <a id="5936" href="Cubical.Categories.DistLatticeSheaf.Diagram.html#4458" class="Function">DLShfDiag</a><a id="5945" class="Symbol">)</a>
+
+<a id="5948" class="Comment">-- Remark 5</a>
+<a id="5960" class="Keyword">open</a> <a id="5965" href="Cubical.Categories.DistLatticeSheaf.Diagram.html#1610" class="Module">SheafDiagShapes.DLShfDiagHomPath</a> <a id="5998" class="Keyword">using</a> <a id="6004" class="Symbol">(</a><a id="6005" href="Cubical.Categories.DistLatticeSheaf.Diagram.html#4224" class="Function">isSetDLShfDiagHom</a><a id="6022" class="Symbol">)</a>
+
+<a id="6025" class="Comment">-- diagram associated to a vector</a>
+<a id="6059" class="Keyword">open</a> <a id="6064" href="Cubical.Categories.DistLatticeSheaf.Diagram.html" class="Module">SheafDiagShapes</a> <a id="6080" class="Keyword">using</a> <a id="6086" class="Symbol">(</a><a id="6087" href="Cubical.Categories.DistLatticeSheaf.Diagram.html#6706" class="Function">FinVec→Diag</a><a id="6098" class="Symbol">)</a>
+
+<a id="6101" class="Comment">-- Definition 6</a>
+<a id="6117" class="Keyword">open</a> <a id="6122" href="Cubical.Categories.DistLatticeSheaf.Base.html" class="Module">Sheaves</a> <a id="6130" class="Keyword">using</a> <a id="6136" class="Symbol">(</a><a id="6137" href="Cubical.Categories.DistLatticeSheaf.Base.html#3474" class="Function">isDLSheaf</a><a id="6146" class="Symbol">)</a>
+
+<a id="6149" class="Comment">-- Definition 7</a>
+<a id="6165" class="Keyword">open</a> <a id="6170" href="Cubical.Categories.DistLatticeSheaf.Base.html#21605" class="Module">Sheaves.SheafOnBasis</a> <a id="6191" class="Keyword">using</a> <a id="6197" class="Symbol">(</a><a id="6198" href="Cubical.Categories.DistLatticeSheaf.Base.html#25327" class="Function">isDLBasisSheaf</a><a id="6212" class="Symbol">)</a>
+
+<a id="6215" class="Comment">-- Lemma 8</a>
+<a id="6226" class="Keyword">open</a> <a id="6231" href="Cubical.Categories.DistLatticeSheaf.Base.html" class="Module">Sheaves</a> <a id="6239" class="Keyword">using</a> <a id="6245" class="Symbol">(</a><a id="6246" href="Cubical.Categories.DistLatticeSheaf.Base.html#2753" class="Function">isDLSheafPullback</a><a id="6263" class="Symbol">)</a>
+<a id="6265" class="Keyword">open</a> <a id="6270" href="Cubical.Categories.DistLatticeSheaf.Base.html#3721" class="Module">Sheaves.EquivalenceOfDefs</a> <a id="6296" class="Keyword">using</a> <a id="6302" class="Symbol">(</a><a id="6303" href="Cubical.Categories.DistLatticeSheaf.Base.html#4447" class="Function">L→P</a> <a id="6307" class="Symbol">;</a> <a id="6309" href="Cubical.Categories.DistLatticeSheaf.Base.html#8972" class="Function">P→L</a><a id="6312" class="Symbol">)</a>
+
+<a id="6315" class="Comment">-- Lemma 9</a>
+<a id="6326" class="Keyword">open</a> <a id="6331" href="Cubical.Papers.AffineSchemes.html#2506" class="Module">SheafExtension</a> <a id="6346" class="Keyword">using</a> <a id="6352" class="Symbol">(</a><a id="6353" href="Cubical.Categories.DistLatticeSheaf.Extension.html#25296" class="Function">coverLemma</a><a id="6363" class="Symbol">)</a>
+
+<a id="6366" class="Comment">-- Theorem 10</a>
+<a id="6380" class="Keyword">open</a> <a id="6385" href="Cubical.Papers.AffineSchemes.html#2506" class="Module">SheafExtension</a> <a id="6400" class="Keyword">using</a> <a id="6406" class="Symbol">(</a><a id="6407" href="Cubical.Categories.DistLatticeSheaf.Extension.html#56974" class="Function">isDLSheafDLRan</a><a id="6421" class="Symbol">)</a>
+
+
+
+<a id="6426" class="Comment">---------- 5: The Structure Sheaf ----------</a>
+
+<a id="6472" class="Comment">-- Lemma 11</a>
+<a id="6484" class="Keyword">open</a> <a id="6489" href="Cubical.Algebra.CommAlgebra.html" class="Module">R-Algs</a> <a id="6496" class="Keyword">using</a> <a id="6502" class="Symbol">(</a><a id="6503" href="Cubical.Algebra.CommAlgebra.Properties.html#13075" class="Function">recPT→CommAlgebra</a><a id="6520" class="Symbol">)</a>
+
+<a id="6523" class="Comment">-- Lemma 12</a>
+<a id="6535" class="Keyword">open</a> <a id="6540" href="Cubical.Categories.Instances.CommAlgebras.html#23907" class="Module">R-AlgConstructions.PreSheafFromUniversalProp</a> <a id="6585" class="Keyword">renaming</a> <a id="6594" class="Symbol">(</a><a id="6595" href="Cubical.Categories.Instances.CommAlgebras.html#24921" class="Function">universalPShf</a> <a id="6609" class="Symbol">to</a> <a id="6612" class="Function">𝓟ᵤ</a><a id="6614" class="Symbol">)</a>
+
+<a id="6617" class="Comment">-- definition of structure sheaf</a>
+<a id="6650" class="Keyword">open</a> <a id="6655" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">StructureSheaf</a> <a id="6670" class="Keyword">using</a> <a id="6676" class="Symbol">(</a> <a id="6678" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#5780" class="Function">𝓞ᴮ</a> <a id="6681" class="Symbol">;</a> <a id="6683" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#6013" class="Function">𝓞</a> <a id="6685" class="Symbol">)</a>
+
+<a id="6688" class="Comment">-- Proposition 13</a>
+<a id="6706" class="Keyword">open</a> <a id="6711" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">StructureSheaf</a> <a id="6726" class="Keyword">using</a> <a id="6732" class="Symbol">(</a><a id="6733" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#7353" class="Function">baseSections</a><a id="6745" class="Symbol">)</a>
+
+<a id="6748" class="Comment">-- Corollary 14</a>
+<a id="6764" class="Keyword">open</a> <a id="6769" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">StructureSheaf</a> <a id="6784" class="Keyword">using</a> <a id="6790" class="Symbol">(</a><a id="6791" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#7453" class="Function">globalSection</a><a id="6804" class="Symbol">)</a>
+
+<a id="6807" class="Comment">-- Lemma 15</a>
+<a id="6819" class="Keyword">open</a> <a id="6824" href="Cubical.Algebra.CommRing.Localisation.Limit.html" class="Module">LocalizationLimit</a> <a id="6842" class="Keyword">using</a> <a id="6848" class="Symbol">(</a><a id="6849" href="Cubical.Algebra.CommRing.Localisation.Limit.html#23001" class="Function">isLimConeLocCone</a><a id="6865" class="Symbol">)</a>
+
+<a id="6868" class="Comment">-- Theorem 16</a>
+<a id="6882" class="Keyword">open</a> <a id="6887" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">StructureSheaf</a> <a id="6902" class="Keyword">using</a> <a id="6908" class="Symbol">(</a><a id="6909" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#7736" class="Function">isSheaf𝓞ᴮ</a><a id="6918" class="Symbol">)</a>
+
+<a id="6921" class="Comment">-- Corollary 17</a>
+<a id="6937" class="Keyword">open</a> <a id="6942" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">StructureSheaf</a> <a id="6957" class="Keyword">using</a> <a id="6963" class="Symbol">(</a><a id="6964" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#17555" class="Function">isSheaf𝓞</a><a id="6972" class="Symbol">)</a>
+</pre></body></html>
