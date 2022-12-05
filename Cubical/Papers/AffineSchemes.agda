@@ -18,25 +18,29 @@ Preprint: !!! arXiv link !!!
 {-# OPTIONS --safe #-}
 module Cubical.Papers.AffineSchemes where
 
--- 1: Introduction
--- should be no code
 
 
 -- 2: Background
 -- 2.2: Cubical Agda
+import Cubical.Foundations.Prelude                              as Prelude
+import Cubical.Foundations.HLevels                              as HLevels
+import Cubical.Foundations.Univalence                           as Univalence
+import Cubical.Data.Sigma                                       as Sigma
+import Cubical.HITs.PropositionalTruncation                     as PT
+import Cubical.Algebra.DistLattice.Basis                        as DistLatticeBasis
+import Cubical.HITs.SetQuotients                                as SQ
 
 
 -- 3: Commutative Algebra
 -- 3.1: Localization
-import Cubical.HITs.SetQuotients                                as SetQuotients
 import Cubical.Algebra.CommRing.Localisation.Base               as L
 module Localization = L.Loc
 
 import Cubical.Algebra.CommRing.Localisation.UniversalProperty  as LocalizationUnivProp
-
 import Cubical.Algebra.CommRing.Localisation.InvertingElements  as LocalizationInvEl
 import Cubical.Algebra.CommAlgebra                              as R-Algs
 import Cubical.Algebra.CommAlgebra.Localisation                 as LocalizationR-Alg
+
 
 -- 3.2: The Zariski Lattice
 import Cubical.Data.FinData.Base                                as FiniteTypes
@@ -62,16 +66,43 @@ import Cubical.Categories.DistLatticeSheaf.Base                 as Sheaves
 import Cubical.Categories.DistLatticeSheaf.Extension            as E
 module SheafExtension = E.PreSheafExtension
 
+
 -- 5: The Structure Sheaf
-import Cubical.Algebra.CommAlgebra.Properties                   as R-AlgProps
 import Cubical.Categories.Instances.CommAlgebras                as R-AlgConstructions
 import Cubical.Algebra.CommRing.Localisation.Limit              as LocalizationLimit
 import Cubical.Algebra.ZariskiLattice.StructureSheaf            as StructureSheaf
 
 
 
+
 ---------- 2: Background  ----------
 ---------- 2.2: A brief introduction to Cubical Agda ----------
+
+-- path type in Cubical Agda
+open Prelude using (_≡_ ; PathP)
+
+-- univalence and the cubical SIP
+open Univalence using (ua)
+import Cubical.Foundations.SIP
+open R-Algs renaming (uaCommAlgebra to sip)
+
+-- the first three h-levels
+open Prelude using (isContr ; isProp ; isSet)
+open HLevels using (hProp)
+
+-- propositional truncation; In the agda/cubical library the indexing of
+-- truncations is shifted by +2 and start at 0 instead of -2, hence
+-- propositional truncation is ∥_∥₁.
+open PT renaming (∥_∥₁ to ∥_∥)
+
+-- ∃ notation in Cubical Agda
+open Sigma using (∃-syntax)
+
+-- example of a basis of a distributive lattice
+open DistLatticeBasis using (IsBasis)
+
+-- Set quotients
+open SQ using (_/_)
 
 
 
@@ -81,8 +112,8 @@ import Cubical.Algebra.ZariskiLattice.StructureSheaf            as StructureShea
 -- definition of localization
 open Localization using (_≈_ ; S⁻¹R ; S⁻¹RAsCommRing)
 
--- Remark
-open SetQuotients using (truncRelEquiv)
+-- Remark 1
+open SQ using (truncRelEquiv)
 
 -- canonical homomorphism
 open LocalizationUnivProp.S⁻¹RUniversalProp using (_/1)
@@ -90,31 +121,25 @@ open LocalizationUnivProp.S⁻¹RUniversalProp using (_/1)
 -- universal property
 open LocalizationUnivProp.S⁻¹RUniversalProp using (S⁻¹RHasUniversalProp)
 
--- Lemma
-open LocalizationUnivProp using (S⁻¹RChar)
-
--- localization away from element
-open LocalizationInvEl.InvertingElementsBase using ([_ⁿ|n≥0] ; R[1/_] ; R[1/_]AsCommRing)
-
--- Lemma
--- 1.
-open LocalizationInvEl.DoubleLoc using (R[1/fg]≡R[1/f][1/g])
--- 2.
-open LocalizationInvEl using (invertingUnitsPath)
--- 3. is actually proved more generally for R-algebras, see below
-
 -- R-algebras as pairs
 open R-Algs.CommAlgChar
 
 -- universal property for localizations as R-algebras
 open LocalizationR-Alg.AlgLoc using (S⁻¹RHasAlgUniversalProp)
 
--- R-algebra version of lemma
+-- Lemma 2
+open LocalizationUnivProp using (S⁻¹RChar)
 open LocalizationR-Alg.AlgLoc using (S⁻¹RAlgCharEquiv)
 
--- R-algebra version of lemma
+-- localization away from element
+open LocalizationInvEl.InvertingElementsBase using ([_ⁿ|n≥0] ; R[1/_] ; R[1/_]AsCommRing)
+
+-- Lemma 3
 -- 1.
+open LocalizationInvEl.DoubleLoc using (R[1/fg]≡R[1/f][1/g])
 open LocalizationR-Alg.DoubleAlgLoc using (R[1/fg]≡R[1/f][1/g])
+-- 2.
+open LocalizationInvEl using (invertingUnitsPath)
 -- 3.
 open LocalizationR-Alg.AlgLocTwoSubsets using (isContrS₁⁻¹R≡S₂⁻¹R)
 
@@ -122,12 +147,10 @@ open LocalizationR-Alg.AlgLocTwoSubsets using (isContrS₁⁻¹R≡S₂⁻¹R)
 
 ---------- 3.2: Zariski Lattice ----------
 
--- the two equivalence relations and their equivalence
-open ZariskiLatDef renaming (_∼≡_ to _≋_) using (_∼_)
+-- Zariski lattice as set-quotient and
+-- equivalence of quotienting relations
+open ZariskiLatDef using (_∼_ ; ZL) renaming (_∼≡_ to _≋_)
 open ZariskiLatDef using (≡→∼ ; ∼→≡)
-
--- defintion of Zariski lattice
-open ZariskiLatDef using (ZL)
 
 -- _++_ and relation to ideal addition
 open FiniteTypes renaming (_++Fin_ to _++_)
@@ -164,53 +187,55 @@ open CatTheory using (ΣPropCat)
 -- Kan-extension for distributive lattices
 open SheafExtension using (DLRan ; DLRanNatIso)
 
--- Definition
+-- Definition 4
 open SheafDiagShapes using (DLShfDiagOb ; DLShfDiagHom ; DLShfDiag)
 
--- Remark
+-- Remark 5
 open SheafDiagShapes.DLShfDiagHomPath using (isSetDLShfDiagHom)
 
 -- diagram associated to a vector
 open SheafDiagShapes using (FinVec→Diag)
 
--- Definition
+-- Definition 6
 open Sheaves using (isDLSheaf)
+
+-- Definition 7
 open Sheaves.SheafOnBasis using (isDLBasisSheaf)
 
--- Lemma
+-- Lemma 8
 open Sheaves using (isDLSheafPullback)
 open Sheaves.EquivalenceOfDefs using (L→P ; P→L)
 
--- Lemma
+-- Lemma 9
 open SheafExtension using (coverLemma)
 
--- Theorem
+-- Theorem 10
 open SheafExtension using (isDLSheafDLRan)
 
 
 
 ---------- 5: The Structure Sheaf ----------
 
--- Lemma
-open R-AlgProps using (recPT→CommAlgebra)
+-- Lemma 11
+open R-Algs using (recPT→CommAlgebra)
 
--- Lemma
+-- Lemma 12
 open R-AlgConstructions.PreSheafFromUniversalProp renaming (universalPShf to 𝓟ᵤ)
 
 -- definition of structure sheaf
 open StructureSheaf using ( 𝓞ᴮ ; 𝓞 )
 
--- Proposition
+-- Proposition 13
 open StructureSheaf using (baseSections)
 
--- Corollary
+-- Corollary 14
 open StructureSheaf using (globalSection)
 
--- Lemma
+-- Lemma 15
 open LocalizationLimit using (isLimConeLocCone)
 
--- Theorem
+-- Theorem 16
 open StructureSheaf using (isSheaf𝓞ᴮ)
 
--- Corollary
+-- Corollary 17
 open StructureSheaf using (isSheaf𝓞)
