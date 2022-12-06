@@ -133,10 +133,10 @@ module _ ((G , str) : Group ℓG) where
       → B
   rec' Bgpd b bloop square =
     rec Bgpd b bloop
-      (λ g h →  compPath→Square (sym (withRefl g h)))
+      (λ g h →  compPath→Square (withRefl g h))
     where withRefl : (g h : G)
-                   → bloop g ∙ bloop h ≡ refl ∙ bloop (g · h)
+                   → refl ∙ bloop (g · h) ≡ bloop g ∙ bloop h
           withRefl g h =
-            bloop g ∙ bloop h    ≡⟨ sym ( square g h) ⟩
-            bloop (g · h)        ≡⟨ lUnit (bloop (g · h)) ⟩
-            refl ∙ bloop (g · h) ∎
+            refl ∙ bloop (g · h) ≡⟨ sym (lUnit (bloop (g · h))) ⟩
+            bloop (g · h)        ≡⟨ square g h ⟩
+            bloop g ∙ bloop h ∎
