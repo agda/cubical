@@ -34,11 +34,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat hiding (_·_)
 
 open import Cubical.HITs.Truncation as Trunc
-  renaming (rec to trRec; elim to trElim)
 open import Cubical.HITs.EilenbergMacLane1
   renaming (rec to EMrec ; elim to EM₁elim)
-open import Cubical.HITs.Truncation
-  renaming (elim to trElim ; rec to trRec ; rec2 to trRec2)
 open import Cubical.HITs.Susp
 
 private
@@ -48,7 +45,7 @@ isConnectedEM₁ : (G : Group ℓ) → isConnected 2 (EM₁ G)
 isConnectedEM₁ G = ∣ embase ∣ , h
     where
       h : (y : hLevelTrunc 2 (EM₁ G)) → ∣ embase ∣ ≡ y
-      h = trElim (λ y → isOfHLevelSuc 1 (isOfHLevelTrunc 2 ∣ embase ∣ y))
+      h = Trunc.elim (λ y → isOfHLevelSuc 1 (isOfHLevelTrunc 2 ∣ embase ∣ y))
             (elimProp G (λ x → isOfHLevelTrunc 2 ∣ embase ∣ ∣ x ∣) refl)
 
 module _ {G' : AbGroup ℓ} where
@@ -63,8 +60,8 @@ module _ {G' : AbGroup ℓ} where
   isConnectedEM (suc zero) = isConnectedEM₁ (AbGroup→Group G')
   fst (isConnectedEM (suc (suc n))) = ∣ 0ₖ _ ∣
   snd (isConnectedEM (suc (suc n))) =
-    trElim (λ _ → isOfHLevelTruncPath)
-      (trElim (λ _ → isOfHLevelSuc (3 + n) (isOfHLevelTruncPath {n = (3 + n)}))
+    Trunc.elim (λ _ → isOfHLevelTruncPath)
+      (Trunc.elim (λ _ → isOfHLevelSuc (3 + n) (isOfHLevelTruncPath {n = (3 + n)}))
         (raw-elim G'
           (suc n)
           (λ _ → isOfHLevelTrunc (3 + n) _ _)
@@ -190,7 +187,7 @@ module _ {G : AbGroup ℓ} where
 
   CODE : (n : ℕ) → EM G (suc (suc n)) → TypeOfHLevel ℓ (3 + n)
   CODE n =
-    trElim (λ _ → isOfHLevelTypeOfHLevel (3 + n))
+    Trunc.elim (λ _ → isOfHLevelTypeOfHLevel (3 + n))
       λ { north → EM G (suc n) , hLevelEM G (suc n)
         ; south → EM G (suc n) , hLevelEM G (suc n)
         ; (merid a i) → fib n a i}
@@ -206,7 +203,7 @@ module _ {G : AbGroup ℓ} where
 
   decode' : (n : ℕ) (x : EM G (suc (suc n))) → CODE n x .fst → 0ₖ (suc (suc n)) ≡ x
   decode' n =
-    trElim (λ _ → isOfHLevelΠ (4 + n)
+    Trunc.elim (λ _ → isOfHLevelΠ (4 + n)
             λ _ → isOfHLevelPath (4 + n) (isOfHLevelTrunc (4 + n)) _ _)
            λ { north → f n
              ; south → g n
@@ -283,7 +280,7 @@ module _ {G : AbGroup ℓ} where
                                  (λ i → lUnitₖ 1 (transportRefl x i) i)
       ∙ (λ i → rUnitₖ 1 (transportRefl x i) i))
   encode'-decode' (suc n) =
-    trElim (λ _ → isOfHLevelTruncPath {n = 4 + n})
+    Trunc.elim (λ _ → isOfHLevelTruncPath {n = 4 + n})
       λ x → cong (encode' (suc n) (0ₖ (3 + n))) (cong-∙ ∣_∣ₕ (merid x) (sym (merid north)))
     ∙∙ substComposite (λ x → CODE (suc n) x .fst)
          (cong ∣_∣ₕ (merid x)) (sym (cong ∣_∣ₕ (merid ptEM-raw))) (0ₖ (2 + n))
@@ -397,7 +394,7 @@ module _ {G : AbGroup ℓ} where
            ∙∙ cong (_∙ q) (rCancel (emloop g))
            ∙∙ sym (lUnit q)))))
   ΩEM+1→EM-gen (suc n) =
-    trElim (λ _ → isOfHLevelΠ (4 + n)
+    Trunc.elim (λ _ → isOfHLevelΠ (4 + n)
              λ _ → isOfHLevelSuc (3 + n) (hLevelEM _ (suc n)))
       λ { north → ΩEM+1→EM (suc n)
         ; south p → ΩEM+1→EM (suc n) (cong ∣_∣ₕ (merid ptEM-raw)
@@ -454,7 +451,7 @@ module _ where
       (funExt (raw-elim G 0 (λ _ → is-set (snd H) _ _) (sym p)))
   fst (isContr-↓∙ {G = G} {H = H} (suc n)) = (λ _ → 0ₖ (suc n)) , refl
   fst (snd (isContr-↓∙ {G = G} {H = H} (suc n)) f i) x =
-    trElim {B = λ x → 0ₖ (suc n) ≡ fst f x}
+    Trunc.elim {B = λ x → 0ₖ (suc n) ≡ fst f x}
     (λ _ → isOfHLevelPath (4 + n) (isOfHLevelSuc (3 + n) (hLevelEM H (suc n))) _ _)
     (raw-elim _ _ (λ _ → hLevelEM H (suc n) _ _) (sym (snd f)))
     x i
@@ -562,7 +559,7 @@ module _ where
         raw-elim G zero
           (λ _ → isOfHLevel↑∙ zero m _ _) p
       help (suc n) f p =
-        trElim (λ _ → isOfHLevelPath (4 + n)
+        Trunc.elim (λ _ → isOfHLevelPath (4 + n)
                (subst (λ x → isOfHLevel x (EM∙ H (suc m) →∙ EM∙ L (suc ((suc n) + m))))
                       (λ i → suc (suc (+-comm (suc n) 1 i)))
                       (isOfHLevelPlus' {n = 1} (3 + n) (isOfHLevel↑∙ (suc n) m))) _ _)
