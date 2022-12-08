@@ -22,7 +22,7 @@ open _⊣_
 {-
 Adjunctions with a parameter
 
-Theorem 3 of Chapter IV. of Categories for the Working Mathematician by Saunders Mac Lane
+Theorem IV.7.3 of Categories for the Working Mathematician by Saunders Mac Lane
 
 Given a bifunctor F : C → [D , E] and for each c ∈ C that F ⟅ c ⟆ has a right adjoint,
 this data fills out a bifunctor G : (C ^op) → [E , D]
