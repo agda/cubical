@@ -68,6 +68,46 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
+pointedSecIso : {A : Pointed ℓ} {B : Pointed ℓ'} (Q : fst A → Pointed ℓ'')
+  → Iso ((a : fst A) → Q a →∙ B)
+         (Σ[ F ∈ (Σ (fst A) (fst ∘ Q) → fst B) ]
+           ((a : fst A) → F (a , pt (Q a)) ≡ pt B))
+Iso.fun (pointedSecIso Q) F = (λ x → F (fst x) .fst (snd x)) , (λ x → F x .snd)
+Iso.inv (pointedSecIso Q) F a = (fst F ∘ (a ,_)) , snd F a
+Iso.rightInv (pointedSecIso Q) F = refl
+Iso.leftInv (pointedSecIso Q) F = refl
+
+pointedSecIsoContr : {A : Pointed ℓ} {B : Pointed ℓ'} (Q : fst A → Pointed ℓ'')
+  → isContr (Σ (fst A) (fst ∘ Q))
+  → Iso (Σ[ F ∈ (Σ (fst A) (fst ∘ Q) → fst B) ]
+           ((a : fst A) → F (a , pt (Q a)) ≡ pt B))
+         (Σ[ b ∈ fst B ] (fst A → b ≡ pt B))
+pointedSecIsoContr {B = B} Q c =
+    (invIso
+      (equivToIso
+        (Σ-cong-equiv-fst
+          (compEquiv (invEquiv (UnitToType≃ (fst B))) (invEquiv (isoToEquiv (domIso (isContr→Iso c isContrUnit))))))))
+
+pointedSecIso₃ : {A : Pointed ℓ} {B : Pointed ℓ'} (Q : fst A → Pointed ℓ'')
+  → Iso (Σ[ b ∈ fst B ] (fst A → b ≡ pt B))
+         (A →∙ (Ω B))
+Iso.fun (pointedSecIso₃ {A = A} Q) (b , p) = (λ a → sym (p (pt A)) ∙ p a) , lCancel (p (snd A))
+Iso.inv (pointedSecIso₃ {B = B} Q) a = (pt B) , (fst a)
+Iso.rightInv (pointedSecIso₃ Q) a =
+  →∙Homogeneous≡ (isHomogeneousPath _ _)
+    (funExt λ x → cong (_∙ fst a x) (cong sym (snd a)) ∙ sym (lUnit (fst a x)))
+Iso.leftInv (pointedSecIso₃ {A = A} Q) (b , p) =
+  ΣPathP (sym (p (pt A))
+       , λ i a j → compPath-filler' (sym (p (pt A))) (p a) (~ i) j)
+
+contrTotalSpaceIso : {A : Pointed ℓ} {B : Pointed ℓ'} (Q : fst A → Pointed ℓ'')
+  → isContr (Σ (fst A) (fst ∘ Q))
+  → Iso ((a : fst A) → Q a →∙ B) (A →∙ Ω B)
+contrTotalSpaceIso {A = A} {B = B} Q c =
+  compIso (pointedSecIso {A = A} Q)
+    (compIso (pointedSecIsoContr {A = A} Q c)
+      (pointedSecIso₃ Q))
+
 private
   hLev-map : (G : AbGroup ℓ) (n : ℕ) → isSet (S₊∙ n →∙ EM∙ G n)
   hLev-map G n =
@@ -251,6 +291,11 @@ subst-EM-0ₖ : ∀{ℓ} {G : AbGroup ℓ} {n m : ℕ} (p : n ≡ m)
   → subst (EM G) p (0ₖ n) ≡ 0ₖ m
 subst-EM-0ₖ {G = G} {n = n} =
     J (λ m p → subst (EM G) p (0ₖ n) ≡ 0ₖ m) (transportRefl _)
+
+subst-EM∙ : ∀{ℓ} {G : AbGroup ℓ} {n m : ℕ} (p : n ≡ m)
+  → EM∙ G n →∙ EM∙ G m
+fst (subst-EM∙ {G = G} p) = subst (EM G) p
+snd (subst-EM∙ p) = subst-EM-0ₖ p
 
 -- Let us use this to show that a specific cup product is an
 -- equivalence. This will induce the Thom isomorphism.
@@ -681,7 +726,8 @@ module genThom (B : Pointed ℓ)
 
 -- Now for the 'true' Thom isomphism:
 module Thom (B : Pointed ℓ)
-         (P : fst B → Pointed ℓ')
+         (P : fst B → Type ℓ')
+         (P* : P (pt B))
          (conB : isConnected 2 (fst B))
          (R : CommRing ℓ'')
          where
@@ -690,9 +736,8 @@ module Thom (B : Pointed ℓ)
     EMR = EM RR
     EMR∙ = EM∙ RR
     * = snd B
-    P* = snd (P *)
 
-  E = Σ[ x ∈ fst B ] (P x .fst)
+  E = Σ[ x ∈ fst B ] (P x)
 
   E∙ : Pointed _
   fst E∙ = E
@@ -710,11 +755,26 @@ module Thom (B : Pointed ℓ)
   fst EP∙ = EP
   snd EP∙ = inr (pt B)
 
+  EP-contr : isContr E → Iso EP (fst B)
+  Iso.fun (EP-contr c) (inl x) = pt B
+  Iso.fun (EP-contr c) (inr x) = x
+  Iso.fun (EP-contr c) (push a i) = πE (isContr→isProp c (* , P*) a i)
+  Iso.inv (EP-contr c) = inr
+  Iso.rightInv (EP-contr c) = λ _ → refl
+  Iso.leftInv (EP-contr c) (inl x) = sym (push (* , P*))
+  Iso.leftInv (EP-contr c) (inr x) = refl
+  Iso.leftInv (EP-contr c) (push a i) j =
+    hcomp (λ k → λ {(i = i0) → push (* , P*) (~ j)
+                   ; (i = i1) → push a (~ j ∨ k)
+                   ; (j = i0) → inr (πE (isContr→isProp c (* , P*) a i))
+                   ; (j = i1) → push a (i ∧ k)})
+      (push (isContr→isProp c (* , P*) a i) (~ j))
+
   -- Main goal: establish ((b : fst B) → Q b →∙ EMR∙ k) ≃ (EP∙ →∙ EMR∙ k)
   -- Combined with the previous isos, this gives the Thom isomorphism
   -- Hⁱ(B,R) ≃ Hⁱ⁺ⁿ(EP∙,R)
   Q : fst B → Pointed ℓ'
-  Q b = Susp (P b .fst) , north
+  Q b = Susp (P b) , north
 
   F = Σ[ x ∈ fst B ] (Q x .fst)
 
@@ -759,7 +819,7 @@ module Thom (B : Pointed ℓ)
 
   EP∙≃FP∙ : EP∙ ≃∙ FP∙
   fst EP∙≃FP∙ = isoToEquiv Iso-EP-FP
-  snd EP∙≃FP∙ i = inr (pt B , merid (P (pt B) .snd) (~ i))
+  snd EP∙≃FP∙ i = inr (pt B , merid P* (~ i))
 
   -- step 2: show (FP∙ →∙ A) ≃ ((b : fst B) → Q b →∙ A) for any pointed type A
   -- (taken homogeneous for convenience)
@@ -828,7 +888,8 @@ module Thom (B : Pointed ℓ)
 
   -- We combine it with the generalised thom iso, in order to get the
   -- usual Thom isomorphism
-  module _  (n : ℕ) (e : P (pt B) ≃∙ S₊∙ n) where
+
+  module _  (n : ℕ) (e : (P (pt B) , P*) ≃∙ S₊∙ n) where
     Q≃ : Q (pt B) ≃∙ S₊∙ (suc n)
     Q≃ = compEquiv∙
           (isoToEquiv
@@ -843,9 +904,17 @@ module Thom (B : Pointed ℓ)
       module M = preThom B Q conB R (suc n) Q≃ c r
 
       -- Finally, the actual Thom ismorphism
+      ϕ-raw : (i : ℕ) → (fst B → EMR i) ≃ (EP∙ →∙ EMR∙ (i +' suc n))
+      ϕ-raw i = isoToEquiv (compIso (M.pre-ϕIso i) (ι (i +' (suc n))))
+
       ϕ-equiv : (i : ℕ) → coHom i RR (fst B) ≃ coHomRed (i +' suc n) RR EP∙
       ϕ-equiv i =
         isoToEquiv (setTruncIso (compIso (M.pre-ϕIso i) (ι (i +' (suc n)))))
+
+      ϕ-raw-contr : (i : ℕ) → isContr E → (fst B → EMR i) ≃ (B →∙ EMR∙ (i +' suc n))
+      ϕ-raw-contr i contr =
+        compEquiv (ϕ-raw i)
+          (isoToEquiv (post∘∙equiv (isoToEquiv (EP-contr contr) , refl)))
 
       ϕ : (i : ℕ) → coHom i RR (fst B) → coHomRed (i +' suc n) RR EP∙
       ϕ i = ϕ-equiv i .fst
@@ -921,7 +990,7 @@ module Thom (B : Pointed ℓ)
           λ g p → PT.rec (squash₂ _ _)
             (J (λ f _ → isInKer (p* i) ∣ f ∣₂)
               (cong ∣_∣₂ (funExt (λ a
-              → cong (fst g) (sym (push a) ∙ push (pt B , P (pt B) .snd))
+              → cong (fst g) (sym (push a) ∙ push (pt B , P*))
               ∙ snd g))))
             (Iso.fun PathIdTrunc₀Iso p)))
 
@@ -934,7 +1003,7 @@ module Thom (B : Pointed ℓ)
        (λ p → ∣ (λ { (inl x) → 0ₖ i
                    ; (inr x) → f x
                    ; (push a i) → p (~ i) a})
-             , funExt⁻ p (pt B , snd (P (pt B))) ∣₂
+             , funExt⁻ p (pt B , P*) ∣₂
              , refl)
        (Iso.fun PathIdTrunc₀Iso p)
 
@@ -951,7 +1020,8 @@ module Thom (B : Pointed ℓ)
               (cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM _)
                 (funExt λ { (inl x) → refl
                           ; (inr x) → sym (EM→ΩEM+1 i (g x))
-                          ; (push a j) k → EM→ΩEM+1 i (g (fst a)) (j ∧ ~ k)}))))
+                          ; (push a j) k
+                            → EM→ΩEM+1 i (g (fst a)) (j ∧ ~ k)}))))
             (Iso.fun PathIdTrunc₀Iso p)))
 
   Ker-E↑⊂Im-p* : (i : ℕ) (x : _)
@@ -959,36 +1029,39 @@ module Thom (B : Pointed ℓ)
     → isInIm (p* i) x
   Ker-E↑⊂Im-p* i =
     ST.elim (λ _ → isSetΠ λ _ → isProp→isSet squash₁)
-      λ f p → PT.map
-       (λ p → ∣ (λ b → f (b , P b .snd)) ∣₂
-            , cong ∣_∣₂ (funExt λ a →
-                       (help f (funExt⁻ (cong fst p))
-                          (fst a , P (fst a) .snd)
-                         (cong (funExt⁻ (cong fst p))
-                           (push (fst a , P (fst a) .snd))))
-                      ∙ sym (help f (funExt⁻ (cong fst p)) a
-                      (cong (funExt⁻ (cong fst p)) (push a)))))
-       (Iso.fun PathIdTrunc₀Iso p)
-     where
-     help : (f : E → EM RR i) (p : (a : _) → pre-E↑ i f .fst a ≡ 0ₖ (suc i))
-       → (a : E) → PathP (λ i₁ → EM→ΩEM+1 i (f a) i₁ ≡ 0ₖ (suc i))
-                      (p (inl tt))
-                      (p (inr (fst a)))
-       → f a ≡ (ΩEM+1→EM i  (p (inl tt))) -ₖ ΩEM+1→EM i (p (inr (fst a)))
-     help f p a pp  =
-         (sym (rUnitₖ i (f a))
-        ∙ cong (f a +ₖ_)
-            (sym (rCancelₖ i (ΩEM+1→EM i (p (inr (fst a)))))))
-         ∙ assocₖ i (f a)
-             (ΩEM+1→EM i (p (inr (fst a))))
-             (-ₖ (ΩEM+1→EM i (p (inr (fst a)))))
-         ∙ cong (λ x → x -ₖ ΩEM+1→EM i (p (inr (fst a))))
-           ((cong (_+ₖ ΩEM+1→EM i (p (inr (fst a))))
-            (sym (Iso.leftInv (Iso-EM-ΩEM+1 i) (f a))))
-         ∙ sym (ΩEM+1→EM-hom i (EM→ΩEM+1 i (f a)) (p (inr (fst a))))
-       ∙ cong (ΩEM+1→EM i)
-         (cong (EM→ΩEM+1 i (f a) ∙_) (rUnit (p (inr (fst a))))
-         ∙ sym (PathP→compPathR pp)))
+      λ f p → PT.map (λ r →
+        ∣ (λ b → ΩEM+1→EM i (sym (funExt⁻ (cong fst r) (inr b)))
+                             +ₖ f (* , P*)) ∣₂
+      , cong ∣_∣₂ (funExt λ {(x , p)
+        → cong (_+ₖ f (* , P*))
+             ((cong (ΩEM+1→EM i)
+            (cong sym (sym (fromPathP (cong (funExt⁻ (cong fst r)) (push (x , p))))
+                    ∙ (λ j → transp (λ k → EM→ΩEM+1 i (f (x , p)) (j ∨ k)
+                                           ≡ 0ₖ (suc i))
+                         j (compPath-filler'
+                            (sym (EM→ΩEM+1 i (f (x , p))))
+                            (funExt⁻ (cong fst r) (inl tt)) j)))
+            ∙ (symDistr (sym (EM→ΩEM+1 i (f (x , p))))
+                        (funExt⁻ (λ i₂ → fst (r i₂)) (inl tt))))
+          ∙ ΩEM+1→EM-hom i
+              (sym (funExt⁻ (λ i₁ → fst (r i₁)) (inl tt)))
+              (EM→ΩEM+1 i (f (x , p))))
+            ∙ cong₂ _+ₖ_
+               (cong (ΩEM+1→EM i)
+                 (cong sym
+                   (rUnit _ ∙∙ sym (Square→compPath
+                   ((cong (funExt⁻ (cong fst r)) (push (* , P*)))
+                 ▷ λ i j → r j .snd i)) ∙∙ sym (rUnit _))))
+               (Iso.leftInv (Iso-EM-ΩEM+1 i) (f (x , p))))
+         ∙ cong₂ _+ₖ_ (cong₂ _+ₖ_ (cong (ΩEM+1→EM i)
+                       (sym (EM→ΩEM+1-sym i (f (* , P*))))
+                      ∙ Iso.leftInv (Iso-EM-ΩEM+1 i) (-ₖ (f (* , P*)))) refl
+                    ∙ commₖ i (-ₖ f (* , P*)) (f (x , p)))
+                    refl
+         ∙ sym (assocₖ i (f (x , p)) (-ₖ (f (* , P*))) (f (* , P*)))
+         ∙ cong₂ _+ₖ_ refl (lCancelₖ i (f (* , P*)))
+         ∙ rUnitₖ i (f (x , p))}))
+        ((Iso.fun PathIdTrunc₀Iso p))
 
   Im-E↑⊂Ker-j* : (i : ℕ) (x : _)
     → isInIm (E↑ i) x
@@ -1036,27 +1109,33 @@ module Thom (B : Pointed ℓ)
                     (cong (fst f) (push a))
                     (p (fst a)) (~ j) i)
 
--- Finally, we can instantiate everything and get the Gysin sequence
 module Gysin (B : Pointed ℓ)
-         (P : fst B → Pointed ℓ')
-         (conB : isConnected 3 (fst B))
+         (P : fst B → Type ℓ')
+         (conB : isConnected 2 (fst B))
          (R : CommRing ℓ'')
+         (n : ℕ)
+         (eq' : P (pt B) ≃ S₊ n)
+         (c : (b : fst B) → Susp∙ (P b) →∙ EM∙ (CommRing→AbGroup R) (suc n))
+         (c-id : c (pt B) ≡ gen-HⁿSⁿ-raw
+           (CommRing→Ring R) (suc n)
+           ∘∙ ≃∙map (Thom.Q≃ B P (invEq eq' (ptSn n))
+              conB R n (eq' , (secEq eq' (ptSn n)))))
          where
   private
-    RR = (CommRing→AbGroup R)
-    EMR = EM RR
-    EMR∙ = EM∙ RR
-  module M = Thom B P (isConnectedSubtr 2 1 conB) R
-  open M
+     RR = (CommRing→AbGroup R)
+     EMR = EM RR
+     EMR∙ = EM∙ RR
+     P* = invEq eq' (ptSn n)
+  module M = Thom B P P* conB R
+  open M public
 
-  module N = genThom B Q conB R
-  open N renaming (c to c')
+  eq : (P (pt B) , P*) ≃∙ S₊∙ n
+  fst eq = eq'
+  snd eq = secEq eq' (ptSn n)
 
-  module _ (n : ℕ)
-         (eq : P (pt B) ≃∙ S₊∙ n) where
-    module L = con n eq (c' (suc n) (Q≃ n eq)) (c-id (suc n) (Q≃ n eq))
+  module _ (c-id : c (pt B) ≡ gen-HⁿSⁿ-raw (CommRing→Ring R) (suc n) ∘∙ ≃∙map (Q≃ n eq)) where
+    module L = con n eq c c-id
     open L
-    c = c' (suc n) (Q≃ n eq)
 
     -- The Euler class
     e : coHom (suc n) RR (fst B)
@@ -1211,3 +1290,26 @@ module Gysin (B : Pointed ℓ)
       →Im x = PT.map (uncurry λ f p → (fst (helpIso i t .fst) f)
         , sym (j*≡ i t f)
          ∙ p)
+
+
+
+module GysinCon (B : Pointed ℓ)
+         (P : fst B → Type ℓ')
+         (conB : isConnected 3 (fst B))
+         (R : CommRing ℓ'')
+         (n : ℕ)
+         (eq : P (pt B) ≃ S₊ n)
+         where
+  private
+    module T = Thom B P (invEq eq (ptSn n)) (isConnectedSubtr 2 1 conB) R
+    module GT = genThom B
+      (λ b → Susp∙ (P b)) conB R (suc n) (T.Q≃ n (eq , secEq eq (ptSn n)))
+
+  module Inst = Gysin B P (isConnectedSubtr 2 1 conB)
+                      R
+                      n
+                      eq
+                      GT.c
+                      GT.c-id
+
+  open Inst public
