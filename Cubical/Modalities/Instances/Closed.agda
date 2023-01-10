@@ -5,9 +5,6 @@ module Cubical.Modalities.Instances.Closed where
 open import Cubical.Modalities.Modality
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Isomorphism using (isoToIsEquiv; iso)
-open import Cubical.Foundations.Function using (const)
 open import Cubical.Foundations.HLevels using (hProp; isProp→; inhProp→isContr; isContr→isContrPath)
 open import Cubical.Foundations.Structure using (⟨_⟩)
 
@@ -19,7 +16,6 @@ module _ {ℓ : Level} (X : hProp ℓ) where
 
   closedModality : Modality ℓ
 
-  -- We want to use ◯ and η as soon as we defined them.
   open Modality closedModality
 
   Modality.◯ closedModality A = join ⟨ X ⟩ A
@@ -33,7 +29,6 @@ module _ {ℓ : Level} (X : hProp ℓ) where
     where
       ⟨X⟩≡Unit* : ⟨ X ⟩ ≡ Unit*
       ⟨X⟩≡Unit* = isContr→≡Unit* (inhProp→isContr x (snd X))
-
 
   Modality.◯-elim closedModality {B = B} B-modal f (inl x) = fst (B-modal (inl x) x)
   Modality.◯-elim closedModality {B = B} B-modal f (inr a) = f a
