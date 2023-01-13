@@ -16,9 +16,6 @@ open import Agda.Builtin.String
 _>>=_ = R.bindTC
 _<|>_ = R.catchTC
 
-_$_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → A → B
-f $ a = f a
-
 _>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R.TC B
 f >> g = f >>= λ _ → g
 
@@ -52,4 +49,3 @@ makeAuxiliaryDef s ty term =
   R.declareDef (varg name) ty >>
   R.defineFun name [ R.clause [] [] term ] >>
   R.returnTC (R.def name [])
-
