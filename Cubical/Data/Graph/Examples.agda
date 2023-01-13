@@ -64,9 +64,9 @@ record ωDiag ℓ : Type (ℓ-suc ℓ) where
     ωEdge : ∀ n → ωNode n → ωNode (suc n)
 
   asDiag : Diag ℓ ωGr
-  asDiag $ n = ωNode n
-  _<$>_ asDiag {m} {n} f with areAdj m n
-  asDiag <$> tt | yes (adj m) = ωEdge m
+  asDiag $g n = ωNode n
+  _<$g>_ asDiag {m} {n} f with areAdj m n
+  asDiag <$g> tt | yes (adj m) = ωEdge m
 
 
 -- The finite connected subgraphs of ω: 𝟘,𝟙,𝟚,𝟛,...
@@ -101,9 +101,9 @@ record [_]Diag ℓ (k : ℕ) : Type (ℓ-suc ℓ) where
     []Edge : ∀ (n : Fin k) → []Node (finj n) → []Node (fsuc n)
 
   asDiag : Diag ℓ [ suc k ]Gr
-  asDiag $ n = []Node n
-  _<$>_ asDiag {m} {n} f with areAdjFin m n
-  _<$>_ asDiag {.(finj n)} {fsuc n} f | yes (adj .n) = []Edge n
+  asDiag $g n = []Node n
+  _<$g>_ asDiag {m} {n} f with areAdjFin m n
+  _<$g>_ asDiag {.(finj n)} {fsuc n} f | yes (adj .n) = []Edge n
 
 
 -- Disjoint union of graphs
@@ -124,9 +124,9 @@ module _ {ℓv ℓe ℓv' ℓe'} where
       ⊎Edger : ∀ {x y} → Edge G' x y → ⊎Node (inr x) → ⊎Node (inr y)
 
     asDiag : Diag ℓ (G ⊎Gr G')
-    asDiag $ x = ⊎Node x
-    _<$>_ asDiag {inl x} {inl y} f = ⊎Edgel (lower f)
-    _<$>_ asDiag {inr x} {inr y} f = ⊎Edger (lower f)
+    asDiag $g x = ⊎Node x
+    _<$g>_ asDiag {inl x} {inl y} f = ⊎Edgel (lower f)
+    _<$g>_ asDiag {inr x} {inr y} f = ⊎Edger (lower f)
 
 
 -- Cartesian product of graphs
@@ -153,9 +153,9 @@ module _ {ℓv ℓe ℓv' ℓe'} where
       ×Edge₂ : ∀ (x : Node (fst G)) {x' y'} (f : Edge (fst G') x' y') → ×Node (x , x') → ×Node (x , y')
 
     asDiag : Diag ℓ (G ×Gr G')
-    asDiag $ x = ×Node x
-    _<$>_ asDiag {x , x'} {y , y'} f with snd G x y | snd G' x' y'
-    _<$>_ asDiag {x , x'} {y , y'} (inl f) | yes _ | yes p' = subst _ p' (×Edge₁ f x')
-    _<$>_ asDiag {x , x'} {y , y'} (inr f) | yes p | yes _  = subst _ p  (×Edge₂ x f )
-    _<$>_ asDiag {x , x'} {y , y'} f | yes p | no  _  = subst _ p  (×Edge₂ x (lower f) )
-    _<$>_ asDiag {x , x'} {y , y'} f | no  _ | yes p' = subst _ p' (×Edge₁ (lower f) x')
+    asDiag $g x = ×Node x
+    _<$g>_ asDiag {x , x'} {y , y'} f with snd G x y | snd G' x' y'
+    _<$g>_ asDiag {x , x'} {y , y'} (inl f) | yes _ | yes p' = subst _ p' (×Edge₁ f x')
+    _<$g>_ asDiag {x , x'} {y , y'} (inr f) | yes p | yes _  = subst _ p  (×Edge₂ x f )
+    _<$g>_ asDiag {x , x'} {y , y'} f | yes p | no  _  = subst _ p  (×Edge₂ x (lower f) )
+    _<$g>_ asDiag {x , x'} {y , y'} f | no  _ | yes p' = subst _ p' (×Edge₁ (lower f) x')
