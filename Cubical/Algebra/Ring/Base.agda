@@ -155,8 +155,8 @@ IsRingEquiv M e N = IsRingHom M (e .fst) N
 RingEquiv : (R : Ring ℓ) (S : Ring ℓ') → Type (ℓ-max ℓ ℓ')
 RingEquiv R S = Σ[ e ∈ (⟨ R ⟩ ≃ ⟨ S ⟩) ] IsRingEquiv (R .snd) e (S .snd)
 
-_$_ : {R : Ring ℓ} {S : Ring ℓ'} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
-φ $ x = φ .fst x
+_$r_ : {R : Ring ℓ} {S : Ring ℓ'} → (φ : RingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
+φ $r x = φ .fst x
 
 RingEquiv→RingHom : {A B : Ring ℓ} → RingEquiv A B → RingHom A B
 RingEquiv→RingHom (e , eIsHom) = e .fst , eIsHom
