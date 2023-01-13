@@ -20,7 +20,6 @@ _>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R
 f >> g = f >>= λ _ → g
 
 infixl 4 _>>=_ _>>_ _<|>_
-infixr 3 _$_
 
 liftTC : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → R.TC A → R.TC B
 liftTC f ta = ta >>= λ a → R.returnTC (f a)
