@@ -115,6 +115,7 @@ jobs:
           touch doc/user-manual.pdf
           ${{ env.CABAL_INSTALL }}
           cd ..
+          rm -rf agda
 
       - name: Download and install fix-whitespace
         if: steps.cache-cabal.outputs.cache-hit != 'true'
