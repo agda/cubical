@@ -8,7 +8,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functors.Constant
 
 private

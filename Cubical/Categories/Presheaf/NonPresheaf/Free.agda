@@ -7,7 +7,6 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 
