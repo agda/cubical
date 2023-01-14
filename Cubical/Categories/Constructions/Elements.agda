@@ -89,16 +89,9 @@ module Contravariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
 
     module _ {ℓS} {F : Functor (C ^op) (SET ℓS)} where
 
-      -- morphisms are equal as long as the morphisms in C are equals
+      -- morphisms are equal as long as the morphisms in C are equal
       ∫ᴾhomEq : ∀ {o1 o1' o2 o2'} (f : (∫ᴾ F) [ o1 , o2 ]) (g : (∫ᴾ F) [ o1' , o2' ])
               → (p : o1 ≡ o1') (q : o2 ≡ o2')
               → (eqInC : PathP (λ i → C [ fst (p i) , fst (q i) ]) (fst f) (fst g))
               → PathP (λ i → (∫ᴾ F) [ p i , q i ]) f g
-      ∫ᴾhomEq (f , eqf) (g , eqg) p q eqInC
-        = ΣPathP (eqInC
-                  , isOfHLevel→isOfHLevelDep 1 {A = Σ[ (o1 , o2) ∈ (∫ᴾ F) .ob × (∫ᴾ F) .ob ] (C [ fst o1 , fst o2 ])}
-                                              {B = λ ((o1 , o2) , f) → snd o1 ≡ (F ⟪ f ⟫) (snd o2)}
-                                              (λ ((o1 , o2) , f) → snd (F ⟅ (fst o1) ⟆) (snd o1) ((F ⟪ f ⟫) (snd o2)))
-                                              eqf
-                                              eqg
-                                              λ i → ((p i , q i) , eqInC i))
+      ∫ᴾhomEq _ _ _ _ = ΣPathPProp (λ f → snd (F ⟅ _ ⟆) _ _)
