@@ -477,8 +477,8 @@ leftInv (Iso→joinIso is1 is2) (push a b i) j =
   push (leftInv is1 a j) (leftInv is2 b j) i
 
 
-join-leftUnit : {A : Type ℓ} → isContr (join (Unit* {ℓ'}) A)
-fst join-leftUnit = inl tt*
-snd join-leftUnit (inl tt*) = refl
-snd join-leftUnit (inr a) = push tt* a
-snd join-leftUnit (push tt* a i) j = push tt* a (i ∧ j)
+joinAnnihilL : {A : Type ℓ} → isContr (join (Unit* {ℓ'}) A)
+fst joinAnnihilL = inl tt*
+snd joinAnnihilL (inl tt*) = refl
+snd joinAnnihilL (inr a) = push tt* a
+snd joinAnnihilL (push tt* a i) j = push tt* a (i ∧ j)

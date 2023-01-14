@@ -24,8 +24,8 @@ module _ {ℓ : Level} (X : hProp ℓ) where
   Modality.isModal closedModality A = ⟨ X ⟩ → isContr A
   Modality.isPropIsModal closedModality = isProp→ isPropIsContr
 
-  Modality.◯-isModal closedModality {A = A} x
-    = subst (λ t → isContr (join t A)) (sym ⟨X⟩≡Unit*) join-leftUnit
+  Modality.◯-isModal closedModality {A = A} x =
+    subst (λ t → isContr (join t A)) (sym ⟨X⟩≡Unit*) joinAnnihilL
     where
       ⟨X⟩≡Unit* : ⟨ X ⟩ ≡ Unit*
       ⟨X⟩≡Unit* = isContr→≡Unit* (inhProp→isContr x (snd X))
@@ -33,14 +33,8 @@ module _ {ℓ : Level} (X : hProp ℓ) where
   Modality.◯-elim closedModality {B = B} B-modal f (inl x) = fst (B-modal (inl x) x)
   Modality.◯-elim closedModality {B = B} B-modal f (inr a) = f a
   Modality.◯-elim closedModality {B = B} B-modal f (push x a i) =
-     hcomp
-       (λ where
-         j (i = i0) → contr (transport (λ k → B (push x a (~ k))) (f a)) (~ j) -- Contractibilty
-         j (i = i1) → f a)
-       (transport-filler (sym (cong B (push x a))) (f a) (~ i))
-    where
-      contr : (y : B (inl x)) → fst (B-modal (inl x) x) ≡ y
-      contr = snd (B-modal (inl x) x)
+    isProp→PathP (λ i → isContr→isProp (B-modal (push x a i) x))
+                 (B-modal (inl x) x .fst) (f a) i
 
   Modality.◯-elim-β closedModality {B = B} B-modal f a = refl
 
