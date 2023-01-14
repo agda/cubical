@@ -25,7 +25,7 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Wedge
-open import Cubical.HITs.Pushout
+open import Cubical.HITs.Pushout as Pushout
 
 open import Cubical.Homotopy.Connected
 
@@ -246,6 +246,7 @@ module _ {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') where
 
   wedgeConnected : ((x : typ A) → ∥ pt A ≡ x ∥₁) → ((x : typ B) → ∥ pt B ≡ x ∥₁) → (x : A ⋁ B) → ∥ inl (pt A) ≡ x ∥₁
   wedgeConnected conA conB =
-    PushoutToProp (λ _ → isPropPropTrunc)
-                  (λ a → PT.rec isPropPropTrunc (λ p → ∣ cong inl p ∣₁) (conA a))
-                   λ b → PT.rec isPropPropTrunc (λ p → ∣ push tt ∙ cong inr p ∣₁) (conB b)
+    Pushout.elimProp _
+      (λ _ → isPropPropTrunc)
+      (λ a → PT.rec isPropPropTrunc (λ p → ∣ cong inl p ∣₁) (conA a))
+      (λ b → PT.rec isPropPropTrunc (λ p → ∣ push tt ∙ cong inr p ∣₁) (conB b))

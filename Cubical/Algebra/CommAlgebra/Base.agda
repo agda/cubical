@@ -127,7 +127,6 @@ module _ {R : CommRing ℓ} where
                        x · (r ⋆ y) ∎
     makeIsCommAlgebra .IsCommAlgebra.·Comm = ·Comm
 
-
   module _ (S : CommRing ℓ') where
     open CommRingStr (snd S) renaming (1r to 1S)
     open CommRingStr (snd R) using () renaming (_·_ to _·R_; _+_ to _+R_; 1r to 1R)

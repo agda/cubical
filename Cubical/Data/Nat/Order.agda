@@ -252,8 +252,14 @@ min-≤-right {suc m} {suc n} = suc-≤-suc min-≤-right
 ... | yes m≤n = yes (suc-≤-suc m≤n)
 ... | no m≰n = no λ m+1≤n+1 → m≰n (pred-≤-pred m+1≤n+1 )
 
+≤Stable : ∀ m n → Stable (m ≤ n)
+≤Stable m n = Dec→Stable (≤Dec m n)
+
 <Dec : ∀ m n → Dec (m < n)
 <Dec m n = ≤Dec (suc m) n
+
+<Stable : ∀ m n → Stable (m < n)
+<Stable m n = Dec→Stable (<Dec m n)
 
 Trichotomy-suc : Trichotomy m n → Trichotomy (suc m) (suc n)
 Trichotomy-suc (lt m<n) = lt (suc-≤-suc m<n)

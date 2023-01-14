@@ -24,6 +24,10 @@ data Dec (P : Type ℓ) : Type ℓ where
   yes : ( p :   P) → Dec P
   no  : (¬p : ¬ P) → Dec P
 
+decRec : ∀ {ℓ ℓ'} {P : Type ℓ} {A : Type ℓ'} → (P → A) → (¬ P → A) → (Dec P) → A
+decRec ifyes ifno (yes p) = ifyes p
+decRec ifyes ifno (no ¬p) = ifno ¬p
+
 NonEmpty : Type ℓ → Type ℓ
 NonEmpty A = ¬ ¬ A
 

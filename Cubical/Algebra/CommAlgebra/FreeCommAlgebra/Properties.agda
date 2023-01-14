@@ -38,7 +38,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
     open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
 
     imageOf0Works : 0r ⋆ 1a ≡ 0a
-    imageOf0Works = 0-actsNullifying 1a
+    imageOf0Works = ⋆AnnihilL 1a
 
     imageOf1Works : 1r ⋆ 1a ≡ 1a
     imageOf1Works = ⋆IdL 1a
@@ -91,7 +91,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
 
       inducedHom : CommAlgebraHom (R [ I ]) A
       inducedHom .fst = inducedMap
-      inducedHom .snd .pres0 = 0-actsNullifying _
+      inducedHom .snd .pres0 = ⋆AnnihilL _
       inducedHom .snd .pres1 = imageOf1Works
       inducedHom .snd .pres+ x y = refl
       inducedHom .snd .pres· x y = refl
@@ -352,9 +352,32 @@ Iso.leftInv (homMapIso {R = R} {I = I} A) =
   λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
                (Theory.homRetrievable A f)
 
+inducedHomUnique :
+  {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'') (φ : I → fst A )
+  → (f : CommAlgebraHom (R [ I ]) A) → ((i : I) → fst f (Construction.var i) ≡ φ i)
+  → f ≡ inducedHom A φ
+inducedHomUnique {I = I} A φ f p =
+  isoFunInjective (homMapIso A) f (inducedHom A φ) λ j i → p i j
+
 homMapPath : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R (ℓ-max ℓ ℓ'))
              → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
 homMapPath A = isoToPath (homMapIso A)
+
+{- Corollary: Two homomorphisms with the same values on generators are equal -}
+equalByUMP : {R : CommRing ℓ} {I : Type ℓ'}
+           → (A : CommAlgebra R ℓ'')
+           → (f g : CommAlgebraHom (R [ I ]) A)
+           → ((i : I) → fst f (Construction.var i) ≡ fst g (Construction.var i))
+           → (x : ⟨ R [ I ] ⟩) → fst f x ≡ fst g x
+equalByUMP {R = R} {I = I} A f g = funExt⁻ ∘ cong fst ∘ isoFunInjective (homMapIso A) f g ∘ funExt
+
+{- A corollary, which is useful for constructing isomorphisms to
+   algebras with the same universal property -}
+isIdByUMP : {R : CommRing ℓ} {I : Type ℓ'}
+          → (f : CommAlgebraHom (R [ I ]) (R [ I ]))
+          → ((i : I) → fst f (Construction.var i) ≡ Construction.var i)
+          → (x : ⟨ R [ I ] ⟩) → fst f x ≡ x
+isIdByUMP {R = R} {I = I} f p = equalByUMP (R [ I ]) f (idCAlgHom (R [ I ])) p
 
 -- The homomorphism induced by the variables is the identity.
 inducedHomVar : (R : CommRing ℓ) (I : Type ℓ')
@@ -431,3 +454,7 @@ module _ {R : CommRing ℓ} where
                      isoToEquiv
                        (iso to from (λ x → isContr→isOfHLevel 1 isContr⊥→A _ _) from-to)
                in isOfHLevelRespectEquiv 0 (invEquiv equiv) isContr⊥→A
+
+module _ {R : CommRing ℓ} {I : Type ℓ} where
+  baseRingHom : CommRingHom R (CommAlgebra→CommRing (R [ I ]))
+  baseRingHom = snd (Iso.fun (CommAlgChar.CommAlgIso R) (R [ I ]))

@@ -13,10 +13,7 @@ module Cubical.Foundations.Equiv.HalfAdjoint where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Path
 
 private
   variable

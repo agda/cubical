@@ -12,6 +12,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Equiv.Properties
 
 record Modality ℓ : Type (ℓ-suc ℓ) where
   field
@@ -80,7 +81,7 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
   {- equivalences preserve being modal -}
 
   equivPreservesIsModal : {A B : Type ℓ} → A ≃ B → isModal A → isModal B
-  equivPreservesIsModal eq = fst (pathToEquiv (cong isModal (ua eq)))
+  equivPreservesIsModal eq = subst isModal (ua eq)
 
 
   {- modal types and [η] being an equivalence -}
@@ -158,3 +159,10 @@ record Modality ℓ : Type (ℓ-suc ℓ) where
 
           r : (x : Σ A B) → η-inv (η x) ≡ x
           r x = (λ i → h (η x) , p x i) ∙ (almost x)
+
+  isModal≡ : {A : Type ℓ} → (isModal A) → {x y : A} → (isModal (x ≡ y))
+  isModal≡ A-modal = equivPreservesIsModal (invEquiv (congEquiv (η , (isModalToIsEquiv A-modal)))) (◯-=-isModal _ _)
+
+  ◯-preservesProp : {A : Type ℓ} → (isProp A) → (isProp (◯ A))
+  ◯-preservesProp pA u = ◯-elim (λ z → ◯-=-isModal _ _)
+                         λ b → ◯-elim (λ x → ◯-=-isModal _ _) (λ a → cong η (pA a b)) u

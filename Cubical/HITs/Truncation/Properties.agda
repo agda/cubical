@@ -253,14 +253,11 @@ isModal       (HLevelTruncModality n) = isOfHLevel n
 isPropIsModal (HLevelTruncModality n) = isPropIsOfHLevel n
 ◯             (HLevelTruncModality n) = hLevelTrunc n
 ◯-isModal     (HLevelTruncModality n) = isOfHLevelTrunc n
-η (HLevelTruncModality zero) _ = tt*
-η (HLevelTruncModality (suc n)) = ∣_∣
-◯-elim (HLevelTruncModality zero) cB _ tt* = cB tt* .fst
-◯-elim (HLevelTruncModality (suc n)) = elim
+η (HLevelTruncModality n) = ∣_∣ₕ
+◯-elim (HLevelTruncModality n) = elim
 ◯-elim-β (HLevelTruncModality zero) cB f a = cB tt* .snd (f a)
 ◯-elim-β (HLevelTruncModality (suc n)) = λ _ _ _ → refl
-◯-=-isModal (HLevelTruncModality zero) x y = (isOfHLevelUnit* 1 x y) , (isOfHLevelUnit* 2 x y _)
-◯-=-isModal (HLevelTruncModality (suc n)) = isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n))
+◯-=-isModal (HLevelTruncModality n) = isOfHLevelPath n (isOfHLevelTrunc n)
 
 -- universal property
 

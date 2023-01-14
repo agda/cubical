@@ -1,11 +1,12 @@
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.Ring.QuotientRing where
+module Cubical.Algebra.Ring.Quotient where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_; ⊆-extensionality) -- \in, \sub=
+open import Cubical.Functions.Surjection
 
 open import Cubical.Data.Sigma using (Σ≡Prop)
 
@@ -202,6 +203,10 @@ IsRingHom.pres1 (snd (quotientHom R I)) = refl
 IsRingHom.pres+ (snd (quotientHom R I)) _ _ = refl
 IsRingHom.pres· (snd (quotientHom R I)) _ _ = refl
 IsRingHom.pres- (snd (quotientHom R I)) _ = refl
+
+quotientHomSurjective : (R : Ring ℓ) → (I : IdealsIn R)
+                        → isSurjection (fst (quotientHom R I))
+quotientHomSurjective R I = []surjective
 
 
 module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where

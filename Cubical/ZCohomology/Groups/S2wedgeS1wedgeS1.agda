@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --experimental-lossy-unification #-}
-module Cubical.ZCohomology.Groups.WedgeOfSpheres where
+module Cubical.ZCohomology.Groups.S2wedgeS1wedgeS1 where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism

@@ -39,6 +39,10 @@ compPropRel R S .snd _ _ = squash₁
 graphRel : ∀ {ℓ} {A B : Type ℓ} → (A → B) → Rel A B ℓ
 graphRel f a b = f a ≡ b
 
+module HeterogenousRelation {ℓ ℓ' : Level} {A B : Type ℓ} (R : Rel A B ℓ') where
+  isUniversalRel : Type (ℓ-max ℓ ℓ')
+  isUniversalRel = (a : A) (b : B) → R a b
+
 module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isRefl : Type (ℓ-max ℓ ℓ')
   isRefl = (a : A) → R a a
@@ -58,6 +62,11 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       reflexive : isRefl
       symmetric : isSym
       transitive : isTrans
+
+  isUniversalRel→isEquivRel : HeterogenousRelation.isUniversalRel R → isEquivRel
+  isUniversalRel→isEquivRel u .isEquivRel.reflexive a = u a a
+  isUniversalRel→isEquivRel u .isEquivRel.symmetric a b _ = u b a
+  isUniversalRel→isEquivRel u .isEquivRel.transitive a _ c _ _ = u a c
 
   isPropValued : Type (ℓ-max ℓ ℓ')
   isPropValued = (a b : A) → isProp (R a b)

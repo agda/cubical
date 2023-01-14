@@ -39,12 +39,19 @@ module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
   open RingStr (snd R) renaming (_+_ to _+r_ ; _·_ to _·r_)
   open AlgebraStr (A .snd)
 
-  0-actsNullifying : (x : ⟨ A ⟩) → 0r ⋆ x ≡ 0a
-  0-actsNullifying x =
+  ⋆AnnihilL : (x : ⟨ A ⟩) → 0r ⋆ x ≡ 0a
+  ⋆AnnihilL x =
     let idempotent-+ = 0r ⋆ x              ≡⟨ cong (λ u → u ⋆ x) (sym (RingTheory.0Idempotent R)) ⟩
                        (0r +r 0r) ⋆ x      ≡⟨ ⋆DistL+ 0r 0r x ⟩
                        (0r ⋆ x) + (0r ⋆ x) ∎
     in RingTheory.+Idempotency→0 (Algebra→Ring A) (0r ⋆ x) idempotent-+
+
+  ⋆AnnihilR : (r : ⟨ R ⟩) → r ⋆ 0a ≡ 0a
+  ⋆AnnihilR r = RingTheory.+Idempotency→0 (Algebra→Ring A) (r ⋆ 0a) helper
+    where helper =
+             r ⋆ 0a              ≡⟨ cong (λ u → r ⋆ u) (sym (RingTheory.0Idempotent (Algebra→Ring A))) ⟩
+             r ⋆ (0a + 0a)       ≡⟨ ⋆DistR+ r 0a 0a ⟩
+             (r ⋆ 0a) + (r ⋆ 0a) ∎
 
   ⋆Dist· : (x y : ⟨ R ⟩) (a b : ⟨ A ⟩) → (x ·r y) ⋆ (a · b) ≡ (x ⋆ a) · (y ⋆ b)
   ⋆Dist· x y a b = (x ·r y) ⋆ (a · b) ≡⟨ ⋆AssocR _ _ _ ⟩

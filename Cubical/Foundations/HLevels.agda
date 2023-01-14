@@ -576,6 +576,9 @@ isGroupoidHSet = isOfHLevelTypeOfHLevel 2
 isOfHLevelLift : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} → isOfHLevel n A → isOfHLevel n (Lift {j = ℓ'} A)
 isOfHLevelLift n = isOfHLevelRetract n lower lift λ _ → refl
 
+isOfHLevelLower : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} → isOfHLevel n (Lift {j = ℓ'} A) → isOfHLevel n A
+isOfHLevelLower n = isOfHLevelRetract n lift lower λ _ → refl
+
 ----------------------------
 
 -- More consequences of isProp and isContr
@@ -603,7 +606,7 @@ isContrPartial→isContr {A = A} extend law
 
 isOfHLevelDep : HLevel → {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
 isOfHLevelDep 0 {A = A} B = {a : A} → Σ[ b ∈ B a ] ({a' : A} (b' : B a') (p : a ≡ a') → PathP (λ i → B (p i)) b b')
-isOfHLevelDep 1 {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 ≡ a1)  → PathP (λ i → B (p i)) b0 b1
+isOfHLevelDep 1 {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 ≡ a1) → PathP (λ i → B (p i)) b0 b1
 isOfHLevelDep (suc (suc  n)) {A = A} B = {a0 a1 : A} (b0 : B a0) (b1 : B a1) → isOfHLevelDep (suc n) {A = a0 ≡ a1} (λ p → PathP (λ i → B (p i)) b0 b1)
 
 isContrDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
@@ -620,6 +623,12 @@ isContrDep∘ f cB {a} = λ where
 
 isPropDep∘ : {A' : Type ℓ} (f : A' → A) → isPropDep B → isPropDep (B ∘ f)
 isPropDep∘ f pB b0 b1 = pB b0 b1 ∘ cong f
+
+isOfHLevelDep→isOfHLevel : (n : HLevel)
+  → {A : Type ℓ} {B : A → Type ℓ'} → isOfHLevelDep n {A = A} B → (a : A) → isOfHLevel n (B a)
+isOfHLevelDep→isOfHLevel 0 h a = h .fst , λ b → h .snd b refl
+isOfHLevelDep→isOfHLevel 1 h a x y = h x y refl
+isOfHLevelDep→isOfHLevel (suc (suc n)) h a x y = isOfHLevelDep→isOfHLevel (suc n) (h x y) refl
 
 isOfHLevel→isOfHLevelDep : (n : HLevel)
   → {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isOfHLevel n (B a)) → isOfHLevelDep n {A = A} B
