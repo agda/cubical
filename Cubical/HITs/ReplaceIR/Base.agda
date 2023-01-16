@@ -1,15 +1,27 @@
 {-
 
-A construction of the type-theoretic replacement of a map F : A → Type ℓ from
-A : Type ℓ using induction-recursion. The output is an image factorization of F
-that lies in Type ℓ.
+Type-theoretic replacement: A construction of the image of a map F : A → B from
+A : Type ℓA and B : Type ℓB, where the identity types of B essentiallyhave
+universe level ℓ≅B, such that the image object has universe level (ℓ-max ℓA
+ℓ≅B).
 
-See Rijke's Introduction to Homotopy Theory, Axiom 18.1.8 for a definition of
-type-theoretic replacement.
+See Axiom 18.1.8 in
 
-The construction in this file should someday be generalized to handle the case
-where the codomain is an arbitrary locally ℓ-small type (not necessarily Type
-ℓ).
+Egbert Rijke
+Introduction to Homotopy Theory
+https://arxiv.org/abs/2212.11082
+
+for a definition of type-theoretic replacement.
+
+This module constructs the replacement using higher induction-recursion. It is
+possible to construct the replacement with much less powerful HITs, for which
+see
+
+Egbert Rijke
+The join construction
+https://arxiv.org/abs/1701.07538
+
+but higher IR allows for a particularly simple construction.
 
 -}
 {-# OPTIONS --safe #-}
@@ -23,30 +35,33 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Surjection
+open import Cubical.Displayed.Base
 
-module _ {ℓ} {A : Type ℓ} (F : A → Type ℓ) where
+module _ {ℓA ℓB ℓ≅B} {A : Type ℓA} {B : Type ℓB} (𝒮-B : UARel B ℓ≅B) (F : A → B)  where
 
-  data Replace : Type ℓ
-  ReplaceEl : Replace → Type ℓ
+  module B = UARel 𝒮-B
 
-  data Replace where
-    rep : A → Replace
-    quo : ∀ r r' → ReplaceEl r ≃ ReplaceEl r' → r ≡ r'
-    quoid : ∀ r → quo r r (idEquiv (ReplaceEl r)) ≡ refl
+  data Replacement : Type (ℓ-max ℓA ℓ≅B)
+  unrep : Replacement → B
 
-  ReplaceEl (rep a) = F a
-  ReplaceEl (quo r r' eqv i) = ua eqv i
-  ReplaceEl (quoid r j i) = uaIdEquiv {A = ReplaceEl r} j i
+  data Replacement where
+    rep : A → Replacement
+    quo : ∀ r r' → unrep r B.≅ unrep r' → r ≡ r'
+    quoid : ∀ r → quo r r (B.ρ (unrep r)) ≡ refl
+
+  unrep (rep a) = F a
+  unrep (quo r r' eqv i) = B.≅→≡ eqv i
+  unrep (quoid r j i) = B.uaIso (unrep r) (unrep r) .Iso.rightInv refl j i
 
   {-
     To eliminate into a proposition, we need only provide the point constructor
     case.
   -}
 
-  elimProp : {P : Replace → Type ℓ}
-    → ((r : Replace) → isProp (P r))
+  elimProp : ∀ {ℓ} {P : Replacement → Type ℓ}
+    → ((r : Replacement) → isProp (P r))
     → ((x : A) → P (rep x))
-    → (r : Replace) → P r
+    → (r : Replacement) → P r
   elimProp prop f (rep x) = f x
   elimProp prop f (quo r r' eqv i) =
     isProp→PathP (λ i → prop (quo r r' eqv i))
@@ -62,7 +77,7 @@ module _ {ℓ} {A : Type ℓ} (F : A → Type ℓ) where
       i j
 
   {-
-    Our image factorization is F ≡ ReplaceEl ∘ rep.
+    Our image factorization is F ≡ unrep ∘ rep.
     Note that this equation holds judgmentally.
   -}
 
@@ -73,15 +88,15 @@ module _ {ℓ} {A : Type ℓ} (F : A → Type ℓ) where
 
   -- Embedding half of the image factorization
 
-  isEmbeddingReplaceEl : isEmbedding ReplaceEl
-  isEmbeddingReplaceEl r r' =
+  isEmbeddingUnrep : isEmbedding unrep
+  isEmbeddingUnrep r r' =
     isoToIsEquiv (iso _ (inv r r') (elInv r r') (invEl r r'))
     where
-    inv : ∀ r r' → ReplaceEl r ≡ ReplaceEl r' → r ≡ r'
-    inv r r' Q = quo r r' (pathToEquiv Q)
+    inv : ∀ r r' → unrep r ≡ unrep r' → r ≡ r'
+    inv r r' Q = quo r r' (B.≡→≅ Q)
 
-    elInv : ∀ r r' Q →  cong ReplaceEl (inv r r' Q) ≡ Q
-    elInv r r' Q = uaη Q
+    elInv : ∀ r r' Q →  cong unrep (inv r r' Q) ≡ Q
+    elInv r r' Q = B.uaIso (unrep r) (unrep r') .Iso.rightInv Q
 
-    invEl : ∀ r r' p → inv r r' (cong ReplaceEl p) ≡ p
-    invEl r = J> cong (quo r r) pathToEquivRefl ∙ quoid r
+    invEl : ∀ r r' p → inv r r' (cong unrep p) ≡ p
+    invEl r = J> quoid r
