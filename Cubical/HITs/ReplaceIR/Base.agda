@@ -1,9 +1,10 @@
 {-
 
-Type-theoretic replacement: A construction of the image of a map F : A → B from
-A : Type ℓA and B : Type ℓB, where the identity types of B essentiallyhave
-universe level ℓ≅B, such that the image object has universe level (ℓ-max ℓA
-ℓ≅B).
+Type-theoretic replacement: a construction taking a map F : A → B where
+  - A : Type ℓA
+  - B : Type ℓB,
+  - the identity types of B essentially have universe level ℓ≅B,
+and producing an image of F with universe level (ℓ-max ℓA ℓ≅B).
 
 See Axiom 18.1.8 in
 
