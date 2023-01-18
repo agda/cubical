@@ -570,8 +570,8 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
     where
     χφSquare< : ∀ i j → i < j → χˡ i j .fst (φ i .fst a) ≡ χʳ i j .fst (φ j .fst a)
     χφSquare< i j i<j =
-      χˡ i j .fst (φ i .fst a)          ≡⟨ cong (_$ a) (cᴬ .coneOutCommutes singPairL) ⟩
-      cᴬ .coneOut (pair i j i<j) .fst a ≡⟨ cong (_$ a) (sym (cᴬ .coneOutCommutes singPairR)) ⟩
+      χˡ i j .fst (φ i .fst a)          ≡⟨ cong (_$r a) (cᴬ .coneOutCommutes singPairL) ⟩
+      cᴬ .coneOut (pair i j i<j) .fst a ≡⟨ cong (_$r a) (sym (cᴬ .coneOutCommutes singPairR)) ⟩
       χʳ i j .fst (φ j .fst a)          ∎
 
 
@@ -613,4 +613,4 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
      (RingHom≡ (funExt λ a → cong fst (applyEqualizerLemma a .snd (θtriple a))))
      where
      θtriple : (a : A) → Σ[ x ∈ R ] ∀ i → x /1ˢ ≡ φ i .fst a
-     θtriple a = fst θ a , λ i → cong (_$ a) (isConeMorθ (sing i))
+     θtriple a = fst θ a , λ i → cong (_$r a) (isConeMorθ (sing i))

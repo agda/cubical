@@ -45,7 +45,7 @@ module RezkByYoneda (C : Category ℓ ℓ) where
   YonedaImage = EssentialImage (YO {C = C})
 
   isUnivalentYonedaImage : isUnivalent YonedaImage
-  isUnivalentYonedaImage = isUnivalentEssentialImage _ isUnivalentPreShv
+  isUnivalentYonedaImage = isUnivalentEssentialImage _ isUnivalentPresheafCategory
 
   ToYonedaImage : Functor C YonedaImage
   ToYonedaImage = ToEssentialImage _

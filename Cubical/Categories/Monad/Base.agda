@@ -7,6 +7,7 @@ open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.NaturalTransformation.Properties
 open import Cubical.Categories.Functors.HomFunctor
+open import Cubical.Categories.Constructions.BinProduct
 
 private
   variable

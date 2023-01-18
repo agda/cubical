@@ -17,7 +17,6 @@ open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
-  hiding (_$_)
 open import Cubical.Algebra.CommRing
 
 open import Cubical.Displayed.Base
@@ -166,8 +165,8 @@ FieldEquiv : (R : Field ℓ) (S : Field ℓ') → Type (ℓ-max ℓ ℓ')
 FieldEquiv R S = Σ[ e ∈ (R .fst ≃ S .fst) ] IsFieldEquiv (R .snd) e (S .snd)
 
 
-_$_ : {R S : Field ℓ} → (φ : FieldHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
-φ $ x = φ .fst x
+_$f_ : {R S : Field ℓ} → (φ : FieldHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
+φ $f x = φ .fst x
 
 
 FieldEquiv→FieldHom : {A B : Field ℓ} → FieldEquiv A B → FieldHom A B

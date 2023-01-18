@@ -233,7 +233,7 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
       if S is from a different universe. Instead, the condition, that
       Iₛ is contained in the kernel of φ is rephrased explicitly.
     -}
-    inducedHom : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $ x ≡ 0r) → RingHom (R / I) S
+    inducedHom : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r) → RingHom (R / I) S
     fst (inducedHom Iₛ⊆kernel) =
       elim
         (λ _ → isSetRing S)
@@ -252,13 +252,13 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
     pres- (snd (inducedHom Iₛ⊆kernel)) =
       elimProp (λ _ → isSetRing S _ _) φ.pres-
 
-    solution : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $ x ≡ 0r))
-               → (x : ⟨ R ⟩) → inducedHom p $ [ x ] ≡ φ $ x
+    solution : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
+               → (x : ⟨ R ⟩) → inducedHom p $r [ x ] ≡ φ $r x
     solution p x = refl
 
-    unique : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $ x ≡ 0r))
-             → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $ [ x ] ≡ φ $ x)
-             → (x : ⟨ R ⟩) → ψ $ [ x ] ≡ inducedHom p $ [ x ]
+    unique : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
+             → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $r [ x ] ≡ φ $r x)
+             → (x : ⟨ R ⟩) → ψ $r [ x ] ≡ inducedHom p $r [ x ]
     unique p ψ ψIsSolution x = ψIsSolution x
 
 {-

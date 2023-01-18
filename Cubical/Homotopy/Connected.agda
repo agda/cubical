@@ -42,9 +42,6 @@ isConnected n A = isContr (hLevelTrunc n A)
 isConnectedFun : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isConnectedFun n f = ∀ b → isConnected n (fiber f b)
 
-isTruncatedFun : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
-isTruncatedFun n f = ∀ b → isOfHLevel n (fiber f b)
-
 isConnectedSubtr : ∀ {ℓ} {A : Type ℓ} (n m : HLevel)
                 → isConnected (m + n) A
                 → isConnected n A
