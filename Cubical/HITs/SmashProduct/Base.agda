@@ -9,6 +9,10 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Wedge
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Pointed.Homogeneous
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Transport
 
 data Smash {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') : Type (ℓ-max ℓ ℓ') where
   basel : Smash A B
@@ -52,12 +56,12 @@ commK (gluer b x) = refl
 
 --- Alternative definition
 
-i∧ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → A ⋁ B → (typ A) × (typ B)
+i∧ : {A : Pointed ℓ} {B : Pointed ℓ'} → A ⋁ B → (typ A) × (typ B)
 i∧ {A = A , ptA} {B = B , ptB} (inl x) = x , ptB
 i∧ {A = A , ptA} {B = B , ptB} (inr x) = ptA , x
 i∧ {A = A , ptA} {B = B , ptB} (push tt i) = ptA , ptB
 
-_⋀_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
+_⋀_ : Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
 A ⋀ B = Pushout {A = (A ⋁ B)} (λ _ → tt) i∧
 
 ⋀comm→ : A ⋀ B → B ⋀ A
@@ -67,7 +71,7 @@ A ⋀ B = Pushout {A = (A ⋁ B)} (λ _ → tt) i∧
 ⋀comm→ (push (inr x) i) = push (inl x) i
 ⋀comm→ (push (push a i₁) i) = push (push tt (~ i₁)) i
 
-⋀comm→² : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ' }
+⋀comm→² : {A : Pointed ℓ} {B : Pointed ℓ' }
   (x : A ⋀ B) → ⋀comm→ (⋀comm→ {A = A} {B = B} x) ≡ x
 ⋀comm→² (inl x) = refl
 ⋀comm→² (inr x) = refl
@@ -81,8 +85,93 @@ Iso.inv ⋀CommIso = ⋀comm→
 Iso.rightInv ⋀CommIso = ⋀comm→²
 Iso.leftInv ⋀CommIso = ⋀comm→²
 
-_⋀∙_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
+_⋀∙_ : Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋀∙ B = (A ⋀ B) , (inl tt)
+
+SmashAdjIso : Iso ((A ⋀∙ B) →∙ C) (A →∙ (B →∙ C ∙))
+SmashAdjIso {A = A} {B = B} {C = C} =
+  compIso is₃ (compIso iso₄ (invIso is₂))
+  where
+  is₁ : Iso (A →∙ (B →∙ C ∙))
+    (Σ[ f ∈ (fst A → fst B → fst C) ]
+      Σ[ l ∈ ((x : fst A) → f x (pt B) ≡ pt C) ]
+        Σ[ r ∈ ((b : fst B) → f (pt A) b ≡ pt C) ]
+          PathP (λ i → r (snd B) i ≡ snd C) (l (snd A)) refl)
+  Iso.fun is₁ f = (λ x y → f .fst x .fst y)
+                , (λ x → f .fst x .snd)
+                , (λ x i → f .snd i .fst x)
+                , λ i j → f .snd i .snd j
+  fst (fst (Iso.inv is₁ (f , l , r , p)) x) = f x
+  snd (fst (Iso.inv is₁ (f , l , r , p)) x) = l x
+  fst (snd (Iso.inv is₁ (f , l , r , p)) i) b = r b i
+  snd (snd (Iso.inv is₁ (f , l , r , p)) i) j = p i j
+  Iso.rightInv is₁ _ = refl
+  Iso.leftInv is₁ _ = refl
+
+  is₂ : Iso (A →∙ (B →∙ C ∙)) (
+    (Σ[ f ∈ (fst A → fst B → fst C) ]
+      Σ[ l ∈ ((x : fst A) → f x (pt B) ≡ pt C) ]
+        Σ[ r ∈ ((b : fst B) → f (pt A) b ≡ pt C) ]
+          l (pt A) ≡ r (pt B)))
+  is₂ = compIso is₁ (Σ-cong-iso-snd
+    λ f → Σ-cong-iso-snd
+      λ l → Σ-cong-iso-snd
+        λ r → pathToIso (PathP≡doubleCompPathʳ _ _ _ _
+            ∙ cong (l (snd A) ≡_)
+               (sym (compPath≡compPath' (r (snd B)) refl)
+              ∙ sym (rUnit (r (pt B))))))
+
+  is₃ : Iso ((A ⋀∙ B) →∙ C)
+    (Σ[ f ∈ (fst A → fst B → fst C) ]
+      Σ[ p ∈ singl (snd C) ]
+        Σ[ l ∈ ((x : fst A) → f x (pt B) ≡ fst p) ]
+        Σ[ r ∈ ((b : fst B) → f (pt A) b ≡ fst p) ]
+          l (pt A) ≡ r (pt B))
+  fst (Iso.fun is₃ f) x y = fst f (inr (x , y))
+  fst (fst (snd (Iso.fun is₃ f))) = fst f (inl tt)
+  snd (fst (snd (Iso.fun is₃ f))) = sym (snd f)
+  fst (snd (snd (Iso.fun is₃ f))) x = cong (fst f) (sym (push (inl x)))
+  fst (snd (snd (snd (Iso.fun is₃ f)))) x = cong (fst f) (sym (push (inr x)))
+  snd (snd (snd (snd (Iso.fun is₃ f)))) i j = fst f (push (push tt i) (~ j))
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (inl x) = c*
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (inr (x , y)) = f x y
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (push (inl x) i) = l x (~ i)
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (push (inr x) i) = r x (~ i)
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (push (push a j) i) = q j (~ i)
+  snd (Iso.inv is₃ (f , (c* , p) , l , r , q)) = sym p
+  Iso.rightInv is₃ _ = refl
+  Iso.leftInv is₃ f =
+    ΣPathP ((funExt (λ { (inl x) → refl
+                       ; (inr x) → refl
+                       ; (push (inl x) i) → refl
+                       ; (push (inr x) i) → refl
+                       ; (push (push a i₁) i) → refl}))
+                       , refl)
+
+  isContrIso : ∀ {ℓ ℓ'} {A : Type ℓ} (a : A) (B : singl a → Type ℓ')
+    → Iso (Σ _ B) (B (a , refl))
+  isContrIso a B =
+    compIso (invIso
+      (Σ-cong-iso-fst (isContr→Iso isContrUnit (isContrSingl a))))
+      lUnit×Iso
+
+  iso₄ : Iso (isoToPath is₃ i1)
+            (isoToPath is₂ i1)
+  iso₄ = Σ-cong-iso-snd λ f → isContrIso (snd C) _
+
+⋀→∙Homogeneous≡ : isHomogeneous C
+  → {f g : (A ⋀∙ B) →∙ C}
+  → ((x : fst A) (y : fst B) → fst f (inr (x , y)) ≡ fst g (inr (x , y)))
+  → f ≡ g
+⋀→∙Homogeneous≡ C {f = f} {g = g} p =
+     sym (Iso.leftInv SmashAdjIso f)
+  ∙∙ cong (Iso.inv SmashAdjIso) main
+  ∙∙ Iso.leftInv SmashAdjIso g
+  where
+  main : Iso.fun SmashAdjIso f ≡ Iso.fun SmashAdjIso g
+  main =
+    →∙Homogeneous≡ (isHomogeneous→∙ C)
+      (funExt λ x → →∙Homogeneous≡ C (funExt (p x)))
 
 _⋀→_ : (f : A →∙ C) (g : B →∙ D) → A ⋀ B → C ⋀ D
 (f ⋀→ g) (inl tt) = inl tt
@@ -652,3 +741,469 @@ SmashAssocIso {A = A} {B = B} {C = C} =
       (compIso
         (invIso (Iso-⋀-⋀×3 C A B))
         ⋀CommIso))
+
+module _ {C : Type ℓ} (f g : A ⋀ B → C)
+  (bp : f (inl tt) ≡ g (inl tt))
+  (proj : (x : _) → f (inr x) ≡ g (inr x))
+  (pl : (x : typ A) → PathP (λ i → f (push (inl x) i) ≡ g (push (inl x) i))
+                             bp (proj (x , pt B)))
+  (p-r : (x : typ B) → PathP (λ i → f (push (inr x) i) ≡ g (push (inr x) i))
+                             bp (proj (pt A , x)))
+  where
+  private
+    ⋆act : bp ≡ bp
+    ⋆act i j =
+      hcomp (λ k → λ { (i = i0) → pl (pt A) (~ k) j
+                      ; (i = i1) → p-r (pt B) (~ k) j
+                      ; (j = i0) → f (push (push tt i) (~ k))
+                      ; (j = i1) → g (push (push tt i) (~ k))})
+            (proj (snd A , snd B) j)
+
+  ⋀-fun≡ : (x : _) → f x ≡ g x
+  ⋀-fun≡ (inl x) = bp
+  ⋀-fun≡ (inr x) = proj x
+  ⋀-fun≡ (push (inl x) i) = pl x i
+  ⋀-fun≡ (push (inr x) i) j =
+    hcomp (λ r → λ {(i = i0) → bp j
+                   ; (i = i1) → p-r x r j
+                   ; (j = i0) → f (push (inr x) (r ∧ i))
+                   ; (j = i1) → g (push (inr x) (r ∧ i)) })
+          (⋆act i j)
+  ⋀-fun≡ (push (push a i) j) k =
+    hcomp (λ r → λ { (i = i0) → pl (snd A) (j ∧ r) k
+                    ; (j = i0) → bp k
+                    ; (j = i1) → side i k r
+                    ; (k = i0) → f (push (push a i) (j ∧ r))
+                    ; (k = i1) → g (push (push a i) (j ∧ r))})
+          (⋆act (i ∧ j) k)
+    where
+    side : Cube (λ k r → pl (snd A) r k)
+              (λ k r → p-r (snd B) r k)
+              (λ i r → f (push (push a i) r))
+              (λ i r → g (push (push a i) r))
+              ⋆act λ i → proj (snd A , snd B)
+    side i k r =
+      hcomp (λ j → λ { (i = i0) → pl (pt A) (~ j ∨ r) k
+                      ; (i = i1) → p-r (snd B) (~ j ∨ r) k
+                      ; (k = i0) → f (push (push a i) (~ j ∨ r))
+                      ; (k = i1) → g (push (push a i) (~ j ∨ r))
+                      ; (r = i1) → proj (snd A , snd B) k})
+                (proj (snd A , snd B) k)
+
+-- Techincal lemma allowing for use of ⋀→∙Homogeneous≡ on
+-- when proving equalities of functions A ⋀ B → C
+private
+  module ⋀-fun≡' {C : Type ℓ} (f g : A ⋀ B → C)
+           (pr : (x : _) → f (inr x) ≡ g (inr x)) where
+
+    p : f (inl tt) ≡ g (inl tt)
+    p = cong f (push (inr (pt B)))
+      ∙∙ pr (pt A , pt B)
+      ∙∙ sym (cong g (push (inr (pt B))))
+
+
+    p' : f (inl tt) ≡ g (inl tt)
+    p' = cong f (push (inl (pt A)))
+      ∙∙ pr (pt A , pt B)
+      ∙∙ sym (cong g (push (inl (pt A))))
+
+    p≡p' : p ≡ p'
+    p≡p' i = (cong f (push (push tt (~ i))))
+          ∙∙ pr (pt A , pt B)
+          ∙∙ sym (cong g (push (push tt (~ i))))
+
+    Fₗ : B →∙ ((f (inl tt) ≡ g (inl tt)) , p)
+    fst Fₗ b = cong f (push (inr b)) ∙∙ pr (pt A , b) ∙∙ sym (cong g (push (inr b)))
+    snd Fₗ = refl
+
+    Fᵣ : B →∙ ((f (inl tt) ≡ g (inl tt)) , p)
+    fst Fᵣ b = p
+    snd Fᵣ = refl
+
+    module _
+      (lp : (x : fst A) → PathP (λ i → f (push (inl x) i) ≡ g (push (inl x) i))
+                                        p (pr (x , pt B)))
+      (q : Fₗ ≡ Fᵣ) where
+      thec : (b : fst B)
+       → Square p (pr (snd A , b))
+                 (cong f (push (inr b))) (cong g (push (inr b)))
+      thec b i j =
+        hcomp (λ k → λ {(i = i0) → p j
+                       ; (i = i1) → doubleCompPath-filler
+                                      (cong f (push (inr b)))
+                                      (pr (pt A , b))
+                                      (sym (cong g (push (inr b)))) (~ k) j
+                       ; (j = i0) → f (push (inr b) (i ∧ k))
+                       ; (j = i1) → g (push (inr b) (i ∧ k))})
+              (q (~ i) .fst b j)
+
+      main : (x : _) → f x ≡ g x
+      main = ⋀-fun≡ {A = A} {B = B} f g p pr lp thec
+
+-- pentagon identity
+module _ {ℓ'' ℓ''' : Level}
+  {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} {D : Pointed ℓ'''}
+  where
+  assc₁ : A ⋀ (B ⋀∙ (C ⋀∙ D)) → (A ⋀∙ B) ⋀ (C ⋀∙ D)
+  assc₁ = Iso.fun SmashAssocIso
+
+  assc₂ : (A ⋀∙ B) ⋀ (C ⋀∙ D) → ((A ⋀∙ B) ⋀∙ C) ⋀ D
+  assc₂ = Iso.fun SmashAssocIso
+
+  assᵣ = assc₂ ∘ assc₁
+
+  assc₃ : A ⋀ (B ⋀∙ (C ⋀∙ D)) → A ⋀ ((B ⋀∙ C) ⋀∙ D)
+  assc₃ = idfun∙ _ ⋀→ ((Iso.fun SmashAssocIso) , refl)
+
+  assc₄ : A ⋀ ((B ⋀∙ C) ⋀∙ D) → (A ⋀∙ (B ⋀∙ C)) ⋀ D
+  assc₄ = Iso.fun SmashAssocIso
+
+  assc₅ : (A ⋀∙ (B ⋀∙ C)) ⋀ D → ((A ⋀∙ B) ⋀∙ C) ⋀ D
+  assc₅ = (Iso.fun SmashAssocIso , refl) ⋀→ idfun∙ D
+
+  assₗ = assc₅ ∘ assc₄ ∘ assc₃
+
+  pentagon : (x : A ⋀ (B ⋀∙ (C ⋀∙ D)))
+    → assc₅ (assc₄ (assc₃ x)) ≡ assc₂ (assc₁ x)
+  pentagon =
+    ⋀-fun≡'.main {A = A} {B = (B ⋀∙ (C ⋀∙ D))} _ _
+      (λ x → main₁ (fst x) (snd x))
+      (λ x → p≡refl
+           ◁ ((λ i j → assc₅ (assc₄ (rUnit (push (inl x)) (~ j) i)))
+           ▷ sym (main₁≡refl x)))
+      (⋀→∙Homogeneous≡ (isHomogeneousPath _ _)
+        λ x y → funExt⁻ (cong fst (to→∙ₗ≡to→∙ᵣ x)) y ∙ sym p≡refl)
+    where
+    module lemmas₁ (x : typ A) (y : typ B) where
+      module N = ⋀-fun≡' (λ z → assₗ (inr (x , inr (y , z))))
+                          (λ z → assᵣ (inr (x , inr (y , z))))
+                          (λ _ → refl)
+      open N
+      assc-r-r-p-l : (c : _)
+        → cong assₗ (λ i → (inr (x , inr (y , push (inl c) i))))
+         ≡ cong assᵣ (λ i → (inr (x , inr (y , push (inl c) i))))
+      assc-r-r-p-l c = sym (rUnit _)
+
+      assc-r-r-p-r  : (d : _)
+        → cong assₗ (λ i → (inr (x , inr (y , push (inr d) i))))
+         ≡ cong assᵣ (λ i → (inr (x , inr (y , push (inr d) i))))
+      assc-r-r-p-r  d = cong (cong (assc₅ ∘ assc₄)) lem₁
+             ∙ cong (cong assc₅) lem₂
+             ∙ lem₃
+             ∙ sym lem₄
+        where
+        lem₁ : cong assc₃ (λ i → (inr (x , inr (y , push (inr d) i))))
+          ≡ (λ j → inr (x , push (inr d) j))
+           ∙ λ j → inr (x , inr ((push (inl y) j) , d))
+        lem₁ = (λ k i → inr (x , Iso.fun ⋀CommIso
+                (compPath≡compPath'
+                  (push (inl d))
+                  (λ i → inr (d , push (inl y) i)) (~ k) i)))
+           ∙ (λ k i → inr (x , cong-∙ (Iso.fun ⋀CommIso)
+                        (push (inl d))
+                        (λ i → inr (d , push (inl y) i)) k i))
+           ∙ cong-∙ (λ y → inr (x , y))
+              (push (inr d))
+              λ i → inr (push (inl y) i , d)
+
+        lem₂ :
+            cong assc₄ ((λ j → inr (x , push (inr d) j))
+                    ∙ λ j → inr (x , inr ((push (inl y) j) , d)))
+          ≡ ((push (inr d) ∙ (λ i → inr (push (inl x) i , d))) ∙
+             (λ i → inr (inr (x , push (inl y) i) , d)))
+        lem₂ = cong-∙ assc₄ (λ j → inr (x , push (inr d) j))
+                           (λ j → inr (x , inr ((push (inl y) j) , d)))
+             ∙ cong (_∙ (λ i → inr (inr (x , push (inl y) i) , d)))
+                    ((cong (cong (Iso.fun ⋀CommIso))
+                       (sym (compPath≡compPath'
+                        (push (inl d)) (λ i → inr (d , push (inl x) i))))
+                    ∙ cong-∙ (Iso.fun ⋀CommIso)
+                        (push (inl d))
+                        λ i → inr (d , push (inl x) i))
+                   ∙ λ _ → push (inr d) ∙ λ i → inr ((push (inl x) i) , d))
+
+        lem₃ : cong assc₅ (((push (inr d) ∙ (λ i → inr (push (inl x) i , d)))
+                         ∙ (λ i → inr (inr (x , push (inl y) i) , d))))
+           ≡ ((λ i → push (inr d) i)
+            ∙ (λ i → inr (push (inl (inr (x , y))) i , d)))
+        lem₃ = cong-∙ assc₅ ((push (inr d)
+                          ∙ (λ i → inr (push (inl x) i , d))))
+                          (λ i → inr (inr (x , push (inl y) i) , d))
+             ∙ cong₂ _∙_
+                 (cong-∙ assc₅
+                         (push (inr d))
+                         (λ i → inr (push (inl x) i , d))
+               ∙ cong₂ _∙_ (sym (rUnit (push (inr d))))
+                           refl
+               ∙ sym (rUnit (push (inr d))))
+                 (λ _ i → inr (push (inl (inr (x , y))) i , d))
+
+        lem₄ : cong assᵣ (λ i → (inr (x , inr (y , push (inr d) i))))
+          ≡ ((λ i → push (inr d) i)
+            ∙ (λ i → inr (push (inl (inr (x , y))) i , d)))
+        lem₄ = (λ _ i → assc₂ (inr (inr (x , y) , push (inr d) i)))
+           ∙ (cong (cong (Iso.fun (⋀CommIso)))
+                (cong (cong (Iso.inv (Iso-⋀-⋀×3 D (A ⋀∙ B) C)))
+                  (refl {x = sym (gluel d (inr (x , y))) }))
+           ∙ cong-∙∙ (Iso.fun (⋀CommIso))
+               (push (inl d))
+               (λ i → inr (d , push (inl (inr (x , y))) i))
+               refl)
+           ∙ sym (compPath≡compPath' _ _)
+
+      p≡refl : p ≡ refl
+      p≡refl = p≡p'
+          ∙ (λ j → assc-r-r-p-l (pt C) j ∙∙ refl ∙∙ sym (assc-r-r-p-l (pt C) i1))
+          ∙ ∙∙lCancel _
+
+    main₂ : (x : typ A) (y : typ B) (c : (C ⋀ D))
+      → assₗ (inr (x , inr (y , c)))
+       ≡ assᵣ (inr (x , inr (y , c)))
+    main₂ x y = ⋀-fun≡'.main {A = C} {B = D} _ _
+      (λ _ → refl)
+      (λ c → lemmas₁.p≡refl x y ◁ flipSquare (lemmas₁.assc-r-r-p-l x y c))
+      (→∙Homogeneous≡ (isHomogeneousPath _ _)
+        (funExt λ d → ((λ j → lemmas₁.assc-r-r-p-r  x y d j
+                    ∙∙ refl
+                    ∙∙ (λ i → assᵣ (inr (x
+                      , inr (y , push (inr d) (~ i))))))
+                      ∙ ∙∙lCancel _)
+                      ∙ sym (lemmas₁.p≡refl x y)))
+
+    module lemmas₂ (x : typ A) where
+      module K = ⋀-fun≡' (λ z → assₗ (inr (x , z)))
+       (λ z → assᵣ (inr (x , z)))
+       (λ y₁ → main₂ x (fst y₁) (snd y₁))
+      open K
+      main₂∙ : (y : _) → main₂ x y (pt (C ⋀∙ D)) ≡ refl
+      main₂∙ y = (λ i → lemmas₁.assc-r-r-p-r  x y (pt D) i
+                 ∙∙ refl
+                 ∙∙ sym (lemmas₁.assc-r-r-p-r  x y (pt D) i1))
+          ∙ ∙∙lCancel _
+
+      assc-r-p-r-r  : (c : _) (d : _)
+        → cong assₗ (λ i → inr (x , push (inr (inr (c , d))) i))
+         ≡ cong assᵣ (λ i → inr (x , push (inr (inr (c , d))) i))
+      assc-r-p-r-r  c d = cong (cong assc₅) (cong (cong assc₄) lem₁ ∙ lem₂)
+                ∙∙ lem₃
+                ∙∙ sym
+                   (cong (cong assc₂) lem₄ ∙ lem₅)
+
+        where
+        lem₄ : cong assc₁ (λ i → inr (x , push (inr (inr (c , d))) i))
+           ≡ push (inr (inr (c , d)))
+            ∙ (λ i → inr (push (inl x) i , inr (c , d)))
+        lem₄ = cong-∙∙ (Iso.fun ⋀CommIso)
+                (push (inl (inr (c , d))))
+                (λ i → inr (inr (c , d) , push (inl x) i))
+                refl
+           ∙ sym (compPath≡compPath'
+                 (push (inr (inr (c , d))))
+                 λ i → inr (push (inl x) i , inr (c , d)))
+
+        lem₅ : cong assc₂ (push (inr (inr (c , d)))
+            ∙ (λ i → inr (push (inl x) i , inr (c , d))))
+            ≡ (push (inr d) ∙ (λ i → inr ((push (inr c)
+             ∙ λ j → inr (push (inl x) j , c)) i , d)))
+        lem₅ = cong-∙ assc₂
+               (push (inr (inr (c , d))))
+               (λ i → inr (push (inl x) i , inr (c , d)))
+          ∙∙ cong₂ _∙_
+               (cong-∙∙ (Iso.fun ⋀CommIso)
+                 (push (inl d))
+                 (λ i → inr (d , push (inr c) i)) refl
+              ∙ sym (compPath≡compPath' (push (inr d))
+                 λ i → inr (push (inr c) i , d)))
+               (λ _ → (λ i → inr (inr (push (inl x) i , c) , d)))
+          ∙∙ (sym (assoc (push (inr d)) _ _)
+           ∙ cong (push (inr d) ∙_)
+               (sym (cong-∙ (λ a → inr (a , d))
+                 (push (inr c))
+                 λ i → inr (push (inl x) i , c))))
+
+        lem₁ : cong assc₃ (λ i → inr (x , push (inr (inr (c , d))) i))
+          ≡ (λ i → inr (x , (push (inr d) i)))
+          ∙ (λ i → inr (x , inr (push (inr c) i , d)))
+        lem₁ = (λ k i → inr (x
+              , (cong-∙∙ (Iso.fun ⋀CommIso)
+                   (push (inl d)) (λ i → inr (d , push (inr c) i)) refl
+              ∙ sym (compPath≡compPath'
+                      (push (inr d))
+                      λ i → inr (push (inr c) i , d))) k i))
+           ∙ cong-∙ (λ y → inr (x , y))
+                    (push (inr d))
+                    (λ i → inr (push (inr c) i , d))
+
+        lem₂ : cong assc₄ ((λ i → inr (x , (push (inr d) i)))
+                      ∙ (λ i → inr (x , inr (push (inr c) i , d))))
+            ≡ (push (inr d) ∙ (λ i → inr (push (inl x) i , d)))
+            ∙ (λ i → inr (inr (x , push (inr c) i) , d))
+        lem₂ = cong-∙ assc₄
+               (λ i → inr (x , (push (inr d) i)))
+              (λ i → inr (x , inr (push (inr c) i , d)))
+           ∙ cong₂ _∙_
+                (cong-∙∙ (Iso.fun ⋀CommIso)
+                  (push (inl d))
+                  (λ i → inr (d , push (inl x) i))
+                  refl
+              ∙ sym (compPath≡compPath'
+                     (push (inr d))
+                     λ i → inr (push (inl x) i , d)))
+                (λ k → (λ i → inr (inr (x , push (inr c) i) , d)))
+
+        lem₃ : cong assc₅
+              ((push (inr d) ∙ (λ i → inr (push (inl x) i , d)))
+               ∙ (λ i → inr (inr (x , push (inr c) i) , d)))
+           ≡ push (inr d) ∙ (λ i → inr ((push (inr c)
+             ∙ λ j → inr (push (inl x) j , c)) i , d))
+        lem₃ = cong-∙ assc₅
+              (push (inr d) ∙ (λ i → inr (push (inl x) i , d)))
+              (λ i → inr (inr (x , push (inr c) i) , d))
+           ∙ cong₂ _∙_
+                (cong-∙ assc₅ (push (inr d)) (λ i → inr (push (inl x) i , d))
+                      ∙ cong₂ _∙_ (sym (rUnit (push (inr d)))) refl
+                      ∙ sym (rUnit (push (inr d))))
+               (λ k i → inr
+                 ((cong-∙∙ (Iso.fun ⋀CommIso)
+                    (push (inl c))
+                    (λ i → inr (c , push (inl x) i))
+                    refl
+                 ∙ sym (compPath≡compPath'
+                       (push (inr c))
+                       λ i → inr (push (inl x) i , c))) k i , d))
+
+      assc-r-p-r-l : cong assₗ (λ i → inr (x , push (inr (inl tt)) i))
+           ≡ cong assᵣ (λ i → inr (x , push (inr (inl tt)) i))
+      assc-r-p-r-l = sym
+        (cong (cong assc₂)
+          (cong-∙∙ (Iso.fun ⋀CommIso)
+            (push (inl (inl tt)))
+            (λ i → inr (inl tt , push (inl x) i))
+            refl
+         ∙ sym (compPath≡compPath' (push (inr (inl tt)))
+                λ i → inr ((push (inl x) i) , (inl tt))))
+          ∙∙ cong-∙ assc₂ (push (inr (inl tt)))
+                         (λ i → inr ((push (inl x) i) , (inl tt)))
+          ∙∙ sym (rUnit refl))
+
+      p≡refl : p ≡ refl
+      p≡refl =
+          (λ i → assc-r-p-r-l i  ∙∙ main₂∙ (pt B) i ∙∙ sym (assc-r-p-r-l i1))
+        ∙ ∙∙lCancel _
+
+    main₁ : (x : typ A) (y : B ⋀ (C ⋀∙ D))
+      → assₗ (inr (x , y)) ≡ assᵣ (inr (x , y))
+    main₁ x = ⋀-fun≡'.main {A = B} {B = (C ⋀∙ D)} _ _
+      (λ y → main₂ x (fst y) (snd y))
+      (λ y → (lemmas₂.p≡refl x ∙ sym (lemmas₂.main₂∙ x y)))
+      (⋀→∙Homogeneous≡ (isHomogeneousPath _ _)
+        λ c d → ((λ i → lemmas₂.assc-r-p-r-r  x c d i
+                       ∙∙ refl
+                       ∙∙ sym (lemmas₂.assc-r-p-r-r  x c d i1))
+               ∙ ∙∙lCancel _)
+          ∙ sym (lemmas₂.p≡refl x))
+
+    main₁⋆ : (x : fst B) → main₁ (pt A) (inr (x , (inl tt))) ≡ refl
+    main₁⋆ x =
+      (λ i → lemmas₁.assc-r-r-p-r  (pt A) x (pt D) i
+           ∙∙ refl
+           ∙∙ sym (lemmas₁.assc-r-r-p-r  (pt A) x (pt D) i1))
+      ∙ ∙∙lCancel _
+
+    assc-p-r-r-l : (x : fst B)
+      → cong assₗ (push (inr (inr (x , inl tt))))
+       ≡ cong assᵣ (push (inr (inr (x , inl tt))))
+    assc-p-r-r-l x =
+      cong (cong (assc₅ ∘ assc₄)) (sym (rUnit (push (inr (inl tt)))))
+         ∙ sym (cong (cong assc₂)
+                 (cong-∙∙ (Iso.fun ⋀CommIso) (push (inl (inl tt)))
+                          (λ i → inr (inl tt , push (inr x) i)) refl
+                ∙ sym (compPath≡compPath'
+                      (push (inr (inl tt)))
+                      λ i → inr (push (inr x) i , inl tt)))
+              ∙ cong-∙ assc₂ (push (inr (inl tt)))
+                            (λ i → inr (push (inr x) i , inl tt))
+              ∙ sym (rUnit refl))
+
+    to→∙ₗ : (x : fst B)
+      → (C ⋀∙ D)
+      →∙ (Path (((A ⋀∙ B) ⋀∙ C) ⋀ D) (inl tt) (inl tt) , refl)
+    fst (to→∙ₗ x) y = ((λ i → assₗ (push (inr (inr (x , y))) i))
+       ∙∙ main₁ (pt A) (inr (x , y))
+       ∙∙ (λ i → assᵣ (push (inr (inr (x , y))) (~ i))))
+    snd (to→∙ₗ x) =
+        (λ j → assc-p-r-r-l x j ∙∙ main₁⋆ x j ∙∙ sym (assc-p-r-r-l x i1))
+      ∙ ∙∙lCancel _
+
+    to→∙ᵣ : (x : fst B)
+      → (C ⋀∙ D)
+      →∙ (Path (((A ⋀∙ B) ⋀∙ C) ⋀ D) (inl tt) (inl tt) , refl)
+    fst (to→∙ᵣ x) y = refl
+    snd (to→∙ᵣ x) = refl
+
+    module L = ⋀-fun≡' assₗ assᵣ (λ x₁ → main₁ (fst x₁) (snd x₁))
+    open L
+    main₁≡refl : (x : _) → main₁ x (inl tt) ≡ refl
+    main₁≡refl x = (λ i → lemmas₂.assc-r-p-r-l x i
+                       ∙∙ lemmas₂.main₂∙ x (pt B) i
+                       ∙∙ sym (lemmas₂.assc-r-p-r-l x i1))
+                ∙ ∙∙lCancel _  -- {!!} ∙ {!!}
+
+    ok : cong assₗ (push (inr (inl tt))) ≡ cong assᵣ (push (inr (inl tt)))
+    ok i = cong (assc₅ ∘ assc₄) (rUnit (push (inr (inl tt))) (~ i))
+
+    ok2 : (x : fst A) → cong assₗ (push (inl x)) ≡ cong assᵣ (push (inl x))
+    ok2 x i = cong (assc₅ ∘ assc₄) (rUnit (push (inl x)) (~ i))
+
+    p≡refl : p ≡ refl
+    p≡refl = (λ i → ok i ∙∙ main₁≡refl (pt A) i ∙∙ sym (ok i1)) ∙ ∙∙lCancel _
+
+    main₁-lem∞ : (x : fst B) (c : fst C) (d : fst D)
+      → main₁ (pt A) (inr (x , inr (c , d))) ≡ refl
+    main₁-lem∞ = λ _ _ _ → refl
+
+    assc-p-r-r-r : (x : fst B) (c : fst C) (d : fst D)
+      → cong assₗ (push (inr (inr (x , inr (c , d)))))
+      ≡ cong assᵣ (push (inr (inr (x , inr (c , d)))))
+    assc-p-r-r-r x c d =
+         cong (cong (assc₅ ∘ assc₄))
+              (sym (rUnit (push (inr (inr (inr (x , c) , d))))))
+      ∙∙ cong (cong assc₅)
+              (cong-∙∙ (Iso.fun ⋀CommIso) (push (inl d))
+                       (λ i → inr (d , push (inr (inr (x , c))) i)) refl
+                ∙ sym (compPath≡compPath' (push (inr d))
+                      λ i → inr (push (inr (inr (x , c))) i , d)))
+            ∙ (cong-∙ assc₅ (push (inr d))
+                      λ i → inr (push (inr (inr (x , c))) i , d))
+      ∙∙ (cong₂ _∙_ (sym (rUnit (push (inr d))))
+                    (λ k i → inr ((cong-∙∙ (Iso.fun ⋀CommIso) (push (inl c))
+                              (λ i → inr (c , push (inr x) i)) refl
+                     ∙ sym (compPath≡compPath'
+                              (push (inr c))
+                              λ i → inr (push (inr x) i , c))) k i , d))
+       ∙ sym (cong (cong assc₂)
+                   (cong-∙∙ (Iso.fun ⋀CommIso) (push (inl (inr (c , d))))
+                                     (λ i → inr (inr (c , d) , push (inr x) i))
+                                     refl
+                  ∙ sym (compPath≡compPath'
+                          (push (inr (inr (c , d))))
+                          λ i → inr (push (inr x) i , inr (c , d))))
+           ∙∙ cong-∙ assc₂ (push (inr (inr (c , d))))
+                          (λ i → inr (push (inr x) i , inr (c , d)))
+           ∙∙ (cong₂ _∙_
+                (cong-∙∙ (Iso.fun ⋀CommIso)
+                  (push (inl d)) (λ i → inr (d , push (inr c) i)) refl
+                  ∙ sym (compPath≡compPath' (push (inr d))
+                        λ i → inr (push (inr c) i , d)))
+               refl
+            ∙ sym (assoc (push (inr d)) _ _)
+            ∙ cong (push (inr d) ∙_)
+               (sym (cong-∙ (λ a → inr (a , d)) (push (inr c))
+               λ i → inr (push (inr x) i , c))))))
+
+    to→∙ₗ≡to→∙ᵣ : (x : fst B) → to→∙ₗ x ≡ to→∙ᵣ x
+    to→∙ₗ≡to→∙ᵣ x = ⋀→∙Homogeneous≡ (isHomogeneousPath _ _)
+      λ c d → (λ i → assc-p-r-r-r x c d i
+                    ∙∙ refl
+                    ∙∙ sym (assc-p-r-r-r x c d i1))
+             ∙ ∙∙lCancel _
