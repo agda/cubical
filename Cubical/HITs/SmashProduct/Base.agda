@@ -850,7 +850,7 @@ module _ {ℓ'' ℓ''' : Level}
   assc₂ : (A ⋀∙ B) ⋀ (C ⋀∙ D) → ((A ⋀∙ B) ⋀∙ C) ⋀ D
   assc₂ = Iso.fun SmashAssocIso
 
-  assᵣ = assc₂ ∘ assc₁
+  asscᵣ = assc₂ ∘ assc₁
 
   assc₃ : A ⋀ (B ⋀∙ (C ⋀∙ D)) → A ⋀ ((B ⋀∙ C) ⋀∙ D)
   assc₃ = idfun∙ _ ⋀→ ((Iso.fun SmashAssocIso) , refl)
@@ -861,10 +861,9 @@ module _ {ℓ'' ℓ''' : Level}
   assc₅ : (A ⋀∙ (B ⋀∙ C)) ⋀ D → ((A ⋀∙ B) ⋀∙ C) ⋀ D
   assc₅ = (Iso.fun SmashAssocIso , refl) ⋀→ idfun∙ D
 
-  assₗ = assc₅ ∘ assc₄ ∘ assc₃
+  asscₗ = assc₅ ∘ assc₄ ∘ assc₃
 
-  pentagon : (x : A ⋀ (B ⋀∙ (C ⋀∙ D)))
-    → assc₅ (assc₄ (assc₃ x)) ≡ assc₂ (assc₁ x)
+  pentagon : (x : A ⋀ (B ⋀∙ (C ⋀∙ D))) → asscₗ x ≡ asscᵣ x
   pentagon =
     ⋀-fun≡'.main {A = A} {B = (B ⋀∙ (C ⋀∙ D))} _ _
       (λ x → main₁ (fst x) (snd x))
@@ -875,18 +874,18 @@ module _ {ℓ'' ℓ''' : Level}
         λ x y → funExt⁻ (cong fst (to→∙ₗ≡to→∙ᵣ x)) y ∙ sym p≡refl)
     where
     module lemmas₁ (x : typ A) (y : typ B) where
-      module N = ⋀-fun≡' (λ z → assₗ (inr (x , inr (y , z))))
-                          (λ z → assᵣ (inr (x , inr (y , z))))
+      module N = ⋀-fun≡' (λ z → asscₗ (inr (x , inr (y , z))))
+                          (λ z → asscᵣ (inr (x , inr (y , z))))
                           (λ _ → refl)
       open N
       assc-r-r-p-l : (c : _)
-        → cong assₗ (λ i → (inr (x , inr (y , push (inl c) i))))
-         ≡ cong assᵣ (λ i → (inr (x , inr (y , push (inl c) i))))
+        → cong asscₗ (λ i → (inr (x , inr (y , push (inl c) i))))
+         ≡ cong asscᵣ (λ i → (inr (x , inr (y , push (inl c) i))))
       assc-r-r-p-l c = sym (rUnit _)
 
       assc-r-r-p-r  : (d : _)
-        → cong assₗ (λ i → (inr (x , inr (y , push (inr d) i))))
-         ≡ cong assᵣ (λ i → (inr (x , inr (y , push (inr d) i))))
+        → cong asscₗ (λ i → (inr (x , inr (y , push (inr d) i))))
+         ≡ cong asscᵣ (λ i → (inr (x , inr (y , push (inr d) i))))
       assc-r-r-p-r  d = cong (cong (assc₅ ∘ assc₄)) lem₁
              ∙ cong (cong assc₅) lem₂
              ∙ lem₃
@@ -938,7 +937,7 @@ module _ {ℓ'' ℓ''' : Level}
                ∙ sym (rUnit (push (inr d))))
                  (λ _ i → inr (push (inl (inr (x , y))) i , d))
 
-        lem₄ : cong assᵣ (λ i → (inr (x , inr (y , push (inr d) i))))
+        lem₄ : cong asscᵣ (λ i → (inr (x , inr (y , push (inr d) i))))
           ≡ ((λ i → push (inr d) i)
             ∙ (λ i → inr (push (inl (inr (x , y))) i , d)))
         lem₄ = (λ _ i → assc₂ (inr (inr (x , y) , push (inr d) i)))
@@ -957,22 +956,22 @@ module _ {ℓ'' ℓ''' : Level}
           ∙ ∙∙lCancel _
 
     main₂ : (x : typ A) (y : typ B) (c : (C ⋀ D))
-      → assₗ (inr (x , inr (y , c)))
-       ≡ assᵣ (inr (x , inr (y , c)))
+      → asscₗ (inr (x , inr (y , c)))
+       ≡ asscᵣ (inr (x , inr (y , c)))
     main₂ x y = ⋀-fun≡'.main {A = C} {B = D} _ _
       (λ _ → refl)
       (λ c → lemmas₁.p≡refl x y ◁ flipSquare (lemmas₁.assc-r-r-p-l x y c))
       (→∙Homogeneous≡ (isHomogeneousPath _ _)
         (funExt λ d → ((λ j → lemmas₁.assc-r-r-p-r  x y d j
                     ∙∙ refl
-                    ∙∙ (λ i → assᵣ (inr (x
+                    ∙∙ (λ i → asscᵣ (inr (x
                       , inr (y , push (inr d) (~ i))))))
                       ∙ ∙∙lCancel _)
                       ∙ sym (lemmas₁.p≡refl x y)))
 
     module lemmas₂ (x : typ A) where
-      module K = ⋀-fun≡' (λ z → assₗ (inr (x , z)))
-       (λ z → assᵣ (inr (x , z)))
+      module K = ⋀-fun≡' (λ z → asscₗ (inr (x , z)))
+       (λ z → asscᵣ (inr (x , z)))
        (λ y₁ → main₂ x (fst y₁) (snd y₁))
       open K
       main₂∙ : (y : _) → main₂ x y (pt (C ⋀∙ D)) ≡ refl
@@ -982,8 +981,8 @@ module _ {ℓ'' ℓ''' : Level}
           ∙ ∙∙lCancel _
 
       assc-r-p-r-r  : (c : _) (d : _)
-        → cong assₗ (λ i → inr (x , push (inr (inr (c , d))) i))
-         ≡ cong assᵣ (λ i → inr (x , push (inr (inr (c , d))) i))
+        → cong asscₗ (λ i → inr (x , push (inr (inr (c , d))) i))
+         ≡ cong asscᵣ (λ i → inr (x , push (inr (inr (c , d))) i))
       assc-r-p-r-r  c d = cong (cong assc₅) (cong (cong assc₄) lem₁ ∙ lem₂)
                 ∙∙ lem₃
                 ∙∙ sym
@@ -1072,8 +1071,8 @@ module _ {ℓ'' ℓ''' : Level}
                        (push (inr c))
                        λ i → inr (push (inl x) i , c))) k i , d))
 
-      assc-r-p-r-l : cong assₗ (λ i → inr (x , push (inr (inl tt)) i))
-           ≡ cong assᵣ (λ i → inr (x , push (inr (inl tt)) i))
+      assc-r-p-r-l : cong asscₗ (λ i → inr (x , push (inr (inl tt)) i))
+           ≡ cong asscᵣ (λ i → inr (x , push (inr (inl tt)) i))
       assc-r-p-r-l = sym
         (cong (cong assc₂)
           (cong-∙∙ (Iso.fun ⋀CommIso)
@@ -1092,7 +1091,7 @@ module _ {ℓ'' ℓ''' : Level}
         ∙ ∙∙lCancel _
 
     main₁ : (x : typ A) (y : B ⋀ (C ⋀∙ D))
-      → assₗ (inr (x , y)) ≡ assᵣ (inr (x , y))
+      → asscₗ (inr (x , y)) ≡ asscᵣ (inr (x , y))
     main₁ x = ⋀-fun≡'.main {A = B} {B = (C ⋀∙ D)} _ _
       (λ y → main₂ x (fst y) (snd y))
       (λ y → (lemmas₂.p≡refl x ∙ sym (lemmas₂.main₂∙ x y)))
@@ -1111,8 +1110,8 @@ module _ {ℓ'' ℓ''' : Level}
       ∙ ∙∙lCancel _
 
     assc-p-r-r-l : (x : fst B)
-      → cong assₗ (push (inr (inr (x , inl tt))))
-       ≡ cong assᵣ (push (inr (inr (x , inl tt))))
+      → cong asscₗ (push (inr (inr (x , inl tt))))
+       ≡ cong asscᵣ (push (inr (inr (x , inl tt))))
     assc-p-r-r-l x =
       cong (cong (assc₅ ∘ assc₄)) (sym (rUnit (push (inr (inl tt)))))
          ∙ sym (cong (cong assc₂)
@@ -1128,9 +1127,9 @@ module _ {ℓ'' ℓ''' : Level}
     to→∙ₗ : (x : fst B)
       → (C ⋀∙ D)
       →∙ (Path (((A ⋀∙ B) ⋀∙ C) ⋀ D) (inl tt) (inl tt) , refl)
-    fst (to→∙ₗ x) y = ((λ i → assₗ (push (inr (inr (x , y))) i))
+    fst (to→∙ₗ x) y = ((λ i → asscₗ (push (inr (inr (x , y))) i))
        ∙∙ main₁ (pt A) (inr (x , y))
-       ∙∙ (λ i → assᵣ (push (inr (inr (x , y))) (~ i))))
+       ∙∙ (λ i → asscᵣ (push (inr (inr (x , y))) (~ i))))
     snd (to→∙ₗ x) =
         (λ j → assc-p-r-r-l x j ∙∙ main₁⋆ x j ∙∙ sym (assc-p-r-r-l x i1))
       ∙ ∙∙lCancel _
@@ -1141,7 +1140,7 @@ module _ {ℓ'' ℓ''' : Level}
     fst (to→∙ᵣ x) y = refl
     snd (to→∙ᵣ x) = refl
 
-    module L = ⋀-fun≡' assₗ assᵣ (λ x₁ → main₁ (fst x₁) (snd x₁))
+    module L = ⋀-fun≡' asscₗ asscᵣ (λ x₁ → main₁ (fst x₁) (snd x₁))
     open L
     main₁≡refl : (x : _) → main₁ x (inl tt) ≡ refl
     main₁≡refl x = (λ i → lemmas₂.assc-r-p-r-l x i
@@ -1149,10 +1148,10 @@ module _ {ℓ'' ℓ''' : Level}
                        ∙∙ sym (lemmas₂.assc-r-p-r-l x i1))
                 ∙ ∙∙lCancel _  -- {!!} ∙ {!!}
 
-    ok : cong assₗ (push (inr (inl tt))) ≡ cong assᵣ (push (inr (inl tt)))
+    ok : cong asscₗ (push (inr (inl tt))) ≡ cong asscᵣ (push (inr (inl tt)))
     ok i = cong (assc₅ ∘ assc₄) (rUnit (push (inr (inl tt))) (~ i))
 
-    ok2 : (x : fst A) → cong assₗ (push (inl x)) ≡ cong assᵣ (push (inl x))
+    ok2 : (x : fst A) → cong asscₗ (push (inl x)) ≡ cong asscᵣ (push (inl x))
     ok2 x i = cong (assc₅ ∘ assc₄) (rUnit (push (inl x)) (~ i))
 
     p≡refl : p ≡ refl
@@ -1163,8 +1162,8 @@ module _ {ℓ'' ℓ''' : Level}
     main₁-lem∞ = λ _ _ _ → refl
 
     assc-p-r-r-r : (x : fst B) (c : fst C) (d : fst D)
-      → cong assₗ (push (inr (inr (x , inr (c , d)))))
-      ≡ cong assᵣ (push (inr (inr (x , inr (c , d)))))
+      → cong asscₗ (push (inr (inr (x , inr (c , d)))))
+      ≡ cong asscᵣ (push (inr (inr (x , inr (c , d)))))
     assc-p-r-r-r x c d =
          cong (cong (assc₅ ∘ assc₄))
               (sym (rUnit (push (inr (inr (inr (x , c) , d))))))
