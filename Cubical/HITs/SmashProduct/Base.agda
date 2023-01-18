@@ -863,15 +863,17 @@ module _ {ℓ'' ℓ''' : Level}
 
   asscₗ = assc₅ ∘ assc₄ ∘ assc₃
 
-  pentagon : (x : A ⋀ (B ⋀∙ (C ⋀∙ D))) → asscₗ x ≡ asscᵣ x
-  pentagon =
-    ⋀-fun≡'.main {A = A} {B = (B ⋀∙ (C ⋀∙ D))} _ _
+  -- pointed version
+  pentagon∙ : Σ[ f ∈ ((x : A ⋀ (B ⋀∙ (C ⋀∙ D))) → asscₗ x ≡ asscᵣ x) ] f (inl tt) ≡ refl
+  pentagon∙ =
+    (⋀-fun≡'.main {A = A} {B = (B ⋀∙ (C ⋀∙ D))} _ _
       (λ x → main₁ (fst x) (snd x))
       (λ x → p≡refl
            ◁ ((λ i j → assc₅ (assc₄ (rUnit (push (inl x)) (~ j) i)))
            ▷ sym (main₁≡refl x)))
       (⋀→∙Homogeneous≡ (isHomogeneousPath _ _)
         λ x y → funExt⁻ (cong fst (to→∙ₗ≡to→∙ᵣ x)) y ∙ sym p≡refl)
+        , p≡refl)
     where
     module lemmas₁ (x : typ A) (y : typ B) where
       module N = ⋀-fun≡' (λ z → asscₗ (inr (x , inr (y , z))))
@@ -1206,3 +1208,7 @@ module _ {ℓ'' ℓ''' : Level}
                     ∙∙ refl
                     ∙∙ sym (assc-p-r-r-r x c d i1))
              ∙ ∙∙lCancel _
+
+  -- plain penetagon
+  pentagon : (x : A ⋀ (B ⋀∙ (C ⋀∙ D))) → asscₗ x ≡ asscᵣ x
+  pentagon x = fst pentagon∙ x
