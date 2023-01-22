@@ -438,3 +438,15 @@ _≃Emb_ = EmbeddingIdentityPrinciple.f≃g
 
 EmbeddingIP : {B : Type ℓ} (f g : Embedding B ℓ') → f ≃Emb g ≃ (f ≡ g)
 EmbeddingIP = EmbeddingIdentityPrinciple.EmbeddingIP
+
+-- Cantor's theorem for sets
+↪ℙ : {A : Type ℓ} → isSet A → A ↪ ℙ A
+↪ℙ {A = A} setA = fun , (injEmbedding isSetℙ (λ y → sym (H₃ (H₂ y))))
+  where fun : A → ℙ A
+        fun a b = (a ≡ b) , (setA a b)
+
+        H₂ : {a b : A} → fun a ≡ fun b → a ∈ (fun b)
+        H₂ {a} fa≡fb = transport (cong (fst ∘ (_$ a)) fa≡fb) refl
+
+        H₃ : {a b : A} → b ∈ (fun a) → a ≡ b
+        H₃ b∈fa = b∈fa
