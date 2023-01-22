@@ -155,10 +155,20 @@ module _ where
                                (λ (a , _) → ∣ ⊥.rec* , (λ ()) ∣₁) x
 
 -- Our arithmetic behaves as expected over our preordering
-+Monotone≲ : (A B C D : Card {ℓ}) → A ≲ C → (B ≲ D) → (A + B) ≲ (C + D)
++Monotone≲ : (A B C D : Card {ℓ}) → A ≲ C → B ≲ D → (A + B) ≲ (C + D)
 +Monotone≲
   = ∥₂.elim4 (λ w x y z → isSetΠ2 λ _ _ → isProp→isSet (IsPreorder.is-prop-valued
-                                                  isPreorder≲
-                                                  (w + x)
-                                                  (y + z)))
-              λ (A , _) (B , _) (C , _) (D , _) → ∥₁.map2 λ A↪C B↪D → ⊎Monotone↪ A↪C B↪D
+                                                       isPreorder≲
+                                                       (w + x)
+                                                       (y + z)))
+              λ (A , _) (B , _) (C , _) (D , _)
+              → ∥₁.map2 λ A↪C B↪D → ⊎Monotone↪ A↪C B↪D
+
+·Monotone≲ : (A B C D : Card {ℓ}) → A ≲ C → B ≲ D → (A · B) ≲ (C · D)
+·Monotone≲
+  = ∥₂.elim4 (λ w x y z → isSetΠ2 λ _ _ → isProp→isSet (IsPreorder.is-prop-valued
+                                                       isPreorder≲
+                                                       (w · x)
+                                                       (y · z)))
+              λ (A , _) (B , _) (C , _) (D , _)
+              → ∥₁.map2 λ A↪C B↪D → ×Monotone↪ A↪C B↪D
