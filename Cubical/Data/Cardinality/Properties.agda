@@ -205,7 +205,7 @@ module _ where
                                                           B↪C
                                                           A↪B)
 
-𝟘isLeast : ∀{ℓ} → isLeast _≲_ (λ _ → Unit* {ℓ}) (𝟘 {ℓ} , tt*)
+𝟘isLeast : ∀{ℓ} → isLeast isPreorder≲ (λ _ → Unit* {ℓ}) (𝟘 {ℓ} , tt*)
 𝟘isLeast {ℓ} (x , _) = ∥₂.elim {B = λ x → 𝟘 ≲ x}
                                (λ x → isProp→isSet (IsPreorder.is-prop-valued
                                                    isPreorder≲ 𝟘 x))

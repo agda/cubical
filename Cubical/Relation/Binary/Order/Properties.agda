@@ -215,7 +215,8 @@ StrictPoset→Apartness (_ , strictpos) weak
 
 module _
   {A : Type ℓ}
-  (_≲_ : Rel A A ℓ')
+  {_≲_ : Rel A A ℓ'}
+  (pre : IsPreorder _≲_)
   where
 
   module _
@@ -287,62 +288,79 @@ module _
   {A : Type ℓ}
   {P : A → Type ℓ''}
   {_≲_ : Rel A A ℓ'}
-  (prop : BinaryRelation.isPropValued _≲_)
+  (pre : IsPreorder _≲_)
   where
 
-  isPropIsMinimal : ∀ {n} → isProp (isMinimal _≲_ P n)
+  private
+    prop : ∀ (a b : A) → isProp (a ≲ b)
+    prop = IsPreorder.is-prop-valued pre
+
+  isPropIsMinimal : ∀ {n} → isProp (isMinimal pre P n)
   isPropIsMinimal {n , _} = isPropΠ2 λ (x , _) _ → prop n x
 
-  isPropIsMaximal : ∀ {n} → isProp (isMaximal _≲_ P n)
+  isPropIsMaximal : ∀ {n} → isProp (isMaximal pre P n)
   isPropIsMaximal {n , _} = isPropΠ2 λ (x , _) _ → prop x n
 
-  isPropIsLeast : ∀ {n} → isProp (isLeast _≲_ P n)
+  isPropIsLeast : ∀ {n} → isProp (isLeast pre P n)
   isPropIsLeast {n , _} = isPropΠ λ (x , _) → prop n x
 
-  isPropIsGreatest : ∀ {n} → isProp (isGreatest _≲_ P n)
+  isPropIsGreatest : ∀ {n} → isProp (isGreatest pre P n)
   isPropIsGreatest {n , _} = isPropΠ λ (x , _) → prop x n
 
-  isPropIsLowerBound : ∀ {n} → isProp (isLowerBound _≲_ P n)
+  isPropIsLowerBound : ∀ {n} → isProp (isLowerBound pre P n)
   isPropIsLowerBound {n} = isPropΠ λ (x , _) → prop n x
 
-  isPropIsUpperBound : ∀ {n} → isProp (isUpperBound _≲_ P n)
+  isPropIsUpperBound : ∀ {n} → isProp (isUpperBound pre P n)
   isPropIsUpperBound {n} = isPropΠ λ (x , _) → prop x n
 
-  isPropIsMaximalLowerBound : ∀ {n} → isProp (isMaximalLowerBound _≲_ P n)
+  isPropIsMaximalLowerBound : ∀ {n} → isProp (isMaximalLowerBound pre P n)
   isPropIsMaximalLowerBound {n} = isPropΣ isPropIsLowerBound λ _ → isPropΠ2 λ (x , _) _ → prop x n
 
-  isPropIsMinimalUpperBound : ∀ {n} → isProp (isMinimalUpperBound _≲_ P n)
+  isPropIsMinimalUpperBound : ∀ {n} → isProp (isMinimalUpperBound pre P n)
   isPropIsMinimalUpperBound {n} = isPropΣ isPropIsUpperBound λ _ → isPropΠ2 λ (x , _) _ → prop n x
 
-  isPropIsInfimum : ∀ {n} → isProp (isInfimum _≲_ P n)
+  isPropIsInfimum : ∀ {n} → isProp (isInfimum pre P n)
   isPropIsInfimum {n} = isPropΣ isPropIsLowerBound λ _ → isPropΠ λ (x , _) → prop x n
 
-  isPropIsSupremum : ∀ {n} → isProp (isSupremum _≲_ P n)
+  isPropIsSupremum : ∀ {n} → isProp (isSupremum pre P n)
   isPropIsSupremum {n} = isPropΣ isPropIsUpperBound λ _ → isPropΠ λ (x , _) → prop n x
+
+  isGreatest→isSupremum : ∀ n → isGreatest pre P n → isSupremum pre P (fst n)
+  isGreatest→isSupremum n grn = (isGreatest→isUpperBound pre P n grn) , (λ x → snd x n)
+
+  isLeast→isInfimum : ∀ n → isLeast pre P n → isInfimum pre P (fst n)
+  isLeast→isInfimum n lsn = (isLeast→isLowerBound pre P n lsn) , (λ x → snd x n)
 
 module _
   {A : Type ℓ}
   {_≤_ : Rel A A ℓ'}
-  (anti : BinaryRelation.isAntisym _≤_)
+  (pos : IsPoset _≤_)
   where
+
+  private
+    pre : IsPreorder _≤_
+    pre = isPoset→isPreorder pos
+
+    anti : BinaryRelation.isAntisym _≤_
+    anti = IsPoset.is-antisym pos
 
   module _
     {P : A → Type ℓ''}
     where
 
-    isLeast→ContrMinimal : ∀ n → isLeast _≤_ P n  → ∀ m → isMinimal _≤_ P m → (fst n) ≡ (fst m)
+    isLeast→ContrMinimal : ∀ n → isLeast pre P n  → ∀ m → isMinimal pre P m → (fst n) ≡ (fst m)
     isLeast→ContrMinimal (n , Pn) isln (m , Pm) ismm
       = anti n m (isln (m , Pm)) (ismm (n , Pn) (isln (m , Pm)))
 
-    isGreatest→ContrMaximal : ∀ n → isGreatest _≤_ P n → ∀ m → isMaximal _≤_ P m → (fst n) ≡ (fst m)
+    isGreatest→ContrMaximal : ∀ n → isGreatest pre P n → ∀ m → isMaximal pre P m → (fst n) ≡ (fst m)
     isGreatest→ContrMaximal (n , Pn) isgn (m , Pm) ismm
       = anti n m (ismm (n , Pn) (isgn (m , Pm))) (isgn (m , Pm))
 
-    isLeastUnique : ∀ n m → isLeast _≤_ P n → isLeast _≤_ P m → (fst n) ≡ (fst m)
+    isLeastUnique : ∀ n m → isLeast pre P n → isLeast pre P m → (fst n) ≡ (fst m)
     isLeastUnique (n , p) (m , q) isln islm
       = anti n m (isln (m , q)) (islm (n , p))
 
-    isGreatestUnique : ∀ n m → isGreatest _≤_ P n → isGreatest _≤_ P m → (fst n) ≡ (fst m)
+    isGreatestUnique : ∀ n m → isGreatest pre P n → isGreatest pre P m → (fst n) ≡ (fst m)
     isGreatestUnique (n , p) (m , q) isgn isgm
       = anti n m (isgm (n , p)) (isgn (m , q))
 
@@ -350,32 +368,35 @@ module _
     {P : A → Type ℓ''}
     where
 
-    isInfimumUnique : ∀ n m → isInfimum _≤_ P n → isInfimum _≤_ P m → n ≡ m
+    isInfimumUnique : ∀ n m → isInfimum pre P n → isInfimum pre P m → n ≡ m
     isInfimumUnique n m (isln , infn) (islm , infm)
       = isGreatestUnique (n , isln) (m , islm) infn infm
 
-    isSupremumUnique : ∀ n m → isSupremum _≤_ P n → isSupremum _≤_ P m → n ≡ m
+    isSupremumUnique : ∀ n m → isSupremum pre P n → isSupremum pre P m → n ≡ m
     isSupremumUnique n m (isun , supn) (isum , supm)
       = isLeastUnique (n , isun) (m , isum) supn supm
-
-    isGreatest→isSupremum : ∀ n → isGreatest _≤_ P n → isSupremum _≤_ P (fst n)
-    isGreatest→isSupremum n grn = (isGreatest→isUpperBound _≤_ P n grn) , (λ x → snd x n)
-
-    isLeast→isInfimum : ∀ n → isLeast _≤_ P n → isInfimum _≤_ P (fst n)
-    isLeast→isInfimum n lsn = (isLeast→isLowerBound _≤_ P n lsn) , (λ x → snd x n)
 
 module _
   {A : Type ℓ}
   {P : A → Type ℓ''}
   {_≤_ : Rel A A ℓ'}
-  (prop : BinaryRelation.isPropValued _≤_)
-  (conn : BinaryRelation.isStronglyConnected _≤_)
+  (los : IsLoset _≤_)
   where
 
-  isMinimal→isLeast : ∀ n → isMinimal _≤_ P n → isLeast _≤_ P n
+  private
+    prop : ∀ a b → isProp (a ≤ b)
+    prop = IsLoset.is-prop-valued los
+
+    conn : BinaryRelation.isStronglyConnected _≤_
+    conn = IsLoset.is-strongly-connected los
+
+    pre : IsPreorder _≤_
+    pre = isPoset→isPreorder (isLoset→isPoset los)
+
+  isMinimal→isLeast : ∀ n → isMinimal pre P n → isLeast pre P n
   isMinimal→isLeast (n , p) ism (m , q)
     = ∥₁.rec (prop n m) (⊎.rec (λ n≤m → n≤m) (λ m≤n → ism (m , q) m≤n)) (conn n m)
 
-  isMaximal→isGreatest : ∀ n → isMaximal _≤_ P n → isGreatest _≤_ P n
+  isMaximal→isGreatest : ∀ n → isMaximal pre P n → isGreatest pre P n
   isMaximal→isGreatest (n , p) ism (m , q)
     = ∥₁.rec (prop m n) (⊎.rec (λ m≤n → m≤n) (λ n≤m → ism (m , q) n≤m)) (conn m n)
