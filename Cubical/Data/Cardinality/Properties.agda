@@ -2,14 +2,14 @@
 
 This file contains:
 
-- Treatment of set truncation as cardinality
+- Properties of cardinality
+- Existence of embeddings as a preordering
 
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Data.Cardinality.Properties where
 
-open import Cubical.HITs.SetTruncation.Base
-open import Cubical.HITs.SetTruncation.Properties as ∥₂
+open import Cubical.HITs.SetTruncation as ∥₂
 open import Cubical.Data.Cardinality.Base
 
 open import Cubical.Algebra.CommSemiring
@@ -19,14 +19,11 @@ open import Cubical.Algebra.Semigroup
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Powerset
-open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Univalence
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Surjection
 open import Cubical.Data.Empty as ⊥
