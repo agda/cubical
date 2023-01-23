@@ -126,15 +126,15 @@ module _ where
 
 -- Exponentiation is also well-behaved
 
-^𝟘 : (A : Card {ℓ}) → A ^ 𝟘 ≡ 𝟙
-^𝟘 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
+^AnnihilR𝟘 : (A : Card {ℓ}) → A ^ 𝟘 ≡ 𝟙
+^AnnihilR𝟘 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
              λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
                                             (isoToPath (iso⊥ _)))
-     where iso⊥ : ∀ A → Iso (⊥* → A) Unit*
-           Iso.fun (iso⊥ A) _        = tt*
-           Iso.inv (iso⊥ A) _        ()
-           Iso.rightInv (iso⊥ A) _   = refl
-           Iso.leftInv  (iso⊥ A) _ i ()
+           where iso⊥ : ∀ A → Iso (⊥* → A) Unit*
+                 Iso.fun (iso⊥ A) _        = tt*
+                 Iso.inv (iso⊥ A) _        ()
+                 Iso.rightInv (iso⊥ A) _   = refl
+                 Iso.leftInv  (iso⊥ A) _ i ()
 
 ^IdR𝟙 : (A : Card {ℓ}) → A ^ 𝟙 ≡ A
 ^IdR𝟙 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
