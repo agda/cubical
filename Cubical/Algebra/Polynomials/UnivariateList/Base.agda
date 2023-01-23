@@ -45,7 +45,7 @@ module _ (R' : CommRing ℓ) where
 module PolyMod (R' : CommRing ℓ) where
   private
     R = fst R'
-  open CommRingStr (snd R') public
+  open CommRingStr (snd R')
 
 -------------------------------------------------------------------------------------------
 -- First definition of a polynomial.
