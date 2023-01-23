@@ -141,13 +141,13 @@ module _ where
 
 ^IdR𝟙 : (A : Card {ℓ}) → A ^ 𝟙 ≡ A
 ^IdR𝟙 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
-                       λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
+                λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
                                                (isoToPath (iso⊤ _)))
-               where iso⊤ : ∀ A → Iso (Unit* → A) A
-                     Iso.fun (iso⊤ _) f      = f tt*
-                     Iso.inv (iso⊤ _) a _    = a
-                     Iso.rightInv (iso⊤ _) _ = refl
-                     Iso.leftInv  (iso⊤ _) _ = refl
+        where iso⊤ : ∀ A → Iso (Unit* → A) A
+              Iso.fun (iso⊤ _) f      = f tt*
+              Iso.inv (iso⊤ _) a _    = a
+              Iso.rightInv (iso⊤ _) _ = refl
+              Iso.leftInv  (iso⊤ _) _ = refl
 
 ^AnnihilL𝟙 : (A : Card {ℓ}) → 𝟙 ^ A ≡ 𝟙
 ^AnnihilL𝟙 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
