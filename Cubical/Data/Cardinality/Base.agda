@@ -50,3 +50,7 @@ _+_ = ∥₂.rec2 isSetCard λ (A , isSetA) (B , isSetB)
 _·_ : Card {ℓ} → Card {ℓ} → Card {ℓ}
 _·_ = ∥₂.rec2 isSetCard λ (A , isSetA) (B , isSetB)
                         → card ((A × B) , (isSet× isSetA isSetB))
+
+_^_ : Card {ℓ} → Card {ℓ} → Card {ℓ}
+_^_ = ∥₂.rec2 isSetCard λ (A , isSetA) (B , _)
+                        → card ((B → A) , (isSetΠ (λ _ → isSetA)))

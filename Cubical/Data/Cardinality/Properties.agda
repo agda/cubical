@@ -127,6 +127,58 @@ module _ where
                                       ·LDist+
                                       AnnihilL
 
+-- Exponentiation is also well-behaved
+
+^𝟘 : (A : Card {ℓ}) → A ^ 𝟘 ≡ 𝟙
+^𝟘 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
+             λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
+                                            (isoToPath (iso⊥ _)))
+     where iso⊥ : ∀ A → Iso (⊥* → A) Unit*
+           Iso.fun (iso⊥ A) _        = tt*
+           Iso.inv (iso⊥ A) _        ()
+           Iso.rightInv (iso⊥ A) _   = refl
+           Iso.leftInv  (iso⊥ A) _ i ()
+
+^IdR𝟙 : (A : Card {ℓ}) → A ^ 𝟙 ≡ A
+^IdR𝟙 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
+                       λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
+                                               (isoToPath (iso⊤ _)))
+               where iso⊤ : ∀ A → Iso (Unit* → A) A
+                     Iso.fun (iso⊤ _) f      = f tt*
+                     Iso.inv (iso⊤ _) a _    = a
+                     Iso.rightInv (iso⊤ _) _ = refl
+                     Iso.leftInv  (iso⊤ _) _ = refl
+
+^AnnihilL𝟙 : (A : Card {ℓ}) → 𝟙 ^ A ≡ 𝟙
+^AnnihilL𝟙 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
+                     λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
+                                             (isoToPath (iso⊤ _)))
+             where iso⊤ : ∀ A → Iso (A → Unit*) Unit*
+                   Iso.fun (iso⊤ _) _      = tt*
+                   Iso.inv (iso⊤ _) _ _    = tt*
+                   Iso.rightInv (iso⊤ _) _ = refl
+                   Iso.leftInv  (iso⊤ _) _ = refl
+
+^LDist+ : (A B C : Card {ℓ}) → A ^ (B + C) ≡ (A ^ B) · (A ^ C)
+^LDist+ = ∥₂.elim3 (λ _ _ _ → isProp→isSet (isSetCard _ _))
+                   λ _ _ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
+                                               (isoToPath Π⊎Iso))
+
+^Assoc· : (A B C : Card {ℓ}) → A ^ (B · C) ≡ (A ^ B) ^ C
+^Assoc· = ∥₂.elim3 (λ _ _ _ → isProp→isSet (isSetCard _ _))
+                   λ _ _ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
+                                               (isoToPath (is _ _ _)))
+          where is : ∀ A B C → Iso (B × C → A) (C → B → A)
+                is A B C = (B × C → A) Iso⟨ domIso Σ-swap-Iso ⟩
+                           (C × B → A) Iso⟨ curryIso ⟩
+                           (C → B → A) ∎Iso
+
+^RDist· : (A B C : Card {ℓ}) → (A · B) ^ C ≡ (A ^ C) · (B ^ C)
+^RDist· = ∥₂.elim3 (λ _ _ _ → isProp→isSet (isSetCard _ _))
+                   λ _ _ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
+                                               (isoToPath Σ-Π-Iso))
+
+
 -- With basic arithmetic done, we can now define an ordering over cardinals
 module _ where
   private
@@ -138,15 +190,23 @@ module _ where
 
   isPreorder≲ : IsPreorder {ℓ-suc ℓ} _≲_
   isPreorder≲
-    = ispreorder isSetCard
-                 prop
-                 (λ A → ∥₂.elim (λ A → isProp→isSet (prop A A)) (λ (A , _) → ∣ id↪ A ∣₁) A)
-                 λ A B C → ∥₂.elim3 {B = λ x y z → x ≲ y → y ≲ z → x ≲ z}
-                                    (λ x _ z → isSetΠ2 λ _ _ → isProp→isSet (prop x z))
-                                    (λ (A , _) (B , _) (C , _)
-                                      → ∥₁.map2 λ A↪B B↪C → compEmbedding B↪C A↪B) A B C
+    = ispreorder isSetCard prop reflexive transitive
                  where prop : BinaryRelation.isPropValued _≲_
                        prop a b = str (a ≲' b)
+
+                       reflexive : BinaryRelation.isRefl _≲_
+                       reflexive = ∥₂.elim (λ A → isProp→isSet (prop A A))
+                                           (λ (A , _) → ∣ id↪ A ∣₁)
+
+                       transitive : BinaryRelation.isTrans _≲_
+                       transitive = ∥₂.elim3 (λ x _ z → isSetΠ2
+                                                      λ _ _ → isProp→isSet
+                                                              (prop x z))
+                                             (λ (A , _) (B , _) (C , _)
+                                              → ∥₁.map2 λ A↪B B↪C
+                                                        → compEmbedding
+                                                          B↪C
+                                                          A↪B)
 
 𝟘isLeast : ∀{ℓ} → isLeast _≲_ (λ _ → Unit* {ℓ}) (𝟘 {ℓ} , tt*)
 𝟘isLeast {ℓ} (x , _) = ∥₂.elim {B = λ x → 𝟘 ≲ x}
