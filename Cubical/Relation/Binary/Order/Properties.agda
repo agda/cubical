@@ -1,14 +1,14 @@
 {-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Properties where
 
-open import Cubical.Data.Sum renaming (rec to ⊎-rec ; map to ⊎-map)
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
-open import Cubical.Data.Empty.Base renaming (rec to ⊥-rec)
+open import Cubical.Data.Empty.Base as ⊥
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
-open import Cubical.HITs.PropositionalTruncation renaming (map to ∥₁-map ; rec to ∥₁-rec)
+open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Order.Apartness
@@ -68,7 +68,7 @@ module _
     transrefl trans a b c (inr a≡b) (inr b≡c) = inr (a≡b ∙ b≡c)
 
     antisym : isIrrefl R → isTrans R → isAntisym (ReflClosure R)
-    antisym irr trans a b (inl Rab) (inl Rba) = ⊥-rec (irr a (trans a b a Rab Rba))
+    antisym irr trans a b (inl Rab) (inl Rba) = ⊥.rec (irr a (trans a b a Rab Rba))
     antisym irr trans a b (inl _) (inr b≡a) = sym b≡a
     antisym irr trans a b (inr a≡b) _ = a≡b
 
@@ -126,7 +126,7 @@ module _
               (antisym (IsStrictLoset.is-irrefl strictloset)
                        (IsStrictLoset.is-trans strictloset))
               λ a b → decRec (λ a≡b → ∣ inl (inr a≡b) ∣₁)
-                             (λ ¬a≡b → ∥₁-map (⊎-map (λ Rab → inl Rab) λ Rba → inl Rba)
+                             (λ ¬a≡b → ∥₁.map (⊎.map (λ Rab → inl Rab) λ Rba → inl Rba)
                              (IsStrictLoset.is-connected strictloset a b ¬a≡b)) (disc a b)
 
   isPreorder→isEquivRelSymKernel : IsPreorder R → isEquivRel (SymKernel R)
@@ -154,12 +154,12 @@ module _
                   (λ a b → isProp⊎ (IsStrictPoset.is-prop-valued strictposet a b)
                                    (IsStrictPoset.is-prop-valued strictposet b a)
                                    (IsStrictPoset.is-asym strictposet a b))
-                  (λ a x → ⊎-rec (IsStrictPoset.is-irrefl strictposet a)
+                  (λ a x → ⊎.rec (IsStrictPoset.is-irrefl strictposet a)
                                  (IsStrictPoset.is-irrefl strictposet a) x)
-                  (λ a b c x → ⊎-rec (λ Rab → ∥₁-map (⊎-map (λ Rac → inl Rac)
+                  (λ a b c x → ⊎.rec (λ Rab → ∥₁.map (⊎.map (λ Rac → inl Rac)
                                                              (λ Rcb → inr Rcb))
                                                       (weak a b c Rab))
-                                     (λ Rba → ∥₁-rec squash₁ (λ y → ∣ ⊎-rec (λ Rbc → inr (inl Rbc))
+                                     (λ Rba → ∥₁.rec squash₁ (λ y → ∣ ⊎.rec (λ Rbc → inr (inl Rbc))
                                                                             (λ Rca → inl (inr Rca)) y ∣₁)
                                                                      (weak b a c Rba)) x)
                   (isSymSymClosure R)
@@ -374,8 +374,8 @@ module _
 
   isMinimal→isLeast : ∀ n → isMinimal _≤_ P n → isLeast _≤_ P n
   isMinimal→isLeast (n , p) ism (m , q)
-    = ∥₁-rec (prop n m) (⊎-rec (λ n≤m → n≤m) (λ m≤n → ism (m , q) m≤n)) (conn n m)
+    = ∥₁.rec (prop n m) (⊎.rec (λ n≤m → n≤m) (λ m≤n → ism (m , q) m≤n)) (conn n m)
 
   isMaximal→isGreatest : ∀ n → isMaximal _≤_ P n → isGreatest _≤_ P n
   isMaximal→isGreatest (n , p) ism (m , q)
-    = ∥₁-rec (prop m n) (⊎-rec (λ m≤n → m≤n) (λ n≤m → ism (m , q) n≤m)) (conn m n)
+    = ∥₁.rec (prop m n) (⊎.rec (λ m≤n → m≤n) (λ n≤m → ism (m , q) n≤m)) (conn m n)
