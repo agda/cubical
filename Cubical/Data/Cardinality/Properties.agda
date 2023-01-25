@@ -37,7 +37,7 @@ open import Cubical.Relation.Nullary
 
 private
   variable
-    {ℓ ℓ'} : Level
+    ℓ : Level
 
 -- Cardinality is a commutative semiring
 module _ where

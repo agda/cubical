@@ -21,7 +21,7 @@ open import Cubical.Relation.Nullary
 
 private
   variable
-    {ℓ ℓ'} : Level
+    ℓ : Level
 
 -- First, we define a cardinal as the set truncation of Set
 Card : Type (ℓ-suc ℓ)
