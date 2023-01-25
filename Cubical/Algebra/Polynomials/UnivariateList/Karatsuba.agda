@@ -202,11 +202,12 @@ module _ (R' : CommRing ℓ) where
     [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
 
     -- why doesn't this work
-    -- useSolver : ∀ x pₑX² pₒX² qₑX² qₒX²
-    --           → pₑX² · qₑX²  + x · ((pₑX² + pₒX²) · (qₑX² + pₒX²)
-    --              - pₑX² · qₑX² - pₒX² · qₒX²) + (x · x) · (pₒX² · qₒX²)
-    --           ≡ (pₑX² + x · pₒX²) · (qₑX² + x · qₒX²)
-    -- useSolver = solve (UnivariatePolyList R')
+    useSolver : ∀ (x pₑX² pₒX² qₑX² qₒX² : R[X])
+              → pₑX² · qₑX²
+                  + x · ((pₑX² + pₒX²) · (qₑX² + qₒX²) - (pₑX² · qₑX²) - (pₒX² · qₒX²))
+                  + (x · x) · (pₒX² · qₒX²)
+              ≡ (pₑX² + x · pₒX²) · (qₑX² + x · qₒX²)
+    useSolver = solve (UnivariatePolyList R')
 
     path : evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
          ≡ p · q
@@ -277,7 +278,7 @@ module _ (R' : CommRing ℓ) where
                  - evalAtX² (p ₑ) · evalAtX² (q ₑ) - evalAtX² (p ₒ) · evalAtX² (q ₒ))
          + X² · (evalAtX² (p ₒ) · evalAtX² (q ₒ))
 
-     ≡⟨ {!!} ⟩
+     ≡⟨ useSolver X (evalAtX² (p ₑ)) (evalAtX² (p ₒ)) (evalAtX² (q ₑ)) (evalAtX² (q ₒ)) ⟩
 
        (evalAtX² (p ₑ) + X · evalAtX² (p ₒ)) · (evalAtX² (q ₑ) + X · evalAtX² (q ₒ))
 
