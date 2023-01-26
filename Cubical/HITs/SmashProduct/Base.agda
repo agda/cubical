@@ -90,6 +90,10 @@ Iso.leftInv ⋀CommIso = ⋀comm→²
 _⋀∙_ : Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋀∙ B = (A ⋀ B) , (inl tt)
 
+⋀comm→∙ : A ⋀∙ B →∙ B ⋀∙ A
+fst ⋀comm→∙ = ⋀comm→
+snd ⋀comm→∙ = refl
+
 SmashAdjIso : Iso ((A ⋀∙ B) →∙ C) (A →∙ (B →∙ C ∙))
 SmashAdjIso {A = A} {B = B} {C = C} =
   compIso is₃ (compIso iso₄ (invIso is₂))

@@ -17,6 +17,7 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Equiv
 open import Cubical.HITs.SmashProduct.Base
 open import Cubical.HITs.SmashProduct.Pentagon
+open import Cubical.HITs.SmashProduct.Hexagon
 
 
 private
@@ -58,7 +59,7 @@ record isSymmetricMonoidal {ℓ : Level}
        → (⊗comm ∘∙ ⊗fun f g)
         ≡ (⊗fun g f ∘∙ ⊗comm)
 
-    hexagon : {A B C : _}
+    ⊗hexagon : {A B C : _}
       → (⊗fun ⊗comm (idfun∙ B)
        ∘∙ (≃∙map ⊗assoc
        ∘∙ ⊗fun (idfun∙ A) (⊗comm {A = B} {B = C})))
@@ -135,13 +136,10 @@ open isSymmetricMonoidal
          (sym (rUnit (push (inl (fst f x))))))
          ▷ λ _ → refl)
      (⋀→∙Homogeneous≡ (isHomogeneousPath _ _)
-       λ y z → {!fst
-      (⋀-fun≡'.Fₗ
-       (λ z₁ → fst (≃∙map SmashAssocEquiv∙ ∘∙ (f ⋀→∙ (g ⋀→∙ h))) z₁)
-       (λ z₁ → fst (((f ⋀→∙ g) ⋀→∙ h) ∘∙ ≃∙map SmashAssocEquiv∙) z₁)
-       (λ x → f1 (fst x) (snd x)))
-      (inr (y , z))!} ∙ {!!} ∙ sym p≡refl₁)))
-  , {!!})
+       λ y z → (λ i → help2 y z (~ i)
+             ∙∙ refl ∙∙ sym (help2 y z i0)) ∙
+             ∙∙lCancel (sym (help2 y z i0)) ∙ sym p≡refl₁)))
+  , λ i j → pt-lem-main i j)
   where
   module _ (x : fst A) where
     f₁ₗ : B ⋀∙ C →∙ ((A' ⋀∙ B') ⋀∙ C')
@@ -194,30 +192,44 @@ open isSymmetricMonoidal
                (sym (rUnit _))
                refl
 
-     help2 : (y : _) (z : _)
-       → cong (((f ⋀→∙ g) ⋀→ h)
-                     ∘ (fst (fst SmashAssocEquiv∙)))
-                   (push (inr (inr (y , z))))
-        ≡ cong (fst (≃∙map SmashAssocEquiv∙ ∘∙ (f ⋀→∙ (g ⋀→∙ h))))
-                 (push (inr (inr (y , z))))
-     help2 y z = cong (cong ((f ⋀→∙ g) ⋀→ h))
-                   (cong (cong (⋀CommIso .Iso.fun))
-                     (compPath≡compPath'
-                       {!!} {!!})
-                  ∙ {!!})
-              ∙∙ {!!}
-              ∙∙ {!cong (((fst (fst SmashAssocEquiv∙))))
-                   (push (inr (inr (y , z))))!}
-{-
-cong f (push (inr b)) ∙∙ pr (pt A , b) ∙∙ sym (cong g (push (inr b)))
--}
+  help2 : (y : _) (z : _)
+    → cong (((f ⋀→∙ g) ⋀→ h)
+                  ∘ (fst (fst SmashAssocEquiv∙)))
+                (push (inr (inr (y , z))))
+     ≡ cong (fst (≃∙map SmashAssocEquiv∙ ∘∙ (f ⋀→∙ (g ⋀→∙ h))))
+              (push (inr (inr (y , z))))
+  help2 y z =
+      cong (cong ((f ⋀→∙ g) ⋀→ h))
+           (cong-∙∙ ⋀comm→ (push (inl z))
+                            (λ i → inr (z , push (inr y) i))
+                            refl
+         ∙ sym (compPath≡compPath' (push (inr z)) _))
+   ∙∙ cong-∙ ((f ⋀→∙ g) ⋀→ h)
+        (push (inr z)) (λ i → inr (push (inr y) i , z))
+   ∙∙ (cong₂ _∙_ (sym (rUnit (push (inr (fst h z)))))
+                 (cong-∙ (λ x → inr (x , fst h z))
+                         (push (inr (fst g y)))
+                         (λ i → inr (snd f (~ i) , fst g y)))
+     ∙ sym (cong-∙ (SmashAssocIso .Iso.fun)
+             (push (inr (inr (fst g y , fst h z))))
+             (λ i → inr (snd f (~ i)
+                        , inr (fst g y , fst h z)))
+        ∙∙ cong (_∙ (λ i → inr (inr (snd f (~ i) , fst g y) , fst h z)))
+                (cong-∙∙ ⋀comm→
+                         (push (inl (fst h z)))
+                         (λ i → inr (fst h z , push (inr (fst g y)) i))
+                         refl
+             ∙ sym (compPath≡compPath' (push (inr (fst h z))) _))
+        ∙∙ sym (assoc _ _ _)))
 
   module N = ⋀-fun≡' (λ z → SmashAssocIso .Iso.fun ((f ⋀→ (g ⋀→∙ h)) z))
       (λ z → ((f ⋀→∙ g) ⋀→ h) (SmashAssocIso .Iso.fun z))
       (λ x₁ → f1 (fst x₁) (snd x₁))
 
   p≡refl₁ : N.p ≡ refl
-  p≡refl₁ = (λ j → cong (SmashAssocIso .Iso.fun ∘ ((f ⋀→ (g ⋀→∙ h)))) (push (inr (inl tt)))
+  p≡refl₁ = (λ j → cong (SmashAssocIso .Iso.fun
+                       ∘ ((f ⋀→ (g ⋀→∙ h))))
+                         (push (inr (inl tt)))
                  ∙∙ refl
                  ∙∙ cong (((f ⋀→∙ g) ⋀→ h)
                          ∘ (SmashAssocIso .Iso.fun))
@@ -229,6 +241,222 @@ cong f (push (inr b)) ∙∙ pr (pt A , b) ∙∙ sym (cong g (push (inr b)))
                  ∙ sym (rUnit refl))
           ∙ sym (rUnit refl)
 
+  pt-lem : cong (fst (≃∙map SmashAssocEquiv∙ ∘∙ (f ⋀→∙ (g ⋀→∙ h))))
+             (push (inr (inl tt)))
+         ≡ cong (fst (((f ⋀→∙ g) ⋀→∙ h) ∘∙ ≃∙map SmashAssocEquiv∙))
+             (push (inr (inl tt)))
+  pt-lem i j = fst (≃∙map SmashAssocEquiv∙) (rUnit (push (inr (inl tt))) (~ i) j)
+
+  pt-lem-main : I → I → _
+  pt-lem-main i j =
+    hcomp (λ k → λ {(i = i0) → rUnit (refl {x = inl tt}) k j
+                   ; (i = i1) → rUnit (refl {x = inl tt}) k j
+                   ; (j = i0) → (pt-lem i0 ∙∙ refl ∙∙ sym (pt-lem k)) i
+                   ; (j = i1) → inl tt})
+          (∙∙lCancel (sym (pt-lem i0)) j i)
+
+⋀comm-sq : {A A' B B' : Pointed ℓ}
+  (f : A →∙ A') (g : B →∙ B')
+  → (⋀comm→∙ ∘∙ (f ⋀→∙ g)) ≡ ((g ⋀→∙ f) ∘∙ ⋀comm→∙)
+⋀comm-sq f g =
+  ΣPathP ((funExt
+    (⋀-fun≡ _ _ refl (λ _ → refl)
+      (λ x → flipSquare
+        (cong-∙ ⋀comm→
+          (push (inl (fst f x))) (λ i → inr (fst f x , snd g (~ i)))))
+      λ b → flipSquare (cong-∙ ⋀comm→
+                         (push (inr (fst g b)))
+                         (λ i → inr (snd f (~ i) , fst g b)))))
+    , refl)
+
+-- move
+open import Cubical.Data.Bool
+Bool* : ∀ {ℓ} → Type ℓ
+Bool* = Lift Bool
+
+true* : ∀ {ℓ} → Bool* {ℓ}
+true* = lift true
+
+false* : ∀ {ℓ} → Bool* {ℓ}
+false* = lift false
+
+Bool*∙ : ∀ {ℓ} → Pointed ℓ
+fst Bool*∙ = Bool*
+snd Bool*∙ = true*
+
+Unit*∙ : ∀ {ℓ} → Pointed ℓ
+fst Unit*∙ = Unit*
+snd Unit*∙ = tt*
+
+Bool⋀→ : Bool*∙ {ℓ} ⋀ A → typ A
+Bool⋀→ {A = A} (inl x) = pt A
+Bool⋀→ (inr (lift false , a)) = a
+Bool⋀→ {A = A} (inr (lift true , a)) = pt A
+Bool⋀→ {A = A} (push (inl (lift false)) i) = pt A
+Bool⋀→ {A = A} (push (inl (lift true)) i) = pt A 
+Bool⋀→ {A = A} (push (inr x) i) = pt A
+Bool⋀→ {A = A} (push (push a i₁) i) = pt A
+
+⋀lIdIso : Iso (Bool*∙ {ℓ} ⋀ A) (typ A)
+Iso.fun (⋀lIdIso {A = A}) (inl x) = pt A
+Iso.fun ⋀lIdIso = Bool⋀→
+Iso.inv ⋀lIdIso a = inr (false* , a)
+Iso.rightInv ⋀lIdIso a = refl
+Iso.leftInv (⋀lIdIso {A = A}) =
+  ⋀-fun≡ _ _ (sym (push (inl false*))) h hₗ
+    λ x → compPath-filler (sym (push (inl false*))) (push (inr x))
+  where
+  h : (x : (Lift Bool) × fst A) →
+      inr (false* , Bool⋀→ (inr x)) ≡ inr x
+  h (lift false , a) = refl
+  h (lift true , a) = sym (push (inl false*)) ∙ push (inr a)
+
+  hₗ : (x : Lift Bool) →
+      PathP
+      (λ i → inr (false* , Bool⋀→ (push (inl x) i)) ≡ push (inl x) i)
+      (λ i → push (inl false*) (~ i)) (h (x , pt A))
+  hₗ (lift false) i j = push (inl false*) (~ j ∨ i)
+  hₗ (lift true) =
+      compPath-filler (sym (push (inl false*))) (push (inl true*))
+    ▷ (cong (sym (push (inl false*)) ∙_)
+       λ j i → push (push tt j) i)
+
+⋀lIdEquiv∙ : Bool*∙ {ℓ} ⋀∙ A ≃∙ A
+fst ⋀lIdEquiv∙ = isoToEquiv ⋀lIdIso
+snd ⋀lIdEquiv∙ = refl
+
+⋀lId-sq : (f : A →∙ B) →
+      (≃∙map (⋀lIdEquiv∙ {ℓ}) ∘∙ (idfun∙ Bool*∙ ⋀→∙ f)) ≡
+      (f ∘∙ ≃∙map ⋀lIdEquiv∙)
+⋀lId-sq {ℓ} {A = A} {B = B} f =
+  ΣPathP ((funExt
+    (⋀-fun≡ _ _ (sym (snd f)) (λ x → h (fst x) (snd x)) hₗ hᵣ ))
+  , (sym (rUnit refl) ◁ (λ i j → snd f (~ i ∨ j))
+    ▷ lUnit (snd f)))
+  where
+  h : (x : Lift Bool) (a : fst A)
+    → Bool⋀→ (inr (x , fst f a)) ≡ fst f (Bool⋀→ (inr (x , a)))
+  h (lift false) a = refl
+  h (lift true) a = sym (snd f)
+
+  hₗ : (x : Lift Bool)
+    → PathP (λ i → Bool⋀→ ((idfun∙ Bool*∙ ⋀→ f) (push (inl x) i))
+                   ≡ fst f (Bool⋀→ (push (inl x) i)))
+             (sym (snd f)) (h x (pt A))
+  hₗ (lift false) =
+    flipSquare ((cong-∙ (Bool⋀→ {ℓ})
+                  (push (inl false*))
+                  (λ i → inr (lift false , snd f (~ i)))
+              ∙ sym (lUnit (sym (snd f))))
+             ◁ λ i j → snd f (~ i ∧ ~ j))
+  hₗ (lift true) =
+    flipSquare
+       ((cong-∙ (Bool⋀→ {ℓ})
+         (push (inl true*)) (λ i → inr (lift true , snd f (~ i)))
+       ∙ sym (rUnit refl))
+      ◁ λ i _ → snd f (~ i))
+
+  hᵣ : (x : fst A)
+    → PathP (λ i → Bool⋀→ {ℓ} ((idfun∙ Bool*∙ ⋀→ f) (push (inr x) i))
+                  ≡ fst f (snd A))
+             (sym (snd f)) (h true* x)
+  hᵣ x = flipSquare ((cong-∙ (Bool⋀→ {ℓ})
+                      (push (inr (fst f x)))
+                      (λ i → inr (true* , fst f x))
+                    ∙ sym (rUnit refl))
+      ◁ λ i _ → snd f (~ i))
+
+⋀lId-assoc : ((≃∙map (⋀lIdEquiv∙ {ℓ} {A = A}) ⋀→∙ idfun∙ B)
+             ∘∙ ≃∙map SmashAssocEquiv∙)
+            ≡ ≃∙map ⋀lIdEquiv∙
+⋀lId-assoc {ℓ} {A = A} {B = B} =
+  ΣPathP (funExt
+          (⋀-fun≡'.main _ _
+            (λ xy → pl (fst xy) (snd xy))
+            (λ x → sym (rUnit refl) ◁ l-coh x)
+            (⋀→∙Homogeneous≡ (isHomogeneousPath _ _) higher))
+        , (sym (rUnit refl)
+          ◁ flipSquare (sym (rUnit refl))))
+  where
+  l₁ : (x : Lift Bool) → inl tt ≡ Bool⋀→ (inr (x , inl tt))
+  l₁ (lift true) = refl
+  l₁ (lift false) = refl
+
+  l₂ : (x : Lift Bool) (y : fst A × fst B)
+    → inr (Bool⋀→ (inr (x , fst y)) , snd y)
+    ≡ Bool⋀→ (inr (x , inr y))
+  l₂ (lift true) y = sym (push (inr (snd y)))
+  l₂ (lift false) y = refl
+
+  l₃ : (x : Lift Bool) (y : fst A) →
+    PathP (λ i → l₁ x i ≡ l₂ x (y , pt B) i)
+          (push (inl (Bool⋀→ (inr (x , y)))))
+          λ i → Bool⋀→ {ℓ} {A = A ⋀∙ B} (inr (x , push (inl y) i))
+  l₃ (lift true) y = (λ i → push (push tt i))
+                   ◁ λ i j → push (inr (pt B)) (~ i ∧ j)
+  l₃ (lift false) y = refl
+
+  l₄ : (x : Lift Bool) (y : fst B)
+    → PathP (λ i → l₁ x i ≡ l₂ x ((pt A) , y) i)
+            (push (inr y) ∙ (λ i → inr (Bool⋀→ {A = A} (push (inl x) i) , y)))
+            (λ i → Bool⋀→ {A = A ⋀∙ B} (inr (x , push (inr y) i)))
+  l₄ (lift false) y = sym (rUnit (push (inr y)))
+  l₄ (lift true) y = sym (rUnit (push (inr y)))
+                   ◁ λ i j → push (inr y) (j ∧ ~ i)
+
+  pl : (x : Lift Bool) (y : A ⋀ B)
+    → (≃∙map ⋀lIdEquiv∙ ⋀→ idfun∙ B)
+        (SmashAssocIso .Iso.fun (inr (x , y)))
+     ≡ Bool⋀→ {ℓ} (inr (x , y))
+  pl x = ⋀-fun≡ _ _ (l₁ x) (l₂ x)
+    (λ y → flipSquare (sym (rUnit (push (inl (Bool⋀→ (inr (x , y))))))
+          ◁ l₃ x y))
+    λ y → flipSquare ((cong (cong (≃∙map ⋀lIdEquiv∙ ⋀→ idfun∙ B))
+                          (cong-∙∙ ⋀comm→
+                            (push (inl y)) (λ i → inr (y , push (inl x) i)) refl
+                        ∙ sym (compPath≡compPath'
+                                (push (inr y)) (λ i → inr (push (inl x) i , y))))
+                      ∙ cong-∙ (≃∙map ⋀lIdEquiv∙ ⋀→ idfun∙ B)
+                          (push (inr y)) λ i → inr (push (inl x) i , y))
+                      ◁ (cong₂ _∙_ (sym (rUnit (push (inr y))))
+                                   refl
+                                 ◁ l₄ x y))
+
+  l-coh : (x : Lift Bool)
+    → PathP (λ i → inl tt ≡ Bool⋀→ (push (inl x) i))
+             refl (pl x (inl tt))
+  l-coh (lift false) = refl
+  l-coh (lift true) = refl
+
+  module N = ⋀-fun≡'
+    (λ z → (≃∙map ⋀lIdEquiv∙ ⋀→ idfun∙ B) (SmashAssocIso .Iso.fun z))
+    (λ z → ⋀lIdIso .Iso.fun z)
+    (λ xy → pl (fst xy) (snd xy))
+
+  lem : (x : fst A) (y : fst B)
+    → cong ((≃∙map (⋀lIdEquiv∙ {ℓ} {A = A}) ⋀→ idfun∙ B) ∘ SmashAssocIso .Iso.fun)
+             (push (inr (inr (x , y))))
+    ≡ push (inr y)
+  lem x y =
+      cong (cong (≃∙map (⋀lIdEquiv∙ {ℓ} {A = A}) ⋀→ idfun∙ B))
+            (cong-∙∙ ⋀comm→
+              (push (inl y)) (λ i → inr (y , push (inr x) i)) refl
+           ∙ sym (compPath≡compPath'
+                  (push (inr y)) λ i → inr (push (inr x) i , y)))
+    ∙∙ cong-∙ (≃∙map (⋀lIdEquiv∙ {ℓ} {A = A}) ⋀→ idfun∙ B)
+              (push (inr y))
+              (λ i → inr (push (inr x) i , y))
+    ∙∙ (sym (rUnit _)
+     ∙ sym (rUnit _))
+
+  higher : (x : fst A) (y : fst B)
+    → N.Fₗ .fst (inr (x , y)) ≡ N.Fᵣ .fst (inr (x , y))
+  higher x y = (λ i → lem x y i ∙∙ sym (lem x y i1) ∙∙ refl)
+             ∙ sym (compPath≡compPath'
+                    (push (inr y)) (sym (push (inr y))))
+             ∙ rCancel (push (inr y))
+             ∙ rUnit refl
+
 ⋀SymmetricMonoidal : ∀ {ℓ} → isSymmetricMonoidal {ℓ} (_⋀∙_ {ℓ} {ℓ})
 ⊗fun ⋀SymmetricMonoidal = _⋀→∙_
 ⊗fun-id ⋀SymmetricMonoidal = ⋀→∙-idfun
@@ -237,10 +465,11 @@ cong f (push (inr b)) ∙∙ pr (pt A , b) ∙∙ sym (cong g (push (inr b)))
 ⊗assoc-sq ⋀SymmetricMonoidal = ⋀assoc-sq
 ⊗pentagon ⋀SymmetricMonoidal = sym pentagon∙
 ⊗comm ⋀SymmetricMonoidal = Iso.fun ⋀CommIso , refl
-⊗comm-sq ⋀SymmetricMonoidal f g = {!!}
-hexagon ⋀SymmetricMonoidal = {!!}
-⊗commid ⋀SymmetricMonoidal = {!!}
-⊗Unit ⋀SymmetricMonoidal = {!!}
-⊗lId ⋀SymmetricMonoidal = {!!}
-⊗lId-sq ⋀SymmetricMonoidal = {!!}
-⊗lId-assoc ⋀SymmetricMonoidal = {!!}
+⊗comm-sq ⋀SymmetricMonoidal = ⋀comm-sq
+⊗hexagon ⋀SymmetricMonoidal = hexagon∙
+⊗commid ⋀SymmetricMonoidal =
+  ΣPathP ((funExt (Iso.rightInv ⋀CommIso)) , sym (rUnit refl))
+⊗Unit ⋀SymmetricMonoidal = Bool*∙
+⊗lId ⋀SymmetricMonoidal = ⋀lIdEquiv∙
+⊗lId-sq ⋀SymmetricMonoidal = ⋀lId-sq
+⊗lId-assoc ⋀SymmetricMonoidal = ⋀lId-assoc
