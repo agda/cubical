@@ -32,7 +32,7 @@ record isSymmetricMonoidal {ℓ : Level}
     ⊗fun : {A B A' B' : _} (f : A →∙ A') (g : B →∙ B')
       → (A ⊗ B) →∙ (A' ⊗ B')
 
-    ⊗fun-id : {A B : _} → ⊗fun (idfun∙ A) (idfun∙ B) ≡ idfun∙ (A ⊗ B)
+    ⊗idfun : {A B : _} → ⊗fun (idfun∙ A) (idfun∙ B) ≡ idfun∙ (A ⊗ B)
 
     ⊗-comp : {A A' A'' B B' B'' : _}
       (f : A →∙ A') (f' : A' →∙ A'')
@@ -48,16 +48,13 @@ record isSymmetricMonoidal {ℓ : Level}
         ≡ (⊗fun (⊗fun f g) h ∘∙ ≃∙map ⊗assoc)
 
     ⊗pentagon : {A B C D : _}
-      → ((≃∙map ⊗assoc)
-        ∘∙ ≃∙map (⊗assoc {A = A} {B = B} {C =  (C ⊗ D)}))
+      → ((≃∙map ⊗assoc) ∘∙ ≃∙map (⊗assoc {A = A} {B = B} {C =  (C ⊗ D)}))
        ≡ (⊗fun (≃∙map ⊗assoc) (idfun∙ D)
-         ∘∙ (≃∙map ⊗assoc
-         ∘∙ ⊗fun (idfun∙ A) (≃∙map ⊗assoc)))
+       ∘∙ (≃∙map ⊗assoc ∘∙ ⊗fun (idfun∙ A) (≃∙map ⊗assoc)))
 
     ⊗comm : {A B : _} → (A ⊗ B) →∙ (B ⊗ A)
     ⊗comm-sq : {A A' B B' : _} (f : A →∙ A') (g : B →∙ B')
-       → (⊗comm ∘∙ ⊗fun f g)
-        ≡ (⊗fun g f ∘∙ ⊗comm)
+       → (⊗comm ∘∙ ⊗fun f g) ≡ (⊗fun g f ∘∙ ⊗comm)
 
     ⊗hexagon : {A B C : _}
       → (⊗fun ⊗comm (idfun∙ B)
@@ -459,7 +456,7 @@ snd ⋀lIdEquiv∙ = refl
 
 ⋀SymmetricMonoidal : ∀ {ℓ} → isSymmetricMonoidal {ℓ} (_⋀∙_ {ℓ} {ℓ})
 ⊗fun ⋀SymmetricMonoidal = _⋀→∙_
-⊗fun-id ⋀SymmetricMonoidal = ⋀→∙-idfun
+⊗idfun ⋀SymmetricMonoidal = ⋀→∙-idfun
 ⊗-comp ⋀SymmetricMonoidal = ⋀→∙-comp
 ⊗assoc ⋀SymmetricMonoidal = SmashAssocEquiv∙
 ⊗assoc-sq ⋀SymmetricMonoidal = ⋀assoc-sq
