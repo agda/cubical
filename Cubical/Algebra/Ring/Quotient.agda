@@ -215,7 +215,6 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
   Iₛ = fst I
   private
     instance
-      _ = R
       _ = snd R
 
   module _ {S : Ring ℓ'} (φ : RingHom R S) where
@@ -223,7 +222,6 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
     open RingHomTheory φ
     private
       instance
-        _ = S
         _ = snd S
       f = fst φ
       module φ = IsRingHom (snd φ)
