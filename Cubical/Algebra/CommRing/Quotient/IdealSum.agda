@@ -64,9 +64,6 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
                    _ = snd (R / I)
                    _ = snd ((R / I) / π₁J)
                    _ = snd (R / (I +i J))
-                   _ = R
-                   _ = (R / I)
-                   _ = ((R / I) / π₁J)
 
   πI+J≡0 : (x : ⟨ R ⟩) → x ∈ (I +i J) → fst π x ≡ 0r
   πI+J≡0 x  =
