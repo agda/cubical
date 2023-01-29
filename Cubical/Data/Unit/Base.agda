@@ -23,4 +23,3 @@ snd Unit*∙ = tt*
 -- https://coq.inria.fr/refman/proof-engine/ssreflect-proof-language.html
 data lockUnit {ℓ} : Type ℓ where
   unlock : lockUnit
-

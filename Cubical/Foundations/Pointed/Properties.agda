@@ -185,7 +185,7 @@ Iso.leftInv flip→∙∙Iso _ = refl
 ≃∙→ret/sec∙ : ∀ {ℓ} {A B : Pointed ℓ}
   (f : A ≃∙ B) → ((≃∙map (invEquiv∙ f) ∘∙ ≃∙map f) ≡ idfun∙ A)
                 × (≃∙map f ∘∙ ≃∙map (invEquiv∙ f) ≡ idfun∙ B)
-≃∙→ret/sec∙ {A = A} {B = B} = 
+≃∙→ret/sec∙ {A = A} {B = B} =
   Equiv∙J (λ A f → ((≃∙map (invEquiv∙ f) ∘∙ ≃∙map f) ≡ idfun∙ A)
                 × (≃∙map f ∘∙ ≃∙map (invEquiv∙ f) ≡ idfun∙ B))
           ((ΣPathP (refl , sym (lUnit _) ∙ sym (rUnit refl)))
