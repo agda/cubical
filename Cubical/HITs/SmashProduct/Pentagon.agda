@@ -16,42 +16,32 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Equiv
 
--- pentagon identity
+-- pentagon identity for smash products
 module _ {ℓ ℓ' ℓ'' ℓ''' : Level}
   {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''} {D : Pointed ℓ'''}
   where
-  assc₁ : A ⋀ (B ⋀∙ (C ⋀∙ D)) → (A ⋀∙ B) ⋀ (C ⋀∙ D)
-  assc₁ = Iso.fun SmashAssocIso
-
   assc₁∙ : (A ⋀∙ (B ⋀∙ (C ⋀∙ D))) →∙ ((A ⋀∙ B) ⋀∙ (C ⋀∙ D))
   assc₁∙ = ≃∙map SmashAssocEquiv∙
-
-  assc₂ : (A ⋀∙ B) ⋀ (C ⋀∙ D) → ((A ⋀∙ B) ⋀∙ C) ⋀ D
-  assc₂ = Iso.fun SmashAssocIso
+  assc₁ = fst assc₁∙
 
   assc₂∙ : ((A ⋀∙ B) ⋀∙ (C ⋀∙ D)) →∙ (((A ⋀∙ B) ⋀∙ C) ⋀∙ D)
   assc₂∙ = ≃∙map SmashAssocEquiv∙
+  assc₂ = fst assc₂∙
 
   asscᵣ = assc₂ ∘ assc₁
   asscᵣ∙ = assc₂∙ ∘∙ assc₁∙
 
-  assc₃ : A ⋀ (B ⋀∙ (C ⋀∙ D)) → A ⋀ ((B ⋀∙ C) ⋀∙ D)
-  assc₃ = idfun∙ _ ⋀→ ((Iso.fun SmashAssocIso) , refl)
-
   assc₃∙ : A ⋀∙ (B ⋀∙ (C ⋀∙ D)) →∙ A ⋀∙ ((B ⋀∙ C) ⋀∙ D)
   assc₃∙ = (idfun∙ A) ⋀→∙ (≃∙map SmashAssocEquiv∙)
-
-  assc₄ : A ⋀ ((B ⋀∙ C) ⋀∙ D) → (A ⋀∙ (B ⋀∙ C)) ⋀ D
-  assc₄ = Iso.fun SmashAssocIso
+  assc₃ = fst assc₃∙
 
   assc₄∙ : A ⋀∙ ((B ⋀∙ C) ⋀∙ D) →∙ (A ⋀∙ (B ⋀∙ C)) ⋀∙ D
   assc₄∙ = ≃∙map SmashAssocEquiv∙
-
-  assc₅ : (A ⋀∙ (B ⋀∙ C)) ⋀ D → ((A ⋀∙ B) ⋀∙ C) ⋀ D
-  assc₅ = (Iso.fun SmashAssocIso , refl) ⋀→ idfun∙ D
+  assc₄ = fst assc₄∙
 
   assc₅∙ : (A ⋀∙ (B ⋀∙ C)) ⋀∙ D →∙ ((A ⋀∙ B) ⋀∙ C) ⋀∙ D
   assc₅∙ = ≃∙map SmashAssocEquiv∙ ⋀→∙ idfun∙ D
+  assc₅ = fst assc₅∙
 
   asscₗ = assc₅ ∘ assc₄ ∘ assc₃
   asscₗ∙ = assc₅∙ ∘∙ (assc₄∙ ∘∙ assc₃∙)
@@ -283,7 +273,9 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level}
 
       p≡refl : p ≡ refl
       p≡refl =
-          (λ i → assc-r-p-r-l i  ∙∙ main₂∙ (pt B) i ∙∙ sym (assc-r-p-r-l i1))
+          (λ i → assc-r-p-r-l i
+               ∙∙ main₂∙ (pt B) i
+               ∙∙ sym (assc-r-p-r-l i1))
         ∙ ∙∙lCancel _
 
     main₁ : (x : typ A) (y : B ⋀ (C ⋀∙ D))
@@ -327,7 +319,9 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level}
        ∙∙ main₁ (pt A) (inr (x , y))
        ∙∙ (λ i → asscᵣ (push (inr (inr (x , y))) (~ i))))
     snd (to→∙ₗ x) =
-        (λ j → assc-p-r-r-l x j ∙∙ main₁⋆ x j ∙∙ sym (assc-p-r-r-l x i1))
+        (λ j → assc-p-r-r-l x j
+             ∙∙ main₁⋆ x j
+             ∙∙ sym (assc-p-r-r-l x i1))
       ∙ ∙∙lCancel _
 
     to→∙ᵣ : (x : fst B)
@@ -342,16 +336,16 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level}
     main₁≡refl x = (λ i → lemmas₂.assc-r-p-r-l x i
                        ∙∙ lemmas₂.main₂∙ x (pt B) i
                        ∙∙ sym (lemmas₂.assc-r-p-r-l x i1))
-                ∙ ∙∙lCancel _  -- {!!} ∙ {!!}
+                ∙ ∙∙lCancel _
 
-    ok : cong asscₗ (push (inr (inl tt))) ≡ cong asscᵣ (push (inr (inl tt)))
-    ok i = cong (assc₅ ∘ assc₄) (rUnit (push (inr (inl tt))) (~ i))
-
-    ok2 : (x : fst A) → cong asscₗ (push (inl x)) ≡ cong asscᵣ (push (inl x))
-    ok2 x i = cong (assc₅ ∘ assc₄) (rUnit (push (inl x)) (~ i))
+    assc-p-r-l : cong asscₗ (push (inr (inl tt)))
+               ≡ cong asscᵣ (push (inr (inl tt)))
+    assc-p-r-l i = cong (assc₅ ∘ assc₄) (rUnit (push (inr (inl tt))) (~ i))
 
     p≡refl : p ≡ refl
-    p≡refl = (λ i → ok i ∙∙ main₁≡refl (pt A) i ∙∙ sym (ok i1)) ∙ ∙∙lCancel _
+    p≡refl =
+        (λ i → assc-p-r-l i ∙∙ main₁≡refl (pt A) i ∙∙ sym (assc-p-r-l i1))
+      ∙ ∙∙lCancel _
 
     main₁-lem∞ : (x : fst B) (c : fst C) (d : fst D)
       → main₁ (pt A) (inr (x , inr (c , d))) ≡ refl

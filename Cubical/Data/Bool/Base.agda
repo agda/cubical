@@ -88,3 +88,18 @@ dichotomyBoolSym true = inr refl
 -- TODO: this should be uncommented and implemented using instance arguments
 -- _==_ : {dA : Discrete A} → A → A → Bool
 -- _==_ {dA = dA} x y = Dec→Bool (dA x y)
+
+-- Universe lifted booleans
+Bool* : ∀ {ℓ} → Type ℓ
+Bool* = Lift Bool
+
+true* : ∀ {ℓ} → Bool* {ℓ}
+true* = lift true
+
+false* : ∀ {ℓ} → Bool* {ℓ}
+false* = lift false
+
+-- Pointed version
+Bool*∙ : ∀ {ℓ} → Σ[ X ∈ Type ℓ ] X
+fst Bool*∙ = Bool*
+snd Bool*∙ = true*
