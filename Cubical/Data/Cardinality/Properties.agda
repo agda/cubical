@@ -205,11 +205,10 @@ module _ where
                                                           B↪C
                                                           A↪B)
 
-𝟘isLeast : isLeast isPreorder≲ (λ _ → Unit* {ℓ}) (𝟘 {ℓ} , tt*)
-𝟘isLeast (x , _) = ∥₂.elim {B = λ x → 𝟘 ≲ x}
-                               (λ x → isProp→isSet (IsPreorder.is-prop-valued
-                                                   isPreorder≲ 𝟘 x))
-                               (λ (a , _) → ∣ ⊥.rec* , (λ ()) ∣₁) x
+𝟘isLeast : ∀{ℓ} → isLeast isPreorder≲ (Card {ℓ} , id↪ (Card {ℓ})) (𝟘 {ℓ})
+𝟘isLeast = ∥₂.elim (λ x → isProp→isSet (IsPreorder.is-prop-valued
+                                       isPreorder≲ 𝟘 x))
+                   (λ _ → ∣ ⊥.rec* , (λ ()) ∣₁)
 
 -- Our arithmetic behaves as expected over our preordering
 +Monotone≲ : (A B C D : Card {ℓ}) → A ≲ C → B ≲ D → (A + B) ≲ (C + D)
