@@ -9,7 +9,7 @@ private
     ℓC ℓC' ℓD ℓD' : Level
 
 -- Displayed categories with hom-sets
-record DisplayedCat (C : Category ℓC ℓC') ℓD ℓD' : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))) where
+record Categoryᴰ (C : Category ℓC ℓC') ℓD ℓD' : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))) where
   no-eta-equality
   open Category C
   field
@@ -39,7 +39,7 @@ record DisplayedCat (C : Category ℓC ℓC') ℓD ℓD' : Type (ℓ-suc (ℓ-ma
       → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f ][ xᴰ , yᴰ ] → Hom[ f ⋆ g ][ xᴰ , zᴰ ]
   g ∘ᴰ f = f ⋆ᴰ g
 
-open DisplayedCat
+open Categoryᴰ
 
 -- Helpful syntax/notation
 _[_][_,_] = Hom[_][_,_]

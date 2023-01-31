@@ -14,15 +14,15 @@ private
 
 -- Product of total categories
 module _ {C₀ : Category ℓC₀ ℓC₀'} {C₁ : Category ℓC₁ ℓC₁'}
-  (D₀ : DisplayedCat C₀ ℓD₀ ℓD₀') (D₁ : DisplayedCat C₁ ℓD₁ ℓD₁')
+  (D₀ : Categoryᴰ C₀ ℓD₀ ℓD₀') (D₁ : Categoryᴰ C₁ ℓD₁ ℓD₁')
   where
 
   private
-    open DisplayedCat
-    module D₀ = DisplayedCat D₀
-    module D₁ = DisplayedCat D₁
+    open Categoryᴰ
+    module D₀ = Categoryᴰ D₀
+    module D₁ = Categoryᴰ D₁
 
-  _×CD_ : DisplayedCat (C₀ ×C C₁) _ _
+  _×CD_ : Categoryᴰ (C₀ ×C C₁) _ _
   _×CD_ .ob[_] (a₀ , a₁) = D₀.ob[ a₀ ] × D₁.ob[ a₁ ]
   _×CD_ .Hom[_][_,_] (f₀ , f₁) (d₀ , d₁) (e₀ , e₁) = D₀ [ f₀ ][ d₀ , e₀ ] × D₁ [ f₁ ][ d₁ , e₁ ]
   _×CD_ .idᴰ = D₀.idᴰ , D₁.idᴰ
@@ -34,15 +34,15 @@ module _ {C₀ : Category ℓC₀ ℓC₀'} {C₁ : Category ℓC₁ ℓC₁'}
 
 -- Product within a fiber
 module _ {C : Category ℓC ℓC'}
-  (D₀ : DisplayedCat C ℓD₀ ℓD₀') (D₁ : DisplayedCat C ℓD₁ ℓD₁')
+  (D₀ : Categoryᴰ C ℓD₀ ℓD₀') (D₁ : Categoryᴰ C ℓD₁ ℓD₁')
   where
 
   private
-    open DisplayedCat
-    module D₀ = DisplayedCat D₀
-    module D₁ = DisplayedCat D₁
+    open Categoryᴰ
+    module D₀ = Categoryᴰ D₀
+    module D₁ = Categoryᴰ D₁
 
-  _×D_ : DisplayedCat C _ _
+  _×D_ : Categoryᴰ C _ _
   _×D_ .ob[_] a = D₀.ob[ a ] × D₁.ob[ a ]
   _×D_ .Hom[_][_,_] f (d₀ , d₁) (e₀ , e₁) = D₀ [ f ][ d₀ , e₀ ] × D₁ [ f ][ d₁ , e₁ ]
   _×D_ .idᴰ = D₀.idᴰ , D₁.idᴰ

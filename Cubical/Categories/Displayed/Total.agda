@@ -11,12 +11,12 @@ private
   variable
     ℓC ℓC' ℓD ℓD' : Level
 
-module _ {C : Category ℓC ℓC'} (D : DisplayedCat C ℓD ℓD') where
+module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
 
   private
     open Category
     module C = Category C
-    open DisplayedCat D
+    open Categoryᴰ D
 
   ∫ : Category (ℓ-max ℓC ℓD) (ℓ-max ℓC' ℓD')
   ∫ .ob = Σ _ ob[_]
