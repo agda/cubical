@@ -222,7 +222,7 @@ module _
   where
 
   module _
-    (P : Σ[ B ∈ Type ℓ'' ] B ↪ A)
+    (P : Embedding A ℓ'')
     where
 
     private
@@ -284,7 +284,7 @@ module _
     UpperBound = Σ[ n ∈ A ] isUpperBound n
 
   module _
-    (P : Σ[ B ∈ Type ℓ'' ] B ↪ A)
+    (P : Embedding A ℓ'')
     where
 
     isMaximalLowerBound : (n : A) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
@@ -353,7 +353,7 @@ module _
   {A : Type ℓ}
   {_≲_ : Rel A A ℓ'}
   (pre : IsPreorder _≲_)
-  {P : Σ[ B ∈ Type ℓ'' ] B ↪ A}
+  {P : Embedding A ℓ''}
   where
 
   private
@@ -398,7 +398,7 @@ module _
     anti = IsPoset.is-antisym pos
 
   module _
-    {P : Σ[ B ∈ Type ℓ'' ] B ↪ A}
+    {P : Embedding A ℓ''}
     where
 
     private
@@ -446,7 +446,7 @@ module _
 
 module _
   {A : Type ℓ}
-  {P : Σ[ B ∈ Type ℓ'' ] B ↪ A}
+  {P : Embedding A ℓ''}
   {_≤_ : Rel A A ℓ'}
   (los : IsLoset _≤_)
   where
