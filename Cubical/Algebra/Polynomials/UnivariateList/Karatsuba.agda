@@ -133,6 +133,7 @@ module _ (R' : CommRing ℓ) where
   syntax oddDegCoeff p = p ₒ
 
   -- custom eliminator
+  -- should be erased module (in development version)
   module _ (B : R[X] → Type ℓ')
            (BProp : ∀ p → isProp (B p))
            ([]* : B [])
@@ -184,7 +185,8 @@ module _ (R' : CommRing ℓ) where
   -- the algorithm
   karatsubaRec : ℕ → R[X] → R[X] → R[X]
   karatsubaRec zero p q = p · q
-  -- could be improved by pattern-matching on p and q
+  -- should do pattern-matching on p and q!!!!!
+  -- or two args ℕ,
   -- and only do algorithm when "deg p & q ≥ 2"
   karatsubaRec (suc n) p q = let
     pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
@@ -306,3 +308,13 @@ module _ (R' : CommRing ℓ) where
   karatsuba p q =
     let upperBound = map2 max (truncLength p) (truncLength q)
     in karatsubaTruncRec upperBound p q
+
+  -- to be erased:
+  -- Rings and polynomials in files --erased-cubical
+  -- erase all the proofs (of equality)
+  -- erased prop trunc
+  -- erased version rec→Set
+
+  -- optional
+  -- erased polynomials
+  -- accessibility relation
