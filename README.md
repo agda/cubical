@@ -14,10 +14,11 @@ instructions see the
 file.
 If you do not want to use the latest release of Agda,
 the following table lists which release of Agda you can use with which release of this library.
-Versions as written below, correspond to tags.
+Agda versions as written below, correspond to tags.
 
 | cubical library version | Agda version   |
 |-------------------------|----------------|
+| `v0.5`                  | `v2.6.3`       |
 | `v0.4`                  | `v2.6.2.2`     |
 | `v0.3`                  | `v2.6.2`       |
 | `v0.2`                  | `v2.6.1.3`     |
