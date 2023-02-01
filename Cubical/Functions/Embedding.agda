@@ -468,3 +468,6 @@ Set-Embeds-into-Powerset {A = A} setA
 
           emb : isEmbedding (map-× f g)
           emb x y = equiv x y
+
+EmbeddingΣProp : {A : Type ℓ} → {B : A → Type ℓ'} → (∀ a → isProp (B a)) → Σ A B ↪ A
+EmbeddingΣProp f = fst , (λ _ _ → isEmbeddingFstΣProp f)
