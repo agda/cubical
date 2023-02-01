@@ -371,10 +371,9 @@ module _
   isGreatest→isSupremum n isg = (isGreatest→isUpperBound n isg) , (λ x → snd x n)
 
   isInfimum→isLowerBound : ∀ n → isInfimum pre P n → isLowerBound pre P n
-  isInfimum→isLowerBound _ (isl , _) = isl
-
+  isInfimum→isLowerBound _ = fst
   isSupremum→isUpperBound : ∀ n → isSupremum pre P n → isUpperBound pre P n
-  isSupremum→isUpperBound _ (isg , _) = isg
+  isSupremum→isUpperBound _ = fst
 
 module _
   {A : Type ℓ}
