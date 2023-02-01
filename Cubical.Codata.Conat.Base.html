@@ -27,7 +27,7 @@ of Sized Types.
 
 <a id="818" class="Keyword">open</a> <a id="823" class="Keyword">import</a> <a id="830" href="Cubical.Core.Everything.html" class="Module">Cubical.Core.Everything</a>
 
-<a id="855" class="Keyword">record</a> <a id="Conat"></a><a id="862" href="Cubical.Codata.Conat.Base.html#862" class="Record">Conat</a> <a id="868" class="Symbol">:</a> <a id="870" href="Agda.Primitive.html#326" class="Primitive">Type₀</a>
+<a id="855" class="Keyword">record</a> <a id="Conat"></a><a id="862" href="Cubical.Codata.Conat.Base.html#862" class="Record">Conat</a> <a id="868" class="Symbol">:</a> <a id="870" href="Agda.Primitive.html#320" class="Primitive">Type₀</a>
 <a id="Conat′"></a><a id="876" href="Cubical.Codata.Conat.Base.html#876" class="Function">Conat′</a> <a id="883" class="Symbol">=</a> <a id="885" href="Cubical.Data.Unit.Base.html#171" class="Record">Unit</a> <a id="890" href="Cubical.Data.Sum.Base.html#203" class="Datatype Operator">⊎</a> <a id="892" href="Cubical.Codata.Conat.Base.html#862" class="Record">Conat</a>
 <a id="898" class="Keyword">record</a> <a id="905" href="Cubical.Codata.Conat.Base.html#862" class="Record">Conat</a> <a id="911" class="Keyword">where</a>
   <a id="919" class="Keyword">coinductive</a>
@@ -35,7 +35,7 @@ of Sized Types.
   <a id="954" class="Keyword">field</a> <a id="Conat.force"></a><a id="960" href="Cubical.Codata.Conat.Base.html#960" class="Field">force</a> <a id="966" class="Symbol">:</a> <a id="968" href="Cubical.Codata.Conat.Base.html#876" class="Function">Conat′</a>
 <a id="975" class="Keyword">open</a> <a id="980" href="Cubical.Codata.Conat.Base.html#862" class="Module">Conat</a> <a id="986" class="Keyword">public</a>
 
-<a id="994" class="Keyword">pattern</a> <a id="zero"></a><a id="1002" href="Cubical.Codata.Conat.Base.html#1002" class="InductiveConstructor">zero</a>  <a id="1008" class="Symbol">=</a> <a id="1010" href="Cubical.Data.Sum.Base.html#261" class="InductiveConstructor">inl</a> <a id="1014" href="Agda.Builtin.Unit.html#201" class="InductiveConstructor">tt</a>
+<a id="994" class="Keyword">pattern</a> <a id="zero"></a><a id="1002" href="Cubical.Codata.Conat.Base.html#1002" class="InductiveConstructor">zero</a>  <a id="1008" class="Symbol">=</a> <a id="1010" href="Cubical.Data.Sum.Base.html#261" class="InductiveConstructor">inl</a> <a id="1014" href="Agda.Builtin.Unit.html#195" class="InductiveConstructor">tt</a>
 <a id="1017" class="Keyword">pattern</a> <a id="suc"></a><a id="1025" href="Cubical.Codata.Conat.Base.html#1025" class="InductiveConstructor">suc</a> <a id="1029" href="Cubical.Codata.Conat.Base.html#1037" class="Bound">n</a> <a id="1031" class="Symbol">=</a> <a id="1033" href="Cubical.Data.Sum.Base.html#279" class="InductiveConstructor">inr</a> <a id="1037" href="Cubical.Codata.Conat.Base.html#1037" class="Bound">n</a>
 
 <a id="conat"></a><a id="1040" href="Cubical.Codata.Conat.Base.html#1040" class="Function">conat</a> <a id="1046" class="Symbol">:</a> <a id="1048" href="Cubical.Codata.Conat.Base.html#876" class="Function">Conat′</a> <a id="1055" class="Symbol">→</a> <a id="1057" href="Cubical.Codata.Conat.Base.html#862" class="Record">Conat</a>

@@ -4,64 +4,64 @@
 The Construction of Rezk Completion
 
 -}</a>
-<a id="45" class="Symbol">{-#</a> <a id="49" class="Keyword">OPTIONS</a> <a id="57" class="Pragma">--safe</a> <a id="64" class="Pragma">--experimental-lossy-unification</a> <a id="97" class="Symbol">#-}</a>
+<a id="45" class="Symbol">{-#</a> <a id="49" class="Keyword">OPTIONS</a> <a id="57" class="Pragma">--safe</a> <a id="64" class="Pragma">--lossy-unification</a> <a id="84" class="Symbol">#-}</a>
 
-<a id="102" class="Keyword">module</a> <a id="109" href="Cubical.Categories.RezkCompletion.Construction.html" class="Module">Cubical.Categories.RezkCompletion.Construction</a> <a id="156" class="Keyword">where</a>
+<a id="89" class="Keyword">module</a> <a id="96" href="Cubical.Categories.RezkCompletion.Construction.html" class="Module">Cubical.Categories.RezkCompletion.Construction</a> <a id="143" class="Keyword">where</a>
 
-<a id="163" class="Keyword">open</a> <a id="168" class="Keyword">import</a> <a id="175" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="150" class="Keyword">open</a> <a id="155" class="Keyword">import</a> <a id="162" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
 
-<a id="204" class="Keyword">open</a> <a id="209" class="Keyword">import</a> <a id="216" href="Cubical.Categories.Category.html" class="Module">Cubical.Categories.Category</a>
-<a id="244" class="Keyword">open</a> <a id="249" class="Keyword">import</a> <a id="256" href="Cubical.Categories.Functor.html" class="Module">Cubical.Categories.Functor</a>
-<a id="283" class="Keyword">open</a> <a id="288" class="Keyword">import</a> <a id="295" href="Cubical.Categories.Equivalence.WeakEquivalence.html" class="Module">Cubical.Categories.Equivalence.WeakEquivalence</a>
-<a id="342" class="Keyword">open</a> <a id="347" class="Keyword">import</a> <a id="354" href="Cubical.Categories.Constructions.EssentialImage.html" class="Module">Cubical.Categories.Constructions.EssentialImage</a>
-<a id="402" class="Keyword">open</a> <a id="407" class="Keyword">import</a> <a id="414" href="Cubical.Categories.Presheaf.Base.html" class="Module">Cubical.Categories.Presheaf.Base</a>
-<a id="447" class="Keyword">open</a> <a id="452" class="Keyword">import</a> <a id="459" href="Cubical.Categories.Yoneda.html" class="Module">Cubical.Categories.Yoneda</a>
+<a id="191" class="Keyword">open</a> <a id="196" class="Keyword">import</a> <a id="203" href="Cubical.Categories.Category.html" class="Module">Cubical.Categories.Category</a>
+<a id="231" class="Keyword">open</a> <a id="236" class="Keyword">import</a> <a id="243" href="Cubical.Categories.Functor.html" class="Module">Cubical.Categories.Functor</a>
+<a id="270" class="Keyword">open</a> <a id="275" class="Keyword">import</a> <a id="282" href="Cubical.Categories.Equivalence.WeakEquivalence.html" class="Module">Cubical.Categories.Equivalence.WeakEquivalence</a>
+<a id="329" class="Keyword">open</a> <a id="334" class="Keyword">import</a> <a id="341" href="Cubical.Categories.Constructions.EssentialImage.html" class="Module">Cubical.Categories.Constructions.EssentialImage</a>
+<a id="389" class="Keyword">open</a> <a id="394" class="Keyword">import</a> <a id="401" href="Cubical.Categories.Presheaf.Base.html" class="Module">Cubical.Categories.Presheaf.Base</a>
+<a id="434" class="Keyword">open</a> <a id="439" class="Keyword">import</a> <a id="446" href="Cubical.Categories.Yoneda.html" class="Module">Cubical.Categories.Yoneda</a>
 
-<a id="486" class="Keyword">open</a> <a id="491" class="Keyword">import</a> <a id="498" href="Cubical.Categories.RezkCompletion.Base.html" class="Module">Cubical.Categories.RezkCompletion.Base</a>
+<a id="473" class="Keyword">open</a> <a id="478" class="Keyword">import</a> <a id="485" href="Cubical.Categories.RezkCompletion.Base.html" class="Module">Cubical.Categories.RezkCompletion.Base</a>
 
-<a id="538" class="Keyword">private</a>
-  <a id="548" class="Keyword">variable</a>
-    <a id="561" href="Cubical.Categories.RezkCompletion.Construction.html#561" class="Generalizable">ℓ</a> <a id="563" href="Cubical.Categories.RezkCompletion.Construction.html#563" class="Generalizable">ℓ&#39;</a> <a id="566" class="Symbol">:</a> <a id="568" href="Agda.Primitive.html#597" class="Postulate">Level</a>
+<a id="525" class="Keyword">private</a>
+  <a id="535" class="Keyword">variable</a>
+    <a id="548" href="Cubical.Categories.RezkCompletion.Construction.html#548" class="Generalizable">ℓ</a> <a id="550" href="Cubical.Categories.RezkCompletion.Construction.html#550" class="Generalizable">ℓ&#39;</a> <a id="553" class="Symbol">:</a> <a id="555" href="Agda.Primitive.html#591" class="Postulate">Level</a>
 
-<a id="575" class="Keyword">open</a> <a id="580" href="Cubical.Categories.Equivalence.WeakEquivalence.html#641" class="Module">isWeakEquivalence</a>
-
-
-<a id="600" class="Comment">-- There are two different ways to construct the Rezk completion,</a>
-<a id="666" class="Comment">-- one is using the essential image of the Yoneda embbeding,</a>
-<a id="727" class="Comment">-- another one is using a higher inductive type</a>
-<a id="775" class="Comment">-- (c.f. HoTT Book Chaper 9.9).</a>
-
-<a id="808" class="Comment">-- Yoneda embbeding can give a very simple and quick construction.</a>
-<a id="875" class="Comment">-- Unfortunately, this construction increases the universe level.</a>
-
-<a id="942" class="Comment">-- The HIT construction, on the other hand, keeps the universe level,</a>
-<a id="1012" class="Comment">-- but its proof is a bit long and tedious, still easy though.</a>
+<a id="562" class="Keyword">open</a> <a id="567" href="Cubical.Categories.Equivalence.WeakEquivalence.html#641" class="Module">isWeakEquivalence</a>
 
 
-<a id="1077" class="Comment">{- The Construction by Yoneda Embedding -}</a>
+<a id="587" class="Comment">-- There are two different ways to construct the Rezk completion,</a>
+<a id="653" class="Comment">-- one is using the essential image of the Yoneda embbeding,</a>
+<a id="714" class="Comment">-- another one is using a higher inductive type</a>
+<a id="762" class="Comment">-- (c.f. HoTT Book Chaper 9.9).</a>
 
-<a id="1121" class="Keyword">module</a> <a id="RezkByYoneda"></a><a id="1128" href="Cubical.Categories.RezkCompletion.Construction.html#1128" class="Module">RezkByYoneda</a> <a id="1141" class="Symbol">(</a><a id="1142" href="Cubical.Categories.RezkCompletion.Construction.html#1142" class="Bound">C</a> <a id="1144" class="Symbol">:</a> <a id="1146" href="Cubical.Categories.Category.Base.html#334" class="Record">Category</a> <a id="1155" href="Cubical.Categories.RezkCompletion.Construction.html#561" class="Generalizable">ℓ</a> <a id="1157" href="Cubical.Categories.RezkCompletion.Construction.html#561" class="Generalizable">ℓ</a><a id="1158" class="Symbol">)</a> <a id="1160" class="Keyword">where</a>
+<a id="795" class="Comment">-- Yoneda embbeding can give a very simple and quick construction.</a>
+<a id="862" class="Comment">-- Unfortunately, this construction increases the universe level.</a>
 
-  <a id="RezkByYoneda.YonedaImage"></a><a id="1169" href="Cubical.Categories.RezkCompletion.Construction.html#1169" class="Function">YonedaImage</a> <a id="1181" class="Symbol">:</a> <a id="1183" href="Cubical.Categories.Category.Base.html#334" class="Record">Category</a> <a id="1192" class="Symbol">(</a><a id="1193" href="Agda.Primitive.html#780" class="Primitive">ℓ-suc</a> <a id="1199" href="Cubical.Categories.RezkCompletion.Construction.html#1155" class="Bound">ℓ</a><a id="1200" class="Symbol">)</a> <a id="1202" href="Cubical.Categories.RezkCompletion.Construction.html#1155" class="Bound">ℓ</a>
-  <a id="1206" href="Cubical.Categories.RezkCompletion.Construction.html#1169" class="Function">YonedaImage</a> <a id="1218" class="Symbol">=</a> <a id="1220" href="Cubical.Categories.Constructions.EssentialImage.html#817" class="Function">EssentialImage</a> <a id="1235" class="Symbol">(</a><a id="1236" href="Cubical.Categories.Yoneda.html#4957" class="Function">YO</a> <a id="1239" class="Symbol">{</a><a id="1240" class="Argument">C</a> <a id="1242" class="Symbol">=</a> <a id="1244" href="Cubical.Categories.RezkCompletion.Construction.html#1142" class="Bound">C</a><a id="1245" class="Symbol">})</a>
-
-  <a id="RezkByYoneda.isUnivalentYonedaImage"></a><a id="1251" href="Cubical.Categories.RezkCompletion.Construction.html#1251" class="Function">isUnivalentYonedaImage</a> <a id="1274" class="Symbol">:</a> <a id="1276" href="Cubical.Categories.Category.Base.html#3465" class="Record">isUnivalent</a> <a id="1288" href="Cubical.Categories.RezkCompletion.Construction.html#1169" class="Function">YonedaImage</a>
-  <a id="1302" href="Cubical.Categories.RezkCompletion.Construction.html#1251" class="Function">isUnivalentYonedaImage</a> <a id="1325" class="Symbol">=</a> <a id="1327" href="Cubical.Categories.Constructions.EssentialImage.html#1865" class="Function">isUnivalentEssentialImage</a> <a id="1353" class="Symbol">_</a> <a id="1355" href="Cubical.Categories.Presheaf.Base.html#644" class="Function">isUnivalentPresheafCategory</a>
-
-  <a id="RezkByYoneda.ToYonedaImage"></a><a id="1386" href="Cubical.Categories.RezkCompletion.Construction.html#1386" class="Function">ToYonedaImage</a> <a id="1400" class="Symbol">:</a> <a id="1402" href="Cubical.Categories.Functor.Base.html#315" class="Record">Functor</a> <a id="1410" href="Cubical.Categories.RezkCompletion.Construction.html#1142" class="Bound">C</a> <a id="1412" href="Cubical.Categories.RezkCompletion.Construction.html#1169" class="Function">YonedaImage</a>
-  <a id="1426" href="Cubical.Categories.RezkCompletion.Construction.html#1386" class="Function">ToYonedaImage</a> <a id="1440" class="Symbol">=</a> <a id="1442" href="Cubical.Categories.Constructions.EssentialImage.html#933" class="Function">ToEssentialImage</a> <a id="1459" class="Symbol">_</a>
-
-  <a id="RezkByYoneda.isWeakEquivalenceToYonedaImage"></a><a id="1464" href="Cubical.Categories.RezkCompletion.Construction.html#1464" class="Function">isWeakEquivalenceToYonedaImage</a> <a id="1495" class="Symbol">:</a> <a id="1497" href="Cubical.Categories.Equivalence.WeakEquivalence.html#641" class="Record">isWeakEquivalence</a> <a id="1515" href="Cubical.Categories.RezkCompletion.Construction.html#1386" class="Function">ToYonedaImage</a>
-  <a id="1531" href="Cubical.Categories.RezkCompletion.Construction.html#1464" class="Function">isWeakEquivalenceToYonedaImage</a> <a id="1562" class="Symbol">.</a><a id="1563" href="Cubical.Categories.Equivalence.WeakEquivalence.html#796" class="Field">fullfaith</a> <a id="1573" class="Symbol">=</a> <a id="1575" href="Cubical.Categories.Constructions.EssentialImage.html#1718" class="Function">isFullyFaithfulToEssentialImage</a> <a id="1607" class="Symbol">_</a> <a id="1609" href="Cubical.Categories.Yoneda.html#6360" class="Function">isFullyFaithfulYO</a>
-  <a id="1629" href="Cubical.Categories.RezkCompletion.Construction.html#1464" class="Function">isWeakEquivalenceToYonedaImage</a> <a id="1660" class="Symbol">.</a><a id="1661" href="Cubical.Categories.Equivalence.WeakEquivalence.html#835" class="Field">esssurj</a>   <a id="1671" class="Symbol">=</a> <a id="1673" href="Cubical.Categories.Constructions.EssentialImage.html#1387" class="Function">isEssentiallySurjToEssentialImage</a> <a id="1707" href="Cubical.Categories.Yoneda.html#4957" class="Function">YO</a>
-
-  <a id="RezkByYoneda.isRezkCompletionToYonedaImage"></a><a id="1713" href="Cubical.Categories.RezkCompletion.Construction.html#1713" class="Function">isRezkCompletionToYonedaImage</a> <a id="1743" class="Symbol">:</a> <a id="1745" href="Cubical.Categories.RezkCompletion.Base.html#878" class="Function">isRezkCompletion</a> <a id="1762" href="Cubical.Categories.RezkCompletion.Construction.html#1386" class="Function">ToYonedaImage</a>
-  <a id="1778" href="Cubical.Categories.RezkCompletion.Construction.html#1713" class="Function">isRezkCompletionToYonedaImage</a> <a id="1808" class="Symbol">=</a> <a id="1810" href="Cubical.Categories.RezkCompletion.Base.html#1147" class="Function">makeIsRezkCompletion</a> <a id="1831" href="Cubical.Categories.RezkCompletion.Construction.html#1251" class="Function">isUnivalentYonedaImage</a> <a id="1854" href="Cubical.Categories.RezkCompletion.Construction.html#1464" class="Function">isWeakEquivalenceToYonedaImage</a>
+<a id="929" class="Comment">-- The HIT construction, on the other hand, keeps the universe level,</a>
+<a id="999" class="Comment">-- but its proof is a bit long and tedious, still easy though.</a>
 
 
-<a id="1887" class="Comment">{- The Construction by Higher Inductive Type -}</a>
+<a id="1064" class="Comment">{- The Construction by Yoneda Embedding -}</a>
 
-<a id="1936" class="Keyword">module</a> <a id="RezkByHIT"></a><a id="1943" href="Cubical.Categories.RezkCompletion.Construction.html#1943" class="Module">RezkByHIT</a> <a id="1953" class="Symbol">(</a><a id="1954" href="Cubical.Categories.RezkCompletion.Construction.html#1954" class="Bound">C</a> <a id="1956" class="Symbol">:</a> <a id="1958" href="Cubical.Categories.Category.Base.html#334" class="Record">Category</a> <a id="1967" href="Cubical.Categories.RezkCompletion.Construction.html#561" class="Generalizable">ℓ</a> <a id="1969" href="Cubical.Categories.RezkCompletion.Construction.html#563" class="Generalizable">ℓ&#39;</a><a id="1971" class="Symbol">)</a> <a id="1973" class="Keyword">where</a>
+<a id="1108" class="Keyword">module</a> <a id="RezkByYoneda"></a><a id="1115" href="Cubical.Categories.RezkCompletion.Construction.html#1115" class="Module">RezkByYoneda</a> <a id="1128" class="Symbol">(</a><a id="1129" href="Cubical.Categories.RezkCompletion.Construction.html#1129" class="Bound">C</a> <a id="1131" class="Symbol">:</a> <a id="1133" href="Cubical.Categories.Category.Base.html#334" class="Record">Category</a> <a id="1142" href="Cubical.Categories.RezkCompletion.Construction.html#548" class="Generalizable">ℓ</a> <a id="1144" href="Cubical.Categories.RezkCompletion.Construction.html#548" class="Generalizable">ℓ</a><a id="1145" class="Symbol">)</a> <a id="1147" class="Keyword">where</a>
 
-  <a id="1982" class="Comment">-- TODO: Write the HIT construction of Rezk completion here.</a>
+  <a id="RezkByYoneda.YonedaImage"></a><a id="1156" href="Cubical.Categories.RezkCompletion.Construction.html#1156" class="Function">YonedaImage</a> <a id="1168" class="Symbol">:</a> <a id="1170" href="Cubical.Categories.Category.Base.html#334" class="Record">Category</a> <a id="1179" class="Symbol">(</a><a id="1180" href="Agda.Primitive.html#774" class="Primitive">ℓ-suc</a> <a id="1186" href="Cubical.Categories.RezkCompletion.Construction.html#1142" class="Bound">ℓ</a><a id="1187" class="Symbol">)</a> <a id="1189" href="Cubical.Categories.RezkCompletion.Construction.html#1142" class="Bound">ℓ</a>
+  <a id="1193" href="Cubical.Categories.RezkCompletion.Construction.html#1156" class="Function">YonedaImage</a> <a id="1205" class="Symbol">=</a> <a id="1207" href="Cubical.Categories.Constructions.EssentialImage.html#817" class="Function">EssentialImage</a> <a id="1222" class="Symbol">(</a><a id="1223" href="Cubical.Categories.Yoneda.html#4957" class="Function">YO</a> <a id="1226" class="Symbol">{</a><a id="1227" class="Argument">C</a> <a id="1229" class="Symbol">=</a> <a id="1231" href="Cubical.Categories.RezkCompletion.Construction.html#1129" class="Bound">C</a><a id="1232" class="Symbol">})</a>
+
+  <a id="RezkByYoneda.isUnivalentYonedaImage"></a><a id="1238" href="Cubical.Categories.RezkCompletion.Construction.html#1238" class="Function">isUnivalentYonedaImage</a> <a id="1261" class="Symbol">:</a> <a id="1263" href="Cubical.Categories.Category.Base.html#3465" class="Record">isUnivalent</a> <a id="1275" href="Cubical.Categories.RezkCompletion.Construction.html#1156" class="Function">YonedaImage</a>
+  <a id="1289" href="Cubical.Categories.RezkCompletion.Construction.html#1238" class="Function">isUnivalentYonedaImage</a> <a id="1312" class="Symbol">=</a> <a id="1314" href="Cubical.Categories.Constructions.EssentialImage.html#1865" class="Function">isUnivalentEssentialImage</a> <a id="1340" class="Symbol">_</a> <a id="1342" href="Cubical.Categories.Presheaf.Base.html#644" class="Function">isUnivalentPresheafCategory</a>
+
+  <a id="RezkByYoneda.ToYonedaImage"></a><a id="1373" href="Cubical.Categories.RezkCompletion.Construction.html#1373" class="Function">ToYonedaImage</a> <a id="1387" class="Symbol">:</a> <a id="1389" href="Cubical.Categories.Functor.Base.html#315" class="Record">Functor</a> <a id="1397" href="Cubical.Categories.RezkCompletion.Construction.html#1129" class="Bound">C</a> <a id="1399" href="Cubical.Categories.RezkCompletion.Construction.html#1156" class="Function">YonedaImage</a>
+  <a id="1413" href="Cubical.Categories.RezkCompletion.Construction.html#1373" class="Function">ToYonedaImage</a> <a id="1427" class="Symbol">=</a> <a id="1429" href="Cubical.Categories.Constructions.EssentialImage.html#933" class="Function">ToEssentialImage</a> <a id="1446" class="Symbol">_</a>
+
+  <a id="RezkByYoneda.isWeakEquivalenceToYonedaImage"></a><a id="1451" href="Cubical.Categories.RezkCompletion.Construction.html#1451" class="Function">isWeakEquivalenceToYonedaImage</a> <a id="1482" class="Symbol">:</a> <a id="1484" href="Cubical.Categories.Equivalence.WeakEquivalence.html#641" class="Record">isWeakEquivalence</a> <a id="1502" href="Cubical.Categories.RezkCompletion.Construction.html#1373" class="Function">ToYonedaImage</a>
+  <a id="1518" href="Cubical.Categories.RezkCompletion.Construction.html#1451" class="Function">isWeakEquivalenceToYonedaImage</a> <a id="1549" class="Symbol">.</a><a id="1550" href="Cubical.Categories.Equivalence.WeakEquivalence.html#796" class="Field">fullfaith</a> <a id="1560" class="Symbol">=</a> <a id="1562" href="Cubical.Categories.Constructions.EssentialImage.html#1718" class="Function">isFullyFaithfulToEssentialImage</a> <a id="1594" class="Symbol">_</a> <a id="1596" href="Cubical.Categories.Yoneda.html#6360" class="Function">isFullyFaithfulYO</a>
+  <a id="1616" href="Cubical.Categories.RezkCompletion.Construction.html#1451" class="Function">isWeakEquivalenceToYonedaImage</a> <a id="1647" class="Symbol">.</a><a id="1648" href="Cubical.Categories.Equivalence.WeakEquivalence.html#835" class="Field">esssurj</a>   <a id="1658" class="Symbol">=</a> <a id="1660" href="Cubical.Categories.Constructions.EssentialImage.html#1387" class="Function">isEssentiallySurjToEssentialImage</a> <a id="1694" href="Cubical.Categories.Yoneda.html#4957" class="Function">YO</a>
+
+  <a id="RezkByYoneda.isRezkCompletionToYonedaImage"></a><a id="1700" href="Cubical.Categories.RezkCompletion.Construction.html#1700" class="Function">isRezkCompletionToYonedaImage</a> <a id="1730" class="Symbol">:</a> <a id="1732" href="Cubical.Categories.RezkCompletion.Base.html#878" class="Function">isRezkCompletion</a> <a id="1749" href="Cubical.Categories.RezkCompletion.Construction.html#1373" class="Function">ToYonedaImage</a>
+  <a id="1765" href="Cubical.Categories.RezkCompletion.Construction.html#1700" class="Function">isRezkCompletionToYonedaImage</a> <a id="1795" class="Symbol">=</a> <a id="1797" href="Cubical.Categories.RezkCompletion.Base.html#1147" class="Function">makeIsRezkCompletion</a> <a id="1818" href="Cubical.Categories.RezkCompletion.Construction.html#1238" class="Function">isUnivalentYonedaImage</a> <a id="1841" href="Cubical.Categories.RezkCompletion.Construction.html#1451" class="Function">isWeakEquivalenceToYonedaImage</a>
+
+
+<a id="1874" class="Comment">{- The Construction by Higher Inductive Type -}</a>
+
+<a id="1923" class="Keyword">module</a> <a id="RezkByHIT"></a><a id="1930" href="Cubical.Categories.RezkCompletion.Construction.html#1930" class="Module">RezkByHIT</a> <a id="1940" class="Symbol">(</a><a id="1941" href="Cubical.Categories.RezkCompletion.Construction.html#1941" class="Bound">C</a> <a id="1943" class="Symbol">:</a> <a id="1945" href="Cubical.Categories.Category.Base.html#334" class="Record">Category</a> <a id="1954" href="Cubical.Categories.RezkCompletion.Construction.html#548" class="Generalizable">ℓ</a> <a id="1956" href="Cubical.Categories.RezkCompletion.Construction.html#550" class="Generalizable">ℓ&#39;</a><a id="1958" class="Symbol">)</a> <a id="1960" class="Keyword">where</a>
+
+  <a id="1969" class="Comment">-- TODO: Write the HIT construction of Rezk completion here.</a>
 </pre></body></html>
