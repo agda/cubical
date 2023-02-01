@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
 module Cubical.ZCohomology.CohomologyRings.KleinBottle where
 
