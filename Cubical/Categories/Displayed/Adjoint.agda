@@ -21,20 +21,28 @@ module UnitCounitᴰ where
     (A : F UnitCounit.⊣ G)
     {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
     (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (Gᴰ : Functorᴰ G Dᴰ Cᴰ)
-    : Type {!!} where
+    : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')) (ℓ-max (ℓ-max ℓD ℓD') (ℓ-max ℓDᴰ ℓDᴰ'))) where
 
+    open Category
+    open NatTransᴰ
     private
       module A = UnitCounit._⊣_ A
+      module Cᴰ = Categoryᴰ Cᴰ
+      module Dᴰ = Categoryᴰ Dᴰ
+      module Fᴰ = Functorᴰ Fᴰ
+      module Gᴰ = Functorᴰ Gᴰ
 
     field
       -- unit
-      η : NatTransᴰ A.η 𝟙ᴰ⟨ Cᴰ ⟩ (funcCompᴰ Gᴰ Fᴰ)
+      ηᴰ : NatTransᴰ A.η 𝟙ᴰ⟨ Cᴰ ⟩ (funcCompᴰ Gᴰ Fᴰ)
       -- counit
-      ε : NatTransᴰ A.ε (funcCompᴰ Fᴰ Gᴰ) 𝟙ᴰ⟨ Dᴰ ⟩
+      εᴰ : NatTransᴰ A.ε (funcCompᴰ Fᴰ Gᴰ) 𝟙ᴰ⟨ Dᴰ ⟩
       -- triangle identities
-      Δ₁ : PathP (λ i → NatTransᴰ (A.Δ₁ i) (F-lUnitᴰ {Fᴰ = Fᴰ} i) (F-rUnitᴰ {Fᴰ = Fᴰ} i))
-        {!!} -- (seqTransP F-assoc (F ∘ʳ η) (ε ∘ˡ F))
-        {!!} -- (1[ F ])
-      Δ₂ : PathP (λ i → NatTransᴰ (A.Δ₂ i) (F-rUnitᴰ {Fᴰ = Gᴰ} i) (F-lUnitᴰ {Fᴰ = Gᴰ} i))
-        {!!} -- (seqTransP (sym F-assoc) (η ∘ˡ G) (G ∘ʳ ε))
-        {!!} -- (1[ G ])
+      Δ₁ᴰ : {x : C .ob} (xᴰ : Cᴰ.ob[ x ])
+        → PathP (λ i → Dᴰ [ A.Δ₁ x i ][ Fᴰ.F-obᴰ xᴰ , Fᴰ.F-obᴰ xᴰ ])
+            (Fᴰ.F-homᴰ (ηᴰ .N-obᴰ xᴰ) Dᴰ.⋆ᴰ εᴰ .N-obᴰ (Fᴰ.F-obᴰ xᴰ))
+            Dᴰ.idᴰ
+      Δ₂ᴰ : {y : D .ob} (yᴰ : Dᴰ.ob[ y ])
+        → PathP (λ i → Cᴰ [ A.Δ₂ y i ][ Gᴰ.F-obᴰ yᴰ , Gᴰ.F-obᴰ yᴰ ])
+            (ηᴰ .N-obᴰ (Gᴰ.F-obᴰ yᴰ) Cᴰ.⋆ᴰ Gᴰ.F-homᴰ (εᴰ .N-obᴰ yᴰ))
+            Cᴰ.idᴰ
