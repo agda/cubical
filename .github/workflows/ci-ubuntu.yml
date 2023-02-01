@@ -12,7 +12,7 @@ on:
 ########################################################################
 ## CONFIGURATION
 ##
-## See SETTINGS for the most important configuration variable: AGDA_COMMIT.
+## See SETTINGS for the most important configuration variable: AGDA_BRANCH.
 ## It has to be defined as a build step because it is potentially branch
 ## dependent.
 ##
@@ -51,7 +51,7 @@ jobs:
       - name: Initialise variables
         run: |
           # Pick Agda version
-          echo "AGDA_BRANCH=v2.6.2.2" >> $GITHUB_ENV
+          echo "AGDA_BRANCH=v2.6.3" >> $GITHUB_ENV
 
 
       ########################################################################
@@ -132,7 +132,7 @@ jobs:
       - name: Test cubical
         run: |
           make test \
-            AGDA_EXEC='~/.cabal/bin/agda -W error' \
+            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
 
@@ -144,7 +144,7 @@ jobs:
         if: github.event_name == 'push' && github.ref_name == 'master'
         run: |
           make listings \
-            AGDA_EXEC='~/.cabal/bin/agda -W error' \
+            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
 

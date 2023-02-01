@@ -10,7 +10,7 @@
   Cubical.Categories.DistLatticeSheaf.Diagram
 -}
 
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.Limit where
 
 open import Cubical.Foundations.Prelude

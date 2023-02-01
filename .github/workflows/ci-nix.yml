@@ -5,8 +5,10 @@ on:
       - master
   pull_request:
     paths:
+      - '.github/workflows/ci-nix.yml'
       - '**.nix'
       - 'flake.lock'
+  workflow_dispatch:
 
 jobs:
   deploy:
