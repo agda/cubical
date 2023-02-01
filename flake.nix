@@ -8,7 +8,7 @@
     flake = false;
   };
   inputs.agda = {
-    url = "github:agda/agda/release-2.6.3";
+    url = "github:agda/agda/v2.6.3";
     inputs = {
       nixpkgs.follows = "nixpkgs";
       flake-utils.follows = "flake-utils";
