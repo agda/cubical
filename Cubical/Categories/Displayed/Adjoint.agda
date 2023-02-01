@@ -32,9 +32,9 @@ module UnitCounitᴰ where
       -- counit
       ε : NatTransᴰ A.ε (funcCompᴰ Fᴰ Gᴰ) 𝟙ᴰ⟨ Dᴰ ⟩
       -- triangle identities
-      -- Δ₁ : PathP (λ i → NatTrans (F-lUnit {F = F} i) (F-rUnit {F = F} i))
-      --   (seqTransP F-assoc (F ∘ʳ η) (ε ∘ˡ F))
-      --   (1[ F ])
-      -- Δ₂ : PathP (λ i → NatTrans (F-rUnit {F = G} i) (F-lUnit {F = G} i))
-      --   (seqTransP (sym F-assoc) (η ∘ˡ G) (G ∘ʳ ε))
-      --   (1[ G ])
+      Δ₁ : PathP (λ i → NatTransᴰ (A.Δ₁ i) (F-lUnitᴰ {Fᴰ = Fᴰ} i) (F-rUnitᴰ {Fᴰ = Fᴰ} i))
+        {!!} -- (seqTransP F-assoc (F ∘ʳ η) (ε ∘ˡ F))
+        {!!} -- (1[ F ])
+      Δ₂ : PathP (λ i → NatTransᴰ (A.Δ₂ i) (F-rUnitᴰ {Fᴰ = Gᴰ} i) (F-lUnitᴰ {Fᴰ = Gᴰ} i))
+        {!!} -- (seqTransP (sym F-assoc) (η ∘ˡ G) (G ∘ʳ ε))
+        {!!} -- (1[ G ])

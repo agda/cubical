@@ -96,6 +96,12 @@ rUnitP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y
   PathP (λ j → PathP (λ i → rUnit (λ i → A i) j i) x y) p (compPathP p refl)
 rUnitP p j i = compPathP-filler p refl j i
 
+rUnitP' : ∀ {ℓ'} {A : Type ℓ} (B : A → Type ℓ')
+  {x y : A} {p : x ≡ y} {z : B x} {w : B y}
+  (q : PathP (λ i → B (p i)) z w)
+  → PathP (λ j → PathP (λ i → B (rUnit p j i)) z w) q (compPathP' {B = B} q refl)
+rUnitP' B {w = w} q j i = compPathP'-filler {B = B} q (refl {x = w}) j i
+
 lUnitP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
   PathP (λ j → PathP (λ i → lUnit (λ i → A i) j i) x y) p (compPathP refl p)
 lUnitP {A = A} {x = x} p k i =
@@ -104,6 +110,17 @@ lUnitP {A = A} {x = x} p k i =
                 ; (i = i1) → p (~ k ∨ j )
                 ; (k = i0) → p i
                 }) (p (~ k ∧ i ))
+
+lUnitP' : ∀ {ℓ'} {A : Type ℓ} (B : A → Type ℓ')
+  {x y : A} {p : x ≡ y} {z : B x} {w : B y}
+  (q : PathP (λ i → B (p i)) z w)
+  → PathP (λ j → PathP (λ i → B (lUnit p j i)) z w) q (compPathP' {B = B} refl q)
+lUnitP' B {p = p} {z = z} q k i =
+  comp (λ j → B (lUnit-filler p j k i))
+       (λ j → λ { (i = i0) → z
+                ; (i = i1) → q (~ k ∨ j )
+                ; (k = i0) → q i
+                }) (q (~ k ∧ i ))
 
 rCancelP : {A : I → Type ℓ} → {x : A i0} → {y : A i1} → (p : PathP A x y) →
    PathP (λ j → PathP (λ i → rCancel (λ i → A i) j i) x x) (compPathP p (symP p)) refl
