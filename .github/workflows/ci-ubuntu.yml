@@ -51,7 +51,7 @@ jobs:
       - name: Initialise variables
         run: |
           # Pick Agda version
-          echo "AGDA_BRANCH=release-2.6.3" >> $GITHUB_ENV
+          echo "AGDA_BRANCH=v2.6.3" >> $GITHUB_ENV
 
 
       ########################################################################
