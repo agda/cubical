@@ -8,16 +8,13 @@ This file contains:
 {-# OPTIONS --safe #-}
 module Cubical.Data.Cardinality.Base where
 
-open import Cubical.HITs.SetTruncation.Base
-open import Cubical.HITs.SetTruncation.Properties as ∥₂
+open import Cubical.HITs.SetTruncation as ∥₂
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum as ⊎
+open import Cubical.Data.Sum
 open import Cubical.Data.Unit
-open import Cubical.HITs.PropositionalTruncation as ∥₁
-open import Cubical.Relation.Nullary
 
 private
   variable
@@ -29,7 +26,7 @@ Card {ℓ} = ∥ hSet ℓ ∥₂
 
 -- Verify that it's a set
 isSetCard : isSet (Card {ℓ})
-isSetCard = squash₂
+isSetCard = isSetSetTrunc
 
 -- Set truncation of a set is its cardinality
 card : hSet ℓ → Card {ℓ}
@@ -45,12 +42,12 @@ card = ∣_∣₂
 -- Now we define some arithmetic
 _+_ : Card {ℓ} → Card {ℓ} → Card {ℓ}
 _+_ = ∥₂.rec2 isSetCard λ (A , isSetA) (B , isSetB)
-                        → card ((A ⊎ B) , (isSet⊎ isSetA isSetB))
+                        → card ((A ⊎ B) , isSet⊎ isSetA isSetB)
 
 _·_ : Card {ℓ} → Card {ℓ} → Card {ℓ}
 _·_ = ∥₂.rec2 isSetCard λ (A , isSetA) (B , isSetB)
-                        → card ((A × B) , (isSet× isSetA isSetB))
+                        → card ((A × B) , isSet× isSetA isSetB)
 
 _^_ : Card {ℓ} → Card {ℓ} → Card {ℓ}
 _^_ = ∥₂.rec2 isSetCard λ (A , isSetA) (B , _)
-                        → card ((B → A) , (isSetΠ (λ _ → isSetA)))
+                        → card ((B → A) , isSet→ isSetA)

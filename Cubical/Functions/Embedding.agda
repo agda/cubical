@@ -440,8 +440,8 @@ EmbeddingIP : {B : Type ℓ} (f g : Embedding B ℓ') → f ≃Emb g ≃ (f ≡ 
 EmbeddingIP = EmbeddingIdentityPrinciple.EmbeddingIP
 
 -- Cantor's theorem for sets
-Set-Embeds-into-Powerset : {A : Type ℓ} → isSet A → A ↪ ℙ A
-Set-Embeds-into-Powerset {A = A} setA
+Set-Embedding-into-Powerset : {A : Type ℓ} → isSet A → A ↪ ℙ A
+Set-Embedding-into-Powerset {A = A} setA
   = fun , (injEmbedding isSetℙ (λ y → sym (H₃ (H₂ y))))
   where fun : A → ℙ A
         fun a b = (a ≡ b) , (setA a b)
