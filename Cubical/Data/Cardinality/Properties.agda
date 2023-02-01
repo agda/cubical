@@ -1,4 +1,5 @@
 {-
+
 This file contains:
 
 - Properties of cardinality
