@@ -238,8 +238,8 @@ module _
     isMinimal : (n : subtype) → Type (ℓ-max ℓ' ℓ'')
     isMinimal n = (x : subtype) → toA x ≲ toA n → toA n ≲ toA x
 
-    isPropisMinimal : ∀ n → isProp (isMinimal n)
-    isPropisMinimal n = isPropΠ2 λ x _ → prop (toA n) (toA x)
+    isPropIsMinimal : ∀ n → isProp (isMinimal n)
+    isPropIsMinimal n = isPropΠ2 λ x _ → prop (toA n) (toA x)
 
     Minimal : Type (ℓ-max ℓ' ℓ'')
     Minimal = Σ[ n ∈ subtype ] isMinimal n
@@ -247,8 +247,8 @@ module _
     isMaximal : (n : subtype) → Type (ℓ-max ℓ' ℓ'')
     isMaximal n = (x : subtype) → toA n ≲ toA x → toA x ≲ toA n
 
-    isPropisMaximal : ∀ n → isProp (isMaximal n)
-    isPropisMaximal n = isPropΠ2 λ x _ → prop (toA x) (toA n)
+    isPropIsMaximal : ∀ n → isProp (isMaximal n)
+    isPropIsMaximal n = isPropΠ2 λ x _ → prop (toA x) (toA n)
 
     Maximal : Type (ℓ-max ℓ' ℓ'')
     Maximal = Σ[ n ∈ subtype ] isMaximal n
@@ -256,20 +256,20 @@ module _
     isLeast : (n : subtype) → Type (ℓ-max ℓ' ℓ'')
     isLeast n = (x : subtype) → toA n ≲ toA x
 
-    isPropisLeast : ∀ n → isProp (isLeast n)
-    isPropisLeast n = isPropΠ λ x → prop (toA n) (toA x)
+    isPropIsLeast : ∀ n → isProp (isLeast n)
+    isPropIsLeast n = isPropΠ λ x → prop (toA n) (toA x)
 
     isGreatest : (n : subtype) → Type (ℓ-max ℓ' ℓ'')
     isGreatest n = (x : subtype) → toA x ≲ toA n
 
-    isPropisGreatest : ∀ n → isProp (isGreatest n)
-    isPropisGreatest n = isPropΠ λ x → prop (toA x) (toA n)
+    isPropIsGreatest : ∀ n → isProp (isGreatest n)
+    isPropIsGreatest n = isPropΠ λ x → prop (toA x) (toA n)
 
     isLowerBound : (n : A) → Type (ℓ-max ℓ' ℓ'')
     isLowerBound n = (x : subtype) → n ≲ toA x
 
-    isPropisLowerBound : ∀ n → isProp (isLowerBound n)
-    isPropisLowerBound n = isPropΠ λ x → prop n (toA x)
+    isPropIsLowerBound : ∀ n → isProp (isLowerBound n)
+    isPropIsLowerBound n = isPropΠ λ x → prop n (toA x)
 
     LowerBound : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
     LowerBound = Σ[ n ∈ A ] isLowerBound n
@@ -277,8 +277,8 @@ module _
     isUpperBound : (n : A) → Type (ℓ-max ℓ' ℓ'')
     isUpperBound n = (x : subtype) → toA x ≲ n
 
-    isPropisUpperBound : ∀ n → isProp (isUpperBound n)
-    isPropisUpperBound n = isPropΠ λ x → prop (toA x) n
+    isPropIsUpperBound : ∀ n → isProp (isUpperBound n)
+    isPropIsUpperBound n = isPropΠ λ x → prop (toA x) n
 
     UpperBound : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
     UpperBound = Σ[ n ∈ A ] isUpperBound n
@@ -291,13 +291,13 @@ module _
     isMaximalLowerBound n
       = Σ[ islb ∈ isLowerBound P n ]
         isMaximal (LowerBound P
-                  , EmbeddingΣProp (isPropisLowerBound P)) (n , islb)
+                  , EmbeddingΣProp (isPropIsLowerBound P)) (n , islb)
 
-    isPropisMaximalLowerBound : ∀ n → isProp (isMaximalLowerBound n)
-    isPropisMaximalLowerBound n
-      = isPropΣ (isPropisLowerBound P n)
-                λ islb → isPropisMaximal (LowerBound P
-                       , EmbeddingΣProp (isPropisLowerBound P)) (n , islb)
+    isPropIsMaximalLowerBound : ∀ n → isProp (isMaximalLowerBound n)
+    isPropIsMaximalLowerBound n
+      = isPropΣ (isPropIsLowerBound P n)
+                λ islb → isPropIsMaximal (LowerBound P
+                       , EmbeddingΣProp (isPropIsLowerBound P)) (n , islb)
 
     MaximalLowerBound : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
     MaximalLowerBound = Σ[ n ∈ A ] isMaximalLowerBound n
@@ -306,13 +306,13 @@ module _
     isMinimalUpperBound n
       = Σ[ isub ∈ isUpperBound P n ]
         isMinimal (UpperBound P
-                  , EmbeddingΣProp (isPropisUpperBound P)) (n , isub)
+                  , EmbeddingΣProp (isPropIsUpperBound P)) (n , isub)
 
-    isPropisMinimalUpperBound : ∀ n → isProp (isMinimalUpperBound n)
-    isPropisMinimalUpperBound n
-      = isPropΣ (isPropisUpperBound P n)
-                λ isub → isPropisMinimal (UpperBound P
-                       , EmbeddingΣProp (isPropisUpperBound P)) (n , isub)
+    isPropIsMinimalUpperBound : ∀ n → isProp (isMinimalUpperBound n)
+    isPropIsMinimalUpperBound n
+      = isPropΣ (isPropIsUpperBound P n)
+                λ isub → isPropIsMinimal (UpperBound P
+                       , EmbeddingΣProp (isPropIsUpperBound P)) (n , isub)
 
     MinimalUpperBound : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
     MinimalUpperBound = Σ[ n ∈ A ] isMinimalUpperBound n
@@ -321,25 +321,25 @@ module _
     isInfimum n
       = Σ[ islb ∈ isLowerBound P n ]
         isGreatest (LowerBound P
-                   , EmbeddingΣProp (isPropisLowerBound P)) (n , islb)
+                   , EmbeddingΣProp (isPropIsLowerBound P)) (n , islb)
 
-    isPropisInfimum : ∀ n → isProp (isInfimum n)
-    isPropisInfimum n
-      = isPropΣ (isPropisLowerBound P n)
-                λ islb → isPropisGreatest (LowerBound P
-                       , EmbeddingΣProp (isPropisLowerBound P)) (n , islb)
+    isPropIsInfimum : ∀ n → isProp (isInfimum n)
+    isPropIsInfimum n
+      = isPropΣ (isPropIsLowerBound P n)
+                λ islb → isPropIsGreatest (LowerBound P
+                       , EmbeddingΣProp (isPropIsLowerBound P)) (n , islb)
 
     isSupremum : (n : A) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
     isSupremum n
       = Σ[ isub ∈ isUpperBound P n ]
         isLeast (UpperBound P
-                , EmbeddingΣProp (isPropisUpperBound P)) (n , isub)
+                , EmbeddingΣProp (isPropIsUpperBound P)) (n , isub)
 
-    isPropisSupremum : ∀ n → isProp (isSupremum n)
-    isPropisSupremum n
-      = isPropΣ (isPropisUpperBound P n)
-                λ isub → isPropisLeast (UpperBound P
-                       , EmbeddingΣProp (isPropisUpperBound P)) (n , isub)
+    isPropIsSupremum : ∀ n → isProp (isSupremum n)
+    isPropIsSupremum n
+      = isPropΣ (isPropIsUpperBound P n)
+                λ isub → isPropIsLeast (UpperBound P
+                       , EmbeddingΣProp (isPropIsUpperBound P)) (n , isub)
 
 module _
   {A : Type ℓ}
