@@ -68,17 +68,20 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) w
   open Category
   open Functor
   open NaturalBijection
-  open _⊣_
   open _≅_
 
   preservesInitial : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
   preservesInitial = ∀ (x : ob C) → isInitial C x → isInitial D (F-ob F x)
 
-  isLeftAdjoint→preservesInitial : isLeftAdjoint F → preservesInitial
-  fst (isLeftAdjoint→preservesInitial (G , F⊣G) x initX y) = _♯ F⊣G (fst (initX (F-ob G y)))
+  isLeftAdjoint→preservesInitial : isLeftAdjoint _ _ F → preservesInitial
+  fst (isLeftAdjoint→preservesInitial (G , F⊣G) x initX y) = fst (initX (F-ob G y)) ♯
+    where open Definitions _ _ F G
+          open Adjunction F⊣G
   snd (isLeftAdjoint→preservesInitial (G , F⊣G) x initX y) ψ =
-    _♯ F⊣G (fst (initX (F-ob G y)))
-      ≡⟨ cong (F⊣G ♯) (snd (initX (F-ob G y)) (_♭ F⊣G ψ)) ⟩
-    _♯ F⊣G (_♭ F⊣G ψ)
-      ≡⟨ leftInv (adjIso F⊣G) ψ ⟩
+    fst (initX (F-ob G y)) ♯
+      ≡⟨ cong _♯ (snd (initX (F-ob G y)) (ψ ♭)) ⟩
+    (ψ ♭) ♯
+      ≡⟨ leftInv adjIso ψ ⟩
     ψ ∎
+    where open Definitions _ _ F G
+          open Adjunction F⊣G
