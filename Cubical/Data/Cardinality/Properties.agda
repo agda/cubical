@@ -200,8 +200,8 @@ module _ where
                                                           B↪C
                                                           A↪B)
 
-𝟘isLeast : ∀{ℓ} → isLeast isPreorder≲ (Card {ℓ} , id↪ (Card {ℓ})) (𝟘 {ℓ})
-𝟘isLeast = ∥₂.elim (λ x → isProp→isSet (IsPreorder.is-prop-valued
+isLeast𝟘 : ∀{ℓ} → isLeast isPreorder≲ (Card {ℓ} , id↪ (Card {ℓ})) (𝟘 {ℓ})
+isLeast𝟘 = ∥₂.elim (λ x → isProp→isSet (IsPreorder.is-prop-valued
                                        isPreorder≲ 𝟘 x))
                    (λ _ → ∣ ⊥.rec* , (λ ()) ∣₁)
 
