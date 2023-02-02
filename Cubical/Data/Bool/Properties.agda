@@ -87,12 +87,12 @@ not≢const false = true≢false
 not≢const true  = false≢true
 
 -- or properties
-zeroˡ : ∀ x → true or x ≡ true
-zeroˡ _ = refl
+or-zeroˡ : ∀ x → true or x ≡ true
+or-zeroˡ _ = refl
 
-zeroʳ : ∀ x → x or true ≡ true
-zeroʳ false = refl
-zeroʳ true  = refl
+or-zeroʳ : ∀ x → x or true ≡ true
+or-zeroʳ false = refl
+or-zeroʳ true  = refl
 
 or-identityˡ : ∀ x → false or x ≡ x
 or-identityˡ _ = refl
