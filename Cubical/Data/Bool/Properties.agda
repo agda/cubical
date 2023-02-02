@@ -115,6 +115,35 @@ or-idem      : ∀ x → x or x ≡ x
 or-idem false = refl
 or-idem true  = refl
 
+-- and properties
+and-zeroˡ : ∀ x → false and x ≡ false
+and-zeroˡ _ = refl
+
+and-zeroʳ : ∀ x → x and false ≡ false
+and-zeroʳ false = refl
+and-zeroʳ true  = refl
+
+and-identityˡ : ∀ x → true and x ≡ x
+and-identityˡ _ = refl
+
+and-identityʳ : ∀ x → x and true ≡ x
+and-identityʳ false = refl
+and-identityʳ true  = refl
+
+and-comm      : ∀ x y → x and y ≡ y and x
+and-comm false false = refl
+and-comm false true  = refl
+and-comm true  false = refl
+and-comm true  true  = refl
+
+and-assoc     : ∀ x y z → x and (y and z) ≡ (x and y) and z
+and-assoc false y z = refl
+and-assoc true  y z = refl
+
+and-idem      : ∀ x → x and x ≡ x
+and-idem false = refl
+and-idem true  = refl
+
 -- xor properties
 ⊕-identityʳ : ∀ x → x ⊕ false ≡ x
 ⊕-identityʳ false = refl
