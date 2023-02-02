@@ -33,23 +33,23 @@ module _
 
   open BinaryRelation
 
-  isPoset→isPreorder : IsPoset R → IsPreorder R
-  isPoset→isPreorder poset = ispreorder
+  isPoset→IsPreorder : IsPoset R → IsPreorder R
+  isPoset→IsPreorder poset = ispreorder
                              (IsPoset.is-set poset)
                              (IsPoset.is-prop-valued poset)
                              (IsPoset.is-refl poset)
                              (IsPoset.is-trans poset)
 
-  isToset→isPoset : IsToset R → IsPoset R
-  isToset→isPoset toset = isposet
+  isToset→IsPoset : IsToset R → IsPoset R
+  isToset→IsPoset toset = isposet
                           (IsToset.is-set toset)
                           (IsToset.is-prop-valued toset)
                           (IsToset.is-refl toset)
                           (IsToset.is-trans toset)
                           (IsToset.is-antisym toset)
 
-  isLoset→isStrictPoset : IsLoset R → IsStrictPoset R
-  isLoset→isStrictPoset loset = isstrictposet
+  isLoset→IsStrictPoset : IsLoset R → IsStrictPoset R
+  isLoset→IsStrictPoset loset = isstrictposet
                                 (IsLoset.is-set loset)
                                 (IsLoset.is-prop-valued loset)
                                 (IsLoset.is-irrefl loset)
@@ -74,8 +74,8 @@ module _
     antisym irr trans a b (inl _) (inr b≡a) = sym b≡a
     antisym irr trans a b (inr a≡b) _ = a≡b
 
-  isPoset→isStrictPosetIrreflKernel : IsPoset R → IsStrictPoset (IrreflKernel R)
-  isPoset→isStrictPosetIrreflKernel poset
+  isPoset→IsStrictPosetIrreflKernel : IsPoset R → IsStrictPoset (IrreflKernel R)
+  isPoset→IsStrictPosetIrreflKernel poset
     = isstrictposet (IsPoset.is-set poset)
                     (λ a b → isProp× (IsPoset.is-prop-valued poset a b)
                                      (isProp¬ (a ≡ b)))
@@ -87,8 +87,8 @@ module _
                                              , transirrefl (IsPoset.is-trans poset)
                                                            (IsPoset.is-antisym poset)))
 
-  isToset→isLosetIrreflKernel : Discrete A → IsToset R → IsLoset (IrreflKernel R)
-  isToset→isLosetIrreflKernel disc toset
+  isToset→IsLosetIrreflKernel : Discrete A → IsToset R → IsLoset (IrreflKernel R)
+  isToset→IsLosetIrreflKernel disc toset
     = isloset (IsToset.is-set toset)
               (λ a b → isProp× (IsToset.is-prop-valued toset a b)
                                (isProp¬ (a ≡ b)))
@@ -114,8 +114,8 @@ module _
               (isConnectedStronglyConnectedIrreflKernel R
                 (IsToset.is-strongly-connected toset))
 
-  isStrictPoset→isPosetReflClosure : IsStrictPoset R → IsPoset (ReflClosure R)
-  isStrictPoset→isPosetReflClosure strictposet
+  isStrictPoset→IsPosetReflClosure : IsStrictPoset R → IsPoset (ReflClosure R)
+  isStrictPoset→IsPosetReflClosure strictposet
     = isposet (IsStrictPoset.is-set strictposet)
               (λ a b → isProp⊎ (IsStrictPoset.is-prop-valued strictposet a b)
                                (IsStrictPoset.is-set strictposet a b)
@@ -127,8 +127,8 @@ module _
               (antisym (IsStrictPoset.is-irrefl strictposet)
                        (IsStrictPoset.is-trans strictposet))
 
-  isLoset→isTosetReflClosure : Discrete A → IsLoset R → IsToset (ReflClosure R)
-  isLoset→isTosetReflClosure disc loset
+  isLoset→IsTosetReflClosure : Discrete A → IsLoset R → IsToset (ReflClosure R)
+  isLoset→IsTosetReflClosure disc loset
     = istoset (IsLoset.is-set loset)
               (λ a b → isProp⊎ (IsLoset.is-prop-valued loset a b)
                                (IsLoset.is-set loset a b)
@@ -143,8 +143,8 @@ module _
                              (λ ¬a≡b → ∥₁.map (⊎.map (λ Rab → inl Rab) λ Rba → inl Rba)
                              (IsLoset.is-connected loset a b ¬a≡b)) (disc a b)
 
-  isPreorder→isEquivRelSymKernel : IsPreorder R → isEquivRel (SymKernel R)
-  isPreorder→isEquivRelSymKernel preorder
+  isPreorder→IsEquivRelSymKernel : IsPreorder R → isEquivRel (SymKernel R)
+  isPreorder→IsEquivRelSymKernel preorder
     = equivRel (λ a → (IsPreorder.is-refl preorder a)
                     , (IsPreorder.is-refl preorder a))
                (isSymSymKernel R)
@@ -152,8 +152,8 @@ module _
                  → IsPreorder.is-trans preorder a b c Rab Rbc
                  , IsPreorder.is-trans preorder c b a Rcb Rba)
 
-  isPreorder→isStrictPosetAsymKernel : IsPreorder R → IsStrictPoset (AsymKernel R)
-  isPreorder→isStrictPosetAsymKernel preorder
+  isPreorder→IsStrictPosetAsymKernel : IsPreorder R → IsStrictPoset (AsymKernel R)
+  isPreorder→IsStrictPosetAsymKernel preorder
     = isstrictposet (IsPreorder.is-set preorder)
                     (λ a b → isProp× (IsPreorder.is-prop-valued preorder a b) (isProp¬ (R b a)))
                     (λ a (Raa , ¬Raa) → ¬Raa (IsPreorder.is-refl preorder a))
@@ -162,10 +162,10 @@ module _
                       , λ Rca → ¬Rcb (IsPreorder.is-trans preorder c a b Rca Rab))
                     (isAsymAsymKernel R)
 
-  isStrictPoset→isApartnessSymClosure : IsStrictPoset R
+  isStrictPoset→IsApartnessSymClosure : IsStrictPoset R
                                       → isWeaklyLinear R
                                       → IsApartness (SymClosure R)
-  isStrictPoset→isApartnessSymClosure strictposet weak
+  isStrictPoset→IsApartnessSymClosure strictposet weak
     = isapartness (IsStrictPoset.is-set strictposet)
                   (λ a b → isProp⊎ (IsStrictPoset.is-prop-valued strictposet a b)
                                    (IsStrictPoset.is-prop-valued strictposet b a)
@@ -183,52 +183,52 @@ module _
 
 Poset→Preorder : Poset ℓ ℓ' → Preorder ℓ ℓ'
 Poset→Preorder (_ , pos) = _ , preorderstr (PosetStr._≤_ pos)
-                                           (isPoset→isPreorder (PosetStr.isPoset pos))
+                                           (isPoset→IsPreorder (PosetStr.isPoset pos))
 
 Toset→Poset : Toset ℓ ℓ' → Poset ℓ ℓ'
 Toset→Poset (_ , tos) = _ , posetstr (TosetStr._≤_ tos)
-                                     (isToset→isPoset (TosetStr.isToset tos))
+                                     (isToset→IsPoset (TosetStr.isToset tos))
 
 Loset→StrictPoset : Loset ℓ ℓ' → StrictPoset ℓ ℓ'
 Loset→StrictPoset (_ , los)
   = _ , strictposetstr (LosetStr._<_ los)
-                       (isLoset→isStrictPoset (LosetStr.isLoset los))
+                       (isLoset→IsStrictPoset (LosetStr.isLoset los))
 
 Poset→StrictPoset : Poset ℓ ℓ' → StrictPoset ℓ (ℓ-max ℓ ℓ')
 Poset→StrictPoset (_ , pos)
   = _ , strictposetstr (BinaryRelation.IrreflKernel (PosetStr._≤_ pos))
-                       (isPoset→isStrictPosetIrreflKernel (PosetStr.isPoset pos))
+                       (isPoset→IsStrictPosetIrreflKernel (PosetStr.isPoset pos))
 
 Toset→Loset : (tos : Toset ℓ ℓ') → Discrete (fst tos) → Loset ℓ (ℓ-max ℓ ℓ')
 Toset→Loset (_ , tos) disc
   = _ , losetstr (BinaryRelation.IrreflKernel (TosetStr._≤_ tos))
-                       (isToset→isLosetIrreflKernel disc
+                       (isToset→IsLosetIrreflKernel disc
                                                     (TosetStr.isToset tos))
 
 StrictPoset→Poset : StrictPoset ℓ ℓ' → Poset ℓ (ℓ-max ℓ ℓ')
 StrictPoset→Poset (_ , strictpos)
   = _ , posetstr (BinaryRelation.ReflClosure (StrictPosetStr._<_ strictpos))
-                 (isStrictPoset→isPosetReflClosure (StrictPosetStr.isStrictPoset strictpos))
+                 (isStrictPoset→IsPosetReflClosure (StrictPosetStr.isStrictPoset strictpos))
 
 Loset→Toset : (los : Loset ℓ ℓ')
             → Discrete (fst los)
             → Toset ℓ (ℓ-max ℓ ℓ')
 Loset→Toset (_ , los) disc
   = _ , tosetstr (BinaryRelation.ReflClosure (LosetStr._<_ los))
-                 (isLoset→isTosetReflClosure disc
+                 (isLoset→IsTosetReflClosure disc
                                              (LosetStr.isLoset los))
 
 Preorder→StrictPoset : Preorder ℓ ℓ' → StrictPoset ℓ ℓ'
 Preorder→StrictPoset (_ , pre)
   = _ , strictposetstr (BinaryRelation.AsymKernel (PreorderStr._≲_ pre))
-                       (isPreorder→isStrictPosetAsymKernel (PreorderStr.isPreorder pre))
+                       (isPreorder→IsStrictPosetAsymKernel (PreorderStr.isPreorder pre))
 
 StrictPoset→Apartness : (R : StrictPoset ℓ ℓ')
                       → BinaryRelation.isWeaklyLinear (StrictPosetStr._<_ (snd R))
                       → Apartness ℓ ℓ'
 StrictPoset→Apartness (_ , strictpos) weak
   = _ , apartnessstr (BinaryRelation.SymClosure (StrictPosetStr._<_ strictpos))
-                     (isStrictPoset→isApartnessSymClosure
+                     (isStrictPoset→IsApartnessSymClosure
                        (StrictPosetStr.isStrictPoset strictpos) weak)
 
 module _
@@ -399,7 +399,7 @@ module _
 
   private
     pre : IsPreorder _≤_
-    pre = isPoset→isPreorder pos
+    pre = isPoset→IsPreorder pos
 
     anti : BinaryRelation.isAntisym _≤_
     anti = IsPoset.is-antisym pos
@@ -466,7 +466,7 @@ module _
     conn = IsToset.is-strongly-connected tos
 
     pre : IsPreorder _≤_
-    pre = isPoset→isPreorder (isToset→isPoset tos)
+    pre = isPoset→IsPreorder (isToset→IsPoset tos)
 
     toA : (fst P) → A
     toA = fst (snd P)
