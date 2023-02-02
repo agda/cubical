@@ -12,6 +12,8 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
+open import Cubical.HITs.PropositionalTruncation
+
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.StrictEquiv
 
@@ -21,6 +23,7 @@ open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
 open import Cubical.Relation.Binary.Base
+open import Cubical.Relation.Nullary.Properties
 
 open Iso
 open BinaryRelation
