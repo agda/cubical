@@ -28,7 +28,8 @@ open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Unit
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 open import Cubical.Relation.Binary.Base
-open import Cubical.Relation.Binary.Order
+open import Cubical.Relation.Binary.Order.Preorder.Base
+open import Cubical.Relation.Binary.Order.Properties
 
 private
   variable
