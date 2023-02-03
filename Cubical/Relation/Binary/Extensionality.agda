@@ -8,6 +8,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
 open import Cubical.Relation.Binary.Base
 
+open import Cubical.Data.Sigma
+
 module _ {ℓ ℓ'} {A : Type ℓ} (_≺_ : Rel A A ℓ') where
 
   ≡→≺Equiv : (x y : A) → x ≡ y → ∀ z → (z ≺ x) ≃ (z ≺ y)
@@ -25,11 +27,18 @@ module _ {ℓ ℓ'} {A : Type ℓ} (_≺_ : Rel A A ℓ') where
   -}
 
   ≺Equiv→≡→IsWeaklyExtensional : isSet A → BinaryRelation.isPropValued _≺_
-                             → ((x y : A) → (∀ z → (z ≺ x) ≃ (z ≺ y)) → x ≡ y)
+                             → ((x y : A) → (∀ z → ((z ≺ x) → (z ≺ y))
+                                                 × ((z ≺ y) → (z ≺ x))) → x ≡ y)
                              → isWeaklyExtensional
   ≺Equiv→≡→IsWeaklyExtensional setA prop f a b
     = propBiimpl→Equiv (setA a b)
-                       (isPropΠ (λ z → isOfHLevel≃ 1 (prop z a)
-                                                      (prop z b)))
+                       (isPropΠ (λ z → isOfHLevel≃ 1
+                                                   (prop z a)
+                                                   (prop z b)))
                        (≡→≺Equiv a b)
-                       (f a b) .snd
+                       (λ g → f a b λ z → (g z .fst) , invEquiv (g z) .fst) .snd
+
+  isWeaklyExtensional→≺Equiv→≡ : isWeaklyExtensional
+                                → (x y : A) → (∀ z → (z ≺ x) ≃ (z ≺ y)) → x ≡ y
+  isWeaklyExtensional→≺Equiv→≡ weak x y
+    = invIsEq (weak x y)
