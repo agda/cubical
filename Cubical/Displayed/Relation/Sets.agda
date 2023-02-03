@@ -15,7 +15,6 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Total
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation
@@ -24,11 +23,11 @@ open import Cubical.HITs.SetQuotients as Quo
 open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.Relation.ZigZag.Base
 
-open import Cubical.Displayed.Relation
+open import Cubical.Displayed.Relation.Base
 
 module _ (ℓ ℓ' : Level) where
 
-  open DisplayedCat
+  open Categoryᴰ
 
   ℛ-Set-QER : RelCat (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
   ℛ-Set-QER .ob[_] ((A₀ , _) , (A₁ , _)) = QuasiEquivRel A₀ A₁ ℓ'
@@ -42,7 +41,7 @@ module _ (ℓ ℓ' : Level) where
 
 module _ (ℓ : Level) where
 
-  open DisplayedCat
+  open Categoryᴰ
 
   ℛ-Set-≃ : RelCat (SET ℓ) ℓ ℓ
   ℛ-Set-≃ .ob[_] ((A₀ , _) , (A₁ , _)) = A₀ ≃ A₁
@@ -90,39 +89,32 @@ module _  where
   ℛ-Set-≃→QER .F-seq {z = (_ , A₁) , _} _ _ =
     Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → A₁ .snd _ _) refl
 
-  open UnitCounit
+  open UnitCounit._⊣_
   open NatTrans
 
   QER⊣≃ : ∀ {ℓ} → RelCatAdj (SET ℓ) (SET ℓ) (ℛ-Set-QER ℓ ℓ) (ℛ-Set-≃ ℓ) ℛ-Set-QER→≃ ℛ-Set-≃→QER
-  QER⊣≃ = make⊣
-    η
-    ε
-    (λ ((A₀ , A₁) , R) →
-      Σ≡Prop (λ _ → isPropΠ λ _ → squash/ _ _)
-        (ΣPathP
-          ( funExt (Quo.elimProp (λ _ → squash/ _ _) $ λ _ → refl)
-          , funExt (Quo.elimProp (λ _ → squash/ _ _) $ λ _ → refl)
-          )))
-    (λ ((A₀ , A₁) , e) →
-      Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → A₁ .snd _ _) refl)
-    where
-    η : NatTrans 𝟙⟨ ∫ (ℛ-Set-QER _ _) ⟩ (funcComp ℛ-Set-≃→QER ℛ-Set-QER→≃)
-    η .N-ob ((A₀ , A₁) , R) = ([_] , [_]) , λ _ _ r → QER→Equiv.relToFwd≡ R r
-    η .N-hom ((f₀ , f₁) , h) = Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → squash/ _ _) refl
-
-    ε : NatTrans (funcComp ℛ-Set-QER→≃ ℛ-Set-≃→QER) 𝟙⟨ ∫ (ℛ-Set-≃ _) ⟩
-    ε .N-ob ((A₀ , A₁) , e) .fst .fst =
+  QER⊣≃ .η .N-ob ((A₀ , A₁) , R) = ([_] , [_]) , λ _ _ r → QER→Equiv.relToFwd≡ R r
+  QER⊣≃ .η .N-hom ((f₀ , f₁) , h) = Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → squash/ _ _) refl
+  QER⊣≃ .ε .N-ob ((A₀ , A₁) , e) .fst .fst =
       Quo.rec (A₀ .snd) (λ a → a)
         (λ a a' → Prop.rec (A₀ .snd _ _) $ λ (_ , p , q) →
           sym (retEq e a) ∙ cong (invEq e) (p ∙ sym q) ∙ retEq e a')
-    ε .N-ob ((A₀ , A₁) , e) .fst .snd =
+  QER⊣≃ .ε .N-ob ((A₀ , A₁) , e) .fst .snd =
       Quo.rec (A₁ .snd) (λ a → a)
         (λ a a' → Prop.rec (A₁ .snd _ _) $ λ (_ , p , q) → sym p ∙ q)
-    ε .N-ob ((A₀ , A₁) , e) .snd =
+  QER⊣≃ .ε .N-ob ((A₀ , A₁) , e) .snd =
       Quo.elimProp (λ _ → A₁ .snd _ _) $ λ _ → refl
-    ε .N-hom {y = (A₀ , A₁) , _} ((f₀ , f₁) , h) =
+  QER⊣≃ .ε .N-hom {y = (A₀ , A₁) , _} ((f₀ , f₁) , h) =
       Σ≡Prop (λ _ → isPropΠ λ _ → A₁ .snd _ _)
         (ΣPathP
           ( funExt (Quo.elimProp (λ _ → A₀ .snd _ _) $ λ _ → refl)
           , funExt (Quo.elimProp (λ _ → A₁ .snd _ _) $ λ _ → refl)
           ))
+  QER⊣≃ .Δ₁ ((A₀ , A₁) , R) =
+      Σ≡Prop (λ _ → isPropΠ λ _ → squash/ _ _)
+        (ΣPathP
+          ( funExt (Quo.elimProp (λ _ → squash/ _ _) $ λ _ → refl)
+          , funExt (Quo.elimProp (λ _ → squash/ _ _) $ λ _ → refl)
+          ))
+  QER⊣≃ .Δ₂ ((A₀ , A₁) , e) =
+      Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → A₁ .snd _ _) refl

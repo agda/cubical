@@ -16,11 +16,11 @@ private
 module UnitCounitᴰ where
 
   -- Adjoint def 1: unit-counit
-  record _⊣ᴰ_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  record _⊣[_]_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     {F : Functor C D} {G : Functor D C}
-    (A : F UnitCounit.⊣ G)
+
     {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-    (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (Gᴰ : Functorᴰ G Dᴰ Cᴰ)
+    (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (A : F UnitCounit.⊣ G) (Gᴰ : Functorᴰ G Dᴰ Cᴰ)
     : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')) (ℓ-max (ℓ-max ℓD ℓD') (ℓ-max ℓDᴰ ℓDᴰ'))) where
 
     open Category
