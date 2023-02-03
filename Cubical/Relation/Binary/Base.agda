@@ -103,6 +103,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   AsymKernel : Rel A A ℓ'
   AsymKernel a b = R a b × (¬ R b a)
 
+  NegationRel : Rel A A ℓ'
+  NegationRel a b = ¬ (R a b)
+
   module _
     {ℓ'' : Level}
     (P : Embedding A ℓ'')

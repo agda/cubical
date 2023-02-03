@@ -1,7 +1,6 @@
 {-# OPTIONS --safe #-}
-module Cubical.Relation.Binary.Poset where
+module Cubical.Relation.Binary.Order.Poset.Base where
 
-<<<<<<< HEAD:Cubical/Relation/Binary/Poset.agda
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
@@ -13,8 +12,6 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.HITs.PropositionalTruncation
-
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.StrictEquiv
 
@@ -24,7 +21,6 @@ open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
 open import Cubical.Relation.Binary.Base
-open import Cubical.Relation.Nullary.Properties
 
 open Iso
 open BinaryRelation
@@ -140,7 +136,3 @@ module PosetReasoning (P' : Poset ℓ ℓ') where
 
  infixr 0 _≤⟨_⟩_
  infix  1 _◾
-=======
-open import Cubical.Relation.Binary.Order.Poset.Base public
-open import Cubical.Relation.Binary.Order.Poset.Properties public
->>>>>>> b17b5d67 (Moved order properties into their own folders):Cubical/Relation/Binary/Order/Poset.agda
