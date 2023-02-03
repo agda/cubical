@@ -12,7 +12,6 @@ open import Cubical.Functions.Embedding
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
-open import Cubical.Relation.Binary.Order.Apartness
 open import Cubical.Relation.Binary.Order.Poset
 open import Cubical.Relation.Binary.Order.Toset
 open import Cubical.Relation.Binary.Order.Preorder.Base
