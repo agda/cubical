@@ -57,23 +57,23 @@ module _  where
 
   open Functor
 
-  ℛ-Set-QER→≃ : ∀ {ℓ} → RelCatFunctor (SET ℓ) (SET ℓ) (ℛ-Set-QER ℓ ℓ) (ℛ-Set-≃ ℓ)
-  ℛ-Set-QER→≃ {ℓ} .F-ob ((A₀ , A₁) , R) =
+  Set-QER→≃ : ∀ {ℓ} → RelCatFunctor (SET ℓ) (SET ℓ) (ℛ-Set-QER ℓ ℓ) (ℛ-Set-≃ ℓ)
+  Set-QER→≃ {ℓ} .F-ob ((A₀ , A₁) , R) =
     ((A₀ .fst / Rᴸ , squash/) , (A₁ .fst / Rᴿ , squash/)) , Thm
     where
     open QER→Equiv R
-  ℛ-Set-QER→≃ .F-hom {x = (_ , R₀)} {y = (_ , R₁)} ((f₀ , f₁) , r) =
+  Set-QER→≃ .F-hom {x = (_ , R₀)} {y = (_ , R₁)} ((f₀ , f₁) , r) =
     ((fᴸ , fᴿ) , comm)
     where
     open QER→Equiv-Functorial R₀ R₁ f₀ f₁ r
-  ℛ-Set-QER→≃ .F-id =
+  Set-QER→≃ .F-id =
     Σ≡Prop
       (λ _ → isPropΠ λ _ → squash/ _ _)
       (ΣPathP
         ( funExt (Quo.elimProp (λ _ → squash/ _ _) $ λ _ → refl)
         , funExt (Quo.elimProp (λ _ → squash/ _ _) $ λ _ → refl)
         ))
-  ℛ-Set-QER→≃ .F-seq _ _ =
+  Set-QER→≃ .F-seq _ _ =
     Σ≡Prop
       (λ _ → isPropΠ λ _ → squash/ _ _)
       (ΣPathP
@@ -81,40 +81,40 @@ module _  where
         , funExt (Quo.elimProp (λ _ → squash/ _ _) $ λ _ → refl)
         ))
 
-  ℛ-Set-≃→QER : ∀ {ℓ} → RelCatFunctor (SET ℓ) (SET ℓ) (ℛ-Set-≃ ℓ) (ℛ-Set-QER ℓ ℓ)
-  ℛ-Set-≃→QER .F-ob ((A₀ , A₁) , e) = (A₀ , A₁) , ≃→QER (A₁ .snd) e
-  ℛ-Set-≃→QER .F-hom ((f₀ , f₁) , h) = (f₀ , f₁) , λ a₀ a₁ p → h a₀ ∙ cong f₁ p
-  ℛ-Set-≃→QER .F-id {x = (_ , A₁) , _} =
+  Set-≃→QER : ∀ {ℓ} → RelCatFunctor (SET ℓ) (SET ℓ) (ℛ-Set-≃ ℓ) (ℛ-Set-QER ℓ ℓ)
+  Set-≃→QER .F-ob ((A₀ , A₁) , e) = (A₀ , A₁) , ≃→QER (A₁ .snd) e
+  Set-≃→QER .F-hom ((f₀ , f₁) , h) = (f₀ , f₁) , λ a₀ a₁ p → h a₀ ∙ cong f₁ p
+  Set-≃→QER .F-id {x = (_ , A₁) , _} =
     Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → A₁ .snd _ _) refl
-  ℛ-Set-≃→QER .F-seq {z = (_ , A₁) , _} _ _ =
+  Set-≃→QER .F-seq {z = (_ , A₁) , _} _ _ =
     Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → A₁ .snd _ _) refl
 
   open UnitCounit._⊣_
   open NatTrans
 
-  QER⊣≃ : ∀ {ℓ} → RelCatAdj (SET ℓ) (SET ℓ) (ℛ-Set-QER ℓ ℓ) (ℛ-Set-≃ ℓ) ℛ-Set-QER→≃ ℛ-Set-≃→QER
-  QER⊣≃ .η .N-ob ((A₀ , A₁) , R) = ([_] , [_]) , λ _ _ r → QER→Equiv.relToFwd≡ R r
-  QER⊣≃ .η .N-hom ((f₀ , f₁) , h) = Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → squash/ _ _) refl
-  QER⊣≃ .ε .N-ob ((A₀ , A₁) , e) .fst .fst =
+  Set-QER⊣≃ : ∀ {ℓ} → RelCatAdjoint (SET ℓ) (SET ℓ) (ℛ-Set-QER ℓ ℓ) (ℛ-Set-≃ ℓ) Set-QER→≃ Set-≃→QER
+  Set-QER⊣≃ .η .N-ob ((A₀ , A₁) , R) = ([_] , [_]) , λ _ _ r → QER→Equiv.relToFwd≡ R r
+  Set-QER⊣≃ .η .N-hom ((f₀ , f₁) , h) = Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → squash/ _ _) refl
+  Set-QER⊣≃ .ε .N-ob ((A₀ , A₁) , e) .fst .fst =
       Quo.rec (A₀ .snd) (λ a → a)
         (λ a a' → Prop.rec (A₀ .snd _ _) $ λ (_ , p , q) →
           sym (retEq e a) ∙ cong (invEq e) (p ∙ sym q) ∙ retEq e a')
-  QER⊣≃ .ε .N-ob ((A₀ , A₁) , e) .fst .snd =
+  Set-QER⊣≃ .ε .N-ob ((A₀ , A₁) , e) .fst .snd =
       Quo.rec (A₁ .snd) (λ a → a)
         (λ a a' → Prop.rec (A₁ .snd _ _) $ λ (_ , p , q) → sym p ∙ q)
-  QER⊣≃ .ε .N-ob ((A₀ , A₁) , e) .snd =
+  Set-QER⊣≃ .ε .N-ob ((A₀ , A₁) , e) .snd =
       Quo.elimProp (λ _ → A₁ .snd _ _) $ λ _ → refl
-  QER⊣≃ .ε .N-hom {y = (A₀ , A₁) , _} ((f₀ , f₁) , h) =
+  Set-QER⊣≃ .ε .N-hom {y = (A₀ , A₁) , _} ((f₀ , f₁) , h) =
       Σ≡Prop (λ _ → isPropΠ λ _ → A₁ .snd _ _)
         (ΣPathP
           ( funExt (Quo.elimProp (λ _ → A₀ .snd _ _) $ λ _ → refl)
           , funExt (Quo.elimProp (λ _ → A₁ .snd _ _) $ λ _ → refl)
           ))
-  QER⊣≃ .Δ₁ ((A₀ , A₁) , R) =
+  Set-QER⊣≃ .Δ₁ ((A₀ , A₁) , R) =
       Σ≡Prop (λ _ → isPropΠ λ _ → squash/ _ _)
         (ΣPathP
           ( funExt (Quo.elimProp (λ _ → squash/ _ _) $ λ _ → refl)
           , funExt (Quo.elimProp (λ _ → squash/ _ _) $ λ _ → refl)
           ))
-  QER⊣≃ .Δ₂ ((A₀ , A₁) , e) =
+  Set-QER⊣≃ .Δ₂ ((A₀ , A₁) , e) =
       Σ≡Prop (λ _ → isPropΠ3 λ _ _ _ → A₁ .snd _ _) refl

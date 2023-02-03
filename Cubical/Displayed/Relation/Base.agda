@@ -64,12 +64,12 @@ RelCatFunctor : (C : Category ℓC ℓ→C) (D : Category ℓD ℓ→D)
     → Type _
 RelCatFunctor _ _ ℛ-C ℛ-D = Functor (∫C ℛ-C) (∫C ℛ-D)
 
-RelCatAdj : (C : Category ℓC ℓ→C) (D : Category ℓD ℓ→D)
+RelCatAdjoint : (C : Category ℓC ℓ→C) (D : Category ℓD ℓ→D)
   (ℛ-C : RelCat C ℓR ℓ→R) (ℛ-D : RelCat D ℓS ℓ→S)
   → RelCatFunctor C D ℛ-C ℛ-D
   → RelCatFunctor D C ℛ-D ℛ-C
   → Type _
-RelCatAdj _ _ _ _ F G = F UnitCounit.⊣ G
+RelCatAdjoint _ _ _ _ F G = F UnitCounit.⊣ G
 
 RelCatFunctorᴰ : {C : Category ℓC ℓ→C} {D : Category ℓD ℓ→D}
   {ℛ-C : RelCat C ℓR ℓ→R} {ℛ-D : RelCat D ℓS ℓ→S} (F : RelCatFunctor C D ℛ-C ℛ-D)
@@ -83,7 +83,7 @@ RelCatFunctorᴰ {C = C} {D} {ℛ-C} {ℛ-D} F Cᴰ Dᴰ ℛ-Cᴰ ℛ-Dᴰ =
 RelCatAdjointᴰ : {C : Category ℓC ℓ→C} {D : Category ℓD ℓ→D}
   {ℛ-C : RelCat C ℓR ℓ→R} {ℛ-D : RelCat D ℓS ℓ→S}
   {F : RelCatFunctor C D ℛ-C ℛ-D} {G : RelCatFunctor D C ℛ-D ℛ-C}
-  (A : RelCatAdj C D ℛ-C ℛ-D F G)
+  (A : RelCatAdjoint C D ℛ-C ℛ-D F G)
   (Cᴰ : Categoryᴰ C ℓCᴰ ℓ→Cᴰ) (Dᴰ : Categoryᴰ D ℓDᴰ ℓ→Dᴰ)
   (ℛ-Cᴰ : RelCatᴰ ℛ-C Cᴰ ℓRᴰ ℓ→Rᴰ) (ℛ-Dᴰ : RelCatᴰ ℛ-D Dᴰ ℓSᴰ ℓ→Sᴰ)
   → RelCatFunctorᴰ F Cᴰ Dᴰ ℛ-Cᴰ ℛ-Dᴰ
