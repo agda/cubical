@@ -7,7 +7,7 @@ There is also a [discord server](https://discord.gg/yjTKHzepMx), shared with [ag
 
 Compiling, using and installing
 -------------------------------
-This library compiles with the latest official release of
+This library checks with the latest official release of
 [Agda](https://github.com/agda/agda/). For detailed install
 instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
