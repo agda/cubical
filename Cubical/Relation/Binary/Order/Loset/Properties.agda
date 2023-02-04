@@ -27,8 +27,8 @@ module _
 
   open BinaryRelation
 
-  isLoset→IsStrictPoset : IsLoset R → IsStrictPoset R
-  isLoset→IsStrictPoset loset = isstrictposet
+  isLoset→isStrictPoset : IsLoset R → IsStrictPoset R
+  isLoset→isStrictPoset loset = isstrictposet
                                 (IsLoset.is-set loset)
                                 (IsLoset.is-prop-valued loset)
                                 (IsLoset.is-irrefl loset)
@@ -47,8 +47,8 @@ module _
     antisym irr trans a b (inl _) (inr b≡a) = sym b≡a
     antisym irr trans a b (inr a≡b) _ = a≡b
 
-  isLoset→IsTosetReflClosure : Discrete A → IsLoset R → IsToset (ReflClosure R)
-  isLoset→IsTosetReflClosure disc loset
+  isLoset→isTosetReflClosure : Discrete A → IsLoset R → IsToset (ReflClosure R)
+  isLoset→isTosetReflClosure disc loset
     = istoset (IsLoset.is-set loset)
               (λ a b → isProp⊎ (IsLoset.is-prop-valued loset a b)
                                (IsLoset.is-set loset a b)
@@ -66,12 +66,12 @@ module _
 Loset→StrictPoset : Loset ℓ ℓ' → StrictPoset ℓ ℓ'
 Loset→StrictPoset (_ , los)
   = _ , strictposetstr (LosetStr._<_ los)
-                       (isLoset→IsStrictPoset (LosetStr.isLoset los))
+                       (isLoset→isStrictPoset (LosetStr.isLoset los))
 
 Loset→Toset : (los : Loset ℓ ℓ')
             → Discrete (fst los)
             → Toset ℓ (ℓ-max ℓ ℓ')
 Loset→Toset (_ , los) disc
   = _ , tosetstr (BinaryRelation.ReflClosure (LosetStr._<_ los))
-                 (isLoset→IsTosetReflClosure disc
+                 (isLoset→isTosetReflClosure disc
                                              (LosetStr.isLoset los))

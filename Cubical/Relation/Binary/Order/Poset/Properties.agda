@@ -24,8 +24,8 @@ module _
 
   open BinaryRelation
 
-  isPoset→IsPreorder : IsPoset R → IsPreorder R
-  isPoset→IsPreorder poset = ispreorder
+  isPoset→isPreorder : IsPoset R → IsPreorder R
+  isPoset→isPreorder poset = ispreorder
                              (IsPoset.is-set poset)
                              (IsPoset.is-prop-valued poset)
                              (IsPoset.is-refl poset)
@@ -37,8 +37,8 @@ module _
       = trans a b c Rab Rbc
       , λ a≡c → ¬a≡b (anti a b Rab (subst (R b) (sym a≡c) Rbc))
 
-  isPoset→IsStrictPosetIrreflKernel : IsPoset R → IsStrictPoset (IrreflKernel R)
-  isPoset→IsStrictPosetIrreflKernel poset
+  isPoset→isStrictPosetIrreflKernel : IsPoset R → IsStrictPoset (IrreflKernel R)
+  isPoset→isStrictPosetIrreflKernel poset
     = isstrictposet (IsPoset.is-set poset)
                     (λ a b → isProp× (IsPoset.is-prop-valued poset a b)
                                      (isProp¬ (a ≡ b)))
@@ -52,9 +52,9 @@ module _
 
 Poset→Preorder : Poset ℓ ℓ' → Preorder ℓ ℓ'
 Poset→Preorder (_ , pos) = _ , preorderstr (PosetStr._≤_ pos)
-                                           (isPoset→IsPreorder (PosetStr.isPoset pos))
+                                           (isPoset→isPreorder (PosetStr.isPoset pos))
 
 Poset→StrictPoset : Poset ℓ ℓ' → StrictPoset ℓ (ℓ-max ℓ ℓ')
 Poset→StrictPoset (_ , pos)
   = _ , strictposetstr (BinaryRelation.IrreflKernel (PosetStr._≤_ pos))
-                       (isPoset→IsStrictPosetIrreflKernel (PosetStr.isPoset pos))
+                       (isPoset→isStrictPosetIrreflKernel (PosetStr.isPoset pos))

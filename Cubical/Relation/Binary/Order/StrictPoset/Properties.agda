@@ -36,8 +36,8 @@ module _
     antisym irr trans a b (inl _) (inr b≡a) = sym b≡a
     antisym irr trans a b (inr a≡b) _ = a≡b
 
-  isStrictPoset→IsPosetReflClosure : IsStrictPoset R → IsPoset (ReflClosure R)
-  isStrictPoset→IsPosetReflClosure strictposet
+  isStrictPoset→isPosetReflClosure : IsStrictPoset R → IsPoset (ReflClosure R)
+  isStrictPoset→isPosetReflClosure strictposet
     = isposet (IsStrictPoset.is-set strictposet)
               (λ a b → isProp⊎ (IsStrictPoset.is-prop-valued strictposet a b)
                                (IsStrictPoset.is-set strictposet a b)
@@ -49,10 +49,10 @@ module _
               (antisym (IsStrictPoset.is-irrefl strictposet)
                        (IsStrictPoset.is-trans strictposet))
 
-  isStrictPoset→IsApartnessSymClosure : IsStrictPoset R
+  isStrictPoset→isApartnessSymClosure : IsStrictPoset R
                                       → isWeaklyLinear R
                                       → IsApartness (SymClosure R)
-  isStrictPoset→IsApartnessSymClosure strictposet weak
+  isStrictPoset→isApartnessSymClosure strictposet weak
     = isapartness (IsStrictPoset.is-set strictposet)
                   (λ a b → isProp⊎ (IsStrictPoset.is-prop-valued strictposet a b)
                                    (IsStrictPoset.is-prop-valued strictposet b a)
@@ -71,12 +71,12 @@ module _
 StrictPoset→Poset : StrictPoset ℓ ℓ' → Poset ℓ (ℓ-max ℓ ℓ')
 StrictPoset→Poset (_ , strictpos)
   = _ , posetstr (BinaryRelation.ReflClosure (StrictPosetStr._<_ strictpos))
-                 (isStrictPoset→IsPosetReflClosure (StrictPosetStr.isStrictPoset strictpos))
+                 (isStrictPoset→isPosetReflClosure (StrictPosetStr.isStrictPoset strictpos))
 
 StrictPoset→Apartness : (R : StrictPoset ℓ ℓ')
                       → BinaryRelation.isWeaklyLinear (StrictPosetStr._<_ (snd R))
                       → Apartness ℓ ℓ'
 StrictPoset→Apartness (_ , strictpos) weak
   = _ , apartnessstr (BinaryRelation.SymClosure (StrictPosetStr._<_ strictpos))
-                     (isStrictPoset→IsApartnessSymClosure
+                     (isStrictPoset→isApartnessSymClosure
                        (StrictPosetStr.isStrictPoset strictpos) weak)

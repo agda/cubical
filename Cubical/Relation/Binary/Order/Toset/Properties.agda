@@ -27,8 +27,8 @@ module _
 
   open BinaryRelation
 
-  isToset→IsPoset : IsToset R → IsPoset R
-  isToset→IsPoset toset = isposet
+  isToset→isPoset : IsToset R → IsPoset R
+  isToset→isPoset toset = isposet
                           (IsToset.is-set toset)
                           (IsToset.is-prop-valued toset)
                           (IsToset.is-refl toset)
@@ -40,8 +40,8 @@ module _
       = trans a b c Rab Rbc
       , λ a≡c → ¬a≡b (anti a b Rab (subst (R b) (sym a≡c) Rbc))
 
-  isToset→IsLosetIrreflKernel : Discrete A → IsToset R → IsLoset (IrreflKernel R)
-  isToset→IsLosetIrreflKernel disc toset
+  isToset→isLosetIrreflKernel : Discrete A → IsToset R → IsLoset (IrreflKernel R)
+  isToset→isLosetIrreflKernel disc toset
     = isloset (IsToset.is-set toset)
               (λ a b → isProp× (IsToset.is-prop-valued toset a b)
                                (isProp¬ (a ≡ b)))
@@ -69,10 +69,10 @@ module _
 
 Toset→Poset : Toset ℓ ℓ' → Poset ℓ ℓ'
 Toset→Poset (_ , tos) = _ , posetstr (TosetStr._≤_ tos)
-                                     (isToset→IsPoset (TosetStr.isToset tos))
+                                     (isToset→isPoset (TosetStr.isToset tos))
 
 Toset→Loset : (tos : Toset ℓ ℓ') → Discrete (fst tos) → Loset ℓ (ℓ-max ℓ ℓ')
 Toset→Loset (_ , tos) disc
   = _ , losetstr (BinaryRelation.IrreflKernel (TosetStr._≤_ tos))
-                       (isToset→IsLosetIrreflKernel disc
+                       (isToset→isLosetIrreflKernel disc
                                                     (TosetStr.isToset tos))

@@ -188,7 +188,7 @@ module _
 
   private
     pre : IsPreorder _≤_
-    pre = isPoset→IsPreorder pos
+    pre = isPoset→isPreorder pos
 
     anti : BinaryRelation.isAntisym _≤_
     anti = IsPoset.is-antisym pos
@@ -255,7 +255,7 @@ module _
     conn = IsToset.is-strongly-connected tos
 
     pre : IsPreorder _≤_
-    pre = isPoset→IsPreorder (isToset→IsPoset tos)
+    pre = isPoset→isPreorder (isToset→isPoset tos)
 
     toA : (fst P) → A
     toA = fst (snd P)

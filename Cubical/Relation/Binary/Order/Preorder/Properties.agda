@@ -23,8 +23,8 @@ module _
 
   open BinaryRelation
 
-  isPreorder→IsEquivRelSymKernel : IsPreorder R → isEquivRel (SymKernel R)
-  isPreorder→IsEquivRelSymKernel preorder
+  isPreorder→isEquivRelSymKernel : IsPreorder R → isEquivRel (SymKernel R)
+  isPreorder→isEquivRelSymKernel preorder
     = equivRel (λ a → (IsPreorder.is-refl preorder a)
                     , (IsPreorder.is-refl preorder a))
                (isSymSymKernel R)
@@ -32,8 +32,8 @@ module _
                  → IsPreorder.is-trans preorder a b c Rab Rbc
                  , IsPreorder.is-trans preorder c b a Rcb Rba)
 
-  isPreorder→IsStrictPosetAsymKernel : IsPreorder R → IsStrictPoset (AsymKernel R)
-  isPreorder→IsStrictPosetAsymKernel preorder
+  isPreorder→isStrictPosetAsymKernel : IsPreorder R → IsStrictPoset (AsymKernel R)
+  isPreorder→isStrictPosetAsymKernel preorder
     = isstrictposet (IsPreorder.is-set preorder)
                     (λ a b → isProp× (IsPreorder.is-prop-valued preorder a b) (isProp¬ (R b a)))
                     (λ a (Raa , ¬Raa) → ¬Raa (IsPreorder.is-refl preorder a))
@@ -45,4 +45,4 @@ module _
 Preorder→StrictPoset : Preorder ℓ ℓ' → StrictPoset ℓ ℓ'
 Preorder→StrictPoset (_ , pre)
   = _ , strictposetstr (BinaryRelation.AsymKernel (PreorderStr._≲_ pre))
-                       (isPreorder→IsStrictPosetAsymKernel (PreorderStr.isPreorder pre))
+                       (isPreorder→isStrictPosetAsymKernel (PreorderStr.isPreorder pre))
