@@ -183,3 +183,41 @@ isPoset≤ = isposet
            isRefl≤
            isTrans≤
            isAntisym≤
+
+_/_ : (A : Woset ℓ ℓ') → (a : ⟨ A ⟩ ) → Woset (ℓ-max ℓ ℓ') ℓ'
+A / a = (Σ[ b ∈ ⟨ A ⟩ ] b ≺ a)
+      , wosetstr _≺ᵢ_ (iswoset
+        setᵢ
+        propᵢ
+        (λ (x , x≺a)
+        → WFI.induction well {P = λ x' → (x'≺a : x' ≺ a)
+                                       → Acc _≺ᵢ_ (x' , x'≺a)}
+            (λ _ ind _ → acc (λ (y , y≺a) y≺x'
+                       → ind y y≺x' y≺a)) x x≺a)
+        (≺Equiv→≡→isWeaklyExtensional _≺ᵢ_ setᵢ propᵢ
+          (λ (x , x≺a) (y , y≺a) f
+           → Σ≡Prop (λ b → prop b a)
+             (isWeaklyExtensional→≺Equiv→≡ _≺_ weak x y
+              λ c → propBiimpl→Equiv (prop c x) (prop c y)
+               (λ c≺x → f (c , trans c x a c≺x x≺a) .fst c≺x)
+                λ c≺y → f (c , trans c y a c≺y y≺a) .snd c≺y)))
+         λ (x , _) (y , _) (z , _) x≺y y≺z → trans x y z x≺y y≺z)
+  where _≺_ = WosetStr._≺_ (str A)
+        wos = WosetStr.isWoset (str A)
+        set = IsWoset.is-set wos
+        prop = IsWoset.is-prop-valued wos
+        well = IsWoset.is-well-founded wos
+        weak = IsWoset.is-weakly-extensional wos
+        trans = IsWoset.is-trans wos
+
+        _≺ᵢ_ = BinaryRelation.InducedRelation _≺_
+               ((Σ[ b ∈ ⟨ A ⟩ ] b ≺ a)
+               , EmbeddingΣProp λ b → prop b a)
+        setᵢ = isSetΣ set (λ b → isProp→isSet (prop b a))
+        propᵢ = λ (x , _) (y , _) → prop x y
+
+isBounded : (A B : Woset ℓ ℓ') → A ≤ B → Type (ℓ-max ℓ ℓ')
+isBounded A B _ = Σ[ b ∈ ⟨ B ⟩ ] WosetEquiv A (B / b)
+
+_<_ : Rel (Woset ℓ ℓ') (Woset ℓ ℓ') (ℓ-max ℓ ℓ')
+A < B = Σ[ f ∈ A ≤ B ] isBounded A B f

@@ -26,11 +26,11 @@ module _ {ℓ ℓ'} {A : Type ℓ} (_≺_ : Rel A A ℓ') where
      definition.
   -}
 
-  ≺Equiv→≡→IsWeaklyExtensional : isSet A → BinaryRelation.isPropValued _≺_
+  ≺Equiv→≡→isWeaklyExtensional : isSet A → BinaryRelation.isPropValued _≺_
                              → ((x y : A) → (∀ z → ((z ≺ x) → (z ≺ y))
                                                  × ((z ≺ y) → (z ≺ x))) → x ≡ y)
                              → isWeaklyExtensional
-  ≺Equiv→≡→IsWeaklyExtensional setA prop f a b
+  ≺Equiv→≡→isWeaklyExtensional setA prop f a b
     = propBiimpl→Equiv (setA a b)
                        (isPropΠ (λ z → isOfHLevel≃ 1
                                                    (prop z a)
