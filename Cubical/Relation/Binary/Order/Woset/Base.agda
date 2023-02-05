@@ -81,6 +81,12 @@ record IsWosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   field
     pres≺ : (x y : A) → x M.≺ y ≃ equivFun e x N.≺ equivFun e y
 
+  pres≺⁻ : (x y : B) → x N.≺ y ≃ invEq e x M.≺ invEq e y
+  pres≺⁻ x y = invEquiv
+                 (pres≺ (invEq e x) (invEq e y) ∙ₑ
+                  substEquiv (N._≺ equivFun e (invEq e y)) (secEq e x) ∙ₑ
+                  substEquiv (x N.≺_) (secEq e y))
+
 
 WosetEquiv : (M : Woset ℓ₀ ℓ₀') (M : Woset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 WosetEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsWosetEquiv (M .snd) e (N .snd)
@@ -93,6 +99,17 @@ isPropIsWoset _≺_ = isOfHLevelRetractFromIso 1 IsWosetIsoΣ
                          isPropWellFounded
                          (isPropIsWeaklyExtensional _≺_)
                          (isPropΠ5 λ x _ z _ _ → isPropValued≺ x z))
+
+private
+  unquoteDecl IsWosetEquivIsoΣ = declareRecordIsoΣ IsWosetEquivIsoΣ (quote IsWosetEquiv)
+
+isPropIsWosetEquiv : {A : Type ℓ₀} {B : Type ℓ₁}
+                   → (M : WosetStr ℓ₀' A) (e : A ≃ B) (N : WosetStr ℓ₁' B)
+                   → isProp (IsWosetEquiv M e N)
+isPropIsWosetEquiv M e N = isOfHLevelRetractFromIso 1 IsWosetEquivIsoΣ
+  (isPropΠ2 λ x y → isOfHLevel≃ 1
+    (IsWoset.is-prop-valued (WosetStr.isWoset M) x y)
+    (IsWoset.is-prop-valued (WosetStr.isWoset N) (e .fst x) (e .fst y)))
 
 𝒮ᴰ-Woset : DUARel (𝒮-Univ ℓ) (WosetStr ℓ') (ℓ-max ℓ ℓ')
 𝒮ᴰ-Woset =
@@ -107,6 +124,54 @@ isPropIsWoset _≺_ = isOfHLevelRetractFromIso 1 IsWosetIsoΣ
 
 WosetPath : (M N : Woset ℓ ℓ') → WosetEquiv M N ≃ (M ≡ N)
 WosetPath = ∫ 𝒮ᴰ-Woset .UARel.ua
+
+isSetWoset : isSet (Woset ℓ ℓ')
+isSetWoset M N = isOfHLevelRespectEquiv 1 (WosetPath M N)
+  λ ((f , eqf) , wqf) ((g , eqg) , wqg)
+    → Σ≡Prop (λ e → isPropIsWosetEquiv (str M) e (str N))
+      (Σ≡Prop (λ _ → isPropIsEquiv _)
+        (funExt (WFI.induction wellM λ a ind
+          → isWeaklyExtensional→≺Equiv→≡ _≺ₙ_ weakN (f a) (g a) λ c
+            → propBiimpl→Equiv (propN c (f a)) (propN c (g a))
+  (λ c≺ₙfa → subst (_≺ₙ g a) (secEq (g , eqg) c)
+               (equivFun (IsWosetEquiv.pres≺ wqg (invEq (g , eqg) c) a)
+                (subst (_≺ₘ a)
+                 (sym
+                  (cong (invEq (g , eqg))
+                   (sym (secEq (f , eqf) c)
+                   ∙ ind (invEq (f , eqf) c)
+                    (subst (invEq (f , eqf) c ≺ₘ_) (retEq (f , eqf) a)
+                     (equivFun (IsWosetEquiv.pres≺⁻ wqf c (f a)) c≺ₙfa)))
+                   ∙ retEq (g , eqg) (invEq (f , eqf) c)))
+                 (subst (invEq (f , eqf) c ≺ₘ_)
+                   (retEq (f , eqf) a)
+                     (equivFun
+                       (IsWosetEquiv.pres≺⁻ wqf c (f a)) c≺ₙfa)))))
+   λ c≺ₙga → subst (_≺ₙ f a) (secEq (f , eqf) c)
+               (equivFun (IsWosetEquiv.pres≺ wqf (invEq (f , eqf) c) a)
+                 (subst (_≺ₘ a)
+                   (sym
+                     (retEq (f , eqf) (invEq (g , eqg) c))
+                     ∙ cong (invEq (f , eqf))
+                      (ind (invEq (g , eqg) c)
+                       (subst (invEq (g , eqg) c ≺ₘ_) (retEq (g , eqg) a)
+                        (equivFun (IsWosetEquiv.pres≺⁻ wqg c (g a)) c≺ₙga))
+                       ∙ secEq (g , eqg) c))
+                   (subst (invEq (g , eqg) c ≺ₘ_)
+                     (retEq (g , eqg) a)
+                       (equivFun
+                         (IsWosetEquiv.pres≺⁻ wqg c (g a)) c≺ₙga)))))))
+  where _≺ₘ_ = WosetStr._≺_ (str M)
+        _≺ₙ_ = WosetStr._≺_ (str N)
+
+        wosM = WosetStr.isWoset (str M)
+        wosN = WosetStr.isWoset (str N)
+
+        wellM = IsWoset.is-well-founded (wosM)
+
+        weakN = IsWoset.is-weakly-extensional (wosN)
+
+        propN = IsWoset.is-prop-valued (wosN)
 
 -- an easier way of establishing an equivalence of wosets
 module _ {P : Woset ℓ₀ ℓ₀'} {S : Woset ℓ₁ ℓ₁'} (e : ⟨ P ⟩ ≃ ⟨ S ⟩) where
