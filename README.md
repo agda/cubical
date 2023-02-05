@@ -7,7 +7,7 @@ There is also a [discord server](https://discord.gg/yjTKHzepMx), shared with [ag
 
 Compiling, using and installing
 -------------------------------
-This library compiles with the latest official release of
+This library checks with the latest official release of
 [Agda](https://github.com/agda/agda/). For detailed install
 instructions see the
 [INSTALL](https://github.com/agda/cubical/blob/master/INSTALL.md)
@@ -23,6 +23,11 @@ Agda versions as written below, correspond to tags.
 | `v0.3`                  | `v2.6.2`       |
 | `v0.2`                  | `v2.6.1.3`     |
 | `v0.1`                  | `v2.6.0.1`     |
+
+For example, if you have Agda 2.6.2.2, you can switch to version 0.4 of the cubical library with
+```
+git checkout v0.4
+```
 
 Learning materials
 ------------------
