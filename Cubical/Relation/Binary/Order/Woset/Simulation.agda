@@ -184,8 +184,8 @@ isPoset≤ = isposet
            isTrans≤
            isAntisym≤
 
-_/_ : (A : Woset ℓ ℓ') → (a : ⟨ A ⟩ ) → Woset (ℓ-max ℓ ℓ') ℓ'
-A / a = (Σ[ b ∈ ⟨ A ⟩ ] b ≺ a)
+_↓_ : (A : Woset ℓ ℓ') → (a : ⟨ A ⟩ ) → Woset (ℓ-max ℓ ℓ') ℓ'
+A ↓ a = (Σ[ b ∈ ⟨ A ⟩ ] b ≺ a)
       , wosetstr _≺ᵢ_ (iswoset
         setᵢ
         propᵢ
@@ -215,9 +215,3 @@ A / a = (Σ[ b ∈ ⟨ A ⟩ ] b ≺ a)
                , EmbeddingΣProp λ b → prop b a)
         setᵢ = isSetΣ set (λ b → isProp→isSet (prop b a))
         propᵢ = λ (x , _) (y , _) → prop x y
-
-isBounded : (A B : Woset ℓ ℓ') → A ≤ B → Type (ℓ-max ℓ ℓ')
-isBounded A B _ = Σ[ b ∈ ⟨ B ⟩ ] WosetEquiv A (B / b)
-
-_<_ : Rel (Woset ℓ ℓ') (Woset ℓ ℓ') (ℓ-max ℓ ℓ')
-A < B = Σ[ f ∈ A ≤ B ] isBounded A B f
