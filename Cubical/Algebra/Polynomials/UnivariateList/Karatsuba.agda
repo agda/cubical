@@ -182,139 +182,160 @@ module _ (R' : CommRing ℓ) where
         a ∷ b ∷ p ∎
 
 
+  -- custom recursor
+  module _ {B : Type ℓ'}
+           ([]* : B)
+           (sing* : R → B)
+           (doubleCons* : R → R → R[X] → B)
+           (sing*0≡[]* : sing* 0r ≡ []*)
+           (duobleCons*≡sing* : ∀ a → doubleCons* a 0r [] ≡ sing* a) where
+
+    doubleConsRec : R[X] → B
+    doubleConsRec [] = []*
+    doubleConsRec [ a ] = sing* a
+    doubleConsRec (a ∷ b ∷ p) = doubleCons* a b p
+    doubleConsRec (a ∷ drop0 i) = duobleCons*≡sing* a i
+    doubleConsRec (drop0 i) = sing*0≡[]* i
+
+
   -- the algorithm
   karatsubaRec : ℕ → R[X] → R[X] → R[X]
   karatsubaRec zero p q = p · q
   -- should do pattern-matching on p and q!!!!!
   -- or two args ℕ,
   -- and only do algorithm when "deg p & q ≥ 2"
-  karatsubaRec (suc n) p q = let
-    pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
-    pₒqₒ = karatsubaRec n  (p ₒ) (q ₒ)
-    [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
-    in evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
+  karatsubaRec (suc n) = doubleConsRec
+                           (λ _ → []) -- [] · _ = []
+                           {!!}
+                           {!!}
+                           {!!} {!!}
+  --  let
+    -- pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
+    -- pₒqₒ = karatsubaRec n  (p ₒ) (q ₒ)
+    -- [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
+    -- in evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
 
 
-  karatsubaRec≡ : ∀ (n : ℕ) (p q : R[X]) → karatsubaRec n p q ≡ p · q
-  karatsubaRec≡ zero _ _ = refl
-  karatsubaRec≡ (suc n) p q = path
-    where
-    pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
-    pₒqₒ = karatsubaRec n  (p ₒ) (q ₒ)
-    [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
+  -- karatsubaRec≡ : ∀ (n : ℕ) (p q : R[X]) → karatsubaRec n p q ≡ p · q
+  -- karatsubaRec≡ zero _ _ = refl
+  -- karatsubaRec≡ (suc n) p q = path
+  --   where
+  --   pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
+  --   pₒqₒ = karatsubaRec n  (p ₒ) (q ₒ)
+  --   [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
 
-    -- why doesn't this work
-    useSolver : ∀ (x pₑX² pₒX² qₑX² qₒX² : R[X])
-              → pₑX² · qₑX²
-                  + x · ((pₑX² + pₒX²) · (qₑX² + qₒX²) - (pₑX² · qₑX²) - (pₒX² · qₒX²))
-                  + (x · x) · (pₒX² · qₒX²)
-              ≡ (pₑX² + x · pₒX²) · (qₑX² + x · qₒX²)
-    useSolver = solve (UnivariatePolyList R')
+  --   -- why doesn't this work
+  --   useSolver : ∀ (x pₑX² pₒX² qₑX² qₒX² : R[X])
+  --             → pₑX² · qₑX²
+  --                 + x · ((pₑX² + pₒX²) · (qₑX² + qₒX²) - (pₑX² · qₑX²) - (pₒX² · qₒX²))
+  --                 + (x · x) · (pₒX² · qₒX²)
+  --             ≡ (pₑX² + x · pₒX²) · (qₑX² + x · qₒX²)
+  --   useSolver = solve (UnivariatePolyList R')
 
-    path : evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
-         ≡ p · q
-    path =
-       evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
+  --   path : evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
+  --        ≡ p · q
+  --   path =
+  --      evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
 
-     ≡⟨ cong₂
-          (λ x y →
-             evalAtX² x + X · evalAtX² ([pₑ+pₒ][qₑ+qₒ] - x - y) + X² · evalAtX² y)
-          (karatsubaRec≡ n  (p ₑ) (q ₑ))
-          (karatsubaRec≡ n  (p ₒ) (q ₒ)) ⟩
+  --    ≡⟨ cong₂
+  --         (λ x y →
+  --            evalAtX² x + X · evalAtX² ([pₑ+pₒ][qₑ+qₒ] - x - y) + X² · evalAtX² y)
+  --         (karatsubaRec≡ n  (p ₑ) (q ₑ))
+  --         (karatsubaRec≡ n  (p ₒ) (q ₒ)) ⟩
 
-       evalAtX² (p ₑ · q ₑ)
-         + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - (p ₑ · q ₑ) - (p ₒ · q ₒ))
-         + X² · evalAtX² (p ₒ · q ₒ)
+  --      evalAtX² (p ₑ · q ₑ)
+  --        + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - (p ₑ · q ₑ) - (p ₒ · q ₒ))
+  --        + X² · evalAtX² (p ₒ · q ₒ)
 
-     ≡⟨ cong (λ x → evalAtX² (p ₑ · q ₑ)
-         + X · evalAtX²(x - (p ₑ · q ₑ) - (p ₒ · q ₒ))
-         + X² · evalAtX² (p ₒ · q ₒ)) (karatsubaRec≡ n  (p ₑ + p ₒ) (q ₑ + q ₒ)) ⟩
+  --    ≡⟨ cong (λ x → evalAtX² (p ₑ · q ₑ)
+  --        + X · evalAtX²(x - (p ₑ · q ₑ) - (p ₒ · q ₒ))
+  --        + X² · evalAtX² (p ₒ · q ₒ)) (karatsubaRec≡ n  (p ₑ + p ₒ) (q ₑ + q ₒ)) ⟩
 
-       evalAtX² (p ₑ · q ₑ)
-         + X · evalAtX²((p ₑ + p ₒ) · (q ₑ + q ₒ) - p ₑ · q ₑ - p ₒ · q ₒ)
-         + X² · evalAtX² (p ₒ · q ₒ)
+  --      evalAtX² (p ₑ · q ₑ)
+  --        + X · evalAtX²((p ₑ + p ₒ) · (q ₑ + q ₒ) - p ₑ · q ₑ - p ₒ · q ₒ)
+  --        + X² · evalAtX² (p ₒ · q ₒ)
 
-     ≡⟨ cong (λ x → evalAtX² (p ₑ · q ₑ) + X · x +  X² · evalAtX² (p ₒ · q ₒ))
-             (evalAtX²Pres-bin _ (p ₒ · q ₒ)) ⟩
+  --    ≡⟨ cong (λ x → evalAtX² (p ₑ · q ₑ) + X · x +  X² · evalAtX² (p ₒ · q ₒ))
+  --            (evalAtX²Pres-bin _ (p ₒ · q ₒ)) ⟩
 
-       evalAtX² (p ₑ · q ₑ)
-         + X · (evalAtX² ((p ₑ + p ₒ) · (q ₑ + q ₒ) - p ₑ · q ₑ)
-                  - evalAtX² (p ₒ · q ₒ))
-         + X² · evalAtX² (p ₒ · q ₒ)
+  --      evalAtX² (p ₑ · q ₑ)
+  --        + X · (evalAtX² ((p ₑ + p ₒ) · (q ₑ + q ₒ) - p ₑ · q ₑ)
+  --                 - evalAtX² (p ₒ · q ₒ))
+  --        + X² · evalAtX² (p ₒ · q ₒ)
 
-     ≡⟨ cong (λ x → evalAtX² (p ₑ · q ₑ)
-               + X · (x - evalAtX² (p ₒ · q ₒ)) +  X² · evalAtX² (p ₒ · q ₒ))
-             (evalAtX²Pres-bin _ (p ₑ · q ₑ)) ⟩
+  --    ≡⟨ cong (λ x → evalAtX² (p ₑ · q ₑ)
+  --              + X · (x - evalAtX² (p ₒ · q ₒ)) +  X² · evalAtX² (p ₒ · q ₒ))
+  --            (evalAtX²Pres-bin _ (p ₑ · q ₑ)) ⟩
 
-       evalAtX² (p ₑ · q ₑ)
-         + X · (evalAtX² ((p ₑ + p ₒ) · (q ₑ + q ₒ))
-                 - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
-         + X² · evalAtX² (p ₒ · q ₒ)
+  --      evalAtX² (p ₑ · q ₑ)
+  --        + X · (evalAtX² ((p ₑ + p ₒ) · (q ₑ + q ₒ))
+  --                - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
+  --        + X² · evalAtX² (p ₒ · q ₒ)
 
-     ≡⟨ cong (λ x → evalAtX² (p ₑ · q ₑ)
-         + X · (x - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
-         + X² · evalAtX² (p ₒ · q ₒ)) (evalAtX²Pres· (p ₑ + p ₒ) _) ⟩
+  --    ≡⟨ cong (λ x → evalAtX² (p ₑ · q ₑ)
+  --        + X · (x - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
+  --        + X² · evalAtX² (p ₒ · q ₒ)) (evalAtX²Pres· (p ₑ + p ₒ) _) ⟩
 
-       evalAtX² (p ₑ · q ₑ)
-         + X · (evalAtX² (p ₑ + p ₒ) · evalAtX² (q ₑ + q ₒ)
-                 - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
-         + X² · evalAtX² (p ₒ · q ₒ)
+  --      evalAtX² (p ₑ · q ₑ)
+  --        + X · (evalAtX² (p ₑ + p ₒ) · evalAtX² (q ₑ + q ₒ)
+  --                - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
+  --        + X² · evalAtX² (p ₒ · q ₒ)
 
-     ≡⟨  cong₂ (λ x y → evalAtX² (p ₑ · q ₑ)
-         + X · (x · y - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
-         + X² · evalAtX² (p ₒ · q ₒ)) (evalAtX²Pres+ (p ₑ) (p ₒ))
-                                      (evalAtX²Pres+ (q ₑ) (q ₒ)) ⟩
+  --    ≡⟨  cong₂ (λ x y → evalAtX² (p ₑ · q ₑ)
+  --        + X · (x · y - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
+  --        + X² · evalAtX² (p ₒ · q ₒ)) (evalAtX²Pres+ (p ₑ) (p ₒ))
+  --                                     (evalAtX²Pres+ (q ₑ) (q ₒ)) ⟩
 
-       evalAtX² (p ₑ · q ₑ)
-         + X · ((evalAtX² (p ₑ) + evalAtX² (p ₒ)) · (evalAtX² (q ₑ) + evalAtX² (q ₒ))
-                 - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
-         + X² · evalAtX² (p ₒ · q ₒ)
+  --      evalAtX² (p ₑ · q ₑ)
+  --        + X · ((evalAtX² (p ₑ) + evalAtX² (p ₒ)) · (evalAtX² (q ₑ) + evalAtX² (q ₒ))
+  --                - evalAtX² (p ₑ · q ₑ) - evalAtX² (p ₒ · q ₒ))
+  --        + X² · evalAtX² (p ₒ · q ₒ)
 
-     ≡⟨ cong₂ (λ x y → x
-         + X · ((evalAtX² (p ₑ) + evalAtX² (p ₒ)) · (evalAtX² (q ₑ) + evalAtX² (q ₒ))
-                 - x - y)
-         + X² · y) (evalAtX²Pres· (p ₑ) (q ₑ)) (evalAtX²Pres· (p ₒ) (q ₒ)) ⟩
+  --    ≡⟨ cong₂ (λ x y → x
+  --        + X · ((evalAtX² (p ₑ) + evalAtX² (p ₒ)) · (evalAtX² (q ₑ) + evalAtX² (q ₒ))
+  --                - x - y)
+  --        + X² · y) (evalAtX²Pres· (p ₑ) (q ₑ)) (evalAtX²Pres· (p ₒ) (q ₒ)) ⟩
 
-       evalAtX² (p ₑ) · evalAtX² (q ₑ)
-         + X · ((evalAtX² (p ₑ) + evalAtX² (p ₒ)) · (evalAtX² (q ₑ) + evalAtX² (q ₒ))
-                 - evalAtX² (p ₑ) · evalAtX² (q ₑ) - evalAtX² (p ₒ) · evalAtX² (q ₒ))
-         + X² · (evalAtX² (p ₒ) · evalAtX² (q ₒ))
+  --      evalAtX² (p ₑ) · evalAtX² (q ₑ)
+  --        + X · ((evalAtX² (p ₑ) + evalAtX² (p ₒ)) · (evalAtX² (q ₑ) + evalAtX² (q ₒ))
+  --                - evalAtX² (p ₑ) · evalAtX² (q ₑ) - evalAtX² (p ₒ) · evalAtX² (q ₒ))
+  --        + X² · (evalAtX² (p ₒ) · evalAtX² (q ₒ))
 
-     ≡⟨ useSolver X (evalAtX² (p ₑ)) (evalAtX² (p ₒ)) (evalAtX² (q ₑ)) (evalAtX² (q ₒ)) ⟩
+  --    ≡⟨ useSolver X (evalAtX² (p ₑ)) (evalAtX² (p ₒ)) (evalAtX² (q ₑ)) (evalAtX² (q ₒ)) ⟩
 
-       (evalAtX² (p ₑ) + X · evalAtX² (p ₒ)) · (evalAtX² (q ₑ) + X · evalAtX² (q ₒ))
+  --      (evalAtX² (p ₑ) + X · evalAtX² (p ₒ)) · (evalAtX² (q ₑ) + X · evalAtX² (q ₒ))
 
-     ≡⟨ cong₂ (_·_) (splitPoly p) (splitPoly q) ⟩
+  --    ≡⟨ cong₂ (_·_) (splitPoly p) (splitPoly q) ⟩
 
-       p · q ∎
-
-
-  karatsubaTruncRec : ∥ ℕ ∥₁ → R[X] → R[X] → R[X]
-  karatsubaTruncRec = rec→Set (isSetΠ2 λ _ _ → isSetPoly)
-                        karatsubaRec
-                        λ n m → funExt
-                          λ p → funExt
-                            λ q → karatsubaRec≡ n p q ∙ sym (karatsubaRec≡ m p q)
+  --      p · q ∎
 
 
-  -- can't define a degree or even upper bound (i.e. length of representing list)
-  -- but something like it:
-  truncLength : R[X] → ∥ ℕ ∥₁
-  truncLength [] = ∣ 0 ∣₁
-  truncLength (a ∷ p) = map suc (truncLength p)
-  truncLength (drop0 i) = squash₁ ∣ 1 ∣₁ ∣ 0 ∣₁ i
+  -- karatsubaTruncRec : ∥ ℕ ∥₁ → R[X] → R[X] → R[X]
+  -- karatsubaTruncRec = rec→Set (isSetΠ2 λ _ _ → isSetPoly)
+  --                       karatsubaRec
+  --                       λ n m → funExt
+  --                         λ p → funExt
+  --                           λ q → karatsubaRec≡ n p q ∙ sym (karatsubaRec≡ m p q)
 
-  karatsuba : R[X] → R[X] → R[X]
-  karatsuba p q =
-    let upperBound = map2 max (truncLength p) (truncLength q)
-    in karatsubaTruncRec upperBound p q
 
-  -- to be erased:
-  -- Rings and polynomials in files --erased-cubical
-  -- erase all the proofs (of equality)
-  -- erased prop trunc
-  -- erased version rec→Set
+  -- -- can't define a degree or even upper bound (i.e. length of representing list)
+  -- -- but something like it:
+  -- truncLength : R[X] → ∥ ℕ ∥₁
+  -- truncLength [] = ∣ 0 ∣₁
+  -- truncLength (a ∷ p) = map suc (truncLength p)
+  -- truncLength (drop0 i) = squash₁ ∣ 1 ∣₁ ∣ 0 ∣₁ i
 
-  -- optional
-  -- erased polynomials
-  -- accessibility relation
+  -- karatsuba : R[X] → R[X] → R[X]
+  -- karatsuba p q =
+  --   let upperBound = map2 max (truncLength p) (truncLength q)
+  --   in karatsubaTruncRec upperBound p q
+
+  -- -- to be erased:
+  -- -- Rings and polynomials in files --erased-cubical
+  -- -- erase all the proofs (of equality)
+  -- -- erased prop trunc
+  -- -- erased version rec→Set
+
+  -- -- optional
+  -- -- erased polynomials
+  -- -- accessibility relation
