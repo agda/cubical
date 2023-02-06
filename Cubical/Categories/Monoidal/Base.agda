@@ -6,7 +6,6 @@ module Cubical.Categories.Monoidal.Base where
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functor.BinProduct
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Foundations.Prelude
@@ -17,7 +16,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
   record TensorStr : Type (ℓ-max ℓ ℓ') where
       field
-        ─⊗─ : Functor (C × C) C
+        ─⊗─ : Functor (C ×C C) C
         unit : ob
 
       open Functor
@@ -52,10 +51,10 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
     private
       -- Private names to make the axioms below look nice
-      x⊗[y⊗z] : Functor (C × C × C) C
+      x⊗[y⊗z] : Functor (C ×C C ×C C) C
       x⊗[y⊗z] = ─⊗─ ∘F (𝟙⟨ C ⟩ ×F ─⊗─)
 
-      [x⊗y]⊗z : Functor (C × C × C) C
+      [x⊗y]⊗z : Functor (C ×C C ×C C) C
       [x⊗y]⊗z = ─⊗─ ∘F (─⊗─ ×F 𝟙⟨ C ⟩) ∘F (×C-assoc C C C)
 
       x = 𝟙⟨ C ⟩

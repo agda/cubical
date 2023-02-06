@@ -38,3 +38,10 @@ included-files:
   - "**.y"
   - "**.yaml"
   - "**.yml"
+
+# Do not check whitespaces in the clone of the agda repo.
+# This is a workaround for a ci problem, it would probably
+# be better to have the agda repo not in the working
+# directory there...
+excluded-dirs:
+  - "agda"

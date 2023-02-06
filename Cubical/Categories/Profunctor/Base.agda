@@ -63,7 +63,7 @@ module _ (ℓ ℓ' : Level) where
   -- The mnemonic is that the open side of the symbol indicates the
   -- contravariant variable in that it is similar to an "op"
   PROF⊶ : (C D : Cat) → Category _ _
-  PROF⊶ C D = FUNCTOR ((C ^op) × D) (SET ℓ')
+  PROF⊶ C D = FUNCTOR ((C ^op) ×C D) (SET ℓ')
 
   PROF⊷ : (C D : Cat) → Category _ _
   PROF⊷ C D = PROF⊶ D C
