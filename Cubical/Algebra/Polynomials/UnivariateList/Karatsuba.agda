@@ -198,23 +198,39 @@ module _ (R' : CommRing ℓ) where
     doubleConsRec (drop0 i) = sing*0≡[]* i
 
 
-  -- the algorithm
+  -- the algorithm with fuel and it's correctness
   karatsubaRec : ℕ → R[X] → R[X] → R[X]
   karatsubaRec zero p q = p · q
-  -- should do pattern-matching on p and q!!!!!
-  -- or two args ℕ,
-  -- and only do algorithm when "deg p & q ≥ 2"
+  -- only do algorithm when "deg p & q ≥ 2"
+  -- otherwise e.g. pₑ=p and the algorithm will run until it's out of fuel
   karatsubaRec (suc n) = doubleConsRec
-                           (λ _ → []) -- [] · _ = []
-                           {!!}
-                           {!!}
-                           {!!} {!!}
-  --  let
-    -- pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
-    -- pₒqₒ = karatsubaRec n  (p ₒ) (q ₒ)
-    -- [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
-    -- in evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
+    (λ _ → []) -- multiplication with empty polynomial
+      _PolyConst*_ -- multiplication with constant polynomial
+        karaRecLeft -- recusrisve step
+          (funExt (λ x →  0rLeftAnnihilatesPoly x ∙ drop0 )) -- paths
+            karaRecLeftPath -- paths
 
+    where
+    karaRecLeft : R → R → R[X] → R[X] → R[X]
+    karaRecLeft a b p' = let p = a ∷ b ∷ p' in doubleConsRec
+      [] -- multiplication with empty polynomial
+        (λ r → r PolyConst* p) -- multiplication with constant polynomial
+          karaRecLeftRight -- the actual recursive step
+            (0rLeftAnnihilatesPoly p ∙ drop0) -- paths
+              {!!} -- paths
+      where
+      karaRecLeftRight : R → R → R[X] → R[X]
+      karaRecLeftRight a' b' q' = let
+        p = a ∷ b ∷ p'
+        q = a' ∷ b' ∷ q'
+        pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
+        pₒqₒ = karatsubaRec n  (p ₒ) (q ₒ)
+        [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
+        in evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
+
+    karaRecLeftPath : ∀ a → karaRecLeft a 0r [] ≡ a PolyConst*_
+    karaRecLeftPath a = {!funExt!}
+    -- funExt (ElimProp _ refl {!!} (isSetPoly _ _))
 
   -- karatsubaRec≡ : ∀ (n : ℕ) (p q : R[X]) → karatsubaRec n p q ≡ p · q
   -- karatsubaRec≡ zero _ _ = refl
@@ -330,12 +346,12 @@ module _ (R' : CommRing ℓ) where
   --   let upperBound = map2 max (truncLength p) (truncLength q)
   --   in karatsubaTruncRec upperBound p q
 
-  -- -- to be erased:
-  -- -- Rings and polynomials in files --erased-cubical
-  -- -- erase all the proofs (of equality)
-  -- -- erased prop trunc
-  -- -- erased version rec→Set
+  -- to be erased:
+  -- Rings and polynomials in files --erased-cubical
+  -- erase all the proofs (of equality)
+  -- erased prop trunc
+  -- erased version rec→Set
 
-  -- -- optional
-  -- -- erased polynomials
-  -- -- accessibility relation
+  -- optional
+  -- erased polynomials
+  -- accessibility relation

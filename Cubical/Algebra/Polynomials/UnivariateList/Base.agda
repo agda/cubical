@@ -92,7 +92,7 @@ module PolyMod (R' : CommRing ℓ) where
              ([]* : B)
              (cons* : R → B → B)
              (drop0* : cons* 0r []* ≡ []*)
-             (Bset : isSet B) where
+             (Bset : isSet B) where -- doesn't need that B is a set!!!
     f : Poly R' → B
     f = Elim.f (λ _ → B) []* (λ r p b → cons* r b) drop0*
 
