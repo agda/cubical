@@ -208,7 +208,7 @@ module _ (R' : CommRing ℓ) where
       _PolyConst*_ -- multiplication with constant polynomial
         karaRecLeft -- recusrisve step
           (funExt (λ x →  0rLeftAnnihilatesPoly x ∙ drop0 )) -- paths
-            karaRecLeftPath -- paths
+            (λ a → funExt (karaRecLeftPath a)) -- paths
 
     where
     karaRecLeft : R → R → R[X] → R[X] → R[X]
@@ -217,7 +217,7 @@ module _ (R' : CommRing ℓ) where
         (λ r → r PolyConst* p) -- multiplication with constant polynomial
           karaRecLeftRight -- the actual recursive step
             (0rLeftAnnihilatesPoly p ∙ drop0) -- paths
-              {!!} -- paths
+              karaRecLeftRightPath -- paths
       where
       karaRecLeftRight : R → R → R[X] → R[X]
       karaRecLeftRight a' b' q' = let
@@ -228,13 +228,51 @@ module _ (R' : CommRing ℓ) where
         [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
         in evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
 
-    karaRecLeftPath : ∀ a → karaRecLeft a 0r [] ≡ a PolyConst*_
-    karaRecLeftPath a = {!funExt!}
+      karaRecLeftRightPath : ∀ a' → karaRecLeftRight a' 0r [] ≡ a' PolyConst* (a ∷ b ∷ p')
+      karaRecLeftRightPath a' = let
+        p = a ∷ b ∷ p'
+        q = a' ∷ 0r ∷ []
+        pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
+        pₒqₒ = karatsubaRec n  (p ₒ) (q ₒ)
+        [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
+        in evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
+        ≡⟨ {!karatsubaRec≡ n p q!} ⟩
+           p · q
+        ≡⟨ {!!} ⟩
+           a' PolyConst* p ∎
+
+    karaRecLeftPath : ∀ a p → karaRecLeft a 0r [] p ≡ a PolyConst* p
+    karaRecLeftPath a = ElimPropDoubleCons _ (λ _ → isSetPoly _ _) refl path
+      where
+      path : ∀ (b c : R) (p : R[X])
+           → karaRecLeft a 0r [] p ≡ a PolyConst* p
+           → karaRecLeft a 0r [] (b ∷ c ∷ p) ≡ a PolyConst* (b ∷ c ∷ p)
+      path b c p hyp = {!!}
     -- funExt (ElimProp _ refl {!!} (isSetPoly _ _))
+
+  -- karatsubaRec' : ℕ → R[X] → R[X] → R[X]
+  -- karatsubaRec' zero p q = p · q
+  -- karatsubaRec' (suc n) [] q = []
+  -- karatsubaRec' (suc n) [ a ] q = a PolyConst* q
+  -- karatsubaRec' (suc n) (a ∷ b ∷ p') [] = []
+  -- karatsubaRec' (suc n) (a ∷ b ∷ p') [ a' ] = a' PolyConst* (a ∷ b ∷ p')
+  -- karatsubaRec' (suc n) (a ∷ b ∷ p') (a' ∷ b' ∷ q') = let
+  --       p = a ∷ b ∷ p'
+  --       q = a' ∷ b' ∷ q'
+  --       pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
+  --       pₒqₒ = karatsubaRec n  (p ₒ) (q ₒ)
+  --       [pₑ+pₒ][qₑ+qₒ] = karatsubaRec n  (p ₑ + p ₒ) (q ₑ + q ₒ)
+  --    in evalAtX² pₑqₑ + X · evalAtX²([pₑ+pₒ][qₑ+qₒ] - pₑqₑ - pₒqₒ) + X² · evalAtX² pₒqₒ
+  -- karatsubaRec' (suc n) (a ∷ b ∷ p') (a' ∷ drop0 i) = {!!}
+  -- karatsubaRec' (suc n) (a ∷ b ∷ p') (drop0 i) = (0rLeftAnnihilatesPoly (a ∷ b ∷ p') ∙ drop0) i
+  -- karatsubaRec' (suc n) (a ∷ drop0 i) q = {!!}
+  -- karatsubaRec' (suc n) (drop0 i) q = (0rLeftAnnihilatesPoly q ∙ drop0) i
+
+
 
   -- karatsubaRec≡ : ∀ (n : ℕ) (p q : R[X]) → karatsubaRec n p q ≡ p · q
   -- karatsubaRec≡ zero _ _ = refl
-  -- karatsubaRec≡ (suc n) p q = path
+  -- karatsubaRec≡ (suc n) p q = {!!} -- path
   --   where
   --   pₑqₑ = karatsubaRec n  (p ₑ) (q ₑ)
   --   pₒqₒ = karatsubaRec n  (p ₒ) (q ₒ)
