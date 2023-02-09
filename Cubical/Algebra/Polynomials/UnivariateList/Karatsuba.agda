@@ -444,19 +444,18 @@ module _ (R' : CommRing ℓ) where
 
 
   -- alternative approach
-  module _ where
-    Multiplications = singl {A = R[X] → R[X] → R[X]} _·_
+  Multiplications = singl {A = R[X] → R[X] → R[X]} _·_
 
-    karatsubaRec' : ℕ → Multiplications
-    fst (karatsubaRec' n) = karatsubaRec n
-    snd (karatsubaRec' n) = sym (funExt₂ (λ p q → karatsubaRec≡ n p q))
+  karatsubaRec' : ℕ → Multiplications
+  fst (karatsubaRec' n) = karatsubaRec n
+  snd (karatsubaRec' n) = sym (funExt₂ (λ p q → karatsubaRec≡ n p q))
 
-    karatsubaTruncRec' : ∥ ℕ ∥₁ → Multiplications
-    karatsubaTruncRec' = rec (isContr→isProp (isContrSingl _)) karatsubaRec'
+  karatsubaTruncRec' : ∥ ℕ ∥₁ → Multiplications
+  karatsubaTruncRec' = rec (isContr→isProp (isContrSingl _)) karatsubaRec'
 
-    karatsuba' : R[X] → R[X] → R[X]
-    karatsuba' p q = let upperBound = map2 max (truncLength p) (truncLength q)
-                     in karatsubaTruncRec' upperBound .fst p q
+  karatsuba' : R[X] → R[X] → R[X]
+  karatsuba' p q = let upperBound = map2 max (truncLength p) (truncLength q)
+                   in karatsubaTruncRec' upperBound .fst p q
 
 
   -- to be erased:
