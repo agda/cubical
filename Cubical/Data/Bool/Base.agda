@@ -26,16 +26,12 @@ not true = false
 not false = true
 
 _or_ : Bool → Bool → Bool
-false or false = false
-false or true  = true
-true  or false = true
-true  or true  = true
+false or x = x
+true  or _ = true
 
 _and_ : Bool → Bool → Bool
-false and false = false
-false and true  = false
-true  and false = false
-true  and true  = true
+false and _ = false
+true  and x = x
 
 -- xor / mod-2 addition
 _⊕_ : Bool → Bool → Bool
