@@ -180,7 +180,7 @@ A ↓ a = (Σ[ b ∈ ⟨ A ⟩ ] b ≺ a)
                                        → Acc _≺ᵢ_ (x' , x'≺a)}
             (λ _ ind _ → acc (λ (y , y≺a) y≺x'
                        → ind y y≺x' y≺a)) x x≺a)
-        (≺Equiv→≡→isWeaklyExtensional _≺ᵢ_ setᵢ propᵢ
+        (≺×→≡→isWeaklyExtensional _≺ᵢ_ setᵢ propᵢ
           (λ (x , x≺a) (y , y≺a) f
            → Σ≡Prop (λ b → prop b a)
              (isWeaklyExtensional→≺Equiv→≡ _≺_ weak x y
@@ -202,8 +202,8 @@ A ↓ a = (Σ[ b ∈ ⟨ A ⟩ ] b ≺ a)
         setᵢ = isSetΣ set (λ b → isProp→isSet (prop b a))
         propᵢ = λ (x , _) (y , _) → prop x y
 
-isEmbedding↓ : {A : Woset ℓ ℓ'} → isEmbedding (A ↓_)
-isEmbedding↓ {A = A} = injEmbedding isSetWoset (unique _ _)
+isEmbedding↓ : (A : Woset ℓ ℓ') → isEmbedding (A ↓_)
+isEmbedding↓ A = injEmbedding isSetWoset (unique _ _)
   where _≺_ = WosetStr._≺_ (str A)
         wos = WosetStr.isWoset (str A)
         prop = IsWoset.is-prop-valued wos
@@ -318,7 +318,6 @@ isEmbedding↓ {A = A} = injEmbedding isSetWoset (unique _ _)
           , Σ≡Prop (λ _ → prop _ _)
            (Σ≡Prop (λ _ → prop _ _) refl)
 
-
 _<_ : Rel (Woset ℓ ℓ) (Woset ℓ ℓ) (ℓ-suc ℓ)
 A < B = fiber (B ↓_) A
 
@@ -326,10 +325,29 @@ A < B = fiber (B ↓_) A
             → (A ↓ a) < A
 ↓Decreasing A a = a , refl
 
--- Necessary intermediate to show the above is well-ordered
+↓Respects< : (A : Woset ℓ ℓ) → ∀ a b
+           → WosetStr._≺_ (str A) a b
+           → (A ↓ a) < (A ↓ b)
+↓Respects< A a b a≺b = (a , a≺b) , (↓Absorb A b a a≺b)
+
+↓Respects<⁻ : (A : Woset ℓ ℓ) → ∀ a b
+            → (A ↓ a) < (A ↓ b)
+            → WosetStr._≺_ (str A) a b
+↓Respects<⁻ A a b ((c , c≺b) , A↓b↓c≡A↓a)
+  = subst (_≺ b) (isEmbedding→Inj (isEmbedding↓ A) c a
+          (sym (↓Absorb A b c c≺b) ∙ A↓b↓c≡A↓a)) c≺b
+  where _≺_ = WosetStr._≺_ (str A)
+
+<Absorb↓ : (A B : Woset ℓ ℓ) → ∀ b
+         → A < (B ↓ b)
+         → A < B
+<Absorb↓ A B b ((b' , b'≺b) , B↓b↓b'≡A) = b'
+         , sym (↓Absorb B b b' b'≺b) ∙ B↓b↓b'≡A
+
+-- Necessary intermediates to show that _<_ is well-ordered
 private
   isPropValued< : BinaryRelation.isPropValued (_<_ {ℓ = ℓ})
-  isPropValued< A B = isEmbedding→hasPropFibers (isEmbedding↓ {A = B}) A
+  isPropValued< A B = isEmbedding→hasPropFibers (isEmbedding↓ B) A
 
   isAcc↓ : (A : Woset ℓ ℓ) → ∀ a → Acc _<_ (A ↓ a)
   isAcc↓ A = WFI.induction well λ a ind → acc (λ B B<A↓a
@@ -342,3 +360,49 @@ private
 
   isWellFounded< : WellFounded (_<_ {ℓ = ℓ})
   isWellFounded< A = acc (λ B B<A → subst (Acc _<_) (B<A .snd) (isAcc↓ A (B<A .fst)))
+
+  isTrans< : BinaryRelation.isTrans (_<_ {ℓ = ℓ})
+  isTrans< A _ C A<B (c , C↓c≡B) = <Absorb↓ A C c (subst (A <_) (sym C↓c≡B) A<B)
+
+  isWeaklyExtensional< : isWeaklyExtensional (_<_ {ℓ = ℓ})
+  isWeaklyExtensional< = ≺Equiv→≡→isWeaklyExtensional _<_ isSetWoset isPropValued< λ A B ex
+    → path A B ex
+      where path : (A B : Woset ℓ ℓ)
+                 → (∀ C → (C < A) ≃ (C < B))
+                 → A ≡ B
+            path A B ex = equivFun (WosetPath A B)
+                 (isoToEquiv (is A B ex)
+               , (makeIsWosetEquiv (isoToEquiv (is A B ex))
+                 (λ a a' a≺a' → ↓Respects<⁻ B _ _
+                   (subst2 _<_
+                     (sym (equivFun (ex (A ↓ a)) (↓Decreasing A a) .snd))
+                     (sym (equivFun (ex (A ↓ a')) (↓Decreasing A a') .snd))
+                     (↓Respects< A a a' a≺a')))
+                 λ b b' b≺b' → ↓Respects<⁻ A _ _
+                   (subst2 _<_
+                     (sym (invEq (ex (B ↓ b)) (↓Decreasing B b) .snd))
+                     (sym (invEq (ex (B ↓ b')) (↓Decreasing B b') .snd))
+                     (↓Respects< B b b' b≺b'))))
+              where is : (A B : Woset ℓ ℓ)
+                       → (∀ C → (C < A) ≃ (C < B))
+                       → Iso ⟨ A ⟩ ⟨ B ⟩
+                    Iso.fun (is A B ex) a = equivFun (ex (A ↓ a))
+                                            (↓Decreasing A a) .fst
+                    Iso.inv (is A B ex) b = invEq (ex (B ↓ b))
+                                            (↓Decreasing B b) .fst
+                    Iso.rightInv (is A B ex) p = isEmbedding→Inj
+                                 (isEmbedding↓ B) _ p
+                                 (equivFun (ex (A ↓ _)) (↓Decreasing A _) .snd
+                                 ∙ invEq (ex (B ↓ p)) (↓Decreasing B p) .snd)
+                    Iso.leftInv (is A B ex) p  = isEmbedding→Inj
+                                (isEmbedding↓ A) _ p
+                                (invEq (ex (B ↓ _)) (↓Decreasing B _) .snd
+                                ∙ equivFun (ex (A ↓ p)) (↓Decreasing A p) .snd)
+
+IsWoset< : IsWoset (_<_ {ℓ = ℓ})
+IsWoset< = iswoset
+           isSetWoset
+           isPropValued<
+           isWellFounded<
+           isWeaklyExtensional<
+           isTrans<

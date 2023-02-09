@@ -27,8 +27,7 @@ module _ {ℓ ℓ'} {A : Type ℓ} (_≺_ : Rel A A ℓ') where
   -}
 
   ≺Equiv→≡→isWeaklyExtensional : isSet A → BinaryRelation.isPropValued _≺_
-                             → ((x y : A) → (∀ z → ((z ≺ x) → (z ≺ y))
-                                                 × ((z ≺ y) → (z ≺ x))) → x ≡ y)
+                             → ((x y : A) → (∀ z → ((z ≺ x) ≃ (z ≺ y))) → x ≡ y)
                              → isWeaklyExtensional
   ≺Equiv→≡→isWeaklyExtensional setA prop f a b
     = propBiimpl→Equiv (setA a b)
@@ -36,7 +35,19 @@ module _ {ℓ ℓ'} {A : Type ℓ} (_≺_ : Rel A A ℓ') where
                                                    (prop z a)
                                                    (prop z b)))
                        (≡→≺Equiv a b)
-                       (λ g → f a b λ z → (g z .fst) , invEquiv (g z) .fst) .snd
+                       (λ g → f a b λ z → g z) .snd
+
+  ≺×→≡→isWeaklyExtensional : isSet A → BinaryRelation.isPropValued _≺_
+                            → ((x y : A) → (∀ z → ((z ≺ x) → (z ≺ y))
+                                                × ((z ≺ y) → (z ≺ x))) → x ≡ y)
+                            → isWeaklyExtensional
+  ≺×→≡→isWeaklyExtensional setA prop f a b
+    = propBiimpl→Equiv (setA a b)
+                       (isPropΠ (λ z → isOfHLevel≃ 1
+                                                   (prop z a)
+                                                   (prop z b)))
+                       (≡→≺Equiv a b)
+                       (λ g → f a b λ z → (g z .fst) , invEq (g z)) .snd
 
   isWeaklyExtensional→≺Equiv→≡ : isWeaklyExtensional
                                 → (x y : A) → (∀ z → (z ≺ x) ≃ (z ≺ y)) → x ≡ y
