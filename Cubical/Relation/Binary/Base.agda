@@ -91,8 +91,8 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isIrrefl×isTrans→isAsym (irrefl , trans) a₀ a₁ Ra₀a₁ Ra₁a₀
     = irrefl a₀ (trans a₀ a₁ a₀ Ra₀a₁ Ra₁a₀)
 
-  WellFounded→IsIrrefl : WellFounded R → isIrrefl
-  WellFounded→IsIrrefl well = WFI.induction well λ a f Raa → f a Raa Raa
+  WellFounded→isIrrefl : WellFounded R → isIrrefl
+  WellFounded→isIrrefl well = WFI.induction well λ a f Raa → f a Raa Raa
 
   IrreflKernel : Rel A A (ℓ-max ℓ ℓ')
   IrreflKernel a b = R a b × (¬ a ≡ b)
