@@ -14,8 +14,6 @@ open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Sigma
 
-open import Cubical.HITs.PropositionalTruncation as ∥₁
-
 open import Cubical.Relation.Binary.Order.Woset.Base
 open import Cubical.Relation.Binary.Order.Poset.Base
 open import Cubical.Relation.Binary.Base
@@ -365,7 +363,8 @@ private
   isTrans< A _ C A<B (c , C↓c≡B) = <Absorb↓ A C c (subst (A <_) (sym C↓c≡B) A<B)
 
   isWeaklyExtensional< : isWeaklyExtensional (_<_ {ℓ = ℓ})
-  isWeaklyExtensional< = ≺Equiv→≡→isWeaklyExtensional _<_ isSetWoset isPropValued< λ A B ex
+  isWeaklyExtensional<
+    = ≺Equiv→≡→isWeaklyExtensional _<_ isSetWoset isPropValued< λ A B ex
     → path A B ex
       where path : (A B : Woset ℓ ℓ)
                  → (∀ C → (C < A) ≃ (C < B))
