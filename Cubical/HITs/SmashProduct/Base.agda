@@ -838,18 +838,19 @@ module ⋀-fun≡' {C : Type ℓ} (f g : A ⋀ B → C)
     (lp : (x : fst A) → PathP (λ i → f (push (inl x) i) ≡ g (push (inl x) i))
                                       p (pr (x , pt B)))
     (q : Fₗ ≡ Fᵣ) where
-    lem : (b : fst B)
-     → Square p (pr (snd A , b))
-               (cong f (push (inr b))) (cong g (push (inr b)))
-    lem b i j =
-      hcomp (λ k → λ {(i = i0) → p j
-                     ; (i = i1) → doubleCompPath-filler
-                                    (cong f (push (inr b)))
-                                    (pr (pt A , b))
-                                    (sym (cong g (push (inr b)))) (~ k) j
-                     ; (j = i0) → f (push (inr b) (i ∧ k))
-                     ; (j = i1) → g (push (inr b) (i ∧ k))})
-            (q (~ i) .fst b j)
+    private
+      lem : (b : fst B)
+       → Square p (pr (snd A , b))
+                 (cong f (push (inr b))) (cong g (push (inr b)))
+      lem b i j =
+        hcomp (λ k → λ {(i = i0) → p j
+                       ; (i = i1) → doubleCompPath-filler
+                                      (cong f (push (inr b)))
+                                      (pr (pt A , b))
+                                      (sym (cong g (push (inr b)))) (~ k) j
+                       ; (j = i0) → f (push (inr b) (i ∧ k))
+                       ; (j = i1) → g (push (inr b) (i ∧ k))})
+              (q (~ i) .fst b j)
 
     main : (x : _) → f x ≡ g x
     main = ⋀-fun≡ {A = A} {B = B} f g p pr lp lem
