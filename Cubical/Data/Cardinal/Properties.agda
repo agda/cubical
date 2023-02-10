@@ -7,10 +7,10 @@ This file contains:
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Data.Cardinality.Properties where
+module Cubical.Data.Cardinal.Properties where
 
 open import Cubical.HITs.SetTruncation as ∥₂
-open import Cubical.Data.Cardinality.Base
+open import Cubical.Data.Cardinal.Base
 
 open import Cubical.Algebra.CommSemiring
 

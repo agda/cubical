@@ -7,7 +7,7 @@ This file contains:
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Data.Cardinality.Base where
+module Cubical.Data.Cardinal.Base where
 
 open import Cubical.HITs.SetTruncation as ∥₂
 open import Cubical.Foundations.Prelude
