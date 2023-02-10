@@ -7,6 +7,8 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Functions.Embedding
+
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
@@ -66,6 +68,17 @@ module _
                          (disc a b))
               (isConnectedStronglyConnectedIrreflKernel R
                 (IsToset.is-strongly-connected toset))
+
+  isTosetInduced : IsToset R → (B : Type ℓ'') → (f : B ↪ A)
+                 → IsToset (InducedRelation R (B , f))
+  isTosetInduced tos B (f , emb)
+    = istoset (Embedding-into-isSet→isSet (f , emb) (IsToset.is-set tos))
+              (λ a b → IsToset.is-prop-valued tos (f a) (f b))
+              (λ a → IsToset.is-refl tos (f a))
+              (λ a b c → IsToset.is-trans tos (f a) (f b) (f c))
+              (λ a b a≤b b≤a → isEmbedding→Inj emb a b
+                (IsToset.is-antisym tos (f a) (f b) a≤b b≤a))
+              λ a b → IsToset.is-strongly-connected tos (f a) (f b)
 
 Toset→Poset : Toset ℓ ℓ' → Poset ℓ ℓ'
 Toset→Poset (_ , tos) = _ , posetstr (TosetStr._≤_ tos)

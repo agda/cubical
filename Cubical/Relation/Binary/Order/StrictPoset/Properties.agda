@@ -6,6 +6,8 @@ open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Foundations.Prelude
 
+open import Cubical.Functions.Embedding
+
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
@@ -67,6 +69,16 @@ module _
                                                      (λ Rca → inl (inr Rca)) y ∣₁)
                                                      (weak b a c Rba)) x)
                   (isSymSymClosure R)
+
+  isStrictPosetInduced : IsStrictPoset R → (B : Type ℓ'') → (f : B ↪ A)
+                       → IsStrictPoset (InducedRelation R (B , f))
+  isStrictPosetInduced strictpos B (f , emb)
+    = isstrictposet (Embedding-into-isSet→isSet (f , emb)
+                                                (IsStrictPoset.is-set strictpos))
+                    (λ a b → IsStrictPoset.is-prop-valued strictpos (f a) (f b))
+                    (λ a → IsStrictPoset.is-irrefl strictpos (f a))
+                    (λ a b c → IsStrictPoset.is-trans strictpos (f a) (f b) (f c))
+                    λ a b → IsStrictPoset.is-asym strictpos (f a) (f b)
 
 StrictPoset→Poset : StrictPoset ℓ ℓ' → Poset ℓ (ℓ-max ℓ ℓ')
 StrictPoset→Poset (_ , strictpos)

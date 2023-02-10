@@ -4,6 +4,8 @@ module Cubical.Relation.Binary.Order.Preorder.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Functions.Embedding
+
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
@@ -41,6 +43,13 @@ module _
                       → IsPreorder.is-trans preorder a b c Rab Rbc
                       , λ Rca → ¬Rcb (IsPreorder.is-trans preorder c a b Rca Rab))
                     (isAsymAsymKernel R)
+
+  isPreorderInduced : IsPreorder R → (B : Type ℓ'') → (f : B ↪ A) → IsPreorder (InducedRelation R (B , f))
+  isPreorderInduced pre B (f , emb)
+    = ispreorder (Embedding-into-isSet→isSet (f , emb) (IsPreorder.is-set pre))
+                 (λ a b → IsPreorder.is-prop-valued pre (f a) (f b))
+                 (λ a → IsPreorder.is-refl pre (f a))
+                 λ a b c → IsPreorder.is-trans pre (f a) (f b) (f c)
 
 Preorder→StrictPoset : Preorder ℓ ℓ' → StrictPoset ℓ ℓ'
 Preorder→StrictPoset (_ , pre)

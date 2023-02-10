@@ -4,6 +4,8 @@ module Cubical.Relation.Binary.Order.Poset.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
+open import Cubical.Functions.Embedding
+
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
@@ -49,6 +51,15 @@ module _
                                              (isIrreflIrreflKernel R
                                              , transirrefl (IsPoset.is-trans poset)
                                                            (IsPoset.is-antisym poset)))
+
+  isPosetInduced : IsPoset R → (B : Type ℓ'') → (f : B ↪ A) → IsPoset (InducedRelation R (B , f))
+  isPosetInduced pos B (f , emb)
+    = isposet (Embedding-into-isSet→isSet (f , emb) (IsPoset.is-set pos))
+              (λ a b → IsPoset.is-prop-valued pos (f a) (f b))
+              (λ a → IsPoset.is-refl pos (f a))
+              (λ a b c → IsPoset.is-trans pos (f a) (f b) (f c))
+              λ a b a≤b b≤a → isEmbedding→Inj emb a b
+                (IsPoset.is-antisym pos (f a) (f b) a≤b b≤a)
 
 Poset→Preorder : Poset ℓ ℓ' → Preorder ℓ ℓ'
 Poset→Preorder (_ , pos) = _ , preorderstr (PosetStr._≤_ pos)

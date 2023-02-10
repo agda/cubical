@@ -6,6 +6,8 @@ open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Foundations.Prelude
 
+open import Cubical.Functions.Embedding
+
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
@@ -62,6 +64,18 @@ module _
               λ a b → decRec (λ a≡b → ∣ inl (inr a≡b) ∣₁)
                              (λ ¬a≡b → ∥₁.map (⊎.map (λ Rab → inl Rab) λ Rba → inl Rba)
                              (IsLoset.is-connected loset a b ¬a≡b)) (disc a b)
+
+  isLosetInduced : IsLoset R → (B : Type ℓ'') → (f : B ↪ A)
+                 → IsLoset (InducedRelation R (B , f))
+  isLosetInduced los B (f , emb)
+    = isloset (Embedding-into-isSet→isSet (f , emb) (IsLoset.is-set los))
+              (λ a b → IsLoset.is-prop-valued los (f a) (f b))
+              (λ a → IsLoset.is-irrefl los (f a))
+              (λ a b c → IsLoset.is-trans los (f a) (f b) (f c))
+              (λ a b → IsLoset.is-asym los (f a) (f b))
+              (λ a b c → IsLoset.is-weakly-linear los (f a) (f b) (f c))
+              λ a b ¬a≡b → IsLoset.is-connected los (f a) (f b)
+                λ fa≡fb → ¬a≡b (isEmbedding→Inj emb a b fa≡fb)
 
 Loset→StrictPoset : Loset ℓ ℓ' → StrictPoset ℓ ℓ'
 Loset→StrictPoset (_ , los)

@@ -3,6 +3,8 @@ module Cubical.Relation.Binary.Order.Apartness.Properties where
 
 open import Cubical.Foundations.Prelude
 
+open import Cubical.Functions.Embedding
+
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sum as ⊎
 
@@ -15,7 +17,7 @@ open import Cubical.Relation.Nullary
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 open BinaryRelation
 
@@ -33,3 +35,19 @@ isApartness→isEquivRelNegationRel apart
                            → ∥₁.rec isProp⊥ (⊎.rec ¬a#b
                                     (λ c#b → ¬b#c (IsApartness.is-sym apart c b c#b)))
                                     (IsApartness.is-cotrans apart a c b a#c)
+
+module _
+  {A : Type ℓ}
+  {R : Rel A A ℓ'}
+  where
+
+  open BinaryRelation
+
+  isApartnessInduced : IsApartness R → (B : Type ℓ'') → (f : B ↪ A)
+                     → IsApartness (InducedRelation R (B , f))
+  isApartnessInduced apa B (f , emb)
+    = isapartness (Embedding-into-isSet→isSet (f , emb) (IsApartness.is-set apa))
+                  (λ a b → IsApartness.is-prop-valued apa (f a) (f b))
+                  (λ a → IsApartness.is-irrefl apa (f a))
+                  (λ a b c → IsApartness.is-cotrans apa (f a) (f b) (f c))
+                  λ a b → IsApartness.is-sym apa (f a) (f b)
