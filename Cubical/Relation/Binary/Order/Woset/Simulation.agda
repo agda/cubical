@@ -24,16 +24,16 @@ private
     ℓ ℓ' : Level
 
 isSimulation : (A B : Woset ℓ ℓ') (f : ⟨ A ⟩ → ⟨ B ⟩) → Type (ℓ-max ℓ ℓ')
-isSimulation A B f = respectsRel × existsFib
+isSimulation A B f = monotone × lifting
   where _≺ᵣ_ = WosetStr._≺_ (str A)
         _≺ₛ_ = WosetStr._≺_ (str B)
 
-        respectsRel = ∀ a a' → a ≺ᵣ a' → (f a) ≺ₛ (f a')
+        monotone = ∀ a a' → a ≺ᵣ a' → (f a) ≺ₛ (f a')
 
         less : ∀ a → Type _
         less a = Σ[ a' ∈ ⟨ A ⟩ ] a' ≺ᵣ a
 
-        existsFib = ∀ a b → b ≺ₛ (f a) → fiber {A = less a} (f ∘ fst) b
+        lifting = ∀ a b → b ≺ₛ (f a) → fiber {A = less a} (f ∘ fst) b
 
 isSimulation→isEmbedding : (A B : Woset ℓ ℓ') → ∀ f
                          → isSimulation A B f → isEmbedding f
