@@ -8,6 +8,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
+open import Cubical.HITs.SetQuotients
+
 open import Cubical.Induction.WellFounded
 
 open import Cubical.Functions.Embedding
@@ -86,13 +88,13 @@ isPropIsSimulation A B f sim₀
   where propR = IsWoset.is-prop-valued (WosetStr.isWoset (str A))
         propS = IsWoset.is-prop-valued (WosetStr.isWoset (str B))
 
-_≤_ : Rel (Woset ℓ ℓ') (Woset ℓ ℓ') (ℓ-max ℓ ℓ')
-A ≤ B = Σ[ f ∈ (⟨ A ⟩ → ⟨ B ⟩) ] isSimulation A B f
+_≼_ : Rel (Woset ℓ ℓ') (Woset ℓ ℓ') (ℓ-max ℓ ℓ')
+A ≼ B = Σ[ f ∈ (⟨ A ⟩ → ⟨ B ⟩) ] isSimulation A B f
 
 -- Necessary intermediary steps to prove that simulations form a poset
 private
-  isRefl≤ : BinaryRelation.isRefl {A = Woset ℓ ℓ'} _≤_
-  isRefl≤ A = (idfun ⟨ A ⟩) , ((λ _ _ a≺ᵣa' → a≺ᵣa')
+  isRefl≼ : BinaryRelation.isRefl {A = Woset ℓ ℓ'} _≼_
+  isRefl≼ A = (idfun ⟨ A ⟩) , ((λ _ _ a≺ᵣa' → a≺ᵣa')
                             , λ _ b b≺ₛfa → (b , b≺ₛfa) , refl)
 
   isSimulation-∘ : (A B C : Woset ℓ ℓ') → ∀ f g
@@ -109,12 +111,12 @@ private
                               (fibg (f a) c c≺ₜgfa .fst .snd) .snd)
                      ∙ fibg (f a) c c≺ₜgfa .snd
 
-  isTrans≤ : BinaryRelation.isTrans {A = Woset ℓ ℓ'} _≤_
-  isTrans≤ A B C (f , simf) (g , simg)
+  isTrans≼ : BinaryRelation.isTrans {A = Woset ℓ ℓ'} _≼_
+  isTrans≼ A B C (f , simf) (g , simg)
     = (g ∘ f) , (isSimulation-∘ A B C f g simf simg)
 
-  isPropValued≤ : BinaryRelation.isPropValued {A = Woset ℓ ℓ'} _≤_
-  isPropValued≤ A B (f , (rreff , fibf)) (g , (rrefg , fibg))
+  isPropValued≼ : BinaryRelation.isPropValued {A = Woset ℓ ℓ'} _≼_
+  isPropValued≼ A B (f , (rreff , fibf)) (g , (rrefg , fibg))
     = Σ≡Prop (λ _ → isPropIsSimulation A B _)
              (funExt (WFI.induction wellR λ a ind
                      → isWeaklyExtensional→≺Equiv→≡ _≺ₛ_ weakS (f a) (g a) λ b
@@ -143,8 +145,8 @@ private
 
           propS = IsWoset.is-prop-valued wosS
 
-  isAntisym≤ : BinaryRelation.isAntisym {A = Woset ℓ ℓ'} _≤_
-  isAntisym≤ A B (f , simf) (g , simg) = WosetPath A B .fst (isoToEquiv is
+  isAntisym≼ : BinaryRelation.isAntisym {A = Woset ℓ ℓ'} _≼_
+  isAntisym≼ A B (f , simf) (g , simg) = WosetPath A B .fst (isoToEquiv is
     , (makeIsWosetEquiv (isoToEquiv is)
                         (fst simf)
                         (fst simg)))
@@ -153,20 +155,20 @@ private
           Iso.inv is = g
           Iso.rightInv is b i
             = cong (_$_ ∘ fst)
-              (isPropValued≤ B B (isTrans≤ B A B (g , simg) (f , simf))
-                (isRefl≤ B)) i b
+              (isPropValued≼ B B (isTrans≼ B A B (g , simg) (f , simf))
+                (isRefl≼ B)) i b
           Iso.leftInv is a i
             = cong (_$_ ∘ fst)
-              (isPropValued≤ A A (isTrans≤ A B A (f , simf) (g , simg))
-                (isRefl≤ A)) i a
+              (isPropValued≼ A A (isTrans≼ A B A (f , simf) (g , simg))
+                (isRefl≼ A)) i a
 
-isPoset≤ : IsPoset {A = Woset ℓ ℓ'} _≤_
-isPoset≤ = isposet
+isPoset≼ : IsPoset {A = Woset ℓ ℓ'} _≼_
+isPoset≼ = isposet
            isSetWoset
-           isPropValued≤
-           isRefl≤
-           isTrans≤
-           isAntisym≤
+           isPropValued≼
+           isRefl≼
+           isTrans≼
+           isAntisym≼
 
 _↓_ : (A : Woset ℓ ℓ') → (a : ⟨ A ⟩ ) → Woset (ℓ-max ℓ ℓ') ℓ'
 A ↓ a = (Σ[ b ∈ ⟨ A ⟩ ] b ≺ a)
@@ -292,7 +294,7 @@ isEmbedding↓ A = injEmbedding isSetWoset (unique _ _)
 ↓Absorb : (A : Woset ℓ ℓ') → ∀ a b
         → (b≺a : WosetStr._≺_ (str A) b a)
         → (A ↓ a) ↓ (b , b≺a) ≡ A ↓ b
-↓Absorb A a b b≺a = isAntisym≤ _ _ (f , simf) (g , simg)
+↓Absorb A a b b≺a = isAntisym≼ _ _ (f , simf) (g , simg)
   where _≺_ = WosetStr._≺_ (str A)
         wos = WosetStr.isWoset (str A)
         prop = IsWoset.is-prop-valued wos
@@ -316,74 +318,81 @@ isEmbedding↓ A = injEmbedding isSetWoset (unique _ _)
           , Σ≡Prop (λ _ → prop _ _)
            (Σ≡Prop (λ _ → prop _ _) refl)
 
-_<_ : Rel (Woset ℓ ℓ) (Woset ℓ ℓ) (ℓ-suc ℓ)
-A < B = fiber (B ↓_) A
+_≺_ : Rel (Woset ℓ ℓ) (Woset ℓ ℓ) (ℓ-suc ℓ)
+A ≺ B = fiber (B ↓_) A
+
+-- To avoid having this wind up in a higher universe, we define the same with equivalences
+_≺'_ : Rel (Woset ℓ ℓ) (Woset ℓ ℓ) ℓ
+A ≺' B = Σ[ b ∈ ⟨ B ⟩ ] WosetEquiv (B ↓ b) A
+
+≺≃≺' : (A B : Woset ℓ ℓ) → A ≺ B ≃ A ≺' B
+≺≃≺' A B = invEquiv (Σ-cong-equiv (idEquiv ⟨ B ⟩) λ b → WosetPath (B ↓ b) A)
 
 ↓Decreasing : (A : Woset ℓ ℓ) → ∀ a
-            → (A ↓ a) < A
+            → (A ↓ a) ≺ A
 ↓Decreasing A a = a , refl
 
-↓Respects< : (A : Woset ℓ ℓ) → ∀ a b
+↓Respects≺ : (A : Woset ℓ ℓ) → ∀ a b
            → WosetStr._≺_ (str A) a b
-           → (A ↓ a) < (A ↓ b)
-↓Respects< A a b a≺b = (a , a≺b) , (↓Absorb A b a a≺b)
+           → (A ↓ a) ≺ (A ↓ b)
+↓Respects≺ A a b a≺b = (a , a≺b) , (↓Absorb A b a a≺b)
 
-↓Respects<⁻ : (A : Woset ℓ ℓ) → ∀ a b
-            → (A ↓ a) < (A ↓ b)
+↓Respects≺⁻ : (A : Woset ℓ ℓ) → ∀ a b
+            → (A ↓ a) ≺ (A ↓ b)
             → WosetStr._≺_ (str A) a b
-↓Respects<⁻ A a b ((c , c≺b) , A↓b↓c≡A↓a)
-  = subst (_≺ b) (isEmbedding→Inj (isEmbedding↓ A) c a
+↓Respects≺⁻ A a b ((c , c≺b) , A↓b↓c≡A↓a)
+  = subst (_≺ᵣ b) (isEmbedding→Inj (isEmbedding↓ A) c a
           (sym (↓Absorb A b c c≺b) ∙ A↓b↓c≡A↓a)) c≺b
-  where _≺_ = WosetStr._≺_ (str A)
+  where _≺ᵣ_ = WosetStr._≺_ (str A)
 
-<Absorb↓ : (A B : Woset ℓ ℓ) → ∀ b
-         → A < (B ↓ b)
-         → A < B
-<Absorb↓ A B b ((b' , b'≺b) , B↓b↓b'≡A) = b'
+≺Absorb↓ : (A B : Woset ℓ ℓ)
+         → Σ[ b ∈ ⟨ B ⟩ ] A ≺ (B ↓ b)
+         → A ≺ B
+≺Absorb↓ A B (b , (b' , b'≺b) , B↓b↓b'≡A) = b'
          , sym (↓Absorb B b b' b'≺b) ∙ B↓b↓b'≡A
 
 -- Necessary intermediates to show that _<_ is well-ordered
 private
-  isPropValued< : BinaryRelation.isPropValued (_<_ {ℓ = ℓ})
-  isPropValued< A B = isEmbedding→hasPropFibers (isEmbedding↓ B) A
+  isPropValued≺ : BinaryRelation.isPropValued (_≺_ {ℓ = ℓ})
+  isPropValued≺ A B = isEmbedding→hasPropFibers (isEmbedding↓ B) A
 
-  isAcc↓ : (A : Woset ℓ ℓ) → ∀ a → Acc _<_ (A ↓ a)
+  isAcc↓ : (A : Woset ℓ ℓ) → ∀ a → Acc _≺_ (A ↓ a)
   isAcc↓ A = WFI.induction well λ a ind → acc (λ B B<A↓a
-           → subst (Acc _<_)
+           → subst (Acc _≺_)
              (sym (↓Absorb A a (B<A↓a .fst .fst) (B<A↓a .fst .snd))
              ∙ B<A↓a .snd) (ind (B<A↓a .fst .fst) (B<A↓a .fst .snd)))
-    where _≺_ = WosetStr._≺_ (str A)
+    where _≺ᵣ_ = WosetStr._≺_ (str A)
           wos = WosetStr.isWoset (str A)
           well = IsWoset.is-well-founded wos
 
-  isWellFounded< : WellFounded (_<_ {ℓ = ℓ})
-  isWellFounded< A = acc (λ B B<A → subst (Acc _<_) (B<A .snd) (isAcc↓ A (B<A .fst)))
+  isWellFounded≺ : WellFounded (_≺_ {ℓ = ℓ})
+  isWellFounded≺ A = acc (λ B B<A → subst (Acc _≺_) (B<A .snd) (isAcc↓ A (B<A .fst)))
 
-  isTrans< : BinaryRelation.isTrans (_<_ {ℓ = ℓ})
-  isTrans< A _ C A<B (c , C↓c≡B) = <Absorb↓ A C c (subst (A <_) (sym C↓c≡B) A<B)
+  isTrans≺ : BinaryRelation.isTrans (_≺_ {ℓ = ℓ})
+  isTrans≺ A _ C A<B (c , C↓c≡B) = ≺Absorb↓ A C (c , (subst (A ≺_) (sym C↓c≡B) A<B))
 
-  isWeaklyExtensional< : isWeaklyExtensional (_<_ {ℓ = ℓ})
-  isWeaklyExtensional<
-    = ≺Equiv→≡→isWeaklyExtensional _<_ isSetWoset isPropValued< λ A B ex
+  isWeaklyExtensional≺ : isWeaklyExtensional (_≺_ {ℓ = ℓ})
+  isWeaklyExtensional≺
+    = ≺Equiv→≡→isWeaklyExtensional _≺_ isSetWoset isPropValued≺ λ A B ex
     → path A B ex
       where path : (A B : Woset ℓ ℓ)
-                 → (∀ C → (C < A) ≃ (C < B))
+                 → (∀ C → (C ≺ A) ≃ (C ≺ B))
                  → A ≡ B
             path A B ex = equivFun (WosetPath A B)
                  (isoToEquiv (is A B ex)
                , (makeIsWosetEquiv (isoToEquiv (is A B ex))
-                 (λ a a' a≺a' → ↓Respects<⁻ B _ _
-                   (subst2 _<_
+                 (λ a a' a≺a' → ↓Respects≺⁻ B _ _
+                   (subst2 _≺_
                      (sym (equivFun (ex (A ↓ a)) (↓Decreasing A a) .snd))
                      (sym (equivFun (ex (A ↓ a')) (↓Decreasing A a') .snd))
-                     (↓Respects< A a a' a≺a')))
-                 λ b b' b≺b' → ↓Respects<⁻ A _ _
-                   (subst2 _<_
+                     (↓Respects≺ A a a' a≺a')))
+                 λ b b' b≺b' → ↓Respects≺⁻ A _ _
+                   (subst2 _≺_
                      (sym (invEq (ex (B ↓ b)) (↓Decreasing B b) .snd))
                      (sym (invEq (ex (B ↓ b')) (↓Decreasing B b') .snd))
-                     (↓Respects< B b b' b≺b'))))
+                     (↓Respects≺ B b b' b≺b'))))
               where is : (A B : Woset ℓ ℓ)
-                       → (∀ C → (C < A) ≃ (C < B))
+                       → (∀ C → (C ≺ A) ≃ (C ≺ B))
                        → Iso ⟨ A ⟩ ⟨ B ⟩
                     Iso.fun (is A B ex) a = equivFun (ex (A ↓ a))
                                             (↓Decreasing A a) .fst
@@ -398,10 +407,71 @@ private
                                 (invEq (ex (B ↓ _)) (↓Decreasing B _) .snd
                                 ∙ equivFun (ex (A ↓ p)) (↓Decreasing A p) .snd)
 
-IsWoset< : IsWoset (_<_ {ℓ = ℓ})
-IsWoset< = iswoset
+isWoset≺ : IsWoset (_≺_ {ℓ = ℓ})
+isWoset≺ = iswoset
            isSetWoset
-           isPropValued<
-           isWellFounded<
-           isWeaklyExtensional<
-           isTrans<
+           isPropValued≺
+           isWellFounded≺
+           isWeaklyExtensional≺
+           isTrans≺
+
+{- With all of the above handled, we now need the notion of suprema.
+   For that, though, we will expand upon the direction taken in
+   lemma 10.3.22 of the HoTT book by Tom de Jong in
+   https://www.cs.bham.ac.uk/~mhe/agda/Ordinals.OrdinalOfOrdinalsSuprema.html#2612
+-}
+
+private
+  module _
+    { I : Type ℓ }
+    ( F : I → Woset ℓ ℓ)
+    where
+
+    ΣF : Type ℓ
+    ΣF = Σ[ i ∈ I ] ⟨ F i ⟩
+
+    _≈_ : ΣF → ΣF → Type (ℓ-suc ℓ)
+    (i , x) ≈ (j , y) = (F i ↓ x) ≡ (F j ↓ y)
+
+    _<_ : ΣF → ΣF → Type (ℓ-suc ℓ)
+    (i , x) < (j , y) = (F i ↓ x) ≺ (F j ↓ y)
+
+    isPropValued< : BinaryRelation.isPropValued _<_
+    isPropValued< (i , x) (j , y) = isPropValued≺ (F i ↓ x) (F j ↓ y)
+
+    isTrans< : BinaryRelation.isTrans _<_
+    isTrans< (i , x) (j , y) (k , z)
+      = isTrans≺ (F i ↓ x) (F j ↓ y) (F k ↓ z)
+
+    isWellFounded< : WellFounded _<_
+    isWellFounded< (i , x) = WFI.induction isWellFounded≺
+      {P = λ a → ((i , x) : ΣF) → (a ≡ F i ↓ x) → Acc _<_ (i , x)}
+      (λ a ind (i' , x') a≡Fi'↓x' → acc (λ (j , y) y'≺x'
+       → ind (F j ↓ y) (subst (_ ≺_) (sym a≡Fi'↓x') y'≺x') (j , y) refl))
+      (F i ↓ x) (i , x) refl
+
+    -- We get weak extensionality up to ≈
+    isWeaklyExtensionalUpTo≈< : (α β : ΣF)
+                               → (∀ γ → (γ < α → γ < β) × (γ < β → γ < α))
+                               → α ≈ β
+    isWeaklyExtensionalUpTo≈< (i , x) (j , y) ex
+      = isWeaklyExtensional→≺Equiv→≡ _≺_ isWeaklyExtensional≺
+        (F i ↓ x) (F j ↓ y) λ z
+        → propBiimpl→Equiv (isPropValued≺ z (F i ↓ x))
+                           (isPropValued≺ z (F j ↓ y))
+          (λ ((x' , x'≺x) , p) → subst (_≺ (F j ↓ y))
+                               (sym (↓Absorb (F i) x x' x'≺x) ∙ p)
+                               (ex (i , x') .fst ((x' , x'≺x)
+                                 , ↓Absorb (F i) x x' x'≺x)))
+          λ ((y' , y'≺y) , q) → subst (_≺ (F i ↓ x))
+                              (sym (↓Absorb (F j) y y' y'≺y) ∙ q)
+                                (ex (j , y') .snd ((y' , y'≺y)
+                                  , ↓Absorb (F j) y y' y'≺y))
+
+  {- Given the above, it seems apparent that this will properly be an ordinal
+     under the set quotient. Before that, we want to show this will be
+     the supremum.
+  -}
+
+    ι : (i : I) → ⟨ F i ⟩ → ΣF
+    ι i x = (i , x)
