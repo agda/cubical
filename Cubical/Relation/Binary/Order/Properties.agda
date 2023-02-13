@@ -25,7 +25,7 @@ module _
   {_≲_ : Rel A A ℓ'}
   (pre : IsPreorder _≲_)
   where
-  
+
   private
       prop : ∀ a b → isProp (a ≲ b)
       prop = IsPreorder.is-prop-valued pre
