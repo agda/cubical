@@ -25,6 +25,10 @@ module _
   {_≲_ : Rel A A ℓ'}
   (pre : IsPreorder _≲_)
   where
+  
+  private
+      prop : ∀ a b → isProp (a ≲ b)
+      prop = IsPreorder.is-prop-valued pre
 
   module _
     (P : Embedding A ℓ'')
@@ -36,9 +40,6 @@ module _
 
       toA : subtype → A
       toA = fst (snd P)
-
-      prop : ∀ a b → isProp (a ≲ b)
-      prop = IsPreorder.is-prop-valued pre
 
     isMinimal : (n : subtype) → Type (ℓ-max ℓ' ℓ'')
     isMinimal n = (x : subtype) → toA x ≲ toA n → toA n ≲ toA x
@@ -76,33 +77,39 @@ module _
     Greatest : Type (ℓ-max ℓ' ℓ'')
     Greatest = Σ[ n ∈ subtype ] isGreatest n
 
+  module _
+    {B : Type ℓ''}
+    (P : B → A)
+    where
+
     isLowerBound : (n : A) → Type (ℓ-max ℓ' ℓ'')
-    isLowerBound n = (x : subtype) → n ≲ toA x
+    isLowerBound n = (x : B) → n ≲ P x
 
     isPropIsLowerBound : ∀ n → isProp (isLowerBound n)
-    isPropIsLowerBound n = isPropΠ λ x → prop n (toA x)
+    isPropIsLowerBound n = isPropΠ λ x → prop n (P x)
 
     LowerBound : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
     LowerBound = Σ[ n ∈ A ] isLowerBound n
 
     isUpperBound : (n : A) → Type (ℓ-max ℓ' ℓ'')
-    isUpperBound n = (x : subtype) → toA x ≲ n
+    isUpperBound n = (x : B) → P x ≲ n
 
     isPropIsUpperBound : ∀ n → isProp (isUpperBound n)
-    isPropIsUpperBound n = isPropΠ λ x → prop (toA x) n
+    isPropIsUpperBound n = isPropΠ λ x → prop (P x) n
 
     UpperBound : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
     UpperBound = Σ[ n ∈ A ] isUpperBound n
 
   module _
-    (P : Embedding A ℓ'')
+    {B : Type ℓ''}
+    (P : B → A)
     where
 
     isMaximalLowerBound : (n : A) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
     isMaximalLowerBound n
       = Σ[ islb ∈ isLowerBound P n ]
         isMaximal (LowerBound P
-                  , EmbeddingΣProp (isPropIsLowerBound P)) (n , islb)
+                  , (EmbeddingΣProp (isPropIsLowerBound P))) (n , islb)
 
     isPropIsMaximalLowerBound : ∀ n → isProp (isMaximalLowerBound n)
     isPropIsMaximalLowerBound n
@@ -162,36 +169,44 @@ module _
   {A : Type ℓ}
   {_≲_ : Rel A A ℓ'}
   (pre : IsPreorder _≲_)
-  {P : Embedding A ℓ''}
   where
 
-  private
-    toA : (fst P) → A
-    toA = fst (snd P)
+  module _
+    {P : Embedding A ℓ''}
+    where
 
-  isLeast→isMinimal : ∀ n → isLeast pre P n → isMinimal pre P n
-  isLeast→isMinimal _ isl x _ = isl x
+    private
+      toA : (fst P) → A
+      toA = fst (snd P)
 
-  isGreatest→isMaximal : ∀ n → isGreatest pre P n → isMaximal pre P n
-  isGreatest→isMaximal _ isg x _ = isg x
+    isLeast→isMinimal : ∀ n → isLeast pre P n → isMinimal pre P n
+    isLeast→isMinimal _ isl x _ = isl x
 
-  isLeast→isLowerBound : ∀ n → isLeast pre P n → isLowerBound pre P (toA n)
-  isLeast→isLowerBound _ isl = isl
+    isGreatest→isMaximal : ∀ n → isGreatest pre P n → isMaximal pre P n
+    isGreatest→isMaximal _ isg x _ = isg x
 
-  isGreatest→isUpperBound : ∀ n → isGreatest pre P n → isUpperBound pre P (toA n)
-  isGreatest→isUpperBound _ isg = isg
+    isLeast→isLowerBound : ∀ n → isLeast pre P n → isLowerBound pre toA (toA n)
+    isLeast→isLowerBound _ isl = isl
 
-  isLeast→isInfimum : ∀ n → isLeast pre P n → isInfimum pre P (toA n)
-  isLeast→isInfimum n isl = (isLeast→isLowerBound n isl) , (λ x → snd x n)
+    isGreatest→isUpperBound : ∀ n → isGreatest pre P n → isUpperBound pre toA (toA n)
+    isGreatest→isUpperBound _ isg = isg
 
-  isGreatest→isSupremum : ∀ n → isGreatest pre P n → isSupremum pre P (toA n)
-  isGreatest→isSupremum n isg = (isGreatest→isUpperBound n isg) , (λ x → snd x n)
+    isLeast→isInfimum : ∀ n → isLeast pre P n → isInfimum pre toA (toA n)
+    isLeast→isInfimum n isl = (isLeast→isLowerBound n isl) , (λ x → snd x n)
 
-  isInfimum→isLowerBound : ∀ n → isInfimum pre P n → isLowerBound pre P n
-  isInfimum→isLowerBound _ = fst
+    isGreatest→isSupremum : ∀ n → isGreatest pre P n → isSupremum pre toA (toA n)
+    isGreatest→isSupremum n isg = (isGreatest→isUpperBound n isg) , (λ x → snd x n)
 
-  isSupremum→isUpperBound : ∀ n → isSupremum pre P n → isUpperBound pre P n
-  isSupremum→isUpperBound _ = fst
+  module _
+    {B : Type ℓ''}
+    {P : B → A}
+    where
+
+    isInfimum→isLowerBound : ∀ n → isInfimum pre P n → isLowerBound pre P n
+    isInfimum→isLowerBound _ = fst
+
+    isSupremum→isUpperBound : ∀ n → isSupremum pre P n → isUpperBound pre P n
+    isSupremum→isUpperBound _ = fst
 
 module _
   {A : Type ℓ}
@@ -232,6 +247,11 @@ module _
     isGreatestUnique : ∀ n m → isGreatest pre P n → isGreatest pre P m → n ≡ m
     isGreatestUnique n m isgn isgm
       = isEmbedding→Inj emb n m (anti (toA n) (toA m) (isgm n) (isgn m))
+
+  module _
+    {B : Type ℓ''}
+    {P : B → A}
+    where
 
     isInfimum→ContrMaximalLowerBound : ∀ n → isInfimum pre P n
                                      → ∀ m → isMaximalLowerBound pre P m
