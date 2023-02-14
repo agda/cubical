@@ -7,6 +7,7 @@
 module Cubical.Displayed.Relation.Pointed where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category
 open import Cubical.Categories.Displayed.Base
@@ -62,8 +63,8 @@ Pointed-QER→≃ .F-seqᴰ _ _ =
   isProp→PathP (λ _ → isProp× (isProp× (squash/ _ _) (squash/ _ _)) isPropUnit) _ _
 
 Pointed-≃→QER : ∀ {ℓ} → RelCatFunctorᴰ Set-≃→QER (Pointedᴰ ℓ) (Pointedᴰ ℓ) ℛ-Pointed-≃ ℛ-Pointed-QER
-Pointed-≃→QER .F-obᴰ ((a , b) , p) = (a , b) , p
-Pointed-≃→QER .F-homᴰ ((p , q) , _) = (p , q) , _
+Pointed-≃→QER .F-obᴰ = idfun _
+Pointed-≃→QER .F-homᴰ = idfun _
 Pointed-≃→QER .F-idᴰ = refl
 Pointed-≃→QER .F-seqᴰ _ _ = refl
 
@@ -72,7 +73,7 @@ open UnitCounitᴰ._⊣[_]_
 
 Pointed-QER⊣≃ : ∀ {ℓ} →
   RelCatAdjointᴰ Set-QER⊣≃ (Pointedᴰ ℓ) (Pointedᴰ ℓ) ℛ-Pointed-QER ℛ-Pointed-≃ Pointed-QER→≃ Pointed-≃→QER
-Pointed-QER⊣≃ .ηᴰ .N-obᴰ ((a₀ , a₁) , r) = (refl , refl) , _
+Pointed-QER⊣≃ .ηᴰ .N-obᴰ _ = (refl , refl) , _
 Pointed-QER⊣≃ .ηᴰ .N-homᴰ _ =
   isProp→PathP (λ _ → isProp× (isProp× (squash/ _ _) (squash/ _ _)) isPropUnit) _ _
 Pointed-QER⊣≃ .εᴰ .N-obᴰ ((a₀ , a₁) , p) = (refl , refl) , _
