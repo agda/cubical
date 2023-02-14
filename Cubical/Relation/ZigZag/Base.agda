@@ -5,12 +5,11 @@ module Cubical.Relation.ZigZag.Base where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
-open import Cubical.HITs.SetQuotients as Quo
+open import Cubical.HITs.SetQuotients
 open import Cubical.HITs.PropositionalTruncation as Trunc
 open import Cubical.Relation.Binary.Base
 
@@ -53,13 +52,6 @@ QER→EquivRel (R , sim) .snd .symmetric _ _ = Trunc.map (λ {(b , r₀ , r₁) 
 QER→EquivRel (R , sim) .snd .transitive _ _ _ =
   Trunc.map2 (λ {(b , r₀ , r₁) (b' , r₀' , r₁') → b , r₀ , sim .zigzag r₁' r₀' r₁})
 
-≃→QER : {A B : Type ℓ} → isSet B → A ≃ B → QuasiEquivRel A B ℓ
-≃→QER setB e .fst .fst a b = e .fst a ≡ b
-≃→QER setB e .fst .snd _ _ = setB _ _
-≃→QER setB e .snd .zigzag p q r = p ∙∙ sym q ∙∙ r
-≃→QER setB e .snd .fwd a = ∣ e .fst a , refl ∣₁
-≃→QER setB e .snd .bwd b = ∣ invEq e b , secEq e b ∣₁
-
 -- The following result is due to Carlo Angiuli
 module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
 
@@ -69,29 +61,30 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
   private
     sim = R .snd
 
-  f : (a : A) → ∃[ b ∈ B ] R .fst .fst a b → B / Rᴿ
-  f a =
-    Trunc.rec→Set squash/
-      ([_] ∘ fst)
-      (λ {(b , r) (b' , r') → eq/ b b' ∣ a , r , r' ∣₁})
+  private
+    f : (a : A) → ∃[ b ∈ B ] R .fst .fst a b → B / Rᴿ
+    f a =
+      Trunc.rec→Set squash/
+        ([_] ∘ fst)
+        (λ {(b , r) (b' , r') → eq/ b b' ∣ a , r , r' ∣₁})
 
-  fPath :
-    (a₀ : A) (s₀ : ∃[ b ∈ B ] R .fst .fst a₀ b)
-    (a₁ : A) (s₁ : ∃[ b ∈ B ] R .fst .fst a₁ b)
-    → Rᴸ a₀ a₁
-    → f a₀ s₀ ≡ f a₁ s₁
-  fPath a₀ =
-    Trunc.elim (λ _ → isPropΠ3 λ _ _ _ → squash/ _ _)
-      (λ {(b₀ , r₀) a₁ →
-        Trunc.elim (λ _ → isPropΠ λ _ → squash/ _ _)
-          (λ {(b₁ , r₁) →
-            Trunc.elim (λ _ → squash/ _ _)
-              (λ {(b' , r₀' , r₁') → eq/ b₀ b₁ ∣ a₀ , r₀ , sim .zigzag r₀' r₁' r₁ ∣₁})})})
+    fPath :
+      (a₀ : A) (s₀ : ∃[ b ∈ B ] R .fst .fst a₀ b)
+      (a₁ : A) (s₁ : ∃[ b ∈ B ] R .fst .fst a₁ b)
+      → Rᴸ a₀ a₁
+      → f a₀ s₀ ≡ f a₁ s₁
+    fPath a₀ =
+      Trunc.elim (λ _ → isPropΠ3 λ _ _ _ → squash/ _ _)
+        (λ {(b₀ , r₀) a₁ →
+          Trunc.elim (λ _ → isPropΠ λ _ → squash/ _ _)
+            (λ {(b₁ , r₁) →
+              Trunc.elim (λ _ → squash/ _ _)
+                (λ {(b' , r₀' , r₁') → eq/ b₀ b₁ ∣ a₀ , r₀ , sim .zigzag r₀' r₁' r₁ ∣₁})})})
 
-  φ : A / Rᴸ → B / Rᴿ
-  φ [ a ] = f a (sim .fwd a)
-  φ (eq/ a₀ a₁ r i) =  fPath a₀ (sim .fwd a₀) a₁ (sim .fwd a₁) r i
-  φ (squash/ _ _ p q j i) = squash/ _ _ (cong φ p) (cong φ q) j i
+    φ : A / Rᴸ → B / Rᴿ
+    φ [ a ] = f a (sim .fwd a)
+    φ (eq/ a₀ a₁ r i) =  fPath a₀ (sim .fwd a₀) a₁ (sim .fwd a₁) r i
+    φ (squash/ _ _ p q j i) = squash/ _ _ (cong φ p) (cong φ q) j i
 
 
   relToFwd≡ : ∀ {a b} → R .fst .fst a b → φ [ a ] ≡ [ b ]
@@ -113,29 +106,30 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
             b' b p)})
       (sim .fwd a)
 
-  g : (b : B) → ∃[ a ∈ A ] R .fst .fst a b → A / Rᴸ
-  g b =
-    Trunc.rec→Set squash/
-      ([_] ∘ fst)
-      (λ {(a , r) (a' , r') → eq/ a a' ∣ b , r , r' ∣₁})
+  private
+    g : (b : B) → ∃[ a ∈ A ] R .fst .fst a b → A / Rᴸ
+    g b =
+      Trunc.rec→Set squash/
+        ([_] ∘ fst)
+        (λ {(a , r) (a' , r') → eq/ a a' ∣ b , r , r' ∣₁})
 
-  gPath :
-    (b₀ : B) (s₀ : ∃[ a ∈ A ] R .fst .fst a b₀)
-    (b₁ : B) (s₁ : ∃[ a ∈ A ] R .fst .fst a b₁)
-    → Rᴿ b₀ b₁
-    → g b₀ s₀ ≡ g b₁ s₁
-  gPath b₀ =
-    Trunc.elim (λ _ → isPropΠ3 λ _ _ _ → squash/ _ _)
-      (λ {(a₀ , r₀) b₁ →
-        Trunc.elim (λ _ → isPropΠ λ _ → squash/ _ _)
-          (λ {(a₁ , r₁) →
-            Trunc.elim (λ _ → squash/ _ _)
-              (λ {(a' , r₀' , r₁') → eq/ a₀ a₁ ∣ b₀ , r₀ , sim .zigzag r₁ r₁' r₀' ∣₁})})})
+    gPath :
+      (b₀ : B) (s₀ : ∃[ a ∈ A ] R .fst .fst a b₀)
+      (b₁ : B) (s₁ : ∃[ a ∈ A ] R .fst .fst a b₁)
+      → Rᴿ b₀ b₁
+      → g b₀ s₀ ≡ g b₁ s₁
+    gPath b₀ =
+      Trunc.elim (λ _ → isPropΠ3 λ _ _ _ → squash/ _ _)
+        (λ {(a₀ , r₀) b₁ →
+          Trunc.elim (λ _ → isPropΠ λ _ → squash/ _ _)
+            (λ {(a₁ , r₁) →
+              Trunc.elim (λ _ → squash/ _ _)
+                (λ {(a' , r₀' , r₁') → eq/ a₀ a₁ ∣ b₀ , r₀ , sim .zigzag r₁ r₁' r₀' ∣₁})})})
 
-  ψ : B / Rᴿ → A / Rᴸ
-  ψ [ b ] = g b (sim .bwd b)
-  ψ (eq/ b₀ b₁ r i) = gPath b₀ (sim .bwd b₀) b₁ (sim .bwd b₁) r i
-  ψ (squash/ _ _ p q j i) = squash/ _ _ (cong ψ p) (cong ψ q) j i
+    ψ : B / Rᴿ → A / Rᴸ
+    ψ [ b ] = g b (sim .bwd b)
+    ψ (eq/ b₀ b₁ r i) = gPath b₀ (sim .bwd b₀) b₁ (sim .bwd b₁) r i
+    ψ (squash/ _ _ p q j i) = squash/ _ _ (cong ψ p) (cong ψ q) j i
 
   relToBwd≡ : ∀ {a b} → R .fst .fst a b → ψ [ b ] ≡ [ a ]
   relToBwd≡ {a} {b} r =
@@ -165,39 +159,6 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
 
   Thm : (A / Rᴸ) ≃ (B / Rᴿ)
   Thm = isoToEquiv (iso φ ψ η ε)
-
-module QER→Equiv-Functorial {ℓ₀ ℓ₀' ℓ₁ ℓ₁'}
-  {A₀ B₀ : Type ℓ₀} (R₀ : QuasiEquivRel A₀ B₀ ℓ₀')
-  {A₁ B₁ : Type ℓ₁} (R₁ : QuasiEquivRel A₁ B₁ ℓ₁')
-  (f : A₀ → A₁)
-  (g : B₀ → B₁)
-  (r : ∀ a b → R₀ .fst .fst a b → R₁ .fst .fst (f a) (g b))
-  where
-
-  module Q₀ = QER→Equiv R₀
-  module Q₁ = QER→Equiv R₁
-
-  fᴸ : A₀ / Q₀.Rᴸ → A₁ / Q₁.Rᴸ
-  fᴸ =
-    Quo.rec squash/
-      (λ a → [ f a ])
-      (λ a a' → Trunc.rec (squash/ _ _) (λ (b , t , t') → eq/ _ _ ∣ g b , r _ _ t , r _ _ t' ∣₁))
-
-  fᴿ : B₀ / Q₀.Rᴿ → B₁ / Q₁.Rᴿ
-  fᴿ =
-    Quo.rec squash/
-      (λ b → [ g b ])
-      (λ b b' → Trunc.rec (squash/ _ _) (λ (a , t , t') → eq/ _ _ ∣ f a , r _ _ t , r _ _ t' ∣₁))
-
-  comm : ∀ qa → Q₁.φ (fᴸ qa) ≡ fᴿ (Q₀.φ qa)
-  comm =
-    Quo.elimProp (λ _ → squash/ _ _) λ a →
-    rem a (R₀ .snd .fwd a) (R₁ .snd .fwd (f a))
-    where
-    rem : ∀ a s₀ s₁ → Q₁.f (f a) s₁ ≡ fᴿ (Q₀.f a s₀)
-    rem a =
-      Trunc.elim2 (λ _ _ → squash/ _ _) λ (b₀ , t₀) (b₁ , t₁) →
-      eq/ _ _ ∣ f a , t₁ , r _ _ t₀ ∣₁
 
 -- A claim* is that Rᴸ and Rᴿ PER would imply R to be a zigzag complete.
 -- That is not true, even if we assume that Rᴸ and Rᴿ are universal relations.
