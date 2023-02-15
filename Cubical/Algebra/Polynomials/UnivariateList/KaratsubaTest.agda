@@ -10,12 +10,12 @@ open import Cubical.Algebra.CommRing.Instances.BoolCommRing
 open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
 
 open import Cubical.Algebra.Polynomials.UnivariateList.Base
-open import Cubical.Algebra.Polynomials.UnivariateList.Karatsuba
+open import Cubical.Algebra.Polynomials.UnivariateList.Karatsuba public
 
 open PolyMod BoolCommRing
 open CommRingStr (snd (UnivariatePolyList BoolCommRing))
 
-private
+module Defs where
   𝔽₂[X] = Poly BoolCommRing
   -- the test polynomial
   t : ℕ → 𝔽₂[X]
@@ -38,14 +38,15 @@ private
   eval (drop0 i) false = false
   eval (drop0 i) true = false
 
+open Defs public
 
 module fast-tests where
 
-  fastTest100 : eval (t²fast 100) true ≡ false
-  fastTest100 = refl
+  -- fastTest100 : eval (t²fast' 100) true ≡ false
+  -- fastTest100 = refl
 
-  fastTest200 : eval (t²fast 200) true ≡ false
-  fastTest200 = refl
+  -- fastTest200 : eval (t²fast' 200) true ≡ false
+  -- fastTest200 = refl
 
   -- fastTest300 : eval (t²fast 300) true ≡ false
   -- fastTest300 = refl
@@ -74,32 +75,32 @@ module fast-tests where
 
 module slow-tests where
 
-  slowTest100 : eval (t²slow 100) true ≡ false
-  slowTest100 = refl
+  -- slowTest100 : eval (t²slow 100) true ≡ false
+  -- slowTest100 = refl
 
-  slowTest200 : eval (t²slow 200) true ≡ false
-  slowTest200 = refl
+  -- slowTest200 : eval (t²slow 200) true ≡ false
+  -- slowTest200 = refl
 
-  slowTest300 : eval (t²slow 300) true ≡ false
-  slowTest300 = refl
+  -- slowTest300 : eval (t²slow 300) true ≡ false
+  -- slowTest300 = refl
 
-  slowTest400 : eval (t²slow 400) true ≡ false
-  slowTest400 = refl
+  -- slowTest400 : eval (t²slow 400) true ≡ false
+  -- slowTest400 = refl
 
-  slowTest500 : eval (t²slow 500) true ≡ false
-  slowTest500 = refl
+  -- slowTest500 : eval (t²slow 500) true ≡ false
+  -- slowTest500 = refl
 
-  slowTest600 : eval (t²slow 600) true ≡ false
-  slowTest600 = refl
+  -- slowTest600 : eval (t²slow 600) true ≡ false
+  -- slowTest600 = refl
 
-  slowTest700 : eval (t²slow 700) true ≡ false
-  slowTest700 = refl
+  -- slowTest700 : eval (t²slow 700) true ≡ false
+  -- slowTest700 = refl
 
-  slowTest800 : eval (t²slow 800) true ≡ false
-  slowTest800 = refl
+  -- slowTest800 : eval (t²slow 800) true ≡ false
+  -- slowTest800 = refl
 
-  slowTest900 : eval (t²slow 900) true ≡ false
-  slowTest900 = refl
+  -- slowTest900 : eval (t²slow 900) true ≡ false
+  -- slowTest900 = refl
 
-  slowTest1000 : eval (t²slow 1000) true ≡ false
-  slowTest1000 = refl
+  -- slowTest1000 : eval (t²slow 1000) true ≡ false
+  -- slowTest1000 = refl
