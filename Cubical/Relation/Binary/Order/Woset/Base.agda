@@ -33,7 +33,7 @@ open BinaryRelation
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓ₀ ℓ₀' ℓ₁ ℓ₁' : Level
+    ℓ ℓ' ℓ'' ℓ₀ ℓ₀' ℓ₁ ℓ₁' ℓ₂ ℓ₂' : Level
 
 record IsWoset {A : Type ℓ} (_≺_ : A → A → Type ℓ') : Type (ℓ-max ℓ ℓ') where
   no-eta-equality
@@ -90,6 +90,19 @@ record IsWosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
 
 WosetEquiv : (M : Woset ℓ₀ ℓ₀') (M : Woset ℓ₁ ℓ₁') → Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') (ℓ-max ℓ₁ ℓ₁'))
 WosetEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsWosetEquiv (M .snd) e (N .snd)
+
+invWosetEquiv : {M : Woset ℓ₀ ℓ₀'} {N : Woset ℓ₁ ℓ₁'} → WosetEquiv M N → WosetEquiv N M
+invWosetEquiv (M≃N , iswq) = invEquiv M≃N , iswosetequiv (IsWosetEquiv.pres≺⁻ iswq)
+
+compWosetEquiv : {M : Woset ℓ₀ ℓ₀'} {N : Woset ℓ₁ ℓ₁'} {O : Woset ℓ₂ ℓ₂'}
+               → WosetEquiv M N → WosetEquiv N O → WosetEquiv M O
+compWosetEquiv (M≃N , wqMN) (N≃O , wqNO) = (compEquiv M≃N N≃O)
+               , (iswosetequiv (λ x y
+               → compEquiv (IsWosetEquiv.pres≺ wqMN x y)
+                           (IsWosetEquiv.pres≺ wqNO (equivFun M≃N x) (equivFun M≃N y))))
+
+reflWosetEquiv : {M : Woset ℓ₀ ℓ₀'} → WosetEquiv M M
+reflWosetEquiv {M = M} = (idEquiv ⟨ M ⟩) , (iswosetequiv (λ _ _ → idEquiv _))
 
 isPropIsWoset : {A : Type ℓ} (_≺_ : A → A → Type ℓ') → isProp (IsWoset _≺_)
 isPropIsWoset _≺_ = isOfHLevelRetractFromIso 1 IsWosetIsoΣ

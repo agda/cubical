@@ -19,7 +19,7 @@ open import Cubical.Data.Unit
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
 -- First, we define a cardinal as the set truncation of Set
 Card : Type (ℓ-suc ℓ)
@@ -41,14 +41,14 @@ card = ∣_∣₂
 𝟙 = card (Unit* , isSetUnit*)
 
 -- Now we define some arithmetic
-_+_ : Card {ℓ} → Card {ℓ} → Card {ℓ}
+_+_ : Card {ℓ} → Card {ℓ'} → Card {ℓ-max ℓ ℓ'}
 _+_ = ∥₂.rec2 isSetCard λ (A , isSetA) (B , isSetB)
                         → card ((A ⊎ B) , isSet⊎ isSetA isSetB)
 
-_·_ : Card {ℓ} → Card {ℓ} → Card {ℓ}
+_·_ : Card {ℓ} → Card {ℓ'} → Card {ℓ-max ℓ ℓ'}
 _·_ = ∥₂.rec2 isSetCard λ (A , isSetA) (B , isSetB)
                         → card ((A × B) , isSet× isSetA isSetB)
 
-_^_ : Card {ℓ} → Card {ℓ} → Card {ℓ}
+_^_ : Card {ℓ} → Card {ℓ'} → Card {ℓ-max ℓ ℓ'}
 _^_ = ∥₂.rec2 isSetCard λ (A , isSetA) (B , _)
                         → card ((B → A) , isSet→ isSetA)
