@@ -95,3 +95,7 @@ module Contravariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
               → (eqInC : PathP (λ i → C [ fst (p i) , fst (q i) ]) (fst f) (fst g))
               → PathP (λ i → (∫ᴾ F) [ p i , q i ]) f g
       ∫ᴾhomEq _ _ _ _ = ΣPathPProp (λ f → snd (F ⟅ _ ⟆) _ _)
+
+      ∫ᴾhomEqSimpl : ∀ {o1 o2} (f g : (∫ᴾ F) [ o1 , o2 ])
+                   → fst f ≡ fst g → f ≡ g
+      ∫ᴾhomEqSimpl f g p = ∫ᴾhomEq f g refl refl p

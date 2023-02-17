@@ -120,6 +120,25 @@ module _ {C : Category ℓ ℓ'} where
                                ((F ⟪ f ⟫) ◍ yoneda F c .fun) α
                              ∎)
 
+-- Yoneda for contravariant functors
+module _ {C : Category ℓ ℓ'} where
+  open Category
+  import Cubical.Categories.NaturalTransformation
+  open NatTrans
+  yonedaᴾ : (F : Functor (C ^op) (SET ℓ'))
+          → (c : C .ob)
+          → Iso ((FUNCTOR (C ^op) (SET ℓ')) [ C [-, c ] , F ]) (fst (F ⟅ c ⟆))
+  yonedaᴾ F c = compIso the-iso (yoneda F c) where
+    to : FUNCTOR (C ^op) (SET ℓ') [ C [-, c ] , F ] → FUNCTOR (C ^op) (SET ℓ') [ (C ^op) [ c ,-] , F ]
+    to α = natTrans (α .N-ob) (α .N-hom)
+
+    fro : FUNCTOR (C ^op) (SET ℓ') [ (C ^op) [ c ,-] , F ] → FUNCTOR (C ^op) (SET ℓ') [ C [-, c ] , F ]
+    fro β = natTrans (β .N-ob) (β .N-hom)
+
+    the-iso : Iso (FUNCTOR (C ^op) (SET ℓ') [ C [-, c ] , F ])
+              (FUNCTOR (C ^op) (SET ℓ') [ (C ^op) [ c ,-] , F ])
+    the-iso = iso to fro (λ b → refl) λ a → refl
+
 -- Yoneda embedding
 -- TODO: probably want to rename/refactor
 module _ {C : Category ℓ ℓ} where
