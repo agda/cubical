@@ -16,7 +16,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Base
 
 private
   variable
