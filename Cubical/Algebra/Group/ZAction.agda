@@ -1,7 +1,7 @@
 -- Left ℤ-multiplication on groups and some of its properties
 
 -- TODO: lots of the content here should be moved elsewhere
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.Group.ZAction where
 
 open import Cubical.Foundations.Prelude

@@ -61,7 +61,7 @@ module _ (R : CommRing ℓ) where
                0r ∎
                where isZeroQ = snd (extractFromAnd _ _ isZeroPandQ)
   ... | false = byBoolAbsurdity isZeroP
-               where isZeroP = fst (extractFromAnd _ _ isZeroPandQ)
+               where isZeroP = isZeroPandQ
 
   computeEvalSummandIsZero :
                {n : ℕ}

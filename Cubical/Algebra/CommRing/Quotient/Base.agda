@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Quotient.Base where
 
 open import Cubical.Foundations.Prelude
@@ -47,15 +47,15 @@ module Quotient-FGideal-CommRing-Ring
   (g : RingHom (CommRing→Ring A) B)
   {n : ℕ}
   (v : FinVec ⟨ A ⟩ n)
-  (gnull : (k : Fin n) → g $ v k ≡ RingStr.0r (snd B))
+  (gnull : (k : Fin n) → g $r v k ≡ RingStr.0r (snd B))
   where
 
   open RingStr (snd B) using (0r)
 
-  zeroOnGeneratedIdeal : (x : ⟨ A ⟩) → x ∈ fst (generatedIdeal A v) → g $ x ≡ 0r
+  zeroOnGeneratedIdeal : (x : ⟨ A ⟩) → x ∈ fst (generatedIdeal A v) → g $r x ≡ 0r
   zeroOnGeneratedIdeal x x∈FGIdeal =
     PT.elim
-      (λ _ → isSetRing B (g $ x) 0r)
+      (λ _ → isSetRing B (g $r x) 0r)
       (λ {(α , isLC) → subst _ (sym isLC) (cancelLinearCombination A B g _ α v gnull)})
       x∈FGIdeal
 
@@ -69,7 +69,7 @@ module Quotient-FGideal-CommRing-CommRing
   (g : CommRingHom A B)
   {n : ℕ}
   (v : FinVec ⟨ A ⟩ n)
-  (gnull : (k : Fin n) → g $ v k ≡ CommRingStr.0r (snd B))
+  (gnull : (k : Fin n) → g $r v k ≡ CommRingStr.0r (snd B))
   where
 
   inducedHom : CommRingHom (A / (generatedIdeal _ v)) B

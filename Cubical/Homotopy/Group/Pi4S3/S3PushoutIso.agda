@@ -2,7 +2,7 @@
 {-
 This file has been split in two due to slow type checking
 combined with insufficient reductions when the
-experimental-lossy-unification flag is included.
+lossy-unification flag is included.
 Part 2: Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2
 
 The goal of these two files is to show that
