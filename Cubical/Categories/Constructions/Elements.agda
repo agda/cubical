@@ -21,14 +21,16 @@ open Category
 open Functor
 
 module Covariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
-
     getIsSet : ∀ {ℓS} {C : Category ℓ ℓ'} (F : Functor C (SET ℓS)) → (c : C .ob) → isSet (fst (F ⟅ c ⟆))
     getIsSet F c = snd (F ⟅ c ⟆)
+
+    Element : ∀ {ℓS} (F : Functor C (SET ℓS)) → Type (ℓ-max ℓ ℓS)
+    Element F = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
 
     infix 50 ∫_
     ∫_ : ∀ {ℓS} → Functor C (SET ℓS) → Category (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
     -- objects are (c , x) pairs where c ∈ C and x ∈ F c
-    (∫ F) .ob = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
+    (∫ F) .ob = Element F
     -- morphisms are f : c → c' which take x to x'
     (∫ F) .Hom[_,_] (c , x) (c' , x')  = Σ[ f ∈ C [ c , c' ] ] x' ≡ (F ⟪ f ⟫) x
     (∫ F) .id {x = (c , x)} = C .id , sym (funExt⁻ (F .F-id) x ∙ refl)
@@ -84,6 +86,9 @@ module Contravariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
     -- same thing but for presheaves
     ∫ᴾ_ : ∀ {ℓS} → Functor (C ^op) (SET ℓS) → Category (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
     ∫ᴾ F = (∫ F) ^op
+
+    Elementᴾ : ∀ {ℓS} → Functor (C ^op) (SET ℓS) → Type (ℓ-max ℓ ℓS)
+    Elementᴾ F = (∫ᴾ F) .ob
 
     -- helpful results
 
