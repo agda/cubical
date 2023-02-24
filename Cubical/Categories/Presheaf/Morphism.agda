@@ -12,6 +12,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Data.Sigma
 
 {-
 
@@ -48,6 +49,17 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'} (F : Functor C D) (P
                     ≡ push-elt (B , C [ η .snd ∘ᴾ⟨ P ⟩ f ]) .snd
     push-eltNat η f i = h .N-hom f (~ i) (lift (η .snd)) .lower
 
+    push-eltF : Functor (∫ᴾ_ {C = C} P) (∫ᴾ_ {C = D} Q)
+    push-eltF .F-ob = push-elt
+    push-eltF .F-hom {x}{y} (f , commutes) = F .F-hom f , sym (
+      D [ push-elt _ .snd ∘ᴾ⟨ Q ⟩ F .F-hom f ]
+        ≡⟨ push-eltNat y f ⟩
+      push-elt (_ , C [ y .snd ∘ᴾ⟨ P ⟩ f ]) .snd
+        ≡⟨ cong (λ a → push-elt a .snd) (ΣPathP (refl , (sym commutes))) ⟩
+      push-elt x .snd ∎)
+    push-eltF .F-id = Σ≡Prop (λ x → (Q ⟅ _ ⟆) .snd _ _) (F .F-id)
+    push-eltF .F-seq f g = Σ≡Prop ((λ x → (Q ⟅ _ ⟆) .snd _ _)) (F .F-seq (f .fst) (g .fst))
+
     preserves-representation : ∀ (η : UnivElt C P) → Type (ℓ-max (ℓ-max ℓd ℓd') ℓq)
     preserves-representation η = isUniversal D Q (push-elt (elementᴾ _ _ η))
 
@@ -55,37 +67,13 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'} (F : Functor C D) (P
     preserves-representability = ∀ η → preserves-representation η
 
     -- What is the nice HoTT formulation of this?
-    -- Probably would have been easier to use terminal objects in ∫ᴾ here...
     preserve-represention→preserves-representability :
       ∀ η → preserves-representation η → preserves-representability
-    preserve-represention→preserves-representability η preserves-η η' .coinduction ϕ =
-      F .F-hom (univEltIso _ _ (η .universal) (η' .universal) .fst) ∘⟨ D ⟩ preserves-η .coinduction ϕ
-    preserve-represention→preserves-representability η preserves-η η' .commutes ϕ =
-      (D [ push-elt (elementᴾ C P η') .snd
-           ∘ᴾ⟨ Q ⟩ F .F-hom (η' .universal .coinduction (η .element))
-           ∘⟨ D ⟩ preserves-η .coinduction ϕ ])
-        ≡⟨ ∘ᴾAssoc D Q _ _ _ ⟩
-      (D [ D [ push-elt (elementᴾ C P η') .snd
-               ∘ᴾ⟨ Q ⟩ F .F-hom (η' .universal .coinduction (η .element)) ]
-               ∘ᴾ⟨ Q ⟩ preserves-η .coinduction ϕ ])
-        ≡[ i ]⟨ D [ push-eltNat (elementᴾ C P η') ((η' .universal .coinduction (η .element))) i ∘ᴾ⟨ Q ⟩ preserves-η .coinduction ϕ ] ⟩
-      (D [ push-elt ((η .vertex) , (C [ η' .element ∘ᴾ⟨ P ⟩ η' .universal .coinduction (η .element) ])) .snd
-           ∘ᴾ⟨ Q ⟩ preserves-η .coinduction ϕ ])
-        ≡[ i ]⟨ D [ push-elt ((η .vertex) , (η' .universal .commutes (η .element) i)) .snd ∘ᴾ⟨ Q ⟩ preserves-η .coinduction ϕ ]  ⟩
-      (D [ push-elt (η .vertex , η .element) .snd ∘ᴾ⟨ Q ⟩ preserves-η .coinduction ϕ ])
-        ≡⟨ preserves-η .commutes ϕ ⟩
-      ϕ ∎
-    preserve-represention→preserves-representability η preserves-η η' .is-uniq ϕ f f-commutes =
-      ⋆InvRMove (F-Iso {C = C}{D = D}{F = F} (univEltIso C P (η' .universal) (η .universal)))
-                (preserves-η .is-uniq ϕ (F .F-hom (η .universal .coinduction (η' .element)) ∘⟨ D ⟩ f)
-                (D [ push-elt (elementᴾ _ _ η) .snd ∘ᴾ⟨ Q ⟩ (F .F-hom (η .universal .coinduction (η' .element)) ∘⟨ D ⟩ f) ]
-                  ≡⟨ ∘ᴾAssoc D Q (push-elt (elementᴾ _ _ η) .snd) (F .F-hom (η .universal .coinduction (η' .element))) f ⟩
-                 D [ D [ push-elt (elementᴾ _ _ η) .snd
-                         ∘ᴾ⟨ Q ⟩ (F .F-hom (η .universal .coinduction (η' .element))) ]
-                         ∘ᴾ⟨ Q ⟩ f  ]
-                  ≡[ i ]⟨ D [ push-eltNat (elementᴾ _ _ η) (η .universal .coinduction (η' .element)) i ∘ᴾ⟨ Q ⟩ f ] ⟩
-                 D [ push-elt (_ , C [ η .element ∘ᴾ⟨ P ⟩ η .universal .coinduction (η' .element) ]) .snd ∘ᴾ⟨ Q ⟩ f  ]
-                  ≡[ i ]⟨ D [ push-elt (_ , η .universal .commutes (η' .element) i) .snd ∘ᴾ⟨ Q ⟩ f ] ⟩
-                 D [ push-elt (elementᴾ _ _ η') .snd ∘ᴾ⟨ Q ⟩ f  ]
-                  ≡⟨ f-commutes ⟩
-                 ϕ ∎))
+    preserve-represention→preserves-representability η preserves-η η' =
+      isTerminalElement→isUniversal D Q
+        (preserveOnePreservesAll (∫ᴾ_ {C = C} P)
+                                 (∫ᴾ_ {C = D} Q)
+                                 push-eltF
+                                 (UnivElt→UniversalElement C P η)
+                                 (isUniversal→isTerminalElement D Q preserves-η)
+                                 (UnivElt→UniversalElement C P η'))
