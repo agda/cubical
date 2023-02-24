@@ -121,13 +121,13 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     (β .N-ob e ∘⟨ D ⟩ G .F-hom g) ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f) ∎
   module _ (E : Category ℓE ℓE') where
     λF : Functor (E ×C C) D → Functor E FUNCTOR
-    λF F .F-ob e .F-ob c = F ⟅ e , c ⟆ 
+    λF F .F-ob e .F-ob c = F ⟅ e , c ⟆
     λF F .F-ob e .F-hom f = F ⟪ (E .id) , f ⟫
     λF F .F-ob e .F-id = F .F-id
     λF F .F-ob e .F-seq f g =
       F ⟪ E .id , g ∘⟨ C ⟩ f ⟫ ≡⟨ (λ i → F ⟪ (E .⋆IdL (E .id) (~ i)) , (g ∘⟨ C ⟩ f) ⟫) ⟩
       (F ⟪ (E .id ∘⟨ E ⟩ E .id) , g ∘⟨ C ⟩ f ⟫) ≡⟨ F .F-seq (E .id , f) (E .id , g) ⟩
-      (F ⟪ E .id , g ⟫ ∘⟨ D ⟩ F ⟪ E .id , f ⟫) ∎ 
+      (F ⟪ E .id , g ⟫ ∘⟨ D ⟩ F ⟪ E .id , f ⟫) ∎
     λF F .F-hom h .N-ob c = F ⟪ h , (C .id) ⟫
     λF F .F-hom h .N-hom f =
       F ⟪ h , C .id ⟫ ∘⟨ D ⟩ F ⟪ E .id , f ⟫ ≡⟨ sym (F .F-seq _ _) ⟩
