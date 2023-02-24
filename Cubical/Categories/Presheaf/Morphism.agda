@@ -16,6 +16,10 @@ open import Cubical.Data.Sigma
 
 {-
 
+  Given two presheaves P and Q on the same category C, a morphism
+  between them is a natural transformation. Here we generalize this to
+  situations where P and Q are presheaves on *different* categories.
+
   Given a functor F : C → D, a presheaf P on C and a presheaf Q on D,
   we can define a homomorphism from P to Q over F as a natural
   transformation from P to Q o F^op. (if we had implicit cumulativity)

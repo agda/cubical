@@ -144,11 +144,11 @@ module _ {C : Category ℓ ℓ'} where
               (FUNCTOR (C ^op) (SET ℓ') [ (C ^op) [ c ,-] , F ])
     the-iso = iso to fro (λ b → refl) λ a → refl
 
--- the covariant/contravariant Yoneda lemma,s but more universe polymorphic
-yonedaPoly : {C : Category ℓ ℓ'}(F : Functor C (SET ℓ''))
-           → (c : Category.ob C)
-           → Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-]) , LiftF {ℓ''}{ℓ'} ∘F F ]) (fst (F ⟅ c ⟆))
-yonedaPoly {ℓ}{ℓ'}{ℓ''}{C} F c =
+-- A more universe-polymorphic Yoneda lemma
+yoneda* : {C : Category ℓ ℓ'}(F : Functor C (SET ℓ''))
+        → (c : Category.ob C)
+        → Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-]) , LiftF {ℓ''}{ℓ'} ∘F F ]) (fst (F ⟅ c ⟆))
+yoneda* {ℓ}{ℓ'}{ℓ''}{C} F c =
   ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-]) , LiftF {ℓ''}{ℓ'} ∘F F ])
     Iso⟨ the-iso ⟩
   ((FUNCTOR (LiftHoms C ℓ'') (SET (ℓ-max ℓ' ℓ''))) [ (LiftHoms C ℓ'' [ c ,-]) , LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'') ])
@@ -165,12 +165,12 @@ yonedaPoly {ℓ}{ℓ'}{ℓ''}{C} F c =
   the-iso .rightInv β = refl
   the-iso .leftInv α = refl
 
-yonedaᴾPoly : {C : Category ℓ ℓ'}(F : Functor (C ^op) (SET ℓ''))
+yonedaᴾ* : {C : Category ℓ ℓ'}(F : Functor (C ^op) (SET ℓ''))
             → (c : Category.ob C)
             → Iso (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ'')) [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ]) , LiftF {ℓ''}{ℓ'} ∘F F ]) (fst (F ⟅ c ⟆))
-yonedaᴾPoly {ℓ}{ℓ'}{ℓ''}{C} F c =
+yonedaᴾ* {ℓ}{ℓ'}{ℓ''}{C} F c =
   (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ'')) [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ]) , LiftF {ℓ''}{ℓ'} ∘F F ]) Iso⟨ the-iso ⟩
-  (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ'')) [ LiftF {ℓ'}{ℓ''} ∘F ((C ^op) [ c ,-]) , LiftF {ℓ''}{ℓ'} ∘F F ]) Iso⟨ yonedaPoly F c ⟩
+  (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ'')) [ LiftF {ℓ'}{ℓ''} ∘F ((C ^op) [ c ,-]) , LiftF {ℓ''}{ℓ'} ∘F F ]) Iso⟨ yoneda* F c ⟩
   fst (F ⟅ c ⟆) ∎Iso where
 
   the-iso :

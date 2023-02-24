@@ -14,6 +14,7 @@ open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Limits
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Properties
 open import Cubical.HITs.PropositionalTruncation.Base
 
 private
@@ -27,15 +28,10 @@ open Contravariant
 -- | We define only the maximally universe polymorphic version, the
 -- | Lifts don't appear in practice because we usually use universal
 -- | elements instead
-
 module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
-
   Representation : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   Representation =
-    Σ[ A ∈ C .ob ]
-    CatIso (PresheafCategory C (ℓ-max ℓh ℓp))
-         (LiftF {ℓ = ℓh}{ℓ' = ℓp} ∘F (C [-, A ]))
-         (LiftF {ℓ = ℓp}{ℓ' = ℓh} ∘F P)
+    Σ[ A ∈ C .ob ] PshIso C (C [-, A ]) P
 
   Representable : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   Representable = ∥ Representation ∥₁
@@ -147,15 +143,15 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   isTerminalElement→YoIso : (η : Terminal Elements)
     → Cubical.Categories.Category.isIso
        (PresheafCategory C (ℓ-max ℓh ℓp))
-       (Iso.inv (yonedaᴾPoly {C = C} P (η .fst .fst)) (η .fst .snd))
+       (Iso.inv (yonedaᴾ* {C = C} P (η .fst .fst)) (η .fst .snd))
   isTerminalElement→YoIso ((A , η) , η-univ) = FUNCTORIso (C ^op) (SET (ℓ-max ℓh ℓp)) _ pointwise where
-    pointwise : ∀ c → Cubical.Categories.Category.isIso (SET (ℓ-max ℓh ℓp)) (Iso.inv (yonedaᴾPoly {C = C} P A) η ⟦ c ⟧)
+    pointwise : ∀ c → Cubical.Categories.Category.isIso (SET (ℓ-max ℓh ℓp)) (Iso.inv (yonedaᴾ* {C = C} P A) η ⟦ c ⟧)
     pointwise c .isIso.inv ϕ = lift (η-univ (_ , ϕ .lower) .fst .fst)
     pointwise c .isIso.sec = funExt (λ ϕ i → lift (η-univ (_ , ϕ .lower) .fst .snd (~ i)))
     pointwise c .isIso.ret = funExt (λ f i → lift (η-univ (_ , C [ η ∘ᴾ⟨ P ⟩ f .lower ]) .snd (f .lower , refl) i .fst))
 
   YoIso→isTerminalElement : ∀ A
-                          → (i : CatIso (PresheafCategory C (ℓ-max ℓh ℓp)) (LiftF {ℓ = ℓh}{ℓ' = ℓp} ∘F (C [-, A ])) (LiftF {ℓ = ℓp}{ℓ' = ℓh} ∘F P))
+                          → (i : PshIso C (C [-, A ]) P)
                           → isTerminal Elements (A , (i .fst .N-ob A (lift (C .id)) .lower))
   YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret) (B , ϕ) .fst .fst = P→YoA .N-ob B (lift ϕ) .lower
   YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret) (B , ϕ) .fst .snd =
@@ -176,19 +172,19 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
 
   RepresentationToUniversalElement : Representation → UniversalElement
   RepresentationToUniversalElement (A , YoA→P , YoA→P-isIso) .fst .fst = A
-  RepresentationToUniversalElement (A , YoA→P , YoA→P-isIso) .fst .snd = Iso.fun (yonedaᴾPoly P A) YoA→P
+  RepresentationToUniversalElement (A , YoA→P , YoA→P-isIso) .fst .snd = Iso.fun (yonedaᴾ* P A) YoA→P
   RepresentationToUniversalElement (A , YoA→P , YoA→P-isIso) .snd = YoIso→isTerminalElement A (YoA→P , YoA→P-isIso)
 
   UniversalElementToRepresentation : UniversalElement → Representation
   UniversalElementToRepresentation ((A , η) , η-univ) .fst = A
-  UniversalElementToRepresentation η-terminal @ ((A , η) , η-univ) .snd = (Iso.inv (yonedaᴾPoly P A) η) , isTerminalElement→YoIso η-terminal
+  UniversalElementToRepresentation η-terminal @ ((A , η) , η-univ) .snd = (Iso.inv (yonedaᴾ* P A) η) , isTerminalElement→YoIso η-terminal
 
   Representation≅UniversalElement : Iso Representation UniversalElement
   Representation≅UniversalElement .Iso.fun = RepresentationToUniversalElement
   Representation≅UniversalElement .Iso.inv = UniversalElementToRepresentation
-  Representation≅UniversalElement .Iso.rightInv ((A , η) , _) = Σ≡Prop (isPropIsTerminal Elements) (ΣPathP (refl , yonedaᴾPoly {C = C} P A .rightInv η))
+  Representation≅UniversalElement .Iso.rightInv ((A , η) , _) = Σ≡Prop (isPropIsTerminal Elements) (ΣPathP (refl , yonedaᴾ* {C = C} P A .rightInv η))
     where open Iso
-  Representation≅UniversalElement .Iso.leftInv (A , YoA→P , _) = ΣPathP (refl , (Σ≡Prop isPropIsIso (yonedaᴾPoly {C = C} P A .leftInv YoA→P)))
+  Representation≅UniversalElement .Iso.leftInv (A , YoA→P , _) = ΣPathP (refl , (Σ≡Prop isPropIsIso (yonedaᴾ* {C = C} P A .leftInv YoA→P)))
     where open Iso
 
   Representation≅UnivElt : Iso Representation UnivElt
