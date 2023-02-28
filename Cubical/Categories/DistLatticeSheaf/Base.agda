@@ -113,6 +113,8 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
   isPropIsDLSheaf : ∀ F → isProp (isDLSheaf F)
   isPropIsDLSheaf F = isPropΠ2 (λ _ _ → isPropIsLimCone _ _ _)
 
+  isDLSheafProp : ℙ DLPreSheaf
+  isDLSheafProp F = isDLSheaf F , isPropIsDLSheaf F
 
   module EquivalenceOfDefs (F : DLPreSheaf) where
     open isUnivalent
@@ -581,6 +583,9 @@ module SheafOnBasis (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
 
  isPropIsDLBasisSheaf : ∀ F → isProp (isDLBasisSheaf F)
  isPropIsDLBasisSheaf F = isPropImplicitΠ (λ _ → isPropΠ2 λ _ _ → isPropIsLimCone _ _ _)
+
+ isDLBasisSheafProp : ℙ DLBasisPreSheaf
+ isDLBasisSheafProp F = isDLBasisSheaf F , isPropIsDLBasisSheaf F
 
  DLBasisSheaf→Terminal : ∀ (F : DLBasisPreSheaf)
                        → isDLBasisSheaf F
