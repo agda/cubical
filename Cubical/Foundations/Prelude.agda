@@ -314,6 +314,12 @@ funExt⁻ : {B : A → I → Type ℓ'}
   → ((x : A) → PathP (B x) (f x) (g x))
 funExt⁻ eq x i = eq i x
 
+implicitFunExt⁻ : {B : A → I → Type ℓ'}
+  {f : {x : A} → B x i0} {g : {x : A} → B x i1}
+  → PathP (λ i → {x : A} → B x i) f g
+  → ({x : A} → PathP (B x) (f {x}) (g {x}))
+implicitFunExt⁻ eq {x} i = eq i {x}
+
 _≡$_ = funExt⁻
 
 {- `S` stands for simply typed. Using `funExtS⁻` instead of `funExt⁻`
