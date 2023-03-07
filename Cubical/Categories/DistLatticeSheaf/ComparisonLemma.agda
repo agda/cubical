@@ -74,11 +74,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
   ShB = ΣPropCat (FUNCTOR Bᵒᵖ C) isDLBasisSheafProp
   ShL = ΣPropCat (FUNCTOR Lᵒᵖ C) (isDLSheafProp L C)
 
-  i : Functor Bᵒᵖ Lᵒᵖ
-  F-ob i = fst
-  F-hom i f = f
-  F-id i = refl
-  F-seq i _ _ = refl
+  i = baseIncl ^opF
 
  restPresSheafProp : ∀ (F : Functor Lᵒᵖ C) → isDLSheaf L C F → isDLBasisSheaf (F ∘F i)
  restPresSheafProp F isSheafF α ⋁α∈B =
@@ -122,8 +118,13 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
 
  DLRanFun : Functor (FUNCTOR Bᵒᵖ C) (FUNCTOR Lᵒᵖ C)
  F-ob DLRanFun = DLRan
- N-ob (F-hom DLRanFun α) = {!!}
- N-hom (F-hom DLRanFun α) = {!!}
+ N-ob (F-hom DLRanFun {x = F} {y = G} α) x = limOfArrows _ _ FLimCone GLimCone
+   (λ u → α .N-ob (u .fst))
+    λ e → sym (α .N-hom (e .fst))
+   where
+   FLimCone = limitC (_↓Diag limitC i F x) (T* limitC i F x)
+   GLimCone = limitC (_↓Diag limitC i G x) (T* limitC i G x)
+ N-hom (F-hom DLRanFun {x = F} {y = G} α) = {!!}
  F-id DLRanFun = {!!}
  F-seq DLRanFun = {!!}
 
@@ -131,11 +132,11 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  extSh : Functor ShB ShL
  extSh = ΣPropCatFunc DLRanFun (isDLSheafDLRan isBasisB)
 
- open _≃ᶜ_
+ open _≃ᶜ_ renaming (isEquiv to isEquivC)
  open isEquivalence
 
  DLComparisonLemma : ShB ≃ᶜ ShL
  func DLComparisonLemma = extSh
- invFunc (_≃ᶜ_.isEquiv DLComparisonLemma) = restSh
- η (_≃ᶜ_.isEquiv DLComparisonLemma) = {!!}
- ε (_≃ᶜ_.isEquiv DLComparisonLemma) = {!!}
+ invFunc (isEquivC DLComparisonLemma) = restSh
+ η (isEquivC DLComparisonLemma) = {!!}
+ ε (isEquivC DLComparisonLemma) = {!!}

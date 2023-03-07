@@ -57,16 +57,16 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
   DLPreSheaf = Functor (DLCat ^op) C
   DLSubPreSheaf = Functor (DLSubCat ^op) C
 
-  i : Functor DLSubCat DLCat
-  F-ob i = fst
-  F-hom i f = f
-  F-id i = refl
-  F-seq i _ _ = refl
+ baseIncl : Functor DLSubCat DLCat
+ F-ob baseIncl = fst
+ F-hom baseIncl f = f
+ F-id baseIncl = refl
+ F-seq baseIncl _ _ = refl
 
  DLRan : DLSubPreSheaf → DLPreSheaf
- DLRan = Ran limitC (i ^opF)
+ DLRan = Ran limitC (baseIncl ^opF)
 
- DLRanNatIso : (F : DLSubPreSheaf) → NatIso (funcComp (DLRan F) (i ^opF)) F
+ DLRanNatIso : (F : DLSubPreSheaf) → NatIso (funcComp (DLRan F) (baseIncl ^opF)) F
  DLRanNatIso F = RanNatIso _ _ _ (λ _ _ → idIsEquiv _)
 
  module _ (isBasisL' : IsBasis L L') (F : DLSubPreSheaf)
@@ -87,7 +87,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
    instance
     _ = isBasisL'
 
-   F* = T* limitC (i ^opF) F
+   F* = T* limitC (baseIncl ^opF) F
 
   -- a neat lemma
   F≤PathPLemmaBase : ∀ {x y z w : ob DLSubCat} (p : x ≡ y) (q : z ≡ w)
@@ -101,7 +101,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
   -- arrow in our pullback square below
   module _ {n : ℕ} (α : FinVec (fst L) n) (α∈L' : ∀ i → α i ∈ L') where
     private -- from the definition of the can extension
-      ⋁α↓ = _↓Diag limitC (i ^opF) F (⋁ α)
+      ⋁α↓ = _↓Diag limitC (baseIncl ^opF) F (⋁ α)
       F[⋁α]Cone = limitC ⋁α↓ (F* (⋁ α)) .limCone
 
     -- notation that will be used throughout the file.
@@ -661,7 +661,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
       limArrow (limitC _ (F* 0l)) x (toCone x)
     , λ f → limArrowUnique (limitC _ (F* 0l)) x (toCone x) f (toConeMor x f)
     where
-    0↓ = _↓Diag limitC (i ^opF) F 0l
+    0↓ = _↓Diag limitC (baseIncl ^opF) F 0l
 
     toTerminal : ∀ (u : ob 0↓) → isTerminal C (F .F-ob (u .fst))
     toTerminal ((u , u∈L') , 0≥u) = subst (λ v → isTerminal C (F .F-ob v))
