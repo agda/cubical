@@ -116,17 +116,58 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  restSh = ΣPropCatFunc (precomposeF C i) restPresSheafProp
 
 
+ -- notation
+ private module _ {F G : Functor Bᵒᵖ C} (α : NatTrans F G) (x : ob Lᵒᵖ) where
+  theDiag = (_↓Diag limitC i F x)
+  -- note that (_↓Diag limitC i F x) = (_↓Diag limitC i G x) definitionally
+  FLimCone = limitC (_↓Diag limitC i F x) (T* limitC i F x)
+  GLimCone = limitC (_↓Diag limitC i G x) (T* limitC i G x)
+
+  ↓nt : NatTrans (T* limitC i F x) (T* limitC i G x)
+  N-ob ↓nt u = α .N-ob (u .fst)
+  N-hom ↓nt e = α .N-hom (e .fst)
+
+  module _ (y : ob Lᵒᵖ) (x≥y : Lᵒᵖ [ x , y ]) where
+   GYLimCone = limitC (_↓Diag limitC i G y) (T* limitC i G y)
+   FYLimCone = limitC (_↓Diag limitC i F y) (T* limitC i F y)
+
+   diagCone : Cone (T* limitC i G y) (RanOb limitC i F x)
+   coneOut diagCone (u , y≥u) = limOut FLimCone (u , is-trans _ _ _ y≥u x≥y)
+                                  ⋆⟨ C ⟩ α .N-ob u
+   coneOutCommutes diagCone = {!!}
+
+   diagArrow : C [ RanOb limitC i F x , RanOb limitC i G y ]
+   diagArrow = limArrow GYLimCone _ diagCone
+
+
+
  DLRanFun : Functor (FUNCTOR Bᵒᵖ C) (FUNCTOR Lᵒᵖ C)
  F-ob DLRanFun = DLRan
- N-ob (F-hom DLRanFun {x = F} {y = G} α) x = limOfArrows _ _ FLimCone GLimCone
-   (λ u → α .N-ob (u .fst))
-    λ e → sym (α .N-hom (e .fst))
+ N-ob (F-hom DLRanFun α) x = limOfArrows (FLimCone α _) (GLimCone α _) (↓nt α x)
+ N-hom (F-hom DLRanFun {x = F} {y = G} α) {x = x} {y = y} x≥y =
+   sym (limArrowUnique (GLimCone α y) _ (diagCone α x y x≥y) _ isConeMorL)
+     ∙ (limArrowUnique (GLimCone α y) _ _ _ isConeMorR)
    where
-   FLimCone = limitC (_↓Diag limitC i F x) (T* limitC i F x)
-   GLimCone = limitC (_↓Diag limitC i G x) (T* limitC i G x)
- N-hom (F-hom DLRanFun {x = F} {y = G} α) = {!!}
- F-id DLRanFun = {!!}
- F-seq DLRanFun = {!!}
+   l = limArrow (FLimCone α y) _ (RanCone limitC i F x≥y)
+           ⋆⟨ C ⟩ limOfArrows (FLimCone α _) (GLimCone α _) (↓nt α y)
+
+   isConeMorL : isConeMor (diagCone α x y x≥y) (limCone (GLimCone α y)) l
+   isConeMorL (u , y≥u) = {!!}
+
+   r = limOfArrows (FLimCone α _) (GLimCone α _) (↓nt α x)
+           ⋆⟨ C ⟩ limArrow (GLimCone α y) _ (RanCone limitC i G x≥y)
+
+   isConeMorR : isConeMor (diagCone α x y x≥y) (limCone (GLimCone α y)) r
+   isConeMorR = {!!}
+
+
+ F-id DLRanFun {x = F} = makeNatTransPath
+                           (funExt λ x → limOfArrowsId (FLimCone (idTrans F) x))
+ F-seq DLRanFun α β = makeNatTransPath
+                        (funExt λ x → limOfArrowsSeq (FLimCone α x) (GLimCone α x)
+                                                     (GLimCone β x) (↓nt α x) (↓nt β x))
+
+
 
  --extension of sheaves as functor
  extSh : Functor ShB ShL
