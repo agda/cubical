@@ -134,8 +134,16 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
    diagCone : Cone (T* limitC i G y) (RanOb limitC i F x)
    coneOut diagCone (u , y≥u) = limOut FLimCone (u , is-trans _ _ _ y≥u x≥y)
                                   ⋆⟨ C ⟩ α .N-ob u
-   coneOutCommutes diagCone = {!!}
-
+   coneOutCommutes diagCone {u = (u , y≥u)} {v = (v , y≥v)} (u≥v , _) =
+       (limOut FLimCone (u , is-trans _ _ _ y≥u x≥y) ⋆⟨ C ⟩ α .N-ob u) ⋆⟨ C ⟩ G .F-hom u≥v
+     ≡⟨ ⋆Assoc C _ _ _ ⟩
+       limOut FLimCone (u , is-trans _ _ _ y≥u x≥y) ⋆⟨ C ⟩ (α .N-ob u ⋆⟨ C ⟩ G .F-hom u≥v)
+     ≡⟨ cong (seq' C (limOut FLimCone (u , is-trans _ _ _ y≥u x≥y))) (sym (α .N-hom u≥v)) ⟩
+       limOut FLimCone (u , is-trans _ _ _ y≥u x≥y) ⋆⟨ C ⟩ (F .F-hom u≥v ⋆⟨ C ⟩ α .N-ob v)
+     ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+       (limOut FLimCone (u , is-trans _ _ _ y≥u x≥y) ⋆⟨ C ⟩ F .F-hom u≥v) ⋆⟨ C ⟩ α .N-ob v
+     ≡⟨ cong (λ x → x ⋆⟨ C ⟩ α .N-ob v) (limOutCommutes FLimCone (u≥v , is-prop-valued _ _ _ _)) ⟩
+       limOut FLimCone (v , is-trans _ _ _ y≥v x≥y) ⋆⟨ C ⟩ α .N-ob v ∎
    diagArrow : C [ RanOb limitC i F x , RanOb limitC i G y ]
    diagArrow = limArrow GYLimCone _ diagCone
 
@@ -152,13 +160,38 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
            ⋆⟨ C ⟩ limOfArrows (FLimCone α _) (GLimCone α _) (↓nt α y)
 
    isConeMorL : isConeMor (diagCone α x y x≥y) (limCone (GLimCone α y)) l
-   isConeMorL (u , y≥u) = {!!}
+   isConeMorL (u , y≥u) =
+       l ⋆⟨ C ⟩ (limOut (GLimCone α y) (u , y≥u))
+     ≡⟨ ⋆Assoc C _ _ _ ⟩
+       limArrow (FLimCone α y) _ (RanCone limitC i F x≥y)
+         ⋆⟨ C ⟩ (limOfArrows (FLimCone α _) (GLimCone α _) (↓nt α y)
+                   ⋆⟨ C ⟩ (limOut (GLimCone α y) (u , y≥u)))
+     ≡⟨ cong (seq' C (limArrow (FLimCone α y) _ (RanCone limitC i F x≥y)))
+             (limOfArrowsOut (FLimCone α _) (GLimCone α _) _ _) ⟩
+       limArrow (FLimCone α y) _ (RanCone limitC i F x≥y)
+         ⋆⟨ C ⟩ (limOut (FLimCone α _) (u , y≥u) ⋆⟨ C ⟩ α .N-ob u)
+     ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+       (limArrow (FLimCone α y) _ (RanCone limitC i F x≥y)
+         ⋆⟨ C ⟩ (limOut (FLimCone α _) (u , y≥u))) ⋆⟨ C ⟩ α .N-ob u
+     ≡⟨ cong (λ x → x ⋆⟨ C ⟩ (α .N-ob u)) (limArrowCommutes (FLimCone α _) _ _ _) ⟩
+       limOut (FLimCone α x) (u , is-trans _ _ _ y≥u x≥y) ⋆⟨ C ⟩ α .N-ob u ∎
 
    r = limOfArrows (FLimCone α _) (GLimCone α _) (↓nt α x)
            ⋆⟨ C ⟩ limArrow (GLimCone α y) _ (RanCone limitC i G x≥y)
 
    isConeMorR : isConeMor (diagCone α x y x≥y) (limCone (GLimCone α y)) r
-   isConeMorR = {!!}
+   isConeMorR (u , y≥u) =
+       r ⋆⟨ C ⟩ (limOut (GLimCone α y) (u , y≥u))
+     ≡⟨ ⋆Assoc C _ _ _ ⟩
+       limOfArrows (FLimCone α _) (GLimCone α _) (↓nt α x)
+         ⋆⟨ C ⟩ (limArrow (GLimCone α y) _ (RanCone limitC i G x≥y)
+                 ⋆⟨ C ⟩ (limOut (GLimCone α y) (u , y≥u)))
+     ≡⟨ cong (seq' C (limOfArrows (FLimCone α _) (GLimCone α _) (↓nt α x)))
+          (limArrowCommutes (GLimCone α _) _ _ _) ⟩
+       limOfArrows (FLimCone α _) (GLimCone α _) (↓nt α x)
+         ⋆⟨ C ⟩ limOut (GLimCone α x) (u , is-trans _ _ _ y≥u x≥y)
+     ≡⟨ limOfArrowsOut (FLimCone α x) (GLimCone α x) _ _ ⟩
+       limOut (FLimCone α x) (u , is-trans _ _ _ y≥u x≥y) ⋆⟨ C ⟩ α .N-ob u ∎
 
 
  F-id DLRanFun {x = F} = makeNatTransPath
