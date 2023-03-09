@@ -24,6 +24,7 @@ open import Cubical.Algebra.DistLattice.Basis
 open import Cubical.Algebra.DistLattice.BigOps
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Morphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Equivalence
@@ -208,9 +209,28 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
 
  open _≃ᶜ_ renaming (isEquiv to isEquivC)
  open isEquivalence
+ open NatIso
+ open isIso
+
+ DLPShfEquiv : (FUNCTOR Bᵒᵖ C) ≃ᶜ (FUNCTOR Lᵒᵖ C)
+ func DLPShfEquiv = DLRanFun
+ invFunc (isEquivC DLPShfEquiv) = precomposeF C i
+ -- the unit
+ N-ob (trans (η (isEquivC DLPShfEquiv))) F = symNatIso (DLRanNatIso F) .trans
+ N-hom (trans (η (isEquivC DLPShfEquiv))) {x = F} {y = G} α = makeNatTransPath (funExt
+   λ u → invFlipSq (isIso→areInv (DLRanNatIso F .nIso u)) (isIso→areInv (DLRanNatIso G .nIso u))
+                   (invSq u))
+   where
+   invSq : ∀ (u : ob Bᵒᵖ)
+         → limOfArrows (FLimCone α (u .fst)) (GLimCone α _) (↓nt α (u .fst))
+             ⋆⟨ C ⟩ limOut (GLimCone α (u .fst)) (u , is-trans _ _ _ (id Bᵒᵖ {u}) (id Bᵒᵖ {u}))
+         ≡ limOut (FLimCone α (u .fst)) (u , is-trans _ _ _ (id Bᵒᵖ {u}) (id Bᵒᵖ {u}))
+             ⋆⟨ C ⟩ α .N-ob u
+   invSq u = limOfArrowsOut (FLimCone α (u .fst)) (GLimCone α (u .fst)) _ _
+ nIso (η (isEquivC DLPShfEquiv)) F = NatIso→FUNCTORIso _ _ (symNatIso (DLRanNatIso F)) .snd
+
+ -- the counit
+ ε (isEquivC DLPShfEquiv) = {!!}
 
  DLComparisonLemma : ShB ≃ᶜ ShL
- func DLComparisonLemma = extSh
- invFunc (isEquivC DLComparisonLemma) = restSh
- η (isEquivC DLComparisonLemma) = {!!}
- ε (isEquivC DLComparisonLemma) = {!!}
+ DLComparisonLemma = {!!}
