@@ -216,23 +216,35 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  func DLPShfEquiv = DLRanFun
  invFunc (isEquivC DLPShfEquiv) = precomposeF C i
  -- the unit
- N-ob (trans (η (isEquivC DLPShfEquiv))) F = symNatIso (DLRanNatIso F) .trans
- N-hom (trans (η (isEquivC DLPShfEquiv))) {x = F} {y = G} α = makeNatTransPath (funExt
-   λ u → invFlipSq (isIso→areInv (DLRanNatIso F .nIso u)) (isIso→areInv (DLRanNatIso G .nIso u))
-                   (invSq u))
+ η (isEquivC DLPShfEquiv) = symNatIso η⁻¹
    where
-   invSq : ∀ (u : ob Bᵒᵖ)
-         → limOfArrows (FLimCone α (u .fst)) (GLimCone α _) (↓nt α (u .fst))
-             ⋆⟨ C ⟩ limOut (GLimCone α (u .fst)) (u , is-trans _ _ _ (id Bᵒᵖ {u}) (id Bᵒᵖ {u}))
-         ≡ limOut (FLimCone α (u .fst)) (u , is-trans _ _ _ (id Bᵒᵖ {u}) (id Bᵒᵖ {u}))
-             ⋆⟨ C ⟩ α .N-ob u
-   invSq u = limOfArrowsOut (FLimCone α (u .fst)) (GLimCone α (u .fst)) _ _
- nIso (η (isEquivC DLPShfEquiv)) F = NatIso→FUNCTORIso _ _ (symNatIso (DLRanNatIso F)) .snd
+   η⁻¹ : NatIso ((precomposeF C i) ∘F DLRanFun) 𝟙⟨ FUNCTOR Bᵒᵖ C ⟩
+   N-ob (trans η⁻¹) = DLRanNatTrans
+   N-hom (trans η⁻¹) {x = F} {y = G} α = -- DLRanNatTrans F is functorial in F
+     makeNatTransPath (funExt (λ u → limOfArrowsOut (FLimCone α (u .fst)) (GLimCone α (u .fst)) _ _))
+   nIso η⁻¹ F = NatIso→FUNCTORIso _ _ (DLRanNatIso F) .snd
 
  -- the counit
- N-ob (trans (ε (isEquivC DLPShfEquiv))) F = {!DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst!}
- N-hom (trans (ε (isEquivC DLPShfEquiv))) = {!!}
- nIso (ε (isEquivC DLPShfEquiv)) = {!!}
+ ε (isEquivC DLPShfEquiv) = symNatIso ε⁻¹
+   where
+   ε⁻¹ : NatIso 𝟙⟨ FUNCTOR Lᵒᵖ C ⟩ (DLRanFun ∘F (precomposeF C i))
+   N-ob (trans ε⁻¹) F = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+   N-hom (trans ε⁻¹) {x = F} {y = G} α = makeNatTransPath (funExt (λ u → {!!}))
+   nIso ε⁻¹ = {!!}
 
  DLComparisonLemma : ShB ≃ᶜ ShL
- DLComparisonLemma = {!!}
+ DLComparisonLemma = ΣPropCatEquiv DLPShfEquiv (isDLSheafDLRan isBasisB) restPresSheafProp
+
+ -- useful corollary
+ isFullyFaithfulExtSh : isFullyFaithful extSh
+ isFullyFaithfulExtSh = isEquiv→FullyFaithful (DLComparisonLemma .isEquivC)
+
+ isFullyFaithfulRestSh : isFullyFaithful restSh
+ isFullyFaithfulRestSh = isEquiv→FullyFaithful (symEquiv (DLComparisonLemma .isEquivC))
+
+
+ -- if two natural transformations between sheaves agree on the basis they are identical
+ makeNatTransPathRest : {F G : Functor Lᵒᵖ C} (α β : NatTrans F G)
+                      → (∀ (u : ob Bᵒᵖ) → (α ∘ˡ i) .N-ob u ≡ (β ∘ˡ i) .N-ob u)
+                      → α ≡ β
+ makeNatTransPathRest α β basePaths = {!!}
