@@ -66,6 +66,13 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
  DLRan : DLSubPreSheaf → DLPreSheaf
  DLRan = Ran limitC (baseIncl ^opF)
 
+ DLRanNatTrans : (F : DLSubPreSheaf) → NatTrans (funcComp (DLRan F) (baseIncl ^opF)) F
+ DLRanNatTrans = RanNatTrans _ _
+
+ DLRanUnivProp : ∀ (F : DLSubPreSheaf) (G : DLPreSheaf) (α : NatTrans (G ∘F (baseIncl ^opF)) F)
+               → ∃![ σ ∈ NatTrans G (DLRan F) ] α ≡ (σ ∘ˡ (baseIncl ^opF)) ●ᵛ (DLRanNatTrans F)
+ DLRanUnivProp = RanUnivProp _ _
+
  DLRanNatIso : (F : DLSubPreSheaf) → NatIso (funcComp (DLRan F) (baseIncl ^opF)) F
  DLRanNatIso F = RanNatIso _ _ _ (λ _ _ → idIsEquiv _)
 

@@ -230,7 +230,9 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  nIso (η (isEquivC DLPShfEquiv)) F = NatIso→FUNCTORIso _ _ (symNatIso (DLRanNatIso F)) .snd
 
  -- the counit
- ε (isEquivC DLPShfEquiv) = {!!}
+ N-ob (trans (ε (isEquivC DLPShfEquiv))) F = {!DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst!}
+ N-hom (trans (ε (isEquivC DLPShfEquiv))) = {!!}
+ nIso (ε (isEquivC DLPShfEquiv)) = {!!}
 
  DLComparisonLemma : ShB ≃ᶜ ShL
  DLComparisonLemma = {!!}
