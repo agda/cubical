@@ -48,7 +48,7 @@ module Sum (R' : Ring ℓ) where
 
  ∑Split++ : ∀ {n m : ℕ} (V : FinVec R n) (W : FinVec R m)
           → ∑ (V ++Fin W) ≡ ∑ V + ∑ W
- ∑Split++ = bigOpSplit++ +Comm
+ ∑Split++ = bigOpSplit++
 
  ∑Mulrdist : ∀ {n} → (x : R) → (V : FinVec R n)
                 → x · ∑ V ≡ ∑ λ i → x · V i
@@ -125,6 +125,7 @@ module Product (R' : Ring ℓ) where
  ∏Ext = bigOpExt
  ∏0r = bigOpε
  ∏Last = bigOpLast
+ ΠSplit++ = bigOpSplit++
 
 -- only holds in CommRings!
 -- ∏Split : ∀ {n} → (V W : FinVec R n) → ∏ (λ i → V i · W i) ≡ ∏ V · ∏ W
