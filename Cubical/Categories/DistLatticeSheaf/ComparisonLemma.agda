@@ -212,11 +212,11 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  open NatIso
  open isIso
 
- DLPShfEquiv : (FUNCTOR Bᵒᵖ C) ≃ᶜ (FUNCTOR Lᵒᵖ C)
- func DLPShfEquiv = DLRanFun
- invFunc (isEquivC DLPShfEquiv) = precomposeF C i
+ DLPshfEquiv : (FUNCTOR Bᵒᵖ C) ≃ᶜ (FUNCTOR Lᵒᵖ C)
+ func DLPshfEquiv = DLRanFun
+ invFunc (isEquivC DLPshfEquiv) = precomposeF C i
  -- the unit
- η (isEquivC DLPShfEquiv) = symNatIso η⁻¹
+ η (isEquivC DLPshfEquiv) = symNatIso η⁻¹
    where
    η⁻¹ : NatIso ((precomposeF C i) ∘F DLRanFun) 𝟙⟨ FUNCTOR Bᵒᵖ C ⟩
    N-ob (trans η⁻¹) = DLRanNatTrans
@@ -225,26 +225,31 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
    nIso η⁻¹ F = NatIso→FUNCTORIso _ _ (DLRanNatIso F) .snd
 
  -- the counit
- ε (isEquivC DLPShfEquiv) = symNatIso ε⁻¹
+ ε (isEquivC DLPshfEquiv) = symNatIso ε⁻¹
    where
    ε⁻¹ : NatIso 𝟙⟨ FUNCTOR Lᵒᵖ C ⟩ (DLRanFun ∘F (precomposeF C i))
    N-ob (trans ε⁻¹) F = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
-   N-hom (trans ε⁻¹) {x = F} {y = G} α = makeNatTransPath (funExt (λ u → {!!}))
+   N-hom (trans ε⁻¹) {x = F} {y = G} α = makeNatTransPath (funExt goal)
+     where
+     σᶠ = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+     σᵍ = DLRanUnivProp (G ∘F i) G (idTrans _) .fst .fst
+     goal : ∀ (x : ob Lᵒᵖ)
+          → α .N-ob x ⋆⟨ C ⟩ σᵍ .N-ob x
+          ≡ σᶠ .N-ob x ⋆⟨ C ⟩ limOfArrows (FLimCone (α ∘ˡ i) _) (GLimCone (α ∘ˡ i) _) (↓nt (α ∘ˡ i) x)
+     goal = {!!}
    nIso ε⁻¹ = {!!}
 
- DLComparisonLemma : ShB ≃ᶜ ShL
- DLComparisonLemma = ΣPropCatEquiv DLPShfEquiv (isDLSheafDLRan isBasisB) restPresSheafProp
+
 
  -- useful corollary
- isFullyFaithfulExtSh : isFullyFaithful extSh
- isFullyFaithfulExtSh = isEquiv→FullyFaithful (DLComparisonLemma .isEquivC)
-
- isFullyFaithfulRestSh : isFullyFaithful restSh
- isFullyFaithfulRestSh = isEquiv→FullyFaithful (symEquiv (DLComparisonLemma .isEquivC))
-
-
  -- if two natural transformations between sheaves agree on the basis they are identical
  makeNatTransPathRest : {F G : Functor Lᵒᵖ C} (α β : NatTrans F G)
                       → (∀ (u : ob Bᵒᵖ) → (α ∘ˡ i) .N-ob u ≡ (β ∘ˡ i) .N-ob u)
                       → α ≡ β
- makeNatTransPathRest α β basePaths = {!!}
+ makeNatTransPathRest _ _ basePaths = isFaithfulRest _ _ _ _ (makeNatTransPath (funExt basePaths))
+   where
+   isFaithfulRest = isEquiv→Faithful (symEquiv (DLPshfEquiv .isEquivC))
+
+ -- putting it all together: our main result
+ DLComparisonLemma : ShB ≃ᶜ ShL
+ DLComparisonLemma = ΣPropCatEquiv DLPshfEquiv (isDLSheafDLRan isBasisB) restPresSheafProp
