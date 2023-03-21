@@ -27,6 +27,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Adjoint
 open import Cubical.Categories.Equivalence
 open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.Limits.Pullback
@@ -207,49 +208,74 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  extSh : Functor ShB ShL
  extSh = ΣPropCatFunc DLRanFun (isDLSheafDLRan isBasisB)
 
+ -- open UnitCounit
+ -- open _⊣_
+ -- rest⊣ext : precomposeF C i ⊣ DLRanFun
+ -- -- the unit
+ -- N-ob (η rest⊣ext) F = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+ -- N-hom (η rest⊣ext) {x = F} {y = G} α = makeNatTransPath (funExt goal)
+ --   where
+ --   σᶠ = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+ --   σᵍ = DLRanUnivProp (G ∘F i) G (idTrans _) .fst .fst
+ --   goal : ∀ (x : ob Lᵒᵖ)
+ --        → α .N-ob x ⋆⟨ C ⟩ σᵍ .N-ob x
+ --        ≡ σᶠ .N-ob x ⋆⟨ C ⟩ limOfArrows (FLimCone (α ∘ˡ i) _) (GLimCone (α ∘ˡ i) _) (↓nt (α ∘ˡ i) x)
+ --   goal = {!!}
+
+ -- -- the counit
+ -- N-ob (ε rest⊣ext) = DLRanNatTrans
+ -- N-hom (ε rest⊣ext) {x = F} {y = G} α = -- DLRanNatTrans F is functorial in F
+ --   makeNatTransPath (funExt (λ u → limOfArrowsOut (FLimCone α (u .fst))
+ --                                                  (GLimCone α (u .fst)) _ _))
+ -- -- triangle inequalities disappear in equiv but OK
+ -- Δ₁ rest⊣ext F = makeNatTransPath (funExt (λ x → {!!}))
+ -- Δ₂ rest⊣ext = {!!}
+
  open _≃ᶜ_ renaming (isEquiv to isEquivC)
  open isEquivalence
  open NatIso
  open isIso
 
- DLPshfEquiv : (FUNCTOR Bᵒᵖ C) ≃ᶜ (FUNCTOR Lᵒᵖ C)
- func DLPshfEquiv = DLRanFun
- invFunc (isEquivC DLPshfEquiv) = precomposeF C i
- -- the unit
- η (isEquivC DLPshfEquiv) = symNatIso η⁻¹
-   where
-   η⁻¹ : NatIso ((precomposeF C i) ∘F DLRanFun) 𝟙⟨ FUNCTOR Bᵒᵖ C ⟩
-   N-ob (trans η⁻¹) = DLRanNatTrans
-   N-hom (trans η⁻¹) {x = F} {y = G} α = -- DLRanNatTrans F is functorial in F
-     makeNatTransPath (funExt (λ u → limOfArrowsOut (FLimCone α (u .fst)) (GLimCone α (u .fst)) _ _))
-   nIso η⁻¹ F = NatIso→FUNCTORIso _ _ (DLRanNatIso F) .snd
+ -- we don't get an equivalence on the level of presheaves I think!!!
+ -- not even sure about the adjunction
+ -- DLPshfEquiv : (FUNCTOR Bᵒᵖ C) ≃ᶜ (FUNCTOR Lᵒᵖ C)
+ -- func DLPshfEquiv = DLRanFun
+ -- invFunc (isEquivC DLPshfEquiv) = precomposeF C i
+ -- -- the unit
+ -- η (isEquivC DLPshfEquiv) = symNatIso η⁻¹
+ --   where
+ --   η⁻¹ : NatIso ((precomposeF C i) ∘F DLRanFun) 𝟙⟨ FUNCTOR Bᵒᵖ C ⟩
+ --   N-ob (trans η⁻¹) = DLRanNatTrans
+ --   N-hom (trans η⁻¹) {x = F} {y = G} α = -- DLRanNatTrans F is functorial in F
+ --     makeNatTransPath (funExt (λ u → limOfArrowsOut (FLimCone α (u .fst)) (GLimCone α (u .fst)) _ _))
+ --   nIso η⁻¹ F = NatIso→FUNCTORIso _ _ (DLRanNatIso F) .snd
 
- -- the counit
- ε (isEquivC DLPshfEquiv) = symNatIso ε⁻¹
-   where
-   ε⁻¹ : NatIso 𝟙⟨ FUNCTOR Lᵒᵖ C ⟩ (DLRanFun ∘F (precomposeF C i))
-   N-ob (trans ε⁻¹) F = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
-   N-hom (trans ε⁻¹) {x = F} {y = G} α = makeNatTransPath (funExt goal)
-     where
-     σᶠ = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
-     σᵍ = DLRanUnivProp (G ∘F i) G (idTrans _) .fst .fst
-     goal : ∀ (x : ob Lᵒᵖ)
-          → α .N-ob x ⋆⟨ C ⟩ σᵍ .N-ob x
-          ≡ σᶠ .N-ob x ⋆⟨ C ⟩ limOfArrows (FLimCone (α ∘ˡ i) _) (GLimCone (α ∘ˡ i) _) (↓nt (α ∘ˡ i) x)
-     goal = {!!}
-   nIso ε⁻¹ = {!!}
+ -- -- the counit
+ -- ε (isEquivC DLPshfEquiv) = symNatIso ε⁻¹
+ --   where
+ --   ε⁻¹ : NatIso 𝟙⟨ FUNCTOR Lᵒᵖ C ⟩ (DLRanFun ∘F (precomposeF C i))
+ --   N-ob (trans ε⁻¹) F = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+ --   N-hom (trans ε⁻¹) {x = F} {y = G} α = makeNatTransPath (funExt goal)
+ --     where
+ --     σᶠ = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+ --     σᵍ = DLRanUnivProp (G ∘F i) G (idTrans _) .fst .fst
+ --     goal : ∀ (x : ob Lᵒᵖ)
+ --          → α .N-ob x ⋆⟨ C ⟩ σᵍ .N-ob x
+ --          ≡ σᶠ .N-ob x ⋆⟨ C ⟩ limOfArrows (FLimCone (α ∘ˡ i) _) (GLimCone (α ∘ˡ i) _) (↓nt (α ∘ˡ i) x)
+ --     goal = {!!}
+ --   nIso ε⁻¹ = {!!}
 
 
 
- -- useful corollary
+ -- useful corollary (only true for sheaves though!!!)
  -- if two natural transformations between sheaves agree on the basis they are identical
- makeNatTransPathRest : {F G : Functor Lᵒᵖ C} (α β : NatTrans F G)
-                      → (∀ (u : ob Bᵒᵖ) → (α ∘ˡ i) .N-ob u ≡ (β ∘ˡ i) .N-ob u)
-                      → α ≡ β
- makeNatTransPathRest _ _ basePaths = isFaithfulRest _ _ _ _ (makeNatTransPath (funExt basePaths))
-   where
-   isFaithfulRest = isEquiv→Faithful (symEquiv (DLPshfEquiv .isEquivC))
+ -- makeNatTransPathRest : {F G : Functor Lᵒᵖ C} (α β : NatTrans F G)
+ --                      → (∀ (u : ob Bᵒᵖ) → (α ∘ˡ i) .N-ob u ≡ (β ∘ˡ i) .N-ob u)
+ --                      → α ≡ β
+ -- makeNatTransPathRest _ _ basePaths = isFaithfulRest _ _ _ _ (makeNatTransPath (funExt basePaths))
+ --   where
+ --   isFaithfulRest = isEquiv→Faithful (symEquiv (DLPshfEquiv .isEquivC))
 
- -- putting it all together: our main result
- DLComparisonLemma : ShB ≃ᶜ ShL
- DLComparisonLemma = ΣPropCatEquiv DLPshfEquiv (isDLSheafDLRan isBasisB) restPresSheafProp
+ -- -- putting it all together: our main result
+ -- DLComparisonLemma : ShB ≃ᶜ ShL
+ -- DLComparisonLemma = ΣPropCatEquiv DLPshfEquiv (isDLSheafDLRan isBasisB) restPresSheafProp
