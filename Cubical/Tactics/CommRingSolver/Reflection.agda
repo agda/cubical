@@ -104,29 +104,6 @@ private
   getArgs : Term → Maybe (Term × Term)
   getArgs = getLastTwoArgsOf (quote PathP)
 
-
-  firstVisibleArg : List (Arg Term) → Maybe Term
-  firstVisibleArg [] = nothing
-  firstVisibleArg (varg x ∷ l) = just x
-  firstVisibleArg (x ∷ l) = firstVisibleArg l
-
-  {-
-    If the solver needs to be applied during equational reasoning,
-    the right hand side of the equation to solve cannot be given to
-    the solver directly. The folllowing function extracts this term y
-    from a more complex expression as in:
-      x ≡⟨ solve ... ⟩ (y ≡⟨ ... ⟩ z ∎)
-  -}
-  getRhs : Term → Maybe Term
-  getRhs (def n xs) =
-    if n == (quote _∎)
-    then firstVisibleArg xs
-    else (if n == (quote _≡⟨_⟩_)
-         then firstVisibleArg xs
-         else nothing)
-  getRhs _ = nothing
-
-
   private
     solverCallAsTerm : Term → Arg Term → Term → Term → Term
     solverCallAsTerm R varList lhs rhs =
@@ -348,39 +325,12 @@ private
       let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
       unify hole solution
 
-  solveEqReasoning-macro : Term → Term → Term → Term → Term → TC Unit
-  solveEqReasoning-macro lhs cring varsToSolve reasoningToTheRight hole =
-    do
-      names ← findRingNames cring
-      just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
-        where nothing → variableExtractionError varsToSolve
-
-      just rhs ← returnTC (getRhs reasoningToTheRight)
-        where
-          nothing
-            → typeError(
-                strErr "Failed to extract right hand side of equation to solve from " ∷
-                termErr reasoningToTheRight ∷ [])
-      just (lhsAST , rhsAST) ← returnTC (toAlgebraExpression cring names (just (lhs , rhs)))
-        where
-          nothing
-            → typeError(
-                strErr "Error while trying to build ASTs from " ∷
-                termErr lhs ∷ strErr " and " ∷ termErr rhs ∷ [])
-      let solverCall = solverCallByVarIndices (length varIndices) varIndices cring lhsAST rhsAST
-      unify hole (def (quote _≡⟨_⟩_) (varg lhs ∷ varg solverCall ∷ varg reasoningToTheRight ∷ []))
-
 macro
   solve : Term → Term → TC _
   solve = solve-macro
 
   solveInPlace : Term → Term → Term → TC _
   solveInPlace = solveInPlace-macro
-
-  infixr 2 _≡⟨solveIn_withVars_⟩_
-  _≡⟨solveIn_withVars_⟩_ : Term → Term → Term → Term → Term → TC Unit
-  _≡⟨solveIn_withVars_⟩_ = solveEqReasoning-macro
-
 
 fromℤ : (R : CommRing ℓ) → ℤ → fst R
 fromℤ = scalar
