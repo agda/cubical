@@ -132,27 +132,29 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
  -- the universal property
  private ε = RanNatTrans
 
+ NatTransCone : (S : Functor C A) (α : NatTrans (S ∘F K) T) (x : ob C)
+              → Cone (T* x) (S .F-ob x)
+ coneOut (NatTransCone S α x) (v , f) = S .F-hom f ⋆⟨ A ⟩ α .N-ob v
+ coneOutCommutes (NatTransCone S α x) {u = (u , f)} {v = (v , g)} (h , f⋆Kh≡g) =
+     (S .F-hom f ⋆⟨ A ⟩ α .N-ob u) ⋆⟨ A ⟩ T .F-hom h
+   ≡⟨ ⋆Assoc A _ _ _ ⟩
+     S .F-hom f ⋆⟨ A ⟩ (α .N-ob u ⋆⟨ A ⟩ T .F-hom h)
+   ≡⟨ cong (seq' A (S .F-hom f)) (sym (α .N-hom h)) ⟩
+     S .F-hom f ⋆⟨ A ⟩ ((S ∘F K) .F-hom h ⋆⟨ A ⟩ α .N-ob v)
+   ≡⟨ sym (⋆Assoc A _ _ _) ⟩
+     (S .F-hom f ⋆⟨ A ⟩ (S ∘F K) .F-hom h) ⋆⟨ A ⟩ α .N-ob v
+   ≡⟨ cong (λ x → x ⋆⟨ A ⟩ (α .N-ob v)) (sym (S .F-seq _ _)) ⟩
+     S .F-hom (f ⋆⟨ C ⟩ K .F-hom h) ⋆⟨ A ⟩ α .N-ob v
+   ≡⟨ cong (λ x → S .F-hom x ⋆⟨ A ⟩ (α .N-ob v)) f⋆Kh≡g ⟩
+     S .F-hom g ⋆⟨ A ⟩ α .N-ob v ∎
+
+
  RanUnivProp : ∀ (S : Functor C A) (α : NatTrans (S ∘F K) T)
              → ∃![ σ ∈ NatTrans S Ran ] α ≡ (σ ∘ˡ K) ●ᵛ ε
  RanUnivProp S α = uniqueExists σ pathNatTrans (λ _ → isSetNatTrans _ _) pathUnique
    where
-   σCone : (x : ob C) → Cone (T* x) (S .F-ob x)
-   coneOut (σCone x) (v , f) = S .F-hom f ⋆⟨ A ⟩ α .N-ob v
-   coneOutCommutes (σCone x) {u = (u , f)} {v = (v , g)} (h , f⋆Kh≡g) =
-       (S .F-hom f ⋆⟨ A ⟩ α .N-ob u) ⋆⟨ A ⟩ T .F-hom h
-     ≡⟨ ⋆Assoc A _ _ _ ⟩
-       S .F-hom f ⋆⟨ A ⟩ (α .N-ob u ⋆⟨ A ⟩ T .F-hom h)
-     ≡⟨ cong (seq' A (S .F-hom f)) (sym (α .N-hom h)) ⟩
-       S .F-hom f ⋆⟨ A ⟩ ((S ∘F K) .F-hom h ⋆⟨ A ⟩ α .N-ob v)
-     ≡⟨ sym (⋆Assoc A _ _ _) ⟩
-       (S .F-hom f ⋆⟨ A ⟩ (S ∘F K) .F-hom h) ⋆⟨ A ⟩ α .N-ob v
-     ≡⟨ cong (λ x → x ⋆⟨ A ⟩ (α .N-ob v)) (sym (S .F-seq _ _)) ⟩
-       S .F-hom (f ⋆⟨ C ⟩ K .F-hom h) ⋆⟨ A ⟩ α .N-ob v
-     ≡⟨ cong (λ x → S .F-hom x ⋆⟨ A ⟩ (α .N-ob v)) f⋆Kh≡g ⟩
-       S .F-hom g ⋆⟨ A ⟩ α .N-ob v ∎
-
    σ : NatTrans S Ran
-   N-ob σ x = limArrow (limitA (x ↓Diag) (T* x)) _ (σCone x)
+   N-ob σ x = limArrow (limitA (x ↓Diag) (T* x)) _ (NatTransCone S α x)
    N-hom σ {x = x} {y = y} f = preCompUnique (N-ob σ x ⋆⟨ A ⟩ Ran .F-hom f)
                                              (limitA (y ↓Diag) (T* y) .limCone)
                                              (limitA (y ↓Diag) (T* y) .univProp)
@@ -181,14 +183,12 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
          (N-ob σ x ⋆⟨ A ⟩ Ran .F-hom f) ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (u , g) ∎
 
 
-
-
    pathNatTrans : α ≡ (σ ∘ˡ K) ●ᵛ ε
    pathNatTrans = makeNatTransPath (funExt path)
      where
      path : ∀ (u : ob M)
           → α .N-ob u
-          ≡ limArrow (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) _ (σCone (F-ob K u))
+          ≡ limArrow (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) _ (NatTransCone S α (F-ob K u))
               ⋆⟨ A ⟩ limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (u , id C ⋆⟨ C ⟩ id C)
      path u =
          α .N-ob u
@@ -199,9 +199,9 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
        ≡⟨ cong (λ x → S .F-hom x ⋆⟨ A ⟩ α .N-ob u) (sym (⋆IdL C _)) ⟩
          S .F-hom (id C ⋆⟨ C ⟩ id C) ⋆⟨ A ⟩ α .N-ob u
        ≡⟨ refl ⟩
-         σCone (F-ob K u) .coneOut (u , id C ⋆⟨ C ⟩ id C)
+         NatTransCone S α (F-ob K u) .coneOut (u , id C ⋆⟨ C ⟩ id C)
        ≡⟨ sym (limArrowCommutes _ _ _ _) ⟩
-         limArrow (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) _ (σCone (F-ob K u))
+         limArrow (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) _ (NatTransCone S α (F-ob K u))
            ⋆⟨ A ⟩ limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (u , id C ⋆⟨ C ⟩ id C) ∎
 
    pathUnique : ∀ (τ : NatTrans S Ran) → α ≡ (τ ∘ˡ K) ●ᵛ ε → σ ≡ τ
@@ -209,7 +209,7 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
                           (funExt (λ x →
                              limArrowUnique (limitA (x ↓Diag) (T* x)) _ _ _ (isConeMorτ x)))
      where
-     isConeMorτ : ∀ (x : ob C) → isConeMor (σCone x) (limitA (x ↓Diag) (T* x) .limCone) (τ .N-ob x)
+     isConeMorτ : ∀ (x : ob C) → isConeMor (NatTransCone S α x) (limitA (x ↓Diag) (T* x) .limCone) (τ .N-ob x)
      isConeMorτ x (u , f) =
        let p : f ≡ f ⋆⟨ C ⟩ (id C ⋆⟨ C ⟩ id C)
            p = sym (⋆IdR C f) ∙ cong (seq' C f) (sym (⋆IdR C (id C)))
