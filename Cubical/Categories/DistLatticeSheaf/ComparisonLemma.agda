@@ -117,6 +117,14 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  restSh : Functor ShL ShB
  restSh = ΣPropCatFunc (precomposeF C i) restPresSheafProp
 
+ -- important lemma: a natural transformation between sheaves on L is an
+ -- iso if the restriction to B is an iso. This will give us that
+ -- that the unit of the comparison lemm is an iso and thus that
+ -- restriction of sheaves is fully-faithful
+ restIsoLemma : (F G : ob ShL) (α : NatTrans (F .fst) (G .fst))
+              → (∀ (u : ob Bᵒᵖ) → isIso C ((α ∘ˡ i) .N-ob u))
+              →  ∀ (x : ob Lᵒᵖ) → isIso C (α .N-ob x)
+ restIsoLemma (F , isSheafF) (G , isSheafG) α αiIso x = {!!}
 
  -- notation
  private module _ {F G : Functor Bᵒᵖ C} (α : NatTrans F G) (x : ob Lᵒᵖ) where
@@ -259,16 +267,47 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
      goal x = sym (limArrowUnique _ _ _ _ (isConeMorComp x))
             ∙ limArrowCompLimOfArrows _ _ _ _ _
 
- nIso (η (isEquivC DLComparisonLemma)) (F , isSheafF) = {!!}
+ nIso (η (isEquivC DLComparisonLemma)) (F , isSheafF) = isIsoΣPropCat _ _ _
+   (NatIso→FUNCTORIso _ _ σNatIso .snd)
+   where
+   σ = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+
+   σRestIso : isIso (FUNCTOR Bᵒᵖ C) (σ ∘ˡ i)
+   inv σRestIso = DLRanNatTrans (F ∘F i)
+   sec σRestIso = let ε = DLRanNatTrans (F ∘F i)
+                      ε⁻¹ = NatIso→FUNCTORIso _ _ (DLRanNatIso (F ∘F i)) .snd .inv
+     in ε ●ᵛ (σ ∘ˡ i)
+      ≡⟨ cong (λ x → ε ●ᵛ x) (sym (⋆IdR (FUNCTOR Bᵒᵖ C) _)) ⟩
+        ε ●ᵛ ((σ ∘ˡ i) ●ᵛ idTrans _)
+      ≡⟨ cong (λ x → ε ●ᵛ ((σ ∘ˡ i) ●ᵛ x))
+              (sym (NatIso→FUNCTORIso _ _ (DLRanNatIso (F ∘F i)) .snd .ret)) ⟩
+        ε ●ᵛ ((σ ∘ˡ i) ●ᵛ (ε ●ᵛ ε⁻¹))
+      ≡⟨ cong (λ x → ε ●ᵛ x) (sym (⋆Assoc (FUNCTOR Bᵒᵖ C) _ _ _)) ⟩
+        ε ●ᵛ ((σ ∘ˡ i) ●ᵛ ε ●ᵛ ε⁻¹)
+      ≡⟨ cong (λ x → ε ●ᵛ (x ●ᵛ ε⁻¹))
+              (sym (DLRanUnivProp (F ∘F i) F (idTrans _) .fst .snd)) ⟩
+        ε ●ᵛ (idTrans _ ●ᵛ ε⁻¹)
+      ≡⟨ cong (λ x → ε ●ᵛ x) (⋆IdL (FUNCTOR Bᵒᵖ C) _) ⟩
+        ε ●ᵛ ε⁻¹
+      ≡⟨ NatIso→FUNCTORIso _ _ (DLRanNatIso (F ∘F i)) .snd .ret ⟩
+        idTrans _ ∎
+   ret σRestIso = sym (DLRanUnivProp (F ∘F i) F (idTrans _) .fst .snd)
+
+   σNatIso : NatIso F (DLRan (F ∘F i))
+   trans σNatIso = σ
+   nIso σNatIso = restIsoLemma
+                    (F , isSheafF)
+                      (_ , isDLSheafDLRan isBasisB _ (restPresSheafProp _ isSheafF))
+                        σ
+                          (FUNCTORIso→NatIso _ _ (_ , σRestIso) .nIso)
 
  -- the counit is easy
  N-ob (trans (ε (isEquivC DLComparisonLemma))) (F , _) = DLRanNatTrans F
  N-hom (trans (ε (isEquivC DLComparisonLemma))) α = -- DLRanNatTrans F is functorial in F
    makeNatTransPath (funExt (λ u → limOfArrowsOut (FLimCone α (u .fst))
                                                   (GLimCone α (u .fst)) _ _))
- nIso (ε (isEquivC DLComparisonLemma)) (F , isSheafF) = isIsoΣPropCat _
-   (λ {n : ℕ} → isSheafF {n = n}) _  -- wtf?
-     (NatIso→FUNCTORIso _ _ (DLRanNatIso F) .snd)
+ nIso (ε (isEquivC DLComparisonLemma)) (F , isSheafF) = isIsoΣPropCat _ _ _
+   (NatIso→FUNCTORIso _ _ (DLRanNatIso F) .snd)
 
 
  -- useful corollary:
