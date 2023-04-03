@@ -15,7 +15,7 @@ open import Cubical.Data.FinData.Order
 open import Cubical.Data.Sum
 
 open import Cubical.Relation.Binary.Poset
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
@@ -124,7 +124,13 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  restIsoLemma : (F G : ob ShL) (α : NatTrans (F .fst) (G .fst))
               → (∀ (u : ob Bᵒᵖ) → isIso C ((α ∘ˡ i) .N-ob u))
               →  ∀ (x : ob Lᵒᵖ) → isIso C (α .N-ob x)
- restIsoLemma (F , isSheafF) (G , isSheafG) α αiIso x = {!!}
+ restIsoLemma (F , isSheafF) (G , isSheafG) α αiIso x =
+   PT.rec (isPropIsIso _) basisHyp (isBasisB .⋁Basis x)
+   where
+   open IsBasis
+   basisHyp : Σ[ n ∈ ℕ ] Σ[ u ∈ FinVec (L .fst) n ] (∀ j → u j ∈ B) × (⋁ u ≡ x)
+            → isIso C (α .N-ob x)
+   basisHyp (n , u , u∈B , ⋁u≡x) = {!!}
 
  -- notation
  private module _ {F G : Functor Bᵒᵖ C} (α : NatTrans F G) (x : ob Lᵒᵖ) where
