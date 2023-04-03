@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.Polynomials.UnivariateList.Karatsuba where
 
 open import Cubical.HITs.PropositionalTruncation

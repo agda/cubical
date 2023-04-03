@@ -1,3 +1,4 @@
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.Polynomials.UnivariateList.KaratsubaTest where
 
 open import Cubical.Foundations.Prelude
