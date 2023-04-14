@@ -213,7 +213,7 @@ module ComputeCP²Notation
 
     -- Function on ℤ[x]
     ℤ[x]→H*-CP² : ℤ[x] → H* CP²
-    ℤ[x]→H*-CP² = DS-Rec-Set.f _ _ _ _ isSetH*
+    ℤ[x]→H*-CP² = ⊕recSet _ _ _ _ isSetH*
          0H*
          ϕ
          _+H*_
@@ -283,14 +283,14 @@ module ComputeCP²Notation
 
     -- proof
     presCup : (x y : ℤ[x]) → ℤ[x]→H*-CP² (x ·Pℤ y) ≡ ℤ[x]→H*-CP² x cup ℤ[x]→H*-CP² y
-    presCup = DS-Ind-Prop.f _ _ _ _
+    presCup = ⊕elimProp _ _ _ _
                            (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                            (λ y → refl)
                            base-case
                            λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
       where
       base-case : _
-      base-case (k ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+      base-case (k ∷ []) a = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
                              (sym (RingTheory.0RightAnnihilates (H*R CP²) _))
                              (λ v' b → presCupVec (k ∷ []) a v' b)
                              λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
@@ -323,7 +323,7 @@ module ComputeCP²Notation
     ϕ⁻¹ k a (else x) = 0Pℤ
 
     H*-CP²→ℤ[x] : H* CP² → ℤ[x]
-    H*-CP²→ℤ[x] = DS-Rec-Set.f _ _ _ _ isSetPℤ
+    H*-CP²→ℤ[x] = ⊕recSet _ _ _ _ isSetPℤ
          0Pℤ
          (λ k a → ϕ⁻¹ k a (part k))
          _+Pℤ_
@@ -385,7 +385,7 @@ module ComputeCP²Notation
                                                                  λ p → snd (snd x) (suc-predℕ k (fst x) ∙ p)) _ _)
 
     e-sect : (x : H* CP²) → ℤ[x]/x³→H*-CP² (H*-CP²→ℤ[x]/x³ x) ≡ x
-    e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+    e-sect = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
              refl
              (λ k a → e-sect-base k a (part k))
              λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
@@ -396,7 +396,7 @@ module ComputeCP²Notation
 
     e-retr : (x : ℤ[x]/x³) → H*-CP²→ℤ[x]/x³ (ℤ[x]/x³→H*-CP² x) ≡ x
     e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-             (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
+             (⊕elimProp _ _ _ _ (λ _ → isSetPℤI _ _)
              refl
              base-case
              λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)

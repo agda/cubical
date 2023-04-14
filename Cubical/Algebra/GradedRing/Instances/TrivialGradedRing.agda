@@ -98,10 +98,10 @@ module _
       where
       is : Iso A (⊕HIT ℕ G Gstr)
       fun is a = base 0 a
-      inv is = DS-Rec-Set.f _ _ _ _ is-set
+      inv is = ⊕recSet _ _ _ _ is-set
                0r (λ {zero a → a ; (suc k) a → 0r }) _+_ +Assoc +IdR +Comm
                (λ { zero → refl ; (suc k) → refl}) (λ {zero a b → refl ; (suc n) a b → +IdR _})
-      rightInv is = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
+      rightInv is = ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
                     (base-neutral _)
                     (λ { zero a → refl ; (suc k) a → base-neutral _ ∙ sym (base-neutral _)} )
                     λ {U V} ind-U ind-V → sym (base-add _ _ _) ∙ cong₂ _add_ ind-U ind-V

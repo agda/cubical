@@ -44,7 +44,7 @@ module _
 
   -- universalProperty :
   ⊕HIT→H : ⊕HIT Idx G Gstr → H
-  ⊕HIT→H = DS-Rec-Set.f _ _ _ _ (is-set Hstr)
+  ⊕HIT→H = ⊕recSet _ _ _ _ (is-set Hstr)
             (0g Hstr)
             (λ k a → fH k a)
             (Hstr ._+_)
@@ -72,7 +72,7 @@ module _
     where
 
     helper : _
-    helper = funExt (DS-Ind-Prop.f _ _ _ _ (λ _ → is-set Hstr _ _)
+    helper = funExt (⊕elimProp _ _ _ _ (λ _ → is-set Hstr _ _)
                     (pres1 hstr)
                     (λ k a → sym (funExt⁻ (cong fst (eqInj k)) a))
                     λ {U V} ind-U ind-V → pres· hstr _ _ ∙ cong₂ (_+_ Hstr) ind-U ind-V)

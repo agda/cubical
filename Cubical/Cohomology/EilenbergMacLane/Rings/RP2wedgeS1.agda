@@ -399,7 +399,7 @@ module Equiv-RP²∨S¹-Properties
   -- Direct Sens on ℤ/2[x,y]
 
     ℤ/2[x,y]→H*-RP²∨S¹ : ℤ/2[x,y] → (H*ℤ/2  RP²∨S¹)
-    ℤ/2[x,y]→H*-RP²∨S¹ = DS-Rec-Set.f _ _ _ _ isSetH*
+    ℤ/2[x,y]→H*-RP²∨S¹ = ⊕recSet _ _ _ _ isSetH*
                         0H*
                         ϕ
                         _+H*_
@@ -581,14 +581,14 @@ module Equiv-RP²∨S¹-Properties
     ℤ/2[x,y]→H*-RP²∨S¹-pres· : (x y : ℤ/2[x,y]) →
                                    ℤ/2[x,y]→H*-RP²∨S¹ (x ·Pℤ/2 y)
                                  ≡ ℤ/2[x,y]→H*-RP²∨S¹ x cup ℤ/2[x,y]→H*-RP²∨S¹ y
-    ℤ/2[x,y]→H*-RP²∨S¹-pres· = DS-Ind-Prop.f _ _ _ _
+    ℤ/2[x,y]→H*-RP²∨S¹-pres· = ⊕elimProp _ _ _ _
                            (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                            (λ y → refl)
                            base-case
                            λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
       where
       base-case : _
-      base-case v a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+      base-case v a = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
                              (sym (RingTheory.0RightAnnihilates (H*Rℤ/2 RP²∨S¹) _))
                              (λ v' b → pres·-base-case-vec v a v' b )
                              λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
@@ -636,7 +636,7 @@ module Equiv-RP²∨S¹-Properties
     ϕ⁻¹ (suc (suc (suc k))) a = 0Pℤ/2
 
     H*-RP²∨S¹→ℤ/2[x,y] : H*ℤ/2 RP²∨S¹ → ℤ/2[x,y]
-    H*-RP²∨S¹→ℤ/2[x,y] = DS-Rec-Set.f _ _ _ _ isSetPℤ/2
+    H*-RP²∨S¹→ℤ/2[x,y] = ⊕recSet _ _ _ _ isSetPℤ/2
          0Pℤ/2
          ϕ⁻¹
          _+Pℤ/2_
@@ -695,7 +695,7 @@ module Equiv-RP²∨S¹-Properties
 
 
     e-sect : (x : H*ℤ/2 RP²∨S¹) → ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹ (H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> x) ≡ x
-    e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
+    e-sect = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
              refl
              e-sect-base
              λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
@@ -741,7 +741,7 @@ module Equiv-RP²∨S¹-Properties
 
     e-retr : (x : ℤ/2[x,y]/<y³,xy,x²>) → H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> (ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹ x) ≡ x
     e-retr = SQ.elimProp (λ _ → isSetPℤ/2I _ _)
-             (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤ/2I _ _)
+             (⊕elimProp _ _ _ _ (λ _ → isSetPℤ/2I _ _)
              refl
              e-retr-base
              λ {U V} ind-U ind-V → cong₂ _+Pℤ/2I_ ind-U ind-V)

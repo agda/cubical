@@ -42,7 +42,7 @@ module equiv1 (A'@(A , Astr) : CommRing ℓ)
   open CommRingStr
 
   directSense : fst (PolyCommRing A' 1) → fst (nUnivariatePolyHIT A' 1)
-  directSense = DS-Rec-Set.f _ _ _ _
+  directSense = ⊕recSet _ _ _ _
                 (is-set PA'str)
                 (0r PA'str)
                 (λ { (n ∷ []) a → base n a})
@@ -54,7 +54,7 @@ module equiv1 (A'@(A , Astr) : CommRing ℓ)
                 λ { (n ∷ []) a b  → base-add _ _ _}
 
   convSense : fst (nUnivariatePolyHIT A' 1) → fst (PolyCommRing A' 1)
-  convSense = DS-Rec-Set.f _ _ _ _
+  convSense = ⊕recSet _ _ _ _
                (is-set PAstr)
                (0r PAstr)
                (λ n a → base (n ∷ []) a)
@@ -66,23 +66,23 @@ module equiv1 (A'@(A , Astr) : CommRing ℓ)
                λ _ _ _ → base-add _ _ _
 
   retr : (x : fst (PolyCommRing A' 1)) → convSense (directSense x) ≡ x
-  retr = DS-Ind-Prop.f _ _ _ _ (λ _ → is-set PAstr _ _)
+  retr = ⊕elimProp _ _ _ _ (λ _ → is-set PAstr _ _)
          refl
          (λ { (n ∷ []) a → refl})
          (λ {U V} ind-U ind-V → cong₂ (_+_ PAstr) ind-U ind-V)
 
   sect : (x : fst (nUnivariatePolyHIT A' 1)) → (directSense (convSense x) ≡ x)
-  sect = DS-Ind-Prop.f _ _ _ _ (λ _ → is-set PA'str _ _)
+  sect = ⊕elimProp _ _ _ _ (λ _ → is-set PA'str _ _)
          refl
          (λ n a → refl)
          (λ {U V} ind-U ind-V → cong₂ (_+_ PA'str) ind-U ind-V)
 
   converseSense-pres· : (x y : fst (PolyCommRing A' 1)) →
                         directSense (_·_ PAstr x y) ≡ _·_ PA'str (directSense x) (directSense y)
-  converseSense-pres· = DS-Ind-Prop.f _ _ _ _
+  converseSense-pres· = ⊕elimProp _ _ _ _
                         (λ _ → isPropΠ λ _ → is-set PA'str _ _)
                         (λ _ → refl)
-                        (λ { (n ∷ []) a → DS-Ind-Prop.f _ _ _ _ (λ _ → is-set PA'str _ _)
+                        (λ { (n ∷ []) a → ⊕elimProp _ _ _ _ (λ _ → is-set PA'str _ _)
                                            refl
                                            (λ { (m ∷ []) b → refl})
                                            λ {U V} ind-U ind-V → cong₂ (_+_ PA'str) ind-U ind-V})
