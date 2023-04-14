@@ -55,7 +55,7 @@ module _ (G' : Group ℓ) (H' : Subgroup G') (Hnormal : isNormal H') where
        → a · inv a' ∈ ⟪ H' ⟫
        → b · inv b' ∈ ⟪ H' ⟫
        → (a · b) · inv (a' · b') ∈ ⟪ H' ⟫
-   rem a a' b b' haa' hbb' = subst-∈ ⟪ H' ⟫ (cong (_ ·_) (sym (invDistr _ _))) rem5
+   rem a a' b b' haa' hbb' = subst-∈ ⟪ H' ⟫ (cong ((a · b) ·_) (sym (invDistr _ _))) rem5
      where
      rem1 : (inv a' · a) · b · inv b' ∈ ⟪ H' ⟫
      rem1 = ·CommNormalSubgroup H' Hnormal

@@ -180,6 +180,8 @@ uaCompGroupEquiv f g = caracGroup≡ _ _ (
     ≡⟨ sym (cong-∙ ⟨_⟩ (uaGroup f) (uaGroup g)) ⟩
   cong ⟨_⟩ (uaGroup f ∙ uaGroup g) ∎)
 
+-}
+
 -- J-rule for GroupEquivs
 GroupEquivJ : {G : Group ℓ} (P : (H : Group ℓ) → GroupEquiv G H → Type ℓ')
             → P G idGroupEquiv
@@ -196,4 +198,3 @@ GroupEquivJ {G = G} P p {H} e =
          (funExt λ x → (λ i → fst (fst (fst e .snd .equiv-proof
                           (transportRefl (fst (fst e) (transportRefl x i)) i))))
                          ∙ retEq (fst e) x))
--}
