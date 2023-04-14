@@ -54,9 +54,9 @@ freeGroupGroup A = FreeGroup A , freeGroupGroupStr
 
 -- The recursion principle for the FreeGroup
 module _ {(G , str) : Group ℓ'} (f : A → G) where
-  -- {groupstr 1g _·g_ invg (isgroup (ismonoid isSemigroupg ·gIdR ·gIdL) ·gInvR ·gInvL)}
-  module G = GroupStr str
-  module GM = IsMonoid (G.isMonoid)
+  private
+    module G = GroupStr str
+    module GM = IsMonoid (G.isMonoid)
   rec : GroupHom (freeGroupGroup A) (G , str)
   rec = f' , isHom
     where
@@ -153,44 +153,47 @@ elimProp {B = B} Bprop η-ind ·-ind ε-ind inv-ind = induction where
              dq1 dq2
 
 -- Two group homomorphisms from FreeGroup to G are the same if they agree on every a : A
-freeGroupHom≡ : {Group : Group ℓ'}{f g : GroupHom (freeGroupGroup A) Group}
-               → (∀ a → (fst f) (η a) ≡ (fst g) (η a)) → f ≡ g
-freeGroupHom≡ {Group = G , (groupstr 1g _·g_ invg isGrp)} {f} {g} eqOnA = GroupHom≡ (funExt pointwise) where
-  B : ∀ x → Type _
-  B x = (fst f) x ≡ (fst g) x
-  Bprop : ∀ x → isProp (B x)
-  Bprop x = (isSetGroup (G , groupstr 1g _·g_ invg isGrp)) ((fst f) x) ((fst g) x)
-  η-ind : ∀ a → B (η a)
-  η-ind = eqOnA
-  ·-ind : ∀ g1 g2 → B g1 → B g2 → B (g1 · g2)
-  ·-ind g1 g2 ind1 ind2 =
-    (fst f) (g1 · g2)
-    ≡⟨ IsGroupHom.pres· (f .snd) g1 g2 ⟩
-    ((fst f) g1) ·g ((fst f) g2)
-    ≡⟨ cong (λ x → x ·g ((fst f) g2)) ind1 ⟩
-    ((fst g) g1) ·g ((fst f) g2)
-    ≡⟨ cong (λ x → ((fst g) g1) ·g x) ind2 ⟩
-    ((fst g) g1) ·g ((fst g) g2)
-    ≡⟨ sym (IsGroupHom.pres· (g .snd) g1 g2) ⟩
-    (fst g) (g1 · g2) ∎
-  ε-ind : B ε
-  ε-ind =
-    (fst f) ε
-    ≡⟨ IsGroupHom.pres1 (f .snd) ⟩
-    1g
-    ≡⟨ sym (IsGroupHom.pres1 (g .snd)) ⟩
-    (fst g) ε ∎
-  inv-ind : ∀ x → B x → B (inv x)
-  inv-ind x ind =
-    (fst f) (inv x)
-    ≡⟨ IsGroupHom.presinv (f .snd) x ⟩
-    invg ((fst f) x)
-    ≡⟨ cong invg ind ⟩
-    invg ((fst g) x)
-    ≡⟨ sym (IsGroupHom.presinv (g .snd) x) ⟩
-    (fst g) (inv x) ∎
-  pointwise : ∀ x → (fst f) x ≡ (fst g) x
-  pointwise = elimProp Bprop η-ind ·-ind ε-ind inv-ind
+module _ {G : Group ℓ'} where
+  private
+    module G = GroupStr (G .snd)
+  freeGroupHom≡ : {f g : GroupHom (freeGroupGroup A) G}
+                 → (∀ a → (fst f) (η a) ≡ (fst g) (η a)) → f ≡ g
+  freeGroupHom≡ {f = f} {g = g} eqOnA = GroupHom≡ (funExt pointwise) where
+    B : ∀ x → Type _
+    B x = (fst f) x ≡ (fst g) x
+    Bprop : ∀ x → isProp (B x)
+    Bprop x = (isSetGroup G) ((fst f) x) ((fst g) x)
+    η-ind : ∀ a → B (η a)
+    η-ind = eqOnA
+    ·-ind : ∀ g1 g2 → B g1 → B g2 → B (g1 · g2)
+    ·-ind g1 g2 ind1 ind2 =
+      (fst f) (g1 · g2)
+      ≡⟨ IsGroupHom.pres· (f .snd) g1 g2 ⟩
+      ((fst f) g1) G.· ((fst f) g2)
+      ≡⟨ cong (λ x → x G.· ((fst f) g2)) ind1 ⟩
+      ((fst g) g1) G.· ((fst f) g2)
+      ≡⟨ cong (λ x → ((fst g) g1) G.· x) ind2 ⟩
+      ((fst g) g1) G.· ((fst g) g2)
+      ≡⟨ sym (IsGroupHom.pres· (g .snd) g1 g2) ⟩
+      (fst g) (g1 · g2) ∎
+    ε-ind : B ε
+    ε-ind =
+      (fst f) ε
+      ≡⟨ IsGroupHom.pres1 (f .snd) ⟩
+      G.1g
+      ≡⟨ sym (IsGroupHom.pres1 (g .snd)) ⟩
+      (fst g) ε ∎
+    inv-ind : ∀ x → B x → B (inv x)
+    inv-ind x ind =
+      (fst f) (inv x)
+      ≡⟨ IsGroupHom.presinv (f .snd) x ⟩
+      G.inv ((fst f) x)
+      ≡⟨ cong G.inv ind ⟩
+      G.inv ((fst g) x)
+      ≡⟨ sym (IsGroupHom.presinv (g .snd) x) ⟩
+      (fst g) (inv x) ∎
+    pointwise : ∀ x → (fst f) x ≡ (fst g) x
+    pointwise = elimProp Bprop η-ind ·-ind ε-ind inv-ind
 
 -- The type of Group Homomorphisms from the FreeGroup A into G
 -- is equivalent to the type of functions from A into G .fst
@@ -199,6 +202,6 @@ A→Group≃GroupHom {Group = Group} = biInvEquiv→Equiv-right biInv where
   biInv : BiInvEquiv (A → Group .fst) (GroupHom (freeGroupGroup A) Group)
   BiInvEquiv.fun  biInv              = rec
   BiInvEquiv.invr biInv (hom , _) a  = hom (η a)
-  BiInvEquiv.invr-rightInv biInv hom = freeGroupHom≡ (λ a → refl)
+  BiInvEquiv.invr-rightInv biInv hom = freeGroupHom≡ λ _ → refl
   BiInvEquiv.invl biInv (hom ,  _) a = hom (η a)
   BiInvEquiv.invl-leftInv biInv f    = funExt (λ a → refl)

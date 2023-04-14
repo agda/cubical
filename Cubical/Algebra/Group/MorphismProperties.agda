@@ -53,7 +53,7 @@ module _ {A : Type ℓ} {B : Type ℓ'} (G : GroupStr A) (f : A → B) (H : Grou
     f G.1g                                  ≡⟨ sym (H.·IdR _) ⟩
     f G.1g H.· H.1g                         ≡⟨ (λ i → f G.1g H.· H.·InvR (f G.1g) (~ i)) ⟩
     f G.1g H.· (f G.1g H.· H.inv (f G.1g))  ≡⟨ H.·Assoc _ _ _ ⟩
-    (f G.1g H.· f G.1g) H.· H.inv (f G.1g)  ≡⟨ sym (cong (λ x → x H.· _)
+    (f G.1g H.· f G.1g) H.· H.inv (f G.1g)  ≡⟨ sym (cong (λ x → x H.· H.inv (f G.1g))
                                                 (sym (cong f (G.·IdL _)) ∙ pres G.1g G.1g)) ⟩
     f G.1g H.· H.inv (f G.1g)               ≡⟨ H.·InvR _ ⟩
     H.1g ∎
@@ -64,7 +64,7 @@ module _ {A : Type ℓ} {B : Type ℓ'} (G : GroupStr A) (f : A → B) (H : Grou
     f (G.inv g)                            ≡⟨ sym (H.·IdR _) ⟩
     f (G.inv g) H.· H.1g                   ≡⟨ cong (_ H.·_) (sym (H.·InvR _)) ⟩
     f (G.inv g) H.· (f g H.· H.inv (f g))  ≡⟨ H.·Assoc _ _ _ ⟩
-    (f (G.inv g) H.· f g) H.· H.inv (f g)  ≡⟨ cong (H._· _) (sym (pres _ g) ∙∙ cong f (G.·InvL g) ∙∙ hom1g) ⟩
+    (f (G.inv g) H.· f g) H.· H.inv (f g)  ≡⟨ cong (H._· H.inv (f g)) (sym (pres _ g) ∙∙ cong f (G.·InvL g) ∙∙ hom1g) ⟩
     H.1g H.· H.inv (f g)                   ≡⟨ H.·IdL _ ⟩
     H.inv (f g) ∎
 
