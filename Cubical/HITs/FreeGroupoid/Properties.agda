@@ -130,7 +130,6 @@ _∣·∣₂_ = rec2 ∥freeGroupoid∥₂IsSet (λ g1 g2 → ∣ g1 · g2 ∣�
 ∥freeGroupoid∥₂Group : Type ℓ → Group ℓ
 ∥freeGroupoid∥₂Group A = ∥ FreeGroupoid A ∥₂ , ∥freeGroupoid∥₂GroupStr
 
-
 forgetfulHom : GroupHom (freeGroupGroup A) (∥freeGroupoid∥₂Group A)
 forgetfulHom = rec (λ a → ∣ η a ∣₂)
 

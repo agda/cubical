@@ -53,25 +53,29 @@ freeGroupGroup : Type ℓ → Group ℓ
 freeGroupGroup A = FreeGroup A , freeGroupGroupStr
 
 -- The recursion principle for the FreeGroup
-rec : {Group : Group ℓ'} → (A → Group .fst) → GroupHom (freeGroupGroup A) Group
-rec {Group = G , groupstr 1g _·g_ invg (isgroup (ismonoid isSemigroupg ·gIdR ·gIdL) ·gInvR ·gInvL)} f = f' , isHom
-  where
-  f' : FreeGroup _ → G
-  f' (η a)                  = f a
-  f' (g1 · g2)              = (f' g1) ·g (f' g2)
-  f' ε                      = 1g
-  f' (inv g)                = invg (f' g)
-  f' (assoc g1 g2 g3 i)     = IsSemigroup.·Assoc isSemigroupg (f' g1) (f' g2) (f' g3) i
-  f' (idr g i)              = sym (·gIdR (f' g)) i
-  f' (idl g i)              = sym (·gIdL (f' g)) i
-  f' (invr g i)             = ·gInvR (f' g) i
-  f' (invl g i)             = ·gInvL (f' g) i
-  f' (trunc g1 g2 p q i i₁) = IsSemigroup.is-set isSemigroupg (f' g1) (f' g2) (cong f' p) (cong f' q) i i₁
+module _ {(G , str) : Group ℓ'} (f : A → G) where
+  -- {groupstr 1g _·g_ invg (isgroup (ismonoid isSemigroupg ·gIdR ·gIdL) ·gInvR ·gInvL)}
+  module G = GroupStr str
+  module GM = IsMonoid (G.isMonoid)
+  rec : GroupHom (freeGroupGroup A) (G , str)
+  rec = f' , isHom
+    where
+    f' : FreeGroup _ → G
+    f' (η a)                  = f a
+    f' (g1 · g2)              = (f' g1) G.· (f' g2)
+    f' ε                      = G.1g
+    f' (inv g)                = G.inv (f' g)
+    f' (assoc g1 g2 g3 i)     = IsSemigroup.·Assoc GM.isSemigroup (f' g1) (f' g2) (f' g3) i
+    f' (idr g i)              = sym (G.·IdR (f' g)) i
+    f' (idl g i)              = sym (G.·IdL (f' g)) i
+    f' (invr g i)             = G.·InvR (f' g) i
+    f' (invl g i)             = G.·InvL (f' g) i
+    f' (trunc g1 g2 p q i i₁) = IsSemigroup.is-set GM.isSemigroup (f' g1) (f' g2) (cong f' p) (cong f' q) i i₁
 
-  isHom : IsGroupHom freeGroupGroupStr f' _
-  IsGroupHom.pres·   isHom = λ g1 g2 → refl
-  IsGroupHom.pres1   isHom = refl
-  IsGroupHom.presinv isHom = λ g → refl
+    isHom : IsGroupHom freeGroupGroupStr f' _
+    IsGroupHom.pres·   isHom = λ g1 g2 → refl
+    IsGroupHom.pres1   isHom = refl
+    IsGroupHom.presinv isHom = λ g → refl
 
 -- The induction principle for the FreeGroup for hProps
 elimProp : {B : FreeGroup A → Type ℓ'}
