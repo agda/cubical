@@ -114,7 +114,7 @@ module Properties-Equiv-QuotientXn-A
 -- Direct sens
 
   PA→A : A[x1,···,xn] Ar n → A
-  PA→A = ⊕recSet _ _ _ _ isSetA
+  PA→A = DS-Rec-Set.f _ _ _ _ isSetA
           0A
           base-trad
           _+A_
@@ -148,10 +148,10 @@ module Properties-Equiv-QuotientXn-A
   PA→A-pres+ P Q = refl
 
   PA→A-pres· : (P Q : A[x1,···,xn] Ar n) → PA→A (P ·PA Q) ≡ PA→A P ·A PA→A Q
-  PA→A-pres· = ⊕elimProp _ _ _ _
+  PA→A-pres· = DS-Ind-Prop.f _ _ _ _
                (λ P u v i Q → isSetA _ _ (u Q) (v Q) i)
                (λ Q → sym (0LeftAnnihilates (CommRing→Ring Ar) _))
-               (λ v a → ⊕elimProp _ _ _ _ (λ Q → isSetA _ _)
+               (λ v a → DS-Ind-Prop.f _ _ _ _ (λ Q → isSetA _ _)
                          (sym (0RightAnnihilates (CommRing→Ring Ar) _))
                          (λ v' a' → base-base-eq a a' v v')
                          λ {U V} ind-U ind-V → cong₂ _+A_ ind-U ind-V ∙ sym (·ADistR+ _ _ _))
@@ -225,7 +225,7 @@ module Properties-Equiv-QuotientXn-A
 
   e-retr : (x : A[x1,···,xn]/<x1,···,xn> Ar n) → A→PAI (PAI→A x) ≡ x
   e-retr = SQ.elimProp (λ _ → isSetPAI _ _)
-           (⊕elimProp _ _ _ _ (λ _ → isSetPAI _ _)
+           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPAI _ _)
            base0-eq
            base-eq
            λ {U V} ind-U ind-V → cong [_] (A→PA-pres+ _ _) ∙ cong₂ _+PAI_ ind-U ind-V)

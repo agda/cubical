@@ -207,7 +207,7 @@ module Equiv-𝕂²-Properties
     ϕ₂∘ψ₂str = isGroupHomComp (ψ₂ , isEven-GroupMorphism) (ϕ₂ , ϕ₂str)
 
     ℤ[x,y]→H*-𝕂² : ℤ[x,y] → H* KleinBottle
-    ℤ[x,y]→H*-𝕂² = ⊕recSet _ _ _ _ isSetH*
+    ℤ[x,y]→H*-𝕂² = DS-Rec-Set.f _ _ _ _ isSetH*
                         0H*
                         ϕ
                         _+H*_
@@ -332,14 +332,14 @@ module Equiv-𝕂²-Properties
 
     -- proof of the morphism
     ℤ[x,y]→H*-𝕂²-pres· : (x y : ℤ[x,y]) → ℤ[x,y]→H*-𝕂² (x ·Pℤ y) ≡ ℤ[x,y]→H*-𝕂² x cup ℤ[x,y]→H*-𝕂² y
-    ℤ[x,y]→H*-𝕂²-pres· = ⊕elimProp _ _ _ _
+    ℤ[x,y]→H*-𝕂²-pres· = DS-Ind-Prop.f _ _ _ _
                            (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                            (λ y → refl)
                            base-case
                            λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
       where
       base-case : _
-      base-case v a = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
+      base-case v a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
                              (sym (RingTheory.0RightAnnihilates (H*R KleinBottle) _))
                              (λ v' b → pres·-base-case-vec v a v' b )
                              λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
@@ -413,7 +413,7 @@ module Equiv-𝕂²-Properties
     ϕ⁻¹ (suc (suc (suc k))) a = 0PℤI
 
     H*-𝕂²→ℤ[x,y]/<2y,y²,xy,x²> : H* KleinBottle → ℤ[x,y]/<2y,y²,xy,x²>
-    H*-𝕂²→ℤ[x,y]/<2y,y²,xy,x²> = ⊕recSet _ _ _ _ isSetPℤI
+    H*-𝕂²→ℤ[x,y]/<2y,y²,xy,x²> = DS-Rec-Set.f _ _ _ _ isSetPℤI
          0PℤI
          ϕ⁻¹
          _+PℤI_
@@ -467,7 +467,7 @@ module Equiv-𝕂²-Properties
                                         ∙ cong (base (suc (suc (suc k)))) (unitGroupEq (Hⁿ⁺³-𝕂²≅0 k) _ _)
 
     e-sect : (x : H* KleinBottle) → ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂² (H*-𝕂²→ℤ[x,y]/<2y,y²,xy,x²> x) ≡ x
-    e-sect = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
+    e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
              refl
              e-sect-base
              λ {U V} ind-U ind-V → ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂²-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
@@ -543,7 +543,7 @@ module Equiv-𝕂²-Properties
 
     e-retr : (x : ℤ[x,y]/<2y,y²,xy,x²>) → H*-𝕂²→ℤ[x,y]/<2y,y²,xy,x²> (ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂² x) ≡ x
     e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-             (⊕elimProp _ _ _ _ (λ _ → isSetPℤI _ _)
+             (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
              refl
              e-retr-base
              λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)

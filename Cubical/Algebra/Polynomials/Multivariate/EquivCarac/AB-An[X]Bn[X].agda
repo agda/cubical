@@ -37,7 +37,7 @@ module _
     PB = PolyCommRing B' n
 
   makeCommRingHomPoly : (f : CommRingHom A' B') → CommRingHom (PolyCommRing A' n) (PolyCommRing B' n)
-  fst (makeCommRingHomPoly (f , fstr)) = ⊕recSet _ _ _ _ trunc
+  fst (makeCommRingHomPoly (f , fstr)) = DS-Rec-Set.f _ _ _ _ trunc
                                          (0r (snd PB))
                                          (λ v a → base v (f a))
                                          (_+_ (snd PB))
@@ -49,9 +49,9 @@ module _
   snd (makeCommRingHomPoly (f , fstr)) = makeIsRingHom
                                          (cong (base (replicate zero)) (pres1 fstr))
                                          (λ _ _ → refl)
-                                         (⊕elimProp _ _ _ _ (λ _ → isPropΠ λ _ → trunc _ _)
+                                         (DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ λ _ → trunc _ _)
                                              (λ _ → refl)
-                                             (λ v a → ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
+                                             (λ v a → DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
                                                                     refl
                                                                     (λ v' b → cong (base (v +n-vec v')) (pres· fstr a b))
                                                                     (λ {U V} ind-U ind-V → cong₂ (_+_ (snd PB)) ind-U  ind-V))
@@ -85,11 +85,11 @@ module _
     is : Iso (fst PA) (fst PB)
     fun is = fst (makeCommRingHomPoly A' B' n (f , fstr))
     inv is = fst (makeCommRingHomPoly B' A' n (g , gstr))
-    rightInv is = ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
+    rightInv is = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
                   refl
                   (λ v a → cong (base v) (secEq e a))
                   λ {U V} ind-U ind-V → cong₂ (_+_ (snd PB)) ind-U ind-V
-    leftInv is = ⊕elimProp _ _ _ _ (λ _ → trunc _ _)
+    leftInv is = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
                  refl
                  (λ v a → cong (base v) (retEq e a))
                  λ {U V} ind-U ind-V → cong₂ (_+_ (snd PA)) ind-U ind-V

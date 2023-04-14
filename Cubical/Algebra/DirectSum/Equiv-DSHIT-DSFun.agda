@@ -128,7 +128,7 @@ module Equiv-Properties
   ... | no ¬p = refl
 
   ⊕HIT→Fun : ⊕HIT ℕ G Gstr → (n : ℕ) → G n
-  ⊕HIT→Fun = ⊕recSet _ _ _ _ isSetFun
+  ⊕HIT→Fun = DS-Rec-Set.f _ _ _ _ isSetFun
               0Fun
               fun-trad
               _+Fun_
@@ -168,7 +168,7 @@ module Equiv-Properties
     ... | no ¬p = refl
 
   ⊕HIT→⊕AlmostNull : (x : ⊕HIT ℕ G Gstr) → AlmostNullP G Gstr (⊕HIT→Fun x)
-  ⊕HIT→⊕AlmostNull = ⊕elimProp _ _ _ _ (λ x → squash₁)
+  ⊕HIT→⊕AlmostNull = DS-Ind-Prop.f _ _ _ _ (λ x → squash₁)
                       ∣ (0 , (λ n q → refl)) ∣₁
                       (λ r a → ∣ (nfun-trad r a) ∣₁)
                       λ {U} {V} → PT.elim (λ _ → isPropΠ (λ _ → squash₁))
@@ -396,7 +396,7 @@ module Equiv-Properties
 
 
   e-retr : (x : ⊕HIT ℕ G Gstr) → ⊕Fun→⊕HIT (⊕HIT→⊕Fun x) ≡ x
-  e-retr = ⊕elimProp _ _ _ _ (λ _ → isSet⊕HIT _ _)
+  e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕HIT _ _)
            (base-neutral 0)
            lemmakk
            λ {U} {V} ind-U ind-V → cong ⊕Fun→⊕HIT (⊕HIT→⊕Fun-pres+ U V)

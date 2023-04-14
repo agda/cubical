@@ -600,7 +600,7 @@ abstract
 -- some lemmas
 module _ where
   -≡id-ℤ/2[X,Y] : (x : fst ℤ/2[X,Y]) → -Z/2 x ≡ x
-  -≡id-ℤ/2[X,Y] = ⊕elimProp _ _ _ _
+  -≡id-ℤ/2[X,Y] = DS-Ind-Prop.f _ _ _ _
     (λ _ → is-set (snd ℤ/2[X,Y]R) _ _)
     refl
     (λ r a → cong (base r) (-Const-ℤ/2  _))
@@ -614,7 +614,7 @@ module _ where
 
   -ConstH* : ∀ {ℓ} {A : Type ℓ} → (x : fst (H*R ℤ/2Ring A))
     → -_ (snd (H*R ℤ/2Ring A)) x ≡ x
-  -ConstH* {A = A} = ⊕elimProp _ _ _ _
+  -ConstH* {A = A} = DS-Ind-Prop.f _ _ _ _
     (λ _ → trunc _ _)
     refl
     (λ r a → cong (base r) (-ₕConst-ℤ/2 r a))
@@ -685,7 +685,7 @@ incR (suc (suc n)) = 0ₕ _
 
 -- Map ℤ/2[X,Y] → H*(K²,ℤ/2)
 ℤ/2[X,Y]→H*Klein-fun : fst ℤ/2[X,Y] → fst (H*R ℤ/2Ring KleinBottle)
-ℤ/2[X,Y]→H*Klein-fun = ⊕recSet _ _ _ _
+ℤ/2[X,Y]→H*Klein-fun = DS-Rec-Set.f _ _ _ _
   trunc neutral
   (λ x y → mainFun y x)
   _add_ addAssoc addRid addComm
@@ -717,14 +717,14 @@ isHomℤ/2[X,Y]→H*Klein :
             ℤ/2[X,Y]→H*Klein-fun
             (snd (H*R ℤ/2Ring KleinBottle))
 isHomℤ/2[X,Y]→H*Klein = makeIsRingHom refl (λ _ _ → refl)
-  (⊕elimProp _ _ _ _
+  (DS-Ind-Prop.f _ _ _ _
     (λ _ → isPropΠ λ _ → trunc _ _)
     (λ y → cong ℤ/2[X,Y]→H*Klein-fun
              (RingTheory.0LeftAnnihilates ℤ/2[X,Y]R y)
            ∙ sym (RingTheory.0LeftAnnihilates (H*R ℤ/2Ring KleinBottle)
               (ℤ/2[X,Y]→H*Klein-fun y)))
     (λ r a
-      → ⊕elimProp _ _ _ _
+      → DS-Ind-Prop.f _ _ _ _
           (λ _ → trunc _ _)
           (cong ℤ/2[X,Y]→H*Klein-fun
             (RingTheory.0RightAnnihilates (ℤ/2[X,Y]R) (base r a))
@@ -855,7 +855,7 @@ H*Klein→ℤ/2[X,Y]/I :
     fst (H*R ℤ/2Ring KleinBottle)
  → fst (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)
 H*Klein→ℤ/2[X,Y]/I =
-  ⊕recSet _ _ _ _ squash/ [ neutral ]
+  DS-Rec-Set.f _ _ _ _ squash/ [ neutral ]
     HⁿKlein→ℤ/2[X,Y]/I _
     (+Assoc (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
     (+IdR (snd (CommRing→Ring ℤ/2[X,Y]/<X³,Y²,XY+X²>)))
@@ -889,7 +889,7 @@ fst ℤ/2[X,Y]/<X³,Y²,XY+X²>≅H*KleinBottle = isoToEquiv is
   is : Iso  _ _
   fun is = ℤ/2[X,Y]/I→H*Klein .fst
   inv is = H*Klein→ℤ/2[X,Y]/I
-  rightInv is = ⊕elimProp _ _ _ _
+  rightInv is = DS-Ind-Prop.f _ _ _ _
     (λ _ → trunc _ _)
     refl
     (λ { zero a → lem₀ a _ refl
@@ -1016,7 +1016,7 @@ fst ℤ/2[X,Y]/<X³,Y²,XY+X²>≅H*KleinBottle = isoToEquiv is
   leftInv is =
     SQ.elimProp
       (λ _ → squash/ _ _)
-      (⊕elimProp _ _ _ _
+      (DS-Ind-Prop.f _ _ _ _
         (λ _ → squash/ _ _)
         refl
         (λ r a → main a r)

@@ -215,7 +215,7 @@ module Equiv-RP2-Properties where
   -- Direct Sens on ℤ[x]
 
     ℤ[x,y]→H*-S²⋁S⁴ : ℤ[x,y] → H* S²⋁S⁴
-    ℤ[x,y]→H*-S²⋁S⁴ = ⊕recSet _ _ _ _ isSetH*
+    ℤ[x,y]→H*-S²⋁S⁴ = DS-Rec-Set.f _ _ _ _ isSetH*
                         0H*
                         ϕ
                         _+H*_
@@ -340,14 +340,14 @@ module Equiv-RP2-Properties where
 
     -- proof of the morphism
     ℤ[x,y]→H*-S²⋁S⁴-pres· : (x y : ℤ[x,y]) → ℤ[x,y]→H*-S²⋁S⁴ (x ·Pℤ y) ≡ ℤ[x,y]→H*-S²⋁S⁴ x cup ℤ[x,y]→H*-S²⋁S⁴ y
-    ℤ[x,y]→H*-S²⋁S⁴-pres· = ⊕elimProp _ _ _ _
+    ℤ[x,y]→H*-S²⋁S⁴-pres· = DS-Ind-Prop.f _ _ _ _
                            (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                            (λ y → refl)
                            base-case
                            λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
       where
       base-case : _
-      base-case v a = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
+      base-case v a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
                              (sym (RingTheory.0RightAnnihilates (H*R S²⋁S⁴) _))
                              (λ v' b → pres·-base-case-vec v a v' b )
                              λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
@@ -396,7 +396,7 @@ module Equiv-RP2-Properties where
     ϕ⁻¹ k a (else x) = 0Pℤ
 
     H*-S²⋁S⁴→ℤ[x,y] : H* S²⋁S⁴ → ℤ[x,y]
-    H*-S²⋁S⁴→ℤ[x,y] = ⊕recSet _ _ _ _ isSetPℤ
+    H*-S²⋁S⁴→ℤ[x,y] = DS-Rec-Set.f _ _ _ _ isSetPℤ
          0Pℤ
          (λ k a → ϕ⁻¹ k a (part k))
          _+Pℤ_
@@ -458,7 +458,7 @@ module Equiv-RP2-Properties where
                                ∙ cong (base k) (unitGroupEq (Hⁿ-S²⋁S⁴≅0-bis k x) _ _)
 
     e-sect : (x : H* S²⋁S⁴) → ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ (H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> x) ≡ x
-    e-sect = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
+    e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
              refl
              (λ k a → e-sect-base k a (part k))
              λ {U V} ind-U ind-V → ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴-pres+ _ _ ∙ cong₂ _+H*_ ind-U ind-V
@@ -497,7 +497,7 @@ module Equiv-RP2-Properties where
                          (+PℤIdL _) ∙ +PℤIdR _)
     e-retr : (x : ℤ[x,y]/<xy,x²,y²>) → H*-S²⋁S⁴→ℤ[x,y]/<xy,x²,y²> (ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ x) ≡ x
     e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-             (⊕elimProp _ _ _ _ (λ _ → isSetPℤI _ _)
+             (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
              refl
              e-retr-base
              λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)

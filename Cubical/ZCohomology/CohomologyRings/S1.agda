@@ -147,7 +147,7 @@ module Equiv-S1-Properties where
 -- Direct Sens on ℤ[x]
 
   ℤ[x]→H*-S¹ : ℤ[x] → H* (S₊ 1)
-  ℤ[x]→H*-S¹ = ⊕recSet _ _ _ _ isSetH*
+  ℤ[x]→H*-S¹ = DS-Rec-Set.f _ _ _ _ isSetH*
                   0H*
                   ϕ
                   _+H*_
@@ -210,14 +210,14 @@ module Equiv-S1-Properties where
 
   -- proof of the morphism
   ℤ[x]→H*-S¹-pres· : (x y : ℤ[x]) → ℤ[x]→H*-S¹ (x ·Pℤ y) ≡ ℤ[x]→H*-S¹ x cup ℤ[x]→H*-S¹ y
-  ℤ[x]→H*-S¹-pres· = ⊕elimProp _ _ _ _
+  ℤ[x]→H*-S¹-pres· = DS-Ind-Prop.f _ _ _ _
                          (λ x p q i y j → isSetH* _ _ (p y) (q y) i j)
                          (λ y → refl)
                          base-case
                          λ {U V} ind-U ind-V y → cong₂ _+H*_ (ind-U y) (ind-V y)
     where
     base-case : _
-    base-case (n ∷ []) a = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
+    base-case (n ∷ []) a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
                            (sym (RingTheory.0RightAnnihilates (H*R (S₊ 1)) _))
                            (λ v' b → pres·-base-case-vec (n ∷ []) a v' b)
                            λ {U V} ind-U ind-V → (cong₂ _+H*_ ind-U ind-V) ∙ sym (·H*DistR+ _ _ _)
@@ -246,7 +246,7 @@ module Equiv-S1-Properties where
 -- Converse Sens on ℤ[X] + ℤ[x]/x
 
   H*-S¹→ℤ[x] : H* (S₊ 1) → ℤ[x]
-  H*-S¹→ℤ[x] = ⊕recSet _ _ _ _ isSetPℤ
+  H*-S¹→ℤ[x] = DS-Rec-Set.f _ _ _ _ isSetPℤ
                   0Pℤ
                   ϕ⁻¹
                   _+Pℤ_
@@ -286,7 +286,7 @@ module Equiv-S1-Properties where
 -- Section
 
   e-sect : (x : H* (S₊ 1)) → ℤ[x]/x²→H*-S¹ (H*-S¹→ℤ[x]/x² x) ≡ x
-  e-sect = ⊕elimProp _ _ _ _ (λ _ → isSetH* _ _)
+  e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH* _ _)
            refl
            base-case
            λ {U V} ind-U ind-V → cong₂ _+H*_ ind-U ind-V
@@ -304,7 +304,7 @@ module Equiv-S1-Properties where
 
   e-retr : (x : ℤ[x]/x²) → H*-S¹→ℤ[x]/x² (ℤ[x]/x²→H*-S¹ x) ≡ x
   e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-           (⊕elimProp _ _ _ _ (λ _ → isSetPℤI _ _)
+           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
            refl
            base-case
            λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)

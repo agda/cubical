@@ -8,7 +8,7 @@ open import Cubical.Algebra.AbGroup
 
 
 -- Conventions :
--- Indices are named r, s, t...
+-- Elements of the index are named r, s, t...
 -- Elements of the groups are called a, b, c...
 -- Elements of the direct sum are named x, y, z...
 -- Elements in the fiber of Q x, Q y are called xs, ys...
@@ -37,7 +37,7 @@ data ⊕HIT (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGrou
 
 module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupStr (P r)) where
 
-  module _
+  module DS-Ind-Set
     (Q            : (x : ⊕HIT Idx P AGP) → Type ℓ'')
     (issd         : (x : ⊕HIT Idx P AGP) → isSet (Q x))
     -- elements
@@ -58,20 +58,19 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
                      → PathP (λ i → Q (base-add r a b i)) ((base* r a) add* (base* r b)) (base* r (AbGroupStr._+_ (AGP r) a b)))
     where
 
-    ⊕elimSet : (x : ⊕HIT Idx P AGP) → Q x
-    ⊕elimSet neutral    = neutral*
-    ⊕elimSet (base r a) = base* r a
-    ⊕elimSet (x add y)  = (⊕elimSet x) add* (⊕elimSet y)
-    ⊕elimSet (addAssoc x y z i)  = addAssoc* (⊕elimSet x) (⊕elimSet y) (⊕elimSet z) i
-    ⊕elimSet (addRid x i)        = addRid* (⊕elimSet x) i
-    ⊕elimSet (addComm x y i)     = addComm* (⊕elimSet x) (⊕elimSet y) i
-    ⊕elimSet (base-neutral r i)  = base-neutral* r i
-    ⊕elimSet (base-add r a b i)  = base-add* r a b i
-    ⊕elimSet (trunc x y p q i j) =
-      isOfHLevel→isOfHLevelDep 2 (issd) (⊕elimSet x) (⊕elimSet y) (cong ⊕elimSet p) (cong ⊕elimSet q) (trunc x y p q) i j
+    f : (x : ⊕HIT Idx P AGP) → Q x
+    f neutral    = neutral*
+    f (base r a) = base* r a
+    f (x add y)  = (f x) add* (f y)
+    f (addAssoc x y z i)  = addAssoc* (f x) (f y) (f z) i
+    f (addRid x i)        = addRid* (f x) i
+    f (addComm x y i)     = addComm* (f x) (f y) i
+    f (base-neutral r i)  = base-neutral* r i
+    f (base-add r a b i)  = base-add* r a b i
+    f (trunc x y p q i j) = isOfHLevel→isOfHLevelDep 2 (issd)  (f x) (f y) (cong f p) (cong f q) (trunc x y p q) i j
 
 
-  module _
+  module DS-Rec-Set
     (B : Type ℓ'')
     (iss : isSet(B))
     (neutral* : B)
@@ -84,12 +83,12 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
     (base-add*     : (r : Idx) → (a b : P r) → (base* r a) add* (base* r b) ≡ base* r (AbGroupStr._+_ (AGP r) a b))
     where
 
-    ⊕recSet : ⊕HIT Idx P AGP → B
-    ⊕recSet z = ⊕elimSet (λ _ → B) (λ _ → iss) neutral* base* _add*_ addAssoc* addRid* addComm* base-neutral* base-add* z
+    f : ⊕HIT Idx P AGP → B
+    f z = DS-Ind-Set.f (λ _ → B) (λ _ → iss) neutral* base* _add*_ addAssoc* addRid* addComm* base-neutral* base-add* z
 
 
 
-  module _
+  module DS-Ind-Prop
     (Q            : (x : ⊕HIT Idx P AGP) → Type ℓ'')
     (ispd         : (x : ⊕HIT Idx P AGP) → isProp (Q x))
     -- elements
@@ -98,8 +97,8 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
     (_add*_       : {x y : ⊕HIT Idx P AGP} → Q x → Q y → Q (x add y))
     where
 
-    ⊕elimProp : (x : ⊕HIT Idx P AGP) → Q x
-    ⊕elimProp x = ⊕elimSet Q (λ x → isProp→isSet (ispd x)) neutral* base* _add*_
+    f : (x : ⊕HIT Idx P AGP) → Q x
+    f x = DS-Ind-Set.f Q (λ x → isProp→isSet (ispd x)) neutral* base* _add*_
           (λ {x} {y} {z} xs ys zs → toPathP (ispd _ (transport (λ i → Q (addAssoc x y z i)) (xs add* (ys add* zs))) ((xs add* ys) add* zs)))
           (λ {x} xs               → toPathP (ispd _ (transport (λ i → Q (addRid x i))       (xs add* neutral*)) xs))
           (λ {x} {y} xs ys        → toPathP (ispd _ (transport (λ i → Q (addComm x y i))    (xs add* ys)) (ys add* xs)))
@@ -108,7 +107,7 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
           x
 
 
-  module _
+  module DS-Rec-Prop
     (B        : Type ℓ'')
     (isp      : isProp B)
     (neutral* : B)
@@ -116,5 +115,5 @@ module _ (Idx : Type ℓ) (P : Idx → Type ℓ') (AGP : (r : Idx) → AbGroupSt
     (_add*_   : B → B → B)
     where
 
-    ⊕recProp : ⊕HIT Idx P AGP → B
-    ⊕recProp x = ⊕elimProp (λ _ → B) (λ _ → isp) neutral* base* _add*_ x
+    f : ⊕HIT Idx P AGP → B
+    f x = DS-Ind-Prop.f (λ _ → B) (λ _ → isp) neutral* base* _add*_ x

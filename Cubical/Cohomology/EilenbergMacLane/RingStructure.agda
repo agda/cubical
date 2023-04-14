@@ -116,7 +116,7 @@ module CohomologyRing-Equiv
                                         (λ f' → refl)))
 
   H*-X→H*-Y : H* R X → H* R Y
-  H*-X→H*-Y = ⊕recSet _ _ _ _ isSetH*Y
+  H*-X→H*-Y = DS-Rec-Set.f _ _ _ _ isSetH*Y
                0H*Y
                (λ n a → base n (fun (fst coHomGr-Iso) a))
                _+H*Y_
@@ -127,7 +127,7 @@ module CohomologyRing-Equiv
                λ n a b → base-add _ _ _ ∙ cong (base n) (sym (pres· (snd coHomGr-Iso) a b))
 
   H*-Y→H*-X : H* R Y → H* R X
-  H*-Y→H*-X = ⊕recSet _ _ _ _ isSetH*X
+  H*-Y→H*-X = DS-Rec-Set.f _ _ _ _ isSetH*X
                0H*X
                (λ m a → base m (inv (fst coHomGr-Iso) a))
                _+H*X_
@@ -138,13 +138,13 @@ module CohomologyRing-Equiv
                λ m a b → base-add _ _ _ ∙ cong (base m) (sym (pres· (snd (invGroupIso coHomGr-Iso)) a b))
 
   e-sect : (y : H* R Y) → H*-X→H*-Y (H*-Y→H*-X y) ≡ y
-  e-sect = ⊕elimProp _ _ _ _ (λ _ → isSetH*Y _ _)
+  e-sect = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*Y _ _)
            refl
            (λ m a → cong (base m) (rightInv (fst coHomGr-Iso) a))
            (λ {U V} ind-U ind-V → cong₂ _+H*Y_ ind-U ind-V)
 
   e-retr : (x : H* R X) → H*-Y→H*-X (H*-X→H*-Y x) ≡ x
-  e-retr = ⊕elimProp _ _ _ _ (λ _ → isSetH*X _ _)
+  e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X _ _)
            refl
            (λ n a → cong (base n) (leftInv (fst coHomGr-Iso) a))
            (λ {U V} ind-U ind-V → cong₂ _+H*X_ ind-U ind-V)
@@ -156,10 +156,10 @@ module CohomologyRing-Equiv
   H*-X→H*-Y-pres+ x x' = refl
 
   H*-X→H*-Y-pres· : (x x' : H* R X) → H*-X→H*-Y (x cupX x') ≡ H*-X→H*-Y x cupY H*-X→H*-Y x'
-  H*-X→H*-Y-pres· = ⊕elimProp _ _ _ _ (λ x u v i y → isSetH*Y _ _ (u y) (v y) i)
+  H*-X→H*-Y-pres· = DS-Ind-Prop.f _ _ _ _ (λ x u v i y → isSetH*Y _ _ (u y) (v y) i)
          (λ _ → refl)
          (λ n → ST.elim (λ x → isProp→isSet λ u v i y → isSetH*Y _ _ (u y) (v y) i)
-                (λ f → ⊕elimProp _ _ _ _ (λ _ → isSetH*Y _ _)
+                (λ f → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*Y _ _)
                         refl
                         (λ m → ST.elim (λ _ → isProp→isSet (isSetH*Y _ _))
                                 (λ g → refl))

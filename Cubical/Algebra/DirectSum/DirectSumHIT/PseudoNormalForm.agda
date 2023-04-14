@@ -121,7 +121,7 @@ module DefPNF
 -- Translation
 
   ⊕HIT→PNF : (x : ⊕HIT ℕ G Gstr) → ∥ Σ[ m ∈ ℕ ] Σ[ a ∈ depVec G m ] x ≡ sumHIT a ∥₁
-  ⊕HIT→PNF = ⊕elimProp _ _ _ _
+  ⊕HIT→PNF = DS-Ind-Prop.f _ _ _ _
         (λ _ → squash₁)
         ∣ (0 , (⋆ , refl)) ∣₁
         base→PNF

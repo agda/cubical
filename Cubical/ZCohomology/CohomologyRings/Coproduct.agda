@@ -123,7 +123,7 @@ module Equiv-Coproduct-Properties
 
   H*-X⊎Y→H*-X×H*-Y : H* (X ⊎ Y) → (H* X) × (H* Y)
   H*-X⊎Y→H*-X×H*-Y =
-    ⊕recSet _ _ _ _
+    DS-Rec-Set.f _ _ _ _
     isSetH*X×Y
     (0H*X , 0H*Y)
     (λ n a → (base n (fst (fun (fst Equiv-Coproduct-CoHom) a))) , (base n (snd (fun (fst Equiv-Coproduct-CoHom) a))))
@@ -157,7 +157,7 @@ module Equiv-Coproduct-Properties
 -- which doesn't work because the + being lifted is on H*(Y) and not H*(X)×H*(Y)
 
   H*-X→H*-X⊎Y : H*(X) → H*(X ⊎ Y)
-  H*-X→H*-X⊎Y = ⊕recSet _ _ _ _ isSetH*X⊎Y
+  H*-X→H*-X⊎Y = DS-Rec-Set.f _ _ _ _ isSetH*X⊎Y
        0H*X⊎Y
        (λ n a → base n (inv (fst Equiv-Coproduct-CoHom) (a , (0ₕ n))))
        _+H*X⊎Y_
@@ -171,7 +171,7 @@ module Equiv-Coproduct-Properties
                                          (≡-× refl (AbGroupStr.+IdL (snd (coHomGroup n Y)) (0ₕ n))))
 
   H*-Y→H*-X⊎Y : H*(Y) → H*(X ⊎ Y)
-  H*-Y→H*-X⊎Y = ⊕recSet _ _ _ _ isSetH*X⊎Y
+  H*-Y→H*-X⊎Y = DS-Rec-Set.f _ _ _ _ isSetH*X⊎Y
        0H*X⊎Y
        (λ m b → base m (inv (fst Equiv-Coproduct-CoHom) (0ₕ m , b)))
        _+H*X⊎Y_
@@ -194,7 +194,7 @@ module Equiv-Coproduct-Properties
 -- Section Sens
 
   e-sectX : (x : H* X) → H*-X⊎Y→H*-X×H*-Y (H*-X→H*-X⊎Y x) ≡ (x , 0H*Y)
-  e-sectX = ⊕elimProp _ _ _ _ (λ _ → isSetH*X×Y _ _)
+  e-sectX = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X×Y _ _)
             refl
             (λ n a → ≡-× (cong (base n) (cong fst (rightInv (fst Equiv-Coproduct-CoHom) (a , 0ₕ n))))
                           (cong (base n) (cong snd (rightInv (fst Equiv-Coproduct-CoHom) (a , 0ₕ n))))
@@ -202,7 +202,7 @@ module Equiv-Coproduct-Properties
             λ {U V} ind-U ind-V → cong₂ _+H*X×Y_ ind-U ind-V ∙ ≡-× refl (+H*YIdR _)
 
   e-sectY : (y : H* Y) → (H*-X⊎Y→H*-X×H*-Y (H*-Y→H*-X⊎Y y)) ≡ (0H*X , y)
-  e-sectY = ⊕elimProp _ _ _ _ (λ _ → isSetH*X×Y _ _)
+  e-sectY = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X×Y _ _)
             refl
             (λ m b → ≡-× (cong (base m) (cong fst (rightInv (fst Equiv-Coproduct-CoHom) (0ₕ m , b))))
                           (cong (base m) (cong snd (rightInv (fst Equiv-Coproduct-CoHom) (0ₕ m , b))))
@@ -218,7 +218,7 @@ module Equiv-Coproduct-Properties
 -- Retraction Sens
 
   e-retr : (x : H*(X ⊎ Y)) → H*-X×H*-Y→H*-X⊎Y (H*-X⊎Y→H*-X×H*-Y x) ≡ x
-  e-retr = ⊕elimProp _ _ _ _ (λ _ → isSetH*X⊎Y _ _)
+  e-retr = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X⊎Y _ _)
            (+H*X⊎YIdR _)
            (λ n a → ((base n (T⁻ ((fst (T a)) , 0ₕ n))) +H*X⊎Y (base n (T⁻ (0ₕ n , snd (T a)))))
                            ≡⟨ base-add n _ _ ⟩
@@ -257,9 +257,9 @@ module Equiv-Coproduct-Properties
   H*-X⊎Y→H*-X×H*-Y-pres· : (x y : H* (X ⊎ Y)) →
                               H*-X⊎Y→H*-X×H*-Y ( x cupX⊎Y y)
                             ≡ H*-X⊎Y→H*-X×H*-Y x cupX×Y H*-X⊎Y→H*-X×H*-Y y
-  H*-X⊎Y→H*-X×H*-Y-pres· = ⊕elimProp _ _ _ _ (λ x p q i y → isSetH*X×Y _ _ (p y) (q y) i)
+  H*-X⊎Y→H*-X×H*-Y-pres· = DS-Ind-Prop.f _ _ _ _ (λ x p q i y → isSetH*X×Y _ _ (p y) (q y) i)
          (λ y → refl)
-         (λ n a → ⊕elimProp _ _ _ _ (λ _ → isSetH*X×Y _ _)
+         (λ n a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*X×Y _ _)
                    refl
                    (λ m b → (base (n +' m) (fst (T (a ⌣ b)))) , base (n +' m) (snd (T (a ⌣ b)))
                                   ≡⟨ ≡-× (cong (base (n +' m)) (helperX a b))

@@ -22,7 +22,7 @@ module AbGroupProperties
   where
 
   inv : ⊕HIT Idx P AGP → ⊕HIT Idx P AGP
-  inv = ⊕recSet Idx P AGP (⊕HIT Idx P AGP) trunc
+  inv = DS-Rec-Set.f Idx P AGP (⊕HIT Idx P AGP) trunc
            -- elements
            neutral
            (λ r a → base r (AbGroupStr.-_ (AGP r) a))
@@ -45,7 +45,7 @@ module AbGroupProperties
 
 
   rinv : (z : ⊕HIT Idx P AGP) → z add (inv z) ≡ neutral
-  rinv = ⊕elimProp Idx P AGP (λ z → z add (inv z) ≡ neutral) (λ _ → trunc _ _)
+  rinv = DS-Ind-Prop.f Idx P AGP (λ z → z add (inv z) ≡ neutral) (λ _ → trunc _ _)
          -- elements
          (addRid neutral)
          (λ r a → let open AbGroupStr (AGP r) in
@@ -96,7 +96,7 @@ module DecIndec-BaseProperties
   open SubstLemma Idx G Gstr
 
   πₖ : (k : Idx) → ⊕HIT Idx G Gstr → G k
-  πₖ k = ⊕recSet _ _ _ _ (is-set (Gstr k))
+  πₖ k = DS-Rec-Set.f _ _ _ _ (is-set (Gstr k))
          (0g (Gstr k))
          base-trad
          (_+_ (Gstr k))

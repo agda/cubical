@@ -74,9 +74,9 @@ module GradedRing-⊕HIT-index
 -- Ring Properties
 
     _prod_ : ⊕G → ⊕G → ⊕G
-    _prod_ = ⊕recSet _ _ _ _ (isSetΠ λ _ → isSet⊕G)
+    _prod_ = DS-Rec-Set.f _ _ _ _ (isSetΠ λ _ → isSet⊕G)
              (λ _ → 0⊕)
-             (λ k a → ⊕recSet _ _ _ _ isSet⊕G
+             (λ k a → DS-Rec-Set.f _ _ _ _ isSet⊕G
                        0⊕
                        (λ l b → base (k · l) (a ⋆ b))
                        _+⊕_
@@ -89,52 +89,52 @@ module GradedRing-⊕HIT-index
              (λ xs ys zs i y → +⊕Assoc (xs y) (ys y) (zs y) i)
              (λ xs i y       → +⊕IdR (xs y) i)
              (λ xs ys i y    → +⊕Comm (xs y) (ys y) i)
-             (λ k → funExt (⊕elimProp _ _ _ _ (λ _ → isSet⊕G _ _)
+             (λ k → funExt (DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕G _ _)
                      refl
                      (λ l b → cong (base (k · l)) (0-⋆ _) ∙ base-neutral _)
-                     λ ind-U ind-V → cong₂ _+⊕_ ind-U ind-V ∙ +⊕IdR _))
-             λ k a b → funExt (⊕elimProp _ _ _ _ (λ _ → isSet⊕G _ _)
+                     λ {U V} ind-U ind-V → cong₂ _+⊕_ ind-U ind-V ∙ +⊕IdR _))
+             λ k a b → funExt (DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕G _ _)
                         (+⊕IdR _)
                         (λ l c → base-add _ _ _ ∙ cong (base (k · l)) (sym (⋆DistL+ _ _ _)))
-                        (λ ind-U ind-V → comm-4 _ _ _ _ ∙ cong₂ _+⊕_ ind-U ind-V))
+                        (λ {U V} ind-U ind-V → comm-4 _ _ _ _ ∙ cong₂ _+⊕_ ind-U ind-V))
 
     1⊕ : ⊕G
     1⊕ = base ε 1⋆
 
     prodAssoc : (x y z : ⊕G) → x prod (y prod z) ≡ (x prod y) prod z
-    prodAssoc = ⊕elimProp _ _ _ _ (λ _ → isPropΠ2 λ _ _ → isSet⊕G _ _)
+    prodAssoc = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ2 λ _ _ → isSet⊕G _ _)
                 (λ _ _ → refl)
-                (λ _ _ → ⊕elimProp _ _ _ _ (λ _ → isPropΠ (λ _ → isSet⊕G _ _))
-                          (λ _ → refl)
-                          (λ _ _ → ⊕elimProp _ _ _ _ (λ _ → isSet⊕G _ _)
+                (λ k a → DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ (λ _ → isSet⊕G _ _))
+                          (λ z → refl)
+                          (λ l b → DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕G _ _)
                                     refl
                                     (λ m c → cong₂ base (cong fst (⋆Assoc _ _ _)) (cong snd (⋆Assoc _ _ _)))
-                                    λ ind-U ind-V → cong₂ _+⊕_ ind-U ind-V)
-                          λ ind-U ind-V z → cong₂ _+⊕_ (ind-U z) (ind-V z))
-                λ ind-U ind-V y z → cong₂ _+⊕_ (ind-U y z) (ind-V y z)
+                                    λ {U V} ind-U ind-V → cong₂ _+⊕_ ind-U ind-V)
+                          λ {U V} ind-U ind-V z → cong₂ _+⊕_ (ind-U z) (ind-V z))
+                λ {U V} ind-U ind-V y z → cong₂ _+⊕_ (ind-U y z) (ind-V y z)
 
 
     prodIdR : (x : ⊕G) → x prod 1⊕ ≡ x
-    prodIdR = ⊕elimProp _ _ _ _ (λ _ → isSet⊕G _ _)
+    prodIdR = DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕G _ _)
               refl
               (λ k a → cong₂ base (cong fst (⋆IdR _)) (cong snd (⋆IdR _)) )
               λ {U V} ind-U ind-V → (cong₂ _+⊕_ ind-U ind-V)
 
     prodIdL : (y : ⊕G) → 1⊕ prod y ≡ y
-    prodIdL = ⊕elimProp _ _ _ _ (λ _ → isSet⊕G _ _)
+    prodIdL = DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕G _ _)
               refl
               (λ l b → cong₂ base (cong fst (⋆IdL _)) (cong snd (⋆IdL _)) )
-              λ ind-U ind-V → (cong₂ _+⊕_ ind-U ind-V)
+              λ {U V} ind-U ind-V → (cong₂ _+⊕_ ind-U ind-V)
 
 
     prodDistR+ : (x y z : ⊕G) → x prod (y +⊕ z) ≡ (x prod y) +⊕ (x prod z)
-    prodDistR+ = ⊕elimProp _ _ _ _ (λ _ → isPropΠ2 (λ _ _ → isSet⊕G _ _))
+    prodDistR+ = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ2 (λ _ _ → isSet⊕G _ _))
                  (λ _ _ → sym (+⊕IdR _))
-                 (λ _ _ _ _ → refl)
-                 λ ind-U ind-V y z → cong₂ _+⊕_ (ind-U y z) (ind-V y z) ∙ comm-4 _ _ _ _
+                 (λ k a y z → refl)
+                 λ {U V} ind-U ind-V y z → cong₂ _+⊕_ (ind-U y z) (ind-V y z) ∙ comm-4 _ _ _ _
 
     prodDistL+ : (x y z : ⊕G) → (x +⊕ y) prod z ≡ (x prod z) +⊕ (y prod z)
-    prodDistL+ = λ _ _ _ → refl
+    prodDistL+ = λ x y z → refl
 
 -----------------------------------------------------------------------------
 -- Ring Instances
@@ -161,12 +161,12 @@ module GradedRing-⊕HIT-index
       open RingTheory ⊕HITgradedRing-Ring
 
       prodComm : (x y : ⊕G) → x prod y ≡ y prod x
-      prodComm = ⊕elimProp _ _ _ _ (λ _ → isPropΠ (λ _ → isSet⊕G _ _))
+      prodComm = DS-Ind-Prop.f _ _ _ _ (λ _ → isPropΠ (λ _ → isSet⊕G _ _))
                  (λ y → sym (0RightAnnihilates y))
-                 (λ _ _ → ⊕elimProp _ _ _ _ (λ _ → isSet⊕G _ _)
+                 (λ k a → DS-Ind-Prop.f _ _ _ _ (λ _ → isSet⊕G _ _)
                            refl
-                           (λ _ _ → cong₂ base (cong fst (⋆Comm _ _)) (cong snd (⋆Comm _ _)))
-                           λ ind-U ind-V → cong₂ _+⊕_ ind-U ind-V)
+                           (λ l b → cong₂ base (cong fst (⋆Comm _ _)) (cong snd (⋆Comm _ _)))
+                           λ {U V} ind-U ind-V → cong₂ _+⊕_ ind-U ind-V)
                  λ {U V} ind-U ind-V Q → ((cong₂ _+⊕_ (ind-U Q) (ind-V Q)) ∙ sym (prodDistR+ Q U V))
 
       ⊕HITgradedRing-CommRing : CommRing (ℓ-max ℓ ℓ')
