@@ -28,10 +28,10 @@ DirProd A B =
 open Iso
 
 -- A coherence
-DirProdForgetComm : ∀ {ℓ ℓ'} → (G : AbGroup ℓ) → (H : AbGroup ℓ')
+DirProdForgetComm : ∀ {ℓ ℓ'} → {G : AbGroup ℓ} → {H : AbGroup ℓ'}
                     → GroupIso (AbGroup→Group (DirProd G H)) (Group.DirProd (AbGroup→Group G) (AbGroup→Group H))
-fun (fst (DirProdForgetComm G H)) = λ x → x
-inv (fst (DirProdForgetComm G H)) = λ x → x
-rightInv (fst (DirProdForgetComm G H)) x = refl
-leftInv (fst (DirProdForgetComm G H)) x = refl
-snd (DirProdForgetComm G H) = record { pres· = λ _ _ → refl ; pres1 = refl ; presinv = λ x → refl }
+fun (fst DirProdForgetComm) = λ x → x
+inv (fst DirProdForgetComm) = λ x → x
+rightInv (fst DirProdForgetComm) x = refl
+leftInv (fst DirProdForgetComm) x = refl
+snd DirProdForgetComm = record { pres· = λ _ _ → refl ; pres1 = refl ; presinv = λ x → refl }
