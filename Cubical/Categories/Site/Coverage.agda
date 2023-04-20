@@ -12,6 +12,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Site.Cover
+open import Cubical.Categories.Site.Sieve
 
 module _
   {ℓ ℓ' : Level}
@@ -20,7 +21,7 @@ module _
 
   open Category C
 
-  record Coverage (ℓcov ℓpat : Level) : Type _ where -- (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc ℓcov))) where
+  record Coverage (ℓcov ℓpat : Level) : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc (ℓ-max ℓcov ℓpat)))) where
     no-eta-equality
     field
       covers : (c : ob) → Families.Fam ℓcov (Cover C ℓpat c)
@@ -29,8 +30,7 @@ module _
         (cov : ⟨ covers c ⟩) →
         (d : ob) →
         (f : Hom[ d , c ]) →
-        ∃[ cov' ∈ ⟨ covers d ⟩ ] {!!}
-
---        ∥ (Σ[ cov' ∈ covers d ]
---          ((pat : patches (cover cov')) → {!!}))
---        ∥₁
+        ∃[ cov' ∈ ⟨ covers d ⟩ ]
+          ⟨ coverRefinesSieve C
+              (str (covers d) cov')
+              (pulledBackSieve C f (generatedSieve C (str (covers c) cov))) ⟩
