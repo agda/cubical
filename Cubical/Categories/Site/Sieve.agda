@@ -23,7 +23,7 @@ module _
   (C : Category ℓ ℓ')
   where
 
-  open Category C
+  open Category C hiding (_∘_)
 
   record Sieve (ℓsie : Level) (c : ob) : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc ℓsie))) where
     no-eta-equality
@@ -59,4 +59,13 @@ module _
 
   -- TODO: prove universal property of generatedSieve
 
-  -- pulledBackSieve :
+  pulledBackSieve :
+    {ℓsie : Level} →
+    {c d : ob} →
+    (Hom[ c , d ]) →
+    Sieve ℓsie d →
+    Sieve ℓsie c
+  passes (pulledBackSieve f S) g = passes S (g ⋆ f)
+  closedUnderPrecomposition (pulledBackSieve f S) p g pass =
+    subst (⟨_⟩ ∘ passes S) (sym (⋆Assoc p g f))
+      (closedUnderPrecomposition S p (g ⋆ f) pass)
