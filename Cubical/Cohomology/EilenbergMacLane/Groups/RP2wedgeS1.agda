@@ -29,6 +29,7 @@ open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.AbGroup.Instances.Unit
+import Cubical.Algebra.AbGroup.DirProd as AbGroup
 
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as TR
@@ -55,7 +56,7 @@ H⁰[RP²∨S¹,ℤ/2]≅ℤ/2 =
 
 H¹[RP²∨S¹,ℤ/2]≅ℤ/2×ℤ/2 :
   AbGroupEquiv (coHomGr 1 ℤ/2 ((RP² , point) ⋁ S₊∙ 1))
-               (dirProdAb ℤ/2 ℤ/2)
+               (AbGroup.DirProd ℤ/2 ℤ/2)
 H¹[RP²∨S¹,ℤ/2]≅ℤ/2×ℤ/2 =
   compGroupEquiv (Hⁿ-⋁≅Hⁿ×Hⁿ ℤ/2 0)
     (GroupEquivDirProd

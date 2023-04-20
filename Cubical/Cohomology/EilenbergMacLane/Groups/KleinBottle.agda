@@ -32,6 +32,7 @@ open import Cubical.Algebra.AbGroup.Instances.IntMod
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup.Base
+import Cubical.Algebra.AbGroup.DirProd as AbGroup
 
 open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.SetTruncation as ST
@@ -130,14 +131,14 @@ H⁰[K²,ℤ/2]≅ℤ/2 =
     ℤ/2
 
 ------ H¹(K²,ℤ/2) ------
-H¹K²→ℤ/2×ℤ/2 : coHom 1 ℤ/2 KleinBottle → fst (dirProdAb ℤ/2 ℤ/2)
-H¹K²→ℤ/2×ℤ/2 = ST.rec (is-set (snd (dirProdAb ℤ/2 ℤ/2)))
+H¹K²→ℤ/2×ℤ/2 : coHom 1 ℤ/2 KleinBottle → fst (AbGroup.DirProd ℤ/2 ℤ/2)
+H¹K²→ℤ/2×ℤ/2 = ST.rec (is-set (snd (AbGroup.DirProd ℤ/2 ℤ/2)))
                    λ f → ΩEM+1→EM-gen _ _ (cong f line1)
                        , ΩEM+1→EM-gen _ _ (cong f line2)
 
 ℤ/2Group = AbGroup→Group (ℤAbGroup/ 2)
 
-ℤ/2×ℤ/2→H¹K² : fst (dirProdAb ℤ/2 ℤ/2) → coHom 1 ℤ/2 KleinBottle
+ℤ/2×ℤ/2→H¹K² : fst (AbGroup.DirProd ℤ/2 ℤ/2) → coHom 1 ℤ/2 KleinBottle
 ℤ/2×ℤ/2→H¹K² (g₁ , g₂) =
   ∣ (λ { point → 0ₖ _
       ; (line1 i) → emloop g₁ i
@@ -168,7 +169,7 @@ H¹K²→ℤ/2×ℤ/2 = ST.rec (is-set (snd (dirProdAb ℤ/2 ℤ/2)))
   main = (sym (emloop-inv ℤ/2Group g₁) ∙ cong emloop (-Const-ℤ/2 g₁))
        ◁ lem g₁ g₂
 
-ℤ/2×ℤ/2→H¹K²→ℤ/2×ℤ/2 : (x : fst (dirProdAb ℤ/2 ℤ/2))
+ℤ/2×ℤ/2→H¹K²→ℤ/2×ℤ/2 : (x : fst (AbGroup.DirProd ℤ/2 ℤ/2))
   → H¹K²→ℤ/2×ℤ/2 (ℤ/2×ℤ/2→H¹K² x) ≡ x
 ℤ/2×ℤ/2→H¹K²→ℤ/2×ℤ/2 (g₁ , g₂) =
   ΣPathP ((Iso.leftInv (Iso-EM-ΩEM+1 0) g₁)
@@ -184,7 +185,7 @@ H¹K²→ℤ/2×ℤ/2→H¹K² =
       (flipSquare (Iso.rightInv (Iso-EM-ΩEM+1 0) l2)))))
 
 ℤ/2×ℤ/2≅H¹[K²,ℤ/2] :
-  AbGroupEquiv (dirProdAb ℤ/2 ℤ/2) (coHomGr 1 ℤ/2 KleinBottle)
+  AbGroupEquiv (AbGroup.DirProd ℤ/2 ℤ/2) (coHomGr 1 ℤ/2 KleinBottle)
 fst ℤ/2×ℤ/2≅H¹[K²,ℤ/2] = isoToEquiv is
   where
   is : Iso _ _
@@ -201,7 +202,7 @@ snd ℤ/2×ℤ/2≅H¹[K²,ℤ/2] =
                  ∙ sym (cong₂+₁ (emloop (snd x)) (emloop (snd y))))))))
 
 H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 :
-  AbGroupEquiv (coHomGr 1 ℤ/2 KleinBottle) (dirProdAb ℤ/2 ℤ/2)
+  AbGroupEquiv (coHomGr 1 ℤ/2 KleinBottle) (AbGroup.DirProd ℤ/2 ℤ/2)
 H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 = invGroupEquiv ℤ/2×ℤ/2≅H¹[K²,ℤ/2]
 
 ------ H²(K²,ℤ/2) ------

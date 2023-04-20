@@ -267,13 +267,6 @@ module _ (G : AbGroup ℓ) {A : Type ℓ}
   InducedAbGroupPathFromPres· : G ≡ InducedAbGroupFromPres·
   InducedAbGroupPathFromPres· = AbGroupPath _ _ .fst InducedAbGroupEquivFromPres·
 
-
-dirProdAb : AbGroup ℓ → AbGroup ℓ' → AbGroup (ℓ-max ℓ ℓ')
-dirProdAb A B =
-  Group→AbGroup (DirProd (AbGroup→Group A) (AbGroup→Group B))
-                 λ p q → ΣPathP (+Comm (isAbGroup (snd A)) _ _
-                                , +Comm (isAbGroup (snd B)) _ _)
-
 trivialAbGroup : ∀ {ℓ} → AbGroup ℓ
 fst trivialAbGroup = Unit*
 0g (snd trivialAbGroup) = tt*
