@@ -10,9 +10,10 @@ open import Cubical.Data.Nat hiding (_+_)
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.Instances.IntMod
+-- open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Unit
+import Cubical.Algebra.AbGroup.Instances.IntMod as AbGroup
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
@@ -80,21 +81,21 @@ module CbnCupProduct
   module _
     {n m : ℕ}
     (ϕₙ : fst ℤ/2 → coHom n ℤ/2 X)
-    (ϕₙstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₙ (snd (AbGroup→Group (coHomGr n ℤ/2 X))))
+    (ϕₙstr : IsGroupHom (snd (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) ) ϕₙ (snd (AbGroup→Group (coHomGr n ℤ/2 X))))
     (ϕₘ : fst ℤ/2 → coHom m ℤ/2 X)
-    (ϕₘstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₘ (snd (AbGroup→Group (coHomGr m ℤ/2 X))))
+    (ϕₘstr : IsGroupHom (snd (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) ) ϕₘ (snd (AbGroup→Group (coHomGr m ℤ/2 X))))
     (ϕₙ₊ₘ : fst ℤ/2 → coHom (n +' m) ℤ/2 X)
-    (ϕₙ₊ₘstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₙ₊ₘ (snd (AbGroup→Group (coHomGr (n +' m) ℤ/2 X))))
+    (ϕₙ₊ₘstr : IsGroupHom (snd (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) ) ϕₙ₊ₘ (snd (AbGroup→Group (coHomGr (n +' m) ℤ/2 X))))
     (cup-comp : ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ 1ℤ/2 ≡ ϕₙ₊ₘ 1ℤ/2 )
     where
 
     ϕₙ⌣ϕₘ-notTrivial : (a b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (a ·ℤ/2 b)
-    ϕₙ⌣ϕₘ-notTrivial a = ℤ/2-elim {A = λ a → (b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (a ·ℤ/2 b)}
+    ϕₙ⌣ϕₘ-notTrivial a = AbGroup.ℤ/2-elim {A = λ a → (b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (a ·ℤ/2 b)}
                             (λ b → cong (λ X → X ⌣ℤ/2 ϕₘ b) (pres1 ϕₙstr)
                                     ∙ 0ₕ-⌣ _ _ _
                                     ∙ sym (pres1 ϕₙ₊ₘstr)
                                     ∙ cong ϕₙ₊ₘ (sym (0LeftAnnihilates ℤ/2Ring _)))
-                            (λ b → ℤ/2-elim {A = λ b → ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (1ℤ/2 ·ℤ/2 b)}
+                            (λ b → AbGroup.ℤ/2-elim {A = λ b → ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ b ≡ ϕₙ₊ₘ (1ℤ/2 ·ℤ/2 b)}
                                     (cong (λ X → ϕₙ 1ℤ/2 ⌣ℤ/2 X) (pres1 ϕₘstr)
                                     ∙ ⌣-0ₕ {G'' = ℤ/2Ring} n m (ϕₙ 1ℤ/2)
                                     ∙ sym (pres1 ϕₙ₊ₘstr)
@@ -107,17 +108,17 @@ module CbnCupProduct
   module _
     {n m : ℕ}
     (ϕₙ : fst ℤ/2 → coHom n ℤ/2 X)
-    (ϕₙstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₙ (snd (AbGroup→Group (coHomGr n ℤ/2 X))))
+    (ϕₙstr : IsGroupHom (snd (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) ) ϕₙ (snd (AbGroup→Group (coHomGr n ℤ/2 X))))
     (ϕₘ : fst ℤ/2 → coHom m ℤ/2 X)
-    (ϕₘstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₘ (snd (AbGroup→Group (coHomGr m ℤ/2 X))))
+    (ϕₘstr : IsGroupHom (snd (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) ) ϕₘ (snd (AbGroup→Group (coHomGr m ℤ/2 X))))
     (cup-comp : ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ 1ℤ/2 ≡ 0ₕ (n +' m))
     where
 
     ϕₙ⌣ϕₘ-Trivial : (a b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)
-    ϕₙ⌣ϕₘ-Trivial a = ℤ/2-elim {A = λ a → (b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)}
+    ϕₙ⌣ϕₘ-Trivial a = AbGroup.ℤ/2-elim {A = λ a → (b : fst ℤ/2) → ϕₙ a ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)}
                        (λ b → cong (λ X → X ⌣ℤ/2 ϕₘ b) (pres1 ϕₙstr)
                                     ∙ 0ₕ-⌣ _ _ _)
-                       (λ b → ℤ/2-elim {A = λ b → ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)}
+                       (λ b → AbGroup.ℤ/2-elim {A = λ b → ϕₙ 1ℤ/2 ⌣ℤ/2 ϕₘ b ≡ 0ₕ (n +' m)}
                               (cong (λ X → ϕₙ 1ℤ/2 ⌣ℤ/2 X) (pres1 ϕₘstr)
                                     ∙ ⌣-0ₕ {G'' = ℤ/2Ring} n m (ϕₙ 1ℤ/2))
                               cup-comp
