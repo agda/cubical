@@ -66,6 +66,7 @@ open import Cubical.Algebra.Group.ZAction
 β : ℕ
 β = Brunerie
 
+
 -- The connection to π₄(S³) is then also proved in the BrunerieNumber
 -- file following Corollary 3.4.5 in Guillaume Brunerie's PhD thesis.
 βSpec : GroupEquiv (π 4 𝕊³) (ℤGroup/ β)
@@ -93,6 +94,7 @@ _ : gen₁-by (π 3 𝕊²) ∣ HopfMap ∣₂
 _ = π₂S³-gen-by-HopfMap
 
 -- etc. For more details see the proof of "Brunerie≡2".
+
 
 -- Combining all of this gives us the desired equivalence of groups:
 π₄S³≃ℤ/2ℤ : GroupEquiv (π 4 𝕊³) (ℤGroup/ 2)
@@ -135,4 +137,3 @@ _ = π₂S³-gen-by-HopfMap
 -- computation as conjectured in Brunerie's thesis:
 π₄S³≃ℤ/2ℤ-computation : GroupEquiv (π 4 𝕊³) (ℤGroup/ 2)
 π₄S³≃ℤ/2ℤ-computation = DirectProof.BrunerieGroupEquiv''
->>>>>>> agda/master
