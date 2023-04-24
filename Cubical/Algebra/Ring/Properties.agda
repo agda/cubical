@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.Ring.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -31,7 +31,7 @@ private
     ℓ ℓ' ℓ'' ℓ''' ℓ'''' : Level
 
 {-
-  some basic calculations (used for example in QuotientRing.agda),
+  some basic calculations (used for example in Quotient.agda),
   that should become obsolete or subject to change once we have a
   ring solver (see https://github.com/agda/cubical/issues/297)
 -}
@@ -43,41 +43,41 @@ module RingTheory (R' : Ring ℓ) where
                  → x + y ≡ 0r
                  → y ≡ - x
   implicitInverse x y p =
-    y               ≡⟨ sym (+Lid y) ⟩
-    0r + y          ≡⟨ cong (λ u → u + y) (sym (+Linv x)) ⟩
+    y               ≡⟨ sym (+IdL y) ⟩
+    0r + y          ≡⟨ cong (λ u → u + y) (sym (+InvL x)) ⟩
     (- x + x) + y   ≡⟨ sym (+Assoc _ _ _) ⟩
     (- x) + (x + y) ≡⟨ cong (λ u → (- x) + u) p ⟩
-    (- x) + 0r      ≡⟨ +Rid _ ⟩
+    (- x) + 0r      ≡⟨ +IdR _ ⟩
     - x             ∎
 
   equalByDifference : (x y : R)
                       → x - y ≡ 0r
                       → x ≡ y
   equalByDifference x y p =
-    x               ≡⟨ sym (+Rid _) ⟩
-    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+Linv y)) ⟩
+    x               ≡⟨ sym (+IdR _) ⟩
+    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+InvL y)) ⟩
     x + ((- y) + y) ≡⟨ +Assoc _ _ _ ⟩
     (x - y) + y     ≡⟨ cong (λ u → u + y) p ⟩
-    0r + y          ≡⟨ +Lid _ ⟩
+    0r + y          ≡⟨ +IdL _ ⟩
     y               ∎
 
   0Selfinverse : - 0r ≡ 0r
-  0Selfinverse = sym (implicitInverse _ _ (+Rid 0r))
+  0Selfinverse = sym (implicitInverse _ _ (+IdR 0r))
 
   0Idempotent : 0r + 0r ≡ 0r
-  0Idempotent = +Lid 0r
+  0Idempotent = +IdL 0r
 
   +Idempotency→0 : (x : R) → x ≡ x + x → x ≡ 0r
   +Idempotency→0 x p =
-    x               ≡⟨ sym (+Rid x) ⟩
-    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+Rinv _)) ⟩
+    x               ≡⟨ sym (+IdR x) ⟩
+    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+InvR _)) ⟩
     x + (x + (- x)) ≡⟨ +Assoc _ _ _ ⟩
     (x + x) + (- x) ≡⟨ cong (λ u → u + (- x)) (sym p) ⟩
-    x + (- x)       ≡⟨ +Rinv _ ⟩
+    x + (- x)       ≡⟨ +InvR _ ⟩
     0r              ∎
 
   -Idempotent : (x : R) → -(- x) ≡ x
-  -Idempotent x =  - (- x)   ≡⟨ sym (implicitInverse (- x) x (+Linv _)) ⟩
+  -Idempotent x =  - (- x)   ≡⟨ sym (implicitInverse (- x) x (+InvL _)) ⟩
                    x ∎
 
   0RightAnnihilates : (x : R) → x · 0r ≡ 0r
@@ -85,7 +85,7 @@ module RingTheory (R' : Ring ℓ) where
               let x·0-is-idempotent : x · 0r ≡ x · 0r + x · 0r
                   x·0-is-idempotent =
                     x · 0r               ≡⟨ cong (λ u → x · u) (sym 0Idempotent) ⟩
-                    x · (0r + 0r)        ≡⟨ ·Rdist+ _ _ _ ⟩
+                    x · (0r + 0r)        ≡⟨ ·DistR+ _ _ _ ⟩
                     (x · 0r) + (x · 0r)  ∎
               in (+Idempotency→0 _ x·0-is-idempotent)
 
@@ -94,23 +94,23 @@ module RingTheory (R' : Ring ℓ) where
               let 0·x-is-idempotent : 0r · x ≡ 0r · x + 0r · x
                   0·x-is-idempotent =
                     0r · x               ≡⟨ cong (λ u → u · x) (sym 0Idempotent) ⟩
-                    (0r + 0r) · x        ≡⟨ ·Ldist+ _ _ _ ⟩
+                    (0r + 0r) · x        ≡⟨ ·DistL+ _ _ _ ⟩
                     (0r · x) + (0r · x)  ∎
               in +Idempotency→0 _ 0·x-is-idempotent
 
   -DistR· : (x y : R) →  x · (- y) ≡ - (x · y)
   -DistR· x y = implicitInverse (x · y) (x · (- y))
 
-                               (x · y + x · (- y)     ≡⟨ sym (·Rdist+ _ _ _) ⟩
-                               x · (y + (- y))        ≡⟨ cong (λ u → x · u) (+Rinv y) ⟩
+                               (x · y + x · (- y)     ≡⟨ sym (·DistR+ _ _ _) ⟩
+                               x · (y + (- y))        ≡⟨ cong (λ u → x · u) (+InvR y) ⟩
                                x · 0r                 ≡⟨ 0RightAnnihilates x ⟩
                                0r ∎)
 
   -DistL· : (x y : R) →  (- x) · y ≡ - (x · y)
   -DistL· x y = implicitInverse (x · y) ((- x) · y)
 
-                              (x · y + (- x) · y     ≡⟨ sym (·Ldist+ _ _ _) ⟩
-                              (x - x) · y            ≡⟨ cong (λ u → u · y) (+Rinv x) ⟩
+                              (x · y + (- x) · y     ≡⟨ sym (·DistL+ _ _ _) ⟩
+                              (x - x) · y            ≡⟨ cong (λ u → u · y) (+InvR x) ⟩
                               0r · y                 ≡⟨ 0LeftAnnihilates y ⟩
                               0r ∎)
 
@@ -118,7 +118,7 @@ module RingTheory (R' : Ring ℓ) where
   -Swap· _ _ = -DistL· _ _ ∙ sym (-DistR· _ _)
 
   -IsMult-1 : (x : R) → - x ≡ (- 1r) · x
-  -IsMult-1 _ = sym (·Lid _) ∙ sym (-Swap· _ _)
+  -IsMult-1 _ = sym (·IdL _) ∙ sym (-Swap· _ _)
 
   -Dist : (x y : R) → (- x) + (- y) ≡ - (x + y)
   -Dist x y =
@@ -129,17 +129,17 @@ module RingTheory (R' : Ring ℓ) where
                                          (+Comm _ _) ⟩
           x + (y + ((- y) + (- x))) ≡⟨ cong (λ u → x + u) (+Assoc _ _ _) ⟩
           x + ((y + (- y)) + (- x)) ≡⟨ cong (λ u → x + (u + (- x)))
-                                            (+Rinv _) ⟩
-          x + (0r + (- x))           ≡⟨ cong (λ u → x + u) (+Lid _) ⟩
-          x + (- x)                 ≡⟨ +Rinv _ ⟩
+                                            (+InvR _) ⟩
+          x + (0r + (- x))           ≡⟨ cong (λ u → x + u) (+IdL _) ⟩
+          x + (- x)                 ≡⟨ +InvR _ ⟩
           0r ∎)
 
   translatedDifference : (x a b : R) → a - b ≡ (x + a) - (x + b)
   translatedDifference x a b =
               a - b                       ≡⟨ cong (λ u → a + u)
-                                                  (sym (+Lid _)) ⟩
+                                                  (sym (+IdL _)) ⟩
               (a + (0r + (- b)))          ≡⟨ cong (λ u → a + (u + (- b)))
-                                                  (sym (+Rinv _)) ⟩
+                                                  (sym (+InvR _)) ⟩
               (a + ((x + (- x)) + (- b))) ≡⟨ cong (λ u → a + u)
                                                   (sym (+Assoc _ _ _)) ⟩
               (a + (x + ((- x) + (- b)))) ≡⟨ (+Assoc _ _ _) ⟩
@@ -204,8 +204,8 @@ module RingHoms where
                      compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
   compAssocRingHom _ _ _ = RingHom≡ refl
 
-
 module RingEquivs where
+  open RingStr
   open IsRingHom
   open RingHoms
 
@@ -221,15 +221,37 @@ module RingEquivs where
   fst (compRingEquiv f g) = compEquiv (f .fst) (g .fst)
   snd (compRingEquiv f g) = compIsRingEquiv {g = g .fst} {f = f .fst} (g .snd) (f .snd)
 
+  isRingHomInv : {A : Ring ℓ} → {B : Ring ℓ'} → (e : RingEquiv A B) → IsRingHom (snd B) (invEq (fst e)) (snd A)
+  isRingHomInv {A = A} {B = B} e = makeIsRingHom
+                         ((cong g (sym (pres1 fcrh))) ∙ retEq et (1r (snd A)))
+                         (λ x y → g (snd B ._+_ x y)                 ≡⟨ cong g (sym (cong₂ (snd B ._+_) (secEq et x) (secEq et y))) ⟩
+                                   g (snd B ._+_ (f (g x)) (f (g y))) ≡⟨ cong g (sym (pres+ fcrh (g x) (g y))) ⟩
+                                   g (f (snd A ._+_ (g x) (g y)))     ≡⟨ retEq et (snd A ._+_ (g x) (g y)) ⟩
+                                   snd A ._+_ (g x) (g y)  ∎)
+                         (λ x y → g (snd B ._·_ x y)                 ≡⟨ cong g (sym (cong₂ (snd B ._·_) (secEq et x) (secEq et y))) ⟩
+                                   g (snd B ._·_ (f (g x)) (f (g y))) ≡⟨ cong g (sym (pres· fcrh (g x) (g y))) ⟩
+                                   g (f (snd A ._·_ (g x) (g y)))     ≡⟨ retEq et (snd A ._·_ (g x) (g y)) ⟩
+                                   snd A ._·_ (g x) (g y)  ∎)
+               where
+               et = fst e
+               f = fst et
+               fcrh = snd e
+               g = invEq et
 
-module RingHomTheory {R S : Ring ℓ} (φ : RingHom R S) where
+  invRingEquiv : {A : Ring ℓ} → {B : Ring ℓ'} → RingEquiv A B → RingEquiv B A
+  fst (invRingEquiv e) = invEquiv (fst e)
+  snd (invRingEquiv e) = isRingHomInv e
+
+  idRingEquiv : (A : Ring ℓ) → RingEquiv A A
+  fst (idRingEquiv A) = idEquiv (fst A)
+  snd (idRingEquiv A) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
+
+module RingHomTheory {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) where
   open RingTheory ⦃...⦄
   open RingStr ⦃...⦄
   open IsRingHom (φ .snd)
   private
     instance
-      _ = R
-      _ = S
       _ = snd R
       _ = snd S
     f = fst φ
@@ -242,7 +264,7 @@ module RingHomTheory {R S : Ring ℓ} (φ : RingHom R S) where
    path = f (x - y)     ≡⟨ pres+ _ _ ⟩
           f x + f (- y) ≡⟨ cong (f x +_) (pres- _) ⟩
           f x - f y     ≡⟨ cong (_- f y) p ⟩
-          f y - f y     ≡⟨ +Rinv _ ⟩
+          f y - f y     ≡⟨ +InvR _ ⟩
           0r            ∎
 
 
@@ -305,7 +327,7 @@ recPT→Ring : {A : Type ℓ'} (𝓕  : A → Ring ℓ)
            → (σ : ∀ x y → RingEquiv (𝓕 x) (𝓕 y))
            → (∀ x y z → σ x z ≡ compRingEquiv (σ x y) (σ y z))
           ------------------------------------------------------
-           → ∥ A ∥ → Ring ℓ
+           → ∥ A ∥₁ → Ring ℓ
 recPT→Ring 𝓕 σ compCoh = rec→Gpd isGroupoidRing 𝓕
   (3-ConstantCompChar 𝓕 (λ x y → uaRing (σ x y))
                           λ x y z → sym (  cong uaRing (compCoh x y z)

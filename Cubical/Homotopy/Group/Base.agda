@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Homotopy.Group.Base where
 
 open import Cubical.Homotopy.Loopspace
@@ -25,7 +25,8 @@ open import Cubical.HITs.Truncation
   renaming (rec to trRec ; elim to trElim ; elim2 to trElim2)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp renaming (toSusp to σ)
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 renaming (_·_ to _*_)
+open import Cubical.HITs.S3
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
@@ -33,6 +34,9 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.GroupPath
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 
@@ -93,9 +97,11 @@ fst (πGr n A) = π (suc n) A
 GroupStr._·_ (snd (πGr n A)) = ·π n
 inv (snd (πGr n A)) = -π n
 is-set (isSemigroup (isMonoid (isGroup (snd (πGr n A))))) = squash₂
-assoc (isSemigroup (isMonoid (isGroup (snd (πGr n A))))) = π-assoc n
-identity (isMonoid (isGroup (snd (πGr n A)))) x = (π-rUnit n x) , (π-lUnit n x)
-inverse (isGroup (snd (πGr n A))) x = (π-rCancel n x) , (π-lCancel n x)
+·Assoc (isSemigroup (isMonoid (isGroup (snd (πGr n A))))) = π-assoc n
+·IdR (isMonoid (isGroup (snd (πGr n A)))) x = π-rUnit n x
+·IdL (isMonoid (isGroup (snd (πGr n A)))) x = π-lUnit n x
+·InvR (isGroup (snd (πGr n A))) x = π-rCancel n x
+·InvL (isGroup (snd (πGr n A))) x = π-lCancel n x
 
 -- Group operations on π'.
 -- We define the corresponding structure on the untruncated
@@ -628,10 +634,10 @@ fst (π'Gr n A) = π' (suc n) A
 1g (snd (π'Gr n A)) = 1π' (suc n)
 GroupStr._·_ (snd (π'Gr n A)) = ·π' n
 inv (snd (π'Gr n A)) = -π' n
-is-set (isSemigroup (isMonoid (isGroup (snd (π'Gr n A))))) = squash₂
-assoc (isSemigroup (isMonoid (isGroup (snd (π'Gr n A))))) = π'-assoc n
-identity (isMonoid (isGroup (snd (π'Gr n A)))) x = (π'-rUnit n x) , (π'-lUnit n x)
-inverse (isGroup (snd (π'Gr n A))) x = (π'-rCancel n x) , (π'-lCancel n x)
+isGroup (snd (π'Gr n A)) = makeIsGroup squash₂
+                                       (π'-assoc n)
+                                       (π'-rUnit n) (π'-lUnit n)
+                                       (π'-rCancel n) (π'-lCancel n)
 
 -- and finally, the Iso
 π'Gr≅πGr : ∀ {ℓ} (n : ℕ) (A : Pointed ℓ) → GroupIso (π'Gr n A) (πGr n A)
@@ -700,7 +706,7 @@ mutual
     (equivToIso
      (Ω→ (ΩTruncSwitchFun n m) .fst
     , isEquivΩ→ _ (compEquiv (isoToEquiv (ΩTruncSwitch {A = A} n (suc (suc m))))
-       (transportEquiv
+       (pathToEquiv
          (λ i → typ ((Ω^ n) (hLevelTrunc∙ (+-suc n (suc m) i) A)))) .snd)))
 
   ΩTruncSwitch : ∀ {ℓ} {A : Pointed ℓ} (n m : ℕ)
@@ -1019,6 +1025,11 @@ snd (π'∘∙Hom {A = A} {B = B} n f) = isHom∘∙
   funExt (sElim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (∘∙-idʳ f))
 
+invEquiv∙idEquiv∙≡idEquiv : ∀ {ℓ} {A : Pointed ℓ}
+  → invEquiv∙ (idEquiv (fst A) , (λ _ → pt A))
+  ≡ (idEquiv (fst A) , refl)
+invEquiv∙idEquiv∙≡idEquiv = ΣPathP ((Σ≡Prop (λ _ → isPropIsEquiv _) refl) , (sym (lUnit refl)))
+
 π'eqFunIsEquiv :
   ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
       → (e : A ≃∙ B)
@@ -1038,9 +1049,35 @@ snd (π'∘∙Hom {A = A} {B = B} n f) = isHom∘∙
       (sym (π'eqFun-idEquiv n))
       (makeIsGroupHom λ _ _ → refl))
 
+π'GrIso : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
+      → A ≃∙ B
+      → GroupIso (π'Gr n A) (π'Gr n B)
+fun (fst (π'GrIso n e)) = π'eqFun n e
+inv (fst (π'GrIso n e)) = π'eqFun n (invEquiv∙ e)
+rightInv (fst (π'GrIso {B = B} n e)) =
+  Equiv∙J (λ A e → (f : _) → π'eqFun n e (π'eqFun n (invEquiv∙ e) f) ≡ f)
+    (λ f → (λ i → π'eqFun-idEquiv n i (π'eqFun n (invEquiv∙idEquiv∙≡idEquiv i) f))
+    ∙ funExt⁻ (π'eqFun-idEquiv n) f)
+    e
+leftInv (fst (π'GrIso n e)) =
+  Equiv∙J (λ A e → (f : _) → π'eqFun n (invEquiv∙ e)  (π'eqFun n e f) ≡ f)
+    (λ f → (λ i → π'eqFun n (invEquiv∙idEquiv∙≡idEquiv i) (π'eqFun-idEquiv n i f))
+          ∙ funExt⁻ (π'eqFun-idEquiv n) f)
+    e
+snd (π'GrIso n e) = π'eqFunIsHom n e
+
 π'Iso : ∀ {ℓ} {A : Pointed ℓ} {B : Pointed ℓ} (n : ℕ)
       → A ≃∙ B
       → GroupEquiv (π'Gr n A) (π'Gr n B)
-fst (fst (π'Iso n e)) = π'eqFun n e
-snd (fst (π'Iso n e)) = π'eqFunIsEquiv n e
-snd (π'Iso n e) = π'eqFunIsHom n e
+π'Iso n e = GroupIso→GroupEquiv (π'GrIso n e)
+
+πIso : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'}
+        → (A ≃∙ B)
+        → (n : ℕ)
+        → GroupEquiv (πGr n A) (πGr n B)
+fst (fst (πIso e n)) = fst (πHom n (≃∙map e))
+snd (fst (πIso e n)) =
+  isoToIsEquiv
+    (setTruncIso
+      (equivToIso (_ , isEquivΩ^→ (suc n) (≃∙map e) (snd (fst e)))))
+snd (πIso e n) = snd (πHom n (≃∙map e))

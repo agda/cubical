@@ -1,14 +1,24 @@
 {-# OPTIONS --safe #-}
 module Cubical.HITs.AssocList.Properties where
 
-open import Cubical.HITs.AssocList.Base as AL
-open import Cubical.Foundations.Everything
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.SIP
-open import Cubical.HITs.FiniteMultiset as FMS
-open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-assoc; isSetℕ)
-open import Cubical.Structures.MultiSet
+
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
+
+open import Cubical.Structures.MultiSet
+
+open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-assoc; isSetℕ)
+
+open import Cubical.HITs.AssocList.Base as AL
+open import Cubical.HITs.FiniteMultiset as FMS
+  hiding (_++_; unitl-++; unitr-++; assoc-++; cons-++; comm-++)
 
 private
   variable
@@ -45,6 +55,41 @@ multi-∷ x (suc n) xs = x ∷ multi-∷ x n xs
 multi-∷-agg : (x : A) (m n : ℕ) (b : FMSet A) → multi-∷ x m (multi-∷ x n b) ≡ multi-∷ x (m + n) b
 multi-∷-agg x zero n b = refl
 multi-∷-agg x (suc m) n b i = x ∷ (multi-∷-agg x m n b i)
+
+
+infixr 30 _++_
+
+_++_ : (xs ys : AssocList A) → AssocList A
+⟨⟩ ++ ys = ys
+(⟨ a , n ⟩∷ xs) ++ ys = ⟨ a , n ⟩∷ (xs ++ ys)
+per a b xs i ++ ys = per a b (xs ++ ys) i
+agg a m n xs i ++ ys = agg a m n (xs ++ ys) i
+del a xs i ++ ys = del a (xs ++ ys) i
+trunc xs ys p q i j ++ zs =
+  trunc (xs ++ zs) (ys ++ zs) (cong (_++ _) p) (cong (_++ _) q) i j
+
+unitl-++ : (xs : AssocList A) → ⟨⟩ ++ xs ≡ xs
+unitl-++ xs = refl
+
+unitr-++ : (xs : AssocList A) → xs ++ ⟨⟩ ≡ xs
+unitr-++ = AL.ElimProp.f (trunc _ _) refl λ _ _ → cong (⟨ _ , _ ⟩∷_)
+
+assoc-++ : (xs ys zs : AssocList A) → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
+assoc-++ = AL.ElimProp.f (isPropΠ2 (λ _ _ → trunc _ _))
+                      (λ ys zs → refl)
+                      λ x n p ys zs → cong (⟨ _ , _ ⟩∷_) (p ys zs)
+
+cons-++ : ∀ x n (xs : AssocList A) → ⟨ x , n ⟩∷ xs ≡ xs ++ (⟨ x , n ⟩∷ ⟨⟩)
+cons-++ x n = AL.ElimProp.f (trunc _ _) refl
+  λ y m p → multiPer _ _ _ _ _ ∙ cong (⟨ _ , _ ⟩∷_) p
+
+comm-++ : (xs ys : AssocList A) → xs ++ ys ≡ ys ++ xs
+comm-++ = AL.ElimProp.f (isPropΠ (λ _ → trunc _ _))
+  (sym ∘ unitr-++)
+  λ x n {xs} p ys → cong (⟨ _ , _ ⟩∷_) (p ys)
+                  ∙ cong (_++ _) (cons-++ x n ys)
+                  ∙ sym (assoc-++ ys _ xs)
+
 
 AL→FMS : AssocList A → FMSet A
 AL→FMS = AL.Rec.f FMS.trunc [] multi-∷ comm multi-∷-agg λ _ _ → refl

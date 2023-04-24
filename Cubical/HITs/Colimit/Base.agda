@@ -19,8 +19,8 @@ open import Cubical.Data.Graph
 record Cocone ℓ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} (F : Diag ℓd I) (X : Type ℓ)
               : Type (ℓ-suc (ℓ-max ℓ (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc ℓd)))) where
   field
-    leg : ∀ (j : Node I) → F $ j → X
-    com : ∀ {j k} (f : Edge I j k) → leg k ∘ F <$> f ≡ leg j
+    leg : ∀ (j : Node I) → F $g j → X
+    com : ∀ {j k} (f : Edge I j k) → leg k ∘ F <$g> f ≡ leg j
 
   postcomp : ∀ {ℓ'} {Y : Type ℓ'} → (X → Y) → Cocone ℓ' F Y
   leg (postcomp h) j = h ∘ leg j
@@ -107,8 +107,8 @@ module _ {ℓ ℓ' ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} {X : 
 -- Colimits always exist
 
 data colim {ℓd ℓe ℓv} {I : Graph ℓv ℓe} (F : Diag ℓd I) : Type (ℓ-suc (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc ℓd))) where
-  colim-leg : ∀ (j : Node I) → F $ j → colim F
-  colim-com : ∀ {j k} (f : Edge I j k) → colim-leg k ∘ F <$> f ≡ colim-leg j
+  colim-leg : ∀ (j : Node I) → F $g j → colim F
+  colim-com : ∀ {j k} (f : Edge I j k) → colim-leg k ∘ F <$g> f ≡ colim-leg j
 
 module _ {ℓd ℓv ℓe} {I : Graph ℓv ℓe} {F : Diag ℓd I} where
 

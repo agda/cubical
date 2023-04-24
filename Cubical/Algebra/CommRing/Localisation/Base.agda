@@ -2,7 +2,7 @@
 -- at a multiplicatively closed subset and show that it
 -- has a commutative ring structure.
 
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.Base where
 
 open import Cubical.Foundations.Prelude
@@ -17,7 +17,7 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Vec
@@ -29,7 +29,7 @@ open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -168,7 +168,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
    path : [ r · 1r + 0r · s , s · 1r , SMultClosedSubset .multClosed s∈S
                                       (SMultClosedSubset .containsOne) ]
         ≡ [ r , s , s∈S ]
-   path = cong [_] (ΣPathP (eq1 r s , Σ≡Prop (λ x → ∈-isProp S' x) (·Rid _)))
+   path = cong [_] (ΣPathP (eq1 r s , Σ≡Prop (λ x → ∈-isProp S' x) (·IdR _)))
 
  -ₗ_ : S⁻¹R → S⁻¹R
  -ₗ_ = SQ.rec squash/ -ₗ[] -ₗWellDef
@@ -248,7 +248,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
  ·ₗ-rid = SQ.elimProp (λ _ → squash/ _ _) ·ₗ-rid[]
    where
    ·ₗ-rid[] : (a : R × S) → ([ a ] ·ₗ 1ₗ) ≡ [ a ]
-   ·ₗ-rid[] (r , s , s∈S) = cong [_] (ΣPathP ((·Rid _) , Σ≡Prop (λ x → ∈-isProp S' x) (·Rid _)))
+   ·ₗ-rid[] (r , s , s∈S) = cong [_] (ΣPathP ((·IdR _) , Σ≡Prop (λ x → ∈-isProp S' x) (·IdR _)))
 
 
  ·ₗ-rdist-+ₗ : (x y z : S⁻¹R) → x ·ₗ (y +ₗ z) ≡ (x ·ₗ y) +ₗ (x ·ₗ z)

@@ -3,7 +3,6 @@ module Cubical.Foundations.Structure where
 
 open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
-open import Cubical.Syntax.⟨⟩
 
 private
   variable
@@ -22,13 +21,13 @@ typ = fst
 str : (A : TypeWithStr ℓ S) → S (typ A)
 str = snd
 
-instance
-  TypeWithStr-has-⟨⟩ : ∀ {ℓ S} → has-⟨⟩ (TypeWithStr {ℓ' = ℓ'} ℓ S)
-  ⟨_⟩ ⦃ TypeWithStr-has-⟨⟩ ⦄ = typ
+-- Alternative notation for typ
+⟨_⟩ : TypeWithStr ℓ S → Type ℓ
+⟨_⟩ = typ
 
--- Allow users to avoid importing the syntax module directly for
--- backwards compatibility.
-open import Cubical.Syntax.⟨⟩ using (⟨_⟩) public
+instance
+  mkTypeWithStr : ∀ {ℓ} {S : Type ℓ → Type ℓ'} {X} → {{S X}} → TypeWithStr ℓ S
+  mkTypeWithStr {{i}} = _ , i
 
 -- An S-structure should have a notion of S-homomorphism, or rather S-isomorphism.
 -- This will be implemented by a function ι : StrEquiv S ℓ'
@@ -46,4 +45,3 @@ EquivAction {ℓ} S = {X Y : Type ℓ} → X ≃ Y → S X ≃ S Y
 EquivAction→StrEquiv : {S : Type ℓ → Type ℓ''}
   → EquivAction S → StrEquiv S ℓ''
 EquivAction→StrEquiv α (X , s) (Y , t) e = equivFun (α e) s ≡ t
-

@@ -66,7 +66,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
     f a =
       Trunc.rec→Set squash/
         ([_] ∘ fst)
-        (λ {(b , r) (b' , r') → eq/ b b' ∣ a , r , r' ∣})
+        (λ {(b , r) (b' , r') → eq/ b b' ∣ a , r , r' ∣₁})
 
     fPath :
       (a₀ : A) (s₀ : ∃[ b ∈ B ] R .fst .fst a₀ b)
@@ -79,7 +79,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
           Trunc.elim (λ _ → isPropΠ λ _ → squash/ _ _)
             (λ {(b₁ , r₁) →
               Trunc.elim (λ _ → squash/ _ _)
-                (λ {(b' , r₀' , r₁') → eq/ b₀ b₁ ∣ a₀ , r₀ , sim .zigzag r₀' r₁' r₁ ∣})})})
+                (λ {(b' , r₀' , r₁') → eq/ b₀ b₁ ∣ a₀ , r₀ , sim .zigzag r₀' r₁' r₁ ∣₁})})})
 
     φ : A / Rᴸ → B / Rᴿ
     φ [ a ] = f a (sim .fwd a)
@@ -90,7 +90,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
   relToFwd≡ : ∀ {a b} → R .fst .fst a b → φ [ a ] ≡ [ b ]
   relToFwd≡ {a} {b} r =
     Trunc.elim {P = λ s → f a s ≡ [ b ]} (λ _ → squash/ _ _)
-      (λ {(b' , r') → eq/ b' b ∣ a , r' , r ∣})
+      (λ {(b' , r') → eq/ b' b ∣ a , r' , r ∣₁})
       (sim .fwd a)
 
   fwd≡ToRel : ∀ {a b} → φ [ a ] ≡ [ b ] → R .fst .fst a b
@@ -111,7 +111,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
     g b =
       Trunc.rec→Set squash/
         ([_] ∘ fst)
-        (λ {(a , r) (a' , r') → eq/ a a' ∣ b , r , r' ∣})
+        (λ {(a , r) (a' , r') → eq/ a a' ∣ b , r , r' ∣₁})
 
     gPath :
       (b₀ : B) (s₀ : ∃[ a ∈ A ] R .fst .fst a b₀)
@@ -124,7 +124,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
           Trunc.elim (λ _ → isPropΠ λ _ → squash/ _ _)
             (λ {(a₁ , r₁) →
               Trunc.elim (λ _ → squash/ _ _)
-                (λ {(a' , r₀' , r₁') → eq/ a₀ a₁ ∣ b₀ , r₀ , sim .zigzag r₁ r₁' r₀' ∣})})})
+                (λ {(a' , r₀' , r₁') → eq/ a₀ a₁ ∣ b₀ , r₀ , sim .zigzag r₁ r₁' r₀' ∣₁})})})
 
     ψ : B / Rᴿ → A / Rᴸ
     ψ [ b ] = g b (sim .bwd b)
@@ -134,7 +134,7 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
   relToBwd≡ : ∀ {a b} → R .fst .fst a b → ψ [ b ] ≡ [ a ]
   relToBwd≡ {a} {b} r =
     Trunc.elim {P = λ s → g b s ≡ [ a ]} (λ _ → squash/ _ _)
-      (λ {(a' , r') → eq/ a' a ∣ b , r' , r ∣})
+      (λ {(a' , r') → eq/ a' a ∣ b , r' , r ∣₁})
       (sim .bwd b)
 
   private
@@ -159,3 +159,56 @@ module QER→Equiv {A B : Type ℓ} (R : QuasiEquivRel A B ℓ') where
 
   Thm : (A / Rᴸ) ≃ (B / Rᴿ)
   Thm = isoToEquiv (iso φ ψ η ε)
+
+-- A claim* is that Rᴸ and Rᴿ PER would imply R to be a zigzag complete.
+-- That is not true, even if we assume that Rᴸ and Rᴿ are universal relations.
+--
+-- * Krishnaswami and Dreyer (https://drops.dagstuhl.de/opus/volltexte/2013/4212/) just below Definition 1,
+--   which propagated to "Internalizing representation independence with univalence"
+--   https://doi.org/10.1145/3434293, just above Definition 5.3
+--
+open HeterogenousRelation
+
+module Universal→ZigZag {A B : Type ℓ} (R : PropRel A B ℓ') where
+
+  Rᴸ = compPropRel R (invPropRel R)
+  Rᴿ = compPropRel (invPropRel R) R
+
+  Claim = isUniversalRel (Rᴸ .fst) → isUniversalRel (Rᴿ .fst) → isZigZagComplete (R .fst)
+
+open import Cubical.Data.Empty using (⊥; isProp⊥)
+
+¬Universal→ZigZag : (∀ {ℓ ℓ'} (A B : Type ℓ) (R : PropRel A B ℓ') → Universal→ZigZag.Claim R) → ⊥
+¬Universal→ZigZag p = ¬R-zigzag (λ {a} {b} {a'} {b'} → p Bool Bool R Rᴸ-universal Rᴿ-universal {a} {b} {a'} {b'})
+  where
+  open import Cubical.Data.Unit
+  open import Cubical.Data.Bool
+
+  -- zig...
+  R : PropRel Bool Bool ℓ-zero
+  R .fst false false = Unit
+  R .fst false true  = ⊥
+  R .fst true  b     = Unit
+  R .snd false false = isPropUnit
+  R .snd false true  = isProp⊥
+  R .snd true  false = isPropUnit
+  R .snd true  true  = isPropUnit
+
+  -- ... but not zag
+  ¬R-zigzag : isZigZagComplete (R .fst) → ⊥
+  ¬R-zigzag p = p {a = false} {b = false} {a' = true} {b' = true} tt tt tt
+
+  Rᴸ = compPropRel R (invPropRel R)
+  Rᴿ = compPropRel (invPropRel R) R
+
+  Rᴸ-universal : isUniversalRel (Rᴸ .fst)
+  Rᴸ-universal false false = ∣ false , tt , tt ∣₁
+  Rᴸ-universal false true  = ∣ false , tt , tt ∣₁
+  Rᴸ-universal true  false = ∣ false , tt , tt ∣₁
+  Rᴸ-universal true  true  = ∣ false , tt , tt ∣₁
+
+  Rᴿ-universal : isUniversalRel (Rᴿ .fst)
+  Rᴿ-universal false false = ∣ true , tt , tt ∣₁
+  Rᴿ-universal false true  = ∣ true , tt , tt ∣₁
+  Rᴿ-universal true  false = ∣ true , tt , tt ∣₁
+  Rᴿ-universal true  true  = ∣ true , tt , tt ∣₁

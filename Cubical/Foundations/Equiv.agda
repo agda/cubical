@@ -20,7 +20,6 @@ module Cubical.Foundations.Equiv where
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Foundations.Equiv.Base public
 open import Cubical.Data.Sigma.Base
@@ -29,6 +28,8 @@ private
   variable
     ℓ ℓ' ℓ''  : Level
     A B C D : Type ℓ
+
+infixr 30 _∙ₑ_
 
 equivIsEquiv : (e : A ≃ B) → isEquiv (equivFun e)
 equivIsEquiv e = snd e
@@ -149,6 +150,8 @@ compEquiv {A = A} {C = C} f g .snd .equiv-proof c = contr
           ; (k = i1) → p (j ∧ l)
           })
         (g .fst (f .snd .equiv-proof (f .fst a) .snd (a , refl) k .snd j))
+
+_∙ₑ_ = compEquiv
 
 compEquivIdEquiv : (e : A ≃ B) → compEquiv (idEquiv A) e ≡ e
 compEquivIdEquiv e = equivEq refl
@@ -294,6 +297,14 @@ composesToId→Equiv f g id iseqf =
                 ∙∙ cong (λ x → equiv-proof iseqf (f b) .fst .fst) id
                 ∙∙ λ i → equiv-proof iseqf (f b) .snd (b , refl) i .fst)
          λ a i → id i a)
+
+precomposesToId→Equiv : (f : A → B) (g : B → A) → f ∘ g ≡ idfun B → isEquiv g → isEquiv f
+precomposesToId→Equiv f g id iseqg =  subst isEquiv (sym f-≡-g⁻) (snd (invEquiv (_ , iseqg)))
+  where
+     g⁻ = invEq (g , iseqg)
+
+     f-≡-g⁻ : _
+     f-≡-g⁻ = cong (f ∘_ ) (cong fst (sym (invEquiv-is-linv (g , iseqg)))) ∙ cong (_∘ g⁻) id
 
 -- equivalence between isEquiv and isEquiv'
 

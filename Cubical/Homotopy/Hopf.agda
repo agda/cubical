@@ -19,7 +19,7 @@ open import Cubical.Data.Int hiding (_·_)
 
 open import Cubical.HITs.Pushout.Flattening
 open import Cubical.HITs.Pushout
-open import Cubical.HITs.Sn
+open import Cubical.HITs.Sn hiding (joinS¹S¹→S³)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
 open import Cubical.HITs.S2
@@ -42,7 +42,7 @@ private
            λ _ → refl
 
 module Hopf {ℓ : Level} {A : Pointed ℓ} {e : HSpace A}
-            (e-ass : AssocHSpace e) (conA : ((x y : typ A) → ∥ x ≡ y ∥)) where
+            (e-ass : AssocHSpace e) (conA : ((x y : typ A) → ∥ x ≡ y ∥₁)) where
   isEquiv-μ : (x : typ A) → isEquiv (λ z → (μ e z x))
   isEquiv-μ x = pRec (isPropIsEquiv _)
                      (J (λ x _ → isEquiv (λ z → μ e z x))

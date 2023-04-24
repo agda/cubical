@@ -1,14 +1,5 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.ZCohomology.Groups.CP2 where
-
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Groups.Connected
-open import Cubical.ZCohomology.GroupStructure
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.MayerVietorisUnreduced
-open import Cubical.ZCohomology.Groups.Unit
-open import Cubical.ZCohomology.Groups.Sn
-open import Cubical.ZCohomology.RingStructure.CupProduct
 
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
@@ -19,31 +10,46 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
-open import Cubical.Data.Sigma
-open import Cubical.Data.Int
+open import Cubical.Relation.Nullary
+
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Unit
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Unit
-open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup ; Unit to UnitGroup)
+open import Cubical.Data.Int
+open import Cubical.Data.Sigma
 
-open import Cubical.HITs.Pushout
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.GroupPath
+open import Cubical.Algebra.Group.Instances.Int
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Unit
+
+open import Cubical.HITs.Pushout as Pushout
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Join
-open import Cubical.HITs.SetTruncation
-  renaming (rec to sRec ; elim to sElim ; elim2 to sElim2 ; map to sMap)
-open import Cubical.HITs.PropositionalTruncation
-  renaming (rec to pRec ; elim2 to pElim2 ; ∣_∣ to ∣_∣₁ ; map to pMap)
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.Truncation
 
-open import Cubical.Relation.Nullary
-
 open import Cubical.Homotopy.Hopf
-open S¹Hopf
+open import Cubical.Homotopy.HopfInvariant.HopfMap renaming (CP² to CP2 ; H²CP²≅ℤ to H²CP2≅ℤ)
+open import Cubical.Homotopy.HSpace
 
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Groups.Connected
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.MayerVietorisUnreduced
+open import Cubical.ZCohomology.Groups.Unit
+open import Cubical.ZCohomology.Groups.Sn
+open import Cubical.ZCohomology.RingStructure.CupProduct
+open import Cubical.ZCohomology.RingStructure.RingLaws
+
+open S¹Hopf
 open IsGroupHom
 open Iso
 
@@ -66,8 +72,8 @@ leftInv characFunSpaceCP² _ =
 H⁰CP²≅ℤ : GroupIso (coHomGr 0 CP²) ℤGroup
 H⁰CP²≅ℤ =
   H⁰-connected (inr tt)
-    (PushoutToProp (λ _ → squash)
-      (sphereElim _ (λ _ → isOfHLevelSuc 1 squash)
+    (Pushout.elimProp _ (λ _ → squash₁)
+      (sphereElim _ (λ _ → isOfHLevelSuc 1 squash₁)
         ∣ sym (push (north , base)) ∣₁)
     λ _ → ∣ refl ∣₁)
 
@@ -99,7 +105,7 @@ H²CP²≅ℤ = compGroupIso (BijectionIso→GroupIso bij)
   bij : BijectionIso (coHomGr 2 CP²) (×coHomGr 2 (Susp S¹) Unit)
   BijectionIso.fun bij = M.i 2
   BijectionIso.inj bij x p =
-    pRec (squash₂ _ _)
+    PT.rec (squash₂ _ _)
       (uncurry (λ z q
         → sym q
         ∙∙ cong (fst (M.d 1)) (isContr→isProp isContrH¹TotalHopf z (0ₕ _))
@@ -111,6 +117,7 @@ H²CP²≅ℤ = compGroupIso (BijectionIso→GroupIso bij)
   BijectionIso.surj bij y =
     M.Ker-Δ⊂Im-i 2 y (isContr→isProp isContrH²TotalHopf _ _)
 
+
 H⁴CP²≅ℤ : GroupIso (coHomGr 4 CP²) ℤGroup
 H⁴CP²≅ℤ = compGroupIso (invGroupIso (BijectionIso→GroupIso bij))
           (compGroupIso help (Hⁿ-Sⁿ≅ℤ 2))
@@ -121,7 +128,7 @@ H⁴CP²≅ℤ = compGroupIso (invGroupIso (BijectionIso→GroupIso bij))
   bij : BijectionIso (coHomGr 3 TotalHopf) (coHomGr 4 CP²)
   BijectionIso.fun bij = M.d 3
   BijectionIso.inj bij x p =
-    pRec (squash₂ _ _)
+    PT.rec (squash₂ _ _)
          (uncurry (λ z q →
              sym q
           ∙∙ cong (M.Δ 3 .fst)
@@ -151,28 +158,28 @@ private
           → B (transp (λ j → isoToPath IsoS³TotalHopf (i ∨ ~ j)) i (north , base)) → (x : _) → B x)
           λ B hLev elim-TotalHopf → sphereElim _ (λ _ → hLev _) elim-TotalHopf
 
-H¹-CP²≅0 : GroupIso (coHomGr 1 CP²) UnitGroup
+H¹-CP²≅0 : GroupIso (coHomGr 1 CP²) UnitGroup₀
 H¹-CP²≅0 =
   contrGroupIsoUnit
     (isOfHLevelRetractFromIso 0 (setTruncIso characFunSpaceCP²)
     (isOfHLevelRetractFromIso 0 lem₂ lem₃))
   where
-  lem₁ : (f : (Susp S¹ → coHomK 1)) → ∥ (λ _ → 0ₖ _) ≡ f ∥
-  lem₁ f = pMap (λ p → p)
+  lem₁ : (f : (Susp S¹ → coHomK 1)) → ∥ (λ _ → 0ₖ _) ≡ f ∥₁
+  lem₁ f = PT.map (λ p → p)
                 (Iso.fun PathIdTrunc₀Iso (isOfHLevelRetractFromIso 1
                   (fst (Hⁿ-Sᵐ≅0 0 1 (λ p → snotz (sym p)))) isPropUnit (0ₕ _) ∣ f ∣₂))
 
   lem₂ : Iso ∥ (Σ[ x ∈ coHomK 1 ] ( Σ[ f ∈ (Susp S¹ → coHomK 1) ] ((y : TotalHopf) → f (fst y) ≡ x))) ∥₂
              ∥ (Σ[ f ∈ (Susp S¹ → coHomK 1) ] ((y : TotalHopf) → f (fst y) ≡ 0ₖ 1)) ∥₂
-  fun lem₂ = sMap (uncurry λ x → uncurry λ f p → (λ y → (-ₖ x) +ₖ f y) , λ y → cong ((-ₖ x) +ₖ_) (p y) ∙ lCancelₖ _ x)
-  inv lem₂ = sMap λ p → 0ₖ _ , p
+  fun lem₂ = ST.map (uncurry λ x → uncurry λ f p → (λ y → (-ₖ x) +ₖ f y) , λ y → cong ((-ₖ x) +ₖ_) (p y) ∙ lCancelₖ _ x)
+  inv lem₂ = ST.map λ p → 0ₖ _ , p
   rightInv lem₂ =
-    sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+    ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
           λ {(f , p) → cong ∣_∣₂ (ΣPathP ((funExt (λ x → lUnitₖ _ (f x)))
           , (funExt (λ y → sym (rUnit (λ i → (-ₖ 0ₖ 1) +ₖ p y i)))
            ◁ λ j y i → lUnitₖ _ (p y i) j)))}
   leftInv lem₂ =
-    sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+    ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
       (uncurry (coHomK-elim _ (λ _ → isPropΠ (λ _ → squash₂ _ _))
        (uncurry λ f p → cong ∣_∣₂ (ΣPathP (refl , (ΣPathP ((funExt (λ x → lUnitₖ _ (f x)))
        , ((funExt (λ y → sym (rUnit (λ i → (-ₖ 0ₖ 1) +ₖ p y i)))
@@ -181,8 +188,8 @@ H¹-CP²≅0 =
   lem₃ : isContr _
   fst lem₃ = ∣ (λ _ → 0ₖ 1) , (λ _ → refl) ∣₂
   snd lem₃ =
-    sElim (λ _ → isOfHLevelPath 2 squash₂ _ _)
-      (uncurry λ f → pRec (isPropΠ (λ _ → squash₂ _ _))
+    ST.elim (λ _ → isOfHLevelPath 2 squash₂ _ _)
+      (uncurry λ f → PT.rec (isPropΠ (λ _ → squash₂ _ _))
       (J (λ f _ → (y : (y₁ : TotalHopf) → f (fst y₁) ≡ 0ₖ 1) →
       ∣ (λ _ → 0ₖ 1) , (λ _ _ → 0ₖ 1) ∣₂ ≡ ∣ f , y ∣₂)
       (λ y → cong ∣_∣₂ (ΣPathP ((funExt (λ z → sym (y (north , base)))) , toPathP (s y)))))
@@ -196,7 +203,7 @@ H¹-CP²≅0 =
                  λ k → transp (λ i → y (north , base) (~ i ∧ ~ k) ≡ ∣ base ∣) k
                                 λ j → y (north , base) (~ k ∨ j))
 
-Hⁿ-CP²≅0-higher : (n : ℕ) → ¬ (n ≡ 1) → GroupIso (coHomGr (3 +ℕ n) CP²) UnitGroup
+Hⁿ-CP²≅0-higher : (n : ℕ) → ¬ (n ≡ 1) → GroupIso (coHomGr (3 +ℕ n) CP²) UnitGroup₀
 Hⁿ-CP²≅0-higher n p = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (main x)))
   where
   h : GroupHom (coHomGr (2 +ℕ n) TotalHopf) (coHomGr (3 +ℕ n) CP²)
@@ -206,7 +213,7 @@ Hⁿ-CP²≅0-higher n p = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (main x))
   propᵣ =
     isPropΣ
       (isOfHLevelRetractFromIso 1
-         (fst (Hⁿ-Sᵐ≅0 (2 +ℕ n) 1 λ p → ⊥-rec (snotz (cong predℕ p)))) isPropUnit)
+         (fst (Hⁿ-Sᵐ≅0 (2 +ℕ n) 1 λ p → ⊥.rec (snotz (cong predℕ p)))) isPropUnit)
       λ _ → isContr→isProp (isContrHⁿ-Unit _)
 
   propₗ : isProp (coHom (2 +ℕ n) TotalHopf)
@@ -219,17 +226,17 @@ Hⁿ-CP²≅0-higher n p = contrGroupIsoUnit ((0ₕ _) , (λ x → sym (main x))
 
   main : (x : coHom (3 +ℕ n) CP²) → x ≡ 0ₕ _
   main x =
-    pRec (squash₂ _ _)
+    PT.rec (squash₂ _ _)
       (uncurry (λ f p → sym p ∙∙ cong (h .fst) (propₗ f (0ₕ _)) ∙∙ pres1 (snd h)))
       (inIm x)
 
 -- All trivial groups:
 Hⁿ-CP²≅0 : (n : ℕ) → ¬ suc n ≡ 2 → ¬ suc n ≡ 4
-       → GroupIso (coHomGr (suc n) CP²) UnitGroup
+       → GroupIso (coHomGr (suc n) CP²) UnitGroup₀
 Hⁿ-CP²≅0 zero p q = H¹-CP²≅0
-Hⁿ-CP²≅0 (suc zero) p q = ⊥-rec (p refl)
+Hⁿ-CP²≅0 (suc zero) p q = ⊥.rec (p refl)
 Hⁿ-CP²≅0 (suc (suc zero)) p q = Hⁿ-CP²≅0-higher 0 λ p → snotz (sym p)
-Hⁿ-CP²≅0 (suc (suc (suc zero))) p q = ⊥-rec (q refl)
+Hⁿ-CP²≅0 (suc (suc (suc zero))) p q = ⊥.rec (q refl)
 Hⁿ-CP²≅0 (suc (suc (suc (suc n)))) p q =
   Hⁿ-CP²≅0-higher (suc (suc n))
     λ p → snotz (cong predℕ p)
@@ -247,3 +254,112 @@ brunerie2 = ℤ→HⁿCP²→ℤ 1
 |brunerie2|≡1 : abs (ℤ→HⁿCP²→ℤ 1) ≡ 1
 |brunerie2|≡1 = refl
 -}
+
+
+-- Construction of an iso H⁴(CP²) ≅ ℤ sending s.t. the map
+-- ℤ × ℤ → H²(CP²) × H²(CP²) → H⁴(CP²) → ℤ
+-- constructed via the cup product sends (1 , 1) to 1
+-- If brunerie2 computes (to 1), this could be avoided
+
+CP²≡CP2 : Iso CP² CP2
+CP²≡CP2 = compIso (equivToIso (symPushout fst (λ _ → tt))) (invIso CP²-iso)
+  where
+  module m = Hopf S1-AssocHSpace (sphereElim2 0 (λ _ _ → squash₁) ∣ (λ _ → base) ∣₁)
+  F : (x : S₊ 2) → (m.Hopf x) → (HopfSuspS¹ (fun idIso x))
+  F north y = y
+  F south y = y
+  F (merid x i) = toPathP lem i
+    where
+    lem : transport (λ i → m.Hopf (merid x i) → Glue S¹ (Border x i))
+                     (λ x → x)
+                    ≡ λ x → x
+    lem = funExt λ z → commS¹ x (invEq (m.μ-eq x) z) ∙ secEq (m.μ-eq x) z
+
+  F-eq : (x : S₊ 2) → isEquiv (F x)
+  F-eq = suspToPropElim base (λ _ → isPropIsEquiv _) (idIsEquiv _)
+
+  H = m.TotalSpaceHopfPush
+
+  H≃TotalHopf : H ≃ TotalHopf
+  H≃TotalHopf =
+    compEquiv
+    (m.TotalSpaceHopfPush→TotalSpace
+     , m.isEquivTotalSpaceHopfPush→TotalSpace)
+    (Σ-cong-equiv (idEquiv _)
+      λ x → F x , F-eq x)
+
+  CP²-iso : Iso CP2 (Pushout {A = TotalHopf} (λ _ → tt) fst)
+  CP²-iso = pushoutIso _ _ _ _ H≃TotalHopf (idEquiv _) (idEquiv _) refl refl
+
+Σℤ≅H⁴CP² : Σ[ ϕ₄ ∈ GroupEquiv ℤGroup (coHomGr 4 CP²) ]
+           Iso.inv (fst H²CP²≅ℤ) 1 ⌣ Iso.inv (fst H²CP²≅ℤ) 1
+         ≡ fst (fst ϕ₄) 1
+Σℤ≅H⁴CP² = fst c , (cong (inv (fst H²CP²≅ℤ) (pos 1) ⌣_) lem ∙ snd c)
+  where
+  cupIsEquiv : {A B : Type₀}
+    → (f : A ≃ B)
+    → (e : coHom 2 A)
+    → isEquiv {A = coHom 2 A} {B = coHom 4 A} (_⌣ e)
+    → isEquiv {A = coHom 2 B} {B = coHom 4 B} (_⌣ coHomFun 2 (invEq f) e)
+  cupIsEquiv {B = B} =
+    EquivJ (λ A f →
+      (e : coHom 2 A)
+    → isEquiv {A = coHom 2 A} {B = coHom 4 A} (_⌣ e)
+    → isEquiv {B = coHom 4 B} (_⌣ coHomFun 2 (invEq f) e))
+        λ e p → subst isEquiv (help e) p
+    where
+    help : (e : coHom 2 B) → _⌣ e ≡ _⌣ coHomFun 2 (invEq (idEquiv B)) e
+    help e i y = y ⌣ coHomFunId 2 (~ i) e
+
+  gen' : coHom 2 CP²
+  gen' = ∣ (λ { (inl x) → ∣ x ∣ ; (inr x) → 0ₖ 2 ; (push a i) → pp a i}) ∣₂
+    where
+    pp : (a : TotalHopf) → Path (coHomK 2) ∣ fst a ∣ₕ (0ₖ 2)
+    pp = elim-TotalHopf _ (λ _ → (isOfHLevelTrunc 4 _ _)) refl
+
+
+  genId : Iso.fun (fst (coHomIso 2 CP²≡CP2)) genCP² ≡ gen'
+  genId = sym (Iso.leftInv (fst H²CP²≅ℤ) _)
+     ∙∙ cong (Iso.inv (fst H²CP²≅ℤ)) lem
+     ∙∙ Iso.leftInv (fst H²CP²≅ℤ) _
+    where
+    lem : Iso.fun (fst H²CP²≅ℤ) (Iso.fun (fst (coHomIso 2 CP²≡CP2)) genCP²)
+        ≡ Iso.fun (fst H²CP²≅ℤ) gen'
+    lem = refl
+
+  isEquiv⌣gen' : GroupEquiv (coHomGr 2 CP²) (coHomGr 4 CP²)
+  fst (fst isEquiv⌣gen') = _⌣ gen'
+  snd (fst isEquiv⌣gen') =
+    subst isEquiv (λ i x → x ⌣ genId i)
+      ((cupIsEquiv (invEquiv (isoToEquiv CP²≡CP2))) genCP²
+        (subst isEquiv (funExt (λ x → cong (x ⌣_) Gysin-e≡genCP²))
+          (⌣Equiv .fst .snd)))
+  snd isEquiv⌣gen' = makeIsGroupHom λ f g → rightDistr-⌣ _ _ f g _
+
+  abstract
+    main : {A B : Group₀}
+         (A≃B : GroupEquiv A B)
+         (Z≃A : GroupEquiv ℤGroup A)
+      → Σ[ Z≃B ∈ GroupEquiv ℤGroup B ]
+          fst (fst A≃B) (fst (fst Z≃A) (pos 1))
+        ≡ fst (fst Z≃B) (pos 1)
+    main {A = A} {B = B} =
+      GroupEquivJ (λ B A≃B →
+        (Z≃A : GroupEquiv ℤGroup A)
+      → Σ[ Z≃B ∈ GroupEquiv ℤGroup B ]
+          fst (fst A≃B) (fst (fst Z≃A) (pos 1))
+        ≡ fst (fst Z≃B) (pos 1))
+       (GroupEquivJ (λ A Z≃A → Σ[ ϕ ∈ GroupEquiv ℤGroup A ] fst (fst Z≃A) 1 ≡ fst (fst ϕ) 1)
+         (idGroupEquiv , refl))
+
+  lem : inv (fst H²CP²≅ℤ) (pos 1) ≡ gen'
+  lem = Iso.leftInv (fst H²CP²≅ℤ) gen'
+
+  c = main isEquiv⌣gen' (GroupIso→GroupEquiv (invGroupIso H²CP²≅ℤ))
+
+H⁴CP²≅ℤ-pos : GroupIso (coHomGr 4 CP²) ℤGroup
+H⁴CP²≅ℤ-pos = invGroupIso (GroupEquiv→GroupIso (Σℤ≅H⁴CP² .fst))
+
+H⁴CP²≅ℤ-pos-resp⌣ : Iso.inv (fst H²CP²≅ℤ) (pos 1) ⌣ Iso.inv (fst H²CP²≅ℤ) (pos 1)
+                   ≡ Iso.inv (fst H⁴CP²≅ℤ-pos) (pos 1)
+H⁴CP²≅ℤ-pos-resp⌣ = Σℤ≅H⁴CP² .snd

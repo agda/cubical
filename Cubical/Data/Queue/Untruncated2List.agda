@@ -1,7 +1,10 @@
 {-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.Queue.Untruncated2List where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Foundations.SIP
 open import Cubical.Structures.Queue

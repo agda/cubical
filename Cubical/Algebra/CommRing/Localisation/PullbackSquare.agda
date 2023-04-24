@@ -19,7 +19,7 @@
  -}
 
 
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.PullbackSquare where
 
 open import Cubical.Foundations.Prelude
@@ -34,16 +34,13 @@ open import Cubical.Functions.FunExtEquiv
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
                                       ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
                                       ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Vec
 open import Cubical.Data.Sigma.Base
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
-open import Cubical.Relation.Nullary
-open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup
@@ -57,7 +54,7 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 
-open import Cubical.Algebra.RingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -130,7 +127,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
    where
    unitHelper : ∀ s → s ∈ₚ [ f ⁿ|n≥0] → s /1ᶠᵍ ∈ₚ (R[1/ (f · g) ]AsCommRing) ˣ
    unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᶠᵍ))
-                  λ n → [ g ^ n , (f · g) ^ n , ∣ n , refl ∣ ]
+                  λ n → [ g ^ n , (f · g) ^ n , ∣ n , refl ∣₁ ]
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
                         , path n)
     where
@@ -147,7 +144,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
    where
    unitHelper : ∀ s → s ∈ₚ [ g ⁿ|n≥0] → s /1ᶠᵍ ∈ₚ (R[1/ (f · g) ]AsCommRing) ˣ
    unitHelper = powersPropElim (λ s → Units.inverseUniqueness _ (s /1ᶠᵍ))
-                  λ n → [ f ^ n , (f · g) ^ n , ∣ n , refl ∣ ]
+                  λ n → [ f ^ n , (f · g) ^ n , ∣ n , refl ∣₁ ]
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne)
                               , path n)
     where
@@ -178,16 +175,16 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                       PT.rec2 (is-set _ _) exponentHelper u∈[fⁿ] v∈[gⁿ]
    where
    ux≡0 : u · x ≡ 0r
-   ux≡0 = sym (·Rid _) ∙ p ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·Rid _)
+   ux≡0 = sym (·IdR _) ∙ p ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·IdR _)
 
    vx≡0 : v · x ≡ 0r
-   vx≡0 = sym (·Rid _) ∙ q ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·Rid _)
+   vx≡0 = sym (·IdR _) ∙ q ∙ cong (_· 1r) (0RightAnnihilates _) ∙ (·IdR _)
 
    exponentHelper : Σ[ n ∈ ℕ ] u ≡ f ^ n
                   → Σ[ n ∈ ℕ ] v ≡ g ^ n
                   → x ≡ 0r
    exponentHelper (n , u≡fⁿ) (m , v≡gᵐ) =
-                   PT.rec (is-set _ _) Σhelper (GeneratingExponents.lemma R' f g l 1∈⟨f,g⟩)
+                   PT.rec (is-set _ _) Σhelper (GeneratingPowers.thm R' l _ fgVec 1∈⟨f,g⟩)
     where
     l = max n m
 
@@ -217,18 +214,18 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
      α₁ = α (suc zero)
 
      1≡α₀fˡ+α₁gˡ : 1r ≡ α₀ · f ^ l + α₁ · g ^ l
-     1≡α₀fˡ+α₁gˡ = 1≡α₀fˡ+α₁gˡ+0 ∙ cong (α₀ · f ^ l +_) (+Rid _)
+     1≡α₀fˡ+α₁gˡ = 1≡α₀fˡ+α₁gˡ+0 ∙ cong (α₀ · f ^ l +_) (+IdR _)
 
      path : x ≡ 0r
-     path = x                                   ≡⟨ sym (·Lid _) ⟩
+     path = x                                   ≡⟨ sym (·IdL _) ⟩
             1r · x                              ≡⟨ cong (_· x) 1≡α₀fˡ+α₁gˡ ⟩
-            (α₀ · f ^ l + α₁ · g ^ l) · x       ≡⟨ ·Ldist+ _ _ _ ⟩
+            (α₀ · f ^ l + α₁ · g ^ l) · x       ≡⟨ ·DistL+ _ _ _ ⟩
             α₀ · f ^ l · x + α₁ · g ^ l · x     ≡⟨ cong₂ _+_ (sym (·Assoc _ _ _))
                                                              (sym (·Assoc _ _ _)) ⟩
             α₀ · (f ^ l · x) + α₁ · (g ^ l · x) ≡⟨ cong₂ (λ y z → α₀ · y + α₁ · z)
                                                          fˡx≡0 gˡx≡0 ⟩
             α₀ · 0r + α₁ · 0r                   ≡⟨ cong₂ _+_ (0RightAnnihilates _)
-                                                             (0RightAnnihilates _) ∙ +Rid _ ⟩
+                                                             (0RightAnnihilates _) ∙ +IdR _ ⟩
             0r ∎
 
 
@@ -239,9 +236,9 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
  equalizerLemma 1∈⟨f,g⟩ = invElPropElim2 (λ _ _ → isPropΠ (λ _ → isProp∃!)) baseCase
   where
   baseCase : ∀ (x y : R) (n : ℕ)
-           → fst χ₁ ([ x , f ^ n , ∣ n , refl ∣ ]) ≡ fst χ₂ ([ y , g ^ n , ∣ n , refl ∣ ])
-           → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                        × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+           → fst χ₁ ([ x , f ^ n , ∣ n , refl ∣₁ ]) ≡ fst χ₂ ([ y , g ^ n , ∣ n , refl ∣₁ ])
+           → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                        × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]))
   baseCase x y n χ₁[x/fⁿ]≡χ₂[y/gⁿ] = PT.rec isProp∃! annihilatorHelper exAnnihilator
    where
    -- doesn't compute that well but at least it computes...
@@ -253,8 +250,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
    annihilatorHelper : Σ[ s ∈ Sᶠᵍ ]
      (fst s · (x · transport refl (g ^ n)) · (1r · transport refl ((f · g) ^ n))
     ≡ fst s · (y · transport refl (f ^ n)) · (1r · transport refl ((f · g) ^ n)))
-    → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                 × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+    → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                 × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]))
    annihilatorHelper ((s , s∈[fgⁿ]) , p) = PT.rec isProp∃! exponentHelper s∈[fgⁿ]
     where
     sxgⁿ[fg]ⁿ≡syfⁿ[fg]ⁿ : s · x · g ^ n · (f · g) ^ n ≡ s · y · f ^ n · (f · g) ^ n
@@ -290,10 +287,10 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
 
     exponentHelper : Σ[ m ∈ ℕ ] s ≡ (f · g) ^ m
-                   → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                                × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+                   → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                                × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]))
     exponentHelper (m , s≡[fg]ᵐ) =
-       PT.rec isProp∃! Σhelper (GeneratingExponents.lemma R' f g 2n+m 1∈⟨f,g⟩)
+       PT.rec isProp∃! Σhelper (GeneratingPowers.thm R' 2n+m _ fgVec 1∈⟨f,g⟩)
      where
      -- the path we'll actually work with
      xgⁿ[fg]ⁿ⁺ᵐ≡yfⁿ[fg]ⁿ⁺ᵐ : x · g ^ n · (f · g) ^ (n +ℕ m) ≡ y · f ^ n · (f · g) ^ (n +ℕ m)
@@ -336,8 +333,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
      2n+m = n +ℕ (n +ℕ m)
      -- extracting information from the fact that R=⟨f,g⟩
      Σhelper : Σ[ α ∈ FinVec R 2 ] 1r ≡ linearCombination R' α (fⁿgⁿVec 2n+m)
-             → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                          × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣ ]))
+             → ∃![ z ∈ R ] ((z /1ᶠ ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                          × (z /1ᵍ ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]))
      Σhelper (α , linCombi) = uniqueExists z (z/1≡x/fⁿ , z/1≡y/gⁿ)
                                              (λ _ → isProp× (is-set _ _) (is-set _ _))
                                              uniqueness
@@ -346,13 +343,13 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
       α₁ = α (suc zero)
 
       1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ : 1r ≡ α₀ · f ^ 2n+m + α₁ · g ^ 2n+m
-      1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ = linCombi ∙ cong (α₀ · f ^ 2n+m +_) (+Rid _)
+      1≡α₀f²ⁿ⁺ᵐ+α₁g²ⁿ⁺ᵐ = linCombi ∙ cong (α₀ · f ^ 2n+m +_) (+IdR _)
 
       -- definition of the element
       z = α₀ · x · f ^ (n +ℕ m) + α₁ · y · g ^ (n +ℕ m)
 
-      z/1≡x/fⁿ : (z /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣ ]
-      z/1≡x/fⁿ = eq/ _ _ ((f ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣) , path)
+      z/1≡x/fⁿ : (z /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣₁ ]
+      z/1≡x/fⁿ = eq/ _ _ ((f ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣₁) , path)
        where
        useSolver1 : ∀ x y α₀ α₁ fⁿ⁺ᵐ gⁿ⁺ᵐ fⁿ
                   → fⁿ⁺ᵐ · (α₀ · x · fⁿ⁺ᵐ + α₁ · y · gⁿ⁺ᵐ) · fⁿ
@@ -403,8 +400,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
            f ^ (n +ℕ m) · x · 1r ∎
 
-      z/1≡y/gⁿ : (z /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣ ]
-      z/1≡y/gⁿ = eq/ _ _ ((g ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣) , path)
+      z/1≡y/gⁿ : (z /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]
+      z/1≡y/gⁿ = eq/ _ _ ((g ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣₁) , path)
        where
        useSolver1 : ∀ x y α₀ α₁ fⁿ⁺ᵐ gⁿ⁺ᵐ gⁿ
                   → gⁿ⁺ᵐ · (α₀ · x · fⁿ⁺ᵐ + α₁ · y · gⁿ⁺ᵐ) · gⁿ
@@ -456,8 +453,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
            g ^ (n +ℕ m) · y · 1r ∎
 
 
-      uniqueness : ∀ a → ((a /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣ ])
-                       × ((a /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣ ])
+      uniqueness : ∀ a → ((a /1ᶠ) ≡ [ x , f ^ n , ∣ n , refl ∣₁ ])
+                       × ((a /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣₁ ])
                        → z ≡ a
       uniqueness a (a/1≡x/fⁿ , a/1≡y/gⁿ) = equalByDifference _ _
                    (injectivityLemma 1∈⟨f,g⟩ (z - a) [z-a]/1≡0overF [z-a]/1≡0overG)
@@ -471,9 +468,9 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
                       ≡⟨ cong₂ _-_ z/1≡x/fⁿ a/1≡x/fⁿ ⟩
 
-                        [ x , f ^ n , ∣ n , refl ∣ ] - [ x , f ^ n , ∣ n , refl ∣ ]
+                        [ x , f ^ n , ∣ n , refl ∣₁ ] - [ x , f ^ n , ∣ n , refl ∣₁ ]
 
-                      ≡⟨ +Rinv ([ x , f ^ n , ∣ n , refl ∣ ]) ⟩
+                      ≡⟨ +InvR ([ x , f ^ n , ∣ n , refl ∣₁ ]) ⟩
 
                         0r ∎
 
@@ -486,9 +483,9 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
                       ≡⟨ cong₂ _-_ z/1≡y/gⁿ a/1≡y/gⁿ ⟩
 
-                        [ y , g ^ n , ∣ n , refl ∣ ] - [ y , g ^ n , ∣ n , refl ∣ ]
+                        [ y , g ^ n , ∣ n , refl ∣₁ ] - [ y , g ^ n , ∣ n , refl ∣₁ ]
 
-                      ≡⟨ +Rinv ([ y , g ^ n , ∣ n , refl ∣ ]) ⟩
+                      ≡⟨ +InvR ([ y , g ^ n , ∣ n , refl ∣₁ ]) ⟩
 
                         0r ∎
 
@@ -511,30 +508,30 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
  open Cospan
 
  fgCospan : Cospan CommRingsCategory
- l fgCospan = R[1/ f ]AsCommRing
+ l fgCospan = R[1/ g ]AsCommRing
  m fgCospan = R[1/ (f · g) ]AsCommRing
- r fgCospan = R[1/ g ]AsCommRing
- s₁ fgCospan = χ₁
- s₂ fgCospan = χ₂
+ r fgCospan = R[1/ f ]AsCommRing
+ s₁ fgCospan = χ₂
+ s₂ fgCospan = χ₁
 
  -- the commutative square
  private
-  /1χComm : ∀ (x : R) → χ₁ .fst (x /1ᶠ) ≡ χ₂ .fst (x /1ᵍ)
+  /1χComm : ∀ (x : R) → χ₂ .fst (x /1ᵍ) ≡ χ₁ .fst (x /1ᶠ)
   /1χComm x = eq/ _ _ ((1r , powersFormMultClosedSubset (f · g) .containsOne) , refl)
 
-  /1χHomComm : /1ᶠAsCommRingHom ⋆ χ₁ ≡ /1ᵍAsCommRingHom ⋆ χ₂
+  /1χHomComm : /1ᵍAsCommRingHom ⋆ χ₂ ≡ /1ᶠAsCommRingHom ⋆ χ₁
   /1χHomComm = RingHom≡ (funExt /1χComm)
 
  fgSquare : 1r ∈ ⟨f,g⟩
-          → isPullback _ fgCospan /1ᶠAsCommRingHom /1ᵍAsCommRingHom /1χHomComm
- fgSquare 1∈⟨f,g⟩ {d = A} φ ψ φχ₁≡ψχ₂ = (χ , χCoh) , χUniqueness
+          → isPullback _ fgCospan /1ᵍAsCommRingHom /1ᶠAsCommRingHom /1χHomComm
+ fgSquare 1∈⟨f,g⟩ {d = A} ψ φ ψχ₂≡φχ₁ = (χ , χCoh) , χUniqueness
   where
   instance
    _ = snd A
 
   applyEqualizerLemma : ∀ a → ∃![ χa ∈ R ] (χa /1ᶠ ≡ fst φ a) × (χa /1ᵍ ≡ fst ψ a)
   applyEqualizerLemma a =
-    equalizerLemma 1∈⟨f,g⟩ (fst φ a) (fst ψ a) (cong (_$ a) φχ₁≡ψχ₂)
+    equalizerLemma 1∈⟨f,g⟩ (fst φ a) (fst ψ a) (cong (_$r a) (sym ψχ₂≡φχ₁))
 
   χ : CommRingHom A R'
   fst χ a = applyEqualizerLemma a .fst .fst
@@ -570,17 +567,27 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
                   ∙∙ sym (ψ .snd .pres· x y)
 
 
-  χCoh : (φ ≡ χ ⋆ /1ᶠAsCommRingHom) × (ψ ≡ χ ⋆ /1ᵍAsCommRingHom)
-  fst χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .fst)))
-  snd χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .snd)))
+  χCoh : (ψ ≡ χ ⋆ /1ᵍAsCommRingHom) × (φ ≡ χ ⋆ /1ᶠAsCommRingHom)
+  fst χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .snd)))
+  snd χCoh = RingHom≡ (funExt (λ a → sym (applyEqualizerLemma a .fst .snd .fst)))
 
   χUniqueness : (y : Σ[ θ ∈ CommRingHom A R' ]
-                       (φ ≡ θ ⋆ /1ᶠAsCommRingHom) × (ψ ≡ θ ⋆ /1ᵍAsCommRingHom))
+                       (ψ ≡ θ ⋆ /1ᵍAsCommRingHom) × (φ ≡ θ ⋆ /1ᶠAsCommRingHom))
               → (χ , χCoh) ≡ y
   χUniqueness (θ , θCoh) = Σ≡Prop (λ _ → isProp× (isSetRingHom _ _ _ _)
                                                  (isSetRingHom _ _ _ _))
     (RingHom≡ (funExt (λ a → cong fst (applyEqualizerLemma a .snd (θtriple a)))))
       where
       θtriple : ∀ a → Σ[ x ∈ R ] (x /1ᶠ ≡ fst φ a) × (x /1ᵍ ≡ fst ψ a)
-      θtriple a = fst θ a , sym (cong (_$ a) (θCoh .fst))
-                          , sym (cong (_$ a) (θCoh .snd))
+      θtriple a = fst θ a , sym (cong (_$r a) (θCoh .snd))
+                          , sym (cong (_$r a) (θCoh .fst))
+
+
+ -- packaging it all up
+ open Pullback
+ fgPullback : 1r ∈ ⟨f,g⟩ → Pullback _ fgCospan
+ pbOb (fgPullback 1r∈⟨f,g⟩) = _
+ pbPr₁ (fgPullback 1r∈⟨f,g⟩) = _
+ pbPr₂ (fgPullback 1r∈⟨f,g⟩) = _
+ pbCommutes (fgPullback 1r∈⟨f,g⟩) = /1χHomComm
+ univProp (fgPullback 1r∈⟨f,g⟩) = fgSquare 1r∈⟨f,g⟩

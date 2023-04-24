@@ -15,7 +15,7 @@ private
   variable
     ℓ : Level
 
-module _ {{R S : Ring ℓ}} (f′ : RingHom R S) where
+module _ {R S : Ring ℓ} (f′ : RingHom R S) where
   open IsRingHom (f′ .snd)
   open RingStr ⦃...⦄
   open isIdeal
@@ -28,7 +28,7 @@ module _ {{R S : Ring ℓ}} (f′ : RingHom R S) where
       _ = snd S
     f = fst f′
 
-  kernel : ⟨ R ⟩ → hProp ℓ
+  kernel : fst R → hProp ℓ
   kernel x = (f x ≡ 0r) , isSetRing S _ _
 
   kernelIsIdeal : isIdeal R kernel
@@ -54,3 +54,14 @@ module _ {{R S : Ring ℓ}} (f′ : RingHom R S) where
     f _ · f r     ≡⟨ cong (λ u → u · f r) fx≡0 ⟩
     0r · f r      ≡⟨ 0LeftAnnihilates S _ ⟩
     0r ∎
+
+  kernelIdeal : IdealsIn R
+  fst kernelIdeal = kernel
+  snd kernelIdeal = kernelIsIdeal
+
+
+  kernelFiber : (x y : ⟨ R ⟩) → f x ≡ f y → x - y ∈ kernel
+  kernelFiber x y fx≡fy = f (x - y)     ≡⟨ pres+ x (- y) ⟩
+                          f x + f (- y) ≡[ i ]⟨ fx≡fy i + pres- y i ⟩
+                          f y - f y     ≡⟨ +InvR (f y) ⟩
+                          0r ∎

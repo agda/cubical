@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 {-
 This file contains a proof that the generator of Π₃S² has
 hopf invariant ±1.
@@ -37,11 +37,14 @@ open import Cubical.Data.Nat renaming (_+_ to _+ℕ_ ; _·_ to _·ℕ_)
 open import Cubical.Data.Unit
 
 open import Cubical.Algebra.Group
-  renaming (ℤ to ℤGroup ; Unit to UnitGroup)
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int
+open import Cubical.Algebra.Group.GroupPath
 
-open import Cubical.HITs.Pushout
+open import Cubical.HITs.Pushout as Pushout
 open import Cubical.HITs.Join
 open import Cubical.HITs.S1 renaming (_·_ to _*_)
 open import Cubical.HITs.Sn
@@ -60,7 +63,7 @@ snd HopfMap = refl
 
 -- We use the Hopf fibration in order to connect it to the Gysin Sequence
 module hopfS¹ =
-  Hopf S1-AssocHSpace (sphereElim2 _ (λ _ _ → squash) ∣ refl ∣)
+  Hopf S1-AssocHSpace (sphereElim2 _ (λ _ _ → squash₁) ∣ refl ∣₁)
 
 S¹Hopf = hopfS¹.Hopf
 E* = hopfS¹.TotalSpacePush²'
@@ -90,7 +93,7 @@ conCP² x y = sRec2 squash₂ (λ p q → ∣ p ∙ sym q ∣₂) (conCP²' x) (
         → A (inl base)
         → ((a : hopfS¹.TotalSpaceHopfPush) → A a)
     indLem {A = A} p b =
-      PushoutToProp p
+      Pushout.elimProp _ p
         (sphereElim 0 (λ _ → p _) b)
         (sphereElim 0 (λ _ → p _) (subst A (push (base , base)) b))
 
@@ -181,25 +184,25 @@ H²S²→H²CP² : coHomGr 2 (S₊ 2) .fst → coHomGr 2 CP² .fst
 H²S²→H²CP² = sMap H²S²→H²CP²-raw
 
 cancel-H²S²→H²CP² : (f : CP² → coHomK 2)
-  → ∥ H²S²→H²CP²-raw (f ∘ inr) ≡ f ∥
+  → ∥ H²S²→H²CP²-raw (f ∘ inr) ≡ f ∥₁
 cancel-H²S²→H²CP² f =
-  pRec squash
-    (λ p → pRec squash
-                (λ f → ∣ funExt f ∣)
+  pRec squash₁
+    (λ p → pRec squash₁
+                (λ f → ∣ funExt f ∣₁)
                 (cancelLem p))
     (connLem (f (inl tt)))
   where
-  connLem : (x : coHomK 2) →  ∥ x ≡ 0ₖ 2 ∥
-  connLem = coHomK-elim _ (λ _ → isOfHLevelSuc 1 squash) ∣ refl ∣
+  connLem : (x : coHomK 2) →  ∥ x ≡ 0ₖ 2 ∥₁
+  connLem = coHomK-elim _ (λ _ → isOfHLevelSuc 1 squash₁) ∣ refl ∣₁
 
   cancelLem : (p : f (inl tt) ≡ 0ₖ 2)
-    → ∥ ((x : CP²) → H²S²→H²CP²-raw (f ∘ inr) x ≡ f x) ∥
-  cancelLem p = trRec squash (λ pp →
+    → ∥ ((x : CP²) → H²S²→H²CP²-raw (f ∘ inr) x ≡ f x) ∥₁
+  cancelLem p = trRec squash₁ (λ pp →
     ∣ CP²→Groupoid (λ _ → isOfHLevelPath 4 (isOfHLevelTrunc 4) _ _)
                  (sym p)
                  (λ x → (λ i → f (inr x) -ₖ f (push (inl base) (~ i)))
                        ∙∙ (λ i → f (inr x) -ₖ p i)
-                       ∙∙ rUnitₖ 2 (f (inr x))) pp ∣)
+                       ∙∙ rUnitₖ 2 (f (inr x))) pp ∣₁)
                 help
     where
     help :
@@ -260,7 +263,7 @@ genCP² = ∣ CP²→Groupoid (λ _ → isOfHLevelTrunc 4)
                       ∣_∣
                       refl ∣₂
 
-inrInjective : (f g : CP² → coHomK 2) → ∥ f ∘ inr ≡ g ∘ inr ∥
+inrInjective : (f g : CP² → coHomK 2) → ∥ f ∘ inr ≡ g ∘ inr ∥₁
              → Path (coHom 2 CP²) ∣ f ∣₂ ∣ g ∣₂
 inrInjective f g = pRec (squash₂ _ _)
   (λ p → pRec (squash₂ _ _) (λ id → trRec (squash₂ _ _)
@@ -276,9 +279,9 @@ inrInjective f g = pRec (squash₂ _ _)
                (conn (f (inl tt)) (g (inl tt))))
 
   where
-  conn : (x y : coHomK 2) → ∥ x ≡ y ∥
-  conn = coHomK-elim _ (λ _ → isSetΠ λ _ → isOfHLevelSuc 1 squash)
-           (coHomK-elim _ (λ _ → isOfHLevelSuc 1 squash) ∣ refl ∣)
+  conn : (x y : coHomK 2) → ∥ x ≡ y ∥₁
+  conn = coHomK-elim _ (λ _ → isSetΠ λ _ → isOfHLevelSuc 1 squash₁)
+           (coHomK-elim _ (λ _ → isOfHLevelSuc 1 squash₁) ∣ refl ∣₁)
 
   conn2 : (x y : coHomK 2) (p q : x ≡ y) → hLevelTrunc 1 (p ≡ q)
   conn2 x y p q =
@@ -313,7 +316,7 @@ private
 -- as genCP², which is much easier to work with
 Gysin-e≡genCP² : GysinS².e ≡ genCP²
 Gysin-e≡genCP² =
-  inrInjective _ _ ∣ funExt (λ x → funExt⁻ (cong fst (main x)) south) ∣
+  inrInjective _ _ ∣ funExt (λ x → funExt⁻ (cong fst (main x)) south) ∣₁
   where
   mainId : (x : Σ (S₊ 2) hopfS¹.Hopf)
          → Path (hLevelTrunc 4 _) ∣ fst x ∣ ∣ north ∣

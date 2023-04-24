@@ -11,14 +11,14 @@ open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
 open import Cubical.HITs.S1
-open import Cubical.HITs.S2
+open import Cubical.HITs.S2.Base
 open import Cubical.HITs.S3
 
 open Iso
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' : Level
 
 data Susp (A : Type ℓ) : Type ℓ where
   north : Susp A
@@ -29,7 +29,7 @@ Susp∙ : (A : Type ℓ) → Pointed ℓ
 Susp∙ A = Susp A , north
 
 -- induced function
-suspFun : {A : Type ℓ} {B : Type ℓ′} (f : A → B)
+suspFun : {A : Type ℓ} {B : Type ℓ'} (f : A → B)
        → Susp A → Susp B
 suspFun f north = north
 suspFun f south = south

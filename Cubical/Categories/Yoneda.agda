@@ -134,7 +134,7 @@ module _ {C : Category ℓ ℓ} where
   yo x .F-id i f = ⋆IdL f i
   yo x .F-seq f g i h = ⋆Assoc g f h i
 
-  YO : Functor C (PreShv C ℓ)
+  YO : Functor C (PresheafCategory C ℓ)
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
   YO .F-hom f .N-hom g i h = ⋆Assoc g h f i
@@ -170,10 +170,13 @@ module _ {C : Category ℓ ℓ} where
 
 
   isFullYO : isFull YO
-  isFullYO x y F[f] = ∣ yo-yo-yo _ F[f] , yoIso {x} (yo y) .Iso.leftInv F[f] ∣
+  isFullYO x y F[f] = ∣ yo-yo-yo _ F[f] , yoIso {x} (yo y) .Iso.leftInv F[f] ∣₁
 
   isFaithfulYO : isFaithful YO
   isFaithfulYO x y f g p i =
     hcomp
       (λ j → λ{ (i = i0) → ⋆IdL f j; (i = i1) → ⋆IdL g j})
       (yo-yo-yo _ (p i))
+
+  isFullyFaithfulYO : isFullyFaithful YO
+  isFullyFaithfulYO = isFull+Faithful→isFullyFaithful {F = YO} isFullYO isFaithfulYO

@@ -3,15 +3,19 @@ module Cubical.Categories.Limits.Initial where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism renaming (Iso to _≅_)
 open import Cubical.HITs.PropositionalTruncation.Base
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Adjoint
 
 private
   variable
     ℓ ℓ' : Level
+    ℓC ℓC' ℓD ℓD' : Level
 
 module _ (C : Category ℓ ℓ') where
   open Category C
@@ -37,20 +41,20 @@ module _ (C : Category ℓ ℓ') where
   initialEndoIsId T f = isContr→isProp (T .snd (initialOb T)) f id
 
   hasInitial : Type (ℓ-max ℓ ℓ')
-  hasInitial = ∥ Initial ∥
+  hasInitial = ∥ Initial ∥₁
 
   -- Initiality of an object is a proposition.
   isPropIsInitial : (x : ob) → isProp (isInitial x)
   isPropIsInitial _ = isPropΠ λ _ → isPropIsContr
 
-  open CatIso
+  open isIso
 
   -- Objects that are initial are isomorphic.
   initialToIso : (x y : Initial) → CatIso C (initialOb x) (initialOb y)
-  mor (initialToIso x y) = initialArrow x (initialOb y)
-  inv (initialToIso x y) = initialArrow y (initialOb x)
-  sec (initialToIso x y) = initialEndoIsId y _
-  ret (initialToIso x y) = initialEndoIsId x _
+  initialToIso x y .fst = initialArrow x (initialOb y)
+  initialToIso x y .snd .inv = initialArrow y (initialOb x)
+  initialToIso x y .snd .sec = initialEndoIsId y _
+  initialToIso x y .snd .ret = initialEndoIsId x _
 
   open isUnivalent
 
@@ -59,3 +63,22 @@ module _ (C : Category ℓ ℓ') where
   isPropInitial : (hC : isUnivalent C) → isProp Initial
   isPropInitial hC x y =
     Σ≡Prop isPropIsInitial (CatIsoToPath hC (initialToIso x y))
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) where
+  open Category
+  open Functor
+  open NaturalBijection
+  open _⊣_
+  open _≅_
+
+  preservesInitial : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+  preservesInitial = ∀ (x : ob C) → isInitial C x → isInitial D (F-ob F x)
+
+  isLeftAdjoint→preservesInitial : isLeftAdjoint F → preservesInitial
+  fst (isLeftAdjoint→preservesInitial (G , F⊣G) x initX y) = _♯ F⊣G (fst (initX (F-ob G y)))
+  snd (isLeftAdjoint→preservesInitial (G , F⊣G) x initX y) ψ =
+    _♯ F⊣G (fst (initX (F-ob G y)))
+      ≡⟨ cong (F⊣G ♯) (snd (initX (F-ob G y)) (_♭ F⊣G ψ)) ⟩
+    _♯ F⊣G (_♭ F⊣G ψ)
+      ≡⟨ leftInv (adjIso F⊣G) ψ ⟩
+    ψ ∎

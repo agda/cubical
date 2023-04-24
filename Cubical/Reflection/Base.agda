@@ -16,14 +16,10 @@ open import Agda.Builtin.String
 _>>=_ = R.bindTC
 _<|>_ = R.catchTC
 
-_$_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → A → B
-f $ a = f a
-
 _>>_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → R.TC A → R.TC B → R.TC B
 f >> g = f >>= λ _ → g
 
 infixl 4 _>>=_ _>>_ _<|>_
-infixr 3 _$_
 
 liftTC : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → R.TC A → R.TC B
 liftTC f ta = ta >>= λ a → R.returnTC (f a)
@@ -46,14 +42,9 @@ hlam str t = R.lam R.hidden (R.abs str t)
 
 newMeta = R.checkType R.unknown
 
-extend*Context : ∀ {ℓ} {A : Type ℓ} → List (R.Arg R.Type) → R.TC A → R.TC A
-extend*Context [] tac = tac
-extend*Context (a ∷ as) tac = R.extendContext a (extend*Context as tac)
-
 makeAuxiliaryDef : String → R.Type → R.Term → R.TC R.Term
 makeAuxiliaryDef s ty term =
   R.freshName s >>= λ name →
   R.declareDef (varg name) ty >>
   R.defineFun name [ R.clause [] [] term ] >>
   R.returnTC (R.def name [])
-

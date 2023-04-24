@@ -29,7 +29,7 @@ open import Cubical.Functions.FunExtEquiv
 
 private
   variable
-    ℓ ℓ′ : Level
+    ℓ ℓ' ℓ'' : Level
     A B C : Type ℓ
 
 isEquivInvEquiv : isEquiv (λ (e : A ≃ B) → invEquiv e)
@@ -126,13 +126,42 @@ isEquiv→hasRetract = fst ∘ isEquiv→isContrHasRetract
 isContr-hasRetract : (e : A ≃ B) → isContr (hasRetract (fst e))
 isContr-hasRetract e = isEquiv→isContrHasRetract (snd e)
 
-cong≃ : (F : Type ℓ → Type ℓ′) → (A ≃ B) → F A ≃ F B
+isEquiv→retractIsEquiv : {f : A → B} {g : B → A} → isEquiv f → retract f g → isEquiv g
+isEquiv→retractIsEquiv {f = f} {g = g} isEquiv-f retract-g = subst isEquiv f⁻¹≡g (snd f⁻¹)
+  where f⁻¹ = invEquiv (f , isEquiv-f)
+
+        retract-f⁻¹ : retract f (fst f⁻¹)
+        retract-f⁻¹ = snd (isEquiv→hasRetract isEquiv-f)
+
+        f⁻¹≡g : fst f⁻¹ ≡ g
+        f⁻¹≡g =
+          cong fst
+               (isContr→isProp (isEquiv→isContrHasRetract isEquiv-f)
+                               (fst f⁻¹ , retract-f⁻¹)
+                               (g , retract-g))
+
+
+isEquiv→sectionIsEquiv : {f : A → B} {g : B → A} → isEquiv f → section f g → isEquiv g
+isEquiv→sectionIsEquiv {f = f} {g = g} isEquiv-f section-g = subst isEquiv f⁻¹≡g (snd f⁻¹)
+  where f⁻¹ = invEquiv (f , isEquiv-f)
+
+        section-f⁻¹ : section f (fst f⁻¹)
+        section-f⁻¹ = snd (isEquiv→hasSection isEquiv-f)
+
+        f⁻¹≡g : fst f⁻¹ ≡ g
+        f⁻¹≡g =
+          cong fst
+               (isContr→isProp (isEquiv→isContrHasSection isEquiv-f)
+                               (fst f⁻¹ , section-f⁻¹)
+                               (g , section-g))
+
+cong≃ : (F : Type ℓ → Type ℓ') → (A ≃ B) → F A ≃ F B
 cong≃ F e = pathToEquiv (cong F (ua e))
 
-cong≃-char : (F : Type ℓ → Type ℓ′) {A B : Type ℓ} (e : A ≃ B) → ua (cong≃ F e) ≡ cong F (ua e)
+cong≃-char : (F : Type ℓ → Type ℓ') {A B : Type ℓ} (e : A ≃ B) → ua (cong≃ F e) ≡ cong F (ua e)
 cong≃-char F e = ua-pathToEquiv (cong F (ua e))
 
-cong≃-idEquiv : (F : Type ℓ → Type ℓ′) (A : Type ℓ) → cong≃ F (idEquiv A) ≡ idEquiv (F A)
+cong≃-idEquiv : (F : Type ℓ → Type ℓ') (A : Type ℓ) → cong≃ F (idEquiv A) ≡ idEquiv (F A)
 cong≃-idEquiv F A = cong≃ F (idEquiv A) ≡⟨ cong (λ p → pathToEquiv (cong F p)) uaIdEquiv  ⟩
                     pathToEquiv refl    ≡⟨ pathToEquivRefl ⟩
                     idEquiv (F A)       ∎
@@ -192,9 +221,35 @@ compr≡Equiv p q r = congEquiv ((λ s → s ∙ r) , compPathr-isEquiv r)
 compl≡Equiv : {A : Type ℓ} {a b c : A} (p : a ≡ b) (q r : b ≡ c) → (q ≡ r) ≃ (p ∙ q ≡ p ∙ r)
 compl≡Equiv p q r = congEquiv ((λ s → p ∙ s) , (compPathl-isEquiv p))
 
-isEquivFromIsContr : {A : Type ℓ} {B : Type ℓ′}
+isEquivFromIsContr : {A : Type ℓ} {B : Type ℓ'}
                    → (f : A → B) → isContr A → isContr B
                    → isEquiv f
 isEquivFromIsContr f isContrA isContrB =
   subst isEquiv (λ i x → isContr→isProp isContrB (fst B≃A x) (f x) i) (snd B≃A)
   where B≃A = isContr→Equiv isContrA isContrB
+
+isEquiv[f∘equivFunA≃B]→isEquiv[f] : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+                 → (f : B → C) (A≃B : A ≃ B)
+                 → isEquiv (f ∘ equivFun A≃B)
+                 → isEquiv f
+isEquiv[f∘equivFunA≃B]→isEquiv[f] f (g , gIsEquiv) f∘gIsEquiv  =
+  precomposesToId→Equiv f _ w w'
+    where
+      w : f ∘ g ∘ equivFun (invEquiv (_ , f∘gIsEquiv)) ≡ idfun _
+      w = (cong fst (invEquiv-is-linv (_ , f∘gIsEquiv)))
+
+      w' : isEquiv (g ∘ equivFun (invEquiv (_ , f∘gIsEquiv)))
+      w' = (snd (compEquiv (invEquiv (_ , f∘gIsEquiv) ) (_ , gIsEquiv)))
+
+isEquiv[equivFunA≃B∘f]→isEquiv[f] : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+                 → (f : C → A) (A≃B : A ≃ B)
+                 → isEquiv (equivFun A≃B ∘ f)
+                 → isEquiv f
+isEquiv[equivFunA≃B∘f]→isEquiv[f] f (g , gIsEquiv) g∘fIsEquiv  =
+  composesToId→Equiv _ f w w'
+    where
+      w : equivFun (invEquiv (_ , g∘fIsEquiv)) ∘ g ∘ f ≡ idfun _
+      w = (cong fst (invEquiv-is-rinv (_ , g∘fIsEquiv)))
+
+      w' : isEquiv (equivFun (invEquiv (_ , g∘fIsEquiv)) ∘ g)
+      w' = snd (compEquiv (_ , gIsEquiv) (invEquiv (_ , g∘fIsEquiv)))

@@ -49,3 +49,12 @@ map f g = intro (f ∘ proj₁) (g ∘ proj₂)
 
 ×-η : {A : Type ℓ} {B : Type ℓ'} (x : A × B) → x ≡ ((proj₁ x) , (proj₂ x))
 ×-η (x , x₁) = refl
+
+
+-- The product type with one parameter in Typeω
+
+record _×ω_ {a} (A : Type a) (B : Typeω) : Typeω where
+  constructor _,_
+  field
+    fst : A
+    snd : B

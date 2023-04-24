@@ -21,6 +21,7 @@ module Cubical.HITs.Pushout.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.GroupoidLaws
@@ -358,17 +359,6 @@ record 3x3-span : Type₁ where
   3x3-lemma : A□○ ≡ A○□
   3x3-lemma = isoToPath 3x3-Iso
 
-PushoutToProp : {f : A → B} {g : A → C}
-                {D : Pushout f g → Type ℓ'''}
-              → ((x : Pushout f g) → isProp (D x))
-              → ((a : B) → D (inl a))
-              → ((c : C) → D (inr c))
-              → (x : Pushout f g) → D x
-PushoutToProp isset baseB baseC (inl x) = baseB x
-PushoutToProp isset baseB baseC (inr x) = baseC x
-PushoutToProp {f = f} {g = g} isset baseB baseC (push a i) =
-  isOfHLevel→isOfHLevelDep 1 isset (baseB (f a)) (baseC (g a)) (push a) i
-
 -- explicit characterisation of equivalences
 -- Pushout f₁ g₁ ≃ Pushout f₂ g₂ avoiding
 -- transports
@@ -507,10 +497,6 @@ module _ {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
 
   pushoutEquiv : Pushout f₁ g₁ ≃ Pushout f₂ g₂
   pushoutEquiv = isoToEquiv pushoutIso
-
-
-open import Cubical.Data.Unit
-open import Cubical.Foundations.Pointed
 
 module PushoutDistr {ℓ ℓ' ℓ'' ℓ''' : Level}
   {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}

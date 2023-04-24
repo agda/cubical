@@ -13,11 +13,11 @@ private
     A B C : Type ℓ
 
 Cost : (A : Type ℓ) → Type ℓ
-Cost A = A × ∥ ℕ ∥
+Cost A = A × ∥ ℕ ∥₁
 
 -- To compare two elements of Cost A we only need to look at the first parts
 Cost≡ : (x y : Cost A) → x .fst ≡ y .fst → x ≡ y
-Cost≡ _ _ = Σ≡Prop λ _ → squash
+Cost≡ _ _ = Σ≡Prop λ _ → squash₁
 
 -- To make it easier to program with Cost A we prove that it forms a
 -- monad which counts the number of calls to >>=. We could also turn
@@ -28,7 +28,7 @@ _>>=_ : Cost A → (A → Cost B) → Cost B
 ... | (y , n) = (y , map suc (map2 _+_ m n))
 
 return : A → Cost A
-return x = (x , ∣ 0 ∣)
+return x = (x , ∣ 0 ∣₁)
 
 -- The monad laws all hold by Cost≡
 
@@ -62,11 +62,11 @@ add (suc x) y = do
 
 private
   -- addBad x y will do x + y calls
-  _ : addBad 3 5 ≡ (8 , ∣ 8 ∣)
+  _ : addBad 3 5 ≡ (8 , ∣ 8 ∣₁)
   _ = refl
 
   -- add x y will only do x recursive calls
-  _ : add 3 5 ≡ (8 , ∣ 3 ∣)
+  _ : add 3 5 ≡ (8 , ∣ 3 ∣₁)
   _ = refl
 
 -- Despite addBad and add having different cost we can still prove
@@ -102,16 +102,16 @@ fibTail (suc x) = fibAux x 1 0
 
 
 private
-  _ : fib 10 ≡ (55 , ∣ 176 ∣)
+  _ : fib 10 ≡ (55 , ∣ 176 ∣₁)
   _ = refl
 
-  _ : fibTail 10 ≡ (55 , ∣ 9 ∣)
+  _ : fibTail 10 ≡ (55 , ∣ 9 ∣₁)
   _ = refl
 
-  _ : fib 20 ≡ (6765 , ∣ 21890 ∣)
+  _ : fib 20 ≡ (6765 , ∣ 21890 ∣₁)
   _ = refl
 
-  _ : fibTail 20 ≡ (6765 , ∣ 19 ∣)
+  _ : fibTail 20 ≡ (6765 , ∣ 19 ∣₁)
   _ = refl
 
 -- Exercise left to the reader: prove that fib and fibTail are equal functions

@@ -51,7 +51,6 @@ check-README:
 .PHONY : check
 check: gen-everythings
 	$(AGDA) Cubical/README.agda
-	$(AGDA) Cubical/WithK.agda
 
 .PHONY : timings
 timings: clean gen-everythings
@@ -65,3 +64,9 @@ listings: $(wildcard Cubical/**/*.agda)
 clean:
 	find . -type f -name '*.agdai' -delete
 
+.PHONY: debug
+debug : ## Print debug information.
+	@echo "AGDA_BIN              = $(AGDA_BIN)"
+	@echo "AGDA_FLAGS            = $(AGDA_FLAGS)"
+	@echo "AGDA_EXEC             = $(AGDA_EXEC)"
+	@echo "AGDA                  = $(AGDA)"

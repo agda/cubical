@@ -2,7 +2,7 @@
 
 module Cubical.Induction.WellFounded where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
 
 Rel : ∀{ℓ} → Type ℓ → ∀ ℓ' → Type _
 Rel A ℓ = A → A → Type ℓ

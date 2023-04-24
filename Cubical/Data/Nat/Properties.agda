@@ -1,9 +1,11 @@
 {-# OPTIONS --no-exact-split --safe #-}
 module Cubical.Data.Nat.Properties where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Nat.Base
 open import Cubical.Data.Empty as ⊥
@@ -11,7 +13,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum.Base
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
@@ -48,6 +49,76 @@ snotz eq = subst (caseNat ⊥ ℕ) eq 0
 injSuc : suc m ≡ suc n → m ≡ n
 injSuc p = cong predℕ p
 
+-- encode decode caracterisation of equality
+codeℕ : (n m : ℕ) → Type ℓ-zero
+codeℕ zero zero = Unit
+codeℕ zero (suc m) = ⊥
+codeℕ (suc n) zero = ⊥
+codeℕ (suc n) (suc m) = codeℕ n m
+
+encodeℕ : (n m : ℕ) → (n ≡ m) → codeℕ n m
+encodeℕ n m p = subst (λ m → codeℕ n m) p (reflCode n)
+ where
+ reflCode : (n : ℕ) → codeℕ n n
+ reflCode zero = tt
+ reflCode (suc n) = reflCode n
+
+compute-eqℕ : (n m : ℕ) → (n ≡ m ) → codeℕ n m
+compute-eqℕ zero zero p = tt
+compute-eqℕ zero (suc m) p = znots p
+compute-eqℕ (suc n) zero p = snotz p
+compute-eqℕ (suc n) (suc m) p = compute-eqℕ n m (injSuc p)
+
+decodeℕ : (n m : ℕ) → codeℕ n m → (n ≡ m)
+decodeℕ zero zero = λ _ → refl
+decodeℕ zero (suc m) = ⊥.rec
+decodeℕ (suc n) zero = ⊥.rec
+decodeℕ (suc n) (suc m) = λ r → cong suc (decodeℕ n m r)
+
+≡ℕ≃Codeℕ : (n m : ℕ) → (n ≡ m) ≃ codeℕ n m
+≡ℕ≃Codeℕ n m = isoToEquiv is
+  where
+  is : Iso (n ≡ m) (codeℕ n m)
+  Iso.fun is = encodeℕ n m
+  Iso.inv is = decodeℕ n m
+  Iso.rightInv is = sect n m
+    where
+    sect : (n m : ℕ) → (r : codeℕ n m) → (encodeℕ n m (decodeℕ n m r) ≡ r)
+    sect zero zero tt = refl
+    sect zero (suc m) r = ⊥.rec r
+    sect (suc n) zero r = ⊥.rec r
+    sect (suc n) (suc m) r = sect n m r
+  Iso.leftInv is = retr n m
+    where
+    reflRetr : (n : ℕ) → decodeℕ n n (encodeℕ n n refl) ≡ refl
+    reflRetr zero = refl
+    reflRetr (suc n) i = cong suc (reflRetr n i)
+
+    retr : (n m : ℕ) → (p : n ≡ m) → (decodeℕ n m (encodeℕ n m p) ≡ p)
+    retr n m p = J (λ m p → decodeℕ n m (encodeℕ n m p) ≡ p) (reflRetr n) p
+
+
+≡ℕ≃Codeℕ' : (n m : ℕ) → (n ≡ m) ≃ codeℕ n m
+≡ℕ≃Codeℕ' n m = isoToEquiv is
+  where
+  is : Iso (n ≡ m) (codeℕ n m)
+  Iso.fun is = compute-eqℕ n m
+  Iso.inv is = decodeℕ n m
+  Iso.rightInv is = sect n m
+    where
+    sect : (n m : ℕ) → (r : codeℕ n m) → compute-eqℕ n m (decodeℕ n m r) ≡ r
+    sect zero zero tt = refl
+    sect (suc n) (suc m) r = sect n m r
+  Iso.leftInv is = retr n m
+    where
+    reflRetr : (n : ℕ) → decodeℕ n n (compute-eqℕ n n refl) ≡ refl
+    reflRetr zero = refl
+    reflRetr (suc n) i = cong suc (reflRetr n i)
+
+    retr : (n m : ℕ) → (p : n ≡ m) → decodeℕ n m (compute-eqℕ n m p) ≡ p
+    retr n m p = J (λ m p → decodeℕ n m (compute-eqℕ n m p) ≡ p) (reflRetr n) p
+
+
 discreteℕ : Discrete ℕ
 discreteℕ zero zero = yes refl
 discreteℕ zero (suc n) = no znots
@@ -55,6 +126,9 @@ discreteℕ (suc m) zero = no snotz
 discreteℕ (suc m) (suc n) with discreteℕ m n
 ... | yes p = yes (cong suc p)
 ... | no p = no (λ x → p (injSuc x))
+
+separatedℕ : Separated ℕ
+separatedℕ = Discrete→Separated discreteℕ
 
 isSetℕ : isSet ℕ
 isSetℕ = Discrete→isSet discreteℕ
@@ -150,15 +224,33 @@ inj-·sm {suc l} {m} {suc n} p = cong suc (inj-·sm (inj-m+ {m = suc m} p))
 inj-sm· : suc m · l ≡ suc m · n → l ≡ n
 inj-sm· {m} {l} {n} p = inj-·sm (·-comm l (suc m) ∙ p ∙ ·-comm (suc m) n)
 
+integral-domain-· : {k l : ℕ} → (k ≡ 0 → ⊥) → (l ≡ 0 → ⊥) → (k · l ≡ 0 → ⊥)
+integral-domain-· {zero} {l} ¬p ¬q r = ¬p refl
+integral-domain-· {suc k} {zero} ¬p ¬q r = ¬q refl
+integral-domain-· {suc k} {suc l} ¬p ¬q r = snotz r
+
 -- Arithmetic facts about ∸
 
 zero∸ : ∀ n → zero ∸ n ≡ zero
 zero∸ zero = refl
 zero∸ (suc _) = refl
 
+
+n∸n : (n : ℕ) → n ∸ n ≡ 0
+n∸n zero = refl
+n∸n (suc n) = n∸n n
+
 ∸-cancelˡ : ∀ k m n → (k + m) ∸ (k + n) ≡ m ∸ n
 ∸-cancelˡ zero    = λ _ _ → refl
 ∸-cancelˡ (suc k) = ∸-cancelˡ k
+
++∸ : ∀ k n → (k + n) ∸ n ≡ k
++∸ zero n = n∸n n
++∸ (suc k) zero = cong suc (+-comm k zero)
++∸ (suc k) (suc n) = cong (_∸ n) (+-suc k n) ∙ +∸ (suc k) n
+
+∸+ : ∀ k n → (n + k) ∸ n ≡ k
+∸+ k n = cong (λ X → X ∸ n) (+-comm n k) ∙ +∸ k n
 
 ∸-cancelʳ : ∀ m n k → (m + k) ∸ (n + k) ≡ m ∸ n
 ∸-cancelʳ m n k = (λ i → +-comm m k i ∸ +-comm n k i) ∙ ∸-cancelˡ k m n
@@ -204,3 +296,47 @@ isPropEvenOrOdd n (inl x) (inl x₁) = cong inl (isPropIsEvenT n x x₁)
 isPropEvenOrOdd n (inl x) (inr x₁) = ⊥.rec (¬evenAndOdd n (x , x₁))
 isPropEvenOrOdd n (inr x) (inl x₁) = ⊥.rec (¬evenAndOdd (suc n) (x , x₁))
 isPropEvenOrOdd n (inr x) (inr x₁) = cong inr (isPropIsEvenT (suc n) x x₁)
+
+module PlusBis where
+
+  _+'_ : ℕ → ℕ → ℕ
+  zero +' b = b
+  suc a +' zero = suc a
+  suc a +' suc b = 2 + (a + b)
+
+  +'≡+ : (n m : ℕ) → n +' m ≡ n + m
+  +'≡+ zero m = refl
+  +'≡+ (suc n) zero = cong suc (sym (+-comm n zero))
+  +'≡+ (suc n) (suc m) = cong suc (sym (+-suc n m))
+
+  +'-comm : (n m : ℕ) → n +' m ≡ m +' n
+  +'-comm n m = +'≡+ n m ∙∙ +-comm n m ∙∙ sym (+'≡+ m n)
+
+  +'-assoc : (n m l : ℕ) → (n +' (m +' l)) ≡ ((n +' m) +' l)
+  +'-assoc n m l =
+       (λ i → +'≡+ n (+'≡+ m l i) i)
+    ∙∙ +-assoc n m l
+    ∙∙ (λ i → +'≡+ (+'≡+ n m (~ i)) l (~ i))
+
+  +'-rid : (n : ℕ) → n +' 0 ≡ n
+  +'-rid zero = refl
+  +'-rid (suc n) = refl
+
+  +'-lid : (n : ℕ) → 0 +' n ≡ n
+  +'-lid n = refl
+
+  +'-suc : (n m : ℕ) → suc (n +' m) ≡ suc n +' m
+  +'-suc zero zero = refl
+  +'-suc zero (suc m) = refl
+  +'-suc (suc n) zero = refl
+  +'-suc (suc n) (suc m) = refl
+
+-- Neat transport lemma for ℕ
+compSubstℕ : ∀ {ℓ} {A : ℕ → Type ℓ} {n m l : ℕ}
+   (p : n ≡ m) (q : m ≡ l) (r : n ≡ l)
+   → {x : _}
+   → subst A q (subst A p x)
+   ≡ subst A r x
+compSubstℕ {A = A} p q r {x = x} =
+  sym (substComposite A p q x)
+  ∙ λ i → subst A (isSetℕ _ _ (p ∙ q) r i) x

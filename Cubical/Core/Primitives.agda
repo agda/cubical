@@ -1,5 +1,4 @@
 {-
-
 This file document and export the main primitives of Cubical Agda. It
 also defines some basic derived operations (composition and filling).
 
@@ -9,9 +8,7 @@ module Cubical.Core.Primitives where
 
 open import Agda.Builtin.Cubical.Path public
 open import Agda.Builtin.Cubical.Sub public
-  renaming ( inc to inS
-           ; primSubOut to outS
-           )
+  renaming (primSubOut to outS)
 open import Agda.Primitive.Cubical public
   renaming ( primIMin       to _∧_  -- I → I → I
            ; primIMax       to _∨_  -- I → I → I
@@ -30,7 +27,8 @@ import Agda.Builtin.Cubical.Glue
 -- import Agda.Builtin.Cubical.HCompU
 
 open import Agda.Primitive public
-  using    ( Level )
+  using    ( Level
+           ; SSet )
   renaming ( lzero to ℓ-zero
            ; lsuc  to ℓ-suc
            ; _⊔_   to ℓ-max
@@ -42,7 +40,7 @@ open import Agda.Builtin.Sigma public
 -- themselves are bound by the Agda files imported above.
 
 -- * The Interval
--- I : Typeω
+-- I : IUniv
 
 -- Endpoints, Connections, Reversal
 -- i0 i1   : I
@@ -76,7 +74,7 @@ Path A a b = PathP (λ _ → A) a b
 -- * @IsOne r@ represents the constraint "r = i1".
 -- Often we will use "φ" for elements of I, when we intend to use them
 -- with IsOne (or Partial[P]).
--- IsOne : I → Typeω
+-- IsOne : I → SSet ℓ-zero
 
 -- i1 is indeed equal to i1.
 -- 1=1 : IsOne i1
@@ -88,8 +86,8 @@ Path A a b = PathP (λ _ → A) a b
 -- extensional judgmental equality.
 -- "PartialP φ A" allows "A" to be defined only on "φ".
 
--- Partial : ∀ {ℓ} → I → Type ℓ → Typeω
--- PartialP : ∀ {ℓ} → (φ : I) → Partial φ (Type ℓ) → Typeω
+-- Partial : ∀ {ℓ} → I → Type ℓ → SSet ℓ
+-- PartialP : ∀ {ℓ} → (φ : I) → Partial φ (Type ℓ) → SSet ℓ
 
 -- Partial elements are introduced by pattern matching with (r = i0)
 -- or (r = i1) constraints, like so:
@@ -118,9 +116,9 @@ private
 
 
 -- * There are cubical subtypes as in CCHM. Note that these are not
--- fibrant (hence in Typeω):
+-- fibrant (hence in SSet ℓ):
 
-_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → _
+_[_↦_] : ∀ {ℓ} (A : Type ℓ) (φ : I) (u : Partial φ A) → SSet ℓ
 A [ φ ↦ u ] = Sub A φ u
 
 infix 4 _[_↦_]
@@ -162,7 +160,7 @@ infix 4 _[_↦_]
 private
   variable
     ℓ  : Level
-    ℓ′ : I → Level
+    ℓ' : I → Level
 
 -- Homogeneous filling
 hfill : {A : Type ℓ}
@@ -179,7 +177,7 @@ hfill {φ = φ} u u0 i =
 -- Heterogeneous composition can defined as in CHM, however we use the
 -- builtin one as it doesn't require u0 to be a cubical subtype. This
 -- reduces the number of inS's a lot.
--- comp : (A : ∀ i → Type (ℓ′ i))
+-- comp : (A : ∀ i → Type (ℓ' i))
 --        {φ : I}
 --        (u : ∀ i → Partial φ (A i))
 --        (u0 : A i0 [ φ ↦ u i0 ])
@@ -190,7 +188,7 @@ hfill {φ = φ} u u0 i =
 --         (transp A i0 (outS u0))
 
 -- Heterogeneous filling defined using comp
-fill : (A : ∀ i → Type (ℓ′ i))
+fill : (A : ∀ i → Type (ℓ' i))
        {φ : I}
        (u : ∀ i → Partial φ (A i))
        (u0 : A i0 [ φ ↦ u i0 ])

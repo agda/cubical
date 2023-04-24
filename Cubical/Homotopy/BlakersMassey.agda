@@ -680,7 +680,7 @@ module BlakersMassey {ℓ₁ ℓ₂ ℓ₃ : Level}
 We also give the following version of the theorem: Given a square
 
           g
-  A --------------> B
+  A --------------> C
   |\              ↗ |
   |  \         ↗    |
   |    \    ↗       |

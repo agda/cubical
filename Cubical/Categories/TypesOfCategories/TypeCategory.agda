@@ -67,20 +67,20 @@ module _ {ℓ ℓ' ℓ'' : Level} (C : Category ℓ ℓ') where
     isSurjSET {A = A} {B} f = ∀ (b : fst B) → Σ[ a ∈ fst A ] f a ≡ b
 
     -- types over Γ are types with a "projection" (aka surjection) to Γ
-    PSTy[_] : PreShv C ℓ'' .ob → Type _
-    PSTy[ Γ ] = Σ[ ΓA ∈ PreShv C ℓ'' .ob ]
+    PSTy[_] : PresheafCategory C ℓ'' .ob → Type _
+    PSTy[ Γ ] = Σ[ ΓA ∈ PresheafCategory C ℓ'' .ob ]
                    Σ[ π ∈ ΓA ⇒ Γ ]
                      (∀ (c : C .ob) → isSurjSET {A = ΓA ⟅ c ⟆} {Γ ⟅ c ⟆} (π ⟦ c ⟧))
 
     -- just directly use types from above as context extensions
-    PSCext : (Γ : _) → PSTy[ Γ ] → Σ[ ΓA ∈ PreShv C ℓ'' .ob ] ΓA ⇒ Γ
+    PSCext : (Γ : _) → PSTy[ Γ ] → Σ[ ΓA ∈ PresheafCategory C ℓ'' .ob ] ΓA ⇒ Γ
     PSCext Γ (ΓA , π , _) = ΓA , π
 
     -- the pullback or reindexed set is the disjoint union of the fibers
     -- from the projection
-    module _ {Δ Γ : PreShv C ℓ'' .ob} (γ : Δ ⇒ Γ)
+    module _ {Δ Γ : PresheafCategory C ℓ'' .ob} (γ : Δ ⇒ Γ)
              (A'@(ΓA , π , isSurjπ) : PSTy[ Γ ]) where
-      ΔA : PreShv C ℓ'' .ob
+      ΔA : PresheafCategory C ℓ'' .ob
       ΔA .F-ob c =  ΔATy , isSetΔA
         where
           ΔATy = (Σ[ x ∈ fst (Δ ⟅ c ⟆) ] fiber (π ⟦ c ⟧) ((γ ⟦ c ⟧) x))
@@ -125,14 +125,14 @@ module _ {ℓ ℓ' ℓ'' : Level} (C : Category ℓ ℓ') where
       PSq .N-ob c (δax , γax , eq) = γax
       PSq .N-hom {c} {d} f = funExt λ (δax , γax , eq) → refl
 
-      PSSq : (PreShv C ℓ'' ⋆ snd (PSCext Δ (PSReindex))) γ ≡
-             (PreShv C ℓ'' ⋆ PSq) (snd (PSCext Γ A'))
+      PSSq : (PresheafCategory C ℓ'' ⋆ snd (PSCext Δ (PSReindex))) γ ≡
+             (PresheafCategory C ℓ'' ⋆ PSq) (snd (PSCext Γ A'))
       PSSq = makeNatTransPath (funExt sqExt)
         where
           sqExt : ∀ (c : C .ob) → _
           sqExt c = funExt λ (δax , γax , eq) → sym eq
 
-      PSIsPB : isPullback (PreShv C ℓ'')
+      PSIsPB : isPullback (PresheafCategory C ℓ'')
                  (cospan Δ Γ (fst (PSCext Γ A')) γ (snd (PSCext Γ A')))
                  (snd (PSCext Δ PSReindex)) PSq PSSq
       PSIsPB {Θ} p₁ p₂ sq = (α , eq) , unique
@@ -182,7 +182,7 @@ module _ {ℓ ℓ' ℓ'' : Level} (C : Category ℓ ℓ') where
                   isPropNatP2 = isOfHLevel→isOfHLevelDep 1 (λ _ → isSetNatTrans _ _)
 
   -- putting everything together
-  isTypeCategoryPresheaf : isTypeCategory (PreShv C ℓ'')
+  isTypeCategoryPresheaf : isTypeCategory (PresheafCategory C ℓ'')
   isTypeCategoryPresheaf .Ty[_] Γ = PSTy[ Γ ]
   isTypeCategoryPresheaf .cext = PSCext
   isTypeCategoryPresheaf .reindex = PSReindex

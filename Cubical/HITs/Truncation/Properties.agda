@@ -1,6 +1,7 @@
 {-# OPTIONS --safe #-}
 
 module Cubical.HITs.Truncation.Properties where
+
 open import Cubical.Data.NatMinusOne
 open import Cubical.HITs.Truncation.Base
 
@@ -22,12 +23,11 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Bool
 open import Cubical.Data.Unit
 open import Cubical.HITs.Sn.Base
-open import Cubical.HITs.S1
+open import Cubical.HITs.S1 hiding (rec ; elim)
 open import Cubical.HITs.Susp.Base
-open import Cubical.HITs.Nullification as Null hiding (rec; elim)
+open import Cubical.HITs.Nullification as Null hiding (rec ; elim)
 
-open import Cubical.HITs.PropositionalTruncation as PropTrunc
-  renaming (∥_∥ to ∥_∥₁; ∣_∣ to ∣_∣₁; squash to squash₁) using ()
+open import Cubical.HITs.PropositionalTruncation as PropTrunc using (∥_∥₁ ; ∣_∣₁ ; squash₁)
 open import Cubical.HITs.SetTruncation       as SetTrunc  using (∥_∥₂; ∣_∣₂; squash₂)
 open import Cubical.HITs.GroupoidTruncation  as GpdTrunc  using (∥_∥₃; ∣_∣₃; squash₃)
 open import Cubical.HITs.2GroupoidTruncation as 2GpdTrunc using (∥_∥₄; ∣_∣₄; squash₄)
@@ -189,6 +189,20 @@ elim3 : {n : ℕ}
 elim3 hB g = elim2 (λ _ _ → isOfHLevelΠ _ (hB _ _)) λ a b →
              elim (λ _ → hB _ _ _) (λ c → g a b c)
 
+-- computation rules for rec and elim wrt to ∣_∣ₕ
+recₕ : (n : ℕ) {h : isOfHLevel n B} {f : A → B}
+  → (a : A) → rec h f ∣ a ∣ₕ ≡ f a
+recₕ zero {h = h} a = h .snd _
+recₕ (suc n) a = refl
+
+elimₕ : (n : ℕ) {B : ∥ A ∥ n → Type ℓ'}
+     {hB : (x : ∥ A ∥ n) → isOfHLevel n (B x)}
+     {g : (a : A) → B (∣ a ∣ₕ)}
+     (a : A)
+  → elim hB g ∣ a ∣ₕ ≡ g a
+elimₕ zero {hB = hB} _ = hB tt* .snd _
+elimₕ (suc n) _ = refl
+
 isContr→isContr∥ : (n : ℕ) → isContr A → isContr (∥ A ∥ n)
 isContr→isContr∥ zero _ = tt* , (λ _ _ → tt*)
 isContr→isContr∥ (suc n) contr = ∣ fst contr ∣ , (elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
@@ -239,14 +253,11 @@ isModal       (HLevelTruncModality n) = isOfHLevel n
 isPropIsModal (HLevelTruncModality n) = isPropIsOfHLevel n
 ◯             (HLevelTruncModality n) = hLevelTrunc n
 ◯-isModal     (HLevelTruncModality n) = isOfHLevelTrunc n
-η (HLevelTruncModality zero) _ = tt*
-η (HLevelTruncModality (suc n)) = ∣_∣
-◯-elim (HLevelTruncModality zero) cB _ tt* = cB tt* .fst
-◯-elim (HLevelTruncModality (suc n)) = elim
+η (HLevelTruncModality n) = ∣_∣ₕ
+◯-elim (HLevelTruncModality n) = elim
 ◯-elim-β (HLevelTruncModality zero) cB f a = cB tt* .snd (f a)
 ◯-elim-β (HLevelTruncModality (suc n)) = λ _ _ _ → refl
-◯-=-isModal (HLevelTruncModality zero) x y = (isOfHLevelUnit* 1 x y) , (isOfHLevelUnit* 2 x y _)
-◯-=-isModal (HLevelTruncModality (suc n)) = isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n))
+◯-=-isModal (HLevelTruncModality n) = isOfHLevelPath n (isOfHLevelTrunc n)
 
 -- universal property
 

@@ -3,6 +3,7 @@ module Cubical.HITs.Pushout.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 
@@ -11,11 +12,26 @@ open import Cubical.Data.Sigma
 
 open import Cubical.HITs.Susp.Base
 
+private
+  variable
+    ℓ : Level
+    X₀ X₁ X₂ Y₀ Y₁ Y₂ : Type ℓ
+
 data Pushout {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
              (f : A → B) (g : A → C) : Type (ℓ-max ℓ (ℓ-max ℓ' ℓ'')) where
   inl : B → Pushout f g
   inr : C → Pushout f g
   push : (a : A) → inl (f a) ≡ inr (g a)
+
+Pushout→ :
+  (f₁ : X₀ → X₁) (f₂ : X₀ → X₂) (g₁ : Y₀ → Y₁) (g₂ : Y₀ → Y₂)
+  (h₀ : X₀ → Y₀) (h₁ : X₁ → Y₁) (h₂ : X₂ → Y₂)
+  (e₁ : h₁ ∘ f₁ ≡ g₁ ∘ h₀) (e₂ : h₂ ∘ f₂ ≡ g₂ ∘ h₀)
+  → Pushout f₁ f₂ → Pushout g₁ g₂
+Pushout→ f₁ f₂ g₁ g₂ h₀ h₁ h₂ e₁ e₂ (inl x) = inl (h₁ x)
+Pushout→ f₁ f₂ g₁ g₂ h₀ h₁ h₂ e₁ e₂ (inr x) = inr (h₂ x)
+Pushout→ f₁ f₂ g₁ g₂ h₀ h₁ h₂ e₁ e₂ (push a i) =
+  ((λ j → inl (e₁ j a)) ∙∙ push (h₀ a) ∙∙ λ j → inr (e₂ (~ j) a)) i
 
 -- cofiber (equivalent to Cone in Cubical.HITs.MappingCones.Base)
 cofib : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type _
@@ -23,6 +39,16 @@ cofib f = Pushout (λ _ → tt) f
 
 cfcod : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) → B → cofib f
 cfcod f = inr
+
+-- Symmetry of pushout
+
+symPushout : {ℓ ℓ' ℓ'' : Level} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  → (f : A → B) (g : A → C) → Pushout f g ≃ Pushout g f
+symPushout f g = isoToEquiv
+  (iso (λ { (inl x) → inr x ; (inr x) → inl x ; (push x i) → push x (~ i)})
+       (λ { (inl x) → inr x ; (inr x) → inl x ; (push x i) → push x (~ i)})
+       (λ { (inl x) → refl  ; (inr x) → refl  ; (push x i) → refl})
+       (λ { (inl x) → refl  ; (inr x) → refl  ; (push x i) → refl}))
 
 -- Suspension defined as a pushout
 

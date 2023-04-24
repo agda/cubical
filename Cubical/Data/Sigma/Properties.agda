@@ -152,7 +152,7 @@ module _ {A : Type ℓ} {A' : Type ℓ'} where
   unquoteDecl Σ-swap-≃ = declStrictIsoToEquiv Σ-swap-≃ Σ-swap-Iso
 
 module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''} where
-  Σ-assoc-Iso : Iso (Σ[ (a , b) ∈ Σ A B ] C a b) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
+  Σ-assoc-Iso : Iso (Σ[ a ∈ Σ A B ] C (fst a) (snd a)) (Σ[ a ∈ A ] Σ[ b ∈ B a ] C a b)
   fun Σ-assoc-Iso ((x , y) , z) = (x , (y , z))
   inv Σ-assoc-Iso (x , (y , z)) = ((x , y) , z)
   rightInv Σ-assoc-Iso _ = refl
@@ -260,6 +260,16 @@ leftInv (Σ-cong-iso-snd isom) (x , y') = ΣPathP (refl , leftInv (isom x) y')
 Σ-cong' : (p : A ≡ A') → PathP (λ i → p i → Type ℓ') B B' → Σ A B ≡ Σ A' B'
 Σ-cong' p p' = cong₂ (λ (A : Type _) (B : A → Type _) → Σ A B) p p'
 
+Σ-cong-equiv-prop :
+    (e : A ≃ A')
+  → ((x : A ) → isProp (B  x))
+  → ((x : A') → isProp (B' x))
+  → ((x : A) → B x → B' (equivFun e x))
+  → ((x : A) → B' (equivFun e x) → B x)
+  → Σ A B ≃ Σ A' B'
+Σ-cong-equiv-prop e prop prop' prop→ prop← =
+  Σ-cong-equiv e (λ x → propBiimpl→Equiv (prop x) (prop' (equivFun e x)) (prop→ x) (prop← x))
+
 -- Alternative version for path in Σ-types, as in the HoTT book
 
 ΣPathTransport : (a b : Σ A B) → Type _
@@ -335,6 +345,18 @@ isEmbeddingFstΣProp {B = B} pB {u = u} {v = v} .equiv-proof x = ctr , isCtr
        → (p : u .fst ≡ v .fst) → u ≡ v
 Σ≡Prop pB p = equivFun (Σ≡PropEquiv pB) p
 
+-- dependent version
+ΣPathPProp : ∀ {ℓ ℓ'} {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
+           → {u : Σ (A i0) (B i0)} {v : Σ (A i1) (B i1)}
+           → ((a : A (i1)) → isProp (B i1 a))
+           → PathP (λ i → A i) (fst u) (fst v)
+           → PathP (λ i → Σ (A i) (B i)) u v
+fst (ΣPathPProp {u = u} {v = v} pB p i) = p i
+snd (ΣPathPProp {B = B} {u = u} {v = v} pB p i) = lem i
+  where
+  lem : PathP (λ i → B i (p i)) (snd u) (snd v)
+  lem = toPathP (pB _ _ _)
+
 ≃-× : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} → A ≃ C → B ≃ D → A × B ≃ C × D
 ≃-× eq1 eq2 =
     map-× (fst eq1) (fst eq2)
@@ -363,6 +385,14 @@ Iso.inv (prodIso iAC iBD) (c , d) = (Iso.inv iAC c) , Iso.inv iBD d
 Iso.rightInv (prodIso iAC iBD) (c , d) = ΣPathP ((Iso.rightInv iAC c) , (Iso.rightInv iBD d))
 Iso.leftInv (prodIso iAC iBD) (a , b) = ΣPathP ((Iso.leftInv iAC a) , (Iso.leftInv iBD b))
 
+prodEquivToIso : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
+  → (e : A ≃ C)(e' : B ≃ D)
+  → prodIso (equivToIso e) (equivToIso e') ≡ equivToIso (≃-× e e')
+Iso.fun (prodEquivToIso e e' i) = Iso.fun (equivToIso (≃-× e e'))
+Iso.inv (prodEquivToIso e e' i) = Iso.inv (equivToIso (≃-× e e'))
+Iso.rightInv (prodEquivToIso e e' i) = Iso.rightInv (equivToIso (≃-× e e'))
+Iso.leftInv (prodEquivToIso e e' i) = Iso.leftInv (equivToIso (≃-× e e'))
+
 toProdIso : {B C : A → Type ℓ}
           → Iso ((a : A) → B a × C a) (((a : A) → B a) × ((a : A) → C a))
 Iso.fun toProdIso = λ f → (λ a → fst (f a)) , (λ a → snd (f a))
@@ -380,6 +410,7 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''}
   unquoteDecl curryEquiv = declStrictIsoToEquiv curryEquiv curryIso
 
 -- Sigma type with empty base
+
 module _ (A : ⊥ → Type ℓ) where
 
   open Iso
@@ -389,3 +420,39 @@ module _ (A : ⊥ → Type ℓ) where
 
   ΣEmpty : Σ ⊥ A ≃ ⊥
   ΣEmpty = isoToEquiv ΣEmptyIso
+
+-- fiber of projection map
+
+module _
+  (A : Type ℓ)
+  (B : A → Type ℓ') where
+
+  private
+    proj : Σ A B → A
+    proj (a , b) = a
+
+  module _
+    (a : A) where
+
+    open Iso
+
+    fiberProjIso : Iso (B a) (fiber proj a)
+    fiberProjIso .fun b = (a , b) , refl
+    fiberProjIso .inv ((a' , b') , p) = subst B p b'
+    fiberProjIso .leftInv b i = substRefl {B = B} b i
+    fiberProjIso .rightInv (_ , p) i .fst .fst = p (~ i)
+    fiberProjIso .rightInv ((_ , b') , p) i .fst .snd = subst-filler B p b' (~ i)
+    fiberProjIso .rightInv (_ , p) i .snd j = p (~ i ∨ j)
+
+    fiberProjEquiv : B a ≃ fiber proj a
+    fiberProjEquiv = isoToEquiv fiberProjIso
+
+separatedΣ : Separated A → ((a : A) → Separated (B a)) → Separated (Σ A B)
+separatedΣ {B = B} sepA sepB (a , b) (a' , b') p = ΣPathTransport→PathΣ _ _ (pA , pB)
+  where
+    pA : a ≡ a'
+    pA = sepA a a' (λ q → p (λ r → q (cong fst r)))
+
+    pB : subst B pA b ≡ b'
+    pB = sepB _ _ _ (λ q → p (λ r → q (cong (λ r' → subst B r' b)
+                                (Separated→isSet sepA _ _ pA (cong fst r)) ∙ snd (PathΣ→ΣPathTransport _ _ r))))

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 {-
 This file contains:
 1. The iso π₃S²≅ℤ
@@ -12,6 +12,8 @@ open import Cubical.Homotopy.Group.LES
 open import Cubical.Homotopy.Group.PinSn
 open import Cubical.Homotopy.Group.Base
 open import Cubical.Homotopy.HopfInvariant.HopfMap
+open import Cubical.Homotopy.HopfInvariant.Base
+open import Cubical.Homotopy.HopfInvariant.Homomorphism
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
@@ -28,10 +30,15 @@ open import Cubical.HITs.S1
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
+open import Cubical.Data.Int
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Exact
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Unit
+open import Cubical.Algebra.Group.Instances.Int
 
 TotalHopf→∙S² : (Σ (S₊ 2) S¹Hopf , north , base) →∙ S₊∙ 2
 fst TotalHopf→∙S² = fst
@@ -101,7 +108,7 @@ snd π'₃S²≅π'₃TotalHopf = snd (π'∘∙Hom 2 TotalHopf→∙S²)
        (IsoSphereJoin 1 1))))
   , refl)
 
-π₃S²≅ℤ : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤ
+π₃S²≅ℤ : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤGroup
 π₃S²≅ℤ =
   compGroupEquiv
     (invGroupEquiv
@@ -152,3 +159,13 @@ snd π'₃S²≅π'₃TotalHopf = snd (π'∘∙Hom 2 TotalHopf→∙S²)
   subst (gen₁-by (π'Gr 2 (S₊∙ 2)))
         (cong ∣_∣₂ (sym hopfMap≡HopfMap'))
         π₂S³-gen-by-HopfMap'
+
+-- As a consequence, we also get that the Hopf invariant determines
+-- an iso π₃S²≅ℤ
+hopfInvariantEquiv : GroupEquiv (π'Gr 2 (S₊∙ 2)) ℤGroup
+fst (fst hopfInvariantEquiv) = HopfInvariant-π' 0
+snd (fst hopfInvariantEquiv) =
+  GroupEquivℤ-isEquiv (invGroupEquiv π₃S²≅ℤ) ∣ HopfMap ∣₂
+                      π₂S³-gen-by-HopfMap (GroupHom-HopfInvariant-π' 0)
+                      (abs→⊎ _ _ HopfInvariant-HopfMap)
+snd hopfInvariantEquiv = snd (GroupHom-HopfInvariant-π' 0)

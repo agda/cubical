@@ -2,11 +2,10 @@
 module Cubical.Algebra.Algebra.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
@@ -18,11 +17,14 @@ open import Cubical.Displayed.Universe
 
 open import Cubical.Reflection.RecordEquiv
 
-open import Cubical.Algebra.Module
-open import Cubical.Algebra.Ring
-open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.Group
 open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.Ring
+open import Cubical.Algebra.Module
+
 
 open Iso
 
@@ -39,18 +41,18 @@ record IsAlgebra (R : Ring ℓ) {A : Type ℓ'}
   open RingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
 
   field
-    isLeftModule : IsLeftModule R 0a _+_ -_ _⋆_
-    ·-isMonoid  : IsMonoid 1a _·_
-    dist        : (x y z : A) → (x · (y + z) ≡ (x · y) + (x · z))
-                              × ((x + y) · z ≡ (x · z) + (y · z))
-    ⋆-lassoc     : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y)
-    ⋆-rassoc     : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y)
+    +IsLeftModule : IsLeftModule R 0a _+_ -_ _⋆_
+    ·IsMonoid     : IsMonoid 1a _·_
+    ·DistR+       : (x y z : A) → x · (y + z) ≡ (x · y) + (x · z)
+    ·DistL+       : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z)
+    ⋆AssocR       : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y)
+    ⋆AssocL       : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y)
 
-  open IsLeftModule isLeftModule public
+  open IsLeftModule +IsLeftModule public
 
   isRing : IsRing _ _ _ _ _
-  isRing = isring (IsLeftModule.+-isAbGroup isLeftModule) ·-isMonoid dist
-  open IsRing isRing public hiding (_-_; +Assoc; +Lid; +Linv; +Rid; +Rinv; +Comm)
+  isRing = isring (IsLeftModule.+IsAbGroup +IsLeftModule) ·IsMonoid ·DistR+ ·DistL+
+  open IsRing isRing public hiding (_-_; +Assoc; +IdL; +InvL; +IdR; +InvR; +Comm ; ·DistR+ ; ·DistL+)
 
 unquoteDecl IsAlgebraIsoΣ = declareRecordIsoΣ IsAlgebraIsoΣ (quote IsAlgebra)
 
@@ -74,12 +76,27 @@ Algebra R ℓ' = Σ[ A ∈ Type ℓ' ] AlgebraStr R A
 
 module commonExtractors {R : Ring ℓ} where
 
-  Algebra→Module : (A : Algebra R ℓ') → LeftModule R ℓ'
-  Algebra→Module (_ , algebrastr A _ _ _ _ _ (isalgebra isLeftModule _ _ _ _)) =
-    _ , leftmodulestr A _ _ _ isLeftModule
+  module _ where
+    open IsAlgebra
+    open RingStr
+    open LeftModuleStr
 
-  Algebra→Ring : (A : Algebra R ℓ') → Ring ℓ'
-  Algebra→Ring (_ , str) = _ , ringstr _ _ _ _ _ (IsAlgebra.isRing (AlgebraStr.isAlgebra str))
+    Algebra→Module : (A : Algebra R ℓ') → LeftModule R ℓ'
+    Algebra→Module A .fst = A .fst
+    Algebra→Module A .snd .0m = _
+    Algebra→Module A .snd ._+_ = _
+    Algebra→Module A .snd .-_ = _
+    Algebra→Module A .snd ._⋆_ = _
+    Algebra→Module A .snd .isLeftModule = (A .snd .AlgebraStr.isAlgebra) .+IsLeftModule
+
+    Algebra→Ring : (A : Algebra R ℓ') → Ring ℓ'
+    Algebra→Ring A .fst = A .fst
+    Algebra→Ring A .snd .0r = _
+    Algebra→Ring A .snd .1r = _
+    Algebra→Ring A .snd ._+_ = _
+    Algebra→Ring A .snd ._·_ = _
+    Algebra→Ring A .snd .-_  = _
+    Algebra→Ring A .snd .RingStr.isRing = IsAlgebra.isRing (A .snd .AlgebraStr.isAlgebra)
 
   Algebra→AbGroup : (A : Algebra R ℓ') → AbGroup ℓ'
   Algebra→AbGroup A = LeftModule→AbGroup (Algebra→Module A)
@@ -96,39 +113,37 @@ module commonExtractors {R : Ring ℓ} where
   isSetAlgebra : (A : Algebra R ℓ') → isSet ⟨ A ⟩
   isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
 
-  open RingStr (snd R) using (1r; ·Ldist+) renaming (_+_ to _+r_; _·_ to _·s_)
+  open RingStr (snd R) using (1r; ·DistL+) renaming (_+_ to _+r_; _·_ to _·s_)
 
-  makeIsAlgebra : {A : Type ℓ'} {0a 1a : A}
-                  {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
-                  (isSet-A : isSet A)
-                  (+-assoc :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
-                  (+-rid : (x : A) → x + 0a ≡ x)
-                  (+-rinv : (x : A) → x + (- x) ≡ 0a)
-                  (+-comm : (x y : A) → x + y ≡ y + x)
-                  (·-assoc :  (x y z : A) → x · (y · z) ≡ (x · y) · z)
-                  (·-rid : (x : A) → x · 1a ≡ x)
-                  (·-lid : (x : A) → 1a · x ≡ x)
-                  (·-rdist-+ : (x y z : A) → x · (y + z) ≡ (x · y) + (x · z))
-                  (·-ldist-+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
-                  (⋆-assoc : (r s : ⟨ R ⟩) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
-                  (⋆-ldist : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
-                  (⋆-rdist : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
-                  (⋆-lid   : (x : A) → 1r ⋆ x ≡ x)
-                  (⋆-lassoc : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
-                  (⋆-rassoc : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
-                → IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
-  makeIsAlgebra isSet-A
-                +-assoc +-rid +-rinv +-comm
-                ·-assoc ·-rid ·-lid ·-rdist-+ ·-ldist-+
-                ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid ⋆-lassoc ⋆-rassoc =
-                isalgebra
-                  (makeIsLeftModule isSet-A
-                                    +-assoc +-rid +-rinv +-comm
-                                    ⋆-assoc ⋆-ldist ⋆-rdist ⋆-lid)
-                  (makeIsMonoid isSet-A ·-assoc ·-rid ·-lid)
-                  (λ x y z → ·-rdist-+ x y z , ·-ldist-+ x y z)
-                  ⋆-lassoc ⋆-rassoc
-
+  module _ {A : Type ℓ'} {0a 1a : A}
+                (isSet-A : isSet A)
+                {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
+                (+Assoc  :  (x y z : A) → x + (y + z) ≡ (x + y) + z)
+                (+IdR    : (x : A) → x + 0a ≡ x)
+                (+InvR   : (x : A) → x + (- x) ≡ 0a)
+                (+Comm   : (x y : A) → x + y ≡ y + x)
+                (·Assoc  :  (x y z : A) → x · (y · z) ≡ (x · y) · z)
+                (·IdR    : (x : A) → x · 1a ≡ x)
+                (·IdL    : (x : A) → 1a · x ≡ x)
+                (·DistR+ : (x y z : A) → x · (y + z) ≡ (x · y) + (x · z))
+                (·DistL+ : (x y z : A) → (x + y) · z ≡ (x · z) + (y · z))
+                (⋆Assoc  : (r s : ⟨ R ⟩) (x : A) → (r ·s s) ⋆ x ≡ r ⋆ (s ⋆ x))
+                (⋆DistR+ : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y))
+                (⋆DistL+ : (r s : ⟨ R ⟩) (x : A) → (r +r s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x))
+                (⋆IdL    : (x : A) → 1r ⋆ x ≡ x)
+                (⋆AssocR : (r : ⟨ R ⟩) (x y : A) → r ⋆ (x · y) ≡ x · (r ⋆ y))
+                (⋆AssocL : (r : ⟨ R ⟩) (x y : A) → (r ⋆ x) · y ≡ r ⋆ (x · y))
+    where
+    makeIsAlgebra : IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
+    makeIsAlgebra .IsAlgebra.+IsLeftModule = makeIsLeftModule
+                                            isSet-A
+                                            +Assoc +IdR +InvR +Comm
+                                            ⋆Assoc ⋆DistR+ ⋆DistL+ ⋆IdL
+    makeIsAlgebra .IsAlgebra.·IsMonoid = makeIsMonoid isSet-A ·Assoc ·IdR ·IdL
+    makeIsAlgebra .IsAlgebra.·DistR+ = ·DistR+
+    makeIsAlgebra .IsAlgebra.·DistL+ = ·DistL+
+    makeIsAlgebra .IsAlgebra.⋆AssocR = ⋆AssocR
+    makeIsAlgebra .IsAlgebra.⋆AssocL = ⋆AssocL
 
 open commonExtractors public
 
@@ -153,22 +168,26 @@ record IsAlgebraHom {R : Ring ℓ} {A : Type ℓ'} {B : Type ℓ''}
 unquoteDecl IsAlgebraHomIsoΣ = declareRecordIsoΣ IsAlgebraHomIsoΣ (quote IsAlgebraHom)
 open IsAlgebraHom
 
-AlgebraHom : {R : Ring ℓ} (M : Algebra R ℓ') (N : Algebra R ℓ'') → Type (ℓ-max ℓ (ℓ-max ℓ' ℓ''))
+private
+  variable
+    R : Ring ℓ
+    A B : Algebra R ℓ
+
+AlgebraHom : (M : Algebra R ℓ') (N : Algebra R ℓ'') → Type _
 AlgebraHom M N = Σ[ f ∈ (⟨ M ⟩ → ⟨ N ⟩) ] IsAlgebraHom (M .snd) f (N .snd)
 
-IsAlgebraEquiv : {R : Ring ℓ} {A : Type ℓ'} {B : Type ℓ''}
+IsAlgebraEquiv : {A : Type ℓ'} {B : Type ℓ''}
   (M : AlgebraStr R A) (e : A ≃ B) (N : AlgebraStr R B)
-  → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+  → Type _
 IsAlgebraEquiv M e N = IsAlgebraHom M (e .fst) N
 
-AlgebraEquiv : {R : Ring ℓ} (M : Algebra R ℓ') (N : Algebra R ℓ'') → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+AlgebraEquiv : (M : Algebra R ℓ') (N : Algebra R ℓ'') → Type _
 AlgebraEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsAlgebraEquiv (M .snd) e (N .snd)
 
-_$a_ : {R : Ring ℓ} {A : Algebra R ℓ'} {B : Algebra R ℓ''} → AlgebraHom A B → ⟨ A ⟩ → ⟨ B ⟩
+_$a_ : AlgebraHom A B → ⟨ A ⟩ → ⟨ B ⟩
 f $a x = fst f x
 
-AlgebraEquiv→AlgebraHom : {R : Ring ℓ} {A : Algebra R ℓ'} {B : Algebra R ℓ''}
-                        → AlgebraEquiv A B → AlgebraHom A B
+AlgebraEquiv→AlgebraHom : AlgebraEquiv A B → AlgebraHom A B
 AlgebraEquiv→AlgebraHom (e , eIsHom) = e .fst , eIsHom
 
 isPropIsAlgebra : (R : Ring ℓ) {A : Type ℓ'}
@@ -181,8 +200,9 @@ isPropIsAlgebra R _ _ _ _ _ _ = let open IsLeftModule in
   isOfHLevelRetractFromIso 1 IsAlgebraIsoΣ
     (isPropΣ
       (isPropIsLeftModule _ _ _ _ _)
-      (λ mo → isProp×3 (isPropIsMonoid _ _)
-                       (isPropΠ3 λ _ _ _ → isProp× (mo .is-set _ _) (mo .is-set _ _))
+      (λ mo → isProp×4 (isPropIsMonoid _ _)
+                       (isPropΠ3 λ _ _ _ → mo .is-set _ _)
+                       (isPropΠ3 λ _ _ _ → mo .is-set _ _)
                        (isPropΠ3 λ _ _ _ → mo .is-set _ _)
                        (isPropΠ3 λ _ _ _ → mo .is-set _ _) ))
 
@@ -198,18 +218,18 @@ isPropIsAlgebraHom R AS f BS = isOfHLevelRetractFromIso 1 IsAlgebraHomIsoΣ
                                          (isPropΠ λ _ → isSetAlgebra (_ , BS) _ _)
                                          (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _))
 
-isSetAlgebraHom : {R : Ring ℓ} (M : Algebra R ℓ') (N : Algebra R ℓ'')
+isSetAlgebraHom : (M : Algebra R ℓ') (N : Algebra R ℓ'')
                 → isSet (AlgebraHom M N)
 isSetAlgebraHom _ N = isSetΣ (isSetΠ (λ _ → isSetAlgebra N))
                         λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _)
 
 
-isSetAlgebraEquiv : {R : Ring ℓ} (M N : Algebra R ℓ')
+isSetAlgebraEquiv : (M : Algebra R ℓ') (N : Algebra R ℓ'')
                   → isSet (AlgebraEquiv M N)
 isSetAlgebraEquiv M N = isSetΣ (isOfHLevel≃ 2 (isSetAlgebra M) (isSetAlgebra N))
                           λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _)
 
-AlgebraHom≡ : {R : Ring ℓ} {A B : Algebra R ℓ'} {φ ψ : AlgebraHom A B} → fst φ ≡ fst ψ → φ ≡ ψ
+AlgebraHom≡ : {φ ψ : AlgebraHom A B} → fst φ ≡ fst ψ → φ ≡ ψ
 AlgebraHom≡ = Σ≡Prop λ f → isPropIsAlgebraHom _ _ f _
 
 𝒮ᴰ-Algebra : (R : Ring ℓ) → DUARel (𝒮-Univ ℓ') (AlgebraStr R) (ℓ-max ℓ ℓ')
@@ -230,19 +250,24 @@ AlgebraHom≡ = Σ≡Prop λ f → isPropIsAlgebraHom _ _ f _
   nul = autoDUARel (𝒮-Univ _) (λ A → A)
   bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
 
-AlgebraPath : {R : Ring ℓ} (A B : Algebra R ℓ') → (AlgebraEquiv A B) ≃ (A ≡ B)
+AlgebraPath : (A B : Algebra R ℓ') → (AlgebraEquiv A B) ≃ (A ≡ B)
 AlgebraPath {R = R} = ∫ (𝒮ᴰ-Algebra R) .UARel.ua
 
-uaAlgebra : {R : Ring ℓ} {A B : Algebra R ℓ'} → AlgebraEquiv A B → A ≡ B
+uaAlgebra : AlgebraEquiv A B → A ≡ B
 uaAlgebra {A = A} {B = B} = equivFun (AlgebraPath A B)
 
-isGroupoidAlgebra : {R : Ring ℓ} → isGroupoid (Algebra R ℓ')
+isGroupoidAlgebra : isGroupoid (Algebra R ℓ')
 isGroupoidAlgebra _ _ = isOfHLevelRespectEquiv 2 (AlgebraPath _ _) (isSetAlgebraEquiv _ _)
 
--- Smart constructor for ring homomorphisms
--- that infers the other equations from pres1, pres+, and pres·
+-- Smart constructor for algebra homomorphisms
+-- that infers the other equations from pres1, pres+, pres·, and pres⋆
 
-module _  {R : Ring ℓ} {A : Algebra R ℓ} {B : Algebra R ℓ'} {f : ⟨ A ⟩ → ⟨ B ⟩} where
+module _
+  -- Variable generalization would fail below without the module parameters A and B.
+  {A : Algebra R ℓ}
+  {B : Algebra R ℓ'}
+  {f : ⟨ A ⟩ → ⟨ B ⟩}
+  where
 
   private
     module A = AlgebraStr (A .snd)

@@ -22,6 +22,13 @@ cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
 cong′ f = cong f
 {-# INLINE cong′ #-}
 
+module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
+  toPathP⁻ : x ≡ transport⁻ (λ i → A i) y → PathP A x y
+  toPathP⁻ p = symP (toPathP (sym p))
+
+  fromPathP⁻ : PathP A x y → x ≡ transport⁻ (λ i → A i) y
+  fromPathP⁻ p = sym (fromPathP {A = λ i → A (~ i)} (symP p))
+
 PathP≡Path : ∀ (P : I → Type ℓ) (p : P i0) (q : P i1) →
              PathP P p q ≡ Path (P i1) (transport (λ i → P i) p) q
 PathP≡Path P p q i = PathP (λ j → P (i ∨ j)) (transport-filler (λ j → P j) p i) q
@@ -195,7 +202,7 @@ Square≃doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
                     (a₀₋ : a₀₀ ≡ a₀₁) (a₁₋ : a₁₀ ≡ a₁₁)
                     (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
                     → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ (a₋₀ ⁻¹ ∙∙ a₀₋ ∙∙ a₋₁ ≡ a₁₋)
-Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = transportEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
+Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = pathToEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
 
 -- Flipping a square in Ω²A is the same as inverting it
 sym≡flipSquare : {x : A} (P : Square (refl {x = x}) refl refl refl)
@@ -229,9 +236,57 @@ sym≡cong-sym : ∀ {ℓ} {A : Type ℓ} {x : A} (P : Square (refl {x = x}) ref
   → sym P ≡ cong sym P
 sym≡cong-sym P = sym-cong-sym≡id (sym P)
 
--- sym induces an equivalence on identity types of paths
-symIso : {a b : A} (p q : a ≡ b) → Iso (p ≡ q) (q ≡ p)
-symIso p q = iso sym sym (λ _ → refl) λ _ → refl
+-- sym induces an equivalence on path types
+symIso : {a b : A} → Iso (a ≡ b) (b ≡ a)
+symIso = iso sym sym (λ _ → refl) λ _ → refl
+
+-- Vertical composition of squares (along their first dimension)
+-- See Cubical.Foundations.Prelude for horizontal composition
+
+module _ {ℓ : Level} {A : Type ℓ}
+  {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁}
+  {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
+  {a₂₀ a₂₁ : A} {a₂₋ : a₂₀ ≡ a₂₁}
+  {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
+  {b₋₀ : a₁₀ ≡ a₂₀} {b₋₁ : a₁₁ ≡ a₂₁}
+  where
+
+  -- "Pointwise" composition
+  _∙v_ : (p : Square a₀₋ a₁₋ a₋₀ a₋₁) (q : Square a₁₋ a₂₋ b₋₀ b₋₁)
+       → Square a₀₋ a₂₋ (a₋₀ ∙ b₋₀) (a₋₁ ∙ b₋₁)
+  (p ∙v q) i j = ((λ i → p i j) ∙ (λ i → q i j)) i
+
+  -- "Direct" composition
+  _∙v'_ : (p : Square a₀₋ a₁₋ a₋₀ a₋₁) (q : Square a₁₋ a₂₋ b₋₀ b₋₁)
+        → Square a₀₋ a₂₋ (a₋₀ ∙ b₋₀) (a₋₁ ∙ b₋₁)
+  (p ∙v' q) i =
+    comp (λ k → compPath-filler a₋₀ b₋₀ k i ≡ compPath-filler a₋₁ b₋₁ k i)
+         (λ where k (i = i0) → a₀₋
+                  k (i = i1) → q k)
+         (p i)
+
+  -- The two ways of composing squares are equal, because they are
+  -- correct "lids" for the same box
+  ∙v≡∙v' : (p : Square a₀₋ a₁₋ a₋₀ a₋₁) (q : Square a₁₋ a₂₋ b₋₀ b₋₁)
+         → p ∙v q ≡ p ∙v' q
+  ∙v≡∙v' p q l i = outS
+    (comp-unique {A = λ k → compPath-filler a₋₀ b₋₀ k i ≡ compPath-filler a₋₁ b₋₁ k i}
+                 (λ where k (i = i0) → a₀₋
+                          k (i = i1) → q k)
+                 (inS (p i))
+                 (λ k → inS λ j → compPath-filler (λ i → p i j) (λ i → q i j) k i))
+    (~ l)
+
+-- Inspect
+
+module _ {A : Type ℓ} {B : Type ℓ'} where
+
+  record Reveal_·_is_ (f : A → B) (x : A) (y : B) : Type (ℓ-max ℓ ℓ') where
+    constructor [_]ᵢ
+    field path : f x ≡ y
+
+  inspect : (f : A → B) (x : A) → Reveal f · x is f x
+  inspect f x .Reveal_·_is_.path = refl
 
 -- J is an equivalence
 Jequiv : {x : A} (P : ∀ y → x ≡ y → Type ℓ') → P x refl ≃ (∀ {y} (p : x ≡ y) → P y p)
@@ -360,3 +415,31 @@ compPathR→PathP∙∙ {p = p} {q = q} {r = r} {s = s} P j i =
                    ; (j = i0) → r i
                    ; (j = i1) → doubleCompPath-filler  p s (sym q) (~ k) i})
           (P j i)
+
+compPath→Square-faces : {a b c d : A} (p : a ≡ c) (q : b ≡ d) (r : a ≡ b) (s : c ≡ d)
+  → (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
+compPath→Square-faces p q r s i j k = λ where
+  (i = i0) → r (j ∧ k)
+  (i = i1) → s (j ∨ ~ k)
+  (j = i0) → compPath-filler p s (~ k) i
+  (j = i1) → compPath-filler' r q (~ k) i
+
+compPath→Square : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → p ∙ s ≡ r ∙ q → Square r s p q
+compPath→Square {p = p} {q = q} {r = r} {s = s} P i j =
+  hcomp (compPath→Square-faces p q r s i j) (P j i)
+
+Square→compPath : {a b c d : A} {p : a ≡ c} {q : b ≡ d} {r : a ≡ b} {s : c ≡ d}
+  → Square r s p q → p ∙ s ≡ r ∙ q
+Square→compPath {p = p} {q = q} {r = r} {s = s} sq i j =
+  hcomp (λ k → compPath→Square-faces p q r s j i (~ k)) (sq j i)
+
+Square→compPathΩ² : {a : A} (sq : Square (λ _ → a) refl refl refl)
+             → Square→compPath sq ≡ cong (_∙ refl) (flipSquare sq)
+Square→compPathΩ² {a = a} sq k i j =
+  hcomp (λ r → λ {(i = i0) → rUnit (λ _ → a) r j
+                 ; (i = i1) → rUnit (λ _ → a) r j
+                 ; (j = i0) → a
+                 ; (j = i1) → a
+                 ; (k = i1) → cong (λ x → rUnit x r) (flipSquare sq) i j})
+        (sq j i)

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 {-
 This file contains:
 1. An iso πₙ'(Sⁿ) ≅ ℤ, where πₙ'(Sⁿ) = ∥ Sⁿ →∙ Sⁿ ∥₀
@@ -35,8 +35,10 @@ open import Cubical.Data.Int renaming (_+_ to _+ℤ_)
 open import Cubical.ZCohomology.Properties
 
 open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.Instances.Int renaming (ℤ to ℤGroup)
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.ZAction
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
 
 open Iso
 

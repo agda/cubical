@@ -10,7 +10,6 @@ open import Cubical.Data.Sum using (_⊎_; inl; inr) public
 open import Cubical.Data.Nat hiding (elim)
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
 
 private
   variable
@@ -37,6 +36,10 @@ finj : Fin k → Fin (suc k)
 finj {suc k} fzero    = fzero
 finj {suc k} (fsuc n) = fsuc (finj {k} n)
 
+flast : Fin (suc k)
+flast {k = 0} = fzero
+flast {k = suc k} = fsuc flast
+
 toℕ : Fin k → ℕ
 toℕ {suc k} (inl tt) = zero
 toℕ {suc k} (inr x)  = suc (toℕ {k} x)
@@ -46,6 +49,11 @@ toℕ-injective {suc k} {fzero}  {fzero}  _ = refl
 toℕ-injective {suc k} {fzero}  {fsuc x} p = ⊥.rec (znots p)
 toℕ-injective {suc k} {fsuc m} {fzero}  p = ⊥.rec (snotz p)
 toℕ-injective {suc k} {fsuc m} {fsuc x} p = cong fsuc (toℕ-injective (injSuc p))
+
+fromℕ : (n : ℕ) → Fin (suc k)
+fromℕ {k = 0} _ = fzero
+fromℕ {k = suc k} 0 = fzero
+fromℕ {k = suc k} (suc n) = fsuc (fromℕ n)
 
 -- Thus, Fin k is discrete
 discreteFin : Discrete (Fin k)

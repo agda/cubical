@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.S3PushoutIso2 where
 
 open import Cubical.Homotopy.Group.Base
@@ -13,6 +13,9 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Data.Nat
 
 open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.GroupPath
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp renaming (toSusp to σ)

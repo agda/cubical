@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommAlgebra.Localisation where
 
 open import Cubical.Foundations.Prelude
@@ -7,10 +7,13 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
+                                      ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
+                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm)
+open import Cubical.Data.FinData
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -19,13 +22,16 @@ open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommRing.Properties
-open import Cubical.Algebra.CommRing.Localisation.Base
-open import Cubical.Algebra.CommRing.Localisation.UniversalProperty
-open import Cubical.Algebra.CommRing.Localisation.InvertingElements
+open import Cubical.Algebra.CommRing.Ideal
+open import Cubical.Algebra.CommRing.FGIdeal
+open import Cubical.Algebra.CommRing.RadicalIdeal
+open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
+
+open import Cubical.Tactics.CommRingSolver.Reflection
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -43,7 +49,7 @@ module AlgLoc (R' : CommRing ℓ)
  private R = fst R'
  open CommAlgebraStr
  open IsAlgebraHom
- open CommRingStr (snd R') renaming (_+_ to _+r_ ; _·_ to _·r_ ; ·Rid to ·rRid)
+ open CommRingStr (snd R') renaming (_+_ to _+r_ ; _·_ to _·r_ ; ·IdR to ·rRid)
  open RingTheory (CommRing→Ring R')
  open CommRingTheory R'
  open Loc R' S' SMultClosedSubset
@@ -54,6 +60,8 @@ module AlgLoc (R' : CommRing ℓ)
  S⁻¹RAsCommAlg : CommAlgebra R' ℓ
  S⁻¹RAsCommAlg = toCommAlg (S⁻¹RAsCommRing , /1AsCommRingHom)
 
+ LocCommAlg→CommRingPath : CommAlgebra→CommRing S⁻¹RAsCommAlg ≡ S⁻¹RAsCommRing
+ LocCommAlg→CommRingPath = CommAlgebra→CommRing≡ (S⁻¹RAsCommRing , /1AsCommRingHom)
 
  hasLocAlgUniversalProp : (A : CommAlgebra R' ℓ)
                         → (∀ s → s ∈ S' → _⋆_ (snd A) s (1a (snd A)) ∈ (CommAlgebra→CommRing A) ˣ)
@@ -73,7 +81,7 @@ module AlgLoc (R' : CommRing ℓ)
   where
   B = fromCommAlg B' .fst
   φ = fromCommAlg B' .snd
-  open CommRingStr (snd B) renaming (_·_ to _·b_ ; 1r to 1b ; ·Lid to ·bLid)
+  open CommRingStr (snd B) renaming (_·_ to _·b_ ; 1r to 1b ; ·IdL to ·bLid)
 
   χ : CommRingHom S⁻¹RAsCommRing B
   χ = S⁻¹RHasUniversalProp B φ S⋆1⊆Bˣ .fst .fst
@@ -94,7 +102,7 @@ module AlgLoc (R' : CommRing ℓ)
    path = fst χ ((r /1) ·ₗ x)             ≡⟨ IsRingHom.pres· (snd χ) _ _ ⟩
           fst χ (r /1) ·b fst χ x         ≡⟨ cong (_·b fst χ x) (χcomp r) ⟩
           fst φ r ·b fst χ x              ≡⟨ refl ⟩
-          _⋆_  (snd B') r 1b ·b fst χ x   ≡⟨ ⋆-lassoc (snd B') _ _ _ ⟩
+          _⋆_  (snd B') r 1b ·b fst χ x   ≡⟨ ⋆AssocL (snd B') _ _ _ ⟩
           _⋆_  (snd B') r (1b ·b fst χ x) ≡⟨ cong (_⋆_ (snd B') r) (·bLid _) ⟩
           _⋆_  (snd B') r (fst χ x)       ∎
 
@@ -125,13 +133,28 @@ module AlgLoc (R' : CommRing ℓ)
  isContrHomS⁻¹RS⁻¹R : isContr (CommAlgebraHom S⁻¹RAsCommAlg S⁻¹RAsCommAlg)
  isContrHomS⁻¹RS⁻¹R = S⁻¹RHasAlgUniversalProp S⁻¹RAsCommAlg S⋆1⊆S⁻¹Rˣ
 
+ S⁻¹RAlgCharEquiv : (A' : CommRing ℓ) (φ : CommRingHom R' A')
+                  → PathToS⁻¹R  R' S' SMultClosedSubset A' φ
+                  → CommAlgebraEquiv S⁻¹RAsCommAlg (toCommAlg (A' , φ))
+ S⁻¹RAlgCharEquiv A' φ cond = toCommAlgebraEquiv _ _
+                                (S⁻¹RCharEquiv R' S' SMultClosedSubset A' φ cond)
+                                (RingHom≡ (S⁻¹RHasUniversalProp A' φ (cond .φS⊆Aˣ) .fst .snd))
+  where open PathToS⁻¹R
+
 
 -- the special case of localizing at a single element
-R[1/_]AsCommAlgebra : {R : CommRing ℓ} → ⟨ R ⟩ → CommAlgebra R ℓ
+R[1/_]AsCommAlgebra : {R : CommRing ℓ} → fst R → CommAlgebra R ℓ
 R[1/_]AsCommAlgebra {R = R} f = S⁻¹RAsCommAlg [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
  where
  open AlgLoc R
  open InvertingElementsBase R
+
+module _  {R : CommRing ℓ} (f : fst R) where
+  open InvertingElementsBase R
+  open AlgLoc R [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+
+  invElCommAlgebra→CommRingPath : CommAlgebra→CommRing R[1/ f ]AsCommAlgebra ≡ R[1/ f ]AsCommRing
+  invElCommAlgebra→CommRingPath = LocCommAlg→CommRingPath
 
 module AlgLocTwoSubsets (R' : CommRing ℓ)
                         (S₁ : ℙ (fst R')) (S₁MultClosedSubset : isMultClosedSubset R' S₁)
@@ -223,3 +246,76 @@ module AlgLocTwoSubsets (R' : CommRing ℓ)
     S₂⊆S₁⁻¹Rˣ s₂ s₂∈S₂ =
       transport (λ i → _⋆_ ⦃ (sym S₁⁻¹R≡S₂⁻¹R) i .snd ⦄ s₂ (1a ⦃ (sym S₁⁻¹R≡S₂⁻¹R) i .snd ⦄)
                      ∈ (CommAlgebra→CommRing ((sym S₁⁻¹R≡S₂⁻¹R) i)) ˣ) (S₂⋆1⊆S₂⁻¹Rˣ s₂ s₂∈S₂)
+
+
+
+-- A crucial result for the construction of the structure sheaf
+module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
+ open Exponentiation R
+ open InvertingElementsBase
+ open CommRingStr (snd R) hiding (·IdR)
+ open isMultClosedSubset
+ open DoubleLoc R f g hiding (R[1/fg]≡R[1/f][1/g])
+ open CommAlgChar R
+ open AlgLoc R ([_ⁿ|n≥0] R (f · g)) (powersFormMultClosedSubset R (f · g))
+             renaming (S⁻¹RAlgCharEquiv to R[1/fg]AlgCharEquiv)
+ open CommIdeal R hiding (subst-∈) renaming (_∈_ to _∈ᵢ_)
+ open isCommIdeal
+ open RadicalIdeal R
+
+ private
+  ⟨_⟩ : (fst R) → CommIdeal
+  ⟨ f ⟩ = ⟨ replicateFinVec 1 f ⟩[ R ]
+
+  R[1/fg]AsCommAlgebra = R[1/_]AsCommAlgebra {R = R} (f · g)
+  R[1/fg]ˣ = R[1/_]AsCommRing R (f · g) ˣ
+
+  R[1/g]AsCommAlgebra = R[1/_]AsCommAlgebra {R = R} g
+  R[1/g]ˣ = R[1/_]AsCommRing R g ˣ
+
+  R[1/f][1/g]AsCommRing = R[1/_]AsCommRing (R[1/_]AsCommRing R f)
+                                [ g , 1r , powersFormMultClosedSubset R f .containsOne ]
+  R[1/f][1/g]AsCommAlgebra = toCommAlg (R[1/f][1/g]AsCommRing , /1/1AsCommRingHom)
+
+ R[1/fg]≡R[1/f][1/g] : R[1/fg]AsCommAlgebra ≡ R[1/f][1/g]AsCommAlgebra
+ R[1/fg]≡R[1/f][1/g] = uaCommAlgebra (R[1/fg]AlgCharEquiv _ _ pathtoR[1/fg])
+
+ doubleLocCancel : g ∈ᵢ √ ⟨ f ⟩ → R[1/f][1/g]AsCommAlgebra ≡ R[1/g]AsCommAlgebra
+ doubleLocCancel g∈√⟨f⟩ = sym R[1/fg]≡R[1/f][1/g] ∙ isContrR[1/fg]≡R[1/g] toUnit1 toUnit2 .fst
+  where
+  open S⁻¹RUniversalProp R ([_ⁿ|n≥0] R g) (powersFormMultClosedSubset R g)
+                           renaming (_/1 to _/1ᵍ)
+  open S⁻¹RUniversalProp R ([_ⁿ|n≥0] R (f · g)) (powersFormMultClosedSubset R (f · g))
+                           renaming (_/1 to _/1ᶠᵍ)
+  open AlgLocTwoSubsets R ([_ⁿ|n≥0] R (f · g)) (powersFormMultClosedSubset R (f · g))
+                          ([_ⁿ|n≥0] R g) (powersFormMultClosedSubset R g)
+                          renaming (isContrS₁⁻¹R≡S₂⁻¹R to isContrR[1/fg]≡R[1/g])
+  open CommAlgebraStr ⦃...⦄ hiding (_·_ ; _+_)
+  instance
+   _ = snd R[1/fg]AsCommAlgebra
+   _ = snd R[1/g]AsCommAlgebra
+
+  toUnit1 : ∀ s → s ∈ [_ⁿ|n≥0] R (f · g) → s ⋆ 1a ∈ R[1/g]ˣ
+  toUnit1 s s∈[fgⁿ|n≥0] = subst-∈ R[1/g]ˣ (sym (·IdR (s /1ᵍ)))
+                            (RadicalLemma.toUnit R g (f · g) (radHelper _ _ g∈√⟨f⟩) s s∈[fgⁿ|n≥0])
+   where
+   radHelper : ∀ x y → x ∈ᵢ √ ⟨ y ⟩ → x ∈ᵢ √ ⟨ y · x ⟩
+   radHelper x y = PT.rec ((√ ⟨ y · x ⟩) .fst x .snd) (uncurry helper1)
+    where
+    helper1 : (n : ℕ) → x ^ n ∈ᵢ ⟨ y ⟩ → x ∈ᵢ √ ⟨ y · x ⟩
+    helper1 n = PT.rec ((√ ⟨ y · x ⟩) .fst x .snd) (uncurry helper2)
+     where
+     helper2 : (α : FinVec (fst R) 1)
+             → x ^ n ≡ linearCombination R α (replicateFinVec 1 y)
+             → x ∈ᵢ √ ⟨ y · x ⟩
+     helper2 α p = ∣ (suc n) , ∣ α , cong (x ·_) p ∙ useSolver x y (α zero) ∣₁ ∣₁
+      where
+      useSolver : ∀ x y a → x · (a · y + 0r) ≡ a · (y · x) + 0r
+      useSolver = solve R
+
+  toUnit2 : ∀ s → s ∈ [_ⁿ|n≥0] R g → s ⋆ 1a ∈ R[1/fg]ˣ
+  toUnit2 s s∈[gⁿ|n≥0] = subst-∈ R[1/fg]ˣ (sym (·IdR (s /1ᶠᵍ)))
+                           (RadicalLemma.toUnit R (f · g) g radHelper s s∈[gⁿ|n≥0])
+   where
+   radHelper : (f · g) ∈ᵢ √ ⟨ g ⟩
+   radHelper = ·Closed (snd (√ ⟨ g ⟩)) f (∈→∈√ _ _ (indInIdeal R _ zero))

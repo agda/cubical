@@ -1,9 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyOld.Properties where
 
-open import Cubical.ZCohomology.Base
-open import Cubical.HITs.S1
-open import Cubical.HITs.Sn
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
@@ -13,6 +10,8 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Equiv.HalfAdjoint
+
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.HITs.Susp
@@ -24,15 +23,21 @@ open import Cubical.HITs.Truncation renaming (elim to trElim ; map to trMap ; re
 open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Connected
 open import Cubical.Homotopy.Freudenthal
-open import Cubical.Algebra.Group renaming (Unit to trivialGroup ; ℤ to ℤGroup)
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.DirProd
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
-open import Cubical.Foundations.Equiv.HalfAdjoint
+
 open import Cubical.Data.NatMinusOne
 
 open import Cubical.HITs.Pushout
+open import Cubical.ZCohomology.Base
+open import Cubical.HITs.S1
+open import Cubical.HITs.Sn
 open import Cubical.Data.Sum.Base
-open import Cubical.Data.HomotopyGroup
 
 open import Cubical.Experiments.ZCohomologyOld.KcompPrelims
 

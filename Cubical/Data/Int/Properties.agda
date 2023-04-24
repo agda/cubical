@@ -4,22 +4,20 @@ module Cubical.Data.Int.Properties where
 open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
-open import Cubical.Data.Empty
-open import Cubical.Data.Nat
-  hiding   (+-assoc ; +-comm ; ·-comm)
-  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc)
-open import Cubical.Data.Bool
-open import Cubical.Data.Sum
-open import Cubical.Data.Int.Base
-
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Nullary.DecidableEq
+
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Bool
+open import Cubical.Data.Nat
+  hiding   (+-assoc ; +-comm)
+  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
+open import Cubical.Data.Sum
+
+open import Cubical.Data.Int.Base
 
 sucPred : ∀ i → sucℤ (predℤ i) ≡ i
 sucPred (pos zero)    = refl
@@ -241,6 +239,9 @@ minusPlus (negsuc (suc m)) n =
   sucℤ (n +pos m) +negsuc m                    ≡⟨ minusPlus (negsuc m) n ⟩
   n ∎
 
+-≡0 : (m n : ℤ) → m - n ≡ 0 → m ≡ n
+-≡0 m n p = sym (subst (λ a → a + n ≡ m) p (minusPlus n m)) ∙ +Comm 0 n
+
 plusMinus : ∀ m n → (n + m) - m ≡ n
 plusMinus (pos zero) n = refl
 plusMinus (pos (suc m)) = minusPlus (negsuc m)
@@ -255,6 +256,9 @@ private
 
 -Cancel : ∀ z → z - z ≡ 0
 -Cancel z = cong (_- z) (pos0+ z) ∙ plusMinus z (pos zero)
+
+-Cancel' : ∀ z → - z + z ≡ 0
+-Cancel' z = +Comm (- z) z ∙ -Cancel z
 
 pos+ : ∀ m n → pos (m +ℕ n) ≡ pos m + pos n
 pos+ zero zero = refl
@@ -364,6 +368,10 @@ pos- (suc m) (suc n) =
 
 -- multiplication
 
+pos·pos : (n m : ℕ) → pos (n ·ℕ m) ≡ pos n · pos m
+pos·pos zero m = refl
+pos·pos (suc n) m = pos+ m (n ·ℕ m) ∙ cong (pos m +_) (pos·pos n m)
+
 pos·negsuc : (n m : ℕ) → pos n · negsuc m ≡ - (pos n · pos (suc m))
 pos·negsuc zero m = refl
 pos·negsuc (suc n) m =
@@ -447,9 +455,13 @@ private
 -DistR· : (b c : ℤ) → - (b · c) ≡ b · - c
 -DistR· b c = cong (-_) (·Comm b c) ∙∙ -DistL· c b ∙∙ ·Comm (- c) b
 
+-DistLR· : (b c : ℤ) → b · c ≡ - b · - c
+-DistLR· b c = sym (-Involutive (b · c)) ∙ (λ i → - -DistL· b c i) ∙ -DistR· (- b) c
+
 ℤ·negsuc : (n : ℤ) (m : ℕ) → n · negsuc m ≡ - (n · pos (suc m))
 ℤ·negsuc (pos n) m = pos·negsuc n m
 ℤ·negsuc (negsuc n) m = negsuc·negsuc n m ∙ sym (-DistL· (negsuc n) (pos (suc m)))
+
 
 ·Assoc : (a b c : ℤ) → (a · (b · c)) ≡ ((a · b) · c)
 ·Assoc (pos zero) b c = refl
@@ -481,7 +493,70 @@ abs→⊎ x n = J (λ n _ → (x ≡ pos n) ⊎ (x ≡ - pos n)) (help x)
 ⊎→abs x zero (inr x₁) = cong abs x₁
 ⊎→abs x (suc n) (inr x₁) = cong abs x₁
 
+abs≡0 : (x : ℤ) → abs x ≡ 0 → x ≡ 0
+abs≡0 x p =
+  case (abs→⊎ x 0 p)
+  return (λ _ → x ≡ 0) of
+    λ { (inl r) → r
+      ; (inr r) → r }
+
+¬x≡0→¬abs≡0 : {x : ℤ} → ¬ x ≡ 0 → ¬ abs x ≡ 0
+¬x≡0→¬abs≡0 p q = p (abs≡0 _ q)
+
 abs- : (x : ℤ) → abs (- x) ≡ abs x
 abs- (pos zero) = refl
 abs- (pos (suc n)) = refl
 abs- (negsuc n) = refl
+
+absPos·Pos : (m n : ℕ) → abs (pos m · pos n) ≡ abs (pos m) ·ℕ abs (pos n)
+absPos·Pos m n i = abs (pos·pos m n (~ i))
+
+abs· : (m n : ℤ) → abs (m · n) ≡ abs m ·ℕ abs n
+abs· (pos m) (pos n) = absPos·Pos m n
+abs· (pos m) (negsuc n) =
+  cong abs (pos·negsuc m n) ∙ abs- (pos m · pos (suc n)) ∙ absPos·Pos m (suc n)
+abs· (negsuc m) (pos n) =
+  cong abs (negsuc·pos m n) ∙ abs- (pos (suc m) · pos n) ∙ absPos·Pos (suc m) n
+abs· (negsuc m) (negsuc n) = cong abs (negsuc·negsuc m n) ∙ absPos·Pos (suc m) (suc n)
+
+-- ℤ is integral domain
+
+isIntegralℤPosPos : (c m : ℕ) → pos c · pos m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
+isIntegralℤPosPos 0 m _ q = ⊥.rec (q refl)
+isIntegralℤPosPos (suc c) m p _ =
+  sym (0≡n·sm→0≡n {n = m} {m = c} (sym (injPos (pos·pos (suc c) m ∙ p)) ∙ ·ℕ-comm (suc c) m))
+
+isIntegralℤ : (c m : ℤ) → c · m ≡ 0 → ¬ c ≡ 0 → m ≡ 0
+isIntegralℤ (pos c) (pos m) p h i = pos (isIntegralℤPosPos c m p (λ r → h (cong pos r)) i)
+isIntegralℤ (pos c) (negsuc m) p h =
+  ⊥.rec (snotz (isIntegralℤPosPos c (suc m)
+    (sym (-Involutive _) ∙ cong (-_) (sym (pos·negsuc c m) ∙ p)) (λ r → h (cong pos r))))
+isIntegralℤ (negsuc c) (pos m) p _ i =
+  pos (isIntegralℤPosPos (suc c) m
+    (sym (-Involutive _) ∙ cong (-_) (sym (negsuc·pos c m) ∙ p)) snotz i)
+isIntegralℤ (negsuc c) (negsuc m) p _ =
+  ⊥.rec (snotz (isIntegralℤPosPos (suc c) (suc m) (sym (negsuc·negsuc c m) ∙ p) snotz))
+
+private
+  ·lCancel-helper : (c m n : ℤ) → c · m ≡ c · n → c · (m - n) ≡ 0
+  ·lCancel-helper c m n p =
+      ·DistR+ c m (- n)
+    ∙ (λ i → c · m + -DistR· c n (~ i))
+    ∙ subst (λ a → c · m - a ≡ 0) p (-Cancel (c · m))
+
+·lCancel : (c m n : ℤ) → c · m ≡ c · n → ¬ c ≡ 0 → m ≡ n
+·lCancel c m n p h = -≡0 _ _ (isIntegralℤ c (m - n) (·lCancel-helper c m n p) h)
+
+·rCancel : (c m n : ℤ) → m · c ≡ n · c → ¬ c ≡ 0 → m ≡ n
+·rCancel c m n p h = ·lCancel c m n (·Comm c m ∙ p ∙ ·Comm n c) h
+
+
+-Cancel'' : ∀ z → z ≡ - z → z ≡ 0
+-Cancel'' z r = isIntegralℤ 2 z
+                (cong (λ X → z + X) r ∙ -Cancel z)
+                λ r → ⊥.rec (snotz (injPos r))
+
+-- ℤ is non-trivial
+
+0≢1-ℤ : ¬ 0 ≡ 1
+0≢1-ℤ p = encodeℕ _ _ (injPos p)

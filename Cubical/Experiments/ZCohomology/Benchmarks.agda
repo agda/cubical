@@ -21,27 +21,15 @@ then it should be removed before the above command is run.
 {-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomology.Benchmarks where
 
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat
 open import Cubical.Data.Bool
 open import Cubical.Data.Int
-open import Cubical.HITs.Sn
-open import Cubical.Algebra.Group hiding (ℤ ; Bool)
-open import Cubical.ZCohomology.Base
-open import Cubical.ZCohomology.Properties
-open import Cubical.ZCohomology.GroupStructure hiding (_+ₕ_) renaming (_+'ₕ_ to _+ₕ_)
-{- _+'ₕ_ is just (λ x y → (x +ₕ 0ₕ) +ₕ (y +ₕ 0ₕ))
-   For technical reason, this gives nicer reductions and computes better in
-   higher dimensions. -}
-open import Cubical.ZCohomology.Groups.Sn
-open import Cubical.ZCohomology.Groups.Wedge
-open import Cubical.ZCohomology.Groups.Torus
-open import Cubical.ZCohomology.Groups.KleinBottle
-open import Cubical.ZCohomology.Groups.WedgeOfSpheres
-open import Cubical.ZCohomology.Groups.RP2
-open import Cubical.ZCohomology.Groups.CP2
 open import Cubical.Data.Sigma
 
+open import Cubical.HITs.Sn
 open import Cubical.HITs.KleinBottle
 open import Cubical.HITs.RPn.Base
 open import Cubical.HITs.SetTruncation
@@ -52,6 +40,23 @@ open import Cubical.HITs.Truncation
 open import Cubical.HITs.Susp
 open import Cubical.HITs.S1
 
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.Group.Morphisms
+open import Cubical.Algebra.Group.MorphismProperties
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure hiding (_+ₕ_) renaming (_+'ₕ_ to _+ₕ_)
+{- _+'ₕ_ is just (λ x y → (x +ₕ 0ₕ) +ₕ (y +ₕ 0ₕ))
+   For technical reason, this gives nicer reductions and computes better in
+   higher dimensions. -}
+open import Cubical.ZCohomology.Groups.Sn
+open import Cubical.ZCohomology.Groups.Wedge
+open import Cubical.ZCohomology.Groups.Torus
+open import Cubical.ZCohomology.Groups.KleinBottle
+open import Cubical.ZCohomology.Groups.S2wedgeS1wedgeS1
+open import Cubical.ZCohomology.Groups.RP2
+open import Cubical.ZCohomology.Groups.CP2
 
 open IsGroupHom
 open Iso

@@ -1,8 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Bool.Base where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Empty
@@ -10,7 +8,6 @@ open import Cubical.Data.Sum.Base
 open import Cubical.Data.Unit.Base
 
 open import Cubical.Relation.Nullary.Base
-open import Cubical.Relation.Nullary.DecidableEq
 
 -- Obtain the booleans
 open import Agda.Builtin.Bool public
@@ -29,16 +26,12 @@ not true = false
 not false = true
 
 _or_ : Bool → Bool → Bool
-false or false = false
-false or true  = true
-true  or false = true
-true  or true  = true
+false or x = x
+true  or _ = true
 
 _and_ : Bool → Bool → Bool
-false and false = false
-false and true  = false
-true  and false = false
-true  and true  = true
+false and _ = false
+true  and x = x
 
 -- xor / mod-2 addition
 _⊕_ : Bool → Bool → Bool
@@ -64,6 +57,10 @@ Bool→Type : Bool → Type₀
 Bool→Type true = Unit
 Bool→Type false = ⊥
 
+Bool→Type* : Bool → Type ℓ
+Bool→Type* true = Unit*
+Bool→Type* false = ⊥*
+
 True : Dec A → Type₀
 True Q = Bool→Type (Dec→Bool Q)
 
@@ -79,6 +76,10 @@ toWitnessFalse {Q = no ¬p} _ = ¬p
 dichotomyBool : (x : Bool) → (x ≡ true) ⊎ (x ≡ false)
 dichotomyBool true  = inl refl
 dichotomyBool false = inr refl
+
+dichotomyBoolSym : (x : Bool) → (x ≡ false) ⊎ (x ≡ true)
+dichotomyBoolSym false = inl refl
+dichotomyBoolSym true = inr refl
 
 -- TODO: this should be uncommented and implemented using instance arguments
 -- _==_ : {dA : Discrete A} → A → A → Bool

@@ -29,7 +29,7 @@ infixr 5 _×_
 -- Mere existence
 
 ∃ : ∀ {ℓ ℓ'} (A : Type ℓ) (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
-∃ A B = ∥ Σ A B ∥
+∃ A B = ∥ Σ A B ∥₁
 
 infix 2 ∃-syntax
 

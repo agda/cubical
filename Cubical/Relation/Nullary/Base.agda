@@ -24,6 +24,10 @@ data Dec (P : Type ℓ) : Type ℓ where
   yes : ( p :   P) → Dec P
   no  : (¬p : ¬ P) → Dec P
 
+decRec : ∀ {ℓ ℓ'} {P : Type ℓ} {A : Type ℓ'} → (P → A) → (¬ P → A) → (Dec P) → A
+decRec ifyes ifno (yes p) = ifyes p
+decRec ifyes ifno (no ¬p) = ifno ¬p
+
 NonEmpty : Type ℓ → Type ℓ
 NonEmpty A = ¬ ¬ A
 
@@ -32,10 +36,10 @@ Stable A = NonEmpty A → A
 
 -- reexport propositional truncation for uniformity
 open Cubical.HITs.PropositionalTruncation.Base
-  using (∥_∥) public
+  using (∥_∥₁) public
 
 SplitSupport : Type ℓ → Type ℓ
-SplitSupport A = ∥ A ∥ → A
+SplitSupport A = ∥ A ∥₁ → A
 
 Collapsible : Type ℓ → Type ℓ
 Collapsible A = Σ[ f ∈ (A → A) ] 2-Constant f
