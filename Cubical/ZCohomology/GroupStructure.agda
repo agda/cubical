@@ -696,16 +696,6 @@ leftInv (fst (coHomIso n is)) =
   ST.elim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (rightInv is x))
 snd (coHomIso n is) = snd (coHomMorph n (fun is))
 
-coHomIso : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (n : ℕ) → Iso A B
-  → GroupIso (coHomGr n B) (coHomGr n A)
-fun (fst (coHomIso n is)) = fst (coHomMorph n (fun is))
-inv' (fst (coHomIso n is)) = fst (coHomMorph n (inv' is))
-rightInv (fst (coHomIso n is)) =
-  sElim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (leftInv is x))
-leftInv (fst (coHomIso n is)) =
-  sElim (λ _ → isSetPathImplicit) λ f → cong ∣_∣₂ (funExt λ x → cong f (rightInv is x))
-snd (coHomIso n is) = snd (coHomMorph n (fun is))
-
 -- Alternative definition of cohomology using ΩKₙ instead. Useful for breaking proofs of group isos
 -- up into smaller parts
 coHomGrΩ : ∀ {ℓ} (n : ℕ) (A : Type ℓ) → Group ℓ
