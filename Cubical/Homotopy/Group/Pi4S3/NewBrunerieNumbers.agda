@@ -141,23 +141,14 @@ Susp∙ A = Susp A , north
 Ω (_ , a) = ((a ≡ a) , refl)
 Ω² p = Ω (Ω p)
 
+-- The maps
+σ : S² → Ω (Susp∙ S²) .fst
+σ x = merid x ∙ sym (merid base)
 
-
--- Variation on η₃
-η₃' : join S¹ S¹ → Susp S²
-η₃' (inl x) = north
-η₃' (inr x) = north
-η₃' (push a b i) = (σ (S¹×S¹→S² a b) ∙ σ (S¹×S¹→S² a b)) i
-  where
-  σ : S² → Ω (Susp∙ S²) .fst
-  σ x = merid x ∙ sym (merid base)
-
-  S¹×S¹→S² : S¹ → S¹ → S²
-  S¹×S¹→S² base y = base
-  S¹×S¹→S² (loop i) base = base
-  S¹×S¹→S² (loop i) (loop j) = surf i j
-
-
+S¹×S¹→S² : S¹ → S¹ → S²
+S¹×S¹→S² base y = base
+S¹×S¹→S² (loop i) base = base
+S¹×S¹→S² (loop i) (loop j) = surf i j
 
 f7 : Ω (Susp∙ S²) .fst → ∥ S² ∥₂
 f7 = encode north
@@ -186,8 +177,6 @@ f7 = encode north
   encode : (x : Susp S²) →  north ≡ x → Code x
   encode x = J (λ x p → Code x) ∣ base ∣₂
 
-
-
 g8 : Ω² ∥ S²∙ ∥₂∙ .fst → Ω ∥ S¹∙ ∥₁∙ .fst
 g8 p i = encodeTruncS² (p i)
   where
@@ -207,8 +196,6 @@ g8 p i = encodeTruncS² (p i)
   encodeTruncS² : Ω ∥ S²∙ ∥₂∙ .fst → ∥ S¹ ∥₁
   encodeTruncS² p = coe0→1 (λ i → codeTruncS² (p i) .fst) ∣ base ∣₁
 
-
-
 g9 : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ ℤ ∥₀
 g9 p = coe0→1 (λ i → codeTruncS¹ (p i) .fst) ∣ pos 0 ∣₀
   where
@@ -218,28 +205,48 @@ g9 p = coe0→1 (λ i → codeTruncS¹ (p i) .fst) ∣ pos 0 ∣₀
   codeTruncS¹ : ∥ S¹ ∥₁ → hSet _
   codeTruncS¹ = rec₁ (isOfHLevelTypeOfHLevel 2) codeS¹
 
-
 -- Use trick to eliminate away the truncation last
 g10 : ∥ ℤ ∥₀ → ℤ
 g10 = rec₀ isSetℤ (λ x → x)
 
+-- TODO: define η₁ and η₂ and some more maps
 
--- We can define the Brunerie number by
-brunerie-η₃' : ℤ
-brunerie-η₃' = g10 (g9 (g8 λ i j → f7 λ k → η₃' (push (loop i) (loop j) k)))
+-- Original η₃ as in the paper
+η₃ : join S¹ S¹ → Susp S²
+η₃ (inl x) = north
+η₃ (inr x) = north
+η₃ (push a b i) =
+  (sym (σ (S¹×S¹→S² a b)) ∙ sym (σ (S¹×S¹→S² a b))) i
 
--- Computing it takes ~1s
-brunerie-η₃'≡-2 : brunerie-η₃' ≡ -2
-brunerie-η₃'≡-2 = refl
+-- Dropping the syms makes it compute fast (why?! maybe some slow inverse map gets applied with the sym?)
+η₃' : join S¹ S¹ → Susp S²
+η₃' (inl x) = north
+η₃' (inr x) = north
+η₃' (push a b i) =
+  (σ (S¹×S¹→S² a b) ∙ σ (S¹×S¹→S² a b)) i
 
--- We can also get a positive number by flipping things:
-brunerie-η₃'-pos : ℤ
-brunerie-η₃'-pos = g10 (g9 (g8 λ i j → f7 λ k → η₃' (push (loop (~ i)) (loop j) k)))
+-- Remark: dropping only one sym does not seem to make it fast enough
 
-brunerie'≡2 : brunerie-η₃'-pos ≡ pos 2
+-- Brunerie numbers
+
+β₃ : ℤ
+β₃ = g10 (g9 (g8 λ i j → f7 λ k → η₃ (push (loop i) (loop j) k)))
+
+-- This does not terminate fast
+-- β₃≡-2 : β₃ ≡ -2
+-- β₃≡-2 = refl
+
+β₃' : ℤ
+β₃' = g10 (g9 (g8 λ i j → f7 λ k → η₃' (push (loop i) (loop j) k)))
+
+-- This terminates fast
+β₃'≡-2 : β₃' ≡ -2
+β₃'≡-2 = refl
+
+β₃'-pos : ℤ
+β₃'-pos = g10 (g9 (g8 λ i j → f7 λ k → η₃' (push (loop (~ i)) (loop j) k)))
+
+brunerie'≡2 : β₃'-pos ≡ pos 2
 brunerie'≡2 = refl
 
 
--- TODO: copy η₁, η₂, η₃ over from
--- Cubical.Homotopy.Group.Pi4S3.DirectProof and define the correspond
--- new Brunerie numbers
