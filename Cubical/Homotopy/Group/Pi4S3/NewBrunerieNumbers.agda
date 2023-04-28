@@ -1,6 +1,6 @@
 -- Mostly self contained definitions of the numbers from: https://arxiv.org/abs/2302.00151
 {-# OPTIONS --safe #-}
-module Cubical.Homotopy.Group.Pi4S3.BrunerieSelfcontained where
+module Cubical.Homotopy.Group.Pi4S3.NewBrunerieNumbers where
 
 open import Cubical.Core.Primitives
 
