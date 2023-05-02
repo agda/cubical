@@ -28,7 +28,7 @@ open import Cubical.Core.Primitives public
 infixr 30 _∙_
 infixr 30 _∙₂_
 infix  3 _∎
-infixr 2 _≡⟨_⟩_ _≡⟨⟩_
+infixr 2 step-≡ _≡⟨⟩_
 infixr 2.5 _≡⟨_⟩≡⟨_⟩_
 infixl 4 _≡$_ _≡$S_
 
@@ -233,13 +233,16 @@ compPathP'-filler {B = B} {x' = x'} {p = p} {q = q} P Q j i =
 
 -- Syntax for chains of equational reasoning
 
-_≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → x ≡ z
-_ ≡⟨ x≡y ⟩ y≡z = x≡y ∙ y≡z
+step-≡ : (x : A) → y ≡ z → x ≡ y → x ≡ z
+step-≡ _ p q = q ∙ p
 
-≡⟨⟩-syntax : (x : A) → x ≡ y → y ≡ z → x ≡ z
-≡⟨⟩-syntax = _≡⟨_⟩_
+syntax step-≡ x y p = x ≡⟨ p ⟩ y
+
+≡⟨⟩-syntax : (x : A) → y ≡ z → x ≡ y → x ≡ z
+≡⟨⟩-syntax = step-≡
+
 infixr 2 ≡⟨⟩-syntax
-syntax ≡⟨⟩-syntax x (λ i → B) y = x ≡[ i ]⟨ B ⟩ y
+syntax ≡⟨⟩-syntax x y (λ i → B) = x ≡[ i ]⟨ B ⟩ y
 
 _≡⟨⟩_ : (x : A) → x ≡ y → x ≡ y
 _ ≡⟨⟩ x≡y = x≡y
