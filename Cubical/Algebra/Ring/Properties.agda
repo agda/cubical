@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.Ring.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -252,8 +252,6 @@ module RingHomTheory {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) where
   open IsRingHom (φ .snd)
   private
     instance
-      _ = R
-      _ = S
       _ = snd R
       _ = snd S
     f = fst φ

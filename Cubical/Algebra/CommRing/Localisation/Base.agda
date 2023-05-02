@@ -2,7 +2,7 @@
 -- at a multiplicatively closed subset and show that it
 -- has a commutative ring structure.
 
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.Base where
 
 open import Cubical.Foundations.Prelude

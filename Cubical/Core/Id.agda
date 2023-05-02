@@ -17,7 +17,6 @@ open import Agda.Builtin.Cubical.Id public
                                    --        P (outS y) ⟨ φ , outS w ⟩) →
                                    -- {y : A} (w' : x ≡ y) → P y w'
            )
-  hiding ( primIdJ ) -- this should not be used as it is using compCCHM
 
 {- BUILTIN ID Id -}
 _≡_ : ∀ {ℓ} {A : Type ℓ} → A → A → Type ℓ

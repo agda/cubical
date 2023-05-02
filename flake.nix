@@ -7,14 +7,21 @@
     url = "github:edolstra/flake-compat";
     flake = false;
   };
+  inputs.agda = {
+    url = "github:agda/agda/v2.6.3";
+    inputs = {
+      nixpkgs.follows = "nixpkgs";
+      flake-utils.follows = "flake-utils";
+    };
+  };
 
-  outputs = { self, flake-compat, flake-utils, nixpkgs }:
+  outputs = { self, flake-compat, flake-utils, nixpkgs, agda }:
     let
       inherit (nixpkgs.lib) cleanSourceWith hasSuffix;
       overlay = final: prev: {
         cubical = final.agdaPackages.mkDerivation rec {
           pname = "cubical";
-          version = "0.4";
+          version = "0.5";
 
           src = cleanSourceWith {
             filter = name: type:
@@ -40,7 +47,7 @@
         };
         agdaWithCubical = final.agdaPackages.agda.withPackages [final.cubical];
       };
-      overlays = [ overlay ];
+      overlays = [ agda.overlay overlay ];
     in
     { overlays.default = overlay; } //
     flake-utils.lib.eachDefaultSystem (system:

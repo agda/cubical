@@ -4,12 +4,8 @@ Eilenberg–Mac Lane type K(G, 1)
 
 -}
 
-{-# OPTIONS --cubical --no-import-sorts --safe  --experimental-lossy-unification #-}
+{-# OPTIONS --cubical --no-import-sorts --safe  --lossy-unification #-}
 module Cubical.HITs.EilenbergMacLane1.Properties where
-
-open import Cubical.HITs.EilenbergMacLane1.Base
-
-open import Cubical.Core.Everything
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -17,17 +13,17 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Path
+open import Cubical.Functions.Morphism
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty renaming (rec to ⊥-rec) hiding (elim)
 
-
-open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Properties
-
+open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup.Base
 
-open import Cubical.Functions.Morphism
+open import Cubical.HITs.EilenbergMacLane1.Base
+
 
 private
   variable
@@ -127,3 +123,20 @@ module _ ((G , str) : Group ℓG) where
       → (x : EM₁ (G , str))
       → B
   rec Bgpd = elim (λ _ → Bgpd)
+
+  rec' : {B : Type ℓ}
+      → isGroupoid B
+      → (b : B)
+      → (bloop : G → b ≡ b)
+      → ((g h : G) → bloop (g · h) ≡ bloop g ∙ bloop h)
+      → (x : EM₁ (G , str))
+      → B
+  rec' Bgpd b bloop square =
+    rec Bgpd b bloop
+      (λ g h →  compPath→Square (withRefl g h))
+    where withRefl : (g h : G)
+                   → refl ∙ bloop (g · h) ≡ bloop g ∙ bloop h
+          withRefl g h =
+            refl ∙ bloop (g · h) ≡⟨ sym (lUnit (bloop (g · h))) ⟩
+            bloop (g · h)        ≡⟨ square g h ⟩
+            bloop g ∙ bloop h ∎

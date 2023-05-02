@@ -21,6 +21,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma renaming (fst to proj₁; snd to proj₂)
+open import Cubical.Data.Unit
 
 open import Cubical.HITs.Join.Base
 open import Cubical.HITs.Pushout
@@ -474,3 +475,10 @@ leftInv (Iso→joinIso is1 is2) (inl x) i = inl (leftInv is1 x i)
 leftInv (Iso→joinIso is1 is2) (inr x) i = inr (leftInv is2 x i)
 leftInv (Iso→joinIso is1 is2) (push a b i) j =
   push (leftInv is1 a j) (leftInv is2 b j) i
+
+
+joinAnnihilL : {A : Type ℓ} → isContr (join (Unit* {ℓ'}) A)
+fst joinAnnihilL = inl tt*
+snd joinAnnihilL (inl tt*) = refl
+snd joinAnnihilL (inr a) = push tt* a
+snd joinAnnihilL (push tt* a i) j = push tt* a (i ∧ j)
