@@ -13,6 +13,41 @@ private
     A : Type ℓ
     B : Type ℓ'
 
+record isHAEquiv' {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
+  field
+    g : B → A
+    linv : ∀ a → g (f a) ≡ a
+    rinv : ∀ b → f (g b) ≡ b
+    coh : ∀ a → PathP (λ i → f (linv a i) ≡ f a) (rinv (f a)) (λ i → f a)
+
+isEquiv→isHAEquiv' : {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isEquiv f → isHAEquiv' f
+isHAEquiv'.g (isEquiv→isHAEquiv' f h) = invIsEq h
+isHAEquiv'.linv (isEquiv→isHAEquiv' f h) x = retIsEq h x
+isHAEquiv'.rinv (isEquiv→isHAEquiv' f h) x = secIsEq h x
+isHAEquiv'.coh (isEquiv→isHAEquiv' f h) x i j = commSqIsEq h x i j
+
+isHAEquiv'→isEquiv : {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isHAEquiv' f → isEquiv f
+isHAEquiv'→isEquiv f h .equiv-proof y = (g y , rinv y) , isCenter
+  where
+    open isHAEquiv' h
+
+    isCenter : ∀ xp → (g y , rinv y) ≡ xp
+    isCenter (x , p) i = gy≡x i , ry≡p i where
+      gy≡x : g y ≡ x
+      gy≡x = sym (cong g p) ∙ linv x -- sym (cong g p) ∙∙ refl ∙∙ linv x
+
+      lem0 : Square (cong f (linv x)) p (cong f (linv x)) p
+      lem0 i j = invSides-filler p (sym (cong f (linv x))) (~ i) j
+
+      ry≡p : Square (rinv y) p (cong f gy≡x) refl
+      ry≡p i j =
+        hcomp (λ k → λ { (i = i0) → cong rinv p k j
+                                ; (i = i1) → {!lem0 k j!} -- lem0 k j
+                                ; (j = i0) → f (doubleCompPath-filler refl (sym (cong g p)) (linv x) {!!} {!k!}) -- f (doubleCompPath-filler (sym (cong g p)) refl (linv x) k i)
+                                ; (j = i1) → p k })
+                       (coh x i j)
+
+
 record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
   field
     g : B → A
@@ -31,11 +66,11 @@ isHAEquiv→isEquiv f h .equiv-proof y = (g y , rinv y) , isCenter
     gy≡x = sym (cong g p) ∙∙ refl ∙∙ sym (linv x)
     --  sym (cong g p) ∙∙ refl ∙∙ linv x
 
-    -- lem0 : Square (cong f (linv x)) p (cong f (linv x)) p
-    -- lem0 i j = invSides-filler p (sym (cong f (linv x))) (~ i) j
+    lem0 : Square (cong f (sym (linv x))) p (cong f (sym (linv x))) p
+    lem0 i j = invSides-filler p (cong f (linv x)) (~ i) j
 
     ry≡p : Square (rinv y) p (cong f gy≡x) refl
-    ry≡p i j = {!!}
+    ry≡p = {!!}
      -- hcomp (λ k → λ { (i = i0) → cong rinv p k j
      --                           ; (i = i1) → lem0 k j
      --                           ; (j = i0) → f (doubleCompPath-filler (sym (cong g p)) refl (linv x) k i)
