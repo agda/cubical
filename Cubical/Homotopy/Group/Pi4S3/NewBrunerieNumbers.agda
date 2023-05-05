@@ -9,14 +9,14 @@ open import Cubical.Foundations.Prelude using
 open import Cubical.Foundations.Equiv using
   (_≃_ ; isEquiv ; isPropIsEquiv ; idIsEquiv ; idEquiv)
 open import Cubical.Foundations.HLevels using
-  (hSet ; hGroupoid ; isOfHLevelTypeOfHLevel ; isOfHLevelPath ; isOfHLevelΠ ; isOfHLevel→isOfHLevelDep)
+  (hSet ; hGroupoid ; isOfHLevelTypeOfHLevel ; isOfHLevelPath ; isOfHLevelΠ ; isOfHLevel→isOfHLevelDep ; is2GroupoidΠ)
 open import Cubical.Foundations.Univalence using
   (Glue ; ua)
 open import Cubical.Data.Int using
   (ℤ ; pos ; neg ; isSetℤ ; sucPathℤ)
 open import Cubical.Foundations.CartesianKanOps
 
-private variable ℓ ℓ' : Level
+private variable ℓ ℓ' ℓ'' : Level
 
 -- S1
 data S¹ : Type₀ where
@@ -63,7 +63,6 @@ S²ToSetElim set b base = b
 S²ToSetElim set b (surf i j) =
   isOfHLevel→isOfHLevelDep 2 set b b {a0 = refl} {a1 = refl} refl refl surf i j
 
-
 -- Join
 data join (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ ℓ') where
   inl : A → join A B
@@ -103,6 +102,9 @@ rec₂ gB f ∣ x ∣₂ = f x
 rec₂ gB f (squash₂ _ _ _ _ _ _ t u i j k l) =
   gB _ _ _ _ _ _ (λ m n o → rec₂ gB f (t m n o)) (λ m n o → rec₂ gB f (u m n o))
      i j k l
+
+-- rec₂Bin : ∀ {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} → is2Groupoid C → (A → B → C) → ∥ A ∥₂ → ∥ B ∥₂ → C
+-- rec₂Bin gB f = rec₂ (is2GroupoidΠ λ _ → gB) λ x → rec₂ gB (f x)
 
 elim₂ : {A : Type ℓ} {B : ∥ A ∥₂ → Type ℓ}
        (bG : (x : ∥ A ∥₂) → is2Groupoid (B x))
@@ -151,15 +153,15 @@ S¹×S¹→S² (loop i) base = base
 S¹×S¹→S² (loop i) (loop j) = surf i j
 
 f7 : Ω (Susp∙ S²) .fst → ∥ S² ∥₂
-f7 = encode north
+f7 p = coe0→1 (λ i → Code (p i)) ∣ base ∣₂
   where
   _+₂_ : ∥ S² ∥₂ → ∥ S² ∥₂ → ∥ S² ∥₂
-  _+₂_ = elim₂ (λ _ → isOfHLevelΠ 4 λ _ → squash₂)
-                λ { base x → x
-                  ; (surf i j) x → surfc x i j}
+  _+₂_ = rec₂ (is2GroupoidΠ λ _ → squash₂)
+             λ { base x → x
+               ; (surf i j) x → surfc x i j}
     where
-    surfc : (x : ∥ S² ∥₂) → Ω² (∥ S² ∥₂ , x) .fst
-    surfc = elim₂ (λ _ → isOfHLevelPath 4 (isOfHLevelPath 4 squash₂ _ _) _ _)
+    surfc : (x : ∥ S² ∥₂) → refl {x = x} ≡ refl {x = x}
+    surfc = elim₂ (λ x → isOfHLevelPath 4 (isOfHLevelPath 4 squash₂ _ _) refl refl)
                   (S²ToSetElim (λ _ → squash₂ _ _ _ _) λ i j → ∣ surf i j ∣₂)
 
   ∥S²∥₂≃∥S²∥₂ : (x : S²) → ∥ S² ∥₂ ≃ ∥ S² ∥₂
@@ -167,43 +169,31 @@ f7 = encode north
   snd (∥S²∥₂≃∥S²∥₂ x) = help x
     where
     help : (x : _) → isEquiv (λ y → ∣ x ∣₂ +₂ y)
-    help = S²ToSetElim (λ _ → isProp→isSet (isPropIsEquiv _)) (idEquiv _ .snd)
+    help = S²ToSetElim (λ _ → isProp→isSet (isPropIsEquiv _)) (idIsEquiv _)
 
   Code : Susp S² → Type₀
   Code north = ∥ S² ∥₂
   Code south = ∥ S² ∥₂
   Code (merid a i) = ua (∥S²∥₂≃∥S²∥₂ a) i
 
-  encode : (x : Susp S²) →  north ≡ x → Code x
-  encode x = J (λ x p → Code x) ∣ base ∣₂
-
 g8 : Ω² ∥ S²∙ ∥₂∙ .fst → Ω ∥ S¹∙ ∥₁∙ .fst
-g8 p i = encodeTruncS² (p i)
+g8 p i =  coe0→1 (λ j → codeTruncS² (p i j) .fst) ∣ base ∣₁
   where
   HopfS² : S² → Type₀
   HopfS² base = S¹
-  HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → _ , idEquiv S¹
-                                 ; (i = i1) → _ , idEquiv S¹
-                                 ; (j = i0) → _ , idEquiv S¹
-                                 ; (j = i1) → _ , _ , rotIsEquiv (loop i) } )
-
-  codeS² : S² → hGroupoid _
-  codeS² s = ∥ HopfS² s ∥₁ , squash₁
+  HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → S¹ , idEquiv S¹
+                                 ; (i = i1) → S¹ , idEquiv S¹
+                                 ; (j = i0) → S¹ , idEquiv S¹
+                                 ; (j = i1) → S¹ , (loop i) ·_  , rotIsEquiv (loop i) } )
 
   codeTruncS² : ∥ S² ∥₂ → hGroupoid _
-  codeTruncS² = rec₂ (isOfHLevelTypeOfHLevel 3) codeS²
-
-  encodeTruncS² : Ω ∥ S²∙ ∥₂∙ .fst → ∥ S¹ ∥₁
-  encodeTruncS² p = coe0→1 (λ i → codeTruncS² (p i) .fst) ∣ base ∣₁
+  codeTruncS² = rec₂ (isOfHLevelTypeOfHLevel 3) (λ s → ∥ HopfS² s ∥₁ , squash₁)
 
 g9 : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ ℤ ∥₀
 g9 p = coe0→1 (λ i → codeTruncS¹ (p i) .fst) ∣ pos 0 ∣₀
   where
-  codeS¹ : S¹ → hSet _
-  codeS¹ s = ∥ helix s ∥₀ , squash₀
-
   codeTruncS¹ : ∥ S¹ ∥₁ → hSet _
-  codeTruncS¹ = rec₁ (isOfHLevelTypeOfHLevel 2) codeS¹
+  codeTruncS¹ = rec₁ (isOfHLevelTypeOfHLevel 2) (λ s → ∥ helix s ∥₀ , squash₀)
 
 -- Use trick to eliminate away the truncation last
 g10 : ∥ ℤ ∥₀ → ℤ
@@ -248,5 +238,4 @@ g10 = rec₀ isSetℤ (λ x → x)
 
 brunerie'≡2 : β₃'-pos ≡ pos 2
 brunerie'≡2 = refl
-
 
