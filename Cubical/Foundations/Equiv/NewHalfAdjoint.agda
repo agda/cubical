@@ -18,7 +18,7 @@ record isHAEquiv' {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type
     g : B → A
     linv : ∀ a → g (f a) ≡ a
     rinv : ∀ b → f (g b) ≡ b
-    coh : ∀ a → PathP (λ i → f (linv a i) ≡ f a) (rinv (f a)) (λ i → f a)
+    coh : ∀ a → PathP (λ i → f (linv a i) ≡ f a) (rinv (f a)) (λ _ → f a)
 
 isEquiv→isHAEquiv' : {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isEquiv f → isHAEquiv' f
 isHAEquiv'.g (isEquiv→isHAEquiv' f h) = invIsEq h
@@ -53,7 +53,7 @@ record isHAEquiv {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type 
     g : B → A
     linv : ∀ a → a ≡ g (f a)
     rinv : ∀ b → f (g b) ≡ b
-    coh : ∀ a → PathP (λ i → f (linv a i) ≡ f a) refl (rinv (f a))
+    coh : ∀ a → PathP (λ i → f (linv a i) ≡ f a) (λ _ → f a) (rinv (f a))
 
 isHAEquiv→isEquiv : {A : Type ℓ} {B : Type ℓ'} (f : A → B) → isHAEquiv f → isEquiv f
 isHAEquiv→isEquiv f h .equiv-proof y = (g y , rinv y) , isCenter
