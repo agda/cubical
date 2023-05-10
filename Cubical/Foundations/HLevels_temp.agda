@@ -3,20 +3,39 @@ module Cubical.Foundations.HLevels_temp where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
+open import Cubical.Core.Glue public
+  using (Glue ; glue ; unglue)
 open import Cubical.Foundations.CartesianKanOps
 
 open import Cubical.Data.Sigma
-
-hSet hGroupoid : ∀ ℓ → Type (ℓ-suc ℓ)
-hSet       ℓ = Σ[ A ∈ Type ℓ ] isSet A
-hGroupoid  ℓ = Σ[ A ∈ Type ℓ ] isGroupoid A
 
 private
   variable
     ℓ : Level
     A : Type ℓ
     B : A → Type ℓ
+
+ua : ∀ {A B : Type ℓ} → A ≃ B → A ≡ B
+ua {A = A} {B = B} e i = Glue B (λ { (i = i0) → (A , e)
+                                   ; (i = i1) → (B , idEquiv B) })
+pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
+pathToEquiv p .fst = transport p
+pathToEquiv p .snd = {!!} -- isEquivTransport p
+
+pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
+pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)
+
+uaIdEquiv : {A : Type ℓ} → ua (idEquiv A) ≡ refl
+uaIdEquiv {A = A} i j = Glue A {φ = i ∨ ~ j ∨ j} (λ _ → A , idEquiv A)
+
+ua-pathToEquiv : {A B : Type ℓ} (p : A ≡ B) → ua (pathToEquiv p) ≡ p
+ua-pathToEquiv =
+  J (λ _ p → ua (pathToEquiv p) ≡ p) (cong ua pathToEquivRefl ∙ uaIdEquiv)
+
+hContr hSet hGroupoid : ∀ ℓ → Type (ℓ-suc ℓ)
+hContr     ℓ = Σ[ A ∈ Type ℓ ] isContr A
+hSet       ℓ = Σ[ A ∈ Type ℓ ] isSet A
+hGroupoid  ℓ = Σ[ A ∈ Type ℓ ] isGroupoid A
 
 isPropIsSet : isProp (isSet A)
 isPropIsSet f g i a b = isPropIsProp (f a b) (g a b) i
