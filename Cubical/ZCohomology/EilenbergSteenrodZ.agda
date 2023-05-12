@@ -22,6 +22,7 @@ open import Cubical.Data.Int
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.AbGroup
+import Cubical.Algebra.AbGroup.DirProd as AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Unit
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
@@ -201,9 +202,18 @@ leftInv (suspFunCharac0 {A = A}) =
   SuspCohomElim {A = A} _ (λ _ → isSetSetTrunc _ _)
     λ f fId → cong ∣_∣₂ (funExt (linvLem 0 f fId))
 
+
 -- We now prove that the alternative definition of cohomology is a cohomology theory.
 private
-  -- First, we need to that coHomFunctor' is contravariant
+  -- technical detail
+  commAb : ∀ {ℓ} (n : ℕ) {A : Pointed ℓ}
+          → GroupIso (AbGroup→Group (coHomFunctor' (pos (suc n)) A)) (coHomGr (suc n) (fst A))
+  fst (commAb n) = idIso
+  pres· (snd (commAb n)) _ _ = refl
+  pres1 (snd (commAb n)) = refl
+  presinv (snd (commAb n)) _ = refl
+
+  -- First, we need to show that coHomFunctor' is contravariant
   theMorph : ∀ {ℓ} (n : ℤ) {A B : Pointed ℓ} (f : A →∙ B)
           → AbGroupHom (coHomFunctor' n B) (coHomFunctor' n A)
   fst (theMorph (pos zero) f) = ST.map λ g → (λ x → fst g (fst f x)) , cong (fst g) (snd f) ∙ snd g
@@ -211,7 +221,9 @@ private
     makeIsGroupHom
       (ST.elim2 (λ _ _ → isOfHLevelPath 2 isSetSetTrunc _ _)
               λ f g → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl))
-  theMorph (pos (suc n)) f = coHomMorph _ (fst f)
+  theMorph (pos (suc n)) f = compGroupHom (GroupIso→GroupHom (commAb n))
+                            (compGroupHom (coHomMorph _ (fst f))
+                                          (GroupIso→GroupHom (invGroupIso (commAb n))))
   fst (theMorph (negsuc n) f) = idfun _
   snd (theMorph (negsuc n) f) = makeIsGroupHom λ _ _ → refl
 
@@ -368,8 +380,13 @@ private
   Dimension isCohomTheoryZ' (negsuc n) _ = isContrUnit*
 
   ------------------------ Binary wedges -------------------------
-  BinaryWedge isCohomTheoryZ' (pos zero) = GroupIso→GroupEquiv (H⁰Red-⋁ _ _)
-  BinaryWedge isCohomTheoryZ' (pos (suc n)) = GroupIso→GroupEquiv (Hⁿ-⋁ _ _ n)
+  BinaryWedge isCohomTheoryZ' (pos zero) = GroupIso→GroupEquiv
+                                          (compGroupIso (H⁰Red-⋁ _ _)
+                                          (invGroupIso AbGroup.DirProdForgetComm))
+  BinaryWedge isCohomTheoryZ' (pos (suc n)) = GroupIso→GroupEquiv
+                                              (compGroupIso
+                                              (compGroupIso (commAb n) {!Hⁿ-⋁ _ _ n!})
+                                              (invGroupIso AbGroup.DirProdForgetComm)) -- GroupIso→GroupEquiv (Hⁿ-⋁ _ _ n)
   BinaryWedge isCohomTheoryZ' (negsuc n) =
     GroupIso→GroupEquiv
       (compGroupIso (contrGroupIsoUnit isContrUnit*)

@@ -31,6 +31,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
+import Cubical.Algebra.AbGroup.DirProd as AbGroup
 
 record coHomTheory {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup ℓ') : Type (ℓ-suc (ℓ-max ℓ ℓ'))
   where
@@ -46,4 +47,4 @@ record coHomTheory {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup
               → Ker (Hmap n f)
                ≡ Im (Hmap n {B = _ , inr (pt B)} (cfcod (fst f) , refl))
     Dimension : (n : ℤ) → ¬ n ≡ 0 → isContr (fst (H n Boolℓ))
-    BinaryWedge : (n : ℤ) {A B : Pointed ℓ} → AbGroupEquiv (H n (A ⋁ B , (inl (pt A)))) (dirProdAb (H n A) (H n B))
+    BinaryWedge : (n : ℤ) {A B : Pointed ℓ} → AbGroupEquiv (H n (A ⋁ B , (inl (pt A)))) (AbGroup.DirProd (H n A) (H n B))
