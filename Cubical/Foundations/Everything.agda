@@ -13,7 +13,6 @@ open import Cubical.Foundations.Equiv.BiInvertible public
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels public
-open import Cubical.Foundations.Id public
 open import Cubical.Foundations.Path public
 open import Cubical.Foundations.Pointed public
 open import Cubical.Foundations.RelationalStructure public
