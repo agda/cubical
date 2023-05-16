@@ -131,6 +131,10 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
    basisHyp : Σ[ n ∈ ℕ ] Σ[ u ∈ FinVec (L .fst) n ] (∀ j → u j ∈ B) × (⋁ u ≡ x)
             → isIso C (α .N-ob x)
    basisHyp (n , u , u∈B , ⋁u≡x) = {!!}
+   -- use?
+   -- coverLemma : ∀ (c : ob C) (cc : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c)
+   --            → ∃![ f ∈ C [ c , DLRan F .F-ob (⋁ α) ] ] isConeMor cc restCone f
+
 
  -- notation
  private module _ {F G : Functor Bᵒᵖ C} (α : NatTrans F G) (x : ob Lᵒᵖ) where
