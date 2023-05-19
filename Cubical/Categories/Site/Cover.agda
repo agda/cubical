@@ -13,6 +13,7 @@ open import Cubical.Categories.Constructions.Slice
 
 module Families {ℓX : Level} where
 
+  -- TODO: move this to a more appropriate place
   Fam : (ℓ : Level) → Type ℓX → Type (ℓ-max ℓX (ℓ-suc ℓ))
   Fam ℓ X = TypeWithStr ℓ (λ Y → (Y → X))
 

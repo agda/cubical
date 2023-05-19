@@ -9,7 +9,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
-open import Cubical.Functions.Logic using (∀[]-syntax)
+open import Cubical.Functions.Logic using (∀[]-syntax; ∀[∶]-syntax; _⇒_; _⇔_)
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -35,6 +35,15 @@ module _
 
   open Sieve
 
+  sieveRefinesSieve :
+    {ℓS' ℓS : Level} →
+    {c : ob} →
+    Sieve ℓS' c →
+    Sieve ℓS c →
+    hProp (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS') ℓS)
+  sieveRefinesSieve S' S =
+    ∀[ d ∶ ob ] ∀[ f ∶ Hom[ d , _ ] ] (passes S' f ⇒ passes S f)
+
   generatedSieve : {ℓ : Level} {c : ob} → Cover C ℓ c → Sieve (ℓ-max ℓ' ℓ) c
   passes (generatedSieve cov) f =
       (∃[ i ∈ ⟨ cov ⟩ ] Σ[ h ∈ Hom[ _ , _ ] ] f ≡ h ⋆ patchArr C cov i)
@@ -57,7 +66,25 @@ module _
   coverRefinesSieve cov S =
     ∀[ i ] passes S (patchArr C cov i)
 
-  -- TODO: prove universal property of generatedSieve
+  coverRefinesGeneratedSieve :
+    {ℓ : Level} →
+    {c : ob} →
+    {cov : Cover C ℓ c} →
+    ⟨ coverRefinesSieve cov (generatedSieve cov) ⟩
+  coverRefinesGeneratedSieve i = ∣ i , id , sym (⋆IdL _) ∣₁
+
+  -- The universal property of generatedSieve
+  generatedSieveIsUniversal :
+    {ℓcov ℓsie : Level} →
+    {c : ob} →
+    (cov : Cover C ℓcov c) →
+    (S : Sieve ℓsie c) →
+    ⟨ coverRefinesSieve cov S ⟩ →
+    ⟨ sieveRefinesSieve (generatedSieve cov) S ⟩
+  generatedSieveIsUniversal cov S cov≤S d f =
+    PT.rec (str (passes S f)) (λ (i , g , eq) →
+      subst (⟨_⟩ ∘ passes S) (sym eq)
+        (closedUnderPrecomposition S g (patchArr C cov i) (cov≤S i)) )
 
   pulledBackSieve :
     {ℓsie : Level} →
