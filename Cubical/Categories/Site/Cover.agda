@@ -29,11 +29,18 @@ module _
   Cover : (ℓ'' : Level) → ob C → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓ''))
   Cover ℓ'' c = Fam ℓ'' (ob (SliceCat C c))
 
+module _
+  {ℓ ℓ' : Level}
+  {C : Category ℓ ℓ'}
+  where
+
+  open Category
+
   -- Extracting the members (patches) from a cover.
   module _
     {ℓ'' : Level}
     {c : ob C}
-    (cov : Cover ℓ'' c)
+    (cov : Cover C ℓ'' c)
     (i : ⟨ cov ⟩)
     where
 

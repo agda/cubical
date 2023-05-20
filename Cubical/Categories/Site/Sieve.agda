@@ -53,15 +53,15 @@ module _
 
   generatedSieve : {ℓ : Level} {c : ob} → Cover C ℓ c → Sieve C (ℓ-max ℓ' ℓ) c
   passes (generatedSieve cov) f =
-      (∃[ i ∈ ⟨ cov ⟩ ] Σ[ h ∈ Hom[ _ , _ ] ] f ≡ h ⋆ patchArr C cov i)
+      (∃[ i ∈ ⟨ cov ⟩ ] Σ[ h ∈ Hom[ _ , _ ] ] f ≡ h ⋆ patchArr cov i)
     , isPropPropTrunc
   closedUnderPrecomposition (generatedSieve cov) p f =
     PT.rec isPropPropTrunc λ (i , h , f≡hi) →
       ∣   i
         , (p ⋆ h)
         , ( (p ⋆ f)                      ≡⟨ cong (p ⋆_) f≡hi ⟩
-            (p ⋆ (h ⋆ patchArr C cov i)) ≡⟨ sym (⋆Assoc p h (patchArr C cov i)) ⟩
-            ((p ⋆ h) ⋆ patchArr C cov i) ∎ )
+            (p ⋆ (h ⋆ patchArr cov i)) ≡⟨ sym (⋆Assoc p h (patchArr cov i)) ⟩
+            ((p ⋆ h) ⋆ patchArr cov i) ∎ )
       ∣₁
 
   coverRefinesSieve :
@@ -71,7 +71,7 @@ module _
     Sieve C ℓsie c →
     hProp (ℓ-max ℓcov ℓsie)
   coverRefinesSieve cov S =
-    ∀[ i ] passes S (patchArr C cov i)
+    ∀[ i ] passes S (patchArr cov i)
 
   coverRefinesGeneratedSieve :
     {ℓ : Level} →
@@ -91,7 +91,7 @@ module _
   generatedSieveIsUniversal cov S cov≤S d f =
     PT.rec (str (passes S f)) (λ (i , g , eq) →
       subst (⟨_⟩ ∘ passes S) (sym eq)
-        (closedUnderPrecomposition S g (patchArr C cov i) (cov≤S i)) )
+        (closedUnderPrecomposition S g (patchArr cov i) (cov≤S i)) )
 
   pulledBackSieve :
     {ℓsie : Level} →
