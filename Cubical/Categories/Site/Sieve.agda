@@ -33,18 +33,25 @@ module _
         {d' d : ob} (p : Hom[ d' , d ]) (f : Hom[ d , c ]) →
         ⟨ passes f ⟩ → ⟨ passes (p ⋆ f) ⟩
 
+
+module _
+  {ℓ ℓ' : Level}
+  {C : Category ℓ ℓ'}
+  where
+
+  open Category C hiding (_∘_)
   open Sieve
 
   sieveRefinesSieve :
     {ℓS' ℓS : Level} →
     {c : ob} →
-    Sieve ℓS' c →
-    Sieve ℓS c →
+    Sieve C ℓS' c →
+    Sieve C ℓS c →
     hProp (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS') ℓS)
   sieveRefinesSieve S' S =
     ∀[ d ∶ ob ] ∀[ f ∶ Hom[ d , _ ] ] (passes S' f ⇒ passes S f)
 
-  generatedSieve : {ℓ : Level} {c : ob} → Cover C ℓ c → Sieve (ℓ-max ℓ' ℓ) c
+  generatedSieve : {ℓ : Level} {c : ob} → Cover C ℓ c → Sieve C (ℓ-max ℓ' ℓ) c
   passes (generatedSieve cov) f =
       (∃[ i ∈ ⟨ cov ⟩ ] Σ[ h ∈ Hom[ _ , _ ] ] f ≡ h ⋆ patchArr C cov i)
     , isPropPropTrunc
@@ -61,7 +68,7 @@ module _
     {ℓcov ℓsie : Level}
     {c : ob} →
     Cover C ℓcov c →
-    Sieve ℓsie c →
+    Sieve C ℓsie c →
     hProp (ℓ-max ℓcov ℓsie)
   coverRefinesSieve cov S =
     ∀[ i ] passes S (patchArr C cov i)
@@ -78,7 +85,7 @@ module _
     {ℓcov ℓsie : Level} →
     {c : ob} →
     (cov : Cover C ℓcov c) →
-    (S : Sieve ℓsie c) →
+    (S : Sieve C ℓsie c) →
     ⟨ coverRefinesSieve cov S ⟩ →
     ⟨ sieveRefinesSieve (generatedSieve cov) S ⟩
   generatedSieveIsUniversal cov S cov≤S d f =
@@ -90,8 +97,8 @@ module _
     {ℓsie : Level} →
     {c d : ob} →
     (Hom[ c , d ]) →
-    Sieve ℓsie d →
-    Sieve ℓsie c
+    Sieve C ℓsie d →
+    Sieve C ℓsie c
   passes (pulledBackSieve f S) g = passes S (g ⋆ f)
   closedUnderPrecomposition (pulledBackSieve f S) p g pass =
     subst (⟨_⟩ ∘ passes S) (sym (⋆Assoc p g f))
