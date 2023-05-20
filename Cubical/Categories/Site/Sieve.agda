@@ -23,7 +23,7 @@ module _
   (C : Category ℓ ℓ')
   where
 
-  open Category C hiding (_∘_)
+  open Category C
 
   record Sieve (ℓsie : Level) (c : ob) : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc ℓsie))) where
     no-eta-equality
