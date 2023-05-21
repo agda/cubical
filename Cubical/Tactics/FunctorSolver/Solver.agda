@@ -26,7 +26,7 @@ open NatTrans
 
 module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : Functor 𝓒 𝓓) where
   open FreeFunctor (Ugr 𝓒) (Ugr 𝓓) (𝓕 .F-ob)
-  
+
   Free𝓒 = FG
   η𝓒 = ηG
   Free𝓓 = FH

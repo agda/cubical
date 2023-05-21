@@ -24,19 +24,21 @@ module Eval (𝓒 : Category ℓ ℓ') where
   𝓘 : Functor FreeCat 𝓟
   𝓘 = PseudoYoneda {C = FreeCat}
 
-  -- Semantics in 𝓟o 𝓒, interpreting fun symbols using Yoneda
+  -- Semantics in 𝓟 (𝓒 .ob), interpreting fun symbols using Yoneda
   module YoSem = Semantics 𝓟 (𝓘 ∘Interp η)
   ⟦_⟧yo = YoSem.sem .F-hom
-  
-  -- | Evaluate by taking the semantics in 𝓟 𝓒 and
-  -- | use the Yoneda lemma to extract a morphism in 𝓒.
+
+  -- | Evaluate by taking the semantics in 𝓟 (𝓒 .ob)
   eval : ∀ {A B} → FreeCat [ A , B ] → _
   eval {A}{B} e = ⟦ e ⟧yo
 
+  -- Evaluation agrees with the Yoneda embedding, and so is fully faithful
   Yo-YoSem-agree : 𝓘 ≡ YoSem.sem
   Yo-YoSem-agree = YoSem.sem-uniq refl
 
-  -- | Eval agrees with the tautological semantics
+  -- If two expressions in the free category are equal when evaluated
+  -- in 𝓟 (𝓒 .ob), then they are equal, and so are equal when
+  -- evaluated in 𝓒.
   solve : ∀ {A B} → (e₁ e₂ : FreeCat [ A , B ])
         → eval e₁ ≡ eval e₂
         → ⟦ e₁ ⟧c ≡ ⟦ e₂ ⟧c

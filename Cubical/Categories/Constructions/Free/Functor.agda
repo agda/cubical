@@ -85,7 +85,7 @@ module FreeFunctor (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (ϕ : G .Node �
                      (ıϕ : Id (𝓕 .F-ob ∘f ıG ._$g_) (ıH ._$g_ ∘f ϕ))
            where
       semG = FreeCatG.Semantics.sem 𝓒 ıG
-  
+
       semH-hom : ∀ {A B} → FExp A B → 𝓓 [ ıH $g A , ıH $g B ]
       semH-hom (↑ x) = ıH <$g> x
       semH-hom idₑ = 𝓓 .id
@@ -107,25 +107,25 @@ module FreeFunctor (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (ϕ : G .Node �
                       ((𝓕 ∘F semG) .F-seq e e')
                       ıϕ
       semH-hom (isSetFExp f g p q i j) = 𝓓 .isSetHom (semH-hom f) (semH-hom g) (cong semH-hom p) (cong semH-hom q) i j
-  
+
       semH : Functor FH 𝓓
       semH .F-ob = ıH ._$g_
       semH .F-hom = semH-hom
       semH .F-id = refl
       semH .F-seq f g = refl
-  
+
       semϕ : Id (𝓕 ∘F semG) (semH ∘F Fϕ)
       semϕ = pathToId (FreeCatG.free-cat-functor-ind (funcComp 𝓕 semG) (funcComp semH Fϕ) (GrHom≡ aoo aoe)) where
         𝓕G = (𝓕 .F-ob ∘f ıG ._$g_)
         Hϕ = (ıH ._$g_ ∘f ϕ)
-  
+
         aoo-gen : ∀ (v : Node G) f g
                 → Id {A = G .Node → 𝓓 .ob} f g
                 → Path _ (f v) (g v)
         aoo-gen v f g = J ((λ f' _ → Path _ (f v) (f' v))) refl
         aoo : (v : Node G) → Path _ (((𝓕 ∘F semG) ∘Interp ηG) $g v) (((semH ∘F Fϕ) ∘Interp ηG) $g v)
         aoo v = aoo-gen v 𝓕G Hϕ ıϕ
-  
+
         aoe : {v w : Node G} (e : G .Edge v w) →
               PathP (λ i → 𝓓 .Hom[_,_] (aoo v i) (aoo w i))
                     (𝓕 ⟪ semG ⟪ ↑ e ⟫ ⟫)
@@ -196,7 +196,7 @@ module FreeFunctor (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (ϕ : G .Node �
                            (𝓕 ⟪ arb𝓒 ⟪ e ⟫ ⟫)
                            (𝓕 ⟪ semG ⟪ e ⟫ ⟫)
                   lem𝓒 i = 𝓕 ⟪ sem-uniq-G i ⟪ e ⟫ ⟫
-                  
+
                   substOf-sems-agreeϕ : ((λ i → 𝓓 [ 𝓕 ⟅ arb𝓒-agree (~ i) $g v ⟆ , 𝓕 ⟅ arb𝓒-agree (~ i) $g w ⟆ ]) ∙ (λ i → 𝓓 [ arb𝓕 i ⟅ v ⟆ , arb𝓕 i ⟅ w ⟆ ]))
                                 ≡ ((λ i → 𝓓 [ ıϕp i v , ıϕp i w ]) ∙ (λ i → 𝓓 [ arb𝓓-agree (~ i) $g ϕ v , arb𝓓-agree (~ i) $g ϕ w ]))
                   substOf-sems-agreeϕ =
