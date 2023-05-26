@@ -199,8 +199,6 @@ g9 p = coe0→1 (λ i → codeTruncS¹ (p i) .fst) ∣ pos 0 ∣₀
 g10 : ∥ ℤ ∥₀ → ℤ
 g10 = rec₀ isSetℤ (λ x → x)
 
--- TODO: define η₁ and η₂ and some more maps
-
 -- Original η₃ as in the paper
 η₃ : join S¹ S¹ → Susp S²
 η₃ (inl x) = north
@@ -236,6 +234,38 @@ g10 = rec₀ isSetℤ (λ x → x)
 β₃'-pos : ℤ
 β₃'-pos = g10 (g9 (g8 λ i j → f7 λ k → η₃' (push (loop (~ i)) (loop j) k)))
 
-brunerie'≡2 : β₃'-pos ≡ pos 2
-brunerie'≡2 = refl
+β₃'≡2 : β₃'-pos ≡ pos 2
+β₃'≡2 = refl
 
+
+-- β₂
+
+invLooper : S¹ → S¹
+invLooper base = base
+invLooper (loop i) = loop (~ i)
+
+η₂ : join S¹ S¹ → join S¹ S¹
+η₂ (inl x) = inr (invLooper x)
+η₂ (inr x) = inr x
+η₂ (push a b i) =
+    (sym (push (b · invLooper a) (invLooper a)) ∙ push (b · invLooper a) b) i
+
+-- S¹×S¹→S²' : S¹ → S¹ → Susp (Susp S¹)
+-- S¹×S¹→S²' base y = north
+-- S¹×S¹→S²' (loop i) base = north
+-- S¹×S¹→S²' (loop i) (loop j) = {!!}
+-- --   (sym (rCancel (merid base))
+-- --   ∙∙ (λ i → merid (loop i) ∙ sym (merid base))
+-- --   ∙∙ rCancel (merid base)) i j
+
+-- joinS¹S¹→S³ : join S¹ S¹ → Susp S²
+-- joinS¹S¹→S³ (inl x) = north
+-- joinS¹S¹→S³ (inr x) = north
+-- joinS¹S¹→S³ (push a b i) = {!merid (S¹×S¹→S²' a b) i!} -- 
+
+-- β₂ : ℤ
+-- β₂ = g10 (g9 (g8 λ i j → f7 λ k → joinS¹S¹→S³ (η₂ (push (loop i) (loop j) k))))
+
+
+
+-- TODO: define β₁
