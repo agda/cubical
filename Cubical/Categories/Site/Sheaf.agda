@@ -9,7 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.Equiv
 
-open import Cubical.Functions.Logic -- using (∀[]-syntax; ∀[∶]-syntax; _⇒_; _⇔_)
+open import Cubical.Functions.Logic using (∀[]-syntax; ∀[∶]-syntax; _⇒_; _⇔_)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Site.Cover
