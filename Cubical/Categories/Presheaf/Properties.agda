@@ -16,6 +16,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Data.Sigma
 
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
+
 import Cubical.Categories.Morphism as Morphism
 import Cubical.Categories.Constructions.Slice as Slice
 import Cubical.Categories.Constructions.Elements as Elements
@@ -33,7 +35,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
   open Category
   open Functor
   open _≃ᶜ_
-  open isEquivalence
+  open WeakInverse
   open NatTrans
   open NatIso
   open Slice (PresheafCategory C ℓS) F
@@ -382,12 +384,14 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
 
   preshSlice≃preshElem : SliceCat ≃ᶜ PresheafCategory (∫ᴾ F) ℓS
   preshSlice≃preshElem .func = K
-  preshSlice≃preshElem .isEquiv .invFunc = L
-  preshSlice≃preshElem .isEquiv .η .trans = ηTrans
-  preshSlice≃preshElem .isEquiv .η .nIso = ηIso
-  preshSlice≃preshElem .isEquiv .ε .trans = εTrans
-  preshSlice≃preshElem .isEquiv .ε .nIso = εIso
-
+  preshSlice≃preshElem .isEquiv = ∣ w-inv ∣₁
+    where
+      w-inv : WeakInverse K
+      w-inv .invFunc = L
+      w-inv .η .trans = ηTrans
+      w-inv .η .nIso = ηIso
+      w-inv .ε .trans = εTrans
+      w-inv .ε .nIso = εIso
 
 -- Isomorphism between presheaves of different levels
 PshIso : (C : Category ℓ ℓ') (P : Presheaf C ℓS) (Q : Presheaf C ℓS') → Type _
