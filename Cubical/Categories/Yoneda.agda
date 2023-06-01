@@ -216,11 +216,7 @@ module _ {C : Category ℓ ℓ'} where
   open Category C
 
   yo : ob → Functor (C ^op) (SET ℓ')
-  yo x .F-ob y .fst = C [ y , x ]
-  yo x .F-ob y .snd = isSetHom
-  yo x .F-hom f g = f ⋆⟨ C ⟩ g
-  yo x .F-id i f = ⋆IdL f i
-  yo x .F-seq f g i h = ⋆Assoc g f h i
+  yo x = C [-, x ]
 
   YO : Functor C (PresheafCategory C ℓ')
   YO .F-ob = yo
