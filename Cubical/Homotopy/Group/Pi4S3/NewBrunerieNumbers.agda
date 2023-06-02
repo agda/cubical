@@ -293,9 +293,18 @@ S³→SuspS²' (merid x i) = merid (S²→S²' x) i
 joinS¹S¹→SuspS²' : join S¹ S¹ → Susp S²'
 joinS¹S¹→SuspS²' x = S³→SuspS²' (joinS¹S¹→S³ x)
 
-β₂ : ℤ
-β₂ = g10 (g9 (g8 λ i j → f7 (λ k → joinS¹S¹→SuspS²' (η₂ (push (loop i) (loop j) k)))))
+-- β₂ : ℤ
+-- β₂ = g10 (g9 (g8 λ i j → f7 (λ k → joinS¹S¹→SuspS²' (η₂ (push (loop i) (loop j) k)))))
 
 
 
--- TODO: define β₁
+-- And now β₁
+
+η₁ : join S¹ S¹ → S²
+η₁ (inl x) = north
+η₁ (inr x) = north
+η₁ (push a b i) =  (σ₁ b ∙ σ₁ a) i
+  where
+  σ₁ : S¹ → north ≡ north
+  σ₁ x = merid x ∙ sym (merid base)
+
