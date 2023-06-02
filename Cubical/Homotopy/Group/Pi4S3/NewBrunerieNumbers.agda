@@ -51,16 +51,18 @@ rotIsEquiv (loop i) = isPropFamS¹ (λ x → isEquiv (x ·_))
                                   (idIsEquiv _) i
 
 -- S2
-data S² : Type₀ where
-  base : S²
+
+-- Direct S², useful for later part of the definition (or is it?)
+data S²' : Type₀ where
+  base : S²'
   surf : PathP (λ i → base ≡ base) refl refl
 
-S²ToSetElim : {A : S² → Type ℓ}
-            → ((x : S²) → isSet (A x))
+S²ToSetElim' : {A : S²' → Type ℓ}
+            → ((x : S²') → isSet (A x))
             → A base
-            → (x : S²) → A x
-S²ToSetElim set b base = b
-S²ToSetElim set b (surf i j) =
+            → (x : S²') → A x
+S²ToSetElim' set b base = b
+S²ToSetElim' set b (surf i j) =
   isOfHLevel→isOfHLevelDep 2 set b b {a0 = refl} {a1 = refl} refl refl surf i j
 
 -- Join
@@ -123,14 +125,16 @@ data Susp (A : Type ℓ) : Type ℓ where
   south : Susp A
   merid : (a : A) → north ≡ south
 
+S² : Type₀
+S² = Susp S¹
 
 -- Pointed
 Pointed₀ : Type₁
 Pointed₀ = Σ[ X ∈ Type₀ ] X
 
-S¹∙ S²∙ : Pointed₀
+S¹∙ S²'∙ : Pointed₀
 S¹∙ = (S¹ , base)
-S²∙ = (S² , base)
+S²'∙ = (S²' , base)
 
 Susp∙ : Type₀ → Pointed₀
 Susp∙ A = Susp A , north
@@ -144,50 +148,50 @@ Susp∙ A = Susp A , north
 Ω² p = Ω (Ω p)
 
 -- The maps
-σ : S² → Ω (Susp∙ S²) .fst
-σ x = merid x ∙ sym (merid base)
+σ' : S²' → Ω (Susp∙ S²') .fst
+σ' x = merid x ∙ sym (merid base)
 
-S¹×S¹→S² : S¹ → S¹ → S²
-S¹×S¹→S² base y = base
-S¹×S¹→S² (loop i) base = base
-S¹×S¹→S² (loop i) (loop j) = surf i j
+S¹×S¹→S²' : S¹ → S¹ → S²'
+S¹×S¹→S²' base y = base
+S¹×S¹→S²' (loop i) base = base
+S¹×S¹→S²' (loop i) (loop j) = surf i j
 
-f7 : Ω (Susp∙ S²) .fst → ∥ S² ∥₂
+f7 : Ω (Susp∙ S²') .fst → ∥ S²' ∥₂
 f7 p = coe0→1 (λ i → Code (p i)) ∣ base ∣₂
   where
-  _+₂_ : ∥ S² ∥₂ → ∥ S² ∥₂ → ∥ S² ∥₂
+  _+₂_ : ∥ S²' ∥₂ → ∥ S²' ∥₂ → ∥ S²' ∥₂
   _+₂_ = rec₂ (is2GroupoidΠ λ _ → squash₂)
              λ { base x → x
                ; (surf i j) x → surfc x i j}
     where
-    surfc : (x : ∥ S² ∥₂) → refl {x = x} ≡ refl {x = x}
+    surfc : (x : ∥ S²' ∥₂) → refl {x = x} ≡ refl {x = x}
     surfc = elim₂ (λ x → isOfHLevelPath 4 (isOfHLevelPath 4 squash₂ _ _) refl refl)
-                  (S²ToSetElim (λ _ → squash₂ _ _ _ _) λ i j → ∣ surf i j ∣₂)
+                  (S²ToSetElim' (λ _ → squash₂ _ _ _ _) λ i j → ∣ surf i j ∣₂)
 
-  ∥S²∥₂≃∥S²∥₂ : (x : S²) → ∥ S² ∥₂ ≃ ∥ S² ∥₂
-  fst (∥S²∥₂≃∥S²∥₂ x) = ∣ x ∣₂ +₂_
-  snd (∥S²∥₂≃∥S²∥₂ x) = help x
+  ∥S²'∥₂≃∥S²'∥₂ : (x : S²') → ∥ S²' ∥₂ ≃ ∥ S²' ∥₂
+  fst (∥S²'∥₂≃∥S²'∥₂ x) = ∣ x ∣₂ +₂_
+  snd (∥S²'∥₂≃∥S²'∥₂ x) = help x
     where
     help : (x : _) → isEquiv (λ y → ∣ x ∣₂ +₂ y)
-    help = S²ToSetElim (λ _ → isProp→isSet (isPropIsEquiv _)) (idIsEquiv _)
+    help = S²ToSetElim' (λ _ → isProp→isSet (isPropIsEquiv _)) (idIsEquiv _)
 
-  Code : Susp S² → Type₀
-  Code north = ∥ S² ∥₂
-  Code south = ∥ S² ∥₂
-  Code (merid a i) = ua (∥S²∥₂≃∥S²∥₂ a) i
+  Code : Susp S²' → Type₀
+  Code north = ∥ S²' ∥₂
+  Code south = ∥ S²' ∥₂
+  Code (merid a i) = ua (∥S²'∥₂≃∥S²'∥₂ a) i
 
-g8 : Ω² ∥ S²∙ ∥₂∙ .fst → Ω ∥ S¹∙ ∥₁∙ .fst
-g8 p i =  coe0→1 (λ j → codeTruncS² (p i j) .fst) ∣ base ∣₁
+g8 : Ω² ∥ S²'∙ ∥₂∙ .fst → Ω ∥ S¹∙ ∥₁∙ .fst
+g8 p i =  coe0→1 (λ j → codeTruncS²' (p i j) .fst) ∣ base ∣₁
   where
-  HopfS² : S² → Type₀
-  HopfS² base = S¹
-  HopfS² (surf i j) = Glue S¹ (λ { (i = i0) → S¹ , idEquiv S¹
+  HopfS²' : S²' → Type₀
+  HopfS²' base = S¹
+  HopfS²' (surf i j) = Glue S¹ (λ { (i = i0) → S¹ , idEquiv S¹
                                  ; (i = i1) → S¹ , idEquiv S¹
                                  ; (j = i0) → S¹ , idEquiv S¹
                                  ; (j = i1) → S¹ , (loop i) ·_  , rotIsEquiv (loop i) } )
 
-  codeTruncS² : ∥ S² ∥₂ → hGroupoid _
-  codeTruncS² = rec₂ (isOfHLevelTypeOfHLevel 3) (λ s → ∥ HopfS² s ∥₁ , squash₁)
+  codeTruncS²' : ∥ S²' ∥₂ → hGroupoid _
+  codeTruncS²' = rec₂ (isOfHLevelTypeOfHLevel 3) (λ s → ∥ HopfS²' s ∥₁ , squash₁)
 
 g9 : Ω ∥ S¹∙ ∥₁∙ .fst → ∥ ℤ ∥₀
 g9 p = coe0→1 (λ i → codeTruncS¹ (p i) .fst) ∣ pos 0 ∣₀
@@ -200,18 +204,18 @@ g10 : ∥ ℤ ∥₀ → ℤ
 g10 = rec₀ isSetℤ (λ x → x)
 
 -- Original η₃ as in the paper
-η₃ : join S¹ S¹ → Susp S²
+η₃ : join S¹ S¹ → Susp S²'
 η₃ (inl x) = north
 η₃ (inr x) = north
 η₃ (push a b i) =
-  (sym (σ (S¹×S¹→S² a b)) ∙ sym (σ (S¹×S¹→S² a b))) i
+  (sym (σ' (S¹×S¹→S²' a b)) ∙ sym (σ' (S¹×S¹→S²' a b))) i
 
 -- Dropping the syms makes it compute fast (why?! maybe some slow inverse map gets applied with the sym?)
-η₃' : join S¹ S¹ → Susp S²
+η₃' : join S¹ S¹ → Susp S²'
 η₃' (inl x) = north
 η₃' (inr x) = north
 η₃' (push a b i) =
-  (σ (S¹×S¹→S² a b) ∙ σ (S¹×S¹→S² a b)) i
+  (σ' (S¹×S¹→S²' a b) ∙ σ' (S¹×S¹→S²' a b)) i
 
 -- Remark: dropping only one sym does not seem to make it fast enough
 
@@ -238,7 +242,7 @@ g10 = rec₀ isSetℤ (λ x → x)
 β₃'≡2 = refl
 
 
--- β₂
+-- We now define β₂
 
 invLooper : S¹ → S¹
 invLooper base = base
@@ -250,21 +254,43 @@ invLooper (loop i) = loop (~ i)
 η₂ (push a b i) =
     (sym (push (b · invLooper a) (invLooper a)) ∙ push (b · invLooper a) b) i
 
--- S¹×S¹→S²' : S¹ → S¹ → Susp (Susp S¹)
--- S¹×S¹→S²' base y = north
--- S¹×S¹→S²' (loop i) base = north
--- S¹×S¹→S²' (loop i) (loop j) = {!!}
--- --   (sym (rCancel (merid base))
--- --   ∙∙ (λ i → merid (loop i) ∙ sym (merid base))
--- --   ∙∙ rCancel (merid base)) i j
+rCancel : {A : Type ℓ} {x y : A} (p : x ≡ y) → p ∙ sym p ≡ refl
+rCancel {x = x} p j i =
+  hcomp (λ k → λ { (i = i0) → x
+                  ; (i = i1) → p (~ k ∧ ~ j)
+                  ; (j = i1) → x
+                  }) (p (i ∧ ~ j))
 
--- joinS¹S¹→S³ : join S¹ S¹ → Susp S²
--- joinS¹S¹→S³ (inl x) = north
--- joinS¹S¹→S³ (inr x) = north
--- joinS¹S¹→S³ (push a b i) = {!merid (S¹×S¹→S²' a b) i!} -- 
+_∙∙_∙∙_ : {A : Type ℓ} {w x y z : A} → w ≡ x → x ≡ y → y ≡ z → w ≡ z
+(p ∙∙ q ∙∙ r) i =
+  hcomp (λ j → λ { (i = i0) → p (~ j) ; (i = i1) → r j}) (q i)
 
--- β₂ : ℤ
--- β₂ = g10 (g9 (g8 λ i j → f7 λ k → joinS¹S¹→S³ (η₂ (push (loop i) (loop j) k))))
+S¹×S¹→S² : S¹ → S¹ → S²
+S¹×S¹→S² base y = north
+S¹×S¹→S² (loop i) base = north
+S¹×S¹→S² (loop i) (loop j) =
+     (sym (rCancel (merid base))
+  ∙∙ (λ i → merid (loop i) ∙ sym (merid base))
+  ∙∙ rCancel (merid base)) i j
+
+joinS¹S¹→S³ : join S¹ S¹ → Susp S²
+joinS¹S¹→S³ (inl x) = north
+joinS¹S¹→S³ (inr x) = south
+joinS¹S¹→S³ (push a b i) = merid (S¹×S¹→S² a b) i
+
+SuspS¹→S²' : Susp S¹ → S²'
+SuspS¹→S²' north = base
+SuspS¹→S²' south = base
+SuspS¹→S²' (merid base i) = base
+SuspS¹→S²' (merid (loop i) j) = surf i j
+
+SuspSuspS¹→SuspS²' : Susp (Susp S¹) → Susp S²'
+SuspSuspS¹→SuspS²' north = north
+SuspSuspS¹→SuspS²' south = south
+SuspSuspS¹→SuspS²' (merid x i) = merid (SuspS¹→S²' x) i
+
+β₂ : ℤ
+β₂ = g10 (g9 (g8 λ i j → f7 (λ k → SuspSuspS¹→SuspS²' (joinS¹S¹→S³ (η₂ (push (loop i) (loop j) k))))))
 
 
 
