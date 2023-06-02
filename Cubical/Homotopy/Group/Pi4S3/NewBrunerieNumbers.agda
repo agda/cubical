@@ -125,8 +125,9 @@ data Susp (A : Type ℓ) : Type ℓ where
   south : Susp A
   merid : (a : A) → north ≡ south
 
-S² : Type₀
+S² S³ : Type₀
 S² = Susp S¹
+S³ = Susp S²
 
 -- Pointed
 Pointed₀ : Type₁
@@ -273,24 +274,27 @@ S¹×S¹→S² (loop i) (loop j) =
   ∙∙ (λ i → merid (loop i) ∙ sym (merid base))
   ∙∙ rCancel (merid base)) i j
 
-joinS¹S¹→S³ : join S¹ S¹ → Susp S²
+joinS¹S¹→S³ : join S¹ S¹ → S³
 joinS¹S¹→S³ (inl x) = north
 joinS¹S¹→S³ (inr x) = south
 joinS¹S¹→S³ (push a b i) = merid (S¹×S¹→S² a b) i
 
-SuspS¹→S²' : Susp S¹ → S²'
-SuspS¹→S²' north = base
-SuspS¹→S²' south = base
-SuspS¹→S²' (merid base i) = base
-SuspS¹→S²' (merid (loop i) j) = surf i j
+S²→S²' : S² → S²'
+S²→S²' north = base
+S²→S²' south = base
+S²→S²' (merid base i) = base
+S²→S²' (merid (loop i) j) = surf i j
 
-SuspSuspS¹→SuspS²' : Susp (Susp S¹) → Susp S²'
-SuspSuspS¹→SuspS²' north = north
-SuspSuspS¹→SuspS²' south = south
-SuspSuspS¹→SuspS²' (merid x i) = merid (SuspS¹→S²' x) i
+S³→SuspS²' : S³ → Susp S²'
+S³→SuspS²' north = north
+S³→SuspS²' south = south
+S³→SuspS²' (merid x i) = merid (S²→S²' x) i
+
+joinS¹S¹→SuspS²' : join S¹ S¹ → Susp S²'
+joinS¹S¹→SuspS²' x = S³→SuspS²' (joinS¹S¹→S³ x)
 
 β₂ : ℤ
-β₂ = g10 (g9 (g8 λ i j → f7 (λ k → SuspSuspS¹→SuspS²' (joinS¹S¹→S³ (η₂ (push (loop i) (loop j) k))))))
+β₂ = g10 (g9 (g8 λ i j → f7 (λ k → joinS¹S¹→SuspS²' (η₂ (push (loop i) (loop j) k)))))
 
 
 
