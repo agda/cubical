@@ -39,9 +39,14 @@ open NatTrans
 open UnivElt
 open isUniversal
 
-module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'} (F : Functor C D) (P : Presheaf C ℓp) (Q : Presheaf D ℓq) where
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+         (F : Functor C D)
+         (P : Presheaf C ℓp)
+         (Q : Presheaf D ℓq) where
   PshHom : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq)
-  PshHom = PresheafCategory C (ℓ-max ℓp ℓq) [ LiftF {ℓp}{ℓq} ∘F P , LiftF {ℓq}{ℓp} ∘F Q ∘F (F ^opF) ]
+  PshHom =
+    PresheafCategory C (ℓ-max ℓp ℓq)
+      [ LiftF {ℓp}{ℓq} ∘F P , LiftF {ℓq}{ℓp} ∘F Q ∘F (F ^opF) ]
 
   module _ (h : PshHom) where
     -- This should define a functor on the category of elements
@@ -62,12 +67,14 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'} (F : Functor C D) (P
         ≡⟨ cong (λ a → push-elt a .snd) (ΣPathP (refl , (sym commutes))) ⟩
       push-elt x .snd ∎)
     push-eltF .F-id = Σ≡Prop (λ x → (Q ⟅ _ ⟆) .snd _ _) (F .F-id)
-    push-eltF .F-seq f g = Σ≡Prop ((λ x → (Q ⟅ _ ⟆) .snd _ _)) (F .F-seq (f .fst) (g .fst))
+    push-eltF .F-seq f g =
+      Σ≡Prop ((λ x → (Q ⟅ _ ⟆) .snd _ _)) (F .F-seq (f .fst) (g .fst))
 
-    preserves-representation : ∀ (η : UnivElt C P) → Type (ℓ-max (ℓ-max ℓd ℓd') ℓq)
+    preserves-representation : ∀ (η : UnivElt C P)
+                             → Type (ℓ-max (ℓ-max ℓd ℓd') ℓq)
     preserves-representation η = isUniversal D Q (push-elt (elementᴾ _ _ η))
 
-    preserves-representability : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓd) ℓd') ℓp) ℓq)
+    preserves-representability : Type _
     preserves-representability = ∀ η → preserves-representation η
 
     -- What is the nice HoTT formulation of this?

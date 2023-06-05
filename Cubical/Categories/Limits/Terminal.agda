@@ -56,7 +56,9 @@ module _ (C : Category ℓ ℓ') where
   isoToTerminal : ∀ (x : Terminal) y → CatIso C (terminalOb x) y → isTerminal y
   isoToTerminal x y x≅y y' .fst = x≅y .fst ∘⟨ C ⟩ terminalArrow x y'
   isoToTerminal x y x≅y y' .snd f =
-    sym (⋆InvRMove (invIso x≅y) (sym (terminalArrowUnique {T = x} (invIso x≅y .fst ∘⟨ C ⟩ f))))
+    sym (⋆InvRMove
+          (invIso x≅y)
+          (sym (terminalArrowUnique {T = x} (invIso x≅y .fst ∘⟨ C ⟩ f))))
 
   open isUnivalent
 

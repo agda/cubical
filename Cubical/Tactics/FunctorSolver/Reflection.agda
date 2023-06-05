@@ -45,25 +45,36 @@ module ReflectionSolver where
     -- Parse the input into an exp
     buildDomExpression : Term → Term
     buildDomExpression “id” = con (quote FreeCategory.idₑ) []
-    buildDomExpression (“⋆” f g) = con (quote FreeCategory._⋆ₑ_) (buildDomExpression f v∷ buildDomExpression g v∷ [])
+    buildDomExpression (“⋆” f g) =
+      con (quote FreeCategory._⋆ₑ_)
+          (buildDomExpression f v∷ buildDomExpression g v∷ [])
     buildDomExpression f = con (quote FreeCategory.↑_) (f v∷ [])
 
     buildCodExpression : Term → TC Term
     buildCodExpression “id” = returnTC (con (quote FreeFunctor.idₑ) [])
-    buildCodExpression (“⋆” f g) = ((λ fe ge → (con (quote FreeFunctor._⋆ₑ_) (fe v∷ ge v∷ []))) <$> buildCodExpression f) <*> buildCodExpression g
+    buildCodExpression (“⋆” f g) =
+      ((λ fe ge → (con (quote FreeFunctor._⋆ₑ_) (fe v∷ ge v∷ [])))
+        <$> buildCodExpression f)
+        <*> buildCodExpression g
     buildCodExpression (“F” functor' f) = do
       unify functor functor'
       returnTC (con (quote FreeFunctor.F⟪_⟫) (buildDomExpression f v∷ []))
     buildCodExpression f = returnTC (con (quote FreeFunctor.↑_) (f v∷ []))
 
-  solve-macro : Bool -- ^ whether to give the more detailed but messier error message on failure
+  solve-macro : Bool -- ^ whether to give the more detailed but messier error
+                     --   message on failure
               → Term -- ^ The term denoting the domain category
               → Term -- ^ The term denoting the codomain category
               → Term -- ^ The term denoting the functor
-              → Term -- ^ The hole whose goal should be an equality between morphisms in the codomain category
+              → Term -- ^ The hole whose goal should be an equality between
+                     --   morphisms in the codomain category
               → TC Unit
   solve-macro b dom cod fctor =
-    equation-solver (quote Category.id ∷ quote Category._⋆_ ∷ quote Functor.F-hom ∷ []) mk-call b where
+    equation-solver
+      (quote Category.id ∷ quote Category._⋆_ ∷ quote Functor.F-hom ∷ [])
+      mk-call
+      b
+      where
 
       mk-call : Term → Term → TC Term
       mk-call lhs rhs = do

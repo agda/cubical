@@ -52,8 +52,13 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
         → (e e' : Free𝓓 [ A , B ])
         → (p : Path _ (YoSem.semH ⟪ e ⟫) (YoSem.semH ⟪ e' ⟫))
         → Path _ (TautoSem.semH ⟪ e ⟫) (TautoSem.semH ⟪ e' ⟫)
-  solve {A}{B} e e' p = congPath (TautoSem.semH .F-hom) (isFaithfulPseudoYoneda _ _ _ _ lem) where
+  solve {A}{B} e e' p =
+    congPath (TautoSem.semH .F-hom) (isFaithfulPseudoYoneda _ _ _ _ lem) where
     lem : Path _ (PsYo ⟪ e ⟫) (PsYo ⟪ e' ⟫)
-    lem = transportPath (λ i → Path _ (Yo-YoSem-Agree (~ i) ⟪ e ⟫) (Yo-YoSem-Agree (~ i) ⟪ e' ⟫)) p
+    lem = transportPath
+          (λ i → Path _
+                      (Yo-YoSem-Agree (~ i) ⟪ e ⟫)
+                      (Yo-YoSem-Agree (~ i) ⟪ e' ⟫))
+          p
 
 solve = Eval.solve

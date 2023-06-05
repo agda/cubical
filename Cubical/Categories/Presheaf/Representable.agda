@@ -46,14 +46,18 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   hasUniversalElement = ∥ UniversalElement ∥₁
 
   -- A packaged record version that is easier to use
-  record isUniversal (η : Elementᴾ {C = C} P) : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp) where
+  record isUniversal (η : Elementᴾ {C = C} P) : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
+         where
     private
       vertex = η .fst
       element = η .snd
     field
       coinduction : ∀ {b} → (P ⟅ b ⟆) .fst → C [ b , vertex ]
-      commutes : ∀ {b} (ϕ : (P ⟅ b ⟆) .fst) → C [ element ∘ᴾ⟨ P ⟩ coinduction ϕ ] ≡ ϕ
-      is-uniq : ∀ {b} (ϕ : (P ⟅ b ⟆) .fst) f → (C [ element ∘ᴾ⟨ P ⟩ f ] ≡ ϕ) → f ≡ coinduction ϕ
+      commutes : ∀ {b} (ϕ : (P ⟅ b ⟆) .fst)
+               → C [ element ∘ᴾ⟨ P ⟩ coinduction ϕ ] ≡ ϕ
+      is-uniq : ∀ {b} (ϕ : (P ⟅ b ⟆) .fst) f
+              → (C [ element ∘ᴾ⟨ P ⟩ f ] ≡ ϕ)
+              → f ≡ coinduction ϕ
 
   record UnivElt : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp) where
     field
@@ -68,11 +72,15 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   elementᴾ η = (η .vertex , η .element)
 
   private
-    univEltMor : ∀ η {η' : Elementᴾ {C = C} P} → (η'-univ : isUniversal η') → C [ η .fst , η' .fst ]
+    univEltMor : ∀ η {η' : Elementᴾ {C = C} P}
+               → (η'-univ : isUniversal η')
+               → C [ η .fst , η' .fst ]
     univEltMor η η'-univ = η'-univ .coinduction (η .snd)
 
-    univEltLemma : ∀ {η η' : Elementᴾ {C = C} P} → (η-univ : isUniversal η) → (η'-univ : isUniversal η') →
-                 univEltMor η η'-univ ∘⟨ C ⟩ univEltMor η' η-univ ≡ C .id
+    univEltLemma : ∀ {η η' : Elementᴾ {C = C} P}
+                 → (η-univ : isUniversal η)
+                 → (η'-univ : isUniversal η')
+                 → univEltMor η η'-univ ∘⟨ C ⟩ univEltMor η' η-univ ≡ C .id
     univEltLemma {η}{η'} η-univ η'-univ =
       η'-univ .coinduction (η .snd) ∘⟨ C ⟩ η-univ .coinduction (η' .snd)
         ≡⟨ η'-univ .is-uniq (η' .snd) _ lem ⟩
@@ -80,12 +88,20 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
         ≡⟨ sym (η'-univ .is-uniq _ (C .id) (∘ᴾId C P (η' .snd))) ⟩
       C .id ∎ where
 
-      lem : (C [ η' .snd ∘ᴾ⟨ P ⟩ η'-univ .coinduction (η .snd) ∘⟨ C ⟩ η-univ .coinduction (η' .snd) ]) ≡ η' .snd
+      lem : (C [ η' .snd
+               ∘ᴾ⟨ P ⟩ η'-univ .coinduction (η .snd)
+               ∘⟨ C ⟩ η-univ .coinduction (η' .snd) ])
+            ≡ η' .snd
       lem =
-        (C [ η' .snd ∘ᴾ⟨ P ⟩ η'-univ .coinduction (η .snd) ∘⟨ C ⟩ η-univ .coinduction (η' .snd) ])
+        (C [ η' .snd
+             ∘ᴾ⟨ P ⟩ η'-univ .coinduction (η .snd)
+             ∘⟨ C ⟩ η-univ .coinduction (η' .snd) ])
           ≡⟨ ∘ᴾAssoc C P _ _ _ ⟩
-        (C [ C [ η' .snd ∘ᴾ⟨ P ⟩ η'-univ .coinduction (η .snd) ] ∘ᴾ⟨ P ⟩ η-univ .coinduction (η' .snd) ])
-          ≡[ i ]⟨ C [ η'-univ .commutes (η .snd) i ∘ᴾ⟨ P ⟩ η-univ .coinduction (η' .snd) ] ⟩
+        (C [ C [ η' .snd
+                 ∘ᴾ⟨ P ⟩ η'-univ .coinduction (η .snd) ]
+                 ∘ᴾ⟨ P ⟩ η-univ .coinduction (η' .snd) ])
+          ≡[ i ]⟨ C [ η'-univ .commutes (η .snd) i
+                      ∘ᴾ⟨ P ⟩ η-univ .coinduction (η' .snd) ] ⟩
         (C [ η .snd ∘ᴾ⟨ P ⟩ η-univ .coinduction (η' .snd) ])
           ≡⟨ η-univ .commutes _ ⟩
         η' .snd ∎
@@ -98,15 +114,19 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   univEltIso {η}{η'} η-univ η'-univ .snd .isIso.ret = univEltLemma η'-univ η-univ
 
   -- First the logical equivalence
-  isTerminalElement→isUniversal : ∀ {η : Elementᴾ {C = C} P} → isTerminal Elements η → isUniversal η
+  isTerminalElement→isUniversal : ∀ {η : Elementᴾ {C = C} P}
+                                → isTerminal Elements η → isUniversal η
   isTerminalElement→isUniversal {η} term .coinduction ϕ = term (_ , ϕ) .fst .fst
   isTerminalElement→isUniversal term .commutes ϕ = sym (term (_ , ϕ) .fst .snd)
   isTerminalElement→isUniversal term .is-uniq ϕ f commutes i =
     term (_ , ϕ) .snd (f , sym commutes) (~ i) .fst
 
-  isUniversal→isTerminalElement : ∀ {η : Elementᴾ {C = C} P} → isUniversal η → isTerminal Elements η
-  isUniversal→isTerminalElement η-univ ϕ .fst .fst = η-univ .coinduction (ϕ .snd)
-  isUniversal→isTerminalElement η-univ ϕ .fst .snd = sym (η-univ .commutes (ϕ .snd))
+  isUniversal→isTerminalElement : ∀ {η : Elementᴾ {C = C} P} → isUniversal η
+                                → isTerminal Elements η
+  isUniversal→isTerminalElement η-univ ϕ .fst .fst =
+    η-univ .coinduction (ϕ .snd)
+  isUniversal→isTerminalElement η-univ ϕ .fst .snd =
+    sym (η-univ .commutes (ϕ .snd))
   isUniversal→isTerminalElement η-univ ϕ .snd f =
     Σ≡Prop (λ x → (P ⟅ _ ⟆) .snd _ _)
            (sym (η-univ .is-uniq (ϕ .snd) (f .fst) (sym (f .snd))))
@@ -137,32 +157,53 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   UniversalElement≅UnivElt .Iso.fun = UniversalElement→UnivElt
   UniversalElement≅UnivElt .Iso.inv = UnivElt→UniversalElement
   UniversalElement≅UnivElt .Iso.rightInv η = refl
-  UniversalElement≅UnivElt .Iso.leftInv η = Σ≡Prop (isPropIsTerminal Elements) refl
+  UniversalElement≅UnivElt .Iso.leftInv η =
+    Σ≡Prop (isPropIsTerminal Elements) refl
 
   open NatTrans
   isTerminalElement→YoIso : (η : Terminal Elements)
     → Cubical.Categories.Category.isIso
        (PresheafCategory C (ℓ-max ℓh ℓp))
        (Iso.inv (yonedaᴾ* {C = C} P (η .fst .fst)) (η .fst .snd))
-  isTerminalElement→YoIso ((A , η) , η-univ) = FUNCTORIso (C ^op) (SET (ℓ-max ℓh ℓp)) _ pointwise where
-    pointwise : ∀ c → Cubical.Categories.Category.isIso (SET (ℓ-max ℓh ℓp)) (Iso.inv (yonedaᴾ* {C = C} P A) η ⟦ c ⟧)
+  isTerminalElement→YoIso ((A , η) , η-univ) =
+    FUNCTORIso (C ^op) (SET (ℓ-max ℓh ℓp)) _ pointwise where
+    pointwise : ∀ c →
+      Cubical.Categories.Category.isIso (SET (ℓ-max ℓh ℓp))
+        (Iso.inv (yonedaᴾ* {C = C} P A) η ⟦ c ⟧)
     pointwise c .isIso.inv ϕ = lift (η-univ (_ , ϕ .lower) .fst .fst)
-    pointwise c .isIso.sec = funExt (λ ϕ i → lift (η-univ (_ , ϕ .lower) .fst .snd (~ i)))
-    pointwise c .isIso.ret = funExt (λ f i → lift (η-univ (_ , C [ η ∘ᴾ⟨ P ⟩ f .lower ]) .snd (f .lower , refl) i .fst))
+    pointwise c .isIso.sec =
+      funExt (λ ϕ i → lift (η-univ (_ , ϕ .lower) .fst .snd (~ i)))
+    pointwise c .isIso.ret =
+      funExt (λ f i →
+        lift (η-univ (_ , C [ η ∘ᴾ⟨ P ⟩ f .lower ])
+              .snd (f .lower , refl) i .fst))
 
-  YoIso→isTerminalElement : ∀ A
-                          → (i : PshIso C (C [-, A ]) P)
-                          → isTerminal Elements (A , (i .fst .N-ob A (lift (C .id)) .lower))
-  YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret) (B , ϕ) .fst .fst = P→YoA .N-ob B (lift ϕ) .lower
+  YoIso→isTerminalElement :
+    ∀ A
+    → (i : PshIso C (C [-, A ]) P)
+    → isTerminal Elements (A , (i .fst .N-ob A (lift (C .id)) .lower))
+  YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret) (B , ϕ) .fst .fst =
+    P→YoA .N-ob B (lift ϕ) .lower
   YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret) (B , ϕ) .fst .snd =
-    ϕ                                             ≡[ i ]⟨ (sec (~ i) .N-ob B (lift ϕ)) .lower ⟩
-    YoA→P .N-ob B (P→YoA .N-ob B (lift ϕ)) .lower ≡[ i ]⟨ YoA→P .N-ob B (lift (C .⋆IdR (P→YoA .N-ob B (lift ϕ) .lower) (~ i))) .lower ⟩
-    (YoA→P .N-ob B (lift (C .id ∘⟨ C ⟩ P→YoA .N-ob B (lift ϕ) .lower))) .lower ≡[ i ]⟨ YoA→P .N-hom (P→YoA .N-ob B (lift ϕ) .lower) i (lift (C .id)) .lower ⟩
-    C [ YoA→P .N-ob A (lift (C .id)) .lower ∘ᴾ⟨ P ⟩ P→YoA .N-ob B (lift ϕ) .lower ] ∎
-  YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret) (B , ϕ) .snd f+ @ (f , ϕ=η∘f) = ∫ᴾhomEqSimpl {C = C}{F = P} ((P→YoA .N-ob B (lift ϕ) .lower) , _) f+
+    ϕ
+      ≡[ i ]⟨ (sec (~ i) .N-ob B (lift ϕ)) .lower ⟩
+    YoA→P .N-ob B (P→YoA .N-ob B (lift ϕ)) .lower
+      ≡[ i ]⟨ YoA→P .N-ob B
+              (lift (C .⋆IdR (P→YoA .N-ob B (lift ϕ) .lower) (~ i))) .lower ⟩
+    (YoA→P .N-ob B (lift (C .id ∘⟨ C ⟩ P→YoA .N-ob B (lift ϕ) .lower))) .lower
+      ≡[ i ]⟨ YoA→P .N-hom (P→YoA .N-ob B (lift ϕ) .lower) i (lift (C .id))
+              .lower ⟩
+    C [ YoA→P .N-ob A (lift (C .id)) .lower ∘ᴾ⟨ P ⟩ P→YoA .N-ob B (lift ϕ)
+        .lower ]
+    ∎
+  YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret)
+                            (B , ϕ) .snd
+                            f+ @ (f , ϕ=η∘f)
+    = ∫ᴾhomEqSimpl {C = C}{F = P} ((P→YoA .N-ob B (lift ϕ) .lower) , _) f+
     (P→YoA .N-ob B (lift ϕ) .lower
       ≡[ i ]⟨ P→YoA .N-ob B (lift (ϕ=η∘f i)) .lower ⟩
-    P→YoA .N-ob B (lift (C [ YoA→P .N-ob A (lift (C .id)) .lower ∘ᴾ⟨ P ⟩ f ])) .lower
+    P→YoA .N-ob B (lift (C [ YoA→P .N-ob A (lift (C .id)) .lower ∘ᴾ⟨ P ⟩ f ]))
+      .lower
       ≡[ i ]⟨ P→YoA .N-hom f i (YoA→P .N-ob A (lift (C .id))) .lower ⟩
     P→YoA .N-ob A (YoA→P .N-ob A (lift (C .id))) .lower ∘⟨ C ⟩ f
       ≡[ i ]⟨ ret i .N-ob A (lift (C .id)) .lower ∘⟨ C ⟩ f ⟩
@@ -172,23 +213,30 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
 
   RepresentationToUniversalElement : Representation → UniversalElement
   RepresentationToUniversalElement (A , YoA→P , YoA→P-isIso) .fst .fst = A
-  RepresentationToUniversalElement (A , YoA→P , YoA→P-isIso) .fst .snd = Iso.fun (yonedaᴾ* P A) YoA→P
-  RepresentationToUniversalElement (A , YoA→P , YoA→P-isIso) .snd = YoIso→isTerminalElement A (YoA→P , YoA→P-isIso)
+  RepresentationToUniversalElement (A , YoA→P , YoA→P-isIso) .fst .snd =
+    Iso.fun (yonedaᴾ* P A) YoA→P
+  RepresentationToUniversalElement (A , YoA→P , YoA→P-isIso) .snd =
+    YoIso→isTerminalElement A (YoA→P , YoA→P-isIso)
 
   UniversalElementToRepresentation : UniversalElement → Representation
   UniversalElementToRepresentation ((A , η) , η-univ) .fst = A
-  UniversalElementToRepresentation η-terminal @ ((A , η) , η-univ) .snd = (Iso.inv (yonedaᴾ* P A) η) , isTerminalElement→YoIso η-terminal
+  UniversalElementToRepresentation η-terminal @ ((A , η) , η-univ) .snd =
+    (Iso.inv (yonedaᴾ* P A) η) , isTerminalElement→YoIso η-terminal
 
   Representation≅UniversalElement : Iso Representation UniversalElement
   Representation≅UniversalElement .Iso.fun = RepresentationToUniversalElement
   Representation≅UniversalElement .Iso.inv = UniversalElementToRepresentation
-  Representation≅UniversalElement .Iso.rightInv ((A , η) , _) = Σ≡Prop (isPropIsTerminal Elements) (ΣPathP (refl , yonedaᴾ* {C = C} P A .rightInv η))
+  Representation≅UniversalElement .Iso.rightInv ((A , η) , _) =
+    Σ≡Prop (isPropIsTerminal Elements)
+           (ΣPathP (refl , yonedaᴾ* {C = C} P A .rightInv η))
     where open Iso
-  Representation≅UniversalElement .Iso.leftInv (A , YoA→P , _) = ΣPathP (refl , (Σ≡Prop isPropIsIso (yonedaᴾ* {C = C} P A .leftInv YoA→P)))
+  Representation≅UniversalElement .Iso.leftInv (A , YoA→P , _) =
+    ΣPathP (refl , (Σ≡Prop isPropIsIso (yonedaᴾ* {C = C} P A .leftInv YoA→P)))
     where open Iso
 
   Representation≅UnivElt : Iso Representation UnivElt
-  Representation≅UnivElt = compIso Representation≅UniversalElement UniversalElement≅UnivElt
+  Representation≅UnivElt =
+    compIso Representation≅UniversalElement UniversalElement≅UnivElt
 
   RepresentationToUnivElt : Representation → UnivElt
   RepresentationToUnivElt = Iso.fun Representation≅UnivElt

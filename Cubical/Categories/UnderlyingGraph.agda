@@ -27,8 +27,8 @@ Ugr : ∀ {ℓc ℓc'} (𝓒 : Category ℓc ℓc') → Graph ℓc ℓc'
 Ugr 𝓒 .Node = 𝓒 .ob
 Ugr 𝓒 .Edge = 𝓒 .Hom[_,_]
 
-Uhom : ∀ {ℓc ℓc' ℓd ℓd'} {𝓒 : Category ℓc ℓc'} {𝓓 : Category ℓd ℓd'} (F : Functor 𝓒 𝓓)
-     → GraphHom (Ugr 𝓒) (Ugr 𝓓)
+Uhom : ∀ {ℓc ℓc' ℓd ℓd'} {𝓒 : Category ℓc ℓc'} {𝓓 : Category ℓd ℓd'}
+       (F : Functor 𝓒 𝓓) → GraphHom (Ugr 𝓒) (Ugr 𝓓)
 Uhom F ._$g_ = Functor.F-ob F
 Uhom F ._<$g>_ = Functor.F-hom F
 

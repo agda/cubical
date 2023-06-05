@@ -112,12 +112,20 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     F .F-hom (C .id) ≡⟨ F .F-id ⟩
     D .id ∎
   appF .F-seq {F , c}{G , d}{H , e} (α , f) (β , g ) =
-    (β .N-ob e ∘⟨ D ⟩ α .N-ob e) ∘⟨ D ⟩ F .F-hom (g ∘⟨ C ⟩ f) ≡⟨ (λ i → (β .N-ob e ∘⟨ D ⟩ α .N-ob e) ∘⟨ D ⟩ F .F-seq f g i) ⟩
-    (β .N-ob e ∘⟨ D ⟩ α .N-ob e) ∘⟨ D ⟩ (F .F-hom g ∘⟨ D ⟩ F .F-hom f) ≡⟨ sym (D .⋆Assoc _ _ _) ⟩
-    β .N-ob e ∘⟨ D ⟩ (α .N-ob e ∘⟨ D ⟩ (F .F-hom g ∘⟨ D ⟩ F .F-hom f)) ≡⟨ (λ i → β .N-ob e ∘⟨ D ⟩ D .⋆Assoc (F .F-hom f) (F .F-hom g) (α .N-ob e) i) ⟩
-    β .N-ob e ∘⟨ D ⟩ ((α .N-ob e ∘⟨ D ⟩ F .F-hom g) ∘⟨ D ⟩ F .F-hom f) ≡⟨ (λ i → β .N-ob e ∘⟨ D ⟩ α .N-hom g i ∘⟨ D ⟩ F .F-hom f) ⟩
-    β .N-ob e ∘⟨ D ⟩ ((G .F-hom g ∘⟨ D ⟩ α .N-ob d) ∘⟨ D ⟩ F .F-hom f) ≡⟨ (λ i → β .N-ob e ∘⟨ D ⟩ D .⋆Assoc (F .F-hom f) (α .N-ob d) (G .F-hom g) (~ i) ) ⟩
-    β .N-ob e ∘⟨ D ⟩ (G .F-hom g ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f)) ≡⟨ D .⋆Assoc _ _ _ ⟩
+    (β .N-ob e ∘⟨ D ⟩ α .N-ob e) ∘⟨ D ⟩ F .F-hom (g ∘⟨ C ⟩ f)
+      ≡⟨ (λ i → (β .N-ob e ∘⟨ D ⟩ α .N-ob e) ∘⟨ D ⟩ F .F-seq f g i) ⟩
+    (β .N-ob e ∘⟨ D ⟩ α .N-ob e) ∘⟨ D ⟩ (F .F-hom g ∘⟨ D ⟩ F .F-hom f)
+      ≡⟨ sym (D .⋆Assoc _ _ _) ⟩
+    β .N-ob e ∘⟨ D ⟩ (α .N-ob e ∘⟨ D ⟩ (F .F-hom g ∘⟨ D ⟩ F .F-hom f))
+      ≡⟨ (λ i → β .N-ob e
+                ∘⟨ D ⟩ D .⋆Assoc (F .F-hom f) (F .F-hom g) (α .N-ob e) i) ⟩
+    β .N-ob e ∘⟨ D ⟩ ((α .N-ob e ∘⟨ D ⟩ F .F-hom g) ∘⟨ D ⟩ F .F-hom f)
+      ≡⟨ (λ i → β .N-ob e ∘⟨ D ⟩ α .N-hom g i ∘⟨ D ⟩ F .F-hom f) ⟩
+    β .N-ob e ∘⟨ D ⟩ ((G .F-hom g ∘⟨ D ⟩ α .N-ob d) ∘⟨ D ⟩ F .F-hom f)
+      ≡⟨ (λ i → β .N-ob e
+                ∘⟨ D ⟩ D .⋆Assoc (F .F-hom f) (α .N-ob d) (G .F-hom g) (~ i) ) ⟩
+    β .N-ob e ∘⟨ D ⟩ (G .F-hom g ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f))
+      ≡⟨ D .⋆Assoc _ _ _ ⟩
     (β .N-ob e ∘⟨ D ⟩ G .F-hom g) ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f) ∎
   module _ (E : Category ℓE ℓE') where
     λF : Functor (E ×C C) D → Functor E FUNCTOR
@@ -125,13 +133,16 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     λF F .F-ob e .F-hom f = F ⟪ (E .id) , f ⟫
     λF F .F-ob e .F-id = F .F-id
     λF F .F-ob e .F-seq f g =
-      F ⟪ E .id , g ∘⟨ C ⟩ f ⟫ ≡⟨ (λ i → F ⟪ (E .⋆IdL (E .id) (~ i)) , (g ∘⟨ C ⟩ f) ⟫) ⟩
-      (F ⟪ (E .id ∘⟨ E ⟩ E .id) , g ∘⟨ C ⟩ f ⟫) ≡⟨ F .F-seq (E .id , f) (E .id , g) ⟩
+      F ⟪ E .id , g ∘⟨ C ⟩ f ⟫
+        ≡⟨ (λ i → F ⟪ (E .⋆IdL (E .id) (~ i)) , (g ∘⟨ C ⟩ f) ⟫) ⟩
+      (F ⟪ (E .id ∘⟨ E ⟩ E .id) , g ∘⟨ C ⟩ f ⟫)
+        ≡⟨ F .F-seq (E .id , f) (E .id , g) ⟩
       (F ⟪ E .id , g ⟫ ∘⟨ D ⟩ F ⟪ E .id , f ⟫) ∎
     λF F .F-hom h .N-ob c = F ⟪ h , (C .id) ⟫
     λF F .F-hom h .N-hom f =
       F ⟪ h , C .id ⟫ ∘⟨ D ⟩ F ⟪ E .id , f ⟫ ≡⟨ sym (F .F-seq _ _) ⟩
-      F ⟪ h ∘⟨ E ⟩ E .id , C .id ∘⟨ C ⟩ f ⟫ ≡⟨ (λ i → F ⟪ E .⋆IdL h i , C .⋆IdR f i  ⟫) ⟩
+      F ⟪ h ∘⟨ E ⟩ E .id , C .id ∘⟨ C ⟩ f ⟫
+        ≡⟨ (λ i → F ⟪ E .⋆IdL h i , C .⋆IdR f i  ⟫) ⟩
       F ⟪ h , f ⟫ ≡⟨ (λ i → F ⟪ (E .⋆IdR h (~ i)) , (C .⋆IdL f (~ i)) ⟫) ⟩
       F ⟪ E .id ∘⟨ E ⟩ h , f ∘⟨ C ⟩ C .id ⟫ ≡⟨ F .F-seq _ _ ⟩
       F ⟪ E .id , f ⟫ ∘⟨ D ⟩ F ⟪ h , C .id ⟫ ∎
@@ -141,8 +152,10 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
             F ⟪ g ∘⟨ E ⟩ f , C .id ⟫ ≡
             F ⟪ g , C .id ⟫ ∘⟨ D ⟩ F ⟪ f , C .id ⟫
       lem c =
-        F ⟪ g ∘⟨ E ⟩ f , C .id ⟫ ≡⟨ (λ i → F ⟪ (g ∘⟨ E ⟩ f) , (C .⋆IdR (C .id) (~ i)) ⟫) ⟩
-        F ⟪ g ∘⟨ E ⟩ f , C .id ∘⟨ C ⟩ C .id ⟫ ≡⟨ F .F-seq (f , C .id) (g , C .id) ⟩
+        F ⟪ g ∘⟨ E ⟩ f , C .id ⟫
+          ≡⟨ (λ i → F ⟪ (g ∘⟨ E ⟩ f) , (C .⋆IdR (C .id) (~ i)) ⟫) ⟩
+        F ⟪ g ∘⟨ E ⟩ f , C .id ∘⟨ C ⟩ C .id ⟫
+          ≡⟨ F .F-seq (f , C .id) (g , C .id) ⟩
         (F ⟪ g , C .id ⟫) ∘⟨ D ⟩ (F ⟪ f , C .id ⟫) ∎
 
   -- TODO: UMP relating λF and appF

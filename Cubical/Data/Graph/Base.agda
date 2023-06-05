@@ -33,7 +33,8 @@ record GraphHom (G  : Graph ℓv  ℓe ) (G' : Graph ℓv' ℓe')
 
 open GraphHom public
 
-module _ {ℓv ℓe ℓv' ℓe' ℓv'' ℓe''} {G : Graph ℓv ℓe}{G' : Graph ℓv' ℓe'}{G'' : Graph ℓv'' ℓe''} where
+module _ {ℓv ℓe ℓv' ℓe' ℓv'' ℓe''}
+         {G : Graph ℓv ℓe}{G' : Graph ℓv' ℓe'}{G'' : Graph ℓv'' ℓe''} where
   _⋆GrHom_ : GraphHom G G' → GraphHom G' G'' → GraphHom G G''
   (ϕ ⋆GrHom ψ) ._$g_ = λ z → ψ $g (ϕ $g z)
   (ϕ ⋆GrHom ψ) ._<$g>_ e = ψ <$g> (ϕ <$g> e)
@@ -45,9 +46,11 @@ IdHom : ∀ {ℓv ℓe} {G : Graph ℓv ℓe} → GraphHom G G
 IdHom {G} ._$g_ = λ z → z
 IdHom {G} ._<$g>_ = λ z → z
 
-GrHom≡ : ∀ {ℓg ℓg' ℓh ℓh'}{G : Graph ℓg ℓg'}{H : Graph ℓh ℓh'} {ϕ ψ : GraphHom G H}
+GrHom≡ : ∀ {ℓg ℓg' ℓh ℓh'}
+           {G : Graph ℓg ℓg'}{H : Graph ℓh ℓh'} {ϕ ψ : GraphHom G H}
        → (h : ∀ v → ϕ $g v ≡ ψ $g v)
-       → (∀ {v w} (e : G .Edge v w) → PathP (λ i → H .Edge (h v i) (h w i)) (ϕ <$g> e) (ψ <$g> e))
+       → (∀ {v w} (e : G .Edge v w)
+          → PathP (λ i → H .Edge (h v i) (h w i)) (ϕ <$g> e) (ψ <$g> e))
        → ϕ ≡ ψ
 GrHom≡ h k i $g x = h x i
 GrHom≡ h k i <$g> x = k x i
@@ -65,7 +68,8 @@ record DiagMor {G : Graph ℓv ℓe} (F : Diag ℓd G) (F' : Diag ℓd' G)
                : Type (ℓ-suc (ℓ-max (ℓ-max ℓv ℓe) (ℓ-suc (ℓ-max ℓd ℓd')))) where
   field
     nat : ∀ (x : Node G) → F $g x → F' $g x
-    comSq : ∀ {x y : Node G} (f : Edge G x y) → nat y ∘ F <$g> f ≡ F' <$g> f ∘ nat x
+    comSq : ∀ {x y : Node G} (f : Edge G x y)
+          → nat y ∘ F <$g> f ≡ F' <$g> f ∘ nat x
 
 open DiagMor public
 

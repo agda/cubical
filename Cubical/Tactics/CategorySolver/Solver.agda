@@ -44,7 +44,9 @@ module Eval (𝓒 : Category ℓ ℓ') where
         → ⟦ e₁ ⟧c ≡ ⟦ e₂ ⟧c
   solve {A}{B} e₁ e₂ p = cong ⟦_⟧c (isFaithfulPseudoYoneda _ _ _ _ lem) where
     lem : 𝓘 ⟪ e₁ ⟫ ≡ 𝓘 ⟪ e₂ ⟫
-    lem = transport (λ i → Yo-YoSem-agree (~ i) ⟪ e₁ ⟫ ≡ Yo-YoSem-agree (~ i) ⟪ e₂ ⟫) p
+    lem = transport
+            (λ i → Yo-YoSem-agree (~ i) ⟪ e₁ ⟫ ≡ Yo-YoSem-agree (~ i) ⟪ e₂ ⟫)
+            p
 
 solve : (𝓒 : Category ℓ ℓ')
       → {A B : 𝓒 .ob}
