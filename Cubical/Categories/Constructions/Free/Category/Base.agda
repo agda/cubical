@@ -49,7 +49,73 @@ module FreeCategory (G : Graph ℓg ℓg') where
     η ._$g_ = λ z → z
     η ._<$g>_ = ↑_
 
-    module Semantics {ℓc ℓc'} (𝓒 : Category ℓc ℓc') (ı : GraphHom G (Ugr 𝓒)) where
+    module _ {ℓc ℓc'} {𝓒 : Category ℓc ℓc'} (F F' : Functor FreeCat 𝓒) where
+      -- Formulating uniqueness this way works out best definitionally.
+
+      -- If you prove induction from the alternative below of
+      --   sem-uniq : (F ∘Interp η ≡ ı) → F ≡ sem ı
+      -- then you have to use path comp which has bad definitional behavior
+      module _  (agree-on-η : F ∘Interp η ≡ F' ∘Interp η) where
+        private
+          aoo : ∀ c → F ⟅ c ⟆ ≡ F' ⟅ c ⟆
+          aoo = (λ c i → agree-on-η i $g c)
+
+          aom-t : ∀ {c c'} (e : Exp c c') → Type _
+          aom-t {c}{c'} e =
+            PathP (λ i → 𝓒 [ aoo c i , aoo c' i ]) (F ⟪ e ⟫) (F' ⟪ e ⟫)
+
+          aom-id : ∀ {c} → aom-t (idₑ {c})
+          aom-id = F .F-id ◁ (λ i → 𝓒 .id) ▷ sym (F' .F-id)
+
+          aom-seq : ∀ {c c' c''} (e : Exp c c')(e' : Exp c' c'')
+                  → aom-t e → aom-t e' → aom-t (e ⋆ₑ e')
+          aom-seq e e' ihe ihe' =
+            F .F-seq e e' ◁ (λ i → ihe i ⋆⟨ 𝓒 ⟩ ihe' i) ▷ sym (F' .F-seq e e')
+
+          aom : ∀ {c c'} (e : Exp c c') → aom-t e
+          aom (↑ x) = λ i → agree-on-η i <$g> x
+          aom idₑ = aom-id
+          aom (e ⋆ₑ e') = aom-seq e e' (aom e) (aom e')
+          aom (⋆ₑIdL e i) =
+            isSet→SquareP
+              (λ i j → 𝓒 .isSetHom)
+              (aom-seq idₑ e aom-id (aom e))
+              (aom e)
+              (λ i → F ⟪ ⋆ₑIdL e i ⟫) ((λ i → F' ⟪ ⋆ₑIdL e i ⟫)) i
+          aom (⋆ₑIdR e i) =
+            isSet→SquareP
+            (λ i j → 𝓒 .isSetHom)
+            (aom-seq e idₑ (aom e) aom-id)
+            (aom e)
+            (λ i → F ⟪ ⋆ₑIdR e i ⟫) ((λ i → F' ⟪ ⋆ₑIdR e i ⟫)) i
+          aom (⋆ₑAssoc e e' e'' i) =
+            isSet→SquareP
+            (λ _ _ → 𝓒 .isSetHom)
+            (aom-seq _ _ (aom-seq _ _ (aom e) (aom e')) (aom e''))
+            (aom-seq _ _ (aom e) (aom-seq _ _ (aom e') (aom e'')))
+            ((λ i → F ⟪ ⋆ₑAssoc e e' e'' i ⟫))
+            (λ i → F' ⟪ ⋆ₑAssoc e e' e'' i ⟫)
+            i
+          aom (isSetExp e e' x y i j) =
+            isSet→SquareP
+            {A = λ i j → aom-t (isSetExp e e' x y i j)}
+            (λ i j → isOfHLevelPathP 2 (𝓒 .isSetHom)
+                       (F ⟪ isSetExp e e' x y i j ⟫)
+                       (F' ⟪ isSetExp e e' x y i j ⟫))
+            (λ j → aom (x j))
+            (λ j → aom (y j))
+            (λ i → aom e)
+            (λ i → aom e')
+            i
+            j
+        induction : F ≡ F'
+        induction = Functor≡ aoo aom
+
+        -- TODO: 2-categorical: induction is an equivalence
+        -- inductionIso : Iso (F ≡ F') (F ∘Interp η ≡ F' ∘Interp η)
+    module Semantics {ℓc ℓc'}
+                     (𝓒 : Category ℓc ℓc')
+                     (ı : GraphHom G (Ugr 𝓒)) where
       ⟦_⟧ : ∀ {A B} → Exp A B → 𝓒 [ ı $g A , ı $g B ]
       ⟦ ↑ x ⟧ = ı <$g> x
       ⟦ idₑ ⟧ = 𝓒 .id
@@ -57,7 +123,8 @@ module FreeCategory (G : Graph ℓg ℓg') where
       ⟦ ⋆ₑIdL e i ⟧ = 𝓒 .⋆IdL ⟦ e ⟧ i
       ⟦ ⋆ₑIdR e i ⟧ = 𝓒 .⋆IdR ⟦ e ⟧ i
       ⟦ ⋆ₑAssoc e e' e'' i ⟧ = 𝓒 .⋆Assoc ⟦ e ⟧ ⟦ e' ⟧ ⟦ e'' ⟧ i
-      ⟦ isSetExp e e' p q i j ⟧ = 𝓒 .isSetHom ⟦ e ⟧ ⟦ e' ⟧ (cong ⟦_⟧ p) (cong ⟦_⟧ q) i j
+      ⟦ isSetExp e e' p q i j ⟧ =
+        𝓒 .isSetHom ⟦ e ⟧ ⟦ e' ⟧ (cong ⟦_⟧ p) (cong ⟦_⟧ q) i j
 
       sem : Functor FreeCat 𝓒
       sem .Functor.F-ob v = ı $g v
@@ -69,59 +136,22 @@ module FreeCategory (G : Graph ℓg ℓg') where
       sem-extends-ı = refl
 
       sem-uniq : ∀ {F : Functor FreeCat 𝓒} → ((Uhom F ∘GrHom η) ≡ ı) → F ≡ sem
-      sem-uniq {F} agree-on-generators = Functor≡ agree-on-objects agree-on-morphisms where
-        agree-on-objects : ∀ v → F ⟅ v ⟆ ≡ ı $g v
-        agree-on-objects v i = agree-on-generators i $g v
-
-        aom-type : ∀ {v w} → (f : FreeCat [ v , w ]) → Type _
-        aom-type {v}{w} f = PathP (λ i → 𝓒 [ agree-on-objects v i , agree-on-objects w i ]) (F ⟪ f ⟫) ⟦ f ⟧
-
-        aom-id : ∀ {v} → aom-type {v} idₑ
-        aom-id {v} = toPathP⁻ (F .F-id ∙ fromPathP⁻ (λ i → 𝓒 .id {agree-on-objects v i}))
-
-        aom-seq : ∀ {v w x} → (f : FreeCat [ v , w ]) (g : FreeCat [ w , x ])
-                            → aom-type f
-                            → aom-type g
-                            → aom-type (f ⋆ₑ g)
-        aom-seq f g pf pg = toPathP⁻ (F .F-seq f g ∙ fromPathP⁻ (λ i → pf i ⋆⟨ 𝓒 ⟩ pg i))
-
-        agree-on-morphisms : ∀ {v w} → (f : FreeCat [ v , w ]) → aom-type f
-        agree-on-morphisms (↑ x) = λ i → agree-on-generators i <$g> x
-        agree-on-morphisms idₑ = aom-id
-        agree-on-morphisms (f ⋆ₑ g) = aom-seq f g (agree-on-morphisms f) (agree-on-morphisms g)
-        agree-on-morphisms (⋆ₑIdL f i) j = isSet→SquareP (λ i j → 𝓒 .isSetHom) (aom-seq idₑ f aom-id (agree-on-morphisms f)) (agree-on-morphisms f) (λ i → F ⟪ ⋆ₑIdL f i ⟫) (λ i → 𝓒 .⋆IdL ⟦ f ⟧ i) i j
-        agree-on-morphisms (⋆ₑIdR f i) j = isSet→SquareP (λ i j → 𝓒 .isSetHom) (aom-seq f idₑ (agree-on-morphisms f) aom-id) (agree-on-morphisms f) (λ i → F ⟪ ⋆ₑIdR f i ⟫) (𝓒 .⋆IdR ⟦ f ⟧) i j
-        agree-on-morphisms (⋆ₑAssoc f f₁ f₂ i) j = isSet→SquareP (λ i j → 𝓒 .isSetHom) (aom-seq (f ⋆ₑ f₁) f₂ (aom-seq f f₁ (agree-on-morphisms f) (agree-on-morphisms f₁)) (agree-on-morphisms f₂)) (aom-seq f (f₁ ⋆ₑ f₂) (agree-on-morphisms f) (aom-seq f₁ f₂ (agree-on-morphisms f₁) (agree-on-morphisms f₂))) (λ i → F ⟪ ⋆ₑAssoc f f₁ f₂ i ⟫) (𝓒 .⋆Assoc ⟦ f ⟧ ⟦ f₁ ⟧ ⟦ f₂ ⟧) i j
-        agree-on-morphisms (isSetExp f g p q i j) k =
-          isSet→SquareP {A = λ i j → PathP (λ k → 𝓒 [ agree-on-objects _ k , agree-on-objects _ k ]) (F ⟪ (isSetExp f g p q i j) ⟫) (⟦ (isSetExp f g p q i j) ⟧)}
-            (λ i j → isOfHLevelPathP
-                       {A = λ k → 𝓒 [ agree-on-objects _ k , agree-on-objects _ k ]}
-                       2 (𝓒 .isSetHom) (F ⟪ isSetExp f g p q i j ⟫) ⟦ isSetExp f g p q i j ⟧)
-            (λ j k → agree-on-morphisms (p j) k)
-            (λ j k → agree-on-morphisms (q j) k)
-            (λ i k → agree-on-morphisms f k)
-            (λ i k → agree-on-morphisms g k)
-            i j k
+      sem-uniq {F} aog = induction F sem aog
 
       sem-contr : ∃![ F ∈ Functor FreeCat 𝓒 ] Uhom F ∘GrHom η ≡ ı
       sem-contr .fst = sem , sem-extends-ı
       sem-contr .snd (sem' , sem'-extends-ı) = ΣPathP paths
         where
-          paths : Σ[ p ∈ sem ≡ sem' ] PathP (λ i → Uhom (p i) ∘GrHom η ≡ ı) sem-extends-ı sem'-extends-ı
+          paths : Σ[ p ∈ sem ≡ sem' ]
+                  PathP (λ i → Uhom (p i) ∘GrHom η ≡ ı)
+                        sem-extends-ı
+                        sem'-extends-ı
           paths .fst = sym (sem-uniq sem'-extends-ı)
           paths .snd i j = sem'-extends-ı ((~ i) ∨ j)
 
-    free-cat-functor-η-expansion : {𝓒 : Category ℓc ℓc'} (F : Functor FreeCat 𝓒)
+    η-expansion : {𝓒 : Category ℓc ℓc'} (F : Functor FreeCat 𝓒)
       → F ≡ Semantics.sem 𝓒 (F ∘Interp η)
-    free-cat-functor-η-expansion F = Semantics.sem-uniq _ (F ∘Interp η) refl
-
-    free-cat-functor-ind : {𝓒 : Category ℓc ℓc'} (F F' : Functor FreeCat 𝓒)
-      → (F ∘Interp η) ≡ (F' ∘Interp η)
-      → F ≡ F'
-    free-cat-functor-ind {𝓒 = 𝓒} F F' p =
-      free-cat-functor-η-expansion F
-      ∙ (cong (Semantics.sem 𝓒) p)
-      ∙ sym (free-cat-functor-η-expansion F')
+    η-expansion {𝓒 = 𝓒} F = induction F (Semantics.sem 𝓒 (F ∘Interp η)) refl
 
 -- co-unit of the 2-adjunction
 module _ {𝓒 : Category ℓc ℓc'} where
