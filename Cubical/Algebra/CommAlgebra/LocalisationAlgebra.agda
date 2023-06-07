@@ -23,6 +23,7 @@ import      Cubical.HITs.PropositionalTruncation as PropTrunc
 
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommAlgebra.Subalgebra
 open import Cubical.Algebra.CommRing as CommRing hiding (_ˣ;module Units)
 open import Cubical.Algebra.CommRing.Localisation using (isMultClosedSubset)
 open import Cubical.Algebra.Ring
@@ -256,3 +257,72 @@ module _
                (univ .snd (CommAlgebraHom→RingHom {A = S⁻¹AAsCommAlgebra} {B = B}
                                                   φ' , φ'comm))
 
+    -- The above universal property leads to a generic induction principle for
+    -- displayed algebras over S⁻¹A (which are equivalently just morphisms into
+    -- S⁻¹A).  We don't have displayed algebras, but we have subalgebras, which
+    -- are "displayed algebra propositions".
+    --
+    -- The statement is then: a subalgebra of S⁻¹A is the whole algebra iff. it
+    -- contains the image of A and the inverses in the image of S.  This was
+    -- suggested by David Wärn as an alternative to working with the
+    -- construction above.
+    private
+      module Rec
+        (P : Subalgebra R S⁻¹AAsCommAlgebra)
+        (A/1∈P : (a : ⟨ A ⟩) → (/1AsCommAlgebraHom .fst a) ∈ (P .fst))
+        (1/S∈P : (s : ⟨ A ⟩) → (s∈S : s ∈ S) →
+                    (_⁻¹ S⁻¹AAsCommAlgebra ((/1AsCommAlgebraHom .fst) s)
+                                           ⦃ RUniv.S/1⊆S⁻¹Rˣ s s∈S ⦄)
+                    ∈ (P .fst))
+        where
+
+        totalg = Subalgebra→CommAlgebra R S⁻¹AAsCommAlgebra P
+        totalg≡ = Subalgebra→CommAlgebra≡ R S⁻¹AAsCommAlgebra P
+        ι = Subalgebra→CommAlgebraHom R S⁻¹AAsCommAlgebra P
+
+        mor : CommAlgebraHom A totalg
+        mor = SubalgebraHom R S⁻¹AAsCommAlgebra P A /1AsCommAlgebraHom A/1∈P
+
+        morS⊂totalgˣ : (s : ⟨ A ⟩) → (s∈S : s ∈ S) → (fst mor s ∈ totalg ˣ)
+        morS⊂totalgˣ s s∈S =
+          let inv = RUniv.S/1⊆S⁻¹Rˣ s s∈S
+          in (inv .fst , 1/S∈P s s∈S) , totalg≡ (inv .snd)
+
+        sec : Σ[ f ∈ CommAlgebraHom S⁻¹AAsCommAlgebra totalg ]
+                (fst f) ∘ (fst /1AsCommAlgebraHom) ≡ (fst mor)
+        sec = S⁻¹AHasUniversalProp totalg mor morS⊂totalgˣ .fst
+
+        post-composed : Σ[ f ∈ CommAlgebraHom S⁻¹AAsCommAlgebra S⁻¹AAsCommAlgebra ]
+                          (fst f) ∘ (fst /1AsCommAlgebraHom) ≡ (fst /1AsCommAlgebraHom)
+        post-composed =
+            compCommAlgebraHom
+              S⁻¹AAsCommAlgebra totalg S⁻¹AAsCommAlgebra
+              (fst sec) ι
+          , cong (fst ι ∘_) (snd sec)
+          where open CommAlgebraHoms
+
+        id-also-good : Σ[ f ∈ CommAlgebraHom S⁻¹AAsCommAlgebra S⁻¹AAsCommAlgebra ]
+                          (fst f) ∘ (fst /1AsCommAlgebraHom) ≡ (fst /1AsCommAlgebraHom)
+        id-also-good =
+            ((λ x → x) , makeIsAlgebraHom refl (λ x y → refl)
+                                                      (λ x y → refl)
+                                                      (λ x y → refl))
+          , refl
+
+        contr-at-/1AsCommAlgebraHom :
+          isContr (Σ[ f ∈ CommAlgebraHom S⁻¹AAsCommAlgebra S⁻¹AAsCommAlgebra ]
+                      (fst f) ∘ (fst /1AsCommAlgebraHom) ≡ (fst /1AsCommAlgebraHom))
+        contr-at-/1AsCommAlgebraHom =
+          S⁻¹AHasUniversalProp S⁻¹AAsCommAlgebra
+                               /1AsCommAlgebraHom
+                               RUniv.S/1⊆S⁻¹Rˣ
+
+        eq : fst post-composed ≡ fst id-also-good
+        eq = (sym $ cong fst $ snd contr-at-/1AsCommAlgebraHom post-composed)
+           ∙ (cong fst $ snd contr-at-/1AsCommAlgebraHom id-also-good)
+
+        rec : (x : ⟨ S⁻¹AAsCommAlgebra ⟩) → x ∈ (P .fst)
+        rec x = transport (cong (λ f → fst f x ∈ (P .fst)) eq)
+                          (fst (fst sec) x .snd)
+
+    rec = Rec.rec
