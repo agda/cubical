@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
 {-
   Kan extension of a functor C → D to a functor PresheafCategory C ℓ → PresheafCategory D ℓ
@@ -191,7 +191,10 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   Δ₂ H = makeNatTransPath (funExt λ c → H .F-id)
 
   adj : Lan ⊣ F*
-  adj = make⊣ η ε Δ₁ Δ₂
+  adj ._⊣_.η = η
+  adj ._⊣_.ε = ε
+  adj ._⊣_.Δ₁ = Δ₁
+  adj ._⊣_.Δ₂ = Δ₂
 
 {-
   Right Kan extension of a functor C → D to a functor PresheafCategory C ℓ → PresheafCategory D ℓ
@@ -340,4 +343,7 @@ module Ran {ℓC ℓC' ℓD ℓD'} ℓS
   Δ₂ H = makeNatTransPath (funExt₂ λ c x → end≡ _ λ c' g → cong (x .fun c') (D.⋆IdL g))
 
   adj : F* ⊣ Ran
-  adj = make⊣ η ε Δ₁ Δ₂
+  adj ._⊣_.η = η
+  adj ._⊣_.ε = ε
+  adj ._⊣_.Δ₁ = Δ₁
+  adj ._⊣_.Δ₂ = Δ₂

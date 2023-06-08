@@ -14,14 +14,14 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Pointed
 
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum hiding (elim)
 open import Cubical.Data.Bool.Base
-open import Cubical.Data.Empty
-open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Empty hiding (elim)
+open import Cubical.Data.Empty as Empty hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit using (Unit; isPropUnit)
 
-open import Cubical.HITs.PropositionalTruncation hiding (rec)
+open import Cubical.HITs.PropositionalTruncation hiding (elim; rec)
 
 open import Cubical.Relation.Nullary
 
@@ -29,6 +29,13 @@ private
   variable
     ℓ : Level
     A : Type ℓ
+
+elim : ∀ {ℓ} {A : Bool → Type ℓ}
+  → A true
+  → A false
+  → (b : Bool) → A b
+elim t f false = f
+elim t f true  = t
 
 notnot : ∀ x → not (not x) ≡ x
 notnot true  = refl
@@ -86,47 +93,65 @@ not≢const : ∀ x → ¬ not x ≡ x
 not≢const false = true≢false
 not≢const true  = false≢true
 
-zeroˡ : ∀ x → true or x ≡ true
-zeroˡ false = refl
-zeroˡ true  = refl
+-- or properties
+or-zeroˡ : ∀ x → true or x ≡ true
+or-zeroˡ _ = refl
 
-zeroʳ : ∀ x → x or true ≡ true
-zeroʳ false = refl
-zeroʳ true  = refl
+or-zeroʳ : ∀ x → x or true ≡ true
+or-zeroʳ false = refl
+or-zeroʳ true  = refl
 
 or-identityˡ : ∀ x → false or x ≡ x
-or-identityˡ false = refl
-or-identityˡ true  = refl
+or-identityˡ _ = refl
 
 or-identityʳ : ∀ x → x or false ≡ x
 or-identityʳ false = refl
 or-identityʳ true  = refl
 
 or-comm      : ∀ x y → x or y ≡ y or x
-or-comm false y =
-  false or y ≡⟨ or-identityˡ y ⟩
-  y          ≡⟨ sym (or-identityʳ y) ⟩
-  y or false ∎
-or-comm true y =
-  true or y ≡⟨ zeroˡ y ⟩
-  true      ≡⟨ sym (zeroʳ y) ⟩
-  y or true ∎
+or-comm false false = refl
+or-comm false true  = refl
+or-comm true  false = refl
+or-comm true  true  = refl
 
 or-assoc     : ∀ x y z → x or (y or z) ≡ (x or y) or z
-or-assoc false y z =
-  false or (y or z)   ≡⟨ or-identityˡ _ ⟩
-  y or z              ≡[ i ]⟨ or-identityˡ y (~ i) or z ⟩
-  ((false or y) or z) ∎
-or-assoc true y z  =
- true or (y or z)  ≡⟨ zeroˡ _ ⟩
-  true             ≡⟨ sym (zeroˡ _) ⟩
-  true or z        ≡[ i ]⟨ zeroˡ y (~ i) or z ⟩
-  (true or y) or z ∎
+or-assoc false y z = refl
+or-assoc true  y z = refl
 
 or-idem      : ∀ x → x or x ≡ x
 or-idem false = refl
 or-idem true  = refl
 
+-- and properties
+and-zeroˡ : ∀ x → false and x ≡ false
+and-zeroˡ _ = refl
+
+and-zeroʳ : ∀ x → x and false ≡ false
+and-zeroʳ false = refl
+and-zeroʳ true  = refl
+
+and-identityˡ : ∀ x → true and x ≡ x
+and-identityˡ _ = refl
+
+and-identityʳ : ∀ x → x and true ≡ x
+and-identityʳ false = refl
+and-identityʳ true  = refl
+
+and-comm      : ∀ x y → x and y ≡ y and x
+and-comm false false = refl
+and-comm false true  = refl
+and-comm true  false = refl
+and-comm true  true  = refl
+
+and-assoc     : ∀ x y z → x and (y and z) ≡ (x and y) and z
+and-assoc false y z = refl
+and-assoc true  y z = refl
+
+and-idem      : ∀ x → x and x ≡ x
+and-idem false = refl
+and-idem true  = refl
+
+-- xor properties
 ⊕-identityʳ : ∀ x → x ⊕ false ≡ x
 ⊕-identityʳ false = refl
 ⊕-identityʳ true = refl

@@ -70,7 +70,7 @@ module _ (A : RawAlgebra ℤAsRawRing ℓ) where
                → isZero P ≡ true
   leftIsZero P Q isZeroSum with isZero P
   ... | true = refl
-  ... | false = byBoolAbsurdity (fst (extractFromAnd _ _ isZeroSum))
+  ... | false = isZeroSum
 
   rightIsZero : {n : ℕ}
                (P : IteratedHornerForms A (ℕ.suc n))

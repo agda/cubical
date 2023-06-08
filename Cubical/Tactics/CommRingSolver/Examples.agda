@@ -104,15 +104,15 @@ module TestInPlaceSolving (R : CommRing ℓ) where
    testWithOneVariabl : (x : fst R) → x + 0r ≡ 0r + x
    testWithOneVariabl x = solveInPlace R (x ∷ [])
 
-   testEquationalReasoning : (x : fst R) → x + 0r ≡ 0r + x
-   testEquationalReasoning x =
-     x + 0r                       ≡⟨solveIn R withVars (x ∷ []) ⟩
-     0r + x ∎
-
    testWithTwoVariables :  (x y : fst R) → x + y ≡ y + x
    testWithTwoVariables x y =
-     x + y                      ≡⟨solveIn R withVars (x ∷ y ∷ []) ⟩
+     x + y                      ≡⟨ solveInPlace R (x ∷ y ∷ []) ⟩
      y + x ∎
+
+   testEquationalReasoning : (x : fst R) → x + 0r ≡ 0r + x
+   testEquationalReasoning x =
+     x + 0r                       ≡⟨ solveInPlace R (x ∷ []) ⟩
+     0r + x ∎
 
    {-
      So far, solving during equational reasoning has a serious
@@ -122,8 +122,8 @@ module TestInPlaceSolving (R : CommRing ℓ) where
      entails that in the following code, the order of 'p' and 'x' cannot be
      switched.
    -}
-   testEquationalReasoning' :  (p : (y : fst R) → 0r + y ≡ 1r) (x : fst R) → x + 0r ≡ 1r
+   testEquationalReasoning' : (p : (y : fst R) → 0r + y ≡ 1r) (x : fst R) → x + 0r ≡ 1r
    testEquationalReasoning' p x =
-     x + 0r              ≡⟨solveIn R withVars (x ∷ []) ⟩
+     x + 0r              ≡⟨ solveInPlace R (x ∷ []) ⟩
      0r + x              ≡⟨ p x ⟩
      1r ∎

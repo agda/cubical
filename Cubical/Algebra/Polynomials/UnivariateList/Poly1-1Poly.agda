@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.Polynomials.UnivariateList.Poly1-1Poly where
 
 open import Cubical.Foundations.Prelude

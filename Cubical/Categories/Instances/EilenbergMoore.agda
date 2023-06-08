@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Instances.EilenbergMoore where
 
 open import Cubical.Foundations.Prelude
@@ -51,7 +51,7 @@ module _ {C : Category ℓC ℓC'} (monadM : Monad C) where
   EMAlgebra = Σ[ algA ∈ Algebra M ] IsEMAlgebra algA
 
   EMCategory : Category (ℓ-max (ℓ-max ℓC ℓC') ℓC') ℓC'
-    -- cannot simplify level: --experimental-lossy-unification won't allow it.
+    -- cannot simplify level: --lossy-unification won't allow it.
   EMCategory = FullSubcategory (AlgebrasCategory M) IsEMAlgebra
 
   ForgetEM : Functor EMCategory (AlgebrasCategory M)
