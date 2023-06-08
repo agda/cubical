@@ -22,7 +22,7 @@ open import Cubical.Foundations.SIP
 open import Cubical.Structures.Pointed
 open import Cubical.Structures.TypeEqvTo
 
-open import Cubical.Data.Bool hiding (elim)
+open import Cubical.Data.Bool hiding (elim ; Bool*)
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.NatMinusOne
 open import Cubical.Data.Sigma
