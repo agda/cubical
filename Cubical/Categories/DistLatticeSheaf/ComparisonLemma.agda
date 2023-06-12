@@ -237,7 +237,7 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  func DLComparisonLemma = restSh
  invFunc (isEquivC DLComparisonLemma) = extSh
 
- -- the unit is induced bay the universal property
+ -- the unit is induced by the universal property
  N-ob (trans (η (isEquivC DLComparisonLemma))) (F , _ ) =
    DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
  N-hom (trans (η (isEquivC DLComparisonLemma))) {x = (F , _)} {y = (G , _)} α =
