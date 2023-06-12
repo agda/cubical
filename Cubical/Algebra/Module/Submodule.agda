@@ -25,14 +25,14 @@ module _ (R : Ring ℓ) (M : LeftModule R ℓ') where
     field
       +-closed : {x y : ⟨ M ⟩} → x ∈ N → y ∈ N → x + y ∈ N
       0r-closed : 0m ∈ N
-      ·-closedLeft :  {x : ⟨ M ⟩} (r : ⟨ R ⟩) → x ∈ N → r ⋆ x ∈ N
+      ⋆-closed :  {x : ⟨ M ⟩} (r : ⟨ R ⟩) → x ∈ N → r ⋆ x ∈ N
 
     -closed : {x : ⟨ M ⟩} → x ∈ N → - x ∈ N
     -closed {x = x} x∈N =
       subst (_∈ N)
             (((R.- R.1r) ⋆ x) ≡⟨ minusByMult x ⟩
               (- x) ∎)
-            (·-closedLeft (R.- R.1r) x∈N)
+            (⋆-closed (R.- R.1r) x∈N)
 
   Submodule : Type _
   Submodule = Σ[ N ∈ ℙ ⟨ M ⟩ ] isSubmodule N
@@ -41,12 +41,12 @@ module _ (R : Ring ℓ) (M : LeftModule R ℓ') where
 
   zeroSubmodule : Submodule
   fst zeroSubmodule x = (x ≡ 0m) , isSetLeftModule M x 0m
-  +-closed     (snd zeroSubmodule) x≡0 y≡0 = (λ i → x≡0 i + y≡0 i) ∙ +IdL 0m
-  0r-closed    (snd zeroSubmodule) = refl
-  ·-closedLeft (snd zeroSubmodule) r x≡0 = (λ i → r ⋆ x≡0 i) ∙ ⋆AnnihilR r
+  +-closed  (snd zeroSubmodule) x≡0 y≡0 = (λ i → x≡0 i + y≡0 i) ∙ +IdL 0m
+  0r-closed (snd zeroSubmodule)         = refl
+  ⋆-closed  (snd zeroSubmodule) r x≡0   = (λ i → r ⋆ x≡0 i) ∙ ⋆AnnihilR r
 
   allSubmodule : Submodule
   fst allSubmodule x = Unit* , isOfHLevelUnit* 1
-  +-closed     (snd allSubmodule) _ _ = tt*
-  0r-closed    (snd allSubmodule) = tt*
-  ·-closedLeft (snd allSubmodule) _ _ = tt*
+  +-closed  (snd allSubmodule) _ _ = tt*
+  0r-closed (snd allSubmodule)     = tt*
+  ⋆-closed  (snd allSubmodule) _ _ = tt*
