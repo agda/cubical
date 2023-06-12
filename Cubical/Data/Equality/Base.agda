@@ -8,9 +8,9 @@ defined equality types.
 
 module Cubical.Data.Equality.Base where
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude public
   using (Type; Level; ℓ-suc; ℓ-max; Σ; Σ-syntax; _,_)
-  renaming (fst to pr₁; snd to pr₂) public
+  renaming (fst to pr₁; snd to pr₂)
 
 -- Import the builtin equality type defined as an inductive family
 open import Agda.Builtin.Equality public

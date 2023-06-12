@@ -12,23 +12,16 @@
 module Cubical.Data.Equality.S1 where
 
 open import Cubical.Foundations.Prelude
-  hiding ( _≡_ ; step-≡ ; _∎ ; isPropIsContr)
-  renaming ( refl      to reflPath
-           ; transport to transportPath
-           ; J         to JPath
-           ; JRefl     to JPathRefl
-           ; sym       to symPath
-           ; _∙_       to compPath
-           ; cong      to congPath
-           ; subst     to substPath
-           ; substRefl to substPathReflPath
-           ; funExt    to funExtPath
-           ; isContr   to isContrPath
-           ; isProp    to isPropPath
-           )
+  using (PathP)
+  renaming (cong to congPath)
 
-open import Cubical.HITs.S1 as S1 renaming (loop to loopPath)
-  hiding (helix ; winding ; ΩS¹ ; encode ; intLoop ; decode ; decodeEncode)
+open import Cubical.HITs.S1 as S1 public
+  using (S¹; base)
+
+open import Cubical.HITs.S1 as S1
+  using ()
+  renaming (loop to loopPath)
+
 open import Cubical.Data.Nat
 open import Cubical.Data.Int
 
@@ -38,9 +31,8 @@ open import Cubical.Data.Equality.Univalence
 
 private
  variable
-  ℓ ℓ' : Level
-  A B : Type ℓ
-  x y z : A
+  a ℓ ℓ' : Level
+  A : Type a
 
 loop : base ≡ base
 loop = pathToEq loopPath

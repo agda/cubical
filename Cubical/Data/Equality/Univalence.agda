@@ -1,31 +1,24 @@
-{-# OPTIONS --safe #-}
+{- Univalence in terms of _≡_
 
+- Univalence stated in terms of the inductively defined equality type
+
+- Univalence is stated as in the book: the function idToEquiv is an equivalence
+
+-}
+
+{-# OPTIONS --safe #-}
 module Cubical.Data.Equality.Univalence where
 
 open import Cubical.Foundations.Prelude
-  hiding ( _≡_ ; step-≡ ; _∎ ; isPropIsContr)
+  using ()
   renaming ( refl      to reflPath
-           ; transport to transportPath
-           ; J         to JPath
-           ; JRefl     to JPathRefl
-           ; sym       to symPath
-           ; _∙_       to compPath
-           ; cong      to congPath
            ; subst     to substPath
-           ; substRefl to substPathReflPath
-           ; funExt    to funExtPath
-           ; isContr   to isContrPath
-           ; isProp    to isPropPath )
+           )
 open import Cubical.Foundations.Equiv
-  renaming ( fiber         to fiberPath
-           ; isEquiv       to isEquivPath
-           ; _≃_           to EquivPath
-           ; equivFun      to equivFunPath
-           ; isPropIsEquiv to isPropIsEquivPath
+  using ()
+  renaming ( isPropIsEquiv to isPropIsEquivPath
            ; idEquiv       to idEquivPath
            )
-  hiding   ( equivCtr
-           ; equivIsEquiv )
 
 open import Cubical.Foundations.Univalence
   using ()
@@ -39,8 +32,9 @@ open import Cubical.Data.Equality.Conversion
 
 private
  variable
-  ℓ ℓ' : Level
-  A B : Type ℓ
+  a b ℓ ℓ' : Level
+  A : Type a
+  B : Type b
   x y z : A
 
 idToEquiv : A ≡ B → A ≃ B
@@ -51,24 +45,30 @@ ua e = pathToEq (uaPath (equivToEquivPath e))
 
 uaβ : (e : A ≃ B) → transport id (ua e) x ≡ equivFun e x
 uaβ {x = x} e@(f , p) =
-  transport id (pathToEq (uaPath (equivToEquivPath e))) x
-    ≡⟨ transportPathToEq→transportPath id (uaPath (equivToEquivPath e)) x ⟩
-  substPath id (uaPath (equivToEquivPath e)) x
-    ≡⟨ pathToEq (uaPathβ (equivToEquivPath e) x) ⟩
-  f x ∎
+    transport id (pathToEq (uaPath (equivToEquivPath e))) x ≡⟨ step1 ⟩
+    substPath id (uaPath (equivToEquivPath e)) x            ≡⟨ step2 ⟩
+    f x ∎
+  where
+    step1 = transportPathToEq→transportPath id (uaPath (equivToEquivPath e)) x
+    step2 = pathToEq (uaPathβ (equivToEquivPath e) x)
 
 uaId : ua (id , isEquivId) ≡ refl {x = A}
 uaId =
-  pathToEq (uaPath (equivToEquivPath (id , isEquivId)))
-    ≡⟨ ap (λ t → pathToEq (uaPath t)) (Σ≡Prop (λ f g h → pathToEq (isPropIsEquivPath f g h)) refl) ⟩
-  pathToEq (uaPath (idEquivPath _))
-    ≡⟨ ap pathToEq (pathToEq uaIdEquivPath) ⟩
-  pathToEq reflPath
-    ≡⟨ pathToEq-reflPath ⟩
-  refl ∎
+    pathToEq (uaPath (equivToEquivPath (id , isEquivId))) ≡⟨ step1 ⟩ 
+    pathToEq (uaPath (idEquivPath _))                     ≡⟨ step2 ⟩ 
+    pathToEq reflPath                                     ≡⟨ step3 ⟩ 
+    refl ∎
+  where
+    step1 = ap (λ t → pathToEq (uaPath t)) (Σ≡Prop (λ f g h → pathToEq (isPropIsEquivPath f g h)) refl)
+    step2 = ap pathToEq (pathToEq uaIdEquivPath)
+    step3 = pathToEq-reflPath
 
 univalence : (A ≡ B) ≃ (A ≃ B)
-univalence = isoToEquiv (iso idToEquiv ua (λ e → Σ≡Prop (λ _ f g → pathToEq (isPropIsEquiv f g)) (funExt λ _ → uaβ e)) (λ where refl → uaId))
+univalence =
+  isoToEquiv
+    (iso idToEquiv ua
+         (λ e → Σ≡Prop (λ _ f g → pathToEq (isPropIsEquiv f g)) (funExt λ _ → uaβ e))
+         (λ where refl → uaId))
 
 -- -- Univalence formulated using ≡ everywhere
 -- univalenceEq : (A ≡ B) ≃ (A ≃ B)
@@ -76,11 +76,11 @@ univalence = isoToEquiv (iso idToEquiv ua (λ e → Σ≡Prop (λ _ f g → path
 --   where
 --   rem0 : Path _ (Lift (EquivPath A B)) (Lift (A ≃ B))
 --   rem0 = congPath Lift equivPath≡Equiv
--- 
+--
 --   rem1 : Path _ (A ≡ B) (Lift (A ≃ B))
 --   rem1 i = hcomp (λ j → λ { (i = i0) → path≡Eq {A = A} {B = B} j
 --                           ; (i = i1) → rem0 j })
 --                  (univalencePath {A = A} {B = B} i)
--- 
+--
 --   rem : EquivPath (A ≡ B) (A ≃ B)
 --   rem = compEquiv (eqweqmap rem1) (invEquiv LiftEquiv)

@@ -1,9 +1,18 @@
-{-# OPTIONS --safe #-}
+{- Conversion between paths and the inductively defined equality type
 
+- Path and _≡_ are equal (Path≡Eq)
+
+- conversion between dependent paths and PathP (pathOver→PathP and PathP→pathOver)
+
+- cong-PathP→apd-pathOver for HIT β rules (see S¹ loop case)
+
+-}
+
+{-# OPTIONS --safe #-}
 module Cubical.Data.Equality.Conversion where
 
 open import Cubical.Foundations.Prelude
-  hiding ( _≡_ ; step-≡ ; _∎ ; isPropIsContr)
+  hiding (_≡_ ; step-≡ ; _∎ ; isPropIsContr)
   renaming ( refl      to reflPath
            ; transport to transportPath
            ; J         to JPath
@@ -15,13 +24,15 @@ open import Cubical.Foundations.Prelude
            ; substRefl to substPathReflPath
            ; funExt    to funExtPath
            ; isContr   to isContrPath
-           ; isProp    to isPropPath )
+           ; isProp    to isPropPath
+           )
 open import Cubical.Foundations.Equiv
   renaming ( fiber     to fiberPath
            ; isEquiv   to isEquivPath
            ; _≃_       to EquivPath
            ; equivFun  to equivFunPath
-           ; isPropIsEquiv to isPropIsEquivPath )
+           ; isPropIsEquiv to isPropIsEquivPath
+           )
   hiding   ( equivCtr
            ; equivIsEquiv )
 open import Cubical.Foundations.Isomorphism
@@ -222,7 +233,7 @@ module _ (P : A → Type ℓ) {x y : A} {u : P x} {v : P y} where
   pathOver→PathP p q =
     JPath (λ y p → (v : P y) → transport P (pathToEq p) u ≡ v → PathP (λ i → P (p i)) u v)
       (λ v q → eqToPath (ap (λ r → transport P r u) (sym pathToEq-reflPath) ∙ q)) p v q
-  
+
   PathP→pathOver : (p : Path _ x y) → PathP (λ i → P (p i)) u v → transport P (pathToEq p) u ≡ v
   PathP→pathOver p q = JPath (λ y p → (v : P y) (q : PathP (λ i → P (p i)) u v) → transport P (pathToEq p) u ≡ v)
     (λ v q → ap (λ t → transport P t u) pathToEq-reflPath ∙ pathToEq q) p _ q
@@ -243,42 +254,48 @@ module _ (P : A → Type ℓ) {x : A} {u v : P x} where
 apd-pathToEq≡PathP→pathOver-cong : {P : A → Type ℓ} {x y : A} (f : (x : A) → P x) (p : Path _ x y) →
   apd f (pathToEq p) ≡ PathP→pathOver P p (congPath f p)
 apd-pathToEq≡PathP→pathOver-cong {P = P} {x = x} f = JPath (λ _ p → apd f (pathToEq p) ≡ PathP→pathOver P p (congPath f p))
-  (apd f (pathToEq reflPath)
-    ≡⟨ sym (apd (λ (p : x ≡ x) → apd f p) (sym pathToEq-reflPath)) ⟩
-  transport (λ p → transport P p (f x) ≡ f x) (sym pathToEq-reflPath) refl
-    ≡⟨ transport-path (λ p → transport P p (f x)) (λ _ → f x) (sym pathToEq-reflPath) refl ⟩
-  sym (ap (λ p → transport P p (f x)) (sym pathToEq-reflPath)) ∙ refl ∙ ap (λ (_ : x ≡ x) → f x) (sym pathToEq-reflPath)
-    ≡⟨ ap (λ t → sym (ap (λ p → transport P p (f x)) (sym pathToEq-reflPath)) ∙ refl ∙ t) (ap-const {A = x ≡ x} (sym pathToEq-reflPath) (f x)) ⟩
-  sym (ap (λ p → transport P p (f x)) (sym pathToEq-reflPath)) ∙ refl
-    ≡⟨ ap (λ t → sym t ∙ refl) (sym (sym-ap (λ p → transport P p (f x)) pathToEq-reflPath)) ⟩
-  sym (sym (ap (λ p → transport P p (f x)) pathToEq-reflPath)) ∙ refl
-    ≡⟨ ap (_∙ refl) (sym-invol (ap (λ p → transport P p (f x)) pathToEq-reflPath)) ⟩
-  ap (λ t → transport P t (f x)) pathToEq-reflPath ∙ refl
-    ≡⟨ ap (ap (λ t → transport P t (f x)) pathToEq-reflPath ∙_) (sym pathToEq-reflPath) ⟩
-  ap (λ t → transport P t (f x)) pathToEq-reflPath ∙ pathToEq reflPath
-    ≡⟨ sym (PathP→pathOver-reflPath P reflPath) ⟩
-  PathP→pathOver P reflPath reflPath ∎)
-  
+  let step1 = sym (apd (λ (p : x ≡ x) → apd f p) (sym pathToEq-reflPath))
+      step2 = transport-path (λ p → transport P p (f x)) (λ _ → f x) (sym pathToEq-reflPath) refl
+      step3 = ap (λ t → sym (ap (λ p → transport P p (f x)) (sym pathToEq-reflPath)) ∙ refl ∙ t)
+        (ap-const {A = x ≡ x} (sym pathToEq-reflPath) (f x))
+      step4 = ap (λ t → sym t ∙ refl) (sym (sym-ap (λ p → transport P p (f x)) pathToEq-reflPath))
+      step5 = ap (_∙ refl) (sym-invol (ap (λ p → transport P p (f x)) pathToEq-reflPath))
+      step6 = ap (ap (λ t → transport P t (f x)) pathToEq-reflPath ∙_) (sym pathToEq-reflPath)
+      step7 = sym (PathP→pathOver-reflPath P reflPath)
+
+  in  apd f (pathToEq reflPath)                                                                                              ≡⟨ step1 ⟩
+      transport (λ p → transport P p (f x) ≡ f x) (sym pathToEq-reflPath) refl                                               ≡⟨ step2 ⟩
+      sym (ap (λ p → transport P p (f x)) (sym pathToEq-reflPath)) ∙ refl ∙ ap (λ (_ : x ≡ x) → f x) (sym pathToEq-reflPath) ≡⟨ step3 ⟩
+      sym (ap (λ p → transport P p (f x)) (sym pathToEq-reflPath)) ∙ refl                                                    ≡⟨ step4 ⟩
+      sym (sym (ap (λ p → transport P p (f x)) pathToEq-reflPath)) ∙ refl                                                    ≡⟨ step5 ⟩
+      ap (λ t → transport P t (f x)) pathToEq-reflPath ∙ refl                                                                ≡⟨ step6 ⟩
+      ap (λ t → transport P t (f x)) pathToEq-reflPath ∙ pathToEq reflPath                                                   ≡⟨ step7 ⟩
+      PathP→pathOver P reflPath reflPath ∎
+
 module _ (P : A → Type ℓ) {x y : A} {u : P x} {v : P y} where
+  -- TODO
   -- PathP→pathOver→PathP : (p : Path _ x y) (q : PathP (λ i → P (p i)) u v) → pathOver→PathP P p (PathP→pathOver P p q) ≡ q
   -- PathP→pathOver→PathP p q = {!!}
-  
+
   pathOver→PathP→pathOver : (p : Path _ x y) (q : transport P (pathToEq p) u ≡ v) → PathP→pathOver P p (pathOver→PathP P p q) ≡ q
   pathOver→PathP→pathOver p q =
     JPath (λ y p → {v : P y} (q : transport P (pathToEq p) u ≡ v) → PathP→pathOver P p (pathOver→PathP P p q) ≡ q) (λ q →
-      PathP→pathOver P reflPath (pathOver→PathP P reflPath q)
-        ≡⟨ ap (PathP→pathOver P reflPath) (pathOver→PathP-reflPath P q) ⟩
-      PathP→pathOver P reflPath (eqToPath (ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q))
-        ≡⟨ PathP→pathOver-reflPath P (eqToPath (ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q)) ⟩
-      ap (λ t → transport P t u) pathToEq-reflPath ∙ pathToEq (eqToPath (ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q))
-        ≡⟨ ap (ap (λ t → transport P t u) pathToEq-reflPath ∙_) (pathToEq (pathToEq-eqToPath (ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q))) ⟩
-      ap (λ t → transport P t u) pathToEq-reflPath ∙ ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q
-        ≡⟨ sym (assoc (ap (λ t → transport P t u) pathToEq-reflPath) (ap (λ t → transport P t u) (sym pathToEq-reflPath)) q) ⟩
-      (ap (λ t → transport P t u) pathToEq-reflPath ∙ ap (λ t → transport P t u) (sym pathToEq-reflPath)) ∙ q
-        ≡⟨ ap (_∙ q) (sym (ap-∙ (λ t → transport P t u) pathToEq-reflPath (sym pathToEq-reflPath))) ⟩
-      ap (λ t → transport P t u) (pathToEq-reflPath ∙ sym pathToEq-reflPath) ∙ q
-        ≡⟨ ap (λ t → ap (λ t → transport P t u) t ∙ q) (invR pathToEq-reflPath) ⟩
-      q ∎) p q
+      let step1 = ap (PathP→pathOver P reflPath) (pathOver→PathP-reflPath P q)
+          step2 = PathP→pathOver-reflPath P (eqToPath (ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q))
+          step3 = ap (ap (λ t → transport P t u) pathToEq-reflPath ∙_)
+            (pathToEq (pathToEq-eqToPath (ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q)))
+          step4 = sym (assoc (ap (λ t → transport P t u) pathToEq-reflPath) (ap (λ t → transport P t u) (sym pathToEq-reflPath)) q)
+          step5 = ap (_∙ q) (sym (ap-∙ (λ t → transport P t u) pathToEq-reflPath (sym pathToEq-reflPath)))
+          step6 = ap (λ t → ap (λ t → transport P t u) t ∙ q) (invR pathToEq-reflPath)
+
+      in  PathP→pathOver P reflPath (pathOver→PathP P reflPath q)                                                                     ≡⟨ step1 ⟩
+          PathP→pathOver P reflPath (eqToPath (ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q))                               ≡⟨ step2 ⟩
+          ap (λ t → transport P t u) pathToEq-reflPath ∙ pathToEq (eqToPath (ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q)) ≡⟨ step3 ⟩
+          ap (λ t → transport P t u) pathToEq-reflPath ∙ ap (λ t → transport P t u) (sym pathToEq-reflPath) ∙ q                       ≡⟨ step4 ⟩
+          (ap (λ t → transport P t u) pathToEq-reflPath ∙ ap (λ t → transport P t u) (sym pathToEq-reflPath)) ∙ q                     ≡⟨ step5 ⟩
+          ap (λ t → transport P t u) (pathToEq-reflPath ∙ sym pathToEq-reflPath) ∙ q                                                  ≡⟨ step6 ⟩
+          q ∎) p q
+
 
 cong-PathP→apd-pathOver : (P : A → Type ℓ) {x y : A} (f : (x : A) → P x)
   → (p : Path _ x y) (q : transport P (pathToEq p) (f x) ≡ f y)
