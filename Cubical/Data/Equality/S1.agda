@@ -42,9 +42,9 @@ S¹-rec b l = S1.rec b (eqToPath l)
 
 S¹-rec-loop : (b : A) (l : b ≡ b) → ap (S¹-rec b l) loop ≡ l
 S¹-rec-loop b l =
-  ap (S¹-rec b l) loop ≡⟨ ap≡congPath (S¹-rec b l) loopPath ⟩
+  ap (S¹-rec b l) loop                      ≡⟨ ap≡congPath (S¹-rec b l) loopPath ⟩
   pathToEq (congPath (S¹-rec b l) loopPath) ≡⟨ refl ⟩
-  pathToEq (eqToPath l) ≡⟨ pathToEq (pathToEq-eqToPath l) ⟩
+  pathToEq (eqToPath l)                     ≡⟨ pathToEq (pathToEq-eqToPath l) ⟩
   l ∎
 
 S¹-elimPath : (P : S¹ → Type ℓ) (b : P base) (l : PathP (λ i → P (loopPath i)) b b) → (x : S¹) → P x

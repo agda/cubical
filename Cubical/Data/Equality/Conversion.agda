@@ -47,8 +47,9 @@ open import Cubical.Data.Equality.Base
 
 private
  variable
-  ℓ ℓ' : Level
-  A B : Type ℓ
+  a b ℓ ℓ' : Level
+  A : Type a
+  B : Type b
   x y z : A
 
 --------------------------------------------------------------------------------
@@ -301,10 +302,7 @@ cong-PathP→apd-pathOver : (P : A → Type ℓ) {x y : A} (f : (x : A) → P x)
   → (p : Path _ x y) (q : transport P (pathToEq p) (f x) ≡ f y)
   → congPath f p ≡ pathOver→PathP P p q → apd f (pathToEq p) ≡ q
 cong-PathP→apd-pathOver {A = A} P {x = x} f p q r =
-  apd f (pathToEq p)
-    ≡⟨ apd-pathToEq≡PathP→pathOver-cong f p ⟩
-  PathP→pathOver P p (congPath f p)
-    ≡⟨ ap (PathP→pathOver P p) r ⟩
-  PathP→pathOver P p (pathOver→PathP P p q)
-    ≡⟨ pathOver→PathP→pathOver P p q ⟩
+  apd f (pathToEq p)                        ≡⟨ apd-pathToEq≡PathP→pathOver-cong f p ⟩
+  PathP→pathOver P p (congPath f p)         ≡⟨ ap (PathP→pathOver P p) r ⟩
+  PathP→pathOver P p (pathOver→PathP P p q) ≡⟨ pathOver→PathP→pathOver P p q ⟩
   q ∎

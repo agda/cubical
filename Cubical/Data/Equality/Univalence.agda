@@ -54,9 +54,9 @@ uaβ {x = x} e@(f , p) =
 
 uaId : ua (id , isEquivId) ≡ refl {x = A}
 uaId =
-    pathToEq (uaPath (equivToEquivPath (id , isEquivId))) ≡⟨ step1 ⟩ 
-    pathToEq (uaPath (idEquivPath _))                     ≡⟨ step2 ⟩ 
-    pathToEq reflPath                                     ≡⟨ step3 ⟩ 
+    pathToEq (uaPath (equivToEquivPath (id , isEquivId))) ≡⟨ step1 ⟩
+    pathToEq (uaPath (idEquivPath _))                     ≡⟨ step2 ⟩
+    pathToEq reflPath                                     ≡⟨ step3 ⟩
     refl ∎
   where
     step1 = ap (λ t → pathToEq (uaPath t)) (Σ≡Prop (λ f g h → pathToEq (isPropIsEquivPath f g h)) refl)
@@ -69,18 +69,3 @@ univalence =
     (iso idToEquiv ua
          (λ e → Σ≡Prop (λ _ f g → pathToEq (isPropIsEquiv f g)) (funExt λ _ → uaβ e))
          (λ where refl → uaId))
-
--- -- Univalence formulated using ≡ everywhere
--- univalenceEq : (A ≡ B) ≃ (A ≃ B)
--- univalenceEq {A = A} {B = B} = equivPathToEquiv rem
---   where
---   rem0 : Path _ (Lift (EquivPath A B)) (Lift (A ≃ B))
---   rem0 = congPath Lift equivPath≡Equiv
---
---   rem1 : Path _ (A ≡ B) (Lift (A ≃ B))
---   rem1 i = hcomp (λ j → λ { (i = i0) → path≡Eq {A = A} {B = B} j
---                           ; (i = i1) → rem0 j })
---                  (univalencePath {A = A} {B = B} i)
---
---   rem : EquivPath (A ≡ B) (A ≃ B)
---   rem = compEquiv (eqweqmap rem1) (invEquiv LiftEquiv)

@@ -1,11 +1,19 @@
 {-
 
 This module converts between the path types and the inductively
-defined equality types.
+defined equality types. It provides the following for the inductively
+defined equality type _≡_.
+
+- Basic therory for _≡_ (J, ap, transport, ...)
+
+- A proof of univalence for _≡_ and equivalences using _≡_
+
+- S¹ and propositional truncation with (path) constructors, eliminators
+  and β rules all in terms of _≡_.
 
 -}
-{-# OPTIONS --safe #-}
 
+{-# OPTIONS --safe #-}
 module Cubical.Data.Equality where
 
 open import Cubical.Data.Equality.Base public

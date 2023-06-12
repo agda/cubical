@@ -88,8 +88,7 @@ isProp : Type ℓ → Type ℓ
 isProp A = (x y : A) → x ≡ y
 
 record isEquiv {A : Type ℓ} {B : Type ℓ'} (f : A → B) : Type (ℓ-max ℓ ℓ') where
-  field
-    equiv-proof : (y : B) → isContr (fiber f y)
+  field equiv-proof : (y : B) → isContr (fiber f y)
 open isEquiv public
 
 infix 4 _≃_
