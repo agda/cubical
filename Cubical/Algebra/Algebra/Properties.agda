@@ -39,7 +39,10 @@ module AlgebraTheory (R : Ring ℓ) (A : Algebra R ℓ') where
   open RingStr (snd R) renaming (_+_ to _+r_ ; _·_ to _·r_)
   open AlgebraStr (A .snd)
 
+  ⋆AnnihilL : (x : ⟨ A ⟩) → 0r ⋆ x ≡ 0a
   ⋆AnnihilL = ModuleTheory.⋆AnnihilL R (Algebra→Module A)
+
+  ⋆AnnihilR : (r : ⟨ R ⟩) → r ⋆ 0a ≡ 0a
   ⋆AnnihilR = ModuleTheory.⋆AnnihilR R (Algebra→Module A)
 
   ⋆Dist· : (x y : ⟨ R ⟩) (a b : ⟨ A ⟩) → (x ·r y) ⋆ (a · b) ≡ (x ⋆ a) · (y ⋆ b)
