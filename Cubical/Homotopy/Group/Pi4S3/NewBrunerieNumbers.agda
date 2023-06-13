@@ -182,14 +182,14 @@ f7 p = coe0→1 (λ i → Code (p i)) ∣ base ∣₂
   Code (merid a i) = ua (∥S²'∥₂≃∥S²'∥₂ a) i
 
 g8 : Ω² ∥ S²'∙ ∥₂∙ .fst → Ω ∥ S¹∙ ∥₁∙ .fst
-g8 p i =  coe0→1 (λ j → codeTruncS²' (p i j) .fst) ∣ base ∣₁
+g8 p i = coe0→1 (λ j → codeTruncS²' (p i j) .fst) ∣ base ∣₁
   where
   HopfS²' : S²' → Type₀
   HopfS²' base = S¹
   HopfS²' (surf i j) = Glue S¹ (λ { (i = i0) → S¹ , idEquiv S¹
-                                 ; (i = i1) → S¹ , idEquiv S¹
-                                 ; (j = i0) → S¹ , idEquiv S¹
-                                 ; (j = i1) → S¹ , (loop i) ·_  , rotIsEquiv (loop i) } )
+                                  ; (i = i1) → S¹ , idEquiv S¹
+                                  ; (j = i0) → S¹ , idEquiv S¹
+                                  ; (j = i1) → S¹ , (loop i) ·_  , rotIsEquiv (loop i) } )
 
   codeTruncS²' : ∥ S²' ∥₂ → hGroupoid _
   codeTruncS²' = rec₂ (isOfHLevelTypeOfHLevel 3) (λ s → ∥ HopfS²' s ∥₁ , squash₁)
@@ -258,9 +258,9 @@ invLooper (loop i) = loop (~ i)
 rCancel : {A : Type ℓ} {x y : A} (p : x ≡ y) → p ∙ sym p ≡ refl
 rCancel {x = x} p j i =
   hcomp (λ k → λ { (i = i0) → x
-                  ; (i = i1) → p (~ k ∧ ~ j)
-                  ; (j = i1) → x
-                  }) (p (i ∧ ~ j))
+                 ; (i = i1) → p (~ k ∧ ~ j)
+                 ; (j = i1) → x
+                 }) (p (i ∧ ~ j))
 
 _∙∙_∙∙_ : {A : Type ℓ} {w x y z : A} → w ≡ x → x ≡ y → y ≡ z → w ≡ z
 (p ∙∙ q ∙∙ r) i =
@@ -287,14 +287,14 @@ S²→S²' (merid (loop i) j) = surf i j
 
 S³→SuspS²' : S³ → Susp S²'
 S³→SuspS²' north = north
-S³→SuspS²' south = south
-S³→SuspS²' (merid x i) = merid (S²→S²' x) i
+S³→SuspS²' south = north
+S³→SuspS²' (merid x i) = σ' (S²→S²' x) i
 
 joinS¹S¹→SuspS²' : join S¹ S¹ → Susp S²'
 joinS¹S¹→SuspS²' x = S³→SuspS²' (joinS¹S¹→S³ x)
 
--- β₂ : ℤ
--- β₂ = g10 (g9 (g8 λ i j → f7 (λ k → joinS¹S¹→SuspS²' (η₂ (push (loop i) (loop j) k)))))
+β₂ : ℤ
+β₂ = g10 (g9 (g8 λ i j → f7 (λ k → joinS¹S¹→SuspS²' (η₂ (push (loop i) (loop j) k)))))
 
 
 
