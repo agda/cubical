@@ -9,7 +9,7 @@ defined equality types.
 module Cubical.Data.Equality.Base where
 
 open import Cubical.Foundations.Prelude public
-  using (Type; Level; ℓ-suc; ℓ-max; Σ; Σ-syntax; _,_)
+  using (Type; Level; ℓ-zero; ℓ-suc; ℓ-max; Σ; Σ-syntax; _,_)
   renaming (fst to pr₁; snd to pr₂)
 
 -- Import the builtin equality type defined as an inductive family
@@ -53,6 +53,9 @@ assoc refl p q = refl
 
 unitR : {x y : A} (p : x ≡ y) → p ∙ refl ≡ p
 unitR refl = refl
+
+invL :  {x y : A} (p : x ≡ y) → sym p ∙ p ≡ refl
+invL refl = refl
 
 invR :  {x y : A} (p : x ≡ y) → p ∙ sym p ≡ refl
 invR refl = refl
