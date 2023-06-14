@@ -118,6 +118,9 @@ elim₂ bG f (squash₂ x y p q r s u v i j k l) =
     (squash₂ x y p q r s u v)
     i j k l
 
+data S³' : Type₀ where
+  base : S³'
+  surf : PathP (λ j → PathP (λ i → base ≡ base) refl refl) refl refl
 
 -- Susp
 data Susp (A : Type ℓ) : Type ℓ where
@@ -133,9 +136,10 @@ S³ = Susp S²
 Pointed₀ : Type₁
 Pointed₀ = Σ[ X ∈ Type₀ ] X
 
-S¹∙ S²'∙ : Pointed₀
+S¹∙ S²'∙ S³'∙ : Pointed₀
 S¹∙ = (S¹ , base)
 S²'∙ = (S²' , base)
+S³'∙ = (S³' , base)
 
 Susp∙ : Type₀ → Pointed₀
 Susp∙ A = Susp A , north
@@ -144,9 +148,10 @@ Susp∙ A = Susp A , north
 ∥ A , a ∥₁∙ = ∥ A ∥₁ , ∣ a ∣₁
 ∥ A , a ∥₂∙ = ∥ A ∥₂ , ∣ a ∣₂
 
-Ω Ω² : Pointed₀ → Pointed₀
+Ω Ω² Ω³ : Pointed₀ → Pointed₀
 Ω (_ , a) = ((a ≡ a) , refl)
 Ω² p = Ω (Ω p)
+Ω³ p = Ω (Ω² p)
 
 -- The maps
 σ' : S²' → Ω (Susp∙ S²') .fst
@@ -157,8 +162,8 @@ S¹×S¹→S²' base y = base
 S¹×S¹→S²' (loop i) base = base
 S¹×S¹→S²' (loop i) (loop j) = surf i j
 
-f7 : Ω (Susp∙ S²') .fst → ∥ S²' ∥₂
-f7 p = coe0→1 (λ i → Code (p i)) ∣ base ∣₂
+f7' : Ω (Susp∙ S²') .fst → ∥ S²' ∥₂
+f7' p = coe0→1 (λ i → Code (p i)) ∣ base ∣₂
   where
   _+₂_ : ∥ S²' ∥₂ → ∥ S²' ∥₂ → ∥ S²' ∥₂
   _+₂_ = rec₂ (is2GroupoidΠ λ _ → squash₂)
@@ -223,21 +228,21 @@ g10 = rec₀ isSetℤ (λ x → x)
 -- Brunerie numbers
 
 β₃ : ℤ
-β₃ = g10 (g9 (g8 λ i j → f7 λ k → η₃ (push (loop i) (loop j) k)))
+β₃ = g10 (g9 (g8 λ i j → f7' λ k → η₃ (push (loop i) (loop j) k)))
 
 -- This does not terminate fast
 -- β₃≡-2 : β₃ ≡ -2
 -- β₃≡-2 = refl
 
 β₃' : ℤ
-β₃' = g10 (g9 (g8 λ i j → f7 λ k → η₃' (push (loop i) (loop j) k)))
+β₃' = g10 (g9 (g8 λ i j → f7' λ k → η₃' (push (loop i) (loop j) k)))
 
 -- This terminates fast
 β₃'≡-2 : β₃' ≡ -2
 β₃'≡-2 = refl
 
 β₃'-pos : ℤ
-β₃'-pos = g10 (g9 (g8 λ i j → f7 λ k → η₃' (push (loop (~ i)) (loop j) k)))
+β₃'-pos = g10 (g9 (g8 λ i j → f7' λ k → η₃' (push (loop (~ i)) (loop j) k)))
 
 β₃'≡2 : β₃'-pos ≡ pos 2
 β₃'≡2 = refl
@@ -290,11 +295,100 @@ S³→SuspS²' north = north
 S³→SuspS²' south = north
 S³→SuspS²' (merid x i) = σ' (S²→S²' x) i
 
+SuspS²'→S³' : Susp S²' → S³'
+SuspS²'→S³' north = base
+SuspS²'→S³' south = base
+SuspS²'→S³' (merid base i) = base
+SuspS²'→S³' (merid (surf i j) k) = surf i j k
+
 joinS¹S¹→SuspS²' : join S¹ S¹ → Susp S²'
 joinS¹S¹→SuspS²' x = S³→SuspS²' (joinS¹S¹→S³ x)
 
-β₂ : ℤ
-β₂ = g10 (g9 (g8 λ i j → f7 (λ k → joinS¹S¹→SuspS²' (η₂ (push (loop i) (loop j) k)))))
+-- β₂ : ℤ
+-- β₂ = g10 (g9 (g8 λ i j → f7 (λ k → joinS¹S¹→SuspS²' (η₂ (push (loop i) (loop j) k)))))
+
+
+-- Experiments
+
+multTwoAux : (x : S²') → Path (Path ∥ S²' ∥₂ ∣ x ∣₂ ∣ x ∣₂) refl refl
+multTwoAux base i j = ∣ surf i j ∣₂
+multTwoAux (surf k l) i j =
+  hcomp
+    (λ m → λ
+      { (i = i0) → ∣ surf k l ∣₂
+      ; (i = i1) → ∣ surf k l ∣₂
+      ; (j = i0) → ∣ surf k l ∣₂
+      ; (j = i1) → ∣ surf k l ∣₂
+      ; (k = i0) → ∣ surf i j ∣₂
+      ; (k = i1) → ∣ surf i j ∣₂
+      ; (l = i0) → ∣ surf i j ∣₂
+      ; (l = i1) → squash₂ _ _ _ _ _ _ (λ k i j → step₁ k i j) refl m k i j
+      })
+    (step₁ k i j)
+
+  where
+  step₁ : I → I → I → ∥ S²' ∥₂
+  step₁ k i j =
+    hcomp {A = ∥ S²' ∥₂}
+      (λ m → λ
+        { (i = i0) → ∣ surf k (l ∧ m) ∣₂
+        ; (i = i1) → ∣ surf k (l ∧ m) ∣₂
+        ; (j = i0) → ∣ surf k (l ∧ m) ∣₂
+        ; (j = i1) → ∣ surf k (l ∧ m) ∣₂
+        ; (k = i0) → ∣ surf i j ∣₂
+        ; (k = i1) → ∣ surf i j ∣₂
+        ; (l = i0) → ∣ surf i j ∣₂
+        })
+     ∣ surf i j ∣₂
+
+multTwoTildeAux : (t : ∥ S²' ∥₂) → Path (Path ∥ S²' ∥₂ t t) refl refl
+multTwoTildeAux ∣ x ∣₂ = multTwoAux x
+multTwoTildeAux (squash₂ _ _ _ _ _ _ t u k l m n) i j =
+  squash₂ _ _ _ _ _ _
+    (λ k l m → multTwoTildeAux (t k l m) i j)
+    (λ k l m → multTwoTildeAux (u k l m) i j)
+    k l m n
+
+multTwoEquivAux : Path (Path (∥ S²' ∥₂ ≃ ∥ S²' ∥₂) (idEquiv _) (idEquiv _)) refl refl
+multTwoEquivAux i j =
+  ( f i j
+  , hcomp
+      (λ l → λ
+        { (i = i0) → isPropIsEquiv _ (idIsEquiv _) (idIsEquiv _) l
+        ; (i = i1) → isPropIsEquiv _ (idIsEquiv _) (idIsEquiv _) l
+        ; (j = i0) → isPropIsEquiv _ (idIsEquiv _) (idIsEquiv _) l
+        ; (j = i1) →
+          isPropIsEquiv _
+            (transp (λ k → isEquiv (f i k)) (i ∨ ~ i) (idIsEquiv _))
+            (idIsEquiv _)
+            l
+        })
+      (transp (λ k → isEquiv (f i (j ∧ k))) (i ∨ ~ i ∨ ~ j) (idIsEquiv _))
+  )
+  where
+  f : I → I → ∥ S²' ∥₂ → ∥ S²' ∥₂
+  f i j t = multTwoTildeAux t i j
+
+tHopf³ : S³' → Type₀
+tHopf³ base = ∥ S²' ∥₂
+tHopf³ (surf i j k) =
+  Glue ∥ S²' ∥₂
+    (λ { (i = i0) → (∥ S²' ∥₂ , idEquiv _)
+       ; (i = i1) → (∥ S²' ∥₂ , idEquiv _)
+       ; (j = i0) → (∥ S²' ∥₂ , idEquiv _)
+       ; (j = i1) → (∥ S²' ∥₂ , idEquiv _)
+       ; (k = i0) → (∥ S²' ∥₂ , multTwoEquivAux i j)
+       ; (k = i1) → (∥ S²' ∥₂ , idEquiv _)
+       })
+
+π₃S³ : Ω³ S³'∙ .fst → Ω² ∥ S²'∙ ∥₂∙ .fst
+π₃S³ p i j = transp (λ k → tHopf³ (p j k i)) i0 ∣ base ∣₂
+
+f7 : Ω³ S³'∙ .fst → Ω² ∥ S²'∙ ∥₂∙ .fst
+f7 = π₃S³
+
+-- β₂ : ℤ
+-- β₂ = g10 (g9 (g8 (f7 λ i j k → SuspS²'→S³' (η₃ (push (loop i) (loop j) k)))))
 
 
 

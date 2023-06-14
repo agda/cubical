@@ -1,9 +1,5 @@
-{-
-This code is adapted from examples/brunerie3.ctt on the pi4s3_nobug
-branch of cubicaltt It also contains a computation of a simplified
-version of the Brunerie number, motivated in
-Cubical.Homotopy.Group.Pi4S3.DirectProof.
--}
+{- This code is adapted from examples/brunerie.ctt and
+   examples/brunerie4.ctt on the pi4s3_nobug branch of cubicaltt -}
 {-# OPTIONS --safe #-}
 module Cubical.Homotopy.Group.Pi4S3.BrunerieExperiments2 where
 
@@ -32,9 +28,10 @@ open import Cubical.Homotopy.Loopspace
 open import Cubical.Homotopy.Hopf
 open S¹Hopf
 
-Bool∙ S¹∙ S³∙ : Pointed₀
+Bool∙ S¹∙ SuspS¹∙ S³∙ : Pointed₀
 Bool∙ = (Bool , true)
 S¹∙ = (S¹ , base)
+SuspS¹∙ = (SuspS¹ , north)
 S³∙ = (S³ , base)
 
 ∥_∥₃∙ ∥_∥₄∙ : Pointed₀ → Pointed₀
@@ -57,56 +54,28 @@ mapΩ²refl f p i j = f (p i j)
 mapΩ³refl : {A : Pointed₀} {B : Type₀} (f : A .fst → B) → Ω³ A .fst → Ω³ (B , f (pt A)) .fst
 mapΩ³refl f p i j k = f (p i j k)
 
-meridS² : S¹ → Path S² base base
-meridS² base _ = base
-meridS² (loop i) j = surf i j
+alpha : join S¹ S¹ → SuspS¹
+alpha (inl x) = north
+alpha (inr x) = north
+alpha (push x y i) = (merid x ∙ sym (merid y)) i
 
-alpha : join S¹ S¹ → S²
-alpha (inl x) = base
-alpha (inr y) = base
-alpha (push x y i) = (meridS² y ∙ meridS² x) i
+transport⁻ : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → B → A
+transport⁻ p = transport (λ i → p (~ i))
 
--- connectionBoth : {A : Type₀} {a : A} (p : Path A a a) → PathP (λ i → Path A (p i) (p i)) p p
--- connectionBoth {a = a} p i j =
---   hcomp
---     (λ k → λ
---       { (i = i0) → p (j ∨ ~ k)
---       ; (i = i1) → p (j ∧ k)
---       ; (j = i0) → p (i ∨ ~ k)
---       ; (j = i1) → p (i ∧ k)
---       })
---     a
+subst⁻ : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y) → B y → B x
+subst⁻ B p pa = transport⁻ (λ i → B (p i)) pa
 
--- data PostTotalHopf : Type₀ where
---   base : S¹ → PostTotalHopf
---   loop : (x : S¹) → PathP (λ i → Path PostTotalHopf (base x) (base (rotLoop x (~ i)))) refl refl
+funExt1 : {C B : Type₀} (P : C → Type₀) {a b : C} (p : a ≡ b)
+          (f : P a → B) (g : P b → B) (h : (x : P b) → f (subst⁻ P p x) ≡ g x)
+        → PathP (λ i → P (p i) → B) f g
+funExt1 {B = B} P p f g h = toPathP (funExt (λ x → transportRefl (f (subst⁻ P p x)) ∙ h x))
 
--- tee12 : (x : S²) → HopfS² x → PostTotalHopf
--- tee12 base y = base y
--- tee12 (surf i j) y =
---   hcomp
---     (λ k → λ
---       { (i = i0) → base y
---       ; (i = i1) → base y
---       ; (j = i0) → base y
---       ; (j = i1) → base (rotLoopInv y (~ i) k)
---       })
---     (loop (unglue (i ∨ ~ i ∨ j ∨ ~ j) y) i j)
-
--- tee34 : PostTotalHopf → join S¹ S¹
--- tee34 (base x) = inl x
--- tee34 (loop x i j) =
---   hcomp
---     (λ k → λ
---       { (i = i0) → push x x (j ∧ ~ k)
---       ; (i = i1) → push x x (j ∧ ~ k)
---       ; (j = i0) → inl x
---       ; (j = i1) → push (rotLoop x (~ i)) x (~ k)
---       })
---     (push x x j)
-
--- tee : (x : S²) → HopfS² x → join S¹ S¹
--- tee x y = tee34 (tee12 x y)
+t : (x : SuspS¹) → HopfSuspS¹ x → join S¹ S¹
+t north x = inl x
+t south x = inr x
+t (merid x i) =
+  funExt1 HopfSuspS¹ (merid x) inl inr
+          (λ y → push (subst⁻ HopfSuspS¹ (merid x) y) y) i
 
 fibΩ : {B : Pointed₀} (P : B .fst → Type₀) → P (pt B) → Ω B .fst → Type₀
 fibΩ P f p = PathP (λ i → P (p i)) f f
@@ -119,46 +88,40 @@ fibΩ³ P f = fibΩ² (fibΩ P f) refl
 
 
 -- The map h from 9.3
-ΩHopf : Ω S²∙ .fst → Type₀
-ΩHopf = fibΩ HopfS² base 
+ΩHopf : Ω SuspS¹∙ .fst → Type₀
+ΩHopf = fibΩ HopfSuspS¹ base
 
-Ω²Hopf : Ω² S²∙ .fst → Type₀
-Ω²Hopf = fibΩ² HopfS² base
+Ω²Hopf : Ω² SuspS¹∙ .fst → Type₀
+Ω²Hopf = fibΩ² HopfSuspS¹ base
 
-Ω³Hopf : Ω³ S²∙ .fst → Type₀
-Ω³Hopf = fibΩ³ HopfS² base
+Ω³Hopf : Ω³ SuspS¹∙ .fst → Type₀
+Ω³Hopf = fibΩ³ HopfSuspS¹ base
 
 inhOrTrunc : (A : Type₀) → ℕ → Type₀
 inhOrTrunc A zero = A
 inhOrTrunc A (suc n) = (x y : A) → inhOrTrunc (x ≡ y) n
 
+funDepTr : (A : Type₀) (P : A → Type₀) (a0 a1 : A) (p : a0 ≡ a1) (u0 : P a0) (u1 : P a1)
+         → (PathP (λ i → P (p i)) u0 u1) ≡ (subst P p u0 ≡ u1)
+funDepTr A P a0 a1 p u0 u1 j = PathP (λ i → P (p (j ∨ i))) (transp (λ i → P (p (j ∧ i))) (~ j) u0)
+
 truncFibOmega : (n : ℕ) (B : Pointed₀) (P : B .fst → Type₀) (f : P (snd B))
                 (tr : inhOrTrunc (P (snd B)) (suc n))
                 (p : Ω B .fst)
               → inhOrTrunc (fibΩ P f p) n
-truncFibOmega = {!!}
---   let trf : inhOrTrunc (Path (P B.2) (subst B.1 P (pt B) (pt B) p f) f) n =
---         tr (subst B.1 P (pt B) (pt B) p f) f
---       eq : Path U (Path (P (pt B)) (subst B.1 P (pt B) (pt B) p f) f)
---                   (PathP (<i> P (p @ i)) f f) =
---                     <i> funDepTr B.1 P (pt B) (pt B) p f f @ -i
---   in subst U (\(X : U) -> inhOrTrunc X n)
---              (Path (P (pt B)) (subst B.1 P (pt B) (pt B) p f) f)
---              (PathP (<i> P (p @ i)) f f)
---              eq trf
+truncFibOmega n B P f tr p = subst (λ x → inhOrTrunc x n) (λ i → funDepTr (B .fst) P (snd B) (snd B) p f f (~ i)) (tr (subst P p f) f)
 
 fibContrΩ³Hopf : ∀ p → Ω³Hopf p
 fibContrΩ³Hopf =
-  truncFibOmega 0 (Ω² S²∙) Ω²Hopf (λ _ _ → base)
-    (truncFibOmega 1 (Ω S²∙) ΩHopf (λ _ → base)
-    (truncFibOmega 2 S²∙ HopfS² base isGroupoidS¹ (λ _ → base)) λ i j → base)
+  truncFibOmega 0 (Ω² SuspS¹∙) Ω²Hopf (λ _ _ → base)
+    (truncFibOmega 1 (Ω SuspS¹∙) ΩHopf (λ _ → base)
+    (truncFibOmega 2 SuspS¹∙ HopfSuspS¹ base isGroupoidS¹ (λ _ → north)) λ i j → north)
+
+h : Ω³ SuspS¹∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
+h p i j k = t (p i j k) (fibContrΩ³Hopf p i j k)
 
 
--- h (p : (Omega3 S2pt).1) : (Omega3 (joinpt S1pt S1)).1 =
---   <i j k> t (p @ i @ j @ k) (fibContrHopfThree p @ i @ j @ k)
-
-h : Ω³ S²∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
-h p i j k = {!!}
+------- 
 
 multTwoAux : (x : S²) → Path (Path ∥ S² ∥₄ ∣ x ∣₄ ∣ x ∣₄) refl refl
 multTwoAux base i j = ∣ surf i j ∣₄
@@ -258,10 +221,10 @@ encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣
 f3 : Ω³ S³∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 f3 = mapΩ³refl S³→joinS¹S¹
 
-f4 : Ω³ (join∙ S¹∙ S¹) .fst → Ω³ S²∙ .fst
+f4 : Ω³ (join∙ S¹∙ S¹) .fst → Ω³ SuspS¹∙ .fst
 f4 = mapΩ³refl alpha
 
-f5 : Ω³ S²∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
+f5 : Ω³ SuspS¹∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 f5 = h
 
 f6 : Ω³ (join∙ S¹∙ S¹) .fst → Ω³ S³∙ .fst
@@ -284,7 +247,7 @@ brunerie : ℤ
 brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
 
 
-
+{-
 {-
 
 Computation of an alternative definition of the Brunerie number based
@@ -351,3 +314,4 @@ brunerie'≡-2 = refl
 -- Proving that this indeed corresponds to the Brunerie number
 -- requires us to phrase things slightly more carefully. For this, see
 -- the second part of the Cubical.Homotopy.Group.Pi4S3.DirectProof.
+-}
