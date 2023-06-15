@@ -125,79 +125,67 @@ h : Ω³ SuspS¹∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 h p i j k = t (p i j k) (fibContrΩ³Hopf p i j k)
 
 
+-- The final maps without connections:
 
-
--------  TODO: can we do the rest without connections?
+setTruncFib : {A : Type₀} (P : A → Type₀) (gP : (x : A) -> isSet (P x))
+              {a b : A} (p q : a ≡ b) (r : p ≡ q)
+              (a1 : P a) (b1 : P b)
+              (p1 : PathP (λ i → P (p i)) a1 b1)
+              (q1 : PathP (λ i → P (q i)) a1 b1) →
+              PathP (λ i → PathP (λ j → P (r i j)) a1 b1) p1 q1
+setTruncFib P gP p q r a1 b1 p1 q1 = isOfHLevel→isOfHLevelDep 2 gP a1 b1 p1 q1 r
 
 multTwoAux : (x : S²) → Path (Path ∥ S² ∥₄ ∣ x ∣₄ ∣ x ∣₄) refl refl
 multTwoAux base i j = ∣ surf i j ∣₄
-multTwoAux (surf k l) i j =
-  hcomp
-    (λ m → λ
-      { (i = i0) → ∣ surf k l ∣₄
-      ; (i = i1) → ∣ surf k l ∣₄
-      ; (j = i0) → ∣ surf k l ∣₄
-      ; (j = i1) → ∣ surf k l ∣₄
-      ; (k = i0) → ∣ surf i j ∣₄
-      ; (k = i1) → ∣ surf i j ∣₄
-      ; (l = i0) → ∣ surf i j ∣₄
-      ; (l = i1) → squash₄ _ _ _ _ _ _ (λ k i j → step₁ k i j) refl m k i j
-      })
-    (step₁ k i j)
+multTwoAux (surf k l) =
+  setTruncFib (λ x → Path (Path ∥ S² ∥₄ ∣ x ∣₄ ∣ x ∣₄) refl refl)
+              (λ x → squash₄ ∣ x ∣₄ ∣ x ∣₄ refl refl)
+              refl refl
+              surf (λ i j → ∣ surf i j ∣₄) (λ i j → ∣ surf i j ∣₄)
+              (λ _ i j → ∣ surf i j ∣₄) (λ _ i j → ∣ surf i j ∣₄) k l
 
+multTwo : S² → S² → ∥ S² ∥₄
+multTwo base x = ∣ x ∣₄
+multTwo (surf i j) x = multTwoAux x i j
+
+multTwoTilde : S² → ∥ S² ∥₄ → ∥ S² ∥₄
+multTwoTilde x = 2GroupoidTrunc.rec squash₄ (multTwo x)
+
+lemPropF : {A : Type₀} (P : A → Type₀) (pP : (x : A) → isProp (P x))
+           {a0 a1 : A} (p : a0 ≡ a1) (b0 : P a0) (b1 : P a1) → PathP (λ i → P (p i)) b0 b1
+lemPropF P pP p b0 b1 i = pP (p i) (coe0→i (λ k → P (p k)) i b0) (coe1→i (λ k → P (p k)) i b1) i
+
+lemPropS² : (P : S² → Type₀) (pP : (x : S²) → isProp (P x)) (pB : P base) (x : S²) → P x
+lemPropS² P pP pB base = pB
+lemPropS² P pP pB (surf i j) =
+  hcomp (λ k → λ { (i = i0) → isProp→isSet (pP base) pB pB (lemPropF P pP (surf i) pB pB) refl k j
+                 ; (i = i1) → isProp→isSet (pP base) pB pB (lemPropF P pP (surf i) pB pB) refl k j
+                 ; (j = i0) → pB
+                 ; (j = i1) → pB })
+        (lemPropF P pP (surf i) pB pB j)
+
+multEquivBase : isEquiv (multTwoTilde base)
+multEquivBase = subst isEquiv (funExt rem) (idEquiv ∥ S² ∥₄ .snd)
   where
-  step₁ : I → I → I → ∥ S² ∥₄
-  step₁ k i j =
-    hcomp {A = ∥ S² ∥₄}
-      (λ m → λ
-        { (i = i0) → ∣ surf k (l ∧ m) ∣₄
-        ; (i = i1) → ∣ surf k (l ∧ m) ∣₄
-        ; (j = i0) → ∣ surf k (l ∧ m) ∣₄
-        ; (j = i1) → ∣ surf k (l ∧ m) ∣₄
-        ; (k = i0) → ∣ surf i j ∣₄
-        ; (k = i1) → ∣ surf i j ∣₄
-        ; (l = i0) → ∣ surf i j ∣₄
-        })
-     ∣ surf i j ∣₄
+  rem : (x : ∥ S² ∥₄) → idfun ∥ S² ∥₄ x ≡ multTwoTilde base x
+  rem = 2GroupoidTrunc.elim (λ x → isOfHLevelSuc 4 squash₄ x (multTwoTilde base x)) (λ _ → refl)
 
-multTwoTildeAux : (t : ∥ S² ∥₄) → Path (Path ∥ S² ∥₄ t t) refl refl
-multTwoTildeAux ∣ x ∣₄ = multTwoAux x
-multTwoTildeAux (squash₄ _ _ _ _ _ _ t u k l m n) i j =
-  squash₄ _ _ _ _ _ _
-    (λ k l m → multTwoTildeAux (t k l m) i j)
-    (λ k l m → multTwoTildeAux (u k l m) i j)
-    k l m n
+multTwoTildeIsEquiv : (x : S²) → isEquiv (multTwoTilde x)
+multTwoTildeIsEquiv = lemPropS² (λ x → isEquiv (multTwoTilde x)) (λ x → isPropIsEquiv (multTwoTilde x)) multEquivBase
 
-multTwoEquivAux : Path (Path (∥ S² ∥₄ ≃ ∥ S² ∥₄) (idEquiv _) (idEquiv _)) refl refl
-multTwoEquivAux i j =
-  ( f i j
-  , hcomp
-      (λ l → λ
-        { (i = i0) → isPropIsEquiv _ (idIsEquiv _) (idIsEquiv _) l
-        ; (i = i1) → isPropIsEquiv _ (idIsEquiv _) (idIsEquiv _) l
-        ; (j = i0) → isPropIsEquiv _ (idIsEquiv _) (idIsEquiv _) l
-        ; (j = i1) →
-          isPropIsEquiv _
-            (transp (λ k → isEquiv (f i k)) (i ∨ ~ i) (idIsEquiv _))
-            (idIsEquiv _)
-            l
-        })
-      (transp (λ k → isEquiv (f i (j ∧ k))) (i ∨ ~ i ∨ ~ j) (idIsEquiv _))
-  )
-  where
-  f : I → I → ∥ S² ∥₄ → ∥ S² ∥₄
-  f i j t = multTwoTildeAux t i j
+multTwoTildeEquiv : (x : S²) → ∥ S² ∥₄ ≃ ∥ S² ∥₄
+multTwoTildeEquiv x = (multTwoTilde x) , (multTwoTildeIsEquiv x)
 
 tHopf³ : S³ → Type₀
 tHopf³ base = ∥ S² ∥₄
 tHopf³ (surf i j k) =
   Glue ∥ S² ∥₄
-    (λ { (i = i0) → (∥ S² ∥₄ , idEquiv _)
-       ; (i = i1) → (∥ S² ∥₄ , idEquiv _)
-       ; (j = i0) → (∥ S² ∥₄ , idEquiv _)
-       ; (j = i1) → (∥ S² ∥₄ , idEquiv _)
-       ; (k = i0) → (∥ S² ∥₄ , multTwoEquivAux i j)
-       ; (k = i1) → (∥ S² ∥₄ , idEquiv _)
+    (λ { (i = i0) → (∥ S² ∥₄ , multTwoTildeEquiv base)
+       ; (i = i1) → (∥ S² ∥₄ , multTwoTildeEquiv base)
+       ; (j = i0) → (∥ S² ∥₄ , multTwoTildeEquiv base)
+       ; (j = i1) → (∥ S² ∥₄ , multTwoTildeEquiv base)
+       ; (k = i0) → (∥ S² ∥₄ , multTwoTildeEquiv (surf i j))
+       ; (k = i1) → (∥ S² ∥₄ , multTwoTildeEquiv base)
        })
 
 π₃S³ : Ω³ S³∙ .fst → Ω² ∥ S²∙ ∥₄∙ .fst
