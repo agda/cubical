@@ -9,6 +9,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.CartesianKanOps
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
@@ -59,11 +60,8 @@ alpha (inl x) = north
 alpha (inr x) = north
 alpha (push x y i) = (merid x ∙ sym (merid y)) i
 
-transport⁻ : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → B → A
-transport⁻ p = transport (λ i → p (~ i))
-
 subst⁻ : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y) → B y → B x
-subst⁻ B p pa = transport⁻ (λ i → B (p i)) pa
+subst⁻ B p pa = coe1→0 (λ i → B (p i)) pa
 
 funExt1 : {C B : Type₀} (P : C → Type₀) {a b : C} (p : a ≡ b)
           (f : P a → B) (g : P b → B) (h : (x : P b) → f (subst⁻ P p x) ≡ g x)
@@ -102,14 +100,20 @@ inhOrTrunc A zero = A
 inhOrTrunc A (suc n) = (x y : A) → inhOrTrunc (x ≡ y) n
 
 funDepTr : (A : Type₀) (P : A → Type₀) (a0 a1 : A) (p : a0 ≡ a1) (u0 : P a0) (u1 : P a1)
-         → (PathP (λ i → P (p i)) u0 u1) ≡ (subst P p u0 ≡ u1)
-funDepTr A P a0 a1 p u0 u1 j = PathP (λ i → P (p (j ∨ i))) (transp (λ i → P (p (j ∧ i))) (~ j) u0)
+         → (subst P p u0 ≡ u1) ≡ (PathP (λ i → P (p i)) u0 u1)
+funDepTr A P a0 a1 =
+  J (λ (a1 : A) (p : a0 ≡ a1) → ((u0 : P a0) (u1 : P a1) → (subst P p u0 ≡ u1) ≡ (PathP (λ i → P (p i)) u0 u1)))
+    λ u0 u1 i → transportRefl u0 i ≡ u1
+-- With connections: PathP (λ i → P (p (~ j ∨ i))) (transp (λ i → P (p (~ j ∧ i))) j u0) u1
 
 truncFibOmega : (n : ℕ) (B : Pointed₀) (P : B .fst → Type₀) (f : P (snd B))
                 (tr : inhOrTrunc (P (snd B)) (suc n))
                 (p : Ω B .fst)
               → inhOrTrunc (fibΩ P f p) n
-truncFibOmega n B P f tr p = subst (λ x → inhOrTrunc x n) (λ i → funDepTr (B .fst) P (snd B) (snd B) p f f (~ i)) (tr (subst P p f) f)
+truncFibOmega n B P f tr p =
+  subst (λ x → inhOrTrunc x n)
+        (funDepTr (B .fst) P (snd B) (snd B) p f f)
+        (tr (subst P p f) f)
 
 fibContrΩ³Hopf : ∀ p → Ω³Hopf p
 fibContrΩ³Hopf =
@@ -121,7 +125,9 @@ h : Ω³ SuspS¹∙ .fst → Ω³ (join∙ S¹∙ S¹) .fst
 h p i j k = t (p i j k) (fibContrΩ³Hopf p i j k)
 
 
-------- 
+
+
+-------  TODO: can we do the rest without connections?
 
 multTwoAux : (x : S²) → Path (Path ∥ S² ∥₄ ∣ x ∣₄ ∣ x ∣₄) refl refl
 multTwoAux base i j = ∣ surf i j ∣₄
@@ -195,7 +201,7 @@ tHopf³ (surf i j k) =
        })
 
 π₃S³ : Ω³ S³∙ .fst → Ω² ∥ S²∙ ∥₄∙ .fst
-π₃S³ p i j = transp (λ k → tHopf³ (p j k i)) i0 ∣ base ∣₄
+π₃S³ p i j = coe0→1 (λ k → tHopf³ (p j k i)) ∣ base ∣₄
 
 codeS² : S² → hGroupoid _
 codeS² s = ∥ HopfS² s ∥₃ , squash₃
@@ -204,7 +210,7 @@ codeTruncS² : ∥ S² ∥₄ → hGroupoid _
 codeTruncS² = 2GroupoidTrunc.rec (isOfHLevelTypeOfHLevel 3) codeS²
 
 encodeTruncS² : Ω ∥ S²∙ ∥₄∙ .fst → ∥ S¹ ∥₃
-encodeTruncS² p = transp (λ i → codeTruncS² (p i) .fst) i0 ∣ base ∣₃
+encodeTruncS² p = coe0→1 (λ i → codeTruncS² (p i) .fst) ∣ base ∣₃
 
 codeS¹ : S¹ → hSet _
 codeS¹ s = ∥ helix s ∥₂ , squash₂
@@ -213,7 +219,7 @@ codeTruncS¹ : ∥ S¹ ∥₃ → hSet _
 codeTruncS¹ = GroupoidTrunc.rec (isOfHLevelTypeOfHLevel 2) codeS¹
 
 encodeTruncS¹ : Ω ∥ S¹∙ ∥₃∙ .fst → ∥ ℤ ∥₂
-encodeTruncS¹ p = transp (λ i → codeTruncS¹ (p i) .fst) i0 ∣ pos zero ∣₂
+encodeTruncS¹ p = coe0→1 (λ i → codeTruncS¹ (p i) .fst) ∣ pos zero ∣₂
 
 
 -- THE BIG GAME
@@ -242,76 +248,6 @@ g9 = encodeTruncS¹
 g10 : ∥ ℤ ∥₂ → ℤ
 g10 = SetTrunc.rec isSetℤ (idfun ℤ)
 
--- don't run me
 brunerie : ℤ
 brunerie = g10 (g9 (g8 (f7 (f6 (f5 (f4 (f3 (λ i j k → surf i j k))))))))
 
-
-{-
-{-
-
-Computation of an alternative definition of the Brunerie number based
-on https://github.com/agda/cubical/pull/741. One should note that this
-computation is quite different to the one of the term "brunerie"
-defined above. This computation starts in π₃S³ rather than π₃S².
-
--}
-
--- The brunerie element can be shown to correspond to the following map
-η₃ : (join S¹ S¹ , inl base) →∙ (Susp S² , north)
-fst η₃ (inl x) = north
-fst η₃ (inr x) = north
-fst η₃ (push a b i) =
-  (σ (S² , base) (S¹×S¹→S² a b) ∙ σ (S² , base) (S¹×S¹→S² a b)) i
-snd η₃ = refl
-
-K₂ = ∥ S² ∥₄
--- We will need a map Ω (Susp S²) → K₂. It turns out that the
--- following map is fast. It need a bit of work, however. It's
--- esentially the same map as you find in ZCohomology from ΩKₙ₊₁ to
--- Kₙ. This gives another definition of f7 which appears to work better.
-
-module f7stuff where
-  _+₂_ : K₂ → K₂ → K₂
-  _+₂_ = 2GroupoidTrunc.elim (λ _ → isOfHLevelΠ 4 λ _ → squash₄)
-          λ { base x → x
-          ; (surf i j) x → surfc x i j}
-    where
-    surfc : (x : K₂) → typ ((Ω^ 2) (K₂ , x))
-    surfc =
-      2GroupoidTrunc.elim
-        (λ _ → isOfHLevelPath 4 (isOfHLevelPath 4 squash₄ _ _) _ _)
-        (S²ToSetElim (λ _ → squash₄ _ _ _ _) λ i j → ∣ surf i j ∣₄)
-
-  K₂≃K₂ : (x : S²) → K₂ ≃ K₂
-  fst (K₂≃K₂ x) y = ∣ x ∣₄ +₂ y
-  snd (K₂≃K₂ x) = help x
-    where
-    help : (x : _) → isEquiv (λ y → ∣ x ∣₄ +₂ y)
-    help = S²ToSetElim (λ _ → isProp→isSet (isPropIsEquiv _))
-                       (idEquiv _ .snd)
-
-  Code : Susp S² → Type ℓ-zero
-  Code north = K₂
-  Code south = K₂
-  Code (merid a i) = ua (K₂≃K₂ a) i
-
-  encode : (x : Susp S²) →  north ≡ x → Code x
-  encode x = J (λ x p → Code x) ∣ base ∣₄
-
--- We now get an alternative definition of f7
-f7' : typ (Ω (Susp∙ S²)) → K₂
-f7' = f7stuff.encode north
-
--- We can define the Brunerie number by
-brunerie' : ℤ
-brunerie' = g10 (g9 (g8 λ i j → f7' λ k → η₃ .fst (push (loop i) (loop j) k)))
-
--- Computing it takes ~1s
-brunerie'≡-2 : brunerie' ≡ -2
-brunerie'≡-2 = refl
-
--- Proving that this indeed corresponds to the Brunerie number
--- requires us to phrase things slightly more carefully. For this, see
--- the second part of the Cubical.Homotopy.Group.Pi4S3.DirectProof.
--}
