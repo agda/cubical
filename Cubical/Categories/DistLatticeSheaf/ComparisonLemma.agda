@@ -127,10 +127,48 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  restIsoLemma (F , isSheafF) (G , isSheafG) α αiIso x =
    PT.rec (isPropIsIso _) basisHyp (isBasisB .⋁Basis x)
    where
+   Fi = F ∘F i
+   Gi = G ∘F i
+   -- isSheafFi = restPresSheafProp F isSheafF
+   -- isSheafGi = restPresSheafProp G isSheafG
+
    open IsBasis
    basisHyp : Σ[ n ∈ ℕ ] Σ[ u ∈ FinVec (L .fst) n ] (∀ j → u j ∈ B) × (⋁ u ≡ x)
             → isIso C (α .N-ob x)
-   basisHyp (n , u , u∈B , ⋁u≡x) = {!!}
+   basisHyp (n , u , u∈B , ⋁u≡x) = transport (λ i → isIso C (p i)) αₓ'IsIso
+     where
+     FLimCone = isDLSheafLimCone L C F isSheafF n u
+     GLimCone = isDLSheafLimCone L C G isSheafG n u
+
+     σ : NatTrans (F ∘F (FinVec→Diag L u)) (G ∘F (FinVec→Diag L u))
+     N-ob σ y = {!!}
+     N-hom σ = {!!}
+
+     σ⁻¹ : NatTrans (G ∘F (FinVec→Diag L u)) (F ∘F (FinVec→Diag L u))
+     σ⁻¹ = {!!}
+
+     -- σ and σ⁻¹ are inverse:
+     σσ⁻¹≡id : σ ●ᵛ σ⁻¹ ≡ idTrans _
+     σσ⁻¹≡id = {!!}
+
+     σ⁻¹σ≡id : σ⁻¹ ●ᵛ σ ≡ idTrans _
+     σ⁻¹σ≡id = {!!}
+
+     αₓ' = limOfArrows FLimCone GLimCone σ
+     αₓ'⁻¹ = limOfArrows GLimCone FLimCone σ⁻¹
+
+     open isIso
+     αₓ'IsIso : isIso C αₓ'
+     inv αₓ'IsIso = αₓ'⁻¹
+     sec αₓ'IsIso = sym (limOfArrowsSeq GLimCone FLimCone GLimCone σ⁻¹ σ)
+                  ∙∙ cong (limOfArrows GLimCone GLimCone) σ⁻¹σ≡id
+                  ∙∙ limOfArrowsId GLimCone
+     ret αₓ'IsIso = sym (limOfArrowsSeq FLimCone GLimCone FLimCone σ σ⁻¹)
+                  ∙∙ cong (limOfArrows FLimCone FLimCone) σσ⁻¹≡id
+                  ∙∙ limOfArrowsId FLimCone
+
+     p : PathP (λ i → C [ F .F-ob (⋁u≡x i) , G .F-ob (⋁u≡x i) ]) αₓ' (α .N-ob x)
+     p = {!!}
    -- use?
    -- coverLemma : ∀ (c : ob C) (cc : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c)
    --            → ∃![ f ∈ C [ c , DLRan F .F-ob (⋁ α) ] ] isConeMor cc restCone f

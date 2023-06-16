@@ -110,6 +110,14 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') where
   open Join L
   isDLSheaf : (F : DLPreSheaf) → Type _
   isDLSheaf F = ∀ (n : ℕ) (α : FinVec (fst L) n) → isLimCone _ _ (F-cone F (⋁Cone L α))
+
+  open LimCone
+  isDLSheafLimCone : (F : DLPreSheaf) → isDLSheaf F
+                   → (n : ℕ) (α : FinVec (fst L) n) → LimCone (F ∘F (FinVec→Diag L α))
+  lim (isDLSheafLimCone F isSheafF n α) = _
+  limCone (isDLSheafLimCone F isSheafF n α) = F-cone F (⋁Cone L α)
+  univProp (isDLSheafLimCone F isSheafF n α) = isSheafF n α
+
   isPropIsDLSheaf : ∀ F → isProp (isDLSheaf F)
   isPropIsDLSheaf F = isPropΠ2 (λ _ _ → isPropIsLimCone _ _ _)
 
