@@ -100,14 +100,6 @@ data _⊢_ : ctxt → Formula → Type where
   weakening : {Γ : ctxt} {ϕ ψ : Formula}
             → Γ ⊢ ψ
             → Γ ∷ ϕ ⊢ ψ
-            
---  exchange : {Γ : ctxt} {ϕ ψ γ : Formula}
---           → (Γ ∷ ϕ) ∷ ψ ⊢ γ
---           → (Γ ∷ ψ) ∷ ϕ ⊢ γ
-           
---  contraction : {Γ : ctxt} {ϕ ψ : Formula}
---              → (Γ ∷ ϕ) ∷ ϕ ⊢ ψ
---              → (Γ ∷ ϕ) ⊢ ψ
 
 
 -- Implication
@@ -159,54 +151,54 @@ module _ {Γ : ctxt} where
 
 -}
 
-  ∧-comm : ∀ {ϕ ψ : Formula} → ϕ ∧ ψ ∼ ψ ∧ ϕ
-  ∧-comm = (∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm)) ,
-           (∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm))
+  ∧Comm : ∀ {ϕ ψ : Formula} → ϕ ∧ ψ ∼ ψ ∧ ϕ
+  ∧Comm = (∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm)) ,
+          (∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm))
     where
       comm : ∀ {ϕ ψ : Formula} → Γ ∷ ϕ ∧ ψ ⊢ ψ ∧ ϕ
       comm = ∧-I (∧-E₂ (axiom Z)) (∧-E₁ (axiom Z))
 
 
-  ∨-comm : ∀ {ϕ ψ : Formula} → ϕ ∨ ψ ∼ ψ ∨ ϕ
-  ∨-comm = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm) ,
-           ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm)
+  ∨Comm : ∀ {ϕ ψ : Formula} → ϕ ∨ ψ ∼ ψ ∨ ϕ
+  ∨Comm = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm) ,
+          ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm)
     where
       comm : {ϕ ψ : Formula} → Γ ∷ ϕ ∨ ψ ⊢ ψ ∨ ϕ
       comm = ∨-E (axiom Z) (∨-I₁ (axiom Z)) (∨-I₂ (axiom Z))
 
-  ∧-ass : ∀ {ϕ ψ γ : Formula} → ϕ ∧ (ψ ∧ γ) ∼ (ϕ ∧ ψ) ∧ γ
-  ∧-ass = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ ass1) ,
-          ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ ass2)
+  ∧Assoc : ∀ {ϕ ψ γ : Formula} → ϕ ∧ (ψ ∧ γ) ∼ (ϕ ∧ ψ) ∧ γ
+  ∧Assoc = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ assoc1) ,
+           ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ assoc2)
     where
-      ass1 : ∀ {ϕ ψ γ : Formula} → Γ ∷ ϕ ∧ (ψ ∧ γ) ⊢ (ϕ ∧ ψ) ∧ γ
-      ass1 = ∧-I (∧-I (∧-E₁ (axiom Z)) (∧-E₁ (∧-E₂ (axiom Z))))
-                 (∧-E₂ (∧-E₂ (axiom Z)))           
-      ass2 : ∀ {ϕ ψ γ : Formula} → Γ ∷ (ϕ ∧ ψ) ∧ γ ⊢ ϕ ∧ (ψ ∧ γ)
-      ass2 = ∧-I (∧-E₁ (∧-E₁ (axiom Z)))
-                 (∧-I (∧-E₂ (∧-E₁ (axiom Z)))
-                 (∧-E₂ (axiom Z)))
+      assoc1 : ∀ {ϕ ψ γ : Formula} → Γ ∷ ϕ ∧ (ψ ∧ γ) ⊢ (ϕ ∧ ψ) ∧ γ
+      assoc1 = ∧-I (∧-I (∧-E₁ (axiom Z)) (∧-E₁ (∧-E₂ (axiom Z))))
+                   (∧-E₂ (∧-E₂ (axiom Z)))           
+      assoc2 : ∀ {ϕ ψ γ : Formula} → Γ ∷ (ϕ ∧ ψ) ∧ γ ⊢ ϕ ∧ (ψ ∧ γ)
+      assoc2 = ∧-I (∧-E₁ (∧-E₁ (axiom Z)))
+                   (∧-I (∧-E₂ (∧-E₁ (axiom Z)))
+                   (∧-E₂ (axiom Z)))
 
 
-  ∨-ass : ∀ {ϕ ψ γ : Formula} → ϕ ∨ (ψ ∨ γ) ∼ (ϕ ∨ ψ) ∨ γ
-  ∨-ass = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ ass1) ,
-          ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ ass2)
+  ∨Assoc : ∀ {ϕ ψ γ : Formula} → ϕ ∨ (ψ ∨ γ) ∼ (ϕ ∨ ψ) ∨ γ
+  ∨Assoc = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ assoc1) ,
+           ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ assoc2)
     where
-      ass1 : ∀ {ϕ ψ γ : Formula} → Γ ∷ ϕ ∨ (ψ ∨ γ) ⊢ (ϕ ∨ ψ) ∨ γ
-      ass1 = ∨-E (axiom Z)
+      assoc1 : ∀ {ϕ ψ γ : Formula} → Γ ∷ ϕ ∨ (ψ ∨ γ) ⊢ (ϕ ∨ ψ) ∨ γ
+      assoc1 = ∨-E (axiom Z)
                    (∨-I₂ (∨-I₂ (axiom Z)))
                    (∨-E (axiom Z)
                         (∨-I₂ (∨-I₁ (axiom Z)))
                         (∨-I₁ (axiom Z)))                             
-      ass2 : ∀ {ϕ ψ γ : Formula} → Γ ∷ (ϕ ∨ ψ) ∨ γ ⊢ ϕ ∨ (ψ ∨ γ)
-      ass2 = ∨-E (axiom Z)
+      assoc2 : ∀ {ϕ ψ γ : Formula} → Γ ∷ (ϕ ∨ ψ) ∨ γ ⊢ ϕ ∨ (ψ ∨ γ)
+      assoc2 = ∨-E (axiom Z)
                    (∨-E (axiom Z)
                         (∨-I₂ (axiom Z))
                         (∨-I₁ (∨-I₂ (axiom Z))))
                    (∨-I₁ (∨-I₁ (axiom Z)))
 
-  ∧-dist : ∀ {ϕ ψ γ : Formula} → ϕ ∧ (ψ ∨ γ) ∼ (ϕ ∧ ψ) ∨ (ϕ ∧ γ)
-  ∧-dist = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ dist1) ,
-           ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ dist2)
+  ∧Dist : ∀ {ϕ ψ γ : Formula} → ϕ ∧ (ψ ∨ γ) ∼ (ϕ ∧ ψ) ∨ (ϕ ∧ γ)
+  ∧Dist = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ dist1) ,
+          ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ dist2)
     where
       dist1 : ∀ {ϕ ψ γ : Formula} → Γ ∷ ϕ ∧ (ψ ∨ γ) ⊢ (ϕ ∧ ψ) ∨ (ϕ ∧ γ)
       dist1 = ∨-E (∧-E₂ (axiom Z))
@@ -220,9 +212,9 @@ module _ {Γ : ctxt} where
                        (∨-I₂ (∧-E₂ (axiom Z)))
                        (∨-I₁ (∧-E₂ (axiom Z))))
 
-  ∨-dist : ∀ {ϕ ψ γ : Formula} → ϕ ∨ (ψ ∧ γ) ∼ (ϕ ∨ ψ) ∧ (ϕ ∨ γ)
-  ∨-dist = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ dist1) ,
-           ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ dist2)
+  ∨Dist : ∀ {ϕ ψ γ : Formula} → ϕ ∨ (ψ ∧ γ) ∼ (ϕ ∨ ψ) ∧ (ϕ ∨ γ)
+  ∨Dist = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ dist1) ,
+          ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ dist2)
     where
       dist1 : ∀ {ϕ ψ γ : Formula} → Γ ∷ ϕ ∨ (ψ ∧ γ) ⊢ (ϕ ∨ ψ) ∧ (ϕ ∨ γ)
       dist1 = ∨-E (axiom Z)
@@ -238,32 +230,32 @@ module _ {Γ : ctxt} where
                        (∨-I₁ (∧-I (axiom (S Z)) (axiom Z))))
 
 
-  ∧-abs : ∀ {ϕ ψ : Formula} → ϕ ∧ (ϕ ∨ ψ) ∼ ϕ 
-  ∧-abs = (deduct (∧-E₁ (axiom Z))) ,
-          (deduct (∧-I (axiom Z) (∨-I₂ (axiom Z))))
+  ∧Absorb : ∀ {ϕ ψ : Formula} → ϕ ∧ (ϕ ∨ ψ) ∼ ϕ 
+  ∧Absorb = (deduct (∧-E₁ (axiom Z))) ,
+            (deduct (∧-I (axiom Z) (∨-I₂ (axiom Z))))
   
 
-  ∨-abs : ∀ {ϕ ψ : Formula} → (ϕ ∧ ψ) ∨ ψ ∼ ψ
-  ∨-abs = (deduct (∨-E (axiom Z) (∧-E₂ (axiom Z)) (axiom Z))) ,
-          (deduct (∨-I₁ (axiom Z)))
+  ∨Absorb : ∀ {ϕ ψ : Formula} → (ϕ ∧ ψ) ∨ ψ ∼ ψ
+  ∨Absorb = (deduct (∨-E (axiom Z) (∧-E₂ (axiom Z)) (axiom Z))) ,
+            (deduct (∨-I₁ (axiom Z)))
 
 
-  ∧-id : ∀ {ϕ : Formula} → ϕ ∧ ⊤ ∼ ϕ
-  ∧-id = (deduct (∧-E₁ (axiom Z)) ,
-         (deduct (∧-I (axiom Z) ⊤-I)))
+  ∧Id : ∀ {ϕ : Formula} → ϕ ∧ ⊤ ∼ ϕ
+  ∧Id = (deduct (∧-E₁ (axiom Z)) ,
+        (deduct (∧-I (axiom Z) ⊤-I)))
 
 
-  ∨-id : ∀ {ϕ : Formula} → ϕ ∨ ⊥ ∼ ϕ
-  ∨-id = (deduct (∨-E (axiom Z) (axiom Z) (⊥-E (axiom Z)))) ,
-         (deduct (∨-I₂ (axiom Z)))
+  ∨Id : ∀ {ϕ : Formula} → ϕ ∨ ⊥ ∼ ϕ
+  ∨Id = (deduct (∨-E (axiom Z) (axiom Z) (⊥-E (axiom Z)))) ,
+        (deduct (∨-I₂ (axiom Z)))
 
 
-  ∧-comp : ∀ {ϕ : Formula} → ϕ ∧ ¬ ϕ ∼ ⊥
-  ∧-comp = (deduct (¬-E (∧-E₁ (axiom Z)) (∧-E₂ (axiom Z)))) ,
-           (deduct (⊥-E (axiom Z))) 
+  ∧Complement : ∀ {ϕ : Formula} → ϕ ∧ ¬ ϕ ∼ ⊥
+  ∧Complement = (deduct (¬-E (∧-E₁ (axiom Z)) (∧-E₂ (axiom Z)))) ,
+                (deduct (⊥-E (axiom Z))) 
 
-  ∨-comp : ∀ {ϕ : Formula} → ¬ ϕ ∨ ϕ ∼ ⊤
-  ∨-comp = (deduct ⊤-I , deduct LEM)
+  ∨Complement : ∀ {ϕ : Formula} → ¬ ϕ ∨ ϕ ∼ ⊤
+  ∨Complement = (deduct ⊤-I , deduct LEM)
 
 
   ∼-respects-∧ : ∀ (ϕ ϕ' ψ ψ' : Formula) → ϕ ∼ ϕ' → ψ ∼ ψ' → (ϕ ∧ ψ) ∼ (ϕ' ∧ ψ')
@@ -338,69 +330,64 @@ module _ {Γ : ctxt} where
   -- LT distributive lattice
   LindenbaumTarski-DistLattice : DistLattice _
   LindenbaumTarski-DistLattice = makeDistLattice∧lOver∨l
-                                 ⊥/
-                                 ⊤/
-                                 _∨/_
-                                 _∧/_
+                                 ⊥/ ⊤/ _∨/_ _∧/_
                                  isSet-LT
-                                 ∨/-ass
-                                 ∨/-id
-                                 ∨/-comm
-                                 ∧/-ass
-                                 ∧/-id
-                                 ∧/-comm
-                                 ∧/-abs
-                                 ∧/-dist
+                                 ∨/Assoc ∨/Id ∨/Comm
+                                 ∧/Assoc ∧/Id ∧/Comm ∧/Absorb ∧/Dist
     where
       isSet-LT : ∀ (A B : LindenbaumTarski) → isProp(A ≡ B)
       isSet-LT A B = squash/ _ _
 
-      ∧/-comm : ∀ (A B : LindenbaumTarski) → A ∧/ B ≡ B ∧/ A
-      ∧/-comm = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∧-comm
+      ∧/Comm : ∀ (A B : LindenbaumTarski) → A ∧/ B ≡ B ∧/ A
+      ∧/Comm = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∧Comm
 
-      ∨/-comm : ∀ (A B : LindenbaumTarski) → A ∨/ B ≡ B ∨/ A
-      ∨/-comm = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∨-comm
+      ∨/Comm : ∀ (A B : LindenbaumTarski) → A ∨/ B ≡ B ∨/ A
+      ∨/Comm = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∨Comm
 
-      ∧/-ass : ∀ (A B C : LindenbaumTarski) → A ∧/ (B ∧/ C) ≡ (A ∧/ B) ∧/ C
-      ∧/-ass = elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → eq/ _ _ ∧-ass
+      ∧/Assoc : ∀ (A B C : LindenbaumTarski) → A ∧/ (B ∧/ C) ≡ (A ∧/ B) ∧/ C
+      ∧/Assoc = elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → eq/ _ _ ∧Assoc
 
-      ∨/-ass : ∀ (A B C : LindenbaumTarski) → A ∨/ (B ∨/ C) ≡ (A ∨/ B) ∨/ C
-      ∨/-ass = elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → eq/ _ _ ∨-ass
+      ∨/Assoc : ∀ (A B C : LindenbaumTarski) → A ∨/ (B ∨/ C) ≡ (A ∨/ B) ∨/ C
+      ∨/Assoc = elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → eq/ _ _ ∨Assoc
 
-      ∧/-dist : ∀ (A B C : LindenbaumTarski) → A ∧/ (B ∨/ C) ≡ (A ∧/ B) ∨/ (A ∧/ C)
-      ∧/-dist = elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → eq/ _ _ ∧-dist
+      ∧/Dist : ∀ (A B C : LindenbaumTarski) → A ∧/ (B ∨/ C) ≡ (A ∧/ B) ∨/ (A ∧/ C)
+      ∧/Dist = elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → eq/ _ _ ∧Dist
 
-      ∨/-dist : ∀ (A B C : LindenbaumTarski) → A ∨/ (B ∧/ C) ≡ (A ∨/ B) ∧/ (A ∨/ C)
-      ∨/-dist = elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → eq/ _ _ ∨-dist
+      ∨/Dist : ∀ (A B C : LindenbaumTarski) → A ∨/ (B ∧/ C) ≡ (A ∨/ B) ∧/ (A ∨/ C)
+      ∨/Dist = elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → eq/ _ _ ∨Dist
 
-      ∧/-abs : ∀ (A B : LindenbaumTarski) → A ∧/ (A ∨/ B) ≡ A
-      ∧/-abs = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∧-abs
+      ∧/Absorb : ∀ (A B : LindenbaumTarski) → A ∧/ (A ∨/ B) ≡ A
+      ∧/Absorb = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∧Absorb
 
-      ∨/-abs : ∀ (A B : LindenbaumTarski) → (A ∧/ B) ∨/ B ≡ B
-      ∨/-abs = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∨-abs
+      ∨/-absorb : ∀ (A B : LindenbaumTarski) → (A ∧/ B) ∨/ B ≡ B
+      ∨/-absorb = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∨Absorb
 
-      ∨/-id : ∀ (A : LindenbaumTarski) → A ∨/ ⊥/ ≡ A
-      ∨/-id = elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ ∨-id
+      ∨/Id : ∀ (A : LindenbaumTarski) → A ∨/ ⊥/ ≡ A
+      ∨/Id = elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ ∨Id
 
-      ∧/-id : ∀ (A : LindenbaumTarski) → A ∧/ ⊤/ ≡ A
-      ∧/-id = elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ ∧-id
+      ∧/Id : ∀ (A : LindenbaumTarski) → A ∧/ ⊤/ ≡ A
+      ∧/Id = elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ ∧Id
 
 
   open DistLatticeStr (snd LindenbaumTarski-DistLattice)
 
   -- Complemented
-  LindenbaumTarski-DistLattice-supremum : (A : fst LindenbaumTarski-DistLattice) → ¬/ A ∨l A ≡ 1l
-  LindenbaumTarski-DistLattice-supremum A = ∨/-comp A
+  LindenbaumTarski-DistLattice-supremum :
+    (A : fst LindenbaumTarski-DistLattice)
+    → ¬/ A ∨l A ≡ 1l
+  LindenbaumTarski-DistLattice-supremum A = ∨/Complement A
     where
-      ∨/-comp : ∀ (A : LindenbaumTarski) → ¬/ A ∨/ A ≡ ⊤/
-      ∨/-comp = elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ ∨-comp
+      ∨/Complement : ∀ (A : LindenbaumTarski) → ¬/ A ∨/ A ≡ ⊤/
+      ∨/Complement = elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ ∨Complement
 
 
-  LindenbaumTarski-DistLattice-infimum : (A : fst LindenbaumTarski-DistLattice) → A ∧l ¬/ A ≡ 0l
-  LindenbaumTarski-DistLattice-infimum A = ∧/-comp A
+  LindenbaumTarski-DistLattice-infimum :
+    (A : fst LindenbaumTarski-DistLattice)
+    → A ∧l ¬/ A ≡ 0l
+  LindenbaumTarski-DistLattice-infimum A = ∧/Complement A
     where
-      ∧/-comp : ∀ (A : LindenbaumTarski) → A ∧/ ¬/ A ≡ ⊥/
-      ∧/-comp = elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ ∧-comp
+      ∧/Complement : ∀ (A : LindenbaumTarski) → A ∧/ ¬/ A ≡ ⊥/
+      ∧/Complement = elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ ∧Complement
 
 
 {-
