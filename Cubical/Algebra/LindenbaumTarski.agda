@@ -1,4 +1,5 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
+
 module Cubical.LindenbaumTarski where
 
 
@@ -51,23 +52,23 @@ data _⊢_ : ctxt → Formula → Type where
       → Γ ⊢ ϕ
       → Γ ⊢ ψ
       → Γ ⊢ ϕ ∧ ψ
-      
+
   ∧-E₁ : {Γ : ctxt} {ϕ ψ : Formula}
        → Γ ⊢ ϕ ∧ ψ
        → Γ ⊢ ϕ
-       
+
   ∧-E₂ : {Γ : ctxt} {ϕ ψ : Formula}
        → Γ ⊢ ϕ ∧ ψ
        → Γ ⊢ ψ
-  
+
   ∨-I₁ : {Γ : ctxt} {ϕ ψ : Formula}
        → Γ ⊢ ψ
        → Γ ⊢ ϕ ∨ ψ
-       
+
   ∨-I₂ : {Γ : ctxt} {ϕ ψ : Formula}
        → Γ ⊢ ϕ
        → Γ ⊢ ϕ ∨ ψ
-       
+
   ∨-E : {Γ : ctxt} {ϕ ψ γ : Formula}
       → Γ ⊢ ϕ ∨ ψ
       → Γ ∷ ϕ ⊢ γ
@@ -77,26 +78,26 @@ data _⊢_ : ctxt → Formula → Type where
   ¬-I : {Γ : ctxt} {ϕ : Formula}
       → Γ ∷ ϕ ⊢ ⊥
       → Γ ⊢ ¬ ϕ
-      
+
   ¬-E : {Γ : ctxt} {ϕ : Formula}
       → Γ ⊢ ϕ
       → Γ ⊢ ¬ ϕ
       → Γ ⊢ ⊥
-  
+
   ⊥-E : {Γ : ctxt} {ϕ : Formula}
       → Γ ⊢ ⊥
       → Γ ⊢ ϕ  
-  
+
   ⊤-I : {Γ : ctxt}
       → Γ ⊢ ⊤
-  
+
   axiom : {Γ : ctxt} {ϕ : Formula}
         → ϕ ∈ Γ
         → Γ ⊢ ϕ
-        
+
   LEM : {Γ : ctxt} {ϕ : Formula}
       → Γ ⊢ ¬ ϕ ∨ ϕ
-  
+
   weakening : {Γ : ctxt} {ϕ ψ : Formula}
             → Γ ⊢ ψ
             → Γ ∷ ϕ ⊢ ψ
@@ -123,7 +124,7 @@ module _ {Γ : ctxt} where
                 (∨-E (weakening y)
                      (⊥-E (¬-E (axiom (S Z)) (axiom Z)))
                      (∨-I₁ (axiom Z)))
-                     
+
 
 {-
 
@@ -131,7 +132,7 @@ module _ {Γ : ctxt} where
   if they are provably equivalent.
 
 -}
-  
+
   _∼_ : Formula → Formula → Type
   ϕ ∼ ψ = (Γ ⊢ ϕ ⇒ ψ) × (Γ ⊢ ψ ⇒ ϕ)
 
@@ -158,7 +159,6 @@ module _ {Γ : ctxt} where
       comm : ∀ {ϕ ψ : Formula} → Γ ∷ ϕ ∧ ψ ⊢ ψ ∧ ϕ
       comm = ∧-I (∧-E₂ (axiom Z)) (∧-E₁ (axiom Z))
 
-
   ∨Comm : ∀ {ϕ ψ : Formula} → ϕ ∨ ψ ∼ ψ ∨ ϕ
   ∨Comm = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm) ,
           ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ comm)
@@ -177,7 +177,6 @@ module _ {Γ : ctxt} where
       assoc2 = ∧-I (∧-E₁ (∧-E₁ (axiom Z)))
                    (∧-I (∧-E₂ (∧-E₁ (axiom Z)))
                    (∧-E₂ (axiom Z)))
-
 
   ∨Assoc : ∀ {ϕ ψ γ : Formula} → ϕ ∨ (ψ ∨ γ) ∼ (ϕ ∨ ψ) ∨ γ
   ∨Assoc = ∨-E LEM (∨-I₂ (axiom Z)) (∨-I₁ assoc1) ,
@@ -229,26 +228,21 @@ module _ {Γ : ctxt} where
                        (∨-I₂ (axiom Z))
                        (∨-I₁ (∧-I (axiom (S Z)) (axiom Z))))
 
-
   ∧Absorb : ∀ {ϕ ψ : Formula} → ϕ ∧ (ϕ ∨ ψ) ∼ ϕ 
   ∧Absorb = (deduct (∧-E₁ (axiom Z))) ,
             (deduct (∧-I (axiom Z) (∨-I₂ (axiom Z))))
-  
 
   ∨Absorb : ∀ {ϕ ψ : Formula} → (ϕ ∧ ψ) ∨ ψ ∼ ψ
   ∨Absorb = (deduct (∨-E (axiom Z) (∧-E₂ (axiom Z)) (axiom Z))) ,
             (deduct (∨-I₁ (axiom Z)))
 
-
   ∧Id : ∀ {ϕ : Formula} → ϕ ∧ ⊤ ∼ ϕ
   ∧Id = (deduct (∧-E₁ (axiom Z)) ,
         (deduct (∧-I (axiom Z) ⊤-I)))
 
-
   ∨Id : ∀ {ϕ : Formula} → ϕ ∨ ⊥ ∼ ϕ
   ∨Id = (deduct (∨-E (axiom Z) (axiom Z) (⊥-E (axiom Z)))) ,
         (deduct (∨-I₂ (axiom Z)))
-
 
   ∧Complement : ∀ {ϕ : Formula} → ϕ ∧ ¬ ϕ ∼ ⊥
   ∧Complement = (deduct (¬-E (∧-E₁ (axiom Z)) (∧-E₂ (axiom Z)))) ,
@@ -256,38 +250,6 @@ module _ {Γ : ctxt} where
 
   ∨Complement : ∀ {ϕ : Formula} → ¬ ϕ ∨ ϕ ∼ ⊤
   ∨Complement = (deduct ⊤-I , deduct LEM)
-
-
-  ∼-respects-∧ : ∀ (ϕ ϕ' ψ ψ' : Formula) → ϕ ∼ ϕ' → ψ ∼ ψ' → (ϕ ∧ ψ) ∼ (ϕ' ∧ ψ')
-  ∼-respects-∧ ϕ ϕ' ψ ψ' (x₁ , x₂) (y₁ , y₂) =
-    deduct (∧-I (mp (weakening x₁) (∧-E₁ (axiom Z))) (mp (weakening y₁) (∧-E₂ (axiom Z)))) ,
-    deduct (∧-I (mp (weakening x₂) (∧-E₁ (axiom Z))) (mp (weakening y₂) (∧-E₂ (axiom Z))))
-
-
-  ∼-respects-∨ : ∀ (ϕ ϕ' ψ ψ' : Formula) → ϕ ∼ ϕ' → ψ ∼ ψ' → (ϕ ∨ ψ) ∼ (ϕ' ∨ ψ')
-  ∼-respects-∨ ϕ ϕ' ψ ψ' (x₁ , x₂) (y₁ , y₂) =
-    deduct (∨-E (axiom Z)
-                (∨-I₂ (mp (weakening (weakening x₁)) (axiom Z)))
-                (∨-I₁ (mp (weakening (weakening y₁)) (axiom Z)))) ,
-    deduct (∨-E (axiom Z)
-                (∨-I₂ (mp (weakening (weakening x₂)) (axiom Z)))
-                (∨-I₁ (mp (weakening (weakening y₂)) (axiom Z))))
-
-
-  ∼-respects-¬ : ∀ (ϕ ϕ' : Formula) → ϕ ∼ ϕ' → (¬ ϕ) ∼ (¬ ϕ')
-  ∼-respects-¬ ϕ ϕ' (x₁ , x₂) =
-    deduct (¬-I (¬-E (mp (weakening (weakening x₁))
-                         (mp (weakening (weakening x₂))
-                         (axiom Z)))
-                     (⊥-E (¬-E (mp (weakening (weakening x₂))
-                                   (axiom Z))
-                               (axiom (S Z)))))) ,
-    deduct (¬-I (¬-E (mp (weakening (weakening x₂))
-                         (mp (weakening (weakening x₁))
-                             (axiom Z)))
-                     (⊥-E (¬-E (mp (weakening (weakening x₁))
-                                   (axiom Z))
-                               (axiom (S Z))))))
 
 
 {-
@@ -302,16 +264,45 @@ module _ {Γ : ctxt} where
   LindenbaumTarski = Formula / _∼_
 
   infixl 25 ¬/_
-  
+
   _∧/_ : LindenbaumTarski → LindenbaumTarski → LindenbaumTarski
   A ∧/ B = setQuotBinOp ∼-refl ∼-refl _∧_ ∼-respects-∧ A B
+    where
+      ∼-respects-∧ : ∀ (ϕ ϕ' ψ ψ' : Formula) → ϕ ∼ ϕ' → ψ ∼ ψ' → (ϕ ∧ ψ) ∼ (ϕ' ∧ ψ')
+      ∼-respects-∧ ϕ ϕ' ψ ψ' (x₁ , x₂) (y₁ , y₂) =
+        deduct (∧-I (mp (weakening x₁) (∧-E₁ (axiom Z))) (mp (weakening y₁) (∧-E₂ (axiom Z)))) ,
+        deduct (∧-I (mp (weakening x₂) (∧-E₁ (axiom Z))) (mp (weakening y₂) (∧-E₂ (axiom Z))))
 
   _∨/_ : LindenbaumTarski → LindenbaumTarski → LindenbaumTarski
   A ∨/ B = setQuotBinOp ∼-refl ∼-refl _∨_ ∼-respects-∨ A B
+    where
+      ∼-respects-∨ : ∀ (ϕ ϕ' ψ ψ' : Formula) → ϕ ∼ ϕ' → ψ ∼ ψ' → (ϕ ∨ ψ) ∼ (ϕ' ∨ ψ')
+      ∼-respects-∨ ϕ ϕ' ψ ψ' (x₁ , x₂) (y₁ , y₂) =
+        deduct (∨-E (axiom Z)
+                    (∨-I₂ (mp (weakening (weakening x₁)) (axiom Z)))
+                    (∨-I₁ (mp (weakening (weakening y₁)) (axiom Z)))) ,
+        deduct (∨-E (axiom Z)
+                    (∨-I₂ (mp (weakening (weakening x₂)) (axiom Z)))
+                    (∨-I₁ (mp (weakening (weakening y₂)) (axiom Z))))
 
   ¬/_ : LindenbaumTarski → LindenbaumTarski
   ¬/ A = setQuotUnaryOp ¬_ ∼-respects-¬ A
-  
+    where
+      ∼-respects-¬ : ∀ (ϕ ϕ' : Formula) → ϕ ∼ ϕ' → (¬ ϕ) ∼ (¬ ϕ')
+      ∼-respects-¬ ϕ ϕ' (x₁ , x₂) =
+        deduct (¬-I (¬-E (mp (weakening (weakening x₁))
+                             (mp (weakening (weakening x₂))
+                                 (axiom Z)))
+                         (⊥-E (¬-E (mp (weakening (weakening x₂))
+                                       (axiom Z))
+                                   (axiom (S Z)))))) ,
+        deduct (¬-I (¬-E (mp (weakening (weakening x₂))
+                             (mp (weakening (weakening x₁))
+                                 (axiom Z)))
+                         (⊥-E (¬-E (mp (weakening (weakening x₁))
+                                       (axiom Z))
+                                   (axiom (S Z))))))
+
   ⊤/ : LindenbaumTarski
   ⊤/ = [ ⊤ ]
   
@@ -398,6 +389,6 @@ module _ {Γ : ctxt} where
     * function h : LT → {0,1}
     * h([x]) = v(x) homomorphism ⇔ h([x]) truth valuation
 -}
-    
+
   sound : ∀ {ϕ : Formula} → Γ ⊢ ϕ → [ ϕ ] ≡ ⊤/
   sound x = eq/ _ _ (deduct ⊤-I , deduct (weakening x))
