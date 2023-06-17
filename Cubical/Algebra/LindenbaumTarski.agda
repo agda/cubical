@@ -350,8 +350,8 @@ module _ {Γ : ctxt} where
       ∧/Absorb : ∀ (A B : LindenbaumTarski) → A ∧/ (A ∨/ B) ≡ A
       ∧/Absorb = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∧Absorb
 
-      ∨/-absorb : ∀ (A B : LindenbaumTarski) → (A ∧/ B) ∨/ B ≡ B
-      ∨/-absorb = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∨Absorb
+      ∨/Absorb : ∀ (A B : LindenbaumTarski) → (A ∧/ B) ∨/ B ≡ B
+      ∨/Absorb = elimProp2 (λ _ _ → squash/ _ _) λ _ _ → eq/ _ _ ∨Absorb
 
       ∨/Id : ∀ (A : LindenbaumTarski) → A ∨/ ⊥/ ≡ A
       ∨/Id = elimProp (λ _ → squash/ _ _) λ _ → eq/ _ _ ∨Id
@@ -384,10 +384,7 @@ module _ {Γ : ctxt} where
 {-
   Soundness
   
-  #TODO?:
-    * truth valuation v : Formula → {0,1}
-    * function h : LT → {0,1}
-    * h([x]) = v(x) homomorphism ⇔ h([x]) truth valuation
+  If ϕ provable, then [ϕ] ≡ [⊤]
 -}
 
   sound : ∀ {ϕ : Formula} → Γ ⊢ ϕ → [ ϕ ] ≡ ⊤/
