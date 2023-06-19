@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.LindenbaumTarski where
+module Cubical.Algebra.LindenbaumTarski where
 
 
 open import Cubical.HITs.SetQuotients.Base
@@ -22,7 +22,7 @@ infix  30  _∨_
 infixl 36  ¬_
 infix  20  _⊢_
 infix  23  _∷_
-infix  22  _⇒_ 
+infix  22  _⇒_
 
 
 
@@ -41,7 +41,7 @@ data ctxt : Type where
 
 
 data _∈_ : Formula → ctxt → Type where
-  Z  : ∀ {Γ ϕ}   → ϕ ∈ Γ ∷ ϕ   
+  Z  : ∀ {Γ ϕ}   → ϕ ∈ Γ ∷ ϕ
   S  : ∀ {Γ ϕ ψ} → ϕ ∈ Γ
                  → ϕ ∈ Γ ∷ ψ
 
@@ -86,7 +86,7 @@ data _⊢_ : ctxt → Formula → Type where
 
   ⊥-E : {Γ : ctxt} {ϕ : Formula}
       → Γ ⊢ ⊥
-      → Γ ⊢ ϕ  
+      → Γ ⊢ ϕ
 
   ⊤-I : {Γ : ctxt}
       → Γ ⊢ ⊤
@@ -172,7 +172,7 @@ module _ {Γ : ctxt} where
     where
       assoc1 : ∀ {ϕ ψ γ : Formula} → Γ ∷ ϕ ∧ (ψ ∧ γ) ⊢ (ϕ ∧ ψ) ∧ γ
       assoc1 = ∧-I (∧-I (∧-E₁ (axiom Z)) (∧-E₁ (∧-E₂ (axiom Z))))
-                   (∧-E₂ (∧-E₂ (axiom Z)))           
+                   (∧-E₂ (∧-E₂ (axiom Z)))
       assoc2 : ∀ {ϕ ψ γ : Formula} → Γ ∷ (ϕ ∧ ψ) ∧ γ ⊢ ϕ ∧ (ψ ∧ γ)
       assoc2 = ∧-I (∧-E₁ (∧-E₁ (axiom Z)))
                    (∧-I (∧-E₂ (∧-E₁ (axiom Z)))
@@ -187,7 +187,7 @@ module _ {Γ : ctxt} where
                    (∨-I₂ (∨-I₂ (axiom Z)))
                    (∨-E (axiom Z)
                         (∨-I₂ (∨-I₁ (axiom Z)))
-                        (∨-I₁ (axiom Z)))                             
+                        (∨-I₁ (axiom Z)))
       assoc2 : ∀ {ϕ ψ γ : Formula} → Γ ∷ (ϕ ∨ ψ) ∨ γ ⊢ ϕ ∨ (ψ ∨ γ)
       assoc2 = ∨-E (axiom Z)
                    (∨-E (axiom Z)
@@ -228,7 +228,7 @@ module _ {Γ : ctxt} where
                        (∨-I₂ (axiom Z))
                        (∨-I₁ (∧-I (axiom (S Z)) (axiom Z))))
 
-  ∧Absorb : ∀ {ϕ ψ : Formula} → ϕ ∧ (ϕ ∨ ψ) ∼ ϕ 
+  ∧Absorb : ∀ {ϕ ψ : Formula} → ϕ ∧ (ϕ ∨ ψ) ∼ ϕ
   ∧Absorb = (deduct (∧-E₁ (axiom Z))) ,
             (deduct (∧-I (axiom Z) (∨-I₂ (axiom Z))))
 
@@ -246,7 +246,7 @@ module _ {Γ : ctxt} where
 
   ∧Complement : ∀ {ϕ : Formula} → ϕ ∧ ¬ ϕ ∼ ⊥
   ∧Complement = (deduct (¬-E (∧-E₁ (axiom Z)) (∧-E₂ (axiom Z)))) ,
-                (deduct (⊥-E (axiom Z))) 
+                (deduct (⊥-E (axiom Z)))
 
   ∨Complement : ∀ {ϕ : Formula} → ¬ ϕ ∨ ϕ ∼ ⊤
   ∨Complement = (deduct ⊤-I , deduct LEM)
@@ -305,7 +305,7 @@ module _ {Γ : ctxt} where
 
   ⊤/ : LindenbaumTarski
   ⊤/ = [ ⊤ ]
-  
+
   ⊥/ : LindenbaumTarski
   ⊥/ = [ ⊥ ]
 
@@ -383,7 +383,7 @@ module _ {Γ : ctxt} where
 
 {-
   Soundness
-  
+
   If ϕ provable, then [ϕ] ≡ [⊤]
 -}
 
