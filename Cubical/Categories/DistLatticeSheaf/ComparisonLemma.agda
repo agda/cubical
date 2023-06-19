@@ -64,8 +64,9 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L))
  open PosetStr (IndPoset .snd) hiding (_≤_)
  open Join L
-
-
+ open Order (DistLattice→Lattice L)
+ open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
+      using (∧≤RCancel ; ∧≤LCancel)
  private
   instance
    _ = snd L
@@ -131,47 +132,101 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
    Gi = G ∘F i
    -- isSheafFi = restPresSheafProp F isSheafF
    -- isSheafGi = restPresSheafProp G isSheafG
+   open NatIso
+   αiNatIso : NatIso Fi Gi
+   trans αiNatIso = α ∘ˡ i
+   nIso αiNatIso = αiIso
 
    open IsBasis
    basisHyp : Σ[ n ∈ ℕ ] Σ[ u ∈ FinVec (L .fst) n ] (∀ j → u j ∈ B) × (⋁ u ≡ x)
             → isIso C (α .N-ob x)
-   basisHyp (n , u , u∈B , ⋁u≡x) = transport (λ i → isIso C (p i)) αₓ'IsIso
+   basisHyp (n , u , u∈B , ⋁u≡x) = transport (λ i → isIso C (q i)) (subst (isIso C) p αᵤ'IsIso)
      where
+     open isIso
+
      FLimCone = isDLSheafLimCone L C F isSheafF n u
      GLimCone = isDLSheafLimCone L C G isSheafG n u
 
+     uᴮ : FinVec (Bᵒᵖ .ob) n
+     uᴮ i = u i , u∈B i
+
+     uᴮDiag = condCone.BDiag uᴮ
+
+     αi⁻¹ : (v : ob Bᵒᵖ) → C [ Gi .F-ob v , Fi .F-ob v ]
+     αi⁻¹ v = αiIso v .inv
+
      σ : NatTrans (F ∘F (FinVec→Diag L u)) (G ∘F (FinVec→Diag L u))
-     N-ob σ y = {!!}
-     N-hom σ = {!!}
+     N-ob σ = α .N-ob ∘ FinVec→Diag L u .F-ob
+     N-hom σ = α .N-hom ∘ FinVec→Diag L u .F-hom
+
+     open SemilatticeStr ⦃...⦄
+     instance _ = snd (Basis→MeetSemilattice L B isBasisB)
 
      σ⁻¹ : NatTrans (G ∘F (FinVec→Diag L u)) (F ∘F (FinVec→Diag L u))
-     σ⁻¹ = {!!}
+     N-ob σ⁻¹ (sing i) = αi⁻¹ (uᴮDiag .F-ob (sing i))
+     N-ob σ⁻¹ (pair i j i<j) = αi⁻¹ ((u j , u∈B j) · (u i , u∈B i))
+                               -- (uᴮDiag .F-ob (pair i j i<j)) modulo swapping i and j
+     N-hom σ⁻¹ (idAr {x = v}) =
+       G .F-hom (id Lᵒᵖ) ⋆⟨ C ⟩ σ⁻¹ .N-ob v ≡⟨ cong (λ f → f ⋆⟨ C ⟩ σ⁻¹ .N-ob v) (G .F-id) ⟩
+       id C ⋆⟨ C ⟩ σ⁻¹ .N-ob v              ≡⟨ ⋆IdL C _ ⟩
+       σ⁻¹ .N-ob v                          ≡⟨ sym (⋆IdR C _) ⟩
+       σ⁻¹ .N-ob v ⋆⟨ C ⟩ id C              ≡⟨ cong (λ f → σ⁻¹ .N-ob v ⋆⟨ C ⟩ f) (sym (F .F-id)) ⟩
+       σ⁻¹ .N-ob v ⋆⟨ C ⟩ F .F-hom (id Lᵒᵖ) ∎
+     N-hom σ⁻¹ (singPairL {i} {j} {i<j})  = transport (λ 𝕚 → p 𝕚 ≡ r 𝕚) q
+       where
+       p : PathP (λ 𝕚 → C [ G .F-ob (u i) , F .F-ob (fst (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)) ])
+                 (G .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)) ⋆⟨ C ⟩ αi⁻¹ (uᴮDiag .F-ob (pair i j i<j)))
+                 (G .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ⋆⟨ C ⟩ αi⁻¹ ((u j , u∈B j) · (u i , u∈B i)))
+       p 𝕚 = G .F-hom (isProp→PathP {!!} {!!} {!!} {!!}) ⋆⟨ C ⟩ αi⁻¹ (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)
+       -- F≤PathPLemmaBase
+
+       q : G .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)) ⋆⟨ C ⟩ αi⁻¹ (uᴮDiag .F-ob (pair i j i<j))
+         ≡ αi⁻¹ (u i , u∈B i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
+       q = sqLL αiNatIso
+
+       r : PathP (λ 𝕚 → C [ G .F-ob (u i) , F .F-ob (fst (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)) ])
+                 (αi⁻¹ (u i , u∈B i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)))
+                 (αi⁻¹ (u i , u∈B i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)))
+       r = {!!}
+     N-hom σ⁻¹ singPairR = {!!}
+     -- sqLL : ∀ {x y : C .ob} {f : C [ x , y ]} → G ⟪ f ⟫ ⋆ᴰ (nIso y) .inv ≡ (nIso x) .inv ⋆ᴰ F ⟪ f ⟫
 
      -- σ and σ⁻¹ are inverse:
      σσ⁻¹≡id : σ ●ᵛ σ⁻¹ ≡ idTrans _
-     σσ⁻¹≡id = {!!}
+     σσ⁻¹≡id = makeNatTransPath (funExt σσ⁻¹≡idOb)
+       where
+       σσ⁻¹≡idOb : ∀ x → σ .N-ob x ⋆⟨ C ⟩ σ⁻¹ .N-ob x ≡ id C
+       σσ⁻¹≡idOb (sing i) = αiIso (u i , u∈B i) .ret
+       σσ⁻¹≡idOb (pair i j i<j) = αiIso ((u j , u∈B j) · (u i , u∈B i)) .ret
 
      σ⁻¹σ≡id : σ⁻¹ ●ᵛ σ ≡ idTrans _
-     σ⁻¹σ≡id = {!!}
+     σ⁻¹σ≡id = makeNatTransPath (funExt σ⁻¹σ≡idOb)
+       where
+       σ⁻¹σ≡idOb : ∀ x → σ⁻¹ .N-ob x ⋆⟨ C ⟩ σ .N-ob x ≡ id C
+       σ⁻¹σ≡idOb (sing i) = αiIso (u i , u∈B i) .sec
+       σ⁻¹σ≡idOb (pair i j i<j) = αiIso ((u j , u∈B j) · (u i , u∈B i)) .sec
 
-     αₓ' = limOfArrows FLimCone GLimCone σ
-     αₓ'⁻¹ = limOfArrows GLimCone FLimCone σ⁻¹
 
-     open isIso
-     αₓ'IsIso : isIso C αₓ'
-     inv αₓ'IsIso = αₓ'⁻¹
-     sec αₓ'IsIso = sym (limOfArrowsSeq GLimCone FLimCone GLimCone σ⁻¹ σ)
+     αᵤ' = limOfArrows FLimCone GLimCone σ
+     αᵤ'⁻¹ = limOfArrows GLimCone FLimCone σ⁻¹
+
+     αᵤ'IsIso : isIso C αᵤ'
+     inv αᵤ'IsIso = αᵤ'⁻¹
+     sec αᵤ'IsIso = sym (limOfArrowsSeq GLimCone FLimCone GLimCone σ⁻¹ σ)
                   ∙∙ cong (limOfArrows GLimCone GLimCone) σ⁻¹σ≡id
                   ∙∙ limOfArrowsId GLimCone
-     ret αₓ'IsIso = sym (limOfArrowsSeq FLimCone GLimCone FLimCone σ σ⁻¹)
+     ret αᵤ'IsIso = sym (limOfArrowsSeq FLimCone GLimCone FLimCone σ σ⁻¹)
                   ∙∙ cong (limOfArrows FLimCone FLimCone) σσ⁻¹≡id
                   ∙∙ limOfArrowsId FLimCone
 
-     p : PathP (λ i → C [ F .F-ob (⋁u≡x i) , G .F-ob (⋁u≡x i) ]) αₓ' (α .N-ob x)
-     p = {!!}
-   -- use?
-   -- coverLemma : ∀ (c : ob C) (cc : Cone (funcComp F (BDiag (λ i → α i , α∈L' i))) c)
-   --            → ∃![ f ∈ C [ c , DLRan F .F-ob (⋁ α) ] ] isConeMor cc restCone f
+
+     p : αᵤ' ≡ (α .N-ob (⋁ u))
+     p = limArrowUnique GLimCone _ _ _
+           (isConeMorSingLemma (limOfArrowsCone FLimCone σ) (F-cone G (⋁Cone L u))
+             λ i → sym (α .N-hom (ind≤⋁ u i)))
+
+     q : PathP (λ i → C [ F .F-ob (⋁u≡x i) , G .F-ob (⋁u≡x i) ]) (α .N-ob (⋁ u)) (α .N-ob x)
+     q = cong (α .N-ob) ⋁u≡x
 
 
  -- notation

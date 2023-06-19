@@ -173,20 +173,23 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
     limArrowUnique c cc k hk = cong fst (univProp c cc .snd (k , hk))
 
   open LimCone
-  limOfArrows : {D₁ D₂ : Functor J C}
-                (CC₁ : LimCone D₁) (CC₂ : LimCone D₂)
-              → NatTrans D₁ D₂
-              → C [ CC₁ .lim , CC₂ .lim ]
-  limOfArrows {D₁} {D₂} CC₁ CC₂ α = limArrow CC₂ (CC₁ .lim) coneD₂Lim₁
-   where
-   coneD₂Lim₁ : Cone D₂ (CC₁ .lim)
-   coneOut coneD₂Lim₁ v = limOut CC₁ v ⋆⟨ C ⟩ α .N-ob v
-   coneOutCommutes coneD₂Lim₁ {u = u} {v = v} e =
+  limOfArrowsCone : {D₁ D₂ : Functor J C}
+                    (CC₁ : LimCone D₁)
+                  → NatTrans D₁ D₂
+                  → Cone D₂ (CC₁ .lim)
+  coneOut (limOfArrowsCone {D₁} {D₂} CC₁ α) v = limOut CC₁ v ⋆⟨ C ⟩ α .N-ob v
+  coneOutCommutes (limOfArrowsCone {D₁} {D₂} CC₁ α) {u = u} {v = v} e =
      limOut CC₁ u ⋆⟨ C ⟩ α .N-ob u ⋆⟨ C ⟩ D₂ .F-hom e   ≡⟨ ⋆Assoc C _ _ _ ⟩
      limOut CC₁ u ⋆⟨ C ⟩ (α .N-ob u ⋆⟨ C ⟩ D₂ .F-hom e) ≡⟨ cong (λ x → seq' C (limOut CC₁ u) x) (sym (α .N-hom e)) ⟩
      limOut CC₁ u ⋆⟨ C ⟩ (D₁ .F-hom e ⋆⟨ C ⟩ α .N-ob v) ≡⟨ sym (⋆Assoc C _ _ _) ⟩
      limOut CC₁ u ⋆⟨ C ⟩ D₁ .F-hom e ⋆⟨ C ⟩ α .N-ob v   ≡⟨ cong (λ x → x ⋆⟨ C ⟩ α .N-ob v) (limOutCommutes CC₁ e) ⟩
      limOut CC₁ v ⋆⟨ C ⟩ α .N-ob v ∎
+
+  limOfArrows : {D₁ D₂ : Functor J C}
+                (CC₁ : LimCone D₁) (CC₂ : LimCone D₂)
+              → NatTrans D₁ D₂
+              → C [ CC₁ .lim , CC₂ .lim ]
+  limOfArrows {D₁} {D₂} CC₁ CC₂ α = limArrow CC₂ (CC₁ .lim) (limOfArrowsCone CC₁ α)
 
   limOfArrowsOut : {D₁ D₂ : Functor J C}
                    (CC₁ : LimCone D₁) (CC₂ : LimCone D₂)
