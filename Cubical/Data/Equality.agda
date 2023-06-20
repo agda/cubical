@@ -4,7 +4,7 @@ This module converts between the path types and the inductively
 defined equality types. It provides the following for the inductively
 defined equality type _≡_.
 
-- Basic therory for _≡_ (J, ap, transport, ...)
+- Basic theory for _≡_ (J, ap, transport, ...)
 
 - A proof of univalence for _≡_ and equivalences using _≡_
 

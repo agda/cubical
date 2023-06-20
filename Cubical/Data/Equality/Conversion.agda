@@ -85,7 +85,7 @@ PathPathEq = isoPathToPath PathIsoEq
 Path≡Eq : {x y : A} → (Path A x y) ≡ (x ≡ y)
 Path≡Eq = pathToEq PathPathEq
 
--- We get funext by going back and forth between Path and Eq
+-- We get funExt by going back and forth between Path and Eq
 funExt : {B : A → Type ℓ} {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p = pathToEq (λ i x → eqToPath (p x) i)
 
@@ -157,7 +157,7 @@ helper2 {A = A} f g h (x , p) = (g x , λ y → eqToPath (ap g (p (f y)) ∙ pat
 
 -- This proof is essentially the one for proving that isContr with
 -- Path is a proposition, but as we are working with ≡ we have to
--- insert a lof of conversion functions.
+-- insert a lot of conversion functions.
 -- TODO: prove this directly following the HoTT proof?
 isPropIsContr : (p1 p2 : isContr A) → Path (isContr A) p1 p2
 isPropIsContr (a0 , p0) (a1 , p1) j =
