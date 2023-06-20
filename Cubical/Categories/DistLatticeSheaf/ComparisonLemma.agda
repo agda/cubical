@@ -177,8 +177,9 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
        p : PathP (λ 𝕚 → C [ G .F-ob (u i) , F .F-ob (fst (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)) ])
                  (G .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)) ⋆⟨ C ⟩ αi⁻¹ (uᴮDiag .F-ob (pair i j i<j)))
                  (G .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ⋆⟨ C ⟩ αi⁻¹ ((u j , u∈B j) · (u i , u∈B i)))
-       p 𝕚 = G .F-hom (isProp→PathP {!!} {!!} {!!} {!!}) ⋆⟨ C ⟩ αi⁻¹ (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)
-       -- F≤PathPLemmaBase
+       p 𝕚 = G .F-hom (isProp→PathP (λ 𝕚' → is-prop-valued (∧lComm (u i) (u j) 𝕚') (u i))
+                      (≤m→≤j _ _ (∧≤RCancel _ _)) (≤m→≤j _ _ (∧≤LCancel _ _)) 𝕚)
+               ⋆⟨ C ⟩ αi⁻¹ (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)
 
        q : G .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)) ⋆⟨ C ⟩ αi⁻¹ (uᴮDiag .F-ob (pair i j i<j))
          ≡ αi⁻¹ (u i , u∈B i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _))
@@ -187,9 +188,29 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
        r : PathP (λ 𝕚 → C [ G .F-ob (u i) , F .F-ob (fst (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)) ])
                  (αi⁻¹ (u i , u∈B i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)))
                  (αi⁻¹ (u i , u∈B i) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)))
-       r = {!!}
-     N-hom σ⁻¹ singPairR = {!!}
-     -- sqLL : ∀ {x y : C .ob} {f : C [ x , y ]} → G ⟪ f ⟫ ⋆ᴰ (nIso y) .inv ≡ (nIso x) .inv ⋆ᴰ F ⟪ f ⟫
+       r 𝕚 = αi⁻¹ (u i , u∈B i)
+               ⋆⟨ C ⟩ F .F-hom (isProp→PathP (λ 𝕚' → is-prop-valued (∧lComm (u i) (u j) 𝕚') (u i))
+                               (≤m→≤j _ _ (∧≤RCancel _ _)) (≤m→≤j _ _ (∧≤LCancel _ _)) 𝕚)
+
+     N-hom σ⁻¹ (singPairR {i} {j} {i<j}) =  transport (λ 𝕚 → p 𝕚 ≡ r 𝕚) q
+       where
+       p : PathP (λ 𝕚 → C [ G .F-ob (u j) , F .F-ob (fst (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)) ])
+                 (G .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ⋆⟨ C ⟩ αi⁻¹ (uᴮDiag .F-ob (pair i j i<j)))
+                 (G .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)) ⋆⟨ C ⟩ αi⁻¹ ((u j , u∈B j) · (u i , u∈B i)))
+       p 𝕚 = G .F-hom (isProp→PathP (λ 𝕚' → is-prop-valued (∧lComm (u i) (u j) 𝕚') (u j))
+                      (≤m→≤j _ _ (∧≤LCancel _ _)) (≤m→≤j _ _ (∧≤RCancel _ _)) 𝕚)
+               ⋆⟨ C ⟩ αi⁻¹ (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)
+
+       q : G .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)) ⋆⟨ C ⟩ αi⁻¹ (uᴮDiag .F-ob (pair i j i<j))
+         ≡ αi⁻¹ (u j , u∈B j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _))
+       q = sqLL αiNatIso
+
+       r : PathP (λ 𝕚 → C [ G .F-ob (u j) , F .F-ob (fst (·Comm (u i , u∈B i) (u j , u∈B j) 𝕚)) ])
+                 (αi⁻¹ (u j , u∈B j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤LCancel _ _)))
+                 (αi⁻¹ (u j , u∈B j) ⋆⟨ C ⟩ F .F-hom (≤m→≤j _ _ (∧≤RCancel _ _)))
+       r 𝕚 = αi⁻¹ (u j , u∈B j)
+               ⋆⟨ C ⟩ F .F-hom (isProp→PathP (λ 𝕚' → is-prop-valued (∧lComm (u i) (u j) 𝕚') (u j))
+                               (≤m→≤j _ _ (∧≤LCancel _ _)) (≤m→≤j _ _ (∧≤RCancel _ _)) 𝕚)
 
      -- σ and σ⁻¹ are inverse:
      σσ⁻¹≡id : σ ●ᵛ σ⁻¹ ≡ idTrans _
