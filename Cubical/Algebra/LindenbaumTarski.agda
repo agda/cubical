@@ -6,7 +6,7 @@ This file contains:
   - Properties of classical propositional logic
   - Equivalence relation on formulas in terms of provability
   - Definition of Lindenbaum-Tarski algebra
-  - Proof the Lindenbaum-Tarski algebra is a Boolean algebra
+  - Proof that the Lindenbaum-Tarski algebra is a Boolean algebra
   - Proof of soundness
 
 -}
