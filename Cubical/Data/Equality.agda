@@ -20,6 +20,7 @@ module Cubical.Data.Equality where
 
 open import Cubical.Data.Equality.Base public
 open import Cubical.Data.Equality.Conversion public
+open import Cubical.Data.Equality.FunctionExtensionality public
 open import Cubical.Data.Equality.Univalence public
 open import Cubical.Data.Equality.S1 public
 open import Cubical.Data.Equality.PropositionalTruncation public

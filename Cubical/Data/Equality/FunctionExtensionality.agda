@@ -34,17 +34,17 @@ private
     A : Type a
     P : A → Type ℓ
 
-lem : (f g : (x : A) → P x) (p : Path _ f g) (x : A) → happly (pathToEq p) x ≡ pathToEq (λ i → p i x)
-lem f g = JPath (λ g p → ∀ x → happly (pathToEq p) x ≡ pathToEq (λ i → p i x)) λ x →
-  happly (pathToEq λ i → f) x   ≡⟨ ap (λ p → happly {f = f} p x) pathToEq-reflPath ⟩
-  happly (refl {x = f}) x       ≡⟨ sym pathToEq-reflPath ⟩
-  pathToEq reflPath             ∎
-
 happlyFunExt : (f g : (x : A) → P x) (p : (x : A) → f x ≡ g x) → happly (funExt p) ≡ p
 happlyFunExt f g p = funExt λ x →
-  happly (pathToEq (λ i x → eqToPath (p x) i)) x   ≡⟨ lem f g (λ i x → eqToPath (p x) i) x ⟩
-  pathToEq (eqToPath (p x))                        ≡⟨ pathToEq (pathToEq-eqToPath (p x)) ⟩
-  p x                                              ∎
+    happly (pathToEq (λ i x → eqToPath (p x) i)) x   ≡⟨ lem f g (λ i x → eqToPath (p x) i) x ⟩
+    pathToEq (eqToPath (p x))                        ≡⟨ pathToEq (pathToEq-eqToPath (p x)) ⟩
+    p x                                              ∎
+  where
+    lem : (f g : (x : A) → P x) (p : Path _ f g) (x : A) → happly (pathToEq p) x ≡ pathToEq (λ i → p i x)
+    lem f g = JPath (λ g p → ∀ x → happly (pathToEq p) x ≡ pathToEq (λ i → p i x)) λ x →
+      happly (pathToEq λ i → f) x   ≡⟨ ap (λ p → happly {f = f} p x) pathToEq-reflPath ⟩
+      happly (refl {x = f}) x       ≡⟨ sym pathToEq-reflPath ⟩
+      pathToEq reflPath             ∎
 
 funExtHapply : (f g : (x : A) → P x) (p : f ≡ g) → funExt (happly p) ≡ p
 funExtHapply f .f refl = funExtRefl
