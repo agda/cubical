@@ -6,6 +6,8 @@ defined equality type _≡_.
 
 - Basic theory for _≡_ (J, ap, transport, ...)
 
+- A proof of function extensionality using _≡_
+
 - A proof of univalence for _≡_ and equivalences using _≡_
 
 - S¹ and propositional truncation with (path) constructors, eliminators

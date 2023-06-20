@@ -85,9 +85,15 @@ PathPathEq = isoPathToPath PathIsoEq
 Path≡Eq : {x y : A} → (Path A x y) ≡ (x ≡ y)
 Path≡Eq = pathToEq PathPathEq
 
+happly : {B : A → Type ℓ} {f g : (x : A) → B x} → f ≡ g → (x : A) → f x ≡ g x
+happly refl x = refl
+
 -- We get funExt by going back and forth between Path and Eq
 funExt : {B : A → Type ℓ} {f g : (x : A) → B x} → ((x : A) → f x ≡ g x) → f ≡ g
 funExt p = pathToEq (λ i x → eqToPath (p x) i)
+
+funExtRefl : {B : A → Type ℓ} {f : (x : A) → B x} → funExt (λ x → refl {x = f x}) ≡ refl
+funExtRefl = pathToEq-reflPath
 
 Σ≡Prop : {P : A → Type ℓ} → ((x : A) → isProp (P x)) →  {u v : Σ A P} → u .pr₁ ≡ v .pr₁ → u ≡ v
 Σ≡Prop p {v = (x , y)} refl = ap (x ,_) (p x _ y)
