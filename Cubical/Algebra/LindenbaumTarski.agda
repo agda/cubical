@@ -1,3 +1,16 @@
+{-
+
+This file contains:
+
+  - Classical propositional logic and provability
+  - Properties of classical propositional logic
+  - Equivalence relation on formulas in terms of provability
+  - Definition of Lindenbaum-Tarski algebra
+  - Proof the Lindenbaum-Tarski algebra is a Boolean algebra
+  - Proof of soundness
+
+-}
+
 {-# OPTIONS --safe #-}
 
 module Cubical.Algebra.LindenbaumTarski where
@@ -22,7 +35,6 @@ infix  30  _∨_
 infixl 36  ¬_
 infix  20  _⊢_
 infix  23  _∷_
-infix  22  _⇒_
 
 
 
@@ -103,12 +115,12 @@ data _⊢_ : ctxt → Formula → Type where
             → Γ ∷ ϕ ⊢ ψ
 
 
--- Implication
-_⇒_ : Formula → Formula → Formula
-ϕ ⇒ ψ = ¬ ϕ ∨ ψ
-
-
 module _ {Γ : ctxt} where
+
+  -- Implication
+  infix  22  _⇒_
+  _⇒_ : Formula → Formula → Formula
+  ϕ ⇒ ψ = ¬ ϕ ∨ ψ
 
 
   -- Useful lemmas
