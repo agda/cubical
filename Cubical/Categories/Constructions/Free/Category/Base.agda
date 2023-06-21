@@ -1,5 +1,8 @@
--- Free category over a directed graph/quiver
--- This time without any assumptions on the HLevels of the graph
+-- Free category over a directed graph, along with (most of) its
+-- universal property.
+
+-- This differs from the implementation in Free.Category, which
+-- assumes the vertices of the input graph form a Set.
 {-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.Free.Category.Base where
@@ -111,11 +114,9 @@ module FreeCategory (G : Graph ℓg ℓg') where
         induction : F ≡ F'
         induction = Functor≡ aoo aom
 
-        -- TODO: 2-categorical: induction is an equivalence
-        -- inductionIso : Iso (F ≡ F') (F ∘Interp η ≡ F' ∘Interp η)
     module Semantics {ℓc ℓc'}
                      (𝓒 : Category ℓc ℓc')
-                     (ı : GraphHom G (Ugr 𝓒)) where
+                     (ı : GraphHom G (Cat→Graph 𝓒)) where
       ⟦_⟧ : ∀ {A B} → Exp A B → 𝓒 [ ı $g A , ı $g B ]
       ⟦ ↑ x ⟧ = ı <$g> x
       ⟦ idₑ ⟧ = 𝓒 .id
@@ -135,15 +136,15 @@ module FreeCategory (G : Graph ℓg ℓg') where
       sem-extends-ı : (η ⋆Interp sem) ≡ ı
       sem-extends-ı = refl
 
-      sem-uniq : ∀ {F : Functor FreeCat 𝓒} → ((Uhom F ∘GrHom η) ≡ ı) → F ≡ sem
+      sem-uniq : ∀ {F : Functor FreeCat 𝓒} → ((Functor→GraphHom F ∘GrHom η) ≡ ı) → F ≡ sem
       sem-uniq {F} aog = induction F sem aog
 
-      sem-contr : ∃![ F ∈ Functor FreeCat 𝓒 ] Uhom F ∘GrHom η ≡ ı
+      sem-contr : ∃![ F ∈ Functor FreeCat 𝓒 ] Functor→GraphHom F ∘GrHom η ≡ ı
       sem-contr .fst = sem , sem-extends-ı
       sem-contr .snd (sem' , sem'-extends-ı) = ΣPathP paths
         where
           paths : Σ[ p ∈ sem ≡ sem' ]
-                  PathP (λ i → Uhom (p i) ∘GrHom η ≡ ı)
+                  PathP (λ i → Functor→GraphHom (p i) ∘GrHom η ≡ ı)
                         sem-extends-ı
                         sem'-extends-ı
           paths .fst = sym (sem-uniq sem'-extends-ı)
@@ -155,11 +156,11 @@ module FreeCategory (G : Graph ℓg ℓg') where
 
 -- co-unit of the 2-adjunction
 module _ {𝓒 : Category ℓc ℓc'} where
-  open FreeCategory (Ugr 𝓒)
+  open FreeCategory (Cat→Graph 𝓒)
   ε : Functor FreeCat 𝓒
-  ε = Semantics.sem 𝓒 (Uhom {𝓓 = 𝓒} Id)
+  ε = Semantics.sem 𝓒 (Functor→GraphHom {𝓓 = 𝓒} Id)
 
   ε-reasoning : {𝓓 : Category ℓd ℓd'}
             → (𝓕 : Functor 𝓒 𝓓)
-            → 𝓕 ∘F ε ≡ Semantics.sem 𝓓 (Uhom 𝓕)
-  ε-reasoning {𝓓 = 𝓓} 𝓕 = Semantics.sem-uniq 𝓓 (Uhom 𝓕) refl
+            → 𝓕 ∘F ε ≡ Semantics.sem 𝓓 (Functor→GraphHom 𝓕)
+  ε-reasoning {𝓓 = 𝓓} 𝓕 = Semantics.sem-uniq 𝓓 (Functor→GraphHom 𝓕) refl

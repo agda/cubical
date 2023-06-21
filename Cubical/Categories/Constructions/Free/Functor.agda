@@ -79,7 +79,7 @@ module FreeFunctor (G : Graph ℓg ℓg')
   ηH $g x = x
   ηH <$g> x = ↑ x
 
-  Fϕ-homo : GraphHom G (Ugr FH)
+  Fϕ-homo : GraphHom G (Cat→Graph FH)
   Fϕ-homo $g x = ϕ x
   Fϕ-homo <$g> x = F⟪ ↑ x ⟫
 
@@ -335,12 +335,3 @@ module FreeFunctor (G : Graph ℓg ℓg')
               (λ i k → aom f k)
               (λ i k → aom f₁ k)
               i j k
-
-        -- TODO
-        -- sem-uniq-ϕ : Square arb𝓕
-        --                     (idToPath semϕ)
-        --                     (λ i → 𝓕 ∘F sem-uniq-G i)
-        --                     (λ i → sem-uniq-H i ∘F Fϕ)
-        -- sem-uniq-ϕ = {!!}
-
-        -- TODO: uniqueness of the uniqueness paths above

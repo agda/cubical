@@ -23,19 +23,19 @@ open NatIso hiding (sqRL; sqLL)
 open NatTrans
 
 -- Underlying graph of a category
-Ugr : ∀ {ℓc ℓc'} (𝓒 : Category ℓc ℓc') → Graph ℓc ℓc'
-Ugr 𝓒 .Node = 𝓒 .ob
-Ugr 𝓒 .Edge = 𝓒 .Hom[_,_]
+Cat→Graph : ∀ {ℓc ℓc'} (𝓒 : Category ℓc ℓc') → Graph ℓc ℓc'
+Cat→Graph 𝓒 .Node = 𝓒 .ob
+Cat→Graph 𝓒 .Edge = 𝓒 .Hom[_,_]
 
-Uhom : ∀ {ℓc ℓc' ℓd ℓd'} {𝓒 : Category ℓc ℓc'} {𝓓 : Category ℓd ℓd'}
-       (F : Functor 𝓒 𝓓) → GraphHom (Ugr 𝓒) (Ugr 𝓓)
-Uhom F ._$g_ = Functor.F-ob F
-Uhom F ._<$g>_ = Functor.F-hom F
+Functor→GraphHom : ∀ {ℓc ℓc' ℓd ℓd'} {𝓒 : Category ℓc ℓc'} {𝓓 : Category ℓd ℓd'}
+       (F : Functor 𝓒 𝓓) → GraphHom (Cat→Graph 𝓒) (Cat→Graph 𝓓)
+Functor→GraphHom F ._$g_ = Functor.F-ob F
+Functor→GraphHom F ._<$g>_ = Functor.F-hom F
 
 module _ (G : Graph ℓg ℓg') (𝓒 : Category ℓc ℓc') where
   -- Interpretation of a graph in a category
   Interp : Type _
-  Interp = GraphHom G (Ugr 𝓒)
+  Interp = GraphHom G (Cat→Graph 𝓒)
 _⋆Interp_ : ∀ {G : Graph ℓg ℓg'}
               {𝓒 : Category ℓc ℓc'}
               {𝓓 : Category ℓd ℓd'}

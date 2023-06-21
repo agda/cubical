@@ -54,16 +54,16 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
     push-elt (A , η) = (F ⟅ A ⟆) , (h .N-ob A (lift η) .lower)
 
     push-eltNat : ∀ {B : C .ob} (η : Elementᴾ {C = C} P) (f : C [ B , η .fst ])
-                  → D [ push-elt η .snd ∘ᴾ⟨ Q ⟩ F .F-hom f ]
-                    ≡ push-elt (B , C [ η .snd ∘ᴾ⟨ P ⟩ f ]) .snd
+                  → (push-elt η .snd ∘ᴾ⟨ D , Q ⟩ F .F-hom f)
+                    ≡ push-elt (B , η .snd ∘ᴾ⟨ C , P ⟩ f) .snd
     push-eltNat η f i = h .N-hom f (~ i) (lift (η .snd)) .lower
 
     push-eltF : Functor (∫ᴾ_ {C = C} P) (∫ᴾ_ {C = D} Q)
     push-eltF .F-ob = push-elt
     push-eltF .F-hom {x}{y} (f , commutes) = F .F-hom f , sym (
-      D [ push-elt _ .snd ∘ᴾ⟨ Q ⟩ F .F-hom f ]
+      push-elt _ .snd ∘ᴾ⟨ D , Q ⟩ F .F-hom f
         ≡⟨ push-eltNat y f ⟩
-      push-elt (_ , C [ y .snd ∘ᴾ⟨ P ⟩ f ]) .snd
+      push-elt (_ , y .snd ∘ᴾ⟨ C , P ⟩ f) .snd
         ≡⟨ cong (λ a → push-elt a .snd) (ΣPathP (refl , (sym commutes))) ⟩
       push-elt x .snd ∎)
     push-eltF .F-id = Σ≡Prop (λ x → (Q ⟅ _ ⟆) .snd _ _) (F .F-id)

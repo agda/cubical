@@ -25,7 +25,7 @@ open NatIso
 open NatTrans
 
 module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : Functor 𝓒 𝓓) where
-  open FreeFunctor (Ugr 𝓒) (Ugr 𝓓) (𝓕 .F-ob)
+  open FreeFunctor (Cat→Graph 𝓒) (Cat→Graph 𝓓) (𝓕 .F-ob)
 
   Free𝓒 = FG
   η𝓒 = ηG
@@ -38,8 +38,8 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
 
   module TautoSem = Semantics {𝓒 = 𝓒} {𝓓 = 𝓓} {𝓕 = 𝓕} IdHom IdHom reflId
   module YoSem = Semantics {𝓒 = 𝓟} {𝓓 = 𝓟} {𝓕 = IdF}
-                   (Uhom (PsYo ∘F Free𝓕) ∘GrHom η𝓒)
-                   (Uhom           PsYo  ∘GrHom η𝓓)
+                   (Functor→GraphHom (PsYo ∘F Free𝓕) ∘GrHom η𝓒)
+                   (Functor→GraphHom           PsYo  ∘GrHom η𝓓)
                    reflId
 
   Yo-YoSem-Agree : Path _ PsYo YoSem.semH

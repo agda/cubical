@@ -1,4 +1,12 @@
 {-# OPTIONS --safe #-}
+
+{-
+   The Category Solver solveCat! solves equations in a category that
+   hold up to associativity and unit laws
+
+   This file shows some examples of how to use it.
+-}
+
 module Cubical.Tactics.CategorySolver.Examples where
 
 open import Cubical.Foundations.Prelude

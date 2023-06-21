@@ -17,7 +17,7 @@ open Functor
 
 module Eval (𝓒 : Category ℓ ℓ') where
   -- Semantics in 𝓒 itself, tautologically
-  open FreeCategory (Ugr 𝓒)
+  open FreeCategory (Cat→Graph 𝓒)
   sem𝓒 = ε {𝓒 = 𝓒}
   ⟦_⟧c = sem𝓒 .F-hom
   𝓟 = PowerCategory (𝓒 .ob) (SET (ℓ-max ℓ ℓ'))
@@ -50,7 +50,7 @@ module Eval (𝓒 : Category ℓ ℓ') where
 
 solve : (𝓒 : Category ℓ ℓ')
       → {A B : 𝓒 .ob}
-      → (e₁ e₂ : FreeCategory.FreeCat (Ugr 𝓒) [ A , B ])
+      → (e₁ e₂ : FreeCategory.FreeCat (Cat→Graph 𝓒) [ A , B ])
       → (p : Eval.eval 𝓒 e₁ ≡ Eval.eval 𝓒 e₂)
       → _
 solve = Eval.solve

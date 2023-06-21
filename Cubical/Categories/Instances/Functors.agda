@@ -1,5 +1,16 @@
 {-# OPTIONS --safe #-}
 
+{-
+   Category whose objects are functors and morphisms are natural transformations.
+
+   Includes the following
+   - isos in FUNCTOR are precisely the pointwise isos
+   - FUNCTOR C D is univalent when D is
+   - currying of functors
+
+   TODO: show that currying of functors is an isomorphism.
+-}
+
 module Cubical.Categories.Instances.Functors where
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
@@ -157,5 +168,3 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
         F ⟪ g ∘⟨ E ⟩ f , C .id ∘⟨ C ⟩ C .id ⟫
           ≡⟨ F .F-seq (f , C .id) (g , C .id) ⟩
         (F ⟪ g , C .id ⟫) ∘⟨ D ⟩ (F ⟪ f , C .id ⟫) ∎
-
-  -- TODO: UMP relating λF and appF

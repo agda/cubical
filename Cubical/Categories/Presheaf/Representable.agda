@@ -1,7 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Presheaf.Representable where
 
-open import Cubical.Data.Sigma
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
@@ -15,6 +14,8 @@ open import Cubical.Categories.Limits
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Properties
+
+open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation.Base
 
 private
@@ -54,9 +55,9 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
     field
       coinduction : ∀ {b} → (P ⟅ b ⟆) .fst → C [ b , vertex ]
       commutes : ∀ {b} (ϕ : (P ⟅ b ⟆) .fst)
-               → C [ element ∘ᴾ⟨ P ⟩ coinduction ϕ ] ≡ ϕ
+               → element ∘ᴾ⟨ C , P ⟩ coinduction ϕ ≡ ϕ
       is-uniq : ∀ {b} (ϕ : (P ⟅ b ⟆) .fst) f
-              → (C [ element ∘ᴾ⟨ P ⟩ f ] ≡ ϕ)
+              → (element ∘ᴾ⟨ C , P ⟩ f ≡ ϕ)
               → f ≡ coinduction ϕ
 
   record UnivElt : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp) where
@@ -88,23 +89,14 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
         ≡⟨ sym (η'-univ .is-uniq _ (C .id) (∘ᴾId C P (η' .snd))) ⟩
       C .id ∎ where
 
-      lem : (C [ η' .snd
-               ∘ᴾ⟨ P ⟩ η'-univ .coinduction (η .snd)
-               ∘⟨ C ⟩ η-univ .coinduction (η' .snd) ])
+      lem : (η' .snd
+               ∘ᴾ⟨ C , P ⟩ (η'-univ .coinduction (η .snd)
+               ∘⟨ C ⟩ η-univ .coinduction (η' .snd)))
             ≡ η' .snd
       lem =
-        (C [ η' .snd
-             ∘ᴾ⟨ P ⟩ η'-univ .coinduction (η .snd)
-             ∘⟨ C ⟩ η-univ .coinduction (η' .snd) ])
-          ≡⟨ ∘ᴾAssoc C P _ _ _ ⟩
-        (C [ C [ η' .snd
-                 ∘ᴾ⟨ P ⟩ η'-univ .coinduction (η .snd) ]
-                 ∘ᴾ⟨ P ⟩ η-univ .coinduction (η' .snd) ])
-          ≡[ i ]⟨ C [ η'-univ .commutes (η .snd) i
-                      ∘ᴾ⟨ P ⟩ η-univ .coinduction (η' .snd) ] ⟩
-        (C [ η .snd ∘ᴾ⟨ P ⟩ η-univ .coinduction (η' .snd) ])
-          ≡⟨ η-univ .commutes _ ⟩
-        η' .snd ∎
+        ∘ᴾAssoc C P _ _ _
+        ∙ (λ i → η'-univ .commutes (η .snd) i ∘ᴾ⟨ C , P ⟩ η-univ .coinduction (η' .snd))
+        ∙ η-univ .commutes _
 
   univEltIso : ∀ {η η' : Elementᴾ {C = C} P} → isUniversal η → isUniversal η'
              → CatIso C (η .fst) (η' .fst)
@@ -175,7 +167,7 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
       funExt (λ ϕ i → lift (η-univ (_ , ϕ .lower) .fst .snd (~ i)))
     pointwise c .isIso.ret =
       funExt (λ f i →
-        lift (η-univ (_ , C [ η ∘ᴾ⟨ P ⟩ f .lower ])
+        lift (η-univ (_ , η ∘ᴾ⟨ C , P ⟩ f .lower)
               .snd (f .lower , refl) i .fst))
 
   YoIso→isTerminalElement :
@@ -185,24 +177,16 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret) (B , ϕ) .fst .fst =
     P→YoA .N-ob B (lift ϕ) .lower
   YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret) (B , ϕ) .fst .snd =
-    ϕ
-      ≡[ i ]⟨ (sec (~ i) .N-ob B (lift ϕ)) .lower ⟩
-    YoA→P .N-ob B (P→YoA .N-ob B (lift ϕ)) .lower
-      ≡[ i ]⟨ YoA→P .N-ob B
-              (lift (C .⋆IdR (P→YoA .N-ob B (lift ϕ) .lower) (~ i))) .lower ⟩
-    (YoA→P .N-ob B (lift (C .id ∘⟨ C ⟩ P→YoA .N-ob B (lift ϕ) .lower))) .lower
-      ≡[ i ]⟨ YoA→P .N-hom (P→YoA .N-ob B (lift ϕ) .lower) i (lift (C .id))
-              .lower ⟩
-    C [ YoA→P .N-ob A (lift (C .id)) .lower ∘ᴾ⟨ P ⟩ P→YoA .N-ob B (lift ϕ)
-        .lower ]
-    ∎
+    (λ i → (sec (~ i) .N-ob B (lift ϕ)) .lower)
+    ∙ (λ i → YoA→P .N-ob B (lift (C .⋆IdR (P→YoA .N-ob B (lift ϕ) .lower) (~ i))) .lower)
+    ∙ λ i → YoA→P .N-hom (P→YoA .N-ob B (lift ϕ) .lower) i (lift (C .id)) .lower
   YoIso→isTerminalElement A (YoA→P , isiso P→YoA sec ret)
                             (B , ϕ) .snd
                             f+ @ (f , ϕ=η∘f)
     = ∫ᴾhomEqSimpl {C = C}{F = P} ((P→YoA .N-ob B (lift ϕ) .lower) , _) f+
     (P→YoA .N-ob B (lift ϕ) .lower
       ≡[ i ]⟨ P→YoA .N-ob B (lift (ϕ=η∘f i)) .lower ⟩
-    P→YoA .N-ob B (lift (C [ YoA→P .N-ob A (lift (C .id)) .lower ∘ᴾ⟨ P ⟩ f ]))
+    P→YoA .N-ob B (lift (YoA→P .N-ob A (lift (C .id)) .lower ∘ᴾ⟨ C , P ⟩ f ))
       .lower
       ≡[ i ]⟨ P→YoA .N-hom f i (YoA→P .N-ob A (lift (C .id))) .lower ⟩
     P→YoA .N-ob A (YoA→P .N-ob A (lift (C .id))) .lower ∘⟨ C ⟩ f
