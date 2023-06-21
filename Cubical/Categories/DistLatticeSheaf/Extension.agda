@@ -1,3 +1,12 @@
+{-
+
+   This file contains a proof of the following fact:
+   Given a distributive lattice L with a basis B ⊆ L
+   and a sheaf F on B, then the point-wise right Kan extension
+   Ran F of F along the inclusion Bᵒᵖ ↪ Lᵒᵖ is a sheaf on L.
+
+-}
+
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.DistLatticeSheaf.Extension where
 

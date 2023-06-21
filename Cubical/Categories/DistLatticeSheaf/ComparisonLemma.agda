@@ -1,3 +1,15 @@
+{-
+
+  This file contains a proof of the following fact:
+  Given a distributive lattice L with a basis B ⊆ L,
+  then the category of sheaves on B is equivalent to
+  the category of sheaves on L.
+
+  This is a special case of the comparison lemma as stated in e.g.
+  https://ncatlab.org/nlab/show/comparison+lemma
+
+-}
+
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.DistLatticeSheaf.ComparisonLemma where
 
@@ -74,8 +86,8 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
   Lᵒᵖ = DistLatticeCategory L ^op
   Bᵒᵖ = ΣPropCat (DistLatticeCategory L) B ^op
 
-  ShB = ΣPropCat (FUNCTOR Bᵒᵖ C) isDLBasisSheafProp
-  ShL = ΣPropCat (FUNCTOR Lᵒᵖ C) (isDLSheafProp L C)
+  SheafB = ΣPropCat (FUNCTOR Bᵒᵖ C) isDLBasisSheafProp
+  SheafL = ΣPropCat (FUNCTOR Lᵒᵖ C) (isDLSheafProp L C)
 
   i = baseIncl ^opF
 
@@ -115,14 +127,14 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
 
 
  --restriction to basis as functor
- restSh : Functor ShL ShB
- restSh = ΣPropCatFunc (precomposeF C i) restPresSheafProp
+ sheafRestriction : Functor SheafL SheafB
+ sheafRestriction = ΣPropCatFunc (precomposeF C i) restPresSheafProp
 
  -- important lemma: a natural transformation between sheaves on L is an
  -- iso if the restriction to B is an iso. This will give us that
- -- that the unit of the comparison lemm is an iso and thus that
+ -- that the unit of the comparison lemma is an iso and thus that
  -- restriction of sheaves is fully-faithful
- restIsoLemma : (F G : ob ShL) (α : NatTrans (F .fst) (G .fst))
+ restIsoLemma : (F G : ob SheafL) (α : NatTrans (F .fst) (G .fst))
               → (∀ (u : ob Bᵒᵖ) → isIso C ((α ∘ˡ i) .N-ob u))
               →  ∀ (x : ob Lᵒᵖ) → isIso C (α .N-ob x)
  restIsoLemma (F , isSheafF) (G , isSheafG) α αiIso x =
@@ -130,8 +142,6 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
    where
    Fi = F ∘F i
    Gi = G ∘F i
-   -- isSheafFi = restPresSheafProp F isSheafF
-   -- isSheafGi = restPresSheafProp G isSheafG
    open NatIso
    αiNatIso : NatIso Fi Gi
    trans αiNatIso = α ∘ˡ i
@@ -337,8 +347,8 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
 
 
  --extension of sheaves as functor
- extSh : Functor ShB ShL
- extSh = ΣPropCatFunc DLRanFun (isDLSheafDLRan isBasisB)
+ sheafExtension : Functor SheafB SheafL
+ sheafExtension = ΣPropCatFunc DLRanFun (isDLSheafDLRan isBasisB)
 
 
 
@@ -347,9 +357,9 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  open NatIso
  open isIso
 
- DLComparisonLemma : ShL ≃ᶜ ShB
- func DLComparisonLemma = restSh
- invFunc (isEquivC DLComparisonLemma) = extSh
+ DLComparisonLemma : SheafL ≃ᶜ SheafB
+ func DLComparisonLemma = sheafRestriction
+ invFunc (isEquivC DLComparisonLemma) = sheafExtension
 
  -- the unit is induced by the universal property
  N-ob (trans (η (isEquivC DLComparisonLemma))) (F , _ ) =
@@ -436,10 +446,10 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
 
  -- useful corollary:
  -- if two natural transformations between sheaves agree on the basis they are identical
- makeNatTransPathRest : (F G : ob ShL) (α β : NatTrans (F .fst) (G .fst))
+ makeNatTransPathRest : (F G : ob SheafL) (α β : NatTrans (F .fst) (G .fst))
                       → (∀ (u : ob Bᵒᵖ) → (α ∘ˡ i) .N-ob u ≡ (β ∘ˡ i) .N-ob u)
                       → α ≡ β
- makeNatTransPathRest F G _ _ basePaths = isFaithfulRestSh F G _ _
+ makeNatTransPathRest F G _ _ basePaths = isFaithfulSheafRestriction F G _ _
                                             (makeNatTransPath (funExt basePaths))
    where
-   isFaithfulRestSh = isEquiv→Faithful (DLComparisonLemma .isEquivC)
+   isFaithfulSheafRestriction = isEquiv→Faithful (DLComparisonLemma .isEquivC)
