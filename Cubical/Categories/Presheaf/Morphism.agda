@@ -18,7 +18,9 @@ open import Cubical.Data.Sigma
 
   Given two presheaves P and Q on the same category C, a morphism
   between them is a natural transformation. Here we generalize this to
-  situations where P and Q are presheaves on *different* categories.
+  situations where P and Q are presheaves on *different*
+  categories. This is equivalent to the notion of morphism of
+  fibrations if viewing P and Q as discrete fibrations.
 
   Given a functor F : C → D, a presheaf P on C and a presheaf Q on D,
   we can define a homomorphism from P to Q over F as a natural
@@ -50,41 +52,43 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
 
   module _ (h : PshHom) where
     -- This should define a functor on the category of elements
-    push-elt : Elementᴾ {C = C} P → Elementᴾ {C = D} Q
-    push-elt (A , η) = (F ⟅ A ⟆) , (h .N-ob A (lift η) .lower)
+    pushElt : Elementᴾ {C = C} P → Elementᴾ {C = D} Q
+    pushElt (A , η) = (F ⟅ A ⟆) , (h .N-ob A (lift η) .lower)
 
-    push-eltNat : ∀ {B : C .ob} (η : Elementᴾ {C = C} P) (f : C [ B , η .fst ])
-                  → (push-elt η .snd ∘ᴾ⟨ D , Q ⟩ F .F-hom f)
-                    ≡ push-elt (B , η .snd ∘ᴾ⟨ C , P ⟩ f) .snd
-    push-eltNat η f i = h .N-hom f (~ i) (lift (η .snd)) .lower
+    pushEltNat : ∀ {B : C .ob} (η : Elementᴾ {C = C} P) (f : C [ B , η .fst ])
+                  → (pushElt η .snd ∘ᴾ⟨ D , Q ⟩ F .F-hom f)
+                    ≡ pushElt (B , η .snd ∘ᴾ⟨ C , P ⟩ f) .snd
+    pushEltNat η f i = h .N-hom f (~ i) (lift (η .snd)) .lower
 
-    push-eltF : Functor (∫ᴾ_ {C = C} P) (∫ᴾ_ {C = D} Q)
-    push-eltF .F-ob = push-elt
-    push-eltF .F-hom {x}{y} (f , commutes) = F .F-hom f , sym (
-      push-elt _ .snd ∘ᴾ⟨ D , Q ⟩ F .F-hom f
-        ≡⟨ push-eltNat y f ⟩
-      push-elt (_ , y .snd ∘ᴾ⟨ C , P ⟩ f) .snd
-        ≡⟨ cong (λ a → push-elt a .snd) (ΣPathP (refl , (sym commutes))) ⟩
-      push-elt x .snd ∎)
-    push-eltF .F-id = Σ≡Prop (λ x → (Q ⟅ _ ⟆) .snd _ _) (F .F-id)
-    push-eltF .F-seq f g =
+    pushEltF : Functor (∫ᴾ_ {C = C} P) (∫ᴾ_ {C = D} Q)
+    pushEltF .F-ob = pushElt
+    pushEltF .F-hom {x}{y} (f , commutes) = F .F-hom f , sym (
+      pushElt _ .snd ∘ᴾ⟨ D , Q ⟩ F .F-hom f
+        ≡⟨ pushEltNat y f ⟩
+      pushElt (_ , y .snd ∘ᴾ⟨ C , P ⟩ f) .snd
+        ≡⟨ cong (λ a → pushElt a .snd) (ΣPathP (refl , (sym commutes))) ⟩
+      pushElt x .snd ∎)
+    pushEltF .F-id = Σ≡Prop (λ x → (Q ⟅ _ ⟆) .snd _ _) (F .F-id)
+    pushEltF .F-seq f g =
       Σ≡Prop ((λ x → (Q ⟅ _ ⟆) .snd _ _)) (F .F-seq (f .fst) (g .fst))
 
-    preserves-representation : ∀ (η : UnivElt C P)
-                             → Type (ℓ-max (ℓ-max ℓd ℓd') ℓq)
-    preserves-representation η = isUniversal D Q (push-elt (elementᴾ _ _ η))
+    preservesRepresentation : ∀ (η : UnivElt C P)
+                            → Type (ℓ-max (ℓ-max ℓd ℓd') ℓq)
+    preservesRepresentation η = isUniversal D Q (pushElt (elementᴾ _ _ η))
 
-    preserves-representability : Type _
-    preserves-representability = ∀ η → preserves-representation η
+    preservesRepresentations : Type _
+    preservesRepresentations = ∀ η → preservesRepresentation η
 
-    -- What is the nice HoTT formulation of this?
-    preserve-represention→preserves-representability :
-      ∀ η → preserves-representation η → preserves-representability
-    preserve-represention→preserves-representability η preserves-η η' =
+    -- If C and D are univalent then this follows by representability
+    -- being a Prop. But even in non-univalent categories it follows
+    -- by uniqueness of representables up to unique isomorphism
+    preservesAnyRepresentation→preservesAllRepresentations :
+      ∀ η → preservesRepresentation η → preservesRepresentations
+    preservesAnyRepresentation→preservesAllRepresentations η preserves-η η' =
       isTerminalElement→isUniversal D Q
-        (preserveOnePreservesAll (∫ᴾ_ {C = C} P)
+        (preserveAnyTerminal→PreservesTerminals (∫ᴾ_ {C = C} P)
                                  (∫ᴾ_ {C = D} Q)
-                                 push-eltF
+                                 pushEltF
                                  (UnivElt→UniversalElement C P η)
                                  (isUniversal→isTerminalElement D Q preserves-η)
                                  (UnivElt→UniversalElement C P η'))
