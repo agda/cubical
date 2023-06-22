@@ -51,7 +51,7 @@ isCubeFilledPath≡Suc n A =
         → CubeRelConst₀₁≡CubeRelPath (~ i) ∂)
   ∙ (λ i → (x : A) → isoToPath (curryIso {A = A}
       {B = λ y → ∂CubeConst₀₁ (suc n) A x y} {C = λ _ ∂ → CubeRelConst₀₁ (suc n) A ∂}) (~ i))
-  ∙ sym (isoToPath curryIso)
+  ∙ isoToPath (invIso curryIso)
   ∙ (λ i → (∂ : ∂CubeConst₀₁≡∂CubeSuc {A = A} i) → CubeRelConst₀₁≡CubeRelSuc {n = n} i ∂)
 
 isCubeFilledPath→Suc : (n : ℕ) (A : Type ℓ)
@@ -97,7 +97,6 @@ isCubeFilledDep (suc n) {A} B = {a₋ : Cube (suc n) A} (∂ : ∂CubeDep B (∂
 isCubeFilledDepConst : (n : ℕ) (B : A → Type ℓ') (a : A) → Type ℓ'
 isCubeFilledDepConst 0 B a = isContr (B a)
 isCubeFilledDepConst (suc n) B a = (∂ : ∂CubeDepConst (suc n) B a) → CubeDepConstRel ∂
-
 
 isCubeFilledDepConst≡Fiber : (n : ℕ) (B : A → Type ℓ') (a : A)
   → isCubeFilledDepConst n B a ≡ isCubeFilled n (B a)

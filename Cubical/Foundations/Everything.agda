@@ -22,8 +22,8 @@ open import Cubical.Foundations.Id
            ; isEquiv       to isEquivId
            ; equivIsEquiv  to equivIsEquivId
            ; refl          to reflId
-           ; ∥_∥₁           to propTruncId
-           ; ∣_∣₁           to incId
+           ; ∥_∥₁          to propTruncId
+           ; ∣_∣₁          to incId
            ; isPropIsContr to isPropIsContrId
            ; isPropIsEquiv to isPropIsEquivId
            )
@@ -54,3 +54,6 @@ open import Cubical.Foundations.Cubes
 open import Cubical.Foundations.Cubes.Subtypes
 open import Cubical.Foundations.Cubes.Dependent
 open import Cubical.Foundations.Cubes.HLevels
+open import Cubical.Foundations.Cubes.External
+open import Cubical.Foundations.Cubes.Macros
+open import Cubical.Foundations.2LTT
