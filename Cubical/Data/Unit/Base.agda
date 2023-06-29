@@ -2,6 +2,7 @@
 module Cubical.Data.Unit.Base where
 open import Cubical.Foundations.Prelude
 
+
 -- Obtain Unit
 open import Agda.Builtin.Unit public
   renaming ( ⊤ to Unit )
@@ -11,6 +12,11 @@ Unit* : {ℓ : Level} → Type ℓ
 Unit* = Lift Unit
 
 pattern tt* = lift tt
+
+-- Pointed version
+Unit*∙ : ∀ {ℓ} → Σ[ X ∈ Type ℓ ] X
+fst Unit*∙ = Unit*
+snd Unit*∙ = tt*
 
 -- Universe polymorphic version without definitional equality
 -- Allows us to "lock" proofs. See "Locking, unlocking" in

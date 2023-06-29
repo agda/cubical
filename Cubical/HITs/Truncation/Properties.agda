@@ -20,7 +20,7 @@ open Modality
 
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (elim)
 open import Cubical.Data.Unit
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1 hiding (rec ; elim)
