@@ -16,7 +16,7 @@ module _ (C : Category ℓ ℓ') where
 
   private
     variable
-      x y z w : ob
+      x y z v w : ob
 
   isMonic : Hom[ x , y ] → Type (ℓ-max ℓ ℓ')
   isMonic {x} {y} f =
@@ -46,7 +46,7 @@ module _ {C : Category ℓ ℓ'} where
 
   private
     variable
-      x y z w : ob
+      x y z v w : ob
 
   open areInv
 
@@ -86,6 +86,23 @@ module _ {C : Category ℓ ℓ'} where
     ≡⟨ cong (g ⋆_) p ⟩
       (g ⋆ k)
     ∎
+
+  invFlipSq : {f₁⁻¹ : Hom[ x , y ]} {f₁ : Hom[ y , x ]}
+              {f₂⁻¹ : Hom[ v , w ]} {f₂ : Hom[ w , v ]}
+              {g : Hom[ x , v ]} {h : Hom[ y , w ]}
+            → areInv C f₁ f₁⁻¹ → areInv C f₂ f₂⁻¹
+            → h ⋆ f₂ ≡ f₁ ⋆ g
+            → g ⋆ f₂⁻¹ ≡ f₁⁻¹ ⋆ h
+  invFlipSq {f₁⁻¹ = f₁⁻¹} {f₁} {f₂⁻¹} {f₂} {g} {h} inv₁ inv₂ sq =
+    g ⋆ f₂⁻¹                ≡⟨ cong (_⋆ f₂⁻¹) (sym (⋆IdL _)) ⟩
+    (id ⋆ g) ⋆ f₂⁻¹         ≡⟨ cong (λ m → (m ⋆ g) ⋆ f₂⁻¹) (sym (inv₁ .sec)) ⟩
+    ((f₁⁻¹ ⋆ f₁) ⋆ g) ⋆ f₂⁻¹ ≡⟨ cong (_⋆ f₂⁻¹) (⋆Assoc _ _ _) ⟩
+    (f₁⁻¹ ⋆ (f₁ ⋆ g)) ⋆ f₂⁻¹ ≡⟨ ⋆Assoc _ _ _ ⟩
+    f₁⁻¹ ⋆ ((f₁ ⋆ g) ⋆ f₂⁻¹) ≡⟨ cong (λ m → f₁⁻¹ ⋆ (m ⋆ f₂⁻¹)) (sym sq) ⟩
+    f₁⁻¹ ⋆ ((h ⋆ f₂) ⋆ f₂⁻¹) ≡⟨ cong (f₁⁻¹ ⋆_) (⋆Assoc _ _ _) ⟩
+    f₁⁻¹ ⋆ (h ⋆ (f₂ ⋆ f₂⁻¹)) ≡⟨ cong (λ m → f₁⁻¹ ⋆ (h ⋆ m)) (inv₂ .ret) ⟩
+    f₁⁻¹ ⋆ (h ⋆ id)         ≡⟨ cong (f₁⁻¹ ⋆_) (⋆IdR _) ⟩
+    f₁⁻¹ ⋆ h ∎
 
   open isIso
 

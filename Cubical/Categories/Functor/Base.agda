@@ -4,6 +4,7 @@ module Cubical.Categories.Functor.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Sigma
 
@@ -139,3 +140,13 @@ _^opF : Functor C D → Functor (C ^op) (D ^op)
 (F ^opF) .F-hom     = F .F-hom
 (F ^opF) .F-id      = F .F-id
 (F ^opF) .F-seq f g = F .F-seq g f
+
+
+-- Functoriality on full subcategories defined by propositions
+ΣPropCatFunc : {P : ℙ (ob C)} {Q : ℙ (ob D)} (F : Functor C D)
+             → (∀ c → c ∈ P → F .F-ob c ∈ Q)
+             → Functor (ΣPropCat C P) (ΣPropCat D Q)
+F-ob (ΣPropCatFunc F FPres) (c , c∈P) = F .F-ob c , FPres c c∈P
+F-hom (ΣPropCatFunc F FPres) = F .F-hom
+F-id (ΣPropCatFunc F FPres) = F .F-id
+F-seq (ΣPropCatFunc F FPres) = F .F-seq
