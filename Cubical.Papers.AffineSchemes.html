@@ -65,7 +65,7 @@ Preprint: https://arxiv.org/abs/2212.02902
 <a id="2381" class="Keyword">import</a> <a id="2388" href="Cubical.Categories.DistLatticeSheaf.Base.html" class="Module">Cubical.Categories.DistLatticeSheaf.Base</a>                 <a id="2445" class="Symbol">as</a> <a id="2448" class="Module">Sheaves</a>
 
 <a id="2457" class="Keyword">import</a> <a id="2464" href="Cubical.Categories.DistLatticeSheaf.Extension.html" class="Module">Cubical.Categories.DistLatticeSheaf.Extension</a>            <a id="2521" class="Symbol">as</a> <a id="2524" class="Module">E</a>
-<a id="2526" class="Keyword">module</a> <a id="SheafExtension"></a><a id="2533" href="Cubical.Papers.AffineSchemes.html#2533" class="Module">SheafExtension</a> <a id="2548" class="Symbol">=</a> <a id="2550" href="Cubical.Categories.DistLatticeSheaf.Extension.html#1559" class="Module">E.PreSheafExtension</a>
+<a id="2526" class="Keyword">module</a> <a id="SheafExtension"></a><a id="2533" href="Cubical.Papers.AffineSchemes.html#2533" class="Module">SheafExtension</a> <a id="2548" class="Symbol">=</a> <a id="2550" href="Cubical.Categories.DistLatticeSheaf.Extension.html#1798" class="Module">E.PreSheafExtension</a>
 
 
 <a id="2572" class="Comment">-- 5: The Structure Sheaf</a>
@@ -183,10 +183,10 @@ Preprint: https://arxiv.org/abs/2212.02902
 <a id="5703" class="Comment">---------- 4: Category Theory  ----------</a>
 
 <a id="5746" class="Comment">-- Σ-subcategories</a>
-<a id="5765" class="Keyword">open</a> <a id="5770" href="Cubical.Categories.Category.Base.html" class="Module">CatTheory</a> <a id="5780" class="Keyword">using</a> <a id="5786" class="Symbol">(</a><a id="5787" href="Cubical.Categories.Category.Base.html#4398" class="Function">ΣPropCat</a><a id="5795" class="Symbol">)</a>
+<a id="5765" class="Keyword">open</a> <a id="5770" href="Cubical.Categories.Category.Base.html" class="Module">CatTheory</a> <a id="5780" class="Keyword">using</a> <a id="5786" class="Symbol">(</a><a id="5787" href="Cubical.Categories.Category.Base.html#4397" class="Function">ΣPropCat</a><a id="5795" class="Symbol">)</a>
 
 <a id="5798" class="Comment">-- Kan-extension for distributive lattices</a>
-<a id="5841" class="Keyword">open</a> <a id="5846" href="Cubical.Papers.AffineSchemes.html#2533" class="Module">SheafExtension</a> <a id="5861" class="Keyword">using</a> <a id="5867" class="Symbol">(</a><a id="5868" href="Cubical.Categories.DistLatticeSheaf.Extension.html#2017" class="Function">DLRan</a> <a id="5874" class="Symbol">;</a> <a id="5876" href="Cubical.Categories.DistLatticeSheaf.Extension.html#2083" class="Function">DLRanNatIso</a><a id="5887" class="Symbol">)</a>
+<a id="5841" class="Keyword">open</a> <a id="5846" href="Cubical.Papers.AffineSchemes.html#2533" class="Module">SheafExtension</a> <a id="5861" class="Keyword">using</a> <a id="5867" class="Symbol">(</a><a id="5868" href="Cubical.Categories.DistLatticeSheaf.Extension.html#2286" class="Function">DLRan</a> <a id="5874" class="Symbol">;</a> <a id="5876" href="Cubical.Categories.DistLatticeSheaf.Extension.html#2706" class="Function">DLRanNatIso</a><a id="5887" class="Symbol">)</a>
 
 <a id="5890" class="Comment">-- Definition 4</a>
 <a id="5906" class="Keyword">open</a> <a id="5911" href="Cubical.Categories.DistLatticeSheaf.Diagram.html" class="Module">SheafDiagShapes</a> <a id="5927" class="Keyword">using</a> <a id="5933" class="Symbol">(</a><a id="5934" href="Cubical.Categories.DistLatticeSheaf.Diagram.html#1184" class="Datatype">DLShfDiagOb</a> <a id="5946" class="Symbol">;</a> <a id="5948" href="Cubical.Categories.DistLatticeSheaf.Diagram.html#1309" class="Datatype">DLShfDiagHom</a> <a id="5961" class="Symbol">;</a> <a id="5963" href="Cubical.Categories.DistLatticeSheaf.Diagram.html#4458" class="Function">DLShfDiag</a><a id="5972" class="Symbol">)</a>
@@ -201,17 +201,17 @@ Preprint: https://arxiv.org/abs/2212.02902
 <a id="6144" class="Keyword">open</a> <a id="6149" href="Cubical.Categories.DistLatticeSheaf.Base.html" class="Module">Sheaves</a> <a id="6157" class="Keyword">using</a> <a id="6163" class="Symbol">(</a><a id="6164" href="Cubical.Categories.DistLatticeSheaf.Base.html#3461" class="Function">isDLSheaf</a><a id="6173" class="Symbol">)</a>
 
 <a id="6176" class="Comment">-- Definition 7</a>
-<a id="6192" class="Keyword">open</a> <a id="6197" href="Cubical.Categories.DistLatticeSheaf.Base.html#21592" class="Module">Sheaves.SheafOnBasis</a> <a id="6218" class="Keyword">using</a> <a id="6224" class="Symbol">(</a><a id="6225" href="Cubical.Categories.DistLatticeSheaf.Base.html#25314" class="Function">isDLBasisSheaf</a><a id="6239" class="Symbol">)</a>
+<a id="6192" class="Keyword">open</a> <a id="6197" href="Cubical.Categories.DistLatticeSheaf.Base.html#22002" class="Module">Sheaves.SheafOnBasis</a> <a id="6218" class="Keyword">using</a> <a id="6224" class="Symbol">(</a><a id="6225" href="Cubical.Categories.DistLatticeSheaf.Base.html#25724" class="Function">isDLBasisSheaf</a><a id="6239" class="Symbol">)</a>
 
 <a id="6242" class="Comment">-- Lemma 8</a>
 <a id="6253" class="Keyword">open</a> <a id="6258" href="Cubical.Categories.DistLatticeSheaf.Base.html" class="Module">Sheaves</a> <a id="6266" class="Keyword">using</a> <a id="6272" class="Symbol">(</a><a id="6273" href="Cubical.Categories.DistLatticeSheaf.Base.html#2740" class="Function">isDLSheafPullback</a><a id="6290" class="Symbol">)</a>
-<a id="6292" class="Keyword">open</a> <a id="6297" href="Cubical.Categories.DistLatticeSheaf.Base.html#3708" class="Module">Sheaves.EquivalenceOfDefs</a> <a id="6323" class="Keyword">using</a> <a id="6329" class="Symbol">(</a><a id="6330" href="Cubical.Categories.DistLatticeSheaf.Base.html#4434" class="Function">L→P</a> <a id="6334" class="Symbol">;</a> <a id="6336" href="Cubical.Categories.DistLatticeSheaf.Base.html#8959" class="Function">P→L</a><a id="6339" class="Symbol">)</a>
+<a id="6292" class="Keyword">open</a> <a id="6297" href="Cubical.Categories.DistLatticeSheaf.Base.html#4118" class="Module">Sheaves.EquivalenceOfDefs</a> <a id="6323" class="Keyword">using</a> <a id="6329" class="Symbol">(</a><a id="6330" href="Cubical.Categories.DistLatticeSheaf.Base.html#4844" class="Function">L→P</a> <a id="6334" class="Symbol">;</a> <a id="6336" href="Cubical.Categories.DistLatticeSheaf.Base.html#9369" class="Function">P→L</a><a id="6339" class="Symbol">)</a>
 
 <a id="6342" class="Comment">-- Lemma 9</a>
-<a id="6353" class="Keyword">open</a> <a id="6358" href="Cubical.Papers.AffineSchemes.html#2533" class="Module">SheafExtension</a> <a id="6373" class="Keyword">using</a> <a id="6379" class="Symbol">(</a><a id="6380" href="Cubical.Categories.DistLatticeSheaf.Extension.html#25283" class="Function">coverLemma</a><a id="6390" class="Symbol">)</a>
+<a id="6353" class="Keyword">open</a> <a id="6358" href="Cubical.Papers.AffineSchemes.html#2533" class="Module">SheafExtension</a> <a id="6373" class="Keyword">using</a> <a id="6379" class="Symbol">(</a><a id="6380" href="Cubical.Categories.DistLatticeSheaf.Extension.html#25927" class="Function">coverLemma</a><a id="6390" class="Symbol">)</a>
 
 <a id="6393" class="Comment">-- Theorem 10</a>
-<a id="6407" class="Keyword">open</a> <a id="6412" href="Cubical.Papers.AffineSchemes.html#2533" class="Module">SheafExtension</a> <a id="6427" class="Keyword">using</a> <a id="6433" class="Symbol">(</a><a id="6434" href="Cubical.Categories.DistLatticeSheaf.Extension.html#56961" class="Function">isDLSheafDLRan</a><a id="6448" class="Symbol">)</a>
+<a id="6407" class="Keyword">open</a> <a id="6412" href="Cubical.Papers.AffineSchemes.html#2533" class="Module">SheafExtension</a> <a id="6427" class="Keyword">using</a> <a id="6433" class="Symbol">(</a><a id="6434" href="Cubical.Categories.DistLatticeSheaf.Extension.html#57612" class="Function">isDLSheafDLRan</a><a id="6448" class="Symbol">)</a>
 
 
 
