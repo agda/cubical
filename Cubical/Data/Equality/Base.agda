@@ -1,9 +1,13 @@
-{-
+{- Basic definitions for the inductively defined equality type
 
-This module converts between the path types and the inductively
-defined equality types.
+- J, path composition, some laws for path composition, ap, transport
+
+- equivalences
+
+- equational reasoning combinators
 
 -}
+
 {-# OPTIONS --safe #-}
 
 module Cubical.Data.Equality.Base where

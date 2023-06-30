@@ -150,16 +150,17 @@ isPropToIsPropPath H x y = eqToPath (H x y)
 -- Specialized helper lemmas for going back and forth between
 -- isContrPath and isContr:
 
-helper1 : {A B : Type ℓ} (f : A → B) (g : B → A) (h : ∀ y → Path _ (f (g y)) y)
-        → isContrPath A → isContr B
-helper1 f g h (x , p) =
-  (f x , λ y → pathToEq (λ i → hcomp (λ j → λ { (i = i0) → f x
-                                              ; (i = i1) → h y j })
-                                     (f (p (g y) i))))
+private
+  helper1 : {A B : Type ℓ} (f : A → B) (g : B → A) (h : ∀ y → Path _ (f (g y)) y)
+          → isContrPath A → isContr B
+  helper1 f g h (x , p) =
+    (f x , λ y → pathToEq (λ i → hcomp (λ j → λ { (i = i0) → f x
+                                                ; (i = i1) → h y j })
+                                       (f (p (g y) i))))
 
-helper2 : {A B : Type ℓ} (f : A → B) (g : B → A) (h : ∀ y → Path _ (g (f y)) y)
-        → isContr B → isContrPath A
-helper2 {A = A} f g h (x , p) = (g x , λ y → eqToPath (ap g (p (f y)) ∙ pathToEq (h y)))
+  helper2 : {A B : Type ℓ} (f : A → B) (g : B → A) (h : ∀ y → Path _ (g (f y)) y)
+          → isContr B → isContrPath A
+  helper2 {A = A} f g h (x , p) = (g x , λ y → eqToPath (ap g (p (f y)) ∙ pathToEq (h y)))
 
 -- This proof is essentially the one for proving that isContr with
 -- Path is a proposition, but as we are working with ≡ we have to

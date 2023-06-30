@@ -1,4 +1,4 @@
-{- Function Extensionality in terms of _≡_
+{-
 
 - Function Extensionality stated in terms of the inductively defined equality type
 
