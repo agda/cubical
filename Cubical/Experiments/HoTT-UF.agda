@@ -16,9 +16,8 @@ For the moment, this requires the development version of Agda.
 module Cubical.Experiments.HoTT-UF where
 
 open import Cubical.Core.Primitives hiding ( _≡_ )
-open import Cubical.Core.Id public
 
-open import Cubical.Foundations.Id public
+open import Cubical.Data.Equality public
      using ( _≡_            -- The identity type.
            ; refl           -- Unfortunately, pattern matching on refl is not available.
            ; J              -- Until it is, you have to use the induction principle J.
@@ -26,9 +25,8 @@ open import Cubical.Foundations.Id public
            ; transport      -- As in the HoTT Book.
            ; ap
            ; _∙_
-           ; _⁻¹
 
-           ; _≡⟨_⟩_         -- Standard equational reasoning.
+           ; step-≡         -- Standard equational reasoning.
            ; _∎
 
            ; funExt         -- Function extensionality
@@ -41,19 +39,20 @@ open import Cubical.Foundations.Id public
 
            ; isProp         -- The usual notions of proposition, contractible type, set.
            ; isContr
-           ; isSet
 
            ; isEquiv        -- A map with contractible fibers
                             -- (Voevodsky's version of the notion).
            ; _≃_            -- The type of equivalences between two given types.
-           ; EquivContr     -- A formulation of univalence.
+           ; univalence
+           ; ua             -- A formulation of univalence.
 
            ; ∥_∥₁            -- Propositional truncation.
-           ; ∣_∣₁             -- Map into the propositional truncation.
-           ; ∥∥-isProp       -- A truncated type is a proposition.
-           ; ∥∥-recursion    -- Non-dependent elimination.
-           ; ∥∥-induction    -- Dependent elimination.
+           ; ∣_∣₁            -- Map into the propositional truncation.
+           ; squash₁         -- A truncated type is a proposition.
+           ; ∥∥-rec          -- Non-dependent elimination.
+           ; ∥∥-elim         -- Dependent elimination.
            )
+           renaming (sym to _⁻¹)
 
 {-
 
