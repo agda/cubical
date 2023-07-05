@@ -2,19 +2,21 @@
 module Cubical.Tactics.FunctorSolver.Solver where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Id renaming (refl to reflId) hiding (_∙_)
-open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Id renaming (refl to reflId) hiding (_∙_)
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
+
+open import Cubical.Data.Graph.Base
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.Free.Functor
 open import Cubical.Categories.Constructions.Power
 open import Cubical.Categories.Functor renaming (Id to IdF)
+open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.UnderlyingGraph
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Data.Graph.Base
 
 private
   variable

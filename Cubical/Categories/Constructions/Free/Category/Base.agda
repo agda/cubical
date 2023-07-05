@@ -7,16 +7,18 @@
 
 module Cubical.Categories.Constructions.Free.Category.Base where
 
-open import Cubical.Categories.Morphism
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
-open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.NaturalTransformation hiding (_⟦_⟧)
-open import Cubical.Categories.UnderlyingGraph
+open import Cubical.Foundations.Path
+
 open import Cubical.Data.Graph.Base
 open import Cubical.Data.Sigma
+
+open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Morphism
+open import Cubical.Categories.NaturalTransformation hiding (_⟦_⟧)
+open import Cubical.Categories.UnderlyingGraph
 
 private
   variable

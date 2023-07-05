@@ -2,15 +2,17 @@
 
 module Cubical.Categories.UnderlyingGraph where
 
-open import Cubical.Categories.Morphism
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation hiding (_⟦_⟧)
+
 open import Cubical.Data.Graph.Base
 open import Cubical.Data.Sigma
+
+open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Isomorphism
+open import Cubical.Categories.Morphism
+open import Cubical.Categories.NaturalTransformation hiding (_⟦_⟧)
 
 private
   variable

@@ -3,6 +3,7 @@ module Cubical.Categories.Constructions.Lift where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 

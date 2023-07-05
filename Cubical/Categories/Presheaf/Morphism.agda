@@ -2,17 +2,19 @@
 module Cubical.Categories.Presheaf.Morphism where
 
 open import Cubical.Foundations.Prelude
+
+open import Cubical.Data.Sigma
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Isomorphism
-open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Limits
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Data.Sigma
 
 {-
 

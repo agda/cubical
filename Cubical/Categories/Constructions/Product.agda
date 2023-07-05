@@ -3,10 +3,11 @@
 
 module Cubical.Categories.Constructions.Product where
 
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Prelude
 
 private
   variable

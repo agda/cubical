@@ -4,9 +4,9 @@ module Cubical.Categories.Presheaf.Base where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Instances.Sets
 
 private
   variable

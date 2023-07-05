@@ -2,12 +2,13 @@
 module Cubical.Tactics.CategorySolver.Solver where
 
 open import Cubical.Foundations.Prelude
+
 open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.Free.Category.Base
+open import Cubical.Categories.Constructions.Power
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Constructions.Free.Category.Base
 open import Cubical.Categories.UnderlyingGraph
-open import Cubical.Categories.Constructions.Power
 
 private
   variable

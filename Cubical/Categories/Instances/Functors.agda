@@ -13,17 +13,18 @@
 
 module Cubical.Categories.Instances.Functors where
 
-open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.NaturalTransformation.Properties
-open import Cubical.Categories.Morphism
-open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
+open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Morphism
+open import Cubical.Categories.NaturalTransformation.Base
+open import Cubical.Categories.NaturalTransformation.Properties
 
 private
   variable

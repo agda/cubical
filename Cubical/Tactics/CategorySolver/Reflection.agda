@@ -14,10 +14,11 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Reflection.Base
 
-open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Free.Category.Base
 open import Cubical.Tactics.CategorySolver.Solver
 open import Cubical.Tactics.Reflection
+
+open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.Free.Category.Base
 
 private
   variable

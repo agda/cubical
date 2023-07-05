@@ -6,18 +6,21 @@ open import Cubical.Foundations.Prelude
 
 open import Agda.Builtin.Reflection hiding (Type)
 open import Agda.Builtin.String
-open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Free.Category
-open import Cubical.Categories.Constructions.Free.Functor
+
 open import Cubical.Data.Bool
 open import Cubical.Data.List
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+
 open import Cubical.Reflection.Base
 open import Cubical.Tactics.FunctorSolver.Solver
 open import Cubical.Tactics.Reflection
+
+open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.Free.Category
+open import Cubical.Categories.Constructions.Free.Functor
+open import Cubical.Categories.Functor
 
 private
   variable

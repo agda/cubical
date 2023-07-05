@@ -4,22 +4,24 @@
 module Cubical.Categories.Constructions.Free.Functor where
 
 open import Cubical.Foundations.Prelude hiding (J)
+open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Id hiding (_≡_; isSet; subst)
   renaming (refl to reflId; _∙_ to _∙Id_; transport to transportId;
            funExt to funExtId)
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
-open import Cubical.Foundations.HLevels
+
+open import Cubical.Data.Empty
+open import Cubical.Data.Graph.Base
+open import Cubical.Data.Sigma
+
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.Free.Category
 open import Cubical.Categories.Functor.Base hiding (Id)
 open import Cubical.Categories.NaturalTransformation.Base hiding (_⟦_⟧)
 open import Cubical.Categories.UnderlyingGraph
-open import Cubical.Data.Empty
-open import Cubical.Data.Graph.Base
-open import Cubical.Data.Sigma
 
 private
   variable
