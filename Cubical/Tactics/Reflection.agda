@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: BSD-3-Clause
 {-# OPTIONS --safe #-}
 module Cubical.Tactics.Reflection where
 
