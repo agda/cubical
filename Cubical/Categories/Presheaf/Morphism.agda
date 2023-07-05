@@ -40,8 +40,7 @@ open Category
 open Contravariant
 open Functor
 open NatTrans
-open UnivElt
-open isUniversal
+open UniversalElement
 
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          (F : Functor C D)
@@ -74,9 +73,10 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
     pushEltF .F-seq f g =
       Σ≡Prop ((λ x → (Q ⟅ _ ⟆) .snd _ _)) (F .F-seq (f .fst) (g .fst))
 
-    preservesRepresentation : ∀ (η : UnivElt C P)
+    preservesRepresentation : ∀ (η : UniversalElement C P)
                             → Type (ℓ-max (ℓ-max ℓd ℓd') ℓq)
-    preservesRepresentation η = isUniversal D Q (pushElt (elementᴾ _ _ η))
+    preservesRepresentation η = isUniversal D Q (η' .fst) (η' .snd)
+      where η' = pushElt (η .vertex , η .element)
 
     preservesRepresentations : Type _
     preservesRepresentations = ∀ η → preservesRepresentation η
@@ -87,10 +87,10 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
     preservesAnyRepresentation→preservesAllRepresentations :
       ∀ η → preservesRepresentation η → preservesRepresentations
     preservesAnyRepresentation→preservesAllRepresentations η preserves-η η' =
-      isTerminalElement→isUniversal D Q
+      isTerminalToIsUniversal D Q
         (preserveAnyTerminal→PreservesTerminals (∫ᴾ_ {C = C} P)
                                  (∫ᴾ_ {C = D} Q)
                                  pushEltF
-                                 (UnivElt→UniversalElement C P η)
-                                 (isUniversal→isTerminalElement D Q preserves-η)
-                                 (UnivElt→UniversalElement C P η'))
+                                 (universalElementToTerminalElement C P η)
+                                 (isUniversalToIsTerminal D Q _ _ preserves-η)
+                                 (universalElementToTerminalElement C P η'))
