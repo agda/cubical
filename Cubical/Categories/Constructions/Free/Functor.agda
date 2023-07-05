@@ -7,20 +7,20 @@ open import Cubical.Foundations.Prelude hiding (J)
 open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Id hiding (_≡_; isSet; subst)
-  renaming (refl to reflId; _∙_ to _∙Id_; transport to transportId;
-           funExt to funExtId)
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Empty
+open import Cubical.Data.Equality.Conversion
+open import Cubical.Data.Equality hiding (id; sym)
+  renaming (_≡_ to Eq; refl to reflEq; _∙_ to _∙Eq_; transport to transportEq)
 open import Cubical.Data.Graph.Base
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.Free.Category
-open import Cubical.Categories.Functor.Base hiding (Id)
-open import Cubical.Categories.NaturalTransformation.Base hiding (_⟦_⟧)
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.UnderlyingGraph
 
 private
@@ -85,12 +85,22 @@ module FreeFunctor (G : Graph ℓg ℓg')
   Fϕ-homo $g x = ϕ x
   Fϕ-homo <$g> x = F⟪ ↑ x ⟫
 
-  ηϕ : Id (Fϕ .F-ob ∘f ηG ._$g_) (ηH ._$g_ ∘f ϕ)
-  ηϕ = reflId
+  ηϕ : Eq (Fϕ .F-ob ∘f ηG ._$g_) (ηH ._$g_ ∘f ϕ)
+  ηϕ = reflEq
 
   module _ {𝓒 : Category ℓc ℓc'}{𝓓 : Category ℓd ℓd'} {𝓕 : Functor 𝓒 𝓓} where
+    {-
+
+       It is very important for the implementation of the functor
+       solver that ıϕ uses Data.Equality.Eq rather than Path. The
+       reason is that the case semH-hom (F⟪_⟫ {A}{B} x) inherently
+       involves a transport when expressed at this level of
+       generality, and transport of a refl is the identity function
+       for Eq but not for Path.
+
+    -}
     module Semantics (ıG : Interp G 𝓒) (ıH : Interp H 𝓓)
-                     (ıϕ : Id (𝓕 .F-ob ∘f ıG ._$g_) (ıH ._$g_ ∘f ϕ))
+                     (ıϕ : Eq (𝓕 .F-ob ∘f ıG ._$g_) (ıH ._$g_ ∘f ϕ))
            where
       semG = FreeCatG.Semantics.sem 𝓒 ıG
 
@@ -99,7 +109,7 @@ module FreeFunctor (G : Graph ℓg ℓg')
       semH-hom idₑ = 𝓓 .id
       semH-hom (e ⋆ₑ e₁) = semH-hom e ⋆⟨ 𝓓 ⟩ semH-hom e₁
       semH-hom (F⟪_⟫ {A}{B} x) =
-        transportId (λ (f : G .Node → 𝓓 .ob) → 𝓓 [ f A , f B ])
+        transportEq (λ (f : G .Node → 𝓓 .ob) → 𝓓 [ f A , f B ])
                     ıϕ
                     (𝓕 ⟪ semG ⟪ x ⟫ ⟫)
       semH-hom (⋆ₑIdL f i) = 𝓓 .⋆IdL (semH-hom f) i
@@ -108,25 +118,25 @@ module FreeFunctor (G : Graph ℓg ℓg')
         𝓓 .⋆Assoc (semH-hom f) (semH-hom f') (semH-hom f'') i
       semH-hom (F-idₑ {A} i) = unbound i
         where
-          unbound : transportId (λ f → 𝓓 [ f A , f A ]) ıϕ (𝓕 ⟪ semG ⟪ idₑ ⟫ ⟫)
+          unbound : transportEq (λ f → 𝓓 [ f A , f A ]) ıϕ (𝓕 ⟪ semG ⟪ idₑ ⟫ ⟫)
                     ≡ 𝓓 .id
           unbound =
-            J (λ g p → transportId (λ f → 𝓓 [ f A , f A ]) p
+            J (λ g p → transportEq (λ f → 𝓓 [ f A , f A ]) p
                                    (𝓕 ⟪ semG ⟪ idₑ ⟫ ⟫)
                        ≡ 𝓓 .id)
               ((𝓕 ∘F semG) .F-id) ıϕ
       semH-hom (F-seqₑ {A}{B}{C} e e' i) = unbound i
         where
           unbound :
-            transportId (λ f → 𝓓 [ f A , f C ]) ıϕ (𝓕 ⟪ semG ⟪ e ⋆ₑ e' ⟫ ⟫)
-            ≡ (transportId (λ f → 𝓓 [ f A , f B ]) ıϕ (𝓕 ⟪ semG ⟪ e ⟫ ⟫))
-              ⋆⟨ 𝓓 ⟩ (transportId (λ f → 𝓓 [ f B , f C ]) ıϕ
+            transportEq (λ f → 𝓓 [ f A , f C ]) ıϕ (𝓕 ⟪ semG ⟪ e ⋆ₑ e' ⟫ ⟫)
+            ≡ (transportEq (λ f → 𝓓 [ f A , f B ]) ıϕ (𝓕 ⟪ semG ⟪ e ⟫ ⟫))
+              ⋆⟨ 𝓓 ⟩ (transportEq (λ f → 𝓓 [ f B , f C ]) ıϕ
                                   (𝓕 ⟪ semG ⟪ e' ⟫ ⟫))
           unbound =
             J (λ g p →
-                transportId (λ f → 𝓓 [ f A , f C ]) p (𝓕 ⟪ semG ⟪ e ⋆ₑ e' ⟫ ⟫)
-                ≡ (transportId (λ f → 𝓓 [ f A , f B ]) p (𝓕 ⟪ semG ⟪ e ⟫ ⟫))
-                  ⋆⟨ 𝓓 ⟩ (transportId (λ f → 𝓓 [ f B , f C ]) p
+                transportEq (λ f → 𝓓 [ f A , f C ]) p (𝓕 ⟪ semG ⟪ e ⋆ₑ e' ⟫ ⟫)
+                ≡ (transportEq (λ f → 𝓓 [ f A , f B ]) p (𝓕 ⟪ semG ⟪ e ⟫ ⟫))
+                  ⋆⟨ 𝓓 ⟩ (transportEq (λ f → 𝓓 [ f B , f C ]) p
                                       (𝓕 ⟪ semG ⟪ e' ⟫ ⟫)))
               ((𝓕 ∘F semG) .F-seq e e')
               ıϕ
@@ -144,8 +154,8 @@ module FreeFunctor (G : Graph ℓg ℓg')
       semH .F-id = refl
       semH .F-seq f g = refl
 
-      semϕ : Id (𝓕 ∘F semG) (semH ∘F Fϕ)
-      semϕ = pathToId (FreeCatG.induction (funcComp 𝓕 semG)
+      semϕ : Eq (𝓕 ∘F semG) (semH ∘F Fϕ)
+      semϕ = pathToEq (FreeCatG.induction (funcComp 𝓕 semG)
                                           (funcComp semH Fϕ)
                                           (GrHom≡ aoo aoe))
         where
@@ -153,7 +163,7 @@ module FreeFunctor (G : Graph ℓg ℓg')
         Hϕ = (ıH ._$g_ ∘f ϕ)
 
         aoo-gen : ∀ (v : Node G) f g
-                → Id {A = G .Node → 𝓓 .ob} f g
+                → Eq {A = G .Node → 𝓓 .ob} f g
                 → Path _ (f v) (g v)
         aoo-gen v f g = J ((λ f' _ → Path _ (f v) (f' v))) refl
         aoo : (v : Node G)
@@ -167,17 +177,17 @@ module FreeFunctor (G : Graph ℓg ℓg')
                     (semH ⟪ Fϕ ⟪ ↑ e ⟫ ⟫)
         aoe {v}{w} e = toPathP lem where
           lem : Path _
-                (transportPath (λ i → 𝓓 [ aoo-gen v 𝓕G Hϕ ıϕ i
+                (transport (λ i → 𝓓 [ aoo-gen v 𝓕G Hϕ ıϕ i
                                         , aoo-gen w 𝓕G Hϕ ıϕ i ])
                                (𝓕 ⟪ ıG <$g> e ⟫))
-                (transportId   (λ f → 𝓓 [ f v , f w ]) ıϕ (𝓕 ⟪ ıG <$g> e ⟫))
+                (transportEq   (λ f → 𝓓 [ f v , f w ]) ıϕ (𝓕 ⟪ ıG <$g> e ⟫))
           lem =
             J (λ f p →
                 Path _
-                     ((transportPath (λ i → 𝓓 [ aoo-gen v 𝓕G f p i
+                     ((transport (λ i → 𝓓 [ aoo-gen v 𝓕G f p i
                                               , aoo-gen w 𝓕G f p i ])
                                      (𝓕 ⟪ ıG <$g> e ⟫)))
-                     ((transportId (λ f → 𝓓 [ f v , f w ]) p
+                     ((transportEq (λ f → 𝓓 [ f v , f w ]) p
                                    (𝓕 ⟪ ıG <$g> e ⟫))))
               (transportRefl (𝓕 ⟪ ıG <$g> e ⟫))
               ıϕ
@@ -189,7 +199,7 @@ module FreeFunctor (G : Graph ℓg ℓg')
                         (arb𝓓-agree : arb𝓓 ∘Interp ηH ≡ ıH)
                         (arb𝓕-agree : Square {A = G .Node → 𝓓 .ob}
                                         (λ i x → arb𝓕 i ⟅ x ⟆)
-                                        (idToPath ıϕ)
+                                        (eqToPath ıϕ)
                                         (λ i x → 𝓕 ⟅ arb𝓒-agree i $g x ⟆)
                                         (λ i x → arb𝓓-agree i $g (ϕ x)))
              where
@@ -214,27 +224,27 @@ module FreeFunctor (G : Graph ℓg ℓg')
                   → aom-type g
                   → aom-type (f ⋆ₑ g)
           aom-seq hypf hypg = arb𝓓 .F-seq _ _ ◁ λ i → hypf i ⋆⟨ 𝓓 ⟩ hypg i
-          ıϕp = idToPath ıϕ
+          ıϕp = eqToPath ıϕ
 
           aom-F : ∀ {v w}
                 → (e : FG [ v , w ])
                 → PathP (λ i → 𝓓 [ (arb𝓓-agree i $g (ϕ v))
                                  , (arb𝓓-agree i $g (ϕ w)) ])
                         (arb𝓓 ⟪ Fϕ ⟪ e ⟫ ⟫)
-                        (transportId (λ (f : G .Node → 𝓓 .ob) → 𝓓 [ f v , f w ])
+                        (transportEq (λ (f : G .Node → 𝓓 .ob) → 𝓓 [ f v , f w ])
                                      ıϕ
                                      (𝓕 ⟪ semG ⟪ e ⟫ ⟫))
           aom-F {v}{w} e =
-            pathified ▷ λ i →
-              substIdToPath {B = λ (f : G .Node → 𝓓 .ob) → 𝓓 [ f v , f w ]}
-                            ıϕ
-                            i
-                            (𝓕 ⟪ semG ⟪ e ⟫ ⟫)
+            pathified ▷ eqToPath (
+              substPath≡transport'
+                (λ (f : G .Node → 𝓓 .ob) → 𝓓 [ f v , f w ])
+                (𝓕 ⟪ semG ⟪ e ⟫ ⟫)
+                ıϕ)
             where
               pathified :
                 PathP (λ i → 𝓓 [ arb𝓓-agree i $g ϕ v , arb𝓓-agree i $g ϕ w ])
                       (arb𝓓 ⟪ Fϕ ⟪ e ⟫ ⟫)
-                      (transportPath (λ i → 𝓓 [ ıϕp i v , ıϕp i w ])
+                      (transport (λ i → 𝓓 [ ıϕp i v , ıϕp i w ])
                                      (𝓕 ⟪ semG ⟪ e ⟫ ⟫))
               pathified = toPathP⁻ ((
                 fromPathP⁻ lem'
