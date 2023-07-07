@@ -23,7 +23,10 @@ SOFTWARE.
 -------------------------------------
 
 A couple of files were completely or partially copied from sources which use
-different licences. If such a files is licenced under a licence which is
-incompatible with the MIT licence, it is noted at the top of the file. The
-files exempted from the MIT licence are marked with the SPDX identifier for
-their licence. See https://spdx.org/licenses/ for a list of SPDX identifiers. 
+different licenses. The files exempted from the MIT license are marked with
+the SPDX identifier for their license. See https://spdx.org/licenses/ for a
+list of SPDX identifiers.
+
+Specifically, some files are licensed under the BSD-3-Clause license:
+
+https://opensource.org/license/bsd-3-clause/
