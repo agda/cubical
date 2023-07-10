@@ -184,14 +184,15 @@ module RingHoms where
 
   syntax compRingHom f g = g ∘r f
 
-  compIdRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
+  compIdRingHom : {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
   compIdRingHom φ = RingHom≡ refl
 
-  idCompRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom φ (idRingHom S) ≡ φ
+  idCompRingHom : {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) → compRingHom φ (idRingHom S) ≡ φ
   idCompRingHom φ = RingHom≡ refl
 
-  compAssocRingHom : {R S T U : Ring ℓ} (φ : RingHom R S) (ψ : RingHom S T) (χ : RingHom T U) →
-                     compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
+  compAssocRingHom : {R : Ring ℓ} {S : Ring ℓ'} {T : Ring ℓ''} {U : Ring ℓ'''}
+                   → (φ : RingHom R S) (ψ : RingHom S T) (χ : RingHom T U)
+                   → compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
   compAssocRingHom _ _ _ = RingHom≡ refl
 
 module RingEquivs where

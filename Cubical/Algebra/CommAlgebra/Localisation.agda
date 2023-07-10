@@ -136,7 +136,7 @@ module AlgLoc (R' : CommRing ℓ)
  S⁻¹RAlgCharEquiv : (A' : CommRing ℓ) (φ : CommRingHom R' A')
                   → PathToS⁻¹R  R' S' SMultClosedSubset A' φ
                   → CommAlgebraEquiv S⁻¹RAsCommAlg (toCommAlg (A' , φ))
- S⁻¹RAlgCharEquiv A' φ cond = toCommAlgebraEquiv _ _
+ S⁻¹RAlgCharEquiv A' φ cond = toCommAlgebraEquiv (S⁻¹RAsCommRing , /1AsCommRingHom) (A' , φ)
                                 (S⁻¹RCharEquiv R' S' SMultClosedSubset A' φ cond)
                                 (RingHom≡ (S⁻¹RHasUniversalProp A' φ (cond .φS⊆Aˣ) .fst .snd))
   where open PathToS⁻¹R

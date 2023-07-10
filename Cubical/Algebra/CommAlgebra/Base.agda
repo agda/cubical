@@ -152,6 +152,20 @@ module _ {R : CommRing ℓ} where
         makeIsCommAlgebra is-set +Assoc +IdR +InvR +Comm ·Assoc ·IdL ·DistL+ ·Comm
                                     ·Assoc⋆ ⋆DistR+ ⋆DistL+ ⋆IdL ⋆AssocL
 
+      commAlgebraFromCommRing→CommRing : CommAlgebra→CommRing commAlgebraFromCommRing ≡ S
+      -- Note that this is not definitional: the proofs of the axioms might differ.
+      commAlgebraFromCommRing→CommRing i .fst  = ⟨ S ⟩
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr.0r = 0r
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr.1r = 1S
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr._+_ = _+_
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr._·_ = _·_
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr.-_ = -_
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr.isCommRing =
+        isProp→PathP (λ i → isPropIsCommRing _ _ _ _ _)
+          (CommRingStr.isCommRing (snd (CommAlgebra→CommRing commAlgebraFromCommRing)))
+          isCommRing
+          i
+
   IsCommAlgebraEquiv : {A : Type ℓ'} {B : Type ℓ''}
     (M : CommAlgebraStr R A) (e : A ≃ B) (N : CommAlgebraStr R B)
     → Type _
