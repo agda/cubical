@@ -1,4 +1,4 @@
 {-# OPTIONS --safe #-}
-module Cubical.HITs.ReplaceIR where
+module Cubical.HITs.Replacement where
 
-open import Cubical.HITs.ReplaceIR.Base public
+open import Cubical.HITs.Replacement.Base public
