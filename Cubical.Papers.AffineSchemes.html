@@ -85,7 +85,7 @@ Preprint: https://arxiv.org/abs/2212.02902
 <a id="3020" class="Comment">-- univalence and the cubical SIP</a>
 <a id="3054" class="Keyword">open</a> <a id="3059" href="Cubical.Foundations.Univalence.html" class="Module">Univalence</a> <a id="3070" class="Keyword">using</a> <a id="3076" class="Symbol">(</a><a id="3077" href="Cubical.Foundations.Univalence.html#928" class="Function">ua</a><a id="3079" class="Symbol">)</a>
 <a id="3081" class="Keyword">import</a> <a id="3088" href="Cubical.Foundations.SIP.html" class="Module">Cubical.Foundations.SIP</a>
-<a id="3112" class="Keyword">open</a> <a id="3117" href="Cubical.Algebra.CommAlgebra.html" class="Module">R-Algs</a> <a id="3124" class="Keyword">renaming</a> <a id="3133" class="Symbol">(</a><a id="3134" href="Cubical.Algebra.CommAlgebra.Base.html#10912" class="Function">uaCommAlgebra</a> <a id="3148" class="Symbol">to</a> <a id="3151" class="Function">sip</a><a id="3154" class="Symbol">)</a>
+<a id="3112" class="Keyword">open</a> <a id="3117" href="Cubical.Algebra.CommAlgebra.html" class="Module">R-Algs</a> <a id="3124" class="Keyword">renaming</a> <a id="3133" class="Symbol">(</a><a id="3134" href="Cubical.Algebra.CommAlgebra.Base.html#11730" class="Function">uaCommAlgebra</a> <a id="3148" class="Symbol">to</a> <a id="3151" class="Function">sip</a><a id="3154" class="Symbol">)</a>
 
 <a id="3157" class="Comment">-- the first three h-levels</a>
 <a id="3185" class="Keyword">open</a> <a id="3190" href="Cubical.Foundations.Prelude.html" class="Module">Prelude</a> <a id="3198" class="Keyword">using</a> <a id="3204" class="Symbol">(</a><a id="3205" href="Cubical.Foundations.Prelude.html#14182" class="Function">isContr</a> <a id="3213" class="Symbol">;</a> <a id="3215" href="Cubical.Foundations.Prelude.html#14246" class="Function">isProp</a> <a id="3222" class="Symbol">;</a> <a id="3224" href="Cubical.Foundations.Prelude.html#14301" class="Function">isSet</a><a id="3229" class="Symbol">)</a>
@@ -138,11 +138,11 @@ Preprint: https://arxiv.org/abs/2212.02902
 <a id="4449" class="Comment">-- Lemma 3</a>
 <a id="4460" class="Comment">-- 1.</a>
 <a id="4466" class="Keyword">open</a> <a id="4471" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#14334" class="Module">LocalizationInvEl.DoubleLoc</a> <a id="4499" class="Keyword">using</a> <a id="4505" class="Symbol">(</a><a id="4506" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#26652" class="Function">R[1/fg]≡R[1/f][1/g]</a><a id="4525" class="Symbol">)</a>
-<a id="4527" class="Keyword">open</a> <a id="4532" href="Cubical.Algebra.CommAlgebra.Localisation.html#10274" class="Module">LocalizationR-Alg.DoubleAlgLoc</a> <a id="4563" class="Keyword">using</a> <a id="4569" class="Symbol">(</a><a id="4570" href="Cubical.Algebra.CommAlgebra.Localisation.html#11261" class="Function">R[1/fg]≡R[1/f][1/g]</a><a id="4589" class="Symbol">)</a>
+<a id="4527" class="Keyword">open</a> <a id="4532" href="Cubical.Algebra.CommAlgebra.Localisation.html#10314" class="Module">LocalizationR-Alg.DoubleAlgLoc</a> <a id="4563" class="Keyword">using</a> <a id="4569" class="Symbol">(</a><a id="4570" href="Cubical.Algebra.CommAlgebra.Localisation.html#11301" class="Function">R[1/fg]≡R[1/f][1/g]</a><a id="4589" class="Symbol">)</a>
 <a id="4591" class="Comment">-- 2.</a>
 <a id="4597" class="Keyword">open</a> <a id="4602" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html" class="Module">LocalizationInvEl</a> <a id="4620" class="Keyword">using</a> <a id="4626" class="Symbol">(</a><a id="4627" href="Cubical.Algebra.CommRing.Localisation.InvertingElements.html#12195" class="Function">invertingUnitsPath</a><a id="4645" class="Symbol">)</a>
 <a id="4647" class="Comment">-- 3.</a>
-<a id="4653" class="Keyword">open</a> <a id="4658" href="Cubical.Algebra.CommAlgebra.Localisation.html#6122" class="Module">LocalizationR-Alg.AlgLocTwoSubsets</a> <a id="4693" class="Keyword">using</a> <a id="4699" class="Symbol">(</a><a id="4700" href="Cubical.Algebra.CommAlgebra.Localisation.html#7661" class="Function">isContrS₁⁻¹R≡S₂⁻¹R</a><a id="4718" class="Symbol">)</a>
+<a id="4653" class="Keyword">open</a> <a id="4658" href="Cubical.Algebra.CommAlgebra.Localisation.html#6162" class="Module">LocalizationR-Alg.AlgLocTwoSubsets</a> <a id="4693" class="Keyword">using</a> <a id="4699" class="Symbol">(</a><a id="4700" href="Cubical.Algebra.CommAlgebra.Localisation.html#7701" class="Function">isContrS₁⁻¹R≡S₂⁻¹R</a><a id="4718" class="Symbol">)</a>
 
 
 
@@ -218,10 +218,10 @@ Preprint: https://arxiv.org/abs/2212.02902
 <a id="6453" class="Comment">---------- 5: The Structure Sheaf ----------</a>
 
 <a id="6499" class="Comment">-- Lemma 11</a>
-<a id="6511" class="Keyword">open</a> <a id="6516" href="Cubical.Algebra.CommAlgebra.html" class="Module">R-Algs</a> <a id="6523" class="Keyword">using</a> <a id="6529" class="Symbol">(</a><a id="6530" href="Cubical.Algebra.CommAlgebra.Properties.html#13062" class="Function">recPT→CommAlgebra</a><a id="6547" class="Symbol">)</a>
+<a id="6511" class="Keyword">open</a> <a id="6516" href="Cubical.Algebra.CommAlgebra.html" class="Module">R-Algs</a> <a id="6523" class="Keyword">using</a> <a id="6529" class="Symbol">(</a><a id="6530" href="Cubical.Algebra.CommAlgebra.Properties.html#12754" class="Function">recPT→CommAlgebra</a><a id="6547" class="Symbol">)</a>
 
 <a id="6550" class="Comment">-- Lemma 12</a>
-<a id="6562" class="Keyword">open</a> <a id="6567" href="Cubical.Categories.Instances.CommAlgebras.html#23894" class="Module">R-AlgConstructions.PreSheafFromUniversalProp</a> <a id="6612" class="Keyword">renaming</a> <a id="6621" class="Symbol">(</a><a id="6622" href="Cubical.Categories.Instances.CommAlgebras.html#24908" class="Function">universalPShf</a> <a id="6636" class="Symbol">to</a> <a id="6639" class="Function">𝓟ᵤ</a><a id="6641" class="Symbol">)</a>
+<a id="6562" class="Keyword">open</a> <a id="6567" href="Cubical.Categories.Instances.CommAlgebras.html#23891" class="Module">R-AlgConstructions.PreSheafFromUniversalProp</a> <a id="6612" class="Keyword">renaming</a> <a id="6621" class="Symbol">(</a><a id="6622" href="Cubical.Categories.Instances.CommAlgebras.html#24905" class="Function">universalPShf</a> <a id="6636" class="Symbol">to</a> <a id="6639" class="Function">𝓟ᵤ</a><a id="6641" class="Symbol">)</a>
 
 <a id="6644" class="Comment">-- definition of structure sheaf</a>
 <a id="6677" class="Keyword">open</a> <a id="6682" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html" class="Module">StructureSheaf</a> <a id="6697" class="Keyword">using</a> <a id="6703" class="Symbol">(</a> <a id="6705" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#6186" class="Function">𝓞ᴮ</a> <a id="6708" class="Symbol">;</a> <a id="6710" href="Cubical.Algebra.ZariskiLattice.StructureSheaf.html#6419" class="Function">𝓞</a> <a id="6712" class="Symbol">)</a>
