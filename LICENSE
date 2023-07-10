@@ -1,4 +1,4 @@
-MIT License
+MIT License (with exceptions for individual files, see below)
 
 Copyright (c) 2018 github.com/agda/cubical contributors
 
@@ -19,3 +19,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+-------------------------------------
+
+A couple of files were completely or partially copied from sources which use
+different licenses. The files exempted from the MIT license are marked with
+the SPDX identifier for their license. See https://spdx.org/licenses/ for a
+list of SPDX identifiers.
+
+Specifically, some files are licensed under the BSD-3-Clause license:
+
+https://opensource.org/license/bsd-3-clause/
