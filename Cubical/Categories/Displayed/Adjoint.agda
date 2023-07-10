@@ -1,3 +1,6 @@
+{-
+  Definition of an adjoint pair displayed over another adjoint pair
+-}
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Adjoint where
 
@@ -15,7 +18,7 @@ private
 
 module UnitCounitᴰ where
 
-  -- Adjoint def 1: unit-counit
+  -- Adjoint definition 1: unit-counit
   record _⊣[_]_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     {F : Functor C D} {G : Functor D C}
 

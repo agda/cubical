@@ -1,3 +1,6 @@
+{-
+  Definition of a natural transformation displayed over another natural transformation.
+-}
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.NaturalTransformation where
 
@@ -59,6 +62,6 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
           (compPathP' {B = B} (Dᴰ.⋆Assocᴰ _ _ _)
             (compPathP' {B = B} (λ i → (αᴰ .N-obᴰ _) Dᴰ.⋆ᴰ (βᴰ .N-homᴰ fᴰ i))
               (compPathP' {B = B} (symP (Dᴰ.⋆Assocᴰ _ _ _))
-                refl)))) -- extra refl at the end to match equational reasoning in seqTranx
+                refl)))) -- extra refl at the end to match equational reasoning in seqTrans
       where
       B = Dᴰ [_][ Fᴰ.F-obᴰ xᴰ , Hᴰ.F-obᴰ yᴰ ]

@@ -1,3 +1,7 @@
+{-
+  Definition of a functor displayed over another functor.
+  Some definitions were guided by those at https://1lab.dev
+-}
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Functor where
 

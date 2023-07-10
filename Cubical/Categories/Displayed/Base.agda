@@ -1,3 +1,7 @@
+{-
+  Definition of a category displayed over another category.
+  Some definitions were guided by those at https://1lab.dev
+-}
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Base where
 
