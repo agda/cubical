@@ -267,65 +267,6 @@ record IsReflectiveSubuniverse (isModal : Type ℓ → Type ℓ) : Type (ℓ-suc
       lift' : HasLift isModal isPropIsModal (Σ A P)
       lift' = hasLift (◯ (Σ[ a ∈ A ] ◯ P a)) ηΣ (isModal-◯ _) (λ B isModalB → snd (e B isModalB))
 
-  -- -- Lemma 1.25.
-  -- isModalA→IsModal≡A : isModal A → (x y : A) → isModal (x ≡ y)
-  -- isModalA→IsModal≡A {A = X} isModalX x y = retractIsModal (x ≡ y) (inv x y) (invη x y) -- (snd ∘ ε) εη≡id
-  --   where
-  --     cx≡cy : (x y : X) → const x ≡ const y
-  --     cx≡cy x y = η-cancel isModalX (const x) (const y) (funExt λ p → p)
-
-  --     inv : (x y : X) → ◯ (x ≡ y) → x ≡ y
-  --     inv x y = funExt⁻ (cx≡cy x y)
-
-  --     funLem : (X : Type ℓ) (isModalX : isModal X) {x : X} → Path ((x ≡ x → X) → X) (λ g → ◯-rec isModalX g (η refl)) (λ g → g refl)
-  --     funLem X isModalX = funExt λ g → funExt⁻ (◯-rec-β isModalX g) refl
-
-  --     congCongS : {X Y : Type ℓ} (f g : X → Y) (q : f ≡ g) {x y : X} (p : x ≡ y) → subst (λ h → h x ≡ h y) q (congS f p) ≡ congS g p
-  --     congCongS f g q p = fromPathP (cong (λ - → congS - p) q)
-
-  --     lemma : (x : X) → cong (λ g → ◯-rec isModalX g (η refl)) (funExt (idfun (x ≡ x)))
-  --       ≡ cong (λ g → g refl) (funExt (idfun (◯-rec isModalX (const x) (η refl) ≡ ◯-rec isModalX (const x) (η refl))))
-  --     lemma x =
-  --       congS {A = x ≡ x → X} {B = X} (λ g → ◯-rec isModalX g (η refl)) (funExt (idfun (x ≡ x)))
-  --         ≡⟨ sym (congCongS (λ g → g refl) _ (sym (funLem X isModalX)) {x = const x} {y = const x} (funExt (idfun (x ≡ x)))) ⟩
-  --       subst (λ h → h (const x) ≡ h (const x)) (sym (funLem X isModalX)) (cong (λ g → g refl) (funExt (idfun (x ≡ x))))
-  --         ≡⟨ refl ⟩
-  --       subst (λ (h : ((x ≡ x) → X) → X) → h (const x) ≡ h (const x)) (sym (funLem X isModalX)) refl
-  --         ≡⟨ substInPaths (_$ const x) (_$ const x) (sym (funLem X isModalX)) refl ⟩
-  --       sym (cong (_$ const x) (sym (funLem X isModalX))) ∙ refl ∙ cong (_$ const x) (sym (funLem X isModalX))
-  --         ≡⟨ cong (sym (cong (_$ const x) (sym (funLem X isModalX {x = x}))) ∙_) (sym (lUnit (cong (_$ const x) (sym (funLem X isModalX))))) ⟩
-  --       sym (cong (_$ const x) (sym (funLem X isModalX))) ∙ cong (_$ const x) (sym (funLem X isModalX))
-  --         ≡⟨ lCancel _ ⟩
-  --       refl {x = ◯-rec isModalX (const x) (η refl)}
-  --         ≡⟨ refl ⟩
-  --       congS {A = ◯-rec isModalX (const x) (η (refl {x = x})) ≡ ◯-rec isModalX (const x) (η (refl {x = x})) → X}
-  --           {x = const (◯-rec isModalX (const x) (η refl))} {y = const (◯-rec isModalX (const x) (η refl))} {B = X}
-  --           (λ g → g refl) refl
-  --         ≡⟨ refl ⟩
-  --       congS {A = _ ≡ _ → X} {x = const (◯-rec isModalX (const x) (η refl))} {y = const (◯-rec isModalX (const x) (η refl))} {B = X}
-  --           (λ g → g refl) (funExt (idfun _)) ∎
-
-  --     invη : (x y : X) → inv x y ∘ η ∼ idfun _
-  --     invη x y = J (λ y p → inv x y (η p) ≡ p)
-  --       ( funExt⁻ (η-cancel isModalX (const x) (const x) (funExt (idfun (x ≡ x)))) (η refl)
-  --           ≡⟨ refl ⟩
-  --         funExt⁻ (sym (◯-rec-η isModalX (const x)) ∙ cong (◯-rec isModalX) (funExt (idfun (x ≡ x))) ∙ ◯-rec-η isModalX (const x)) (η refl)
-  --           ≡⟨ refl ⟩
-  --         sym (funExt⁻ (◯-rec-η isModalX (const x)) (η refl))
-  --             ∙ cong (λ g → ◯-rec isModalX g (η refl)) (funExt (idfun (x ≡ x)))
-  --             ∙ funExt⁻ (◯-rec-η isModalX (const x)) (η refl)
-  --           ≡⟨ cong (λ t → sym (funExt⁻ (◯-rec-η isModalX (const x)) (η (refl {x = x}))) ∙ t ∙ funExt⁻ (◯-rec-η isModalX (const x)) (η refl))
-  --                (lemma x) ⟩
-  --         sym (funExt⁻ (◯-rec-η isModalX (const x)) (η (refl {x = x})))
-  --             ∙ cong (λ g → g refl) (funExt (idfun (◯-rec isModalX (const x) (η refl) ≡ ◯-rec isModalX (const x) (η refl))))
-  --             ∙ funExt⁻ (◯-rec-η isModalX (const x)) (η refl)
-  --           ≡⟨ refl ⟩
-  --         sym (funExt⁻ (◯-rec-η isModalX (const x)) (η (refl {x = x})))
-  --             ∙ refl
-  --             ∙ funExt⁻ (◯-rec-η isModalX (const x)) (η refl)
-  --           ≡⟨ cong (sym (funExt⁻ (◯-rec-η isModalX (const x)) (η (refl {x = x}))) ∙_) (sym (lUnit _)) ∙ lCancel _ ⟩
-  --         refl ∎)
-
   isModalUnit : isModal Unit*
   isModalUnit = retractIsModal Unit* (λ _ → tt*) (λ _ → refl)
 
