@@ -4,7 +4,7 @@
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.Field.Instances.QuoQ where
+module Cubical.Algebra.Field.Instances.Rationals where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -19,14 +19,14 @@ open import Cubical.Data.Int.MoreInts.QuoInt
            ; ·-zeroˡ to ·ℤ-zeroˡ
            ; ·-identityʳ to ·ℤ-identityʳ)
 open import Cubical.HITs.SetQuotients as SetQuot
-open import Cubical.HITs.Rationals.QuoQ
+open import Cubical.Data.Rationals
   using    (ℚ ; ℕ₊₁→ℤ ; isEquivRel∼)
 
 open import Cubical.Algebra.Field
 open import Cubical.Algebra.CommRing
 open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Algebra.CommRing.Instances.QuoInt
-open import Cubical.Algebra.CommRing.Instances.QuoQ
+open import Cubical.Algebra.CommRing.Instances.Rationals
 
 open import Cubical.Relation.Nullary
 

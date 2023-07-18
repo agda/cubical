@@ -4,12 +4,12 @@
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Algebra.CommRing.Instances.QuoQ where
+module Cubical.Algebra.CommRing.Instances.Rationals where
 
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
-open import Cubical.HITs.Rationals.QuoQ
+open import Cubical.Data.Rationals
   renaming (ℚ to ℚType ; _+_ to _+ℚ_; _·_ to _·ℚ_; -_ to -ℚ_)
 
 open CommRingStr
