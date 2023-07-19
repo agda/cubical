@@ -35,10 +35,10 @@ module UniversalProperty (f : B → A) (g : C → A) where
   comm : f ∘ pr₁ ∼ g ∘ pr₂
   comm = snd
 
-  ump' : (X : Type ℓ) (p1 : X → B) (p2 : X → C) (α : f ∘ p1 ∼ g ∘ p2) → (x : X) →
+  universalProperty' : (X : Type ℓ) (p1 : X → B) (p2 : X → C) (α : f ∘ p1 ∼ g ∘ p2) → (x : X) →
     isContr (Σ[ ((x₁ , x₂) , β) ∈ Pullback A f g ] Σ[ u₁ ∈ (p1 x ≡ x₁) ] Σ[ u₂ ∈ (x₂ ≡ p2 x) ]
       cong f u₁ ∙ β ∙ cong g u₂ ≡ α x)
-  ump' X p1 p2 α x = isOfHLevelRespectEquiv 0 (invEquiv e) isContrUnit
+  universalProperty' X p1 p2 α x = isOfHLevelRespectEquiv 0 (invEquiv e) isContrUnit
     where
       o : Iso
         (Σ[ ((x₁ , x₂) , β) ∈ Pullback A f g ] Σ[ u₁ ∈ (p1 x ≡ x₁) ] Σ[ u₂ ∈ (x₂ ≡ p2 x) ] cong f u₁ ∙ β ∙ cong g u₂ ≡ α x)
@@ -73,7 +73,7 @@ module UniversalProperty (f : B → A) (g : C → A) where
   universalProperty : (X : Type ℓ) (p1 : X → B) (p2 : X → C) (α : f ∘ p1 ∼ g ∘ p2) →
     isContr (Σ[ h ∈ (X → Pullback A f g) ] Σ[ u₁ ∈ (p1 ∼ pr₁ ∘ h) ] Σ[ u₂ ∈ (pr₂ ∘ h ∼ p2) ]
       (f ▪ˡ u₁ ▪ comm ▪ʳ h ▪ g ▪ˡ u₂) ∼ α)
-  universalProperty X p1 p2 α = isOfHLevelRespectEquiv 0 e (isContrΠ (ump' X p1 p2 α))
+  universalProperty X p1 p2 α = isOfHLevelRespectEquiv 0 e (isContrΠ (universalProperty' X p1 p2 α))
     where
       e : _ ≃ _
       e = isoToEquiv $ iso

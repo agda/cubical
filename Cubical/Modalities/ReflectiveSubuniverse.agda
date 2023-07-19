@@ -29,9 +29,9 @@ private
     ℓ : Level
 
 module _ (isModal : Type ℓ → Type ℓ) (isPropIsModal : (A : Type ℓ) → isProp (isModal A)) where
-  -- A type A such that - ∘ η induces an equivalence of hom sets into modal types
-  record HasLift (A : Type ℓ) : Type (ℓ-suc ℓ) where
-    constructor hasLift
+  -- A type A such that - ∘ η induces an equivalence of hom sets if the codomain is modal
+  record HasReflection (A : Type ℓ) : Type (ℓ-suc ℓ) where
+    constructor hasReflection
     field
       ◯A : Type ℓ
       η : A → ◯A
@@ -56,15 +56,14 @@ module _ (isModal : Type ℓ → Type ℓ) (isPropIsModal : (A : Type ℓ) → i
       ◯-rec-β : (f : A → B) → ◯-rec f ∘ η ≡ f
       ◯-rec-β f = lift≃ .rightInv f
 
-    -- the lifted map is unique, this implies the uniqueness below
     lift-unique : {B : Type ℓ} (p : isModal B) (f : A → B) (g : ◯A → B) → f ≡ g ∘ η → ◯-rec p f ≡ g
     lift-unique isModalB f g q = cong (◯-rec isModalB) q ∙ ◯-rec-η isModalB g
 
     lift-η : ◯-rec isModal-◯A η ≡ idfun ◯A
     lift-η = ◯-rec-η isModal-◯A (idfun _)
-  open HasLift
+  open HasReflection
 
-  module _ (A : Type ℓ) (x y : HasLift A) where
+  module _ (A : Type ℓ) (x y : HasReflection A) where
     private
       variable
         B : Type ℓ
@@ -106,35 +105,51 @@ module _ (isModal : Type ℓ → Type ℓ) (isPropIsModal : (A : Type ℓ) → i
         ≡⟨ fη ⟩
       y .η ∎
 
-  isPropHasLift : (A : Type ℓ) → isProp (HasLift A)
-  isPropHasLift A x y i .◯A = ◯A≡◯'A A x y i
-  isPropHasLift A x y i .η = toPathP {A = λ j → A → ◯A≡◯'A A x y j} {x = x .η} {y = y .η} (η≡η' A x y) i
-  isPropHasLift A x y i .isModal-◯A = toPathP {A = λ j → isModal (◯A≡◯'A A x y j)} {x = x .isModal-◯A} {y = y .isModal-◯A} (isPropIsModal (y .◯A) _ _) i
-  isPropHasLift A x y i .up B isModalB = toPathP
+    fη₁≡η₂→isEquiv-f : (f : x .◯A → y .◯A) → f ∘ x .η ∼ y .η → isEquiv f
+    fη₁≡η₂→isEquiv-f f p = subst isEquiv lem (◯A≃◯'A .snd)
+      where
+        lem : ◯-rec x (y .isModal-◯A) (y .η) ≡ f
+        lem = lift-unique x (y .isModal-◯A) (y .η) f (sym (funExt p))
+
+
+  isPropHasReflection : (A : Type ℓ) → isProp (HasReflection A)
+  isPropHasReflection A x y i .◯A = ◯A≡◯'A A x y i
+  isPropHasReflection A x y i .η = toPathP {A = λ j → A → ◯A≡◯'A A x y j} {x = x .η} {y = y .η} (η≡η' A x y) i
+  isPropHasReflection A x y i .isModal-◯A = toPathP {A = λ j → isModal (◯A≡◯'A A x y j)} {x = x .isModal-◯A} {y = y .isModal-◯A} (isPropIsModal (y .◯A) _ _) i
+  isPropHasReflection A x y i .up B isModalB = toPathP
     {A = λ j → isEquiv λ (g : ◯A≡◯'A A x y j → B) (a : A) → g (toPathP {A = λ j → A → ◯A≡◯'A A x y j}
     {x = x .η} {y = y .η} (η≡η' A x y) j a)} {x = x .up B isModalB} {y = y .up B isModalB} (toPathP (isPropIsEquiv _ _ _)) i
 
+--  module _ (A : Type ℓ) (R₁ R₂ : HasReflection A) where
+--    open HasReflection
+--
+--    fη₁≡η₂→isEquiv-f : (f : R₁ .◯A → R₂ .◯A) → f ∘ R₁ .η ∼ R₂ .η → isEquiv f
+--    fη₁≡η₂→isEquiv-f f p = subst isEquiv lem (isoToIsEquiv {!!})
+--      where
+--        lem : ◯-rec R₁ (R₂ .isModal-◯A) (R₂ .η) ≡ f
+--        lem = lift-unique R₁ (R₂ .isModal-◯A) (R₂ .η) f (sym (funExt p))
+
 --   -- Can we also do it this way?
---   unquoteDecl HasLiftIsoΣ = declareRecordIsoΣ HasLiftIsoΣ (quote HasLift)
+--   unquoteDecl HasReflectionIsoΣ = declareRecordIsoΣ HasReflectionIsoΣ (quote HasReflection)
 --
---   HasLift≡Σ : HasLift A ≡ _
---   HasLift≡Σ = ua (isoToEquiv HasLiftIsoΣ)
+--   HasReflection≡Σ : HasReflection A ≡ _
+--   HasReflection≡Σ = ua (isoToEquiv HasReflectionIsoΣ)
 --
---   isPropHasLift2 : (A : Type ℓ) → isProp (HasLift A)
---   isPropHasLift2 A = isOfHLevelRetractFromIso 1 HasLiftIsoΣ λ x y →
---     ΣPathTransport→PathΣ x y (◯A≡◯'A A (transport⁻ HasLift≡Σ x) (transport⁻ HasLift≡Σ y) ,
+--   isPropHasReflection2 : (A : Type ℓ) → isProp (HasReflection A)
+--   isPropHasReflection2 A = isOfHLevelRetractFromIso 1 HasReflectionIsoΣ λ x y →
+--     ΣPathTransport→PathΣ x y (◯A≡◯'A A (transport⁻ HasReflection≡Σ x) (transport⁻ HasReflection≡Σ y) ,
 --      let P : _ ≡ _
 --          P = (λ i →
 --             Σ
---             (A → ◯A≡◯'A A (transport⁻ HasLift≡Σ x) (transport⁻ HasLift≡Σ y) i)
+--             (A → ◯A≡◯'A A (transport⁻ HasReflection≡Σ x) (transport⁻ HasReflection≡Σ y) i)
 --             (λ z₁ →
 --                Σ
 --                (isModal
---                 (◯A≡◯'A A (transport⁻ HasLift≡Σ x) (transport⁻ HasLift≡Σ y) i))
+--                 (◯A≡◯'A A (transport⁻ HasReflection≡Σ x) (transport⁻ HasReflection≡Σ y) i))
 --                (λ z₂ → (B : Type ℓ) → isModal B → isEquiv (λ g₁ → g₁ ∘ z₁))))
 --      in ΣPathTransport→PathΣ (transport (λ i → P i) (snd x)) (snd y)
---        ((transport (λ j → A → ◯A≡◯'A A (transport⁻ HasLift≡Σ x) (transport⁻ HasLift≡Σ y) j) (fst (snd x))
---          ≡⟨ η≡η' A (transport⁻ HasLift≡Σ x) (transport⁻ {!HasLift≡Σ {A = A}!} y) ⟩
+--        ((transport (λ j → A → ◯A≡◯'A A (transport⁻ HasReflection≡Σ x) (transport⁻ HasReflection≡Σ y) j) (fst (snd x))
+--          ≡⟨ η≡η' A (transport⁻ HasReflection≡Σ x) (transport⁻ {!HasReflection≡Σ {A = A}!} y) ⟩
 --         fst (snd y) ∎)
 --        , {!!}))
 
@@ -142,34 +157,43 @@ module _ (isModal : Type ℓ → Type ℓ) (isPropIsModal : (A : Type ℓ) → i
 record IsReflectiveSubuniverse (isModal : Type ℓ → Type ℓ) : Type (ℓ-suc ℓ) where
   field
     isPropIsModal : (A : Type ℓ) → isProp (isModal A)
-    universalProperty : (A : Type ℓ) → HasLift isModal isPropIsModal A
+    universalProperty : (A : Type ℓ) → HasReflection isModal isPropIsModal A
 
   private variable A B C : Type ℓ
 
   ◯_ : Type ℓ → Type ℓ
-  ◯ A = universalProperty A .HasLift.◯A
+  ◯ A = universalProperty A .HasReflection.◯A
 
   η : A → ◯ A
-  η = universalProperty _ .HasLift.η
+  η = universalProperty _ .HasReflection.η
 
   isModal-◯ : (A : Type ℓ) → isModal (◯ A)
-  isModal-◯ A = universalProperty A .HasLift.isModal-◯A
+  isModal-◯ A = universalProperty A .HasReflection.isModal-◯A
+
+  isModalꟳ : {X Y : Type ℓ} → (A → B) → Type _
+  isModalꟳ f = ∀ y → isModal (fiber f y)
+
+  isConnected : Type ℓ → Type _
+  isConnected X = isContr (◯ X)
+
+  isConnectedꟳ : {X Y : Type ℓ} → (A → B) → Type _
+  isConnectedꟳ f = ∀ y → isConnected (fiber f y)
 
   module _ (p : isModal B) where
     ◯-rec : (A → B) → (◯ A → B)
-    ◯-rec = HasLift.◯-rec (universalProperty _) p
+    ◯-rec = HasReflection.◯-rec (universalProperty _) p
 
     ◯-rec-η : (f : ◯ A → B) → ◯-rec (f ∘ η) ≡ f
-    ◯-rec-η = HasLift.◯-rec-η (universalProperty _) p
+    ◯-rec-η = HasReflection.◯-rec-η (universalProperty _) p
 
     ◯-rec-β : (f : A → B) → ◯-rec f ∘ η ≡ f
-    ◯-rec-β = HasLift.◯-rec-β (universalProperty _) p
+    ◯-rec-β = HasReflection.◯-rec-β (universalProperty _) p
 
     isModal→isContrLift : (f : A → B) → isContr (Σ[ f' ∈ (◯ A → B) ] f' ∘ η ≡ f)
-    isModal→isContrLift = HasLift.isContrLift (universalProperty _) p
+    isModal→isContrLift = HasReflection.isContrLift (universalProperty _) p
 
     lift-unique : (f : A → B) (g : ◯ A → B) → f ≡ g ∘ η → ◯-rec f ≡ g
-    lift-unique = HasLift.lift-unique (universalProperty _) p
+    lift-unique = HasReflection.lift-unique (universalProperty _) p
 
   -- Lemma 1.19. (i)
   isEquivη→isModalA : (A : Type ℓ) → isEquiv (η {A = A}) → isModal A
@@ -234,9 +258,9 @@ record IsReflectiveSubuniverse (isModal : Type ℓ → Type ℓ) : Type (ℓ-suc
         (_∘ η) ∘ (_∘ ◯-map f) ∘ ◯-rec isModalX ∎
 
       eq : (B → X) ≃ (A → X)
-      eq = invEquiv (_∘ η , universalProperty B .HasLift.up X isModalX)
+      eq = invEquiv (_∘ η , universalProperty B .HasReflection.up X isModalX)
         ∙ₑ preCompEquiv (_ , isEquiv◯f)
-        ∙ₑ (_∘ η , universalProperty A .HasLift.up X isModalX)
+        ∙ₑ (_∘ η , universalProperty A .HasReflection.up X isModalX)
 
   isEquiv-◯f∧isEquiv-∘f→isModalX : (X : Type ℓ) → ({A B : Type ℓ} (f : A → B) → isEquiv (◯-map f) → isEquiv (λ (g : B → X) → g ∘ f)) → isModal X
   isEquiv-◯f∧isEquiv-∘f→isModalX X h = retractIsModal X (lem .inv (idfun _)) (funExt⁻ (lem .rightInv (idfun _)))
@@ -250,22 +274,22 @@ record IsReflectiveSubuniverse (isModal : Type ℓ → Type ℓ) : Type (ℓ-suc
   ηΣ (a , p) = η (a , η p)
 
   isEquiv-η-snd : (P : A → Type ℓ) → ◯ (Σ[ a ∈ A ] P a) ≡ ◯ (Σ[ a ∈ A ] ◯ P a)
-  isEquiv-η-snd {A = A} P = cong HasLift.◯A (isPropHasLift isModal isPropIsModal (Σ A P) (universalProperty (Σ A P)) lift')
+  isEquiv-η-snd {A = A} P = cong HasReflection.◯A (isPropHasReflection isModal isPropIsModal (Σ A P) (universalProperty (Σ A P)) lift')
     where
       e : (B : Type ℓ) → isModal B → (◯ (Σ[ a ∈ A ] ◯ P a) → B) ≃ (Σ A P → B)
       e B isModalB =
         (◯ (Σ[ a ∈ A ] (◯ P a)) → B)
-          ≃⟨ _∘ η , universalProperty _ .HasLift.up B isModalB ⟩
+          ≃⟨ _∘ η , universalProperty _ .HasReflection.up B isModalB ⟩
         (Σ[ a ∈ A ] (◯ P a) → B)
           ≃⟨ curryEquiv ⟩
         ((a : A) → ◯ P a → B)
-          ≃⟨ equivΠCod (λ a → _∘ η , universalProperty _ .HasLift.up B isModalB) ⟩
+          ≃⟨ equivΠCod (λ a → _∘ η , universalProperty _ .HasReflection.up B isModalB) ⟩
         ((a : A) → P a → B)
           ≃⟨ invEquiv curryEquiv ⟩
         (Σ A P → B) ■
 
-      lift' : HasLift isModal isPropIsModal (Σ A P)
-      lift' = hasLift (◯ (Σ[ a ∈ A ] ◯ P a)) ηΣ (isModal-◯ _) (λ B isModalB → snd (e B isModalB))
+      lift' : HasReflection isModal isPropIsModal (Σ A P)
+      lift' = hasReflection (◯ (Σ[ a ∈ A ] ◯ P a)) ηΣ (isModal-◯ _) (λ B isModalB → snd (e B isModalB))
 
   isModalUnit : isModal Unit*
   isModalUnit = retractIsModal Unit* (λ _ → tt*) (λ _ → refl)
@@ -273,7 +297,7 @@ record IsReflectiveSubuniverse (isModal : Type ℓ → Type ℓ) : Type (ℓ-suc
   -- Lemma 1.25. (alternative proof)
   uniqueDepLift : {X : Type ℓ} {Y : X → Type ℓ} → isModal X → isModal (Σ X Y)
     → (h : A → Σ X Y) (f : ◯ A → X) (p : f ∘ η ≡ fst ∘ h)
-    → isContr (Σ[ g ∈ ((z : ◯ A) → Y (f z)) ] transport (λ i → (a : A) → Y (p i a)) (g ∘ η) ≡ snd ∘ h)
+    → isContr (Σ[ g ∈ ((z : ◯ A) → Y (f z)) ] transport (cong (λ x → (a : A) → Y (x a)) p) (g ∘ η) ≡ snd ∘ h)
   uniqueDepLift {X = X} {Y = Y} isModalX isModalΣ h f p =
       isContrΣ-2for3 (isContrLiftX h) (isOfHLevelRespectEquiv 0 (eq h) (isContrLiftΣXY h)) (f , p)
     where
@@ -291,7 +315,8 @@ record IsReflectiveSubuniverse (isModal : Type ℓ → Type ℓ) : Type (ℓ-suc
       eq {A = A} h =
         (Σ[ h' ∈ (◯ A → Σ X Y) ] h' ∘ η ≡ h)
           ≃⟨ isoToEquiv (iso
-               (λ (h' , r) → (fst ∘ h' , snd ∘ h') , cong (fst ∘_) r , cong (snd ∘_) r)
+               -- (λ (h' , r) → (fst ∘ h' , snd ∘ h') , cong (fst ∘_) r , cong (snd ∘_) r)
+               _
                (λ ((f , g) , p , q) → (λ x → f x , g x) , λ i a → p i a , q i a)
                (λ _ → refl) (λ _ → refl)) ⟩
         (Σ[ (f , g) ∈ (Σ[ f ∈ (◯ A → X) ] ((z : ◯ A) → Y (f z))) ] Σ[ p ∈ f ∘ η ≡ fst ∘ h ] PathP (λ i → (a : A) → Y (p i a)) (g ∘ η) (snd ∘ h))
@@ -303,13 +328,14 @@ record IsReflectiveSubuniverse (isModal : Type ℓ → Type ℓ) : Type (ℓ-suc
       isContrΣ-2for3 : {P : A → Type ℓ} → isContr A → isContr (Σ A P) → (a : A) → isContr (P a)
       isContrΣ-2for3 p q a = isOfHLevelRespectEquiv 0 (Σ-contractFst (a , isContr→isProp p a)) q
 
-  -- Y x is modal for all x : X of X and ΣXY are modal
+  -- Y x is modal for all x : X if X and ΣXY are modal
   isModalΣSnd : {X : Type ℓ} {Y : X → Type ℓ} → isModal X → isModal (Σ X Y) → (x : X) → isModal (Y x)
   isModalΣSnd {X = X} {Y = Y} isModalX isModalΣ x = retractIsModal (Y x) (lem .fst) (funExt⁻ (sym (transportRefl _) ∙ lem .snd))
     where
       lem : Σ[ g ∈ (◯ (Y x) → Y x) ] transport refl (g ∘ η) ≡ idfun _
       lem = uniqueDepLift {A = Y x} isModalX isModalΣ (x ,_) (const x) refl .fst
 
+  -- We conclude the fact by using that singl x = Σ[ y ∈ X ] (x ≡ y) is contractible and thus modal.
   isModalA→isModal-≡ : (X : Type ℓ) → isModal X → (x y : X) → isModal (x ≡ y)
   isModalA→isModal-≡ X isModalX x y = isModalΣSnd {Y = x ≡_} isModalX (subst⁻ isModal (isContr→≡Unit* (isContrSingl x)) isModalUnit) y
 
@@ -349,25 +375,50 @@ record IsReflectiveSubuniverse (isModal : Type ℓ → Type ℓ) : Type (ℓ-suc
       eq = ua (isoToEquiv (iso f g s λ _ → refl))
 
   -- Lemma 1.27
-  ◯-preserves-× : (X Y : Type ℓ) → ◯ (X × Y) ≃ ◯ X × ◯ Y
-  ◯-preserves-× X Y = ◯A≃◯'A isModal isPropIsModal (X × Y) (universalProperty (X × Y))
-      (hasLift (◯ X × ◯ Y) (λ (x , y) → η x , η y) (isModal× (◯ X) (◯ Y) (isModal-◯ X) (isModal-◯ Y)) (λ Z isModalZ → eq Z isModalZ .snd))
+
+  -- There exists an alternative projection for X × Y
+  ◯A×◯B-isReflection : (X Y : Type ℓ) → HasReflection isModal isPropIsModal (X × Y)
+  ◯A×◯B-isReflection X Y =
+      hasReflection
+        (◯ X × ◯ Y)
+        (λ (x , y) → η x , η y)
+        (isModal× (◯ X) (◯ Y) (isModal-◯ X) (isModal-◯ Y))
+        (λ Z isModalZ → eq Z isModalZ .snd)
     where
       eq : (Z : Type ℓ) → isModal Z → (◯ X × ◯ Y → Z) ≃ (X × Y → Z)
       eq Z isModalZ =
         (◯ X × ◯ Y → Z)
           ≃⟨ curryEquiv ⟩
         (◯ X → ◯ Y → Z)
-          ≃⟨ _∘ η , universalProperty X .HasLift.up (◯ Y → Z) (isModal→ (◯ Y) Z isModalZ) ⟩
+          ≃⟨ _∘ η , universalProperty X .HasReflection.up (◯ Y → Z) (isModal→ (◯ Y) Z isModalZ) ⟩
         (X → ◯ Y → Z)
-          ≃⟨ equivΠCod (λ x → _∘ η , universalProperty Y .HasLift.up Z isModalZ) ⟩
+          ≃⟨ equivΠCod (λ x → _∘ η , universalProperty Y .HasReflection.up Z isModalZ) ⟩
         (X → Y → Z)
           ≃⟨ invEquiv curryEquiv ⟩
         (X × Y → Z) ■
 
-  -- Lemma 1.28
-  ◯-equiv : A ≃ B → ◯ A ≃ ◯ B
-  ◯-equiv e = isoToEquiv (iso f g s r)
+  -- Furthermore, there exists a canonical map between the two reflections.
+  distr-◯-× : {X Y : Type ℓ} → ◯ (X × Y) → ◯ X × ◯ Y
+  distr-◯-× p = ◯-map fst p , ◯-map snd p
+
+  -- The above map has the property that the triangle with the two modal units commute.
+  -- we have ⟨ ◯fst , ◯snd ⟩ ∘ η ≡ ⟨ η , η ⟩
+  distr∘η≡η×η : (X Y : Type ℓ) (p : X × Y) →
+    distr-◯-× (η p) ≡ ◯A×◯B-isReflection X Y .HasReflection.η p -- (η (fst p) , η (snd p))
+  distr∘η≡η×η X Y p = ≡-× (funExt⁻ (η-nat fst) p) (funExt⁻ (η-nat snd) p)
+
+  -- Therefore, this canonical map is an equivalence between the two reflections.
+  isEquiv-distr-◯-× : (X Y : Type ℓ) → isEquiv (distr-◯-× {X = X} {Y = Y})
+  isEquiv-distr-◯-× X Y = fη₁≡η₂→isEquiv-f isModal isPropIsModal (X × Y) (universalProperty (X × Y)) (◯A×◯B-isReflection X Y)
+    distr-◯-× (distr∘η≡η×η X Y)
+
+  -- This yields the desired results such that the equivalence is given by the canonical map.
+  ◯-preserves-× : (X Y : Type ℓ) → ◯ (X × Y) ≃ ◯ X × ◯ Y
+  ◯-preserves-× X Y = distr-◯-× , isEquiv-distr-◯-× X Y
+
+  -- The equivalence is given by ◯-map e for the given e : A ≃ B
+  ◯-preserves-≃ : A ≃ B → ◯ A ≃ ◯ B
+  ◯-preserves-≃ e = isoToEquiv (iso f g s r)
     where
       i = equivToIso e
       f = ◯-map (i .Iso.fun)
@@ -379,14 +430,37 @@ record IsReflectiveSubuniverse (isModal : Type ℓ → Type ℓ) : Type (ℓ-suc
       r : retract f g
       r = funExt⁻ (sym (◯-map-∘ _ _) ∙ cong ◯-map (funExt (i .Iso.leftInv)) ∙ ◯-map-id)
 
+  -- Lemma 1.28
+  isModalProp : isProp A → isProp (◯ A)
+  isModalProp {A = A} isPropA = isEquivDiag→isProp (isEquiv-fst→isEquiv-diag isEquivFst)
+    where
+      ◯fst : ◯ (A × A) → ◯ A
+      ◯fst = ◯-map fst
+
+      isEquiv-◯fst : isEquiv ◯fst
+      isEquiv-◯fst = ◯-preserves-≃ (fst , isEquiv-diag→isEquiv-fst (isProp→isEquivDiag isPropA)) .snd
+
+      isEquivFst : isEquiv (fst {A = ◯ A} {B = λ _ → ◯ A})
+      isEquivFst = isEquiv[f∘equivFunA≃B]→isEquiv[f] fst (distr-◯-× , (isEquiv-distr-◯-× A A)) isEquiv-◯fst
+
 unquoteDecl IsReflectiveSubuniverseIsoΣ = declareRecordIsoΣ IsReflectiveSubuniverseIsoΣ (quote IsReflectiveSubuniverse)
 
 isPropIsReflectiveSubuniverse : (M : Type ℓ → Type ℓ) → isProp (IsReflectiveSubuniverse M)
 isPropIsReflectiveSubuniverse M = isOfHLevelRetractFromIso 1 IsReflectiveSubuniverseIsoΣ
-  (isPropΣ (isPropΠ λ _ → isPropIsProp) λ _ → isPropΠ λ _ → isPropHasLift _ _ _)
+  (isPropΣ (isPropΠ λ _ → isPropIsProp) λ _ → isPropΠ λ _ → isPropHasReflection _ _ _)
 
 ReflectiveSubuniverse : (ℓ : Level) → Type (ℓ-suc ℓ)
 ReflectiveSubuniverse ℓ = Σ[ M ∈ (Type ℓ → Type ℓ) ] IsReflectiveSubuniverse M
+
+isΣClosed : ReflectiveSubuniverse ℓ → Type _
+isΣClosed {ℓ = ℓ} (isModal , _) = (X : Type ℓ) → isModal X → (Y : X → Type ℓ) → ((x : X) → isModal (Y x)) → isModal (Σ X Y)
+
+isPropIsΣClosed : (U : ReflectiveSubuniverse ℓ) → isProp (isΣClosed U)
+isPropIsΣClosed U = isPropΠ4 λ X _ Y _ → isPropIsModal (Σ X Y)
+  where open IsReflectiveSubuniverse (U .snd)
+
+ΣClosed-ReflectiveSubuniverse : (ℓ : Level) → Type (ℓ-suc ℓ)
+ΣClosed-ReflectiveSubuniverse ℓ = Σ[ U ∈ ReflectiveSubuniverse ℓ ] isΣClosed U
 
 -- Theorem 1.18.
 ReflectiveSubuniverse≡ : (U U' : ReflectiveSubuniverse ℓ) → fst U ≡ fst U' → U ≡ U'
