@@ -7,6 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Nat as ℕ using (ℕ; zero; suc)
@@ -301,9 +302,9 @@ predℤ→Int (posneg i) = refl
 
 +'≡+ : _+'_ ≡ _+_
 +'≡+ = _+'_
-  ≡⟨ cong ( _∘_ (λ f → Int→ℤ ∘ f)) (cong curry (funExt (uncurry ℤ→Int+Int≡+))) ⟩
+  ≡⟨ cong ( _∘_ (λ f → Int→ℤ ∘ f)) (funExt₂ ℤ→Int+Int≡+) ⟩
   (λ n → (λ m → (Int→ℤ (ℤ→Int (n + m)))))
-  ≡⟨ cong curry (funExt λ x → Iso.rightInv isoIntℤ (uncurry _+_ x)) ⟩
+  ≡⟨ funExt₂ (λ n m → (Iso.rightInv isoIntℤ (n + m))) ⟩
   _+_ ∎
 
 op≡Intℤ : (Int → Int → Int) ≡ (ℤ → ℤ → ℤ)
