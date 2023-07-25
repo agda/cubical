@@ -99,8 +99,11 @@ Int→ℤ→Int : ∀ (n : Int) → ℤ→Int (Int→ℤ n) ≡ n
 Int→ℤ→Int (Int.pos n) _ = Int.pos n
 Int→ℤ→Int (Int.negsuc n) _ = Int.negsuc n
 
+isoIntℤ : Iso Int ℤ
+isoIntℤ = iso Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int
+
 Int≡ℤ : Int ≡ ℤ
-Int≡ℤ = isoToPath (iso Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int)
+Int≡ℤ = isoToPath isoIntℤ
 
 discreteℤ : Discrete ℤ
 discreteℤ = subst Discrete Int≡ℤ discreteInt
