@@ -260,51 +260,52 @@ private
     where
     posℤ→Int+Int≡+ : ∀ (n : ℕ) (m : ℤ) → (ℤ→Int (pos n)) Int.+ (ℤ→Int m) ≡ ℤ→Int ((pos n) + m)
     posℤ→Int+Int≡+ zero m =
-      (ℤ→Int (pos zero)) Int.+ (ℤ→Int m) ≡⟨
-        sym (Int.pos0+ (ℤ→Int m))
-      ⟩ ℤ→Int m ≡⟨
-        cong ℤ→Int (sym (+-zeroʳ spos m))
-      ⟩ ℤ→Int (m + pos zero) ≡⟨
-        cong ℤ→Int (+-comm m (pos zero))
-      ⟩ ℤ→Int (pos zero + m) ∎
+      (ℤ→Int (pos zero)) Int.+ (ℤ→Int m)
+        ≡⟨ sym (Int.pos0+ (ℤ→Int m)) ⟩
+      ℤ→Int m
+        ≡⟨ cong ℤ→Int (sym (+-zeroʳ spos m)) ⟩
+      ℤ→Int (m + pos zero)
+        ≡⟨ cong ℤ→Int (+-comm m (pos zero)) ⟩
+      ℤ→Int (pos zero + m) ∎
     posℤ→Int+Int≡+ (suc n) m =
-      (ℤ→Int (pos (suc n))) Int.+ (ℤ→Int m) ≡⟨
-        sym (Int.sucℤ+ (Int.pos n) (ℤ→Int m))
-      ⟩ Int.sucℤ ((Int.pos n) Int.+ (ℤ→Int m)) ≡⟨
-        cong Int.sucℤ (posℤ→Int+Int≡+ n m)
-      ⟩ Int.sucℤ (ℤ→Int ((pos n) + m)) ≡⟨
-        sucℤ→Int ((pos n) + m)
-      ⟩ ℤ→Int (sucℤ ((pos n) + m)) ≡⟨
-        cong ℤ→Int (sucℤ-+ˡ (pos n) m)
-      ⟩ ℤ→Int ((pos (suc n)) + m) ∎
+      (ℤ→Int (pos (suc n))) Int.+ (ℤ→Int m)
+        ≡⟨ sym (Int.sucℤ+ (Int.pos n) (ℤ→Int m)) ⟩
+      Int.sucℤ ((Int.pos n) Int.+ (ℤ→Int m))
+        ≡⟨ cong Int.sucℤ (posℤ→Int+Int≡+ n m) ⟩
+      Int.sucℤ (ℤ→Int ((pos n) + m))
+        ≡⟨ sucℤ→Int ((pos n) + m) ⟩
+      ℤ→Int (sucℤ ((pos n) + m))
+        ≡⟨ cong ℤ→Int (sucℤ-+ˡ (pos n) m) ⟩
+      ℤ→Int ((pos (suc n)) + m) ∎
 
     negsucℤ→Int+Int≡+ : ∀ (n : ℕ) (m : ℤ) → (ℤ→Int (neg (suc n))) Int.+ (ℤ→Int m) ≡ ℤ→Int ((neg (suc n)) + m)
     negsucℤ→Int+Int≡+ zero m =
-      Int.negsuc zero Int.+ ℤ→Int m ≡⟨
-        sym (Int.predℤ+ (Int.pos zero) (ℤ→Int m))
-      ⟩ Int.predℤ ((Int.pos zero) Int.+ (ℤ→Int m)) ≡⟨
-        cong Int.predℤ (posℤ→Int+Int≡+ zero m)
-      ⟩ Int.predℤ (ℤ→Int ((neg zero) + m)) ≡⟨
-        predℤ→Int ((neg zero) + m)
-      ⟩ ℤ→Int (predℤ ((neg zero) + m)) ≡⟨
-        cong ℤ→Int (predℤ-+ˡ (neg zero) m)
-      ⟩ ℤ→Int ((neg (suc zero)) +  m) ∎
+      Int.negsuc zero Int.+ ℤ→Int m
+        ≡⟨ sym (Int.predℤ+ (Int.pos zero) (ℤ→Int m)) ⟩
+      Int.predℤ ((Int.pos zero) Int.+ (ℤ→Int m))
+        ≡⟨ cong Int.predℤ (posℤ→Int+Int≡+ zero m) ⟩
+      Int.predℤ (ℤ→Int ((neg zero) + m))
+        ≡⟨ predℤ→Int ((neg zero) + m) ⟩
+      ℤ→Int (predℤ ((neg zero) + m))
+        ≡⟨ cong ℤ→Int (predℤ-+ˡ (neg zero) m) ⟩
+      ℤ→Int ((neg (suc zero)) +  m) ∎
     negsucℤ→Int+Int≡+ (suc n) m =
-      Int.negsuc (suc n) Int.+ ℤ→Int m ≡⟨
-        sym (Int.predℤ+ (Int.negsuc n) (ℤ→Int m))
-      ⟩ Int.predℤ ((Int.negsuc n) Int.+ ℤ→Int m) ≡⟨
-        cong Int.predℤ (negsucℤ→Int+Int≡+ n m)
-      ⟩ Int.predℤ (ℤ→Int ((neg (suc n)) + m)) ≡⟨
-        predℤ→Int ((neg (suc n)) + m)
-      ⟩ ℤ→Int (predℤ ((neg (suc n)) + m)) ≡⟨
-        cong ℤ→Int (predℤ-+ˡ (neg (suc n)) m)
-      ⟩ ℤ→Int ((neg (suc (suc n))) + m) ∎
+      Int.negsuc (suc n) Int.+ ℤ→Int m
+        ≡⟨ sym (Int.predℤ+ (Int.negsuc n) (ℤ→Int m)) ⟩
+      Int.predℤ ((Int.negsuc n) Int.+ ℤ→Int m)
+        ≡⟨ cong Int.predℤ (negsucℤ→Int+Int≡+ n m) ⟩
+      Int.predℤ (ℤ→Int ((neg (suc n)) + m))
+        ≡⟨ predℤ→Int ((neg (suc n)) + m) ⟩
+      ℤ→Int (predℤ ((neg (suc n)) + m))
+        ≡⟨ cong ℤ→Int (predℤ-+ˡ (neg (suc n)) m) ⟩
+      ℤ→Int ((neg (suc (suc n))) + m) ∎
 
   +'≡+ : _+'_ ≡ _+_
-  +'≡+ = _+'_
-    ≡⟨ cong ( _∘_ (λ f → Int→ℤ ∘ f)) (funExt₂ ℤ→Int+Int≡+) ⟩
+  +'≡+ =
+    _+'_
+      ≡⟨ cong ( _∘_ (λ f → Int→ℤ ∘ f)) (funExt₂ ℤ→Int+Int≡+) ⟩
     (λ n → (λ m → (Int→ℤ (ℤ→Int (n + m)))))
-    ≡⟨ funExt₂ (λ n m → (Iso.rightInv isoIntℤ (n + m))) ⟩
+      ≡⟨ funExt₂ (λ n m → (Iso.rightInv isoIntℤ (n + m))) ⟩
     _+_ ∎
 
   op≡Intℤ : (Int.ℤ → Int.ℤ → Int.ℤ) ≡ (ℤ → ℤ → ℤ)
