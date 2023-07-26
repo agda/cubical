@@ -304,7 +304,7 @@ private
   +'≡+ : _+'_ ≡ _+_
   +'≡+ =
     _+'_
-      ≡⟨ sym (cong ( _∘_ (λ f → Int→ℤ ∘ f)) (funExt₂ ℤ→IntIsHom+)) ⟩
+      ≡⟨ sym (cong (_∘_ (_∘_ Int→ℤ)) (funExt₂ ℤ→IntIsHom+)) ⟩
     (λ n → (λ m → (Int→ℤ (ℤ→Int (n + m)))))
       ≡⟨ funExt₂ (λ n m → (Iso.rightInv isoIntℤ (n + m))) ⟩
     _+_ ∎
@@ -315,6 +315,92 @@ private
   +Int≡+' : (λ i → op≡Intℤ i) [ Int._+_ ≡ _+'_ ]
   +Int≡+' = transport-filler op≡Intℤ Int._+_
 
-
 +Int≡+ : (λ i → (op≡Intℤ ∙ refl) i) [ Int._+_ ≡ _+_ ]
 +Int≡+ = compPathP +Int≡+' +'≡+
+
+ℤ→IntIsHom- : ∀ (n : ℤ) → ℤ→Int (- n) ≡ Int.- (ℤ→Int n)
+ℤ→IntIsHom- n = ℤelim (λ n → ℤ→Int (- n) ≡ Int.- (ℤ→Int n)) posℤ→Int-Int≡- negsucℤ→Int-Int≡- n
+  where
+  posℤ→Int-Int≡- : ∀ (n : ℕ) → ℤ→Int (- (pos n)) ≡ Int.- (ℤ→Int (pos n))
+  posℤ→Int-Int≡- zero = refl
+  posℤ→Int-Int≡- (suc n) = refl
+
+  negsucℤ→Int-Int≡- : ∀ (n : ℕ) → ℤ→Int (- (neg (suc n))) ≡ Int.- (ℤ→Int (neg (suc n)))
+  negsucℤ→Int-Int≡- zero = refl
+  negsucℤ→Int-Int≡- (suc n) = refl
+
+private
+  -'_ : ℤ → ℤ
+  -'_ = Iso.fun (endoIso isoIntℤ) (Int.-_)
+
+  -'≡- : -'_ ≡ -_
+  -'≡- =
+    -'_
+      ≡⟨ sym (cong (_∘_ Int→ℤ) (funExt ℤ→IntIsHom-)) ⟩
+    (λ n → (Int→ℤ (ℤ→Int (- n))))
+      ≡⟨ funExt (λ n → (Iso.rightInv isoIntℤ (- n))) ⟩
+    -_ ∎
+
+  endo≡Intℤ : (Int.ℤ → Int.ℤ) ≡ (ℤ → ℤ)
+  endo≡Intℤ = isoToPath (endoIso isoIntℤ)
+
+  -Int≡-' : (λ i → endo≡Intℤ i) [ Int.-_ ≡ -'_ ]
+  -Int≡-' = transport-filler endo≡Intℤ (Int.-_)
+
+-Int≡- : (λ i → (endo≡Intℤ ∙ refl) i) [ Int.-_ ≡ -_ ]
+-Int≡- = compPathP -Int≡-' -'≡-
+
+ℤ→IntIsHom· : ∀ (n m : ℤ) → ℤ→Int (n · m) ≡ (ℤ→Int n) Int.· (ℤ→Int m)
+ℤ→IntIsHom· n m = (ℤelim (λ n → ∀ (m : ℤ) → ℤ→Int (n · m) ≡ (ℤ→Int n) Int.· (ℤ→Int m)) posℤ→Int·Int≡· negsucℤ→Int·Int≡· n) m
+  where
+  posℤ→Int·Int≡· : ∀ (n : ℕ) (m : ℤ) → ℤ→Int ((pos n) · m) ≡ (ℤ→Int (pos n)) Int.· (ℤ→Int m)
+  posℤ→Int·Int≡· zero m =
+    ℤ→Int ((pos zero) · m)
+      ≡⟨ sym (cong ℤ→Int (sym (·-zeroˡ {s = spos} m))) ⟩
+    (ℤ→Int (pos zero)) Int.· (ℤ→Int m) ∎
+  posℤ→Int·Int≡· (suc n) m =
+    ℤ→Int ((pos (suc n)) · m)
+      ≡⟨ cong ℤ→Int (·-pos-suc n m) ⟩
+    ℤ→Int (m + ((pos n) · m))
+      ≡⟨ ℤ→IntIsHom+ m ((pos n) · m) ⟩
+    (ℤ→Int m) Int.+ ℤ→Int ((pos n) · m)
+      ≡⟨ cong (λ k → (ℤ→Int m) Int.+ k) (posℤ→Int·Int≡· n m) ⟩
+    (ℤ→Int (pos (suc n))) Int.· (ℤ→Int m) ∎
+
+  negsucℤ→Int·Int≡· : ∀ (n : ℕ) (m : ℤ) → ℤ→Int ((neg (suc n)) · m) ≡ (ℤ→Int (neg (suc n))) Int.· (ℤ→Int m)
+  negsucℤ→Int·Int≡· zero m =
+    ℤ→Int (neg (suc zero) · m)
+      ≡⟨ cong (λ k → ℤ→Int (- k)) (·-identityˡ m) ⟩
+    ℤ→Int (- m)
+      ≡⟨ ℤ→IntIsHom- m ⟩
+    (ℤ→Int (neg (suc zero))) Int.· (ℤ→Int m) ∎
+  negsucℤ→Int·Int≡· (suc n) m =
+    ℤ→Int ((neg (suc (suc n))) · m)
+      ≡⟨ cong ℤ→Int (sym (·-distribʳ (neg (suc zero)) (neg (suc n)) m)) ⟩
+    ℤ→Int (((neg (suc zero)) · m) + ((neg (suc n)) · m))
+      ≡⟨ cong ( (λ k → ℤ→Int ((- k) + ((neg (suc n)) · m)))) (·-identityˡ m) ⟩
+    ℤ→Int ((- m) + ((neg (suc n)) · m))
+      ≡⟨ ℤ→IntIsHom+ (- m) ((neg (suc n)) · m) ⟩
+    (ℤ→Int (- m)) Int.+ (ℤ→Int ((neg (suc n)) · m))
+      ≡⟨ cong (λ k → k Int.+ (ℤ→Int ((neg (suc n)) · m))) (ℤ→IntIsHom- m) ⟩
+    Int.- (ℤ→Int m) Int.+ (ℤ→Int ((neg (suc n)) · m))
+      ≡⟨ cong (λ k → Int.- (ℤ→Int m) Int.+ k) (negsucℤ→Int·Int≡· n m) ⟩
+    (ℤ→Int (neg (suc (suc n)))) Int.· (ℤ→Int m) ∎
+
+private
+  _·'_ : ℤ → ℤ → ℤ
+  _·'_ = Iso.fun (binaryOpIso isoIntℤ) Int._·_
+
+  ·'≡· : _·'_ ≡ _·_
+  ·'≡· =
+    _·'_
+      ≡⟨ sym (cong (_∘_ (_∘_ Int→ℤ)) (funExt₂ ℤ→IntIsHom·)) ⟩
+    (λ n → (λ m → (Int→ℤ (ℤ→Int (n · m)))))
+      ≡⟨ funExt₂ (λ n m → (Iso.rightInv isoIntℤ (n · m))) ⟩
+    _·_ ∎
+
+  ·Int≡·' : (λ i → op≡Intℤ i) [ Int._·_ ≡ _·'_ ]
+  ·Int≡·' = transport-filler op≡Intℤ Int._·_
+
+·Int≡· : (λ i → (op≡Intℤ ∙ refl) i) [ Int._·_ ≡ _·_ ]
+·Int≡· = compPathP ·Int≡·' ·'≡·
