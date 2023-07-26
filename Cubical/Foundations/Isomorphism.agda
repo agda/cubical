@@ -204,8 +204,8 @@ codomainIso z = codomainIsoDep λ _ → z
 endoIso : Iso A B → Iso (A → A) (B → B)
 endoIso is = compIso (domIso is) (codomainIso is)
 
-opIso : Iso A B → Iso (A → A → A) (B → B → B)
-opIso is = compIso (domIso is) (codomainIso (endoIso is))
+binaryOpIso : Iso A B → Iso (A → A → A) (B → B → B)
+binaryOpIso is = compIso (domIso is) (codomainIso (endoIso is))
 
 Iso≡Set : isSet A → isSet B → (f g : Iso A B)
         → ((x : A) → f .fun x ≡ g .fun x)

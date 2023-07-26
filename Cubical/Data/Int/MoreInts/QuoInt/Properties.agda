@@ -15,8 +15,8 @@ open import Cubical.Data.Bool as Bool using (Bool; not; notnot)
 open import Cubical.Data.Empty
 open import Cubical.Data.Unit renaming (Unit to ⊤)
 
-open import Cubical.Data.Int renaming (_+_ to _+Int_; _·_ to _·Int_; ℤ to Int; sucℤ to sucInt; predℤ to predInt; sucℤ+ to sucInt+; predℤ+ to predInt+) hiding (neg; pos; abs; isSetℤ; -_; _+'_; +'≡+)
-open import Cubical.Data.Int.MoreInts.QuoInt.Base
+import Cubical.Data.Int as Int
+open import Cubical.Data.Int.MoreInts.QuoInt.Base renaming (elim to ℤelim)
 
 ·S-comm : ∀ x y → x ·S y ≡ y ·S x
 ·S-comm = Bool.⊕-comm
@@ -237,81 +237,82 @@ sign-pos-suc-· m (signed s (suc n)) = refl
 ·-injʳ : ∀ m n o → m · pos (suc o) ≡ n · pos (suc o) → m ≡ n
 ·-injʳ m n o p = ·-injˡ o m n (·-comm (pos (suc o)) m ∙ p ∙ ·-comm n (pos (suc o)))
 
-opIsoIntℤ : Iso (Int → Int → Int) (ℤ → ℤ → ℤ)
-opIsoIntℤ = (opIso isoIntℤ)
+private
+  _+'_ : ℤ → ℤ → ℤ
+  _+'_ = Iso.fun (binaryOpIso isoIntℤ) Int._+_
 
-_+'_ : ℤ → ℤ → ℤ
-_+'_ = Iso.fun opIsoIntℤ _+Int_
+  sucℤ→Int : ∀ (n : ℤ) → Int.sucℤ (ℤ→Int n) ≡ ℤ→Int (sucℤ n)
+  sucℤ→Int (pos n) = refl
+  sucℤ→Int (neg zero) = refl
+  sucℤ→Int (neg (suc zero)) = refl
+  sucℤ→Int (neg (suc (suc n))) = refl
+  sucℤ→Int (posneg i) = refl
 
-sucℤ→Int : ∀ (n : ℤ) → sucInt (ℤ→Int n) ≡ ℤ→Int (sucℤ n)
-sucℤ→Int (pos n) = refl
-sucℤ→Int (neg zero) = refl
-sucℤ→Int (neg (suc zero)) = refl
-sucℤ→Int (neg (suc (suc n))) = refl
-sucℤ→Int (posneg i) = refl
+  predℤ→Int : ∀ (n : ℤ) → Int.predℤ (ℤ→Int n) ≡ ℤ→Int (predℤ n)
+  predℤ→Int (pos zero) = refl
+  predℤ→Int (pos (suc n)) = refl
+  predℤ→Int (neg zero) = refl
+  predℤ→Int (neg (suc n)) = refl
+  predℤ→Int (posneg i) = refl
 
-predℤ→Int : ∀ (n : ℤ) → predInt (ℤ→Int n) ≡ ℤ→Int (predℤ n)
-predℤ→Int (pos zero) = refl
-predℤ→Int (pos (suc n)) = refl
-predℤ→Int (neg zero) = refl
-predℤ→Int (neg (suc n)) = refl
-predℤ→Int (posneg i) = refl
+  ℤ→Int+Int≡+ : ∀ (n m : ℤ) → (ℤ→Int n) Int.+ (ℤ→Int m) ≡ ℤ→Int (n + m)
+  ℤ→Int+Int≡+ n m = (ℤelim (λ n → ∀ (m : ℤ) → (ℤ→Int n) Int.+ (ℤ→Int m) ≡ ℤ→Int (n + m)) posℤ→Int+Int≡+ negsucℤ→Int+Int≡+ n) m
+    where
+    posℤ→Int+Int≡+ : ∀ (n : ℕ) (m : ℤ) → (ℤ→Int (pos n)) Int.+ (ℤ→Int m) ≡ ℤ→Int ((pos n) + m)
+    posℤ→Int+Int≡+ zero m =
+      (ℤ→Int (pos zero)) Int.+ (ℤ→Int m) ≡⟨
+        sym (Int.pos0+ (ℤ→Int m))
+      ⟩ ℤ→Int m ≡⟨
+        cong ℤ→Int (sym (+-zeroʳ spos m))
+      ⟩ ℤ→Int (m + pos zero) ≡⟨
+        cong ℤ→Int (+-comm m (pos zero))
+      ⟩ ℤ→Int (pos zero + m) ∎
+    posℤ→Int+Int≡+ (suc n) m =
+      (ℤ→Int (pos (suc n))) Int.+ (ℤ→Int m) ≡⟨
+        sym (Int.sucℤ+ (Int.pos n) (ℤ→Int m))
+      ⟩ Int.sucℤ ((Int.pos n) Int.+ (ℤ→Int m)) ≡⟨
+        cong Int.sucℤ (posℤ→Int+Int≡+ n m)
+      ⟩ Int.sucℤ (ℤ→Int ((pos n) + m)) ≡⟨
+        sucℤ→Int ((pos n) + m)
+      ⟩ ℤ→Int (sucℤ ((pos n) + m)) ≡⟨
+        cong ℤ→Int (sucℤ-+ˡ (pos n) m)
+      ⟩ ℤ→Int ((pos (suc n)) + m) ∎
 
-ℤ→Int+Int≡+ : ∀ (n m : ℤ) → (ℤ→Int n) +Int (ℤ→Int m) ≡ ℤ→Int (n + m)
-ℤ→Int+Int≡+ (pos zero) m =
-  (ℤ→Int (pos zero)) +Int (ℤ→Int m)
-  ≡⟨ sym (pos0+ (ℤ→Int m)) ⟩
-  ℤ→Int m
-  ≡⟨ cong ℤ→Int (sym (+-zeroʳ spos m)) ⟩
-  ℤ→Int (m + pos zero)
-  ≡⟨ cong ℤ→Int (+-comm m (pos zero)) ⟩
-  ℤ→Int (pos zero + m) ∎
-ℤ→Int+Int≡+ (pos (suc n)) m =
-  (ℤ→Int (pos (suc n))) +Int (ℤ→Int m)
-  ≡⟨ sym (sucInt+ (Int.pos n) (ℤ→Int m)) ⟩
-  sucInt ((Int.pos n) +Int (ℤ→Int m))
-  ≡⟨ cong sucInt (ℤ→Int+Int≡+ (pos n) m) ⟩
-  sucInt (ℤ→Int ((pos n) + m))
-  ≡⟨ sucℤ→Int ((pos n) + m) ⟩
-  ℤ→Int (sucℤ ((pos n) + m))
-  ≡⟨ cong ℤ→Int (sucℤ-+ˡ (pos n) m) ⟩
-  ℤ→Int ((pos (suc n)) + m) ∎
-ℤ→Int+Int≡+ (neg (suc zero)) m =
-  negsuc zero +Int ℤ→Int m
-  ≡⟨ sym (predInt+ (Int.pos zero) (ℤ→Int m)) ⟩
-  predInt ((Int.pos zero) +Int (ℤ→Int m))
-  ≡⟨ cong predInt (ℤ→Int+Int≡+ (neg zero) m) ⟩
-  predInt (ℤ→Int ((neg zero) + m))
-  ≡⟨ predℤ→Int ((neg zero) + m) ⟩
-  ℤ→Int (predℤ ((neg zero) + m))
-  ≡⟨ cong ℤ→Int (predℤ-+ˡ (neg zero) m) ⟩
-  ℤ→Int ((neg (suc zero)) +  m) ∎
-ℤ→Int+Int≡+ (neg (suc (suc n))) m =
-  negsuc (suc n) +Int ℤ→Int m
-  ≡⟨ sym (predInt+ (negsuc n) (ℤ→Int m)) ⟩
-  predInt ((negsuc n) +Int ℤ→Int m)
-  ≡⟨ cong predInt (ℤ→Int+Int≡+ (neg (suc n)) m) ⟩
-  predInt (ℤ→Int ((neg (suc n)) + m))
-  ≡⟨ predℤ→Int ((neg (suc n)) + m)⟩
-  ℤ→Int (predℤ ((neg (suc n)) + m))
-  ≡⟨ cong ℤ→Int (predℤ-+ˡ (neg (suc n)) m) ⟩
-  ℤ→Int ((neg (suc (suc n))) + m) ∎
-  -- uh, this looks like an extremely generic thing that could be done when defining any function from ℤ, thus only requiring defining it on `pos n` and `neg (suc n)` as one would kinda expect for integers; why don't we do that everywhere?`
-ℤ→Int+Int≡+ (neg zero) m = subst (λ n →  (ℤ→Int n) +Int (ℤ→Int m) ≡ ℤ→Int (n + m)) posneg (ℤ→Int+Int≡+ (pos zero) m)
-ℤ→Int+Int≡+ (posneg i) m = subst-filler (λ n →  (ℤ→Int n) +Int (ℤ→Int m) ≡ ℤ→Int (n + m)) posneg (ℤ→Int+Int≡+ (pos zero) m) i
+    negsucℤ→Int+Int≡+ : ∀ (n : ℕ) (m : ℤ) → (ℤ→Int (neg (suc n))) Int.+ (ℤ→Int m) ≡ ℤ→Int ((neg (suc n)) + m)
+    negsucℤ→Int+Int≡+ zero m =
+      Int.negsuc zero Int.+ ℤ→Int m ≡⟨
+        sym (Int.predℤ+ (Int.pos zero) (ℤ→Int m))
+      ⟩ Int.predℤ ((Int.pos zero) Int.+ (ℤ→Int m)) ≡⟨
+        cong Int.predℤ (posℤ→Int+Int≡+ zero m)
+      ⟩ Int.predℤ (ℤ→Int ((neg zero) + m)) ≡⟨
+        predℤ→Int ((neg zero) + m)
+      ⟩ ℤ→Int (predℤ ((neg zero) + m)) ≡⟨
+        cong ℤ→Int (predℤ-+ˡ (neg zero) m)
+      ⟩ ℤ→Int ((neg (suc zero)) +  m) ∎
+    negsucℤ→Int+Int≡+ (suc n) m =
+      Int.negsuc (suc n) Int.+ ℤ→Int m ≡⟨
+        sym (Int.predℤ+ (Int.negsuc n) (ℤ→Int m))
+      ⟩ Int.predℤ ((Int.negsuc n) Int.+ ℤ→Int m) ≡⟨
+        cong Int.predℤ (negsucℤ→Int+Int≡+ n m)
+      ⟩ Int.predℤ (ℤ→Int ((neg (suc n)) + m)) ≡⟨
+        predℤ→Int ((neg (suc n)) + m)
+      ⟩ ℤ→Int (predℤ ((neg (suc n)) + m)) ≡⟨
+        cong ℤ→Int (predℤ-+ˡ (neg (suc n)) m)
+      ⟩ ℤ→Int ((neg (suc (suc n))) + m) ∎
 
-+'≡+ : _+'_ ≡ _+_
-+'≡+ = _+'_
-  ≡⟨ cong ( _∘_ (λ f → Int→ℤ ∘ f)) (funExt₂ ℤ→Int+Int≡+) ⟩
-  (λ n → (λ m → (Int→ℤ (ℤ→Int (n + m)))))
-  ≡⟨ funExt₂ (λ n m → (Iso.rightInv isoIntℤ (n + m))) ⟩
-  _+_ ∎
+  +'≡+ : _+'_ ≡ _+_
+  +'≡+ = _+'_
+    ≡⟨ cong ( _∘_ (λ f → Int→ℤ ∘ f)) (funExt₂ ℤ→Int+Int≡+) ⟩
+    (λ n → (λ m → (Int→ℤ (ℤ→Int (n + m)))))
+    ≡⟨ funExt₂ (λ n m → (Iso.rightInv isoIntℤ (n + m))) ⟩
+    _+_ ∎
 
-op≡Intℤ : (Int → Int → Int) ≡ (ℤ → ℤ → ℤ)
-op≡Intℤ = isoToPath opIsoIntℤ
+  op≡Intℤ : (Int.ℤ → Int.ℤ → Int.ℤ) ≡ (ℤ → ℤ → ℤ)
+  op≡Intℤ = isoToPath (binaryOpIso isoIntℤ)
 
-+Int≡+' : (λ i → op≡Intℤ i) [ _+Int_ ≡ _+'_ ]
-+Int≡+' = transport-filler op≡Intℤ _+Int_
+  +Int≡+' : (λ i → op≡Intℤ i) [ Int._+_ ≡ _+'_ ]
+  +Int≡+' = transport-filler op≡Intℤ Int._+_
 
-+Int≡+ : (λ i → (op≡Intℤ ∙ refl) i) [ _+Int_ ≡ _+_ ]
+
++Int≡+ : (λ i → (op≡Intℤ ∙ refl) i) [ Int._+_ ≡ _+_ ]
 +Int≡+ = compPathP +Int≡+' +'≡+
