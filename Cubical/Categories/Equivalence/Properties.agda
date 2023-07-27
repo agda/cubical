@@ -7,6 +7,7 @@ open import Cubical.Foundations.Equiv
   renaming (isEquiv to isEquivMap)
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Powerset
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -158,3 +159,38 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     w .invFunc = w-inv
     w .η = pathToNatIso w-η-path
     w .ε = pathToNatIso w-ε-path
+
+
+
+-- equivalence on full subcategories defined by propositions
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (E : C ≃ᶜ D) where
+
+  open NatTrans
+  open _≃ᶜ_
+
+  private
+    F = E .func
+    F⁻¹ = E .isEquiv .invFunc
+    ηᴱ = E .isEquiv .η
+    εᴱ = E .isEquiv .ε
+
+
+  ΣPropCatEquiv : {P : ℙ (ob C)} {Q : ℙ (ob D)}
+                → (∀ c → c ∈ P → F .F-ob c ∈ Q)
+                → (∀ d → d ∈ Q → F⁻¹ .F-ob d ∈ P)
+                → ΣPropCat C P ≃ᶜ ΣPropCat D Q
+
+  func (ΣPropCatEquiv {P} {Q} presF _) = ΣPropCatFunc {P = P} {Q = Q} F presF
+  invFunc (isEquiv (ΣPropCatEquiv {P} {Q} _ presF⁻¹)) = ΣPropCatFunc {P = Q} {Q = P} F⁻¹ presF⁻¹
+
+  N-ob (trans (η (isEquiv (ΣPropCatEquiv _ _)))) (x , _) = ηᴱ .trans .N-ob x
+  N-hom (trans (η (isEquiv (ΣPropCatEquiv _ _)))) f = ηᴱ .trans .N-hom f
+  inv (nIso (η (isEquiv (ΣPropCatEquiv _ _))) (x , _)) = ηᴱ .nIso x .inv
+  sec (nIso (η (isEquiv (ΣPropCatEquiv _ _))) (x , _)) = ηᴱ .nIso x .sec
+  ret (nIso (η (isEquiv (ΣPropCatEquiv _ _))) (x , _)) = ηᴱ .nIso x .ret
+
+  N-ob (trans (ε (isEquiv (ΣPropCatEquiv _ _)))) (x , _) = εᴱ .trans .N-ob x
+  N-hom (trans (ε (isEquiv (ΣPropCatEquiv _ _)))) f = εᴱ .trans .N-hom f
+  inv (nIso (ε (isEquiv (ΣPropCatEquiv _ _))) (x , _)) = εᴱ .nIso x .inv
+  sec (nIso (ε (isEquiv (ΣPropCatEquiv _ _))) (x , _)) = εᴱ .nIso x .sec
+  ret (nIso (ε (isEquiv (ΣPropCatEquiv _ _))) (x , _)) = εᴱ .nIso x .ret

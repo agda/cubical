@@ -14,14 +14,14 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Pointed
 
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum hiding (elim)
 open import Cubical.Data.Bool.Base
-open import Cubical.Data.Empty
-open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Empty hiding (elim)
+open import Cubical.Data.Empty as Empty hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit using (Unit; isPropUnit)
 
-open import Cubical.HITs.PropositionalTruncation hiding (rec)
+open import Cubical.HITs.PropositionalTruncation hiding (elim; rec)
 
 open import Cubical.Relation.Nullary
 
@@ -29,6 +29,13 @@ private
   variable
     ℓ : Level
     A : Type ℓ
+
+elim : ∀ {ℓ} {A : Bool → Type ℓ}
+  → A true
+  → A false
+  → (b : Bool) → A b
+elim t f false = f
+elim t f true  = t
 
 notnot : ∀ x → not (not x) ≡ x
 notnot true  = refl

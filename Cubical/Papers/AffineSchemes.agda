@@ -5,11 +5,11 @@ Please do not move this file. Changes should only be made if necessary.
 This file contains pointers to the code examples and main results from
 the paper:
 
-A Univalent Formalization of Affine Schemes
+A Univalent Formalization of Constructive Affine Schemes
 
-Anders Mörtberg, Max Zeuner
+Max Zeuner, Anders Mörtberg
 
-Preprint: !!! arXiv link !!!
+Preprint: https://arxiv.org/abs/2212.02902
 
 
 -}

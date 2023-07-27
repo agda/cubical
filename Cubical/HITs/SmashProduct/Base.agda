@@ -9,6 +9,10 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Wedge
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Pointed.Homogeneous
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Transport
 
 data Smash {ℓ ℓ'} (A : Pointed ℓ) (B : Pointed ℓ') : Type (ℓ-max ℓ ℓ') where
   basel : Smash A B
@@ -21,6 +25,8 @@ private
   variable
     ℓ ℓ' : Level
     A B C D : Pointed ℓ
+
+infixl 30 _⋀∙_
 
 SmashPt : (A : Pointed ℓ) (B : Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
 SmashPt A B = (Smash A B , basel)
@@ -52,12 +58,12 @@ commK (gluer b x) = refl
 
 --- Alternative definition
 
-i∧ : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ'} → A ⋁ B → (typ A) × (typ B)
+i∧ : {A : Pointed ℓ} {B : Pointed ℓ'} → A ⋁ B → (typ A) × (typ B)
 i∧ {A = A , ptA} {B = B , ptB} (inl x) = x , ptB
 i∧ {A = A , ptA} {B = B , ptB} (inr x) = ptA , x
 i∧ {A = A , ptA} {B = B , ptB} (push tt i) = ptA , ptB
 
-_⋀_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
+_⋀_ : Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
 A ⋀ B = Pushout {A = (A ⋁ B)} (λ _ → tt) i∧
 
 ⋀comm→ : A ⋀ B → B ⋀ A
@@ -67,7 +73,7 @@ A ⋀ B = Pushout {A = (A ⋁ B)} (λ _ → tt) i∧
 ⋀comm→ (push (inr x) i) = push (inl x) i
 ⋀comm→ (push (push a i₁) i) = push (push tt (~ i₁)) i
 
-⋀comm→² : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B : Pointed ℓ' }
+⋀comm→² : {A : Pointed ℓ} {B : Pointed ℓ' }
   (x : A ⋀ B) → ⋀comm→ (⋀comm→ {A = A} {B = B} x) ≡ x
 ⋀comm→² (inl x) = refl
 ⋀comm→² (inr x) = refl
@@ -81,8 +87,97 @@ Iso.inv ⋀CommIso = ⋀comm→
 Iso.rightInv ⋀CommIso = ⋀comm→²
 Iso.leftInv ⋀CommIso = ⋀comm→²
 
-_⋀∙_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
+_⋀∙_ : Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋀∙ B = (A ⋀ B) , (inl tt)
+
+⋀comm→∙ : A ⋀∙ B →∙ B ⋀∙ A
+fst ⋀comm→∙ = ⋀comm→
+snd ⋀comm→∙ = refl
+
+SmashAdjIso : Iso ((A ⋀∙ B) →∙ C) (A →∙ (B →∙ C ∙))
+SmashAdjIso {A = A} {B = B} {C = C} =
+  compIso is₃ (compIso iso₄ (invIso is₂))
+  where
+  is₁ : Iso (A →∙ (B →∙ C ∙))
+    (Σ[ f ∈ (fst A → fst B → fst C) ]
+      Σ[ l ∈ ((x : fst A) → f x (pt B) ≡ pt C) ]
+        Σ[ r ∈ ((b : fst B) → f (pt A) b ≡ pt C) ]
+          PathP (λ i → r (snd B) i ≡ snd C) (l (snd A)) refl)
+  Iso.fun is₁ f = (λ x y → f .fst x .fst y)
+                , (λ x → f .fst x .snd)
+                , (λ x i → f .snd i .fst x)
+                , λ i j → f .snd i .snd j
+  fst (fst (Iso.inv is₁ (f , l , r , p)) x) = f x
+  snd (fst (Iso.inv is₁ (f , l , r , p)) x) = l x
+  fst (snd (Iso.inv is₁ (f , l , r , p)) i) b = r b i
+  snd (snd (Iso.inv is₁ (f , l , r , p)) i) j = p i j
+  Iso.rightInv is₁ _ = refl
+  Iso.leftInv is₁ _ = refl
+
+  is₂ : Iso (A →∙ (B →∙ C ∙)) (
+    (Σ[ f ∈ (fst A → fst B → fst C) ]
+      Σ[ l ∈ ((x : fst A) → f x (pt B) ≡ pt C) ]
+        Σ[ r ∈ ((b : fst B) → f (pt A) b ≡ pt C) ]
+          l (pt A) ≡ r (pt B)))
+  is₂ = compIso is₁ (Σ-cong-iso-snd
+    λ f → Σ-cong-iso-snd
+      λ l → Σ-cong-iso-snd
+        λ r → pathToIso (PathP≡doubleCompPathʳ _ _ _ _
+            ∙ cong (l (snd A) ≡_)
+               (sym (compPath≡compPath' (r (snd B)) refl)
+              ∙ sym (rUnit (r (pt B))))))
+
+  is₃ : Iso ((A ⋀∙ B) →∙ C)
+    (Σ[ f ∈ (fst A → fst B → fst C) ]
+      Σ[ p ∈ singl (snd C) ]
+        Σ[ l ∈ ((x : fst A) → f x (pt B) ≡ fst p) ]
+        Σ[ r ∈ ((b : fst B) → f (pt A) b ≡ fst p) ]
+          l (pt A) ≡ r (pt B))
+  fst (Iso.fun is₃ f) x y = fst f (inr (x , y))
+  fst (fst (snd (Iso.fun is₃ f))) = fst f (inl tt)
+  snd (fst (snd (Iso.fun is₃ f))) = sym (snd f)
+  fst (snd (snd (Iso.fun is₃ f))) x = cong (fst f) (sym (push (inl x)))
+  fst (snd (snd (snd (Iso.fun is₃ f)))) x = cong (fst f) (sym (push (inr x)))
+  snd (snd (snd (snd (Iso.fun is₃ f)))) i j = fst f (push (push tt i) (~ j))
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (inl x) = c*
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (inr (x , y)) = f x y
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (push (inl x) i) = l x (~ i)
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (push (inr x) i) = r x (~ i)
+  fst (Iso.inv is₃ (f , (c* , p) , l , r , q)) (push (push a j) i) = q j (~ i)
+  snd (Iso.inv is₃ (f , (c* , p) , l , r , q)) = sym p
+  Iso.rightInv is₃ _ = refl
+  Iso.leftInv is₃ f =
+    ΣPathP ((funExt (λ { (inl x) → refl
+                       ; (inr x) → refl
+                       ; (push (inl x) i) → refl
+                       ; (push (inr x) i) → refl
+                       ; (push (push a i₁) i) → refl}))
+                       , refl)
+
+  isContrIso : ∀ {ℓ ℓ'} {A : Type ℓ} (a : A) (B : singl a → Type ℓ')
+    → Iso (Σ _ B) (B (a , refl))
+  isContrIso a B =
+    compIso (invIso
+      (Σ-cong-iso-fst (isContr→Iso isContrUnit (isContrSingl a))))
+      lUnit×Iso
+
+  iso₄ : Iso (isoToPath is₃ i1)
+            (isoToPath is₂ i1)
+  iso₄ = Σ-cong-iso-snd λ f → isContrIso (snd C) _
+
+⋀→∙Homogeneous≡ : isHomogeneous C
+  → {f g : (A ⋀∙ B) →∙ C}
+  → ((x : fst A) (y : fst B) → fst f (inr (x , y)) ≡ fst g (inr (x , y)))
+  → f ≡ g
+⋀→∙Homogeneous≡ C {f = f} {g = g} p =
+     sym (Iso.leftInv SmashAdjIso f)
+  ∙∙ cong (Iso.inv SmashAdjIso) main
+  ∙∙ Iso.leftInv SmashAdjIso g
+  where
+  main : Iso.fun SmashAdjIso f ≡ Iso.fun SmashAdjIso g
+  main =
+    →∙Homogeneous≡ (isHomogeneous→∙ C)
+      (funExt λ x → →∙Homogeneous≡ C (funExt (p x)))
 
 _⋀→_ : (f : A →∙ C) (g : B →∙ D) → A ⋀ B → C ⋀ D
 (f ⋀→ g) (inl tt) = inl tt
@@ -97,6 +192,11 @@ _⋀→_ {A = A} {C = C} {B = B} {D = D} (f , fpt) (g , gpt) (push (push tt j) i
                   ; (j = i1) → compPath-filler (push (inr (gpt (~ k))))
                                                 ((λ i → inr (fpt (~ i) , gpt (~ k)))) k i})
         (push (push tt j) i)
+
+_⋀→∙_ : (f : A →∙ C) (g : B →∙ D) → A ⋀∙ B →∙ C ⋀∙ D
+fst (f ⋀→∙ g) = f ⋀→ g
+snd (f ⋀→∙ g) = refl
+
 
 _⋀→refl_ : ∀ {ℓ ℓ'} {C : Type ℓ} {D : Type ℓ'}
   → (f : typ A → C)
@@ -652,3 +752,105 @@ SmashAssocIso {A = A} {B = B} {C = C} =
       (compIso
         (invIso (Iso-⋀-⋀×3 C A B))
         ⋀CommIso))
+
+SmashAssocEquiv∙ : A ⋀∙ (B ⋀∙ C) ≃∙ (A ⋀∙ B) ⋀∙ C
+fst SmashAssocEquiv∙ = isoToEquiv SmashAssocIso
+snd SmashAssocEquiv∙ = refl
+
+module _ {C : Type ℓ} (f g : A ⋀ B → C)
+  (bp : f (inl tt) ≡ g (inl tt))
+  (proj : (x : _) → f (inr x) ≡ g (inr x))
+  (pl : (x : typ A) → PathP (λ i → f (push (inl x) i) ≡ g (push (inl x) i))
+                             bp (proj (x , pt B)))
+  (p-r : (x : typ B) → PathP (λ i → f (push (inr x) i) ≡ g (push (inr x) i))
+                             bp (proj (pt A , x)))
+  where
+  private
+    ⋆act : bp ≡ bp
+    ⋆act i j =
+      hcomp (λ k → λ { (i = i0) → pl (pt A) (~ k) j
+                      ; (i = i1) → p-r (pt B) (~ k) j
+                      ; (j = i0) → f (push (push tt i) (~ k))
+                      ; (j = i1) → g (push (push tt i) (~ k))})
+            (proj (snd A , snd B) j)
+
+  ⋀-fun≡ : (x : _) → f x ≡ g x
+  ⋀-fun≡ (inl x) = bp
+  ⋀-fun≡ (inr x) = proj x
+  ⋀-fun≡ (push (inl x) i) = pl x i
+  ⋀-fun≡ (push (inr x) i) j =
+    hcomp (λ r → λ {(i = i0) → bp j
+                   ; (i = i1) → p-r x r j
+                   ; (j = i0) → f (push (inr x) (r ∧ i))
+                   ; (j = i1) → g (push (inr x) (r ∧ i)) })
+          (⋆act i j)
+  ⋀-fun≡ (push (push a i) j) k =
+    hcomp (λ r → λ { (i = i0) → pl (snd A) (j ∧ r) k
+                    ; (j = i0) → bp k
+                    ; (j = i1) → side i k r
+                    ; (k = i0) → f (push (push a i) (j ∧ r))
+                    ; (k = i1) → g (push (push a i) (j ∧ r))})
+          (⋆act (i ∧ j) k)
+    where
+    side : Cube (λ k r → pl (snd A) r k)
+              (λ k r → p-r (snd B) r k)
+              (λ i r → f (push (push a i) r))
+              (λ i r → g (push (push a i) r))
+              ⋆act λ i → proj (snd A , snd B)
+    side i k r =
+      hcomp (λ j → λ { (i = i0) → pl (pt A) (~ j ∨ r) k
+                      ; (i = i1) → p-r (snd B) (~ j ∨ r) k
+                      ; (k = i0) → f (push (push a i) (~ j ∨ r))
+                      ; (k = i1) → g (push (push a i) (~ j ∨ r))
+                      ; (r = i1) → proj (snd A , snd B) k})
+                (proj (snd A , snd B) k)
+
+-- Techincal lemma allowing for use of ⋀→∙Homogeneous≡ on
+-- when proving equalities of functions A ⋀ B → C
+module ⋀-fun≡' {C : Type ℓ} (f g : A ⋀ B → C)
+         (pr : (x : _) → f (inr x) ≡ g (inr x)) where
+
+  p : f (inl tt) ≡ g (inl tt)
+  p = cong f (push (inr (pt B)))
+    ∙∙ pr (pt A , pt B)
+    ∙∙ sym (cong g (push (inr (pt B))))
+
+
+  p' : f (inl tt) ≡ g (inl tt)
+  p' = cong f (push (inl (pt A)))
+    ∙∙ pr (pt A , pt B)
+    ∙∙ sym (cong g (push (inl (pt A))))
+
+  p≡p' : p ≡ p'
+  p≡p' i = (cong f (push (push tt (~ i))))
+        ∙∙ pr (pt A , pt B)
+        ∙∙ sym (cong g (push (push tt (~ i))))
+
+  Fₗ : B →∙ ((f (inl tt) ≡ g (inl tt)) , p)
+  fst Fₗ b = cong f (push (inr b)) ∙∙ pr (pt A , b) ∙∙ sym (cong g (push (inr b)))
+  snd Fₗ = refl
+
+  Fᵣ : B →∙ ((f (inl tt) ≡ g (inl tt)) , p)
+  fst Fᵣ b = p
+  snd Fᵣ = refl
+
+  module _
+    (lp : (x : fst A) → PathP (λ i → f (push (inl x) i) ≡ g (push (inl x) i))
+                                      p (pr (x , pt B)))
+    (q : Fₗ ≡ Fᵣ) where
+    private
+      lem : (b : fst B)
+       → Square p (pr (snd A , b))
+                 (cong f (push (inr b))) (cong g (push (inr b)))
+      lem b i j =
+        hcomp (λ k → λ {(i = i0) → p j
+                       ; (i = i1) → doubleCompPath-filler
+                                      (cong f (push (inr b)))
+                                      (pr (pt A , b))
+                                      (sym (cong g (push (inr b)))) (~ k) j
+                       ; (j = i0) → f (push (inr b) (i ∧ k))
+                       ; (j = i1) → g (push (inr b) (i ∧ k))})
+              (q (~ i) .fst b j)
+
+    main : (x : _) → f x ≡ g x
+    main = ⋀-fun≡ {A = A} {B = B} f g p pr lp lem

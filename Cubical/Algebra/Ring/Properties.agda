@@ -4,25 +4,20 @@ module Cubical.Algebra.Ring.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.SIP
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
-open import Cubical.Relation.Binary.Poset
 
-open import Cubical.Structures.Axioms
-open import Cubical.Structures.Auto
-open import Cubical.Structures.Macro
-open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring.Base
+open import Cubical.Algebra.Group
+open import Cubical.Algebra.AbGroup.Base
 
 open import Cubical.HITs.PropositionalTruncation
 
@@ -68,13 +63,8 @@ module RingTheory (R' : Ring ℓ) where
   0Idempotent = +IdL 0r
 
   +Idempotency→0 : (x : R) → x ≡ x + x → x ≡ 0r
-  +Idempotency→0 x p =
-    x               ≡⟨ sym (+IdR x) ⟩
-    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+InvR _)) ⟩
-    x + (x + (- x)) ≡⟨ +Assoc _ _ _ ⟩
-    (x + x) + (- x) ≡⟨ cong (λ u → u + (- x)) (sym p) ⟩
-    x + (- x)       ≡⟨ +InvR _ ⟩
-    0r              ∎
+  +Idempotency→0 = let open GroupTheory (AbGroup→Group (Ring→AbGroup R'))
+                   in idFromIdempotency
 
   -Idempotent : (x : R) → -(- x) ≡ x
   -Idempotent x =  - (- x)   ≡⟨ sym (implicitInverse (- x) x (+InvL _)) ⟩
@@ -194,14 +184,15 @@ module RingHoms where
 
   syntax compRingHom f g = g ∘r f
 
-  compIdRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
+  compIdRingHom : {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
   compIdRingHom φ = RingHom≡ refl
 
-  idCompRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom φ (idRingHom S) ≡ φ
+  idCompRingHom : {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) → compRingHom φ (idRingHom S) ≡ φ
   idCompRingHom φ = RingHom≡ refl
 
-  compAssocRingHom : {R S T U : Ring ℓ} (φ : RingHom R S) (ψ : RingHom S T) (χ : RingHom T U) →
-                     compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
+  compAssocRingHom : {R : Ring ℓ} {S : Ring ℓ'} {T : Ring ℓ''} {U : Ring ℓ'''}
+                   → (φ : RingHom R S) (ψ : RingHom S T) (χ : RingHom T U)
+                   → compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
   compAssocRingHom _ _ _ = RingHom≡ refl
 
 module RingEquivs where

@@ -62,6 +62,16 @@ module GroupTheory (G : Group ℓ) where
     invUniqueR : {g h : ⟨ G ⟩} → g · h ≡ 1g → h ≡ inv g
     invUniqueR {g} {h} p = ·CancelL g (p ∙ sym (·InvR g))
 
+    idFromIdempotency : (x : ⟨ G ⟩) → x ≡ x · x → x ≡ 1g
+    idFromIdempotency x p =
+      x                 ≡⟨ sym (·IdR x) ⟩
+      x · 1g            ≡⟨ cong (λ u → x · u) (sym (·InvR _)) ⟩
+      x · (x · inv x)   ≡⟨ ·Assoc _ _ _ ⟩
+      (x · x) · (inv x) ≡⟨ cong (λ u → u · (inv x)) (sym p) ⟩
+      x · (inv x)       ≡⟨ ·InvR _ ⟩
+      1g              ∎
+
+
     invDistr : (a b : ⟨ G ⟩) → inv (a · b) ≡ inv b · inv a
     invDistr a b = sym (invUniqueR γ) where
       γ : (a · b) · (inv b · inv a) ≡ 1g

@@ -8,13 +8,18 @@ On the [releases page](https://github.com/agda/cubical/releases) of the cubical 
 press the button `Draft a new release`.
 Fill in the form with something like this:
 
-* Title: version 0.X, compatible with Agda-X.X.X.X
+* Title: version 0.X, compatible with Agda-X.X.X(.X)
 
 * Description: Generate release notes
 
 * Files: Download the current filetree via github (using the clone-button)
-  Be carteful, this produces a zip which contains *a folder* which contains the filetree.
-  Produce a good zip from that and a tar.gz named `cubical-0.X.zip` and `cubical-0.X.tar.gz`.
+  Be carteful, this produces a zip which contains a folder called ```cubical-master```.
+  Produce a good zip from that and a tar.gz named `cubical-0.X.zip` and `cubical-0.X.tar.gz`,
+  e.g. rename the folder to ```cubical``` and
+  ```
+  zip -r cubical-0.5.zip cubical
+  tar cfz cubical-0.5.tar.gz cubical
+  ```
 
 Post-release
 ============
