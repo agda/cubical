@@ -52,7 +52,7 @@ module _ {ℓ} (n : HLevel) {A : Pointed ℓ} (connA : isConnected (suc (suc n))
         (λ a r → ∣ a , (rCancel' (merid a) ∙ rCancel' (merid (pt A)) ⁻¹) ∙ r ∣)
         (λ b r → ∣ b , r ∣)
         (funExt λ r →
-          cong′ (λ w → ∣ pt A , w ∣)
+          congS (λ w → ∣ pt A , w ∣)
             (cong (_∙ r) (rCancel' (rCancel' (merid (pt A))))
               ∙ lUnit r ⁻¹))
 

@@ -51,6 +51,54 @@ module _ (f : A → B) where
   imageFactorization = refl
 
 {-
+  Uniqueness of images.
+  Stated in such a way that the two image object can have different universe levels.
+-}
+
+module _ {ℓ₀ ℓ₁}
+  {Im₀ : Type ℓ₀} (e₀ : A ↠ Im₀) (m₀ : Im₀ ↪ B)
+  {Im₁ : Type ℓ₁} (e₁ : A ↠ Im₁) (m₁ : Im₁ ↪ B)
+  (p : m₀ .fst ∘ e₀ .fst ≡ m₁ .fst ∘ e₁ .fst)
+  where
+
+  private
+    helper : (c : Im₀) → fiber (m₁ .fst) (m₀ .fst c)
+    helper c =
+      PT.rec
+        (isEmbedding→hasPropFibers (m₁ .snd) (m₀ .fst c))
+        (λ (a , q) → e₁ .fst a , sym (funExt⁻ p a) ∙ cong (m₀ .fst) q)
+        (e₀ .snd c)
+
+  imagesCompare : Im₀ → Im₁
+  imagesCompare = fst ∘ helper
+
+  imagesEmbeddingComm : (c : Im₀) → m₁ .fst (imagesCompare c) ≡ m₀ .fst c
+  imagesEmbeddingComm = snd ∘ helper
+
+  imagesSurjectionComm : (a : A) → imagesCompare (e₀ .fst a) ≡ e₁ .fst a
+  imagesSurjectionComm a =
+    invIsEq (m₁ .snd _ _) (imagesEmbeddingComm _ ∙ funExt⁻ p a)
+
+module _ {ℓ₀ ℓ₁}
+  {Im₀ : Type ℓ₀} (e₀ : A ↠ Im₀) (m₀ : Im₀ ↪ B)
+  {Im₁ : Type ℓ₁} (e₁ : A ↠ Im₁) (m₁ : Im₁ ↪ B)
+  (p : m₀ .fst ∘ e₀ .fst ≡ m₁ .fst ∘ e₁ .fst)
+  where
+
+  imagesIso : Iso Im₀ Im₁
+  imagesIso .Iso.fun = imagesCompare e₀ m₀ e₁ m₁ p
+  imagesIso .Iso.inv = imagesCompare e₁ m₁ e₀ m₀ (sym p)
+  imagesIso .Iso.rightInv c =
+    invIsEq (m₁ .snd _ _)
+      (imagesEmbeddingComm e₀ m₀ e₁ m₁ p _ ∙ imagesEmbeddingComm e₁ m₁ e₀ m₀ (sym p) c)
+  imagesIso .Iso.leftInv c =
+    invIsEq (m₀ .snd _ _)
+      (imagesEmbeddingComm e₁ m₁ e₀ m₀ (sym p) _ ∙ imagesEmbeddingComm e₀ m₀ e₁ m₁ p c)
+
+  imagesEquiv : Im₀ ≃ Im₁
+  imagesEquiv = isoToEquiv imagesIso
+
+{-
   Images of subsets.
   The universe level of domain and codomain is equal, so we can use
   the notion of powerset ℙ - so subsets of a type A : Type ℓ, are

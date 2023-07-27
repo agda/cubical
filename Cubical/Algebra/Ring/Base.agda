@@ -194,12 +194,12 @@ isSetRingEquiv : (A : Ring ℓ) (B : Ring ℓ') → isSet (RingEquiv A B)
 isSetRingEquiv A B = isSetΣSndProp (isOfHLevel≃ 2 (isSetRing A) (isSetRing B))
                                    (λ e → isPropIsRingHom (snd A) (fst e) (snd B))
 
-RingHomPathP : (R S T : Ring ℓ) (p : S ≡ T) (φ : RingHom R S) (ψ : RingHom R T)
+RingHomPathP : (R : Ring ℓ) (S T : Ring ℓ') (p : S ≡ T) (φ : RingHom R S) (ψ : RingHom R T)
              → PathP (λ i → R .fst → p i .fst) (φ .fst) (ψ .fst)
              → PathP (λ i → RingHom R (p i)) φ ψ
 RingHomPathP R S T p φ ψ q = ΣPathP (q , isProp→PathP (λ _ → isPropIsRingHom _ _ _) _ _)
 
-RingHom≡ : {R S : Ring ℓ} {φ ψ : RingHom R S} → fst φ ≡ fst ψ → φ ≡ ψ
+RingHom≡ : {R : Ring ℓ} {S : Ring ℓ'} {φ ψ : RingHom R S} → fst φ ≡ fst ψ → φ ≡ ψ
 RingHom≡ = Σ≡Prop λ f → isPropIsRingHom _ f _
 
 𝒮ᴰ-Ring : DUARel (𝒮-Univ ℓ) RingStr ℓ

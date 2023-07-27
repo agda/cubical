@@ -96,6 +96,11 @@ module _ {F : Functor C D} where
         g⁻¹ : D [ y' , x' ]
         g⁻¹ = F ⟪ f⁻¹ ⟫
 
+  -- hacky lemma helping with type inferences
+  functorCongP : {x y v w : ob C} {p : x ≡ y} {q : v ≡ w} {f : C [ x , v ]} {g : C [ y , w ]}
+               → PathP (λ i → C [ p i , q i ]) f g
+               → PathP (λ i → D [ F .F-ob (p i) , F. F-ob (q i) ]) (F .F-hom f) (F .F-hom g)
+  functorCongP r i = F .F-hom (r i)
 
 isSetFunctor : isSet (D .ob) → isSet (Functor C D)
 isSetFunctor {D = D} {C = C} isSet-D-ob F G p q = w

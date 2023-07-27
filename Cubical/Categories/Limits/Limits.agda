@@ -13,6 +13,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Categories.Limits.Initial
 
@@ -21,6 +22,7 @@ open import Cubical.HITs.PropositionalTruncation.Base
 module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category ℓC ℓC'} where
   open Category
   open Functor
+  open NatTrans
 
   private
     ℓ = ℓ-max (ℓ-max (ℓ-max ℓJ ℓJ') ℓC) ℓC'
@@ -89,6 +91,22 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
 
   syntax preCompCone f cc = f ★ cc
 
+  natTransPostCompCone : {c : ob C} {D₁ D₂ : Functor J C} (α : NatTrans D₁ D₂)
+                       → Cone D₁ c → Cone D₂ c
+  coneOut (natTransPostCompCone α cc) u = cc .coneOut u ⋆⟨ C ⟩ α .N-ob u
+  coneOutCommutes (natTransPostCompCone {D₁ = D₁} {D₂ = D₂} α cc) {u = u} {v = v}  e =
+      cc .coneOut u ⋆⟨ C ⟩ α .N-ob u ⋆⟨ C ⟩ D₂ .F-hom e
+    ≡⟨ ⋆Assoc C _ _ _ ⟩
+      cc .coneOut u ⋆⟨ C ⟩ (α .N-ob u ⋆⟨ C ⟩ D₂ .F-hom e)
+    ≡⟨ cong (λ x → cc .coneOut u ⋆⟨ C ⟩ x) (sym (α .N-hom e)) ⟩
+      cc .coneOut u ⋆⟨ C ⟩ (D₁ .F-hom e ⋆⟨ C ⟩ α .N-ob v)
+    ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+      cc .coneOut u ⋆⟨ C ⟩ D₁ .F-hom e ⋆⟨ C ⟩ α .N-ob v
+    ≡⟨ cong (λ x → x ⋆⟨ C ⟩ α .N-ob v) (cc .coneOutCommutes e) ⟩
+      cc .coneOut v ⋆⟨ C ⟩ α .N-ob v ∎
+
+  syntax natTransPostCompCone α cc = cc ★ₙₜ α
+
   isConeMor : {c1 c2 : ob C} {D : Functor J C}
               (cc1 : Cone D c1) (cc2 : Cone D c2)
             → C [ c1 , c2 ] → Type (ℓ-max ℓJ ℓC')
@@ -155,22 +173,76 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
     limArrowUnique c cc k hk = cong fst (univProp c cc .snd (k , hk))
 
   open LimCone
-  limOfArrows : (D₁ D₂ : Functor J C)
+  limOfArrowsCone : {D₁ D₂ : Functor J C}
+                    (CC₁ : LimCone D₁)
+                  → NatTrans D₁ D₂
+                  → Cone D₂ (CC₁ .lim)
+  coneOut (limOfArrowsCone {D₁} {D₂} CC₁ α) v = limOut CC₁ v ⋆⟨ C ⟩ α .N-ob v
+  coneOutCommutes (limOfArrowsCone {D₁} {D₂} CC₁ α) {u = u} {v = v} e =
+     limOut CC₁ u ⋆⟨ C ⟩ α .N-ob u ⋆⟨ C ⟩ D₂ .F-hom e   ≡⟨ ⋆Assoc C _ _ _ ⟩
+     limOut CC₁ u ⋆⟨ C ⟩ (α .N-ob u ⋆⟨ C ⟩ D₂ .F-hom e) ≡⟨ cong (λ x → seq' C (limOut CC₁ u) x) (sym (α .N-hom e)) ⟩
+     limOut CC₁ u ⋆⟨ C ⟩ (D₁ .F-hom e ⋆⟨ C ⟩ α .N-ob v) ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+     limOut CC₁ u ⋆⟨ C ⟩ D₁ .F-hom e ⋆⟨ C ⟩ α .N-ob v   ≡⟨ cong (λ x → x ⋆⟨ C ⟩ α .N-ob v) (limOutCommutes CC₁ e) ⟩
+     limOut CC₁ v ⋆⟨ C ⟩ α .N-ob v ∎
+
+  limOfArrows : {D₁ D₂ : Functor J C}
                 (CC₁ : LimCone D₁) (CC₂ : LimCone D₂)
-                (f : (u : ob J) → C [ D₁ .F-ob u , D₂ .F-ob u ])
-                (fNat : {u v : ob J} (e : J [ u , v ])
-                      →  f u ⋆⟨ C ⟩ D₂ .F-hom e ≡ D₁ .F-hom e ⋆⟨ C ⟩ f v)
+              → NatTrans D₁ D₂
               → C [ CC₁ .lim , CC₂ .lim ]
-  limOfArrows D₁ D₂ CC₁ CC₂ f fNat = limArrow CC₂ (CC₁ .lim) coneD₂Lim₁
-   where
-   coneD₂Lim₁ : Cone D₂ (CC₁ .lim)
-   coneOut coneD₂Lim₁ v = limOut CC₁ v ⋆⟨ C ⟩ f v
-   coneOutCommutes coneD₂Lim₁ {u = u} {v = v} e =
-     limOut CC₁ u ⋆⟨ C ⟩ f u ⋆⟨ C ⟩ D₂ .F-hom e   ≡⟨ ⋆Assoc C _ _ _ ⟩
-     limOut CC₁ u ⋆⟨ C ⟩ (f u ⋆⟨ C ⟩ D₂ .F-hom e) ≡⟨ cong (λ x → seq' C (limOut CC₁ u) x) (fNat e) ⟩
-     limOut CC₁ u ⋆⟨ C ⟩ (D₁ .F-hom e ⋆⟨ C ⟩ f v) ≡⟨ sym (⋆Assoc C _ _ _) ⟩
-     limOut CC₁ u ⋆⟨ C ⟩ D₁ .F-hom e ⋆⟨ C ⟩ f v   ≡⟨ cong (λ x → x ⋆⟨ C ⟩ f v) (limOutCommutes CC₁ e) ⟩
-     limOut CC₁ v ⋆⟨ C ⟩ f v ∎
+  limOfArrows {D₁} {D₂} CC₁ CC₂ α = limArrow CC₂ (CC₁ .lim) (limOfArrowsCone CC₁ α)
+
+  limOfArrowsOut : {D₁ D₂ : Functor J C}
+                   (CC₁ : LimCone D₁) (CC₂ : LimCone D₂)
+                   (α : NatTrans D₁ D₂) (u : ob J)
+                 → limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ limOut CC₂ u ≡ limOut CC₁ u ⋆⟨ C ⟩ α .N-ob u
+  limOfArrowsOut _ CC₂ _ _ = limArrowCommutes CC₂ _ _ _
+
+  limOfArrowsId : {D : Functor J C} (CC : LimCone D)
+                → limOfArrows CC CC (idTrans D) ≡ id C
+  limOfArrowsId CC = limArrowUnique CC _ _ _ λ v → ⋆IdL C _ ∙ sym (⋆IdR C _)
+
+  limOfArrowsSeq : {D₁ D₂ D₃ : Functor J C}
+                   (CC₁ : LimCone D₁) (CC₂ : LimCone D₂) (CC₃ : LimCone D₃)
+                   (α : NatTrans D₁ D₂) (β : NatTrans D₂ D₃)
+                 → limOfArrows CC₁ CC₃ (α ●ᵛ β)
+                 ≡ limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ limOfArrows CC₂ CC₃ β
+  limOfArrowsSeq CC₁ CC₂ CC₃ α β = limArrowUnique CC₃ _ _ _ path
+    where
+    path : ∀ u
+         → (limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ limOfArrows CC₂ CC₃ β) ⋆⟨ C ⟩ limOut CC₃ u
+         ≡ limOut CC₁ u ⋆⟨ C ⟩ (α .N-ob u ⋆⟨ C ⟩ β .N-ob u)
+    path u = (limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ limOfArrows CC₂ CC₃ β) ⋆⟨ C ⟩ limOut CC₃ u
+           ≡⟨ ⋆Assoc C _ _ _ ⟩
+             limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ (limOfArrows CC₂ CC₃ β ⋆⟨ C ⟩ limOut CC₃ u)
+           ≡⟨ cong (λ x → limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ x) (limOfArrowsOut CC₂ CC₃ β u) ⟩
+             limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ (limOut CC₂ u ⋆⟨ C ⟩ β .N-ob u)
+           ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+             (limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ limOut CC₂ u) ⋆⟨ C ⟩ β .N-ob u
+           ≡⟨ cong (λ x → x ⋆⟨ C ⟩ β .N-ob u) (limOfArrowsOut CC₁ CC₂ α u) ⟩
+             (limOut CC₁ u ⋆⟨ C ⟩ α .N-ob u) ⋆⟨ C ⟩ β .N-ob u
+           ≡⟨ ⋆Assoc C _ _ _ ⟩
+             limOut CC₁ u ⋆⟨ C ⟩ (α .N-ob u ⋆⟨ C ⟩ β .N-ob u) ∎
+
+  limArrowCompLimOfArrows : {D₁ D₂ : Functor J C}
+                            (CC₁ : LimCone D₁) (CC₂ : LimCone D₂)
+                            (α : NatTrans D₁ D₂)
+                            (c : ob C) (cc : Cone D₁ c)
+    → limArrow CC₂ _ (cc ★ₙₜ α) ≡ limArrow CC₁ _ cc ⋆⟨ C ⟩ limOfArrows CC₁ CC₂ α
+  limArrowCompLimOfArrows CC₁ CC₂ α c cc = limArrowUnique CC₂ _ _ _ isConeMorComp
+    where
+    isConeMorComp : ∀ (u : ob J)
+                  → limArrow CC₁ _ cc ⋆⟨ C ⟩ limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ limOut CC₂ u
+                  ≡ cc .coneOut u ⋆⟨ C ⟩ α .N-ob u
+    isConeMorComp u =
+        limArrow CC₁ _ cc ⋆⟨ C ⟩ limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ limOut CC₂ u
+      ≡⟨ ⋆Assoc C _ _ _ ⟩
+        limArrow CC₁ _ cc ⋆⟨ C ⟩ (limOfArrows CC₁ CC₂ α ⋆⟨ C ⟩ limOut CC₂ u)
+      ≡⟨ cong (λ x → limArrow CC₁ _ cc ⋆⟨ C ⟩ x) (limOfArrowsOut CC₁ CC₂ α u) ⟩
+        limArrow CC₁ _ cc ⋆⟨ C ⟩ (limOut CC₁ u ⋆⟨ C ⟩ α .N-ob u)
+      ≡⟨ sym (⋆Assoc C _ _ _) ⟩
+        limArrow CC₁ _ cc ⋆⟨ C ⟩ limOut CC₁ u ⋆⟨ C ⟩ α .N-ob u
+      ≡⟨ cong (λ x → x ⋆⟨ C ⟩ α .N-ob u) (limArrowCommutes CC₁ _ cc u) ⟩
+        cc .coneOut u ⋆⟨ C ⟩ α .N-ob u ∎
 
   -- any two limits are isomorphic up to a unique cone isomorphism
   open isIso

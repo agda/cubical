@@ -78,7 +78,6 @@ isPropIsIso {C = C} f p q i .ret j =
   isSet→SquareP (λ i j → C .isSetHom)
     (p .ret) (q .ret) (λ i → f ⋆⟨ C ⟩ isPropIsIso {C = C} f p q i .inv) refl i j
 
-
 CatIso : (C : Category ℓ ℓ') (x y : C .ob) → Type ℓ'
 CatIso C x y = Σ[ f ∈ C [ x , y ] ] isIso C f
 
@@ -147,3 +146,11 @@ _⋆_ (ΣPropCat C P) = _⋆_ C
 ⋆IdR (ΣPropCat C P) = ⋆IdR C
 ⋆Assoc (ΣPropCat C P) = ⋆Assoc C
 isSetHom (ΣPropCat C P) = isSetHom C
+
+isIsoΣPropCat : {C : Category ℓ ℓ'} {P : ℙ (ob C)}
+                {x y : ob C} (p : x ∈ P) (q : y ∈ P)
+                (f : C [ x , y ])
+              → isIso C f → isIso (ΣPropCat C P) {x , p} {y , q} f
+inv (isIsoΣPropCat p q f isIsoF) = isIsoF .inv
+sec (isIsoΣPropCat p q f isIsoF) = isIsoF .sec
+ret (isIsoΣPropCat p q f isIsoF) = isIsoF .ret

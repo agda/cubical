@@ -37,8 +37,8 @@ private
   ℓ ℓ' ℓ'' : Level
 
 module _ (R : CommRing ℓ) where
-  CommAlgebrasCategory : Category (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
-  ob CommAlgebrasCategory       = CommAlgebra R _
+  CommAlgebrasCategory : Category (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
+  ob (CommAlgebrasCategory {ℓ' = ℓ'}) = CommAlgebra R ℓ'
   Hom[_,_] CommAlgebrasCategory = CommAlgebraHom
   id CommAlgebrasCategory {A}   = idCommAlgebraHom A
   _⋆c_ CommAlgebrasCategory {A} {B} {C}     = compCommAlgebraHom A B C
@@ -62,7 +62,7 @@ module _ (R : CommRing ℓ) where
   F-id ForgetfulCommAlgebra→CommRing      = RingHom≡ refl
   F-seq ForgetfulCommAlgebra→CommRing _ _ = RingHom≡ refl
 
-  ForgetfulCommAlgebra→Set : Functor (CommAlgebrasCategory {ℓ' = ℓ'}) (SET (ℓ-max ℓ ℓ'))
+  ForgetfulCommAlgebra→Set : Functor (CommAlgebrasCategory {ℓ' = ℓ'}) (SET ℓ')
   F-ob ForgetfulCommAlgebra→Set A    = A .fst , A .snd .CommAlgebraStr.is-set
   F-hom ForgetfulCommAlgebra→Set     = fst
   F-id ForgetfulCommAlgebra→Set      = refl

@@ -152,7 +152,7 @@ module IsSet where
   force (≡-stable ¬¬p i) = ≡′-stable (λ ¬p → ¬¬p (λ p → ¬p (cong force p))) i
   ≡′-stable {zero}  {zero}  ¬¬p′ = refl
   ≡′-stable {suc x} {suc y} ¬¬p′ =
-     cong′ suc (≡-stable λ ¬p → ¬¬p′ λ p → ¬p (cong pred′′ p))
+     congS suc (≡-stable λ ¬p → ¬¬p′ λ p → ¬p (cong pred′′ p))
   ≡′-stable {zero}  {suc y} ¬¬p′ = ⊥.rec (¬¬p′ conat-absurd)
   ≡′-stable {suc x} {zero}  ¬¬p′ = ⊥.rec (¬¬p′ λ p → conat-absurd (sym p))
 
