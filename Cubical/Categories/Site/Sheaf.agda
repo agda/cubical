@@ -39,7 +39,7 @@ module _
     isCompatibleFamily : FamilyOnCover → hProp (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
     isCompatibleFamily fam =
       ∀[ i ] ∀[ j ] ∀[ d ] ∀[ f ∶ Hom[ d , _ ] ] ∀[ g ∶ Hom[ d , _ ] ]
-      ((f ⋆ patchArr cov i ≡ (g ⋆ patchArr cov j)) , isSetHom _ _) ⇒
+      ((f ⋆ patchArr cov i ≡ g ⋆ patchArr cov j) , isSetHom _ _) ⇒
       (((P ⟪ f ⟫) (fam i) ≡ (P ⟪ g ⟫) (fam j)) , str (P ⟅ d ⟆) _ _ )
 
     CompatibleFamilies : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
