@@ -59,9 +59,9 @@ module _
     PT.rec isPropPropTrunc λ (i , h , f≡hi) →
       ∣   i
         , (p ⋆ h)
-        , ( (p ⋆ f)                      ≡⟨ cong (p ⋆_) f≡hi ⟩
-            (p ⋆ (h ⋆ patchArr cov i)) ≡⟨ sym (⋆Assoc p h (patchArr cov i)) ⟩
-            ((p ⋆ h) ⋆ patchArr cov i) ∎ )
+        , ( (p ⋆ f)                     ≡⟨ cong (p ⋆_) f≡hi ⟩
+            (p ⋆ (h ⋆ patchArr cov i))  ≡⟨ sym (⋆Assoc p h (patchArr cov i)) ⟩
+            ((p ⋆ h) ⋆ patchArr cov i)  ∎ )
       ∣₁
 
   coverRefinesSieve :
