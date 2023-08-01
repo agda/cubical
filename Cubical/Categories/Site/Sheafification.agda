@@ -37,37 +37,36 @@ module _
   open Category C hiding (_∘_)
   open Coverage J
 
-  -- TODO: name
-  data S : ob → Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov (ℓ-max ℓpat ℓP)))) where
+  data ⟨F⟅_⟆⟩ : ob → Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov (ℓ-max ℓpat ℓP)))) where
 
-    trunc : {c : ob} → isSet (S c)
+    trunc : {c : ob} → isSet ⟨F⟅ c ⟆⟩
 
-    restrict : {c d : ob} → Hom[ d , c ] → S c → S d
+    restrict : {c d : ob} → Hom[ d , c ] → ⟨F⟅ c ⟆⟩ → ⟨F⟅ d ⟆⟩
 
     restrictId :
       {c : ob} →
-      (x : S c) →
+      (x : ⟨F⟅ c ⟆⟩) →
       restrict id x ≡ x
     restrictRestrict :
       {c d e : ob} →
       (f : Hom[ d , c ]) →
       (g : Hom[ e , d ]) →
-      (x : S c) →
+      (x : ⟨F⟅ c ⟆⟩) →
       restrict (g ⋆ f) x ≡ restrict g (restrict f x)
 
-    η : {c : ob} → ⟨ P ⟅ c ⟆ ⟩ → S c
+    η⟦_⟧ : {c : ob} → ⟨ P ⟅ c ⟆ ⟩ → ⟨F⟅ c ⟆⟩
 
     ηNatural :
       {c d : ob} →
       (f : Hom[ d , c ]) →
       (x : ⟨ P ⟅ c ⟆ ⟩) →
-      restrict f (η x) ≡ η ((P ⟪ f ⟫) x)
+      restrict f (η⟦ x ⟧) ≡ η⟦ (P ⟪ f ⟫) x ⟧
 
     sep :
       {c : ob} →
       (coverName : ⟨ covers c ⟩) →
       let cov = str (covers c) coverName in
-      (x y : S c) →
+      (x y : ⟨F⟅ c ⟆⟩) →
       ((i : ⟨ cov ⟩) → restrict (patchArr cov i) x ≡ restrict (patchArr cov i) y) →
       x ≡ y
 
@@ -75,7 +74,7 @@ module _
       let
       F : Presheaf C _
       F = record
-        { F-ob = λ c → S c , trunc
+        { F-ob = λ c → ⟨F⟅ c ⟆⟩ , trunc
         ; F-hom = restrict
         ; F-id = funExt restrictId
         ; F-seq = λ f g → funExt (restrictRestrict f g)
@@ -85,12 +84,12 @@ module _
       (coverName : ⟨ covers c ⟩) →
       let cov = str (covers c) coverName in
       CompatibleFamily F cov →
-      S c
+      ⟨F⟅ c ⟆⟩
     restrictAmalgamate :
       let
       F : Presheaf C _
       F = record
-        { F-ob = λ c → S c , trunc
+        { F-ob = λ c → ⟨F⟅ c ⟆⟩ , trunc
         ; F-hom = restrict
         ; F-id = funExt restrictId
         ; F-seq = λ f g → funExt (restrictRestrict f g)
@@ -104,7 +103,7 @@ module _
       restrict (patchArr cov i) (amalgamate coverName fam) ≡ fst fam i
 
   F : Presheaf C (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
-  Functor.F-ob F c = S c , trunc
+  Functor.F-ob F c = ⟨F⟅ c ⟆⟩ , trunc
   Functor.F-hom F = restrict
   Functor.F-id F = funExt restrictId
   Functor.F-seq F f g = funExt (restrictRestrict f g)
