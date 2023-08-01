@@ -11,7 +11,12 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.Equiv
 
-open import Cubical.Functions.Logic using (∀[]-syntax; ∀[∶]-syntax; _⇒_; _⇔_)
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
+
+open import Cubical.Data.Sigma
+
+open import Cubical.Functions.Surjection
+open import Cubical.Functions.Embedding
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Site.Cover
@@ -29,7 +34,7 @@ module _
   (P : Presheaf C ℓP)
   where
 
-  open Category C
+  open Category C hiding (_∘_)
   open Coverage J
 
   -- TODO: name
@@ -97,3 +102,22 @@ module _
       (fam : CompatibleFamily F cov) →
       (i : ⟨ cov ⟩) →
       restrict (patchArr cov i) (amalgamate coverName fam) ≡ fst fam i
+
+  F : Presheaf C (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
+  Functor.F-ob F c = S c , trunc
+  Functor.F-hom F = restrict
+  Functor.F-id F = funExt restrictId
+  Functor.F-seq F f g = funExt (restrictRestrict f g)
+
+  isSheafF : ⟨ amalgamationProperty J F ⟩
+  isSheafF c cover = isEmbedding×isSurjection→isEquiv
+    ( injEmbedding
+        (isSetCompatibleFamily F cov)
+        (λ {x} {y} x~y → sep cover x y (funExt⁻ (cong fst x~y)))
+    , λ fam →
+        ∣ amalgamate cover fam
+        , Σ≡Prop
+            (str ∘ isCompatibleFamily F cov)
+            (funExt (restrictAmalgamate cover fam)) ∣₁ )
+    where
+    cov = str (covers c) cover

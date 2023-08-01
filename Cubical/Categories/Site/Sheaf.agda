@@ -45,6 +45,12 @@ module _
     CompatibleFamily : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
     CompatibleFamily = Σ FamilyOnCover (⟨_⟩ ∘ isCompatibleFamily)
 
+    isSetCompatibleFamily : isSet CompatibleFamily
+    isSetCompatibleFamily =
+      isSetΣSndProp
+        (isSetΠ (λ i → str (P ⟅ patchObj cov i ⟆)))
+        (str ∘ isCompatibleFamily)
+
     elementToCompatibleFamily : ⟨ P ⟅ c ⟆ ⟩ → CompatibleFamily
     elementToCompatibleFamily x =
       (λ i → (P ⟪ patchArr cov i ⟫) x) ,
