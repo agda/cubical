@@ -63,7 +63,7 @@ module _
       (coverName : ⟨ covers c ⟩) →
       let cov = str (covers c) coverName in
       (x y : S c) →
-      ((d : ob) → (f : Hom[ d , c ]) → restrict f x ≡ restrict f y) →
+      ((i : ⟨ cov ⟩) → restrict (patchArr cov i) x ≡ restrict (patchArr cov i) y) →
       x ≡ y
 
     amalgamate :
