@@ -79,7 +79,7 @@ module _
       {c : ob} →
       (coverName : ⟨ covers c ⟩) →
       let cov = str (covers c) coverName in
-      CompatibleFamilies F cov →
+      CompatibleFamily F cov →
       S c
     restrictAmalgamate :
       let
@@ -94,6 +94,6 @@ module _
       {c : ob} →
       (coverName : ⟨ covers c ⟩) →
       let cov = str (covers c) coverName in
-      (fam : CompatibleFamilies F cov) →
+      (fam : CompatibleFamily F cov) →
       (i : ⟨ cov ⟩) →
       restrict (patchArr cov i) (amalgamate coverName fam) ≡ fst fam i

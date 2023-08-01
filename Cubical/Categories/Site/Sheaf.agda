@@ -42,10 +42,10 @@ module _
       ((f ⋆ patchArr cov i ≡ g ⋆ patchArr cov j) , isSetHom _ _) ⇒
       (((P ⟪ f ⟫) (fam i) ≡ (P ⟪ g ⟫) (fam j)) , str (P ⟅ d ⟆) _ _ )
 
-    CompatibleFamilies : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
-    CompatibleFamilies = Σ FamilyOnCover (⟨_⟩ ∘ isCompatibleFamily)
+    CompatibleFamily : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
+    CompatibleFamily = Σ FamilyOnCover (⟨_⟩ ∘ isCompatibleFamily)
 
-    elementToCompatibleFamily : ⟨ P ⟅ c ⟆ ⟩ → CompatibleFamilies
+    elementToCompatibleFamily : ⟨ P ⟅ c ⟆ ⟩ → CompatibleFamily
     elementToCompatibleFamily x =
       (λ i → (P ⟪ patchArr cov i ⟫) x) ,
       λ i j d f g eq → cong (λ f → f x) (
