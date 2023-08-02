@@ -61,7 +61,7 @@ module Sheafification
       {c d : ob} →
       (f : Hom[ d , c ]) →
       (x : ⟨ P ⟅ c ⟆ ⟩) →
-      restrict f (η⟦ x ⟧) ≡ η⟦ (P ⟪ f ⟫) x ⟧
+      η⟦ (P ⟪ f ⟫) x ⟧ ≡ restrict f (η⟦ x ⟧)
 
     sep :
       {c : ob} →
@@ -129,6 +129,8 @@ module UniversalProperty
   (J : Coverage C ℓcov ℓpat)
   where
 
+  open Category C
+
   -- We now assume P to have this level to ensure that F has the same level as P.
   ℓP = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov ℓpat))
 
@@ -138,16 +140,30 @@ module UniversalProperty
 
     open Sheafification J P
     open NatTrans
+    open Functor
 
     η : P ⇒ F
     N-ob η c = η⟦_⟧
-    N-hom η f = funExt (λ x → sym (ηNatural f x))
+    N-hom η f = funExt (ηNatural f)
 
     module _
-      ((G , isSheafG) : Sheaf J ℓP)
-      (f : P ⇒ G)
+      (G : Presheaf C ℓP)
+      (isSheafG : ⟨ amalgamationProperty J G ⟩)
+      (α : P ⇒ G)
       where
 
+      private
+
+        ν : {c : ob} → ⟨ F ⟅ c ⟆ ⟩ → ⟨ G ⟅ c ⟆ ⟩
+        ν (trunc x y p q i j) = str (G ⟅ _ ⟆) _ _ (cong ν p) (cong ν q) i j
+        ν (restrict {c} {d} f x) = (G ⟪ f ⟫) (ν x)
+        ν (restrictId x i) = funExt⁻ (F-id G) (ν x) i
+        ν (restrictRestrict {c} {d} {e} f g x i) = funExt⁻ (F-seq G f g) (ν x) i
+        ν η⟦ x ⟧ = (α ⟦ _ ⟧) x
+        ν (ηNatural f x i) = funExt⁻ (N-hom α f) x i
+        ν (sep cover x y x~y i) = {!!}
+        ν (amalgamate cover fam) = {!equiv-proof (isSheafG _ cover)!}
+        ν (restrictAmalgamate cover fam patch i) = {!!}
+
       inducedMap : F ⇒ G
-      NatTrans.N-ob inducedMap c x = {!!}
-      NatTrans.N-hom inducedMap = {!!}
+      inducedMap = {!g!}
