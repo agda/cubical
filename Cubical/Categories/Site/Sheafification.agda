@@ -65,8 +65,8 @@ module Sheafification
 
     sep :
       {c : ob} →
-      (coverName : ⟨ covers c ⟩) →
-      let cov = str (covers c) coverName in
+      (cover : ⟨ covers c ⟩) →
+      let cov = str (covers c) cover in
       (x y : ⟨F⟅ c ⟆⟩) →
       ((i : ⟨ cov ⟩) → restrict (patchArr cov i) x ≡ restrict (patchArr cov i) y) →
       x ≡ y
@@ -82,8 +82,8 @@ module Sheafification
         }
       in
       {c : ob} →
-      (coverName : ⟨ covers c ⟩) →
-      let cov = str (covers c) coverName in
+      (cover : ⟨ covers c ⟩) →
+      let cov = str (covers c) cover in
       CompatibleFamily F cov →
       ⟨F⟅ c ⟆⟩
     restrictAmalgamate :
@@ -97,11 +97,11 @@ module Sheafification
         }
       in
       {c : ob} →
-      (coverName : ⟨ covers c ⟩) →
-      let cov = str (covers c) coverName in
+      (cover : ⟨ covers c ⟩) →
+      let cov = str (covers c) cover in
       (fam : CompatibleFamily F cov) →
       (i : ⟨ cov ⟩) →
-      restrict (patchArr cov i) (amalgamate coverName fam) ≡ fst fam i
+      restrict (patchArr cov i) (amalgamate cover fam) ≡ fst fam i
 
   F : Presheaf C (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
   Functor.F-ob F c = ⟨F⟅ c ⟆⟩ , trunc
