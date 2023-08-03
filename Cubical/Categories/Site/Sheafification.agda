@@ -129,7 +129,8 @@ module UniversalProperty
   (J : Coverage C ℓcov ℓpat)
   where
 
-  open Category C
+  open Category C hiding (_∘_)
+  open Coverage J
 
   -- We now assume P to have this level to ensure that F has the same level as P.
   ℓP = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov ℓpat))
@@ -161,7 +162,19 @@ module UniversalProperty
         ν (restrictRestrict {c} {d} {e} f g x i) = funExt⁻ (F-seq G f g) (ν x) i
         ν η⟦ x ⟧ = (α ⟦ _ ⟧) x
         ν (ηNatural f x i) = funExt⁻ (N-hom α f) x i
-        ν (sep cover x y x~y i) = {!!}
+
+        ν (sep cover x y x~y i) =
+          {!p i!}  -- in hole ok, after give termination checker, after reload error restrictId
+          where
+          cov = str (covers _) cover
+          p : ν x ≡ ν y
+          p = isEmbedding→Inj (isEquiv→isEmbedding (isSheafG _ cover))
+            (ν x)
+            (ν y)
+            ( Σ≡Prop
+                (λ fam → str (isCompatibleFamily G cov fam))
+                (funExt (cong ν ∘ x~y)) )
+
         ν (amalgamate cover fam) = {!equiv-proof (isSheafG _ cover)!}
         ν (restrictAmalgamate cover fam patch i) = {!!}
 
