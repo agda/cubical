@@ -156,6 +156,7 @@ module UniversalProperty
       private
 
         ν : {c : ob} → ⟨ F ⟅ c ⟆ ⟩ → ⟨ G ⟅ c ⟆ ⟩
+
         ν (trunc x y p q i j) = str (G ⟅ _ ⟆) _ _ (cong ν p) (cong ν q) i j
         ν (restrict {c} {d} f x) = (G ⟪ f ⟫) (ν x)
         ν (restrictId x i) = funExt⁻ (F-id G) (ν x) i
@@ -164,16 +165,16 @@ module UniversalProperty
         ν (ηNatural f x i) = funExt⁻ (N-hom α f) x i
 
         ν (sep cover x y x~y i) =
-          {!p i!}  -- in hole ok, after give termination checker, after reload error restrictId
-          where
-          cov = str (covers _) cover
-          p : ν x ≡ ν y
-          p = isEmbedding→Inj (isEquiv→isEmbedding (isSheafG _ cover))
+          isEmbedding→Inj (isEquiv→isEmbedding (isSheafG _ cover))
             (ν x)
             (ν y)
-            ( Σ≡Prop
-                (λ fam → str (isCompatibleFamily G cov fam))
-                (funExt (cong ν ∘ x~y)) )
+            (Σ≡Prop
+              (λ fam → str (isCompatibleFamily G cov fam))
+              -- Can't use cong here, to keep termination checker happy.
+              (funExt λ patch j → ν (x~y patch j)))
+            i
+          where
+          cov = str (covers _) cover
 
         ν (amalgamate cover fam) = {!equiv-proof (isSheafG _ cover)!}
         ν (restrictAmalgamate cover fam patch i) = {!!}
