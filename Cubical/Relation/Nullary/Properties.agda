@@ -24,6 +24,7 @@ private
   variable
     ℓ : Level
     A B : Type ℓ
+    P : A -> Type ℓ
 
 -- Functions with a section preserve discreteness.
 sectionDiscrete
@@ -47,6 +48,17 @@ Stable¬ : Stable (¬ A)
 Stable¬ ¬¬¬a a = ¬¬¬a ¬¬a
   where
   ¬¬a = λ ¬a → ¬a a
+
+Stable→ : Stable B → Stable (A → B)
+Stable→ Bs e x = Bs λ k → e λ f → k (f x)
+
+StableΠ : (∀ x → Stable (P x)) -> Stable (∀ x → P x)
+StableΠ Ps e x = Ps x λ k → e λ f → k (f x)
+
+Stable× : Stable A -> Stable B -> Stable (Σ A (λ _ → B))
+Stable× As Bs e = λ where
+  .fst → As λ k → e (k ∘ fst)
+  .snd → Bs λ k → e (k ∘ snd)
 
 fromYes : A → Dec A → A
 fromYes _ (yes a) = a
@@ -170,6 +182,9 @@ Separated→PStable≡ st x y = Stable→PStable (st x y)
 
 Separated→isSet : Separated A → isSet A
 Separated→isSet = PStable≡→isSet ∘ Separated→PStable≡
+
+Separated→ : Separated B -> Separated (A → B)
+Separated→ Bs f g e i x = Bs (f x) (g x) (λ k → e (k ∘ cong (λ f → f x))) i
 
 -- Proof of Hedberg's theorem: a type with decidable equality is an h-set
 Discrete→Separated : Discrete A → Separated A
