@@ -73,6 +73,7 @@ module Sheafification
 
     amalgamate :
       let
+      -- Is there any way to make this definition now and reuse it later?
       F : Presheaf C _
       F = record
         { F-ob = λ c → ⟨F⟅ c ⟆⟩ , trunc
@@ -176,8 +177,25 @@ module UniversalProperty
           where
           cov = str (covers _) cover
 
-        ν (amalgamate cover fam) = {!equiv-proof (isSheafG _ cover)!}
-        ν (restrictAmalgamate cover fam patch i) = {!!}
+        ν (amalgamate cover (fam , compat)) =
+          fst (fst (equiv-proof (isSheafG _ cover) fam'))
+          where
+          cov = str (covers _) cover
+          -- We have to push forward fam along the natural transformation ν that we are just defining.
+          fam' : CompatibleFamily G cov
+          fam' =
+            (λ i → ν (fam i)) ,
+            λ i j d f g diamond → cong ν (compat i j d f g diamond)
+
+        ν (restrictAmalgamate cover (fam , compat) patch i) =
+          fst (snd (fst (equiv-proof (isSheafG _ cover) fam')) i) patch
+          where
+          cov = str (covers _) cover
+          fam' : CompatibleFamily G cov
+          fam' =
+            (λ i → ν (fam i)) ,
+            λ i j d f g diamond → cong ν (compat i j d f g diamond)
 
       inducedMap : F ⇒ G
-      inducedMap = {!g!}
+      N-ob inducedMap c = ν
+      N-hom inducedMap f = refl
