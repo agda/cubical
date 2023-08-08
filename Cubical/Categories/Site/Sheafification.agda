@@ -4,6 +4,9 @@ module Cubical.Categories.Site.Sheafification where
 -- Construction of the sheafification of a presheaf on a site
 -- using a quotient inductive type.
 
+-- This is inspired by the construction of the sheafification (for finite coverings) in:
+-- * E. Palmgren, S.J. Vickers, "Partial Horn logic and cartesian categories"
+
 -- TODO: clean up imports
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
