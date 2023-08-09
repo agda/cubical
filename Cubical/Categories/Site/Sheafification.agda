@@ -126,6 +126,107 @@ module Sheafification
     where
     cov = str (covers c) cover
 
+  module _
+    {ℓ : Level}
+    {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓ}
+    (isPropB : {c : ob} → {x : ⟨F⟅ c ⟆⟩} → isProp (B x))
+    (Bη : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → B (η⟦ x ⟧))
+    (BIfLocallyB :
+      {c : ob} →
+      (x : ⟨F⟅ c ⟆⟩) →
+      (cover : ⟨ covers c ⟩) →
+      let cov = str (covers c) cover in
+      ((patch : ⟨ cov ⟩) → B (restrict (patchArr cov patch) x)) →
+      B x)
+    where
+
+    amalgamatePreservesB :
+      {c : ob} →
+      (cover : ⟨ covers c ⟩) →
+      let cov = str (covers c) cover in
+      (fam : CompatibleFamily F cov) →
+      ((patch : ⟨ cov ⟩) → B (fst fam patch)) →
+      B (amalgamate cover fam)
+    amalgamatePreservesB cover fam famB =
+      BIfLocallyB
+        (amalgamate cover fam)
+        cover
+        λ patch → subst B (sym (restrictAmalgamate cover fam patch)) (famB patch)
+
+    module WithRestrict
+      (restrictPreservesB :
+        {c d : ob} →
+        (f : Hom[ d , c ]) →
+        (x : ⟨F⟅ c ⟆⟩) →
+        B x → B (restrict f x))
+      where
+
+      mkPathP :
+        {c : ob} →
+        {x0 x1 : ⟨F⟅ c ⟆⟩} →
+        (p : x0 ≡ x1) →
+        (b0 : B (x0)) →
+        (b1 : B (x1)) →
+        PathP (λ i → B (p i)) b0 b1
+      mkPathP p = isProp→PathP (λ i → isPropB)
+
+      elimProp : {c : ob} → (x : ⟨F⟅ c ⟆⟩) → B x
+      elimProp (trunc x y p q i j) =
+        isOfHLevel→isOfHLevelDep 2 (λ _ → isProp→isSet isPropB)
+          (elimProp x)
+          (elimProp y)
+          (cong elimProp p)
+          (cong elimProp q)
+          (trunc x y p q)
+          i
+          j
+      elimProp (restrict f x) =
+        restrictPreservesB f x (elimProp x)
+      elimProp (restrictId x i) =
+        mkPathP
+          (restrictId x)
+          (restrictPreservesB id x (elimProp x))
+          (elimProp x)
+          i
+      elimProp (restrictRestrict f g x i) =
+        mkPathP (restrictRestrict f g x)
+          (restrictPreservesB (g ⋆ f) x (elimProp x))
+          (restrictPreservesB g (restrict f x) (restrictPreservesB f x (elimProp x)))
+          i
+      elimProp η⟦ x ⟧ =
+        Bη x
+      elimProp (ηNatural f x i) =
+        mkPathP (ηNatural f x)
+          (Bη ((P ⟪ f ⟫) x))
+          (restrictPreservesB f η⟦ x ⟧ (Bη x))
+          i
+      elimProp (sep cover x y x~y i) =
+        mkPathP (sep cover x y x~y)
+          (elimProp x)
+          (elimProp y)
+          i
+      elimProp (amalgamate cover fam) =
+        amalgamatePreservesB cover fam λ patch → elimProp (fst fam patch)
+      elimProp (restrictAmalgamate cover fam patch i) =
+        let cov = str (covers _) cover in
+        mkPathP (restrictAmalgamate cover fam patch)
+          (restrictPreservesB (patchArr cov patch) (amalgamate cover fam)
+            (amalgamatePreservesB cover fam (λ patch' → elimProp (fst fam patch'))))
+          (elimProp (fst fam patch))
+          i
+
+{-
+    -- Can we show this?
+    restrictPreservesB :
+      {c d : ob} →
+      (f : Hom[ d , c ]) →
+      (x : ⟨F⟅ c ⟆⟩) →
+      B x → B (restrict f x)
+    restrictPreservesB = {!!}
+
+    elimProp : {c : ob} → (x : ⟨F⟅ c ⟆⟩) → B x
+    elimProp = WithRestrict.elimProp restrictPreservesB
+-}
 
 module UniversalProperty
   {ℓ ℓ' ℓcov ℓpat : Level}
