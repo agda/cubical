@@ -186,6 +186,14 @@ Separated→isSet = PStable≡→isSet ∘ Separated→PStable≡
 Separated→ : Separated B -> Separated (A → B)
 Separated→ Bs f g e i x = Bs (f x) (g x) (λ k → e (k ∘ cong (λ f → f x))) i
 
+SeparatedΠ : (∀ x → Separated (P x)) -> Separated ((x : A) -> P x)
+SeparatedΠ Ps f g e i x = Ps x (f x) (g x) (λ k → e (k ∘ cong (λ f → f x))) i
+
+Separated× : Separated A -> Separated B -> Separated (Σ A (const B))
+Separated× As Bs p q e i = λ where
+  .fst → As (fst p) (fst q) (λ k → e λ r → k (cong fst r)) i
+  .snd → Bs (snd p) (snd q) (λ k → e λ r → k (cong snd r)) i
+
 -- Proof of Hedberg's theorem: a type with decidable equality is an h-set
 Discrete→Separated : Discrete A → Separated A
 Discrete→Separated d x y = Dec→Stable (d x y)
