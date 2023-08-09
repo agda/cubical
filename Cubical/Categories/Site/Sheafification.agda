@@ -133,9 +133,6 @@ module UniversalProperty
   (J : Coverage C ℓcov ℓpat)
   where
 
-  open Category C hiding (_∘_)
-  open Coverage J
-
   -- We now assume P to have this level to ensure that F has the same level as P.
   ℓP = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov ℓpat))
 
@@ -143,6 +140,9 @@ module UniversalProperty
     (P : Presheaf C ℓP)
     where
 
+    open Category C hiding (_∘_)
+    module C^ = Category (PresheafCategory C ℓP)
+    open Coverage J
     open Sheafification J P
     open NatTrans
     open Functor
@@ -156,6 +156,16 @@ module UniversalProperty
       (isSheafG : ⟨ amalgamationProperty J G ⟩)
       (α : P ⇒ G)
       where
+
+{-
+           η
+        P --> F
+         \    .
+          \   . inducedMap
+         α \  .
+            ∨ ∨
+              G
+-}
 
       private
 
@@ -202,3 +212,11 @@ module UniversalProperty
       inducedMap : F ⇒ G
       N-ob inducedMap c = ν
       N-hom inducedMap f = refl
+
+      inducedMapFits : η C^.⋆ inducedMap ≡ α
+      inducedMapFits = makeNatTransPath refl
+
+      module _
+        (β : F ⇒ G)
+        (βFits : η C^.⋆ β ≡ α)
+        where
