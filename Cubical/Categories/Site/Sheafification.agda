@@ -104,8 +104,8 @@ module Sheafification
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
       (fam : CompatibleFamily F cov) →
-      (i : ⟨ cov ⟩) →
-      restrict (patchArr cov i) (amalgamate cover fam) ≡ fst fam i
+      (patch : ⟨ cov ⟩) →
+      restrict (patchArr cov patch) (amalgamate cover fam) ≡ fst fam patch
 
   F : Presheaf C (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
   Functor.F-ob F c = ⟨F⟅ c ⟆⟩ , trunc
