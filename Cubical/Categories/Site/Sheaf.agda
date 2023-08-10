@@ -9,7 +9,10 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.Equiv
 
+open import Cubical.Data.Sigma
+
 open import Cubical.Functions.Logic using (∀[]-syntax; ∀[∶]-syntax; _⇒_; _⇔_)
+open import Cubical.Functions.Embedding
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Site.Cover
@@ -71,17 +74,42 @@ module _
   {ℓ ℓ' ℓcov ℓpat : Level}
   {C : Category ℓ ℓ'}
   (J : Coverage C ℓcov ℓpat)
+  {ℓP : Level}
+  (P : Presheaf C ℓP)
   where
 
   open Coverage J
 
+  isSeparated :
+    hProp (ℓ-max (ℓ-max (ℓ-max ℓ ℓcov) ℓpat) ℓP)
+  isSeparated =
+    ∀[ c ] ∀[ cov ∶ ⟨ covers c ⟩ ]
+    ∀[ x ] ∀[ y ]
+      (∀[ patch ]
+        let f = patchArr (str (covers c) cov) patch in
+        ((P ⟪ f ⟫) x ≡ (P ⟪ f ⟫) y) , str (P ⟅ _ ⟆) _ _)
+      ⇒
+      ((x ≡ y) , str (P ⟅ _ ⟆) _ _)
+
   amalgamationProperty :
-    {ℓP : Level} →
-    (P : Presheaf C ℓP) →
     hProp (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
-  amalgamationProperty P =
+  amalgamationProperty =
     ∀[ c ] ∀[ cov ∶ ⟨ covers c ⟩ ]
     amalgamationPropertyForCover P (str (covers c) cov)
 
-  Sheaf : (ℓF : Level) → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) (ℓ-suc ℓF))
-  Sheaf ℓF = Σ (Presheaf C ℓF) (⟨_⟩ ∘ amalgamationProperty)
+  isSheaf = amalgamationProperty
+
+  isSheaf→isSeparated : ⟨ isSheaf ⟩ → ⟨ isSeparated ⟩
+  isSheaf→isSeparated isSheafP c cov x y locallyEqual =
+    isEmbedding→Inj (isEquiv→isEmbedding (isSheafP c cov)) x y
+      (Σ≡Prop
+        (str ∘ (isCompatibleFamily P _))
+        (funExt locallyEqual))
+
+Sheaf :
+  {ℓ ℓ' ℓcov ℓpat : Level} →
+  {C : Category ℓ ℓ'} →
+  (J : Coverage C ℓcov ℓpat) →
+  (ℓF : Level) →
+  Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) (ℓ-suc ℓF))
+Sheaf {C = C} J ℓF = Σ (Presheaf C ℓF) (⟨_⟩ ∘ isSheaf J)

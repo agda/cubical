@@ -280,13 +280,10 @@ module UniversalProperty
         ν (ηNatural f x i) = funExt⁻ (N-hom α f) x i
 
         ν (sep cover x y x~y i) =
-          isEmbedding→Inj (isEquiv→isEmbedding (isSheafG _ cover))
+          isSheaf→isSeparated J G isSheafG _ cover
             (ν x)
             (ν y)
-            (Σ≡Prop
-              (λ fam → str (isCompatibleFamily G cov fam))
-              -- Can't use cong here, to keep termination checker happy.
-              (funExt λ patch j → ν (x~y patch j)))
+            (λ patch → cong ν (x~y patch))
             i
           where
           cov = str (covers _) cover
