@@ -20,6 +20,7 @@ open import Cubical.Categories.Site.Sieve
 open import Cubical.Categories.Site.Coverage
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Constructions.FullSubcategory
 
 module _
   {ℓ ℓ' : Level}
@@ -97,19 +98,28 @@ module _
     ∀[ c ] ∀[ cov ∶ ⟨ covers c ⟩ ]
     amalgamationPropertyForCover P (str (covers c) cov)
 
-  isSheaf = amalgamationProperty
+  isSheaf : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
+  isSheaf = ⟨ amalgamationProperty ⟩
 
-  isSheaf→isSeparated : ⟨ isSheaf ⟩ → ⟨ isSeparated ⟩
+  isSheaf→isSeparated : isSheaf → ⟨ isSeparated ⟩
   isSheaf→isSeparated isSheafP c cov x y locallyEqual =
     isEmbedding→Inj (isEquiv→isEmbedding (isSheafP c cov)) x y
       (Σ≡Prop
         (str ∘ (isCompatibleFamily P _))
         (funExt locallyEqual))
 
-Sheaf :
-  {ℓ ℓ' ℓcov ℓpat : Level} →
-  {C : Category ℓ ℓ'} →
-  (J : Coverage C ℓcov ℓpat) →
-  (ℓF : Level) →
-  Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) (ℓ-suc ℓF))
-Sheaf {C = C} J ℓF = Σ (Presheaf C ℓF) (⟨_⟩ ∘ isSheaf J)
+module _
+  {ℓ ℓ' ℓcov ℓpat : Level}
+  {C : Category ℓ ℓ'}
+  (J : Coverage C ℓcov ℓpat)
+  (ℓF : Level)
+  where
+
+  Sheaf : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) (ℓ-suc ℓF))
+  Sheaf = Σ (Presheaf C ℓF) (isSheaf J)
+
+  SheafCategory :
+    Category
+      (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) (ℓ-suc ℓF))
+      (ℓ-max (ℓ-max ℓ ℓ') ℓF)
+  SheafCategory = FullSubcategory (PresheafCategory C ℓF) (isSheaf J)

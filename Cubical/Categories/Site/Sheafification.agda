@@ -29,6 +29,8 @@ open import Cubical.Categories.Site.Sheaf
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Constructions.FullSubcategory
 
 module Sheafification
   {ℓ ℓ' ℓcov ℓpat : Level}
@@ -242,7 +244,10 @@ module UniversalProperty
     where
 
     open Category C hiding (_∘_)
-    module C^ = Category (PresheafCategory C ℓP)
+
+    C^ = PresheafCategory C ℓP
+    module C^ = Category C^
+
     open Coverage J
     open Sheafification J P
     open NatTrans
@@ -252,7 +257,7 @@ module UniversalProperty
     N-ob η c = η⟦_⟧
     N-hom η f = funExt (ηNatural f)
 
-    module _
+    module InducedMap
       (G : Presheaf C ℓP)
       (isSheafG : ⟨ amalgamationProperty J G ⟩)
       (α : P ⇒ G)
@@ -338,3 +343,19 @@ module UniversalProperty
               (β ⟦ _ ⟧) (restrict f x)  ≡⟨ cong (_$ x) (N-hom β f) ⟩
               (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)   ≡⟨ cong (G ⟪ f ⟫) βx≡νx ⟩
               (G ⟪ f ⟫) (ν x)           ∎ )))
+
+    sheafificationIsUniversal :
+      isUniversal
+        (SheafCategory J ℓP ^op)
+        ((C^ [ P ,-]) ∘F FullInclusion C^ (isSheaf J))
+        (F , isSheafF)
+        η
+    sheafificationIsUniversal (G , isSheafG) = record
+      { equiv-proof = λ α →
+          let open InducedMap G isSheafG α in
+            (inducedMap , inducedMapFits)
+          , λ (β , βFits) →
+              Σ≡Prop
+                (λ _ → C^.isSetHom _ _)
+                (sym (uniqueness β βFits))
+      }
