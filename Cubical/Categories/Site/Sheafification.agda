@@ -11,7 +11,7 @@ module Cubical.Categories.Site.Sheafification where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Function using (_∘_)
+open import Cubical.Foundations.Function using (_∘_; _$_)
 open import Cubical.Foundations.Equiv
 
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
@@ -273,7 +273,7 @@ module UniversalProperty
         ν : {c : ob} → ⟨ F ⟅ c ⟆ ⟩ → ⟨ G ⟅ c ⟆ ⟩
 
         ν (trunc x y p q i j) = str (G ⟅ _ ⟆) _ _ (cong ν p) (cong ν q) i j
-        ν (restrict {c} {d} f x) = (G ⟪ f ⟫) (ν x)
+        ν (restrict f x) = (G ⟪ f ⟫) (ν x)
         ν (restrictId x i) = funExt⁻ (F-id G) (ν x) i
         ν (restrictRestrict {c} {d} {e} f g x i) = funExt⁻ (F-seq G f g) (ν x) i
         ν η⟦ x ⟧ = (α ⟦ _ ⟧) x
@@ -318,3 +318,23 @@ module UniversalProperty
         (β : F ⇒ G)
         (βFits : η C^.⋆ β ≡ α)
         where
+
+        uniqueness : β ≡ inducedMap
+        uniqueness = makeNatTransPath (funExt (λ _ → funExt (
+          WithRestrict.elimProp
+            {B = λ x → (β ⟦ _ ⟧) x ≡ ν x}
+            (str (G ⟅ _ ⟆) _ _)
+            (funExt⁻ (funExt⁻ (cong N-ob βFits) _))
+            (λ x cover locallyAgree →
+              isSheaf→isSeparated J G isSheafG _ cover
+                ((β ⟦ _ ⟧) x)
+                (ν x)
+                λ patch →
+                  let f = patchArr (str (covers _) cover) patch in
+                  (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)    ≡⟨ sym (cong (_$ x) (N-hom β f)) ⟩
+                  ((β ⟦ _ ⟧) ((F ⟪ f ⟫) x))  ≡⟨ locallyAgree patch ⟩
+                  (G ⟪ f ⟫) (ν x)            ∎)
+            λ f x βx≡νx →
+              (β ⟦ _ ⟧) (restrict f x)  ≡⟨ cong (_$ x) (N-hom β f) ⟩
+              (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)   ≡⟨ cong (G ⟪ f ⟫) βx≡νx ⟩
+              (G ⟪ f ⟫) (ν x)           ∎ )))
