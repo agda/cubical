@@ -47,7 +47,7 @@ module Sheafification
 
     trunc : {c : ob} → isSet ⟨F⟅ c ⟆⟩
 
-    restrict : {c d : ob} → Hom[ d , c ] → ⟨F⟅ c ⟆⟩ → ⟨F⟅ d ⟆⟩
+    restrict : {c d : ob} → (f : Hom[ d , c ]) → ⟨F⟅ c ⟆⟩ → ⟨F⟅ d ⟆⟩
 
     restrictId :
       {c : ob} →
@@ -60,7 +60,7 @@ module Sheafification
       (x : ⟨F⟅ c ⟆⟩) →
       restrict (g ⋆ f) x ≡ restrict g (restrict f x)
 
-    η⟦_⟧ : {c : ob} → ⟨ P ⟅ c ⟆ ⟩ → ⟨F⟅ c ⟆⟩
+    η⟦_⟧ : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → ⟨F⟅ c ⟆⟩
 
     ηNatural :
       {c d : ob} →
@@ -73,7 +73,9 @@ module Sheafification
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
       (x y : ⟨F⟅ c ⟆⟩) →
-      ((i : ⟨ cov ⟩) → restrict (patchArr cov i) x ≡ restrict (patchArr cov i) y) →
+      (i~j :
+        (patch : ⟨ cov ⟩) →
+        restrict (patchArr cov patch) x ≡ restrict (patchArr cov patch) y) →
       x ≡ y
 
     amalgamate :
@@ -90,7 +92,7 @@ module Sheafification
       {c : ob} →
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
-      CompatibleFamily F cov →
+      (fam : CompatibleFamily F cov) →
       ⟨F⟅ c ⟆⟩
     restrictAmalgamate :
       let
