@@ -130,23 +130,46 @@ module Sheafification
     where
     cov = str (covers c) cover
 
-  module ElimPropWithRestrictPreservesB
+  module ElimPropAssumptions
     {ℓB : Level}
-    {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
-    (isPropB : {c : ob} → {x : ⟨F⟅ c ⟆⟩} → isProp (B x))
-    (Bη : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → B (η⟦ x ⟧))
-    (BIfLocallyB :
+    (B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB)
+    where
+
+    isPropValued =
+      {c : ob} →
+      {x : ⟨F⟅ c ⟆⟩} →
+      isProp (B x)
+
+    Onη =
+      {c : ob} →
+      (x : ⟨ P ⟅ c ⟆ ⟩) →
+      B (η⟦ x ⟧)
+
+    isLocal =
       {c : ob} →
       (x : ⟨F⟅ c ⟆⟩) →
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
       ((patch : ⟨ cov ⟩) → B (restrict (patchArr cov patch) x)) →
-      B x)
-    (restrictPreservesB :
+      B x
+
+    -- This assumption will turn out to be unnecessary.
+    isMonotonous =
       {c d : ob} →
       (f : Hom[ d , c ]) →
       (x : ⟨F⟅ c ⟆⟩) →
-      B x → B (restrict f x))
+      B x → B (restrict f x)
+
+
+  open ElimPropAssumptions
+
+  module ElimPropWithRestrictPreservesB
+    {ℓB : Level}
+    {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
+    (isPropValuedB : isPropValued B)
+    (onηB : Onη B)
+    (isLocalB : isLocal B)
+    (isMonotonousB : isMonotonous B)
     where
 
     amalgamatePreservesB :
@@ -157,7 +180,7 @@ module Sheafification
       ((patch : ⟨ cov ⟩) → B (fst fam patch)) →
       B (amalgamate cover fam)
     amalgamatePreservesB cover fam famB =
-      BIfLocallyB
+      isLocalB
         (amalgamate cover fam)
         cover
         λ patch → subst B (sym (restrictAmalgamate cover fam patch)) (famB patch)
@@ -169,11 +192,11 @@ module Sheafification
       (b0 : B (x0)) →
       (b1 : B (x1)) →
       PathP (λ i → B (p i)) b0 b1
-    mkPathP p = isProp→PathP (λ i → isPropB)
+    mkPathP p = isProp→PathP (λ i → isPropValuedB)
 
     elimProp : {c : ob} → (x : ⟨F⟅ c ⟆⟩) → B x
     elimProp (trunc x y p q i j) =
-      isOfHLevel→isOfHLevelDep 2 (λ _ → isProp→isSet isPropB)
+      isOfHLevel→isOfHLevelDep 2 (λ _ → isProp→isSet isPropValuedB)
         (elimProp x)
         (elimProp y)
         (cong elimProp p)
@@ -182,24 +205,24 @@ module Sheafification
         i
         j
     elimProp (restrict f x) =
-      restrictPreservesB f x (elimProp x)
+      isMonotonousB f x (elimProp x)
     elimProp (restrictId x i) =
       mkPathP
         (restrictId x)
-        (restrictPreservesB id x (elimProp x))
+        (isMonotonousB id x (elimProp x))
         (elimProp x)
         i
     elimProp (restrictRestrict f g x i) =
       mkPathP (restrictRestrict f g x)
-        (restrictPreservesB (g ⋆ f) x (elimProp x))
-        (restrictPreservesB g (restrict f x) (restrictPreservesB f x (elimProp x)))
+        (isMonotonousB (g ⋆ f) x (elimProp x))
+        (isMonotonousB g (restrict f x) (isMonotonousB f x (elimProp x)))
         i
     elimProp η⟦ x ⟧ =
-      Bη x
+      onηB x
     elimProp (ηNatural f x i) =
       mkPathP (ηNatural f x)
-        (Bη ((P ⟪ f ⟫) x))
-        (restrictPreservesB f η⟦ x ⟧ (Bη x))
+        (onηB ((P ⟪ f ⟫) x))
+        (isMonotonousB f η⟦ x ⟧ (onηB x))
         i
     elimProp (sep cover x y x~y i) =
       mkPathP (sep cover x y x~y)
@@ -211,7 +234,7 @@ module Sheafification
     elimProp (restrictAmalgamate cover fam patch i) =
       let cov = str (covers _) cover in
       mkPathP (restrictAmalgamate cover fam patch)
-        (restrictPreservesB (patchArr cov patch) (amalgamate cover fam)
+        (isMonotonousB (patchArr cov patch) (amalgamate cover fam)
           (amalgamatePreservesB cover fam (λ patch' → elimProp (fst fam patch'))))
         (elimProp (fst fam patch))
         i
@@ -219,15 +242,9 @@ module Sheafification
   module _
     {ℓB : Level}
     {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
-    (isPropB : {c : ob} → {x : ⟨F⟅ c ⟆⟩} → isProp (B x))
-    (Bη : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → B (η⟦ x ⟧))
-    (BIfLocallyB :
-      {c : ob} →
-      (x : ⟨F⟅ c ⟆⟩) →
-      (cover : ⟨ covers c ⟩) →
-      let cov = str (covers c) cover in
-      ((patch : ⟨ cov ⟩) → B (restrict (patchArr cov patch) x)) →
-      B x)
+    (isPropValuedB : isPropValued B)
+    (onηB : Onη B)
+    (isLocalB : isLocal B)
     where
 
     -- Idea: strengthen the inductive hypothesis to "every restriction of x satisfies B"
@@ -241,16 +258,16 @@ module Sheafification
         B' x
       elimPropInduction =
         ElimPropWithRestrictPreservesB.elimProp {B = B'}
-          (isPropImplicitΠ λ _ → isPropΠ λ _ → isPropB)
+          (isPropImplicitΠ λ _ → isPropΠ λ _ → isPropValuedB)
           (λ x f →
-            subst B (ηNatural f x) (Bη ((P ⟪ f ⟫) x)))
+            subst B (ηNatural f x) (onηB ((P ⟪ f ⟫) x)))
           (λ x cover B'fam f →
             PT.rec
-              isPropB
+              isPropValuedB
               (λ (cover' , refines) →
-                BIfLocallyB (restrict f x) cover' λ patch' →
+                isLocalB (restrict f x) cover' λ patch' →
                   PT.rec
-                    isPropB
+                    isPropValuedB
                     (λ (patch , g , p'⋆f≡g⋆p) →
                       let
                         p = patchArr (str (covers _) cover) patch
