@@ -130,7 +130,7 @@ module Sheafification
     where
     cov = str (covers c) cover
 
-  module _
+  module ElimPropWithRestrictPreservesB
     {ℓB : Level}
     {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
     (isPropB : {c : ob} → {x : ⟨F⟅ c ⟆⟩} → isProp (B x))
@@ -142,6 +142,11 @@ module Sheafification
       let cov = str (covers c) cover in
       ((patch : ⟨ cov ⟩) → B (restrict (patchArr cov patch) x)) →
       B x)
+    (restrictPreservesB :
+      {c d : ob} →
+      (f : Hom[ d , c ]) →
+      (x : ⟨F⟅ c ⟆⟩) →
+      B x → B (restrict f x))
     where
 
     amalgamatePreservesB :
@@ -157,12 +162,7 @@ module Sheafification
         cover
         λ patch → subst B (sym (restrictAmalgamate cover fam patch)) (famB patch)
 
-    module WithRestrict
-      (restrictPreservesB :
-        {c d : ob} →
-        (f : Hom[ d , c ]) →
-        (x : ⟨F⟅ c ⟆⟩) →
-        B x → B (restrict f x))
+    module _
       where
 
       mkPathP :
@@ -243,7 +243,7 @@ module Sheafification
         (x : ⟨F⟅ c ⟆⟩) →
         B' x
       elimPropInduction =
-        WithRestrict.elimProp {B = B'}
+        ElimPropWithRestrictPreservesB.elimProp {B = B'}
           (isPropImplicitΠ λ _ → isPropΠ λ _ → isPropB)
           (λ x f →
             subst B (ηNatural f x) (Bη ((P ⟪ f ⟫) x)))
@@ -369,7 +369,7 @@ module UniversalProperty
 
         uniqueness : β ≡ inducedMap
         uniqueness = makeNatTransPath (funExt (λ _ → funExt (
-          WithRestrict.elimProp
+          ElimPropWithRestrictPreservesB.elimProp
             {B = λ x → (β ⟦ _ ⟧) x ≡ ν x}
             (str (G ⟅ _ ⟆) _ _)
             (funExt⁻ (funExt⁻ (cong N-ob βFits) _))
