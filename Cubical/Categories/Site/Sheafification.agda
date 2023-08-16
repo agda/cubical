@@ -162,62 +162,59 @@ module Sheafification
         cover
         λ patch → subst B (sym (restrictAmalgamate cover fam patch)) (famB patch)
 
-    module _
-      where
+    mkPathP :
+      {c : ob} →
+      {x0 x1 : ⟨F⟅ c ⟆⟩} →
+      (p : x0 ≡ x1) →
+      (b0 : B (x0)) →
+      (b1 : B (x1)) →
+      PathP (λ i → B (p i)) b0 b1
+    mkPathP p = isProp→PathP (λ i → isPropB)
 
-      mkPathP :
-        {c : ob} →
-        {x0 x1 : ⟨F⟅ c ⟆⟩} →
-        (p : x0 ≡ x1) →
-        (b0 : B (x0)) →
-        (b1 : B (x1)) →
-        PathP (λ i → B (p i)) b0 b1
-      mkPathP p = isProp→PathP (λ i → isPropB)
-
-      elimProp : {c : ob} → (x : ⟨F⟅ c ⟆⟩) → B x
-      elimProp (trunc x y p q i j) =
-        isOfHLevel→isOfHLevelDep 2 (λ _ → isProp→isSet isPropB)
-          (elimProp x)
-          (elimProp y)
-          (cong elimProp p)
-          (cong elimProp q)
-          (trunc x y p q)
-          i
-          j
-      elimProp (restrict f x) =
-        restrictPreservesB f x (elimProp x)
-      elimProp (restrictId x i) =
-        mkPathP
-          (restrictId x)
-          (restrictPreservesB id x (elimProp x))
-          (elimProp x)
-          i
-      elimProp (restrictRestrict f g x i) =
-        mkPathP (restrictRestrict f g x)
-          (restrictPreservesB (g ⋆ f) x (elimProp x))
-          (restrictPreservesB g (restrict f x) (restrictPreservesB f x (elimProp x)))
-          i
-      elimProp η⟦ x ⟧ =
-        Bη x
-      elimProp (ηNatural f x i) =
-        mkPathP (ηNatural f x)
-          (Bη ((P ⟪ f ⟫) x))
-          (restrictPreservesB f η⟦ x ⟧ (Bη x))
-          i
-      elimProp (sep cover x y x~y i) =
-        mkPathP (sep cover x y x~y)
-          (elimProp x)
-          (elimProp y)
-          i
-      elimProp (amalgamate cover fam) =
-        amalgamatePreservesB cover fam λ patch → elimProp (fst fam patch)
-      elimProp (restrictAmalgamate cover fam patch i) =
-        let cov = str (covers _) cover in
-        mkPathP (restrictAmalgamate cover fam patch)
-          (restrictPreservesB (patchArr cov patch) (amalgamate cover fam)
-            (amalgamatePreservesB cover fam (λ patch' → elimProp (fst fam patch'))))
-          (elimProp (fst fam patch))
-          i
+    elimProp : {c : ob} → (x : ⟨F⟅ c ⟆⟩) → B x
+    elimProp (trunc x y p q i j) =
+      isOfHLevel→isOfHLevelDep 2 (λ _ → isProp→isSet isPropB)
+        (elimProp x)
+        (elimProp y)
+        (cong elimProp p)
+        (cong elimProp q)
+        (trunc x y p q)
+        i
+        j
+    elimProp (restrict f x) =
+      restrictPreservesB f x (elimProp x)
+    elimProp (restrictId x i) =
+      mkPathP
+        (restrictId x)
+        (restrictPreservesB id x (elimProp x))
+        (elimProp x)
+        i
+    elimProp (restrictRestrict f g x i) =
+      mkPathP (restrictRestrict f g x)
+        (restrictPreservesB (g ⋆ f) x (elimProp x))
+        (restrictPreservesB g (restrict f x) (restrictPreservesB f x (elimProp x)))
+        i
+    elimProp η⟦ x ⟧ =
+      Bη x
+    elimProp (ηNatural f x i) =
+      mkPathP (ηNatural f x)
+        (Bη ((P ⟪ f ⟫) x))
+        (restrictPreservesB f η⟦ x ⟧ (Bη x))
+        i
+    elimProp (sep cover x y x~y i) =
+      mkPathP (sep cover x y x~y)
+        (elimProp x)
+        (elimProp y)
+        i
+    elimProp (amalgamate cover fam) =
+      amalgamatePreservesB cover fam λ patch → elimProp (fst fam patch)
+    elimProp (restrictAmalgamate cover fam patch i) =
+      let cov = str (covers _) cover in
+      mkPathP (restrictAmalgamate cover fam patch)
+        (restrictPreservesB (patchArr cov patch) (amalgamate cover fam)
+          (amalgamatePreservesB cover fam (λ patch' → elimProp (fst fam patch'))))
+        (elimProp (fst fam patch))
+        i
 
   module _
     {ℓB : Level}
