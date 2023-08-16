@@ -14,7 +14,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function using (_∘_; _$_)
 open import Cubical.Foundations.Equiv
 
-open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
+open import Cubical.HITs.PropositionalTruncation as PT using (∣_∣₁)
 
 open import Cubical.Data.Sigma
 
@@ -131,8 +131,8 @@ module Sheafification
     cov = str (covers c) cover
 
   module _
-    {ℓ : Level}
-    {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓ}
+    {ℓB : Level}
+    {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
     (isPropB : {c : ob} → {x : ⟨F⟅ c ⟆⟩} → isProp (B x))
     (Bη : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → B (η⟦ x ⟧))
     (BIfLocallyB :
@@ -219,18 +219,59 @@ module Sheafification
           (elimProp (fst fam patch))
           i
 
-{-
-    -- Can we show this?
-    restrictPreservesB :
-      {c d : ob} →
-      (f : Hom[ d , c ]) →
+  module _
+    {ℓB : Level}
+    {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
+    (isPropB : {c : ob} → {x : ⟨F⟅ c ⟆⟩} → isProp (B x))
+    (Bη : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → B (η⟦ x ⟧))
+    (BIfLocallyB :
+      {c : ob} →
       (x : ⟨F⟅ c ⟆⟩) →
-      B x → B (restrict f x)
-    restrictPreservesB = {!!}
+      (cover : ⟨ covers c ⟩) →
+      let cov = str (covers c) cover in
+      ((patch : ⟨ cov ⟩) → B (restrict (patchArr cov patch) x)) →
+      B x)
+    where
+
+    -- Idea: strengthen the inductive hypothesis to "every restriction of x satisfies B"
+    private
+      B' : {c : ob} → ⟨F⟅ c ⟆⟩ → Type (ℓ-max (ℓ-max ℓ ℓ') ℓB)
+      B' x = {d : ob} → (f : Hom[ d , _ ]) → B (restrict f x)
+
+      elimPropInduction :
+        {c : ob} →
+        (x : ⟨F⟅ c ⟆⟩) →
+        B' x
+      elimPropInduction =
+        WithRestrict.elimProp {B = B'}
+          (isPropImplicitΠ λ _ → isPropΠ λ _ → isPropB)
+          (λ x f →
+            subst B (ηNatural f x) (Bη ((P ⟪ f ⟫) x)))
+          (λ x cover B'fam f →
+            PT.rec
+              isPropB
+              (λ (cover' , refines) →
+                BIfLocallyB (restrict f x) cover' λ patch' →
+                  PT.rec
+                    isPropB
+                    (λ (patch , g , p'⋆f≡g⋆p) →
+                      let
+                        p = patchArr (str (covers _) cover) patch
+                        p' = patchArr (str (covers _) cover') patch'
+                      in
+                      subst B
+                        ( restrict g (restrict p x)   ≡⟨ sym (restrictRestrict _ _ _) ⟩
+                          restrict (g ⋆ p) x          ≡⟨ cong (λ f → restrict f x) (sym p'⋆f≡g⋆p) ⟩
+                          restrict (p' ⋆ f) x         ≡⟨ restrictRestrict _ _ _ ⟩
+                          restrict p' (restrict f x)  ∎ )
+                        (B'fam patch g))
+                    (refines patch'))
+              (pullbackStability _ cover _ f))
+          λ f x B'x g →
+            subst B (restrictRestrict _ _ _) (B'x (g ⋆ f))
 
     elimProp : {c : ob} → (x : ⟨F⟅ c ⟆⟩) → B x
-    elimProp = WithRestrict.elimProp restrictPreservesB
--}
+    elimProp x = subst B (restrictId _) (elimPropInduction x id)
 
 module UniversalProperty
   {ℓ ℓ' ℓcov ℓpat : Level}
@@ -361,3 +402,4 @@ module UniversalProperty
                 (λ _ → C^.isSetHom _ _)
                 (sym (uniqueness β βFits))
       }
+
