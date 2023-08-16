@@ -252,16 +252,15 @@ module Sheafification
       B' : {c : ob} → ⟨F⟅ c ⟆⟩ → Type (ℓ-max (ℓ-max ℓ ℓ') ℓB)
       B' x = {d : ob} → (f : Hom[ d , _ ]) → B (restrict f x)
 
-      elimPropInduction :
-        {c : ob} →
-        (x : ⟨F⟅ c ⟆⟩) →
-        B' x
-      elimPropInduction =
-        ElimPropWithRestrictPreservesB.elimProp {B = B'}
-          (isPropImplicitΠ λ _ → isPropΠ λ _ → isPropValuedB)
-          (λ x f →
-            subst B (ηNatural f x) (onηB ((P ⟪ f ⟫) x)))
-          (λ x cover B'fam f →
+      isPropValuedB' : isPropValued B'
+      isPropValuedB' = isPropImplicitΠ λ _ → isPropΠ λ _ → isPropValuedB
+
+      onηB' : Onη B'
+      onηB' x f = subst B (ηNatural f x) (onηB ((P ⟪ f ⟫) x))
+
+      isLocalB' : isLocal B'
+      isLocalB' = λ x cover B'fam f →
+        -- TODO: fix indentation
             PT.rec
               isPropValuedB
               (λ (cover' , refines) →
@@ -280,9 +279,23 @@ module Sheafification
                           restrict p' (restrict f x)  ∎ )
                         (B'fam patch g))
                     (refines patch'))
-              (pullbackStability _ cover _ f))
-          λ f x B'x g →
+              (pullbackStability _ cover _ f)
+
+      isMonotonousB' : isMonotonous B'
+      isMonotonousB' = λ f x B'x g →
+        -- TODO: fix indentation
             subst B (restrictRestrict _ _ _) (B'x (g ⋆ f))
+
+      elimPropInduction :
+        {c : ob} →
+        (x : ⟨F⟅ c ⟆⟩) →
+        B' x
+      elimPropInduction =
+        ElimPropWithRestrictPreservesB.elimProp {B = B'}
+          isPropValuedB'
+          onηB'
+          isLocalB'
+          isMonotonousB'
 
     elimProp : {c : ob} → (x : ⟨F⟅ c ⟆⟩) → B x
     elimProp x = subst B (restrictId _) (elimPropInduction x id)
