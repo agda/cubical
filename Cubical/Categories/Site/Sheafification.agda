@@ -60,13 +60,13 @@ module Sheafification
       (x : ⟨F⟅ c ⟆⟩) →
       restrict (g ⋆ f) x ≡ restrict g (restrict f x)
 
-    η⟦_⟧ : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → ⟨F⟅ c ⟆⟩
+    η⟦⟧ : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → ⟨F⟅ c ⟆⟩
 
     ηNatural :
       {c d : ob} →
       (f : Hom[ d , c ]) →
       (x : ⟨ P ⟅ c ⟆ ⟩) →
-      η⟦ (P ⟪ f ⟫) x ⟧ ≡ restrict f (η⟦ x ⟧)
+      η⟦⟧ ((P ⟪ f ⟫) x) ≡ restrict f (η⟦⟧ x)
 
     sep :
       {c : ob} →
@@ -143,7 +143,7 @@ module Sheafification
     Onη =
       {c : ob} →
       (x : ⟨ P ⟅ c ⟆ ⟩) →
-      B (η⟦ x ⟧)
+      B (η⟦⟧ x)
 
     isLocal =
       {c : ob} →
@@ -217,12 +217,12 @@ module Sheafification
         (isMonotonousB (g ⋆ f) x (elimProp x))
         (isMonotonousB g (restrict f x) (isMonotonousB f x (elimProp x)))
         i
-    elimProp η⟦ x ⟧ =
+    elimProp (η⟦⟧ x) =
       onηB x
     elimProp (ηNatural f x i) =
       mkPathP (ηNatural f x)
         (onηB ((P ⟪ f ⟫) x))
-        (isMonotonousB f η⟦ x ⟧ (onηB x))
+        (isMonotonousB f (η⟦⟧ x) (onηB x))
         i
     elimProp (sep cover x y x~y i) =
       mkPathP (sep cover x y x~y)
@@ -311,7 +311,7 @@ module UniversalProperty
     open Functor
 
     η : P ⇒ F
-    N-ob η c = η⟦_⟧
+    N-ob η c = η⟦⟧
     N-hom η f = funExt (ηNatural f)
 
     module InducedMap
@@ -338,7 +338,7 @@ module UniversalProperty
         ν (restrict f x) = (G ⟪ f ⟫) (ν x)
         ν (restrictId x i) = funExt⁻ (F-id G) (ν x) i
         ν (restrictRestrict {c} {d} {e} f g x i) = funExt⁻ (F-seq G f g) (ν x) i
-        ν η⟦ x ⟧ = (α ⟦ _ ⟧) x
+        ν (η⟦⟧ x) = (α ⟦ _ ⟧) x
         ν (ηNatural f x i) = funExt⁻ (N-hom α f) x i
 
         ν (sep cover x y x~y i) =
