@@ -259,32 +259,29 @@ module Sheafification
       onηB' x f = subst B (ηNatural f x) (onηB ((P ⟪ f ⟫) x))
 
       isLocalB' : isLocal B'
-      isLocalB' = λ x cover B'fam f →
-        -- TODO: fix indentation
-            PT.rec
-              isPropValuedB
-              (λ (cover' , refines) →
-                isLocalB (restrict f x) cover' λ patch' →
-                  PT.rec
-                    isPropValuedB
-                    (λ (patch , g , p'⋆f≡g⋆p) →
-                      let
-                        p = patchArr (str (covers _) cover) patch
-                        p' = patchArr (str (covers _) cover') patch'
-                      in
-                      subst B
-                        ( restrict g (restrict p x)   ≡⟨ sym (restrictRestrict _ _ _) ⟩
-                          restrict (g ⋆ p) x          ≡⟨ cong (λ f → restrict f x) (sym p'⋆f≡g⋆p) ⟩
-                          restrict (p' ⋆ f) x         ≡⟨ restrictRestrict _ _ _ ⟩
-                          restrict p' (restrict f x)  ∎ )
-                        (B'fam patch g))
-                    (refines patch'))
-              (pullbackStability _ cover _ f)
+      isLocalB' x cover B'fam f =
+        PT.rec
+          isPropValuedB
+          (λ (cover' , refines) →
+            isLocalB (restrict f x) cover' λ patch' →
+              PT.rec
+                isPropValuedB
+                (λ (patch , g , p'⋆f≡g⋆p) →
+                  let
+                    p = patchArr (str (covers _) cover) patch
+                    p' = patchArr (str (covers _) cover') patch'
+                  in
+                  subst B
+                    ( restrict g (restrict p x)   ≡⟨ sym (restrictRestrict _ _ _) ⟩
+                      restrict (g ⋆ p) x          ≡⟨ cong (λ f → restrict f x) (sym p'⋆f≡g⋆p) ⟩
+                      restrict (p' ⋆ f) x         ≡⟨ restrictRestrict _ _ _ ⟩
+                      restrict p' (restrict f x)  ∎ )
+                    (B'fam patch g))
+                (refines patch'))
+          (pullbackStability _ cover _ f)
 
       isMonotonousB' : isMonotonous B'
-      isMonotonousB' = λ f x B'x g →
-        -- TODO: fix indentation
-            subst B (restrictRestrict _ _ _) (B'x (g ⋆ f))
+      isMonotonousB' f x B'x g = subst B (restrictRestrict _ _ _) (B'x (g ⋆ f))
 
       elimPropInduction :
         {c : ob} →
