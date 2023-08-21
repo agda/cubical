@@ -160,10 +160,9 @@ module Sheafification
       (x : ⟨F⟅ c ⟆⟩) →
       B x → B (restrict f x)
 
-
   open ElimPropAssumptions
 
-  module ElimPropWithRestrictPreservesB
+  module ElimPropWithMonotonous
     {ℓB : Level}
     {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
     (isPropValuedB : isPropValued B)
@@ -288,7 +287,7 @@ module Sheafification
         (x : ⟨F⟅ c ⟆⟩) →
         B' x
       elimPropInduction =
-        ElimPropWithRestrictPreservesB.elimProp {B = B'}
+        ElimPropWithMonotonous.elimProp {B = B'}
           isPropValuedB'
           onηB'
           isLocalB'
@@ -391,25 +390,49 @@ module UniversalProperty
         (βFits : η C^.⋆ β ≡ α)
         where
 
+        B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type _
+        B x = (β ⟦ _ ⟧) x ≡ ν x
+
+        open ElimPropAssumptions
+
+        isPropValuedB : isPropValued B
+        isPropValuedB = str (G ⟅ _ ⟆) _ _
+
+        onηB : Onη B
+        onηB = funExt⁻ (funExt⁻ (cong N-ob βFits) _)
+
+        isLocalB : isLocal B
+        isLocalB x cover locallyAgree =
+          isSheaf→isSeparated J G isSheafG _ cover
+            ((β ⟦ _ ⟧) x)
+            (ν x)
+            λ patch →
+              let f = patchArr (str (covers _) cover) patch in
+              (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)    ≡⟨ sym (cong (_$ x) (N-hom β f)) ⟩
+              ((β ⟦ _ ⟧) ((F ⟪ f ⟫) x))  ≡⟨ locallyAgree patch ⟩
+              (G ⟪ f ⟫) (ν x)            ∎
+
         uniqueness : β ≡ inducedMap
-        uniqueness = makeNatTransPath (funExt (λ _ → funExt (
-          ElimPropWithRestrictPreservesB.elimProp
-            {B = λ x → (β ⟦ _ ⟧) x ≡ ν x}
-            (str (G ⟅ _ ⟆) _ _)
-            (funExt⁻ (funExt⁻ (cong N-ob βFits) _))
-            (λ x cover locallyAgree →
-              isSheaf→isSeparated J G isSheafG _ cover
-                ((β ⟦ _ ⟧) x)
-                (ν x)
-                λ patch →
-                  let f = patchArr (str (covers _) cover) patch in
-                  (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)    ≡⟨ sym (cong (_$ x) (N-hom β f)) ⟩
-                  ((β ⟦ _ ⟧) ((F ⟪ f ⟫) x))  ≡⟨ locallyAgree patch ⟩
-                  (G ⟪ f ⟫) (ν x)            ∎)
-            λ f x βx≡νx →
-              (β ⟦ _ ⟧) (restrict f x)  ≡⟨ cong (_$ x) (N-hom β f) ⟩
-              (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)   ≡⟨ cong (G ⟪ f ⟫) βx≡νx ⟩
-              (G ⟪ f ⟫) (ν x)           ∎ )))
+        uniqueness = makeNatTransPath (funExt λ _ → funExt (
+          elimProp {B = B} isPropValuedB onηB isLocalB))
+
+        -- This alternative proof does not use the pullbackStability of the coverage.
+        module _ where private
+
+          isMonotonousB : isMonotonous B
+          isMonotonousB f x βx≡νx =
+            (β ⟦ _ ⟧) (restrict f x)  ≡⟨ cong (_$ x) (N-hom β f) ⟩
+            (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)   ≡⟨ cong (G ⟪ f ⟫) βx≡νx ⟩
+            (G ⟪ f ⟫) (ν x)           ∎
+
+          uniqueness' : β ≡ inducedMap
+          uniqueness' = makeNatTransPath (funExt λ _ → funExt (
+            ElimPropWithMonotonous.elimProp
+              {B = B}
+              isPropValuedB
+              onηB
+              isLocalB
+              isMonotonousB))
 
     sheafificationIsUniversal :
       isUniversal
