@@ -1,19 +1,12 @@
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Sheafification.UniversalProperty where
 
--- TODO: clean up imports
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Function using (_∘_; _$_)
+open import Cubical.Foundations.Function using (_$_)
 open import Cubical.Foundations.Equiv
 
-open import Cubical.HITs.PropositionalTruncation as PT using (∣_∣₁)
-
 open import Cubical.Data.Sigma
-
-open import Cubical.Functions.Surjection
-open import Cubical.Functions.Embedding
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
@@ -23,7 +16,6 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.FullSubcategory
 
 open import Cubical.Categories.Site.Cover
-open import Cubical.Categories.Site.Sieve
 open import Cubical.Categories.Site.Coverage
 open import Cubical.Categories.Site.Sheaf
 
