@@ -11,13 +11,6 @@ open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.Slice
 
-module Families {ℓX : Level} where
-
-  -- TODO: move this to a more appropriate place
-  Fam : (ℓ : Level) → Type ℓX → Type (ℓ-max ℓX (ℓ-suc ℓ))
-  Fam ℓ X = TypeWithStr ℓ (λ Y → (Y → X))
-
-open Families
 
 module _
   {ℓ ℓ' : Level}
@@ -26,8 +19,8 @@ module _
 
   open Category
 
-  Cover : (ℓ'' : Level) → ob C → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓ''))
-  Cover ℓ'' c = Fam ℓ'' (ob (SliceCat C c))
+  Cover : (ℓpat : Level) → ob C → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓpat))
+  Cover ℓpat c = TypeWithStr ℓpat λ patches → patches → ob (SliceCat C c)
 
 module _
   {ℓ ℓ' : Level}
@@ -38,14 +31,14 @@ module _
 
   -- Extracting the members (patches) from a cover.
   module _
-    {ℓ'' : Level}
+    {ℓpat : Level}
     {c : ob C}
-    (cov : Cover C ℓ'' c)
-    (i : ⟨ cov ⟩)
+    (cov : Cover C ℓpat c)
+    (patch : ⟨ cov ⟩)
     where
 
     patchObj : ob C
-    patchObj = S-ob (str cov i)
+    patchObj = S-ob (str cov patch)
 
     patchArr : C [ patchObj , c ]
-    patchArr = S-arr (str cov i)
+    patchArr = S-arr (str cov patch)

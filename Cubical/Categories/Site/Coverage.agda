@@ -24,7 +24,7 @@ module _
   record Coverage (ℓcov ℓpat : Level) : Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-suc (ℓ-max ℓcov ℓpat)))) where
     no-eta-equality
     field
-      covers : (c : ob) → Families.Fam ℓcov (Cover C ℓpat c)
+      covers : (c : ob) → TypeWithStr ℓcov λ Cov → Cov → (Cover C ℓpat c)
       pullbackStability :
         (c : ob) →
         (cov : ⟨ covers c ⟩) →
