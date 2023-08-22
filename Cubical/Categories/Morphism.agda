@@ -1,6 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Morphism where
 
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
@@ -22,9 +23,40 @@ module _ (C : Category ℓ ℓ') where
   isMonic {x} {y} f =
     ∀ {z} {a a' : Hom[ z , x ]} → f ∘ a ≡ f ∘ a' → a ≡ a'
 
+  isPropIsMonic : (f : Hom[ x , y ]) → isProp (isMonic f)
+  isPropIsMonic _ = isPropImplicitΠ (λ _ → (isPropImplicitΠ2
+    (λ a a' → (isProp→ (isOfHLevelPath' 1 isSetHom a a')))))
+
+  postcompCreatesMonic : (f : Hom[ x , y ]) (g : Hom[ y , z ])
+    → isMonic (f ⋆ g) → isMonic f
+  postcompCreatesMonic f g monic {a = a} {a' = a'} fa≡fa' =
+    monic (sym (⋆Assoc a f g) ∙ cong (_⋆ g) fa≡fa' ∙ ⋆Assoc a' f g)
+
+  monicComp : (f : Hom[ x , y ]) (g : Hom[ y , z ])
+    → isMonic f → isMonic g → isMonic (f ⋆ g)
+  monicComp f g mon-f mon-g {a = a} {a' = a'} eq =
+    mon-f (mon-g (⋆Assoc a f g ∙ eq ∙ sym (⋆Assoc a' f g)))
+
+  monicId : {x : ob} → isMonic (id {x})
+  monicId {a = a} {a' = a'} eq = sym (⋆IdR a) ∙ eq ∙ ⋆IdR a'
+
+  retraction⇒monic : (f : Hom[ x , y ]) (lInv : Hom[ y , x ])
+    → (lInv ∘ f ≡ id) → isMonic f
+  retraction⇒monic f lInv eq =
+    postcompCreatesMonic f lInv (subst isMonic (sym eq) monicId)
+
   isEpic : (Hom[ x , y ]) → Type (ℓ-max ℓ ℓ')
   isEpic {x} {y} g =
     ∀ {z} {b b' : Hom[ y , z ]} → b ∘ g ≡ b' ∘ g → b ≡ b'
+
+  isPropIsEpic : (f : Hom[ x , y ]) → isProp (isEpic f)
+  isPropIsEpic _ = isPropImplicitΠ (λ _ → (isPropImplicitΠ2
+    (λ a a' → (isProp→ (isOfHLevelPath' 1 isSetHom a a')))))
+
+  precompCreatesEpic : (f : Hom[ x , y ]) (g : Hom[ z , x ])
+    → isEpic (g ⋆ f) → isEpic f
+  precompCreatesEpic f g epic {b = b} {b' = b'} bf≡b'f =
+    epic (⋆Assoc g f b ∙ cong (g ⋆_) bf≡b'f ∙ sym (⋆Assoc g f b'))
 
   -- A morphism is split monic if it has a *retraction*
   isSplitMon : (Hom[ x , y ]) → Type ℓ'

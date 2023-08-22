@@ -13,7 +13,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 import Cubical.Categories.Morphism as Morphism
-import Cubical.Categories.Constructions.Slice as Slice
+import Cubical.Categories.Constructions.Slice.Base as Slice
 
 -- some issues
 -- * always need to specify objects during composition because can't infer isSet
