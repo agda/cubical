@@ -105,7 +105,7 @@ module _
   isSheaf→isSeparated isSheafP c cov x y locallyEqual =
     isEmbedding→Inj (isEquiv→isEmbedding (isSheafP c cov)) x y
       (Σ≡Prop
-        (str ∘ (isCompatibleFamily P _))
+        (str ∘ (isCompatibleFamily {C = C} P _))
         (funExt locallyEqual))
 
 module _
