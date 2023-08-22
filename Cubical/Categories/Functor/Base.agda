@@ -1,6 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Functor.Base where
 
+open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -119,6 +120,11 @@ _⟪_⟫ = F-hom
 Id : {C : Category ℓ ℓ'} → Functor C C
 Id = 𝟙⟨ _ ⟩
 
+forgetΣPropCat : (C : Category ℓ ℓ') (prop : ℙ (C .ob)) → Functor (ΣPropCat C prop) C
+forgetΣPropCat _ _ .F-ob x    = x .fst
+forgetΣPropCat _ _ .F-hom f   = f
+forgetΣPropCat _ _ .F-id      = refl
+forgetΣPropCat _ _ .F-seq _ _ = refl
 
 -- functor composition
 funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E

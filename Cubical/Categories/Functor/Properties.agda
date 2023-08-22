@@ -14,6 +14,7 @@ open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
+open import Cubical.Categories.Morphism
 open import Cubical.Categories.Functor.Base
 
 
@@ -144,6 +145,14 @@ module _ {F : Functor C D} where
   isFull+Faithful→isFullyFaithful : isFull F → isFaithful F → isFullyFaithful F
   isFull+Faithful→isFullyFaithful full faith x y = isEmbedding×isSurjection→isEquiv
     (injEmbedding (D .isSetHom) (faith x y _ _) , full x y)
+
+  isFaithful→reflectsMono : isFaithful F → {x y : C .ob} (f : C [ x , y ])
+    → isMonic D (F ⟪ f ⟫) → isMonic C f
+  isFaithful→reflectsMono F-faithful f Ff-mon {a = a} {a' = a'} a⋆f≡a'⋆f =
+    let Fa⋆Ff≡Fa'⋆Ff = sym (F .F-seq a f)
+                     ∙ cong (F ⟪_⟫) a⋆f≡a'⋆f
+                     ∙ F .F-seq a' f
+    in F-faithful _ _ _ _ (Ff-mon Fa⋆Ff≡Fa'⋆Ff)
 
 
   -- Fully-faithful functor is conservative

@@ -210,19 +210,15 @@ yonedaᴾ* {ℓ}{ℓ'}{ℓ''}{C} F c =
 
 -- Yoneda embedding
 -- TODO: probably want to rename/refactor
-module _ {C : Category ℓ ℓ} where
+module _ {C : Category ℓ ℓ'} where
   open Functor
   open NatTrans
   open Category C
 
-  yo : ob → Functor (C ^op) (SET ℓ)
-  yo x .F-ob y .fst = C [ y , x ]
-  yo x .F-ob y .snd = isSetHom
-  yo x .F-hom f g = f ⋆⟨ C ⟩ g
-  yo x .F-id i f = ⋆IdL f i
-  yo x .F-seq f g i h = ⋆Assoc g f h i
+  yo : ob → Functor (C ^op) (SET ℓ')
+  yo x = C [-, x ]
 
-  YO : Functor C (PresheafCategory C ℓ)
+  YO : Functor C (PresheafCategory C ℓ')
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
   YO .F-hom f .N-hom g i h = ⋆Assoc g h f i
@@ -230,7 +226,7 @@ module _ {C : Category ℓ ℓ} where
   YO .F-seq f g = makeNatTransPath λ i _ → λ h → ⋆Assoc h f g (~ i)
 
 
-  module _ {x} (F : Functor (C ^op) (SET ℓ)) where
+  module _ {x} (F : Functor (C ^op) (SET ℓ')) where
     yo-yo-yo : NatTrans (yo x) F → F .F-ob x .fst
     yo-yo-yo α = α .N-ob _ id
 

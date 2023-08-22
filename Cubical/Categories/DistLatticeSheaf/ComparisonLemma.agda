@@ -352,96 +352,97 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
 
 
 
- open _≃ᶜ_ renaming (isEquiv to isEquivC)
- open isEquivalence
+ open WeakInverse
  open NatIso
  open isIso
 
  DLComparisonLemma : SheafL ≃ᶜ SheafB
- func DLComparisonLemma = sheafRestriction
- invFunc (isEquivC DLComparisonLemma) = sheafExtension
-
- -- the unit is induced by the universal property
- N-ob (trans (η (isEquivC DLComparisonLemma))) (F , _ ) =
-   DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
- N-hom (trans (η (isEquivC DLComparisonLemma))) {x = (F , _)} {y = (G , _)} α =
-   makeNatTransPath (funExt goal)
-     where
-     isConeMorComp : ∀ (x : ob Lᵒᵖ)
-                   → isConeMor
-                       ((NatTransCone _ _ _ F (idTrans _) x) ★ₙₜ (↓nt (α ∘ˡ i) x))
-                         (GLimCone (α ∘ˡ i) _ .limCone)
-                           (α .N-ob x
-                             ⋆⟨ C ⟩ limArrow (GLimCone (α ∘ˡ i) _) _
-                                             (NatTransCone _ _ _ G (idTrans _) x))
-     isConeMorComp x u⇂@((u , u∈B) , u≤x) =
-         α .N-ob x ⋆⟨ C ⟩ limArrow (GLimCone (α ∘ˡ i) _) _
-                                   (NatTransCone _ _ _ G (idTrans _) x)
-                   ⋆⟨ C ⟩ limOut (GLimCone (α ∘ˡ i) _) u⇂
-       ≡⟨ ⋆Assoc C _ _ _ ⟩
-         α .N-ob x ⋆⟨ C ⟩ (limArrow (GLimCone (α ∘ˡ i) _) _
-                                    (NatTransCone _ _ _ G (idTrans _) x)
-                            ⋆⟨ C ⟩ limOut (GLimCone (α ∘ˡ i) _) u⇂)
-       ≡⟨ cong (λ y → α .N-ob x ⋆⟨ C ⟩ y) (limArrowCommutes (GLimCone (α ∘ˡ i) _) _ _ _) ⟩
-         α .N-ob x ⋆⟨ C ⟩ (G .F-hom u≤x ⋆⟨ C ⟩ id C)
-       ≡⟨ cong (λ y → α .N-ob x ⋆⟨ C ⟩ y) (⋆IdR C _) ⟩
-         α .N-ob x ⋆⟨ C ⟩ G .F-hom u≤x
-       ≡⟨ sym (α .N-hom u≤x) ⟩
-         F .F-hom u≤x ⋆⟨ C ⟩ α .N-ob u
-       ≡⟨ cong (λ x → x ⋆⟨ C ⟩ α .N-ob u) (sym (⋆IdR C _)) ⟩
-         F .F-hom u≤x ⋆⟨ C ⟩ id C ⋆⟨ C ⟩ α .N-ob u ∎
-
-     goal : ∀ (x : ob Lᵒᵖ)
-          → α .N-ob x ⋆⟨ C ⟩ limArrow (GLimCone (α ∘ˡ i) _) _
-                                      (NatTransCone _ _ _ G (idTrans _) x)
-          ≡ limArrow (FLimCone (α ∘ˡ i) _) _
-                     (NatTransCone _ _ _ F (idTrans _) x)
-               ⋆⟨ C ⟩ limOfArrows (FLimCone (α ∘ˡ i) _) (GLimCone (α ∘ˡ i) _)
-                                  (↓nt (α ∘ˡ i) x)
-     goal x = sym (limArrowUnique _ _ _ _ (isConeMorComp x))
-            ∙ limArrowCompLimOfArrows _ _ _ _ _
-
- nIso (η (isEquivC DLComparisonLemma)) (F , isSheafF) = isIsoΣPropCat _ _ _
-   (NatIso→FUNCTORIso _ _ σNatIso .snd)
+ DLComparisonLemma = record { func = sheafRestriction ; isEquiv = ∣ winv ∣₁}
    where
-   σ = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+     winv : WeakInverse sheafRestriction
+     invFunc winv = sheafExtension
 
-   σRestIso : isIso (FUNCTOR Bᵒᵖ C) (σ ∘ˡ i)
-   inv σRestIso = DLRanNatTrans (F ∘F i)
-   sec σRestIso = let ε = DLRanNatTrans (F ∘F i)
-                      ε⁻¹ = NatIso→FUNCTORIso _ _ (DLRanNatIso (F ∘F i)) .snd .inv
-     in ε ●ᵛ (σ ∘ˡ i)
-      ≡⟨ cong (λ x → ε ●ᵛ x) (sym (⋆IdR (FUNCTOR Bᵒᵖ C) _)) ⟩
-        ε ●ᵛ ((σ ∘ˡ i) ●ᵛ idTrans _)
-      ≡⟨ cong (λ x → ε ●ᵛ ((σ ∘ˡ i) ●ᵛ x))
-              (sym (NatIso→FUNCTORIso _ _ (DLRanNatIso (F ∘F i)) .snd .ret)) ⟩
-        ε ●ᵛ ((σ ∘ˡ i) ●ᵛ (ε ●ᵛ ε⁻¹))
-      ≡⟨ cong (λ x → ε ●ᵛ x) (sym (⋆Assoc (FUNCTOR Bᵒᵖ C) _ _ _)) ⟩
-        ε ●ᵛ ((σ ∘ˡ i) ●ᵛ ε ●ᵛ ε⁻¹)
-      ≡⟨ cong (λ x → ε ●ᵛ (x ●ᵛ ε⁻¹))
-              (sym (DLRanUnivProp (F ∘F i) F (idTrans _) .fst .snd)) ⟩
-        ε ●ᵛ (idTrans _ ●ᵛ ε⁻¹)
-      ≡⟨ cong (λ x → ε ●ᵛ x) (⋆IdL (FUNCTOR Bᵒᵖ C) _) ⟩
-        ε ●ᵛ ε⁻¹
-      ≡⟨ NatIso→FUNCTORIso _ _ (DLRanNatIso (F ∘F i)) .snd .ret ⟩
-        idTrans _ ∎
-   ret σRestIso = sym (DLRanUnivProp (F ∘F i) F (idTrans _) .fst .snd)
+     -- the unit is induced by the universal property
+     N-ob (trans (η winv)) (F , _ ) =
+       DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+     N-hom (trans (η winv)) {x = (F , _)} {y = (G , _)} α =
+       makeNatTransPath (funExt goal)
+         where
+         isConeMorComp : ∀ (x : ob Lᵒᵖ)
+                       → isConeMor
+                           ((NatTransCone _ _ _ F (idTrans _) x) ★ₙₜ (↓nt (α ∘ˡ i) x))
+                             (GLimCone (α ∘ˡ i) _ .limCone)
+                               (α .N-ob x
+                                 ⋆⟨ C ⟩ limArrow (GLimCone (α ∘ˡ i) _) _
+                                                 (NatTransCone _ _ _ G (idTrans _) x))
+         isConeMorComp x u⇂@((u , u∈B) , u≤x) =
+             α .N-ob x ⋆⟨ C ⟩ limArrow (GLimCone (α ∘ˡ i) _) _
+                                       (NatTransCone _ _ _ G (idTrans _) x)
+                       ⋆⟨ C ⟩ limOut (GLimCone (α ∘ˡ i) _) u⇂
+           ≡⟨ ⋆Assoc C _ _ _ ⟩
+             α .N-ob x ⋆⟨ C ⟩ (limArrow (GLimCone (α ∘ˡ i) _) _
+                                        (NatTransCone _ _ _ G (idTrans _) x)
+                                ⋆⟨ C ⟩ limOut (GLimCone (α ∘ˡ i) _) u⇂)
+           ≡⟨ cong (λ y → α .N-ob x ⋆⟨ C ⟩ y) (limArrowCommutes (GLimCone (α ∘ˡ i) _) _ _ _) ⟩
+             α .N-ob x ⋆⟨ C ⟩ (G .F-hom u≤x ⋆⟨ C ⟩ id C)
+           ≡⟨ cong (λ y → α .N-ob x ⋆⟨ C ⟩ y) (⋆IdR C _) ⟩
+             α .N-ob x ⋆⟨ C ⟩ G .F-hom u≤x
+           ≡⟨ sym (α .N-hom u≤x) ⟩
+             F .F-hom u≤x ⋆⟨ C ⟩ α .N-ob u
+           ≡⟨ cong (λ x → x ⋆⟨ C ⟩ α .N-ob u) (sym (⋆IdR C _)) ⟩
+             F .F-hom u≤x ⋆⟨ C ⟩ id C ⋆⟨ C ⟩ α .N-ob u ∎
 
-   σNatIso : NatIso F (DLRan (F ∘F i))
-   trans σNatIso = σ
-   nIso σNatIso = restIsoLemma
-                    (F , isSheafF)
-                      (_ , isDLSheafDLRan isBasisB _ (restPresSheafProp _ isSheafF))
-                        σ
-                          (FUNCTORIso→NatIso _ _ (_ , σRestIso) .nIso)
+         goal : ∀ (x : ob Lᵒᵖ)
+              → α .N-ob x ⋆⟨ C ⟩ limArrow (GLimCone (α ∘ˡ i) _) _
+                                          (NatTransCone _ _ _ G (idTrans _) x)
+              ≡ limArrow (FLimCone (α ∘ˡ i) _) _
+                         (NatTransCone _ _ _ F (idTrans _) x)
+                   ⋆⟨ C ⟩ limOfArrows (FLimCone (α ∘ˡ i) _) (GLimCone (α ∘ˡ i) _)
+                                      (↓nt (α ∘ˡ i) x)
+         goal x = sym (limArrowUnique _ _ _ _ (isConeMorComp x))
+                ∙ limArrowCompLimOfArrows _ _ _ _ _
 
- -- the counit is easy
- N-ob (trans (ε (isEquivC DLComparisonLemma))) (F , _) = DLRanNatTrans F
- N-hom (trans (ε (isEquivC DLComparisonLemma))) α = -- DLRanNatTrans F is functorial in F
-   makeNatTransPath (funExt (λ u → limOfArrowsOut (FLimCone α (u .fst))
-                                                  (GLimCone α (u .fst)) _ _))
- nIso (ε (isEquivC DLComparisonLemma)) (F , isSheafF) = isIsoΣPropCat _ _ _
-   (NatIso→FUNCTORIso _ _ (DLRanNatIso F) .snd)
+     nIso (η winv) (F , isSheafF) = isIsoΣPropCat _ _ _
+       (NatIso→FUNCTORIso _ _ σNatIso .snd)
+       where
+       σ = DLRanUnivProp (F ∘F i) F (idTrans _) .fst .fst
+
+       σRestIso : isIso (FUNCTOR Bᵒᵖ C) (σ ∘ˡ i)
+       inv σRestIso = DLRanNatTrans (F ∘F i)
+       sec σRestIso = let ε = DLRanNatTrans (F ∘F i)
+                          ε⁻¹ = NatIso→FUNCTORIso _ _ (DLRanNatIso (F ∘F i)) .snd .inv
+         in ε ●ᵛ (σ ∘ˡ i)
+          ≡⟨ cong (λ x → ε ●ᵛ x) (sym (⋆IdR (FUNCTOR Bᵒᵖ C) _)) ⟩
+            ε ●ᵛ ((σ ∘ˡ i) ●ᵛ idTrans _)
+          ≡⟨ cong (λ x → ε ●ᵛ ((σ ∘ˡ i) ●ᵛ x))
+                  (sym (NatIso→FUNCTORIso _ _ (DLRanNatIso (F ∘F i)) .snd .ret)) ⟩
+            ε ●ᵛ ((σ ∘ˡ i) ●ᵛ (ε ●ᵛ ε⁻¹))
+          ≡⟨ cong (λ x → ε ●ᵛ x) (sym (⋆Assoc (FUNCTOR Bᵒᵖ C) _ _ _)) ⟩
+            ε ●ᵛ ((σ ∘ˡ i) ●ᵛ ε ●ᵛ ε⁻¹)
+          ≡⟨ cong (λ x → ε ●ᵛ (x ●ᵛ ε⁻¹))
+                  (sym (DLRanUnivProp (F ∘F i) F (idTrans _) .fst .snd)) ⟩
+            ε ●ᵛ (idTrans _ ●ᵛ ε⁻¹)
+          ≡⟨ cong (λ x → ε ●ᵛ x) (⋆IdL (FUNCTOR Bᵒᵖ C) _) ⟩
+            ε ●ᵛ ε⁻¹
+          ≡⟨ NatIso→FUNCTORIso _ _ (DLRanNatIso (F ∘F i)) .snd .ret ⟩
+            idTrans _ ∎
+       ret σRestIso = sym (DLRanUnivProp (F ∘F i) F (idTrans _) .fst .snd)
+
+       σNatIso : NatIso F (DLRan (F ∘F i))
+       trans σNatIso = σ
+       nIso σNatIso = restIsoLemma
+                        (F , isSheafF)
+                          (_ , isDLSheafDLRan isBasisB _ (restPresSheafProp _ isSheafF))
+                            σ
+                              (FUNCTORIso→NatIso _ _ (_ , σRestIso) .nIso)
+
+     -- the counit is easy
+     N-ob (trans (ε winv)) (F , _) = DLRanNatTrans F
+     N-hom (trans (ε winv)) α = -- DLRanNatTrans F is functorial in F
+       makeNatTransPath (funExt (λ u → limOfArrowsOut (FLimCone α (u .fst))
+                                                      (GLimCone α (u .fst)) _ _))
+     nIso (ε winv) (F , isSheafF) = isIsoΣPropCat _ _ _
+       (NatIso→FUNCTORIso _ _ (DLRanNatIso F) .snd)
 
 
  -- useful corollary:
@@ -452,4 +453,4 @@ module _ (L : DistLattice ℓ) (C : Category ℓ' ℓ'') (limitC : Limits {ℓ} 
  makeNatTransPathRest F G _ _ basePaths = isFaithfulSheafRestriction F G _ _
                                             (makeNatTransPath (funExt basePaths))
    where
-   isFaithfulSheafRestriction = isEquiv→Faithful (DLComparisonLemma .isEquivC)
+   isFaithfulSheafRestriction = isEquiv→Faithful (DLComparisonLemma ._≃ᶜ_.isEquiv)
