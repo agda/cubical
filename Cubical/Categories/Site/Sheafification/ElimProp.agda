@@ -188,7 +188,7 @@ module _
                       restrict p' (restrict f x)  ∎ )
                     (B'fam patch g))
                 (refines patch'))
-          (pullbackStability _ cover _ f)
+          (pullbackStability cover f)
 
       isMonotonousB' : isMonotonous B'
       isMonotonousB' f x B'x g = subst B (restrictRestrict _ _ _) (B'x (g ⋆ f))

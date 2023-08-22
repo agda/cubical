@@ -30,9 +30,9 @@ module _
     field
       covers : (c : ob) → TypeWithStr ℓcov λ Cov → Cov → (Cover C ℓpat c)
       pullbackStability :
-        (c : ob) →
+        {c : ob} →
         (cov : ⟨ covers c ⟩) →
-        (d : ob) →
+        {d : ob} →
         (f : Hom[ d , c ]) →
         ∃[ cov' ∈ ⟨ covers d ⟩ ]
           ⟨ coverRefinesSieve
