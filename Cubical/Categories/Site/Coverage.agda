@@ -9,6 +9,9 @@ module Cubical.Categories.Site.Coverage where
 -- * https://ncatlab.org/nlab/show/coverage
 -- * Peter Johnstone, "Sketches of an Elephant" (Definition C2.1.1)
 
+-- While the covers are just families of arrows,
+-- we use the notion of sieves to express the "pullback stability" property of the coverage.
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.HITs.PropositionalTruncation

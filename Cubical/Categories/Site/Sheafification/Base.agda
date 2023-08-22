@@ -2,7 +2,7 @@
 module Cubical.Categories.Site.Sheafification.Base where
 
 -- Construction of the sheafification of a presheaf on a site
--- using a quotient inductive type.
+-- using a quotient inductive type (QIT).
 
 -- This is inspired by the construction of the sheafification (for finite coverings) in:
 -- * E. Palmgren, S.J. Vickers, "Partial Horn logic and cartesian categories"

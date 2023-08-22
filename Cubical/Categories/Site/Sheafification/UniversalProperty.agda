@@ -1,6 +1,9 @@
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Sheafification.UniversalProperty where
 
+-- We prove the universal property of the sheafification,
+-- exhibiting it as a left adjoint to the forgetful functor.
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function using (_$_)
@@ -29,7 +32,7 @@ module UniversalProperty
   (J : Coverage C ℓcov ℓpat)
   where
 
-  -- We now assume P to have this level to ensure that F has the same level as P.
+  -- We assume 'P' to have this level to ensure that 'F' has the same level as 'P'.
   ℓP = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov ℓpat))
 
   module _
@@ -90,7 +93,7 @@ module UniversalProperty
           fst (fst (equiv-proof (isSheafG _ cover) fam'))
           where
           cov = str (covers _) cover
-          -- We have to push forward fam along the natural transformation ν that we are just defining.
+          -- We have to push forward 'fam' along the natural transformation 'ν' that we are just defining.
           fam' : CompatibleFamily G cov
           fam' =
             (λ i → ν (fam i)) ,
@@ -143,7 +146,7 @@ module UniversalProperty
         uniqueness = makeNatTransPath (funExt λ _ → funExt (
           elimProp J P {B = B} isPropValuedB onηB isLocalB))
 
-        -- This alternative proof does not use the pullbackStability of the coverage.
+        -- This alternative proof does not use the 'pullbackStability' of the coverage.
         module _ where private
 
           isMonotonousB : isMonotonous B
