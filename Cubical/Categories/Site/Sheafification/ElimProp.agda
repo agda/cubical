@@ -1,6 +1,9 @@
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Site.Sheafification.ElimProp where
 
+-- An elimination operator from the QIT definition of sheafification
+-- into a dependent proposition.
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
@@ -30,6 +33,7 @@ module _
   open Coverage J
   open Sheafification J P
 
+  -- We name the (potential) assumptions on 'B' here to avoid repetition.
   module ElimPropAssumptions
     {ℓB : Level}
     (B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB)
@@ -45,6 +49,8 @@ module _
       (x : ⟨ P ⟅ c ⟆ ⟩) →
       B (η⟦⟧ x)
 
+    -- This way to say that 'B' respects the 'amalgamate' point constructor
+    -- should usually be more convenient to prove.
     isLocal =
       {c : ob} →
       (x : ⟨F⟅ c ⟆⟩) →
@@ -62,6 +68,7 @@ module _
 
   open ElimPropAssumptions
 
+  -- A fist version of elimProp that uses the isMonotonous assumption.
   module ElimPropWithMonotonous
     {ℓB : Level}
     {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
@@ -71,6 +78,8 @@ module _
     (isMonotonousB : isMonotonous B)
     where
 
+    -- We have to transform the 'isLocal' assumption into the actual statement
+    -- that 'B' respects 'amalgamate'.
     amalgamatePreservesB :
       {c : ob} →
       (cover : ⟨ covers c ⟩) →
@@ -84,6 +93,7 @@ module _
         cover
         λ patch → subst B (sym (restrictAmalgamate cover fam patch)) (famB patch)
 
+    -- A helper to deal with the path constructor cases.
     mkPathP :
       {c : ob} →
       {x0 x1 : ⟨F⟅ c ⟆⟩} →
@@ -138,6 +148,7 @@ module _
         (elimProp (fst fam patch))
         i
 
+  -- Now we drop the 'isMonotonous' assumption and prove the stronger version of 'elimProp'.
   module _
     {ℓB : Level}
     {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
@@ -146,7 +157,7 @@ module _
     (isLocalB : isLocal B)
     where
 
-    -- Idea: strengthen the inductive hypothesis to "every restriction of x satisfies B"
+    -- Idea: strengthen the inductive hypothesis to "every restriction of x satisfies 'B'"
     private
       B' : {c : ob} → ⟨F⟅ c ⟆⟩ → Type (ℓ-max (ℓ-max ℓ ℓ') ℓB)
       B' x = {d : ob} → (f : Hom[ d , _ ]) → B (restrict f x)
