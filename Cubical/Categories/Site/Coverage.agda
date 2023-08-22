@@ -5,6 +5,10 @@ module Cubical.Categories.Site.Coverage where
 -- A coverage on a category turns it into a site
 -- and enables us to formulate a sheaf condition.
 
+-- We stay close to the definitions given in the nLab and the Elephant:
+-- * https://ncatlab.org/nlab/show/coverage
+-- * Peter Johnstone, "Sketches of an Elephant" (Definition C2.1.1)
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.HITs.PropositionalTruncation
