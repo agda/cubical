@@ -84,7 +84,9 @@ module _ {R : Ring ℓ} where
     LeftModule→Group = AbGroup→Group LeftModule→AbGroup
 
   isSetLeftModule : (M : LeftModule R ℓ') → isSet ⟨ M ⟩
-  isSetLeftModule M = isSetAbGroup (LeftModule→AbGroup M)
+  isSetLeftModule M = is-set
+    where
+    open LeftModuleStr (str M)
 
   open RingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·s_)
 

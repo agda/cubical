@@ -6,7 +6,7 @@ module Cubical.Algebra.OrderedCommMonoid.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP using (TypeWithStr)
-open import Cubical.Foundations.Structure using (⟨_⟩)
+open import Cubical.Foundations.Structure using (⟨_⟩; str)
 
 open import Cubical.Algebra.CommMonoid.Base
 
@@ -92,4 +92,6 @@ OrderedCommMonoid→CommMonoid M .snd =
   in commmonoidstr _ _ isCommMonoid
 
 isSetOrderedCommMonoid : (M : OrderedCommMonoid ℓ ℓ') → isSet ⟨ M ⟩
-isSetOrderedCommMonoid M = isSetCommMonoid (OrderedCommMonoid→CommMonoid M)
+isSetOrderedCommMonoid M = is-set
+  where
+  open OrderedCommMonoidStr (str M)
