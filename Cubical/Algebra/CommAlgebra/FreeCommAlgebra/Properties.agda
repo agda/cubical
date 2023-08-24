@@ -1,6 +1,20 @@
 {-# OPTIONS --safe #-}
 
 module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Properties where
+{-
+  This file contains
+  * definitions of the induced maps appearing in the universal property of R[I],
+    that is:  * for any map I → A, where A is a commutative R-algebra,
+                the induced algebra homomorphism R[I] → A
+                ('inducedHom')
+              * for any hom R[I] → A, the 'restricttion to variables' I → A
+                ('evaluateAt')
+  * a proof that the two constructions are inverse to each other
+    ('homMapIso')
+  * proofs that the constructions are natural in various ways
+  * a proof that the FreeCommAlgebra on zero generators is the initial R-Algebra
+    ('freeOn⊥')
+-}
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
