@@ -26,6 +26,10 @@ record IsOrderedCommMonoid
     MonotoneR  : {x y z : M} → x ≤ y → (x · z) ≤ (y · z) -- both versions, just for convenience
     MonotoneL  : {x y z : M} → x ≤ y → (z · x) ≤ (z · y)
 
+  open IsPoset isPoset public
+  open IsCommMonoid isCommMonoid public
+    hiding (is-set)
+
 record OrderedCommMonoidStr (ℓ' : Level) (M : Type ℓ) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   field
     _≤_ : M → M → Type ℓ'
@@ -34,8 +38,6 @@ record OrderedCommMonoidStr (ℓ' : Level) (M : Type ℓ) : Type (ℓ-suc (ℓ-m
     isOrderedCommMonoid : IsOrderedCommMonoid _·_ ε _≤_
 
   open IsOrderedCommMonoid isOrderedCommMonoid public
-  open IsPoset isPoset public
-  open IsCommMonoid isCommMonoid public
 
   infixl 4 _≤_
 
