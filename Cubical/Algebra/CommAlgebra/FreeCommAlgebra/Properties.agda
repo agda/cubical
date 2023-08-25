@@ -48,8 +48,8 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
          using (0r; 1r)
          renaming (_·_ to _·r_; _+_ to _+r_; ·Comm to ·r-comm; ·IdR to ·r-rid)
 
-  open Construction using (var; const)
   module C = Construction
+  open C using (var; const)
 
   {-
     Construction of the elimProp eliminator.
@@ -164,8 +164,8 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
     inducedMap (const r) = r ⋆ 1a
     inducedMap (P C.+ Q) = (inducedMap P) + (inducedMap Q)
     inducedMap (C.- P) = - inducedMap P
-    inducedMap (Construction.+-assoc P Q S i) = +Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
-    inducedMap (Construction.+-rid P i) =
+    inducedMap (C.+-assoc P Q S i) = +Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (C.+-rid P i) =
       let
         eq : (inducedMap P) + (inducedMap (const 0r)) ≡ (inducedMap P)
         eq = (inducedMap P) + (inducedMap (const 0r)) ≡⟨ refl ⟩
@@ -175,31 +175,31 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
              (inducedMap P) + 0a                      ≡⟨ +IdR _ ⟩
              (inducedMap P) ∎
       in eq i
-    inducedMap (Construction.+-rinv P i) =
+    inducedMap (C.+-rinv P i) =
       let eq : (inducedMap P - inducedMap P) ≡ (inducedMap (const 0r))
           eq = (inducedMap P - inducedMap P) ≡⟨ +InvR _ ⟩
                0a                            ≡⟨ sym imageOf0Works ⟩
                (inducedMap (const 0r))∎
       in eq i
-    inducedMap (Construction.+-comm P Q i) = +Comm (inducedMap P) (inducedMap Q) i
+    inducedMap (C.+-comm P Q i) = +Comm (inducedMap P) (inducedMap Q) i
     inducedMap (P C.· Q) = inducedMap P · inducedMap Q
-    inducedMap (Construction.·-assoc P Q S i) = ·Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
-    inducedMap (Construction.·-lid P i) =
+    inducedMap (C.·-assoc P Q S i) = ·Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (C.·-lid P i) =
       let eq = inducedMap (const 1r) · inducedMap P ≡⟨ cong (λ u → u · inducedMap P) imageOf1Works ⟩
                1a · inducedMap P                    ≡⟨ ·IdL (inducedMap P) ⟩
                inducedMap P ∎
       in eq i
-    inducedMap (Construction.·-comm P Q i) = ·Comm (inducedMap P) (inducedMap Q) i
-    inducedMap (Construction.ldist P Q S i) = ·DistL+ (inducedMap P) (inducedMap Q) (inducedMap S) i
-    inducedMap (Construction.+HomConst s t i) = ⋆DistL+ s t 1a i
-    inducedMap (Construction.·HomConst s t i) =
+    inducedMap (C.·-comm P Q i) = ·Comm (inducedMap P) (inducedMap Q) i
+    inducedMap (C.ldist P Q S i) = ·DistL+ (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (C.+HomConst s t i) = ⋆DistL+ s t 1a i
+    inducedMap (C.·HomConst s t i) =
       let eq = (s ·r t) ⋆ 1a       ≡⟨ cong (λ u → u ⋆ 1a) (·r-comm _ _) ⟩
                (t ·r s) ⋆ 1a       ≡⟨ ⋆Assoc t s 1a ⟩
                t ⋆ (s ⋆ 1a)        ≡⟨ cong (λ u → t ⋆ u) (sym (·IdR _)) ⟩
                t ⋆ ((s ⋆ 1a) · 1a) ≡⟨ ⋆AssocR t (s ⋆ 1a) 1a ⟩
                (s ⋆ 1a) · (t ⋆ 1a) ∎
       in eq i
-    inducedMap (Construction.0-trunc P Q p q i j) =
+    inducedMap (C.0-trunc P Q p q i j) =
       isSetAlgebra (CommAlgebra→Algebra A) (inducedMap P) (inducedMap Q) (cong _ p) (cong _ q) i j
 
     module _ where
@@ -220,7 +220,6 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
   module _ (A : CommAlgebra R ℓ'') where
     open CommAlgebraStr (A .snd)
     open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
-    open Construction using (var; const) renaming (_+_ to _+c_; -_ to -c_; _·_ to _·c_)
 
     Hom = CommAlgebraHom  (R [ I ]) A
     open IsAlgebraHom
@@ -240,25 +239,25 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
         (is-set _ _)
         (λ {x} → refl)
         (λ {r} →
-          r ⋆ 1a                     ≡⟨ cong (λ u → r ⋆ u) (sym f.pres1) ⟩
-          r ⋆ (f $a (const 1r))      ≡⟨ sym (f.pres⋆ r _) ⟩
-          f $a (const r ·c const 1r) ≡⟨ cong (λ u → f $a u) (sym (Construction.·HomConst r 1r)) ⟩
-          f $a (const (r ·r 1r))     ≡⟨ cong (λ u → f $a (const u)) (·r-rid r) ⟩
+          r ⋆ 1a                      ≡⟨ cong (λ u → r ⋆ u) (sym f.pres1) ⟩
+          r ⋆ (f $a (const 1r))       ≡⟨ sym (f.pres⋆ r _) ⟩
+          f $a (const r C.· const 1r) ≡⟨ cong (λ u → f $a u) (sym (C.·HomConst r 1r)) ⟩
+          f $a (const (r ·r 1r))      ≡⟨ cong (λ u → f $a (const u)) (·r-rid r) ⟩
           f $a (const r) ∎)
 
         (λ {x} {y} eq-x eq-y →
-          ι (x +c y)            ≡⟨ refl ⟩
+          ι (x C.+ y)           ≡⟨ refl ⟩
           (ι x + ι y)           ≡⟨ cong (λ u → u + ι y) eq-x ⟩
           ((f $a x) + ι y)      ≡⟨ cong (λ u → (f $a x) + u) eq-y ⟩
           ((f $a x) + (f $a y)) ≡⟨ sym (f.pres+ _ _) ⟩
-          (f $a (x +c y)) ∎)
+          (f $a (x C.+ y)) ∎)
 
         (λ {x} {y} eq-x eq-y →
-          ι (x ·c y)          ≡⟨ refl ⟩
+          ι (x C.· y)         ≡⟨ refl ⟩
           ι x     · ι y       ≡⟨ cong (λ u → u · ι y) eq-x ⟩
           (f $a x) · (ι y)    ≡⟨ cong (λ u → (f $a x) · u) eq-y ⟩
           (f $a x) · (f $a y) ≡⟨ sym (f.pres· _ _) ⟩
-          f $a (x ·c y) ∎)
+          f $a (x C.· y) ∎)
       )
       where
       ι = inducedMap A (evaluateAt f)
