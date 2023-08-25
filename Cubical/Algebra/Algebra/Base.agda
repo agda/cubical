@@ -112,7 +112,9 @@ module commonExtractors {R : Ring ℓ} where
   Algebra→MultMonoid A = Ring→MultMonoid (Algebra→Ring A)
 
   isSetAlgebra : (A : Algebra R ℓ') → isSet ⟨ A ⟩
-  isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
+  isSetAlgebra A = is-set
+    where
+    open AlgebraStr (str A)
 
   open RingStr (snd R) using (1r; ·DistL+) renaming (_+_ to _+r_; _·_ to _·s_)
 
