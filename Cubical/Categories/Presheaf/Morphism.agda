@@ -63,12 +63,13 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
 
     pushEltF : Functor (∫ᴾ_ {C = C} P) (∫ᴾ_ {C = D} Q)
     pushEltF .F-ob = pushElt
-    pushEltF .F-hom {x}{y} (f , commutes) = F .F-hom f , sym (
+    pushEltF .F-hom {x}{y} (f , commutes) .fst = F .F-hom f
+    pushEltF .F-hom {x}{y} (f , commutes) .snd =
       pushElt _ .snd ∘ᴾ⟨ D , Q ⟩ F .F-hom f
         ≡⟨ pushEltNat y f ⟩
       pushElt (_ , y .snd ∘ᴾ⟨ C , P ⟩ f) .snd
-        ≡⟨ cong (λ a → pushElt a .snd) (ΣPathP (refl , (sym commutes))) ⟩
-      pushElt x .snd ∎)
+        ≡⟨ cong (λ a → pushElt a .snd) (ΣPathP (refl , commutes)) ⟩
+      pushElt x .snd ∎
     pushEltF .F-id = Σ≡Prop (λ x → (Q ⟅ _ ⟆) .snd _ _) (F .F-id)
     pushEltF .F-seq f g =
       Σ≡Prop ((λ x → (Q ⟅ _ ⟆) .snd _ _)) (F .F-seq (f .fst) (g .fst))

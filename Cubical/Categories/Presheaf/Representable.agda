@@ -150,10 +150,10 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   isTerminalToIsUniversal {η} term A .equiv-proof ϕ .fst .fst =
     term (_ , ϕ) .fst .fst
   isTerminalToIsUniversal {η} term A .equiv-proof ϕ .fst .snd =
-    sym (term (_ , ϕ) .fst .snd)
+    term (_ , ϕ) .fst .snd
   isTerminalToIsUniversal {η} term A .equiv-proof ϕ .snd (f , commutes) =
     Σ≡Prop (λ _ → (P ⟅ A ⟆) .snd _ _)
-           (cong fst (term (A , ϕ) .snd (f , sym commutes)))
+           (cong fst (term (A , ϕ) .snd (f , commutes)))
 
   isUniversalToIsTerminal :
     ∀ (vertex : C .ob) (element : (P ⟅ vertex ⟆) .fst)
@@ -162,11 +162,11 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   isUniversalToIsTerminal vertex element universal ϕ .fst .fst =
     universal _ .equiv-proof (ϕ .snd) .fst .fst
   isUniversalToIsTerminal vertex element universal ϕ .fst .snd =
-    sym (universal _ .equiv-proof (ϕ .snd) .fst .snd)
+    universal _ .equiv-proof (ϕ .snd) .fst .snd
   isUniversalToIsTerminal vertex element universal ϕ .snd (f , commutes) =
     Σ≡Prop
       (λ _ → (P ⟅ _ ⟆) .snd _ _)
-      (cong fst (universal _ .equiv-proof (ϕ .snd) .snd (f , sym commutes)))
+      (cong fst (universal _ .equiv-proof (ϕ .snd) .snd (f , commutes)))
 
   terminalElementToUniversalElement : TerminalElement → UniversalElement
   terminalElementToUniversalElement η .vertex = η .fst .fst

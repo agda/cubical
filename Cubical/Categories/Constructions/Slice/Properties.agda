@@ -31,13 +31,13 @@ open WeakInverse
 
 slice→el : Functor (SliceCat C c) (∫ᴾ (C [-, c ]))
 slice→el .F-ob s = s .S-ob , s .S-arr
-slice→el .F-hom f = f .S-hom , sym (f .S-comm)
+slice→el .F-hom f = f .S-hom , f .S-comm
 slice→el .F-id = ΣPathP (refl , (isOfHLevelPath' 1 (C .isSetHom) _ _ _ _))
 slice→el .F-seq _ _ = ΣPathP (refl , (isOfHLevelPath' 1 (C .isSetHom) _ _ _ _))
 
 el→slice : Functor (∫ᴾ (C [-, c ])) (SliceCat C c)
 el→slice .F-ob (_ , s) = sliceob s
-el→slice .F-hom (f , comm) = slicehom f (sym comm)
+el→slice .F-hom (f , comm) = slicehom f comm
 el→slice .F-id = SliceHom-≡-intro C c refl (isOfHLevelPath' 1 (C .isSetHom) _ _ _ _)
 el→slice .F-seq _ _ = SliceHom-≡-intro C c refl (isOfHLevelPath' 1 (C .isSetHom) _ _ _ _)
 
