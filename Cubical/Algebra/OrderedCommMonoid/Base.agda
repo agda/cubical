@@ -80,7 +80,7 @@ module _
 
   IsOrderedCommMonoidFromIsCommMonoid : IsOrderedCommMonoid _·_ 1m _≤_
   CM.isPoset IsOrderedCommMonoidFromIsCommMonoid =
-    isposet (isSetFromIsCommMonoid isCommMonoid) isProp≤ isRefl isTrans isAntisym
+    isposet (IsCommMonoid.is-set isCommMonoid) isProp≤ isRefl isTrans isAntisym
   CM.isCommMonoid IsOrderedCommMonoidFromIsCommMonoid = isCommMonoid
   CM.MonotoneR IsOrderedCommMonoidFromIsCommMonoid = rmonotone _ _ _
   CM.MonotoneL IsOrderedCommMonoidFromIsCommMonoid = lmonotone _ _ _
