@@ -56,7 +56,9 @@ group : (G : Type ℓ) (1g : G) (_·_ : G → G → G) (inv : G → G) (h : IsGr
 group G 1g _·_ inv h = G , groupstr 1g _·_ inv h
 
 isSetGroup : (G : Group ℓ) → isSet ⟨ G ⟩
-isSetGroup G = GroupStr.isGroup (snd G) .IsGroup.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+isSetGroup G = is-set
+  where
+  open GroupStr (str G)
 
 makeIsGroup : {G : Type ℓ} {e : G} {_·_ : G → G → G} { inv : G → G}
               (is-setG : isSet G)

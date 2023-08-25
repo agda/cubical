@@ -82,7 +82,9 @@ Ring : ∀ ℓ → Type (ℓ-suc ℓ)
 Ring ℓ = TypeWithStr ℓ RingStr
 
 isSetRing : (R : Ring ℓ) → isSet ⟨ R ⟩
-isSetRing R = R .snd .RingStr.isRing .IsRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+isSetRing R = is-set
+  where
+  open RingStr (str R)
 
 module _ {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                (is-setR : isSet R)

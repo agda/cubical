@@ -75,7 +75,9 @@ DistLattice : ∀ ℓ → Type (ℓ-suc ℓ)
 DistLattice ℓ = TypeWithStr ℓ DistLatticeStr
 
 isSetDistLattice : (L : DistLattice ℓ) → isSet ⟨ L ⟩
-isSetDistLattice L = L .snd .DistLatticeStr.is-set
+isSetDistLattice L = is-set
+  where
+  open DistLatticeStr (str L)
 
 -- when proving the axioms for a distributive lattice
 -- we use the fact that from distributivity and absorption
