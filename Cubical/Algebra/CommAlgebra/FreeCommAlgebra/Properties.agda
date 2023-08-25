@@ -3,6 +3,8 @@
 module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Properties where
 {-
   This file contains
+  * an elimination principle for proving some proposition for all elements of R[I]
+    ('elimProp')
   * definitions of the induced maps appearing in the universal property of R[I],
     that is:  * for any map I → A, where A is a commutative R-algebra,
                 the induced algebra homomorphism R[I] → A
@@ -49,74 +51,9 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
   open Construction using (var; const)
   module C = Construction
 
-  module _ (A : CommAlgebra R ℓ'') (φ : I → ⟨ A ⟩) where
-    open CommAlgebraStr (A .snd)
-    open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
-
-    imageOf0Works : 0r ⋆ 1a ≡ 0a
-    imageOf0Works = ⋆AnnihilL 1a
-
-    imageOf1Works : 1r ⋆ 1a ≡ 1a
-    imageOf1Works = ⋆IdL 1a
-
-    inducedMap : ⟨ R [ I ] ⟩ → ⟨ A ⟩
-    inducedMap (var x) = φ x
-    inducedMap (const r) = r ⋆ 1a
-    inducedMap (P C.+ Q) = (inducedMap P) + (inducedMap Q)
-    inducedMap (C.- P) = - inducedMap P
-    inducedMap (Construction.+-assoc P Q S i) = +Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
-    inducedMap (Construction.+-rid P i) =
-      let
-        eq : (inducedMap P) + (inducedMap (const 0r)) ≡ (inducedMap P)
-        eq = (inducedMap P) + (inducedMap (const 0r)) ≡⟨ refl ⟩
-             (inducedMap P) + (0r ⋆ 1a)               ≡⟨ cong
-                                                         (λ u → (inducedMap P) + u)
-                                                         (imageOf0Works) ⟩
-             (inducedMap P) + 0a                      ≡⟨ +IdR _ ⟩
-             (inducedMap P) ∎
-      in eq i
-    inducedMap (Construction.+-rinv P i) =
-      let eq : (inducedMap P - inducedMap P) ≡ (inducedMap (const 0r))
-          eq = (inducedMap P - inducedMap P) ≡⟨ +InvR _ ⟩
-               0a                            ≡⟨ sym imageOf0Works ⟩
-               (inducedMap (const 0r))∎
-      in eq i
-    inducedMap (Construction.+-comm P Q i) = +Comm (inducedMap P) (inducedMap Q) i
-    inducedMap (P C.· Q) = inducedMap P · inducedMap Q
-    inducedMap (Construction.·-assoc P Q S i) = ·Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
-    inducedMap (Construction.·-lid P i) =
-      let eq = inducedMap (const 1r) · inducedMap P ≡⟨ cong (λ u → u · inducedMap P) imageOf1Works ⟩
-               1a · inducedMap P                    ≡⟨ ·IdL (inducedMap P) ⟩
-               inducedMap P ∎
-      in eq i
-    inducedMap (Construction.·-comm P Q i) = ·Comm (inducedMap P) (inducedMap Q) i
-    inducedMap (Construction.ldist P Q S i) = ·DistL+ (inducedMap P) (inducedMap Q) (inducedMap S) i
-    inducedMap (Construction.+HomConst s t i) = ⋆DistL+ s t 1a i
-    inducedMap (Construction.·HomConst s t i) =
-      let eq = (s ·r t) ⋆ 1a       ≡⟨ cong (λ u → u ⋆ 1a) (·r-comm _ _) ⟩
-               (t ·r s) ⋆ 1a       ≡⟨ ⋆Assoc t s 1a ⟩
-               t ⋆ (s ⋆ 1a)        ≡⟨ cong (λ u → t ⋆ u) (sym (·IdR _)) ⟩
-               t ⋆ ((s ⋆ 1a) · 1a) ≡⟨ ⋆AssocR t (s ⋆ 1a) 1a ⟩
-               (s ⋆ 1a) · (t ⋆ 1a) ∎
-      in eq i
-    inducedMap (Construction.0-trunc P Q p q i j) =
-      isSetAlgebra (CommAlgebra→Algebra A) (inducedMap P) (inducedMap Q) (cong _ p) (cong _ q) i j
-
-    module _ where
-      open IsAlgebraHom
-
-      inducedHom : CommAlgebraHom (R [ I ]) A
-      inducedHom .fst = inducedMap
-      inducedHom .snd .pres0 = ⋆AnnihilL _
-      inducedHom .snd .pres1 = imageOf1Works
-      inducedHom .snd .pres+ x y = refl
-      inducedHom .snd .pres· x y = refl
-      inducedHom .snd .pres- x = refl
-      inducedHom .snd .pres⋆ r x =
-        (r ⋆ 1a) · inducedMap x ≡⟨ ⋆AssocL r 1a (inducedMap x) ⟩
-        r ⋆ (1a · inducedMap x) ≡⟨ cong (λ u → r ⋆ u) (·IdL (inducedMap x)) ⟩
-        r ⋆ inducedMap x ∎
-
+  {-
+    Construction of the elimProp eliminator.
+  -}
   module _
     {P : ⟨ R [ I ] ⟩ → Type ℓ''}
     (isPropP : {x : _} → isProp (P x))
@@ -208,6 +145,77 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
         (C.0-trunc x y p q)
         i
         j
+
+  {-
+    Construction of the induced map.
+  -}
+  module _ (A : CommAlgebra R ℓ'') (φ : I → ⟨ A ⟩) where
+    open CommAlgebraStr (A .snd)
+    open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
+
+    imageOf0Works : 0r ⋆ 1a ≡ 0a
+    imageOf0Works = ⋆AnnihilL 1a
+
+    imageOf1Works : 1r ⋆ 1a ≡ 1a
+    imageOf1Works = ⋆IdL 1a
+
+    inducedMap : ⟨ R [ I ] ⟩ → ⟨ A ⟩
+    inducedMap (var x) = φ x
+    inducedMap (const r) = r ⋆ 1a
+    inducedMap (P C.+ Q) = (inducedMap P) + (inducedMap Q)
+    inducedMap (C.- P) = - inducedMap P
+    inducedMap (Construction.+-assoc P Q S i) = +Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (Construction.+-rid P i) =
+      let
+        eq : (inducedMap P) + (inducedMap (const 0r)) ≡ (inducedMap P)
+        eq = (inducedMap P) + (inducedMap (const 0r)) ≡⟨ refl ⟩
+             (inducedMap P) + (0r ⋆ 1a)               ≡⟨ cong
+                                                         (λ u → (inducedMap P) + u)
+                                                         (imageOf0Works) ⟩
+             (inducedMap P) + 0a                      ≡⟨ +IdR _ ⟩
+             (inducedMap P) ∎
+      in eq i
+    inducedMap (Construction.+-rinv P i) =
+      let eq : (inducedMap P - inducedMap P) ≡ (inducedMap (const 0r))
+          eq = (inducedMap P - inducedMap P) ≡⟨ +InvR _ ⟩
+               0a                            ≡⟨ sym imageOf0Works ⟩
+               (inducedMap (const 0r))∎
+      in eq i
+    inducedMap (Construction.+-comm P Q i) = +Comm (inducedMap P) (inducedMap Q) i
+    inducedMap (P C.· Q) = inducedMap P · inducedMap Q
+    inducedMap (Construction.·-assoc P Q S i) = ·Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (Construction.·-lid P i) =
+      let eq = inducedMap (const 1r) · inducedMap P ≡⟨ cong (λ u → u · inducedMap P) imageOf1Works ⟩
+               1a · inducedMap P                    ≡⟨ ·IdL (inducedMap P) ⟩
+               inducedMap P ∎
+      in eq i
+    inducedMap (Construction.·-comm P Q i) = ·Comm (inducedMap P) (inducedMap Q) i
+    inducedMap (Construction.ldist P Q S i) = ·DistL+ (inducedMap P) (inducedMap Q) (inducedMap S) i
+    inducedMap (Construction.+HomConst s t i) = ⋆DistL+ s t 1a i
+    inducedMap (Construction.·HomConst s t i) =
+      let eq = (s ·r t) ⋆ 1a       ≡⟨ cong (λ u → u ⋆ 1a) (·r-comm _ _) ⟩
+               (t ·r s) ⋆ 1a       ≡⟨ ⋆Assoc t s 1a ⟩
+               t ⋆ (s ⋆ 1a)        ≡⟨ cong (λ u → t ⋆ u) (sym (·IdR _)) ⟩
+               t ⋆ ((s ⋆ 1a) · 1a) ≡⟨ ⋆AssocR t (s ⋆ 1a) 1a ⟩
+               (s ⋆ 1a) · (t ⋆ 1a) ∎
+      in eq i
+    inducedMap (Construction.0-trunc P Q p q i j) =
+      isSetAlgebra (CommAlgebra→Algebra A) (inducedMap P) (inducedMap Q) (cong _ p) (cong _ q) i j
+
+    module _ where
+      open IsAlgebraHom
+
+      inducedHom : CommAlgebraHom (R [ I ]) A
+      inducedHom .fst = inducedMap
+      inducedHom .snd .pres0 = ⋆AnnihilL _
+      inducedHom .snd .pres1 = imageOf1Works
+      inducedHom .snd .pres+ x y = refl
+      inducedHom .snd .pres· x y = refl
+      inducedHom .snd .pres- x = refl
+      inducedHom .snd .pres⋆ r x =
+        (r ⋆ 1a) · inducedMap x ≡⟨ ⋆AssocL r 1a (inducedMap x) ⟩
+        r ⋆ (1a · inducedMap x) ≡⟨ cong (λ u → r ⋆ u) (·IdL (inducedMap x)) ⟩
+        r ⋆ inducedMap x ∎
 
   module _ (A : CommAlgebra R ℓ'') where
     open CommAlgebraStr (A .snd)
