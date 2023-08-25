@@ -52,7 +52,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
   open C using (var; const)
 
   {-
-    Construction of the elimProp eliminator.
+    Construction of the 'elimProp' eliminator.
   -}
   module _
     {P : ⟨ R [ I ] ⟩ → Type ℓ''}
