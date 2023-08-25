@@ -231,25 +231,26 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
         {P = λ x → ι x ≡ f $a x}
         (is-set _ _)
         (λ {x} → refl)
-        (λ {r} → r ⋆ 1a                     ≡⟨ cong (λ u → r ⋆ u) (sym f.pres1) ⟩
-                r ⋆ (f $a (const 1r))      ≡⟨ sym (f.pres⋆ r _) ⟩
-                f $a (const r ·c const 1r) ≡⟨ cong (λ u → f $a u) (sym (Construction.·HomConst r 1r)) ⟩
-                f $a (const (r ·r 1r))     ≡⟨ cong (λ u → f $a (const u)) (·r-rid r) ⟩
-                f $a (const r) ∎)
+        (λ {r} →
+          r ⋆ 1a                     ≡⟨ cong (λ u → r ⋆ u) (sym f.pres1) ⟩
+          r ⋆ (f $a (const 1r))      ≡⟨ sym (f.pres⋆ r _) ⟩
+          f $a (const r ·c const 1r) ≡⟨ cong (λ u → f $a u) (sym (Construction.·HomConst r 1r)) ⟩
+          f $a (const (r ·r 1r))     ≡⟨ cong (λ u → f $a (const u)) (·r-rid r) ⟩
+          f $a (const r) ∎)
 
         (λ {x} {y} eq-x eq-y →
-              ι (x +c y)            ≡⟨ refl ⟩
-              (ι x + ι y)           ≡⟨ cong (λ u → u + ι y) eq-x ⟩
-              ((f $a x) + ι y)      ≡⟨ cong (λ u → (f $a x) + u) eq-y ⟩
-              ((f $a x) + (f $a y)) ≡⟨ sym (f.pres+ _ _) ⟩
-              (f $a (x +c y)) ∎)
+          ι (x +c y)            ≡⟨ refl ⟩
+          (ι x + ι y)           ≡⟨ cong (λ u → u + ι y) eq-x ⟩
+          ((f $a x) + ι y)      ≡⟨ cong (λ u → (f $a x) + u) eq-y ⟩
+          ((f $a x) + (f $a y)) ≡⟨ sym (f.pres+ _ _) ⟩
+          (f $a (x +c y)) ∎)
 
         (λ {x} {y} eq-x eq-y →
-           ι (x ·c y)          ≡⟨ refl ⟩
-           ι x     · ι y       ≡⟨ cong (λ u → u · ι y) eq-x ⟩
-           (f $a x) · (ι y)    ≡⟨ cong (λ u → (f $a x) · u) eq-y ⟩
-           (f $a x) · (f $a y) ≡⟨ sym (f.pres· _ _) ⟩
-           f $a (x ·c y) ∎)
+          ι (x ·c y)          ≡⟨ refl ⟩
+          ι x     · ι y       ≡⟨ cong (λ u → u · ι y) eq-x ⟩
+          (f $a x) · (ι y)    ≡⟨ cong (λ u → (f $a x) · u) eq-y ⟩
+          (f $a x) · (f $a y) ≡⟨ sym (f.pres· _ _) ⟩
+          f $a (x ·c y) ∎)
       )
       where
       ι = inducedMap A (evaluateAt f)
