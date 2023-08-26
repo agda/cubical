@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.AbGroup.Notation where
 
 open import Cubical.Foundations.Prelude

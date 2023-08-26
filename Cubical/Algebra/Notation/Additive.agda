@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 {-
 
   Provides an instance-dependent '_+_'

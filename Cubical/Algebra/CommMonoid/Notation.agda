@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommMonoid.Notation where
 
 open import Cubical.Foundations.Prelude

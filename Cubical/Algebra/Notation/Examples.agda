@@ -1,3 +1,4 @@
+{-# OPTIONS --overlapping-instances --safe #-}
 module Cubical.Algebra.Notation.Examples where
 
 open import Cubical.Foundations.Prelude
@@ -11,16 +12,10 @@ open import Cubical.Algebra.AbGroup.Notation
 private variable
   ℓ : Level
 
-module _ (A : AbGroup ℓ) where
-  instance _ = A
+module _ (A : AbGroup ℓ) (M : CommMonoid ℓ) where
+  instance
+    _ = A
+    _ = M
 
-  _ : (x y : fst A) → x + y ≡ x
-  _ = {!!}
-
-{-
-module _ (M : CommMonoid ℓ) where
-  instance _ = M
-
-  _ : (x y : fst M) → x + y ≡ y + x
-  _ = {!!}
--}
+  _ : (x y : fst A) → x + y ≡ x + y
+  _ = λ _ _ → refl
