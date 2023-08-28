@@ -68,7 +68,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
       (F ⟪ h ⟫) ((ϕ ⟦ d ⟧) b)
     ≡[ i ]⟨ (F ⟪ h ⟫) (eq i) ⟩
       (F ⟪ h ⟫) y
-    ≡⟨ sym com ⟩
+    ≡⟨ com ⟩
       x
     ∎)
   -- functoriality follows from functoriality of A
@@ -153,7 +153,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                 rightEq = left ▷ right
                   where
                     -- the id morphism in (∫ᴾ F)
-                    ∫id = C .id , sym (funExt⁻ (F .F-id) x ∙ refl)
+                    ∫id = C .id , funExt⁻ (F .F-id) x
 
                     -- functoriality of P gives us close to what we want
                     right : (P ⟪ ∫id ⟫) X ≡ X
@@ -326,8 +326,8 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
               right : PathP (λ i → fst (P ⟅ d , eq' i ⟆)) ((P ⟪ f , refl ⟫) X') ((P ⟪ f , comm ⟫) (subst _ eq X'))
               right i = (P ⟪ f , refl≡comm i ⟫) (X'≡subst i)
                 where
-                  refl≡comm : PathP (λ i → (eq' i) ≡ (F ⟪ f ⟫) (eq i)) refl comm
-                  refl≡comm = isOfHLevel→isOfHLevelDep 1 (λ (v , w) → snd (F ⟅ d ⟆) v ((F ⟪ f ⟫) w)) refl comm λ i → (eq' i , eq i)
+                  refl≡comm : PathP (λ i → (F ⟪ f ⟫) (eq i) ≡ (eq' i)) refl comm
+                  refl≡comm = isOfHLevel→isOfHLevelDep 1 (λ (v , w) → snd (F ⟅ d ⟆) ((F ⟪ f ⟫) w) v) refl comm λ i → (eq' i , eq i)
 
                   X'≡subst : PathP (λ i → fst (P ⟅ c , eq i ⟆)) X' (subst _ eq X')
                   X'≡subst = transport-filler (λ i → fst (P ⟅ c , eq i ⟆)) X'

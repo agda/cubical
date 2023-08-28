@@ -156,7 +156,9 @@ uaCommRing : {A B : CommRing ℓ} → CommRingEquiv A B → A ≡ B
 uaCommRing {A = A} {B = B} = equivFun (CommRingPath A B)
 
 isSetCommRing : ((R , str) : CommRing ℓ) → isSet R
-isSetCommRing (R , str) = str .CommRingStr.is-set
+isSetCommRing R = is-set
+  where
+  open CommRingStr (str R)
 
 CommRingIso : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingIso R S = Σ[ e ∈ Iso (R .fst) (S .fst) ]
