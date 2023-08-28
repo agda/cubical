@@ -41,8 +41,9 @@ module UniversalProperty
 
     open Category C hiding (_∘_)
 
-    C^ = PresheafCategory C ℓP
-    module C^ = Category C^
+    private
+      C^ = PresheafCategory C ℓP
+      module C^ = Category C^
 
     open Coverage J
     open Sheafification J P
@@ -120,27 +121,28 @@ module UniversalProperty
         (βFits : η C^.⋆ β ≡ α)
         where
 
-        B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type _
-        B x = (β ⟦ _ ⟧) x ≡ ν x
-
         open ElimPropAssumptions J P
 
-        isPropValuedB : isPropValued B
-        isPropValuedB = str (G ⟅ _ ⟆) _ _
+        private
+          B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type _
+          B x = (β ⟦ _ ⟧) x ≡ ν x
 
-        onηB : Onη B
-        onηB = funExt⁻ (funExt⁻ (cong N-ob βFits) _)
+          isPropValuedB : isPropValued B
+          isPropValuedB = str (G ⟅ _ ⟆) _ _
 
-        isLocalB : isLocal B
-        isLocalB x cover locallyAgree =
-          isSheaf→isSeparated J G isSheafG _ cover
-            ((β ⟦ _ ⟧) x)
-            (ν x)
-            λ patch →
-              let f = patchArr (str (covers _) cover) patch in
-              (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)    ≡⟨ sym (cong (_$ x) (N-hom β f)) ⟩
-              ((β ⟦ _ ⟧) ((F ⟪ f ⟫) x))  ≡⟨ locallyAgree patch ⟩
-              (G ⟪ f ⟫) (ν x)            ∎
+          onηB : Onη B
+          onηB = funExt⁻ (funExt⁻ (cong N-ob βFits) _)
+
+          isLocalB : isLocal B
+          isLocalB x cover locallyAgree =
+            isSheaf→isSeparated J G isSheafG _ cover
+              ((β ⟦ _ ⟧) x)
+              (ν x)
+              λ patch →
+                let f = patchArr (str (covers _) cover) patch in
+                (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)    ≡⟨ sym (cong (_$ x) (N-hom β f)) ⟩
+                ((β ⟦ _ ⟧) ((F ⟪ f ⟫) x))  ≡⟨ locallyAgree patch ⟩
+                (G ⟪ f ⟫) (ν x)            ∎
 
         uniqueness : β ≡ inducedMap
         uniqueness = makeNatTransPath (funExt λ _ → funExt (
