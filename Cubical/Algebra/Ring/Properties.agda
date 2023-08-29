@@ -182,7 +182,8 @@ module RingHoms where
   fst (compRingHom f g) x = g .fst (f .fst x)
   snd (compRingHom f g) = compIsRingHom (g .snd) (f .snd)
 
-  syntax compRingHom f g = g ∘r f
+  _∘r_ : {R : Ring ℓ} {S : Ring ℓ'} {T : Ring ℓ''} → RingHom S T → RingHom R S → RingHom R T
+  _∘r_ = flip compRingHom
 
   compIdRingHom : {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
   compIdRingHom φ = RingHom≡ refl
