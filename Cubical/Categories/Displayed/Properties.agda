@@ -37,25 +37,25 @@ module _
   reindex .Categoryᴰ._⋆ᴰ_ fᴰ gᴰ = R.reind (sym $ F-seq _ _) (fᴰ ⋆ᴰ gᴰ)
   reindex .Categoryᴰ.⋆IdLᴰ fᴰ = R.≡[]-rectify $
     R.reind-filler-sym (F-seq _ _) _
-      R.≡[ _ ∙ _ ]∙
-    (R.reind-filler-sym F-id idᴰ R.≡[ _ ⋆ refl ]⋆ refl)
-      R.≡[ _ ∙ _ ]∙
+      R.[ _ ]∙[ _ ]
+    (R.reind-filler-sym F-id idᴰ R.[ _ ]⋆[ refl ] refl)
+      R.[ _ ]∙[ _ ]
     ⋆IdLᴰ fᴰ
   reindex .Categoryᴰ.⋆IdRᴰ fᴰ = R.≡[]-rectify $
     R.reind-filler-sym (F-seq _ _) _
-      R.≡[ _ ∙ _ ]∙
-    (refl R.≡[ refl ⋆ _ ]⋆ R.reind-filler-sym F-id idᴰ)
-      R.≡[ _ ∙ _ ]∙
+      R.[ _ ]∙[ _ ]
+    (refl R.[ refl ]⋆[ _ ] R.reind-filler-sym F-id idᴰ)
+      R.[ _ ]∙[ _ ]
     ⋆IdRᴰ fᴰ
   reindex .Categoryᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ = R.≡[]-rectify $
     R.reind-filler-sym (F-seq _ _) _
-      R.≡[ _ ∙ _ ]∙
-    (R.reind-filler-sym (F-seq _ _) _ R.≡[ _ ⋆ refl ]⋆ refl)
-      R.≡[ _ ∙ _ ]∙
+      R.[ _ ]∙[ _ ]
+    (R.reind-filler-sym (F-seq _ _) _ R.[ _ ]⋆[ refl ] refl)
+      R.[ _ ]∙[ _ ]
     ⋆Assocᴰ fᴰ gᴰ hᴰ
-      R.≡[ _ ∙ _ ]∙
-    (refl R.≡[ refl ⋆ _ ]⋆ R.reind-filler (sym $ F-seq _ _) _)
-      R.≡[ _ ∙ _ ]∙
+      R.[ _ ]∙[ _ ]
+    (refl R.[ refl ]⋆[ _ ] R.reind-filler (sym $ F-seq _ _) _)
+      R.[ _ ]∙[ _ ]
     R.reind-filler (sym $ F-seq _ _) _
   reindex .Categoryᴰ.isSetHomᴰ = isSetHomᴰ
 
@@ -91,5 +91,5 @@ module _ (C : Category ℓC ℓ'C) where
 module _ {C : Category ℓC ℓ'C} (Cᴰ : Categoryᴰ C ℓCᴰ ℓ'Cᴰ) where
   open Category C
   open Categoryᴰ Cᴰ
-  verticalCategory : ob → Category ℓCᴰ ℓ'Cᴰ
-  verticalCategory c = DispOverTerminal→Category (reindex Cᴰ (FunctorFromTerminal {ℓ* = ℓ-zero} c))
+  VerticalCategory : ob → Category ℓCᴰ ℓ'Cᴰ
+  VerticalCategory c = DispOverTerminal→Category (reindex Cᴰ (FunctorFromTerminal {ℓ* = ℓ-zero} c))
