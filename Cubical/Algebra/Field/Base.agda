@@ -176,9 +176,6 @@ isPropIsField {R = R} 0r 1r _+_ _·_ -_ H@(isfield RR RC RD) (isfield SR SC SD) 
   λ i → isfield (isPropIsCommRing _ _ _ _ _ RR SR i)
                    (isPropInv RC SC i) (isProp¬ _ RD SD i)
   where
-  isSetR : isSet _
-  isSetR =  RR .IsCommRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
-
   isPropInv : isProp ((x : _) → ¬ x ≡ 0r → Σ[ y ∈ R ] x · y ≡ 1r)
   isPropInv = isPropΠ2 (λ x _ → Units.inverseUniqueness (Field→CommRing (_ , fieldstr _ _ _ _ _ H)) x)
 

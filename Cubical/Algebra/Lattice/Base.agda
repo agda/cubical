@@ -178,12 +178,10 @@ isPropIsLattice 0l 1l _∨l_ _∧l_ (islattice LJ LM LA) (islattice MJ MM MA) =
                   (isPropIsSemilattice _ _ LM MM i)
                   (isPropAbsorb LA MA i)
   where
-  isSetL : isSet _
-  isSetL = LJ .IsSemilattice.isCommMonoid .IsCommMonoid.isMonoid
-              .IsMonoid.isSemigroup .IsSemigroup.is-set
+  open IsSemilattice LJ using (is-set)
 
   isPropAbsorb : isProp ((x y : _) → (x ∨l (x ∧l y) ≡ x) × (x ∧l (x ∨l y) ≡ x))
-  isPropAbsorb = isPropΠ2 λ _ _ → isProp× (isSetL _ _) (isSetL _ _)
+  isPropAbsorb = isPropΠ2 λ _ _ → isProp× (is-set _ _) (is-set _ _)
 
 isPropIsLatticeHom : {A : Type ℓ} {B : Type ℓ'} (R : LatticeStr A) (f : A → B) (S : LatticeStr B)
                    → isProp (IsLatticeHom R f S)
