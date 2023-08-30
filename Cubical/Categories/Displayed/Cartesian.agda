@@ -77,7 +77,7 @@ module Covariant
         {aᴰ : ob[ a ]} {bᴰ : ob[ b ]}
       → isProp Hom[ f ][ aᴰ , bᴰ ]
     Homᴰ≡-DiscreteOpfibration {f = f} {aᴰ = aᴰ} {bᴰ = bᴰ} fᴰ f'ᴰ =
-      subst (λ p → PathP ((λ i → Hom[ f ][ aᴰ , p i ])) fᴰ f'ᴰ) (isSet-fibers _ bᴰ bᴰ _ refl) $
+      subst (λ p → PathP (λ i → Hom[ f ][ aᴰ , p i ]) fᴰ f'ᴰ) (isSet-fibers _ bᴰ bᴰ _ refl) $
         snd (PathPΣ (isContr→isProp (unique-lift f aᴰ) (bᴰ , fᴰ) (bᴰ , f'ᴰ)))
 
     -- Any displayed arrow is opcartesian.
@@ -89,7 +89,7 @@ module Covariant
     isOpcartesianDiscreteOpfibration
       {f = f} {aᴰ = aᴰ} {bᴰ = bᴰ} fᴰ {c = c} {cᴰ = cᴰ} g .equiv-proof compᴰ =
              -- Rectify lift-g to have the same codomain as compᴰ
-             (subst (λ cᴰ → Hom[ g ][ bᴰ , cᴰ ])
+             (subst Hom[ g ][ bᴰ ,_]
                     (PathPΣ eq-over-comp .fst)
                     (lift-g .snd)
              -- It trivially composes to the expected morphism.
@@ -116,18 +116,12 @@ module Covariant
 
     uniqueOpcleavageDiscreteOpfibration : isContr Opcleavage
     uniqueOpcleavageDiscreteOpfibration .fst = isDiscreteOpfibration→Opcleavage
-    uniqueOpcleavageDiscreteOpfibration .snd opcleavage i f aᴰ =
-      ΣPathP
-         (pair-paths .fst
-        , ΣPathPProp
-            {B = λ _ f → isOpcartesian f}
-            {u = _ , isOpcartesianDiscreteOpfibration _}
-            {v = snd (opcleavage f aᴰ)}
-            isPropIsOpcartesian (pair-paths .snd))
-        i
-      where
-        pair-paths : _
-        pair-paths = PathPΣ (unique-lift f aᴰ .snd (map-snd fst (opcleavage f aᴰ)))
+    uniqueOpcleavageDiscreteOpfibration .snd opcleavage =
+      implicitFunExt $ implicitFunExt $ funExt λ f → funExt λ aᴰ →
+      ΣPathP $
+      map-snd (ΣPathPProp isPropIsOpcartesian) $
+      PathPΣ $
+      unique-lift f aᴰ .snd (map-snd fst (opcleavage f aᴰ))
 
     open Functor
     discreteOpfibrationToCopresheaf : Functor B (SET ℓC)
@@ -169,24 +163,24 @@ module Covariant
           (invᴰ ⋆ᴰ fgᴰ)
       isIsoᴰ→isOpcartesian g .equiv-proof fgᴰ .fst .snd =
         R.≡[]-rectify $
-          (refl R.≡[ refl ⋆ sym (basepath g) ]⋆ symP (R.reind-filler (basepath g) _))
-            R.≡[ _ ∙ _ ]∙
+          (refl R.[ refl ]⋆[ sym (basepath g) ] symP (R.reind-filler (basepath g) _))
+            R.[ _ ]∙[ _ ]
           symP (Cᴰ.⋆Assocᴰ fᴰ invᴰ fgᴰ)
-            R.≡[ sym (B.⋆Assoc f inv (f B.⋆ g)) ∙ _ ]∙
-          (retᴰ R.≡[ ret ⋆ refl ]⋆ refl)
-            R.≡[ _ ∙ _ ]∙
+            R.[ sym $ B.⋆Assoc f inv (f B.⋆ g) ]∙[ _ ]
+          (retᴰ R.[ ret ]⋆[ refl ] refl)
+            R.[ _ ]∙[ _ ]
           Cᴰ.⋆IdLᴰ fgᴰ
       isIsoᴰ→isOpcartesian g .equiv-proof fgᴰ .snd (gᴰ , gᴰ-infib) =
         Σ≡Prop (λ _ → isOfHLevelPathP' 1 Cᴰ.isSetHomᴰ _ _) $
           R.≡[]-rectify $
             symP (R.reind-filler (basepath g) _)
-              R.≡[ sym (basepath g) ∙ _ ]∙
-            (refl R.≡[ refl ⋆ refl ]⋆ symP gᴰ-infib)
-              R.≡[ _ ∙ _ ]∙
+              R.[ sym (basepath g) ]∙[ _ ]
+            (refl R.[ refl ]⋆[ refl ] symP gᴰ-infib)
+              R.[ _ ]∙[ _ ]
             symP (Cᴰ.⋆Assocᴰ invᴰ fᴰ gᴰ)
-              R.≡[ sym (B.⋆Assoc inv f g) ∙ _ ]∙
-            (secᴰ R.≡[ sec ⋆ refl ]⋆ refl)
-              R.≡[ _ ∙ _ ]∙
+              R.[ sym (B.⋆Assoc inv f g) ]∙[ _ ]
+            (secᴰ R.[ sec ]⋆[ refl ] refl)
+              R.[ _ ]∙[ _ ]
             Cᴰ.⋆IdLᴰ gᴰ
 
     module _ (opcart : isOpcartesian fᴰ) where
@@ -197,7 +191,7 @@ module Covariant
         opcart inv .equiv-proof (R.reind (sym ret) idᴰ) .fst .fst
       isOpcartesian→isIsoᴰ .retᴰ = R.≡[]-rectify $
         opcart inv .equiv-proof (R.reind (sym ret) idᴰ) .fst .snd
-          R.≡[ _ ∙ ret ]∙
+          R.[ _ ]∙[ ret ]
         R.reind-filler-sym ret idᴰ
       isOpcartesian→isIsoᴰ .secᴰ =
         let
@@ -206,21 +200,21 @@ module Covariant
               (fᴰ ⋆ᴰ (isOpcartesian→isIsoᴰ .invᴰ) ⋆ᴰ fᴰ)
           -- Reindexed idᴰ is a valid lift for the composition.
           idᴰ-in-fib = R.≡[]-rectify $
-            (refl {x = fᴰ} R.≡[ refl ⋆ _ ]⋆ R.reind-filler-sym sec idᴰ)
-              R.≡[ _ ∙ _ ]∙
+            (refl {x = fᴰ} R.[ refl ]⋆[ _ ] R.reind-filler-sym sec idᴰ)
+              R.[ _ ]∙[ _ ]
             ⋆IdRᴰ fᴰ
-              R.≡[ B.⋆IdR f ∙ _ ]∙
+              R.[ B.⋆IdR f ]∙[ _ ]
             symP (⋆IdLᴰ fᴰ)
-              R.≡[ sym (B.⋆IdL f) ∙ _ ]∙
-            (symP (isOpcartesian→isIsoᴰ .retᴰ) R.≡[ sym ret ⋆ refl ]⋆ refl {x = fᴰ})
-              R.≡[ _ ∙ _ ]∙
+              R.[ sym (B.⋆IdL f) ]∙[ _ ]
+            (symP (isOpcartesian→isIsoᴰ .retᴰ) R.[ sym ret ]⋆[ refl ] refl {x = fᴰ})
+              R.[ _ ]∙[ _ ]
             ⋆Assocᴰ fᴰ (isOpcartesian→isIsoᴰ .invᴰ) fᴰ
         in R.≡[]-rectify $
         (cong fst $ ≡-any-two-in-fib
           ((isOpcartesian→isIsoᴰ .invᴰ) ⋆ᴰ fᴰ , refl)
           (R.reind (sym sec) idᴰ , idᴰ-in-fib))
 
-          R.≡[ _ ∙ _ ]∙
+          R.[ _ ]∙[ _ ]
         R.reind-filler-sym sec idᴰ
 
   -- Construction of the substitution functor for a general opfibration.
@@ -234,9 +228,9 @@ module Covariant
     open Category
 
     -- Nice universal characterization of candidates for arrow substitution.
-    substituteArrow : {x y : verticalCategory Cᴰ a .ob}
-      → (f : verticalCategory Cᴰ a [ x , y ])
-      → ∃![ g ∈ verticalCategory Cᴰ b [ cleavage σ x .fst , cleavage σ y .fst ] ]
+    substituteArrow : {x y : VerticalCategory Cᴰ a .ob}
+      → (f : VerticalCategory Cᴰ a [ x , y ])
+      → ∃![ g ∈ VerticalCategory Cᴰ b [ cleavage σ x .fst , cleavage σ y .fst ] ]
           (cleavage σ x .snd .fst ⋆ᴰ g
              ≡[ B.⋆IdR σ ∙ sym (B.⋆IdL σ) ]
            f ⋆ᴰ cleavage σ y .snd .fst)
@@ -244,7 +238,7 @@ module Covariant
         map-snd
           (λ p → R.≡[]-rectify $
             p
-              R.≡[ _ ∙ sym (B.⋆IdL _ ∙ sym (B.⋆IdR _)) ]∙
+              R.[ _ ]∙[ sym (B.⋆IdL _ ∙ sym (B.⋆IdR _)) ]
             symP (R.reind-filler _ _))
           (cart .fst)
       , λ g' →
@@ -252,7 +246,7 @@ module Covariant
             (λ _ → isOfHLevelPathP' 1 isSetHomᴰ _ _)
             (cong fst $ cart .snd $
               map-snd
-                (λ p → R.≡[]-rectify $ p R.≡[ _ ∙ _ ]∙ R.reind-filler _ _)
+                (λ p → R.≡[]-rectify $ p R.[ _ ]∙[ _ ] R.reind-filler _ _)
                 g')
       where
         cart : isContr (Σ _ _)
@@ -260,49 +254,39 @@ module Covariant
           cleavage σ _ .snd .snd _ .equiv-proof $
             R.reind (B.⋆IdL _ ∙ sym (B.⋆IdR _)) (f ⋆ᴰ cleavage σ _ .snd .fst)
 
-    substitutionFunctor : Functor (verticalCategory Cᴰ a) (verticalCategory Cᴰ b)
+    substitutionFunctor : Functor (VerticalCategory Cᴰ a) (VerticalCategory Cᴰ b)
     substitutionFunctor .F-ob c = cleavage σ c .fst
     substitutionFunctor .F-hom f = substituteArrow f .fst .fst
     substitutionFunctor .F-id {x} = cong fst $
-      substituteArrow (verticalCategory Cᴰ a .Category.id) .snd $
-        verticalCategory Cᴰ b .Category.id
+      substituteArrow (VerticalCategory Cᴰ a .Category.id) .snd $
+        VerticalCategory Cᴰ b .Category.id
       , R.≡[]-rectify
-          ((refl R.≡[ refl ⋆ refl ]⋆ symP (R.reind-filler refl idᴰ))
-             R.≡[ cong₂ B._⋆_ refl refl ∙ _ ]∙
+          ((refl R.[ refl ]⋆[ refl ] symP (R.reind-filler refl idᴰ))
+             R.[ cong₂ B._⋆_ refl refl ]∙[ _ ]
            ⋆IdRᴰ (cleavage σ x .snd .fst)
-             R.≡[ B.⋆IdR σ ∙ _ ]∙
+             R.[ B.⋆IdR σ ]∙[ _ ]
            symP (⋆IdLᴰ (cleavage σ x .snd .fst))
-             R.≡[ sym (B.⋆IdL σ) ∙ _ ]∙
-           (R.reind-filler refl idᴰ R.≡[ refl ⋆ refl ]⋆ refl))
+             R.[ sym (B.⋆IdL σ) ]∙[ _ ]
+           (R.reind-filler refl idᴰ R.[ refl ]⋆[ refl ] refl))
     substitutionFunctor .F-seq {x} {y} {z} f g = cong fst $
-      substituteArrow (verticalCategory Cᴰ a .Category._⋆_ f g) .snd $
-        verticalCategory Cᴰ b .Category._⋆_ (stepf .fst) (stepg .fst)
+      substituteArrow (VerticalCategory Cᴰ a .Category._⋆_ f g) .snd $
+        VerticalCategory Cᴰ b .Category._⋆_ (stepf .fst) (stepg .fst)
       , R.≡[]-rectify
           ((refl
-              R.≡[ refl ⋆ sym (B.⋆IdL B.id) ]⋆
+              R.[ refl ]⋆[ sym (B.⋆IdL B.id) ]
             R.reind-filler-sym (sym $ B.⋆IdL B.id) (stepf .fst ⋆ᴰ stepg .fst))
-             R.≡[ cong₂ B._⋆_ refl (sym $ B.⋆IdL B.id) ∙ _ ]∙
+             R.[ cong₂ B._⋆_ refl (sym $ B.⋆IdL B.id) ]∙[ _ ]
            symP (⋆Assocᴰ (cleavage σ x .snd .fst) (stepf .fst) (stepg .fst))
-             R.≡[ sym (B.⋆Assoc σ B.id B.id) ∙ _ ]∙
-           (stepf .snd R.≡[ (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) ⋆ refl ]⋆ refl)
-             R.≡[ cong₂ B._⋆_ (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) refl ∙ _ ]∙
+             R.[ sym (B.⋆Assoc σ B.id B.id) ]∙[ _ ]
+           (stepf .snd R.[ (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) ]⋆[ refl ] refl)
+             R.[ cong₂ B._⋆_ (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) refl ]∙[ _ ]
            ⋆Assocᴰ f (cleavage σ y .snd .fst) (stepg .fst)
-             R.≡[ B.⋆Assoc B.id σ B.id ∙ _ ]∙
-           (refl R.≡[ refl ⋆ (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) ]⋆ stepg .snd)
-             R.≡[ cong₂ B._⋆_ refl (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) ∙ _ ]∙
+             R.[ B.⋆Assoc B.id σ B.id ]∙[ _ ]
+           (refl R.[ refl ]⋆[ (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) ] stepg .snd)
+             R.[ cong₂ B._⋆_ refl (B.⋆IdR σ ∙ sym (B.⋆IdL σ)) ]∙[ _ ]
            symP (⋆Assocᴰ f g (cleavage σ z .snd .fst))
-             R.≡[ sym (B.⋆Assoc B.id B.id σ) ∙ cong₂ B._⋆_ (B.⋆IdL B.id) refl ]∙
-           (R.reind-filler (B.⋆IdL B.id) (f ⋆ᴰ g) R.≡[ B.⋆IdL B.id ⋆ refl ]⋆ refl))
+             R.[ sym (B.⋆Assoc B.id B.id σ) ]∙[ cong₂ B._⋆_ (B.⋆IdL B.id) refl ]
+           (R.reind-filler (B.⋆IdL B.id) (f ⋆ᴰ g) R.[ B.⋆IdL B.id ]⋆[ refl ] refl))
       where
-        stepf :
-          Σ[ ϕ ∈ verticalCategory Cᴰ b [ cleavage σ x .fst , cleavage σ y .fst ] ]
-            (cleavage σ x .snd .fst ⋆ᴰ ϕ
-               ≡[ B.⋆IdR σ ∙ sym (B.⋆IdL σ) ]
-             f ⋆ᴰ cleavage σ y .snd .fst)
         stepf = substituteArrow f .fst
-        stepg :
-          Σ[ ϕ ∈ verticalCategory Cᴰ b [ cleavage σ y .fst , cleavage σ z .fst ] ]
-            (cleavage σ y .snd .fst ⋆ᴰ ϕ
-               ≡[ B.⋆IdR σ ∙ sym (B.⋆IdL σ) ]
-             g ⋆ᴰ cleavage σ z .snd .fst)
         stepg = substituteArrow g .fst
