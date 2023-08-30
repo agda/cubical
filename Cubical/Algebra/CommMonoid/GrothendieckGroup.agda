@@ -155,7 +155,7 @@ The "groupification" of a monoid comes with a universal morphism and a universal
       f = fst φ
 
     inducedHom : AbGroupHom (Groupification M) A
-    fst inducedHom = elim (λ x → isSetAbGroup A) g proof
+    fst inducedHom = elim (λ x → is-set) g proof
         where
         g = λ (a , b) → f a - f b
         proof : (u v : ⟨ M² M ⟩) (r : R M u v) → g u ≡ g v
@@ -187,7 +187,7 @@ The "groupification" of a monoid comes with a universal morphism and a universal
               f c - f d
                 ∎
 
-    pres· (snd inducedHom) = elimProp2 (λ _ _ → isSetAbGroup A _ _) proof
+    pres· (snd inducedHom) = elimProp2 (λ _ _ → is-set _ _) proof
       where
         rExp : ∀ {x y z} → x ≡ y → x + z ≡ y + z
         rExp r = cong₂ _+_ r refl
@@ -205,7 +205,7 @@ The "groupification" of a monoid comes with a universal morphism and a universal
             lemma = rExp (sym (·Assoc _ _ _) ∙ lExp (·Comm _ _) ∙ ·Assoc _ _ _) ∙ sym (·Assoc _ _ _)
 
     pres1 (snd inducedHom)   = +InvR _
-    presinv (snd inducedHom) = elimProp (λ _ → isSetAbGroup A _ _)
+    presinv (snd inducedHom) = elimProp (λ _ → is-set _ _)
                                         (λ _ → sym (invDistr _ _ ∙ cong₂ _-_ (invInv _) refl))
 
     solution : (m : ⟨ M ⟩) → (fst inducedHom) (i m) ≡ f m

@@ -74,11 +74,6 @@ record FieldStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 Field : ∀ ℓ → Type (ℓ-suc ℓ)
 Field ℓ = TypeWithStr ℓ FieldStr
 
-isSetField : (R : Field ℓ) → isSet ⟨ R ⟩
-isSetField R = is-set
-  where
-  open FieldStr (str R)
-
 
 makeIsField : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                  {_[_]⁻¹ : (x : R) → ¬ (x ≡ 0r) → R}

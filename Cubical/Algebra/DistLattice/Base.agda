@@ -74,11 +74,6 @@ record DistLatticeStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 DistLattice : ∀ ℓ → Type (ℓ-suc ℓ)
 DistLattice ℓ = TypeWithStr ℓ DistLatticeStr
 
-isSetDistLattice : (L : DistLattice ℓ) → isSet ⟨ L ⟩
-isSetDistLattice L = is-set
-  where
-  open DistLatticeStr (str L)
-
 -- when proving the axioms for a distributive lattice
 -- we use the fact that from distributivity and absorption
 -- of ∧l over ∨l we can derive distributivity and absorption

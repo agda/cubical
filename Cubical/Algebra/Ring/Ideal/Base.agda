@@ -63,7 +63,7 @@ module _ (R' : Ring ℓ) where
 
   {- Examples of ideals -}
   zeroSubset : ℙ R
-  zeroSubset x = (x ≡ 0r) , isSetRing R' _ _
+  zeroSubset x = (x ≡ 0r) , is-set _ _
 
   open RingTheory R'
   open isIdeal

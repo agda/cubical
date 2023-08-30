@@ -81,11 +81,6 @@ CommMonoidStr→MonoidStr (commmonoidstr _ _ H) = monoidstr _ _ (IsCommMonoid.is
 CommMonoid→Monoid : CommMonoid ℓ → Monoid ℓ
 CommMonoid→Monoid (_ , commmonoidstr  _ _ M) = _ , monoidstr _ _ (IsCommMonoid.isMonoid M)
 
-isSetCommMonoid : (M : CommMonoid ℓ) → isSet ⟨ M ⟩
-isSetCommMonoid M = is-set
-  where
-  open CommMonoidStr (str M)
-
 CommMonoidHom : (L : CommMonoid ℓ) (M : CommMonoid ℓ') → Type (ℓ-max ℓ ℓ')
 CommMonoidHom L M = MonoidHom (CommMonoid→Monoid L) (CommMonoid→Monoid M)
 

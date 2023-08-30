@@ -152,10 +152,11 @@ elimProp {B = B} Bprop η-ind ·-ind ε-ind inv-ind = induction where
 freeGroupHom≡ : {Group : Group ℓ'}{f g : GroupHom (freeGroupGroup A) Group}
                → (∀ a → (fst f) (η a) ≡ (fst g) (η a)) → f ≡ g
 freeGroupHom≡ {Group = G , (groupstr 1g _·g_ invg isGrp)} {f} {g} eqOnA = GroupHom≡ (funExt pointwise) where
+  open IsGroup isGrp using (is-set)
   B : ∀ x → Type _
   B x = (fst f) x ≡ (fst g) x
   Bprop : ∀ x → isProp (B x)
-  Bprop x = (isSetGroup (G , groupstr 1g _·g_ invg isGrp)) ((fst f) x) ((fst g) x)
+  Bprop x = is-set ((fst f) x) ((fst g) x)
   η-ind : ∀ a → B (η a)
   η-ind = eqOnA
   ·-ind : ∀ g1 g2 → B g1 → B g2 → B (g1 · g2)

@@ -15,7 +15,7 @@ pointwiseRing X R = (X → fst R) , str
     where
       open CommRingStr (snd R)
 
-      isSetX→R = isOfHLevelΠ 2 (λ _ → isSetCommRing R)
+      isSetX→R = isOfHLevelΠ 2 (λ _ → is-set)
 
       str : CommRingStr (X → fst R)
       CommRingStr.0r str = λ _ → 0r
