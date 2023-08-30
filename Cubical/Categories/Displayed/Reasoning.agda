@@ -57,7 +57,7 @@ module Cubical.Categories.Displayed.Reasoning
       (compPathP eq1 eq2)
 
   infixr 30 ≡[]∙
-  syntax ≡[]∙ p q eq1 eq2 = eq1 ≡[ p ∙ q ]∙ eq2
+  syntax ≡[]∙ p q eq1 eq2 = eq1 [ p ]∙[ q ] eq2
 
   ≡[]⋆ : {a b c : C.ob} {f g : C [ a , b ]} {h i : C [ b , c ]}
       {aᴰ : ob[ a ]} {bᴰ : ob[ b ]} {cᴰ : ob[ c ]}
@@ -70,7 +70,7 @@ module Cubical.Categories.Displayed.Reasoning
   ≡[]⋆ _ _ = congP₂ (λ _ → _⋆ᴰ_)
 
   infixr 30 ≡[]⋆
-  syntax ≡[]⋆ p q eq1 eq2 = eq1 ≡[ p ⋆ q ]⋆ eq2
+  syntax ≡[]⋆ p q eq1 eq2 = eq1 [ p ]⋆[ q ] eq2
 
   reind-rectify : {a b : C.ob} {f g : C [ a , b ]} {p p' : f ≡ g}
       {aᴰ : ob[ a ]} {bᴰ : ob[ b ]}
