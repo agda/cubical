@@ -6,7 +6,7 @@ module Cubical.Categories.Site.Sheafification.UniversalProperty where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Function using (_$_)
+open import Cubical.Foundations.Function using (_$_; _∘_)
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
@@ -56,7 +56,7 @@ module UniversalProperty
 
     module InducedMap
       (G : Presheaf C ℓP)
-      (isSheafG : ⟨ amalgamationProperty J G ⟩)
+      (isSheafG : ⟨ isSheaf J G ⟩)
       (α : P ⇒ G)
       where
 
@@ -169,7 +169,7 @@ module UniversalProperty
     sheafificationIsUniversal :
       isUniversal
         (SheafCategory J ℓP ^op)
-        ((C^ [ P ,-]) ∘F FullInclusion C^ (isSheaf J))
+        ((C^ [ P ,-]) ∘F FullInclusion C^ (⟨_⟩ ∘ isSheaf J))
         (F , isSheafF)
         η
     sheafificationIsUniversal (G , isSheafG) = record

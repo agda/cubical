@@ -81,8 +81,7 @@ module _
 
   open Coverage J
 
-  isSeparated :
-    hProp (ℓ-max (ℓ-max (ℓ-max ℓ ℓcov) ℓpat) ℓP)
+  isSeparated : hProp (ℓ-max (ℓ-max (ℓ-max ℓ ℓcov) ℓpat) ℓP)
   isSeparated =
     ∀[ c ] ∀[ cov ∶ ⟨ covers c ⟩ ]
     ∀[ x ] ∀[ y ]
@@ -92,16 +91,12 @@ module _
       ⇒
       ((x ≡ y) , str (P ⟅ _ ⟆) _ _)
 
-  amalgamationProperty :
-    hProp (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
-  amalgamationProperty =
+  isSheaf : hProp (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
+  isSheaf =
     ∀[ c ] ∀[ cov ∶ ⟨ covers c ⟩ ]
     amalgamationPropertyForCover P (str (covers c) cov)
 
-  isSheaf : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
-  isSheaf = ⟨ amalgamationProperty ⟩
-
-  isSheaf→isSeparated : isSheaf → ⟨ isSeparated ⟩
+  isSheaf→isSeparated : ⟨ isSheaf ⟩ → ⟨ isSeparated ⟩
   isSheaf→isSeparated isSheafP c cov x y locallyEqual =
     isEmbedding→Inj (isEquiv→isEmbedding (isSheafP c cov)) x y
       (Σ≡Prop
@@ -116,10 +111,10 @@ module _
   where
 
   Sheaf : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) (ℓ-suc ℓF))
-  Sheaf = Σ (Presheaf C ℓF) (isSheaf J)
+  Sheaf = Σ[ P ∈ Presheaf C ℓF ] ⟨ isSheaf J P ⟩
 
   SheafCategory :
     Category
       (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) (ℓ-suc ℓF))
       (ℓ-max (ℓ-max ℓ ℓ') ℓF)
-  SheafCategory = FullSubcategory (PresheafCategory C ℓF) (isSheaf J)
+  SheafCategory = FullSubcategory (PresheafCategory C ℓF) (⟨_⟩ ∘ isSheaf J)
