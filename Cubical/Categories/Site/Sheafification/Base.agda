@@ -68,7 +68,7 @@ module Sheafification
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
       (x y : ⟨F⟅ c ⟆⟩) →
-      (i~j :
+      (x~y :
         (patch : ⟨ cov ⟩) →
         restrict (patchArr cov patch) x ≡ restrict (patchArr cov patch) y) →
       x ≡ y
