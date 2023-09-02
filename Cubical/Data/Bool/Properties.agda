@@ -408,7 +408,4 @@ Iso-⊤⊎⊤-Bool .rightInv true = refl
 Iso-⊤⊎⊤-Bool .rightInv false = refl
 
 separatedBool : Separated Bool
-separatedBool false false _ = refl
-separatedBool  true  true _ = refl
-separatedBool false  true ¬¬f=t = Empty.rec (¬¬f=t false≢true)
-separatedBool  true false ¬¬t=f = Empty.rec (¬¬t=f true≢false)
+separatedBool = Discrete→Separated _≟_
