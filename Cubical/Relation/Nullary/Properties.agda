@@ -16,6 +16,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Fixpoint
 
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sigma.Base using (_×_)
 
 open import Cubical.Relation.Nullary.Base
 open import Cubical.HITs.PropositionalTruncation.Base
@@ -49,13 +50,13 @@ Stable¬ ¬¬¬a a = ¬¬¬a ¬¬a
   where
   ¬¬a = λ ¬a → ¬a a
 
-Stable→ : Stable B → Stable (A → B)
-Stable→ Bs e x = Bs λ k → e λ f → k (f x)
-
 StableΠ : (∀ x → Stable (P x)) -> Stable (∀ x → P x)
 StableΠ Ps e x = Ps x λ k → e λ f → k (f x)
 
-Stable× : Stable A -> Stable B -> Stable (Σ A (λ _ → B))
+Stable→ : Stable B → Stable (A → B)
+Stable→ Bs = StableΠ (λ _ → Bs)
+
+Stable× : Stable A -> Stable B -> Stable (A × B)
 Stable× As Bs e = λ where
   .fst → As λ k → e (k ∘ fst)
   .snd → Bs λ k → e (k ∘ snd)
@@ -183,13 +184,13 @@ Separated→PStable≡ st x y = Stable→PStable (st x y)
 Separated→isSet : Separated A → isSet A
 Separated→isSet = PStable≡→isSet ∘ Separated→PStable≡
 
-Separated→ : Separated B -> Separated (A → B)
-Separated→ Bs f g e i x = Bs (f x) (g x) (λ k → e (k ∘ cong (λ f → f x))) i
-
 SeparatedΠ : (∀ x → Separated (P x)) -> Separated ((x : A) -> P x)
 SeparatedΠ Ps f g e i x = Ps x (f x) (g x) (λ k → e (k ∘ cong (λ f → f x))) i
 
-Separated× : Separated A -> Separated B -> Separated (Σ A (const B))
+Separated→ : Separated B -> Separated (A → B)
+Separated→ Bs = SeparatedΠ (λ _ → Bs)
+
+Separated× : Separated A -> Separated B -> Separated (A × B)
 Separated× As Bs p q e i = λ where
   .fst → As (fst p) (fst q) (λ k → e λ r → k (cong fst r)) i
   .snd → Bs (snd p) (snd q) (λ k → e λ r → k (cong snd r)) i
