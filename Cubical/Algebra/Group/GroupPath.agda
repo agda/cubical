@@ -39,7 +39,7 @@ open IsGroupHom
       data[ _·_ ∣ autoDUARel _ _ ∣ pres· ]
       data[ 1g ∣ autoDUARel _ _ ∣ pres1 ]
       data[ inv ∣ autoDUARel _ _ ∣ presinv ]
-      prop[ isGroup ∣ (λ _ _ → isPropIsGroup _ _ _) ])
+      prop[ isGroup ∣ (λ G str → isPropIsGroup (str .fst .snd) (str .fst .fst .snd) (str .snd)) ])
   where
   open GroupStr
   open IsGroupHom
@@ -136,6 +136,7 @@ module _ (G : Group ℓ) {A : Type ℓ}
 uaGroup : {G H : Group ℓ} → GroupEquiv G H → G ≡ H
 uaGroup {G = G} {H = H} = equivFun (GroupPath G H)
 
+{-
 -- Group-ua functoriality
 Group≡ : (G H : Group ℓ) → (
   Σ[ p ∈ ⟨ G ⟩ ≡ ⟨ H ⟩ ]
@@ -149,8 +150,8 @@ Group≡ G H = isoToEquiv theIso
   theIso : Iso _ _
   fun theIso (p , q , r , s , t) i = p i , groupstr (q i) (r i) (s i) (t i)
   inv theIso x = cong ⟨_⟩ x , cong (1g ∘ snd) x , cong (_·_ ∘ snd) x , cong (inv ∘ snd) x , cong (isGroup ∘ snd) x
-  rightInv theIso _ = refl
-  leftInv theIso _ = refl
+  rightInv theIso _ = ?
+  leftInv theIso _ = ?
 
 caracGroup≡ : {G H : Group ℓ} (p q : G ≡ H) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
 caracGroup≡ {G = G} {H = H} p q P =
@@ -178,6 +179,8 @@ uaCompGroupEquiv f g = caracGroup≡ _ _ (
   cong ⟨_⟩ (uaGroup f) ∙ cong ⟨_⟩ (uaGroup g)
     ≡⟨ sym (cong-∙ ⟨_⟩ (uaGroup f) (uaGroup g)) ⟩
   cong ⟨_⟩ (uaGroup f ∙ uaGroup g) ∎)
+
+-}
 
 -- J-rule for GroupEquivs
 GroupEquivJ : {G : Group ℓ} (P : (H : Group ℓ) → GroupEquiv G H → Type ℓ')

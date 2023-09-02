@@ -22,6 +22,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.AbGroup.Base
+import Cubical.Algebra.AbGroup.DirProd as AbGroup
 
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as Trunc
@@ -39,7 +40,7 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
 
   private
     ×H : (n : ℕ) → AbGroup _
-    ×H n = dirProdAb (coHomGr (suc n) G (fst A))
+    ×H n = AbGroup.DirProd (coHomGr (suc n) G (fst A))
                      (coHomGr (suc n) G (fst B))
 
   Hⁿ×→Hⁿ-⋁ : (n : ℕ) → (A ⋁ B → EM G (suc n))
@@ -128,7 +129,7 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (G : AbGroup ℓ) where
   Hⁿ-⋁≅Hⁿ×Hⁿ : (n : ℕ)
     → AbGroupEquiv
         (coHomGr (suc n) G (A ⋁ B))
-        (dirProdAb (coHomGr (suc n) G (fst A)) (coHomGr (suc n) G (fst B)))
+        (AbGroup.DirProd (coHomGr (suc n) G (fst A)) (coHomGr (suc n) G (fst B)))
   fst (Hⁿ-⋁≅Hⁿ×Hⁿ n) = isoToEquiv (Hⁿ⋁-Iso n)
   snd (Hⁿ-⋁≅Hⁿ×Hⁿ n) =
     makeIsGroupHom

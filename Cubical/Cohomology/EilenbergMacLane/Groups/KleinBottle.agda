@@ -28,10 +28,11 @@ open import Cubical.Data.Fin
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group.Base
-open import Cubical.Algebra.Group.Instances.IntMod
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup.Base
+import Cubical.Algebra.AbGroup.DirProd as AbGroup
 
 open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.SetTruncation as ST
@@ -130,12 +131,14 @@ H⁰[K²,ℤ/2]≅ℤ/2 =
     ℤ/2
 
 ------ H¹(K²,ℤ/2) ------
-H¹K²→ℤ/2×ℤ/2 : coHom 1 ℤ/2 KleinBottle → fst (dirProdAb ℤ/2 ℤ/2)
-H¹K²→ℤ/2×ℤ/2 = ST.rec (is-set (snd (dirProdAb ℤ/2 ℤ/2)))
+H¹K²→ℤ/2×ℤ/2 : coHom 1 ℤ/2 KleinBottle → fst (AbGroup.DirProd ℤ/2 ℤ/2)
+H¹K²→ℤ/2×ℤ/2 = ST.rec (is-set (snd (AbGroup.DirProd ℤ/2 ℤ/2)))
                    λ f → ΩEM+1→EM-gen _ _ (cong f line1)
                        , ΩEM+1→EM-gen _ _ (cong f line2)
 
-ℤ/2×ℤ/2→H¹K² : fst (dirProdAb ℤ/2 ℤ/2) → coHom 1 ℤ/2 KleinBottle
+ℤ/2Group = AbGroup→Group (ℤAbGroup/ 2)
+
+ℤ/2×ℤ/2→H¹K² : fst (AbGroup.DirProd ℤ/2 ℤ/2) → coHom 1 ℤ/2 KleinBottle
 ℤ/2×ℤ/2→H¹K² (g₁ , g₂) =
   ∣ (λ { point → 0ₖ _
       ; (line1 i) → emloop g₁ i
@@ -152,19 +155,21 @@ H¹K²→ℤ/2×ℤ/2 = ST.rec (is-set (snd (dirProdAb ℤ/2 ℤ/2)))
 
   q = emloop-1g _ ◁ ((λ i j → emloop 1 i) ▷ sym (emloop-1g _))
 
+
+
   lem : (g₁ g₂ : _)
-    → PathP (λ i → Path (EM₁ (ℤGroup/ 2)) (emloop g₂ i) (emloop g₂ i))
+    → PathP (λ i → Path (EM₁ ℤ/2Group) (emloop g₂ i) (emloop g₂ i))
              (emloop g₁) (emloop g₁)
   lem  =
     ℤ/2-elim (ℤ/2-elim (sideSq _) q) (ℤ/2-elim (flipSquare q) (sideSq _))
 
-  main : Square {A = EM₁ (ℤGroup/ 2)}
+  main : Square {A = EM₁ ℤ/2Group}
                  (sym (emloop g₁)) (emloop g₁)
                  (emloop g₂) (emloop g₂)
-  main = (sym (emloop-inv (ℤGroup/ 2) g₁) ∙ cong emloop (-Const-ℤ/2 g₁))
+  main = (sym (emloop-inv ℤ/2Group g₁) ∙ cong emloop (-Const-ℤ/2 g₁))
        ◁ lem g₁ g₂
 
-ℤ/2×ℤ/2→H¹K²→ℤ/2×ℤ/2 : (x : fst (dirProdAb ℤ/2 ℤ/2))
+ℤ/2×ℤ/2→H¹K²→ℤ/2×ℤ/2 : (x : fst (AbGroup.DirProd ℤ/2 ℤ/2))
   → H¹K²→ℤ/2×ℤ/2 (ℤ/2×ℤ/2→H¹K² x) ≡ x
 ℤ/2×ℤ/2→H¹K²→ℤ/2×ℤ/2 (g₁ , g₂) =
   ΣPathP ((Iso.leftInv (Iso-EM-ΩEM+1 0) g₁)
@@ -180,7 +185,7 @@ H¹K²→ℤ/2×ℤ/2→H¹K² =
       (flipSquare (Iso.rightInv (Iso-EM-ΩEM+1 0) l2)))))
 
 ℤ/2×ℤ/2≅H¹[K²,ℤ/2] :
-  AbGroupEquiv (dirProdAb ℤ/2 ℤ/2) (coHomGr 1 ℤ/2 KleinBottle)
+  AbGroupEquiv (AbGroup.DirProd ℤ/2 ℤ/2) (coHomGr 1 ℤ/2 KleinBottle)
 fst ℤ/2×ℤ/2≅H¹[K²,ℤ/2] = isoToEquiv is
   where
   is : Iso _ _
@@ -197,7 +202,7 @@ snd ℤ/2×ℤ/2≅H¹[K²,ℤ/2] =
                  ∙ sym (cong₂+₁ (emloop (snd x)) (emloop (snd y))))))))
 
 H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 :
-  AbGroupEquiv (coHomGr 1 ℤ/2 KleinBottle) (dirProdAb ℤ/2 ℤ/2)
+  AbGroupEquiv (coHomGr 1 ℤ/2 KleinBottle) (AbGroup.DirProd ℤ/2 ℤ/2)
 H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 = invGroupEquiv ℤ/2×ℤ/2≅H¹[K²,ℤ/2]
 
 ------ H²(K²,ℤ/2) ------
@@ -308,13 +313,13 @@ Isoℤ/2-morph : {A : Type} (f : A ≃ fst ℤ/2) (0A : A)
   → (λ x → x) ≡ -m
   → (e : IsAbGroup 0A _+'_ -m)
   → IsGroupHom (AbGroup→Group (A , abgroupstr 0A _+'_ (λ x → -m x) e) .snd)
-                (fst f) ((ℤGroup/ 2) .snd)
+                (fst f) (ℤ/2Group .snd)
 Isoℤ/2-morph =
   EquivJ (λ A f → (0A : A) → 0 ≡ fst f 0A → (_+'_ : A → A → A) (-m : A → A)
   → (λ x → x) ≡ -m
   → (e : IsAbGroup 0A _+'_ -m)
   → IsGroupHom (AbGroup→Group (A , abgroupstr 0A _+'_ (λ x → -m x) e) .snd)
-                (fst f) ((ℤGroup/ 2) .snd))
+                (fst f) (ℤ/2Group .snd))
   (J> λ _+'_ → J>
     λ e → makeIsGroupHom (ℤ/2-elim (ℤ/2-elim (IsAbGroup.+IdR e fzero)
       (IsAbGroup.+IdL e 1))

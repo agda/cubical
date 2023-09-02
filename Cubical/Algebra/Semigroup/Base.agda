@@ -41,7 +41,7 @@ record IsSemigroup {A : Type ℓ} (_·_ : A → A → A) : Type ℓ where
 unquoteDecl IsSemigroupIsoΣ = declareRecordIsoΣ IsSemigroupIsoΣ (quote IsSemigroup)
 
 record SemigroupStr (A : Type ℓ) : Type ℓ where
-
+  no-eta-equality
   constructor semigroupstr
 
   field
@@ -65,6 +65,7 @@ record IsSemigroupEquiv {A : Type ℓ} {B : Type ℓ}
   (M : SemigroupStr A) (e : A ≃ B) (N : SemigroupStr B)
   : Type ℓ
   where
+  no-eta-equality
 
   -- Shorter qualified names
   private
@@ -93,7 +94,7 @@ isPropIsSemigroup _·_ =
   𝒮ᴰ-Record (𝒮-Univ _) IsSemigroupEquiv
     (fields:
       data[ _·_ ∣ autoDUARel _ _ ∣ isHom ]
-      prop[ isSemigroup ∣ (λ _ _ → isPropIsSemigroup _) ])
+      prop[ isSemigroup ∣ (λ _ f → isPropIsSemigroup (f .snd)) ])
 
 SemigroupPath : (M N : Semigroup ℓ) → SemigroupEquiv M N ≃ (M ≡ N)
 SemigroupPath = ∫ 𝒮ᴰ-Semigroup .UARel.ua

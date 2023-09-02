@@ -38,6 +38,7 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.IntMod
+import Cubical.Algebra.AbGroup.Instances.IntMod as AbGroup
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.CommRing.Instances.IntMod
@@ -70,7 +71,7 @@ private
 module K²gen where
   α-raw : KleinBottle → EM ℤ/2 1
   α-raw = KleinFun embase (emloop 1) refl
-           (flipSquare (sym (emloop-inv (ℤGroup/ 2) 1)))
+                   (flipSquare (sym (emloop-inv (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) 1)))
 
   β-raw : KleinBottle → EM ℤ/2 1
   β-raw = KleinFun embase refl (emloop 1) (λ _ i → emloop 1 i)
@@ -433,7 +434,7 @@ module _ where
               λ x → →∙Homogeneous≡ (isHomogeneousEM 2)
                (funExt λ y → main y x)
         where
-        main : (x y : EM₁-raw (ℤGroup/ 2))
+        main : (x y : EM₁-raw (AbGroup→Group (AbGroup.ℤAbGroup/ 2)))
           → cp (EM-raw'→EM ℤ/2 1 x) (EM-raw'→EM ℤ/2 1 y)
           ≡ cp (EM-raw'→EM ℤ/2 1 y) (EM-raw'→EM ℤ/2 1 x)
         main embase-raw embase-raw = refl

@@ -59,9 +59,11 @@ open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Unit
+import Cubical.Algebra.AbGroup.DirProd as AbGroup
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.AbGroup.TensorProduct
+import Cubical.Algebra.AbGroup.Instances.IntMod as AbGroup
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
@@ -86,7 +88,7 @@ RP²∨S¹ = RP²∙ ⋁ (S₊∙ 1)
 
 gen-H¹RP²-raw : RP² → EM ℤ/2 1
 gen-H¹RP²-raw =
-  RP²Fun embase (emloop 1) (emloop-inv (ℤGroup/ 2) 1)
+  RP²Fun embase (emloop 1) (emloop-inv (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) 1)
 
 RP²∨S¹→K₂-fun : (p : fst ((Ω^ 2) (EM∙ ℤ/2 2))) → RP²∨S¹ → EM ℤ/2 2
 RP²∨S¹→K₂-fun p (inl x) = RP²Fun (0ₖ 2) refl p x
@@ -169,8 +171,8 @@ private
     Cube (λ j k → cong₂-⌣ (emloop 1) k j)
          (λ j k → cong₂-⌣ (emloop (fsuc fzero)) k (~ j))
          (λ _ _ → ∣ north ∣) (λ _ _ → ∣ north ∣)
-         (λ i j → cp (emloop-inv (ℤGroup/ 2) 1 i j)
-                    (emloop-inv (ℤGroup/ 2) 1 i j))
+         (λ i j → cp (emloop-inv (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) 1 i j)
+                    (emloop-inv (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) 1 i j))
          p
 
   filler : Typ (ℤ/2→Ω²K₂⨂ (fsuc fzero))
@@ -270,7 +272,7 @@ baseP n a = base {Idx = Vec ℕ 2} {P = λ n → fst ℤ/2} {AGP = λ n → snd 
 
 module Equiv-RP²∨S¹-Properties
   (e₀ : AbGroupIso ℤ/2 (coHomGr 0 ℤ/2 RP²∨S¹))
-  (e₁ : AbGroupIso (dirProdAb ℤ/2 ℤ/2) (coHomGr 1 ℤ/2 RP²∨S¹))
+  (e₁ : AbGroupIso (AbGroup.DirProd ℤ/2 ℤ/2) (coHomGr 1 ℤ/2 RP²∨S¹))
   (e₂ : AbGroupIso ℤ/2 (coHomGr 2 ℤ/2 RP²∨S¹))
   (eₙ₊₃ : (n : ℕ) → (3 ≤ n) → AbGroupIso (coHomGr n ℤ/2 RP²∨S¹) (UnitAbGroup {ℓ = ℓ-zero}))
   where
@@ -478,9 +480,9 @@ module Equiv-RP²∨S¹-Properties
     ϕ₀⌣IdL f = cong (λ X → X ⌣ℤ/2 f) ϕ₀-pres1 ∙ 1ₕ-⌣ {G'' = ℤ/2Ring} _ f
 
     lem-ϕ₀⌣ : (a b : fst ℤ/2) → {n : ℕ} → (ϕₙ : fst ℤ/2 → coHom n ℤ/2 RP²∨S¹) →
-              (ϕₙstr : IsGroupHom (snd (ℤGroup/ 2) ) ϕₙ (snd (AbGroup→Group (coHomGr n ℤ/2 RP²∨S¹))))
+              (ϕₙstr : IsGroupHom (snd (AbGroup→Group (AbGroup.ℤAbGroup/ 2)) ) ϕₙ (snd (AbGroup→Group (coHomGr n ℤ/2 RP²∨S¹))))
                → ϕ₀ a ⌣ℤ/2 ϕₙ b ≡ ϕₙ (a ·ℤ/2 b)
-    lem-ϕ₀⌣ a b ϕₙ ϕₙstr = ℤ/2-elim {A = λ a → ϕ₀ a ⌣ℤ/2 ϕₙ b ≡ ϕₙ (a ·ℤ/2 b)}
+    lem-ϕ₀⌣ a b ϕₙ ϕₙstr = AbGroup.ℤ/2-elim {A = λ a → ϕ₀ a ⌣ℤ/2 ϕₙ b ≡ ϕₙ (a ·ℤ/2 b)}
                           (cong (λ X → X ⌣ℤ/2 ϕₙ b) (pres1 ϕ₀str)
                             ∙ 0ₕ-⌣ _ _ _
                             ∙ sym (pres1 ϕₙstr)

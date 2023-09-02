@@ -20,7 +20,7 @@ private
 
 record IsGroup {G : Type ℓ}
                (1g : G) (_·_ : G → G → G) (inv : G → G) : Type ℓ where
-
+  no-eta-equality
   constructor isgroup
 
   field
@@ -33,7 +33,7 @@ record IsGroup {G : Type ℓ}
 unquoteDecl IsGroupIsoΣ = declareRecordIsoΣ IsGroupIsoΣ (quote IsGroup)
 
 record GroupStr (G : Type ℓ) : Type ℓ where
-
+  no-eta-equality
   constructor groupstr
 
   field
@@ -89,7 +89,7 @@ makeGroup 1g _·_ inv is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL = _ , helper
   GroupStr.isGroup helper = makeIsGroup is-setG ·Assoc ·IdR ·IdL ·InvR ·InvL
 
 Group→Monoid : Group ℓ → Monoid ℓ
-Group→Monoid (A , groupstr  _ _ _ G) = A , monoidstr _ _ (IsGroup.isMonoid G)
+Group→Monoid (A , str) = A , monoidstr _ _ (IsGroup.isMonoid (GroupStr.isGroup str))
 
 makeGroup-right : {A : Type ℓ}
   → (1g : A)

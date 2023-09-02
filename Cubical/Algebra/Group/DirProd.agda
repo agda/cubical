@@ -3,7 +3,9 @@ module Cubical.Algebra.Group.DirProd where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Sigma
+
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup

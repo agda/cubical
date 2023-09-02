@@ -25,6 +25,7 @@ private
     ℓ ℓ' : Level
 
 record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
+  no-eta-equality
   constructor ismonoid
 
   field
@@ -37,6 +38,7 @@ record IsMonoid {A : Type ℓ} (ε : A) (_·_ : A → A → A) : Type ℓ where
 unquoteDecl IsMonoidIsoΣ = declareRecordIsoΣ IsMonoidIsoΣ (quote IsMonoid)
 
 record MonoidStr (A : Type ℓ) : Type ℓ where
+  no-eta-equality
   constructor monoidstr
 
   field
@@ -118,7 +120,7 @@ isPropIsMonoid ε _·_ =
     (fields:
       data[ ε ∣ autoDUARel _ _ ∣ presε ]
       data[ _·_ ∣ autoDUARel _ _ ∣ pres· ]
-      prop[ isMonoid ∣ (λ _ _ → isPropIsMonoid _ _) ])
+      prop[ isMonoid ∣ (λ _ str → isPropIsMonoid (str .fst .snd) (str .snd)) ])
   where
   open MonoidStr
   open IsMonoidHom
