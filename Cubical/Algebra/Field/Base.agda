@@ -75,7 +75,9 @@ Field : ∀ ℓ → Type (ℓ-suc ℓ)
 Field ℓ = TypeWithStr ℓ FieldStr
 
 isSetField : (R : Field ℓ) → isSet ⟨ R ⟩
-isSetField R = R .snd .FieldStr.isField .IsField.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+isSetField R = is-set
+  where
+  open FieldStr (str R)
 
 
 makeIsField : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}

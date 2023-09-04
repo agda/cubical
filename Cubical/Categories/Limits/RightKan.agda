@@ -1,3 +1,10 @@
+{-
+
+  This file formalizes Thm. 1 and Cor. 3 of section X.3
+  of Mac Lane's "Categories for the working mathematician"
+
+-}
+
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Limits.RightKan where
 
@@ -14,8 +21,6 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.Initial
 open import Cubical.Categories.Limits.Limits
-
--- open Iso
 
 module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
          {C : Category ℓC ℓC'}
@@ -123,6 +128,110 @@ module _ {ℓC ℓC' ℓM ℓM' ℓA ℓA' : Level}
      coneOut (RanCone (id C)) (v , K .F-hom f)
    ≡⟨ sym (coneOutCommutes (RanCone (id C)) (f , ⋆IdL C _)) ⟩
      coneOut (RanCone (id C)) (u , id C) ⋆⟨ A ⟩ T .F-hom f ∎
+
+ -- the universal property
+ private ε = RanNatTrans
+
+ NatTransCone : (S : Functor C A) (α : NatTrans (S ∘F K) T) (x : ob C)
+              → Cone (T* x) (S .F-ob x)
+ coneOut (NatTransCone S α x) (v , f) = S .F-hom f ⋆⟨ A ⟩ α .N-ob v
+ coneOutCommutes (NatTransCone S α x) {u = (u , f)} {v = (v , g)} (h , f⋆Kh≡g) =
+     (S .F-hom f ⋆⟨ A ⟩ α .N-ob u) ⋆⟨ A ⟩ T .F-hom h
+   ≡⟨ ⋆Assoc A _ _ _ ⟩
+     S .F-hom f ⋆⟨ A ⟩ (α .N-ob u ⋆⟨ A ⟩ T .F-hom h)
+   ≡⟨ cong (seq' A (S .F-hom f)) (sym (α .N-hom h)) ⟩
+     S .F-hom f ⋆⟨ A ⟩ ((S ∘F K) .F-hom h ⋆⟨ A ⟩ α .N-ob v)
+   ≡⟨ sym (⋆Assoc A _ _ _) ⟩
+     (S .F-hom f ⋆⟨ A ⟩ (S ∘F K) .F-hom h) ⋆⟨ A ⟩ α .N-ob v
+   ≡⟨ cong (λ x → x ⋆⟨ A ⟩ (α .N-ob v)) (sym (S .F-seq _ _)) ⟩
+     S .F-hom (f ⋆⟨ C ⟩ K .F-hom h) ⋆⟨ A ⟩ α .N-ob v
+   ≡⟨ cong (λ x → S .F-hom x ⋆⟨ A ⟩ (α .N-ob v)) f⋆Kh≡g ⟩
+     S .F-hom g ⋆⟨ A ⟩ α .N-ob v ∎
+
+
+ RanUnivProp : ∀ (S : Functor C A) (α : NatTrans (S ∘F K) T)
+             → ∃![ σ ∈ NatTrans S Ran ] α ≡ (σ ∘ˡ K) ●ᵛ ε
+ RanUnivProp S α = uniqueExists σ pathNatTrans (λ _ → isSetNatTrans _ _) pathUnique
+   where
+   σ : NatTrans S Ran
+   N-ob σ x = limArrow (limitA (x ↓Diag) (T* x)) _ (NatTransCone S α x)
+   N-hom σ {x = x} {y = y} f = preCompUnique (N-ob σ x ⋆⟨ A ⟩ Ran .F-hom f)
+                                             (limitA (y ↓Diag) (T* y) .limCone)
+                                             (limitA (y ↓Diag) (T* y) .univProp)
+                                             (S .F-hom f ⋆⟨ A ⟩ N-ob σ y)
+                                             equalUpToConeOut
+
+     where
+     equalUpToConeOut : ∀ (u : ob (y ↓Diag))
+                      → (S .F-hom f ⋆⟨ A ⟩ N-ob σ y) ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) u
+                      ≡ (N-ob σ x ⋆⟨ A ⟩ Ran .F-hom f) ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) u
+     equalUpToConeOut (u , g) =
+         (S .F-hom f ⋆⟨ A ⟩ N-ob σ y) ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (u , g)
+       ≡⟨ ⋆Assoc A _ _ _ ⟩
+         S .F-hom f ⋆⟨ A ⟩ (N-ob σ y ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (u , g))
+       ≡⟨ cong (seq' A (S .F-hom f)) (limArrowCommutes _ _ _ _) ⟩
+         S .F-hom f ⋆⟨ A ⟩ (S .F-hom g ⋆⟨ A ⟩ α .N-ob u)
+       ≡⟨ sym (⋆Assoc A _ _ _) ⟩
+         (S .F-hom f ⋆⟨ A ⟩ S .F-hom g) ⋆⟨ A ⟩ α .N-ob u
+       ≡⟨ cong (λ h → h ⋆⟨ A ⟩ α .N-ob u) (sym (S .F-seq _ _)) ⟩
+         S .F-hom (f ⋆⟨ C ⟩ g) ⋆⟨ A ⟩ α .N-ob u
+       ≡⟨ sym (limArrowCommutes _ _ _ _) ⟩
+         N-ob σ x ⋆⟨ A ⟩ limOut (limitA (x ↓Diag) (T* x)) (u , f ⋆⟨ C ⟩ g)
+       ≡⟨ cong (seq' A (N-ob σ x)) (sym (limArrowCommutes _ _ _ _)) ⟩
+         N-ob σ x ⋆⟨ A ⟩ (Ran .F-hom f ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (u , g))
+       ≡⟨ sym (⋆Assoc A _ _ _) ⟩
+         (N-ob σ x ⋆⟨ A ⟩ Ran .F-hom f) ⋆⟨ A ⟩ limOut (limitA (y ↓Diag) (T* y)) (u , g) ∎
+
+
+   pathNatTrans : α ≡ (σ ∘ˡ K) ●ᵛ ε
+   pathNatTrans = makeNatTransPath (funExt path)
+     where
+     path : ∀ (u : ob M)
+          → α .N-ob u
+          ≡ limArrow (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) _ (NatTransCone S α (F-ob K u))
+              ⋆⟨ A ⟩ limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (u , id C ⋆⟨ C ⟩ id C)
+     path u =
+         α .N-ob u
+       ≡⟨ sym (⋆IdL A _) ⟩
+         id A ⋆⟨ A ⟩ α .N-ob u
+       ≡⟨ cong (λ x → x ⋆⟨ A ⟩ α .N-ob u) (sym (S .F-id)) ⟩
+         S .F-hom (id C) ⋆⟨ A ⟩ α .N-ob u
+       ≡⟨ cong (λ x → S .F-hom x ⋆⟨ A ⟩ α .N-ob u) (sym (⋆IdL C _)) ⟩
+         S .F-hom (id C ⋆⟨ C ⟩ id C) ⋆⟨ A ⟩ α .N-ob u
+       ≡⟨ refl ⟩
+         NatTransCone S α (F-ob K u) .coneOut (u , id C ⋆⟨ C ⟩ id C)
+       ≡⟨ sym (limArrowCommutes _ _ _ _) ⟩
+         limArrow (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) _ (NatTransCone S α (F-ob K u))
+           ⋆⟨ A ⟩ limOut (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u))) (u , id C ⋆⟨ C ⟩ id C) ∎
+
+   pathUnique : ∀ (τ : NatTrans S Ran) → α ≡ (τ ∘ˡ K) ●ᵛ ε → σ ≡ τ
+   pathUnique τ α≡ετK = makeNatTransPath
+                          (funExt (λ x →
+                             limArrowUnique (limitA (x ↓Diag) (T* x)) _ _ _ (isConeMorτ x)))
+     where
+     isConeMorτ : ∀ (x : ob C) → isConeMor (NatTransCone S α x) (limitA (x ↓Diag) (T* x) .limCone) (τ .N-ob x)
+     isConeMorτ x (u , f) =
+       let p : f ≡ f ⋆⟨ C ⟩ (id C ⋆⟨ C ⟩ id C)
+           p = sym (⋆IdR C f) ∙ cong (seq' C f) (sym (⋆IdR C (id C)))
+       in
+         τ .N-ob x ⋆⟨ A ⟩ limOut (limitA (x ↓Diag) (T* x)) (u , f)
+       ≡⟨ (λ i → τ .N-ob x ⋆⟨ A ⟩ limOut (limitA (x ↓Diag) (T* x)) (u , p i)) ⟩
+         τ .N-ob x ⋆⟨ A ⟩ limOut (limitA (x ↓Diag) (T* x)) (u , f ⋆⟨ C ⟩ (id C ⋆⟨ C ⟩ id C))
+       ≡⟨ cong (seq' A (τ .N-ob x)) (sym (limArrowCommutes
+                                         (limitA ((K .F-ob u) ↓Diag) (T* (K .F-ob u)))
+                                         _ _ _)) ⟩
+         τ .N-ob x ⋆⟨ A ⟩ (Ran .F-hom f ⋆⟨ A ⟩ ε .N-ob u)
+       ≡⟨ sym (⋆Assoc A _ _ _) ⟩
+         (τ .N-ob x ⋆⟨ A ⟩ Ran .F-hom f) ⋆⟨ A ⟩ ε .N-ob u
+       ≡⟨ cong (λ g → g ⋆⟨ A ⟩ ε .N-ob u) (sym (τ .N-hom f)) ⟩
+         (S .F-hom f ⋆⟨ A ⟩ τ .N-ob (K .F-ob u)) ⋆⟨ A ⟩ ε .N-ob u
+       ≡⟨ ⋆Assoc A _ _ _ ⟩
+         S .F-hom f ⋆⟨ A ⟩ (τ .N-ob (K .F-ob u) ⋆⟨ A ⟩ ε .N-ob u)
+       ≡⟨ cong (seq' A (S .F-hom f)) (cong (λ γ → γ .N-ob u) (sym α≡ετK)) ⟩
+         S .F-hom f ⋆⟨ A ⟩ α .N-ob u ∎
+
+
+
 
  open isIso
  open NatIso

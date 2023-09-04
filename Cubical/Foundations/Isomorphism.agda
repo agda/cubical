@@ -201,6 +201,11 @@ codomainIso : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ'
            → Iso (A → B) (A → C)
 codomainIso z = codomainIsoDep λ _ → z
 
+endoIso : Iso A B → Iso (A → A) (B → B)
+endoIso is = compIso (domIso is) (codomainIso is)
+
+binaryOpIso : Iso A B → Iso (A → A → A) (B → B → B)
+binaryOpIso is = compIso (domIso is) (codomainIso (endoIso is))
 
 Iso≡Set : isSet A → isSet B → (f g : Iso A B)
         → ((x : A) → f .fun x ≡ g .fun x)

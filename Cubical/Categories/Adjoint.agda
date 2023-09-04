@@ -41,19 +41,25 @@ definition, followed by the natural bijection
 definition.
 -}
 
-module UnitCounit where
+module UnitCounit {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C) where
+  record TriangleIdentities
+    (η : 𝟙⟨ C ⟩ ⇒ (funcComp G F))
+    (ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩)
+    : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+    where
+    field
+      Δ₁ : ∀ c → F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ≡ D .id
+      Δ₂ : ∀ d → η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫ ≡ C .id
 
   -- Adjoint def 1: unit-counit
-  record _⊣_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C)
-                  : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
+  record _⊣_ : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
     field
       -- unit
       η : 𝟙⟨ C ⟩ ⇒ (funcComp G F)
       -- counit
       ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩
-      -- triangle identities
-      Δ₁ : ∀ c → F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ≡ D .id
-      Δ₂ : ∀ d → η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫ ≡ C .id
+      triangleIdentities : TriangleIdentities η ε
+    open TriangleIdentities triangleIdentities public
 
 module NaturalBijection where
   -- Adjoint def 2: natural bijection
@@ -164,8 +170,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
     adj'→adj = record
       { η = η'
       ; ε = ε'
-      ; Δ₁ = Δ₁'
-      ; Δ₂ = Δ₂' }
+      ; triangleIdentities = record
+        {Δ₁ = Δ₁'
+        ; Δ₂ = Δ₂' }}
 
       where
         -- ETA

@@ -16,12 +16,6 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
--- Less polymorphic version of `cong`, to avoid some unresolved metas
-cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
-      → Path B (f x) (f y)
-cong′ f = cong f
-{-# INLINE cong′ #-}
-
 module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
   toPathP⁻ : x ≡ transport⁻ (λ i → A i) y → PathP A x y
   toPathP⁻ p = symP (toPathP (sym p))

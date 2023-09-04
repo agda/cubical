@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Additive.Base
-open import Cubical.Categories.Instances.Discrete
+open import Cubical.Categories.Instances.Terminal
 
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Unit
@@ -24,20 +24,17 @@ open AdditiveCategory
 open AdditiveCategoryStr
 
 private
-  terminalCategory : Category ℓ ℓ
-  terminalCategory = DiscreteCategory (Unit* , isOfHLevelUnit* 3)
-
   terminalAbGroupStr : AbGroupStr {ℓ = ℓ} Unit*
   terminalAbGroupStr = snd UnitAbGroup
 
-  homProp : (x y : Category.ob {ℓ = ℓ} terminalCategory) → isProp (terminalCategory [ x , y ])
+  homProp : (x y : Category.ob {ℓ = ℓ} TerminalCategory) → isProp (TerminalCategory [ x , y ])
   homProp x y = isOfHLevelUnit* 2 x y
 
-  homContr : (x y : Category.ob {ℓ = ℓ} terminalCategory) → isContr (terminalCategory [ x , y ])
+  homContr : (x y : Category.ob {ℓ = ℓ} TerminalCategory) → isContr (TerminalCategory [ x , y ])
   homContr x y = isProp→isContrPath (isOfHLevelUnit* 1) x y
 
   terminalPreAdd : PreaddCategory ℓ ℓ
-  cat terminalPreAdd = terminalCategory
+  cat terminalPreAdd = TerminalCategory
   homAbStr (preadd terminalPreAdd) =
     λ x y →
       subst
