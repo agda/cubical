@@ -124,11 +124,10 @@ isPropIsSemilattice : {L : Type ℓ} (ε : L) (_·_ : L → L → L)
 isPropIsSemilattice ε _·_ (issemilattice LL LC) (issemilattice SL SC) =
   λ i → issemilattice (isPropIsCommMonoid _ _ LL SL i) (isPropIdem LC SC i)
   where
-  isSetL : isSet _
-  isSetL = LL .IsCommMonoid.isMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
+  open IsCommMonoid LL using (is-set)
 
   isPropIdem : isProp ((x : _) → x · x ≡ x)
-  isPropIdem = isPropΠ λ _ → isSetL _ _
+  isPropIdem = isPropΠ λ _ → is-set _ _
 
 𝒮ᴰ-Semilattice : DUARel (𝒮-Univ ℓ) SemilatticeStr ℓ
 𝒮ᴰ-Semilattice =

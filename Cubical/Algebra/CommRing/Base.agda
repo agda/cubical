@@ -155,11 +155,6 @@ CommRingPath = ∫ 𝒮ᴰ-CommRing .UARel.ua
 uaCommRing : {A B : CommRing ℓ} → CommRingEquiv A B → A ≡ B
 uaCommRing {A = A} {B = B} = equivFun (CommRingPath A B)
 
-isSetCommRing : ((R , str) : CommRing ℓ) → isSet R
-isSetCommRing R = is-set
-  where
-  open CommRingStr (str R)
-
 CommRingIso : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingIso R S = Σ[ e ∈ Iso (R .fst) (S .fst) ]
                      IsRingHom (CommRingStr→RingStr (R .snd)) (e .fun) (CommRingStr→RingStr (S .snd))

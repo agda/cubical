@@ -12,6 +12,7 @@ module Cubical.Algebra.Group.Abelianization.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 
@@ -245,7 +246,7 @@ module UniversalProperty (G : Group ℓ) where
             f' = fst f
             g : Abelianization G → fst H
             g = (rec G)
-                  (isSetAbGroup H)
+                  is-set
                   (λ x → (f') x)
                   (λ a b c → f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
                              (f' a) · (f' (b · c))    ≡⟨ cong
@@ -262,12 +263,12 @@ module UniversalProperty (G : Group ℓ) where
             gIsHom : IsGroupHom (snd (AbGroup→Group asAbelianGroup)) g (snd (AbGroup→Group H))
             pres· gIsHom =
               (elimProp2 G)
-                (λ x y → isSetAbGroup H _ _)
+                (λ x y → is-set _ _)
                 ((snd f).pres·)
             pres1 gIsHom = (snd f).pres1
             presinv gIsHom =
               (elimProp G)
-                (λ x → isSetAbGroup H _ _)
+                (λ x → is-set _ _)
                 ((snd f).presinv)
 
     commutativity : (H : AbGroup ℓ)
@@ -290,10 +291,11 @@ module UniversalProperty (G : Group ℓ) where
         Σ≡Prop
           (λ _ → isPropIsGroupHom _ _)
           (λ i x →  q x i)
-      where q : (x : Abelianization G)
-                →  fst g x ≡ fst (inducedHom H f) x
-            q = (elimProp G)
-                  (λ _ → isSetAbGroup H _ _)
-                  (λ x → fst g (η x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
-                         (fst f) x   ≡⟨ refl ⟩
-                         fst (inducedHom H f) (η x)∎)
+      where
+      module H = AbGroupStr (str H)
+      q : (x : Abelianization G) → fst g x ≡ fst (inducedHom H f) x
+      q = (elimProp G)
+            (λ _ → H.is-set _ _)
+            (λ x → fst g (η x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
+                   (fst f) x   ≡⟨ refl ⟩
+                   fst (inducedHom H f) (η x)∎)

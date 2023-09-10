@@ -40,7 +40,7 @@ module _ (R : Ring ℓ) (M : LeftModule R ℓ') where
   open isSubmodule
 
   zeroSubmodule : Submodule
-  fst zeroSubmodule x = (x ≡ 0m) , isSetLeftModule M x 0m
+  fst zeroSubmodule x = (x ≡ 0m) , is-set x 0m
   +-closed  (snd zeroSubmodule) x≡0 y≡0 = (λ i → x≡0 i + y≡0 i) ∙ +IdL 0m
   0r-closed (snd zeroSubmodule)         = refl
   ⋆-closed  (snd zeroSubmodule) r x≡0   = (λ i → r ⋆ x≡0 i) ∙ ⋆AnnihilR r

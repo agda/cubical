@@ -90,8 +90,3 @@ OrderedCommMonoid→CommMonoid M .fst = M .fst
 OrderedCommMonoid→CommMonoid M .snd =
   let open OrderedCommMonoidStr (M .snd)
   in commmonoidstr _ _ isCommMonoid
-
-isSetOrderedCommMonoid : (M : OrderedCommMonoid ℓ ℓ') → isSet ⟨ M ⟩
-isSetOrderedCommMonoid M = is-set
-  where
-  open OrderedCommMonoidStr (str M)

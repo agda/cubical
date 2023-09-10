@@ -226,7 +226,7 @@ module _ (R : CommRing ℓ) where
     fst (fst (equiv-proof (snd indcuedHomEquivalence) x)) = inducedHom x
     snd (fst (equiv-proof (snd indcuedHomEquivalence) x)) = inducedMapGenerator x
     snd (equiv-proof (snd indcuedHomEquivalence) x) (g , gX≡x) =
-      Σ≡Prop (λ _ → isSetAlgebra A _ _) (sym (inducedHomUnique x g gX≡x))
+      Σ≡Prop (λ _ → is-set _ _) (sym (inducedHomUnique x g gX≡x))
 
     equalByUMP : (f g : AlgebraHom (CommAlgebra→Algebra ListPolyCommAlgebra) A)
                  → fst f X ≡ fst g X

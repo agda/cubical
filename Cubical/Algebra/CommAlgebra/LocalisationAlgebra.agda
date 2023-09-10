@@ -223,7 +223,7 @@ module _
         -- The original function we get with the UP respects ⋆.
         original-pres⋆ : type-pres⋆ RLoc.S⁻¹RAsCommRing _⋆_ (original-univ .fst .fst)
         original-pres⋆ r = SQ.elimProp
-          (λ _ _ _ → isSetCommAlgebra B _ _ _ _)
+          (λ _ _ _ → is-set _ _ _ _)
           (λ (a , s , s∈S') → cong (_· _) (ψ .snd .IsAlgebraHom.pres⋆ r a)
                             ∙ ⋆AssocL _ _ _)
 
@@ -252,7 +252,7 @@ module _
                             (fst φ) ∘ RUniv._/1 ≡ (fst ψ))
                  → (χₐ , χₐcomm) ≡ el
         χₐunique (φ' , φ'comm) =
-          Σ≡Prop ((λ _ → isSetΠ (λ _ → isSetCommAlgebra B) _ _)) $ AlgebraHom≡ $
+          Σ≡Prop ((λ _ → isSetΠ (λ _ → is-set) _ _)) $ AlgebraHom≡ $
           cong (fst ∘ fst) -- Get underlying bare function.
                (univ .snd (CommAlgebraHom→RingHom {A = S⁻¹AAsCommAlgebra} {B = B}
                                                   φ' , φ'comm))

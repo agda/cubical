@@ -68,7 +68,7 @@ module _ ((S , isSubalgebra) : Subalgebra) where
   Subalgebra→Algebra .snd .algStr._⋆_ r (a , a∈) = r ⋆ a , ⋆-closed r a∈
   Subalgebra→Algebra .snd .algStr.isAlgebra =
     let
-      isSet-A' = isSetΣSndProp (isSetAlgebra A) (∈-isProp S)
+      isSet-A' = isSetΣSndProp is-set (∈-isProp S)
       +Assoc' = λ x y z → Subalgebra→Algebra≡ (+Assoc (fst x) (fst y) (fst z))
       +IdR' = λ x → Subalgebra→Algebra≡ (+IdR (fst x))
       +InvR' = λ x → Subalgebra→Algebra≡ (+InvR (fst x))
