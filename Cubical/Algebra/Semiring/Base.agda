@@ -25,7 +25,11 @@ record IsSemiring {R : Type ℓ}
   open IsCommMonoid +IsCommMonoid public
     renaming
       ( isSemigroup to +IsSemigroup
-      ; isMonoid    to +IsMonoid)
+      ; isMonoid    to +IsMonoid
+      ; ·Comm       to +Comm
+      ; ·Assoc      to +Assoc
+      ; ·IdR        to +IdR
+      ; ·IdL        to +IdL)
 
   open IsMonoid ·IsMonoid public
     renaming
