@@ -39,6 +39,9 @@ module Sum (S : Semiring ℓ) where
   ∑Split : ∀ {n} → (V W : FinVec (fst S) n) → ∑ (λ i → V i + W i) ≡ ∑ V + ∑ W
   ∑Split = bigOpSplit +Comm
 
+  ∑Split++ : ∀ {n m : ℕ} (V : FinVec (fst S) n) (W : FinVec (fst S) m)
+          → ∑ (V ++Fin W) ≡ ∑ V + ∑ W
+  ∑Split++ = bigOpSplit++ +Comm
 
   ∑Mulrdist : ∀ {n} → (x : fst S) → (V : FinVec (fst S) n)
                  → x · ∑ V ≡ ∑ λ i → x · V i
