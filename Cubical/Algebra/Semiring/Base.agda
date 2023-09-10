@@ -63,12 +63,25 @@ makeIsSemiring : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R}
                  (AnnihilR : (x : R) → x · 0r ≡ 0r)
                  (AnnihilL : (x : R) → 0r · x ≡ 0r)
                → IsSemiring 0r 1r _+_ _·_
-makeIsSemiring is-setR +Assoc +IdR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ AnnihilR AnnihilL = x
+makeIsSemiring is-setR +Assoc +IdR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ AnnihilR AnnihilL
+  = isSR
   where module IS = IsSemiring
-        x : IsSemiring _ _ _ _
-        IS.+IsCommMonoid x = makeIsCommMonoid is-setR +Assoc +IdR +Comm
-        IS.·IsMonoid x = makeIsMonoid is-setR ·Assoc ·IdR ·IdL
-        IS.·DistR+ x = ·DistR+
-        IS.·DistL+ x = ·DistL+
-        IS.AnnihilL x = AnnihilL
-        IS.AnnihilR x = AnnihilR
+        isSR : IsSemiring _ _ _ _
+        IS.+IsCommMonoid isSR = makeIsCommMonoid is-setR +Assoc +IdR +Comm
+        IS.·IsMonoid isSR = makeIsMonoid is-setR ·Assoc ·IdR ·IdL
+        IS.·DistR+ isSR = ·DistR+
+        IS.·DistL+ isSR = ·DistL+
+        IS.AnnihilL isSR = AnnihilL
+        IS.AnnihilR isSR = AnnihilR
+
+Semiring→AbGroup : Semiring ℓ → CommMonoid ℓ
+Semiring→AbGroup S .fst = fst S
+Semiring→AbGroup S .snd = commMonoidStr
+ where
+   open CommMonoidStr
+   +CM = IsSemiring.+IsCommMonoid (SemiringStr.isSemiring (snd S))
+
+   commMonoidStr : CommMonoidStr (fst S)
+   ε commMonoidStr = _
+   _·_ commMonoidStr = _
+   isCommMonoid commMonoidStr = +CM
