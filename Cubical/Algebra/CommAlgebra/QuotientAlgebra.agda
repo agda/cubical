@@ -24,7 +24,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
 open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Algebra.Algebra.Properties
-open AlgebraHoms using (compAlgebraHom)
+open AlgebraHoms using (_∘a_)
 
 private
   variable

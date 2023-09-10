@@ -85,7 +85,8 @@ module AlgebraHoms where
   compAlgebraHom f g .fst = g .fst ∘ f .fst
   compAlgebraHom f g .snd = compIsAlgebraHom (g .snd) (f .snd)
 
-  syntax compAlgebraHom f g = g ∘a f
+  _∘a_ : AlgebraHom B C → AlgebraHom A B → AlgebraHom A C
+  _∘a_ = flip compAlgebraHom
 
   compIdAlgebraHom : (φ : AlgebraHom A B) → compAlgebraHom (idAlgebraHom A) φ ≡ φ
   compIdAlgebraHom φ = AlgebraHom≡ refl

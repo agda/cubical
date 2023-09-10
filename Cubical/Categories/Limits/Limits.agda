@@ -7,6 +7,7 @@ module Cubical.Categories.Limits.Limits where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
 
@@ -89,7 +90,8 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
   coneOutCommutes (preCompCone f cc) e = ⋆Assoc C _ _ _
                                        ∙ cong (λ x → f ⋆⟨ C ⟩ x) (coneOutCommutes cc e)
 
-  syntax preCompCone f cc = f ★ cc
+  _★_ : {c1 c2 : ob C} (f : C [ c1 , c2 ]) {D : Functor J C} → Cone D c2 → Cone D c1
+  _★_ = preCompCone
 
   natTransPostCompCone : {c : ob C} {D₁ D₂ : Functor J C} (α : NatTrans D₁ D₂)
                        → Cone D₁ c → Cone D₂ c
@@ -105,7 +107,8 @@ module _ {ℓJ ℓJ' ℓC ℓC' : Level} {J : Category ℓJ ℓJ'} {C : Category
     ≡⟨ cong (λ x → x ⋆⟨ C ⟩ α .N-ob v) (cc .coneOutCommutes e) ⟩
       cc .coneOut v ⋆⟨ C ⟩ α .N-ob v ∎
 
-  syntax natTransPostCompCone α cc = cc ★ₙₜ α
+  _★ₙₜ_ : {c : ob C} {D₁ D₂ : Functor J C} → Cone D₁ c → NatTrans D₁ D₂ → Cone D₂ c
+  _★ₙₜ_ = flip natTransPostCompCone
 
   isConeMor : {c1 c2 : ob C} {D : Functor J C}
               (cc1 : Cone D c1) (cc2 : Cone D c2)

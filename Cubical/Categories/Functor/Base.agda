@@ -133,8 +133,9 @@ funcComp : ∀ (G : Functor D E) (F : Functor C D) → Functor C E
 (funcComp G F) .F-id      = cong (G ⟪_⟫) (F .F-id) ∙ G .F-id
 (funcComp G F) .F-seq f g = cong (G ⟪_⟫) (F .F-seq _ _) ∙ G .F-seq _ _
 
-infixr 30 funcComp
-syntax funcComp G F = G ∘F F
+infixr 30 _∘F_
+_∘F_ : Functor D E → Functor C D → Functor C E
+_∘F_ = funcComp
 
 -- hacky lemma to stop Agda from computing too much
 funcCompOb≡ : ∀ (G : Functor D E) (F : Functor C D) (c : ob C)
