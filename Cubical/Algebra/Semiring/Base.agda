@@ -17,8 +17,8 @@ record IsSemiring {R : Type ℓ}
   field
     +IsCommMonoid  : IsCommMonoid 0r _+_
     ·IsMonoid      : IsMonoid 1r _·_
-    ·LDist+        : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
-    ·RDist+        : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
+    ·DistR+        : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z)
+    ·DistL+        : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z)
     AnnihilL       : (x : R) → 0r · x ≡ 0r
     AnnihilR       : (x : R) → x · 0r ≡ 0r
 
@@ -49,3 +49,26 @@ record SemiringStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
 Semiring : ∀ ℓ → Type (ℓ-suc ℓ)
 Semiring ℓ = TypeWithStr ℓ SemiringStr
+
+makeIsSemiring : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R}
+                 (is-setR : isSet R)
+                 (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
+                 (+IdR : (x : R) → x + 0r ≡ x)
+                 (+Comm : (x y : R) → x + y ≡ y + x)
+                 (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
+                 (·IdR : (x : R) → x · 1r ≡ x)
+                 (·IdL : (x : R) → 1r · x ≡ x)
+                 (·LDist+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
+                 (·RDist+ : (x y z : R) → (x + y) · z ≡ (x · z) + (y · z))
+                 (AnnihilR : (x : R) → x · 0r ≡ 0r)
+                 (AnnihilL : (x : R) → 0r · x ≡ 0r)
+               → IsSemiring 0r 1r _+_ _·_
+makeIsSemiring is-setR +Assoc +IdR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ AnnihilR AnnihilL = x
+  where module IS = IsSemiring
+        x : IsSemiring _ _ _ _
+        IS.+IsCommMonoid x = makeIsCommMonoid is-setR +Assoc +IdR +Comm
+        IS.·IsMonoid x = makeIsMonoid is-setR ·Assoc ·IdR ·IdL
+        IS.·DistR+ x = ·DistR+
+        IS.·DistL+ x = ·DistL+
+        IS.AnnihilL x = AnnihilL
+        IS.AnnihilR x = AnnihilR
