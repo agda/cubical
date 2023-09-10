@@ -78,6 +78,39 @@ makeIsSemiring is-setR +Assoc +IdR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ A
         IS.AnnihilL isSR = AnnihilL
         IS.AnnihilR isSR = AnnihilR
 
+SemiringFromMonoids :
+  (S : Type ℓ)
+  (0r 1r : S) (_+_ _·_ : S → S → S)
+  (+CommMonoid : IsCommMonoid 0r _+_)
+  (·Monoiod : IsMonoid 1r _·_)
+  (·LDist+ : (x y z : S) → x · (y + z) ≡ (x · y) + (x · z))
+  (·RDist+ : (x y z : S) → (x + y) · z ≡ (x · z) + (y · z))
+  (AnnihilR : (x : S) → x · 0r ≡ 0r)
+  (AnnihilL : (x : S) → 0r · x ≡ 0r)
+  → Semiring ℓ
+SemiringFromMonoids
+  S 0r 1r _+_ _·_
+  +CommMonoid ·Monoid
+  ·LDist+ ·RDist+
+  AnnihilR AnnihilL
+  = S , str
+  where module SR = SemiringStr
+        module + = IsCommMonoid +CommMonoid
+        open IsMonoid ·Monoid
+
+        str : SemiringStr S
+        SR.0r str = 0r
+        SR.1r str = 1r
+        SR._+_ str = _+_
+        SR._·_ str = _·_
+        SR.isSemiring str =
+          makeIsSemiring
+            +.is-set +.·Assoc +.·IdR +.·Comm
+            ·Assoc ·IdR ·IdL
+            ·LDist+ ·RDist+
+            AnnihilR AnnihilL
+
+
 Semiring→CommMonoid : Semiring ℓ → CommMonoid ℓ
 Semiring→CommMonoid S .fst = fst S
 Semiring→CommMonoid S .snd = commMonoidStr
