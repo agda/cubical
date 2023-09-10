@@ -74,9 +74,9 @@ makeIsSemiring is-setR +Assoc +IdR +Comm ·Assoc ·IdR ·IdL ·DistR+ ·DistL+ A
         IS.AnnihilL isSR = AnnihilL
         IS.AnnihilR isSR = AnnihilR
 
-Semiring→AbGroup : Semiring ℓ → CommMonoid ℓ
-Semiring→AbGroup S .fst = fst S
-Semiring→AbGroup S .snd = commMonoidStr
+Semiring→CommMonoid : Semiring ℓ → CommMonoid ℓ
+Semiring→CommMonoid S .fst = fst S
+Semiring→CommMonoid S .snd = commMonoidStr
  where
    open CommMonoidStr
    +CM = IsSemiring.+IsCommMonoid (SemiringStr.isSemiring (snd S))
