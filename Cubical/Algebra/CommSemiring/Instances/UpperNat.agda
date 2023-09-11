@@ -186,17 +186,25 @@ module ConstructionBounded where
 
 
   asCommSemiring : CommSemiring (ℓ-suc ℓ-zero)
-  asCommSemiring =
-    makeCommSemiring ℕ↑b 0↑ (OrderedCommMonoidStr.ε (snd ℕ↑-·b))
-      _+_ _·_
-      (is-set +IsCM)
-      (·Assoc +IsCM) (·IdR +IsCM) (·Comm +IsCM)
-      (·Assoc ·IsCM) (·IdR ·IsCM)
-      (λ x y z → Σ≡Prop (λ s → PropCompletion.isPropIsBounded ℓ-zero ℕ≤+ s)
-                     (ConstructionUnbounded.+LDist· (fst x) (fst y) (fst z)))
-      AnnihilL
-      (·Comm ·IsCM)
+  asCommSemiring .fst = ℕ↑b
+  asCommSemiring .snd = str
     where
+      module CS = CommSemiringStr
       open IsCommMonoid
       +IsCM = OrderedCommMonoidStr.isCommMonoid (snd ℕ↑-+b)
       ·IsCM = OrderedCommMonoidStr.isCommMonoid (snd ℕ↑-·b)
+
+      str : CommSemiringStr ℕ↑b
+      CS.0r str = 0↑
+      CS.1r str = OrderedCommMonoidStr.ε (snd ℕ↑-·b)
+      CS._+_ str = _+_
+      CS._·_ str = _·_
+      CS.isCommSemiring str =
+        makeIsCommSemiring
+          (is-set +IsCM)
+          (·Assoc +IsCM) (·IdR +IsCM) (·Comm +IsCM)
+          (·Assoc ·IsCM) (·IdR ·IsCM)
+          (λ x y z → Σ≡Prop (λ s → PropCompletion.isPropIsBounded ℓ-zero ℕ≤+ s)
+                     (ConstructionUnbounded.+LDist· (fst x) (fst y) (fst z)))
+          AnnihilL
+          (·Comm ·IsCM)

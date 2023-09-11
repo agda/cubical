@@ -62,29 +62,3 @@ makeIsCommSemiring {_+_ = _+_} {_·_ = _·_}
                                (x · z) + (y · z) ∎ )
             ( λ x → ·Comm x _ ∙ AnnihilL x) AnnihilL
         IsCommSemiring.·Comm x = ·Comm
-
-makeCommSemiring : (R : Type ℓ)
-                 (0r 1r : R) (_+_ _·_ : R → R → R)
-                 (is-setR : isSet R)
-                 (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
-                 (+IdR : (x : R) → x + 0r ≡ x)
-                 (+Comm : (x y : R) → x + y ≡ y + x)
-                 (·Assoc : (x y z : R) → x · (y · z) ≡ (x · y) · z)
-                 (·IdR : (x : R) → x · 1r ≡ x)
-                 (·DistR+ : (x y z : R) → x · (y + z) ≡ (x · y) + (x · z))
-                 (AnnihilL : (x : R) → 0r · x ≡ 0r)
-                 (·Comm : (x y : R) → x · y ≡ y · x)
-               → CommSemiring ℓ
-makeCommSemiring
-  R
-  0r 1r _+_ _·_
-  is-setR +Assoc +IdR +Comm ·Assoc ·IdR ·DistR+ AnnihilL ·Comm
-  = (R , str)
-  where module CS = CommSemiringStr
-        str : CommSemiringStr R
-        CS.0r str = 0r
-        CS.1r str = 1r
-        CS._+_ str = _+_
-        CS._·_ str = _·_
-        CS.isCommSemiring str =
-          makeIsCommSemiring is-setR +Assoc +IdR +Comm ·Assoc ·IdR ·DistR+ AnnihilL ·Comm
