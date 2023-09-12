@@ -7,10 +7,12 @@ open import Cubical.Homotopy.EilenbergMacLane.Base
 open import Cubical.Homotopy.EilenbergMacLane.Order2
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Nat
 
 open import Cubical.Algebra.Group.Base
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
@@ -106,10 +108,23 @@ is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd (coHomGr n G A)))))) = sq
   ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (funExt λ x → +ₖ≡id-ℤ/2 n (f x))
 
--ₕConst-ℤ/2 : ∀{ℓ} (n : ℕ) {A : Type ℓ} (x : coHom n ℤ/2 A) → -ₕ x ≡ x
+-ₕConst-ℤ/2 : (n : ℕ) {A : Type ℓ} (x : coHom n ℤ/2 A) → -ₕ x ≡ x
 -ₕConst-ℤ/2 zero =
   ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (funExt λ x → -Const-ℤ/2 (f x))
 -ₕConst-ℤ/2 (suc n) =
   ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (funExt λ x → -ₖConst-ℤ/2 n (f x))
+
+coHomFun : ∀ {ℓ''} {A : Type ℓ} {B : Type ℓ'} {G : AbGroup ℓ''}
+            (n : ℕ) (f : A → B)
+         → coHom n G B → coHom n G A
+coHomFun n f = ST.map λ g x → g (f x)
+
+coHomHom : ∀ {ℓ''} {A : Type ℓ} {B : Type ℓ'} {G : AbGroup ℓ''}
+            (n : ℕ) (f : A → B)
+         → AbGroupHom (coHomGr n G B) (coHomGr n G A)
+fst (coHomHom n f) = coHomFun n f
+snd (coHomHom n f) =
+  makeIsGroupHom (ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
+   λ f g → refl)
