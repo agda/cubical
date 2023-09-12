@@ -81,7 +81,7 @@ module _
         PathP (λ i → P (push x i)) (inclP'-filler k i x) (inclP'-filler (1 + k) i (X .map x))) (datum .pushP)
 
     ElimDataShifted0→ElimData : ElimData P
-    ElimDataShifted0→ElimData .inclP = inclP'  _
+    ElimDataShifted0→ElimData .inclP = inclP' _
     ElimDataShifted0→ElimData .pushP = pushP' _
 
   module _
