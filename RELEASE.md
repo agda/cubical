@@ -1,3 +1,5 @@
+This is a bit outdated, the release process changed.
+
 When releasing a new version of
 [agda/cubical](https://github.com/agda/cubical), the following
 procedure should be followed:
@@ -33,6 +35,8 @@ Post-release
    include: .
    depend:
   ```
+
+* Update CITATION.cff with the new version and date of release.
 
 * Update README.md. There should be a new line in section "Compiling, using and installing`.
 
