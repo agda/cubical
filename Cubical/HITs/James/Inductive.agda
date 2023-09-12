@@ -60,7 +60,7 @@ module JamesInd
   -- It is the direct colimit of 𝕁 n.
 
   𝕁∞ : Type ℓ
-  𝕁∞ = Lim→ 𝕁Seq
+  𝕁∞ = SeqColim 𝕁Seq
 
   -- And of course it is equivalent to James.
 
@@ -116,7 +116,7 @@ module JamesInd
     -- If X is (d+1)-connected, the inclusion inl : 𝕁 n → 𝕁∞ will be (n+1)d-connected.
 
     inl∞ : (n : ℕ) → 𝕁 n → 𝕁∞
-    inl∞ _ = inl
+    inl∞ _ = incl
 
     isConnectedInl : (n : ℕ) → isConnectedFun ((1 + n) · d) (inl∞ n)
     isConnectedInl = connInl X∙ d conn
