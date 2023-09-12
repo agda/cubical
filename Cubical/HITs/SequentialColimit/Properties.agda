@@ -36,18 +36,18 @@ module _
       inclP : {k : ℕ} (x : X .obj k) → P (incl x)
       pushP : {k : ℕ} (x : X .obj k) → PathP (λ i → P (push x i)) (inclP x) (inclP (X .map x))
 
-  record ElimShiftData (n : ℕ)(P : SeqColim X → Type ℓ') : Type (ℓ-max ℓ ℓ') where
+  record ElimDataShifted (n : ℕ)(P : SeqColim X → Type ℓ') : Type (ℓ-max ℓ ℓ') where
     field
       inclP : {k : ℕ} (x : X .obj (k + n)) → P (incl x)
       pushP : {k : ℕ} (x : X .obj (k + n)) → PathP (λ i → P (push x i)) (inclP x) (inclP (X .map x))
 
   open ElimData
-  open ElimShiftData
+  open ElimDataShifted
 
-  ElimData→ElimShiftData : (n : ℕ)(P : SeqColim X → Type ℓ')
-    → ElimData P → ElimShiftData n P
-  ElimData→ElimShiftData n P datum .inclP = datum .inclP
-  ElimData→ElimShiftData n P datum .pushP = datum .pushP
+  ElimData→ElimDataShifted : (n : ℕ)(P : SeqColim X → Type ℓ')
+    → ElimData P → ElimDataShifted n P
+  ElimData→ElimDataShifted n P datum .inclP = datum .inclP
+  ElimData→ElimDataShifted n P datum .pushP = datum .pushP
 
   -- Preliminary lemmas
   -- The difficulty is maincly due to natural numbers having no strict +-commutativity
@@ -58,7 +58,7 @@ module _
 
   module _
     (P : SeqColim X → Type ℓ')
-    (datum : ElimShiftData 0 P) where
+    (datum : ElimDataShifted 0 P) where
 
     +-zero-0 : refl ≡ +-zero 0
     +-zero-0 i j = isSet→SquareP (λ i j → isSetℕ) refl refl refl (+-zero 0) j i
@@ -80,13 +80,13 @@ module _
       (λ i → (x : X .obj (+-zero k i)) →
         PathP (λ i → P (push x i)) (inclP'-filler k i x) (inclP'-filler (1 + k) i (X .map x))) (datum .pushP)
 
-    ElimShiftData0→ElimData : ElimData P
-    ElimShiftData0→ElimData .inclP = inclP'  _
-    ElimShiftData0→ElimData .pushP = pushP' _
+    ElimDataShifted0→ElimData : ElimData P
+    ElimDataShifted0→ElimData .inclP = inclP'  _
+    ElimDataShifted0→ElimData .pushP = pushP' _
 
   module _
     (n : ℕ)(P : SeqColim X → Type ℓ')
-    (datum : ElimShiftData (1 + n) P) where
+    (datum : ElimDataShifted (1 + n) P) where
 
     alg-path-0 : (b : ℕ) → refl ≡ alg-path 0 b
     alg-path-0 b i j = isSet→SquareP (λ i j → isSetℕ) refl refl refl (alg-path 0 b) j i
@@ -124,11 +124,11 @@ module _
           ; (i = i1) → inclP-0-eq j (X .map x) })
         (inclP-0-filler x i)
 
-    elimShiftDataSuc : ElimShiftData n P
-    elimShiftDataSuc .inclP {k = 0}     = inclP-0
-    elimShiftDataSuc .inclP {k = suc k} = inclP-n k
-    elimShiftDataSuc .pushP {k = 0}     = pushP-0
-    elimShiftDataSuc .pushP {k = suc k} = pushP-n k
+    ElimDataShiftedSuc : ElimDataShifted n P
+    ElimDataShiftedSuc .inclP {k = 0}     = inclP-0
+    ElimDataShiftedSuc .inclP {k = suc k} = inclP-n k
+    ElimDataShiftedSuc .pushP {k = 0}     = pushP-0
+    ElimDataShiftedSuc .pushP {k = suc k} = pushP-n k
 
   -- The eliminators
 
@@ -141,26 +141,26 @@ module _
 
   elimShift : (n : ℕ)
     → (P : SeqColim X → Type ℓ')
-    → ElimShiftData n P
+    → ElimDataShifted n P
     → (x : SeqColim X) → P x
-  elimShift 0 _ datum = elim _ (ElimShiftData0→ElimData _ datum)
-  elimShift (suc n) _ datum = elimShift n _ (elimShiftDataSuc _ _ datum)
+  elimShift 0 _ datum = elim _ (ElimDataShifted0→ElimData _ datum)
+  elimShift (suc n) _ datum = elimShift n _ (ElimDataShiftedSuc _ _ datum)
 
   elimShiftβ : (n : ℕ)(k : ℕ)
     → (P : SeqColim X → Type ℓ')
-    → (datum : ElimShiftData n P)
+    → (datum : ElimDataShifted n P)
     → elimShift _ _ datum ∘ incl∞ (k + n) ≡ datum .inclP
   elimShiftβ 0 0 _ datum = sym (inclP'-0-eq _ datum)
   elimShiftβ 0 (suc k) P datum =
     transport (λ i → elimShift _ _ datum ∘ incl∞ (+-zero (suc k) (~ i))
       ≡ inclP'-filler P datum (suc k) (~ i)) refl
   elimShiftβ (suc n) 0 _ datum =
-      elimShiftβ n _ _ (elimShiftDataSuc _ _ datum)
+      elimShiftβ n _ _ (ElimDataShiftedSuc _ _ datum)
     ∙ sym (inclP-0-eq _ _ datum)
   elimShiftβ (suc n) (suc k) P datum =
     transport (λ i → elimShift _ _ datum ∘ incl∞ (alg-path (suc k) n (~ i))
       ≡ inclP-n-filler n P datum (suc k) (~ i))
-      (elimShiftβ n (suc (suc k)) P (elimShiftDataSuc _ _ datum))
+      (elimShiftβ n (suc (suc k)) P (ElimDataShiftedSuc _ _ datum))
 
   -- Lemma to lift sections
 
@@ -223,7 +223,7 @@ module _
           → PathP (λ i → Y (push x i) .fst) (lifting k sec x) (lifting (1 + k) sec (X .map x))
         liftingPath k sec = liftSecPath d _ (conn _) Y (lifting k sec)
 
-        liftingData : ((x : X .obj n) → Y (incl x) .fst) → ElimShiftData n (λ x → Y x .fst)
+        liftingData : ((x : X .obj n) → Y (incl x) .fst) → ElimDataShifted n (λ x → Y x .fst)
         liftingData sec .inclP = lifting _ sec
         liftingData sec .pushP = liftingPath _ sec
 
