@@ -50,7 +50,7 @@ module _
   ElimData→ElimDataShifted n P datum .pushP = datum .pushP
 
   -- Preliminary lemmas
-  -- The difficulty is maincly due to natural numbers having no strict +-commutativity
+  -- The difficulty is mainly due to natural numbers having no strict +-commutativity
 
   private
     alg-path : (a b : ℕ) → a + (1 + b) ≡ 1 + (a + b)
@@ -124,11 +124,11 @@ module _
           ; (i = i1) → inclP-0-eq j (X .map x) })
         (inclP-0-filler x i)
 
-    ElimDataShiftedSuc : ElimDataShifted n P
-    ElimDataShiftedSuc .inclP {k = 0}     = inclP-0
-    ElimDataShiftedSuc .inclP {k = suc k} = inclP-n k
-    ElimDataShiftedSuc .pushP {k = 0}     = pushP-0
-    ElimDataShiftedSuc .pushP {k = suc k} = pushP-n k
+    elimShiftedSuc : ElimDataShifted n P
+    elimShiftedSuc .inclP {k = 0}     = inclP-0
+    elimShiftedSuc .inclP {k = suc k} = inclP-n k
+    elimShiftedSuc .pushP {k = 0}     = pushP-0
+    elimShiftedSuc .pushP {k = suc k} = pushP-n k
 
   -- The eliminators
 
@@ -139,28 +139,28 @@ module _
   elim P datum (incl x)   = datum .inclP x
   elim P datum (push x i) = datum .pushP x i
 
-  elimShift : (n : ℕ)
+  elimShifted : (n : ℕ)
     → (P : SeqColim X → Type ℓ')
     → ElimDataShifted n P
     → (x : SeqColim X) → P x
-  elimShift 0 _ datum = elim _ (ElimDataShifted0→ElimData _ datum)
-  elimShift (suc n) _ datum = elimShift n _ (ElimDataShiftedSuc _ _ datum)
+  elimShifted 0 _ datum = elim _ (ElimDataShifted0→ElimData _ datum)
+  elimShifted (suc n) _ datum = elimShifted n _ (elimShiftedSuc _ _ datum)
 
-  elimShiftβ : (n : ℕ)(k : ℕ)
+  elimShiftedβ : (n : ℕ)(k : ℕ)
     → (P : SeqColim X → Type ℓ')
     → (datum : ElimDataShifted n P)
-    → elimShift _ _ datum ∘ incl∞ (k + n) ≡ datum .inclP
-  elimShiftβ 0 0 _ datum = sym (inclP'-0-eq _ datum)
-  elimShiftβ 0 (suc k) P datum =
-    transport (λ i → elimShift _ _ datum ∘ incl∞ (+-zero (suc k) (~ i))
+    → elimShifted _ _ datum ∘ incl∞ (k + n) ≡ datum .inclP
+  elimShiftedβ 0 0 _ datum = sym (inclP'-0-eq _ datum)
+  elimShiftedβ 0 (suc k) P datum =
+    transport (λ i → elimShifted _ _ datum ∘ incl∞ (+-zero (suc k) (~ i))
       ≡ inclP'-filler P datum (suc k) (~ i)) refl
-  elimShiftβ (suc n) 0 _ datum =
-      elimShiftβ n _ _ (ElimDataShiftedSuc _ _ datum)
+  elimShiftedβ (suc n) 0 _ datum =
+      elimShiftedβ n _ _ (elimShiftedSuc _ _ datum)
     ∙ sym (inclP-0-eq _ _ datum)
-  elimShiftβ (suc n) (suc k) P datum =
-    transport (λ i → elimShift _ _ datum ∘ incl∞ (alg-path (suc k) n (~ i))
+  elimShiftedβ (suc n) (suc k) P datum =
+    transport (λ i → elimShifted _ _ datum ∘ incl∞ (alg-path (suc k) n (~ i))
       ≡ inclP-n-filler n P datum (suc k) (~ i))
-      (elimShiftβ n (suc (suc k)) P (ElimDataShiftedSuc _ _ datum))
+      (elimShiftedβ n (suc (suc k)) P (elimShiftedSuc _ _ datum))
 
   -- Lemma to lift sections
 
@@ -228,8 +228,8 @@ module _
         liftingData sec .pushP = liftingPath _ sec
 
         hasSectionIncl∘ : hasSection (λ (sec : (x : SeqColim X) → Y x .fst) → sec ∘ incl {n = n})
-        hasSectionIncl∘ .fst sec = elimShift  _ _   (liftingData sec)
-        hasSectionIncl∘ .snd sec = elimShiftβ _ _ _ (liftingData sec)
+        hasSectionIncl∘ .fst sec = elimShifted  _ _   (liftingData sec)
+        hasSectionIncl∘ .snd sec = elimShiftedβ _ _ _ (liftingData sec)
 
     -- Connectivity of inclusion map
 

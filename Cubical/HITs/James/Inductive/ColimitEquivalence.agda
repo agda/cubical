@@ -112,7 +112,7 @@ module _
   J→𝕁ames (unit xs i) = push∞ (J→𝕁ames xs) i
 
   -- The following is the most complicated part.
-  -- It seems horrible but maincly it's due to correction of boudaries.
+  -- It seems horrible but mainly it's due to correction of boudaries.
 
   𝕁→J→𝕁ames-incl : (xs : 𝕁Red) → J→𝕁ames (𝕁→James (incl xs)) ≡ incl xs
   𝕁→J→𝕁ames-incl [] = refl
