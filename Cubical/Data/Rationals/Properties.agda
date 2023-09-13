@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Rationals.QuoQ.Properties where
+module Cubical.Data.Rationals.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -17,7 +17,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
 open import Cubical.Relation.Nullary
 
-open import Cubical.HITs.Rationals.QuoQ.Base
+open import Cubical.Data.Rationals.Base
 
 ℚ-cancelˡ : ∀ {a b} (c : ℕ₊₁) → [ ℕ₊₁→ℤ c ℤ.· a / c ·₊₁ b ] ≡ [ a / b ]
 ℚ-cancelˡ {a} {b} c = eq/ _ _

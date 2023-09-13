@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Rationals.HITQ.Base where
+module Cubical.Data.Rationals.MoreRationals.HITQ.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

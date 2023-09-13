@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Rationals.SigmaQ.Base where
+module Cubical.Data.Rationals.MoreRationals.SigmaQ.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

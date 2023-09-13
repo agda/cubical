@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.HITs.Rationals.SigmaQ.Properties where
+module Cubical.Data.Rationals.MoreRationals.SigmaQ.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -17,8 +17,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat.GCD
 open import Cubical.Data.Nat.Coprime
 
-open import Cubical.HITs.Rationals.QuoQ as Quo using (ℕ₊₁→ℤ)
-import Cubical.HITs.Rationals.SigmaQ.Base as Sigma
+open import Cubical.Data.Rationals as Quo using (ℕ₊₁→ℤ)
+import Cubical.Data.Rationals.MoreRationals.SigmaQ.Base as Sigma
 
 
 reduce : Quo.ℚ → Sigma.ℚ
