@@ -3,7 +3,7 @@ module Cubical.Categories.Instances.Poset where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 open import Cubical.Categories.Category
 

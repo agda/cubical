@@ -13,9 +13,6 @@ open import Cubical.HITs.SetTruncation as ∥₂
 open import Cubical.Data.Cardinality.Base
 
 open import Cubical.Algebra.CommSemiring
-open import Cubical.Algebra.CommMonoid
-open import Cubical.Algebra.Monoid
-open import Cubical.Algebra.Semigroup
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -48,14 +45,6 @@ module _ where
                       λ _ _ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
                                                   (sym (isoToPath Σ-assoc-Iso)))
 
-    +Semigroup : IsSemigroup {ℓ-suc ℓ} _+_
-    +Semigroup = issemigroup isSetCard
-                             +Assoc
-
-    ·Semigroup : IsSemigroup {ℓ-suc ℓ} _·_
-    ·Semigroup = issemigroup isSetCard
-                             ·Assoc
-
     +IdR𝟘 : (A : Card {ℓ}) → A + 𝟘 ≡ A
     +IdR𝟘 = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
                     λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
@@ -76,16 +65,6 @@ module _ where
                     λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
                                             (isoToPath lUnit*×Iso))
 
-    +Monoid : IsMonoid {ℓ-suc ℓ} 𝟘 _+_
-    +Monoid = ismonoid +Semigroup
-                       +IdR𝟘
-                       +IdL𝟘
-
-    ·Monoid : IsMonoid {ℓ-suc ℓ} 𝟙 _·_
-    ·Monoid = ismonoid ·Semigroup
-                       ·IdR𝟙
-                       ·IdL𝟙
-
     +Comm : (A B : Card {ℓ}) → (A + B) ≡ (B + A)
     +Comm = ∥₂.elim2 (λ _ _ → isProp→isSet (isSetCard _ _))
                      λ _ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
@@ -95,14 +74,6 @@ module _ where
     ·Comm = ∥₂.elim2 (λ _ _ → isProp→isSet (isSetCard _ _))
                      λ _ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
                                                (isoToPath Σ-swap-Iso))
-
-    +CommMonoid : IsCommMonoid {ℓ-suc ℓ} 𝟘 _+_
-    +CommMonoid = iscommmonoid +Monoid
-                               +Comm
-
-    ·CommMonoid : IsCommMonoid {ℓ-suc ℓ} 𝟙 _·_
-    ·CommMonoid = iscommmonoid ·Monoid
-                               ·Comm
 
     ·LDist+ : (A B C : Card {ℓ}) → A · (B + C) ≡ (A · B) + (A · C)
     ·LDist+ = ∥₂.elim3 (λ _ _ _ → isProp→isSet (isSetCard _ _))
@@ -115,10 +86,7 @@ module _ where
                                                (isoToPath (ΣEmpty*Iso λ _ → _)))
 
   isCardCommSemiring : IsCommSemiring {ℓ-suc ℓ} 𝟘 𝟙 _+_ _·_
-  isCardCommSemiring = iscommsemiring +CommMonoid
-                                      ·CommMonoid
-                                      ·LDist+
-                                      AnnihilL
+  isCardCommSemiring = makeIsCommSemiring isSetCard +Assoc +IdR𝟘 +Comm ·Assoc ·IdR𝟙 ·LDist+ AnnihilL ·Comm
 
 -- Exponentiation is also well-behaved
 

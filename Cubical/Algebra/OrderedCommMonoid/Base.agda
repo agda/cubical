@@ -10,7 +10,7 @@ open import Cubical.Foundations.Structure using (⟨_⟩; str)
 
 open import Cubical.Algebra.CommMonoid.Base
 
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 private
   variable

@@ -166,14 +166,41 @@ leftInv ⊎-assoc-Iso (inr _)        = refl
 ⊎-assoc-≃ : (A ⊎ B) ⊎ C ≃ A ⊎ (B ⊎ C)
 ⊎-assoc-≃ = isoToEquiv ⊎-assoc-Iso
 
-⊎-⊥-Iso : Iso (A ⊎ ⊥) A
-fun ⊎-⊥-Iso (inl x) = x
-inv ⊎-⊥-Iso x       = inl x
-rightInv ⊎-⊥-Iso _      = refl
-leftInv ⊎-⊥-Iso (inl _) = refl
+⊎-IdR-⊥-Iso : Iso (A ⊎ ⊥) A
+fun ⊎-IdR-⊥-Iso (inl x) = x
+inv ⊎-IdR-⊥-Iso x       = inl x
+rightInv ⊎-IdR-⊥-Iso _      = refl
+leftInv ⊎-IdR-⊥-Iso (inl _) = refl
 
-⊎-⊥-≃ : A ⊎ ⊥ ≃ A
-⊎-⊥-≃ = isoToEquiv ⊎-⊥-Iso
+⊎-IdL-⊥-Iso : Iso (⊥ ⊎ A) A
+fun ⊎-IdL-⊥-Iso (inr x) = x
+inv ⊎-IdL-⊥-Iso x       = inr x
+rightInv ⊎-IdL-⊥-Iso _      = refl
+leftInv ⊎-IdL-⊥-Iso (inr _) = refl
+
+⊎-IdL-⊥*-Iso : ∀{ℓ} → Iso (⊥* {ℓ} ⊎ A) A
+fun ⊎-IdL-⊥*-Iso (inr x) = x
+inv ⊎-IdL-⊥*-Iso x       = inr x
+rightInv ⊎-IdL-⊥*-Iso _      = refl
+leftInv ⊎-IdL-⊥*-Iso (inr _) = refl
+
+⊎-IdR-⊥*-Iso : ∀{ℓ} → Iso (A ⊎ ⊥* {ℓ}) A
+fun ⊎-IdR-⊥*-Iso (inl x) = x
+inv ⊎-IdR-⊥*-Iso x       = inl x
+rightInv ⊎-IdR-⊥*-Iso _      = refl
+leftInv ⊎-IdR-⊥*-Iso (inl _) = refl
+
+⊎-IdR-⊥-≃ : A ⊎ ⊥ ≃ A
+⊎-IdR-⊥-≃ = isoToEquiv ⊎-IdR-⊥-Iso
+
+⊎-IdL-⊥-≃ : ⊥ ⊎ A ≃ A
+⊎-IdL-⊥-≃ = isoToEquiv ⊎-IdL-⊥-Iso
+
+⊎-IdR-⊥*-≃ : ∀{ℓ} → A ⊎ ⊥* {ℓ} ≃ A
+⊎-IdR-⊥*-≃ = isoToEquiv ⊎-IdR-⊥*-Iso
+
+⊎-IdL-⊥*-≃ : ∀{ℓ} → ⊥* {ℓ} ⊎ A ≃ A
+⊎-IdL-⊥*-≃ = isoToEquiv ⊎-IdL-⊥*-Iso
 
 Π⊎Iso : Iso ((x : A ⊎ B) → E x) (((a : A) → E (inl a)) × ((b : B) → E (inr b)))
 fun Π⊎Iso f .fst a = f (inl a)
@@ -194,6 +221,16 @@ rightInv Σ⊎Iso (inl (a , ea)) = refl
 rightInv Σ⊎Iso (inr (b , eb)) = refl
 leftInv Σ⊎Iso (inl a , ea) = refl
 leftInv Σ⊎Iso (inr b , eb) = refl
+
+×DistL⊎Iso : Iso (A × (B ⊎ C)) ((A × B) ⊎ (A × C))
+fun ×DistL⊎Iso (a , inl b) = inl (a , b)
+fun ×DistL⊎Iso (a , inr c) = inr (a , c)
+inv ×DistL⊎Iso (inl (a , b)) = a , inl b
+inv ×DistL⊎Iso (inr (a , c)) = a , inr c
+rightInv ×DistL⊎Iso (inl (a , b)) = refl
+rightInv ×DistL⊎Iso (inr (a , c)) = refl
+leftInv ×DistL⊎Iso (a , inl b) = refl
+leftInv ×DistL⊎Iso (a , inr c) = refl
 
 Π⊎≃ : ((x : A ⊎ B) → E x) ≃ ((a : A) → E (inl a)) × ((b : B) → E (inr b))
 Π⊎≃ = isoToEquiv Π⊎Iso

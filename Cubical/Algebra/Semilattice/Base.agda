@@ -34,7 +34,7 @@ open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
 open import Cubical.Relation.Binary
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 open import Cubical.Reflection.RecordEquiv
 

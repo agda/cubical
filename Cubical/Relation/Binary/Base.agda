@@ -10,11 +10,11 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Functions.Embedding
 
-open import Cubical.Data.Empty renaming (rec to ⊥-rec)
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sum.Base
+open import Cubical.Data.Sum.Base as ⊎
 open import Cubical.HITs.SetQuotients.Base
-open import Cubical.HITs.PropositionalTruncation.Base
+open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Nullary.Base
 
@@ -221,3 +221,27 @@ Iso.rightInv (RelIso→Iso _ _ uni uni' f) a'
   = uni' (RelIso.rightInv f a')
 Iso.leftInv (RelIso→Iso _ _ uni uni' f) a
   = uni (RelIso.leftInv f a)
+
+isIrreflIrreflKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isIrrefl (IrreflKernel R)
+isIrreflIrreflKernel _ _ (_ , ¬a≡a) = ¬a≡a refl
+
+isReflReflClosure : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isRefl (ReflClosure R)
+isReflReflClosure _ _ = inr refl
+
+isConnectedStronglyConnectedIrreflKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ')
+                                         → isStronglyConnected R
+                                         → isConnected (IrreflKernel R)
+isConnectedStronglyConnectedIrreflKernel R strong a b ¬a≡b
+  = ∥₁.map (λ x → ⊎.rec (λ Rab → inl (Rab , ¬a≡b))
+                        (λ Rba → inr (Rba , (λ b≡a → ¬a≡b (sym b≡a)))) x)
+                        (strong a b)
+
+isSymSymKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isSym (SymKernel R)
+isSymSymKernel _ _ _ (Rab , Rba) = Rba , Rab
+
+isSymSymClosure : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isSym (SymClosure R)
+isSymSymClosure _ _ _ (inl Rab) = inr Rab
+isSymSymClosure _ _ _ (inr Rba) = inl Rba
+
+isAsymAsymKernel : ∀ {ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isAsym (AsymKernel R)
+isAsymAsymKernel _ _ _ (Rab , _) (_ , ¬Rab) = ¬Rab Rab

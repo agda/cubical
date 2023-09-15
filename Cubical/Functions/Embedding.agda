@@ -181,6 +181,9 @@ isEquiv→isEmbedding e = λ _ _ → congEquiv (_ , e) .snd
 Equiv→Embedding : A ≃ B → A ↪ B
 Equiv→Embedding (f , isEquivF) = (f , isEquiv→isEmbedding isEquivF)
 
+id↪ : ∀ {ℓ} → (A : Type ℓ) → A ↪ A
+id↪ A = Equiv→Embedding (idEquiv A)
+
 iso→isEmbedding : ∀ {ℓ} {A B : Type ℓ}
   → (isom : Iso A B)
   -------------------------------
