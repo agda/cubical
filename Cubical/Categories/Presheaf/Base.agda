@@ -6,17 +6,19 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Functor.Base
 
 private
   variable
     ℓ ℓ' ℓS : Level
 
-PreShv : Category ℓ ℓ' → (ℓS : Level)
+Presheaf : Category ℓ ℓ' → (ℓS : Level) → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓS))
+Presheaf C ℓS = Functor (C ^op) (SET ℓS)
+
+PresheafCategory : Category ℓ ℓ' → (ℓS : Level)
        → Category (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓS))
                   (ℓ-max (ℓ-max ℓ ℓ') ℓS)
-PreShv C ℓS = FUNCTOR (C ^op) (SET ℓS)
+PresheafCategory C ℓS = FUNCTOR (C ^op) (SET ℓS)
 
--- Presheaf Category is Univalent
-
-isUnivalentPreShv : {C : Category ℓ ℓ'} → isUnivalent (PreShv C ℓS)
-isUnivalentPreShv = isUnivalentFUNCTOR _ _ isUnivalentSET
+isUnivalentPresheafCategory : {C : Category ℓ ℓ'} → isUnivalent (PresheafCategory C ℓS)
+isUnivalentPresheafCategory = isUnivalentFUNCTOR _ _ isUnivalentSET

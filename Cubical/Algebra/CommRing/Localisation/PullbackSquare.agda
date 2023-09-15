@@ -19,7 +19,7 @@
  -}
 
 
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Localisation.PullbackSquare where
 
 open import Cubical.Foundations.Prelude
@@ -531,7 +531,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
   applyEqualizerLemma : ∀ a → ∃![ χa ∈ R ] (χa /1ᶠ ≡ fst φ a) × (χa /1ᵍ ≡ fst ψ a)
   applyEqualizerLemma a =
-    equalizerLemma 1∈⟨f,g⟩ (fst φ a) (fst ψ a) (cong (_$ a) (sym ψχ₂≡φχ₁))
+    equalizerLemma 1∈⟨f,g⟩ (fst φ a) (fst ψ a) (cong (_$r a) (sym ψχ₂≡φχ₁))
 
   χ : CommRingHom A R'
   fst χ a = applyEqualizerLemma a .fst .fst
@@ -579,8 +579,8 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
     (RingHom≡ (funExt (λ a → cong fst (applyEqualizerLemma a .snd (θtriple a)))))
       where
       θtriple : ∀ a → Σ[ x ∈ R ] (x /1ᶠ ≡ fst φ a) × (x /1ᵍ ≡ fst ψ a)
-      θtriple a = fst θ a , sym (cong (_$ a) (θCoh .snd))
-                          , sym (cong (_$ a) (θCoh .fst))
+      θtriple a = fst θ a , sym (cong (_$r a) (θCoh .snd))
+                          , sym (cong (_$r a) (θCoh .fst))
 
 
  -- packaging it all up

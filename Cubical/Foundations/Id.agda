@@ -21,7 +21,7 @@ This file contains:
 module Cubical.Foundations.Id where
 
 open import Cubical.Foundations.Prelude public
-  hiding ( _≡_ ; _≡⟨_⟩_ ; _∎ ; isPropIsContr)
+  hiding ( _≡_ ; step-≡ ; _∎ ; isPropIsContr)
   renaming ( refl      to reflPath
            ; transport to transportPath
            ; J         to JPath

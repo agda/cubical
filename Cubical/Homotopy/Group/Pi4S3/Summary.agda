@@ -13,11 +13,11 @@ This file contains a summary of the proofs that π₄(S³) ≡ ℤ/2ℤ
   in a few seconds and the main result is hence obtained by computation
   as conjectured on page 85 of Brunerie's thesis.
 
-The --experimental-lossy-unification flag is used to speed up type checking.
+The --lossy-unification flag is used to speed up type checking.
 The file still type checks without it, but it's a lot slower (about 10 times).
 
 -}
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Homotopy.Group.Pi4S3.Summary where
 
 open import Cubical.Foundations.Prelude

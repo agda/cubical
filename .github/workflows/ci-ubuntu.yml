@@ -12,7 +12,7 @@ on:
 ########################################################################
 ## CONFIGURATION
 ##
-## See SETTINGS for the most important configuration variable: AGDA_COMMIT.
+## See SETTINGS for the most important configuration variable: AGDA_BRANCH.
 ## It has to be defined as a build step because it is potentially branch
 ## dependent.
 ##
@@ -32,27 +32,77 @@ on:
 ##
 ########################################################################
 
+########################################################################
+## SETTINGS
+##
+## AGDA_BRANCH picks the branch of Agda to use to build the library.
+## It doesn't really track the branch, so you have to drop caches to
+## get a new branch version if it changes. This will be fixed in the
+## next PR.
+########################################################################
+
 env:
-  GHC_VERSION: 8.6.5
-  CABAL_VERSION: 3.2.0.0
+  AGDA_BRANCH: v2.6.3
+  GHC_VERSION: 9.2.5
+  CABAL_VERSION: 3.6.2.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
+  CACHE_PATHS: |
+    ~/.cabal/packages
+    ~/.cabal/store
+    ~/.cabal/bin
 
 jobs:
   test-cubical:
     runs-on: ubuntu-latest
     steps:
+      - name: Install cabal
+        uses: haskell/actions/setup@v2
+        with:
+          ghc-version: ${{ env.GHC_VERSION }}
+          cabal-version: ${{ env.CABAL_VERSION }}
+          cabal-update: true
+
+      # This caching step allows us to save a lot of building time by only
+      # rebuilding Agda, and re-checking unchanged library files if
+      # absolutely necessary i.e. if we change either the version of Agda,
+      # ghc, or cabal that we want to use for the build.
+      - name: Restore external dependencies cache
+        uses: actions/cache/restore@v3
+        id: cache-external-restore
+        with:
+          path: ${{ env.CACHE_PATHS }}
+          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
 
       ########################################################################
-      ## SETTINGS
-      ##
-      ## AGDA_BRANCH picks the branch of Agda to use to build the library.
+      ## INSTALLATION STEPS
       ########################################################################
 
-      - name: Initialise variables
+      - name: Download and install Agda from github
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run: |
-          # Pick Agda version
-          echo "AGDA_BRANCH=v2.6.2.2" >> $GITHUB_ENV
+          git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
+          cd agda
+          mkdir -p doc
+          touch doc/user-manual.pdf
+          ${{ env.CABAL_INSTALL }}
+          cd ..
+          rm -rf agda
 
+      - name: Download and install fix-whitespace
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/agda/fix-whitespace --depth=1
+          cd fix-whitespace
+          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
+          cd ..
+
+      - name: Save external dependencies cache
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        id: cache-external-save
+        with:
+          path: ${{ env.CACHE_PATHS }}
+          key: ${{ steps.cache-external-restore.outputs.cache-primary-key }}
 
       ########################################################################
       ## CHECKOUT
@@ -63,77 +113,35 @@ jobs:
         uses: actions/checkout@v3
 
       ########################################################################
-      ## CACHING
+      ## TESTING
       ########################################################################
 
-      # This caching step allows us to save a lot of building time by only
-      # downloading ghc and cabal, rebuilding Agda, and re-checking unchanged
-      # library files if absolutely necessary i.e. if we change either the
-      # version of Agda, ghc, or cabal that we want to use for the build.
-      - name: Cache cabal packages
-        uses: actions/cache@v3
-        id: cache-cabal
-        with:
-          path: |
-            ~/.cabal/packages
-            ~/.cabal/store
-            ~/.cabal/bin
-          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
-
-      - name: Cache library build
-        uses: actions/cache@v3
-        id: cache-library
+      - name: Restore library cache
+        uses: actions/cache/restore@v3
+        id: cache-library-restore
         with:
           path: ./_build
-          key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Cubical/**') }}
+          key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Cubical/**', 'cubical.agda-lib', 'Everythings.hs') }}
           restore-keys: |
             library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
-
-      ########################################################################
-      ## INSTALLATION STEPS
-      ########################################################################
-
-      - name: Install cabal
-        if: steps.cache-cabal.outputs.cache-hit != 'true'
-        uses: haskell/actions/setup@v2
-        with:
-          ghc-version: ${{ env.GHC_VERSION }}
-          cabal-version: ${{ env.CABAL_VERSION }}
 
       - name: Put cabal programs in PATH
         run: echo "~/.cabal/bin" >> $GITHUB_PATH
 
-      - name: Cabal update
-        run: cabal update
-
-      - name: Download and install Agda from github
-        if: steps.cache-cabal.outputs.cache-hit != 'true'
-        run: |
-          git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
-          cd agda
-          mkdir -p doc
-          touch doc/user-manual.pdf
-          ${{ env.CABAL_INSTALL }}
-          cd ..
-
-      - name: Download and install fix-whitespace
-        if: steps.cache-cabal.outputs.cache-hit != 'true'
-        run: |
-          git clone https://github.com/agda/fix-whitespace --depth=1
-          cd fix-whitespace
-          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
-          cd ..
-
-      ########################################################################
-      ## TESTING
-      ########################################################################
-
       - name: Test cubical
         run: |
           make test \
-            AGDA_EXEC='~/.cabal/bin/agda -W error' \
+            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
+
+      - name: Save library cache
+        if: steps.cache-library-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        id: cache-library-save
+        with:
+          path: ./_build
+          key: ${{ steps.cache-library-restore.outputs.cache-primary-key }}
 
       ########################################################################
       ## HTML GENERATION
@@ -143,7 +151,7 @@ jobs:
         if: github.event_name == 'push' && github.ref_name == 'master'
         run: |
           make listings \
-            AGDA_EXEC='~/.cabal/bin/agda -W error' \
+            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
 

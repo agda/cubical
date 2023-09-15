@@ -60,29 +60,6 @@ module ReflectionSolver (op unit solver : Name) where
   getArgs : Term → Maybe (Term × Term)
   getArgs = getLastTwoArgsOf (quote PathP)
 
-
-  firstVisibleArg : List (Arg Term) → Maybe Term
-  firstVisibleArg [] = nothing
-  firstVisibleArg (varg x ∷ l) = just x
-  firstVisibleArg (x ∷ l) = firstVisibleArg l
-
-  {-
-    If the solver needs to be applied during equational reasoning,
-    the right hand side of the equation to solve cannot be given to
-    the solver directly. The following function extracts this term y
-    from a more complex expression as in:
-      x ≡⟨ solve ... ⟩ (y ≡⟨ ... ⟩ z ∎)
-  -}
-  getRhs : Term → Maybe Term
-  getRhs reasoningToTheRight@(def n xs) =
-    if n == (quote _∎)
-    then firstVisibleArg xs
-    else (if n == (quote _≡⟨_⟩_)
-         then firstVisibleArg xs
-         else nothing)
-  getRhs _ = nothing
-
-
   private
     solverCallAsTerm : Term → Arg Term → Term → Term → Term
     solverCallAsTerm M varList lhs rhs =

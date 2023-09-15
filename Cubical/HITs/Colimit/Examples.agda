@@ -18,11 +18,11 @@ open import Cubical.HITs.Pushout
 module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} where
 
   PushoutDiag : (A → B) → (A → C) → Diag (ℓ-max ℓ (ℓ-max ℓ' ℓ'')) ⇐⇒
-  (PushoutDiag f g) $ fzero             = Lift {j = ℓ-max ℓ  ℓ'' } B
-  (PushoutDiag f g) $ fsuc fzero        = Lift {j = ℓ-max ℓ' ℓ'' } A
-  (PushoutDiag f g) $ fsuc (fsuc fzero) = Lift {j = ℓ-max ℓ  ℓ'  } C
-  _<$>_ (PushoutDiag f g) {fsuc fzero} {fzero}             tt (lift a) = lift (f a)
-  _<$>_ (PushoutDiag f g) {fsuc fzero} {fsuc (fsuc fzero)} tt (lift a) = lift (g a)
+  (PushoutDiag f g) $g fzero             = Lift {j = ℓ-max ℓ  ℓ'' } B
+  (PushoutDiag f g) $g fsuc fzero        = Lift {j = ℓ-max ℓ' ℓ'' } A
+  (PushoutDiag f g) $g fsuc (fsuc fzero) = Lift {j = ℓ-max ℓ  ℓ'  } C
+  _<$g>_ (PushoutDiag f g) {fsuc fzero} {fzero}             tt (lift a) = lift (f a)
+  _<$g>_ (PushoutDiag f g) {fsuc fzero} {fsuc (fsuc fzero)} tt (lift a) = lift (g a)
 
 module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {f : A → B} {g : A → C} where
 
@@ -73,4 +73,3 @@ module _ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {f : A
 
   colim≃Pushout : colim (PushoutDiag f g) ≃ Pushout f g
   colim≃Pushout = uniqColimit colimIsColimit isColimPushout
-

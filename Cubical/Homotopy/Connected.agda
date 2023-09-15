@@ -14,6 +14,7 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Functions.Fibration
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Bool
@@ -24,6 +25,7 @@ open import Cubical.HITs.Nullification
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
 open import Cubical.HITs.Pushout
+open import Cubical.HITs.Join
 open import Cubical.HITs.Sn.Base
 open import Cubical.HITs.S1
 open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
@@ -41,9 +43,6 @@ isConnected n A = isContr (hLevelTrunc n A)
 
 isConnectedFun : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isConnectedFun n f = ∀ b → isConnected n (fiber f b)
-
-isTruncatedFun : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
-isTruncatedFun n f = ∀ b → isOfHLevel n (fiber f b)
 
 isConnectedSubtr : ∀ {ℓ} {A : Type ℓ} (n m : HLevel)
                 → isConnected (m + n) A
@@ -693,6 +692,89 @@ isConnectedPushout→ f₁ f₂ g₁ g₂ h₀ h₁ h₂ e₁ e₂ n con₀ con�
                                         ∣ (f₂ a) , (funExt⁻ e₂ a) ∣))) k i
                       ; (j = i1) → transport refl (F (push a i))})
               (btm i j)
+
+
+module _ {ℓ' ℓ'' : Level}
+  (m n : HLevel) {A : Type ℓ} {A' : Type ℓ'} {v : A → A'} {B : Type ℓ''}
+  (hA : isConnectedFun m v) (hB : isConnected n B) where
+
+  private module _ {ℓ''' : Level} (P : join A' B → TypeOfHLevel ℓ''' (m + n)) where
+    module _ (k : (x : join A B) → P (join→ v (idfun B) x) .fst) where
+      -- We encode k as a section f of the family
+      --   A
+      -- v ↓  X
+      --   A' → Type
+      -- over A, and use the connectivity assumption on v
+      -- to extend it to a section f' over A'.
+
+      X : A' → Type _
+      X a' =
+        Σ[ x ∈ P (inl a') .fst ]
+          ∀ (b : B) → PathP (λ i → P (push a' b i) .fst) x (k (inr b))
+
+      f : (a : A) → X (v a)
+      fst (f a) = k (inl a)
+      snd (f a) = λ b i → k (push a b i)
+
+      -- Equivalent type to X, whose h-level we can estimate.
+      X' : A' → Type _
+      X' a' =
+        Σ[ x' ∈ (Unit → P (inl a') .fst) ]
+          (λ (b : B) → x' tt) ≡
+          (λ (b : B) → subst⁻ (λ y → P y .fst) (push a' b) (k (inr b)))
+
+      X≃X' : (a' : A') → X a' ≃ X' a'
+      X≃X' a' =
+        (Σ[ x ∈ P (inl a') .fst ]
+          ∀ (b : B) → PathP (λ i → P (push a' b i) .fst) x (k (inr b)))
+        ≃⟨ invEquiv (Σ-cong-equiv-fst (UnitToType≃ _)) ⟩
+        (Σ[ x' ∈ (Unit → P (inl a') .fst) ]
+          ∀ (b : B) → PathP (λ i → P (push a' b i) .fst) (x' tt) (k (inr b)))
+        ≃⟨ Σ-cong-equiv-snd (λ x' → equivΠCod (λ b → pathToEquiv (PathP≡Path⁻ _ _ _))) ⟩
+        (Σ[ x' ∈ (Unit → P (inl a') .fst) ]
+          ∀ (b : B) → x' tt ≡ subst⁻ (λ y → P y .fst) (push a' b) (k (inr b)))
+        ≃⟨ Σ-cong-equiv-snd (λ x' → funExtEquiv) ⟩
+        (Σ[ x' ∈ (Unit → P (inl a') .fst) ]
+          (λ (b : B) → x' tt) ≡
+          (λ (b : B) → subst⁻ (λ y → P y .fst) (push a' b) (k (inr b))))
+        ■
+
+      X'level : (a' : A') → isOfHLevel m (X' a')
+      X'level a' =
+        isOfHLevelPrecomposeConnected m n
+          (λ (_ : Unit) → P (inl a')) (λ (b : B) → tt)
+          (λ _ → isConnectedRetractFromIso _ fiberUnitIso hB) _
+
+      Xl : (a' : A') → TypeOfHLevel _ m
+      fst (Xl a') = X a'
+      snd (Xl a') = isOfHLevelRespectEquiv _ (invEquiv (X≃X' a')) (X'level a')
+
+      H : Iso ((a' : A') → X a') ((a : A) → X (v a))
+      H = elim.isIsoPrecompose v _ Xl hA
+
+      f' : (a' : A') → X a'
+      f' = Iso.inv H f
+
+      hf' : (a : A) → f' (v a) ≡ f a
+      hf' = funExt⁻ (Iso.rightInv H f)
+
+      k' : (x : join A' B) → P x .fst
+      k' (inl a') = f' a' .fst
+      k' (inr b) = k (inr b)
+      k' (push a' b i) = f' a' .snd b i
+
+      hk' : (x : join A B) → k' (join→ v (idfun B) x) ≡ k x
+      hk' (inl a) j = hf' a j .fst
+      hk' (inr b) j = k (inr b)
+      hk' (push a b i) j = hf' a j .snd b i
+
+    joinConnectedAux :
+      hasSection (λ (k : (x : join A' B) → P x .fst) → k ∘ join→ v (idfun B))
+    fst joinConnectedAux k = k' k
+    snd joinConnectedAux k = funExt (hk' k)
+
+  joinConnected : isConnectedFun (m + n) (join→ v (idfun B))
+  joinConnected = elim.isConnectedPrecompose _ _ joinConnectedAux
 
 {- Given two fibration B , C : A → Type and a family of maps on fibres
    f : (a : A) → B a → C a, we have that f a is n-connected for all (a : A)
