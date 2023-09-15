@@ -111,7 +111,7 @@ private data _⊎_ (A B : Type ℓ) : Type ℓ where
   inr : B → A ⊎ B
 
 -- Repeated from Cubical.Functions.Logic
-∥_∥ₚ : (X : Type ℓ) → hProp ℓ
+private ∥_∥ₚ : (X : Type ℓ) → hProp ℓ
 ∥ X ∥ₚ = ∥ X ∥₁ , squash₁
 
 -- Binary Unions
