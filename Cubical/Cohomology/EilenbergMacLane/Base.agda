@@ -13,8 +13,8 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
-
 open import Cubical.Foundations.Isomorphism
+
 open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Cubical.Data.Nat
