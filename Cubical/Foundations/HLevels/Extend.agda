@@ -32,7 +32,7 @@ module _
   {ϕ : I} where
 
   extend₀ :
-    (x : Partial ϕ X)
+    (x : Partial _ X)
     → X [ ϕ ↦ x ]
   extend₀ = extend h _
 
@@ -43,7 +43,7 @@ module _
   {ϕ : I} where
 
   extend₁ :
-    (x : (i : I) → Partial (ϕ ∨ ∂ i) (X i))
+    (x : (i : I) → Partial _ (X i))
     (i : I) → X i [ ϕ ∨ ∂ i ↦ x i ]
   extend₁ x i = inS (hcomp (λ j → λ
     { (ϕ = i1) → h i (bottom i) (x i 1=1) j
