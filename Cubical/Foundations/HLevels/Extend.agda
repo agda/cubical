@@ -104,3 +104,15 @@ module _
     p i j (j = i0) = λ k → x i j k 1=1
     p i j (j = i1) = λ k → x i j k 1=1
     p i j (ϕ = i1) = λ k → x i j k 1=1
+
+
+private
+  -- An example shows how to directly fill a 3-cube in a h-proposition.
+  -- It can help when one wants to pattern match HITs toward some n-types.
+
+  isProp→Cube :
+    {X : Type ℓ} (h : isProp X)
+    (x : (i j k : I) → Partial _ X)
+    (i j k : I) → X [ ∂ i ∨ ∂ j ∨ ∂ k ↦ x i j k ]
+  isProp→Cube _ h x i j =
+    extend₁ (λ _ → h) {∂ i ∨ ∂ j} (x i j)
