@@ -8,6 +8,8 @@ This file contains:
 - Associativity of the join
   Written by: Loïc Pujet, September 2019
 
+- Ganea's theorem
+
 -}
 
 {-# OPTIONS --safe #-}
@@ -488,7 +490,9 @@ snd joinAnnihilL (inr a) = push tt* a
 snd joinAnnihilL (push tt* a i) j = push tt* a (i ∧ j)
 
 
+--- Ganea's construction ---
 
+-- preliminary lemmas
 private module _ {ℓ : Level} {B : Type ℓ} where
   ganea-fill₁ : {x : B} (y : B)
     → (p : x ≡ y)
@@ -525,6 +529,8 @@ private module _ {ℓ : Level} {B : Type ℓ} where
                    ; (i = i1) → push (a , p) (sym q ∙ p) (~ k)})
           (inS (inr λ j → ganea-fill₂ i j i1 _ q _ p)) k
 
+
+-- Proof of the main theorem
 module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
   fib-cofib : Type _
   fib-cofib = cofib {A = fiber (fst f) (pt B)} fst
@@ -578,40 +584,6 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
             ; (j = i1) → ((λ i₂ → q (~ i₂)) ∙ p) (~ k ∧ ~ i)})
        (inS (compPath-filler (sym q) p j (~ i))) k
 
-    J-lem : ∀ {ℓ} {A : Type ℓ} {x : A} (y : A) (q : x ≡ y)
-      (z : A) (p : x ≡ z)
-      → PathP (λ k
-        → Square (λ j → q (j ∨ ~ k)) refl
-                  (compPath-filler' (λ i₂ → q (~ i₂)) p (~ k))
-                  (sym q ∙ p))
-               (λ i _ → (sym q ∙ p) i)
-                λ i j → compPath-filler' (sym q) p j i
-    J-lem {x = x} =
-      J> (J> J-lem-refl x refl (refl ∙ refl)
-              (compPath-filler' (sym refl) refl))
-      where
-      J-lem-refl : ∀ {ℓ} {A : Type ℓ} {x : A} (y : A)
-        (p : x ≡ y) (q : x ≡ y) (r : p ≡ q)
-        → PathP (λ k → Square refl refl (r (~ k)) q)
-                 (λ i _ → q i) λ i j → r j i
-      J-lem-refl = J> (J> refl)
-
-    J-lem₂ : ∀ {ℓ} {A : Type ℓ} {x : A} (y : A) (q : x ≡ y) (z : A) (p : x ≡ z)
-      → PathP (λ r → Square (λ i → compPath-filler' (sym q) p i r)
-                              (λ i → (sym q ∙ p) (r ∨ ~ i))
-                              (λ j → p (r ∨ j)) refl)
-        (λ j i → compPath-filler (sym q) p j (~ i))
-        refl
-    J-lem₂ {x = x} =
-      J> (J> λ i j k → J-lem₂-refl _ (rUnit (refl {x = x})) k i j)
-      where
-      J-lem₂-refl : ∀ {ℓ} {A : Type ℓ} {x : A} (q : x ≡ x) (r : refl ≡ q)
-        → PathP (λ k
-          → Square (λ j → r j (~ k)) (λ _ → x)
-                    (r k) λ i → q (i ∨ ~ k))
-                 refl λ i _ → q i
-      J-lem₂-refl = J> refl
-
     main' : (p : fst f a ≡ pt B)
       → cong join→GaneaFib (push (a , p) (sym q ∙ p))
         ≡ λ i → (push (a , q) (~ i)) , (compPath-filler' (sym q) p i)
@@ -624,6 +596,41 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
                      ; (r = i0) → filler₁ i j k p
                      ; (r = i1) → snd B})
             (J-lem₂ _ q _ p r j i)
+      where
+      J-lem : ∀ {ℓ} {A : Type ℓ} {x : A} (y : A) (q : x ≡ y)
+        (z : A) (p : x ≡ z)
+        → PathP (λ k
+          → Square (λ j → q (j ∨ ~ k)) refl
+                    (compPath-filler' (λ i₂ → q (~ i₂)) p (~ k))
+                    (sym q ∙ p))
+                 (λ i _ → (sym q ∙ p) i)
+                  λ i j → compPath-filler' (sym q) p j i
+      J-lem {x = x} =
+        J> (J> J-lem-refl x refl (refl ∙ refl)
+                (compPath-filler' (sym refl) refl))
+        where
+        J-lem-refl : ∀ {ℓ} {A : Type ℓ} {x : A} (y : A)
+          (p : x ≡ y) (q : x ≡ y) (r : p ≡ q)
+          → PathP (λ k → Square refl refl (r (~ k)) q)
+                   (λ i _ → q i) λ i j → r j i
+        J-lem-refl = J> (J> refl)
+
+      J-lem₂ : ∀ {ℓ} {A : Type ℓ} {x : A} (y : A) (q : x ≡ y) (z : A) (p : x ≡ z)
+        → PathP (λ r → Square (λ i → compPath-filler' (sym q) p i r)
+                                (λ i → (sym q ∙ p) (r ∨ ~ i))
+                                (λ j → p (r ∨ j)) refl)
+          (λ j i → compPath-filler (sym q) p j (~ i))
+          refl
+      J-lem₂ {x = x} =
+        J> (J> λ i j k → J-lem₂-refl _ (rUnit (refl {x = x})) k i j)
+        where
+        J-lem₂-refl : ∀ {ℓ} {A : Type ℓ} {x : A} (q : x ≡ x) (r : refl ≡ q)
+          → PathP (λ k
+            → Square (λ j → r j (~ k)) (λ _ → x)
+                      (r k) λ i → q (i ∨ ~ k))
+                   refl λ i _ → q i
+        J-lem₂-refl = J> refl
+
 
     main : (p : fst f a ≡ pt B)
       → PathP (λ k → join→GaneaFib (push (a , p) (sym q ∙ p) (~ k))
@@ -690,6 +697,7 @@ module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
                             ; (k = i1) → ganea-fill₁ x refl x refl j i r})
                    x
 
+  -- Main theorem
   GaneaIso : Iso GaneaFib (join (fiber (fst f) (pt B)) (Ω B .fst))
   fun GaneaIso = GaneaFib→join
   inv GaneaIso = join→GaneaFib
