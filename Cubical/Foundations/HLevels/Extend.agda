@@ -107,12 +107,12 @@ module _
 
 
 private
-  -- An example shows how to directly fill a 3-cube in a h-proposition.
-  -- It can help when one wants to pattern match HITs toward some n-types.
+  -- An example shows how to directly fill 3-cubes in an h-proposition.
+  -- It can help when one wants to pattern match certain HITs towards some n-types.
 
   isProp→Cube :
     {X : Type ℓ} (h : isProp X)
     (x : (i j k : I) → Partial _ X)
     (i j k : I) → X [ ∂ i ∨ ∂ j ∨ ∂ k ↦ x i j k ]
-  isProp→Cube _ h x i j =
+  isProp→Cube h x i j =
     extend₁ (λ _ → h) {∂ i ∨ ∂ j} (x i j)
