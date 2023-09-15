@@ -2,7 +2,9 @@
 
 Kan Operations for n-Truncated Types
 
-A draft note on this can be found at
+They provide an efficient way to construct cubes within truncated types.
+
+A draft note on this can be found online at
 https://kangrongji.github.io/files/extend-operations.pdf
 
 -}
@@ -10,7 +12,7 @@ https://kangrongji.github.io/files/extend-operations.pdf
 module Cubical.Foundations.HLevels.Extend where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels renaming (extend to extend₀)
+open import Cubical.Foundations.HLevels
 
 private
   variable
@@ -24,6 +26,17 @@ private
 -- TODO: Write a macro to generate these stuff
 
 module _
+  {X : Type ℓ}
+  (h : isContr X)
+  {ϕ : I} where
+
+  extend₀ :
+    (x : Partial ϕ X)
+    → X [ ϕ ↦ x ]
+  extend₀ = extend h _
+
+
+module _
   {X : I → Type ℓ}
   (h : (i : I) → isProp (X i))
   {ϕ : I} where
@@ -32,22 +45,13 @@ module _
     (x : (i : I) → Partial (ϕ ∨ ∂ i) (X i))
     (i : I) → X i [ ϕ ∨ ∂ i ↦ x i ]
   extend₁ x i = inS (hcomp (λ j → λ
-    { (ϕ = i1) → h i  (bottom i ) (x i  1=1) j
-    ; (i = i0) → h i0 (bottom i0) (x i0 1=1) j
-    ; (i = i1) → h i1 (bottom i1) (x i1 1=1) j })
+    { (ϕ = i1) → h i (bottom i) (x i 1=1) j
+    ; (i = i0) → h i (bottom i) (x i 1=1) j
+    ; (i = i1) → h i (bottom i) (x i 1=1) j })
     (bottom i))
     where
-    pd : (a : X i0) (b : X i1) → PathP X a b
-    pd a b i = (hcomp (λ j → λ
-      { (i = i0) → a
-      ; (i = i1) → h i1 (tp i1) b j })
-      (tp i))
-      where
-      tp : (i : I) → X i
-      tp i = transport-filler (λ i → X i) a i
-
     bottom : (i : I) → X i
-    bottom i = pd (x i0 1=1) (x i1 1=1) i
+    bottom i = isProp→PathP h (x i0 1=1) (x i1 1=1) i
 
 
 module _
