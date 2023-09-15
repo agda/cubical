@@ -2,7 +2,7 @@
 
 Kan Operations for n-Truncated Types
 
-They provide an efficient way to construct cubes within truncated types.
+It provides an efficient way to construct cubes in truncated types.
 
 A draft note on this can be found online at
 https://kangrongji.github.io/files/extend-operations.pdf
@@ -19,11 +19,12 @@ private
     ℓ : Level
 
 
--- For easily representing boundary of cubes
+-- For conveniently representing the boundary of cubes
 ∂ : I → I
 ∂ i = i ∨ ~ i
 
--- TODO: Write a macro to generate these stuff
+
+-- TODO: Write a macro to generate these stuff.
 
 module _
   {X : Type ℓ}
@@ -107,7 +108,7 @@ module _
 
 
 private
-  -- An example shows how to directly fill 3-cubes in an h-proposition.
+  -- An example showing how to directly fill 3-cubes in an h-proposition.
   -- It can help when one wants to pattern match certain HITs towards some n-types.
 
   isProp→Cube :
