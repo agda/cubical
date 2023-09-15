@@ -133,7 +133,7 @@ module _ {n : ℕ} {G : AbGroup ℓ} {A : Pointed ℓ'} where
 -- group laws
 -- Note that→∙Homogeneous≡ (in Foundations.Pointed.Homogeneous) is
 -- purposely avoided to minimise the size of the proof terms
-module _ (n : ℕ) {G : AbGroup ℓ} {A : Pointed ℓ'} where
+module coHomRedAxioms (n : ℕ) {G : AbGroup ℓ} {A : Pointed ℓ'} where
   commₕ∙ : (x y : coHomRed n G A) → x +ₕ∙ y ≡ y +ₕ∙ x
   commₕ∙ =
     ST.elim2 (λ _ _ → isSetPathImplicit)
@@ -230,12 +230,12 @@ fst (coHomRedGr n G A) = coHomRed n G A
 AbGroupStr._+_ (snd (coHomRedGr n G A)) = _+ₕ∙_
 - snd (coHomRedGr n G A) = -ₕ∙_
 is-set (isSemigroup (isMonoid (isGroup (isAbGroup (snd (coHomRedGr n G A)))))) = squash₂
-·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd (coHomRedGr n G A)))))) = assocₕ∙ n
-·IdR (isMonoid (isGroup (isAbGroup (snd (coHomRedGr n G A))))) = rUnitₕ∙ n
-·IdL (isMonoid (isGroup (isAbGroup (snd (coHomRedGr n G A))))) = lUnitₕ∙ n
-·InvR (isGroup (isAbGroup (snd (coHomRedGr n G A)))) = rCancelₕ∙ n
-·InvL (isGroup (isAbGroup (snd (coHomRedGr n G A)))) = lCancelₕ∙ n
-+Comm (isAbGroup (snd (coHomRedGr n G A))) = commₕ∙ n
+·Assoc (isSemigroup (isMonoid (isGroup (isAbGroup (snd (coHomRedGr n G A)))))) = coHomRedAxioms.assocₕ∙ n
+·IdR (isMonoid (isGroup (isAbGroup (snd (coHomRedGr n G A))))) = coHomRedAxioms.rUnitₕ∙ n
+·IdL (isMonoid (isGroup (isAbGroup (snd (coHomRedGr n G A))))) = coHomRedAxioms.lUnitₕ∙ n
+·InvR (isGroup (isAbGroup (snd (coHomRedGr n G A)))) = coHomRedAxioms.rCancelₕ∙ n
+·InvL (isGroup (isAbGroup (snd (coHomRedGr n G A)))) = coHomRedAxioms.lCancelₕ∙ n
++Comm (isAbGroup (snd (coHomRedGr n G A))) = coHomRedAxioms.commₕ∙ n
 
 coHom≅coHomRed : (n : ℕ) (G : AbGroup ℓ) (A : Pointed ℓ')
   → AbGroupEquiv (coHomGr (suc n) G (fst A)) (coHomRedGr (suc n) G A)

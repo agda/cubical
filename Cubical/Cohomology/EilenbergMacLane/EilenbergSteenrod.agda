@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
 module Cubical.Cohomology.EilenbergMacLane.EilenbergSteenrod where
 
@@ -50,12 +50,12 @@ coHomRedℤ : ∀ {ℓ ℓ'} → AbGroup ℓ' → ℤ → Pointed ℓ → AbGrou
 coHomRedℤ G (pos n) A = coHomRedGr n G A
 coHomRedℤ G (negsuc n) A = UnitAbGroup
 
-module _ {ℓ ℓ'} {G : AbGroup ℓ} where
-  Hmap-coHomRedℤ : (n : ℤ) {A B : Pointed ℓ'}
+module coHomRedℤ {ℓ ℓ'} {G : AbGroup ℓ} where
+  Hmap∙ : (n : ℤ) {A B : Pointed ℓ'}
      → A →∙ B
      → AbGroupHom (coHomRedℤ G n B) (coHomRedℤ G n A)
-  Hmap-coHomRedℤ (pos n) = coHomHom∙ n
-  Hmap-coHomRedℤ (negsuc n) f = idGroupHom
+  Hmap∙ (pos n) = coHomHom∙ n
+  Hmap∙ (negsuc n) f = idGroupHom
 
   suspMap : (n : ℤ) {A : Pointed ℓ'} →
       AbGroupHom (coHomRedℤ G (sucℤ n) (Susp (typ A) , north))
@@ -170,8 +170,8 @@ module _ {ℓ ℓ'} {G : AbGroup ℓ} where
   snd (suspMapIso n) = suspMap n .snd
 
 satisfies-ES : ∀ {ℓ ℓ'} (G : AbGroup ℓ) → coHomTheory {ℓ'} (coHomRedℤ G)
-Hmap (satisfies-ES G) = Hmap-coHomRedℤ
-fst (Suspension (satisfies-ES G)) n = GroupIso→GroupEquiv (suspMapIso n)
+Hmap (satisfies-ES G) = coHomRedℤ.Hmap∙
+fst (Suspension (satisfies-ES G)) n = GroupIso→GroupEquiv (coHomRedℤ.suspMapIso n)
 snd (Suspension (satisfies-ES G)) f (pos n) =
   funExt (ST.elim (λ _ → isSetPathImplicit) λ f
     → cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM (suc n))
@@ -220,8 +220,8 @@ Exactness (satisfies-ES G) {A = A} {B = B} f (pos n) = isoToPath help
 Exactness (satisfies-ES {ℓ} {ℓ'} G) {A = A} {B = B} f (negsuc n) =
   isoToPath help
   where
-  help : Iso (Ker (Hmap-coHomRedℤ {G = G} (negsuc n) f))
-             (Im (Hmap-coHomRedℤ {G = G} (negsuc n) {A = B}
+  help : Iso (Ker (coHomRedℤ.Hmap∙ {G = G} (negsuc n) f))
+             (Im (coHomRedℤ.Hmap∙ {G = G} (negsuc n) {A = B}
               (cfcod (fst f) , refl)))
   fun help (tt* , p) = tt* , ∣ tt* , refl ∣₁
   inv help (tt* , p) = tt* , refl
