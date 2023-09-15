@@ -74,9 +74,6 @@ record DistLatticeStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 DistLattice : ∀ ℓ → Type (ℓ-suc ℓ)
 DistLattice ℓ = TypeWithStr ℓ DistLatticeStr
 
-isSetDistLattice : (L : DistLattice ℓ) → isSet ⟨ L ⟩
-isSetDistLattice L = L .snd .DistLatticeStr.is-set
-
 -- when proving the axioms for a distributive lattice
 -- we use the fact that from distributivity and absorption
 -- of ∧l over ∨l we can derive distributivity and absorption
@@ -243,17 +240,15 @@ isPropIsDistLattice 0l 1l _∨l_ _∧l_ (isdistlattice LL LD1 LD2) (isdistlattic
   λ i → isdistlattice (isPropIsLattice _ _ _ _ LL ML i) (isPropDist1 LD1 MD1 i)
                                                         (isPropDist2 LD2 MD2 i)
   where
-  isSetL : isSet _
-  isSetL = LL .IsLattice.joinSemilattice .IsSemilattice.isCommMonoid .IsCommMonoid.isMonoid
-              .IsMonoid.isSemigroup .IsSemigroup.is-set
+  open IsLattice LL using (is-set)
 
   isPropDist1 : isProp ((x y z : _) → (x ∨l (y ∧l z) ≡ (x ∨l y) ∧l (x ∨l z))
                                     × ((y ∧l z) ∨l x ≡ (y ∨l x) ∧l (z ∨l x)))
-  isPropDist1 = isPropΠ3 (λ _ _ _ → isProp× (isSetL _ _) (isSetL _ _))
+  isPropDist1 = isPropΠ3 (λ _ _ _ → isProp× (is-set _ _) (is-set _ _))
 
   isPropDist2 : isProp ((x y z : _) → (x ∧l (y ∨l z) ≡ (x ∧l y) ∨l (x ∧l z))
                                     × ((y ∨l z) ∧l x ≡ (y ∧l x) ∨l (z ∧l x)))
-  isPropDist2 = isPropΠ3 (λ _ _ _ → isProp× (isSetL _ _) (isSetL _ _))
+  isPropDist2 = isPropΠ3 (λ _ _ _ → isProp× (is-set _ _) (is-set _ _))
 
 𝒮ᴰ-DistLattice : DUARel (𝒮-Univ ℓ) DistLatticeStr ℓ
 𝒮ᴰ-DistLattice =

@@ -77,9 +77,6 @@ module _ {R : CommRing ℓ} where
   CommAlgebra→CommRing (_ , commalgebrastr  _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
     _ , commringstr _ _ _ _ _ (iscommring (IsAlgebra.isRing isAlgebra) ·-comm)
 
-  isSetCommAlgebra : (A : CommAlgebra R ℓ') → isSet ⟨ A ⟩
-  isSetCommAlgebra A = isSetAlgebra (CommAlgebra→Algebra A)
-
   module _
       {A : Type ℓ'} {0a 1a : A}
       {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}
@@ -151,6 +148,20 @@ module _ {R : CommRing ℓ} where
       commAlgebraFromCommRing .snd .CommAlgebraStr.isCommAlgebra =
         makeIsCommAlgebra is-set +Assoc +IdR +InvR +Comm ·Assoc ·IdL ·DistL+ ·Comm
                                     ·Assoc⋆ ⋆DistR+ ⋆DistL+ ⋆IdL ⋆AssocL
+
+      commAlgebraFromCommRing→CommRing : CommAlgebra→CommRing commAlgebraFromCommRing ≡ S
+      -- Note that this is not definitional: the proofs of the axioms might differ.
+      commAlgebraFromCommRing→CommRing i .fst  = ⟨ S ⟩
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr.0r = 0r
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr.1r = 1S
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr._+_ = _+_
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr._·_ = _·_
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr.-_ = -_
+      commAlgebraFromCommRing→CommRing i .snd .CommRingStr.isCommRing =
+        isProp→PathP (λ i → isPropIsCommRing _ _ _ _ _)
+          (CommRingStr.isCommRing (snd (CommAlgebra→CommRing commAlgebraFromCommRing)))
+          isCommRing
+          i
 
   IsCommAlgebraEquiv : {A : Type ℓ'} {B : Type ℓ''}
     (M : CommAlgebraStr R A) (e : A ≃ B) (N : CommAlgebraStr R B)

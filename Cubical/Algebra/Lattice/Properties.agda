@@ -68,7 +68,7 @@ module Order (L' : Lattice ℓ) where
                     y ∎
 
  ≤Equiv : ∀ (x y : L) → (x ≤j y) ≃ (x ≤m y)
- ≤Equiv x y = propBiimpl→Equiv (isSetLattice L' _ _) (isSetLattice L' _ _) (≤j→≤m x y) (≤m→≤j x y)
+ ≤Equiv x y = propBiimpl→Equiv (is-set _ _) (is-set _ _) (≤j→≤m x y) (≤m→≤j x y)
 
  IndPosetPath : JoinPoset ≡ MeetPoset
  IndPosetPath = PosetPath _ _ .fst ((idEquiv _) , isposetequiv ≤Equiv )

@@ -3,6 +3,7 @@
 module Cubical.Categories.Presheaf.Properties where
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
+open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
@@ -15,6 +16,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Data.Sigma
 
+open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
+
 import Cubical.Categories.Morphism as Morphism
 import Cubical.Categories.Constructions.Slice as Slice
 import Cubical.Categories.Constructions.Elements as Elements
@@ -23,6 +26,7 @@ import Cubical.Functions.Fibration as Fibration
 private
   variable
     ℓ ℓ' : Level
+    ℓS ℓS' : Level
     e e' : Level
 
 
@@ -31,7 +35,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
   open Category
   open Functor
   open _≃ᶜ_
-  open isEquivalence
+  open WeakInverse
   open NatTrans
   open NatIso
   open Slice (PresheafCategory C ℓS) F
@@ -64,7 +68,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
       (F ⟪ h ⟫) ((ϕ ⟦ d ⟧) b)
     ≡[ i ]⟨ (F ⟪ h ⟫) (eq i) ⟩
       (F ⟪ h ⟫) y
-    ≡⟨ sym com ⟩
+    ≡⟨ com ⟩
       x
     ∎)
   -- functoriality follows from functoriality of A
@@ -149,7 +153,7 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
                 rightEq = left ▷ right
                   where
                     -- the id morphism in (∫ᴾ F)
-                    ∫id = C .id , sym (funExt⁻ (F .F-id) x ∙ refl)
+                    ∫id = C .id , funExt⁻ (F .F-id) x
 
                     -- functoriality of P gives us close to what we want
                     right : (P ⟪ ∫id ⟫) X ≡ X
@@ -322,8 +326,8 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
               right : PathP (λ i → fst (P ⟅ d , eq' i ⟆)) ((P ⟪ f , refl ⟫) X') ((P ⟪ f , comm ⟫) (subst _ eq X'))
               right i = (P ⟪ f , refl≡comm i ⟫) (X'≡subst i)
                 where
-                  refl≡comm : PathP (λ i → (eq' i) ≡ (F ⟪ f ⟫) (eq i)) refl comm
-                  refl≡comm = isOfHLevel→isOfHLevelDep 1 (λ (v , w) → snd (F ⟅ d ⟆) v ((F ⟪ f ⟫) w)) refl comm λ i → (eq' i , eq i)
+                  refl≡comm : PathP (λ i → (F ⟪ f ⟫) (eq i) ≡ (eq' i)) refl comm
+                  refl≡comm = isOfHLevel→isOfHLevelDep 1 (λ (v , w) → snd (F ⟅ d ⟆) ((F ⟪ f ⟫) w) v) refl comm λ i → (eq' i , eq i)
 
                   X'≡subst : PathP (λ i → fst (P ⟅ c , eq i ⟆)) X' (subst _ eq X')
                   X'≡subst = transport-filler (λ i → fst (P ⟅ c , eq i ⟆)) X'
@@ -380,8 +384,16 @@ module _ {ℓS : Level} (C : Category ℓ ℓ') (F : Functor (C ^op) (SET ℓS))
 
   preshSlice≃preshElem : SliceCat ≃ᶜ PresheafCategory (∫ᴾ F) ℓS
   preshSlice≃preshElem .func = K
-  preshSlice≃preshElem .isEquiv .invFunc = L
-  preshSlice≃preshElem .isEquiv .η .trans = ηTrans
-  preshSlice≃preshElem .isEquiv .η .nIso = ηIso
-  preshSlice≃preshElem .isEquiv .ε .trans = εTrans
-  preshSlice≃preshElem .isEquiv .ε .nIso = εIso
+  preshSlice≃preshElem .isEquiv = ∣ w-inv ∣₁
+    where
+      w-inv : WeakInverse K
+      w-inv .invFunc = L
+      w-inv .η .trans = ηTrans
+      w-inv .η .nIso = ηIso
+      w-inv .ε .trans = εTrans
+      w-inv .ε .nIso = εIso
+
+-- Isomorphism between presheaves of different levels
+PshIso : (C : Category ℓ ℓ') (P : Presheaf C ℓS) (Q : Presheaf C ℓS') → Type _
+PshIso {ℓS = ℓS}{ℓS' = ℓS'} C P Q =
+  NatIso (LiftF {ℓ = ℓS}{ℓ' = ℓS'} ∘F P) (LiftF {ℓ = ℓS'}{ℓ' = ℓS} ∘F Q)

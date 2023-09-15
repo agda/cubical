@@ -110,18 +110,6 @@ module pr {n : ℕ} where
 module _ where
   open pr
 
-  `0` : List (Arg Term) → Term
-  `0` [] = def (quote 0') []
-  `0` (varg fstcring ∷ xs) = `0` xs
-  `0` (harg _ ∷ xs) = `0` xs
-  `0` _ = unknown
-
-  `1` : List (Arg Term) → Term
-  `1` [] = def (quote 1') []
-  `1` (varg fstcring ∷ xs) = `1` xs
-  `1` (harg _ ∷ xs) = `1` xs
-  `1` _ = unknown
-
   mutual
 
     `_·_` : List (Arg Term) → Term
@@ -137,6 +125,11 @@ module _ where
       con
         (quote _+'_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
     `_+_` _ = unknown
+
+    `1+_` : List (Arg Term) → Term
+    `1+_` (varg x ∷ []) =
+      con (quote _+'_) (varg (def (quote 1') []) ∷ varg (buildExpression x) ∷ [])
+    `1+_` _ = unknown
 
     K' : List (Arg Term) → Term
     K' xs = con (quote K) xs
@@ -155,8 +148,7 @@ module _ where
         default⇒ (K' xs)
     buildExpression t@(con n xs) =
       switch (n ==_) cases
-        case (quote _·_) ⇒ `_·_` xs   break
-        case (quote _+_) ⇒ `_+_` xs   break
+        case (quote suc) ⇒ `1+_` xs   break
         default⇒ (K' xs)
     buildExpression t = unknown
 

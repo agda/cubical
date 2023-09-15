@@ -35,7 +35,7 @@ module _ (R : CommRing ℓ) where
     initialCAlg .snd .CommAlgebraStr.-_ = _
     initialCAlg .snd .CommAlgebraStr._⋆_ r x = r · x
     initialCAlg .snd .CommAlgebraStr.isCommAlgebra =
-      makeIsCommAlgebra (isSetRing (CommRing→Ring R))
+      makeIsCommAlgebra is-set
                          +Assoc +IdR +InvR +Comm
                          ·Assoc ·IdL
                          ·DistL+ ·Comm

@@ -16,16 +16,7 @@ module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Base where
   * the definition of the free commutative algebra on a type I over a commutative ring R as a HIT
     (let us call that R[I])
   * a prove that the construction is an commutative R-algebra
-  * definitions of the induced maps appearing in the universal property of R[I],
-    that is:  * for any map I → A, where A is a commutative R-algebra,
-                the induced algebra homomorphism R[I] → A
-                ('inducedHom')
-              * for any hom R[I] → A, the 'restricttion to variables' I → A
-                ('evaluateAt')
-  * a proof that the two constructions are inverse to each other
-    ('homRetrievable' and 'mapRetrievable')
-  * a proof, that the corresponding pointwise equivalence of functors is natural
-    ('naturalR', 'naturalL')
+  For more, see the Properties file.
 -}
 open import Cubical.Foundations.Prelude
 

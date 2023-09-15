@@ -105,7 +105,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
 
   kernel-0 : (x : ⟨ R / (I +i J) ⟩) → fst ψ x ≡ 0r → x ≡ 0r
   kernel-0 x ψx≡0 =
-    PT.rec (isSetCommRing (R / (I +i J)) x 0r)
+    PT.rec (is-set x 0r)
            (λ (x' , π+x'≡x) →
              let πx'≡0 : fst π x' ≡ 0r
                  πx'≡0 = fst π x'          ≡⟨⟩
@@ -142,7 +142,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
   embedding : isEmbedding {A = ⟨ R / (I +i J) ⟩} {B = ⟨ (R / I) / π₁J ⟩} (fst ϕ)
   embedding =
     injEmbedding
-          (isSetCommRing ((R / I) / π₁J))
+          is-set
           ϕ-injective
 
 

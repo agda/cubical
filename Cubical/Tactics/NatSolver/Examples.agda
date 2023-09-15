@@ -20,6 +20,9 @@ module ReflectionSolving where
   _ : (x y : ℕ) → (x + y) · (x + y) ≡ x · x + 2 · x · y + y · y
   _ = solve
 
+  _ : (x : ℕ) → suc x ≡ x + 1
+  _ = solve
+
   {-
     If you want to use the solver in some more complex situation,
     you have to declare a helper variable (`useSolver` below) that

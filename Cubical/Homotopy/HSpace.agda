@@ -110,11 +110,11 @@ HSpace-homogeneous A h = Iso.inv (HSpace-Π∙-Iso A) s
     k x = pointed-sip⁻ A (typ A , x) (sym (h (pt A)) ∙ h x)
 
     k₀ : k (pt A) ≡ idEquiv∙ A
-    k₀ = cong′ (pointed-sip⁻ A A) (lCancel (h (pt A))) ∙ pointed-sip⁻-refl A
+    k₀ = congS (pointed-sip⁻ A A) (lCancel (h (pt A))) ∙ pointed-sip⁻-refl A
 
     s : Π∙ A (λ x → A →∙ (typ A , x)) (idfun∙ A)
     fst s x = ≃∙map (k x)
-    snd s = cong′ ≃∙map k₀
+    snd s = congS ≃∙map k₀
 
 LeftInvHSpace-homogeneous : (A : Pointed ℓ) → (h : isHomogeneous A)
                             → LeftInvHSpace (HSpace-homogeneous A h)

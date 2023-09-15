@@ -275,7 +275,7 @@ coHom≅coHomRed n G A =
   ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (funExt λ x → +ₖ≡id-ℤ/2 n (f x))
 
--ₕConst-ℤ/2 : ∀{ℓ} (n : ℕ) {A : Type ℓ} (x : coHom n ℤ/2 A) → -ₕ x ≡ x
+-ₕConst-ℤ/2 : (n : ℕ) {A : Type ℓ} (x : coHom n ℤ/2 A) → -ₕ x ≡ x
 -ₕConst-ℤ/2 zero =
   ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (funExt λ x → -Const-ℤ/2 (f x))

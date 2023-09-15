@@ -110,12 +110,12 @@ congP₂ f p q i = f i (p i) (q i)
    `doubleCompPath-filler p q r` gives the whole square
 -}
 
-doubleComp-faces : {x y z w : A } (p : x ≡ y) (r : z ≡ w)
+doubleComp-faces : {x y z w : A} (p : x ≡ y) (r : z ≡ w)
                  → (i : I) (j : I) → Partial (i ∨ ~ i) A
 doubleComp-faces p r i j (i = i0) = p (~ j)
 doubleComp-faces p r i j (i = i1) = r j
 
-_∙∙_∙∙_ : w ≡ x → x ≡ y → y ≡ z → w ≡ z
+_∙∙_∙∙_ : x ≡ y → y ≡ z → z ≡ w → x ≡ w
 (p ∙∙ q ∙∙ r) i =
   hcomp (doubleComp-faces p r i) (q i)
 

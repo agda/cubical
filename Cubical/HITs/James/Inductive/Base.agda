@@ -37,10 +37,10 @@ module _
   open Sequence
 
   𝕁amesSeq : Sequence ℓ
-  𝕁amesSeq .space = 𝕁ames
-  𝕁amesSeq .map   = incl
+  𝕁amesSeq .obj = 𝕁ames
+  𝕁amesSeq .map = incl
 
   -- The 𝕁ames∞ wanted is the direct colimit of 𝕁ames n
 
   𝕁ames∞ : Type ℓ
-  𝕁ames∞ = Lim→ 𝕁amesSeq
+  𝕁ames∞ = SeqColim 𝕁amesSeq

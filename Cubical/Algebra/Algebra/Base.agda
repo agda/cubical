@@ -52,7 +52,8 @@ record IsAlgebra (R : Ring ℓ) {A : Type ℓ'}
 
   isRing : IsRing _ _ _ _ _
   isRing = isring (IsLeftModule.+IsAbGroup +IsLeftModule) ·IsMonoid ·DistR+ ·DistL+
-  open IsRing isRing public hiding (_-_; +Assoc; +IdL; +InvL; +IdR; +InvR; +Comm ; ·DistR+ ; ·DistL+)
+  open IsRing isRing public
+    hiding (_-_; +Assoc; +IdL; +InvL; +IdR; +InvR; +Comm; ·DistR+; ·DistL+; is-set)
 
 unquoteDecl IsAlgebraIsoΣ = declareRecordIsoΣ IsAlgebraIsoΣ (quote IsAlgebra)
 
@@ -109,9 +110,6 @@ module commonExtractors {R : Ring ℓ} where
 
   Algebra→MultMonoid : (A : Algebra R ℓ') → Monoid ℓ'
   Algebra→MultMonoid A = Ring→MultMonoid (Algebra→Ring A)
-
-  isSetAlgebra : (A : Algebra R ℓ') → isSet ⟨ A ⟩
-  isSetAlgebra A = isSetAbGroup (Algebra→AbGroup A)
 
   open RingStr (snd R) using (1r; ·DistL+) renaming (_+_ to _+r_; _·_ to _·s_)
 
@@ -211,23 +209,30 @@ isPropIsAlgebraHom : (R : Ring ℓ) {A : Type ℓ'} {B : Type ℓ''}
                      (AS : AlgebraStr R A) (f : A → B) (BS : AlgebraStr R B)
                    → isProp (IsAlgebraHom AS f BS)
 isPropIsAlgebraHom R AS f BS = isOfHLevelRetractFromIso 1 IsAlgebraHomIsoΣ
-                               (isProp×5 (isSetAlgebra (_ , BS) _ _)
-                                         (isSetAlgebra (_ , BS) _ _)
-                                         (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _)
-                                         (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _)
-                                         (isPropΠ λ _ → isSetAlgebra (_ , BS) _ _)
-                                         (isPropΠ2 λ _ _ → isSetAlgebra (_ , BS) _ _))
+                               (isProp×5 (is-set _ _)
+                                         (is-set _ _)
+                                         (isPropΠ2 λ _ _ → is-set _ _)
+                                         (isPropΠ2 λ _ _ → is-set _ _)
+                                         (isPropΠ λ _ → is-set _ _)
+                                         (isPropΠ2 λ _ _ → is-set _ _))
+  where
+  open AlgebraStr BS
 
 isSetAlgebraHom : (M : Algebra R ℓ') (N : Algebra R ℓ'')
                 → isSet (AlgebraHom M N)
-isSetAlgebraHom _ N = isSetΣ (isSetΠ (λ _ → isSetAlgebra N))
+isSetAlgebraHom _ N = isSetΣ (isSetΠ (λ _ → is-set))
                         λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _)
+  where
+  open AlgebraStr (str N)
 
 
 isSetAlgebraEquiv : (M : Algebra R ℓ') (N : Algebra R ℓ'')
                   → isSet (AlgebraEquiv M N)
-isSetAlgebraEquiv M N = isSetΣ (isOfHLevel≃ 2 (isSetAlgebra M) (isSetAlgebra N))
+isSetAlgebraEquiv M N = isSetΣ (isOfHLevel≃ 2 M.is-set N.is-set)
                           λ _ → isProp→isSet (isPropIsAlgebraHom _ _ _ _)
+  where
+  module M = AlgebraStr (str M)
+  module N = AlgebraStr (str N)
 
 AlgebraHom≡ : {φ ψ : AlgebraHom A B} → fst φ ≡ fst ψ → φ ≡ ψ
 AlgebraHom≡ = Σ≡Prop λ f → isPropIsAlgebraHom _ _ f _

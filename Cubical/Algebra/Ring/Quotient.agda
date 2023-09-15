@@ -234,7 +234,7 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
     inducedHom : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r) → RingHom (R / I) S
     fst (inducedHom Iₛ⊆kernel) =
       elim
-        (λ _ → isSetRing S)
+        (λ _ → is-set)
         f
         λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
           (f r₁ - f r₂     ≡⟨ cong (λ u → f r₁ + u) (sym (φ.pres- _)) ⟩
@@ -244,11 +244,11 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
     pres0 (snd (inducedHom Iₛ⊆kernel)) = φ.pres0
     pres1 (snd (inducedHom Iₛ⊆kernel)) = φ.pres1
     pres+ (snd (inducedHom Iₛ⊆kernel)) =
-      elimProp2 (λ _ _ → isSetRing S _ _) φ.pres+
+      elimProp2 (λ _ _ → is-set _ _) φ.pres+
     pres· (snd (inducedHom Iₛ⊆kernel)) =
-      elimProp2 (λ _ _ → isSetRing S _ _) φ.pres·
+      elimProp2 (λ _ _ → is-set _ _) φ.pres·
     pres- (snd (inducedHom Iₛ⊆kernel)) =
-      elimProp (λ _ → isSetRing S _ _) φ.pres-
+      elimProp (λ _ → is-set _ _) φ.pres-
 
     solution : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
                → (x : ⟨ R ⟩) → inducedHom p $r [ x ] ≡ φ $r x
