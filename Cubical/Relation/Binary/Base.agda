@@ -9,6 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Functions.Embedding
+open import Cubical.Functions.Logic using (_⊔′_)
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
@@ -70,16 +71,16 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   -- Sum types don't play nicely with props, so we truncate
   isCotrans : Type (ℓ-max ℓ ℓ')
-  isCotrans = (a b c : A) → R a b → ∥ (R a c ⊎ R b c) ∥₁
+  isCotrans = (a b c : A) → R a b → (R a c ⊔′ R b c)
 
   isWeaklyLinear : Type (ℓ-max ℓ ℓ')
-  isWeaklyLinear = (a b c : A) → R a b → ∥ (R a c ⊎ R c b) ∥₁
+  isWeaklyLinear = (a b c : A) → R a b → R a c ⊔′ R c b
 
   isConnected : Type (ℓ-max ℓ ℓ')
-  isConnected = (a b : A) → ¬ (a ≡ b) → ∥ (R a b ⊎ R b a) ∥₁
+  isConnected = (a b : A) → ¬ (a ≡ b) → R a b ⊔′ R b a
 
   isStronglyConnected : Type (ℓ-max ℓ ℓ')
-  isStronglyConnected = (a b : A) → ∥ (R a b ⊎ R b a) ∥₁
+  isStronglyConnected = (a b : A) → R a b ⊔′ R b a
 
   isStronglyConnected→isConnected : isStronglyConnected → isConnected
   isStronglyConnected→isConnected strong a b _ = strong a b

@@ -3,6 +3,7 @@
 This file contains:
 
 - Treatment of set truncation as cardinality
+  as per the HoTT book, section 10.2
 
 -}
 {-# OPTIONS --safe #-}

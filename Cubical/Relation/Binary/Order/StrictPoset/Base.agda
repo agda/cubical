@@ -1,9 +1,12 @@
 {-# OPTIONS --safe #-}
+{-
+  Strict posets are posets where the relation is strict,
+  i.e. irreflexive rather than reflexive
+-}
 module Cubical.Relation.Binary.Order.StrictPoset.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence

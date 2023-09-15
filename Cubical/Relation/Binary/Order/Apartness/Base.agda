@@ -1,9 +1,12 @@
 {-# OPTIONS --safe #-}
+{-
+  An apartness relation is a relation that distinguishes
+  elements which are different from each other
+-}
 module Cubical.Relation.Binary.Order.Apartness.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence

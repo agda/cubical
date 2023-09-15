@@ -1,9 +1,14 @@
 {-# OPTIONS --safe #-}
+{-
+  Losets are linearly-ordered sets,
+  i.e. strict posets that are also weakly linear
+  and connected, or more plainly a strict poset
+  where every element can be compared
+-}
 module Cubical.Relation.Binary.Order.Loset.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence

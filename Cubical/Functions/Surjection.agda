@@ -97,7 +97,7 @@ compSurjection (f , sur-f) (g , sur-g) =
                 (λ (b , gb≡c) → PT.rec isPropPropTrunc (λ (a , fa≡b) → ∣ a , (cong g fa≡b ∙ gb≡c) ∣₁) (sur-f b))
                 (sur-g c)
 
--- A slightly more specific form of Lawvere's fixed point theorem
+-- Lawvere's fixed point theorem
 ↠Fixpoint : ∀ {A : Type ℓ} {B : Type ℓ'}
            → (A ↠ (A → B))
            → (n : B → B)
