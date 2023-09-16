@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Relation.Binary.Poset where
+module Cubical.Relation.Binary.Order.Poset.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv

@@ -17,7 +17,7 @@ open import Cubical.Data.Nat.Order
 import Cubical.Data.Fin as Fin
 import Cubical.Data.Fin.LehmerCode as LehmerCode
 open import Cubical.Data.SumFin.Base as SumFin
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation as Prop
@@ -68,7 +68,7 @@ enumElim P f i = subst P (SumFin→Fin→SumFin i) (f (SumFin→Fin i .fst) (Sum
 -- Closure properties of SumFin under type constructors
 
 SumFin⊎≃ : (m n : ℕ) → (Fin m ⊎ Fin n) ≃ (Fin (m + n))
-SumFin⊎≃ 0 n = ⊎-swap-≃ ⋆ ⊎-⊥-≃
+SumFin⊎≃ 0 n = ⊎-swap-≃ ⋆ ⊎-IdR-⊥-≃
 SumFin⊎≃ (suc m) n = ⊎-assoc-≃ ⋆ ⊎-equiv (idEquiv ⊤) (SumFin⊎≃ m n)
 
 SumFinΣ≃ : (n : ℕ)(f : Fin n → ℕ) → (Σ (Fin n) (λ x → Fin (f x))) ≃ (Fin (totalSum f))
@@ -82,7 +82,7 @@ SumFin×≃ : (m n : ℕ) → (Fin m × Fin n) ≃ (Fin (m · n))
 SumFin×≃ m n = SumFinΣ≃ m (λ _ → n) ⋆ pathToEquiv (λ i → Fin (totalSumConst {m = m} n i))
 
 SumFinΠ≃ : (n : ℕ)(f : Fin n → ℕ) → ((x : Fin n) → Fin (f x)) ≃ (Fin (totalProd f))
-SumFinΠ≃ 0 _ = isContr→≃Unit (isContrΠ⊥) ⋆ invEquiv (⊎-⊥-≃)
+SumFinΠ≃ 0 _ = isContr→≃Unit (isContrΠ⊥) ⋆ invEquiv (⊎-IdR-⊥-≃)
 SumFinΠ≃ (suc n) f =
     Π⊎≃
   ⋆ Σ-cong-equiv (ΠUnit (λ tt → Fin (f (inl tt)))) (λ _ → SumFinΠ≃ n (λ x → f (inr x)))
@@ -96,7 +96,7 @@ SumFin∥∥≃ : (n : ℕ) → ∥ Fin n ∥₁ ≃ Fin (isNotZero n)
 SumFin∥∥≃ 0 = propTruncIdempotent≃ (isProp⊥)
 SumFin∥∥≃ (suc n) =
     isContr→≃Unit (inhProp→isContr ∣ inl tt ∣₁ isPropPropTrunc)
-  ⋆ isContr→≃Unit (isContrUnit) ⋆ invEquiv (⊎-⊥-≃)
+  ⋆ isContr→≃Unit (isContrUnit) ⋆ invEquiv (⊎-IdR-⊥-≃)
 
 ℕ→Bool : ℕ → Bool
 ℕ→Bool 0 = false
@@ -115,7 +115,7 @@ SumFin¬ (suc n) = uninhabEquiv (λ f → f fzero) ⊥.rec
 -- SumFin 1 is equivalent to unit
 
 Fin1≃Unit : Fin 1 ≃ Unit
-Fin1≃Unit = ⊎-⊥-≃
+Fin1≃Unit = ⊎-IdR-⊥-≃
 
 isContrSumFin1 : isContr (Fin 1)
 isContrSumFin1 = isOfHLevelRespectEquiv 0 (invEquiv Fin1≃Unit) isContrUnit
@@ -123,12 +123,12 @@ isContrSumFin1 = isOfHLevelRespectEquiv 0 (invEquiv Fin1≃Unit) isContrUnit
 -- SumFin 2 is equivalent to Bool
 
 SumFin2≃Bool : Fin 2 ≃ Bool
-SumFin2≃Bool = ⊎-equiv (idEquiv _) ⊎-⊥-≃ ⋆ isoToEquiv Iso-⊤⊎⊤-Bool
+SumFin2≃Bool = ⊎-equiv (idEquiv _) ⊎-IdR-⊥-≃ ⋆ isoToEquiv Iso-⊤⊎⊤-Bool
 
 -- decidable predicate over SumFin
 
 SumFinℙ≃ : (n : ℕ) → (Fin n → Bool) ≃ Fin (2 ^ n)
-SumFinℙ≃ 0 = isContr→≃Unit (isContrΠ⊥) ⋆ invEquiv (⊎-⊥-≃)
+SumFinℙ≃ 0 = isContr→≃Unit (isContrΠ⊥) ⋆ invEquiv (⊎-IdR-⊥-≃)
 SumFinℙ≃ (suc n) =
     Π⊎≃
   ⋆ Σ-cong-equiv (UnitToType≃ Bool ⋆ invEquiv SumFin2≃Bool) (λ _ → SumFinℙ≃ n)
@@ -146,7 +146,7 @@ trueCount {n = suc n} f = Bool→ℕ (f (inl tt)) + (trueCount (f ∘ inr))
 
 SumFinDec⊎≃ : (n : ℕ)(t : Bool) → (Bool→Type t ⊎ Fin n) ≃ (Fin (Bool→ℕ t + n))
 SumFinDec⊎≃ _ true = idEquiv _
-SumFinDec⊎≃ _ false = ⊎-swap-≃ ⋆ ⊎-⊥-≃
+SumFinDec⊎≃ _ false = ⊎-swap-≃ ⋆ ⊎-IdR-⊥-≃
 
 SumFinSub≃ : (n : ℕ)(f : Fin n → Bool) → Σ _ (Bool→Type ∘ f) ≃ Fin (trueCount f)
 SumFinSub≃ 0 _ = ΣEmpty _
@@ -169,14 +169,14 @@ SumFin∃→ : (n : ℕ)(f : Fin n → Bool) → Σ _ (Bool→Type ∘ f) → Bo
 SumFin∃→ 0 _ = ΣEmpty _ .fst
 SumFin∃→ (suc n) f =
     Bool→Type⊎' _ _
-  ∘ map-⊎ (ΣUnit (Bool→Type ∘ f ∘ inl) .fst) (SumFin∃→ n (f ∘ inr))
+  ∘ ⊎.map (ΣUnit (Bool→Type ∘ f ∘ inl) .fst) (SumFin∃→ n (f ∘ inr))
   ∘ Σ⊎≃ .fst
 
 SumFin∃← : (n : ℕ)(f : Fin n → Bool) → Bool→Type (trueForSome n f) → Σ _ (Bool→Type ∘ f)
 SumFin∃← 0 _ = ⊥.rec
 SumFin∃← (suc n) f =
     invEq Σ⊎≃
-  ∘ map-⊎ (invEq (ΣUnit (Bool→Type ∘ f ∘ inl))) (SumFin∃← n (f ∘ inr))
+  ∘ ⊎.map (invEq (ΣUnit (Bool→Type ∘ f ∘ inl))) (SumFin∃← n (f ∘ inr))
   ∘ Bool→Type⊎ _ _
 
 SumFin∃≃ : (n : ℕ)(f : Fin n → Bool) → ∥ Σ (Fin n) (Bool→Type ∘ f) ∥₁ ≃ Bool→Type (trueForSome n f)

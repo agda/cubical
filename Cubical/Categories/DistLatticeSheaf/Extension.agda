@@ -23,7 +23,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.FinData.Order
 open import Cubical.Data.Sum
 
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.Semilattice

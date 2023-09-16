@@ -10,7 +10,7 @@ open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.FinData
 
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice

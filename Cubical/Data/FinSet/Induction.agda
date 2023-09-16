@@ -72,13 +72,13 @@ module _
   -- 𝔽in preserves addition
 
   𝟘+X≡X : {X : FinSet ℓ} → 𝟘 + X ≡ X
-  𝟘+X≡X {X = X} i .fst = ua (⊎-swap-≃ ⋆ ⊎-equiv (idEquiv (X .fst)) 𝟘≃Empty ⋆ ⊎-⊥-≃) i
+  𝟘+X≡X {X = X} i .fst = ua (⊎-swap-≃ ⋆ ⊎-equiv (idEquiv (X .fst)) 𝟘≃Empty ⋆ ⊎-IdR-⊥-≃) i
   𝟘+X≡X {X = X} i .snd =
     isProp→PathP {B = λ i → isFinSet (𝟘+X≡X {X = X} i .fst)}
                  (λ _ → isPropIsFinSet) ((𝟘 + X) .snd) (X .snd) i
 
   𝔽in1≡𝟙 : 𝔽in 1 ≡ 𝟙
-  𝔽in1≡𝟙 i .fst = ua (⊎-equiv (idEquiv (𝟙 .fst)) 𝟘≃Empty ⋆ ⊎-⊥-≃) i
+  𝔽in1≡𝟙 i .fst = ua (⊎-equiv (idEquiv (𝟙 .fst)) 𝟘≃Empty ⋆ ⊎-IdR-⊥-≃) i
   𝔽in1≡𝟙 i .snd =
     isProp→PathP {B = λ i → isFinSet (𝔽in1≡𝟙 i .fst)}
                  (λ _ → isPropIsFinSet) (𝔽in 1 .snd) (𝟙 .snd) i
