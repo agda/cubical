@@ -11,7 +11,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.OrderedCommMonoid.Base
 
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 
 private

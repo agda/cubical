@@ -21,7 +21,7 @@ open import Cubical.Data.FinData.Order renaming (_<'Fin_ to _<_)
 open import Cubical.Data.Sum
 
 open import Cubical.Relation.Nullary
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
