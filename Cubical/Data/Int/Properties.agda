@@ -503,6 +503,15 @@ negsuc·negsuc (suc n) m = cong (pos (suc m) +_) (negsuc·negsuc n m)
 ·Rid : (x : ℤ) → x · 1 ≡ x
 ·Rid x = ·Comm x 1
 
+·Lid : (x : ℤ) → 1 · x ≡ x
+·Lid x = refl
+
+·AnnihilR : (x : ℤ) → x · 0 ≡ 0
+·AnnihilR x = ·Comm x 0
+
+·AnnihilL : (x : ℤ) → 0 · x ≡ 0
+·AnnihilL x = refl
+
 private
   distrHelper : (x y z w : ℤ) → (x + y) + (z + w) ≡ ((x + z) + (y + w))
   distrHelper x y z w =
