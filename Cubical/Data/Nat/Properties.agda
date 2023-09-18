@@ -127,6 +127,9 @@ discreteℕ (suc m) (suc n) with discreteℕ m n
 ... | yes p = yes (cong suc p)
 ... | no p = no (λ x → p (injSuc x))
 
+separatedℕ : Separated ℕ
+separatedℕ = Discrete→Separated discreteℕ
+
 isSetℕ : isSet ℕ
 isSetℕ = Discrete→isSet discreteℕ
 

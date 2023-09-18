@@ -215,7 +215,6 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
   Iₛ = fst I
   private
     instance
-      _ = R
       _ = snd R
 
   module _ {S : Ring ℓ'} (φ : RingHom R S) where
@@ -223,7 +222,6 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
     open RingHomTheory φ
     private
       instance
-        _ = S
         _ = snd S
       f = fst φ
       module φ = IsRingHom (snd φ)
@@ -233,10 +231,10 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
       if S is from a different universe. Instead, the condition, that
       Iₛ is contained in the kernel of φ is rephrased explicitly.
     -}
-    inducedHom : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $ x ≡ 0r) → RingHom (R / I) S
+    inducedHom : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r) → RingHom (R / I) S
     fst (inducedHom Iₛ⊆kernel) =
       elim
-        (λ _ → isSetRing S)
+        (λ _ → is-set)
         f
         λ r₁ r₂ r₁-r₂∈I → equalByDifference (f r₁) (f r₂)
           (f r₁ - f r₂     ≡⟨ cong (λ u → f r₁ + u) (sym (φ.pres- _)) ⟩
@@ -246,19 +244,19 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
     pres0 (snd (inducedHom Iₛ⊆kernel)) = φ.pres0
     pres1 (snd (inducedHom Iₛ⊆kernel)) = φ.pres1
     pres+ (snd (inducedHom Iₛ⊆kernel)) =
-      elimProp2 (λ _ _ → isSetRing S _ _) φ.pres+
+      elimProp2 (λ _ _ → is-set _ _) φ.pres+
     pres· (snd (inducedHom Iₛ⊆kernel)) =
-      elimProp2 (λ _ _ → isSetRing S _ _) φ.pres·
+      elimProp2 (λ _ _ → is-set _ _) φ.pres·
     pres- (snd (inducedHom Iₛ⊆kernel)) =
-      elimProp (λ _ → isSetRing S _ _) φ.pres-
+      elimProp (λ _ → is-set _ _) φ.pres-
 
-    solution : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $ x ≡ 0r))
-               → (x : ⟨ R ⟩) → inducedHom p $ [ x ] ≡ φ $ x
+    solution : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
+               → (x : ⟨ R ⟩) → inducedHom p $r [ x ] ≡ φ $r x
     solution p x = refl
 
-    unique : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $ x ≡ 0r))
-             → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $ [ x ] ≡ φ $ x)
-             → (x : ⟨ R ⟩) → ψ $ [ x ] ≡ inducedHom p $ [ x ]
+    unique : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
+             → (ψ : RingHom (R / I) S) → (ψIsSolution : (x : ⟨ R ⟩) → ψ $r [ x ] ≡ φ $r x)
+             → (x : ⟨ R ⟩) → ψ $r [ x ] ≡ inducedHom p $r [ x ]
     unique p ψ ψIsSolution x = ψIsSolution x
 
 {-

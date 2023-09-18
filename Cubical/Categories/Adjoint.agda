@@ -41,46 +41,25 @@ definition, followed by the natural bijection
 definition.
 -}
 
-module UnitCounit where
+module UnitCounit {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C) where
+  record TriangleIdentities
+    (η : 𝟙⟨ C ⟩ ⇒ (funcComp G F))
+    (ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩)
+    : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+    where
+    field
+      Δ₁ : ∀ c → F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ≡ D .id
+      Δ₂ : ∀ d → η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫ ≡ C .id
 
   -- Adjoint def 1: unit-counit
-  record _⊣_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C)
-                  : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
+  record _⊣_ : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
     field
       -- unit
       η : 𝟙⟨ C ⟩ ⇒ (funcComp G F)
       -- counit
       ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩
-      -- triangle identities
-      Δ₁ : PathP (λ i → NatTrans (F-lUnit {F = F} i) (F-rUnit {F = F} i))
-        (seqTransP F-assoc (F ∘ʳ η) (ε ∘ˡ F))
-        (1[ F ])
-      Δ₂ : PathP (λ i → NatTrans (F-rUnit {F = G} i) (F-lUnit {F = G} i))
-        (seqTransP (sym F-assoc) (η ∘ˡ G) (G ∘ʳ ε))
-        (1[ G ])
-
-  {-
-   Helper function for building unit-counit adjunctions between categories,
-   using that equality of natural transformations in a category is equality on objects
-  -}
-
-  module _ {ℓC ℓC' ℓD ℓD'}
-    {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D} {G : Functor D C}
-    (η : 𝟙⟨ C ⟩ ⇒ (funcComp G F))
-    (ε : (funcComp F G) ⇒ 𝟙⟨ D ⟩)
-    (Δ₁ : ∀ c → F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ≡ D .id)
-    (Δ₂ : ∀ d → η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫ ≡ C .id)
-    where
-
-    make⊣ : F ⊣ G
-    make⊣ ._⊣_.η = η
-    make⊣ ._⊣_.ε = ε
-    make⊣ ._⊣_.Δ₁ =
-      makeNatTransPathP F-lUnit F-rUnit
-        (funExt λ c → cong (D ._⋆_ (F ⟪ η ⟦ c ⟧ ⟫)) (transportRefl _) ∙ Δ₁ c)
-    make⊣ ._⊣_.Δ₂ =
-      makeNatTransPathP F-rUnit F-lUnit
-        (funExt λ d → cong (C ._⋆_ (η ⟦ G ⟅ d ⟆ ⟧)) (transportRefl _) ∙ Δ₂ d)
+      triangleIdentities : TriangleIdentities η ε
+    open TriangleIdentities triangleIdentities public
 
 module NaturalBijection where
   -- Adjoint def 2: natural bijection
@@ -191,8 +170,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
     adj'→adj = record
       { η = η'
       ; ε = ε'
-      ; Δ₁ = Δ₁'
-      ; Δ₂ = Δ₂' }
+      ; triangleIdentities = record
+        {Δ₁ = Δ₁'
+        ; Δ₂ = Δ₂' }}
 
       where
         -- ETA
@@ -223,78 +203,31 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
 
         -- DELTA 1
 
-        expL : ∀ (c)
-            → (seqTransP F-assoc (F ∘ʳ η') (ε' ∘ˡ F) .N-ob c)
-              ≡ F ⟪ η' ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε' ⟦ F ⟅ c ⟆ ⟧
-        expL c = seqTransP F-assoc (F ∘ʳ η') (ε' ∘ˡ F) .N-ob c
-              ≡⟨ refl ⟩
-                seqP {C = D} {p = refl} (F ⟪ η' ⟦ c ⟧ ⟫) (ε' ⟦ F ⟅ c ⟆ ⟧)
-              ≡⟨ seqP≡seq {C = D} _ _ ⟩
-                F ⟪ η' ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε' ⟦ F ⟅ c ⟆ ⟧
-              ∎
-
-        body : ∀ (c)
-            → (idTrans F) ⟦ c ⟧ ≡ (seqTransP F-assoc (F ∘ʳ η') (ε' ∘ˡ F) .N-ob c)
-        body c = (idTrans F) ⟦ c ⟧
-              ≡⟨ refl ⟩
-                D .id
-              ≡⟨ sym (D .⋆IdL _) ⟩
-                D .id ⋆⟨ D ⟩ D .id
-              ≡⟨ snd adjNat' (cong (λ v → (η' ⟦ c ⟧) ⋆⟨ C ⟩ v) (G .F-id)) ⟩
-                F ⟪ η' ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε' ⟦ F ⟅ c ⟆ ⟧
-              ≡⟨ sym (expL c) ⟩
-                seqTransP F-assoc (F ∘ʳ η') (ε' ∘ˡ F) .N-ob c
-              ∎
-
-        Δ₁' : PathP (λ i → NatTrans (F-lUnit {F = F} i) (F-rUnit {F = F} i))
-                    (seqTransP F-assoc (F ∘ʳ η') (ε' ∘ˡ F))
-                    (1[ F ])
-        Δ₁' = makeNatTransPathP F-lUnit F-rUnit (sym (funExt body))
+        Δ₁' : ∀ c → F ⟪ η' ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε' ⟦ F ⟅ c ⟆ ⟧ ≡ D .id
+        Δ₁' c =
+            F ⟪ η' ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε' ⟦ F ⟅ c ⟆ ⟧
+          ≡⟨ sym (snd adjNat' (cong (λ v → (η' ⟦ c ⟧) ⋆⟨ C ⟩ v) (G .F-id))) ⟩
+            D .id ⋆⟨ D ⟩ D .id
+          ≡⟨ D .⋆IdL _ ⟩
+            D .id
+          ∎
 
         -- DELTA 2
 
-        body2 : ∀ (d)
-            →  seqP {C = C} {p = refl} ((η' ∘ˡ G) ⟦ d ⟧) ((G ∘ʳ ε') ⟦ d ⟧) ≡ C .id
-        body2 d = seqP {C = C} {p = refl} ((η' ∘ˡ G) ⟦ d ⟧) ((G ∘ʳ ε') ⟦ d ⟧)
-                ≡⟨ seqP≡seq {C = C} _ _ ⟩
-                  ((η' ∘ˡ G) ⟦ d ⟧) ⋆⟨ C ⟩ ((G ∘ʳ ε') ⟦ d ⟧)
-                ≡⟨ refl ⟩
-                  (η' ⟦ G ⟅ d ⟆ ⟧) ⋆⟨ C ⟩ (G ⟪ ε' ⟦ d ⟧ ⟫)
-                ≡⟨ fst adjNat' (cong (λ v → v ⋆⟨ D ⟩ (ε' ⟦ d ⟧)) (sym (F .F-id))) ⟩
-                  C .id ⋆⟨ C ⟩ C .id
-                ≡⟨ C .⋆IdL _ ⟩
-                  C .id
-                ∎
-
-        Δ₂' : PathP (λ i → NatTrans (F-rUnit {F = G} i) (F-lUnit {F = G} i))
-              (seqTransP (sym F-assoc) (η' ∘ˡ G) (G ∘ʳ ε'))
-              (1[ G ])
-        Δ₂' = makeNatTransPathP F-rUnit F-lUnit (funExt body2)
+        Δ₂' : ∀ d → η' ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε' ⟦ d ⟧ ⟫ ≡ C .id
+        Δ₂' d =
+            (η' ⟦ G ⟅ d ⟆ ⟧) ⋆⟨ C ⟩ (G ⟪ ε' ⟦ d ⟧ ⟫)
+          ≡⟨ fst adjNat' (cong (λ v → v ⋆⟨ D ⟩ (ε' ⟦ d ⟧)) (sym (F .F-id))) ⟩
+            C .id ⋆⟨ C ⟩ C .id
+          ≡⟨ C .⋆IdL _ ⟩
+            C .id
+          ∎
 
 
   module _ (adj : F ⊣ G) where
     open _⊣_ adj
     open _⊣²_
     open NatTrans
-
-    -- helper functions for working with this Adjoint definition
-
-    δ₁ : ∀ {c} → (F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧) ≡ D .id
-    δ₁ {c} = (F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧)
-          ≡⟨ sym (seqP≡seq {C = D} _ _) ⟩
-            seqP {C = D} {p = refl} (F ⟪ η ⟦ c ⟧ ⟫) (ε ⟦ F ⟅ c ⟆ ⟧)
-          ≡⟨ (λ j → (Δ₁ j) .N-ob c) ⟩
-            D .id
-          ∎
-
-    δ₂ : ∀ {d} → (η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫) ≡ C .id
-    δ₂ {d} = (η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫)
-        ≡⟨ sym (seqP≡seq {C = C} _ _) ⟩
-          seqP {C = C} {p = refl} (η ⟦ G ⟅ d ⟆ ⟧) (G ⟪ ε ⟦ d ⟧ ⟫)
-        ≡⟨ (λ j → (Δ₂ j) .N-ob d) ⟩
-          C .id
-        ∎
-
 
     adj→adj' : F ⊣² G
     -- ∀ {c d} → Iso (D [ F ⟅ c ⟆ , d ]) (C [ c , G ⟅ d ⟆ ])
@@ -304,7 +237,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
     adj→adj' .adjIso {d = d} .inv g = F ⟪ g ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧
     -- invertibility follows from the triangle identities
     adj→adj' .adjIso {c = c} {d} .rightInv g
-      = η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧ ⟫ -- step0 ∙ step1 ∙ step2 ∙ (C .⋆IdR _)
+      = η ⟦ c ⟧ ⋆⟨ C ⟩ G ⟪ F ⟪ g ⟫ ⋆⟨ D ⟩ ε ⟦ d ⟧ ⟫
       ≡⟨ cong (λ v → η ⟦ c ⟧ ⋆⟨ C ⟩ v) (G .F-seq _ _) ⟩
         η ⟦ c ⟧ ⋆⟨ C ⟩ (G ⟪ F ⟪ g ⟫ ⟫ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫)
       ≡⟨ sym (C .⋆Assoc _ _ _) ⟩
@@ -314,7 +247,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
         (g ⋆⟨ C ⟩ η ⟦ G ⟅ d ⟆ ⟧) ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫
       ≡⟨ C .⋆Assoc _ _ _ ⟩
         g ⋆⟨ C ⟩ (η ⟦ G ⟅ d ⟆ ⟧ ⋆⟨ C ⟩ G ⟪ ε ⟦ d ⟧ ⟫)
-      ≡⟨ lCatWhisker {C = C} _ _ _ δ₂ ⟩
+      ≡⟨ lCatWhisker {C = C} _ _ _ (Δ₂ d) ⟩
         g ⋆⟨ C ⟩ C .id
       ≡⟨ C .⋆IdR _ ⟩
         g
@@ -334,7 +267,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (
       ≡⟨ sym (D .⋆Assoc _ _ _) ⟩
         F ⟪ η ⟦ c ⟧ ⟫ ⋆⟨ D ⟩ ε ⟦ F ⟅ c ⟆ ⟧ ⋆⟨ D ⟩ f
       -- apply triangle identity
-      ≡⟨ rCatWhisker {C = D} _ _ _ δ₁ ⟩
+      ≡⟨ rCatWhisker {C = D} _ _ _ (Δ₁ c) ⟩
         D .id ⋆⟨ D ⟩ f
       ≡⟨ D .⋆IdL _ ⟩
         f

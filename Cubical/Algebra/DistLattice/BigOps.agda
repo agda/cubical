@@ -64,7 +64,7 @@ module Join (L' : DistLattice ℓ) where
 
  ⋁Split++ : ∀ {n m : ℕ} (V : FinVec L n) (W : FinVec L m)
            → ⋁ (V ++Fin W) ≡ ⋁ V ∨l ⋁ W
- ⋁Split++ = bigOpSplit++ ∨lComm
+ ⋁Split++ = bigOpSplit++
 
  ⋁Meetrdist : ∀ {n} → (x : L) → (V : FinVec L n)
                 → x ∧l ⋁ V ≡ ⋁ λ i → x ∧l V i

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Homotopy.HopfInvariant.Homomorphism where
 
 open import Cubical.Homotopy.HopfInvariant.Base
@@ -693,7 +693,7 @@ jᵣ-βₗ n f g =
   cong (coHomFun _ (jᵣ n f g)) (βₗ≡ n f g)
   ∙∙ natTranspLem ∣ βₗ'-fun n f g ∣₂ (λ m → coHomFun m (jᵣ n f g))
             (cong (suc ∘ suc ∘ suc) (sym (+-suc n n)))
-  ∙∙ cong (subst (λ m → coHom m (HopfInvariantPush n (fst f)))
+  ∙∙ cong (subst (λ m → coHom m (HopfInvariantPush n (fst g)))
       (cong (suc ∘ suc ∘ suc) (sym (+-suc n n))))
       cool
   where
@@ -795,7 +795,7 @@ isHom-HopfInvariant n f g =
 
   eq₃ : Hopfα n g ⌣ Hopfα n g
       ≡ (Y n f g ℤ[ coHomGr _ _ ]·
-                   subst (λ m → coHom m (HopfInvariantPush n (fst f)))
+                   subst (λ m → coHom m (HopfInvariantPush n (fst g)))
                    (cong (suc ∘ suc ∘ suc) (sym (+-suc n n)))
                    (Hopfβ n g))
   eq₃ = cong (λ x → x ⌣ x) (sym (jᵣ-α n f g))

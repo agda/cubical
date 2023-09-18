@@ -3,7 +3,7 @@
 
     R / (I + J) = (R / I) / J
 -}
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Quotient.IdealSum where
 
 open import Cubical.Foundations.Prelude
@@ -64,9 +64,6 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
                    _ = snd (R / I)
                    _ = snd ((R / I) / π₁J)
                    _ = snd (R / (I +i J))
-                   _ = R
-                   _ = (R / I)
-                   _ = ((R / I) / π₁J)
 
   πI+J≡0 : (x : ⟨ R ⟩) → x ∈ (I +i J) → fst π x ≡ 0r
   πI+J≡0 x  =
@@ -108,7 +105,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
 
   kernel-0 : (x : ⟨ R / (I +i J) ⟩) → fst ψ x ≡ 0r → x ≡ 0r
   kernel-0 x ψx≡0 =
-    PT.rec (isSetCommRing (R / (I +i J)) x 0r)
+    PT.rec (is-set x 0r)
            (λ (x' , π+x'≡x) →
              let πx'≡0 : fst π x' ≡ 0r
                  πx'≡0 = fst π x'          ≡⟨⟩
@@ -145,7 +142,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
   embedding : isEmbedding {A = ⟨ R / (I +i J) ⟩} {B = ⟨ (R / I) / π₁J ⟩} (fst ϕ)
   embedding =
     injEmbedding
-          (isSetCommRing ((R / I) / π₁J))
+          is-set
           ϕ-injective
 
 

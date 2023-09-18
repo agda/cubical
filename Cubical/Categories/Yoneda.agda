@@ -11,11 +11,12 @@ open import Cubical.Foundations.Equiv
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Base
 
 private
   variable
@@ -43,8 +44,8 @@ module _ {C : Category ℓ ℓ'} where
       ϕ : natType → setType
       ϕ α = (α ⟦ _ ⟧) (C .id)
 
-      -- takes an element x of F c and sends it to the (only) natural transformation
-      -- which takes the identity to x
+      -- takes an element x of F c and sends it to the (only) natural
+      -- transformation which takes the identity to x
       Ψ : setType → natType
       Ψ x .N-ob c = λ f → (F ⟪ f ⟫) x
       Ψ x .N-hom g
@@ -57,7 +58,8 @@ module _ {C : Category ℓ ℓ'} where
       theIso .fun = ϕ
       theIso .inv = Ψ
       theIso .rightInv x i = F .F-id i x
-      theIso .leftInv α@(natTrans αo αh) = NatTrans-≡-intro (sym αo≡βo) (symP αh≡βh)
+      theIso .leftInv α@(natTrans αo αh) =
+        NatTrans-≡-intro (sym αo≡βo) (symP αh≡βh)
         where
           β = Ψ (ϕ α)
           βo = β .N-ob
@@ -68,7 +70,8 @@ module _ {C : Category ℓ ℓ'} where
           αo≡βo : αo ≡ βo
           αo≡βo = funExt λ x → funExt λ f
                 → αo x f
-                ≡[ i ]⟨ αo x (C .⋆IdL f (~ i)) ⟩ -- expand into the bottom left of the naturality diagram
+                -- expand into the bottom left of the naturality diagram
+                ≡[ i ]⟨ αo x (C .⋆IdL f (~ i)) ⟩
                   αo x (C .id ⋆⟨ C ⟩ f)
                 ≡[ i ]⟨ αh f i (C .id) ⟩ -- apply naturality
                   (F ⟪ f ⟫) ((αo _) (C .id))
@@ -83,7 +86,9 @@ module _ {C : Category ℓ ℓ'} where
           αh≡βh = isPropHomP αh βh αo≡βo
             where
               isProp-hom : (ϕ : NOType) → isProp (NHType ϕ)
-              isProp-hom γ = isPropImplicitΠ2 λ x y → isPropΠ λ f → isSetHom (SET _) {x = (C [ c , x ]) , C .isSetHom } {F ⟅ y ⟆} _ _
+              isProp-hom γ = isPropImplicitΠ2 λ x y → isPropΠ λ f →
+                isSetHom (SET _)
+                         {x = (C [ c , x ]) , C .isSetHom } {F ⟅ y ⟆} _ _
 
               isPropHomP : isOfHLevelDep 1 (λ ηo → NHType ηo)
               isPropHomP = isOfHLevel→isOfHLevelDep 1 λ a → isProp-hom a
@@ -96,7 +101,8 @@ module _ {C : Category ℓ ℓ'} where
   -- where ϕ takes a natural transformation to its representing element
   yonedaIsNaturalInFunctor : ∀ {F G : Functor C (SET ℓ')} (c : C .ob)
                      → (β : F ⇒ G)
-                     → (fun (yoneda G c) ◍ compTrans β) ≡ (β ⟦ c ⟧ ◍ fun (yoneda F c))
+                     → (fun (yoneda G c) ◍ compTrans β)
+                       ≡ (β ⟦ c ⟧ ◍ fun (yoneda F c))
   yonedaIsNaturalInFunctor {F = F} {G} c β = funExt λ α → refl
 
   -- in the object
@@ -120,21 +126,99 @@ module _ {C : Category ℓ ℓ'} where
                                ((F ⟪ f ⟫) ◍ yoneda F c .fun) α
                              ∎)
 
+-- Yoneda for contravariant functors
+module _ {C : Category ℓ ℓ'} where
+  open Category
+  import Cubical.Categories.NaturalTransformation
+  open NatTrans
+  yonedaᴾ : (F : Functor (C ^op) (SET ℓ'))
+          → (c : C .ob)
+          → Iso ((FUNCTOR (C ^op) (SET ℓ')) [ C [-, c ] , F ]) (fst (F ⟅ c ⟆))
+  yonedaᴾ F c =
+    ((FUNCTOR (C ^op) (SET ℓ')) [ C [-, c ] , F ]) Iso⟨ the-iso ⟩
+    FUNCTOR (C ^op) (SET ℓ') [ (C ^op) [ c ,-] , F ] Iso⟨ yoneda F c ⟩
+    (fst (F ⟅ c ⟆)) ∎Iso where
+
+    to : FUNCTOR (C ^op) (SET ℓ') [ C [-, c ] , F ]
+       → FUNCTOR (C ^op) (SET ℓ') [ (C ^op) [ c ,-] , F ]
+    to α = natTrans (α .N-ob) (α .N-hom)
+
+    fro : FUNCTOR (C ^op) (SET ℓ') [ (C ^op) [ c ,-] , F ]
+        → FUNCTOR (C ^op) (SET ℓ') [ C [-, c ] , F ]
+    fro β = natTrans (β .N-ob) (β .N-hom)
+
+    the-iso : Iso (FUNCTOR (C ^op) (SET ℓ') [ C [-, c ] , F ])
+              (FUNCTOR (C ^op) (SET ℓ') [ (C ^op) [ c ,-] , F ])
+    the-iso = iso to fro (λ b → refl) λ a → refl
+
+-- A more universe-polymorphic Yoneda lemma
+yoneda* : {C : Category ℓ ℓ'}(F : Functor C (SET ℓ''))
+        → (c : Category.ob C)
+        → Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-])
+                                                , LiftF {ℓ''}{ℓ'} ∘F F ])
+              (fst (F ⟅ c ⟆))
+yoneda* {ℓ}{ℓ'}{ℓ''}{C} F c =
+  ((FUNCTOR C (SET (ℓ-max ℓ' ℓ''))) [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-])
+                                    , LiftF {ℓ''}{ℓ'} ∘F F ])
+    Iso⟨ the-iso ⟩
+  ((FUNCTOR (LiftHoms C ℓ'')
+            (SET (ℓ-max ℓ' ℓ''))) [ (LiftHoms C ℓ'' [ c ,-])
+                                  , LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'') ])
+    Iso⟨ yoneda (LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'')) c ⟩
+  Lift {ℓ''}{ℓ'} (fst (F ⟅ c ⟆))
+    Iso⟨ invIso LiftIso ⟩
+  (fst (F ⟅ c ⟆)) ∎Iso where
+
+  the-iso : Iso ((FUNCTOR C (SET (ℓ-max ℓ' ℓ'')))
+                  [ LiftF {ℓ'}{ℓ''} ∘F (C [ c ,-])
+                  , LiftF {ℓ''}{ℓ'} ∘F F ])
+                ((FUNCTOR (LiftHoms C ℓ'') (SET (ℓ-max ℓ' ℓ'')))
+                  [ (LiftHoms C ℓ'' [ c ,-])
+                  , LiftF {ℓ''}{ℓ'} ∘F (F ∘F lowerHoms C ℓ'') ])
+  the-iso .fun α .N-ob d f = α .N-ob d f
+  the-iso .fun α .N-hom g = α .N-hom (g .lower)
+  the-iso .inv β .N-ob d f = β .N-ob d f
+  the-iso .inv β .N-hom g = β .N-hom (lift g)
+  the-iso .rightInv β = refl
+  the-iso .leftInv α = refl
+
+yonedaᴾ* : {C : Category ℓ ℓ'}(F : Functor (C ^op) (SET ℓ''))
+            → (c : Category.ob C)
+            → Iso (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
+                    [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ])
+                    , LiftF {ℓ''}{ℓ'} ∘F F ])
+                  (fst (F ⟅ c ⟆))
+yonedaᴾ* {ℓ}{ℓ'}{ℓ''}{C} F c =
+  (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
+    [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ]) , LiftF {ℓ''}{ℓ'} ∘F F ]) Iso⟨ the-iso ⟩
+  (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
+    [ LiftF {ℓ'}{ℓ''} ∘F ((C ^op) [ c ,-])
+    , LiftF {ℓ''}{ℓ'} ∘F F ]) Iso⟨ yoneda* F c ⟩
+  fst (F ⟅ c ⟆) ∎Iso where
+
+  the-iso :
+    Iso (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
+          [ LiftF {ℓ'}{ℓ''} ∘F (C [-, c ]) , LiftF {ℓ''}{ℓ'} ∘F F ])
+        (FUNCTOR (C ^op) (SET (ℓ-max ℓ' ℓ''))
+          [ LiftF {ℓ'}{ℓ''} ∘F ((C ^op) [ c ,-]) , LiftF {ℓ''}{ℓ'} ∘F F ])
+  the-iso .fun α .N-ob = α .N-ob
+  the-iso .fun α .N-hom = α .N-hom
+  the-iso .inv β .N-ob = β .N-ob
+  the-iso .inv β .N-hom = β .N-hom
+  the-iso .rightInv = λ b → refl
+  the-iso .leftInv = λ a → refl
+
 -- Yoneda embedding
 -- TODO: probably want to rename/refactor
-module _ {C : Category ℓ ℓ} where
+module _ {C : Category ℓ ℓ'} where
   open Functor
   open NatTrans
   open Category C
 
-  yo : ob → Functor (C ^op) (SET ℓ)
-  yo x .F-ob y .fst = C [ y , x ]
-  yo x .F-ob y .snd = isSetHom
-  yo x .F-hom f g = f ⋆⟨ C ⟩ g
-  yo x .F-id i f = ⋆IdL f i
-  yo x .F-seq f g i h = ⋆Assoc g f h i
+  yo : ob → Functor (C ^op) (SET ℓ')
+  yo x = C [-, x ]
 
-  YO : Functor C (PreShv C ℓ)
+  YO : Functor C (PresheafCategory C ℓ')
   YO .F-ob = yo
   YO .F-hom f .N-ob z g = g ⋆⟨ C ⟩ f
   YO .F-hom f .N-hom g i h = ⋆Assoc g h f i
@@ -142,7 +226,7 @@ module _ {C : Category ℓ ℓ} where
   YO .F-seq f g = makeNatTransPath λ i _ → λ h → ⋆Assoc h f g (~ i)
 
 
-  module _ {x} (F : Functor (C ^op) (SET ℓ)) where
+  module _ {x} (F : Functor (C ^op) (SET ℓ')) where
     yo-yo-yo : NatTrans (yo x) F → F .F-ob x .fst
     yo-yo-yo α = α .N-ob _ id
 
@@ -179,4 +263,5 @@ module _ {C : Category ℓ ℓ} where
       (yo-yo-yo _ (p i))
 
   isFullyFaithfulYO : isFullyFaithful YO
-  isFullyFaithfulYO = isFull+Faithful→isFullyFaithful {F = YO} isFullYO isFaithfulYO
+  isFullyFaithfulYO =
+    isFull+Faithful→isFullyFaithful {F = YO} isFullYO isFaithfulYO

@@ -26,16 +26,12 @@ not true = false
 not false = true
 
 _or_ : Bool → Bool → Bool
-false or false = false
-false or true  = true
-true  or false = true
-true  or true  = true
+false or x = x
+true  or _ = true
 
 _and_ : Bool → Bool → Bool
-false and false = false
-false and true  = false
-true  and false = false
-true  and true  = true
+false and _ = false
+true  and x = x
 
 -- xor / mod-2 addition
 _⊕_ : Bool → Bool → Bool
@@ -88,3 +84,18 @@ dichotomyBoolSym true = inr refl
 -- TODO: this should be uncommented and implemented using instance arguments
 -- _==_ : {dA : Discrete A} → A → A → Bool
 -- _==_ {dA = dA} x y = Dec→Bool (dA x y)
+
+-- Universe lifted booleans
+Bool* : ∀ {ℓ} → Type ℓ
+Bool* = Lift Bool
+
+true* : ∀ {ℓ} → Bool* {ℓ}
+true* = lift true
+
+false* : ∀ {ℓ} → Bool* {ℓ}
+false* = lift false
+
+-- Pointed version
+Bool*∙ : ∀ {ℓ} → Σ[ X ∈ Type ℓ ] X
+fst Bool*∙ = Bool*
+snd Bool*∙ = true*

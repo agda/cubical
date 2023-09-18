@@ -16,6 +16,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 
@@ -54,6 +55,11 @@ isEquivOver :
   → Type _
 isEquivOver {A = A} F = (a : A) → isEquiv (F a)
 
+isPropIsEquivOver :
+  {f : A → B}
+  (F : mapOver f P Q)
+  → isProp (isEquivOver {Q = Q} F)
+isPropIsEquivOver F = isPropΠ (λ a → isPropIsEquiv (F a))
 
 -- Relative version of section and retract
 
@@ -120,6 +126,12 @@ IsoOver→isIsoOver :
 IsoOver→isIsoOver isom .inv = isom .inv
 IsoOver→isIsoOver isom .rightInv = isom .rightInv
 IsoOver→isIsoOver isom .leftInv  = isom .leftInv
+
+invIsoOver : {isom : Iso A B} → IsoOver isom P Q → IsoOver (invIso isom) Q P
+invIsoOver {isom = isom} isom' .fun = isom' .inv
+invIsoOver {isom = isom} isom' .inv = isom' .fun
+invIsoOver {isom = isom} isom' .rightInv = isom' .leftInv
+invIsoOver {isom = isom} isom' .leftInv = isom' .rightInv
 
 compIsoOver :
   {ℓA ℓB ℓC ℓP ℓQ ℓR : Level}

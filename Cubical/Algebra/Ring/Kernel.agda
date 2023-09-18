@@ -29,7 +29,7 @@ module _ {R S : Ring ℓ} (f′ : RingHom R S) where
     f = fst f′
 
   kernel : fst R → hProp ℓ
-  kernel x = (f x ≡ 0r) , isSetRing S _ _
+  kernel x = (f x ≡ 0r) , is-set _ _
 
   kernelIsIdeal : isIdeal R kernel
   +-closed kernelIsIdeal =

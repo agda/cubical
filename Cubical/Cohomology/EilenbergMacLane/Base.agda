@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
 module Cubical.Cohomology.EilenbergMacLane.Base where
 
@@ -14,7 +14,6 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
-
 open import Cubical.Foundations.Isomorphism
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -24,6 +23,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Morphisms
+
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
@@ -276,7 +276,7 @@ coHom≅coHomRed n G A =
   ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (funExt λ x → +ₖ≡id-ℤ/2 n (f x))
 
--ₕConst-ℤ/2 : ∀{ℓ} (n : ℕ) {A : Type ℓ} (x : coHom n ℤ/2 A) → -ₕ x ≡ x
+-ₕConst-ℤ/2 : (n : ℕ) {A : Type ℓ} (x : coHom n ℤ/2 A) → -ₕ x ≡ x
 -ₕConst-ℤ/2 zero =
   ST.elim (λ _ → isSetPathImplicit)
     λ f → cong ∣_∣₂ (funExt λ x → -Const-ℤ/2 (f x))

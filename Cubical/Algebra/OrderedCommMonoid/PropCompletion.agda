@@ -261,5 +261,7 @@ isSetBoundedPropCompletion :
      (M : OrderedCommMonoid ℓ ℓ)
    → isSet (⟨ BoundedPropCompletion M ⟩)
 isSetBoundedPropCompletion M =
-  isSetΣSndProp (isSetOrderedCommMonoid (PropCompletion M))
+  isSetΣSndProp is-set
                 λ x → PropCompletion.isPropIsBounded _ M x
+  where
+  open OrderedCommMonoidStr (str (PropCompletion M))

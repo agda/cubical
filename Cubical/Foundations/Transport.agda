@@ -158,7 +158,7 @@ constSubstCommSlice B C F p Bx = (sym (transportRefl (F _ Bx)) ∙ substCommSlic
 
 -- transporting over (λ i → B (p i) → C (p i)) divides the transport into
 -- transports over (λ i → C (p i)) and (λ i → B (p (~ i)))
-funTypeTransp : ∀ {ℓ ℓ'} {A : Type ℓ} (B C : A → Type ℓ') {x y : A} (p : x ≡ y) (f : B x → C x)
+funTypeTransp : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} (B : A → Type ℓ') (C : A → Type ℓ'') {x y : A} (p : x ≡ y) (f : B x → C x)
          → PathP (λ i → B (p i) → C (p i)) f (subst C p ∘ f ∘ subst B (sym p))
 funTypeTransp B C {x = x} p f i b =
   transp (λ j → C (p (j ∧ i))) (~ i) (f (transp (λ j → B (p (i ∧ ~ j))) (~ i) b))

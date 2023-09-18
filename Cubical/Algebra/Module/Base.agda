@@ -60,6 +60,10 @@ record LeftModuleStr (R : Ring ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') wh
     _⋆_            : ⟨ R ⟩ → A → A
     isLeftModule   : IsLeftModule R 0m _+_ -_ _⋆_
 
+  infixr 7 _+_
+  infix  8 -_
+  infix  9 _⋆_
+
   open IsLeftModule isLeftModule public
 
 LeftModule : (R : Ring ℓ) → ∀ ℓ' → Type (ℓ-max ℓ (ℓ-suc ℓ'))
@@ -76,8 +80,8 @@ module _ {R : Ring ℓ} where
     LeftModule→AbGroup .snd .AbGroupStr.isAbGroup =
       IsLeftModule.+IsAbGroup (M .snd .LeftModuleStr.isLeftModule)
 
-  isSetLeftModule : (M : LeftModule R ℓ') → isSet ⟨ M ⟩
-  isSetLeftModule M = isSetAbGroup (LeftModule→AbGroup M)
+    LeftModule→Group : Group ℓ'
+    LeftModule→Group = AbGroup→Group LeftModule→AbGroup
 
   open RingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·s_)
 

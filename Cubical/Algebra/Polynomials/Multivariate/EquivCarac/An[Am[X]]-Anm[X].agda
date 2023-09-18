@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --experimental-lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.Polynomials.Multivariate.EquivCarac.An[Am[X]]-Anm[X] where
 
 open import Cubical.Foundations.Prelude

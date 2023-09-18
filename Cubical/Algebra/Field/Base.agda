@@ -17,7 +17,6 @@ open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Ring
-  hiding (_$_)
 open import Cubical.Algebra.CommRing
 
 open import Cubical.Displayed.Base
@@ -74,9 +73,6 @@ record FieldStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 
 Field : ∀ ℓ → Type (ℓ-suc ℓ)
 Field ℓ = TypeWithStr ℓ FieldStr
-
-isSetField : (R : Field ℓ) → isSet ⟨ R ⟩
-isSetField R = R .snd .FieldStr.isField .IsField.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
 
 
 makeIsField : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
@@ -166,8 +162,8 @@ FieldEquiv : (R : Field ℓ) (S : Field ℓ') → Type (ℓ-max ℓ ℓ')
 FieldEquiv R S = Σ[ e ∈ (R .fst ≃ S .fst) ] IsFieldEquiv (R .snd) e (S .snd)
 
 
-_$_ : {R S : Field ℓ} → (φ : FieldHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
-φ $ x = φ .fst x
+_$f_ : {R S : Field ℓ} → (φ : FieldHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
+φ $f x = φ .fst x
 
 
 FieldEquiv→FieldHom : {A B : Field ℓ} → FieldEquiv A B → FieldHom A B
@@ -180,9 +176,6 @@ isPropIsField {R = R} 0r 1r _+_ _·_ -_ H@(isfield RR RC RD) (isfield SR SC SD) 
   λ i → isfield (isPropIsCommRing _ _ _ _ _ RR SR i)
                    (isPropInv RC SC i) (isProp¬ _ RD SD i)
   where
-  isSetR : isSet _
-  isSetR =  RR .IsCommRing.·IsMonoid .IsMonoid.isSemigroup .IsSemigroup.is-set
-
   isPropInv : isProp ((x : _) → ¬ x ≡ 0r → Σ[ y ∈ R ] x · y ≡ 1r)
   isPropInv = isPropΠ2 (λ x _ → Units.inverseUniqueness (Field→CommRing (_ , fieldstr _ _ _ _ _ H)) x)
 
