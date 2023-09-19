@@ -2,18 +2,17 @@
 
 import networkx as nx
 import random
+import sys
+
 # import matplotlib.pyplot as plt
 
-def makefile_to_dependency_graph(makefile_path):
+def makefile_to_dependency_graph():
     # Create a directed graph
     dependency_graph = nx.DiGraph()
 
-    with open(makefile_path, 'r') as makefile:
-        lines = makefile.readlines()
-
     current_target = None
         
-    for line in lines:
+    for line in sys.stdin:
         line = line.strip()
 
         # Skip comments and empty lines
@@ -27,7 +26,6 @@ def makefile_to_dependency_graph(makefile_path):
             dependency_graph.add_node(target, command = None)
             current_target = target
         elif ":" in line:
-            print(line)
             target , dependency = line.split(':')
             target = target.strip()
             dependency = dependency.strip()
@@ -76,8 +74,8 @@ def write_reduced_makefile(makefile_path, dependency_graph):
         
         
 if __name__ == "__main__":
-    makefile_path = "generated_makefile"
-    raw_graph = makefile_to_dependency_graph(makefile_path)
+    raw_graph = makefile_to_dependency_graph()
+    
     print("Original graph:")
     print("Nodes", raw_graph.number_of_nodes())
     print("Edges", raw_graph.number_of_edges())
