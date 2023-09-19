@@ -130,7 +130,7 @@ The Curried Version of `extend`
 
 -}
 
--- Tons of definitions to curry things
+-- Tons of definitions to curry/uncurry things
 
 CubeType : (ℓ : Level) → Metaℕ → Type (ℓ-suc ℓ)
 CubeType ℓ zero = Type ℓ
@@ -161,7 +161,8 @@ PartCubeType : {n : Metaℕ} (ϕ : I) → CubeType ℓ n → CubeSSet ℓ n
 PartCubeType {n = zero}  ϕ X = Partial ϕ X
 PartCubeType {n = suc n} ϕ X i = PartCubeType (ϕ ∨ ∂ i) (X i)
 
-ExtCubeType : {n : Metaℕ} {ϕ : I} {X : CubeType ℓ n} → CubeSTerm (PartCubeType ϕ X) → CubeSSet ℓ n
+ExtCubeType : {n : Metaℕ} {ϕ : I} {X : CubeType ℓ n}
+  → CubeSTerm (PartCubeType ϕ X) → CubeSSet ℓ n
 ExtCubeType {n = zero}  {ϕ} x = _ [ _ ↦ x ]
 ExtCubeType {n = suc n} {ϕ} x i = ExtCubeType {ϕ = ϕ ∨ ∂ i} (x i)
 
@@ -197,8 +198,9 @@ curryExt {n = suc n} u x i = curryExt (u i) (λ 𝓳 → x (i , 𝓳))
 
 extendCurried :
   (n : Metaℕ) {ℓ : Level} {X : CubeType ℓ n}
-  (h : CubeTerm  (isOfHLevelCubeType (toℕ n) X))
+  (h : CubeTerm (isOfHLevelCubeType (toℕ n) X))
   (ϕ : I) (x : CubeSTerm (PartCubeType ϕ X))
   → CubeSTerm (ExtCubeType {X = X} x)
 extendCurried n {X = X} h ϕ x =
-  curryExt {X = X} _ (extendUncurried {ϕ = ϕ} (uncurryIsOfHLevelCubeType _ h) (uncurryPart x))
+  curryExt {X = X} _
+    (extendUncurried {ϕ = ϕ} (uncurryIsOfHLevelCubeType _ h) (uncurryPart x))
