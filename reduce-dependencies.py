@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+
 import networkx as nx
 import random
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 def makefile_to_dependency_graph(makefile_path):
     # Create a directed graph
@@ -9,6 +11,8 @@ def makefile_to_dependency_graph(makefile_path):
     with open(makefile_path, 'r') as makefile:
         lines = makefile.readlines()
 
+    current_target = None
+        
     for line in lines:
         line = line.strip()
 
@@ -18,8 +22,10 @@ def makefile_to_dependency_graph(makefile_path):
 
         # Detect targets in Makefile lines
         if line.endswith(":"):
+            # this line contains a target without dependency information
             target = line[:-1].strip()
-            dependency_graph.add_node(target)
+            dependency_graph.add_node(target, command = None)
+            current_target = target
         elif ":" in line:
             print(line)
             target , dependency = line.split(':')
@@ -27,9 +33,48 @@ def makefile_to_dependency_graph(makefile_path):
             dependency = dependency.strip()
             
             dependency_graph.add_edge(target, dependency)
+            current_target = target
+        elif "AGDA" in line:
+            # this relies on the wild guess, that a line with build command contains 'AGDA'
+            if current_target is None:
+                raise Exception(f"current_target None while trying to set build command")
+            if 'command' in dependency_graph.nodes[current_target]:
+              data = dependency_graph.nodes[current_target]['command']
+              raise Exception(f"data already set: {data}")
 
+            dependency_graph.nodes[current_target]['command'] = line.strip()
+            print(f"command added: {line.strip()} to {current_target}")
+            print(f"node data: {dependency_graph.nodes[current_target]}")
+            
     return dependency_graph
 
+
+def write_reduced_makefile(makefile_path, dependency_graph):
+    
+    with open(makefile_path, 'w') as makefile:
+        # write dependencies for the target 'check':
+        for node in dependency_graph.nodes:
+            if dependency_graph.nodes[node].get('command') is None:
+                # not a real target
+                continue
+            
+            makefile.write(f"check: {node}\n")
+
+        makefile.write("\n")
+            
+        # write dependencies for all agdai-targets
+        for node in dependency_graph.nodes:
+            if dependency_graph.nodes[node].get('command') is None:
+                # not a real target
+                continue
+
+            makefile.write(f"{node}:\n")
+            for source, target in dependency_graph.edges(node):
+                makefile.write(f"{source}: {target}\n")
+
+            makefile.write(f"\t{dependency_graph.nodes[node]['command']}\n\n")
+        
+        
 if __name__ == "__main__":
     makefile_path = "generated_makefile"
     raw_graph = makefile_to_dependency_graph(makefile_path)
@@ -37,7 +82,7 @@ if __name__ == "__main__":
     print("Nodes", raw_graph.number_of_nodes())
     print("Edges", raw_graph.number_of_edges())
     
-    dependency_graph = nx.transitive_reduction(raw_graph)
+    dependency_graph = nx.transitive_reduction(raw_graph) # WTF: this operation throws away node data
     print("Reduced graph:")
     print("Nodes", dependency_graph.number_of_nodes())
     print("Edges", dependency_graph.number_of_edges())
@@ -49,13 +94,8 @@ if __name__ == "__main__":
     random_nodes = random.sample(all_nodes, min(len(all_nodes), 10))
     random_edges = random.sample(all_edges, min(len(all_edges), 10))
     
-    print("Random Nodes:", random_nodes)
+    print("Random Nodes:", [(node, raw_graph.nodes[node].get('command')) for node in random_nodes])
     print("Random Edges:", random_edges)
 
-    G = dependency_graph
-    # Draw the graph using matplotlib
-    pos = nx.spring_layout(G)  # Position nodes using a layout algorithm
-    nx.draw(G, pos, with_labels=True, node_color='skyblue', node_size=500, font_size=12, font_color='black')
-    plt.title("Graph Visualization")
-    plt.show()
+    write_reduced_makefile("reduced_makefile", raw_graph) # so far only raw_graph, because the reduced does not contain the build commands
     
