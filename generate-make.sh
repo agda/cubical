@@ -1,5 +1,7 @@
 #!/bin/bash
 
+agdaipath=`agda --version | sed -n 's/.* \([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p'`
+
 all-imported-files() {
     filename="$1"
     grep -v '^--' $filename | grep -o -e "import[[:space:]]Cubical[][A-Za-z0-9.-]*" | sed -E 's/\./\//g; s/^import (.*)$/\1.agda/; s/ //g'
@@ -7,7 +9,7 @@ all-imported-files() {
 
 agdai-name() {
     filename="$1"
-    echo "_build/2.6.3/agda/$(echo $filename)i"
+    echo "_build/$agdaipath/agda/$(echo $filename)i"
 }
 
 echo '.PHONY : check'
