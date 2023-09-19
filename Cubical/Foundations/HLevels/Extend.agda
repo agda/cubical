@@ -32,7 +32,7 @@ private
 
 {-
 
--- for conveniently representing the boundary of cubes
+-- to conveniently present the boundary of cubes
 
 ∂ : I → I
 ∂ i = i ∨ ~ i

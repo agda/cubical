@@ -18,7 +18,7 @@ private
     ℓ : Level
 
 
--- for conveniently representing the boundary of cubes
+-- to conveniently present the boundary of cubes
 
 ∂ : I → I
 ∂ i = i ∨ ~ i
@@ -30,7 +30,7 @@ data Metaℕ : SSet where
   zero : Metaℕ
   suc  : (n : Metaℕ) → Metaℕ
 
--- transform external to internal natural number
+-- transform external natural numbers to internal ones
 toℕ : Metaℕ → ℕ
 toℕ  zero   = zero
 toℕ (suc n) = suc (toℕ n)
@@ -72,7 +72,7 @@ module _ {n : Metaℕ} where
   Ext X ϕ 𝓲 x = X [ bdc ϕ 𝓲 ↦ x ]
 
 
--- methods to use in induction
+-- methods to be used in induction
 
 module _
   {ϕ : I}
