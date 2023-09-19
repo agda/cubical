@@ -81,6 +81,9 @@ if __name__ == "__main__":
     print("Edges", raw_graph.number_of_edges())
     
     dependency_graph = nx.transitive_reduction(raw_graph) # WTF: this operation throws away node data
+    for node_id, node_data in raw_graph.nodes(data=True):
+        dependency_graph.nodes[node_id].update(node_data)
+        
     print("Reduced graph:")
     print("Nodes", dependency_graph.number_of_nodes())
     print("Edges", dependency_graph.number_of_edges())
@@ -92,8 +95,8 @@ if __name__ == "__main__":
     random_nodes = random.sample(all_nodes, min(len(all_nodes), 10))
     random_edges = random.sample(all_edges, min(len(all_edges), 10))
     
-    print("Random Nodes:", [(node, raw_graph.nodes[node].get('command')) for node in random_nodes])
+    print("Random Nodes:", [(node, dependency_graph.nodes[node].get('command')) for node in random_nodes])
     print("Random Edges:", random_edges)
 
-    write_reduced_makefile("reduced_makefile", raw_graph) # so far only raw_graph, because the reduced does not contain the build commands
+    write_reduced_makefile("reduced_makefile", dependency_graph) # so far only raw_graph, because the reduced does not contain the build commands
     
