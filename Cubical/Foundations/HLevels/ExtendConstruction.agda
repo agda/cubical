@@ -112,7 +112,6 @@ module _
   isOfHLevelₙPathP h 𝓳 = isOfHLevelPathP' _ (h (i1 , 𝓳)) _ _
 
 
-
 -- the uncurried `extend`
 
 extendUncurried :
@@ -123,7 +122,6 @@ extendUncurried :
 extendUncurried {n = zero} h _ ∙ = extend₀ (h ∙) _ _
 extendUncurried {n = suc n} {ϕ} h x =
   toExt {ϕ = ϕ} _ _ (extendUncurried {ϕ = ϕ} (isOfHLevelₙPathP {ϕ = ϕ} _ x h) _)
-
 
 
 {-
