@@ -96,7 +96,7 @@ extendProp :
 extendProp = extend 1
 
 extendSet :
-  {X : I → I → Type}
+  {X : I → I → Type ℓ}
   (h : (i j : I) → isSet (X i j))
   (ϕ : I)
   (x : (i j : I) → Partial _ (X i j))
@@ -104,7 +104,7 @@ extendSet :
 extendSet = extend 2
 
 extendGroupoid :
-  {X : I → I → I → Type}
+  {X : I → I → I → Type ℓ}
   (h : (i j k : I) → isGroupoid (X i j k))
   (ϕ : I)
   (x : (i j k : I) → Partial _ (X i j k))
