@@ -10,8 +10,9 @@ def take(n, iterable):
     return list(islice(iterable, n))
 
 def makefile_to_dependency_graph():
-    # Create a directed graph
-    dependency_graph = nx.DiGraph()
+    # Create a directed graph for the dependencies between build targets
+    # targets should be 'check' and at this point all 'agdai' files
+    G = nx.DiGraph()
 
     current_target = None
         
@@ -26,26 +27,34 @@ def makefile_to_dependency_graph():
         if line.endswith(":"):
             # this line contains a target without dependency information
             target = line[:-1].strip()
-            dependency_graph.add_node(target, command = None)
+            G.add_node(target, command = None, files = [])
             current_target = target
         elif ":" in line:
             target , dependency = line.split(':')
             target = target.strip()
             dependency = dependency.strip()
-            
-            dependency_graph.add_edge(target, dependency)
+
+            if dependency.endswith(".agda"):   # just a dependency on a source file
+                if target in G:
+                    G.nodes[target]['files'].append(dependency)
+                else:
+                    G.add_node(target, command = None, files = [dependency])
+            else:                              # dependency on another target
+                if not(target in G):
+                    G.add_node(target, command = None, files = [])
+                if not(dependency in G):
+                    G.add_node(dependency, command = None, files = [])
+                G.add_edge(target, dependency)
+                
             current_target = target
         elif "AGDA" in line:
             # this relies on the wild guess, that a line with build command contains 'AGDA'
             if current_target is None:
                 raise Exception(f"current_target None while trying to set build command")
-            if 'command' in dependency_graph.nodes[current_target]:
-              data = dependency_graph.nodes[current_target]['command']
-              raise Exception(f"data already set: {data}")
 
-            dependency_graph.nodes[current_target]['command'] = line.strip()
+            G.nodes[current_target]['command'] = line.strip()
             
-    return dependency_graph
+    return G
 
 def reachable_subgraph(G, node):
     reachable_nodes = list(nx.dfs_preorder_nodes(G, source=node))
@@ -85,7 +94,12 @@ def print_some_info(G, with_nodes_and_edges=False):
              random_edges = random.sample(all_edges, min(len(all_edges), 10))
 
              print("")
-             print("Random Nodes:", [(node, G.nodes[node].get('command')) for node in random_nodes])
+             print("Random Nodes:")
+             for node in random_nodes:
+                 print("Name: ", node)
+                 print("Command: ", G.nodes[node].get('command'))
+                 print("Files: ", G.nodes[node].get('files'))
+                 
              print("")
              print("Random Edges:", random_edges)
          else:
@@ -118,12 +132,12 @@ def contract_composable(G, order):
     
     print("-----------------------------------")
     print(f"Analysing graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
-    contractible = [node for node in G.nodes() if G.in_degree(node) == 1 and G.out_degree(node) == 2]
+    contractible = [node for node in G.nodes() if G.in_degree(node) == 1 and G.out_degree(node) == 1]
     print(f"{len(contractible)} of {G.number_of_nodes()} nodes look like the middle one in: *->*")
     print("contracting right * to left one...")
     
     for node in sorted(contractible, key=order):
-        print(node, order(node))
+        # print(node, order(node))
         [(contract_onto, _)] = G.in_edges(node)
         nx.contracted_nodes(G, contract_onto, node, self_loops=False, copy=False)
         
@@ -143,4 +157,6 @@ if __name__ == "__main__":
     contract_composable(G, order)
         
     write_reduced_makefile("reduced_makefile", G)
+
+    print_some_info(G, with_nodes_and_edges=True)
 
