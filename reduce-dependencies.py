@@ -72,58 +72,75 @@ def write_reduced_makefile(makefile_path, dependency_graph):
                 makefile.write(f"\t{dependency_graph.nodes[node]['command']}\n\n")
         
 
-def print_some_info(G):
+def print_some_info(G, with_nodes_and_edges=False):
     print(G)
-    print("Nodes", G.number_of_nodes())
-    print("Edges", G.number_of_edges())
 
-    if G.number_of_nodes() > 10 or G.number_of_edges() > 10:
-        # Print a random selection of 10 nodes and edges
-        all_nodes = list(G.nodes())
-        all_edges = list(G.edges())
+    if with_nodes_and_edges:
+         if G.number_of_nodes() > 10 or G.number_of_edges() > 10:
+             # Print a random selection of 10 nodes and edges
+             all_nodes = list(G.nodes())
+             all_edges = list(G.edges())
 
-        random_nodes = random.sample(all_nodes, min(len(all_nodes), 10))
-        random_edges = random.sample(all_edges, min(len(all_edges), 10))
+             random_nodes = random.sample(all_nodes, min(len(all_nodes), 10))
+             random_edges = random.sample(all_edges, min(len(all_edges), 10))
 
-        print("")
-        print("Random Nodes:", [(node, G.nodes[node].get('command')) for node in random_nodes])
-        print("")
-        print("Random Edges:", random_edges)
-    else:
-        print("")
-        print("Nodes:", [(node, G.nodes[node].get('command')) for node in G.nodes()])
-        print("")
-        print("Edges:", G.edges())
+             print("")
+             print("Random Nodes:", [(node, G.nodes[node].get('command')) for node in random_nodes])
+             print("")
+             print("Random Edges:", random_edges)
+         else:
+             print("")
+             print("Nodes:", [(node, G.nodes[node].get('command')) for node in G.nodes()])
+             print("")
+             print("Edges:", G.edges())
+
+def topological_order(G):
+    # compute a comparison function
+    # 1 -> 2 means that 1 depends on 2
+    # and results in 1 > 2
+
+    print("Computing topological order.")
+    topological_order = list(nx.topological_sort(G))
+    # Preprocess the topological order for efficient comparisons
+    node_positions = {node: position for position, node in enumerate(reversed(topological_order))}
+
+    def order(node):
+        return node_positions[node]
+    
+    return order
         
+def contract_composable(G, order):
+    # contract all dependency situations that are 'a single arrow':
+    #   .. *->* .. (not really yet, because *->*->* is a lot easier)
+    # onto the left node
+    # manipulates the given graph
+    # BUG to fix: the file-dependencies should be collected when contracting
+    
+    print("-----------------------------------")
+    print(f"Analysing graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
+    contractible = [node for node in G.nodes() if G.in_degree(node) == 1 and G.out_degree(node) == 2]
+    print(f"{len(contractible)} of {G.number_of_nodes()} nodes look like the middle one in: *->*")
+    print("contracting right * to left one...")
+    
+    for node in sorted(contractible, key=order):
+        print(node, order(node))
+        [(contract_onto, _)] = G.in_edges(node)
+        nx.contracted_nodes(G, contract_onto, node, self_loops=False, copy=False)
         
+    print(f"Reduced graph to {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
+    print("-----------------------------------")
     
             
 if __name__ == "__main__":
     raw_graph = makefile_to_dependency_graph()
     
-    dependency_graph = nx.transitive_reduction(raw_graph) # WTF: this operation throws away node data
+    G = nx.transitive_reduction(raw_graph) # WTF: this operation throws away node data
     for node_id, node_data in raw_graph.nodes(data=True):
-        dependency_graph.nodes[node_id].update(node_data)
+        G.nodes[node_id].update(node_data)
 
-    write_reduced_makefile("reduced_makefile", dependency_graph) 
-    
-    out_degrees = dict(dependency_graph.out_degree())
-    max_degree = max(out_degrees.values())
-    nodes_with_max_out_degree = [node for node, degree in out_degrees.items() if degree == max_degree]
-    
-    subgraph=reachable_subgraph(dependency_graph, '_build/2.6.4/agda/Cubical/Algebra/Everything.agdai')
+    order = topological_order(G)
+        
+    contract_composable(G, order)
+        
+    write_reduced_makefile("reduced_makefile", G)
 
-    print("Dependencies examples: ")
-    print_some_info(dependency_graph)
-    print("")
-
-    print("Dependencies below something: ")
-    print_some_info(subgraph)
-    print("")
-
-    print(nodes_with_max_out_degree)
-    print("")
-    print(take(20, out_degrees.items()))
-    print("")
-    print(dependency_graph.out_edges('check'))
-    print(dependency_graph.out_edges('_build/2.6.4/agda/Cubical/README.agdai'))
