@@ -7,6 +7,7 @@ open import Cubical.Homotopy.EilenbergSteenrod
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Filler
 open import Cubical.Foundations.GroupoidLaws renaming (assoc to assoc∙)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv

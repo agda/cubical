@@ -16,13 +16,11 @@ A draft note on this can be found online at
 module Cubical.Foundations.HLevels.Extend where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels hiding (extend)
 open import Cubical.Foundations.HLevels.ExtendConstruction
-open import Cubical.Data.Nat
-
+open import Agda.Builtin.Nat  renaming (Nat to ℕ)
+open import Agda.Builtin.Unit renaming ( ⊤ to Unit )
 open import Agda.Builtin.List
-open import Agda.Builtin.Reflection hiding (Type)
-open import Cubical.Reflection.Base
+open import Agda.Builtin.Reflection as R hiding (Type)
 
 
 private
@@ -39,6 +37,9 @@ private
 
 -}
 
+
+pattern varg t = R.arg (R.arg-info R.visible (R.modality R.relevant R.quantity-ω)) t
+pattern _v∷_ a l = varg a ∷ l
 
 -- Transform internal ℕural numbers to external ones
 -- In fact it's impossible in Agda's 2LTT, so we could only use a macro.
@@ -84,32 +85,32 @@ extendContr :
   (h : isContr X)
   (ϕ : I)
   (x : Partial _ X)
-  → X [ ϕ ↦ x ]
-extendContr = extend 0
+  → X -- [ ϕ ↦ x ]
+extendContr h ϕ x = outS (extend 0 h ϕ x)
 
 extendProp :
   {X : I → Type ℓ}
   (h : (i : I) → isProp (X i))
   (ϕ : I)
   (x : (i : I) → Partial _ (X i))
-  (i : I) → X i [ ϕ ∨ ∂ i ↦ x i ]
-extendProp = extend 1
+  (i : I) → X i -- [ ϕ ∨ ∂ i ↦ x i ]
+extendProp h ϕ x i = outS (extend 1 h ϕ x i)
 
 extendSet :
   {X : I → I → Type ℓ}
   (h : (i j : I) → isSet (X i j))
   (ϕ : I)
   (x : (i j : I) → Partial _ (X i j))
-  (i j : I) → X i j [ ϕ ∨ ∂ i ∨ ∂ j ↦ x i j ]
-extendSet = extend 2
+  (i j : I) → X i j -- [ ϕ ∨ ∂ i ∨ ∂ j ↦ x i j ]
+extendSet h ϕ x i j = outS (extend 2 h ϕ x i j)
 
 extendGroupoid :
   {X : I → I → I → Type ℓ}
   (h : (i j k : I) → isGroupoid (X i j k))
   (ϕ : I)
   (x : (i j k : I) → Partial _ (X i j k))
-  (i j k : I) → X i j k [ ϕ ∨ ∂ i ∨ ∂ j ∨ ∂ k ↦ x i j k ]
-extendGroupoid = extend 3
+  (i j k : I) → X i j k -- [ ϕ ∨ ∂ i ∨ ∂ j ∨ ∂ k ↦ x i j k ]
+extendGroupoid h ϕ x i j k = outS (extend 3 h ϕ x i j k)
 
 
 private
@@ -119,6 +120,6 @@ private
   isProp→Cube :
     {X : Type ℓ} (h : isProp X)
     (x : (i j k : I) → Partial _ X)
-    (i j k : I) → X [ ∂ i ∨ ∂ j ∨ ∂ k ↦ x i j k ]
+    (i j k : I) → X -- [ ∂ i ∨ ∂ j ∨ ∂ k ↦ x i j k ]
   isProp→Cube h x i j =
     extendProp (λ _ → h) (∂ i ∨ ∂ j) (x i j)

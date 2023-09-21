@@ -9,6 +9,7 @@ module Cubical.HITs.S1.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Filler
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function

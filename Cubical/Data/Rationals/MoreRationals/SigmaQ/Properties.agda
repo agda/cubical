@@ -4,6 +4,7 @@ module Cubical.Data.Rationals.MoreRationals.SigmaQ.Properties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Filler
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 

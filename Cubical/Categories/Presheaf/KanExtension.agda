@@ -10,6 +10,7 @@ module Cubical.Categories.Presheaf.KanExtension where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Filler
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.HITs.SetQuotients

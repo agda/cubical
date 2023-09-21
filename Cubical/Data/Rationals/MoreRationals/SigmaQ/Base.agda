@@ -3,6 +3,7 @@ module Cubical.Data.Rationals.MoreRationals.SigmaQ.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Filler
 
 open import Cubical.Data.Int.MoreInts.QuoInt
 

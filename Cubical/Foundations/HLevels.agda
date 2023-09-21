@@ -25,8 +25,8 @@ open import Cubical.Foundations.Univalence using (ua ; univalenceIso)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
-HLevel : Type₀
-HLevel = ℕ
+open import Cubical.Foundations.HLevels.Base public
+open import Cubical.Foundations.HLevels.Filler
 
 private
   variable
@@ -41,97 +41,9 @@ private
     w x y z : A
     n : HLevel
 
-isOfHLevel : HLevel → Type ℓ → Type ℓ
-isOfHLevel 0 A = isContr A
-isOfHLevel 1 A = isProp A
-isOfHLevel (suc (suc n)) A = (x y : A) → isOfHLevel (suc n) (x ≡ y)
 
 isOfHLevelFun : (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isOfHLevelFun n f = ∀ b → isOfHLevel n (fiber f b)
-
-isOfHLevelΩ→isOfHLevel :
-  ∀ {ℓ} {A : Type ℓ} (n : ℕ)
-  → ((x : A) → isOfHLevel (suc n) (x ≡ x)) → isOfHLevel (2 + n) A
-isOfHLevelΩ→isOfHLevel zero hΩ x y =
-  J (λ y p → (q : x ≡ y) → p ≡ q) (hΩ x refl)
-isOfHLevelΩ→isOfHLevel (suc n) hΩ x y =
-  J (λ y p → (q : x ≡ y) → isOfHLevel (suc n) (p ≡ q)) (hΩ x refl)
-
-TypeOfHLevel : ∀ ℓ → HLevel → Type (ℓ-suc ℓ)
-TypeOfHLevel ℓ n = TypeWithStr ℓ (isOfHLevel n)
-
-hProp hSet hGroupoid h2Groupoid : ∀ ℓ → Type (ℓ-suc ℓ)
-hProp      ℓ = TypeOfHLevel ℓ 1
-hSet       ℓ = TypeOfHLevel ℓ 2
-hGroupoid  ℓ = TypeOfHLevel ℓ 3
-h2Groupoid ℓ = TypeOfHLevel ℓ 4
-
--- lower h-levels imply higher h-levels
-
-isOfHLevelSuc : (n : HLevel) → isOfHLevel n A → isOfHLevel (suc n) A
-isOfHLevelSuc 0 = isContr→isProp
-isOfHLevelSuc 1 = isProp→isSet
-isOfHLevelSuc (suc (suc n)) h a b = isOfHLevelSuc (suc n) (h a b)
-
-isSet→isGroupoid : isSet A → isGroupoid A
-isSet→isGroupoid = isOfHLevelSuc 2
-
-isGroupoid→is2Groupoid : isGroupoid A → is2Groupoid A
-isGroupoid→is2Groupoid = isOfHLevelSuc 3
-
-isOfHLevelPlus : (m : HLevel) → isOfHLevel n A → isOfHLevel (m + n) A
-isOfHLevelPlus zero hA = hA
-isOfHLevelPlus (suc m) hA = isOfHLevelSuc _ (isOfHLevelPlus m hA)
-
-isContr→isOfHLevel : (n : HLevel) → isContr A → isOfHLevel n A
-isContr→isOfHLevel zero cA = cA
-isContr→isOfHLevel (suc n) cA = isOfHLevelSuc _ (isContr→isOfHLevel n cA)
-
-isProp→isOfHLevelSuc : (n : HLevel) → isProp A → isOfHLevel (suc n) A
-isProp→isOfHLevelSuc zero pA = pA
-isProp→isOfHLevelSuc (suc n) pA = isOfHLevelSuc _ (isProp→isOfHLevelSuc n pA)
-
-isOfHLevelPlus' : (m : HLevel) → isOfHLevel m A → isOfHLevel (m + n) A
-isOfHLevelPlus' {n = n} 0 = isContr→isOfHLevel n
-isOfHLevelPlus' {n = n} 1 = isProp→isOfHLevelSuc n
-isOfHLevelPlus' {n = n} (suc (suc m)) hA a₀ a₁ = isOfHLevelPlus' (suc m) (hA a₀ a₁)
-
--- hlevel of path types
-
-isProp→isContrPath : isProp A → (x y : A) → isContr (x ≡ y)
-isProp→isContrPath h x y = h x y , isProp→isSet h x y _
-
-isContr→isContrPath : isContr A → (x y : A) → isContr (x ≡ y)
-isContr→isContrPath cA = isProp→isContrPath (isContr→isProp cA)
-
-isOfHLevelPath' : (n : HLevel) → isOfHLevel (suc n) A → (x y : A) → isOfHLevel n (x ≡ y)
-isOfHLevelPath' 0 = isProp→isContrPath
-isOfHLevelPath' (suc n) h x y = h x y
-
-isOfHLevelPath'⁻ : (n : HLevel) → ((x y : A) → isOfHLevel n (x ≡ y)) → isOfHLevel (suc n) A
-isOfHLevelPath'⁻ zero h x y = h x y .fst
-isOfHLevelPath'⁻ (suc n) h = h
-
-isOfHLevelPath : (n : HLevel) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
-isOfHLevelPath 0 h x y = isContr→isContrPath h x y
-isOfHLevelPath (suc n) h x y = isOfHLevelSuc n (isOfHLevelPath' n h x y)
-
--- h-level of isOfHLevel
-
-isPropIsOfHLevel : (n : HLevel) → isProp (isOfHLevel n A)
-isPropIsOfHLevel 0 = isPropIsContr
-isPropIsOfHLevel 1 = isPropIsProp
-isPropIsOfHLevel (suc (suc n)) f g i a b =
-  isPropIsOfHLevel (suc n) (f a b) (g a b) i
-
-isPropIsSet : isProp (isSet A)
-isPropIsSet = isPropIsOfHLevel 2
-
-isPropIsGroupoid : isProp (isGroupoid A)
-isPropIsGroupoid = isPropIsOfHLevel 3
-
-isPropIs2Groupoid : isProp (is2Groupoid A)
-isPropIs2Groupoid = isPropIsOfHLevel 4
 
 TypeOfHLevel≡ : (n : HLevel) {X Y : TypeOfHLevel ℓ n} → ⟨ X ⟩ ≡ ⟨ Y ⟩ → X ≡ Y
 TypeOfHLevel≡ n = Σ≡Prop (λ _ → isPropIsOfHLevel n)
@@ -254,47 +166,7 @@ isContrRetractOfConstFun : {A : Type ℓ} {B : Type ℓ'} (b₀ : B)
 fst (isContrRetractOfConstFun b₀ ret) = ret .fst b₀
 snd (isContrRetractOfConstFun b₀ ret) y = ret .snd y
 
--- h-level of dependent path types
 
-isOfHLevelPathP' : {A : I → Type ℓ} (n : HLevel)
-                   → isOfHLevel (suc n) (A i1)
-                   → (x : A i0) (y : A i1) → isOfHLevel n (PathP A x y)
-isOfHLevelPathP' {A = A} n h x y =
-  isOfHLevelRetractFromIso n (PathPIsoPath _ x y) (isOfHLevelPath' n h _ _)
-
-isOfHLevelPathP : {A : I → Type ℓ} (n : HLevel)
-                  → isOfHLevel n (A i1)
-                  → (x : A i0) (y : A i1) → isOfHLevel n (PathP A x y)
-isOfHLevelPathP {A = A} n h x y =
-  isOfHLevelRetractFromIso n (PathPIsoPath _ x y) (isOfHLevelPath n h _ _)
-
--- Fillers for cubes from h-level
-
-isSet→SquareP :
-  {A : I → I → Type ℓ}
-  (isSet : (i j : I) → isSet (A i j))
-  {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁)
-  {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} (a₁₋ : PathP (λ j → A i1 j) a₁₀ a₁₁)
-  (a₋₀ : PathP (λ i → A i i0) a₀₀ a₁₀) (a₋₁ : PathP (λ i → A i i1) a₀₁ a₁₁)
-  → SquareP A a₀₋ a₁₋ a₋₀ a₋₁
-isSet→SquareP isset a₀₋ a₁₋ a₋₀ a₋₁ =
-  PathPIsoPath _ _ _ .Iso.inv (isOfHLevelPathP' 1 (isset _ _) _ _ _ _ )
-
-isGroupoid→isGroupoid' : isGroupoid A → isGroupoid' A
-isGroupoid→isGroupoid' {A = A} Agpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
-  PathPIsoPath (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋ .Iso.inv
-    (isGroupoid→isPropSquare _ _ _ _ _ _)
-  where
-  isGroupoid→isPropSquare :
-    {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
-    {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
-    (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
-    → isProp (Square a₀₋ a₁₋ a₋₀ a₋₁)
-  isGroupoid→isPropSquare a₀₋ a₁₋ a₋₀ a₋₁ =
-    isOfHLevelRetractFromIso 1 (PathPIsoPath (λ i → a₋₀ i ≡ a₋₁ i) a₀₋ a₁₋) (Agpd _ _ _ _)
-
-isGroupoid'→isGroupoid : isGroupoid' A → isGroupoid A
-isGroupoid'→isGroupoid Agpd' x y p q r s = Agpd' r s refl refl refl refl
 -- h-level of Σ-types
 
 isProp∃! : isProp (∃! A B)
@@ -585,22 +457,6 @@ isOfHLevelLower n = isOfHLevelRetract n lift lower λ _ → refl
 
 inhProp→isContr : A → isProp A → isContr A
 inhProp→isContr x h = x , h x
-
-extend : isContr A → (∀ φ → (u : Partial φ A) → Sub A φ u)
-extend (x , p) φ u = inS (hcomp (λ { j (φ = i1) → p (u 1=1) j }) x)
-
-isContrPartial→isContr : ∀ {ℓ} {A : Type ℓ}
-                       → (extend : ∀ φ → Partial φ A → A)
-                       → (∀ u → u ≡ (extend i1 λ { _ → u}))
-                       → isContr A
-isContrPartial→isContr {A = A} extend law
-  = ex , λ y → law ex ∙ (λ i → Aux.v y i) ∙ sym (law y)
-    where ex = extend i0 empty
-          module Aux (y : A) (i : I) where
-            φ = ~ i ∨ i
-            u : Partial φ A
-            u = λ { (i = i0) → ex ; (i = i1) → y }
-            v = extend φ u
 
 -- Dependent h-level over a type
 

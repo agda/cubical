@@ -9,14 +9,17 @@ To find explanation and examples, see `Cubical.Foundations.HLevels.Extend`.
 module Cubical.Foundations.HLevels.ExtendConstruction where
 
 open import Cubical.Foundations.Prelude hiding (Cube)
-open import Cubical.Foundations.HLevels renaming (extend to extend₀)
-open import Cubical.Data.Nat
+open import Cubical.Foundations.HLevels.Base
+open import Agda.Builtin.Nat renaming (Nat to ℕ)
 
 
 private
   variable
     ℓ : Level
 
+
+extend₀ : {A : Type ℓ} → isContr A → (∀ φ → (u : Partial φ A) → Sub A φ u)
+extend₀ (x , p) φ u = inS (hcomp (λ { j (φ = i1) → p (u 1=1) j }) x)
 
 -- to conveniently present the boundary of cubes
 

@@ -20,6 +20,7 @@ module Cubical.Foundations.Equiv where
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels.Filler
 
 open import Cubical.Foundations.Equiv.Base public
 open import Cubical.Data.Sigma.Base

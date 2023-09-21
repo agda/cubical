@@ -4,6 +4,7 @@ module Cubical.Algebra.Polynomials.UnivariateList.Properties where
 open import Cubical.HITs.PropositionalTruncation
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Filler
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat renaming (_+_ to _+n_; _·_ to _Nat·_) hiding (·-comm)
