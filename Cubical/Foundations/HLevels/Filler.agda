@@ -90,3 +90,31 @@ isContrPartial→isContr {A = A} extend law
             u : Partial φ A
             u = λ { (i = i0) → ex ; (i = i1) → y }
             v = extend φ u
+
+
+
+-- Variations of isProp→isSet for PathP
+
+isProp→SquareP : ∀ {B : I → I → Type ℓ} → ((i j : I) → isProp (B i j))
+             → {a : B i0 i0} {b : B i0 i1} {c : B i1 i0} {d : B i1 i1}
+             → (r : PathP (λ j → B j i0) a c) (s : PathP (λ j → B j i1) b d)
+             → (t : PathP (λ j → B i0 j) a b) (u : PathP (λ j → B i1 j) c d)
+             → SquareP B t u r s
+isProp→SquareP {B = B} isPropB {a = a} r s t u i j =
+  hcomp (λ { k (i = i0) → isPropB i0 j (base i0 j) (t j) k
+           ; k (i = i1) → isPropB i1 j (base i1 j) (u j) k
+           ; k (j = i0) → isPropB i i0 (base i i0) (r i) k
+           ; k (j = i1) → isPropB i i1 (base i i1) (s i) k
+        }) (base i j) where
+    base : (i j : I) → B i j
+    base i j = transport (λ k → B (i ∧ k) (j ∧ k)) a
+
+isProp→isPropPathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))
+                   → (b0 : B i0) (b1 : B i1)
+                   → isProp (PathP (λ i → B i) b0 b1)
+isProp→isPropPathP {B = B} hB b0 b1 = isProp→SquareP (λ _ → hB) refl refl
+
+isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
+                    → (x : A i0) (y : A i1)
+                    → isContr (PathP A x y)
+isProp→isContrPathP h x y = isProp→PathP h x y , isProp→isPropPathP h x y _
