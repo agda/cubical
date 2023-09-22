@@ -42,11 +42,25 @@ private
     n : HLevel
 
 
+-- hlevels of functions
+
 isOfHLevelFun : (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B) → Type (ℓ-max ℓ ℓ')
 isOfHLevelFun n f = ∀ b → isOfHLevel n (fiber f b)
 
+
+-- properties of dependent hlevels
+
+isOfHLevelDepSuc : (n : HLevel) → isOfHLevelDep n B → isOfHLevelDep (suc n) B
+isOfHLevelDepSuc 0 = isContrDep→isPropDep
+isOfHLevelDepSuc 1 = isPropDep→isSetDep
+isOfHLevelDepSuc (suc (suc n)) Blvl b0 b1 = isOfHLevelDepSuc (suc n) (Blvl b0 b1)
+
+
+-- path between types of hlevel n
+
 TypeOfHLevel≡ : (n : HLevel) {X Y : TypeOfHLevel ℓ n} → ⟨ X ⟩ ≡ ⟨ Y ⟩ → X ≡ Y
 TypeOfHLevel≡ n = Σ≡Prop (λ _ → isPropIsOfHLevel n)
+
 
 -- hlevels are preserved by retracts (and consequently equivalences)
 

@@ -7,8 +7,10 @@ open import Cubical.Foundations.HLevels.Extend
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A : Type ℓ
+    w x y z : A
+    B : A → Type ℓ'
 
 
 
@@ -118,3 +120,44 @@ isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
                     → (x : A i0) (y : A i1)
                     → isContr (PathP A x y)
 isProp→isContrPathP h x y = isProp→PathP h x y , isProp→isPropPathP h x y _
+
+
+-- dep hlevels
+
+
+isContrDep→isPropDep : isOfHLevelDep 0 B → isOfHLevelDep 1 B
+isContrDep→isPropDep {B = B} Bctr {a0 = a0} b0 b1 p i
+  = comp (λ k → B (p (i ∧ k))) (λ k → λ where
+        (i = i0) → Bctr .snd b0 refl k
+        (i = i1) → Bctr .snd b1 p k)
+      (c0 .fst)
+  where
+  c0 = Bctr {a0}
+
+isPropDep→isSetDep : isOfHLevelDep 1 B → isOfHLevelDep 2 B
+isPropDep→isSetDep {B = B} Bprp b0 b1 b2 b3 p i j
+  = comp (λ k → B (p (i ∧ k) (j ∧ k))) (λ k → λ where
+        (j = i0) → Bprp b0 b0 refl k
+        (i = i0) → Bprp b0 (b2 j) (λ k → p i0 (j ∧ k)) k
+        (i = i1) → Bprp b0 (b3 j) (λ k → p k (j ∧ k)) k
+        (j = i1) → Bprp b0 b1 (λ k → p (i ∧ k) (j ∧ k)) k)
+      b0
+
+
+isPropDep→isSetDep'
+  : isOfHLevelDep 1 B
+  → {p : w ≡ x} {q : y ≡ z} {r : w ≡ y} {s : x ≡ z}
+  → {tw : B w} {tx : B x} {ty : B y} {tz : B z}
+  → (sq : Square p q r s)
+  → (tp : PathP (λ i → B (p i)) tw tx)
+  → (tq : PathP (λ i → B (q i)) ty tz)
+  → (tr : PathP (λ i → B (r i)) tw ty)
+  → (ts : PathP (λ i → B (s i)) tx tz)
+  → SquareP (λ i j → B (sq i j)) tp tq tr ts
+isPropDep→isSetDep' {B = B} Bprp {p} {q} {r} {s} {tw} sq tp tq tr ts i j
+  = comp (λ k → B (sq (i ∧ k) (j ∧ k))) (λ k → λ where
+        (i = i0) → Bprp tw (tp j) (λ k → p (k ∧ j)) k
+        (i = i1) → Bprp tw (tq j) (λ k → sq (i ∧ k) (j ∧ k)) k
+        (j = i0) → Bprp tw (tr i) (λ k → r (k ∧ i)) k
+        (j = i1) → Bprp tw (ts i) (λ k → sq (k ∧ i) (j ∧ k)) k)
+      tw
