@@ -5,9 +5,9 @@ Cube Fillers for Truncated Types
 These are essentially just packed-up versions of special cases of `extend`.
 However, they offer some advantages:
 
-- They appears to be concise in specific situations;
+- They appear to be more concise in specific situations;
 
-- They can exploit Agda's implicit argument inference,
+- They are able to exploit Agda's implicit argument inference,
    potentially sparing you from writing out all of the boundaries.
    But don't have a high expectation, it's very likely to fail...
 
