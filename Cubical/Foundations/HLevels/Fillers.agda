@@ -59,6 +59,8 @@ fillCube A =
 
 -- h-proposition
 
+-- you can find `isProp→PathP` in `Cubical.Foundations.Prelude`
+
 isProp→Square : isProp A → fillSquare A
 isProp→Square isprop p q r s i j =
   extendProp (λ _ → isprop) (∂ i) (λ j → λ
