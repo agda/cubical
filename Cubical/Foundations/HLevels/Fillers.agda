@@ -112,14 +112,11 @@ isContrPartial→isContr :
   (law : ∀ u → u ≡ (extend i1 λ { _ → u}))
   → isContr A
 isContrPartial→isContr {A = A} extend law =
-  ex , λ y → law ex ∙ (λ i → Aux.v y i) ∙ sym (law y)
+  ex , λ a → law ex ∙ (λ i → v a i) ∙ sym (law a)
   where
     ex = extend i0 empty
-    module Aux (y : A) (i : I) where
-      φ = ~ i ∨ i
-      u : Partial φ A
-      u = λ { (i = i0) → ex ; (i = i1) → y }
-      v = extend φ u
+    module _ (a : A) (i : I) where
+      v = extend _ λ { (i = i0) → ex ; (i = i1) → a }
 
 fillSquare→isSet : fillSquare A → isSet A
 fillSquare→isSet fsqr _ _ p q = fsqr p q refl refl

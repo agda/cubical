@@ -13,6 +13,14 @@ private
     ℓ : Level
     A : Type ℓ
 
+
+Square :
+  {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
+  {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
+  (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+  → Type _
+Square a₀₋ a₁₋ a₋₀ a₋₁ = PathP (λ i → a₋₀ i ≡ a₋₁ i) a₀₋ a₁₋
+
 SquareP :
   (A : I → I → Type ℓ)
   {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁)
@@ -21,12 +29,6 @@ SquareP :
   → Type ℓ
 SquareP A a₀₋ a₁₋ a₋₀ a₋₁ = PathP (λ i → PathP (λ j → A i j) (a₋₀ i) (a₋₁ i)) a₀₋ a₁₋
 
-Square :
-  {a₀₀ a₀₁ : A} (a₀₋ : a₀₀ ≡ a₀₁)
-  {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
-  (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
-  → Type _
-Square a₀₋ a₁₋ a₋₀ a₋₁ = PathP (λ i → a₋₀ i ≡ a₋₁ i) a₀₋ a₁₋
 
 Cube :
   {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
