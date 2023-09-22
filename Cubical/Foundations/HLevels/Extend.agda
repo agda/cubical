@@ -60,7 +60,7 @@ macro
 macro
   extend : (n : ℕ) → Term → TC Unit
   extend n t = unify t
-    (def (quote extendCurried) (ℕ→MetaℕTerm n v∷ []))
+    (def (quote outSExtendCurried) (ℕ→MetaℕTerm n v∷ []))
 
 
 {-
@@ -73,7 +73,7 @@ extend :
   (h : (i₁ ... iₙ : I) → isOfHLevel n (X i₁ ... iₙ))
   (ϕ : I)
   (x : (i₁ ... iₙ : I) → Partial (ϕ ∨ ∂ i₁ ∨ ... ∨ ∂ iₙ) (X i₁ ... iₙ))
-  (i₁ ... iₙ : I) → X i₁ ... iₙ [ _ ↦ x i₁ ... iₙ ]
+  (i₁ ... iₙ : I) → X i₁ ... iₙ -- [ _ ↦ x i₁ ... iₙ ]
 
 -}
 
@@ -87,7 +87,7 @@ extendContr :
   (ϕ : I)
   (x : Partial _ X)
   → X -- [ ϕ ↦ x ]
-extendContr h ϕ x = outS (extend 0 h ϕ x)
+extendContr = extend 0
 
 extendProp :
   {X : I → Type ℓ}
@@ -95,7 +95,7 @@ extendProp :
   (ϕ : I)
   (x : (i : I) → Partial _ (X i))
   (i : I) → X i -- [ ϕ ∨ ∂ i ↦ x i ]
-extendProp h ϕ x i = outS (extend 1 h ϕ x i)
+extendProp = extend 1
 
 extendSet :
   {X : I → I → Type ℓ}
@@ -103,7 +103,7 @@ extendSet :
   (ϕ : I)
   (x : (i j : I) → Partial _ (X i j))
   (i j : I) → X i j -- [ ϕ ∨ ∂ i ∨ ∂ j ↦ x i j ]
-extendSet h ϕ x i j = outS (extend 2 h ϕ x i j)
+extendSet = extend 2
 
 extendGroupoid :
   {X : I → I → I → Type ℓ}
@@ -111,7 +111,7 @@ extendGroupoid :
   (ϕ : I)
   (x : (i j k : I) → Partial _ (X i j k))
   (i j k : I) → X i j k -- [ ϕ ∨ ∂ i ∨ ∂ j ∨ ∂ k ↦ x i j k ]
-extendGroupoid h ϕ x i j k = outS (extend 3 h ϕ x i j k)
+extendGroupoid = extend 3
 
 
 private

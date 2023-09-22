@@ -182,10 +182,18 @@ PartCubeType : {n : Metaℕ} (ϕ : I) → CubeType ℓ n → CubeSSet ℓ n
 PartCubeType {n = zero}  ϕ X   = Partial ϕ X
 PartCubeType {n = suc n} ϕ X i = PartCubeType (ϕ ∨ ∂ i) (X i)
 
-ExtCubeType : {n : Metaℕ} {ϕ : I} {X : CubeType ℓ n}
+ExtCubeType : {n : Metaℕ} {ϕ : I} (X : CubeType ℓ n)
   → CubeSTerm (PartCubeType ϕ X) → CubeSSet ℓ n
-ExtCubeType {n = zero}  x   = _ [ _ ↦ x ]
-ExtCubeType {n = suc n} x i = ExtCubeType (x i)
+ExtCubeType {n = zero}  _ x   = _ [ _ ↦ x ]
+ExtCubeType {n = suc n} _ x i = ExtCubeType _ (x i)
+
+outSExtCubeType :
+  {n : Metaℕ} {ϕ : I} {X : CubeType ℓ n}
+  {x : CubeSTerm (PartCubeType ϕ X)}
+  (u : CubeSTerm (ExtCubeType X x))
+  → CubeTerm X
+outSExtCubeType {n = zero}  u = outS u
+outSExtCubeType {n = suc n} u i = outSExtCubeType {n = n} (u i)
 
 
 uncurryIsOfHLevelCubeType :
@@ -208,7 +216,7 @@ curryExt :
   {n : Metaℕ} {X : CubeType ℓ n}
   {ϕ : I} (u : CubeSTerm (PartCubeType ϕ X))
   (x : (𝓲 : Cube n) → Ext _ ϕ 𝓲 (uncurryPart u 𝓲))
-  → CubeSTerm (ExtCubeType {X = X} u)
+  → CubeSTerm (ExtCubeType X u)
 curryExt {n = zero}  _ x = x ∙
 curryExt {n = suc n} u x i = curryExt (u i) (λ 𝓳 → x (i , 𝓳))
 
@@ -219,7 +227,14 @@ extendCurried :
   (n : Metaℕ) {ℓ : Level} {X : CubeType ℓ n}
   (h : CubeTerm (isOfHLevelCubeType (toℕ n) X))
   (ϕ : I) (x : CubeSTerm (PartCubeType ϕ X))
-  → CubeSTerm (ExtCubeType {X = X} x)
+  → CubeSTerm (ExtCubeType X x)
 extendCurried n h ϕ x =
   curryExt {n = n} _
     (extendUncurried (uncurryIsOfHLevelCubeType _ h) ϕ (uncurryPart x))
+
+outSExtendCurried :
+  (n : Metaℕ) {ℓ : Level} {X : CubeType ℓ n}
+  (h : CubeTerm (isOfHLevelCubeType (toℕ n) X))
+  (ϕ : I) (x : CubeSTerm (PartCubeType ϕ X))
+  → CubeTerm X
+outSExtendCurried n h ϕ x = outSExtCubeType {n = n} (extendCurried n h ϕ x)

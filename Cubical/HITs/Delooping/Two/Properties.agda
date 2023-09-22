@@ -35,7 +35,7 @@ module Embed where
 
   notNotSet
     : SquareP (λ i j → isSet (notNot² i j)) notSet refl refl notSet
-  notNotSet = isPropDep→isSetDep'
+  notNotSet = isPropDep→SquareP
                 isPropDepIsSet
                 (involPath² notnot)
                 notSet refl refl notSet

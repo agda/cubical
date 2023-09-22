@@ -6,6 +6,13 @@ Basic theory about h-levels/n-types:
 
 - Hedberg's theorem can be found in Cubical/Relation/Nullary/Properties
 
+The definition and very basic facts are placed in
+  `Cubical.Foundations.HLevels.Base`
+
+The cube fillers are placed in
+  `Cubical.Foundations.HLevels.Filler` and
+  `Cubical.Foundations.HLevels.Extend`
+
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.HLevels where

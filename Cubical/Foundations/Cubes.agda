@@ -1,6 +1,6 @@
 {-
 
-Higher Cube Type
+Higher Cube Types
 
 -}
 {-# OPTIONS --safe #-}

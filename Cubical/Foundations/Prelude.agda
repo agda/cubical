@@ -15,8 +15,6 @@ This file proves a variety of basic results about paths:
 
 - Direct definitions of lower h-levels
 
-- Export natural numbers
-
 - Export universe lifting
 
 -}

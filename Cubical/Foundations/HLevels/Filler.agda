@@ -1,3 +1,17 @@
+{-
+
+Cube Fillers for Truncated Types
+
+These are essentially just packed-up versions of special cases of `extend`.
+However, they offer some advantages:
+
+- They appears to be concise in specific situations;
+
+- They can exploit Agda's implicit argument inference,
+  potentially sparing you from writing out all of the boundaries.
+  But don't have a high expectation, it is very likely to fail...
+
+-}
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.HLevels.Filler where
 
@@ -41,11 +55,13 @@ fillCube A =
   → Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁
 
 
- -- types of hlevel n have cube fillers
+-- type of hlevel n has cube fillers
+
+-- h-proposition
 
 isProp→Square : isProp A → fillSquare A
-isProp→Square h p q r s i j =
-  extendProp (λ _ → h) (∂ i) (λ j → λ
+isProp→Square isprop p q r s i j =
+  extendProp (λ _ → isprop) (∂ i) (λ j → λ
     { (i = i0) → p j ; (i = i1) → q j
     ; (j = i0) → r i ; (j = i1) → s i }) j
 
@@ -59,6 +75,8 @@ isProp→SquareP isprop p q r s i j =
   extendProp (λ j → isprop i j) (∂ i) (λ j → λ
     { (i = i0) → r j ; (i = i1) → s j
     ; (j = i0) → p i ; (j = i1) → q i }) j
+
+-- h-set
 
 isSet→Square : isSet A → fillSquare A
 isSet→Square isset a₀₋ a₁₋ a₋₀ a₋₁ i j =
@@ -110,28 +128,30 @@ fillCube→isGroupoid : fillCube A → isGroupoid A
 fillCube→isGroupoid fcube _ _ _ _ r s = fcube r s refl refl refl refl
 
 
--- dep hlevels
+-- cube fillers from dep hlevels
+
+private
+  toNonDep = isOfHLevelDep→isOfHLevel
 
 isContrDep→isPropDep : isOfHLevelDep 0 B → isOfHLevelDep 1 B
 isContrDep→isPropDep isctr b0 b1 p i =
-  extendContr (isOfHLevelDep→isOfHLevel 0 isctr (p i)) _ λ
+  extendContr (toNonDep 0 isctr (p i)) _ λ
     { (i = i0) → b0 ; (i = i1) → b1 }
 
 isPropDep→isSetDep : isOfHLevelDep 1 B → isOfHLevelDep 2 B
-isPropDep→isSetDep isprop b0 b1 b2 b3 p i j =
-  extendProp (λ j → isOfHLevelDep→isOfHLevel 1 isprop (p i j)) (∂ i) (λ j → λ
+isPropDep→isSetDep isprop b0 b1 b2 b3 sq i j =
+  extendProp (λ j → toNonDep 1 isprop (sq i j)) (∂ i) (λ j → λ
     { (i = i0) → b2 j ; (i = i1) → b3 j
     ; (j = i0) → b0   ; (j = i1) → b1 }) j
 
-isPropDep→isSetDep' :
+isPropDep→SquareP :
   (h : isOfHLevelDep 1 B)
   {p : w ≡ x} {q : y ≡ z} {r : w ≡ y} {s : x ≡ z}
-  {tw : B w} {tx : B x} {ty : B y} {tz : B z}
-  (sq : Square p q r s)
+  {tw : B w} {tx : B x} {ty : B y} {tz : B z} (sq : Square p q r s)
   (tp : PathP (λ i → B (p i)) tw tx) (tq : PathP (λ i → B (q i)) ty tz)
   (tr : PathP (λ i → B (r i)) tw ty) (ts : PathP (λ i → B (s i)) tx tz)
   → SquareP (λ i j → B (sq i j)) tp tq tr ts
-isPropDep→isSetDep' isprop sq tp tq tr ts i j =
-  extendProp (λ j → isOfHLevelDep→isOfHLevel 1 isprop (sq i j)) (∂ i) (λ j → λ
+isPropDep→SquareP isprop sq tp tq tr ts i j =
+  extendProp (λ j → toNonDep 1 isprop (sq i j)) (∂ i) (λ j → λ
     { (i = i0) → tp j ; (i = i1) → tq j
     ; (j = i0) → tr i ; (j = i1) → ts i }) j

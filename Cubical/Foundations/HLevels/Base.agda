@@ -1,3 +1,8 @@
+{-
+
+The definition and very basics of hlevels (including dep version)
+
+-}
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.HLevels.Base where
 
@@ -20,6 +25,8 @@ private
     w x y z : A
     n : HLevel
 
+
+-- Definition of h-levels
 
 isOfHLevel : HLevel → Type ℓ → Type ℓ
 isOfHLevel 0 A = isContr A
