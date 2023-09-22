@@ -9,7 +9,7 @@ However, they offer some advantages:
 
 - They can exploit Agda's implicit argument inference,
   potentially sparing you from writing out all of the boundaries.
-  But don't have a high expectation, it is very likely to fail...
+  But don't have a high expectation, it's very likely to fail...
 
 -}
 {-# OPTIONS --safe #-}
