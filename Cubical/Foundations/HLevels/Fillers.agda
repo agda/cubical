@@ -27,7 +27,7 @@ private
     B : A → Type ℓ'
 
 
--- cube fillers
+-- Cube fillers
 
 fillSquare : Type ℓ → Type ℓ
 fillSquare A =
@@ -55,10 +55,9 @@ fillCube A =
   → Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁
 
 
--- type of hlevel n has cube fillers
+-- Types of hlevel n have cube fillers
 
--- h-proposition
-
+-- h-propositions
 -- you can find `isProp→PathP` in `Cubical.Foundations.Prelude`
 
 isProp→Square : isProp A → fillSquare A
@@ -78,7 +77,7 @@ isProp→SquareP isprop p q r s i j =
     { (i = i0) → r j ; (i = i1) → s j
     ; (j = i0) → p i ; (j = i1) → q i }) j
 
--- h-set
+-- h-sets
 
 isSet→Square : isSet A → fillSquare A
 isSet→Square isset a₀₋ a₁₋ a₋₀ a₋₁ i j =
@@ -98,6 +97,8 @@ isSet→SquareP isset a₀₋ a₁₋ a₋₀ a₋₁ i j =
     { (i = i0) → a₀₋ j ; (i = i1) → a₁₋ j
     ; (j = i0) → a₋₀ i ; (j = i1) → a₋₁ i }) i j
 
+-- h-groupoids
+
 isGroupoid→Cube : isGroupoid A → fillCube A
 isGroupoid→Cube isgrpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ i j k =
   extendGroupoid (λ _ _ _ → isgrpd) i0 (λ i j k → λ
@@ -106,7 +107,7 @@ isGroupoid→Cube isgrpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ 
     ; (k = i0) → a₋₋₀ i j ; (k = i1) → a₋₋₁ i j }) i j k
 
 
--- cube fillers characterize hlevels
+-- Cube fillers characterize hlevels
 
 isContrPartial→isContr :
   {A : Type ℓ}
@@ -130,7 +131,7 @@ fillCube→isGroupoid : fillCube A → isGroupoid A
 fillCube→isGroupoid fcube _ _ _ _ r s = fcube r s refl refl refl refl
 
 
--- cube fillers from dep hlevels
+-- Cube fillers from dependent hlevels
 
 private
   toNonDep = isOfHLevelDep→isOfHLevel
