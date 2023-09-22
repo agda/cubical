@@ -24,7 +24,6 @@ private
 ∂ i = i ∨ ~ i
 
 
-
 -- special cases of small hlevels
 
 extend₀ : {X : Type ℓ} (h : isContr X) (ϕ : I) (u : Partial ϕ X) → X [ ϕ ↦ u ]
