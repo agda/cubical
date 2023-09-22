@@ -10,7 +10,7 @@ The definition and very basic facts are placed in
   `Cubical.Foundations.HLevels.Base`
 
 The cube fillers are placed in
-  `Cubical.Foundations.HLevels.Filler` and
+  `Cubical.Foundations.HLevels.Fillers` and
   `Cubical.Foundations.HLevels.Extend`
 
 -}
@@ -33,7 +33,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat   using (ℕ; zero; suc; _+_; +-zero; +-comm)
 
 open import Cubical.Foundations.HLevels.Base public
-open import Cubical.Foundations.HLevels.Filler
+open import Cubical.Foundations.HLevels.Fillers
 
 private
   variable

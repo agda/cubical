@@ -14,7 +14,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.Filler
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Functions.Logic
 open import Cubical.Data.Sigma

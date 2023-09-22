@@ -7,7 +7,7 @@ open import Cubical.Foundations.Prelude hiding (J)
 open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.Filler
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 

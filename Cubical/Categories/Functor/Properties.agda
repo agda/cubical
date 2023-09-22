@@ -8,7 +8,7 @@ open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function hiding (_∘_)
 open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.Filler
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Functions.Surjection
 open import Cubical.Functions.Embedding
 open import Cubical.HITs.PropositionalTruncation as Prop

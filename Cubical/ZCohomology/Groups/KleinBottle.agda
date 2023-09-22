@@ -2,7 +2,7 @@
 module Cubical.ZCohomology.Groups.KleinBottle where
 
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.Filler
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function

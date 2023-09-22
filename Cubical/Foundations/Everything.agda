@@ -15,7 +15,7 @@ open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.HLevels.Extend
 open import Cubical.Foundations.HLevels.ExtendConstruction
-open import Cubical.Foundations.HLevels.Filler
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Path public
 open import Cubical.Foundations.Pointed public
 open import Cubical.Foundations.RelationalStructure public

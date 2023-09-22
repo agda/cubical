@@ -6,7 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.Filler
+open import Cubical.Foundations.HLevels.Fillers
 
 
 open import Cubical.Codata.M

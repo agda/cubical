@@ -13,7 +13,7 @@ However, they offer some advantages:
 
 -}
 {-# OPTIONS --safe #-}
-module Cubical.Foundations.HLevels.Filler where
+module Cubical.Foundations.HLevels.Fillers where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels.Base

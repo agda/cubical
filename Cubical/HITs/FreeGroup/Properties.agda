@@ -18,7 +18,7 @@ open import Cubical.HITs.FreeGroup.Base
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
-open import Cubical.Foundations.HLevels.Filler
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.BiInvertible
