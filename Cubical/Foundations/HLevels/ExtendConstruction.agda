@@ -138,7 +138,7 @@ extendUncurried :
   (ϕ : I) (x : (𝓲 : Cube n) → Part ϕ 𝓲 (X 𝓲))
   (𝓲 : Cube n) → Ext _ ϕ 𝓲 (x 𝓲)
 extendUncurried {zero}  h _ _ ∙ = extend₀ (h ∙) _ _
-extendUncurried {suc zerp} h ϕ x (i , ∙) =
+extendUncurried {suc zero} h ϕ x (i , ∙) =
   extend₁ (λ i → h (i , ∙)) ϕ (λ i → x (i , ∙)) i
 extendUncurried {suc n} h ϕ x =
   toExt ϕ _ (extendUncurried (isOfHLevelₙPathP ϕ x h) ϕ _)
