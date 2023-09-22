@@ -36,6 +36,13 @@ fillSquare A =
   (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
   → Square a₀₋ a₁₋ a₋₀ a₋₁
 
+fillSquareP : (A : I → I → Type ℓ) → Type ℓ
+fillSquareP A =
+  {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁)
+  {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} (a₁₋ : PathP (λ j → A i1 j) a₁₀ a₁₁)
+  (a₋₀ : PathP (λ i → A i i0) a₀₀ a₁₀) (a₋₁ : PathP (λ i → A i i1) a₀₁ a₁₁)
+  → SquareP A a₀₋ a₁₋ a₋₀ a₋₁
+
 fillCube : Type ℓ → Type ℓ
 fillCube A =
   {a₀₀₀ a₀₀₁ : A} {a₀₀₋ : a₀₀₀ ≡ a₀₀₁}
@@ -61,39 +68,30 @@ fillCube A =
 -- you can find `isProp→PathP` in `Cubical.Foundations.Prelude`
 
 isProp→Square : isProp A → fillSquare A
-isProp→Square isprop p q r s i j =
-  extendProp (λ _ → isprop) (∂ i) (λ j → λ
+isProp→Square h p q r s i j =
+  extendProp (λ _ → h) (∂ i) (λ j → λ
     { (i = i0) → p j ; (i = i1) → q j
     ; (j = i0) → r i ; (j = i1) → s i }) j
 
 isProp→SquareP :
-  {B : I → I → Type ℓ} (h : (i j : I) → isProp (B i j))
-  {a : B i0 i0} {b : B i0 i1} {c : B i1 i0} {d : B i1 i1}
-  (r : PathP (λ j → B j i0) a c) (s : PathP (λ j → B j i1) b d)
-  (p : PathP (λ j → B i0 j) a b) (q : PathP (λ j → B i1 j) c d)
-  → SquareP B p q r s
-isProp→SquareP isprop p q r s i j =
-  extendProp (λ j → isprop i j) (∂ i) (λ j → λ
-    { (i = i0) → r j ; (i = i1) → s j
-    ; (j = i0) → p i ; (j = i1) → q i }) j
+  {A : I → I → Type ℓ} (h : (i j : I) → isProp (A i j)) → fillSquareP A
+isProp→SquareP h p q r s i j =
+  extendProp (λ j → h i j) (∂ i) (λ j → λ
+    { (i = i0) → p j ; (i = i1) → q j
+    ; (j = i0) → r i ; (j = i1) → s i }) j
 
 -- h-sets
 
 isSet→Square : isSet A → fillSquare A
-isSet→Square isset a₀₋ a₁₋ a₋₀ a₋₁ i j =
-  extendSet (λ _ _ → isset) i0 (λ i j → λ
+isSet→Square h a₀₋ a₁₋ a₋₀ a₋₁ i j =
+  extendSet (λ _ _ → h) i0 (λ i j → λ
     { (i = i0) → a₀₋ j ; (i = i1) → a₁₋ j
     ; (j = i0) → a₋₀ i ; (j = i1) → a₋₁ i }) i j
 
 isSet→SquareP :
-  {A : I → I → Type ℓ}
-  (isSet : (i j : I) → isSet (A i j))
-  {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁)
-  {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} (a₁₋ : PathP (λ j → A i1 j) a₁₀ a₁₁)
-  (a₋₀ : PathP (λ i → A i i0) a₀₀ a₁₀) (a₋₁ : PathP (λ i → A i i1) a₀₁ a₁₁)
-  → SquareP A a₀₋ a₁₋ a₋₀ a₋₁
-isSet→SquareP isset a₀₋ a₁₋ a₋₀ a₋₁ i j =
-  extendSet isset i0 (λ i j → λ
+  {A : I → I → Type ℓ} (h : (i j : I) → isSet (A i j)) → fillSquareP A
+isSet→SquareP h a₀₋ a₁₋ a₋₀ a₋₁ i j =
+  extendSet h i0 (λ i j → λ
     { (i = i0) → a₀₋ j ; (i = i1) → a₁₋ j
     ; (j = i0) → a₋₀ i ; (j = i1) → a₋₁ i }) i j
 
@@ -110,7 +108,6 @@ isGroupoid→Cube isgrpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ 
 -- Cube fillers characterize hlevels
 
 isContrPartial→isContr :
-  {A : Type ℓ}
   (extend : ∀ φ → Partial φ A → A)
   (law : ∀ u → u ≡ (extend i1 λ { _ → u}))
   → isContr A
@@ -137,24 +134,22 @@ private
   toNonDep = isOfHLevelDep→isOfHLevel
 
 isContrDep→isPropDep : isOfHLevelDep 0 B → isOfHLevelDep 1 B
-isContrDep→isPropDep isctr b0 b1 p i =
-  extendContr (toNonDep 0 isctr (p i)) _ λ
-    { (i = i0) → b0 ; (i = i1) → b1 }
+isContrDep→isPropDep h x y p i =
+  extendContr (toNonDep 0 h (p i)) _ λ
+    { (i = i0) → x ; (i = i1) → y }
 
 isPropDep→isSetDep : isOfHLevelDep 1 B → isOfHLevelDep 2 B
-isPropDep→isSetDep isprop b0 b1 b2 b3 sq i j =
-  extendProp (λ j → toNonDep 1 isprop (sq i j)) (∂ i) (λ j → λ
-    { (i = i0) → b2 j ; (i = i1) → b3 j
-    ; (j = i0) → b0   ; (j = i1) → b1 }) j
+isPropDep→isSetDep h x y p q sq i j =
+  extendProp (λ j → toNonDep 1 h (sq i j)) (∂ i) (λ j → λ
+    { (i = i0) → p j ; (i = i1) → q j
+    ; (j = i0) → x   ; (j = i1) → y }) j
 
 isPropDep→SquareP :
   (h : isOfHLevelDep 1 B)
   {p : w ≡ x} {q : y ≡ z} {r : w ≡ y} {s : x ≡ z}
-  {tw : B w} {tx : B x} {ty : B y} {tz : B z} (sq : Square p q r s)
-  (tp : PathP (λ i → B (p i)) tw tx) (tq : PathP (λ i → B (q i)) ty tz)
-  (tr : PathP (λ i → B (r i)) tw ty) (ts : PathP (λ i → B (s i)) tx tz)
-  → SquareP (λ i j → B (sq i j)) tp tq tr ts
-isPropDep→SquareP isprop sq tp tq tr ts i j =
-  extendProp (λ j → toNonDep 1 isprop (sq i j)) (∂ i) (λ j → λ
-    { (i = i0) → tp j ; (i = i1) → tq j
-    ; (j = i0) → tr i ; (j = i1) → ts i }) j
+  (sq : Square p q r s)
+  → fillSquareP (λ i j → B (sq i j))
+isPropDep→SquareP h sq p q r s i j =
+  extendProp (λ j → toNonDep 1 h (sq i j)) (∂ i) (λ j → λ
+    { (i = i0) → p j ; (i = i1) → q j
+    ; (j = i0) → r i ; (j = i1) → s i }) j

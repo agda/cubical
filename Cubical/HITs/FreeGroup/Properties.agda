@@ -145,9 +145,8 @@ elimProp {B = B} Bprop η-ind ·-ind ε-ind inv-ind = induction where
                 {a₀₀ = p1} {a₀₁ = p2} dq1
                 {a₁₀ = p1} {a₁₁ = p2} dq2
                 (cong induction (refl {x = g1})) (cong induction (refl {x = g2}))
-    square = isProp→SquareP (λ i i₁ → Bprop (trunc g1 g2 q1 q2 i i₁))
-             (cong induction (refl {x = g1})) (cong induction (refl {x = g2}))
-             dq1 dq2
+    square = isProp→SquareP (λ i i₁ → Bprop (trunc g1 g2 q1 q2 i i₁)) dq1 dq2
+              (cong induction (refl {x = g1})) (cong induction (refl {x = g2}))
 
 -- Two group homomorphisms from FreeGroup to G are the same if they agree on every a : A
 freeGroupHom≡ : {Group : Group ℓ'}{f g : GroupHom (freeGroupGroup A) Group}
