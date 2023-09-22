@@ -98,8 +98,8 @@ isSet→SquareP h a₀₋ a₁₋ a₋₀ a₋₁ i j =
 -- h-groupoids
 
 isGroupoid→Cube : isGroupoid A → fillCube A
-isGroupoid→Cube isgrpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ i j k =
-  extendGroupoid (λ _ _ _ → isgrpd) i0 (λ i j k → λ
+isGroupoid→Cube h a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ i j k =
+  extendGroupoid (λ _ _ _ → h) i0 (λ i j k → λ
     { (i = i0) → a₀₋₋ j k ; (i = i1) → a₁₋₋ j k
     ; (j = i0) → a₋₀₋ i k ; (j = i1) → a₋₁₋ i k
     ; (k = i0) → a₋₋₀ i j ; (k = i1) → a₋₋₁ i j }) i j k
