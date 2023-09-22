@@ -111,16 +111,6 @@ isProp→SquareP {B = B} isPropB {a = a} r s t u i j =
     base : (i j : I) → B i j
     base i j = transport (λ k → B (i ∧ k) (j ∧ k)) a
 
-isProp→isPropPathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))
-                   → (b0 : B i0) (b1 : B i1)
-                   → isProp (PathP (λ i → B i) b0 b1)
-isProp→isPropPathP {B = B} hB b0 b1 = isProp→SquareP (λ _ → hB) refl refl
-
-isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
-                    → (x : A i0) (y : A i1)
-                    → isContr (PathP A x y)
-isProp→isContrPathP h x y = isProp→PathP h x y , isProp→isPropPathP h x y _
-
 
 -- dep hlevels
 

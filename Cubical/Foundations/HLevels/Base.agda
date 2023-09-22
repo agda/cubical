@@ -131,6 +131,16 @@ isOfHLevelPathP {A = A} n h x y =
   transport (λ i → isOfHLevel n (PathP (λ j → A (~ i ∨ j))
     (transport-filler (λ i → A i) x (~ i)) y)) (isOfHLevelPath n h _ _)
 
+isProp→isPropPathP : ∀ {ℓ} {B : I → Type ℓ} → ((i : I) → isProp (B i))
+                   → (b0 : B i0) (b1 : B i1)
+                   → isProp (PathP (λ i → B i) b0 b1)
+isProp→isPropPathP hB = isOfHLevelPathP 1 (hB i1)
+
+isProp→isContrPathP : {A : I → Type ℓ} → (∀ i → isProp (A i))
+                    → (x : A i0) (y : A i1)
+                    → isContr (PathP A x y)
+isProp→isContrPathP h = isOfHLevelPathP' 0 (h i1)
+
 
 -- Dependent h-level over a type
 
