@@ -67,7 +67,7 @@ module _
       feq : (a b : ∥ fiber f y ∥₂) (r : fiberRel a b) → ∥fiber∥₂→fiber∥∥₂ a ≡ ∥fiber∥₂→fiber∥∥₂ b
       feq =
         Set.elim2 (λ _ _ → isProp→isSet (isPropΠ (λ _ → isSetFiber∥∥₂ _ _))) λ _ _ p →
-        ΣPathP (p , isSet→isSet' squash₂ _ _ _ _)
+        ΣPathP (p , isSet→Square squash₂ _ _ _ _)
 
     mereFiber→∥fiber∥₂/R : (x : X) → ∥ f x ≡ y ∥₁ → ∥ fiber f y ∥₂ / fiberRel
     mereFiber→∥fiber∥₂/R x = Prop.rec→Set squash/ (λ p → [ ∣ _ , p ∣₂ ]) (λ _ _ → eq/ _ _ refl)

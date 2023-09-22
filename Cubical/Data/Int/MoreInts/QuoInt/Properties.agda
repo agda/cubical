@@ -150,13 +150,13 @@ predℤ-inj m n p = sym (sucPredℤ m) ∙ cong sucℤ p ∙ sucPredℤ n
   signed (·S-assoc sm sn so i) (ℕ.·-assoc (suc m) (suc n) (suc o) i)
 
 ·-assoc (posneg i) n o j =
-  isSet→isSet' isSetℤ (·-assoc (pos zero) n o) (·-assoc (neg zero) n o)
+  isSet→Square isSetℤ (·-assoc (pos zero) n o) (·-assoc (neg zero) n o)
                       (λ i → posneg i · (n · o)) (λ i → posneg i · n · o) i j
 ·-assoc m@(signed _ (suc _)) (posneg i) o j =
-  isSet→isSet' isSetℤ (·-assoc m (pos zero) o) (·-assoc m (neg zero) o)
+  isSet→Square isSetℤ (·-assoc m (pos zero) o) (·-assoc m (neg zero) o)
                       (λ i → m · (posneg i · o)) (λ i → m · posneg i · o) i j
 ·-assoc m@(signed _ (suc _)) n@(signed _ (suc _)) (posneg i) j =
-  isSet→isSet' isSetℤ (·-assoc m n (pos zero)) (·-assoc m n (neg zero))
+  isSet→Square isSetℤ (·-assoc m n (pos zero)) (·-assoc m n (neg zero))
                       (λ i → m · (n · posneg i)) (λ i → m · n · posneg i) i j
 
 
@@ -177,7 +177,7 @@ negate-·ˡ : ∀ m n → - (m · n) ≡ (- m) · n
 negate-·ˡ (signed _ zero) n = signed-zero (not (sign n)) (sign n)
 negate-·ˡ (signed ss (suc m)) n i = signed (not-·Sˡ ss (sign n) i) (suc m ℕ.· abs n)
 negate-·ˡ (posneg i) n j =
-  isSet→isSet' isSetℤ (signed-zero (not (sign n)) _) (signed-zero _ _)
+  isSet→Square isSetℤ (signed-zero (not (sign n)) _) (signed-zero _ _)
                       refl (λ i → posneg (~ i) · n) i j
 
 
@@ -218,7 +218,7 @@ signed-distrib sneg (suc m) n = cong predℤ (signed-distrib sneg m n)
 ·-distribˡ (pos o) m n = ·-distribˡ-pos o m n
 ·-distribˡ (neg o) m n = ·-distribˡ-neg o m n
 ·-distribˡ (posneg i) m n j =
-  isSet→isSet' isSetℤ (·-distribˡ-pos zero m n) (·-distribˡ-neg zero m n)
+  isSet→Square isSetℤ (·-distribˡ-pos zero m n) (·-distribˡ-neg zero m n)
                       (λ i → posneg i · n) (λ i → posneg i · (m + n)) i j
 
 ·-distribʳ : ∀ m n o → (m · o) + (n · o) ≡ (m + n) · o

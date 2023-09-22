@@ -45,7 +45,7 @@ private
 []-reduce : ∀ x → Quo.[ reduce x .fst ] ≡ x
 []-reduce = SetQuotient.elimProp (λ _ → Quo.isSetℚ _ _)
   (λ { (signed s a , b) → Quo.eq/ _ _ (toCoprime-eq₁ s (a , b))
-     ; (posneg i , b) j → isSet→isSet' Quo.isSetℚ
+     ; (posneg i , b) j → isSet→Square Quo.isSetℚ
          (Quo.eq/ (fst (reduce Quo.[ pos 0 , b ])) (pos 0 , b) (toCoprime-eq₁ spos (0 , b)))
          (Quo.eq/ (fst (reduce Quo.[ neg 0 , b ])) (neg 0 , b) (toCoprime-eq₁ sneg (0 , b)))
          (λ i → Quo.[ reduce (Quo.[ posneg i , b ]) .fst ]) (λ i → Quo.[ posneg i , b ]) i j })
@@ -60,7 +60,7 @@ reduce-[] : ∀ x → reduce Quo.[ x .fst ] ≡ x
 reduce-[] ((signed s a , b) , cp) =
   Σ≡Prop (λ _ → isPropIsGCD) (toCoprime-eq₂ s (a , b) cp)
 reduce-[] ((posneg i , b) , cp) j =
-  isSet→isSet' Sigma.isSetℚ
+  isSet→Square Sigma.isSetℚ
     (Σ≡Prop (λ _ → isPropIsGCD) (toCoprime-eq₂ spos (0 , b) cp))
     (Σ≡Prop (λ _ → isPropIsGCD) (toCoprime-eq₂ sneg (0 , b) cp))
     (λ i → Sigma.[ posneg i , b ]) (λ i → (posneg i , b) , cp) i j

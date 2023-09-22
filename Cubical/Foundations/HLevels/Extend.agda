@@ -17,6 +17,7 @@ module Cubical.Foundations.HLevels.Extend where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels.ExtendConstruction
+open import Cubical.Foundations.HLevels.ExtendConstruction using (∂) public
 open import Agda.Builtin.Nat  renaming (Nat to ℕ)
 open import Agda.Builtin.Unit renaming ( ⊤ to Unit )
 open import Agda.Builtin.List

@@ -18,13 +18,32 @@ private
     ℓ : Level
 
 
-extend₀ : {A : Type ℓ} → isContr A → (∀ φ → (u : Partial φ A) → Sub A φ u)
-extend₀ (x , p) φ u = inS (hcomp (λ { j (φ = i1) → p (u 1=1) j }) x)
-
 -- to conveniently present the boundary of cubes
 
 ∂ : I → I
 ∂ i = i ∨ ~ i
+
+
+
+-- special cases of small hlevels
+
+extend₀ : {X : Type ℓ} (h : isContr X) (ϕ : I) (u : Partial ϕ X) → X [ ϕ ↦ u ]
+extend₀ (x , p) ϕ u = inS (hcomp (λ { j (ϕ = i1) → p (u 1=1) j }) x)
+
+extend₁ :
+  {X : I → Type ℓ}
+  (h : (i : I) → isProp (X i))
+  (ϕ : I) (x : (i : I) → Partial _ (X i))
+  (i : I) → X i [ ϕ ∨ ∂ i ↦ x i ]
+extend₁ {X = X} h ϕ x i =
+  inS (hcomp (λ j → λ
+    { (ϕ = i1) → h i (bottom i) (x i 1=1) j
+    ; (i = i0) → h i (bottom i) (x i 1=1) j
+    ; (i = i1) → h i (bottom i) (x i 1=1) j })
+    (bottom i))
+    where
+    bottom : (i : I) → X i
+    bottom i = isProp→PathP h (x i0 1=1) (x i1 1=1) i
 
 
 -- The external natural number
@@ -120,6 +139,8 @@ extendUncurried :
   (ϕ : I) (x : (𝓲 : Cube n) → Part ϕ 𝓲 (X 𝓲))
   (𝓲 : Cube n) → Ext _ ϕ 𝓲 (x 𝓲)
 extendUncurried {zero}  h _ _ ∙ = extend₀ (h ∙) _ _
+extendUncurried {suc zerp} h ϕ x (i , ∙) =
+  extend₁ (λ i → h (i , ∙)) ϕ (λ i → x (i , ∙)) i
 extendUncurried {suc n} h ϕ x =
   toExt ϕ _ (extendUncurried (isOfHLevelₙPathP ϕ x h) ϕ _)
 

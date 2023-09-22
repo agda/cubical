@@ -176,8 +176,8 @@ map2 f = rec (isPropΠ λ _ → squash₁) (map ∘ f)
 --
 --   https://arxiv.org/pdf/1411.2682.pdf
 module SetElim (Bset : isSet B) where
-  Bset' : isSet' B
-  Bset' = isSet→isSet' Bset
+  Bset' : fillSquare B
+  Bset' = isSet→Square Bset
 
   rec→Set : (f : A → B) (kf : 2-Constant f) → ∥ A ∥₁ → B
   helper  : (f : A → B) (kf : 2-Constant f) → (t u : ∥ A ∥₁)
@@ -302,8 +302,8 @@ RecHProp : (P : A → hProp ℓ) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥₁
 RecHProp P kP = rec→Set isSetHProp P kP
 
 module GpdElim (Bgpd : isGroupoid B) where
-  Bgpd' : isGroupoid' B
-  Bgpd' = isGroupoid→isGroupoid' Bgpd
+  Bgpd' : fillCube B
+  Bgpd' = isGroupoid→Cube Bgpd
 
   module _ (f : A → B) (3kf : 3-Constant f) where
     open 3-Constant 3kf

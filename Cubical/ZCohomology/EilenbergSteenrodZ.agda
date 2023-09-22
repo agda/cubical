@@ -105,7 +105,7 @@ snd (H0-susp {A = A}) =
           → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _)
                         (funExt λ {north → sym p
                                  ; south → sym p ∙ cong f (merid (pt A))
-                                 ; (merid a i) j → isSet→isSet' (isSetℤ)
+                                 ; (merid a i) j → isSet→Square (isSetℤ)
                                                                   (sym p)
                                                                   (sym p ∙ cong f (merid (pt A)))
                                                                   refl (cong f (merid a)) i j}))}

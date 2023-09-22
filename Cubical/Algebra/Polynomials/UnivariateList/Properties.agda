@@ -87,7 +87,7 @@ module PolyModTheory (R' : CommRing ℓ) where
                                                 (λ i → (+IdL a i ∷ []))
                                                 (λ r p _ → λ i → +IdL a i ∷ r ∷ p )
                                                 (isSetPoly _ _)
-  (drop0 i) Poly+ (drop0 j) =  isSet→isSet' isSetPoly (cong (λ X → _∷_ {R' = R'} X []) (+IdR 0r)) drop0
+  (drop0 i) Poly+ (drop0 j) =  isSet→Square isSetPoly (cong (λ X → _∷_ {R' = R'} X []) (+IdR 0r)) drop0
                                                        (cong (λ X → _∷_ {R' = R'} X []) (+IdL 0r)) drop0 i j
 
 

@@ -215,6 +215,6 @@ Iso≡Set : isSet A → isSet B → (f g : Iso A B)
 fun (Iso≡Set hA hB f g hfun hinv i) x = hfun x i
 inv (Iso≡Set hA hB f g hfun hinv i) x = hinv x i
 rightInv (Iso≡Set hA hB f g hfun hinv i) x j =
-  isSet→isSet' hB (rightInv f x) (rightInv g x) (λ i → hfun (hinv x i) i) refl i j
+  isSet→Square hB (rightInv f x) (rightInv g x) (λ i → hfun (hinv x i) i) refl i j
 leftInv (Iso≡Set hA hB f g hfun hinv i) x j =
-  isSet→isSet' hA (leftInv f x) (leftInv g x) (λ i → hinv (hfun x i) i) refl i j
+  isSet→Square hA (leftInv f x) (leftInv g x) (λ i → hinv (hfun x i) i) refl i j

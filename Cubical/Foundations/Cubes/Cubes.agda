@@ -181,7 +181,7 @@ private
 
 -- The property that, given an n-boundary, there always exists an n-cube extending this boundary
 -- The case n=0 is not very meaningful, so we use `isContr` instead to keep its relation with h-levels.
--- It generalizes `isSet'` and `isGroupoid'`.
+-- It generalizes `fillSquare` and `fillCube`.
 
 isCubeFilled : ℕ → Type ℓ → Type ℓ
 isCubeFilled 0 = isContr

@@ -236,7 +236,7 @@ module Ran {ℓC ℓC' ℓD ℓD'} ℓS
     end≡ : {d : D.ob} {x x' : End d} → (∀ c g → x .fun c g ≡ x' .fun c g) → x ≡ x'
     end≡ h i .fun c g = h c g i
     end≡ {_} {x} {x'} h i .coh f g =
-      isSet→isSet' (G .F-ob _ .snd)
+      isSet→Square (G .F-ob _ .snd)
         (x .coh f g)
         (x' .coh f g)
         (h _ (F ⟪ f ⟫ ⋆⟨ D ⟩ g))
