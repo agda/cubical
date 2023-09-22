@@ -13,8 +13,7 @@ private
     B : A → Type ℓ'
 
 
-
--- Alternative (equivalent) definitions of hlevel n that give fillers for n-cubes instead of n-globes
+-- cube fillers
 
 isSet' : Type ℓ → Type ℓ
 isSet' A =
@@ -22,12 +21,6 @@ isSet' A =
   {a₁₀ a₁₁ : A} (a₁₋ : a₁₀ ≡ a₁₁)
   (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
   → Square a₀₋ a₁₋ a₋₀ a₋₁
-
-isSet→isSet' : isSet A → isSet' A
-isSet→isSet' Aset _ _ _ _ = toPathP (Aset _ _ _ _)
-
-isSet'→isSet : isSet' A → isSet A
-isSet'→isSet Aset' x y p q = Aset' p q refl refl
 
 isGroupoid' : Type ℓ → Type ℓ
 isGroupoid' A =
@@ -47,55 +40,14 @@ isGroupoid' A =
   (a₋₋₁ : Square a₀₋₁ a₁₋₁ a₋₀₁ a₋₁₁)
   → Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁
 
+
+ -- types of hlevel n have cube fillers
+
 isProp→isSet' : isProp A → isSet' A
 isProp→isSet' h {a} p q r s i j =
   extendProp (λ _ → h) (i ∨ ~ i) (λ j → λ
     { (i = i0) → p j ; (i = i1) → q j
     ; (j = i0) → r i ; (j = i1) → s i }) j
-
-
-
--- Fillers for cubes from h-level
-
-isSet→SquareP :
-  {A : I → I → Type ℓ}
-  (isSet : (i j : I) → isSet (A i j))
-  {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁)
-  {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} (a₁₋ : PathP (λ j → A i1 j) a₁₀ a₁₁)
-  (a₋₀ : PathP (λ i → A i i0) a₀₀ a₁₀) (a₋₁ : PathP (λ i → A i i1) a₀₁ a₁₁)
-  → SquareP A a₀₋ a₁₋ a₋₀ a₋₁
-isSet→SquareP isset a₀₋ a₁₋ a₋₀ a₋₁ i j =
-  extendSet isset i0 (λ i j → λ
-    { (i = i0) → a₀₋ j ; (i = i1) → a₁₋ j
-    ; (j = i0) → a₋₀ i ; (j = i1) → a₋₁ i }) i j
-
-isGroupoid→isGroupoid' : isGroupoid A → isGroupoid' A
-isGroupoid→isGroupoid' {A = A} isgrpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ i j k =
-  extendGroupoid (λ _ _ _ → isgrpd) i0 (λ i j k → λ
-    { (i = i0) → a₀₋₋ j k ; (i = i1) → a₁₋₋ j k
-    ; (j = i0) → a₋₀₋ i k ; (j = i1) → a₋₁₋ i k
-    ; (k = i0) → a₋₋₀ i j ; (k = i1) → a₋₋₁ i j }) i j k
-
-isGroupoid'→isGroupoid : isGroupoid' A → isGroupoid A
-isGroupoid'→isGroupoid Agpd' x y p q r s = Agpd' r s refl refl refl refl
-
-
-isContrPartial→isContr : ∀ {ℓ} {A : Type ℓ}
-                       → (extend : ∀ φ → Partial φ A → A)
-                       → (∀ u → u ≡ (extend i1 λ { _ → u}))
-                       → isContr A
-isContrPartial→isContr {A = A} extend law
-  = ex , λ y → law ex ∙ (λ i → Aux.v y i) ∙ sym (law y)
-    where ex = extend i0 empty
-          module Aux (y : A) (i : I) where
-            φ = ~ i ∨ i
-            u : Partial φ A
-            u = λ { (i = i0) → ex ; (i = i1) → y }
-            v = extend φ u
-
-
-
--- Variations of isProp→isSet for PathP
 
 isProp→SquareP : ∀ {B : I → I → Type ℓ} → ((i j : I) → isProp (B i j))
              → {a : B i0 i0} {b : B i0 i1} {c : B i1 i0} {d : B i1 i1}
@@ -111,9 +63,52 @@ isProp→SquareP {B = B} isPropB {a = a} r s t u i j =
     base : (i j : I) → B i j
     base i j = transport (λ k → B (i ∧ k) (j ∧ k)) a
 
+isSet→isSet' : isSet A → isSet' A
+isSet→isSet' Aset _ _ _ _ = toPathP (Aset _ _ _ _)
+
+isSet→SquareP :
+  {A : I → I → Type ℓ}
+  (isSet : (i j : I) → isSet (A i j))
+  {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (λ j → A i0 j) a₀₀ a₀₁)
+  {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} (a₁₋ : PathP (λ j → A i1 j) a₁₀ a₁₁)
+  (a₋₀ : PathP (λ i → A i i0) a₀₀ a₁₀) (a₋₁ : PathP (λ i → A i i1) a₀₁ a₁₁)
+  → SquareP A a₀₋ a₁₋ a₋₀ a₋₁
+isSet→SquareP isset a₀₋ a₁₋ a₋₀ a₋₁ i j =
+  extendSet isset i0 (λ i j → λ
+    { (i = i0) → a₀₋ j ; (i = i1) → a₁₋ j
+    ; (j = i0) → a₋₀ i ; (j = i1) → a₋₁ i }) i j
+
+isGroupoid→isGroupoid' : isGroupoid A → isGroupoid' A
+isGroupoid→isGroupoid' isgrpd a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ i j k =
+  extendGroupoid (λ _ _ _ → isgrpd) i0 (λ i j k → λ
+    { (i = i0) → a₀₋₋ j k ; (i = i1) → a₁₋₋ j k
+    ; (j = i0) → a₋₀₋ i k ; (j = i1) → a₋₁₋ i k
+    ; (k = i0) → a₋₋₀ i j ; (k = i1) → a₋₋₁ i j }) i j k
+
+
+-- cube fillers characterize hlevels
+
+isContrPartial→isContr : ∀ {ℓ} {A : Type ℓ}
+                       → (extend : ∀ φ → Partial φ A → A)
+                       → (∀ u → u ≡ (extend i1 λ { _ → u}))
+                       → isContr A
+isContrPartial→isContr {A = A} extend law
+  = ex , λ y → law ex ∙ (λ i → Aux.v y i) ∙ sym (law y)
+    where ex = extend i0 empty
+          module Aux (y : A) (i : I) where
+            φ = ~ i ∨ i
+            u : Partial φ A
+            u = λ { (i = i0) → ex ; (i = i1) → y }
+            v = extend φ u
+
+isSet'→isSet : isSet' A → isSet A
+isSet'→isSet Aset' x y p q = Aset' p q refl refl
+
+isGroupoid'→isGroupoid : isGroupoid' A → isGroupoid A
+isGroupoid'→isGroupoid Agpd' x y p q r s = Agpd' r s refl refl refl refl
+
 
 -- dep hlevels
-
 
 isContrDep→isPropDep : isOfHLevelDep 0 B → isOfHLevelDep 1 B
 isContrDep→isPropDep {B = B} Bctr {a0 = a0} b0 b1 p i
@@ -132,7 +127,6 @@ isPropDep→isSetDep {B = B} Bprp b0 b1 b2 b3 p i j
         (i = i1) → Bprp b0 (b3 j) (λ k → p k (j ∧ k)) k
         (j = i1) → Bprp b0 b1 (λ k → p (i ∧ k) (j ∧ k)) k)
       b0
-
 
 isPropDep→isSetDep'
   : isOfHLevelDep 1 B
