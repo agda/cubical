@@ -236,6 +236,9 @@ pullbackBiInvOver {A = A} {B} {P} bi = w
   w .invl = u .inv
   w .invl-leftInv = u .leftInv
 
+
+-- Since there is no regularity for transport (also no-eta-equality),
+-- we have to fix one field manually to make it invariant under transportation.
 liftBiInv :
   (bi : BiInvEquiv A B)
   → ((a : A) → BiInvEquiv (P a) (Q (bi .fun a)))
@@ -244,6 +247,7 @@ liftBiInv {P = P} {Q = Q} bi bi' =
   isBiInvOver→BiInvOver
     (transport (λ i → isBiInvOver (compBiInvIdL bi i) P Q (λ a x → bi' a .fun x))
       (BiInvOver→isBiInvOver (compBiInvOver (fiberBiInv→BiInvOver bi') (pullbackBiInvOver bi))))
+
 
 equivOver→BiInvOver :
   (bi : BiInvEquiv A B)
