@@ -223,7 +223,6 @@ pullbackBiInvOver :
   → BiInvOver bi (P ∘ bi .fun) P
 pullbackBiInvOver {A = A} {B} {P} bi = w
   where
-
   u : IsoOver _ _ P
   u = pullbackIsoOver (bi .fun) (biInvEquiv→HAEquiv bi .snd)
 
