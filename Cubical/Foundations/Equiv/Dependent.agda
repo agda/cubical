@@ -217,7 +217,7 @@ liftHAEToIsoOver :
 liftHAEToIsoOver {P = P} {Q = Q} f hae isom =
   isIsoOver→IsoOver
     (transport (λ i → isIsoOver (compIsoIdL (isHAEquiv→Iso hae) i) P Q (λ a x → isom a .fun x))
-    (IsoOver→isIsoOver (compIsoOver (fiberIso→IsoOver isom) (pullbackIsoOver f hae))))
+      (IsoOver→isIsoOver (compIsoOver (fiberIso→IsoOver isom) (pullbackIsoOver f hae))))
 
 equivOver→IsoOver :
   (e : A ≃ B)

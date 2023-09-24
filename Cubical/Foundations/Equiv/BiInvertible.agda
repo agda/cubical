@@ -45,7 +45,7 @@ record BiInvEquiv {ℓ ℓ'} (A : Type ℓ) (B : Type ℓ') : Type (ℓ-max ℓ 
   invr≡invl-rightInv a j i = compPath-filler' (sym (cong fun (invr≡invl a))) (invr-rightInv a) j i
 
 
-module _ {ℓ} {A B : Type ℓ} (e : BiInvEquiv A B) where
+module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (e : BiInvEquiv A B) where
   open BiInvEquiv e
 
   biInvEquiv→Iso-right : Iso A B
@@ -70,7 +70,7 @@ module _ {ℓ} {A B : Type ℓ} (e : BiInvEquiv A B) where
   biInvEquiv→HAEquiv = iso→HAEquiv biInvEquiv→Iso-left
 
 
-module _ {ℓ} {A B : Type ℓ} (i : Iso A B) where
+module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (i : Iso A B) where
   open Iso i
 
   iso→BiInvEquiv : BiInvEquiv A B
