@@ -68,7 +68,7 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
--- Let us use this to show that a specific cup product is an
+-- We show that a specific cup product is an
 -- equivalence. This will induce the Thom isomorphism.
 module ⌣Eq (R' : CommRing ℓ'') where
   R = CommRing→Ring R'
