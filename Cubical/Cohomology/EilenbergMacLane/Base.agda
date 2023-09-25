@@ -337,3 +337,13 @@ snd (substℕ-coHomRed {A = A} {G = G} p) =
                 +ₕ∙ subst (λ i → coHomRed i G A) p y))
         (transportRefl _ ∙ cong₂ _+ₕ∙_
           (sym (transportRefl x)) (sym (transportRefl y))) p
+
+subst-EM-0ₖ : ∀{ℓ} {G : AbGroup ℓ} {n m : ℕ} (p : n ≡ m)
+  → subst (EM G) p (0ₖ n) ≡ 0ₖ m
+subst-EM-0ₖ {G = G} {n = n} =
+    J (λ m p → subst (EM G) p (0ₖ n) ≡ 0ₖ m) (transportRefl _)
+
+subst-EM∙ : ∀{ℓ} {G : AbGroup ℓ} {n m : ℕ} (p : n ≡ m)
+  → EM∙ G n →∙ EM∙ G m
+fst (subst-EM∙ {G = G} p) = subst (EM G) p
+snd (subst-EM∙ p) = subst-EM-0ₖ p

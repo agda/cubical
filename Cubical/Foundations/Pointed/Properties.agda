@@ -225,3 +225,12 @@ Iso.leftInv flip→∙∙Iso _ = refl
                 × (≃∙map f ∘∙ ≃∙map (invEquiv∙ f) ≡ idfun∙ B))
           ((ΣPathP (refl , sym (lUnit _) ∙ sym (rUnit refl)))
          , (ΣPathP (refl , sym (rUnit _) ∙ sym (rUnit refl))))
+
+pointedSecIso : ∀ {ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} (Q : fst A → Pointed ℓ'')
+  → Iso ((a : fst A) → Q a →∙ B)
+         (Σ[ F ∈ (Σ (fst A) (fst ∘ Q) → fst B) ]
+           ((a : fst A) → F (a , pt (Q a)) ≡ pt B))
+Iso.fun (pointedSecIso Q) F = (λ x → F (fst x) .fst (snd x)) , (λ x → F x .snd)
+Iso.inv (pointedSecIso Q) F a = (fst F ∘ (a ,_)) , snd F a
+Iso.rightInv (pointedSecIso Q) F = refl
+Iso.leftInv (pointedSecIso Q) F = refl
