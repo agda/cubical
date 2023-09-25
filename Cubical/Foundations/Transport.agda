@@ -99,7 +99,7 @@ Iso.leftInv (pathToIso x) = transport⁻Transport x
 substIso : ∀ {ℓ ℓ'} {A : Type ℓ} (B : A → Type ℓ') {x y : A} (p : x ≡ y) → Iso (B x) (B y)
 substIso B p = pathToIso (cong B p)
 
--- Redefining substEquiv in terms of subtsIso gives an explicit inverse
+-- Redefining substEquiv in terms of substIso gives an explicit inverse
 substEquiv' : ∀ {ℓ ℓ'} {A : Type ℓ} (B : A → Type ℓ') {x y : A} (p : x ≡ y) → B x ≃ B y
 substEquiv' B p = isoToEquiv (substIso B p)
 
