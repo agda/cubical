@@ -6,8 +6,11 @@ open import Cubical.Cohomology.EilenbergMacLane.Base
 
 open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
 open import Cubical.Homotopy.EilenbergMacLane.Properties
+open import Cubical.Homotopy.EilenbergMacLane.CupProduct
 open import Cubical.Homotopy.EilenbergMacLane.Base
 open import Cubical.Homotopy.Connected
+open import Cubical.Homotopy.Loopspace
+open import Cubical.Homotopy.Group.Base
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -15,12 +18,17 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Pointed.Homogeneous
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Unit
+open import Cubical.Data.Bool
+open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup.Base
+open import Cubical.Algebra.Ring
 
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as TR
@@ -29,6 +37,9 @@ open import Cubical.HITs.EilenbergMacLane1 hiding (elimProp ; elimSet)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.Sn
 open import Cubical.HITs.S1 renaming (rec to S¹fun)
+
+open RingStr renaming (_+_ to _+r_)
+open PlusBis
 
 private
   variable
@@ -84,9 +95,9 @@ S¹-connElim {B = B} conA pr a ind f =
       (isConnectedPath 1 conA (f base) a .fst))
 
 module _ (G : AbGroup ℓ) where
-  open AbGroupStr (snd G)
+  open AbGroupStr (snd G) renaming (is-set to is-setG)
   H¹S¹→G : coHom 1 G S¹ → fst G
-  H¹S¹→G = ST.rec is-set λ f → ΩEM+1→EM-gen 0 (f base) (cong f loop)
+  H¹S¹→G = ST.rec is-setG λ f → ΩEM+1→EM-gen 0 (f base) (cong f loop)
 
   G→H¹S¹ : fst G → coHom 1 G S¹
   G→H¹S¹ g = ∣ S¹fun (0ₖ 1) (emloop g) ∣₂
@@ -275,3 +286,181 @@ module _ (G : AbGroup ℓ) where
                           (isConnectedEM (suc (suc n))) (0ₖ _) (f north) .fst)))
         isContrUnit*)
   snd (Hⁿ[Sᵐ⁺ⁿ,G]≅0 (suc n) m) = makeIsGroupHom λ _ _ → refl
+
+-- In fact, the above induces an equivalence (S₊∙ n →∙ EM∙ G n) ≃ G
+isSet-Sn→∙EM : (G : AbGroup ℓ) (n : ℕ) → isSet (S₊∙ n →∙ EM∙ G n)
+isSet-Sn→∙EM G n =
+  subst isSet (sym (help n)
+            ∙ isoToPath (invIso (IsoSphereMapΩ n)))
+    (AbGroupStr.is-set (snd G))
+  where
+  help : (n : ℕ) → fst ((Ω^ n) (EM∙ G n)) ≡ fst G
+  help zero = refl
+  help (suc n) =
+      cong fst (flipΩPath n)
+    ∙ cong (fst ∘ (Ω^ n))
+       (ua∙ (isoToEquiv (invIso (Iso-EM-ΩEM+1 n)))
+            (ΩEM+1→EM-refl n))
+    ∙ help n
+
+-- The equivalence (Sⁿ →∙ K(G,n)) ≃ G
+HⁿSⁿ-raw≃G : (G : AbGroup ℓ) (n : ℕ)
+  → (S₊∙ n →∙ EM∙ G n) ≃ (fst G)
+HⁿSⁿ-raw≃G G zero =
+  isoToEquiv
+    (iso (λ f → fst f false)
+         (λ g → (λ {true → _ ; false → g}) , refl)
+         (λ g → refl)
+         λ g → Σ≡Prop (λ _ → AbGroupStr.is-set (snd G) _ _)
+                       (funExt λ { false → refl ; true → sym (snd g)}))
+HⁿSⁿ-raw≃G G (suc n) =
+    compEquiv
+    (invEquiv
+      (compEquiv (fst (coHom≅coHomRed n G (S₊∙ (suc n))))
+      (isoToEquiv (setTruncIdempotentIso (isSet-Sn→∙EM G (suc n))))))
+    (fst (Hⁿ[Sⁿ,G]≅G G n))
+
+-- generator of HⁿSⁿ ≃ (Sⁿ →∙ K(G,n))
+gen-HⁿSⁿ-raw : (R : Ring ℓ) (n : ℕ)
+  → (S₊∙ n →∙ EM∙ (Ring→AbGroup  R) n)
+fst (gen-HⁿSⁿ-raw R zero) false = 1r (snd R)
+fst (gen-HⁿSⁿ-raw R zero) true = 0ₖ {G = Ring→AbGroup R} 0
+snd (gen-HⁿSⁿ-raw R zero) = refl
+fst (gen-HⁿSⁿ-raw R (suc zero)) base = 0ₖ 1
+fst (gen-HⁿSⁿ-raw R (suc zero)) (loop i) = emloop (1r (snd R)) i
+fst (gen-HⁿSⁿ-raw R (suc (suc n))) north = 0ₖ (2 +ℕ n)
+fst (gen-HⁿSⁿ-raw R (suc (suc n))) south = 0ₖ (2 +ℕ n)
+fst (gen-HⁿSⁿ-raw R (suc (suc n))) (merid a i) =
+  EM→ΩEM+1 (suc n) (gen-HⁿSⁿ-raw R (suc n) .fst a) i
+snd (gen-HⁿSⁿ-raw R (suc zero)) = refl
+snd (gen-HⁿSⁿ-raw R (suc (suc n))) = refl
+
+-- looping map (Sⁿ⁺¹ →∙ K(G,n+1)) → (Sⁿ →∙ K(G,n))
+desuspHⁿSⁿ : (G : AbGroup ℓ) (n : ℕ)
+  → (S₊∙ (suc n) →∙ EM∙ G (suc n))
+  → (S₊∙ n →∙ EM∙ G n)
+fst (desuspHⁿSⁿ G zero f) =
+  λ {false → ΩEM+1→EM-gen 0 _ (cong (fst f) loop)
+   ; true → AbGroupStr.0g (snd G)}
+fst (desuspHⁿSⁿ G (suc n) f) x =
+  ΩEM+1→EM-gen (suc n) _
+    (cong (fst f) (toSusp (S₊∙ (suc n)) x))
+snd (desuspHⁿSⁿ G zero f) = refl
+snd (desuspHⁿSⁿ G (suc n) f) =
+    cong (ΩEM+1→EM-gen (suc n) _)
+      (cong (cong (fst f)) (rCancel (merid (ptSn (suc n)))))
+  ∙ (λ i → ΩEM+1→EM-gen (suc n) _ (refl {x = snd f i}))
+  ∙ ΩEM+1→EM-refl (suc n)
+
+-- The equivalence respects desuspHⁿSⁿ
+HⁿSⁿ-raw≃G-ind : (G : AbGroup ℓ) (n : ℕ)
+  → (f : S₊∙ (suc n) →∙ EM∙ G (suc n))
+  → HⁿSⁿ-raw≃G G (suc n) .fst f
+   ≡ HⁿSⁿ-raw≃G G n .fst (desuspHⁿSⁿ G n f)
+HⁿSⁿ-raw≃G-ind G zero f = refl
+HⁿSⁿ-raw≃G-ind G (suc n) f = refl
+
+-- The equivalence preserves the unit
+gen-HⁿSⁿ-raw↦1 : (R : Ring ℓ) (n : ℕ)
+  → HⁿSⁿ-raw≃G (Ring→AbGroup R) n .fst (gen-HⁿSⁿ-raw R n) ≡ 1r (snd R)
+gen-HⁿSⁿ-raw↦1 R zero = refl
+gen-HⁿSⁿ-raw↦1 R (suc zero) = transportRefl _
+                        ∙ +IdL (snd R) (1r (snd R))
+gen-HⁿSⁿ-raw↦1 R (suc (suc n)) =
+  cong (fst (Hⁿ[Sⁿ,G]≅G (Ring→AbGroup R) n) .fst)
+      (cong ∣_∣₂ (funExt λ x
+        → (cong (ΩEM+1→EM (suc n))
+             (cong-∙ (fst (gen-HⁿSⁿ-raw R (suc (suc n))))
+               (merid x) (sym (merid (ptSn (suc n)))))
+        ∙ ΩEM+1→EM-hom (suc n) _ _)
+        ∙ cong₂ _+ₖ_
+           (Iso.leftInv (Iso-EM-ΩEM+1 (suc n))
+           (gen-HⁿSⁿ-raw R (suc n) .fst x))
+            (((λ i → ΩEM+1→EM-sym (suc n)
+              (EM→ΩEM+1 (suc n) (snd (gen-HⁿSⁿ-raw R (suc n)) i)) i)
+            ∙ cong -ₖ_ (Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) (0ₖ (suc n)))
+            ∙ -0ₖ (suc n)))
+        ∙ rUnitₖ (suc n) _))
+  ∙ gen-HⁿSⁿ-raw↦1 R (suc n)
+
+-- explicit characterisation of the inverse of the equivalence
+-- in terms of ⌣ₖ.
+HⁿSⁿ-raw≃G-inv : (R : Ring ℓ) (n : ℕ)
+  → fst R → (S₊∙ n →∙ EM∙ (Ring→AbGroup R) n)
+fst (HⁿSⁿ-raw≃G-inv R n r) x =
+  subst (EM (Ring→AbGroup R)) (+'-comm n 0)
+    (_⌣ₖ_ {n = n} {m = 0} (fst (gen-HⁿSⁿ-raw R n) x) r)
+snd (HⁿSⁿ-raw≃G-inv R n r) =
+  cong (subst (EM (Ring→AbGroup R)) (+'-comm n 0))
+        (cong (_⌣ₖ r) (snd (gen-HⁿSⁿ-raw R n))
+       ∙ 0ₖ-⌣ₖ n 0 r)
+       ∙ λ j → transp (λ i → EM (Ring→AbGroup R)
+                               (+'-comm n 0 (i ∨ j)))
+                     j (0ₖ (+'-comm n 0 j))
+
+
+HⁿSⁿ-raw≃G-inv-isInv : (R : Ring ℓ) (n : ℕ) (r : fst R) →
+      ((fst (HⁿSⁿ-raw≃G (Ring→AbGroup R) n))
+     ∘ HⁿSⁿ-raw≃G-inv R n) r
+     ≡ r
+HⁿSⁿ-raw≃G-inv-isInv R zero r = transportRefl _ ∙ ·IdL (snd R) r
+HⁿSⁿ-raw≃G-inv-isInv R (suc zero) r =
+    transportRefl _
+  ∙ transportRefl _
+  ∙ cong₂ (_+r_ (snd R)) (transportRefl (0r (snd R)))
+                         (transportRefl _
+                       ∙ ·IdL (snd R) r)
+  ∙ +IdL (snd R) r
+HⁿSⁿ-raw≃G-inv-isInv R (suc (suc n)) r =
+    HⁿSⁿ-raw≃G-ind (Ring→AbGroup R) (suc n) _ ∙
+    (cong (fst (HⁿSⁿ-raw≃G (Ring→AbGroup R) (suc n)))
+          (→∙Homogeneous≡
+            (isHomogeneousEM _)
+            (funExt λ z →
+              cong (ΩEM+1→EM (suc n)) (lem z)
+            ∙ Iso-EM-ΩEM+1 (suc n) .Iso.leftInv (subst (EM (Ring→AbGroup R))
+              (+'-comm (suc n) 0) (_⌣ₖ_ {m = 0}
+                (fst (gen-HⁿSⁿ-raw R (suc n)) z) r)))))
+  ∙ HⁿSⁿ-raw≃G-inv-isInv R (suc n) r
+  where
+  lem : (z : _)
+    → (λ i → subst (EM (Ring→AbGroup R)) (+'-comm (suc (suc n)) 0)
+         (fst (gen-HⁿSⁿ-raw R (suc (suc n))) (toSusp (S₊∙ (suc n)) z i) ⌣ₖ r))
+         ≡ EM→ΩEM+1 (suc n) (subst (EM (Ring→AbGroup R))
+            (+'-comm (suc n) 0)
+              (_⌣ₖ_ {m = 0} (fst (gen-HⁿSⁿ-raw R (suc n)) z) r))
+  lem z = ((λ j → transp (λ i → typ (Ω (EM∙ (Ring→AbGroup R)
+                          (+'-comm (suc (suc n)) 0 (~ j ∨ i))))) (~ j)
+            λ i → transp (λ i → EM (Ring→AbGroup R)
+                          (+'-comm (suc (suc n)) 0 (~ j ∧ i)))
+                          j
+                          (fst (gen-HⁿSⁿ-raw R (suc (suc n)))
+                           (toSusp (S₊∙ (suc n)) z i) ⌣ₖ r))
+         ∙ (λ j → transport (λ i → typ (Ω (EM∙ (Ring→AbGroup R)
+                    (isSetℕ (suc (suc n)) (suc (suc n))
+                      (+'-comm (suc (suc n)) 0) refl j i))))
+                    λ i → _⌣ₖ_ {n = suc (suc n)} {m = zero}
+                           (fst (gen-HⁿSⁿ-raw R (suc (suc n)))
+                            (toSusp (S₊∙ (suc n)) z i)) r)
+         ∙ transportRefl _
+         ∙ cong (cong (λ x → _⌣ₖ_ {n = suc (suc n)} {m = zero} x r))
+                (cong-∙ (fst (gen-HⁿSⁿ-raw R (suc (suc n))))
+                  (merid z) (sym (merid (ptSn (suc n))))
+              ∙ cong₂ _∙_ refl
+                 (cong sym (cong (EM→ΩEM+1 (suc n))
+                           (gen-HⁿSⁿ-raw R (suc n) .snd)
+                       ∙ EM→ΩEM+1-0ₖ (suc n)))
+              ∙ sym (rUnit _))
+         ∙ sym (EM→ΩEM+1-distr⌣ₖ0 n (gen-HⁿSⁿ-raw R (suc n) .fst z) r))
+        ∙ cong (EM→ΩEM+1 (suc n))
+           (sym (transportRefl _)
+          ∙ λ i → subst (EM (Ring→AbGroup R))
+                   (isSetℕ (suc n) (suc n) refl (+'-comm (suc n) 0) i)
+                   (_⌣ₖ_ {m = 0} (fst (gen-HⁿSⁿ-raw R (suc n)) z) r))
+
+-- Main lemma: HⁿSⁿ-raw≃G-inv (i.e. ⌣ₖ is an equivalence)
+isEquiv-HⁿSⁿ-raw≃G-inv : (R : Ring ℓ) (n : ℕ)
+  → isEquiv (HⁿSⁿ-raw≃G-inv R n)
+isEquiv-HⁿSⁿ-raw≃G-inv R n =
+  composesToId→Equiv _ _ (funExt (HⁿSⁿ-raw≃G-inv-isInv R n))
+    (HⁿSⁿ-raw≃G (Ring→AbGroup R) n .snd)

@@ -143,6 +143,31 @@ module _ {G'' : Ring ℓ} where
                               (fst TensorMultHom b) (fst TensorMultHom c)))
               λ x y ind ind2 → cong₂ _+G_ ind ind2))
 
+  EM→ΩEM+1-distr⌣ₖ0n : (n : ℕ)
+    → (x : EM G' zero) (y : EM G' (suc n))
+    → EM→ΩEM+1 (suc n) (_⌣ₖ_{n = zero} {m = suc n} x y)
+     ≡ λ i → _⌣ₖ_ {n = suc zero} {m = suc n} (EM→ΩEM+1 0 x i) y
+  EM→ΩEM+1-distr⌣ₖ0n n x y =
+      EMFun-EM→ΩEM+1 (suc n) _
+
+  EM→ΩEM+1-distr⌣ₖ0 : (n : ℕ)
+    → (x : EM G' (suc n)) (y : EM G' zero)
+    → EM→ΩEM+1 (suc n) (_⌣ₖ_{n = (suc n)} {m = zero} x y)
+     ≡ λ i → _⌣ₖ_ {n = suc (suc n)} {m = zero} (EM→ΩEM+1 (suc n) x i) y
+  EM→ΩEM+1-distr⌣ₖ0 n x y =
+     EMFun-EM→ΩEM+1 (suc n) (_⌣ₖ⊗_{n = (suc n)} {m = zero} x y)
+    ∙ cong (cong (inducedFun-EM TensorMultHom (suc (suc n))))
+           (EM→ΩEM+1-distrₙ₀ n y x)
+
+  EM→ΩEM+1-distr⌣ₖ : (n m : ℕ)
+    → (x : EM G' (suc n)) (y : EM G' (suc m))
+    → EM→ΩEM+1 (suc n +' suc m) (_⌣ₖ_{n = (suc n)} {m = suc m} x y)
+     ≡ λ i → _⌣ₖ_ {n = suc (suc n)} {m = suc m} (EM→ΩEM+1 (suc n) x i) y
+  EM→ΩEM+1-distr⌣ₖ n m x y =
+      EMFun-EM→ΩEM+1 _ (_⌣ₖ⊗_{n = (suc n)} {m = suc m} x y)
+    ∙ cong (cong (inducedFun-EM TensorMultHom (suc (suc n) +' suc m)))
+           (EM→ΩEM+1-distrₙsuc n m x y)
+
 -- graded commutativity
 module _ {G'' : CommRing ℓ} where
   private
@@ -198,7 +223,7 @@ module _ {G'' : CommRing ℓ} where
   → EM (Ring→AbGroup (CommRing→Ring R)) (n +' m)
 ⌣[,,]Cₖ-syntax n m R x y = x ⌣ₖ y
 
-syntax ⌣[]ₖ-syntax R x y = x ⌣[ R ]ₖ y
-syntax ⌣[]Cₖ-syntax R x y = x ⌣[ R ]Cₖ y
+syntax ⌣[]ₖ-syntax R x y = x ⌣[ R R]ₖ y
+syntax ⌣[]Cₖ-syntax R x y = x ⌣[ R R]Cₖ y
 syntax ⌣[,,]ₖ-syntax n m R x y = x ⌣[ R , n , m ]ₖ y
 syntax ⌣[,,]Cₖ-syntax n m R x y = x ⌣[ R , n , m ]Cₖ y

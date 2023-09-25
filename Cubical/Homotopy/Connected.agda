@@ -17,18 +17,19 @@ open import Cubical.Functions.Fibration
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Unit
-open import Cubical.Data.Bool
-open import Cubical.Data.Nat
+open import Cubical.Data.Bool hiding (elim)
+open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
 
-open import Cubical.HITs.Nullification
+open import Cubical.HITs.Nullification hiding (elim)
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SmashProduct
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Join
 open import Cubical.HITs.Sn.Base
-open import Cubical.HITs.S1
-open import Cubical.HITs.Truncation as Trunc renaming (rec to trRec)
+open import Cubical.HITs.S1 hiding (elim)
+open import Cubical.HITs.Truncation as Trunc
+  renaming (rec to trRec) hiding (elim)
 
 open import Cubical.Homotopy.Loopspace
 
@@ -108,6 +109,16 @@ module elim {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'} (f : A → B) wher
             (λ _ → isOfHLevelPath (suc n) (P b .snd) _ _)
             (λ {(a , p) i → transp (λ j → P (p (j ∨ i)) .fst) i (s (p i))})
             (fConn b .fst)
+
+  isIsoPrecomposeβ : ∀ {ℓ'''} (n : ℕ) (P : B → TypeOfHLevel ℓ''' n)
+                   → (e : isConnectedFun n f)
+                   → (g : ((a : A) → P (f a) .fst))
+                   → (a : A)
+                   → Iso.inv (isIsoPrecompose n P e) g (f a) ≡ g a
+  isIsoPrecomposeβ zero P e g a = P (f a) .snd .snd (g a)
+  isIsoPrecomposeβ (suc n) P e g a =
+      cong (inv n P g (f a)) (e (f a) .snd ∣ a , refl ∣)
+    ∙ transportRefl _
 
   isEquivPrecompose : ∀ {ℓ'''} (n : ℕ) (P : B → TypeOfHLevel ℓ''' n)
                    → isConnectedFun n f
@@ -401,6 +412,23 @@ isConnectedPoint2 n {A = A} a connMap = indMapEquiv→conType _ λ B → isoToIs
     Iso.inv theIso f = f a
     Iso.rightInv theIso f = funExt λ y → sym (helper f y)
     Iso.leftInv theIso _ = refl
+
+module isConnectedPoint {ℓ ℓ'} (n : HLevel) {A : Type ℓ}
+     {B : A → Type ℓ'}
+     (conA : isConnected (suc n) A)
+     (hlevB : (a : A) → isOfHLevel n (B a))
+     (p : Σ[ a ∈ A ] (B a)) where
+  private
+    module m = elim (λ (tt : Unit) → fst p)
+    P : A → TypeOfHLevel ℓ' n
+    P a = B a , hlevB a
+    con* = isConnectedPoint n conA (fst p)
+
+  elim : (a : A) → B a
+  elim = Iso.inv (m.isIsoPrecompose n P con*) λ _ → snd p
+
+  β : elim (fst p) ≡ snd p
+  β = m.isIsoPrecomposeβ n P con* (λ _ → snd p) tt
 
 connectedTruncIso : ∀ {ℓ} {A B : Type ℓ} (n : HLevel) (f : A → B)
                    → isConnectedFun n f
