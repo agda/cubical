@@ -9,6 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
 
@@ -114,7 +115,6 @@ private module _ {ℓA ℓB ℓC : Level} (A : Pointed ℓA) (B : Pointed ℓB) 
   fromEq' : C →∙ B → (C →∙ A)
   fromEq' = ≃∙map (invEquiv∙ e) ∘∙_
 
-open import Cubical.Foundations.Path
 pre∘∙equiv : ∀ {ℓA ℓB ℓC} {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC}
  → (B ≃∙ C) → Iso (A →∙ B) (A →∙ C)
 Iso.fun (pre∘∙equiv {A = A} {B = B} {C = C} e) = toEq' B C A e
