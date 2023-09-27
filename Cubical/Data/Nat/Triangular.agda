@@ -6,9 +6,6 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.FinData
 
-open import Cubical.Data.Nat.Base hiding (ℕ; elim)
-open import Cubical.Data.Nat.Properties
-
 open import Cubical.Algebra.CommSemiring
 open import Cubical.Algebra.CommSemiring.Instances.Nat
 open import Cubical.Algebra.Semiring.BigOps
@@ -17,7 +14,7 @@ open import Cubical.Tactics.NatSolver.Reflection
 open import Cubical.Tactics.NatSolver.NatExpression
 
 open Sum (CommSemiring→Semiring ℕasCSR)
-open CommSemiringStr (snd ℕasCSR) using (·DistL+;·DistR+)
+open CommSemiringStr (snd ℕasCSR)
 
 -- the first n natural number, i.e. {0,1,...,n-1}
 first : (n : ℕ) → FinVec ℕ n
