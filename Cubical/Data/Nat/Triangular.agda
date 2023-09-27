@@ -11,7 +11,6 @@ open import Cubical.Algebra.CommSemiring.Instances.Nat
 open import Cubical.Algebra.Semiring.BigOps
 
 open import Cubical.Tactics.NatSolver.Reflection
-open import Cubical.Tactics.NatSolver.NatExpression
 
 open Sum (CommSemiring→Semiring ℕasCSR)
 open CommSemiringStr (snd ℕasCSR)

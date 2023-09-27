@@ -5,10 +5,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 import Cubical.Data.Nat as Nat
+open import Cubical.Data.Nat using (ℕ; suc; zero) public
 
 open import Cubical.Algebra.CommSemiring
-
-open import Cubical.Data.Nat using (ℕ; suc; zero) public
 
 ℕasCSR : CommSemiring ℓ-zero
 ℕasCSR .fst  = ℕ
