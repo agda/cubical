@@ -8,12 +8,14 @@ import Cubical.Data.Nat as Nat
 
 open import Cubical.Algebra.CommSemiring
 
+open import Cubical.Data.Nat using (ℕ) public
+
 ℕasCSR : CommSemiring ℓ-zero
-ℕasCSR .fst  = Nat.ℕ
+ℕasCSR .fst  = ℕ
 ℕasCSR .snd  = str
   where open CommSemiringStr
 
-        str : CommSemiringStr Nat.ℕ
+        str : CommSemiringStr ℕ
         0r str = Nat.zero
         1r str = Nat.suc Nat.zero
         _+_ str = Nat._+_
