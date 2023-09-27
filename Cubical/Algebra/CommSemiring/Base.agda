@@ -38,6 +38,22 @@ record CommSemiringStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 CommSemiring : ∀ ℓ → Type (ℓ-suc ℓ)
 CommSemiring ℓ = TypeWithStr ℓ CommSemiringStr
 
+CommSemiring→Semiring : CommSemiring ℓ → Semiring ℓ
+CommSemiring→Semiring CS .fst = CS .fst
+CommSemiring→Semiring CS .snd =  str
+  where open IsCommSemiring
+        open CommSemiringStr
+        open SemiringStr
+
+        CS-str = (CS .snd)
+
+        str : SemiringStr (CS .fst)
+        0r str = CS-str .0r
+        1r str = CS-str .1r
+        _+_ str = CS-str ._+_
+        _·_ str = CS-str ._·_
+        isSemiring str = (CS-str .isCommSemiring) .isSemiring
+
 makeIsCommSemiring : {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R}
                  (is-setR : isSet R)
                  (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
