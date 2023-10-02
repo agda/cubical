@@ -21,12 +21,21 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.BiInvertible
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Monoid.Base
 open import Cubical.Algebra.Semigroup.Base
+
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Adjoint
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Groups
+
+import Cubical.Data.Int as ℤ
+open import Cubical.Algebra.Group.Instances.Int
 
 private
   variable
@@ -199,3 +208,23 @@ A→Group≃GroupHom {Group = Group} = biInvEquiv→Equiv-right biInv where
   BiInvEquiv.invr-rightInv biInv hom = freeGroupHom≡ (λ a → refl)
   BiInvEquiv.invl biInv (hom ,  _) a = hom (η a)
   BiInvEquiv.invl-leftInv biInv f    = funExt (λ a → refl)
+
+freeGroupFunctor : Functor (SET ℓ) (GroupCategory {ℓ})
+Functor.F-ob freeGroupFunctor (A , _) = freeGroupGroup A
+Functor.F-hom freeGroupFunctor f = rec (η ∘ f)
+Functor.F-id freeGroupFunctor =
+  freeGroupHom≡ λ _ → refl
+Functor.F-seq freeGroupFunctor _ _ =
+  freeGroupHom≡ λ _ → refl
+
+freeGroupFunctor⊣Forget : freeGroupFunctor NaturalBijection.⊣ (Forget {ℓ})
+NaturalBijection._⊣_.adjIso freeGroupFunctor⊣Forget =
+ invIso (equivToIso A→Group≃GroupHom)
+NaturalBijection._⊣_.adjNatInD freeGroupFunctor⊣Forget _ _ = refl
+NaturalBijection._⊣_.adjNatInC freeGroupFunctor⊣Forget _ _ = freeGroupHom≡ λ _ → refl
+
+windingHom : GroupHom (freeGroupGroup A) ℤGroup
+windingHom = rec λ _ → ℤ.pos 1
+
+winding : FreeGroup A → ℤ.ℤ
+winding = fst windingHom
