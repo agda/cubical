@@ -136,7 +136,6 @@ _⋆_ (C ^op) f g      = g ⋆⟨ C ⟩ f
 ⋆Assoc (C ^op) f g h = sym (C .⋆Assoc _ _ _)
 isSetHom (C ^op)     = C .isSetHom
 
-
 ΣPropCat : (C : Category ℓ ℓ') (P : ℙ (ob C)) → Category ℓ ℓ'
 ob (ΣPropCat C P) = Σ[ x ∈ ob C ] x ∈ P
 Hom[_,_] (ΣPropCat C P) x y = C [ fst x , fst y ]

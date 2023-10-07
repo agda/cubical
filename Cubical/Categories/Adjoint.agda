@@ -3,6 +3,8 @@
 module Cubical.Categories.Adjoint where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -63,11 +65,44 @@ module UnitCounit {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Funct
     open TriangleIdentities triangleIdentities public
 
 
-module LeftAdjointUniqeUpToNatIso
-          {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
-          {F F' : Functor C D} {G : Functor D C}
-          (F⊣G : F UnitCounit.⊣ G) (F'⊣G : F' UnitCounit.⊣ G) where
-  open UnitCounit {C = C} {D = D}
+private
+  variable
+    C : Category ℓC ℓC'
+    D : Category ℓC ℓC'
+
+
+module _ {F : Functor C D} {G : Functor D C} where
+  open UnitCounit
+  open _⊣_
+  open NatTrans
+  open TriangleIdentities
+  opositeAdjunction : (F ⊣ G) → ((G ^opF) ⊣ (F ^opF))
+  N-ob (η (opositeAdjunction x)) = N-ob (ε x)
+  N-hom (η (opositeAdjunction x)) f = sym (N-hom (ε x) f)
+  N-ob (ε (opositeAdjunction x)) = N-ob (η x)
+  N-hom (ε (opositeAdjunction x)) f = sym (N-hom (η x) f)
+  Δ₁ (triangleIdentities (opositeAdjunction x)) =
+    Δ₂ (triangleIdentities x)
+  Δ₂ (triangleIdentities (opositeAdjunction x)) =
+   Δ₁ (triangleIdentities x)
+
+  Iso⊣^opF : Iso (F ⊣ G) ((G ^opF) ⊣ (F ^opF))
+  fun Iso⊣^opF = opositeAdjunction
+  inv Iso⊣^opF = _
+  rightInv Iso⊣^opF _ = refl
+  leftInv Iso⊣^opF _ = refl
+
+private
+  variable
+    F F' : Functor C D
+    G G' : Functor D C
+
+
+module AdjointUniqeUpToNatIso where
+ open UnitCounit
+ module Left
+          (F⊣G  : _⊣_ {D = D} F G)
+          (F'⊣G : F' ⊣ G) where
   open NatTrans
 
   private
@@ -85,10 +120,10 @@ module LeftAdjointUniqeUpToNatIso
    s : (H⊣G : H ⊣ G) (H'⊣G : H' ⊣ G) → ∀ {x} →
            seq' D (m H'⊣G H⊣G {x}) (m H⊣G H'⊣G {x})
               ≡ D .id
-   s {H = H} {H' = H'} H⊣G H'⊣G = by-N-homs ∙ by-Δ
+   s {H = H} {H' = H'} H⊣G H'⊣G = by-N-homs ∙ by-Δs
      where
-      open _⊣_ _ _ H⊣G using (η ; Δ₂)
-      open _⊣_ _ _ H'⊣G using (ε ; Δ₁)
+      open _⊣_ H⊣G  using (η ; Δ₂)
+      open _⊣_ H'⊣G using (ε ; Δ₁)
       by-N-homs =
         AssocCong₂⋆R {C = D} _
         (AssocCong₂⋆L {C = D} (sym (N-hom ε _)) _)
@@ -98,7 +133,7 @@ module LeftAdjointUniqeUpToNatIso
                 ∙∙ F-seq H' _ _)
                (sym (N-hom ε _))
 
-      by-Δ =
+      by-Δs =
         ⋆Assoc D _ _ _
         ∙∙ cong (H' ⟪ _ ⟫ D⋆_)
              (sym (⋆Assoc D _ _ _)
@@ -113,7 +148,7 @@ module LeftAdjointUniqeUpToNatIso
   open isIso
 
   F≅ᶜF' : F ≅ᶜ F'
-  N-ob (trans F≅ᶜF') _ = m F⊣G F'⊣G
+  N-ob (trans F≅ᶜF') _ = _
   N-hom (trans F≅ᶜF') _ =
        sym (⋆Assoc D _ _ _)
     ∙∙ cong (_D⋆ (F⊣G .ε) ⟦ _ ⟧)
@@ -122,7 +157,7 @@ module LeftAdjointUniqeUpToNatIso
          ∙∙ (F-seq F _ _))
     ∙∙ AssocCong₂⋆R {C = D} _ (N-hom (F⊣G .ε) _)
    where open _⊣_
-  inv (nIso F≅ᶜF' _) = m F'⊣G F⊣G
+  inv (nIso F≅ᶜF' _) = _
   sec (nIso F≅ᶜF' _) = s F⊣G F'⊣G
   ret (nIso F≅ᶜF' _) = s F'⊣G F⊣G
 
@@ -132,6 +167,21 @@ module LeftAdjointUniqeUpToNatIso
     (isUnivalentFUNCTOR _ _ univD)
      (NatIso→FUNCTORIso _ _ F≅ᶜF')
 
+ module Right (F⊣G  : F UnitCounit.⊣ G)
+              (F⊣G' : F UnitCounit.⊣ G') where
+
+  G≅ᶜG' : G ≅ᶜ G'
+  G≅ᶜG' = Iso.inv congNatIso^opFiso
+    (Left.F≅ᶜF' (opositeAdjunction F⊣G')
+                (opositeAdjunction F⊣G))
+
+  open NatIso
+
+  G≡G' : isUnivalent _ → G ≡ G'
+  G≡G' univC =
+   isUnivalent.CatIsoToPath
+    (isUnivalentFUNCTOR _ _ univC)
+     (NatIso→FUNCTORIso _ _ G≅ᶜG')
 
 module NaturalBijection where
   -- Adjoint def 2: natural bijection
@@ -194,7 +244,7 @@ definition to the first.
 The second unnamed module does the reverse.
 -}
 
-module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C) where
+module _ (F : Functor C D) (G : Functor D C) where
   open UnitCounit
   open NaturalBijection renaming (_⊣_ to _⊣²_)
   module _ (adj : F ⊣² G) where
