@@ -3,13 +3,13 @@
 module Cubical.Categories.Adjoint where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
