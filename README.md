@@ -17,7 +17,8 @@ Agda versions as written below, correspond to tags.
 
 | cubical library version | Agda version   |
 |-------------------------|----------------|
-| `current master`        | `v2.6.3`       |
+| `current master`        | `v2.6.4`       |
+| `v0.6`                  | `v2.6.4`       |
 | `v0.5`                  | `v2.6.3`       |
 | `v0.4`                  | `v2.6.2.2`     |
 | `v0.3`                  | `v2.6.2`       |
