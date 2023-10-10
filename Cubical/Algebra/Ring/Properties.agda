@@ -15,9 +15,11 @@ open import Cubical.Foundations.Path
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Monoid
+open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Ring.Base
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.AbGroup.Base
+open import Cubical.Algebra.Semiring.Base
 
 open import Cubical.HITs.PropositionalTruncation
 
@@ -158,6 +160,15 @@ module RingTheory (R' : Ring ℓ) where
   ·-assoc2 : (x y z w : R) → (x · y) · (z · w) ≡ x · (y · z) · w
   ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
 
+Ring→Semiring : Ring ℓ → Semiring ℓ
+Ring→Semiring R =
+  let open RingStr (snd R)
+      open RingTheory R
+  in SemiringFromMonoids (fst R) 0r 1r _+_ _·_
+       (CommMonoidStr.isCommMonoid (snd (AbGroup→CommMonoid (Ring→AbGroup R))))
+       (MonoidStr.isMonoid (snd (Ring→MultMonoid R)))
+       ·DistR+ ·DistL+
+       0RightAnnihilates 0LeftAnnihilates
 
 module RingHoms where
   open IsRingHom
@@ -182,16 +193,18 @@ module RingHoms where
   fst (compRingHom f g) x = g .fst (f .fst x)
   snd (compRingHom f g) = compIsRingHom (g .snd) (f .snd)
 
-  syntax compRingHom f g = g ∘r f
+  _∘r_ : {R : Ring ℓ} {S : Ring ℓ'} {T : Ring ℓ''} → RingHom S T → RingHom R S → RingHom R T
+  _∘r_ = flip compRingHom
 
-  compIdRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
+  compIdRingHom : {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) → compRingHom (idRingHom R) φ ≡ φ
   compIdRingHom φ = RingHom≡ refl
 
-  idCompRingHom : {R S : Ring ℓ} (φ : RingHom R S) → compRingHom φ (idRingHom S) ≡ φ
+  idCompRingHom : {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) → compRingHom φ (idRingHom S) ≡ φ
   idCompRingHom φ = RingHom≡ refl
 
-  compAssocRingHom : {R S T U : Ring ℓ} (φ : RingHom R S) (ψ : RingHom S T) (χ : RingHom T U) →
-                     compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
+  compAssocRingHom : {R : Ring ℓ} {S : Ring ℓ'} {T : Ring ℓ''} {U : Ring ℓ'''}
+                   → (φ : RingHom R S) (ψ : RingHom S T) (χ : RingHom T U)
+                   → compRingHom (compRingHom φ ψ) χ ≡ compRingHom φ (compRingHom ψ χ)
   compAssocRingHom _ _ _ = RingHom≡ refl
 
 module RingEquivs where

@@ -2,18 +2,24 @@
 
 -- The Category of Elements
 
-open import Cubical.Categories.Category
-
-module Cubical.Categories.Constructions.Elements where
-
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Functor
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Prelude
+
 open import Cubical.Data.Sigma
 
-import Cubical.Categories.Morphism as Morphism
-import Cubical.Categories.Constructions.Slice as Slice
+open import Cubical.Categories.Category
+import      Cubical.Categories.Constructions.Slice.Base as Slice
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Isomorphism
+import      Cubical.Categories.Morphism as Morphism
+
+
+
+module Cubical.Categories.Constructions.Elements where
 
 -- some issues
 -- * always need to specify objects during composition because can't infer isSet
@@ -21,54 +27,56 @@ open Category
 open Functor
 
 module Covariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
-
-    getIsSet : ∀ {ℓS} {C : Category ℓ ℓ'} (F : Functor C (SET ℓS)) → (c : C .ob) → isSet (fst (F ⟅ c ⟆))
+    getIsSet : ∀ {ℓS} (F : Functor C (SET ℓS)) → (c : C .ob) → isSet (fst (F ⟅ c ⟆))
     getIsSet F c = snd (F ⟅ c ⟆)
+
+    Element : ∀ {ℓS} (F : Functor C (SET ℓS)) → Type (ℓ-max ℓ ℓS)
+    Element F = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
 
     infix 50 ∫_
     ∫_ : ∀ {ℓS} → Functor C (SET ℓS) → Category (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
     -- objects are (c , x) pairs where c ∈ C and x ∈ F c
-    (∫ F) .ob = Σ[ c ∈ C .ob ] fst (F ⟅ c ⟆)
+    (∫ F) .ob = Element F
     -- morphisms are f : c → c' which take x to x'
-    (∫ F) .Hom[_,_] (c , x) (c' , x')  = Σ[ f ∈ C [ c , c' ] ] x' ≡ (F ⟪ f ⟫) x
-    (∫ F) .id {x = (c , x)} = C .id , sym (funExt⁻ (F .F-id) x ∙ refl)
+    (∫ F) .Hom[_,_] (c , x) (c' , x')  = fiber (λ (f : C [ c , c' ]) → (F ⟪ f ⟫) x) x'
+    (∫ F) .id {x = (c , x)} = C .id , funExt⁻ (F .F-id) x
     (∫ F) ._⋆_ {c , x} {c₁ , x₁} {c₂ , x₂} (f , p) (g , q)
-      = (f ⋆⟨ C ⟩ g) , (x₂
-                ≡⟨ q ⟩
-                  (F ⟪ g ⟫) x₁         -- basically expanding out function composition
-                ≡⟨ cong (F ⟪ g ⟫) p ⟩
+      = (f ⋆⟨ C ⟩ g) , ((F ⟪ f ⋆⟨ C ⟩ g ⟫) x
+                ≡⟨ funExt⁻ (F .F-seq _ _) _ ⟩
                   (F ⟪ g ⟫) ((F ⟪ f ⟫) x)
-                ≡⟨ funExt⁻ (sym (F .F-seq _ _)) _ ⟩
-                  (F ⟪ f ⋆⟨ C ⟩ g ⟫) x
+                ≡⟨ cong (F ⟪ g ⟫) p ⟩
+                  (F ⟪ g ⟫) x₁
+                ≡⟨ q ⟩
+                  x₂
                 ∎)
     (∫ F) .⋆IdL o@{c , x} o1@{c' , x'} f'@(f , p) i
-      = (cIdL i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS' x' ((F ⟪ a ⟫) x)) p' p cIdL i
+      = (cIdL i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS' ((F ⟪ a ⟫) x) x') p' p cIdL i
         where
           isS = getIsSet F c
           isS' = getIsSet F c'
           cIdL = C .⋆IdL f
 
           -- proof from composition with id
-          p' : x' ≡ (F ⟪ C .id ⋆⟨ C ⟩ f ⟫) x
+          p' : (F ⟪ C .id ⋆⟨ C ⟩ f ⟫) x ≡ x'
           p' = snd ((∫ F) ._⋆_ ((∫ F) .id) f')
     (∫ F) .⋆IdR o@{c , x} o1@{c' , x'} f'@(f , p) i
-        = (cIdR i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS' x' ((F ⟪ a ⟫) x)) p' p cIdR i
+        = (cIdR i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS' ((F ⟪ a ⟫) x) x') p' p cIdR i
           where
             cIdR = C .⋆IdR f
             isS' = getIsSet F c'
 
-            p' : x' ≡ (F ⟪ f ⋆⟨ C ⟩ C .id ⟫) x
+            p' : (F ⟪ f ⋆⟨ C ⟩ C .id ⟫) x ≡ x'
             p' = snd ((∫ F) ._⋆_ f' ((∫ F) .id))
     (∫ F) .⋆Assoc o@{c , x} o1@{c₁ , x₁} o2@{c₂ , x₂} o3@{c₃ , x₃} f'@(f , p) g'@(g , q) h'@(h , r) i
-      = (cAssoc i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS₃ x₃ ((F ⟪ a ⟫) x)) p1 p2 cAssoc i
+      = (cAssoc i) , isOfHLevel→isOfHLevelDep 1 (λ a → isS₃ ((F ⟪ a ⟫) x) x₃) p1 p2 cAssoc i
         where
           cAssoc = C .⋆Assoc f g h
           isS₃ = getIsSet F c₃
 
-          p1 : x₃ ≡ (F ⟪ (f ⋆⟨ C ⟩ g) ⋆⟨ C ⟩ h ⟫) x
+          p1 : (F ⟪ (f ⋆⟨ C ⟩ g) ⋆⟨ C ⟩ h ⟫) x ≡ x₃
           p1 = snd ((∫ F) ._⋆_ ((∫ F) ._⋆_ {o} {o1} {o2} f' g') h')
 
-          p2 : x₃ ≡ (F ⟪ f ⋆⟨ C ⟩ (g ⋆⟨ C ⟩ h) ⟫) x
+          p2 : (F ⟪ f ⋆⟨ C ⟩ (g ⋆⟨ C ⟩ h) ⟫) x ≡ x₃
           p2 = snd ((∫ F) ._⋆_ f' ((∫ F) ._⋆_ {o1} {o2} {o3} g' h'))
     (∫ F) .isSetHom {x} {y} = isSetΣSndProp (C .isSetHom) λ _ → (F ⟅ fst y ⟆) .snd _ _
 
@@ -85,6 +93,9 @@ module Contravariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
     ∫ᴾ_ : ∀ {ℓS} → Functor (C ^op) (SET ℓS) → Category (ℓ-max ℓ ℓS) (ℓ-max ℓ' ℓS)
     ∫ᴾ F = (∫ F) ^op
 
+    Elementᴾ : ∀ {ℓS} → Functor (C ^op) (SET ℓS) → Type (ℓ-max ℓ ℓS)
+    Elementᴾ F = (∫ᴾ F) .ob
+
     -- helpful results
 
     module _ {ℓS} {F : Functor (C ^op) (SET ℓS)} where
@@ -95,3 +106,7 @@ module Contravariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
               → (eqInC : PathP (λ i → C [ fst (p i) , fst (q i) ]) (fst f) (fst g))
               → PathP (λ i → (∫ᴾ F) [ p i , q i ]) f g
       ∫ᴾhomEq _ _ _ _ = ΣPathPProp (λ f → snd (F ⟅ _ ⟆) _ _)
+
+      ∫ᴾhomEqSimpl : ∀ {o1 o2} (f g : (∫ᴾ F) [ o1 , o2 ])
+                   → fst f ≡ fst g → f ≡ g
+      ∫ᴾhomEqSimpl f g p = ∫ᴾhomEq f g refl refl p

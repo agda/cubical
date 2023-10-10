@@ -14,6 +14,7 @@ module Cubical.Algebra.Group.Abelianization.AbelianizationAsCoeq where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 
@@ -213,7 +214,7 @@ module UniversalPropertyCoeq (G : Group ℓ) where
             f' = fst f
             g : Abelianization → fst H
             g = rec
-                  (isSetAbGroup H)
+                  is-set
                   (λ x → (f') x)
                   (λ (a , b , c) →
                     f' (a · b · c)           ≡⟨ (snd f).pres· a (b · c) ⟩
@@ -227,12 +228,12 @@ module UniversalPropertyCoeq (G : Group ℓ) where
             gIsHom : IsGroupHom (snd (AbGroup→Group asAbelianGroup)) g (snd (AbGroup→Group H))
             pres· gIsHom =
               elimProp2
-                (λ x y → isSetAbGroup H _ _)
+                (λ x y → is-set _ _)
                 ((snd f).pres·)
             pres1 gIsHom = (snd f).pres1
             presinv gIsHom =
               elimProp
-                (λ x → isSetAbGroup H _ _)
+                (λ x → is-set _ _)
                 ((snd f).presinv)
 
     commutativity : (H : AbGroup ℓ)
@@ -255,13 +256,14 @@ module UniversalPropertyCoeq (G : Group ℓ) where
         Σ≡Prop
           (λ _ → isPropIsGroupHom _ _)
           (λ i x →  q x i)
-      where q : (x : Abelianization)
-                →  fst g x ≡ fst (inducedHom H f) x
-            q = elimProp
-                  (λ _ → isSetAbGroup H _ _)
-                  (λ x → fst g (incAb x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
-                        (fst f) x       ≡⟨ refl ⟩
-                        fst (inducedHom H f) (incAb x)∎)
+      where
+      module H = AbGroupStr (str H)
+      q : (x : Abelianization) →  fst g x ≡ fst (inducedHom H f) x
+      q = elimProp
+            (λ _ → H.is-set _ _)
+            (λ x → fst g (incAb x) ≡⟨ cong (λ f → f x) (cong fst p) ⟩
+                  (fst f) x       ≡⟨ refl ⟩
+                  fst (inducedHom H f) (incAb x)∎)
 
 module IsoCoeqHIT (G : Group ℓ) where
   open GroupStr {{...}}
@@ -415,8 +417,8 @@ module IsoCoeqHIT (G : Group ℓ) where
       p : h .fst ≡ isomorphism .fst
       p =
         Iso≡Set
-          (isSetAbGroup asAbelianGroup)
-          (isSetAbGroup (HITasAbelianGroup G))
+          (AbGroupStr.is-set (str asAbelianGroup))
+          (AbGroupStr.is-set (str (HITasAbelianGroup G)))
           (h .fst)
           (isomorphism .fst)
           (λ x → cong

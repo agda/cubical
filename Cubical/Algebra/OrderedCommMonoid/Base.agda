@@ -6,11 +6,11 @@ module Cubical.Algebra.OrderedCommMonoid.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.SIP using (TypeWithStr)
-open import Cubical.Foundations.Structure using (⟨_⟩)
+open import Cubical.Foundations.Structure using (⟨_⟩; str)
 
 open import Cubical.Algebra.CommMonoid.Base
 
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 private
   variable
@@ -26,6 +26,10 @@ record IsOrderedCommMonoid
     MonotoneR  : {x y z : M} → x ≤ y → (x · z) ≤ (y · z) -- both versions, just for convenience
     MonotoneL  : {x y z : M} → x ≤ y → (z · x) ≤ (z · y)
 
+  open IsPoset isPoset public
+  open IsCommMonoid isCommMonoid public
+    hiding (is-set)
+
 record OrderedCommMonoidStr (ℓ' : Level) (M : Type ℓ) : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   field
     _≤_ : M → M → Type ℓ'
@@ -34,8 +38,6 @@ record OrderedCommMonoidStr (ℓ' : Level) (M : Type ℓ) : Type (ℓ-suc (ℓ-m
     isOrderedCommMonoid : IsOrderedCommMonoid _·_ ε _≤_
 
   open IsOrderedCommMonoid isOrderedCommMonoid public
-  open IsPoset isPoset public
-  open IsCommMonoid isCommMonoid public
 
   infixl 4 _≤_
 
@@ -78,7 +80,7 @@ module _
 
   IsOrderedCommMonoidFromIsCommMonoid : IsOrderedCommMonoid _·_ 1m _≤_
   CM.isPoset IsOrderedCommMonoidFromIsCommMonoid =
-    isposet (isSetFromIsCommMonoid isCommMonoid) isProp≤ isRefl isTrans isAntisym
+    isposet (IsCommMonoid.is-set isCommMonoid) isProp≤ isRefl isTrans isAntisym
   CM.isCommMonoid IsOrderedCommMonoidFromIsCommMonoid = isCommMonoid
   CM.MonotoneR IsOrderedCommMonoidFromIsCommMonoid = rmonotone _ _ _
   CM.MonotoneL IsOrderedCommMonoidFromIsCommMonoid = lmonotone _ _ _
@@ -88,6 +90,3 @@ OrderedCommMonoid→CommMonoid M .fst = M .fst
 OrderedCommMonoid→CommMonoid M .snd =
   let open OrderedCommMonoidStr (M .snd)
   in commmonoidstr _ _ isCommMonoid
-
-isSetOrderedCommMonoid : (M : OrderedCommMonoid ℓ ℓ') → isSet ⟨ M ⟩
-isSetOrderedCommMonoid M = isSetCommMonoid (OrderedCommMonoid→CommMonoid M)

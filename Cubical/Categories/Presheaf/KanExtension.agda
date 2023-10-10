@@ -193,8 +193,8 @@ module Lan {ℓC ℓC' ℓD ℓD'} ℓS
   adj : Lan ⊣ F*
   adj ._⊣_.η = η
   adj ._⊣_.ε = ε
-  adj ._⊣_.Δ₁ = Δ₁
-  adj ._⊣_.Δ₂ = Δ₂
+  adj ._⊣_.triangleIdentities .TriangleIdentities.Δ₁ = Δ₁
+  adj ._⊣_.triangleIdentities .TriangleIdentities.Δ₂ = Δ₂
 
 {-
   Right Kan extension of a functor C → D to a functor PresheafCategory C ℓ → PresheafCategory D ℓ
@@ -345,5 +345,5 @@ module Ran {ℓC ℓC' ℓD ℓD'} ℓS
   adj : F* ⊣ Ran
   adj ._⊣_.η = η
   adj ._⊣_.ε = ε
-  adj ._⊣_.Δ₁ = Δ₁
-  adj ._⊣_.Δ₂ = Δ₂
+  adj ._⊣_.triangleIdentities .TriangleIdentities.Δ₁ = Δ₁
+  adj ._⊣_.triangleIdentities .TriangleIdentities.Δ₂ = Δ₂

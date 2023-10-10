@@ -138,9 +138,6 @@ module _ ((G , abgroupstr _ _ _ GisGroup) : AbGroup ℓ) where
   AbGroup→CommMonoid .snd .CommMonoidStr.isCommMonoid .IsCommMonoid.isMonoid = IsAbGroup.isMonoid GisGroup
   AbGroup→CommMonoid .snd .CommMonoidStr.isCommMonoid .IsCommMonoid.·Comm = IsAbGroup.+Comm GisGroup
 
-isSetAbGroup : (A : AbGroup ℓ) → isSet ⟨ A ⟩
-isSetAbGroup A = isSetGroup (AbGroup→Group A)
-
 AbGroupHom : (G : AbGroup ℓ) (H : AbGroup ℓ') → Type (ℓ-max ℓ ℓ')
 AbGroupHom G H = GroupHom (AbGroup→Group G) (AbGroup→Group H)
 

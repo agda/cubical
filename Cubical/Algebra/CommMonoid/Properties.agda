@@ -33,7 +33,7 @@ module _
       (x · y) , ·Closed x y xContained yContained
     IsCommMonoid.isMonoid (CommMonoidStr.isCommMonoid (snd makeSubCommMonoid)) =
       makeIsMonoid
-        (isOfHLevelΣ 2 (isSetFromIsCommMonoid isCommMonoid) λ _ → isProp→isSet (snd (P _)))
+        (isOfHLevelΣ 2 is-set λ _ → isProp→isSet (snd (P _)))
         (λ x y z → Σ≡Prop (λ _ → snd (P _)) (·Assoc (fst x) (fst y) (fst z)))
         (λ x → Σ≡Prop (λ _ → snd (P _)) (·IdR (fst x)))
         λ x → Σ≡Prop (λ _ → snd (P _)) (·IdL (fst x))

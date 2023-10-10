@@ -16,12 +16,6 @@ private
     ℓ ℓ' : Level
     A : Type ℓ
 
--- Less polymorphic version of `cong`, to avoid some unresolved metas
-cong′ : ∀ {B : Type ℓ'} (f : A → B) {x y : A} (p : x ≡ y)
-      → Path B (f x) (f y)
-cong′ f = cong f
-{-# INLINE cong′ #-}
-
 module _ {A : I → Type ℓ} {x : A i0} {y : A i1} where
   toPathP⁻ : x ≡ transport⁻ (λ i → A i) y → PathP A x y
   toPathP⁻ p = symP (toPathP (sym p))
@@ -279,13 +273,13 @@ module _ {ℓ : Level} {A : Type ℓ}
 
 -- Inspect
 
-module _ {A : Type ℓ} {B : Type ℓ'} where
+module _ {A : Type ℓ} {B : A -> Type ℓ'} where
 
-  record Reveal_·_is_ (f : A → B) (x : A) (y : B) : Type (ℓ-max ℓ ℓ') where
+  record Reveal_·_is_ (f : (x : A) → B x) (x : A) (y : B x) : Type (ℓ-max ℓ ℓ') where
     constructor [_]ᵢ
     field path : f x ≡ y
 
-  inspect : (f : A → B) (x : A) → Reveal f · x is f x
+  inspect : (f : (x : A) → B x) (x : A) → Reveal f · x is f x
   inspect f x .Reveal_·_is_.path = refl
 
 -- J is an equivalence

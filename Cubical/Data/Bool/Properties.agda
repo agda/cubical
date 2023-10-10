@@ -406,3 +406,6 @@ Iso-⊤⊎⊤-Bool .leftInv (inl tt) = refl
 Iso-⊤⊎⊤-Bool .leftInv (inr tt) = refl
 Iso-⊤⊎⊤-Bool .rightInv true = refl
 Iso-⊤⊎⊤-Bool .rightInv false = refl
+
+separatedBool : Separated Bool
+separatedBool = Discrete→Separated _≟_

@@ -28,7 +28,7 @@ open import Cubical.HITs.PropositionalTruncation renaming (rec to propTruncRec; 
 open import Cubical.Algebra.CommMonoid.Base
 open import Cubical.Algebra.OrderedCommMonoid
 
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 private
   variable
@@ -261,5 +261,7 @@ isSetBoundedPropCompletion :
      (M : OrderedCommMonoid ℓ ℓ)
    → isSet (⟨ BoundedPropCompletion M ⟩)
 isSetBoundedPropCompletion M =
-  isSetΣSndProp (isSetOrderedCommMonoid (PropCompletion M))
+  isSetΣSndProp is-set
                 λ x → PropCompletion.isPropIsBounded _ M x
+  where
+  open OrderedCommMonoidStr (str (PropCompletion M))

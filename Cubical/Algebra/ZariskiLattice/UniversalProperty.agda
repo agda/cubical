@@ -23,7 +23,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Unit
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Properties

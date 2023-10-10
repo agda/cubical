@@ -118,7 +118,7 @@ module PolyMod (R' : CommRing ℓ) where
 
 
   isSetPolyFun : isSet PolyFun
-  isSetPolyFun = isSetΣSndProp (isSetΠ (λ x → isSetCommRing R')) λ f x y → squash₁ x y
+  isSetPolyFun = isSetΣSndProp (isSetΠ (λ x → is-set)) λ f x y → squash₁ x y
 
 
   --construction of the function that represents the polynomial

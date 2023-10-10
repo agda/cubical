@@ -47,6 +47,13 @@ _[_,-] : (C : Category ℓ ℓ') → (c : C .ob)→ Functor C (SET ℓ')
 (C [ c ,-]) .F-id      = funExt λ _ → C .⋆IdR _
 (C [ c ,-]) .F-seq _ _ = funExt λ _ → sym (C .⋆Assoc _ _ _)
 
+-- Lift functor
+LiftF : Functor (SET ℓ) (SET (ℓ-max ℓ ℓ'))
+LiftF {ℓ}{ℓ'} .F-ob A = (Lift {ℓ}{ℓ'} (A .fst)) , isOfHLevelLift 2 (A .snd)
+LiftF .F-hom f x = lift (f (x .lower))
+LiftF .F-id = refl
+LiftF .F-seq f g = funExt λ x → refl
+
 module _ {C : Category ℓ ℓ'} {F : Functor C (SET ℓ')} where
   open NatTrans
 

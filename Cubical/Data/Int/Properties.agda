@@ -13,11 +13,68 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
-  hiding   (+-assoc ; +-comm)
-  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
+  hiding   (+-assoc ; +-comm ; min ; max ; minComm ; maxComm)
+  renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ;
+            ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Sum
 
 open import Cubical.Data.Int.Base
+
+min : ℤ → ℤ → ℤ
+min (pos zero) (pos m) = pos zero
+min (pos (suc n)) (pos zero) = pos zero
+min (pos (suc n)) (pos (suc m)) = sucℤ (min (pos n) (pos m))
+min (negsuc n) (pos m) = negsuc n
+min (pos n) (negsuc m) = negsuc m
+min (negsuc zero) (negsuc m) = negsuc m
+min (negsuc (suc n)) (negsuc zero) = negsuc (suc n)
+min (negsuc (suc n)) (negsuc (suc m)) = predℤ (min (negsuc n) (negsuc m))
+
+minComm : ∀ n m → min n m ≡ min m n
+minComm (pos zero) (pos zero) = refl
+minComm (pos zero) (pos (suc m)) = refl
+minComm (pos (suc n)) (pos zero) = refl
+minComm (pos (suc n)) (pos (suc m)) = cong sucℤ (minComm (pos n) (pos m))
+minComm (pos zero) (negsuc zero) = refl
+minComm (pos zero) (negsuc (suc m)) = refl
+minComm (pos (suc n)) (negsuc zero) = refl
+minComm (pos (suc n)) (negsuc (suc m)) = refl
+minComm (negsuc zero) (pos zero) = refl
+minComm (negsuc zero) (pos (suc m)) = refl
+minComm (negsuc (suc n)) (pos zero) = refl
+minComm (negsuc (suc n)) (pos (suc m)) = refl
+minComm (negsuc zero) (negsuc zero) = refl
+minComm (negsuc zero) (negsuc (suc m)) = refl
+minComm (negsuc (suc n)) (negsuc zero) = refl
+minComm (negsuc (suc n)) (negsuc (suc m)) = cong predℤ (minComm (negsuc n) (negsuc m))
+
+max : ℤ → ℤ → ℤ
+max (pos zero) (pos m) = pos m
+max (pos (suc n)) (pos zero) = pos (suc n)
+max (pos (suc n)) (pos (suc m)) = sucℤ (max (pos n) (pos m))
+max (pos n) (negsuc m) = pos n
+max (negsuc n) (pos m) = pos m
+max (negsuc zero) (negsuc m) = negsuc zero
+max (negsuc (suc n)) (negsuc zero) = negsuc zero
+max (negsuc (suc n)) (negsuc (suc m)) = predℤ (max (negsuc n) (negsuc m))
+
+maxComm : ∀ n m → max n m ≡ max m n
+maxComm (pos zero) (pos zero) = refl
+maxComm (pos zero) (pos (suc m)) = refl
+maxComm (pos (suc n)) (pos zero) = refl
+maxComm (pos (suc n)) (pos (suc m)) = cong sucℤ (maxComm (pos n) (pos m))
+maxComm (pos zero) (negsuc zero) = refl
+maxComm (pos zero) (negsuc (suc m)) = refl
+maxComm (pos (suc n)) (negsuc zero) = refl
+maxComm (pos (suc n)) (negsuc (suc m)) = refl
+maxComm (negsuc zero) (pos zero) = refl
+maxComm (negsuc zero) (pos (suc m)) = refl
+maxComm (negsuc (suc n)) (pos zero) = refl
+maxComm (negsuc (suc n)) (pos (suc m)) = refl
+maxComm (negsuc zero) (negsuc zero) = refl
+maxComm (negsuc zero) (negsuc (suc m)) = refl
+maxComm (negsuc (suc n)) (negsuc zero) = refl
+maxComm (negsuc (suc n)) (negsuc (suc m)) = cong predℤ (maxComm (negsuc n) (negsuc m))
 
 sucPred : ∀ i → sucℤ (predℤ i) ≡ i
 sucPred (pos zero)    = refl
@@ -77,6 +134,10 @@ isSetℤ = Discrete→isSet discreteℤ
 -neg : ∀ n → - (neg n) ≡ pos n
 -neg zero    = refl
 -neg (suc n) = refl
+
+sucℤnegsucneg : ∀ n → sucℤ (negsuc n) ≡ neg n
+sucℤnegsucneg zero = refl
+sucℤnegsucneg (suc n) = refl
 
 -Involutive : ∀ z → - (- z) ≡ z
 -Involutive (pos n)    = cong -_ (-pos n) ∙ -neg n
@@ -364,6 +425,31 @@ pos- (suc m) (suc n) =
    - (negsuc n + negsuc m)     ≡⟨ cong -_ (sym (neg+ (suc n) (suc m))) ⟩
    -  neg (suc n +ℕ suc m)     ≡⟨ pos+ (suc n) (suc m) ⟩
   (-  negsuc n) + (- negsuc m) ∎
+
+inj-z+ : ∀ {z l n} → z + l ≡ z + n → l ≡ n
+inj-z+ {pos zero} {l} {n} p = l            ≡⟨ pos0+ l ⟩
+                              pos zero + l ≡⟨ p ⟩
+                              pos zero + n ≡⟨ sym (pos0+ n) ⟩
+                              n            ∎
+inj-z+ {pos (suc z)} {l} {n} p
+  = inj-z+ {z = pos z} (sym (predℤ+ (pos (suc z)) l)
+                      ∙ cong predℤ p
+                      ∙ predℤ+ (pos (suc z)) n)
+inj-z+ {negsuc zero} {l} {n} p = sym (sucPred l)
+                               ∙ cong sucℤ (negsuc0+ l
+                                 ∙ p
+                                 ∙ sym (negsuc0+ n))
+                               ∙ sucPred n
+inj-z+ {negsuc (suc z)} {l} {n} p
+  = inj-z+ {z = negsuc z} (sym (sucℤ+ (negsuc (suc z)) l)
+                         ∙ cong sucℤ p
+                         ∙ sucℤ+ (negsuc (suc z)) n)
+
+inj-+z : ∀ {z l n} → l + z ≡ n + z → l ≡ n
+inj-+z {z} {l} {n} p = inj-z+ {z = z} (+Comm z l ∙ p ∙ +Comm n z)
+
+n+z≡z→n≡0 : ∀ n z → n + z ≡ z → n ≡ 0
+n+z≡z→n≡0 n z p = inj-z+ {z = z} {l = n} {n = 0} (+Comm z n ∙ p)
 
 
 -- multiplication

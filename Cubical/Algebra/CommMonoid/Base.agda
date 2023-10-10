@@ -81,19 +81,6 @@ CommMonoidStr→MonoidStr (commmonoidstr _ _ H) = monoidstr _ _ (IsCommMonoid.is
 CommMonoid→Monoid : CommMonoid ℓ → Monoid ℓ
 CommMonoid→Monoid (_ , commmonoidstr  _ _ M) = _ , monoidstr _ _ (IsCommMonoid.isMonoid M)
 
-isSetFromIsCommMonoid :
-  {M : Type ℓ} {ε : M} {_·_ : M → M → M}
-  (isCommMonoid : IsCommMonoid ε _·_)
-  → isSet M
-isSetFromIsCommMonoid isCommMonoid =
-  let open IsCommMonoid isCommMonoid
-  in is-set
-
-isSetCommMonoid : (M : CommMonoid ℓ) → isSet ⟨ M ⟩
-isSetCommMonoid M =
-  let open CommMonoidStr (snd M)
-  in isSetFromIsCommMonoid isCommMonoid
-
 CommMonoidHom : (L : CommMonoid ℓ) (M : CommMonoid ℓ') → Type (ℓ-max ℓ ℓ')
 CommMonoidHom L M = MonoidHom (CommMonoid→Monoid L) (CommMonoid→Monoid M)
 

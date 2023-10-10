@@ -14,6 +14,7 @@ open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
+open import Cubical.Categories.Morphism
 open import Cubical.Categories.Functor.Base
 
 
@@ -96,6 +97,11 @@ module _ {F : Functor C D} where
         g⁻¹ : D [ y' , x' ]
         g⁻¹ = F ⟪ f⁻¹ ⟫
 
+  -- hacky lemma helping with type inferences
+  functorCongP : {x y v w : ob C} {p : x ≡ y} {q : v ≡ w} {f : C [ x , v ]} {g : C [ y , w ]}
+               → PathP (λ i → C [ p i , q i ]) f g
+               → PathP (λ i → D [ F .F-ob (p i) , F. F-ob (q i) ]) (F .F-hom f) (F .F-hom g)
+  functorCongP r i = F .F-hom (r i)
 
 isSetFunctor : isSet (D .ob) → isSet (Functor C D)
 isSetFunctor {D = D} {C = C} isSet-D-ob F G p q = w
@@ -139,6 +145,14 @@ module _ {F : Functor C D} where
   isFull+Faithful→isFullyFaithful : isFull F → isFaithful F → isFullyFaithful F
   isFull+Faithful→isFullyFaithful full faith x y = isEmbedding×isSurjection→isEquiv
     (injEmbedding (D .isSetHom) (faith x y _ _) , full x y)
+
+  isFaithful→reflectsMono : isFaithful F → {x y : C .ob} (f : C [ x , y ])
+    → isMonic D (F ⟪ f ⟫) → isMonic C f
+  isFaithful→reflectsMono F-faithful f Ff-mon {a = a} {a' = a'} a⋆f≡a'⋆f =
+    let Fa⋆Ff≡Fa'⋆Ff = sym (F .F-seq a f)
+                     ∙ cong (F ⟪_⟫) a⋆f≡a'⋆f
+                     ∙ F .F-seq a' f
+    in F-faithful _ _ _ _ (Ff-mon Fa⋆Ff≡Fa'⋆Ff)
 
 
   -- Fully-faithful functor is conservative
