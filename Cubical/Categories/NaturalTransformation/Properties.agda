@@ -180,7 +180,8 @@ module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'}{D : Category ℓD �
 ⇒^opFiso : Iso (F ⇒ F') (_^opF {C = C} {D = D} F' ⇒ F ^opF )
 N-ob (fun ⇒^opFiso x) = N-ob x
 N-hom (fun ⇒^opFiso x) f = sym (N-hom x f)
-inv ⇒^opFiso = _
+N-ob (inv ⇒^opFiso x) = N-ob x
+N-hom (inv ⇒^opFiso x) f = sym (N-hom x f)
 rightInv ⇒^opFiso _ = refl
 leftInv ⇒^opFiso _ = refl
 
@@ -189,7 +190,10 @@ trans (fun congNatIso^opFiso x) = Iso.fun ⇒^opFiso (trans x)
 inv (nIso (fun congNatIso^opFiso x) x₁) = _
 sec (nIso (fun congNatIso^opFiso x) x₁) = ret (nIso x x₁)
 ret (nIso (fun congNatIso^opFiso x) x₁) = sec (nIso x x₁)
-inv congNatIso^opFiso = _
+trans (inv congNatIso^opFiso x) = Iso.inv ⇒^opFiso (trans x)
+inv (nIso (inv congNatIso^opFiso x) x₁) = _
+sec (nIso (inv congNatIso^opFiso x) x₁) = ret (nIso x x₁)
+ret (nIso (inv congNatIso^opFiso x) x₁) = sec (nIso x x₁)
 rightInv congNatIso^opFiso _ = refl
 leftInv congNatIso^opFiso _ = refl
 
