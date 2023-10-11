@@ -357,4 +357,16 @@ module _ (A : CommRing ℓ) where
 
   inducedZarLatHomId : inducedZarLatHom (idCommRingHom A)
                      ≡ idDistLatticeHom (ZariskiLattice A)
-  inducedZarLatHomId = {!!}
+  inducedZarLatHomId =
+    cong fst
+      (ZLHasUniversalProp A (ZariskiLattice A) (Dcomp (idCommRingHom A))
+                                               (isZarMapDcomp (idCommRingHom A)) .snd
+        (idDistLatticeHom (ZariskiLattice A) , refl))
+
+module _ {A B C : CommRing ℓ} (φ : CommRingHom A B) (ψ : CommRingHom B C) where
+  open ZarLat
+  open ZarLatUniversalProp
+
+  inducedZarLatHomSeq : inducedZarLatHom (ψ ∘cr φ) ≡ {!!}
+                      -- ≡ inducedZarLatHom ψ ∘dl inducedZarLatHom φ
+  inducedZarLatHomSeq = {!!}
