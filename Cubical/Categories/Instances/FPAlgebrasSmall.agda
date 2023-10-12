@@ -99,5 +99,5 @@ module _ (R : CommRing ℓ) where
   𝓛 : Functor FPAlgebrasSmallCategory (SET ℓ)
   F-ob 𝓛 A = ZarLat.ZL (CommAlgebra→CommRing (indFPAlg A)) , SQ.squash/
   F-hom 𝓛  φ = inducedZarLatHom (CommAlgebraHom→CommRingHom _ _ φ) .fst
-  F-id 𝓛 = {!!}
+  F-id 𝓛 {A} = {!cong fst (inducedZarLatHomId (CommAlgebra→CommRing (indFPAlg A)))!}
   F-seq 𝓛 = {!!}

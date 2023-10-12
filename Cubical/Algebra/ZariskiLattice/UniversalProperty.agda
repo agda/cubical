@@ -367,6 +367,14 @@ module _ {A B C : CommRing ℓ} (φ : CommRingHom A B) (ψ : CommRingHom B C) wh
   open ZarLat
   open ZarLatUniversalProp
 
-  inducedZarLatHomSeq : inducedZarLatHom (ψ ∘cr φ) ≡ {!!}
-                      -- ≡ inducedZarLatHom ψ ∘dl inducedZarLatHom φ
-  inducedZarLatHomSeq = {!!}
+  inducedZarLatHomSeq : inducedZarLatHom (ψ ∘cr φ)
+                      ≡ inducedZarLatHom ψ ∘dl inducedZarLatHom φ
+  inducedZarLatHomSeq =
+    cong fst
+      (ZLHasUniversalProp A (ZariskiLattice C) (Dcomp (ψ ∘cr φ))
+                                               (isZarMapDcomp (ψ ∘cr φ)) .snd
+        (inducedZarLatHom ψ ∘dl inducedZarLatHom φ , funExt path))
+    where
+    path : ∀ f → fst (inducedZarLatHom ψ ∘dl inducedZarLatHom φ) (D A f)
+               ≡ Dcomp (ψ ∘cr φ) f
+    path f i = [ 1 , (++FinRid {n = 1} (λ _ → (ψ ∘cr φ) .fst f) λ ()) i ]
