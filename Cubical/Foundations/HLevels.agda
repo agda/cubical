@@ -798,3 +798,13 @@ isSet→Iso-Iso-≡ isSet-A isSet-A' = ww
 
 hSet-Iso-Iso-≡ : (A : hSet ℓ) → (A' : hSet ℓ) → Iso (Iso (fst A) (fst A')) (A ≡ A')
 hSet-Iso-Iso-≡ A A' = compIso (isSet→Iso-Iso-≡ (snd A) (snd A')) (equivToIso (_ , isEquiv-Σ≡Prop λ _ → isPropIsSet))
+
+
+isEquivDiag→isProp : isEquiv (λ (x : A) → (x , x)) → isProp A
+isEquivDiag→isProp isEq x y = sym (cong fst p) ∙ cong snd p
+  where
+    i = equivToIso (_ , isEq)
+    p = i .Iso.rightInv (x , y)
+
+isProp→isEquivDiag : isProp A → isEquiv (λ (x : A) → (x , x))
+isProp→isEquivDiag p = isoToIsEquiv (iso (λ z → z , z) fst (λ (x , y) → cong (x ,_) (p _ _)) (λ _ → refl))

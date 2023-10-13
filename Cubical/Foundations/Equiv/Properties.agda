@@ -253,3 +253,10 @@ isEquiv[equivFunA≃B∘f]→isEquiv[f] f (g , gIsEquiv) g∘fIsEquiv  =
 
       w' : isEquiv (equivFun (invEquiv (_ , g∘fIsEquiv)) ∘ g)
       w' = snd (compEquiv (_ , gIsEquiv) (invEquiv (_ , g∘fIsEquiv)))
+
+
+isEquiv-fst→isEquiv-diag : isEquiv (fst {A = A} {B = λ _ → A}) → isEquiv (λ (x : A) → (x , x))
+isEquiv-fst→isEquiv-diag p = isEquiv[equivFunA≃B∘f]→isEquiv[f] (λ x → x , x) (fst , p) (idIsEquiv _)
+
+isEquiv-diag→isEquiv-fst : isEquiv (λ (x : A) → (x , x)) → isEquiv (fst {A = A} {B = λ _ → A})
+isEquiv-diag→isEquiv-fst p = isEquiv[f∘equivFunA≃B]→isEquiv[f] fst ((λ x → x , x) , p) (idIsEquiv _)
