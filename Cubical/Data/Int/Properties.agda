@@ -114,6 +114,12 @@ negsucNotpos a b h = subst T h 0
   T (pos _)    = ⊥
   T (negsuc _) = ℕ
 
+injNeg : ∀ {a b : ℕ} → neg a ≡ neg b → a ≡ b
+injNeg {zero} {zero} _ = refl
+injNeg {zero} {suc b} nega≡negb = ⊥.rec (posNotnegsuc 0 b nega≡negb)
+injNeg {suc a} {zero} nega≡negb = ⊥.rec (negsucNotpos a 0 nega≡negb)
+injNeg {suc a} {suc b} nega≡negb = cong suc (injNegsuc nega≡negb)
+
 discreteℤ : Discrete ℤ
 discreteℤ (pos n) (pos m) with discreteℕ n m
 ... | yes p = yes (cong pos p)
@@ -500,11 +506,11 @@ negsuc·negsuc (suc n) m = cong (pos (suc m) +_) (negsuc·negsuc n m)
 ·Comm (negsuc n) (negsuc m) =
   negsuc·negsuc n m ∙∙ ·Comm (pos (suc n)) (pos (suc m)) ∙∙ sym (negsuc·negsuc m n)
 
-·Rid : (x : ℤ) → x · 1 ≡ x
-·Rid x = ·Comm x 1
+·IdR : (x : ℤ) → x · 1 ≡ x
+·IdR x = ·Comm x 1
 
-·Lid : (x : ℤ) → 1 · x ≡ x
-·Lid x = refl
+·IdL : (x : ℤ) → 1 · x ≡ x
+·IdL x = refl
 
 ·AnnihilR : (x : ℤ) → x · 0 ≡ 0
 ·AnnihilR x = ·Comm x 0
@@ -570,6 +576,35 @@ private
      cong ((- (b · c)) +_) (·Assoc (negsuc n) b c)
   ∙∙ cong (_+ ((negsuc n · b) · c)) (-DistL· b c)
   ∙∙ sym (·DistL+ (- b) (negsuc n · b) c)
+
+·suc→0 : (a : ℤ) (b : ℕ) → a · pos (suc b) ≡ 0 → a ≡ 0
+·suc→0 (pos n) b n·b≡0 = cong pos (sym (0≡n·sm→0≡n (sym (injPos (pos·pos n (suc b) ∙ n·b≡0)))))
+·suc→0 (negsuc n) b n·b≡0 = ⊥.rec (snotz
+                                     (injNeg
+                                      (cong -_ (pos·pos (suc n) (suc b)) ∙
+                                       sym (negsuc·pos n (suc b)) ∙
+                                       n·b≡0)))
+
+sucℤ· : (a b : ℤ) → sucℤ a · b ≡ b + a · b
+sucℤ· (pos a) (pos b) = refl
+sucℤ· (pos a) (negsuc b) = refl
+sucℤ· (negsuc zero) (pos b) = sym (-Cancel (pos b))
+sucℤ· (negsuc (suc a)) (pos b) =
+  negsuc a · pos b                     ≡⟨ pos0+ (negsuc a · pos b) ⟩
+  pos zero + negsuc a · pos b          ≡⟨ cong (_+ negsuc a · pos b) (sym (-Cancel (pos b))) ⟩
+  pos b + - pos b + negsuc a · pos b   ≡⟨ sym (+Assoc (pos b) (- pos b) (negsuc a · pos b)) ⟩
+  pos b + (- pos b + negsuc a · pos b) ∎
+sucℤ· (negsuc zero) (negsuc b) =
+      pos zero                ≡⟨ sym (-Cancel' (pos b)) ⟩
+  ((- pos b) +pos b)          ≡⟨ cong (_+pos b) (-pos b) ⟩
+     (neg b  +pos b)          ≡⟨ cong (_+pos b) (sym (sucℤnegsucneg b)) ⟩
+     (sucℤ (negsuc b) +pos b) ≡⟨ sym (sucℤ+pos b (negsuc b)) ⟩
+      sucℤ (negsuc b  +pos b) ∎
+sucℤ· (negsuc (suc a)) (negsuc b) =
+  negsuc a · negsuc b                              ≡⟨ pos0+ (negsuc a · negsuc b) ⟩
+  pos zero + negsuc a · negsuc b                   ≡⟨ cong (_+ negsuc a · negsuc b) (sym (-Cancel' (pos (suc b)))) ⟩
+ (negsuc b + (pos (suc b))) + negsuc a · negsuc b  ≡⟨ sym (+Assoc (negsuc b) (pos (suc b)) (negsuc a · negsuc b)) ⟩
+  negsuc b + (pos (suc b)   + negsuc a · negsuc b) ∎
 
 minus≡0- : (x : ℤ) → - x ≡ (0 - x)
 minus≡0- x = +Comm (- x) 0

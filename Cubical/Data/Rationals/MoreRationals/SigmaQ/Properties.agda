@@ -17,7 +17,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat.GCD
 open import Cubical.Data.Nat.Coprime
 
-open import Cubical.Data.Rationals as Quo using (ℕ₊₁→ℤ)
+open import Cubical.Data.Rationals.MoreRationals.QuoQ as Quo using (ℕ₊₁→ℤ)
 import Cubical.Data.Rationals.MoreRationals.SigmaQ.Base as Sigma
 
 

@@ -47,6 +47,9 @@ isProp≤ {m} {n} (k , p) (l , q)
     lemma : k ≡ l
     lemma = injPos (inj-z+ (p ∙ sym q))
 
+isProp< : isProp (m < n)
+isProp< = isProp≤
+
 zero-≤pos : 0 ≤ pos l
 zero-≤pos {l} = l , (sym (pos0+ (pos l)))
 
@@ -175,6 +178,26 @@ isAntisym≤ {m} {n} (i , p) (j , q)
    (m +pos i) ℤ.· pos k             ≡⟨ cong (ℤ._· pos k) p ⟩
    n ℤ.· pos k                      ∎)
 
+<-·o : m < n → m ℤ.· (pos (suc k)) < n ℤ.· (pos (suc k))
+<-·o {m} {n} {k} (i , p) = (i ℕ.· suc k ℕ.+ k) ,
+    ((sucℤ (m ℤ.· pos (suc k)) +pos (i ℕ.· suc k ℕ.+ k))        ≡⟨ cong (sucℤ (m ℤ.· pos (suc k)) ℤ.+_)
+                                                                       (pos+ (i ℕ.· suc k) k) ⟩
+      sucℤ (m ℤ.· pos (suc k)) ℤ.+ (pos (i ℕ.· suc k) +pos k)   ≡⟨ cong (sucℤ (m ℤ.· pos (suc k)) ℤ.+_)
+                                                                       (+Comm (pos (i ℕ.· suc k)) (pos k)) ⟩
+      sucℤ (m ℤ.· pos (suc k)) ℤ.+ (pos k +pos (i ℕ.· suc k))   ≡⟨ +Assoc (sucℤ (m ℤ.· pos (suc k))) (pos k) (pos (i ℕ.· suc k)) ⟩
+    ((sucℤ (m ℤ.· pos (suc k)) +pos k) +pos (i ℕ.· suc k))      ≡⟨ cong (_+pos (i ℕ.· suc k))
+                                                                       (sym (sucℤ+pos k (m ℤ.· pos (suc k)))) ⟩
+     (sucℤ ((m ℤ.· pos (suc k)) +pos k) +pos (i ℕ.· suc k))     ≡⟨ cong (_+pos (i ℕ.· suc k)) (+sucℤ (m ℤ.· pos (suc k)) (pos k)) ⟩
+   (((m ℤ.· pos (suc k)) ℤ.+ (pos (suc k))) +pos (i ℕ.· suc k)) ≡⟨ cong (_+pos (i ℕ.· suc k))
+                                                                       (+Comm (m ℤ.· pos (suc k)) (pos (suc k))) ⟩
+     ((pos (suc k) ℤ.+ m ℤ.· pos (suc k)) +pos (i ℕ.· suc k))    ≡⟨ cong (_+pos (i ℕ.· suc k)) (sym (sucℤ· m (pos (suc k)))) ⟩
+    (((sucℤ m) ℤ.· pos (suc k)) +pos (i ℕ.· suc k))              ≡⟨ cong ((sucℤ m) ℤ.· pos (suc k) ℤ.+_)
+                                                                       (pos·pos i (suc k)) ⟩
+     ((sucℤ m) ℤ.· pos (suc k)) ℤ.+ pos i ℤ.· pos (suc k)        ≡⟨ sym (·DistL+ ((sucℤ m)) (pos i) (pos (suc k))) ⟩
+     ((sucℤ m) +pos i) ℤ.· pos (suc k)                            ≡⟨ cong (ℤ._· pos (suc k)) p ⟩
+      n ℤ.· pos (suc k)                                              ∎)
+
+
 <-o+-cancel : o ℤ.+ m < o ℤ.+ n → m < n
 <-o+-cancel {o} {m} {n} = ≤-o+-cancel ∘ subst (_≤ o ℤ.+ n) (+sucℤ o m)
 
@@ -251,6 +274,53 @@ isAsym< m<n = isIrrefl< ∘ <≤-trans m<n
 
 -pos≤ : m - (pos k) ≤ m
 -pos≤ {m} {k} = k , minusPlus (pos k) m
+
+·suc≤0 : m ℤ.· (pos (suc k)) ≤ 0 → m ≤ 0
+·suc≤0 {pos n} {k} (i , p) = 0 ,
+  cong pos (sym (0≡n·sm→0≡n
+           (sym (m+n≡0→m≡0×n≡0
+                (injPos (pos+ (n ℕ.· suc k) i ∙
+                         cong (_+pos i) (pos·pos n (suc k)) ∙
+                         p)) .fst))))
+·suc≤0 {negsuc _} _ = negsuc<-zero
+
+·suc<0 : m ℤ.· (pos (suc k)) < 0 → m < 0
+·suc<0 {pos n} {k} (i , p) =
+  ⊥.rec (snotz (injPos
+               (pos+ (suc (n ℕ.· suc k)) i ∙
+                cong (λ x → sucℤ x +pos i) (pos·pos n (suc k)) ∙
+                p)))
+·suc<0 {negsuc _} _ = negsuc<-zero
+
+≤-·o-cancel : m ℤ.· (pos (suc k)) ≤ n ℤ.· (pos (suc k)) → m ≤ n
+≤-·o-cancel {m} {k} {n} mk≤nk =
+  subst2 _≤_
+         (minusPlus n m)
+         (+Comm 0 n)
+         (≤-+o {o = n}
+               (·suc≤0 (subst2 _≤_
+                               (cong (m ℤ.· pos (suc k) ℤ.+_) (-DistL· n (pos (suc k))) ∙
+                                 sym (·DistL+ m (- n) (pos (suc k))))
+                               (-Cancel (n ℤ.· pos (suc k)))
+                               (≤-+o {o = - (n ℤ.· pos (suc k))} mk≤nk))))
+
+≤-o·-cancel : (pos (suc k)) ℤ.· m ≤ (pos (suc k)) ℤ.· n → m ≤ n
+≤-o·-cancel {k} {m} {n} = ≤-·o-cancel ∘ (subst2 _≤_ (·Comm (pos (suc k)) m) (·Comm (pos (suc k)) n))
+
+<-·o-cancel : m ℤ.· (pos (suc k)) < n ℤ.· (pos (suc k)) → m < n
+<-·o-cancel {m} {k} {n} mk<nk =
+  subst2 _<_
+         (minusPlus n m)
+         (+Comm 0 n)
+         (<-+o {o = n}
+               (·suc<0 (subst2 _<_
+                               (cong (m ℤ.· pos (suc k) ℤ.+_) (-DistL· n (pos (suc k))) ∙
+                                 sym (·DistL+ m (- n) (pos (suc k))))
+                               (-Cancel (n ℤ.· pos (suc k)))
+                               (<-+o {o = - (n ℤ.· pos (suc k))} mk<nk))))
+
+<-o·-cancel : (pos (suc k)) ℤ.· m < (pos (suc k)) ℤ.· n → m < n
+<-o·-cancel {k} {m} {n} = <-·o-cancel ∘ (subst2 _<_ (·Comm (pos (suc k)) m) (·Comm (pos (suc k)) n))
 
 ≤-max : m ≤ ℤ.max m n
 ≤-max {pos zero} {pos m} = zero-≤pos
