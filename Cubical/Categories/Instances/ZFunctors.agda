@@ -15,6 +15,8 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
+open import Cubical.Functions.FunExtEquiv
+
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
@@ -60,7 +62,7 @@ open CommAlgebraHoms
 
 private
  variable
-  ℓ' ℓ'' : Level
+  ℓ ℓ' ℓ'' : Level
 
 
 module _ {ℓ : Level} where
@@ -128,7 +130,7 @@ module _ {ℓ : Level} where
 
 
   -- the global sections functor
-  Γ : Functor ℤFUNCTOR (CommRingsCategory {ℓ-suc ℓ})
+  Γ : Functor ℤFUNCTOR (CommRingsCategory {ℓ-suc ℓ} ^op)
   fst (F-ob Γ X) = X ⇒ 𝔸¹
   -- ring struncture induced by internal ring object 𝔸¹
   N-ob (CommRingStr.0r (snd (F-ob Γ X))) A _ = 0r
@@ -177,12 +179,92 @@ module _ {ℓ : Level} where
              - φ .fst (α .N-ob A x)     ≡⟨ sym (φ .snd .pres- _) ⟩
              φ .fst (- α .N-ob A x)     ∎
 
-  CommRingStr.isCommRing (snd (F-ob Γ X)) = {!!}
+  CommRingStr.isCommRing (snd (F-ob Γ X)) = makeIsCommRing
+    isSetNatTrans
+    (λ _ _ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.+Assoc _ _ _))
+    (λ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.+IdR _))
+    (λ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.+InvR _))
+    (λ _ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.+Comm _ _))
+    (λ _ _ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.·Assoc _ _ _))
+    (λ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.·IdR _))
+    (λ _ _ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.·DistR+ _ _ _))
+    (λ _ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.·Comm _ _))
+
+  -- action on natural transformations
+  fst (F-hom Γ α) = α ●ᵛ_
+  pres0 (snd (F-hom Γ α)) = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres1 (snd (F-hom Γ α)) = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres+ (snd (F-hom Γ α)) _ _ = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres· (snd (F-hom Γ α)) _ _ = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres- (snd (F-hom Γ α)) _ = makeNatTransPath (funExt₂ λ _ _ → refl)
+
   -- functoriality of Γ
-  F-hom Γ = {!!}
-  F-id Γ = {!!}
-  F-seq Γ = {!!}
+  F-id Γ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
+  F-seq Γ _ _ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
 
 
-  -- we get an adjunction modulo size issues
-  -- ΓSpOb : (A : CommRing ℓ)
+-- we get an adjunction Γ ⊣ Sp modulo size issues
+-- note that we can't write unit and counit as
+-- elements of type NatTrans because the type CommRingHom
+-- ends up living in the next higher universe
+open Functor
+open NatTrans
+open Iso
+open IsRingHom
+
+private
+  -- hack, because Functor record doesn't have η-equality
+  ntSwap : {A : CommRing ℓ} → CommRingsCategory ^op [-, A ] ⇒ 𝔸¹
+                            → CommRingsCategory [ A ,-] ⇒ 𝔸¹
+  N-ob (ntSwap α) B = α .N-ob B
+  N-hom (ntSwap α) φ = α .N-hom φ
+
+-- The counit is an equivalence
+ΓSpOb : (A : CommRing ℓ) → CommRingHom ((Γ ∘F Sp) .F-ob A) A
+fst (ΓSpOb A) α = yoneda 𝔸¹ A .fun (ntSwap α)
+pres0 (snd (ΓSpOb A)) = refl
+pres1 (snd (ΓSpOb A)) = refl
+pres+ (snd (ΓSpOb A)) _ _ = refl
+pres· (snd (ΓSpOb A)) _ _ = refl
+pres- (snd (ΓSpOb A)) _ = refl
+
+ΓSpHom : {A B : CommRing ℓ} (φ : CommRingHom A B)
+       → φ ∘cr ΓSpOb A ≡  ΓSpOb B ∘cr ((Γ ∘F Sp) .F-hom φ)
+ΓSpHom φ = {!!}
+
+-- The unit is an equivalence iff the ℤ-functor is affine
+-- unfortunately, we can't give a natural transformation
+-- X ⇒ Hom (Γ X , ·), because the latter ℤ-functor lives
+-- in a higher universe.
+-- we can however give terms that look just like
+-- a natural transformation:
+SpΓObOb : (X : ℤFunctor) (A : CommRing ℓ)
+      → X .F-ob A .fst → CommRingHom (Γ .F-ob X) A
+fst (SpΓObOb X A x) α =  yoneda 𝔸¹ A .fun ((yoneda X A .inv x) ●ᵛ α)
+pres0 (snd (SpΓObOb X A x)) = refl
+pres1 (snd (SpΓObOb X A x)) = refl
+pres+ (snd (SpΓObOb X A x)) _ _ = refl
+pres· (snd (SpΓObOb X A x)) _ _ = refl
+pres- (snd (SpΓObOb X A x)) _ = refl
+
+-- the reason to prefer isAffine over isAffine' is that
+-- it becomes small when replacing comm rings with fp-algebras
+isAffine : (X : ℤFunctor {ℓ = ℓ}) → Type (ℓ-suc ℓ)
+isAffine X = ∀ (A : CommRing _) → isEquiv (SpΓObOb X A)
+-- TODO equivalence with naive def:
+isAffine' : (ℓ : Level) (X : ℤFunctor {ℓ = ℓ}) → Type (ℓ-suc ℓ)
+isAffine' ℓ X = ∃[ A ∈ CommRing ℓ ] CommRingEquiv A (Γ .F-ob X)
+
+-- the rest of the "quasi natural transoformation"
+SpΓObHom : (X : ℤFunctor) {A B : CommRing ℓ} (φ : CommRingHom A B)
+         → SpΓObOb X B ∘ (X .F-hom φ) ≡ (φ ∘cr_) ∘ SpΓObOb X A
+SpΓObHom X {A = A} {B = B} φ = funExt funExtHelper
+  where
+  funExtHelper : ∀ (x : X .F-ob A .fst)
+               → SpΓObOb X B (X .F-hom φ x) ≡ φ ∘cr (SpΓObOb X A x)
+  funExtHelper x = RingHom≡ (funExt funExtHelper2)
+    where
+    funExtHelper2 : ∀ (α : X ⇒ 𝔸¹)
+                  → yoneda 𝔸¹ B .fun ((yoneda X B .inv (X .F-hom φ x)) ●ᵛ α)
+                  ≡ φ .fst (yoneda 𝔸¹ A .fun ((yoneda X A .inv x) ●ᵛ α))
+    funExtHelper2 α = {!!}
