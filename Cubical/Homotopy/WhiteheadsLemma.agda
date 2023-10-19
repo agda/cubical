@@ -156,7 +156,7 @@ private
            ( (e3 ∘ e1) , (snd (compEquiv (e1 , e1Eq) (e3 , e3Eq))))))
 -- end of the long private block of helper lemmas
 
--- some useful paths between different maps 
+-- some useful paths between different maps
 
 {-
 
@@ -275,7 +275,7 @@ private
      |                        |
      |                        |
      v                        |
-πₙ₊₁ (A, a) ---------> πₙ₊₁ (B, f a) 
+πₙ₊₁ (A, a) ---------> πₙ₊₁ (B, f a)
 
 -}
 πHomπHomCongSquare : {A B : Type ℓ} {a : A} {n : ℕ} (f : A → B)
@@ -404,13 +404,13 @@ WhiteheadsLemma : {A B : Type ℓ} {n : ℕ}
   → isEquiv f
 WhiteheadsLemma {n = zero} hA hB f hf0 hf = isContr→isContr→isEquiv f hA hB
 WhiteheadsLemma {A = A} {B = B} {n = suc n} hA hB f hf0 hf =
-  ΩEquiv→Equiv 
+  ΩEquiv→Equiv
   ( f)
   ( hf0)
   ( λ a → WhiteheadsLemma
            ( isOfHLevelPath' n hA a a)
            ( isOfHLevelPath' n hB (f a) (f a))
-           ( fst (Ω→ {A = (A , a)} {B = (B , f a)} (f , refl))) 
+           ( fst (Ω→ {A = (A , a)} {B = (B , f a)} (f , refl)))
            ( hf a 0)
            ( ΩWhiteheadHyp a))
   where
