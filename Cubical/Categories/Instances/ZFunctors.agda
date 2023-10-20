@@ -93,11 +93,6 @@ module _ {ℓ : Level} where
   -- the forgetful functor
   -- aka the affine line
   -- (aka the representable of ℤ[x])
-  -- open Construction ℤCommRing
-  -- private
-  --   ℤ[x] : CommRing ℓ-zero
-  --   ℤ[x] = CommAlgebra→CommRing (ℤCommRing [ Unit ])
-
   𝔸¹ : ℤFunctor
   𝔸¹ = ForgetfulCommRing→Set --Sp .F-ob ℤ[x]
 
@@ -107,8 +102,7 @@ module _ {ℓ : Level} where
   CompactOpen X = X ⇒ 𝓛
 
   -- the induced subfunctor
-  ⟦_⟧ᶜᵒ : {X : ℤFunctor} (U : CompactOpen X)
-        → ℤFunctor
+  ⟦_⟧ᶜᵒ : {X : ℤFunctor} (U : CompactOpen X) → ℤFunctor
   F-ob (⟦_⟧ᶜᵒ {X = X} U) A = (Σ[ x ∈ X .F-ob A .fst  ] U .N-ob A x ≡ D A 1r)
                                 , isSetΣSndProp (X .F-ob A .snd) λ _ → squash/ _ _
    where instance _ = snd A
@@ -132,6 +126,7 @@ module _ {ℓ : Level} where
   -- the global sections functor
   Γ : Functor ℤFUNCTOR (CommRingsCategory {ℓ-suc ℓ} ^op)
   fst (F-ob Γ X) = X ⇒ 𝔸¹
+
   -- ring struncture induced by internal ring object 𝔸¹
   N-ob (CommRingStr.0r (snd (F-ob Γ X))) A _ = 0r
     where instance _ = A .snd
@@ -204,68 +199,10 @@ module _ {ℓ : Level} where
 
 
 -- we get an adjunction Γ ⊣ Sp modulo size issues
--- note that we can't write unit and counit as
--- elements of type NatTrans because the type CommRingHom
--- ends up living in the next higher universe
 open Functor
 open NatTrans
 open Iso
 open IsRingHom
-
-
-ΓSpOb : (A : CommRing ℓ) → CommRingHom ((Γ ∘F Sp) .F-ob A) A
-fst (ΓSpOb A) α = yonedaᴾ 𝔸¹ A .fun α
-pres0 (snd (ΓSpOb A)) = refl
-pres1 (snd (ΓSpOb A)) = refl
-pres+ (snd (ΓSpOb A)) _ _ = refl
-pres· (snd (ΓSpOb A)) _ _ = refl
-pres- (snd (ΓSpOb A)) _ = refl
-
-ΓSpHom : {A B : CommRing ℓ} (φ : CommRingHom A B)
-       → φ ∘cr ΓSpOb A ≡  ΓSpOb B ∘cr ((Γ ∘F Sp) .F-hom φ)
-ΓSpHom {A = A} {B = B} φ = RingHom≡ (funExt funExtHelper)
-  where
-  funExtHelper : ∀ (α : Sp .F-ob A ⇒ 𝔸¹)
-               → φ .fst (yonedaᴾ 𝔸¹ A .fun α) ≡ yonedaᴾ 𝔸¹ B .fun (Sp .F-hom φ ●ᵛ α)
-  funExtHelper α =  funExt⁻ (sym (yonedaIsNaturalInOb {F = 𝔸¹} A B φ))
-                            (record { N-ob = α .N-ob ; N-hom = α .N-hom })
-                            -- hack because Functor doesn't have η-equality
-
-
-SpΓObOb : (X : ℤFunctor) (A : CommRing ℓ)
-      → X .F-ob A .fst → CommRingHom (Γ .F-ob X) A
-fst (SpΓObOb X A x) α = α .N-ob A x
-pres0 (snd (SpΓObOb X A x)) = refl
-pres1 (snd (SpΓObOb X A x)) = refl
-pres+ (snd (SpΓObOb X A x)) _ _ = refl
-pres· (snd (SpΓObOb X A x)) _ _ = refl
-pres- (snd (SpΓObOb X A x)) _ = refl
-
-
--- isAffine : (X : ℤFunctor {ℓ = ℓ}) → Type (ℓ-suc ℓ)
--- isAffine X = ∀ (A : CommRing _) → isEquiv (SpΓObOb X A)
--- TODO equivalence with naive def:
-
--- the rest of the "quasi natural transoformation"
-SpΓObHom : (X : ℤFunctor) {A B : CommRing ℓ} (φ : CommRingHom A B)
-         → SpΓObOb X B ∘ (X .F-hom φ) ≡ (φ ∘cr_) ∘ SpΓObOb X A
-SpΓObHom X {A = A} {B = B} φ = funExt funExtHelper
-  where
-  funExtHelper : ∀ (x : X .F-ob A .fst)
-               → SpΓObOb X B (X .F-hom φ x) ≡ φ ∘cr (SpΓObOb X A x)
-  funExtHelper x = RingHom≡ (funExt funExtHelper2)
-    where
-    funExtHelper2 : ∀ (α : X ⇒ 𝔸¹)
-                  → α .N-ob B (X .F-hom φ x) ≡ φ .fst (α .N-ob A x)
-    funExtHelper2 α = funExt⁻ (α .N-hom φ) x
-
-
--- can only state equality on object part, but that would be enough
-SpΓHom : {X Y : ℤFunctor} (α : X ⇒ Y) (A : CommRing ℓ) (x : X .F-ob A .fst)
-       → SpΓObOb Y A (α .N-ob A x) ≡ SpΓObOb X A x ∘cr Γ .F-hom α
-SpΓHom _ _ _ = RingHom≡ refl
-
--- TODO: can you state the triangle identities in a reasonable form?
 
 module AdjBij where
 
@@ -335,9 +272,14 @@ module AdjBij where
   snd (Γ⊣SpCounitEquiv A) = ε A .snd
 
 
+-- Affine schemes
 module _ {ℓ : Level} where
   isAffine : (X : ℤFunctor {ℓ = ℓ}) → Type (ℓ-suc ℓ)
-  isAffine X = ∃[ A ∈ CommRing ℓ ] CommRingEquiv A (Γ .F-ob X)
+  isAffine X = ∃[ A ∈ CommRing ℓ ] NatIso (Sp .F-ob A) X
+
+  isAffineCompactOpen : {X : ℤFunctor {ℓ = ℓ}} (U : CompactOpen X) → Type (ℓ-suc ℓ)
+  isAffineCompactOpen U = isAffine ⟦ U ⟧ᶜᵒ
+
 
 -- The unit is an equivalence iff the ℤ-functor is affine
 -- unfortunately, we can't give a natural transformation
@@ -345,3 +287,31 @@ module _ {ℓ : Level} where
 -- we can however give terms that look just like the unit,
 -- giving us an alternative def. of affine ℤ-functors
 module AffineDefs {ℓ : Level} where
+
+  η : (X : ℤFunctor) (A : CommRing ℓ) → X .F-ob A .fst → CommRingHom (Γ .F-ob X) A
+  fst (η X A x) α = α .N-ob A x
+  pres0 (snd (η X A x)) = refl
+  pres1 (snd (η X A x)) = refl
+  pres+ (snd (η X A x)) _ _ = refl
+  pres· (snd (η X A x)) _ _ = refl
+  pres- (snd (η X A x)) _ = refl
+
+  private -- the rest of the "quasi natural transoformation"
+    ηObHom : (X : ℤFunctor) {A B : CommRing ℓ} (φ : CommRingHom A B)
+             → η X B ∘ (X .F-hom φ) ≡ (φ ∘cr_) ∘ η X A
+    ηObHom X φ = funExt (λ x → RingHom≡ (funExt λ α → funExt⁻ (α .N-hom φ) x))
+
+    -- can only state equality on object part, but that would be enough
+    ηHom : {X Y : ℤFunctor} (α : X ⇒ Y) (A : CommRing ℓ) (x : X .F-ob A .fst)
+           → η Y A (α .N-ob A x) ≡ η X A x ∘cr Γ .F-hom α
+    ηHom _ _ _ = RingHom≡ refl
+
+  isAffineSmall : (X : ℤFunctor) → Type (ℓ-suc ℓ)
+  isAffineSmall X = ∀ (A : CommRing ℓ) → isEquiv (η X A)
+
+  -- isAffineBig : (X : ℤFunctor {ℓ = ℓ}) → Type (ℓ-suc (ℓ-suc ℓ))
+  -- isAffineBig X = ∃[ A ∈ CommRing (ℓ-suc ℓ) ] NatIso A (Γ .F-ob X)
+
+  -- TODO isAffine → isAffineSmall → isAffineBig or other way around???
+
+-- TODO: lattice structure on compact opens and affine covers
