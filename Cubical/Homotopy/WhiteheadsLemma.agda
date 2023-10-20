@@ -9,10 +9,12 @@ module Cubical.Homotopy.WhiteheadsLemma where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Transport
 
@@ -27,56 +29,10 @@ private
   variable
     ℓ : Level
 
--- lots of easy helper lemmas, some of which are probably duplicating lemmas
--- proved elsewhere.
+-- lots of easy helper lemmas, hopefully no duplicates
 private
   SetTrunc→PropTrunc : {A : Type ℓ} → ∥ A ∥₂ → ∥ A ∥₁
   SetTrunc→PropTrunc = sRec (isProp→isSet isPropPropTrunc) ∣_∣₁
-
-  isoPostComp : {A : Type ℓ} {a b c : A} (p : b ≡ c)
-    → Iso (a ≡ b) (a ≡ c)
-  Iso.fun (isoPostComp p) = λ r → r ∙ p
-  Iso.inv (isoPostComp p) = λ r → r ∙ (sym p)
-  Iso.rightInv (isoPostComp p) =
-    λ r → (sym (assoc r (sym p) p)) ∙ cong (r ∙_) (lCancel p) ∙ sym (rUnit r)
-  Iso.leftInv (isoPostComp p) =
-    λ r → (sym (assoc r p (sym p))) ∙ cong (r ∙_) (rCancel p) ∙ sym (rUnit r)
-
-  isoPostComp≃∙ : {A : Type ℓ} {a b c : A} {q : a ≡ b} (p : b ≡ c)
-    → ((a ≡ b) , q) ≃∙ ((a ≡ c) , q ∙ p)
-  fst (isoPostComp≃∙ p) = isoToEquiv (isoPostComp p)
-  snd (isoPostComp≃∙ p) = refl
-
-  isoPreComp : {A : Type ℓ} {a b c : A} (p : a ≡ b)
-    → Iso (b ≡ c) (a ≡ c)
-  Iso.fun (isoPreComp p) = λ r → p ∙ r
-  Iso.inv (isoPreComp p) = λ r → (sym p) ∙ r
-  Iso.rightInv (isoPreComp p) =
-    λ r → assoc p (sym p) r ∙ cong (_∙ r) (rCancel p) ∙ sym (lUnit r)
-  Iso.leftInv (isoPreComp p) =
-    λ r → assoc (sym p) p r ∙ cong (_∙ r) (lCancel p) ∙ sym (lUnit r)
-
-  isoPreComp≃∙ : {A : Type ℓ} {a b c : A} {q : b ≡ c} (p : a ≡ b)
-    → ((b ≡ c) , q) ≃∙ ((a ≡ c) , p ∙ q)
-  fst (isoPreComp≃∙ p) = isoToEquiv (isoPreComp p)
-  snd (isoPreComp≃∙ p) = refl
-
-  PathPCongLemma : {A B : Type ℓ}
-    (f : A → B)
-    (a a' : A)
-    (r : a ≡ a')
-    (b : B)
-    (p : f a ≡ b)
-    (q : f a' ≡ b)
-    → cong f r ≡ p ∙ (sym q)
-    → PathP (λ i → f (r i) ≡ b) p q
-  PathPCongLemma {B = B} f a a' =
-    J (λ a'' r → (b : B) (p : f a ≡ b) (q : f a'' ≡ b)
-       → cong f r ≡ p ∙ (sym q)
-       → PathP (λ i → f (r i) ≡ b) p q)
-      (λ b p q r →
-       sym (lUnit q ∙ cong (_∙ q) r ∙ sym (assoc p (sym q) q)
-                    ∙ cong (p ∙_) (lCancel q) ∙ sym (rUnit p)))
 
   module _ (F : Pointed ℓ → Pointed ℓ)
            (F' : {A B : Pointed ℓ} → (A →∙ B) → (F A →∙ F B)) where
@@ -123,27 +79,6 @@ private
                           ∙ cong (fst g) (transportRefl a)
                           ∙ λ i → (fst (r (~ i))) a)))
 
-  doubleCompPath-filler-refl : {A : Type ℓ} {a b : A} (p : a ≡ b)
-    → p ≡ refl ∙∙ p ∙∙ refl
-  doubleCompPath-filler-refl p = doubleCompPath-filler refl p refl
-
-  isContr→isContr→isEquiv : {A B : Type ℓ} (f : A → B)
-    → isContr A → isContr B → isEquiv f
-  equiv-proof (isContr→isContr→isEquiv f (a , hA) (b , hB)) b' =
-    ( a , isContr→isProp (b , hB) (f a) b') ,
-    ( λ (a' : fiber f b') → ΣPathP
-              ( isContr→isProp (a , hA) a (fst a')
-              , ( toPathP
-                  ( isProp→isSet
-                    ( isContr→isProp (b , hB))
-                    ( f _) b'
-                    ( transport (λ i → f _ ≡ b') _) (snd a')))))
-
-  isPointedTarget→isEquiv→isEquiv : {A B : Type ℓ} (f : A → B)
-    → (B → isEquiv f) → isEquiv f
-  equiv-proof (isPointedTarget→isEquiv→isEquiv f hf) =
-    λ y → equiv-proof (hf y) y
-
   squareWithEquivs→Equiv : {A B C D : Type ℓ}
     (f : A → B) (e1 : C → D) (e2 : A → C) (e3 : D → B)
     → isEquiv e1 → isEquiv e2 → isEquiv e3 → e3 ∘ e1 ∘ e2 ≡ f
@@ -179,15 +114,10 @@ a ≡ a ------> f a ≡ f a
              ∘ (λ q → q ∙ sym p)
              ≡ cong f)
     ( funExt (λ x → sym (rUnit _)
-                   ∙ sym (doubleCompPath-filler-refl _)
+                   ∙ sym (rUnit _)
                    ∙ cong (cong f) (sym (rUnit _))))
 
 private
-  setMapFunctorial : {A B C : Type ℓ} (f : A → B) (g : B → C)
-    → map g ∘ map f ≡ map (g ∘ f)
-  setMapFunctorial f g =
-    funExt (sElim (λ x → isSetPathImplicit) λ a → refl)
-
   πHomπHomCongSquareAux : {A B : Type ℓ} {a : A} {n : ℕ} (f : A → B)
     → Iso.inv (Iso-πΩ-π (1 + n))
      ∘ (fst (πHom {A = (A , a)} {B = (B , f a)} (1 + n) (f , refl)))
@@ -198,10 +128,10 @@ private
   πHomπHomCongSquareAux {n = n} f =
       cong
       ( λ g → g ∘ (Iso.fun (Iso-πΩ-π (1 + n))))
-      ( setMapFunctorial
+      ( mapFunctorial
         ( fst ((Ω^→ (2 + n)) (f , refl)))
         ( Iso.fun (flipΩIso (1 + n))))
-    ∙ setMapFunctorial
+    ∙ mapFunctorial
       ( Iso.inv (flipΩIso (1 + n)))
       ( Iso.fun (flipΩIso (1 + n)) ∘ fst ((Ω^→ (2 + n)) (f , refl)))
 
@@ -261,13 +191,6 @@ private
     ( (Ω^→ (1 + n)) (Ω→ (f , refl)))
     ( PathPΩ^→Ω (1 + n) (f , refl)))
 
-private
-  ∙∙Lemma : {A B : Type ℓ} {f : A → B} {a b : A} (p : a ≡ b)
-            → (refl ∙∙ cong f p ∙∙ refl) ≡ cong f p
-  ∙∙Lemma {f = f} =
-    J (λ b p → (refl ∙∙ cong f p ∙∙ refl) ≡ cong f p)
-      (∙∙lCancel refl)
-
 {-
 
 πₙ (Ω (A, a)) ------> πₙ (Ω (B, f a))
@@ -287,11 +210,8 @@ private
   πHomπHomCongSquareAux {A = A} {B = B} {a = a} {n = n} f
   ∙ cong map (Ω+1ΩCongSquare {A = A} {B = B} {a = a} {n = n} f)
   ∙ cong map (cong (fst ∘ (Ω^→ (1 + n)))
-                   ( funExt∙
-                     ( ∙∙Lemma {f = f}
-                     , JRefl ( λ b p → (refl ∙∙ cong f p ∙∙ refl) ≡ cong f p)
-                             ( ∙∙lCancel refl)
-                       ∙ rUnit (∙∙lCancel refl))))
+                   ( funExt∙ ( (λ a → sym (rUnit (cong f a)))
+                             , rUnit (∙∙lCancel refl))))
 
 πHomEquiv→πHomCongEquiv : {A B : Type ℓ} {a : A} {n : ℕ} (f : A → B)
   → isEquiv (fst (πHom {A = (A , a)} {B = (B , f a)} (1 + n) (f , refl)))
@@ -346,9 +266,15 @@ private
   congEquiv→EquivAux' f hf b (a , p) =
     ( a , p)
     , (λ y → ΣPathP ( fst (congEquiv→EquivAux'' f hf b (a , p) y)
-                     , PathPCongLemma f a (fst y)
-                                    _ b p (snd y)
-                       ( snd (congEquiv→EquivAux'' f hf b (a , p) y))))
+                     , compPathR→PathP ( sym (assoc _ _ _
+                                         ∙ sym (rUnit _)
+                                         ∙ cong (_∙ (snd y))
+                                                ( snd ( congEquiv→EquivAux''
+                                                          f hf b (a , p) y))
+                                         ∙ assoc _ _ _ ⁻¹
+                                         ∙ cong (p ∙_) (lCancel (snd y))
+                                         ∙ rUnit p ⁻¹))))
+
 
 -- Stronger statement
 congEquiv→Equiv : {A B : Type ℓ}
@@ -389,8 +315,8 @@ mapEquiv→imId→Id₋₁ {a = a} {b = b} f hf0 p =
                               ( λ r → r ∙ sym p)
                               ( λ r → r ∙ (cong f p))
                               ( hf a)
-                              ( snd (isoToEquiv (isoPostComp (sym p))))
-                              ( snd (isoToEquiv (isoPostComp (cong f p))))
+                              ( snd (compPathrEquiv (sym p)))
+                              ( snd (compPathrEquiv (cong f p)))
                               ( ΩCongSquare f p))
                      ( mapEquiv→imId→Id₋₁ f hf0 q)))
 
@@ -402,7 +328,7 @@ WhiteheadsLemma : {A B : Type ℓ} {n : ℕ}
   (hf : (a : A) (k : ℕ)
         → isEquiv (fst (πHom {A = (A , a)} {B = (B , f a)} k (f , refl))))
   → isEquiv f
-WhiteheadsLemma {n = zero} hA hB f hf0 hf = isContr→isContr→isEquiv f hA hB
+WhiteheadsLemma {n = zero} hA hB f hf0 hf = isEquivFromIsContr f hA hB
 WhiteheadsLemma {A = A} {B = B} {n = suc n} hA hB f hf0 hf =
   ΩEquiv→Equiv
   ( f)
@@ -441,7 +367,7 @@ WhiteheadsLemma {A = A} {B = B} {n = suc n} hA hB f hf0 hf =
     ΩWhiteheadHyp a p k = transport
                           ( λ i → isEquiv
                           ( fst (πHom {A = (typ (Ω (A , a)) , p)} k
-                                ( (λ p → (doubleCompPath-filler-refl
+                                ( (λ p → (rUnit
                                           ( cong f p)) i)
                                   , refl))))
                           ( congWhiteheadHyp a a p k)
