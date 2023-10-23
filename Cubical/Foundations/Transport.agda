@@ -82,11 +82,8 @@ transpEquiv p = Equiv.transpEquiv (λ i → p i)
 {-# WARNING_ON_USAGE transpEquiv "Deprecated: Use the more general `transpEquiv` from `Cubical.Foundations.Equiv` instead" #-}
 
 uaTransportη : ∀ {ℓ} {A B : Type ℓ} (P : A ≡ B) → ua (pathToEquiv P) ≡ P
-uaTransportη P i j
-  = Glue (P i1) λ where
-      (j = i0) → P i0 , pathToEquiv P
-      (i = i1) → P j , transpEquiv P j
-      (j = i1) → P i1 , idEquiv (P i1)
+uaTransportη = uaη
+{-# WARNING_ON_USAGE uaTransportη "Deprecated: Use `uaη` from `Cubical.Foundations.Univalence` instead of `uaTransportη`" #-}
 
 pathToIso : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → Iso A B
 Iso.fun (pathToIso x) = transport x

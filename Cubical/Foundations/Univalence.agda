@@ -240,7 +240,14 @@ uaβ : {A B : Type ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ equivFu
 uaβ e x = transportRefl (equivFun e x)
 
 uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
-uaη = J (λ _ q → ua (pathToEquiv q) ≡ q) (cong ua pathToEquivRefl ∙ uaIdEquiv)
+uaη {A = A} {B = B} P i j = Glue B {φ = φ} sides where
+  -- Adapted from a proof by @dolio, cf. commit e42a6fa1
+  φ = i ∨ j ∨ ~ j
+
+  sides : Partial φ (Σ[ T ∈ Type _ ] T ≃ B)
+  sides (i = i1) = P j , transpEquiv (λ k → P k) j
+  sides (j = i0) = A , pathToEquiv P
+  sides (j = i1) = B , idEquiv B
 
 -- Lemmas for constructing and destructing dependent paths in a function type where the domain is ua.
 ua→ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}
