@@ -191,9 +191,11 @@ module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
   thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} isoThm
 
+-- Transport along a path is an equivalence.
+-- The proof is a special case of isEquivTransp where the line of types is
+-- given by p, and the extent φ -- where the transport is constant -- is i0.
 isEquivTransport : {A B : Type ℓ} (p : A ≡ B) → isEquiv (transport p)
-isEquivTransport p =
-  transport (λ i → isEquiv (transp (λ j → p (i ∧ j)) (~ i))) (idIsEquiv _)
+isEquivTransport p = isEquivTransp (λ i → p i) i0
 
 pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
 pathToEquiv p .fst = transport p
