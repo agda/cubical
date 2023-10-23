@@ -13,30 +13,19 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
+
 
 open import Cubical.Functions.FunExtEquiv
 
-open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
-                                      ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
-                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
-                                      ; ·-identityʳ to ·ℕ-rid)
+open import Cubical.Data.Nat using (ℕ)
 
 open import Cubical.Data.FinData
-open import Cubical.Data.Int as Int
-  renaming ( ℤ to ℤ ; _+_ to _+ℤ_; _·_ to _·ℤ_; -_ to -ℤ_)
-
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Instances.Int
-open import Cubical.Algebra.CommRing.Instances.Unit
 open import Cubical.Algebra.Algebra
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
-open import Cubical.Algebra.CommAlgebra.Instances.Unit
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.BigOps
@@ -47,21 +36,14 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.CommRings
-open import Cubical.Categories.Instances.CommAlgebras
 open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Yoneda
-
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ
 
 open Category hiding (_∘_) renaming (_⋆_ to _⋆c_)
-open CommAlgebraHoms
--- open Cospan
--- open Pullback
 
 private
  variable
@@ -80,7 +62,7 @@ module _ {ℓ : Level} where
   ℤFunctor = Functor (CommRingsCategory {ℓ = ℓ}) (SET ℓ)
   ℤFUNCTOR = FUNCTOR (CommRingsCategory {ℓ = ℓ}) (SET ℓ)
 
-  -- Yoneda in the notation of Demazure-Gabriel
+  -- Yoneda in the notation of Demazure-Gabriel,
   -- uses that double op is original category definitionally
   Sp : Functor (CommRingsCategory {ℓ = ℓ} ^op) ℤFUNCTOR
   Sp = YO {C = (CommRingsCategory {ℓ = ℓ} ^op)}
@@ -127,7 +109,7 @@ module _ {ℓ : Level} where
   𝔸¹ = ForgetfulCommRing→Set
 
   -- the global sections functor
-  Γ : Functor ℤFUNCTOR (CommRingsCategory {ℓ-suc ℓ} ^op)
+  Γ : Functor ℤFUNCTOR (CommRingsCategory {ℓ = ℓ-suc ℓ} ^op)
   fst (F-ob Γ X) = X ⇒ 𝔸¹
 
   -- ring struncture induced by internal ring object 𝔸¹
@@ -281,17 +263,22 @@ module AdjBij where
 
 -- Affine schemes
 module _ {ℓ : Level} where
-  isAffine : (X : ℤFunctor {ℓ = ℓ}) → Type (ℓ-suc ℓ)
+  isAffine : (X : ℤFunctor) → Type (ℓ-suc ℓ)
   isAffine X = ∃[ A ∈ CommRing ℓ ] NatIso (Sp .F-ob A) X
 
-  isAffineCompactOpen : {X : ℤFunctor {ℓ = ℓ}} (U : CompactOpen X) → Type (ℓ-suc ℓ)
+  -- TODO: 𝔸¹ is affine, namely Sp ℤ[x]
+
+  isAffineCompactOpen : {X : ℤFunctor} (U : CompactOpen X) → Type (ℓ-suc ℓ)
   isAffineCompactOpen U = isAffine ⟦ U ⟧ᶜᵒ
 
+  -- TODO: define standard basic open D(f) ↪ Sp A and prove
+  -- D(f) ≅ Sp A[1/f], in particular isAffineCompactOpen D(f)
 
--- The unit is an equivalence iff the ℤ-functor is affine
--- unfortunately, we can't give a natural transformation
+
+-- The unit is an equivalence iff the ℤ-functor is affine.
+-- Unfortunately, we can't give a natural transformation
 -- X ⇒ Sp (Γ X), because the latter ℤ-functor lives in a higher universe.
--- we can however give terms that look just like the unit,
+-- We can however give terms that look just like the unit,
 -- giving us an alternative def. of affine ℤ-functors
 module AffineDefs {ℓ : Level} where
 
@@ -315,11 +302,11 @@ module AffineDefs {ℓ : Level} where
 
   isAffine' : (X : ℤFunctor) → Type (ℓ-suc ℓ)
   isAffine' X = ∀ (A : CommRing ℓ) → isEquiv (η X A)
-  -- TODO: is it possible to prove isAffine ↔ isAffine' , or just one direction?
+  -- TODO: isAffine → isAffine'
 
 
 -- The lattice structure on compact opens and affine covers
-module _ {ℓ : Level} (X : ℤFunctor {ℓ}) where
+module _ {ℓ : Level} (X : ℤFunctor) where
 
   open DistLatticeStr ⦃...⦄
   open CommRingStr ⦃...⦄
@@ -393,6 +380,7 @@ module _ {ℓ : Level} (X : ℤFunctor {ℓ}) where
     (λ _ _ _ → makeNatTransPath (funExt₂ -- same here
                  (λ A _ → ZariskiLattice A .snd .DistLatticeStr.∧l-dist-∨l _ _ _ .fst)))
 
+  -- TODO: (contravariant) action on morphisms
 
   open Join CompOpenDistLattice
   private instance _ = CompOpenDistLattice .snd
@@ -408,11 +396,4 @@ module _ {ℓ : Level} (X : ℤFunctor {ℓ}) where
   hasAffineCover = ∥ AffineCover ∥₁
   -- TODO: A ℤ-functor is a  qcqs-scheme if it is a Zariski sheaf and has an affine cover
 
-  -- the structure sheaf
-  -- private COᵒᵖ = (DistLatticeCategory CompOpenDistLattice) ^op
-
-  -- 𝓞 : Functor COᵒᵖ (CommRingsCategory {ℓ = ℓ-suc ℓ})
-  -- F-ob 𝓞  U = Γ .F-ob ⟦ U ⟧ᶜᵒ
-  -- F-hom 𝓞 U≥V = {!!}
-  -- F-id 𝓞 = {!!}
-  -- F-seq 𝓞 = {!!}
+  -- TODO: Define the structure sheaf of X as 𝓞 U = Γ ⟦ U ⟧ᶜᵒ
