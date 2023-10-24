@@ -4,5 +4,5 @@ authors:
 - name: "The Agda Community"
 title: "Cubical Agda Library"
 version: 0.6
-date-released: 2023-10-10
+date-released: 2023-10-24
 url: "https://github.com/agda/cubical"
