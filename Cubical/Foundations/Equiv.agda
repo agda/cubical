@@ -316,3 +316,16 @@ isEquiv-isEquiv'-Iso f .leftInv p i .equiv-proof = p .equiv-proof
 
 isEquiv≃isEquiv' : (f : A → B) → isEquiv f ≃ isEquiv' f
 isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)
+
+-- funExt is an equivalence
+
+funExt≃ : {B : A → I → Type ℓ'} {f : (x : A) → B x i0} {g : (x : A) → B x i1} →
+          ((x : A) → PathP (B x) (f x) (g x)) ≃ PathP (λ i → (x : A) → B x i) f g
+funExt≃ {A = A}{B = B} {f = f} {g = g} = isoToEquiv e
+  where
+  open Iso
+  e : Iso ((x : A) → PathP (B x) (f x) (g x)) (PathP (λ i → (x : A) → B x i) f g)
+  fun e p = funExt p
+  inv e p = funExt⁻ p
+  rightInv e p = refl
+  leftInv  e p = refl
