@@ -24,7 +24,6 @@ open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.BigOps
@@ -287,7 +286,6 @@ module _ {ℓ : Level} where
   F-id 𝓛 {A} = cong fst (inducedZarLatHomId A)
   F-seq 𝓛 φ ψ = cong fst (inducedZarLatHomSeq φ ψ)
 
-  -- the big lattice of compact opens
   CompactOpen : ℤFunctor → Type (ℓ-suc ℓ)
   CompactOpen X = X ⇒ 𝓛
 
@@ -316,24 +314,9 @@ module _ {ℓ : Level} where
   isAffineCompactOpen : {X : ℤFunctor} (U : CompactOpen X) → Type (ℓ-suc ℓ)
   isAffineCompactOpen U = isAffine ⟦ U ⟧ᶜᵒ
 
-  -- -- basic opens
-  -- module BasicAffineCompactOpen (R : CommRing ℓ) (f : R .fst) where
-  --   open NatIso
-  --   open InvertingElementsBase R
+  -- TODO: define basic opens D(f) ↪ Sp A and prove D(f) ≅ Sp A[1/f]
 
-  --   𝔇 : CompactOpen (Sp .F-ob R)
-  --   𝔇 = yonedaᴾ 𝓛 R .inv (D R f)
-
-  --   𝔇LocIso : NatIso ⟦ 𝔇 ⟧ᶜᵒ (Sp .F-ob R[1/ f ]AsCommRing)
-  --   N-ob (trans 𝔇LocIso) B (φ , 𝔇fφ≡D1) = {!𝔇fφ≡D1!}
-  --   N-hom (trans 𝔇LocIso) = {!!}
-  --   isIso.inv (nIso 𝔇LocIso x) = {!!}
-  --   isIso.sec (nIso 𝔇LocIso x) = {!!}
-  --   isIso.ret (nIso 𝔇LocIso x) = {!!}
-  --   -- TODO: 𝔇 A f ≅ Sp A[1/f], in particular isAffineCompactOpen (𝔇 A f)
-
-
-  -- the dist. lattice of compact opens
+  -- the (big) dist. lattice of compact opens
   CompOpenDistLattice : ℤFunctor → DistLattice (ℓ-suc ℓ)
   fst (CompOpenDistLattice X) = CompactOpen X
 
@@ -349,12 +332,9 @@ module _ {ℓ : Level} where
     instance
       _ = A .snd
       _ = B .snd
-    path : [ 1 , replicateFinVec 1 1r ] ≡ [ 1 , (replicateFinVec 1 ( φ .fst 1r)) ++Fin (λ ()) ]
-    path = [ 1 , replicateFinVec 1 1r ]
-         ≡[ i ]⟨ [ 1 , replicateFinVec 1 (φ .snd .pres1 (~ i)) ] ⟩
-           [ 1 , replicateFinVec 1 (φ .fst 1r) ]
-         ≡[ i ]⟨ [ 1 , (++FinRid {n = 1} (replicateFinVec 1 (φ .fst 1r)) λ ()) (~ i) ] ⟩
-           [ 1 , (replicateFinVec 1 ( φ .fst 1r)) ++Fin (λ ()) ] ∎
+      _ = ZariskiLattice B .snd
+    path : D B 1r ≡ D B (φ .fst 1r) ∨l 0l
+    path = cong (D B) (sym (φ .snd .pres1)) ∙ sym (∨lRid _)
 
   N-ob ((snd (CompOpenDistLattice X) DistLatticeStr.∨l U) V) A x = U .N-ob A x ∨l V .N-ob A x
     where instance _ = ZariskiLattice A .snd
