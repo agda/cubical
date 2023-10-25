@@ -86,20 +86,9 @@ module _ {F : Functor C D} {G : Functor D C} where
   Δ₂ (triangleIdentities (opositeAdjunction x)) =
    Δ₁ (triangleIdentities x)
 
-  fromOpositeAdjunction : ((G ^opF) ⊣ (F ^opF)) → (F ⊣ G)
-  N-ob (η (fromOpositeAdjunction x)) = N-ob (ε x)
-  N-hom (η (fromOpositeAdjunction x)) f = sym (N-hom (ε x) f)
-  N-ob (ε (fromOpositeAdjunction x)) = N-ob (η x)
-  N-hom (ε (fromOpositeAdjunction x)) f = sym (N-hom (η x) f)
-  Δ₁ (triangleIdentities (fromOpositeAdjunction x)) =
-    Δ₂ (triangleIdentities x)
-  Δ₂ (triangleIdentities (fromOpositeAdjunction x)) =
-   Δ₁ (triangleIdentities x)
-
-
   Iso⊣^opF : Iso (F ⊣ G) ((G ^opF) ⊣ (F ^opF))
   fun Iso⊣^opF = opositeAdjunction
-  inv Iso⊣^opF = fromOpositeAdjunction
+  inv Iso⊣^opF = _
   rightInv Iso⊣^opF _ = refl
   leftInv Iso⊣^opF _ = refl
 
