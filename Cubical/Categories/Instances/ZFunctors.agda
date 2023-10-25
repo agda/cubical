@@ -24,8 +24,7 @@ open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.CommAlgebra
+open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.BigOps
@@ -253,15 +252,15 @@ module AffineDefs {ℓ : Level} where
   pres· (snd (η X A x)) _ _ = refl
   pres- (snd (η X A x)) _ = refl
 
-  private -- the rest of the "quasi natural transoformation"
-    ηObHom : (X : ℤFunctor) {A B : CommRing ℓ} (φ : CommRingHom A B)
-             → η X B ∘ (X .F-hom φ) ≡ (φ ∘cr_) ∘ η X A
-    ηObHom X φ = funExt (λ x → RingHom≡ (funExt λ α → funExt⁻ (α .N-hom φ) x))
+  -- this is basically a natural transformation
+  ηObHom : (X : ℤFunctor) {A B : CommRing ℓ} (φ : CommRingHom A B)
+           → η X B ∘ (X .F-hom φ) ≡ (φ ∘cr_) ∘ η X A
+  ηObHom X φ = funExt (λ x → RingHom≡ (funExt λ α → funExt⁻ (α .N-hom φ) x))
 
-    -- can only state equality on object part, but that would be enough
-    ηHom : {X Y : ℤFunctor} (α : X ⇒ Y) (A : CommRing ℓ) (x : X .F-ob A .fst)
-           → η Y A (α .N-ob A x) ≡ η X A x ∘cr Γ .F-hom α
-    ηHom _ _ _ = RingHom≡ refl
+  -- can only state equality on object part, but that would be enough
+  ηHom : {X Y : ℤFunctor} (α : X ⇒ Y) (A : CommRing ℓ) (x : X .F-ob A .fst)
+         → η Y A (α .N-ob A x) ≡ η X A x ∘cr Γ .F-hom α
+  ηHom _ _ _ = RingHom≡ refl
 
   isAffine' : (X : ℤFunctor) → Type (ℓ-suc ℓ)
   isAffine' X = ∀ (A : CommRing ℓ) → isEquiv (η X A)
@@ -317,10 +316,21 @@ module _ {ℓ : Level} where
   isAffineCompactOpen : {X : ℤFunctor} (U : CompactOpen X) → Type (ℓ-suc ℓ)
   isAffineCompactOpen U = isAffine ⟦ U ⟧ᶜᵒ
 
-  -- basic opens
-  𝔇 : (A : CommRing ℓ) (f : A .fst) → CompactOpen (Sp .F-ob A)
-  𝔇 A f = yonedaᴾ 𝓛 A .inv (D A f)
-  -- TODO: 𝔇 A f ≅ Sp A[1/f], in particular isAffineCompactOpen (𝔇 A f)
+  -- -- basic opens
+  -- module BasicAffineCompactOpen (R : CommRing ℓ) (f : R .fst) where
+  --   open NatIso
+  --   open InvertingElementsBase R
+
+  --   𝔇 : CompactOpen (Sp .F-ob R)
+  --   𝔇 = yonedaᴾ 𝓛 R .inv (D R f)
+
+  --   𝔇LocIso : NatIso ⟦ 𝔇 ⟧ᶜᵒ (Sp .F-ob R[1/ f ]AsCommRing)
+  --   N-ob (trans 𝔇LocIso) B (φ , 𝔇fφ≡D1) = {!𝔇fφ≡D1!}
+  --   N-hom (trans 𝔇LocIso) = {!!}
+  --   isIso.inv (nIso 𝔇LocIso x) = {!!}
+  --   isIso.sec (nIso 𝔇LocIso x) = {!!}
+  --   isIso.ret (nIso 𝔇LocIso x) = {!!}
+  --   -- TODO: 𝔇 A f ≅ Sp A[1/f], in particular isAffineCompactOpen (𝔇 A f)
 
 
   -- the dist. lattice of compact opens
