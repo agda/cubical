@@ -1,7 +1,6 @@
 {-
 
-   The impredicative way to do the functor of points of qcqs-schemes
-   (over Spec(ℤ))
+   The impredicative way to define functorial qcqs-schemes (over Spec(ℤ))
 
 -}
 {-# OPTIONS --safe --lossy-unification #-}
@@ -24,6 +23,7 @@ open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.BigOps
@@ -34,12 +34,15 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.CommRings
+open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Yoneda
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ
+
+open import Cubical.Relation.Binary.Order.Poset
 
 open Category hiding (_∘_) renaming (_⋆_ to _⋆c_)
 
@@ -238,7 +241,7 @@ module _ {ℓ : Level} where
 -- X ⇒ Sp (Γ X), because the latter ℤ-functor lives in a higher universe.
 -- We can however give terms that look just like the unit,
 -- giving us an alternative def. of affine ℤ-functors
-module AffineDefs {ℓ : Level} where
+private module AffineDefs {ℓ : Level} where
   open Functor
   open NatTrans
   open Iso
@@ -314,7 +317,7 @@ module _ {ℓ : Level} where
   isAffineCompactOpen : {X : ℤFunctor} (U : CompactOpen X) → Type (ℓ-suc ℓ)
   isAffineCompactOpen U = isAffine ⟦ U ⟧ᶜᵒ
 
-  -- TODO: define basic opens D(f) ↪ Sp A and prove D(f) ≅ Sp A[1/f]
+  -- TODO: define basic opens D(f) ↪ Sp A and prove ⟦ D(f) ⟧ᶜᵒ ≅ Sp A[1/f]
 
   -- the (big) dist. lattice of compact opens
   CompOpenDistLattice : ℤFunctor → DistLattice (ℓ-suc ℓ)
@@ -381,11 +384,33 @@ module _ {ℓ : Level} where
     (λ _ _ _ → makeNatTransPath (funExt₂ -- same here
                  (λ A _ → ZariskiLattice A .snd .DistLatticeStr.∧l-dist-∨l _ _ _ .fst)))
 
-  -- TODO: (contravariant) action on morphisms
+  -- (contravariant) action on morphisms
+  CompOpenDistLatticeHom : {X Y : ℤFunctor} (α : X ⇒ Y)
+                         → DistLatticeHom (CompOpenDistLattice Y) (CompOpenDistLattice X)
+  fst (CompOpenDistLatticeHom α) = α ●ᵛ_
+  pres0 (snd (CompOpenDistLatticeHom α)) = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres1 (snd (CompOpenDistLatticeHom α)) = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres∨l (snd (CompOpenDistLatticeHom α)) _ _ = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres∧l (snd (CompOpenDistLatticeHom α)) _ _ = makeNatTransPath (funExt₂ λ _ _ → refl)
+
+  -- functoriality of this construction
+  CompOpenDistLatticeId : {X : ℤFunctor} → CompOpenDistLatticeHom (idTrans X)
+                                         ≡ idDistLatticeHom (CompOpenDistLattice X)
+  CompOpenDistLatticeId = LatticeHom≡f _ _
+                            (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
+
+  CompOpenDistLatticeSeq : {X Y Z : ℤFunctor} (α : X ⇒ Y) (β : Y ⇒ Z)
+                         → CompOpenDistLatticeHom (α ●ᵛ β)
+                         ≡ CompOpenDistLatticeHom α ∘dl CompOpenDistLatticeHom β
+  CompOpenDistLatticeSeq _ _ = LatticeHom≡f _ _
+                                 (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
 
 
   module _ (X : ℤFunctor) where
     open Join (CompOpenDistLattice X)
+    open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice X)))
+    open PosetStr (IndPoset .snd) hiding (_≤_)
+    open LatticeTheory ⦃...⦄ -- ((DistLattice→Lattice (CompOpenDistLattice X)))
     private instance _ = (CompOpenDistLattice X) .snd
 
     record AffineCover : Type (ℓ-suc ℓ) where
@@ -399,4 +424,34 @@ module _ {ℓ : Level} where
     hasAffineCover = ∥ AffineCover ∥₁
     -- TODO: A ℤ-functor is a  qcqs-scheme if it is a Zariski sheaf and has an affine cover
 
-    -- TODO: Define the structure sheaf of X as 𝓞 U = Γ ⟦ U ⟧ᶜᵒ
+    -- the structure sheaf
+    private COᵒᵖ = (DistLatticeCategory (CompOpenDistLattice X)) ^op
+
+    compOpenIncl : {U V : CompactOpen X} → V ≤ U → ⟦ V ⟧ᶜᵒ ⇒ ⟦ U ⟧ᶜᵒ
+    N-ob (compOpenIncl {U = U} {V = V} V≤U) A (x , Vx≡D1) = x , path
+      where
+      instance
+        _ = A .snd
+        _ = ZariskiLattice A .snd
+        _ = DistLattice→Lattice (ZariskiLattice A)
+      path : U .N-ob A x ≡ D A 1r
+      path = U .N-ob A x                ≡⟨ funExt⁻ (funExt⁻ (cong N-ob (sym V≤U)) A) x ⟩
+             V .N-ob A x ∨l U .N-ob A x ≡⟨ cong (_∨l U .N-ob A x) Vx≡D1 ⟩
+             D A 1r ∨l U .N-ob A x      ≡⟨ 1lLeftAnnihilates∨l _ ⟩
+             D A 1r ∎
+    N-hom (compOpenIncl V≤U) φ = funExt λ x → Σ≡Prop (λ _ → squash/ _ _) refl
+
+    compOpenInclId : ∀ {U : CompactOpen X} → compOpenIncl (is-refl U) ≡ idTrans ⟦ U ⟧ᶜᵒ
+    compOpenInclId = makeNatTransPath (funExt₂ (λ _ _ → Σ≡Prop (λ _ → squash/ _ _) refl))
+
+    compOpenInclSeq : ∀ {U V W : CompactOpen X} (U≤V : U ≤ V) (V≤W : V ≤ W)
+                    → compOpenIncl (is-trans _ _ _ U≤V V≤W)
+                    ≡ compOpenIncl U≤V ●ᵛ compOpenIncl V≤W
+    compOpenInclSeq _ _ = makeNatTransPath
+                            (funExt₂ (λ _ _ → Σ≡Prop (λ _ → squash/ _ _) refl))
+
+    𝓞 : Functor COᵒᵖ (CommRingsCategory {ℓ = ℓ-suc ℓ})
+    F-ob 𝓞  U = Γ .F-ob ⟦ U ⟧ᶜᵒ
+    F-hom 𝓞 U≥V = Γ .F-hom (compOpenIncl U≥V)
+    F-id 𝓞 = cong (Γ .F-hom) compOpenInclId ∙ Γ .F-id
+    F-seq 𝓞 _ _ = cong (Γ .F-hom) (compOpenInclSeq _ _) ∙ Γ .F-seq _ _
