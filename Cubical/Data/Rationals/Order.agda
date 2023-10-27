@@ -436,6 +436,80 @@ isTrans≤< =
                               (subst (_ ℤ.<_) (·CommR e (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ b))
                                      (ℤ.<-·o {k = -1+ b} cf<ed)) )}
 
+≤-·o : ∀ m n o → 0 ≤ o → m ≤ n → m ℚ.· o ≤ n ℚ.· o
+≤-·o =
+  elimProp3 {P = λ a b c → 0 ≤ c → a ≤ b → a ℚ.· c ≤ b ℚ.· c}
+            (λ x y z → isPropΠ2 λ _ _ → isProp≤ (x ℚ.· z) (y ℚ.· z))
+             λ { (a , b) (c , d) (e , f) 0≤e ad≤cb
+             → subst2 ℤ._≤_ (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR a (ℕ₊₁→ℤ d) e) ∙
+                              sym (ℤ.·Assoc (a ℤ.· e) (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f)) ∙
+                              cong (a ℤ.· e ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f))))
+                             (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR c (ℕ₊₁→ℤ b) e) ∙
+                              sym (ℤ.·Assoc (c ℤ.· e) (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f)) ∙
+                              cong (c ℤ.· e ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f))))
+                             (ℤ.≤-·o {k = ℕ₊₁→ℕ f}
+                                      (ℤ.0≤o→≤-·o (subst (0 ℤ.≤_) (ℤ.·IdR e) 0≤e) ad≤cb)) }
+
+≤-·o-cancel : ∀ m n o → 0 < o → m ℚ.· o ≤ n ℚ.· o → m ≤ n
+≤-·o-cancel =
+  elimProp3 {P = λ a b c → 0 < c → a ℚ.· c ≤ b ℚ.· c → a ≤ b}
+            (λ x y _ → isPropΠ2 λ _ _ → isProp≤ x y)
+             λ { (a , b) (c , d) (e , f) 0<e aedf≤cebf
+             → ℤ.0<o→≤-·o-cancel (subst (0 ℤ.<_) (ℤ.·IdR e) 0<e)
+               (subst2 ℤ._≤_ (·CommR a e (ℕ₊₁→ℤ d)) (·CommR c e (ℕ₊₁→ℤ b))
+                      (ℤ.≤-·o-cancel {k = -1+ f}
+                        (subst2 ℤ._≤_ (sym (ℤ.·Assoc a e (ℕ₊₁→ℤ (d ·₊₁ f))) ∙
+                                       cong (λ x → a ℤ.· (e ℤ.· x))
+                                            (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f)) ∙
+                                             assoc {a} {e})
+                                       (sym (ℤ.·Assoc c e (ℕ₊₁→ℤ (b ·₊₁ f))) ∙
+                                        cong (λ x → c ℤ.· (e ℤ.· x))
+                                             (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f)) ∙
+                                              assoc {c} {e})
+                                        aedf≤cebf))) }
+
+  where assoc : ∀{a b c d} → a ℤ.· (b ℤ.· (c ℤ.· d)) ≡ a ℤ.· b ℤ.· c ℤ.· d
+        assoc {a} {b} {c} {d} = cong (a ℤ.·_) (ℤ.·Assoc b c d) ∙
+                                ℤ.·Assoc a (b ℤ.· c) d ∙
+                                cong (ℤ._· d) (ℤ.·Assoc a b c)
+
+<-·o : ∀ m n o → 0 < o → m < n → m ℚ.· o < n ℚ.· o
+<-·o =
+  elimProp3 {P = λ a b c → 0 < c → a < b → a ℚ.· c < b ℚ.· c}
+            (λ x y z → isPropΠ2 λ _ _ → isProp< (x ℚ.· z) (y ℚ.· z))
+             λ { (a , b) (c , d) (e , f) 0<e ad<cb
+             → subst2 ℤ._<_ (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR a (ℕ₊₁→ℤ d) e) ∙
+                             sym (ℤ.·Assoc (a ℤ.· e) (ℕ₊₁→ℤ d) (ℕ₊₁→ℤ f)) ∙
+                             cong (a ℤ.· e ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f))))
+                            (cong (ℤ._· ℕ₊₁→ℤ f) (·CommR c (ℕ₊₁→ℤ b) e) ∙
+                             sym (ℤ.·Assoc (c ℤ.· e) (ℕ₊₁→ℤ b) (ℕ₊₁→ℤ f)) ∙
+                             cong (c ℤ.· e ℤ.·_) (sym (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f))))
+                            (ℤ.<-·o {k = -1+ f}
+                                    (ℤ.0<o→<-·o (subst (0 ℤ.<_) (ℤ.·IdR e) 0<e) ad<cb)) }
+
+<-·o-cancel : ∀ m n o → 0 < o → m ℚ.· o < n ℚ.· o → m < n
+<-·o-cancel =
+  elimProp3 {P = λ a b c → 0 < c → a ℚ.· c < b ℚ.· c → a < b}
+            (λ x y _ → isPropΠ2 λ _ _ → isProp< x y)
+             λ { (a , b) (c , d) (e , f) 0<e aedf<cebf
+             → ℤ.0<o→<-·o-cancel (subst (0 ℤ.<_) (ℤ.·IdR e) 0<e)
+               (subst2 ℤ._<_ (·CommR a e (ℕ₊₁→ℤ d)) (·CommR c e (ℕ₊₁→ℤ b))
+                      (ℤ.<-·o-cancel {k = -1+ f}
+                        (subst2 ℤ._<_ (sym (ℤ.·Assoc a e (ℕ₊₁→ℤ (d ·₊₁ f))) ∙
+                                       cong (λ x → a ℤ.· (e ℤ.· x))
+                                            (ℤ.pos·pos (ℕ₊₁→ℕ d) (ℕ₊₁→ℕ f)) ∙
+                                             assoc {a} {e})
+                                       (sym (ℤ.·Assoc c e (ℕ₊₁→ℤ (b ·₊₁ f))) ∙
+                                        cong (λ x → c ℤ.· (e ℤ.· x))
+                                             (ℤ.pos·pos (ℕ₊₁→ℕ b) (ℕ₊₁→ℕ f)) ∙
+                                              assoc {c} {e})
+                                        aedf<cebf))) }
+
+  where assoc : ∀{a b c d} → a ℤ.· (b ℤ.· (c ℤ.· d)) ≡ a ℤ.· b ℤ.· c ℤ.· d
+        assoc {a} {b} {c} {d} = cong (a ℤ.·_) (ℤ.·Assoc b c d) ∙
+                                ℤ.·Assoc a (b ℤ.· c) d ∙
+                                cong (ℤ._· d) (ℤ.·Assoc a b c)
+
 min≤ : ∀ m n → ℚ.min m n ≤ m
 min≤
     = elimProp2 {P = λ a b → ℚ.min a b ≤ a}
