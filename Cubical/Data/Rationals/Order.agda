@@ -31,7 +31,7 @@ infix 4 _≤_ _<_ _≥_ _>_
 private
   ·CommR : (a b c : ℤ) → a ℤ.· b ℤ.· c ≡ a ℤ.· c ℤ.· b
   ·CommR a b c = sym (ℤ.·Assoc a b c) ∙ cong (a ℤ.·_) (ℤ.·Comm b c) ∙ ℤ.·Assoc a c b
-  
+
   _≤'_ : ℚ → ℚ → hProp ℓ-zero
   _≤'_ = fun
     where
