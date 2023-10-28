@@ -715,7 +715,7 @@ isWoset≺ = iswoset
 {- With all of the above handled, we now need the notion of suprema.
    For that, though, we will expand upon the direction taken in
    lemma 10.3.22 of the HoTT book by Tom de Jong in
-   https://www.cs.bham.ac.uk/~mhe/agda/Ordinals.OrdinalOfOrdinalsSuprema.html#2612
+   https://www.cs.bham.ac.uk/~mhe/agda/Ordinals.OrdinalOfOrdinalsSuprema.html
 -}
 
 private
