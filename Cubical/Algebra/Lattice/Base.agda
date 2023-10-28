@@ -194,6 +194,19 @@ isPropIsLatticeHom R f S = isOfHLevelRetractFromIso 1 IsLatticeHomIsoΣ
   open LatticeStr S
 
 
+isSetLatticeHom : (A : Lattice ℓ) (B : Lattice ℓ') → isSet (LatticeHom A B)
+isSetLatticeHom A B = isSetΣSndProp (isSetΠ λ _ → is-set) (λ f → isPropIsLatticeHom (snd A) f (snd B))
+  where
+  open LatticeStr (str B) using (is-set)
+
+isSetLatticeEquiv : (A : Lattice ℓ) (B : Lattice ℓ') → isSet (LatticeEquiv A B)
+isSetLatticeEquiv A B = isSetΣSndProp (isOfHLevel≃ 2 A.is-set B.is-set)
+                                      (λ e → isPropIsLatticeHom (snd A) (fst e) (snd B))
+  where
+  module A = LatticeStr (str A)
+  module B = LatticeStr (str B)
+
+
 𝒮ᴰ-Lattice : DUARel (𝒮-Univ ℓ) LatticeStr ℓ
 𝒮ᴰ-Lattice =
   𝒮ᴰ-Record (𝒮-Univ _) IsLatticeEquiv

@@ -10,7 +10,7 @@ private
     S : Type ℓ → Type ℓ'
 
 -- A structure is a type-family S : Type ℓ → Type ℓ', i.e. for X : Type ℓ and s : S X,
--- the pair (X , s) : TypeWithStr ℓ S means that X is equipped with a S-structure, witnessed by s.
+-- the pair (X , s) : TypeWithStr ℓ S means that X is equipped with an S-structure, witnessed by s.
 
 TypeWithStr : (ℓ : Level) (S : Type ℓ → Type ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
 TypeWithStr ℓ S = Σ[ X ∈ Type ℓ ] S X

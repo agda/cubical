@@ -8,6 +8,7 @@ open import Cubical.Homotopy.EilenbergMacLane.Properties
 open import Cubical.Homotopy.EilenbergMacLane.Order2
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
@@ -308,3 +309,41 @@ fst (coHomHom∙ n f) = coHomFun∙ n f
 snd (coHomHom∙ n f) =
   makeIsGroupHom (ST.elim2 (λ _ _ → isSetPathImplicit)
     λ g h → cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM n) refl))
+
+substℕ-coHom : {A : Type ℓ} {G : AbGroup ℓ'} {n m : ℕ}
+  → (p : n ≡ m)
+  → AbGroupEquiv (coHomGr n G A) (coHomGr m G A)
+fst (substℕ-coHom {A = A} {G = G} p) =
+  substEquiv' (λ i → coHom i G A) p
+snd (substℕ-coHom {A = A} {G = G} p) =
+  makeIsGroupHom
+    λ x y →
+      J (λ m p → subst (λ i → coHom i G A) p (x +ₕ y)
+                ≡ (subst (λ i → coHom i G A) p x
+                +ₕ subst (λ i → coHom i G A) p y))
+        (transportRefl _ ∙ cong₂ _+ₕ_
+          (sym (transportRefl x)) (sym (transportRefl y))) p
+
+substℕ-coHomRed : {A : Pointed ℓ} {G : AbGroup ℓ'} {n m : ℕ}
+  → (p : n ≡ m)
+  → AbGroupEquiv (coHomRedGr n G A) (coHomRedGr m G A)
+fst (substℕ-coHomRed {A = A} {G = G} p) =
+  substEquiv' (λ i → coHomRed i G A) p
+snd (substℕ-coHomRed {A = A} {G = G} p) =
+  makeIsGroupHom
+    λ x y →
+      J (λ m p → subst (λ i → coHomRed i G A) p (x +ₕ∙ y)
+                ≡ (subst (λ i → coHomRed i G A) p x
+                +ₕ∙ subst (λ i → coHomRed i G A) p y))
+        (transportRefl _ ∙ cong₂ _+ₕ∙_
+          (sym (transportRefl x)) (sym (transportRefl y))) p
+
+subst-EM-0ₖ : ∀{ℓ} {G : AbGroup ℓ} {n m : ℕ} (p : n ≡ m)
+  → subst (EM G) p (0ₖ n) ≡ 0ₖ m
+subst-EM-0ₖ {G = G} {n = n} =
+    J (λ m p → subst (EM G) p (0ₖ n) ≡ 0ₖ m) (transportRefl _)
+
+subst-EM∙ : ∀{ℓ} {G : AbGroup ℓ} {n m : ℕ} (p : n ≡ m)
+  → EM∙ G n →∙ EM∙ G m
+fst (subst-EM∙ {G = G} p) = subst (EM G) p
+snd (subst-EM∙ p) = subst-EM-0ₖ p
