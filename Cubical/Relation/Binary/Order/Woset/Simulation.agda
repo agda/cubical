@@ -539,7 +539,7 @@ A ≺ B = Σ[ b ∈ ⟨ B ⟩ ] WosetEquiv (B ↓ b) A
           propB = IsWoset.is-prop-valued wosB
 
           transB = IsWoset.is-trans wosB
-          
+
           eq : WosetEquiv (C ↓ f b) (B ↓ b)
           eq = isAntisym≼Equiv (C ↓ f b) (B ↓ b)
                (fun , simf)
