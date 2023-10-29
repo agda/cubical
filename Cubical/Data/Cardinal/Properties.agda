@@ -83,7 +83,7 @@ module _ where
             → A · (B + C) ≡ (A · B) + (A · C)
     ·LDist+ = ∥₂.elim3 (λ _ _ _ → isProp→isSet (isSetCard _ _))
                        λ _ _ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isPropIsSet)
-                                                   (isoToPath ×DistL⊎Iso))
+                                                   (isoToPath ×DistR⊎Iso))
 
     AnnihilL : (A : Card {ℓ}) → 𝟘 · A ≡ 𝟘
     AnnihilL = ∥₂.elim (λ _ → isProp→isSet (isSetCard _ _))
