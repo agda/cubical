@@ -20,3 +20,6 @@ rec* ()
 
 elim : {A : ⊥ → Type ℓ} → (x : ⊥) → A x
 elim ()
+
+elim* : {A : ⊥* {ℓ'} → Type ℓ} → (x : ⊥* {ℓ'}) → A x
+elim* ()

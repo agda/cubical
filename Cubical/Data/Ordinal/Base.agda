@@ -29,6 +29,9 @@ private
   variable
     ℓ : Level
 
+infix 7 _·_
+infix 6 _+_
+
 -- Ordinals are simply well-ordered sets
 Ord : ∀ {ℓ} → Type _
 Ord {ℓ} = Woset ℓ ℓ
