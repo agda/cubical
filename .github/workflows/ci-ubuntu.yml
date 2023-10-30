@@ -43,7 +43,7 @@ on:
 
 env:
   AGDA_BRANCH: v2.6.4
-  GHC_VERSION: 9.2.5
+  GHC_VERSION: 9.4.7
   CABAL_VERSION: 3.6.2.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
   CACHE_PATHS: |
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install cabal
-        uses: haskell/actions/setup@v2
+        uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ env.GHC_VERSION }}
           cabal-version: ${{ env.CABAL_VERSION }}
@@ -126,7 +126,7 @@ jobs:
             library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
 
       - name: Put cabal programs in PATH
-        run: echo "~/.cabal/bin" >> $GITHUB_PATH
+        run: echo "~/.cabal/bin" >> "${GITHUB_PATH}"
 
       - name: Test cubical
         run: |
