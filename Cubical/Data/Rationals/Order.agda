@@ -621,6 +621,3 @@ m ≟ n with discreteℚ m n
 ... | no 0≮m | no 0≮n = ⊥.rec (≤→≯ (m ℚ.+ n) 0 (≤Monotone+ m 0 n 0 (≮→≥ 0 m 0≮m) (≮→≥ 0 n 0≮n)) 0<m+n)
 ... | no _    | yes 0<n = inr 0<n
 ... | yes 0<m | _ = inl 0<m
-
-0<1 : 0 < 1
-0<1 = ℤ.0<1

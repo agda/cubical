@@ -498,6 +498,3 @@ negsuc zero ≟ negsuc zero = eq refl
 negsuc zero ≟ negsuc (suc n) = gt (negsuc-≤-negsuc zero-≤pos)
 negsuc (suc m) ≟ negsuc zero = lt (negsuc-≤-negsuc zero-≤pos)
 negsuc (suc m) ≟ negsuc (suc n) = Trichotomy-pred (negsuc m ≟ negsuc n)
-
-0<1 : 0 < 1
-0<1 = 0 , refl
