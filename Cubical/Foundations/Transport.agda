@@ -174,7 +174,7 @@ overPathFunct p q =
 
 -- substition over families of paths
 -- theorem 2.11.3 in The Book
-substInPaths : ∀ {ℓ} {A B : Type ℓ} {a a' : A}
+substInPaths : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}  {a a' : A}
                  → (f g : A → B) → (p : a ≡ a') (q : f a ≡ g a)
                  → subst (λ x → f x ≡ g x) p q ≡ sym (cong f p) ∙ q ∙ cong g p
 substInPaths {a = a} f g p q =
