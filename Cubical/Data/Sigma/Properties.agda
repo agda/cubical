@@ -136,11 +136,23 @@ inv lUnit×Iso = tt ,_
 rightInv lUnit×Iso _ = refl
 leftInv lUnit×Iso _ = refl
 
+lUnit*×Iso : ∀{ℓ} → Iso (Unit* {ℓ} × A) A
+fun lUnit*×Iso = snd
+inv lUnit*×Iso = tt* ,_
+rightInv lUnit*×Iso _ = refl
+leftInv lUnit*×Iso _ = refl
+
 rUnit×Iso : Iso (A × Unit) A
 fun rUnit×Iso = fst
 inv rUnit×Iso = _, tt
 rightInv rUnit×Iso _ = refl
 leftInv rUnit×Iso _ = refl
+
+rUnit*×Iso : ∀{ℓ} → Iso (A × Unit* {ℓ}) A
+fun rUnit*×Iso = fst
+inv rUnit*×Iso = _, tt*
+rightInv rUnit*×Iso _ = refl
+leftInv rUnit*×Iso _ = refl
 
 module _ {A : Type ℓ} {A' : Type ℓ'} where
   Σ-swap-Iso : Iso (A × A') (A' × A)
@@ -420,6 +432,13 @@ module _ (A : ⊥ → Type ℓ) where
 
   ΣEmpty : Σ ⊥ A ≃ ⊥
   ΣEmpty = isoToEquiv ΣEmptyIso
+
+module _ {ℓ : Level} (A : ⊥* {ℓ} → Type ℓ) where
+
+  open Iso
+
+  ΣEmpty*Iso : Iso (Σ ⊥* A) ⊥*
+  fun ΣEmpty*Iso (* , _) = *
 
 -- fiber of projection map
 

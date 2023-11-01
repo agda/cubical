@@ -58,6 +58,23 @@ rightInv (fst rUnitGroupIso) _ = refl
 leftInv (fst rUnitGroupIso) _ = refl
 snd rUnitGroupIso = makeIsGroupHom λ _ _ → refl
 
+-- lifted version
+lUnitGroupIso^ : ∀ {ℓ ℓ'} {G : Group ℓ'}
+  → GroupIso (DirProd (UnitGroup {ℓ}) G) G
+fun (fst lUnitGroupIso^) = snd
+inv (fst lUnitGroupIso^) = tt* ,_
+rightInv (fst lUnitGroupIso^) g = refl
+leftInv (fst lUnitGroupIso^) (tt* , g) = refl
+snd lUnitGroupIso^ = makeIsGroupHom λ _ _ → refl
+
+rUnitGroupIso^ : ∀ {ℓ ℓ'} {G : Group ℓ'}
+  → GroupIso (DirProd G (UnitGroup {ℓ})) G
+fun (fst rUnitGroupIso^) = fst
+inv (fst rUnitGroupIso^) = _, tt*
+rightInv (fst rUnitGroupIso^) g = refl
+leftInv (fst rUnitGroupIso^) (g , tt*) = refl
+snd rUnitGroupIso^ = makeIsGroupHom λ _ _ → refl
+
 lUnitGroupEquiv : {G : Group ℓ} → GroupEquiv (DirProd UnitGroup₀ G) G
 lUnitGroupEquiv = GroupIso→GroupEquiv lUnitGroupIso
 

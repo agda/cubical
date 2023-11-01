@@ -96,6 +96,13 @@ Iso.inv (pathToIso x) = transport⁻ x
 Iso.rightInv (pathToIso x) = transportTransport⁻ x
 Iso.leftInv (pathToIso x) = transport⁻Transport x
 
+substIso : ∀ {ℓ ℓ'} {A : Type ℓ} (B : A → Type ℓ') {x y : A} (p : x ≡ y) → Iso (B x) (B y)
+substIso B p = pathToIso (cong B p)
+
+-- Redefining substEquiv in terms of substIso gives an explicit inverse
+substEquiv' : ∀ {ℓ ℓ'} {A : Type ℓ} (B : A → Type ℓ') {x y : A} (p : x ≡ y) → B x ≃ B y
+substEquiv' B p = isoToEquiv (substIso B p)
+
 isInjectiveTransport : ∀ {ℓ : Level} {A B : Type ℓ} {p q : A ≡ B}
   → transport p ≡ transport q → p ≡ q
 isInjectiveTransport {p = p} {q} α i =
@@ -167,7 +174,7 @@ overPathFunct p q =
 
 -- substition over families of paths
 -- theorem 2.11.3 in The Book
-substInPaths : ∀ {ℓ} {A B : Type ℓ} {a a' : A}
+substInPaths : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}  {a a' : A}
                  → (f g : A → B) → (p : a ≡ a') (q : f a ≡ g a)
                  → subst (λ x → f x ≡ g x) p q ≡ sym (cong f p) ∙ q ∙ cong g p
 substInPaths {a = a} f g p q =

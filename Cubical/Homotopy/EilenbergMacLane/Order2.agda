@@ -247,7 +247,7 @@ symConst-ℤ/2-refl = EMZ/2.symConstEM-refl
    (evenOrOdd n)
 
 ⌣ₖ-commℤ/2 : (n m : ℕ) (x : EM ℤ/2 n) (y : EM ℤ/2 m)
-  → (x ⌣[ ℤ/2Ring ]ₖ y) ≡ subst (EM ℤ/2) (+'-comm m n) (y ⌣[ ℤ/2Ring ]ₖ x)
+  → (x ⌣[ ℤ/2Ring R]ₖ y) ≡ subst (EM ℤ/2) (+'-comm m n) (y ⌣[ ℤ/2Ring R]ₖ x)
 ⌣ₖ-commℤ/2 n m x y = ⌣ₖ-comm {G'' = ℤ/2CommRing} n m x y
                    ∙ cong (subst (EM ℤ/2) (+'-comm m n))
                       (-ₖ^[ n · m ]-const _)

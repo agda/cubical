@@ -7,7 +7,9 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
 
@@ -100,73 +102,106 @@ module _ {ℓ ℓ' : Level} {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B
   isInKer∙ : (x : fst A) → Type ℓ'
   isInKer∙ x = fst f x ≡ snd B
 
-pre∘∙equiv : ∀ {ℓ ℓ'} {A : Pointed ℓ} {B C : Pointed ℓ'}
+private module _ {ℓA ℓB ℓC : Level} (A : Pointed ℓA) (B : Pointed ℓB) (C : Pointed ℓC) (e : A ≃∙ B) where
+  toEq : (A →∙ C) → (B →∙ C)
+  toEq = _∘∙ ≃∙map (invEquiv∙ e)
+
+  fromEq : B →∙ C → (A →∙ C)
+  fromEq = _∘∙ ≃∙map e
+
+  toEq' : (C →∙ A) → C →∙ B
+  toEq' = ≃∙map e ∘∙_
+
+  fromEq' : C →∙ B → (C →∙ A)
+  fromEq' = ≃∙map (invEquiv∙ e) ∘∙_
+
+pre∘∙equiv : ∀ {ℓA ℓB ℓC} {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC}
  → (B ≃∙ C) → Iso (A →∙ B) (A →∙ C)
-pre∘∙equiv {A = A} {B = B} {C = C} eq = main
+Iso.fun (pre∘∙equiv {A = A} {B = B} {C = C} e) = toEq' B C A e
+Iso.inv (pre∘∙equiv {A = A} {B = B} {C = C} e) = fromEq' B C A e
+Iso.rightInv (pre∘∙equiv {A = A} {B = B} {C = C} e) =
+  J (λ ptC p → section (toEq' B (fst C , ptC) A (fst e , p))
+                         (fromEq' B (fst C , ptC) A (fst e , p)))
+     (uncurry (λ f p → ΣPathP (funExt (λ x → isHAEquiv.rinv (HAe .snd) (f x))
+       , ((sym (rUnit _)
+        ∙ cong (cong (fst (fst e)))
+           λ i → cong (invEq (fst e)) p
+           ∙ (lUnit (retEq (fst e) (pt B)) (~ i)))
+           ∙ cong-∙ (fst (fst e))
+              (cong (invEq (fst e)) p)
+              (retEq (fst e) (pt B))
+           ∙ refl
+         ◁ flipSquare (((λ _ → isHAEquiv.rinv (HAe .snd) (f (pt A)))
+                      ∙ refl)
+                      ◁ lem _ _ _ _ (cong (isHAEquiv.rinv (HAe .snd)) p
+                                  ▷ sym (isHAEquiv.com (HAe .snd) (pt B))))))))
+     (snd e)
   where
-  module _ {ℓ ℓ' : Level} (A : Pointed ℓ) (B C : Pointed ℓ')
-           (eq : (B ≃∙ C)) where
-    to : (A →∙ B) → (A →∙ C)
-    to = ≃∙map eq ∘∙_
+  HAe = equiv→HAEquiv (fst e)
+  lem : ∀ {ℓ} {A : Type ℓ} {x y z w : A}
+      (p : x ≡ y) (q : y ≡ z) (r : x ≡ w) (l : w ≡ z)
+    → PathP (λ i → p i ≡ l i) r q
+    → PathP (λ i → (p ∙ q) i ≡ l i) r refl
+  lem p q r l P i j =
+    hcomp (λ k → λ{ (i = i0) → r j
+                   ; (i = i1) → q (j ∨ k)
+                   ; (j = i1) → l i})
+          (P i j)
+Iso.leftInv (pre∘∙equiv {A = A} {B = B} {C = C} e) =
+  J (λ pt p → retract (toEq' B (fst C , pt) A (fst e , p))
+                       (fromEq' B (fst C , pt) A (fst e , p)))
+    (uncurry (λ f →
+      J (λ ptB p
+       → fromEq' (fst B , ptB)
+                  (fst C , fst (fst e) ptB) A (fst e , refl)
+           (toEq' (fst B , ptB)
+                  (fst C , fst (fst e) ptB) A (fst e , refl) (f , p))
+         ≡ (f , p))
+         (ΣPathP
+          (funExt (λ x → retEq (fst e) (f x))
+         , ((cong₂ _∙_ ((λ i → cong (invEq (fst e)) (lUnit refl (~ i))))
+                       (sym (lUnit _) ∙ λ _ → retEq (fst e) (f (pt A)))
+          ∙ sym (lUnit _))
+         ◁ λ i j → retEq (fst e) (f (pt A)) (i ∨ j))))))
+    (snd e)
 
-    from : (A →∙ C) → (A →∙ B)
-    from = ≃∙map (invEquiv∙ eq) ∘∙_
-
-  lem : {ℓ  : Level} {B : Pointed ℓ}
-    → ≃∙map (invEquiv∙ {A = B} ((idEquiv (fst B)) , refl)) ≡ id∙ B
-  lem = ΣPathP (refl , (sym (lUnit _)))
-
-  J-lem : {ℓ ℓ' : Level} {A : Pointed ℓ} {B C : Pointed ℓ'}
-             → (eq : (B ≃∙ C))
-             → retract (to A B C eq) (from _ _ _ eq)
-              × section (to A B C eq) (from _ _ _ eq)
-  J-lem {A = A} {B = B} {C = C} =
-    Equiv∙J (λ B eq → retract (to A B C eq) (from _ _ _ eq)
-              × section (to A B C eq) (from _ _ _ eq))
-            ((λ f → ((λ i → (lem i ∘∙ (id∙ C ∘∙ f)))
-                  ∙ λ i → ∘∙-idʳ (∘∙-idʳ f i) i))
-            , λ f → ((λ i → (id∙ C ∘∙ (lem i ∘∙ f)))
-                  ∙ λ i → ∘∙-idʳ (∘∙-idʳ f i) i))
-
-  main : Iso (A →∙ B) (A →∙ C)
-  Iso.fun main = to A B C eq
-  Iso.inv main = from A B C eq
-  Iso.rightInv main = J-lem eq .snd
-  Iso.leftInv main = J-lem eq .fst
-
-post∘∙equiv : ∀ {ℓ ℓC} {A B : Pointed ℓ} {C : Pointed ℓC}
+post∘∙equiv : ∀ {ℓA ℓB ℓC} {A : Pointed ℓA} {B : Pointed ℓB} {C : Pointed ℓC}
   → (A ≃∙ B) → Iso (A →∙ C) (B →∙ C)
-post∘∙equiv {A = A} {B = B} {C = C} eq = main
+Iso.fun (post∘∙equiv {A = A} {B = B} {C = C} e) = toEq A B C e
+Iso.inv (post∘∙equiv {A = A} {B = B} {C = C} e) = fromEq A B C e
+Iso.rightInv (post∘∙equiv {A = A}{B = B , ptB} {C = C} e) =
+  J (λ pt p → section (toEq A (B , pt) C (fst e , p))
+                        (fromEq A (B , pt) C (fst e , p)))
+     (uncurry (λ f →
+       J (λ ptC p → toEq A (B , fst (fst e) (pt A)) (fst C , ptC) (fst e , refl)
+                      (fromEq A (B , fst (fst e) (pt A)) (fst C , ptC) (fst e , refl)
+                        (f , p))
+                   ≡ (f , p))
+         (ΣPathP (funExt (λ x → cong f (isHAEquiv.rinv (snd HAe) x))
+           , (cong₂ _∙_
+               (λ i → cong f (cong (fst (fst e)) (lUnit (retEq (fst e) (pt A)) (~ i))))
+               (sym (rUnit refl))
+           ∙ sym (rUnit _)
+           ∙ cong (cong f) (isHAEquiv.com (snd HAe) (pt A)))
+         ◁ λ i j → f (isHAEquiv.rinv (snd HAe) (fst HAe (pt A)) (i ∨ j))))))
+     (snd e)
   where
-  module _ {ℓ ℓC : Level} (A B : Pointed ℓ) (C : Pointed ℓC)
-           (eq : (A ≃∙ B)) where
-    to : (A →∙ C) → (B →∙ C)
-    to = _∘∙ ≃∙map (invEquiv∙ eq)
-
-    from : (B →∙ C) → (A →∙ C)
-    from = _∘∙ ≃∙map eq
-
-  lem : {ℓ  : Level} {B : Pointed ℓ}
-    → ≃∙map (invEquiv∙ {A = B} ((idEquiv (fst B)) , refl)) ≡ id∙ B
-  lem = ΣPathP (refl , (sym (lUnit _)))
-
-  J-lem : {ℓ ℓC : Level} {A B : Pointed ℓ} {C : Pointed ℓC}
-             → (eq : (A ≃∙ B))
-             → retract (to A B C eq) (from _ _ _ eq)
-              × section (to A B C eq) (from _ _ _ eq)
-  J-lem {B = B} {C = C} =
-    Equiv∙J (λ A eq → retract (to A B C eq) (from _ _ _ eq)
-              × section (to A B C eq) (from _ _ _ eq))
-            ((λ f → ((λ i → (f ∘∙ lem i) ∘∙ id∙ B)
-                  ∙ λ i → ∘∙-idˡ (∘∙-idˡ f i) i))
-           , λ f → (λ i → (f ∘∙ id∙ B) ∘∙ lem i)
-                  ∙ λ i → ∘∙-idˡ (∘∙-idˡ f i) i)
-
-  main : Iso (A →∙ C) (B →∙ C)
-  Iso.fun main = to A B C eq
-  Iso.inv main = from A B C eq
-  Iso.rightInv main = J-lem eq .snd
-  Iso.leftInv main = J-lem eq .fst
+  HAe = equiv→HAEquiv (fst e)
+Iso.leftInv (post∘∙equiv {A = A} {B = B , ptB} {C = C} e) =
+  J (λ pt p → retract (toEq A (B , pt) C (fst e , p))
+                        (fromEq A (B , pt) C (fst e , p)))
+     (uncurry (λ f → J (λ ptC y →
+       fromEq A (B , fst (fst e) (pt A)) (fst C , ptC) (fst e , refl)
+        (toEq A (B , fst (fst e) (pt A)) (fst C , ptC) (fst e , refl)
+        (f , y))
+      ≡ (f , y))
+      (ΣPathP (funExt (λ x → cong f (retEq (fst e) x))
+            , (sym (lUnit _)
+              ∙ sym (rUnit _)
+              ∙ cong (cong f) (sym (lUnit _))
+              ∙ (λ _ → cong f (retEq (fst e) (pt A)))
+             ◁ λ i j → f (retEq (fst e) (pt A) (i ∨ j)))))))
+     (snd e)
 
 flip→∙∙ : {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓA}
   → (A →∙ (B →∙ C ∙)) → B →∙ (A →∙ C ∙)
@@ -190,3 +225,22 @@ Iso.leftInv flip→∙∙Iso _ = refl
                 × (≃∙map f ∘∙ ≃∙map (invEquiv∙ f) ≡ idfun∙ B))
           ((ΣPathP (refl , sym (lUnit _) ∙ sym (rUnit refl)))
          , (ΣPathP (refl , sym (rUnit _) ∙ sym (rUnit refl))))
+
+pointedSecIso : ∀ {ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} (Q : fst A → Pointed ℓ'')
+  → Iso ((a : fst A) → Q a →∙ B)
+         (Σ[ F ∈ (Σ (fst A) (fst ∘ Q) → fst B) ]
+           ((a : fst A) → F (a , pt (Q a)) ≡ pt B))
+Iso.fun (pointedSecIso Q) F = (λ x → F (fst x) .fst (snd x)) , (λ x → F x .snd)
+Iso.inv (pointedSecIso Q) F a = (fst F ∘ (a ,_)) , snd F a
+Iso.rightInv (pointedSecIso Q) F = refl
+Iso.leftInv (pointedSecIso Q) F = refl
+
+compPathrEquiv∙ : {A : Type ℓ} {a b c : A} {q : a ≡ b} (p : b ≡ c)
+    → ((a ≡ b) , q) ≃∙ ((a ≡ c) , q ∙ p)
+fst (compPathrEquiv∙ p) = compPathrEquiv p
+snd (compPathrEquiv∙ p) = refl
+
+compPathlEquiv∙ : {A : Type ℓ} {a b c : A} {q : b ≡ c} (p : a ≡ b)
+    → ((b ≡ c) , q) ≃∙ ((a ≡ c) , p ∙ q)
+fst (compPathlEquiv∙ p) = compPathlEquiv p
+snd (compPathlEquiv∙ p) = refl
