@@ -317,7 +317,7 @@ isEquiv-isEquiv'-Iso f .leftInv p i .equiv-proof = p .equiv-proof
 isEquiv≃isEquiv' : (f : A → B) → isEquiv f ≃ isEquiv' f
 isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)
 
--- funExt is an equivalence
+-- The fact that funExt is an equivalence can be found in Cubical.Functions.FunExtEquiv
 
 funExt≃ : {B : A → I → Type ℓ'} {f : (x : A) → B x i0} {g : (x : A) → B x i1} →
           ((x : A) → PathP (B x) (f x) (g x)) ≃ PathP (λ i → (x : A) → B x i) f g
