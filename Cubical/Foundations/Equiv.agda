@@ -319,6 +319,5 @@ isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)
 
 -- The fact that funExt is an equivalence can be found in Cubical.Functions.FunExtEquiv
 
-  inv e p = funExt⁻ p
   rightInv e p = refl
   leftInv  e p = refl
