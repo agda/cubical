@@ -319,7 +319,6 @@ isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)
 
 -- The fact that funExt is an equivalence can be found in Cubical.Functions.FunExtEquiv
 
-  open Iso
   e : Iso ((x : A) → PathP (B x) (f x) (g x)) (PathP (λ i → (x : A) → B x i) f g)
   fun e p = funExt p
   inv e p = funExt⁻ p
