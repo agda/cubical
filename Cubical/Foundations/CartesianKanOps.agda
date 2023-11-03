@@ -3,8 +3,6 @@
 module Cubical.Foundations.CartesianKanOps where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Erp
 
 coe0→1 : ∀ {ℓ} (A : I → Type ℓ) → A i0 → A i1
