@@ -29,3 +29,37 @@ idEquiv A .snd = idIsEquiv A
 -- the definition using Π-type
 isEquiv' : ∀ {ℓ}{ℓ'}{A : Type ℓ}{B : Type ℓ'} → (A → B) → Type (ℓ-max ℓ ℓ')
 isEquiv' {B = B} f = (y : B) → isContr (fiber f y)
+
+-- Transport along a line of types A, constant on some extent φ, is an equivalence.
+isEquivTransp : ∀ {ℓ : I → Level} (A : (i : I) → Type (ℓ i)) → ∀ (φ : I) → isEquiv (transp (λ j → A (φ ∨ j)) φ)
+isEquivTransp A φ = u₁ where
+  -- NB: The transport in question is the `coei→1` or `squeeze` operation mentioned
+  -- at `Cubical.Foundations.CartesianKanOps` and
+  -- https://1lab.dev/1Lab.Path.html#coei%E2%86%921
+  coei→1 : A φ → A i1
+  coei→1 = transp (λ j → A (φ ∨ j)) φ
+
+  -- A line of types, interpolating between propositions:
+  -- (k = i0): the identity function is an equivalence
+  -- (k = i1): transport along A is an equivalence
+  γ : (k : I) → Type _
+  γ k = isEquiv (transp (λ j → A (φ ∨ (j ∧ k))) (φ ∨ ~ k))
+
+  _ : γ i0 ≡ isEquiv (idfun (A φ))
+  _ = refl
+
+  _ : γ i1 ≡ isEquiv coei→1
+  _ = refl
+
+  -- We have proof that the identity function *is* an equivalence,
+  u₀ : γ i0
+  u₀ = idIsEquiv (A φ)
+
+  -- and by transporting that evidence along γ, we prove that
+  -- transporting along A is an equivalence, too.
+  u₁ : γ i1
+  u₁ = transp γ φ u₀
+
+transpEquiv : ∀ {ℓ : I → Level} (A : (i : I) → Type (ℓ i)) → ∀ φ → A φ ≃ A i1
+transpEquiv A φ .fst = transp (λ j → A (φ ∨ j)) φ
+transpEquiv A φ .snd = isEquivTransp A φ

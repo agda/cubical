@@ -8,7 +8,7 @@
 module Cubical.Foundations.Transport where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv as Equiv hiding (transpEquiv)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.GroupoidLaws
@@ -78,17 +78,12 @@ liftEquiv : ∀ {ℓ ℓ'} {A B : Type ℓ} (P : Type ℓ → Type ℓ') (e : A 
 liftEquiv P e = substEquiv P (ua e)
 
 transpEquiv : ∀ {ℓ} {A B : Type ℓ} (p : A ≡ B) → ∀ i → p i ≃ B
-transpEquiv P i .fst = transp (λ j → P (i ∨ j)) i
-transpEquiv P i .snd
-  = transp (λ k → isEquiv (transp (λ j → P (i ∨ (j ∧ k))) (i ∨ ~ k)))
-      i (idIsEquiv (P i))
+transpEquiv p = Equiv.transpEquiv (λ i → p i)
+{-# WARNING_ON_USAGE transpEquiv "Deprecated: Use the more general `transpEquiv` from `Cubical.Foundations.Equiv` instead" #-}
 
 uaTransportη : ∀ {ℓ} {A B : Type ℓ} (P : A ≡ B) → ua (pathToEquiv P) ≡ P
-uaTransportη P i j
-  = Glue (P i1) λ where
-      (j = i0) → P i0 , pathToEquiv P
-      (i = i1) → P j , transpEquiv P j
-      (j = i1) → P i1 , idEquiv (P i1)
+uaTransportη = uaη
+{-# WARNING_ON_USAGE uaTransportη "Deprecated: Use `uaη` from `Cubical.Foundations.Univalence` instead of `uaTransportη`" #-}
 
 pathToIso : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → Iso A B
 Iso.fun (pathToIso x) = transport x
