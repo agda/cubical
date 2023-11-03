@@ -48,6 +48,12 @@ minComm (negsuc zero) (negsuc (suc m)) = refl
 minComm (negsuc (suc n)) (negsuc zero) = refl
 minComm (negsuc (suc n)) (negsuc (suc m)) = cong predℤ (minComm (negsuc n) (negsuc m))
 
+minIdem : ∀ n → min n n ≡ n
+minIdem (pos zero) = refl
+minIdem (pos (suc n)) = cong sucℤ (minIdem (pos n))
+minIdem (negsuc zero) = refl
+minIdem (negsuc (suc n)) = cong predℤ (minIdem (negsuc n))
+
 max : ℤ → ℤ → ℤ
 max (pos zero) (pos m) = pos m
 max (pos (suc n)) (pos zero) = pos (suc n)
@@ -76,6 +82,12 @@ maxComm (negsuc zero) (negsuc (suc m)) = refl
 maxComm (negsuc (suc n)) (negsuc zero) = refl
 maxComm (negsuc (suc n)) (negsuc (suc m)) = cong predℤ (maxComm (negsuc n) (negsuc m))
 
+maxIdem : ∀ n → max n n ≡ n
+maxIdem (pos zero) = refl
+maxIdem (pos (suc n)) = cong sucℤ (maxIdem (pos n))
+maxIdem (negsuc zero) = refl
+maxIdem (negsuc (suc n)) = cong predℤ (maxIdem (negsuc n))
+
 sucPred : ∀ i → sucℤ (predℤ i) ≡ i
 sucPred (pos zero)    = refl
 sucPred (pos (suc n)) = refl
@@ -85,6 +97,288 @@ predSuc : ∀ i → predℤ (sucℤ i) ≡ i
 predSuc (pos n)          = refl
 predSuc (negsuc zero)    = refl
 predSuc (negsuc (suc n)) = refl
+
+sucDistMin : ∀ m n → sucℤ (min m n) ≡ min (sucℤ m) (sucℤ n)
+sucDistMin (pos zero) (pos zero) = refl
+sucDistMin (pos zero) (pos (suc n)) = refl
+sucDistMin (pos (suc m)) (pos zero) = refl
+sucDistMin (pos (suc m)) (pos (suc n)) = refl
+sucDistMin (pos zero) (negsuc zero) = refl
+sucDistMin (pos zero) (negsuc (suc n)) = refl
+sucDistMin (pos (suc m)) (negsuc zero) = refl
+sucDistMin (pos (suc m)) (negsuc (suc n)) = refl
+sucDistMin (negsuc zero) (pos zero) = refl
+sucDistMin (negsuc zero) (pos (suc n)) = refl
+sucDistMin (negsuc (suc m)) (pos zero) = refl
+sucDistMin (negsuc (suc m)) (pos (suc n)) = refl
+sucDistMin (negsuc zero) (negsuc zero) = refl
+sucDistMin (negsuc zero) (negsuc (suc n)) = refl
+sucDistMin (negsuc (suc m)) (negsuc zero) = refl
+sucDistMin (negsuc (suc m)) (negsuc (suc n)) = sucPred _
+
+predDistMin : ∀ m n → predℤ (min m n) ≡ min (predℤ m) (predℤ n)
+predDistMin (pos zero) (pos zero) = refl
+predDistMin (pos zero) (pos (suc n)) = refl
+predDistMin (pos (suc m)) (pos zero) = minComm (negsuc zero) (pos m)
+predDistMin (pos (suc m)) (pos (suc n)) = predSuc _
+predDistMin (pos zero) (negsuc zero) = refl
+predDistMin (pos zero) (negsuc (suc n)) = refl
+predDistMin (pos (suc m)) (negsuc zero) = minComm (negsuc 1) (pos m)
+predDistMin (pos (suc m)) (negsuc (suc n)) = minComm (negsuc (suc (suc n))) (pos m)
+predDistMin (negsuc zero) (pos zero) = refl
+predDistMin (negsuc zero) (pos (suc n)) = refl
+predDistMin (negsuc (suc m)) (pos zero) = refl
+predDistMin (negsuc (suc m)) (pos (suc n)) = refl
+predDistMin (negsuc zero) (negsuc zero) = refl
+predDistMin (negsuc zero) (negsuc (suc n)) = refl
+predDistMin (negsuc (suc m)) (negsuc zero) = refl
+predDistMin (negsuc (suc m)) (negsuc (suc n)) = refl
+
+minSucL : ∀ m → min (sucℤ m) m ≡ m
+minSucL (pos zero) = refl
+minSucL (pos (suc m)) = cong sucℤ (minSucL (pos m))
+minSucL (negsuc zero) = refl
+minSucL (negsuc (suc m))
+  = sym (cong predℤ (sym (minSucL (negsuc m))) ∙
+         predDistMin (sucℤ (negsuc m)) (negsuc m) ∙
+         cong (λ a → min a (negsuc (suc m))) (predSuc (negsuc m)))
+
+minSucR : ∀ m → min m (sucℤ m) ≡ m
+minSucR m = minComm m (sucℤ m) ∙ minSucL m
+
+minPredL : ∀ m → min (predℤ m) m ≡ predℤ m
+minPredL (pos zero) = refl
+minPredL (pos (suc m)) = minSucR (pos m)
+minPredL (negsuc zero) = refl
+minPredL (negsuc (suc m)) = cong predℤ (minPredL (negsuc m))
+
+minPredR : ∀ m → min m (predℤ m) ≡ predℤ m
+minPredR m = minComm m (predℤ m) ∙ minPredL m
+
+sucDistMax : ∀ m n → sucℤ (max m n) ≡ max (sucℤ m) (sucℤ n)
+sucDistMax (pos zero) (pos zero) = refl
+sucDistMax (pos zero) (pos (suc n)) = refl
+sucDistMax (pos (suc m)) (pos zero) = refl
+sucDistMax (pos (suc m)) (pos (suc n)) = refl
+sucDistMax (pos zero) (negsuc zero) = refl
+sucDistMax (pos zero) (negsuc (suc n)) = refl
+sucDistMax (pos (suc m)) (negsuc zero) = refl
+sucDistMax (pos (suc m)) (negsuc (suc n)) = refl
+sucDistMax (negsuc zero) (pos zero) = refl
+sucDistMax (negsuc zero) (pos (suc n)) = refl
+sucDistMax (negsuc (suc m)) (pos zero) = refl
+sucDistMax (negsuc (suc m)) (pos (suc n)) = refl
+sucDistMax (negsuc zero) (negsuc zero) = refl
+sucDistMax (negsuc zero) (negsuc (suc n)) = refl
+sucDistMax (negsuc (suc m)) (negsuc zero) = refl
+sucDistMax (negsuc (suc m)) (negsuc (suc n)) = sucPred _
+
+predDistMax : ∀ m n → predℤ (max m n) ≡ max (predℤ m) (predℤ n)
+predDistMax (pos zero) (pos zero) = refl
+predDistMax (pos zero) (pos (suc n)) = refl
+predDistMax (pos (suc m)) (pos zero) = maxComm (negsuc zero) (pos m)
+predDistMax (pos (suc m)) (pos (suc n)) = predSuc _
+predDistMax (pos zero) (negsuc zero) = refl
+predDistMax (pos zero) (negsuc (suc n)) = refl
+predDistMax (pos (suc m)) (negsuc zero) = maxComm (negsuc 1) (pos m)
+predDistMax (pos (suc m)) (negsuc (suc n)) = maxComm (negsuc (suc (suc n))) (pos m)
+predDistMax (negsuc zero) (pos zero) = refl
+predDistMax (negsuc zero) (pos (suc n)) = refl
+predDistMax (negsuc (suc m)) (pos zero) = refl
+predDistMax (negsuc (suc m)) (pos (suc n)) = refl
+predDistMax (negsuc zero) (negsuc zero) = refl
+predDistMax (negsuc zero) (negsuc (suc n)) = refl
+predDistMax (negsuc (suc m)) (negsuc zero) = refl
+predDistMax (negsuc (suc m)) (negsuc (suc n)) = refl
+
+maxSucL : ∀ m → max (sucℤ m) m ≡ sucℤ m
+maxSucL (pos zero) = refl
+maxSucL (pos (suc m)) = cong sucℤ (maxSucL (pos m))
+maxSucL (negsuc zero) = refl
+maxSucL (negsuc (suc m))
+  = cong (λ a → max a (negsuc (suc m))) (sym (predSuc (negsuc m))) ∙
+    sym (predDistMax (sucℤ (negsuc m)) (negsuc m)) ∙
+    cong predℤ (maxSucL (negsuc m)) ∙
+    predSuc (negsuc m)
+
+maxSucR : ∀ m → max m (sucℤ m) ≡ sucℤ m
+maxSucR m = maxComm m (sucℤ m) ∙ maxSucL m
+
+maxPredL : ∀ m → max (predℤ m) m ≡ m
+maxPredL (pos zero) = refl
+maxPredL (pos (suc m)) = maxSucR (pos m)
+maxPredL (negsuc zero) = refl
+maxPredL (negsuc (suc m)) = cong predℤ (maxPredL (negsuc m))
+
+maxPredR : ∀ m → max m (predℤ m) ≡ m
+maxPredR m = maxComm m (predℤ m) ∙ maxPredL m
+
+minAssoc : ∀ x y z → min x (min y z) ≡ min (min x y) z
+minAssoc (pos zero) (pos zero) (pos z) = refl
+minAssoc (pos zero) (pos (suc y)) (pos zero) = refl
+minAssoc (pos zero) (pos (suc y)) (pos (suc z))
+  = sym (sucDistMin (negsuc zero) (min (pos y) (pos z))) ∙
+    cong sucℤ (minAssoc (negsuc zero) (pos y) (pos z))
+minAssoc (pos (suc x)) (pos zero) (pos z) = refl
+minAssoc (pos (suc x)) (pos (suc y)) (pos zero)
+  = cong (min (pos (suc x))) (sym (sucDistMin (pos y) (negsuc zero))) ∙
+    sym (sucDistMin (pos x) (min (pos y) (negsuc zero))) ∙
+    cong sucℤ (minAssoc (pos x) (pos y) (negsuc zero)) ∙
+    sucDistMin (min (pos x) (pos y)) (negsuc zero)
+minAssoc (pos (suc x)) (pos (suc y)) (pos (suc z))
+  = sym (sucDistMin (pos x) (min (pos y) (pos z))) ∙
+    cong sucℤ (minAssoc (pos x) (pos y) (pos z)) ∙
+    sucDistMin (min (pos x) (pos y)) (pos z)
+minAssoc (pos zero) (pos zero) (negsuc z) = refl
+minAssoc (pos zero) (pos (suc y)) (negsuc z) = refl
+minAssoc (pos (suc x)) (pos zero) (negsuc z) = refl
+minAssoc (pos (suc x)) (pos (suc y)) (negsuc z)
+  = cong (min (pos (suc x))) (sym (sucDistMin (pos y) (negsuc (suc z)))) ∙
+    sym (sucDistMin (pos x) (min (pos y) (negsuc (suc z)))) ∙
+    cong sucℤ (minAssoc (pos x) (pos y) (negsuc (suc z))) ∙
+    sucDistMin (min (pos x) (pos y)) (negsuc (suc z))
+minAssoc (pos zero) (negsuc y) (pos z) = refl
+minAssoc (pos (suc x)) (negsuc y) (pos z) = refl
+minAssoc (pos zero) (negsuc zero) (negsuc z) = refl
+minAssoc (pos zero) (negsuc (suc y)) (negsuc zero) = refl
+minAssoc (pos zero) (negsuc (suc y)) (negsuc (suc z))
+  = sym (predDistMin (pos 1) (min (negsuc y) (negsuc z))) ∙
+    cong predℤ (minAssoc (pos 1) (negsuc y) (negsuc z)) ∙
+    predDistMin (min (pos 1) (negsuc y)) (negsuc z)
+minAssoc (pos (suc x)) (negsuc zero) (negsuc z) = refl
+minAssoc (pos (suc x)) (negsuc (suc y)) (negsuc zero) = refl
+minAssoc (pos (suc x)) (negsuc (suc y)) (negsuc (suc z))
+  = sym (predDistMin (pos (suc (suc x))) (min (negsuc y) (negsuc z))) ∙
+    cong predℤ (minAssoc (pos (suc (suc x))) (negsuc y) (negsuc z)) ∙
+    predDistMin (min (pos (suc (suc x))) (negsuc y)) (negsuc z)
+minAssoc (negsuc x) (pos zero) (pos z) = refl
+minAssoc (negsuc x) (pos (suc y)) (pos zero) = refl
+minAssoc (negsuc zero) (pos (suc y)) (pos (suc z))
+  = sym (sucDistMin (negsuc 1) (min (pos y) (pos z))) ∙
+    cong sucℤ (minAssoc (negsuc 1) (pos y) (pos z)) ∙
+    sucDistMin (min (negsuc 1) (pos y)) (pos z)
+minAssoc (negsuc (suc x)) (pos (suc y)) (pos (suc z))
+  = sym (sucDistMin (negsuc (suc (suc x))) (min (pos y) (pos z))) ∙
+    cong sucℤ (minAssoc (negsuc (suc (suc x))) (pos y) (pos z))
+minAssoc (negsuc x) (pos zero) (negsuc z) = refl
+minAssoc (negsuc x) (pos (suc y)) (negsuc z) = refl
+minAssoc (negsuc zero) (negsuc y) (pos z) = refl
+minAssoc (negsuc (suc x)) (negsuc zero) (pos z) = refl
+minAssoc (negsuc (suc x)) (negsuc (suc y)) (pos z)
+  = cong predℤ (minAssoc (negsuc x) (negsuc y) (pos (suc z))) ∙
+    predDistMin (min (negsuc x) (negsuc y)) (pos (suc z))
+minAssoc (negsuc zero) (negsuc zero) (negsuc z) = refl
+minAssoc (negsuc zero) (negsuc (suc y)) (negsuc zero) = refl
+minAssoc (negsuc zero) (negsuc (suc y)) (negsuc (suc z))
+  = sym (predDistMin (pos zero) (min (negsuc y) (negsuc z))) ∙
+    cong predℤ (minAssoc (pos zero) (negsuc y) (negsuc z))
+minAssoc (negsuc (suc x)) (negsuc zero) (negsuc z) = refl
+minAssoc (negsuc (suc x)) (negsuc (suc y)) (negsuc zero)
+  = cong predℤ (minAssoc (negsuc x) (negsuc y) (pos zero)) ∙
+    predDistMin (min (negsuc x) (negsuc y)) (pos zero)
+minAssoc (negsuc (suc x)) (negsuc (suc y)) (negsuc (suc z))
+  = sym (predDistMin (negsuc x) (min (negsuc y) (negsuc z))) ∙
+    cong predℤ (minAssoc (negsuc x) (negsuc y) (negsuc z)) ∙
+    predDistMin (min (negsuc x) (negsuc y)) (negsuc z)
+
+maxAssoc : ∀ x y z → max x (max y z) ≡ max (max x y) z
+maxAssoc (pos zero) (pos zero) (pos z) = refl
+maxAssoc (pos zero) (pos (suc y)) (pos zero) = refl
+maxAssoc (pos zero) (pos (suc y)) (pos (suc z))
+  = sym (sucDistMax (negsuc zero) (max (pos y) (pos z))) ∙
+    cong sucℤ (maxAssoc (negsuc zero) (pos y) (pos z))
+maxAssoc (pos (suc x)) (pos zero) (pos z) = refl
+maxAssoc (pos (suc x)) (pos (suc y)) (pos zero)
+  = cong (max (pos (suc x))) (sym (sucDistMax (pos y) (negsuc zero))) ∙
+    sym (sucDistMax (pos x) (max (pos y) (negsuc zero))) ∙
+    cong sucℤ (maxAssoc (pos x) (pos y) (negsuc zero)) ∙
+    sucDistMax (max (pos x) (pos y)) (negsuc zero)
+maxAssoc (pos (suc x)) (pos (suc y)) (pos (suc z))
+  = sym (sucDistMax (pos x) (max (pos y) (pos z))) ∙
+    cong sucℤ (maxAssoc (pos x) (pos y) (pos z)) ∙
+    sucDistMax (max (pos x) (pos y)) (pos z)
+maxAssoc (pos zero) (pos zero) (negsuc z) = refl
+maxAssoc (pos zero) (pos (suc y)) (negsuc z) = refl
+maxAssoc (pos (suc x)) (pos zero) (negsuc z) = refl
+maxAssoc (pos (suc x)) (pos (suc y)) (negsuc z)
+  = cong (max (pos (suc x))) (sym (sucDistMax (pos y) (negsuc (suc z)))) ∙
+    sym (sucDistMax (pos x) (max (pos y) (negsuc (suc z)))) ∙
+    cong sucℤ (maxAssoc (pos x) (pos y) (negsuc (suc z))) ∙
+    sucDistMax (max (pos x) (pos y)) (negsuc (suc z))
+maxAssoc (pos zero) (negsuc y) (pos z) = refl
+maxAssoc (pos (suc x)) (negsuc y) (pos z) = refl
+maxAssoc (pos zero) (negsuc zero) (negsuc z) = refl
+maxAssoc (pos zero) (negsuc (suc y)) (negsuc zero) = refl
+maxAssoc (pos zero) (negsuc (suc y)) (negsuc (suc z))
+  = sym (predDistMax (pos 1) (max (negsuc y) (negsuc z))) ∙
+    cong predℤ (maxAssoc (pos 1) (negsuc y) (negsuc z)) ∙
+    predDistMax (max (pos 1) (negsuc y)) (negsuc z)
+maxAssoc (pos (suc x)) (negsuc zero) (negsuc z) = refl
+maxAssoc (pos (suc x)) (negsuc (suc y)) (negsuc zero) = refl
+maxAssoc (pos (suc x)) (negsuc (suc y)) (negsuc (suc z))
+  = sym (predDistMax (pos (suc (suc x))) (max (negsuc y) (negsuc z))) ∙
+    cong predℤ (maxAssoc (pos (suc (suc x))) (negsuc y) (negsuc z)) ∙
+    predDistMax (max (pos (suc (suc x))) (negsuc y)) (negsuc z)
+maxAssoc (negsuc x) (pos zero) (pos z) = refl
+maxAssoc (negsuc x) (pos (suc y)) (pos zero) = refl
+maxAssoc (negsuc zero) (pos (suc y)) (pos (suc z))
+  = sym (sucDistMax (negsuc 1) (max (pos y) (pos z))) ∙
+    cong sucℤ (maxAssoc (negsuc 1) (pos y) (pos z)) ∙
+    sucDistMax (max (negsuc 1) (pos y)) (pos z)
+maxAssoc (negsuc (suc x)) (pos (suc y)) (pos (suc z))
+  = sym (sucDistMax (negsuc (suc (suc x))) (max (pos y) (pos z))) ∙
+    cong sucℤ (maxAssoc (negsuc (suc (suc x))) (pos y) (pos z))
+maxAssoc (negsuc x) (pos zero) (negsuc z) = refl
+maxAssoc (negsuc x) (pos (suc y)) (negsuc z) = refl
+maxAssoc (negsuc zero) (negsuc y) (pos z) = refl
+maxAssoc (negsuc (suc x)) (negsuc zero) (pos z) = refl
+maxAssoc (negsuc (suc x)) (negsuc (suc y)) (pos z)
+  = cong predℤ (maxAssoc (negsuc x) (negsuc y) (pos (suc z))) ∙
+    predDistMax (max (negsuc x) (negsuc y)) (pos (suc z))
+maxAssoc (negsuc zero) (negsuc zero) (negsuc z) = refl
+maxAssoc (negsuc zero) (negsuc (suc y)) (negsuc zero) = refl
+maxAssoc (negsuc zero) (negsuc (suc y)) (negsuc (suc z))
+  = sym (predDistMax (pos zero) (max (negsuc y) (negsuc z))) ∙
+    cong predℤ (maxAssoc (pos zero) (negsuc y) (negsuc z))
+maxAssoc (negsuc (suc x)) (negsuc zero) (negsuc z) = refl
+maxAssoc (negsuc (suc x)) (negsuc (suc y)) (negsuc zero)
+  = cong predℤ (maxAssoc (negsuc x) (negsuc y) (pos zero)) ∙
+    predDistMax (max (negsuc x) (negsuc y)) (pos zero)
+maxAssoc (negsuc (suc x)) (negsuc (suc y)) (negsuc (suc z))
+  = sym (predDistMax (negsuc x) (max (negsuc y) (negsuc z))) ∙
+    cong predℤ (maxAssoc (negsuc x) (negsuc y) (negsuc z)) ∙
+    predDistMax (max (negsuc x) (negsuc y)) (negsuc z)
+
+minAbsorbLMax : ∀ x y → min x (max x y) ≡ x
+minAbsorbLMax (pos zero) (pos y) = refl
+minAbsorbLMax (pos (suc x)) (pos zero) = cong sucℤ (minIdem (pos x))
+minAbsorbLMax (pos (suc x)) (pos (suc y))
+  = sym (sucDistMin (pos x) (max (pos x) (pos y))) ∙
+    cong sucℤ (minAbsorbLMax (pos x) (pos y))
+minAbsorbLMax (pos zero) (negsuc zero) = refl
+minAbsorbLMax (pos zero) (negsuc (suc y)) = refl
+minAbsorbLMax (pos (suc x)) (negsuc y) = cong sucℤ (minIdem (pos x))
+minAbsorbLMax (negsuc x) (pos y) = refl
+minAbsorbLMax (negsuc zero) (negsuc y) = refl
+minAbsorbLMax (negsuc (suc x)) (negsuc zero) = refl
+minAbsorbLMax (negsuc (suc x)) (negsuc (suc y))
+  = sym (predDistMin (negsuc x) (max (negsuc x) (negsuc y))) ∙
+    cong predℤ (minAbsorbLMax (negsuc x) (negsuc y))
+
+maxAbsorbLMin : ∀ x y → max x (min x y) ≡ x
+maxAbsorbLMin (pos zero) (pos y) = refl
+maxAbsorbLMin (pos (suc x)) (pos zero) = refl
+maxAbsorbLMin (pos (suc x)) (pos (suc y))
+  = sym (sucDistMax (pos x) (min (pos x) (pos y))) ∙
+    cong sucℤ (maxAbsorbLMin (pos x) (pos y))
+maxAbsorbLMin (pos zero) (negsuc y) = refl
+maxAbsorbLMin (pos (suc x)) (negsuc y) = refl
+maxAbsorbLMin (negsuc x) (pos y) = maxIdem (negsuc x)
+maxAbsorbLMin (negsuc zero) (negsuc y) = refl
+maxAbsorbLMin (negsuc (suc x)) (negsuc zero) = maxIdem (negsuc (suc x))
+maxAbsorbLMin (negsuc (suc x)) (negsuc (suc y))
+  = sym (predDistMax (negsuc x) (min (negsuc x) (negsuc y))) ∙
+    cong predℤ (maxAbsorbLMin (negsuc x) (negsuc y))
 
 injPos : ∀ {a b : ℕ} → pos a ≡ pos b → a ≡ b
 injPos {a} h = subst T h refl
@@ -114,6 +408,12 @@ negsucNotpos a b h = subst T h 0
   T (pos _)    = ⊥
   T (negsuc _) = ℕ
 
+injNeg : ∀ {a b : ℕ} → neg a ≡ neg b → a ≡ b
+injNeg {zero} {zero} _ = refl
+injNeg {zero} {suc b} nega≡negb = ⊥.rec (posNotnegsuc 0 b nega≡negb)
+injNeg {suc a} {zero} nega≡negb = ⊥.rec (negsucNotpos a 0 nega≡negb)
+injNeg {suc a} {suc b} nega≡negb = cong suc (injNegsuc nega≡negb)
+
 discreteℤ : Discrete ℤ
 discreteℤ (pos n) (pos m) with discreteℕ n m
 ... | yes p = yes (cong pos p)
@@ -138,6 +438,18 @@ isSetℤ = Discrete→isSet discreteℤ
 sucℤnegsucneg : ∀ n → sucℤ (negsuc n) ≡ neg n
 sucℤnegsucneg zero = refl
 sucℤnegsucneg (suc n) = refl
+
+-sucℤ : ∀ n → - sucℤ n ≡ predℤ (- n)
+-sucℤ (pos zero)       = refl
+-sucℤ (pos (suc n))    = refl
+-sucℤ (negsuc zero)    = refl
+-sucℤ (negsuc (suc n)) = refl
+
+-predℤ : ∀ n → - predℤ n ≡ sucℤ (- n)
+-predℤ (pos zero)       = refl
+-predℤ (pos (suc n))    = -pos n ∙ sym (sucℤnegsucneg n)
+-predℤ (negsuc zero)    = refl
+-predℤ (negsuc (suc n)) = refl
 
 -Involutive : ∀ z → - (- z) ≡ z
 -Involutive (pos n)    = cong -_ (-pos n) ∙ -neg n
@@ -426,6 +738,70 @@ pos- (suc m) (suc n) =
    -  neg (suc n +ℕ suc m)     ≡⟨ pos+ (suc n) (suc m) ⟩
   (-  negsuc n) + (- negsuc m) ∎
 
+-DistMin : ∀ m n → - min m n ≡ max (- m) (- n)
+-DistMin (pos zero) (pos zero) = refl
+-DistMin (pos zero) (pos (suc n)) = refl
+-DistMin (pos (suc m)) (pos zero) = refl
+-DistMin (pos (suc m)) (pos (suc n)) = -sucℤ (min (pos m) (pos n)) ∙
+                                       cong predℤ (-DistMin (pos m) (pos n)) ∙
+                                       predDistMax (- pos m) (- pos n) ∙
+                                       cong₂ max (sym (-sucℤ (pos m)))
+                                                 (sym (-sucℤ (pos n)))
+-DistMin (pos zero) (negsuc zero) = refl
+-DistMin (pos zero) (negsuc (suc n)) = refl
+-DistMin (pos (suc m)) (negsuc zero) = refl
+-DistMin (pos (suc m)) (negsuc (suc n)) = refl
+-DistMin (negsuc zero) (negsuc zero) = refl
+-DistMin (negsuc zero) (negsuc (suc n)) = refl
+-DistMin (negsuc (suc m)) (pos zero) = refl
+-DistMin (negsuc (suc m)) (pos (suc n)) = refl
+-DistMin (negsuc zero) (pos zero) = refl
+-DistMin (negsuc zero) (pos (suc n)) = refl
+-DistMin (negsuc (suc m)) (negsuc zero) = refl
+-DistMin (negsuc (suc m)) (negsuc (suc n)) = -predℤ (min (negsuc m) (negsuc n)) ∙
+                                             cong sucℤ (-DistMin (negsuc m) (negsuc n))
+
+-DistMax : ∀ m n → - max m n ≡ min (- m ) (- n)
+-DistMax (pos zero) (pos zero) = refl
+-DistMax (pos zero) (pos (suc n)) = refl
+-DistMax (pos (suc m)) (pos zero) = refl
+-DistMax (pos (suc m)) (pos (suc n)) = -sucℤ (max (pos m) (pos n)) ∙
+                                       cong predℤ (-DistMax (pos m) (pos n)) ∙
+                                       predDistMin (- pos m) (- pos n) ∙
+                                       cong₂ min (sym (-sucℤ (pos m)))
+                                                 (sym (-sucℤ (pos n)))
+-DistMax (pos zero) (negsuc zero) = refl
+-DistMax (pos zero) (negsuc (suc n)) = refl
+-DistMax (pos (suc m)) (negsuc zero) = refl
+-DistMax (pos (suc m)) (negsuc (suc n)) = refl
+-DistMax (negsuc zero) (pos zero) = refl
+-DistMax (negsuc zero) (pos (suc n)) = refl
+-DistMax (negsuc (suc m)) (pos zero) = refl
+-DistMax (negsuc (suc m)) (pos (suc n)) = refl
+-DistMax (negsuc zero) (negsuc zero) = refl
+-DistMax (negsuc zero) (negsuc (suc n)) = refl
+-DistMax (negsuc (suc m)) (negsuc zero) = refl
+-DistMax (negsuc (suc m)) (negsuc (suc n)) = -predℤ (max (negsuc m) (negsuc n)) ∙
+                                             cong sucℤ (-DistMax (negsuc m) (negsuc n))
+
+min- : ∀ x y → min (pos x) (- (pos y)) ≡ - (pos y)
+min- zero zero       = refl
+min- zero (suc y)    = refl
+min- (suc x) zero    = refl
+min- (suc x) (suc y) = refl
+
+-min : ∀ x y → min (- (pos x)) (pos y) ≡ - (pos x)
+-min x y = minComm (- (pos x)) (pos y) ∙ min- y x
+
+max- : ∀ x y → max (pos x) (- (pos y)) ≡ pos x
+max- zero zero       = refl
+max- zero (suc y)    = refl
+max- (suc x) zero    = refl
+max- (suc x) (suc y) = refl
+
+-max : ∀ x y → max (- (pos x)) (pos y) ≡ pos y
+-max x y = maxComm (- (pos x)) (pos y) ∙ max- y x
+
 inj-z+ : ∀ {z l n} → z + l ≡ z + n → l ≡ n
 inj-z+ {pos zero} {l} {n} p = l            ≡⟨ pos0+ l ⟩
                               pos zero + l ≡⟨ p ⟩
@@ -451,6 +827,311 @@ inj-+z {z} {l} {n} p = inj-z+ {z = z} (+Comm z l ∙ p ∙ +Comm n z)
 n+z≡z→n≡0 : ∀ n z → n + z ≡ z → n ≡ 0
 n+z≡z→n≡0 n z p = inj-z+ {z = z} {l = n} {n = 0} (+Comm z n ∙ p)
 
+pos+posLposMin : ∀ x y → min (pos (x +ℕ y)) (pos x) ≡ pos x
+pos+posLposMin zero y = minComm (pos y) (pos zero)
+pos+posLposMin (suc x) zero
+  = cong sucℤ (cong (λ a → min a (pos x)) (pos+ x 0) ∙ minIdem (pos x))
+pos+posLposMin (suc x) (suc y) = cong sucℤ (pos+posLposMin x (suc y))
+
+pos+posRposMin : ∀ x y → min (pos x) (pos (x +ℕ y)) ≡ pos x
+pos+posRposMin x y = minComm (pos x) (pos (x +ℕ y)) ∙ pos+posLposMin x y
+
+pos+posLposMax : ∀ x y → max (pos (x +ℕ y)) (pos x) ≡ pos (x +ℕ y)
+pos+posLposMax zero y = maxComm (pos y) (pos zero)
+pos+posLposMax (suc x) zero
+  = cong sucℤ (cong (λ a → max a (pos x)) (pos+ x 0) ∙ maxIdem (pos x)) ∙
+    cong (pos ∘ suc) (sym (+-zero x))
+pos+posLposMax (suc x) (suc y) = cong sucℤ (pos+posLposMax x (suc y))
+
+pos+posRposMax : ∀ x y → max (pos x) (pos (x +ℕ y)) ≡ pos (x +ℕ y)
+pos+posRposMax x y = maxComm (pos x) (pos (x +ℕ y)) ∙ pos+posLposMax x y
+
+negsuc+posLnegsucMin : ∀ x y → min (negsuc x + pos y) (negsuc x) ≡ negsuc x
+negsuc+posLnegsucMin zero zero = refl
+negsuc+posLnegsucMin zero (suc y)
+  = cong (λ a → min a (negsuc zero))
+         (sucℤ+ (negsuc zero) (pos y) ∙ sym (pos0+ (pos y))) ∙
+    minComm (pos y) (negsuc zero)
+negsuc+posLnegsucMin (suc x) zero = cong predℤ (minIdem (negsuc x))
+negsuc+posLnegsucMin (suc x) (suc y)
+  = cong (λ a → min a (negsuc (suc x)))
+         (sym (predℤ+ (negsuc x) (pos (suc y)))) ∙
+    sym (predDistMin (negsuc x + pos (suc y)) (negsuc x)) ∙
+    cong predℤ (negsuc+posLnegsucMin x (suc y))
+
+negsuc+posRnegsucMin : ∀ x y → min (negsuc x) (negsuc x + pos y) ≡ negsuc x
+negsuc+posRnegsucMin x y = minComm (negsuc x) (negsuc x + pos y) ∙ negsuc+posLnegsucMin x y
+
+negsuc+posLnegsucMax : ∀ x y → max (negsuc x + pos y) (negsuc x) ≡ negsuc x + pos y
+negsuc+posLnegsucMax zero zero = refl
+negsuc+posLnegsucMax zero (suc y)
+  = cong (λ a → max a (negsuc zero))
+         (sucℤ+ (negsuc zero) (pos y) ∙ sym (pos0+ (pos y))) ∙
+    maxComm (pos y) (negsuc zero) ∙
+    pos0+ (pos y) ∙ sym (sucℤ+ (negsuc zero) (pos y))
+negsuc+posLnegsucMax (suc x) zero = cong predℤ (maxIdem (negsuc x))
+negsuc+posLnegsucMax (suc x) (suc y)
+  = cong (λ a → max a (negsuc (suc x)))
+         (sym (predℤ+ (negsuc x) (pos (suc y)))) ∙
+    sym (predDistMax (negsuc x + pos (suc y)) (negsuc x)) ∙
+    cong predℤ (negsuc+posLnegsucMax x (suc y)) ∙
+    predℤ+ (negsuc x) (pos (suc y))
+
+negsuc+posRnegsucMax : ∀ x y → max (negsuc x) (negsuc x + pos y) ≡ negsuc x + pos y
+negsuc+posRnegsucMax x y = maxComm (negsuc x) (negsuc x + pos y) ∙ negsuc+posLnegsucMax x y
+
+negsuc+negsucLposMin : ∀ x y z → min (negsuc x + negsuc y) (pos z) ≡ negsuc x + negsuc y
+negsuc+negsucLposMin x zero z = refl
+negsuc+negsucLposMin x (suc y) z
+  = cong (λ a → min a (pos z)) (predℤ+ (negsuc x) (negsuc y)) ∙
+    negsuc+negsucLposMin (suc x) y z ∙
+    sym (predℤ+ (negsuc x) (negsuc y))
+
+negsuc+negsucRposMin : ∀ x y z → min (pos x) (negsuc y + negsuc z) ≡ negsuc y + negsuc z
+negsuc+negsucRposMin z x y = minComm (pos z) (negsuc x + negsuc y) ∙ negsuc+negsucLposMin x y z
+
+negsuc+negsucLposMax : ∀ x y z → max (negsuc x + negsuc y) (pos z) ≡ pos z
+negsuc+negsucLposMax x zero z = refl
+negsuc+negsucLposMax x (suc y) z
+  = cong (λ a → max a (pos z))
+         (predℤ+ (negsuc x) (negsuc y)) ∙
+    negsuc+negsucLposMax (suc x) y z
+
+negsuc+negsucRposMax : ∀ x y z → max (pos x) (negsuc y + negsuc z) ≡ pos x
+negsuc+negsucRposMax z x y = maxComm (pos z) (negsuc x + negsuc y) ∙ negsuc+negsucLposMax x y z
+
+negsuc+negsucLnegsucMin : ∀ x y → min (negsuc x + negsuc y) (negsuc x) ≡ negsuc x + negsuc y
+negsuc+negsucLnegsucMin zero zero = refl
+negsuc+negsucLnegsucMin zero (suc y)
+  = cong (λ a → min a (negsuc zero))
+         (sym (predℤ+ (pos zero) (negsuc (suc y))) ∙
+          cong (predℤ ∘ predℤ) (sym (pos0+ (negsuc y)))) ∙
+    cong predℤ (cong predℤ (pos0+ (negsuc y)) ∙
+                predℤ+ (pos zero) (negsuc y))
+negsuc+negsucLnegsucMin (suc x) zero = cong predℤ (minPredL (negsuc x))
+negsuc+negsucLnegsucMin (suc x) (suc y)
+  = cong (λ a → min a (negsuc (suc x)))
+         (sym (predℤ+ (negsuc x) (negsuc (suc y)))) ∙
+    sym (predDistMin (negsuc x + negsuc (suc y)) (negsuc x)) ∙
+    cong predℤ (negsuc+negsucLnegsucMin x (suc y) ∙
+                predℤ+ (negsuc x) (negsuc y))
+
+negsuc+negsucRnegsucMin : ∀ x y → min (negsuc x) (negsuc x + negsuc y) ≡ negsuc x + negsuc y
+negsuc+negsucRnegsucMin x y = minComm (negsuc x) (negsuc x + negsuc y) ∙ negsuc+negsucLnegsucMin x y
+
+negsuc+negsucLnegsucMax : ∀ x y → max (negsuc x + negsuc y) (negsuc x) ≡ negsuc x
+negsuc+negsucLnegsucMax zero zero = refl
+negsuc+negsucLnegsucMax zero (suc y)
+  = cong (λ a → max a (negsuc zero))
+         (sym (predℤ+ (pos zero) (negsuc (suc y))) ∙
+          cong (predℤ ∘ predℤ) (sym (pos0+ (negsuc y))))
+negsuc+negsucLnegsucMax (suc x) zero = cong predℤ (maxPredL (negsuc x))
+negsuc+negsucLnegsucMax (suc x) (suc y)
+  = cong (λ a → max a (negsuc (suc x)))
+         (sym (predℤ+ (negsuc x) (negsuc (suc y)))) ∙
+    sym (predDistMax (negsuc x + negsuc (suc y)) (negsuc x)) ∙
+    cong predℤ (negsuc+negsucLnegsucMax x (suc y))
+
+negsuc+negsucRnegsucMax : ∀ x y → max (negsuc x) (negsuc x + negsuc y) ≡ negsuc x
+negsuc+negsucRnegsucMax x y = maxComm (negsuc x) (negsuc x + negsuc y) ∙ negsuc+negsucLnegsucMax x y
+
+pos+pospos+negsucMin : ∀ x y z → min (pos x + pos y) (pos x + negsuc z) ≡ pos x + negsuc z
+pos+pospos+negsucMin zero zero zero = refl
+pos+pospos+negsucMin zero zero (suc z)
+  = cong (min (pos zero)) (+Comm (pos zero) (negsuc (suc z))) ∙
+    pos0+ (negsuc (suc z))
+pos+pospos+negsucMin zero (suc y) zero
+  = cong (λ a → min a (negsuc zero)) (+Comm (pos zero) (pos (suc y)))
+pos+pospos+negsucMin zero (suc y) (suc z)
+  = cong₂ min (+Comm (pos zero) (pos (suc y)))
+              (+Comm (pos zero) (negsuc (suc z))) ∙
+    pos0+ (negsuc (suc z))
+pos+pospos+negsucMin (suc x) y z
+  = cong₂ min (sym (sucℤ+ (pos x) (pos y)))
+              (sym (sucℤ+ (pos x) (negsuc z))) ∙
+    sym (sucDistMin (pos x + pos y) (pos x + negsuc z)) ∙
+    cong sucℤ (pos+pospos+negsucMin x y z) ∙
+    sucℤ+ (pos x) (negsuc z)
+
+pos+pospos+negsucMax : ∀ x y z → max (pos x + pos y) (pos x + negsuc z) ≡ pos x + pos y
+pos+pospos+negsucMax zero zero zero = refl
+pos+pospos+negsucMax zero zero (suc z) = cong (max (pos zero)) (sym (pos0+ (negsuc (suc z))))
+pos+pospos+negsucMax zero (suc y) zero
+  = cong (λ a → max a (negsuc zero))
+         (sym (pos0+ (pos (suc y)))) ∙
+    pos0+ (pos (suc y))
+pos+pospos+negsucMax zero (suc y) (suc z)
+  = cong₂ max (sym (pos0+ (pos (suc y))))
+          (sym (pos0+ (negsuc (suc z)))) ∙
+    pos0+ (pos (suc y))
+pos+pospos+negsucMax (suc x) y z
+  = cong₂ max (sym (sucℤ+ (pos x) (pos y)))
+              (sym (sucℤ+ (pos x) (negsuc z))) ∙
+    sym (sucDistMax (pos x + pos y) (pos x + negsuc z)) ∙
+    cong sucℤ (pos+pospos+negsucMax x y z) ∙ sucℤ+ (pos x) (pos y)
+
+negsuc+negsucnegsuc+posMin : ∀ x y z → min (negsuc x + negsuc y) (negsuc x + pos z)
+                           ≡ negsuc x + negsuc y
+negsuc+negsucnegsuc+posMin zero zero zero = refl
+negsuc+negsucnegsuc+posMin zero zero (suc z)
+  = cong (min (negsuc 1))
+         (sucℤ+ (negsuc zero) (pos z) ∙ sym (pos0+ (pos z)))
+negsuc+negsucnegsuc+posMin zero (suc y) zero = negsuc+negsucLnegsucMin zero (suc y)
+negsuc+negsucnegsuc+posMin zero (suc y) (suc z)
+  = cong (min (negsuc zero + negsuc (suc y)))
+         (sucℤ+ (negsuc zero) (pos z) ∙ sym (pos0+ (pos z))) ∙
+    negsuc+negsucLposMin zero (suc y) z
+negsuc+negsucnegsuc+posMin (suc x) y z
+  = cong₂ min (sym (predℤ+ (negsuc x) (negsuc y)))
+              (sym (predℤ+ (negsuc x) (pos z))) ∙
+    sym (predDistMin (negsuc x + negsuc y) (negsuc x + pos z)) ∙
+    cong predℤ (negsuc+negsucnegsuc+posMin x y z) ∙
+    predℤ+ (negsuc x) (negsuc y)
+
+negsuc+negsucnegsuc+posMax : ∀ x y z → max (negsuc x + negsuc y) (negsuc x + pos z)
+                           ≡ negsuc x + pos z
+negsuc+negsucnegsuc+posMax zero zero zero = refl
+negsuc+negsucnegsuc+posMax zero zero (suc z)
+  = cong (max (negsuc 1))
+         (sucℤ+ (negsuc zero) (pos z) ∙
+          sym (pos0+ (pos z))) ∙
+    pos0+ (pos z) ∙
+    sym (sucℤ+ (negsuc zero) (pos z))
+negsuc+negsucnegsuc+posMax zero (suc y) zero = negsuc+negsucLnegsucMax zero (suc y)
+negsuc+negsucnegsuc+posMax zero (suc y) (suc z)
+  = cong (max (negsuc zero + negsuc (suc y)))
+         (sucℤ+ (negsuc zero) (pos z) ∙ sym (pos0+ (pos z))) ∙
+    negsuc+negsucLposMax zero (suc y) z ∙
+    pos0+ (pos z) ∙
+    sym (sucℤ+ (negsuc zero) (pos z))
+negsuc+negsucnegsuc+posMax (suc x) y z
+  = cong₂ max (sym (predℤ+ (negsuc x) (negsuc y)))
+              (sym (predℤ+ (negsuc x) (pos z))) ∙
+    sym (predDistMax (negsuc x + negsuc y) (negsuc x + pos z)) ∙
+    cong predℤ (negsuc+negsucnegsuc+posMax x y z) ∙
+    predℤ+ (negsuc x) (pos z)
+
++DistRMin : ∀ x y z → x + min y z ≡ min (x + y) (x + z)
++DistRMin (pos zero) y z = sym (pos0+ (min y z)) ∙ cong₂ min (pos0+ y) (pos0+ z)
++DistRMin (pos (suc x)) (pos zero) (pos zero) = sym (cong sucℤ (minIdem (pos x)))
++DistRMin (pos (suc x)) (pos zero) (pos (suc z))
+  = cong sucℤ (+DistRMin (pos x) (pos zero) (pos (suc z))) ∙
+    sucDistMin (pos x) (pos x + pos (suc z)) ∙
+    cong (min (pos (suc x))) (sucℤ+ (pos x) (pos (suc z)))
++DistRMin (pos (suc x)) (pos (suc y)) (pos zero)
+  = cong sucℤ (+DistRMin (pos x) (pos (suc y)) (pos zero)) ∙
+    sucDistMin (pos x + pos (suc y)) (pos x) ∙
+    cong (λ a → min a (pos (suc x))) (sucℤ+ (pos x) (pos (suc y)))
++DistRMin (pos (suc x)) (pos (suc y)) (pos (suc z))
+  = sym (+sucℤ (pos (suc x)) (min (pos y) (pos z))) ∙
+    sucℤ+ (pos (suc x)) (min (pos y) (pos z)) ∙
+    +DistRMin (pos (suc (suc x))) (pos y) (pos z) ∙
+    cong₂ min (sym (sucℤ+ (pos (suc x)) (pos y)) ∙
+              +sucℤ (pos (suc x)) (pos y))
+              (sym (sucℤ+ (pos (suc x)) (pos z)) ∙
+              +sucℤ (pos (suc x)) (pos z))
++DistRMin (pos (suc x)) (pos y) (negsuc z)
+  = cong (pos (suc x) +_) (minComm (pos y) (negsuc z)) ∙
+    sym (pos+pospos+negsucMin (suc x) y z)
++DistRMin (pos (suc x)) (negsuc y) (pos z)
+  = sym (minComm (pos (suc x) + negsuc y) (pos (suc x) + pos z) ∙
+         pos+pospos+negsucMin (suc x) z y)
++DistRMin (pos (suc x)) (negsuc zero) (negsuc zero) = sym (minIdem (pos x))
++DistRMin (pos (suc x)) (negsuc zero) (negsuc (suc z))
+  = (cong predℤ (sym (sucℤ+ (pos x) (negsuc z))) ∙
+     predSuc (pos x + negsuc z)) ∙
+     sym (pos+pospos+negsucMin x 0 z) ∙
+     cong (min (pos x)) (sym (predSuc (pos x + negsuc z)) ∙
+                         cong predℤ (sucℤ+ (pos x) (negsuc z)))
++DistRMin (pos (suc x)) (negsuc (suc y)) (negsuc zero)
+  = (cong predℤ (sym (sucℤ+ (pos x) (negsuc y))) ∙
+     predSuc (pos x + negsuc y)) ∙
+     sym (pos+pospos+negsucMin x 0 y) ∙
+     cong (min (pos x))
+          (sym (predSuc (pos x + negsuc y)) ∙
+          cong predℤ (sucℤ+ (pos x) (negsuc y))) ∙
+     minComm (pos x) (pos (suc x) + negsuc (suc y))
++DistRMin (pos (suc x)) (negsuc (suc y)) (negsuc (suc z))
+  = sym (+predℤ (pos (suc x)) (min (negsuc y) (negsuc z))) ∙
+    predℤ+ (pos (suc x)) (min (negsuc y) (negsuc z)) ∙
+    +DistRMin (pos x) (negsuc y) (negsuc z) ∙
+    cong₂ min (cong (_+ negsuc y) (sym (predSuc (pos x))) ∙
+               sym (predℤ+ (pos (suc x)) (negsuc y)))
+              (cong (_+ negsuc z) (sym (predSuc (pos x))) ∙
+               sym (predℤ+ (pos (suc x)) (negsuc z)))
++DistRMin (negsuc x) (pos zero) (pos zero) = sym (minIdem (negsuc x))
++DistRMin (negsuc x) (pos zero) (pos (suc z)) = sym (negsuc+posRnegsucMin x (suc z))
++DistRMin (negsuc x) (pos (suc y)) (pos zero) = sym (negsuc+posLnegsucMin x (suc y))
++DistRMin (negsuc zero) (pos (suc y)) (pos (suc z))
+  = sym (+sucℤ (negsuc zero) (min (pos y) (pos z))) ∙
+    sucℤ+ (negsuc zero) (min (pos y) (pos z)) ∙
+    sym (pos0+ (min (pos y) (pos z))) ∙
+    cong₂ min (pos0+ (pos y) ∙ sym (sucℤ+ (negsuc zero) (pos y)))
+              (pos0+ (pos z) ∙ sym (sucℤ+ (negsuc zero) (pos z)))
++DistRMin (negsuc (suc x)) (pos (suc y)) (pos (suc z))
+  = sym (+sucℤ (negsuc (suc x)) (min (pos y) (pos z))) ∙
+    cong sucℤ (+DistRMin (negsuc (suc x)) (pos y) (pos z)) ∙
+    sucDistMin (negsuc (suc x) + pos y) (negsuc (suc x) + pos z)
++DistRMin (negsuc x) (pos y) (negsuc z)
+  = cong (negsuc x +_) (minComm (pos y) (negsuc z)) ∙
+    sym (negsuc+negsucnegsuc+posMin x z y) ∙
+    minComm (negsuc x + negsuc z) (negsuc x + pos y)
++DistRMin (negsuc x) (negsuc y) (pos z) = sym (negsuc+negsucnegsuc+posMin x y z)
++DistRMin (negsuc zero) (negsuc zero) (negsuc zero) = refl
++DistRMin (negsuc zero) (negsuc zero) (negsuc (suc z))
+  = sym (cong (min (negsuc 1)) (predℤ+ (negsuc zero) (negsuc z)) ∙
+    negsuc+negsucRnegsucMin 1 z ∙
+    sym (predℤ+ (negsuc zero) (negsuc z)))
++DistRMin (negsuc zero) (negsuc (suc y)) (negsuc zero)
+  = sym (cong (λ a → min a (negsuc 1)) (predℤ+ (negsuc zero) (negsuc y)) ∙
+    negsuc+negsucLnegsucMin 1 y ∙
+    sym (predℤ+ (negsuc zero) (negsuc y)))
++DistRMin (negsuc zero) (negsuc (suc y)) (negsuc (suc z))
+  = sym (+predℤ (negsuc zero) (min (negsuc y) (negsuc z))) ∙
+    predℤ+ (negsuc zero) (min (negsuc y) (negsuc z)) ∙
+    +DistRMin (negsuc 1) (negsuc y) (negsuc z) ∙
+    cong₂ min (sym (predℤ+ (negsuc zero) (negsuc y)))
+              (sym (predℤ+ (negsuc zero) (negsuc z)))
++DistRMin (negsuc (suc x)) (negsuc zero) (negsuc zero)
+  = sym (cong (predℤ ∘ predℤ) (minIdem (negsuc x)))
++DistRMin (negsuc (suc x)) (negsuc zero) (negsuc (suc z))
+  = sym (sym (predDistMin (negsuc (suc x)) (negsuc (suc x) + negsuc z)) ∙
+         cong predℤ (negsuc+negsucRnegsucMin (suc x) z))
++DistRMin (negsuc (suc x)) (negsuc (suc y)) (negsuc zero)
+  = sym (sym (predDistMin (negsuc (suc x) + negsuc y) (negsuc (suc x))) ∙
+         cong predℤ (negsuc+negsucLnegsucMin (suc x) y))
++DistRMin (negsuc (suc x)) (negsuc (suc y)) (negsuc (suc z))
+  = sym (+predℤ (negsuc (suc x)) (min (negsuc y) (negsuc z))) ∙
+    cong predℤ (+DistRMin (negsuc (suc x)) (negsuc y) (negsuc z)) ∙
+    predDistMin (negsuc (suc x) + negsuc y) (negsuc (suc x) + negsuc z)
+
++DistLMin : ∀ x y z → min x y + z ≡ min (x + z) (y + z)
++DistLMin x y z
+  = +Comm (min x y) z ∙
+    +DistRMin z x y ∙
+    cong₂ min (+Comm z x)
+              (+Comm z y)
+
++DistRMax : ∀ x y z → x + max y z ≡ max (x + y) (x + z)
++DistRMax x y z
+  = sym (-Involutive (x + max y z)) ∙
+    cong -_ (-Dist+ x (max y z) ∙
+             cong (- x +_) (-DistMax y z) ∙
+                  +DistRMin (- x) (- y) (- z)) ∙
+             -DistMin (- x - y) (- x - z) ∙
+    cong₂ max (-Dist+ (- x) (- y) ∙
+               cong₂ _+_ (-Involutive x)
+                         (-Involutive y))
+              (-Dist+ (- x) (- z) ∙
+               cong₂ _+_ (-Involutive x)
+                         (-Involutive z))
+
++DistLMax : ∀ x y z → max x y + z ≡ max (x + z) (y + z)
++DistLMax x y z
+  = +Comm (max x y) z ∙
+    +DistRMax z x y ∙
+    cong₂ max (+Comm z x)
+              (+Comm z y)
 
 -- multiplication
 
@@ -500,8 +1181,17 @@ negsuc·negsuc (suc n) m = cong (pos (suc m) +_) (negsuc·negsuc n m)
 ·Comm (negsuc n) (negsuc m) =
   negsuc·negsuc n m ∙∙ ·Comm (pos (suc n)) (pos (suc m)) ∙∙ sym (negsuc·negsuc m n)
 
-·Rid : (x : ℤ) → x · 1 ≡ x
-·Rid x = ·Comm x 1
+·IdR : (x : ℤ) → x · 1 ≡ x
+·IdR x = ·Comm x 1
+
+·IdL : (x : ℤ) → 1 · x ≡ x
+·IdL x = refl
+
+·AnnihilR : (x : ℤ) → x · 0 ≡ 0
+·AnnihilR x = ·Comm x 0
+
+·AnnihilL : (x : ℤ) → 0 · x ≡ 0
+·AnnihilL x = refl
 
 private
   distrHelper : (x y z w : ℤ) → (x + y) + (z + w) ≡ ((x + z) + (y + w))
@@ -561,6 +1251,165 @@ private
      cong ((- (b · c)) +_) (·Assoc (negsuc n) b c)
   ∙∙ cong (_+ ((negsuc n · b) · c)) (-DistL· b c)
   ∙∙ sym (·DistL+ (- b) (negsuc n · b) c)
+
+·suc→0 : (a : ℤ) (b : ℕ) → a · pos (suc b) ≡ 0 → a ≡ 0
+·suc→0 (pos n) b n·b≡0 = cong pos (sym (0≡n·sm→0≡n (sym (injPos (pos·pos n (suc b) ∙ n·b≡0)))))
+·suc→0 (negsuc n) b n·b≡0 = ⊥.rec (snotz
+                                     (injNeg
+                                      (cong -_ (pos·pos (suc n) (suc b)) ∙
+                                       sym (negsuc·pos n (suc b)) ∙
+                                       n·b≡0)))
+
+sucℤ· : (a b : ℤ) → sucℤ a · b ≡ b + a · b
+sucℤ· (pos a) (pos b) = refl
+sucℤ· (pos a) (negsuc b) = refl
+sucℤ· (negsuc zero) (pos b) = sym (-Cancel (pos b))
+sucℤ· (negsuc (suc a)) (pos b) =
+  negsuc a · pos b                     ≡⟨ pos0+ (negsuc a · pos b) ⟩
+  pos zero + negsuc a · pos b          ≡⟨ cong (_+ negsuc a · pos b) (sym (-Cancel (pos b))) ⟩
+  pos b + - pos b + negsuc a · pos b   ≡⟨ sym (+Assoc (pos b) (- pos b) (negsuc a · pos b)) ⟩
+  pos b + (- pos b + negsuc a · pos b) ∎
+sucℤ· (negsuc zero) (negsuc b) =
+      pos zero                ≡⟨ sym (-Cancel' (pos b)) ⟩
+  ((- pos b) +pos b)          ≡⟨ cong (_+pos b) (-pos b) ⟩
+     (neg b  +pos b)          ≡⟨ cong (_+pos b) (sym (sucℤnegsucneg b)) ⟩
+     (sucℤ (negsuc b) +pos b) ≡⟨ sym (sucℤ+pos b (negsuc b)) ⟩
+      sucℤ (negsuc b  +pos b) ∎
+sucℤ· (negsuc (suc a)) (negsuc b) =
+  negsuc a · negsuc b                              ≡⟨ pos0+ (negsuc a · negsuc b) ⟩
+  pos zero + negsuc a · negsuc b                   ≡⟨ cong (_+ negsuc a · negsuc b) (sym (-Cancel' (pos (suc b)))) ⟩
+ (negsuc b + (pos (suc b))) + negsuc a · negsuc b  ≡⟨ sym (+Assoc (negsuc b) (pos (suc b)) (negsuc a · negsuc b)) ⟩
+  negsuc b + (pos (suc b)   + negsuc a · negsuc b) ∎
+
+·sucℤ : (a b : ℤ) → a · sucℤ b ≡ a · b + a
+·sucℤ a b = ·Comm a (sucℤ b) ∙ sucℤ· b a ∙ cong (a +_) (·Comm b a) ∙ +Comm a (a · b)
+
+predℤ· : (a  b : ℤ) → predℤ a · b ≡ - b + a · b
+predℤ· (pos zero) b = refl
+predℤ· (pos (suc a)) b
+  = pos0+ (pos a · b) ∙
+    cong (_+ pos a · b) (sym (-Cancel' b)) ∙
+    sym (+Assoc (- b) b (pos a · b))
+predℤ· (negsuc a) b = refl
+
+·predℤ : (a b : ℤ) → a · predℤ b ≡ a · b - a
+·predℤ a b = ·Comm a (predℤ b) ∙ predℤ· b a ∙ cong ((- a) +_) (·Comm b a) ∙ +Comm (- a) (a · b)
+
+·DistPosRMin : (x : ℕ) (y z : ℤ) → pos x · min y z ≡ min (pos x · y) (pos x · z)
+·DistPosRMin zero y z = refl
+·DistPosRMin (suc x) (pos zero) (pos zero)
+  = ·Comm (pos (suc x)) (pos zero) ∙
+    cong₂ min (·Comm (pos zero) (pos (suc x)))
+              (·Comm (pos zero) (pos (suc x)))
+·DistPosRMin (suc x) (pos zero) (pos (suc z))
+  = ·Comm (pos (suc x)) (pos zero) ∙
+    cong₂ min (·Comm (pos zero) (pos (suc x)))
+              (pos·pos (suc x) (suc z))
+·DistPosRMin (suc x) (pos (suc y)) (pos zero)
+  = ·Comm (pos (suc x)) (pos zero) ∙
+    cong₂ min (pos·pos (suc x) (suc y))
+              (·Comm (pos zero) (pos (suc x)))
+·DistPosRMin (suc x) (pos (suc y)) (pos (suc z))
+  = ·sucℤ (pos (suc x)) (min (pos y) (pos z)) ∙
+    cong (_+ pos (suc x)) (·DistPosRMin (suc x) (pos y) (pos z)) ∙
+    +DistLMin (pos (suc x) · pos y) (pos (suc x) · pos z) (pos (suc x)) ∙
+    cong₂ min (sym (·sucℤ (pos (suc x)) (pos y)))
+              (sym (·sucℤ (pos (suc x)) (pos z)))
+·DistPosRMin (suc x) (pos y) (negsuc z)
+  = cong (pos (suc x) ·_) (minComm (pos y) (negsuc z)) ∙
+    sym (cong₂ min (sym (pos·pos (suc x) y))
+                   (pos·negsuc (suc x) z ∙
+                    cong -_ (sym (pos·pos (suc x) (suc z)))) ∙
+         min- (suc x ·ℕ y) (suc x ·ℕ suc z) ∙
+         cong -_ (pos·pos (suc x) (suc z)) ∙
+         sym (pos·negsuc (suc x) z))
+·DistPosRMin (suc x) (negsuc y) (pos z)
+  = sym (cong₂ min (pos·negsuc (suc x) y ∙
+                    cong -_ (sym (pos·pos (suc x) (suc y))))
+                   (sym (pos·pos (suc x) z)) ∙
+         -min (suc x ·ℕ suc y) (suc x ·ℕ z) ∙
+         cong -_ (pos·pos (suc x) (suc y)) ∙
+         sym (pos·negsuc (suc x) y))
+·DistPosRMin (suc x) (negsuc zero) (negsuc zero)
+  = sym (minIdem (pos (suc x) · negsuc zero))
+·DistPosRMin (suc x) (negsuc zero) (negsuc (suc z))
+  = ·predℤ (pos (suc x)) (negsuc z) ∙
+    cong (_- pos (suc x)) (·DistPosRMin (suc x) (pos zero) (negsuc z)) ∙
+    +DistLMin (pos (suc x) · pos zero) (pos (suc x) · negsuc z) (- pos (suc x)) ∙
+    cong₂ min (cong (_+ negsuc x) (·AnnihilR (pos (suc x))) ∙
+               sym (pos0+ (negsuc x)) ∙
+               ·Comm (negsuc zero) (pos (suc x)))
+              (sym (·predℤ (pos (suc x)) (negsuc z)))
+·DistPosRMin (suc x) (negsuc (suc y)) (negsuc zero)
+  = ·predℤ (pos (suc x)) (negsuc y) ∙
+    cong (_- pos (suc x)) (·DistPosRMin (suc x) (negsuc y) (pos zero)) ∙
+    +DistLMin (pos (suc x) · negsuc y) (pos (suc x) · pos zero) (- pos (suc x)) ∙
+    cong₂ min (sym (·predℤ (pos (suc x)) (negsuc y)))
+              (cong (_+ negsuc x) (·AnnihilR (pos (suc x))) ∙
+               sym (pos0+ (negsuc x)) ∙
+               ·Comm (negsuc zero) (pos (suc x)))
+·DistPosRMin (suc x) (negsuc (suc y)) (negsuc (suc z))
+  = ·predℤ (pos (suc x)) (min (negsuc y) (negsuc z)) ∙
+    cong (_- pos (suc x)) (·DistPosRMin (suc x) (negsuc y) (negsuc z)) ∙
+    +DistLMin (pos (suc x) · negsuc y) (pos (suc x) · negsuc z) (- pos (suc x)) ∙
+    cong₂ min (sym (·predℤ (pos (suc x)) (negsuc y)))
+              (sym (·predℤ (pos (suc x)) (negsuc z)))
+
+·DistPosLMin : (x y : ℤ) (z : ℕ) → min x y · pos z ≡ min (x · pos z) (y · pos z)
+·DistPosLMin y z x = ·Comm (min y z) (pos x) ∙
+                     ·DistPosRMin x y z ∙
+                     cong₂ min (·Comm (pos x) y)
+                               (·Comm (pos x) z)
+
+·DistPosRMax : (x : ℕ) (y z : ℤ) → pos x · max y z ≡ max (pos x · y) (pos x · z)
+·DistPosRMax x y z
+  = sym (-Involutive (pos x · max y z)) ∙
+    cong -_ (-DistR· (pos x) (max y z) ∙
+             cong (pos x ·_) (-DistMax y z) ∙
+             ·DistPosRMin x (- y) (- z)) ∙
+    -DistMin (pos x · - y) (pos x · - z) ∙
+    cong₂ max (-DistR· (pos x) (- y) ∙
+               cong (pos x ·_) (-Involutive y))
+              (-DistR· (pos x) (- z) ∙
+               cong (pos x ·_) (-Involutive z))
+
+·DistPosLMax : (x y : ℤ) (z : ℕ) → max x y · pos z ≡ max (x · pos z) (y · pos z)
+·DistPosLMax y z x = ·Comm (max y z) (pos x) ∙
+                     ·DistPosRMax x y z ∙
+                     cong₂ max (·Comm (pos x) y)
+                               (·Comm (pos x) z)
+
+·DistNegsucRMin : (x : ℕ) (y z : ℤ) → negsuc x · min y z ≡ max (negsuc x · y) (negsuc x · z)
+·DistNegsucRMin x y z
+  = -DistLR· (negsuc x) (min y z) ∙
+    cong (pos (suc x) ·_) (-DistMin y z) ∙
+    ·DistPosRMax (suc x) (- y) (- z) ∙
+    cong₂ max (sym (-DistR· (pos (suc x)) y) ∙
+               -DistL· (pos (suc x)) y)
+              (sym (-DistR· (pos (suc x)) z) ∙
+               -DistL· (pos (suc x)) z)
+
+·DistNegsucLMin : (x y : ℤ) (z : ℕ) → min x y · negsuc z ≡ max (x · negsuc z) (y · negsuc z)
+·DistNegsucLMin y z x = ·Comm (min y z) (negsuc x) ∙
+                        ·DistNegsucRMin x y z ∙
+                        cong₂ max (·Comm (negsuc x) y)
+                                  (·Comm (negsuc x) z)
+
+·DistNegsucRMax : (x : ℕ) (y z : ℤ) → negsuc x · max y z ≡ min (negsuc x · y) (negsuc x · z)
+·DistNegsucRMax x y z
+  = -DistLR· (negsuc x) (max y z) ∙
+    cong (pos (suc x) ·_) (-DistMax y z) ∙
+    ·DistPosRMin (suc x) (- y) (- z) ∙
+    cong₂ min (sym (-DistR· (pos (suc x)) y) ∙
+               -DistL· (pos (suc x)) y)
+              (sym (-DistR· (pos (suc x)) z) ∙
+               -DistL· (pos (suc x)) z)
+
+·DistNegsucLMax : (x y : ℤ) (z : ℕ) → max x y · negsuc z ≡ min (x · negsuc z) (y · negsuc z)
+·DistNegsucLMax y z x = ·Comm (max y z) (negsuc x) ∙
+                        ·DistNegsucRMax x y z ∙
+                        cong₂ min (·Comm (negsuc x) y)
+                                  (·Comm (negsuc x) z)
 
 minus≡0- : (x : ℤ) → - x ≡ (0 - x)
 minus≡0- x = +Comm (- x) 0

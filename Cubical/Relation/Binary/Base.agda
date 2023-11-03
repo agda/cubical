@@ -149,6 +149,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   impliesIdentity : Type _
   impliesIdentity = {a a' : A} → (R a a') → (a ≡ a')
 
+  inequalityImplies : Type _
+  inequalityImplies = (a b : A) → ¬ a ≡ b → R a b
+
   -- the total space corresponding to the binary relation w.r.t. a
   relSinglAt : (a : A) → Type (ℓ-max ℓ ℓ')
   relSinglAt a = Σ[ a' ∈ A ] (R a a')
