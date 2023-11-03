@@ -32,15 +32,15 @@ module GroupTheory (G : Group ℓ) where
   abstract
     ·CancelL : (a : ⟨ G ⟩) {b c : ⟨ G ⟩} → a · b ≡ a · c → b ≡ c
     ·CancelL a {b} {c} p =
-       b               ≡⟨ sym (·IdL b) ∙ cong (_· b) (sym (·InvL a)) ∙ sym (·Assoc _ _ _) ⟩
-      inv a · (a · b)  ≡⟨ cong (inv a ·_) p ⟩
-      inv a · (a · c)  ≡⟨ ·Assoc _ _ _ ∙ cong (_· c) (·InvL a) ∙ ·IdL c ⟩
+       b               ≡⟨ sym (·IdL b) ∙ congL _·_ (sym (·InvL a)) ∙ sym (·Assoc _ _ _) ⟩
+      inv a · (a · b)  ≡⟨ congR _·_ p ⟩
+      inv a · (a · c)  ≡⟨ ·Assoc _ _ _ ∙ congL _·_ (·InvL a) ∙ ·IdL c ⟩
       c ∎
 
     ·CancelR : {a b : ⟨ G ⟩} (c : ⟨ G ⟩) → a · c ≡ b · c → a ≡ b
     ·CancelR {a} {b} c p =
-      a                ≡⟨ sym (·IdR a) ∙ cong (a ·_) (sym (·InvR c)) ∙ ·Assoc _ _ _ ⟩
-      (a · c) · inv c  ≡⟨ cong (_· inv c) p ⟩
+      a                ≡⟨ sym (·IdR a) ∙ congR _·_ (sym (·InvR c)) ∙ ·Assoc _ _ _ ⟩
+      (a · c) · inv c  ≡⟨ congL _·_ p ⟩
       (b · c) · inv c  ≡⟨ sym (·Assoc _ _ _) ∙ cong (b ·_) (·InvR c) ∙ ·IdR b ⟩
       b ∎
 
@@ -65,22 +65,18 @@ module GroupTheory (G : Group ℓ) where
     idFromIdempotency : (x : ⟨ G ⟩) → x ≡ x · x → x ≡ 1g
     idFromIdempotency x p =
       x                 ≡⟨ sym (·IdR x) ⟩
-      x · 1g            ≡⟨ cong (λ u → x · u) (sym (·InvR _)) ⟩
+      x · 1g            ≡⟨ congR _·_ (sym (·InvR _)) ⟩
       x · (x · inv x)   ≡⟨ ·Assoc _ _ _ ⟩
-      (x · x) · (inv x) ≡⟨ cong (λ u → u · (inv x)) (sym p) ⟩
+      (x · x) · (inv x) ≡⟨ congL _·_ (sym p) ⟩
       x · (inv x)       ≡⟨ ·InvR _ ⟩
       1g              ∎
-
 
     invDistr : (a b : ⟨ G ⟩) → inv (a · b) ≡ inv b · inv a
     invDistr a b = sym (invUniqueR γ) where
       γ : (a · b) · (inv b · inv a) ≡ 1g
-      γ = (a · b) · (inv b · inv a)
-            ≡⟨ sym (·Assoc _ _ _) ⟩
-          a · b · (inv b) · (inv a)
-            ≡⟨ cong (a ·_) (·Assoc _ _ _ ∙ cong (_· (inv a)) (·InvR b)) ⟩
-          a · (1g · inv a)
-            ≡⟨ cong (a ·_) (·IdL (inv a)) ∙ ·InvR a ⟩
+      γ = (a · b) · (inv b · inv a) ≡⟨ sym (·Assoc _ _ _) ⟩
+          a · b · (inv b) · (inv a) ≡⟨ congR _·_ (·Assoc _ _ _ ∙ congL _·_ (·InvR b)) ⟩
+          a · (1g · inv a)          ≡⟨ congR _·_ (·IdL (inv a)) ∙ ·InvR a ⟩
           1g ∎
 
 congIdLeft≡congIdRight : (_·G_ : G → G → G) (-G_ : G → G)
@@ -89,10 +85,10 @@ congIdLeft≡congIdRight : (_·G_ : G → G → G) (-G_ : G → G)
             (lUnitG : (x : G) → 0G ·G x ≡ x)
           → (r≡l : rUnitG 0G ≡ lUnitG 0G)
           → (p : 0G ≡ 0G) →
-            cong (0G ·G_) p ≡ cong (_·G 0G) p
+            congR _·G_ p ≡ congL _·G_ p
 congIdLeft≡congIdRight _·G_ -G_ 0G rUnitG lUnitG r≡l p =
-            rUnit (cong (0G ·G_) p)
+            rUnit (congR _·G_ p)
          ∙∙ ((λ i → (λ j → lUnitG 0G (i ∧ j)) ∙∙ cong (λ x → lUnitG x i) p ∙∙ λ j → lUnitG 0G (i ∧ ~ j))
          ∙∙ cong₂ (λ x y → x ∙∙ p ∙∙ y) (sym r≡l) (cong sym (sym r≡l))
          ∙∙ λ i → (λ j → rUnitG 0G (~ i ∧ j)) ∙∙ cong (λ x → rUnitG x (~ i)) p ∙∙ λ j → rUnitG 0G (~ i ∧ ~ j))
-         ∙∙ sym (rUnit (cong (_·G 0G) p))
+         ∙∙ sym (rUnit (congL _·G_ p))

@@ -21,7 +21,7 @@ module ModuleTheory (R : Ring ℓ') (M : LeftModule R ℓ) where
 
   ⋆AnnihilL : (x : ⟨ M ⟩) → R.0r ⋆ x ≡ 0m
   ⋆AnnihilL x =
-    let idempotent-+ = R.0r ⋆ x                ≡⟨ cong (λ u → u ⋆ x) (sym (RingTheory.0Idempotent R)) ⟩
+    let idempotent-+ = R.0r ⋆ x                ≡⟨ congL _⋆_ (sym (RingTheory.0Idempotent R)) ⟩
                        (R.0r R.+ R.0r) ⋆ x     ≡⟨ ⋆DistL+ R.0r R.0r x ⟩
                        (R.0r ⋆ x) + (R.0r ⋆ x) ∎
     in GroupTheory.idFromIdempotency (LeftModule→Group M) (R.0r ⋆ x) idempotent-+
@@ -29,7 +29,7 @@ module ModuleTheory (R : Ring ℓ') (M : LeftModule R ℓ) where
   ⋆AnnihilR : (r : ⟨ R ⟩) → r ⋆ 0m ≡ 0m
   ⋆AnnihilR r = GroupTheory.idFromIdempotency (LeftModule→Group M) (r ⋆ 0m) helper
     where helper =
-             r ⋆ 0m              ≡⟨ cong (λ u → r ⋆ u) (sym (+IdL (0m))) ⟩
+             r ⋆ 0m              ≡⟨ congR _⋆_ (sym (+IdL (0m))) ⟩
              r ⋆ (0m + 0m)       ≡⟨ ⋆DistR+ r 0m 0m ⟩
              (r ⋆ 0m) + (r ⋆ 0m) ∎
 
@@ -38,8 +38,8 @@ module ModuleTheory (R : Ring ℓ') (M : LeftModule R ℓ) where
   minusByMult x =
     let open AbGroupTheory (LeftModule→AbGroup M)
     in implicitInverse
-      (        x + (R.- R.1r) ⋆ x  ≡⟨ cong (_+ (R.- R.1r) ⋆ x) (sym (⋆IdL x)) ⟩
+      (        x + (R.- R.1r) ⋆ x  ≡⟨ congL _+_ (sym (⋆IdL x)) ⟩
         R.1r ⋆ x + (R.- R.1r) ⋆ x  ≡⟨ sym (⋆DistL+ R.1r (R.- R.1r) x) ⟩
-       (R.1r R.+ (R.- R.1r))  ⋆ x  ≡⟨ cong (_⋆ x) (R.+InvR R.1r) ⟩
+       (R.1r R.+ (R.- R.1r))  ⋆ x  ≡⟨ congL _⋆_ (R.+InvR R.1r) ⟩
        R.0r                   ⋆ x  ≡⟨ ⋆AnnihilL x ⟩
        0m ∎)

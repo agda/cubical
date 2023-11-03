@@ -14,6 +14,9 @@ open import Cubical.Data.Int
   ; -DistL· to -ℤDistL·ℤ
   ; ·DistR+ to ·ℤDistR+
   ; ·DistL+ to ·ℤDistL+)
+  hiding
+  ( ·IdL
+  ; ·IdR)
 
 open import Cubical.Tactics.CommRingSolver.RawRing renaming (⟨_⟩ to ⟨_⟩ᵣ)
 open import Cubical.Tactics.CommRingSolver.IntAsRawRing
