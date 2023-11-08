@@ -96,6 +96,16 @@ congP₂ : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
 congP₂ f p q i = f i (p i) (q i)
 {-# INLINE congP₂ #-}
 
+congL : {C : Type ℓ} (f : (a : A) → C → B a) (p : x ≡ y)
+        → {z : C} → PathP (λ i → B (p i)) (f x z) (f y z)
+congL f p {z} i = f (p i) z
+{-# INLINE congL #-}
+
+congR : {C : Type ℓ} (f : C → (a : A) → B a) (p : x ≡ y)
+        → {z : C} → PathP (λ i → B (p i)) (f z x) (f z y)
+congR f p {z} i = f z (p i)
+{-# INLINE congR #-}
+
 {- The most natural notion of homogenous path composition
     in a cubical setting is double composition:
 

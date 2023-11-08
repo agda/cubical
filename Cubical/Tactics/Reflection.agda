@@ -89,7 +89,7 @@ get-boundary tm = unapply-path tm >>= λ where
 equation-solver : List Name → (Term -> Term -> TC Term) → Bool → Term → TC Unit
 equation-solver don't-Reduce mk-call debug hole =
     withNormalisation false (
-    dontReduceDefs don't-Reduce (
+    withReduceDefs (false , don't-Reduce) (
     do
       -- | First we normalize the goal
       goal ← inferType hole >>= reduce

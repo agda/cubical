@@ -12,9 +12,9 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 
 open import Cubical.Data.Sigma
-open import Cubical.Data.Int
+open import Cubical.Data.Int as ℤ
   renaming
-    (_·_ to _*_ ; _+_ to _+ℤ_ ; _-_ to _-ℤ_ ; pos·pos to pos·) hiding (·Assoc)
+    (_·_ to _*_ ; _+_ to _+ℤ_ ; _-_ to _-ℤ_ ; pos·pos to pos·) hiding (·Assoc; ·IdL; ·IdR)
 open import Cubical.Data.Nat renaming (_·_ to _·ℕ_ ; _+_ to _+ℕ_)
 open import Cubical.Data.Nat.Mod
 open import Cubical.Data.Nat.Order
@@ -410,7 +410,7 @@ characℤ≅ℤ e =
     (λ p → inr (Σ≡Prop (λ _ → isPropIsGroupHom _ _)
                   (Σ≡Prop (λ _ → isPropIsEquiv _)
                     (funExt λ x →
-                      cong (fst (fst e)) (sym (·Rid x))
+                      cong (fst (fst e)) (sym (ℤ.·IdR x))
                       ∙ GroupHomℤ→ℤPres· ((fst (fst e)) , (snd e)) x 1
                       ∙ cong (x *_) p
                       ∙ ·Comm x -1 ))))

@@ -333,3 +333,8 @@ Iso.fun (PathIdTrunc₀Iso {b = b}) p =
 Iso.inv PathIdTrunc₀Iso = pRec (squash₂ _ _) (cong ∣_∣₂)
 Iso.rightInv PathIdTrunc₀Iso _ = squash₁ _ _
 Iso.leftInv PathIdTrunc₀Iso _ = squash₂ _ _ _ _
+
+mapFunctorial : {A B C : Type ℓ} (f : A → B) (g : B → C)
+  → map g ∘ map f ≡ map (g ∘ f)
+mapFunctorial f g =
+  funExt (elim (λ x → isSetPathImplicit) λ a → refl)

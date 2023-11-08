@@ -315,3 +315,63 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
   open Join ZariskiLattice
   ⋁D≡ : {n : ℕ} (α : FinVec R n) → ⋁ (D ∘ α) ≡ [ n , α ]
   ⋁D≡ _ = funExt⁻ (cong fst ZLUniversalPropCorollary) _
+
+-- the lattice morphism induced by a ring morphism
+module _ {A B : CommRing ℓ} (φ : CommRingHom A B) where
+
+ open ZarLat
+ open ZarLatUniversalProp
+ open IsZarMap
+ open CommRingStr ⦃...⦄
+ open DistLatticeStr ⦃...⦄
+ open IsRingHom
+ private
+   instance
+     _ = A .snd
+     _ = B .snd
+     _ = (ZariskiLattice A) .snd
+     _ = (ZariskiLattice B) .snd
+
+ Dcomp : A .fst → ZL B
+ Dcomp f = D B (φ .fst f)
+
+ isZarMapDcomp : IsZarMap A (ZariskiLattice B) Dcomp
+ pres0 isZarMapDcomp = cong (D B) (φ .snd .pres0) ∙ isZarMapD B .pres0
+ pres1 isZarMapDcomp = cong (D B) (φ .snd .pres1) ∙ isZarMapD B .pres1
+ ·≡∧ isZarMapDcomp f g = cong (D B) (φ .snd .pres· f g)
+                    ∙ isZarMapD B .·≡∧ (φ .fst f) (φ .fst g)
+ +≤∨ isZarMapDcomp f g =
+   let open JoinSemilattice
+             (Lattice→JoinSemilattice (DistLattice→Lattice (ZariskiLattice B)))
+   in subst (λ x → x ≤ (Dcomp f) ∨l (Dcomp g))
+            (sym (cong (D B) (φ .snd .pres+ f g)))
+            (isZarMapD B .+≤∨ (φ .fst f) (φ .fst g))
+
+ inducedZarLatHom : DistLatticeHom (ZariskiLattice A) (ZariskiLattice B)
+ inducedZarLatHom = ZLHasUniversalProp A (ZariskiLattice B) Dcomp isZarMapDcomp .fst .fst
+
+-- functoriality
+module _ (A : CommRing ℓ) where
+  open ZarLat
+  open ZarLatUniversalProp
+
+  inducedZarLatHomId : inducedZarLatHom (idCommRingHom A)
+                     ≡ idDistLatticeHom (ZariskiLattice A)
+  inducedZarLatHomId =
+    cong fst
+      (ZLHasUniversalProp A (ZariskiLattice A) (Dcomp (idCommRingHom A))
+                                               (isZarMapDcomp (idCommRingHom A)) .snd
+        (idDistLatticeHom (ZariskiLattice A) , refl))
+
+module _ {A B C : CommRing ℓ} (φ : CommRingHom A B) (ψ : CommRingHom B C) where
+  open ZarLat
+  open ZarLatUniversalProp
+
+  inducedZarLatHomSeq : inducedZarLatHom (ψ ∘cr φ)
+                      ≡ inducedZarLatHom ψ ∘dl inducedZarLatHom φ
+  inducedZarLatHomSeq =
+    cong fst
+      (ZLHasUniversalProp A (ZariskiLattice C) (Dcomp (ψ ∘cr φ))
+                                               (isZarMapDcomp (ψ ∘cr φ)) .snd
+        (inducedZarLatHom ψ ∘dl inducedZarLatHom φ , funExt (λ _ → ∨lRid _)))
+    where open DistLatticeStr (ZariskiLattice C .snd)

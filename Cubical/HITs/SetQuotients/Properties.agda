@@ -119,14 +119,32 @@ rec set f feq (squash/ x y p q i j) = set (g x) (g y) (cong g p) (cong g q) i j
   g = rec set f feq
 
 rec2 : isSet C
-  → (f : A → B → C)
-  → (∀ a b c → R a b → f a c ≡ f b c)
-  → (∀ a b c → S b c → f a b ≡ f a c)
-  → A / R → B / S → C
-rec2 set f feql feqr =
-  rec (isSetΠ (λ _ → set))
-    (λ a → rec set (f a) (feqr a))
-    (λ a b r → funExt (elimProp (λ _ → set _ _) (λ c → feql a b c r)))
+     → (f : A → B → C)
+     → (∀ a b c → R a b → f a c ≡ f b c)
+     → (∀ a b c → S b c → f a b ≡ f a c)
+     → A / R → B / S → C
+rec2 {_} {C} {_} {A} {_} {B} {_} {R} {_} {S} set f feql feqr = fun
+  where
+    fun₀ : A → B / S → C
+    fun₀ a [ b ] = f a b
+    fun₀ a (eq/ b c r i) = feqr a b c r i
+    fun₀ a (squash/ x y p q i j) = isSet→SquareP (λ _ _ → set)
+      (λ _ → fun₀ a x)
+      (λ _ → fun₀ a y)
+      (λ i → fun₀ a (p i))
+      (λ i → fun₀ a (q i)) j i
+
+    toPath : ∀ (a b : A) (x : R a b) (y : B / S) → fun₀ a y ≡ fun₀ b y
+    toPath a b rab = elimProp (λ _ → set _ _) λ c → feql a b c rab
+
+    fun : A / R → B / S → C
+    fun [ a ] y = fun₀ a y
+    fun (eq/ a b r i) y = toPath a b r y i
+    fun (squash/ x y p q i j) z = isSet→SquareP (λ _ _ → set)
+      (λ _ → fun x z)
+      (λ _ → fun y z)
+      (λ i → fun (p i) z)
+      (λ i → fun (q i) z) j i
 
 -- the recursor for maps into groupoids:
 -- i.e. for any type A with a binary relation R and groupoid B,

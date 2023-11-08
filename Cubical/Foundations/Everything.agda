@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude public
 
 open import Cubical.Foundations.Function public
 open import Cubical.Foundations.Equiv public
+  hiding (transpEquiv) -- Hide to avoid clash with Transport.transpEquiv
 open import Cubical.Foundations.Equiv.Properties public
 open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Foundations.Equiv.PathSplit public

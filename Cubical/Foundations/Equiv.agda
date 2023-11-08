@@ -316,3 +316,6 @@ isEquiv-isEquiv'-Iso f .leftInv p i .equiv-proof = p .equiv-proof
 
 isEquiv≃isEquiv' : (f : A → B) → isEquiv f ≃ isEquiv' f
 isEquiv≃isEquiv' f = isoToEquiv (isEquiv-isEquiv'-Iso f)
+
+-- The fact that funExt is an equivalence can be found in Cubical.Functions.FunExtEquiv
+

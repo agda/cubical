@@ -41,9 +41,9 @@ module RingTheory (R' : Ring ℓ) where
                  → y ≡ - x
   implicitInverse x y p =
     y               ≡⟨ sym (+IdL y) ⟩
-    0r + y          ≡⟨ cong (λ u → u + y) (sym (+InvL x)) ⟩
+    0r + y          ≡⟨ congL _+_ (sym (+InvL x)) ⟩
     (- x + x) + y   ≡⟨ sym (+Assoc _ _ _) ⟩
-    (- x) + (x + y) ≡⟨ cong (λ u → (- x) + u) p ⟩
+    (- x) + (x + y) ≡⟨ congR _+_ p ⟩
     (- x) + 0r      ≡⟨ +IdR _ ⟩
     - x             ∎
 
@@ -52,9 +52,9 @@ module RingTheory (R' : Ring ℓ) where
                       → x ≡ y
   equalByDifference x y p =
     x               ≡⟨ sym (+IdR _) ⟩
-    x + 0r          ≡⟨ cong (λ u → x + u) (sym (+InvL y)) ⟩
+    x + 0r          ≡⟨ congR _+_ (sym (+InvL y)) ⟩
     x + ((- y) + y) ≡⟨ +Assoc _ _ _ ⟩
-    (x - y) + y     ≡⟨ cong (λ u → u + y) p ⟩
+    (x - y) + y     ≡⟨ congL _+_ p ⟩
     0r + y          ≡⟨ +IdL _ ⟩
     y               ∎
 
@@ -76,7 +76,7 @@ module RingTheory (R' : Ring ℓ) where
   0RightAnnihilates x =
               let x·0-is-idempotent : x · 0r ≡ x · 0r + x · 0r
                   x·0-is-idempotent =
-                    x · 0r               ≡⟨ cong (λ u → x · u) (sym 0Idempotent) ⟩
+                    x · 0r               ≡⟨ congR _·_ (sym 0Idempotent) ⟩
                     x · (0r + 0r)        ≡⟨ ·DistR+ _ _ _ ⟩
                     (x · 0r) + (x · 0r)  ∎
               in (+Idempotency→0 _ x·0-is-idempotent)
@@ -85,7 +85,7 @@ module RingTheory (R' : Ring ℓ) where
   0LeftAnnihilates x =
               let 0·x-is-idempotent : 0r · x ≡ 0r · x + 0r · x
                   0·x-is-idempotent =
-                    0r · x               ≡⟨ cong (λ u → u · x) (sym 0Idempotent) ⟩
+                    0r · x               ≡⟨ congL _·_ (sym 0Idempotent) ⟩
                     (0r + 0r) · x        ≡⟨ ·DistL+ _ _ _ ⟩
                     (0r · x) + (0r · x)  ∎
               in +Idempotency→0 _ 0·x-is-idempotent
@@ -94,7 +94,7 @@ module RingTheory (R' : Ring ℓ) where
   -DistR· x y = implicitInverse (x · y) (x · (- y))
 
                                (x · y + x · (- y)     ≡⟨ sym (·DistR+ _ _ _) ⟩
-                               x · (y + (- y))        ≡⟨ cong (λ u → x · u) (+InvR y) ⟩
+                               x · (y + (- y))        ≡⟨ congR _·_ (+InvR y) ⟩
                                x · 0r                 ≡⟨ 0RightAnnihilates x ⟩
                                0r ∎)
 
@@ -102,7 +102,7 @@ module RingTheory (R' : Ring ℓ) where
   -DistL· x y = implicitInverse (x · y) ((- x) · y)
 
                               (x · y + (- x) · y     ≡⟨ sym (·DistL+ _ _ _) ⟩
-                              (x - x) · y            ≡⟨ cong (λ u → u · y) (+InvR x) ⟩
+                              (x - x) · y            ≡⟨ congL _·_ (+InvR x) ⟩
                               0r · y                 ≡⟨ 0LeftAnnihilates y ⟩
                               0r ∎)
 
@@ -116,49 +116,41 @@ module RingTheory (R' : Ring ℓ) where
   -Dist x y =
     implicitInverse _ _
          ((x + y) + ((- x) + (- y)) ≡⟨ sym (+Assoc _ _ _) ⟩
-          x + (y + ((- x) + (- y))) ≡⟨ cong
-                                         (λ u → x + (y + u))
-                                         (+Comm _ _) ⟩
-          x + (y + ((- y) + (- x))) ≡⟨ cong (λ u → x + u) (+Assoc _ _ _) ⟩
-          x + ((y + (- y)) + (- x)) ≡⟨ cong (λ u → x + (u + (- x)))
-                                            (+InvR _) ⟩
-          x + (0r + (- x))           ≡⟨ cong (λ u → x + u) (+IdL _) ⟩
+          x + (y + ((- x) + (- y))) ≡⟨ congR _+_ (congR _+_ (+Comm _ _)) ⟩
+          x + (y + ((- y) + (- x))) ≡⟨ congR _+_ (+Assoc _ _ _) ⟩
+          x + ((y + (- y)) + (- x)) ≡⟨ congR _+_ (congL _+_ (+InvR _)) ⟩
+          x + (0r + (- x))          ≡⟨ congR _+_ (+IdL _) ⟩
           x + (- x)                 ≡⟨ +InvR _ ⟩
           0r ∎)
 
   translatedDifference : (x a b : R) → a - b ≡ (x + a) - (x + b)
   translatedDifference x a b =
-              a - b                       ≡⟨ cong (λ u → a + u)
-                                                  (sym (+IdL _)) ⟩
-              (a + (0r + (- b)))          ≡⟨ cong (λ u → a + (u + (- b)))
-                                                  (sym (+InvR _)) ⟩
-              (a + ((x + (- x)) + (- b))) ≡⟨ cong (λ u → a + u)
-                                                  (sym (+Assoc _ _ _)) ⟩
+              a - b                       ≡⟨ congR _+_ (sym (+IdL _)) ⟩
+              (a + (0r + (- b)))          ≡⟨ congR _+_ (congL _+_ (sym (+InvR _))) ⟩
+              (a + ((x + (- x)) + (- b))) ≡⟨ congR _+_ (sym (+Assoc _ _ _)) ⟩
               (a + (x + ((- x) + (- b)))) ≡⟨ (+Assoc _ _ _) ⟩
-              ((a + x) + ((- x) + (- b))) ≡⟨ cong (λ u → u + ((- x) + (- b)))
-                                                  (+Comm _ _) ⟩
-              ((x + a) + ((- x) + (- b))) ≡⟨ cong (λ u → (x + a) + u)
-                                                  (-Dist _ _) ⟩
+              ((a + x) + ((- x) + (- b))) ≡⟨ congL _+_ (+Comm _ _) ⟩
+              ((x + a) + ((- x) + (- b))) ≡⟨ congR _+_ (-Dist _ _) ⟩
               ((x + a) - (x + b)) ∎
 
   +Assoc-comm1 : (x y z : R) → x + (y + z) ≡ y + (x + z)
-  +Assoc-comm1 x y z = +Assoc x y z ∙∙ cong (λ x → x + z) (+Comm x y) ∙∙ sym (+Assoc y x z)
+  +Assoc-comm1 x y z = +Assoc x y z ∙∙ congL _+_ (+Comm x y) ∙∙ sym (+Assoc y x z)
 
   +Assoc-comm2 : (x y z : R) → x + (y + z) ≡ z + (y + x)
-  +Assoc-comm2 x y z = +Assoc-comm1 x y z ∙∙ cong (λ x → y + x) (+Comm x z) ∙∙ +Assoc-comm1 y z x
+  +Assoc-comm2 x y z = +Assoc-comm1 x y z ∙∙ congR _+_ (+Comm x z) ∙∙ +Assoc-comm1 y z x
 
   +ShufflePairs : (a b c d : R)
                 → (a + b) + (c + d) ≡ (a + c) + (b + d)
   +ShufflePairs a b c d =
     (a + b) + (c + d) ≡⟨ +Assoc _ _ _ ⟩
-    ((a + b) + c) + d ≡⟨ cong (λ u → u + d) (sym (+Assoc _ _ _)) ⟩
-    (a + (b + c)) + d ≡⟨ cong (λ u → (a + u) + d) (+Comm _ _) ⟩
-    (a + (c + b)) + d ≡⟨ cong (λ u → u + d) (+Assoc _ _ _) ⟩
+    ((a + b) + c) + d ≡⟨ congL _+_ (sym (+Assoc _ _ _)) ⟩
+    (a + (b + c)) + d ≡⟨ congL _+_ (congR _+_ (+Comm _ _)) ⟩
+    (a + (c + b)) + d ≡⟨ congL _+_ (+Assoc _ _ _) ⟩
     ((a + c) + b) + d ≡⟨ sym (+Assoc _ _ _) ⟩
     (a + c) + (b + d) ∎
 
   ·-assoc2 : (x y z w : R) → (x · y) · (z · w) ≡ x · (y · z) · w
-  ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ cong (_· w) (sym (·Assoc x y z))
+  ·-assoc2 x y z w = ·Assoc (x · y) z w ∙ congL _·_ (sym (·Assoc x y z))
 
 Ring→Semiring : Ring ℓ → Semiring ℓ
 Ring→Semiring R =
@@ -265,8 +257,8 @@ module RingHomTheory {R : Ring ℓ} {S : Ring ℓ'} (φ : RingHom R S) where
    where
    path : f (x - y) ≡ 0r
    path = f (x - y)     ≡⟨ pres+ _ _ ⟩
-          f x + f (- y) ≡⟨ cong (f x +_) (pres- _) ⟩
-          f x - f y     ≡⟨ cong (_- f y) p ⟩
+          f x + f (- y) ≡⟨ congR _+_ (pres- _) ⟩
+          f x - f y     ≡⟨ congL _-_ p ⟩
           f y - f y     ≡⟨ +InvR _ ⟩
           0r            ∎
 
