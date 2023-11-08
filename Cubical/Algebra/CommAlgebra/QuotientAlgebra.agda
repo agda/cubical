@@ -42,7 +42,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where abstr
   open CommAlgebraStr {{...}}
   open RingTheory (CommRing→Ring (CommAlgebra→CommRing A)) using (-DistR·)
   instance
-    _ : CommRingStr ⟨ R ⟩
+    _ : CommRingStr ⟨ R ⟩
     _ = snd R
     _ : CommAlgebraStr R ⟨ A ⟩
     _ = snd A
