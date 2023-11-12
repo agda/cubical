@@ -117,7 +117,7 @@ main = do
     "gen-except"  :ex_dirs -> genEverythings   (all_dirs \\ ex_dirs)
     ["check-README"] -> checkREADME
     ["get-imports-README"] -> do
-      imported <- filter (\fp -> head fp == "Everything")
+      imported <- filter (\fp -> listToMaybe fp == Just "Everything")
                     <$> getImported ["README","Cubical"]
       putStrLn . unwords $ map (\fp -> showFP '/' fp ++ ".agda") imported
     "help":_ -> putStrLn helpText
