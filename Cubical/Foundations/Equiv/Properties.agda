@@ -253,3 +253,8 @@ isEquiv[equivFunA≃B∘f]→isEquiv[f] f (g , gIsEquiv) g∘fIsEquiv  =
 
       w' : isEquiv (equivFun (invEquiv (_ , g∘fIsEquiv)) ∘ g)
       w' = snd (compEquiv (_ , gIsEquiv) (invEquiv (_ , g∘fIsEquiv)))
+
+isPointedTarget→isEquiv→isEquiv : {A B : Type ℓ} (f : A → B)
+    → (B → isEquiv f) → isEquiv f
+equiv-proof (isPointedTarget→isEquiv→isEquiv f hf) =
+  λ y → equiv-proof (hf y) y

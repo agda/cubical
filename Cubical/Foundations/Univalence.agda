@@ -170,6 +170,60 @@ EquivJ : {A B : Type ℓ} (P : (A : Type ℓ) → (e : A ≃ B) → Type ℓ')
        → (r : P B (idEquiv B)) → (e : A ≃ B) → P A e
 EquivJ P r e = subst (λ x → P (x .fst) (x .snd)) (contrSinglEquiv e) r
 
+-- Transport along a path is an equivalence.
+-- The proof is a special case of isEquivTransp where the line of types is
+-- given by p, and the extend φ -- where the transport is constant -- is i0.
+isEquivTransport : {A B : Type ℓ} (p : A ≡ B) → isEquiv (transport p)
+isEquivTransport p = isEquivTransp A φ where
+  A : I → Type _
+  A i = p i
+
+  φ : I
+  φ = i0
+
+pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
+pathToEquiv p .fst = transport p
+pathToEquiv p .snd = isEquivTransport p
+
+pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
+pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)
+
+-- The computation rule for ua. Because of "ghcomp" it is now very
+-- simple compared to cubicaltt:
+-- https://github.com/mortberg/cubicaltt/blob/master/examples/univalence.ctt#L202
+uaβ : {A B : Type ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ equivFun e x
+uaβ e x = transportRefl (equivFun e x)
+
+uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
+uaη {A = A} {B = B} P i j = Glue B {φ = φ} sides where
+  -- Adapted from a proof by @dolio, cf. commit e42a6fa1
+  φ = i ∨ j ∨ ~ j
+
+  sides : Partial φ (Σ[ T ∈ Type _ ] T ≃ B)
+  sides (i = i1) = P j , transpEquiv (λ k → P k) j
+  sides (j = i0) = A , pathToEquiv P
+  sides (j = i1) = B , idEquiv B
+
+pathToEquiv-ua : {A B : Type ℓ} (e : A ≃ B) → pathToEquiv (ua e) ≡ e
+pathToEquiv-ua e = equivEq (funExt (uaβ e))
+
+ua-pathToEquiv : {A B : Type ℓ} (p : A ≡ B) → ua (pathToEquiv p) ≡ p
+ua-pathToEquiv = uaη
+
+-- Univalence
+univalenceIso : {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
+univalenceIso .Iso.fun = pathToEquiv
+univalenceIso .Iso.inv = ua
+univalenceIso .Iso.rightInv = pathToEquiv-ua
+univalenceIso .Iso.leftInv = ua-pathToEquiv
+
+isEquivPathToEquiv : {A B : Type ℓ} → isEquiv (pathToEquiv {A = A} {B = B})
+isEquivPathToEquiv = isoToIsEquiv univalenceIso
+
+univalence : {A B : Type ℓ} → (A ≡ B) ≃ (A ≃ B)
+univalence .fst = pathToEquiv
+univalence .snd = isEquivPathToEquiv
+
 -- Assuming that we have an inverse to ua we can easily prove univalence
 module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
                   (aurefl : ∀ {ℓ} {A : Type ℓ} → au refl ≡ idEquiv A) where
@@ -191,30 +245,6 @@ module Univalence (au : ∀ {ℓ} {A B : Type ℓ} → A ≡ B → A ≃ B)
   thm : ∀ {ℓ} {A B : Type ℓ} → isEquiv au
   thm {A = A} {B = B} = isoToIsEquiv {B = A ≃ B} isoThm
 
-isEquivTransport : {A B : Type ℓ} (p : A ≡ B) → isEquiv (transport p)
-isEquivTransport p =
-  transport (λ i → isEquiv (transp (λ j → p (i ∧ j)) (~ i))) (idIsEquiv _)
-
-pathToEquiv : {A B : Type ℓ} → A ≡ B → A ≃ B
-pathToEquiv p .fst = transport p
-pathToEquiv p .snd = isEquivTransport p
-
-pathToEquivRefl : {A : Type ℓ} → pathToEquiv refl ≡ idEquiv A
-pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)
-
-pathToEquiv-ua : {A B : Type ℓ} (e : A ≃ B) → pathToEquiv (ua e) ≡ e
-pathToEquiv-ua = Univalence.au-ua pathToEquiv pathToEquivRefl
-
-ua-pathToEquiv : {A B : Type ℓ} (p : A ≡ B) → ua (pathToEquiv p) ≡ p
-ua-pathToEquiv = Univalence.ua-au pathToEquiv pathToEquivRefl
-
--- Univalence
-univalenceIso : {A B : Type ℓ} → Iso (A ≡ B) (A ≃ B)
-univalenceIso = Univalence.isoThm pathToEquiv pathToEquivRefl
-
-univalence : {A B : Type ℓ} → (A ≡ B) ≃ (A ≃ B)
-univalence = ( pathToEquiv , Univalence.thm pathToEquiv pathToEquivRefl  )
-
 -- The original map from UniMath/Foundations
 eqweqmap : {A B : Type ℓ} → A ≡ B → A ≃ B
 eqweqmap {A = A} e = J (λ X _ → A ≃ X) (idEquiv A) e
@@ -230,15 +260,6 @@ univalenceUAH = ( _ , univalenceStatement )
 
 univalencePath : {A B : Type ℓ} → (A ≡ B) ≡ Lift (A ≃ B)
 univalencePath = ua (compEquiv univalence LiftEquiv)
-
--- The computation rule for ua. Because of "ghcomp" it is now very
--- simple compared to cubicaltt:
--- https://github.com/mortberg/cubicaltt/blob/master/examples/univalence.ctt#L202
-uaβ : {A B : Type ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ equivFun e x
-uaβ e x = transportRefl (equivFun e x)
-
-uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
-uaη = J (λ _ q → ua (pathToEquiv q) ≡ q) (cong ua pathToEquivRefl ∙ uaIdEquiv)
 
 -- Lemmas for constructing and destructing dependent paths in a function type where the domain is ua.
 ua→ : ∀ {ℓ ℓ'} {A₀ A₁ : Type ℓ} {e : A₀ ≃ A₁} {B : (i : I) → Type ℓ'}

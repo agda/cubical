@@ -179,6 +179,10 @@ toFin : (n : ℕ) → Fin (suc n)
 toFin zero = zero
 toFin (suc n) = suc (toFin n)
 
+toFin< : (m : ℕ) → m < n → Fin n
+toFin< {suc n} zero 0<sn = zero
+toFin< {suc n} (suc m) m<n = suc (toFin< m m<n)
+
 inject<#toFin : ∀(i : Fin n) → inject< (≤-refl (suc n)) i # toFin n
 inject<#toFin {suc n} zero = _
 inject<#toFin {suc n} (suc i) = inject<#toFin {n} i

@@ -234,3 +234,13 @@ Iso.fun (pointedSecIso Q) F = (λ x → F (fst x) .fst (snd x)) , (λ x → F x 
 Iso.inv (pointedSecIso Q) F a = (fst F ∘ (a ,_)) , snd F a
 Iso.rightInv (pointedSecIso Q) F = refl
 Iso.leftInv (pointedSecIso Q) F = refl
+
+compPathrEquiv∙ : {A : Type ℓ} {a b c : A} {q : a ≡ b} (p : b ≡ c)
+    → ((a ≡ b) , q) ≃∙ ((a ≡ c) , q ∙ p)
+fst (compPathrEquiv∙ p) = compPathrEquiv p
+snd (compPathrEquiv∙ p) = refl
+
+compPathlEquiv∙ : {A : Type ℓ} {a b c : A} {q : b ≡ c} (p : a ≡ b)
+    → ((b ≡ c) , q) ≃∙ ((a ≡ c) , p ∙ q)
+fst (compPathlEquiv∙ p) = compPathlEquiv p
+snd (compPathlEquiv∙ p) = refl

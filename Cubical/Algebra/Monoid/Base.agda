@@ -135,8 +135,8 @@ module MonoidTheory {ℓ} (M : Monoid ℓ) where
   inv-lemma : (x y z : ⟨ M ⟩) → y · x ≡ ε → x · z ≡ ε → y ≡ z
   inv-lemma x y z left-inverse right-inverse =
     y           ≡⟨ sym (·IdR y) ⟩
-    y · ε       ≡⟨ cong (λ - → y · -) (sym right-inverse) ⟩
+    y · ε       ≡⟨ congR _·_ (sym right-inverse) ⟩
     y · (x · z) ≡⟨ ·Assoc y x z ⟩
-    (y · x) · z ≡⟨ cong (λ - → - · z) left-inverse ⟩
+    (y · x) · z ≡⟨ congL _·_ left-inverse ⟩
     ε · z       ≡⟨ ·IdL z ⟩
     z ∎

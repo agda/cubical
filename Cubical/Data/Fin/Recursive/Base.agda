@@ -32,3 +32,7 @@ elim
   → (fn : Fin k) → P fn
 elim {k = suc k} P fz fs zero = fz
 elim {k = suc k} P fz fs (suc x) = fs x (elim P fz fs x)
+
+toℕ : Fin k → ℕ
+toℕ {suc k}   zero  = zero
+toℕ {suc k} (suc n) = suc (toℕ n)
