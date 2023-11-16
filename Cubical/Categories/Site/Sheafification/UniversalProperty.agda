@@ -56,7 +56,7 @@ module UniversalProperty
 
     module InducedMap
       (G : Presheaf C ℓP)
-      (isSheafG : ⟨ isSheaf J G ⟩)
+      (isSheafG : isSheaf J G)
       (α : P ⇒ G)
       where
 
@@ -169,7 +169,7 @@ module UniversalProperty
     sheafificationIsUniversal :
       isUniversal
         (SheafCategory J ℓP ^op)
-        ((C^ [ P ,-]) ∘F FullInclusion C^ (⟨_⟩ ∘ isSheaf J))
+        ((C^ [ P ,-]) ∘F FullInclusion C^ (isSheaf J))
         (F , isSheafF)
         η
     sheafificationIsUniversal (G , isSheafG) = record

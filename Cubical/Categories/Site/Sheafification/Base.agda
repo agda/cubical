@@ -112,7 +112,7 @@ module Sheafification
   Functor.F-id F = funExt restrictId
   Functor.F-seq F f g = funExt (restrictRestrict f g)
 
-  isSheafF : ⟨ isSheaf J F ⟩
+  isSheafF : isSheaf J F
   isSheafF c cover = isEmbedding×isSurjection→isEquiv
     ( injEmbedding
         (isSetCompatibleFamily F cov)
@@ -120,7 +120,7 @@ module Sheafification
     , λ fam →
         ∣ amalgamate cover fam
         , Σ≡Prop
-            (str ∘ isCompatibleFamily F cov)
+            (isPropIsCompatibleFamily F cov)
             (funExt (restrictAmalgamate cover fam)) ∣₁ )
     where
     cov = str (covers c) cover

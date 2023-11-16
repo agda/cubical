@@ -11,7 +11,6 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Functions.Logic using (∀[]-syntax; ∀[∶]-syntax; _⇒_; _⇔_)
 open import Cubical.Functions.Embedding
 
 open import Cubical.Categories.Category
@@ -40,20 +39,28 @@ module _
     FamilyOnCover : Type (ℓ-max ℓP ℓ'')
     FamilyOnCover = (i : ⟨ cov ⟩) → ⟨ P ⟅ patchObj cov i ⟆ ⟩
 
-    isCompatibleFamily : FamilyOnCover → hProp (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
+    isCompatibleFamily : FamilyOnCover → Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
     isCompatibleFamily fam =
-      ∀[ i ] ∀[ j ] ∀[ d ] ∀[ f ∶ Hom[ d , _ ] ] ∀[ g ∶ Hom[ d , _ ] ]
-      ((f ⋆ patchArr cov i ≡ g ⋆ patchArr cov j) , isSetHom _ _) ⇒
-      (((P ⟪ f ⟫) (fam i) ≡ (P ⟪ g ⟫) (fam j)) , str (P ⟅ d ⟆) _ _ )
+      (i : ⟨ cov ⟩) →
+      (j : ⟨ cov ⟩) →
+      (d : ob) →
+      (f : Hom[ d , patchObj cov i ]) →
+      (g : Hom[ d , patchObj cov j ]) →
+      f ⋆ patchArr cov i ≡ g ⋆ patchArr cov j →
+      (P ⟪ f ⟫) (fam i) ≡ (P ⟪ g ⟫) (fam j)
+
+    isPropIsCompatibleFamily : (fam : FamilyOnCover) → isProp (isCompatibleFamily fam)
+    isPropIsCompatibleFamily fam =
+      isPropΠ6 λ _ _ d _ _ _ → str (P ⟅ d ⟆) _ _
 
     CompatibleFamily : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
-    CompatibleFamily = Σ FamilyOnCover (⟨_⟩ ∘ isCompatibleFamily)
+    CompatibleFamily = Σ FamilyOnCover isCompatibleFamily
 
     isSetCompatibleFamily : isSet CompatibleFamily
     isSetCompatibleFamily =
       isSetΣSndProp
         (isSetΠ (λ i → str (P ⟅ patchObj cov i ⟆)))
-        (str ∘ isCompatibleFamily)
+        isPropIsCompatibleFamily
 
     elementToCompatibleFamily : ⟨ P ⟅ c ⟆ ⟩ → CompatibleFamily
     elementToCompatibleFamily x =
@@ -66,9 +73,12 @@ module _
       where
       open Functor P
 
-    amalgamationPropertyForCover : hProp (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
-    amalgamationPropertyForCover =
-      isEquiv elementToCompatibleFamily ,
+    hasAmalgamationPropertyForCover : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓP) ℓ'')
+    hasAmalgamationPropertyForCover =
+      isEquiv elementToCompatibleFamily
+
+    isPropHasAmalgamationPropertyForCover : isProp hasAmalgamationPropertyForCover
+    isPropHasAmalgamationPropertyForCover =
       isPropIsEquiv _
 
 module _
@@ -81,26 +91,34 @@ module _
 
   open Coverage J
 
-  isSeparated : hProp (ℓ-max (ℓ-max (ℓ-max ℓ ℓcov) ℓpat) ℓP)
+  isSeparated : Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓcov) ℓpat) ℓP)
   isSeparated =
-    ∀[ c ] ∀[ cov ∶ ⟨ covers c ⟩ ]
-    ∀[ x ] ∀[ y ]
-      (∀[ patch ]
-        let f = patchArr (str (covers c) cov) patch in
-        ((P ⟪ f ⟫) x ≡ (P ⟪ f ⟫) y) , str (P ⟅ _ ⟆) _ _)
-      ⇒
-      ((x ≡ y) , str (P ⟅ _ ⟆) _ _)
+    (c : _) →
+    (cov : ⟨ covers c ⟩) →
+    (x : ⟨ P ⟅ c ⟆ ⟩) →
+    (y : ⟨ P ⟅ c ⟆ ⟩) →
+    ( (patch : _) →
+      let f = patchArr (str (covers c) cov) patch
+      in (P ⟪ f ⟫) x ≡ (P ⟪ f ⟫) y ) →
+    x ≡ y
 
-  isSheaf : hProp (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
+  isPropIsSeparated : isProp isSeparated
+  isPropIsSeparated = isPropΠ5 (λ c _ _ _ _ → str (P ⟅ c ⟆) _ _)
+
+  isSheaf : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
   isSheaf =
-    ∀[ c ] ∀[ cov ∶ ⟨ covers c ⟩ ]
-    amalgamationPropertyForCover P (str (covers c) cov)
+    (c : _) →
+    (cov : ⟨ covers c ⟩) →
+    hasAmalgamationPropertyForCover P (str (covers c) cov)
 
-  isSheaf→isSeparated : ⟨ isSheaf ⟩ → ⟨ isSeparated ⟩
+  isPropIsSheaf : isProp isSheaf
+  isPropIsSheaf = isPropΠ2 λ c cov → isPropHasAmalgamationPropertyForCover P (str (covers c) cov)
+
+  isSheaf→isSeparated : isSheaf → isSeparated
   isSheaf→isSeparated isSheafP c cov x y locallyEqual =
     isEmbedding→Inj (isEquiv→isEmbedding (isSheafP c cov)) x y
       (Σ≡Prop
-        (str ∘ (isCompatibleFamily {C = C} P _))
+        (isPropIsCompatibleFamily {C = C} P _)
         (funExt locallyEqual))
 
 module _
@@ -111,10 +129,10 @@ module _
   where
 
   Sheaf : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) (ℓ-suc ℓF))
-  Sheaf = Σ[ P ∈ Presheaf C ℓF ] ⟨ isSheaf J P ⟩
+  Sheaf = Σ[ P ∈ Presheaf C ℓF ] isSheaf J P
 
   SheafCategory :
     Category
       (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) (ℓ-suc ℓF))
       (ℓ-max (ℓ-max ℓ ℓ') ℓF)
-  SheafCategory = FullSubcategory (PresheafCategory C ℓF) (⟨_⟩ ∘ isSheaf J)
+  SheafCategory = FullSubcategory (PresheafCategory C ℓF) (isSheaf J)
