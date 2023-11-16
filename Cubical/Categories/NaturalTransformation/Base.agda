@@ -42,7 +42,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       -- naturality condition
       N-hom :  N-hom-Type F G N-ob
 
-  record NatIso (F G : Functor C D): Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
+  record NatIso (F G : Functor C D): Type (ℓ-max (ℓ-max ℓC ℓC') ℓD') where
     field
       trans : NatTrans F G
     open NatTrans trans
@@ -77,7 +77,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 
   infix 9 _≅ᶜ_
   -- c superscript to indicate that this is in the context of categories
-  _≅ᶜ_ : Functor C D → Functor C D → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+  _≅ᶜ_ : Functor C D → Functor C D → Type (ℓ-max (ℓ-max ℓC ℓC') ℓD')
   _≅ᶜ_ = NatIso
 
   -- component of a natural transformation
