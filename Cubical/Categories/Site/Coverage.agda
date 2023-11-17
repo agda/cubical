@@ -38,6 +38,6 @@ module _
         {d : ob} →
         (f : Hom[ d , c ]) →
         ∃[ cov' ∈ ⟨ covers d ⟩ ]
-          ⟨ coverRefinesSieve
-              (str (covers d) cov')
-              (pulledBackSieve f (generatedSieve (str (covers c) cov))) ⟩
+          coverRefinesSieve
+            (str (covers d) cov')
+            (pulledBackSieve f (generatedSieve (str (covers c) cov)))
