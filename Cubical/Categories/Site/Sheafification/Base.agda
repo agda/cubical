@@ -38,24 +38,24 @@ module Sheafification
   open Category C hiding (_∘_)
   open Coverage J
 
-  data ⟨F⟅_⟆⟩ : ob → Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov (ℓ-max ℓpat ℓP)))) where
+  data ⟨sheafification⟅_⟆⟩ : ob → Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov (ℓ-max ℓpat ℓP)))) where
 
-    trunc : {c : ob} → isSet ⟨F⟅ c ⟆⟩
+    trunc : {c : ob} → isSet ⟨sheafification⟅ c ⟆⟩
 
-    restrict : {c d : ob} → (f : Hom[ d , c ]) → ⟨F⟅ c ⟆⟩ → ⟨F⟅ d ⟆⟩
+    restrict : {c d : ob} → (f : Hom[ d , c ]) → ⟨sheafification⟅ c ⟆⟩ → ⟨sheafification⟅ d ⟆⟩
 
     restrictId :
       {c : ob} →
-      (x : ⟨F⟅ c ⟆⟩) →
+      (x : ⟨sheafification⟅ c ⟆⟩) →
       restrict id x ≡ x
     restrictRestrict :
       {c d e : ob} →
       (f : Hom[ d , c ]) →
       (g : Hom[ e , d ]) →
-      (x : ⟨F⟅ c ⟆⟩) →
+      (x : ⟨sheafification⟅ c ⟆⟩) →
       restrict (g ⋆ f) x ≡ restrict g (restrict f x)
 
-    η⟦⟧ : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → ⟨F⟅ c ⟆⟩
+    η⟦⟧ : {c : ob} → (x : ⟨ P ⟅ c ⟆ ⟩) → ⟨sheafification⟅ c ⟆⟩
 
     ηNatural :
       {c d : ob} →
@@ -67,7 +67,7 @@ module Sheafification
       {c : ob} →
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
-      (x y : ⟨F⟅ c ⟆⟩) →
+      (x y : ⟨sheafification⟅ c ⟆⟩) →
       (x~y :
         (patch : ⟨ cov ⟩) →
         restrict (patchArr cov patch) x ≡ restrict (patchArr cov patch) y) →
@@ -76,9 +76,9 @@ module Sheafification
     amalgamate :
       let
       -- Is there any way to make this definition now and reuse it later?
-      F : Presheaf C _
-      F = record
-        { F-ob = λ c → ⟨F⟅ c ⟆⟩ , trunc
+      sheafification : Presheaf C _
+      sheafification = record
+        { F-ob = λ c → ⟨sheafification⟅ c ⟆⟩ , trunc
         ; F-hom = restrict
         ; F-id = funExt restrictId
         ; F-seq = λ f g → funExt (restrictRestrict f g)
@@ -87,13 +87,13 @@ module Sheafification
       {c : ob} →
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
-      (fam : CompatibleFamily F cov) →
-      ⟨F⟅ c ⟆⟩
+      (fam : CompatibleFamily sheafification cov) →
+      ⟨sheafification⟅ c ⟆⟩
     restrictAmalgamate :
       let
-      F : Presheaf C _
-      F = record
-        { F-ob = λ c → ⟨F⟅ c ⟆⟩ , trunc
+      sheafification : Presheaf C _
+      sheafification = record
+        { F-ob = λ c → ⟨sheafification⟅ c ⟆⟩ , trunc
         ; F-hom = restrict
         ; F-id = funExt restrictId
         ; F-seq = λ f g → funExt (restrictRestrict f g)
@@ -102,12 +102,12 @@ module Sheafification
       {c : ob} →
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
-      (fam : CompatibleFamily F cov) →
+      (fam : CompatibleFamily sheafification cov) →
       (patch : ⟨ cov ⟩) →
       restrict (patchArr cov patch) (amalgamate cover fam) ≡ fst fam patch
 
   sheafification : Presheaf C (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
-  Functor.F-ob sheafification c = ⟨F⟅ c ⟆⟩ , trunc
+  Functor.F-ob sheafification c = ⟨sheafification⟅ c ⟆⟩ , trunc
   Functor.F-hom sheafification = restrict
   Functor.F-id sheafification = funExt restrictId
   Functor.F-seq sheafification f g = funExt (restrictRestrict f g)
