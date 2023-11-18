@@ -32,8 +32,12 @@ module UniversalProperty
   (J : Coverage C ℓcov ℓpat)
   where
 
-  -- We assume 'P' to have this level to ensure that the sheafification of 'P'
-  -- has the same level as 'P'.
+  -- We assume 'P' to have the following universe level in order to ensure that
+  -- the sheafification does not raise the universe level.
+  -- This is unfortunately necessary as long as we want to use the general
+  -- definition of natural transformations for the maps between presheaves.
+  -- (Other than that, the sheafification construction should enjoy the expected
+  -- universal property also for 'P' of arbitrary universe level.)
   ℓP = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov ℓpat))
 
   module _
