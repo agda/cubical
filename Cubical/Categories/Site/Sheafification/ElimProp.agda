@@ -36,12 +36,12 @@ module _
   -- We name the (potential) assumptions on 'B' here to avoid repetition.
   module ElimPropAssumptions
     {ℓB : Level}
-    (B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB)
+    (B : {c : ob} → ⟨ sheafification ⟅ c ⟆ ⟩ → Type ℓB)
     where
 
     isPropValued =
       {c : ob} →
-      {x : ⟨F⟅ c ⟆⟩} →
+      {x : ⟨ sheafification ⟅ c ⟆ ⟩} →
       isProp (B x)
 
     Onη =
@@ -53,7 +53,7 @@ module _
     -- should usually be more convenient to prove.
     isLocal =
       {c : ob} →
-      (x : ⟨F⟅ c ⟆⟩) →
+      (x : ⟨ sheafification ⟅ c ⟆ ⟩) →
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
       ((patch : ⟨ cov ⟩) → B (restrict (patchArr cov patch) x)) →
@@ -63,7 +63,7 @@ module _
     isMonotonous =
       {c d : ob} →
       (f : Hom[ d , c ]) →
-      (x : ⟨F⟅ c ⟆⟩) →
+      (x : ⟨ sheafification ⟅ c ⟆ ⟩) →
       B x → B (restrict f x)
 
   open ElimPropAssumptions
@@ -71,7 +71,7 @@ module _
   -- A fist version of elimProp that uses the isMonotonous assumption.
   module ElimPropWithMonotonous
     {ℓB : Level}
-    {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
+    {B : {c : ob} → ⟨ sheafification ⟅ c ⟆ ⟩ → Type ℓB}
     (isPropValuedB : isPropValued B)
     (onηB : Onη B)
     (isLocalB : isLocal B)
@@ -84,7 +84,7 @@ module _
       {c : ob} →
       (cover : ⟨ covers c ⟩) →
       let cov = str (covers c) cover in
-      (fam : CompatibleFamily F cov) →
+      (fam : CompatibleFamily sheafification cov) →
       ((patch : ⟨ cov ⟩) → B (fst fam patch)) →
       B (amalgamate cover fam)
     amalgamatePreservesB cover fam famB =
@@ -96,14 +96,14 @@ module _
     -- A helper to deal with the path constructor cases.
     mkPathP :
       {c : ob} →
-      {x0 x1 : ⟨F⟅ c ⟆⟩} →
+      {x0 x1 : ⟨ sheafification ⟅ c ⟆ ⟩} →
       (p : x0 ≡ x1) →
       (b0 : B (x0)) →
       (b1 : B (x1)) →
       PathP (λ i → B (p i)) b0 b1
     mkPathP p = isProp→PathP (λ i → isPropValuedB)
 
-    elimProp : {c : ob} → (x : ⟨F⟅ c ⟆⟩) → B x
+    elimProp : {c : ob} → (x : ⟨ sheafification ⟅ c ⟆ ⟩) → B x
     elimProp (trunc x y p q i j) =
       isOfHLevel→isOfHLevelDep 2 (λ _ → isProp→isSet isPropValuedB)
         (elimProp x)
@@ -151,7 +151,7 @@ module _
   -- Now we drop the 'isMonotonous' assumption and prove the stronger version of 'elimProp'.
   module _
     {ℓB : Level}
-    {B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type ℓB}
+    {B : {c : ob} → ⟨ sheafification ⟅ c ⟆ ⟩ → Type ℓB}
     (isPropValuedB : isPropValued B)
     (onηB : Onη B)
     (isLocalB : isLocal B)
@@ -159,7 +159,7 @@ module _
 
     -- Idea: strengthen the inductive hypothesis to "every restriction of x satisfies 'B'"
     private
-      B' : {c : ob} → ⟨F⟅ c ⟆⟩ → Type (ℓ-max (ℓ-max ℓ ℓ') ℓB)
+      B' : {c : ob} → ⟨ sheafification ⟅ c ⟆ ⟩ → Type (ℓ-max (ℓ-max ℓ ℓ') ℓB)
       B' x = {d : ob} → (f : Hom[ d , _ ]) → B (restrict f x)
 
       isPropValuedB' : isPropValued B'
@@ -195,7 +195,7 @@ module _
 
       elimPropInduction :
         {c : ob} →
-        (x : ⟨F⟅ c ⟆⟩) →
+        (x : ⟨ sheafification ⟅ c ⟆ ⟩) →
         B' x
       elimPropInduction =
         ElimPropWithMonotonous.elimProp {B = B'}
@@ -204,5 +204,5 @@ module _
           isLocalB'
           isMonotonousB'
 
-    elimProp : {c : ob} → (x : ⟨F⟅ c ⟆⟩) → B x
+    elimProp : {c : ob} → (x : ⟨ sheafification ⟅ c ⟆ ⟩) → B x
     elimProp x = subst B (restrictId _) (elimPropInduction x id)

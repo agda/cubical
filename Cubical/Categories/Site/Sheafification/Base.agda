@@ -106,21 +106,21 @@ module Sheafification
       (patch : ⟨ cov ⟩) →
       restrict (patchArr cov patch) (amalgamate cover fam) ≡ fst fam patch
 
-  F : Presheaf C (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
-  Functor.F-ob F c = ⟨F⟅ c ⟆⟩ , trunc
-  Functor.F-hom F = restrict
-  Functor.F-id F = funExt restrictId
-  Functor.F-seq F f g = funExt (restrictRestrict f g)
+  sheafification : Presheaf C (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓcov) ℓpat) ℓP)
+  Functor.F-ob sheafification c = ⟨F⟅ c ⟆⟩ , trunc
+  Functor.F-hom sheafification = restrict
+  Functor.F-id sheafification = funExt restrictId
+  Functor.F-seq sheafification f g = funExt (restrictRestrict f g)
 
-  isSheafF : isSheaf J F
-  isSheafF c cover = isEmbedding×isSurjection→isEquiv
+  isSheafSheafification : isSheaf J sheafification
+  isSheafSheafification c cover = isEmbedding×isSurjection→isEquiv
     ( injEmbedding
-        (isSetCompatibleFamily F cov)
+        (isSetCompatibleFamily sheafification cov)
         (λ {x} {y} x~y → sep cover x y (funExt⁻ (cong fst x~y)))
     , λ fam →
         ∣ amalgamate cover fam
         , Σ≡Prop
-            (isPropIsCompatibleFamily F cov)
+            (isPropIsCompatibleFamily sheafification cov)
             (funExt (restrictAmalgamate cover fam)) ∣₁ )
     where
     cov = str (covers c) cover

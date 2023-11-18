@@ -32,7 +32,8 @@ module UniversalProperty
   (J : Coverage C ℓcov ℓpat)
   where
 
-  -- We assume 'P' to have this level to ensure that 'F' has the same level as 'P'.
+  -- We assume 'P' to have this level to ensure that the sheafification of 'P'
+  -- has the same level as 'P'.
   ℓP = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓcov ℓpat))
 
   module _
@@ -50,7 +51,7 @@ module UniversalProperty
     open NatTrans
     open Functor
 
-    η : P ⇒ F
+    η : P ⇒ sheafification
     N-ob η c = η⟦⟧
     N-hom η f = funExt (ηNatural f)
 
@@ -62,7 +63,7 @@ module UniversalProperty
 
 {-
            η
-        P --> F
+        P --> sheafification
          \    .
           \   . inducedMap
          α \  .
@@ -72,7 +73,7 @@ module UniversalProperty
 
       private
 
-        ν : {c : ob} → ⟨ F ⟅ c ⟆ ⟩ → ⟨ G ⟅ c ⟆ ⟩
+        ν : {c : ob} → ⟨ sheafification ⟅ c ⟆ ⟩ → ⟨ G ⟅ c ⟆ ⟩
 
         ν (trunc x y p q i j) = str (G ⟅ _ ⟆) _ _ (cong ν p) (cong ν q) i j
         ν (restrict f x) = (G ⟪ f ⟫) (ν x)
@@ -109,7 +110,7 @@ module UniversalProperty
             (λ i → ν (fam i)) ,
             λ i j d f g diamond → cong ν (compat i j d f g diamond)
 
-      inducedMap : F ⇒ G
+      inducedMap : sheafification ⇒ G
       N-ob inducedMap c = ν
       N-hom inducedMap f = refl
 
@@ -117,14 +118,14 @@ module UniversalProperty
       inducedMapFits = makeNatTransPath refl
 
       module _
-        (β : F ⇒ G)
+        (β : sheafification ⇒ G)
         (βFits : η C^.⋆ β ≡ α)
         where
 
         open ElimPropAssumptions J P
 
         private
-          B : {c : ob} → ⟨F⟅ c ⟆⟩ → Type _
+          B : {c : ob} → ⟨ sheafification ⟅ c ⟆ ⟩ → Type _
           B x = (β ⟦ _ ⟧) x ≡ ν x
 
           isPropValuedB : isPropValued B
@@ -140,9 +141,9 @@ module UniversalProperty
               (ν x)
               λ patch →
                 let f = patchArr (str (covers _) cover) patch in
-                (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)    ≡⟨ sym (cong (_$ x) (N-hom β f)) ⟩
-                ((β ⟦ _ ⟧) ((F ⟪ f ⟫) x))  ≡⟨ locallyAgree patch ⟩
-                (G ⟪ f ⟫) (ν x)            ∎
+                (G ⟪ f ⟫) ((β ⟦ _ ⟧) x)                 ≡⟨ sym (cong (_$ x) (N-hom β f)) ⟩
+                ((β ⟦ _ ⟧) ((sheafification ⟪ f ⟫) x))  ≡⟨ locallyAgree patch ⟩
+                (G ⟪ f ⟫) (ν x)                         ∎
 
         uniqueness : β ≡ inducedMap
         uniqueness = makeNatTransPath (funExt λ _ → funExt (
@@ -170,7 +171,7 @@ module UniversalProperty
       isUniversal
         (SheafCategory J ℓP ^op)
         ((C^ [ P ,-]) ∘F FullInclusion C^ (isSheaf J))
-        (F , isSheafF)
+        (sheafification , isSheafSheafification)
         η
     sheafificationIsUniversal (G , isSheafG) = record
       { equiv-proof = λ α →
