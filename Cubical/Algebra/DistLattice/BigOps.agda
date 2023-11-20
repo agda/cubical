@@ -29,7 +29,7 @@ open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 
 private
@@ -64,7 +64,7 @@ module Join (L' : DistLattice ℓ) where
 
  ⋁Split++ : ∀ {n m : ℕ} (V : FinVec L n) (W : FinVec L m)
            → ⋁ (V ++Fin W) ≡ ⋁ V ∨l ⋁ W
- ⋁Split++ = bigOpSplit++ ∨lComm
+ ⋁Split++ = bigOpSplit++
 
  ⋁Meetrdist : ∀ {n} → (x : L) → (V : FinVec L n)
                 → x ∧l ⋁ V ≡ ⋁ λ i → x ∧l V i

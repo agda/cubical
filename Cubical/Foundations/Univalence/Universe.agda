@@ -50,7 +50,7 @@ module UU-Lemmas where
     : ∀ x y (p : El x ≡ El y)
     → cong El (un x y (pathToEquiv p)) ≡ p
   cong-un-te x y p
-    = comp (pathToEquiv p) ∙ uaTransportη p
+    = comp (pathToEquiv p) ∙ uaη p
 
   nu-un : ∀ x y (e : El x ≃ El y) → nu x y (un x y e) ≡ e
   nu-un x y e

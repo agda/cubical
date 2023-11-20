@@ -96,6 +96,16 @@ congP₂ : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
 congP₂ f p q i = f i (p i) (q i)
 {-# INLINE congP₂ #-}
 
+congL : {C : Type ℓ} (f : (a : A) → C → B a) (p : x ≡ y)
+        → {z : C} → PathP (λ i → B (p i)) (f x z) (f y z)
+congL f p {z} i = f (p i) z
+{-# INLINE congL #-}
+
+congR : {C : Type ℓ} (f : C → (a : A) → B a) (p : x ≡ y)
+        → {z : C} → PathP (λ i → B (p i)) (f z x) (f z y)
+congR f p {z} i = f z (p i)
+{-# INLINE congR #-}
+
 {- The most natural notion of homogenous path composition
     in a cubical setting is double composition:
 
@@ -110,12 +120,12 @@ congP₂ f p q i = f i (p i) (q i)
    `doubleCompPath-filler p q r` gives the whole square
 -}
 
-doubleComp-faces : {x y z w : A } (p : x ≡ y) (r : z ≡ w)
+doubleComp-faces : {x y z w : A} (p : x ≡ y) (r : z ≡ w)
                  → (i : I) (j : I) → Partial (i ∨ ~ i) A
 doubleComp-faces p r i j (i = i0) = p (~ j)
 doubleComp-faces p r i j (i = i1) = r j
 
-_∙∙_∙∙_ : w ≡ x → x ≡ y → y ≡ z → w ≡ z
+_∙∙_∙∙_ : x ≡ y → y ≡ z → z ≡ w → x ≡ w
 (p ∙∙ q ∙∙ r) i =
   hcomp (doubleComp-faces p r i) (q i)
 

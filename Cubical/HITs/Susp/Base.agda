@@ -7,6 +7,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Pointed
 
+open import Cubical.Data.Unit
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
 
@@ -34,6 +35,17 @@ suspFun : {A : Type ℓ} {B : Type ℓ'} (f : A → B)
 suspFun f north = north
 suspFun f south = south
 suspFun f (merid a i) = merid (f a) i
+
+UnitIsoSuspUnit : Iso Unit (Susp Unit)
+fun UnitIsoSuspUnit _ = north
+inv UnitIsoSuspUnit _ = tt
+rightInv UnitIsoSuspUnit north = refl
+rightInv UnitIsoSuspUnit south = merid tt
+rightInv UnitIsoSuspUnit (merid tt j) k = merid tt (j ∧ k)
+leftInv UnitIsoSuspUnit _ = refl
+
+Unit≃SuspUnit : Unit ≃ Susp Unit
+Unit≃SuspUnit = isoToEquiv UnitIsoSuspUnit
 
 BoolIsoSusp⊥ : Iso Bool (Susp ⊥)
 fun BoolIsoSusp⊥ = λ {true  → north; false → south}

@@ -40,8 +40,8 @@ module _
     coh  : (xs : 𝕁Red) → refl ≡ unit x₀ xs
 
   data 𝕁Red∞ : Type ℓ where
-    inl : 𝕁Red → 𝕁Red∞
-    push : (xs : 𝕁Red) → inl xs ≡ inl (x₀ ∷ xs)
+    incl : 𝕁Red → 𝕁Red∞
+    push : (xs : 𝕁Red) → incl xs ≡ incl (x₀ ∷ xs)
 
 
   -- Auxiliary constructions
@@ -71,8 +71,8 @@ module _
   𝕁1 = 𝕁Path i1
 
   data 𝕁Path∞ (i : I) : Type ℓ where
-    inl : 𝕁Path i → 𝕁Path∞ i
-    push : (xs : 𝕁Path i) → inl xs ≡ inl (unit xs i)
+    incl : 𝕁Path i → 𝕁Path∞ i
+    push : (xs : 𝕁Path i) → incl xs ≡ incl (unit xs i)
 
   𝕁0∞ = 𝕁Path∞ i0
   𝕁1∞ = 𝕁Path∞ i1
@@ -116,19 +116,19 @@ module _
   𝕁1→𝕁Red→𝕁1 (coh xs i j) t = coh (𝕁1→𝕁Red→𝕁1 xs t) i j
 
   𝕁Red∞→𝕁1∞ : 𝕁Red∞ → 𝕁1∞
-  𝕁Red∞→𝕁1∞ (inl xs) = inl (𝕁Red→𝕁1 xs)
+  𝕁Red∞→𝕁1∞ (incl xs) = incl (𝕁Red→𝕁1 xs)
   𝕁Red∞→𝕁1∞ (push xs i) = push (𝕁Red→𝕁1 xs) i
 
   𝕁1∞→𝕁Red∞ : 𝕁1∞ → 𝕁Red∞
-  𝕁1∞→𝕁Red∞ (inl xs) = inl (𝕁1→𝕁Red xs)
+  𝕁1∞→𝕁Red∞ (incl xs) = incl (𝕁1→𝕁Red xs)
   𝕁1∞→𝕁Red∞ (push xs i) = push (𝕁1→𝕁Red xs) i
 
   𝕁Red∞→𝕁1∞→𝕁Red∞ : (xs : 𝕁Red∞) → 𝕁1∞→𝕁Red∞ (𝕁Red∞→𝕁1∞ xs) ≡ xs
-  𝕁Red∞→𝕁1∞→𝕁Red∞ (inl xs) t = inl (𝕁Red→𝕁1→𝕁Red xs t)
+  𝕁Red∞→𝕁1∞→𝕁Red∞ (incl xs) t = incl (𝕁Red→𝕁1→𝕁Red xs t)
   𝕁Red∞→𝕁1∞→𝕁Red∞ (push xs i) t = push (𝕁Red→𝕁1→𝕁Red xs t) i
 
   𝕁1∞→𝕁Red∞→𝕁1∞ : (xs : 𝕁1∞) → 𝕁Red∞→𝕁1∞ (𝕁1∞→𝕁Red∞ xs) ≡ xs
-  𝕁1∞→𝕁Red∞→𝕁1∞ (inl xs) t = inl (𝕁1→𝕁Red→𝕁1 xs t)
+  𝕁1∞→𝕁Red∞→𝕁1∞ (incl xs) t = incl (𝕁1→𝕁Red→𝕁1 xs t)
   𝕁1∞→𝕁Red∞→𝕁1∞ (push xs i) t = push (𝕁1→𝕁Red→𝕁1 xs t) i
 
   𝕁1∞≃𝕁Red∞ : 𝕁1∞ ≃ 𝕁Red∞
@@ -192,19 +192,19 @@ module _
   𝕁ames→𝕁0→𝕁ames (coh xs i j) t = coh (𝕁ames→𝕁0→𝕁ames xs t) i j
 
   𝕁ames∞→𝕁0∞ : 𝕁ames∞ → 𝕁0∞
-  𝕁ames∞→𝕁0∞ (inl xs) = inl (𝕁ames→𝕁0 xs)
+  𝕁ames∞→𝕁0∞ (incl xs)   = incl (𝕁ames→𝕁0 xs)
   𝕁ames∞→𝕁0∞ (push xs i) = push (𝕁ames→𝕁0 xs) i
 
   𝕁0∞→𝕁ames∞ : 𝕁0∞ → 𝕁ames∞
-  𝕁0∞→𝕁ames∞ (inl xs) = inl (𝕁0→𝕁ames xs)
+  𝕁0∞→𝕁ames∞ (incl xs)   = incl (𝕁0→𝕁ames xs)
   𝕁0∞→𝕁ames∞ (push xs i) = push (𝕁0→𝕁ames xs) i
 
   𝕁ames∞→𝕁0∞→𝕁ames∞ : (xs : 𝕁ames∞) → 𝕁0∞→𝕁ames∞ (𝕁ames∞→𝕁0∞ xs) ≡ xs
-  𝕁ames∞→𝕁0∞→𝕁ames∞ (inl xs) t = inl (𝕁ames→𝕁0→𝕁ames xs t)
+  𝕁ames∞→𝕁0∞→𝕁ames∞ (incl xs)   t = incl (𝕁ames→𝕁0→𝕁ames xs t)
   𝕁ames∞→𝕁0∞→𝕁ames∞ (push xs i) t = push (𝕁ames→𝕁0→𝕁ames xs t) i
 
   𝕁0∞→𝕁ames∞→𝕁0∞ : (xs : 𝕁0∞) → 𝕁ames∞→𝕁0∞ (𝕁0∞→𝕁ames∞ xs) ≡ xs
-  𝕁0∞→𝕁ames∞→𝕁0∞ (inl xs) t = inl (𝕁0→𝕁ames→𝕁0 xs t)
+  𝕁0∞→𝕁ames∞→𝕁0∞ (incl xs)   t = incl (𝕁0→𝕁ames→𝕁0 xs t)
   𝕁0∞→𝕁ames∞→𝕁0∞ (push xs i) t = push (𝕁0→𝕁ames→𝕁0 xs t) i
 
   𝕁ames∞≃𝕁0∞ : 𝕁ames∞ ≃ 𝕁0∞
@@ -220,9 +220,9 @@ module _
   -- Test of canonicity
   private
     -- It's good for [].
-    eq1 : 𝕁ames∞≃𝕁Red∞ .fst (inl []) ≡ inl []
+    eq1 : 𝕁ames∞≃𝕁Red∞ .fst (incl []) ≡ incl []
     eq1 = refl
 
     -- Without regularity, "obvious" equality doesn't hold definitionally.
-    eq2 : (x : X) → 𝕁ames∞≃𝕁Red∞ .fst (inl (x ∷ [])) ≡ inl (x ∷ [])
+    eq2 : (x : X) → 𝕁ames∞≃𝕁Red∞ .fst (incl (x ∷ [])) ≡ incl (x ∷ [])
     eq2 _ = transportRefl _

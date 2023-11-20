@@ -55,11 +55,6 @@ Group₀ = Group ℓ-zero
 group : (G : Type ℓ) (1g : G) (_·_ : G → G → G) (inv : G → G) (h : IsGroup 1g _·_ inv) → Group ℓ
 group G 1g _·_ inv h = G , groupstr 1g _·_ inv h
 
-isSetGroup : (G : Group ℓ) → isSet ⟨ G ⟩
-isSetGroup G = is-set
-  where
-  open GroupStr (str G)
-
 makeIsGroup : {G : Type ℓ} {e : G} {_·_ : G → G → G} { inv : G → G}
               (is-setG : isSet G)
               (·Assoc : (x y z : G) → x · (y · z) ≡ (x · y) · z)

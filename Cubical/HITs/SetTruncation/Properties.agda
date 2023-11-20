@@ -79,6 +79,13 @@ elim3 : {B : (x y z : ∥ A ∥₂) → Type ℓ}
 elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
                      (λ a b → elim (λ _ → Bset _ _ _) (g a b))
 
+elim4 : {B : (w x y z : ∥ A ∥₂) → Type ℓ}
+        (Bset : ((w x y z : ∥ A ∥₂) → isSet (B w x y z)))
+        (g : (a b c d : A) → B ∣ a ∣₂ ∣ b ∣₂ ∣ c ∣₂ ∣ d ∣₂)
+        (w x y z : ∥ A ∥₂) → B w x y z
+elim4 Bset g = elim3 (λ _ _ _ → isSetΠ λ _ → Bset _ _ _ _)
+                     λ a b c → elim (λ _ → Bset _ _ _ _) (g a b c)
+
 
 -- the recursor for maps into groupoids following the "HIT proof" in:
 -- https://arxiv.org/abs/1507.01150
@@ -326,3 +333,8 @@ Iso.fun (PathIdTrunc₀Iso {b = b}) p =
 Iso.inv PathIdTrunc₀Iso = pRec (squash₂ _ _) (cong ∣_∣₂)
 Iso.rightInv PathIdTrunc₀Iso _ = squash₁ _ _
 Iso.leftInv PathIdTrunc₀Iso _ = squash₂ _ _ _ _
+
+mapFunctorial : {A B C : Type ℓ} (f : A → B) (g : B → C)
+  → map g ∘ map f ≡ map (g ∘ f)
+mapFunctorial f g =
+  funExt (elim (λ x → isSetPathImplicit) λ a → refl)

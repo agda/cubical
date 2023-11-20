@@ -23,7 +23,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.FinData.Order
 open import Cubical.Data.Sum
 
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Algebra.Semilattice
@@ -94,7 +94,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice L))
   open MeetSemilattice (Lattice→MeetSemilattice (DistLattice→Lattice L))
       using (∧≤RCancel ; ∧≤LCancel ; ≤-∧Pres ; ≤-∧RPres ; ≤-∧LPres)
-  open PosetStr (IndPoset .snd) hiding (_≤_)
+  open PosetStr (IndPoset .snd) hiding (_≤_; is-set)
   open IsBasis ⦃...⦄
   open EquivalenceOfDefs L C (DLRan F)
   open condCone
@@ -423,7 +423,7 @@ module PreSheafExtension (L : DistLattice ℓ) (C : Category ℓ' ℓ'')
           Σpathhelperpath = isSetL' _ _ _ _
            where
            isSetL' : isSet (ob DLSubCat)
-           isSetL' = isSetΣSndProp (isSetDistLattice L) λ x → L' x .snd
+           isSetL' = isSetΣSndProp is-set λ x → L' x .snd
 
           helperPathP : PathP (λ j → C [ c , F .F-ob (Σpathhelper (~ j)) ])
                               (uniqβConeMor c cc (α i) (α∈L' i) (ind≤⋁ α i) .fst .fst)

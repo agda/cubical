@@ -8,9 +8,16 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
+open import Cubical.Functions.Embedding
+open import Cubical.Functions.Logic using (_⊔′_)
+
+open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum.Base as ⊎
 open import Cubical.HITs.SetQuotients.Base
-open import Cubical.HITs.PropositionalTruncation.Base
+open import Cubical.HITs.PropositionalTruncation as ∥₁
+
+open import Cubical.Relation.Nullary.Base
 
 private
   variable
@@ -47,14 +54,74 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isRefl : Type (ℓ-max ℓ ℓ')
   isRefl = (a : A) → R a a
 
+  isIrrefl : Type (ℓ-max ℓ ℓ')
+  isIrrefl = (a : A) → ¬ R a a
+
   isSym : Type (ℓ-max ℓ ℓ')
   isSym = (a b : A) → R a b → R b a
+
+  isAsym : Type (ℓ-max ℓ ℓ')
+  isAsym = (a b : A) → R a b → ¬ R b a
 
   isAntisym : Type (ℓ-max ℓ ℓ')
   isAntisym = (a b : A) → R a b → R b a → a ≡ b
 
   isTrans : Type (ℓ-max ℓ ℓ')
-  isTrans = (a b c : A)  → R a b → R b c → R a c
+  isTrans = (a b c : A) → R a b → R b c → R a c
+
+  -- Sum types don't play nicely with props, so we truncate
+  isCotrans : Type (ℓ-max ℓ ℓ')
+  isCotrans = (a b c : A) → R a b → (R a c ⊔′ R b c)
+
+  isWeaklyLinear : Type (ℓ-max ℓ ℓ')
+  isWeaklyLinear = (a b c : A) → R a b → R a c ⊔′ R c b
+
+  isConnected : Type (ℓ-max ℓ ℓ')
+  isConnected = (a b : A) → ¬ (a ≡ b) → R a b ⊔′ R b a
+
+  isStronglyConnected : Type (ℓ-max ℓ ℓ')
+  isStronglyConnected = (a b : A) → R a b ⊔′ R b a
+
+  isStronglyConnected→isConnected : isStronglyConnected → isConnected
+  isStronglyConnected→isConnected strong a b _ = strong a b
+
+  isIrrefl×isTrans→isAsym : isIrrefl × isTrans → isAsym
+  isIrrefl×isTrans→isAsym (irrefl , trans) a₀ a₁ Ra₀a₁ Ra₁a₀
+    = irrefl a₀ (trans a₀ a₁ a₀ Ra₀a₁ Ra₁a₀)
+
+  IrreflKernel : Rel A A (ℓ-max ℓ ℓ')
+  IrreflKernel a b = R a b × (¬ a ≡ b)
+
+  ReflClosure : Rel A A (ℓ-max ℓ ℓ')
+  ReflClosure a b = R a b ⊎ (a ≡ b)
+
+  SymKernel : Rel A A ℓ'
+  SymKernel a b = R a b × R b a
+
+  SymClosure : Rel A A ℓ'
+  SymClosure a b = R a b ⊎ R b a
+
+  AsymKernel : Rel A A ℓ'
+  AsymKernel a b = R a b × (¬ R b a)
+
+  NegationRel : Rel A A ℓ'
+  NegationRel a b = ¬ (R a b)
+
+  module _
+    {ℓ'' : Level}
+    (P : Embedding A ℓ'')
+
+    where
+
+    private
+      subtype : Type ℓ''
+      subtype = (fst P)
+
+      toA : subtype → A
+      toA = fst (snd P)
+
+    InducedRelation : Rel subtype subtype ℓ'
+    InducedRelation a b = R (toA a) (toA b)
 
   record isEquivRel : Type (ℓ-max ℓ ℓ') where
     constructor equivRel
@@ -81,6 +148,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   impliesIdentity : Type _
   impliesIdentity = {a a' : A} → (R a a') → (a ≡ a')
+
+  inequalityImplies : Type _
+  inequalityImplies = (a b : A) → ¬ a ≡ b → R a b
 
   -- the total space corresponding to the binary relation w.r.t. a
   relSinglAt : (a : A) → Type (ℓ-max ℓ ℓ')
@@ -155,3 +225,27 @@ Iso.rightInv (RelIso→Iso _ _ uni uni' f) a'
   = uni' (RelIso.rightInv f a')
 Iso.leftInv (RelIso→Iso _ _ uni uni' f) a
   = uni (RelIso.leftInv f a)
+
+isIrreflIrreflKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isIrrefl (IrreflKernel R)
+isIrreflIrreflKernel _ _ (_ , ¬a≡a) = ¬a≡a refl
+
+isReflReflClosure : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isRefl (ReflClosure R)
+isReflReflClosure _ _ = inr refl
+
+isConnectedStronglyConnectedIrreflKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ')
+                                         → isStronglyConnected R
+                                         → isConnected (IrreflKernel R)
+isConnectedStronglyConnectedIrreflKernel R strong a b ¬a≡b
+  = ∥₁.map (λ x → ⊎.rec (λ Rab → inl (Rab , ¬a≡b))
+                        (λ Rba → inr (Rba , (λ b≡a → ¬a≡b (sym b≡a)))) x)
+                        (strong a b)
+
+isSymSymKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isSym (SymKernel R)
+isSymSymKernel _ _ _ (Rab , Rba) = Rba , Rab
+
+isSymSymClosure : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isSym (SymClosure R)
+isSymSymClosure _ _ _ (inl Rab) = inr Rab
+isSymSymClosure _ _ _ (inr Rba) = inl Rba
+
+isAsymAsymKernel : ∀ {ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isAsym (AsymKernel R)
+isAsymAsymKernel _ _ _ (Rab , _) (_ , ¬Rab) = ¬Rab Rab

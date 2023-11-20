@@ -17,7 +17,7 @@ module _ {R : CommRing ℓ} (X : Type ℓ'') (A : CommAlgebra R ℓ') where
   pointwiseAlgebra : CommAlgebra R _
   pointwiseAlgebra =
     let open CommAlgebraStr (snd A)
-        isSetX→A = isOfHLevelΠ 2 (λ (x : X) → isSetCommRing (CommAlgebra→CommRing A))
+        isSetX→A = isOfHLevelΠ 2 (λ (x : X) → is-set)
     in commAlgebraFromCommRing
          (pointwiseRing X (CommAlgebra→CommRing A))
          (λ r f → (λ x → r ⋆ (f x)))

@@ -200,7 +200,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
                (s ⋆ 1a) · (t ⋆ 1a) ∎
       in eq i
     inducedMap (C.0-trunc P Q p q i j) =
-      isSetAlgebra (CommAlgebra→Algebra A) (inducedMap P) (inducedMap Q) (cong _ p) (cong _ q) i j
+      is-set (inducedMap P) (inducedMap Q) (cong _ p) (cong _ q) i j
 
     module _ where
       open IsAlgebraHom

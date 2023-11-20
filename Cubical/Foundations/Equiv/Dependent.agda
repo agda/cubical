@@ -208,7 +208,6 @@ pullbackIsoOver {A = A} {B} {P} f hae = w
 
 -- Since there is no regularity for transport (also no-eta-equality),
 -- we have to fix one field manually to make it invariant under transportation.
-
 liftHAEToIsoOver :
   (f : A → B)
   (hae : isHAEquiv f)
@@ -217,7 +216,7 @@ liftHAEToIsoOver :
 liftHAEToIsoOver {P = P} {Q = Q} f hae isom =
   isIsoOver→IsoOver
     (transport (λ i → isIsoOver (compIsoIdL (isHAEquiv→Iso hae) i) P Q (λ a x → isom a .fun x))
-    (IsoOver→isIsoOver (compIsoOver (fiberIso→IsoOver isom) (pullbackIsoOver f hae))))
+      (IsoOver→isIsoOver (compIsoOver (fiberIso→IsoOver isom) (pullbackIsoOver f hae))))
 
 equivOver→IsoOver :
   (e : A ≃ B)

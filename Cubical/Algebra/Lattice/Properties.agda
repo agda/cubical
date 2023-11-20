@@ -2,6 +2,7 @@
 module Cubical.Algebra.Lattice.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
@@ -21,11 +22,11 @@ open import Cubical.Algebra.CommMonoid
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice.Base
 
-open import Cubical.Relation.Binary.Poset
+open import Cubical.Relation.Binary.Order.Poset
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
 module LatticeTheory (L' : Lattice ℓ) where
  private L = fst L'
@@ -68,7 +69,7 @@ module Order (L' : Lattice ℓ) where
                     y ∎
 
  ≤Equiv : ∀ (x y : L) → (x ≤j y) ≃ (x ≤m y)
- ≤Equiv x y = propBiimpl→Equiv (isSetLattice L' _ _) (isSetLattice L' _ _) (≤j→≤m x y) (≤m→≤j x y)
+ ≤Equiv x y = propBiimpl→Equiv (is-set _ _) (is-set _ _) (≤j→≤m x y) (≤m→≤j x y)
 
  IndPosetPath : JoinPoset ≡ MeetPoset
  IndPosetPath = PosetPath _ _ .fst ((idEquiv _) , isposetequiv ≤Equiv )
@@ -81,7 +82,7 @@ module Order (L' : Lattice ℓ) where
  ∧≤LCancelJoin x y = ≤m→≤j _ _ (∧≤LCancel x y)
 
 
-module _ {L M : Lattice ℓ} (φ ψ : LatticeHom L M) where
+module _ {L : Lattice ℓ} {M : Lattice ℓ'} (φ ψ : LatticeHom L M) where
  open LatticeStr ⦃...⦄
  open IsLatticeHom
  private
@@ -93,3 +94,38 @@ module _ {L M : Lattice ℓ} (φ ψ : LatticeHom L M) where
 
  LatticeHom≡f : fst φ ≡ fst ψ → φ ≡ ψ
  LatticeHom≡f = Σ≡Prop λ f → isPropIsLatticeHom _ f _
+
+
+
+module LatticeHoms where
+  open IsLatticeHom
+
+  compIsLatticeHom : {A : Lattice ℓ} {B : Lattice ℓ'} {C : Lattice ℓ''}
+    {g : ⟨ B ⟩ → ⟨ C ⟩} {f : ⟨ A ⟩ → ⟨ B ⟩}
+    → IsLatticeHom (B .snd) g (C .snd)
+    → IsLatticeHom (A .snd) f (B .snd)
+    → IsLatticeHom (A .snd) (g ∘ f) (C .snd)
+  compIsLatticeHom {g = g} {f} gh fh .pres0 = cong g (fh .pres0) ∙ gh .pres0
+  compIsLatticeHom {g = g} {f} gh fh .pres1 = cong g (fh .pres1) ∙ gh .pres1
+  compIsLatticeHom {g = g} {f} gh fh .pres∨l x y = cong g (fh .pres∨l x y) ∙ gh .pres∨l (f x) (f y)
+  compIsLatticeHom {g = g} {f} gh fh .pres∧l x y = cong g (fh .pres∧l x y) ∙ gh .pres∧l (f x) (f y)
+
+
+  compLatticeHom : {L : Lattice ℓ} {M : Lattice ℓ'} {N : Lattice ℓ''}
+              → LatticeHom L M → LatticeHom M N → LatticeHom L N
+  fst (compLatticeHom f g) x = g .fst (f .fst x)
+  snd (compLatticeHom f g) = compIsLatticeHom (g .snd) (f .snd)
+
+  _∘l_ : {L : Lattice ℓ} {M : Lattice ℓ'} {N : Lattice ℓ''} → LatticeHom M N → LatticeHom L M → LatticeHom L N
+  _∘l_ = flip compLatticeHom
+
+  compIdLatticeHom : {L : Lattice ℓ} {M : Lattice ℓ'} (φ : LatticeHom L M) → compLatticeHom (idLatticeHom L) φ ≡ φ
+  compIdLatticeHom φ = LatticeHom≡f _ _ refl
+
+  idCompLatticeHom : {L : Lattice ℓ} {M : Lattice ℓ'} (φ : LatticeHom L M) → compLatticeHom φ (idLatticeHom M) ≡ φ
+  idCompLatticeHom φ = LatticeHom≡f _ _ refl
+
+  compAssocLatticeHom : {L : Lattice ℓ} {M : Lattice ℓ'} {N : Lattice ℓ''} {U : Lattice ℓ'''}
+                   → (φ : LatticeHom L M) (ψ : LatticeHom M N) (χ : LatticeHom N U)
+                   → compLatticeHom (compLatticeHom φ ψ) χ ≡ compLatticeHom φ (compLatticeHom ψ χ)
+  compAssocLatticeHom _ _ _ = LatticeHom≡f _ _ refl

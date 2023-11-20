@@ -77,11 +77,6 @@ module _ {R : CommRing ℓ} where
   CommAlgebra→CommRing (_ , commalgebrastr  _ _ _ _ _ _ (iscommalgebra isAlgebra ·-comm)) =
     _ , commringstr _ _ _ _ _ (iscommring (IsAlgebra.isRing isAlgebra) ·-comm)
 
-  isSetCommAlgebra : (A : CommAlgebra R ℓ') → isSet ⟨ A ⟩
-  isSetCommAlgebra A = is-set
-    where
-    open CommAlgebraStr (str A)
-
   module _
       {A : Type ℓ'} {0a 1a : A}
       {_+_ _·_ : A → A → A} { -_ : A → A} {_⋆_ : ⟨ R ⟩ → A → A}

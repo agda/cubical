@@ -50,12 +50,12 @@ module Quotient-FGideal-CommRing-Ring
   (gnull : (k : Fin n) → g $r v k ≡ RingStr.0r (snd B))
   where
 
-  open RingStr (snd B) using (0r)
+  open RingStr (snd B) using (0r; is-set)
 
   zeroOnGeneratedIdeal : (x : ⟨ A ⟩) → x ∈ fst (generatedIdeal A v) → g $r x ≡ 0r
   zeroOnGeneratedIdeal x x∈FGIdeal =
     PT.elim
-      (λ _ → isSetRing B (g $r x) 0r)
+      (λ _ → is-set (g $r x) 0r)
       (λ {(α , isLC) → subst _ (sym isLC) (cancelLinearCombination A B g _ α v gnull)})
       x∈FGIdeal
 

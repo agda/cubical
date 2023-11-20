@@ -26,7 +26,7 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Pushout.PushoutProduct
-open import Cubical.HITs.SequentialColimit
+import Cubical.HITs.SequentialColimit as SColim
 open import Cubical.HITs.James.Inductive.Base
   renaming (𝕁ames to 𝕁amesContruction ; 𝕁ames∞ to 𝕁ames∞Contruction)
 
@@ -264,8 +264,8 @@ module _
 
   private
     inl∞ : (n : ℕ) → 𝕁ames n → 𝕁ames∞
-    inl∞ _ = inl
+    inl∞ _ = SColim.incl
 
   isConnectedInl : (n : ℕ) → isConnected (1 + n) X
     → (m : ℕ) → isConnectedFun ((1 + m) · n) (inl∞ m)
-  isConnectedInl n conn m = isConnectedInl∞ _ _ _ (isConnectedIncl>n _ conn _)
+  isConnectedInl n conn m = SColim.isConnectedIncl∞ _ _ _ (isConnectedIncl>n _ conn _)

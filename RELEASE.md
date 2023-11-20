@@ -4,6 +4,29 @@ procedure should be followed:
 
 Release
 =======
+
+Start by making a branch for the release. Change the following things:
+
+* If needed, change the agda version used by the CI.
+
+* If needed, Increment the `version` field in `flake.nix`.
+
+* Update flake inputs by running `nix flake update`.
+
+* Increment the version number in the name field in the library file
+  [cubical.agda-lib](cubical.agda-lib):
+
+  ```diff
+  -name: cubical-0.2
+  +name: cubical-0.3
+   include: .
+   depend:
+  ```
+
+* Update CITATION.cff with the new version and date of release.
+
+* Update README.md. There should be a new line in section "Compiling, using and installing`.
+
 On the [releases page](https://github.com/agda/cubical/releases) of the cubical library's github page,
 press the button `Draft a new release`.
 Fill in the form with something like this:
@@ -20,22 +43,3 @@ Fill in the form with something like this:
   zip -r cubical-0.5.zip cubical
   tar cfz cubical-0.5.tar.gz cubical
   ```
-
-Post-release
-============
-
-* Increment the version number in the name field in the library file
-  [cubical.agda-lib](cubical.agda-lib):
-
-  ```diff
-  -name: cubical-0.2
-  +name: cubical-0.3
-   include: .
-   depend:
-  ```
-
-* Update README.md. There should be a new line in section "Compiling, using and installing`.
-
-* Increment the `version` field in `flake.nix`.
-
-* Update flake inputs by running `nix flake update`.

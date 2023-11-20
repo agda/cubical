@@ -25,6 +25,7 @@ record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' : Type (ℓ-suc (�
     _⋆ᴰ_ : ∀ {x y z} {f : Hom[ x , y ]} {g : Hom[ y , z ]} {xᴰ yᴰ zᴰ}
       → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f ⋆ g ][ xᴰ , zᴰ ]
 
+  infixr 9 _⋆ᴰ_
   infixr 9 _∘ᴰ_
 
   _≡[_]_ : ∀ {x y xᴰ yᴰ} {f g : Hom[ x , y ]} → Hom[ f ][ xᴰ , yᴰ ] → f ≡ g → Hom[ g ][ xᴰ , yᴰ ] → Type ℓCᴰ'
@@ -105,3 +106,24 @@ module _ {C : Category ℓC ℓC'}
   weakenᴰ .⋆IdRᴰ = Dᴰ.⋆IdRᴰ
   weakenᴰ .⋆Assocᴰ = Dᴰ.⋆Assocᴰ
   weakenᴰ .isSetHomᴰ = Dᴰ.isSetHomᴰ
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  open Category C
+  open Categoryᴰ Cᴰ
+
+  record isIsoᴰ {a b : ob} {f : C [ a , b ]} (f-isIso : isIso C f)
+    {aᴰ : ob[ a ]} {bᴰ : ob[ b ]} (fᴰ : Hom[ f ][ aᴰ , bᴰ ])
+    : Type ℓCᴰ'
+    where
+    constructor isisoᴰ
+    open isIso f-isIso
+    field
+      invᴰ : Hom[ inv ][ bᴰ , aᴰ ]
+      secᴰ : invᴰ ⋆ᴰ fᴰ ≡[ sec ] idᴰ
+      retᴰ : fᴰ ⋆ᴰ invᴰ ≡[ ret ] idᴰ
+
+  CatIsoᴰ : {a b : ob} → CatIso C a b → ob[ a ] → ob[ b ] → Type ℓCᴰ'
+  CatIsoᴰ (f , f-isIso) aᴰ bᴰ = Σ[ fᴰ ∈ Hom[ f ][ aᴰ , bᴰ ] ] isIsoᴰ f-isIso fᴰ
+
+  idᴰCatIsoᴰ : {x : ob} {xᴰ : ob[ x ]} → CatIsoᴰ idCatIso xᴰ xᴰ
+  idᴰCatIsoᴰ = idᴰ , isisoᴰ idᴰ (⋆IdLᴰ idᴰ) (⋆IdLᴰ idᴰ)

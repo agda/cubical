@@ -136,11 +136,23 @@ inv lUnit×Iso = tt ,_
 rightInv lUnit×Iso _ = refl
 leftInv lUnit×Iso _ = refl
 
+lUnit*×Iso : ∀{ℓ} → Iso (Unit* {ℓ} × A) A
+fun lUnit*×Iso = snd
+inv lUnit*×Iso = tt* ,_
+rightInv lUnit*×Iso _ = refl
+leftInv lUnit*×Iso _ = refl
+
 rUnit×Iso : Iso (A × Unit) A
 fun rUnit×Iso = fst
 inv rUnit×Iso = _, tt
 rightInv rUnit×Iso _ = refl
 leftInv rUnit×Iso _ = refl
+
+rUnit*×Iso : ∀{ℓ} → Iso (A × Unit* {ℓ}) A
+fun rUnit*×Iso = fst
+inv rUnit*×Iso = _, tt*
+rightInv rUnit*×Iso _ = refl
+leftInv rUnit*×Iso _ = refl
 
 module _ {A : Type ℓ} {A' : Type ℓ'} where
   Σ-swap-Iso : Iso (A × A') (A' × A)
@@ -167,6 +179,15 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''}
   leftInv Σ-Π-Iso _     = refl
 
   unquoteDecl Σ-Π-≃ = declStrictIsoToEquiv Σ-Π-≃ Σ-Π-Iso
+
+module _ {A : Type ℓ} {B : A → Type ℓ'} {B' : ∀ a → Type ℓ''} where
+  Σ-assoc-swap-Iso : Iso (Σ[ a ∈ Σ A B ] B' (fst a)) (Σ[ a ∈ Σ A B' ] B (fst a))
+  fun Σ-assoc-swap-Iso ((x , y) , z) = ((x , z) , y)
+  inv Σ-assoc-swap-Iso ((x , z) , y) = ((x , y) , z)
+  rightInv Σ-assoc-swap-Iso _ = refl
+  leftInv Σ-assoc-swap-Iso _  = refl
+
+  unquoteDecl Σ-assoc-swap-≃ = declStrictIsoToEquiv Σ-assoc-swap-≃ Σ-assoc-swap-Iso
 
 Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
@@ -420,6 +441,13 @@ module _ (A : ⊥ → Type ℓ) where
 
   ΣEmpty : Σ ⊥ A ≃ ⊥
   ΣEmpty = isoToEquiv ΣEmptyIso
+
+module _ {ℓ : Level} (A : ⊥* {ℓ} → Type ℓ) where
+
+  open Iso
+
+  ΣEmpty*Iso : Iso (Σ ⊥* A) ⊥*
+  fun ΣEmpty*Iso (* , _) = *
 
 -- fiber of projection map
 

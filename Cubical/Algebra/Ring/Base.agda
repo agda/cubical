@@ -81,11 +81,6 @@ record RingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
 Ring : ∀ ℓ → Type (ℓ-suc ℓ)
 Ring ℓ = TypeWithStr ℓ RingStr
 
-isSetRing : (R : Ring ℓ) → isSet ⟨ R ⟩
-isSetRing R = is-set
-  where
-  open RingStr (str R)
-
 module _ {R : Type ℓ} {0r 1r : R} {_+_ _·_ : R → R → R} { -_ : R → R}
                (is-setR : isSet R)
                (+Assoc : (x y z : R) → x + (y + z) ≡ (x + y) + z)
@@ -183,18 +178,25 @@ isPropIsRing 0r 1r _+_ _·_ -_ =
 isPropIsRingHom : {A : Type ℓ} {B : Type ℓ'} (R : RingStr A) (f : A → B) (S : RingStr B)
   → isProp (IsRingHom R f S)
 isPropIsRingHom R f S = isOfHLevelRetractFromIso 1 IsRingHomIsoΣ
-                        (isProp×4 (isSetRing (_ , S) _ _)
-                                  (isSetRing (_ , S) _ _)
-                                  (isPropΠ2 λ _ _ → isSetRing (_ , S) _ _)
-                                  (isPropΠ2 λ _ _ → isSetRing (_ , S) _ _)
-                                  (isPropΠ λ _ → isSetRing (_ , S) _ _))
+                        (isProp×4 (is-set _ _)
+                                  (is-set _ _)
+                                  (isPropΠ2 λ _ _ → is-set _ _)
+                                  (isPropΠ2 λ _ _ → is-set _ _)
+                                  (isPropΠ λ _ → is-set _ _))
+  where
+  open RingStr S using (is-set)
 
 isSetRingHom : (R : Ring ℓ) (S : Ring ℓ') → isSet (RingHom R S)
-isSetRingHom R S = isSetΣSndProp (isSetΠ (λ _ → isSetRing S)) (λ f → isPropIsRingHom (snd R) f (snd S))
+isSetRingHom R S = isSetΣSndProp (isSetΠ λ _ → is-set) (λ f → isPropIsRingHom (snd R) f (snd S))
+  where
+  open RingStr (str S) using (is-set)
 
 isSetRingEquiv : (A : Ring ℓ) (B : Ring ℓ') → isSet (RingEquiv A B)
-isSetRingEquiv A B = isSetΣSndProp (isOfHLevel≃ 2 (isSetRing A) (isSetRing B))
+isSetRingEquiv A B = isSetΣSndProp (isOfHLevel≃ 2 A.is-set B.is-set)
                                    (λ e → isPropIsRingHom (snd A) (fst e) (snd B))
+  where
+  module A = RingStr (str A)
+  module B = RingStr (str B)
 
 RingHomPathP : (R : Ring ℓ) (S T : Ring ℓ') (p : S ≡ T) (φ : RingHom R S) (ψ : RingHom R T)
              → PathP (λ i → R .fst → p i .fst) (φ .fst) (ψ .fst)

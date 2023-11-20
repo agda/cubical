@@ -64,14 +64,14 @@ module _ (L' : DistLattice ℓ) where
    ⋁Basis : ∀ (x : L) → ∃[ n ∈ ℕ ] Σ[ α ∈ FinVec L n ] (∀ i → α i ∈ S) × (⋁ α ≡ x)
 
  open IsBasis
- open SemilatticeStr
+ open SemilatticeStr hiding (is-set)
  Basis→MeetSemilattice : (S : ℙ L) → IsBasis S → Semilattice ℓ
  fst (Basis→MeetSemilattice S isBasisS) = Σ[ l ∈ L ] (l ∈ S)
  ε (snd (Basis→MeetSemilattice S isBasisS)) = 1l , isBasisS .contains1
  _·_ (snd (Basis→MeetSemilattice S isBasisS)) x y = fst x ∧l fst y
                                                   , isBasisS .∧lClosed _ _ (snd x) (snd y)
  isSemilattice (snd (Basis→MeetSemilattice S isBasisS)) = makeIsSemilattice
-   (isSetΣ (isSetDistLattice L') λ _ → isProp→isSet (S _ .snd))
+   (isSetΣ is-set λ _ → isProp→isSet (S _ .snd))
      (λ _ _ _ → Σ≡Prop (λ _ → S _ .snd) (∧lAssoc _ _ _))
        (λ _ → Σ≡Prop (λ _ → S _ .snd) (∧lRid _))
            (λ _ _ → Σ≡Prop (λ _ → S _ .snd) (∧lComm _ _))

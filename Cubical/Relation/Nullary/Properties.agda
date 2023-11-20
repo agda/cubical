@@ -16,6 +16,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Functions.Fixpoint
 
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sigma.Base using (_×_)
 
 open import Cubical.Relation.Nullary.Base
 open import Cubical.HITs.PropositionalTruncation.Base
@@ -24,6 +25,7 @@ private
   variable
     ℓ : Level
     A B : Type ℓ
+    P : A -> Type ℓ
 
 -- Functions with a section preserve discreteness.
 sectionDiscrete
@@ -47,6 +49,17 @@ Stable¬ : Stable (¬ A)
 Stable¬ ¬¬¬a a = ¬¬¬a ¬¬a
   where
   ¬¬a = λ ¬a → ¬a a
+
+StableΠ : (∀ x → Stable (P x)) -> Stable (∀ x → P x)
+StableΠ Ps e x = Ps x λ k → e λ f → k (f x)
+
+Stable→ : Stable B → Stable (A → B)
+Stable→ Bs = StableΠ (λ _ → Bs)
+
+Stable× : Stable A -> Stable B -> Stable (A × B)
+Stable× As Bs e = λ where
+  .fst → As λ k → e (k ∘ fst)
+  .snd → Bs λ k → e (k ∘ snd)
 
 fromYes : A → Dec A → A
 fromYes _ (yes a) = a
@@ -170,6 +183,17 @@ Separated→PStable≡ st x y = Stable→PStable (st x y)
 
 Separated→isSet : Separated A → isSet A
 Separated→isSet = PStable≡→isSet ∘ Separated→PStable≡
+
+SeparatedΠ : (∀ x → Separated (P x)) -> Separated ((x : A) -> P x)
+SeparatedΠ Ps f g e i x = Ps x (f x) (g x) (λ k → e (k ∘ cong (λ f → f x))) i
+
+Separated→ : Separated B -> Separated (A → B)
+Separated→ Bs = SeparatedΠ (λ _ → Bs)
+
+Separated× : Separated A -> Separated B -> Separated (A × B)
+Separated× As Bs p q e i = λ where
+  .fst → As (fst p) (fst q) (λ k → e λ r → k (cong fst r)) i
+  .snd → Bs (snd p) (snd q) (λ k → e λ r → k (cong snd r)) i
 
 -- Proof of Hedberg's theorem: a type with decidable equality is an h-set
 Discrete→Separated : Discrete A → Separated A

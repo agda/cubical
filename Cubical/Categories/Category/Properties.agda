@@ -91,3 +91,27 @@ module _ {C : Category ℓ ℓ'} where
                   → (r : PathP (λ i → C [ x , p i ]) f' f)
                   → f ⋆⟨ C ⟩ g ≡ seqP' {p = p} f' g
   rCatWhiskerP f' f g r = cong (λ v → v ⋆⟨ C ⟩ g) (sym (fromPathP r))
+
+
+  AssocCong₂⋆L : {x y' y z w : C .ob} →
+          {f' : C [ x , y' ]} {f : C [ x , y ]}
+          {g' : C [ y' , z ]} {g : C [ y , z ]}
+          → f ⋆⟨ C ⟩ g ≡ f' ⋆⟨ C ⟩ g' → (h : C [ z , w ])
+          → f ⋆⟨ C ⟩ (g ⋆⟨ C ⟩ h) ≡
+              f' ⋆⟨ C ⟩ (g' ⋆⟨ C ⟩ h)
+  AssocCong₂⋆L p h =
+    sym (⋆Assoc C _ _ h)
+      ∙∙ (λ i → p i ⋆⟨ C ⟩ h) ∙∙
+    ⋆Assoc C _ _ h
+
+  AssocCong₂⋆R : {x y z z' w : C .ob} →
+          (f : C [ x , y ])
+          {g' : C [ y , z' ]} {g : C [ y , z ]}
+          {h' : C [ z' , w ]} {h : C [ z , w ]}
+          → g ⋆⟨ C ⟩ h ≡ g' ⋆⟨ C ⟩ h'
+          → (f ⋆⟨ C ⟩ g) ⋆⟨ C ⟩ h ≡
+              (f ⋆⟨ C ⟩ g') ⋆⟨ C ⟩ h'
+  AssocCong₂⋆R f p =
+    ⋆Assoc C f _ _
+      ∙∙ (λ i → f ⋆⟨ C ⟩ p i) ∙∙
+    sym (⋆Assoc C _ _ _)

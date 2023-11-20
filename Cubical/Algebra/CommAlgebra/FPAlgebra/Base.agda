@@ -169,8 +169,10 @@ module _ {R : CommRing ℓ} where
         universal =
           (inducedHom , inducedHomOnGenerators)
           , λ {(f , mapsValues)
-              → Σ≡Prop (λ _ → isPropΠ (λ _ → isSetCommAlgebra A _ _))
+              → Σ≡Prop (λ _ → isPropΠ (λ _ → is-set _ _))
                        (unique f mapsValues)}
+          where
+          open CommAlgebraStr (str A)
 
       {- ∀ A : Comm-R-Algebra,
          ∀ J : Finitely-generated-Ideal,
@@ -215,10 +217,12 @@ module _ {R : CommRing ℓ} where
       Iso.rightInv (FPHomIso {A}) =
         λ b → Σ≡Prop
                 (λ x → isPropΠ
-                  (λ i → isSetCommAlgebra A
+                  (λ i → is-set
                           (evPoly A (relation i) x)
                           (0a (snd A))))
                 (funExt (inducedHomOnGenerators A (fst b) (snd b)))
+        where
+        open CommAlgebraStr (str A)
       Iso.leftInv (FPHomIso {A}) =
         λ a → Σ≡Prop (λ f → isPropIsCommAlgebraHom {ℓ} {R} {ℓ} {ℓ} {FPAlgebra} {A} f)
                  λ i → fst (unique A

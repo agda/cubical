@@ -34,11 +34,11 @@ record Functorᴰ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     F-homᴰ : {x y : C .ob} {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
       → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]
     F-idᴰ : {x : C .ob} {xᴰ : Cᴰ.ob[ x ]}
-      → PathP (λ i → Dᴰ [ F-id i ][ F-obᴰ xᴰ , F-obᴰ xᴰ ] ) (F-homᴰ Cᴰ.idᴰ) Dᴰ.idᴰ
+      → F-homᴰ (Cᴰ.idᴰ {p = xᴰ}) Dᴰ.≡[ F-id {x} ] (Dᴰ.idᴰ {p = F-obᴰ xᴰ})
     F-seqᴰ : {x y z : C .ob} {f : C [ x , y ]} {g : C [ y , z ]}
       {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]} {zᴰ : Cᴰ.ob[ z ]}
       (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ])
-      → PathP (λ i → Dᴰ [ F-seq f g i ][ F-obᴰ xᴰ , F-obᴰ zᴰ ]) (F-homᴰ (fᴰ Cᴰ.⋆ᴰ gᴰ)) (F-homᴰ fᴰ Dᴰ.⋆ᴰ F-homᴰ gᴰ)
+      → F-homᴰ (fᴰ Cᴰ.⋆ᴰ gᴰ) Dᴰ.≡[ F-seq f g ] F-homᴰ fᴰ Dᴰ.⋆ᴰ F-homᴰ gᴰ
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F G : Functor C D} {H : F ≡ G}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
