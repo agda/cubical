@@ -180,6 +180,15 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {C : ∀ a → B a → Type ℓ''}
 
   unquoteDecl Σ-Π-≃ = declStrictIsoToEquiv Σ-Π-≃ Σ-Π-Iso
 
+module _ {A : Type ℓ} {B : A → Type ℓ'} {B' : ∀ a → Type ℓ''} where
+  Σ-assoc-swap-Iso : Iso (Σ[ a ∈ Σ A B ] B' (fst a)) (Σ[ a ∈ Σ A B' ] B (fst a))
+  fun Σ-assoc-swap-Iso ((x , y) , z) = ((x , z) , y)
+  inv Σ-assoc-swap-Iso ((x , z) , y) = ((x , y) , z)
+  rightInv Σ-assoc-swap-Iso _ = refl
+  leftInv Σ-assoc-swap-Iso _  = refl
+
+  unquoteDecl Σ-assoc-swap-≃ = declStrictIsoToEquiv Σ-assoc-swap-≃ Σ-assoc-swap-Iso
+
 Σ-cong-iso-fst : (isom : Iso A A') → Iso (Σ A (B ∘ fun isom)) (Σ A' B)
 fun (Σ-cong-iso-fst isom) x = fun isom (x .fst) , x .snd
 inv (Σ-cong-iso-fst {B = B} isom) x = inv isom (x .fst) , subst B (sym (ε (x .fst))) (x .snd)

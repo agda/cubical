@@ -1,9 +1,9 @@
-import System.Environment
-import System.Directory
-import System.Exit
-import Control.Monad
-import Data.Maybe
-import Data.List
+import System.Environment ( getArgs )
+import System.Directory   ( getDirectoryContents )
+import System.Exit        ( exitFailure )
+import Control.Monad      ( forM, forM_ )
+import Data.Maybe         ( listToMaybe, maybeToList, mapMaybe )
+import Data.List          ( (\\), delete, find, intercalate, sort, stripPrefix )
 
 stripSuffix :: (Eq a) => [a] -> [a] -> Maybe [a]
 stripSuffix sfx = fmap reverse . stripPrefix (reverse sfx) . reverse
@@ -82,7 +82,7 @@ checkREADME = do
 
 genEverythings :: [String] -> IO ()
 genEverythings =
-  mapM_ (\dir -> do
+  mapM_ $ \ dir -> do
     let fp = addToFP ["Cubical"] dir
     files <- getMissingFiles fp Nothing
     let ls = ["{-# OPTIONS --safe #-}",
@@ -90,7 +90,7 @@ genEverythings =
              ++ sort (fmap (\file -> "import " ++ showFP '.' file)
                            (delete (addToFP fp "Everything") files))
     writeFile ("./" ++ showFP '/' (addToFP fp "Everything") ++ ".agda")
-              (unlines ls))
+              (unlines ls)
 
 
 helpText :: String
@@ -117,7 +117,7 @@ main = do
     "gen-except"  :ex_dirs -> genEverythings   (all_dirs \\ ex_dirs)
     ["check-README"] -> checkREADME
     ["get-imports-README"] -> do
-      imported <- filter (\fp -> head fp == "Everything")
+      imported <- filter (\fp -> listToMaybe fp == Just "Everything")
                     <$> getImported ["README","Cubical"]
       putStrLn . unwords $ map (\fp -> showFP '/' fp ++ ".agda") imported
     "help":_ -> putStrLn helpText

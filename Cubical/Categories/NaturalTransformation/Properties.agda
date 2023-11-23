@@ -20,6 +20,9 @@ open import Cubical.Categories.NaturalTransformation.Base
 private
   variable
     ℓB ℓB' ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
+    C : Category ℓC ℓC'
+    D : Category ℓD ℓD'
+    F F' : Functor C D
 
 open isIsoC
 open NatIso
@@ -108,8 +111,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 -- Natural isomorphism is path when the target category is univalent.
 
 module _
-  {C : Category ℓC ℓC'}
-  {D : Category ℓD ℓD'}(isUnivD : isUnivalent D)
+  (isUnivD : isUnivalent D)
   {F G : Functor C D} where
 
   open isUnivalent isUnivD
@@ -172,3 +174,22 @@ module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'}{D : Category ℓD �
   CAT⋆Assoc F G H .trans .N-ob = idTrans ((H ∘F G) ∘F F) .N-ob
   CAT⋆Assoc F G H .trans .N-hom = idTrans ((H ∘F G) ∘F F) .N-hom
   CAT⋆Assoc F G H .nIso = idNatIso ((H ∘F G) ∘F F) .nIso
+
+
+
+⇒^opFiso : Iso (F ⇒ F') (_^opF {C = C} {D = D} F' ⇒ F ^opF )
+N-ob (fun ⇒^opFiso x) = N-ob x
+N-hom (fun ⇒^opFiso x) f = sym (N-hom x f)
+inv ⇒^opFiso = _
+rightInv ⇒^opFiso _ = refl
+leftInv ⇒^opFiso _ = refl
+
+congNatIso^opFiso : Iso (F ≅ᶜ F') (_^opF  {C = C} {D = D} F'  ≅ᶜ F ^opF )
+trans (fun congNatIso^opFiso x) = Iso.fun ⇒^opFiso (trans x)
+inv (nIso (fun congNatIso^opFiso x) x₁) = _
+sec (nIso (fun congNatIso^opFiso x) x₁) = ret (nIso x x₁)
+ret (nIso (fun congNatIso^opFiso x) x₁) = sec (nIso x x₁)
+inv congNatIso^opFiso = _
+rightInv congNatIso^opFiso _ = refl
+leftInv congNatIso^opFiso _ = refl
+
