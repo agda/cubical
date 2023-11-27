@@ -80,6 +80,10 @@ module InvertingElementsBase (R' : CommRing ℓ) where
  R[1/_] : R → Type ℓ
  R[1/ f ] = Loc.S⁻¹R R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
+ -- TODO: Provide a more specialized universal property.
+ -- (Just ask f to become invertible, not all its powers.)
+ module UniversalProp (f : R) = S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
+
  -- a quick fact
  isContrR[1/0] : isContr R[1/ 0r ]
  fst isContrR[1/0] = [ 1r , 0r , ∣ 1 , sym (·IdR 0r) ∣₁ ] -- everything is equal to 1/0
