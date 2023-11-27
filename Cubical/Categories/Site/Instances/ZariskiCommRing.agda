@@ -1,3 +1,4 @@
+
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Site.Instances.ZariskiCommRing where
 
