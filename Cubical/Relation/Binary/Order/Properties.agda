@@ -4,6 +4,7 @@ module Cubical.Relation.Binary.Order.Properties where
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
@@ -27,7 +28,6 @@ module _
   where
 
   private
-      prop : ∀ a b → isProp (a ≲ b)
       prop = IsPreorder.is-prop-valued pre
 
   module _
@@ -35,10 +35,8 @@ module _
     where
 
     private
-      subtype : Type ℓ''
       subtype = fst P
 
-      toA : subtype → A
       toA = fst (snd P)
 
     isMinimal : (n : subtype) → Type (ℓ-max ℓ' ℓ'')
@@ -176,7 +174,6 @@ module _
     where
 
     private
-      toA : (fst P) → A
       toA = fst (snd P)
 
     isLeast→isMinimal : ∀ n → isLeast pre P n → isMinimal pre P n
@@ -215,10 +212,8 @@ module _
   where
 
   private
-    pre : IsPreorder _≤_
     pre = isPoset→isPreorder pos
 
-    anti : BinaryRelation.isAntisym _≤_
     anti = IsPoset.is-antisym pos
 
   module _
@@ -226,10 +221,8 @@ module _
     where
 
     private
-      toA : (fst P) → A
       toA = fst (snd P)
 
-      emb : isEmbedding toA
       emb = snd (snd P)
 
     isLeast→ContrMinimal : ∀ n → isLeast pre P n  → ∀ m → isMinimal pre P m → n ≡ m
@@ -281,16 +274,12 @@ module _
   where
 
   private
-    prop : ∀ a b → isProp (a ≤ b)
     prop = IsToset.is-prop-valued tos
 
-    conn : BinaryRelation.isStronglyConnected _≤_
     conn = IsToset.is-strongly-connected tos
 
-    pre : IsPreorder _≤_
     pre = isPoset→isPreorder (isToset→isPoset tos)
 
-    toA : (fst P) → A
     toA = fst (snd P)
 
   isMinimal→isLeast : ∀ n → isMinimal pre P n → isLeast pre P n
@@ -300,3 +289,62 @@ module _
   isMaximal→isGreatest : ∀ n → isMaximal pre P n → isGreatest pre P n
   isMaximal→isGreatest n ism m
     = ∥₁.rec (prop _ _) (⊎.rec (λ n≤m → ism m n≤m) (λ m≤n → m≤n)) (conn (toA n) (toA m))
+
+-- Defining meets and joins as operators on preorders so that lattice structures on orders are easier to define
+module _
+  {A : Type ℓ}
+  {_≤_ : Rel A A ℓ'}
+  where
+    ⋀[_]_ : {B : Type ℓ''} → IsPreorder _≤_ → (B → A) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+    ⋀[ pre ] P = Infimum pre P
+
+    ∧[_] : IsPreorder _≤_ → Rel A A (ℓ-max ℓ ℓ')
+    ∧[ pre ] a b = Σ[ c ∈ A ] ∀ x → x ≤ c ≃ (x ≤ a × x ≤ b)
+
+    ⋁[_]_ : {B : Type ℓ''} → IsPreorder _≤_ → (B → A) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+    ⋁[ pre ] P = Supremum pre P
+
+    ∨[_] : IsPreorder _≤_ → Rel A A (ℓ-max ℓ ℓ')
+    ∨[ pre ] a b = Σ[ c ∈ A ] ∀ x → c ≤ x ≃ (a ≤ x × b ≤ x)
+
+    module _
+      (pos : IsPoset _≤_)
+      where
+        private
+          pre = isPoset→isPreorder pos
+
+          prop = IsPoset.is-prop-valued pos
+
+          rfl = IsPoset.is-refl pos
+
+          anti = IsPoset.is-antisym pos
+
+        ∧Unique : ∀ a b → (x y : ∧[ pre ] a b) → x ≡ y
+        ∧Unique a b (x , infx) (y , infy) = Σ≡Prop (λ p → isPropΠ λ q → isOfHLevel≃ 1 (prop q p)
+                                                          (isProp× (prop q a) (prop q b)))
+                                                    (anti x y x≤y y≤x)
+                where x≤y : x ≤ y
+                      x≤y = invEq (infy x) (infx x .fst (rfl x))
+
+                      y≤x : y ≤ x
+                      y≤x = invEq (infx y) (infy y .fst (rfl y))
+
+        ⋀Unique : {B : Type ℓ''} → (P : B → A) → (x y : ⋀[ pre ] P) → x ≡ y
+        ⋀Unique P (x , infx) (y , infy)
+          = Σ≡Prop (λ p → isPropIsInfimum pre P p)
+                    (isInfimumUnique pos x y infx infy)
+
+        ∨Unique : ∀ a b → (x y : ∨[ pre ] a b) → x ≡ y
+        ∨Unique a b (x , supx) (y , supy) = Σ≡Prop (λ p → isPropΠ λ q → isOfHLevel≃ 1 (prop p q)
+                                                          (isProp× (prop a q) (prop b q)))
+                                                    (anti x y x≤y y≤x)
+                where x≤y : x ≤ y
+                      x≤y = invEq (supx y) (supy y .fst (rfl y))
+
+                      y≤x : y ≤ x
+                      y≤x = invEq (supy x) (supx x .fst (rfl x))
+
+        ⋁Unique : {B : Type ℓ''} → (P : B → A) → (x y : ⋁[ pre ] P) → x ≡ y
+        ⋁Unique P (x , supx) (y , supy)
+          = Σ≡Prop (λ p → isPropIsSupremum pre P p)
+                    (isSupremumUnique pos x y supx supy)
