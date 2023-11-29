@@ -5,6 +5,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Empty as ⊥
 
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
@@ -14,6 +15,7 @@ open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Order.Poset.Base
+open import Cubical.Relation.Binary.Order.Poset.Properties
 open import Cubical.Relation.Binary.Order.Toset.Base
 open import Cubical.Relation.Binary.Order.Loset.Base
 
@@ -39,12 +41,7 @@ module _
                           (IsToset.is-antisym toset)
 
   isTosetDecidable→Discrete : IsToset R → isDecidable R → Discrete A
-  isTosetDecidable→Discrete tos dec a b with dec a b
-  ... | no ¬Rab = no (λ a≡b → ¬Rab (subst (R a) a≡b (IsToset.is-refl tos a)))
-  ... | yes Rab with dec b a
-  ...       | no ¬Rba = no (λ a≡b → ¬Rba (subst (λ x → R x a) a≡b
-                                                (IsToset.is-refl tos a)))
-  ...       | yes Rba = yes (IsToset.is-antisym tos a b Rab Rba)
+  isTosetDecidable→Discrete = isPosetDecidable→Discrete ∘ isToset→isPoset
 
   private
     transirrefl : isTrans R → isAntisym R → isTrans (IrreflKernel R)
@@ -96,8 +93,8 @@ module _
   isTosetDecidable→isLosetDecidable tos dec a b with dec a b
   ... | no ¬Rab = no λ { (Rab , _) → ¬Rab Rab }
   ... | yes Rab with (isTosetDecidable→Discrete tos dec) a b
-  ... |       yes a≡b = no λ { (_ , ¬a≡b) → ¬a≡b a≡b }
-  ... |       no a≢b = yes (Rab , a≢b)
+  ...       | yes a≡b = no λ { (_ , ¬a≡b) → ¬a≡b a≡b }
+  ...       | no  a≢b = yes (Rab , a≢b)
 
   isTosetInduced : IsToset R → (B : Type ℓ'') → (f : B ↪ A)
                  → IsToset (InducedRelation R (B , f))

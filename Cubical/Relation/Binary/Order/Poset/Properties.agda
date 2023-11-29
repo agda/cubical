@@ -35,6 +35,14 @@ module _
                              (IsPoset.is-refl poset)
                              (IsPoset.is-trans poset)
 
+  isPosetDecidable→Discrete : IsPoset R → isDecidable R → Discrete A
+  isPosetDecidable→Discrete pos dec a b with dec a b
+  ... | no ¬Rab = no (λ a≡b → ¬Rab (subst (R a) a≡b (IsPoset.is-refl pos a)))
+  ... | yes Rab with dec b a
+  ...       | no ¬Rba = no (λ a≡b → ¬Rba (subst (λ x → R x a) a≡b
+                                         (IsPoset.is-refl pos a)))
+  ...       | yes Rba = yes (IsPoset.is-antisym pos a b Rab Rba)
+
   private
     transirrefl : isTrans R → isAntisym R → isTrans (IrreflKernel R)
     transirrefl trans anti a b c (Rab , ¬a≡b) (Rbc , ¬b≡c)
@@ -53,6 +61,13 @@ module _
                                              (isIrreflIrreflKernel R
                                              , transirrefl (IsPoset.is-trans poset)
                                                            (IsPoset.is-antisym poset)))
+
+  isPosetDecidable→isStrictPosetDecidable : IsPoset R → isDecidable R → isDecidable (IrreflKernel R)
+  isPosetDecidable→isStrictPosetDecidable pos dec a b with dec a b
+  ... | no ¬Rab = no λ { (Rab , _) → ¬Rab Rab }
+  ... | yes Rab with (isPosetDecidable→Discrete pos dec) a b
+  ...       | yes a≡b = no λ { (_ , ¬a≡b) → ¬a≡b a≡b }
+  ...       | no a≢b = yes (Rab , a≢b)
 
   isPosetInduced : IsPoset R → (B : Type ℓ'') → (f : B ↪ A) → IsPoset (InducedRelation R (B , f))
   isPosetInduced pos B (f , emb)

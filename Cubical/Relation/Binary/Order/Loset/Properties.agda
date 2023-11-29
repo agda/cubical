@@ -68,6 +68,7 @@ module _
                                                                     (¬Rab , ¬Rba))) ∣₁)
                                         (dec b a))
                        (dec a b)
+
   isLosetDecidable→isTosetDecidable : IsLoset R → isDecidable R → isDecidable (ReflClosure R)
   isLosetDecidable→isTosetDecidable los dec a b with dec a b
   ... | yes Rab = yes (inl Rab)
