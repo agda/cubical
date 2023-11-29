@@ -98,7 +98,7 @@ isPropIsLoset _<_ = isOfHLevelRetractFromIso 1 IsLosetIsoΣ
                                  (isPropΠ5 (λ _ _ _ _ _ → isPropValued< _ _))
                                  (isPropΠ3 (λ x y _ → isProp¬ (y < x)))
                                  (isPropΠ4 λ _ _ _ _ → squash₁)
-                                 (isPropΠ3 λ _ _ _ → squash₁))
+                                 (isPropΠ3 λ _ _ _ → isSetA _ _))
 
 𝒮ᴰ-Loset : DUARel (𝒮-Univ ℓ) (LosetStr ℓ') (ℓ-max ℓ ℓ')
 𝒮ᴰ-Loset =

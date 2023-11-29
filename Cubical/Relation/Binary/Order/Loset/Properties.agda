@@ -49,8 +49,8 @@ module _
     antisym irr trans a b (inl _) (inr b≡a) = sym b≡a
     antisym irr trans a b (inr a≡b) _ = a≡b
 
-  isLoset→isTosetReflClosure : Discrete A → IsLoset R → IsToset (ReflClosure R)
-  isLoset→isTosetReflClosure disc loset
+  isLoset→isTosetReflClosure : IsLoset R → isDecidable R → IsToset (ReflClosure R)
+  isLoset→isTosetReflClosure loset dec
     = istoset (IsLoset.is-set loset)
               (λ a b → isProp⊎ (IsLoset.is-prop-valued loset a b)
                                (IsLoset.is-set loset a b)
@@ -61,9 +61,12 @@ module _
               (transrefl (IsLoset.is-trans loset))
               (antisym (IsLoset.is-irrefl loset)
                        (IsLoset.is-trans loset))
-              λ a b → decRec (λ a≡b → ∣ inl (inr a≡b) ∣₁)
-                             (λ ¬a≡b → ∥₁.map (⊎.map (λ Rab → inl Rab) λ Rba → inl Rba)
-                             (IsLoset.is-connected loset a b ¬a≡b)) (disc a b)
+               λ a b → decRec (λ Rab → ∣ inl (inl Rab) ∣₁)
+                              (λ ¬Rab → decRec (λ Rba → ∣ inr (inl Rba) ∣₁)
+                                               (λ ¬Rba → ∣ inl (inr (IsLoset.is-connected loset a b
+                                                                    (¬Rab , ¬Rba))) ∣₁)
+                                        (dec b a))
+                       (dec a b)
 
   isLosetInduced : IsLoset R → (B : Type ℓ'') → (f : B ↪ A)
                  → IsLoset (InducedRelation R (B , f))
@@ -74,8 +77,8 @@ module _
               (λ a b c → IsLoset.is-trans los (f a) (f b) (f c))
               (λ a b → IsLoset.is-asym los (f a) (f b))
               (λ a b c → IsLoset.is-weakly-linear los (f a) (f b) (f c))
-              λ a b ¬a≡b → IsLoset.is-connected los (f a) (f b)
-                λ fa≡fb → ¬a≡b (isEmbedding→Inj emb a b fa≡fb)
+               λ a b ineq → isEmbedding→Inj emb a b
+                           (IsLoset.is-connected los (f a) (f b) ineq)
 
 Loset→StrictPoset : Loset ℓ ℓ' → StrictPoset ℓ ℓ'
 Loset→StrictPoset (_ , los)
@@ -83,9 +86,8 @@ Loset→StrictPoset (_ , los)
                        (isLoset→isStrictPoset (LosetStr.isLoset los))
 
 Loset→Toset : (los : Loset ℓ ℓ')
-            → Discrete (fst los)
+            → BinaryRelation.isDecidable (LosetStr._<_ (snd los))
             → Toset ℓ (ℓ-max ℓ ℓ')
-Loset→Toset (_ , los) disc
+Loset→Toset (_ , los) dec
   = _ , tosetstr (BinaryRelation.ReflClosure (LosetStr._<_ los))
-                 (isLoset→isTosetReflClosure disc
-                                             (LosetStr.isLoset los))
+                 (isLoset→isTosetReflClosure (LosetStr.isLoset los) dec)

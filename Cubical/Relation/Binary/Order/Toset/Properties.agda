@@ -36,14 +36,15 @@ module _
                           (IsToset.is-refl toset)
                           (IsToset.is-trans toset)
                           (IsToset.is-antisym toset)
+
   private
     transirrefl : isTrans R → isAntisym R → isTrans (IrreflKernel R)
     transirrefl trans anti a b c (Rab , ¬a≡b) (Rbc , ¬b≡c)
       = trans a b c Rab Rbc
       , λ a≡c → ¬a≡b (anti a b Rab (subst (R b) (sym a≡c) Rbc))
 
-  isToset→isLosetIrreflKernel : Discrete A → IsToset R → IsLoset (IrreflKernel R)
-  isToset→isLosetIrreflKernel disc toset
+  isToset→isLosetIrreflKernel : Discrete A → IsToset R → isDecidable R → IsLoset (IrreflKernel R)
+  isToset→isLosetIrreflKernel disc toset dec
     = isloset (IsToset.is-set toset)
               (λ a b → isProp× (IsToset.is-prop-valued toset a b)
                                (isProp¬ (a ≡ b)))
@@ -59,15 +60,26 @@ module _
                          (λ Rbc → inr (Rbc , λ b≡c → ¬a≡c (a≡b ∙ b≡c)))
                                 λ Rcb → ⊥.rec (¬a≡c (IsToset.is-antisym toset a c Rac
                                               (subst (λ x → R c x) (sym a≡b) Rcb))))
-                                  (IsToset.is-strongly-connected toset b c))
+                                  (IsToset.is-total toset b c))
                          (λ ¬a≡b → ∥₁.map (⊎.map (λ Rab → Rab , ¬a≡b)
                                    (λ Rba → (IsToset.is-trans toset b a c Rba Rac)
                                    , λ b≡c → ¬a≡b (IsToset.is-antisym toset a b
                                        (subst (λ x → R a x) (sym b≡c) Rac) Rba)))
-                                 (IsToset.is-strongly-connected toset a b))
+                                 (IsToset.is-total toset a b))
                          (disc a b))
-              (isConnectedStronglyConnectedIrreflKernel R
-                (IsToset.is-strongly-connected toset))
+               λ { a b (¬¬Rab , ¬¬Rba) → IsToset.is-antisym toset a b
+                                         (decRec (λ Rab → Rab)
+                                           (λ ¬Rab → ⊥.rec (∥₁.rec isProp⊥
+                                             (⊎.rec ¬Rab λ Rba → ¬¬Rba (Rba ,
+                                               (λ b≡a → ¬Rab (subst (λ x → R x b) b≡a
+                                                 (IsToset.is-refl toset b)))))
+                                             (IsToset.is-total toset a b))) (dec a b))
+                                         (decRec (λ Rba → Rba)
+                                           (λ ¬Rba → ⊥.rec (∥₁.rec isProp⊥
+                                             (⊎.rec ¬Rba λ Rab → ¬¬Rab (Rab ,
+                                               (λ a≡b → ¬Rba (subst (λ x → R x a) a≡b
+                                                 (IsToset.is-refl toset a)))))
+                                             (IsToset.is-total toset b a))) (dec b a))}
 
   isTosetInduced : IsToset R → (B : Type ℓ'') → (f : B ↪ A)
                  → IsToset (InducedRelation R (B , f))
@@ -78,14 +90,16 @@ module _
               (λ a b c → IsToset.is-trans tos (f a) (f b) (f c))
               (λ a b a≤b b≤a → isEmbedding→Inj emb a b
                 (IsToset.is-antisym tos (f a) (f b) a≤b b≤a))
-              λ a b → IsToset.is-strongly-connected tos (f a) (f b)
+              λ a b → IsToset.is-total tos (f a) (f b)
 
 Toset→Poset : Toset ℓ ℓ' → Poset ℓ ℓ'
 Toset→Poset (_ , tos) = _ , posetstr (TosetStr._≤_ tos)
                                      (isToset→isPoset (TosetStr.isToset tos))
 
-Toset→Loset : (tos : Toset ℓ ℓ') → Discrete (fst tos) → Loset ℓ (ℓ-max ℓ ℓ')
-Toset→Loset (_ , tos) disc
+Toset→Loset : (tos : Toset ℓ ℓ')
+            → Discrete (fst tos)
+            → BinaryRelation.isDecidable (TosetStr._≤_ (snd tos))
+            → Loset ℓ (ℓ-max ℓ ℓ')
+Toset→Loset (_ , tos) disc dec
   = _ , losetstr (BinaryRelation.IrreflKernel (TosetStr._≤_ tos))
-                       (isToset→isLosetIrreflKernel disc
-                                                    (TosetStr.isToset tos))
+                       (isToset→isLosetIrreflKernel disc (TosetStr.isToset tos) dec)

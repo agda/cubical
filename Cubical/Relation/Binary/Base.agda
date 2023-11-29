@@ -83,13 +83,10 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isWeaklyLinear = (a b c : A) → R a b → R a c ⊔′ R c b
 
   isConnected : Type (ℓ-max ℓ ℓ')
-  isConnected = (a b : A) → ¬ (a ≡ b) → R a b ⊔′ R b a
+  isConnected = (a b : A) → (¬ R a b) × (¬ R b a) → a ≡ b
 
-  isStronglyConnected : Type (ℓ-max ℓ ℓ')
-  isStronglyConnected = (a b : A) → R a b ⊔′ R b a
-
-  isStronglyConnected→isConnected : isStronglyConnected → isConnected
-  isStronglyConnected→isConnected strong a b _ = strong a b
+  isTotal : Type (ℓ-max ℓ ℓ')
+  isTotal = (a b : A) → R a b ⊔′ R b a
 
   isIrrefl×isTrans→isAsym : isIrrefl × isTrans → isAsym
   isIrrefl×isTrans→isAsym (irrefl , trans) a₀ a₁ Ra₀a₁ Ra₁a₀
@@ -154,6 +151,8 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isEffective =
     (a b : A) → isEquiv (eq/ {R = R} a b)
 
+  isDecidable : Type (ℓ-max ℓ ℓ')
+  isDecidable = (a b : A) → Dec (R a b)
 
   impliesIdentity : Type _
   impliesIdentity = {a a' : A} → (R a a') → (a ≡ a')
@@ -240,14 +239,6 @@ isIrreflIrreflKernel _ _ (_ , ¬a≡a) = ¬a≡a refl
 
 isReflReflClosure : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isRefl (ReflClosure R)
 isReflReflClosure _ _ = inr refl
-
-isConnectedStronglyConnectedIrreflKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ')
-                                         → isStronglyConnected R
-                                         → isConnected (IrreflKernel R)
-isConnectedStronglyConnectedIrreflKernel R strong a b ¬a≡b
-  = ∥₁.map (λ x → ⊎.rec (λ Rab → inl (Rab , ¬a≡b))
-                        (λ Rba → inr (Rba , (λ b≡a → ¬a≡b (sym b≡a)))) x)
-                        (strong a b)
 
 isSymSymKernel : ∀{ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isSym (SymKernel R)
 isSymSymKernel _ _ _ (Rab , Rba) = Rba , Rab

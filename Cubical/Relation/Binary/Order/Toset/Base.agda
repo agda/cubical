@@ -46,7 +46,7 @@ record IsToset {A : Type ℓ} (_≤_ : A → A → Type ℓ') : Type (ℓ-max �
     is-refl : isRefl _≤_
     is-trans : isTrans _≤_
     is-antisym : isAntisym _≤_
-    is-strongly-connected : isStronglyConnected _≤_
+    is-total : isTotal _≤_
 
 unquoteDecl IsTosetIsoΣ = declareRecordIsoΣ IsTosetIsoΣ (quote IsToset)
 
