@@ -1,6 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Relation.Binary.Order.Toset.Properties where
 
+open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Empty as ⊥
 
@@ -36,6 +37,14 @@ module _
                           (IsToset.is-refl toset)
                           (IsToset.is-trans toset)
                           (IsToset.is-antisym toset)
+
+  isTosetDecidable→Discrete : IsToset R → isDecidable R → Discrete A
+  isTosetDecidable→Discrete tos dec a b with dec a b
+  ... | no ¬Rab = no (λ a≡b → ¬Rab (subst (R a) a≡b (IsToset.is-refl tos a)))
+  ... | yes Rab with dec b a
+  ...       | no ¬Rba = no (λ a≡b → ¬Rba (subst (λ x → R x a) a≡b
+                                                (IsToset.is-refl tos a)))
+  ...       | yes Rba = yes (IsToset.is-antisym tos a b Rab Rba)
 
   private
     transirrefl : isTrans R → isAntisym R → isTrans (IrreflKernel R)
@@ -80,6 +89,13 @@ module _
                                                (λ a≡b → ¬Rba (subst (λ x → R x a) a≡b
                                                  (IsToset.is-refl toset a)))))
                                              (IsToset.is-total toset b a))) (dec b a))}
+
+  isTosetDecidable→isLosetDecidable : Discrete A → IsToset R → isDecidable R → isDecidable (IrreflKernel R)
+  isTosetDecidable→isLosetDecidable disc tos dec a b with dec a b
+  ... | no ¬Rab = no λ { (Rab , _) → ¬Rab Rab }
+  ... | yes Rab with disc a b
+  ... |       yes a≡b = no λ { (_ , ¬a≡b) → ¬a≡b a≡b }
+  ... |       no a≢b = yes (Rab , a≢b)
 
   isTosetInduced : IsToset R → (B : Type ℓ'') → (f : B ↪ A)
                  → IsToset (InducedRelation R (B , f))
