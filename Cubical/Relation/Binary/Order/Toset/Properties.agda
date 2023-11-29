@@ -52,8 +52,8 @@ module _
       = trans a b c Rab Rbc
       , λ a≡c → ¬a≡b (anti a b Rab (subst (R b) (sym a≡c) Rbc))
 
-  isToset→isLosetIrreflKernel : Discrete A → IsToset R → isDecidable R → IsLoset (IrreflKernel R)
-  isToset→isLosetIrreflKernel disc toset dec
+  isToset→isLosetIrreflKernel : IsToset R → isDecidable R → IsLoset (IrreflKernel R)
+  isToset→isLosetIrreflKernel toset dec
     = isloset (IsToset.is-set toset)
               (λ a b → isProp× (IsToset.is-prop-valued toset a b)
                                (isProp¬ (a ≡ b)))
@@ -89,11 +89,13 @@ module _
                                                (λ a≡b → ¬Rba (subst (λ x → R x a) a≡b
                                                  (IsToset.is-refl toset a)))))
                                              (IsToset.is-total toset b a))) (dec b a))}
+    where disc : Discrete A
+          disc = isTosetDecidable→Discrete toset dec
 
-  isTosetDecidable→isLosetDecidable : Discrete A → IsToset R → isDecidable R → isDecidable (IrreflKernel R)
-  isTosetDecidable→isLosetDecidable disc tos dec a b with dec a b
+  isTosetDecidable→isLosetDecidable : IsToset R → isDecidable R → isDecidable (IrreflKernel R)
+  isTosetDecidable→isLosetDecidable tos dec a b with dec a b
   ... | no ¬Rab = no λ { (Rab , _) → ¬Rab Rab }
-  ... | yes Rab with disc a b
+  ... | yes Rab with (isTosetDecidable→Discrete tos dec) a b
   ... |       yes a≡b = no λ { (_ , ¬a≡b) → ¬a≡b a≡b }
   ... |       no a≢b = yes (Rab , a≢b)
 
@@ -113,9 +115,8 @@ Toset→Poset (_ , tos) = _ , posetstr (TosetStr._≤_ tos)
                                      (isToset→isPoset (TosetStr.isToset tos))
 
 Toset→Loset : (tos : Toset ℓ ℓ')
-            → Discrete (fst tos)
             → BinaryRelation.isDecidable (TosetStr._≤_ (snd tos))
             → Loset ℓ (ℓ-max ℓ ℓ')
-Toset→Loset (_ , tos) disc dec
+Toset→Loset (_ , tos) dec
   = _ , losetstr (BinaryRelation.IrreflKernel (TosetStr._≤_ tos))
-                       (isToset→isLosetIrreflKernel disc (TosetStr.isToset tos) dec)
+                 (isToset→isLosetIrreflKernel (TosetStr.isToset tos) dec)
