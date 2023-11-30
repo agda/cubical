@@ -80,10 +80,6 @@ module InvertingElementsBase (R' : CommRing ℓ) where
  R[1/_] : R → Type ℓ
  R[1/ f ] = Loc.S⁻¹R R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
 
- -- TODO: Provide a more specialized universal property.
- -- (Just ask f to become invertible, not all its powers.)
- module UniversalProp (f : R) = S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
-
  -- a quick fact
  isContrR[1/0] : isContr R[1/ 0r ]
  fst isContrR[1/0] = [ 1r , 0r , ∣ 1 , sym (·IdR 0r) ∣₁ ] -- everything is equal to 1/0
@@ -281,6 +277,40 @@ module InvertingElementsBase (R' : CommRing ℓ) where
                 → ∀ s → s ∈ [ f ⁿ|n≥0] → P s
  powersPropElim {f = f} {P = P} PisProp base s =
                 PT.rec (PisProp s) λ (n , p) → subst P (sym p) (base n)
+
+
+
+ -- A more specialized universal property.
+ -- (Just ask f to become invertible, not all its powers.)
+ module UniversalProp (f : R) where
+   open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f) public
+   open CommRingHomTheory
+
+   invElemUniversalProp : (A : CommRing ℓ) (φ : CommRingHom R' A)
+                        → (φ .fst f ∈ A ˣ)
+                        → ∃![ χ ∈ CommRingHom R[1/ f ]AsCommRing A ]
+                            (fst χ) ∘ (fst /1AsCommRingHom) ≡ (fst φ)
+   invElemUniversalProp A φ φf∈Aˣ =
+     S⁻¹RHasUniversalProp A φ
+       (powersPropElim (λ _ → ∈-isProp _ _)
+       (λ n → subst-∈ (A ˣ) (sym (pres^ φ f n)) (Exponentiation.^-presUnit A _ n φf∈Aˣ)))
+
+
+-- "functorial action" of localizing away from an element
+module _ {A B : CommRing ℓ} (φ : CommRingHom A B) (f : fst A) where
+  module A = InvertingElementsBase A
+  module B = InvertingElementsBase B
+  module AU = S⁻¹RUniversalProp A A.[ f ⁿ|n≥0] (A.powersFormMultClosedSubset f)
+  module BU = S⁻¹RUniversalProp B B.[ φ $r f ⁿ|n≥0] (B.powersFormMultClosedSubset (φ $r f))
+  open A.UniversalProp f
+  open CommRingStr (snd B)
+
+  private φ/1 = BU./1AsCommRingHom ∘cr φ
+
+  uniqInvElemHom : ∃![ χ ∈ CommRingHom A.R[1/ f ]AsCommRing B.R[1/ φ $r f ]AsCommRing ]
+                     (fst χ) ∘ (fst AU./1AsCommRingHom) ≡ (fst φ/1)
+  uniqInvElemHom = invElemUniversalProp _ φ/1 (BU.S/1⊆S⁻¹Rˣ _ ∣ 1 , sym (·IdR _) ∣₁)
+
 
 
 module _ (R : CommRing ℓ) (f : fst R) where

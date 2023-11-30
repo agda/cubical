@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Site.Instances.ZariskiCommRing where
 
 -- TODO: clean up imports
@@ -81,23 +81,20 @@ S-arr (snd (snd (covers zariskiCoverage R) um) i) = /1AsCommRingHom
   open UniModVec um
   open InvertingElementsBase.UniversalProp R (f i)
 pullbackStability zariskiCoverage {c = R} um {d = R'} φ =
-  ∣ um' ,
-    (λ i →
-      let
-        module R = InvertingElementsBase.UniversalProp R (um .f i)
-        module R' = InvertingElementsBase.UniversalProp R' (um' .f i)
-        open InvertingElementsBase R' renaming (R[1/_]AsCommRing to R'[1/_]AsCommRing) using ()
-        (ψ , comm) , _ =
-          R.S⁻¹RHasUniversalProp
-            R'[1/ um' .f i ]AsCommRing
-            (R'./1AsCommRingHom ∘r φ)
-            {!!}
-      in
-        ∣ i , ψ , RingHom≡ {!sym comm!} ∣₁)
-  ∣₁
+  ∣ um' , (λ i → ∣ i , ψ i , RingHom≡ (sym (ψComm i)) ∣₁) ∣₁
   where
   open UniModVec
   um' : UniModVec R'
   um' .n = um .n
   um' .f i = φ $r um .f i
   um' .isUniMod = {!!}
+
+  open InvertingElementsBase R
+  open InvertingElementsBase R' renaming (R[1/_]AsCommRing to R'[1/_]AsCommRing) using ()
+  ψ : (i : Fin (um .n)) → CommRingHom R[1/ um .f i ]AsCommRing R'[1/ um' .f i ]AsCommRing
+  ψ i = uniqInvElemHom φ (um .f i) .fst .fst
+
+  module R = UniversalProp
+  module R' = InvertingElementsBase.UniversalProp R'
+  ψComm : ∀ i → (ψ i .fst) ∘ (R._/1 (um .f i)) ≡ (R'._/1 (um' .f i)) ∘ φ .fst
+  ψComm i = uniqInvElemHom φ (um .f i) .fst .snd
