@@ -12,8 +12,8 @@ open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Order.Apartness.Base
-open import Cubical.Relation.Binary.Order.Toset.Base
-open import Cubical.Relation.Binary.Order.Toset.Properties
+open import Cubical.Relation.Binary.Order.Toset
+open import Cubical.Relation.Binary.Order.Poset.Base
 open import Cubical.Relation.Binary.Order.StrictPoset.Base
 open import Cubical.Relation.Binary.Order.Loset.Base
 
@@ -80,6 +80,15 @@ module _
   isLosetDecidable→Discrete los dec = isTosetDecidable→Discrete
                                      (isLoset→isTosetReflClosure los dec)
                                      (isLosetDecidable→isTosetDecidable los dec)
+
+  isLoset→isPosetNegationRel : IsLoset R → IsPoset (NegationRel R)
+  isLoset→isPosetNegationRel loset
+    = isposet (IsLoset.is-set loset)
+              (λ a b → isProp¬ (R a b))
+              (IsLoset.is-irrefl loset)
+              (λ a b c ¬Rab ¬Rbc Rac → ∥₁.rec isProp⊥ (⊎.rec ¬Rab ¬Rbc)
+                                             (IsLoset.is-weakly-linear loset a c b Rac))
+              λ a b ¬Rab ¬Rba → IsLoset.is-connected loset a b (¬Rab , ¬Rba)
 
   isLosetInduced : IsLoset R → (B : Type ℓ'') → (f : B ↪ A)
                  → IsLoset (InducedRelation R (B , f))
