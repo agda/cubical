@@ -292,7 +292,6 @@ module _ {A B : CommRing ℓ} (φ : CommRingHom A B) (f : fst A) where
                      (fst χ) ∘ (fst AU./1AsCommRingHom) ≡ (fst φ/1)
   uniqInvElemHom = AU.invElemUniversalProp _ φ/1 (BU.S/1⊆S⁻¹Rˣ _ ∣ 1 , sym (·IdR _) ∣₁)
 
-
 module _ (R : CommRing ℓ) (f : fst R) where
  open CommRingTheory R
  open RingTheory (CommRing→Ring R)
