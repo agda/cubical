@@ -88,7 +88,7 @@ module _
               (IsLoset.is-irrefl loset)
               (λ a b c ¬Rab ¬Rbc Rac → ∥₁.rec isProp⊥ (⊎.rec ¬Rab ¬Rbc)
                                              (IsLoset.is-weakly-linear loset a c b Rac))
-              λ a b ¬Rab ¬Rba → IsLoset.is-connected loset a b (¬Rab , ¬Rba)
+               λ a b ¬Rab ¬Rba → IsLoset.is-connected loset a b (¬Rab , ¬Rba)
 
   isLosetInduced : IsLoset R → (B : Type ℓ'') → (f : B ↪ A)
                  → IsLoset (InducedRelation R (B , f))

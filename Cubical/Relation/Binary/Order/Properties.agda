@@ -563,3 +563,33 @@ module _
                                             (join a b .snd)
                                             (join b c .snd)
                                             (join a (join b c .fst) .snd)))) .fst)
+
+module _
+  {A : Type ℓ}
+  {_≤_ : Rel A A ℓ'}
+  (pos : IsPoset _≤_)
+  where
+    private
+      pre = isPoset→isPreorder pos
+
+    isBoundedAbove : Type (ℓ-max ℓ ℓ')
+    isBoundedAbove = Greatest pre (A , (id↪ A))
+
+    isBoundedBelow : Type (ℓ-max ℓ ℓ')
+    isBoundedBelow = Least pre (A , id↪ A)
+
+    isBounded : Type (ℓ-max ℓ ℓ')
+    isBounded = isBoundedBelow × isBoundedAbove
+
+    isPropIsBoundedAbove : isProp isBoundedAbove
+    isPropIsBoundedAbove (x , gtx) (y , gty)
+      = Σ≡Prop (λ _ → isPropIsGreatest pre (A , (id↪ A)) _)
+                (isGreatestUnique pos {P = A , (id↪ A)} x y gtx gty)
+
+    isPropIsBoundedBelow : isProp isBoundedBelow
+    isPropIsBoundedBelow (x , ltx) (y , lty)
+      = Σ≡Prop (λ _ → isPropIsLeast pre (A , id↪ A) _)
+                (isLeastUnique pos {P = A , id↪ A} x y ltx lty)
+
+    isPropIsBounded : isProp isBounded
+    isPropIsBounded = isProp× isPropIsBoundedBelow isPropIsBoundedAbove
