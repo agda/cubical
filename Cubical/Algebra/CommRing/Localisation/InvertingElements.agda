@@ -298,18 +298,18 @@ module InvertingElementsBase (R' : CommRing ℓ) where
 
 -- "functorial action" of localizing away from an element
 module _ {A B : CommRing ℓ} (φ : CommRingHom A B) (f : fst A) where
-  module A = InvertingElementsBase A
-  module B = InvertingElementsBase B
-  module AU = S⁻¹RUniversalProp A A.[ f ⁿ|n≥0] (A.powersFormMultClosedSubset f)
-  module BU = S⁻¹RUniversalProp B B.[ φ $r f ⁿ|n≥0] (B.powersFormMultClosedSubset (φ $r f))
-  open A.UniversalProp f
   open CommRingStr (snd B)
+  private
+    module A = InvertingElementsBase A
+    module B = InvertingElementsBase B
+    module AU = A.UniversalProp f
+    module BU = B.UniversalProp (φ $r f)
 
-  private φ/1 = BU./1AsCommRingHom ∘cr φ
+    φ/1 = BU./1AsCommRingHom ∘cr φ
 
   uniqInvElemHom : ∃![ χ ∈ CommRingHom A.R[1/ f ]AsCommRing B.R[1/ φ $r f ]AsCommRing ]
                      (fst χ) ∘ (fst AU./1AsCommRingHom) ≡ (fst φ/1)
-  uniqInvElemHom = invElemUniversalProp _ φ/1 (BU.S/1⊆S⁻¹Rˣ _ ∣ 1 , sym (·IdR _) ∣₁)
+  uniqInvElemHom = AU.invElemUniversalProp _ φ/1 (BU.S/1⊆S⁻¹Rˣ _ ∣ 1 , sym (·IdR _) ∣₁)
 
 
 
