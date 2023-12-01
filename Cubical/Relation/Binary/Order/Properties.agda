@@ -4,9 +4,12 @@ module Cubical.Relation.Binary.Order.Properties where
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as ⊎
 
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Functions.Embedding
 
@@ -276,7 +279,7 @@ module _
   private
     prop = IsToset.is-prop-valued tos
 
-    conn = IsToset.is-strongly-connected tos
+    total = IsToset.is-total tos
 
     pre = isPoset→isPreorder (isToset→isPoset tos)
 
@@ -284,28 +287,182 @@ module _
 
   isMinimal→isLeast : ∀ n → isMinimal pre P n → isLeast pre P n
   isMinimal→isLeast n ism m
-    = ∥₁.rec (prop _ _) (⊎.rec (λ n≤m → n≤m) (λ m≤n → ism m m≤n)) (conn (toA n) (toA m))
+    = ∥₁.rec (prop _ _) (⊎.rec (λ n≤m → n≤m) (λ m≤n → ism m m≤n)) (total (toA n) (toA m))
 
   isMaximal→isGreatest : ∀ n → isMaximal pre P n → isGreatest pre P n
   isMaximal→isGreatest n ism m
-    = ∥₁.rec (prop _ _) (⊎.rec (λ n≤m → ism m n≤m) (λ m≤n → m≤n)) (conn (toA n) (toA m))
+    = ∥₁.rec (prop _ _) (⊎.rec (λ n≤m → ism m n≤m) (λ m≤n → m≤n)) (total (toA n) (toA m))
 
 -- Defining meets and joins as operators on preorders so that lattice structures on orders are easier to define
 module _
   {A : Type ℓ}
   {_≤_ : Rel A A ℓ'}
   where
-    ⋀[_]_ : {B : Type ℓ''} → IsPreorder _≤_ → (B → A) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-    ⋀[ pre ] P = Infimum pre P
 
-    ∧[_] : IsPreorder _≤_ → Rel A A (ℓ-max ℓ ℓ')
-    ∧[ pre ] a b = Σ[ c ∈ A ] ∀ x → x ≤ c ≃ (x ≤ a × x ≤ b)
+    isMeet : IsPreorder _≤_ → A → A → A → Type (ℓ-max ℓ ℓ')
+    isMeet _ a b c = ∀ x → x ≤ c ≃ (x ≤ a × x ≤ b)
 
-    ⋁[_]_ : {B : Type ℓ''} → IsPreorder _≤_ → (B → A) → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
-    ⋁[ pre ] P = Supremum pre P
+    isJoin : IsPreorder _≤_ → A → A → A → Type (ℓ-max ℓ ℓ')
+    isJoin _ a b c = ∀ x → c ≤ x ≃ (a ≤ x × b ≤ x)
 
-    ∨[_] : IsPreorder _≤_ → Rel A A (ℓ-max ℓ ℓ')
-    ∨[ pre ] a b = Σ[ c ∈ A ] ∀ x → c ≤ x ≃ (a ≤ x × b ≤ x)
+    module _
+      (pre : IsPreorder _≤_)
+      where
+        private
+          prop = IsPreorder.is-prop-valued pre
+
+          rfl = IsPreorder.is-refl pre
+
+          trans = IsPreorder.is-trans pre
+
+        Meet : ∀ a b → Type (ℓ-max ℓ ℓ')
+        Meet a b = Σ[ a∧b ∈ A ] isMeet pre a b a∧b
+
+        Join : ∀ a b → Type (ℓ-max ℓ ℓ')
+        Join a b = Σ[ a∨b ∈ A ] isJoin pre a b a∨b
+
+        isPropIsMeet : ∀ a b c → isProp (isMeet pre a b c)
+        isPropIsMeet a b c = isPropΠ λ x → isOfHLevel≃ 1 (prop x c)
+                                                          (isProp× (prop x a)
+                                                                   (prop x b))
+
+        isPropIsJoin : ∀ a b c → isProp (isJoin pre a b c)
+        isPropIsJoin a b c = isPropΠ λ x → isOfHLevel≃ 1 (prop c x)
+                                                          (isProp× (prop a x)
+                                                                   (prop b x))
+
+        isReflIsMeet : ∀ a → isMeet pre a a a
+        isReflIsMeet a x = propBiimpl→Equiv (prop x a)
+                                            (isProp× (prop x a) (prop x a))
+                                            (λ a → a , a)
+                                             fst
+
+        isReflIsJoin : ∀ a → isJoin pre a a a
+        isReflIsJoin a x = propBiimpl→Equiv (prop a x)
+                                            (isProp× (prop a x) (prop a x))
+                                            (λ a → a , a)
+                                             fst
+
+        isMeet≃isInfimum : ∀ a b c
+                         → isMeet pre a b c
+                         ≃ isInfimum pre {B = Σ[ x ∈ A ] (x ≡ a) ⊎ (x ≡ b)} fst c
+        isMeet≃isInfimum a b a∧b
+          = propBiimpl→Equiv (isPropIsMeet a b a∧b) (isPropIsInfimum pre fst a∧b)
+                             (λ fun → ⊎.rec (λ x≡a → subst
+                                                     (a∧b ≤_)
+                                                     (sym x≡a)
+                                                     (fun a∧b .fst (rfl a∧b) .fst))
+                                            (λ x≡b → subst
+                                                     (a∧b ≤_)
+                                                     (sym x≡b)
+                                                     (fun a∧b .fst (rfl a∧b) .snd))
+                                      ∘ snd ,
+                              λ { (c , uprc)
+                                → invEq (fun c) ((uprc (a , (inl refl))) ,
+                                                 (uprc (b , (inr refl)))) })
+                              λ { (lb , gt) x
+                                → propBiimpl→Equiv
+                                 (prop x a∧b)
+                                 (isProp× (prop x a) (prop x b))
+                             (λ x≤a∧b → (trans x a∧b a x≤a∧b
+                                               (lb (a , inl refl))) ,
+                                         (trans x a∧b b x≤a∧b
+                                               (lb (b , inr refl))))
+                              λ { (x≤a , x≤b)
+                                → gt (x ,
+                                     (⊎.rec (λ y≡a → subst
+                                                     (x ≤_)
+                                                     (sym y≡a)
+                                                      x≤a)
+                                            (λ y≡b → subst
+                                                     (x ≤_)
+                                                     (sym y≡b)
+                                                      x≤b)
+                                             ∘ snd)) } }
+
+        isJoin≃isSupremum : ∀ a b c
+                          → isJoin pre a b c
+                          ≃ isSupremum pre {B = Σ[ x ∈ A ] (x ≡ a) ⊎ (x ≡ b)} fst c
+        isJoin≃isSupremum a b a∨b
+          = propBiimpl→Equiv (isPropIsJoin a b a∨b) (isPropIsSupremum pre fst a∨b)
+                             (λ fun → ⊎.rec (λ x≡a → subst
+                                                     (_≤ a∨b)
+                                                     (sym x≡a)
+                                                     (fun a∨b .fst (rfl a∨b) .fst))
+                                            (λ x≡b → subst
+                                                     (_≤ a∨b)
+                                                     (sym x≡b)
+                                                     (fun a∨b .fst (rfl a∨b) .snd))
+                                      ∘ snd ,
+                              λ { (c , lwrc)
+                                → invEq (fun c) ((lwrc (a , (inl refl))) ,
+                                                 (lwrc (b , (inr refl)))) })
+                              λ { (ub , lt) x
+                                → propBiimpl→Equiv
+                                 (prop a∨b x)
+                                 (isProp× (prop a x) (prop b x))
+                             (λ a∨b≤x → trans a a∨b x
+                                              (ub (a , inl refl))
+                                               a∨b≤x ,
+                                         trans b a∨b x
+                                              (ub (b , inr refl))
+                                               a∨b≤x)
+                              λ { (a≤x , b≤x)
+                                → lt (x ,
+                                     (⊎.rec (λ y≡a → subst
+                                                     (_≤ x)
+                                                     (sym y≡a)
+                                                      a≤x)
+                                            (λ y≡b → subst
+                                                     (_≤ x)
+                                                     (sym y≡b)
+                                                      b≤x)
+                                      ∘ snd)) } }
+
+        isMeetComm : ∀ a b a∧b → isMeet pre a b a∧b → isMeet pre b a a∧b
+        isMeetComm _ _ _ fun x = compEquiv (fun x) Σ-swap-≃
+
+        isJoinComm : ∀ a b a∨b → isJoin pre a b a∨b → isJoin pre b a a∨b
+        isJoinComm _ _ _ fun x = compEquiv (fun x) Σ-swap-≃
+
+        isMeetAssoc : ∀ a b c a∧b b∧c a∧b∧c
+                    → isMeet pre a b a∧b
+                    → isMeet pre b c b∧c
+                    → isMeet pre a b∧c a∧b∧c
+                    → isMeet pre a∧b c a∧b∧c
+        isMeetAssoc a b c a∧b b∧c a∧b∧c funa∧b funb∧c funa∧b∧c x
+          = compEquiv (funa∧b∧c x)
+                      (propBiimpl→Equiv (isProp× (prop x a) (prop x b∧c))
+                                        (isProp× (prop x a∧b) (prop x c))
+                                        (λ { (x≤a , x≤b∧c)
+                                           → invEq (funa∧b x)
+                                                   (x≤a ,
+                                                   (funb∧c x .fst x≤b∧c .fst)) ,
+                                                    funb∧c x .fst x≤b∧c .snd })
+                                        λ { (x≤a∧b , x≤c)
+                                          → funa∧b x .fst x≤a∧b .fst ,
+                                            invEq (funb∧c x)
+                                                 ((funa∧b x .fst x≤a∧b .snd) ,
+                                                   x≤c) })
+
+        isJoinAssoc : ∀ a b c a∨b b∨c a∨b∨c
+                    → isJoin pre a b a∨b
+                    → isJoin pre b c b∨c
+                    → isJoin pre a b∨c a∨b∨c
+                    → isJoin pre a∨b c a∨b∨c
+        isJoinAssoc a b c a∨b b∨c a∨b∨c funa∨b funb∨c funa∨b∨c x
+          = compEquiv (funa∨b∨c x)
+                      (propBiimpl→Equiv (isProp× (prop a x) (prop b∨c x))
+                                        (isProp× (prop a∨b x) (prop c x))
+                                        (λ { (a≤x , b∨c≤x)
+                                           → invEq (funa∨b x) (a≤x ,
+                                           (funb∨c x .fst b∨c≤x .fst)) ,
+                                            funb∨c x .fst b∨c≤x .snd })
+                                         λ { (a∨b≤x , c≤x)
+                                           → funa∨b x .fst a∨b≤x .fst ,
+                                             invEq (funb∨c x)
+                                           ((funa∨b x .fst a∨b≤x .snd) ,
+                                             c≤x) })
 
     module _
       (pos : IsPoset _≤_)
@@ -319,32 +476,90 @@ module _
 
           anti = IsPoset.is-antisym pos
 
-        ∧Unique : ∀ a b → (x y : ∧[ pre ] a b) → x ≡ y
-        ∧Unique a b (x , infx) (y , infy) = Σ≡Prop (λ p → isPropΠ λ q → isOfHLevel≃ 1 (prop q p)
-                                                          (isProp× (prop q a) (prop q b)))
-                                                    (anti x y x≤y y≤x)
-                where x≤y : x ≤ y
-                      x≤y = invEq (infy x) (infx x .fst (rfl x))
+          trans = IsPoset.is-trans pos
 
-                      y≤x : y ≤ x
-                      y≤x = invEq (infx y) (infy y .fst (rfl y))
+        isMeetUnique : ∀ a b x y → isMeet pre a b x → isMeet pre a b y → x ≡ y
+        isMeetUnique a b x y infx infy = anti x y x≤y y≤x
+          where x≤y : x ≤ y
+                x≤y = invEq (infy x) (infx x .fst (rfl x))
 
-        ⋀Unique : {B : Type ℓ''} → (P : B → A) → (x y : ⋀[ pre ] P) → x ≡ y
-        ⋀Unique P (x , infx) (y , infy)
-          = Σ≡Prop (λ p → isPropIsInfimum pre P p)
-                    (isInfimumUnique pos x y infx infy)
+                y≤x : y ≤ x
+                y≤x = invEq (infx y) (infy y .fst (rfl y))
 
-        ∨Unique : ∀ a b → (x y : ∨[ pre ] a b) → x ≡ y
-        ∨Unique a b (x , supx) (y , supy) = Σ≡Prop (λ p → isPropΠ λ q → isOfHLevel≃ 1 (prop p q)
-                                                          (isProp× (prop a q) (prop b q)))
-                                                    (anti x y x≤y y≤x)
+        isJoinUnique : ∀ a b x y → isJoin pre a b x → isJoin pre a b y → x ≡ y
+        isJoinUnique a b x y supx supy = anti x y x≤y y≤x
                 where x≤y : x ≤ y
                       x≤y = invEq (supx y) (supy y .fst (rfl y))
 
                       y≤x : y ≤ x
                       y≤x = invEq (supy x) (supx x .fst (rfl x))
 
-        ⋁Unique : {B : Type ℓ''} → (P : B → A) → (x y : ⋁[ pre ] P) → x ≡ y
-        ⋁Unique P (x , supx) (y , supy)
-          = Σ≡Prop (λ p → isPropIsSupremum pre P p)
-                    (isSupremumUnique pos x y supx supy)
+        MeetUnique : ∀ a b → (x y : Meet pre a b) → x ≡ y
+        MeetUnique a b (x , mx) (y , my) = Σ≡Prop (isPropIsMeet pre a b)
+                                                   (isMeetUnique a b x y mx my)
+
+        JoinUnique : ∀ a b → (x y : Join pre a b) → x ≡ y
+        JoinUnique a b (x , jx) (y , jy) = Σ≡Prop (isPropIsJoin pre a b)
+                                                   (isJoinUnique a b x y jx jy)
+
+        module _
+          (meet : ∀ a b → Meet pre a b)
+          where
+
+            meetIdemp : ∀ a → meet a a .fst ≡ a
+            meetIdemp a
+              = PathPΣ (MeetUnique a a (meet a a)
+                                       (a , (isReflIsMeet pre a))) .fst
+
+            meetComm : ∀ a b → meet a b .fst ≡ meet b a .fst
+            meetComm a b = sym (PathPΣ (MeetUnique b a (meet b a)
+                                                 ((meet a b .fst) ,
+                                                  (isMeetComm pre a b
+                                                             (meet a b .fst)
+                                                             (meet a b .snd)))) .fst)
+
+            meetAssoc : ∀ a b c
+                      → meet a (meet b c .fst) .fst ≡ meet (meet a b .fst) c .fst
+            meetAssoc a b c
+              = sym (PathPΣ (MeetUnique
+                                (meet a b .fst) c
+                                (meet (meet a b .fst) c)
+                               ((meet a (meet b c .fst) .fst) ,
+                                (isMeetAssoc pre a b c
+                                            (meet a b .fst)
+                                            (meet b c .fst)
+                                            (meet a (meet b c .fst) .fst)
+                                            (meet a b .snd)
+                                            (meet b c .snd)
+                                            (meet a (meet b c .fst) .snd)))) .fst)
+
+        module _
+          (join : ∀ a b → Join pre a b)
+          where
+
+            joinIdem : ∀ a → join a a .fst ≡ a
+            joinIdem a
+              = PathPΣ (JoinUnique a a (join a a)
+                                       (a , (isReflIsJoin pre a))) .fst
+
+            joinComm : ∀ a b → join a b .fst ≡ join b a .fst
+            joinComm a b = sym (PathPΣ (JoinUnique b a (join b a)
+                                                 ((join a b .fst) ,
+                                                  (isJoinComm pre a b
+                                                             (join a b .fst)
+                                                             (join a b .snd)))) .fst)
+
+            joinAssoc : ∀ a b c
+                      → join a (join b c .fst) .fst ≡ join (join a b .fst) c .fst
+            joinAssoc a b c
+              = sym (PathPΣ (JoinUnique
+                                (join a b .fst) c
+                                (join (join a b .fst) c)
+                               ((join a (join b c .fst) .fst) ,
+                                (isJoinAssoc pre a b c
+                                            (join a b .fst)
+                                            (join b c .fst)
+                                            (join a (join b c .fst) .fst)
+                                            (join a b .snd)
+                                            (join b c .snd)
+                                            (join a (join b c .fst) .snd)))) .fst)
