@@ -95,6 +95,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   WellFounded→isIrrefl : WellFounded R → isIrrefl
   WellFounded→isIrrefl well = WFI.induction well λ a f Raa → f a Raa Raa
 
+  isAsym→isIrrefl : isAsym → isIrrefl
+  isAsym→isIrrefl asym a Raa = asym a a Raa Raa
+
   IrreflKernel : Rel A A (ℓ-max ℓ ℓ')
   IrreflKernel a b = R a b × (¬ a ≡ b)
 
@@ -156,6 +159,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   impliesIdentity : Type _
   impliesIdentity = {a a' : A} → (R a a') → (a ≡ a')
+
+  isTight : Type _
+  isTight = (a b : A) → ¬ R a b → a ≡ b
 
   inequalityImplies : Type _
   inequalityImplies = (a b : A) → ¬ a ≡ b → R a b
