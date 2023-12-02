@@ -105,12 +105,12 @@ module _
 
 Loset→StrictOrder : Loset ℓ ℓ' → StrictOrder ℓ ℓ'
 Loset→StrictOrder (_ , los)
-  = _ , strictorderstr (LosetStr._<_ los)
-                       (isLoset→isStrictOrder (LosetStr.isLoset los))
+  = strictorder _ (LosetStr._<_ los)
+                  (isLoset→isStrictOrder (LosetStr.isLoset los))
 
 Loset→Toset : (los : Loset ℓ ℓ')
             → BinaryRelation.isDecidable (LosetStr._<_ (snd los))
             → Toset ℓ (ℓ-max ℓ ℓ')
 Loset→Toset (_ , los) dec
-  = _ , tosetstr (BinaryRelation.ReflClosure (LosetStr._<_ los))
-                 (isLoset→isTosetReflClosure (LosetStr.isLoset los) dec)
+  = toset _ (BinaryRelation.ReflClosure (LosetStr._<_ los))
+            (isLoset→isTosetReflClosure (LosetStr.isLoset los) dec)

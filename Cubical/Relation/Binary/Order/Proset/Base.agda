@@ -60,6 +60,9 @@ record ProsetStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc ℓ'
 Proset : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 Proset ℓ ℓ' = TypeWithStr ℓ (ProsetStr ℓ')
 
+proset : (A : Type ℓ) → (_≲_ : Rel A A ℓ') → IsProset _≲_ → Proset ℓ ℓ'
+proset A _≲_ pros = A , (prosetstr _≲_ pros)
+
 record IsProsetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : ProsetStr ℓ₀' A) (e : A ≃ B) (N : ProsetStr ℓ₁' B)
   : Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') ℓ₁')

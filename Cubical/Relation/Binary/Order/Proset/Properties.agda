@@ -58,8 +58,8 @@ module _
 
 Proset→Quoset : Proset ℓ ℓ' → Quoset ℓ ℓ'
 Proset→Quoset (_ , pre)
-  = _ , quosetstr (BinaryRelation.AsymKernel (ProsetStr._≲_ pre))
-                  (isProset→isQuosetAsymKernel (ProsetStr.isProset pre))
+  = quoset _ (BinaryRelation.AsymKernel (ProsetStr._≲_ pre))
+             (isProset→isQuosetAsymKernel (ProsetStr.isProset pre))
 
 module _
   {A : Type ℓ}

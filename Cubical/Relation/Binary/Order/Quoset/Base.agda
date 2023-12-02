@@ -63,6 +63,9 @@ record QuosetStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc ℓ'
 Quoset : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 Quoset ℓ ℓ' = TypeWithStr ℓ (QuosetStr ℓ')
 
+quoset : (A : Type ℓ) → (_<_ : Rel A A ℓ') → IsQuoset _<_ → Quoset ℓ ℓ'
+quoset A _<_ quo = A , (quosetstr _<_ quo)
+
 record IsQuosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : QuosetStr ℓ₀' A) (e : A ≃ B) (N : QuosetStr ℓ₁' B)
   : Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') ℓ₁')

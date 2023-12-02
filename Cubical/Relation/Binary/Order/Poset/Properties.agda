@@ -82,8 +82,9 @@ module _
                 (IsPoset.is-antisym pos (f a) (f b) a≤b b≤a)
 
 Poset→Proset : Poset ℓ ℓ' → Proset ℓ ℓ'
-Poset→Proset (_ , pos) = _ , prosetstr (PosetStr._≤_ pos)
-                                           (isPoset→isProset (PosetStr.isPoset pos))
+Poset→Proset (_ , pos)
+  = proset _ (PosetStr._≤_ pos)
+             (isPoset→isProset (PosetStr.isPoset pos))
 
 module PosetDownset (P' : Poset ℓ ℓ') where
   private P = fst P'
@@ -103,8 +104,8 @@ module PosetDownset (P' : Poset ℓ ℓ') where
 
 Poset→Quoset : Poset ℓ ℓ' → Quoset ℓ (ℓ-max ℓ ℓ')
 Poset→Quoset (_ , pos)
-  = _ , quosetstr (BinaryRelation.IrreflKernel (PosetStr._≤_ pos))
-                       (isPoset→isQuosetIrreflKernel (PosetStr.isPoset pos))
+  = quoset _ (BinaryRelation.IrreflKernel (PosetStr._≤_ pos))
+             (isPoset→isQuosetIrreflKernel (PosetStr.isPoset pos))
 
 module _
   {A : Type ℓ}

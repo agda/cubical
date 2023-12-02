@@ -59,6 +59,9 @@ record PosetStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc ℓ')
 Poset : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 Poset ℓ ℓ' = TypeWithStr ℓ (PosetStr ℓ')
 
+poset : (A : Type ℓ) → (_≤_ : Rel A A ℓ') → IsPoset _≤_ → Poset ℓ ℓ'
+poset A _≤_ pos = A , (posetstr _≤_ pos)
+
 record IsPosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : PosetStr ℓ₀' A) (e : A ≃ B) (N : PosetStr ℓ₁' B)
   : Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') ℓ₁')

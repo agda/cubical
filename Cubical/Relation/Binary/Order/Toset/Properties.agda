@@ -108,15 +108,16 @@ module _
               λ a b → IsToset.is-total tos (f a) (f b)
 
 Toset→Poset : Toset ℓ ℓ' → Poset ℓ ℓ'
-Toset→Poset (_ , tos) = _ , posetstr (TosetStr._≤_ tos)
-                                     (isToset→isPoset (TosetStr.isToset tos))
+Toset→Poset (_ , tos)
+  = poset _ (TosetStr._≤_ tos)
+            (isToset→isPoset (TosetStr.isToset tos))
 
 Toset→Loset : (tos : Toset ℓ ℓ')
             → BinaryRelation.isDecidable (TosetStr._≤_ (snd tos))
             → Loset ℓ (ℓ-max ℓ ℓ')
 Toset→Loset (_ , tos) dec
-  = _ , losetstr (BinaryRelation.IrreflKernel (TosetStr._≤_ tos))
-                 (isToset→isLosetIrreflKernel (TosetStr.isToset tos) dec)
+  = loset _ (BinaryRelation.IrreflKernel (TosetStr._≤_ tos))
+            (isToset→isLosetIrreflKernel (TosetStr.isToset tos) dec)
 
 module _
   {A : Type ℓ}

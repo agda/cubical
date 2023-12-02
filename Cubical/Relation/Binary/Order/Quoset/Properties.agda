@@ -63,5 +63,5 @@ module _
 
 Quoset→Poset : Quoset ℓ ℓ' → Poset ℓ (ℓ-max ℓ ℓ')
 Quoset→Poset (_ , quo)
-  = _ , posetstr (BinaryRelation.ReflClosure (QuosetStr._<_ quo))
-                 (isQuoset→isPosetReflClosure (QuosetStr.isQuoset quo))
+  = poset _ (BinaryRelation.ReflClosure (QuosetStr._<_ quo))
+            (isQuoset→isPosetReflClosure (QuosetStr.isQuoset quo))

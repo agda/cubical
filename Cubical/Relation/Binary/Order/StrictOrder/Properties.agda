@@ -91,15 +91,15 @@ module _
 
 StrictOrder→Quoset : StrictOrder ℓ ℓ' → Quoset ℓ ℓ'
 StrictOrder→Quoset (_ , strict)
-  = _ , quosetstr (StrictOrderStr._<_ strict)
-                  (isStrictOrder→isStrictPoset (StrictOrderStr.isStrictOrder strict))
+  = quoset _ (StrictOrderStr._<_ strict)
+             (isStrictOrder→isStrictPoset (StrictOrderStr.isStrictOrder strict))
 
 StrictOrder→Apartness : StrictOrder ℓ ℓ' → Apartness ℓ ℓ'
 StrictOrder→Apartness (_ , strict)
-  = _ , apartnessstr (BinaryRelation.SymClosure (StrictOrderStr._<_ strict))
-                     (isStrictOrder→isApartnessSymClosure (StrictOrderStr.isStrictOrder strict))
+  = apartness _ (BinaryRelation.SymClosure (StrictOrderStr._<_ strict))
+                (isStrictOrder→isApartnessSymClosure (StrictOrderStr.isStrictOrder strict))
 
 StrictOrder→Proset : StrictOrder ℓ ℓ' → Proset ℓ ℓ'
 StrictOrder→Proset (_ , strict)
-  = _ , prosetstr (BinaryRelation.NegationRel (StrictOrderStr._<_ strict))
-                  (isStrictOrder→isProsetNegationRel (StrictOrderStr.isStrictOrder strict))
+  = proset _ (BinaryRelation.NegationRel (StrictOrderStr._<_ strict))
+             (isStrictOrder→isProsetNegationRel (StrictOrderStr.isStrictOrder strict))

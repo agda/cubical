@@ -66,6 +66,9 @@ record StrictOrderStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc
 StrictOrder : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 StrictOrder ℓ ℓ' = TypeWithStr ℓ (StrictOrderStr ℓ')
 
+strictorder : (A : Type ℓ) → (_<_ : Rel A A ℓ') → IsStrictOrder _<_ → StrictOrder ℓ ℓ'
+strictorder A _<_ strict = A , (strictorderstr _<_ strict)
+
 record IsStrictOrderEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : StrictOrderStr ℓ₀' A) (e : A ≃ B) (N : StrictOrderStr ℓ₁' B)
   : Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') ℓ₁')
