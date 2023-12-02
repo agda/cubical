@@ -77,7 +77,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   -- Sum types don't play nicely with props, so we truncate
   isCotrans : Type (ℓ-max ℓ ℓ')
-  isCotrans = (a b c : A) → R a b → (R a c ⊔′ R b c)
+  isCotrans = (a b c : A) → R a b → R a c ⊔′ R b c
 
   isWeaklyLinear : Type (ℓ-max ℓ ℓ')
   isWeaklyLinear = (a b c : A) → R a b → R a c ⊔′ R c b

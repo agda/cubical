@@ -14,8 +14,8 @@ open import Cubical.Functions.Embedding
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Binary.Base
-open import Cubical.Relation.Binary.Order.Poset.Base
-open import Cubical.Relation.Binary.Order.Poset.Properties
+open import Cubical.Relation.Binary.Order.Proset.Properties
+open import Cubical.Relation.Binary.Order.Poset
 open import Cubical.Relation.Binary.Order.Toset.Base
 open import Cubical.Relation.Binary.Order.Loset.Base
 
@@ -117,3 +117,39 @@ Toset→Loset : (tos : Toset ℓ ℓ')
 Toset→Loset (_ , tos) dec
   = _ , losetstr (BinaryRelation.IrreflKernel (TosetStr._≤_ tos))
                  (isToset→isLosetIrreflKernel (TosetStr.isToset tos) dec)
+
+module _
+  {A : Type ℓ}
+  {_≤_ : Rel A A ℓ'}
+  (tos : IsToset _≤_)
+  where
+
+  private
+      pos = isToset→isPoset tos
+      
+      pre = isPoset→isProset pos  
+
+      prop = IsToset.is-prop-valued tos
+
+      rfl = IsToset.is-refl tos
+
+      anti = IsToset.is-antisym tos
+
+      trans = IsToset.is-trans tos
+
+      total = IsToset.is-total tos
+
+  module _
+    {P : Embedding A ℓ''}
+    where
+    
+    private
+      toA = fst (snd P)
+
+    isMinimal→isLeast : ∀ n → isMinimal pre P n → isLeast pre P n
+    isMinimal→isLeast n ism m
+      = ∥₁.rec (prop _ _) (⊎.rec (λ n≤m → n≤m) (λ m≤n → ism m m≤n)) (total (toA n) (toA m))
+
+    isMaximal→isGreatest : ∀ n → isMaximal pre P n → isGreatest pre P n
+    isMaximal→isGreatest n ism m
+      = ∥₁.rec (prop _ _) (⊎.rec (λ n≤m → ism m n≤m) (λ m≤n → m≤n)) (total (toA n) (toA m))
