@@ -66,9 +66,6 @@ record TosetStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc ℓ')
 Toset : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 Toset ℓ ℓ' = TypeWithStr ℓ (TosetStr ℓ')
 
-toset : (A : Type ℓ) (_≤_ : A → A → Type ℓ') (h : IsToset _≤_) → Toset ℓ ℓ'
-toset A _≤_ h = A , tosetstr _≤_ h
-
 record IsTosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : TosetStr ℓ₀' A) (e : A ≃ B) (N : TosetStr ℓ₁' B)
   : Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') ℓ₁')

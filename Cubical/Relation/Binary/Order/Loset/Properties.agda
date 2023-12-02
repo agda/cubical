@@ -14,7 +14,7 @@ open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Order.Apartness.Base
 open import Cubical.Relation.Binary.Order.Toset
 open import Cubical.Relation.Binary.Order.Poset.Base
-open import Cubical.Relation.Binary.Order.Quoset.Base
+open import Cubical.Relation.Binary.Order.StrictOrder.Base
 open import Cubical.Relation.Binary.Order.Loset.Base
 
 open import Cubical.Relation.Nullary
@@ -30,13 +30,14 @@ module _
 
   open BinaryRelation
 
-  isLoset→isQuoset : IsLoset R → IsQuoset R
-  isLoset→isQuoset loset = isquoset
+  isLoset→isStrictOrder : IsLoset R → IsStrictOrder R
+  isLoset→isStrictOrder loset = isstrictorder
                           (IsLoset.is-set loset)
                           (IsLoset.is-prop-valued loset)
                           (IsLoset.is-irrefl loset)
                           (IsLoset.is-trans loset)
                           (IsLoset.is-asym loset)
+                          (IsLoset.is-weakly-linear loset)
 
   private
     transrefl : isTrans R → isTrans (ReflClosure R)
@@ -102,10 +103,10 @@ module _
                λ a b ineq → isEmbedding→Inj emb a b
                            (IsLoset.is-connected los (f a) (f b) ineq)
 
-Loset→Quoset : Loset ℓ ℓ' → Quoset ℓ ℓ'
-Loset→Quoset (_ , los)
-  = _ , quosetstr (LosetStr._<_ los)
-                       (isLoset→isQuoset (LosetStr.isLoset los))
+Loset→StrictOrder : Loset ℓ ℓ' → StrictOrder ℓ ℓ'
+Loset→StrictOrder (_ , los)
+  = _ , strictorderstr (LosetStr._<_ los)
+                       (isLoset→isStrictOrder (LosetStr.isLoset los))
 
 Loset→Toset : (los : Loset ℓ ℓ')
             → BinaryRelation.isDecidable (LosetStr._<_ (snd los))

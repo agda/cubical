@@ -39,8 +39,8 @@ module _
                  → IsProset.is-trans proset a b c Rab Rbc
                  , IsProset.is-trans proset c b a Rcb Rba)
 
-  isProset→isStrictPosetAsymKernel : IsProset R → IsQuoset (AsymKernel R)
-  isProset→isStrictPosetAsymKernel proset
+  isProset→isQuosetAsymKernel : IsProset R → IsQuoset (AsymKernel R)
+  isProset→isQuosetAsymKernel proset
     = isquoset (IsProset.is-set proset)
                     (λ a b → isProp× (IsProset.is-prop-valued proset a b) (isProp¬ (R b a)))
                     (λ a (Raa , ¬Raa) → ¬Raa (IsProset.is-refl proset a))
@@ -56,10 +56,10 @@ module _
                  (λ a → IsProset.is-refl pre (f a))
                  λ a b c → IsProset.is-trans pre (f a) (f b) (f c)
 
-Proset→StrictPoset : Proset ℓ ℓ' → Quoset ℓ ℓ'
-Proset→StrictPoset (_ , pre)
+Proset→Quoset : Proset ℓ ℓ' → Quoset ℓ ℓ'
+Proset→Quoset (_ , pre)
   = _ , quosetstr (BinaryRelation.AsymKernel (ProsetStr._≲_ pre))
-                       (isProset→isStrictPosetAsymKernel (ProsetStr.isProset pre))
+                  (isProset→isQuosetAsymKernel (ProsetStr.isProset pre))
 
 module _
   {A : Type ℓ}

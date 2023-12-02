@@ -69,9 +69,6 @@ record LosetStr (ℓ' : Level) (A : Type ℓ) : Type (ℓ-max ℓ (ℓ-suc ℓ')
 Loset : ∀ ℓ ℓ' → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
 Loset ℓ ℓ' = TypeWithStr ℓ (LosetStr ℓ')
 
-loset : (A : Type ℓ) (_<_ : A → A → Type ℓ') (h : IsLoset _<_) → Loset ℓ ℓ'
-loset A _<_ h = A , losetstr _<_ h
-
 record IsLosetEquiv {A : Type ℓ₀} {B : Type ℓ₁}
   (M : LosetStr ℓ₀' A) (e : A ≃ B) (N : LosetStr ℓ₁' B)
   : Type (ℓ-max (ℓ-max ℓ₀ ℓ₀') ℓ₁')
