@@ -5,11 +5,13 @@ module Cubical.Categories.Site.Instances.ZariskiCommRing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat using (ℕ ; zero ; suc)
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
+open import Cubical.Data.FinData.Order renaming (_<'Fin_ to _<_)
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
@@ -21,7 +23,9 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Site.Coverage
+open import Cubical.Categories.Site.Sheaf
 open import Cubical.Categories.Constructions.Slice
+open import Cubical.Categories.Yoneda
 
 open import Cubical.HITs.PropositionalTruncation as PT
 
@@ -34,6 +38,9 @@ open SliceOb
 
 -- the type of unimodular vectors, i.e. generators of the 1-ideal
 record UniModVec (R : CommRing ℓ) : Type ℓ where
+  constructor
+    unimodvec
+
   open CommRingStr (str R)
   open CommIdeal R using (_∈_)
 
@@ -106,3 +113,97 @@ pullbackStability zariskiCoverage {c = A} um {d = B} φ =
 
   ψComm : ∀ i → (ψ i .fst) ∘ (AU._/1 (um .f i)) ≡ (BU._/1 (φ $r um .f i)) ∘ φ .fst
   ψComm i = uniqInvElemHom φ (um .f i) .fst .snd
+
+
+-- this defines a subcanonical coverage
+-- the proof is analoguous to the case of lattice sheaves,
+-- see "isLimConeLocCone" in Cubical.Algebra.CommRing.Localisation.Limit
+-- first, a lemma
+module SubcanonicalLemmas (A R : CommRing ℓ) where
+  open CommRingStr ⦃...⦄
+  open CommIdeal R using (_∈_)
+
+  private instance
+   _ = A .snd
+   _ = R .snd
+
+  module _
+    {n : ℕ}
+    (f : FinVec ⟨ R ⟩ (suc n)) -- have to treat case of empty vec separately
+    (isUniModF : 1r ∈ ⟨ f ⟩[ R ])
+    (fam@(φ , isCompatibleφ) : CompatibleFamily (yo A)
+                                                (str (covers zariskiCoverage R)
+                                                (unimodvec (suc n) f isUniModF)))
+    where
+    open InvertingElementsBase R
+    open RingHoms
+    module U i = UniversalProp (f i)
+    module UP i j = UniversalProp (f i · f j)
+
+    private
+      _/1ⁱ : ⟨ R ⟩ → {i : Fin (suc n)} →  R[1/ (f i) ]
+      (r /1ⁱ) {i = i} = U._/1 i r
+
+
+    applyEqualizerLemma : ∀ a → ∃![ r ∈ ⟨ R ⟩ ] ∀ i → r /1ⁱ ≡ φ i .fst a
+    applyEqualizerLemma a = equalizerLemma R f isUniModF (λ i → φ i .fst a) path
+      where
+      pathHelper : ∀ i j → χˡ R f i j ∘r (U./1AsCommRingHom i)
+                         ≡ χʳ R f i j ∘r (U./1AsCommRingHom j)
+      pathHelper i j = RingHom≡
+                         (χˡUnique R f i j .fst .snd ∙ sym (χʳUnique R f i j .fst .snd))
+
+      path : ∀ i j → χˡ R f i j .fst (φ i $r a) ≡ χʳ R f i j .fst (φ j $r a)
+      path i j = funExt⁻ (cong fst (isCompatibleφ i j _ _ _ (pathHelper i j))) a
+
+    inducedHom : CommRingHom A R
+    fst inducedHom a = applyEqualizerLemma a .fst .fst
+    snd inducedHom = makeIsRingHom
+                       (cong fst (applyEqualizerLemma 1r .snd (1r , 1Coh)))
+                       (λ x y → cong fst (applyEqualizerLemma (x + y) .snd (_ , +Coh x y)))
+                       (λ x y → cong fst (applyEqualizerLemma (x · y) .snd (_ , ·Coh x y)))
+      where
+      open IsRingHom
+      1Coh : ∀ i → (1r /1ⁱ ≡ φ i .fst 1r)
+      1Coh i = sym (φ i .snd .pres1)
+
+      +Coh : ∀ x y i → ((fst inducedHom x + fst inducedHom y) /1ⁱ ≡ φ i .fst (x + y))
+      +Coh x y i = let instance _ = snd R[1/ f i ]AsCommRing in
+           U./1AsCommRingHom i .snd .pres+ _ _
+        ∙∙ cong₂ _+_ (applyEqualizerLemma x .fst .snd i) (applyEqualizerLemma y .fst .snd i)
+        ∙∙ sym (φ i .snd .pres+ x y)
+
+      ·Coh : ∀ x y i → ((fst inducedHom x · fst inducedHom y) /1ⁱ ≡ φ i .fst (x · y))
+      ·Coh x y i = let instance _ = snd R[1/ f i ]AsCommRing in
+           U./1AsCommRingHom i .snd .pres· _ _
+        ∙∙ cong₂ _·_ (applyEqualizerLemma x .fst .snd i) (applyEqualizerLemma y .fst .snd i)
+        ∙∙ sym (φ i .snd .pres· x y)
+
+    inducedHomUnique : ∀ (ψ : CommRingHom A R)
+                     → (∀ a i →  (ψ $r a) /1ⁱ ≡ φ i $r a)
+                     → inducedHom ≡ ψ
+    inducedHomUnique ψ ψ/1≡φ =
+      RingHom≡
+        (funExt
+          (λ a → cong fst (applyEqualizerLemma a .snd (ψ $r a , ψ/1≡φ a))))
+
+
+isSubcanonicalZariskiCoverage : isSubcanonical
+                                  (CommRingsCategory {ℓ = ℓ} ^op)
+                                    zariskiCoverage
+isSubcanonicalZariskiCoverage A R (unimodvec zero f isUniModF) = {!!}
+  -- better way than pattern matching inside unimodvec???
+isSubcanonicalZariskiCoverage A R (unimodvec (suc n) f isUniModF) = isoToIsEquiv theIso
+  where
+  open Iso
+  open SubcanonicalLemmas A R
+  um = (unimodvec (suc n) f isUniModF)
+
+  theIso : Iso (CommRingHom A R)
+               (CompatibleFamily (yo A) (str (covers zariskiCoverage R) um))
+  fun theIso = elementToCompatibleFamily _ _
+  inv theIso fam = inducedHom f isUniModF fam
+  rightInv theIso fam = CompatibleFamily≡ _ _ _ _
+                          λ i → RingHom≡ (funExt
+                            λ a → applyEqualizerLemma f isUniModF fam a .fst .snd i)
+  leftInv theIso φ = inducedHomUnique _ _ _ _ λ _ _ → refl
