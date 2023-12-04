@@ -8,9 +8,10 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat using (ℕ ; zero ; suc)
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
+open import Cubical.Data.FinData.Order renaming (_<'Fin_ to _<_)
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
