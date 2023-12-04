@@ -45,6 +45,13 @@ F-hom (Snd C D) = snd
 F-id (Snd C D) = refl
 F-seq (Snd C D) _ _ = refl
 
+Swap : (C : Category ℓC ℓC') → (D : Category ℓD ℓD') → Σ (Functor (C ×C D) (D ×C C)) isFullyFaithful
+F-ob (fst (Swap C D)) = _
+F-hom (fst (Swap C D)) = _
+F-id (fst (Swap C D)) = refl
+F-seq (fst (Swap C D)) _ _ = refl
+snd (Swap C D) _ _ = snd Σ-swap-≃
+
 module _ where
   private
     variable

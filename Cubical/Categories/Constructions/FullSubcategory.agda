@@ -19,7 +19,7 @@ private
   variable
     ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓP ℓQ ℓR : Level
 
-module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
+module FullSubcategory (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
   private
     module C = Category C
   open Category
@@ -71,6 +71,7 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
     isEquivIncl-Iso : isEquiv Incl-Iso
     isEquivIncl-Iso = Incl-Iso≃ .snd
 
+open FullSubcategory public
 
 module _ (C : Category ℓC ℓC')
          (D : Category ℓD ℓD') (Q : Category.ob D → Type ℓQ) where

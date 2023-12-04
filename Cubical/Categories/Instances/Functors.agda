@@ -6,9 +6,8 @@
    Includes the following
    - isos in FUNCTOR are precisely the pointwise isos
    - FUNCTOR C D is univalent when D is
-   - currying of functors
+   - Isomorphism of functors currying
 
-   TODO: show that currying of functors is an isomorphism.
 -}
 
 module Cubical.Categories.Instances.Functors where
@@ -18,6 +17,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function renaming (_∘_ to _∘→_)
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.BinProduct
@@ -169,3 +169,26 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
         F ⟪ g ∘⟨ E ⟩ f , C .id ∘⟨ C ⟩ C .id ⟫
           ≡⟨ F .F-seq (f , C .id) (g , C .id) ⟩
         (F ⟪ g , C .id ⟫) ∘⟨ D ⟩ (F ⟪ f , C .id ⟫) ∎
+
+    λF⁻ : Functor E FUNCTOR → Functor (E ×C C) D
+    F-ob (λF⁻ a) = uncurry (F-ob ∘→ F-ob a)
+    F-hom (λF⁻ a) _ = N-ob (F-hom a _) _ ∘⟨ D ⟩ (F-hom (F-ob a _)) _
+    F-id (λF⁻ a) = cong₂ (seq' D) (F-id (F-ob a _))
+        (cong (flip N-ob _) (F-id a)) ∙ D .⋆IdL _
+    F-seq (λF⁻ a) _ (eG , cG) =
+     cong₂ (seq' D) (F-seq (F-ob a _) _ _) (cong (flip N-ob _)
+           (F-seq a _ _))
+          ∙ AssocCong₂⋆R {C = D} _
+              (N-hom ((F-hom a _) ●ᵛ (F-hom a _)) _ ∙
+                (⋆Assoc D _ _ _) ∙
+                  cong (seq' D _) (sym (N-hom (F-hom a eG) cG)))
+
+    isoλF : Iso (Functor (E ×C C) D) (Functor E FUNCTOR)
+    fun isoλF = λF
+    inv isoλF = λF⁻
+    rightInv isoλF b = Functor≡ (λ _ → Functor≡ (λ _ → refl)
+      λ _ → cong (seq' D _) (congS (flip N-ob _) (F-id b)) ∙ D .⋆IdR _)
+      λ _ → toPathP (makeNatTransPath (transportRefl _ ∙
+        funExt λ _ → cong (flip (seq' D) _) (F-id (F-ob b _)) ∙ D .⋆IdL _))
+    leftInv isoλF a = Functor≡ (λ _ → refl) λ _ → sym (F-seq a _ _)
+          ∙ cong (F-hom a) (cong₂ _,_ (E .⋆IdL _) (C .⋆IdR _))

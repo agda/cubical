@@ -6,13 +6,16 @@ open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
 open import Cubical.Functions.Embedding
-open import Cubical.Functions.Logic using (_⊔′_)
+open import Cubical.Functions.Logic using (_⊔′_;⇔toPath)
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 open import Cubical.Data.Sum.Base as ⊎
 open import Cubical.HITs.SetQuotients.Base
 open import Cubical.HITs.PropositionalTruncation as ∥₁
@@ -22,6 +25,7 @@ open import Cubical.Relation.Nullary.Base
 private
   variable
     ℓA ℓ≅A ℓA' ℓ≅A' : Level
+    A A' : Type ℓA
 
 Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 Rel A B ℓ' = A → B → Type ℓ'
@@ -29,9 +33,30 @@ Rel A B ℓ' = A → B → Type ℓ'
 PropRel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 PropRel A B ℓ' = Σ[ R ∈ Rel A B ℓ' ] ∀ a b → isProp (R a b)
 
+isSetPropRel : isSet (PropRel A A' ℓ≅A)
+isSetPropRel {A = A} {A' = A'} = isOfHLevelRetract 2 _
+   (λ r → _ , λ x y → snd (r x y) ) (λ _ → refl) (isSet→ (isSet→ isSetHProp) )
+
+PropRel≡ : {R R' : PropRel A A' ℓ≅A} →
+                  (∀ {x y} → ((fst R) x y → (fst R') x y) ×
+                          ((fst R') x y → (fst R) x y))
+                  → (R ≡ R')
+PropRel≡ {R = _ , R} {_ , R'} x =
+      (Σ≡Prop (λ _ → isPropΠ2 λ _ _ → isPropIsProp)
+        (funExt₂ λ _ _ → cong fst (⇔toPath
+          {P = _ , R _ _}
+          {_ , R' _ _} (fst x) (snd x))))
+
+idRel : Rel A A _
+idRel = _≡_
+
 idPropRel : ∀ {ℓ} (A : Type ℓ) → PropRel A A ℓ
 idPropRel A .fst a a' = ∥ a ≡ a' ∥₁
 idPropRel A .snd _ _ = squash₁
+
+fullPropRel : PropRel A A' ℓ≅A
+fst fullPropRel _ _ = Unit*
+snd fullPropRel _ _ = isPropUnit*
 
 invPropRel : ∀ {ℓ ℓ'} {A B : Type ℓ}
   → PropRel A B ℓ' → PropRel B A ℓ'
@@ -54,6 +79,10 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isRefl : Type (ℓ-max ℓ ℓ')
   isRefl = (a : A) → R a a
 
+  isRefl' : Type (ℓ-max ℓ ℓ')
+  isRefl' = {a : A} → R a a
+
+
   isIrrefl : Type (ℓ-max ℓ ℓ')
   isIrrefl = (a : A) → ¬ R a a
 
@@ -68,6 +97,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   isTrans : Type (ℓ-max ℓ ℓ')
   isTrans = (a b c : A) → R a b → R b c → R a c
+
+  isTrans' : Type (ℓ-max ℓ ℓ')
+  isTrans' = {a b c : A} → R a b → R b c → R a c
 
   -- Sum types don't play nicely with props, so we truncate
   isCotrans : Type (ℓ-max ℓ ℓ')
@@ -130,6 +162,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
       symmetric : isSym
       transitive : isTrans
 
+    transitive' : isTrans'
+    transitive' = transitive _ _ _
+
   isUniversalRel→isEquivRel : HeterogenousRelation.isUniversalRel R → isEquivRel
   isUniversalRel→isEquivRel u .isEquivRel.reflexive a = u a a
   isUniversalRel→isEquivRel u .isEquivRel.symmetric a b _ = u b a
@@ -149,6 +184,15 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   impliesIdentity : Type _
   impliesIdentity = {a a' : A} → (R a a') → (a ≡ a')
 
+  impliedByIdentity : Type _
+  impliedByIdentity = {a a' : A} → (a ≡ a') → (R a a')
+
+  isRefl→impliedByIdentity : isRefl → impliedByIdentity
+  isRefl→impliedByIdentity is-refl p = subst (R _) p (is-refl _)
+
+  impliedByIdentity→isRefl : impliedByIdentity → isRefl
+  impliedByIdentity→isRefl imp-by-id _ = imp-by-id refl
+
   inequalityImplies : Type _
   inequalityImplies = (a b : A) → ¬ a ≡ b → R a b
 
@@ -162,6 +206,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   isUnivalent : Type (ℓ-max ℓ ℓ')
   isUnivalent = (a a' : A) → (R a a') ≃ (a ≡ a')
+
+  isFull : Type (ℓ-max ℓ ℓ')
+  isFull = (a a' : A) → (R a a')
 
   contrRelSingl→isUnivalent : isRefl → contrRelSingl → isUnivalent
   contrRelSingl→isUnivalent ρ c a a' = isoToEquiv i
@@ -196,12 +243,52 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
         q : isContr (relSinglAt a)
         q = isOfHLevelRespectEquiv 0 (t , totalEquiv _ _ f λ x → invEquiv (u a x) .snd)
                                    (isContrSingl a)
+  isPropIsEquivPropRel : isPropValued → isProp isEquivRel
+  isPropIsEquivPropRel ipv =
+    isOfHLevelRetract 1 _ (uncurry (uncurry equivRel))
+     (λ _ → refl)
+     (isProp× (isProp× (isPropΠ λ _ → ipv _ _)
+       (isPropΠ2 λ _ _ → isProp→ (ipv _ _)))
+       (isPropΠ3 λ _ _ _ → isProp→ (isProp→ (ipv _ _))))
 
 EquivRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 EquivRel A ℓ' = Σ[ R ∈ Rel A A ℓ' ] BinaryRelation.isEquivRel R
 
 EquivPropRel : ∀ {ℓ} (A : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 EquivPropRel A ℓ' = Σ[ R ∈ PropRel A A ℓ' ] BinaryRelation.isEquivRel (R .fst)
+
+EquivPropRel→Rel : EquivPropRel A ℓA → Rel A A ℓA
+EquivPropRel→Rel ((r , _) , _) = r
+
+isSetEquivPropRel : isSet (EquivPropRel A ℓ≅A)
+isSetEquivPropRel = isSetΣ isSetPropRel
+  (isProp→isSet ∘ BinaryRelation.isPropIsEquivPropRel _ ∘ snd )
+
+EquivPropRel≡ : {R R' : EquivPropRel A ℓ≅A} →
+                  (∀ {x y} → (fst (fst R) x y → fst (fst R') x y) ×
+                          (fst (fst R') x y → fst (fst R) x y))
+                  → (R ≡ R')
+EquivPropRel≡ {R = (_ , R) , _} {(_ , R') , _} x =
+ Σ≡Prop (BinaryRelation.isPropIsEquivPropRel _ ∘ snd ) (PropRel≡ x)
+
+isEquivEquivPropRel≡ : {R R' : EquivPropRel A ℓ≅A}
+   → isEquiv (EquivPropRel≡ {R = R} {R'})
+isEquivEquivPropRel≡ {R = (_ , R) , _} {(_ , R') , _} =
+  snd (propBiimpl→Equiv
+    ((isPropImplicitΠ2 λ _ _ →
+       isProp× (isProp→ (R' _ _)) (isProp→ (R _ _))))
+    (isSetEquivPropRel _ _) _
+    λ p {x y} → (subst (λ R → fst (fst R) x y) p) ,
+                (subst (λ R → fst (fst R) x y) (sym p)))
+
+fullEquivPropRel : EquivPropRel A ℓ≅A
+fst fullEquivPropRel = fullPropRel
+snd fullEquivPropRel = _
+
+isEquivRelIdRel : BinaryRelation.isEquivRel (idRel {A = A})
+BinaryRelation.isEquivRel.reflexive isEquivRelIdRel _ = refl
+BinaryRelation.isEquivRel.symmetric isEquivRelIdRel _ _ = sym
+BinaryRelation.isEquivRel.transitive isEquivRelIdRel _ _ _ = _∙_
 
 record RelIso {A : Type ℓA} (_≅_ : Rel A A ℓ≅A)
               {A' : Type ℓA'} (_≅'_ : Rel A' A' ℓ≅A') : Type (ℓ-max (ℓ-max ℓA ℓA') (ℓ-max ℓ≅A ℓ≅A')) where
@@ -249,3 +336,17 @@ isSymSymClosure _ _ _ (inr Rba) = inl Rba
 
 isAsymAsymKernel : ∀ {ℓ ℓ'} {A : Type ℓ} (R : Rel A A ℓ') → isAsym (AsymKernel R)
 isAsymAsymKernel _ _ _ (Rab , _) (_ , ¬Rab) = ¬Rab Rab
+
+respects : (R : Rel A A ℓ≅A) (R' : Rel A' A' ℓ≅A') →
+           (A → A') → Type _
+respects _R_ _R'_ f = ∀ {x x'} → x R x' → f x R' f x'
+
+private
+ variable
+  R : Rel A A ℓ≅A
+  R' : Rel A' A' ℓ≅A'
+
+isPropRespects : isPropValued R'
+               → (f : A → A') → isProp (respects R R' f)
+isPropRespects isPropRelR' f =
+ isPropImplicitΠ2 λ _ _ →  isPropΠ λ _ → isPropRelR' _ _

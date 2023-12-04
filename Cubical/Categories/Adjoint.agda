@@ -31,7 +31,7 @@ equivalence.
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' : Level
+    ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
 {-
 ==============================================
@@ -69,6 +69,7 @@ private
   variable
     C : Category ℓC ℓC'
     D : Category ℓC ℓC'
+    E : Category ℓE ℓE'
 
 
 module _ {F : Functor C D} {G : Functor D C} where
@@ -189,6 +190,9 @@ module NaturalBijection where
     field
       adjIso : ∀ {c d} → Iso (D [ F ⟅ c ⟆ , d ]) (C [ c , G ⟅ d ⟆ ])
 
+    adjEquiv : ∀ {c d} → (D [ F ⟅ c ⟆ , d ]) ≃ (C [ c , G ⟅ d ⟆ ])
+    adjEquiv = isoToEquiv adjIso
+
     infix 40 _♭
     infix 40 _♯
     _♭ : ∀ {c d} → (D [ F ⟅ c ⟆ , d ]) → (C [ c , G ⟅ d ⟆ ])
@@ -231,6 +235,20 @@ module NaturalBijection where
 
   isRightAdjoint : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (G : Functor D C) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
   isRightAdjoint {C = C}{D} G = Σ[ F ∈ Functor C D ] F ⊣ G
+
+module Compose {F : Functor C D} {G : Functor D C}
+               {L : Functor D E} {R : Functor E D}
+               where
+ open NaturalBijection
+ module _ (F⊣G : F ⊣ G) (L⊣R : L ⊣ R) where
+  open _⊣_
+
+  LF⊣GR : (L ∘F F) ⊣ (G ∘F R)
+  adjIso LF⊣GR = compIso (adjIso L⊣R) (adjIso F⊣G)
+  adjNatInD LF⊣GR f k =
+   cong (adjIso F⊣G .fun) (adjNatInD L⊣R _ _) ∙ adjNatInD F⊣G _ _
+  adjNatInC LF⊣GR f k =
+   cong (adjIso L⊣R .inv) (adjNatInC F⊣G _ _) ∙ adjNatInC L⊣R _ _
 
 {-
 ==============================================

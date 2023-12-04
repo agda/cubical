@@ -12,7 +12,7 @@ open import Cubical.Foundations.Equiv as Equiv hiding (transpEquiv)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Function using (_∘_)
+open import Cubical.Foundations.Function using (_∘_ ; homotopyNatural)
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
@@ -62,6 +62,14 @@ transport⁻Transport p a j = transport⁻-fillerExt p (~ j) (transport-fillerEx
 transportTransport⁻ : ∀ {ℓ} {A B : Type ℓ} → (p : A ≡ B) → (b : B) →
                         transport p (transport⁻ p b) ≡ b
 transportTransport⁻ p b j = transport-fillerExt⁻ p j (transport⁻-fillerExt⁻ p j b)
+
+
+transportFillerExt[refl]∘TransportFillerExt⁻[refl] : ∀ {ℓ} {A : Type ℓ} →
+    (λ i → transp (λ j → A) (~ i) ∘ (transp (λ j → A) i)) ≡ refl
+transportFillerExt[refl]∘TransportFillerExt⁻[refl] =
+    cong₂Funct (λ f g → f ∘ g) (transport-fillerExt refl) (transport-fillerExt⁻ refl)
+  ∙ cong funExt (funExt λ x → leftright _ _ ∙
+       cong sym (sym (homotopyNatural transportRefl (sym (transportRefl x))) ∙ (rCancel _)))
 
 subst⁻Subst : ∀ {ℓ ℓ'} {A : Type ℓ} {x y : A} (B : A → Type ℓ') (p : x ≡ y)
               → (u : B x) → subst⁻ B p (subst B p u) ≡ u
@@ -205,3 +213,46 @@ module _ {ℓ : Level} {A : Type ℓ} {a x1 x2 : A} (p : x1 ≡ x2) where
     ≡⟨ assoc (sym p) q refl ⟩
       (sym p ∙ q) ∙ refl
     ≡⟨ sym (rUnit (sym p ∙ q))⟩ sym p ∙ q ∎
+
+
+
+comp-const : ∀ {ℓ} {A : Type ℓ} {a b c d : A} (p : a ≡ b) (q : b ≡ c) (r : c ≡ d)
+             → (p ∙∙ q ∙∙ r) ≡ λ i → comp (λ _ → A) (doubleComp-faces p r i) (q i)
+comp-const {A = A} p q r j i =
+      hcomp (doubleComp-faces
+              (λ i₁ → transp (λ _ → A) (~ j ∨ ~ i₁) (p i₁))
+              (λ i₁ → transp (λ _ → A) (~ j ∨ i₁)   (r i₁)) i)
+            (transp (λ _ → A) (~ j) (q i))
+
+
+cong-transport-uaIdEquiv : ∀ {ℓ} {A : Type ℓ} → refl ≡ cong transport (uaIdEquiv {A = A})
+cong-transport-uaIdEquiv =
+   cong funExt (funExt λ x →
+             cong (cong (transport refl)) (lUnit _)
+          ∙  cong-∙∙ (transport refl) refl refl refl
+          ∙∙ congS (refl ∙∙_∙∙ refl)
+              (lUnit _ ∙ cong (refl ∙_)
+                λ i j → transportFillerExt[refl]∘TransportFillerExt⁻[refl] (~ i) (~ j) x)
+          ∙∙ comp-const refl _ refl)
+
+
+transport-filler-ua : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) (x : A) →
+   SquareP (λ _ i → ua e i)
+     (transport-filler (ua e) x)
+     (ua-gluePath e refl)
+     refl
+     (transportRefl (fst e x))
+transport-filler-ua {B = B} e x =
+    EquivJ (λ A e → ∀ x → SquareP (λ _ i → ua e i) (transport-filler (ua e) x)
+                          (ua-gluePath e refl) refl (transportRefl (fst e x)))
+    (λ x j i → comp
+          (λ k → uaIdEquiv {A = B} (~ k) (~ i))
+          (λ k → λ where
+            (i = i1) → transp (λ _ → B) j x
+            (i = i0) → transp (λ _ → B) (k ∨  j) x
+            (j = i0) → let d = transp (λ k' → Glue B {φ = ~ k' ∨ ~ i ∨ ~ k ∨ (k' ∧ i)}
+                                λ _ → B , idEquiv B) (k ∧ ~ i) x
+                       in hcomp (λ k' → primPOr _ (~ i ∨ k ∨ ~ k)
+                           (λ where (i = i1) → cong-transport-uaIdEquiv (~ k') (~ k) x) λ _ → d) d
+            (j = i1) → glue (λ where (i = i0) → x ; (i = i1) → x ;(k = i0) → x) x
+           ) (transp (λ _ → B) j x)) e x

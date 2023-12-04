@@ -188,9 +188,9 @@ module rec→Gpd {B : Type ℓ''} (Bgpd : isGroupoid B)
 
 
 setQuotUniversalIso : isSet B
-  → Iso (A / R → B) (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
-Iso.fun (setQuotUniversalIso Bset) g = (λ a → g [ a ]) , λ a b r i → g (eq/ a b r i)
-Iso.inv (setQuotUniversalIso Bset) h = rec Bset (fst h) (snd h)
+  → Iso (A / R → B) (Σ[ f ∈ (A → B) ] ({a b : A} → R a b → f a ≡ f b))
+Iso.fun (setQuotUniversalIso Bset) g = (λ a → g [ a ]) , λ r i → g (eq/ _ _ r i)
+Iso.inv (setQuotUniversalIso Bset) h = rec Bset (fst h) (λ _ _ → snd h)
 Iso.rightInv (setQuotUniversalIso Bset) h = refl
 Iso.leftInv (setQuotUniversalIso Bset) g =
  funExt λ x →
@@ -203,7 +203,7 @@ Iso.leftInv (setQuotUniversalIso Bset) g =
  out = Iso.inv (setQuotUniversalIso Bset)
 
 setQuotUniversal : isSet B
-  → (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ((a b : A) → R a b → f a ≡ f b))
+  → (A / R → B) ≃ (Σ[ f ∈ (A → B) ] ({a b : A} → R a b → f a ≡ f b))
 setQuotUniversal Bset = isoToEquiv (setQuotUniversalIso Bset)
 
 open BinaryRelation

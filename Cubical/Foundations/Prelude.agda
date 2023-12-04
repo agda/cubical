@@ -87,6 +87,14 @@ cong₂ : {C : (a : A) → (b : B a) → Type ℓ} →
 cong₂ f p q i = f (p i) (q i)
 {-# INLINE cong₂ #-}
 
+congS₂ : ∀ {B : Type ℓ} {C : Type ℓ'} →
+        (f : A → B → C) →
+        (p : x ≡ y) →
+        {u v : B} (q : u ≡ v) →
+        (f x u) ≡ (f y v)
+congS₂ f p q i = f (p i) (q i)
+{-# INLINE congS₂ #-}
+
 congP₂ : {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
   {C : (i : I) (a : A i) → B i a → Type ℓ''}
   (f : (i : I) → (a : A i) → (b : B i a) → C i a b)

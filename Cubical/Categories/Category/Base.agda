@@ -124,6 +124,10 @@ record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   isGroupoid-ob : isGroupoid (C .ob)
   isGroupoid-ob = isOfHLevelPath'⁻ 2 (λ _ _ → isOfHLevelRespectEquiv 2 (invEquiv (univEquiv _ _)) (isSet-CatIso _ _))
 
+isPropIsUnivalent : {C : Category ℓ ℓ'} → isProp (isUnivalent C)
+isPropIsUnivalent =
+ isPropRetract isUnivalent.univ _ (λ _ → refl)
+  (isPropΠ2 λ _ _ → isPropIsEquiv _ )
 
 -- Opposite category
 _^op : Category ℓ ℓ' → Category ℓ ℓ'

@@ -151,7 +151,7 @@ sett-repr {ℓ} X ix = (Rep , ixRep , isEmbIxRep) , seteq X Rep ix ixRep eqImIxR
   Rep : Type ℓ
   Rep = X / Kernel
   ixRep : Rep → V ℓ
-  ixRep = invEq (setQuotUniversal setIsSet) (ix , λ _ _ → equivFun identityPrinciple)
+  ixRep = invEq (setQuotUniversal setIsSet) (ix , equivFun identityPrinciple)
   isEmbIxRep : isEmbedding ixRep
   isEmbIxRep = hasPropFibers→isEmbedding propFibers where
     propFibers : ∀ y → (a b : Σ[ p ∈ Rep ] (ixRep p ≡ y)) → a ≡ b

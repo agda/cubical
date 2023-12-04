@@ -63,8 +63,13 @@ equiv-proof (isPropIsEquiv f p q i) y =
                             ; (j = i1) → w })
                    (p2 w (i ∨ j))
 
+equivPathP : {A : I → Type ℓ} {B : I → Type ℓ'} {e : A i0 ≃ B i0} {f : A i1 ≃ B i1}
+                 → (h : PathP (λ i → A i → B i) (e .fst) (f .fst)) → PathP (λ i → A i ≃ B i) e f
+equivPathP {e = e} {f = f} h =
+  λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
+
 equivEq : {e f : A ≃ B} → (h : e .fst ≡ f .fst) → e ≡ f
-equivEq {e = e} {f = f} h = λ i → (h i) , isProp→PathP (λ i → isPropIsEquiv (h i)) (e .snd) (f .snd) i
+equivEq = equivPathP
 
 module _ {f : A → B} (equivF : isEquiv f) where
   funIsEq : A → B
