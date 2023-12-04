@@ -21,6 +21,7 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Site.Coverage
 open import Cubical.Categories.Site.Sheaf
