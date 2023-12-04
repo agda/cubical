@@ -42,7 +42,7 @@ on:
 ########################################################################
 
 env:
-  AGDA_BRANCH: v2.6.4
+  AGDA_BRANCH: v2.6.4.1
   GHC_VERSION: 9.4.7
   CABAL_VERSION: 3.6.2.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
