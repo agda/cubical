@@ -21,6 +21,7 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Site.Coverage
 open import Cubical.Categories.Site.Sheaf
@@ -191,8 +192,28 @@ module SubcanonicalLemmas (A R : CommRing ℓ) where
 isSubcanonicalZariskiCoverage : isSubcanonical
                                   (CommRingsCategory {ℓ = ℓ} ^op)
                                     zariskiCoverage
-isSubcanonicalZariskiCoverage A R (unimodvec zero f isUniModF) = {!!}
+isSubcanonicalZariskiCoverage A R (unimodvec zero f isUniModF) =
+  isoToIsEquiv (isContr→Iso'
+                  (trivialIsTerminalCommRing R 0≡1 A)
+                  isContrCompatibleFamily _)
   -- better way than pattern matching inside unimodvec???
+  where
+  um = (unimodvec zero f isUniModF)
+  open CommRingStr (R .snd)
+
+  0≡1 : 0r ≡ 1r
+  0≡1 = PT.rec (is-set _ _) Σhelper isUniModF
+    where
+    Σhelper : Σ[ α ∈ FinVec ⟨ R ⟩ zero ] 1r ≡ linearCombination R α f
+            → 0r ≡ 1r
+    Σhelper (_ , 1≡αf) = sym 1≡αf
+
+  isContrCompatibleFamily : isContr (CompatibleFamily (yo A)
+                                                      (str (covers zariskiCoverage R) um))
+  fst (fst isContrCompatibleFamily) ()
+  snd (fst isContrCompatibleFamily) ()
+  snd isContrCompatibleFamily _ = CompatibleFamily≡ _ _ _ _ λ ()
+
 isSubcanonicalZariskiCoverage A R (unimodvec (suc n) f isUniModF) = isoToIsEquiv theIso
   where
   open Iso
