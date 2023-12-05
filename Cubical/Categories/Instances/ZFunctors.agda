@@ -37,8 +37,12 @@ open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.DistLattices
 open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Site.Coverage
+open import Cubical.Categories.Site.Sheaf
+open import Cubical.Categories.Site.Instances.ZariskiCommRing
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Yoneda
+
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ
@@ -415,7 +419,6 @@ module _ {ℓ : Level} where
 
     hasAffineCover : Type (ℓ-suc ℓ)
     hasAffineCover = ∥ AffineCover ∥₁
-    -- TODO: A ℤ-functor is a  qcqs-scheme if it is a Zariski sheaf and has an affine cover
 
     -- the structure sheaf
     private COᵒᵖ = (DistLatticeCategory (CompOpenDistLattice .F-ob X)) ^op
@@ -448,3 +451,51 @@ module _ {ℓ : Level} where
     F-hom 𝓞 U≥V = Γ .F-hom (compOpenIncl U≥V)
     F-id 𝓞 = cong (Γ .F-hom) compOpenInclId ∙ Γ .F-id
     F-seq 𝓞 _ _ = cong (Γ .F-hom) (compOpenInclSeq _ _) ∙ Γ .F-seq _ _
+
+
+-- qcqs-schemes as Zariski sheaves (local ℤ-functors) with an affine cover in the sense above
+module _ {ℓ : Level} where
+
+  open Iso
+  open Functor
+  open NatTrans
+  open NatIso
+  open DistLatticeStr ⦃...⦄
+  open CommRingStr ⦃...⦄
+  open IsRingHom
+  open IsLatticeHom
+  open ZarLat
+  open ZarLatUniversalProp
+
+  isLocal : ℤFunctor → Type (ℓ-suc ℓ)
+  isLocal X = isSheaf zariskiCoverage X
+
+  isQcQsScheme : ℤFunctor → Type (ℓ-suc ℓ)
+  isQcQsScheme X = isLocal X × hasAffineCover X
+
+  isQcQsSchemeAffine : ∀ (A : CommRing ℓ) → isQcQsScheme (Sp .F-ob A)
+  fst (isQcQsSchemeAffine A) = isSubcanonicalZariskiCoverage A
+  snd (isQcQsSchemeAffine A) = ∣ singlCover ∣₁ -- separate lemma somewhere???
+    where
+    open AffineCover
+    open isIso
+
+    U₁ : CompactOpen (Sp .F-ob A)
+    N-ob U₁ B _ = let instance _ = B .snd in
+      D B 1r
+    N-hom U₁ {y = B} φ = let instance _ = ZariskiLattice B .snd in
+      funExt (λ _ → cong (D B) (sym (φ .snd .pres1)) ∙ sym (∨lRid _))
+
+    SpA≅U₁ : NatIso (Sp .F-ob A) ⟦ U₁ ⟧ᶜᵒ
+    N-ob (trans SpA≅U₁) _ φ = φ , refl
+    N-hom (trans SpA≅U₁) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+    inv (nIso SpA≅U₁ B) = fst
+    sec (nIso SpA≅U₁ B) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+    ret (nIso SpA≅U₁ B) = funExt λ _ → refl
+
+    singlCover : AffineCover (Sp .F-ob A)
+    n singlCover = 1
+    U singlCover zero = U₁
+    covers singlCover =
+      makeNatTransPath (funExt₂ λ B _ → let instance _ = ZariskiLattice B .snd in ∨lRid _)
+    isAffineU singlCover zero = ∣ A , SpA≅U₁ ∣₁
