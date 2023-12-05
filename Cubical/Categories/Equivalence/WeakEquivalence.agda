@@ -168,15 +168,14 @@ module _
                     (transport-fillerExt⁻ (ob≡ b)) j))
       λ i j x y →
         Glue (𝑪'.Hom[ unglue _ x , unglue _ y ])
-                   λ { (j = i0) → _ , Hom≃ (isWeakEquivalenceTransportFunctor (mk≡ b)) _ _
-                      ;(j = i1) → _ , idEquiv _
-                      ;(i = i1) → _ , _
-            , isProp→PathP (λ j → isPropΠ2 λ x y →
-                    isPropIsEquiv (transp (λ i₂ →
-         let tr = transp (λ j' → ob≡ b (j ∨ (i₂ ∧ j'))) (~ i₂ ∨ j)
-         in Hom≡ b (i₂ ∨ j) (tr x) (tr y)) j))
-          (λ _ _ → snd (Hom≃ (isWeakEquivalenceTransportFunctor (mk≡ b)) _ _))
-          (λ _ _ → snd (idEquiv _)) j x y }
+        λ { (j = i0) → _ , Hom≃ (isWeakEquivalenceTransportFunctor (mk≡ b)) _ _
+           ;(j = i1) → _ , idEquiv _
+           ;(i = i1) → _ , _
+            , isProp→PathP (λ j → isPropΠ2 λ x y → isPropIsEquiv (transp (λ i₂ →
+               let tr = transp (λ j' → ob≡ b (j ∨ (i₂ ∧ j'))) (~ i₂ ∨ j)
+               in Hom≡ b (i₂ ∨ j) (tr x) (tr y)) j))
+                (λ _ _ → snd (Hom≃ (isWeakEquivalenceTransportFunctor (mk≡ b)) _ _))
+                (λ _ _ → snd (idEquiv _)) j x y }
 
  leftInv IsoCategoryPath we = cong₂ weakEquivalence
    (Functor≡ (transportRefl ∘f (F-ob (func we)))
