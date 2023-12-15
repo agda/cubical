@@ -208,10 +208,10 @@ module _
     Supremum = Σ[ n ∈ A ] isSupremum n
 
   isMeet : A → A → A → Type (ℓ-max ℓ ℓ')
-  isMeet a b c = ∀ x → x ≲ c ≃ (x ≲ a × x ≲ b)
+  isMeet a b a∧b = ∀ x → x ≲ a∧b ≃ (x ≲ a × x ≲ b)
 
   isJoin : A → A → A → Type (ℓ-max ℓ ℓ')
-  isJoin a b c = ∀ x → c ≲ x ≃ (a ≲ x × b ≲ x)
+  isJoin a b a∨b = ∀ x → a∨b ≲ x ≃ (a ≲ x × b ≲ x)
 
   Meet : ∀ a b → Type (ℓ-max ℓ ℓ')
   Meet a b = Σ[ a∧b ∈ A ] isMeet a b a∧b
@@ -219,12 +219,12 @@ module _
   Join : ∀ a b → Type (ℓ-max ℓ ℓ')
   Join a b = Σ[ a∨b ∈ A ] isJoin a b a∨b
 
-  isPropIsMeet : ∀ a b c → isProp (isMeet a b c)
+  isPropIsMeet : ∀ a b a∧b → isProp (isMeet a b a∧b)
   isPropIsMeet a b c = isPropΠ λ x → isOfHLevel≃ 1 (prop x c)
                                                     (isProp× (prop x a)
                                                              (prop x b))
 
-  isPropIsJoin : ∀ a b c → isProp (isJoin a b c)
+  isPropIsJoin : ∀ a b a∨b → isProp (isJoin a b a∨b)
   isPropIsJoin a b c = isPropΠ λ x → isOfHLevel≃ 1 (prop c x)
                                                     (isProp× (prop a x)
                                                              (prop b x))

@@ -6,6 +6,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Transport
 
 open import Cubical.Functions.Embedding
 
@@ -22,7 +23,7 @@ open import Cubical.Relation.Nullary
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓ' ℓ'' ℓ₀ ℓ₀' ℓ₁ ℓ₁' : Level
 
 module _
   {A : Type ℓ}
@@ -114,7 +115,9 @@ module _
   where
 
   private
-      pre = isPoset→isProset pos  
+      pre = isPoset→isProset pos
+
+      set = IsPoset.is-set pos
 
       prop = IsPoset.is-prop-valued pos
 
@@ -148,6 +151,12 @@ module _
     isGreatestUnique : ∀ n m → isGreatest pre P n → isGreatest pre P m → n ≡ m
     isGreatestUnique n m isgn isgm
       = isEmbedding→Inj emb n m (anti (toA n) (toA m) (isgm n) (isgn m))
+
+    LeastUnique : (n m : Least pre P) → n ≡ m
+    LeastUnique (n , ln) (m , lm) = Σ≡Prop (λ _ → isPropIsLeast pre P _) (isLeastUnique n m ln lm)
+
+    GreatestUnique : (n m : Greatest pre P) → n ≡ m
+    GreatestUnique (n , gn) (m , gm) = Σ≡Prop (λ _ → isPropIsGreatest pre P _) (isGreatestUnique n m gn gm)
 
   module _
     {B : Type ℓ''}
@@ -260,24 +269,155 @@ module _
                                       (join b c .snd)
                                       (join a (join b c .fst) .snd)))) .fst)
 
-  isBoundedAbove : Type (ℓ-max ℓ ℓ')
-  isBoundedAbove = Greatest pre (A , (id↪ A))
+  order≃meet : ∀ a b a∧b
+             → isMeet pre a b a∧b
+             → (a ≤ b) ≃ (a ≡ a∧b)
+  order≃meet a b a∧b funa∧b
+    = propBiimpl→Equiv (prop a b)
+                       (set a a∧b)
+                       (λ a≤b → anti a a∧b (invEq (funa∧b a) (rfl a , a≤b))
+                                            (funa∧b a∧b .fst (rfl a∧b) .fst))
+                        λ a≡a∧b → subst (_≤ b) (sym a≡a∧b)
+                                         (funa∧b a∧b .fst (rfl a∧b) .snd)
 
-  isBoundedBelow : Type (ℓ-max ℓ ℓ')
-  isBoundedBelow = Least pre (A , id↪ A)
+  order≃join : ∀ a b a∨b
+             → isJoin pre a b a∨b
+             → (a ≤ b) ≃ (b ≡ a∨b)
+  order≃join a b a∨b funa∨b
+    = propBiimpl→Equiv (prop a b)
+                       (set b a∨b)
+                       (λ a≤b → anti b a∨b (funa∨b a∨b .fst (rfl a∨b) .snd)
+                                            (invEq (funa∨b b) (a≤b , rfl b)))
+                        λ b≡a∨b → subst (a ≤_) (sym b≡a∨b)
+                                        (funa∨b a∨b .fst (rfl a∨b) .fst)
 
-  isBounded : Type (ℓ-max ℓ ℓ')
-  isBounded = isBoundedBelow × isBoundedAbove
+-- Equivalences of posets respect meets and joins
+IsPosetEquivRespectsMeet : {P : Poset ℓ₀ ℓ₀'} {S : Poset ℓ₁ ℓ₁'} (e : PosetEquiv P S)
+                        → ∀ a b a∧b
+                        → isMeet (isPoset→isProset (PosetStr.isPoset (P .snd))) a b a∧b
+                        ≃ isMeet (isPoset→isProset (PosetStr.isPoset (S .snd)))
+                                 (equivFun (e .fst) a)
+                                 (equivFun (e .fst) b)
+                                 (equivFun (e .fst) a∧b)
+IsPosetEquivRespectsMeet {P = P} {S = S} (e , posEq) a b a∧b
+  = propBiimpl→Equiv (isPropIsMeet proP a b a∧b)
+                     (isPropIsMeet proS (equivFun e a) (equivFun e b) (equivFun e a∧b))
+                     (λ meet x
+                       → compEquiv
+                         (compEquiv
+                           (compEquiv
+                             (IsPosetEquiv.pres≤⁻ posEq x (equivFun e a∧b))
+                             (substEquiv (invEq e x ≤P_) (retEq e a∧b))) (meet (invEq e x)))
+                           (≃-× (compEquiv (IsPosetEquiv.pres≤ posEq (invEq e x) a)
+                                           (substEquiv (_≤S equivFun e a) (secEq e x)))
+                                (compEquiv (IsPosetEquiv.pres≤ posEq (invEq e x) b)
+                                           (substEquiv (_≤S equivFun e b) (secEq e x)))))
+                      λ meet x
+                       → compEquiv
+                         (IsPosetEquiv.pres≤ posEq x a∧b)
+                         (compEquiv (meet (equivFun e x))
+                           (≃-× (compEquiv
+                                (IsPosetEquiv.pres≤⁻ posEq (equivFun e x) (equivFun e a))
+                                  (subst2Equiv _≤P_ (retEq e x) (retEq e a)))
+                                (compEquiv
+                                (IsPosetEquiv.pres≤⁻ posEq (equivFun e x) (equivFun e b))
+                                  (subst2Equiv _≤P_ (retEq e x) (retEq e b)))))
+  where _≤P_ = PosetStr._≤_ (P .snd)
+        _≤S_ = PosetStr._≤_ (S .snd)
 
-  isPropIsBoundedAbove : isProp isBoundedAbove
-  isPropIsBoundedAbove (x , gtx) (y , gty)
-    = Σ≡Prop (λ _ → isPropIsGreatest pre (A , (id↪ A)) _)
-              (isGreatestUnique {P = A , (id↪ A)} x y gtx gty)
+        posP = PosetStr.isPoset (P .snd)
+        posS = PosetStr.isPoset (S .snd)
 
-  isPropIsBoundedBelow : isProp isBoundedBelow
-  isPropIsBoundedBelow (x , ltx) (y , lty)
-    = Σ≡Prop (λ _ → isPropIsLeast pre (A , id↪ A) _)
-              (isLeastUnique {P = A , id↪ A} x y ltx lty)
+        proP = isPoset→isProset posP
+        proS = isPoset→isProset posS
 
-  isPropIsBounded : isProp isBounded
-  isPropIsBounded = isProp× isPropIsBoundedBelow isPropIsBoundedAbove
+IsPosetEquivRespectsJoin : {P : Poset ℓ₀ ℓ₀'} {S : Poset ℓ₁ ℓ₁'} (e : PosetEquiv P S)
+                        → ∀ a b a∨b
+                        → isJoin (isPoset→isProset (PosetStr.isPoset (P .snd))) a b a∨b
+                        ≃ isJoin (isPoset→isProset (PosetStr.isPoset (S .snd)))
+                                 (equivFun (e .fst) a)
+                                 (equivFun (e .fst) b)
+                                 (equivFun (e .fst) a∨b)
+                                 
+IsPosetEquivRespectsJoin {P = P} {S = S} (e , posEq) a b a∨b
+  = propBiimpl→Equiv (isPropIsJoin proP a b a∨b)
+                     (isPropIsJoin proS (equivFun e a) (equivFun e b) (equivFun e a∨b))
+                     (λ join x
+                       → compEquiv
+                         (compEquiv
+                           (compEquiv
+                             (IsPosetEquiv.pres≤⁻ posEq (equivFun e a∨b) x)
+                             (substEquiv (_≤P invEq e x) (retEq e a∨b))) (join (invEq e x)))
+                           (≃-× (compEquiv (IsPosetEquiv.pres≤ posEq a (invEq e x))
+                                           (substEquiv (equivFun e a ≤S_) (secEq e x)))
+                                (compEquiv (IsPosetEquiv.pres≤ posEq b (invEq e x))
+                                           (substEquiv (equivFun e b ≤S_) (secEq e x)))))
+                      λ join x
+                       → compEquiv
+                         (IsPosetEquiv.pres≤ posEq a∨b x)
+                         (compEquiv (join (equivFun e x))
+                           (≃-× (compEquiv
+                                (IsPosetEquiv.pres≤⁻ posEq (equivFun e a) (equivFun e x))
+                                  (subst2Equiv _≤P_ (retEq e a) (retEq e x)))
+                                (compEquiv
+                                (IsPosetEquiv.pres≤⁻ posEq (equivFun e b) (equivFun e x))
+                                  (subst2Equiv _≤P_ (retEq e b) (retEq e x)))))
+  where _≤P_ = PosetStr._≤_ (P .snd)
+        _≤S_ = PosetStr._≤_ (S .snd)
+
+        posP = PosetStr.isPoset (P .snd)
+        posS = PosetStr.isPoset (S .snd)
+
+        proP = isPoset→isProset posP
+        proS = isPoset→isProset posS
+
+module _
+  (pos : Poset ℓ ℓ')
+  where
+    private
+      pro = isPoset→isProset (PosetStr.isPoset (snd pos))
+
+    isMeetSemipseudolattice : Type (ℓ-max ℓ ℓ')
+    isMeetSemipseudolattice = ∀ a b → Meet pro a b
+
+    isJoinSemipseudolattice : Type (ℓ-max ℓ ℓ')
+    isJoinSemipseudolattice = ∀ a b → Join pro a b
+
+    isMeetSemilattice : Type (ℓ-max ℓ ℓ')
+    isMeetSemilattice = isMeetSemipseudolattice × Greatest pro ((fst pos) , (id↪ _))
+
+    isJoinSemilattice : Type (ℓ-max ℓ ℓ')
+    isJoinSemilattice = isJoinSemipseudolattice × Least pro ((fst pos) , (id↪ _))
+
+    isPseudolattice : Type (ℓ-max ℓ ℓ')
+    isPseudolattice = isMeetSemipseudolattice × isJoinSemipseudolattice
+
+    isLattice : Type (ℓ-max ℓ ℓ')
+    isLattice = isMeetSemilattice × isJoinSemilattice
+
+    -- These are all propositonal statements
+    isPropIsMeetSemipseudolattice : isProp isMeetSemipseudolattice
+    isPropIsMeetSemipseudolattice
+      = isPropΠ2 λ a b → MeetUnique (PosetStr.isPoset (snd pos)) a b
+
+    isPropIsJoinSemipseudolattice : isProp isJoinSemipseudolattice
+    isPropIsJoinSemipseudolattice
+      = isPropΠ2 λ a b → JoinUnique (PosetStr.isPoset (snd pos)) a b
+
+    isPropIsMeetSemilattice : isProp isMeetSemilattice
+    isPropIsMeetSemilattice = isProp× isPropIsMeetSemipseudolattice
+                                     (GreatestUnique (PosetStr.isPoset (snd pos))
+                                                     {P = (fst pos) , (id↪ (fst pos))})
+
+    isPropIsJoinSemilattice : isProp isJoinSemilattice
+    isPropIsJoinSemilattice = isProp× isPropIsJoinSemipseudolattice
+                                     (LeastUnique (PosetStr.isPoset (snd pos))
+                                                  {P = (fst pos) , (id↪ (fst pos))})
+
+    isPropIsPseudolattice : isProp isPseudolattice
+    isPropIsPseudolattice = isProp× isPropIsMeetSemipseudolattice
+                                    isPropIsJoinSemipseudolattice
+
+    isPropIsLattice : isProp isLattice
+    isPropIsLattice = isProp× isPropIsMeetSemilattice
+                              isPropIsJoinSemilattice
