@@ -304,25 +304,20 @@ IsPosetEquivRespectsMeet {P = P} {S = S} (e , posEq) a b a∧b
   = propBiimpl→Equiv (isPropIsMeet proP a b a∧b)
                      (isPropIsMeet proS (equivFun e a) (equivFun e b) (equivFun e a∧b))
                      (λ meet x
-                       → compEquiv
-                         (compEquiv
-                           (compEquiv
-                             (IsPosetEquiv.pres≤⁻ posEq x (equivFun e a∧b))
-                             (substEquiv (invEq e x ≤P_) (retEq e a∧b))) (meet (invEq e x)))
-                           (≃-× (compEquiv (IsPosetEquiv.pres≤ posEq (invEq e x) a)
-                                           (substEquiv (_≤S equivFun e a) (secEq e x)))
-                                (compEquiv (IsPosetEquiv.pres≤ posEq (invEq e x) b)
-                                           (substEquiv (_≤S equivFun e b) (secEq e x)))))
+                       → IsPosetEquiv.pres≤⁻ posEq x (equivFun e a∧b) ∙ₑ
+                         substEquiv (invEq e x ≤P_) (retEq e a∧b) ∙ₑ
+                         meet (invEq e x) ∙ₑ
+                         ≃-× (IsPosetEquiv.pres≤ posEq (invEq e x) a ∙ₑ
+                              substEquiv (_≤S equivFun e a) (secEq e x))
+                             (IsPosetEquiv.pres≤ posEq (invEq e x) b ∙ₑ
+                              substEquiv (_≤S equivFun e b) (secEq e x)))
                       λ meet x
-                       → compEquiv
-                         (IsPosetEquiv.pres≤ posEq x a∧b)
-                         (compEquiv (meet (equivFun e x))
-                           (≃-× (compEquiv
-                                (IsPosetEquiv.pres≤⁻ posEq (equivFun e x) (equivFun e a))
-                                  (subst2Equiv _≤P_ (retEq e x) (retEq e a)))
-                                (compEquiv
-                                (IsPosetEquiv.pres≤⁻ posEq (equivFun e x) (equivFun e b))
-                                  (subst2Equiv _≤P_ (retEq e x) (retEq e b)))))
+                       → IsPosetEquiv.pres≤ posEq x a∧b ∙ₑ
+                         meet (equivFun e x) ∙ₑ
+                         ≃-× (IsPosetEquiv.pres≤⁻ posEq (equivFun e x) (equivFun e a) ∙ₑ
+                               subst2Equiv _≤P_ (retEq e x) (retEq e a))
+                             (IsPosetEquiv.pres≤⁻ posEq (equivFun e x) (equivFun e b) ∙ₑ
+                               subst2Equiv _≤P_ (retEq e x) (retEq e b))
   where _≤P_ = PosetStr._≤_ (P .snd)
         _≤S_ = PosetStr._≤_ (S .snd)
 
@@ -344,25 +339,20 @@ IsPosetEquivRespectsJoin {P = P} {S = S} (e , posEq) a b a∨b
   = propBiimpl→Equiv (isPropIsJoin proP a b a∨b)
                      (isPropIsJoin proS (equivFun e a) (equivFun e b) (equivFun e a∨b))
                      (λ join x
-                       → compEquiv
-                         (compEquiv
-                           (compEquiv
-                             (IsPosetEquiv.pres≤⁻ posEq (equivFun e a∨b) x)
-                             (substEquiv (_≤P invEq e x) (retEq e a∨b))) (join (invEq e x)))
-                           (≃-× (compEquiv (IsPosetEquiv.pres≤ posEq a (invEq e x))
-                                           (substEquiv (equivFun e a ≤S_) (secEq e x)))
-                                (compEquiv (IsPosetEquiv.pres≤ posEq b (invEq e x))
-                                           (substEquiv (equivFun e b ≤S_) (secEq e x)))))
+                       → IsPosetEquiv.pres≤⁻ posEq (equivFun e a∨b) x ∙ₑ
+                         substEquiv (_≤P invEq e x) (retEq e a∨b) ∙ₑ
+                         join (invEq e x) ∙ₑ
+                         ≃-× (IsPosetEquiv.pres≤ posEq a (invEq e x) ∙ₑ
+                               substEquiv (equivFun e a ≤S_) (secEq e x))
+                              (IsPosetEquiv.pres≤ posEq b (invEq e x) ∙ₑ
+                               substEquiv (equivFun e b ≤S_) (secEq e x)))
                       λ join x
-                       → compEquiv
-                         (IsPosetEquiv.pres≤ posEq a∨b x)
-                         (compEquiv (join (equivFun e x))
-                           (≃-× (compEquiv
-                                (IsPosetEquiv.pres≤⁻ posEq (equivFun e a) (equivFun e x))
-                                  (subst2Equiv _≤P_ (retEq e a) (retEq e x)))
-                                (compEquiv
-                                (IsPosetEquiv.pres≤⁻ posEq (equivFun e b) (equivFun e x))
-                                  (subst2Equiv _≤P_ (retEq e b) (retEq e x)))))
+                       → IsPosetEquiv.pres≤ posEq a∨b x ∙ₑ
+                         join (equivFun e x) ∙ₑ
+                         ≃-× (IsPosetEquiv.pres≤⁻ posEq (equivFun e a) (equivFun e x) ∙ₑ
+                               subst2Equiv _≤P_ (retEq e a) (retEq e x))
+                              (IsPosetEquiv.pres≤⁻ posEq (equivFun e b) (equivFun e x) ∙ₑ
+                               subst2Equiv _≤P_ (retEq e b) (retEq e x))
   where _≤P_ = PosetStr._≤_ (P .snd)
         _≤S_ = PosetStr._≤_ (S .snd)
 
