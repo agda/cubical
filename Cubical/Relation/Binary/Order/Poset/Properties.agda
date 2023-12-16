@@ -6,6 +6,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Transport
 
 open import Cubical.Functions.Embedding
@@ -377,6 +378,8 @@ module _
     private
       pro = isPoset→isProset (PosetStr.isPoset (snd pos))
 
+      is = PosetStr.isPoset (snd pos)
+
     isMeetSemipseudolattice : Type (ℓ-max ℓ ℓ')
     isMeetSemipseudolattice = ∀ a b → Meet pro a b
 
@@ -384,10 +387,10 @@ module _
     isJoinSemipseudolattice = ∀ a b → Join pro a b
 
     isMeetSemilattice : Type (ℓ-max ℓ ℓ')
-    isMeetSemilattice = isMeetSemipseudolattice × Greatest pro ((fst pos) , (id↪ _))
+    isMeetSemilattice = isMeetSemipseudolattice × Greatest pro (⟨ pos ⟩ , (id↪ _))
 
     isJoinSemilattice : Type (ℓ-max ℓ ℓ')
-    isJoinSemilattice = isJoinSemipseudolattice × Least pro ((fst pos) , (id↪ _))
+    isJoinSemilattice = isJoinSemipseudolattice × Least pro (⟨ pos ⟩ , (id↪ _))
 
     isPseudolattice : Type (ℓ-max ℓ ℓ')
     isPseudolattice = isMeetSemipseudolattice × isJoinSemipseudolattice
@@ -398,21 +401,19 @@ module _
     -- These are all propositonal statements
     isPropIsMeetSemipseudolattice : isProp isMeetSemipseudolattice
     isPropIsMeetSemipseudolattice
-      = isPropΠ2 λ a b → MeetUnique (PosetStr.isPoset (snd pos)) a b
+      = isPropΠ2 λ a b → MeetUnique is a b
 
     isPropIsJoinSemipseudolattice : isProp isJoinSemipseudolattice
     isPropIsJoinSemipseudolattice
-      = isPropΠ2 λ a b → JoinUnique (PosetStr.isPoset (snd pos)) a b
+      = isPropΠ2 λ a b → JoinUnique is a b
 
     isPropIsMeetSemilattice : isProp isMeetSemilattice
     isPropIsMeetSemilattice = isProp× isPropIsMeetSemipseudolattice
-                                     (GreatestUnique (PosetStr.isPoset (snd pos))
-                                                     {P = (fst pos) , (id↪ (fst pos))})
+                                     (GreatestUnique is {P = ⟨ pos ⟩ , (id↪ ⟨ pos ⟩)})
 
     isPropIsJoinSemilattice : isProp isJoinSemilattice
     isPropIsJoinSemilattice = isProp× isPropIsJoinSemipseudolattice
-                                     (LeastUnique (PosetStr.isPoset (snd pos))
-                                                  {P = (fst pos) , (id↪ (fst pos))})
+                                     (LeastUnique is {P = ⟨ pos ⟩ , (id↪ ⟨ pos ⟩)})
 
     isPropIsPseudolattice : isProp isPseudolattice
     isPropIsPseudolattice = isProp× isPropIsMeetSemipseudolattice
@@ -421,3 +422,124 @@ module _
     isPropIsLattice : isProp isLattice
     isPropIsLattice = isProp× isPropIsMeetSemilattice
                               isPropIsJoinSemilattice
+
+    module _
+      (lat : isPseudolattice)
+      where
+        private
+          _∧l_ : ⟨ pos ⟩ → ⟨ pos ⟩ → ⟨ pos ⟩
+          a ∧l b = (lat .fst a b) .fst
+
+          _∨l_ : ⟨ pos ⟩ → ⟨ pos ⟩ → ⟨ pos ⟩
+          a ∨l b = (lat .snd a b) .fst
+
+          set = IsPoset.is-set is
+
+          rfl = IsPoset.is-refl is
+
+        MeetDistLJoin : Type ℓ
+        MeetDistLJoin = ∀ a b c → a ∧l (b ∨l c) ≡ (a ∧l b) ∨l (a ∧l c)
+
+        MeetDistRJoin : Type ℓ
+        MeetDistRJoin = ∀ a b c → (a ∨l b) ∧l c ≡ (a ∧l c) ∨l (b ∧l c)
+
+        JoinDistLMeet : Type ℓ
+        JoinDistLMeet = ∀ a b c → a ∨l (b ∧l c) ≡ (a ∨l b) ∧l (a ∨l c)
+
+        JoinDistRMeet : Type ℓ
+        JoinDistRMeet = ∀ a b c → (a ∧l b) ∨l c ≡ (a ∨l c) ∧l (b ∨l c)
+
+        MeetAbsorbLJoin : ∀ a b → a ∧l (a ∨l b) ≡ a
+        MeetAbsorbLJoin a b
+          = sym (equivFun
+                (order≃meet
+                   is a (a ∨l b) (a ∧l (a ∨l b))
+                  (lat .fst a (a ∨l b) .snd))
+                (equivFun (lat .snd a b .snd (a ∨l b))
+                          (rfl (a ∨l b)) .fst))
+
+        MeetAbsorbRJoin : ∀ a b → (a ∨l b) ∧l a ≡ a
+        MeetAbsorbRJoin a b
+          = meetComm is (lat .fst) (a ∨l b) a ∙
+            MeetAbsorbLJoin a b
+
+        JoinAbsorbLMeet : ∀ a b → a ∨l (a ∧l b) ≡ a
+        JoinAbsorbLMeet a b
+          = sym (equivFun
+                (order≃join
+                  is (a ∧l b) a (a ∨l (a ∧l b))
+                                (isJoinComm pro a (a ∧l b) (a ∨l (a ∧l b))
+                                           (lat .snd a (a ∧l b) .snd)))
+                (equivFun (lat .fst a b .snd (a ∧l b)) (rfl (a ∧l b)) .fst))
+
+        JoinAbsorbRMeet : ∀ a b → (a ∧l b) ∨l a ≡ a
+        JoinAbsorbRMeet a b
+          = joinComm is (lat .snd) (a ∧l b) a ∙
+            JoinAbsorbLMeet a b
+
+        isPropMeetDistLJoin : isProp MeetDistLJoin
+        isPropMeetDistLJoin = isPropΠ3 λ _ _ _ → set _ _
+
+        isPropMeetDistRJoin : isProp MeetDistRJoin
+        isPropMeetDistRJoin = isPropΠ3 λ _ _ _ → set _ _
+
+        isPropJoinDistLMeet : isProp JoinDistLMeet
+        isPropJoinDistLMeet = isPropΠ3 λ _ _ _ → set _ _
+
+        isPropJoinDistRMeet : isProp JoinDistRMeet
+        isPropJoinDistRMeet = isPropΠ3 λ _ _ _ → set _ _
+
+        MeetDistLJoin≃MeetDistRJoin : MeetDistLJoin ≃ MeetDistRJoin
+        MeetDistLJoin≃MeetDistRJoin
+          = propBiimpl→Equiv isPropMeetDistLJoin
+                             isPropMeetDistRJoin
+                            (λ distl a b c → meetComm is (lat .fst) (a ∨l b) c ∙
+                                             distl c a b ∙
+                                             cong₂ _∨l_ (meetComm is (lat .fst) c a)
+                                                        (meetComm is (lat .fst) c b))
+                             λ distr a b c → meetComm is (lat .fst) a (b ∨l c) ∙
+                                             distr b c a ∙
+                                             cong₂ _∨l_ (meetComm is (lat .fst) b a)
+                                                        (meetComm is (lat .fst) c a)
+
+        JoinDistLMeet≃JoinDistRMeet : JoinDistLMeet ≃ JoinDistRMeet
+        JoinDistLMeet≃JoinDistRMeet
+          = propBiimpl→Equiv isPropJoinDistLMeet
+                             isPropJoinDistRMeet
+                            (λ distl a b c → joinComm is (lat .snd) (a ∧l b) c ∙
+                                             distl c a b ∙
+                                             cong₂ _∧l_ (joinComm is (lat .snd) c a)
+                                                        (joinComm is (lat .snd) c b))
+                             λ distr a b c → joinComm is (lat .snd) a (b ∧l c) ∙
+                                             distr b c a ∙
+                                             cong₂ _∧l_ (joinComm is (lat .snd) b a)
+                                                        (joinComm is (lat .snd) c a)
+
+        MeetDistLJoin≃JoinDistLMeet : MeetDistLJoin ≃ JoinDistLMeet
+        MeetDistLJoin≃JoinDistLMeet
+          = propBiimpl→Equiv isPropMeetDistLJoin
+                             isPropJoinDistLMeet
+                             (λ dist a b c  → (a ∨l  (b  ∧l  c))                      ≡⟨ cong (_∨l (b ∧l c)) (sym (JoinAbsorbLMeet a c)) ⟩
+                                             ((a ∨l  (a  ∧l  c)) ∨l  (b ∧l c))        ≡⟨ sym (joinAssoc is (lat .snd) a (a ∧l c) (b ∧l c)) ⟩
+                                              (a ∨l ((a  ∧l  c)  ∨l  (b ∧l c)))       ≡⟨ cong (a ∨l_) (sym (equivFun MeetDistLJoin≃MeetDistRJoin dist a b c)) ⟩
+                                              (a ∨l ((a  ∨l  b)  ∧l   c))             ≡⟨ cong (_∨l ((a ∨l b) ∧l c)) (sym (MeetAbsorbRJoin a b)) ⟩
+                                            (((a ∨l   b) ∧l  a)  ∨l ((a ∨l b) ∧l c)) ≡⟨ sym (dist (a ∨l b) a c) ⟩
+                                             ((a ∨l   b) ∧l (a   ∨l   c))             ∎)
+                              λ dist' a b c → (a ∧l  (b  ∨l c))                      ≡⟨ cong (_∧l (b ∨l c)) (sym (MeetAbsorbLJoin a c)) ⟩
+                                             ((a ∧l  (a  ∨l c)) ∧l  (b ∨l c))        ≡⟨ sym (meetAssoc is (lat .fst) a (a ∨l c) (b ∨l c)) ⟩
+                                              (a ∧l ((a  ∨l c)  ∧l  (b ∨l c)))      ≡⟨ cong (a ∧l_) (sym (equivFun JoinDistLMeet≃JoinDistRMeet dist' a b c)) ⟩
+                                              (a ∧l ((a  ∧l b)  ∨l   c))             ≡⟨ cong (_∧l ((a ∧l b) ∨l c)) (sym (JoinAbsorbRMeet a b)) ⟩
+                                            (((a ∧l   b) ∨l a)  ∧l ((a ∧l b) ∨l c)) ≡⟨ sym (dist' (a ∧l b) a c) ⟩
+                                             ((a ∧l   b) ∨l (a  ∧l   c))             ∎
+
+        MeetDistRJoin≃JoinDistRMeet : MeetDistRJoin ≃ JoinDistRMeet
+        MeetDistRJoin≃JoinDistRMeet = invEquiv MeetDistLJoin≃MeetDistRJoin ∙ₑ
+                                      MeetDistLJoin≃JoinDistLMeet ∙ₑ
+                                      JoinDistLMeet≃JoinDistRMeet
+
+        -- Since all of those varieties of distributivity are equivalent, we say that MeetDistLJoin is are canonical version of distributivity
+        isDistributive : Type ℓ
+        isDistributive = MeetDistLJoin
+
+        isPropIsDistributive : isProp isDistributive
+        isPropIsDistributive = isPropMeetDistLJoin
