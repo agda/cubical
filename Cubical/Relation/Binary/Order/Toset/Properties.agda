@@ -207,9 +207,13 @@ TosetIsPseudolattice tos = meet , join
                               fst))
                  (total a b)
 
+-- We take the pseudolattice component in as an assumption because more likely than not,
+-- the goal is to prove some meet and join on a toset is distributive, not the
+-- meet and join that implicitly come with any toset
 TosetIsDistributivePseudolattice : (tos : Toset ℓ ℓ')
-                                 → MeetDistLJoin (Toset→Poset tos) (TosetIsPseudolattice tos)
-TosetIsDistributivePseudolattice tos = dist
+                                 → (lat : isPseudolattice (Toset→Poset tos))
+                                 → MeetDistLJoin (Toset→Poset tos) lat
+TosetIsDistributivePseudolattice tos lat = dist
   where
     _≤_ = TosetStr._≤_ (tos .snd)
     is = TosetStr.isToset (tos .snd)
@@ -229,16 +233,16 @@ TosetIsDistributivePseudolattice tos = dist
     total = IsToset.is-total is
 
     _∧l_ : ⟨ tos ⟩ → ⟨ tos ⟩ → ⟨ tos ⟩
-    a ∧l b = TosetIsPseudolattice tos .fst a b .fst
+    a ∧l b = lat .fst a b .fst
 
     meet : ∀ a b → isMeet pro a b (a ∧l b)
-    meet a b = TosetIsPseudolattice tos .fst a b .snd
+    meet a b = lat .fst a b .snd
 
     _∨l_ : ⟨ tos ⟩ → ⟨ tos ⟩ → ⟨ tos ⟩
-    a ∨l b = TosetIsPseudolattice tos .snd a b .fst
+    a ∨l b = lat .snd a b .fst
 
     join : ∀ a b → isJoin pro a b (a ∨l b)
-    join a b = TosetIsPseudolattice tos .snd a b .snd
+    join a b = lat .snd a b .snd
 
     order→meet : ∀{a b} → a ≤ b → a ∧l b ≡ a
     order→meet {a} {b} a≤b = sym (equivFun (order≃meet pos a b (a ∧l b) (meet a b)) a≤b)
