@@ -6,8 +6,10 @@ open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Empty as ⊥
 
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
 
 open import Cubical.Functions.Embedding
 
@@ -154,3 +156,223 @@ module _
     isMaximal→isGreatest : ∀ n → isMaximal pre P n → isGreatest pre P n
     isMaximal→isGreatest n ism m
       = ∥₁.rec (prop _ _) (⊎.rec (λ n≤m → ism m n≤m) (λ m≤n → m≤n)) (total (toA n) (toA m))
+
+TosetIsPseudolattice : (tos : Toset ℓ ℓ')
+                     → isPseudolattice (Toset→Poset tos)
+TosetIsPseudolattice tos = meet , join
+  where
+    is = TosetStr.isToset (tos .snd)
+
+    posis = PosetStr.isPoset (Toset→Poset tos .snd)
+
+    prop = IsToset.is-prop-valued is
+
+    rfl = IsToset.is-refl is
+
+    trans = IsToset.is-trans is
+
+    total = IsToset.is-total is
+
+    meet : isMeetSemipseudolattice (Toset→Poset tos)
+    meet a b = ∥₁.rec (MeetUnique posis a b)
+                 (⊎.rec
+                   (λ a≤b → a ,
+                     λ x → propBiimpl→Equiv
+                             (prop _ _)
+                             (isProp× (prop _ _) (prop _ _))
+                             (λ x≤a → x≤a , (trans x a b x≤a a≤b))
+                              fst)
+                   (λ b≤a → b ,
+                     λ x → propBiimpl→Equiv
+                             (prop _ _)
+                             (isProp× (prop _ _) (prop _ _))
+                             (λ x≤b → trans x b a x≤b b≤a , x≤b)
+                              snd))
+                 (total a b)
+
+    join : isJoinSemipseudolattice (Toset→Poset tos)
+    join a b = ∥₁.rec (JoinUnique posis a b)
+                 (⊎.rec
+                   (λ a≤b → b ,
+                     λ x → propBiimpl→Equiv
+                             (prop _ _)
+                             (isProp× (prop _ _) (prop _ _))
+                             (λ b≤x → trans a b x a≤b b≤x , b≤x)
+                              snd)
+                   (λ b≤a → a ,
+                     λ x → propBiimpl→Equiv
+                             (prop _ _)
+                             (isProp× (prop _ _) (prop _ _))
+                             (λ a≤x → a≤x , trans b a x b≤a a≤x)
+                              fst))
+                 (total a b)
+
+TosetIsDistributivePseudolattice : (tos : Toset ℓ ℓ')
+                                 → MeetDistLJoin (Toset→Poset tos) (TosetIsPseudolattice tos)
+TosetIsDistributivePseudolattice tos = dist
+  where
+    _≤_ = TosetStr._≤_ (tos .snd)
+    is = TosetStr.isToset (tos .snd)
+
+    pos = isToset→isPoset is
+
+    pro = isPoset→isProset pos
+
+    set = IsToset.is-set is
+
+    rfl = IsToset.is-refl is
+
+    trans = IsToset.is-trans is
+
+    anti = IsToset.is-antisym is
+
+    total = IsToset.is-total is
+
+    _∧l_ : ⟨ tos ⟩ → ⟨ tos ⟩ → ⟨ tos ⟩
+    a ∧l b = TosetIsPseudolattice tos .fst a b .fst
+
+    meet : ∀ a b → isMeet pro a b (a ∧l b)
+    meet a b = TosetIsPseudolattice tos .fst a b .snd
+
+    _∨l_ : ⟨ tos ⟩ → ⟨ tos ⟩ → ⟨ tos ⟩
+    a ∨l b = TosetIsPseudolattice tos .snd a b .fst
+
+    join : ∀ a b → isJoin pro a b (a ∨l b)
+    join a b = TosetIsPseudolattice tos .snd a b .snd
+
+    order→meet : ∀{a b} → a ≤ b → a ∧l b ≡ a
+    order→meet {a} {b} a≤b = sym (equivFun (order≃meet pos a b (a ∧l b) (meet a b)) a≤b)
+
+    order→join : ∀{a b} → a ≤ b → a ∨l b ≡ b
+    order→join {a} {b} a≤b = sym (equivFun (order≃join pos a b (a ∨l b) (join a b)) a≤b)
+
+    ∧Comm : ∀{a b} → a ∧l b ≡ b ∧l a
+    ∧Comm {a} {b} = meetComm pos (λ x y → (x ∧l y) , meet x y) a b
+
+    ∨Comm : ∀{ a b } → a ∨l b ≡ b ∨l a
+    ∨Comm {a} {b} = joinComm pos (λ x y → (x ∨l y) , join x y) a b
+
+    dist : ∀ a b c
+         → a ∧l (b ∨l c) ≡ (a ∧l b) ∨l (a ∧l c)
+    dist a b c = lem1+2+3+4+5+6+7+8
+      where
+        goal = a ∧l (b ∨l c) ≡ (a ∧l b) ∨l (a ∧l c)
+
+        lem1 : a ≤ b
+             → b ≤ c
+             → a ≤ c
+             → goal
+        lem1 a≤b b≤c a≤c = (cong (a ∧l_) (order→join b≤c) ∙
+                                   order→meet a≤c) ∙
+                             sym (cong₂ _∨l_ (order→meet a≤b)
+                                             (order→meet a≤c) ∙
+                                  order→join (rfl a))
+
+        lem2 : a ≤ b
+             → b ≤ c
+             → c ≤ a
+             → goal
+        lem2 a≤b b≤c c≤a = (cong (a ∧l_) (order→join b≤c) ∙
+                                   ∧Comm ∙
+                                   order→meet c≤a) ∙
+                             sym (cong₂ _∨l_ (order→meet a≤b)
+                                             (∧Comm ∙ order→meet c≤a) ∙
+                                  ∨Comm ∙
+                                  order→join c≤a ∙
+                                  anti a c (trans a b c a≤b b≤c) c≤a)
+
+        lem1+2 : a ≤ b
+               → b ≤ c
+               → goal
+        lem1+2 a≤b b≤c = ∥₁.rec (set _ _) (⊎.rec (lem1 a≤b b≤c) (lem2 a≤b b≤c)) (total a c)
+
+        lem3 : a ≤ b
+             → c ≤ b
+             → a ≤ c
+             → goal
+        lem3 a≤b c≤b a≤c = (cong (a ∧l_) (∨Comm ∙
+                                            order→join c≤b) ∙
+                                    order→meet a≤b) ∙
+                             sym (cong₂ _∨l_ (order→meet a≤b)
+                                             (order→meet a≤c) ∙
+                                  order→join (rfl a))
+
+        lem4 : a ≤ b
+             → c ≤ b
+             → c ≤ a
+             → goal
+        lem4 a≤b c≤b c≤a = (cong (a ∧l_) (∨Comm ∙
+                                            order→join c≤b) ∙
+                                    order→meet a≤b) ∙
+                             sym (cong₂ _∨l_ (order→meet a≤b)
+                                             (∧Comm ∙ order→meet c≤a) ∙
+                                  ∨Comm ∙
+                                  order→join c≤a)
+
+        lem3+4 : a ≤ b
+               → c ≤ b
+               → goal
+        lem3+4 a≤b c≤b = ∥₁.rec (set _ _ ) (⊎.rec (lem3 a≤b c≤b) (lem4 a≤b c≤b)) (total a c)
+
+        lem1+2+3+4 : a ≤ b
+                   → goal
+        lem1+2+3+4 a≤b = ∥₁.rec (set _ _) (⊎.rec (lem1+2 a≤b) (lem3+4 a≤b)) (total b c)
+
+        lem5 : b ≤ a
+             → b ≤ c
+             → a ≤ c
+             → goal
+        lem5 b≤a b≤c a≤c = (cong (a ∧l_) (order→join b≤c) ∙
+                                   order→meet a≤c) ∙
+                             sym (cong₂ _∨l_ (∧Comm ∙ order→meet b≤a) (order→meet a≤c) ∙
+                                  order→join b≤a)
+
+        lem6 : b ≤ a
+             → b ≤ c
+             → c ≤ a
+             → goal
+        lem6 b≤a b≤c c≤a = (cong (a ∧l_) (order→join b≤c) ∙
+                                   ∧Comm ∙
+                                   order→meet c≤a) ∙
+                             sym (cong₂ _∨l_ (∧Comm ∙ order→meet b≤a)
+                                             (∧Comm ∙ order→meet c≤a) ∙
+                                  order→join b≤c)
+
+        lem5+6 : b ≤ a
+               → b ≤ c
+               → goal
+        lem5+6 b≤a b≤c = ∥₁.rec (set _ _) (⊎.rec (lem5 b≤a b≤c) (lem6 b≤a b≤c)) (total a c)
+
+        lem7 : b ≤ a
+             → c ≤ b
+             → a ≤ c
+             → goal
+        lem7 b≤a c≤b a≤c = (cong (a ∧l_) (∨Comm ∙ order→join c≤b) ∙
+                                   ∧Comm ∙
+                                   order→meet b≤a) ∙
+                             sym (cong₂ _∨l_ (∧Comm ∙ order→meet b≤a)
+                                             (order→meet a≤c) ∙
+                                  order→join b≤a ∙ anti a b (trans a c b a≤c c≤b) b≤a)
+
+        lem8 : b ≤ a
+             → c ≤ b
+             → c ≤ a
+             → goal
+        lem8 b≤a c≤b c≤a = (cong (a ∧l_) (∨Comm ∙ order→join c≤b) ∙
+                                   ∧Comm ∙
+                                   order→meet b≤a) ∙
+                             sym (cong₂ _∨l_ (∧Comm ∙ order→meet b≤a)
+                                             (∧Comm ∙ order→meet c≤a) ∙
+                                  ∨Comm ∙ order→join c≤b)
+
+        lem7+8 : b ≤ a
+               → c ≤ b
+               → goal
+        lem7+8 b≤a c≤b = ∥₁.rec (set _ _) (⊎.rec (lem7 b≤a c≤b) (lem8 b≤a c≤b)) (total a c)
+
+        lem5+6+7+8 : b ≤ a
+                   → goal
+        lem5+6+7+8 b≤a = ∥₁.rec (set _ _) (⊎.rec (lem5+6 b≤a) (lem7+8 b≤a)) (total b c)
+
+        lem1+2+3+4+5+6+7+8 : goal
+        lem1+2+3+4+5+6+7+8 = ∥₁.rec (set _ _) (⊎.rec lem1+2+3+4 lem5+6+7+8) (total a b)
