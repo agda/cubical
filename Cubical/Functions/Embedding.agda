@@ -430,6 +430,14 @@ _≃Emb_ = EmbeddingIdentityPrinciple.f≃g
 EmbeddingIP : {B : Type ℓ} (f g : Embedding B ℓ') → f ≃Emb g ≃ (f ≡ g)
 EmbeddingIP = EmbeddingIdentityPrinciple.EmbeddingIP
 
+-- Using the above, we can show that the collection of embeddings forms a set
+isSetEmbedding : {B : Type ℓ} {ℓ' : Level} → isSet (Embedding B ℓ')
+isSetEmbedding M N
+  = isOfHLevelRespectEquiv 1
+      (EmbeddingIP M N)
+      (isProp× (isPropΠ2 (λ b _ → isEmbedding→hasPropFibers (N .snd .snd) b))
+               (isPropΠ2  λ b _ → isEmbedding→hasPropFibers (M .snd .snd) b))
+
 -- Cantor's theorem for sets
 Set-Embedding-into-Powerset : {A : Type ℓ} → isSet A → A ↪ ℙ A
 Set-Embedding-into-Powerset {A = A} setA
@@ -462,3 +470,21 @@ Set-Embedding-into-Powerset {A = A} setA
 
 EmbeddingΣProp : {A : Type ℓ} → {B : A → Type ℓ'} → (∀ a → isProp (B a)) → Σ A B ↪ A
 EmbeddingΣProp f = fst , (λ _ _ → isEmbeddingFstΣProp f)
+
+-- Since embeddings are equivalent to subsets, we can create some notation around this
+_∈ₑ_ : {A : Type ℓ} → A → Embedding A ℓ' → Type (ℓ-max ℓ ℓ')
+x ∈ₑ (_ , (f , _)) = fiber f x
+
+isProp∈ₑ : {A : Type ℓ} (x : A) (S : Embedding A ℓ') → isProp (x ∈ₑ S)
+isProp∈ₑ x S = isEmbedding→hasPropFibers (S .snd .snd) x
+
+_⊆ₑ_ : {A : Type ℓ} → Embedding A ℓ' → Embedding A ℓ'' → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+X ⊆ₑ Y = ∀ x → x ∈ₑ X → x ∈ₑ Y
+
+isRefl⊆ₑ : {A : Type ℓ} → (S : Embedding A ℓ') → S ⊆ₑ S
+isRefl⊆ₑ S x x∈S = x∈S
+
+isAntisym⊆ₑ : {A : Type ℓ} {X Y : Embedding A ℓ'}
+            → X ⊆ₑ Y × Y ⊆ₑ X
+            → X ≡ Y
+isAntisym⊆ₑ {X = X} {Y = Y} = equivFun (EmbeddingIP X Y)

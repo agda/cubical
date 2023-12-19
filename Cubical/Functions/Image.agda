@@ -30,12 +30,7 @@ module _ (f : A → B) where
   Image = Σ[ y ∈ B ] isInImage y
 
   imageInclusion : Image ↪ B
-  imageInclusion = fst ,
-    hasPropFibers→isEmbedding {f = fst}
-      λ y → isOfHLevelRetractFromIso 1 (ϕ y) isPropPropTrunc
-      where
-        ϕ : (y : B) → Iso _ _
-        ϕ y = invIso (fiberProjIso B isInImage y)
+  imageInclusion = EmbeddingΣProp isPropIsInImage
 
   restrictToImage : A → Image
   restrictToImage x = (f x) , ∣ x , refl ∣₁
