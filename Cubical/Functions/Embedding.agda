@@ -15,7 +15,10 @@ open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence using (ua; univalence; pathToEquiv)
 open import Cubical.Functions.Fibration
 
+open import Cubical.HITs.PropositionalTruncation.Base
+
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum.Base
 open import Cubical.Functions.Fibration
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Relation.Nullary using (Discrete; yes; no)
@@ -24,11 +27,10 @@ open import Cubical.Structures.Axioms
 open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Data.Nat using (ℕ; zero; suc)
-open import Cubical.Data.Sigma
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
     A B C : Type ℓ
     f h : A → B
     w x : A
@@ -488,3 +490,27 @@ isAntisym⊆ₑ : {A : Type ℓ} {X Y : Embedding A ℓ'}
             → X ⊆ₑ Y × Y ⊆ₑ X
             → X ≡ Y
 isAntisym⊆ₑ {X = X} {Y = Y} = equivFun (EmbeddingIP X Y)
+
+isTrans⊆ₑ : {A : Type ℓ}
+            (X : Embedding A ℓ')
+            (Y : Embedding A ℓ'')
+            (Z : Embedding A ℓ''')
+          → X ⊆ₑ Y
+          → Y ⊆ₑ Z
+          → X ⊆ₑ Z
+isTrans⊆ₑ X Y Z X⊆Y Y⊆Z x = (Y⊆Z x) ∘ (X⊆Y x)
+
+_∩ₑ_ : {A : Type ℓ}
+       (X : Embedding A ℓ')
+       (Y : Embedding A ℓ'')
+     → Embedding A (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+_∩ₑ_ {A = A} X Y = (Σ[ x ∈ A ] x ∈ₑ X × x ∈ₑ Y) ,
+                    EmbeddingΣProp λ x → isProp× (isProp∈ₑ x X)
+                                                 (isProp∈ₑ x Y)
+
+_∪ₑ_ : {A : Type ℓ}
+       (X : Embedding A ℓ')
+       (Y : Embedding A ℓ'')
+     → Embedding A (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+_∪ₑ_ {A = A} X Y = (Σ[ x ∈ A ] ∥ (x ∈ₑ X) ⊎ (x ∈ₑ Y) ∥₁) ,
+                    EmbeddingΣProp λ _ → squash₁

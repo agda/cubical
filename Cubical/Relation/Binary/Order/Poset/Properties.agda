@@ -2,6 +2,7 @@
 module Cubical.Relation.Binary.Order.Poset.Properties where
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -183,6 +184,14 @@ module _
     isSupremumUnique : ∀ n m → isSupremum pre P n → isSupremum pre P m → n ≡ m
     isSupremumUnique n m (isun , supn) (isum , supm)
       = anti n m (supn (m , isum)) (supm (n , isun))
+
+    InfimumUnique : (n m : Infimum pre P) → n ≡ m
+    InfimumUnique (n , infn) (m , infm) = Σ≡Prop (λ _ → isPropIsInfimum pre P _)
+                                                  (isInfimumUnique n m infn infm)
+
+    SupremumUnique : (n m : Supremum pre P) → n ≡ m
+    SupremumUnique (n , supn) (m , supm) = Σ≡Prop (λ _ → isPropIsSupremum pre P _)
+                                                   (isSupremumUnique n m supn supm)
 
   isMeetUnique : ∀ a b x y → isMeet pre a b x → isMeet pre a b y → x ≡ y
   isMeetUnique a b x y infx infy = anti x y x≤y y≤x
@@ -373,8 +382,18 @@ module _
     isMeetSemipseudolattice : Type (ℓ-max ℓ ℓ')
     isMeetSemipseudolattice = ∀ a b → Meet pro a b
 
+    isMeetCompleteSemipseudolattice : {ℓ'' : Level} → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓ''))
+    isMeetCompleteSemipseudolattice {ℓ'' = ℓ''} = {B : Type ℓ''}
+                                                → (P : B → ⟨ pos ⟩)
+                                                → Infimum pro P
+
     isJoinSemipseudolattice : Type (ℓ-max ℓ ℓ')
     isJoinSemipseudolattice = ∀ a b → Join pro a b
+
+    isJoinCompleteSemipseudolattice : {ℓ'' : Level} → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓ''))
+    isJoinCompleteSemipseudolattice {ℓ'' = ℓ''} = {B : Type ℓ''}
+                                                → (P : B → ⟨ pos ⟩)
+                                                → Supremum pro P
 
     isMeetSemilattice : Type (ℓ-max ℓ ℓ')
     isMeetSemilattice = isMeetSemipseudolattice × Greatest pro (⟨ pos ⟩ , (id↪ _))
@@ -388,14 +407,25 @@ module _
     isLattice : Type (ℓ-max ℓ ℓ')
     isLattice = isMeetSemilattice × isJoinSemilattice
 
+    isCompleteLattice : {ℓ'' : Level} → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓ''))
+    isCompleteLattice {ℓ'' = ℓ''} = isMeetCompleteSemipseudolattice {ℓ''} × isJoinCompleteSemipseudolattice {ℓ''}
+
     -- These are all propositonal statements
     isPropIsMeetSemipseudolattice : isProp isMeetSemipseudolattice
     isPropIsMeetSemipseudolattice
       = isPropΠ2 λ a b → MeetUnique is a b
 
+    isPropIsMeetCompleteSemipseudolattice : {ℓ'' : Level} → isProp (isMeetCompleteSemipseudolattice {ℓ''})
+    isPropIsMeetCompleteSemipseudolattice
+      = isPropImplicitΠ λ _ → isPropΠ λ _ → InfimumUnique is
+
     isPropIsJoinSemipseudolattice : isProp isJoinSemipseudolattice
     isPropIsJoinSemipseudolattice
       = isPropΠ2 λ a b → JoinUnique is a b
+
+    isPropIsJoinCompleteSemipseudolattice : {ℓ'' : Level} → isProp (isJoinCompleteSemipseudolattice {ℓ''})
+    isPropIsJoinCompleteSemipseudolattice
+      = isPropImplicitΠ λ _ → isPropΠ λ _ → SupremumUnique is
 
     isPropIsMeetSemilattice : isProp isMeetSemilattice
     isPropIsMeetSemilattice = isProp× isPropIsMeetSemipseudolattice
@@ -412,6 +442,33 @@ module _
     isPropIsLattice : isProp isLattice
     isPropIsLattice = isProp× isPropIsMeetSemilattice
                               isPropIsJoinSemilattice
+
+    isPropIsCompleteLattice : {ℓ'' : Level} → isProp (isCompleteLattice {ℓ''})
+    isPropIsCompleteLattice = isProp× isPropIsMeetCompleteSemipseudolattice
+                                      isPropIsJoinCompleteSemipseudolattice
+
+    -- Complete semipseudolattices are semipseudolattices
+    isMeetCompleteSemipseudolattice→isMeetSemipseudolattice : isMeetCompleteSemipseudolattice
+                                                            → isMeetSemipseudolattice
+    isMeetCompleteSemipseudolattice→isMeetSemipseudolattice meet
+      = (λ a b → (meet fst .fst) , invEq (isMeet≃isInfimum pro a b _)
+                                         (meet fst .snd))
+
+    isJoinCompleteSemipseudolattice→isJoinSemipseudolattice : isJoinCompleteSemipseudolattice
+                                                            → isJoinSemipseudolattice
+    isJoinCompleteSemipseudolattice→isJoinSemipseudolattice join
+      = (λ a b → (join fst .fst) , invEq (isJoin≃isSupremum pro a b _)
+                                         (join fst .snd))
+
+    isCompleteLattice→isLattice : isCompleteLattice
+                                → isLattice
+    isCompleteLattice→isLattice (meet , join)
+      = ((isMeetCompleteSemipseudolattice→isMeetSemipseudolattice meet) ,
+         (join (λ x → x) .fst) ,
+          isUpperBoundOfSelf→isGreatestOfSelf pro (join (λ x → x) .snd .fst)) ,
+        ((isJoinCompleteSemipseudolattice→isJoinSemipseudolattice join) ,
+          meet (λ x → x) .fst ,
+          isLowerBoundOfSelf→isLeastOfSelf pro (meet (λ x → x) .snd .fst))
 
     module _
       (lat : isPseudolattice)

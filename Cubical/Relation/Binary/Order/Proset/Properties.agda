@@ -207,6 +207,14 @@ module _
     Supremum : Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
     Supremum = Σ[ n ∈ A ] isSupremum n
 
+  isUpperBoundOfSelf→isGreatestOfSelf : ∀{n} → isUpperBound {B = A} (λ x → x) n
+                                      → isGreatest (A , (id↪ A)) n
+  isUpperBoundOfSelf→isGreatestOfSelf ub = ub
+
+  isLowerBoundOfSelf→isLeastOfSelf : ∀{n} → isLowerBound {B = A} (λ x → x) n
+                                   → isLeast (A , (id↪ A)) n
+  isLowerBoundOfSelf→isLeastOfSelf lb = lb
+
   isMeet : A → A → A → Type (ℓ-max ℓ ℓ')
   isMeet a b a∧b = ∀ x → x ≲ a∧b ≃ (x ≲ a × x ≲ b)
 

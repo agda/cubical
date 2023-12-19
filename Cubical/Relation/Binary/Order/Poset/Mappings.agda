@@ -109,18 +109,14 @@ module _
           (downA : isDownset A)
           (downB : isDownset B)
           where
-            isDownset× : isDownset (((Σ[ x ∈ ⟨ P ⟩ ] (x ∈ₑ A × x ∈ₑ B)) ,
-                                   EmbeddingΣProp λ x → isProp× (isProp∈ₑ x A)
-                                                                (isProp∈ₑ x B)))
-            isDownset× (x , (a , a≡x) , (b , b≡x)) y y≤x
+            isDownset∩ : isDownset (A ∩ₑ B)
+            isDownset∩ (x , (a , a≡x) , (b , b≡x)) y y≤x
               = (y , (downA a y (subst (y ≤_) (sym a≡x) y≤x) ,
                       downB b y (subst (y ≤_) (sym b≡x) y≤x))) , refl
 
-            isDownset⊎ : isDownset (((Σ[ x ∈ ⟨ P ⟩ ] (x ∈ₑ A ⊔′ x ∈ₑ B)) ,
-                                   EmbeddingΣProp λ _ → isPropPropTrunc))
-            isDownset⊎ (x , A⊎B) y y≤x
-              = ∥₁.rec (isProp∈ₑ y ((Σ[ x ∈ ⟨ P ⟩ ] (x ∈ₑ A ⊔′ x ∈ₑ B)) ,
-                                   EmbeddingΣProp λ _ → isPropPropTrunc))
+            isDownset∪ : isDownset (A ∪ₑ B)
+            isDownset∪ (x , A⊎B) y y≤x
+              = ∥₁.rec (isProp∈ₑ y (A ∪ₑ B))
                        (⊎.rec (λ { (a , a≡x) →
                               (y , ∣ inl (downA a y (subst (y ≤_)
                                                            (sym a≡x) y≤x)) ∣₁) , refl })
@@ -132,18 +128,14 @@ module _
           (upA : isUpset A)
           (upB : isUpset B)
           where
-            isUpset× : isUpset (((Σ[ x ∈ ⟨ P ⟩ ] (x ∈ₑ A × x ∈ₑ B)) ,
-                               EmbeddingΣProp λ x → isProp× (isProp∈ₑ x A)
-                                                            (isProp∈ₑ x B)))
-            isUpset× (x , (a , a≡x) , (b , b≡x)) y x≤y
+            isUpset∩ : isUpset (A ∩ₑ B)
+            isUpset∩ (x , (a , a≡x) , (b , b≡x)) y x≤y
               = (y , (upA a y (subst (_≤ y) (sym a≡x) x≤y) ,
                       upB b y (subst (_≤ y) (sym b≡x) x≤y))) , refl
 
-            isUpset⊎ : isUpset (((Σ[ x ∈ ⟨ P ⟩ ] (x ∈ₑ A ⊔′ x ∈ₑ B)) ,
-                               EmbeddingΣProp λ _ → isPropPropTrunc))
-            isUpset⊎ (x , A⊎B) y x≤y
-              = ∥₁.rec (isProp∈ₑ y ((Σ[ x ∈ ⟨ P ⟩ ] (x ∈ₑ A ⊔′ x ∈ₑ B)) ,
-                                   EmbeddingΣProp λ _ → isPropPropTrunc))
+            isUpset∪ : isUpset (A ∪ₑ B)
+            isUpset∪ (x , A⊎B) y x≤y
+              = ∥₁.rec (isProp∈ₑ y (A ∪ₑ B))
                        (⊎.rec (λ { (a , a≡x) →
                               (y , ∣ inl (upA a y (subst (_≤ y)
                                                          (sym a≡x) x≤y)) ∣₁) , refl })
