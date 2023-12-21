@@ -61,7 +61,20 @@ module _
                     (λ a b c → IsQuoset.is-trans quo (f a) (f b) (f c))
                     λ a b → IsQuoset.is-asym quo (f a) (f b)
 
+  isQuosetDual : IsQuoset R → IsQuoset (Dual R)
+  isQuosetDual quo
+    = isquoset (IsQuoset.is-set quo)
+               (λ a b → IsQuoset.is-prop-valued quo b a)
+               (IsQuoset.is-irrefl quo)
+               (λ a b c Rab Rbc → IsQuoset.is-trans quo c b a Rbc Rab)
+                λ a b → IsQuoset.is-asym quo b a
+
 Quoset→Poset : Quoset ℓ ℓ' → Poset ℓ (ℓ-max ℓ ℓ')
 Quoset→Poset (_ , quo)
   = poset _ (BinaryRelation.ReflClosure (QuosetStr._<_ quo))
             (isQuoset→isPosetReflClosure (QuosetStr.isQuoset quo))
+
+DualQuoset : Quoset ℓ ℓ' → Quoset ℓ ℓ'
+DualQuoset (_ , quo)
+  = quoset _ (BinaryRelation.Dual (QuosetStr._<_ quo))
+             (isQuosetDual (QuosetStr.isQuoset quo))

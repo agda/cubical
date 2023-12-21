@@ -109,6 +109,15 @@ module _
                 (IsToset.is-antisym tos (f a) (f b) a≤b b≤a))
               λ a b → IsToset.is-total tos (f a) (f b)
 
+  isTosetDual : IsToset R → IsToset (Dual R)
+  isTosetDual tos
+    = istoset (IsToset.is-set tos)
+              (λ a b → IsToset.is-prop-valued tos b a)
+              (IsToset.is-refl tos)
+              (λ a b c Rab Rbc → IsToset.is-trans tos c b a Rbc Rab)
+              (λ a b Rab Rba → IsToset.is-antisym tos a b Rba Rab)
+               λ a b → IsToset.is-total tos b a
+
 Toset→Poset : Toset ℓ ℓ' → Poset ℓ ℓ'
 Toset→Poset (_ , tos)
   = poset _ (TosetStr._≤_ tos)
@@ -120,6 +129,11 @@ Toset→Loset : (tos : Toset ℓ ℓ')
 Toset→Loset (_ , tos) dec
   = loset _ (BinaryRelation.IrreflKernel (TosetStr._≤_ tos))
             (isToset→isLosetIrreflKernel (TosetStr.isToset tos) dec)
+
+DualToset : Toset ℓ ℓ' → Toset ℓ ℓ'
+DualToset (_ , tos)
+  = toset _ (BinaryRelation.Dual (TosetStr._≤_ tos))
+            (isTosetDual (TosetStr.isToset tos))
 
 module _
   {A : Type ℓ}

@@ -483,6 +483,10 @@ isProp∈ₑ x S = isEmbedding→hasPropFibers (S .snd .snd) x
 _⊆ₑ_ : {A : Type ℓ} → Embedding A ℓ' → Embedding A ℓ'' → Type (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
 X ⊆ₑ Y = ∀ x → x ∈ₑ X → x ∈ₑ Y
 
+isProp⊆ₑ : {A : Type ℓ} (X : Embedding A ℓ') (Y : Embedding A ℓ'')
+         → isProp (X ⊆ₑ Y)
+isProp⊆ₑ _ Y = isPropΠ2 λ x _ → isProp∈ₑ x Y
+
 isRefl⊆ₑ : {A : Type ℓ} → (S : Embedding A ℓ') → S ⊆ₑ S
 isRefl⊆ₑ S x x∈S = x∈S
 
@@ -514,3 +518,17 @@ _∪ₑ_ : {A : Type ℓ}
      → Embedding A (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
 _∪ₑ_ {A = A} X Y = (Σ[ x ∈ A ] ∥ (x ∈ₑ X) ⊎ (x ∈ₑ Y) ∥₁) ,
                     EmbeddingΣProp λ _ → squash₁
+
+⋂ₑ_ : {A : Type ℓ}
+      {I : Type ℓ'}
+      (P : I → Embedding A ℓ'')
+     → Embedding A (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+⋂ₑ_ {A = A} P = (Σ[ x ∈ A ] (∀ i → x ∈ₑ P i)) ,
+                EmbeddingΣProp λ x → isPropΠ λ i → isProp∈ₑ x (P i)
+
+⋃ₑ_ : {A : Type ℓ}
+      {I : Type ℓ'}
+      (P : I → Embedding A ℓ'')
+    → Embedding A (ℓ-max (ℓ-max ℓ ℓ') ℓ'')
+⋃ₑ_ {A = A} {I = I} P = (Σ[ x ∈ A ] (∃[ i ∈ I ] x ∈ₑ P i)) ,
+                        EmbeddingΣProp λ _ → squash₁

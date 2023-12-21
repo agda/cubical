@@ -116,6 +116,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   NegationRel : Rel A A ℓ'
   NegationRel a b = ¬ (R a b)
 
+  Dual : Rel A A ℓ'
+  Dual a b = R b a
+
   module _
     {ℓ'' : Level}
     (P : Embedding A ℓ'')

@@ -103,6 +103,17 @@ module _
                λ a b ineq → isEmbedding→Inj emb a b
                            (IsLoset.is-connected los (f a) (f b) ineq)
 
+  isLosetDual : IsLoset R → IsLoset (Dual R)
+  isLosetDual los
+    = isloset (IsLoset.is-set los)
+              (λ a b → IsLoset.is-prop-valued los b a)
+              (IsLoset.is-irrefl los)
+              (λ a b c Rab Rbc → IsLoset.is-trans los c b a Rbc Rab)
+              (λ a b → IsLoset.is-asym los b a)
+              (λ a b c Rba → ∥₁.map (⊎.rec inr inl)
+                                    (IsLoset.is-weakly-linear los b a c Rba))
+               λ { a b (¬Rba , ¬Rab) → IsLoset.is-connected los a b (¬Rab , ¬Rba) }
+
 Loset→StrictOrder : Loset ℓ ℓ' → StrictOrder ℓ ℓ'
 Loset→StrictOrder (_ , los)
   = strictorder _ (LosetStr._<_ los)
@@ -114,3 +125,8 @@ Loset→Toset : (los : Loset ℓ ℓ')
 Loset→Toset (_ , los) dec
   = toset _ (BinaryRelation.ReflClosure (LosetStr._<_ los))
             (isLoset→isTosetReflClosure (LosetStr.isLoset los) dec)
+
+DualLoset : Loset ℓ ℓ' → Loset ℓ ℓ'
+DualLoset (_ , los)
+  = loset _ (BinaryRelation.Dual (LosetStr._<_ los))
+            (isLosetDual (LosetStr.isLoset los))

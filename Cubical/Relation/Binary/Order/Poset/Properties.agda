@@ -84,6 +84,14 @@ module _
               λ a b a≤b b≤a → isEmbedding→Inj emb a b
                 (IsPoset.is-antisym pos (f a) (f b) a≤b b≤a)
 
+  isPosetDual : IsPoset R → IsPoset (Dual R)
+  isPosetDual pos
+    = isposet (IsPoset.is-set pos)
+              (λ a b → IsPoset.is-prop-valued pos b a)
+              (IsPoset.is-refl pos)
+              (λ a b c Rab Rbc → IsPoset.is-trans pos c b a Rbc Rab)
+              (λ a b Rab Rba → IsPoset.is-antisym pos a b Rba Rab)
+
 Poset→Proset : Poset ℓ ℓ' → Proset ℓ ℓ'
 Poset→Proset (_ , pos)
   = proset _ (PosetStr._≤_ pos)
@@ -109,6 +117,11 @@ Poset→Quoset : Poset ℓ ℓ' → Quoset ℓ (ℓ-max ℓ ℓ')
 Poset→Quoset (_ , pos)
   = quoset _ (BinaryRelation.IrreflKernel (PosetStr._≤_ pos))
              (isPoset→isQuosetIrreflKernel (PosetStr.isPoset pos))
+
+DualPoset : Poset ℓ ℓ' → Poset ℓ ℓ'
+DualPoset (_ , pos)
+  = poset _ (BinaryRelation.Dual (PosetStr._≤_ pos))
+            (isPosetDual (PosetStr.isPoset pos))
 
 module _
   {A : Type ℓ}
@@ -459,6 +472,32 @@ module _
     isJoinCompleteSemipseudolattice→isJoinSemipseudolattice join
       = (λ a b → (join fst .fst) , invEq (isJoin≃isSupremum pro a b _)
                                          (join fst .snd))
+
+    -- They also imply each other, though we keep the two distinct for morphism reasons
+    isMeetCompleteSemipseudolattice≃isJoinCompleteSemipseudolattice : (isMeetCompleteSemipseudolattice {ℓ-max ℓ ℓ'})
+                                                                    ≃ (isJoinCompleteSemipseudolattice {ℓ-max ℓ ℓ'})
+    isMeetCompleteSemipseudolattice≃isJoinCompleteSemipseudolattice
+      = propBiimpl→Equiv isPropIsMeetCompleteSemipseudolattice
+                         isPropIsJoinCompleteSemipseudolattice to from
+      where to : isMeetCompleteSemipseudolattice
+               → isJoinCompleteSemipseudolattice {ℓ-max ℓ ℓ'}
+            to meet P = (fst lemma) ,
+                         isInfimumOfUpperBounds→isSupremum pro P (fst lemma)
+                                                                 (snd lemma)
+              where P↑ : Type _
+                    P↑ = UpperBound pro P
+
+                    lemma = meet {B = P↑} fst
+
+            from : isJoinCompleteSemipseudolattice
+                 → isMeetCompleteSemipseudolattice {ℓ-max ℓ ℓ'}
+            from join P = (fst lemma) ,
+                           isSupremumOfLowerBounds→isInfimum pro P (fst lemma)
+                                                                   (snd lemma)
+              where P↓ : Type _
+                    P↓ = LowerBound pro P
+
+                    lemma = join {B = P↓} fst
 
     isCompleteLattice→isLattice : isCompleteLattice
                                 → isLattice

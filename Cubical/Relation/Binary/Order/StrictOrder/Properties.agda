@@ -89,6 +89,16 @@ module _
               (λ a b → IsStrictOrder.is-asym strict (f a) (f b))
                λ a b c → IsStrictOrder.is-weakly-linear strict (f a) (f b) (f c)
 
+  isStrictOrderDual : IsStrictOrder R → IsStrictOrder (Dual R)
+  isStrictOrderDual strict
+    = isstrictorder (IsStrictOrder.is-set strict)
+                    (λ a b → IsStrictOrder.is-prop-valued strict b a)
+                    (IsStrictOrder.is-irrefl strict)
+                    (λ a b c Rab Rbc → IsStrictOrder.is-trans strict c b a Rbc Rab)
+                    (λ a b → IsStrictOrder.is-asym strict b a)
+                    (λ a b c Rba → ∥₁.map (⊎.rec inr inl)
+                                          (IsStrictOrder.is-weakly-linear strict b a c Rba))
+
 StrictOrder→Quoset : StrictOrder ℓ ℓ' → Quoset ℓ ℓ'
 StrictOrder→Quoset (_ , strict)
   = quoset _ (StrictOrderStr._<_ strict)
@@ -103,3 +113,8 @@ StrictOrder→Proset : StrictOrder ℓ ℓ' → Proset ℓ ℓ'
 StrictOrder→Proset (_ , strict)
   = proset _ (BinaryRelation.NegationRel (StrictOrderStr._<_ strict))
              (isStrictOrder→isProsetNegationRel (StrictOrderStr.isStrictOrder strict))
+
+DualStrictOrder : StrictOrder ℓ ℓ' → StrictOrder ℓ ℓ'
+DualStrictOrder (_ , strict)
+  = strictorder _ (BinaryRelation.Dual (StrictOrderStr._<_ strict))
+                  (isStrictOrderDual (StrictOrderStr.isStrictOrder strict))

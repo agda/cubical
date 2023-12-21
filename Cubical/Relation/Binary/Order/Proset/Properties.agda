@@ -56,10 +56,21 @@ module _
                  (λ a → IsProset.is-refl pre (f a))
                  λ a b c → IsProset.is-trans pre (f a) (f b) (f c)
 
+  isProsetDual : IsProset R → IsProset (Dual R)
+  isProsetDual pre
+    = isproset (IsProset.is-set pre)
+               (λ a b → IsProset.is-prop-valued pre b a)
+               (IsProset.is-refl pre) (λ a b c Rab Rbc → IsProset.is-trans pre c b a Rbc Rab)
+
 Proset→Quoset : Proset ℓ ℓ' → Quoset ℓ ℓ'
 Proset→Quoset (_ , pre)
   = quoset _ (BinaryRelation.AsymKernel (ProsetStr._≲_ pre))
              (isProset→isQuosetAsymKernel (ProsetStr.isProset pre))
+
+DualProset : Proset ℓ ℓ' → Proset ℓ ℓ'
+DualProset (_ , pre)
+  = proset _ (BinaryRelation.Dual (ProsetStr._≲_ pre))
+             (isProsetDual (ProsetStr.isProset pre))
 
 module _
   {A : Type ℓ}
@@ -214,6 +225,36 @@ module _
   isLowerBoundOfSelf→isLeastOfSelf : ∀{n} → isLowerBound {B = A} (λ x → x) n
                                    → isLeast (A , (id↪ A)) n
   isLowerBoundOfSelf→isLeastOfSelf lb = lb
+
+  isInfimumOfUpperBounds→isUpperBound : {B : Type ℓ''}
+                                      → (P : B → A)
+                                      → ∀ n
+                                      → isInfimum {B = UpperBound P} fst n
+                                      → isUpperBound P n
+  isInfimumOfUpperBounds→isUpperBound P _ (_ , gt) x = gt ((P x) , λ { (_ , upy) → upy x })
+
+  isInfimumOfUpperBounds→isSupremum : {B : Type ℓ''}
+                                    → (P : B → A)
+                                    → ∀ n
+                                    → isInfimum {B = UpperBound P} fst n
+                                    → isSupremum P n
+  isInfimumOfUpperBounds→isSupremum P n (lt , gt)
+    = isInfimumOfUpperBounds→isUpperBound P n (lt , gt) , lt
+
+  isSupremumOfLowerBounds→isLowerBound : {B : Type ℓ''}
+                                       → (P : B → A)
+                                       → ∀ n
+                                       → isSupremum {B = LowerBound P} fst n
+                                       → isLowerBound P n
+  isSupremumOfLowerBounds→isLowerBound P _ (_ , ls) x = ls ((P x) , λ { (_ , lwy) → lwy x })
+
+  isSupremumOfLowerBounds→isInfimum : {B : Type ℓ''}
+                                    → (P : B → A)
+                                    → ∀ n
+                                    → isSupremum {B = LowerBound P} fst n
+                                    → isInfimum P n
+  isSupremumOfLowerBounds→isInfimum P n (gs , ls)
+    = isSupremumOfLowerBounds→isLowerBound P n (gs , ls) , gs
 
   isMeet : A → A → A → Type (ℓ-max ℓ ℓ')
   isMeet a b a∧b = ∀ x → x ≲ a∧b ≃ (x ≲ a × x ≲ b)
