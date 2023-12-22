@@ -490,10 +490,12 @@ isProp⊆ₑ _ Y = isPropΠ2 λ x _ → isProp∈ₑ x Y
 isRefl⊆ₑ : {A : Type ℓ} → (S : Embedding A ℓ') → S ⊆ₑ S
 isRefl⊆ₑ S x x∈S = x∈S
 
-isAntisym⊆ₑ : {A : Type ℓ} {X Y : Embedding A ℓ'}
-            → X ⊆ₑ Y × Y ⊆ₑ X
+isAntisym⊆ₑ : {A : Type ℓ}
+             (X Y : Embedding A ℓ')
+            → X ⊆ₑ Y
+            → Y ⊆ₑ X
             → X ≡ Y
-isAntisym⊆ₑ {X = X} {Y = Y} = equivFun (EmbeddingIP X Y)
+isAntisym⊆ₑ X Y X⊆Y Y⊆X = equivFun (EmbeddingIP X Y) (X⊆Y , Y⊆X)
 
 isTrans⊆ₑ : {A : Type ℓ}
             (X : Embedding A ℓ')
