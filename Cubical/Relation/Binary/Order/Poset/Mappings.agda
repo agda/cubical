@@ -26,6 +26,7 @@ open import Cubical.HITs.SetQuotients
 
 open import Cubical.Relation.Binary.Order.Poset.Base
 open import Cubical.Relation.Binary.Order.Poset.Properties
+open import Cubical.Relation.Binary.Order.Poset.Instances.Embedding
 open import Cubical.Relation.Binary.Order.Proset
 open import Cubical.Relation.Binary.Base
 
@@ -559,11 +560,23 @@ isClosure : (E : Poset ℓ ℓ')
 isClosure E f = IsIsotone (snd E) f (snd E) × (f ≡ f ∘ f) × (∀ x → x ≤ f x)
   where _≤_ = PosetStr._≤_ (snd E)
 
+isDualClosure : (E : Poset ℓ ℓ')
+                (f : ⟨ E ⟩ → ⟨ E ⟩)
+              → Type (ℓ-max ℓ ℓ')
+isDualClosure E f = IsIsotone (snd E) f (snd E) × (f ≡ f ∘ f) × (∀ x → f x ≤ x)
+  where _≤_ = PosetStr._≤_ (snd E)
+
 -- This can be made more succinct
 isClosure' : (E : Poset ℓ ℓ')
              (f : ⟨ E ⟩ → ⟨ E ⟩)
            → Type (ℓ-max ℓ ℓ')
 isClosure' E f = ∀ x y → x ≤ f y ≃ f x ≤ f y
+  where _≤_ = PosetStr._≤_ (snd E)
+
+isDualClosure' : (E : Poset ℓ ℓ')
+                 (f : ⟨ E ⟩ → ⟨ E ⟩)
+               → Type (ℓ-max ℓ ℓ')
+isDualClosure' E f = ∀ x y → f x ≤ y ≃ f x ≤ f y
   where _≤_ = PosetStr._≤_ (snd E)
 
 isClosure→isClosure' : (E : Poset ℓ ℓ')
@@ -575,6 +588,21 @@ isClosure→isClosure' E f (isf , f≡f∘f , x≤fx) x y
                      (λ x≤fy → subst (f x ≤_) (sym (funExt⁻ f≡f∘f y))
                                      (IsIsotone.pres≤ isf x (f y) x≤fy))
                      (trans x (f x) (f y) (x≤fx x))
+  where _≤_ = PosetStr._≤_ (snd E)
+        is = PosetStr.isPoset (snd E)
+
+        prop = IsPoset.is-prop-valued is
+        trans = IsPoset.is-trans is
+
+isDualClosure→isDualClosure' : (E : Poset ℓ ℓ')
+                             → ∀ f
+                             → isDualClosure E f
+                             → isDualClosure' E f
+isDualClosure→isDualClosure' E f (isf , f≡f∘f , fx≤x) x y
+  = propBiimpl→Equiv (prop _ _) (prop _ _)
+                     (λ fx≤y → subst (_≤ f y) (sym (funExt⁻ f≡f∘f x))
+                                     (IsIsotone.pres≤ isf (f x) y fx≤y))
+                      λ fx≤fy → trans (f x) (f y) y fx≤fy (fx≤x y)
   where _≤_ = PosetStr._≤_ (snd E)
         is = PosetStr.isPoset (snd E)
 
@@ -606,6 +634,31 @@ isClosure'→isClosure E f eq
           = equivFun (eq x y)
                      (trans x y (f y) x≤y (x≤fx y))
 
+isDualClosure'→isDualClosure : (E : Poset ℓ ℓ')
+                             → ∀ f
+                             → isDualClosure' E f
+                             → isDualClosure E f
+isDualClosure'→isDualClosure E f eq
+  = isf ,
+    (funExt (λ x → anti (f x) (f (f x))
+                        (equivFun (eq x (f x)) (rfl (f x)))
+                        (IsIsotone.pres≤ isf (f x) x (fx≤x x)))) ,
+    fx≤x
+  where _≤_ = PosetStr._≤_ (snd E)
+        is = PosetStr.isPoset (snd E)
+
+        rfl = IsPoset.is-refl is
+        anti = IsPoset.is-antisym is
+        trans = IsPoset.is-trans is
+
+        fx≤x : ∀ x → f x ≤ x
+        fx≤x x = invEq (eq x x) (rfl (f x))
+
+        isf : IsIsotone (snd E) f (snd E)
+        IsIsotone.pres≤ isf x y x≤y
+          = equivFun (eq x y)
+                     (trans (f x) x y (fx≤x x) x≤y)
+
 isClosure→ComposedResidual : {E : Poset ℓ ℓ'}
                              {f : ⟨ E ⟩ → ⟨ E ⟩}
                            → isClosure E f
@@ -632,7 +685,8 @@ isClosure→ComposedResidual {ℓ} {ℓ'} {E = E} {f = f} (isf , f≡f∘f , x�
             snd (fun₀ x [ y ]) = prop (f x) (f y)
             fun₀ x (eq/ a b fa≡fb i) = record
               { fst = cong (f x ≤_) fa≡fb i
-              ; snd = isProp→PathP (λ i → isPropIsProp {A = cong (f x ≤_) fa≡fb i}) (prop (f x) (f a)) (prop (f x) (f b)) i
+              ; snd = isProp→PathP (λ i → isPropIsProp {A = cong (f x ≤_) fa≡fb i})
+                                   (prop (f x) (f a)) (prop (f x) (f b)) i
               }
             fun₀ x (squash/ a b p q i j) = isSet→SquareP (λ _ _ → isSetHProp)
               (λ _ → fun₀ x a)
@@ -699,6 +753,100 @@ isClosure→ComposedResidual {ℓ} {ℓ'} {E = E} {f = f} (isf , f≡f∘f , x�
         ♮∘♮⁺ = elimProp (λ x → isProp⊑ ((♮ ∘ ♮⁺) x) x)
                         λ x → subst (_≤ f x) (funExt⁻ f≡f∘f x) (rfl (f x))
 
+isDualClosure→ComposedResidual : {E : Poset ℓ ℓ'}
+                                 {f : ⟨ E ⟩ → ⟨ E ⟩}
+                               → isDualClosure E f
+                               → Σ[ F ∈ Poset ℓ ℓ' ] (Σ[ g ∈ (⟨ F ⟩ → ⟨ E ⟩) ] (Σ[ res ∈ hasResidual F E g ] f ≡ g ∘ (residual F E g res)))
+isDualClosure→ComposedResidual {ℓ} {ℓ'} {E = E} {f = f} (isf , f≡f∘f , fx≤x) = F , ♮ , (is♮ , ♮⁺ , is♮⁺ , ♮⁺∘♮ , fx≤x) , refl
+  where _≤_ = PosetStr._≤_ (snd E)
+        is = PosetStr.isPoset (snd E)
+        set = IsPoset.is-set is
+        prop = IsPoset.is-prop-valued is
+        rfl = IsPoset.is-refl is
+        anti = IsPoset.is-antisym is
+        trans = IsPoset.is-trans is
+
+        kerf : Rel ⟨ E ⟩ ⟨ E ⟩ ℓ
+        kerf x y = f x ≡ f y
+
+        F' = ⟨ E ⟩ / kerf
+
+        _⊑'_ : F' → F' → hProp _
+        _⊑'_ = fun
+          where
+            fun₀ : ⟨ E ⟩ → F' → hProp _
+            fst (fun₀ x [ y ]) = f x ≤ f y
+            snd (fun₀ x [ y ]) = prop (f x) (f y)
+            fun₀ x (eq/ a b fa≡fb i) = record
+              { fst = cong (f x ≤_) fa≡fb i
+              ; snd = isProp→PathP (λ i → isPropIsProp {A = cong (f x ≤_) fa≡fb i})
+                                   (prop (f x) (f a)) (prop (f x) (f b)) i
+              }
+            fun₀ x (squash/ a b p q i j) = isSet→SquareP (λ _ _ → isSetHProp)
+              (λ _ → fun₀ x a)
+              (λ _ → fun₀ x b)
+              (λ i → fun₀ x (p i))
+              (λ i → fun₀ x (q i)) j i
+
+            toPath : ∀ a b (p : kerf a b) (y : F') → fun₀ a y ≡ fun₀ b y
+            toPath a b fa≡fb = elimProp (λ _ → isSetHProp _ _) λ c →
+              Σ≡Prop (λ _ → isPropIsProp) (cong (_≤ f c) fa≡fb)
+
+            fun : F' → F' → hProp _
+            fun [ a ] y = fun₀ a y
+            fun (eq/ a b fa≡fb i) y = toPath a b fa≡fb y i
+            fun (squash/ x y p q i j) z = isSet→SquareP (λ _ _ → isSetHProp)
+              (λ _ → fun x z) (λ _ → fun y z) (λ i → fun (p i) z) (λ i → fun (q i) z) j i
+
+        _⊑_ : Rel F' F' ℓ'
+        a ⊑ b = (a ⊑' b) .fst
+
+        open BinaryRelation _⊑_
+
+        isProp⊑ : isPropValued
+        isProp⊑ a b = (a ⊑' b) .snd
+
+        isRefl⊑ : isRefl
+        isRefl⊑ = elimProp (λ x → isProp⊑ x x)
+                           (rfl ∘ f)
+
+        isAntisym⊑ : isAntisym
+        isAntisym⊑ = elimProp2 (λ x y → isPropΠ2 λ _ _ → squash/ x y)
+                                λ a b fa≤fb fb≤fa → eq/ a b (anti (f a) (f b) fa≤fb fb≤fa)
+
+        isTrans⊑ : isTrans
+        isTrans⊑ = elimProp3 (λ x _ z → isPropΠ2 λ _ _ → isProp⊑ x z)
+                              λ a b c → trans (f a) (f b) (f c)
+
+        poset⊑ : IsPoset _⊑_
+        poset⊑ = isposet squash/ isProp⊑ isRefl⊑ isTrans⊑ isAntisym⊑
+
+        F : Poset ℓ ℓ'
+        F = F' , (posetstr _⊑_ poset⊑)
+
+        ♮⁺ : ⟨ E ⟩ → ⟨ F ⟩
+        ♮⁺ = [_]
+
+        is♮⁺ : IsIsotone (snd E) ♮⁺ (snd F)
+        IsIsotone.pres≤ is♮⁺ x y x≤y = IsIsotone.pres≤ isf x y x≤y
+
+        ♮ : ⟨ F ⟩ → ⟨ E ⟩
+        ♮ [ x ] = f x
+        ♮ (eq/ a b fa≡fb i) = fa≡fb i
+        ♮ (squash/ x y p q i j) = isSet→SquareP (λ _ _ → set)
+          (λ _ → ♮ x)
+          (λ _ → ♮ y)
+          (λ i → ♮ (p i))
+          (λ i → ♮ (q i)) j i
+
+        is♮ : IsIsotone (snd F) ♮ (snd E)
+        IsIsotone.pres≤ is♮ = elimProp2 (λ x y → isPropΠ λ _ → prop (♮ x) (♮ y))
+                                         λ x y fx≤fy → fx≤fy
+
+        ♮⁺∘♮ : ∀ x → x ⊑ (♮⁺ ∘ ♮) x
+        ♮⁺∘♮ = elimProp (λ x → isProp⊑ x ((♮⁺ ∘ ♮) x))
+                        λ x → subst (f x ≤_) (funExt⁻ f≡f∘f x) (rfl (f x))
+
 ComposedResidual→isClosure : {E : Poset ℓ ℓ'}
                              {f : ⟨ E ⟩ → ⟨ E ⟩}
                            → Σ[ F ∈ Poset ℓ ℓ' ] (Σ[ g ∈ (⟨ E ⟩ → ⟨ F ⟩) ] (Σ[ res ∈ hasResidual E F g ] f ≡ (residual E F g res) ∘ g))
@@ -713,6 +861,19 @@ ComposedResidual→isClosure {E = E} {f = f} (F , g , (isg , g⁺ , isg⁺ , g�
     λ x → subst (x ≤_) (sym (funExt⁻ f≡g⁺∘g x)) (g⁺∘g x)
     where _≤_ = PosetStr._≤_ (snd E)
 
+ComposedResidual→isDualClosure : {E : Poset ℓ ℓ'}
+                                 {f : ⟨ E ⟩ → ⟨ E ⟩}
+                               → Σ[ F ∈ Poset ℓ ℓ' ] (Σ[ g ∈ (⟨ F ⟩ → ⟨ E ⟩) ] (Σ[ res ∈ hasResidual F E g ] f ≡ g ∘ (residual F E g res)))
+                               → isDualClosure E f
+ComposedResidual→isDualClosure {E = E} {f = f} (F , g , (isg , g⁺ , isg⁺ , g⁺∘g , g∘g⁺) , f≡g∘g⁺)
+  = subst (λ x → IsIsotone (snd E) x (snd E)) (sym f≡g∘g⁺) (IsIsotone-∘ (snd E) g⁺ (snd F) g (snd E) isg⁺ isg) ,
+  f≡g∘g⁺ ∙
+  sym (cong (g ∘_) (ResidualAbsorb F E g (isg , g⁺ , isg⁺ , g⁺∘g , g∘g⁺))) ∙
+  cong (_∘ g ∘ g⁺) (sym f≡g∘g⁺) ∙
+  cong (f ∘_) (sym f≡g∘g⁺) ,
+  λ x → subst (_≤ x) (sym (funExt⁻ f≡g∘g⁺ x)) (g∘g⁺ x)
+  where _≤_ = PosetStr._≤_ (snd E)
+
 isPropIsClosure : {E : Poset ℓ ℓ'}
                   {f : ⟨ E ⟩ → ⟨ E ⟩}
                 → isProp (isClosure E f)
@@ -723,16 +884,37 @@ isPropIsClosure {E = E} {f = f}
   where is = PosetStr.isPoset (snd E)
 
 isPropIsClosure' : {E : Poset ℓ ℓ'}
-                 → {f : ⟨ E ⟩ → ⟨ E ⟩}
+                   {f : ⟨ E ⟩ → ⟨ E ⟩}
                  → isProp (isClosure' E f)
 isPropIsClosure' {E = E} {f = f}
   = isPropΠ2 λ x y → isOfHLevel≃ 1 (prop x (f y)) (prop (f x) (f y))
+  where prop = IsPoset.is-prop-valued (PosetStr.isPoset (snd E))
+
+isPropIsDualClosure : {E : Poset ℓ ℓ'}
+                      {f : ⟨ E ⟩ → ⟨ E ⟩}
+                    → isProp (isDualClosure E f)
+isPropIsDualClosure {E = E} {f = f}
+  = isProp× (isPropIsIsotone (snd E) f (snd E))
+            (isProp× (isSet→ (IsPoset.is-set is) _ _)
+                     (isPropΠ λ x → IsPoset.is-prop-valued is (f x) x))
+  where is = PosetStr.isPoset (snd E)
+
+isPropIsDualClosure' : {E : Poset ℓ ℓ'}
+                       {f : ⟨ E ⟩ → ⟨ E ⟩}
+                     → isProp (isDualClosure' E f)
+isPropIsDualClosure' {E = E} {f = f}
+  = isPropΠ2 λ x y → isOfHLevel≃ 1 (prop (f x) y) (prop (f x) (f y))
   where prop = IsPoset.is-prop-valued (PosetStr.isPoset (snd E))
 
 isClosureSubset : (E : Poset ℓ ℓ')
                 → (F : Embedding ⟨ E ⟩ ℓ)
                 → Type _
 isClosureSubset E F = Σ[ f ∈ (⟨ E ⟩ → ⟨ E ⟩) ] (isClosure E f × (F ≡ (Image f , imageInclusion f)))
+
+isDualClosureSubset : (E : Poset ℓ ℓ')
+                    → (F : Embedding ⟨ E ⟩ ℓ)
+                    → Type _
+isDualClosureSubset E F = Σ[ f ∈ (⟨ E ⟩ → ⟨ E ⟩) ] (isDualClosure E f × (F ≡ (Image f , imageInclusion f)))
 
 ClosureSubsetOperatorUnique : {E : Poset ℓ ℓ'}
                               {F : Embedding ⟨ E ⟩ ℓ}
@@ -780,11 +962,62 @@ ClosureSubsetOperatorUnique {E = E} {F = F}
                          (lemma .fst .snd)
               where lemma = Imf⊆Img (f x) (((f x) , ∣ x , refl ∣₁) , refl)
 
+DualClosureSubsetOperatorUnique : {E : Poset ℓ ℓ'}
+                                  {F : Embedding ⟨ E ⟩ ℓ}
+                                → (f g : isDualClosureSubset E F)
+                                → f .fst ≡ g .fst
+DualClosureSubsetOperatorUnique {E = E} {F = F}
+                                (f , (isf , f≡f∘f , fx≤x) , F≡Imf)
+                                (g , (isg , g≡g∘g , gx≤x) , F≡Img)
+  = funExt λ x → anti (f x) (g x) (fx≤gx x) (gx≤fx x)
+  where _≤_ = PosetStr._≤_ (snd E)
+        is = PosetStr.isPoset (snd E)
+
+        prop = IsPoset.is-prop-valued is
+        anti = IsPoset.is-antisym is
+
+        Imf⊆Img : (Image f , imageInclusion f) ⊆ₑ (Image g , imageInclusion g)
+        Imf⊆Img x = subst (x ∈ₑ_) (sym F≡Imf ∙ F≡Img)
+
+        Img⊆Imf : (Image g , imageInclusion g) ⊆ₑ (Image f , imageInclusion f)
+        Img⊆Imf x = subst (x ∈ₑ_) (sym F≡Img ∙ F≡Imf)
+
+        gx≤fx : ∀ x → g x ≤ f x
+        gx≤fx x = ∥₁.rec (prop (g x) (f x))
+                         (λ { (a , fa≡gx) → subst (_≤ f x) (sym (funExt⁻ f≡f∘f a) ∙
+                                                                  fa≡gx ∙
+                                                                  lemma .snd)
+                                                            (IsIsotone.pres≤ isf (f a) x
+                                                             (subst (_≤ x)
+                                                               (sym (fa≡gx ∙ lemma .snd))
+                                                                 (gx≤x x))) })
+                         (lemma .fst .snd)
+              where lemma = Img⊆Imf (g x) (((g x) , ∣ x , refl ∣₁) , refl)
+
+        fx≤gx : ∀ x → f x ≤ g x
+        fx≤gx x = ∥₁.rec (prop (f x) (g x))
+                         (λ { (a , ga≡fx) → subst (_≤ g x)
+                                              (sym (funExt⁻ g≡g∘g a) ∙
+                                                    ga≡fx ∙
+                                                    lemma .snd)
+                                              (IsIsotone.pres≤ isg (g a) x
+                                                (subst (_≤ x)
+                                                  (sym (ga≡fx ∙ lemma .snd))
+                                                    (fx≤x x))) })
+                         (lemma .fst .snd)
+              where lemma = Imf⊆Img (f x) (((f x) , ∣ x , refl ∣₁) , refl)
+
 isPropIsClosureSubset : {E : Poset ℓ ℓ'}
                         {F : Embedding ⟨ E ⟩ ℓ}
                       → isProp (isClosureSubset E F)
 isPropIsClosureSubset p q = Σ≡Prop (λ f → isProp× isPropIsClosure (isSetEmbedding _ _))
                                     (ClosureSubsetOperatorUnique p q)
+
+isPropIsDualClosureSubset : {E : Poset ℓ ℓ'}
+                            {F : Embedding ⟨ E ⟩ ℓ}
+                          → isProp (isDualClosureSubset E F)
+isPropIsDualClosureSubset p q = Σ≡Prop (λ f → isProp× isPropIsDualClosure (isSetEmbedding _ _))
+                                        (DualClosureSubsetOperatorUnique p q)
 
 isClosureSubset→IntersectionBottom : (E : Poset ℓ ℓ')
                                      (F : Embedding ⟨ E ⟩ ℓ)
@@ -817,3 +1050,58 @@ isClosureSubset→IntersectionBottom E F (f , (isf , f≡f∘f , x≤fx) , F≡I
                                               (invEq (principalUpsetMembership E x y) y∈x↑)) })
                                          (lemma .fst .snd)
           where lemma = subst (y ∈ₑ_) F≡Imf y∈F
+
+IntersectionBottom→isClosureSubset : (E : Poset ℓ ℓ)
+                                     (F : Embedding ⟨ E ⟩ ℓ)
+                                   → (∀ x → Least (isPoset→isProset (PosetStr.isPoset (snd E))) (principalUpset E x ∩ₑ F))
+                                   → isClosureSubset E F
+IntersectionBottom→isClosureSubset E F least
+  = f , (isf , f≡f∘f , x≤f) , F≡Imf
+    where _≤_ = PosetStr._≤_ (snd E)
+          is = PosetStr.isPoset (snd E)
+
+          rfl = IsPoset.is-refl is
+          anti = IsPoset.is-antisym is
+
+          f : ⟨ E ⟩ → ⟨ E ⟩
+          f x = least x .fst .fst
+
+          isf : IsIsotone (snd E) f (snd E)
+          IsIsotone.pres≤ isf x y x≤y = least x .snd (f y , y↑∩F⊆x↑∩F (f y) ((least y .fst) , refl) .fst .snd)
+            where x↑ = principalUpset E x
+                  y↑ = principalUpset E y
+
+                  y↑⊆x↑ = principalUpsetInclusion E x y x≤y
+                  y↑∩F⊆x↑∩F = isMeetIsotone
+                              (isPoset→isProset isPoset⊆ₑ) y↑ x↑ F F
+                              (y↑ ∩ₑ F)
+                              (x↑ ∩ₑ F)
+                              (isMeet∩ₑ y↑ F)
+                              (isMeet∩ₑ x↑ F)
+                               y↑⊆x↑
+                              (isRefl⊆ₑ F)
+
+          x≤f : ∀ x → x ≤ f x
+          x≤f x = invEq (principalUpsetMembership E x (f x)) (least x .fst .snd .fst)
+
+          F≡fF : ∀ y → y ∈ₑ F
+                      → y ≡ f y
+          F≡fF y y∈F = anti y (f y) (x≤f y)
+                       (least y .snd (y , equivFun (principalUpsetMembership E y y) (rfl y) , y∈F))
+
+          f≡f∘f : f ≡ (f ∘ f)
+          f≡f∘f = funExt λ x → F≡fF (f x) (least x .fst .snd .snd)
+
+          F⊆Imf : F ⊆ₑ (Image f , imageInclusion f)
+          F⊆Imf x x∈F = (x , ∣ x , (sym (F≡fF x x∈F)) ∣₁) , refl
+
+          Imf⊆F : (Image f , imageInclusion f) ⊆ₑ F
+          Imf⊆F x ((a , ima) , fib)
+            = ∥₁.rec (isProp∈ₑ x F)
+                     (λ { (b , fb≡a) →
+                           subst (_∈ₑ F)
+                                 (fb≡a ∙ fib)
+                                 (least b .fst .snd .snd) }) ima
+
+          F≡Imf : F ≡ (Image f , imageInclusion f)
+          F≡Imf = isAntisym⊆ₑ F (Image f , imageInclusion f) F⊆Imf Imf⊆F

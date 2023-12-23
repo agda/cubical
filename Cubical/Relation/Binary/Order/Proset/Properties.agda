@@ -410,3 +410,25 @@ module _
                                        invEq (funb∨c x)
                                      ((funa∨b x .fst a∨b≤x .snd) ,
                                        c≤x) })
+
+  isMeetIsotone : ∀ a b c d a∧c b∧d
+                → isMeet a c a∧c
+                → isMeet b d b∧d
+                → a ≲ b
+                → c ≲ d
+                → a∧c ≲ b∧d
+  isMeetIsotone a b c d a∧c b∧d meeta∧c meetb∧d a≲b c≲d
+    = invEq (meetb∧d a∧c) (trans a∧c a b a∧c≲a a≲b , trans a∧c c d a∧c≲c c≲d)
+      where a∧c≲a = equivFun (meeta∧c a∧c) (rfl a∧c) .fst
+            a∧c≲c = equivFun (meeta∧c a∧c) (rfl a∧c) .snd
+
+  isJoinIsotone : ∀ a b c d a∨c b∨d
+                → isJoin a c a∨c
+                → isJoin b d b∨d
+                → a ≲ b
+                → c ≲ d
+                → a∨c ≲ b∨d
+  isJoinIsotone a b c d a∨c b∨d joina∨c joinb∨d a≲b c≲d
+    = invEq (joina∨c b∨d) (trans a b b∨d a≲b b≲b∨d , trans c d b∨d c≲d d≲b∨d)
+    where b≲b∨d = equivFun (joinb∨d b∨d) (rfl b∨d) .fst
+          d≲b∨d = equivFun (joinb∨d b∨d) (rfl b∨d) .snd
