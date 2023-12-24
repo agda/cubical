@@ -18,6 +18,7 @@ open import Cubical.Functions.Embedding
 open import Cubical.Functions.Image
 open import Cubical.Functions.Logic using (_⊔′_)
 open import Cubical.Functions.Preimage
+open import Cubical.Functions.Surjection
 
 open import Cubical.Reflection.RecordEquiv
 
@@ -93,6 +94,12 @@ IsIsotoneDual→IsIsotone : (A : Poset ℓ₀ ℓ₀')
                         → IsIsotone (snd A) f (snd B)
 IsIsotone.pres≤ (IsIsotoneDual→IsIsotone A B f isfᴰ) x y y≤x
   = IsIsotone.pres≤ isfᴰ y x y≤x
+
+IsPosetEquiv→IsIsotone : (P S : Poset ℓ ℓ')
+                         (e : ⟨ P ⟩ ≃ ⟨ S ⟩)
+                       → IsPosetEquiv (snd P) e (snd S)
+                       → IsIsotone (snd P) (equivFun e) (snd S)
+IsIsotone.pres≤ (IsPosetEquiv→IsIsotone P S e eq) x y = equivFun (IsPosetEquiv.pres≤ eq x y)
 
 module _
   (P : Poset ℓ ℓ')
@@ -1219,3 +1226,72 @@ isBicomplete→ClosureOperatorHasResidual E F ((f , (isf , f≡f∘f , x≤fx) ,
 
         f∘f⁺ : ∀ x → (f ∘ f⁺) x ≤ x
         f∘f⁺ x = subst (_≤ x) (f⁺≡f∘f⁺ x) (f⁺x≤x x)
+
+IsPosetEquiv→isResiduatedBijection : (P S : Poset ℓ ℓ')
+                                     (e : ⟨ P ⟩ ≃ ⟨ S ⟩)
+                                   → IsPosetEquiv (snd P) e (snd S)
+                                   → hasResidual P S (equivFun e)
+IsPosetEquiv→isResiduatedBijection P S e eq
+  = IsPosetEquiv→IsIsotone P S e eq , invEq e , is⁻ ,
+   (λ x → subst (x ≤P_) (sym (retEq e x)) (rflP x)) ,
+    λ x → subst (_≤S x) (sym (secEq e x)) (rflS x)
+  where _≤P_ = PosetStr._≤_ (snd P)
+        _≤S_ = PosetStr._≤_ (snd S)
+
+        rflP = IsPoset.is-refl (PosetStr.isPoset (snd P))
+        rflS = IsPoset.is-refl (PosetStr.isPoset (snd S))
+
+        is⁻ : IsIsotone (snd S) (invEq e) (snd P)
+        IsIsotone.pres≤ is⁻ x y = equivFun (IsPosetEquiv.pres≤⁻ eq x y)
+
+isResiduatedBijection→IsPosetEquiv : (P S : Poset ℓ ℓ')
+                                     (e : ⟨ P ⟩ ≃ ⟨ S ⟩)
+                                   → hasResidual P S (equivFun e)
+                                   → IsPosetEquiv (snd P) e (snd S)
+IsPosetEquiv.pres≤ (isResiduatedBijection→IsPosetEquiv P S e
+                    (ise , e⁻ , ise⁻ , e⁻∘e , e∘e⁻)) x y
+  = propBiimpl→Equiv (propP _ _) (propS _ _) (IsIsotone.pres≤ ise x y) (subst2 _≤P_ (lemma x) (lemma y) ∘ IsIsotone.pres≤ ise⁻ _ _)
+  where _≤P_ = PosetStr._≤_ (snd P)
+        isP = PosetStr.isPoset (snd P)
+        propP = IsPoset.is-prop-valued isP
+        rflP = IsPoset.is-refl isP
+
+        _≤S_ = PosetStr._≤_ (snd S)
+        isS = PosetStr.isPoset (snd S)
+        propS = IsPoset.is-prop-valued isS
+        antiS = IsPoset.is-antisym isS
+
+        e∘e⁻x≡x : ∀ x → equivFun e (e⁻ x) ≡ x
+        e∘e⁻x≡x x = antiS _ x (e∘e⁻ x)
+                              (subst2 _≤S_ (secEq e x)
+                                           (cong (equivFun e ∘ e⁻) (secEq e x))
+                                           (IsIsotone.pres≤ ise _ _ (e⁻∘e (invEq e x))))
+
+        e⁻≡inv : ∀ x → e⁻ x ≡ invEq e x
+        e⁻≡inv x = sym (retEq e (e⁻ x)) ∙ cong (invEq e) (e∘e⁻x≡x x)
+
+        lemma : ∀ x → e⁻ (equivFun e x) ≡ x
+        lemma x = e⁻≡inv (equivFun e x) ∙ retEq e x
+
+-- We can weaken the equivalence of a poset equivalence to a surjection
+IsPosetSurjection→isEquiv : (P S : Poset ℓ ℓ')
+                            (e : ⟨ P ⟩ ↠ ⟨ S ⟩)
+                          → (∀ x y → (PosetStr._≤_ (snd P) x y)
+                                   ≃ (PosetStr._≤_ (snd S) ((fst e) x) ((fst e) y)))
+                          → isEquiv (fst e)
+IsPosetSurjection→isEquiv P S (e , sur) is = isEmbedding×isSurjection→isEquiv (emb , sur)
+  where _≤_ = PosetStr._≤_ (snd S)
+
+        isP = PosetStr.isPoset (snd P)
+        isS = PosetStr.isPoset (snd S)
+
+        setP = IsPoset.is-set isP
+        setS = IsPoset.is-set isS
+
+        antiP = IsPoset.is-antisym isP
+        rflS = IsPoset.is-refl isS
+
+        emb : isEmbedding e
+        emb = injEmbedding setS λ {w} {x} ew≡ex
+            → antiP w x (invEq (is w x) (subst (e w ≤_) ew≡ex (rflS (e w))))
+                        (invEq (is x w) (subst (_≤ e w) ew≡ex (rflS (e w))))
