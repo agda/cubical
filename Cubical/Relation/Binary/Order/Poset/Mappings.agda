@@ -78,6 +78,22 @@ record IsAntitone {A : Type ℓ₀} {B : Type ℓ₁}
   field
     inv≤ : (x y : A) → x M.≤ y → f y N.≤ f x
 
+IsIsotone→IsIsotoneDual : (A : Poset ℓ₀ ℓ₀')
+                          (B : Poset ℓ₁ ℓ₁')
+                          (f : ⟨ A ⟩ → ⟨ B ⟩)
+                        → IsIsotone (snd A) f (snd B)
+                        → IsIsotone (snd (DualPoset A)) f (snd (DualPoset B))
+IsIsotone.pres≤ (IsIsotone→IsIsotoneDual A B f isf) x y y≤x
+  = IsIsotone.pres≤ isf y x y≤x
+
+IsIsotoneDual→IsIsotone : (A : Poset ℓ₀ ℓ₀')
+                          (B : Poset ℓ₁ ℓ₁')
+                          (f : ⟨ A ⟩ → ⟨ B ⟩)
+                        → IsIsotone (snd (DualPoset A)) f (snd (DualPoset B))
+                        → IsIsotone (snd A) f (snd B)
+IsIsotone.pres≤ (IsIsotoneDual→IsIsotone A B f isfᴰ) x y y≤x
+  = IsIsotone.pres≤ isfᴰ y x y≤x
+
 module _
   (P : Poset ℓ ℓ')
   where
@@ -1105,3 +1121,101 @@ IntersectionBottom→isClosureSubset E F least
 
           F≡Imf : F ≡ (Image f , imageInclusion f)
           F≡Imf = isAntisym⊆ₑ F (Image f , imageInclusion f) F⊆Imf Imf⊆F
+
+isBicomplete : (E : Poset ℓ ℓ')
+               (F : Embedding ⟨ E ⟩ ℓ)
+             → Type _
+isBicomplete E F = isClosureSubset E F × isClosureSubset (DualPoset E) F
+
+isBicompleteResiduatedClosureImage : (E : Poset ℓ ℓ')
+                                     (f : ⟨ E ⟩ → ⟨ E ⟩)
+                                   → hasResidual E E f
+                                   → isClosure E f
+                                   → isBicomplete E (Image f , imageInclusion f)
+isBicompleteResiduatedClosureImage E f (isf , f⁺ , isf⁺ , f⁺∘f , f∘f⁺) (_ , f≡f∘f , x≤fx)
+  = (f , clsf , refl) , f⁺ , clsf⁺ , Imf≡Imf⁺
+  where _≤_ = PosetStr._≤_ (snd E)
+        is = PosetStr.isPoset (snd E)
+
+        anti = IsPoset.is-antisym is
+
+        resf = (isf , f⁺ , isf⁺ , f⁺∘f , f∘f⁺)
+        clsf = (isf , f≡f∘f , x≤fx)
+
+        f≡f⁺∘f : f ≡ f⁺ ∘ f
+        f≡f⁺∘f = funExt λ x → anti (f x) ((f⁺ ∘ f) x) (f≤f⁺∘f x) (f⁺∘f≤f x)
+          where f≤f⁺∘f : ∀ x → f x ≤ (f⁺ ∘ f) x
+                f≤f⁺∘f x = subst (f x ≤_)
+                                 (cong f⁺ (sym (funExt⁻ f≡f∘f x))) (f⁺∘f (f x))
+
+                f⁺∘f≤f : ∀ x → (f⁺ ∘ f) x ≤ f x
+                f⁺∘f≤f x = subst ((f⁺ ∘ f) x ≤_)
+                                 (funExt⁻ (AbsorbResidual E E f resf) x)
+                                 (x≤fx ((f⁺ ∘ f) x))
+
+        f⁺≡f∘f⁺ : f⁺ ≡ f ∘ f⁺
+        f⁺≡f∘f⁺ = funExt λ x → sym (funExt⁻ (ResidualAbsorb E E f resf) x) ∙
+                               funExt⁻ (sym f≡f⁺∘f) (f⁺ x)
+
+        Imf⊆Imf⁺ : (Image f , imageInclusion f) ⊆ₑ (Image f⁺ , imageInclusion f⁺)
+        Imf⊆Imf⁺ x ((a , ima) , fib) = ∥₁.rec (isProp∈ₑ x (Image f⁺ , imageInclusion f⁺))
+                                              (λ { (b , fb≡a) → (x , ∣ x , (cong f⁺ (sym (fb≡a ∙ fib)) ∙
+                                                                            funExt⁻ (sym f≡f⁺∘f) b ∙
+                                                                            fb≡a ∙
+                                                                            fib) ∣₁) , refl })
+                                               ima
+
+        Imf⁺⊆Imf : (Image f⁺ , imageInclusion f⁺) ⊆ₑ (Image f , imageInclusion f)
+        Imf⁺⊆Imf x ((a , ima) , fib) = ∥₁.rec (isProp∈ₑ x (Image f , imageInclusion f))
+                                              (λ { (b , f⁺b≡a) → (x , ∣ x , (cong f (sym (f⁺b≡a ∙ fib)) ∙
+                                                                             funExt⁻ (sym f⁺≡f∘f⁺) b ∙
+                                                                             f⁺b≡a ∙
+                                                                             fib) ∣₁) , refl })
+                                               ima
+
+        Imf≡Imf⁺ : (Image f , imageInclusion f) ≡ (Image f⁺ , imageInclusion f⁺)
+        Imf≡Imf⁺ = isAntisym⊆ₑ _ _ Imf⊆Imf⁺ Imf⁺⊆Imf
+
+        clsf⁺ : isClosure (DualPoset E) f⁺
+        clsf⁺ = IsIsotone→IsIsotoneDual E E f⁺ isf⁺ ,
+                f⁺≡f∘f⁺ ∙ cong (_∘ f⁺) f≡f⁺∘f ∙ cong (f⁺ ∘_) (sym f⁺≡f∘f⁺) ,
+                λ x → subst (_≤ x) (funExt⁻ (sym f⁺≡f∘f⁺) x) (f∘f⁺ x)
+
+isBicomplete→ClosureOperatorHasResidual : (E : Poset ℓ ℓ')
+                                          (F : Embedding ⟨ E ⟩ ℓ)
+                                        → (bi : isBicomplete E F)
+                                        → hasResidual E E (bi . fst .fst)
+isBicomplete→ClosureOperatorHasResidual E F ((f , (isf , f≡f∘f , x≤fx) , F≡Imf) ,
+                                              f⁺ , (isf⁺ , f⁺≡f⁺∘f⁺ , f⁺x≤x) , F≡Imf⁺)
+  = isf , f⁺ , IsIsotoneDual→IsIsotone E E f⁺ isf⁺ , f⁺∘f , f∘f⁺
+  where _≤_ = PosetStr._≤_ (snd E)
+        is = PosetStr.isPoset (snd E)
+        set = IsPoset.is-set is
+
+        Imf⁺⊆Imf : (Image f⁺ , imageInclusion f⁺) ⊆ₑ (Image f , imageInclusion f)
+        Imf⁺⊆Imf = subst (Imf⁺ ⊆ₑ_) ((sym F≡Imf⁺) ∙ F≡Imf) (isRefl⊆ₑ Imf⁺)
+          where Imf⁺ = (Image f⁺ , imageInclusion f⁺)
+
+        Imf⊆Imf⁺ : (Image f , imageInclusion f) ⊆ₑ (Image f⁺ , imageInclusion f⁺)
+        Imf⊆Imf⁺ = subst (Imf ⊆ₑ_) ((sym F≡Imf) ∙ F≡Imf⁺) (isRefl⊆ₑ Imf)
+          where Imf = (Image f , imageInclusion f)
+
+        f≡f⁺∘f : ∀ x → f x ≡ (f⁺ ∘ f) x
+        f≡f⁺∘f x = ∥₁.rec (set _ _) (λ { (b , f⁺b≡a) → (sym (f⁺b≡a ∙ fib) ∙ funExt⁻ f⁺≡f⁺∘f⁺ b) ∙ cong f⁺ (f⁺b≡a ∙ fib) }) ima
+          where lemma = Imf⊆Imf⁺ (f x) (((f x) , ∣ x , refl ∣₁) , refl)
+
+                ima = lemma .fst .snd
+                fib = lemma .snd
+
+        f⁺≡f∘f⁺ : ∀ x → f⁺ x ≡ (f ∘ f⁺) x
+        f⁺≡f∘f⁺ x = ∥₁.rec (set _ _) (λ { (b , fb≡a) → (sym (fb≡a ∙ fib) ∙ funExt⁻ f≡f∘f b) ∙ cong f (fb≡a ∙ fib) }) ima
+          where lemma = Imf⁺⊆Imf (f⁺ x) (((f⁺ x) , ∣ x , refl ∣₁) , refl)
+
+                ima = lemma .fst .snd
+                fib = lemma .snd
+
+        f⁺∘f : ∀ x → x ≤ (f⁺ ∘ f) x
+        f⁺∘f x = subst (x ≤_) (f≡f⁺∘f x) (x≤fx x)
+
+        f∘f⁺ : ∀ x → (f ∘ f⁺) x ≤ x
+        f∘f⁺ x = subst (_≤ x) (f⁺≡f∘f⁺ x) (f⁺x≤x x)
