@@ -18,7 +18,6 @@ open import Cubical.Functions.Embedding
 open import Cubical.Functions.Image
 open import Cubical.Functions.Logic using (_⊔′_)
 open import Cubical.Functions.Preimage
-open import Cubical.Functions.Surjection
 
 open import Cubical.Reflection.RecordEquiv
 
@@ -79,21 +78,67 @@ record IsAntitone {A : Type ℓ₀} {B : Type ℓ₁}
   field
     inv≤ : (x y : A) → x M.≤ y → f y N.≤ f x
 
-IsIsotone→IsIsotoneDual : (A : Poset ℓ₀ ℓ₀')
-                          (B : Poset ℓ₁ ℓ₁')
-                          (f : ⟨ A ⟩ → ⟨ B ⟩)
-                        → IsIsotone (snd A) f (snd B)
-                        → IsIsotone (snd (DualPoset A)) f (snd (DualPoset B))
-IsIsotone.pres≤ (IsIsotone→IsIsotoneDual A B f isf) x y y≤x
-  = IsIsotone.pres≤ isf y x y≤x
+unquoteDecl IsAntitoneIsoΣ = declareRecordIsoΣ IsAntitoneIsoΣ (quote IsAntitone)
 
-IsIsotoneDual→IsIsotone : (A : Poset ℓ₀ ℓ₀')
-                          (B : Poset ℓ₁ ℓ₁')
-                          (f : ⟨ A ⟩ → ⟨ B ⟩)
-                        → IsIsotone (snd (DualPoset A)) f (snd (DualPoset B))
-                        → IsIsotone (snd A) f (snd B)
-IsIsotone.pres≤ (IsIsotoneDual→IsIsotone A B f isfᴰ) x y y≤x
-  = IsIsotone.pres≤ isfᴰ y x y≤x
+isPropIsAntitone : {A : Type ℓ₀} {B : Type ℓ₁}
+                   (M : PosetStr ℓ₀' A) (f : A → B) (N : PosetStr ℓ₁' B)
+                 → isProp (IsAntitone M f N)
+isPropIsAntitone M f N = isOfHLevelRetractFromIso 1 IsAntitoneIsoΣ
+  (isPropΠ3 λ x y _ → IsPoset.is-prop-valued (PosetStr.isPoset N) (f y) (f x))
+
+module _
+  (A : Poset ℓ₀ ℓ₀')
+  (B : Poset ℓ₁ ℓ₁')
+  (f : ⟨ A ⟩ → ⟨ B ⟩)
+  where
+
+    DualIsotone : IsIsotone (snd A) f (snd B)
+                → IsAntitone (snd (DualPoset A)) f (snd B)
+    IsAntitone.inv≤ (DualIsotone is) x y = IsIsotone.pres≤ is y x
+
+    DualIsotone' : IsIsotone (snd (DualPoset A)) f (snd B)
+                 → IsAntitone (snd A) f (snd B)
+    IsAntitone.inv≤ (DualIsotone' is) x y = IsIsotone.pres≤ is y x
+
+    IsotoneDual : IsIsotone (snd A) f (snd B)
+                → IsAntitone (snd A) f (snd (DualPoset B))
+    IsAntitone.inv≤ (IsotoneDual is) = IsIsotone.pres≤ is
+
+    IsotoneDual' : IsIsotone (snd A) f (snd (DualPoset B))
+                 → IsAntitone (snd A) f (snd B)
+    IsAntitone.inv≤ (IsotoneDual' is) = IsIsotone.pres≤ is
+
+    DualAntitone : IsAntitone (snd A) f (snd B)
+                 → IsIsotone (snd (DualPoset A)) f (snd B)
+    IsIsotone.pres≤ (DualAntitone is) x y = IsAntitone.inv≤ is y x
+
+    DualAntitone' : IsAntitone (snd (DualPoset A)) f (snd B)
+                  → IsIsotone (snd A) f (snd B)
+    IsIsotone.pres≤ (DualAntitone' is) x y = IsAntitone.inv≤ is y x
+
+    AntitoneDual : IsAntitone (snd A) f (snd B)
+                 → IsIsotone (snd A) f (snd (DualPoset B))
+    IsIsotone.pres≤ (AntitoneDual is) = IsAntitone.inv≤ is
+
+    AntitoneDual' : IsAntitone (snd A) f (snd (DualPoset B))
+                  → IsIsotone (snd A) f (snd B)
+    IsIsotone.pres≤ (AntitoneDual' is) = IsAntitone.inv≤ is
+
+    DualIsotoneDual : IsIsotone (snd A) f (snd B)
+                    → IsIsotone (snd (DualPoset A)) f (snd (DualPoset B))
+    IsIsotone.pres≤ (DualIsotoneDual is) x y = IsIsotone.pres≤ is y x
+
+    DualIsotoneDual' : IsIsotone (snd (DualPoset A)) f (snd (DualPoset B))
+                     → IsIsotone (snd A) f (snd B)
+    IsIsotone.pres≤ (DualIsotoneDual' is) x y = IsIsotone.pres≤ is y x
+
+    DualAntitoneDual : IsAntitone (snd A) f (snd B)
+                     → IsAntitone (snd (DualPoset A)) f (snd (DualPoset B))
+    IsAntitone.inv≤ (DualAntitoneDual is) x y = IsAntitone.inv≤ is y x
+
+    DualAntitoneDual' : IsAntitone (snd (DualPoset A)) f (snd (DualPoset B))
+                      → IsAntitone (snd A) f (snd B)
+    IsAntitone.inv≤ (DualAntitoneDual' is) x y = IsAntitone.inv≤ is y x
 
 IsPosetEquiv→IsIsotone : (P S : Poset ℓ ℓ')
                          (e : ⟨ P ⟩ ≃ ⟨ S ⟩)
@@ -1184,7 +1229,7 @@ isBicompleteResiduatedClosureImage E f (isf , f⁺ , isf⁺ , f⁺∘f , f∘f�
         Imf≡Imf⁺ = isAntisym⊆ₑ _ _ Imf⊆Imf⁺ Imf⁺⊆Imf
 
         clsf⁺ : isClosure (DualPoset E) f⁺
-        clsf⁺ = IsIsotone→IsIsotoneDual E E f⁺ isf⁺ ,
+        clsf⁺ = DualIsotoneDual E E f⁺ isf⁺ ,
                 f⁺≡f∘f⁺ ∙ cong (_∘ f⁺) f≡f⁺∘f ∙ cong (f⁺ ∘_) (sym f⁺≡f∘f⁺) ,
                 λ x → subst (_≤ x) (funExt⁻ (sym f⁺≡f∘f⁺) x) (f∘f⁺ x)
 
@@ -1194,7 +1239,7 @@ isBicomplete→ClosureOperatorHasResidual : (E : Poset ℓ ℓ')
                                         → hasResidual E E (bi . fst .fst)
 isBicomplete→ClosureOperatorHasResidual E F ((f , (isf , f≡f∘f , x≤fx) , F≡Imf) ,
                                               f⁺ , (isf⁺ , f⁺≡f⁺∘f⁺ , f⁺x≤x) , F≡Imf⁺)
-  = isf , f⁺ , IsIsotoneDual→IsIsotone E E f⁺ isf⁺ , f⁺∘f , f∘f⁺
+  = isf , f⁺ , DualIsotoneDual' E E f⁺ isf⁺ , f⁺∘f , f∘f⁺
   where _≤_ = PosetStr._≤_ (snd E)
         is = PosetStr.isPoset (snd E)
         set = IsPoset.is-set is
@@ -1274,24 +1319,80 @@ IsPosetEquiv.pres≤ (isResiduatedBijection→IsPosetEquiv P S e
         lemma x = e⁻≡inv (equivFun e x) ∙ retEq e x
 
 -- We can weaken the equivalence of a poset equivalence to a surjection
-IsPosetSurjection→isEquiv : (P S : Poset ℓ ℓ')
-                            (e : ⟨ P ⟩ ↠ ⟨ S ⟩)
-                          → (∀ x y → (PosetStr._≤_ (snd P) x y)
-                                   ≃ (PosetStr._≤_ (snd S) ((fst e) x) ((fst e) y)))
-                          → isEquiv (fst e)
-IsPosetSurjection→isEquiv P S (e , sur) is = isEmbedding×isSurjection→isEquiv (emb , sur)
+isOrderRecovering→isEmbedding : (P S : Poset ℓ ℓ')
+                                (f : ⟨ P ⟩ → ⟨ S ⟩)
+                              → (∀ x y → (PosetStr._≤_ (snd S) (f x) (f y))
+                                       → (PosetStr._≤_ (snd P) x y))
+                              → isEmbedding f
+isOrderRecovering→isEmbedding P S f is = emb
   where _≤_ = PosetStr._≤_ (snd S)
 
         isP = PosetStr.isPoset (snd P)
         isS = PosetStr.isPoset (snd S)
 
-        setP = IsPoset.is-set isP
         setS = IsPoset.is-set isS
 
         antiP = IsPoset.is-antisym isP
         rflS = IsPoset.is-refl isS
 
-        emb : isEmbedding e
-        emb = injEmbedding setS λ {w} {x} ew≡ex
-            → antiP w x (invEq (is w x) (subst (e w ≤_) ew≡ex (rflS (e w))))
-                        (invEq (is x w) (subst (_≤ e w) ew≡ex (rflS (e w))))
+        emb : isEmbedding f
+        emb = injEmbedding setS λ {w} {x} fw≡fx
+            → antiP w x (is w x (subst (f w ≤_) fw≡fx (rflS (f w))))
+                        (is x w (subst (_≤ f w) fw≡fx (rflS (f w))))
+
+-- Galois connections work similarly to residuals, but are antitone
+module _
+  (E F : Poset ℓ ℓ')
+  (f : ⟨ E ⟩ → ⟨ F ⟩)
+  (g : ⟨ F ⟩ → ⟨ E ⟩)
+  where
+    private
+      _≤E_ = PosetStr._≤_ (snd E)
+      _≤F_ = PosetStr._≤_ (snd F)
+
+      propE = IsPoset.is-prop-valued (PosetStr.isPoset (snd E))
+      propF = IsPoset.is-prop-valued (PosetStr.isPoset (snd F))
+
+    isGaloisConnection : Type (ℓ-max ℓ ℓ')
+    isGaloisConnection = IsAntitone (snd E) f (snd F) ×
+                         IsAntitone (snd F) g (snd E) ×
+                        (∀ x → x ≤F (f ∘ g) x) ×
+                        (∀ x → x ≤E (g ∘ f) x)
+
+    isPropIsGaloisConnection : isProp isGaloisConnection
+    isPropIsGaloisConnection = isProp× (isPropIsAntitone _ _ _)
+                              (isProp× (isPropIsAntitone _ _ _)
+                              (isProp× (isPropΠ λ x → propF x _)
+                                       (isPropΠ λ x → propE x _)))
+
+    isGaloisConnection→hasResidualDual : isGaloisConnection
+                                       → hasResidual E (DualPoset F) f
+    isGaloisConnection→hasResidualDual (antif , antig , f∘g , g∘f)
+      = AntitoneDual E F f antif , g , DualAntitone F E g antig , g∘f , f∘g
+
+    AbsorbGaloisConnection : isGaloisConnection
+                           → f ∘ g ∘ f ≡ f
+    AbsorbGaloisConnection conn
+      = AbsorbResidual E (DualPoset F) f (isGaloisConnection→hasResidualDual conn)
+
+    GaloisConnectionAbsorb : isGaloisConnection
+                           → g ∘ f ∘ g ≡ g
+    GaloisConnectionAbsorb conn
+      = ResidualAbsorb E (DualPoset F) f (isGaloisConnection→hasResidualDual conn)
+
+    GaloisConnectionClosure : isGaloisConnection
+                            → isClosure E (g ∘ f)
+    GaloisConnectionClosure conn
+      = ComposedResidual→isClosure (DualPoset F , f , isGaloisConnection→hasResidualDual conn , refl)
+
+    GaloisConnectionDualClosure : isGaloisConnection
+                                → isDualClosure (DualPoset F) (f ∘ g)
+    GaloisConnectionDualClosure conn
+      = ComposedResidual→isDualClosure (E , f , isGaloisConnection→hasResidualDual conn , refl)
+
+hasResidual→isGaloisConnectionDual : (E F : Poset ℓ ℓ')
+                                     (f : ⟨ E ⟩ → ⟨ F ⟩)
+                                   → (res : hasResidual E F f)
+                                   → isGaloisConnection E (DualPoset F) f (residual E F f res)
+hasResidual→isGaloisConnectionDual E F f (isf , f⁺ , isf⁺ , f⁺∘f , f∘f⁺)
+  = (IsotoneDual E F f isf) , (DualIsotone F E f⁺ isf⁺) , f∘f⁺ , f⁺∘f
