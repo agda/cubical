@@ -31,7 +31,7 @@ private
     ℓ ℓ' : Level
 
 record CategoryPath (C C' : Category ℓ ℓ') : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
- constructor categoryPath
+ no-eta-equality
  field
    ob≡ : C .ob ≡ C' .ob
    Hom≡ : PathP (λ i → ob≡ i → ob≡ i → Type ℓ') (C .Hom[_,_]) (C' .Hom[_,_])
@@ -114,7 +114,10 @@ module _ {C C' : Category ℓ ℓ'} where
   isSetHom c = isProp→SquareP (λ i j →
       isPropImplicitΠ2 λ x y → isPropIsSet {A = c'.Hom[_,_] j x y})
       refl refl (λ j → b' j .isSetHom) (λ j → c'.isSetHom j) i j
- Iso.leftInv CategoryPathIso a = refl
+ ob≡ (Iso.leftInv CategoryPathIso a i) = ob≡ a
+ Hom≡ (Iso.leftInv CategoryPathIso a i) = Hom≡ a
+ id≡ (Iso.leftInv CategoryPathIso a i) = id≡ a
+ ⋆≡ (Iso.leftInv CategoryPathIso a i) = ⋆≡ a
 
  CategoryPath≡ : {cp cp' : CategoryPath C C'} →
      (p≡ : ob≡ cp ≡ ob≡ cp') →

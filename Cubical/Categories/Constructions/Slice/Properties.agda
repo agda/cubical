@@ -2,14 +2,16 @@
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-
+open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 
 open import Cubical.HITs.PropositionalTruncation using (∣_∣₁)
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Category.Properties
 open import Cubical.Categories.Constructions.Slice.Base
 import Cubical.Categories.Constructions.Elements as Elements
+open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Equivalence
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets

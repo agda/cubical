@@ -3,7 +3,7 @@
 Weak Equivalence between Categories
 
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification  #-} 
 
 module Cubical.Categories.Equivalence.WeakEquivalence where
 
@@ -161,6 +161,29 @@ module _
  fun IsoCategoryPath = WeakEquivlance→CategoryPath ∘f isWeakEquiv
  inv IsoCategoryPath = ≡→WeakEquivlance ∘f mk≡
  rightInv IsoCategoryPath b = CategoryPath≡
+     {C = C} {C' = C'} {_}
+     -- {categoryPath {C = C} {C' = C'}
+     --    (λ i →
+     --       Glue (C' .Category.ob) {φ = i ∨ ~ i}
+     --       (λ ._ → ob≡ b i , equivPathP {e = ob≃ ((≡→WeakEquivlance (mk≡ b)) .isWeakEquiv)}
+     --         {f = idEquiv _} (transport-fillerExt⁻ (ob≡ b)) i))
+     --    (λ j x y →
+     --       Glue 𝑪'.Hom[ unglue (~ j ∨ j) x , unglue (~ j ∨ j ∨ i0) y ]
+     --       (λ { (j = i0)
+     --              → 𝑪.Hom[ x , y ] ,
+     --                Hom≃ (isWeakEquivalenceTransportFunctor (mk≡ b)) x y
+     --          ; (j = i1)
+     --              → 𝑪'.Hom[ unglue (~ i1 ∨ i1 ∨ i0) x , unglue (~ i1 ∨ i1 ∨ i0) y ] ,
+     --                idEquiv
+     --                𝑪'.Hom[ unglue (~ i1 ∨ i1 ∨ i0) x , unglue (~ i1 ∨ i1 ∨ i0) y ]
+     --          }))
+     --    (id≡
+     --     (WeakEquivlance→CategoryPath
+     --      (isWeakEquiv (inv IsoCategoryPath b))))
+     --    (⋆≡
+     --     (WeakEquivlance→CategoryPath
+     --      (isWeakEquiv (inv IsoCategoryPath b))))}
+     {b}
      (λ i j →
         Glue _ {φ = ~ j ∨ j ∨ i}
            (λ _ → _ , equivPathP

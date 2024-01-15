@@ -1,4 +1,4 @@
--- Enriched categories
+-- Enrichbed categories
 {-# OPTIONS --safe #-}
 
 module Cubical.Categories.Monoidal.Enriched where

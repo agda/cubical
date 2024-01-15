@@ -243,6 +243,7 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
         q : isContr (relSinglAt a)
         q = isOfHLevelRespectEquiv 0 (t , totalEquiv _ _ f λ x → invEquiv (u a x) .snd)
                                    (isContrSingl a)
+                                   
   isPropIsEquivPropRel : isPropValued → isProp isEquivRel
   isPropIsEquivPropRel ipv =
     isOfHLevelRetract 1 _ (uncurry (uncurry equivRel))

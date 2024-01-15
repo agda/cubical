@@ -54,12 +54,11 @@ module _ (rA : Rel A A ℓA') (rB : Rel B B ℓB') where
  ×Rel : Rel (A × B) (A × B) (ℓ-max ℓA' ℓB')
  ×Rel (a , b) (a' , b') = (rA a a') × (rB b b')
 
-
 module _ (isEquivRelRA : isEquivRel rA) (isEquivRelRB : isEquivRel rB) where
  open isEquivRel
 
- module eqrA = isEquivRel isEquivRelRA
- module eqrB = isEquivRel isEquivRelRB
+ private module eqrA = isEquivRel isEquivRelRA
+ private module eqrB = isEquivRel isEquivRelRB
 
  isEquivRel×Rel : isEquivRel (×Rel rA rB)
  reflexive isEquivRel×Rel _ =
@@ -69,6 +68,25 @@ module _ (isEquivRelRA : isEquivRel rA) (isEquivRelRB : isEquivRel rB) where
  transitive isEquivRel×Rel _ _ _ (ra , rb) =
    map-× (eqrA.transitive _ _ _ ra) (eqrB.transitive _ _ _ rb)
 
+
+module _ (rA : Rel A A ℓA') (rB : Rel A A ℓB') where
+
+ ⊓Rel : Rel A A (ℓ-max ℓA' ℓB')
+ ⊓Rel a a' = (rA a a') × (rB a a')
+
+module _ {rA : Rel A A ℓA} {rA' : Rel A A ℓA'}
+  (isEquivRelRA : isEquivRel rA) (isEquivRelRA' : isEquivRel rA') where
+ open isEquivRel
+
+ private module eqrA = isEquivRel isEquivRelRA
+ private module eqrA' = isEquivRel isEquivRelRA'
+
+ isEquivRel⊓Rel : isEquivRel (⊓Rel rA rA')
+ reflexive isEquivRel⊓Rel _ = eqrA.reflexive _ , eqrA'.reflexive _ 
+ symmetric isEquivRel⊓Rel _ _ (r , r') =
+  eqrA.symmetric _ _ r , eqrA'.symmetric _ _ r' 
+ transitive isEquivRel⊓Rel _ _ _ (r , r') (q , q') =
+    eqrA.transitive' r q , eqrA'.transitive' r' q' 
 
 module _ {A B : Type ℓA} (e : A ≃ B) {_∼_ : Rel A A ℓA'} {_∻_ : Rel B B ℓA'}
          (_h_ : ∀ x y → (x ∼ y) ≃ ((fst e x) ∻ (fst e y))) where

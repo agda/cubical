@@ -135,3 +135,32 @@ univProp (completeSET J D) c cc =
     (λ _ → funExt (λ _ → refl))
     (λ x → isPropIsConeMor cc (limCone (completeSET J D)) x)
     (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
+
+completeSET' : ∀ {ℓ} → Limits {ℓ-zero} {ℓ-zero} (SET ℓ)
+lim (completeSET' J D) = Cone D (Unit* , isOfHLevelLift 2 isSetUnit) , isSetCone D _
+coneOut (limCone (completeSET' J D)) j e = coneOut e j tt*
+coneOutCommutes (limCone (completeSET' J D)) j i e = coneOutCommutes e j i tt*
+univProp (completeSET' J D) c cc =
+  uniqueExists
+    (λ x → cone (λ v _ → coneOut cc v x) (λ e i _ → coneOutCommutes cc e i x))
+    (λ _ → funExt (λ _ → refl))
+    (λ x → isPropIsConeMor cc (limCone (completeSET' J D)) x)
+    (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
+
+
+
+-- pullbacks : Pullbacks (SET ℓ)
+-- pullbacks cspn = w
+--  where
+--  open Cospan cspn
+--  w : Pullback (SET _) cspn
+--  Pullback.pbOb w =
+--    Σ (fst l × fst r) (λ (lo , ro) → s₁ lo ≡ s₂ ro ) ,
+--    {!!}
+--  Pullback.pbPr₁ w x = fst (fst x)
+--  Pullback.pbPr₂ w x = snd (fst x)
+--  Pullback.pbCommutes w = funExt snd
+--  Pullback.univProp w h k H' =
+--    ((λ x → _ , (funExt⁻ H' x)) , refl , refl) ,
+--     λ y → Σ≡Prop {!!} (funExt
+--      λ yy → Σ≡Prop {!!} λ i → fst (snd y) i yy , snd (snd y) i yy)

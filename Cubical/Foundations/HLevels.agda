@@ -340,6 +340,14 @@ isOfHLevelΣ {B = B} (suc (suc n)) h1 h2 x y =
 isSetΣ : isSet A → ((x : A) → isSet (B x)) → isSet (Σ A B)
 isSetΣ = isOfHLevelΣ 2
 
+isOfHLevelFiber' : ∀ n → isOfHLevel n A' → isOfHLevel (suc n) A → ∀ (f : A' → A) x → isOfHLevel n (fiber f x)
+isOfHLevelFiber' n hlev' hlev f x = isOfHLevelΣ n hlev' λ _ → isOfHLevelPath' n hlev _ _ 
+
+isOfHLevelFiber : ∀ n → isOfHLevel n A' → isOfHLevel n A → ∀ (f : A' → A) x → isOfHLevel n (fiber f x)
+isOfHLevelFiber n hlev' hlev f x =
+  isOfHLevelFiber' n hlev' (isOfHLevelSuc n hlev) f x
+
+
 -- Useful consequence
 isSetΣSndProp : isSet A → ((x : A) → isProp (B x)) → isSet (Σ A B)
 isSetΣSndProp h p = isSetΣ h (λ x → isProp→isSet (p x))
