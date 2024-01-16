@@ -251,8 +251,8 @@ module Exponentiation (R' : CommRing ℓ) where
 module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
  open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
  open Units B' renaming (Rˣ to Bˣ ; _⁻¹ to _⁻¹ᵇ ; ·-rinv to ·B-rinv)
- open Exponentiation A' renaming (_^_ to _^ᵃ_)
- open Exponentiation B' renaming (_^_ to _^ᵇ_)
+ open Exponentiation A' renaming (_^_ to _^ᵃ_) using ()
+ open Exponentiation B' renaming (_^_ to _^ᵇ_) using ()
  open CommRingStr ⦃...⦄
  private
    A = fst A'
