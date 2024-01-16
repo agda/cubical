@@ -59,9 +59,9 @@ module MonoidBigOp (M' : Monoid ℓ) where
  bigOpSplit++ {n = suc n} V W = cong (V zero ·_) (bigOpSplit++ (V ∘ suc) W) ∙ ·Assoc _ _ _
 
 
-module _ {M : Monoid ℓ} {M' : Monoid ℓ'} (φ : MonoidHom M M') where
-  module M = MonoidBigOp M
-  module M' = MonoidBigOp M'
+module BigOpMap {M : Monoid ℓ} {M' : Monoid ℓ'} (φ : MonoidHom M M') where
+  private module M = MonoidBigOp M
+  private module M' = MonoidBigOp M'
   open IsMonoidHom (φ .snd)
   open MonoidStr ⦃...⦄
   private instance
