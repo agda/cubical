@@ -17,8 +17,9 @@ open import Cubical.HITs.S3
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.HITs.Sn.Base
-open import Cubical.HITs.Susp renaming (toSusp to σ)
+open import Cubical.HITs.Susp
 open import Cubical.HITs.Truncation
+open import Cubical.HITs.PropositionalTruncation as PT hiding (rec ; elim)
 open import Cubical.Homotopy.Connected
 open import Cubical.HITs.Join renaming (joinS¹S¹→S³ to joinS¹S¹→S3)
 open import Cubical.Data.Bool hiding (elim)
@@ -28,6 +29,11 @@ private
     ℓ : Level
 
 open Iso
+
+σSn : (n : ℕ) → S₊ n → Path (S₊ (suc n)) (ptSn (suc n)) (ptSn (suc n))
+σSn zero false = loop
+σSn zero true = refl
+σSn (suc n) x = toSusp (S₊∙ (suc n)) x
 
 IsoSucSphereSusp : (n : ℕ) → Iso (S₊ (suc n)) (Susp (S₊ n))
 IsoSucSphereSusp zero = S¹IsoSuspBool
@@ -66,6 +72,12 @@ private
                     ; (i = i1) → q (~ k ∨ j)
                     ; (j = i1) → y })
           (p (j ∨ i))
+
+sphereElim' : (n : ℕ) {A : S₊ n → Type ℓ} →
+      ((x : S₊ n) → isOfHLevel n (A x)) →
+      A (ptSn n) → (x : S₊ n) → A x
+sphereElim' zero st _ x = st x .fst
+sphereElim' (suc n) = sphereElim n
 
 sphereToPropElim : (n : ℕ) {A : (S₊ (suc n)) → Type ℓ} → ((x : S₊ (suc n)) → isProp (A x))
           → A (ptSn (suc n))
@@ -288,6 +300,49 @@ sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
 sphereConnected n = ∣ ptSn n ∣ , elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
                                      (λ a → sym (spoke ∣_∣ (ptSn n)) ∙ spoke ∣_∣ a)
 
+sphereToTrunc : (n : ℕ) {A : S₊ n → Type}
+  → ((x : S₊ n) → hLevelTrunc (suc n) (A x))
+  → ∥ ((x : _) → A x) ∥₁
+sphereToTrunc zero {A = A} indr =
+  rec squash₁ (λ p → rec squash₁
+    (λ q → ∣ (λ { false → q ; true → p}) ∣₁)
+         (indr false)) (indr true)
+sphereToTrunc (suc zero) {A = A} indr =
+  lem (indr base) (cong indr loop)
+  where
+  lem : (x : hLevelTrunc 2 (A base))
+      → PathP (λ i → hLevelTrunc 2 (A (loop i))) x x
+      → ∥ ((x : S¹) → A x) ∥₁
+  lem = elim (λ _ → isSetΠ λ _ → isProp→isSet squash₁) λ a p
+    → rec squash₁ (λ q → ∣ (λ { base → a
+      ; (loop i) → toPathP {A = λ i → A (loop i)} q i}) ∣₁)
+        (PathIdTruncIso 1 .Iso.fun
+          (fromPathP p))
+sphereToTrunc (suc (suc n)) {A = A} indr =
+  lem (sphereToTrunc (suc n)) (indr north) (indr south)
+    λ a → cong indr (merid a)
+  where
+  lem : ({A : S₊ (suc n) → Type} →
+      ((i : S₊ (suc n)) → hLevelTrunc (suc (suc n)) (A i)) →
+      ∥ ((x : S₊ (suc n)) → A x) ∥₁)
+      → (x : hLevelTrunc (3 + n) (A north))
+        (y : hLevelTrunc (3 + n) (A south))
+      → ((a : _) → PathP (λ i → hLevelTrunc (3 + n) (A (merid a i))) x y)
+      → ∥ ((x : S₊ (2 + n)) → A x) ∥₁
+  lem indr =
+    elim (λ _ → isOfHLevelΠ2 (3 + n)
+              λ _ _ → isProp→isOfHLevelSuc (2 + n) squash₁)
+      λ a → elim (λ _ → isOfHLevelΠ (3 + n)
+              λ _ → isProp→isOfHLevelSuc (2 + n) squash₁)
+              λ b → λ f →
+          PT.map (λ ma → λ { north → a
+                            ; south → b
+                            ; (merid a i) → ma a i})
+            (indr {A = λ x → PathP (λ i → A (merid x i)) a b}
+              λ x → rec (isOfHLevelTrunc (2 + n))
+                (λ p → ∣ toPathP p ∣)
+                (Iso.fun (PathIdTruncIso _) (fromPathP (f x))))
+
 -- The fact that path spaces of Sn are connected can be proved directly for Sⁿ.
 -- (Unfortunately, this does not work for higher paths)
 pathIdTruncSⁿ : (n : ℕ) (x y : S₊ (suc n))
@@ -348,18 +403,18 @@ invLooperDistr =
 
 SuspS¹-hom : (a x : S¹)
   → Path (Path (hLevelTrunc 4 (S₊ 2)) _ _)
-          (cong ∣_∣ₕ (σ (S₊∙ 1) (a * x)))
-          (cong ∣_∣ₕ (σ (S₊∙ 1) a)
-        ∙ (cong ∣_∣ₕ (σ (S₊∙ 1) x)))
+          (cong ∣_∣ₕ (σSn 1 (a * x)))
+          (cong ∣_∣ₕ (σSn 1 a)
+        ∙ (cong ∣_∣ₕ (σSn 1 x)))
 SuspS¹-hom = wedgeconFun _ _ (λ _ _ → isOfHLevelTrunc 4 _ _ _ _)
            (λ x → lUnit _
-                 ∙ cong (_∙ cong ∣_∣ₕ (σ (S₊∙ 1) x))
+                 ∙ cong (_∙ cong ∣_∣ₕ (σSn 1 x))
                         (cong (cong ∣_∣ₕ) (sym (rCancel (merid base)))))
-           (λ x → (λ i → cong ∣_∣ₕ (σ (S₊∙ 1) (rUnitS¹ x i)))
+           (λ x → (λ i → cong ∣_∣ₕ (σSn 1 (rUnitS¹ x i)))
                ∙∙ rUnit _
-               ∙∙ cong (cong ∣_∣ₕ (σ (S₊∙ 1) x) ∙_)
+               ∙∙ cong (cong ∣_∣ₕ (σSn 1 x) ∙_)
                        (cong (cong ∣_∣ₕ) (sym (rCancel (merid base)))))
-           (sym (l (cong ∣_∣ₕ (σ (S₊∙ 1) base))
+           (sym (l (cong ∣_∣ₕ (σSn 1 base))
                 (cong (cong ∣_∣ₕ) (sym (rCancel (merid base))))))
   where
   l : ∀ {ℓ} {A : Type ℓ} {x : A} (p : x ≡ x) (P : refl ≡ p)
@@ -373,24 +428,24 @@ rCancelS¹ (loop i) j =
         base
 
 SuspS¹-inv : (x : S¹) → Path (Path (hLevelTrunc 4 (S₊ 2)) _ _)
-                         (cong ∣_∣ₕ (σ (S₊∙ 1) (invLooper x)))
-                         (cong ∣_∣ₕ (sym (σ (S₊∙ 1) x)))
+                         (cong ∣_∣ₕ (σSn 1 (invLooper x)))
+                         (cong ∣_∣ₕ (sym (σSn 1 x)))
 SuspS¹-inv x = (lUnit _
-       ∙∙ cong (_∙ cong ∣_∣ₕ (σ (S₊∙ 1) (invLooper x)))
-               (sym (lCancel (cong ∣_∣ₕ (σ (S₊∙ 1) x))))
+       ∙∙ cong (_∙ cong ∣_∣ₕ (σSn 1 (invLooper x)))
+               (sym (lCancel (cong ∣_∣ₕ (σSn 1 x))))
                   ∙∙ sym (assoc _ _ _))
-       ∙∙ cong (sym (cong ∣_∣ₕ (σ (S₊∙ 1) x)) ∙_) lem
+       ∙∙ cong (sym (cong ∣_∣ₕ (σSn 1 x)) ∙_) lem
        ∙∙ (assoc _ _ _
-       ∙∙ cong (_∙ (cong ∣_∣ₕ (sym (σ (S₊∙ 1) x))))
-               (lCancel (cong ∣_∣ₕ (σ (S₊∙ 1) x)))
+       ∙∙ cong (_∙ (cong ∣_∣ₕ (sym (σSn 1 x))))
+               (lCancel (cong ∣_∣ₕ (σSn 1 x)))
        ∙∙ sym (lUnit _))
   where
-  lem : cong ∣_∣ₕ (σ (S₊∙ 1) x)
-      ∙ cong ∣_∣ₕ (σ (S₊∙ 1) (invLooper x))
-     ≡ cong ∣_∣ₕ (σ (S₊∙ 1) x)
-     ∙ cong ∣_∣ₕ (sym (σ (S₊∙ 1) x))
+  lem : cong ∣_∣ₕ (σSn 1 x)
+      ∙ cong ∣_∣ₕ (σSn 1 (invLooper x))
+     ≡ cong ∣_∣ₕ (σSn 1 x)
+     ∙ cong ∣_∣ₕ (sym (σSn 1 x))
   lem = sym (SuspS¹-hom x (invLooper x))
-     ∙ ((λ i → cong ∣_∣ₕ (σ (S₊∙ 1) (rCancelS¹ x (~ i))))
+     ∙ ((λ i → cong ∣_∣ₕ (σSn 1 (rCancelS¹ x (~ i))))
      ∙ cong (cong ∣_∣ₕ) (rCancel (merid base))) ∙ sym (rCancel _)
 
 -------------------- join Sⁿ Sᵐ ≃ Sⁿ⁺¹⁺ᵐ -------------------------
@@ -460,7 +515,7 @@ joinS¹S¹→S³'≡joinS¹S¹→S³' (push (loop i) (loop j) k) l =
                   ; (k = i1) → merid (sym (rCancel (merid base)) (~ r) j) (~ l)
                   ; (l = i0) → merid (doubleCompPath-filler
                                       (sym (rCancel (merid base)))
-                                      (cong (σ (S₊∙ 1)) loop)
+                                      (cong (σSn 1) loop)
                                       (rCancel (merid base)) r i j) k
                   ; (l = i1) → 3cell i1 i j k})
     (hcomp (λ r → λ {(i = i0) → merid (cp-fill base r j) (k ∧ ~ l)
@@ -581,21 +636,21 @@ invSphere² (suc (suc n)) = invSusp²
 
 -- Interaction between σ and invSphere
 σ-invSphere : (n : ℕ) (x : S₊ (suc n))
-                 → σ (S₊∙ (suc n)) (invSphere x)
-                 ≡ sym (σ (S₊∙ (suc n)) x)
+                 → σSn (suc n) (invSphere x)
+                 ≡ sym (σSn (suc n) x)
 σ-invSphere zero base =
   rCancel (merid base) ∙∙ refl ∙∙ cong sym (sym (rCancel (merid base)))
 σ-invSphere zero (loop i) j =
   hcomp (λ k → λ { (j = i0) → doubleCompPath-filler
                                  (sym (rCancel (merid base)))
-                                 (λ i → (σ (S₊∙ 1) (loop (~ i))))
+                                 (λ i → (σSn 1 (loop (~ i))))
                                  (rCancel (merid base)) (~ k) i
                   ; (j = i1) → doubleCompPath-filler
                                   (sym (cong sym (rCancel (merid base))))
-                                  (λ i → sym (σ (S₊∙ 1) (loop i)))
+                                  (λ i → sym (σSn 1 (loop i)))
                                   (cong sym (rCancel (merid base))) (~ k) i})
         (sym≡cong-sym  (sym (rCancel (merid base))
-                    ∙∙ (λ i → (σ (S₊∙ 1) (loop i)))
+                    ∙∙ (λ i → (σSn 1 (loop i)))
                     ∙∙ (rCancel (merid base))) j i)
 σ-invSphere (suc n) x = toSusp-invSusp (S₊∙ (suc n)) x
 
@@ -658,7 +713,7 @@ invSusp∘S¹×S¹→S² (loop i) (loop j) k =
                    ; (k = i1) → invSusp (cp-filler (loop i) r j)})
            (merid (loop i) (~ j)))
   where
-  σ₁ = σ (S₊∙ 1)
+  σ₁ = σSn 1
   m-b = merid base
   rCancel-mb = rCancel m-b
   rCancel-mb⁻¹ = sym (rCancel m-b)

@@ -297,6 +297,17 @@ elim2→Set {A = A} {B = B} {P = P} Pset f kf₁ kf₂ sf =
                → PathP (λ i → (u : ∥ B ∥₁) → P (squash₁ ∣ x ∣₁ ∣ y ∣₁ i) u) (mapHelper x) (mapHelper y)
   squareHelper x y i = elim→Set (λ _ → Pset _ _) (λ v → kf₁ x y v i) λ v w → sf x y v w i
 
+elim→Setβ : ∀ {ℓ ℓ'} {A : Type ℓ}
+     {P : ∥ A ∥₁ → Type ℓ'}
+  → (is-set : ∀ t → isSet (P t))
+  → (f : (x : A) → P ∣ x ∣₁)
+  → (kf : ∀ x y → PathP (λ i → P (squash₁ ∣ x ∣₁ ∣ y ∣₁ i)) (f x) (f y))
+  → (t : A) → elim→Set is-set f kf ∣ t ∣₁ ≡ f t
+elim→Setβ {A = A} {P = P} Pset f kf t =
+    cong (λ p → subst P p (f t))
+         (isProp→isSet squash₁ _ _ (squash₁ ∣ t ∣₁ ∣ t ∣₁) refl)
+  ∙ transportRefl (f t)
+
 RecHProp : (P : A → hProp ℓ) (kP : ∀ x y → P x ≡ P y) → ∥ A ∥₁ → hProp ℓ
 RecHProp P kP = rec→Set isSetHProp P kP
 

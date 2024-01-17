@@ -9,6 +9,8 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Function
+
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
@@ -22,6 +24,22 @@ private
     ℓ : Level
 
 open Iso
+
+suspFunComp : {A B C : Type ℓ} (f : B → C) (g : A → B)
+               → suspFun (f ∘ g) ≡ (suspFun f) ∘ (suspFun g)
+suspFunComp f g i north = north
+suspFunComp f g i south = south
+suspFunComp f g i (merid a i₁) = merid (f (g a)) i₁
+
+suspFunConst : {A B : Type ℓ} (b : B) → suspFun (λ (_ : A) → b) ≡ λ _ → north
+suspFunConst b i north = north
+suspFunConst b i south = merid b (~ i)
+suspFunConst b i (merid a j) = merid b (~ i ∧ j)
+
+suspFunIdFun : {A : Type ℓ} → suspFun (λ (a : A) → a) ≡ λ x → x
+suspFunIdFun i north = north
+suspFunIdFun i south = south
+suspFunIdFun i (merid a j) = merid a j
 
 Susp-iso-joinBool : ∀ {ℓ} {A : Type ℓ} → Iso (Susp A) (join A Bool)
 fun Susp-iso-joinBool north = inr true
