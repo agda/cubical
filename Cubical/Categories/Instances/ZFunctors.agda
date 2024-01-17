@@ -405,6 +405,18 @@ module _ {ℓ : Level} where
 
 
   module _ (X : ℤFunctor) where
+    open isIso
+    private instance _ = (CompOpenDistLattice .F-ob X) .snd
+    -- better name?
+    X≅⟦1⟧ : NatIso X ⟦ 1l ⟧ᶜᵒ
+    N-ob (trans X≅⟦1⟧) _ φ = φ , refl
+    N-hom (trans X≅⟦1⟧) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+    inv (nIso X≅⟦1⟧ B) = fst
+    sec (nIso X≅⟦1⟧ B) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+    ret (nIso X≅⟦1⟧ B) = funExt λ _ → refl
+
+
+  module _ (X : ℤFunctor) where
     open Join (CompOpenDistLattice .F-ob X)
     open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
     open PosetStr (IndPoset .snd) hiding (_≤_)
@@ -456,28 +468,13 @@ module _ {ℓ : Level} where
   -- the canonical one element affine cover of a representable
   module _ (A : CommRing ℓ) where
     open AffineCover
-    open isIso
-
-    private
-      U₁ : CompactOpen (Sp .F-ob A)
-      N-ob U₁ B _ = let instance _ = B .snd in
-        D B 1r
-      N-hom U₁ {y = B} φ = let instance _ = ZariskiLattice B .snd in
-        funExt (λ _ → cong (D B) (sym (φ .snd .pres1)) ∙ sym (∨lRid _))
-
-      SpA≅U₁ : NatIso (Sp .F-ob A) ⟦ U₁ ⟧ᶜᵒ
-      N-ob (trans SpA≅U₁) _ φ = φ , refl
-      N-hom (trans SpA≅U₁) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
-      inv (nIso SpA≅U₁ B) = fst
-      sec (nIso SpA≅U₁ B) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
-      ret (nIso SpA≅U₁ B) = funExt λ _ → refl
+    private instance _ = (CompOpenDistLattice ⟅ Sp ⟅ A ⟆ ⟆) .snd
 
     singlAffineCover : AffineCover (Sp .F-ob A)
     n singlAffineCover = 1
-    U singlAffineCover zero = U₁
-    covers singlAffineCover =
-      makeNatTransPath (funExt₂ λ B _ → let instance _ = ZariskiLattice B .snd in ∨lRid _)
-    isAffineU singlAffineCover zero = ∣ A , SpA≅U₁ ∣₁
+    U singlAffineCover zero = 1l
+    covers singlAffineCover = ∨lRid _
+    isAffineU singlAffineCover zero = ∣ A , X≅⟦1⟧ (Sp ⟅ A ⟆) ∣₁
 
 
   -- qcqs-schemes as Zariski sheaves (local ℤ-functors) with an affine cover in the sense above
