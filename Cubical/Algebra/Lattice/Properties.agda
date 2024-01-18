@@ -81,6 +81,9 @@ module Order (L' : Lattice ℓ) where
  ∧≤LCancelJoin : ∀ x y → x ∧l y ≤j y
  ∧≤LCancelJoin x y = ≤m→≤j _ _ (∧≤LCancel x y)
 
+ ∧≤RCancelJoin : ∀ x y → x ∧l y ≤j x
+ ∧≤RCancelJoin x y = ≤m→≤j _ _ (∧≤RCancel x y)
+
 
 module _ {L : Lattice ℓ} {M : Lattice ℓ'} (φ ψ : LatticeHom L M) where
  open LatticeStr ⦃...⦄

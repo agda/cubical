@@ -9,7 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence)
+open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence) renaming (_∈_ to _∈ₚ_)
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool hiding (_≤_)
@@ -58,6 +58,7 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
  open Sum (CommRing→Ring R')
  open CommRingTheory R'
  open Exponentiation R'
+ open Units R'
 
  open DistLatticeStr (L' .snd) renaming (is-set to isSetL)
  open Join L'
@@ -90,10 +91,17 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
   d·LCancel : ∀ x y → d (x · y) ≤ d y
   d·LCancel x y = subst (λ a → a ≤ d y) (sym (·≡∧ x y)) (∧≤LCancelJoin _ _)
 
+  d·RCancel : ∀ x y → d (x · y) ≤ d x
+  d·RCancel x y = subst (λ a → a ≤ d x) (sym (·≡∧ x y)) (∧≤RCancelJoin _ _)
+
   linearCombination≤LCancel : {n : ℕ} (α β : FinVec R n)
                             → d (linearCombination R' α β) ≤ ⋁ (d ∘ β)
   linearCombination≤LCancel α β = is-trans _ _ _ (∑≤⋁ (λ i → α i · β i))
                                                  (≤-⋁Ext _ _ λ i → d·LCancel (α i) (β i))
+
+  ZarMapUnit : ∀ x → x ∈ₚ Rˣ → d x ≡ 1l
+  ZarMapUnit x (x⁻¹ , xx⁻¹≡1) = is-antisym _ _ (1lRightAnnihilates∨l _)
+                                               (subst (_≤ d x) (cong d xx⁻¹≡1 ∙ pres1) (d·RCancel _ _))
 
   ZarMapIdem : ∀ (n : ℕ) (x : R) → d (x ^ (suc n)) ≡ d x
   ZarMapIdem zero x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) pres1 ∙∙ ∧lRid _
