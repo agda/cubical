@@ -512,6 +512,24 @@ module _ {G : AbGroup ℓ} where
     lem zero = ΩEM+1→EM-refl 0
     lem (suc n) = ΩEM+1→EM-refl (suc n)
 
+  ΩEM+1→EM-gen-hom : (n : ℕ) (x : EM G (suc n)) (p q : x ≡ x)
+    → ΩEM+1→EM-gen n x (p ∙ q) ≡ ΩEM+1→EM-gen n x p +ₖ ΩEM+1→EM-gen n x q
+  ΩEM+1→EM-gen-hom n =
+    EM-raw'-elim _ (suc n)
+      (λ _ → isOfHLevelΠ2 (suc (suc n))
+        (λ _ _ → isOfHLevelPath (suc (suc n)) (hLevelEM _ n) _ _))
+      (EM-raw'-trivElim _ n
+        (λ _ → isOfHLevelΠ2 (suc n) (λ _ _ → hLevelEM _ n _ _))
+          (lem n))
+    where
+    lem : (n : ℕ) (p q : EM-raw'→EM G (suc n) (snd (EM-raw'∙ G (suc n)))
+                        ≡ EM-raw'→EM G (suc n) (snd (EM-raw'∙ G (suc n))))
+      → ΩEM+1→EM-gen n _ (p ∙ q)
+       ≡ ΩEM+1→EM-gen n _ p
+       +ₖ ΩEM+1→EM-gen n _ q
+    lem zero p q = ΩEM+1→EM-hom 0 p q
+    lem (suc n) p q = ΩEM+1→EM-hom (suc n) p q
+
 -- Some HLevel lemmas about function spaces (EM∙ G n →∙ EM∙ H m), mainly used for
 -- the cup product
 module _ where

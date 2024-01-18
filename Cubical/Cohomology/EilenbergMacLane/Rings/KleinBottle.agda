@@ -3,6 +3,7 @@
 module Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle where
 
 open import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle
+open import Cubical.Cohomology.EilenbergMacLane.Groups.RP2
 open import Cubical.Cohomology.EilenbergMacLane.Base
 open import Cubical.Cohomology.EilenbergMacLane.CupProduct
 open import Cubical.Cohomology.EilenbergMacLane.RingStructure
