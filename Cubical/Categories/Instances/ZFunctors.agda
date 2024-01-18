@@ -23,6 +23,7 @@ open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Localisation
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
@@ -496,3 +497,45 @@ module _ {ℓ : Level} where
   isQcQsSchemeAffine : ∀ (A : CommRing ℓ) → isQcQsScheme (Sp .F-ob A)
   fst (isQcQsSchemeAffine A) = isSubcanonicalZariskiCoverage A
   snd (isQcQsSchemeAffine A) = ∣ singlAffineCover A ∣₁
+
+-- standard affine opens
+-- TODO: separate file?
+module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
+
+  open Iso
+  open Functor
+  open NatTrans
+  open NatIso
+  open DistLatticeStr ⦃...⦄
+  open CommRingStr ⦃...⦄
+  open IsRingHom
+  open RingHoms
+  open IsLatticeHom
+  open ZarLat
+
+  open InvertingElementsBase R
+  open UniversalProp f
+
+  module ZL = ZarLatUniversalProp
+
+  D : CompactOpen (Sp ⟅ R ⟆)
+  D = yonedaᴾ ZarLatFun R .inv (ZL.D R f)
+
+  SpR[1/f]≅⟦Df⟧ : NatIso (Sp .F-ob R[1/ f ]AsCommRing) ⟦ D ⟧ᶜᵒ
+  N-ob (trans SpR[1/f]≅⟦Df⟧) B φ = (φ ∘r /1AsCommRingHom) , ∨lRid _ ∙ path
+    where
+    instance
+      _ = B .snd
+      _ = ZariskiLattice B .snd
+
+    φ[f/1]Unit : φ .fst (f /1) ∈ B ˣ
+    φ[f/1]Unit = {!!}
+
+    path : ZL.D B (φ .fst (f /1)) ≡ 1l
+    path = IsZarMap.ZarMapUnit (ZL.isZarMapD B) _ φ[f/1]Unit
+
+  N-hom (trans SpR[1/f]≅⟦Df⟧) = {!!}
+  nIso SpR[1/f]≅⟦Df⟧ = {!!}
+
+  isAffineD : isAffineCompactOpen D
+  isAffineD = ∣ R[1/ f ]AsCommRing , SpR[1/f]≅⟦Df⟧ ∣₁
