@@ -30,6 +30,7 @@ open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.BigOps
 open import Cubical.Algebra.ZariskiLattice.Base
 open import Cubical.Algebra.ZariskiLattice.UniversalProperty
+open import Cubical.Algebra.ZariskiLattice.Properties
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -506,6 +507,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
   open Functor
   open NatTrans
   open NatIso
+  open isIso
   open DistLatticeStr ⦃...⦄
   open CommRingStr ⦃...⦄
   open IsRingHom
@@ -518,24 +520,40 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
 
   module ZL = ZarLatUniversalProp
 
+  private
+    instance
+      _ = R .snd
+
   D : CompactOpen (Sp ⟅ R ⟆)
   D = yonedaᴾ ZarLatFun R .inv (ZL.D R f)
 
   SpR[1/f]≅⟦Df⟧ : NatIso (Sp .F-ob R[1/ f ]AsCommRing) ⟦ D ⟧ᶜᵒ
   N-ob (trans SpR[1/f]≅⟦Df⟧) B φ = (φ ∘r /1AsCommRingHom) , ∨lRid _ ∙ path
     where
+    open CommRingHomTheory φ
+    open IsZarMap (ZL.isZarMapD B)
     instance
       _ = B .snd
       _ = ZariskiLattice B .snd
 
-    φ[f/1]Unit : φ .fst (f /1) ∈ B ˣ
-    φ[f/1]Unit = {!!}
+    isUnitφ[f/1] : φ .fst (f /1) ∈ B ˣ
+    isUnitφ[f/1] = RingHomRespInv (f /1) ⦃ S/1⊆S⁻¹Rˣ f ∣ 1 , sym (·IdR f) ∣₁ ⦄
 
     path : ZL.D B (φ .fst (f /1)) ≡ 1l
-    path = IsZarMap.ZarMapUnit (ZL.isZarMapD B) _ φ[f/1]Unit
+    path = ZarMapUnit _ isUnitφ[f/1]
 
-  N-hom (trans SpR[1/f]≅⟦Df⟧) = {!!}
-  nIso SpR[1/f]≅⟦Df⟧ = {!!}
+  N-hom (trans SpR[1/f]≅⟦Df⟧) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (RingHom≡ refl)
+
+  inv (nIso SpR[1/f]≅⟦Df⟧ B) (φ , Dφf≡D1) = invElemUniversalProp B φ isUnitφf .fst .fst
+    where
+    instance _ = ZariskiLattice B .snd
+    isUnitφf : φ .fst f ∈ B ˣ
+    isUnitφf = unitLemmaZarLat B (φ $r f) (sym (∨lRid _) ∙ Dφf≡D1)
+
+  sec (nIso SpR[1/f]≅⟦Df⟧ B) =
+    funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (RingHom≡ (invElemUniversalProp _ _ _ .fst .snd))
+  ret (nIso SpR[1/f]≅⟦Df⟧ B) =
+    funExt λ φ → cong fst (invElemUniversalProp B (φ ∘r /1AsCommRingHom) _ .snd (φ , refl))
 
   isAffineD : isAffineCompactOpen D
   isAffineD = ∣ R[1/ f ]AsCommRing , SpR[1/f]≅⟦Df⟧ ∣₁
