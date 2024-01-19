@@ -242,9 +242,9 @@ module _ {R : CommRing ℓ} where
                            → (fPres1 : f 1a ≡ 1a)
                            → (fPres+ : (x y : fst M) → f (x + y) ≡ f x + f y)
                            → (fPres· : (x y : fst M) → f (x · y) ≡ f x · f y)
-                           → (fPres⋆ : (r : fst R) (x : fst M) → f (r ⋆ x) ≡ r ⋆ f x)
+                           → (fPres⋆1a : (r : fst R) → f (r ⋆ 1a) ≡ r ⋆ 1a)
                            → CommAlgebraHom M N
-    makeCommAlgebraHom f fPres1 fPres+ fPres· fPres⋆ = f , isHom
+    makeCommAlgebraHom f fPres1 fPres+ fPres· fPres⋆1a = f , isHom
       where fPres0 =
                     f 0a                  ≡⟨ sym (+IdR _) ⟩
                     f 0a + 0a             ≡⟨ cong (λ u → f 0a + u) (sym (+InvR (f 0a))) ⟩
@@ -267,7 +267,14 @@ module _ {R : CommRing ℓ} where
                                (f ((- x) + x) - f x) ≡⟨ cong (λ u → f u - f x) (+InvL x) ⟩
                                (f 0a - f x) ≡⟨ cong (λ u → u - f x) fPres0 ⟩
                                (0a - f x) ≡⟨ +IdL _ ⟩ (- f x) ∎)
-            pres⋆ isHom = fPres⋆
+            pres⋆ isHom r y =
+              f (r ⋆ y)         ≡⟨ cong f (cong (r ⋆_) (sym (·IdL y))) ⟩
+              f (r ⋆ (1a · y))  ≡⟨ cong f (sym (⋆AssocL r 1a y)) ⟩
+              f ((r ⋆ 1a) · y)  ≡⟨ fPres· (r ⋆ 1a) y ⟩
+              f (r ⋆ 1a) · f y  ≡⟨ cong (_· f y) (fPres⋆1a r) ⟩
+              (r ⋆ 1a) · f y    ≡⟨ ⋆AssocL r 1a (f y) ⟩
+              r ⋆ (1a · f y)    ≡⟨ cong (r ⋆_) (·IdL (f y)) ⟩
+              r ⋆ f y           ∎
 
     isPropIsCommAlgebraHom : (f : fst M → fst N) → isProp (IsCommAlgebraHom (snd M) f (snd N))
     isPropIsCommAlgebraHom f = isPropIsAlgebraHom
