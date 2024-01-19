@@ -19,6 +19,7 @@ module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Base where
   For more, see the Properties file.
 -}
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure using (⟨_⟩)
 
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra.Base
@@ -90,7 +91,21 @@ module Construction (R : CommRing ℓ) where
                                     ·-assoc ·-lid ldist ·-comm
                                     ⋆-assoc ⋆-rdist-+ ⋆-ldist-+ ·-lid ⋆-assoc-·
 
-_[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
-fst (R [ I ]) = Construction.R[_] R I
-snd (R [ I ]) = makeCommAlgebraStr _ _ _ _ _ _ _ isCommAlgebra
-  where open Construction R
+
+opaque
+  _[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
+  fst (R [ I ]) = Construction.R[_] R I
+  snd (R [ I ]) = makeCommAlgebraStr _ _ _ _ _ _ _ isCommAlgebra
+    where open Construction R
+
+opaque
+  unfolding _[_]
+
+  const : {R : CommRing ℓ} {I : Type ℓ'} → ⟨ R ⟩ → ⟨ R [ I ] ⟩
+  const = Construction.const
+
+opaque
+  unfolding _[_]
+
+  var : {R : CommRing ℓ} {I : Type ℓ'} → I → ⟨ R [ I ] ⟩
+  var = Construction.var
