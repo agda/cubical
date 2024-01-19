@@ -159,10 +159,11 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
    instance
     _ = snd A
     _ = snd B
-   pres⋆h : ∀ r x → fst h (fst f r · x) ≡ fst g r · fst h x
-   pres⋆h r x = fst h (fst f r · x)       ≡⟨ pres· (snd h) _ _ ⟩
-                fst h (fst f r) · fst h x ≡⟨ cong (λ φ → fst φ r · fst h x) commDiag ⟩
-                fst g r · fst h x ∎
+   pres⋆h : ∀ r → fst h (fst f r · 1r) ≡ fst g r · 1r
+   pres⋆h r = fst h (fst f r · 1r)       ≡⟨ pres· (snd h) _ _ ⟩
+              fst h (fst f r) · fst h 1r ≡⟨ cong (λ φ → fst φ r · fst h 1r) commDiag ⟩
+              fst g r · fst h 1r         ≡⟨ cong (fst g r ·_) (pres1 (snd h))  ⟩
+              fst g r · 1r ∎
 
  fromCommAlgebraHom : (A B : CommAlgebra R ℓ') → CommAlgebraHom A B
                     → CommRingWithHomHom (fromCommAlg A) (fromCommAlg B)
