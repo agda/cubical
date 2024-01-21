@@ -178,7 +178,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     F-seq (λF⁻ a) _ (eG , cG) =
      cong₂ (seq' D) (F-seq (F-ob a _) _ _) (cong (flip N-ob _)
            (F-seq a _ _))
-          ∙ AssocCong₂⋆R {C = D} _
+          ∙ AssocCong₂⋆R D
               (N-hom ((F-hom a _) ●ᵛ (F-hom a _)) _ ∙
                 (⋆Assoc D _ _ _) ∙
                   cong (seq' D _) (sym (N-hom (F-hom a eG) cG)))

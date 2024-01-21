@@ -126,8 +126,8 @@ module AdjointUniqeUpToNatIso where
       open _⊣_ H⊣G  using (η ; Δ₂)
       open _⊣_ H'⊣G using (ε ; Δ₁)
       by-N-homs =
-        AssocCong₂⋆R {C = D} _
-        (AssocCong₂⋆L {C = D} (sym (N-hom ε _)) _)
+        AssocCong₂⋆R D
+        (AssocCong₂⋆L D (sym (N-hom ε _)))
           ∙ cong₂ _D⋆_
                (sym (F-seq H' _ _)
                 ∙∙ cong (H' ⟪_⟫) ((sym (N-hom η  _)))
@@ -156,7 +156,7 @@ module AdjointUniqeUpToNatIso where
          (sym (F-seq F _ _)
          ∙∙ cong (F ⟪_⟫) (N-hom (F'⊣G .η) _)
          ∙∙ (F-seq F _ _))
-    ∙∙ AssocCong₂⋆R {C = D} _ (N-hom (F⊣G .ε) _)
+    ∙∙ AssocCong₂⋆R D (N-hom (F⊣G .ε) _)
    where open _⊣_
   inv (nIso F≅ᶜF' _) = _
   sec (nIso F≅ᶜF' _) = s F⊣G F'⊣G

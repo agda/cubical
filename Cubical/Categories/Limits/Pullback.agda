@@ -53,6 +53,9 @@ module _ (C : Category ℓ ℓ') where
       pbCommutes : pbPr₁ ⋆ cspn .s₁ ≡ pbPr₂ ⋆ cspn .s₂
       univProp : isPullback cspn pbPr₁ pbPr₂ pbCommutes
 
+    univProp' : ∀ {c p₁ p₂ H g} p q → fst (fst (univProp {c} p₁ p₂ H)) ≡ g
+    univProp' p q = cong fst (snd (univProp _ _ _) (_ , (p , q)))
+
   open Pullback
 
   pullbackArrow :
