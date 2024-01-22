@@ -475,6 +475,10 @@ module _ {ℓ : Level} where
     F-id strDLSh = cong (𝓞 .F-hom) compOpenInclId ∙ 𝓞 .F-id
     F-seq strDLSh _ _ = cong (𝓞 .F-hom) (compOpenInclSeq _ _) ∙ 𝓞 .F-seq _ _
 
+    compOpenRest : {U V : CompactOpen X} → V ≤ U → CompactOpen ⟦ U ⟧ᶜᵒ
+    N-ob (compOpenRest {V = V} V≤U) A (x , Ux≡D1) = V .N-ob A x
+    N-hom (compOpenRest V≤U) φ = funExt (λ x → {!!})
+
   -- the canonical one element affine cover of a representable
   module _ (A : CommRing ℓ) where
     open AffineCover
@@ -518,7 +522,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
   open InvertingElementsBase R
   open UniversalProp f
 
-  module ZL = ZarLatUniversalProp
+  private module ZL = ZarLatUniversalProp
 
   private
     instance
@@ -557,3 +561,51 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
 
   isAffineD : isAffineCompactOpen D
   isAffineD = ∣ R[1/ f ]AsCommRing , SpR[1/f]≅⟦Df⟧ ∣₁
+
+
+module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
+
+
+  open Iso
+  open Functor
+  open NatTrans
+  open NatIso
+  open isIso
+  open DistLatticeStr ⦃...⦄
+  open CommRingStr ⦃...⦄
+  open PosetStr ⦃...⦄
+  open IsRingHom
+  open RingHoms
+  open IsLatticeHom
+  open ZarLat
+
+
+  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob (Sp .F-ob R)))) using (IndPoset)
+  open InvertingElementsBase R
+  open Join (ZariskiLattice R)
+  open AffineCover
+  module ZL = ZarLatUniversalProp
+
+  private
+    instance
+      _ = R .snd
+      _ = ZariskiLattice R .snd
+      _ = CompOpenDistLattice .F-ob (Sp .F-ob R) .snd
+      _ = IndPoset .snd
+
+  private
+    w : ZL R
+    w = yonedaᴾ ZarLatFun R .fun W
+
+    module _ {n : ℕ} (α : FinVec (fst R) n) (⋁Dα≡w : ⋁ (ZL.D R ∘ α) ≡ w) where
+
+      Dα≤W : ∀ i → D R (α i) ≤ W
+      Dα≤W i = {!!}
+
+      toAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
+      AffineCover.n toAffineCover = n
+      U toAffineCover i = compOpenRest (Sp .F-ob R) (Dα≤W i)
+      covers toAffineCover = {!!}
+      isAffineU toAffineCover = {!!}
+
+  -- then use ⋁D≡
