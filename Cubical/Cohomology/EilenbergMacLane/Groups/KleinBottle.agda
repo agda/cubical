@@ -37,6 +37,7 @@ open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.DirectProduct
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 
 open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.SetTruncation as ST

@@ -42,28 +42,33 @@ import Cubical.Homotopy.EilenbergMacLane.GradedCommTensor         as CupComm
 
 -- 4: Cohomology
 import Cubical.Cohomology.EilenbergMacLane.Base                   as Cohom
-import Cubical.Cohomology.EilenbergMacLane.EilenbergSteenrod      as Axioms
 import Cubical.Cohomology.EilenbergMacLane.CupProduct             as CohomCup
 import Cubical.Cohomology.EilenbergMacLane.MayerVietoris          as MV
 import Cubical.Axiom.Choice                                       as Choice
 import Cubical.HITs.Wedge                                         as ⋁
+import Cubical.Homotopy.EilenbergSteenrod                         as Axioms
+import Cubical.Cohomology.EilenbergMacLane.EilenbergSteenrod      as SatAxioms
 
 -- 5: Computations of cohomology groups and rings
 import Cubical.Cohomology.EilenbergMacLane.Groups.Unit            as HⁿUnit
 import Cubical.Cohomology.EilenbergMacLane.Groups.Connected       as CohomConnected
 import Cubical.Cohomology.EilenbergMacLane.Groups.Sn              as CohomSn
+import Cubical.Cohomology.EilenbergMacLane.Rings.Sn               as CohomRingSn
 import Cubical.Cohomology.EilenbergMacLane.Groups.Torus           as CohomT²
 import Cubical.HITs.Torus                                         as T²
 import Cubical.HITs.RPn.Base                                      as RP²
 import Cubical.HITs.KleinBottle                                   as K²
 import Cubical.Cohomology.EilenbergMacLane.Groups.RP2             as CohomRP²
+import Cubical.ZCohomology.CohomologyRings.RP2                    as ZCohomRingRP²
 import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle     as CohomK²
+import Cubical.ZCohomology.CohomologyRings.KleinBottle            as ZCohomRingK²
+import Cubical.Cohomology.EilenbergMacLane.Rings.RP2              as RP²Ring
 import Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle      as K²Ring
 -- import Cubical.Cohomology.Groups.KleinBottle                     as HⁿK²
 -- import Cubical.ZCohomology.Groups.KleinBottle                     as HⁿK²
 
 -- import Cubical.Cohomology.EilenbergMacLane.RSnings               as CohomRingSn
- 
+
 -- import Cubical.ZCohomology.RingStructure.CohomologyRing           as ℤCohomologyRing
 -- import Cubical.HITs.S1                                            as S1
 
@@ -161,7 +166,7 @@ open EMProps using (isCommΩEM-base)
 -- Proposition 19. (ap -ₖ = path inversion)
 open EMGr using (cong-₁ ; cong-₂)
 
--- Proposition 20. (σ preserves +ₖ) 
+-- Proposition 20. (σ preserves +ₖ)
 open EMProps using (EM→ΩEM+1-hom)
 
 -- Corollary 21. (σ preserves -ₖ)
@@ -237,9 +242,11 @@ open ⋁ using (⋁gen)
 -- Definition 39. Choice
 open Choice using (satAC)
 
--- Definition 40. Eilenberg-Steenrod axioms. Todo!!
+-- Definition 40. Eilenberg-Steenrod axioms
+open Axioms using (coHomTheoryGen)
 
--- Theorem 41. Eilenberg-Steenrod axioms. Todo!!
+-- Theorem 41. Eilenberg-Steenrod axioms are satified
+open SatAxioms using (satisfies-ES-gen)
 
 -- Theorem 42 (The mayer-Vietoris sequence)
 open MV.MV using ( Ker-i⊂Im-d ; Im-d⊂Ker-i
@@ -256,7 +263,7 @@ open MV.MV using ( Ker-i⊂Im-d ; Im-d⊂Ker-i
 open HⁿUnit using (H⁰[Unit,G]≅G ; Hⁿ⁺¹[Unit,G]≅0)
 
 -- Lemma 45. Cohom of truncation
--- Todo!
+open Cohom using (coHomTruncEquiv)
 
 -- Proposition 46. Cohomology of connected types
 open CohomConnected using (H⁰conn)
@@ -271,8 +278,8 @@ open CohomSn using (Hⁿ[Sⁿ,G]≅G)
 -- Proposition 49. Hⁿ(Sᵐ,G) , m ≠ n
 open CohomSn using (Hⁿ[Sᵐ⁺ⁿ,G]≅0 ; Hᵐ⁺ⁿ[Sⁿ,G]≅0)
 
--- Proposition 50. H*(Sᵐ,G) 
--- Todo (just transalte from ℤ version)
+-- Proposition 50. H*(Sᵐ,G)
+open CohomRingSn using (H*[Sⁿ,G]≅G[X]/<X²>)
 
 --- 5.2 The Torus
 -- Definition 51. Torus
@@ -299,14 +306,14 @@ open CohomRP² using (H³⁺ⁿ[RP²,G]≅0)
 -- Proposition 58. Hᵐ(K²,G)
 open CohomK² using (H⁰[K²,G]≅G ; H¹[K²,G]≅G×H¹[RP²,G]; H²⁺ⁿ[K²,G]≅H²⁺ⁿ[RP²,G])
 
--- Proposition 59. H*(RP²,\bZ)
--- Todo
+-- Proposition 59. H*(RP²,\bZ) -- Formalisation taken from `Computing Cohomology Rings in Cubical Agda'
+open ZCohomRingRP² using (RP²-CohomologyRing)
 
 -- Defnition 60 kill-Δ
 -- Omitted (implicit in formalisation)
 
--- Proposition 61 Hᵐ(K²,G)
--- Thomas proof
+-- Proposition 61 H*(K²,ℤ) -- Formalisation taken from `Computing Cohomology Rings in Cubical Agda'
+open ZCohomRingK² using (CohomologyRing-𝕂²)
 
 -- Definition 62. Res (only formliased for relevant special case of F = ⌣ on K(ℤ/2,1))
 open K²Ring using (Res⌣)
@@ -321,7 +328,7 @@ open K²Ring using (sym-cong₂-⌣≡)
 open K²Ring using (α²↦1)
 
 -- Proposition 67. H*(RP²,Z/2)
--- Todo
+open RP²Ring using (H*[RP²,ℤ₂]≅ℤ₂[X]/<X³>)
 
 -- Proposition 68 (Roughly)
 open K²Ring using (α²↦1 ; βα↦1 ; β²↦0)
@@ -331,4 +338,5 @@ open K²Ring using (H*KleinBottle≅ℤ/2[X,Y]/<X³,Y²,XY+X²>)
 
 -- Lemma 70 (implicitly used)
 
--- Proposition 71 (do!)
+-- Proposition 71
+-- Todo

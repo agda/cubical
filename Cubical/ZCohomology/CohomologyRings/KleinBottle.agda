@@ -24,7 +24,7 @@ open import Cubical.Data.FinData
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.AbGroup hiding (_[_])
 open import Cubical.Algebra.Group.Instances.Unit
 open import Cubical.Algebra.Group.Instances.Bool
 open import Cubical.Algebra.Group.Instances.Int

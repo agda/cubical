@@ -57,8 +57,9 @@ open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.IntMod
-open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.AbGroup hiding (_[_])
 open import Cubical.Algebra.AbGroup.Instances.Unit
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.AbGroup.TensorProduct

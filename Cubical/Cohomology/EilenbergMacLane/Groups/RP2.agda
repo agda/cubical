@@ -34,6 +34,7 @@ open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 open import Cubical.Algebra.Group.Subgroup
 open import Cubical.Algebra.Group.QuotientGroup
 

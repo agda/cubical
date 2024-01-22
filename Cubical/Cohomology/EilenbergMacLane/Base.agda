@@ -31,6 +31,7 @@ open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Group.Instances.IntMod
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 open import Cubical.Algebra.AbGroup.Instances.DirectProduct
 open import Cubical.Algebra.AbGroup.Properties
 
@@ -426,3 +427,11 @@ coHomPointedElim {ℓ'' = ℓ''} {G = G} {A = A} n a isprop indp =
     TR.rec (isProp→isOfHLevelSuc n (isprop _))
     (ind f)
     (isConnectedPath (suc n) (isConnectedEM (suc n)) (f a) (0ₖ (suc n)) .fst)
+
+coHomTruncEquiv : {A : Type ℓ} (G : AbGroup ℓ) (n : ℕ)
+  → AbGroupEquiv (coHomGr n G (∥ A ∥ (suc (suc n)))) (coHomGr n G A)
+fst (coHomTruncEquiv G n) =
+  isoToEquiv (setTruncIso (univTrunc (suc (suc n)) {B = _ , hLevelEM G n}))
+snd (coHomTruncEquiv G n) =
+  makeIsGroupHom (ST.elim2 (λ _ _ → isSetPathImplicit)
+    λ _ _ → refl)

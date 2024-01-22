@@ -48,6 +48,7 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quot
 open import Cubical.Algebra.AbGroup.TensorProduct
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 
 open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.EilenbergMacLane1
