@@ -25,6 +25,7 @@ open import Cubical.Categories.Morphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Equivalence.WeakEquivalence
+open import Cubical.Categories.Equivalence.AdjointEquivalence
 open import Cubical.Categories.Adjoint
 open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Instances.Sets
@@ -36,9 +37,14 @@ open import Cubical.Relation.Binary
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Setoid
 
+open import Cubical.Categories.Category.Path
+
+open import Cubical.Categories.Instances.Cat
+
 open import Cubical.Categories.Monoidal
 
 open import Cubical.Categories.Limits.Pullback
+open import Cubical.Categories.Constructions.Slice.Functor
 
 open import Cubical.HITs.SetQuotients as /
 open import Cubical.HITs.PropositionalTruncation
@@ -48,85 +54,86 @@ open Functor
 
 
 
-SETPullback : ∀ ℓ → Pullbacks (SET ℓ)
-SETPullback ℓ (cospan l m r s₁ s₂) = w
- where
- open Pullback
- w : Pullback (SET ℓ) (cospan l m r s₁ s₂)
- pbOb w = _ , isSetΣ (isSet× (snd l) (snd r))
-  (uncurry λ x y → isOfHLevelPath 2 (snd m) (s₁ x) (s₂ y))
- pbPr₁ w = fst ∘ fst
- pbPr₂ w = snd ∘ fst
- pbCommutes w = funExt snd
- fst (fst (univProp w h k H')) d = _ , (H' ≡$ d)
- snd (fst (univProp w h k H')) = refl , refl
- snd (univProp w h k H') y =
-  Σ≡Prop
-   (λ _ → isProp× (isSet→ (snd l) _ _) (isSet→ (snd r) _ _))
-    (funExt λ x → Σ≡Prop (λ _ → (snd m) _ _)
-       λ i → fst (snd y) i x , snd (snd y) i x)
+-- SETPullback : ∀ ℓ → Pullbacks (SET ℓ)
+-- SETPullback ℓ (cospan l m r s₁ s₂) = w
+--  where
+--  open Pullback
+--  w : Pullback (SET ℓ) (cospan l m r s₁ s₂)
+--  pbOb w = _ , isSetΣ (isSet× (snd l) (snd r))
+--   (uncurry λ x y → isOfHLevelPath 2 (snd m) (s₁ x) (s₂ y))
+--  pbPr₁ w = fst ∘ fst
+--  pbPr₂ w = snd ∘ fst
+--  pbCommutes w = funExt snd
+--  fst (fst (univProp w h k H')) d = _ , (H' ≡$ d)
+--  snd (fst (univProp w h k H')) = refl , refl
+--  snd (univProp w h k H') y =
+--   Σ≡Prop
+--    (λ _ → isProp× (isSet→ (snd l) _ _) (isSet→ (snd r) _ _))
+--     (funExt λ x → Σ≡Prop (λ _ → (snd m) _ _)
+--        λ i → fst (snd y) i x , snd (snd y) i x)
    
-module SetLCCC ℓ {X@(_ , isSetX) Y@(_ , isSetY) : hSet ℓ} (f : ⟨ X ⟩ →  ⟨ Y ⟩) where
- open BaseChangeFunctor (SET ℓ) X (SETPullback ℓ) {Y} f
+-- module SetLCCC ℓ {X@(_ , isSetX) Y@(_ , isSetY) : hSet ℓ} (f : ⟨ X ⟩ →  ⟨ Y ⟩) where
+--  open BaseChange (SETPullback ℓ)
 
- open Cubical.Categories.Adjoint.NaturalBijection
- open _⊣_
+--  open Cubical.Categories.Adjoint.NaturalBijection
+--  open _⊣_
 
- open import Cubical.Categories.Instances.Cospan
- open import Cubical.Categories.Limits.Limits
+--  open import Cubical.Categories.Instances.Cospan
+--  open import Cubical.Categories.Limits.Limits
 
- Π/ : Functor (SliceCat (SET ℓ) X) (SliceCat (SET ℓ) Y)
- F-ob Π/ (sliceob {S-ob = _ , isSetA} h) =
-   sliceob {S-ob = _ , (isSetΣ isSetY $
-                     λ y → isSetΠ λ ((x , _) : fiber f y) →
-                           isOfHLevelFiber 2 isSetA isSetX h x)} fst
- F-hom Π/ {a} {b} (slicehom g p) =
-   slicehom (map-snd (map-sndDep (λ q → (p ≡$ _) ∙ q ) ∘_)) refl
- F-id Π/ = SliceHom-≡-intro' _ _ $
-   funExt λ x' → cong ((fst x') ,_)
-     (funExt λ y → Σ≡Prop (λ _ → isSetX _ _) refl)
- F-seq Π/ _ _ = SliceHom-≡-intro' _ _ $
-   funExt λ x' → cong ((fst x') ,_)
-     (funExt λ y → Σ≡Prop (λ _ → isSetX _ _) refl)
+--  Π/ : Functor (SliceCat (SET ℓ) X) (SliceCat (SET ℓ) Y)
+--  F-ob Π/ (sliceob {S-ob = _ , isSetA} h) =
+--    sliceob {S-ob = _ , (isSetΣ isSetY $
+--                      λ y → isSetΠ λ ((x , _) : fiber f y) →
+--                            isOfHLevelFiber 2 isSetA isSetX h x)} fst
+--  F-hom Π/ {a} {b} (slicehom g p) =
+--    slicehom (map-snd (map-sndDep (λ q → (p ≡$ _) ∙ q ) ∘_)) refl
+--  F-id Π/ = SliceHom-≡-intro' _ _ $
+--    funExt λ x' → cong ((fst x') ,_)
+--      (funExt λ y → Σ≡Prop (λ _ → isSetX _ _) refl)
+--  F-seq Π/ _ _ = SliceHom-≡-intro' _ _ $
+--    funExt λ x' → cong ((fst x') ,_)
+--      (funExt λ y → Σ≡Prop (λ _ → isSetX _ _) refl)
 
- f*⊣Π/ : BaseChangeFunctor ⊣ Π/
- Iso.fun (adjIso f*⊣Π/) (slicehom h p) =
-   slicehom (λ _ → _ , λ (_ , q) → h (_ , q) , (p ≡$ _)) refl
- Iso.inv (adjIso f*⊣Π/) (slicehom h p) =
-   slicehom _  $ funExt λ (_ , q) → snd (snd (h _) (_ , q ∙ ((sym p) ≡$ _))) 
- Iso.rightInv (adjIso f*⊣Π/) b = SliceHom-≡-intro' _ _ $
-    funExt λ _ → cong₂ _,_ (sym (S-comm b ≡$ _))
-      $ toPathP $ funExt λ _ →
-        Σ≡Prop (λ _ → isSetX _ _) $ transportRefl _ ∙
-          cong (fst ∘ snd (S-hom b _))
-               (Σ≡Prop (λ _ → isSetY _ _) $ transportRefl _)
- Iso.leftInv (adjIso f*⊣Π/) a = SliceHom-≡-intro' _ _ $
-   funExt λ _ → cong (S-hom a) $ Σ≡Prop (λ _ → isSetY _ _) refl
- adjNatInD f*⊣Π/ _ _ = SliceHom-≡-intro' _ _ $
-   funExt λ _ → cong₂ _,_ refl $
-     funExt λ _ → Σ≡Prop (λ _ → isSetX _ _) refl
- adjNatInC f*⊣Π/ g h = SliceHom-≡-intro' _ _ $
-   funExt λ _ → cong (fst ∘ (snd (S-hom g (S-hom h _)) ∘ (_ ,_))) $ isSetY _ _ _ _
+--  f*⊣Π/ : f ＊ ⊣ Π/
+--  Iso.fun (adjIso f*⊣Π/) (slicehom h p) =
+--    slicehom (λ _ → _ , λ (_ , q) → h (_ , q) , (p ≡$ _)) refl
+--  Iso.inv (adjIso f*⊣Π/) (slicehom h p) =
+--    slicehom _  $ funExt λ (_ , q) → snd (snd (h _) (_ , q ∙ ((sym p) ≡$ _))) 
+--  Iso.rightInv (adjIso f*⊣Π/) b = SliceHom-≡-intro' _ _ $
+--     funExt λ _ → cong₂ _,_ (sym (S-comm b ≡$ _))
+--       $ toPathP $ funExt λ _ →
+--         Σ≡Prop (λ _ → isSetX _ _) $ transportRefl _ ∙
+--           cong (fst ∘ snd (S-hom b _))
+--                (Σ≡Prop (λ _ → isSetY _ _) $ transportRefl _)
+--  Iso.leftInv (adjIso f*⊣Π/) a = SliceHom-≡-intro' _ _ $
+--    funExt λ _ → cong (S-hom a) $ Σ≡Prop (λ _ → isSetY _ _) refl
+--  adjNatInD f*⊣Π/ _ _ = SliceHom-≡-intro' _ _ $
+--    funExt λ _ → cong₂ _,_ refl $
+--      funExt λ _ → Σ≡Prop (λ _ → isSetX _ _) refl
+--  adjNatInC f*⊣Π/ g h = SliceHom-≡-intro' _ _ $
+--    funExt λ _ → cong (fst ∘ (snd (S-hom g (S-hom h _)) ∘ (_ ,_))) $ isSetY _ _ _ _
 
- Σ/ : Functor (SliceCat (SET ℓ) X) (SliceCat (SET ℓ) Y)
- F-ob Σ/ (sliceob {S-ob = ob} arr) = sliceob {S-ob = ob} (f ∘ arr )
- F-hom Σ/ (slicehom g p) = slicehom _ (cong (f ∘_) p)
- F-id Σ/ = refl
- F-seq Σ/ _ _ = SliceHom-≡-intro' _ _ $ refl
+-- --  Σ/ : Functor (SliceCat (SET ℓ) X) (SliceCat (SET ℓ) Y)
+-- --  F-ob Σ/ (sliceob {S-ob = ob} arr) = sliceob {S-ob = ob} (f ∘ arr )
+-- --  F-hom Σ/ (slicehom g p) = slicehom _ (cong (f ∘_) p)
+-- --  F-id Σ/ = refl
+-- --  F-seq Σ/ _ _ = SliceHom-≡-intro' _ _ $ refl
 
- Σ/⊣f* : Σ/ ⊣ BaseChangeFunctor
- Iso.fun (adjIso Σ/⊣f*) (slicehom g p) = slicehom (λ _ → _ , (sym p ≡$ _ )) refl 
- Iso.inv (adjIso Σ/⊣f*) (slicehom g p) = slicehom (snd ∘ fst ∘ g) $
-  funExt (λ x → sym (snd (g x))) ∙ cong (f ∘_) p
- Iso.rightInv (adjIso Σ/⊣f*) (slicehom g p) =
-  SliceHom-≡-intro' _ _ $
-   funExt λ xx → Σ≡Prop (λ _ → isSetY _ _)
-    (ΣPathP (sym (p ≡$ _) , refl))
- Iso.leftInv (adjIso Σ/⊣f*) _ = SliceHom-≡-intro' _ _ $ refl
- adjNatInD Σ/⊣f* _ _ = SliceHom-≡-intro' _ _ $
-    funExt λ x → Σ≡Prop (λ _ → isSetY _ _) refl 
- adjNatInC Σ/⊣f* _ _ = SliceHom-≡-intro' _ _ $ refl
- 
+-- --  Σ/⊣f* : Σ/ ⊣ BaseChangeFunctor
+-- --  Iso.fun (adjIso Σ/⊣f*) (slicehom g p) = slicehom (λ _ → _ , (sym p ≡$ _ )) refl 
+-- --  Iso.inv (adjIso Σ/⊣f*) (slicehom g p) = slicehom (snd ∘ fst ∘ g) $
+-- --   funExt (λ x → sym (snd (g x))) ∙ cong (f ∘_) p
+-- --  Iso.rightInv (adjIso Σ/⊣f*) (slicehom g p) =
+-- --   SliceHom-≡-intro' _ _ $
+-- --    funExt λ xx → Σ≡Prop (λ _ → isSetY _ _)
+-- --     (ΣPathP (sym (p ≡$ _) , refl))
+-- --  Iso.leftInv (adjIso Σ/⊣f*) _ = SliceHom-≡-intro' _ _ $ refl
+-- --  adjNatInD Σ/⊣f* _ _ = SliceHom-≡-intro' _ _ $
+-- --     funExt λ x → Σ≡Prop (λ _ → isSetY _ _) refl 
+-- --  adjNatInC Σ/⊣f* _ _ = SliceHom-≡-intro' _ _ $ refl
+
+
 module _ ℓ where
   SETOID : Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ)) (ℓ-max ℓ ℓ)
   ob SETOID = Setoid ℓ ℓ
@@ -140,6 +147,65 @@ module _ ℓ where
   ⋆Assoc SETOID _ _ _ = refl
   isSetHom SETOID {y = (_ , isSetB) , ((_ , isPropR) , _)} =
    isSetΣ (isSet→ isSetB) (isProp→isSet ∘ isPropRespects isPropR )
+
+  SETOID' : Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ)) (ℓ-max ℓ ℓ)
+  SETOID' = ΣPropCat (Cat ℓ ℓ) ((λ C → _ , isProp× (isPropIsThin C) (isPropIsGroupoidCat C)) ∘ fst)
+
+
+  SETOID→SETOID' : Functor SETOID SETOID' 
+  F-ob SETOID→SETOID' ((X , isSetX) , ((_∼_ , isProp∼) , isEquivRel∼))  = (w , isSetX)
+      , isProp∼ , λ f → isiso (symmetric _ _ f) (isProp∼ _ _ _ _) (isProp∼ _ _ _ _)
+    where
+    open BinaryRelation.isEquivRel isEquivRel∼
+    w : (Category ℓ ℓ)
+    ob w = X
+    Hom[_,_] w = _∼_
+    id w = reflexive _
+    _⋆_ w = transitive'
+    ⋆IdL w _ = isProp∼ _ _ _ _
+    ⋆IdR w _ = isProp∼ _ _ _ _
+    ⋆Assoc w _ _ _ = isProp∼ _ _ _ _
+    isSetHom w = isProp→isSet (isProp∼ _ _)
+
+  F-hom SETOID→SETOID' {y = (_ , ((_ , isProp∼') , _))} (f , f-resp) = w
+    where
+    w : Functor _ _
+    F-ob w = f
+    F-hom w = f-resp
+    F-id w = isProp∼' _ _ _ _
+    F-seq w _ _ = isProp∼' _ _ _ _
+  F-id SETOID→SETOID' = Functor≡ (λ _ → refl) λ _ → refl
+  F-seq SETOID→SETOID' _ _ = Functor≡ (λ _ → refl) λ _ → refl
+
+  SETOID'→SETOID : Functor SETOID' SETOID
+  F-ob SETOID'→SETOID ((C , isSetCob) , thin , isGrpCat) =
+    (_ , isSetCob) , (C [_,_] , thin) ,
+      BinaryRelation.equivRel (λ _ → C .id) (λ _ _ → isIso.inv ∘ isGrpCat)
+        λ _ _ _ → C ._⋆_
+    
+  F-hom SETOID'→SETOID F = _ , F-hom F
+  F-id SETOID'→SETOID = refl
+  F-seq SETOID'→SETOID _ _ = refl
+
+  -- open AdjointEquivalence
+  -- WE : AdjointEquivalence SETOID SETOID'
+  -- fun WE = SETOID→SETOID'
+  -- inv WE = SETOID'→SETOID
+  -- NatTrans.N-ob (NatIso.trans (η WE)) _ = _
+  -- NatTrans.N-hom (NatIso.trans (η WE)) _ = refl
+  -- NatIso.nIso (η WE) _ = snd (idCatIso)
+  -- F-ob (NatTrans.N-ob (NatIso.trans (ε WE)) _) = idfun _
+  -- F-hom (NatTrans.N-ob (NatIso.trans (ε WE)) _) = idfun _
+  -- F-id (NatTrans.N-ob (NatIso.trans (ε WE)) _) = refl
+  -- F-seq (NatTrans.N-ob (NatIso.trans (ε WE)) _) _ _ = refl
+  -- NatTrans.N-hom (NatIso.trans (ε WE)) _ = Functor≡ (λ _ → refl) (λ _ → refl)
+  -- F-ob (isIso.inv (NatIso.nIso (ε WE) (_ , _ , isGrpCat))) = idfun _
+  -- F-hom (isIso.inv (NatIso.nIso (ε WE) (_ , _ , isGrpCat))) = idfun _
+  -- F-id (isIso.inv (NatIso.nIso (ε WE) (_ , _ , isGrpCat))) = refl
+  -- F-seq (isIso.inv (NatIso.nIso (ε WE) (_ , _ , isGrpCat))) _ _ = refl
+  -- isIso.sec (NatIso.nIso (ε WE) (_ , _ , isGrpCat)) = {!SetoidMor !}
+  -- isIso.ret (NatIso.nIso (ε WE) (_ , _ , isGrpCat)) = {!!}
+  -- triangleIdentities WE = {!!}
 
   open Iso
 
@@ -296,78 +362,70 @@ module _ ℓ where
   adjNatInD (⊗⊣^ X) {A} {d' = C} _ _ = SetoidMor≡ A (X ⟶ C) refl
   adjNatInC (⊗⊣^ X) {A} {d = C} _ _ = SetoidMor≡ (A ⊗ X) C refl
 
-  -- SetoidsMonoidalStr : StrictMonStr SETOID
-  -- TensorStr.─⊗─ (StrictMonStr.tenstr SetoidsMonoidalStr) = -⊗-
-  -- TensorStr.unit (StrictMonStr.tenstr SetoidsMonoidalStr) = setoidUnit
-  -- StrictMonStr.assoc SetoidsMonoidalStr _ _ _ =
-  --  Setoid≡ _ _ (invEquiv Σ-assoc-≃) λ _ _ → invEquiv Σ-assoc-≃
-  -- StrictMonStr.idl SetoidsMonoidalStr _ =
-  --   Setoid≡ _ _ (isoToEquiv lUnit*×Iso) λ _ _ → isoToEquiv lUnit*×Iso
-  -- StrictMonStr.idr SetoidsMonoidalStr _ =
-  --   Setoid≡ _ _ (isoToEquiv rUnit*×Iso) λ _ _ → isoToEquiv rUnit*×Iso 
+
+  -- -- works but slow!
+  -- SetoidsMonoidalStrα :
+  --     -⊗- ∘F (𝟙⟨ SETOID ⟩ ×F -⊗-) ≅ᶜ
+  --     -⊗- ∘F (-⊗- ×F 𝟙⟨ SETOID ⟩) ∘F ×C-assoc SETOID SETOID SETOID
+  -- NatTrans.N-ob (NatIso.trans SetoidsMonoidalStrα) _ =
+  --   invEq Σ-assoc-≃ , invEq Σ-assoc-≃
+  -- NatTrans.N-hom (NatIso.trans SetoidsMonoidalStrα) {x} {y} _ =
+  --   SetoidMor≡
+  --    (F-ob (-⊗- ∘F (𝟙⟨ SETOID ⟩ ×F -⊗-)) x)
+  --     ((-⊗- ∘F (-⊗- ×F 𝟙⟨ SETOID ⟩) ∘F ×C-assoc SETOID SETOID SETOID)
+  --      .F-ob y)
+  --    refl
+  -- isIso.inv (NatIso.nIso SetoidsMonoidalStrα _) =
+  --   fst Σ-assoc-≃ , fst Σ-assoc-≃
+  -- isIso.sec (NatIso.nIso SetoidsMonoidalStrα x) = refl
+  -- isIso.ret (NatIso.nIso SetoidsMonoidalStrα x) = refl
+
+  -- SetoidsMonoidalStrη : -⊗- ∘F rinj SETOID SETOID setoidUnit ≅ᶜ 𝟙⟨ SETOID ⟩
+  -- NatIso.trans SetoidsMonoidalStrη =
+  --   natTrans (λ _ → Iso.fun lUnit*×Iso , Iso.fun lUnit*×Iso)
+  --            λ {x} {y} _ →
+  --             SetoidMor≡ (F-ob (-⊗- ∘F rinj SETOID SETOID setoidUnit) x) y refl
+  -- NatIso.nIso SetoidsMonoidalStrη x =
+  --  isiso (Iso.inv lUnit*×Iso , Iso.inv lUnit*×Iso) refl refl
+
+  -- SetoidsMonoidalStrρ :  -⊗- ∘F linj SETOID SETOID setoidUnit ≅ᶜ 𝟙⟨ SETOID ⟩
+  -- NatIso.trans SetoidsMonoidalStrρ =
+  --   natTrans (λ _ → Iso.fun rUnit*×Iso , Iso.fun rUnit*×Iso)
+  --            λ {x} {y} _ →
+  --             SetoidMor≡ (F-ob (-⊗- ∘F linj SETOID SETOID setoidUnit) x) y refl
+  -- NatIso.nIso SetoidsMonoidalStrρ x =
+  --  isiso (Iso.inv rUnit*×Iso , Iso.inv rUnit*×Iso) refl refl
+
   
-  SetoidsMonoidalStrα :
-      -⊗- ∘F (𝟙⟨ SETOID ⟩ ×F -⊗-) ≅ᶜ
-      -⊗- ∘F (-⊗- ×F 𝟙⟨ SETOID ⟩) ∘F ×C-assoc SETOID SETOID SETOID
-  NatTrans.N-ob (NatIso.trans SetoidsMonoidalStrα) _ =
-    invEq Σ-assoc-≃ , invEq Σ-assoc-≃
-  NatTrans.N-hom (NatIso.trans SetoidsMonoidalStrα) {x} {y} _ =
-    SetoidMor≡
-     (F-ob (-⊗- ∘F (𝟙⟨ SETOID ⟩ ×F -⊗-)) x)
-      ((-⊗- ∘F (-⊗- ×F 𝟙⟨ SETOID ⟩) ∘F ×C-assoc SETOID SETOID SETOID)
-       .F-ob y)
-     refl
-  isIso.inv (NatIso.nIso SetoidsMonoidalStrα _) =
-    fst Σ-assoc-≃ , fst Σ-assoc-≃
-  isIso.sec (NatIso.nIso SetoidsMonoidalStrα x) = refl
-  isIso.ret (NatIso.nIso SetoidsMonoidalStrα x) = refl
+  -- SetoidsMonoidalStr : MonoidalStr SETOID
+  -- TensorStr.─⊗─ (MonoidalStr.tenstr SetoidsMonoidalStr) = -⊗-
+  -- TensorStr.unit (MonoidalStr.tenstr SetoidsMonoidalStr) = setoidUnit
+  -- MonoidalStr.α SetoidsMonoidalStr = SetoidsMonoidalStrα
+  -- MonoidalStr.η SetoidsMonoidalStr = SetoidsMonoidalStrη
+  -- MonoidalStr.ρ SetoidsMonoidalStr = SetoidsMonoidalStrρ
+  -- MonoidalStr.pentagon SetoidsMonoidalStr w x y z = refl
+  -- MonoidalStr.triangle SetoidsMonoidalStr x y = refl
 
-  SetoidsMonoidalStrη : -⊗- ∘F rinj SETOID SETOID setoidUnit ≅ᶜ 𝟙⟨ SETOID ⟩
-  NatIso.trans SetoidsMonoidalStrη =
-    natTrans (λ _ → Iso.fun lUnit*×Iso , Iso.fun lUnit*×Iso)
-             λ {x} {y} _ →
-              SetoidMor≡ (F-ob (-⊗- ∘F rinj SETOID SETOID setoidUnit) x) y refl
-  NatIso.nIso SetoidsMonoidalStrη x =
-   isiso (Iso.inv lUnit*×Iso , Iso.inv lUnit*×Iso) refl refl
+  -- E-Category =
+  --  EnrichedCategory (record { C = _ ; monstr = SetoidsMonoidalStr })
 
-  SetoidsMonoidalStrρ :  -⊗- ∘F linj SETOID SETOID setoidUnit ≅ᶜ 𝟙⟨ SETOID ⟩
-  NatIso.trans SetoidsMonoidalStrρ =
-    natTrans (λ _ → Iso.fun rUnit*×Iso , Iso.fun rUnit*×Iso)
-             λ {x} {y} _ →
-              SetoidMor≡ (F-ob (-⊗- ∘F linj SETOID SETOID setoidUnit) x) y refl
-  NatIso.nIso SetoidsMonoidalStrρ x =
-   isiso (Iso.inv rUnit*×Iso , Iso.inv rUnit*×Iso) refl refl
-
-
-  SetoidsMonoidalStr : MonoidalStr SETOID
-  TensorStr.─⊗─ (MonoidalStr.tenstr SetoidsMonoidalStr) = -⊗-
-  TensorStr.unit (MonoidalStr.tenstr SetoidsMonoidalStr) = setoidUnit
-  MonoidalStr.α SetoidsMonoidalStr = SetoidsMonoidalStrα
-  MonoidalStr.η SetoidsMonoidalStr = SetoidsMonoidalStrη
-  MonoidalStr.ρ SetoidsMonoidalStr = SetoidsMonoidalStrρ
-  MonoidalStr.pentagon SetoidsMonoidalStr w x y z = refl
-  MonoidalStr.triangle SetoidsMonoidalStr x y = refl
-
-  E-Category =
-   EnrichedCategory (record { C = _ ; monstr = SetoidsMonoidalStr })
-
-  E-SETOIDS : E-Category (ℓ-suc ℓ)
-  EnrichedCategory.ob E-SETOIDS = Setoid ℓ ℓ
-  EnrichedCategory.Hom[_,_] E-SETOIDS = _⟶_
-  EnrichedCategory.id E-SETOIDS {x} =
-    (λ _ → id SETOID {x}) ,
-      λ _ _ → BinaryRelation.isEquivRel.reflexive (snd (snd x)) _
-  EnrichedCategory.seq E-SETOIDS x y z =
-    uncurry (_⋆_ SETOID {x} {y} {z})  ,
-            λ {(f , g)} {(f' , g')} (fr , gr) a →
-               transitive' (gr (fst f a)) (snd g' (fr a))
-    where open BinaryRelation.isEquivRel (snd (snd z))
-  EnrichedCategory.⋆IdL E-SETOIDS x y =
-    SetoidMor≡ (setoidUnit ⊗ (x ⟶ y)) (x ⟶ y) refl
-  EnrichedCategory.⋆IdR E-SETOIDS x y =
-    SetoidMor≡ ((x ⟶ y) ⊗ setoidUnit) (x ⟶ y) refl
-  EnrichedCategory.⋆Assoc E-SETOIDS x y z w =
-    SetoidMor≡ ((x ⟶ y) ⊗ ( (y ⟶ z) ⊗ (z ⟶ w))) (x ⟶ w) refl
+  -- E-SETOIDS : E-Category (ℓ-suc ℓ)
+  -- EnrichedCategory.ob E-SETOIDS = Setoid ℓ ℓ
+  -- EnrichedCategory.Hom[_,_] E-SETOIDS = _⟶_
+  -- EnrichedCategory.id E-SETOIDS {x} =
+  --   (λ _ → id SETOID {x}) ,
+  --     λ _ _ → BinaryRelation.isEquivRel.reflexive (snd (snd x)) _
+  -- EnrichedCategory.seq E-SETOIDS x y z =
+  --   uncurry (_⋆_ SETOID {x} {y} {z})  ,
+  --           λ {(f , g)} {(f' , g')} (fr , gr) a →
+  --              transitive' (gr (fst f a)) (snd g' (fr a))
+  --   where open BinaryRelation.isEquivRel (snd (snd z))
+  -- EnrichedCategory.⋆IdL E-SETOIDS x y =
+  --   SetoidMor≡ (setoidUnit ⊗ (x ⟶ y)) (x ⟶ y) refl
+  -- EnrichedCategory.⋆IdR E-SETOIDS x y =
+  --   SetoidMor≡ ((x ⟶ y) ⊗ setoidUnit) (x ⟶ y) refl
+  -- EnrichedCategory.⋆Assoc E-SETOIDS x y z w =
+  --   SetoidMor≡ ((x ⟶ y) ⊗ ( (y ⟶ z) ⊗ (z ⟶ w))) (x ⟶ w) refl
 
 
 
@@ -430,240 +488,14 @@ module _ ℓ where
     ∣ (IdRel ⟅ d ⟆ , idfun _)  , idCatIso ∣₁
 
 
--- -- -- --   pullbacks : Pullbacks SETOID
--- -- -- --   pullbacks cspn = w
--- -- -- --    where
--- -- -- --    open Cospan cspn
--- -- -- --    open Pullback
--- -- -- --    w : Pullback (SETOID) cspn
--- -- -- --    pbOb w = PullbackSetoid l r m s₁ s₂
--- -- -- --    pbPr₁ w = fst ∘ fst , fst ∘ fst
--- -- -- --    pbPr₂ w = snd ∘ fst , snd ∘ fst
--- -- -- --    pbCommutes w = SetoidMor≡ (PullbackSetoid l r m s₁ s₂) m (funExt snd)
--- -- -- --    fst (fst (univProp w h k H')) = (λ x → (fst h x , fst k x) ,
--- -- -- --      (cong fst H' ≡$ x)) ,
--- -- -- --       λ {a} {b} x → ((snd h x) , (snd k x)) , snd s₁ ((snd h x)) 
--- -- -- --    snd (fst (univProp w {d} h k H')) = SetoidMor≡ d l refl , SetoidMor≡ d r refl
--- -- -- --    snd (univProp w {d} h k H') y = Σ≡Prop
--- -- -- --      (λ _ → isProp× (isSetHom (SETOID) {d} {l} _ _)
--- -- -- --                     (isSetHom (SETOID) {d} {r} _ _))
--- -- -- --     (SetoidMor≡ d (PullbackSetoid l r m s₁ s₂)
--- -- -- --      (funExt λ x → Σ≡Prop (λ _ → snd (fst m) _ _)
--- -- -- --              (cong₂ _,_ (λ i → fst (fst (snd y) i) x)
--- -- -- --                         (λ i → fst (snd (snd y) i) x))))
-
-
-  module _ {X Y : ob SETOID} (f : SetoidMor X Y) where
-   open BaseChangeFunctor SETOID X pullbacks {Y} f public
-
-   SΣ : ∀ {X} → (x : SliceOb SETOID X) → _
-   SΣ {X} = λ x → SetoidΣ (S-ob x) X (S-arr x)
-
-   SΠ : ∀ {X} → (x : SliceOb SETOID X) → _
-   SΠ {X} = λ x → setoidSection (S-ob x) X (S-arr x)
-
-   SETOIDΣ : Functor (SliceCat SETOID X) (SliceCat SETOID Y)
-   S-ob (F-ob SETOIDΣ x) = SΣ x
-   S-arr (F-ob SETOIDΣ x) = SETOID ._⋆_ {SΣ x} {X} {Y}
-    (setoidΣ-pr₁ (S-ob x) X (S-arr x)) f 
-   fst (S-hom (F-hom SETOIDΣ x)) = fst (S-hom x)
-   snd (S-hom (F-hom SETOIDΣ x)) x₁ =
-    snd (S-hom x) (fst x₁) , subst2 (fst (fst (snd X)))
-           (cong fst (sym (S-comm x)) ≡$ _)
-           (cong fst (sym (S-comm x)) ≡$ _) (snd x₁) 
-   S-comm (F-hom SETOIDΣ {x} {y} g)  =
-     SetoidMor≡ (SΣ x) Y
-       (funExt λ u → cong (fst f) (cong fst (S-comm g) ≡$ u))
-   F-id SETOIDΣ {x = x} = SliceHom-≡-intro' _ _ 
-    (SetoidMor≡ (SΣ x) (SΣ x) refl)
-   F-seq SETOIDΣ {x = x} {_} {z} _ _ = SliceHom-≡-intro' _ _ 
-    (SetoidMor≡ (SΣ x) (SΣ z) refl)
-
-   SetoidΣ⊣BaseChange : SETOIDΣ ⊣ BaseChangeFunctor
-   fst (S-hom (fun (adjIso SetoidΣ⊣BaseChange {c}) h)) x =
-     (fst (S-arr c) x , fst (S-hom h) x ) , sym (cong fst (S-comm h) ≡$ x)
-   snd (S-hom (fun (adjIso SetoidΣ⊣BaseChange {c}) h)) g =
-      ((snd (S-arr c) g) , snd (S-hom h)  (g , snd (S-arr c) g))
-   S-comm (fun (adjIso SetoidΣ⊣BaseChange {c} ) _) = SetoidMor≡ (S-ob c) X refl
-   fst (S-hom (inv (adjIso SetoidΣ⊣BaseChange) h)) x =
-     snd (fst (fst (S-hom h) x)) 
-   snd (S-hom (inv (adjIso SetoidΣ⊣BaseChange) x)) {c} {d} (r , r') =
-     snd (snd (S-hom x) r)
-   S-comm (inv (adjIso SetoidΣ⊣BaseChange {c} {d}) (slicehom (x , _) y)) =
-    SetoidMor≡ (SΣ c) Y
-       (sym (funExt (snd ∘ x)) ∙ congS ((fst f ∘_) ∘ fst) y)
-   rightInv (adjIso SetoidΣ⊣BaseChange {c} {d}) b = SliceHom-≡-intro' _ _
-      (SetoidMor≡ (S-ob c) (S-ob (BaseChangeFunctor ⟅ d ⟆))
-        (funExt λ x → Σ≡Prop (λ _ → snd (fst Y) _ _)
-            (cong (_, _) (sym (cong fst (S-comm b) ≡$ x)))))
-   leftInv (adjIso SetoidΣ⊣BaseChange {c} {d}) a = SliceHom-≡-intro' _ _
-      (SetoidMor≡ ((S-ob (SETOIDΣ ⟅ c ⟆))) (S-ob d) refl)
-   adjNatInD SetoidΣ⊣BaseChange {c} {_} {d'} _ _ = SliceHom-≡-intro' _ _
-      (SetoidMor≡ (S-ob c) (S-ob (BaseChangeFunctor ⟅ d' ⟆))
-        (funExt λ _ → Σ≡Prop (λ _ → snd (fst Y) _ _) refl))
-   adjNatInC SetoidΣ⊣BaseChange _ _ = SliceHom-≡-intro' _ _ refl
-
-
-  ¬BaseChange⊣SetoidΠ : ({X Y : ob SETOID} (f : SetoidMor X Y) →
-     Σ _ (BaseChangeFunctor {X} {Y} f ⊣_)) → ⊥.⊥
-  ¬BaseChange⊣SetoidΠ isLCCC = Πob-full-rel Πob-full
-
-   where
-
-   𝕀 : Setoid ℓ ℓ
-   𝕀 = (Lift Bool , isOfHLevelLift 2 isSetBool) , fullEquivPropRel
-
-   𝟚 : Setoid ℓ ℓ
-   𝟚 = (Lift Bool , isOfHLevelLift 2 isSetBool) ,
-         ((_ , isOfHLevelLift 2 isSetBool) , isEquivRelIdRel)
-
-   𝑨 : SetoidMor (setoidUnit {ℓ} {ℓ}) 𝕀
-   𝑨 = (λ _ → lift true) , λ _ → _
-
-   𝟚/ = sliceob {S-ob = 𝟚} ((λ _ → tt*) , λ {x} {x'} _ → tt*) 
-
-
-   open Σ (isLCCC {(setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨) renaming (fst to ΠA ; snd to Π⊣A*)
-   open _⊣_ Π⊣A* renaming (adjIso to aIso)    
-
-   module lem2 where
-    G = sliceob {S-ob = setoidUnit} ((λ x → lift false) , _)
-
-    bcf = BaseChangeFunctor {(setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨 ⟅ G ⟆
-
-    isPropFiberFalse : isProp (fiber (fst (S-arr (ΠA ⟅ 𝟚/ ⟆))) (lift false))
-    isPropFiberFalse (x , p) (y , q) =
-      Σ≡Prop (λ _ _ _ → cong (cong lift) (isSetBool _ _ _ _))
-       ((cong (fst ∘ S-hom) (isoInvInjective (aIso {G} {𝟚/})
-          (slicehom
-            ((λ _ → x) , λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd
-                (S-ob (F-ob ΠA 𝟚/)))) _)
-                 ( SetoidMor≡ (S-ob G) 𝕀 (funExt λ _ → p)))
-          ((slicehom
-            ((λ _ → y) , λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd
-                (S-ob (F-ob ΠA 𝟚/)))) _)
-                 ( SetoidMor≡ (S-ob G) 𝕀 (funExt λ _ → q))))
-          (SliceHom-≡-intro' _ _
-             (SetoidMor≡ (bcf .S-ob) (𝟚/ .S-ob)
-               (funExt λ z → ⊥.rec (true≢false (cong lower (snd z)))
-               ))))) ≡$ _ )
-      
-    
-   module lem3 where
-    G = sliceob {S-ob = 𝕀} (SETOID .id {𝕀})
-
-    aL : Iso
-           (fst (fst (S-ob 𝟚/)))
-           (SliceHom SETOID setoidUnit (BaseChangeFunctor 𝑨 ⟅ G ⟆) 𝟚/)
-             
-    fun aL h =
-      slicehom ((λ _ → h)
-        , λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd
-                (S-ob 𝟚/))) _) refl
-    inv aL (slicehom (f , _) _) = f (_ , refl)
-    rightInv aL b =
-      SliceHom-≡-intro' _ _
-       (SetoidMor≡
-      ((BaseChangeFunctor {X = (setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨 ⟅ G ⟆)  .S-ob)
-      (𝟚/ .S-ob) (funExt λ x' →
-         cong (λ (x , y) → fst (S-hom b) ((tt* , x) , y))
-           (isPropSingl _ _)))
-    leftInv aL _ = refl
-
-    lem3 : Iso (fst (fst (S-ob 𝟚/))) (SliceHom SETOID 𝕀 G (ΠA ⟅ 𝟚/ ⟆))
-    lem3 = compIso aL (aIso {G} {𝟚/})
 
 
 
-   module zzz3 = Iso (compIso LiftIso (lem3.lem3))
+  -- open BaseChange pullbacks public
 
-
-   open BinaryRelation.isEquivRel (snd (snd (S-ob (ΠA ⟅ 𝟚/ ⟆))))
-
-
-   piPt : Bool → fiber
-                    (fst
-                     (S-arr
-                      (ΠA ⟅ 𝟚/ ⟆))) (lift true)
-   piPt b =  (fst (S-hom (zzz3.fun b)) (lift true)) ,
-     (cong fst (S-comm (zzz3.fun b)) ≡$ lift true)
-   
-
-
-   finLLem : fst (piPt true) ≡ fst (piPt false)
-              → ⊥.⊥
-   finLLem p =
-     true≢false (isoFunInjective (compIso LiftIso (lem3.lem3)) _ _
-           $ SliceHom-≡-intro' _ _
-             $ SetoidMor≡
-              ((lem3.G) .S-ob)
-              ((ΠA ⟅ 𝟚/ ⟆) .S-ob)
-              (funExt (
-          λ where (lift false) → (congS fst (lem2.isPropFiberFalse
-                        (_ , ((cong fst (S-comm (fun (lem3.lem3) (lift true))) ≡$ lift false)))
-                        (_ , (cong fst (S-comm (fun (lem3.lem3) (lift false))) ≡$ lift false))))
-                  (lift true) → p))) 
-
-
-   Πob-full : fst (fst (snd (S-ob (ΠA ⟅ 𝟚/ ⟆))))
-                      (fst (piPt false))
-                      (fst (piPt true))
-      
-   Πob-full = 
-      ((transitive' ((snd (S-hom (zzz3.fun false)) {lift true} {lift false} _))
-            (transitive'
-              ((BinaryRelation.isRefl→impliedByIdentity
-                    (fst (fst (snd (S-ob (ΠA ⟅ 𝟚/ ⟆))))) reflexive
-                      (congS fst (lem2.isPropFiberFalse
-                        (_ , ((cong fst (S-comm (fun (lem3.lem3) (lift false))) ≡$ lift false)))
-                        (_ , (cong fst (S-comm (fun (lem3.lem3) (lift true))) ≡$ lift false))))
-                        ))
-              (snd (S-hom (zzz3.fun true)) {lift false} {lift true}  _))))
-
-   Πob-full-rel : fst (fst (snd (S-ob (ΠA ⟅ 𝟚/ ⟆))))
-                      (fst (piPt false))
-                      (fst (piPt true))
-      → ⊥.⊥
-   Πob-full-rel rr = elim𝟚<fromIso ((invIso
-           (compIso aL (aIso {sliceob ((λ _ → lift true) , _)} {𝟚/}))))
-          mT mF mMix
-         ( finLLem ∘S cong λ x → fst (S-hom x) (lift false))
-         (finLLem ∘S cong λ x → fst (S-hom x) (lift false))
-         (finLLem ∘S (sym ∘S cong λ x → fst (S-hom x) (lift true)))
-      
-     where
-
-     aL : Iso Bool
-        ((SliceHom SETOID setoidUnit _  𝟚/))
-     fun aL b = slicehom ((λ _ → lift b) , λ _ → refl) refl
-     inv aL (slicehom f _) = lower (fst f ((_ , lift true) , refl ))
-     rightInv aL b = SliceHom-≡-intro' _ _
-        (SetoidMor≡
-          (S-ob ((BaseChangeFunctor {(setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨)
-            ⟅ sliceob {S-ob = 𝕀} ((λ _ → lift true) , _) ⟆))  𝟚
-              (funExt λ x → snd (S-hom b) {(_ , lift true) , refl} {x} _))
-     leftInv aL _ = refl
- 
-     mB : Bool → (SliceHom SETOID 𝕀
-                 (sliceob {S-ob = 𝕀} ((λ _ → lift true) , (λ {x} {x'} _ → tt*))) (ΠA ⟅ 𝟚/ ⟆))
-     mB b = slicehom ((λ _ → fst (piPt b)) ,
-            λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd (S-ob (ΠA ⟅ 𝟚/ ⟆)))) _)
-          (ΣPathP ((funExt λ _ → snd (piPt b)) , refl) )
-
-
-     mF mT mMix : _
-     mF = mB false 
-     mT = mB true 
-     mMix = slicehom ((fst ∘ piPt) ∘ lower ,
-         λ where {lift false} {lift false} _ → reflexive _
-                 {lift true} {lift true} _ → reflexive _
-                 {lift false} {lift true} _ → rr
-                 {lift true} {lift false} _ → symmetric _ _ rr)
-                      ((ΣPathP ((funExt λ b → snd (piPt (lower b))) , refl) ))
-
-
-  -- ¬BaseChange⊣SetoidΠ : ({X Y : ob SETOID} (f : SetoidMor X Y) →
-  --    Σ _ (BaseChangeFunctor {X} {Y} f ⊣_)) → ⊥.⊥
+  -- ¬BaseChange⊣SetoidΠ : ({X Y : ob SETOID} (f : SETOID .Hom[_,_] X Y) →
+  --    Σ (Functor (SliceCat SETOID X) (SliceCat SETOID Y))
+  --     (λ Πf → (_＊ {c = X} {d = Y} f) ⊣ Πf)) → ⊥.⊥
   -- ¬BaseChange⊣SetoidΠ isLCCC = Πob-full-rel Πob-full
 
   --  where
@@ -678,66 +510,64 @@ module _ ℓ where
   --  𝑨 : SetoidMor (setoidUnit {ℓ} {ℓ}) 𝕀
   --  𝑨 = (λ _ → lift true) , λ _ → _
 
-  --  open Σ (isLCCC {(setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨) renaming (fst to ΠA ; snd to Π⊣A*)
-  --  open _⊣_ Π⊣A* renaming (adjIso to aIso)    
-
-  --  module lem2 (H : _) where
-  --   G = sliceob {S-ob = setoidUnit} ((λ x → lift false) , _)
-
-  --   bcf = BaseChangeFunctor {(setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨 ⟅ G ⟆
-
-  --   isPropFiberFalse : isProp (fiber (fst (S-arr (ΠA ⟅ H ⟆))) (lift false))
-  --   isPropFiberFalse (x , p) (y , q) =
-  --     Σ≡Prop (λ _ _ _ → cong (cong lift) (isSetBool _ _ _ _))
-  --      ((cong (fst ∘ S-hom) (isoInvInjective (aIso {G} {H})
-  --         (slicehom
-  --           ((λ _ → x) , λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd
-  --               (S-ob (F-ob ΠA H)))) _)
-  --                ( SetoidMor≡ (S-ob G) 𝕀 (funExt λ _ → p)))
-  --         ((slicehom
-  --           ((λ _ → y) , λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd
-  --               (S-ob (F-ob ΠA H)))) _)
-  --                ( SetoidMor≡ (S-ob G) 𝕀 (funExt λ _ → q))))
-  --         (SliceHom-≡-intro' _ _
-  --            (SetoidMor≡ (bcf .S-ob) (H .S-ob)
-  --              (funExt λ z → ⊥.rec (true≢false (cong lower (snd z)))
-  --              ))))) ≡$ _ )
-      
-    
-  --  module lem3 (H : _) where
-  --   G = sliceob {S-ob = 𝕀} (SETOID .id {𝕀})
-
-  --   aI : Iso (SliceHom SETOID setoidUnit (BaseChangeFunctor 𝑨 ⟅ G ⟆) H)
-  --            (SliceHom SETOID 𝕀 G (ΠA ⟅ H ⟆))
-  --   aI = aIso {G} {H}
-
-  --   aL : Iso
-  --          (fst (fst (S-ob H)))
-  --          (SliceHom SETOID setoidUnit (BaseChangeFunctor 𝑨 ⟅ G ⟆) H)
-             
-  --   fun aL h =
-  --     slicehom ((λ _ → h)
-  --       , λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd
-  --               (S-ob H))) _) refl
-  --   inv aL (slicehom (f , _) _) = f (_ , refl)
-  --   rightInv aL b =
-  --     SliceHom-≡-intro' _ _
-  --      (SetoidMor≡
-  --     ((BaseChangeFunctor {X = (setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨 ⟅ G ⟆)  .S-ob)
-  --     (H .S-ob) (funExt λ x' →
-  --        cong (λ (x , y) → fst (S-hom b) ((tt* , x) , y))
-  --          (isPropSingl _ _)))
-  --   leftInv aL _ = refl
-
-  --   lem3 : Iso (fst (fst (S-ob H))) (SliceHom SETOID 𝕀 G (ΠA ⟅ H ⟆))
-  --   lem3 = compIso aL aI
-
-  --   open BinaryRelation.isEquivRel (snd (snd (S-ob (ΠA ⟅ H ⟆))))
+  --  𝑨＊ = _＊ {c = (setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨
 
   --  𝟚/ = sliceob {S-ob = 𝟚} ((λ _ → tt*) , λ {x} {x'} _ → tt*) 
 
 
-  --  module zzz3 = Iso (compIso LiftIso (lem3.lem3 𝟚/))
+  --  open Σ (isLCCC {(setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨) renaming (fst to ΠA ; snd to Π⊣A*)
+  --  open _⊣_ Π⊣A* renaming (adjIso to aIso)    
+
+  --  module lem2 where
+  --   G = sliceob {S-ob = setoidUnit} ((λ x → lift false) , _)
+
+  --   bcf =  𝑨＊ ⟅ G ⟆
+
+  --   isPropFiberFalse : isProp (fiber (fst (S-arr (ΠA ⟅ 𝟚/ ⟆))) (lift false))
+  --   isPropFiberFalse (x , p) (y , q) =
+  --     Σ≡Prop (λ _ _ _ → cong (cong lift) (isSetBool _ _ _ _))
+  --      ((cong (fst ∘ S-hom) (isoInvInjective (aIso {G} {𝟚/})
+  --         (slicehom
+  --           ((λ _ → x) , λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd
+  --               (S-ob (F-ob ΠA 𝟚/)))) _)
+  --                ( SetoidMor≡ (S-ob G) 𝕀 (funExt λ _ → p)))
+  --         ((slicehom
+  --           ((λ _ → y) , λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd
+  --               (S-ob (F-ob ΠA 𝟚/)))) _)
+  --                ( SetoidMor≡ (S-ob G) 𝕀 (funExt λ _ → q))))
+  --         (SliceHom-≡-intro' _ _
+  --            (SetoidMor≡ (bcf .S-ob) (𝟚/ .S-ob)
+  --              (funExt λ z → ⊥.rec (true≢false (cong lower (snd z)))
+  --              ))))) ≡$ _ )
+      
+    
+  --  module lem3 where
+  --   G = sliceob {S-ob = 𝕀} (SETOID .id {𝕀})
+
+  --   aL : Iso
+  --          (fst (fst (S-ob 𝟚/)))
+  --          (SliceHom SETOID setoidUnit ( 𝑨 ＊ ⟅ G ⟆) 𝟚/)
+             
+  --   fun aL h =
+  --     slicehom ((λ _ → h)
+  --       , λ _ → BinaryRelation.isEquivRel.reflexive (snd (snd
+  --               (S-ob 𝟚/))) _) refl
+  --   inv aL (slicehom (f , _) _) = f (_ , refl)
+  --   rightInv aL b =
+  --     SliceHom-≡-intro' _ _
+  --      (SetoidMor≡
+  --     ((𝑨＊ ⟅ G ⟆)  .S-ob)
+  --     (𝟚/ .S-ob) (funExt λ x' →
+  --        cong (λ (x , y) → fst (S-hom b) ((tt* , x) , y))
+  --          (isPropSingl _ _)))
+  --   leftInv aL _ = refl
+
+  --   lem3 : Iso (fst (fst (S-ob 𝟚/))) (SliceHom SETOID 𝕀 G (ΠA ⟅ 𝟚/ ⟆))
+  --   lem3 = compIso aL (aIso {G} {𝟚/})
+
+
+
+  --  module zzz3 = Iso (compIso LiftIso (lem3.lem3))
 
 
   --  open BinaryRelation.isEquivRel (snd (snd (S-ob (ΠA ⟅ 𝟚/ ⟆))))
@@ -755,38 +585,39 @@ module _ ℓ where
   --  finLLem : fst (piPt true) ≡ fst (piPt false)
   --             → ⊥.⊥
   --  finLLem p =
-  --    true≢false (isoFunInjective (compIso LiftIso (lem3.lem3 𝟚/)) _ _
+  --    true≢false (isoFunInjective (compIso LiftIso (lem3.lem3)) _ _
   --          $ SliceHom-≡-intro' _ _
   --            $ SetoidMor≡
-  --             ((lem3.G 𝟚/) .S-ob)
+  --             ((lem3.G) .S-ob)
   --             ((ΠA ⟅ 𝟚/ ⟆) .S-ob)
   --             (funExt (
-  --         λ where (lift false) → (congS fst (lem2.isPropFiberFalse 𝟚/
-  --                       (_ , ((cong fst (S-comm (fun (lem3.lem3 𝟚/) (lift true))) ≡$ lift false)))
-  --                       (_ , (cong fst (S-comm (fun (lem3.lem3 𝟚/) (lift false))) ≡$ lift false))))
+  --         λ where (lift false) → (congS fst (lem2.isPropFiberFalse
+  --                       (_ , ((cong fst (S-comm (fun (lem3.lem3) (lift true))) ≡$ lift false)))
+  --                       (_ , (cong fst (S-comm (fun (lem3.lem3) (lift false))) ≡$ lift false))))
   --                 (lift true) → p))) 
 
 
   --  Πob-full : fst (fst (snd (S-ob (ΠA ⟅ 𝟚/ ⟆))))
-  --                     (fst (S-hom (zzz3.fun false)) (lift true))
-  --                     (fst (S-hom (zzz3.fun true)) (lift true))
+  --                     (fst (piPt false))
+  --                     (fst (piPt true))
       
   --  Πob-full = 
   --     ((transitive' ((snd (S-hom (zzz3.fun false)) {lift true} {lift false} _))
   --           (transitive'
   --             ((BinaryRelation.isRefl→impliedByIdentity
   --                   (fst (fst (snd (S-ob (ΠA ⟅ 𝟚/ ⟆))))) reflexive
-  --                     (congS fst (lem2.isPropFiberFalse 𝟚/
-  --                       (_ , ((cong fst (S-comm (fun (lem3.lem3 𝟚/) (lift false))) ≡$ lift false)))
-  --                       (_ , (cong fst (S-comm (fun (lem3.lem3 𝟚/) (lift true))) ≡$ lift false))))
+  --                     (congS fst (lem2.isPropFiberFalse
+  --                       (_ , ((cong fst (S-comm (fun (lem3.lem3) (lift false))) ≡$ lift false)))
+  --                       (_ , (cong fst (S-comm (fun (lem3.lem3) (lift true))) ≡$ lift false))))
   --                       ))
   --             (snd (S-hom (zzz3.fun true)) {lift false} {lift true}  _))))
 
   --  Πob-full-rel : fst (fst (snd (S-ob (ΠA ⟅ 𝟚/ ⟆))))
-  --                     (fst (S-hom (zzz3.fun false)) (lift true))
-  --                     (fst (S-hom (zzz3.fun true)) (lift true))
+  --                     (fst (piPt false))
+  --                     (fst (piPt true))
   --     → ⊥.⊥
-  --  Πob-full-rel rr = elim𝟚<fromIso ((invIso (compIso aL aI)))
+  --  Πob-full-rel rr = elim𝟚<fromIso ((invIso
+  --          (compIso aL (aIso {sliceob ((λ _ → lift true) , _)} {𝟚/}))))
   --         mT mF mMix
   --        ( finLLem ∘S cong λ x → fst (S-hom x) (lift false))
   --        (finLLem ∘S cong λ x → fst (S-hom x) (lift false))
@@ -800,16 +631,11 @@ module _ ℓ where
   --    inv aL (slicehom f _) = lower (fst f ((_ , lift true) , refl ))
   --    rightInv aL b = SliceHom-≡-intro' _ _
   --       (SetoidMor≡
-  --         (S-ob ((BaseChangeFunctor {(setoidUnit {ℓ} {ℓ})} {𝕀} 𝑨)
+  --         (S-ob ((𝑨＊)
   --           ⟅ sliceob {S-ob = 𝕀} ((λ _ → lift true) , _) ⟆))  𝟚
   --             (funExt λ x → snd (S-hom b) {(_ , lift true) , refl} {x} _))
   --    leftInv aL _ = refl
  
-  --    aI : Iso (SliceHom SETOID setoidUnit (sliceob {S-ob = _} ((λ _ → tt*) , (λ {x} {x'} _ → tt*)))  𝟚/)
-  --              (SliceHom SETOID 𝕀
-  --                (sliceob {S-ob = 𝕀} ((λ _ → lift true) , (λ {x} {x'} _ → tt*))) (ΠA ⟅ 𝟚/ ⟆))
-  --    aI = aIso {sliceob ((λ _ → lift true) , _)} {𝟚/}   
-
   --    mB : Bool → (SliceHom SETOID 𝕀
   --                (sliceob {S-ob = 𝕀} ((λ _ → lift true) , (λ {x} {x'} _ → tt*))) (ΠA ⟅ 𝟚/ ⟆))
   --    mB b = slicehom ((λ _ → fst (piPt b)) ,
@@ -817,16 +643,13 @@ module _ ℓ where
   --         (ΣPathP ((funExt λ _ → snd (piPt b)) , refl) )
 
 
-  --    mF mT mMix : 
-
-  --            (SliceHom SETOID 𝕀
-  --                (sliceob {S-ob = 𝕀} ((λ _ → lift true) , (λ {x} {x'} _ → tt*))) (ΠA ⟅ 𝟚/ ⟆))
-  --    mF = mB false --mB false
-  --    mT = mB true --mB true
-  --    mMix = 
-  --      slicehom ((fst ∘ piPt) ∘ lower ,
+  --    mF mT mMix : _
+  --    mF = mB false 
+  --    mT = mB true 
+  --    mMix = slicehom ((fst ∘ piPt) ∘ lower ,
   --        λ where {lift false} {lift false} _ → reflexive _
   --                {lift true} {lift true} _ → reflexive _
   --                {lift false} {lift true} _ → rr
   --                {lift true} {lift false} _ → symmetric _ _ rr)
   --                     ((ΣPathP ((funExt λ b → snd (piPt (lower b))) , refl) ))
+

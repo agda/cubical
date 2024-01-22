@@ -35,7 +35,7 @@ private
     c d : C .ob
 
 infix 39 _F/_
-infix 40 _﹗
+infix 40 Σ𝑓_
 
 _F/_ : ∀ (F : Functor C D) c → Functor (SliceCat C c) (SliceCat D (F ⟅ c ⟆))
 F-ob (F F/ c) = sliceob ∘ F-hom F ∘ S-arr
@@ -44,20 +44,21 @@ F-hom (F F/ c) h = slicehom _
 F-id (F F/ c) = SliceHom-≡-intro' _ _  $ F-id F
 F-seq (F F/ c) _ _ = SliceHom-≡-intro' _ _  $ F-seq F _ _
 
-_﹗ : ∀ {c d} f → Functor  (SliceCat C c) (SliceCat C d)
-F-ob (_﹗ {C = C} f) (sliceob x) = sliceob (_⋆_ C x f)
-F-hom (_﹗ {C = C} f) (slicehom h p) = slicehom _ $
+Σ𝑓_ : ∀ {c d} f → Functor  (SliceCat C c) (SliceCat C d)
+F-ob (Σ𝑓_ {C = C} f) (sliceob x) = sliceob (_⋆_ C x f)
+F-hom (Σ𝑓_ {C = C} f) (slicehom h p) = slicehom _ $
   sym (C .⋆Assoc _ _ _) ∙ cong (λ x → (_⋆_ C x f)) p
-F-id (f ﹗) = SliceHom-≡-intro' _ _ refl
-F-seq (f ﹗) _ _ = SliceHom-≡-intro' _ _ refl
+F-id (Σ𝑓 f) = SliceHom-≡-intro' _ _ refl
+F-seq (Σ𝑓 f) _ _ = SliceHom-≡-intro' _ _ refl
 
-module Pullbacks (Pbs : Pullbacks C) where
+module _ (Pbs : Pullbacks C) where
 
  open Pullback
 
  _⋆ᶜ_ = C ._⋆_
 
  module BaseChange {c d} (𝑓 : C [ c , d ]) where
+  infix 40 _＊
 
   module _ {x : SliceCat C d .ob} where
    pb = Pbs (cospan c d _ 𝑓 (x .S-arr))
@@ -71,7 +72,6 @@ module Pullbacks (Pbs : Pullbacks C) where
             (pbCommutes pbx ∙∙ 
                 cong (C ⋆ pbPr₂ (Pbs (cospan c d (S-ob y) _ (y .S-arr))))
                   (sym (h .S-comm)) ∙∙ sym (C .⋆Assoc _ _ _)) 
-  infix 40 _＊
 
   _＊ : Functor (SliceCat C d) (SliceCat C c)
   F-ob _＊ x = sliceob (pbPr₁ pb)
@@ -98,25 +98,25 @@ module Pullbacks (Pbs : Pullbacks C) where
  module _ (𝑓 : C [ c , d ]) where
 
   open BaseChange 𝑓 using (pb ; pbU)
- 
-  𝑓﹗⊣𝑓＊ : 𝑓 ﹗ ⊣₂ 𝑓 ＊
-  fun (adjIso 𝑓﹗⊣𝑓＊) (slicehom h o) =
+  
+  Σ𝑓⊣𝑓＊ : Σ𝑓 𝑓 ⊣₂ 𝑓 ＊
+  fun (adjIso Σ𝑓⊣𝑓＊) (slicehom h o) =
    let ((_ , (p , _)) , _) = univProp pb _ _ (sym o)
    in slicehom _ (sym p)
-  inv (adjIso 𝑓﹗⊣𝑓＊) (slicehom h o) = slicehom _ $
+  inv (adjIso Σ𝑓⊣𝑓＊) (slicehom h o) = slicehom _ $
     AssocCong₂⋆R C (sym (pbCommutes pb)) ∙ cong (_⋆ᶜ 𝑓) o
-  rightInv (adjIso 𝑓﹗⊣𝑓＊) (slicehom h o) =
+  rightInv (adjIso Σ𝑓⊣𝑓＊) (slicehom h o) =
     SliceHom-≡-intro' _ _ (univProp' pb (sym o) refl)
-  leftInv (adjIso 𝑓﹗⊣𝑓＊) (slicehom h o) =
+  leftInv (adjIso Σ𝑓⊣𝑓＊) (slicehom h o) =
    let ((_ , (_ , q)) , _) = univProp pb _ _ _
    in SliceHom-≡-intro' _ _ (sym q)
-  adjNatInD 𝑓﹗⊣𝑓＊ f k = SliceHom-≡-intro' _ _ $
+  adjNatInD Σ𝑓⊣𝑓＊ f k = SliceHom-≡-intro' _ _ $
     let ((h' , (v' , u')) , _) = univProp pb _ _ _
         ((_ , (v'' , u'')) , _) = univProp pb _ _ _
     in univProp' pb (v' ∙∙ cong (h' ⋆ᶜ_) v'' ∙∙ sym (C .⋆Assoc _ _ _))
                     (cong (_⋆ᶜ _) u' ∙ AssocCong₂⋆R C u'')
 
-  adjNatInC 𝑓﹗⊣𝑓＊ g h = SliceHom-≡-intro' _ _ $ C .⋆Assoc _ _ _ 
+  adjNatInC Σ𝑓⊣𝑓＊ g h = SliceHom-≡-intro' _ _ $ C .⋆Assoc _ _ _ 
 
 
  open UnitCounit
@@ -136,7 +136,7 @@ module Pullbacks (Pbs : Pullbacks C) where
   module Left (b : D .ob) where
 
    ⊣F/ : Functor (SliceCat C (R ⟅ b ⟆)) (SliceCat D b) 
-   ⊣F/ =  N-ob ε b ﹗ ∘F L F/ (R ⟅ b ⟆)
+   ⊣F/ =  Σ𝑓 N-ob ε b ∘F L F/ (R ⟅ b ⟆)
 
    L/b⊣R/b : ⊣F/ ⊣₂ (R F/ b)  
    fun (adjIso L/b⊣R/b) (slicehom _ p) =
