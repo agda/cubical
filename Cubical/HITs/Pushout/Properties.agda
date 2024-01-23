@@ -31,7 +31,6 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
-open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.Pushout.Base
 

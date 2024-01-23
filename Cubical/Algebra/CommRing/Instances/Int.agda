@@ -4,7 +4,6 @@ module Cubical.Algebra.CommRing.Instances.Int where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Algebra.CommRing
-
 open import Cubical.Data.Int as Int
   renaming ( ℤ to ℤ ; _+_ to _+ℤ_; _·_ to _·ℤ_; -_ to -ℤ_)
 

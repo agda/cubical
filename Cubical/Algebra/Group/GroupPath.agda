@@ -11,7 +11,6 @@ open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.SIP
-open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
 
@@ -24,8 +23,6 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-
-open import Cubical.HITs.PropositionalTruncation
 
 private
   variable
