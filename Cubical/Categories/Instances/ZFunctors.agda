@@ -475,6 +475,7 @@ module _ {ℓ : Level} where
     F-id strDLSh = cong (𝓞 .F-hom) compOpenInclId ∙ 𝓞 .F-id
     F-seq strDLSh _ _ = cong (𝓞 .F-hom) (compOpenInclSeq _ _) ∙ 𝓞 .F-seq _ _
 
+    -- ⟦ U ⟧ → X → 𝓛 via V
     compOpenRest : {U V : CompactOpen X} → V ≤ U → CompactOpen ⟦ U ⟧ᶜᵒ
     N-ob (compOpenRest {V = V} V≤U) A (x , Ux≡D1) = V .N-ob A x
     N-hom (compOpenRest V≤U) φ = funExt (λ x → {!!})
@@ -601,11 +602,43 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
 
       Dα≤W : ∀ i → D R (α i) ≤ W
       Dα≤W i = {!!}
+      -- ⋁ (D αᵢ) ≡ W in SpR → 𝓛
 
       toAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
       AffineCover.n toAffineCover = n
-      U toAffineCover i = compOpenRest (Sp .F-ob R) (Dα≤W i)
+      U toAffineCover i = {!!} -- W → Sp R → 𝓛 via Dαᵢ --compOpenRest (Sp .F-ob R) (Dα≤W i)
       covers toAffineCover = {!!}
       isAffineU toAffineCover = {!!}
+      -- ⟦ Dαᵢ ∘ W→SpR ⟧ ≅ ⟦ Dαᵢ ⟧ ≅ Sp R[1/αᵢ]
 
-  -- then use ⋁D≡
+  -- then use ⋁D≡ (merely covered by standard opens) → hasAffineCover ⟦W⟧
+  -- then isLocal ⟦W⟧
+
+  -- 𝓛 separated presheaf:
+  -- For u w : 𝓛 A and ⟨f₀,...,fₙ⟩=A s.t. ∀ i → uᵢ=wᵢ in 𝓛 A[1/fᵢ] then u = w
+  -- where u ↦ uᵢ for 𝓛 A → 𝓛 A[1/fᵢ]
+  -- Min: u : 𝓛 A and ⟨f₀,...,fₙ⟩=A s.t. ∀ i → uᵢ=D1 in 𝓛 A[1/fᵢ] then u = D1 in 𝓛 A
+  -- base case: u = Dg → have ∀ i → g/1 ∈ A[1/fᵢ]ˣ, need 1 ∈ √⟨g⟩ (g ∈ Aˣ)
+  -- g/1 ∈ A[1/fᵢ]ˣ → fᵢ ∈ √ ⟨g⟩ → 1=∑aᵢfᵢ ∈ √⟨g⟩
+  -- i.e. fᵢᵐ=aᵢg
+  -- choose m big enough s.t. it becomes independent of i
+  -- lemma ⟨f₀ᵐ,...,fₙᵐ⟩=A:
+  -- 1 = ∑ bᵢfᵢᵐ = ∑ bᵢaᵢg = (∑ aᵢbᵢ)g
+
+  -- u = D(g₁,...,gₖ) → ⟨g₁/1 ,..., gₖ/1 ⟩ = A[1/fᵢ]
+  -- 0 = A[1/fᵢ]/⟨g₁/1,...,gₖ/1⟩ =???= A/⟨g₁,...,gₙ⟩[1/[fᵢ]] → fᵢⁿ=0 mod ⟨g₁,...,gₙ⟩
+  -- 1/1 = ∑ aⱼ/fᵢⁿ gⱼ/1 → fᵢᵐ = ∑ aⱼgⱼ
+  -- → fᵢ ∈ √ ⟨ g₁ ,..., gₖ ⟩ → 1 = ∑ bᵢfᵢ ∈ √ ⟨ g₁ ,..., gₖ ⟩
+
+  -- 𝓛 sheaf: ⟨f₀,...,fₙ⟩=A → 𝓛 A = lim (↓ Dfᵢ) = lim (𝓛 A[1/fᵢ])
+  -- ⋁uᵢ=⊤ in L → L = lim (↓ uᵢ) = Σ[ vᵢ ≤ uᵢ ]  vᵢ ∧ uⱼ = vⱼ ∧ uᵢ
+  -- (↓ Dfᵢ) = 𝓛 A[1/fᵢ]: Dg ≤ Dfᵢ ⇔ g ∈ √ ⟨fᵢ⟩ ⇔ fᵢ ∈ A[1/g]ˣ
+  -- ↓ Dfᵢ → 𝓛 A[1/fᵢ]: Dg ≤ Dfᵢ ↦ D(g/1)
+
+  -- 𝓛 A[1/fᵢ] → ↓ Dfᵢ: D(g/fᵢⁿ) ↦ Dg ∧ Dfᵢ = D(gfᵢ)
+  -- support A[1/fᵢ] → ↓ Dfᵢ given by g/fᵢⁿ ↦ Dg ∧ Dfᵢ = D(gfᵢ)
+  -- support A → A[1/fᵢ] → L gives (↓ Dfᵢ) ↪ 𝓛 A → L lattice hom!
+  -- have _∧Dfᵢ : 𝓛 A → ↓ Dfᵢ
+
+  -- U : CompactOpen X , isQcQsScheme X → isQcQsScheme ⟦U⟧
+  -- X=⋁Uᵢ affine covering → isQcQsScheme U∧Uᵢ →(lemma)→ isQcQsScheme U=⋁(U∧Uᵢ)
