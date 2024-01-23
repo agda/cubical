@@ -155,7 +155,7 @@ H¹[T²,G]≅G×G G =
   Iso.fun typIso = ST.rec (isSet× squash₂ squash₂)
     λ f → ∣ (λ x → f (x , base)) ∣₂ ,  ∣ (λ x → f (base , x)) ∣₂
   Iso.inv typIso = uncurry (ST.rec2 squash₂
-    λ f g → ∣ (λ x → f (fst x) +1 g (snd x)) ∣₂) 
+    λ f g → ∣ (λ x → f (fst x) +1 g (snd x)) ∣₂)
   Iso.rightInv typIso =
     uncurry (ST.elim2 (λ _ _ → isOfHLevelPath 2 (isSet× squash₂ squash₂) _ _)
       (S¹-connElim (isConnectedEM {G' = G} 1)

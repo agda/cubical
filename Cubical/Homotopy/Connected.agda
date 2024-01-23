@@ -332,26 +332,6 @@ isConnectedCong n f cf {a₀} {a₁} q =
     (sym (fiberCong f q))
     (isConnectedPath n (cf (f a₁)) (a₀ , q) (a₁ , refl))
 
-isConnectedCong² : ∀ {ℓ ℓ'} (n : HLevel) {A : Type ℓ} {B : Type ℓ'} (f : A → B)
-    → isConnectedFun (suc (suc n)) f
-    → ∀ {a₀ a₁ a₂ a₃} {p : a₀ ≡ a₁} {q : a₂ ≡ a₃}
-                       {r : a₀ ≡ a₂} {s : a₁ ≡ a₃}
-    → isConnectedFun n
-         {A = Square p q r s}
-         {B = Square (cong f p) (cong f q) (cong f r) (cong f s)}
-         (λ p i j → f (p i j))
-isConnectedCong² n {A = A} f cf {a₀} {a₁} {r = r} {s = s}
-  = isConnectedCong²' _ r _ s
-  where
-  isConnectedCong²' : (a₂ : A) (r : a₀ ≡ a₂) (a₃ : A) (s : a₁ ≡ a₃)
-       {p : a₀ ≡ a₁} {q : a₂ ≡ a₃}
-    → isConnectedFun n
-         {A = Square p q r s}
-         {B = Square (cong f p) (cong f q) (cong f r) (cong f s)}
-         (λ p i j → f (p i j))
-  isConnectedCong²' =
-    J> (J> isConnectedCong n (cong f) (isConnectedCong (suc n) f cf))
-
 isConnectedCong' : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} {x : A} {y : B}
      (n : ℕ) (f : A → B)
   → isConnectedFun (suc n) f
@@ -615,18 +595,6 @@ inrConnected {A = A} {B = B} {C = C} n f g iscon =
                     (~ i)
                     (equiv-proof (elim.isEquivPrecompose f n Q iscon)
                                  fun .fst .snd i a))
-
-inlConnected : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (n : ℕ)
-            → (f : C → A) (g : C → B)
-            → isConnectedFun n g
-            → isConnectedFun n {A = A} {B = Pushout f g} inl
-inlConnected {A = A} {B = B} {C = C} n f g iscon =
-  transport (λ i → isConnectedFun n (lem i))
-    (inrConnected n g f iscon)
-  where
-  lem : PathP (λ i → A → ua (symPushout g f) i) inr inl
-  lem = toPathP (λ j x → inl (transportRefl (transportRefl x j) j))
-
 
 isConnectedPushout→ :
   (f₁ : X₀ → X₁) (f₂ : X₀ → X₂) (g₁ : Y₀ → Y₁) (g₂ : Y₀ → Y₂)

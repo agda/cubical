@@ -271,4 +271,3 @@ syntax ⌣[]ₖ-syntax R x y = x ⌣[ R R]ₖ y
 syntax ⌣[]Cₖ-syntax R x y = x ⌣[ R R]Cₖ y
 syntax ⌣[,,]ₖ-syntax n m R x y = x ⌣[ R , n , m ]ₖ y
 syntax ⌣[,,]Cₖ-syntax n m R x y = x ⌣[ R , n , m ]Cₖ y
-

@@ -29,8 +29,6 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
 
-open import Cubical.Relation.Nullary
-
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
@@ -530,24 +528,3 @@ module PushoutDistr {ℓ ℓ' ℓ'' ℓ''' : Level}
   leftInv PushoutDistrIso (inr (push a i)) j =
     compPath-filler' (push (g a)) (λ j → inr (push a j)) (~ j) i
   leftInv PushoutDistrIso (push a i) j = push a (i ∧ j)
-
-PushoutEmptyFam : ∀ {ℓ} {A B C : Type ℓ}
-  → ¬ A → ¬ C
-  → {f : A → B} {g : A → C}
-  → Iso B (Pushout {A = A} {B = B} {C = C} f g)
-PushoutEmptyFam {A = A} {B = B} {C = C} ¬A ¬C =
-  compIso is
-    (pushoutIso _ _ _ _
-      (uninhabEquiv (λ {()}) ¬A)
-      (idEquiv B)
-      (uninhabEquiv (λ {()}) ¬C)
-      (funExt (λ{()})) (funExt λ{()}))
-  where
-  lift⊥ : ∀ ℓ → Type ℓ
-  lift⊥ ℓ = Lift ⊥
-
-  is : Iso B (Pushout {A = lift⊥ ℓ} {B = B} {C = lift⊥ ℓ''} (λ{()}) λ{()})
-  Iso.fun is = inl
-  Iso.inv is (inl x) = x
-  Iso.rightInv is (inl x) = refl
-  Iso.leftInv is x = refl

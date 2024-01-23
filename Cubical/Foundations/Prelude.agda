@@ -181,16 +181,6 @@ compPath-filler' {z = z} p q j i =
                  ; (i = i1) → q k
                  ; (j = i0) → q (i ∧ k) })
         (p (i ∨ ~ j))
-
-compPath-filler'' : (p : x ≡ y) (q : y ≡ z)
-    → PathP (λ i → p (~ i) ≡ q i) refl (p ∙ q)
-compPath-filler'' p q i j =
-  hcomp (λ k → λ {(i = i0) → p i1
-                 ; (i = i1) → compPath-filler p q k j
-                 ; (j = i0) → p (~ i)
-                 ; (j = i1) → q (i ∧ k)})
-        (p (~ i ∨ j))
-
 -- Note: We can omit a (j = i1) case here since when (j = i1), the whole expression is
 --  definitionally equal to `p ∙ q`. (Notice that `p ∙ q` is also an hcomp.) Nevertheless,
 --  we could have given `compPath-filler p q k i` as the (j = i1) case.

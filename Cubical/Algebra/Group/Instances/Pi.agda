@@ -13,7 +13,6 @@ open IsMonoid
 open IsSemigroup
 
 module _ {ℓ ℓ' : Level} {X : Type ℓ} (G : X → Group ℓ') where
-  -- TODO: upstream
   ΠGroup : Group (ℓ-max ℓ ℓ')
   fst ΠGroup = (x : X) → fst (G x)
   1g (snd ΠGroup) x = 1g (G x .snd)

@@ -298,7 +298,7 @@ module _ (G : AbGroup ℓ) where
     , (TR.elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _)
         (sphereElim n (λ _ → isProp→isOfHLevelSuc n (isOfHLevelTrunc 2 _ _))
           refl))) G
-  
+
   Hⁿ[Sᵐ,G]Full : (n m : ℕ)
     → (((n ≡ 0) ⊎ (n ≡ suc m))
           → AbGroupEquiv (coHomGr n G (S₊ (suc m))) G)

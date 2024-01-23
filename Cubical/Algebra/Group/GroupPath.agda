@@ -1,5 +1,5 @@
 -- The SIP applied to groups
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.Group.GroupPath where
 
 open import Cubical.Foundations.Prelude
@@ -11,6 +11,7 @@ open import Cubical.Foundations.GroupoidLaws hiding (assoc)
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.SIP
+open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
 
@@ -197,42 +198,3 @@ GroupEquivJ {G = G} P p {H} e =
          (funExt λ x → (λ i → fst (fst (fst e .snd .equiv-proof
                           (transportRefl (fst (fst e) (transportRefl x i)) i))))
                          ∙ retEq (fst e) x))
-
-
-isGroupoidGroup : ∀ {ℓ} → isGroupoid (Group ℓ)
-isGroupoidGroup G H =
-  isOfHLevelRespectEquiv 2 (GroupPath _ _)
-    (isOfHLevelΣ 2 (isOfHLevel≃ 2 (GroupStr.is-set (snd G)) (GroupStr.is-set (snd H)))
-      λ _ → isProp→isSet (isPropIsGroupHom _ _))
-
-module _ {ℓ ℓ'} {A : Type ℓ}
-  (G : A → Group ℓ')
-  (G-coh : (x y : A) → GroupEquiv (G x) (G y))
-  (G-coh-coh : (x y z : A) (g : fst (G x))
-    → fst (fst (G-coh y z)) ((fst (fst (G-coh x y)) g))
-     ≡ fst (fst (G-coh x z)) g ) where
-
-  PropTrunc→Group-coh : (x y : A) → G x ≡ G y
-  PropTrunc→Group-coh x y = uaGroup (G-coh x y)
-
-  PropTrunc→Group-coh-coh : (x y z : A) → compGroupEquiv (G-coh x y) (G-coh y z) ≡ G-coh x z
-  PropTrunc→Group-coh-coh x y z =
-    Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-      (Σ≡Prop (λ _ → isPropIsEquiv _)
-        (funExt (G-coh-coh x y z)))
-
-  open import Cubical.Foundations.Path
-  PropTrunc→Group : ∥ A ∥₁ → Group ℓ'
-  PropTrunc→Group = rec→Gpd isGroupoidGroup
-    G
-    (record { link = PropTrunc→Group-coh
-            ; coh₁ = coh-coh })
-    where
-    coh-coh : (x y z : A)
-      → Square (PropTrunc→Group-coh x y) (PropTrunc→Group-coh x z)
-                refl (PropTrunc→Group-coh y z)
-    coh-coh x y z =
-      compPathL→PathP
-          (sym (lUnit _)
-        ∙∙ sym (uaCompGroupEquiv (G-coh x y) (G-coh y z))
-        ∙∙ cong uaGroup (PropTrunc→Group-coh-coh x y z))
