@@ -10,31 +10,19 @@ open import Cubical.Data.Vec.Base
 open import Cubical.Tactics.NatSolver.NatExpression
 open import Cubical.Tactics.NatSolver.HornerForms
 open import Cubical.Tactics.NatSolver.Solver
-open import Cubical.Tactics.NatSolver.Reflection
+open import Cubical.Tactics.NatSolver
 
 private
   variable
     ℓ : Level
 
-module ReflectionSolving where
-  _ : (x y : ℕ) → (x + y) · (x + y) ≡ x · x + 2 · x · y + y · y
-  _ = solve
+module ReflectionSolving (x y : ℕ) where
+  _ : (x + y) · (x + y) ≡ x · x + 2 · x · y + y · y
+  _ = solveℕ!
 
-  _ : (x : ℕ) → suc x ≡ x + 1
-  _ = solve
+  _ : suc x ≡ x + 1
+  _ = solveℕ!
 
-  {-
-    If you want to use the solver in some more complex situation,
-    you have to declare a helper variable (`useSolver` below) that
-    is a term of a dependent function type as above:
-  -}
-  module _ (SomeType : Type ℓ-zero) where
-    complexSolverApplication :
-      (someStuff : SomeType) → (x y : ℕ) → (moreStuff : SomeType)
-      → x + y ≡ y + x
-    complexSolverApplication someStuff x y moreStuff = useSolver x y
-                              where useSolver : (x y : ℕ) → x + y ≡ y + x
-                                    useSolver = solve
 
 module SolvingExplained where
   open EqualityToNormalform renaming (solve to natSolve)
@@ -86,7 +74,6 @@ module SolvingExplained where
 
   _ : normalize (Z ·' (((K 2) ·' X) ·' Y)) ≡ normalize (Z ·' (Y ·' (X +' X)))
   _ = refl
-
 
   {-
     The solver needs to produce an equality between

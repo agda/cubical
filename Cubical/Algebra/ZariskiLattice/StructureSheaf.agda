@@ -50,7 +50,7 @@ open import Cubical.Algebra.CommRing.Instances.Unit
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
@@ -304,10 +304,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
           instance
            h⁻ᵐ : (h ^ m) /1 ∈ₚ (R[1/ h ]AsCommRing ˣ)
            h⁻ᵐ = [ 1r , h ^ m , ∣ m , refl ∣₁ ]
-               , eq/ _ _ ((1r , containsOne) , path (h ^ m))
-            where
-            path : ∀ x → 1r · (x · 1r) · 1r ≡ 1r · 1r · (1r · x)
-            path = solve R'
+               , eq/ _ _ ((1r , containsOne) , solve! R')
 
           β : FinVec R[1/ h ] (suc n)
           β i = ((h ^ m) /1) ⁻¹ · α i /1
@@ -360,12 +357,9 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
       pres1 (snd (coneOut /1/1Cone (pair i j i<j))) = refl
       pres+ (snd (coneOut /1/1Cone (pair i j i<j))) x y =
         cong [_] (≡-× (cong [_] (≡-×
-                      (cong₂ _+_ (useSolver x) (useSolver y))
-                      (Σ≡Prop (λ _ → isPropPropTrunc) (useSolver 1r))))
+                      (cong₂ _+_ (solve! R') (solve! R'))
+                      (Σ≡Prop (λ _ → isPropPropTrunc) (solve! R'))))
                       (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
-        where
-        useSolver : ∀ a → a ≡ a · 1r · (1r · 1r)
-        useSolver = solve R'
       pres· (snd (coneOut /1/1Cone (pair i j i<j))) x y =
         cong [_] (≡-× (cong [_] (≡-× refl
                       (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r)))))

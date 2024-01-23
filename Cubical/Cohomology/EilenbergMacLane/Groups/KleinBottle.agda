@@ -4,6 +4,7 @@ module Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle where
 
 open import Cubical.Cohomology.EilenbergMacLane.Base
 open import Cubical.Cohomology.EilenbergMacLane.Groups.Connected
+open import Cubical.Cohomology.EilenbergMacLane.Groups.RP2
 
 open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
 open import Cubical.Homotopy.EilenbergMacLane.Order2
@@ -20,6 +21,9 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Function
+
+open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
@@ -31,14 +35,17 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.AbGroup.Base
+open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.AbGroup.Instances.DirectProduct
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 
 open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.PropositionalTruncation as PT
-open import Cubical.HITs.EilenbergMacLane1 hiding (elimProp ; elimSet)
+open import Cubical.HITs.EilenbergMacLane1 renaming (elimProp to elimPropEM1 ; elimSet to elimSetEM1)
 open import Cubical.HITs.Susp
+open import Cubical.HITs.RPn
 
 open AbGroupStr
 
@@ -203,11 +210,6 @@ H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 = invGroupEquiv ℤ/2×ℤ/2≅H¹[K²,ℤ/2]
 ------ H²(K²,ℤ/2) ------
 
 -- The equivalence Ω²K₂ ≃ ℤ/2 will be needed
-Iso-Ω²K₂-ℤ/2 : Iso (fst ((Ω^ 2) (EM∙ ℤ/2 2))) (fst ℤ/2)
-Iso-Ω²K₂-ℤ/2 =
-  compIso (congIso (invIso (Iso-EM-ΩEM+1 {G = ℤ/2} 1)))
-    (invIso (Iso-EM-ΩEM+1 {G = ℤ/2} 0))
-
 Ω²K₂→ℤ/2 : fst ((Ω^ 2) (EM∙ ℤ/2 2)) → fst ℤ/2
 Ω²K₂→ℤ/2 = Iso.fun Iso-Ω²K₂-ℤ/2
 
@@ -303,24 +305,6 @@ H²K²→ℤ/2-pres0 = cong H²K²→ℤ/2 KleinFun-trivₕ
        ∙ H²K²→ℤ/2-rewrite (λ _ _ → ∣ north ∣ₕ)
        ∙ refl
 
-Isoℤ/2-morph : {A : Type} (f : A ≃ fst ℤ/2) (0A : A)
-  → 0 ≡ fst f 0A → (_+'_ : A → A → A) (-m : A → A)
-  → (λ x → x) ≡ -m
-  → (e : IsAbGroup 0A _+'_ -m)
-  → IsGroupHom (AbGroup→Group (A , abgroupstr 0A _+'_ (λ x → -m x) e) .snd)
-                (fst f) ((ℤGroup/ 2) .snd)
-Isoℤ/2-morph =
-  EquivJ (λ A f → (0A : A) → 0 ≡ fst f 0A → (_+'_ : A → A → A) (-m : A → A)
-  → (λ x → x) ≡ -m
-  → (e : IsAbGroup 0A _+'_ -m)
-  → IsGroupHom (AbGroup→Group (A , abgroupstr 0A _+'_ (λ x → -m x) e) .snd)
-                (fst f) ((ℤGroup/ 2) .snd))
-  (J> λ _+'_ → J>
-    λ e → makeIsGroupHom (ℤ/2-elim (ℤ/2-elim (IsAbGroup.+IdR e fzero)
-      (IsAbGroup.+IdL e 1))
-      (ℤ/2-elim (IsAbGroup.+IdR e 1)
-        (IsAbGroup.+InvR e 1))))
-
 H²[K²,ℤ/2]≅ℤ/2 : AbGroupEquiv (coHomGr 2 ℤ/2 KleinBottle) ℤ/2
 fst H²[K²,ℤ/2]≅ℤ/2 = isoToEquiv is
   where
@@ -355,7 +339,206 @@ snd (isContr-HⁿKleinBottle n G) = ST.elim (λ _ → isSetPathImplicit)
                        (isConnectedEM (3 +ℕ n))))) _ _) _ _)
                          refl p .fst))
 
-H³⁺ⁿK²≅0 : (n : ℕ) (G : AbGroup ℓ)
+
+---- With general coefficients
+
+-- H⁰(K²,G)
+H⁰[K²,G]≅G : (G : AbGroup ℓ) → AbGroupEquiv (coHomGr 0 G KleinBottle) G
+H⁰[K²,G]≅G G = H⁰conn (∣ point ∣
+  , (TR.elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _)
+      (elimProp (λ _ → isOfHLevelTrunc 2 _ _) refl))) G
+
+-- H¹(K²,G)
+H¹[K²,G]≅G×H¹[RP²,G] : (G : AbGroup ℓ)
+  → AbGroupEquiv (coHomGr 1 G KleinBottle) (AbDirProd G (coHomGr 1 G RP²))
+fst (H¹[K²,G]≅G×H¹[RP²,G] G) = isoToEquiv mainIso
+  where
+  F→ : (KleinBottle → EM G 1) → (RP² → EM G 1)
+  F→ f point = f point
+  F→ f (line i) = f (line1 i)
+  F→ f (square i j) = help i (~ j)
+    where
+    help : cong f (sym line1) ≡ cong f line1
+    help =
+      lUnit (cong f (sym line1))
+      ∙ cong (_∙ cong f (sym line1))
+          (sym (lCancel _))
+     ∙ sym (assoc _ _ _)
+     ∙ cong (sym (cong f line2) ∙_) (isCommΩEM-base 0 _ _ _)
+     ∙ PathP→compPathL (λ i j → f (square j i))
+
+  F← : (g : fst G) → (RP² → EM G 1) → KleinBottle → EM G 1
+  F← g f point = f point
+  F← g f (line1 i) = f (line i)
+  F← g f (line2 i) = EM→ΩEM+1-gen 0 (f point) g i
+  F← g f (square i j) = help j i
+    where
+    l1 = cong f line
+    l2 = EM→ΩEM+1-gen 0 (f point) g
+
+    help : Square (sym l1) l1 l2 l2
+    help = compPathL→PathP
+      (cong₂ _∙_ refl (isCommΩEM-base 0 _ _ _)
+      ∙∙ assoc _ _ _
+      ∙∙ cong (_∙ sym l1) (lCancel l2)
+      ∙∙ sym (lUnit _)
+      ∙∙ sym (cong (cong f) square))
+
+  mainIso : Iso (coHom 1 G KleinBottle) (fst G × coHom 1 G RP²)
+  Iso.fun mainIso =
+    ST.rec (isSet× (is-set (snd G)) squash₂)
+      λ f → (ΩEM+1→EM-gen 0 _ (cong f line2)) , ∣ F→ f ∣₂
+  Iso.inv mainIso = uncurry λ g → ST.map (F← g)
+  Iso.rightInv mainIso = uncurry λ g
+    → ST.elim (λ _ → isOfHLevelPath 2 (isSet× (is-set (snd G)) squash₂) _ _)
+               λ f → ΣPathP ((Iso.leftInv (Iso-EM-ΩEM+1-gen 0 (f point)) g)
+                            , cong ∣_∣₂ (funExt (elimSetRP² (λ _ → hLevelEM G 1 _ _)
+                              refl λ i j → f (line i))))
+  Iso.leftInv mainIso = ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ (funExt (elimSet (λ _ → hLevelEM G 1 _ _)
+      refl
+      (λ i j → f (line1 i))
+      (flipSquare (Iso.rightInv (Iso-EM-ΩEM+1-gen 0 (f point)) (cong f line2)))))
+snd (H¹[K²,G]≅G×H¹[RP²,G] G) =
+  makeIsGroupHom (ST.elim2
+    (λ _ _ → isOfHLevelPath 2 lem  _ _)
+    (ConnK².elim₁ (isConnectedEM 1) (λ _ → isPropΠ λ _ → lem _ _) embase
+      λ p1 q1 r1
+   → ConnK².elim₁ (isConnectedEM 1) (λ _ → lem _ _) embase
+        λ p2 q2 r2 → ΣPathP (cong (ΩEM+1→EM 0) (cong₂+₁ q1 q2)
+                            ∙ ΩEM+1→EM-hom 0 q1 q2
+        , (cong ∣_∣₂ (funExt (elimSetRP² (λ _ → hLevelEM G 1 _ _)
+          refl
+          λ i j → (p1 i) +[ 1 ]ₖ (p2 i)))))))
+  where
+  lem = isSet× (is-set (snd G)) squash₂
+
+H¹[K²,G]≅G×G[2] : (G : AbGroup ℓ)
+  → AbGroupEquiv (coHomGr 1 G KleinBottle) (AbDirProd G (G [ 2 ]ₜ))
+H¹[K²,G]≅G×G[2] G =
+  compGroupEquiv (H¹[K²,G]≅G×H¹[RP²,G] G)
+    (GroupEquivDirProd idGroupEquiv (H¹[RP²,G]≅G[2] G))
+
+-- H²(K²,G)
+private
+  H²K²-helperFun₁ : (G : AbGroup ℓ) (n : ℕ)
+    → (Σ[ p ∈ Ω (EM∙ G (2 +ℕ n)) .fst ]
+              Σ[ q ∈ Ω (EM∙ G (2 +ℕ n)) .fst ] Square (sym p) p q q)
+    →  ((Σ[ p ∈ Ω (EM∙ G (2 +ℕ n)) .fst ]
+             p ≡ sym p))
+  H²K²-helperFun₁ G n (p , q , r) = (p , λ i j
+    → hcomp (λ k → λ {(i = i0) → rUnitₖ (suc (suc n)) (p j) k
+                      ; (i = i1) → rUnitₖ (suc (suc n)) (p (~ j)) k
+                      ; (j = i0) → rCancelₖ (suc (suc n)) (q (~ i)) k
+                      ; (j = i1) → rCancelₖ (suc (suc n)) (q (~ i)) k})
+            (r (~ i) j -[ suc (suc n) ]ₖ q (~ i) ))
+
+  H²K²-helperIso₁ : (G : AbGroup ℓ) (n : ℕ) →
+    Iso ∥ (Σ[ p ∈ Ω (EM∙ G (2 +ℕ n)) .fst ]
+              Σ[ q ∈ Ω (EM∙ G (2 +ℕ n)) .fst ] Square (sym p) p q q) ∥₂
+        ∥ (Σ[ x ∈ EM G (2 +ℕ n) ] (Σ[ p ∈ Ω (EM G (2 +ℕ n) , x) .fst ]
+              Σ[ q ∈ Ω (EM G (2 +ℕ n) , x) .fst ] Square (sym p) p q q)) ∥₂
+  Iso.fun (H²K²-helperIso₁ G n) = ST.map (0ₖ _ ,_)
+  Iso.inv (H²K²-helperIso₁ G n) = ST.rec squash₂
+    (uncurry (EM-raw'-elim G (2 +ℕ n)
+      (λ _ → isOfHLevelΠ (3 +ℕ n) λ _ → isOfHLevelPlus' {n = suc n} 2 squash₂)
+        (EM-raw'-trivElim G (suc n) (λ _
+          → isOfHLevelΠ (2 +ℕ n) λ _ → isOfHLevelPlus' {n = n} 2 squash₂)
+          ∣_∣₂)))
+  Iso.rightInv (H²K²-helperIso₁ G n) = ST.elim (λ _ → isSetPathImplicit)
+    (uncurry (EM-raw'-elim G (2 +ℕ n)
+      (λ _ → isOfHLevelΠ (3 +ℕ n)
+          λ _ → isOfHLevelPlus' {n = suc (suc n)} 1 (squash₂ _ _))
+        (EM-raw'-trivElim G (suc n) (λ _ → isOfHLevelΠ (2 +ℕ n)
+          λ _ → isOfHLevelPlus' {n = suc n} 1 (squash₂ _ _))
+        λ _ → refl)))
+  Iso.leftInv (H²K²-helperIso₁ G n) = ST.elim (λ _ → isSetPathImplicit) λ _ → refl
+
+  H²K²-helperIso₂ : (G : AbGroup ℓ) (n : ℕ) →
+    Iso ∥ (Σ[ p ∈ Ω (EM∙ G (2 +ℕ n)) .fst ]
+              Σ[ q ∈ Ω (EM∙ G (2 +ℕ n)) .fst ] Square (sym p) p q q) ∥₂
+        ∥ ((Σ[ p ∈ Ω (EM∙ G (2 +ℕ n)) .fst ]
+             p ≡ sym p)) ∥₂
+  Iso.fun (H²K²-helperIso₂ G n) = ST.map (H²K²-helperFun₁ G n)
+  Iso.inv (H²K²-helperIso₂ G n) = ST.map (λ p → fst p , refl , sym (snd p))
+  Iso.rightInv (H²K²-helperIso₂ G n) = ST.elim (λ _ → isSetPathImplicit) λ {(p , r)
+    → TR.rec (isProp→isOfHLevelSuc n (squash₂ _ _))
+        (λ { P → cong ∣_∣₂ (main p P r)})
+      ((F p .fst))}
+    where
+    F = isConnectedPath (suc n) (isConnectedPath (suc (suc n))
+          (isConnectedEM (suc (suc n))) _ _) refl
+    main : (p : Ω (EM∙ G (2 +ℕ n)) .fst) → refl ≡ p
+      → (r : p ≡ sym p)
+      → H²K²-helperFun₁ G n (p , refl , sym r) ≡ (p , r)
+    main = (J> λ r → (ΣPathP (refl , sym (rUnit _)
+      ∙ λ i j k → rUnitₖ (suc (suc n)) (r j k) i)))
+  Iso.leftInv (H²K²-helperIso₂ G n) = ST.elim (λ _ → isSetPathImplicit)
+    (uncurry λ p → TR.rec (isProp→isOfHLevelSuc n (isPropΠ (λ _ → squash₂ _ _ )))
+      (λ P → uncurry λ q → TR.rec (isProp→isOfHLevelSuc n (isPropΠ (λ _ → squash₂ _ _ )))
+        (λ Q x → cong ∣_∣₂ (main p P q Q x))
+        (F q .fst))
+      (F p .fst))
+    where
+    F = isConnectedPath (suc n) (isConnectedPath (suc (suc n))
+         (isConnectedEM (suc (suc n))) _ _) refl
+    main : (p : _) → refl ≡ p →
+        (q : _) → refl ≡ q →
+        (x : Square (sym p) p q q) →
+        (fst (H²K²-helperFun₁ G n (p , q , x))
+        , refl
+        , (λ i → snd (H²K²-helperFun₁ G n (p , q , x)) (~ i)))
+      ≡ (p , q , x)
+    main = J> (J> λ p → ΣPathP (refl , (ΣPathP (refl
+      , cong sym (sym (rUnit _))
+      ∙ λ i j k → rUnitₖ (suc (suc n)) (p j k) i))))
+
+  Iso-H²⁺ⁿ[K²,G]-H²⁺ⁿ[RP²,G] : (G : AbGroup ℓ) (n : ℕ)
+    → Iso (coHom (2 +ℕ n) G KleinBottle)
+           (coHom (2 +ℕ n) G RP²)
+  Iso-H²⁺ⁿ[K²,G]-H²⁺ⁿ[RP²,G] G n =
+    compIso
+      (setTruncIso
+        (compIso K²FunCharacIso
+                 (Σ-cong-iso-snd λ p → Σ-cong-iso-snd λ q
+                   → Σ-cong-iso-snd λ r → equivToIso flipSquareEquiv)))
+      (compIso (invIso (H²K²-helperIso₁ G n))
+      (compIso (H²K²-helperIso₂ G n)
+               (compIso (invIso (killFirstCompIsoGen G n))
+                 (setTruncIso (invIso RP²FunCharacIso)))))
+
+H²[RP²,G]≅H²[K²,G] : (G : AbGroup ℓ)
+  → AbGroupEquiv (coHomGr 2 G RP²) (coHomGr 2 G KleinBottle)
+fst (H²[RP²,G]≅H²[K²,G] G) = isoToEquiv (invIso (Iso-H²⁺ⁿ[K²,G]-H²⁺ⁿ[RP²,G] G 0))
+snd (H²[RP²,G]≅H²[K²,G] G) =
+  makeIsGroupHom (ST.elim (λ _ → isSetΠ λ _ → isSetPathImplicit)
+    (RP²Conn.elim₂ (isConnectedEM 2)
+      (λ _ → isPropΠ λ _ → squash₂ _ _)
+      (0ₖ 2)
+      λ p → ST.elim (λ _ → isSetPathImplicit)
+        (RP²Conn.elim₂ (isConnectedEM 2)
+              (λ _ → squash₂ _ _)
+              (0ₖ 2) λ q
+              → cong ∣_∣₂ (funExt λ { point → refl
+                                  ; (line1 i) → refl
+                                  ; (line2 i) → refl
+                                  ; (square i i₁) → refl}))))
+
+H²⁺ⁿ[K²,G]≅H²⁺ⁿ[RP²,G] : (G : AbGroup ℓ) (n : ℕ)
+  → AbGroupEquiv (coHomGr (2 +ℕ n) G KleinBottle)
+                  (coHomGr (2 +ℕ n) G RP²)
+fst (H²⁺ⁿ[K²,G]≅H²⁺ⁿ[RP²,G] G n) = isoToEquiv (Iso-H²⁺ⁿ[K²,G]-H²⁺ⁿ[RP²,G] G n)
+snd (H²⁺ⁿ[K²,G]≅H²⁺ⁿ[RP²,G] G zero) = invGroupEquiv (H²[RP²,G]≅H²[K²,G] G) .snd
+snd (H²⁺ⁿ[K²,G]≅H²⁺ⁿ[RP²,G] G (suc n)) =
+  makeIsGroupHom λ _ _ → isContr→isProp
+    (isOfHLevelRetractFromIso 0 (equivToIso (fst (H³⁺ⁿ[RP²,G]≅0 G n)))
+      isContrUnit*) _ _
+
+H²[K²,G]≅G/2 : (G : AbGroup ℓ)
+  → AbGroupEquiv (coHomGr 2 G KleinBottle)
+                  (G /^ 2)
+H²[K²,G]≅G/2 G = compGroupEquiv (H²⁺ⁿ[K²,G]≅H²⁺ⁿ[RP²,G] G 0) (H²[RP²,G]≅G/2 G)
+
+H³⁺ⁿ[K²,G]≅0 : (n : ℕ) (G : AbGroup ℓ)
   → AbGroupEquiv (coHomGr (3 +ℕ n) G KleinBottle) (trivialAbGroup {ℓ})
-fst (H³⁺ⁿK²≅0 n G) = isContr→Equiv (isContr-HⁿKleinBottle n G) isContrUnit*
-snd (H³⁺ⁿK²≅0 n G) = makeIsGroupHom λ _ _ → refl
+H³⁺ⁿ[K²,G]≅0 n G = compGroupEquiv (H²⁺ⁿ[K²,G]≅H²⁺ⁿ[RP²,G] G (suc n)) (H³⁺ⁿ[RP²,G]≅0 G n)

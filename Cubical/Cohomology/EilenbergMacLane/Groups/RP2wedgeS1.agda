@@ -29,6 +29,7 @@ open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.AbGroup.Instances.Unit
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as TR

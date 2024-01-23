@@ -11,6 +11,10 @@ open import Cubical.Foundations.GroupoidLaws
 _⋁_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Type (ℓ-max ℓ ℓ')
 _⋁_ (A , ptA) (B , ptB) = Pushout {A = Unit} {B = A} {C = B} (λ _ → ptA) (λ _ → ptB)
 
+-- Arbitrary wedges
+⋁gen : ∀ {ℓ ℓ'} (A : Type ℓ) (B : A → Pointed ℓ') → Type (ℓ-max ℓ ℓ')
+⋁gen A B = cofib {A = A} {B = Σ A λ a → fst (B a)}
+                  (λ a → a , snd (B a))
 
 -- Pointed versions
 _⋁∙ₗ_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
@@ -18,6 +22,9 @@ A ⋁∙ₗ B = (A ⋁ B) , (inl (snd A))
 
 _⋁∙ᵣ_ : ∀ {ℓ ℓ'} → Pointed ℓ → Pointed ℓ' → Pointed (ℓ-max ℓ ℓ')
 A ⋁∙ᵣ B = (A ⋁ B) , (inr (snd B))
+
+⋁gen∙ : ∀ {ℓ ℓ'} (A : Type ℓ) (B : A → Pointed ℓ') → Pointed (ℓ-max ℓ ℓ')
+⋁gen∙ A B = ⋁gen A B , inl tt
 
 -- Wedge sums of functions
 _∨→_ : ∀ {ℓ ℓ' ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}

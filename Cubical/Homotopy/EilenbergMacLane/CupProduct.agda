@@ -20,10 +20,12 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
 
 open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Truncation
+open import Cubical.HITs.Truncation as TR
 
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Data.Nat hiding (_·_) renaming (elim to ℕelim ; _+_ to _+ℕ_)
@@ -167,6 +169,48 @@ module _ {G'' : Ring ℓ} where
       EMFun-EM→ΩEM+1 _ (_⌣ₖ⊗_{n = (suc n)} {m = suc m} x y)
     ∙ cong (cong (inducedFun-EM TensorMultHom (suc (suc n) +' suc m)))
            (EM→ΩEM+1-distrₙsuc n m x y)
+
+  ΩEM+1→EM-distr⌣ₖ0n : (n : ℕ)
+    → (x : EM G' zero) (y : Path (EM G' (suc n)) _ _)
+    → _⌣ₖ_ {n = zero} {m = n} x (ΩEM+1→EM n y)
+     ≡ ΩEM+1→EM-gen n _ λ i → _⌣ₖ_ {n = zero} {suc n} x (y i)
+  ΩEM+1→EM-distr⌣ₖ0n zero x y =
+    sym (Iso.leftInv (Iso-EM-ΩEM+1 0) _)
+    ∙ cong (ΩEM+1→EM 0)
+      λ j i → _⌣ₖ_ {n = zero} {1} x (Iso.rightInv (Iso-EM-ΩEM+1 0) y j i)
+  ΩEM+1→EM-distr⌣ₖ0n (suc n) x y =
+    sym (Iso.leftInv (Iso-EM-ΩEM+1 (suc n)) _)
+    ∙ cong (ΩEM+1→EM (suc n)) (EM→ΩEM+1-distr⌣ₖ0n n x (ΩEM+1→EM (suc n) y))
+    ∙ cong (ΩEM+1→EM (suc n)) (help n (ΩEM+1→EM (suc n) y)
+      ∙ cong (cong (_⌣ₖ_ {n = zero} {suc (suc n)} x))
+        (Iso.rightInv (Iso-EM-ΩEM+1 (suc n)) y))
+    where
+    help : (n : ℕ) (y : EM G' (suc n))
+      → (λ i → _⌣ₖ_ {n = suc zero} {suc n} (EM→ΩEM+1 0 x i) y)
+        ≡ cong (_⌣ₖ_ {n = zero} {suc (suc n)} x) (EM→ΩEM+1 (suc n) y)
+    help zero a =
+      (rUnit _
+      ∙ cong₂ _∙_ refl
+        (cong (cong (EMTensorMult (suc (suc zero))))
+          (cong sym (sym (EM→ΩEM+1-0ₖ (suc zero)))
+          ∙ cong (sym ∘ EM→ΩEM+1 (suc zero))
+            (sym (⌣ₖ-0ₖ⊗ {G' = G'} {H' = G'} zero (suc zero) x)))))
+      ∙ sym (cong-∙ ((λ y → _⌣ₖ_ {n = zero} {suc (suc zero)} x ∣ y ∣ₕ))
+            (merid a)
+            (sym (merid embase)))
+    help (suc n) = TR.elim
+      (λ _ → isOfHLevelPath' (4 +ℕ n)
+              (isOfHLevelPath (5 +ℕ n) (hLevelEM G' (3 +ℕ n)) _ _) _ _)
+      λ a → rUnit _
+      ∙ cong₂ _∙_ refl
+        (cong (cong (EMTensorMult (suc (suc (suc n)))))
+          (cong sym (sym (EM→ΩEM+1-0ₖ (suc (suc n))))
+          ∙ cong (sym ∘ EM→ΩEM+1 (suc (suc n)))
+            (sym (⌣ₖ-0ₖ⊗ {G' = G'} {H' = G'} zero (suc (suc n)) x))))
+      ∙ sym (cong-∙ ((λ y → _⌣ₖ_ {n = zero} {suc (suc (suc n))} x ∣ y ∣ₕ))
+            (merid a)
+            (sym (merid north)))
+
 
 -- graded commutativity
 module _ {G'' : CommRing ℓ} where

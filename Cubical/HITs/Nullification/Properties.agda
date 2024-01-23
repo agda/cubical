@@ -17,6 +17,7 @@ open import Cubical.Modalities.Modality
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.HITs.Localization renaming (rec to Localize-rec)
 open import Cubical.Data.Unit
+open import Cubical.Data.Sigma
 
 open import Cubical.HITs.Nullification.Base
 
@@ -49,6 +50,21 @@ isNullΠ {S = S} {X = X} {Y = Y} nY α = fromIsEquiv _ (snd e)
       ((x : X) → (S α → Y x))
         ≃⟨ isoToEquiv flipIso ⟩
       (S α → ((x : X) → Y x))
+        ■
+
+isNullΣ : {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : X → Type ℓ'} → (isNull S X) → ((x : X) → isNull S (Y x)) →
+  isNull S (Σ X Y)
+isNullΣ {S = S} {X = X} {Y = Y} nX nY α = fromIsEquiv _ (snd e)
+  where
+    e : Σ X Y ≃ (S α → Σ X Y)
+    e =
+      Σ X Y
+        ≃⟨ Σ-cong-equiv-snd (λ x → pathSplitToEquiv (_ , (nY x α))) ⟩
+      Σ[ x ∈ X ] (S α → Y x)
+        ≃⟨ Σ-cong-equiv-fst (pathSplitToEquiv (_ , (nX α))) ⟩
+      Σ[ f ∈ (S α → X) ] ((z : S α) → Y (f z))
+        ≃⟨ isoToEquiv (invIso Σ-Π-Iso) ⟩
+      (S α → Σ X Y)
         ■
 
 rec : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'}

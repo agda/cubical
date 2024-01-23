@@ -1,4 +1,4 @@
-{- Conatural numbers (Tesla Ice Zhang, Feb. 2019)
+{- Conatural numbers (Tesla Zhang, Feb. 2019)
 
 This file defines:
 
@@ -30,7 +30,6 @@ record Conat : Type₀
 Conat′ = Unit ⊎ Conat
 record Conat where
   coinductive
-  constructor conat′
   field force : Conat′
 open Conat public
 

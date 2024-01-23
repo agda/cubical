@@ -24,7 +24,7 @@ open import Cubical.Data.Rationals.MoreRationals.QuoQ
 
 open import Cubical.Algebra.Field
 open import Cubical.Algebra.CommRing
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.CommRing.Instances.QuoInt
 open import Cubical.Algebra.CommRing.Instances.Rationals
 
@@ -38,10 +38,10 @@ private
     open CommRingStr (𝓡 .snd)
 
     helper1 : (x y : 𝓡 .fst) → (x · y) · 1r ≡ 1r · (y · x)
-    helper1 = solve 𝓡
+    helper1 _ _ = solve! 𝓡
 
     helper2 : (x y : 𝓡 .fst) → ((- x) · (- y)) · 1r ≡ 1r · (y · x)
-    helper2 = solve 𝓡
+    helper2 _ _ = solve! 𝓡
 
 
 -- A rational number is zero if and only if its numerator is zero
