@@ -6,91 +6,44 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Transport
 
-open import Cubical.Cohomology.EilenbergMacLane.Groups.RP2wedgeS1
 open import Cubical.Cohomology.EilenbergMacLane.Base
-open import Cubical.Cohomology.EilenbergMacLane.Groups.RPinf
 open import Cubical.Cohomology.EilenbergMacLane.CupProduct
-
-open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
-open import Cubical.Homotopy.EilenbergMacLane.Order2
-open import Cubical.Homotopy.EilenbergMacLane.Properties
-open import Cubical.Homotopy.EilenbergMacLane.Base
-open import Cubical.Homotopy.EilenbergMacLane.CupProduct
-open import Cubical.Homotopy.EilenbergMacLane.CupProductTensor
-  renaming (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
-open import Cubical.Homotopy.Loopspace
-open import Cubical.Homotopy.Connected
+open import Cubical.Cohomology.EilenbergMacLane.Groups.RPinf
 open import Cubical.Cohomology.EilenbergMacLane.RingStructure
-open import Cubical.Cohomology.EilenbergMacLane.Rings.Z2-properties
+
+open import Cubical.Homotopy.EilenbergMacLane.Base
+open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
+open import Cubical.Homotopy.EilenbergMacLane.Properties
+open import Cubical.Homotopy.EilenbergMacLane.CupProduct
+open import Cubical.Homotopy.Connected
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
-open import Cubical.Data.Nat.Order
-open import Cubical.Data.Unit
 open import Cubical.Data.Fin
-open import Cubical.Data.Sum
 open import Cubical.Data.Fin.Arithmetic
-open import Cubical.Data.Sigma
 open import Cubical.Data.Vec
-open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.FinData renaming (Fin to FinI)
 
-open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
-open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as TR
-open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _sq/_)
-open import Cubical.HITs.EilenbergMacLane1 hiding (elimProp ; elimSet)
-open import Cubical.HITs.Susp
-open import Cubical.HITs.Pushout
-open import Cubical.HITs.S1 renaming (rec to S¹Fun)
-open import Cubical.HITs.Sn
 open import Cubical.HITs.RPn
-open import Cubical.HITs.Wedge
-open import Cubical.Algebra.GradedRing.DirectSumHIT
 
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.GradedRing.DirectSumHIT
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.IntMod
-open import Cubical.Algebra.AbGroup hiding (_[_])
-open import Cubical.Algebra.AbGroup.Instances.Unit
+open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.IntMod
-
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.AbGroup.TensorProduct
-open import Cubical.Algebra.Monoid
-
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.FGIdeal
-open import Cubical.Algebra.CommRing.Quotient
 open import Cubical.Algebra.CommRing.Instances.IntMod
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ2
-
 open import Cubical.Algebra.Monoid.Instances.Nat
-
-open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties
-
-open import Cubical.Data.Fin.Arithmetic
-open import Cubical.Cohomology.EilenbergMacLane.CupProduct
-
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Transport
-open import Cubical.Homotopy.Connected
-open import Cubical.HITs.Truncation as TR
 
 open Iso
 open PlusBis
 open RingTheory
-
-open AbGroupStr
 
 eRP∞^ : (n : ℕ) → coHom n ℤ/2 (EM ℤ/2 1)
 eRP∞^ zero = 1ₕ {G'' = ℤ/2Ring}
@@ -253,18 +206,13 @@ module _ {ℓ : Level} (n : ℕ) where
   ℤ₂[X]→H*[RP∞,ℤ₂]-main : Vec ℕ 1 → ℤ/2 .fst → fst (H*R ℤ/2Ring RP∞)
   ℤ₂[X]→H*[RP∞,ℤ₂]-main (n ∷ []) g = base n (ℤ/2≅HⁿRP∞ n .fst .fst g)
 
-  base* = base {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP∞}
-                   {AGP = λ n → coHomGr n ℤ/2 RP∞ .snd}
-
-  base-neutral* =
-    base-neutral {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP∞}
-                     {AGP = λ n → coHomGr n ℤ/2 RP∞ .snd}
-
   ℤ₂[X]→H*[RP∞,ℤ₂]-main-coh₁ : (r : Vec ℕ 1) →
       ℤ₂[X]→H*[RP∞,ℤ₂]-main r fzero ≡ neutral
   ℤ₂[X]→H*[RP∞,ℤ₂]-main-coh₁ (n ∷ []) =
-      (λ i → base* n (ℤ/2≅HⁿRP∞pres0 n i))
-      ∙ base-neutral n
+      (λ i → base {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP∞}
+                   {AGP = λ n → coHomGr n ℤ/2 RP∞ .snd} n (ℤ/2≅HⁿRP∞pres0 n i))
+      ∙ base-neutral {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP∞}
+                     {AGP = λ n → coHomGr n ℤ/2 RP∞ .snd} n
 
   ℤ₂[X]→H*[RP∞,ℤ₂]-fun : ℤ₂[x] → fst (H*R ℤ/2Ring RP∞)
   ℤ₂[X]→H*[RP∞,ℤ₂]-fun =
@@ -309,106 +257,61 @@ module _ {ℓ : Level} (n : ℕ) where
            (·DistL+Z₂ x y z)
         ∙ cong₂ _add_ (p z) (q z)
     where
-    main-main : (v w : Vec ℕ 1)
-          → ℤ₂[X]→H*[RP∞,ℤ₂]-fun (base v fone ·Z₂X base w fone)
-           ≡ ℤ₂[X]→H*[RP∞,ℤ₂]-fun (base v fone)
-       cupS (ℤ₂[X]→H*[RP∞,ℤ₂]-fun (base w fone))
-    main-main = {!!}
-
-
     main : (v w : Vec ℕ 1) (a b : ℤ/2 .fst)
       → ℤ₂[X]→H*[RP∞,ℤ₂]-fun (base v a ·Z₂X base w b)
        ≡ ℤ₂[X]→H*[RP∞,ℤ₂]-fun (base v a) cupS ℤ₂[X]→H*[RP∞,ℤ₂]-fun (base w b)
     main (n ∷ []) (m ∷ []) a b =
-        cong (base* (n +ℕ m)) {!!}
-      ∙ {!!}
-      ∙ ? -- cong (base* (n +' m)) (HⁿRP∞≅ℤ/2⌣ n m a b)
+        (λ i → base {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP∞}
+                    {AGP = λ n → coHomGr n ℤ/2 RP∞ .snd}
+                    (+'≡+ n m (~ i))
+                    (inv (cohomRP∞Iso (+'≡+ n m (~ i))) (a ·ₘ b)))
+      ∙ λ i → base {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP∞}
+                    {AGP = λ n → coHomGr n ℤ/2 RP∞ .snd} (n +' m)
+                    (HⁿRP∞≅ℤ/2⌣ n m a b i)
 
-  -- ℤ₂[X]→H*[RP∞,ℤ₂] : RingHom ℤ₂[X] (H*R ℤ/2Ring RP∞)
-  -- fst ℤ₂[X]→H*[RP∞,ℤ₂] = ℤ₂[X]→H*[RP∞,ℤ₂]-fun
-  -- snd ℤ₂[X]→H*[RP∞,ℤ₂] = makeIsRingHom refl (λ _ _ → refl) ℤ/2[X]→H*[RP∞,ℤ/2]-pres·
+  ℤ₂[X]→H*[RP∞,ℤ₂] : RingHom ℤ₂[X] (H*R ℤ/2Ring RP∞)
+  fst ℤ₂[X]→H*[RP∞,ℤ₂] = ℤ₂[X]→H*[RP∞,ℤ₂]-fun
+  snd ℤ₂[X]→H*[RP∞,ℤ₂] = makeIsRingHom refl (λ _ _ → refl) ℤ/2[X]→H*[RP∞,ℤ/2]-pres·
 
-  -- open Quotient-FGideal-CommRing-Ring (PolyCommRing ℤ/2CommRing 1) (H*R ℤ/2Ring RP∞)
-  --    ℤ₂[X]→H*[RP∞,ℤ₂] (<Xkʲ> ℤ/2CommRing 1 0 3)
-  --     (λ { zero → base-neutral _})
+  H*[RP∞,ℤ₂]→ℤ₂[X] : H*R ℤ/2Ring RP∞ .fst → ℤ₂[X] .fst
+  H*[RP∞,ℤ₂]→ℤ₂[X] = DS-Rec-Set.f _ _ _ _ trunc
+    neutral
+    (λ r x → base (r ∷ []) (invEq (ℤ/2≅HⁿRP∞ r .fst) x))
+    (RingStr._+_ (snd ℤ₂[X]))
+    (RingStr.+Assoc (snd ℤ₂[X]))
+    (RingStr.+IdR (snd ℤ₂[X]))
+    (RingStr.+Comm (snd ℤ₂[X]))
+    (λ r → cong (base (r ∷ []))
+      (IsGroupHom.pres1 (invGroupEquiv (ℤ/2≅HⁿRP∞ r) .snd))
+      ∙ base-neutral _)
+    λ r a b → base-add (r ∷ []) _ _
+      ∙ cong (base (r ∷ []))
+        (sym (IsGroupHom.pres· (invGroupEquiv (ℤ/2≅HⁿRP∞ r) .snd) a b))
 
-  -- ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] : RingHom (CommRing→Ring ℤ₂[X]/<X³>) (H*R ℤ/2Ring RP∞)
-  -- ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] = inducedHom
+  ℤ₂[X]→H*[RP∞,ℤ₂]→ℤ₂[X] : (x : _)
+    → H*[RP∞,ℤ₂]→ℤ₂[X] (ℤ₂[X]→H*[RP∞,ℤ₂] .fst x) ≡ x
+  ℤ₂[X]→H*[RP∞,ℤ₂]→ℤ₂[X] = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
+    refl
+    (λ{ (x ∷ []) a → cong (base (x ∷ [])) (retEq (ℤ/2≅HⁿRP∞ x .fst) a)})
+    (λ p q → cong₂ _add_ p q)
 
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>-fun' : (r : ℕ) → coHom r ℤ/2 RP∞ → ℤ/2 .fst
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>-fun' zero x = H⁰[RP∞,ℤ/2]≅ℤ/2 .fst .fst x
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>-fun' one x = H¹[RP∞,ℤ/2]≅ℤ/2 .fst .fst x
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>-fun' two x = H²[RP∞,ℤ/2]≅ℤ/2 .fst .fst x
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>-fun' (suc (suc (suc r))) x = fzero
+  H*[RP∞,ℤ₂]→ℤ₂[X]→H*[RP∞,ℤ₂] : (x : _)
+    → ℤ₂[X]→H*[RP∞,ℤ₂] .fst (H*[RP∞,ℤ₂]→ℤ₂[X] x) ≡ x
+  H*[RP∞,ℤ₂]→ℤ₂[X]→H*[RP∞,ℤ₂] = DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
+    refl
+    (λ{ x a → cong (base {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP∞}
+                    {AGP = λ n → coHomGr n ℤ/2 RP∞ .snd} x)
+                    (secEq (ℤ/2≅HⁿRP∞ x .fst) a)})
+    λ p q → cong₂ (_add_ {Idx = ℕ} {P = λ n → coHom n ℤ/2 RP∞}
+                          {AGP = λ n → coHomGr n ℤ/2 RP∞ .snd})
+                   p q
 
 
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>-fun : (r : ℕ) → coHom r ℤ/2 RP∞ → ℤ₂[X]/<X³> .fst
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>-fun r x = [ base (r ∷ []) (H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>-fun' r x) ]
+  ℤ₂[X]≅H*[RP∞,ℤ₂] : RingEquiv ℤ₂[X] (H*R ℤ/2Ring RP∞)
+  fst ℤ₂[X]≅H*[RP∞,ℤ₂] =
+    isoToEquiv (iso (ℤ₂[X]→H*[RP∞,ℤ₂] .fst) H*[RP∞,ℤ₂]→ℤ₂[X]
+                    H*[RP∞,ℤ₂]→ℤ₂[X]→H*[RP∞,ℤ₂] ℤ₂[X]→H*[RP∞,ℤ₂]→ℤ₂[X])
+  snd ℤ₂[X]≅H*[RP∞,ℤ₂] = ℤ₂[X]→H*[RP∞,ℤ₂] .snd
 
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³> : H*R ℤ/2Ring RP∞ .fst → ℤ₂[X]/<X³> .fst
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³> = DS-Rec-Set.f _ _ _ _ squash/
-  --   [ neutral ]
-  --   H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>-fun
-  --   (CommRingStr._+_ (snd ℤ₂[X]/<X³>))
-  --   (CommRingStr.+Assoc (snd ℤ₂[X]/<X³>))
-  --   (CommRingStr.+IdR (snd ℤ₂[X]/<X³>))
-  --   (CommRingStr.+Comm (snd ℤ₂[X]/<X³>))
-  --   (λ { zero → cong [_] (base-neutral (0 ∷ []))
-  --       ; one → cong [_] (cong (base (1 ∷ [])) (IsGroupHom.pres1 (snd (H¹[RP∞,ℤ/2]≅ℤ/2)))
-  --               ∙ base-neutral (1 ∷ []))
-  --       ; two → cong [_] (cong (base (2 ∷ [])) (IsGroupHom.pres1 (snd (H²[RP∞,ℤ/2]≅ℤ/2)))
-  --               ∙ base-neutral (2 ∷ []))
-  --       ; (suc (suc (suc r))) → cong [_] (base-neutral _)})
-  --   (λ { zero a b → cong [_] (base-add (0 ∷ []) _ _
-  --                            ∙ cong (base (0 ∷ []))
-  --                               (sym (IsGroupHom.pres· (snd (H⁰[RP∞,ℤ/2]≅ℤ/2)) a b)))
-  --       ; one a b → cong [_] (base-add (1 ∷ []) _ _
-  --                            ∙ cong (base (1 ∷ []))
-  --                               (sym (IsGroupHom.pres· (snd (H¹[RP∞,ℤ/2]≅ℤ/2)) a b)))
-  --       ; two a b → cong [_] (base-add (2 ∷ []) _ _
-  --                            ∙ cong (base (2 ∷ []))
-  --                               (sym (IsGroupHom.pres· (snd (H²[RP∞,ℤ/2]≅ℤ/2)) a b)))
-  --       ; (suc (suc (suc r))) a b
-  --         → cong [_] (cong₂ _add_ refl (base-neutral (3 +ℕ r ∷ []))
-  --                    ∙ addRid _)})
-
-  -- ℤ₂[X]/<X³>→H*[RP∞,ℤ₂]→ℤ₂[X]/<X³> : (x : _)
-  --   → H*[RP∞,ℤ₂]→ℤ₂[X]/<X³> (ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] .fst x) ≡ x
-  -- ℤ₂[X]/<X³>→H*[RP∞,ℤ₂]→ℤ₂[X]/<X³> = SQ.elimProp (λ _ → squash/ _ _)
-  --   (DS-Ind-Prop.f _ _ _ _ (λ _ → squash/ _ _)
-  --   refl
-  --   (λ { (zero ∷ []) a → cong [_] (cong (base (zero ∷ []))
-  --                          (secEq (H⁰[RP∞,ℤ/2]≅ℤ/2 .fst) a))
-  --      ; (one ∷ []) a → cong [_] (cong (base (one ∷ []))
-  --                          (secEq (H¹[RP∞,ℤ/2]≅ℤ/2 .fst) a))
-  --      ; (two ∷ []) a → cong [_] (cong (base (two ∷ []))
-  --                          (secEq (H²[RP∞,ℤ/2]≅ℤ/2 .fst) a))
-  --      ; (suc (suc (suc r)) ∷ []) → ℤ/2-elim refl
-  --        (sym (eq/ _ _ ∣ (λ {zero → base (r ∷ []) fone})
-  --          , ((cong₂ _add_ refl (base-neutral _)
-  --          ∙ addRid _
-  --          ∙ λ i → base (+-comm 3 r i ∷ []) fone))
-  --          ∙ sym (addRid _) ∣₁))})
-  --   (λ p q → cong₂ (CommRingStr._+_ (snd ℤ₂[X]/<X³>)) p q))
-
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] : (x : H*R ℤ/2Ring RP∞ .fst)
-  --   → ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] .fst (H*[RP∞,ℤ₂]→ℤ₂[X]/<X³> x) ≡ x
-  -- H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] = DS-Ind-Prop.f _ _ _ _
-  --   (λ _ → trunc _ _)
-  --   refl
-  --   (λ { zero x → cong (base zero) (retEq (H⁰[RP∞,ℤ/2]≅ℤ/2 .fst) x)
-  --      ; one x → cong (base one) (retEq (H¹[RP∞,ℤ/2]≅ℤ/2 .fst) x)
-  --      ; two x → cong (base two) (retEq (H²[RP∞,ℤ/2]≅ℤ/2 .fst) x)
-  --      ; (suc (suc (suc r))) x → cong (base (3 +ℕ r))
-  --        (isContr→isProp (isContrH³⁺ⁿ[RP∞,G] r ℤ/2) _ _)})
-  --   λ {x} {y} p q
-  --     → (IsRingHom.pres+ (ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] .snd) _ _ ∙ cong₂ _add_ p q)
-
-  -- ℤ₂[X]/<X³>≅H*[RP∞,ℤ₂] : RingEquiv (CommRing→Ring ℤ₂[X]/<X³>) (H*R ℤ/2Ring RP∞)
-  -- fst ℤ₂[X]/<X³>≅H*[RP∞,ℤ₂] =
-  --   isoToEquiv (iso (ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] .fst) H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>
-  --                   H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] ℤ₂[X]/<X³>→H*[RP∞,ℤ₂]→ℤ₂[X]/<X³>)
-  -- snd ℤ₂[X]/<X³>≅H*[RP∞,ℤ₂] = ℤ₂[X]/<X³>→H*[RP∞,ℤ₂] .snd
-
-  -- H*[RP∞,ℤ₂]≅ℤ₂[X]/<X³> : RingEquiv (H*R ℤ/2Ring RP∞) (CommRing→Ring ℤ₂[X]/<X³>)
-  -- H*[RP∞,ℤ₂]≅ℤ₂[X]/<X³> = RingEquivs.invRingEquiv ℤ₂[X]/<X³>≅H*[RP∞,ℤ₂]
+  H*[RP∞,ℤ₂]≅ℤ₂[X] : RingEquiv (H*R ℤ/2Ring RP∞) ℤ₂[X]
+  H*[RP∞,ℤ₂]≅ℤ₂[X] = RingEquivs.invRingEquiv ℤ₂[X]≅H*[RP∞,ℤ₂]

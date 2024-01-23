@@ -2,91 +2,59 @@
 module Cubical.Cohomology.EilenbergMacLane.Rings.RP2 where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.Cohomology.EilenbergMacLane.Groups.RP2
-
 open import Cubical.Cohomology.EilenbergMacLane.Base
-open import Cubical.Cohomology.EilenbergMacLane.Groups.Connected
 open import Cubical.Cohomology.EilenbergMacLane.Groups.RP2
-open import Cubical.Cohomology.EilenbergMacLane.Groups.Sn
-open import Cubical.Cohomology.EilenbergMacLane.Groups.Wedge
-open import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle
 open import Cubical.Cohomology.EilenbergMacLane.CupProduct
 open import Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle hiding (α↦1)
 open import Cubical.Cohomology.EilenbergMacLane.Rings.RP2wedgeS1
+open import Cubical.Cohomology.EilenbergMacLane.RingStructure
 
-open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
-open import Cubical.Homotopy.EilenbergMacLane.Order2
-open import Cubical.Homotopy.EilenbergMacLane.Properties
 open import Cubical.Homotopy.EilenbergMacLane.Base
+open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
+open import Cubical.Homotopy.EilenbergMacLane.Properties
 open import Cubical.Homotopy.EilenbergMacLane.CupProduct
 open import Cubical.Homotopy.EilenbergMacLane.CupProductTensor
   renaming (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
 open import Cubical.Homotopy.Loopspace
-open import Cubical.Homotopy.Connected
-open import Cubical.Cohomology.EilenbergMacLane.RingStructure
-open import Cubical.Cohomology.EilenbergMacLane.Rings.Z2-properties
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
-open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
 open import Cubical.Data.Fin
-open import Cubical.Data.Sum
 open import Cubical.Data.Fin.Arithmetic
-open import Cubical.Data.Sigma
 open import Cubical.Data.Vec
-open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.FinData renaming (Fin to FinI)
 
-open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _sq/_)
 open import Cubical.HITs.EilenbergMacLane1 hiding (elimProp ; elimSet)
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Pushout
-open import Cubical.HITs.S1 renaming (rec to S¹Fun)
-open import Cubical.HITs.Sn
 open import Cubical.HITs.RPn
-open import Cubical.HITs.Wedge
-open import Cubical.Algebra.GradedRing.DirectSumHIT
 
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.GradedRing.DirectSumHIT
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.IntMod
-open import Cubical.Algebra.AbGroup hiding (_[_])
-open import Cubical.Algebra.AbGroup.Instances.Unit
+open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.AbGroup.TensorProduct
-open import Cubical.Algebra.Monoid
-
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.Quotient
 open import Cubical.Algebra.CommRing.Instances.IntMod
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ2
 open import Cubical.Algebra.AbGroup.Instances.IntMod
-
 open import Cubical.Algebra.Monoid.Instances.Nat
 
-open Iso
 open PlusBis
 open RingTheory
-
-open AbGroupStr
 
 
 private
@@ -97,8 +65,6 @@ private
 
   α↦1 : H¹[RP²,ℤ/2]≅ℤ/2 .fst .fst α ≡ 1
   α↦1 = refl
-
-  w = RP²∨S¹→K₂-fun
 
   γ-raw : RP² → EM ℤ/2 2
   γ-raw = RP²Fun (0ₖ 2) refl (Iso.inv Iso-Ω²K₂-ℤ/2 1)
@@ -199,10 +165,8 @@ private
            (cong (EM→ΩEM+1 1) (EM→ΩEM+1 0 1))
            (EM→ΩEM+1-0ₖ 1) k i j)))
 
-α²=γ : _⌣_ {G'' = ℤ/2Ring} α α ≡ γ
-α²=γ = cong ∣_∣₂ (funExt α²-raw')
-
-
+α²≡γ : _⌣_ {G'' = ℤ/2Ring} α α ≡ γ
+α²≡γ = cong ∣_∣₂ (funExt α²-raw')
 
 -- open import Cubical.Agebra.Monoids.Instance.NatVec
 
@@ -258,7 +222,7 @@ module _ {ℓ : Level} (n : ℕ) where
   γ* = base 2 γ
 
   α*²≡γ* : α* cupS α* ≡ γ*
-  α*²≡γ* = cong (base 2) α²=γ
+  α*²≡γ* = cong (base 2) α²≡γ
 
   α-isGen : base 1 (invEq (fst (H¹[RP²,ℤ/2]≅ℤ/2)) fone) ≡ α*
   α-isGen = cong (base 1)
@@ -314,47 +278,11 @@ module _ {ℓ : Level} (n : ℕ) where
       ℤ₂[X]→H*[RP²,ℤ₂]-main-coh₁
       ℤ₂[X]→H*[RP²,ℤ₂]-main-coh₂
 
-  open import Cubical.Foundations.Equiv.Properties
-  open import Cubical.Foundations.Transport
-{-
-  Hⁿ[Sⁿ,G]≅G-pres⌣ : (n : ℕ) (G : Ring ℓ) (g : fst G)
-    (x : coHom (suc n) (Ring→AbGroup G) (S₊ (suc n)))
-    → Hⁿ[Sⁿ,G]≅G (Ring→AbGroup G)  n .fst .fst
-        (_⌣_ {G'' = G} {n = 0} {suc n} ∣ (λ _ → g) ∣₂ x)
-    ≡ RingStr._·_ (snd G) g (Hⁿ[Sⁿ,G]≅G (Ring→AbGroup G)  n .fst .fst x)
-  Hⁿ[Sⁿ,G]≅G-pres⌣ zero G g =
-    ST.elim (λ _ → isOfHLevelPath 2 (RingStr.is-set (snd G)) _ _)
-      (S¹-connElim (isConnectedEM 1)
-        (λ _ → RingStr.is-set (snd G) _ _)
-        embase
-        λ p → cong (H¹S¹→G (Ring→AbGroup G))
-                (cong (_⌣_ {G'' = G} {n = 0} {1} ∣ (λ _ → g) ∣₂)
-                  (cong (∣_∣₂ ∘ S¹Fun embase)
-                    (sym (Iso.rightInv (Iso-EM-ΩEM+1 0) p))))
-            ∙∙ help (ΩEM+1→EM 0 p)
-            ∙∙ cong (RingStr._·_ (snd G) g) (λ _ → ΩEM+1→EM 0 p))
-    where
-    help : (h : fst G)
-      → H¹S¹→G (Ring→AbGroup G)
-          (_⌣_ {G'' = G} {n = 0} {1} ∣ (λ _ → g) ∣₂
-                                     ∣ S¹Fun embase (emloop h) ∣₂)
-        ≡ RingStr._·_ (snd G) g h
-    help h = Iso.leftInv (Iso-EM-ΩEM+1 0) (RingStr._·_ (snd G) g h)
-  Hⁿ[Sⁿ,G]≅G-pres⌣ (suc n) G g =
-    ST.elim (λ _ → isOfHLevelPath 2 (RingStr.is-set (snd G)) _ _)
-      (Sⁿ-connElim n (isConnectedSubtr 2 (suc n)
-        (subst (λ k → isConnected (suc k) (EM (Ring→AbGroup G) (suc (suc n))))
-               (+-comm 2 n) (isConnectedEM (2 +ℕ n))))
-        (λ _ → RingStr.is-set (snd G) _ _) ∣ north ∣ₕ
-        λ f → cong (fst (Hⁿ[Sⁿ,G]≅G (Ring→AbGroup G) n) .fst)
-          (cong ∣_∣₂ (funExt (λ x → sym (ΩEM+1→EM-distr⌣ₖ0n {G'' = G} (suc n) g _))))
-        ∙ Hⁿ[Sⁿ,G]≅G-pres⌣ n G g _)
--}
-
-  isContrH³⁺ⁿ[RP²,G] : ∀ {ℓ} (n : ℕ) (G : AbGroup ℓ) → isContr (coHom (3 +ℕ n) G RP²)
-  isContrH³⁺ⁿ[RP²,G] n G =
-    isOfHLevelRetractFromIso 0
-      (equivToIso (fst (H³⁺ⁿ[RP²,G]≅0 G n))) isContrUnit*
+  private
+    isContrH³⁺ⁿ[RP²,G] : ∀ {ℓ} (n : ℕ) (G : AbGroup ℓ) → isContr (coHom (3 +ℕ n) G RP²)
+    isContrH³⁺ⁿ[RP²,G] n G =
+      isOfHLevelRetractFromIso 0
+        (equivToIso (fst (H³⁺ⁿ[RP²,G]≅0 G n))) isContrUnit*
 
   ℤ/2[X]→H*[RP²,ℤ/2]-pres· : (x y : ℤ₂[x])
     → ℤ₂[X]→H*[RP²,ℤ₂]-fun (RingStr._·_ (snd ℤ₂[X]) x y)
@@ -448,7 +376,6 @@ module _ {ℓ : Level} (n : ℕ) where
   H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun' two x = H²[RP²,ℤ/2]≅ℤ/2 .fst .fst x
   H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun' (suc (suc (suc r))) x = fzero
 
-
   H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun : (r : ℕ) → coHom r ℤ/2 RP² → ℤ₂[X]/<X³> .fst
   H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun r x = [ base (r ∷ []) (H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun' r x) ]
 
@@ -514,7 +441,8 @@ module _ {ℓ : Level} (n : ℕ) where
   ℤ₂[X]/<X³>≅H*[RP²,ℤ₂] : RingEquiv (CommRing→Ring ℤ₂[X]/<X³>) (H*R ℤ/2Ring RP²)
   fst ℤ₂[X]/<X³>≅H*[RP²,ℤ₂] =
     isoToEquiv (iso (ℤ₂[X]/<X³>→H*[RP²,ℤ₂] .fst) H*[RP²,ℤ₂]→ℤ₂[X]/<X³>
-                    H*[RP²,ℤ₂]→ℤ₂[X]/<X³>→H*[RP²,ℤ₂] ℤ₂[X]/<X³>→H*[RP²,ℤ₂]→ℤ₂[X]/<X³>)
+                    H*[RP²,ℤ₂]→ℤ₂[X]/<X³>→H*[RP²,ℤ₂]
+                    ℤ₂[X]/<X³>→H*[RP²,ℤ₂]→ℤ₂[X]/<X³>)
   snd ℤ₂[X]/<X³>≅H*[RP²,ℤ₂] = ℤ₂[X]/<X³>→H*[RP²,ℤ₂] .snd
 
   H*[RP²,ℤ₂]≅ℤ₂[X]/<X³> : RingEquiv (H*R ℤ/2Ring RP²) (CommRing→Ring ℤ₂[X]/<X³>)

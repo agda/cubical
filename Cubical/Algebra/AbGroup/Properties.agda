@@ -112,8 +112,8 @@ G /^ n =
      λ a b → cong [_] (AbGroupStr.+Comm (snd G) a b))
 
 -- Torsion subgrous
-_[_] : (G : AbGroup ℓ) (n : ℕ) → AbGroup ℓ
-G [ n ] =
+_[_]ₜ : (G : AbGroup ℓ) (n : ℕ) → AbGroup ℓ
+G [ n ]ₜ =
   Group→AbGroup (Subgroup→Group (AbGroup→Group G)
     (kerSubgroup (multₗHom G (pos n))))
     λ {(x , p) (y , q) → Σ≡Prop (λ _ → isPropIsInKer (multₗHom G (pos n)) _)

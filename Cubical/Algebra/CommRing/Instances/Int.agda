@@ -35,8 +35,8 @@ isCommRing (snd ℤCommRing) = isCommRingℤ
 ℤAbGroup : AbGroup ℓ-zero
 ℤAbGroup = Group→AbGroup ℤGroup +Comm
 
-ℤTorsion : (n : ℕ) → isContr (fst (ℤAbGroup [ (suc n) ]))
-fst (ℤTorsion n) = AbGroupStr.0g (snd (ℤAbGroup [ (suc n) ]))
+ℤTorsion : (n : ℕ) → isContr (fst (ℤAbGroup [ (suc n) ]ₜ))
+fst (ℤTorsion n) = AbGroupStr.0g (snd (ℤAbGroup [ (suc n) ]ₜ))
 snd (ℤTorsion n) (a , p) = Σ≡Prop (λ _ → isSetℤ _ _)
   (sym (help a (ℤ·≡· (pos (suc n)) a ∙ p)))
   where

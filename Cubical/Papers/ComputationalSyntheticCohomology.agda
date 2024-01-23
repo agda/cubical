@@ -18,9 +18,6 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Foundations.GroupoidLaws
 
 -- 1: Introduction
-
-import Cubical.ZCohomology.Groups.S2wedgeS1wedgeS1                as HⁿS²∨S¹∨S¹
-
 -- 2: Background
 
 open import Cubical.Foundations.Prelude                           as Prelude
@@ -30,7 +27,7 @@ import Cubical.HITs.Susp                                          as Suspensions
 import Cubical.HITs.Pushout                                       as Pushouts
 import Cubical.Foundations.Path                                   as Paths
 
--- 3:  Stuff
+-- 3:  Eilenberg-MacLane spaces
 import Cubical.Homotopy.EilenbergMacLane.Base                     as EMSpace
 import Cubical.Homotopy.EilenbergMacLane.Properties               as EMProps
 import Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity        as WC
@@ -43,11 +40,12 @@ import Cubical.Homotopy.EilenbergMacLane.GradedCommTensor         as CupComm
 -- 4: Cohomology
 import Cubical.Cohomology.EilenbergMacLane.Base                   as Cohom
 import Cubical.Cohomology.EilenbergMacLane.CupProduct             as CohomCup
-import Cubical.Cohomology.EilenbergMacLane.MayerVietoris          as MV
 import Cubical.Axiom.Choice                                       as Choice
 import Cubical.HITs.Wedge                                         as ⋁
 import Cubical.Homotopy.EilenbergSteenrod                         as Axioms
 import Cubical.Cohomology.EilenbergMacLane.EilenbergSteenrod      as SatAxioms
+import Cubical.Cohomology.EilenbergMacLane.MayerVietoris          as MV
+import Cubical.Cohomology.EilenbergMacLane.Gysin                  as Gysin
 
 -- 5: Computations of cohomology groups and rings
 import Cubical.Cohomology.EilenbergMacLane.Groups.Unit            as HⁿUnit
@@ -64,36 +62,7 @@ import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle     as CohomK²
 import Cubical.ZCohomology.CohomologyRings.KleinBottle            as ZCohomRingK²
 import Cubical.Cohomology.EilenbergMacLane.Rings.RP2              as RP²Ring
 import Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle      as K²Ring
--- import Cubical.Cohomology.Groups.KleinBottle                     as HⁿK²
--- import Cubical.ZCohomology.Groups.KleinBottle                     as HⁿK²
-
--- import Cubical.Cohomology.EilenbergMacLane.RSnings               as CohomRingSn
-
--- import Cubical.ZCohomology.RingStructure.CohomologyRing           as ℤCohomologyRing
--- import Cubical.HITs.S1                                            as S1
-
--- import Cubical.HITs.Sn                                            as Sn
--- import Cubical.ZCohomology.Groups.Sn                              as HⁿSᵐ
--- import Cubical.ZCohomology.CohomologyRings.S1                     as H*S¹
--- import Cubical.ZCohomology.CohomologyRings.Sn                     as H*Sᵐ
--- open import Cubical.Homotopy.Hopf                                 as HopfFibration
--- import Cubical.ZCohomology.Groups.CP2                             as HⁿℂP²
--- import Cubical.ZCohomology.CohomologyRings.CP2                    as H*ℂP²
--- import Cubical.HITs.Wedge                                         as ⋁
--- import Cubical.ZCohomology.Groups.S2wedgeS4                       as HⁿS²∨S⁴
--- import Cubical.ZCohomology.CohomologyRings.S2wedgeS4              as H*S²∨S⁴
--- import Cubical.Cohomology.EilenbergMacLane.RingStructure          as GCohomologyRing
--- import Cubical.HITs.KleinBottle                                   as 𝕂²
-
--- import Cubical.ZCohomology.CohomologyRings.KleinBottle            as H*𝕂²
--- import Cubical.ZCohomology.Groups.RP2wedgeS1                      as HⁿℝP²∨S¹
--- import Cubical.ZCohomology.CohomologyRings.RP2wedgeS1             as H*ℝP²∨S¹
--- import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle     as ℤ/2-Hⁿ𝕂²
--- open import Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle as ℤ/2-H*𝕂²
--- import Cubical.Cohomology.EilenbergMacLane.Groups.RP2wedgeS1      as ℤ/2-HⁿℝP²∨S¹
--- import Cubical.Cohomology.EilenbergMacLane.Rings.RP2wedgeS1       as ℤ/2-H*ℝP²∨S¹
---   renaming (RP²∨S¹-CohomologyRing to H*RP²∨S¹≅ℤ/2[X,Y]/<Y³,XY,X²>)
-
+import Cubical.Cohomology.EilenbergMacLane.Rings.RPinf            as RP∞Ring
 
 ----- 1. INNTRODUCTION -----
 
@@ -255,10 +224,11 @@ open MV.MV using ( Ker-i⊂Im-d ; Im-d⊂Ker-i
 
 --- 4.4 The Thom isomorphism and the Gysin sequence
 -- Theorem 43 (Gysin sequence)
--- TODO! Port from Steenrod branch.
+open Gysin.Gysin using ( Im-mapᵣ⊂Ker-mapₗ ; Ker-mapₗ⊂Im-mapᵣ
+                       ; Ker-⌣⊂Im-mapₗ ; Im-mapₗ⊂Ker-⌣
+                       ; Im--⌣⊂Ker-mapᵣ ; Ker-mapᵣ⊂Im--⌣)
 
---
-
+--- 5. Computations of cohomology groups and rings
 -- Proposition 44. Cohom of 1
 open HⁿUnit using (H⁰[Unit,G]≅G ; Hⁿ⁺¹[Unit,G]≅0)
 
@@ -330,13 +300,13 @@ open K²Ring using (α²↦1)
 -- Proposition 67. H*(RP²,Z/2)
 open RP²Ring using (H*[RP²,ℤ₂]≅ℤ₂[X]/<X³>)
 
--- Proposition 68 (Roughly)
+-- Proposition 68. (Roughly)
 open K²Ring using (α²↦1 ; βα↦1 ; β²↦0)
 
--- Proposition 69 H*(K²,ℤ/2)
+-- Proposition 69. H*(K²,ℤ/2)
 open K²Ring using (H*KleinBottle≅ℤ/2[X,Y]/<X³,Y²,XY+X²>)
 
--- Lemma 70 (implicitly used)
+-- Lemma 70. (implicitly used)
 
--- Proposition 71
--- Todo
+-- Proposition 71. H*(RP∞, ℤ/2)
+open RP∞Ring using (H*[RP∞,ℤ₂]≅ℤ₂[X])

@@ -414,7 +414,7 @@ snd (H¹[K²,G]≅G×H¹[RP²,G] G) =
   lem = isSet× (is-set (snd G)) squash₂
 
 H¹[K²,G]≅G×G[2] : (G : AbGroup ℓ)
-  → AbGroupEquiv (coHomGr 1 G KleinBottle) (AbDirProd G (G [ 2 ]))
+  → AbGroupEquiv (coHomGr 1 G KleinBottle) (AbDirProd G (G [ 2 ]ₜ))
 H¹[K²,G]≅G×G[2] G =
   compGroupEquiv (H¹[K²,G]≅G×H¹[RP²,G] G)
     (GroupEquivDirProd idGroupEquiv (H¹[RP²,G]≅G[2] G))

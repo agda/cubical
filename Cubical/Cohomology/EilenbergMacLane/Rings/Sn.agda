@@ -2,88 +2,53 @@
 module Cubical.Cohomology.EilenbergMacLane.Rings.Sn where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.GroupoidLaws
 
-open import Cubical.Cohomology.EilenbergMacLane.Groups.RP2wedgeS1
 open import Cubical.Cohomology.EilenbergMacLane.Base
-open import Cubical.Cohomology.EilenbergMacLane.Groups.Connected
-open import Cubical.Cohomology.EilenbergMacLane.Groups.RP2
 open import Cubical.Cohomology.EilenbergMacLane.Groups.Sn
-open import Cubical.Cohomology.EilenbergMacLane.Groups.Wedge
-open import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle
 open import Cubical.Cohomology.EilenbergMacLane.CupProduct
-open import Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle hiding (α↦1)
-
-open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
-open import Cubical.Homotopy.EilenbergMacLane.Order2
-open import Cubical.Homotopy.EilenbergMacLane.Properties
-open import Cubical.Homotopy.EilenbergMacLane.Base
-open import Cubical.Homotopy.EilenbergMacLane.CupProduct
-open import Cubical.Homotopy.EilenbergMacLane.CupProductTensor
-  renaming (_⌣ₖ_ to _⌣ₖ⊗_ ; ⌣ₖ-0ₖ to ⌣ₖ-0ₖ⊗ ; 0ₖ-⌣ₖ to 0ₖ-⌣ₖ⊗)
-open import Cubical.Homotopy.Loopspace
-open import Cubical.Homotopy.Connected
 open import Cubical.Cohomology.EilenbergMacLane.RingStructure
-open import Cubical.Cohomology.EilenbergMacLane.Rings.Z2-properties
+
+open import Cubical.Homotopy.EilenbergMacLane.Base
+open import Cubical.Homotopy.EilenbergMacLane.Properties
+open import Cubical.Homotopy.EilenbergMacLane.CupProduct
+open import Cubical.Homotopy.Connected
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
-open import Cubical.Data.Fin
-open import Cubical.Data.Sum
-open import Cubical.Data.Fin.Arithmetic
-open import Cubical.Data.Sigma
-open import Cubical.Data.Vec
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.FinData renaming (Fin to FinI)
+open import Cubical.Data.Vec
+open import Cubical.Data.FinData
+open import Cubical.Data.Sum
 
-open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetTruncation as ST
 open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.SetQuotients as SQ renaming (_/_ to _sq/_)
-open import Cubical.HITs.EilenbergMacLane1 hiding (elimProp ; elimSet)
+open import Cubical.HITs.EilenbergMacLane1
 open import Cubical.HITs.Susp
-open import Cubical.HITs.Pushout
 open import Cubical.HITs.S1 renaming (rec to S¹Fun)
 open import Cubical.HITs.Sn
-open import Cubical.HITs.RPn
-open import Cubical.HITs.Wedge
-open import Cubical.Algebra.GradedRing.DirectSumHIT
 
-open import Cubical.Algebra.Group
+open import Cubical.Algebra.GradedRing.DirectSumHIT
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
-open import Cubical.Algebra.Group.Instances.IntMod
-open import Cubical.Algebra.AbGroup hiding (_[_])
-open import Cubical.Algebra.AbGroup.Instances.Unit
+open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
-open import Cubical.Algebra.AbGroup.TensorProduct
-open import Cubical.Algebra.Monoid
-
 open import Cubical.Algebra.CommRing
-open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.Quotient
-open import Cubical.Algebra.CommRing.Instances.IntMod
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly
 open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quotient
-open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-notationZ2
+open import Cubical.Algebra.Monoid.Instances.Nat
 
-open import Cubical.Algebra.Monoid.Instances.Nat 
-
-open Iso
 open PlusBis
 open RingTheory
 
-open AbGroupStr
 
 -- open import Cubical.Agebra.Monoids.Instance.NatVec
 
@@ -135,7 +100,7 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
 
   G[X]→H*[Sⁿ,G]-main : Vec ℕ 1 → fst G → fst (H*R GRing (S₊ (suc n)))
   G[X]→H*[Sⁿ,G]-main (zero ∷ []) g = base 0 (invEquiv (H⁰[Sⁿ,G]≅G GAb n .fst) .fst g)
-  G[X]→H*[Sⁿ,G]-main (one ∷ []) g = base (suc n) (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g) 
+  G[X]→H*[Sⁿ,G]-main (one ∷ []) g = base (suc n) (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g)
   G[X]→H*[Sⁿ,G]-main (suc (suc x) ∷ []) g = ⊕HIT.neutral
 
   G[X]→H*[Sⁿ,G]-main-coh₁ : (r : Vec ℕ 1)
@@ -159,7 +124,7 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
   G[X]→H*[Sⁿ,G]-fun : G[x] → fst (H*R GRing (S₊ (suc n)))
   G[X]→H*[Sⁿ,G]-fun =
     DS-Rec-Set.f _ _ _ _ isSetH*S
-      neutral 
+      neutral
       G[X]→H*[Sⁿ,G]-main
       _add_
       addAssoc
@@ -168,9 +133,6 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
       G[X]→H*[Sⁿ,G]-main-coh₁
       G[X]→H*[Sⁿ,G]-main-coh₂
 
-  open import Cubical.Foundations.Equiv.Properties
-  open import Cubical.Foundations.Transport
-  
   Hⁿ[Sⁿ,G]≅G-pres⌣ : (n : ℕ) (G : Ring ℓ) (g : fst G)
     (x : coHom (suc n) (Ring→AbGroup G) (S₊ (suc n)))
     → Hⁿ[Sⁿ,G]≅G (Ring→AbGroup G)  n .fst .fst

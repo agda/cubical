@@ -19,7 +19,7 @@ open import Cubical.Data.Fin
 open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.Sigma
 
-open import Cubical.HITs.SetQuotients as SQ renaming ([_] to ⟦_⟧)
+open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
 
 ℤAbGroup/_ : ℕ → AbGroup ℓ-zero
@@ -34,7 +34,7 @@ open import Cubical.HITs.PropositionalTruncation as PT
 ℤ/2 : AbGroup ℓ-zero
 ℤ/2 = ℤAbGroup/ 2
 
-ℤ/2[2]≅ℤ/2 : AbGroupIso (ℤ/2 [ 2 ]) ℤ/2
+ℤ/2[2]≅ℤ/2 : AbGroupIso (ℤ/2 [ 2 ]ₜ) ℤ/2
 Iso.fun (fst ℤ/2[2]≅ℤ/2) = fst
 Iso.inv (fst ℤ/2[2]≅ℤ/2) x = x , cong (x +ₘ_) (+ₘ-rUnit x) ∙ x+x x
   where
@@ -59,7 +59,7 @@ Iso.fun (fst ℤ/2/2≅ℤ/2) =
           (λ p → ⊥.rec (snotz (sym (cong fst p))))
            λ p → ⊥.rec (snotz (sym (cong fst p))))))
           λ _ → refl)
-Iso.inv (fst ℤ/2/2≅ℤ/2) = ⟦_⟧
+Iso.inv (fst ℤ/2/2≅ℤ/2) = [_]
 Iso.rightInv (fst ℤ/2/2≅ℤ/2) _ = refl
 Iso.leftInv (fst ℤ/2/2≅ℤ/2) =
   SQ.elimProp (λ _ → squash/ _ _) λ _ → refl
