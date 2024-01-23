@@ -61,6 +61,22 @@ module _ where
     Hmap∙ (pos n) = coHomHom∙ n
     Hmap∙ (negsuc n) f = idGroupHom
 
+    compAx : (n : ℤ) {A B C : Pointed ℓ'}
+           (g : B →∙ C) (f : A →∙ B) →
+          compGroupHom (Hmap∙ n g) (Hmap∙ n f)
+        ≡ Hmap∙ n (g ∘∙ f)
+    compAx (pos n) g f = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+      (funExt (ST.elim (λ _ → isSetPathImplicit)
+        λ a → cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM n) refl)))
+    compAx (negsuc n) g f = Σ≡Prop (λ _ → isPropIsGroupHom _ _) refl
+
+    idAx : (n : ℤ) {A : Pointed ℓ'} →
+          Hmap∙ n (idfun∙ A) ≡ idGroupHom
+    idAx (pos n) = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+      (funExt (ST.elim (λ _ → isSetPathImplicit)
+        λ f → cong ∣_∣₂ (ΣPathP (refl , sym (lUnit (snd f))))))
+    idAx (negsuc n) = refl
+
     suspMap : (n : ℤ) {A : Pointed ℓ'} →
         AbGroupHom (coHomRedℤ G (sucℤ n) (Susp (typ A) , north))
         (coHomRedℤ G n A)
@@ -175,6 +191,8 @@ module _ where
 
   satisfies-ES : ∀ {ℓ ℓ'} (G : AbGroup ℓ) → coHomTheory {ℓ'} (coHomRedℤ G)
   Hmap (satisfies-ES G) = coHomRedℤ.Hmap∙
+  HMapComp (satisfies-ES G) = coHomRedℤ.compAx
+  HMapId (satisfies-ES G) = coHomRedℤ.idAx
   fst (Suspension (satisfies-ES G)) n = GroupIso→GroupEquiv (coHomRedℤ.suspMapIso n)
   snd (Suspension (satisfies-ES G)) f (pos n) =
     funExt (ST.elim (λ _ → isSetPathImplicit) λ f
@@ -286,27 +304,10 @@ module _ where
     invGroupEquiv (GroupIso→GroupEquiv lUnitGroupIso^)
 
 open coHomTheoryGen
-private
-  compAx : ∀ {ℓ ℓ'} (G : AbGroup ℓ) (n : ℤ) {A B C : Pointed ℓ'}
-         (g : B →∙ C) (f : A →∙ B) →
-        compGroupHom (coHomRedℤ.Hmap∙ {G = G} n g) (coHomRedℤ.Hmap∙ n f)
-      ≡ coHomRedℤ.Hmap∙ n (g ∘∙ f)
-  compAx G (pos n) g f = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-    (funExt (ST.elim (λ _ → isSetPathImplicit)
-      λ a → cong ∣_∣₂ (→∙Homogeneous≡ (isHomogeneousEM n) refl)))
-  compAx G (negsuc n) g f = Σ≡Prop (λ _ → isPropIsGroupHom _ _) refl
-
-  idAx : ∀ {ℓ ℓ'} (G : AbGroup ℓ) (n : ℤ) {A : Pointed ℓ'} →
-        coHomRedℤ.Hmap∙ {G = G} n (idfun∙ A) ≡ idGroupHom
-  idAx G (pos n) = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-    (funExt (ST.elim (λ _ → isSetPathImplicit)
-      λ f → cong ∣_∣₂ (ΣPathP (refl , sym (lUnit (snd f))))))
-  idAx G (negsuc n) = refl
-
 satisfies-ES-gen : ∀ {ℓ ℓ'} (G : AbGroup ℓ) → coHomTheoryGen {ℓ'} (coHomRedℤ G)
 Hmap (satisfies-ES-gen G) = coHomTheory.Hmap (satisfies-ES G)
-HMapComp (satisfies-ES-gen G) = compAx G
-HMapId (satisfies-ES-gen G) = idAx G
+HMapComp (satisfies-ES-gen G) = coHomTheory.HMapComp (satisfies-ES G)
+HMapId (satisfies-ES-gen G) = coHomTheory.HMapId (satisfies-ES G)
 Suspension (satisfies-ES-gen G) = coHomTheory.Suspension (satisfies-ES G)
 Exactness (satisfies-ES-gen G) = coHomTheory.Exactness (satisfies-ES G)
 Dimension (satisfies-ES-gen G) = coHomTheory.Dimension (satisfies-ES G)
