@@ -435,3 +435,20 @@ fst (coHomTruncEquiv G n) =
 snd (coHomTruncEquiv G n) =
   makeIsGroupHom (ST.elim2 (λ _ _ → isSetPathImplicit)
     λ _ _ → refl)
+
+EM→-charac : ∀ {ℓ ℓ'} {A : Pointed ℓ} {G : AbGroup ℓ'} (n : ℕ)
+  → Iso (fst A → EM G n) ((A →∙ EM∙ G n) × EM G n)
+Iso.fun (EM→-charac {A = A} n) f =
+  ((λ x → f x -ₖ f (pt A)) , rCancelₖ n (f (pt A))) , f (pt A)
+Iso.inv (EM→-charac n) (f , a) x = fst f x +ₖ a
+Iso.rightInv (EM→-charac {A = A} n) ((f , p) , a) =
+  ΣPathP (→∙Homogeneous≡ (isHomogeneousEM _)
+    (funExt (λ x → (λ i → (f x +ₖ a) -ₖ (cong (_+ₖ a) p ∙ lUnitₖ n a) i)
+                  ∙ sym (assocₖ n (f x) a (-ₖ a))
+                  ∙ cong (f x +ₖ_) (rCancelₖ n a)
+                  ∙ rUnitₖ n (f x)))
+  , cong (_+ₖ a) p ∙ lUnitₖ n a)
+Iso.leftInv (EM→-charac {A = A} n) f =
+  funExt λ x → sym (assocₖ n (f x) (-ₖ f (pt A)) (f (pt A)))
+    ∙∙ cong (f x +ₖ_) (lCancelₖ n (f (pt A)))
+    ∙∙ rUnitₖ n (f x)

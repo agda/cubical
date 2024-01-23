@@ -409,3 +409,23 @@ Iso-⊤⊎⊤-Bool .rightInv false = refl
 
 separatedBool : Separated Bool
 separatedBool = Discrete→Separated _≟_
+
+
+Bool→Bool→∙Bool : Bool → (Bool , true) →∙ (Bool , true)
+Bool→Bool→∙Bool false = idfun∙ _
+Bool→Bool→∙Bool true = const∙ _ _
+
+Iso-Bool→∙Bool-Bool : Iso ((Bool , true) →∙ (Bool , true)) Bool
+Iso.fun Iso-Bool→∙Bool-Bool f = fst f false
+Iso.inv Iso-Bool→∙Bool-Bool = Bool→Bool→∙Bool
+Iso.rightInv Iso-Bool→∙Bool-Bool false = refl
+Iso.rightInv Iso-Bool→∙Bool-Bool true = refl
+Iso.leftInv Iso-Bool→∙Bool-Bool f = Σ≡Prop (λ _ → isSetBool _ _) (help _ refl)
+  where
+  help : (x : Bool) → fst f false ≡ x
+    → Bool→Bool→∙Bool (fst f false) .fst ≡ f .fst
+  help false p = funExt
+    λ { false → (λ j → Bool→Bool→∙Bool (p j) .fst false) ∙ sym p
+      ; true → (λ j → Bool→Bool→∙Bool (p j) .fst true) ∙ sym (snd f)}
+  help true p = (λ j → Bool→Bool→∙Bool (p j) .fst)
+              ∙ funExt λ { false → sym p ; true → sym (snd f)}
