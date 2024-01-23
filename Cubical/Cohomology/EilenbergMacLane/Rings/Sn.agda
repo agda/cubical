@@ -68,35 +68,12 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
     (Poly G)
     (λ n → CommRing→AbGroup (PolyCommRing G n) .snd)
 
-  open RingStr (snd (H*R GRing (S₊ (suc n))))
-    renaming
-    ( 0r        to 0H*S
-    ; 1r        to 1H*S
-    ; _+_       to _+H*S_
-    ; -_        to -H*S_
-    ; _·_       to _cupS_
-    ; +Assoc    to +H*SAssoc
-    ; +IdR      to +H*SIdR
-    ; +Comm     to +H*SComm
-    ; ·Assoc    to ·H*SAssoc
-    ; is-set    to isSetH*S
-    ; ·DistR+   to ·DistR+H*
-    ; ·DistL+   to ·DistL+H*)
+  module H*Sⁿ = RingStr (snd (H*R GRing (S₊ (suc n))))
+  module G[X]Str = RingStr (snd G[X])
 
-  open RingStr (snd G[X])
-    renaming
-    ( 0r        to 0GX
-    ; 1r        to 1GX
-    ; _+_       to _+GX_
-    ; -_        to -GX_
-    ; _·_       to _·GX_
-    ; +Assoc    to +GXAssoc
-    ; +IdR      to +GXIdR
-    ; +Comm     to +GXComm
-    ; ·Assoc    to ·GXAssoc
-    ; is-set    to isSetGX
-    ; ·DistR+   to ·DistR+G
-    ; ·DistL+   to ·DistL+G)
+  private
+    _cupS_ = H*Sⁿ._·_
+    _·GX_ = G[X]Str._·_
 
   G[X]→H*[Sⁿ,G]-main : Vec ℕ 1 → fst G → fst (H*R GRing (S₊ (suc n)))
   G[X]→H*[Sⁿ,G]-main (zero ∷ []) g = base 0 (invEquiv (H⁰[Sⁿ,G]≅G GAb n .fst) .fst g)
@@ -123,7 +100,7 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
 
   G[X]→H*[Sⁿ,G]-fun : G[x] → fst (H*R GRing (S₊ (suc n)))
   G[X]→H*[Sⁿ,G]-fun =
-    DS-Rec-Set.f _ _ _ _ isSetH*S
+    DS-Rec-Set.f _ _ _ _  H*Sⁿ.is-set
       neutral
       G[X]→H*[Sⁿ,G]-main
       _add_
@@ -170,12 +147,12 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
     → G[X]→H*[Sⁿ,G]-fun (x ·GX y)
     ≡ (G[X]→H*[Sⁿ,G]-fun x cupS G[X]→H*[Sⁿ,G]-fun y)
   G[X]→H*[Sⁿ,G]-pres· = DS-Ind-Prop.f _ _ _ _
-    (λ _ → isPropΠ λ _ → isSetH*S _ _)
+    (λ _ → isPropΠ λ _ → H*Sⁿ.is-set _ _)
     (λ _ → refl)
     G[X]→H*[Sⁿ,G]-pres·+
-    λ {x} {y} p q s → cong (G[X]→H*[Sⁿ,G]-fun) (·DistL+G x y s)
+    λ {x} {y} p q s → cong (G[X]→H*[Sⁿ,G]-fun) (G[X]Str.·DistL+ x y s)
                      ∙ cong₂ _add_ (p s) (q s)
-                     ∙ sym (·DistL+H* (G[X]→H*[Sⁿ,G]-fun x)
+                     ∙ sym (H*Sⁿ.·DistL+ (G[X]→H*[Sⁿ,G]-fun x)
                          (G[X]→H*[Sⁿ,G]-fun y) (G[X]→H*[Sⁿ,G]-fun s))
     where
     main₀₁ : (g g' : fst G) → _ ≡ _
@@ -217,15 +194,15 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
     G[X]→H*[Sⁿ,G]-pres·+ : (r : Vec ℕ 1) (a : fst G) (y : G[x])
       → G[X]→H*[Sⁿ,G]-fun (base r a ·GX y)
       ≡ G[X]→H*[Sⁿ,G]-fun (base r a) cupS G[X]→H*[Sⁿ,G]-fun y
-    G[X]→H*[Sⁿ,G]-pres·+ v a = DS-Ind-Prop.f _ _ _ _ (λ _ → isSetH*S _ _)
+    G[X]→H*[Sⁿ,G]-pres·+ v a = DS-Ind-Prop.f _ _ _ _ (λ _ → H*Sⁿ.is-set _ _)
       (cong (G[X]→H*[Sⁿ,G]-fun)
           (0RightAnnihilates G[X] (base v a))
          ∙ sym (0RightAnnihilates
         (H*R GRing (S₊ (suc n))) (G[X]→H*[Sⁿ,G]-fun (base v a) )))
       (λ r t → main v r a t)
-      λ {x} {y} p q → cong (G[X]→H*[Sⁿ,G]-fun) (·DistR+G (base v a) x y)
+      λ {x} {y} p q → cong (G[X]→H*[Sⁿ,G]-fun) (G[X]Str.·DistR+ (base v a) x y)
                      ∙ cong₂ _add_ p q
-                     ∙ sym (·DistR+H* (G[X]→H*[Sⁿ,G]-fun (base v a))
+                     ∙ sym (H*Sⁿ.·DistR+ (G[X]→H*[Sⁿ,G]-fun (base v a))
                          (G[X]→H*[Sⁿ,G]-fun x) (G[X]→H*[Sⁿ,G]-fun y))
 
   G[X]→H*[Sⁿ,G] : RingHom G[X] (H*R GRing (S₊ (suc n)))

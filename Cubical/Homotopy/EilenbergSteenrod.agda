@@ -41,6 +41,9 @@ record coHomTheory {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGroup
   Boolℓ = Lift Bool , lift true
   field
     Hmap : (n : ℤ) → {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H n B) (H n A)
+    HMapComp : (n : ℤ) → {A B C : Pointed ℓ} (g : B →∙ C) (f : A →∙ B)
+      → compGroupHom (Hmap n g) (Hmap n f) ≡ Hmap n (g ∘∙ f)
+    HMapId : (n : ℤ) → {A : Pointed ℓ} → Hmap n (idfun∙ A) ≡ idGroupHom
     Suspension : Σ[ F ∈ ((n : ℤ) {A : Pointed ℓ} → AbGroupEquiv (H (sucℤ n) (Susp (typ A) , north)) (H n A)) ]
                    ({A B : Pointed ℓ} (f : A →∙ B) (n : ℤ)
                → fst (Hmap (sucℤ n) (suspFun (fst f) , refl)) ∘ invEq (fst (F n {A = B}))
@@ -57,7 +60,8 @@ record coHomTheoryGen {ℓ ℓ' : Level} (H : (n : ℤ) → Pointed ℓ → AbGr
   Boolℓ = Lift Bool , lift true
   field
     Hmap : (n : ℤ) → {A B : Pointed ℓ} (f : A →∙ B) → AbGroupHom (H n B) (H n A)
-    HMapComp : (n : ℤ) → {A B C : Pointed ℓ} (g : B →∙ C) (f : A →∙ B) → compGroupHom (Hmap n g) (Hmap n f) ≡ Hmap n (g ∘∙ f)
+    HMapComp : (n : ℤ) → {A B C : Pointed ℓ} (g : B →∙ C) (f : A →∙ B)
+      → compGroupHom (Hmap n g) (Hmap n f) ≡ Hmap n (g ∘∙ f)
     HMapId : (n : ℤ) → {A : Pointed ℓ} → Hmap n (idfun∙ A) ≡ idGroupHom
 
     Suspension : Σ[ F ∈ ((n : ℤ) {A : Pointed ℓ} → AbGroupEquiv (H (sucℤ n) (Susp (typ A) , north)) (H n A)) ]

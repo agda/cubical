@@ -1,5 +1,14 @@
 {-# OPTIONS --safe #-}
 
+{-
+This file contains a definition of the n-level axiom of coice,
+i.e. the statment that the canonical map
+
+∥ Πₐ Bₐ ∥ₙ → (Πₐ ∥ Bₐ ∥ₙ)
+
+is an equivalence.
+-}
+
 module Cubical.Axiom.Choice where
 
 open import Cubical.Foundations.Prelude
@@ -21,7 +30,6 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
--- Stuff about choice:
 choiceMap : {A : Type ℓ} {B : A → Type ℓ'} (n : ℕ)
   → hLevelTrunc n ((a : A) → B a)
   → (a : A) → hLevelTrunc n (B a)

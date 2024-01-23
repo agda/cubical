@@ -342,7 +342,7 @@ snd (isContr-HⁿKleinBottle n G) = ST.elim (λ _ → isSetPathImplicit)
 
 ---- With general coefficients
 
--- H⁰(K²,G) : ?
+-- H⁰(K²,G)
 H⁰[K²,G]≅G : (G : AbGroup ℓ) → AbGroupEquiv (coHomGr 0 G KleinBottle) G
 H⁰[K²,G]≅G G = H⁰conn (∣ point ∣
   , (TR.elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _)
