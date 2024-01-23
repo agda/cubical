@@ -54,6 +54,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isRefl : Type (ℓ-max ℓ ℓ')
   isRefl = (a : A) → R a a
 
+  isRefl' : Type (ℓ-max ℓ ℓ')
+  isRefl' = {a : A} → R a a
+
   isIrrefl : Type (ℓ-max ℓ ℓ')
   isIrrefl = (a : A) → ¬ R a a
 
@@ -68,6 +71,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
 
   isTrans : Type (ℓ-max ℓ ℓ')
   isTrans = (a b c : A) → R a b → R b c → R a c
+
+  isTrans' : Type (ℓ-max ℓ ℓ')
+  isTrans' = {a b c : A} → R a b → R b c → R a c
 
   -- Sum types don't play nicely with props, so we truncate
   isCotrans : Type (ℓ-max ℓ ℓ')
