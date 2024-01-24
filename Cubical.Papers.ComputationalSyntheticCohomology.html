@@ -1,0 +1,314 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Papers.ComputationalSyntheticCohomology</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">{-
+
+Please do not move this file. Changes should only be made if necessary.
+
+This file contains pointers to the code examples and main results from
+the paper:
+
+Computational Synthetic Cohomology Theory in Homotopy Type Theory
+
+-}</a>
+
+<a id="232" class="Comment">-- The &quot;--safe&quot; flag ensures that there are no postulates or unfinished goals</a>
+<a id="310" class="Symbol">{-#</a> <a id="314" class="Keyword">OPTIONS</a> <a id="322" class="Pragma">--safe</a> <a id="329" class="Symbol">#-}</a>
+<a id="333" class="Keyword">module</a> <a id="340" href="Cubical.Papers.ComputationalSyntheticCohomology.html" class="Module">Cubical.Papers.ComputationalSyntheticCohomology</a> <a id="388" class="Keyword">where</a>
+
+<a id="395" class="Keyword">open</a> <a id="400" class="Keyword">import</a> <a id="407" href="Cubical.Data.Nat.html" class="Module">Cubical.Data.Nat</a>
+<a id="424" class="Keyword">open</a> <a id="429" class="Keyword">import</a> <a id="436" href="Cubical.Algebra.AbGroup.html" class="Module">Cubical.Algebra.AbGroup</a>
+<a id="460" class="Keyword">open</a> <a id="465" class="Keyword">import</a> <a id="472" href="Cubical.Foundations.GroupoidLaws.html" class="Module">Cubical.Foundations.GroupoidLaws</a>
+
+<a id="506" class="Comment">-- 1: Introduction</a>
+<a id="525" class="Comment">-- 2: Background</a>
+
+<a id="543" class="Keyword">open</a> <a id="548" class="Keyword">import</a> <a id="555" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>                           <a id="609" class="Symbol">as</a> <a id="612" class="Module">Prelude</a>
+<a id="620" class="Keyword">import</a> <a id="627" href="Cubical.Homotopy.HSpace.html" class="Module">Cubical.Homotopy.HSpace</a>                                    <a id="686" class="Symbol">as</a> <a id="689" class="Module">hSpace</a>
+<a id="696" class="Keyword">import</a> <a id="703" href="Cubical.Foundations.Pointed.Homogeneous.html" class="Module">Cubical.Foundations.Pointed.Homogeneous</a>                    <a id="762" class="Symbol">as</a> <a id="765" class="Module">Homogeneous</a>
+<a id="777" class="Keyword">import</a> <a id="784" href="Cubical.HITs.Susp.html" class="Module">Cubical.HITs.Susp</a>                                          <a id="843" class="Symbol">as</a> <a id="846" class="Module">Suspensions</a>
+<a id="858" class="Keyword">import</a> <a id="865" href="Cubical.HITs.Pushout.html" class="Module">Cubical.HITs.Pushout</a>                                       <a id="924" class="Symbol">as</a> <a id="927" class="Module">Pushouts</a>
+<a id="936" class="Keyword">import</a> <a id="943" href="Cubical.Foundations.Path.html" class="Module">Cubical.Foundations.Path</a>                                   <a id="1002" class="Symbol">as</a> <a id="1005" class="Module">Paths</a>
+
+<a id="1012" class="Comment">-- 3:  Eilenberg-MacLane spaces</a>
+<a id="1044" class="Keyword">import</a> <a id="1051" href="Cubical.Homotopy.EilenbergMacLane.Base.html" class="Module">Cubical.Homotopy.EilenbergMacLane.Base</a>                     <a id="1110" class="Symbol">as</a> <a id="1113" class="Module">EMSpace</a>
+<a id="1121" class="Keyword">import</a> <a id="1128" href="Cubical.Homotopy.EilenbergMacLane.Properties.html" class="Module">Cubical.Homotopy.EilenbergMacLane.Properties</a>               <a id="1187" class="Symbol">as</a> <a id="1190" class="Module">EMProps</a>
+<a id="1198" class="Keyword">import</a> <a id="1205" href="Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity.html" class="Module">Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity</a>        <a id="1264" class="Symbol">as</a> <a id="1267" class="Module">WC</a>
+<a id="1270" class="Keyword">import</a> <a id="1277" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html" class="Module">Cubical.Homotopy.EilenbergMacLane.GroupStructure</a>           <a id="1336" class="Symbol">as</a> <a id="1339" class="Module">EMGr</a>
+<a id="1344" class="Keyword">import</a> <a id="1351" href="Cubical.Algebra.AbGroup.TensorProduct.html" class="Module">Cubical.Algebra.AbGroup.TensorProduct</a>                      <a id="1410" class="Symbol">as</a> <a id="1413" class="Module">Tensor</a>
+<a id="1420" class="Keyword">import</a> <a id="1427" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html" class="Module">Cubical.Homotopy.EilenbergMacLane.CupProductTensor</a>         <a id="1486" class="Symbol">as</a> <a id="1489" class="Module">Cup⊗</a>
+<a id="1494" class="Keyword">import</a> <a id="1501" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html" class="Module">Cubical.Homotopy.EilenbergMacLane.CupProduct</a>               <a id="1560" class="Symbol">as</a> <a id="1563" class="Module">Cupₖ</a>
+<a id="1568" class="Keyword">import</a> <a id="1575" href="Cubical.Homotopy.EilenbergMacLane.GradedCommTensor.html" class="Module">Cubical.Homotopy.EilenbergMacLane.GradedCommTensor</a>         <a id="1634" class="Symbol">as</a> <a id="1637" class="Module">CupComm</a>
+
+<a id="1646" class="Comment">-- 4: Cohomology</a>
+<a id="1663" class="Keyword">import</a> <a id="1670" href="Cubical.Cohomology.EilenbergMacLane.Base.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Base</a>                   <a id="1729" class="Symbol">as</a> <a id="1732" class="Module">Cohom</a>
+<a id="1738" class="Keyword">import</a> <a id="1745" href="Cubical.Cohomology.EilenbergMacLane.CupProduct.html" class="Module">Cubical.Cohomology.EilenbergMacLane.CupProduct</a>             <a id="1804" class="Symbol">as</a> <a id="1807" class="Module">CohomCup</a>
+<a id="1816" class="Keyword">import</a> <a id="1823" href="Cubical.Axiom.Choice.html" class="Module">Cubical.Axiom.Choice</a>                                       <a id="1882" class="Symbol">as</a> <a id="1885" class="Module">Choice</a>
+<a id="1892" class="Keyword">import</a> <a id="1899" href="Cubical.HITs.Wedge.html" class="Module">Cubical.HITs.Wedge</a>                                         <a id="1958" class="Symbol">as</a> <a id="1961" class="Module">⋁</a>
+<a id="1963" class="Keyword">import</a> <a id="1970" href="Cubical.Homotopy.EilenbergSteenrod.html" class="Module">Cubical.Homotopy.EilenbergSteenrod</a>                         <a id="2029" class="Symbol">as</a> <a id="2032" class="Module">Axioms</a>
+<a id="2039" class="Keyword">import</a> <a id="2046" href="Cubical.Cohomology.EilenbergMacLane.EilenbergSteenrod.html" class="Module">Cubical.Cohomology.EilenbergMacLane.EilenbergSteenrod</a>      <a id="2105" class="Symbol">as</a> <a id="2108" class="Module">SatAxioms</a>
+<a id="2118" class="Keyword">import</a> <a id="2125" href="Cubical.Cohomology.EilenbergMacLane.MayerVietoris.html" class="Module">Cubical.Cohomology.EilenbergMacLane.MayerVietoris</a>          <a id="2184" class="Symbol">as</a> <a id="2187" class="Module">MV</a>
+<a id="2190" class="Keyword">import</a> <a id="2197" href="Cubical.Cohomology.EilenbergMacLane.Gysin.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Gysin</a>                  <a id="2256" class="Symbol">as</a> <a id="2259" class="Module">Gysin</a>
+
+<a id="2266" class="Comment">-- 5: Computations of cohomology groups and rings</a>
+<a id="2316" class="Keyword">import</a> <a id="2323" href="Cubical.Cohomology.EilenbergMacLane.Groups.Unit.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Groups.Unit</a>            <a id="2382" class="Symbol">as</a> <a id="2385" class="Module">HⁿUnit</a>
+<a id="2392" class="Keyword">import</a> <a id="2399" href="Cubical.Cohomology.EilenbergMacLane.Groups.Connected.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Groups.Connected</a>       <a id="2458" class="Symbol">as</a> <a id="2461" class="Module">CohomConnected</a>
+<a id="2476" class="Keyword">import</a> <a id="2483" href="Cubical.Cohomology.EilenbergMacLane.Groups.Sn.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Groups.Sn</a>              <a id="2542" class="Symbol">as</a> <a id="2545" class="Module">CohomSn</a>
+<a id="2553" class="Keyword">import</a> <a id="2560" href="Cubical.Cohomology.EilenbergMacLane.Rings.Sn.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Rings.Sn</a>               <a id="2619" class="Symbol">as</a> <a id="2622" class="Module">CohomRingSn</a>
+<a id="2634" class="Keyword">import</a> <a id="2641" href="Cubical.Cohomology.EilenbergMacLane.Groups.Torus.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Groups.Torus</a>           <a id="2700" class="Symbol">as</a> <a id="2703" class="Module">CohomT²</a>
+<a id="2711" class="Keyword">import</a> <a id="2718" href="Cubical.HITs.Torus.html" class="Module">Cubical.HITs.Torus</a>                                         <a id="2777" class="Symbol">as</a> <a id="2780" class="Module">T²</a>
+<a id="2783" class="Keyword">import</a> <a id="2790" href="Cubical.HITs.RPn.Base.html" class="Module">Cubical.HITs.RPn.Base</a>                                      <a id="2849" class="Symbol">as</a> <a id="2852" class="Module">RP²</a>
+<a id="2856" class="Keyword">import</a> <a id="2863" href="Cubical.HITs.KleinBottle.html" class="Module">Cubical.HITs.KleinBottle</a>                                   <a id="2922" class="Symbol">as</a> <a id="2925" class="Module">K²</a>
+<a id="2928" class="Keyword">import</a> <a id="2935" href="Cubical.Cohomology.EilenbergMacLane.Groups.RP2.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Groups.RP2</a>             <a id="2994" class="Symbol">as</a> <a id="2997" class="Module">CohomRP²</a>
+<a id="3006" class="Keyword">import</a> <a id="3013" href="Cubical.ZCohomology.CohomologyRings.RP2.html" class="Module">Cubical.ZCohomology.CohomologyRings.RP2</a>                    <a id="3072" class="Symbol">as</a> <a id="3075" class="Module">ZCohomRingRP²</a>
+<a id="3089" class="Keyword">import</a> <a id="3096" href="Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle</a>     <a id="3155" class="Symbol">as</a> <a id="3158" class="Module">CohomK²</a>
+<a id="3166" class="Keyword">import</a> <a id="3173" href="Cubical.ZCohomology.CohomologyRings.KleinBottle.html" class="Module">Cubical.ZCohomology.CohomologyRings.KleinBottle</a>            <a id="3232" class="Symbol">as</a> <a id="3235" class="Module">ZCohomRingK²</a>
+<a id="3248" class="Keyword">import</a> <a id="3255" href="Cubical.Cohomology.EilenbergMacLane.Rings.RP2.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Rings.RP2</a>              <a id="3314" class="Symbol">as</a> <a id="3317" class="Module">RP²Ring</a>
+<a id="3325" class="Keyword">import</a> <a id="3332" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle</a>      <a id="3391" class="Symbol">as</a> <a id="3394" class="Module">K²Ring</a>
+<a id="3401" class="Keyword">import</a> <a id="3408" href="Cubical.Cohomology.EilenbergMacLane.Rings.RPinf.html" class="Module">Cubical.Cohomology.EilenbergMacLane.Rings.RPinf</a>            <a id="3467" class="Symbol">as</a> <a id="3470" class="Module">RP∞Ring</a>
+
+<a id="3479" class="Comment">----- 1. INNTRODUCTION -----</a>
+
+<a id="3509" class="Comment">----- 2. Background on HoTT/UF and notations -----</a>
+
+<a id="3561" class="Comment">-- 2.1 Homotopy Type Theory in Cubical Agda</a>
+
+<a id="3606" class="Comment">-- Definition 1. Binary ap</a>
+<a id="3633" class="Keyword">open</a> <a id="3638" href="Cubical.Foundations.Prelude.html" class="Module">Prelude</a> <a id="3646" class="Keyword">renaming</a> <a id="3655" class="Symbol">(</a><a id="3656" href="Cubical.Foundations.Prelude.html#2025" class="Function">cong₂</a> <a id="3662" class="Symbol">to</a> <a id="3665" class="Function">ap²</a><a id="3668" class="Symbol">)</a>
+
+<a id="3671" class="Comment">-- Definition 2. H-spaces</a>
+<a id="3697" class="Keyword">open</a> <a id="3702" href="Cubical.Homotopy.HSpace.html" class="Module">hSpace</a> <a id="3709" class="Keyword">using</a> <a id="3715" class="Symbol">(</a><a id="3716" href="Cubical.Homotopy.HSpace.html#587" class="Record">HSpace</a><a id="3722" class="Symbol">)</a>
+
+<a id="3725" class="Comment">-- Definition 3. Homogeneous types</a>
+<a id="3760" class="Keyword">open</a> <a id="3765" href="Cubical.Foundations.Pointed.Homogeneous.html" class="Module">Homogeneous</a> <a id="3777" class="Keyword">using</a> <a id="3783" class="Symbol">(</a><a id="3784" href="Cubical.Foundations.Pointed.Homogeneous.html#1390" class="Function">isHomogeneous</a><a id="3797" class="Symbol">)</a>
+
+<a id="3800" class="Comment">-- Definition 4. Suspension</a>
+<a id="3828" class="Keyword">open</a> <a id="3833" href="Cubical.HITs.Susp.html" class="Module">Suspensions</a> <a id="3845" class="Keyword">using</a> <a id="3851" class="Symbol">(</a><a id="3852" href="Cubical.HITs.Susp.Base.html#501" class="Datatype">Susp</a><a id="3856" class="Symbol">)</a>
+
+<a id="3859" class="Comment">-- Definition 5. Pushouts</a>
+<a id="3885" class="Keyword">open</a> <a id="3890" href="Cubical.HITs.Pushout.html" class="Module">Pushouts</a> <a id="3899" class="Keyword">using</a> <a id="3905" class="Symbol">(</a><a id="3906" href="Cubical.HITs.Pushout.Base.html#441" class="Datatype">Pushout</a><a id="3913" class="Symbol">)</a>
+
+<a id="3916" class="Comment">-- Lemma 6. Flip</a>
+<a id="3933" class="Keyword">open</a> <a id="3938" href="Cubical.Foundations.Path.html" class="Module">Paths</a> <a id="3944" class="Keyword">using</a> <a id="3950" class="Symbol">(</a><a id="3951" href="Cubical.Foundations.Path.html#8475" class="Function">sym≡flipSquare</a><a id="3965" class="Symbol">)</a>
+
+<a id="3968" class="Comment">----- 3. Eilenberg-MacLane spaces -----</a>
+<a id="4008" class="Comment">-- Definition 7.</a>
+<a id="4025" class="Comment">-- Included for readability: not used explicitly in formalisation.</a>
+
+<a id="4093" class="Comment">-- Definition 8. (raw Eilenbreg-MacLane spaces) EM-raw</a>
+<a id="4148" class="Keyword">open</a> <a id="4153" href="Cubical.Homotopy.EilenbergMacLane.Base.html" class="Module">EMSpace</a> <a id="4161" class="Keyword">using</a> <a id="4167" class="Symbol">(</a><a id="4168" href="Cubical.Homotopy.EilenbergMacLane.Base.html#1228" class="Function">EM-raw</a><a id="4174" class="Symbol">)</a>
+
+<a id="4177" class="Comment">-- Definition 9. (Eilenbreg-MacLane spaces) EM-raw</a>
+<a id="4228" class="Keyword">open</a> <a id="4233" href="Cubical.Homotopy.EilenbergMacLane.Base.html" class="Module">EMSpace</a> <a id="4241" class="Keyword">using</a> <a id="4247" class="Symbol">(</a><a id="4248" href="Cubical.Homotopy.EilenbergMacLane.Base.html#2328" class="Function">EM</a><a id="4250" class="Symbol">)</a>
+
+<a id="4253" class="Comment">-- Proposition 10. Connectivity of K(G,n)</a>
+<a id="4295" class="Keyword">open</a> <a id="4300" href="Cubical.Homotopy.EilenbergMacLane.Properties.html" class="Module">EMProps</a> <a id="4308" class="Keyword">using</a> <a id="4314" class="Symbol">(</a><a id="4315" href="Cubical.Homotopy.EilenbergMacLane.Properties.html#1864" class="Function">isConnectedEM</a><a id="4328" class="Symbol">)</a>
+
+<a id="4331" class="Comment">-- Lemma 11.</a>
+<a id="4344" class="Keyword">open</a> <a id="4349" href="Cubical.Homotopy.EilenbergMacLane.Properties.html" class="Module">EMProps</a> <a id="4357" class="Keyword">using</a> <a id="4363" class="Symbol">(</a><a id="4364" href="Cubical.Homotopy.EilenbergMacLane.Properties.html#41527" class="Function">EMFun-EM→ΩEM+1</a><a id="4378" class="Symbol">)</a>
+
+<a id="4381" class="Comment">--- 3.1 Group Structure</a>
+<a id="4405" class="Comment">-- Proposition 12. (Wedge connectivity for K(G,n))</a>
+<a id="4456" class="Keyword">open</a> <a id="4461" href="Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity.html#13664" class="Module">WC.wedgeConEM</a> <a id="4475" class="Keyword">using</a> <a id="4481" class="Symbol">(</a><a id="4482" href="Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity.html#14021" class="Function">fun</a> <a id="4486" class="Symbol">;</a> <a id="4488" href="Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity.html#14136" class="Function">left</a> <a id="4493" class="Symbol">;</a> <a id="4495" href="Cubical.Homotopy.EilenbergMacLane.WedgeConnectivity.html#14246" class="Function">right</a><a id="4500" class="Symbol">)</a>
+
+<a id="4503" class="Comment">-- Proposition 13. (unit laws for +ₖ)</a>
+<a id="4541" class="Keyword">open</a> <a id="4546" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html" class="Module">EMGr</a> <a id="4551" class="Keyword">using</a> <a id="4557" class="Symbol">(</a><a id="4558" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#3896" class="Function">rUnitₖ</a> <a id="4565" class="Symbol">;</a> <a id="4567" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#3695" class="Function">lUnitₖ</a><a id="4573" class="Symbol">)</a>
+<a id="lUnit≡rUnit"></a><a id="4575" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4575" class="Function">lUnit≡rUnit</a> <a id="4587" class="Symbol">:</a> <a id="4589" class="Symbol">∀</a> <a id="4591" class="Symbol">{</a><a id="4592" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4592" class="Bound">ℓ</a><a id="4593" class="Symbol">}</a> <a id="4595" class="Symbol">{</a><a id="4596" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4596" class="Bound">G</a> <a id="4598" class="Symbol">:</a> <a id="4600" href="Cubical.Algebra.AbGroup.Base.html#1781" class="Function">AbGroup</a> <a id="4608" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4592" class="Bound">ℓ</a><a id="4609" class="Symbol">}</a> <a id="4611" class="Symbol">(</a><a id="4612" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4612" class="Bound">n</a> <a id="4614" class="Symbol">:</a> <a id="4616" href="Agda.Builtin.Nat.html#203" class="Datatype">ℕ</a><a id="4617" class="Symbol">)</a>
+  <a id="4621" class="Symbol">→</a> <a id="4623" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#3896" class="Function">rUnitₖ</a> <a id="4630" class="Symbol">{</a><a id="4631" class="Argument">G</a> <a id="4633" class="Symbol">=</a> <a id="4635" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4596" class="Bound">G</a><a id="4636" class="Symbol">}</a> <a id="4638" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4612" class="Bound">n</a> <a id="4640" class="Symbol">(</a><a id="4641" href="Cubical.Homotopy.EilenbergMacLane.Base.html#2488" class="Function">EMSpace.0ₖ</a> <a id="4652" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4612" class="Bound">n</a><a id="4653" class="Symbol">)</a> <a id="4655" href="Agda.Builtin.Cubical.Path.html#272" class="Function Operator">≡</a> <a id="4657" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#3695" class="Function">lUnitₖ</a> <a id="4664" class="Symbol">{</a><a id="4665" class="Argument">G</a> <a id="4667" class="Symbol">=</a> <a id="4669" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4596" class="Bound">G</a><a id="4670" class="Symbol">}</a> <a id="4672" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4612" class="Bound">n</a> <a id="4674" class="Symbol">(</a><a id="4675" href="Cubical.Homotopy.EilenbergMacLane.Base.html#2488" class="Function">EMSpace.0ₖ</a> <a id="4686" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4612" class="Bound">n</a><a id="4687" class="Symbol">)</a>
+<a id="4689" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4575" class="Function">lUnit≡rUnit</a> <a id="4701" class="Symbol">{</a><a id="4702" class="Argument">G</a> <a id="4704" class="Symbol">=</a> <a id="4706" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4706" class="Bound">G</a><a id="4707" class="Symbol">}</a> <a id="4709" href="Agda.Builtin.Nat.html#221" class="InductiveConstructor">zero</a> <a id="4714" class="Symbol">=</a> <a id="4716" href="Cubical.Algebra.Semigroup.Base.html#1010" class="Function">AbGroupStr.is-set</a> <a id="4734" class="Symbol">(</a><a id="4735" href="Agda.Builtin.Sigma.html#263" class="Field">snd</a> <a id="4739" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4706" class="Bound">G</a><a id="4740" class="Symbol">)</a> <a id="4742" class="Symbol">_</a> <a id="4744" class="Symbol">_</a> <a id="4746" class="Symbol">_</a> <a id="4748" class="Symbol">_</a>
+<a id="4750" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4575" class="Function">lUnit≡rUnit</a> <a id="4762" class="Symbol">(</a><a id="4763" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="4767" href="Agda.Builtin.Nat.html#221" class="InductiveConstructor">zero</a><a id="4771" class="Symbol">)</a> <a id="4773" class="Symbol">=</a> <a id="4775" href="Cubical.Foundations.Prelude.html#915" class="Function">refl</a>
+<a id="4780" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4575" class="Function">lUnit≡rUnit</a> <a id="4792" class="Symbol">(</a><a id="4793" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="4797" class="Symbol">(</a><a id="4798" href="Agda.Builtin.Nat.html#234" class="InductiveConstructor">suc</a> <a id="4802" href="Cubical.Papers.ComputationalSyntheticCohomology.html#4802" class="Bound">n</a><a id="4803" class="Symbol">))</a> <a id="4806" class="Symbol">=</a> <a id="4808" href="Cubical.Foundations.Prelude.html#915" class="Function">refl</a>
+
+<a id="4814" class="Comment">-- Proposition 14. (commutativity of +ₖ)</a>
+<a id="4855" class="Keyword">open</a> <a id="4860" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html" class="Module">EMGr</a> <a id="4865" class="Keyword">using</a> <a id="4871" class="Symbol">(</a><a id="4872" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#4241" class="Function">commₖ</a><a id="4877" class="Symbol">)</a>
+
+<a id="4880" class="Comment">-- Proposition 15. (associativity of +ₖ)</a>
+<a id="4921" class="Keyword">open</a> <a id="4926" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html" class="Module">EMGr</a> <a id="4931" class="Keyword">using</a> <a id="4937" class="Symbol">(</a><a id="4938" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#9806" class="Function">assocₖ</a><a id="4944" class="Symbol">)</a>
+
+<a id="4947" class="Comment">-- Proposition 16. (ap² on +ₖ)</a>
+<a id="4978" class="Keyword">open</a> <a id="4983" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html" class="Module">EMGr</a> <a id="4988" class="Keyword">using</a> <a id="4994" class="Symbol">(</a><a id="4995" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#4710" class="Function">cong₂+₁</a> <a id="5003" class="Symbol">;</a> <a id="5005" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#4937" class="Function">cong₂+₂</a><a id="5012" class="Symbol">)</a>
+
+<a id="5015" class="Comment">-- Proposition 17. (cancellation laws of +ₖ)</a>
+<a id="5060" class="Keyword">open</a> <a id="5065" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html" class="Module">EMGr</a> <a id="5070" class="Keyword">using</a> <a id="5076" class="Symbol">(</a><a id="5077" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#8370" class="Function">rCancelₖ</a> <a id="5086" class="Symbol">;</a> <a id="5088" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#9686" class="Function">lCancelₖ</a><a id="5096" class="Symbol">)</a>
+
+<a id="5099" class="Comment">--- 3.2 K(Gn) vs ΩK(G,n+1)</a>
+<a id="5126" class="Comment">-- Proposition 18. Commutativity of Ω(K(G,n),x)</a>
+<a id="5174" class="Keyword">open</a> <a id="5179" href="Cubical.Homotopy.EilenbergMacLane.Properties.html" class="Module">EMProps</a> <a id="5187" class="Keyword">using</a> <a id="5193" class="Symbol">(</a><a id="5194" href="Cubical.Homotopy.EilenbergMacLane.Properties.html#14962" class="Function">isCommΩEM-base</a><a id="5208" class="Symbol">)</a>
+
+<a id="5211" class="Comment">-- Proposition 19. (ap -ₖ = path inversion)</a>
+<a id="5255" class="Keyword">open</a> <a id="5260" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html" class="Module">EMGr</a> <a id="5265" class="Keyword">using</a> <a id="5271" class="Symbol">(</a><a id="5272" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#5516" class="Function">cong-₁</a> <a id="5279" class="Symbol">;</a> <a id="5281" href="Cubical.Homotopy.EilenbergMacLane.GroupStructure.html#6660" class="Function">cong-₂</a><a id="5287" class="Symbol">)</a>
+
+<a id="5290" class="Comment">-- Proposition 20. (σ preserves +ₖ)</a>
+<a id="5326" class="Keyword">open</a> <a id="5331" href="Cubical.Homotopy.EilenbergMacLane.Properties.html" class="Module">EMProps</a> <a id="5339" class="Keyword">using</a> <a id="5345" class="Symbol">(</a><a id="5346" href="Cubical.Homotopy.EilenbergMacLane.Properties.html#13095" class="Function">EM→ΩEM+1-hom</a><a id="5358" class="Symbol">)</a>
+
+<a id="5361" class="Comment">-- Corollary 21. (σ preserves -ₖ)</a>
+<a id="5395" class="Keyword">open</a> <a id="5400" href="Cubical.Homotopy.EilenbergMacLane.Properties.html" class="Module">EMProps</a> <a id="5408" class="Keyword">using</a> <a id="5414" class="Symbol">(</a><a id="5415" href="Cubical.Homotopy.EilenbergMacLane.Properties.html#13349" class="Function">EM→ΩEM+1-sym</a><a id="5427" class="Symbol">)</a>
+
+<a id="5430" class="Comment">-- Theorem 22. K(G,n) ≃ Ω(K(G,n+1))</a>
+<a id="5466" class="Keyword">open</a> <a id="5471" href="Cubical.Homotopy.EilenbergMacLane.Properties.html" class="Module">EMProps</a> <a id="5479" class="Keyword">using</a> <a id="5485" class="Symbol">(</a><a id="5486" href="Cubical.Homotopy.EilenbergMacLane.Properties.html#12531" class="Function">EM≃ΩEM+1</a><a id="5494" class="Symbol">)</a>
+
+<a id="5497" class="Comment">--- 3.3 The cup product with group coefficients</a>
+<a id="5545" class="Comment">-- Definition 23. Tensor products of abelian groups</a>
+<a id="5597" class="Keyword">open</a> <a id="5602" href="Cubical.Algebra.AbGroup.TensorProduct.html" class="Module">Tensor</a> <a id="5609" class="Keyword">using</a> <a id="5615" class="Symbol">(</a><a id="5616" href="Cubical.Algebra.AbGroup.TensorProduct.html#8072" class="Function Operator">_⨂_</a><a id="5619" class="Symbol">)</a>
+
+<a id="5622" class="Comment">-- Proposition 24. Truncation of K(G,n) →* K(H;n+m)</a>
+<a id="5674" class="Keyword">open</a> <a id="5679" href="Cubical.Homotopy.EilenbergMacLane.Properties.html" class="Module">EMProps</a> <a id="5687" class="Keyword">using</a> <a id="5693" class="Symbol">(</a><a id="5694" href="Cubical.Homotopy.EilenbergMacLane.Properties.html#24001" class="Function">isOfHLevel↑∙</a><a id="5706" class="Symbol">)</a>
+
+<a id="5709" class="Comment">-- The general cup product</a>
+<a id="5736" class="Keyword">open</a> <a id="5741" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html" class="Module">Cup⊗</a> <a id="5746" class="Keyword">renaming</a> <a id="5755" class="Symbol">(</a><a id="5756" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#9609" class="Function Operator">_⌣ₖ_</a> <a id="5761" class="Symbol">to</a> <a id="5764" class="Function Operator">_⌣ₖ⊗_</a><a id="5769" class="Symbol">)</a>
+
+<a id="5772" class="Comment">-- Proposition 25 (anihilation laws)</a>
+<a id="5809" class="Keyword">open</a> <a id="5814" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html" class="Module">Cup⊗</a> <a id="5819" class="Keyword">using</a> <a id="5825" class="Symbol">(</a><a id="5826" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#9714" class="Function">⌣ₖ-0ₖ</a> <a id="5832" class="Symbol">;</a> <a id="5834" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#9811" class="Function">0ₖ-⌣ₖ</a><a id="5839" class="Symbol">)</a>
+
+<a id="5842" class="Comment">-- Lemma 26 (Evan&#39;s trick)</a>
+<a id="5869" class="Keyword">open</a> <a id="5874" href="Cubical.Foundations.Pointed.Homogeneous.html" class="Module">Homogeneous</a> <a id="5886" class="Keyword">using</a> <a id="5892" class="Symbol">(</a><a id="5893" href="Cubical.Foundations.Pointed.Homogeneous.html#1616" class="Function">→∙Homogeneous≡</a><a id="5907" class="Symbol">)</a>
+
+<a id="5910" class="Comment">-- Propositions 27 and 28 (distributivity of ⌣ₖ)</a>
+<a id="5959" class="Keyword">open</a> <a id="5964" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#13631" class="Module">Cup⊗.LeftDistributivity</a> <a id="5988" class="Keyword">using</a> <a id="5994" class="Symbol">(</a><a id="5995" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#17143" class="Function">main</a><a id="5999" class="Symbol">)</a>
+<a id="6001" class="Keyword">open</a> <a id="6006" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#20225" class="Module">Cup⊗.RightDistributivity</a> <a id="6031" class="Keyword">using</a> <a id="6037" class="Symbol">(</a><a id="6038" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#23303" class="Function">main</a><a id="6042" class="Symbol">)</a>
+
+<a id="6045" class="Comment">-- Lemma 29</a>
+<a id="6057" class="Keyword">open</a> <a id="6062" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html" class="Module">Cup⊗</a> <a id="6067" class="Keyword">using</a> <a id="6073" class="Symbol">(</a><a id="6074" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#33488" class="Function">EM→ΩEM+1-distr₀ₙ</a> <a id="6091" class="Symbol">;</a> <a id="6093" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#34741" class="Function">EM→ΩEM+1-distrₙsuc</a> <a id="6112" class="Symbol">;</a> <a id="6114" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#37217" class="Function">EM→ΩEM+1-distrₙ₀</a><a id="6130" class="Symbol">)</a>
+
+<a id="6133" class="Comment">-- Proposition 30 (associativity of ⌣ₖ)</a>
+<a id="6173" class="Keyword">open</a> <a id="6178" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#38533" class="Module">Cup⊗.Assoc</a> <a id="6189" class="Keyword">using</a> <a id="6195" class="Symbol">(</a><a id="6196" href="Cubical.Homotopy.EilenbergMacLane.CupProductTensor.html#67009" class="Function">main</a><a id="6200" class="Symbol">)</a>
+
+<a id="6203" class="Comment">-- Proposition 31 (graded commutativity of CupComm)</a>
+<a id="6255" class="Keyword">open</a> <a id="6260" href="Cubical.Homotopy.EilenbergMacLane.GradedCommTensor.html" class="Module">CupComm</a> <a id="6268" class="Keyword">using</a> <a id="6274" class="Symbol">(</a><a id="6275" href="Cubical.Homotopy.EilenbergMacLane.GradedCommTensor.html#59447" class="Function">⌣ₖ-comm</a><a id="6282" class="Symbol">)</a>
+
+<a id="6285" class="Comment">--- 3.4 The cup product with ring coefficients</a>
+<a id="6332" class="Comment">-- Proposition 32 (ring structure on ⌣ₖ with ring coefficents)</a>
+<a id="6395" class="Keyword">open</a> <a id="6400" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html" class="Module">Cupₖ</a> <a id="6405" class="Keyword">using</a> <a id="6411" class="Symbol">(</a><a id="6412" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html#4031" class="Function">assoc⌣ₖ</a> <a id="6420" class="Symbol">;</a> <a id="6422" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html#3785" class="Function">distrL⌣ₖ</a> <a id="6431" class="Symbol">;</a> <a id="6433" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html#3538" class="Function">distrR⌣ₖ</a> <a id="6442" class="Symbol">;</a> <a id="6444" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html#2445" class="Function">⌣ₖ-0ₖ</a> <a id="6450" class="Symbol">;</a> <a id="6452" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html#2588" class="Function">0ₖ-⌣ₖ</a><a id="6457" class="Symbol">)</a>
+
+<a id="6460" class="Comment">-- Proposition 33 (graded commutativity)</a>
+<a id="6501" class="Keyword">open</a> <a id="6506" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html" class="Module">Cupₖ</a> <a id="6511" class="Keyword">using</a> <a id="6517" class="Symbol">(</a><a id="6518" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html#8815" class="Function">⌣ₖ-comm</a><a id="6525" class="Symbol">)</a>
+
+<a id="6528" class="Comment">-- Proposition 34 (neutral element)</a>
+<a id="6564" class="Keyword">open</a> <a id="6569" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html" class="Module">Cupₖ</a> <a id="6574" class="Keyword">using</a> <a id="6580" class="Symbol">(</a><a id="6581" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html#2731" class="Function">⌣ₖ-1ₖ</a> <a id="6587" class="Symbol">;</a> <a id="6589" href="Cubical.Homotopy.EilenbergMacLane.CupProduct.html#3263" class="Function">1ₖ-⌣ₖ</a><a id="6594" class="Symbol">)</a>
+
+
+<a id="6598" class="Comment">----- 4. Cohomology -----</a>
+<a id="6624" class="Comment">-- Defininition of cohomology groups</a>
+<a id="6661" class="Keyword">open</a> <a id="6666" href="Cubical.Cohomology.EilenbergMacLane.Base.html" class="Module">Cohom</a> <a id="6672" class="Keyword">using</a> <a id="6678" class="Symbol">(</a><a id="6679" href="Cubical.Cohomology.EilenbergMacLane.Base.html#3445" class="Function">coHomGr</a><a id="6686" class="Symbol">)</a>
+
+<a id="6689" class="Comment">-- Cup products on cohomology</a>
+<a id="6719" class="Keyword">open</a> <a id="6724" href="Cubical.Cohomology.EilenbergMacLane.CupProduct.html" class="Module">CohomCup</a> <a id="6733" class="Keyword">using</a> <a id="6739" class="Symbol">(</a><a id="6740" href="Cubical.Cohomology.EilenbergMacLane.CupProduct.html#1479" class="Function Operator">_⌣_</a><a id="6743" class="Symbol">)</a>
+
+<a id="6746" class="Comment">--- 4.1 Reduced cohomology</a>
+<a id="6773" class="Comment">-- Definition of reduced cohomology groups</a>
+<a id="6816" class="Keyword">open</a> <a id="6821" href="Cubical.Cohomology.EilenbergMacLane.Base.html" class="Module">Cohom</a> <a id="6827" class="Keyword">using</a> <a id="6833" class="Symbol">(</a><a id="6834" href="Cubical.Cohomology.EilenbergMacLane.Base.html#8939" class="Function">coHomRedGr</a><a id="6844" class="Symbol">)</a>
+
+<a id="6847" class="Comment">-- Proposition 35.</a>
+<a id="6866" class="Keyword">open</a> <a id="6871" href="Cubical.Cohomology.EilenbergMacLane.Base.html" class="Module">Cohom</a> <a id="6877" class="Keyword">using</a> <a id="6883" class="Symbol">(</a><a id="6884" href="Cubical.Cohomology.EilenbergMacLane.Base.html#9770" class="Function">coHom≅coHomRed</a><a id="6898" class="Symbol">)</a>
+
+<a id="6901" class="Comment">-- Proposition 36.</a>
+<a id="6920" class="Keyword">open</a> <a id="6925" href="Cubical.Cohomology.EilenbergMacLane.Base.html" class="Module">Cohom</a> <a id="6931" class="Keyword">using</a> <a id="6937" class="Symbol">(</a><a id="6938" href="Cubical.Cohomology.EilenbergMacLane.Base.html#11021" class="Function">coHom⁰≅coHomRed⁰</a><a id="6954" class="Symbol">)</a>
+
+<a id="6957" class="Comment">--- 4.2 Eilenberg-Steenrod axioms for cohomology</a>
+<a id="7006" class="Comment">-- Definition 37. Cofibres</a>
+<a id="7033" class="Keyword">open</a> <a id="7038" href="Cubical.HITs.Pushout.html" class="Module">Pushouts</a> <a id="7047" class="Keyword">using</a> <a id="7053" class="Symbol">(</a><a id="7054" href="Cubical.HITs.Pushout.Base.html#1171" class="Function">cofib</a><a id="7059" class="Symbol">)</a>
+
+<a id="7062" class="Comment">-- Definition 38. Arbitrary wedges</a>
+<a id="7097" class="Keyword">open</a> <a id="7102" href="Cubical.HITs.Wedge.html" class="Module">⋁</a> <a id="7104" class="Keyword">using</a> <a id="7110" class="Symbol">(</a><a id="7111" href="Cubical.HITs.Wedge.Base.html#453" class="Function">⋁gen</a><a id="7115" class="Symbol">)</a>
+
+<a id="7118" class="Comment">-- Definition 39. Choice</a>
+<a id="7143" class="Keyword">open</a> <a id="7148" href="Cubical.Axiom.Choice.html" class="Module">Choice</a> <a id="7155" class="Keyword">using</a> <a id="7161" class="Symbol">(</a><a id="7162" href="Cubical.Axiom.Choice.html#966" class="Function">satAC</a><a id="7167" class="Symbol">)</a>
+
+<a id="7170" class="Comment">-- Definition 40. Eilenberg-Steenrod axioms</a>
+<a id="7214" class="Keyword">open</a> <a id="7219" href="Cubical.Homotopy.EilenbergSteenrod.html" class="Module">Axioms</a> <a id="7226" class="Keyword">using</a> <a id="7232" class="Symbol">(</a><a id="7233" href="Cubical.Homotopy.EilenbergSteenrod.html#2161" class="Record">coHomTheoryGen</a><a id="7247" class="Symbol">)</a>
+
+<a id="7250" class="Comment">-- Theorem 41. Eilenberg-Steenrod axioms are satified</a>
+<a id="7304" class="Keyword">open</a> <a id="7309" href="Cubical.Cohomology.EilenbergMacLane.EilenbergSteenrod.html" class="Module">SatAxioms</a> <a id="7319" class="Keyword">using</a> <a id="7325" class="Symbol">(</a><a id="7326" href="Cubical.Cohomology.EilenbergMacLane.EilenbergSteenrod.html#13452" class="Function">satisfies-ES-gen</a><a id="7342" class="Symbol">)</a>
+
+<a id="7345" class="Comment">-- Theorem 42 (The mayer-Vietoris sequence)</a>
+<a id="7389" class="Keyword">open</a> <a id="7394" href="Cubical.Cohomology.EilenbergMacLane.MayerVietoris.html#941" class="Module">MV.MV</a> <a id="7400" class="Keyword">using</a> <a id="7406" class="Symbol">(</a> <a id="7408" href="Cubical.Cohomology.EilenbergMacLane.MayerVietoris.html#4551" class="Function">Ker-i⊂Im-d</a> <a id="7419" class="Symbol">;</a> <a id="7421" href="Cubical.Cohomology.EilenbergMacLane.MayerVietoris.html#4092" class="Function">Im-d⊂Ker-i</a>
+                 <a id="7449" class="Symbol">;</a> <a id="7451" href="Cubical.Cohomology.EilenbergMacLane.MayerVietoris.html#6230" class="Function">Ker-Δ⊂Im-i</a> <a id="7462" class="Symbol">;</a> <a id="7464" href="Cubical.Cohomology.EilenbergMacLane.MayerVietoris.html#5753" class="Function">Im-i⊂Ker-Δ</a>
+                 <a id="7492" class="Symbol">;</a> <a id="7494" href="Cubical.Cohomology.EilenbergMacLane.MayerVietoris.html#7805" class="Function">Ker-d⊂Im-Δ</a> <a id="7505" class="Symbol">;</a> <a id="7507" href="Cubical.Cohomology.EilenbergMacLane.MayerVietoris.html#8901" class="Function">Im-Δ⊂Ker-d</a><a id="7517" class="Symbol">)</a>
+
+<a id="7520" class="Comment">--- 4.4 The Thom isomorphism and the Gysin sequence</a>
+<a id="7572" class="Comment">-- Theorem 43 (Gysin sequence)</a>
+<a id="7603" class="Keyword">open</a> <a id="7608" href="Cubical.Cohomology.EilenbergMacLane.Gysin.html#33077" class="Module">Gysin.Gysin</a> <a id="7620" class="Keyword">using</a> <a id="7626" class="Symbol">(</a> <a id="7628" href="Cubical.Cohomology.EilenbergMacLane.Gysin.html#35834" class="Function">Im-mapᵣ⊂Ker-mapₗ</a> <a id="7645" class="Symbol">;</a> <a id="7647" href="Cubical.Cohomology.EilenbergMacLane.Gysin.html#36209" class="Function">Ker-mapₗ⊂Im-mapᵣ</a>
+                       <a id="7687" class="Symbol">;</a> <a id="7689" href="Cubical.Cohomology.EilenbergMacLane.Gysin.html#37362" class="Function">Ker-⌣⊂Im-mapₗ</a> <a id="7703" class="Symbol">;</a> <a id="7705" href="Cubical.Cohomology.EilenbergMacLane.Gysin.html#38017" class="Function">Im-mapₗ⊂Ker-⌣</a>
+                       <a id="7742" class="Symbol">;</a> <a id="7744" href="Cubical.Cohomology.EilenbergMacLane.Gysin.html#38726" class="Function">Im--⌣⊂Ker-mapᵣ</a> <a id="7759" class="Symbol">;</a> <a id="7761" href="Cubical.Cohomology.EilenbergMacLane.Gysin.html#39191" class="Function">Ker-mapᵣ⊂Im--⌣</a><a id="7775" class="Symbol">)</a>
+
+<a id="7778" class="Comment">--- 5. Computations of cohomology groups and rings</a>
+<a id="7829" class="Comment">-- Proposition 44. Cohom of 1</a>
+<a id="7859" class="Keyword">open</a> <a id="7864" href="Cubical.Cohomology.EilenbergMacLane.Groups.Unit.html" class="Module">HⁿUnit</a> <a id="7871" class="Keyword">using</a> <a id="7877" class="Symbol">(</a><a id="7878" href="Cubical.Cohomology.EilenbergMacLane.Groups.Unit.html#726" class="Function">H⁰[Unit,G]≅G</a> <a id="7891" class="Symbol">;</a> <a id="7893" href="Cubical.Cohomology.EilenbergMacLane.Groups.Unit.html#1456" class="Function">Hⁿ⁺¹[Unit,G]≅0</a><a id="7907" class="Symbol">)</a>
+
+<a id="7910" class="Comment">-- Lemma 45. Cohom of truncation</a>
+<a id="7943" class="Keyword">open</a> <a id="7948" href="Cubical.Cohomology.EilenbergMacLane.Base.html" class="Module">Cohom</a> <a id="7954" class="Keyword">using</a> <a id="7960" class="Symbol">(</a><a id="7961" href="Cubical.Cohomology.EilenbergMacLane.Base.html#17054" class="Function">coHomTruncEquiv</a><a id="7976" class="Symbol">)</a>
+
+<a id="7979" class="Comment">-- Proposition 46. Cohomology of connected types</a>
+<a id="8028" class="Keyword">open</a> <a id="8033" href="Cubical.Cohomology.EilenbergMacLane.Groups.Connected.html" class="Module">CohomConnected</a> <a id="8048" class="Keyword">using</a> <a id="8054" class="Symbol">(</a><a id="8055" href="Cubical.Cohomology.EilenbergMacLane.Groups.Connected.html#2020" class="Function">H⁰conn</a><a id="8061" class="Symbol">)</a>
+
+<a id="8064" class="Comment">--- 5.1 Speres</a>
+<a id="8079" class="Comment">-- Proposition 47. H¹(S¹,G)</a>
+<a id="8107" class="Keyword">open</a> <a id="8112" href="Cubical.Cohomology.EilenbergMacLane.Groups.Sn.html" class="Module">CohomSn</a> <a id="8120" class="Keyword">using</a> <a id="8126" class="Symbol">(</a><a id="8127" href="Cubical.Cohomology.EilenbergMacLane.Groups.Sn.html#3336" class="Function">H¹[S¹,G]≅G</a><a id="8137" class="Symbol">)</a>
+
+<a id="8140" class="Comment">-- Proposition 48. Hⁿ(Sⁿ,G)</a>
+<a id="8168" class="Keyword">open</a> <a id="8173" href="Cubical.Cohomology.EilenbergMacLane.Groups.Sn.html" class="Module">CohomSn</a> <a id="8181" class="Keyword">using</a> <a id="8187" class="Symbol">(</a><a id="8188" href="Cubical.Cohomology.EilenbergMacLane.Groups.Sn.html#7009" class="Function">Hⁿ[Sⁿ,G]≅G</a><a id="8198" class="Symbol">)</a>
+
+<a id="8201" class="Comment">-- Proposition 49. Hⁿ(Sᵐ,G) , m ≠ n</a>
+<a id="8237" class="Keyword">open</a> <a id="8242" href="Cubical.Cohomology.EilenbergMacLane.Groups.Sn.html" class="Module">CohomSn</a> <a id="8250" class="Keyword">using</a> <a id="8256" class="Symbol">(</a><a id="8257" href="Cubical.Cohomology.EilenbergMacLane.Groups.Sn.html#9567" class="Function">Hⁿ[Sᵐ⁺ⁿ,G]≅0</a> <a id="8270" class="Symbol">;</a> <a id="8272" href="Cubical.Cohomology.EilenbergMacLane.Groups.Sn.html#9098" class="Function">Hᵐ⁺ⁿ[Sⁿ,G]≅0</a><a id="8284" class="Symbol">)</a>
+
+<a id="8287" class="Comment">-- Proposition 50. H*(Sᵐ,G)</a>
+<a id="8315" class="Keyword">open</a> <a id="8320" href="Cubical.Cohomology.EilenbergMacLane.Rings.Sn.html" class="Module">CohomRingSn</a> <a id="8332" class="Keyword">using</a> <a id="8338" class="Symbol">(</a><a id="8339" href="Cubical.Cohomology.EilenbergMacLane.Rings.Sn.html#15302" class="Function">H*[Sⁿ,G]≅G[X]/&lt;X²&gt;</a><a id="8357" class="Symbol">)</a>
+
+<a id="8360" class="Comment">--- 5.2 The Torus</a>
+<a id="8378" class="Comment">-- Definition 51. Torus</a>
+<a id="8402" class="Keyword">open</a> <a id="8407" href="Cubical.HITs.Torus.html" class="Module">T²</a> <a id="8410" class="Keyword">using</a> <a id="8416" class="Symbol">(</a><a id="8417" href="Cubical.HITs.Torus.Base.html#534" class="Datatype">Torus</a><a id="8422" class="Symbol">)</a>
+
+<a id="8425" class="Comment">-- Proposition 52. Hⁿ(T²,G)</a>
+<a id="8453" class="Keyword">open</a> <a id="8458" href="Cubical.Cohomology.EilenbergMacLane.Groups.Torus.html" class="Module">CohomT²</a> <a id="8466" class="Keyword">using</a> <a id="8472" class="Symbol">(</a><a id="8473" href="Cubical.Cohomology.EilenbergMacLane.Groups.Torus.html#5689" class="Function">H⁰[T²,G]≅G</a> <a id="8484" class="Symbol">;</a> <a id="8486" href="Cubical.Cohomology.EilenbergMacLane.Groups.Torus.html#6141" class="Function">H¹[T²,G]≅G×G</a> <a id="8499" class="Symbol">;</a> <a id="8501" href="Cubical.Cohomology.EilenbergMacLane.Groups.Torus.html#7960" class="Function">H²[T²,G]≅G</a> <a id="8512" class="Symbol">;</a> <a id="8514" href="Cubical.Cohomology.EilenbergMacLane.Groups.Torus.html#9553" class="Function">H³⁺ⁿ[T²,G]≅0</a><a id="8526" class="Symbol">)</a>
+
+<a id="8529" class="Comment">--- 5.3 The Real Projective Plane and The Klein Bottle</a>
+<a id="8584" class="Comment">-- Definition 53. Real Projective Plane</a>
+<a id="8624" class="Keyword">open</a> <a id="8629" href="Cubical.HITs.RPn.Base.html" class="Module">RP²</a> <a id="8633" class="Keyword">using</a> <a id="8639" class="Symbol">(</a><a id="8640" href="Cubical.HITs.RPn.Base.html#1323" class="Datatype">RP²</a><a id="8643" class="Symbol">)</a>
+<a id="8645" class="Comment">-- Definition 54. The Klein Bottle</a>
+<a id="8680" class="Keyword">open</a> <a id="8685" href="Cubical.HITs.KleinBottle.html" class="Module">K²</a> <a id="8688" class="Keyword">using</a> <a id="8694" class="Symbol">(</a><a id="8695" href="Cubical.HITs.KleinBottle.Base.html#158" class="Datatype">KleinBottle</a><a id="8706" class="Symbol">)</a>
+
+<a id="8709" class="Comment">-- Proposition 55 H¹(RP²,G) ≅ G[2]</a>
+<a id="8744" class="Keyword">open</a> <a id="8749" href="Cubical.Cohomology.EilenbergMacLane.Groups.RP2.html" class="Module">CohomRP²</a> <a id="8758" class="Keyword">using</a> <a id="8764" class="Symbol">(</a><a id="8765" href="Cubical.Cohomology.EilenbergMacLane.Groups.RP2.html#10609" class="Function">H¹[RP²,G]≅G[2]</a><a id="8779" class="Symbol">)</a>
+
+<a id="8782" class="Comment">-- Proposition 56 H²(RP²,G) ≅ G/2</a>
+<a id="8816" class="Keyword">open</a> <a id="8821" href="Cubical.Cohomology.EilenbergMacLane.Groups.RP2.html" class="Module">CohomRP²</a> <a id="8830" class="Keyword">using</a> <a id="8836" class="Symbol">(</a><a id="8837" href="Cubical.Cohomology.EilenbergMacLane.Groups.RP2.html#18129" class="Function">H²[RP²,G]≅G/2</a><a id="8850" class="Symbol">)</a>
+
+<a id="8853" class="Comment">-- Proposition 57 Hᵐ(RP²,G) ≅ 0, m ≥ 3</a>
+<a id="8892" class="Keyword">open</a> <a id="8897" href="Cubical.Cohomology.EilenbergMacLane.Groups.RP2.html" class="Module">CohomRP²</a> <a id="8906" class="Keyword">using</a> <a id="8912" class="Symbol">(</a><a id="8913" href="Cubical.Cohomology.EilenbergMacLane.Groups.RP2.html#18977" class="Function">H³⁺ⁿ[RP²,G]≅0</a><a id="8926" class="Symbol">)</a>
+
+<a id="8929" class="Comment">-- Proposition 58. Hᵐ(K²,G)</a>
+<a id="8957" class="Keyword">open</a> <a id="8962" href="Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle.html" class="Module">CohomK²</a> <a id="8970" class="Keyword">using</a> <a id="8976" class="Symbol">(</a><a id="8977" href="Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle.html#13051" class="Function">H⁰[K²,G]≅G</a> <a id="8988" class="Symbol">;</a> <a id="8990" href="Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle.html#13287" class="Function">H¹[K²,G]≅G×H¹[RP²,G]</a><a id="9010" class="Symbol">;</a> <a id="9012" href="Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle.html#20724" class="Function">H²⁺ⁿ[K²,G]≅H²⁺ⁿ[RP²,G]</a><a id="9034" class="Symbol">)</a>
+
+<a id="9037" class="Comment">-- Proposition 59. H*(RP²,\bZ) -- Formalisation taken from `Computing Cohomology Rings in Cubical Agda&#39;</a>
+<a id="9141" class="Keyword">open</a> <a id="9146" href="Cubical.ZCohomology.CohomologyRings.RP2.html" class="Module">ZCohomRingRP²</a> <a id="9160" class="Keyword">using</a> <a id="9166" class="Symbol">(</a><a id="9167" href="Cubical.ZCohomology.CohomologyRings.RP2.html#19318" class="Function">RP²-CohomologyRing</a><a id="9185" class="Symbol">)</a>
+
+<a id="9188" class="Comment">-- Defnition 60 kill-Δ</a>
+<a id="9211" class="Comment">-- Omitted (implicit in formalisation)</a>
+
+<a id="9251" class="Comment">-- Proposition 61 H*(K²,ℤ) -- Formalisation taken from `Computing Cohomology Rings in Cubical Agda&#39;</a>
+<a id="9351" class="Keyword">open</a> <a id="9356" href="Cubical.ZCohomology.CohomologyRings.KleinBottle.html" class="Module">ZCohomRingK²</a> <a id="9369" class="Keyword">using</a> <a id="9375" class="Symbol">(</a><a id="9376" href="Cubical.ZCohomology.CohomologyRings.KleinBottle.html#24001" class="Function">CohomologyRing-𝕂²</a><a id="9393" class="Symbol">)</a>
+
+<a id="9396" class="Comment">-- Definition 62. Res (only formliased for relevant special case of F = ⌣ on K(ℤ/2,1))</a>
+<a id="9483" class="Keyword">open</a> <a id="9488" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html" class="Module">K²Ring</a> <a id="9495" class="Keyword">using</a> <a id="9501" class="Symbol">(</a><a id="9502" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html#4994" class="Function">Res⌣</a><a id="9506" class="Symbol">)</a>
+
+<a id="9509" class="Comment">-- Propsoiton 63. Res refl = refl</a>
+<a id="9543" class="Comment">-- omitted (used implicitly in formalisation)</a>
+
+<a id="9590" class="Comment">-- Lemma 64/65. ap2-funct ocherence (this is roughly the special case of lemma 61)</a>
+<a id="9673" class="Keyword">open</a> <a id="9678" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html" class="Module">K²Ring</a> <a id="9685" class="Keyword">using</a> <a id="9691" class="Symbol">(</a><a id="9692" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html#5302" class="Function">sym-cong₂-⌣≡</a><a id="9704" class="Symbol">)</a>
+
+<a id="9707" class="Comment">-- Proposition 66. Implicitly formalised via the following theorem</a>
+<a id="9774" class="Keyword">open</a> <a id="9779" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html" class="Module">K²Ring</a> <a id="9786" class="Keyword">using</a> <a id="9792" class="Symbol">(</a><a id="9793" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html#20995" class="Function">α²↦1</a><a id="9797" class="Symbol">)</a>
+
+<a id="9800" class="Comment">-- Proposition 67. H*(RP²,Z/2)</a>
+<a id="9831" class="Keyword">open</a> <a id="9836" href="Cubical.Cohomology.EilenbergMacLane.Rings.RP2.html" class="Module">RP²Ring</a> <a id="9844" class="Keyword">using</a> <a id="9850" class="Symbol">(</a><a id="9851" href="Cubical.Cohomology.EilenbergMacLane.Rings.RP2.html#17666" class="Function">H*[RP²,ℤ₂]≅ℤ₂[X]/&lt;X³&gt;</a><a id="9872" class="Symbol">)</a>
+
+<a id="9875" class="Comment">-- Proposition 68. (Roughly)</a>
+<a id="9904" class="Keyword">open</a> <a id="9909" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html" class="Module">K²Ring</a> <a id="9916" class="Keyword">using</a> <a id="9922" class="Symbol">(</a><a id="9923" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html#20995" class="Function">α²↦1</a> <a id="9928" class="Symbol">;</a> <a id="9930" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html#22177" class="Function">βα↦1</a> <a id="9935" class="Symbol">;</a> <a id="9937" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html#21649" class="Function">β²↦0</a><a id="9941" class="Symbol">)</a>
+
+<a id="9944" class="Comment">-- Proposition 69. H*(K²,ℤ/2)</a>
+<a id="9974" class="Keyword">open</a> <a id="9979" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html" class="Module">K²Ring</a> <a id="9986" class="Keyword">using</a> <a id="9992" class="Symbol">(</a><a id="9993" href="Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle.html#45913" class="Function">H*KleinBottle≅ℤ/2[X,Y]/&lt;X³,Y²,XY+X²&gt;</a><a id="10029" class="Symbol">)</a>
+
+<a id="10032" class="Comment">-- Lemma 70. (implicitly used)</a>
+
+<a id="10064" class="Comment">-- Proposition 71. H*(RP∞, ℤ/2)</a>
+<a id="10096" class="Keyword">open</a> <a id="10101" href="Cubical.Cohomology.EilenbergMacLane.Rings.RPinf.html" class="Module">RP∞Ring</a> <a id="10109" class="Keyword">using</a> <a id="10115" class="Symbol">(</a><a id="10116" href="Cubical.Cohomology.EilenbergMacLane.Rings.RPinf.html#12275" class="Function">H*[RP∞,ℤ₂]≅ℤ₂[X]</a><a id="10132" class="Symbol">)</a>
+</pre></body></html>
