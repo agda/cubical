@@ -446,6 +446,10 @@ module _ {ℓ : Level} where
     -- the structure sheaf
     private COᵒᵖ = (DistLatticeCategory (CompOpenDistLattice .F-ob X)) ^op
 
+    compOpenGlobalIncl : (U : CompactOpen X) → ⟦ U ⟧ᶜᵒ ⇒ X
+    N-ob (compOpenGlobalIncl U) A = fst
+    N-hom (compOpenGlobalIncl U) φ = refl
+
     compOpenIncl : {U V : CompactOpen X} → V ≤ U → ⟦ V ⟧ᶜᵒ ⇒ ⟦ U ⟧ᶜᵒ
     N-ob (compOpenIncl {U = U} {V = V} V≤U) A (x , Vx≡D1) = x , path
       where
@@ -476,9 +480,9 @@ module _ {ℓ : Level} where
     F-seq strDLSh _ _ = cong (𝓞 .F-hom) (compOpenInclSeq _ _) ∙ 𝓞 .F-seq _ _
 
     -- ⟦ U ⟧ → X → 𝓛 via V
-    compOpenRest : {U V : CompactOpen X} → V ≤ U → CompactOpen ⟦ U ⟧ᶜᵒ
-    N-ob (compOpenRest {V = V} V≤U) A (x , Ux≡D1) = V .N-ob A x
-    N-hom (compOpenRest V≤U) φ = funExt (λ x → {!!})
+    -- compOpenRest : {U V : CompactOpen X} → V ≤ U → CompactOpen ⟦ U ⟧ᶜᵒ
+    -- N-ob (compOpenRest {V = V} V≤U) A (x , Ux≡D1) = V .N-ob A x
+    -- N-hom (compOpenRest V≤U) φ = funExt (λ x → {!!})
 
   -- the canonical one element affine cover of a representable
   module _ (A : CommRing ℓ) where
@@ -583,7 +587,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
 
   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob (Sp .F-ob R)))) using (IndPoset)
   open InvertingElementsBase R
-  open Join (ZariskiLattice R)
+  open Join
   open AffineCover
   module ZL = ZarLatUniversalProp
 
@@ -592,13 +596,22 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
       _ = R .snd
       _ = ZariskiLattice R .snd
       _ = CompOpenDistLattice .F-ob (Sp .F-ob R) .snd
+      _ = CompOpenDistLattice .F-ob ⟦ W ⟧ᶜᵒ .snd
       _ = IndPoset .snd
 
   private
     w : ZL R
     w = yonedaᴾ ZarLatFun R .fun W
 
-    module _ {n : ℕ} (α : FinVec (fst R) n) (⋁Dα≡w : ⋁ (ZL.D R ∘ α) ≡ w) where
+    module _ {n : ℕ}
+             (α : FinVec (fst R) n)
+             (⋁Dα≡w : ⋁ (ZariskiLattice R) (ZL.D R ∘ α) ≡ w) where
+
+      ⋁Dα≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ α) ≡ W
+      ⋁Dα≡W = makeNatTransPath (funExt₂ (λ A φ → {!!}))
+        where
+        foo : (A : CommRing ℓ) (φ : CommRingHom R A) → inducedZarLatHom φ .fst w ≡ W .N-ob A φ
+        foo A φ i = cong N-ob (yonedaᴾ ZarLatFun R .leftInv W) i A φ
 
       Dα≤W : ∀ i → D R (α i) ≤ W
       Dα≤W i = {!!}
@@ -606,8 +619,8 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
 
       toAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
       AffineCover.n toAffineCover = n
-      U toAffineCover i = {!!} -- W → Sp R → 𝓛 via Dαᵢ --compOpenRest (Sp .F-ob R) (Dα≤W i)
-      covers toAffineCover = {!!}
+      U toAffineCover i = compOpenGlobalIncl (Sp ⟅ R ⟆) W ●ᵛ D R (α i) -- W → Sp R → 𝓛 via Dαᵢ
+      covers toAffineCover = makeNatTransPath (funExt₂ (λ A y → ({!!} ∙ funExt⁻ (funExt⁻ (cong  N-ob ⋁Dα≡W) A) (fst y)) ∙ y .snd))
       isAffineU toAffineCover = {!!}
       -- ⟦ Dαᵢ ∘ W→SpR ⟧ ≅ ⟦ Dαᵢ ⟧ ≅ Sp R[1/αᵢ]
 
@@ -628,6 +641,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
   -- u = D(g₁,...,gₖ) → ⟨g₁/1 ,..., gₖ/1 ⟩ = A[1/fᵢ]
   -- 0 = A[1/fᵢ]/⟨g₁/1,...,gₖ/1⟩ =???= A/⟨g₁,...,gₙ⟩[1/[fᵢ]] → fᵢⁿ=0 mod ⟨g₁,...,gₙ⟩
   -- 1/1 = ∑ aⱼ/fᵢⁿ gⱼ/1 → fᵢᵐ = ∑ aⱼgⱼ
+  -- use InvertingElementsBase.invElPropElimN to get uniform exponent
   -- → fᵢ ∈ √ ⟨ g₁ ,..., gₖ ⟩ → 1 = ∑ bᵢfᵢ ∈ √ ⟨ g₁ ,..., gₖ ⟩
 
   -- 𝓛 sheaf: ⟨f₀,...,fₙ⟩=A → 𝓛 A = lim (↓ Dfᵢ) = lim (𝓛 A[1/fᵢ])
