@@ -25,6 +25,9 @@ private
   variable
     ℓ ℓ' : Level
 
+terminal : (A : Type ℓ) → A → Unit
+terminal A x = tt
+
 isContrUnit : isContr Unit
 isContrUnit = tt , λ {tt → refl}
 
