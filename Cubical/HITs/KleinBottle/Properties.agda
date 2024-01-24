@@ -55,6 +55,24 @@ elimProp prop a₀ =
     (isProp→PathP (λ _ → prop _) _ _)
     (isProp→PathP (λ _ → prop _) _ _)
 
+K²FunCharacIso : ∀ {ℓ} {A : KleinBottle → Type ℓ}
+  → Iso ((x : KleinBottle) → A x)
+         (Σ[ x ∈ A point ]
+           Σ[ p ∈ PathP (λ i → A (line1 i)) x x ]
+           (Σ[ q ∈ PathP (λ i → A (line2 i)) x x ]
+             SquareP (λ i j → A (square i j))
+               q q (λ i → p (~ i)) p))
+Iso.fun K²FunCharacIso f =
+  f point , cong f line1 , cong f line2 , λ i j → f (square i j)
+Iso.inv K²FunCharacIso (a , p1 , p2 , sq) point = a
+Iso.inv K²FunCharacIso (a , p1 , p2 , sq) (line1 i) = p1 i
+Iso.inv K²FunCharacIso (a , p1 , p2 , sq) (line2 i) = p2 i
+Iso.inv K²FunCharacIso (a , p1 , p2 , sq) (square i j) = sq i j
+Iso.rightInv K²FunCharacIso _ = refl
+Iso.leftInv K²FunCharacIso f =
+  funExt λ { point → refl ; (line1 i) → refl
+          ; (line2 i) → refl ; (square i i₁) → refl}
+
 loop1 : S¹ → KleinBottle
 loop1 base = point
 loop1 (loop i) = line1 i
