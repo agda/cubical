@@ -1,5 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.Experiments.ZCohomologyExperiments where
+
+{-
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.Properties
 open import Cubical.ZCohomology.GroupStructure
@@ -21,13 +23,13 @@ open import Cubical.Algebra.Group hiding (Int)
 
 private
 
-  ⋁-to : coHom 2 S²⋁S¹⋁S¹ → Int
+  ⋁-to : coHom 2 S²⋁S¹⋁S¹ → ℤ
   ⋁-to = Iso.fun (GroupIso.isom H²-S²⋁S¹⋁S¹)
   ⋁-from : Int → coHom 2 S²⋁S¹⋁S¹
   ⋁-from = Iso.inv (GroupIso.isom H²-S²⋁S¹⋁S¹)
 
   g : S²⋁S¹⋁S¹ → ∥ S₊ 2 ∥ 4
-  g (inl x) = ∣ x ∣
+  g (inl x) = ∣ x ∣₁
   g (inr x) = 0ₖ 2
   g (push a i) = 0ₖ 2
 
@@ -76,4 +78,5 @@ test₃ = refl
 But this does
 test₃ : S²-to (one +'ₕ one) ≡ 2
 test₃ = refl
+-}
 -}

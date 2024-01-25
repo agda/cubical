@@ -14,3 +14,12 @@ open import Cubical.Experiments.HoTT-UF
 open import Cubical.Experiments.ZCohomologyOld.Base
 open import Cubical.Experiments.ZCohomologyOld.KcompPrelims
 open import Cubical.Experiments.ZCohomologyOld.Properties
+open import Cubical.Experiments.IntegerMatrix
+open import Cubical.Experiments.List
+open import Cubical.Experiments.CountingFiniteStructure
+open import Cubical.Experiments.HInt
+open import Cubical.Experiments.Combinatorics
+open import Cubical.Experiments.ZariskiLatticeBasicOpens
+open import Cubical.Experiments.ZCohomologyOld.MayerVietorisUnreduced
+open import Cubical.Experiments.ZCohomologyExperiments
+open import Cubical.Experiments.CohomologyGroups
