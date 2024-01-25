@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.FinData
+open import Cubical.Data.Nat using (ℕ; suc; zero)
 
 open import Cubical.Algebra.CommSemiring
 open import Cubical.Algebra.CommSemiring.Instances.Nat
