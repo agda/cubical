@@ -4,7 +4,7 @@ module Cubical.Data.Nat.Triangular where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
-open import Cubical.Data.FinData
+open import Cubical.Data.FinData as Fin
 open import Cubical.Data.Nat using (ℕ; suc; zero)
 
 open import Cubical.Algebra.CommSemiring
@@ -22,7 +22,7 @@ first n i = toℕ i
 
 firstDecompose : (n : ℕ) → first (suc n) ∘ weakenFin ≡ first n
 firstDecompose n i l =
-  elim
+  Fin.elim
     (λ l → first (suc _) (weakenFin l) ≡ first _ l)
     refl
     (λ _ → weakenRespToℕ _)
