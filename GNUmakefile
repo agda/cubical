@@ -35,11 +35,11 @@ check-everythings:
 
 .PHONY : gen-everythings
 gen-everythings:
-	$(EVERYTHINGS) gen-except Core Foundations Codata Experiments
+	$(EVERYTHINGS) gen-except Core Foundations Codata
 
 .PHONY : gen-and-check-everythings
 gen-and-check-everythings:
-	$(EVERYTHINGS) gen-except Core Foundations Codata Experiments
+	$(EVERYTHINGS) gen-except Core Foundations Codata
 	$(EVERYTHINGS) check Core Foundations Codata
 
 .PHONY : check-README
