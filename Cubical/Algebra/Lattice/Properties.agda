@@ -29,24 +29,41 @@ private
     ℓ ℓ' ℓ'' ℓ''' : Level
 
 module LatticeTheory (L' : Lattice ℓ) where
- private L = fst L'
- open LatticeStr (snd L')
+  private L = fst L'
+  open LatticeStr (snd L')
 
- 0lLeftAnnihilates∧l : ∀ (x : L) → 0l ∧l x ≡ 0l
- 0lLeftAnnihilates∧l x = 0l ∧l x          ≡⟨ cong (0l ∧l_) (sym (∨lLid _)) ⟩
-                          0l ∧l (0l ∨l x) ≡⟨ ∧lAbsorb∨l _ _ ⟩
-                          0l ∎
+  0lLeftAnnihilates∧l : ∀ (x : L) → 0l ∧l x ≡ 0l
+  0lLeftAnnihilates∧l x = 0l ∧l x          ≡⟨ cong (0l ∧l_) (sym (∨lLid _)) ⟩
+                           0l ∧l (0l ∨l x) ≡⟨ ∧lAbsorb∨l _ _ ⟩
+                           0l ∎
 
- 0lRightAnnihilates∧l : ∀ (x : L) → x ∧l 0l ≡ 0l
- 0lRightAnnihilates∧l _ = ∧lComm _ _ ∙ 0lLeftAnnihilates∧l _
+  0lRightAnnihilates∧l : ∀ (x : L) → x ∧l 0l ≡ 0l
+  0lRightAnnihilates∧l _ = ∧lComm _ _ ∙ 0lLeftAnnihilates∧l _
 
- 1lLeftAnnihilates∨l : ∀ (x : L) → 1l ∨l x ≡ 1l
- 1lLeftAnnihilates∨l x = 1l ∨l x          ≡⟨ cong (1l ∨l_) (sym (∧lLid _)) ⟩
-                          1l ∨l (1l ∧l x) ≡⟨ ∨lAbsorb∧l _ _ ⟩
-                          1l ∎
+  1lLeftAnnihilates∨l : ∀ (x : L) → 1l ∨l x ≡ 1l
+  1lLeftAnnihilates∨l x = 1l ∨l x          ≡⟨ cong (1l ∨l_) (sym (∧lLid _)) ⟩
+                           1l ∨l (1l ∧l x) ≡⟨ ∨lAbsorb∧l _ _ ⟩
+                           1l ∎
 
- 1lRightAnnihilates∨l : ∀ (x : L) → x ∨l 1l ≡ 1l
- 1lRightAnnihilates∨l _ = ∨lComm _ _ ∙ 1lLeftAnnihilates∨l _
+  1lRightAnnihilates∨l : ∀ (x : L) → x ∨l 1l ≡ 1l
+  1lRightAnnihilates∨l _ = ∨lComm _ _ ∙ 1lLeftAnnihilates∨l _
+
+
+  ∧lCommAssocl : ∀ x y z → x ∧l (y ∧l z) ≡ y ∧l (x ∧l z)
+  ∧lCommAssocl x y z = ∧lAssoc x y z ∙∙ congL _∧l_ (∧lComm x y) ∙∙ sym (∧lAssoc y x z)
+
+  ∧lCommAssocr : ∀ x y z → (x ∧l y) ∧l z ≡ (x ∧l z) ∧l y
+  ∧lCommAssocr x y z = sym (∧lAssoc x y z) ∙∙ congR _∧l_ (∧lComm y z) ∙∙ ∧lAssoc x z y
+
+  ∧lCommAssocr2 : ∀ x y z → (x ∧l y) ∧l z ≡ (z ∧l y) ∧l x
+  ∧lCommAssocr2 x y z = ∧lCommAssocr _ _ _ ∙∙ congL _∧l_ (∧lComm _ _) ∙∙ ∧lCommAssocr _ _ _
+
+  ∧lCommAssocSwap : ∀ x y z w → (x ∧l y) ∧l (z ∧l w) ≡ (x ∧l z) ∧l (y ∧l w)
+  ∧lCommAssocSwap x y z w =
+    ∧lAssoc (x ∧l y) z w ∙∙ congL _∧l_ (∧lCommAssocr x y z) ∙∙ sym (∧lAssoc (x ∧l z) y w)
+
+  ∧lLdist∧l : ∀ x y z → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l (x ∧l z)
+  ∧lLdist∧l x y z = congL _∧l_ (sym (∧lIdem _)) ∙ ∧lCommAssocSwap x x y z
 
 
 
