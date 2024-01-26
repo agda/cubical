@@ -305,6 +305,13 @@ module _ {ℓ : Level} where
   F-id ZarLatFun {A} = cong fst (inducedZarLatHomId A)
   F-seq ZarLatFun φ ψ = cong fst (inducedZarLatHomSeq φ ψ)
 
+  -- this is a separated presheaf
+  -- (TODO: prove this a sheaf)
+  isSeparatedZarLatFun : isSeparated zariskiCoverage ZarLatFun
+  isSeparatedZarLatFun A (unimodvec n f 1∈⟨f₁,⋯,fₙ⟩) u w uRest≡wRest = {!!}
+    where
+    instance _ = A .snd
+
   CompactOpen : ℤFunctor → Type (ℓ-suc ℓ)
   CompactOpen X = X ⇒ ZarLatFun
 
@@ -540,7 +547,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
   N-ob (trans SpR[1/f]≅⟦Df⟧) B φ = (φ ∘r /1AsCommRingHom) , ∨lRid _ ∙ path
     where
     open CommRingHomTheory φ
-    open IsZarMap (ZL.isZarMapD B)
+    open IsSupport (ZL.isSupportD B)
     instance
       _ = B .snd
       _ = ZariskiLattice B .snd
@@ -549,7 +556,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
     isUnitφ[f/1] = RingHomRespInv (f /1) ⦃ S/1⊆S⁻¹Rˣ f ∣ 1 , sym (·IdR f) ∣₁ ⦄
 
     path : ZL.D B (φ .fst (f /1)) ≡ 1l
-    path = ZarMapUnit _ isUnitφ[f/1]
+    path = supportUnit _ isUnitφ[f/1]
 
   N-hom (trans SpR[1/f]≅⟦Df⟧) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (RingHom≡ refl)
 
@@ -568,60 +575,59 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
   isAffineD = ∣ R[1/ f ]AsCommRing , SpR[1/f]≅⟦Df⟧ ∣₁
 
 
-module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
+-- module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
+
+--   open Iso
+--   open Functor
+--   open NatTrans
+--   open NatIso
+--   open isIso
+--   open DistLatticeStr ⦃...⦄
+--   open CommRingStr ⦃...⦄
+--   open PosetStr ⦃...⦄
+--   open IsRingHom
+--   open RingHoms
+--   open IsLatticeHom
+--   open ZarLat
 
 
-  open Iso
-  open Functor
-  open NatTrans
-  open NatIso
-  open isIso
-  open DistLatticeStr ⦃...⦄
-  open CommRingStr ⦃...⦄
-  open PosetStr ⦃...⦄
-  open IsRingHom
-  open RingHoms
-  open IsLatticeHom
-  open ZarLat
+--   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob (Sp .F-ob R)))) using (IndPoset)
+--   open InvertingElementsBase R
+--   open Join
+--   open AffineCover
+--   module ZL = ZarLatUniversalProp
 
+--   private
+--     instance
+--       _ = R .snd
+--       _ = ZariskiLattice R .snd
+--       _ = CompOpenDistLattice .F-ob (Sp .F-ob R) .snd
+--       _ = CompOpenDistLattice .F-ob ⟦ W ⟧ᶜᵒ .snd
+--       _ = IndPoset .snd
 
-  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob (Sp .F-ob R)))) using (IndPoset)
-  open InvertingElementsBase R
-  open Join
-  open AffineCover
-  module ZL = ZarLatUniversalProp
+--   private
+--     w : ZL R
+--     w = yonedaᴾ ZarLatFun R .fun W
 
-  private
-    instance
-      _ = R .snd
-      _ = ZariskiLattice R .snd
-      _ = CompOpenDistLattice .F-ob (Sp .F-ob R) .snd
-      _ = CompOpenDistLattice .F-ob ⟦ W ⟧ᶜᵒ .snd
-      _ = IndPoset .snd
+--     module _ {n : ℕ}
+--              (α : FinVec (fst R) n)
+--              (⋁Dα≡w : ⋁ (ZariskiLattice R) (ZL.D R ∘ α) ≡ w) where
 
-  private
-    w : ZL R
-    w = yonedaᴾ ZarLatFun R .fun W
+--       ⋁Dα≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ α) ≡ W
+--       ⋁Dα≡W = makeNatTransPath (funExt₂ (λ A φ → {!!}))
+--         where
+--         foo : (A : CommRing ℓ) (φ : CommRingHom R A) → inducedZarLatHom φ .fst w ≡ W .N-ob A φ
+--         foo A φ i = cong N-ob (yonedaᴾ ZarLatFun R .leftInv W) i A φ
 
-    module _ {n : ℕ}
-             (α : FinVec (fst R) n)
-             (⋁Dα≡w : ⋁ (ZariskiLattice R) (ZL.D R ∘ α) ≡ w) where
+--       Dα≤W : ∀ i → D R (α i) ≤ W
+--       Dα≤W i = {!!}
+--       -- ⋁ (D αᵢ) ≡ W in SpR → 𝓛
 
-      ⋁Dα≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ α) ≡ W
-      ⋁Dα≡W = makeNatTransPath (funExt₂ (λ A φ → {!!}))
-        where
-        foo : (A : CommRing ℓ) (φ : CommRingHom R A) → inducedZarLatHom φ .fst w ≡ W .N-ob A φ
-        foo A φ i = cong N-ob (yonedaᴾ ZarLatFun R .leftInv W) i A φ
-
-      Dα≤W : ∀ i → D R (α i) ≤ W
-      Dα≤W i = {!!}
-      -- ⋁ (D αᵢ) ≡ W in SpR → 𝓛
-
-      toAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
-      AffineCover.n toAffineCover = n
-      U toAffineCover i = compOpenGlobalIncl (Sp ⟅ R ⟆) W ●ᵛ D R (α i) -- W → Sp R → 𝓛 via Dαᵢ
-      covers toAffineCover = makeNatTransPath (funExt₂ (λ A y → ({!!} ∙ funExt⁻ (funExt⁻ (cong  N-ob ⋁Dα≡W) A) (fst y)) ∙ y .snd))
-      isAffineU toAffineCover = {!!}
+--       toAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
+--       AffineCover.n toAffineCover = n
+--       U toAffineCover i = compOpenGlobalIncl (Sp ⟅ R ⟆) W ●ᵛ D R (α i) -- W → Sp R → 𝓛 via Dαᵢ
+--       covers toAffineCover = makeNatTransPath (funExt₂ (λ A y → ({!!} ∙ funExt⁻ (funExt⁻ (cong  N-ob ⋁Dα≡W) A) (fst y)) ∙ y .snd))
+--       isAffineU toAffineCover = {!!}
       -- ⟦ Dαᵢ ∘ W→SpR ⟧ ≅ ⟦ Dαᵢ ⟧ ≅ Sp R[1/αᵢ]
 
   -- then use ⋁D≡ (merely covered by standard opens) → hasAffineCover ⟦W⟧
