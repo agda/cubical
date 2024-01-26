@@ -1,12 +1,4 @@
 {-# OPTIONS --safe #-}
-{-
-  This is inspired by/copied from:
-  https://github.com/agda/agda-stdlib/blob/master/src/Tactic/MonoidSolver.agda
-  https://github.com/agda/agda-stdlib/blob/master/src/Tactic/RingSolver.agda
-
-  Boilerplate code for calling the ring solver is constructed automatically
-  with agda's reflection features.
--}
 module Cubical.Tactics.CommRingSolver.Reflection where
 
 open import Cubical.Foundations.Prelude hiding (Type)
@@ -27,10 +19,11 @@ open import Cubical.Data.Nat using (ℕ) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
-open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
+open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_)
+
+open import Cubical.Algebra.CommRing
 
 open import Cubical.Tactics.CommRingSolver.AlgebraExpression
-open import Cubical.Algebra.CommRing
 open import Cubical.Tactics.CommRingSolver.RawAlgebra
 open import Cubical.Tactics.CommRingSolver.IntAsRawRing
 open import Cubical.Tactics.CommRingSolver.Solver renaming (solve to ringSolve)

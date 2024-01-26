@@ -10,7 +10,7 @@ open import Cubical.Data.List
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
 open import Cubical.Algebra.CommAlgebra
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 private
   variable
@@ -68,7 +68,7 @@ module Test (R : CommRing ℓ) where
   _ = solve R
 
   {-
-    A bigger example, copied from the other example files:
+    A bigger example:
   -}
   _ : (x y z : (fst R)) → (x + y) · (x + y) · (x + y) · (x + y)
                 ≡ x · x · x · x + (fromℤ R 4) · x · x · x · y + (fromℤ R 6) · x · x · y · y

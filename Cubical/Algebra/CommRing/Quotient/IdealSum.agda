@@ -24,7 +24,7 @@ open import Cubical.Algebra.CommRing.Ideal.Base
 open import Cubical.Algebra.CommRing.Ideal.Sum
 open import Cubical.Algebra.CommRing.Ideal.SurjectiveImage
 
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 private variable ℓ : Level
 

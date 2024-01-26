@@ -24,7 +24,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal renaming (IdealsIn to IdealsInRing)
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 open import Cubical.Algebra.CommRing.Ideal
 

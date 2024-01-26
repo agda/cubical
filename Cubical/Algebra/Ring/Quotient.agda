@@ -18,7 +18,7 @@ open import Cubical.HITs.SetQuotients.Properties
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal
 open import Cubical.Algebra.Ring.Kernel
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 private
   variable

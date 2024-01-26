@@ -38,7 +38,7 @@ open import Cubical.Algebra.CommRing.FGIdeal using (generatedIdeal; linearCombin
 open import Cubical.Algebra.CommRing.Ideal using (module CommIdeal)
 open import Cubical.Algebra.Ring.BigOps using (module Sum)
 
-open import Cubical.Tactics.CommRingSolver.Reflection using (solve)
+open import Cubical.Tactics.CommRingSolver using (solve)
 
 
 private
