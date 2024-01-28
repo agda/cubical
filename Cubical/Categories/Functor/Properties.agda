@@ -48,20 +48,6 @@ module _ {F : Functor C D} where
   F-rUnit i .F-id {x} = rUnit (F .F-id) (~ i)
   F-rUnit i .F-seq f g = rUnit (F .F-seq f g) (~ i)
 
-  -- functors preserve commutative diagrams (specificallysqures here)
-  preserveCommF : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , w ]} {h : C [ x , z ]} {k : C [ z , w ]}
-                → f ⋆⟨ C ⟩ g ≡ h ⋆⟨ C ⟩ k
-                → (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ≡ (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
-  preserveCommF {f = f} {g = g} {h = h} {k = k} eq
-    = (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫)
-    ≡⟨ sym (F .F-seq _ _) ⟩
-      F ⟪ f ⋆⟨ C ⟩ g ⟫
-    ≡⟨ cong (F ⟪_⟫) eq ⟩
-      F ⟪ h ⋆⟨ C ⟩ k ⟫
-    ≡⟨ F .F-seq _ _ ⟩
-      (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
-    ∎
-
   -- functors preserve isomorphisms
   preserveIsosF : ∀ {x y} → CatIso C x y → CatIso D (F ⟅ x ⟆) (F ⟅ y ⟆)
   preserveIsosF {x} {y} (f , isiso f⁻¹ sec' ret') =
@@ -122,6 +108,22 @@ isSetFunctor {D = D} {C = C} isSet-D-ob F G p q = w
      isSet→SquareP
        (λ i i₁ → isProp→isSet (D .isSetHom (F-hom (w i i₁) _) ((F-hom (w i i₁) _) ⋆⟨ D ⟩ (F-hom (w i i₁) _))))
        (λ i₁ → F-seq (p i₁) _ _) (λ i₁ → F-seq (q i₁) _ _) refl refl i i₁
+
+module _ (F : Functor C D) where
+
+  -- functors preserve commutative diagrams (specificallysqures here)
+  preserveCommF : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , w ]} {h : C [ x , z ]} {k : C [ z , w ]}
+                → f ⋆⟨ C ⟩ g ≡ h ⋆⟨ C ⟩ k
+                → (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ≡ (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
+  preserveCommF {f = f} {g = g} {h = h} {k = k} eq
+    = (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫)
+    ≡⟨ sym (F .F-seq _ _) ⟩
+      F ⟪ f ⋆⟨ C ⟩ g ⟫
+    ≡⟨ cong (F ⟪_⟫) eq ⟩
+      F ⟪ h ⋆⟨ C ⟩ k ⟫
+    ≡⟨ F .F-seq _ _ ⟩
+      (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
+    ∎
 
 
 -- Conservative Functor,
