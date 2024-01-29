@@ -55,7 +55,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
    ... | inl n≤i = subst-∈ I (sym path) (·Closed (I .snd) _ xⁿ∈I)
     where
     useSolver : ∀ a b c d → a · (b · c) · d ≡ a · b · d · c
-    useSolver = solve R'
+    useSolver a b c d = solve! R'
     path : ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ (n +ℕ m ∸ toℕ i)
          ≡ ((n +ℕ m) choose toℕ i) · x ^ (toℕ i ∸ n) · y ^ (n +ℕ m ∸ toℕ i) · x ^ n
     path = ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ (n +ℕ m ∸ toℕ i)
@@ -146,7 +146,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
                         λ _ → subst-∈ I (useSolver _ _ _ _) (I .snd .·Closed _ y∈I)
     where
     useSolver : (bc y y^i z^m-i : R) → (bc · y^i · z^m-i) · y ≡ bc · (y · y^i) · z^m-i
-    useSolver = solve R'
+    useSolver bc y y^i z^m-i = solve! R'
 
    path : (m : ℕ) → x ^ n ≡ y + z → x ^ (n ·ℕ m) ≡ ∑ (yVec m) + z ^ m
    path m p = x ^ (n ·ℕ m) ≡⟨ ^-rdist-·ℕ x n m ⟩
@@ -156,7 +156,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
               ∑ (yVec m) + z ^ m ∎
     where
     useSolver : (zm ∑yVec : R) → 1r · 1r · zm + ∑yVec ≡ ∑yVec + zm
-    useSolver = solve R'
+    useSolver zm ∑yVec = solve! R'
 
    Σhelper : Σ[ m ∈ ℕ ] (z ^ m ∈ J) → x ^ n ≡ y + z → x ∈ √ (I +i J)
    Σhelper (m , z^m∈J) x^n≡y+z =

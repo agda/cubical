@@ -217,7 +217,7 @@ module _ (R : CommRing ℓ) where
             (is-set _ _)
           where
             useSolver : (r : ⟨ R ⟩) → r ≡ (r · 1r) + 0r
-            useSolver = solve R
+            useSolver r = solve! R
 
 
     {- Reforumlation in terms of the R-AlgebraHom from R[X] to A -}

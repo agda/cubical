@@ -246,4 +246,4 @@ module _
       where
         open CommAlgebraStr (snd A)
         step : (x : ⟨ A ⟩) → x ≡ x - 0a
-        step = solve (CommAlgebra→CommRing A)
+        step x = solve! (CommAlgebra→CommRing A)

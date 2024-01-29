@@ -160,10 +160,7 @@ module IdealSum (R' : CommRing ℓ) where
  ·iComm I J = CommIdeal≡Char (·iComm⊆ I J) (·iComm⊆ J I)
 
  I⊆I1 : ∀ (I : CommIdeal) → I ⊆ (I ·i 1Ideal)
- I⊆I1 I x x∈I = ∣ 1 , ((λ _ → x) , λ _ → 1r) , (λ _ → x∈I) , (λ _ → lift tt) , useSolver x ∣₁
-  where
-  useSolver : ∀ x → x ≡ x · 1r + 0r
-  useSolver = solve R'
+ I⊆I1 I x x∈I = ∣ 1 , ((λ _ → x) , λ _ → 1r) , (λ _ → x∈I) , (λ _ → lift tt) , solve! R' ∣₁
 
  ·iRid : ∀ (I : CommIdeal) → I ·i 1Ideal ≡ I
  ·iRid I = CommIdeal≡Char (·iLincl I 1Ideal) (I⊆I1 I)

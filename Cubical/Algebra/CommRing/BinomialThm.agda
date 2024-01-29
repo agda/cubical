@@ -51,7 +51,7 @@ module BinomialThm (R' : CommRing ℓ) where
  BinomialVec n x y i = (n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)
 
  BinomialThm : ∀ (n : ℕ) (x y : R) → (x + y) ^ n ≡ ∑ (BinomialVec n x y)
- BinomialThm zero x y = solve R'
+ BinomialThm zero x y = solve! R'
  BinomialThm (suc n) x y =
      (x + y) ^ suc n
   ≡⟨ refl ⟩
@@ -70,7 +70,7 @@ module BinomialThm (R' : CommRing ℓ) where
      ∑ xVec + ∑ yVec
   ≡⟨ cong (_+ ∑ yVec) (∑Last xVec) ⟩
      ∑ (xVec ∘ weakenFin) + xⁿ⁺¹ + (yⁿ⁺¹ + ∑ (yVec ∘ suc))
-  ≡⟨ solve3 _ _ _ _ ⟩
+  ≡⟨  solve3 _ _ _ _ ⟩
      yⁿ⁺¹  + (∑ (xVec ∘ weakenFin) + ∑ (yVec ∘ suc)) + xⁿ⁺¹
   ≡⟨ cong (λ s → yⁿ⁺¹  + s + xⁿ⁺¹) (sym (∑Split _ _))  ⟩
      yⁿ⁺¹  + (∑ middleVec) + xⁿ⁺¹
@@ -86,7 +86,7 @@ module BinomialThm (R' : CommRing ℓ) where
   xVec i = (n choose (toℕ i)) · x ^ (suc (toℕ i)) · y ^ (n ∸ toℕ i)
 
   solve1 : ∀ x nci xⁱ yⁿ⁻ⁱ → x · (nci · xⁱ · yⁿ⁻ⁱ) ≡ nci · (x · xⁱ) · yⁿ⁻ⁱ
-  solve1 = solve R'
+  solve1 x nci xⁱ yⁿ⁻ⁱ = solve! R'
 
   xVecPath : ∀ (i : Fin (suc n)) → x · ((n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)) ≡ xVec i
   xVecPath i = solve1 _ _ _ _
@@ -95,7 +95,7 @@ module BinomialThm (R' : CommRing ℓ) where
   yVec i = (n choose (toℕ i)) · x ^ (toℕ i) · y ^ (suc (n ∸ toℕ i))
 
   solve2 : ∀ y nci xⁱ yⁿ⁻ⁱ → y · (nci · xⁱ · yⁿ⁻ⁱ) ≡ nci · xⁱ · (y · yⁿ⁻ⁱ)
-  solve2 = solve R'
+  solve2 y nci xⁱ yⁿ⁻ⁱ = solve! R'
 
   yVecPath : ∀ (i : Fin (suc n)) → y · ((n choose (toℕ i)) · x ^ (toℕ i) · y ^ (n ∸ toℕ i)) ≡ yVec i
   yVecPath i = solve2 _ _ _ _
@@ -111,7 +111,7 @@ module BinomialThm (R' : CommRing ℓ) where
                   (sym (subst (λ m → (n choose suc m) ≡ 0r) (sym (toFromId n)) (nChooseN+1 n))))
 
   solve3 : ∀ sx sy xⁿ⁺¹ yⁿ⁺¹ → sx + xⁿ⁺¹ + (yⁿ⁺¹ + sy) ≡ yⁿ⁺¹ + (sx + sy) + xⁿ⁺¹
-  solve3 = solve R'
+  solve3 sx sy xⁿ⁺¹ yⁿ⁺¹ = solve! R'
 
   middleVec : FinVec R n
   middleVec i = xVec (weakenFin i) + yVec (suc i)
@@ -129,4 +129,4 @@ module BinomialThm (R' : CommRing ℓ) where
            ∙ cong (y ^_) (≤-∸-suc (subst (λ m → suc m ≤ n) (sym (weakenRespToℕ _)) (toℕ<n i)))
 
    solve4 : ∀ nci ncsi xxⁱ yⁿ⁻ⁱ → nci · xxⁱ · yⁿ⁻ⁱ + ncsi · xxⁱ · yⁿ⁻ⁱ ≡ (ncsi + nci) · xxⁱ · yⁿ⁻ⁱ
-   solve4 = solve R'
+   solve4 nci ncsi xxⁱ yⁿ⁻ⁱ = solve! R'

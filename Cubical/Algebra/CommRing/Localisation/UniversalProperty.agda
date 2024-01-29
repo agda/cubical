@@ -87,7 +87,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
   S/1⊆S⁻¹Rˣ s s∈S' = [ 1r , s , s∈S' ] , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path s)
    where
    path : ∀ s → 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r  · s)
-   path = solve R'
+   path _ = solve! R'
 
   S⁻¹RHasUniversalProp : hasLocUniversalProp S⁻¹RAsCommRing /1AsCommRingHom S/1⊆S⁻¹Rˣ
   S⁻¹RHasUniversalProp B' ψ ψS⊆Bˣ = (χ , funExt χcomp) , χunique
@@ -316,7 +316,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
                            (_ , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path s))) .fst
       where
       path : ∀ s → 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r · s)
-      path = solve R'
+      path _ = solve! R'
 
      ·ₗ-path : [ r , s , s∈S' ] ≡   [ r , 1r , SMultClosedSubset .containsOne ]
                                  ·ₗ [ 1r , s , s∈S' ]

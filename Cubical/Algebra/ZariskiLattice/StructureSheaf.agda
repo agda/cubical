@@ -307,7 +307,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
                , eq/ _ _ ((1r , containsOne) , path (h ^ m))
             where
             path : ∀ x → 1r · (x · 1r) · 1r ≡ 1r · 1r · (1r · x)
-            path = solve R'
+            path _ = solve! R'
 
           β : FinVec R[1/ h ] (suc n)
           β i = ((h ^ m) /1) ⁻¹ · α i /1
