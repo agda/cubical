@@ -24,6 +24,7 @@ open import Cubical.Data.FinData
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation
+open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
@@ -300,9 +301,44 @@ module _ {ℓ : Level} where
   -- this is a separated presheaf
   -- (TODO: prove this a sheaf)
   isSeparatedZarLatFun : isSeparated zariskiCoverage ZarLatFun
-  isSeparatedZarLatFun A (unimodvec n f 1∈⟨f₁,⋯,fₙ⟩) u w uRest≡wRest = {!!}
+  isSeparatedZarLatFun A (unimodvec n f 1∈⟨f₁,⋯,fₙ⟩) u w uRest≡wRest =
+    u                         ≡⟨ sym (∧lLid _) ⟩
+    1l ∧l u                  ≡⟨ congL _∧l_ D1≡⋁Dfᵢ ⟩
+    (⋁ (D A ∘ f)) ∧l u       ≡⟨ ⋁Meetldist _ _ ⟩
+    ⋁ (λ i → D A (f i) ∧l u) ≡⟨ ⋁Ext Dfᵢ∧u≡Dfᵢ∧w ⟩
+    ⋁ (λ i → D A (f i) ∧l w) ≡⟨ sym (⋁Meetldist _ _) ⟩
+    (⋁ (D A ∘ f)) ∧l w       ≡⟨ congL _∧l_ (sym D1≡⋁Dfᵢ) ⟩
+    1l ∧l w                  ≡⟨ ∧lLid _ ⟩
+    w ∎
     where
-    instance _ = A .snd
+    open Join (ZariskiLattice A)
+    open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (ZariskiLattice A)))
+         using (IndPoset)
+    open LatticeTheory (DistLattice→Lattice (ZariskiLattice A))
+    open PosetStr (IndPoset .snd)
+    open IsSupport (isSupportD A)
+    open RadicalIdeal A
+    instance
+      _ = A .snd
+      _ = ZariskiLattice A .snd
+
+    D1≡⋁Dfᵢ : 1l ≡ ⋁ (D A ∘ f)
+    D1≡⋁Dfᵢ = is-antisym _ _
+                (supportRadicalIneq f 1r (∈→∈√ _ _ 1∈⟨f₁,⋯,fₙ⟩))
+                  (1lRightAnnihilates∨l _)
+
+    Dfᵢ∧u≡Dfᵢ∧w : ∀ i → D A (f i) ∧l u ≡ D A (f i) ∧l w
+    Dfᵢ∧u≡Dfᵢ∧w i =
+        D A (f i) ∧l u
+      ≡⟨ sym (cong fst (funExt⁻ (cong fst toLocToDown≡ToDown) u)) ⟩
+        locToDownHom .fst (inducedZarLatHom /1AsCommRingHom .fst u) .fst
+      ≡⟨ cong (λ x → locToDownHom .fst x .fst) (uRest≡wRest i) ⟩
+        locToDownHom .fst (inducedZarLatHom /1AsCommRingHom .fst w) .fst
+      ≡⟨ cong fst (funExt⁻ (cong fst toLocToDown≡ToDown) w) ⟩
+        D A (f i) ∧l w ∎
+      where
+      open InvertingElementsBase.UniversalProp A (f i)
+      open LocDownSetIso A (f i)
 
   CompactOpen : ℤFunctor → Type (ℓ-suc ℓ)
   CompactOpen X = X ⇒ ZarLatFun
