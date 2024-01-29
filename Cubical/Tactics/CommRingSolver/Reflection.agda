@@ -15,11 +15,13 @@ open import Cubical.Data.List
 open import Cubical.Data.Nat.Literals
 open import Cubical.Data.Int.Base hiding (abs)
 open import Cubical.Data.Int using (fromNegℤ; fromNatℤ)
-open import Cubical.Data.Nat using (ℕ) renaming (_+_ to _+ℕ_)
+open import Cubical.Data.Nat using (ℕ; discreteℕ) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_)
+
+open import Cubical.Relation.Nullary.Base
 
 open import Cubical.Algebra.CommRing
 
@@ -146,76 +148,102 @@ module pr (R : CommRing ℓ) {n : ℕ} where
 module _ (cring : Term) (names : RingNames) where
   open pr
   open RingNames names
+  private
+    Vars = List ℕ
 
-  `0` : List (Arg Term) → Term
-  `0` [] = def (quote 0') (cring v∷ [])
+    addWithoutRepetition : ℕ → Vars → Vars
+    addWithoutRepetition n (m ∷ l) with discreteℕ n m
+    ... | yes p = m ∷ l
+    ... | no p = m ∷ addWithoutRepetition n l
+    addWithoutRepetition n []      = n ∷ []
+
+    appendWithoutRepetition : Vars → Vars → Vars
+    appendWithoutRepetition (x ∷ l) l' = appendWithoutRepetition l (addWithoutRepetition x l')
+    appendWithoutRepetition [] l' = l'
+
+  `0` : List (Arg Term) → Term × Vars
+  `0` [] = (def (quote 0') (cring v∷ []) , [])
   `0` (fstcring v∷ xs) = `0` xs
   `0` (_ h∷ xs) = `0` xs
-  `0` _ = unknown
+  `0` _ = (unknown , [])
 
-  `1` : List (Arg Term) → Term
-  `1` [] = def (quote 1') (cring v∷ [])
+  `1` : List (Arg Term) → Term × Vars
+  `1` [] = (def (quote 1') (cring v∷ []) , [])
   `1` (fstcring v∷ xs) = `1` xs
   `1` (_ h∷ xs) = `1` xs
-  `1` _ = unknown
+  `1` _ = (unknown , [])
 
   mutual
+
     private
-      op2 : Name → Term → Term → Term
-      op2 op x y = con op (buildExpression x v∷ buildExpression y v∷ [])
+      op2 : Name → Term → Term → Vars → Term × Vars
+      op2 op x y vars = (con op (fst r1 v∷ fst r2 v∷ []) , appendWithoutRepetition (snd r1) (snd r2))
+        where
+        r1 = buildExpression' x vars
+        r2 = buildExpression' y vars
 
-      op1 : Name → Term → Term
-      op1 op x = con op (buildExpression x v∷ [])
+      op1 : Name → Term → Vars → Term × Vars
+      op1 op x vars = (con op (fst r1 v∷ []) , snd r1)
+        where
+        r1 = buildExpression' x vars
 
-    `_·_` : List (Arg Term) → Term
-    `_·_` (_ h∷ xs) = `_·_` xs
-    `_·_` (x v∷ y v∷ []) = op2 (quote _·'_) x y
-    `_·_` (_ v∷ x v∷ y v∷ []) = op2 (quote _·'_) x y
-    `_·_` _ = unknown
+    `_·_` : List (Arg Term) → Vars → Term × Vars
+    `_·_` (_ h∷ xs) vars = `_·_` xs vars
+    `_·_` (x v∷ y v∷ []) vars = op2 (quote _·'_) x y vars
+    `_·_` (_ v∷ x v∷ y v∷ []) vars = op2 (quote _·'_) x y vars
+    `_·_` _ vars = (unknown , vars)
 
-    `_+_` : List (Arg Term) → Term
-    `_+_` (_ h∷ xs) = `_+_` xs
-    `_+_` (x v∷ y v∷ []) = op2 (quote _+'_) x y
-    `_+_` (_ v∷ x v∷ y v∷ []) = op2 (quote _+'_) x y
-    `_+_` _ = unknown
+    `_+_` : List (Arg Term) → Vars → Term × Vars
+    `_+_` (_ h∷ xs) vars = `_+_` xs vars
+    `_+_` (x v∷ y v∷ []) vars = op2 (quote _+'_) x y vars
+    `_+_` (_ v∷ x v∷ y v∷ []) vars = op2 (quote _+'_) x y vars
+    `_+_` _ vars = (unknown , vars)
 
-    `-_` : List (Arg Term) → Term
-    `-_` (_ h∷ xs) = `-_` xs
-    `-_` (x v∷ []) = op1 (quote -'_) x
-    `-_` (_ v∷ x v∷ []) = op1 (quote -'_) x
+    `-_` : List (Arg Term) → Vars → Term × Vars
+    `-_` (_ h∷ xs) vars = `-_` xs vars
+    `-_` (x v∷ []) vars = op1 (quote -'_) x vars
+    `-_` (_ v∷ x v∷ []) vars = op1 (quote -'_) x vars
+    `-_` _ vars = (unknown , vars)
 
-    `-_` _ = unknown
-
-    K' : List (Arg Term) → Term
-    K' xs = con (quote K) xs
+    K' : List (Arg Term) → Vars → Term × Vars
+    K' xs vars = (con (quote K) xs , vars)
 
     finiteNumberAsTerm : ℕ → Term
     finiteNumberAsTerm ℕ.zero = con (quote fzero) []
     finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (finiteNumberAsTerm n v∷ [])
 
     buildExpression : Term → Term
-    buildExpression (var index _) = con (quote ∣) (finiteNumberAsTerm index v∷ [])
-    buildExpression t@(def n xs) =
-      switch (λ f → f n) cases
-        case is0 ⇒ `0` xs     break
-        case is1 ⇒ `1` xs     break
-        case is· ⇒ `_·_` xs   break
-        case is+ ⇒ `_+_` xs   break
-        case is- ⇒ `-_` xs    break
-        default⇒ (K' xs)
-    buildExpression t@(con n xs) =
-      switch (λ f → f n) cases
-        case is0 ⇒ `0` xs     break
-        case is1 ⇒ `1` xs     break
-        case is· ⇒ `_·_` xs   break
-        case is+ ⇒ `_+_` xs   break
-        case is- ⇒ `-_` xs    break
-        default⇒ (K' xs)
-    buildExpression t = unknown
+    buildExpression x = fst (buildExpression' x [])
 
-  toAlgebraExpression : Maybe (Term × Term) → Maybe (Term × Term)
+
+    buildExpression' : Term → Vars → Term × Vars
+    buildExpression' (var index _) vars = (con (quote ∣) (finiteNumberAsTerm index v∷ []) , addWithoutRepetition index vars)
+    buildExpression' t@(def n xs) vars =
+      switch (λ f → f n) cases
+        case is0 ⇒ `0` xs         break
+        case is1 ⇒ `1` xs         break
+        case is· ⇒ `_·_` xs vars  break
+        case is+ ⇒ `_+_` xs vars  break
+        case is- ⇒ `-_` xs vars   break
+        default⇒ (K' xs vars)
+    buildExpression' t@(con n xs) vars =
+      switch (λ f → f n) cases
+        case is0 ⇒ `0` xs         break
+        case is1 ⇒ `1` xs         break
+        case is· ⇒ `_·_` xs vars  break
+        case is+ ⇒ `_+_` xs vars  break
+        case is- ⇒ `-_` xs vars   break
+        default⇒ (K' xs vars)
+    buildExpression' t vars = (unknown , vars)
+
+
+  toAlgebraExpression : Maybe (Term × Term) → Maybe (Term × Term × Vars)
   toAlgebraExpression nothing = nothing
-  toAlgebraExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
+  toAlgebraExpression (just (lhs , rhs)) = just (fst r1 , fst r2
+                                                 , appendWithoutRepetition (snd r1) (snd r2) )
+    where
+      r1 = buildExpression' lhs []
+      r2 = buildExpression' rhs []
 
 private
 
@@ -300,7 +328,7 @@ private
         That means, that we have to adjust the deBruijn-indices of the variables in 'cring'
       -}
       adjustedCommRing ← returnTC (adjustDeBruijnIndex (length varInfos) commRing)
-      just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCommRing names (getArgs equation))
+      just (lhs , rhs , vars) ← returnTC (toAlgebraExpression adjustedCommRing names (getArgs equation))
         where nothing → astExtractionError equation
       let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCommRing lhs rhs
       unify hole solution
@@ -318,7 +346,7 @@ private
           nothing
             → typeError(strErr "The CommRingSolver failed to parse the goal"
                                ∷ termErr equation ∷ [])
-      just (lhs' , rhs') ← returnTC (toAlgebraExpression cring names (just (lhs , rhs)))
+      just (lhs' , rhs' , vars) ← returnTC (toAlgebraExpression cring names (just (lhs , rhs)))
         where nothing → astExtractionError equation
 
       let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs' rhs'
