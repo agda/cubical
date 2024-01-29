@@ -40,6 +40,7 @@ open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.DistLattices
 open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Site.Cover
 open import Cubical.Categories.Site.Coverage
 open import Cubical.Categories.Site.Sheaf
 open import Cubical.Categories.Site.Instances.ZariskiCommRing
@@ -249,7 +250,7 @@ module _ {ℓ : Level} where
   isAffine : (X : ℤFunctor) → Type (ℓ-suc ℓ)
   isAffine X = ∃[ A ∈ CommRing ℓ ] NatIso (Sp .F-ob A) X
 
-  -- TODO: 𝔸¹ ≅ Sp ℤ[x] and 𝔾ₘ ≅ Sp ℤ[x,x⁻¹] as first examples of affine schemes
+  -- TODO: 𝔸¹ ≅ Sp ℤ[x] and 𝔾ₘ ≅ Sp ℤ[x,x⁻¹] ≅ D(x) ↪ 𝔸¹ as first examples of affine schemes
 
 
 -- The unit is an equivalence iff the ℤ-functor is affine.
@@ -543,6 +544,69 @@ module _ {ℓ : Level} where
   isLocal : ℤFunctor → Type (ℓ-suc ℓ)
   isLocal X = isSheaf zariskiCoverage X
 
+  -- Compact opens of Zariski sheaves are sheaves
+  presLocalCompactOpen : (X : ℤFunctor) (U : CompactOpen X) → isLocal X → isLocal ⟦ U ⟧ᶜᵒ
+  presLocalCompactOpen X U isLocalX R um@(unimodvec _ f _) = isoToIsEquiv isoU
+    where
+    open Coverage zariskiCoverage
+    open InvertingElementsBase R
+    instance _ = R .snd
+
+    fᵢCoverR = covers R .snd um
+
+    isoX : Iso (X .F-ob R .fst) (CompatibleFamily X fᵢCoverR)
+    isoX = equivToIso (elementToCompatibleFamily _ _ , isLocalX R um)
+
+    compatibleFamIncl : (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR) → (CompatibleFamily X fᵢCoverR)
+    compatibleFamIncl fam = (fst ∘ fst fam)
+                          , λ i j B φ ψ φψComm → cong fst (fam .snd i j B φ ψ φψComm)
+
+    compatibleFamIncl≡ : ∀ (y : Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
+                       → compatibleFamIncl (elementToCompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR y)
+                       ≡ elementToCompatibleFamily X fᵢCoverR (y .fst)
+    compatibleFamIncl≡ y = CompatibleFamily≡ _ _ _ _ λ _ → refl
+
+    isoU : Iso (Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
+               (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR)
+    fun isoU = elementToCompatibleFamily _ _
+    fst (inv isoU fam) = isoX .inv (compatibleFamIncl fam)
+    snd (inv isoU fam) = -- U (x) ≡ D(1)
+                         -- knowing that U(x/1)¸≡ D(1) in R[1/fᵢ]
+      let x = isoX .inv (compatibleFamIncl fam) in
+      isSeparatedZarLatFun R um (U .N-ob R x) (D R 1r)
+        λ i → let open UniversalProp (f i)
+                  instance _ = R[1/ (f i) ]AsCommRing .snd in
+
+                inducedZarLatHom /1AsCommRingHom .fst (U .N-ob R x)
+
+              ≡⟨ funExt⁻ (sym (U .N-hom /1AsCommRingHom)) x ⟩
+
+                U .N-ob R[1/ (f i) ]AsCommRing (X .F-hom /1AsCommRingHom x)
+
+              ≡⟨ cong (U .N-ob R[1/ f i ]AsCommRing)
+                      (funExt⁻ (cong fst (isoX .rightInv (compatibleFamIncl fam))) i) ⟩
+
+                U .N-ob R[1/ (f i) ]AsCommRing (fam .fst i .fst)
+
+              ≡⟨ fam .fst i .snd ⟩
+
+                D R[1/ (f i) ]AsCommRing 1r
+
+              ≡⟨ sym (inducedZarLatHom /1AsCommRingHom .snd .pres1) ⟩
+
+                inducedZarLatHom /1AsCommRingHom .fst (D R 1r) ∎
+
+    rightInv isoU fam =
+      Σ≡Prop (λ _ → isPropIsCompatibleFamily _ _ _)
+        (funExt λ i → Σ≡Prop (λ _ → squash/ _ _)
+                        (funExt⁻ (cong fst
+                          (isoX .rightInv (compatibleFamIncl fam))) i))
+    leftInv isoU y = Σ≡Prop (λ _ → squash/ _ _)
+                            (cong (isoX .inv) (compatibleFamIncl≡ y)
+                              ∙ isoX .leftInv (y .fst))
+
+
+  -- definition of quasi-compact, quasi-separated schemes
   isQcQsScheme : ℤFunctor → Type (ℓ-suc ℓ)
   isQcQsScheme X = isLocal X × hasAffineCover X
 
