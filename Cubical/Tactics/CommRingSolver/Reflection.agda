@@ -127,7 +127,7 @@ private
 
   solverCallByVarIndices : ℕ → List ℕ → Term → Term → Term → Term
   solverCallByVarIndices n varIndices R lhs rhs =
-      solverCallAsTerm R (variableList (rev varIndices)) lhs rhs
+      solverCallAsTerm R (variableList varIndices) lhs rhs
       where
         variableList : List ℕ → Arg Term
         variableList [] = varg (con (quote emptyVec) [])
@@ -149,7 +149,12 @@ module _ (cring : Term) (names : RingNames) where
   open pr
   open RingNames names
   private
+    -- we walk through expression collecting deBruijn-indicies of variables
+    -- when done, we look how many variables (=n) we have assign each an index 0,...,n-1
+    -- these indicies are used in the Hornerforms/Polynomials
     Vars = List ℕ
+    VarAss = ℕ → Maybe ℕ
+    Template = VarAss → Term
 
     addWithoutRepetition : ℕ → Vars → Vars
     addWithoutRepetition n (m ∷ l) with discreteℕ n m
@@ -161,63 +166,68 @@ module _ (cring : Term) (names : RingNames) where
     appendWithoutRepetition (x ∷ l) l' = appendWithoutRepetition l (addWithoutRepetition x l')
     appendWithoutRepetition [] l' = l'
 
-  `0` : List (Arg Term) → Term × Vars
-  `0` [] = (def (quote 0') (cring v∷ []) , [])
+    indexOf : ℕ → Vars → Maybe ℕ
+    indexOf n (m ∷ l) with discreteℕ n m
+    ... | yes p = just 0
+    ... | no p with indexOf n l
+    ... | (just k) = just (ℕ.suc k)
+    ... | nothing = nothing
+    indexOf n [] = nothing
+
+  `0` : List (Arg Term) → Template × Vars
+  `0` [] = ((λ _ → def (quote 0') (cring v∷ [])) , [])
   `0` (fstcring v∷ xs) = `0` xs
   `0` (_ h∷ xs) = `0` xs
-  `0` _ = (unknown , [])
+  `0` _ = ((λ _ → unknown) , [])
 
-  `1` : List (Arg Term) → Term × Vars
-  `1` [] = (def (quote 1') (cring v∷ []) , [])
+  `1` : List (Arg Term) → Template × Vars
+  `1` [] = ((λ _ → def (quote 1') (cring v∷ [])) , [])
   `1` (fstcring v∷ xs) = `1` xs
   `1` (_ h∷ xs) = `1` xs
-  `1` _ = (unknown , [])
+  `1` _ = ((λ _ → unknown) , [])
 
   mutual
 
     private
-      op2 : Name → Term → Term → Vars → Term × Vars
-      op2 op x y vars = (con op (fst r1 v∷ fst r2 v∷ []) , appendWithoutRepetition (snd r1) (snd r2))
+      op2 : Name → Term → Term → Vars → Template × Vars
+      op2 op x y vars = ((λ ass → con op (fst r1 ass v∷ fst r2 ass v∷ [])) , appendWithoutRepetition (snd r1) (snd r2))
         where
         r1 = buildExpression' x vars
         r2 = buildExpression' y vars
 
-      op1 : Name → Term → Vars → Term × Vars
-      op1 op x vars = (con op (fst r1 v∷ []) , snd r1)
+      op1 : Name → Term → Vars → Template × Vars
+      op1 op x vars = ((λ ass → con op (fst r1 ass v∷ [])) , snd r1)
         where
         r1 = buildExpression' x vars
 
-    `_·_` : List (Arg Term) → Vars → Term × Vars
+    `_·_` : List (Arg Term) → Vars → Template × Vars
     `_·_` (_ h∷ xs) vars = `_·_` xs vars
     `_·_` (x v∷ y v∷ []) vars = op2 (quote _·'_) x y vars
     `_·_` (_ v∷ x v∷ y v∷ []) vars = op2 (quote _·'_) x y vars
-    `_·_` _ vars = (unknown , vars)
+    `_·_` _ vars = ((λ _ → unknown) , vars)
 
-    `_+_` : List (Arg Term) → Vars → Term × Vars
+    `_+_` : List (Arg Term) → Vars → Template × Vars
     `_+_` (_ h∷ xs) vars = `_+_` xs vars
     `_+_` (x v∷ y v∷ []) vars = op2 (quote _+'_) x y vars
     `_+_` (_ v∷ x v∷ y v∷ []) vars = op2 (quote _+'_) x y vars
-    `_+_` _ vars = (unknown , vars)
+    `_+_` _ vars = ((λ _ → unknown) , vars)
 
-    `-_` : List (Arg Term) → Vars → Term × Vars
+    `-_` : List (Arg Term) → Vars → Template × Vars
     `-_` (_ h∷ xs) vars = `-_` xs vars
     `-_` (x v∷ []) vars = op1 (quote -'_) x vars
     `-_` (_ v∷ x v∷ []) vars = op1 (quote -'_) x vars
-    `-_` _ vars = (unknown , vars)
+    `-_` _ vars = ((λ _ → unknown) , vars)
 
-    K' : List (Arg Term) → Vars → Term × Vars
-    K' xs vars = (con (quote K) xs , vars)
+    K' : List (Arg Term) → Vars → Template × Vars
+    K' xs vars = ((λ ass → con (quote K) xs) , vars) -- correct??
 
-    finiteNumberAsTerm : ℕ → Term
-    finiteNumberAsTerm ℕ.zero = con (quote fzero) []
-    finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (finiteNumberAsTerm n v∷ [])
+    finiteNumberAsTerm : Maybe ℕ → Term
+    finiteNumberAsTerm (just ℕ.zero) = con (quote fzero) []
+    finiteNumberAsTerm (just (ℕ.suc n)) = con (quote fsuc) (finiteNumberAsTerm (just n) v∷ [])
+    finiteNumberAsTerm _ = unknown
 
-    buildExpression : Term → Term
-    buildExpression x = fst (buildExpression' x [])
-
-
-    buildExpression' : Term → Vars → Term × Vars
-    buildExpression' (var index _) vars = (con (quote ∣) (finiteNumberAsTerm index v∷ []) , addWithoutRepetition index vars)
+    buildExpression' : Term → Vars → Template × Vars
+    buildExpression' (var index _) vars = ((λ ass → con (quote ∣) (finiteNumberAsTerm (ass index) v∷ [])) , addWithoutRepetition index vars)
     buildExpression' t@(def n xs) vars =
       switch (λ f → f n) cases
         case is0 ⇒ `0` xs         break
@@ -234,16 +244,18 @@ module _ (cring : Term) (names : RingNames) where
         case is+ ⇒ `_+_` xs vars  break
         case is- ⇒ `-_` xs vars   break
         default⇒ (K' xs vars)
-    buildExpression' t vars = (unknown , vars)
+    buildExpression' t vars = ((λ _ → unknown) , vars)
 
 
   toAlgebraExpression : Maybe (Term × Term) → Maybe (Term × Term × Vars)
   toAlgebraExpression nothing = nothing
-  toAlgebraExpression (just (lhs , rhs)) = just (fst r1 , fst r2
-                                                 , appendWithoutRepetition (snd r1) (snd r2) )
+  toAlgebraExpression (just (lhs , rhs)) = just (fst r1 ass  , fst r2 ass , vars )
     where
       r1 = buildExpression' lhs []
       r2 = buildExpression' rhs []
+      vars = appendWithoutRepetition (snd r1) (snd r2)
+      ass : VarAss
+      ass n = indexOf n vars
 
 private
 
@@ -333,9 +345,30 @@ private
       let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCommRing lhs rhs
       unify hole solution
 
-  solveInPlace-macro : Term → Term → Term → TC Unit
-  solveInPlace-macro cring varsToSolve hole =
+
+  solve!-macro : Term → Term → TC Unit
+  solve!-macro uncheckedCommRing hole =
     do
+      commRing ← checkIsRing uncheckedCommRing
+      goal ← inferType hole >>= normalise
+      names ← findRingNames commRing
+
+      just (lhs , rhs) ← get-boundary goal
+        where
+          nothing
+            → typeError(strErr "The CommRingSolver failed to parse the goal"
+                               ∷ termErr goal ∷ [])
+
+      just (lhs' , rhs' , vars) ← returnTC (toAlgebraExpression commRing names (just (lhs , rhs)))
+        where nothing → astExtractionError goal
+
+      let solution = solverCallByVarIndices (length vars) vars commRing lhs' rhs'
+      unify hole solution
+
+  solveInPlace-macro : Term → Term → Term → TC Unit
+  solveInPlace-macro uncheckedCommRing varsToSolve hole =
+    do
+      cring ← checkIsRing uncheckedCommRing
       equation ← inferType hole >>= normalise
       names ← findRingNames cring
       just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
@@ -349,12 +382,15 @@ private
       just (lhs' , rhs' , vars) ← returnTC (toAlgebraExpression cring names (just (lhs , rhs)))
         where nothing → astExtractionError equation
 
-      let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs' rhs'
+      let solution = solverCallByVarIndices (length varIndices) vars cring lhs' rhs'
       unify hole solution
 
 macro
   solve : Term → Term → TC _
   solve = solve-macro
+
+  solve! : Term → Term → TC _
+  solve! = solve!-macro
 
   solveInPlace : Term → Term → Term → TC _
   solveInPlace = solveInPlace-macro

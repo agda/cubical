@@ -32,58 +32,58 @@ module TestErrors (R : CommRing ℓ) where
 module TestWithℤ where
   open CommRingStr (ℤCommRing .snd)
 
-  _ : (a b : fst ℤCommRing) → a + b ≡ b + a
-  _ = solve ℤCommRing
+  ex0 : (a b : fst ℤCommRing) → a + b ≡ b + a
+  ex0 a b = solve! ℤCommRing
 
 module Test (R : CommRing ℓ) where
   open CommRingStr (snd R)
 
   _ : 0r ≡ 0r
-  _ = solve R
+  _ = solve! R
 
   _ :   1r · (1r + 0r)
       ≡ (1r · 0r) + 1r
-  _ = solve R
+  _ = solve! R
 
   _ :   1r · 0r + (1r - 1r)
       ≡ 0r - 0r
-  _ = solve R
+  _ = solve! R
 
-  _ : ∀ x → x ≡ x
-  _ = solve R
+  ex1 : ∀ x → x ≡ x
+  ex1 x = solve! R
 
-  _ : ∀ x y → x ≡ x
-  _ = solve R
+  ex2 : (x y : fst R) → x ≡ x
+  ex2 x y = solve! R
 
-  _ : ∀ x y → x + y ≡ y + x
-  _ = solve R
+  ex3 : ∀ x y → x + y ≡ y + x
+  ex3 x y = solve! R
 
-  _ : ∀ x y → y ≡ (y - x) + x
-  _ = solve R
+  ex4 : ∀ x y → y ≡ (y - x) + x
+  ex4 x y = solve! R
 
-  _ : ∀ x y → x ≡ (x - y) + y
-  _ = solve R
+  ex5 : ∀ x y → x ≡ (x - y) + y
+  ex5 x y = solve! R
 
-  _ : ∀ x y → (x + y) · (x - y) ≡ x · x - y · y
-  _ = solve R
+  ex6 : ∀ x y → (x + y) · (x - y) ≡ x · x - y · y
+  ex6 x y = solve! R
 
   {-
     A bigger example:
   -}
-  _ : (x y z : (fst R)) → (x + y) · (x + y) · (x + y) · (x + y)
+  ex7 : (x y z : (fst R)) → (x + y) · (x + y) · (x + y) · (x + y)
                 ≡ x · x · x · x + (fromℤ R 4) · x · x · x · y + (fromℤ R 6) · x · x · y · y
                   + (fromℤ R 4) · x · y · y · y + y · y · y · y
-  _ = solve R
+  ex7 x y z = solve! R
 
   {-
     Examples that used to fail (see #513):
   -}
 
-  _ : (x : (fst R)) → x · 0r ≡ 0r
-  _ = solve R
+  ex8 : (x : (fst R)) → x · 0r ≡ 0r
+  ex8 x = solve! R
 
-  _ : (x y z : (fst R)) → x · (y - z) ≡ x · y - x · z
-  _ = solve R
+  ex9 : (x y z : (fst R)) → x · (y - z) ≡ x · y - x · z
+  ex9 x y z = solve! R
 
 module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
   open CommAlgebraStr {{...}}
@@ -94,8 +94,8 @@ module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
     The ring solver should also be able to deal with more complicated arguments
     and operations with that are not given as the exact names in CommRingStr.
   -}
-  _ : (x y : ⟨ A ⟩) → x + y ≡ y + x
-  _ = solve (CommAlgebra→CommRing A)
+  ex10 : (x y : ⟨ A ⟩) → x + y ≡ y + x
+  ex10 x y = solve! (CommAlgebra→CommRing A)
 
 
 module TestInPlaceSolving (R : CommRing ℓ) where
