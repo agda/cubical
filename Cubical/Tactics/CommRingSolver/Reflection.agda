@@ -28,6 +28,8 @@ open import Cubical.Tactics.CommRingSolver.RawAlgebra
 open import Cubical.Tactics.CommRingSolver.IntAsRawRing
 open import Cubical.Tactics.CommRingSolver.Solver renaming (solve to ringSolve)
 
+open import Cubical.Tactics.Reflection
+
 private
   variable
     ℓ : Level
@@ -54,7 +56,7 @@ private
 
   findRingNames : Term → TC RingNames
   findRingNames cring =
-    let cringStr = varg (def (quote snd) (varg cring ∷ [])) ∷ []
+    let cringStr = (def (quote snd) (cring v∷ [])) v∷ []
     in do
       0altName ← normalise (def (quote CommRingStr.0r) cringStr)
       1altName ← normalise (def (quote CommRingStr.1r) cringStr)
@@ -86,7 +88,7 @@ private
     else nothing
       where
       go : List (Arg Term) → Maybe (Term × Term)
-      go (varg x ∷ varg y ∷ []) = just (x , y)
+      go (x v∷ y v∷ []) = just (x , y)
       go (x ∷ xs)               = go xs
       go _                      = nothing
   getLastTwoArgsOf n' _ = nothing
@@ -102,9 +104,9 @@ private
     solverCallAsTerm R varList lhs rhs =
       def
          (quote ringSolve)
-         (varg R ∷ varg lhs ∷ varg rhs
-           ∷ varList
-           ∷ varg (def (quote refl) []) ∷ [])
+         (R v∷ lhs v∷ rhs
+           v∷ varList
+           ∷ (def (quote refl) []) v∷ [])
 
   solverCallWithLambdas : ℕ → List VarInfo → Term → Term → Term → Term
   solverCallWithLambdas n varInfos R lhs rhs =
@@ -119,7 +121,7 @@ private
       variableList : List VarInfo → Arg Term
       variableList [] = varg (con (quote emptyVec) [])
       variableList (varInfo ∷ varInfos)
-        = varg (con (quote _∷vec_) (varg (var (VarInfo.index varInfo) []) ∷ (variableList varInfos) ∷ []))
+        = varg (con (quote _∷vec_) ((var (VarInfo.index varInfo) []) v∷ (variableList varInfos) ∷ []))
 
   solverCallByVarIndices : ℕ → List ℕ → Term → Term → Term → Term
   solverCallByVarIndices n varIndices R lhs rhs =
@@ -128,7 +130,7 @@ private
         variableList : List ℕ → Arg Term
         variableList [] = varg (con (quote emptyVec) [])
         variableList (varIndex ∷ varIndices)
-          = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
+          = varg (con (quote _∷vec_) ((var (varIndex) []) v∷ (variableList varIndices) ∷ []))
 
 
 
@@ -146,41 +148,41 @@ module _ (cring : Term) (names : RingNames) where
   open RingNames names
 
   `0` : List (Arg Term) → Term
-  `0` [] = def (quote 0') (varg cring ∷ [])
-  `0` (varg fstcring ∷ xs) = `0` xs
-  `0` (harg _ ∷ xs) = `0` xs
+  `0` [] = def (quote 0') (cring v∷ [])
+  `0` (fstcring v∷ xs) = `0` xs
+  `0` (_ h∷ xs) = `0` xs
   `0` _ = unknown
 
   `1` : List (Arg Term) → Term
-  `1` [] = def (quote 1') (varg cring ∷ [])
-  `1` (varg fstcring ∷ xs) = `1` xs
-  `1` (harg _ ∷ xs) = `1` xs
+  `1` [] = def (quote 1') (cring v∷ [])
+  `1` (fstcring v∷ xs) = `1` xs
+  `1` (_ h∷ xs) = `1` xs
   `1` _ = unknown
 
   mutual
     private
       op2 : Name → Term → Term → Term
-      op2 op x y = con op (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
+      op2 op x y = con op (buildExpression x v∷ buildExpression y v∷ [])
 
       op1 : Name → Term → Term
-      op1 op x = con op (varg (buildExpression x) ∷ [])
+      op1 op x = con op (buildExpression x v∷ [])
 
     `_·_` : List (Arg Term) → Term
-    `_·_` (harg _ ∷ xs) = `_·_` xs
-    `_·_` (varg x ∷ varg y ∷ []) = op2 (quote _·'_) x y
-    `_·_` (varg _ ∷ varg x ∷ varg y ∷ []) = op2 (quote _·'_) x y
+    `_·_` (_ h∷ xs) = `_·_` xs
+    `_·_` (x v∷ y v∷ []) = op2 (quote _·'_) x y
+    `_·_` (_ v∷ x v∷ y v∷ []) = op2 (quote _·'_) x y
     `_·_` _ = unknown
 
     `_+_` : List (Arg Term) → Term
-    `_+_` (harg _ ∷ xs) = `_+_` xs
-    `_+_` (varg x ∷ varg y ∷ []) = op2 (quote _+'_) x y
-    `_+_` (varg _ ∷ varg x ∷ varg y ∷ []) = op2 (quote _+'_) x y
+    `_+_` (_ h∷ xs) = `_+_` xs
+    `_+_` (x v∷ y v∷ []) = op2 (quote _+'_) x y
+    `_+_` (_ v∷ x v∷ y v∷ []) = op2 (quote _+'_) x y
     `_+_` _ = unknown
 
     `-_` : List (Arg Term) → Term
-    `-_` (harg _ ∷ xs) = `-_` xs
-    `-_` (varg x ∷ []) = op1 (quote -'_) x
-    `-_` (varg _ ∷ varg x ∷ []) = op1 (quote -'_) x
+    `-_` (_ h∷ xs) = `-_` xs
+    `-_` (x v∷ []) = op1 (quote -'_) x
+    `-_` (_ v∷ x v∷ []) = op1 (quote -'_) x
 
     `-_` _ = unknown
 
@@ -189,10 +191,10 @@ module _ (cring : Term) (names : RingNames) where
 
     finiteNumberAsTerm : ℕ → Term
     finiteNumberAsTerm ℕ.zero = con (quote fzero) []
-    finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (varg (finiteNumberAsTerm n) ∷ [])
+    finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (finiteNumberAsTerm n v∷ [])
 
     buildExpression : Term → Term
-    buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
+    buildExpression (var index _) = con (quote ∣) (finiteNumberAsTerm index v∷ [])
     buildExpression t@(def n xs) =
       switch (λ f → f n) cases
         case is0 ⇒ `0` xs     break
@@ -276,14 +278,14 @@ private
 
   toListOfTerms : Term → Maybe (List Term)
   toListOfTerms (con c []) = if (c == (quote [])) then just [] else nothing
-  toListOfTerms (con c (varg t ∷ varg s ∷ args)) with toListOfTerms s
+  toListOfTerms (con c (t v∷ s v∷ args)) with toListOfTerms s
   ... | just terms = if (c == (quote _∷_)) then just (t ∷ terms) else nothing
   ... | nothing = nothing
-  toListOfTerms (con c (harg t ∷ args)) = toListOfTerms (con c args)
+  toListOfTerms (con c (t h∷ args)) = toListOfTerms (con c args)
   toListOfTerms _ = nothing
 
   checkIsRing : Term → TC Term
-  checkIsRing ring = checkType ring (def (quote CommRing) (varg unknown ∷ []))
+  checkIsRing ring = checkType ring (def (quote CommRing) (unknown v∷ []))
 
   solve-macro : Term → Term → TC Unit
   solve-macro uncheckedCommRing hole =
@@ -300,7 +302,6 @@ private
       adjustedCommRing ← returnTC (adjustDeBruijnIndex (length varInfos) commRing)
       just (lhs , rhs) ← returnTC (toAlgebraExpression adjustedCommRing names (getArgs equation))
         where nothing → astExtractionError equation
-
       let solution = solverCallWithLambdas (length varInfos) varInfos adjustedCommRing lhs rhs
       unify hole solution
 
@@ -312,10 +313,15 @@ private
       just varIndices ← returnTC (extractVarIndices (toListOfTerms varsToSolve))
         where nothing → variableExtractionError varsToSolve
 
-      just (lhs , rhs) ← returnTC (toAlgebraExpression cring names (getArgs equation))
+      just (lhs , rhs) ← get-boundary equation
+        where
+          nothing
+            → typeError(strErr "The CommRingSolver failed to parse the goal"
+                               ∷ termErr equation ∷ [])
+      just (lhs' , rhs') ← returnTC (toAlgebraExpression cring names (just (lhs , rhs)))
         where nothing → astExtractionError equation
 
-      let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs rhs
+      let solution = solverCallByVarIndices (length varIndices) varIndices cring lhs' rhs'
       unify hole solution
 
 macro
