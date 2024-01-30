@@ -18,7 +18,7 @@ open import Cubical.Algebra.CommSemiring
 open import Cubical.Algebra.CommSemiring.Instances.Nat
 open import Cubical.Algebra.Semiring.BigOps
 
-open import Cubical.Tactics.NatSolver.Reflection
+open import Cubical.Tactics.NatSolver
 
 open Sum (CommSemiring→Semiring ℕasCSR)
 open CommSemiringStr (snd ℕasCSR)
@@ -43,7 +43,7 @@ sumFormula (suc n) =
   2 · (∑ (first (2 + n) ∘ weakenFin) + (suc n))                        ≡⟨ step2 ⟩
   2 · (∑ (first (1 + n)) + (suc n))                                    ≡⟨ step3 ⟩
   2 · ∑ (first (1 + n)) + 2 · (suc n)                                  ≡⟨ step4 ⟩
-  n · (n + 1) + 2 · (suc n)                                            ≡⟨ useSolver n ⟩
+  n · (n + 1) + 2 · (suc n)                                            ≡⟨ solveℕ! ⟩
   (suc n) · (suc (n + 1))                                              ∎
   where
     step0 = cong (λ u → 2 · u) (∑Last (first (2 + n)))
@@ -51,6 +51,3 @@ sumFormula (suc n) =
     step2 = cong (λ u → 2 · ((∑ u) + (suc n))) (firstDecompose (suc n))
     step3 = ·DistR+ 2 (∑ (first (1 + n))) (suc n)
     step4 = cong (λ u → u + 2 · (suc n)) (sumFormula n)
-
-    useSolver : ∀ (n : ℕ) → n · (n + 1) + 2 · (suc n) ≡ (suc n) · (suc (n + 1))
-    useSolver = solve

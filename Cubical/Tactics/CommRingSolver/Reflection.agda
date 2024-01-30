@@ -16,7 +16,6 @@ open import Cubical.Data.Nat.Literals
 open import Cubical.Data.Int.Base hiding (abs)
 open import Cubical.Data.Int using (fromNegℤ; fromNatℤ)
 open import Cubical.Data.Nat using (ℕ; discreteℕ) renaming (_+_ to _+ℕ_)
-open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_)
@@ -32,13 +31,11 @@ open import Cubical.Tactics.CommRingSolver.Solver renaming (solve to ringSolve)
 
 open import Cubical.Tactics.Reflection
 open import Cubical.Tactics.Reflection.Variables
+open import Cubical.Tactics.Reflection.Utilities
 
 private
   variable
     ℓ : Level
-
-  _==_ = primQNameEquality
-  {-# INLINE _==_ #-}
 
   record RingNames : Type where
     field
@@ -104,13 +101,6 @@ module CommRingReflection (cring : Term) (names : RingNames) where
   open pr
   open RingNames names
 
-  -- error message helper
-  errorOut : List (Arg Term) → TC (Template × Vars)
-  errorOut something = typeError (strErr "CommRingSolver: Don't know what to do with " ∷ map (λ {(arg _ t) → termErr t}) something)
-
-  errorOut' : Term → TC (Template × Vars)
-  errorOut' something = typeError (strErr "CommRingSolver: Don't know what to do with " ∷ termErr something ∷ [])
-
   `0` : List (Arg Term) → TC (Template × Vars)
   `0` [] = returnTC (((λ _ → def (quote 0') (cring v∷ [])) , []))
   `0` (fstcring v∷ xs) = `0` xs
@@ -123,20 +113,19 @@ module CommRingReflection (cring : Term) (names : RingNames) where
   `1` (_ h∷ xs) = `1` xs
   `1` something = errorOut something
 
-  buildExpression' : Term → TC (Template × Vars)
+  buildExpression : Term → TC (Template × Vars)
 
   op2 : Name → Term → Term → TC (Template × Vars)
   op2 op x y = do
-    r1 ← buildExpression' x
-    r2 ← buildExpression' y
+    r1 ← buildExpression x
+    r2 ← buildExpression y
     returnTC ((λ ass → con op (fst r1 ass v∷ fst r2 ass v∷ [])) ,
              appendWithoutRepetition (snd r1) (snd r2))
 
   op1 : Name → Term → TC (Template × Vars)
   op1 op x = do
-    r1 ← buildExpression' x
+    r1 ← buildExpression x
     returnTC ((λ ass → con op (fst r1 ass v∷ [])) , snd r1)
-
 
   `_·_` : List (Arg Term) → TC (Template × Vars)
   `_·_` (_ h∷ xs) = `_·_` xs
@@ -156,19 +145,14 @@ module CommRingReflection (cring : Term) (names : RingNames) where
   `-_` (_ v∷ x v∷ []) = op1 (quote -'_) x
   `-_` ts = errorOut ts
 
-  finiteNumberAsTerm : Maybe ℕ → Term
-  finiteNumberAsTerm (just ℕ.zero) = con (quote fzero) []
-  finiteNumberAsTerm (just (ℕ.suc n)) = con (quote fsuc) (finiteNumberAsTerm (just n) v∷ [])
-  finiteNumberAsTerm _ = unknown
-
   polynomialVariable : Maybe ℕ → Term
   polynomialVariable n = con (quote ∣) (finiteNumberAsTerm n v∷ [])
 
-  -- buildExpression' : Term → Template × Vars
-  buildExpression' v@(var _ _) =
+  -- buildExpression : Term → Template × Vars
+  buildExpression v@(var _ _) =
     returnTC ((λ ass → polynomialVariable (ass v)) ,
              v ∷ [])
-  buildExpression' t@(def n xs) =
+  buildExpression t@(def n xs) =
     switch (λ f → f n) cases
       case is0 ⇒ `0` xs         break
       case is1 ⇒ `1` xs         break
@@ -176,7 +160,7 @@ module CommRingReflection (cring : Term) (names : RingNames) where
       case is+ ⇒ `_+_` xs       break
       case is- ⇒ `-_` xs        break
       default⇒ (returnTC ((λ ass → polynomialVariable (ass t)) , t ∷ []))
-  buildExpression' t@(con n xs) =
+  buildExpression t@(con n xs) =
     switch (λ f → f n) cases
       case is0 ⇒ `0` xs         break
       case is1 ⇒ `1` xs         break
@@ -184,14 +168,14 @@ module CommRingReflection (cring : Term) (names : RingNames) where
       case is+ ⇒ `_+_` xs       break
       case is- ⇒ `-_` xs        break
       default⇒ (returnTC ((λ ass → polynomialVariable (ass t)) , t ∷ []))
-  buildExpression' t = errorOut' t
+  buildExpression t = errorOut' t
   -- there should be cases for variables which are functions, those should be detectable by having visible args
   -- there should be cases for definitions (with arguments)
 
   toAlgebraExpression : Term × Term → TC (Term × Term × Vars)
   toAlgebraExpression (lhs , rhs) = do
-      r1 ← buildExpression' lhs
-      r2 ← buildExpression' rhs
+      r1 ← buildExpression lhs
+      r2 ← buildExpression rhs
       vars ← returnTC (appendWithoutRepetition (snd r1) (snd r2))
       returnTC (
         let ass : VarAss
@@ -212,7 +196,7 @@ private
       just (lhs , rhs) ← get-boundary goal
         where
           nothing
-            → typeError(strErr "The CommRingSolver failed to parse the goal"
+            → typeError(strErr "The CommRingSolver failed to parse the goal "
                                ∷ termErr goal ∷ [])
 
       (lhs' , rhs' , vars) ← CommRingReflection.toAlgebraExpression commRing names (lhs , rhs)

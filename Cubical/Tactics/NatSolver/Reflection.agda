@@ -2,6 +2,7 @@
 {-
   This is inspired by/copied from:
   https://github.com/agda/agda-stdlib/blob/master/src/Tactic/MonoidSolver.agda
+  and the 1lab.
 
   Boilerplate code for calling the ring solver is constructed automatically
   with agda's reflection features.
@@ -19,9 +20,7 @@ open import Cubical.Reflection.Base
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
-open import Cubical.Data.Nat.Literals
 open import Cubical.Data.Nat
-open import Cubical.Data.FinData using () renaming (zero to fzero; suc to fsuc)
 open import Cubical.Data.Bool
 open import Cubical.Data.Bool.SwitchStatement
 open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷vec_) public
@@ -29,41 +28,14 @@ open import Cubical.Data.Vec using (Vec) renaming ([] to emptyVec; _∷_ to _∷
 open import Cubical.Tactics.NatSolver.NatExpression
 open import Cubical.Tactics.NatSolver.Solver
 
+open import Cubical.Tactics.Reflection
+open import Cubical.Tactics.Reflection.Variables
+open import Cubical.Tactics.Reflection.Utilities
+
 open EqualityToNormalform renaming (solve to natSolve)
 private
   variable
     ℓ : Level
-
-  _==_ = primQNameEquality
-  {-# INLINE _==_ #-}
-
-  record VarInfo : Type ℓ-zero where
-    field
-      varName : String
-      varType : Arg Term
-      index : ℕ
-
-  {-
-    `getLastTwoArgsOf` maps a term 'def n (z₁ ∷ … ∷ zₙ ∷ x ∷ y ∷ [])' to the pair '(x,y)'
-    non-visible arguments are ignored.
-  -}
-  getLastTwoArgsOf : Name → Term → Maybe (Term × Term)
-  getLastTwoArgsOf n' (def n xs) =
-    if n == n'
-    then go xs
-    else nothing
-      where
-      go : List (Arg Term) → Maybe (Term × Term)
-      go (varg x ∷ varg y ∷ []) = just (x , y)
-      go (x ∷ xs)               = go xs
-      go _                      = nothing
-  getLastTwoArgsOf n' _ = nothing
-
-  {-
-    `getArgs` maps a term 'x ≡ y' to the pair '(x,y)'
-  -}
-  getArgs : Term → Maybe (Term × Term)
-  getArgs = getLastTwoArgsOf (quote PathP)
 
   private
     solverCallAsTerm : Arg Term → Term → Term → Term
@@ -74,31 +46,14 @@ private
            ∷ varList
            ∷ varg (def (quote refl) []) ∷ [])
 
-  solverCallWithLambdas : ℕ → List VarInfo → Term → Term → Term
-  solverCallWithLambdas n varInfos lhs rhs =
-    encloseWithIteratedLambda
-      (map VarInfo.varName varInfos)
-      (solverCallAsTerm (variableList (rev varInfos)) lhs rhs)
-    where
-      encloseWithIteratedLambda : List String → Term → Term
-      encloseWithIteratedLambda (varName ∷ xs) t = lam visible (abs varName (encloseWithIteratedLambda xs t))
-      encloseWithIteratedLambda [] t = t
-
-      variableList : List VarInfo → Arg Term
-      variableList [] = varg (con (quote emptyVec) [])
-      variableList (varInfo ∷ varInfos)
-        = varg (con (quote _∷vec_) (varg (var (VarInfo.index varInfo) []) ∷ (variableList varInfos) ∷ []))
-
-  solverCallByVarIndices : ℕ → List ℕ → Term → Term → Term → Term
-  solverCallByVarIndices n varIndices R lhs rhs =
-      solverCallAsTerm (variableList (rev varIndices)) lhs rhs
+  solverCallWithVars : ℕ → Vars → Term → Term → Term
+  solverCallWithVars n vars lhs rhs =
+      solverCallAsTerm (variableList vars) lhs rhs
       where
-        variableList : List ℕ → Arg Term
+        variableList : Vars → Arg Term
         variableList [] = varg (con (quote emptyVec) [])
-        variableList (varIndex ∷ varIndices)
-          = varg (con (quote _∷vec_) (varg (var (varIndex) []) ∷ (variableList varIndices) ∷ []))
-
-
+        variableList (t ∷ ts)
+          = varg (con (quote _∷vec_) (t v∷ (variableList ts) ∷ []))
 
 module pr {n : ℕ} where
   0' : Expr n
@@ -107,114 +62,84 @@ module pr {n : ℕ} where
   1' : Expr n
   1' = K 1
 
-module _ where
+module NatSolverReflection where
   open pr
 
-  mutual
+  buildExpression : Term → TC (Template × Vars)
 
-    `_·_` : List (Arg Term) → Term
-    `_·_` (harg _ ∷ xs) = `_·_` xs
-    `_·_` (varg x ∷ varg y ∷ []) =
-      con
-        (quote _·'_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
-    `_·_` _ = unknown
+  op2 : Name → Term → Term → TC (Template × Vars)
+  op2 op x y = do
+    r1 ← buildExpression x
+    r2 ← buildExpression y
+    returnTC ((λ ass → con op (fst r1 ass v∷ fst r2 ass v∷ [])) ,
+             appendWithoutRepetition (snd r1) (snd r2))
 
-    `_+_` : List (Arg Term) → Term
-    `_+_` (harg _ ∷ xs) = `_+_` xs
-    `_+_` (varg x ∷ varg y ∷ []) =
-      con
-        (quote _+'_) (varg (buildExpression x) ∷ varg (buildExpression y) ∷ [])
-    `_+_` _ = unknown
+  `_·_` : List (Arg Term) → TC (Template × Vars)
+  `_·_` (_ h∷ xs) = `_·_` xs
+  `_·_` (x v∷ y v∷ []) = op2 (quote _·'_) x y
+  `_·_` ts = errorOut ts
 
-    `1+_` : List (Arg Term) → Term
-    `1+_` (varg x ∷ []) =
-      con (quote _+'_) (varg (def (quote 1') []) ∷ varg (buildExpression x) ∷ [])
-    `1+_` _ = unknown
+  `_+_` : List (Arg Term) → TC (Template × Vars)
+  `_+_` (_ h∷ xs) = `_+_` xs
+  `_+_` (x v∷ y v∷ []) = op2 (quote _+'_) x y
+  `_+_` ts = errorOut ts
 
-    K' : List (Arg Term) → Term
-    K' xs = con (quote K) xs
+  `1+_` : List (Arg Term) → TC (Template × Vars)
+  `1+_` (x v∷ []) = do
+    r1 ← buildExpression x
+    returnTC ((λ ass → con (quote _+'_) ((def (quote 1') []) v∷ fst r1 ass v∷ [])) ,
+              snd r1)
+  `1+_` ts = errorOut ts
 
-    finiteNumberAsTerm : ℕ → Term
-    finiteNumberAsTerm ℕ.zero = con (quote fzero) []
-    finiteNumberAsTerm (ℕ.suc n) = con (quote fsuc) (varg (finiteNumberAsTerm n) ∷ [])
+  K' : List (Arg Term) → TC (Template × Vars)
+  K' xs = returnTC ((λ _ → con (quote K) xs) , [])
 
-    buildExpression : Term → Term
-    buildExpression (var index _) = con (quote ∣) (varg (finiteNumberAsTerm index) ∷ [])
-    buildExpression t@(lit n) = K' (varg t ∷ [])
-    buildExpression t@(def n xs) =
-      switch (n ==_) cases
-        case (quote _·_) ⇒ `_·_` xs   break
-        case (quote _+_) ⇒ `_+_` xs   break
-        default⇒ (K' xs)
-    buildExpression t@(con n xs) =
-      switch (n ==_) cases
-        case (quote suc) ⇒ `1+_` xs   break
-        default⇒ (K' xs)
-    buildExpression t = unknown
+  polynomialVariable : Maybe ℕ → Term
+  polynomialVariable (just n) = con (quote ∣) (finiteNumberAsTerm (just n) v∷ [])
+  polynomialVariable nothing = unknown
 
-  toAlgebraExpression : Maybe (Term × Term) → Maybe (Term × Term)
-  toAlgebraExpression nothing = nothing
-  toAlgebraExpression (just (lhs , rhs)) = just (buildExpression lhs , buildExpression rhs)
+  buildExpression v@(var _ _) =
+      returnTC ((λ ass → polynomialVariable (ass v)) ,
+           v ∷ [])
+  buildExpression t@(lit n) = K' (t v∷ [])
+  buildExpression t@(def n xs) =
+    switch (n ==_) cases
+      case (quote _·_) ⇒ `_·_` xs   break
+      case (quote _+_) ⇒ `_+_` xs   break
+      default⇒ (K' xs)
+  buildExpression t@(con n xs) =
+    switch (n ==_) cases
+      case (quote suc) ⇒ `1+_` xs   break
+      default⇒ (K' xs)
+  buildExpression t = errorOut' t
+
+  toNatExpression : Term × Term → TC (Term × Term × Vars)
+  toNatExpression (lhs , rhs) = do
+      r1 ← buildExpression lhs
+      r2 ← buildExpression rhs
+      vars ← returnTC (appendWithoutRepetition (snd r1) (snd r2))
+      returnTC (
+        let ass : VarAss
+            ass n = indexOf n vars
+        in (fst r1 ass , fst r2 ass , vars ))
 
 private
-  adjustDeBruijnIndex : (n : ℕ) → Term → Term
-  adjustDeBruijnIndex n (var k args) = var (k + n) args
-  adjustDeBruijnIndex n _ = unknown
 
-  extractVarIndices : Maybe (List Term) → Maybe (List ℕ)
-  extractVarIndices (just ((var index _) ∷ l)) with extractVarIndices (just l)
-  ... | just indices = just (index ∷ indices)
-  ... | nothing = nothing
-  extractVarIndices (just []) = just []
-  extractVarIndices _ = nothing
-
-  getVarsAndEquation : Term → Maybe (List VarInfo × Term)
-  getVarsAndEquation t =
-    let
-      (rawVars , equationTerm) = extractVars t
-      maybeVars = addIndices (length rawVars) rawVars
-    in map-Maybe (_, equationTerm) maybeVars
-    where
-          extractVars : Term → List (String × Arg Term) × Term
-          extractVars (pi argType (abs varName t)) with extractVars t
-          ...                                         | xs , equation
-                                                        = (varName , argType) ∷ xs , equation
-          extractVars equation = [] , equation
-
-          addIndices : ℕ → List (String × Arg Term) → Maybe (List VarInfo)
-          addIndices ℕ.zero         []        = just []
-          addIndices (ℕ.suc countVar) ((varName , argType) ∷ list) =
-            map-Maybe (λ varList → record { varName = varName ; varType = argType ; index = countVar }
-                                   ∷ varList)
-                      (addIndices countVar list)
-          addIndices _ _ = nothing
-
-  toListOfTerms : Term → Maybe (List Term)
-  toListOfTerms (con c []) = if (c == (quote [])) then just [] else nothing
-  toListOfTerms (con c (varg t ∷ varg s ∷ args)) with toListOfTerms s
-  ... | just terms = if (c == (quote _∷_)) then just (t ∷ terms) else nothing
-  ... | nothing = nothing
-  toListOfTerms (con c (harg t ∷ args)) = toListOfTerms (con c args)
-  toListOfTerms _ = nothing
-
-  solve-macro : Term → TC Unit
-  solve-macro hole =
+  solve!-macro : Term → TC Unit
+  solve!-macro hole =
     do
-      hole′ ← inferType hole >>= normalise
-      just (varInfos , equation) ← returnTC (getVarsAndEquation hole′)
+      goal ← inferType hole >>= normalise
+
+      just (lhs , rhs) ← get-boundary goal
         where
           nothing
-            → typeError (strErr "Something went wrong when getting the variable names in "
-                           ∷ termErr hole′ ∷ [])
-      just (lhs , rhs) ← returnTC (toAlgebraExpression (getArgs equation))
-        where
-          nothing
-            → typeError(
-                strErr "Error while trying to build ASTs for the equation " ∷
-                termErr equation ∷ [])
-      let solution = solverCallWithLambdas (length varInfos) varInfos lhs rhs
+            → typeError(strErr "The NatSolver failed to parse the goal "
+                               ∷ termErr goal ∷ [])
+
+      (lhs' , rhs' , vars) ← NatSolverReflection.toNatExpression (lhs , rhs)
+      let solution = solverCallWithVars (length vars) vars lhs' rhs'
       unify hole solution
 
 macro
-  solve : Term → TC _
-  solve = solve-macro
+  solveℕ! : Term → TC _
+  solveℕ! = solve!-macro
