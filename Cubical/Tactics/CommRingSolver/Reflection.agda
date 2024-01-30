@@ -37,12 +37,6 @@ private
   variable
     ℓ : Level
 
-
-  -- we walk through expression collecting terms we will treat as variables in "vars : Vars"
-  -- when done, we look how many variables (=n) we have assign each an index 0,...,n-1
-  -- these indicies are used in the Hornerforms/Polynomials
-
-
   _==_ = primQNameEquality
   {-# INLINE _==_ #-}
 
@@ -80,14 +74,13 @@ private
           is- = buildMatcher (quote (CommRingStr.-_)) (getName -altName)
         }
 
-  private
-    solverCallAsTerm : Term → Arg Term → Term → Term → Term
-    solverCallAsTerm R varList lhs rhs =
-      def
-         (quote ringSolve)
-         (R v∷ lhs v∷ rhs
-           v∷ varList
-           ∷ (def (quote refl) []) v∷ [])
+  solverCallAsTerm : Term → Arg Term → Term → Term → Term
+  solverCallAsTerm R varList lhs rhs =
+    def
+       (quote ringSolve)
+       (R v∷ lhs v∷ rhs
+         v∷ varList
+         ∷ (def (quote refl) []) v∷ [])
 
   solverCallWithVars : ℕ → Vars → Term → Term → Term → Term
   solverCallWithVars n vars R lhs rhs =
@@ -123,41 +116,41 @@ module CommRingReflection (cring : Term) (names : RingNames) where
   `1` (_ h∷ xs) = `1` xs
   `1` _ = ((λ _ → unknown) , [])
 
-  buildExpression' : Term → Vars → Template × Vars
+  buildExpression' : Term → Template × Vars
 
-  private
-    op2 : Name → Term → Term → Vars → Template × Vars
-    op2 op x y vars = ((λ ass → con op (fst r1 ass v∷ fst r2 ass v∷ [])) ,
-                        appendWithoutRepetition (snd r1) (snd r2))
-      where
-      r1 = buildExpression' x vars
-      r2 = buildExpression' y vars
+  op2 : Name → Term → Term → Template × Vars
+  op2 op x y =
+    ((λ ass → con op (fst r1 ass v∷ fst r2 ass v∷ [])) ,
+     appendWithoutRepetition (snd r1) (snd r2))
+    where
+    r1 = buildExpression' x
+    r2 = buildExpression' y
 
-    op1 : Name → Term → Vars → Template × Vars
-    op1 op x vars = ((λ ass → con op (fst r1 ass v∷ [])) , snd r1)
-      where
-      r1 = buildExpression' x vars
+  op1 : Name → Term → Template × Vars
+  op1 op x = ((λ ass → con op (fst r1 ass v∷ [])) , snd r1)
+    where
+    r1 = buildExpression' x
 
-  `_·_` : List (Arg Term) → Vars → Template × Vars
-  `_·_` (_ h∷ xs) vars = `_·_` xs vars
-  `_·_` (x v∷ y v∷ []) vars = op2 (quote _·'_) x y vars
-  `_·_` (_ v∷ x v∷ y v∷ []) vars = op2 (quote _·'_) x y vars
-  `_·_` _ vars = ((λ _ → unknown) , vars)
+  `_·_` : List (Arg Term) → Template × Vars
+  `_·_` (_ h∷ xs) = `_·_` xs
+  `_·_` (x v∷ y v∷ []) = op2 (quote _·'_) x y
+  `_·_` (_ v∷ x v∷ y v∷ []) = op2 (quote _·'_) x y
+  `_·_` _ = ((λ _ → unknown) , [])
 
-  `_+_` : List (Arg Term) → Vars → Template × Vars
-  `_+_` (_ h∷ xs) vars = `_+_` xs vars
-  `_+_` (x v∷ y v∷ []) vars = op2 (quote _+'_) x y vars
-  `_+_` (_ v∷ x v∷ y v∷ []) vars = op2 (quote _+'_) x y vars
-  `_+_` _ vars = ((λ _ → unknown) , vars)
+  `_+_` : List (Arg Term) → Template × Vars
+  `_+_` (_ h∷ xs) = `_+_` xs
+  `_+_` (x v∷ y v∷ []) = op2 (quote _+'_) x y
+  `_+_` (_ v∷ x v∷ y v∷ []) = op2 (quote _+'_) x y
+  `_+_` _ = ((λ _ → unknown) , [])
 
-  `-_` : List (Arg Term) → Vars → Template × Vars
-  `-_` (_ h∷ xs) vars = `-_` xs vars
-  `-_` (x v∷ []) vars = op1 (quote -'_) x vars
-  `-_` (_ v∷ x v∷ []) vars = op1 (quote -'_) x vars
-  `-_` _ vars = ((λ _ → unknown) , vars)
+  `-_` : List (Arg Term) → Template × Vars
+  `-_` (_ h∷ xs) = `-_` xs
+  `-_` (x v∷ []) = op1 (quote -'_) x
+  `-_` (_ v∷ x v∷ []) = op1 (quote -'_) x
+  `-_` _ = ((λ _ → unknown) , [])
 
-  K' : List (Arg Term) → Vars → Template × Vars
-  K' xs vars = ((λ ass → con (quote K) xs) , vars)
+  K' : List (Arg Term) → Template × Vars
+  K' xs = ((λ ass → con (quote K) xs) , [])
 
   finiteNumberAsTerm : Maybe ℕ → Term
   finiteNumberAsTerm (just ℕ.zero) = con (quote fzero) []
@@ -167,34 +160,34 @@ module CommRingReflection (cring : Term) (names : RingNames) where
   polynomialVariable : Maybe ℕ → Term
   polynomialVariable n = con (quote ∣) (finiteNumberAsTerm n v∷ [])
 
-  -- buildExpression' : Term → Vars → Template × Vars
-  buildExpression' v@(var _ _) vars =
+  -- buildExpression' : Term → Template × Vars
+  buildExpression' v@(var _ _) =
     ((λ ass → polynomialVariable (ass v)) ,
-     addWithoutRepetition v vars)
-  buildExpression' t@(def n xs) vars =
+     v ∷ [])
+  buildExpression' t@(def n xs) =
     switch (λ f → f n) cases
       case is0 ⇒ `0` xs         break
       case is1 ⇒ `1` xs         break
-      case is· ⇒ `_·_` xs vars  break
-      case is+ ⇒ `_+_` xs vars  break
-      case is- ⇒ `-_` xs vars   break
-      default⇒ ((λ ass → polynomialVariable (ass t)) , addWithoutRepetition t vars)
-  buildExpression' t@(con n xs) vars =
+      case is· ⇒ `_·_` xs       break
+      case is+ ⇒ `_+_` xs       break
+      case is- ⇒ `-_` xs        break
+      default⇒ ((λ ass → polynomialVariable (ass t)) , t ∷ [])
+  buildExpression' t@(con n xs) =
     switch (λ f → f n) cases
       case is0 ⇒ `0` xs         break
       case is1 ⇒ `1` xs         break
-      case is· ⇒ `_·_` xs vars  break
-      case is+ ⇒ `_+_` xs vars  break
-      case is- ⇒ `-_` xs vars   break
-      default⇒ ((λ ass → polynomialVariable (ass t)) , addWithoutRepetition t vars)
-  buildExpression' t vars = ((λ _ → unknown) , vars)
+      case is· ⇒ `_·_` xs       break
+      case is+ ⇒ `_+_` xs       break
+      case is- ⇒ `-_` xs        break
+      default⇒ ((λ ass → polynomialVariable (ass t)) , t ∷ [])
+  buildExpression' t = ((λ _ → unknown) , [])
   -- there should be cases for variables which are functions, those should be detectable by having visible args
   -- there should be cases for definitions (with arguments)
 
   toAlgebraExpression : Term × Term → TC (Term × Term × Vars)
   toAlgebraExpression (lhs , rhs) = do
-      r1 ← returnTC (buildExpression' lhs [])
-      r2 ← returnTC (buildExpression' rhs [])
+      r1 ← returnTC (buildExpression' lhs)
+      r2 ← returnTC (buildExpression' rhs)
       vars ← returnTC (appendWithoutRepetition (snd r1) (snd r2))
       returnTC (
         let ass : VarAss
@@ -202,7 +195,6 @@ module CommRingReflection (cring : Term) (names : RingNames) where
         in (fst r1 ass , fst r2 ass , vars ))
 
 private
-
   checkIsRing : Term → TC Term
   checkIsRing ring = checkType ring (def (quote CommRing) (unknown v∷ []))
 
@@ -223,25 +215,6 @@ private
       let solution = solverCallWithVars (length vars) vars commRing lhs' rhs'
       unify hole solution
 
-  solve!-deb : Term → Term → TC Unit
-  solve!-deb uncheckedCommRing hole =
-    do
-      commRing ← checkIsRing uncheckedCommRing
-      goal ← inferType hole >>= normalise
-      names ← findRingNames commRing
-      just (lhs , rhs) ← get-boundary goal
-        where
-          nothing
-            → typeError(strErr "The CommRingSolver failed to parse the goal"
-                               ∷ termErr goal ∷ [])
-
-      (lhs' , rhs' , vars) ← CommRingReflection.toAlgebraExpression commRing names (lhs , rhs)
-      let solution = solverCallWithVars (length vars) vars commRing lhs' rhs'
-      typeError(termErr solution ∷ [])
-
 macro
   solve! : Term → Term → TC _
   solve! = solve!-macro
-
-  solve!-db : Term → Term → TC _
-  solve!-db = solve!-deb
