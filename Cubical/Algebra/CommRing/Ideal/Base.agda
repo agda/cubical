@@ -82,9 +82,9 @@ module CommIdeal (R' : CommRing ℓ) where
 
  -Closed : (I : CommIdeal) (x : R)
          → x ∈ I → (- x) ∈ I
- -Closed I x x∈I = subst (_∈ I) (useSolver x) (·Closed (snd I) (- 1r) x∈I)
-   where useSolver : (x : R) → - 1r · x ≡ - x
-         useSolver = solve R'
+ -Closed I x x∈I = subst (_∈ I) useSolver (·Closed (snd I) (- 1r) x∈I)
+   where useSolver : - 1r · x ≡ - x
+         useSolver = solve! R'
 
  ∑Closed : (I : CommIdeal) {n : ℕ} (V : FinVec R n)
          → (∀ i → V i ∈ I) → ∑ V ∈ I
@@ -132,7 +132,7 @@ module _ {R : CommRing ℓ} where
   -closed (snd (CommIdeal→Ideal I)) =  λ x∈pI → subst-∈p (fst I) (useSolver _)
                                                            (·Closed (snd I) (- 1r) x∈pI)
                                          where useSolver : (x : fst R) → - 1r · x ≡ - x
-                                               useSolver = solve R
+                                               useSolver _ = solve! R
   0r-closed (snd (CommIdeal→Ideal I)) = contains0 (snd I)
   ·-closedLeft (snd (CommIdeal→Ideal I)) = ·Closed (snd I)
   ·-closedRight (snd (CommIdeal→Ideal I)) = λ r x∈pI →

@@ -307,7 +307,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
                , eq/ _ _ ((1r , containsOne) , path (h ^ m))
             where
             path : ∀ x → 1r · (x · 1r) · 1r ≡ 1r · 1r · (1r · x)
-            path = solve R'
+            path _ = solve! R'
 
           β : FinVec R[1/ h ] (suc n)
           β i = ((h ^ m) /1) ⁻¹ · α i /1
@@ -365,7 +365,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
                       (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
         where
         useSolver : ∀ a → a ≡ a · 1r · (1r · 1r)
-        useSolver = solve R'
+        useSolver _ = solve! R'
       pres· (snd (coneOut /1/1Cone (pair i j i<j))) x y =
         cong [_] (≡-× (cong [_] (≡-× refl
                       (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r)))))

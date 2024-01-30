@@ -315,11 +315,11 @@ module _ (R' : CommRing ℓ) where
              ∙ cong (β zero · (f /1) +_) (sym (+IdR (β (suc zero) · (g /1))))
          where
          useSolver1 : ∀ hn → 1r · 1r · ((hn · 1r) · (hn · 1r)) ≡ hn · hn
-         useSolver1 = solve R'
+         useSolver1 _ = solve! R'
 
          useSolver2 : ∀ az f hn as g → hn · (az · f + (as · g + 0r))
                                       ≡ 1r · (az · f · (hn · 1r) + as · g · (hn · 1r)) · 1r
-         useSolver2 = solve R'
+         useSolver2 _ _ _ _ _ = solve! R'
 
          bigPath : 1r · 1r · ((h ^ n · 1r) · (h ^ n · 1r))
                  ≡ 1r · (α zero · f · (h ^ n · 1r) + α (suc zero) · g · (h ^ n · 1r)) · 1r
@@ -376,7 +376,7 @@ module _ (R' : CommRing ℓ) where
                                          (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
       where
       useSolver : ∀ a → a ≡ a · 1r · (1r · 1r)
-      useSolver = solve R'
+      useSolver _ = solve! R'
     pres· (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-× refl
                                             (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r)))))
                                             (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
