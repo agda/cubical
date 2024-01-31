@@ -494,6 +494,17 @@ module _ {ℓ : Level} where
     N-ob (compOpenGlobalIncl U) A = fst
     N-hom (compOpenGlobalIncl U) φ = refl
 
+    -- this is essentially U∧_
+    compOpenDownHom : (U : CompactOpen X)
+                    → DistLatticeHom (CompOpenDistLattice .F-ob X)
+                                     (CompOpenDistLattice .F-ob ⟦ U ⟧ᶜᵒ)
+    compOpenDownHom U = CompOpenDistLattice .F-hom (compOpenGlobalIncl U)
+
+    compOpenDownHomNatIso : {U V : CompactOpen X}
+                          → V ≤ U
+                          → NatIso ⟦ V ⟧ᶜᵒ ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ
+    compOpenDownHomNatIso {U = U} {V = V} V≤U = {!!}
+
     compOpenIncl : {U V : CompactOpen X} → V ≤ U → ⟦ V ⟧ᶜᵒ ⇒ ⟦ U ⟧ᶜᵒ
     N-ob (compOpenIncl {U = U} {V = V} V≤U) A (x , Vx≡D1) = x , path
       where
@@ -545,65 +556,65 @@ module _ {ℓ : Level} where
   isLocal X = isSheaf zariskiCoverage X
 
   -- Compact opens of Zariski sheaves are sheaves
-  presLocalCompactOpen : (X : ℤFunctor) (U : CompactOpen X) → isLocal X → isLocal ⟦ U ⟧ᶜᵒ
-  presLocalCompactOpen X U isLocalX R um@(unimodvec _ f _) = isoToIsEquiv isoU
-    where
-    open Coverage zariskiCoverage
-    open InvertingElementsBase R
-    instance _ = R .snd
+  -- presLocalCompactOpen : (X : ℤFunctor) (U : CompactOpen X) → isLocal X → isLocal ⟦ U ⟧ᶜᵒ
+  -- presLocalCompactOpen X U isLocalX R um@(unimodvec _ f _) = isoToIsEquiv isoU
+  --   where
+  --   open Coverage zariskiCoverage
+  --   open InvertingElementsBase R
+  --   instance _ = R .snd
 
-    fᵢCoverR = covers R .snd um
+  --   fᵢCoverR = covers R .snd um
 
-    isoX : Iso (X .F-ob R .fst) (CompatibleFamily X fᵢCoverR)
-    isoX = equivToIso (elementToCompatibleFamily _ _ , isLocalX R um)
+  --   isoX : Iso (X .F-ob R .fst) (CompatibleFamily X fᵢCoverR)
+  --   isoX = equivToIso (elementToCompatibleFamily _ _ , isLocalX R um)
 
-    compatibleFamIncl : (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR) → (CompatibleFamily X fᵢCoverR)
-    compatibleFamIncl fam = (fst ∘ fst fam)
-                          , λ i j B φ ψ φψComm → cong fst (fam .snd i j B φ ψ φψComm)
+  --   compatibleFamIncl : (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR) → (CompatibleFamily X fᵢCoverR)
+  --   compatibleFamIncl fam = (fst ∘ fst fam)
+  --                         , λ i j B φ ψ φψComm → cong fst (fam .snd i j B φ ψ φψComm)
 
-    compatibleFamIncl≡ : ∀ (y : Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
-                       → compatibleFamIncl (elementToCompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR y)
-                       ≡ elementToCompatibleFamily X fᵢCoverR (y .fst)
-    compatibleFamIncl≡ y = CompatibleFamily≡ _ _ _ _ λ _ → refl
+  --   compatibleFamIncl≡ : ∀ (y : Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
+  --                      → compatibleFamIncl (elementToCompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR y)
+  --                      ≡ elementToCompatibleFamily X fᵢCoverR (y .fst)
+  --   compatibleFamIncl≡ y = CompatibleFamily≡ _ _ _ _ λ _ → refl
 
-    isoU : Iso (Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
-               (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR)
-    fun isoU = elementToCompatibleFamily _ _
-    fst (inv isoU fam) = isoX .inv (compatibleFamIncl fam)
-    snd (inv isoU fam) = -- U (x) ≡ D(1)
-                         -- knowing that U(x/1)¸≡ D(1) in R[1/fᵢ]
-      let x = isoX .inv (compatibleFamIncl fam) in
-      isSeparatedZarLatFun R um (U .N-ob R x) (D R 1r)
-        λ i → let open UniversalProp (f i)
-                  instance _ = R[1/ (f i) ]AsCommRing .snd in
+  --   isoU : Iso (Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
+  --              (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR)
+  --   fun isoU = elementToCompatibleFamily _ _
+  --   fst (inv isoU fam) = isoX .inv (compatibleFamIncl fam)
+  --   snd (inv isoU fam) = -- U (x) ≡ D(1)
+  --                        -- knowing that U(x/1)¸≡ D(1) in R[1/fᵢ]
+  --     let x = isoX .inv (compatibleFamIncl fam) in
+  --     isSeparatedZarLatFun R um (U .N-ob R x) (D R 1r)
+  --       λ i → let open UniversalProp (f i)
+  --                 instance _ = R[1/ (f i) ]AsCommRing .snd in
 
-                inducedZarLatHom /1AsCommRingHom .fst (U .N-ob R x)
+  --               inducedZarLatHom /1AsCommRingHom .fst (U .N-ob R x)
 
-              ≡⟨ funExt⁻ (sym (U .N-hom /1AsCommRingHom)) x ⟩
+  --             ≡⟨ funExt⁻ (sym (U .N-hom /1AsCommRingHom)) x ⟩
 
-                U .N-ob R[1/ (f i) ]AsCommRing (X .F-hom /1AsCommRingHom x)
+  --               U .N-ob R[1/ (f i) ]AsCommRing (X .F-hom /1AsCommRingHom x)
 
-              ≡⟨ cong (U .N-ob R[1/ f i ]AsCommRing)
-                      (funExt⁻ (cong fst (isoX .rightInv (compatibleFamIncl fam))) i) ⟩
+  --             ≡⟨ cong (U .N-ob R[1/ f i ]AsCommRing)
+  --                     (funExt⁻ (cong fst (isoX .rightInv (compatibleFamIncl fam))) i) ⟩
 
-                U .N-ob R[1/ (f i) ]AsCommRing (fam .fst i .fst)
+  --               U .N-ob R[1/ (f i) ]AsCommRing (fam .fst i .fst)
 
-              ≡⟨ fam .fst i .snd ⟩
+  --             ≡⟨ fam .fst i .snd ⟩
 
-                D R[1/ (f i) ]AsCommRing 1r
+  --               D R[1/ (f i) ]AsCommRing 1r
 
-              ≡⟨ sym (inducedZarLatHom /1AsCommRingHom .snd .pres1) ⟩
+  --             ≡⟨ sym (inducedZarLatHom /1AsCommRingHom .snd .pres1) ⟩
 
-                inducedZarLatHom /1AsCommRingHom .fst (D R 1r) ∎
+  --               inducedZarLatHom /1AsCommRingHom .fst (D R 1r) ∎
 
-    rightInv isoU fam =
-      Σ≡Prop (λ _ → isPropIsCompatibleFamily _ _ _)
-        (funExt λ i → Σ≡Prop (λ _ → squash/ _ _)
-                        (funExt⁻ (cong fst
-                          (isoX .rightInv (compatibleFamIncl fam))) i))
-    leftInv isoU y = Σ≡Prop (λ _ → squash/ _ _)
-                            (cong (isoX .inv) (compatibleFamIncl≡ y)
-                              ∙ isoX .leftInv (y .fst))
+  --   rightInv isoU fam =
+  --     Σ≡Prop (λ _ → isPropIsCompatibleFamily _ _ _)
+  --       (funExt λ i → Σ≡Prop (λ _ → squash/ _ _)
+  --                       (funExt⁻ (cong fst
+  --                         (isoX .rightInv (compatibleFamIncl fam))) i))
+  --   leftInv isoU y = Σ≡Prop (λ _ → squash/ _ _)
+  --                           (cong (isoX .inv) (compatibleFamIncl≡ y)
+  --                             ∙ isoX .leftInv (y .fst))
 
 
   -- definition of quasi-compact, quasi-separated schemes
@@ -675,63 +686,95 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
   isAffineD = ∣ R[1/ f ]AsCommRing , SpR[1/f]≅⟦Df⟧ ∣₁
 
 
--- module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
+module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
 
---   open Iso
---   open Functor
---   open NatTrans
---   open NatIso
---   open isIso
---   open DistLatticeStr ⦃...⦄
---   open CommRingStr ⦃...⦄
---   open PosetStr ⦃...⦄
---   open IsRingHom
---   open RingHoms
---   open IsLatticeHom
---   open ZarLat
+  open Iso
+  open Functor
+  open NatTrans
+  open NatIso
+  open isIso
+  open DistLatticeStr ⦃...⦄
+  open CommRingStr ⦃...⦄
+  open PosetStr ⦃...⦄
+  open IsRingHom
+  open RingHoms
+  open IsLatticeHom
+  open ZarLat
 
 
---   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob (Sp .F-ob R)))) using (IndPoset)
---   open InvertingElementsBase R
---   open Join
---   open AffineCover
---   module ZL = ZarLatUniversalProp
+  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob (Sp .F-ob R)))) using (IndPoset; ind≤bigOp)
+  open InvertingElementsBase R
+  open Join
+  open JoinMap
+  open AffineCover
+  module ZL = ZarLatUniversalProp
 
---   private
---     instance
---       _ = R .snd
---       _ = ZariskiLattice R .snd
---       _ = CompOpenDistLattice .F-ob (Sp .F-ob R) .snd
---       _ = CompOpenDistLattice .F-ob ⟦ W ⟧ᶜᵒ .snd
---       _ = IndPoset .snd
+  private
+    instance
+      _ = R .snd
+      _ = ZariskiLattice R .snd
+      _ = CompOpenDistLattice .F-ob (Sp .F-ob R) .snd
+      _ = CompOpenDistLattice .F-ob ⟦ W ⟧ᶜᵒ .snd
+      _ = IndPoset .snd
 
---   private
---     w : ZL R
---     w = yonedaᴾ ZarLatFun R .fun W
+    w : ZL R
+    w = yonedaᴾ ZarLatFun R .fun W
 
---     module _ {n : ℕ}
---              (α : FinVec (fst R) n)
---              (⋁Dα≡w : ⋁ (ZariskiLattice R) (ZL.D R ∘ α) ≡ w) where
+    -- yoneda is a lattice homomorphsim
+    isHomYoneda : IsLatticeHom (DistLattice→Lattice (ZariskiLattice R) .snd)
+                               (yonedaᴾ ZarLatFun R .inv)
+                               (DistLattice→Lattice (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) .snd)
+    isHomYoneda = {!!}
 
---       ⋁Dα≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ α) ≡ W
---       ⋁Dα≡W = makeNatTransPath (funExt₂ (λ A φ → {!!}))
---         where
---         foo : (A : CommRing ℓ) (φ : CommRingHom R A) → inducedZarLatHom φ .fst w ≡ W .N-ob A φ
---         foo A φ i = cong N-ob (yonedaᴾ ZarLatFun R .leftInv W) i A φ
+    module _ {n : ℕ}
+             (f : FinVec (fst R) n)
+             (⋁Df≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ f) ≡ W) where
 
---       Dα≤W : ∀ i → D R (α i) ≤ W
---       Dα≤W i = {!!}
---       -- ⋁ (D αᵢ) ≡ W in SpR → 𝓛
+      Df≤W : ∀ i → D R (f i) ≤ W
+      Df≤W i = subst (D R (f i) ≤_) ⋁Df≡W (ind≤bigOp (D R ∘ f) i)
 
---       toAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
---       AffineCover.n toAffineCover = n
---       U toAffineCover i = compOpenGlobalIncl (Sp ⟅ R ⟆) W ●ᵛ D R (α i) -- W → Sp R → 𝓛 via Dαᵢ
---       covers toAffineCover = makeNatTransPath (funExt₂ (λ A y → ({!!} ∙ funExt⁻ (funExt⁻ (cong  N-ob ⋁Dα≡W) A) (fst y)) ∙ y .snd))
---       isAffineU toAffineCover = {!!}
-      -- ⟦ Dαᵢ ∘ W→SpR ⟧ ≅ ⟦ Dαᵢ ⟧ ≅ Sp R[1/αᵢ]
+      toAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
+      AffineCover.n toAffineCover = n
+      U toAffineCover i = compOpenDownHom (Sp ⟅ R ⟆) W .fst (D R (f i))
+      covers toAffineCover = sym (pres⋁ (compOpenDownHom (Sp ⟅ R ⟆) W) (D R ∘ f))
+                           ∙ cong (compOpenDownHom (Sp ⟅ R ⟆) W .fst) ⋁Df≡W
+                           ∙ makeNatTransPath (funExt₂ (λ _ → snd))
+      isAffineU toAffineCover i =
+        ∣ _ , seqNatIso (SpR[1/f]≅⟦Df⟧ R (f i)) (compOpenDownHomNatIso _ (Df≤W i)) ∣₁
+
+    module _ {n : ℕ}
+             (f : FinVec (fst R) n)
+             (⋁Df≡w : ⋁ (ZariskiLattice R) (ZL.D R ∘ f) ≡ w) where
+
+      ⋁Df≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ f) ≡ W
+      ⋁Df≡W = sym (pres⋁ (_ , isHomYoneda) (ZL.D R ∘ f))
+            ∙ cong (yonedaᴾ ZarLatFun R .inv) ⋁Df≡w
+            ∙ yonedaᴾ ZarLatFun R .leftInv W
+
+      makeAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
+      makeAffineCover = toAffineCover f ⋁Df≡W
+
+  hasAffineCoverCompOpenOfAffine : hasAffineCover ⟦ W ⟧ᶜᵒ
+  hasAffineCoverCompOpenOfAffine = {!!}
 
   -- then use ⋁D≡ (merely covered by standard opens) → hasAffineCover ⟦W⟧
-  -- then isLocal ⟦W⟧
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   -- 𝓛 separated presheaf:
   -- For u w : 𝓛 A and ⟨f₀,...,fₙ⟩=A s.t. ∀ i → uᵢ=wᵢ in 𝓛 A[1/fᵢ] then u = w
