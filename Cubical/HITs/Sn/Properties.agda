@@ -300,7 +300,7 @@ sphereConnected : (n : HLevel) → isConnected (suc n) (S₊ n)
 sphereConnected n = ∣ ptSn n ∣ , elim (λ _ → isOfHLevelPath (suc n) (isOfHLevelTrunc (suc n)) _ _)
                                      (λ a → sym (spoke ∣_∣ (ptSn n)) ∙ spoke ∣_∣ a)
 
-sphereToTrunc : (n : ℕ) {A : S₊ n → Type}
+sphereToTrunc : (n : ℕ) {A : S₊ n → Type ℓ}
   → ((x : S₊ n) → hLevelTrunc (suc n) (A x))
   → ∥ ((x : _) → A x) ∥₁
 sphereToTrunc zero {A = A} indr =
@@ -322,7 +322,7 @@ sphereToTrunc (suc (suc n)) {A = A} indr =
   lem (sphereToTrunc (suc n)) (indr north) (indr south)
     λ a → cong indr (merid a)
   where
-  lem : ({A : S₊ (suc n) → Type} →
+  lem : ({A : S₊ (suc n) → Type _} →
       ((i : S₊ (suc n)) → hLevelTrunc (suc (suc n)) (A i)) →
       ∥ ((x : S₊ (suc n)) → A x) ∥₁)
       → (x : hLevelTrunc (3 + n) (A north))

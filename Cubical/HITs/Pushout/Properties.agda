@@ -531,23 +531,18 @@ module PushoutDistr {ℓ ℓ' ℓ'' ℓ''' : Level}
     compPath-filler' (push (g a)) (λ j → inr (push a j)) (~ j) i
   leftInv PushoutDistrIso (push a i) j = push a (i ∧ j)
 
-PushoutEmptyFam : ∀ {ℓ} {A B C : Type ℓ}
-  → ¬ A → ¬ C
+PushoutEmptyFam : ¬ A → ¬ C
   → {f : A → B} {g : A → C}
   → Iso B (Pushout {A = A} {B = B} {C = C} f g)
-PushoutEmptyFam {A = A} {B = B} {C = C} ¬A ¬C =
-  compIso is
-    (pushoutIso _ _ _ _
-      (uninhabEquiv (λ {()}) ¬A)
-      (idEquiv B)
-      (uninhabEquiv (λ {()}) ¬C)
-      (funExt (λ{()})) (funExt λ{()}))
-  where
-  lift⊥ : ∀ ℓ → Type ℓ
-  lift⊥ ℓ = Lift ⊥
-
-  is : Iso B (Pushout {A = lift⊥ ℓ} {B = B} {C = lift⊥ ℓ''} (λ{()}) λ{()})
-  Iso.fun is = inl
-  Iso.inv is (inl x) = x
-  Iso.rightInv is (inl x) = refl
-  Iso.leftInv is x = refl
+fun (PushoutEmptyFam ¬A ¬C) = inl
+inv (PushoutEmptyFam ¬A ¬C) (inl x) = x
+inv (PushoutEmptyFam ¬A ¬C) (inr x) = ⊥.rec (¬C x)
+inv (PushoutEmptyFam ¬A ¬C {f = f} {g = g}) (push a i) =
+  ⊥.rec {A = f a ≡ rec (¬C (g a))} (¬A a) i
+rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inl x) = refl
+rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inr x) = ⊥.rec (¬C x)
+rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C {f = f} {g = g}) (push a i) j =
+  ⊥.rec {A = Square (λ i →  inl (rec {A = f a ≡ rec (¬C (g a))} (¬A a) i))
+                     (push a) (λ _ → inl (f a)) (rec (¬C (g a)))}
+         (¬A a) j i
+leftInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) x = refl
