@@ -33,7 +33,7 @@ open import Cubical.Algebra.ZariskiLattice.Base
 open import Cubical.Algebra.ZariskiLattice.UniversalProperty
 open import Cubical.Algebra.ZariskiLattice.Properties
 
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.CommRings
@@ -459,7 +459,7 @@ module _ {ℓ : Level} where
 
 
   module _ (X : ℤFunctor) where
-    open isIso
+    open isIsoC
     private instance _ = (CompOpenDistLattice .F-ob X) .snd
 
     compOpenTopNatIso : NatIso X ⟦ 1l ⟧ᶜᵒ
@@ -471,10 +471,11 @@ module _ {ℓ : Level} where
 
 
   module _ (X : ℤFunctor) where
+    open isIsoC
     open Join (CompOpenDistLattice .F-ob X)
     open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
     open PosetStr (IndPoset .snd) hiding (_≤_)
-    open LatticeTheory ⦃...⦄ -- ((DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
+    open LatticeTheory ⦃...⦄
     private instance _ = (CompOpenDistLattice .F-ob X) .snd
 
     record AffineCover : Type (ℓ-suc ℓ) where
@@ -500,10 +501,37 @@ module _ {ℓ : Level} where
                                      (CompOpenDistLattice .F-ob ⟦ U ⟧ᶜᵒ)
     compOpenDownHom U = CompOpenDistLattice .F-hom (compOpenGlobalIncl U)
 
+    -- termination issues
     compOpenDownHomNatIso : {U V : CompactOpen X}
                           → V ≤ U
                           → NatIso ⟦ V ⟧ᶜᵒ ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ
-    compOpenDownHomNatIso {U = U} {V = V} V≤U = {!!}
+    compOpenDownHomNatIso = {!!}
+
+    compOpenDownHomIncl : {U V : CompactOpen X}
+                        → V ≤ U
+                        → ⟦ V ⟧ᶜᵒ ⇒ ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ
+    N-ob (compOpenDownHomIncl {U = U} {V = V} V≤U) A (x , Vx≡D1) =
+      (x , path) , Vx≡D1
+      where
+      instance
+        _ = A .snd
+        _ = ZariskiLattice A .snd
+        _ = DistLattice→Lattice (ZariskiLattice A)
+      path : U .N-ob A x ≡ D A 1r
+      path = U .N-ob A x                ≡⟨ funExt⁻ (funExt⁻ (cong N-ob (sym V≤U)) A) x ⟩
+             V .N-ob A x ∨l U .N-ob A x ≡⟨ cong (_∨l U .N-ob A x) Vx≡D1 ⟩
+             D A 1r ∨l U .N-ob A x      ≡⟨ 1lLeftAnnihilates∨l _ ⟩
+             D A 1r ∎
+    N-hom (compOpenDownHomIncl V≤U) φ =
+      funExt (λ x → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl))
+
+    isIsoCompOpenDownHomIncl : {U V : CompactOpen X} (V≤U : V ≤ U)
+                               (A : CommRing ℓ) → isIsoC (SET ℓ) (compOpenDownHomIncl V≤U .N-ob A)
+    inv (isIsoCompOpenDownHomIncl V≤U A) ((x , Ux≡D1) , Vx≡D1) = x , Vx≡D1
+    sec (isIsoCompOpenDownHomIncl V≤U A) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
+    ret (isIsoCompOpenDownHomIncl V≤U A) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+
+
 
     compOpenIncl : {U V : CompactOpen X} → V ≤ U → ⟦ V ⟧ᶜᵒ ⇒ ⟦ U ⟧ᶜᵒ
     N-ob (compOpenIncl {U = U} {V = V} V≤U) A (x , Vx≡D1) = x , path
@@ -556,65 +584,65 @@ module _ {ℓ : Level} where
   isLocal X = isSheaf zariskiCoverage X
 
   -- Compact opens of Zariski sheaves are sheaves
-  -- presLocalCompactOpen : (X : ℤFunctor) (U : CompactOpen X) → isLocal X → isLocal ⟦ U ⟧ᶜᵒ
-  -- presLocalCompactOpen X U isLocalX R um@(unimodvec _ f _) = isoToIsEquiv isoU
-  --   where
-  --   open Coverage zariskiCoverage
-  --   open InvertingElementsBase R
-  --   instance _ = R .snd
+  presLocalCompactOpen : (X : ℤFunctor) (U : CompactOpen X) → isLocal X → isLocal ⟦ U ⟧ᶜᵒ
+  presLocalCompactOpen X U isLocalX R um@(unimodvec _ f _) = isoToIsEquiv isoU
+    where
+    open Coverage zariskiCoverage
+    open InvertingElementsBase R
+    instance _ = R .snd
 
-  --   fᵢCoverR = covers R .snd um
+    fᵢCoverR = covers R .snd um
 
-  --   isoX : Iso (X .F-ob R .fst) (CompatibleFamily X fᵢCoverR)
-  --   isoX = equivToIso (elementToCompatibleFamily _ _ , isLocalX R um)
+    isoX : Iso (X .F-ob R .fst) (CompatibleFamily X fᵢCoverR)
+    isoX = equivToIso (elementToCompatibleFamily _ _ , isLocalX R um)
 
-  --   compatibleFamIncl : (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR) → (CompatibleFamily X fᵢCoverR)
-  --   compatibleFamIncl fam = (fst ∘ fst fam)
-  --                         , λ i j B φ ψ φψComm → cong fst (fam .snd i j B φ ψ φψComm)
+    compatibleFamIncl : (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR) → (CompatibleFamily X fᵢCoverR)
+    compatibleFamIncl fam = (fst ∘ fst fam)
+                          , λ i j B φ ψ φψComm → cong fst (fam .snd i j B φ ψ φψComm)
 
-  --   compatibleFamIncl≡ : ∀ (y : Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
-  --                      → compatibleFamIncl (elementToCompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR y)
-  --                      ≡ elementToCompatibleFamily X fᵢCoverR (y .fst)
-  --   compatibleFamIncl≡ y = CompatibleFamily≡ _ _ _ _ λ _ → refl
+    compatibleFamIncl≡ : ∀ (y : Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
+                       → compatibleFamIncl (elementToCompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR y)
+                       ≡ elementToCompatibleFamily X fᵢCoverR (y .fst)
+    compatibleFamIncl≡ y = CompatibleFamily≡ _ _ _ _ λ _ → refl
 
-  --   isoU : Iso (Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
-  --              (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR)
-  --   fun isoU = elementToCompatibleFamily _ _
-  --   fst (inv isoU fam) = isoX .inv (compatibleFamIncl fam)
-  --   snd (inv isoU fam) = -- U (x) ≡ D(1)
-  --                        -- knowing that U(x/1)¸≡ D(1) in R[1/fᵢ]
-  --     let x = isoX .inv (compatibleFamIncl fam) in
-  --     isSeparatedZarLatFun R um (U .N-ob R x) (D R 1r)
-  --       λ i → let open UniversalProp (f i)
-  --                 instance _ = R[1/ (f i) ]AsCommRing .snd in
+    isoU : Iso (Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
+               (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR)
+    fun isoU = elementToCompatibleFamily _ _
+    fst (inv isoU fam) = isoX .inv (compatibleFamIncl fam)
+    snd (inv isoU fam) = -- U (x) ≡ D(1)
+                         -- knowing that U(x/1)¸≡ D(1) in R[1/fᵢ]
+      let x = isoX .inv (compatibleFamIncl fam) in
+      isSeparatedZarLatFun R um (U .N-ob R x) (D R 1r)
+        λ i → let open UniversalProp (f i)
+                  instance _ = R[1/ (f i) ]AsCommRing .snd in
 
-  --               inducedZarLatHom /1AsCommRingHom .fst (U .N-ob R x)
+                inducedZarLatHom /1AsCommRingHom .fst (U .N-ob R x)
 
-  --             ≡⟨ funExt⁻ (sym (U .N-hom /1AsCommRingHom)) x ⟩
+              ≡⟨ funExt⁻ (sym (U .N-hom /1AsCommRingHom)) x ⟩
 
-  --               U .N-ob R[1/ (f i) ]AsCommRing (X .F-hom /1AsCommRingHom x)
+                U .N-ob R[1/ (f i) ]AsCommRing (X .F-hom /1AsCommRingHom x)
 
-  --             ≡⟨ cong (U .N-ob R[1/ f i ]AsCommRing)
-  --                     (funExt⁻ (cong fst (isoX .rightInv (compatibleFamIncl fam))) i) ⟩
+              ≡⟨ cong (U .N-ob R[1/ f i ]AsCommRing)
+                      (funExt⁻ (cong fst (isoX .rightInv (compatibleFamIncl fam))) i) ⟩
 
-  --               U .N-ob R[1/ (f i) ]AsCommRing (fam .fst i .fst)
+                U .N-ob R[1/ (f i) ]AsCommRing (fam .fst i .fst)
 
-  --             ≡⟨ fam .fst i .snd ⟩
+              ≡⟨ fam .fst i .snd ⟩
 
-  --               D R[1/ (f i) ]AsCommRing 1r
+                D R[1/ (f i) ]AsCommRing 1r
 
-  --             ≡⟨ sym (inducedZarLatHom /1AsCommRingHom .snd .pres1) ⟩
+              ≡⟨ sym (inducedZarLatHom /1AsCommRingHom .snd .pres1) ⟩
 
-  --               inducedZarLatHom /1AsCommRingHom .fst (D R 1r) ∎
+                inducedZarLatHom /1AsCommRingHom .fst (D R 1r) ∎
 
-  --   rightInv isoU fam =
-  --     Σ≡Prop (λ _ → isPropIsCompatibleFamily _ _ _)
-  --       (funExt λ i → Σ≡Prop (λ _ → squash/ _ _)
-  --                       (funExt⁻ (cong fst
-  --                         (isoX .rightInv (compatibleFamIncl fam))) i))
-  --   leftInv isoU y = Σ≡Prop (λ _ → squash/ _ _)
-  --                           (cong (isoX .inv) (compatibleFamIncl≡ y)
-  --                             ∙ isoX .leftInv (y .fst))
+    rightInv isoU fam =
+      Σ≡Prop (λ _ → isPropIsCompatibleFamily _ _ _)
+        (funExt λ i → Σ≡Prop (λ _ → squash/ _ _)
+                        (funExt⁻ (cong fst
+                          (isoX .rightInv (compatibleFamIncl fam))) i))
+    leftInv isoU y = Σ≡Prop (λ _ → squash/ _ _)
+                            (cong (isoX .inv) (compatibleFamIncl≡ y)
+                              ∙ isoX .leftInv (y .fst))
 
 
   -- definition of quasi-compact, quasi-separated schemes
@@ -634,7 +662,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
   open Functor
   open NatTrans
   open NatIso
-  open isIso
+  open isIsoC
   open DistLatticeStr ⦃...⦄
   open CommRingStr ⦃...⦄
   open IsRingHom
@@ -692,7 +720,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
   open Functor
   open NatTrans
   open NatIso
-  open isIso
+  open isIsoC
   open DistLatticeStr ⦃...⦄
   open CommRingStr ⦃...⦄
   open PosetStr ⦃...⦄
@@ -724,7 +752,13 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
     isHomYoneda : IsLatticeHom (DistLattice→Lattice (ZariskiLattice R) .snd)
                                (yonedaᴾ ZarLatFun R .inv)
                                (DistLattice→Lattice (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) .snd)
-    isHomYoneda = {!!}
+    pres0 isHomYoneda = makeNatTransPath (funExt₂ (λ _ _ → refl))
+    pres1 isHomYoneda =
+      makeNatTransPath (funExt₂ (λ _ φ → inducedZarLatHom φ .snd .pres1))
+    pres∨l isHomYoneda u v =
+      makeNatTransPath (funExt₂ (λ _ φ → inducedZarLatHom φ .snd .pres∨l u v))
+    pres∧l isHomYoneda u v =
+      makeNatTransPath (funExt₂ (λ _ φ → inducedZarLatHom φ .snd .pres∧l u v))
 
     module _ {n : ℕ}
              (f : FinVec (fst R) n)
@@ -755,9 +789,10 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
       makeAffineCover = toAffineCover f ⋁Df≡W
 
   hasAffineCoverCompOpenOfAffine : hasAffineCover ⟦ W ⟧ᶜᵒ
-  hasAffineCoverCompOpenOfAffine = {!!}
-
-  -- then use ⋁D≡ (merely covered by standard opens) → hasAffineCover ⟦W⟧
+  hasAffineCoverCompOpenOfAffine = PT.map truncHelper ([]surjective w)
+    where
+    truncHelper : Σ[ n,f ∈ Σ ℕ (FinVec (fst R)) ] [ n,f ] ≡ w → AffineCover ⟦ W ⟧ᶜᵒ
+    truncHelper ((n , f) , [n,f]≡w) = makeAffineCover f (ZL.⋁D≡ R f ∙ [n,f]≡w)
 
 
 
