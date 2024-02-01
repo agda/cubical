@@ -493,38 +493,35 @@ module _ {ℓ : Level} where
                                      (CompOpenDistLattice .F-ob ⟦ U ⟧ᶜᵒ)
     compOpenDownHom U = CompOpenDistLattice .F-hom (compOpenGlobalIncl U)
 
-    -- termination issues
-    compOpenDownHomNatIso : {U V : CompactOpen X}
-                          → V ≤ U
-                          → NatIso ⟦ V ⟧ᶜᵒ ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ
-    compOpenDownHomNatIso = {!!}
+    -- termination issues!!!
+    -- I don't understand what's going on???
+    module _ {U V : CompactOpen X} (V≤U : V ≤ U) where
+      private
+        compOpenDownHomFun : (A : CommRing ℓ)
+                           → ⟦ V ⟧ᶜᵒ .F-ob A .fst
+                           → ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ .F-ob A .fst
+        compOpenDownHomFun A (x , Vx≡D1) = (x , path) , Vx≡D1
+          where
+          instance
+            _ = A .snd
+            _ = ZariskiLattice A .snd
+            _ = DistLattice→Lattice (ZariskiLattice A)
+          path : U .N-ob A x ≡ D A 1r
+          path = U .N-ob A x                ≡⟨ funExt⁻ (funExt⁻ (cong N-ob (sym V≤U)) A) x ⟩
+                 V .N-ob A x ∨l U .N-ob A x ≡⟨ cong (_∨l U .N-ob A x) Vx≡D1 ⟩
+                 D A 1r ∨l U .N-ob A x      ≡⟨ 1lLeftAnnihilates∨l _ ⟩
+                 D A 1r ∎
 
-    compOpenDownHomIncl : {U V : CompactOpen X}
-                        → V ≤ U
-                        → ⟦ V ⟧ᶜᵒ ⇒ ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ
-    N-ob (compOpenDownHomIncl {U = U} {V = V} V≤U) A (x , Vx≡D1) =
-      (x , path) , Vx≡D1
-      where
-      instance
-        _ = A .snd
-        _ = ZariskiLattice A .snd
-        _ = DistLattice→Lattice (ZariskiLattice A)
-      path : U .N-ob A x ≡ D A 1r
-      path = U .N-ob A x                ≡⟨ funExt⁻ (funExt⁻ (cong N-ob (sym V≤U)) A) x ⟩
-             V .N-ob A x ∨l U .N-ob A x ≡⟨ cong (_∨l U .N-ob A x) Vx≡D1 ⟩
-             D A 1r ∨l U .N-ob A x      ≡⟨ 1lLeftAnnihilates∨l _ ⟩
-             D A 1r ∎
-    N-hom (compOpenDownHomIncl V≤U) φ =
-      funExt (λ x → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl))
+      compOpenDownHomNatIso : NatIso ⟦ V ⟧ᶜᵒ ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ
+      N-ob (trans compOpenDownHomNatIso) = compOpenDownHomFun
+      N-hom (trans compOpenDownHomNatIso) _ =
+        funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
+      inv (nIso compOpenDownHomNatIso A) ((x , Ux≡D1) , Vx≡D1) = x , Vx≡D1
+      sec (nIso compOpenDownHomNatIso A) =
+        funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
+      ret (nIso compOpenDownHomNatIso A) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
 
-    isIsoCompOpenDownHomIncl : {U V : CompactOpen X} (V≤U : V ≤ U)
-                               (A : CommRing ℓ) → isIsoC (SET ℓ) (compOpenDownHomIncl V≤U .N-ob A)
-    inv (isIsoCompOpenDownHomIncl V≤U A) ((x , Ux≡D1) , Vx≡D1) = x , Vx≡D1
-    sec (isIsoCompOpenDownHomIncl V≤U A) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
-    ret (isIsoCompOpenDownHomIncl V≤U A) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
-
-
-
+    -- code duplication!
     compOpenIncl : {U V : CompactOpen X} → V ≤ U → ⟦ V ⟧ᶜᵒ ⇒ ⟦ U ⟧ᶜᵒ
     N-ob (compOpenIncl {U = U} {V = V} V≤U) A (x , Vx≡D1) = x , path
       where
@@ -553,11 +550,6 @@ module _ {ℓ : Level} where
     F-hom strDLSh U≥V = 𝓞 .F-hom (compOpenIncl U≥V)
     F-id strDLSh = cong (𝓞 .F-hom) compOpenInclId ∙ 𝓞 .F-id
     F-seq strDLSh _ _ = cong (𝓞 .F-hom) (compOpenInclSeq _ _) ∙ 𝓞 .F-seq _ _
-
-    -- ⟦ U ⟧ → X → 𝓛 via V
-    -- compOpenRest : {U V : CompactOpen X} → V ≤ U → CompactOpen ⟦ U ⟧ᶜᵒ
-    -- N-ob (compOpenRest {V = V} V≤U) A (x , Ux≡D1) = V .N-ob A x
-    -- N-hom (compOpenRest V≤U) φ = funExt (λ x → {!!})
 
   -- the canonical one element affine cover of a representable
   module _ (A : CommRing ℓ) where
@@ -768,25 +760,28 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
       isAffineU toAffineCover i =
         ∣ _ , seqNatIso (SpR[1/f]≅⟦Df⟧ R (f i)) (compOpenDownHomNatIso _ (Df≤W i)) ∣₁
 
-    module _ {n : ℕ}
-             (f : FinVec (fst R) n)
-             (⋁Df≡w : ⋁ (ZariskiLattice R) (ZL.D R ∘ f) ≡ w) where
+  module _ {n : ℕ}
+           (f : FinVec (fst R) n)
+           (⋁Df≡w : ⋁ (ZariskiLattice R) (ZL.D R ∘ f) ≡ w) where
 
+    private
       ⋁Df≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ f) ≡ W
       ⋁Df≡W = sym (pres⋁ (_ , isHomYoneda) (ZL.D R ∘ f))
             ∙ cong (yonedaᴾ ZarLatFun R .inv) ⋁Df≡w
             ∙ yonedaᴾ ZarLatFun R .leftInv W
 
-      makeAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
-      makeAffineCover = toAffineCover f ⋁Df≡W
+    makeAffineCoverCompOpenOfAffine : AffineCover ⟦ W ⟧ᶜᵒ
+    makeAffineCoverCompOpenOfAffine = toAffineCover f ⋁Df≡W
 
   hasAffineCoverCompOpenOfAffine : hasAffineCover ⟦ W ⟧ᶜᵒ
   hasAffineCoverCompOpenOfAffine = PT.map truncHelper ([]surjective w)
     where
     truncHelper : Σ[ n,f ∈ Σ ℕ (FinVec (fst R)) ] [ n,f ] ≡ w → AffineCover ⟦ W ⟧ᶜᵒ
-    truncHelper ((n , f) , [n,f]≡w) = makeAffineCover f (ZL.⋁D≡ R f ∙ [n,f]≡w)
+    truncHelper ((n , f) , [n,f]≡w) = makeAffineCoverCompOpenOfAffine f (ZL.⋁D≡ R f ∙ [n,f]≡w)
 
-
+  isQcQsSchemeCompOpenOfAffine : isQcQsScheme ⟦ W ⟧ᶜᵒ
+  fst isQcQsSchemeCompOpenOfAffine = presLocalCompactOpen _ _ (isSubcanonicalZariskiCoverage R)
+  snd isQcQsSchemeCompOpenOfAffine = hasAffineCoverCompOpenOfAffine
 
 
 
