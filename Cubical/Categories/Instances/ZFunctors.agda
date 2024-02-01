@@ -470,19 +470,6 @@ module _ {ℓ : Level} where
     open LatticeTheory ⦃...⦄
     private instance _ = (CompOpenDistLattice .F-ob X) .snd
 
-    record AffineCover : Type (ℓ-suc ℓ) where
-      field
-        n : ℕ
-        U : FinVec (CompactOpen X) n
-        covers : ⋁ U ≡ 1l -- TODO: equivalent to X ≡ ⟦ ⋁ U ⟧ᶜᵒ
-        isAffineU : ∀ i → isAffineCompactOpen (U i)
-
-    hasAffineCover : Type (ℓ-suc ℓ)
-    hasAffineCover = ∥ AffineCover ∥₁
-
-    -- the structure sheaf
-    private COᵒᵖ = (DistLatticeCategory (CompOpenDistLattice .F-ob X)) ^op
-
     compOpenGlobalIncl : (U : CompactOpen X) → ⟦ U ⟧ᶜᵒ ⇒ X
     N-ob (compOpenGlobalIncl U) A = fst
     N-hom (compOpenGlobalIncl U) φ = refl
@@ -545,23 +532,35 @@ module _ {ℓ : Level} where
     compOpenInclSeq _ _ = makeNatTransPath
                             (funExt₂ (λ _ _ → Σ≡Prop (λ _ → squash/ _ _) refl))
 
+
+    -- the structure sheaf
+    private COᵒᵖ = (DistLatticeCategory (CompOpenDistLattice .F-ob X)) ^op
+
     strDLSh : Functor COᵒᵖ (CommRingsCategory {ℓ = ℓ-suc ℓ})
     F-ob strDLSh  U = 𝓞 .F-ob ⟦ U ⟧ᶜᵒ
     F-hom strDLSh U≥V = 𝓞 .F-hom (compOpenIncl U≥V)
     F-id strDLSh = cong (𝓞 .F-hom) compOpenInclId ∙ 𝓞 .F-id
     F-seq strDLSh _ _ = cong (𝓞 .F-hom) (compOpenInclSeq _ _) ∙ 𝓞 .F-seq _ _
 
-  -- the canonical one element affine cover of a representable
-  module _ (A : CommRing ℓ) where
-    open AffineCover
-    private instance _ = (CompOpenDistLattice ⟅ Sp ⟅ A ⟆ ⟆) .snd
 
-    singlAffineCover : AffineCover (Sp .F-ob A)
-    n singlAffineCover = 1
-    U singlAffineCover zero = 1l
-    covers singlAffineCover = ∨lRid _
-    isAffineU singlAffineCover zero = ∣ A , X≅⟦1⟧ (Sp ⟅ A ⟆) ∣₁
+  -- def. affine cover and locality for definition of qcqs-scheme
+  module _ (X : ℤFunctor) where
+    open isIsoC
+    open Join (CompOpenDistLattice .F-ob X)
+    open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
+    open PosetStr (IndPoset .snd) hiding (_≤_)
+    open LatticeTheory ⦃...⦄
+    private instance _ = (CompOpenDistLattice .F-ob X) .snd
 
+    record AffineCover : Type (ℓ-suc ℓ) where
+      field
+        n : ℕ
+        U : FinVec (CompactOpen X) n
+        covers : ⋁ U ≡ 1l -- TODO: equivalent to X ≡ ⟦ ⋁ U ⟧ᶜᵒ
+        isAffineU : ∀ i → isAffineCompactOpen (U i)
+
+    hasAffineCover : Type (ℓ-suc ℓ)
+    hasAffineCover = ∥ AffineCover ∥₁
 
   -- qcqs-schemes as Zariski sheaves (local ℤ-functors) with an affine cover in the sense above
   isLocal : ℤFunctor → Type (ℓ-suc ℓ)
@@ -633,10 +632,23 @@ module _ {ℓ : Level} where
   isQcQsScheme : ℤFunctor → Type (ℓ-suc ℓ)
   isQcQsScheme X = isLocal X × hasAffineCover X
 
+
   -- affine schemes are qcqs-schemes
-  isQcQsSchemeAffine : ∀ (A : CommRing ℓ) → isQcQsScheme (Sp .F-ob A)
-  fst (isQcQsSchemeAffine A) = isSubcanonicalZariskiCoverage A
-  snd (isQcQsSchemeAffine A) = ∣ singlAffineCover A ∣₁
+  module _ (A : CommRing ℓ) where
+    open AffineCover
+    private instance _ = (CompOpenDistLattice ⟅ Sp ⟅ A ⟆ ⟆) .snd
+
+    -- the canonical one element affine cover of a representable
+    singlAffineCover : AffineCover (Sp .F-ob A)
+    n singlAffineCover = 1
+    U singlAffineCover zero = 1l
+    covers singlAffineCover = ∨lRid _
+    isAffineU singlAffineCover zero = ∣ A , X≅⟦1⟧ (Sp ⟅ A ⟆) ∣₁
+
+    isQcQsSchemeAffine : isQcQsScheme (Sp .F-ob A)
+    fst isQcQsSchemeAffine = isSubcanonicalZariskiCoverage A
+    snd isQcQsSchemeAffine = ∣ singlAffineCover ∣₁
+
 
 -- standard affine opens
 -- TODO: separate file?
@@ -698,6 +710,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
   isAffineD = ∣ R[1/ f ]AsCommRing , SpR[1/f]≅⟦Df⟧ ∣₁
 
 
+-- compact opens of affine schemes are qcqs-schemes
 module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
 
   open Iso
@@ -782,48 +795,3 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
   isQcQsSchemeCompOpenOfAffine : isQcQsScheme ⟦ W ⟧ᶜᵒ
   fst isQcQsSchemeCompOpenOfAffine = presLocalCompactOpen _ _ (isSubcanonicalZariskiCoverage R)
   snd isQcQsSchemeCompOpenOfAffine = hasAffineCoverCompOpenOfAffine
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  -- 𝓛 separated presheaf:
-  -- For u w : 𝓛 A and ⟨f₀,...,fₙ⟩=A s.t. ∀ i → uᵢ=wᵢ in 𝓛 A[1/fᵢ] then u = w
-  -- where u ↦ uᵢ for 𝓛 A → 𝓛 A[1/fᵢ]
-  -- Min: u : 𝓛 A and ⟨f₀,...,fₙ⟩=A s.t. ∀ i → uᵢ=D1 in 𝓛 A[1/fᵢ] then u = D1 in 𝓛 A
-  -- base case: u = Dg → have ∀ i → g/1 ∈ A[1/fᵢ]ˣ, need 1 ∈ √⟨g⟩ (g ∈ Aˣ)
-  -- g/1 ∈ A[1/fᵢ]ˣ → fᵢ ∈ √ ⟨g⟩ → 1=∑aᵢfᵢ ∈ √⟨g⟩
-  -- i.e. fᵢᵐ=aᵢg
-  -- choose m big enough s.t. it becomes independent of i
-  -- lemma ⟨f₀ᵐ,...,fₙᵐ⟩=A:
-  -- 1 = ∑ bᵢfᵢᵐ = ∑ bᵢaᵢg = (∑ aᵢbᵢ)g
-
-  -- u = D(g₁,...,gₖ) → ⟨g₁/1 ,..., gₖ/1 ⟩ = A[1/fᵢ]
-  -- 0 = A[1/fᵢ]/⟨g₁/1,...,gₖ/1⟩ =???= A/⟨g₁,...,gₙ⟩[1/[fᵢ]] → fᵢⁿ=0 mod ⟨g₁,...,gₙ⟩
-  -- 1/1 = ∑ aⱼ/fᵢⁿ gⱼ/1 → fᵢᵐ = ∑ aⱼgⱼ
-  -- use InvertingElementsBase.invElPropElimN to get uniform exponent
-  -- → fᵢ ∈ √ ⟨ g₁ ,..., gₖ ⟩ → 1 = ∑ bᵢfᵢ ∈ √ ⟨ g₁ ,..., gₖ ⟩
-
-  -- 𝓛 sheaf: ⟨f₀,...,fₙ⟩=A → 𝓛 A = lim (↓ Dfᵢ) = lim (𝓛 A[1/fᵢ])
-  -- ⋁uᵢ=⊤ in L → L = lim (↓ uᵢ) = Σ[ vᵢ ≤ uᵢ ]  vᵢ ∧ uⱼ = vⱼ ∧ uᵢ
-  -- (↓ Dfᵢ) = 𝓛 A[1/fᵢ]: Dg ≤ Dfᵢ ⇔ g ∈ √ ⟨fᵢ⟩ ⇔ fᵢ ∈ A[1/g]ˣ
-  -- ↓ Dfᵢ → 𝓛 A[1/fᵢ]: Dg ≤ Dfᵢ ↦ D(g/1)
-
-  -- 𝓛 A[1/fᵢ] → ↓ Dfᵢ: D(g/fᵢⁿ) ↦ Dg ∧ Dfᵢ = D(gfᵢ)
-  -- support A[1/fᵢ] → ↓ Dfᵢ given by g/fᵢⁿ ↦ Dg ∧ Dfᵢ = D(gfᵢ)
-  -- support A → A[1/fᵢ] → L gives (↓ Dfᵢ) ↪ 𝓛 A → L lattice hom!
-  -- have _∧Dfᵢ : 𝓛 A → ↓ Dfᵢ
-
-  -- U : CompactOpen X , isQcQsScheme X → isQcQsScheme ⟦U⟧
-  -- X=⋁Uᵢ affine covering → isQcQsScheme U∧Uᵢ →(lemma)→ isQcQsScheme U=⋁(U∧Uᵢ)
