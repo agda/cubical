@@ -1,18 +1,25 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="utf-8"><title>Cubical.Experiments.Everything</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">-- Export only the experiments that are expected to compile (without</a>
-<a id="70" class="Comment">-- any holes)</a>
-<a id="84" class="Keyword">module</a> <a id="91" href="Cubical.Experiments.Everything.html" class="Module">Cubical.Experiments.Everything</a> <a id="122" class="Keyword">where</a>
+<html><head><meta charset="utf-8"><title>Cubical.Experiments.Everything</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Experiments.Everything.html" class="Module">Cubical.Experiments.Everything</a> <a id="62" class="Keyword">where</a>
 
-<a id="129" class="Keyword">open</a> <a id="134" class="Keyword">import</a> <a id="141" href="Cubical.Experiments.EscardoSIP.html" class="Module">Cubical.Experiments.EscardoSIP</a> <a id="172" class="Keyword">public</a>
-<a id="179" class="Keyword">open</a> <a id="184" class="Keyword">import</a> <a id="191" href="Cubical.Experiments.Generic.html" class="Module">Cubical.Experiments.Generic</a> <a id="219" class="Keyword">public</a>
-<a id="226" class="Keyword">open</a> <a id="231" class="Keyword">import</a> <a id="238" href="Cubical.Experiments.NatMinusTwo.html" class="Module">Cubical.Experiments.NatMinusTwo</a>
-<a id="270" class="Keyword">open</a> <a id="275" class="Keyword">import</a> <a id="282" href="Cubical.Experiments.IsoInt.html" class="Module">Cubical.Experiments.IsoInt</a>
-<a id="309" class="Keyword">open</a> <a id="314" class="Keyword">import</a> <a id="321" href="Cubical.Experiments.HAEquivInt.html" class="Module">Cubical.Experiments.HAEquivInt</a>
-<a id="352" class="Keyword">open</a> <a id="357" class="Keyword">import</a> <a id="364" href="Cubical.Experiments.Poset.html" class="Module">Cubical.Experiments.Poset</a>
-<a id="390" class="Keyword">open</a> <a id="395" class="Keyword">import</a> <a id="402" href="Cubical.Experiments.Problem.html" class="Module">Cubical.Experiments.Problem</a>
-<a id="430" class="Keyword">open</a> <a id="435" class="Keyword">import</a> <a id="442" href="Cubical.Experiments.FunExtFromUA.html" class="Module">Cubical.Experiments.FunExtFromUA</a> <a id="475" class="Keyword">public</a>
-<a id="482" class="Keyword">open</a> <a id="487" class="Keyword">import</a> <a id="494" href="Cubical.Experiments.HoTT-UF.html" class="Module">Cubical.Experiments.HoTT-UF</a>
-<a id="522" class="Keyword">open</a> <a id="527" class="Keyword">import</a> <a id="534" href="Cubical.Experiments.ZCohomologyOld.Base.html" class="Module">Cubical.Experiments.ZCohomologyOld.Base</a>
-<a id="574" class="Keyword">open</a> <a id="579" class="Keyword">import</a> <a id="586" href="Cubical.Experiments.ZCohomologyOld.KcompPrelims.html" class="Module">Cubical.Experiments.ZCohomologyOld.KcompPrelims</a>
-<a id="634" class="Keyword">open</a> <a id="639" class="Keyword">import</a> <a id="646" href="Cubical.Experiments.ZCohomologyOld.Properties.html" class="Module">Cubical.Experiments.ZCohomologyOld.Properties</a>
+<a id="69" class="Keyword">import</a> <a id="76" href="Cubical.Experiments.CohomologyGroups.html" class="Module">Cubical.Experiments.CohomologyGroups</a>
+<a id="113" class="Keyword">import</a> <a id="120" href="Cubical.Experiments.Combinatorics.html" class="Module">Cubical.Experiments.Combinatorics</a>
+<a id="154" class="Keyword">import</a> <a id="161" href="Cubical.Experiments.CountingFiniteStructure.html" class="Module">Cubical.Experiments.CountingFiniteStructure</a>
+<a id="205" class="Keyword">import</a> <a id="212" href="Cubical.Experiments.EscardoSIP.html" class="Module">Cubical.Experiments.EscardoSIP</a>
+<a id="243" class="Keyword">import</a> <a id="250" href="Cubical.Experiments.FunExtFromUA.html" class="Module">Cubical.Experiments.FunExtFromUA</a>
+<a id="283" class="Keyword">import</a> <a id="290" href="Cubical.Experiments.Generic.html" class="Module">Cubical.Experiments.Generic</a>
+<a id="318" class="Keyword">import</a> <a id="325" href="Cubical.Experiments.HAEquivInt.html" class="Module">Cubical.Experiments.HAEquivInt</a>
+<a id="356" class="Keyword">import</a> <a id="363" href="Cubical.Experiments.HInt.html" class="Module">Cubical.Experiments.HInt</a>
+<a id="388" class="Keyword">import</a> <a id="395" href="Cubical.Experiments.HoTT-UF.html" class="Module">Cubical.Experiments.HoTT-UF</a>
+<a id="423" class="Keyword">import</a> <a id="430" href="Cubical.Experiments.IntegerMatrix.html" class="Module">Cubical.Experiments.IntegerMatrix</a>
+<a id="464" class="Keyword">import</a> <a id="471" href="Cubical.Experiments.IsoInt.html" class="Module">Cubical.Experiments.IsoInt</a>
+<a id="498" class="Keyword">import</a> <a id="505" href="Cubical.Experiments.List.html" class="Module">Cubical.Experiments.List</a>
+<a id="530" class="Keyword">import</a> <a id="537" href="Cubical.Experiments.NatMinusTwo.html" class="Module">Cubical.Experiments.NatMinusTwo</a>
+<a id="569" class="Keyword">import</a> <a id="576" href="Cubical.Experiments.Poset.html" class="Module">Cubical.Experiments.Poset</a>
+<a id="602" class="Keyword">import</a> <a id="609" href="Cubical.Experiments.Problem.html" class="Module">Cubical.Experiments.Problem</a>
+<a id="637" class="Keyword">import</a> <a id="644" href="Cubical.Experiments.ZCohomology.Benchmarks.html" class="Module">Cubical.Experiments.ZCohomology.Benchmarks</a>
+<a id="687" class="Keyword">import</a> <a id="694" href="Cubical.Experiments.ZCohomologyOld.Base.html" class="Module">Cubical.Experiments.ZCohomologyOld.Base</a>
+<a id="734" class="Keyword">import</a> <a id="741" href="Cubical.Experiments.ZCohomologyOld.KcompPrelims.html" class="Module">Cubical.Experiments.ZCohomologyOld.KcompPrelims</a>
+<a id="789" class="Keyword">import</a> <a id="796" href="Cubical.Experiments.ZCohomologyOld.Properties.html" class="Module">Cubical.Experiments.ZCohomologyOld.Properties</a>
+<a id="842" class="Keyword">import</a> <a id="849" href="Cubical.Experiments.ZariskiLatticeBasicOpens.html" class="Module">Cubical.Experiments.ZariskiLatticeBasicOpens</a>
 </pre></body></html>

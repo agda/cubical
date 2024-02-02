@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Experiments.IntegerMatrix</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">{-
+
+Normalize Integer Matrices
+
+-}</a>
+<a id="36" class="Symbol">{-#</a> <a id="40" class="Keyword">OPTIONS</a> <a id="48" class="Pragma">--safe</a> <a id="55" class="Symbol">#-}</a>
+
+<a id="60" class="Keyword">module</a> <a id="67" href="Cubical.Experiments.IntegerMatrix.html" class="Module">Cubical.Experiments.IntegerMatrix</a> <a id="101" class="Keyword">where</a>
+
+<a id="108" class="Keyword">open</a> <a id="113" class="Keyword">import</a> <a id="120" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+
+<a id="149" class="Keyword">open</a> <a id="154" class="Keyword">import</a> <a id="161" href="Cubical.Data.Nat.html" class="Module">Cubical.Data.Nat</a>
+<a id="178" class="Keyword">open</a> <a id="183" class="Keyword">import</a> <a id="190" href="Cubical.Data.Int.html" class="Module">Cubical.Data.Int</a>
+<a id="207" class="Keyword">open</a> <a id="212" class="Keyword">import</a> <a id="219" href="Cubical.Data.FinData.html" class="Module">Cubical.Data.FinData</a>
+<a id="240" class="Keyword">open</a> <a id="245" class="Keyword">import</a> <a id="252" href="Cubical.Data.List.html" class="Module">Cubical.Data.List</a>
+
+<a id="271" class="Keyword">open</a> <a id="276" class="Keyword">import</a> <a id="283" href="Cubical.Algebra.CommRing.html" class="Module">Cubical.Algebra.CommRing</a>
+<a id="308" class="Keyword">open</a> <a id="313" class="Keyword">import</a> <a id="320" href="Cubical.Algebra.CommRing.Instances.Int.html" class="Module">Cubical.Algebra.CommRing.Instances.Int</a>
+
+<a id="360" class="Keyword">open</a> <a id="365" class="Keyword">import</a> <a id="372" href="Cubical.Algebra.Matrix.html" class="Module">Cubical.Algebra.Matrix</a>
+<a id="395" class="Keyword">open</a> <a id="400" class="Keyword">import</a> <a id="407" href="Cubical.Algebra.Matrix.CommRingCoefficient.html" class="Module">Cubical.Algebra.Matrix.CommRingCoefficient</a>
+<a id="450" class="Keyword">open</a> <a id="455" class="Keyword">import</a> <a id="462" href="Cubical.Algebra.IntegerMatrix.Smith.html" class="Module">Cubical.Algebra.IntegerMatrix.Smith</a>
+<a id="498" class="Keyword">open</a> <a id="503" class="Keyword">import</a> <a id="510" href="Cubical.Algebra.IntegerMatrix.Diagonalization.html" class="Module">Cubical.Algebra.IntegerMatrix.Diagonalization</a>
+
+<a id="557" class="Keyword">private</a>
+  <a id="567" class="Keyword">variable</a>
+    <a id="580" href="Cubical.Experiments.IntegerMatrix.html#580" class="Generalizable">m</a> <a id="582" href="Cubical.Experiments.IntegerMatrix.html#582" class="Generalizable">n</a> <a id="584" class="Symbol">:</a> <a id="586" href="Agda.Builtin.Nat.html#203" class="Datatype">ℕ</a>
+
+<a id="589" class="Keyword">open</a> <a id="594" href="Cubical.Algebra.Matrix.CommRingCoefficient.html#746" class="Module">Coefficient</a> <a id="606" href="Cubical.Algebra.CommRing.Instances.Int.html#315" class="Function">ℤCommRing</a>
+
+<a id="617" class="Comment">-- Get divisors directly</a>
+
+<a id="643" class="Keyword">open</a> <a id="648" href="Cubical.Algebra.IntegerMatrix.Smith.NormalForm.html#2346" class="Module">isSmithNormal</a>
+<a id="662" class="Keyword">open</a> <a id="667" href="Cubical.Algebra.IntegerMatrix.Smith.NormalForm.html#3245" class="Module">Smith</a>
+<a id="673" class="Keyword">open</a> <a id="678" href="Cubical.Algebra.IntegerMatrix.Diagonalization.html#2881" class="Module">isDiagonal</a>
+<a id="689" class="Keyword">open</a> <a id="694" href="Cubical.Algebra.IntegerMatrix.Diagonalization.html#7360" class="Module">Diag</a>
+
+<a id="getElemDiv"></a><a id="700" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="711" class="Symbol">:</a> <a id="713" href="Cubical.Algebra.Matrix.CommRingCoefficient.html#1003" class="Function">Mat</a> <a id="717" href="Cubical.Experiments.IntegerMatrix.html#580" class="Generalizable">m</a> <a id="719" href="Cubical.Experiments.IntegerMatrix.html#582" class="Generalizable">n</a> <a id="721" class="Symbol">→</a> <a id="723" href="Agda.Builtin.List.html#147" class="Datatype">List</a> <a id="728" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a>
+<a id="730" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="741" href="Cubical.Experiments.IntegerMatrix.html#741" class="Bound">M</a> <a id="743" class="Symbol">=</a> <a id="745" href="Cubical.Algebra.IntegerMatrix.Smith.Normalization.html#9554" class="Function">smith</a> <a id="751" href="Cubical.Experiments.IntegerMatrix.html#741" class="Bound">M</a> <a id="753" class="Symbol">.</a><a id="754" href="Cubical.Algebra.IntegerMatrix.Smith.NormalForm.html#3306" class="Field">isnormal</a> <a id="763" class="Symbol">.</a><a id="764" href="Cubical.Algebra.IntegerMatrix.Smith.NormalForm.html#2399" class="Field">divs</a> <a id="769" class="Symbol">.</a><a id="770" href="Agda.Builtin.Sigma.html#251" class="Field">fst</a>
+
+<a id="getDiagDiv"></a><a id="775" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="786" class="Symbol">:</a> <a id="788" href="Cubical.Algebra.Matrix.CommRingCoefficient.html#1003" class="Function">Mat</a> <a id="792" href="Cubical.Experiments.IntegerMatrix.html#580" class="Generalizable">m</a> <a id="794" href="Cubical.Experiments.IntegerMatrix.html#582" class="Generalizable">n</a> <a id="796" class="Symbol">→</a> <a id="798" href="Agda.Builtin.List.html#147" class="Datatype">List</a> <a id="803" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a>
+<a id="805" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="816" href="Cubical.Experiments.IntegerMatrix.html#816" class="Bound">M</a> <a id="818" class="Symbol">=</a> <a id="820" href="Cubical.Algebra.IntegerMatrix.Diagonalization.html#9028" class="Function">diagonalize</a> <a id="832" href="Cubical.Experiments.IntegerMatrix.html#816" class="Bound">M</a> <a id="834" class="Symbol">.</a><a id="835" href="Cubical.Algebra.IntegerMatrix.Diagonalization.html#7420" class="Field">isdiag</a> <a id="842" class="Symbol">.</a><a id="843" href="Cubical.Algebra.IntegerMatrix.Diagonalization.html#2931" class="Field">divs</a> <a id="848" class="Symbol">.</a><a id="849" href="Agda.Builtin.Sigma.html#251" class="Field">fst</a>
+
+<a id="854" class="Comment">-- Constructing matrices</a>
+
+<a id="makeMat2×2"></a><a id="880" href="Cubical.Experiments.IntegerMatrix.html#880" class="Function">makeMat2×2</a> <a id="891" class="Symbol">:</a> <a id="893" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="895" class="Symbol">→</a> <a id="897" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="899" class="Symbol">→</a> <a id="901" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="903" class="Symbol">→</a> <a id="905" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="907" class="Symbol">→</a> <a id="909" href="Cubical.Algebra.Matrix.CommRingCoefficient.html#1003" class="Function">Mat</a> <a id="913" class="Number">2</a> <a id="915" class="Number">2</a>
+<a id="917" href="Cubical.Experiments.IntegerMatrix.html#880" class="Function">makeMat2×2</a> <a id="928" href="Cubical.Experiments.IntegerMatrix.html#928" class="Bound">a00</a> <a id="932" class="Symbol">_</a> <a id="934" class="Symbol">_</a> <a id="936" class="Symbol">_</a> <a id="938" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="943" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="948" class="Symbol">=</a> <a id="950" href="Cubical.Experiments.IntegerMatrix.html#928" class="Bound">a00</a>
+<a id="954" href="Cubical.Experiments.IntegerMatrix.html#880" class="Function">makeMat2×2</a> <a id="965" class="Symbol">_</a> <a id="967" href="Cubical.Experiments.IntegerMatrix.html#967" class="Bound">a01</a> <a id="971" class="Symbol">_</a> <a id="973" class="Symbol">_</a> <a id="975" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="980" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="985" class="Symbol">=</a> <a id="987" href="Cubical.Experiments.IntegerMatrix.html#967" class="Bound">a01</a>
+<a id="991" href="Cubical.Experiments.IntegerMatrix.html#880" class="Function">makeMat2×2</a> <a id="1002" class="Symbol">_</a> <a id="1004" class="Symbol">_</a> <a id="1006" href="Cubical.Experiments.IntegerMatrix.html#1006" class="Bound">a10</a> <a id="1010" class="Symbol">_</a> <a id="1012" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="1017" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="1022" class="Symbol">=</a> <a id="1024" href="Cubical.Experiments.IntegerMatrix.html#1006" class="Bound">a10</a>
+<a id="1028" href="Cubical.Experiments.IntegerMatrix.html#880" class="Function">makeMat2×2</a> <a id="1039" class="Symbol">_</a> <a id="1041" class="Symbol">_</a> <a id="1043" class="Symbol">_</a> <a id="1045" href="Cubical.Experiments.IntegerMatrix.html#1045" class="Bound">a11</a> <a id="1049" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="1054" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="1059" class="Symbol">=</a> <a id="1061" href="Cubical.Experiments.IntegerMatrix.html#1045" class="Bound">a11</a>
+
+<a id="makeMat3×3"></a><a id="1066" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1077" class="Symbol">:</a> <a id="1079" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="1081" class="Symbol">→</a> <a id="1083" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="1085" class="Symbol">→</a> <a id="1087" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="1089" class="Symbol">→</a> <a id="1091" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="1093" class="Symbol">→</a> <a id="1095" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="1097" class="Symbol">→</a> <a id="1099" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="1101" class="Symbol">→</a> <a id="1103" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="1105" class="Symbol">→</a> <a id="1107" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="1109" class="Symbol">→</a> <a id="1111" href="Cubical.Data.Int.Base.html#393" class="Datatype">ℤ</a> <a id="1113" class="Symbol">→</a> <a id="1115" href="Cubical.Algebra.Matrix.CommRingCoefficient.html#1003" class="Function">Mat</a> <a id="1119" class="Number">3</a> <a id="1121" class="Number">3</a>
+<a id="1123" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1134" href="Cubical.Experiments.IntegerMatrix.html#1134" class="Bound">a00</a> <a id="1138" class="Symbol">_</a> <a id="1140" class="Symbol">_</a> <a id="1142" class="Symbol">_</a> <a id="1144" class="Symbol">_</a> <a id="1146" class="Symbol">_</a> <a id="1148" class="Symbol">_</a> <a id="1150" class="Symbol">_</a> <a id="1152" class="Symbol">_</a> <a id="1154" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="1159" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="1164" class="Symbol">=</a> <a id="1166" href="Cubical.Experiments.IntegerMatrix.html#1134" class="Bound">a00</a>
+<a id="1170" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1181" class="Symbol">_</a> <a id="1183" href="Cubical.Experiments.IntegerMatrix.html#1183" class="Bound">a01</a> <a id="1187" class="Symbol">_</a> <a id="1189" class="Symbol">_</a> <a id="1191" class="Symbol">_</a> <a id="1193" class="Symbol">_</a> <a id="1195" class="Symbol">_</a> <a id="1197" class="Symbol">_</a> <a id="1199" class="Symbol">_</a> <a id="1201" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="1206" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="1211" class="Symbol">=</a> <a id="1213" href="Cubical.Experiments.IntegerMatrix.html#1183" class="Bound">a01</a>
+<a id="1217" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1228" class="Symbol">_</a> <a id="1230" class="Symbol">_</a> <a id="1232" href="Cubical.Experiments.IntegerMatrix.html#1232" class="Bound">a02</a> <a id="1236" class="Symbol">_</a> <a id="1238" class="Symbol">_</a> <a id="1240" class="Symbol">_</a> <a id="1242" class="Symbol">_</a> <a id="1244" class="Symbol">_</a> <a id="1246" class="Symbol">_</a> <a id="1248" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="1253" href="Cubical.Data.FinData.Base.html#524" class="InductiveConstructor">two</a>  <a id="1258" class="Symbol">=</a> <a id="1260" href="Cubical.Experiments.IntegerMatrix.html#1232" class="Bound">a02</a>
+<a id="1264" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1275" class="Symbol">_</a> <a id="1277" class="Symbol">_</a> <a id="1279" class="Symbol">_</a> <a id="1281" href="Cubical.Experiments.IntegerMatrix.html#1281" class="Bound">a10</a> <a id="1285" class="Symbol">_</a> <a id="1287" class="Symbol">_</a> <a id="1289" class="Symbol">_</a> <a id="1291" class="Symbol">_</a> <a id="1293" class="Symbol">_</a> <a id="1295" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="1300" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="1305" class="Symbol">=</a> <a id="1307" href="Cubical.Experiments.IntegerMatrix.html#1281" class="Bound">a10</a>
+<a id="1311" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1322" class="Symbol">_</a> <a id="1324" class="Symbol">_</a> <a id="1326" class="Symbol">_</a> <a id="1328" class="Symbol">_</a> <a id="1330" href="Cubical.Experiments.IntegerMatrix.html#1330" class="Bound">a11</a> <a id="1334" class="Symbol">_</a> <a id="1336" class="Symbol">_</a> <a id="1338" class="Symbol">_</a> <a id="1340" class="Symbol">_</a> <a id="1342" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="1347" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="1352" class="Symbol">=</a> <a id="1354" href="Cubical.Experiments.IntegerMatrix.html#1330" class="Bound">a11</a>
+<a id="1358" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1369" class="Symbol">_</a> <a id="1371" class="Symbol">_</a> <a id="1373" class="Symbol">_</a> <a id="1375" class="Symbol">_</a> <a id="1377" class="Symbol">_</a> <a id="1379" href="Cubical.Experiments.IntegerMatrix.html#1379" class="Bound">a12</a> <a id="1383" class="Symbol">_</a> <a id="1385" class="Symbol">_</a> <a id="1387" class="Symbol">_</a> <a id="1389" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="1394" href="Cubical.Data.FinData.Base.html#524" class="InductiveConstructor">two</a>  <a id="1399" class="Symbol">=</a> <a id="1401" href="Cubical.Experiments.IntegerMatrix.html#1379" class="Bound">a12</a>
+<a id="1405" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1416" class="Symbol">_</a> <a id="1418" class="Symbol">_</a> <a id="1420" class="Symbol">_</a> <a id="1422" class="Symbol">_</a> <a id="1424" class="Symbol">_</a> <a id="1426" class="Symbol">_</a> <a id="1428" href="Cubical.Experiments.IntegerMatrix.html#1428" class="Bound">a20</a> <a id="1432" class="Symbol">_</a> <a id="1434" class="Symbol">_</a> <a id="1436" href="Cubical.Data.FinData.Base.html#524" class="InductiveConstructor">two</a>  <a id="1441" href="Cubical.Data.FinData.Base.html#399" class="InductiveConstructor">zero</a> <a id="1446" class="Symbol">=</a> <a id="1448" href="Cubical.Experiments.IntegerMatrix.html#1428" class="Bound">a20</a>
+<a id="1452" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1463" class="Symbol">_</a> <a id="1465" class="Symbol">_</a> <a id="1467" class="Symbol">_</a> <a id="1469" class="Symbol">_</a> <a id="1471" class="Symbol">_</a> <a id="1473" class="Symbol">_</a> <a id="1475" class="Symbol">_</a> <a id="1477" href="Cubical.Experiments.IntegerMatrix.html#1477" class="Bound">a21</a> <a id="1481" class="Symbol">_</a> <a id="1483" href="Cubical.Data.FinData.Base.html#524" class="InductiveConstructor">two</a>  <a id="1488" href="Cubical.Data.FinData.Base.html#499" class="InductiveConstructor">one</a>  <a id="1493" class="Symbol">=</a> <a id="1495" href="Cubical.Experiments.IntegerMatrix.html#1477" class="Bound">a21</a>
+<a id="1499" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a> <a id="1510" class="Symbol">_</a> <a id="1512" class="Symbol">_</a> <a id="1514" class="Symbol">_</a> <a id="1516" class="Symbol">_</a> <a id="1518" class="Symbol">_</a> <a id="1520" class="Symbol">_</a> <a id="1522" class="Symbol">_</a> <a id="1524" class="Symbol">_</a> <a id="1526" href="Cubical.Experiments.IntegerMatrix.html#1526" class="Bound">a22</a> <a id="1530" href="Cubical.Data.FinData.Base.html#524" class="InductiveConstructor">two</a>  <a id="1535" href="Cubical.Data.FinData.Base.html#524" class="InductiveConstructor">two</a>  <a id="1540" class="Symbol">=</a> <a id="1542" href="Cubical.Experiments.IntegerMatrix.html#1526" class="Bound">a22</a>
+
+<a id="1547" class="Comment">-- The Tests</a>
+
+<a id="1561" class="Comment">-- One can add flag &quot;-vprofile.interactive:10&quot; to this file,</a>
+<a id="1622" class="Comment">-- then C-c C-n to run these tests and also get the time.</a>
+
+<a id="1681" class="Comment">-- It turns out that, &quot;smith&quot; is much slower than &quot;diagonalize&quot;</a>
+<a id="1745" class="Comment">-- and it doesn&#39;t work even for simple 3×3-matrices.</a>
+<a id="1798" class="Comment">-- The &quot;diagonalize&quot; works only for very simple 3×3-matrices.</a>
+<a id="1860" class="Comment">-- One subtle point is, if one only do one-step in Smith normalization</a>
+<a id="1931" class="Comment">-- and simply add the time cost in each steps,</a>
+<a id="1978" class="Comment">-- the result is far less than running the whole function &quot;smith&quot;.</a>
+<a id="2045" class="Comment">-- So the recursive procedure slows down the procedure</a>
+<a id="2100" class="Comment">-- for some reasons I don&#39;t fully understand.</a>
+<a id="2146" class="Comment">-- Also, the performance of &quot;smith&quot; is very bad at certain trivial cases,</a>
+<a id="2220" class="Comment">-- much worse than some non-trivial cases.</a>
+
+<a id="mat1"></a><a id="2264" href="Cubical.Experiments.IntegerMatrix.html#2264" class="Function">mat1</a> <a id="2269" class="Symbol">=</a> <a id="2271" href="Cubical.Experiments.IntegerMatrix.html#880" class="Function">makeMat2×2</a>
+   <a id="2285" class="Number">1</a>  <a id="2288" class="Number">0</a>
+   <a id="2293" class="Number">0</a>  <a id="2296" class="Number">1</a>
+<a id="2298" class="Comment">-- Time: 528ms</a>
+<a id="test1"></a><a id="2313" href="Cubical.Experiments.IntegerMatrix.html#2313" class="Function">test1</a>  <a id="2320" class="Symbol">=</a> <a id="2322" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="2333" href="Cubical.Experiments.IntegerMatrix.html#2264" class="Function">mat1</a>
+<a id="2338" class="Comment">-- Time: 51ms</a>
+<a id="test1&#39;"></a><a id="2352" href="Cubical.Experiments.IntegerMatrix.html#2352" class="Function">test1&#39;</a> <a id="2359" class="Symbol">=</a> <a id="2361" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="2372" href="Cubical.Experiments.IntegerMatrix.html#2264" class="Function">mat1</a>
+
+<a id="mat2"></a><a id="2378" href="Cubical.Experiments.IntegerMatrix.html#2378" class="Function">mat2</a> <a id="2383" class="Symbol">=</a> <a id="2385" href="Cubical.Experiments.IntegerMatrix.html#880" class="Function">makeMat2×2</a>
+   <a id="2399" class="Number">2</a>  <a id="2402" class="Number">0</a>
+   <a id="2407" class="Number">0</a>  <a id="2410" class="Number">1</a>
+<a id="2412" class="Comment">-- Time: 89,437ms</a>
+<a id="2430" class="Comment">-- Why so slow?</a>
+<a id="test2"></a><a id="2446" href="Cubical.Experiments.IntegerMatrix.html#2446" class="Function">test2</a>  <a id="2453" class="Symbol">=</a> <a id="2455" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="2466" href="Cubical.Experiments.IntegerMatrix.html#2378" class="Function">mat2</a>
+<a id="2471" class="Comment">-- Time: 51ms</a>
+<a id="test2&#39;"></a><a id="2485" href="Cubical.Experiments.IntegerMatrix.html#2485" class="Function">test2&#39;</a> <a id="2492" class="Symbol">=</a> <a id="2494" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="2505" href="Cubical.Experiments.IntegerMatrix.html#2378" class="Function">mat2</a>
+
+<a id="mat3"></a><a id="2511" href="Cubical.Experiments.IntegerMatrix.html#2511" class="Function">mat3</a> <a id="2516" class="Symbol">=</a> <a id="2518" href="Cubical.Experiments.IntegerMatrix.html#880" class="Function">makeMat2×2</a>
+   <a id="2532" class="Number">2</a>  <a id="2535" class="Number">1</a>
+   <a id="2540" class="Number">3</a>  <a id="2543" class="Number">5</a>
+<a id="2545" class="Comment">-- Time: 3,308ms</a>
+<a id="test3"></a><a id="2562" href="Cubical.Experiments.IntegerMatrix.html#2562" class="Function">test3</a>  <a id="2569" class="Symbol">=</a> <a id="2571" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="2582" href="Cubical.Experiments.IntegerMatrix.html#2511" class="Function">mat3</a>
+<a id="2587" class="Comment">-- Time: 1,887ms</a>
+<a id="test3&#39;"></a><a id="2604" href="Cubical.Experiments.IntegerMatrix.html#2604" class="Function">test3&#39;</a> <a id="2611" class="Symbol">=</a> <a id="2613" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="2624" href="Cubical.Experiments.IntegerMatrix.html#2511" class="Function">mat3</a>
+
+<a id="mat4"></a><a id="2630" href="Cubical.Experiments.IntegerMatrix.html#2630" class="Function">mat4</a> <a id="2635" class="Symbol">=</a> <a id="2637" href="Cubical.Experiments.IntegerMatrix.html#880" class="Function">makeMat2×2</a>
+   <a id="2651" class="Number">4</a>  <a id="2654" class="Number">2</a>
+   <a id="2659" class="Number">2</a>  <a id="2662" class="Number">4</a>
+<a id="2664" class="Comment">-- Time: 3,284ms</a>
+<a id="test4"></a><a id="2681" href="Cubical.Experiments.IntegerMatrix.html#2681" class="Function">test4</a>  <a id="2688" class="Symbol">=</a> <a id="2690" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="2701" href="Cubical.Experiments.IntegerMatrix.html#2630" class="Function">mat4</a>
+<a id="2706" class="Comment">-- Time: 1,942ms</a>
+<a id="test4&#39;"></a><a id="2723" href="Cubical.Experiments.IntegerMatrix.html#2723" class="Function">test4&#39;</a> <a id="2730" class="Symbol">=</a> <a id="2732" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="2743" href="Cubical.Experiments.IntegerMatrix.html#2630" class="Function">mat4</a>
+
+<a id="mat5"></a><a id="2749" href="Cubical.Experiments.IntegerMatrix.html#2749" class="Function">mat5</a> <a id="2754" class="Symbol">=</a> <a id="2756" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a>
+   <a id="2770" class="Number">1</a>  <a id="2773" class="Number">0</a>  <a id="2776" class="Number">0</a>
+   <a id="2781" class="Number">0</a>  <a id="2784" class="Number">0</a>  <a id="2787" class="Number">0</a>
+   <a id="2792" class="Number">0</a>  <a id="2795" class="Number">0</a>  <a id="2798" class="Number">0</a>
+<a id="2800" class="Comment">-- Time: 9,400ms</a>
+<a id="test5"></a><a id="2817" href="Cubical.Experiments.IntegerMatrix.html#2817" class="Function">test5</a>  <a id="2824" class="Symbol">=</a> <a id="2826" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="2837" href="Cubical.Experiments.IntegerMatrix.html#2749" class="Function">mat5</a>
+<a id="2842" class="Comment">-- Time: 337ms</a>
+<a id="test5&#39;"></a><a id="2857" href="Cubical.Experiments.IntegerMatrix.html#2857" class="Function">test5&#39;</a> <a id="2864" class="Symbol">=</a> <a id="2866" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="2877" href="Cubical.Experiments.IntegerMatrix.html#2749" class="Function">mat5</a>
+
+<a id="mat6"></a><a id="2883" href="Cubical.Experiments.IntegerMatrix.html#2883" class="Function">mat6</a> <a id="2888" class="Symbol">=</a> <a id="2890" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a>
+   <a id="2904" class="Number">1</a>  <a id="2907" class="Number">0</a>  <a id="2910" class="Number">0</a>
+   <a id="2915" class="Number">0</a>  <a id="2918" class="Number">1</a>  <a id="2921" class="Number">0</a>
+   <a id="2926" class="Number">0</a>  <a id="2929" class="Number">0</a>  <a id="2932" class="Number">1</a>
+<a id="2934" class="Comment">-- Time: ???</a>
+<a id="2947" class="Comment">-- It doesn&#39;t work out already.</a>
+<a id="test6"></a><a id="2979" href="Cubical.Experiments.IntegerMatrix.html#2979" class="Function">test6</a>  <a id="2986" class="Symbol">=</a> <a id="2988" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="2999" href="Cubical.Experiments.IntegerMatrix.html#2883" class="Function">mat6</a>
+<a id="3004" class="Comment">-- Time: 8,598ms</a>
+<a id="test6&#39;"></a><a id="3021" href="Cubical.Experiments.IntegerMatrix.html#3021" class="Function">test6&#39;</a> <a id="3028" class="Symbol">=</a> <a id="3030" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="3041" href="Cubical.Experiments.IntegerMatrix.html#2883" class="Function">mat6</a>
+
+<a id="mat7"></a><a id="3047" href="Cubical.Experiments.IntegerMatrix.html#3047" class="Function">mat7</a> <a id="3052" class="Symbol">=</a> <a id="3054" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a>
+   <a id="3068" class="Number">1</a>  <a id="3071" class="Number">1</a>  <a id="3074" class="Number">0</a>
+   <a id="3079" class="Number">3</a>  <a id="3082" class="Number">2</a>  <a id="3085" class="Number">1</a>
+   <a id="3090" class="Number">2</a>  <a id="3093" class="Number">0</a>  <a id="3096" class="Number">1</a>
+<a id="3098" class="Comment">-- Time: ???</a>
+<a id="test7"></a><a id="3111" href="Cubical.Experiments.IntegerMatrix.html#3111" class="Function">test7</a>  <a id="3118" class="Symbol">=</a> <a id="3120" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="3131" href="Cubical.Experiments.IntegerMatrix.html#3047" class="Function">mat7</a>
+<a id="3136" class="Comment">-- Time: 14,149ms</a>
+<a id="test7&#39;"></a><a id="3154" href="Cubical.Experiments.IntegerMatrix.html#3154" class="Function">test7&#39;</a> <a id="3161" class="Symbol">=</a> <a id="3163" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="3174" href="Cubical.Experiments.IntegerMatrix.html#3047" class="Function">mat7</a>
+
+<a id="mat8"></a><a id="3180" href="Cubical.Experiments.IntegerMatrix.html#3180" class="Function">mat8</a> <a id="3185" class="Symbol">=</a> <a id="3187" href="Cubical.Experiments.IntegerMatrix.html#1066" class="Function">makeMat3×3</a>
+   <a id="3201" class="Number">2</a>  <a id="3204" class="Number">3</a>  <a id="3207" class="Number">1</a>
+   <a id="3212" class="Number">2</a>  <a id="3215" class="Number">2</a>  <a id="3218" class="Number">3</a>
+   <a id="3223" class="Number">1</a>  <a id="3226" class="Number">1</a>  <a id="3229" class="Number">0</a>
+<a id="3231" class="Comment">-- Time: ???</a>
+<a id="test8"></a><a id="3244" href="Cubical.Experiments.IntegerMatrix.html#3244" class="Function">test8</a>  <a id="3251" class="Symbol">=</a> <a id="3253" href="Cubical.Experiments.IntegerMatrix.html#700" class="Function">getElemDiv</a> <a id="3264" href="Cubical.Experiments.IntegerMatrix.html#3180" class="Function">mat8</a>
+<a id="3269" class="Comment">-- Time: ???</a>
+<a id="3282" class="Comment">-- Not working either.</a>
+<a id="test8&#39;"></a><a id="3305" href="Cubical.Experiments.IntegerMatrix.html#3305" class="Function">test8&#39;</a> <a id="3312" class="Symbol">=</a> <a id="3314" href="Cubical.Experiments.IntegerMatrix.html#775" class="Function">getDiagDiv</a> <a id="3325" href="Cubical.Experiments.IntegerMatrix.html#3180" class="Function">mat8</a>
+</pre></body></html>
