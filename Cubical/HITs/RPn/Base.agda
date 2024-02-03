@@ -348,3 +348,17 @@ characRP²Fun : ∀ {ℓ} {A : Type ℓ} (f : RP² → A)
   → RP²Fun (f point) (cong f line) (λ i j → f (square i j)) ≡ f
 characRP²Fun f =
   funExt λ { point → refl ; (line i) → refl ; (square i i₁) → refl}
+
+RP²FunCharacIso : {A : RP² → Type ℓ}
+  → Iso ((x : RP²) → A x)
+         (Σ[ x ∈ A point ]
+           Σ[ p ∈ PathP (λ i → A (line i)) x x ]
+             SquareP (λ i j → A (square i j))
+               p (λ i → p (~ i)) refl refl)
+Iso.fun RP²FunCharacIso f = f point , cong f line , cong (cong f) square
+Iso.inv RP²FunCharacIso (x , p , q) point = x
+Iso.inv RP²FunCharacIso (x , p , q) (line i) = p i
+Iso.inv RP²FunCharacIso (x , p , q) (square i j) = q i j
+Iso.rightInv RP²FunCharacIso _ = refl
+Iso.leftInv RP²FunCharacIso f =
+  funExt λ { point → refl ; (line i) → refl ; (square i i₁) → refl}

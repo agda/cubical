@@ -57,6 +57,14 @@ isHomogeneous {ℓ} (A , x) = ∀ y → Path (Pointed ℓ) (A , x) (A , y)
         })
       (sym (h (pt B∙)) ∙ h ((sym f₀ ∙∙ funExt⁻ p a₀ ∙∙ g₀) i))
 
+→∙HomogeneousPathP :
+  ∀ {ℓ ℓ'} {A∙ A∙' : Pointed ℓ} {B∙ B∙' : Pointed ℓ'}
+  {f∙ : A∙ →∙ B∙} {g∙ : A∙' →∙ B∙'} (p : A∙ ≡ A∙') (q : B∙ ≡ B∙')
+  (h : isHomogeneous B∙')
+  → PathP (λ i → fst (p i) → fst (q i)) (f∙ .fst) (g∙ .fst)
+  → PathP (λ i → p i →∙ q i) f∙ g∙
+→∙HomogeneousPathP p q h r = toPathP (→∙Homogeneous≡ h (fromPathP r))
+
 →∙Homogeneous≡Path : ∀ {ℓ ℓ'} {A∙ : Pointed ℓ} {B∙ : Pointed ℓ'} {f∙ g∙ : A∙ →∙ B∙}
   (h : isHomogeneous B∙) → (p q : f∙ ≡ g∙) → cong fst p ≡ cong fst q → p ≡ q
 →∙Homogeneous≡Path {A∙ = A∙@(A , a₀)} {B∙@(B , b)} {f∙@(f , f₀)} {g∙@(g , g₀)} h p q r =

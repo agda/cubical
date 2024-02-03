@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 {-
 
 Definition of the integers as a HIT inspired by slide 10 of (original
@@ -22,7 +23,8 @@ module Cubical.Experiments.HInt where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.Int
+
+open import Cubical.Data.Int renaming (ℤ to Int; sucℤ to sucInt; predℤ to predInt; isSetℤ to isSetInt)
 open import Cubical.Data.Nat
 
 data ℤ : Type₀ where
@@ -77,6 +79,7 @@ lem2 (pos (suc n)) = sym (predsuc (ℕ→ℤ n))
 lem2 (negsuc n) = refl
 
 -- I don't see how to fill these holes, especially the last one
+{-
 ℤ→Int→ℤ : ∀ (n : ℤ) → Int→ℤ (ℤ→Int n) ≡ n
 ℤ→Int→ℤ zero = refl
 ℤ→Int→ℤ (suc n) = (lem1 (ℤ→Int n)) ∙ (cong suc (ℤ→Int→ℤ n))
@@ -84,15 +87,17 @@ lem2 (negsuc n) = refl
 ℤ→Int→ℤ (sucpred n i) = {!!}
 ℤ→Int→ℤ (predsuc n i) = {!!}
 ℤ→Int→ℤ (coh n i j) = {!!}
+-}
 
 Int→ℤ→Int : ∀ n → ℤ→Int (Int→ℤ n) ≡ n
 Int→ℤ→Int (pos zero) = refl
 Int→ℤ→Int (pos (suc n)) = cong sucInt (Int→ℤ→Int (pos n))
 Int→ℤ→Int (negsuc zero) = refl
 Int→ℤ→Int (negsuc (suc n)) = cong predInt (Int→ℤ→Int (negsuc n))
-
+{-
 Int≡ℤ : Int ≡ ℤ
 Int≡ℤ = isoToPath (iso Int→ℤ ℤ→Int ℤ→Int→ℤ Int→ℤ→Int)
 
 isSetℤ : isSet ℤ
 isSetℤ = subst isSet Int≡ℤ isSetInt
+-}

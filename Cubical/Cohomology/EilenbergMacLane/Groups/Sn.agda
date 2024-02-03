@@ -22,8 +22,9 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
+open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
-open import Cubical.Data.Bool
+open import Cubical.Data.Bool hiding (_≟_)
 open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Group.MorphismProperties
@@ -286,6 +287,44 @@ module _ (G : AbGroup ℓ) where
                           (isConnectedEM (suc (suc n))) (0ₖ _) (f north) .fst)))
         isContrUnit*)
   snd (Hⁿ[Sᵐ⁺ⁿ,G]≅0 (suc n) m) = makeIsGroupHom λ _ _ → refl
+  open import Cubical.Data.Sum as ⊎
+  open import Cubical.Data.Empty as ⊥
+  open import Cubical.Relation.Nullary
+  open import Cubical.Cohomology.EilenbergMacLane.Groups.Connected
+
+  H⁰[Sⁿ,G]≅G : (n : ℕ) → AbGroupEquiv (coHomGr 0 G (S₊ (suc n))) G
+  H⁰[Sⁿ,G]≅G n = H⁰conn
+      (∣ ptSn (suc n) ∣ₕ
+    , (TR.elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _)
+        (sphereElim n (λ _ → isProp→isOfHLevelSuc n (isOfHLevelTrunc 2 _ _))
+          refl))) G
+
+  Hⁿ[Sᵐ,G]Full : (n m : ℕ)
+    → (((n ≡ 0) ⊎ (n ≡ suc m))
+          → AbGroupEquiv (coHomGr n G (S₊ (suc m))) G)
+     × ((¬ n ≡ 0) × (¬ (n ≡ suc m))
+           → AbGroupEquiv (coHomGr n G (S₊ (suc m))) (trivialAbGroup {ℓ-zero}))
+  fst (Hⁿ[Sᵐ,G]Full zero m) _ = H⁰[Sⁿ,G]≅G m
+  snd (Hⁿ[Sᵐ,G]Full zero  m) p = ⊥.rec (fst p refl)
+  Hⁿ[Sᵐ,G]Full  (suc n) m with (n ≟ m)
+  ... | lt x = (λ { (inl x) → ⊥.rec (snotz x)
+                  ; (inr p) → ⊥.rec (¬m<m (subst (n <_) (sym (cong predℕ p)) x))})
+             , λ _ → subst (λ m → AbGroupEquiv (coHomGr (suc n) G (S₊ m))
+                                                 (trivialAbGroup {ℓ-zero}))
+                            (cong suc (snd x))
+                            (Hⁿ[Sᵐ⁺ⁿ,G]≅0 n (fst x))
+  ... | eq x =
+      (λ { (inl x) → ⊥.rec (snotz x)
+         ; (inr x) → subst (λ m → AbGroupEquiv (coHomGr (suc n) G (S₊ m)) G)
+                            x
+                            (Hⁿ[Sⁿ,G]≅G n)})
+    , (λ p → ⊥.rec (p .snd (cong suc x)))
+  ... | gt x = (λ { (inl x) → ⊥.rec (snotz x)
+                  ; (inr p) → ⊥.rec (¬m<m (subst (m <_) (cong predℕ p) x))})
+             , λ _ → subst (λ n → AbGroupEquiv (coHomGr n G (S₊ (suc m)))
+                                                 (trivialAbGroup {ℓ-zero}))
+                            (cong suc (snd x))
+                            (Hᵐ⁺ⁿ[Sⁿ,G]≅0 m (fst x))
 
 -- In fact, the above induces an equivalence (S₊∙ n →∙ EM∙ G n) ≃ G
 isSet-Sn→∙EM : (G : AbGroup ℓ) (n : ℕ) → isSet (S₊∙ n →∙ EM∙ G n)
