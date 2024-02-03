@@ -6,7 +6,6 @@
    Includes the following
    - isos in FUNCTOR are precisely the pointwise isos
    - FUNCTOR C D is univalent when D is
-   - Isomorphism of functors currying
 
 -}
 
@@ -24,7 +23,6 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.NaturalTransformation.Properties
-open import Cubical.Foundations.Function renaming (_∘_ to _∘→_)
 
 private
   variable
@@ -139,57 +137,4 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     β .N-ob e ∘⟨ D ⟩ (G .F-hom g ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f))
       ≡⟨ D .⋆Assoc _ _ _ ⟩
     (β .N-ob e ∘⟨ D ⟩ G .F-hom g) ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f) ∎
-  module _ (E : Category ℓE ℓE') where
-    λF : Functor (E ×C C) D → Functor E FUNCTOR
-    λF F .F-ob e .F-ob c = F ⟅ e , c ⟆
-    λF F .F-ob e .F-hom f = F ⟪ (E .id) , f ⟫
-    λF F .F-ob e .F-id = F .F-id
-    λF F .F-ob e .F-seq f g =
-      F ⟪ E .id , g ∘⟨ C ⟩ f ⟫
-        ≡⟨ (λ i → F ⟪ (E .⋆IdL (E .id) (~ i)) , (g ∘⟨ C ⟩ f) ⟫) ⟩
-      (F ⟪ (E .id ∘⟨ E ⟩ E .id) , g ∘⟨ C ⟩ f ⟫)
-        ≡⟨ F .F-seq (E .id , f) (E .id , g) ⟩
-      (F ⟪ E .id , g ⟫ ∘⟨ D ⟩ F ⟪ E .id , f ⟫) ∎
-    λF F .F-hom h .N-ob c = F ⟪ h , (C .id) ⟫
-    λF F .F-hom h .N-hom f =
-      F ⟪ h , C .id ⟫ ∘⟨ D ⟩ F ⟪ E .id , f ⟫ ≡⟨ sym (F .F-seq _ _) ⟩
-      F ⟪ h ∘⟨ E ⟩ E .id , C .id ∘⟨ C ⟩ f ⟫
-        ≡⟨ (λ i → F ⟪ E .⋆IdL h i , C .⋆IdR f i  ⟫) ⟩
-      F ⟪ h , f ⟫ ≡⟨ (λ i → F ⟪ (E .⋆IdR h (~ i)) , (C .⋆IdL f (~ i)) ⟫) ⟩
-      F ⟪ E .id ∘⟨ E ⟩ h , f ∘⟨ C ⟩ C .id ⟫ ≡⟨ F .F-seq _ _ ⟩
-      F ⟪ E .id , f ⟫ ∘⟨ D ⟩ F ⟪ h , C .id ⟫ ∎
-    λF F .F-id = makeNatTransPath (funExt λ c → F .F-id)
-    λF F .F-seq f g = makeNatTransPath (funExt lem) where
-      lem : (c : C .ob) →
-            F ⟪ g ∘⟨ E ⟩ f , C .id ⟫ ≡
-            F ⟪ g , C .id ⟫ ∘⟨ D ⟩ F ⟪ f , C .id ⟫
-      lem c =
-        F ⟪ g ∘⟨ E ⟩ f , C .id ⟫
-          ≡⟨ (λ i → F ⟪ (g ∘⟨ E ⟩ f) , (C .⋆IdR (C .id) (~ i)) ⟫) ⟩
-        F ⟪ g ∘⟨ E ⟩ f , C .id ∘⟨ C ⟩ C .id ⟫
-          ≡⟨ F .F-seq (f , C .id) (g , C .id) ⟩
-        (F ⟪ g , C .id ⟫) ∘⟨ D ⟩ (F ⟪ f , C .id ⟫) ∎
 
-
-    λF⁻ : Functor E FUNCTOR → Functor (E ×C C) D
-    F-ob (λF⁻ a) = uncurry (F-ob ∘→ F-ob a)
-    F-hom (λF⁻ a) _ = N-ob (F-hom a _) _ ∘⟨ D ⟩ (F-hom (F-ob a _)) _
-    F-id (λF⁻ a) = cong₂ (seq' D) (F-id (F-ob a _))
-        (cong (flip N-ob _) (F-id a)) ∙ D .⋆IdL _
-    F-seq (λF⁻ a) _ (eG , cG) =
-     cong₂ (seq' D) (F-seq (F-ob a _) _ _) (cong (flip N-ob _)
-           (F-seq a _ _))
-          ∙ AssocCong₂⋆R {C = D} _
-              (N-hom ((F-hom a _) ●ᵛ (F-hom a _)) _ ∙
-                (⋆Assoc D _ _ _) ∙
-                  cong (seq' D _) (sym (N-hom (F-hom a eG) cG)))
-
-    isoλF : Iso (Functor (E ×C C) D) (Functor E FUNCTOR)
-    fun isoλF = λF
-    inv isoλF = λF⁻
-    rightInv isoλF b = Functor≡ (λ _ → Functor≡ (λ _ → refl)
-      λ _ → cong (seq' D _) (congS (flip N-ob _) (F-id b)) ∙ D .⋆IdR _)
-      λ _ → toPathP (makeNatTransPath (transportRefl _ ∙
-        funExt λ _ → cong (flip (seq' D) _) (F-id (F-ob b _)) ∙ D .⋆IdL _))
-    leftInv isoλF a = Functor≡ (λ _ → refl) λ _ → sym (F-seq a _ _)
-          ∙ cong (F-hom a) (cong₂ _,_ (E .⋆IdL _) (C .⋆IdR _))

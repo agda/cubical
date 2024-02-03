@@ -38,6 +38,10 @@ open Category
 _[_,_] : (C : Category ℓ ℓ') → (x y : C .ob) → Type ℓ'
 _[_,_] = Hom[_,_]
 
+_Endo[_] : (C : Category ℓ ℓ') → (x : C .ob) → Type ℓ'
+C Endo[ x ] = C [ x , x ]
+
+
 -- Needed to define this in order to be able to make the subsequence syntax declaration
 seq' : ∀ (C : Category ℓ ℓ') {x y z} (f : C [ x , y ]) (g : C [ y , z ]) → C [ x , z ]
 seq' = _⋆_
