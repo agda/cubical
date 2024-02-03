@@ -38,8 +38,8 @@ open Category
 _[_,_] : (C : Category ℓ ℓ') → (x y : C .ob) → Type ℓ'
 _[_,_] = Hom[_,_]
 
-_Endo[_] : (C : Category ℓ ℓ') → (x : C .ob) → Type ℓ'
-C Endo[ x ] = C [ x , x ]
+_End[_] : (C : Category ℓ ℓ') → (x : C .ob) → Type ℓ'
+C End[ x ] = C [ x , x ]
 
 
 -- Needed to define this in order to be able to make the subsequence syntax declaration

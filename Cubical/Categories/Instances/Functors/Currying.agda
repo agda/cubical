@@ -131,12 +131,12 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     ε FunctorCurryAdjointEquivalence = λF∘λF⁻≅ᶜ𝟙
     Δ₁ (triangleIdentities FunctorCurryAdjointEquivalence) c = makeNatTransPath $
       funExt λ _ → makeNatTransPath (funExt λ _ → cong (∘diag $ seq' D)
-        (congP₂$ (transport-fillerExt⁻ (cong (D Endo[_] ∘→ c ⟅_⟆) (transportRefl _))) λ _ → D .id)
+        (congP₂$ (transport-fillerExt⁻ (cong (D End[_] ∘→ c ⟅_⟆) (transportRefl _))) λ _ → D .id)
       ∙ D .⋆IdR _)
 
     Δ₂ (triangleIdentities FunctorCurryAdjointEquivalence) d = makeNatTransPath $
       funExt λ _ → cong (∘diag $ seq' D)
-        (congP₂$ (transport-fillerExt⁻ (cong (D Endo[_] ∘→  uncurry (F-ob ∘→ F-ob d))
+        (congP₂$ (transport-fillerExt⁻ (cong (D End[_] ∘→  uncurry (F-ob ∘→ F-ob d))
               (transportRefl _))) λ _ → D .id)
       ∙ D .⋆IdR _
 
