@@ -23,7 +23,7 @@ open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
-open import Cubical.Relation.Binary.Poset
+-- open import Cubical.Relation.Binary.Poset
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Algebra
@@ -51,7 +51,7 @@ private
 
 module Presheaf (A' : CommRing ℓ) where
  open CommRingStr (snd A') renaming (_·_ to _·r_ ; ·Comm to ·r-comm ; ·Assoc to ·rAssoc
-                                                 ; ·Lid to ·rLid ; ·Rid to ·rRid)
+                                                 ; ·IdL to ·rLid ; ·IdR to ·rRid)
  open Exponentiation A'
  open CommRingTheory A'
  open InvertingElementsBase A'
@@ -72,7 +72,7 @@ module Presheaf (A' : CommRing ℓ) where
 
 -- ≼ is a pre-order:
  Refl≼ : isRefl _≼_
- Refl≼ x = PT.∣ 1 , 1r , ·r-comm _ _ ∣
+ Refl≼ x = PT.∣ 1 , 1r , ·r-comm _ _ ∣₁
 
  Trans≼ : isTrans _≼_
  Trans≼ x y z = map2 Trans≼Σ
@@ -123,7 +123,7 @@ module Presheaf (A' : CommRing ℓ) where
    path2 = solve A'
 
    lemmaΣ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r y → y ⋆ 1a ∈ A[1/ x ]ˣ
-   lemmaΣ (n , z , p) = [ z , (x ^ n) ,  PT.∣ n , refl ∣ ] -- xⁿ≡zy → y⁻¹ ≡ z/xⁿ
+   lemmaΣ (n , z , p) = [ z , (x ^ n) ,  PT.∣ n , refl ∣₁ ] -- xⁿ≡zy → y⁻¹ ≡ z/xⁿ
                       , eq/ _ _ ((1r , powersFormMultClosedSubset _ .containsOne)
                       , (path1 _ _ ∙∙ sym p ∙∙ path2 _))
 
@@ -175,7 +175,7 @@ module Presheaf (A' : CommRing ℓ) where
 
   ·r-lcoh : (x y z : A) → R x y → R (x ·r z) (y ·r z)
   ·r-lcoh x y z Rxy = ·r-lcoh-≼ x y z (Rxy .fst) , ·r-lcoh-≼ y x z (Rxy .snd)
-
+{-
  BasicOpens : Semilattice ℓ
  BasicOpens = makeSemilattice [ 1r ] _∧/_ squash/
    (elimProp3 (λ _ _ _ → squash/ _ _) λ _ _ _ → cong [_] (·rAssoc _ _ _))
@@ -210,7 +210,7 @@ module Presheaf (A' : CommRing ℓ) where
   x≼y→x≼xyΣ (n , z , p) = suc n , z , cong (x ·r_) p ∙ ·CommAssocl _ _ _
 
   ≼To· : x ≼ y → R x ( x ·r y)
-  ≼To· x≼y = PT.map x≼y→x≼xyΣ x≼y , PT.∣ 1 , y , ·rRid _ ∙ ·r-comm _ _ ∣
+  ≼To· x≼y = PT.map x≼y→x≼xyΣ x≼y , PT.∣ 1 , y , ·rRid _ ∙ ·r-comm _ _ ∣₁
 
  open IsPoset
  open PosetStr
@@ -247,3 +247,4 @@ module Presheaf (A' : CommRing ℓ) where
         → ρᴰ x z (Trans≼/ _ _ _ l m) ≡ ρᴰ x y l ∘a ρᴰ y z m
  ρᴰComp = SQ.elimProp3 (λ _ _ _ → isPropΠ2 (λ _ _ → isSetAlgebraHom _ _ _ _))
                         λ a b c _ _ → sym (ρᴰᴬ a c _ .snd _) ∙ ρᴰᴬComp a b c _ _
+-}

@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.Experiments.CohomologyGroups where
-
+{-
 open import Cubical.Experiments.ZCohomologyOld.Base
 open import Cubical.Experiments.ZCohomologyOld.Properties
 open import Cubical.Experiments.ZCohomologyOld.MayerVietorisUnreduced
@@ -138,3 +138,4 @@ H¹-S¹≅ℤ =
             → Σ[ x ∈ Int ] (inv H⁰-S⁰≅ℤ×ℤ (x , x))
              ≡ GroupHom.fun (K.Δ 0) (∣ f ∣₂ , ∣ g ∣₂)
     helper2 f g = (f _ -[ 0 ]ₖ g _) , cong ∣_∣₂ (funExt λ {true → refl ; false → refl})
+-}
