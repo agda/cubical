@@ -82,8 +82,8 @@ uncurry4 f (x , y , z , w , u) = f x y z w u
 curry : ((p : Σ A B) → C (fst p) (snd p)) → (x : A) → (y : B x) → C x y
 curry f x y = f (x , y)
 
-join : {B : (x y : A) → Type ℓ} → (∀ x y → B x y) → ∀ x → B x x
-join f x = f x x
+∘diag : {B : (x y : A) → Type ℓ} → (∀ x y → B x y) → ∀ x → B x x
+∘diag f x = f x x
 
 module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} where
   -- Notions of 'coherently constant' functions for low dimensions.
