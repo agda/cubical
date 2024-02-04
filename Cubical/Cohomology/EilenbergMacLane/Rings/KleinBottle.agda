@@ -29,7 +29,7 @@ open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin hiding (FinVec)
 open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec

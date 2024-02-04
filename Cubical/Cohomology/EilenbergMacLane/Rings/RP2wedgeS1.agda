@@ -34,7 +34,7 @@ open import Cubical.Cohomology.EilenbergMacLane.Rings.Z2-properties
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin hiding (FinVec)
 open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.Sigma
 open import Cubical.Data.Vec
