@@ -11,7 +11,7 @@ where ⋀̃ is defined as the pushout
                ↓                                ⌟  ↓
                1 ------------------------------→ ⋀̃ Aᵢ
 
-Statment: Let f,g : ⋀ᵢ Aᵢ → B. If f ∘ ⋀̃→⋀ = g ∘ ⋀̃→⋀, then f = g.
+Statement: Let f,g : ⋀ᵢ Aᵢ → B. If f ∘ ⋀̃→⋀ = g ∘ ⋀̃→⋀, then f = g.
 
 -}
 
