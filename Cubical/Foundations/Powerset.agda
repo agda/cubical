@@ -50,9 +50,6 @@ A ⊆ B = ∀ x → x ∈ A → x ∈ B
 subst-∈ : (A : ℙ X) {x y : X} → x ≡ y → x ∈ A → y ∈ A
 subst-∈ A = subst (_∈ A)
 
-subst-∈' : (A : ℙ X) {x y : X} → x ∈ A → x ≡ y  → y ∈ A
-subst-∈' A x p = subst (_∈ A) p x
-
 ⊆-refl-consequence : (A B : ℙ X) → A ≡ B → (A ⊆ B) × (B ⊆ A)
 ⊆-refl-consequence A B p = subst (A ⊆_) p (⊆-refl A)
                          , subst (B ⊆_) (sym p) (⊆-refl B)
