@@ -35,10 +35,13 @@ module TestErrors (R : CommRing ℓ) where
 module TestWithℤ where
   open CommRingStr (ℤCommRing .snd)
 
+  ex13 : (x y : ℤ) → (x · y) · 1r ≡ 1r · (y · x)
+  ex13 x y = solve! ℤCommRing
+
   ex0 : (a b : fst ℤCommRing) → a + b ≡ b + a
   ex0 a b = solve! ℤCommRing
 
-module Test (R : CommRing ℓ) where
+module Test (R : CommRing ℓ) (x y z : fst R) where
   open CommRingStr (snd R)
 
   _ : 0r ≡ 0r
@@ -52,41 +55,41 @@ module Test (R : CommRing ℓ) where
       ≡ 0r - 0r
   _ = solve! R
 
-  ex1 : ∀ x → x ≡ x
-  ex1 x = solve! R
+  ex1 : x ≡ x
+  ex1 = solve! R
 
-  ex2 : (x y : fst R) → x ≡ x
-  ex2 x y = solve! R
+  ex2 : x ≡ x
+  ex2 = solve! R
 
-  ex3 : ∀ x y → x + y ≡ y + x
-  ex3 x y = solve! R
+  ex3 : x + y ≡ y + x
+  ex3 = solve! R
 
-  ex4 : ∀ x y → y ≡ (y - x) + x
-  ex4 x y = solve! R
+  ex4 : y ≡ (y - x) + x
+  ex4 = solve! R
 
-  ex5 : ∀ x y → x ≡ (x - y) + y
-  ex5 x y = solve! R
+  ex5 : x ≡ (x - y) + y
+  ex5 = solve! R
 
-  ex6 : ∀ x y → (x + y) · (x - y) ≡ x · x - y · y
-  ex6 x y = solve! R
+  ex6 : (x + y) · (x - y) ≡ x · x - y · y
+  ex6 = solve! R
 
   {-
     A bigger example:
   -}
-  ex7 : (x y z : (fst R)) → (x + y) · (x + y) · (x + y) · (x + y)
+  ex7 : (x + y) · (x + y) · (x + y) · (x + y)
                 ≡ x · x · x · x + (scalar R 4) · x · x · x · y + (scalar R 6) · x · x · y · y
                   + (scalar R 4) · x · y · y · y + y · y · y · y
-  ex7 x y z = solve! R
+  ex7 = solve! R
 
   {-
     Examples that used to fail (see #513):
   -}
 
-  ex8 : (x : (fst R)) → x · 0r ≡ 0r
-  ex8 x = solve! R
+  ex8 : x · 0r ≡ 0r
+  ex8 = solve! R
 
-  ex9 : (x y z : (fst R)) → x · (y - z) ≡ x · y - x · z
-  ex9 x y z = solve! R
+  ex9 : x · (y - z) ≡ x · y - x · z
+  ex9 = solve! R
 
   {-
     The solver should also deal with non-trivial terms in equations.
@@ -114,7 +117,6 @@ module _ (R : CommRing ℓ) (A : CommAlgebra R ℓ') where
   -}
   ex12 : (x y : ⟨ A ⟩) → x + y ≡ y + x
   ex12 x y = solve! (CommAlgebra→CommRing A)
-
 
 module TestInPlaceSolving (R : CommRing ℓ) where
    open CommRingStr (snd R)

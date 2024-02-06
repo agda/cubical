@@ -383,21 +383,11 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
       z/1≡y/gⁿ : (z /1ᵍ) ≡ [ y , g ^ n , ∣ n , refl ∣₁ ]
       z/1≡y/gⁿ = eq/ _ _ ((g ^ (n +ℕ m) , ∣ n +ℕ m , refl ∣₁) , path)
        where
-       useSolver1 : ∀ x y α₀ α₁ fⁿ⁺ᵐ gⁿ⁺ᵐ gⁿ
-                  → gⁿ⁺ᵐ · (α₀ · x · fⁿ⁺ᵐ + α₁ · y · gⁿ⁺ᵐ) · gⁿ
-                  ≡ α₀ · (x · gⁿ · (fⁿ⁺ᵐ · gⁿ⁺ᵐ)) + gⁿ⁺ᵐ · (α₁ · y · (gⁿ · gⁿ⁺ᵐ))
-       useSolver1 _ _ _ _ _ _ _ = solve! R'
-
-       useSolver2 : ∀ y α₀ α₁ gⁿ⁺ᵐ g²ⁿ⁺ᵐ f²ⁿ⁺ᵐ
-                  → α₀ · (y · f²ⁿ⁺ᵐ · gⁿ⁺ᵐ) + gⁿ⁺ᵐ · (α₁ · y · g²ⁿ⁺ᵐ)
-                  ≡ gⁿ⁺ᵐ · y · (α₀ · f²ⁿ⁺ᵐ + α₁ · g²ⁿ⁺ᵐ)
-       useSolver2 _ _ _ _ _ _ = solve! R'
-
        path : g ^ (n +ℕ m) · z · g ^ n ≡ g ^ (n +ℕ m) · y · 1r
        path =
            g ^ (n +ℕ m) · z · g ^ n
 
-         ≡⟨ useSolver1 _ _ _ _ _ _ _ ⟩
+         ≡⟨ solve! R' ⟩
 
            α₀ · (x · g ^ n · (f ^ (n +ℕ m) · g ^ (n +ℕ m))) + g ^ (n +ℕ m) · (α₁ · y · (g ^ n · g ^ (n +ℕ m)))
 
@@ -424,7 +414,7 @@ module _ (R' : CommRing ℓ) (f g : (fst R')) where
 
            α₀ · (y · f ^ 2n+m · g ^ (n +ℕ m)) + g ^ (n +ℕ m) · (α₁ · y · g ^ 2n+m)
 
-         ≡⟨ useSolver2 _ _ _ _ _ _ ⟩
+         ≡⟨ solve! R' ⟩
 
            g ^ (n +ℕ m) · y · (α₀ · f ^ 2n+m + α₁ · g ^ 2n+m)
 

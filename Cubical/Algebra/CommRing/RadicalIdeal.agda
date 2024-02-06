@@ -54,8 +54,6 @@ module RadicalIdeal (R' : CommRing ℓ) where
    binomialCoeff∈I i with ≤-+-split n m (toℕ i) (pred-≤-pred (toℕ<n i))
    ... | inl n≤i = subst-∈ I (sym path) (·Closed (I .snd) _ xⁿ∈I)
     where
-    useSolver : ∀ a b c d → a · (b · c) · d ≡ a · b · d · c
-    useSolver a b c d = solve! R'
     path : ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ (n +ℕ m ∸ toℕ i)
          ≡ ((n +ℕ m) choose toℕ i) · x ^ (toℕ i ∸ n) · y ^ (n +ℕ m ∸ toℕ i) · x ^ n
     path = ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ (n +ℕ m ∸ toℕ i)
@@ -65,7 +63,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
          ≡⟨ cong (λ z → ((n +ℕ m) choose toℕ i) · z · y ^ (n +ℕ m ∸ toℕ i))
                  (sym (·-of-^-is-^-of-+ x (toℕ i ∸ n) n)) ⟩
            ((n +ℕ m) choose toℕ i) · (x ^ (toℕ i ∸ n) · x ^ n) · y ^ (n +ℕ m ∸ toℕ i)
-         ≡⟨ useSolver _ _ _ _ ⟩
+         ≡⟨ solve! R' ⟩
            ((n +ℕ m) choose toℕ i) · x ^ (toℕ i ∸ n) · y ^ (n +ℕ m ∸ toℕ i) · x ^ n ∎
 
    ... | inr m≤n+m-i = subst-∈ I (sym path) (·Closed (I .snd) _ yᵐ∈I)
