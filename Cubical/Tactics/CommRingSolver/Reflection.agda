@@ -193,6 +193,7 @@ private
       goal ← inferType hole >>= normalise
       names ← findRingNames commRing
 
+      wait-for-type goal
       just (lhs , rhs) ← get-boundary goal
         where
           nothing

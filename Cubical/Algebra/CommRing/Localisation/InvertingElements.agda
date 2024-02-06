@@ -84,10 +84,7 @@ module InvertingElementsBase (R' : CommRing ℓ) where
  isContrR[1/0] : isContr R[1/ 0r ]
  fst isContrR[1/0] = [ 1r , 0r , ∣ 1 , sym (·IdR 0r) ∣₁ ] -- everything is equal to 1/0
  snd isContrR[1/0] = elimProp (λ _ → squash/ _ _)
-                               λ _ → eq/ _ _ ((0r , ∣ 1 , sym (·IdR 0r) ∣₁) , useSolver _ _)
-  where
-  useSolver : ∀ s r → 0r · 1r · s ≡ 0r · r · 0r
-  useSolver _ _ = solve! R'
+                               λ _ → eq/ _ _ ((0r , ∣ 1 , sym (·IdR 0r) ∣₁) , (solve! R'))
 
  R[1/_]AsCommRing : R → CommRing ℓ
  R[1/ f ]AsCommRing = Loc.S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
@@ -316,13 +313,7 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
   ℕhelper n = PT.rec isPropGoal -- fⁿ≡αg → g⁻¹≡α/fⁿ
        λ (α , p) → [ (α zero) , (f ^ n) , ∣ n , refl ∣₁ ]
                  , eq/ _ _ ((1r , powersFormMultClosedSubset f .containsOne)
-                 , useSolver1 _ _ ∙ sym p ∙ useSolver2 _)
-   where
-   useSolver1 : ∀ x y → 1r · (x · y) · 1r ≡  y · x + 0r
-   useSolver1 _ _ = solve! R'
-
-   useSolver2 : ∀ x → x ≡ 1r · 1r · (1r · x)
-   useSolver2 _ = solve! R'
+                 , (solve! R') ∙ sym p ∙ (solve! R'))
 
  toUnit : f ∈ᵢ √ ⟨ g ⟩
        → ∀ s → s ∈ [ g ⁿ|n≥0] → (s /1) ∈ R[1/ f ]AsCommRing ˣ

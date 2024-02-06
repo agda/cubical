@@ -308,10 +308,7 @@ module DoubleAlgLoc (R : CommRing ℓ) (f g : (fst R)) where
      helper2 : (α : FinVec (fst R) 1)
              → x ^ n ≡ linearCombination R α (replicateFinVec 1 y)
              → x ∈ᵢ √ ⟨ y · x ⟩
-     helper2 α p = ∣ (suc n) , ∣ α , cong (x ·_) p ∙ useSolver x y (α zero) ∣₁ ∣₁
-      where
-      useSolver : ∀ x y a → x · (a · y + 0r) ≡ a · (y · x) + 0r
-      useSolver _ _ _ = solve! R
+     helper2 α p = ∣ (suc n) , ∣ α , cong (x ·_) p ∙ solve! R ∣₁ ∣₁
 
   toUnit2 : ∀ s → s ∈ [_ⁿ|n≥0] R g → s ⋆ 1a ∈ R[1/fg]ˣ
   toUnit2 s s∈[gⁿ|n≥0] = subst-∈ R[1/fg]ˣ (sym (·IdR (s /1ᶠᵍ)))

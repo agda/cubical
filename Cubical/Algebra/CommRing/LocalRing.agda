@@ -123,10 +123,7 @@ module _ (R : CommRing ℓ) where
     +Closed nonInvertiblesFormIdeal {x = x} {y = y} xNonInv yNonInv x+yInv =
       ∥_∥₁.rec isProp⊥ (⊎.rec xNonInv yNonInv) (invertibleInBinarySum x+yInv)
     contains0 nonInvertiblesFormIdeal (x , 0x≡1) =
-      1≢0 (sym 0x≡1 ∙ useSolver)
-      where
-        useSolver : 0r · x ≡ 0r
-        useSolver = solve! R
+      1≢0 (sym 0x≡1 ∙ solve! R)
     ·Closed nonInvertiblesFormIdeal {x = x} r xNonInv rxInv =
       xNonInv (snd (RˣMultDistributing r x rxInv))
 
@@ -205,11 +202,8 @@ module _ (R : CommRing ℓ) where
       private
         binSum→OneMinus : BinSum.BinSum → OneMinus
         binSum→OneMinus binSum x =
-          binSum x (1r - x) (subst (_∈ R ˣ) (1≡x+1-x) RˣContainsOne)
-          where
-          1≡x+1-x : 1r ≡ x + (1r - x)
-          1≡x+1-x = solve! R
-          open Units R
+          binSum x (1r - x) (subst (_∈ R ˣ) (solve! R) RˣContainsOne)
+          where open Units R
 
         oneMinus→BinSum : OneMinus → BinSum.BinSum
         oneMinus→BinSum oneMinus x y (s⁻¹ , ss⁻¹≡1) =
@@ -219,12 +213,10 @@ module _ (R : CommRing ℓ) where
               (fst ∘ RˣMultDistributing y s⁻¹ ∘ subst (_∈ R ˣ) 1-xs⁻¹≡ys⁻¹))
             (oneMinus (x · s⁻¹))
           where
-          solveStep : (a b c : ⟨ R ⟩) → (a + b) · c - a · c ≡ b · c
-          solveStep _ _ _ = solve! R
           1-xs⁻¹≡ys⁻¹ : 1r - x · s⁻¹ ≡ y · s⁻¹
           1-xs⁻¹≡ys⁻¹ =
             (1r - x · s⁻¹)             ≡⟨ cong (_- _) (sym ss⁻¹≡1) ⟩
-            ((x + y) · s⁻¹ - x · s⁻¹)  ≡⟨ solveStep x y s⁻¹ ⟩
+            ((x + y) · s⁻¹ - x · s⁻¹)  ≡⟨ solve! R ⟩
             (y · s⁻¹)                  ∎
           open Units R
 

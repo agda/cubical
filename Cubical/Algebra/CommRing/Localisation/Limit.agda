@@ -172,13 +172,8 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
                         , path m)
      where
-     useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ a · b
-     useSolver1 _ _ = solve! R'
-     useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
-     useSolver2 _ = solve! R'
-
      path : (n : ℕ) → 1r · (f i ^ n · f j ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
-     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
+     path n = solve! R' ∙ sym (^-ldist-· (f i) (f j) n) ∙ solve! R'
 
  χˡ : (i j : Fin (suc n)) → CommRingHom R[1/ f i ]AsCommRing R[1/ f i · f j ]AsCommRing
  χˡ i j = χˡUnique i j .fst .fst
@@ -194,13 +189,8 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
                         , path m)
      where
-     useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ b · a
-     useSolver1 _ _ = solve! R'
-     useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
-     useSolver2 _ = solve! R'
-
      path : (n : ℕ) → 1r · (f j ^ n · f i ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
-     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
+     path n = solve! R' ∙ sym (^-ldist-· (f i) (f j) n) ∙ solve! R'
 
  χʳ : (i j : Fin (suc n)) → CommRingHom R[1/ f j ]AsCommRing R[1/ f i · f j ]AsCommRing
  χʳ i j = χʳUnique i j .fst .fst
@@ -337,7 +327,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
              r i · f j ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i j)
 
-           ≡⟨ useSolver _ _ _ _ ⟩
+           ≡⟨ solve! R' ⟩
 
              (f i · f j) ^ l i j · r i · f j ^ m · (f i · f j) ^ m
 
@@ -353,16 +343,13 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
             (f i · f j) ^ l i j  · r j · f i ^ m · (f i · f j) ^ m
 
-           ≡⟨ sym (useSolver _ _ _ _) ⟩
+           ≡⟨ sym (solve! R') ⟩
 
              r j · f i ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i j)
 
            ≡⟨ cong (r j · f i ^ m ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
 
              r j · f i ^ m · (f i · f j) ^ (m +ℕ l i j) ∎
-           where
-           useSolver : ∀ a b c d → a · b · (c · d) ≡ d · a · b · c
-           useSolver _ _ _ _ = solve! R'
 
          paths : ∀ i j → r i · f j ^ m · (f i · f j) ^ (m +ℕ k)
                         ≡ r j · f i ^ m · (f i · f j) ^ (m +ℕ k)

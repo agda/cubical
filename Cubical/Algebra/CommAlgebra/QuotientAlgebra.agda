@@ -242,8 +242,6 @@ module _
     unfolding quotientHom
 
     isZeroFromIdeal : (x : ⟨ A ⟩) → x ∈ (fst I) → fst (quotientHom A I) x ≡ CommAlgebraStr.0a (snd (A / I))
-    isZeroFromIdeal x x∈I = eq/ x 0a (subst (_∈ fst I) (step x) x∈I )
+    isZeroFromIdeal x x∈I = eq/ x 0a (subst (_∈ fst I) (solve! (CommAlgebra→CommRing A)) x∈I )
       where
         open CommAlgebraStr (snd A)
-        step : (x : ⟨ A ⟩) → x ≡ x - 0a
-        step x = solve! (CommAlgebra→CommRing A)
