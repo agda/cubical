@@ -194,6 +194,9 @@ pathToEquivRefl {A = A} = equivEq (λ i x → transp (λ _ → A) i x)
 uaβ : {A B : Type ℓ} (e : A ≃ B) (x : A) → transport (ua e) x ≡ equivFun e x
 uaβ e x = transportRefl (equivFun e x)
 
+~uaβ : {A B : Type ℓ} (e : A ≃ B) (x : B) → transport (sym (ua e)) x ≡ invEq e x
+~uaβ e x = cong (invEq e) (transportRefl x)
+
 uaη : ∀ {A B : Type ℓ} → (P : A ≡ B) → ua (pathToEquiv P) ≡ P
 uaη {A = A} {B = B} P i j = Glue B {φ = φ} sides where
   -- Adapted from a proof by @dolio, cf. commit e42a6fa1

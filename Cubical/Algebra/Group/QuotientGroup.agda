@@ -23,6 +23,8 @@ open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Subgroup
 
+open import Cubical.Tactics.GroupSolver.Solver
+
 private
   variable
     ℓ : Level
@@ -49,41 +51,15 @@ module _ (G' : Group ℓ) (H' : Subgroup G') (Hnormal : isNormal H') where
   1/H = [ 1g ]
 
   _·/H_ : G/H → G/H → G/H
-  x ·/H y = setQuotBinOp isRefl~ isRefl~ _·_ rem x y
-   where
-   rem : (a a' b b' : G)
-       → a · inv a' ∈ ⟪ H' ⟫
-       → b · inv b' ∈ ⟪ H' ⟫
-       → (a · b) · inv (a' · b') ∈ ⟪ H' ⟫
-   rem a a' b b' haa' hbb' = subst-∈ ⟪ H' ⟫ (cong (_ ·_) (sym (invDistr _ _))) rem5
-     where
-     rem1 : (inv a' · a) · b · inv b' ∈ ⟪ H' ⟫
-     rem1 = ·CommNormalSubgroup H' Hnormal
-              (op-closed  hbb' (·CommNormalSubgroup H' Hnormal haa'))
+  _·/H_ = setQuotBinOp isRefl~ isRefl~ _·_
+   (λ a a' b b' haa' hbb' → subst-∈ ⟪ H' ⟫
+     (solveGroup G')
+     (Hnormal a' _ (op-closed  (·CommNormalSubgroup H' Hnormal haa') hbb')))
 
-     rem2 : ((inv a' · a) · b) · inv b' ∈ ⟪ H' ⟫
-     rem2 = subst-∈ ⟪ H' ⟫ (·Assoc _ _ _) rem1
-
-     rem3 : inv b' · (inv a' · a) · b ∈ ⟪ H' ⟫
-     rem3 = ·CommNormalSubgroup H' Hnormal rem2
-
-     rem4 : (inv b' · inv a') · (a · b) ∈ ⟪ H' ⟫
-     rem4 = subst-∈ ⟪ H' ⟫ (cong (inv b' ·_) (sym (·Assoc _ _ _)) ∙ ·Assoc _ _ _) rem3
-
-     rem5 : (a · b) · inv b' · inv a' ∈ ⟪ H' ⟫
-     rem5 = ·CommNormalSubgroup H' Hnormal rem4
 
   inv/H : G/H → G/H
-  inv/H = setQuotUnaryOp inv rem
-    where
-    rem : (a a' : G) → a · inv a' ∈ ⟪ H' ⟫ → inv a · inv (inv a') ∈ ⟪ H' ⟫
-    rem a a' haa' = subst-∈ ⟪ H' ⟫ (cong (inv a ·_) (sym (invInv a'))) rem1
-      where
-      ha'a : a' · inv a ∈ ⟪ H' ⟫
-      ha'a = subst-∈ ⟪ H' ⟫ (invDistr a (inv a') ∙ cong (_· inv a) (invInv a')) (inv-closed haa')
-
-      rem1 : inv a · a' ∈ ⟪ H' ⟫
-      rem1 = ·CommNormalSubgroup H' Hnormal ha'a
+  inv/H = setQuotUnaryOp inv
+    λ _ a' haa' →  subst-∈ ⟪ H' ⟫ (solveGroup G') (Hnormal (inv a') _ (inv-closed haa'))
 
   ·/H-assoc : (a b c : G/H) → (a ·/H (b ·/H c)) ≡ ((a ·/H b) ·/H c)
   ·/H-assoc = elimProp3 (λ x y z → squash/ _ _) λ x y z → cong [_] (·Assoc x y z)

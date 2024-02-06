@@ -23,6 +23,8 @@ open import Cubical.Algebra.Group.Properties
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 
+open import Cubical.Tactics.GroupSolver.Solver
+
 private
   variable
     ℓ : Level
@@ -99,15 +101,7 @@ module _ {G' : Group ℓ} where
   ·CommNormalSubgroup : (H : Subgroup G') (Hnormal : isNormal H) {x y : G}
                       → x · y ∈ ⟪ H ⟫ → y · x ∈ ⟪ H ⟫
   ·CommNormalSubgroup H Hnormal {x = x} {y = y} Hxy =
-    subst-∈ ⟪ H ⟫ rem (Hnormal (inv x) (x · y) Hxy)
-      where
-      rem : inv x · (x · y) · inv (inv x) ≡ y · x
-      rem = inv x · (x · y) · inv (inv x) ≡⟨ ·Assoc _ _ _ ⟩
-            (inv x · x · y) · inv (inv x) ≡⟨ (λ i → ·Assoc (inv x) x y i · invInv x i) ⟩
-            ((inv x · x) · y) · x         ≡⟨ cong (λ z → (z · y) · x) (·InvL x) ⟩
-            (1g · y) · x                  ≡⟨ cong (_· x) (·IdL y) ⟩
-            y · x                         ∎
-
+    subst-∈ ⟪ H ⟫ (solveGroup G') (Hnormal (inv x) (x · y) Hxy)
 
   -- Examples of subgroups
 
@@ -136,11 +130,7 @@ module _ {G' : Group ℓ} where
   trivialSubgroup = trivialSubset , isSubgroupTrivialGroup
 
   isNormalTrivialSubgroup : isNormal trivialSubgroup
-  isNormalTrivialSubgroup g h h≡1 =
-    (g · h · inv g)  ≡⟨ (λ i → g · h≡1 i · inv g) ⟩
-    (g · 1g · inv g) ≡⟨ ·Assoc _ _ _ ∙ cong (_· inv g) (·IdR g) ⟩
-    (g · inv g)      ≡⟨ ·InvR g ⟩
-    1g ∎
+  isNormalTrivialSubgroup g h h≡1 = (λ i → g · h≡1 i · inv g) ∙  solveGroup G'
 
 NormalSubgroup : (G : Group ℓ) → Type _
 NormalSubgroup G = Σ[ G ∈ Subgroup G ] isNormal G
@@ -179,11 +169,9 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
     map λ {(g , p)
       → g ,
       (ϕ .fst g                  ≡⟨ p ⟩
-      y                          ≡⟨ sym (H.·IdR y) ⟩
-      (y H.· H.1g)               ≡⟨ cong (y H.·_) (sym (H.·InvR x)) ⟩
-      (y H.· (x H.· H.inv x))    ≡⟨ H.·Assoc y x (H.inv x) ⟩
+      y                          ≡⟨ solveGroup H ⟩
       ((y H.· x) H.· H.inv x)    ≡⟨ cong (H._· H.inv x) (comm y x) ⟩
-      ((x H.· y) H.· H.inv x)    ≡⟨ sym (H.·Assoc x y (H.inv x)) ⟩
+      ((x H.· y) H.· H.inv x)    ≡⟨ solveGroup H ⟩
       x H.· y H.· H.inv x        ∎ )}
 
   kerSubset : ℙ ⟨ G ⟩
