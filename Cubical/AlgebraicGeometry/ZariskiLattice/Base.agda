@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Algebra.ZariskiLattice.Base where
+module Cubical.AlgebraicGeometry.ZariskiLattice.Base where
 
 
 open import Cubical.Foundations.Prelude

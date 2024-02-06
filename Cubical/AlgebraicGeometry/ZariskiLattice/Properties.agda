@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Algebra.ZariskiLattice.Properties where
+module Cubical.AlgebraicGeometry.ZariskiLattice.Properties where
 
 
 open import Cubical.Foundations.Prelude
@@ -44,8 +44,8 @@ open import Cubical.Algebra.DistLattice.BigOps
 open import Cubical.Algebra.DistLattice.Downset
 open import Cubical.Algebra.Matrix
 
-open import Cubical.Algebra.ZariskiLattice.Base
-open import Cubical.Algebra.ZariskiLattice.UniversalProperty
+open import Cubical.AlgebraicGeometry.ZariskiLattice.Base
+open import Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
