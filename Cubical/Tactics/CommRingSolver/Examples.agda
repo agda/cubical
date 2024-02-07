@@ -35,8 +35,15 @@ module TestErrors (R : CommRing ℓ) where
 module TestWithℤ where
   open CommRingStr (ℤCommRing .snd)
 
+{-
+  the following is not possible yet: the ring solver normalises the goal
+  and expands some of the definitions of the operations. A possible fix could be
+  to not normalize - but then one has to (at least) translate every use of a binary
+  minus. (#1101)
+
   ex13 : (x y : ℤ) → (x · y) · 1r ≡ 1r · (y · x)
   ex13 x y = solve! ℤCommRing
+-}
 
   ex0 : (a b : fst ℤCommRing) → a + b ≡ b + a
   ex0 a b = solve! ℤCommRing
