@@ -64,7 +64,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  open CommRingTheory R'
  open RingTheory (CommRing→Ring R')
  open Sum (CommRing→Ring R')
- open CommIdeal R' hiding (subst-∈)
+ open CommIdeal R'
  open InvertingElementsBase R'
  open Exponentiation R'
  open CommRingStr ⦃...⦄

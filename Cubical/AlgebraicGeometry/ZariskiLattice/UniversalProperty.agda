@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Algebra.ZariskiLattice.UniversalProperty where
+module Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty where
 
 
 open import Cubical.Foundations.Prelude
@@ -9,7 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence)
+open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence) renaming (_∈_ to _∈ₚ_)
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Bool hiding (_≤_)
@@ -41,7 +41,7 @@ open import Cubical.Algebra.DistLattice.Basis
 open import Cubical.Algebra.DistLattice.BigOps
 open import Cubical.Algebra.Matrix
 
-open import Cubical.Algebra.ZariskiLattice.Base
+open import Cubical.AlgebraicGeometry.ZariskiLattice.Base
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -58,6 +58,7 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
  open Sum (CommRing→Ring R')
  open CommRingTheory R'
  open Exponentiation R'
+ open Units R'
 
  open DistLatticeStr (L' .snd) renaming (is-set to isSetL)
  open Join L'
@@ -70,7 +71,7 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
   R = fst R'
   L = fst L'
 
- record IsZarMap (d : R → L) : Type (ℓ-max ℓ ℓ') where
+ record IsSupport (d : R → L) : Type (ℓ-max ℓ ℓ') where
   constructor iszarmap
 
   field
@@ -90,18 +91,25 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
   d·LCancel : ∀ x y → d (x · y) ≤ d y
   d·LCancel x y = subst (λ a → a ≤ d y) (sym (·≡∧ x y)) (∧≤LCancelJoin _ _)
 
+  d·RCancel : ∀ x y → d (x · y) ≤ d x
+  d·RCancel x y = subst (λ a → a ≤ d x) (sym (·≡∧ x y)) (∧≤RCancelJoin _ _)
+
   linearCombination≤LCancel : {n : ℕ} (α β : FinVec R n)
                             → d (linearCombination R' α β) ≤ ⋁ (d ∘ β)
   linearCombination≤LCancel α β = is-trans _ _ _ (∑≤⋁ (λ i → α i · β i))
                                                  (≤-⋁Ext _ _ λ i → d·LCancel (α i) (β i))
 
-  ZarMapIdem : ∀ (n : ℕ) (x : R) → d (x ^ (suc n)) ≡ d x
-  ZarMapIdem zero x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) pres1 ∙∙ ∧lRid _
-  ZarMapIdem (suc n) x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) (ZarMapIdem n x) ∙∙ ∧lIdem _
+  supportUnit : ∀ x → x ∈ₚ Rˣ → d x ≡ 1l
+  supportUnit x (x⁻¹ , xx⁻¹≡1) = is-antisym _ _ (1lRightAnnihilates∨l _)
+                                               (subst (_≤ d x) (cong d xx⁻¹≡1 ∙ pres1) (d·RCancel _ _))
 
-  ZarMapExpIneq : ∀ (n : ℕ) (x : R) → d x ≤ d (x ^ n)
-  ZarMapExpIneq zero x = cong (d x ∨l_) pres1 ∙∙ 1lRightAnnihilates∨l _ ∙∙ sym pres1
-  ZarMapExpIneq (suc n) x = subst (λ y → d x ≤ y) (sym (ZarMapIdem _ x)) (∨lIdem _)
+  supportIdem : ∀ (n : ℕ) (x : R) → d (x ^ (suc n)) ≡ d x
+  supportIdem zero x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) pres1 ∙∙ ∧lRid _
+  supportIdem (suc n) x = ·≡∧ _ _ ∙∙ cong (d x ∧l_) (supportIdem n x) ∙∙ ∧lIdem _
+
+  supportExpIneq : ∀ (n : ℕ) (x : R) → d x ≤ d (x ^ n)
+  supportExpIneq zero x = cong (d x ∨l_) pres1 ∙∙ 1lRightAnnihilates∨l _ ∙∙ sym pres1
+  supportExpIneq (suc n) x = subst (λ y → d x ≤ y) (sym (supportIdem _ x)) (∨lIdem _)
 
   -- the crucial lemma about "Zariski maps"
   open CommIdeal R'
@@ -111,17 +119,44 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
    ⟨_⟩ : {n : ℕ} → FinVec R n → CommIdeal
    ⟨ V ⟩ = ⟨ V ⟩[ R' ]
 
-  ZarMapRadicalIneq : ∀ {n : ℕ} (α : FinVec R n) (x : R)
+  supportRadicalIneq : ∀ {n : ℕ} (α : FinVec R n) (x : R)
                     → x ∈ √ ⟨ α ⟩ → d x ≤ ⋁ (d ∘ α)
-  ZarMapRadicalIneq α x = PT.elim (λ _ → isSetL _ _)
+  supportRadicalIneq α x = PT.elim (λ _ → isSetL _ _)
          (uncurry (λ n → (PT.elim (λ _ → isSetL _ _) (uncurry (curriedHelper n)))))
    where
    curriedHelper : (n : ℕ) (β : FinVec R _)
                  → x ^ n ≡ linearCombination R' β α → d x ≤ ⋁ (d ∘ α)
-   curriedHelper n β xⁿ≡∑βα = d x ≤⟨ ZarMapExpIneq n x ⟩
+   curriedHelper n β xⁿ≡∑βα = d x ≤⟨ supportExpIneq n x ⟩
                               d (x ^ n)
      ≤⟨ subst (λ y → y ≤ ⋁ (d ∘ α)) (sym (cong d xⁿ≡∑βα)) (linearCombination≤LCancel β α) ⟩
                               ⋁ (d ∘ α) ◾
+
+-- precomposition with a ring hom
+module _ {A B : CommRing ℓ} (φ : CommRingHom A B)
+         (L : DistLattice ℓ) (d : B .fst → L .fst) where
+  open IsSupport
+  open CommRingStr ⦃...⦄
+  open DistLatticeStr ⦃...⦄
+  open IsRingHom
+  private
+    instance
+      _ = L .snd
+      _ = A .snd
+      _ = B .snd
+
+  presSupportPrecomp : IsSupport B L d → IsSupport A L (d ∘ fst φ)
+  pres0 (presSupportPrecomp dIsSupport) = cong d (φ .snd .pres0) ∙ dIsSupport .pres0
+  pres1 (presSupportPrecomp dIsSupport) = cong d (φ .snd .pres1) ∙ dIsSupport .pres1
+  ·≡∧ (presSupportPrecomp dIsSupport) x y = cong d (φ .snd .pres· x y)
+                    ∙ dIsSupport .·≡∧ (φ .fst x) (φ .fst y)
+  +≤∨ (presSupportPrecomp dIsSupport) x y =
+    let open JoinSemilattice
+              (Lattice→JoinSemilattice (DistLattice→Lattice L))
+    in subst (λ z → z ≤ (d (φ .fst x)) ∨l (d (φ .fst y)))
+             (sym (cong d (φ .snd .pres+ x y)))
+             (dIsSupport .+≤∨ (φ .fst x) (φ .fst y))
+
+
 
 module ZarLatUniversalProp (R' : CommRing ℓ) where
  open CommRingStr (snd R')
@@ -136,7 +171,7 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
  open ProdFin R'
 
  open ZarLat R'
- open IsZarMap
+ open IsSupport
 
  private
   R = fst R'
@@ -147,11 +182,11 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
  D : R → ZL
  D x = [ 1 , replicateFinVec 1 x ] -- λ x → √⟨x⟩
 
- isZarMapD : IsZarMap R' ZariskiLattice D
- pres0 isZarMapD = eq/ _ _ (≡→∼ (cong √ (0FGIdeal _ ∙ sym (emptyFGIdeal _ _))))
- pres1 isZarMapD = refl
- ·≡∧ isZarMapD x y = cong {B = λ _ → ZL} (λ U → [ 1 , U ]) (Length1··Fin x y)
- +≤∨ isZarMapD x y = eq/ _ _ (≡→∼ (cong √ (CommIdeal≡Char
+ isSupportD : IsSupport R' ZariskiLattice D
+ pres0 isSupportD = eq/ _ _ (≡→∼ (cong √ (0FGIdeal _ ∙ sym (emptyFGIdeal _ _))))
+ pres1 isSupportD = refl
+ ·≡∧ isSupportD x y = cong {B = λ _ → ZL} (λ U → [ 1 , U ]) (Length1··Fin x y)
+ +≤∨ isSupportD x y = eq/ _ _ (≡→∼ (cong √ (CommIdeal≡Char
                                            (inclOfFGIdeal _ 3Vec ⟨ 2Vec ⟩ 3Vec⊆2Vec)
                                            (inclOfFGIdeal _ 2Vec ⟨ 3Vec ⟩ 2Vec⊆3Vec))))
   where
@@ -170,18 +205,18 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
 
  -- defintion of the universal property
  hasZarLatUniversalProp : (L : DistLattice ℓ') (D : R → fst L)
-                        → IsZarMap R' L D
+                        → IsSupport R' L D
                         → Type _
  hasZarLatUniversalProp {ℓ' = ℓ'} L D _ = ∀ (L' : DistLattice ℓ') (d : R → fst L')
-                                       → IsZarMap R' L' d
+                                       → IsSupport R' L' d
                                        → ∃![ χ ∈ DistLatticeHom L L' ] (fst χ) ∘ D ≡ d
 
- isPropZarLatUniversalProp : (L : DistLattice ℓ') (D : R → fst L) (isZarMapD : IsZarMap R' L D)
-                         → isProp (hasZarLatUniversalProp L D isZarMapD)
- isPropZarLatUniversalProp L D isZarMapD = isPropΠ3 (λ _ _ _ → isPropIsContr)
+ isPropZarLatUniversalProp : (L : DistLattice ℓ') (D : R → fst L) (isSupportD : IsSupport R' L D)
+                         → isProp (hasZarLatUniversalProp L D isSupportD)
+ isPropZarLatUniversalProp L D isSupportD = isPropΠ3 (λ _ _ _ → isPropIsContr)
 
- ZLHasUniversalProp : hasZarLatUniversalProp ZariskiLattice D isZarMapD
- ZLHasUniversalProp L' d isZarMapd = (χ , funExt χcomp) , χunique
+ ZLHasUniversalProp : hasZarLatUniversalProp ZariskiLattice D isSupportD
+ ZLHasUniversalProp L' d isSupportd = (χ , funExt χcomp) , χunique
   where
   open DistLatticeStr (snd L') renaming (is-set to isSetL)
   open LatticeTheory (DistLattice→Lattice L')
@@ -207,18 +242,18 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
 
     ineq1 : ⋁ (d ∘ α) ≤ ⋁ (d ∘ β)
     ineq1 = ⋁IsMax (d ∘ α) (⋁ (d ∘ β))
-            λ i → ZarMapRadicalIneq isZarMapd β (α i) (√FGIdealCharLImpl α ⟨ β ⟩ incl1 i)
+            λ i → supportRadicalIneq isSupportd β (α i) (√FGIdealCharLImpl α ⟨ β ⟩ incl1 i)
 
     incl2 : √ ⟨ β ⟩ ⊆ √ ⟨ α ⟩
     incl2 = ⊆-refl-consequence _ _ (cong fst (∼→≡ α∼β)) .snd
 
     ineq2 : ⋁ (d ∘ β) ≤ ⋁ (d ∘ α)
     ineq2 = ⋁IsMax (d ∘ β) (⋁ (d ∘ α))
-            λ i → ZarMapRadicalIneq isZarMapd α (β i) (√FGIdealCharLImpl β ⟨ α ⟩ incl2 i)
+            λ i → supportRadicalIneq isSupportd α (β i) (√FGIdealCharLImpl β ⟨ α ⟩ incl2 i)
 
 
   pres0 (snd χ) = refl
-  pres1 (snd χ) = ∨lRid _ ∙ isZarMapd .pres1
+  pres1 (snd χ) = ∨lRid _ ∙ isSupportd .pres1
   pres∨l (snd χ) = elimProp2 (λ _ _ → isSetL _ _) (uncurry (λ n α → uncurry (curriedHelper n α)))
    where
    curriedHelper : (n : ℕ) (α : FinVec R n) (m : ℕ) (β : FinVec R m)
@@ -254,7 +289,7 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
 
       ⋁ (d ∘ (λ j → α zero · β j)) ∨l ⋁ (d ∘ ((α ∘ suc) ··Fin β))
 
-     ≡⟨ cong (_∨l ⋁ (d ∘ ((α ∘ suc) ··Fin β))) (⋁Ext (λ j → isZarMapd .·≡∧ (α zero) (β j))) ⟩
+     ≡⟨ cong (_∨l ⋁ (d ∘ ((α ∘ suc) ··Fin β))) (⋁Ext (λ j → isSupportd .·≡∧ (α zero) (β j))) ⟩
 
       ⋁ (λ j → d (α zero) ∧l d (β j)) ∨l ⋁ (d ∘ ((α ∘ suc) ··Fin β))
 
@@ -304,10 +339,10 @@ module ZarLatUniversalProp (R' : CommRing ℓ) where
 
  -- the map induced by applying the universal property to the Zariski lattice
  -- itself is the identity hom
- ZLUniversalPropCorollary : ZLHasUniversalProp ZariskiLattice D isZarMapD .fst .fst
+ ZLUniversalPropCorollary : ZLHasUniversalProp ZariskiLattice D isSupportD .fst .fst
                           ≡ idDistLatticeHom ZariskiLattice
  ZLUniversalPropCorollary = cong fst
-                              (ZLHasUniversalProp ZariskiLattice D isZarMapD .snd
+                              (ZLHasUniversalProp ZariskiLattice D isSupportD .snd
                                  (idDistLatticeHom ZariskiLattice , refl))
 
  -- and another corollary
@@ -321,7 +356,7 @@ module _ {A B : CommRing ℓ} (φ : CommRingHom A B) where
 
  open ZarLat
  open ZarLatUniversalProp
- open IsZarMap
+ open IsSupport
  open CommRingStr ⦃...⦄
  open DistLatticeStr ⦃...⦄
  open IsRingHom
@@ -333,22 +368,18 @@ module _ {A B : CommRing ℓ} (φ : CommRingHom A B) where
      _ = (ZariskiLattice B) .snd
 
  Dcomp : A .fst → ZL B
- Dcomp f = D B (φ .fst f)
+ Dcomp = D B ∘ fst φ
 
- isZarMapDcomp : IsZarMap A (ZariskiLattice B) Dcomp
- pres0 isZarMapDcomp = cong (D B) (φ .snd .pres0) ∙ isZarMapD B .pres0
- pres1 isZarMapDcomp = cong (D B) (φ .snd .pres1) ∙ isZarMapD B .pres1
- ·≡∧ isZarMapDcomp f g = cong (D B) (φ .snd .pres· f g)
-                    ∙ isZarMapD B .·≡∧ (φ .fst f) (φ .fst g)
- +≤∨ isZarMapDcomp f g =
-   let open JoinSemilattice
-             (Lattice→JoinSemilattice (DistLattice→Lattice (ZariskiLattice B)))
-   in subst (λ x → x ≤ (Dcomp f) ∨l (Dcomp g))
-            (sym (cong (D B) (φ .snd .pres+ f g)))
-            (isZarMapD B .+≤∨ (φ .fst f) (φ .fst g))
+ isSupportDcomp : IsSupport A (ZariskiLattice B) Dcomp
+ isSupportDcomp = presSupportPrecomp φ (ZariskiLattice B) (D B) (isSupportD B)
 
  inducedZarLatHom : DistLatticeHom (ZariskiLattice A) (ZariskiLattice B)
- inducedZarLatHom = ZLHasUniversalProp A (ZariskiLattice B) Dcomp isZarMapDcomp .fst .fst
+ inducedZarLatHom =
+   ZLHasUniversalProp A (ZariskiLattice B) Dcomp isSupportDcomp .fst .fst
+
+ inducedZarLatHomComm : inducedZarLatHom .fst ∘ D A ≡ Dcomp
+ inducedZarLatHomComm =
+   ZLHasUniversalProp A (ZariskiLattice B) Dcomp isSupportDcomp .fst .snd
 
 -- functoriality
 module _ (A : CommRing ℓ) where
@@ -360,7 +391,7 @@ module _ (A : CommRing ℓ) where
   inducedZarLatHomId =
     cong fst
       (ZLHasUniversalProp A (ZariskiLattice A) (Dcomp (idCommRingHom A))
-                                               (isZarMapDcomp (idCommRingHom A)) .snd
+                                               (isSupportDcomp (idCommRingHom A)) .snd
         (idDistLatticeHom (ZariskiLattice A) , refl))
 
 module _ {A B C : CommRing ℓ} (φ : CommRingHom A B) (ψ : CommRingHom B C) where
@@ -372,6 +403,6 @@ module _ {A B C : CommRing ℓ} (φ : CommRingHom A B) (ψ : CommRingHom B C) wh
   inducedZarLatHomSeq =
     cong fst
       (ZLHasUniversalProp A (ZariskiLattice C) (Dcomp (ψ ∘cr φ))
-                                               (isZarMapDcomp (ψ ∘cr φ)) .snd
+                                               (isSupportDcomp (ψ ∘cr φ)) .snd
         (inducedZarLatHom ψ ∘dl inducedZarLatHom φ , funExt (λ _ → ∨lRid _)))
     where open DistLatticeStr (ZariskiLattice C .snd)

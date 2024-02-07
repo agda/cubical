@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Instances.CommRings where
 
 open import Cubical.Foundations.Prelude
@@ -104,6 +104,24 @@ module _ {ℓ : Level} where
   fst (fst (snd TerminalCommRing y)) _ = tt*
   snd (fst (snd TerminalCommRing y)) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
   snd (snd TerminalCommRing y) f = RingHom≡ (funExt (λ _ → refl))
+
+  open RingTheory
+  trivialIsTerminalCommRing : ∀ (R : CommRing ℓ)
+                            → R .snd .0r ≡ R .snd .1r
+                            → isTerminal CommRingsCategory R
+  fst (fst (trivialIsTerminalCommRing R 0≡1 A)) _ = R .snd .0r
+  pres0 (snd (fst (trivialIsTerminalCommRing R 0≡1 A))) = refl
+  pres1 (snd (fst (trivialIsTerminalCommRing R 0≡1 A))) = 0≡1
+  pres+ (snd (fst (trivialIsTerminalCommRing R 0≡1 A))) _ _ = sym (R .snd .+IdR _)
+  pres· (snd (fst (trivialIsTerminalCommRing R 0≡1 A))) _ _ =
+    sym (0RightAnnihilates (CommRing→Ring R) _)
+  pres- (snd (fst (trivialIsTerminalCommRing R 0≡1 A))) _ =
+    sym (0Selfinverse (CommRing→Ring R))
+  snd (trivialIsTerminalCommRing R 0≡1 A) f =
+    RingHom≡ (funExt λ x → sym (0RightAnnihilates (CommRing→Ring R) _)
+                        ∙∙ cong (R .snd ._·_ (f .fst x)) 0≡1
+                        ∙∙ R .snd .·IdR _)
+
 
 open Pullback
 
