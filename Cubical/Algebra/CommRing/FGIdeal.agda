@@ -35,7 +35,7 @@ open import Cubical.Algebra.Ring.Quotient
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.Matrix
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 private
   variable
@@ -225,7 +225,7 @@ module _ (R' : CommRing ℓ) where
  sucIncl U x = PT.map λ (α , x≡∑αUsuc) → (λ { zero → 0r ; (suc i) → α i }) , x≡∑αUsuc ∙ path _ _
   where
   path : ∀ s u₀ → s ≡ 0r · u₀ + s
-  path = solve R'
+  path _ _ = solve! R'
 
  emptyFGIdeal : ∀ (V : FinVec R 0) → ⟨ V ⟩ ≡ 0Ideal
  emptyFGIdeal V = CommIdeal≡Char (λ _ →  PT.rec (is-set _ _) snd)

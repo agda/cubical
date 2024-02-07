@@ -39,7 +39,7 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.Semilattice.Instances.NatMax
 
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -172,13 +172,8 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
                         , path m)
      where
-     useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ a · b
-     useSolver1 = solve R'
-     useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
-     useSolver2 = solve R'
-
      path : (n : ℕ) → 1r · (f i ^ n · f j ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
-     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
+     path n = solve! R' ∙ sym (^-ldist-· (f i) (f j) n) ∙ solve! R'
 
  χˡ : (i j : Fin (suc n)) → CommRingHom R[1/ f i ]AsCommRing R[1/ f i · f j ]AsCommRing
  χˡ i j = χˡUnique i j .fst .fst
@@ -194,13 +189,8 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
                         , path m)
      where
-     useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ b · a
-     useSolver1 = solve R'
-     useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
-     useSolver2 = solve R'
-
      path : (n : ℕ) → 1r · (f j ^ n · f i ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
-     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
+     path n = solve! R' ∙ sym (^-ldist-· (f i) (f j) n) ∙ solve! R'
 
  χʳ : (i j : Fin (suc n)) → CommRingHom R[1/ f j ]AsCommRing R[1/ f i · f j ]AsCommRing
  χʳ i j = χʳUnique i j .fst .fst
@@ -307,7 +297,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                                   ≡ a · b · transport refl c · transport refl d
          transpHelper a b c d i = a · b · transportRefl c (~ i) · transportRefl d (~ i)
          useSolver : ∀ a b c d → a · b · c · d ≡ a · (b · c) · (1r · d)
-         useSolver = solve R'
+         useSolver _ _ _ _ = solve! R'
 
        exponentHelper : (∀ i j
                            → Σ[ l ∈ ℕ ] s i j ≡ (f i · f j) ^ l)
@@ -337,7 +327,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
              r i · f j ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i j)
 
-           ≡⟨ useSolver _ _ _ _ ⟩
+           ≡⟨ solve! R' ⟩
 
              (f i · f j) ^ l i j · r i · f j ^ m · (f i · f j) ^ m
 
@@ -353,16 +343,13 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
             (f i · f j) ^ l i j  · r j · f i ^ m · (f i · f j) ^ m
 
-           ≡⟨ sym (useSolver _ _ _ _) ⟩
+           ≡⟨ sym (solve! R') ⟩
 
              r j · f i ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i j)
 
            ≡⟨ cong (r j · f i ^ m ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
 
              r j · f i ^ m · (f i · f j) ^ (m +ℕ l i j) ∎
-           where
-           useSolver : ∀ a b c d → a · b · (c · d) ≡ d · a · b · c
-           useSolver = solve R'
 
          paths : ∀ i j → r i · f j ^ m · (f i · f j) ^ (m +ℕ k)
                         ≡ r j · f i ^ m · (f i · f j) ^ (m +ℕ k)
@@ -441,11 +428,11 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
          where
          useSolver1 : ∀ a b c d e g → (a · b) · (c · d · (e · g)) · a
                                     ≡ c · (d · a · (b · g)) · (a · e)
-         useSolver1 = solve R'
+         useSolver1 a b c d e g = solve! R'
 
          useSolver2 : ∀ a b c d e g → a · (b · c · (d · e)) · (g · c)
                                     ≡ (g · d) · b · (a · (c · (c · e)))
-         useSolver2 = solve R'
+         useSolver2 a b c d e g = solve! R'
 
          path : f i ^ (m +ℕ l) · z · f i ^ m ≡ f i ^ (m +ℕ l) · r i · 1r
          path =

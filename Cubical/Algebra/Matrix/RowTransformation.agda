@@ -19,12 +19,12 @@ open import Cubical.Data.FinData renaming (znots to znotsFin ; snotz to snotzFin
 open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.Matrix
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Matrix.CommRingCoefficient
 
 private
@@ -341,24 +341,24 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
     ⋆TakeTransMat t zero (suc (suc j)) =
       (helper (M zero zero) (M zero one ) _ ∙ ∑Mul0r (λ i → 𝟙 i j)) t
       where helper : (a b c : R) → a · 0r + (b · 0r + c) ≡ c
-            helper = solve 𝓡
+            helper _ _ _ = solve! 𝓡
     ⋆TakeTransMat t one  (suc (suc j)) =
       (helper (M one  zero) (M one  one ) _ ∙ ∑Mul0r (λ i → 𝟙 i j)) t
       where helper : (a b c : R) → a · 0r + (b · 0r + c) ≡ c
-            helper = solve 𝓡
+            helper _ _ _ = solve! 𝓡
     ⋆TakeTransMat t (suc (suc i)) zero =
       (helper (N zero zero) (N one  zero) _ ∙ ∑Mulr0 (λ j → 𝟙 i j)) t
       where helper : (a b c : R) → 0r · a + (0r · b + c) ≡ c
-            helper = solve 𝓡
+            helper _ _ _ = solve! 𝓡
     ⋆TakeTransMat t (suc (suc i)) one  =
       (helper (N zero one ) (N one  one ) _ ∙ ∑Mulr0 (λ j → 𝟙 i j)) t
       where helper : (a b c : R) → 0r · a + (0r · b + c) ≡ c
-            helper = solve 𝓡
+            helper _ _ _ = solve! 𝓡
     ⋆TakeTransMat t (suc (suc i)) (suc (suc j)) =
         (helper _
       ∙ (λ t → ⋆lUnit 𝟙 t i j)) t
       where helper : (c : R) → 0r · 0r + (0r · 0r + c) ≡ c
-            helper = solve 𝓡
+            helper _ = solve! 𝓡
 
   module _
     (T₀ : Mat 2 (suc n) → Mat 2 (suc n))
@@ -378,7 +378,7 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
         ∙ (λ t → P zero zero · M zero j + (P zero one · M one j
                + ∑Mul0r (λ i → M (suc (suc i)) j) (~ t)))) t
         where helper : (a b : R) → a + b ≡ a + (b + 0r)
-              helper = solve 𝓡
+              helper _ _ = solve! 𝓡
       takeTransEquiv t one  j =
         ((λ t → isLinear2×2T₀ .transEq (takeRows M) t one  j)
         ∙ mul2 P (takeRows M) _ _
@@ -386,12 +386,12 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
         ∙ (λ t → P one  zero · M zero j + (P one  one · M one j
                + ∑Mul0r (λ i → M (suc (suc i)) j) (~ t)))) t
         where helper : (a b : R) → a + b ≡ a + (b + 0r)
-              helper = solve 𝓡
+              helper _ _ = solve! 𝓡
       takeTransEquiv t (suc (suc i)) j =
         ((λ t → ⋆lUnit (λ i j → M (suc (suc i)) j) (~ t) i j)
         ∙ helper (M zero j) (M one  j) _) t
         where helper : (a b c : R) → c ≡ 0r · a + (0r · b + c)
-              helper = solve 𝓡
+              helper _ _ _ = solve! 𝓡
 
     isLinearTakeRowsTrans : isLinear (takeTrans {m = m} T₀)
     isLinearTakeRowsTrans .transMat M = takeTransMat _
@@ -430,43 +430,43 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
     (M N : Mat (suc m) (suc m)) where
 
     ⋆CombTransMat : combTransMat M ⋆ combTransMat N ≡ combTransMat (M ⋆ N)
-    ⋆CombTransMat t zero zero =
+    ⋆CombTransMat t zero zero  =
       helper (M zero zero · N zero zero) (∑ (λ l → M zero (suc l) · N (suc l) zero)) t
       where helper : (a c : R) → a + (0r · 0r + c) ≡ a + c
-            helper = solve 𝓡
+            helper _ _  = solve! 𝓡
     ⋆CombTransMat t zero one  =
       (helper (M zero zero) _ ∙ ∑Mulr0 (λ j → M zero (suc j))) t
       where helper : (a c : R) → a · 0r + (0r · 1r + c) ≡ c
-            helper = solve 𝓡
+            helper _ _ = solve! 𝓡
     ⋆CombTransMat t one  zero =
       (helper (N zero zero) _ ∙ ∑Mul0r (λ i → N (suc i) zero)) t
       where helper : (a c : R) → 0r · a + (1r · 0r + c) ≡ c
-            helper = solve 𝓡
+            helper _ _ = solve! 𝓡
     ⋆CombTransMat t one  one  =
       ((λ t → 0r · 0r + (1r · 1r + ∑Mul0r {n = m} (λ i → 0r) t))
       ∙ helper) t
       where helper : 0r · 0r + (1r · 1r + 0r) ≡ 1r
-            helper = solve 𝓡
+            helper = solve! 𝓡
     ⋆CombTransMat t zero (suc (suc j)) =
       helper (M zero zero · N zero (suc j)) (∑ (λ l → M zero (suc l) · N (suc l) (suc j))) t
       where helper : (a c : R) → a + (0r · 0r + c) ≡ a + c
-            helper = solve 𝓡
+            helper _ _ = solve! 𝓡
     ⋆CombTransMat t one  (suc (suc j)) =
       (helper (N zero (suc j)) _ ∙ ∑Mul0r (λ i → N (suc i) (suc j))) t
       where helper : (a c : R) → 0r · a + (1r · 0r + c) ≡ c
-            helper = solve 𝓡
+            helper _ _ = solve! 𝓡
     ⋆CombTransMat t (suc (suc i)) zero =
       helper (M (suc i) zero · N zero zero) (∑ (λ l → M (suc i) (suc l) · N (suc l) zero)) t
       where helper : (a c : R) → a + (0r · 0r + c) ≡ a + c
-            helper = solve 𝓡
+            helper _ _ = solve! 𝓡
     ⋆CombTransMat t (suc (suc i)) one  =
       (helper (M (suc i) zero) _ ∙ ∑Mulr0 (λ j → M (suc i) (suc j))) t
       where helper : (a c : R) → a · 0r + (0r · 1r + c) ≡ c
-            helper = solve 𝓡
+            helper _ _ = solve! 𝓡
     ⋆CombTransMat t (suc (suc i)) (suc (suc j)) =
       helper (M (suc i) zero · N zero (suc j)) (∑ (λ l → M (suc i) (suc l) · N (suc l) (suc j))) t
       where helper : (a c : R) → a + (0r · 0r + c) ≡ a + c
-            helper = solve 𝓡
+            helper _ _ = solve! 𝓡
 
   module _
     (T₁ : Mat (suc m) (suc n) → Mat (suc m) (suc n))
@@ -483,18 +483,18 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
         ((λ t → isLinearT₁ .transEq (takeRowsᶜ M) t zero j)
         ∙ helper _ (M one j) _) t
         where helper : (a b c : R) → a + c ≡ a + (0r · b + c)
-              helper = solve 𝓡
+              helper _ _ _ = solve! 𝓡
       combTransEquiv t one  j =
           (helper _ _
         ∙ (λ t → 0r · M zero j + (1r · M one j
                + ∑Mul0r (λ i → M (suc (suc i)) j) (~ t)))) t
         where helper : (a b : R) → b ≡ 0r · a + (1r · b + 0r)
-              helper = solve 𝓡
+              helper _ _ = solve! 𝓡
       combTransEquiv t (suc (suc i)) j =
         ((λ t → isLinearT₁ .transEq (takeRowsᶜ M) t (suc i) j)
         ∙ helper _ (M one j) _) t
         where helper : (a b c : R) → a + c ≡ a + (0r · b + c)
-              helper = solve 𝓡
+              helper _ _ _ = solve! 𝓡
 
     isLinearCombRowsTrans : isLinear (combTrans T₁)
     isLinearCombRowsTrans .transMat M = combTransMat _
@@ -605,27 +605,15 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
     (a b c : R) where
 
     ·DiagSetˡ : (i₀ : Fin m)(i : Fin m) → a · δ i₀ i + diagSet i₀ b i i₀ · c ≡ (a + (b · c + 0r)) · δ i₀ i
-    ·DiagSetˡ {m = suc m} zero     zero    = helper _ _ _
-      where helper : (a b c : R) → a · 1r + b · c ≡ (a + (b · c + 0r)) · 1r
-            helper = solve 𝓡
-    ·DiagSetˡ {m = suc m} (suc i₀) zero    = helper _ _ _
-      where helper : (a b c : R) → a · 0r + 0r · c ≡ (a + (b · c + 0r)) · 0r
-            helper = solve 𝓡
-    ·DiagSetˡ {m = suc m} zero     (suc j) = helper _ _ _
-      where helper : (a b c : R) → a · 0r + 0r · c ≡ (a + (b · c + 0r)) · 0r
-            helper = solve 𝓡
+    ·DiagSetˡ {m = suc m} zero     zero    = solve! 𝓡
+    ·DiagSetˡ {m = suc m} (suc i₀) zero    = solve! 𝓡
+    ·DiagSetˡ {m = suc m} zero     (suc j) = solve! 𝓡
     ·DiagSetˡ {m = suc m} (suc i₀) (suc j) = ·DiagSetˡ i₀ j
 
     ·DiagSetʳ : (i₀ : Fin m)(i : Fin m) → a · δ i₀ i + b · diagSet i₀ c i₀ i ≡ (a + (b · c + 0r)) · δ i₀ i
-    ·DiagSetʳ {m = suc m} zero     zero    = helper _ _ _
-      where helper : (a b c : R) → a · 1r + b · c ≡ (a + (b · c + 0r)) · 1r
-            helper = solve 𝓡
-    ·DiagSetʳ {m = suc m} (suc i₀) zero    = helper _ _ _
-      where helper : (a b c : R) → a · 0r + b · 0r ≡ (a + (b · c + 0r)) · 0r
-            helper = solve 𝓡
-    ·DiagSetʳ {m = suc m} zero     (suc j) = helper _ _ _
-      where helper : (a b c : R) → a · 0r + b · 0r ≡ (a + (b · c + 0r)) · 0r
-            helper = solve 𝓡
+    ·DiagSetʳ {m = suc m} zero     zero    = solve! 𝓡
+    ·DiagSetʳ {m = suc m} (suc i₀) zero    = solve! 𝓡
+    ·DiagSetʳ {m = suc m} zero     (suc j) = solve! 𝓡
     ·DiagSetʳ {m = suc m} (suc i₀) (suc j) = ·DiagSetʳ i₀ j
 
   module _
@@ -635,35 +623,35 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
     ⋆DiagSet {m = suc m} zero t zero    zero    =
       ((λ t → a · b + ∑Mul0r {n = m} (λ i → 0r) t) ∙ helper _) t
       where helper : (a : R) → a + 0r ≡ a
-            helper = solve 𝓡
+            helper _ = solve! 𝓡
     ⋆DiagSet {m = suc m} zero t (suc i) zero    =
       ((λ t → 0r · b + ∑Mulr0 (λ j → diagSet zero a (suc i) (suc j)) t) ∙ helper _) t
       where helper : (b : R) → 0r · b + 0r ≡ 0r
-            helper = solve 𝓡
+            helper _ = solve! 𝓡
     ⋆DiagSet {m = suc m} zero t zero    (suc j) =
       ((λ t → a · 0r + ∑Mul0r (λ i → diagSet zero b (suc i) (suc j)) t) ∙ helper _) t
       where helper : (a : R) → a · 0r + 0r ≡ 0r
-            helper = solve 𝓡
+            helper _ = solve! 𝓡
     ⋆DiagSet {m = suc m} zero t (suc i) (suc j) =
       ((λ t → 0r · 0r + ∑Mulr1 _ (λ l → δ i l) j t) ∙ helper _) t
       where helper : (d : R) → 0r · 0r + d ≡ d
-            helper = solve 𝓡
+            helper _ = solve! 𝓡
     ⋆DiagSet {m = suc m} (suc i₀) t zero    zero    =
       ((λ t → 1r · 1r + ∑Mul0r {n = m} (λ i → 0r) t) ∙ helper) t
       where helper : 1r · 1r + 0r ≡ 1r
-            helper = solve 𝓡
+            helper = solve! 𝓡
     ⋆DiagSet {m = suc m} (suc i₀) t (suc i) zero    =
       ((λ t → 0r · 1r + ∑Mulr0 (λ j → diagSet (suc i₀) a (suc i) (suc j)) t) ∙ helper) t
       where helper : 0r · 1r + 0r ≡ 0r
-            helper = solve 𝓡
+            helper = solve! 𝓡
     ⋆DiagSet {m = suc m} (suc i₀) t zero    (suc j) =
       ((λ t → 1r · 0r + ∑Mul0r (λ i → diagSet (suc i₀) b (suc i) (suc j)) t) ∙ helper) t
       where helper : 1r · 0r + 0r ≡ 0r
-            helper = solve 𝓡
+            helper = solve! 𝓡
     ⋆DiagSet {m = suc m} (suc i₀) t (suc i) (suc j) =
       ((λ t → 0r · 0r + ⋆DiagSet i₀ t i j) ∙ helper _) t
       where helper : (a : R) → 0r · 0r + a ≡ a
-            helper = solve 𝓡
+            helper _ = solve! 𝓡
 
   module _
     (a b c : R) where
@@ -671,27 +659,13 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
     +DiagSet :
         (i₀ i j : Fin m)
       → (a · δ i₀ i) · (b · δ i₀ j) + diagSet i₀ c i j ≡ diagSet i₀ (a · b + (c + 0r)) i j
-    +DiagSet {m = suc m} zero zero    zero    = helper _ _ _
-      where helper : (a b c : R) → (a · 1r) · (b · 1r) + c ≡ a · b + (c + 0r)
-            helper = solve 𝓡
-    +DiagSet {m = suc m} zero (suc i) zero    = helper _ _
-      where helper : (a b : R) → (a · 0r) · (b · 1r) + 0r ≡ 0r
-            helper = solve 𝓡
-    +DiagSet {m = suc m} zero zero    (suc j) = helper _ _
-      where helper : (a b : R) → (a · 1r) · (b · 0r) + 0r ≡ 0r
-            helper = solve 𝓡
-    +DiagSet {m = suc m} zero (suc i) (suc j) = helper _ _ _
-      where helper : (a b d : R) → (a · 0r) · (b · 0r) + d ≡ d
-            helper = solve 𝓡
-    +DiagSet {m = suc m} (suc i₀) zero    zero    = helper _ _
-      where helper : (a b : R) → (a · 0r) · (b · 0r) + 1r ≡ 1r
-            helper = solve 𝓡
-    +DiagSet {m = suc m} (suc i₀) (suc i) zero    = helper _ _
-      where helper : (a b : R) → a · (b · 0r) + 0r ≡ 0r
-            helper = solve 𝓡
-    +DiagSet {m = suc m} (suc i₀) zero    (suc j) = helper _ _
-      where helper : (a b : R) → (a · 0r) · b + 0r ≡ 0r
-            helper = solve 𝓡
+    +DiagSet {m = suc m} zero zero    zero        = solve! 𝓡
+    +DiagSet {m = suc m} zero (suc i) zero        = solve! 𝓡
+    +DiagSet {m = suc m} zero zero    (suc j)     = solve! 𝓡
+    +DiagSet {m = suc m} zero (suc i) (suc j)     = solve! 𝓡
+    +DiagSet {m = suc m} (suc i₀) zero    zero    = solve! 𝓡
+    +DiagSet {m = suc m} (suc i₀) (suc i) zero    = solve! 𝓡
+    +DiagSet {m = suc m} (suc i₀) zero    (suc j) = solve! 𝓡
     +DiagSet {m = suc m} (suc i₀) (suc i) (suc j) = +DiagSet i₀ i j
 
   module _
@@ -723,7 +697,7 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
         ∙ (λ t → x + diagδ i₀ i₀ refl t · (a · b))
         ∙ (λ t → x + ·IdL (a · b) t)
         where helper : (a b x y : R) → (a · x) · (b · y) ≡ x · (y · (a · b))
-              helper = solve 𝓡
+              helper _ _ _ _ = solve! 𝓡
 
       ∑helper10 :
           (a b c : R)(K : Mat m m)(i : Fin m)
@@ -732,9 +706,9 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
           (λ t → helper1 a b (δ i₀ i) t + ∑ (λ l → helper2 (K i l) c (δ i₀ l) t))
         ∙ (λ t → (a · b) · δ i₀ i + ∑Mul1r _ (λ l → K i l · c) i₀ t)
         where helper1 : (a b c : R) → (a · c) · b ≡ (a · b) · c
-              helper1 = solve 𝓡
+              helper1 _ _ _ = solve! 𝓡
               helper2 : (a b c : R) → a · (b · c) ≡ c · (a · b)
-              helper2 = solve 𝓡
+              helper2 _ _ _ = solve! 𝓡
 
       ∑helper01 :
           (a b c : R)(K : Mat m m)(i : Fin m)
@@ -743,9 +717,9 @@ module LinearTransformation (𝓡 : CommRing ℓ) where
           (λ t → helper1 a b (δ i₀ i) t + ∑ (λ l → helper2 c (K l i) (δ i₀ l) t))
         ∙ (λ t → (a · b) · δ i₀ i + ∑Mul1r _ (λ l → c · K l i) i₀ t)
         where helper1 : (a b c : R) → a · (b · c) ≡ (a · b) · c
-              helper1 = solve 𝓡
+              helper1 _ _ _ = solve! 𝓡
               helper2 : (a b c : R) → (a · c) · b ≡ c · (a · b)
-              helper2 = solve 𝓡
+              helper2 _ _ _ = solve! 𝓡
 
     ⋆Trans2RowsMat : trans2RowsMat M i₀ ⋆ trans2RowsMat N i₀ ≡ trans2RowsMat (M ⋆ N) i₀
     ⋆Trans2RowsMat t zero    zero    =

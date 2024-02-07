@@ -29,7 +29,7 @@ open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -79,21 +79,13 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
    ((u · v · s') , SMultClosedSubset .multClosed (SMultClosedSubset .multClosed u∈S' v∈S') s'∈S')
    , path
   where
-  eq1 : (r s r' s' r'' s'' u v : R) → u · v · s' · r · s'' ≡ u · r · s' · v · s''
-  eq1 = solve R'
-
-  eq2 : (r s r' s' r'' s'' u v : R) → u · r' · s · v · s'' ≡ u · s · (v · r' · s'')
-  eq2 = solve R'
-
-  eq3 : (r s r' s' r'' s'' u v : R) → u · s · (v · r'' · s') ≡ u · v · s' · r'' · s
-  eq3 = solve R'
 
   path : u · v · s' · r · s'' ≡ u · v · s' · r'' · s
-  path = u · v · s' · r · s''   ≡⟨ eq1 r s r' s' r'' s'' u v ⟩ -- not just ≡⟨ solve R' ⟩
+  path = u · v · s' · r · s''   ≡⟨ solve! R' ⟩
          u · r · s' · v · s''   ≡⟨ cong (λ x → x · v · s'') p ⟩
-         u · r' · s · v · s''   ≡⟨ eq2 r s r' s' r'' s'' u v ⟩
+         u · r' · s · v · s''   ≡⟨ solve! R' ⟩
          u · s · (v · r' · s'') ≡⟨ cong (u · s ·_) q ⟩
-         u · s · (v · r'' · s') ≡⟨ eq3 r s r' s' r'' s'' u v ⟩
+         u · s · (v · r'' · s') ≡⟨ solve! R' ⟩
          u · v · s' · r'' · s   ∎
 
  locIsEquivRel : isEquivRel _≈_
@@ -116,19 +108,11 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
   θ : (a a' b : R × S) → a ≈ a' → (a +ₚ b) ≈ (a' +ₚ b)
   θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) ((s , s∈S) , p) = (s , s∈S) , path
     where
-    eq1 : (r₁ s₁ r'₁ s'₁ s'₁ r₂ s₂ s : R)
-        → s · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s₂) ≡ s · r₁ · s'₁ · s₂ · s₂ + s · r₂ · s₁ · s'₁ · s₂
-    eq1 = solve R'
-
-    eq2 : (r₁ s₁ r'₁ s'₁ s'₁ r₂ s₂ s : R)
-        → s · r'₁ · s₁ · s₂ · s₂ + s · r₂ · s₁ · s'₁ · s₂ ≡ s · (r'₁ · s₂ + r₂ · s'₁) · (s₁ · s₂)
-    eq2 = solve R'
-
 
     path : s · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s₂) ≡ s · (r'₁ · s₂ + r₂ · s'₁) · (s₁ · s₂)
     path = s · (r₁ · s₂ + r₂ · s₁) · (s'₁ · s₂)
 
-         ≡⟨ eq1 r₁ s₁ r'₁ s'₁ s'₁ r₂ s₂ s ⟩
+         ≡⟨ solve! R' ⟩
 
            s · r₁ · s'₁ · s₂ · s₂ + s · r₂ · s₁ · s'₁ · s₂
 
@@ -136,7 +120,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
 
            s · r'₁ · s₁ · s₂ · s₂ + s · r₂ · s₁ · s'₁ · s₂
 
-         ≡⟨ eq2 r₁ s₁ r'₁ s'₁ s'₁ r₂ s₂ s ⟩
+         ≡⟨ solve! R' ⟩
 
            s · (r'₁ · s₂ + r₂ · s'₁) · (s₁ · s₂) ∎
 
@@ -147,11 +131,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
   where
   +ₗ-assoc[] : (a b c : R × S) → [ a ] +ₗ ([ b ] +ₗ [ c ]) ≡ ([ a ] +ₗ [ b ]) +ₗ [ c ]
   +ₗ-assoc[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) =
-     cong [_] (ΣPathP ((path r s r' s' r'' s'') , Σ≡Prop (λ x → ∈-isProp S' x) (·Assoc _ _ _)))
-     where
-     path : (r s r' s' r'' s'' : R)
-          → r · (s' · s'') + (r' · s'' + r'' · s') · s ≡ (r · s' + r' · s) · s'' + r'' · (s · s')
-     path = solve R'
+     cong [_] (ΣPathP ((solve! R') , Σ≡Prop (λ x → ∈-isProp S' x) (·Assoc _ _ _)))
 
  0ₗ : S⁻¹R
  0ₗ = [ 0r , 1r , SMultClosedSubset .containsOne ]
@@ -162,13 +142,10 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
   +ₗ-rid[] : (a : R × S) → [ a ] +ₗ 0ₗ ≡ [ a ]
   +ₗ-rid[] (r , s , s∈S) = path
    where
-   eq1 : (r s : R) → r · 1r + 0r · s ≡ r
-   eq1 = solve R'
-
    path : [ r · 1r + 0r · s , s · 1r , SMultClosedSubset .multClosed s∈S
                                       (SMultClosedSubset .containsOne) ]
         ≡ [ r , s , s∈S ]
-   path = cong [_] (ΣPathP (eq1 r s , Σ≡Prop (λ x → ∈-isProp S' x) (·IdR _)))
+   path = cong [_] (ΣPathP (solve! R' , Σ≡Prop (λ x → ∈-isProp S' x) (·IdR _)))
 
  -ₗ_ : S⁻¹R → S⁻¹R
  -ₗ_ = SQ.rec squash/ -ₗ[] -ₗWellDef
@@ -179,23 +156,14 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
   -ₗWellDef : (a b : R × S) → a ≈ b → -ₗ[] a ≡ -ₗ[] b
   -ₗWellDef (r , s , _) (r' , s' , _) ((u , u∈S) , p) = eq/ _ _ ((u , u∈S) , path)
    where
-   eq1 : (u r s' : R) → u · - r · s' ≡ - (u · r · s')
-   eq1 = solve R'
-
-   eq2 : (u r' s : R) → - (u · r' · s) ≡ u · - r' · s
-   eq2 = solve R'
-
    path : u · - r · s' ≡ u · - r' · s
-   path = eq1 u r s' ∙∙ cong -_ p ∙∙ eq2 u r' s
+   path = (solve! R') ∙∙ cong -_ p ∙∙ (solve! R')
 
  +ₗ-rinv : (x : S⁻¹R) → x +ₗ (-ₗ x) ≡ 0ₗ
  +ₗ-rinv = SQ.elimProp (λ _ → squash/ _ _) +ₗ-rinv[]
   where
   +ₗ-rinv[] : (a : R × S) → ([ a ] +ₗ (-ₗ [ a ])) ≡ 0ₗ
-  +ₗ-rinv[] (r , s , s∈S) = eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path r s)
-   where
-   path : (r s : R) → 1r · (r · s + - r · s) · 1r ≡ 1r · 0r · (s · s)
-   path = solve R'
+  +ₗ-rinv[] (r , s , s∈S) = eq/ _ _ ((1r , SMultClosedSubset .containsOne) , solve! R')
 
  +ₗ-comm : (x y : S⁻¹R) → x +ₗ y ≡ y +ₗ x
  +ₗ-comm = SQ.elimProp2 (λ _ _ → squash/ _ _) +ₗ-comm[]
@@ -221,16 +189,8 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
   θ : (a a' b : R × S) → a ≈ a' → (a ·ₚ b) ≈ (a' ·ₚ b)
   θ (r₁ , s₁ , s₁∈S) (r'₁ , s'₁ , s'₁∈S) (r₂ , s₂ , s₂∈S) ((s , s∈S) , p) = (s , s∈S) , path
    where
-   eq1 : (r₁ s₁ r'₁ s'₁ r₂ s₂ s : R)
-       → s · (r₁ · r₂) · (s'₁ · s₂) ≡ s · r₁ · s'₁ · r₂ · s₂
-   eq1 = solve R'
-
-   eq2 : (r₁ s₁ r'₁ s'₁ r₂ s₂ s : R)
-       → s · r'₁ · s₁ · r₂ · s₂ ≡ s · (r'₁ · r₂) · (s₁ · s₂)
-   eq2 = solve R'
-
    path : s · (r₁ · r₂) · (s'₁ · s₂) ≡ s · (r'₁ · r₂) · (s₁ · s₂)
-   path = eq1 r₁ s₁ r'₁ s'₁ r₂ s₂ s ∙∙ cong (λ x → x · r₂ · s₂) p ∙∙ eq2 r₁ s₁ r'₁ s'₁ r₂ s₂ s
+   path = solve! R' ∙∙ cong (λ x → x · r₂ · s₂) p ∙∙ solve! R'
 
 
  -- checking laws for multiplication
@@ -256,13 +216,7 @@ module Loc (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultCl
    where
    ·ₗ-rdist-+ₗ[] : (a b c : R × S) → [ a ] ·ₗ ([ b ] +ₗ [ c ]) ≡ ([ a ] ·ₗ [ b ]) +ₗ ([ a ] ·ₗ [ c ])
    ·ₗ-rdist-+ₗ[] (r , s , s∈S) (r' , s' , s'∈S) (r'' , s'' , s''∈S) =
-      eq/ _ _ ((1r , (SMultClosedSubset .containsOne)) , path r s r' s' r'' s'')
-      where
-      -- could be shortened even further
-      path : (r s r' s' r'' s'' : R)
-           → 1r · (r · (r' · s'' + r'' · s')) · (s · s' · (s · s''))
-           ≡ 1r · (r · r' · (s · s'') + r · r'' · (s · s')) · (s · (s' · s''))
-      path = solve R'
+      eq/ _ _ ((1r , (SMultClosedSubset .containsOne)) , solve! R')
 
  ·ₗ-comm : (x y : S⁻¹R) → x ·ₗ y ≡ y ·ₗ x
  ·ₗ-comm = SQ.elimProp2 (λ _ _ → squash/ _ _) ·ₗ-comm[]

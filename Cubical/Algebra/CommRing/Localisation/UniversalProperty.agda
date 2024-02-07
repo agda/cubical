@@ -32,7 +32,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary
 
 open import Cubical.Algebra.Ring
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation.Base
 
@@ -84,10 +84,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
 
   S⁻¹Rˣ = S⁻¹RAsCommRing ˣ
   S/1⊆S⁻¹Rˣ : ∀ s → s ∈ S' → (s /1) ∈ S⁻¹Rˣ
-  S/1⊆S⁻¹Rˣ s s∈S' = [ 1r , s , s∈S' ] , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path s)
-   where
-   path : ∀ s → 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r  · s)
-   path = solve R'
+  S/1⊆S⁻¹Rˣ s s∈S' = [ 1r , s , s∈S' ] , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , solve! R')
 
   S⁻¹RHasUniversalProp : hasLocUniversalProp S⁻¹RAsCommRing /1AsCommRingHom S/1⊆S⁻¹Rˣ
   S⁻¹RHasUniversalProp B' ψ ψS⊆Bˣ = (χ , funExt χcomp) , χunique
@@ -313,10 +310,7 @@ module _ (R' : CommRing ℓ) (S' : ℙ (fst R')) (SMultClosedSubset : isMultClos
 
      s-inv : ⦃ s/1∈S⁻¹Rˣ : s /1 ∈ S⁻¹Rˣ ⦄ → s /1 ⁻¹ˡ ≡ [ 1r , s , s∈S' ]
      s-inv ⦃ s/1∈S⁻¹Rˣ ⦄ = PathPΣ (S⁻¹RInverseUniqueness (s /1) s/1∈S⁻¹Rˣ
-                           (_ , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , path s))) .fst
-      where
-      path : ∀ s → 1r · (s · 1r) · 1r ≡ 1r · 1r · (1r · s)
-      path = solve R'
+                           (_ , eq/ _ _ ((1r , SMultClosedSubset .containsOne) , solve! R'))) .fst
 
      ·ₗ-path : [ r , s , s∈S' ] ≡   [ r , 1r , SMultClosedSubset .containsOne ]
                                  ·ₗ [ 1r , s , s∈S' ]

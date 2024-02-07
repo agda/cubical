@@ -46,7 +46,7 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 
 
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -84,10 +84,7 @@ module InvertingElementsBase (R' : CommRing ℓ) where
  isContrR[1/0] : isContr R[1/ 0r ]
  fst isContrR[1/0] = [ 1r , 0r , ∣ 1 , sym (·IdR 0r) ∣₁ ] -- everything is equal to 1/0
  snd isContrR[1/0] = elimProp (λ _ → squash/ _ _)
-                               λ _ → eq/ _ _ ((0r , ∣ 1 , sym (·IdR 0r) ∣₁) , useSolver _ _)
-  where
-  useSolver : ∀ s r → 0r · 1r · s ≡ 0r · r · 0r
-  useSolver = solve R'
+                               λ _ → eq/ _ _ ((0r , ∣ 1 , sym (·IdR 0r) ∣₁) , (solve! R'))
 
  R[1/_]AsCommRing : R → CommRing ℓ
  R[1/ f ]AsCommRing = Loc.S⁻¹RAsCommRing R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f)
@@ -160,29 +157,21 @@ module InvertingElementsBase (R' : CommRing ℓ) where
       p : x' ≡ x
       p = eq/ _ _ ((1r , ∣ 0 , refl ∣₁) , path)
        where
-       useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
-       useSolver1 = solve R'
-       useSolver2 : ∀ a b → a · b ≡ 1r · a · b
-       useSolver2 = solve R'
        path : 1r · (r · f ^ (l ∸ n)) · f ^ n ≡ 1r · r · f ^ l
-       path = 1r · (r · f ^ (l ∸ n)) · f ^ n ≡⟨ useSolver1 _ _ _ ⟩
+       path = 1r · (r · f ^ (l ∸ n)) · f ^ n ≡⟨ solve! R' ⟩
               r · (f ^ (l ∸ n) · f ^ n)      ≡⟨ cong (r ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
               r · f ^ (l ∸ n +ℕ n)           ≡⟨ cong (λ k → r · f ^ k) (≤-∸-+-cancel right-≤-max) ⟩
-              r · f ^ l                      ≡⟨ useSolver2 _ _ ⟩
+              r · f ^ l                      ≡⟨ solve! R' ⟩
               1r · r · f ^ l ∎
 
       q : y' ≡ y
       q = eq/ _ _ ((1r , ∣ 0 , refl ∣₁) , path)
        where
-       useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
-       useSolver1 = solve R'
-       useSolver2 : ∀ a b → a · b ≡ 1r · a · b
-       useSolver2 = solve R'
        path : 1r · (s · g ^ (l ∸ m)) · g ^ m ≡ 1r · s · g ^ l
-       path = 1r · (s · g ^ (l ∸ m)) · g ^ m ≡⟨ useSolver1 _ _ _ ⟩
+       path = 1r · (s · g ^ (l ∸ m)) · g ^ m ≡⟨ solve! R' ⟩
               s · (g ^ (l ∸ m) · g ^ m)      ≡⟨ cong (s ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
               s · g ^ (l ∸ m +ℕ m)           ≡⟨ cong (λ k → s · g ^ k) (≤-∸-+-cancel left-≤-max) ⟩
-              s · g ^ l                      ≡⟨ useSolver2 _ _ ⟩
+              s · g ^ l                      ≡⟨ solve! R' ⟩
               1r · s · g ^ l ∎
 
 
@@ -235,36 +224,28 @@ module InvertingElementsBase (R' : CommRing ℓ) where
       vecPaths : ∀ i → newBaseVec i ≡ oldBaseVec i
       vecPaths zero = eq/ _ _ ((1r , ∣ 0 , refl ∣₁) , path)
         where
-        useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
-        useSolver1 = solve R'
-        useSolver2 : ∀ a b → a · b ≡ 1r · a · b
-        useSolver2 = solve R'
         path : 1r · (r₀ · f zero ^ (l ∸ k)) · f zero ^ k ≡ 1r · r₀ · f zero ^ l
         path = 1r · (r₀ · f zero ^ (l ∸ k)) · f zero ^ k
-             ≡⟨ useSolver1 _ _ _ ⟩
+             ≡⟨ solve! R' ⟩
                r₀ · (f zero ^ (l ∸ k) · f zero ^ k)
              ≡⟨ cong (r₀ ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
                r₀ · f zero ^ (l ∸ k +ℕ k)
              ≡⟨ cong (λ k' → r₀ · f zero ^ k') (≤-∸-+-cancel right-≤-max) ⟩
                r₀ · f zero ^ l
-             ≡⟨ useSolver2 _ _ ⟩
+             ≡⟨ solve! R' ⟩
                1r · r₀ · f zero ^ l ∎
 
       vecPaths (suc i) = eq/ _ _ ((1r , ∣ 0 , refl ∣₁) , path)
         where
-        useSolver1 : ∀ a b c → 1r · (a · b) · c ≡ a · (b · c)
-        useSolver1 = solve R'
-        useSolver2 : ∀ a b → a · b ≡ 1r · a · b
-        useSolver2 = solve R'
         path : 1r · (rₛ i · f (suc i) ^ (l ∸ m)) · f (suc i) ^ m ≡ 1r · rₛ i · f (suc i) ^ l
         path = 1r · (rₛ i · f (suc i) ^ (l ∸ m)) · f (suc i) ^ m
-             ≡⟨ useSolver1 _ _ _ ⟩
+             ≡⟨ solve! R' ⟩
                rₛ i · (f (suc i) ^ (l ∸ m) · f (suc i) ^ m)
              ≡⟨ cong (rₛ i ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
                rₛ i · f (suc i) ^ (l ∸ m +ℕ m)
              ≡⟨ cong (λ m' → rₛ i · f (suc i) ^ m') (≤-∸-+-cancel left-≤-max) ⟩
                rₛ i · f (suc i) ^ l
-             ≡⟨ useSolver2 _ _ ⟩
+             ≡⟨ solve! R' ⟩
                1r · rₛ i · f (suc i) ^ l ∎
 
 
@@ -366,13 +347,7 @@ module RadicalLemma (R' : CommRing ℓ) (f g : (fst R')) where
   ℕhelper n = PT.rec isPropGoal -- fⁿ≡αg → g⁻¹≡α/fⁿ
        λ (α , p) → [ (α zero) , (f ^ n) , ∣ n , refl ∣₁ ]
                  , eq/ _ _ ((1r , powersFormMultClosedSubset f .containsOne)
-                 , useSolver1 _ _ ∙ sym p ∙ useSolver2 _)
-   where
-   useSolver1 : ∀ x y → 1r · (x · y) · 1r ≡  y · x + 0r
-   useSolver1 = solve R'
-
-   useSolver2 : ∀ x → x ≡ 1r · 1r · (1r · x)
-   useSolver2 = solve R'
+                 , (solve! R') ∙ sym p ∙ (solve! R'))
 
  toUnit : f ∈ᵢ √ ⟨ g ⟩
        → ∀ s → s ∈ [ g ⁿ|n≥0] → (s /1) ∈ R[1/ f ]AsCommRing ˣ
@@ -445,17 +420,11 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
             , eq/ _ _ ((1ᶠ , powersFormMultClosedSubset _ _ .containsOne)
             , eq/ _ _ ((1r , powersFormMultClosedSubset _ _ .containsOne) , path))
    where
-   eq1 : ∀ x → 1r · (1r · (x · 1r) · 1r) · (1r · 1r · (1r · 1r)) ≡ x
-   eq1 = solve R'
-
-   eq2 : ∀ x y → x · y ≡ 1r · (1r · 1r · (1r · y)) · (1r · (1r · x) · 1r)
-   eq2 = solve R'
-
    path : 1r · (1r · ((f · g) ^ n · 1r) · 1r) · (1r · 1r · (1r · 1r))
         ≡ 1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r)
-   path = 1r · (1r · ((f · g) ^ n · 1r) · 1r) · (1r · 1r · (1r · 1r)) ≡⟨ eq1 ((f · g) ^ n) ⟩
+   path = 1r · (1r · ((f · g) ^ n · 1r) · 1r) · (1r · 1r · (1r · 1r)) ≡⟨ solve! R' ⟩
           (f · g) ^ n                                                 ≡⟨ ^-ldist-· _ _ _ ⟩
-          f ^ n · g ^ n                                               ≡⟨ eq2 (f ^ n) (g ^ n) ⟩
+          f ^ n · g ^ n                                               ≡⟨ solve! R' ⟩
           1r · (1r · 1r · (1r · g ^ n)) · (1r · (1r · f ^ n) · 1r)    ∎
 
 
@@ -607,24 +576,13 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
               , eq/ _ _ ((1ᶠ , PT.∣ 0 , refl ∣₁) , eq/ _ _ ((1r , PT.∣ 0 , refl ∣₁) , path)) ∣₁
               -- reduce equality of double fractions into equality in R
    where
-   eq1 : ∀ r flm gln gn fm
-       → 1r · (1r · (r · flm · gln) · (gn · 1r)) · (1r · (fm · 1r) · 1r)
-       ≡ r · flm · (gln · gn) · fm
-   eq1 = solve R'
-
-   eq2 : ∀ r flm gl fm → r · flm · gl · fm ≡  r · (flm · fm ) · gl
-   eq2 = solve R'
-
-   eq3 : ∀ r fgl → r · fgl ≡ 1r · (1r · (r · fgl) · 1r) · (1r · 1r · (1r · 1r))
-   eq3 = solve R'
-
    l = max m n
 
    path : 1r · (1r · (r · f ^ (l ∸ m) · g ^ (l ∸ n)) · (g ^ n · 1r)) · (1r · (f ^ m · 1r) · 1r)
         ≡ 1r · (1r · (r · (f · g) ^ l) · 1r) · (1r · 1r · (1r · 1r))
    path = 1r · (1r · (r · f ^ (l ∸ m) · g ^ (l ∸ n)) · (g ^ n · 1r)) · (1r · (f ^ m · 1r) · 1r)
 
-        ≡⟨ eq1 r  (f ^ (l ∸ m)) (g ^ (l ∸ n)) (g ^ n) (f ^ m) ⟩
+        ≡⟨ solve! R' ⟩
 
           r · f ^ (l ∸ m) · (g ^ (l ∸ n) · g ^ n) · f ^ m
 
@@ -636,7 +594,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
 
           r · f ^ (l ∸ m) · g ^ l · f ^ m
 
-        ≡⟨ eq2 r (f ^ (l ∸ m)) (g ^ l) (f ^ m) ⟩
+        ≡⟨ solve! R' ⟩
 
           r · (f ^ (l ∸ m) · f ^ m) · g ^ l
 
@@ -656,7 +614,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
 
           r · (f · g) ^ l
 
-        ≡⟨ eq3 r ((f · g) ^ l) ⟩
+        ≡⟨ solve! R' ⟩
 
           1r · (1r · (r · (f · g) ^ l) · 1r) · (1r · 1r · (1r · 1r)) ∎
 
@@ -722,14 +680,11 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
                                       eq/ _ _ ( (1r , powersFormMultClosedSubset R' f .containsOne)
                                               , path))
        where
-       eq1 : ∀ r gm  fm → 1r · (1r · r · gm) · (1r · fm · 1r) ≡ r · (gm · fm)
-       eq1 = solve R'
-
        path : 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
             ≡ 1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r)
        path = 1r · (1r · r · (g ^ m)) · (1r · (f ^ m) · 1r)
 
-            ≡⟨ eq1 r (g ^ m) (f ^ m) ⟩
+            ≡⟨ solve! R' ⟩
 
               r · (g ^ m · f ^ m)
 
@@ -753,7 +708,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
 
               r · (g ^ n · f ^ n)
 
-            ≡⟨ sym (eq1 r (g ^ n) (f ^ n)) ⟩
+            ≡⟨ solve! R' ⟩
 
               1r · (1r · r · (g ^ n)) · (1r · (f ^ n) · 1r) ∎
 
@@ -771,10 +726,6 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
                 , PT.∣ l , ^-respects-/1 R' l ∣₁)
               , eq/ _ _ ((f ^ l , PT.∣ l , refl ∣₁) , path))
       where
-      eq1 : ∀ fl gl r gm fm
-          → fl · (gl · r · gm) · (1r · fm · 1r) ≡ fl · gl · r · (gm · fm)
-      eq1 = solve R'
-
       path : f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
                    · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
            ≡ f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
@@ -787,7 +738,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
 
              f ^ l · (g ^ l · r · g ^ m) · (1r · f ^ m · 1r)
 
-           ≡⟨ eq1 (f ^ l) (g ^ l) r (g ^ m) (f ^ m) ⟩
+           ≡⟨ solve! R' ⟩
 
              f ^ l · g ^ l · r · (g ^ m · f ^ m)
 
@@ -819,7 +770,7 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
 
              f ^ l · g ^ l · r' · (g ^ n · f ^ n)
 
-           ≡⟨ sym (eq1 (f ^ l) (g ^ l) r' (g ^ n) (f ^ n)) ⟩
+           ≡⟨ solve! R' ⟩
 
              f ^ l · (g ^ l · r' · g ^ n) · (1r · f ^ n · 1r)
 
