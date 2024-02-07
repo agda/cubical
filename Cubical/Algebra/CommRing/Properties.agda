@@ -200,34 +200,6 @@ module CommRingEquivs where
  fst (idCommRingEquiv A) = idEquiv (fst A)
  snd (idCommRingEquiv A) = makeIsRingHom refl (λ _ _ → refl) (λ _ _ → refl)
 
-module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
- open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
- private A = fst A'
- open CommRingStr (snd A') renaming (_·_ to _·A_ ; 1r to 1a)
- open Units B' renaming (Rˣ to Bˣ ; _⁻¹ to _⁻¹ᵇ ; ·-rinv to ·B-rinv)
- open CommRingStr (snd B') renaming  ( _·_ to _·B_ ; 1r to 1b
-                                     ; ·IdL to ·B-lid ; ·IdR to ·B-rid
-                                     ; ·Assoc to ·B-assoc)
-
- private
-   f = fst φ
- open IsRingHom (φ .snd)
-
- RingHomRespInv : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ → f r ∈ Bˣ
- RingHomRespInv r = f (r ⁻¹ᵃ) , (sym (pres· r (r ⁻¹ᵃ)) ∙∙ cong (f) (·A-rinv r) ∙∙ pres1)
-
- φ[x⁻¹]≡φ[x]⁻¹ : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ ⦃ φr∈Bˣ : f r ∈ Bˣ ⦄
-               → f (r ⁻¹ᵃ) ≡ (f r) ⁻¹ᵇ
- φ[x⁻¹]≡φ[x]⁻¹ r ⦃ r∈Aˣ ⦄ ⦃ φr∈Bˣ ⦄ =
-  f (r ⁻¹ᵃ)                         ≡⟨ sym (·B-rid _) ⟩
-  f (r ⁻¹ᵃ) ·B 1b                   ≡⟨ congR _·B_ (sym (·B-rinv _)) ⟩
-  f (r ⁻¹ᵃ) ·B ((f r) ·B (f r) ⁻¹ᵇ) ≡⟨ ·B-assoc _ _ _ ⟩
-  f (r ⁻¹ᵃ) ·B (f r) ·B (f r) ⁻¹ᵇ   ≡⟨ congL _·B_ (sym (pres· _ _)) ⟩
-  f (r ⁻¹ᵃ ·A r) ·B (f r) ⁻¹ᵇ       ≡⟨ cong (λ x → f x ·B (f r) ⁻¹ᵇ) (·A-linv _) ⟩
-  f 1a ·B (f r) ⁻¹ᵇ                 ≡⟨ congL _·B_ pres1 ⟩
-  1b ·B (f r) ⁻¹ᵇ                   ≡⟨ ·B-lid _ ⟩
-  (f r) ⁻¹ᵇ                         ∎
-
 
 module Exponentiation (R' : CommRing ℓ) where
  open CommRingStr (snd R')
@@ -274,6 +246,40 @@ module Exponentiation (R' : CommRing ℓ) where
  ^-presUnit : ∀ (f : R) (n : ℕ) → f ∈ Rˣ → f ^ n ∈ Rˣ
  ^-presUnit f zero f∈Rˣ = RˣContainsOne
  ^-presUnit f (suc n) f∈Rˣ = RˣMultClosed f (f ^ n) ⦃ f∈Rˣ ⦄ ⦃ ^-presUnit f n f∈Rˣ ⦄
+
+
+module CommRingHomTheory {A' B' : CommRing ℓ} (φ : CommRingHom A' B') where
+ open Units A' renaming (Rˣ to Aˣ ; _⁻¹ to _⁻¹ᵃ ; ·-rinv to ·A-rinv ; ·-linv to ·A-linv)
+ open Units B' renaming (Rˣ to Bˣ ; _⁻¹ to _⁻¹ᵇ ; ·-rinv to ·B-rinv)
+ open Exponentiation A' renaming (_^_ to _^ᵃ_) using ()
+ open Exponentiation B' renaming (_^_ to _^ᵇ_) using ()
+ open CommRingStr ⦃...⦄
+ private
+   A = fst A'
+   f = fst φ
+   instance
+     _ = A' .snd
+     _ = B' .snd
+ open IsRingHom (φ .snd)
+
+ RingHomRespInv : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ → f r ∈ Bˣ
+ RingHomRespInv r = f (r ⁻¹ᵃ) , (sym (pres· r (r ⁻¹ᵃ)) ∙∙ cong (f) (·A-rinv r) ∙∙ pres1)
+
+ φ[x⁻¹]≡φ[x]⁻¹ : (r : A) ⦃ r∈Aˣ : r ∈ Aˣ ⦄ ⦃ φr∈Bˣ : f r ∈ Bˣ ⦄
+               → f (r ⁻¹ᵃ) ≡ (f r) ⁻¹ᵇ
+ φ[x⁻¹]≡φ[x]⁻¹ r ⦃ r∈Aˣ ⦄ ⦃ φr∈Bˣ ⦄ =
+  f (r ⁻¹ᵃ)                         ≡⟨ sym (·IdR _) ⟩
+  f (r ⁻¹ᵃ) · 1r                   ≡⟨ congR _·_ (sym (·B-rinv _)) ⟩
+  f (r ⁻¹ᵃ) · ((f r) · (f r) ⁻¹ᵇ) ≡⟨ ·Assoc _ _ _ ⟩
+  f (r ⁻¹ᵃ) · (f r) · (f r) ⁻¹ᵇ   ≡⟨ congL _·_ (sym (pres· _ _)) ⟩
+  f (r ⁻¹ᵃ · r) · (f r) ⁻¹ᵇ       ≡⟨ cong (λ x → f x · (f r) ⁻¹ᵇ) (·A-linv _) ⟩
+  f 1r · (f r) ⁻¹ᵇ                 ≡⟨ congL _·_ pres1 ⟩
+  1r · (f r) ⁻¹ᵇ                   ≡⟨ ·IdL _ ⟩
+  (f r) ⁻¹ᵇ                         ∎
+
+ pres^ : (x : A) (n : ℕ) → f (x ^ᵃ n) ≡ f x ^ᵇ n
+ pres^ x zero = pres1
+ pres^ x (suc n) = pres· _ _ ∙ cong (f x ·_) (pres^ x n)
 
 
 -- like in Ring.Properties we provide helpful lemmas here

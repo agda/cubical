@@ -279,6 +279,40 @@ module InvertingElementsBase (R' : CommRing ℓ) where
                 PT.rec (PisProp s) λ (n , p) → subst P (sym p) (base n)
 
 
+
+ -- A more specialized universal property.
+ -- (Just ask f to become invertible, not all its powers.)
+ module UniversalProp (f : R) where
+   open S⁻¹RUniversalProp R' [ f ⁿ|n≥0] (powersFormMultClosedSubset f) public
+   open CommRingHomTheory
+
+   invElemUniversalProp : (A : CommRing ℓ) (φ : CommRingHom R' A)
+                        → (φ .fst f ∈ A ˣ)
+                        → ∃![ χ ∈ CommRingHom R[1/ f ]AsCommRing A ]
+                            (fst χ) ∘ (fst /1AsCommRingHom) ≡ (fst φ)
+   invElemUniversalProp A φ φf∈Aˣ =
+     S⁻¹RHasUniversalProp A φ
+       (powersPropElim (λ _ → ∈-isProp _ _)
+       (λ n → subst-∈ (A ˣ) (sym (pres^ φ f n)) (Exponentiation.^-presUnit A _ n φf∈Aˣ)))
+
+
+-- "functorial action" of localizing away from an element
+module _ {A B : CommRing ℓ} (φ : CommRingHom A B) (f : fst A) where
+  open CommRingStr (snd B)
+  private
+    module A = InvertingElementsBase A
+    module B = InvertingElementsBase B
+    module AU = A.UniversalProp f
+    module BU = B.UniversalProp (φ $r f)
+
+    φ/1 = BU./1AsCommRingHom ∘cr φ
+
+  uniqInvElemHom : ∃![ χ ∈ CommRingHom A.R[1/ f ]AsCommRing B.R[1/ φ $r f ]AsCommRing ]
+                     (fst χ) ∘ (fst AU./1AsCommRingHom) ≡ (fst φ/1)
+  uniqInvElemHom = AU.invElemUniversalProp _ φ/1 (BU.S/1⊆S⁻¹Rˣ _ ∣ 1 , sym (·IdR _) ∣₁)
+
+
+
 module _ (R : CommRing ℓ) (f : fst R) where
  open CommRingTheory R
  open RingTheory (CommRing→Ring R)
