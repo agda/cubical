@@ -143,7 +143,7 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
   open Join
   open JoinMap
   open AffineCover
-  module ZL = ZarLatUniversalProp
+  private module ZL = ZarLatUniversalProp
 
   private
     instance
