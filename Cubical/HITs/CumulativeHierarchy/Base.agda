@@ -14,6 +14,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Functions.Logic
 open import Cubical.Data.Sigma
@@ -109,10 +110,10 @@ elimProp isPropZ algz (seteq X Y ix iy eq i) =
                (algz Y iy (elimProp isPropZ algz ∘ iy)) i
 elimProp isPropZ algz (setIsSet S T x y i j) =
   isProp→SquareP (λ i j → isPropZ (setIsSet S T x y i j))
-                 (λ _ → elimProp isPropZ algz S)
-                 (λ _ → elimProp isPropZ algz T)
                  (cong (elimProp isPropZ algz) x)
-                 (cong (elimProp isPropZ algz) y) i j
+                 (cong (elimProp isPropZ algz) y)
+                 (λ _ → elimProp isPropZ algz S)
+                 (λ _ → elimProp isPropZ algz T) i j
 
 -- eliminator for two sets at once
 record Elim2Set {Z : (s t : V ℓ) → Type ℓ'}

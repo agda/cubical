@@ -10,6 +10,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 
 open import Cubical.Data.Nat
   hiding   (+-assoc ; +-comm ; ·-comm)

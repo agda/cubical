@@ -3,6 +3,7 @@ module Cubical.Data.Rationals.MoreRationals.SigmaQ.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 
 open import Cubical.Data.Int.MoreInts.QuoInt
 
@@ -37,7 +38,7 @@ signedPair s (a , b) = (signed s a , b)
   Σ≡Prop (λ _ → isPropIsGCD) (λ i → signedPair (·S-comm s spos i)
                                                (toCoprime-cancelʳ (suc a , b) k i))
 []-cancelʳ (posneg i ,         b) k j =
-  isSet→isSet' isSetℚ ([]-cancelʳ (pos zero , b) k) ([]-cancelʳ (neg zero , b) k)
+  isSet→Square isSetℚ ([]-cancelʳ (pos zero , b) k) ([]-cancelʳ (neg zero , b) k)
                       (λ i → [ posneg i · pos (ℕ₊₁→ℕ k) , b ·₊₁ k ]) (λ i → [ posneg i , b ]) i j
 
 

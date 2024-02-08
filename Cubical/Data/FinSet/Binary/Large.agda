@@ -7,6 +7,7 @@ open import Cubical.Functions.Involution
 
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
@@ -73,7 +74,7 @@ private
 Loop² : Square Loop refl refl Loop
 Loop² i j .fst = notEq² i j
 Loop² i j .snd
-  = isPropDep→isSetDep' (∥∥-isPropDep (Bool ≃_))
+  = isPropDep→SquareP (∥∥-isPropDep (Bool ≃_))
       notEq² (cong snd Loop) refl refl (cong snd Loop) i j
 
 isGroupoidBinary : isGroupoid (Binary ℓ)

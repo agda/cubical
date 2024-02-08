@@ -36,6 +36,7 @@ module Cubical.HITs.Replacement.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Functions.Embedding
 open import Cubical.Functions.Image
 open import Cubical.HITs.PropositionalTruncation as Prop

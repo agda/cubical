@@ -20,6 +20,7 @@ module Cubical.Foundations.Equiv where
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels.Fillers
 
 open import Cubical.Foundations.Equiv.Base public
 open import Cubical.Data.Sigma.Base
@@ -192,7 +193,7 @@ propBiimpl→Equiv Aprop Bprop f g = f , hf
   hf : isEquiv f
   hf .equiv-proof y .fst          = (g y , Bprop (f (g y)) y)
   hf .equiv-proof y .snd h i .fst = Aprop (g y) (h .fst) i
-  hf .equiv-proof y .snd h i .snd = isProp→isSet' Bprop (Bprop (f (g y)) y) (h .snd)
+  hf .equiv-proof y .snd h i .snd = isProp→Square Bprop (Bprop (f (g y)) y) (h .snd)
                                                   (cong f (Aprop (g y) (h .fst))) refl i
 
 isEquivPropBiimpl→Equiv : isProp A → isProp B

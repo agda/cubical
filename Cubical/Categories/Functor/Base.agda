@@ -5,6 +5,7 @@ open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Isomorphism
 

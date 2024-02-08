@@ -8,6 +8,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 
@@ -34,7 +35,7 @@ module Embed where
 
   notNotSet
     : SquareP (λ i j → isSet (notNot² i j)) notSet refl refl notSet
-  notNotSet = isPropDep→isSetDep'
+  notNotSet = isPropDep→SquareP
                 isPropDepIsSet
                 (involPath² notnot)
                 notSet refl refl notSet

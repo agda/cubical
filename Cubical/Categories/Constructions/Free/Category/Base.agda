@@ -9,6 +9,7 @@ module Cubical.Categories.Constructions.Free.Category.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Path
 
 open import Cubical.Data.Graph.Base

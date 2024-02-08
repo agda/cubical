@@ -10,6 +10,7 @@ module Cubical.Categories.Presheaf.KanExtension where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.HITs.SetQuotients
@@ -235,7 +236,7 @@ module Ran {ℓC ℓC' ℓD ℓD'} ℓS
     end≡ : {d : D.ob} {x x' : End d} → (∀ c g → x .fun c g ≡ x' .fun c g) → x ≡ x'
     end≡ h i .fun c g = h c g i
     end≡ {_} {x} {x'} h i .coh f g =
-      isSet→isSet' (G .F-ob _ .snd)
+      isSet→Square (G .F-ob _ .snd)
         (x .coh f g)
         (x' .coh f g)
         (h _ (F ⟪ f ⟫ ⋆⟨ D ⟩ g))

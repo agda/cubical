@@ -15,6 +15,8 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.HLevels.Extend
+open import Cubical.Foundations.HLevels.ExtendConstruction
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Path public
 open import Cubical.Foundations.Pointed public
 open import Cubical.Foundations.RelationalStructure public
@@ -29,6 +31,8 @@ open import Cubical.Foundations.CartesianKanOps
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Cubes
+open import Cubical.Foundations.Cubes.Base
+open import Cubical.Foundations.Cubes.Cubes
 open import Cubical.Foundations.Cubes.Subtypes
 open import Cubical.Foundations.Cubes.Dependent
 open import Cubical.Foundations.Cubes.HLevels

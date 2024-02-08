@@ -2,6 +2,7 @@
 module Cubical.ZCohomology.Groups.KleinBottle where
 
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.Fillers
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Function
@@ -116,7 +117,7 @@ leftInv (fst H⁰-𝕂²≅ℤ) =
                 (λ i z → isSetℤ (f point) (f point) refl (cong  f line1) z i)
                 refl
                 λ i j → f (square i j)
-  helper f = isGroupoid→isGroupoid' (isOfHLevelSuc 2 isSetℤ) _ _ _ _ _ _
+  helper f = isGroupoid→Cube (isOfHLevelSuc 2 isSetℤ) _ _ _ _ _ _
 snd H⁰-𝕂²≅ℤ =
   makeIsGroupHom (ST.elim2 (λ _ _ → isOfHLevelPath 2 isSetℤ _ _) λ _ _ → refl)
 
