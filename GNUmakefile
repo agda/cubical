@@ -31,7 +31,7 @@ check-whitespace:
 
 .PHONY : check-everythings
 check-everythings:
-	$(EVERYTHINGS) check-except Experiments
+	$(EVERYTHINGS) check-except
 
 .PHONY : gen-everythings
 gen-everythings:
