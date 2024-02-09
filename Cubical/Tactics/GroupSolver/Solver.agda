@@ -154,12 +154,8 @@ macro
 module _ (A : Type ℓ) (a : A)  where
 
  data IsΩTrm : a ≡ a → Type ℓ where
-  isRefl : IsΩTrm refl
-  isComp : (x y z : _) → IsΩTrm (x ∙∙ y ∙∙ z)
-
- module _ (p q r : a ≡ a) where
-  zz : IsΩTrm (p ∙∙ q ∙∙ r)
-  zz = isComp _ _ _
+  isReflTrm : IsΩTrm refl
+  isCompTrm : (x y z : _) → IsΩTrm (x ∙∙ y ∙∙ z)
 
 module tryΩE (qt-A qt-a : R.Term)  where
 
@@ -170,7 +166,7 @@ module tryΩE (qt-A qt-a : R.Term)  where
  tryRefl t = do
        -- R.debugPrint "" 1 $ R.strErr "tryRefl\n" ∷  [ R.termErr t ]
        _ ← R.checkType
-             (R.con (quote isRefl) [])
+             (R.con (quote isReflTrm) [])
              (R.def (quote IsΩTrm) (qt-A v∷ qt-a v∷ [ varg t ]))
        R.returnTC GE.reflGE
 
@@ -179,7 +175,7 @@ module tryΩE (qt-A qt-a : R.Term)  where
  tryComp (suc k) t = do
        -- R.debugPrint "" 1 $ R.strErr "tryComp\n" ∷  [ R.termErr t ]
        tm ← R.checkType
-             (R.con (quote isComp) (R.unknown v∷ R.unknown v∷ [ varg R.unknown ]))
+             (R.con (quote isCompTrm) (R.unknown v∷ R.unknown v∷ [ varg R.unknown ]))
              (R.def (quote IsΩTrm) (qt-A v∷ qt-a v∷ [ varg t ]))
        (t1 , t2 , t3) ← h tm
        -- R.debugPrint "" 1 $ R.strErr "sucess Comp!\n"
@@ -195,7 +191,7 @@ module tryΩE (qt-A qt-a : R.Term)  where
   where
 
   h : R.Term → R.TC (R.Term × R.Term × R.Term)
-  h (R.con (quote isComp) l) = match3Vargs l
+  h (R.con (quote isCompTrm) l) = match3Vargs l
   h _ = R.typeError []
 
 
