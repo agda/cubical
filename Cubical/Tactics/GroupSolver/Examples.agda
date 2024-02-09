@@ -40,10 +40,28 @@ module TestGeneric (G : Group ℓ) (A : Type ℓ) (f : A → ⟨ G ⟩)
 -- x₃ = g1
 
 
+
+
+
 module TestGroupoidπ1 (A : hGroupoid ℓ) (a : ⟨ A ⟩) (p q r s : a ≡ a) where
   open import Cubical.Homotopy.Group.Base
 
-  -- for now it does not handle "sym", so it is more MonoidSolver at the moment
 
-  test : refl ∙ (p ∙ (refl ∙ refl)) ∙ (q ∙ r) ≡ (p ∙ (q ∙ refl)) ∙ (refl ∙ r) ∙ (refl ∙ refl)
-  test = solveπ₁ (p ∷ q ∷ r ∷ s ∷ []) (hGroupoidπ₁ A a)
+  test : ((p ∙∙ refl ∙∙ q) ∙ sym s) ∙ sym r ≡
+         (p ∙ (q ∙ sym (r ∙ s) ∙ p) ∙∙ refl ∙∙ refl) ∙∙ sym p ∙∙ refl
+  test =  π₁solveGroup ⟨ A ⟩ (snd A) a
+
+
+  -- testBad : r ∙ q ∙ refl ∙ q ∙ (p ∙ p ∙ (refl ∙ refl)) ∙ (q ∙ r) ∙ q ≡
+  --        q ∙ sym (p ∙ (p ∙  q ∙ refl)) ∙ (refl) ∙ (refl ∙ refl) ∙ (sym q) ∙ r ∙ s
+  -- testBad = π₁solveGroup ⟨ A ⟩ (snd A) a
+
+  -- prints error msg :
+  -- -- LHS ≢ RHS
+
+  -- -- LHS: (𝒙₀∙(𝒙₁∙(refl∙(𝒙₁∙((𝒙₂∙(𝒙₂∙(refl∙refl)))∙((𝒙₁∙𝒙₀)∙𝒙₁))))))
+  -- -- RHS: (𝒙₁∙((((𝒙₁⁻¹∙refl)∙'𝒙₂⁻¹)∙'𝒙₂⁻¹)∙(refl∙((refl∙refl)∙(𝒙₁⁻¹∙(𝒙₀∙𝒙₃))))))
+  -- -- 𝒙₀ = λ i → r i
+  -- -- 𝒙₁ = λ i → q i
+  -- -- 𝒙₂ = λ i → p i
+  -- -- 𝒙₃ = λ i → s i

@@ -315,6 +315,11 @@ drop[] : ∀ n → drop {A = A} n [] ≡ []
 drop[] zero = refl
 drop[] (suc n) = refl
 
+lookupAlways : A → List A → ℕ → A
+lookupAlways a [] _ = a
+lookupAlways _ (x ∷ _) zero = x
+lookupAlways a (x ∷ xs) (suc k) = lookupAlways a xs k
+
 module List₂ where
  open import Cubical.HITs.SetTruncation renaming
    (rec to rec₂ ; map to map₂ ; elim to elim₂ )

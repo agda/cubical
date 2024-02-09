@@ -87,9 +87,15 @@ match2Vargs (varg t1 ∷ varg t2 ∷ []) = R.returnTC (t1 , t2)
 match2Vargs _ = R.typeError []
 
 
+match3Vargs : List (R.Arg R.Term) → R.TC (R.Term × R.Term × R.Term)
+match3Vargs (harg _ ∷ xs) = match3Vargs xs
+match3Vargs (varg t1 ∷ varg t2 ∷ varg t3 ∷  []) = R.returnTC (t1 , t2 , t3)
+match3Vargs _ = R.typeError []
 
-inferEnds : R.Term → R.Term → R.TC (R.Type × (R.Term × R.Term))
-inferEnds tG hole = do
+
+
+inferEnds : R.Term → R.TC (R.Type × (R.Term × R.Term))
+inferEnds hole = do
   ty ← R.inferType hole
   (eTy , (e0 , e1)) ← pathTypeView ty
   blockIfContainsMeta e0
