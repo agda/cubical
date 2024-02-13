@@ -65,7 +65,7 @@ open Category hiding (_∘_) renaming (_⋆_ to _⋆c_)
 
 
 -- standard affine opens
-module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
+module StandardOpens {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
 
   open Iso
   open Functor
@@ -124,6 +124,8 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
 -- compact opens of affine schemes are qcqs-schemes
 module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
 
+  open StandardOpens
+
   open Iso
   open Functor
   open NatTrans
@@ -136,7 +138,6 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
   open RingHoms
   open IsLatticeHom
   open ZarLat
-
 
   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob (Sp .F-ob R)))) using (IndPoset; ind≤bigOp)
   open InvertingElementsBase R
