@@ -9,6 +9,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma renaming (_×_ to _×'_)
 
 open import Cubical.WildCat.Base
+open import Cubical.WildCat.Product
+open import Cubical.WildCat.Functor
 
 private
   variable
