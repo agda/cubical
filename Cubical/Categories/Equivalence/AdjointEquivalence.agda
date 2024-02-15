@@ -8,6 +8,9 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 
+open import Cubical.Categories.Equivalence.Base
+open import Cubical.HITs.PropositionalTruncation
+
 module Cubical.Categories.Equivalence.AdjointEquivalence
   {ℓC ℓ'C : Level} {ℓD ℓ'D : Level}
   where
@@ -72,6 +75,11 @@ module _ (C : Category ℓC ℓ'C) (D : Category ℓD ℓ'D) where
       η : 𝟙⟨ C ⟩ ≅ᶜ inv ∘F fun
       ε : fun ∘F inv ≅ᶜ 𝟙⟨ D ⟩
       triangleIdentities : TriangleIdentities fun inv (NatIso.trans η) (NatIso.trans ε)
+
+    to≃ᶜ : C ≃ᶜ D
+    _≃ᶜ_.func to≃ᶜ = fun
+    _≃ᶜ_.isEquiv to≃ᶜ = ∣ record { invFunc = inv ; η = η ; ε = ε } ∣₁
+
 module _
   {C : Category ℓC ℓ'C} {D : Category ℓD ℓ'D}
   (adj-equiv : AdjointEquivalence C D)

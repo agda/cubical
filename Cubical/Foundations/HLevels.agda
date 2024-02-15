@@ -448,6 +448,14 @@ isPropImplicitΠ h f g i {x} = h x (f {x}) (g {x}) i
 isPropImplicitΠ2 : (h : (x : A) (y : B x) → isProp (C x y)) → isProp ({x : A} {y : B x} → C x y)
 isPropImplicitΠ2 h = isPropImplicitΠ (λ x → isPropImplicitΠ (λ y → h x y))
 
+isPropImplicitΠ3 : (h : (x : A) (y : B x) (z : C x y) → isProp (D x y z)) →
+    isProp ({x : A} {y : B x} {z : C x y} → D x y z)
+isPropImplicitΠ3 h = isPropImplicitΠ (λ x → isPropImplicitΠ2 (λ y → h x y))
+
+isPropImplicitΠ4 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) → isProp (E x y z w)) →
+    isProp ({x : A} {y : B x} {z : C x y} {w : D x y z} → E x y z w)
+isPropImplicitΠ4 h = isPropImplicitΠ (λ x → isPropImplicitΠ3 (λ y → h x y))
+
 isProp→ : {A : Type ℓ} {B : Type ℓ'} → isProp B → isProp (A → B)
 isProp→ pB = isPropΠ λ _ → pB
 
@@ -456,6 +464,13 @@ isSetΠ = isOfHLevelΠ 2
 
 isSetImplicitΠ : (h : (x : A) → isSet (B x)) → isSet ({x : A} → B x)
 isSetImplicitΠ h f g F G i j {x} = h x (f {x}) (g {x}) (λ i → F i {x}) (λ i → G i {x}) i j
+
+isSetImplicitΠ2 : (h : (x : A) → (y : B x) → isSet (C x y)) → isSet ({x : A} → {y : B x} → C x y)
+isSetImplicitΠ2 h = isSetImplicitΠ (λ x → isSetImplicitΠ (λ y → h x y))
+
+isSetImplicitΠ3 : (h : (x : A) → (y : B x) → (z : C x y) → isSet (D x y z)) →
+    isSet ({x : A} → {y : B x} → {z : C x y} → D x y z)
+isSetImplicitΠ3 h = isSetImplicitΠ (λ x → isSetImplicitΠ2 (λ y → λ z → h x y z))
 
 isSet→ : isSet A' → isSet (A → A')
 isSet→ isSet-A' = isOfHLevelΠ 2 (λ _ → isSet-A')
