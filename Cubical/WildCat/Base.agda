@@ -8,6 +8,7 @@
 module Cubical.WildCat.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma renaming (_×_ to _×'_)
 
@@ -51,14 +52,53 @@ comp' = _∘_
 infixr 16 comp'
 syntax comp' C g f = g ∘⟨ C ⟩ f
 
--- Isomorphisms and paths in precategories
+-- Isomorphisms in wild categories (analogous to HoTT-terminology for maps between types)
 record WildCatIso (C : WildCat ℓ ℓ') (x y : C .ob) : Type ℓ' where
-  constructor precatiso
+  no-eta-equality
+  constructor wildiso
   field
     mor : C [ x , y ]
     inv : C [ y , x ]
     sec : inv ⋆⟨ C ⟩ mor ≡ C .id
     ret : mor ⋆⟨ C ⟩ inv ≡ C .id
+
+idIso : {C : WildCat ℓ ℓ'} {x : C .ob} → WildCatIso C x x
+idIso {C = C} = wildiso (C .id ) (C .id) (C .⋆IdL (C .id)) (C .⋆IdL (C .id))
+
+pathToIso : {C : WildCat ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → WildCatIso C x y
+pathToIso {C = C} p = J (λ z _ → WildCatIso C _ z) idIso p
+
+-- Equivalences in wild categories (analogous to HoTT-terminology for maps between types)
+record WildCatEquiv (C : WildCat ℓ ℓ') (x y : C .ob) : Type ℓ' where
+  no-eta-equality
+  constructor wildequiv
+  field
+    mor : C [ x , y ]
+    linv : C [ y , x ]
+    rinv : C [ y , x ]
+    isLinv : linv ⋆⟨ C ⟩ mor ≡ C .id
+    isRinv : mor ⋆⟨ C ⟩ rinv ≡ C .id
+
+idWildEquiv : {C : WildCat ℓ ℓ'} {x : C .ob} → WildCatEquiv C x x
+idWildEquiv {C = C} = wildequiv (C .id ) (C .id ) (C .id) (C .⋆IdL (C .id)) (C .⋆IdL (C .id))
+
+pathToEquiv : {C : WildCat ℓ ℓ'} {x y : C .ob} (p : x ≡ y) → WildCatEquiv C x y
+pathToEquiv {C = C} p = J (λ z _ → WildCatEquiv C _ z) idWildEquiv p
+
+-- Univalent Categories
+record isUnivalent (C : WildCat ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
+  field
+    univ : (x y : C .ob) → isEquiv (pathToEquiv {C = C} {x = x} {y = y})
+
+-- Natural isomorphisms
+module _ {C : WildCat ℓ ℓ'}
+  {x y : C .ob} (f : Hom[_,_] C x y) where
+  record wildIsIso : Type (ℓ-max ℓ ℓ') where
+    no-eta-equality
+    field
+      inv' : Hom[_,_] C y x
+      sect : _⋆_ C inv' f ≡ id C {y}
+      retr : _⋆_ C f inv' ≡ id C {x}
 
 -- Opposite wild category
 _^op : WildCat ℓ ℓ' → WildCat ℓ ℓ'
@@ -69,12 +109,3 @@ _^op : WildCat ℓ ℓ' → WildCat ℓ ℓ'
 (C ^op) .⋆IdL = C .⋆IdR
 (C ^op) .⋆IdR = C .⋆IdL
 (C ^op) .⋆Assoc f g h = sym (C .⋆Assoc _ _ _)
-
--- Natural isomorphisms
-module _ {C : WildCat ℓ ℓ'}
-  {x y : C .ob} (f : Hom[_,_] C x y) where
-  record wildIsIso : Type (ℓ-max ℓ ℓ') where
-    field
-      inv' : Hom[_,_] C y x
-      sect : _⋆_ C inv' f ≡ id C {y}
-      retr : _⋆_ C f inv' ≡ id C {x}
