@@ -155,7 +155,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
                                                                   (f i ^ l) x)) ⟩
         ∑ (λ i → α i · (f i ^ l · x))       ≡⟨ ∑Ext (λ i → cong (α i ·_) (fˡx≡0 i)) ⟩
         ∑ (λ i → α i · 0r)                  ≡⟨ ∑Ext (λ i → 0RightAnnihilates (α i)) ⟩
-        ∑ (replicateFinVec n 0r)      ≡⟨ ∑0r n ⟩
+        ∑ (replicateFinVec n 0r)            ≡⟨ ∑0r n ⟩
         0r ∎
 
 
