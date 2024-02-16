@@ -157,7 +157,12 @@ module _ {ℓ : Level} where
   F-seq 𝓞 _ _ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
 
 
--- we get an adjunction 𝓞 ⊣ Sp modulo size issues
+
+-- There is an adjunction 𝓞 ⊣ᵢ Sp
+-- (relative to the inclusion i : CommRing ℓ → CommRing (ℓ+1))
+-- between the "global sections functor" 𝓞
+-- and the fully-faithful embedding of affines Sp,
+-- whose counit is a natural isomorphism
 module AdjBij where
 
   open Functor
@@ -196,6 +201,9 @@ module AdjBij where
     ♯♭Id : ∀ (φ : CommRingHom A (𝓞 .F-ob X)) → ((φ ♭) ♯) ≡ φ
     ♯♭Id _ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
 
+
+  -- we get a relative adjunction 𝓞 ⊣ᵢ Sp
+  -- with respect to the inclusion i : CommRing ℓ → CommRing (ℓ+1)
   𝓞⊣SpIso : {A : CommRing ℓ} {X : ℤFunctor {ℓ}}
           → Iso (CommRingHom A (𝓞 .F-ob X)) (X ⇒ Sp .F-ob A)
   fun 𝓞⊣SpIso = _♭
@@ -407,13 +415,13 @@ module _ {ℓ : Level} where
   module _ (X : ℤFunctor) where
     open isIso
     private instance _ = (CompOpenDistLattice .F-ob X) .snd
-    -- better name?
-    X≅⟦1⟧ : NatIso X ⟦ 1l ⟧ᶜᵒ
-    N-ob (trans X≅⟦1⟧) _ φ = φ , refl
-    N-hom (trans X≅⟦1⟧) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
-    inv (nIso X≅⟦1⟧ B) = fst
-    sec (nIso X≅⟦1⟧ B) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
-    ret (nIso X≅⟦1⟧ B) = funExt λ _ → refl
+
+    compOpenTopNatIso : NatIso X ⟦ 1l ⟧ᶜᵒ
+    N-ob (trans compOpenTopNatIso) _ φ = φ , refl
+    N-hom (trans compOpenTopNatIso) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+    inv (nIso compOpenTopNatIso B) = fst
+    sec (nIso compOpenTopNatIso B) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+    ret (nIso compOpenTopNatIso B) = funExt λ _ → refl
 
 
   module _ (X : ℤFunctor) where
@@ -474,11 +482,10 @@ module _ {ℓ : Level} where
     n singlAffineCover = 1
     U singlAffineCover zero = 1l
     covers singlAffineCover = ∨lRid _
-    isAffineU singlAffineCover zero = ∣ A , X≅⟦1⟧ (Sp ⟅ A ⟆) ∣₁
+    isAffineU singlAffineCover zero = ∣ A , compOpenTopNatIso (Sp ⟅ A ⟆) ∣₁
 
 
   -- qcqs-schemes as Zariski sheaves (local ℤ-functors) with an affine cover in the sense above
-  -- TODO: work in Zariski sheaves instead of ℤ-functors???
   isLocal : ℤFunctor → Type (ℓ-suc ℓ)
   isLocal X = isSheaf zariskiCoverage X
 

@@ -189,9 +189,7 @@ module SubcanonicalLemmas (A R : CommRing ℓ) where
           (λ a → cong fst (applyEqualizerLemma a .snd (ψ $r a , ψ/1≡φ a))))
 
 
-isSubcanonicalZariskiCoverage : isSubcanonical
-                                  (CommRingsCategory {ℓ = ℓ} ^op)
-                                    zariskiCoverage
+isSubcanonicalZariskiCoverage : isSubcanonical (zariskiCoverage {ℓ = ℓ})
 isSubcanonicalZariskiCoverage A R (unimodvec zero f isUniModF) =
   isoToIsEquiv (isContr→Iso'
                   (trivialIsTerminalCommRing R 0≡1 A)

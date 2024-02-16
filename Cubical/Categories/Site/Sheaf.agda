@@ -146,7 +146,7 @@ module _
 
 module _
   {ℓ ℓ' ℓcov ℓpat : Level}
-  (C : Category ℓ ℓ')
+  {C : Category ℓ ℓ'}
   (J : Coverage C ℓcov ℓpat)
   where
 
