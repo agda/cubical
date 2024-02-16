@@ -175,26 +175,22 @@ module InvertingElementsBase (R' : CommRing ℓ) where
               1r · s · g ^ l ∎
 
 
- invElPropElimN : (n : ℕ) (f : FinVec R (suc n)) (P : ((i : Fin (suc n)) → R[1/ (f i) ]) → Type ℓ')
+ invElPropElimN : (n : ℕ) (f : FinVec R n) (P : ((i : Fin n) → R[1/ (f i) ]) → Type ℓ')
           → (∀ x → isProp (P x))
-          → (∀ (r : FinVec R (suc n)) (m : ℕ) → P (λ i → [ r i , (f i ^ m) , PT.∣ m , refl ∣₁ ]))
+          → (∀ (r : FinVec R n) (m : ℕ) → P (λ i → [ r i , (f i ^ m) , PT.∣ m , refl ∣₁ ]))
           -------------------------------------------------------------------------------------
           → ∀ x → P x
  invElPropElimN zero f P isPropP baseCase x =
-              subst P (funExt (λ { zero → refl })) (invElPropElim {P = P'} (λ _ → isPropP _)
-     (λ r n → subst P (funExt (λ { zero → refl })) (baseCase (λ {zero → r}) n)) (x zero))
-   where
-   P' : R[1/ (f zero) ] → Type _
-   P' x = P (λ {zero → x})
+   subst P (funExt (λ ())) (baseCase (λ ()) zero)
 
  invElPropElimN (suc n) f P isPropP baseCase x =
    subst P (funExt (λ { zero → refl ; (suc i) → refl }))
            (invElPropElimN n (f ∘ suc) P' (λ _ → isPropP _) baseCase' (x ∘ suc))
    where
-   P' : ((i : Fin (suc n)) → R[1/ (f (suc i)) ]) → Type _
+   P' : ((i : Fin n) → R[1/ (f (suc i)) ]) → Type _
    P' y = P (λ { zero → x zero ; (suc i) → y i })
 
-   baseCase' : ∀ (rₛ : FinVec R (suc n)) (m : ℕ)
+   baseCase' : ∀ (rₛ : FinVec R n) (m : ℕ)
              → P' (λ i → [ rₛ i , f (suc i) ^ m , ∣ m , refl ∣₁ ])
    baseCase' rₛ m =
      subst P (funExt (λ { zero → refl ; (suc i) → refl }))
@@ -209,15 +205,15 @@ module InvertingElementsBase (R' : CommRing ℓ) where
       where
       l = max m k
 
-      newEnumVec : FinVec R (suc (suc n))
+      newEnumVec : FinVec R (suc n)
       newEnumVec zero = r₀ · (f zero) ^ (l ∸ k)
       newEnumVec (suc i) = rₛ i · (f (suc i)) ^ (l ∸ m)
 
-      oldBaseVec : (i : Fin (suc (suc n))) → R[1/ (f i) ]
+      oldBaseVec : (i : Fin (suc n)) → R[1/ (f i) ]
       oldBaseVec = λ { zero → [ r₀ , f zero ^ k , ∣ k , refl ∣₁ ]
                      ; (suc i) → [ rₛ i , f (suc i) ^ m , ∣ m , (λ _ → f (suc i) ^ m) ∣₁ ] }
 
-      newBaseVec : (i : Fin (suc (suc n))) → R[1/ (f i) ]
+      newBaseVec : (i : Fin (suc n)) → R[1/ (f i) ]
       newBaseVec zero = [ r₀ · (f zero) ^ (l ∸ k) , (f zero) ^ l , ∣ l , refl ∣₁ ]
       newBaseVec (suc i) = [ rₛ i · (f (suc i)) ^ (l ∸ m) , (f (suc i)) ^ l , ∣ l , refl ∣₁ ]
 
