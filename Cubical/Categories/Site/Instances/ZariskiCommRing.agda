@@ -130,11 +130,11 @@ module SubcanonicalLemmas (A R : CommRing ℓ) where
 
   module _
     {n : ℕ}
-    (f : FinVec ⟨ R ⟩ (suc n)) -- have to treat case of empty vec separately
+    (f : FinVec ⟨ R ⟩ n)
     (isUniModF : 1r ∈ ⟨ f ⟩[ R ])
     (fam@(φ , isCompatibleφ) : CompatibleFamily (yo A)
                                                 (str (covers zariskiCoverage R)
-                                                (unimodvec (suc n) f isUniModF)))
+                                                (unimodvec n f isUniModF)))
     where
     open InvertingElementsBase R
     open RingHoms
@@ -142,7 +142,7 @@ module SubcanonicalLemmas (A R : CommRing ℓ) where
     module UP i j = UniversalProp (f i · f j)
 
     private
-      _/1ⁱ : ⟨ R ⟩ → {i : Fin (suc n)} →  R[1/ (f i) ]
+      _/1ⁱ : ⟨ R ⟩ → {i : Fin n} →  R[1/ (f i) ]
       (r /1ⁱ) {i = i} = U._/1 i r
 
 
@@ -190,33 +190,11 @@ module SubcanonicalLemmas (A R : CommRing ℓ) where
 
 
 isSubcanonicalZariskiCoverage : isSubcanonical (zariskiCoverage {ℓ = ℓ})
-isSubcanonicalZariskiCoverage A R (unimodvec zero f isUniModF) =
-  isoToIsEquiv (isContr→Iso'
-                  (trivialIsTerminalCommRing R 0≡1 A)
-                  isContrCompatibleFamily _)
-  -- better way than pattern matching inside unimodvec???
-  where
-  um = (unimodvec zero f isUniModF)
-  open CommRingStr (R .snd)
-
-  0≡1 : 0r ≡ 1r
-  0≡1 = PT.rec (is-set _ _) Σhelper isUniModF
-    where
-    Σhelper : Σ[ α ∈ FinVec ⟨ R ⟩ zero ] 1r ≡ linearCombination R α f
-            → 0r ≡ 1r
-    Σhelper (_ , 1≡αf) = sym 1≡αf
-
-  isContrCompatibleFamily : isContr (CompatibleFamily (yo A)
-                                                      (str (covers zariskiCoverage R) um))
-  fst (fst isContrCompatibleFamily) ()
-  snd (fst isContrCompatibleFamily) ()
-  snd isContrCompatibleFamily _ = CompatibleFamily≡ _ _ _ _ λ ()
-
-isSubcanonicalZariskiCoverage A R (unimodvec (suc n) f isUniModF) = isoToIsEquiv theIso
+isSubcanonicalZariskiCoverage A R (unimodvec n f isUniModF) = isoToIsEquiv theIso
   where
   open Iso
   open SubcanonicalLemmas A R
-  um = (unimodvec (suc n) f isUniModF)
+  um = (unimodvec n f isUniModF)
 
   theIso : Iso (CommRingHom A R)
                (CompatibleFamily (yo A) (str (covers zariskiCoverage R) um))
