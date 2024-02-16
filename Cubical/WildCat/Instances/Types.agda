@@ -7,19 +7,13 @@ open import Cubical.Foundations.Function using (idfun) renaming (_∘_ to _∘fu
 
 open import Cubical.WildCat.Base
 
-private
-  variable
-    ℓ ℓ' : Level
-
 open WildCat
 
--- Instances
-module _ (ℓ : Level) where
-  TypeCat : WildCat (ℓ-suc ℓ) ℓ
-  ob TypeCat = Type ℓ
-  Hom[_,_] TypeCat A B = A → B
-  WildCat.id TypeCat = idfun _
-  _⋆_ TypeCat f g = g ∘fun f
-  ⋆IdL TypeCat = λ _ → refl
-  ⋆IdR TypeCat = λ _ → refl
-  ⋆Assoc TypeCat f g h = refl
+TypeCat : (ℓ : Level) → WildCat (ℓ-suc ℓ) ℓ
+ob (TypeCat ℓ) = Type ℓ
+Hom[_,_] (TypeCat ℓ) A B = A → B
+WildCat.id (TypeCat ℓ) = idfun _
+_⋆_ (TypeCat ℓ) f g = g ∘fun f
+⋆IdL (TypeCat ℓ) = λ _ → refl
+⋆IdR (TypeCat ℓ) = λ _ → refl
+⋆Assoc (TypeCat ℓ) f g h = refl

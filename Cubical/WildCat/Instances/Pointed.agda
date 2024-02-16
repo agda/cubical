@@ -6,19 +6,13 @@ open import Cubical.Foundations.Pointed hiding (⋆ ; id)
 
 open import Cubical.WildCat.Base
 
-private
-  variable
-    ℓ ℓ' : Level
-
 open WildCat
 
--- Instances
-module _ (ℓ : Level) where
-  PointedCat : WildCat (ℓ-suc ℓ) ℓ
-  ob PointedCat = Pointed ℓ
-  Hom[_,_] PointedCat A B = A →∙ B
-  WildCat.id PointedCat = idfun∙ _
-  _⋆_ PointedCat f g = g ∘∙ f
-  ⋆IdL PointedCat = ∘∙-idˡ
-  ⋆IdR PointedCat = ∘∙-idʳ
-  ⋆Assoc PointedCat f g h = sym (∘∙-assoc h g f)
+PointedCat : (ℓ : Level) → WildCat (ℓ-suc ℓ) ℓ
+ob (PointedCat ℓ) = Pointed ℓ
+Hom[_,_] (PointedCat ℓ) A B = A →∙ B
+WildCat.id (PointedCat ℓ) = idfun∙ _
+_⋆_ (PointedCat ℓ) f g = g ∘∙ f
+⋆IdL (PointedCat ℓ) = ∘∙-idˡ
+⋆IdR (PointedCat ℓ) = ∘∙-idʳ
+⋆Assoc (PointedCat ℓ) f g h = sym (∘∙-assoc h g f)
