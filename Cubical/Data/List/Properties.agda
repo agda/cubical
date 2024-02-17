@@ -179,3 +179,8 @@ length-map : ∀ {ℓA ℓB} {A : Type ℓA} {B : Type ℓB} → (f : A → B) �
   → length (map f as) ≡ length as
 length-map f [] = refl
 length-map f (a ∷ as) = cong suc (length-map f as)
+
+lookupWithDefault : A → List A → ℕ → A
+lookupWithDefault a [] _ = a
+lookupWithDefault _ (x ∷ _) zero = x
+lookupWithDefault a (x ∷ xs) (suc k) = lookupWithDefault a xs k
