@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-}
+
 module Cubical.Tactics.GroupSolver.Example where
 
 open import Cubical.Foundations.Prelude
