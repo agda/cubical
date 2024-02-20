@@ -88,6 +88,14 @@ module _ {A : I → Type ℓ} {B : (i : I) → A i → Type ℓ'}
               ≡ (PathP (λ i → Σ (A i) (B i)) x y)
   ΣPath≡PathΣ = ua ΣPath≃PathΣ
 
+Square× :  {a₀₀ a₀₁ : A × A'} {a₀₋ : a₀₀ ≡ a₀₁}
+           {a₁₀ a₁₁ : A × A'} {a₁₋ : a₁₀ ≡ a₁₁}
+           {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁}
+        → Square {A = A} (cong fst a₀₋) (cong fst a₁₋) (cong fst  a₋₀) (cong fst  a₋₁)
+        → Square {A = A' } (cong snd a₀₋) (cong snd a₁₋) (cong snd  a₋₀) (cong snd  a₋₁)
+        → Square {A = A × A'} a₀₋ a₁₋ a₋₀ a₋₁
+Square× s s' i j = s i j , s' i j
+
 ×≡Prop : isProp A' → {u v : A × A'} → u .fst ≡ v .fst → u ≡ v
 ×≡Prop pB {u} {v} p i = (p i) , (pB (u .snd) (v .snd) i)
 

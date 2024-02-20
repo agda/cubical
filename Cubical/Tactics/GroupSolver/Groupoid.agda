@@ -3,11 +3,12 @@
 module Cubical.Tactics.GroupSolver.Groupoid where
 
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude hiding (Cube)
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Path
 
 open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
 open import Cubical.Data.Nat as ℕ hiding (_·_)
@@ -27,9 +28,24 @@ open import Cubical.Tactics.GroupSolver.Reflection
 open import Cubical.Tactics.Reflection
 open import Agda.Builtin.String
 
+
 private
   variable
     ℓ ℓ' : Level
+
+   
+
+
+module _ {A : Type ℓ} (_≟_ : Discrete A) where
+
+ fa : ℕ → (xs ys : List A) → Maybe (Σ _ λ k → xs ≡ rotN k ys)
+ fa zero _ _ = nothing
+ fa (suc k) xs ys =
+   decRec (just ∘ ((length xs ∸ k) ,_))
+    (λ _ → fa k xs ys) (discreteList _≟_ xs (rotN (length xs ∸ k) ys) )
+
+ findAligment : (xs ys : List A) → Maybe (Σ _ λ k → xs ≡ rotN k ys)  
+ findAligment xs ys = fa (suc (length xs)) xs ys
 
 
 module _ {A : Type ℓ} where
@@ -64,20 +80,11 @@ module PT {A : Type ℓ} (_∼_ : A → A → Type ℓ') (∼refl : ∀ {x} → 
   isCompTrmReg : ∀ {x y z : _} → {p : x ∼ y} {q : y ∼ z}
    → IsPathTrmReg p → IsPathTrmReg q → IsPathTrmReg (p ∼∙ q)
 
- data IsPathTrmDeas' : {a₀ a₁ : A} → a₀ ∼ a₁ → Type (ℓ-max ℓ ℓ') where
-  nilTrmDeas : ∀ {x y} → (p : x ∼ y) → IsPathTrmDeas' p
-  consTrmDeas : ∀ {x y z : _} → {p : x ∼ y} → IsPathTrmDeas' p → (q : y ∼ z) → IsPathTrmDeas' (p ∼∙ q)
-
-
  data IsPathTrmDeas : {a₀ a₁ : A} → a₀ ∼ a₁ → Type (ℓ-max ℓ ℓ') where
-  -- nilTrmDeas : ∀ {x y} → (p : x ∼ y) → IsPathTrmDeas p
   nilTrmDeasRefl : ∀ {x} → IsPathTrmDeas (∼refl {x = x})
-  iptd' : ∀ {x y} → {p : x ∼ y} → IsPathTrmDeas' p → IsPathTrmDeas p 
-  -- consTrmDeas : ∀ {x y z : _} → {p : x ∼ y} → IsPathTrmDeas p → (q : y ∼ z) → IsPathTrmDeas (p ∼∙ q)
+  consTrmDeas : ∀ {x y z : _} → {p : x ∼ y} → IsPathTrmDeas p → (q : y ∼ z) → IsPathTrmDeas (p ∼∙ q)
   
  data IsPathTrmInvol : (a₀ a₁ : A) → Type (ℓ-max ℓ ℓ') where
-  nilTrmInvol : ∀ {x y} → (p : x ∼ y) → IsPathTrmInvol x y
-  nilInvolTrmInvol : ∀ {x y} → (p : x ∼ y) → IsPathTrmInvol x x
   nilTrmInvolRefl : ∀ {x} → IsPathTrmInvol x x
   consTrmInvol : ∀ {x y z : _}  →
    IsPathTrmInvol x y → (q : y ∼ z) → IsPathTrmInvol x z
@@ -95,73 +102,47 @@ module PT {A : Type ℓ} (_∼_ : A → A → Type ℓ') (∼refl : ∀ {x} → 
          "(" <> showIPT x <> "∙'" <> showIPT x₁ <> ")"
   showIPT (isCompTrm x x₁ x₂) =
         "(" <> showIPT x <> "∙∙" <> showIPT x₁ <> "∙∙" <> showIPT x₂ <> ")"
-
-  showIPTD' : {a₀ a₁ : A} → {p : a₀ ∼ a₁} → IsPathTrmDeas' p → String
-  showIPTD' (nilTrmDeas p) = showA p
-  showIPTD' (consTrmDeas x q) = showIPTD' x <> "∙" <> showA q
   
   showIPTD : {a₀ a₁ : A} → {p : a₀ ∼ a₁} → IsPathTrmDeas p → String
   
   showIPTD nilTrmDeasRefl = "refl"
-  showIPTD (iptd' x) = showIPTD' x
+  showIPTD (consTrmDeas x q) = showIPTD x <> "∙" <> showA q
 
   showIPTI : {a₀ a₁ : A} → IsPathTrmInvol a₀ a₁ → String
-  showIPTI (nilTrmInvol p) = showA p
-  showIPTI (nilInvolTrmInvol q) = "⟦" <> showA q <> "∙" <> showA q  <> "⁻¹⟧"
   showIPTI nilTrmInvolRefl = "refl"
   showIPTI (consTrmInvol x q) = showIPTI x <> "∙" <> showA q
   showIPTI (involTrmInvol x q) = showIPTI x <> "∙⟦" <> showA q <> "∙" <> showA q  <> "⁻¹⟧"
 
-
- depthIsPathTrmDeas' : ∀ {a₀ a₁ : A} → ∀ {p : a₀ ∼ a₁}
-                          → IsPathTrmDeas' p → ℕ 
- depthIsPathTrmDeas' (nilTrmDeas _) = zero
- depthIsPathTrmDeas' (consTrmDeas x q) = suc (depthIsPathTrmDeas' x)
  
  depthIsPathTrmDeas : ∀ {a₀ a₁ : A} → ∀ {p : a₀ ∼ a₁}
                           → IsPathTrmDeas p → ℕ 
  depthIsPathTrmDeas nilTrmDeasRefl = zero
- depthIsPathTrmDeas (iptd' x) = (depthIsPathTrmDeas' x) 
+ depthIsPathTrmDeas (consTrmDeas x q) = suc (depthIsPathTrmDeas x)
 
  hasRedexes : ∀ {a₀ a₁} → IsPathTrmInvol a₀ a₁ → Bool 
- hasRedexes (nilTrmInvol p) = false
- hasRedexes (nilInvolTrmInvol p) = true
  hasRedexes nilTrmInvolRefl = false
  hasRedexes (consTrmInvol x q) = hasRedexes x
  hasRedexes (involTrmInvol x q) = true
 
- Deas'→Invol : ∀ {a₀ a₁ : A} → ∀ {p} → IsPathTrmDeas' {a₀ = a₀} {a₁ = a₁} p → IsPathTrmInvol a₀ a₁ 
- Deas'→Invol (nilTrmDeas p) = nilTrmInvol p
- Deas'→Invol (consTrmDeas x q) = consTrmInvol (Deas'→Invol x) q
-
-
  Deas→Invol : ∀ {a₀ a₁ : A} → ∀ {p} → IsPathTrmDeas {a₀ = a₀} {a₁ = a₁} p → IsPathTrmInvol a₀ a₁ 
  Deas→Invol nilTrmDeasRefl = nilTrmInvolRefl
- Deas→Invol (iptd' x) = (Deas'→Invol x)
-
-
- IsPathTrmDeas∙' : ∀ {x y z : _} → {p : x ∼ y} {q : y ∼ z} →
-    IsPathTrmDeas' p → IsPathTrmDeas' q →
-      Σ _ λ p∙q → IsPathTrmDeas' {x} {z} p∙q × ( p∙q ≡ p ∼∙ q )
- IsPathTrmDeas∙' x (nilTrmDeas q) = _ , consTrmDeas x q , refl
- IsPathTrmDeas∙' x (consTrmDeas x₁ q) =
-  let (_ , u , v) = IsPathTrmDeas∙' x x₁
-  in _ , (consTrmDeas u q) ,  (cong (_∼∙ q) $ v) ∙ sym (∼assoc _ _ _)
-
+ Deas→Invol (consTrmDeas x q) = consTrmInvol (Deas→Invol x) q
 
  IsPathTrmDeas∙ : ∀ {x y z : _} → {p : x ∼ y} {q : y ∼ z} →
    IsPathTrmDeas p → IsPathTrmDeas q → Σ _ λ p∙q → IsPathTrmDeas {x} {z} p∙q
  IsPathTrmDeas∙ p' nilTrmDeasRefl = _ , p'
- IsPathTrmDeas∙ nilTrmDeasRefl (iptd' q') = _ , (iptd' q')
- IsPathTrmDeas∙ (iptd' x) (iptd' x₁) = _ , iptd' (fst (snd (IsPathTrmDeas∙' x x₁)))
+ IsPathTrmDeas∙ nilTrmDeasRefl q'@(consTrmDeas _ _) = _ , q'
+ IsPathTrmDeas∙ p' (consTrmDeas q' q'') =
+   let (_ , u) = IsPathTrmDeas∙ p' q'
+   in _ , consTrmDeas u q''
 
 
  Invol→Deas↓ : ∀ {a₀ a₁ : A} → IsPathTrmInvol a₀ a₁ → Σ _ $ IsPathTrmDeas {a₀ = a₀} {a₁ = a₁}
- Invol→Deas↓ (nilTrmInvol p) = _ , iptd' (nilTrmDeas p)
- Invol→Deas↓ (nilInvolTrmInvol p) = _ , nilTrmDeasRefl
+ -- Invol→Deas↓ (nilTrmInvol p) = _ , iptd' (nilTrmDeas p)
+ -- Invol→Deas↓ (nilInvolTrmInvol p) = _ , nilTrmDeasRefl
  Invol→Deas↓ nilTrmInvolRefl = _ , nilTrmDeasRefl 
  Invol→Deas↓ (consTrmInvol x q) =
-   IsPathTrmDeas∙ (snd (Invol→Deas↓ x)) (iptd' $ nilTrmDeas q)
+   IsPathTrmDeas∙ (snd (Invol→Deas↓ x)) (consTrmDeas nilTrmDeasRefl q)
  Invol→Deas↓ (involTrmInvol x q) = Invol→Deas↓ x
 
  ⟦_⟧r : {a₀ a₁ : A} → {p : a₀ ∼ a₁} → IsPathTrm p → (Σ _ λ r → (IsPathTrmReg r × (p ≡ r)))  
@@ -175,7 +156,7 @@ module PT {A : Type ℓ} (_∼_ : A → A → Type ℓ') (∼refl : ∀ {x} → 
 
  ⟦_⟧da : {a₀ a₁ : A} → {p : a₀ ∼ a₁} → IsPathTrmReg p → (Σ _ λ r → (IsPathTrmDeas r))  
  ⟦ isReflTrmReg ⟧da = _ , nilTrmDeasRefl
- ⟦ isAtomTrmReg p ⟧da = _ , iptd' (nilTrmDeas p)
+ ⟦ isAtomTrmReg p ⟧da = _ ,  consTrmDeas nilTrmDeasRefl p
  ⟦ isCompTrmReg p' q' ⟧da =
    let (_ , qD) = ⟦ q' ⟧da
        (_ , pD) = ⟦ p' ⟧da
@@ -191,15 +172,17 @@ module PT {A : Type ℓ} (_∼_ : A → A → Type ℓ') (∼refl : ∀ {x} → 
     (p' : IsPathTrmDeas p) → (q' : IsPathTrmDeas q) →
       (fst (IsPathTrmDeas∙ p' q') ≡ (p ∼∙ q))
   IsPathTrmDeas∙≡ _ nilTrmDeasRefl = ∼rUnit _
-  IsPathTrmDeas∙≡ nilTrmDeasRefl (iptd' x) = ∼lUnit _
-  IsPathTrmDeas∙≡ (iptd' x) (iptd' x₁) = snd (snd (IsPathTrmDeas∙' x x₁))
+  IsPathTrmDeas∙≡ nilTrmDeasRefl (consTrmDeas p q) = ∼lUnit _
+  IsPathTrmDeas∙≡ (consTrmDeas p q) (consTrmDeas p' q') =
+    cong (_∼∙ q')  ( (IsPathTrmDeas∙≡ (consTrmDeas p q) p')) ∙
+      sym (∼assoc _ _ _)
  
   ⟦_⟧da≡ : {a₀ a₁ : A} → {p : a₀ ∼ a₁} → (p' : IsPathTrmReg p) →
            fst ⟦ p' ⟧da ≡ p
   ⟦ isReflTrmReg ⟧da≡ = refl
-  ⟦ isAtomTrmReg _ ⟧da≡ = refl
-  ⟦ isCompTrmReg p' q' ⟧da≡ =
-     IsPathTrmDeas∙≡ (snd ⟦ p' ⟧da) (snd ⟦ q' ⟧da) ∙ cong₂ _∼∙_ ⟦ p' ⟧da≡ ⟦ q' ⟧da≡
+  ⟦ isAtomTrmReg _ ⟧da≡ = sym (∼lUnit _)
+  ⟦ isCompTrmReg p' q' ⟧da≡ = 
+     IsPathTrmDeas∙≡ (snd ⟦ p' ⟧da) (snd ⟦ q' ⟧da) ∙ cong₂ _∼∙_ ⟦ p' ⟧da≡ ⟦ q' ⟧da≡ 
   
   daSingl : {a₀ a₁ : A} → {p : a₀ ∼ a₁} → (q : IsPathTrm p) → p ≡ fst ⟦ fst (snd ⟦ q ⟧r) ⟧da
   daSingl x = let (_ , x' , x=) = ⟦ x ⟧r in x= ∙ sym (⟦ x' ⟧da≡)
@@ -214,10 +197,6 @@ module _ {A : Type ℓ} where
 
 
  ⟦_,_⟧ti : {a₀ a₁ : A} → IsPathTrmInvol a₀ a₁ → Interval → a₀ ≡ a₁
- ⟦ nilTrmInvol p , _ ⟧ti = p
- ⟦ PT.nilInvolTrmInvol p , zero ⟧ti = p ∙ sym p
- ⟦ PT.nilInvolTrmInvol p , one ⟧ti = refl
- ⟦ PT.nilInvolTrmInvol p , seg i ⟧ti = rCancel p i
  ⟦ nilTrmInvolRefl , _ ⟧ti = refl
  ⟦ consTrmInvol x q , 𝓲 ⟧ti = ⟦ x , 𝓲 ⟧ti ∙ q 
  ⟦ involTrmInvol x q , zero ⟧ti = (⟦ x , zero ⟧ti ∙ q) ∙ sym q
@@ -233,302 +212,391 @@ module _ {A : Type ℓ} where
 
 
 
--- module _ (A : Type ℓ) (a : A) where
---  module PTG = PT {A = Unit} (λ _ _ → A)
---                   (a)
---                   (λ _ _ → a)
---                   (λ _ _ _ → a)
---                   (λ _ _ _ → refl)
---                   (λ _ _ _ → refl)
---                   -- (R.def (quote refl) [])
---                   -- (λ x y z → R.def (quote _∙∙_∙∙_) (x v∷ y v∷ z v∷ []))
+module _ (A : Type ℓ) (a : A) where
+ module PTG = PT {A = Unit} (λ _ _ → A)
+                  (a)
+                  (λ _ _ → a)
+                  (λ _ _ _ → a)
+                  (λ _ _ _ → refl)
+                  (λ _ _ _ → refl)
+                  -- (R.def (quote refl) [])
+                  -- (λ x y z → R.def (quote _∙∙_∙∙_) (x v∷ y v∷ z v∷ []))
 
--- module PTrm = PTG R.Term R.unknown 
+module PTrm = PTG R.Term R.unknown 
 
--- module Pℕ = PTG (Bool × ℕ) (true , 0) 
+module Pℕ = PTG (Bool × ℕ) (true , 0) 
 
--- module PℕS = Pℕ.show (λ (b , i) → let v = mkNiceVar i in if b then v else (v <> "⁻¹"))
+module PℕS = Pℕ.show (λ (b , i) → let v = mkNiceVar i in if b then v else (v <> "⁻¹"))
 
 
--- module _ (f : (Bool × ℕ) → R.Term) where
---  mapPTG : Pℕ.IsPathTrmInvol _ _ → PTrm.IsPathTrmInvol _ _
---  mapPTG (PT.nilTrmInvol x) = PT.nilTrmInvol (f x)
---  mapPTG (PT.nilInvolTrmInvol p) = PT.nilInvolTrmInvol (f p)
---  mapPTG PT.nilTrmInvolRefl = PT.nilTrmInvolRefl 
---  mapPTG (PT.consTrmInvol x q) = PT.consTrmInvol (mapPTG x) (f q)
---  mapPTG (PT.involTrmInvol x q) = PT.involTrmInvol (mapPTG x) (f q)
+module _ (f : (Bool × ℕ) → R.Term) where
+ mapPTG : Pℕ.IsPathTrmInvol _ _ → PTrm.IsPathTrmInvol _ _
+ -- mapPTG (PT.nilTrmInvol x) = PT.nilTrmInvol (f x)
+ -- mapPTG (PT.nilInvolTrmInvol p) = PT.nilInvolTrmInvol (f p)
+ mapPTG PT.nilTrmInvolRefl = PT.nilTrmInvolRefl 
+ mapPTG (PT.consTrmInvol x q) = PT.consTrmInvol (mapPTG x) (f q)
+ mapPTG (PT.involTrmInvol x q) = PT.involTrmInvol (mapPTG x) (f q)
 
 
 -- ℕDeas'→ℕInvol : ∀ {p} → Pℕ.IsPathTrmDeas' p → Pℕ.IsPathTrmInvol _ _
 
--- IsRedex? : ∀ x x' → Dec (Path (Bool × ℕ) x (not (fst x') , snd x'))
--- IsRedex? _ _ = discreteΣ 𝟚._≟_ (λ _ → discreteℕ) _ _
+IsRedex? : ∀ x x' → Dec (Path (Bool × ℕ) x (not (fst x') , snd x'))
+IsRedex? _ _ = discreteΣ 𝟚._≟_ (λ _ → discreteℕ) _ _
 
--- consInvolℕ : ∀ {p} → Pℕ.IsPathTrmDeas' p → (Bool × ℕ) → Pℕ.IsPathTrmInvol _ _ 
--- consInvolℕ (PT.nilTrmDeas y) x₁ = decRec (λ _ → Pℕ.nilInvolTrmInvol y)
---                                     (λ _ → Pℕ.consTrmInvol (Pℕ.nilTrmInvol y) x₁) (IsRedex? y x₁ ) 
--- consInvolℕ q'@(PT.consTrmDeas x q) x₁ =
---   decRec (λ _ → Pℕ.involTrmInvol (ℕDeas'→ℕInvol x) q)
---               (λ _ → Pℕ.consTrmInvol (ℕDeas'→ℕInvol q') x₁) (IsRedex? q x₁ )
+ℕDeas→ℕInvol : ∀ {p} → Pℕ.IsPathTrmDeas p → Pℕ.IsPathTrmInvol _ _
 
--- ℕDeas'→ℕInvol (PT.nilTrmDeas p) = PT.nilTrmInvol p
--- ℕDeas'→ℕInvol (PT.consTrmDeas x q) = consInvolℕ x q
-
--- ℕDeas→ℕInvol : ∀ {p} → Pℕ.IsPathTrmDeas p → Pℕ.IsPathTrmInvol _ _
--- ℕDeas→ℕInvol PT.nilTrmDeasRefl = PT.nilTrmInvolRefl
--- ℕDeas→ℕInvol (PT.iptd' x) = ℕDeas'→ℕInvol x
-
--- module tryPathE where
-
---  try≡ : ℕ → R.Term → R.TC (Σ _ PTrm.IsPathTrm)
-
-
---  tryRefl : R.Term → R.TC (Σ _ PTrm.IsPathTrm)
---  tryRefl t = do
---        _ ← R.checkType
---              (R.con (quote reflCase) [])
---              (R.def (quote PathCase) ([ varg t ]))
---        R.returnTC (_ , PTrm.isReflTrm)
-
---  tryComp : ℕ → R.Term → R.TC (Σ _ PTrm.IsPathTrm)
---  tryComp zero _ = R.typeError []
---  tryComp (suc k) t = do
---        tm ← R.checkType
---              (R.con (quote compCase) (R.unknown v∷ R.unknown v∷ [ varg R.unknown ]))
---              (R.def (quote PathCase) ([ varg t ]))
---        (t1 , t2 , t3) ← h tm
---        (_ , t1') ← try≡ k t1
---        (_ , t2') ← try≡ k t2
---        (_ , t3') ← try≡ k t3
---        R.returnTC (_ , PTrm.isCompTrm t1' t2' t3')
-
---   where
-
---   h : R.Term → R.TC (R.Term × R.Term × R.Term)
---   h (R.con (quote compCase) l) = match3Vargs l
---   h _ = R.typeError []
-
-
---  atom : R.Term → R.TC (Σ _ PTrm.IsPathTrm)
---  atom x = R.returnTC (_ , PTrm.isAtomTrm x)
-
-
---  try≡ zero _ = R.typeError [ (R.strErr "Magic number to low") ]
---  try≡ (suc k) t =
---    R.catchTC
---     (tryRefl t)
---     (R.catchTC (tryComp k t) (atom t))
-
--- unLam : R.Term → R.TC R.Term
--- unLam (R.lam _ (R.abs _ t)) = R.returnTC t
--- unLam t = R.typeError []
-
--- appendIfUniqe : R.Term → List R.Term →   R.TC (List R.Term)
--- appendIfUniqe x [] = R.returnTC [ x ]
--- appendIfUniqe x xs@(x₁ ∷ xs') = do
---  x' ← R.checkType x (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>= unLam
---  x₁' ← R.checkType x₁ (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>= unLam
---  sym[x₁'] ← R.checkType (R.def (quote sym) [ varg x₁ ]) (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>= unLam
---  R.catchTC (R.extendContext "i" (varg (R.def (quote I) [])) $
---                 ( R.noConstraints $ R.unify (x') (x₁') >> R.returnTC xs))
---     (
---       R.catchTC
---      (R.extendContext "i" (varg (R.def (quote I) [])) $
---                 ( R.noConstraints $ R.unify (x') sym[x₁'] >> R.returnTC xs))
---         (appendIfUniqe x xs' >>= (R.returnTC ∘ (x₁ ∷_))  )
---         )
-
--- comparePathTerms : R.Term → R.Term → R.TC (Maybe Bool)
--- comparePathTerms x x₁ = do
---  x' ← R.checkType x (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>= unLam
---  x₁' ← R.checkType x₁ (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>= unLam
---  sym[x₁'] ← R.checkType (R.def (quote sym) [ varg x₁ ]) (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>= unLam
---  R.catchTC (R.extendContext "i" (varg (R.def (quote I) [])) $
---                 ( R.noConstraints $ R.unify (x') (x₁') >> R.returnTC (just true)))
---     (
---       R.catchTC
---      (R.extendContext "i" (varg (R.def (quote I) [])) $
---                 ( R.noConstraints $ R.unify (x') sym[x₁'] >> R.returnTC (just false)))
---         (R.returnTC nothing)
---         )
-
--- concatUniq : List R.Term → List R.Term →  R.TC (List R.Term)
--- concatUniq [] = R.returnTC
--- concatUniq (x ∷ x₂) x₁  = appendIfUniqe x x₁ >>= concatUniq x₂
-
--- indexOfAlways : R.Term → List R.Term →   R.TC ((List R.Term) × (Bool × ℕ))
--- indexOfAlways t [] = R.returnTC ([ t ] , (true , 0))
--- indexOfAlways t xs@(x ∷ xs') =
---   comparePathTerms t x >>=
---    Mb.rec ((λ (l , (b , k) ) → (x ∷ l) , (b , (suc k))) <$> indexOfAlways t xs' )
---           (λ b → R.returnTC (xs , (b , 0)))
-
--- unMapAtoms : List R.Term → ∀ {p} → PTrm.IsPathTrm p →
---      (R.TC ((List R.Term) × (Σ _ Pℕ.IsPathTrm)))
--- unMapAtoms l PT.isReflTrm = R.returnTC (l , _ , Pℕ.isReflTrm)
--- unMapAtoms l (PT.isAtomTrm x) =
---   do (l' , y) ← indexOfAlways x l
---      R.returnTC (l' , _ , Pℕ.isAtomTrm y)
--- unMapAtoms l (PT.isCompTrm e e₁ e₂) =
---   do (l' , _ , e') ← unMapAtoms l e
---      (l'' , _ , e₁') ← unMapAtoms l' e₁
---      (l''' , _ , e₂') ← unMapAtoms l'' e₂
---      (R.returnTC (l''' , _ , Pℕ.isCompTrm e' e₁' e₂'))
-
-
--- unquotePathTrm : ∀ {p} → PTrm.IsPathTrm p → R.Term
--- unquotePathTrm PT.isReflTrm = R.con (quote (isReflTrm)) []
--- unquotePathTrm (PT.isAtomTrm p) = R.con (quote isAtomTrm) (p v∷ [])
--- unquotePathTrm (PT.isCompTrm x x₁ x₂) = 
---  let x' = unquotePathTrm x
---      x₁' = unquotePathTrm x₁
---      x₂' = unquotePathTrm x₂
---  in R.con (quote isCompTrm) (x' v∷ x₁' v∷ x₂' v∷ [])
-
--- module _ (l : List R.Term) where
---   lk : (Bool × ℕ) → R.Term
---   lk (b , n) = if b then z else (R.def (quote sym) (z v∷ [])) 
---     where
---     z = lookupWithDefault R.unknown l n
+consInvolℕ : ∀ {p} → Pℕ.IsPathTrmDeas p → (Bool × ℕ) → Pℕ.IsPathTrmInvol _ _ 
+consInvolℕ PT.nilTrmDeasRefl x = PT.consTrmInvol PT.nilTrmInvolRefl x
+consInvolℕ q'@(PT.consTrmDeas x q) x₁ =
+    decRec (λ _ → Pℕ.involTrmInvol (ℕDeas→ℕInvol x) q)
+              (λ _ → Pℕ.consTrmInvol (ℕDeas→ℕInvol q') x₁) (IsRedex? q x₁ )
 
 
 
---   mkTrmsInvol' :  ∀ {p} → ℕ → Pℕ.IsPathTrmDeas p → List (Pℕ.IsPathTrmInvol _ _)
---   mkTrmsInvol' zero _ = []
---   mkTrmsInvol' (suc k) u =
---     let pi = ℕDeas→ℕInvol u
---     in if (Pℕ.hasRedexes pi) then (pi ∷ mkTrmsInvol' k (snd (Pℕ.Invol→Deas↓ pi))) else []
+ℕDeas→ℕInvol PT.nilTrmDeasRefl = PT.nilTrmInvolRefl
+ℕDeas→ℕInvol (PT.consTrmDeas p' q') = consInvolℕ p' q'
+-- ℕDeas'→ℕInvol x
 
---   mkTrmsInvol* : ∀ {p} → Pℕ.IsPathTrmDeas p → List (Pℕ.IsPathTrmInvol _ _)
---   mkTrmsInvol* x = mkTrmsInvol' (Pℕ.depthIsPathTrmDeas x) x
+module tryPathE where
 
---   unquoteTrmInvol : PTrm.IsPathTrmInvol tt tt → R.Term
---   unquoteTrmInvol (PT.nilTrmInvol p) = R.con (quote nilTrmInvol) (p v∷ [])
---   unquoteTrmInvol (PT.nilInvolTrmInvol p) = R.con (quote nilInvolTrmInvol) (p v∷ [])
---   unquoteTrmInvol PT.nilTrmInvolRefl = R.con (quote nilTrmInvolRefl) []
---   unquoteTrmInvol (PT.consTrmInvol x q) =
---     R.con (quote consTrmInvol) (unquoteTrmInvol x v∷ q v∷ [])
---   unquoteTrmInvol (PT.involTrmInvol x q) =
---    R.con (quote involTrmInvol) (unquoteTrmInvol x v∷ q v∷ [])
+ try≡ : ℕ → R.Term → R.TC (Σ _ PTrm.IsPathTrm)
 
---   mkTrmsInvol :  ∀ {p} → Pℕ.IsPathTrmDeas p → List (R.Term)
---   mkTrmsInvol x = Li.map ((λ y → R.def (quote ⟦_⟧ti≡) (y v∷ []))
---     ∘ unquoteTrmInvol ∘ mapPTG lk) $ mkTrmsInvol* x
 
---   foldPathCompTerm : List R.Term → R.Term
---   foldPathCompTerm [] = R.def (quote refl) []
---   foldPathCompTerm (x ∷ []) = x
---   foldPathCompTerm (x ∷ xs@(_ ∷ _)) = R.def (quote _∙_) (x v∷ foldPathCompTerm xs v∷ [])
+ tryRefl : R.Term → R.TC (Σ _ PTrm.IsPathTrm)
+ tryRefl t = do
+       _ ← R.noConstraints $ R.checkType
+             (R.con (quote reflCase) [])
+             (R.def (quote PathCase) ([ varg t ]))
+       R.returnTC (_ , PTrm.isReflTrm)
+
+ tryComp : ℕ → R.Term → R.TC (Σ _ PTrm.IsPathTrm)
+ tryComp zero _ = R.typeError [ (R.strErr "Magic number to low") ]
+ tryComp (suc k) t = do
+       tm ← R.noConstraints $ R.checkType
+             (R.con (quote compCase) (R.unknown v∷ R.unknown v∷ [ varg R.unknown ]))
+             (R.def (quote PathCase) ([ varg t ]))
+       (t1 , t2 , t3) ← h tm
+       (_ , t1') ← try≡ k t1
+       (_ , t2') ← try≡ k t2
+       (_ , t3') ← try≡ k t3
+       R.returnTC (_ , PTrm.isCompTrm t1' t2' t3')
+
+  where
+
+  h : R.Term → R.TC (R.Term × R.Term × R.Term)
+  h (R.con (quote compCase) l) = match3Vargs l
+  h _ = R.typeError [ (R.strErr "tryCompFail-h") ]
+
+
+ atom : R.Term → R.TC (Σ _ PTrm.IsPathTrm)
+ atom x = R.returnTC (_ , PTrm.isAtomTrm x)
+
+
+ try≡ zero _ = R.typeError [ (R.strErr "Magic number to low") ]
+ try≡ (suc k) t =
+   R.catchTC
+    (tryRefl t)
+    (R.catchTC (tryComp k t) (atom t))
+
+lamWrap' : ∀ {ℓ} {A : Type ℓ} {x y : A} → x ≡ y → x ≡ y
+lamWrap' p i = p i
+
+
+lamWrap : R.Term → R.Term
+lamWrap t = R.def (quote lamWrap') (t v∷ [])
+
+unLam : R.Term → R.TC R.Term
+unLam (R.lam _ (R.abs _ t)) = R.returnTC t
+unLam t = R.typeError ((R.strErr "unLam-fail") ∷ [ R.termErr t  ])
+
+appendIfUniqe : R.Term → List R.Term →   R.TC (List R.Term)
+appendIfUniqe x [] = R.returnTC [ x ]
+appendIfUniqe x xs@(x₁ ∷ xs') = do
+ x' ← R.checkType x (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>=
+          λ u → R.catchTC (unLam u) (R.typeError [ R.strErr "aiu x'" ])
+ x₁' ← R.checkType x₁ (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>= unLam
+ sym[x₁'] ← R.checkType (R.def (quote sym) [ varg x₁ ]) (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>= unLam
+ R.catchTC (R.extendContext "i" (varg (R.def (quote I) [])) $
+                ( R.noConstraints $ R.unify (x') (x₁') >> R.returnTC xs))
+    (
+      R.catchTC
+     (R.extendContext "i" (varg (R.def (quote I) [])) $
+                ( R.noConstraints $ R.unify (x') sym[x₁'] >> R.returnTC xs))
+        (appendIfUniqe x xs' >>= (R.returnTC ∘ (x₁ ∷_))  )
+        )
+
+comparePathTerms : R.Term → R.Term → R.TC (Maybe Bool)
+comparePathTerms x x₁ = do
+ x' ← R.withNormalisation true $ R.checkType (lamWrap x) (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>=
+         λ u → R.catchTC (unLam u) (R.typeError [ R.strErr "cpt x'" ])
+ x₁' ← R.withNormalisation true $ R.checkType (lamWrap x₁) (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>=
+         λ u → R.catchTC (unLam u) (R.typeError (R.strErr "cpt x₁'" ∷ R.termErr x ∷ [ R.termErr x₁ ]))
+ sym[x₁'] ← R.checkType (R.def (quote sym) [ varg x₁ ]) (R.def (quote _≡_) (R.unknown v∷ R.unknown v∷ [])) >>= unLam
+ R.catchTC (R.extendContext "i" (varg (R.def (quote I) [])) $
+                ( R.noConstraints $ R.unify (x') (x₁') >> R.returnTC (just true)))
+    (
+      R.catchTC
+     (R.extendContext "i" (varg (R.def (quote I) [])) $
+                ( R.noConstraints $ R.unify (x') sym[x₁'] >> R.returnTC (just false)))
+        (R.returnTC nothing)
+        )
+
+concatUniq : List R.Term → List R.Term →  R.TC (List R.Term)
+concatUniq [] = R.returnTC
+concatUniq (x ∷ x₂) x₁  = appendIfUniqe x x₁ >>= concatUniq x₂
+
+indexOfAlways : R.Term → List R.Term →   R.TC ((List R.Term) × (Bool × ℕ))
+indexOfAlways t [] = R.returnTC ([ t ] , (true , 0))
+indexOfAlways t xs@(x ∷ xs') =
+  comparePathTerms t x >>=
+   Mb.rec ((λ (l , (b , k) ) → (x ∷ l) , (b , (suc k))) <$> indexOfAlways t xs' )
+          (λ b → R.returnTC (xs , (b , 0)))
+
+unMapAtoms : List R.Term → ∀ {p} → PTrm.IsPathTrm p →
+     (R.TC ((List R.Term) × (Σ _ Pℕ.IsPathTrm)))
+unMapAtoms l PT.isReflTrm = R.returnTC (l , _ , Pℕ.isReflTrm)
+unMapAtoms l (PT.isAtomTrm x) =
+  do (l' , y) ← indexOfAlways x l
+     R.returnTC (l' , _ , Pℕ.isAtomTrm y)
+unMapAtoms l (PT.isCompTrm e e₁ e₂) =
+  do (l' , _ , e') ← unMapAtoms l e
+     (l'' , _ , e₁') ← unMapAtoms l' e₁
+     (l''' , _ , e₂') ← unMapAtoms l'' e₂
+     (R.returnTC (l''' , _ , Pℕ.isCompTrm e' e₁' e₂'))
+
+
+unquotePathTrm : ∀ {p} → PTrm.IsPathTrm p → R.Term
+unquotePathTrm PT.isReflTrm = R.con (quote (isReflTrm)) []
+unquotePathTrm (PT.isAtomTrm p) = R.con (quote isAtomTrm) (p v∷ [])
+unquotePathTrm (PT.isCompTrm x x₁ x₂) = 
+ let x' = unquotePathTrm x
+     x₁' = unquotePathTrm x₁
+     x₂' = unquotePathTrm x₂
+ in R.con (quote isCompTrm) (x' v∷ x₁' v∷ x₂' v∷ [])
+
+module _ (l : List R.Term) where
+  lk : (Bool × ℕ) → R.Term
+  lk (b , n) = if b then z else (R.def (quote sym) (z v∷ [])) 
+    where
+    z = lookupWithDefault R.unknown l n
+
+
+
+  mkTrmsInvol' :  ∀ {p} → ℕ → Pℕ.IsPathTrmDeas p → List (Pℕ.IsPathTrmInvol _ _)
+  mkTrmsInvol' zero _ = []
+  mkTrmsInvol' (suc k) u =
+    let pi = ℕDeas→ℕInvol u
+    in if (Pℕ.hasRedexes pi) then (pi ∷ mkTrmsInvol' k (snd (Pℕ.Invol→Deas↓ pi))) else []
+
+  mkTrmsInvol* : ∀ {p} → Pℕ.IsPathTrmDeas p → List (Pℕ.IsPathTrmInvol _ _)
+  mkTrmsInvol* x = mkTrmsInvol' (Pℕ.depthIsPathTrmDeas x) x
+
+  unquoteTrmInvol : PTrm.IsPathTrmInvol tt tt → R.Term
+  -- unquoteTrmInvol (PT.nilTrmInvol p) = R.con (quote nilTrmInvol) (p v∷ [])
+  -- unquoteTrmInvol (PT.nilInvolTrmInvol p) = R.con (quote nilInvolTrmInvol) (p v∷ [])
+  unquoteTrmInvol PT.nilTrmInvolRefl = R.con (quote nilTrmInvolRefl) []
+  unquoteTrmInvol (PT.consTrmInvol x q) =
+    R.con (quote consTrmInvol) (unquoteTrmInvol x v∷ q v∷ [])
+  unquoteTrmInvol (PT.involTrmInvol x q) =
+   R.con (quote involTrmInvol) (unquoteTrmInvol x v∷ q v∷ [])
+
+  mkTrmsInvol :  ∀ {p} → Pℕ.IsPathTrmDeas p → List (R.Term)
+  mkTrmsInvol x = Li.map ((λ y → R.def (quote ⟦_⟧ti≡) (y v∷ []))
+    ∘ unquoteTrmInvol ∘ mapPTG lk) $ mkTrmsInvol* x
+
+  foldPathCompTerm : List R.Term → R.Term
+  foldPathCompTerm [] = R.def (quote refl) []
+  foldPathCompTerm (x ∷ []) = x
+  foldPathCompTerm (x ∷ xs@(_ ∷ _)) = R.def (quote _∙_) (x v∷ foldPathCompTerm xs v∷ [])
   
---   mkTrmInvol :  ∀ {p} → Pℕ.IsPathTrmDeas p → (List (Pℕ.IsPathTrmInvol _ _) × R.Term)
---   mkTrmInvol x = ( mkTrmsInvol* x) , foldPathCompTerm (mkTrmsInvol x) 
+  mkTrmInvol :  ∀ {p} → Pℕ.IsPathTrmDeas p → (List (Pℕ.IsPathTrmInvol _ _) × R.Term)
+  mkTrmInvol x = ( mkTrmsInvol* x) , foldPathCompTerm (mkTrmsInvol x) 
 
 
--- groupoidSolverMain : Bool → R.Term → R.TC Unit
--- groupoidSolverMain debugFlag  hole = do
---  (_ , (t0 , t1)) ← inferEnds hole
---  t0N ← R.normalise t0
---  t1N ← R.normalise t1
---  (r0 , r0') ← tryPathE.try≡ 100 t0N
---  (r1 , r1') ← tryPathE.try≡ 100 t1N
+groupoidSolverTerm : Bool → R.Term → R.TC (R.Term × List R.ErrorPart)
+groupoidSolverTerm debugFlag  hole = do
+ 
+ (t0 , t1) ← R.inferType hole >>= wait-for-type >>= (get-boundary ) >>= Mb.rec
+     (R.typeError [ R.strErr "unable to get boundary" ])
+     (λ x → R.returnTC x)
+ 
+ (r0 , r0') ← tryPathE.try≡ 100 t0
+ (r1 , r1') ← tryPathE.try≡ 100 t1
  
 
---  (aL' , (_ , e0)) ← unMapAtoms [] r0'
---  (aL , (_ , e1)) ← unMapAtoms aL' r1'
---  let (_ , e0deas) =  (Pℕ.⟦ e0 ⟧da∘r)
---  let (_ , e1deas) =  (Pℕ.⟦ e1 ⟧da∘r)  
---  -- e0Q ← R.quoteTC $ mkTrmInvol aL e1deas
---  -- e1Q ← R.quoteTC e1
+ (aL' , (_ , e0)) ← unMapAtoms [] r0'
+ (aL , (_ , e1)) ← unMapAtoms aL' r1'
+ let (_ , e0deas) =  (Pℕ.⟦ e0 ⟧da∘r)
+ let (_ , e1deas) =  (Pℕ.⟦ e1 ⟧da∘r)  
+
+ let dbgInfo =   (R.strErr "LHS: ") ∷ (R.termErr $ t0)
+               ∷ (R.strErr "\n")
+               ∷ (R.strErr "RHS: ") ∷ (R.termErr $ t1)
+               ∷ (R.strErr "\n")
+               ∷ (R.strErr "LHS: ") ∷ (R.strErr $ PℕS.showIPT (e0))
+               ∷ (R.strErr "\n")
+               ∷ (R.strErr "RHS: ") ∷ (R.strErr $ PℕS.showIPT (e1))
+               ∷ (R.strErr "\n")
+               ∷ (R.strErr "LHS: ") ∷ (R.strErr $ PℕS.showIPTD (e0deas))
+               ∷ (R.strErr "\n")
+               ∷ (R.strErr "RHS: ") ∷ (R.strErr $ PℕS.showIPTD (e1deas))
+               ∷ (R.strErr "\n")
+               ∷ (R.strErr "LHS: ") ∷ (R.strErr $ PℕS.showIPTI (ℕDeas→ℕInvol e0deas))
+               ∷ (R.strErr "\n")
+               ∷ (R.strErr "RHS: ") ∷ (R.strErr $ PℕS.showIPTI (ℕDeas→ℕInvol e1deas))
+               -- ∷ (R.strErr "\n") ∷ (R.termErr ((mkTrmInvol aL e0deas)))             
+               ∷ (R.strErr "\n")
+               ∷ ((niceAtomList 0 aL))
+ -- R.typeError dbgInfo
+
+ let (_ , iP0) = mkTrmInvol aL e0deas
+     (eqs1 , iP1) = mkTrmInvol aL e1deas
+
+ let dbgInfo = dbgInfo ++ ((R.strErr "\n") ∷  niceEqsList eqs1)
 
 
---  let dbgInfo =   (R.strErr "LHS: ") ∷ (R.strErr $ PℕS.showIPT (e0))
---                ∷ (R.strErr "\n")
---                ∷ (R.strErr "RHS: ") ∷ (R.strErr $ PℕS.showIPT (e1))
---                ∷ (R.strErr "\n")
---                ∷ (R.strErr "LHS: ") ∷ (R.strErr $ PℕS.showIPTD (e0deas))
---                ∷ (R.strErr "\n")
---                ∷ (R.strErr "RHS: ") ∷ (R.strErr $ PℕS.showIPTD (e1deas))
---                ∷ (R.strErr "\n")
---                ∷ (R.strErr "LHS: ") ∷ (R.strErr $ PℕS.showIPTI (ℕDeas→ℕInvol e0deas))
---                ∷ (R.strErr "\n")
---                ∷ (R.strErr "RHS: ") ∷ (R.strErr $ PℕS.showIPTI (ℕDeas→ℕInvol e1deas))
---                -- ∷ (R.strErr "\n") ∷ (R.termErr ((mkTrmInvol aL e0deas)))             
---                ∷ (R.strErr "\n")
---                ∷ ((niceAtomList 0 aL))
---  -- R.typeError dbgInfo
+ let pa0 = R.def (quote _∙_)
+              (R.def (quote daSingl) ((unquotePathTrm r0') v∷ [])
+               v∷ iP0 v∷ [] )
+     pa1 = R.def (quote _∙_)
+              (R.def (quote daSingl) ((unquotePathTrm r1') v∷ [])
+               v∷ iP1 v∷ [] )
+ let final =  (R.def (quote _∙∙_∙∙_)
+            (pa0
+             v∷ R.def (quote refl) []
+             v∷ R.def (quote sym) (pa1 v∷ []) v∷ [] ))
 
---  let (_ , iP0) = mkTrmInvol aL e0deas
---      (eqs1 , iP1) = mkTrmInvol aL e1deas
+ -- finalTy0 ← R.inferType pa0 >>= R.normalise
+ -- finalTy1 ← R.inferType pa1 >>= R.normalise
+ -- finalTy ← R.inferType final
+ -- let dbgInfo = dbgInfo
+ --       ++ ((R.strErr "\n fTy0 : ") ∷ R.termErr finalTy0 ∷ [])
+ --       ++ ((R.strErr "\n fTy1 : ") ∷ R.termErr finalTy1 ∷ [])
+ --       -- ++ ((R.strErr "\n fTy : ") ∷ R.termErr finalTy ∷ [])
+ -- -- R.typeError dbgInfo
+ R.returnTC (final , dbgInfo)  
 
---  let dbgInfo = dbgInfo ++ ((R.strErr "\n") ∷  niceEqsList eqs1)
---  let centerPathTrm = --R.unknown
---         (R.def
---                (quote _∙_)
---             (iP0
---               v∷ R.def (quote sym) (iP1 v∷ []) v∷ [] )        )
+ where
+ niceAtomList : ℕ → List (R.Term) → List R.ErrorPart
+ niceAtomList _ [] = []
+ niceAtomList k (x ∷ xs) =
+   (R.strErr (mkNiceVar k  <> " = ") ∷ R.termErr x ∷ [ R.strErr "\n" ]) ++ niceAtomList (suc k) xs
+
+ niceEq : ℕ → Pℕ.IsPathTrmInvol _ _ → List R.ErrorPart
+ niceEq k x = R.strErr (primShowNat k <> " : ")
+            ∷ R.strErr (PℕS.showIPTI x)
+            ∷ [ R.strErr "\n" ]
  
---  let final = ( (R.def (quote _∙∙_∙∙_)
---             (R.def (quote daSingl) ((unquotePathTrm r0') v∷ [])
---              v∷ centerPathTrm
---              v∷ R.def (quote sym) (R.def (quote daSingl) ((unquotePathTrm r1') v∷ []) v∷ []) v∷ [] )))
-     
---  R.catchTC
---    (R.unify hole final)
---      (R.typeError dbgInfo)
+ niceEqsList' : ℕ → List (Pℕ.IsPathTrmInvol _ _) → List R.ErrorPart
+ niceEqsList' k [] = []
+ niceEqsList' k (x ∷ xs) =
+  niceEq k x ++ niceEqsList' (suc k) xs 
 
---  where
---  niceAtomList : ℕ → List (R.Term) → List R.ErrorPart
---  niceAtomList _ [] = []
---  niceAtomList k (x ∷ xs) =
---    (R.strErr (mkNiceVar k  <> " = ") ∷ R.termErr x ∷ [ R.strErr "\n" ]) ++ niceAtomList (suc k) xs
+ niceEqsList = niceEqsList' 0
 
---  niceEq : ℕ → Pℕ.IsPathTrmInvol _ _ → List R.ErrorPart
---  niceEq k x = R.strErr (primShowNat k <> " : ")
---             ∷ R.strErr (PℕS.showIPTI x)
---             ∷ [ R.strErr "\n" ]
- 
---  niceEqsList' : ℕ → List (Pℕ.IsPathTrmInvol _ _) → List R.ErrorPart
---  niceEqsList' k [] = []
---  niceEqsList' k (x ∷ xs) =
---   niceEq k x ++ niceEqsList' (suc k) xs 
+groupoidSolverMain : Bool → R.Term → R.TC Unit
+groupoidSolverMain debugFlag  hole = do
+  ty ← R.withNormalisation true $  R.inferType hole >>= wait-for-type
+  hole' ← R.withNormalisation true $ R.checkType hole ty
+  (solution , msg) ← groupoidSolverTerm debugFlag hole'
+  R.catchTC
+   (R.unify hole solution)
+   (R.typeError msg)
 
---  niceEqsList = niceEqsList' 0
+squareSolverMain : Bool → R.Term → R.TC Unit
+squareSolverMain debugFlag  hole = do
+  ty ← R.inferType hole >>= wait-for-type
+  hole' ← R.checkType (R.def (quote compPathR→PathP∙∙) (R.unknown v∷ [])) ty >>= extractMeta
+  
+  -- R.typeError [ R.termErr tm' ] 
+  (solution , msg) ← groupoidSolverTerm debugFlag  hole'
+  R.catchTC
+   (R.unify hole' solution)
+   (R.typeError msg)
 
--- macro
---  solveGroupoidDebug : R.Term → R.TC Unit
---  solveGroupoidDebug = groupoidSolverMain true
+  R.catchTC
+   (R.unify hole (R.def (quote compPathR→PathP∙∙) (hole' v∷ [])))
+   (R.typeError [ R.strErr "xxx" ] )
+ where
+  extractMeta : R.Term → R.TC R.Term
+  extractMeta (R.def _ tl) = matchVarg tl
+  extractMeta t =
+   R.typeError (R.strErr "extractMetaFail :" ∷ [ R.termErr t ])
+  
+macro
+ solveGroupoidDebug : R.Term → R.TC Unit
+ solveGroupoidDebug = groupoidSolverMain true
 
--- module TestGroupoidπ1 (A : Type ℓ) (x y z w : A) (p p' : x ≡ y) (q : y ≡ z) (q' : z ≡ y) (r : w ≡ z) where
+ solveSquareDebug : R.Term → R.TC Unit
+ solveSquareDebug = squareSolverMain false
 
---   -- test0 : ((p ∙∙ refl ∙∙ q) ∙ sym r) ≡
---   --        (p ∙ (q ∙ refl ∙ refl) ∙∙ refl ∙∙ refl) ∙∙ sym r ∙∙ refl
---   -- test0 =  solveGroupoidDebug
+ solveGroupoid : R.Term → R.TC Unit
+ solveGroupoid = groupoidSolverMain true
 
---   -- test0 : p ∙ sym q' ≡ p ∙' sym q'
---   -- test0 =  solveGroupoidDebug
-
---   -- test1 : p ∙ sym p ≡ refl
---   -- test1 =  solveGroupoidDebug
-
---   pA pB pC : x ≡ w
---   pA = (p ∙∙ refl ∙∙ q) ∙ sym r
---   pB = (p ∙ (q ∙ sym (sym r ∙  r) ∙ sym q) ∙∙ q ∙∙ refl) ∙∙ sym r ∙∙ refl
---   pC = refl ∙∙ p' ∙ q ∙ sym q ∙ sym p' ∙∙ p ∙∙ q ∙∙ sym q ∙ q ∙ sym r 
-
---   -- pA=pB : pA ≡ pB
---   -- pA=pB = solveGroupoidDebug
-
---   -- pB=pC : pB ≡ pC
---   -- pB=pC = solveGroupoidDebug
-
---   pA=pC : pA ≡ pC
---   pA=pC = solveGroupoidDebug
+ solveSquare : R.Term → R.TC Unit
+ solveSquare = squareSolverMain false
 
 
 
---   -- test : ((p ∙∙ refl ∙∙ q) ∙ sym r) ≡
---   --        (p ∙ (q ∙ sym (sym r ∙  r) ∙ sym q) ∙∙ q ∙∙ refl) ∙∙ sym r ∙∙ refl
---   -- test =  solveGroupoidDebug
+module Examples (A : Type ℓ) (x y z w : A) (p p' : x ≡ y) (q : y ≡ z) (q' : z ≡ y) (r : w ≡ z) where
 
---   -- test3 : p ∙ q ∙ sym r ∙ (r) ∙ (sym q) ∙ (sym p) ≡ refl
---   -- test3 = solveGroupoidDebug
+  pA pB pC : x ≡ w
+  pA = (p ∙∙ refl ∙∙ q) ∙ sym r
+  pB = (p ∙ (q ∙ sym (sym r ∙  r) ∙ sym q) ∙∙ q ∙∙ refl) ∙∙ sym r ∙∙ refl
+  pC = refl ∙∙ p' ∙ q ∙ sym q ∙ sym p' ∙∙ p ∙∙ q ∙∙ sym q ∙ q ∙ sym r 
+
+  pA=pB : pA ≡ pB
+  pA=pB = solveGroupoidDebug
+
+  pB=pC : pB ≡ pC
+  pB=pC = solveGroupoidDebug
+
+  pA=pC : pA ≡ pC
+  pA=pC = solveGroupoidDebug
+
+  pA=pB∙pB=pC-≡-pA=pC : pA=pB ∙ pB=pC ≡ pA=pC
+  pA=pB∙pB=pC-≡-pA=pC = midCancel _ _ _
+
+  
+  sqTest : Square p (sym r ∙ refl) (p ∙ q) (q ∙ sym r)
+  sqTest = solveSquareDebug    
+
+module _ {A : Type ℓ} where
+ compSq' :   {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁} {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}
+             {a₋₀ : a₀₀ ≡ a₁₀} {a₋₁ : a₀₁ ≡ a₁₁} {a₀₀' a₀₁' : A} {a₀₋' : a₀₀' ≡ a₀₁'}
+             {a₁₀' a₁₁' : A} {a₁₋' : a₁₀' ≡ a₁₁'} {a₋₀' : a₀₀' ≡ a₁₀'} {a₋₁' : a₀₁' ≡ a₁₁'}
+         → Square a₀₋ a₁₋ a₋₀ a₋₁
+         → (t : a₀₀ ≡ a₀₀')
+         → (a₁₋ ⁻¹ ∙∙ a₋₀ ⁻¹ ∙∙ t ∙∙ a₋₀' ∙∙ a₁₋') ≡ (a₋₁ ⁻¹ ∙∙ a₀₋ ⁻¹ ∙∙ t ∙∙ a₀₋' ∙∙ a₋₁')
+         → Square a₀₋' a₁₋' a₋₀' a₋₁'
+ compSq' {a₀₋' = a₀₋'} {a₁₋' = a₁₋'} {a₋₀' = a₋₀'}  {a₋₁' =  a₋₁'} s t c i j =
+  hcomp
+    (λ k → λ {  (i = i0) → doubleCompPath-filler (sym (s i0)) t a₀₋' j k
+              ; (i = i1) → doubleCompPath-filler (sym (s  i1))
+                             ((λ i → s (~ i) i0) ∙∙ t ∙∙  a₋₀')  a₁₋' j k
+              ; (j = i0) → doubleCompPath-filler (λ i → s (~ i) i0) t a₋₀' i k
+              ; (j = i1) → compPathR→PathP∙∙ c (~ i) k
+              }) (s i j)
+
+open import Cubical.Algebra.Group
+
+
+
+module EM₁-Example (G : Group ℓ) (a b c : fst G) where
+  open GroupStr (snd G)
+
+  data EM₁ : Type ℓ where
+      embase : EM₁
+      emloop : ⟨ G ⟩ → embase ≡ embase
+      emcomp : (g h : ⟨ G ⟩ ) → PathP (λ j → embase ≡ emloop h j) (emloop g) (emloop (g · h))
+
+  double-emcomp :  Square {A = EM₁}
+                    (emloop b) (emloop ((a · b) · c))
+                    (sym (emloop a)) (emloop c)
+
+  double-emcomp =
+    compSq'
+      (emcomp a b ∙v emcomp (a · b) c)
+      (emloop a)
+      solveGroupoidDebug
+

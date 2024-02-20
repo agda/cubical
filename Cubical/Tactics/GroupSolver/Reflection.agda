@@ -18,6 +18,7 @@ open import Cubical.Data.Maybe
 
 open import Cubical.Reflection.Base
 import Agda.Builtin.Reflection as R
+open import Cubical.Tactics.Reflection
 
 infixr 40 _<>_
 
@@ -89,6 +90,12 @@ quoteList (x ∷ x₁) = R.con (quote _∷_)
   (varg x ∷ varg (quoteList x₁) ∷ [])
 
 
+matchVarg : List (R.Arg R.Term) → R.TC R.Term
+matchVarg (harg _ ∷ xs) = matchVarg xs
+matchVarg (varg t ∷ []) = R.returnTC t
+matchVarg _ = R.typeError [ R.strErr "matchV fail" ]
+
+
 match2Vargs : List (R.Arg R.Term) → R.TC (R.Term × R.Term)
 match2Vargs (harg _ ∷ xs) = match2Vargs xs
 match2Vargs (varg t1 ∷ varg t2 ∷ []) = R.returnTC (t1 , t2)
@@ -104,8 +111,8 @@ match3Vargs _ = R.typeError []
 
 inferEnds : R.Term → R.TC (R.Type × (R.Term × R.Term))
 inferEnds hole = do
-  ty ← R.inferType hole
-  (eTy , (e0 , e1)) ← pathTypeView ty
+  ty ← R.inferType hole >>= wait-for-type
+  (eTy , (e0 , e1)) ← R.withNormalisation true $ pathTypeView ty
   blockIfContainsMeta e0
   blockIfContainsMeta e1
 

@@ -180,6 +180,13 @@ length-map : ∀ {ℓA ℓB} {A : Type ℓA} {B : Type ℓB} → (f : A → B) �
 length-map f [] = refl
 length-map f (a ∷ as) = cong suc (length-map f as)
 
+rot : List A → List A
+rot [] = []
+rot (x ∷ xs) = xs ∷ʳ x
+
+rotN : ℕ → List A → List A
+rotN n = iter n rot 
+
 lookupWithDefault : A → List A → ℕ → A
 lookupWithDefault a [] _ = a
 lookupWithDefault _ (x ∷ _) zero = x

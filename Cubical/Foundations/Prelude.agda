@@ -134,6 +134,15 @@ doubleCompPath-filler : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
 doubleCompPath-filler p q r j i =
   hfill (doubleComp-faces p r i) (inS (q i)) j
 
+fill₁₋ : {p : x ≡ y} {q : y ≡ z} {r : z ≡ w} → PathP (λ j → p (~ j) ≡ r j) q (p ∙∙ q ∙∙ r)
+fill₁₋ = doubleCompPath-filler _ _ _
+
+fill₋₁ : {p : x ≡ y} {q : y ≡ z} {r : z ≡ w} → PathP (λ j → q j ≡ (p ∙∙ q ∙∙ r)  j) (sym p) r 
+fill₋₁ {p = p} {q} {r} i j =
+  hfill (doubleComp-faces p r i) (inS (q i)) j
+
+
+
 -- any two definitions of double composition are equal
 compPath-unique : (p : x ≡ y) (q : y ≡ z) (r : z ≡ w)
                   → (α β : Σ[ s ∈ x ≡ w ] PathP (λ j → p (~ j) ≡ r j) q s)

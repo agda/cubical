@@ -35,7 +35,8 @@ wait-for-type : Term → TC Term
 wait-for-type (var x args) = var x <$> wait-for-args args
 wait-for-type (con c args) = con c <$> wait-for-args args
 wait-for-type (def f args) = def f <$> wait-for-args args
-wait-for-type (lam v (abs x t)) = returnTC (lam v (abs x t))
+wait-for-type (lam v (abs x t)) =
+ wait-for-type t >>= λ t' → returnTC (lam v (abs x t'))
 wait-for-type (pat-lam cs args) = returnTC (pat-lam cs args)
 wait-for-type (pi (arg i a) (abs x b)) = do
   a ← wait-for-type a
