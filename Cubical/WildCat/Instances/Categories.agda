@@ -14,13 +14,13 @@ open import Cubical.WildCat.Base
 module _ (ℓ ℓ' : Level) where
   open WildCat
 
-  CatPrecategory : WildCat (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
-  CatPrecategory .ob = Category ℓ ℓ'
-  CatPrecategory .Hom[_,_] = Functor
-  CatPrecategory .id = 𝟙⟨ _ ⟩
-  CatPrecategory ._⋆_ G H = H ∘F G
-  CatPrecategory .⋆IdL _ = F-lUnit
-  CatPrecategory .⋆IdR _ = F-rUnit
-  CatPrecategory .⋆Assoc _ _ _ = F-assoc
+  CatWildCat : WildCat (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
+  CatWildCat .ob = Category ℓ ℓ'
+  CatWildCat .Hom[_,_] = Functor
+  CatWildCat .id = 𝟙⟨ _ ⟩
+  CatWildCat ._⋆_ G H = H ∘F G
+  CatWildCat .⋆IdL _ = F-lUnit
+  CatWildCat .⋆IdR _ = F-rUnit
+  CatWildCat .⋆Assoc _ _ _ = F-assoc
 
 -- TODO: what is required for Functor C D to be a set?
