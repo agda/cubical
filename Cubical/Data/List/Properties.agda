@@ -185,7 +185,7 @@ rot [] = []
 rot (x ∷ xs) = xs ∷ʳ x
 
 rotN : ℕ → List A → List A
-rotN n = iter n rot 
+rotN n = iter n rot
 
 lookupWithDefault : A → List A → ℕ → A
 lookupWithDefault a [] _ = a

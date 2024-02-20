@@ -16,7 +16,7 @@ module Examples (A : Type ℓ) (x y z w : A) (p p' : x ≡ y) (q : y ≡ z) (q' 
   pA pB pC : x ≡ w
   pA = (p ∙∙ refl ∙∙ q) ∙ sym r
   pB = (p ∙ (q ∙ sym (sym r ∙  r) ∙ sym q) ∙∙ q ∙∙ refl) ∙∙ sym r ∙∙ refl
-  pC = refl ∙∙ p' ∙ q ∙ sym q ∙ sym p' ∙∙ p ∙∙ q ∙∙ sym q ∙ q ∙ sym r 
+  pC = refl ∙∙ p' ∙ q ∙ sym q ∙ sym p' ∙∙ p ∙∙ q ∙∙ sym q ∙ q ∙ sym r
 
   pA=pB : pA ≡ pB
   pA=pB = solveGroupoidDebug
@@ -30,9 +30,9 @@ module Examples (A : Type ℓ) (x y z w : A) (p p' : x ≡ y) (q : y ≡ z) (q' 
   pA=pB∙pB=pC-≡-pA=pC : pA=pB ∙ pB=pC ≡ pA=pC
   pA=pB∙pB=pC-≡-pA=pC = midCancel _ _ _
 
-  
+
   sqTest : Square p (sym r ∙ refl) (p ∙ q) (q ∙ sym r)
-  sqTest = solveSquareDebug    
+  sqTest = solveSquareDebug
 
 module _ {A : Type ℓ} where
  compSq' :   {a₀₀ a₀₁ : A} {a₀₋ : a₀₀ ≡ a₀₁} {a₁₀ a₁₁ : A} {a₁₋ : a₁₀ ≡ a₁₁}

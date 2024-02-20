@@ -53,9 +53,9 @@ Iso.leftInv IsoFunSpaceS¹ f = funExt λ {base → refl ; (loop i) → refl}
 
 Iso∂Cube2S₁→ : Iso (S¹ → A) (∂Cube 2 A)
 Iso.fun Iso∂Cube2S₁→ x = (_ , cong x loop) , (_ , refl) , refl
-Iso.inv Iso∂Cube2S₁→ ((_ , p) , (_ , q) , r) = rec _  
+Iso.inv Iso∂Cube2S₁→ ((_ , p) , (_ , q) , r) = rec _
   (p ∙ (cong snd r ∙' (sym q ∙' sym (cong fst r))))
-Iso.rightInv Iso∂Cube2S₁→ ((_ , p) , (_ , q) , r) = 
+Iso.rightInv Iso∂Cube2S₁→ ((_ , p) , (_ , q) , r) =
  ΣPathP ((ΣPathP (cong₂ _,_ _ _ ,  symP (compPath-filler _ _))) ,
    ΣPathP (ΣPathP (cong₂ _,_ _ _ , fill₋₁) ,
     Square× (λ i j → fst (r (i ∧ j))) (congP (λ _ →  symP) fill₋₁)))
