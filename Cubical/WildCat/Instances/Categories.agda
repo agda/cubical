@@ -1,19 +1,20 @@
--- The (pre)category of (small) categories
+-- The wild category of (small) categories
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Instances.Categories where
+module Cubical.WildCat.Instances.Categories where
 
-open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Category.Precategory
-open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functor.Properties
 open import Cubical.Foundations.Prelude
 
+open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor.Properties
+
+open import Cubical.WildCat.Base
 
 module _ (ℓ ℓ' : Level) where
-  open Precategory
+  open WildCat
 
-  CatPrecategory : Precategory (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
+  CatPrecategory : WildCat (ℓ-suc (ℓ-max ℓ ℓ')) (ℓ-max ℓ ℓ')
   CatPrecategory .ob = Category ℓ ℓ'
   CatPrecategory .Hom[_,_] = Functor
   CatPrecategory .id = 𝟙⟨ _ ⟩
