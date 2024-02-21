@@ -113,11 +113,21 @@ pullbackStability zariskiCoverage {c = A} um {d = B} φ =
   ψComm : ∀ i → (ψ i .fst) ∘ (AU._/1 (um .f i)) ≡ (BU._/1 (φ $r um .f i)) ∘ φ .fst
   ψComm i = uniqInvElemHom φ (um .f i) .fst .snd
 
+{-
 
--- this defines a subcanonical coverage
--- the proof is analoguous to the case of lattice sheaves,
--- see "isLimConeLocCone" in Cubical.Algebra.CommRing.Localisation.Limit
--- first, a lemma
+   This defines a subcanonical coverage.
+   The lemmas needed in the subcanonicity proof are analogous to
+   proving the sheaf property of the structure sheaf.
+
+   See the proof of "isLimConeLocCone" in Cubical.Algebra.CommRing.Localisation.Limit
+
+   Ultimately, what happens is that we use the "equalizerLemma" of
+   Cubical.Algebra.CommRing.Localisation.Limit
+   to construct the required functions induced by a limit in Sets.
+   Then, we implicitly use the fact that the forgetful functor
+   CommRing → Set reflects limits to show that these functions have to be ring homs.
+
+-}
 module SubcanonicalLemmas (A R : CommRing ℓ) where
   open CommRingStr ⦃...⦄
   open CommIdeal R using (_∈_)
