@@ -25,10 +25,22 @@ private
     ℓc ℓc' ℓd ℓd' ℓg ℓg' : Level
 
 Free : (G : Graph ℓg ℓg') → WildCat ℓg (ℓ-max ℓg ℓg')
-ob (Free G) = G .Node
-Hom[_,_] (Free G) x y = GPath G x y
-id (Free G) = pnil
-_⋆_ (Free G) f g = ccat G f g
-⋆IdL (Free G) = pnil++ _
-⋆IdR (Free G) = λ _ → refl
-⋆Assoc (Free G) f g h = ++assoc G f g h
+ob       (Free G)       = G .Node
+Hom[_,_] (Free G) x y   = GPath G x y
+id       (Free G)       = pnil
+_⋆_      (Free G) f g   = ccat G f g
+⋆IdL     (Free G)       = pnil++ _
+⋆IdR     (Free G)       = λ _ → refl
+⋆Assoc   (Free G) f g h = ++assoc G f g h
+
+inducedFunctor : (G : Graph ℓg ℓg') (C : WildCat ℓc ℓc')
+               → (g : GraphHom G (Cat→Graph C))
+               → WildFunctor (Free G) C
+inducedFunctor G C g = F
+  where
+    open GraphHom
+    F : WildFunctor (Free G) C
+    F-ob  F x = g $g x
+    F-hom F f = {!comcatList (map (g <$g>_) (PathToList f))!}
+    F-id  F = {!!}
+    F-seq F = {!!}
