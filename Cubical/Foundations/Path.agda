@@ -437,3 +437,31 @@ Square→compPathΩ² {a = a} sq k i j =
                  ; (j = i1) → a
                  ; (k = i1) → cong (λ x → rUnit x r) (flipSquare sq) i j})
         (sq j i)
+
+module 2-cylinder-from-square
+   {a₀₀ a₀₁ a₁₀ a₁₁ a₀₀' a₀₁' a₁₀' a₁₁' : A }
+   {a₀₋  : a₀₀  ≡ a₀₁ } {a₁₋  : a₁₀  ≡ a₁₁ } {a₋₀  : a₀₀  ≡ a₁₀ } {a₋₁  : a₀₁  ≡ a₁₁ }
+   {a₀₋' : a₀₀' ≡ a₀₁'} {a₁₋' : a₁₀' ≡ a₁₁'} {a₋₀' : a₀₀' ≡ a₁₀'} {a₋₁' : a₀₁' ≡ a₁₁'}
+   (aa'₀₀ : a₀₀ ≡ a₀₀')
+ where
+
+ MissingSquare = (a₁₋ ⁻¹ ∙∙ a₋₀ ⁻¹ ∙∙ aa'₀₀ ∙∙ a₋₀' ∙∙ a₁₋')
+               ≡ (a₋₁ ⁻¹ ∙∙ a₀₋ ⁻¹ ∙∙ aa'₀₀ ∙∙ a₀₋' ∙∙ a₋₁')
+
+ cyl : MissingSquare → ∀ i j → I → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
+
+ cyl c i j k = λ where
+  (i = i0) → doubleCompPath-filler (sym a₀₋) aa'₀₀ a₀₋' j k
+  (i = i1) → doubleCompPath-filler (sym a₁₋) (sym a₋₀ ∙∙ aa'₀₀ ∙∙  a₋₀')  a₁₋' j k
+  (j = i0) → doubleCompPath-filler (sym a₋₀) aa'₀₀ a₋₀' i k
+  (j = i1) → compPathR→PathP∙∙ c (~ i) k
+
+ module _ (s : MissingSquare) where
+  IsoSqSq' : Iso (Square a₀₋ a₁₋ a₋₀ a₋₁) (Square a₀₋' a₁₋' a₋₀' a₋₁')
+  Iso.fun IsoSqSq' x i j = hcomp (cyl s i j) (x i j)
+  Iso.inv IsoSqSq' x i j = hcomp (λ k → cyl s i j (~ k)) (x i j)
+  Iso.rightInv IsoSqSq' x l i j  = hcomp-equivFiller (λ k → cyl s i j (~ k)) (inS (x i j)) (~ l)
+  Iso.leftInv IsoSqSq' x l i j = hcomp-equivFiller (cyl s i j) (inS (x i j)) (~ l)
+
+  Sq≃Sq' : (Square a₀₋ a₁₋ a₋₀ a₋₁) ≃ (Square a₀₋' a₁₋' a₋₀' a₋₁')
+  Sq≃Sq' = isoToEquiv IsoSqSq'
