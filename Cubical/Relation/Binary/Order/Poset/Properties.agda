@@ -623,7 +623,7 @@ module _
                                       MeetDistLJoin≃JoinDistLMeet ∙ₑ
                                       JoinDistLMeet≃JoinDistRMeet
 
-        -- Since all of those varieties of distributivity are equivalent, we say that MeetDistLJoin is are canonical version of distributivity
+        -- Since all of those varieties of distributivity are equivalent, we say that MeetDistLJoin is our canonical version of distributivity
         isDistributive : Type ℓ
         isDistributive = MeetDistLJoin
 
