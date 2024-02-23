@@ -1,4 +1,7 @@
 {-# OPTIONS --safe #-}
+{-
+  This treatment of well-orderings follows chapter 10.3 of the HoTT book
+-}
 module Cubical.Relation.Binary.Order.Woset.Simulation where
 
 open import Cubical.Foundations.Prelude
@@ -27,7 +30,9 @@ private
   variable
     ℓ ℓ' ℓa ℓa' ℓb ℓb' ℓc ℓc' ℓd ℓd' : Level
 
--- We start with the truncated version and derive the untruncated
+-- We start with the presumption that the lifting property for a simulation
+-- must be truncated, but will prove subsequently that simulations are embeddings
+-- and that no truncation is needed
 isSimulation∃ : (A : Woset ℓa ℓa') (B : Woset ℓb ℓb') (f : ⟨ A ⟩ → ⟨ B ⟩)
               → Type (ℓ-max (ℓ-max (ℓ-max ℓa ℓa') ℓb) ℓb')
 isSimulation∃ A B f = monotone × ∃lifting
