@@ -19,11 +19,13 @@ open import Cubical.HITs.PropositionalTruncation as ∥₁
 
 open import Cubical.Relation.Nullary.Base
 
+open import Cubical.Induction.WellFounded
+
 private
   variable
     ℓA ℓ≅A ℓA' ℓ≅A' : Level
 
-Rel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+Rel : ∀ {ℓa ℓb} (A : Type ℓa) (B : Type ℓb) (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓa ℓb) (ℓ-suc ℓ'))
 Rel A B ℓ' = A → B → Type ℓ'
 
 PropRel : ∀ {ℓ} (A B : Type ℓ) (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
@@ -94,6 +96,9 @@ module BinaryRelation {ℓ ℓ' : Level} {A : Type ℓ} (R : Rel A A ℓ') where
   isIrrefl×isTrans→isAsym : isIrrefl × isTrans → isAsym
   isIrrefl×isTrans→isAsym (irrefl , trans) a₀ a₁ Ra₀a₁ Ra₁a₀
     = irrefl a₀ (trans a₀ a₁ a₀ Ra₀a₁ Ra₁a₀)
+
+  WellFounded→isIrrefl : WellFounded R → isIrrefl
+  WellFounded→isIrrefl well = WFI.induction well λ a f Raa → f a Raa Raa
 
   IrreflKernel : Rel A A (ℓ-max ℓ ℓ')
   IrreflKernel a b = R a b × (¬ a ≡ b)

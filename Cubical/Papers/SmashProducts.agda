@@ -14,14 +14,16 @@ Axel Ljungström, 2024
 {-# OPTIONS --safe #-}
 module Cubical.Papers.SmashProducts where
 -- Section 2
-import Cubical.Categories.Category.Precategory     as WCat
+import Cubical.WildCat.Base                        as WCat1
+import Cubical.WildCat.Instances.Pointed           as WCat2
+import Cubical.WildCat.BraidedSymmetricMonoidal    as WCat3
 import Cubical.HITs.SmashProduct.Base              as Smash
 
 -- Section 3
 import Cubical.Foundations.Pointed.Homogeneous     as Hom
 
 -- Section 5
-import Cubical.HITs.SmashProduct.SymmetricMonoidal as SM
+import Cubical.HITs.SmashProduct.SymmetricMonoidalCat as SM
 
 -- Section 6
 import Cubical.HITs.SmashProduct.Induction         as SmashInduction
@@ -29,17 +31,17 @@ import Cubical.HITs.SmashProduct.Induction         as SmashInduction
 ---- 2 Background ----
 --- 2.1 Symmetric monoidal wild categories
 
--- Definition 1 (Wild categories - note: currently called precategories in the library)
-open WCat using (Precategory)
+-- Definition 1 (Wild categories)
+open WCat1 using (WildCat)
 
 -- Proposition 2 (Pointed types form a wild cat)
-open WCat using (PointedCat)
+open WCat2 using (PointedCat)
 
 -- Definition 3 (Monoidal wild categories)
-open WCat using (isMonoidalPrecategory)
+open WCat3 using (isMonoidalWildCat)
 
 -- Definition 4 (Symmetric Monoidal wild categories)
-open WCat using (SymmetricMonoidalPrecat)
+open WCat3 using (SymmetricMonoidalPrecat)
 
 --- 2.2 Smash Products
 -- Definition 5 (Smash products -- note: defined as a coproduct in the
