@@ -38,6 +38,10 @@ open Category
 _[_,_] : (C : Category ℓ ℓ') → (x y : C .ob) → Type ℓ'
 _[_,_] = Hom[_,_]
 
+_End[_] : (C : Category ℓ ℓ') → (x : C .ob) → Type ℓ'
+C End[ x ] = C [ x , x ]
+
+
 -- Needed to define this in order to be able to make the subsequence syntax declaration
 seq' : ∀ (C : Category ℓ ℓ') {x y z} (f : C [ x , y ]) (g : C [ y , z ]) → C [ x , z ]
 seq' = _⋆_
@@ -124,6 +128,10 @@ record isUnivalent (C : Category ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   isGroupoid-ob : isGroupoid (C .ob)
   isGroupoid-ob = isOfHLevelPath'⁻ 2 (λ _ _ → isOfHLevelRespectEquiv 2 (invEquiv (univEquiv _ _)) (isSet-CatIso _ _))
 
+isPropIsUnivalent : {C : Category ℓ ℓ'} → isProp (isUnivalent C)
+isPropIsUnivalent =
+ isPropRetract isUnivalent.univ _ (λ _ → refl)
+  (isPropΠ2 λ _ _ → isPropIsEquiv _ )
 
 -- Opposite category
 _^op : Category ℓ ℓ' → Category ℓ ℓ'

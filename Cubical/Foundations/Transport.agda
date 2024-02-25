@@ -205,3 +205,17 @@ module _ {ℓ : Level} {A : Type ℓ} {a x1 x2 : A} (p : x1 ≡ x2) where
     ≡⟨ assoc (sym p) q refl ⟩
       (sym p ∙ q) ∙ refl
     ≡⟨ sym (rUnit (sym p ∙ q))⟩ sym p ∙ q ∎
+
+transport-filler-ua : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) (a : A)
+  → SquareP (λ _ i → ua e i)
+     (transport-filler (ua e) a)
+     (ua-gluePath e refl)
+     refl
+     (transportRefl (fst e a))
+transport-filler-ua {A = A} {B = B} (e , _) a j i =
+ let b = e a
+     tr = transportRefl b
+     z = tr (j ∧ ~ i)
+ in glue (λ { (i = i0) → a ; (i = i1) → tr j })
+      (hcomp (λ k → λ { (i = i0) → b ; (i = i1) → tr (j ∧ k) ; (j = i1) → tr (~ i ∨ k)  })
+      (hcomp (λ k → λ { (i = i0) → tr (j ∨ k) ; (i = i1) → z ; (j = i1) → z }) z))

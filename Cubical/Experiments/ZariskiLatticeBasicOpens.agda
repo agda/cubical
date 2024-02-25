@@ -34,7 +34,7 @@ open import Cubical.Algebra.CommRing.Localisation.InvertingElements
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 
 open import Cubical.HITs.SetQuotients as SQ
@@ -118,9 +118,9 @@ module Presheaf (A' : CommRing ℓ) where
   lemma = PT.rec (A[1/ x ]ˣ (y ⋆ 1a) .snd) lemmaΣ
    where
    path1 : (y z : A) → 1r ·r (y ·r 1r ·r z) ·r 1r ≡ z ·r y
-   path1 = solve A'
+   path1 _ _ = solve! A'
    path2 : (xn : A) → xn ≡ 1r ·r 1r ·r (1r ·r 1r ·r xn)
-   path2 = solve A'
+   path2 _ = solve! A'
 
    lemmaΣ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r y → y ⋆ 1a ∈ A[1/ x ]ˣ
    lemmaΣ (n , z , p) = [ z , (x ^ n) ,  PT.∣ n , refl ∣₁ ] -- xⁿ≡zy → y⁻¹ ≡ z/xⁿ
@@ -165,7 +165,7 @@ module Presheaf (A' : CommRing ℓ) where
   ·r-lcoh-≼ x y z = map ·r-lcoh-≼Σ
    where
    path : (x z a y zn : A) →  x ·r z ·r (a ·r y ·r zn) ≡ x ·r zn ·r a ·r (y ·r z)
-   path = solve A'
+   path _ _ _ _ _ = solve! A'
 
    ·r-lcoh-≼Σ : Σ[ n ∈ ℕ ] Σ[ a ∈ A ] x ^ n ≡ a ·r y
               → Σ[ n ∈ ℕ ] Σ[ a ∈ A ] (x ·r z) ^ n ≡ a ·r (y ·r z)

@@ -50,7 +50,7 @@ open import Cubical.Algebra.CommRing.Instances.Unit
 open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
@@ -211,28 +211,9 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
  private instance _ = snd ZariskiLattice
 
  isSheaf𝓞ᴮ : isDLBasisSheaf 𝓞ᴮ
- isSheaf𝓞ᴮ {n = zero} α isBO⋁α A cᴬ = uniqueExists
-   (isTerminal𝓞ᴮ[0] A .fst)
-     (λ {(sing ()) ; (pair () _ _) }) -- the unique morphism is a cone morphism
-       (isPropIsConeMor _ _)
-         λ φ _ → isTerminal𝓞ᴮ[0] A .snd φ
-   where
-   -- D(0) is not 0 of the Zariski  lattice by refl!
-   p : 𝓞ᴮ .F-ob (0l , isBO⋁α) ≡ R[1/ 0r ]AsCommRing
-   p = 𝓞ᴮ .F-ob (0l , isBO⋁α)
-     ≡⟨ cong (𝓞ᴮ .F-ob) (Σ≡Prop (λ _ → ∈ₚ-isProp _ _)
-             (eq/ _ _ ((λ ()) , λ {zero → ∣ 1 , ∣ (λ ()) , 0LeftAnnihilates _ ∣₁ ∣₁ }))) ⟩
-       𝓞ᴮ .F-ob (D 0r , ∣ 0r , refl ∣₁)
-     ≡⟨ 𝓞ᴮOb≡ 0r ⟩
-       R[1/ 0r ]AsCommRing ∎
-
-   isTerminal𝓞ᴮ[0] : isTerminal CommRingsCategory (𝓞ᴮ .F-ob (0l , isBO⋁α))
-   isTerminal𝓞ᴮ[0] = subst (isTerminal CommRingsCategory)
-                           (sym (p ∙ R[1/0]≡0)) (TerminalCommRing .snd)
-
- isSheaf𝓞ᴮ {n = suc n} α = curriedHelper (fst ∘ α) (snd ∘ α)
+ isSheaf𝓞ᴮ {n = n} α = curriedHelper (fst ∘ α) (snd ∘ α)
   where
-  curriedHelper : (𝔞 : FinVec ZL (suc n)) (𝔞∈BO : ∀ i → 𝔞 i ∈ₚ BasicOpens)
+  curriedHelper : (𝔞 : FinVec ZL n) (𝔞∈BO : ∀ i → 𝔞 i ∈ₚ BasicOpens)
                   (⋁𝔞∈BO : ⋁ 𝔞 ∈ₚ BasicOpens)
                 → isLimCone _ _ (F-cone 𝓞ᴮ
                                 (condCone.B⋁Cone (λ i → 𝔞 i , 𝔞∈BO i) ⋁𝔞∈BO))
@@ -254,7 +235,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
       open condCone (λ i → 𝔞 i , ∣ f i , Df≡𝔞 i ∣₁)
       theSheafCone = B⋁Cone ∣ h , Dh≡⋁𝔞 ∣₁
 
-      DHelper : D h ≡ [ suc n , f ] --⋁ (D ∘ f)
+      DHelper : D h ≡ [ n , f ] --⋁ (D ∘ f)
       DHelper = Dh≡⋁𝔞 ∙ ⋁Ext (λ i → sym (Df≡𝔞 i)) ∙ ⋁D≡ f
 
       open Exponentiation R'
@@ -279,7 +260,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
       ff∈√⟨h⟩ : ∀ i j → f i · f j ∈ √ ⟨ h ⟩ₛ
       ff∈√⟨h⟩ i j = √ ⟨ h ⟩ₛ .snd .·Closed (f i) (f∈√⟨h⟩ j)
 
-      f/1 : FinVec (R[1/ h ]) (suc n)
+      f/1 : FinVec (R[1/ h ]) n
       f/1 i = (f i) /1
 
       1∈⟨f/1⟩ : 1r ∈ₕ ⟨ f/1 ⟩[ R[1/ h ]AsCommRing ]
@@ -291,9 +272,9 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
         helper1 : (m : ℕ) → h ^ m ∈ ⟨ f ⟩[ R' ] → 1r ∈ₕ ⟨ f/1 ⟩[ R[1/ h ]AsCommRing ]
         helper1 m = PT.map helper2
          where
-         helper2 : Σ[ α ∈ FinVec R (suc n) ]
+         helper2 : Σ[ α ∈ FinVec R n ]
                      h ^ m ≡ linearCombination R' α f
-                 → Σ[ β ∈ FinVec R[1/ h ] (suc n) ]
+                 → Σ[ β ∈ FinVec R[1/ h ] n ]
                      1r ≡ linearCombination R[1/ h ]AsCommRing β f/1
          helper2 (α , hᵐ≡∑αf) = β , path
           where
@@ -304,12 +285,9 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
           instance
            h⁻ᵐ : (h ^ m) /1 ∈ₚ (R[1/ h ]AsCommRing ˣ)
            h⁻ᵐ = [ 1r , h ^ m , ∣ m , refl ∣₁ ]
-               , eq/ _ _ ((1r , containsOne) , path (h ^ m))
-            where
-            path : ∀ x → 1r · (x · 1r) · 1r ≡ 1r · 1r · (1r · x)
-            path = solve R'
+               , eq/ _ _ ((1r , containsOne) , solve! R')
 
-          β : FinVec R[1/ h ] (suc n)
+          β : FinVec R[1/ h ] n
           β i = ((h ^ m) /1) ⁻¹ · α i /1
 
           /1Path : (h ^ m) /1 ≡ ∑ (λ i → α i /1 · f i /1)
@@ -360,12 +338,9 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
       pres1 (snd (coneOut /1/1Cone (pair i j i<j))) = refl
       pres+ (snd (coneOut /1/1Cone (pair i j i<j))) x y =
         cong [_] (≡-× (cong [_] (≡-×
-                      (cong₂ _+_ (useSolver x) (useSolver y))
-                      (Σ≡Prop (λ _ → isPropPropTrunc) (useSolver 1r))))
+                      (cong₂ _+_ (solve! R') (solve! R'))
+                      (Σ≡Prop (λ _ → isPropPropTrunc) (solve! R'))))
                       (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
-        where
-        useSolver : ∀ a → a ≡ a · 1r · (1r · 1r)
-        useSolver = solve R'
       pres· (snd (coneOut /1/1Cone (pair i j i<j))) x y =
         cong [_] (≡-× (cong [_] (≡-× refl
                       (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r)))))
@@ -381,7 +356,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
         (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r))))
         (Σ≡Prop (λ _ → isPropPropTrunc) (cong (1r ·_) (transportRefl 1r) ∙ ·IdR 1r)))))
 
-      open LimitFromCommRing R' R[1/ h ]AsCommRing (DLShfDiag (suc n) ℓ)
+      open LimitFromCommRing R' R[1/ h ]AsCommRing (DLShfDiag n ℓ)
                              doubleLocDiag doubleLocCone /1/1Cone
 
       -- get the desired cone in algebras:

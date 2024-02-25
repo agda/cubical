@@ -22,7 +22,7 @@ open import Cubical.Algebra.CommAlgebra.Instances.Unit
 open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal using (isIdeal)
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Algebra.Properties
 open AlgebraHoms using (_∘a_)
 
@@ -242,8 +242,6 @@ module _
     unfolding quotientHom
 
     isZeroFromIdeal : (x : ⟨ A ⟩) → x ∈ (fst I) → fst (quotientHom A I) x ≡ CommAlgebraStr.0a (snd (A / I))
-    isZeroFromIdeal x x∈I = eq/ x 0a (subst (_∈ fst I) (step x) x∈I )
+    isZeroFromIdeal x x∈I = eq/ x 0a (subst (_∈ fst I) (solve! (CommAlgebra→CommRing A)) x∈I )
       where
         open CommAlgebraStr (snd A)
-        step : (x : ⟨ A ⟩) → x ≡ x - 0a
-        step = solve (CommAlgebra→CommRing A)

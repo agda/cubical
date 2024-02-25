@@ -24,7 +24,7 @@ open import Cubical.Algebra.CommRing.Ideal.Base
 open import Cubical.Algebra.CommRing.Ideal.Sum
 open import Cubical.Algebra.CommRing.Ideal.SurjectiveImage
 
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 private variable ℓ : Level
 
@@ -93,12 +93,9 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
               (subst (λ K → b - x ∈ K) (kernel≡I I)
                   (kernelFiber R (R / I) π₁ b x π₁b≡π₁x))
 
-          useSolver : (x b : ⟨ R ⟩) → x ≡ - (b - x) + b
-          useSolver = solve R
-
           step2 : ∀ b → b ∈ J → fst π₁ b ≡ fst π₁ x → x ∈ (I +i J)
           step2 b b∈J π₁b≡π₁x =
-            ∣ (- (b - x) , b) , (step1 b π₁b≡π₁x) , (b∈J , (x ≡⟨ useSolver x b ⟩ (- (b - x) + b) ∎)) ∣₁
+            ∣ (- (b - x) , b) , (step1 b π₁b≡π₁x) , (b∈J , (x ≡⟨ solve! R ⟩ (- (b - x) + b) ∎)) ∣₁
 
   ψ : CommRingHom (R / (I +i J)) ((R / I) / π₁J)
   ψ = UniversalProperty.inducedHom R ((R / I) / π₁J) (I +i J) π πI+J≡0
