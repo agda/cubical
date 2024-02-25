@@ -2,6 +2,7 @@
 module Cubical.Algebra.AbGroup.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.Group
@@ -16,9 +17,10 @@ open import Cubical.HITs.SetQuotients as SQ hiding (_/_)
 open import Cubical.Data.Int using (ℤ ; pos ; negsuc)
 open import Cubical.Data.Nat hiding (_+_)
 open import Cubical.Data.Sigma
+open import Cubical.Data.Fin hiding (_/_)
 
 private variable
-  ℓ : Level
+  ℓ ℓ' : Level
 
 module AbGroupTheory (A : AbGroup ℓ) where
   open GroupTheory (AbGroup→Group A)
@@ -36,7 +38,7 @@ module AbGroupTheory (A : AbGroup ℓ) where
   implicitInverse : ∀ {a b} → a + b ≡ 0g → b ≡ - a
   implicitInverse b+a≡0 = invUniqueR b+a≡0
 
-addGroupHom : (A B : AbGroup ℓ) (ϕ ψ : AbGroupHom A B) → AbGroupHom A B
+addGroupHom : (A : AbGroup ℓ) (B : AbGroup ℓ') (ϕ ψ : AbGroupHom A B) → AbGroupHom A B
 fst (addGroupHom A B ϕ ψ) x = AbGroupStr._+_ (snd B) (ϕ .fst x) (ψ .fst x)
 snd (addGroupHom A B ϕ ψ) = makeIsGroupHom
   λ x y → cong₂ (AbGroupStr._+_ (snd B))
@@ -44,7 +46,7 @@ snd (addGroupHom A B ϕ ψ) = makeIsGroupHom
                  (IsGroupHom.pres· (snd ψ) x y)
         ∙ AbGroupTheory.comm-4 B (fst ϕ x) (fst ϕ y) (fst ψ x) (fst ψ y)
 
-negGroupHom : (A B : AbGroup ℓ) (ϕ : AbGroupHom A B) → AbGroupHom A B
+negGroupHom : (A : AbGroup ℓ) (B : AbGroup ℓ') (ϕ : AbGroupHom A B) → AbGroupHom A B
 fst (negGroupHom A B ϕ) x = AbGroupStr.-_ (snd B) (ϕ .fst x)
 snd (negGroupHom A B ϕ) =
   makeIsGroupHom λ x y
@@ -56,7 +58,7 @@ snd (negGroupHom A B ϕ) =
              (IsGroupHom.presinv (snd ϕ) x)
              (IsGroupHom.presinv (snd ϕ) y)
 
-subtrGroupHom : (A B : AbGroup ℓ) (ϕ ψ : AbGroupHom A B) → AbGroupHom A B
+subtrGroupHom : (A : AbGroup ℓ) (B : AbGroup ℓ') (ϕ ψ : AbGroupHom A B) → AbGroupHom A B
 subtrGroupHom A B ϕ ψ = addGroupHom A B ϕ (negGroupHom A B ψ)
 
 
@@ -118,3 +120,19 @@ G [ n ]ₜ =
     (kerSubgroup (multₗHom G (pos n))))
     λ {(x , p) (y , q) → Σ≡Prop (λ _ → isPropIsInKer (multₗHom G (pos n)) _)
       (AbGroupStr.+Comm (snd G) _ _)}
+
+
+-- finite sums commute with negations
+sumFinG-neg : (n : ℕ) {A : AbGroup ℓ}
+  → (f : Fin n → fst A)
+  → sumFinGroup (AbGroup→Group A) {n} (λ x → AbGroupStr.-_ (snd A) (f x))
+   ≡ AbGroupStr.-_ (snd A) (sumFinGroup (AbGroup→Group A) {n} f)
+sumFinG-neg zero {A} f = sym (GroupTheory.inv1g (AbGroup→Group A))
+sumFinG-neg (suc n) {A} f =
+  cong₂ compA refl (sumFinG-neg n {A = A} (f ∘ injectSuc))
+  ∙∙ AbGroupStr.+Comm (snd A) _ _
+  ∙∙ sym (GroupTheory.invDistr (AbGroup→Group A) _ _)
+  where
+  -A = AbGroupStr.-_ (snd A)
+  0A = AbGroupStr.0g (snd A)
+  compA = AbGroupStr._+_ (snd A)

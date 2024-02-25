@@ -3,6 +3,8 @@
 This file contains:
 1. An iso πₙ'(Sⁿ) ≅ ℤ, where πₙ'(Sⁿ) = ∥ Sⁿ →∙ Sⁿ ∥₀
 2. A proof that idfun∙ : Sⁿ →∙ Sⁿ is the generator of πₙ'(Sⁿ)
+3. An explicit construction of iso Hⁿ(Sⁿ,ℤ) ≅ πₙ'(Sⁿ)
+4. Description of multiplication on πₙ'(Sⁿ) (function composition)
 -}
 module Cubical.Homotopy.Group.PinSn where
 
@@ -18,13 +20,13 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
 
-open import Cubical.HITs.SetTruncation
-  renaming (elim to sElim ; elim2 to sElim2
-          ; map to sMap)
-open import Cubical.HITs.Truncation renaming
-  (elim to trElim ; elim2 to trElim2)
-open import Cubical.HITs.S1
+open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.SetTruncation as ST
+open import Cubical.HITs.Truncation as TR
+open import Cubical.HITs.S1 renaming (_·_ to _*_)
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Susp
 
@@ -39,6 +41,10 @@ open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.Group.ZAction
 open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
+
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Groups.Sn
 
 open Iso
 
@@ -78,7 +84,7 @@ SphereSuspGrIso : (n : ℕ)
   → GroupIso (π'Gr (suc n) (S₊∙ (2 + n))) (π'Gr (2 + n) (S₊∙ (3 + n)))
 fst (SphereSuspGrIso n) = SphereSuspIso n
 snd (SphereSuspGrIso n) =
-  makeIsGroupHom (sElim2 (λ _ _ → isSetPathImplicit)
+  makeIsGroupHom (ST.elim2 (λ _ _ → isSetPathImplicit)
     λ f g → IsGroupHom.pres· (suspMapπ'Hom (suc n) .snd) ∣ f ∣₂ ∣ g ∣₂)
 
 private
@@ -88,19 +94,19 @@ private
           ∙∙ rCancel (merid base) ∣₂
 
   stLoop₁flip : π 2 (S₊∙ 2)
-  stLoop₁flip = sMap flipSquare stLoop₁
+  stLoop₁flip = ST.map flipSquare stLoop₁
 
 flipSquareIso : ∀ {ℓ} {A : Pointed ℓ} (n : ℕ)
   → GroupIso (πGr (suc n) A) (πGr (suc n) A)
-fun (fst (flipSquareIso n)) = sMap flipSquare
-inv (fst (flipSquareIso n)) = sMap flipSquare
+fun (fst (flipSquareIso n)) = ST.map flipSquare
+inv (fst (flipSquareIso n)) = ST.map flipSquare
 rightInv (fst (flipSquareIso n)) =
-  sElim (λ _ → isSetPathImplicit) λ _ → refl
+  ST.elim (λ _ → isSetPathImplicit) λ _ → refl
 leftInv (fst (flipSquareIso n)) =
-  sElim (λ _ → isSetPathImplicit) λ _ → refl
+  ST.elim (λ _ → isSetPathImplicit) λ _ → refl
 snd (flipSquareIso n) =
   makeIsGroupHom
-    (sElim2 (λ _ _ → isSetPathImplicit)
+    (ST.elim2 (λ _ _ → isSetPathImplicit)
       λ f g → cong ∣_∣₂
         ((sym (sym≡flipSquare (f ∙ g))
       ∙∙ symDistr f g
@@ -125,7 +131,7 @@ fst π₂S²≅π₁S¹ =
     (invIso setTruncTrunc2Iso))
 snd π₂S²≅π₁S¹ =
   makeIsGroupHom
-    (sElim2 (λ _ _ → isSetPathImplicit)
+    (ST.elim2 (λ _ _ → isSetPathImplicit)
       λ f g →
         cong (inv setTruncTrunc2Iso)
           (cong (fun (PathIdTruncIso 2))
@@ -150,10 +156,10 @@ snd π₂S²≅π₁S¹ =
   setTruncTrunc2IsoFunct : ∀ {ℓ} {A : Type ℓ} {x : A}
     (p q : hLevelTrunc 2 (x ≡ x))
     → inv setTruncTrunc2Iso
-         (Cubical.HITs.Truncation.map2 _∙_ p q)
+         (TR.map2 _∙_ p q)
        ≡ ·π 0 (inv setTruncTrunc2Iso p) (inv setTruncTrunc2Iso q)
   setTruncTrunc2IsoFunct =
-    trElim2 (λ  _ _ → isSetPathImplicit) λ _ _ → refl
+    TR.elim2 (λ  _ _ → isSetPathImplicit) λ _ _ → refl
 
 π₂'S²≅π₁'S¹ : GroupIso (π'Gr 1 (S₊∙ 2)) (π'Gr 0 (S₊∙ 1))
 π₂'S²≅π₁'S¹ =
@@ -167,7 +173,7 @@ snd π₂S²≅π₁S¹ =
 πₙ'Sⁿ≅ℤ zero =
   compGroupIso (π'Gr≅πGr zero (S₊∙ 1))
     ((compIso (setTruncIdempotentIso (isGroupoidS¹ _ _)) ΩS¹Isoℤ)
-      , makeIsGroupHom (sElim2 (λ _ _ → isProp→isSet (isSetℤ _ _))
+      , makeIsGroupHom (ST.elim2 (λ _ _ → isProp→isSet (isSetℤ _ _))
            winding-hom))
 πₙ'Sⁿ≅ℤ (suc zero) = compGroupIso π₂'S²≅π₁'S¹ (πₙ'Sⁿ≅ℤ zero)
 πₙ'Sⁿ≅ℤ (suc (suc n)) =
@@ -334,3 +340,226 @@ private
           (pos (suc zero))
           (λ h → h , (sym (·Comm h (pos 1)) ∙ ℤ·≡· h (pos 1)))
           (invGroupIso (πₙ'Sⁿ≅ℤ n)))
+
+-- Isomorphism πₙ(Sⁿ) ≅ Hⁿ(Sⁿ,ℤ)
+private
+  makePted : (n : ℕ) (fn : S₊ (2 + n)) → ∥ fn ≡ north ∥₂
+  makePted n fn =
+    TR.rec (isOfHLevelPlus' 2 squash₂) ∣_∣₂
+        (isConnectedPathSⁿ (suc n) fn north .fst)
+  makePted-eq : (n : ℕ) (fn : S₊ (2 + n)) (p : fn ≡ north) → makePted n fn ≡ ∣ p ∣₂
+  makePted-eq n fn p j =
+    TR.rec (isOfHLevelPlus' 2 squash₂) ∣_∣₂ (isConnectedPathSⁿ (suc n) fn north .snd ∣ p ∣ j)
+
+-- Forgetting pointedness gives iso
+πₙSⁿ-unpoint : (n : ℕ) → (π'Gr n (S₊∙ (suc n)) .fst) → ∥ (S₊ (suc n) → S₊ (suc n)) ∥₂
+πₙSⁿ-unpoint n = ST.map fst
+
+isIso-πₙSⁿ-unpointIso : (n : ℕ) → isIso (πₙSⁿ-unpoint n)
+fst (isIso-πₙSⁿ-unpointIso zero) =
+  ST.map λ f → (λ x → f x * (invLooper (f base)))
+                , sym (rCancelS¹ (f base))
+fst (snd (isIso-πₙSⁿ-unpointIso zero)) =
+  ST.elim (λ _ → isSetPathImplicit)
+      λ f → PT.rec (squash₂ _ _)
+      (λ q → cong ∣_∣₂ (funExt λ x → cong (f x *_)
+        (cong invLooper (sym q)) ∙ rUnitS¹ (f x)))
+      (isConnectedS¹ (f base))
+snd (snd (isIso-πₙSⁿ-unpointIso zero)) =
+  ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂
+      (ΣPathP ((funExt
+        (λ r → cong (fst f r *_) (cong invLooper (snd f))
+                                ∙ rUnitS¹ (fst f r)))
+    , help _ (sym (snd f))))
+  where
+  help : (x : _) (p : base ≡ x)
+    → PathP (λ i → ((λ j → x * invLooper (p (~ j))) ∙ rUnitS¹ x) i ≡ base)
+             (sym (rCancelS¹ x)) (sym p)
+  help = J> λ i j → rCancel (λ _ → base) j i
+fst (isIso-πₙSⁿ-unpointIso (suc n)) =
+  ST.rec squash₂ λ f → ST.map (λ p → f , p) (makePted n (f north))
+fst (snd (isIso-πₙSⁿ-unpointIso (suc n))) =
+  ST.elim (λ _ → isSetPathImplicit)
+    λ f → ST.rec isSetPathImplicit
+      (λ p j → πₙSⁿ-unpoint (suc n)
+        (ST.map (λ p₁ → f , p₁) (makePted-eq n (f north) p j)))
+           (makePted n (f north))
+snd (snd (isIso-πₙSⁿ-unpointIso (suc n))) =
+  ST.elim (λ _ → isSetPathImplicit)
+      λ f i → ST.map (λ p → fst f , p) (makePted-eq n _ (snd f) i)
+
+πₙSⁿ-unpointIso : (n : ℕ) → Iso ∥ (S₊∙ (suc n) →∙ S₊∙ (suc n)) ∥₂ ∥ (S₊ (suc n) → S₊ (suc n)) ∥₂
+Iso.fun (πₙSⁿ-unpointIso n) = πₙSⁿ-unpoint n
+Iso.inv (πₙSⁿ-unpointIso n) = isIso-πₙSⁿ-unpointIso n .fst
+Iso.rightInv (πₙSⁿ-unpointIso n) = isIso-πₙSⁿ-unpointIso n .snd .fst
+Iso.leftInv (πₙSⁿ-unpointIso n) = isIso-πₙSⁿ-unpointIso n .snd .snd
+
+
+
+-- πₙ(Sⁿ) → Hⁿ(Sⁿ,ℤ)
+πₙSⁿ→HⁿSⁿ-fun : (n : ℕ) → π'Gr n (S₊∙ (suc n)) .fst → coHom (suc n) (S₊ (suc n))
+πₙSⁿ→HⁿSⁿ-fun n = ST.map λ f x → ∣ fst f x ∣
+
+-- to prove it's a homomorphism, we need the following
+module suspensionLemmas (n : ℕ) where
+  Susp⊣Ω-Sn← : ((f : S₊ (suc n) → Ω (S₊∙ (suc (suc n))) .fst)
+              → S₊ (suc (suc n)) → S₊ (suc (suc n)))
+  Susp⊣Ω-Sn← f north = north
+  Susp⊣Ω-Sn← f south = north
+  Susp⊣Ω-Sn← f (merid a i) = f a i
+
+  Susp⊣Ω-Sn←-σ : (f : S₊∙ (suc n) →∙ Ω (S₊∙ (suc (suc n))))
+    → (x : _)
+    → cong (Susp⊣Ω-Sn← (fst f)) (σSn (suc n) x) ≡ fst f x
+  Susp⊣Ω-Sn←-σ f x =
+      cong-∙ (Susp⊣Ω-Sn← (fst f)) (merid x) (sym (merid _))
+    ∙ cong (λ z → fst f x ∙ sym z) (snd f)
+    ∙ sym (rUnit _)
+
+  Susp⊣Ω-Sn←≡ : (f : _) → ∥ Σ[ g ∈ (S₊∙ (suc n) →∙ Ω (S₊∙ (suc (suc n)))) ] f
+                            ≡ Susp⊣Ω-Sn← (fst g) ∥₂
+  Susp⊣Ω-Sn←≡ f =
+    ST.map
+      (λ p → ((λ x → (sym p ∙ cong f (merid x)
+                    ∙ (cong f (sym (merid (ptSn _))) ∙ p)))
+              , (cong (sym p ∙_)
+                  (assoc _ _ _ ∙ cong (_∙ p) (rCancel (cong f (merid (ptSn _))))
+                               ∙ sym (lUnit p))
+               ∙ lCancel p))
+            , funExt (
+            λ { north → p
+              ; south → cong f (sym (merid (ptSn _))) ∙ p
+              ; (merid a i) j → compPath-filler' (sym p)
+                                 (compPath-filler (cong f (merid a))
+                                   (cong f (sym (merid (ptSn _))) ∙ p) j) j i}))
+      (makePted n (f north))
+
+  Susp⊣Ω-Sn←≡∙ : (f : (S₊∙ (2 + n)) →∙ S₊∙ (2 + n))
+    → ∃[ g ∈ _ ] f ≡ (Susp⊣Ω-Sn← (fst g) , refl)
+  Susp⊣Ω-Sn←≡∙ f =
+    ST.rec (isProp→isSet squash₁)
+      (uncurry (λ g q → TR.rec (isProp→isOfHLevelSuc n squash₁)
+        (λ r → ∣ g , ΣPathP (q , (sym r ◁ (λ i j → q (i ∨ j) north))) ∣₁)
+        (isConnectedPath _
+          (isConnectedPathSⁿ (suc n) (fst f north) north)
+          (funExt⁻ q north) (snd f) .fst )))
+      (Susp⊣Ω-Sn←≡ (fst f))
+
+-- homomorphism πₙ(Sⁿ) → Hⁿ(Sⁿ,ℤ)
+πₙSⁿ→HⁿSⁿ : (n : ℕ)
+  → GroupHom (π'Gr n (S₊∙ (suc n))) (coHomGr (suc n) (S₊ (suc n)))
+fst (πₙSⁿ→HⁿSⁿ n) = πₙSⁿ→HⁿSⁿ-fun n
+snd (πₙSⁿ→HⁿSⁿ zero) =
+  makeIsGroupHom
+    (ST.elim2 (λ _ _ → isSetPathImplicit)
+      λ f g → subst2 P (sym (S¹-fun-charac f .snd)) (sym (S¹-fun-charac g .snd))
+                (main (S¹-fun-charac f .fst) (S¹-fun-charac g .fst)))
+    where
+    mkfun : fst (Ω (S₊∙ 1)) → S¹ → S¹
+    mkfun p base = base
+    mkfun p (loop i) = p i
+
+    main : (a b : Ω (S₊∙ 1) .fst)
+      → πₙSⁿ→HⁿSⁿ-fun zero (·π' zero ∣ mkfun a , refl ∣₂ ∣ mkfun b , refl ∣₂)
+       ≡ πₙSⁿ→HⁿSⁿ-fun zero ∣ mkfun a , refl ∣₂
+       +ₕ πₙSⁿ→HⁿSⁿ-fun zero ∣ mkfun b , refl ∣₂
+    main a b = cong ∣_∣₂ (funExt
+      λ { base → refl
+       ; (loop i) j → ((λ i j → ∣ (rUnit a (~ i) ∙ rUnit b (~ i)) j ∣ₕ)
+                    ∙∙ cong-∙ ∣_∣ₕ a b
+                    ∙∙ ∙≡+₁ (cong ∣_∣ₕ a) (cong ∣_∣ₕ b)) j i})
+
+    S¹-fun-charac : (f : S₊∙ 1 →∙ S₊∙ 1)
+      → Σ[ g ∈ Ω (S₊∙ 1) .fst ] f ≡ (mkfun g , refl)
+    S¹-fun-charac (f , p) = (sym p ∙∙ cong f loop ∙∙ p)
+      , ΣPathP ((funExt (
+      λ { base → p
+       ; (loop i) j → doubleCompPath-filler (sym p) (cong f loop) p j i}))
+      , λ i j → p (i ∨ j))
+
+    P : (f g : _) → Type
+    P f g = πₙSⁿ→HⁿSⁿ-fun zero (·π' zero ∣ f ∣₂ ∣ g ∣₂)
+          ≡ (πₙSⁿ→HⁿSⁿ-fun zero ∣ f ∣₂) +ₕ (πₙSⁿ→HⁿSⁿ-fun zero ∣ g ∣₂)
+
+snd (πₙSⁿ→HⁿSⁿ (suc n)) = makeIsGroupHom isGrHom
+  where
+  open suspensionLemmas n
+  isGrHom : (f g : _)
+    → πₙSⁿ→HⁿSⁿ-fun (suc n) (·π' _ f g)
+     ≡ πₙSⁿ→HⁿSⁿ-fun (suc n) f +ₕ πₙSⁿ→HⁿSⁿ-fun (suc n) g
+  isGrHom =
+    ST.elim2 (λ _ _ → isSetPathImplicit)
+     λ f g → PT.rec2 (squash₂ _ _)
+      (uncurry (λ g' gp → uncurry λ h hp
+        → (λ i → πₙSⁿ→HⁿSⁿ-fun (suc n) (·π' (suc n) ∣ gp i ∣₂ ∣ hp i ∣₂) )
+        ∙∙ cong ∣_∣₂ (funExt
+          (λ { north → refl
+             ; south → refl
+             ; (merid a i) j
+             → hcomp (λ k →
+             λ {(i = i0) → 0ₖ (2 + n)
+              ; (i = i1) → 0ₖ (2 + n)
+              ; (j = i0) → ∣ (rUnit (Susp⊣Ω-Sn←-σ g' a (~ k)) k
+                            ∙ rUnit (Susp⊣Ω-Sn←-σ h a (~ k)) k) i ∣ₕ
+              ; (j = i1) → ∙≡+₂ _ (cong ∣_∣ₕ (g' .fst a)) (cong ∣_∣ₕ (h .fst a)) k i})
+           (cong-∙ ∣_∣ₕ (g' .fst a) (h .fst a) j i)}))
+        ∙∙ λ i → πₙSⁿ→HⁿSⁿ-fun (suc n) ∣ gp (~ i) ∣₂
+               +ₕ πₙSⁿ→HⁿSⁿ-fun (suc n) ∣ hp (~ i) ∣₂))
+       (Susp⊣Ω-Sn←≡∙ f) (Susp⊣Ω-Sn←≡∙ g)
+
+-- isomorphism πₙ(Sⁿ) ≅ Hⁿ(Sⁿ,ℤ)
+πₙSⁿ≅HⁿSⁿ : (n : ℕ)
+  → GroupEquiv (π'Gr n (S₊∙ (suc n))) (coHomGr (suc n) (S₊ (suc n)))
+fst (fst (πₙSⁿ≅HⁿSⁿ n)) = fst (πₙSⁿ→HⁿSⁿ n)
+snd (fst (πₙSⁿ≅HⁿSⁿ zero)) =
+  subst isEquiv (sym funid) (isoToIsEquiv (compIso is1 is2))
+  where
+  is1 : Iso (π' 1 (S₊∙ 1)) ∥ (S¹ → S¹) ∥₂
+  is1 = πₙSⁿ-unpointIso 0
+
+  is2 : Iso ∥ (S¹ → S¹) ∥₂ (coHom 1 S¹)
+  is2 = setTruncIso (codomainIso (invIso (truncIdempotentIso 3 isGroupoidS¹)))
+
+  funid : πₙSⁿ→HⁿSⁿ-fun zero ≡ Iso.fun is2 ∘ Iso.fun is1
+  funid = funExt (ST.elim (λ _ → isSetPathImplicit) λ _ → refl)
+snd (fst (πₙSⁿ≅HⁿSⁿ (suc n))) =
+  gen∈Im→isEquiv _
+    (GroupIso→GroupEquiv (invGroupIso (πₙ'Sⁿ≅ℤ (suc n)))) _
+     (GroupIso→GroupEquiv (invGroupIso (Hⁿ-Sⁿ≅ℤ (suc n))))
+     ∣ ∣_∣ₕ ∣₂
+     (sym (HⁿSⁿ-gen (suc n)))
+     (πₙSⁿ→HⁿSⁿ (suc n))
+     ∣ ∣ idfun∙ _ ∣₂ , refl ∣₁
+snd (πₙSⁿ≅HⁿSⁿ n) = snd (πₙSⁿ→HⁿSⁿ n)
+
+-- the multiplications
+module _ (n : ℕ) where
+  multSⁿ↬ : (f g : ∥ (S₊ (suc n) → S₊ (suc n)) ∥₂)
+   → ∥ (S₊ (suc n) → S₊ (suc n)) ∥₂
+  multSⁿ↬ = ST.rec2 squash₂ λ f g → ∣ f ∘ g ∣₂
+
+  multπₙ : (f g : π'Gr n (S₊∙ (suc n)) .fst) → π'Gr n (S₊∙ (suc n)) .fst
+  multπₙ = ST.rec2 squash₂ λ f g → ∣ f ∘∙ g ∣₂
+
+-- preservation of multiplication under relevant isos
+multπₙ-pres : (n : ℕ) (f g : π'Gr n (S₊∙ (suc n)) .fst)
+  → Iso.fun (πₙSⁿ-unpointIso n) (multπₙ n f g)
+   ≡ multSⁿ↬ n (Iso.fun (πₙSⁿ-unpointIso n) f) (Iso.fun (πₙSⁿ-unpointIso n) g)
+multπₙ-pres n = ST.elim2 (λ _ _ → isSetPathImplicit) λ f g → refl
+
+multπₙ-pres' : (n : ℕ) (f g : ∥ (S₊ (suc n) → S₊ (suc n)) ∥₂)
+  → Iso.inv (πₙSⁿ-unpointIso n) (multSⁿ↬ n f g)
+   ≡ multπₙ n (Iso.inv (πₙSⁿ-unpointIso n) f) (Iso.inv (πₙSⁿ-unpointIso n) g)
+multπₙ-pres' n f g =
+    (λ i → isIso-πₙSⁿ-unpointIso n .fst
+             (multSⁿ↬ n (Iso.rightInv (πₙSⁿ-unpointIso n) f (~ i))
+                         (Iso.rightInv (πₙSⁿ-unpointIso n) g (~ i))))
+  ∙∙ sym (cong (Iso.inv (πₙSⁿ-unpointIso n))
+       (multπₙ-pres n (Iso.inv (πₙSⁿ-unpointIso n) f) (Iso.inv (πₙSⁿ-unpointIso n) g)))
+  ∙∙ Iso.leftInv (πₙSⁿ-unpointIso n) _
+
+multHⁿSⁿ-pres : (n : ℕ) (f g : π'Gr n (S₊∙ (suc n)) .fst)
+  → πₙSⁿ→HⁿSⁿ-fun n (multπₙ n f g)
+   ≡ multHⁿSⁿ n (πₙSⁿ→HⁿSⁿ-fun n f) (πₙSⁿ→HⁿSⁿ-fun n g)
+multHⁿSⁿ-pres n = ST.elim2 (λ _ _ → isSetPathImplicit) λ f g → refl

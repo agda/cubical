@@ -8,6 +8,7 @@ module Cubical.Structures.Successor where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Int
 open import Cubical.Data.Nat
+open import Cubical.Data.Fin
 
 private
   variable
@@ -27,3 +28,8 @@ open SuccStr
 ℕ+ : SuccStr ℓ-zero
 ℕ+ .Index = ℕ
 ℕ+ .succ = suc
+
+Fin+ : (n : ℕ) → SuccStr ℓ-zero
+Fin+ n .Index = Fin n
+Fin+ n .succ (x , zero , p) = x , zero , p
+Fin+ n .succ (x , suc diff , p) = suc x , diff , +-suc diff (suc x) ∙ p

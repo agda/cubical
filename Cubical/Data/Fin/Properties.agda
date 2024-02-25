@@ -29,7 +29,7 @@ open import Cubical.Relation.Nullary
 
 open import Cubical.Induction.WellFounded
 
-open import Cubical.Relation.Nullary
+open import Cubical.Algebra.AbGroup.Base
 
 private
  variable
@@ -718,3 +718,69 @@ Iso.leftInv (CharacΠFinIso n {B = B}) f =
   where
   q : (x : _) (p : _) → _
   q x p = Fin-fst-≡ {i = (fsuc (x , pred-≤-pred p))} {j = suc x , p} refl
+
+-- properties of finite sums
+module _ (_+A_ : A → A → A) (0A : A)
+  (rUnit : (x : _) → x +A 0A ≡ x)
+   where
+  sumFinGen0 : (n : ℕ) (f : Fin n → A)
+    → ((x : _) → f x ≡ 0A)
+    → sumFinGen _+A_ 0A f
+    ≡ 0A
+  sumFinGen0 zero f ind = refl
+  sumFinGen0 (suc n) f ind =
+    cong₂ _+A_
+      (ind flast)
+      (sumFinGen0 n (f ∘ injectSuc) (λ x → ind (injectSuc x))) ∙ rUnit 0A
+
+  module _ (comm : (x y : A) → x +A y ≡ y +A x) where
+    private
+      lUnitA : (x : _) → 0A +A x ≡ x
+      lUnitA x = comm _ _ ∙ rUnit x
+
+    sumFin-choose :
+      {n : ℕ} (f : Fin n → A)
+      → (a : A) (x : Fin n)
+      → (f x ≡ a)
+      → ((x' : Fin n) → ¬ (x' ≡ x) → f x' ≡ 0A)
+      → sumFinGen {n = n} _+A_ 0A f ≡ a
+    sumFin-choose {zero} f a x p t = Empty.rec (¬Fin0 x)
+    sumFin-choose {suc n} f a x p t with (n ≟ fst x)
+    ... | lt x₁ =
+      Empty.rec (¬m<m {suc n} ((fst (snd x)) + fst x₁
+           , (sym (+-assoc (fst (snd x)) (fst x₁) (suc (suc n)))
+           ∙ (cong (fst (snd x) +_ ) (+-suc (fst x₁) (suc n))))
+           ∙ sym ((sym (snd x .snd))
+                ∙ cong (fst (snd x) +_) (sym (cong suc (x₁ .snd))))))
+    ... | eq x₁ =
+      cong (f flast +A_) (sumFinGen0 n _
+        λ h → t _ λ q → ¬m<m (subst (_< n) (cong fst q ∙ sym x₁) (snd h)))
+             ∙ rUnit _ ∙ sym (cong f x=flast) ∙ p
+      where
+      x=flast : x ≡ flast
+      x=flast = Σ≡Prop (λ _ → isProp≤) (sym x₁)
+    ... | gt x₁ =
+      cong₂ _+A_
+         (t flast (λ p → ¬m<m (subst (_< n) (sym (cong fst p)) x₁)))
+         refl
+      ∙ lUnitA _
+      ∙ sumFin-choose {n = n} (f ∘ injectSuc) a (fst x , x₁)
+          (cong f (Σ≡Prop (λ _ → isProp≤) refl) ∙ p)
+          λ a r → t (injectSuc a) λ d → r (Σ≡Prop (λ _ → isProp≤)
+          (cong fst d))
+
+    module _ (assocA : (x y z : A) → x +A (y +A z) ≡ (x +A y) +A z) where
+      sumFinGenHom : (n : ℕ) (f g : Fin n → A)
+        → sumFinGen _+A_ 0A (λ x → f x +A g x)
+         ≡ (sumFinGen _+A_ 0A f +A sumFinGen _+A_ 0A g)
+      sumFinGenHom zero f g = sym (rUnit 0A)
+      sumFinGenHom (suc n) f g =
+          cong ((f flast +A g flast) +A_) (sumFinGenHom n (f ∘ injectSuc) (g ∘ injectSuc))
+        ∙ move4 (f flast) (g flast)
+                (sumFinGen _+A_ 0A (λ x → f (injectSuc x)))
+                (sumFinGen _+A_ 0A (λ x → g (injectSuc x)))
+                _+A_ assocA comm
+
+sumFinGenId : {n : ℕ} (_+_ : A → A → A) (0A : A)
+  (f g : Fin n → A) → f ≡ g → sumFinGen _+_ 0A f ≡ sumFinGen _+_ 0A g
+sumFinGenId _+_ 0A f g p i = sumFinGen _+_ 0A (p i)

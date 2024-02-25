@@ -44,6 +44,21 @@ IsoSucSphereSusp∙ : (n : ℕ)
 IsoSucSphereSusp∙ zero = refl
 IsoSucSphereSusp∙ (suc n) = refl
 
+suspFunS∙ : {n : ℕ} → (S₊ n → S₊ n) → S₊∙ (suc n) →∙ S₊∙ (suc n)
+suspFunS∙ {n = zero} f =
+  (λ x → Iso.inv S¹IsoSuspBool (suspFun f (Iso.fun S¹IsoSuspBool x))) , refl
+suspFunS∙ {n = suc n} f = suspFun f , refl
+
+suspFunS∙Id : {n : ℕ} → suspFunS∙ (idfun (S₊ n)) ≡ idfun∙ _
+suspFunS∙Id {n = zero} = ΣPathP ((funExt (λ { base → refl
+  ; (loop i) j → help j i})) , refl)
+  where
+  help : cong (fst (suspFunS∙ (idfun (S₊ zero)))) loop ≡ loop
+  help = (λ j → cong (λ x → SuspBool→S¹ (suspFunIdFun {A = Bool} j
+                               (S¹→SuspBool x))) loop)
+       ∙ λ i j → S¹→SuspBool→S¹ (loop j) i
+suspFunS∙Id {n = suc n} = ΣPathP (suspFunIdFun , refl)
+
 -- Elimination principles for spheres
 sphereElim : (n : ℕ) {A : (S₊ (suc n)) → Type ℓ} → ((x : S₊ (suc n)) → isOfHLevel (suc n) (A x))
           → A (ptSn (suc n))

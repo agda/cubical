@@ -17,6 +17,7 @@ open import Cubical.Data.Nat
   renaming (_·_ to _·ℕ_; _+_ to _+ℕ_ ; ·-assoc to ·ℕ-assoc ;
             ·-comm to ·ℕ-comm ; isEven to isEvenℕ ; isOdd to isOddℕ)
 open import Cubical.Data.Sum
+open import Cubical.Data.Fin
 
 open import Cubical.Data.Int.Base
 
@@ -1495,3 +1496,11 @@ private
 
 0≢1-ℤ : ¬ 0 ≡ 1
 0≢1-ℤ p = encodeℕ _ _ (injPos p)
+
+-- some lemmas about finite sums
+sumFinℤ0 : (n : ℕ) → sumFinℤ (λ (x : Fin n) → 0) ≡ 0
+sumFinℤ0 n = sumFinGen0 _+_ 0 (λ _ → refl) n (λ _ → 0) λ _ → refl
+
+sumFinℤHom : {n : ℕ} (f g : Fin n → ℤ)
+  → sumFinℤ (λ x → f x + g x) ≡ sumFinℤ f + sumFinℤ g
+sumFinℤHom {n = n} = sumFinGenHom _+_ 0 (λ _ → refl) +Comm +Assoc n

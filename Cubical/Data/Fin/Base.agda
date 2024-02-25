@@ -68,6 +68,9 @@ fsplit (suc k , k<sn) = inr ((k , pred-≤-pred k<sn) , toℕ-injective refl)
 inject< : ∀ {m n} (m<n : m < n) → Fin m → Fin n
 inject< m<n (k , k<m) = k , <-trans k<m m<n
 
+injectSuc : {n : ℕ} → Fin n → Fin (suc n)
+injectSuc {n = n} = inject< (0 , refl)
+
 flast : Fin (suc k)
 flast {k = k} = k , suc-≤-suc ≤-refl
 
@@ -109,3 +112,8 @@ FinPathℕ : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (
 FinPathℕ {n = n} x y p =
     ((fst (snd x)) , (cong (λ y → fst (snd x) + y) (cong suc (sym p)) ∙ snd (snd x)))
   , (Σ≡Prop (λ _ → isProp≤) p)
+
+-- summation
+sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ} (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A
+sumFinGen {n = zero} _+_ 0A f = 0A
+sumFinGen {n = suc n} _+_ 0A f = f flast + sumFinGen _+_ 0A (f ∘ injectSuc)
