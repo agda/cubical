@@ -135,3 +135,12 @@ univProp (completeSET J D) c cc =
     (λ _ → funExt (λ _ → refl))
     (λ x → isPropIsConeMor cc (limCone (completeSET J D)) x)
     (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
+
+module _ {A}{B} (f : CatIso (SET ℓ) A B) a where
+  open isUnivalent
+  univSetβ : transport (cong fst (CatIsoToPath isUnivalentSET f)) a
+             ≡ f .fst a
+  univSetβ = (transportRefl _
+    ∙ transportRefl _
+    ∙ transportRefl _
+    ∙ cong (f .fst) (transportRefl _ ∙ transportRefl _ ))

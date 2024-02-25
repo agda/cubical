@@ -99,6 +99,14 @@ module _ (i : Iso A B) where
   isoToIsEquiv .equiv-proof y .fst .snd = s y
   isoToIsEquiv .equiv-proof y .snd z = lemIso y (g y) (fst z) (s y) (snd z)
 
+isoToIsIso : {f : A → B} → isIso f → Iso A B
+isoToIsIso {f = f} fIsIso .Iso.fun = f
+isoToIsIso fIsIso .Iso.inv = fIsIso .fst
+isoToIsIso fIsIso .Iso.rightInv = fIsIso .snd .fst
+isoToIsIso fIsIso .Iso.leftInv = fIsIso .snd .snd
+
+isIsoToIsEquiv : {f : A → B} → isIso f → isEquiv f
+isIsoToIsEquiv fIsIso = isoToIsEquiv (isoToIsIso fIsIso)
 
 isoToEquiv : Iso A B → A ≃ B
 isoToEquiv i .fst = i .Iso.fun

@@ -7,6 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
 
@@ -110,3 +111,30 @@ module Contravariant {ℓ ℓ'} {C : Category ℓ ℓ'} where
       ∫ᴾhomEqSimpl : ∀ {o1 o2} (f g : (∫ᴾ F) [ o1 , o2 ])
                    → fst f ≡ fst g → f ≡ g
       ∫ᴾhomEqSimpl f g p = ∫ᴾhomEq f g refl refl p
+
+module _ {ℓ ℓ'}
+  {C : Category ℓ ℓ'} {ℓS}
+  (isUnivC : isUnivalent C) (F : Functor C (SET ℓS)) where
+  open Covariant {C = C}
+  open isUnivalent
+  isUnivalent∫ : isUnivalent (∫ F)
+  isUnivalent∫ .univ (c , f) (c' , f') = isIsoToIsEquiv
+    ( isoToPath∫
+    , (λ f≅f' → CatIso≡ _ _
+        (Σ≡Prop (λ _ → (F ⟅ _ ⟆) .snd _ _)
+          (cong fst
+          (secEq (univEquiv isUnivC _ _) (F-Iso {F = ForgetElements F} f≅f')))))
+    , λ f≡f' → ΣSquareSet (λ x → snd (F ⟅ x ⟆))
+      ( cong (CatIsoToPath isUnivC) (F-pathToIso {F = ForgetElements F} f≡f')
+      ∙ retEq (univEquiv isUnivC _ _) (cong fst f≡f'))) where
+
+    isoToPath∫ : ∀ {c c' f f'}
+               → CatIso (∫ F) (c , f) (c' , f')
+               → (c , f) ≡ (c' , f')
+    isoToPath∫ {f = f} f≅f' = ΣPathP
+      ( CatIsoToPath isUnivC (F-Iso {F = ForgetElements F} f≅f')
+      , toPathP ( (λ j → transport (λ i → fst
+                  (F-isoToPath {F = F} isUnivC isUnivalentSET
+                    (F-Iso {F = ForgetElements F} f≅f') (~ j) i)) f)
+                ∙ univSetβ (F-Iso {F = F ∘F ForgetElements F} f≅f') f
+                ∙ f≅f' .fst .snd))

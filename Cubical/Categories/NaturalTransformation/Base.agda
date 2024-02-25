@@ -229,6 +229,22 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
                     (α .N-hom f) (β .N-hom f)
         rem = toPathP (D .isSetHom _ _ _ _)
 
+  module _  {F F' G G' : Functor C D} {α : NatIso F G} {β : NatIso F' G'} where
+    open Functor
+    makeNatIsoPathP : ∀ (p : F ≡ F') (q : G ≡ G')
+                      → PathP (λ i → (x : C .ob) → D [ (p i) .F-ob x ,
+                                                       (q i) .F-ob x ])
+                              (α .trans .N-ob) (β .trans .N-ob)
+                      → PathP (λ i → NatIso (p i) (q i)) α β
+
+    makeNatIsoPathP p q P i .trans =
+      makeNatTransPathP {α = α .trans} {β = β .trans} p q P i
+    makeNatIsoPathP p q P i .nIso x =
+      isProp→PathP
+        (λ i → isPropIsIso (makeNatIsoPathP p q P i .trans .N-ob x))
+          (α .nIso _) (β .nIso _) i
+
+
 module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   open NatTrans
   -- whiskering
@@ -247,3 +263,37 @@ module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} {D : Category ℓD 
   whiskerTrans : {F F' : Functor B C} {G G' : Functor C D} (β : NatTrans G G') (α : NatTrans F F')
     → NatTrans (G ∘F F) (G' ∘F F')
   whiskerTrans {F}{F'}{G}{G'} β α = compTrans (β ∘ˡ F') (G ∘ʳ α)
+
+  whiskerTrans' : {F F' : Functor B C} {G G' : Functor C D}
+                  (β : NatTrans G G') (α : NatTrans F F')
+                  → NatTrans (G ∘F F) (G' ∘F F')
+  whiskerTrans' {F}{F'}{G}{G'} β α = compTrans (G' ∘ʳ α) (β ∘ˡ F)
+
+  whiskerTrans≡whiskerTrans' : {F F' : Functor B C} {G G' : Functor C D}
+                               (β : NatTrans G G') (α : NatTrans F F') →
+                               whiskerTrans β α ≡ whiskerTrans' β α
+  whiskerTrans≡whiskerTrans' β α = makeNatTransPath (funExt (λ x → β .N-hom _))
+
+  open NatIso
+  -- whiskering for natural isomorphisms
+  -- αF
+  _∘ˡⁱ_ : ∀ {G H : Functor C D} (α : NatIso G H) → (F : Functor B C)
+        → NatIso (G ∘F F) (H ∘F F)
+  _∘ˡⁱ_ {G} {H} α F .trans = α .trans ∘ˡ F
+  _∘ˡⁱ_ {G} {H} α F .nIso x = α .nIso (F ⟅ x ⟆)
+
+  open isIsoC
+  open Functor
+  -- Kβ
+  _∘ʳⁱ_ : ∀ (K : Functor C D) → {G H : Functor B C} (β : NatIso G H)
+       → NatIso (K ∘F G) (K ∘F H)
+  (_∘ʳⁱ_ K {G} {H} β) .trans = K ∘ʳ β .trans
+  inv (_∘ʳⁱ_ K {G} {H} β .nIso x) = K ⟪ β .nIso x .inv ⟫
+  sec (_∘ʳⁱ_ K {G} {H} β .nIso x) =
+    sym (K .F-seq _ _) ∙
+    cong (K .F-hom) (β .nIso x .sec) ∙
+    K .F-id
+  ret (_∘ʳⁱ_ K {G} {H} β .nIso x) =
+    sym (K .F-seq _ _) ∙
+    cong (K .F-hom) (β .nIso x .ret) ∙
+    K .F-id
