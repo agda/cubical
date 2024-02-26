@@ -1,7 +1,7 @@
 -- Product of two categories
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Constructions.BinProduct.More where
+module Cubical.Categories.Constructions.BinProduct.Properties where
 
 open import Cubical.Categories.Constructions.BinProduct.Base
 
@@ -12,7 +12,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Instances.Functors.More
+open import Cubical.Categories.Instances.Functors.Currying
 
 open import Cubical.Tactics.CategorySolver.Reflection
 
@@ -22,10 +22,6 @@ private
 
 open Category
 open Functor
-
--- Some more functor combinators
-Δ : ∀ (C : Category ℓC ℓC') → Functor C (C ×C C)
-Δ C = Id ,F Id
 
 -- helpful decomposition of morphisms used in several proofs
 -- about product category
@@ -61,11 +57,11 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE �
   -- Natural isomorphism in each component yields naturality of bifunctor
   binaryNatIso : ∀ (F G : Functor (C ×C D) E)
     → ( βc : (∀ (c : C .ob) →
-           NatIso (((curryF D E {Γ = C}) ⟅ F ⟆) ⟅ c ⟆)
-                  (((curryF D E {Γ = C}) ⟅ G ⟆) ⟅ c ⟆)))
+           NatIso (((curryF D E C) ⟅ F ⟆) ⟅ c ⟆)
+                  (((curryF D E C) ⟅ G ⟆) ⟅ c ⟆)))
     → ( βd : (∀ (d : D .ob) →
-           NatIso (((curryFl C E {Γ = D}) ⟅ F ⟆) ⟅ d ⟆)
-                  (((curryFl C E {Γ = D}) ⟅ G ⟆) ⟅ d ⟆)))
+           NatIso (((curryFl C E D) ⟅ F ⟆) ⟅ d ⟆)
+                  (((curryFl C E D) ⟅ G ⟆) ⟅ d ⟆)))
     → ( ∀ ((c , d) : (C ×C D) .ob) →
         ((βc c .trans .N-ob d) ≡ (βd d .trans .N-ob c)))
     → NatIso F G

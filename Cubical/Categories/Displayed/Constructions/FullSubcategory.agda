@@ -18,12 +18,9 @@ open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Constructions.FullSubcategory
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Isomorphism
--- open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Properties
 open import Cubical.Categories.Presheaf.Representable
--- open import Cubical.Categories.Presheaf.More
--- open import Cubical.Categories.Instances.Functors.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Base

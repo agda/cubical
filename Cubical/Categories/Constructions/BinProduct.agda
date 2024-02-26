@@ -4,4 +4,4 @@
 module Cubical.Categories.Constructions.BinProduct where
 
 open import Cubical.Categories.Constructions.BinProduct.Base public
-open import Cubical.Categories.Constructions.BinProduct.More public
+open import Cubical.Categories.Constructions.BinProduct.Properties public

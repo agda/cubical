@@ -29,7 +29,6 @@ open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Functors.HomFunctor
@@ -37,7 +36,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Instances.Functors.More
+open import Cubical.Categories.Instances.Functors.Currying
 
 private
   variable
