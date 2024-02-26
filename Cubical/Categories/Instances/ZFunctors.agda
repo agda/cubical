@@ -37,8 +37,12 @@ open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.DistLattices
 open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Site.Coverage
+open import Cubical.Categories.Site.Sheaf
+open import Cubical.Categories.Site.Instances.ZariskiCommRing
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Yoneda
+
 
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SetQuotients as SQ
@@ -59,11 +63,11 @@ module _ {ℓ : Level} where
   open CommRingStr ⦃...⦄
   open IsRingHom
 
-  -- using the naming conventions of Nieper-Wisskirchen
+  -- using the naming conventions of Demazure & Gabriel
   ℤFunctor = Functor (CommRingsCategory {ℓ = ℓ}) (SET ℓ)
   ℤFUNCTOR = FUNCTOR (CommRingsCategory {ℓ = ℓ}) (SET ℓ)
 
-  -- Yoneda in the notation of Demazure-Gabriel,
+  -- Yoneda in the notation of Demazure & Gabriel,
   -- uses that double op is original category definitionally
   Sp : Functor (CommRingsCategory {ℓ = ℓ} ^op) ℤFUNCTOR
   Sp = YO {C = (CommRingsCategory {ℓ = ℓ} ^op)}
@@ -75,21 +79,21 @@ module _ {ℓ : Level} where
   𝔸¹ = ForgetfulCommRing→Set
 
   -- the global sections functor
-  Γ : Functor ℤFUNCTOR (CommRingsCategory {ℓ = ℓ-suc ℓ} ^op)
-  fst (F-ob Γ X) = X ⇒ 𝔸¹
+  𝓞 : Functor ℤFUNCTOR (CommRingsCategory {ℓ = ℓ-suc ℓ} ^op)
+  fst (F-ob 𝓞 X) = X ⇒ 𝔸¹
 
   -- ring struncture induced by internal ring object 𝔸¹
-  N-ob (CommRingStr.0r (snd (F-ob Γ X))) A _ = 0r
+  N-ob (CommRingStr.0r (snd (F-ob 𝓞 X))) A _ = 0r
     where instance _ = A .snd
-  N-hom (CommRingStr.0r (snd (F-ob Γ X))) φ = funExt λ _ → sym (φ .snd .pres0)
+  N-hom (CommRingStr.0r (snd (F-ob 𝓞 X))) φ = funExt λ _ → sym (φ .snd .pres0)
 
-  N-ob (CommRingStr.1r (snd (F-ob Γ X))) A _ = 1r
+  N-ob (CommRingStr.1r (snd (F-ob 𝓞 X))) A _ = 1r
     where instance _ = A .snd
-  N-hom (CommRingStr.1r (snd (F-ob Γ X))) φ = funExt λ _ → sym (φ .snd .pres1)
+  N-hom (CommRingStr.1r (snd (F-ob 𝓞 X))) φ = funExt λ _ → sym (φ .snd .pres1)
 
-  N-ob ((snd (F-ob Γ X) CommRingStr.+ α) β) A x = α .N-ob A x + β .N-ob A x
+  N-ob ((snd (F-ob 𝓞 X) CommRingStr.+ α) β) A x = α .N-ob A x + β .N-ob A x
     where instance _ = A .snd
-  N-hom ((snd (F-ob Γ X) CommRingStr.+ α) β) {x = A} {y = B} φ = funExt path
+  N-hom ((snd (F-ob 𝓞 X) CommRingStr.+ α) β) {x = A} {y = B} φ = funExt path
     where
     instance
       _ = A .snd
@@ -102,9 +106,9 @@ module _ {ℓ : Level} where
            ≡⟨ sym (φ .snd .pres+ _ _) ⟩
              φ .fst (α .N-ob A x + β .N-ob A x) ∎
 
-  N-ob ((snd (F-ob Γ X) CommRingStr.· α) β) A x = α .N-ob A x · β .N-ob A x
+  N-ob ((snd (F-ob 𝓞 X) CommRingStr.· α) β) A x = α .N-ob A x · β .N-ob A x
     where instance _ = A .snd
-  N-hom ((snd (F-ob Γ X) CommRingStr.· α) β) {x = A} {y = B} φ = funExt path
+  N-hom ((snd (F-ob 𝓞 X) CommRingStr.· α) β) {x = A} {y = B} φ = funExt path
     where
     instance
       _ = A .snd
@@ -117,9 +121,9 @@ module _ {ℓ : Level} where
            ≡⟨ sym (φ .snd .pres· _ _) ⟩
              φ .fst (α .N-ob A x · β .N-ob A x) ∎
 
-  N-ob ((CommRingStr.- snd (F-ob Γ X)) α) A x = - α .N-ob A x
+  N-ob ((CommRingStr.- snd (F-ob 𝓞 X)) α) A x = - α .N-ob A x
     where instance _ = A .snd
-  N-hom ((CommRingStr.- snd (F-ob Γ X)) α) {x = A} {y = B} φ = funExt path
+  N-hom ((CommRingStr.- snd (F-ob 𝓞 X)) α) {x = A} {y = B} φ = funExt path
     where
     instance
       _ = A .snd
@@ -129,7 +133,7 @@ module _ {ℓ : Level} where
              - φ .fst (α .N-ob A x)     ≡⟨ sym (φ .snd .pres- _) ⟩
              φ .fst (- α .N-ob A x)     ∎
 
-  CommRingStr.isCommRing (snd (F-ob Γ X)) = makeIsCommRing
+  CommRingStr.isCommRing (snd (F-ob 𝓞 X)) = makeIsCommRing
     isSetNatTrans
     (λ _ _ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.+Assoc _ _ _))
     (λ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.+IdR _))
@@ -141,19 +145,24 @@ module _ {ℓ : Level} where
     (λ _ _ → makeNatTransPath (funExt₂ λ A _ → A .snd .CommRingStr.·Comm _ _))
 
   -- action on natural transformations
-  fst (F-hom Γ α) = α ●ᵛ_
-  pres0 (snd (F-hom Γ α)) = makeNatTransPath (funExt₂ λ _ _ → refl)
-  pres1 (snd (F-hom Γ α)) = makeNatTransPath (funExt₂ λ _ _ → refl)
-  pres+ (snd (F-hom Γ α)) _ _ = makeNatTransPath (funExt₂ λ _ _ → refl)
-  pres· (snd (F-hom Γ α)) _ _ = makeNatTransPath (funExt₂ λ _ _ → refl)
-  pres- (snd (F-hom Γ α)) _ = makeNatTransPath (funExt₂ λ _ _ → refl)
+  fst (F-hom 𝓞 α) = α ●ᵛ_
+  pres0 (snd (F-hom 𝓞 α)) = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres1 (snd (F-hom 𝓞 α)) = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres+ (snd (F-hom 𝓞 α)) _ _ = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres· (snd (F-hom 𝓞 α)) _ _ = makeNatTransPath (funExt₂ λ _ _ → refl)
+  pres- (snd (F-hom 𝓞 α)) _ = makeNatTransPath (funExt₂ λ _ _ → refl)
 
-  -- functoriality of Γ
-  F-id Γ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
-  F-seq Γ _ _ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
+  -- functoriality of 𝓞
+  F-id 𝓞 = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
+  F-seq 𝓞 _ _ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
 
 
--- we get an adjunction Γ ⊣ Sp modulo size issues
+
+-- There is an adjunction 𝓞 ⊣ᵢ Sp
+-- (relative to the inclusion i : CommRing ℓ → CommRing (ℓ+1))
+-- between the "global sections functor" 𝓞
+-- and the fully-faithful embedding of affines Sp,
+-- whose counit is a natural isomorphism
 module AdjBij where
 
   open Functor
@@ -162,7 +171,7 @@ module AdjBij where
   open IsRingHom
 
   private module _ {A : CommRing ℓ} {X : ℤFunctor {ℓ}} where
-    _♭ : CommRingHom A (Γ .F-ob X) → X ⇒ Sp .F-ob A
+    _♭ : CommRingHom A (𝓞 .F-ob X) → X ⇒ Sp .F-ob A
     fst (N-ob (φ ♭) B x) a = φ .fst a .N-ob B x
 
     pres0 (snd (N-ob (φ ♭) B x)) = cong (λ y → y .N-ob B x) (φ .snd .pres0)
@@ -175,7 +184,7 @@ module AdjBij where
 
 
     -- the other direction is just precomposition modulo Yoneda
-    _♯ : X ⇒ Sp .F-ob A → CommRingHom A (Γ .F-ob X)
+    _♯ : X ⇒ Sp .F-ob A → CommRingHom A (𝓞 .F-ob X)
     fst (α ♯) a = α ●ᵛ yonedaᴾ 𝔸¹ A .inv a
 
     pres0 (snd (α ♯)) = makeNatTransPath (funExt₂ λ B x → α .N-ob B x .snd .pres0)
@@ -189,34 +198,37 @@ module AdjBij where
     ♭♯Id : ∀ (α  : X ⇒ Sp .F-ob A) → ((α ♯) ♭) ≡ α
     ♭♯Id _ = makeNatTransPath (funExt₂ λ _ _ → RingHom≡ (funExt (λ _ → refl)))
 
-    ♯♭Id : ∀ (φ : CommRingHom A (Γ .F-ob X)) → ((φ ♭) ♯) ≡ φ
+    ♯♭Id : ∀ (φ : CommRingHom A (𝓞 .F-ob X)) → ((φ ♭) ♯) ≡ φ
     ♯♭Id _ = RingHom≡ (funExt λ _ → makeNatTransPath (funExt₂ λ _ _ → refl))
 
-  Γ⊣SpIso : {A : CommRing ℓ} {X : ℤFunctor {ℓ}}
-         → Iso (CommRingHom A (Γ .F-ob X)) (X ⇒ Sp .F-ob A)
-  fun Γ⊣SpIso = _♭
-  inv Γ⊣SpIso = _♯
-  rightInv Γ⊣SpIso = ♭♯Id
-  leftInv Γ⊣SpIso = ♯♭Id
 
-  Γ⊣SpNatℤFunctor : {A : CommRing ℓ} {X Y : ℤFunctor {ℓ}} (α : X ⇒ Sp .F-ob A) (β : Y ⇒ X)
-                  → (β ●ᵛ α) ♯ ≡ (Γ .F-hom β) ∘cr (α ♯)
-  Γ⊣SpNatℤFunctor _ _ = RingHom≡ (funExt (λ _ → makeNatTransPath (funExt₂ (λ _ _ → refl))))
+  -- we get a relative adjunction 𝓞 ⊣ᵢ Sp
+  -- with respect to the inclusion i : CommRing ℓ → CommRing (ℓ+1)
+  𝓞⊣SpIso : {A : CommRing ℓ} {X : ℤFunctor {ℓ}}
+          → Iso (CommRingHom A (𝓞 .F-ob X)) (X ⇒ Sp .F-ob A)
+  fun 𝓞⊣SpIso = _♭
+  inv 𝓞⊣SpIso = _♯
+  rightInv 𝓞⊣SpIso = ♭♯Id
+  leftInv 𝓞⊣SpIso = ♯♭Id
 
-  Γ⊣SpNatCommRing : {X : ℤFunctor {ℓ}} {A B : CommRing ℓ}
-                    (φ : CommRingHom A (Γ .F-ob X)) (ψ : CommRingHom B A)
+  𝓞⊣SpNatℤFunctor : {A : CommRing ℓ} {X Y : ℤFunctor {ℓ}} (α : X ⇒ Sp .F-ob A) (β : Y ⇒ X)
+                  → (β ●ᵛ α) ♯ ≡ (𝓞 .F-hom β) ∘cr (α ♯)
+  𝓞⊣SpNatℤFunctor _ _ = RingHom≡ (funExt (λ _ → makeNatTransPath (funExt₂ (λ _ _ → refl))))
+
+  𝓞⊣SpNatCommRing : {X : ℤFunctor {ℓ}} {A B : CommRing ℓ}
+                    (φ : CommRingHom A (𝓞 .F-ob X)) (ψ : CommRingHom B A)
                   → (φ ∘cr ψ) ♭ ≡ (φ ♭) ●ᵛ Sp .F-hom ψ
-  Γ⊣SpNatCommRing _ _ = makeNatTransPath (funExt₂ λ _ _ → RingHom≡ (funExt (λ _ → refl)))
+  𝓞⊣SpNatCommRing _ _ = makeNatTransPath (funExt₂ λ _ _ → RingHom≡ (funExt (λ _ → refl)))
 
   -- the counit is an equivalence
   private
-    ε : (A : CommRing ℓ) → CommRingHom A ((Γ ∘F Sp) .F-ob A)
+    ε : (A : CommRing ℓ) → CommRingHom A ((𝓞 ∘F Sp) .F-ob A)
     ε A = (idTrans (Sp .F-ob A)) ♯
 
-  Γ⊣SpCounitEquiv : (A : CommRing ℓ) → CommRingEquiv A ((Γ ∘F Sp) .F-ob A)
-  fst (Γ⊣SpCounitEquiv A) = isoToEquiv theIso
+  𝓞⊣SpCounitEquiv : (A : CommRing ℓ) → CommRingEquiv A ((𝓞 ∘F Sp) .F-ob A)
+  fst (𝓞⊣SpCounitEquiv A) = isoToEquiv theIso
     where
-    theIso : Iso (A .fst) ((Γ ∘F Sp) .F-ob A .fst)
+    theIso : Iso (A .fst) ((𝓞 ∘F Sp) .F-ob A .fst)
     fun theIso = ε A .fst
     inv theIso = yonedaᴾ 𝔸¹ A .fun
     rightInv theIso α = ℤFUNCTOR .⋆IdL _ ∙ yonedaᴾ 𝔸¹ A .leftInv α
@@ -224,7 +236,7 @@ module AdjBij where
       where
       path : yonedaᴾ 𝔸¹ A .fun ((idTrans (Sp .F-ob A)) ●ᵛ yonedaᴾ 𝔸¹ A .inv a) ≡ a
       path = cong (yonedaᴾ 𝔸¹ A .fun) (ℤFUNCTOR .⋆IdL _) ∙ yonedaᴾ 𝔸¹ A .rightInv a
-  snd (Γ⊣SpCounitEquiv A) = ε A .snd
+  snd (𝓞⊣SpCounitEquiv A) = ε A .snd
 
 
 -- Affine schemes
@@ -239,7 +251,7 @@ module _ {ℓ : Level} where
 
 -- The unit is an equivalence iff the ℤ-functor is affine.
 -- Unfortunately, we can't give a natural transformation
--- X ⇒ Sp (Γ X), because the latter ℤ-functor lives in a higher universe.
+-- X ⇒ Sp (𝓞 X), because the latter ℤ-functor lives in a higher universe.
 -- We can however give terms that look just like the unit,
 -- giving us an alternative def. of affine ℤ-functors
 private module AffineDefs {ℓ : Level} where
@@ -247,7 +259,7 @@ private module AffineDefs {ℓ : Level} where
   open NatTrans
   open Iso
   open IsRingHom
-  η : (X : ℤFunctor) (A : CommRing ℓ) → X .F-ob A .fst → CommRingHom (Γ .F-ob X) A
+  η : (X : ℤFunctor) (A : CommRing ℓ) → X .F-ob A .fst → CommRingHom (𝓞 .F-ob X) A
   fst (η X A x) α = α .N-ob A x
   pres0 (snd (η X A x)) = refl
   pres1 (snd (η X A x)) = refl
@@ -262,7 +274,7 @@ private module AffineDefs {ℓ : Level} where
 
   -- can only state equality on object part, but that would be enough
   ηHom : {X Y : ℤFunctor} (α : X ⇒ Y) (A : CommRing ℓ) (x : X .F-ob A .fst)
-         → η Y A (α .N-ob A x) ≡ η X A x ∘cr Γ .F-hom α
+         → η Y A (α .N-ob A x) ≡ η X A x ∘cr 𝓞 .F-hom α
   ηHom _ _ _ = RingHom≡ refl
 
   isAffine' : (X : ℤFunctor) → Type (ℓ-suc ℓ)
@@ -276,6 +288,7 @@ module _ {ℓ : Level} where
   open Iso
   open Functor
   open NatTrans
+  open NatIso
   open DistLatticeStr ⦃...⦄
   open CommRingStr ⦃...⦄
   open IsRingHom
@@ -284,14 +297,14 @@ module _ {ℓ : Level} where
   open ZarLatUniversalProp
 
   -- the Zariski lattice classifying compact open subobjects
-  𝓛 : ℤFunctor {ℓ = ℓ}
-  F-ob 𝓛 A = ZL A , SQ.squash/
-  F-hom 𝓛 φ = inducedZarLatHom φ .fst
-  F-id 𝓛 {A} = cong fst (inducedZarLatHomId A)
-  F-seq 𝓛 φ ψ = cong fst (inducedZarLatHomSeq φ ψ)
+  ZarLatFun : ℤFunctor {ℓ = ℓ}
+  F-ob ZarLatFun A = ZL A , SQ.squash/
+  F-hom ZarLatFun φ = inducedZarLatHom φ .fst
+  F-id ZarLatFun {A} = cong fst (inducedZarLatHomId A)
+  F-seq ZarLatFun φ ψ = cong fst (inducedZarLatHomSeq φ ψ)
 
   CompactOpen : ℤFunctor → Type (ℓ-suc ℓ)
-  CompactOpen X = X ⇒ 𝓛
+  CompactOpen X = X ⇒ ZarLatFun
 
   -- the induced subfunctor
   ⟦_⟧ᶜᵒ : {X : ℤFunctor} (U : CompactOpen X) → ℤFunctor
@@ -305,9 +318,9 @@ module _ {ℓ : Level} where
       _ = B .snd
     open IsLatticeHom
     path : U .N-ob B (X .F-hom φ x) ≡ D B 1r
-    path = U .N-ob B (X .F-hom φ x) ≡⟨ funExt⁻ (U .N-hom φ) x ⟩
-           𝓛 .F-hom φ (U .N-ob A x) ≡⟨ cong (𝓛 .F-hom φ) Ux≡D1 ⟩
-           𝓛 .F-hom φ (D A 1r)      ≡⟨ inducedZarLatHom φ .snd .pres1 ⟩
+    path = U .N-ob B (X .F-hom φ x)         ≡⟨ funExt⁻ (U .N-hom φ) x ⟩
+           ZarLatFun .F-hom φ (U .N-ob A x) ≡⟨ cong (ZarLatFun .F-hom φ) Ux≡D1 ⟩
+           ZarLatFun .F-hom φ (D A 1r)      ≡⟨ inducedZarLatHom φ .snd .pres1 ⟩
            D B 1r ∎
   F-id (⟦_⟧ᶜᵒ {X = X} U) = funExt (λ x → Σ≡Prop (λ _ → squash/ _ _)
                                      (funExt⁻ (X .F-id) (x .fst)))
@@ -324,7 +337,7 @@ module _ {ℓ : Level} where
   CompOpenDistLattice : Functor ℤFUNCTOR (DistLatticesCategory {ℓ = ℓ-suc ℓ} ^op)
   fst (F-ob CompOpenDistLattice X) = CompactOpen X
 
-  -- lattice structure induce by internal lattice object 𝓛
+  -- lattice structure induce by internal lattice object ZarLatFun
   N-ob (DistLatticeStr.0l (snd (F-ob CompOpenDistLattice X))) A _ = 0l
     where instance _ = ZariskiLattice A .snd
   N-hom (DistLatticeStr.0l (snd (F-ob CompOpenDistLattice X))) _ = funExt λ _ → refl
@@ -348,12 +361,12 @@ module _ {ℓ : Level} where
       _ = ZariskiLattice A .snd
       _ = ZariskiLattice B .snd
     path : ∀ x → U .N-ob B (X .F-hom φ x) ∨l V .N-ob B (X .F-hom φ x)
-               ≡ 𝓛 .F-hom φ (U .N-ob A x ∨l V .N-ob A x)
+               ≡ ZarLatFun .F-hom φ (U .N-ob A x ∨l V .N-ob A x)
     path x = U .N-ob B (X .F-hom φ x) ∨l V .N-ob B (X .F-hom φ x)
            ≡⟨ cong₂ _∨l_ (funExt⁻ (U .N-hom φ) x) (funExt⁻ (V .N-hom φ) x) ⟩
-             𝓛 .F-hom φ (U .N-ob A x) ∨l 𝓛 .F-hom φ (V .N-ob A x)
+             ZarLatFun .F-hom φ (U .N-ob A x) ∨l ZarLatFun .F-hom φ (V .N-ob A x)
            ≡⟨ sym (inducedZarLatHom φ .snd .pres∨l _ _) ⟩
-             𝓛 .F-hom φ (U .N-ob A x ∨l V .N-ob A x) ∎
+             ZarLatFun .F-hom φ (U .N-ob A x ∨l V .N-ob A x) ∎
 
   N-ob ((snd (F-ob CompOpenDistLattice X) DistLatticeStr.∧l U) V) A x = U .N-ob A x ∧l V .N-ob A x
     where instance _ = ZariskiLattice A .snd
@@ -363,12 +376,12 @@ module _ {ℓ : Level} where
       _ = ZariskiLattice A .snd
       _ = ZariskiLattice B .snd
     path : ∀ x → U .N-ob B (X .F-hom φ x) ∧l V .N-ob B (X .F-hom φ x)
-               ≡ 𝓛 .F-hom φ (U .N-ob A x ∧l V .N-ob A x)
+               ≡ ZarLatFun .F-hom φ (U .N-ob A x ∧l V .N-ob A x)
     path x = U .N-ob B (X .F-hom φ x) ∧l V .N-ob B (X .F-hom φ x)
            ≡⟨ cong₂ _∧l_ (funExt⁻ (U .N-hom φ) x) (funExt⁻ (V .N-hom φ) x) ⟩
-             𝓛 .F-hom φ (U .N-ob A x) ∧l 𝓛 .F-hom φ (V .N-ob A x)
+             ZarLatFun .F-hom φ (U .N-ob A x) ∧l ZarLatFun .F-hom φ (V .N-ob A x)
            ≡⟨ sym (inducedZarLatHom φ .snd .pres∧l _ _) ⟩
-             𝓛 .F-hom φ (U .N-ob A x ∧l V .N-ob A x) ∎
+             ZarLatFun .F-hom φ (U .N-ob A x ∧l V .N-ob A x) ∎
 
   DistLatticeStr.isDistLattice (snd (F-ob CompOpenDistLattice X)) = makeIsDistLattice∧lOver∨l
     isSetNatTrans
@@ -400,6 +413,18 @@ module _ {ℓ : Level} where
 
 
   module _ (X : ℤFunctor) where
+    open isIso
+    private instance _ = (CompOpenDistLattice .F-ob X) .snd
+
+    compOpenTopNatIso : NatIso X ⟦ 1l ⟧ᶜᵒ
+    N-ob (trans compOpenTopNatIso) _ φ = φ , refl
+    N-hom (trans compOpenTopNatIso) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+    inv (nIso compOpenTopNatIso B) = fst
+    sec (nIso compOpenTopNatIso B) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+    ret (nIso compOpenTopNatIso B) = funExt λ _ → refl
+
+
+  module _ (X : ℤFunctor) where
     open Join (CompOpenDistLattice .F-ob X)
     open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
     open PosetStr (IndPoset .snd) hiding (_≤_)
@@ -415,7 +440,6 @@ module _ {ℓ : Level} where
 
     hasAffineCover : Type (ℓ-suc ℓ)
     hasAffineCover = ∥ AffineCover ∥₁
-    -- TODO: A ℤ-functor is a  qcqs-scheme if it is a Zariski sheaf and has an affine cover
 
     -- the structure sheaf
     private COᵒᵖ = (DistLatticeCategory (CompOpenDistLattice .F-ob X)) ^op
@@ -443,8 +467,32 @@ module _ {ℓ : Level} where
     compOpenInclSeq _ _ = makeNatTransPath
                             (funExt₂ (λ _ _ → Σ≡Prop (λ _ → squash/ _ _) refl))
 
-    𝓞 : Functor COᵒᵖ (CommRingsCategory {ℓ = ℓ-suc ℓ})
-    F-ob 𝓞  U = Γ .F-ob ⟦ U ⟧ᶜᵒ
-    F-hom 𝓞 U≥V = Γ .F-hom (compOpenIncl U≥V)
-    F-id 𝓞 = cong (Γ .F-hom) compOpenInclId ∙ Γ .F-id
-    F-seq 𝓞 _ _ = cong (Γ .F-hom) (compOpenInclSeq _ _) ∙ Γ .F-seq _ _
+    strDLSh : Functor COᵒᵖ (CommRingsCategory {ℓ = ℓ-suc ℓ})
+    F-ob strDLSh  U = 𝓞 .F-ob ⟦ U ⟧ᶜᵒ
+    F-hom strDLSh U≥V = 𝓞 .F-hom (compOpenIncl U≥V)
+    F-id strDLSh = cong (𝓞 .F-hom) compOpenInclId ∙ 𝓞 .F-id
+    F-seq strDLSh _ _ = cong (𝓞 .F-hom) (compOpenInclSeq _ _) ∙ 𝓞 .F-seq _ _
+
+  -- the canonical one element affine cover of a representable
+  module _ (A : CommRing ℓ) where
+    open AffineCover
+    private instance _ = (CompOpenDistLattice ⟅ Sp ⟅ A ⟆ ⟆) .snd
+
+    singlAffineCover : AffineCover (Sp .F-ob A)
+    n singlAffineCover = 1
+    U singlAffineCover zero = 1l
+    covers singlAffineCover = ∨lRid _
+    isAffineU singlAffineCover zero = ∣ A , compOpenTopNatIso (Sp ⟅ A ⟆) ∣₁
+
+
+  -- qcqs-schemes as Zariski sheaves (local ℤ-functors) with an affine cover in the sense above
+  isLocal : ℤFunctor → Type (ℓ-suc ℓ)
+  isLocal X = isSheaf zariskiCoverage X
+
+  isQcQsScheme : ℤFunctor → Type (ℓ-suc ℓ)
+  isQcQsScheme X = isLocal X × hasAffineCover X
+
+  -- affine schemes are qcqs-schemes
+  isQcQsSchemeAffine : ∀ (A : CommRing ℓ) → isQcQsScheme (Sp .F-ob A)
+  fst (isQcQsSchemeAffine A) = isSubcanonicalZariskiCoverage A
+  snd (isQcQsSchemeAffine A) = ∣ singlAffineCover A ∣₁
