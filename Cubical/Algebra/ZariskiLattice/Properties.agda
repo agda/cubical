@@ -101,11 +101,8 @@ module _ (R : CommRing ℓ) where
                → f ∈ₚ R ˣ
       fgHelper (α , 1ⁿ≡α₀f+0) = α zero , path
         where
-        useSolver : ∀ f α₀ → f · α₀ ≡ α₀ · f + 0r
-        useSolver = solve R
-
         path : f · α zero ≡ 1r
-        path = f · α zero      ≡⟨ useSolver _ _ ⟩
+        path = f · α zero      ≡⟨ solve! R ⟩
                α zero · f + 0r ≡⟨ sym 1ⁿ≡α₀f+0 ⟩
                1r ^ n          ≡⟨ 1ⁿ≡1 n ⟩
                1r ∎
