@@ -651,7 +651,7 @@ module _ {ℓ : Level} where
     n singlAffineCover = 1
     U singlAffineCover zero = 1l
     covers singlAffineCover = ∨lRid _
-    isAffineU singlAffineCover zero = ∣ A , X≅⟦1⟧ (Sp ⟅ A ⟆) ∣₁
+    isAffineU singlAffineCover zero = ∣ A , compOpenTopNatIso (Sp ⟅ A ⟆) ∣₁
 
     isQcQsSchemeAffine : isQcQsScheme (Sp .F-ob A)
     fst isQcQsSchemeAffine = isSubcanonicalZariskiCoverage A
