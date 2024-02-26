@@ -22,6 +22,7 @@ open import Cubical.Data.Fin
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.CW.Base
+open import Cubical.Data.Sequence
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Pushout

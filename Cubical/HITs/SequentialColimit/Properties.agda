@@ -15,14 +15,17 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat hiding (elim)
+open import Cubical.Data.Sequence
+
 open import Cubical.HITs.SequentialColimit.Base
 open import Cubical.Homotopy.Connected
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 module _
   (X : Sequence ℓ) where
@@ -381,3 +384,52 @@ SeqColim→Prop {C = C} {B = B} pr ind (push x i) =
   isProp→PathP {B = λ i → B (push x i)}
     (λ i → pr _)
     (ind _ x) (ind (suc _) (C .Sequence.map x)) i
+
+realiseIdSequenceMap : {C : Sequence ℓ} → realiseSequenceMap (idSequenceMap C) ≡ idfun _
+realiseIdSequenceMap {C = C} =
+  funExt λ { (incl x) → refl
+           ; (push {n = n} x i) j → rUnit (push {n = n} x) (~ j) i}
+
+realiseCompSequenceMap : {C : Sequence ℓ} {D : Sequence ℓ'} {E : Sequence ℓ''}
+  (g : SequenceMap D E) (f : SequenceMap C D)
+  → realiseSequenceMap (composeSequenceMap g f)
+   ≡ realiseSequenceMap g ∘ realiseSequenceMap f
+realiseCompSequenceMap {C = C} {E = E} g f =
+  funExt λ { (incl x) → refl
+           ; (push {n = n} x i) j → main n x j i}
+  where
+  module _ (n : ℕ) (x : Sequence.obj C n) where
+    g₁ = g .SequenceMap.map n
+    g₊ =  g .SequenceMap.map (suc n)
+    f₁ = f .SequenceMap.map n
+
+    main : Path (Path (SeqColim E) _ _)
+                (push {n = n} (g₁ (f₁ x))
+                ∙ cong incl (SequenceMap.comm g n (f₁ x)
+                           ∙ cong g₊ (SequenceMap.comm f n x)))
+                (cong (realiseSequenceMap g) (push (f₁ x) ∙ cong incl (SequenceMap.comm f n x)))
+    main = cong (push (SequenceMap.map g n (f₁ x)) ∙_)
+                      (cong-∙ incl (SequenceMap.comm g n (f₁ x))
+                                   (cong g₊ (SequenceMap.comm f n x)))
+      ∙ assoc (push (SequenceMap.map g n (f₁ x)))
+               (cong incl (SequenceMap.comm g n (f₁ x)))
+               (cong (incl ∘ g₊) (SequenceMap.comm f n x))
+      ∙ sym (cong-∙ (realiseSequenceMap g)
+                    (push (f₁ x)) (cong incl (SequenceMap.comm f n x)))
+
+converges→funId : {seq1 : Sequence ℓ} {seq2 : Sequence ℓ'}
+  (n m : ℕ)
+  → converges seq1 n
+  → converges seq2 m
+  → (f : SeqColim seq1 → SeqColim seq2)
+  → (g : SequenceMap seq1 seq2)
+  → ((n : ℕ) (c : _) → f (incl {n = n} c) ≡ incl (SequenceMap.map g n c))
+  → f ≡ realiseSequenceMap g
+converges→funId {seq1 = seq1} {seq2} n m t1 t2 f g p =
+  transport (λ i → help f (~ i) ≡ help (realiseSequenceMap g) (~ i))
+    (funExt λ x → p _ x)
+  where
+  help : (f : _) → PathP (λ i → isoToPath (converges→ColimIso {seq = seq1} n t1) (~ i)
+                    → SeqColim seq2)
+               f (f ∘ incl)
+  help f = toPathP (funExt λ x → (λ i → transportRefl (f (incl (transportRefl x i))) i))

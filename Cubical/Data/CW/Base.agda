@@ -21,6 +21,9 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Fin
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sequence
+open import Cubical.Data.FinSequence
+
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Pushout
@@ -84,6 +87,9 @@ finCWskel→CWskel n C = fst C , fst (snd C)
 realiseSeq : CWskel ℓ → Sequence ℓ
 Sequence.obj (realiseSeq (C , p)) = C
 Sequence.map (realiseSeq C) = CW↪ C _
+
+realiseFinSeq : (m : ℕ) → CWskel ℓ → FinSequence m ℓ
+realiseFinSeq m C = Sequence→FinSequence m (realiseSeq C)
 
 -- realisation of CW complex from skeleton
 realise : CWskel ℓ → Type ℓ

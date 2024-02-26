@@ -2,17 +2,15 @@
 module Cubical.HITs.SequentialColimit.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Nat
 open import Cubical.Foundations.Equiv
+
+open import Cubical.Data.Nat
+open import Cubical.Data.Sequence
+
 
 private
   variable
-    ℓ : Level
-
-record Sequence (ℓ : Level) : Type (ℓ-suc ℓ) where
-  field
-    obj : ℕ → Type ℓ
-    map : {n : ℕ} → obj n → obj (1 + n)
+    ℓ ℓ' : Level
 
 open Sequence
 
@@ -20,8 +18,8 @@ data SeqColim (X : Sequence ℓ) : Type ℓ where
   incl : {n : ℕ} → X .obj n → SeqColim X
   push : {n : ℕ} (x : X .obj n) → incl x ≡ incl (X .map x)
 
-converges : ∀ {ℓ} → Sequence ℓ → (n : ℕ) → Type ℓ
-converges seq n = (k : ℕ) → isEquiv (Sequence.map seq {n = k + n})
-
-finiteSequence : (ℓ : Level) (m : ℕ) → Type (ℓ-suc ℓ)
-finiteSequence ℓ m = Σ[ S ∈ Sequence ℓ ] converges S m
+realiseSequenceMap : {C : Sequence ℓ} {D : Sequence ℓ'}
+  → SequenceMap C D → SeqColim C → SeqColim D
+realiseSequenceMap record { map = map ; comm = comm } (incl x) = incl (map _ x)
+realiseSequenceMap record { map = map ; comm = comm } (push {n = n} x i) =
+  (push (map n x) ∙ λ i → incl (comm n x i)) i
