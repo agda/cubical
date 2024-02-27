@@ -502,9 +502,9 @@ module _ {ℓ : Level} where
                                      (CompOpenDistLattice .F-ob ⟦ U ⟧ᶜᵒ)
     compOpenDownHom U = CompOpenDistLattice .F-hom (compOpenGlobalIncl U)
 
-    -- termination issues!!!
-    -- I don't understand what's going on???
     module _ {U V : CompactOpen X} (V≤U : V ≤ U) where
+      -- We need this separate definition to avoid termination checker issues,
+      -- but we don't understand why.
       private
         compOpenDownHomFun : (A : CommRing ℓ)
                            → ⟦ V ⟧ᶜᵒ .F-ob A .fst
