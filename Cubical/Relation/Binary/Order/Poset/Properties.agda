@@ -75,19 +75,19 @@ Poset→StrictPoset (_ , pos)
 
 
 module PosetDownset (P' : Poset ℓ ℓ') where
- private P = fst P'
- open PosetStr (snd P')
+  private P = fst P'
+  open PosetStr (snd P')
 
- ↓ : P → Type (ℓ-max ℓ ℓ')
- ↓ u = Σ[ v ∈ P ] v ≤ u
+  ↓ : P → Type (ℓ-max ℓ ℓ')
+  ↓ u = Σ[ v ∈ P ] v ≤ u
 
- ↓ᴾ : P → Poset (ℓ-max ℓ ℓ') ℓ'
- fst (↓ᴾ u) = ↓ u
- PosetStr._≤_ (snd (↓ᴾ u)) v w = v .fst ≤ w .fst
- IsPoset.is-set (PosetStr.isPoset (snd (↓ᴾ u))) =
-   isSetΣSndProp is-set λ _ → is-prop-valued _ _
- IsPoset.is-prop-valued (PosetStr.isPoset (snd (↓ᴾ u))) _ _ = is-prop-valued _ _
- IsPoset.is-refl (PosetStr.isPoset (snd (↓ᴾ u))) _ = is-refl _
- IsPoset.is-trans (PosetStr.isPoset (snd (↓ᴾ u))) _ _ _ = is-trans _ _ _
- IsPoset.is-antisym (PosetStr.isPoset (snd (↓ᴾ u))) _ _ v≤w w≤v =
-   Σ≡Prop (λ _ → is-prop-valued _ _) (is-antisym _ _ v≤w w≤v)
+  ↓ᴾ : P → Poset (ℓ-max ℓ ℓ') ℓ'
+  fst (↓ᴾ u) = ↓ u
+  PosetStr._≤_ (snd (↓ᴾ u)) v w = v .fst ≤ w .fst
+  IsPoset.is-set (PosetStr.isPoset (snd (↓ᴾ u))) =
+    isSetΣSndProp is-set λ _ → is-prop-valued _ _
+  IsPoset.is-prop-valued (PosetStr.isPoset (snd (↓ᴾ u))) _ _ = is-prop-valued _ _
+  IsPoset.is-refl (PosetStr.isPoset (snd (↓ᴾ u))) _ = is-refl _
+  IsPoset.is-trans (PosetStr.isPoset (snd (↓ᴾ u))) _ _ _ = is-trans _ _ _
+  IsPoset.is-antisym (PosetStr.isPoset (snd (↓ᴾ u))) _ _ v≤w w≤v =
+    Σ≡Prop (λ _ → is-prop-valued _ _) (is-antisym _ _ v≤w w≤v)
