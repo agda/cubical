@@ -300,7 +300,7 @@ module _ {ℓ : Level} where
   open ZarLat
   open ZarLatUniversalProp
 
-  -- the Zariski lattice classifying compact open subobjects
+  -- the Zariski lattice functor classifying compact open subobjects
   ZarLatFun : ℤFunctor {ℓ = ℓ}
   F-ob ZarLatFun A = ZL A , SQ.squash/
   F-hom ZarLatFun φ = inducedZarLatHom φ .fst
