@@ -482,41 +482,6 @@ module _ {ℓ : Level} where
     N-ob (compOpenGlobalIncl U) A = fst
     N-hom (compOpenGlobalIncl U) φ = refl
 
-    -- this is essentially U∧_
-    compOpenDownHom : (U : CompactOpen X)
-                    → DistLatticeHom (CompOpenDistLattice .F-ob X)
-                                     (CompOpenDistLattice .F-ob ⟦ U ⟧ᶜᵒ)
-    compOpenDownHom U = CompOpenDistLattice .F-hom (compOpenGlobalIncl U)
-
-    -- termination issues!!!
-    -- I don't understand what's going on???
-    module _ {U V : CompactOpen X} (V≤U : V ≤ U) where
-      private
-        compOpenDownHomFun : (A : CommRing ℓ)
-                           → ⟦ V ⟧ᶜᵒ .F-ob A .fst
-                           → ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ .F-ob A .fst
-        compOpenDownHomFun A (x , Vx≡D1) = (x , path) , Vx≡D1
-          where
-          instance
-            _ = A .snd
-            _ = ZariskiLattice A .snd
-            _ = DistLattice→Lattice (ZariskiLattice A)
-          path : U .N-ob A x ≡ D A 1r
-          path = U .N-ob A x                ≡⟨ funExt⁻ (funExt⁻ (cong N-ob (sym V≤U)) A) x ⟩
-                 V .N-ob A x ∨l U .N-ob A x ≡⟨ cong (_∨l U .N-ob A x) Vx≡D1 ⟩
-                 D A 1r ∨l U .N-ob A x      ≡⟨ 1lLeftAnnihilates∨l _ ⟩
-                 D A 1r ∎
-
-      compOpenDownHomNatIso : NatIso ⟦ V ⟧ᶜᵒ ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ
-      N-ob (trans compOpenDownHomNatIso) = compOpenDownHomFun
-      N-hom (trans compOpenDownHomNatIso) _ =
-        funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
-      inv (nIso compOpenDownHomNatIso A) ((x , Ux≡D1) , Vx≡D1) = x , Vx≡D1
-      sec (nIso compOpenDownHomNatIso A) =
-        funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
-      ret (nIso compOpenDownHomNatIso A) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
-
-    -- code duplication!
     compOpenIncl : {U V : CompactOpen X} → V ≤ U → ⟦ V ⟧ᶜᵒ ⇒ ⟦ U ⟧ᶜᵒ
     N-ob (compOpenIncl {U = U} {V = V} V≤U) A (x , Vx≡D1) = x , path
       where
@@ -530,6 +495,30 @@ module _ {ℓ : Level} where
              D A 1r ∨l U .N-ob A x      ≡⟨ 1lLeftAnnihilates∨l _ ⟩
              D A 1r ∎
     N-hom (compOpenIncl V≤U) φ = funExt λ x → Σ≡Prop (λ _ → squash/ _ _) refl
+
+    -- this is essentially U∧_
+    compOpenDownHom : (U : CompactOpen X)
+                    → DistLatticeHom (CompOpenDistLattice .F-ob X)
+                                     (CompOpenDistLattice .F-ob ⟦ U ⟧ᶜᵒ)
+    compOpenDownHom U = CompOpenDistLattice .F-hom (compOpenGlobalIncl U)
+
+    -- termination issues!!!
+    -- I don't understand what's going on???
+    module _ {U V : CompactOpen X} (V≤U : V ≤ U) where
+      private
+        compOpenDownHomFun : (A : CommRing ℓ)
+                           → ⟦ V ⟧ᶜᵒ .F-ob A .fst
+                           → ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ .F-ob A .fst
+        compOpenDownHomFun A v = (compOpenIncl V≤U ⟦ A ⟧) v , snd v
+
+      compOpenDownHomNatIso : NatIso ⟦ V ⟧ᶜᵒ ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ
+      N-ob (trans compOpenDownHomNatIso) = compOpenDownHomFun
+      N-hom (trans compOpenDownHomNatIso) _ =
+        funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
+      inv (nIso compOpenDownHomNatIso A) ((x , Ux≡D1) , Vx≡D1) = x , Vx≡D1
+      sec (nIso compOpenDownHomNatIso A) =
+        funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
+      ret (nIso compOpenDownHomNatIso A) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
 
     compOpenInclId : ∀ {U : CompactOpen X} → compOpenIncl (is-refl U) ≡ idTrans ⟦ U ⟧ᶜᵒ
     compOpenInclId = makeNatTransPath (funExt₂ (λ _ _ → Σ≡Prop (λ _ → squash/ _ _) refl))
