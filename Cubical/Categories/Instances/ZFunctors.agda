@@ -649,7 +649,7 @@ module _ {ℓ : Level} where
 
 -- standard affine opens
 -- TODO: separate file?
-module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
+module StandardOpens {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
 
   open Iso
   open Functor
@@ -709,6 +709,8 @@ module _ {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
 
 -- compact opens of affine schemes are qcqs-schemes
 module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
+
+  open StandardOpens
 
   open Iso
   open Functor
