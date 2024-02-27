@@ -734,13 +734,12 @@ module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
   open IsLatticeHom
   open ZarLat
 
-
   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob (Sp .F-ob R)))) using (IndPoset; ind≤bigOp)
   open InvertingElementsBase R
   open Join
   open JoinMap
   open AffineCover
-  module ZL = ZarLatUniversalProp
+  private module ZL = ZarLatUniversalProp
 
   private
     instance
