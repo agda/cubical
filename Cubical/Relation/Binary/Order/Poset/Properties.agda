@@ -73,7 +73,6 @@ Poset→StrictPoset (_ , pos)
                        (isPoset→isStrictPosetIrreflKernel (PosetStr.isPoset pos))
 
 
-
 module PosetDownset (P' : Poset ℓ ℓ') where
   private P = fst P'
   open PosetStr (snd P')
