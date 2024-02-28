@@ -12,7 +12,9 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
+
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Instances.Terminal
 
 private
   variable
@@ -142,6 +144,19 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
   F-rUnitᴰ i .F-idᴰ {x} = rUnitP' (Dᴰ [_][ _ , _ ]) Fᴰ.F-idᴰ (~ i)
   F-rUnitᴰ i .F-seqᴰ _ _ = rUnitP' (Dᴰ [_][ _ , _ ]) (Fᴰ.F-seqᴰ _ _) (~ i)
 
+-- Displayed opposite functor
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {F : Functor C D} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  where
+  open Functorᴰ
+  _^opFᴰ : Functorᴰ (F ^opF) (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
+  _^opFᴰ .F-obᴰ = Fᴰ .F-obᴰ
+  _^opFᴰ .F-homᴰ = Fᴰ .F-homᴰ
+  _^opFᴰ .F-idᴰ = Fᴰ .F-idᴰ
+  _^opFᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
+
+
 -- Total functor of a displayed functor
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {F : Functor C D} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -157,3 +172,56 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   ∫F .F-hom (_ , fᴰ) = _ , Fᴰ.F-homᴰ fᴰ
   ∫F .F-id = ΣPathP (_ , Fᴰ.F-idᴰ)
   ∫F .F-seq _ _ = ΣPathP (_ , (Fᴰ.F-seqᴰ _ _))
+
+-- Projections out of the total category
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  open Functor
+  open Functorᴰ
+
+  Fst : Functor (∫C Cᴰ) C
+  Fst .F-ob = fst
+  Fst .F-hom = fst
+  Fst .F-id = refl
+  Fst .F-seq =
+    λ f g → cong {x = f ⋆⟨ ∫C Cᴰ ⟩ g} fst refl
+
+  -- Functor into the total category
+  module TotalCategory {D : Category ℓD ℓD'}
+           (F : Functor D C)
+           (Fᴰ : Functorᴰ F (Unitᴰ D) Cᴰ)
+           where
+    intro : Functor D (∫C Cᴰ)
+    intro .F-ob d = F ⟅ d ⟆ , Fᴰ .F-obᴰ _
+    intro .F-hom f = (F ⟪ f ⟫) , (Fᴰ .F-homᴰ _)
+    intro .F-id = ΣPathP (F .F-id , Fᴰ .F-idᴰ)
+    intro .F-seq f g = ΣPathP (F .F-seq f g , Fᴰ .F-seqᴰ _ _)
+
+-- Projection out of the displayed total category
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (Dᴰ : Categoryᴰ (∫C Cᴰ) ℓDᴰ ℓDᴰ')
+  where
+
+  open Functorᴰ
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Dᴰ = Categoryᴰ Dᴰ
+
+  Fstᴰ : Functorᴰ Id (∫Cᴰ Cᴰ Dᴰ) Cᴰ
+  Fstᴰ .F-obᴰ = fst
+  Fstᴰ .F-homᴰ = fst
+  Fstᴰ .F-idᴰ = refl
+  Fstᴰ .F-seqᴰ _ _ = refl
+
+  -- Functor into the displayed total category
+  module DisplayedTotalCategory {E : Category ℓE ℓE'} (F : Functor E C)
+           {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+           (Fᴰ : Functorᴰ F Eᴰ Cᴰ)
+           (Gᴰ : Functorᴰ (∫F Fᴰ) (Unitᴰ (∫C Eᴰ)) Dᴰ)
+           where
+
+    intro : Functorᴰ F Eᴰ (∫Cᴰ Cᴰ Dᴰ)
+    intro .F-obᴰ xᴰ = Fᴰ .F-obᴰ xᴰ , Gᴰ .F-obᴰ _
+    intro .F-homᴰ fᴰ = (Fᴰ .F-homᴰ fᴰ) , (Gᴰ .F-homᴰ _)
+    intro .F-idᴰ = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
+    intro .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ .F-seqᴰ fᴰ gᴰ , Gᴰ .F-seqᴰ _ _)

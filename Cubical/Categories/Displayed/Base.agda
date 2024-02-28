@@ -12,7 +12,7 @@ open import Cubical.Categories.Category.Base
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' : Level
+    ℓC ℓC' ℓD ℓD' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' : Level
 
 -- Displayed categories with hom-sets
 record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))) where
@@ -88,6 +88,22 @@ module _ {C : Category ℓC ℓC'}
   ∫Cᴰ .⋆Assocᴰ _ _ _ = ΣPathP (_ , Dᴰ.⋆Assocᴰ _ _ _)
   ∫Cᴰ .isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Dᴰ.isSetHomᴰ)
 
+
+-- Display a category D over C
+module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
+  open Category
+  open Categoryᴰ
+  weaken : Categoryᴰ C ℓD ℓD'
+  weaken .ob[_] x = D .ob
+  weaken .Hom[_][_,_] f d d' = D [ d , d' ]
+  weaken .idᴰ = D .id
+  weaken ._⋆ᴰ_ = D ._⋆_
+  weaken .⋆IdLᴰ = D .⋆IdL
+  weaken .⋆IdRᴰ = D .⋆IdR
+  weaken .⋆Assocᴰ = D .⋆Assoc
+  weaken .isSetHomᴰ = D .isSetHom
+
+-- Weaken a displayed category Dᴰ over Cᴰ
 module _ {C : Category ℓC ℓC'}
   (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   (Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ')
@@ -127,3 +143,19 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   idᴰCatIsoᴰ : {x : ob} {xᴰ : ob[ x ]} → CatIsoᴰ idCatIso xᴰ xᴰ
   idᴰCatIsoᴰ = idᴰ , isisoᴰ idᴰ (⋆IdLᴰ idᴰ) (⋆IdLᴰ idᴰ)
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  open Category
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+
+  open Categoryᴰ
+  _^opᴰ : Categoryᴰ (C ^op) ℓCᴰ ℓCᴰ'
+  _^opᴰ .ob[_] x = Cᴰ.ob[ x ]
+  _^opᴰ .Hom[_][_,_] f xᴰ yᴰ = Cᴰ.Hom[ f ][ yᴰ , xᴰ ]
+  _^opᴰ .idᴰ = Cᴰ.idᴰ
+  _^opᴰ ._⋆ᴰ_ fᴰ gᴰ = gᴰ Cᴰ.⋆ᴰ fᴰ
+  _^opᴰ .⋆IdLᴰ = Cᴰ .⋆IdRᴰ
+  _^opᴰ .⋆IdRᴰ = Cᴰ .⋆IdLᴰ
+  _^opᴰ .⋆Assocᴰ fᴰ gᴰ hᴰ = symP (Cᴰ.⋆Assocᴰ _ _ _)
+  _^opᴰ .isSetHomᴰ = Cᴰ .isSetHomᴰ
