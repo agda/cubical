@@ -221,15 +221,12 @@ Embedding-into-isSet→isSet (f , isEmbeddingF) isSet-B x y p q =
 
 Embedding-into-hLevel→hLevel
   : ∀ n → A ↪ B → isOfHLevel (suc n) B → isOfHLevel (suc n) A
-Embedding-into-hLevel→hLevel zero = Embedding-into-isProp→isProp
-Embedding-into-hLevel→hLevel (suc n) (f , isEmbeddingF) Blvl x y
-  = isOfHLevelRespectEquiv (suc n) (invEquiv equiv) subLvl
-  where
-  equiv : (x ≡ y) ≃ (f x ≡ f y)
-  equiv .fst = cong f
-  equiv .snd = isEmbeddingF x y
-  subLvl : isOfHLevel (suc n) (f x ≡ f y)
-  subLvl = Blvl (f x) (f y)
+Embedding-into-hLevel→hLevel n (f , isEmbeddingF) isOfHLevelB =
+  isOfHLevelPath'⁻ n
+    (λ a a' →
+      isOfHLevelRespectEquiv n
+        (invEquiv (cong f , isEmbeddingF a a'))
+        (isOfHLevelPath' n isOfHLevelB (f a) (f a')))
 
 -- We now show that the powerset is the subtype classifier
 -- i.e. ℙ X ≃ Σ[A ∈ Type ℓ] (A ↪ X)
