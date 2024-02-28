@@ -204,21 +204,6 @@ Embedding-into-Discrete→Discrete (f , isEmbeddingF) _≟_ x y with f x ≟ f y
 ... | yes p = yes (invIsEq (isEmbeddingF x y) p)
 ... | no ¬p = no (¬p ∘ cong f)
 
-Embedding-into-isProp→isProp : A ↪ B → isProp B → isProp A
-Embedding-into-isProp→isProp (f , isEmbeddingF) isProp-B x y
-  = invIsEq (isEmbeddingF x y) (isProp-B (f x) (f y))
-
-Embedding-into-isSet→isSet : A ↪ B → isSet B → isSet A
-Embedding-into-isSet→isSet (f , isEmbeddingF) isSet-B x y p q =
-  p ≡⟨ sym (retIsEq isEquiv-cong-f p) ⟩
-  cong-f⁻¹ (cong f p) ≡⟨ cong cong-f⁻¹ cong-f-p≡cong-f-q ⟩
-  cong-f⁻¹ (cong f q) ≡⟨ retIsEq isEquiv-cong-f q ⟩
-  q ∎
-  where
-    cong-f-p≡cong-f-q = isSet-B (f x) (f y) (cong f p) (cong f q)
-    isEquiv-cong-f = isEmbeddingF x y
-    cong-f⁻¹ = invIsEq isEquiv-cong-f
-
 Embedding-into-hLevel→hLevel
   : ∀ n → A ↪ B → isOfHLevel (suc n) B → isOfHLevel (suc n) A
 Embedding-into-hLevel→hLevel n (f , isEmbeddingF) isOfHLevelB =
@@ -227,6 +212,12 @@ Embedding-into-hLevel→hLevel n (f , isEmbeddingF) isOfHLevelB =
       isOfHLevelRespectEquiv n
         (invEquiv (cong f , isEmbeddingF a a'))
         (isOfHLevelPath' n isOfHLevelB (f a) (f a')))
+
+Embedding-into-isProp→isProp : A ↪ B → isProp B → isProp A
+Embedding-into-isProp→isProp = Embedding-into-hLevel→hLevel 0
+
+Embedding-into-isSet→isSet : A ↪ B → isSet B → isSet A
+Embedding-into-isSet→isSet = Embedding-into-hLevel→hLevel 1
 
 -- We now show that the powerset is the subtype classifier
 -- i.e. ℙ X ≃ Σ[A ∈ Type ℓ] (A ↪ X)
