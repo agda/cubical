@@ -312,3 +312,13 @@ macro
 
  π₁solveGroup : R.Term → R.Term → R.Term → R.Term → R.TC Unit
  π₁solveGroup = π₁groupSolverMain false
+
+
+-- open import Cubical.WildCat.Base
+
+-- module _ {ℓ'} (WG : WildGroupoid ℓ ℓ') where
+--   module WG =  WildGroupoid WG 
+--   open WildCat WG.wildCat
+
+--   toFG : {! .ob!}
+--   toFG = {!!}

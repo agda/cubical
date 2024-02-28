@@ -69,6 +69,13 @@ module _ {A B : Type ℓ} (e : A ≃ B) {x : A} {y : B} where
   unquoteDef ua-ungluePath-Equiv =
     defStrictEquiv ua-ungluePath-Equiv ua-ungluePath ua-gluePath
 
+ua-ungluePathExt : {A B : Type ℓ} (e : A ≃ B) → PathP (λ i → ua e i → B) (fst e) (idfun B)
+ua-ungluePathExt e i = ua-unglue e i
+
+ua-gluePathExt : {A B : Type ℓ} (e : A ≃ B) → PathP (λ i → A → ua e i) (idfun _) (fst e)
+ua-gluePathExt e i x =
+  ua-glue e i (λ { (i = i0) → x }) (inS (fst e x))
+
 -- ua-unglue and ua-glue are also definitional inverses, in a way
 -- strengthening the types of ua-unglue and ua-glue gives a nicer formulation of this, see below
 
@@ -137,6 +144,14 @@ unglueEquiv : ∀ (A : Type ℓ) (φ : I)
               (Glue A f) ≃ A
 unglueEquiv A φ f = ( unglue φ , unglueIsEquiv A φ f )
 
+ua-unglueEquiv : ∀ {A B : Type ℓ} (e : A ≃ B) →
+                    PathP (λ i → ua e i ≃ B)
+                       e
+                       (idEquiv _)
+fst (ua-unglueEquiv e i) = ua-unglue e i
+snd (ua-unglueEquiv e i) =
+  isProp→PathP (λ i → isPropIsEquiv (ua-unglue e i))
+   (snd e) (idIsEquiv _) i
 
 -- The following is a formulation of univalence proposed by Martín Escardó:
 -- https://groups.google.com/forum/#!msg/homotopytypetheory/HfCB_b-PNEU/Ibb48LvUMeUJ

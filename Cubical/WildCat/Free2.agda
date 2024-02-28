@@ -5,7 +5,7 @@
 -}
 {-# OPTIONS --safe #-}
 
-module Cubical.WildCat.Free where
+module Cubical.WildCat.Free2 where
 
 open import Cubical.Foundations.Prelude
 
@@ -63,130 +63,111 @@ module _ (WG : WildGroupoid ℓg ℓg') where
  fwgPreCode ([[[ f ]]] i) y = ua (wg⋆≃Pre {x = _} {_} {y} (inv f)) i
 
 
-
- -- fwgCode⋆ : ∀ {u x y z} → (f : Hom[ x , y ]) → (g : Hom[ y , z ])
- --                 →
- --                  Square (cong (fwgCode u) [[[ f ]]])
- --                         (cong (fwgCode u) [[[ f ⋆ g ]]])
- --                         refl
- --                         (cong (fwgCode u) [[[ g ]]])
- -- fwgCode⋆ f g = {!!}
-
-
- -- fwgCode⋆' : ∀ {u x y z} → (f : Hom[ x , y ]) → (g : Hom[ y , z ])
- --                 → cong (fwgCode u) [[[ f ]]] ∙ cong (fwgCode u) [[[ g ]]]
- --                   ≡ (cong (fwgCode u) [[[ f ⋆ g ]]])
- --                  -- Square (cong (fwgCode u) [[[ f ]]])
- --                  --        (cong (fwgCode u) [[[ f ⋆ g ]]])
- --                  --        refl
- --                  --        (cong (fwgCode u) [[[ g ]]])
- -- fwgCode⋆' f g = {!!}
-
-
  pre-post : ∀ {x' x y y'} (f : Hom[ x' , x ]) (g : Hom[ y , y' ]) →
                   wg⋆≃Pre f ∙ₑ wg⋆≃Post g ≡
                   wg⋆≃Post g ∙ₑ wg⋆≃Pre f
  pre-post _ _ = equivEq (funExt λ _ → ⋆Assoc _ _ _) 
 
- -- pre-post' : ∀ {x' x y y'} (f : Hom[ x' , x ]) (g : Hom[ y , y' ]) →
- --                  wg⋆≃Post (inv g) ∙ₑ (wg⋆≃Pre f ∙ₑ wg⋆≃Post g) ≡
- --                  wg⋆≃Pre f
- -- pre-post' _ _ = equivEq (funExt λ _ → {!!}) 
+ 
+ Loop≃ : ∀ {x y} → Hom[ x , y ] → Hom[ x , x ] ≃ Hom[ y , y ] 
+ Loop≃ f = wg⋆≃Post f ∙ₑ wg⋆≃Pre (inv f)
+ 
+ CodeFWG : FWG → Type ℓg'
+ CodeFWG [[ x ]] = Hom[ x , x ]
+ CodeFWG ([[[ f ]]] i) = ua (Loop≃ f) i
 
- -- PathP (λ i₁ → ua (wg⋆≃Post p) i₁ → ua (pre-post (inv q) p i0) i₁)
- --    ((wg⋆≃Pre (inv q) ∙ₑ wg⋆≃Pre q) .fst) (wg⋆≃Pre (inv q) .fst)
+ codeFWG : ∀ {x y} → [[ x ]] ≡ y → CodeFWG y
+ codeFWG p = subst CodeFWG p id
+
+ -- decodeFWG : ∀ {y} → CodeFWG y → y ≡ y
+
+ -- decodeFWG : ∀ {y} → CodeFWG y → y ≡ y
+ -- decodeFWG {y = [[ x₁ ]]} p = [[[ p ]]]
+ -- decodeFWG {y = [[[ x₁ ]]] i} p j = 
+ --   hcomp (λ k → λ { (i = i0) → {!!}
+ --                  ; (i = i1) → [[[ p ]]] j
+ --                  ; (j = i0) → [[[ x₁ ]]] (i ∨ ~ k)
+ --                  ; (j = i1) → [[[ x₁ ]]] (i ∨ ~ k)
+ --                  })
+ --        ([[[ ua-unglue (Loop≃ x₁) i p ]]] j)
 
 
- fwgCodeeL : ∀ {x y y' z} → (q : Hom[ x , y ]) (p : Hom[ y' , z ]) →
-   PathP
-      (λ i₁ → ua (wg⋆≃Post {x = x} {y'} {z} p) i₁ → ua (wg⋆≃Pre (inv q) ∙ₑ wg⋆≃Post p) i₁)
-      ((wg⋆≃Pre (inv q) ∙ₑ wg⋆≃Pre q) .fst) (wg⋆≃Pre (inv q) .fst)
- fwgCodeeL q p i x =
+--  fwgCodeeL : ∀ {x y y' z} → (q : Hom[ x , y ]) (p : Hom[ y' , z ]) →
+--    PathP
+--       (λ i₁ → ua (wg⋆≃Post {x = x} {y'} {z} p) i₁ → ua (wg⋆≃Pre (inv q) ∙ₑ wg⋆≃Post p) i₁)
+--       ((wg⋆≃Pre (inv q) ∙ₑ wg⋆≃Pre q) .fst) (wg⋆≃Pre (inv q) .fst)
+--  fwgCodeeL q p i x =
 
 
-   hcomp (λ j → λ { (i = i0) → ⋆Assoc q (inv q) x j
-                     ; (i = i1) → inv q ⋆ x
-                     })
-                   (glue
-                  (λ { (i = i0) → (q ⋆ inv q) ⋆ x
-                     ; (i = i1) → inv q ⋆ x
-                     }) (hcomp 
-            (λ j → λ {(i = i0) → ⋆Assoc (inv q) (⋆InvR q (~ j) ⋆  x) p (~ j) 
-               ;(i = i1) → inv q ⋆ x
-               }) ((hcomp 
-            (λ j → λ {(i = i0) → inv q ⋆ (⋆IdL x (~ j) ⋆ p) 
-               ;(i = i1) → inv q ⋆ x
-                     }) (inv q ⋆ unglue (i ∨ ~ i) x)
-                 )) 
-                 ))
+--    hcomp (λ j → λ { (i = i0) → ⋆Assoc q (inv q) x j
+--                      ; (i = i1) → inv q ⋆ x
+--                      })
+--                    (glue
+--                   (λ { (i = i0) → (q ⋆ inv q) ⋆ x
+--                      ; (i = i1) → inv q ⋆ x
+--                      }) (hcomp 
+--             (λ j → λ {(i = i0) → ⋆Assoc (inv q) (⋆InvR q (~ j) ⋆  x) p (~ j) 
+--                ;(i = i1) → inv q ⋆ x
+--                }) ((hcomp 
+--             (λ j → λ {(i = i0) → inv q ⋆ (⋆IdL x (~ j) ⋆ p) 
+--                ;(i = i1) → inv q ⋆ x
+--                      }) (inv q ⋆ unglue (i ∨ ~ i) x)
+--                  )) 
+--                  ))
    
 
- fwgCodeeR : ∀ {x y y' z} → (q : Hom[ x , y ]) (p : Hom[ y' , z ]) →
-               PathP
-      (λ i₁ → ua (wg⋆≃Post {x = y} p) i₁ → ua (wg⋆≃Post p ∙ₑ wg⋆≃Pre (inv q)) i₁)
-      (wg⋆≃Pre q .fst)
-      (idfun Hom[ y , z ])
- fwgCodeeR q p i x =
-                      (glue
-                  (λ { (i = i0) → q ⋆ x
-                     ; (i = i1) → x
-                     }) (hcomp
-            (λ j → λ { (i = i0) → inv q ⋆ ⋆Assoc q x p (~ j) --⋆Assoc (inv q) (q ⋆ x) p j
-                     ; (i = i1) → x
-                     }) (hcomp
-            (λ j → λ { (i = i0) → ⋆Assoc (inv q) q (x ⋆ p) j
-                     ; (i = i1) → x
-                     }) (hcomp
-            (λ j → λ { (i = i0) → ⋆InvL q (~ j) ⋆ (x ⋆ p)
-                     ; (i = i1) → x
-                     }) (⋆IdL (unglue (i ∨ ~ i) x) i)))) )
+--  fwgCodeeR : ∀ {x y y' z} → (q : Hom[ x , y ]) (p : Hom[ y' , z ]) →
+--                PathP
+--       (λ i₁ → ua (wg⋆≃Post {x = y} p) i₁ → ua (wg⋆≃Post p ∙ₑ wg⋆≃Pre (inv q)) i₁)
+--       (wg⋆≃Pre q .fst)
+--       (idfun Hom[ y , z ])
+--  fwgCodeeR q p i x =
+--                       (glue
+--                   (λ { (i = i0) → q ⋆ x
+--                      ; (i = i1) → x
+--                      }) (hcomp
+--             (λ j → λ { (i = i0) → inv q ⋆ ⋆Assoc q x p (~ j) --⋆Assoc (inv q) (q ⋆ x) p j
+--                      ; (i = i1) → x
+--                      }) (hcomp
+--             (λ j → λ { (i = i0) → ⋆Assoc (inv q) q (x ⋆ p) j
+--                      ; (i = i1) → x
+--                      }) (hcomp
+--             (λ j → λ { (i = i0) → ⋆InvL q (~ j) ⋆ (x ⋆ p)
+--                      ; (i = i1) → x
+--                      }) (⋆IdL (unglue (i ∨ ~ i) x) i)))) )
  
- fwgCodee : FWG → FWG → Type ℓg'
- fwgCodee [[ x ]] y = fwgCode x y
- fwgCodee ([[[ q ]]] i) [[ y ]] = fwgPreCode ([[[ q ]]] i) y
- fwgCodee ([[[_]]] {x} {y} q i) ([[[_]]] {y'} {z} p j) =
-   -- compPath→Square {p = ua ((wg⋆≃Post p))} {q = ua (Iso.isoToEquiv (wg⋆IsoPost p))}
-   --    {r = ua (Iso.isoToEquiv (wg⋆IsoPre (inv q)))} {s = ua (Iso.isoToEquiv (wg⋆IsoPre (inv q)))} 
-   --   (sym (uaCompEquiv (wg⋆≃Post p) (wg⋆≃Pre (inv q)))
-   --    ∙∙ cong ua (sym (pre-post (inv q) p))
-   --    ∙∙ uaCompEquiv (wg⋆≃Pre (inv q)) (wg⋆≃Post p)) j i
+--  fwgCodee : FWG → FWG → Type ℓg'
+--  fwgCodee [[ x ]] y = fwgCode x y
+--  fwgCodee ([[[ q ]]] i) [[ y ]] = fwgPreCode ([[[ q ]]] i) y
+--  fwgCodee ([[[_]]] {x} {y} q i) ([[[_]]] {y'} {z} p j) =
+--    -- compPath→Square {p = ua ((wg⋆≃Post p))} {q = ua (Iso.isoToEquiv (wg⋆IsoPost p))}
+--    --    {r = ua (Iso.isoToEquiv (wg⋆IsoPre (inv q)))} {s = ua (Iso.isoToEquiv (wg⋆IsoPre (inv q)))} 
+--    --   (sym (uaCompEquiv (wg⋆≃Post p) (wg⋆≃Pre (inv q)))
+--    --    ∙∙ cong ua (sym (pre-post (inv q) p))
+--    --    ∙∙ uaCompEquiv (wg⋆≃Pre (inv q)) (wg⋆≃Post p)) j i
    
-   Glue (ua (pre-post (inv q) p i) j)
-     λ { (i = i0) → ua (wg⋆≃Post {x = x} {y = y'} {z = z} p) j ,
-                     equivPathP {A = λ j → ua (wg⋆≃Post p) j}
-                                {B = λ j → (ua (pre-post (inv q) p i) j)}
-                                {e = wg⋆≃Pre {z = y'}
-                          (inv q) ∙ₑ wg⋆≃Pre {z = y'} q} {f = wg⋆≃Pre {x = y} {z = z} (inv q)}
-                          (fwgCodeeL q p)
-                           j
-        ; (i = i1) → ua (wg⋆≃Post {x = y} {y = y'} {z = z} p) j ,
-         equivPathP {A = λ j → ua (wg⋆≃Post p) j}
-                     {B = λ j → ua (wg⋆≃Post p ∙ₑ wg⋆≃Pre (inv q)) j}
-                     {e = compEquiv (idEquiv Hom[ y , y' ]) (wg⋆≃Pre q)}
-                     {f = idEquiv _}
-                     (fwgCodeeR q p) j
+--    Glue (ua (pre-post (inv q) p i) j)
+--      λ { (i = i0) → ua (wg⋆≃Post {x = x} {y = y'} {z = z} p) j ,
+--                      equivPathP {A = λ j → ua (wg⋆≃Post p) j}
+--                                 {B = λ j → (ua (pre-post (inv q) p i) j)}
+--                                 {e = wg⋆≃Pre {z = y'}
+--                           (inv q) ∙ₑ wg⋆≃Pre {z = y'} q} {f = wg⋆≃Pre {x = y} {z = z} (inv q)}
+--                           (fwgCodeeL q p)
+--                            j
+--         ; (i = i1) → ua (wg⋆≃Post {x = y} {y = y'} {z = z} p) j ,
+--          equivPathP {A = λ j → ua (wg⋆≃Post p) j}
+--                      {B = λ j → ua (wg⋆≃Post p ∙ₑ wg⋆≃Pre (inv q)) j}
+--                      {e = compEquiv (idEquiv Hom[ y , y' ]) (wg⋆≃Pre q)}
+--                      {f = idEquiv _}
+--                      (fwgCodeeR q p) j
 
-        ; (j = i0) → ua (wg⋆≃Pre {x = y} {z = y'} (inv q)) i ,
-                    ua-unglueEquiv (wg⋆≃Pre {x = y} {z = y'} (inv q)) i
-                      ∙ₑ wg⋆≃Pre q
-        ; (j = i1) → ua (wg⋆≃Pre {x = y} {z = z} (inv q)) i ,
-                     ua-unglueEquiv (wg⋆≃Pre {x = y} {y = x} {z = z} (inv q)) i
-        } 
+--         ; (j = i0) → ua (wg⋆≃Pre {x = y} {z = y'} (inv q)) i ,
+--                     ua-unglueEquiv (wg⋆≃Pre {x = y} {z = y'} (inv q)) i
+--                       ∙ₑ wg⋆≃Pre q
+--         ; (j = i1) → ua (wg⋆≃Pre {x = y} {z = z} (inv q)) i ,
+--                      ua-unglueEquiv (wg⋆≃Pre {x = y} {y = x} {z = z} (inv q)) i
+--         } 
 
-
- unglueCodeeSq : ∀ {x y} q {y' z} p →
-     
-      SquareP
-        (λ i j → fwgCodee ([[[_]]] {x} {y} q i) ([[[_]]] {y'} {z} p j) → Hom[ y , z ])
-         ((λ i x₁ → {!!}) ◁ ((λ i x₁ → {!!}) ◁ ((λ i z₁ → inv q ⋆ (⋆IdL z₁ (~ (~ i)) ⋆ p)) ◁
-             λ i z₁ → inv q ⋆ unglue (i ∨ ~ i) z₁) ) )
-         ( (λ i x₁ → inv q ⋆ ⋆Assoc q x₁ p (~ (~ i))) ◁
-            ((λ i x₁ → ⋆Assoc (inv q) q (x₁ ⋆ p) (~ i))  ◁ λ i x₁ → {!!}))
-         (λ i x₁ → ⋆Assoc (inv q) (q ⋆ unglue (i ∨ ~ i) x₁) p i)
-         λ i x₁ → unglue (i ∨ ~ i) x₁
- unglueCodeeSq q p i j x =
-   {!unglue (j ∨ ~ j)  (unglue (i ∨ ~ i ∨ j ∨ ~ j)  x)!}
- 
 --  -- glueCodeeSq : ∀ {x y} q {y' z} p →
 --  --     Hom[ y , z ] →
 --  --      SquareP
@@ -256,31 +237,31 @@ module _ (WG : WildGroupoid ℓg ℓg') where
 --                      (i = i1) → inv x₁
 --                 }) ) (inv x'))
   
---  fwgCodeeInv ([[[_]]] {x} {y} q i) ([[[_]]] {y'} {z} p j) v = {!!}
---    -- let v* = (unglue (i ∨ ~ i ∨ j ∨ ~ j) v)
---    --     v' : Hom[ y , z ]
---    --     v' = unglue (j ∨ ~ j) v*
---    -- in glue (λ { (i = i0) →
---    --            glue (λ { (j = i0) → inv v*
---    --                    ; (j = i1) → inv v
---    --                    }) {!!}
---    --         ; (i = i1) →
---    --            glue (λ { (j = i0) → inv v
---    --                    ; (j = i1) → inv v'
---    --                    }) {!!}
+--  fwgCodeeInv ([[[_]]] {x} {y} q i) ([[[_]]] {y'} {z} p j) v =
+--    let v* = (unglue (i ∨ ~ i ∨ j ∨ ~ j) v)
+--        v' : Hom[ y , z ]
+--        v' = unglue (j ∨ ~ j) v*
+--    in glue (λ { (i = i0) →
+--               glue (λ { (j = i0) → inv v*
+--                       ; (j = i1) → inv v
+--                       }) {!!}
+--            ; (i = i1) →
+--               glue (λ { (j = i0) → inv v
+--                       ; (j = i1) → inv v'
+--                       }) {!!}
 
---    --         ; (j = i0) →
---    --            glue (λ { (i = i0) → inv v*
---    --                    ; (i = i1) → inv v
---    --                    }) {!!}
---    --         ; (j = i1) →
---    --            glue (λ { (i = i0) → inv v
---    --                    ; (i = i1) → inv v'
---    --                    }) {!!}
---    --         })
---    --       (      glue (λ { (i = i0) → p ⋆ {!!}
---    --                    ; (i = i1) → {!!}
---    --                    }) {!inv v'!} )
+--            ; (j = i0) →
+--               glue (λ { (i = i0) → inv v*
+--                       ; (i = i1) → inv v
+--                       }) {!!}
+--            ; (j = i1) →
+--               glue (λ { (i = i0) → inv v
+--                       ; (i = i1) → inv v'
+--                       }) {!!}
+--            })
+--          (      glue (λ { (i = i0) → p ⋆ {!!}
+--                       ; (i = i1) → {!!}
+--                       }) {!inv v'!} )
  
 --    -- let v* = (unglue (i ∨ ~ i ∨ j ∨ ~ j) v)
 --    --     v' = unglue (j ∨ ~ j) v*
