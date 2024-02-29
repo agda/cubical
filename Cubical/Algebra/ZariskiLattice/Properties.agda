@@ -149,7 +149,7 @@ module LocDownSetIso (R : CommRing ℓ) (f : R .fst) where
     locEqPowerLemma r fⁿ fⁿIsPow =
       D R f ∧l D R (r · fⁿ)      ≡⟨ cong (D R f ∧l_) (isSupportD R .·≡∧ _ _) ⟩
       D R f ∧l (D R r ∧l D R fⁿ) ≡⟨ ∧lAssoc (D R f) (D R r) (D R fⁿ) ⟩
-      (D R f ∧l D R r) ∧l D R fⁿ ≡⟨ ∧lCommAssocr (D R f) (D R r) (D R fⁿ) ⟩
+      (D R f ∧l D R r) ∧l D R fⁿ ≡⟨ ∧l.commAssocr (D R f) (D R r) (D R fⁿ) ⟩
       (D R f ∧l D R fⁿ) ∧l D R r ≡⟨ cong (_∧l D R r) (powerLemma _ fⁿIsPow) ⟩
       D R f ∧l D R r ∎
 

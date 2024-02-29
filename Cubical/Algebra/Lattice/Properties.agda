@@ -48,23 +48,11 @@ module LatticeTheory (L' : Lattice ℓ) where
   1lRightAnnihilates∨l : ∀ (x : L) → x ∨l 1l ≡ 1l
   1lRightAnnihilates∨l _ = ∨lComm _ _ ∙ 1lLeftAnnihilates∨l _
 
-
-  ∧lCommAssocl : ∀ x y z → x ∧l (y ∧l z) ≡ y ∧l (x ∧l z)
-  ∧lCommAssocl x y z = ∧lAssoc x y z ∙∙ congL _∧l_ (∧lComm x y) ∙∙ sym (∧lAssoc y x z)
-
-  ∧lCommAssocr : ∀ x y z → (x ∧l y) ∧l z ≡ (x ∧l z) ∧l y
-  ∧lCommAssocr x y z = sym (∧lAssoc x y z) ∙∙ congR _∧l_ (∧lComm y z) ∙∙ ∧lAssoc x z y
-
-  ∧lCommAssocr2 : ∀ x y z → (x ∧l y) ∧l z ≡ (z ∧l y) ∧l x
-  ∧lCommAssocr2 x y z = ∧lCommAssocr _ _ _ ∙∙ congL _∧l_ (∧lComm _ _) ∙∙ ∧lCommAssocr _ _ _
-
-  ∧lCommAssocSwap : ∀ x y z w → (x ∧l y) ∧l (z ∧l w) ≡ (x ∧l z) ∧l (y ∧l w)
-  ∧lCommAssocSwap x y z w =
-    ∧lAssoc (x ∧l y) z w ∙∙ congL _∧l_ (∧lCommAssocr x y z) ∙∙ sym (∧lAssoc (x ∧l z) y w)
+  module ∧l where
+    open CommMonoidTheory (Semilattice→CommMonoid (Lattice→MeetSemilattice L')) public
 
   ∧lLdist∧l : ∀ x y z → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l (x ∧l z)
-  ∧lLdist∧l x y z = congL _∧l_ (sym (∧lIdem _)) ∙ ∧lCommAssocSwap x x y z
-
+  ∧lLdist∧l x y z = congL _∧l_ (sym (∧lIdem _)) ∙ ∧l.commAssocSwap x x y z
 
 
 module Order (L' : Lattice ℓ) where
