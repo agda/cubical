@@ -4,51 +4,32 @@ module Cubical.Algebra.ZariskiLattice.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Powerset using (ℙ ; ⊆-refl-consequence)
+open import Cubical.Foundations.Powerset using (ℙ)
                                          renaming (_∈_ to _∈ₚ_ ; ∈-isProp to ∈ₚ-isProp)
 
-import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Bool hiding (_≤_)
-open import Cubical.Data.Nat renaming ( _+_ to _+ℕ_ ; _·_ to _·ℕ_ ; _^_ to _^ℕ_
-                                      ; +-comm to +ℕ-comm ; +-assoc to +ℕ-assoc
-                                      ; ·-assoc to ·ℕ-assoc ; ·-comm to ·ℕ-comm
-                                      ; ·-identityʳ to ·ℕ-rid)
-open import Cubical.Data.Sigma.Base
+open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.FinData
-open import Cubical.Data.Unit
-open import Cubical.Relation.Nullary
-open import Cubical.Relation.Binary
 open import Cubical.Relation.Binary.Order.Poset
 
-open import Cubical.Algebra.Ring
-open import Cubical.Algebra.Ring.Properties
-open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Localisation
-open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
-open import Cubical.Algebra.DistLattice.Basis
-open import Cubical.Algebra.DistLattice.BigOps
 open import Cubical.Algebra.DistLattice.Downset
-open import Cubical.Algebra.Matrix
 
 open import Cubical.Algebra.ZariskiLattice.Base
 open import Cubical.Algebra.ZariskiLattice.UniversalProperty
 
 open import Cubical.HITs.SetQuotients as SQ
-open import Cubical.HITs.PropositionalTruncation as PT
+import Cubical.HITs.PropositionalTruncation as PT
 
 
 private variable ℓ : Level
@@ -59,15 +40,11 @@ module _ (R : CommRing ℓ) where
   open DistLatticeStr ⦃...⦄
   open PosetStr ⦃...⦄
 
-  open RingTheory (CommRing→Ring R)
-  open Sum (CommRing→Ring R)
   open CommRingTheory R
   open Exponentiation R
-  open BinomialThm R
   open CommIdeal R
   open RadicalIdeal R
   open isCommIdeal
-  open ProdFin R
 
   open ZarLat R
   open ZarLatUniversalProp R
