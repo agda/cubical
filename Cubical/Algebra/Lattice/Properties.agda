@@ -79,7 +79,7 @@ module Order (L' : Lattice ℓ) where
  IndPosetPath : JoinPoset ≡ MeetPoset
  IndPosetPath = PosetPath _ _ .fst ((idEquiv _) , isposetequiv ≤Equiv )
 
- -- transport inequalities from ≤m to ≤j
+ -- transport some inequalities from ≤m to ≤j
  ∧lIsMinJoin : ∀ x y z → z ≤j x → z ≤j y → z ≤j x ∧l y
  ∧lIsMinJoin _ _ _ z≤jx z≤jy = ≤m→≤j _ _ (∧lIsMin _ _ _ (≤j→≤m _ _ z≤jx) (≤j→≤m _ _ z≤jy))
 
