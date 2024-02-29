@@ -37,18 +37,14 @@ private variable ℓ : Level
 module _ (R : CommRing ℓ) where
   open Iso
   open CommRingStr ⦃...⦄
-  open DistLatticeStr ⦃...⦄
   open PosetStr ⦃...⦄
 
-  open CommRingTheory R
   open Exponentiation R
   open CommIdeal R
   open RadicalIdeal R
-  open isCommIdeal
 
   open ZarLat R
   open ZarLatUniversalProp R
-  open IsSupport isSupportD
 
   open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice ZariskiLattice))
        using (IndPoset)
@@ -56,7 +52,6 @@ module _ (R : CommRing ℓ) where
   private
     instance
       _ = R .snd
-      _ = ZariskiLattice .snd
       _ = IndPoset .snd
 
     ⟨_⟩ : {n : ℕ} → FinVec (fst R) n → CommIdeal
@@ -87,12 +82,10 @@ module _ (R : CommRing ℓ) where
 
 
 module LocDownSetIso (R : CommRing ℓ) (f : R .fst) where
-  open Iso
   open CommRingStr ⦃...⦄
   open DistLatticeStr ⦃...⦄
   open PosetStr ⦃...⦄
 
-  open Exponentiation R
   open InvertingElementsBase R
   open UniversalProp f
 
@@ -112,7 +105,6 @@ module LocDownSetIso (R : CommRing ℓ) (f : R .fst) where
   private
     instance
       _ = R .snd
-      _ = R[1/ f ]AsCommRing .snd
       _ = ZariskiLattice R .snd
       _ = ZLRPoset .snd
 
