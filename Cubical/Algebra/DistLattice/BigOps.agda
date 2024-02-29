@@ -1,5 +1,5 @@
--- define ⋁ and ⋀ as the bigOps of a Ring when interpreted
--- as an additive/multiplicative monoid
+-- define ⋁ and ⋀ as the bigOps of a DistLattice when interpreted
+-- as a join/meet semilattice
 
 {-# OPTIONS --safe #-}
 module Cubical.Algebra.DistLattice.BigOps where
