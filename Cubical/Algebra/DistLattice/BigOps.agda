@@ -110,16 +110,11 @@ module Join (L' : DistLattice ℓ) where
 module JoinMap {L : DistLattice ℓ} {L' : DistLattice ℓ'} (φ : DistLatticeHom L L') where
   private module L = Join L
   private module L' = Join L'
-  open IsLatticeHom (φ .snd)
-  open DistLatticeStr ⦃...⦄
-  open Join
   open BigOpMap (LatticeHom→JoinSemilatticeHom φ)
-  private instance
-    _ = L .snd
-    _ = L' .snd
 
   pres⋁ : {n : ℕ} (U : FinVec ⟨ L ⟩ n) → φ .fst (L.⋁ U) ≡ L'.⋁ (φ .fst ∘ U)
   pres⋁ = presBigOp
+
 
 module Meet (L' : DistLattice ℓ) where
  private
