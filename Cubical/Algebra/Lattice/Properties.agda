@@ -48,8 +48,8 @@ module LatticeTheory (L' : Lattice ℓ) where
   1lRightAnnihilates∨l : ∀ (x : L) → x ∨l 1l ≡ 1l
   1lRightAnnihilates∨l _ = ∨lComm _ _ ∙ 1lLeftAnnihilates∨l _
 
-  module ∧l where
-    open CommMonoidTheory (Semilattice→CommMonoid (Lattice→MeetSemilattice L')) public
+  -- Provide an interface to CommMonoid lemmas about _∧l_.
+  module ∧l = CommMonoidTheory (Semilattice→CommMonoid (Lattice→MeetSemilattice L'))
 
   ∧lLdist∧l : ∀ x y z → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l (x ∧l z)
   ∧lLdist∧l x y z = congL _∧l_ (sym (∧lIdem _)) ∙ ∧l.commAssocSwap x x y z
