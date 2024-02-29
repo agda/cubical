@@ -14,6 +14,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv.Properties
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
@@ -30,14 +31,15 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.SphereBouquet
 open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.Truncation as TR
 
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.FreeAbGroup
 
-open import Cubical.HITs.SequentialColimit
-open Sequence
-
+open import Cubical.Axiom.Choice
 open import Cubical.Relation.Nullary
+
+open Sequence
 
 
 
@@ -187,3 +189,31 @@ finCWskel≃ n C (suc m) (suc x , diff) =
             (compEquiv (substEquiv (λ n → fst C n) (sym (cong predℕ diff)))
             (compEquiv (_ , snd C .snd x)
             (substEquiv (λ n → fst C n) diff)))
+
+-- C₁ satisfies AC
+satAC-CW₁ : ∀ {ℓ ℓ'} (n : ℕ) (C : CWskel ℓ) → satAC ℓ' n (fst C (suc zero))
+satAC-CW₁ {ℓ' = ℓ'} n C A =
+  subst isEquiv (choicefun≡ n) (isoToIsEquiv (choicefun' n))
+  where
+  fin = Fin (snd C .fst zero)
+  satAC' : (n : ℕ) → satAC ℓ' n fin
+  satAC' n = FinSatAC _ _
+
+  fin→ : fin ≃ fst C 1
+  fin→ = invEquiv (CW₁-discrete C)
+
+
+  choicefun' : (n : ℕ) → Iso (hLevelTrunc n ((a : fst C 1) → A a))
+           ((a : fst C 1) → hLevelTrunc n (A a))
+  choicefun' n = compIso (mapCompIso (domIsoDep (equivToIso fin→)))
+        (compIso (equivToIso (_ , satAC' n (λ a → A (fst fin→ a))))
+        (invIso (domIsoDep (equivToIso fin→))))
+
+
+  choicefun≡ : (n : ℕ) → Iso.fun (choicefun' n) ≡ choiceMap n
+  choicefun≡ zero = refl
+  choicefun≡ (suc n) = funExt (TR.elim
+    (λ _ → isOfHLevelPath (suc n)
+      (isOfHLevelΠ (suc n) (λ _ → isOfHLevelTrunc (suc n))) _ _)
+    λ f → funExt λ a → cong ∣_∣
+      (funExt⁻ ((Iso.leftInv (domIsoDep (equivToIso fin→))) f) a))

@@ -357,3 +357,106 @@ private
   (transport (λ i → (x : isoToPath (invIso (Iso-FinSeqColim-Top X m)) i)
     → f (ua-unglue (isoToEquiv (invIso (Iso-FinSeqColim-Top X m))) i x)
      ≡ g (ua-unglue (isoToEquiv (invIso (Iso-FinSeqColim-Top X m))) i x)) h)
+
+
+open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Sigma
+
+_<*_ : (n m : ℕ) → Type
+n <* zero = ⊥
+zero <* suc m = Unit
+suc n <* suc m = n <* m
+
+Fin* : (n : ℕ) → Type
+Fin* n = Σ[ m ∈ ℕ ] (m <* n)
+
+fsuc* : {n : ℕ} → Fin* n → Fin* (suc n)
+fst (fsuc* {n = n} (x , p)) = suc x
+snd (fsuc* {n = suc n} (x , p)) = p
+
+<*-trans-suc : {n m : ℕ} → n <* m → n <* suc m
+<*-trans-suc {n = zero} {suc m} x = tt
+<*-trans-suc {n = suc n} {suc m} x = <*-trans-suc  {n = n} x
+
+injectSuc* : {n : ℕ} → Fin* n → Fin* (suc n)
+fst (injectSuc* {n = n} (x , p)) = x
+snd (injectSuc* {n = suc n} (x , p)) = <*-trans-suc {n = x} p
+
+fsuc-injectSuc* : {m : ℕ} (n : Fin* m) → injectSuc* {n = suc m} (fsuc* {n = m} n) ≡ fsuc* (injectSuc* n)
+fsuc-injectSuc* {m = suc m} (x , p) = refl
+
+<*sucm : {m : ℕ} → m <* suc m
+<*sucm {m = zero} = tt
+<*sucm {m = suc m} = <*sucm {m = m}
+
+flast* : {m : ℕ} → Fin* (suc m)
+fst (flast* {m = m}) = m
+snd (flast* {m = m}) = <*sucm {m = m}
+
+fzero* : {m : ℕ} → Fin* (suc m)
+fzero* = 0 , tt
+
+elimFin* : ∀ {ℓ} {m : ℕ} {A : Fin* (suc m) → Type ℓ}
+                 (max : A flast*)
+                 (f : (x : Fin* m) → A (injectSuc* x))
+              → (x : _) → A x
+elimFin* {m = zero} {A = A} max f (zero , p) = max
+elimFin* {m = suc m} {A = A} max f (zero , p) = f (zero , tt)
+elimFin* {m = suc zero} {A = A} max f (suc zero , p) = max
+elimFin* {m = suc (suc m)} {A = A} max f (suc x , p) =
+  elimFin* {m = suc m} {A = λ x → A (fsuc* x)} max (λ t → f (fsuc* t)) (x , p)
+
+elimFin*-alt : ∀ {ℓ} {m : ℕ} {A : Fin* (suc m) → Type ℓ}
+                 (max : A fzero*)
+                 (f : (x : Fin* m) → A (fsuc* x))
+              → (x : _) → A x
+elimFin*-alt {m = zero} max f (zero , p) = max
+elimFin*-alt {m = suc m} max f (zero , p) = max
+elimFin*-alt {m = suc m} max f (suc x , p) = f (x , p)
+
+elimFin*β : ∀ {ℓ} {m : ℕ} {A : Fin* (suc m) → Type ℓ}
+                 (max : A flast*)
+                 (f : (x : Fin* m) → A (injectSuc* x))
+              → ((elimFin* {A = A} max f flast* ≡ max))
+               × ((x : Fin* m) → elimFin* {A = A} max f (injectSuc* x) ≡ f x)
+elimFin*β {m = zero} {A = A} max f = refl , λ {()}
+elimFin*β {m = suc zero} {A = A} max f = refl , λ {(zero , p) → refl}
+elimFin*β {m = suc (suc m)} {A = A} max f =
+  elimFin*β {m = (suc m)} {A = λ x → A (fsuc* x)} max _ .fst
+  , elimFin*-alt {m = (suc m)} {A = λ x → elimFin* max f (injectSuc* {n = suc (suc m)} x) ≡ f x}
+             refl
+             (elimFin*β {m = (suc m)} {A = λ x → A (fsuc* x)} max _ .snd)
+
+data FinSeqColim* (m : ℕ) (X : Sequence ℓ) : Type ℓ where
+  f*incl : {n : Fin* (suc m)} → X .obj (fst n) → FinSeqColim* m X
+  f*push : {n : Fin* m} (x : X .obj (fst n))
+    → f*incl {n = injectSuc* n} x ≡ f*incl {n = fsuc* n} (X .map x)
+
+FinSeqColim*→Colim : (m : ℕ) {X : Sequence ℓ} → FinSeqColim* m X → SeqColim X
+FinSeqColim*→Colim m (f*incl x) = incl x
+FinSeqColim*→Colim m (f*push x i) = push x i
+
+module _ (X : Sequence ℓ) where
+  ShiftSeq* : Sequence ℓ
+  obj ShiftSeq* m = obj X (suc m)
+  map ShiftSeq* = map X
+
+  F : (m : ℕ) → FinSeqColim* m ShiftSeq* → FinSeqColim* (suc m) X
+  F m (f*incl {n = n} x) = f*incl {n = fsuc* n} x
+  F (suc m) (f*push {n = n , p} x i) = f*push {n = suc n , p} x i
+
+  G : (m : ℕ) → FinSeqColim* (suc m) X → FinSeqColim* m ShiftSeq*
+  G m (f*incl {n = zero , p} x) = f*incl {n = zero , p} (map X x)
+  G m (f*incl {n = suc n , p} x) = f*incl {n = n , p} x
+  G m (f*push {n = zero , p} x i) = f*incl {n = zero , p} (map X x)
+  G (suc m) (f*push {n = suc n , p} x i) = f*push {n = n , p} x i
+
+  F→G→F : (m : ℕ) → (x : FinSeqColim* m ShiftSeq*) → G m (F m x) ≡ x
+  F→G→F m (f*incl {n = n} x) = refl
+  F→G→F (suc m) (f*push {n = n} x i) = refl
+
+  G→F→G : (m : ℕ) → (x : FinSeqColim* (suc m) X) → F m (G m x) ≡ x
+  G→F→G m (f*incl {n = zero , p} x) = sym (f*push {n = zero , p} x)
+  G→F→G m (f*incl {n = suc n , p} x) = refl
+  G→F→G m (f*push {n = zero , p} x i) j = f*push {n = zero , p} x (~ j ∨ i)
+  G→F→G (suc m) (f*push {n = suc n , p} x i) = refl
