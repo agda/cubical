@@ -12,6 +12,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit.Base
 open import Cubical.Data.Prod.Base
+open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
@@ -122,3 +123,20 @@ isContr→≃Unit* contr = compEquiv (isContr→≃Unit contr) Unit≃Unit*
 
 isContr→≡Unit* : {A : Type ℓ} → isContr A → A ≡ Unit*
 isContr→≡Unit* contr = ua (isContr→≃Unit* contr)
+
+-- J for pointed propositions
+JPointedProp : ∀ {ℓ ℓ'} {B : (A : Type ℓ') (a : A) (isPr : isProp A) → Type ℓ}
+  → B Unit* tt* isPropUnit*
+  → (A : Type ℓ') (a : A) (isPr : isProp A) → B A a isPr
+JPointedProp {ℓ' = ℓ'} {B = B} ind A a isPr =
+  transport (λ i → B (P (~ i) .fst) (coh i) (P (~ i) .snd)) ind
+  where
+  A* : TypeOfHLevel ℓ' 1
+  A* = A , isPr
+
+  P : A* ≡ (Unit* , isPropUnit*)
+  P = Σ≡Prop (λ _ → isPropIsProp)
+        (ua (propBiimpl→Equiv isPr isPropUnit* (λ _ → tt*) λ _ → a))
+
+  coh : PathP (λ i → (P (~ i) .fst)) tt* a
+  coh = toPathP refl

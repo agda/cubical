@@ -162,6 +162,23 @@ module _ {ℓ : Level} (C : CWskel ℓ) where
       → CWskel-elim' (invEq (e (suc n)) (inl x)) ≡ inler x
     CWskel-elim'-inl = CWskel-elim-inl (suc n) {B = B} inler _ _
 
+-- open import Cubical.Axiom.Choice
+-- open import Cubical.HITs.Truncation as TR
+-- module _ {ℓ : Level} (C : CWskel ℓ) where
+--   open CWskel-fields C
+--   CWskel-elim-trunc : (n : ℕ) {B : fst C (suc (suc (suc n))) → Type ℓ'}
+--     → (f : ((x : fst C (suc (suc n))) → B (CW↪ C (suc (suc n)) x)))
+--     → ∃[ f^ ∈ ((x : _) → B x) ] ((c : _) → f^ (CW↪ C (suc (suc n)) c) ≡ f c)
+--   CWskel-elim-trunc n {B = B} f = PT.map (λ F → (CWskel-elim' C (suc n) f F) , CWskel-elim'-inl C (suc n) f F) F
+--     where
+--     F : ∥ ((x : Fin (card (suc (suc n)))) (y : S₊ (suc n))
+--       → PathP (λ i → B (invEq (e (suc (suc n))) ((push (x , y) ∙ sym (push (x , ptSn (suc n)))) i)))
+--             (f (α (suc (suc n)) (x , y))) (f (α (suc (suc n)) (x , ptSn (suc n))))) ∥₁
+--     F = invEq propTrunc≃Trunc1 (invEq (_ , FinSatAC _ _ _)
+--               λ x → fst propTrunc≃Trunc1
+--                   (sphereToTrunc (suc n) {!!}))
+--     q = FinSatAC
+
 finCWskel≃ : (n : ℕ) (C : finCWskel ℓ n) (m : ℕ) → n ≤ m → fst C n ≃ fst C m
 finCWskel≃ n C m (zero , diff) = substEquiv (λ n → fst C n) diff
 finCWskel≃ n C zero (suc x , diff) = ⊥.rec (snotz diff)

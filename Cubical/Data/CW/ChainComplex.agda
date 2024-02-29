@@ -18,7 +18,7 @@ open import Cubical.HITs.SphereBouquet.Degree
 open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
-open import Cubical.Algebra.ChainComplex.Natindexed
+open import Cubical.Algebra.ChainComplex
 open import Cubical.Structures.Successor
 
 
@@ -178,14 +178,13 @@ module _ {ℓ} (C : CWskel ℓ) where
         ∂≡∂↑ = bouquetDegreeSusp (pre∂ n)
 
 
-  open CCℕ
   open ChainComplex
 
   CW-ChainComplex : ChainComplex ℓ-zero
-  chain CW-ChainComplex n _ = ℤ[A n ]
-  bdry CW-ChainComplex n p = ∂ n
-  bdry²=0 CW-ChainComplex n p = ∂∂≡0 n
+  chain CW-ChainComplex n = ℤ[A n ]
+  bdry CW-ChainComplex n = ∂ n
+  bdry²=0 CW-ChainComplex n = ∂∂≡0 n
 
   -- Cellular homology
   Hᶜʷ : (n : ℕ) → Group₀
-  Hᶜʷ n = homology (n , ≠suc) CW-ChainComplex
+  Hᶜʷ n = homology n CW-ChainComplex

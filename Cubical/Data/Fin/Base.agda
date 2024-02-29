@@ -44,6 +44,11 @@ fzero≠fone p = znots (cong fst p)
 fsuc : Fin k → Fin (suc k)
 fsuc (k , l) = (suc k , suc-≤-suc l)
 
+-- predecessors too
+predFin : (m : ℕ) → Fin (suc (suc m)) → Fin (suc m)
+predFin m (zero , w) = fzero
+predFin m (suc n , w) = n , predℕ-≤-predℕ w
+
 -- Conversion back to ℕ is trivial...
 toℕ : Fin k → ℕ
 toℕ = fst
