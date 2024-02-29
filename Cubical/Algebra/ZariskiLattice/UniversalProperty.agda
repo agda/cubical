@@ -71,7 +71,7 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
   L = fst L'
 
  record IsSupport (d : R → L) : Type (ℓ-max ℓ ℓ') where
-  constructor iszarmap
+  constructor issupport
 
   field
    pres0 : d 0r ≡ 0l
@@ -110,7 +110,7 @@ module _ (R' : CommRing ℓ) (L' : DistLattice ℓ') where
   supportExpIneq zero x = cong (d x ∨l_) pres1 ∙∙ 1lRightAnnihilates∨l _ ∙∙ sym pres1
   supportExpIneq (suc n) x = subst (λ y → d x ≤ y) (sym (supportIdem _ x)) (∨lIdem _)
 
-  -- the crucial lemma about "Zariski maps"
+  -- the crucial lemma about support maps
   open CommIdeal R'
   open RadicalIdeal R'
   open isCommIdeal
