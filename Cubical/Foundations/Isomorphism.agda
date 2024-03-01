@@ -218,7 +218,7 @@ rightInv (Iso≡Set hA hB f g hfun hinv i) x j =
 leftInv (Iso≡Set hA hB f g hfun hinv i) x j =
   isSet→isSet' hA (leftInv f x) (leftInv g x) (λ i → hinv (hfun x i) i) refl i j
 
-transportIsoToPath : (f : Iso A B) (x : A) → transport (isoToPath f) x ≡ f .fun x 
+transportIsoToPath : (f : Iso A B) (x : A) → transport (isoToPath f) x ≡ f .fun x
 transportIsoToPath f x = transportRefl _
 
 transportIsoToPath⁻ : (f : Iso A B) (x : B) → transport (sym (isoToPath f)) x ≡ f .inv x
