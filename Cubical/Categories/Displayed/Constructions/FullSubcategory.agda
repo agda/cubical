@@ -55,11 +55,11 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
   hasContrHomsFullSubcategory : hasContrHoms FullSubcategoryᴰ
   hasContrHomsFullSubcategory _ _ _ = isContrUnit
 
-  module _ {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  module FullSubcategoryᴰFunctor {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
            (F : Functor D C)
            (F-obᴰ : {x : D .ob} →
              Dᴰ .ob[_] x → ob[ FullSubcategoryᴰ ] (F .F-ob x))
            where
-    mkFullSubcategoryᴰFunctorᴰ : Functorᴰ F Dᴰ FullSubcategoryᴰ
-    mkFullSubcategoryᴰFunctorᴰ =
+    intro : Functorᴰ F Dᴰ FullSubcategoryᴰ
+    intro =
       ContrHomsFunctor.intro hasContrHomsFullSubcategory F-obᴰ
