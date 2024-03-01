@@ -5,7 +5,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.CW
 

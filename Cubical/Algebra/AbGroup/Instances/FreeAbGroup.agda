@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.AbGroup.Instances.FreeAbGroup where
 
 open import Cubical.Foundations.Prelude
@@ -10,7 +10,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Nat hiding (_·_) renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.FreeAbGroup
@@ -38,74 +39,71 @@ module _ {A : Type ℓ} where
 
 --  generator of ℤ[Fin_]
 ℤFinGenerator : {n : ℕ} (k : Fin n) → ℤ[Fin n ] .fst
-ℤFinGenerator {n = n} k s with (fst k ≟ fst s)
+ℤFinGenerator {n = n} k s with (fst k ≟ᵗ fst s)
 ... | lt x = 0
 ... | eq x = 1
 ... | gt x = 0
 
 ℤFinGeneratorComm : {n : ℕ} (x y : Fin n) → ℤFinGenerator x y ≡ ℤFinGenerator y x
-ℤFinGeneratorComm x y with (fst x ≟ fst y) | (fst y ≟ fst x)
+ℤFinGeneratorComm x y with (fst x ≟ᵗ fst y) | (fst y ≟ᵗ fst x)
 ... | lt x₁ | lt x₂ = refl
-... | lt x₁ | eq x₂ = ⊥.rec (¬m<m (subst (_< fst y) (sym x₂) x₁))
+... | lt x₁ | eq x₂ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst y) (sym x₂) x₁))
 ... | lt x₁ | gt x₂ = refl
-... | eq x₁ | lt x₂ = ⊥.rec (¬m<m (subst (fst y <_) x₁ x₂))
+... | eq x₁ | lt x₂ = ⊥.rec (¬m<ᵗm (subst (fst y <ᵗ_) x₁ x₂))
 ... | eq x₁ | eq x₂ = refl
-... | eq x₁ | gt x₂ = ⊥.rec (¬m<m (subst (_< fst y) x₁ x₂))
+... | eq x₁ | gt x₂ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst y) x₁ x₂))
 ... | gt x₁ | lt x₂ = refl
-... | gt x₁ | eq x₂ = ⊥.rec (¬m<m (subst (_< fst x) x₂ x₁))
+... | gt x₁ | eq x₂ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst x) x₂ x₁))
 ... | gt x₁ | gt x₂ = refl
 
 isGeneratorℤFinGenerator : {n : ℕ} (f : ℤ[Fin n ] .fst) (a : _)
   → f a ≡ sumFinℤ {n = n} λ s → f s ·ℤ (ℤFinGenerator s a)
-isGeneratorℤFinGenerator {n = zero} f a = ⊥.rec (¬Fin0 a)
-isGeneratorℤFinGenerator {n = suc n} f (a , zero , p) with (n ≟ a)
-... | lt x = ⊥.rec (¬m<m (subst (n <_) (cong predℕ p) x))
-... | eq x = λ i → (·Comm (f (helper (~ i))) (pos 1) (~ i)) + lem₂ (~ i)
-  where
-  helper : Path (Fin (suc n)) flast (a , 0 , p)
-  helper = Σ≡Prop (λ _ → isProp≤) x
-
-  lem₁ : (s : _) → ℤFinGenerator (injectSuc s) (a , zero , p) ≡ 0
-  lem₁ s with (fst s ≟ a)
-  ... | lt x = refl
-  ... | eq w = ⊥.rec (¬m<m {n} (snd s .fst , cong (fst (snd s) +ℕ_)
-                (cong suc (sym (w ∙ cong predℕ p))) ∙ snd s .snd))
-  ... | gt x = refl
-
-  lem₂ : sumFinℤ (λ s → f (injectSuc s) ·ℤ ℤFinGenerator (injectSuc s) (a , zero , p)) ≡ 0
-  lem₂ = (λ i → sumFinℤ λ s → (cong (f (injectSuc s) ·ℤ_) (lem₁ s)
-                            ∙ ·Comm (f (injectSuc s)) 0) i)
-       ∙ (sumFinℤ0 n)
-
-... | gt x = ⊥.rec (¬m<m (subst (_< n) (cong predℕ p) x))
-isGeneratorℤFinGenerator {n = suc n} f (a , suc diff , p) =
-     cong f (Σ≡Prop (λ _ → Cubical.Data.Nat.Order.isProp≤) refl)
-  ∙∙ isGeneratorℤFinGenerator {n = n} (f ∘ injectSuc) (a , diff , cong predℕ p)
-  ∙∙ (λ i → sumFinℤ (λ x → f (injectSuc x) ·ℤ lem₁ x a diff p i))
-  ∙∙ +Comm F 0
+isGeneratorℤFinGenerator {n = suc n} f =
+  elimFin basec
+          λ s → cong f (Σ≡Prop (λ _ → isProp<ᵗ) refl)
+  ∙∙ isGeneratorℤFinGenerator {n = n} (f ∘ injectSuc) s
+  ∙∙ (λ i → sumFinℤ (λ x → f (injectSuc x) ·ℤ lem₁ s x i))
+  ∙∙ +Comm (F s) 0
   ∙∙ λ i → (sym (·Comm (f flast) 0)
-           ∙ (cong (f flast ·ℤ_) (sym (lem₂ flast refl)))) i + F
+    ∙ (cong (f flast ·ℤ_) (sym (lem₂ s flast refl)))) i
+     + F s
   where
-  F = sumFinℤ (λ x → f (injectSuc x) ·ℤ ℤFinGenerator (injectSuc x) (a , suc diff , p))
+  basec : f flast ≡ sumFinℤ (λ s → f s ·ℤ ℤFinGenerator s flast)
+  basec with (n ≟ᵗ n)
+  ... | lt x = ⊥.rec (¬m<ᵗm x)
+  ... | eq x = λ i → (·Comm (f flast) (pos 1) (~ i)) + lem₂ (~ i)
+    where
+    lem₁ : (s : _) → ℤFinGenerator (injectSuc {n = n} s) flast ≡ 0
+    lem₁ s with (fst s ≟ᵗ n)
+    ... | lt x = refl
+    ... | eq w = ⊥.rec (¬m<ᵗm (subst (fst s <ᵗ_) (sym w) (snd s)))
+    ... | gt x = refl
 
-  lem₁ : (x : _) (a : _) (diff : _) (p : _)
-    → ℤFinGenerator {n = n} x (a , diff , cong predℕ p)
-     ≡ ℤFinGenerator {n = suc n} (injectSuc x) (a , suc diff , p)
-  lem₁ x a diff p with (fst x ≟ a)
-  ... | lt _ = refl
-  ... | eq _ = refl
-  ... | gt _ = refl
+    lem₂ : sumFinℤ (λ s → f (injectSuc s) ·ℤ ℤFinGenerator (injectSuc s) flast) ≡ 0
+    lem₂ = (λ i → sumFinℤ λ s → (cong (f (injectSuc s) ·ℤ_) (lem₁ s)
+                              ∙ ·Comm (f (injectSuc s)) 0) i)
+       ∙ (sumFinℤ0 n)
+  ... | gt x = ⊥.rec (¬m<ᵗm x)
 
-  lem₂ : (k : Fin (suc n)) → fst k ≡ n
-    → ℤFinGenerator {n = suc n} k (a , suc diff , p) ≡ 0
-  lem₂ k q with (Cubical.Data.Nat.Order._≟_ (fst k) a)
-  ... | lt _ = refl
-  ... | eq x = ⊥.rec
-    (snotz (sym (+∸ (suc diff) a)
-           ∙ cong (_∸ a) (sym (+-suc diff a))
-           ∙ (cong (_∸ suc a) (p ∙ cong suc (sym q ∙ x)))
-           ∙ n∸n a))
-  ... | gt _ = refl
+  module _ (a : Fin n) where
+    F = sumFinGen _+_ (pos 0) (λ x → f (injectSuc x)
+                      ·ℤ (ℤFinGenerator (injectSuc x) (injectSuc a)))
+
+    lem₁ : (x : _)
+      → ℤFinGenerator {n = n} x a -- (a , diff , cong predℕ p)
+       ≡ ℤFinGenerator {n = suc n} (injectSuc x) (injectSuc a) -- (a , suc diff , p)
+    lem₁ x with (fst x ≟ᵗ fst a)
+    ... | lt x₁ = refl
+    ... | eq x₁ = refl
+    ... | gt x₁ = refl
+
+    lem₂ : (k : Fin (suc n)) → fst k ≡ n
+      → ℤFinGenerator {n = suc n} k (injectSuc a) ≡ 0
+    lem₂ k q with (fst k ≟ᵗ fst a)
+    ... | lt _ = refl
+    ... | eq x = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) (sym x ∙ q) (snd a)))
+    ... | gt _ = refl
+
 
 isGeneratorℤFinGenerator' : {n : ℕ} (f : ℤ[Fin n ] .fst) (a : _)
   → f a ≡ sumFinℤ {n = n} λ s → (ℤFinGenerator a s) ·ℤ f s
@@ -115,9 +113,9 @@ isGeneratorℤFinGenerator' {n = n} f a =
                      ∙ cong (_·ℤ f x) (ℤFinGeneratorComm x a)
 
 ℤFinGeneratorVanish : (n : ℕ) (x : _) → ℤFinGenerator {n = suc n} flast (injectSuc x) ≡ 0
-ℤFinGeneratorVanish n x with (n ≟ (fst x))
+ℤFinGeneratorVanish n x with (n ≟ᵗ (fst x))
 ... | lt x₁ = refl
-... | eq x₁ = ⊥.rec (¬m<m {fst x} ((fst (snd x) , snd (snd x) ∙ x₁)))
+... | eq x₁ = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) (sym x₁) (snd x)))
 ... | gt x₁ = refl
 
 -- elimination principle
@@ -222,45 +220,44 @@ elimℤFin {n = n} P gen d ind f =
 
 sumFinℤFinGenerator≡1 : (n : ℕ) (f : Fin n)
   → sumFinGen _·_ ε (λ x → ·Free (ℤFinGenerator f x) x) ≡ ⟦ f ⟧
-sumFinℤFinGenerator≡1 zero f = isContr→isProp isContr-FreeFin0 _ _
-sumFinℤFinGenerator≡1 (suc n) (f , zero , q) with (f ≟ n)
-... | lt x = ⊥.rec (¬m<m (subst (_< n) (cong predℕ q) x))
-... | eq r =
-  ((λ i → identityᵣ ⟦ help (~ i) ⟧ i
-    · sumFinGen _·_ ε (λ x → ·Free (ℤFinGenerator (help i) (injectSuc x))
-                                    (injectSuc x))))
-  ∙ cong (⟦ f , zero , q ⟧ ·_)
-           ((λ j → sumFinGen _·_ ε (λ x₁ → ·Free (ℤFinGeneratorVanish n x₁ j)
-                                                   (injectSuc x₁)))
-         ∙ sumFinGen0 _·_ ε identityᵣ n
-             (λ x₁ → ·Free (pos 0) (injectSuc x₁)) (λ _ → refl))
-  ∙ identityᵣ _
+sumFinℤFinGenerator≡1 (suc n) =
+  elimFin (basec n)
+          indstep
   where
-  help : Path (Fin (suc n)) (f , zero , q) flast
-  help = Σ≡Prop (λ _ → isProp≤) r
-... | gt x = ⊥.rec (¬m<m (subst (_< f) (cong predℕ (sym q)) x))
-sumFinℤFinGenerator≡1 (suc n) (f , suc diff , q) with (f ≟ n)
-... | lt x =
-     comm _ _
-   ∙ identityᵣ _
-   ∙ (λ i → sumFinGen _·_ ε (λ x → lem x i))
-   ∙ sym (Free↑sumFinℤ n n
-          (λ x₁ → ·Free (ℤFinGenerator (f , diff , (λ i → predℕ (q i))) x₁) x₁))
-   ∙ cong (Free↑ n) (sumFinℤFinGenerator≡1 n (f , diff , (cong predℕ q)))
-   ∙ cong ⟦_⟧ (Σ≡Prop (λ _ → isProp≤) refl)
-   where
-  lem : (x₁ : Fin n)
-    → ·Free (ℤFinGenerator (f , suc diff , q) (injectSuc x₁)) (injectSuc x₁)
-     ≡ Free↑ n (·Free (ℤFinGenerator (f , diff , (λ i → predℕ (q i))) x₁) x₁)
-  lem x₁ with (f ≟ fst x₁)
-  ... | lt x = refl
-  ... | eq x = refl
-  ... | gt x = refl
-... | eq x = ⊥.rec (¬m<m {suc f}
-                    (diff , +-suc diff (suc f) ∙ q ∙ cong suc (sym x)))
-... | gt x = ⊥.rec (¬m<m {f} (fst x +ℕ suc diff
-            , sym ((sym (snd x)) ∙ cong (fst x +ℕ_) (sym q)
-             ∙ +-assoc (fst x) (suc diff) (suc f))))
+  basec : (n : ℕ) → sumFinGen _·_ ε (λ x → ·Free (ℤFinGenerator (flast {m = n}) x) x) ≡ ⟦ flast ⟧
+  basec n with (n ≟ᵗ n)
+  ... | lt x = ⊥.rec (¬m<ᵗm x)
+  ... | eq x = ((λ i → identityᵣ ⟦ flast ⟧ i
+            · sumFinGen _·_ ε (λ x → ·Free (ℤFinGenerator flast (injectSuc x))
+                                            (injectSuc x)))
+              ∙ cong (⟦ flast ⟧ ·_) (sumFinGenId _ _ _ _
+                  (funExt (λ s → cong₂ ·Free (ℤFinGeneratorVanish n s) refl))
+                ∙ sumFinGen0 _·_ ε identityᵣ n
+                   (λ x₁ → ·Free (pos 0) (injectSuc x₁)) (λ _ → refl)) )
+              ∙ identityᵣ _
+  ... | gt x = ⊥.rec (¬m<ᵗm x)
+  module _ (x : Fin n) where
+    FR = Free↑
+    indstep :
+      ·Free (ℤFinGenerator (injectSuc x) flast) flast · sumFinGen _·_ ε
+            (λ x₁ → ·Free (ℤFinGenerator (injectSuc x) (injectSuc x₁)) (injectSuc x₁))
+      ≡ ⟦ injectSuc x ⟧
+    indstep with (fst x ≟ᵗ n)
+    ... | lt a = comm _ _
+               ∙ identityᵣ _
+               ∙ (λ i → sumFinGen _·_ ε (λ x → lem x i))
+               ∙ sym (Free↑sumFinℤ n n (λ x₁ → ·Free (ℤFinGenerator x x₁) x₁))
+               ∙ cong (Free↑ n) (sumFinℤFinGenerator≡1 n x)
+     where
+     lem : (x₁ : Fin n)
+       → ·Free (ℤFinGenerator (injectSuc x) (injectSuc x₁)) (injectSuc x₁)
+        ≡ Free↑ n (·Free (ℤFinGenerator x x₁) x₁)
+     lem x₁ with (fst x ≟ᵗ fst x₁)
+     ... | lt x = refl
+     ... | eq x = refl
+     ... | gt x = refl
+    ... | eq a = ⊥.rec (¬m<ᵗm (subst (_<ᵗ n) a (snd x)))
+    ... | gt a = ⊥.rec (¬m<ᵗm (<ᵗ-trans a (snd x)))
 
 
 -- equivalence between two versions of free ab group
@@ -355,7 +352,7 @@ elimPropℤFin n A pr z t s u w =
 
 ℤFinFunctGenerator : {n m : ℕ} (f : Fin n → Fin m) (g : ℤ[Fin n ] .fst)
   (x : Fin n) → ℤ[Fin m ] .fst
-ℤFinFunctGenerator {n = n} {m} f g x y with ((f x .fst) ≟ y .fst)
+ℤFinFunctGenerator {n = n} {m} f g x y with ((f x .fst) ≟ᵗ y .fst)
 ... | lt _ = 0
 ... | eq _ = g x
 ... | gt _ = 0
@@ -364,15 +361,15 @@ elimPropℤFin n A pr z t s u w =
   (t : Fin n)  (y : Fin m)
   → ℤFinFunctGenerator f (ℤFinGenerator t) t y
    ≡ ℤFinGenerator (f t) y
-ℤFinFunctGenerator≡ f t y with (f t .fst ≟ y .fst)
+ℤFinFunctGenerator≡ f t y with (f t .fst ≟ᵗ y .fst)
 ... | lt _ = refl
 ... | eq _ = lem
   where
   lem : _
-  lem with (fst t ≟ fst t)
-  ... | lt q = ⊥.rec (¬m<m q)
+  lem with (fst t ≟ᵗ fst t)
+  ... | lt q = ⊥.rec (¬m<ᵗm q)
   ... | eq _ = refl
-  ... | gt q = ⊥.rec (¬m<m q)
+  ... | gt q = ⊥.rec (¬m<ᵗm q)
 ... | gt _ = refl
 
 ℤFinFunctFun : {n m : ℕ} (f : Fin n → Fin m)
@@ -394,7 +391,7 @@ snd (ℤFinFunct {n = n} {m} f) =
   lem : (g h : _) (x : _) (y : Fin n)
     → ℤFinFunctGenerator f (λ x → g x + h x) y x
      ≡ ℤFinFunctGenerator f g y x + ℤFinFunctGenerator f h y x
-  lem g h x y with (f y . fst ≟ x .fst)
+  lem g h x y with (f y . fst ≟ᵗ x .fst)
   ... | lt _ = refl
   ... | eq _ = refl
   ... | gt _ = refl

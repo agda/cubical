@@ -6,7 +6,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Nat hiding (_·_)
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Empty as ⊥
 
 infixl 7 _·_
@@ -113,7 +114,7 @@ Free↑ n (trunc x x₁ x₂ y i i₁) =
     (λ j → Free↑ n (x₂ j)) (λ j → Free↑ n (y j)) i₁ i
 
 Free↑sumFinℤ : (n m : ℕ) (g : Fin m → FreeAbGroup (Fin n))
-  → Free↑ n (sumFinGen _·_ ε g) ≡ sumFinGen _·_ ε (Free↑ n ∘ g)
+  → Free↑ n (sumFinGen {n = m} _·_ ε g) ≡ sumFinGen {n = m} _·_ ε (Free↑ n ∘ g)
 Free↑sumFinℤ zero zero g = refl
 Free↑sumFinℤ zero (suc m) g =
   cong (Free↑ zero (g flast) ·_) (Free↑sumFinℤ zero m (λ x → g (injectSuc x)))

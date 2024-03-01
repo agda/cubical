@@ -18,7 +18,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sequence
@@ -78,10 +79,4 @@ module _ (m : ℕ) where
 
 finCellMap↓ : {m : ℕ} {C : CWskel ℓ} {D : CWskel ℓ'}  → finCellMap (suc m) C D → finCellMap m C D
 FinSequenceMap.fmap (finCellMap↓ {m = m} ϕ) x = FinSequenceMap.fmap ϕ (injectSuc x)
-FinSequenceMap.fcomm (finCellMap↓ {m = m} {C = C}  ϕ) x r = FinSequenceMap.fcomm ϕ (injectSuc x) r
-  ∙  λ t → FinSequenceMap.fmap ϕ (help t) a
-  where
-  a : fst C (suc (fst x))
-  a = FinSequence.fmap (realiseFinSeq m C) r
-  help : fsuc (injectSuc x) ≡ injectSuc (fsuc x)
-  help = Σ≡Prop (λ _ → isProp≤) refl
+FinSequenceMap.fcomm (finCellMap↓ {m = suc m} {C = C} ϕ) x r = FinSequenceMap.fcomm ϕ (injectSuc x) r

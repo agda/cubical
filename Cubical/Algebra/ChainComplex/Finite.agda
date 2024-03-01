@@ -34,7 +34,8 @@ open import Cubical.Structures.Successor
 open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin hiding (_/_)
+open import Cubical.Data.Fin.Inductive.Base hiding (eq)
+open import Cubical.Data.Fin.Inductive.Properties
 
 
 open import Cubical.Algebra.ChainComplex.Base
@@ -88,7 +89,7 @@ module _ where
     commϕ = fbdrycomm ϕ'
     ψ = fchainmap ψ'
     commψ = fbdrycomm ψ'
-    
+
     main : finChainComplexMap m A C
     fchainmap main n = compGroupHom (ϕ n) (ψ n)
     fbdrycomm main n =

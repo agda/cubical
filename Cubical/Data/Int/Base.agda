@@ -6,7 +6,7 @@ module Cubical.Data.Int.Base where
 open import Cubical.Core.Everything
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat hiding (_+_ ; _·_) renaming (isEven to isEvenℕ ; isOdd to isOddℕ)
-open import Cubical.Data.Fin.Base
+open import Cubical.Data.Fin.Inductive.Base
 
 infix  8 -_
 infixl 7 _·_
@@ -86,8 +86,8 @@ instance
   fromNegℤ = record { Constraint = λ _ → Unit ; fromNeg = λ n → neg n }
 
 sumFinℤ : {n : ℕ} (f : Fin n → ℤ) → ℤ
-sumFinℤ f = sumFinGen _+_ 0 f
+sumFinℤ {n = n} f = sumFinGen {n = n} _+_ 0 f
 
 sumFinℤId : (n : ℕ) {f g : Fin n → ℤ}
-  → ((x : _) → f x ≡ g x) → sumFinℤ f ≡ sumFinℤ g
-sumFinℤId n t i = sumFinℤ λ x → t x i
+  → ((x : _) → f x ≡ g x) → sumFinℤ {n = n} f ≡ sumFinℤ {n = n} g
+sumFinℤId n t i = sumFinℤ {n = n} λ x → t x i

@@ -15,7 +15,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Bool hiding (_≤_ ;  _≟_ ; isProp≤)
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Empty as ⊥

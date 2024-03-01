@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --cubical --safe --lossy-unification #-}
 
 module Cubical.HITs.SphereBouquet.Degree where
 
@@ -15,7 +15,8 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Bool hiding (_≤_ ;  _≟_ ; isProp≤)
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Empty as ⊥
@@ -59,11 +60,11 @@ private
 pickPetal : {n k : ℕ} (b : Fin k)
   → SphereBouquet n (Fin k) → S₊ n
 pickPetal {n = n} b (inl x) = ptSn n
-pickPetal {n = n} b (inr (b' , x)) with (fst b ≟ fst b')
+pickPetal {n = n} b (inr (b' , x)) with (fst b ≟ᵗ fst b')
 ... | lt x₁ = ptSn n
 ... | eq x₁ = x
 ... | gt x₁ = ptSn n
-pickPetal {n = n} {k = k} b (push b' i) with (fst b ≟ fst b')
+pickPetal {n = n} {k = k} b (push b' i) with (fst b ≟ᵗ fst b')
 ... | lt x = ptSn n
 ... | eq x = ptSn n
 ... | gt x = ptSn n
@@ -73,7 +74,7 @@ bouquetDegree : {n m k : ℕ}
   → (SphereBouquet n (Fin m) → SphereBouquet n (Fin k))
   → (AbGroupHom (ℤ[Fin m ]) (ℤ[Fin k ]))
 fst (bouquetDegree {m = m} {k = k} f) r x =
-  sumFinℤ λ (a : Fin m) → r a ·ℤ (degree _ (pickPetal x ∘ f ∘ inr ∘ (a ,_)))
+  sumFinℤ {n = m} λ (a : Fin m) → r a ·ℤ (degree _ (pickPetal {k = k} x ∘ f ∘ inr ∘ (a ,_)))
 snd (bouquetDegree {n = n} f) =
   makeIsGroupHom λ x y
     → funExt λ a'
@@ -160,27 +161,27 @@ bouquetDegreeId {n = n} {m = m} =
   where
   help :  (x t : Fin m)
     → degree n (λ x₁ → pickPetal t (inr (x , x₁))) ≡ ℤFinGenerator x t
-  help x y with (fst x ≟ fst y)
+  help x y with (fst x ≟ᵗ fst y)
   ... | lt p = cong (degree n) (funExt lem) ∙ degree-const n
     where
     lem : (x₁ : S₊ n) → pickPetal y (inr (x , x₁)) ≡ ptSn n
-    lem x₁ with (fst y ≟ fst x)
+    lem x₁ with (fst y ≟ᵗ fst x)
     ... | lt x = refl
-    ... | eq q = ⊥.rec (¬m<m (subst (fst x <_) q p))
+    ... | eq q = ⊥.rec (¬m<ᵗm (subst (fst x <ᵗ_) q p))
     ... | gt x = refl
   ... | eq p = cong (degree n) (funExt lem) ∙ degreeIdfun n
     where
     lem : (x₁ : S₊ n) → pickPetal y (inr (x , x₁)) ≡ x₁
-    lem x₁ with (fst y ≟ fst x)
-    ... | lt q = ⊥.rec (¬m<m (subst (fst y <_) p q))
+    lem x₁ with (fst y ≟ᵗ fst x)
+    ... | lt q = ⊥.rec (¬m<ᵗm (subst (fst y <ᵗ_) p q))
     ... | eq x = refl
-    ... | gt q = ⊥.rec (¬m<m (subst (_< fst y) p q))
+    ... | gt q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst y) p q))
   ... | gt p = cong (degree n) (funExt lem) ∙ degree-const n
       where
     lem : (x₁ : S₊ n) → pickPetal y (inr (x , x₁)) ≡ ptSn n
-    lem x₁ with (fst y ≟ fst x)
+    lem x₁ with (fst y ≟ᵗ fst x)
     ... | lt x = refl
-    ... | eq q = ⊥.rec (¬m<m (subst (_< fst x) q p))
+    ... | eq q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ fst x) q p))
     ... | gt x = refl
 
 bouquetDegreeConst : (n a b : ℕ)
@@ -250,7 +251,7 @@ bouquetDegreeSusp₀ {m = m} {k = suc k} f =
           ≡ cong (pickPetal a) (push x)
           ∙∙ cong (pickPetal a) (λ i → inr (x , SuspBool→S¹ (merid y i)))
           ∙∙ cong (pickPetal a) (sym (push x))
-        pre-final y x with (fst a ≟ fst x)
+        pre-final y x with (fst a ≟ᵗ fst x)
         ... | lt x₁ = rUnit refl
         ... | eq x₁ = rUnit _
         ... | gt x₁ = rUnit refl
@@ -330,7 +331,7 @@ bouquetDegreeSusp {n = suc n} {m = m} {k = k} f =
                       ∙∙ (λ i → pickPetal {n = 2 +ℕ n} b
                                   (inr (x , σSn (suc n) y i)))
                       ∙∙ cong (pickPetal {n = 2 +ℕ n} b) (sym (push x))))
-      main' with (fst b ≟ fst x)
+      main' with (fst b ≟ᵗ fst x)
       ... | lt x = sym (cong (ΩKn+1→Kn (suc n))
                      (sym (rUnit refl)) ∙ ΩKn+1→Kn-refl (suc n))
       ... | eq x = sym (cong (ΩKn+1→Kn (suc n))
@@ -420,16 +421,16 @@ bouquetDegreeComp∙Suc {n} {m} {k} {l} f g =
       where
       id₁ : (x : Fin (suc m)) (y : _)
         → fst F (inr (x , pickPetal x (inr (x , y)))) ≡ fst F (inr (x , y))
-      id₁ (x , p) y with (x ≟ x)
-      ... | lt x₁ = ⊥.rec (¬m<m x₁)
+      id₁ (x , p) y with (x ≟ᵗ x)
+      ... | lt x₁ = ⊥.rec (¬m<ᵗm x₁)
       ... | eq x₁ = refl
-      ... | gt x₁ = ⊥.rec (¬m<m x₁)
+      ... | gt x₁ = ⊥.rec (¬m<ᵗm x₁)
 
       id₂ : (x : _) (x' : Fin (suc m)) (y : _) (q : ¬ x' ≡ x)
          → ∣ fst F (inr (x' , pickPetal x' (inr (x , y)))) ∣ₕ ≡ 0ₖ (suc n)
-      id₂ (x , p) (x' , t) y con with (x' ≟ x)
+      id₂ (x , p) (x' , t) y con with (x' ≟ᵗ x)
       ... | lt x₁ = cong ∣_∣ₕ (cong (fst F) (sym (push (x' , t))) ∙ snd F)
-      ... | eq x₁ = ⊥.rec (con (Σ≡Prop (λ _ → isProp≤) x₁))
+      ... | eq x₁ = ⊥.rec (con (Σ≡Prop (λ _ → isProp<ᵗ) x₁))
       ... | gt x₁ = cong ∣_∣ₕ (cong (fst F) (sym (push (x' , t))) ∙ snd F)
 
       sumPt : sumFinK (λ i → ∣ fst F (inr (i , pickPetal i (inl tt))) ∣ₕ)

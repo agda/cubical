@@ -19,7 +19,8 @@ open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.CW.Base
@@ -197,7 +198,7 @@ satAC-CW₁ {ℓ' = ℓ'} n C A =
   where
   fin = Fin (snd C .fst zero)
   satAC' : (n : ℕ) → satAC ℓ' n fin
-  satAC' n = FinSatAC _ _
+  satAC' n = InductiveFinSatAC _ _
 
   fin→ : fin ≃ fst C 1
   fin→ = invEquiv (CW₁-discrete C)

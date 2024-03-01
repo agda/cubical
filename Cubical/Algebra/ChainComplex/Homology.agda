@@ -29,7 +29,8 @@ open import Cubical.Structures.Successor
 open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin hiding (_/_)
+open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Inductive.Properties
 
 open import Cubical.Algebra.ChainComplex.Base
 open import Cubical.Algebra.ChainComplex.Finite
@@ -50,7 +51,7 @@ homology : (n : ℕ) → ChainComplex ℓ → Group ℓ
 homology n C = ker∂n / img∂+1⊂ker∂n
   where
   Cn+2 = AbGroup→Group (chain C (suc (suc n)))
-  ∂n = bdry C n 
+  ∂n = bdry C n
   ∂n+1 = bdry C (suc n)
   ker∂n = kerGroup ∂n
 
@@ -91,34 +92,34 @@ module _ where
     → GroupHom (homology (fst n) C) (homology (fst n) D)
   finChainComplexMap→HomologyMap {C = C} {D} m mp (n , p) = main
     where
-    ineq1 : suc n < suc m
-    ineq1 = suc-≤-suc p
+    ineq1 : suc n <ᵗ suc m
+    ineq1 = p -- suc-≤-suc p
 
-    ineq2 : suc (suc n) < suc (suc m)
-    ineq2 = suc-≤-suc ineq1
+    ineq2 : suc (suc n) <ᵗ suc (suc m)
+    ineq2 = p
 
-    ineq3 : suc n < suc (suc m)
-    ineq3 = <-trans ineq1 (0 , refl)
+    ineq3 : suc n <ᵗ suc (suc m)
+    ineq3 = <ᵗ-trans p <ᵗsucm
 
-    ineq4 : n < suc m
-    ineq4 = <-trans p (0 , refl)
+    ineq4 : n <ᵗ suc m
+    ineq4 = ineq3
 
     ϕ = fchainmap mp
     ϕcomm = fbdrycomm mp
 
     lem : (k : ℕ) {p q : _} (f : fst (chain C k))
-      → fst (ϕ (k , p)) f ≡ fst (ϕ (k , q)) f 
-    lem k {p} {q} f i = fst (ϕ (k , pq i)) f 
+      → fst (ϕ (k , p)) f ≡ fst (ϕ (k , q)) f
+    lem k {p} {q} f i = fst (ϕ (k , pq i)) f
       where
       pq : p ≡ q
-      pq = isProp≤ _ _
+      pq = isProp<ᵗ _ _
 
     fun : homology n C .fst → homology n D .fst
     fun = SQ.elim (λ _ → squash/) f
-      λ f g → PT.rec (GroupStr.is-set (homology n D .snd) _ _ )
-        λ r → eq/ _ _ ∣ fst (ϕ (suc (suc n) , ineq2)) (fst r)
-                      , Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain D n)) _ _)
-                               ((funExt⁻ (cong fst (ϕcomm (suc n , _))) (fst r)
+       λ f g → PT.rec (GroupStr.is-set (homology n D .snd) _ _ )
+         λ r → eq/ _ _ ∣ (ϕ (suc (suc n) , p) .fst (fst r))
+                       , Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain D n)) _ _)
+                           ((funExt⁻ (cong fst (ϕcomm (suc n , _))) (fst r)
                              ∙∙ cong (fst (ϕ (suc n , _))) (cong fst (snd r))
                              ∙∙ (IsGroupHom.pres· (snd (ϕ (suc n , _) )) _ _
                              ∙ cong₂ (AbGroupStr._+_ (snd (chain D (suc n))))
@@ -128,11 +129,11 @@ module _ where
                                       (lem (suc n) (fst g)))))) ∣₁
       where
       f : _ → homology n D .fst
-      f (a , b) = [ (ϕ (suc n , (suc (fst p))
-                 , cong suc (+-suc (fst p) (suc n) ∙ cong suc (snd p)))  .fst a)
-                , ((λ i → fst (ϕcomm (n , suc (fst p) , cong suc (snd p))  i) a)
+      f (a , b) = [ ϕ (suc n , ineq3) .fst a -- (ϕ {!n!}  .fst a)
+                , ((λ i → fst (ϕcomm (n , ineq3)  i) a)
                 ∙∙ cong (fst (ϕ (n , _))) b
                 ∙∙ IsGroupHom.pres1 (snd (ϕ (n , _)))) ]
+
 
     main : GroupHom (homology n C) (homology n D)
     fst main = fun
@@ -208,10 +209,8 @@ module _ where
                        ∙ AbGroupStr.+IdR (snd (chain B (suc (fst n)))) _))) ∣₁}))
     where
     open GroupTheory (AbGroup→Group (chain B (suc (fst n))))
-    pf : suc (fst n) < suc (suc m)
-    fst pf = suc (fst (snd n))
-    snd pf = cong suc (+-suc (fst (snd n)) (suc (fst n))
-                      ∙ cong suc (snd (snd n)))
+    pf : suc (fst n) <ᵗ suc (suc m)
+    pf = <ᵗ-trans (snd n) <ᵗsucm
 
     invB = GroupStr.inv (snd (AbGroup→Group (chain B (suc (fst n)))))
     _+B_ = AbGroupStr._+_ (snd (chain B (suc (fst n))))
