@@ -428,7 +428,7 @@ module _ {ℓ : Level} where
     open Join (CompOpenDistLattice .F-ob X)
     open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
     open PosetStr (IndPoset .snd) hiding (_≤_)
-    open LatticeTheory ⦃...⦄ -- ((DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
+    open LatticeTheory ⦃...⦄
     private instance _ = (CompOpenDistLattice .F-ob X) .snd
 
     record AffineCover : Type (ℓ-suc ℓ) where
