@@ -3,20 +3,13 @@
 module Cubical.Data.Fin.Inductive.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
-
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
-open import Cubical.Data.Sigma
-open import Cubical.Data.Nat.Order
 
 open import Cubical.Relation.Nullary
-
--- open import Cubical.Algebra.AbGroup.Base using (move4)
 
 -- inductive definition of <
 _<ᵗ_ : (n m : ℕ) → Type
@@ -59,6 +52,9 @@ snd (fsuc {n = suc n} (x , p)) = p
 <ᵗ-trans-suc : {n m : ℕ} → n <ᵗ m → n <ᵗ suc m
 <ᵗ-trans-suc {n = zero} {suc m} x = tt
 <ᵗ-trans-suc {n = suc n} {suc m} x = <ᵗ-trans-suc  {n = n} x
+
+¬-suc-n<ᵗn : {n : ℕ} → ¬ (suc n) <ᵗ n
+¬-suc-n<ᵗn {suc n} = ¬-suc-n<ᵗn {n}
 
 injectSuc : {n : ℕ} → Fin n → Fin (suc n)
 fst (injectSuc {n = n} (x , p)) = x

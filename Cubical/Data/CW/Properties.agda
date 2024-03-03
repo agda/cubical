@@ -1,7 +1,7 @@
-{-# OPTIONS --cubical --safe --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
-{-This file contains:
-
+{-This file contains elimination principles and basic properties of CW
+complexes/skeleta.
 -}
 
 module Cubical.Data.CW.Properties where
@@ -40,13 +40,15 @@ open import Cubical.Algebra.AbGroup.Instances.FreeAbGroup
 open import Cubical.Axiom.Choice
 open import Cubical.Relation.Nullary
 
+open import Cubical.Homotopy.Connected
+
 open Sequence
 
 
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 CW₀-empty : (C : CWskel ℓ) → ¬ fst C 0
 CW₀-empty C = snd (snd (snd C)) .fst
@@ -165,23 +167,6 @@ module _ {ℓ : Level} (C : CWskel ℓ) where
       → CWskel-elim' (invEq (e (suc n)) (inl x)) ≡ inler x
     CWskel-elim'-inl = CWskel-elim-inl (suc n) {B = B} inler _ _
 
--- open import Cubical.Axiom.Choice
--- open import Cubical.HITs.Truncation as TR
--- module _ {ℓ : Level} (C : CWskel ℓ) where
---   open CWskel-fields C
---   CWskel-elim-trunc : (n : ℕ) {B : fst C (suc (suc (suc n))) → Type ℓ'}
---     → (f : ((x : fst C (suc (suc n))) → B (CW↪ C (suc (suc n)) x)))
---     → ∃[ f^ ∈ ((x : _) → B x) ] ((c : _) → f^ (CW↪ C (suc (suc n)) c) ≡ f c)
---   CWskel-elim-trunc n {B = B} f = PT.map (λ F → (CWskel-elim' C (suc n) f F) , CWskel-elim'-inl C (suc n) f F) F
---     where
---     F : ∥ ((x : Fin (card (suc (suc n)))) (y : S₊ (suc n))
---       → PathP (λ i → B (invEq (e (suc (suc n))) ((push (x , y) ∙ sym (push (x , ptSn (suc n)))) i)))
---             (f (α (suc (suc n)) (x , y))) (f (α (suc (suc n)) (x , ptSn (suc n))))) ∥₁
---     F = invEq propTrunc≃Trunc1 (invEq (_ , FinSatAC _ _ _)
---               λ x → fst propTrunc≃Trunc1
---                   (sphereToTrunc (suc n) {!!}))
---     q = FinSatAC
-
 finCWskel≃ : (n : ℕ) (C : finCWskel ℓ n) (m : ℕ) → n ≤ m → fst C n ≃ fst C m
 finCWskel≃ n C m (zero , diff) = substEquiv (λ n → fst C n) diff
 finCWskel≃ n C zero (suc x , diff) = ⊥.rec (snotz diff)
@@ -192,8 +177,8 @@ finCWskel≃ n C (suc m) (suc x , diff) =
             (substEquiv (λ n → fst C n) diff)))
 
 -- C₁ satisfies AC
-satAC-CW₁ : ∀ {ℓ ℓ'} (n : ℕ) (C : CWskel ℓ) → satAC ℓ' n (fst C (suc zero))
-satAC-CW₁ {ℓ' = ℓ'} n C A =
+satAC-CW₁ : (n : ℕ) (C : CWskel ℓ) → satAC ℓ' n (fst C (suc zero))
+satAC-CW₁ n C A =
   subst isEquiv (choicefun≡ n) (isoToIsEquiv (choicefun' n))
   where
   fin = Fin (snd C .fst zero)
@@ -218,3 +203,47 @@ satAC-CW₁ {ℓ' = ℓ'} n C A =
       (isOfHLevelΠ (suc n) (λ _ → isOfHLevelTrunc (suc n))) _ _)
     λ f → funExt λ a → cong ∣_∣
       (funExt⁻ ((Iso.leftInv (domIsoDep (equivToIso fin→))) f) a))
+
+satAC∃Fin-C0 : (C : CWskel ℓ) → satAC∃ ℓ' ℓ'' (fst C 1)
+satAC∃Fin-C0 C =
+  subst (satAC∃ _ _)
+  (ua (compEquiv (invEquiv LiftEquiv) (invEquiv (CW₁-discrete C))))
+    λ T c → isoToIsEquiv (iso _
+      (λ f → PT.map (λ p → (λ { (lift x) → p .fst x})
+                            , λ { (lift x) → p .snd x})
+              (invEq (_ , (InductiveFinSatAC∃ (snd C .fst 0))
+                     (T ∘ lift) (c ∘ lift)) (f ∘ lift)))
+      (λ _ → (isPropΠ λ _ → squash₁) _ _)
+      λ _ → squash₁ _ _)
+
+--- Connectivity of CW complexes
+-- The embedding of stage n into stage n+1 is (n+1)-connected
+-- 2 calls to univalence in there
+isConnected-CW↪ : (n : ℕ) (C : CWskel ℓ) → isConnectedFun n (CW↪ C n)
+isConnected-CW↪ zero C x = isContrUnit*
+isConnected-CW↪ (suc n) C =
+  EquivJ (λ X E → isConnectedFun (suc n) (λ x → invEq E (inl x)))
+                   inPushoutConnected (e₊ (suc n))
+  where
+    A = snd C .fst
+    α = snd C .snd .fst
+    e₊ = snd C .snd .snd .snd
+
+    inPushout : fst C (suc n) → Pushout (α (suc n)) fst
+    inPushout x = inl x
+
+    fstProjPath : (b : Fin (A (suc n))) → S₊ n ≡ fiber fst b
+    fstProjPath b = ua (fiberProjEquiv (Fin (A (suc n))) (λ _ → S₊ n) b)
+
+    inPushoutConnected : isConnectedFun (suc n) inPushout
+    inPushoutConnected = inlConnected (suc n) (α (suc n)) fst
+      λ b → subst (isConnected (suc n)) (fstProjPath b) (sphereConnected n)
+
+-- The embedding of stage n into the colimit is (n+1)-connected
+isConnected-CW↪∞ : (n : ℕ) (C : CWskel ℓ) → isConnectedFun n (CW↪∞ C n)
+isConnected-CW↪∞ zero C b = isContrUnit*
+isConnected-CW↪∞ (suc n) C = isConnectedIncl∞ (realiseSeq C) (suc n) (suc n) subtr
+  where
+    subtr : (k : ℕ) → isConnectedFun (suc n) (CW↪ C (k +ℕ (suc n)))
+    subtr k = isConnectedFunSubtr (suc n) k (CW↪ C (k +ℕ (suc n)))
+                                   (isConnected-CW↪ (k +ℕ (suc n)) C)

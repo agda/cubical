@@ -88,9 +88,16 @@ module _ (m : ℕ) where
   composeFinCellMap : (g : finCellMap D E) (f : finCellMap C D) → finCellMap C E
   composeFinCellMap = composeFinSequenceMap m
 
+open FinSequenceMap
+finCellMap→FinSeqColim : (C : CWskel ℓ) (D : CWskel ℓ')
+  {m : ℕ} → finCellMap m C D → FinSeqColim m (realiseSeq C) → FinSeqColim m (realiseSeq D) 
+finCellMap→FinSeqColim C D {m = m} f (fincl n x) = fincl n (fmap f n x)
+finCellMap→FinSeqColim C D {m = m} f (fpush n x i) =
+  (fpush n (fmap f (injectSuc n) x) ∙ cong (fincl (fsuc n)) (fcomm f n x)) i
+
 finCellMap↓ : {m : ℕ} {C : CWskel ℓ} {D : CWskel ℓ'}  → finCellMap (suc m) C D → finCellMap m C D
-FinSequenceMap.fmap (finCellMap↓ {m = m} ϕ) x = FinSequenceMap.fmap ϕ (injectSuc x)
-FinSequenceMap.fcomm (finCellMap↓ {m = suc m} {C = C} ϕ) x r = FinSequenceMap.fcomm ϕ (injectSuc x) r
+fmap (finCellMap↓ {m = m} ϕ) x = fmap ϕ (injectSuc x)
+fcomm (finCellMap↓ {m = suc m} {C = C} ϕ) x r = fcomm ϕ (injectSuc x) r
 
 -- A cellular map between two CW complexes
 

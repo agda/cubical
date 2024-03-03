@@ -1,8 +1,6 @@
-{-# OPTIONS --cubical --safe --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
-{-This file contains:
-
--}
+-- This file contains definition of CW complexes and skeleta.
 
 module Cubical.Data.CW.Base where
 

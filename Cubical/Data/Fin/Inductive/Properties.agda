@@ -70,6 +70,11 @@ elimFinβ {m = suc (suc m)} {A = A} max f =
 ¬m<ᵗm : {m : ℕ} → ¬ (m <ᵗ m)
 ¬m<ᵗm {m = suc m} p = ¬m<ᵗm p
 
+<ᵗ-+ : {n k : ℕ} → n <ᵗ suc (k + n)
+<ᵗ-+ {n = zero} {k} = tt
+<ᵗ-+ {n = suc n} {k} =
+  subst (n <ᵗ_) (sym (+-suc k n)) (<ᵗ-+ {n = n} {k})
+
 ¬squeeze : {n m : ℕ} → ¬ ((n <ᵗ m) × (m <ᵗ suc n))
 ¬squeeze {n = suc n} {suc m} = ¬squeeze {n = n} {m = m}
 
