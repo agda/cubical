@@ -20,7 +20,8 @@ open import Cubical.Algebra.AbGroup.Base using (move4)
 
 -- inductive definition of <
 
-fsuc-injectSuc : {m : ℕ} (n : Fin m) → injectSuc {n = suc m} (fsuc {n = m} n) ≡ fsuc (injectSuc n)
+fsuc-injectSuc : {m : ℕ} (n : Fin m)
+  → injectSuc {n = suc m} (fsuc {n = m} n) ≡ fsuc (injectSuc n)
 fsuc-injectSuc {m = suc m} (x , p) = refl
 
 fzero : {m : ℕ} → Fin (suc m)
@@ -57,12 +58,9 @@ elimFinβ {m = suc (suc m)} {A = A} max f =
              refl
              (elimFinβ {m = (suc m)} {A = λ x → A (fsuc x)} max _ .snd)
 
---
 ¬Fin0 : ¬ Fin 0
 ¬Fin0 (x , ())
 
-
---
 <ᵗ-trans : {n m k : ℕ} → n <ᵗ m → m <ᵗ k → n <ᵗ k
 <ᵗ-trans {n = zero} {suc m} {suc k} _ _ = tt
 <ᵗ-trans {n = suc n} {suc m} {suc k} = <ᵗ-trans {n = n} {m} {k}
