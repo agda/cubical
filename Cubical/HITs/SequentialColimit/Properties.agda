@@ -13,14 +13,19 @@ open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat hiding (elim)
+open import Cubical.Data.Sequence
+
 open import Cubical.HITs.SequentialColimit.Base
 open import Cubical.Homotopy.Connected
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 module _
   (X : Sequence ℓ) where
@@ -235,3 +240,196 @@ module _
 
     isConnectedIncl∞ : isConnectedFun d (incl∞ n)
     isConnectedIncl∞ = elim.isConnectedPrecompose _ _ hasSectionIncl∘
+
+open Sequence
+open ElimDataShifted
+-- Proof that colim Aₘ ≃ Aₙ for a converging sequence
+-- A₀ → A₁ → ... → Aₙ ≃ Aₙ₊₁ ≃ ...
+module _ {ℓ : Level} (seq : Sequence ℓ) (n : ℕ) (term : converges seq n)
+  where
+  shiftEq : ∀ {k} → seq .obj n ≃ (seq .obj (k + n))
+  shiftEq {k = zero} = idEquiv _
+  shiftEq {k = suc k} = compEquiv (shiftEq {k}) (_ , term k)
+
+  shiftEqCoh : (k : ℕ) (x : _)
+    → invEq shiftEq x
+     ≡ invEq (compEquiv shiftEq (Sequence.map seq , term k)) (seq .Sequence.map x)
+  shiftEqCoh zero x = sym (retEq (_ , term 0) x)
+  shiftEqCoh (suc k) x =
+    cong (invEq shiftEq) (sym (retEq (_ , term (suc k)) x))
+
+  shiftEqShifted : ElimDataShifted seq n (λ _ → obj seq n)
+  inclP shiftEqShifted = invEq shiftEq
+  pushP shiftEqShifted = shiftEqCoh _
+
+  -- induction principle for terminating sequences
+  module _ {P : (k : ℕ) → seq .obj (k + n) → Type ℓ}
+           (bs : (s : _) → P zero s)
+           (indr : (k : ℕ) → ((y : _) → P k y) →  (x : _) → P (suc k) (Sequence.map seq x))
+           where
+    terminaates-seq-ind :  (k : ℕ) (x : _) → P k x
+    terminaates-seq-ind zero = bs
+    terminaates-seq-ind (suc k) x =
+      subst (P (suc k)) (secEq (_ , term k) x)
+            (indr k (terminaates-seq-ind k) (invEq (_ , term k) x))
+
+    terminaates-seq-indβ : (k : ℕ) (s : ((y : seq .obj (k + n)) → P k y)) (x : _)
+      → terminaates-seq-ind (suc k) (Sequence.map seq x)
+       ≡ indr k (terminaates-seq-ind k) x
+    terminaates-seq-indβ k s x =
+        lem (Sequence.map seq , term k) x (P (suc k))
+             (indr k (terminaates-seq-ind k))
+      where
+      lem : ∀ {ℓ ℓ'} {A B : Type ℓ} (e : A ≃ B) (x : A)
+            (P : B → Type ℓ') (πP : (x : A) → P (fst e x))
+        → subst P (secEq e (fst e x)) (πP (invEq e (fst e x))) ≡ πP x
+      lem {ℓ' = ℓ'} {B = B} =
+        EquivJ (λ A e → (x : A) (P : B → Type ℓ') (πP : (x : A) → P (fst e x))
+                      → subst P (secEq e (fst e x)) (πP (invEq e (fst e x)))
+                       ≡ πP x)
+               λ b P πP → transportRefl _
+
+  -- a special case
+  module _
+    (0case : (x : seq .obj n)
+      → Path (SeqColim seq)
+              (incl (elimShifted seq n (λ _ → obj seq n) shiftEqShifted (incl x)))
+              (incl x)) where
+
+    converges→ColimIso-main-lem : (k : ℕ) (x : seq .obj (k + n))
+      → Path (SeqColim seq)
+              (incl (elimShifted seq n (λ _ → obj seq n)
+                                 shiftEqShifted (incl x)))
+              (incl x)
+    converges→ColimIso-main-lem =
+      terminaates-seq-ind
+        0case
+        (λ k id x
+        → cong incl
+          (sym (cong (elimShifted seq n (λ _ → obj seq n) shiftEqShifted) (push x)))
+             ∙∙ id x
+             ∙∙ push x)
+
+    converges→ColimIso-main-lemβ : (k : ℕ) (x : seq .obj (k + n))
+        → converges→ColimIso-main-lem (suc k) (Sequence.map seq x)
+         ≡ (cong incl
+           (sym (cong (elimShifted seq n (λ _ → obj seq n)
+                                    shiftEqShifted) (push x)))
+             ∙∙ converges→ColimIso-main-lem k x
+             ∙∙ push x)
+    converges→ColimIso-main-lemβ k x =
+      terminaates-seq-indβ
+        0case
+        (λ k id x
+        → cong incl
+          (sym (cong (elimShifted seq n (λ _ → obj seq n) shiftEqShifted) (push x)))
+        ∙∙ id x
+        ∙∙ push x)
+        k (converges→ColimIso-main-lem k) x
+
+-- main result
+-- (todo: add more thy about colimits to get nicer proof)
+converges→ColimIso : ∀ {ℓ} {seq : Sequence ℓ} (n : ℕ)
+  → converges seq n
+  → Iso (obj seq n) (SeqColim seq)
+Iso.fun (converges→ColimIso {seq = seq} n e) = incl
+Iso.inv (converges→ColimIso {seq = seq} n e) = elimShifted seq n _ (shiftEqShifted seq n e)
+Iso.rightInv (converges→ColimIso {seq = seq} n e) = elimShifted seq n _
+  (record { inclP = λ {k} → paths k
+          ; pushP = λ {k} → cohs k})
+  where
+  zero-case : (x : seq .obj n)
+    → Path (SeqColim seq)
+            (incl (elimShifted seq n (λ _ → obj seq n) (shiftEqShifted seq n e) (incl x)))
+            (incl x)
+  zero-case x i = incl (elimShiftedβ seq n 0 (λ _ → obj seq n) (shiftEqShifted seq n e) i x)
+
+  paths : (k : ℕ) → (x : seq .obj (k + n))
+    → Path (SeqColim seq)
+            (incl (elimShifted seq n (λ _ → obj seq n) (shiftEqShifted seq n e) (incl x)))
+            (incl x)
+  paths = converges→ColimIso-main-lem seq n e zero-case
+
+  cohs : (k : ℕ) (x : seq .obj (k + n))
+    → PathP (λ i → Path (SeqColim seq)
+                          (incl (elimShifted seq n (λ _ → obj seq n)
+                                  (shiftEqShifted seq n e)
+                          (push x i)))
+                          (push x i))
+             (paths k x) (paths (suc k) (seq .Sequence.map x))
+  cohs k x =
+    doubleCompPath-filler
+      (λ i → incl (elimShifted seq n (λ _ → obj seq n)
+                     (shiftEqShifted seq n e) (push x (~ i))))
+      (converges→ColimIso-main-lem seq n e zero-case k x)
+      (push x)
+    ▷ sym (converges→ColimIso-main-lemβ seq n e (zero-case) k x)
+Iso.leftInv (converges→ColimIso {seq = seq} n e) a =
+    funExt⁻ (elimShiftedβ seq n _ (λ _ → obj seq n)
+             (shiftEqShifted seq n e)) a
+
+-- different form
+converges→isEquivIncl : ∀ {ℓ} {seq : Sequence ℓ} (n : ℕ)
+  → converges seq n
+  → isEquiv {A = obj seq n} {B = SeqColim seq} (incl {n = n})
+converges→isEquivIncl n x = isoToEquiv (converges→ColimIso n x) .snd
+
+-- elimination from colimit into prop
+SeqColim→Prop : ∀ {ℓ ℓ'} {C : Sequence ℓ} {B : SeqColim C → Type ℓ'}
+  → ((x : _) → isProp (B x))
+  → (s : (n : ℕ) (x : obj C n) → B (incl x))
+  → (x : _) → B x
+SeqColim→Prop {C = C} pr ind (incl x) = ind _ x
+SeqColim→Prop {C = C} {B = B} pr ind (push x i) =
+  isProp→PathP {B = λ i → B (push x i)}
+    (λ i → pr _)
+    (ind _ x) (ind (suc _) (C .Sequence.map x)) i
+
+realiseIdSequenceMap : {C : Sequence ℓ} → realiseSequenceMap (idSequenceMap C) ≡ idfun _
+realiseIdSequenceMap {C = C} =
+  funExt λ { (incl x) → refl
+           ; (push {n = n} x i) j → rUnit (push {n = n} x) (~ j) i}
+
+realiseCompSequenceMap : {C : Sequence ℓ} {D : Sequence ℓ'} {E : Sequence ℓ''}
+  (g : SequenceMap D E) (f : SequenceMap C D)
+  → realiseSequenceMap (composeSequenceMap g f)
+   ≡ realiseSequenceMap g ∘ realiseSequenceMap f
+realiseCompSequenceMap {C = C} {E = E} g f =
+  funExt λ { (incl x) → refl
+           ; (push {n = n} x i) j → main n x j i}
+  where
+  module _ (n : ℕ) (x : Sequence.obj C n) where
+    g₁ = g .SequenceMap.map n
+    g₊ =  g .SequenceMap.map (suc n)
+    f₁ = f .SequenceMap.map n
+
+    main : Path (Path (SeqColim E) _ _)
+                (push {n = n} (g₁ (f₁ x))
+                ∙ cong incl (SequenceMap.comm g n (f₁ x)
+                           ∙ cong g₊ (SequenceMap.comm f n x)))
+                (cong (realiseSequenceMap g) (push (f₁ x) ∙ cong incl (SequenceMap.comm f n x)))
+    main = cong (push (SequenceMap.map g n (f₁ x)) ∙_)
+                      (cong-∙ incl (SequenceMap.comm g n (f₁ x))
+                                   (cong g₊ (SequenceMap.comm f n x)))
+      ∙ assoc (push (SequenceMap.map g n (f₁ x)))
+               (cong incl (SequenceMap.comm g n (f₁ x)))
+               (cong (incl ∘ g₊) (SequenceMap.comm f n x))
+      ∙ sym (cong-∙ (realiseSequenceMap g)
+                    (push (f₁ x)) (cong incl (SequenceMap.comm f n x)))
+
+converges→funId : {seq1 : Sequence ℓ} {seq2 : Sequence ℓ'}
+  (n m : ℕ)
+  → converges seq1 n
+  → converges seq2 m
+  → (f : SeqColim seq1 → SeqColim seq2)
+  → (g : SequenceMap seq1 seq2)
+  → ((n : ℕ) (c : _) → f (incl {n = n} c) ≡ incl (SequenceMap.map g n c))
+  → f ≡ realiseSequenceMap g
+converges→funId {seq1 = seq1} {seq2} n m t1 t2 f g p =
+  transport (λ i → help f (~ i) ≡ help (realiseSequenceMap g) (~ i))
+    (funExt λ x → p _ x)
+  where
+  help : (f : _) → PathP (λ i → isoToPath (converges→ColimIso {seq = seq1} n t1) (~ i)
+                    → SeqColim seq2)
+               f (f ∘ incl)
+  help f = toPathP (funExt λ x → (λ i → transportRefl (f (incl (transportRefl x i))) i))
