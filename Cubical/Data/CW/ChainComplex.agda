@@ -187,5 +187,5 @@ module _ {ℓ} (C : CWskel ℓ) where
   bdry²=0 CW-ChainComplex n = ∂∂≡0 n
 
   -- Cellular homology
-  Hᶜʷ : (n : ℕ) → Group₀
-  Hᶜʷ n = homology n CW-ChainComplex
+  Hˢᵏᵉˡ : (n : ℕ) → Group₀
+  Hˢᵏᵉˡ n = homology n CW-ChainComplex

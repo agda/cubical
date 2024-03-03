@@ -125,7 +125,7 @@ finCW→CW (X , p) = X , PT.map (isFinCW→isCW X) p
 
 
 -- morphisms
-_→ᶜʷ_ : CW ℓ → CW ℓ → Type ℓ
+_→ᶜʷ_ : CW ℓ → CW ℓ' → Type (ℓ-max ℓ ℓ')
 C →ᶜʷ D = fst C → fst D
 
 --the cofibre of the inclusion of X n into X (suc n)
