@@ -1,6 +1,6 @@
 {-# OPTIONS --safe --lossy-unification #-}
 
-module Cubical.Data.CW.Subcomplex where
+module Cubical.CW.Subcomplex where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
@@ -15,14 +15,14 @@ open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 
-open import Cubical.Data.CW
-open import Cubical.Data.CW.ChainComplex
-open import Cubical.Data.CW.Approximation
+open import Cubical.CW.Base
+open import Cubical.CW.Properties
+open import Cubical.CW.ChainComplex
+open import Cubical.CW.Approximation
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.PropositionalTruncation as PT
-
 
 open import Cubical.Relation.Nullary
 

@@ -2,11 +2,8 @@
 module Cubical.Data.FinSequence.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
 open import Cubical.Data.Nat
 open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
-
 
 private
   variable
@@ -17,7 +14,8 @@ record FinSequence (m : ℕ) (ℓ : Level) : Type (ℓ-suc ℓ) where
     fobj : Fin (suc m) → Type ℓ
     fmap : {n : Fin m} → fobj (injectSuc n) → fobj (fsuc n)
 
-record FinSequenceMap {m : ℕ} (C : FinSequence m ℓ) (D : FinSequence m ℓ') : Type (ℓ-max ℓ ℓ') where
+record FinSequenceMap {m : ℕ}
+  (C : FinSequence m ℓ) (D : FinSequence m ℓ') : Type (ℓ-max ℓ ℓ') where
   field
     fmap : (n : Fin (suc m)) → FinSequence.fobj C n → FinSequence.fobj D n
     fcomm : (n : Fin m) (x : FinSequence.fobj C (injectSuc n))

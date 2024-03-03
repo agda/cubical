@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
 module Cubical.HITs.SphereBouquet.Degree where
 
@@ -6,21 +6,16 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
 
-open import Cubical.Data.Bool hiding (_≤_ ;  _≟_ ; isProp≤)
+open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
-open import Cubical.Data.Nat.Order
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Inductive
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Unit
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn
@@ -30,28 +25,21 @@ open import Cubical.HITs.Susp
 open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.SetTruncation as ST
-
-open import Cubical.Homotopy.Loopspace
+open import Cubical.HITs.Wedge
+open import Cubical.HITs.SphereBouquet.Base
+open import Cubical.HITs.SphereBouquet.Properties
 
 open import Cubical.Relation.Nullary
 
-open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.Int
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.FreeAbGroup
 
-open import Cubical.HITs.Wedge
-
 open import Cubical.ZCohomology.Base
 open import Cubical.ZCohomology.GroupStructure
 open import Cubical.ZCohomology.Groups.Sn
 open import Cubical.ZCohomology.Properties
-
-
-open import Cubical.HITs.SphereBouquet.Base
-open import Cubical.HITs.SphereBouquet.Properties
 
 private
   variable

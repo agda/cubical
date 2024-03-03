@@ -160,7 +160,6 @@ Iso.rightInv (Iso-Fin-InductiveFin m) (x , p) =
   Σ≡Prop (λ w → isProp<ᵗ {n = w} {m}) refl
 Iso.leftInv (Iso-Fin-InductiveFin m) _ = Σ≡Prop (λ _ → isProp≤) refl
 
-
 isSetFin : {n : ℕ} → isSet (Fin n)
 isSetFin {n = n} =
   isOfHLevelRetractFromIso 2 (invIso (Iso-Fin-InductiveFin n))

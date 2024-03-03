@@ -3,6 +3,7 @@
 This file contains:
   - Eliminators of direct limit, especially an index-shifting version;
   - Connectivity of inclusion maps.
+  - Characterisation of colimits over finite sequences
 
 -}
 {-# OPTIONS --safe #-}
@@ -19,6 +20,7 @@ open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sequence
+open import Cubical.Data.Fin.Inductive
 
 open import Cubical.HITs.SequentialColimit.Base
 open import Cubical.Homotopy.Connected
@@ -267,18 +269,18 @@ module _ {ℓ : Level} (seq : Sequence ℓ) (n : ℕ) (term : converges seq n)
            (bs : (s : _) → P zero s)
            (indr : (k : ℕ) → ((y : _) → P k y) →  (x : _) → P (suc k) (Sequence.map seq x))
            where
-    terminaates-seq-ind :  (k : ℕ) (x : _) → P k x
-    terminaates-seq-ind zero = bs
-    terminaates-seq-ind (suc k) x =
+    terminates-seq-ind :  (k : ℕ) (x : _) → P k x
+    terminates-seq-ind zero = bs
+    terminates-seq-ind (suc k) x =
       subst (P (suc k)) (secEq (_ , term k) x)
-            (indr k (terminaates-seq-ind k) (invEq (_ , term k) x))
+            (indr k (terminates-seq-ind k) (invEq (_ , term k) x))
 
-    terminaates-seq-indβ : (k : ℕ) (s : ((y : seq .obj (k + n)) → P k y)) (x : _)
-      → terminaates-seq-ind (suc k) (Sequence.map seq x)
-       ≡ indr k (terminaates-seq-ind k) x
-    terminaates-seq-indβ k s x =
+    terminates-seq-indβ : (k : ℕ) (s : ((y : seq .obj (k + n)) → P k y)) (x : _)
+      → terminates-seq-ind (suc k) (Sequence.map seq x)
+       ≡ indr k (terminates-seq-ind k) x
+    terminates-seq-indβ k s x =
         lem (Sequence.map seq , term k) x (P (suc k))
-             (indr k (terminaates-seq-ind k))
+             (indr k (terminates-seq-ind k))
       where
       lem : ∀ {ℓ ℓ'} {A B : Type ℓ} (e : A ≃ B) (x : A)
             (P : B → Type ℓ') (πP : (x : A) → P (fst e x))
@@ -302,7 +304,7 @@ module _ {ℓ : Level} (seq : Sequence ℓ) (n : ℕ) (term : converges seq n)
                                  shiftEqShifted (incl x)))
               (incl x)
     converges→ColimIso-main-lem =
-      terminaates-seq-ind
+      terminates-seq-ind
         0case
         (λ k id x
         → cong incl
@@ -318,7 +320,7 @@ module _ {ℓ : Level} (seq : Sequence ℓ) (n : ℕ) (term : converges seq n)
              ∙∙ converges→ColimIso-main-lem k x
              ∙∙ push x)
     converges→ColimIso-main-lemβ k x =
-      terminaates-seq-indβ
+      terminates-seq-indβ
         0case
         (λ k id x
         → cong incl
@@ -433,3 +435,79 @@ converges→funId {seq1 = seq1} {seq2} n m t1 t2 f g p =
                     → SeqColim seq2)
                f (f ∘ incl)
   help f = toPathP (funExt λ x → (λ i → transportRefl (f (incl (transportRefl x i))) i))
+
+-- colim (X₀ → ... → Xₙ) ≃ colim (X₁ → ... → Xₙ)
+module _ (X : Sequence ℓ) where
+  ShiftSeq : Sequence ℓ
+  obj ShiftSeq m = obj X (suc m)
+  map ShiftSeq = map X
+
+  Iso-FinSeqColim→FinSeqColim↑ : (m : ℕ)
+     → Iso (FinSeqColim (suc m) X) (FinSeqColim m ShiftSeq)
+  Iso-FinSeqColim→FinSeqColim↑ m = iso (G m) (F m) (F→G→F m) (G→F→G m)
+    where
+    F : (m : ℕ) → FinSeqColim m ShiftSeq → FinSeqColim (suc m) X
+    F m (fincl n x) = fincl (fsuc n) x
+    F (suc m) (fpush (n , p) x i) = fpush (suc n , p) x i
+
+    G : (m : ℕ) → FinSeqColim (suc m) X → FinSeqColim m ShiftSeq
+    G m (fincl (zero , p) x) = fincl (zero , p) (map X x)
+    G m (fincl (suc n , p) x) = fincl (n , p) x
+    G m (fpush (zero , p) x i) = fincl (zero , p) (map X x)
+    G (suc m) (fpush (suc n , p) x i) = fpush (n , p) x i
+
+    F→G→F : (m : ℕ) → (x : FinSeqColim m ShiftSeq) → G m (F m x) ≡ x
+    F→G→F m (fincl n x) = refl
+    F→G→F (suc m) (fpush n x i) = refl
+
+    G→F→G : (m : ℕ) → (x : FinSeqColim (suc m) X) → F m (G m x) ≡ x
+    G→F→G m (fincl (zero , p) x) = sym (fpush (zero , p) x)
+    G→F→G m (fincl (suc n , p) x) = refl
+    G→F→G m (fpush (zero , p) x i) j = fpush (zero , p) x (~ j ∨ i)
+    G→F→G (suc m) (fpush (suc n , p) x i) = refl
+
+  Iso-FinSeqColim₀-Top : Iso (FinSeqColim 0 X) (obj X zero)
+  Iso.fun Iso-FinSeqColim₀-Top (fincl (zero , p) x) = x
+  Iso.inv Iso-FinSeqColim₀-Top a = fincl fzero a
+  Iso.rightInv Iso-FinSeqColim₀-Top a = refl
+  Iso.leftInv Iso-FinSeqColim₀-Top (fincl (zero , p) x) = refl
+
+pre-Iso-FinSeqColim-Top : (X : Sequence ℓ) (m : ℕ)
+  → Iso (FinSeqColim m X) (obj X m)
+pre-Iso-FinSeqColim-Top X zero = Iso-FinSeqColim₀-Top X
+pre-Iso-FinSeqColim-Top X (suc m) =
+  compIso (Iso-FinSeqColim→FinSeqColim↑ X m)
+          (pre-Iso-FinSeqColim-Top (ShiftSeq X) m)
+
+characInverse : (X : Sequence ℓ) (m : ℕ) (a : obj X m)
+  → Iso.inv (pre-Iso-FinSeqColim-Top X m) a ≡ fincl flast a
+characInverse X zero a = refl
+characInverse X (suc m) a =
+  cong (Iso.inv (Iso-FinSeqColim→FinSeqColim↑ X m)) (characInverse _ m a)
+
+-- main result
+Iso-FinSeqColim-Top : (X : Sequence ℓ) (m : ℕ)
+  → Iso (FinSeqColim m X) (obj X m)
+Iso.fun (Iso-FinSeqColim-Top X m) = Iso.fun (pre-Iso-FinSeqColim-Top X m)
+Iso.inv (Iso-FinSeqColim-Top X m) = fincl flast
+Iso.rightInv (Iso-FinSeqColim-Top X m) r =
+  cong (Iso.fun (pre-Iso-FinSeqColim-Top X m)) (sym (characInverse X m r))
+  ∙ Iso.rightInv (pre-Iso-FinSeqColim-Top X m) r
+Iso.leftInv (Iso-FinSeqColim-Top X m) r =
+    sym (characInverse X m (Iso.fun (pre-Iso-FinSeqColim-Top X m) r))
+  ∙ Iso.leftInv (pre-Iso-FinSeqColim-Top X m) r
+
+  -- main corollary : given two maps (f g : SeqColim Xᵢ → B) and a
+  -- family of homotopies hᵢ : (x : Xᵢ) → f (incl x) ≡ g (incl x) for
+  -- i < n, we can improve hᵢ such that they are compatible with push
+
+→FinSeqColimHomotopy : ∀ {ℓ ℓ'}
+  {X : Sequence ℓ} {m : ℕ} {B : FinSeqColim m X → Type ℓ'}
+  (f g : (x : FinSeqColim m X) → B x)
+  (h : (x : obj X m) → f (fincl flast x)
+                      ≡ g (fincl flast x))
+  → f ≡ g
+→FinSeqColimHomotopy {X = X} {m} f g h = funExt
+  (transport (λ i → (x : isoToPath (invIso (Iso-FinSeqColim-Top X m)) i)
+    → f (ua-unglue (isoToEquiv (invIso (Iso-FinSeqColim-Top X m))) i x)
+     ≡ g (ua-unglue (isoToEquiv (invIso (Iso-FinSeqColim-Top X m))) i x)) h)

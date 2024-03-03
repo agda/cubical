@@ -1,40 +1,28 @@
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.ChainComplex.Homology where
-{-
-  Defines groups and adds the smart constructors [makeGroup-right] and [makeGroup-left]
-  for constructing groups from less data than the standard [makeGroup] constructor.
--}
 
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
-open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat
+open import Cubical.Data.Fin.Inductive
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties -- TODO: why is this there and not exported by the Morphisms file?
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Subgroup
 open import Cubical.Algebra.Group.QuotientGroup
 open import Cubical.Algebra.AbGroup
+open import Cubical.Algebra.ChainComplex.Base
+open import Cubical.Algebra.ChainComplex.Finite
 
 open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/s_)
 open import Cubical.HITs.SetQuotients.Properties as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
-
-open import Cubical.Structures.Successor
-open import Cubical.Relation.Nullary
-
-open import Cubical.Data.Nat
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
-
-open import Cubical.Algebra.ChainComplex.Base
-open import Cubical.Algebra.ChainComplex.Finite
-
 
 
 private
@@ -83,132 +71,6 @@ homology n C = ker∂n / img∂+1⊂ker∂n
       isNormalImSubGroup = isNormalIm ∂'
         (λ x y → kerGroup≡ ∂n (C1.+Comm (fst x) (fst y)))
 
--- -- Induced maps on cohomology by finite chain complex maps/homotopies
--- module _ where
---   finChainComplexMap→HomologyMap : {C D : ChainComplex ℓ} (m : ℕ)
---     → (ϕ : finChainComplexMap (suc (suc m)) C D)
---     → (n : Fin (suc m))
---     → GroupHom (homology (fst n) C) (homology (fst n) D)
---   finChainComplexMap→HomologyMap {C = C} {D} m mp (n , p) = main
---     where
---     ineq3 : suc n <ᵗ suc (suc (suc m))
---     ineq3 = <ᵗ-trans p <ᵗsucm
-
---     ineq4 : n <ᵗ suc (suc m)
---     ineq4 = ineq3
-
---     ϕ = fchainmap mp
---     ϕcomm = fbdrycomm mp
-
---     lem : (k : ℕ) {p q : _} (f : fst (chain C k))
---       → fst (ϕ (k , p)) f ≡ fst (ϕ (k , q)) f
---     lem k {p} {q} f i = fst (ϕ (k , pq i)) f
---       where
---       pq : p ≡ q
---       pq = isProp<ᵗ _ _
-
---     fun : homology n C .fst → homology n D .fst
---     fun = SQ.elim (λ _ → squash/) f
---        λ f g → PT.rec (GroupStr.is-set (homology n D .snd) _ _ )
---          λ r → eq/ _ _ ∣ (ϕ (suc (suc n) , p) .fst (fst r))
---                        , Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain D n)) _ _)
---                            ((funExt⁻ (cong fst (ϕcomm (suc n , _))) (fst r)
---                              ∙∙ cong (fst (ϕ (suc n , _))) (cong fst (snd r))
---                              ∙∙ (IsGroupHom.pres· (snd (ϕ (suc n , _) )) _ _
---                              ∙ cong₂ (AbGroupStr._+_ (snd (chain D (suc n))))
---                                      (lem (suc n) (fst f))
---                                      (IsGroupHom.presinv (snd (ϕ (suc n , _) )) _
---                                    ∙ cong (snd (chain D (suc n)) .AbGroupStr.-_)
---                                       (lem (suc n) (fst g)))))) ∣₁
---       where
---       f : _ → homology n D .fst
---       f (a , b) = [ ϕ (suc n , ineq3) .fst a -- (ϕ {!n!}  .fst a)
---                 , ((λ i → fst (ϕcomm (n , ineq3)  i) a)
---                 ∙∙ cong (fst (ϕ (n , _))) b
---                 ∙∙ IsGroupHom.pres1 (snd (ϕ (n , _)))) ]
-
-
---     main : GroupHom (homology n C) (homology n D)
---     fst main = fun
---     snd main =
---       makeIsGroupHom
---         (SQ.elimProp2 (λ _ _ → GroupStr.is-set (snd (homology n D)) _ _)
---           λ a b → cong [_]
---             (Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain D n)) _ _)
---               (IsGroupHom.pres· (snd (ϕ (suc n , _) )) _ _)))
-
---   finChainComplexMap→HomologyMapComp : {C D E : ChainComplex ℓ} {m : ℕ}
---     → (ϕ : finChainComplexMap (suc (suc m)) C D) (ψ : finChainComplexMap (suc (suc m)) D E)
---     → (n : Fin (suc m))
---     → finChainComplexMap→HomologyMap m (compFinChainMap ϕ ψ) n
---      ≡ compGroupHom (finChainComplexMap→HomologyMap m ϕ n)
---                     (finChainComplexMap→HomologyMap m ψ n)
---   finChainComplexMap→HomologyMapComp {E = E} _ _ n =
---       Σ≡Prop (λ _ → isPropIsGroupHom _ _)
---         (funExt (SQ.elimProp (λ _ → GroupStr.is-set (snd (homology (fst n) E)) _ _)
---           λ _ → cong [_]
---             (Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain E (fst n))) _ _) refl)))
-
---   finChainComplexMap→HomologyMapId : {C : ChainComplex ℓ} {m : ℕ} (n : Fin (suc m))
---     → finChainComplexMap→HomologyMap m (idFinChainMap (suc (suc m)) C) n ≡ idGroupHom
---   finChainComplexMap→HomologyMapId {C = C} n =
---     Σ≡Prop (λ _ → isPropIsGroupHom _ _)
---       (funExt (SQ.elimProp (λ _ → GroupStr.is-set (snd (homology (fst n) C)) _ _)
---           λ _ → cong [_]
---             (Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain C (fst n))) _ _) refl)))
-
---   finChainComplexEquiv→HomoglogyIso : {C D : ChainComplex ℓ} (m : ℕ) (f : C ≃⟨ (suc (suc m)) ⟩Chain D)
---     → (n : Fin (suc m)) → GroupIso (homology (fst n) C) (homology (fst n) D)
---   Iso.fun (fst (finChainComplexEquiv→HomoglogyIso m (f , eqs) n)) =
---     finChainComplexMap→HomologyMap m f n .fst
---   Iso.inv (fst (finChainComplexEquiv→HomoglogyIso m f n)) =
---     finChainComplexMap→HomologyMap m (invFinChainMap f) n .fst
---   Iso.rightInv (fst (finChainComplexEquiv→HomoglogyIso m (f , eqs) n)) =
---     funExt⁻ (cong fst (sym (finChainComplexMap→HomologyMapComp
---                              (invFinChainMap (f , eqs)) f n))
---            ∙∙  cong (λ f → fst (finChainComplexMap→HomologyMap m f n))
---                  (finChainComplexMap≡ λ r
---                    →  Σ≡Prop (λ _ → isPropIsGroupHom _ _)
---                                (funExt (secEq (_ , eqs r))))
---            ∙∙ cong fst (finChainComplexMap→HomologyMapId n))
---   Iso.leftInv (fst (finChainComplexEquiv→HomoglogyIso m (f , eqs) n)) =
---     funExt⁻ (cong fst (sym (finChainComplexMap→HomologyMapComp f
---                             (invFinChainMap (f , eqs)) n))
---           ∙∙ cong (λ f → fst (finChainComplexMap→HomologyMap m f n))
---                   (finChainComplexMap≡
---                 (λ n → Σ≡Prop (λ _ → isPropIsGroupHom _ _)
---                                (funExt (retEq (_ , eqs n)))))
---           ∙∙ cong fst (finChainComplexMap→HomologyMapId n))
---   snd (finChainComplexEquiv→HomoglogyIso m (f , eqs) n) =
---     finChainComplexMap→HomologyMap m f n .snd
-
-
---   finChainHomotopy→HomologyPath : {A B : ChainComplex ℓ} {m : ℕ}
---     (f g : finChainComplexMap (suc (suc m)) A B)
---     → finChainHomotopy (suc (suc m)) f g
---     → (n : Fin (suc m))
---     → finChainComplexMap→HomologyMap m f n
---      ≡ finChainComplexMap→HomologyMap m g n
---   finChainHomotopy→HomologyPath {A = A} {B = B} {m = m} f g ϕ n =
---     Σ≡Prop (λ _ → isPropIsGroupHom _ _)
---       (funExt (SQ.elimProp (λ _ → GroupStr.is-set (snd (homology (fst n) _)) _ _)
---         λ {(a , p) → eq/ _ _
---           ∣ (finChainHomotopy.fhtpy ϕ (suc (fst n) , pf) .fst a)
---           , (Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain B (fst n)))  _ _)
---                     (sym ((funExt⁻ (cong fst (finChainHomotopy.fbdryhtpy ϕ _)) a)
---                        ∙ cong₂ _+B_ refl
---                                   (cong (fst (finChainHomotopy.fhtpy ϕ _)) p
---                                 ∙ IsGroupHom.pres1 (snd (finChainHomotopy.fhtpy ϕ _)))
---                        ∙ AbGroupStr.+IdR (snd (chain B (suc (fst n)))) _))) ∣₁}))
---     where
---     open GroupTheory (AbGroup→Group (chain B (suc (fst n))))
---     pf : suc (fst n) <ᵗ suc (suc (suc m))
---     pf = <ᵗ-trans (snd n) <ᵗsucm
-
---     invB = GroupStr.inv (snd (AbGroup→Group (chain B (suc (fst n)))))
---     _+B_ = AbGroupStr._+_ (snd (chain B (suc (fst n))))
-
-
 -- Induced maps on cohomology by finite chain complex maps/homotopies
 module _ where
   finChainComplexMap→HomologyMap : {C D : ChainComplex ℓ} (m : ℕ)
@@ -217,12 +79,6 @@ module _ where
     → GroupHom (homology (fst n) C) (homology (fst n) D)
   finChainComplexMap→HomologyMap {C = C} {D} m mp (n , p) = main
     where
-    ineq3 : suc n <ᵗ suc (suc m)
-    ineq3 = <ᵗ-trans p <ᵗsucm
-
-    ineq4 : n <ᵗ suc m
-    ineq4 = ineq3
-
     ϕ = fchainmap mp
     ϕcomm = fbdrycomm mp
 
@@ -236,20 +92,21 @@ module _ where
     fun : homology n C .fst → homology n D .fst
     fun = SQ.elim (λ _ → squash/) f
        λ f g → PT.rec (GroupStr.is-set (homology n D .snd) _ _ )
-         λ r → eq/ _ _ ∣ (ϕ (suc (suc n) , p) .fst (fst r))
-                       , Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain D n)) _ _)
-                           ((funExt⁻ (cong fst (ϕcomm (suc n , _))) (fst r)
-                             ∙∙ cong (fst (ϕ (suc n , _))) (cong fst (snd r))
-                             ∙∙ (IsGroupHom.pres· (snd (ϕ (suc n , _) )) _ _
-                             ∙ cong₂ (AbGroupStr._+_ (snd (chain D (suc n))))
-                                     (lem (suc n) (fst f))
-                                     (IsGroupHom.presinv (snd (ϕ (suc n , _) )) _
-                                   ∙ cong (snd (chain D (suc n)) .AbGroupStr.-_)
-                                      (lem (suc n) (fst g)))))) ∣₁
+         λ r → eq/ _ _
+           ∣ (ϕ (suc (suc n) , p) .fst (fst r))
+           , Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain D n)) _ _)
+               ((funExt⁻ (cong fst (ϕcomm (suc n , _))) (fst r)
+                 ∙∙ cong (fst (ϕ (suc n , _))) (cong fst (snd r))
+                 ∙∙ (IsGroupHom.pres· (snd (ϕ (suc n , _) )) _ _
+                 ∙ cong₂ (AbGroupStr._+_ (snd (chain D (suc n))))
+                         (lem (suc n) (fst f))
+                         (IsGroupHom.presinv (snd (ϕ (suc n , _) )) _
+                       ∙ cong (snd (chain D (suc n)) .AbGroupStr.-_)
+                          (lem (suc n) (fst g)))))) ∣₁
       where
       f : _ → homology n D .fst
-      f (a , b) = [ ϕ (suc n , ineq3) .fst a -- (ϕ {!n!}  .fst a)
-                , ((λ i → fst (ϕcomm (n , ineq3)  i) a)
+      f (a , b) = [ ϕ (suc n , <ᵗ-trans p <ᵗsucm) .fst a
+                , ((λ i → fst (ϕcomm (n , <ᵗ-trans p <ᵗsucm)  i) a)
                 ∙∙ cong (fst (ϕ (n , _))) b
                 ∙∙ IsGroupHom.pres1 (snd (ϕ (n , _)))) ]
 
@@ -283,7 +140,8 @@ module _ where
           λ _ → cong [_]
             (Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain C (fst n))) _ _) refl)))
 
-  finChainComplexEquiv→HomoglogyIso : {C D : ChainComplex ℓ} (m : ℕ) (f : C ≃⟨ (suc m) ⟩Chain D)
+  finChainComplexEquiv→HomoglogyIso :
+    {C D : ChainComplex ℓ} (m : ℕ) (f : C ≃⟨ (suc m) ⟩Chain D)
     → (n : Fin m) → GroupIso (homology (fst n) C) (homology (fst n) D)
   Iso.fun (fst (finChainComplexEquiv→HomoglogyIso m (f , eqs) n)) =
     finChainComplexMap→HomologyMap m f n .fst
@@ -401,11 +259,11 @@ module _ where
         λ {(a , p) → eq/ _ _
           ∣ (ChainHomotopy.htpy ϕ (suc n) .fst a)
           , (Σ≡Prop (λ _ → AbGroupStr.is-set (snd (chain B n))  _ _)
-                    (sym ((funExt⁻ (cong fst (ChainHomotopy.bdryhtpy ϕ n)) a)
-                       ∙ cong₂ _+B_ refl
-                                  (cong (fst (ChainHomotopy.htpy ϕ n)) p
-                                ∙ IsGroupHom.pres1 (snd (ChainHomotopy.htpy ϕ n)))
-                       ∙ AbGroupStr.+IdR (snd (chain B (suc n))) _))) ∣₁}))
+                  (sym ((funExt⁻ (cong fst (ChainHomotopy.bdryhtpy ϕ n)) a)
+                     ∙ cong₂ _+B_ refl
+                                (cong (fst (ChainHomotopy.htpy ϕ n)) p
+                              ∙ IsGroupHom.pres1 (snd (ChainHomotopy.htpy ϕ n)))
+                     ∙ AbGroupStr.+IdR (snd (chain B (suc n))) _))) ∣₁}))
     where
     open GroupTheory (AbGroup→Group (chain B (suc n)))
     invB = GroupStr.inv (snd (AbGroup→Group (chain B (suc n))))

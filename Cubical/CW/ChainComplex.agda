@@ -1,5 +1,10 @@
 {-# OPTIONS --safe --lossy-unification #-}
 
+module Cubical.CW.ChainComplex where
+
+open import Cubical.CW.Base
+open import Cubical.CW.Properties
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
@@ -8,7 +13,6 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
-open import Cubical.Data.CW
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Pushout
@@ -20,15 +24,12 @@ open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.ChainComplex
-open import Cubical.Structures.Successor
 
 
 -- In this file, we associate to every CW complex its cellular chain complex
 -- The group in dimension n is Z[A_n] where A_n is the number of n-cells
 -- The boundary map is defined through a bit of homotopical manipulation.
 -- The definition loosely follows May's Concise Course in Alg. Top.
-
-module Cubical.Data.CW.ChainComplex where
 
 module _ {ℓ} (C : CWskel ℓ) where
 

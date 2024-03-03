@@ -21,8 +21,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Fin as FN
-open import Cubical.Data.Fin.Inductive.Base as IndF
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Inductive as IndF
 open import Cubical.Data.Nat.Order
 
 open import Cubical.HITs.Truncation as TR

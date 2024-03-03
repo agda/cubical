@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 module Cubical.HITs.Sn.Degree where
 {-
-Contains facts about the degree map Sⁿ → Sⁿ
+Contains facts about the degree of maps Sⁿ → Sⁿ
 -}
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
@@ -136,7 +136,7 @@ degreeComp' n f g = degreeComp n f g ∙ ·Comm (degree n f) (degree n g)
      (degreeComp (suc n) f g ∙ sym (degreeComp' (suc n) g f))
   ∙ Iso.leftInv (degree∥₂Iso n) (∣ g ∘ f ∣₂)))
 
-degreeSusp : (n : ℕ) (f : (S₊ n → S₊ n))
+degreeSusp : (n : ℕ) (f : S₊ n → S₊ n)
             → degree n f ≡ degree (suc n) (suspFunS∙ f .fst)
 degreeSusp zero f with (f true) | (f false)
 ... | false | false = refl

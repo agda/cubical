@@ -6,41 +6,31 @@ This file contains
 2. A proof that (finite) cellular homotopies induce (finite) chain complex maps
 -}
 
-module Cubical.Data.CW.Homotopy where
+module Cubical.CW.Homotopy where
+
+open import Cubical.CW.Base
+open import Cubical.CW.Properties
+open import Cubical.CW.Map
+open import Cubical.CW.ChainComplex
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
-open import Cubical.Data.Nat.Order
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
-open import Cubical.Data.Sigma
-open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.Bool hiding (_≟_ ; isProp≤)
-open import Cubical.Data.CW
-open import Cubical.Data.CW.Map
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
-open import Cubical.Data.CW.ChainComplex
 
-
-open import Cubical.HITs.Sn
 open import Cubical.HITs.Sn.Degree
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.SphereBouquet
 open import Cubical.HITs.SphereBouquet.Degree
 
-open import Cubical.Relation.Nullary
-
-open import Cubical.Algebra.Group.Base
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.Group.Morphisms

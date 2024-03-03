@@ -2,27 +2,18 @@
 
 -- This file contains definition of CW complexes and skeleta.
 
-module Cubical.Data.CW.Base where
+module Cubical.CW.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
-open import Cubical.Data.Unit
 open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
-open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
-
 
 open import Cubical.HITs.Sn
 open import Cubical.HITs.Pushout
@@ -34,10 +25,9 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.FreeAbGroup
 
-open import Cubical.HITs.SequentialColimit
-open Sequence
-
 open import Cubical.Relation.Nullary
+
+open Sequence
 
 
 

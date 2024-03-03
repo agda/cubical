@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
 {-This file contains:
 
@@ -8,40 +8,32 @@
 
 -}
 
-module Cubical.Data.CW.Map where
+module Cubical.CW.Map where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
-open import Cubical.Data.Bool hiding (_≟_)
-open import Cubical.Data.Nat.Order
-open import Cubical.Data.Unit
+open import Cubical.Data.Bool
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
-open import Cubical.Data.CW.Base
-open import Cubical.Data.CW.Properties
-open import Cubical.Data.CW.ChainComplex
 
-open import Cubical.HITs.Sn
+open import Cubical.CW.Base
+open import Cubical.CW.Properties
+open import Cubical.CW.ChainComplex
+
 open import Cubical.HITs.Sn.Degree
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
-open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.SphereBouquet
-open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.HITs.SphereBouquet.Degree
 open import Cubical.HITs.SequentialColimit
 
@@ -90,7 +82,7 @@ module _ (m : ℕ) where
 
 open FinSequenceMap
 finCellMap→FinSeqColim : (C : CWskel ℓ) (D : CWskel ℓ')
-  {m : ℕ} → finCellMap m C D → FinSeqColim m (realiseSeq C) → FinSeqColim m (realiseSeq D) 
+  {m : ℕ} → finCellMap m C D → FinSeqColim m (realiseSeq C) → FinSeqColim m (realiseSeq D)
 finCellMap→FinSeqColim C D {m = m} f (fincl n x) = fincl n (fmap f n x)
 finCellMap→FinSeqColim C D {m = m} f (fpush n x i) =
   (fpush n (fmap f (injectSuc n) x) ∙ cong (fincl (fsuc n)) (fcomm f n x)) i

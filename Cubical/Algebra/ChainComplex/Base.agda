@@ -1,35 +1,16 @@
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.ChainComplex.Base where
-{-
-  Defines groups and adds the smart constructors [makeGroup-right] and [makeGroup-left]
-  for constructing groups from less data than the standard [makeGroup] constructor.
--}
 
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat
 
 open import Cubical.Algebra.Group
-open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties -- TODO: why is this there and not exported by the Morphisms file?
-open import Cubical.Algebra.Group.Subgroup
-open import Cubical.Algebra.Group.QuotientGroup
+open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
-
-open import Cubical.HITs.SetQuotients.Base renaming (_/_ to _/s_)
-open import Cubical.HITs.SetQuotients.Properties as SQ
-open import Cubical.HITs.PropositionalTruncation as PT
-
-open import Cubical.Structures.Successor
-open import Cubical.Relation.Nullary
-
-open import Cubical.Data.Nat
-open import Cubical.Data.Fin hiding (_/_)
-
 
 private
   variable

@@ -17,8 +17,7 @@ open import Cubical.HITs.SetQuotients as SQ hiding (_/_)
 open import Cubical.Data.Int using (ℤ ; pos ; negsuc)
 open import Cubical.Data.Nat hiding (_+_)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Fin.Inductive.Base
-open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Fin.Inductive
 
 private variable
   ℓ ℓ' : Level

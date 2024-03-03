@@ -3,6 +3,7 @@
 module Cubical.Algebra.Group.GroupPath where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
@@ -225,7 +226,6 @@ module _ {ℓ ℓ'} {A : Type ℓ}
       (Σ≡Prop (λ _ → isPropIsEquiv _)
         (funExt (G-coh-coh x y z)))
 
-  open import Cubical.Foundations.Path
   PropTrunc→Group : ∥ A ∥₁ → Group ℓ'
   PropTrunc→Group = rec→Gpd isGroupoidGroup
     G

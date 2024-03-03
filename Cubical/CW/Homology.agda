@@ -5,7 +5,14 @@ This file contains:
 2. Construction of cellular homology, including funtoriality
 -}
 
-module Cubical.Data.CW.Homology where
+module Cubical.CW.Homology where
+
+open import Cubical.CW.Base
+open import Cubical.CW.Properties
+open import Cubical.CW.Map
+open import Cubical.CW.Homotopy
+open import Cubical.CW.ChainComplex
+open import Cubical.CW.Approximation
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -15,12 +22,6 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Fin.Inductive.Base
-
-open import Cubical.Data.CW
-open import Cubical.Data.CW.Map
-open import Cubical.Data.CW.Homotopy
-open import Cubical.Data.CW.ChainComplex
-open import Cubical.Data.CW.Approximation
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms

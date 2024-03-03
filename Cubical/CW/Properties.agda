@@ -4,7 +4,9 @@
 complexes/skeleta.
 -}
 
-module Cubical.Data.CW.Properties where
+module Cubical.CW.Properties where
+
+open import Cubical.CW.Base
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
@@ -23,7 +25,6 @@ open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.CW.Base
 open import Cubical.Data.Sequence
 
 open import Cubical.HITs.Sn
@@ -38,6 +39,7 @@ open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.FreeAbGroup
 
 open import Cubical.Axiom.Choice
+
 open import Cubical.Relation.Nullary
 
 open import Cubical.Homotopy.Connected

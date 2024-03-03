@@ -3,8 +3,9 @@
 module Cubical.HITs.SphereBouquet.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Nat
 open import Cubical.Foundations.Pointed
+
+open import Cubical.Data.Nat
 
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Sn

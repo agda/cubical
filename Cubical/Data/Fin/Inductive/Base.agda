@@ -1,5 +1,8 @@
 {-# OPTIONS --safe --lossy-unification #-}
 
+-- Alternative definition of < on ℕ and thus an alternative definition
+-- of Fin n
+
 module Cubical.Data.Fin.Inductive.Base where
 
 open import Cubical.Foundations.Prelude
@@ -22,7 +25,8 @@ data Trichotomyᵗ (m n : ℕ) : Type₀ where
   eq : m ≡ n → Trichotomyᵗ m n
   gt : n <ᵗ m → Trichotomyᵗ m n
 
-Trichotomyᵗ-suc : {n m : ℕ} → Trichotomyᵗ n m → Trichotomyᵗ (suc n) (suc m)
+Trichotomyᵗ-suc : {n m : ℕ} → Trichotomyᵗ n m
+  → Trichotomyᵗ (suc n) (suc m)
 Trichotomyᵗ-suc (lt x) = lt x
 Trichotomyᵗ-suc (eq x) = eq (cong suc x)
 Trichotomyᵗ-suc (gt x) = gt x
@@ -64,8 +68,8 @@ flast : {m : ℕ} → Fin (suc m)
 fst (flast {m = m}) = m
 snd (flast {m = m}) = <ᵗsucm {m = m}
 
-
 -- Sums
-sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ} (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A
+sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ}
+  (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A
 sumFinGen {n = zero} _+_ 0A f = 0A
 sumFinGen {n = suc n} _+_ 0A f = f flast + sumFinGen _+_ 0A (f ∘ injectSuc)

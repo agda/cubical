@@ -3,7 +3,12 @@
 -- cellular maps and homotopies
 -}
 
-module Cubical.Data.CW.Approximation where
+module Cubical.CW.Approximation where
+
+open import Cubical.CW.Base
+open import Cubical.CW.Properties
+open import Cubical.CW.Map
+open import Cubical.CW.Homotopy
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -18,9 +23,6 @@ open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
-open import Cubical.Data.CW
-open import Cubical.Data.CW.Map
-open import Cubical.Data.CW.Homotopy
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
 
