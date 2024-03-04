@@ -154,3 +154,12 @@ module Meet (L' : DistLattice ℓ) where
 
  ⋀Join1r : ∀ {n} → (V : FinVec L n) → ⋀ (λ i → 1l ∨l V i) ≡ 1l
  ⋀Join1r V = sym (⋀Joinrdist 1l V) ∙ 1lLeftAnnihilates∨l _
+
+
+module MeetMap {L : DistLattice ℓ} {L' : DistLattice ℓ'} (φ : DistLatticeHom L L') where
+  private module L = Meet L
+  private module L' = Meet L'
+  open BigOpMap (LatticeHom→MeetSemilatticeHom φ)
+
+  pres⋀ : {n : ℕ} (U : FinVec ⟨ L ⟩ n) → φ .fst (L.⋀ U) ≡ L'.⋀ (φ .fst ∘ U)
+  pres⋀ = presBigOp
