@@ -720,17 +720,11 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
                 , PT.∣ l , ^-respects-/1 R' l ∣₁)
               , eq/ _ _ ((f ^ l , PT.∣ l , refl ∣₁) , path))
       where
-      path : f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
-                   · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
-           ≡ f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
-                   · (1r · transp (λ i → R) i0 (f ^ n) · transp (λ i → R) i0 1r)
-      path = f ^ l · (g ^ l · transp (λ i → R) i0 r · transp (λ i → R) i0 (g ^ m))
-                   · (1r · transp (λ i → R) i0 (f ^ m) · transp (λ i → R) i0 1r)
-
-           ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r i · transportRefl (g ^ m) i)
-                           · (1r · transportRefl (f ^ m) i · transportRefl 1r i)) ⟩
-
-             f ^ l · (g ^ l · r · g ^ m) · (1r · f ^ m · 1r)
+      path : f ^ l · (g ^ l · r · (g ^ m))
+                   · (1r · (f ^ m) · 1r)
+           ≡ f ^ l · (g ^ l · r' · (g ^ n))
+                   · (1r · (f ^ n) · 1r)
+      path = f ^ l · (g ^ l · r · g ^ m) · (1r · f ^ m · 1r)
 
            ≡⟨ solve! R' ⟩
 
@@ -766,13 +760,8 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
 
            ≡⟨ solve! R' ⟩
 
-             f ^ l · (g ^ l · r' · g ^ n) · (1r · f ^ n · 1r)
-
-           ≡⟨ (λ i → f ^ l · (g ^ l · transportRefl r' (~ i) · transportRefl (g ^ n) (~ i))
-                           · (1r · transportRefl (f ^ n) (~ i) · transportRefl 1r (~ i))) ⟩
-
-             f ^ l · (g ^ l · transp (λ i → R) i0 r' · transp (λ i → R) i0 (g ^ n))
-                   · (1r · transp (λ i → R) i0 (f ^ n) · transp (λ i → R) i0 1r) ∎
+             f ^ l · (g ^ l · r' · (g ^ n))
+                   · (1r · (f ^ n) · 1r) ∎
 
 
      curriedϕcoh : (r s r' s' u : R) → (p : u · r · s' ≡ u · r' · s)
@@ -810,13 +799,14 @@ module DoubleLoc (R' : CommRing ℓ) (f g : fst R') where
     where
     ℕcase : (r : R) (n : ℕ)
           → φ [ r , (f · g) ^ n , PT.∣ n , refl ∣₁ ] ≡ χ [ r , (f · g) ^ n , PT.∣ n , refl ∣₁ ]
-    ℕcase r n = cong [_] (ΣPathP --look into the components of the double-fractions
-              ( cong [_] (ΣPathP (eq1 , Σ≡Prop (λ x → S'[f] x .snd) (sym (·IdL _))))
-              , Σ≡Prop (λ x → S'[f][g] x .snd) --ignore proof that denominator is power of g/1
-              ( cong [_] (ΣPathP (sym (·IdL _) , Σ≡Prop (λ x → S'[f] x .snd) (sym (·IdL _)))))))
+    ℕcase r n =
+      cong [_] (ΣPathP (cong [_] (ΣPathP (sym (·IdR r) ∙ cong (r ·_) (sym (transportRefl 1r))
+                                , Σ≡Prop (λ x → S'[f] x .snd)
+                                   (sym (·IdL _) ∙ cong (1r ·_) (sym (transportRefl _)))))
+        , (Σ≡Prop (λ x → S'[f][g] x .snd) -- ignore proof that denominator is power of g/1
+          (cong [_] (ΣPathP (sym (·IdL _) ∙ cong (1r ·_) (sym (transportRefl _))
+                   , Σ≡Prop (λ x → S'[f] x .snd)
+                      (sym (·IdL _) ∙ cong (1r ·_) (sym (transportRefl _)))))))))
      where
      S'[f] = ([_ⁿ|n≥0] R' f)
      S'[f][g] = ([_ⁿ|n≥0] R[1/f]AsCommRing [ g , 1r , powersFormMultClosedSubset R' f .containsOne ])
-
-     eq1 : transp (λ i → fst R') i0 r ≡ r · transp (λ i → fst R') i0 1r
-     eq1 = transportRefl r ∙∙ sym (·IdR r) ∙∙ cong (r ·_) (sym (transportRefl 1r))
