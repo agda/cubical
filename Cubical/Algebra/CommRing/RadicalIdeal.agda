@@ -4,7 +4,7 @@ module Cubical.Algebra.CommRing.RadicalIdeal where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Powerset using (⊆-isProp)
+open import Cubical.Foundations.Powerset using (⊆-isProp ; ∈-isProp)
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
@@ -95,7 +95,9 @@ module RadicalIdeal (R' : CommRing ℓ) where
  ∈→∈√ : ∀ (I : CommIdeal) (x : R) → x ∈ I → x ∈ √ I
  ∈→∈√ I _ x∈I = ∣ 1 , subst-∈ I (sym (·IdR _)) x∈I ∣₁
 
-
+ -- inverse direction holds for 1
+ 1∈√→1∈ : ∀ (I : CommIdeal) → 1r ∈ √ I → 1r ∈ I
+ 1∈√→1∈ I = PT.rec (∈-isProp (fst I) _) λ (n , 1ⁿ∈I) → subst-∈ I (1ⁿ≡1 n) 1ⁿ∈I
 
  -- important lemma for characterization of the Zariski lattice
  open KroneckerDelta (CommRing→Ring R')

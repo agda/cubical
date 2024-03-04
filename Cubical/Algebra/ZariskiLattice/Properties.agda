@@ -58,27 +58,13 @@ module _ (R : CommRing ℓ) where
     ⟨ V ⟩ = ⟨ V ⟩[ R ]
 
   unitLemmaZarLat : ∀ f → D f ≡ D 1r → f ∈ₚ R ˣ
-  unitLemmaZarLat f Df≡D1 = PT.rec (∈ₚ-isProp (R ˣ) f) radicalHelper 1∈√⟨f⟩
+  unitLemmaZarLat f Df≡D1 = containsOne→Unit  (1∈√→1∈ _ 1∈√⟨f⟩)
     where
     D1≤Df : D 1r ≤ D f
     D1≤Df = subst (_≤ D f) Df≡D1 (is-refl _)
 
     1∈√⟨f⟩ : 1r ∈ √ ⟨ replicateFinVec 1 f ⟩
     1∈√⟨f⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun D1≤Df .fst zero
-
-    radicalHelper : Σ[ n ∈  ℕ ] 1r ^ n ∈ ⟨ replicateFinVec 1 f ⟩ → f ∈ₚ R ˣ
-    radicalHelper (n , 1ⁿ∈⟨f⟩) = PT.rec (∈ₚ-isProp (R ˣ) f) fgHelper 1ⁿ∈⟨f⟩
-      where
-      fgHelper : Σ[ α ∈ FinVec (fst R) 1 ] 1r ^ n ≡ linearCombination R α (replicateFinVec 1 f)
-               → f ∈ₚ R ˣ
-      fgHelper (α , 1ⁿ≡α₀f+0) = α zero , path
-        where
-        path : f · α zero ≡ 1r
-        path = f · α zero      ≡⟨ solve! R ⟩
-               α zero · f + 0r ≡⟨ sym 1ⁿ≡α₀f+0 ⟩
-               1r ^ n          ≡⟨ 1ⁿ≡1 n ⟩
-               1r ∎
-
 
 
 module LocDownSetIso (R : CommRing ℓ) (f : R .fst) where
