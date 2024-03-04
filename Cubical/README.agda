@@ -82,3 +82,6 @@ import Cubical.Axiom.Everything
 
 -- Automatic proving, solvers
 import Cubical.Tactics.Everything
+
+-- CW complexes, cellular (co)homology
+import Cubical.CW.Everything
