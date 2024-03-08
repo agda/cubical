@@ -62,4 +62,4 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
            where
     intro : Functorᴰ F Dᴰ FullSubcategoryᴰ
     intro =
-      ContrHomsFunctor.intro hasContrHomsFullSubcategory F-obᴰ
+      mkContrHomsFunctor hasContrHomsFullSubcategory F-obᴰ
