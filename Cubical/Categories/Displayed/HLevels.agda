@@ -52,29 +52,29 @@ module _
     module Cᴰ = Categoryᴰ Cᴰ
     module Dᴰ = Categoryᴰ Dᴰ
 
-  module PropHomsFunctor
+  module _
     (propHoms : hasPropHoms Dᴰ)
     where
 
-    intro :
+    mkPropHomsFunctor :
         (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
         → (F-homᴰ : {x y : C .ob}
           {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
           → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ])
         → Functorᴰ F Cᴰ Dᴰ
-    intro F-obᴰ F-homᴰ .Functorᴰ.F-obᴰ = F-obᴰ
-    intro F-obᴰ F-homᴰ .Functorᴰ.F-homᴰ = F-homᴰ
-    intro F-obᴰ F-homᴰ .Functorᴰ.F-idᴰ =
+    mkPropHomsFunctor F-obᴰ F-homᴰ .Functorᴰ.F-obᴰ = F-obᴰ
+    mkPropHomsFunctor F-obᴰ F-homᴰ .Functorᴰ.F-homᴰ = F-homᴰ
+    mkPropHomsFunctor F-obᴰ F-homᴰ .Functorᴰ.F-idᴰ =
       isProp→PathP (λ i → propHoms _ _ _) _ _
-    intro F-obᴰ F-homᴰ .Functorᴰ.F-seqᴰ _ _ =
+    mkPropHomsFunctor F-obᴰ F-homᴰ .Functorᴰ.F-seqᴰ _ _ =
       isProp→PathP (λ i → propHoms _ _ _) _ _
 
-  module ContrHomsFunctor
+  module _
     (contrHoms : hasContrHoms Dᴰ)
     where
 
-    intro :  (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
+    mkContrHomsFunctor :  (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
              → Functorᴰ F Cᴰ Dᴰ
-    intro F-obᴰ =
-      PropHomsFunctor.intro (hasContrHoms→hasPropHoms Dᴰ contrHoms) F-obᴰ
+    mkContrHomsFunctor F-obᴰ =
+      mkPropHomsFunctor (hasContrHoms→hasPropHoms Dᴰ contrHoms) F-obᴰ
       λ _ → contrHoms _ _ _ .fst

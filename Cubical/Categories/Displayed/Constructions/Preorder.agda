@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Displayed.Preorder where
+module Cubical.Categories.Displayed.Constructions.Preorder where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

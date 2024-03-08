@@ -22,7 +22,7 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Properties
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Preorder
+open import Cubical.Categories.Displayed.Constructions.Preorder
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Yoneda
@@ -55,7 +55,7 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
   hasContrHomsFullSubcategory : hasContrHoms FullSubcategoryᴰ
   hasContrHomsFullSubcategory _ _ _ = isContrUnit
 
-  module FullSubcategoryᴰFunctor {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  module _ {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
            (F : Functor D C)
            (F-obᴰ : {x : D .ob} →
              Dᴰ .ob[_] x → ob[ FullSubcategoryᴰ ] (F .F-ob x))
