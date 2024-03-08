@@ -11,6 +11,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.TotalCategory.Base
 
 private
   variable
@@ -50,7 +51,7 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
 
   open Functor
 
-  Preorderᴰ→FstFaithful : isFaithful (Fst {Cᴰ = Preorderᴰ→Catᴰ})
-  Preorderᴰ→FstFaithful x y f g p =
+  FstFaithful : isFaithful (Fst {Cᴰ = Preorderᴰ→Catᴰ})
+  FstFaithful x y f g p =
     ΣPathP (p ,
       isProp→PathP (λ i → Pᴰ .isPropHomᴰ {f = p i}) (f .snd) (g .snd))
