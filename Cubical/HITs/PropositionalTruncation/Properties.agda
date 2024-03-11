@@ -314,83 +314,83 @@ module _ (B : ∥ A ∥₁ → Type ℓ)
       (f-coh x y) (f-coh x z) refl (f-coh y z))
   where
   elim→Gpd : (t : ∥ A ∥₁) → B t
-  pathHelper : (t u : ∥ A ∥₁) → PathP (λ i → B (squash₁ t u i)) (elim→Gpd t) (elim→Gpd u)
-  triHelper₁
-    : (t u v : ∥ A ∥₁)
-    → SquareP (λ i j → B (squash₁ t (squash₁ u v i) j))
-              (pathHelper t u) (pathHelper t v)
-              refl (pathHelper u v)
-  triHelper₂
-    : (t u v : ∥ A ∥₁)
-    → SquareP (λ i j → B (squash₁ (squash₁ t u i) v j))
-              (pathHelper t v) (pathHelper u v)
-              (pathHelper t u) refl
-  triHelper₂Cube : (x y z : ∥ A ∥₁)
-    → Cube (λ j k → squash₁ x z (k ∧ j))
-            (λ j k → squash₁ y z j)
-            (λ i k → squash₁ x y i)
-            (λ i k → squash₁ x z (i ∨ k))
-            (λ i j → squash₁ x (squash₁ y z j) i)
-            (λ i j → squash₁ (squash₁ x y i) z j)
+  private
+    pathHelper : (t u : ∥ A ∥₁) → PathP (λ i → B (squash₁ t u i)) (elim→Gpd t) (elim→Gpd u)
+    triHelper₁
+      : (t u v : ∥ A ∥₁)
+      → SquareP (λ i j → B (squash₁ t (squash₁ u v i) j))
+                (pathHelper t u) (pathHelper t v)
+                refl (pathHelper u v)
+    triHelper₂
+      : (t u v : ∥ A ∥₁)
+      → SquareP (λ i j → B (squash₁ (squash₁ t u i) v j))
+                (pathHelper t v) (pathHelper u v)
+                (pathHelper t u) refl
+    triHelper₂Cube : (x y z : ∥ A ∥₁)
+      → Cube (λ j k → squash₁ x z (k ∧ j))
+              (λ j k → squash₁ y z j)
+              (λ i k → squash₁ x y i)
+              (λ i k → squash₁ x z (i ∨ k))
+              (λ i j → squash₁ x (squash₁ y z j) i)
+              (λ i j → squash₁ (squash₁ x y i) z j)
 
-  elim→Gpd ∣ x ∣₁ = f x
-  elim→Gpd (squash₁ t u i) = pathHelper t u i
-  triHelper₂Cube x y z =
-    isProp→PathP (λ _ → isOfHLevelPathP 1 (isOfHLevelPath 1 squash₁ _ _) _ _) _ _
+    elim→Gpd ∣ x ∣₁ = f x
+    elim→Gpd (squash₁ t u i) = pathHelper t u i
+    triHelper₂Cube x y z =
+      isProp→PathP (λ _ → isOfHLevelPathP 1 (isOfHLevelPath 1 squash₁ _ _) _ _) _ _
 
-  pathHelper ∣ x ∣₁ ∣ y ∣₁ = f-coh x y
-  pathHelper (squash₁ t u j) v = triHelper₂ t u v j
-  pathHelper ∣ x ∣₁ (squash₁ u v j) = triHelper₁ ∣ x ∣₁ u v j
+    pathHelper ∣ x ∣₁ ∣ y ∣₁ = f-coh x y
+    pathHelper (squash₁ t u j) v = triHelper₂ t u v j
+    pathHelper ∣ x ∣₁ (squash₁ u v j) = triHelper₁ ∣ x ∣₁ u v j
 
-  triHelper₁ ∣ x ∣₁ ∣ y ∣₁ ∣ z ∣₁ = f-coh-coh x y z
-  triHelper₁ (squash₁ s t i) u v
-    = isGroupoid→CubeP (λ i i₁ j → B (squash₁ (squash₁ s t i) (squash₁ u v i₁) j))
-                        (triHelper₁ s u v) (triHelper₁ t u v)
-                        (triHelper₂ s t u)
-                        (triHelper₂ s t v)
-                        (λ i j → pathHelper s t i)
-                        (λ i j → pathHelper u v j)
-                        (B-gpd v) i
+    triHelper₁ ∣ x ∣₁ ∣ y ∣₁ ∣ z ∣₁ = f-coh-coh x y z
+    triHelper₁ (squash₁ s t i) u v
+      = isGroupoid→CubeP (λ i i₁ j → B (squash₁ (squash₁ s t i) (squash₁ u v i₁) j))
+                          (triHelper₁ s u v) (triHelper₁ t u v)
+                          (triHelper₂ s t u)
+                          (triHelper₂ s t v)
+                          (λ i j → pathHelper s t i)
+                          (λ i j → pathHelper u v j)
+                          (B-gpd v) i
 
-  triHelper₁ ∣ x ∣₁ (squash₁ t u i) v
-    = isGroupoid→CubeP (λ i i₁ j → B (squash₁ ∣ x ∣₁ (squash₁ (squash₁ t u i) v i₁) j))
-                        (triHelper₁ ∣ x ∣₁ t v) (triHelper₁ ∣ x ∣₁ u v)
-                        (triHelper₁ ∣ x ∣₁ t u)
-                        (λ i j → pathHelper ∣ x ∣₁ v j)
-                        refl (triHelper₂ t u v)
-                        (B-gpd v) i
-  triHelper₁ ∣ x ∣₁ ∣ y ∣₁ (squash₁ u v i)
-    = isGroupoid→CubeP (λ i i₁ j → B (squash₁ ∣ x ∣₁ (squash₁ ∣ y ∣₁ (squash₁ u v i) i₁) j))
-                        (triHelper₁ ∣ x ∣₁ ∣ y ∣₁ u) (triHelper₁ ∣ x ∣₁ ∣ y ∣₁ v)
-                        (λ i j → f-coh x y j) (triHelper₁ ∣ x ∣₁ u v)
-                        refl (triHelper₁ ∣ y ∣₁ u v)
-                        (B-gpd v) i
-  triHelper₂ ∣ x ∣₁ ∣ y ∣₁ ∣ z ∣₁ i j =
-    comp (λ k → B (triHelper₂Cube ∣ x ∣₁ ∣ y ∣₁ ∣ z ∣₁ i j k))
-         (λ k → λ {(i = i0) → f-coh x z (k ∧ j)
-                  ; (i = i1) → f-coh y z j
-                  ; (j = i0) → f-coh x y i
-                  ; (j = i1) → f-coh x z (i ∨ k)})
-         (f-coh-coh x y z j i)
-  triHelper₂ (squash₁ s t i) u v
-    = isGroupoid→CubeP (λ i i₁ j → B (squash₁ (squash₁ (squash₁ s t i) u i₁) v j))
-                        (triHelper₂ s u v) (triHelper₂ t u v)
-                        (triHelper₂ s t v) (λ i j → pathHelper u v j)
-                        (triHelper₂ s t u) refl
-                        (B-gpd v) i
-  triHelper₂ ∣ x ∣₁ (squash₁ t u i) v
-    = isGroupoid→CubeP (λ i i₁ j → B (squash₁ (squash₁ ∣ x ∣₁ (squash₁ t u i) i₁) v j))
-                        (triHelper₂ ∣ x ∣₁ t v) (triHelper₂ ∣ x ∣₁ u v)
-                        (λ i j → pathHelper ∣ x ∣₁ v j) (triHelper₂ t u v)
-                        (triHelper₁ ∣ x ∣₁ t u) refl
-                        (B-gpd v) i
-  triHelper₂ ∣ x ∣₁ ∣ y ∣₁ (squash₁ u v i)
-    = isGroupoid→CubeP (λ i i₁ j → B (squash₁ (squash₁ ∣ x ∣₁ ∣ y ∣₁ i₁) (squash₁ u v i) j))
-                        (triHelper₂ ∣ x ∣₁ ∣ y ∣₁ u) (triHelper₂ ∣ x ∣₁ ∣ y ∣₁ v)
-                        (triHelper₁ ∣ x ∣₁ u v) (triHelper₁ ∣ y ∣₁ u v)
-                        refl (λ i j → pathHelper u v i)
-                        (B-gpd v) i
-
+    triHelper₁ ∣ x ∣₁ (squash₁ t u i) v
+      = isGroupoid→CubeP (λ i i₁ j → B (squash₁ ∣ x ∣₁ (squash₁ (squash₁ t u i) v i₁) j))
+                          (triHelper₁ ∣ x ∣₁ t v) (triHelper₁ ∣ x ∣₁ u v)
+                          (triHelper₁ ∣ x ∣₁ t u)
+                          (λ i j → pathHelper ∣ x ∣₁ v j)
+                          refl (triHelper₂ t u v)
+                          (B-gpd v) i
+    triHelper₁ ∣ x ∣₁ ∣ y ∣₁ (squash₁ u v i)
+      = isGroupoid→CubeP (λ i i₁ j → B (squash₁ ∣ x ∣₁ (squash₁ ∣ y ∣₁ (squash₁ u v i) i₁) j))
+                          (triHelper₁ ∣ x ∣₁ ∣ y ∣₁ u) (triHelper₁ ∣ x ∣₁ ∣ y ∣₁ v)
+                          (λ i j → f-coh x y j) (triHelper₁ ∣ x ∣₁ u v)
+                          refl (triHelper₁ ∣ y ∣₁ u v)
+                          (B-gpd v) i
+    triHelper₂ ∣ x ∣₁ ∣ y ∣₁ ∣ z ∣₁ i j =
+      comp (λ k → B (triHelper₂Cube ∣ x ∣₁ ∣ y ∣₁ ∣ z ∣₁ i j k))
+           (λ k → λ {(i = i0) → f-coh x z (k ∧ j)
+                    ; (i = i1) → f-coh y z j
+                    ; (j = i0) → f-coh x y i
+                    ; (j = i1) → f-coh x z (i ∨ k)})
+           (f-coh-coh x y z j i)
+    triHelper₂ (squash₁ s t i) u v
+      = isGroupoid→CubeP (λ i i₁ j → B (squash₁ (squash₁ (squash₁ s t i) u i₁) v j))
+                          (triHelper₂ s u v) (triHelper₂ t u v)
+                          (triHelper₂ s t v) (λ i j → pathHelper u v j)
+                          (triHelper₂ s t u) refl
+                          (B-gpd v) i
+    triHelper₂ ∣ x ∣₁ (squash₁ t u i) v
+      = isGroupoid→CubeP (λ i i₁ j → B (squash₁ (squash₁ ∣ x ∣₁ (squash₁ t u i) i₁) v j))
+                          (triHelper₂ ∣ x ∣₁ t v) (triHelper₂ ∣ x ∣₁ u v)
+                          (λ i j → pathHelper ∣ x ∣₁ v j) (triHelper₂ t u v)
+                          (triHelper₁ ∣ x ∣₁ t u) refl
+                          (B-gpd v) i
+    triHelper₂ ∣ x ∣₁ ∣ y ∣₁ (squash₁ u v i)
+      = isGroupoid→CubeP (λ i i₁ j → B (squash₁ (squash₁ ∣ x ∣₁ ∣ y ∣₁ i₁) (squash₁ u v i) j))
+                          (triHelper₂ ∣ x ∣₁ ∣ y ∣₁ u) (triHelper₂ ∣ x ∣₁ ∣ y ∣₁ v)
+                          (triHelper₁ ∣ x ∣₁ u v) (triHelper₁ ∣ y ∣₁ u v)
+                          refl (λ i j → pathHelper u v i)
+                          (B-gpd v) i
 
 
 module GpdElim (Bgpd : isGroupoid B) where
