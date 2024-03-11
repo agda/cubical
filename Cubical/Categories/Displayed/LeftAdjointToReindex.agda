@@ -65,13 +65,13 @@ module _
   ∃F .Hom[_][_,_] f (c , x , p) (c' , x' , p') =
     Σ[ g ∈ C [ c , c' ] ] Cᴰ.Hom[ g ][ x , x' ] × hom-pathP p p' (F-hom g) f
   ∃F .idᴰ {d} {c , x , p} =
-    (C .id) ,
+    C .id ,
     Cᴰ .idᴰ ,
     (F-id ◁ (cong (λ v → D .id {v}) p)) 
   ∃F ._⋆ᴰ_ (g , gᴰ , p) (h , hᴰ , q) =
       g ⋆⟨ C ⟩ h ,
       (Cᴰ._⋆ᴰ_ gᴰ hᴰ) ,
-      F-seq g h ◁ (λ i → p i ⋆⟨ D ⟩ q i) 
+      (F-seq g h ◁ congP₂ (λ _ a b → a ⋆⟨ D ⟩ b) p q)
   ⋆IdLᴰ ∃F (f , x , p) =
     ΣPathP (C .⋆IdL f , ΣPathPProp (λ _ → isPropHomP _ _ _ _) (Cᴰ .⋆IdLᴰ x))
   ⋆IdRᴰ ∃F (f , x , p) =
