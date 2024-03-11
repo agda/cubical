@@ -9,16 +9,11 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Category.Properties
 open import Cubical.Categories.Instances.Terminal
-open import Cubical.Categories.Constructions.BinProduct
-  renaming (Fst to FstBP ; Snd to SndBP)
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Properties
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Displayed.TotalCategory.Base
 
 private
@@ -55,10 +50,6 @@ module _
       where
       fromPathPeq : fromPathP x ≡ fromPathP y
       fromPathPeq = D .isSetHom _ _ (fromPathP x) (fromPathP y)
-
-    ×≡Prop' : {A A' : Type} → isProp A → {u v : A × A'} →
-      u .snd ≡ v .snd → u ≡ v
-    ×≡Prop' pA {u} {v} p i = (pA (u .fst) (v .fst) i) , p i
 
   ∃F : Categoryᴰ D (ℓ-max (ℓ-max ℓC ℓD) ℓDᴰ) (ℓ-max (ℓ-max ℓC' ℓD') ℓDᴰ')
   ∃F .ob[_] d = Σ[ c ∈ C .ob ]  Cᴰ.ob[ c ] × (F-ob c ≡ d)

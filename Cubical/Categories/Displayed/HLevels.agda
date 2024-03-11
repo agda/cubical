@@ -3,17 +3,12 @@ module Cubical.Categories.Displayed.HLevels where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct
-  renaming (Fst to FstBP ; Snd to SndBP)
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Instances.Terminal
 
 private
   variable
