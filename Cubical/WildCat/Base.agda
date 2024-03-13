@@ -138,4 +138,4 @@ record WildGroupoid ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   id≡inv-id = sym (⋆IdL wildCat (inv (id wildCat))) ∙ ⋆InvR (id wildCat)
 
 
-  open WildCat wildCat public
+  -- open WildCat wildCat public

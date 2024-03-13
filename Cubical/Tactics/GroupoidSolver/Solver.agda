@@ -198,244 +198,28 @@ module Nodes (ob : Type ℓ) (Hom[_,_] : ob → ob → Type ℓ') (hasInvs : Boo
   no (red[ suc (suc k) , x ] ∷N x₁)
  red[ suc (suc k) , no (involN x x₁) ] = red[ suc (suc k) , x ]
 
- 
-
- module Ev (id : isRefl')
-           (_⋆_ : isTrans')
-           (inv : {_ : Bool→Type hasInvs} → isSym') where 
-
-
-  eva[_] : ∀ {k} → ∀ {x y} → Atom k x y → Hom[ x , y ]
-  eva[ a⟦ x ⟧ ] = x
-  eva[ a⟦ x ⟧⁻ {invGuard} ] = inv {invGuard} x
-
-  ev[_] : ∀ {k} → ∀ {x y} → Node k x y → Hom[ x , y ]
-  ev[_]b : ∀ {k} → ∀ {x y} → Node k x y → Bool → Hom[ x , y ]
-
-  ev[ f ] = ev[ f ]b false 
-  
- 
-  ev[ idN ]b _ = id
-  ev[ atomN x ]b _ = eva[ x ]
-  ev[ no (xs ∷N x) ]b b = ev[ xs ]b b ⋆ eva[ x ]
-  ev[ no (x ⋆N x₁) ]b b = ev[ x ]b b ⋆ ev[ x₁ ]b b
-  ev[ no (invN x {invGuard}) ]b b = inv {invGuard} (ev[ x ]b b)
-  ev[ no (involN x x₁ {invGuard}) ]b false = (ev[ x ] ⋆ eva[ x₁ ]) ⋆
-    eva[ invAtom _ {1} invGuard  x₁  ]
-  ev[ no (involN x x₁) ]b true = ev[ x ]b true
-
-  module Ev' (⋆Assoc : ∀ {u v w x}
-                  (f : Hom[ u , v ])
-                  (g : Hom[ v , w ])
-                  (h : Hom[ w , x ])
-                → (f ⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h))
-             (⋆IdR : ∀ {x y} (f : Hom[ x , y ]) → f ⋆ id ≡ f)
-             (⋆IdL : ∀ {x y} (f : Hom[ x , y ]) → id ⋆ f ≡ f)
-             (⋆InvR : ∀ {x y hi} → (f : Hom[ x , y ]) → f ⋆ inv {hi} f ≡ id)
-             (⋆InvL : ∀ {x y hi} → (f : Hom[ x , y ]) → inv {hi} f ⋆ f ≡ id)
-       where
-
-   evInv : ∀ {k} → ∀ {x y hi} → (f : Atom k x y) →
-             id ≡ (eva[ f ] ⋆ eva[ invAtom k {1} hi f ])
-   evInv a⟦ x ⟧ = sym (⋆InvR x)
-   evInv a⟦ x ⟧⁻ = sym (⋆InvL x) 
-   
-   ev[_]≡ : ∀ {k} → ∀ {x y} → (f : Node k x y) → ev[ f ]b false ≡  ev[ f ]b true
-   ev[ idN ]≡ = refl
-   ev[ atomN x ]≡ = refl
-   ev[ no (x ∷N x₁) ]≡ = cong (_⋆ eva[ x₁ ]) ev[ x ]≡
-   ev[ no (x ⋆N x₁) ]≡ = cong₂ _⋆_ ev[ x ]≡ ev[ x₁ ]≡ 
-   ev[ no (invN x) ]≡ = cong inv ev[ x ]≡
-   ev[ no (involN x x₁) ]≡ = 
-        ⋆Assoc _ _ _
-     ∙∙ cong₂ _⋆_ ev[ x ]≡ (sym (evInv x₁))
-     ∙∙ ⋆IdR _
-
-   ev[_]₂≡ = ev[_]≡ {k = 2}
-
-
-   evN2++b : ∀ {k} {a₀ a₁ a₂ : ob} b → (x : Node (suc (suc k)) a₀ a₁)
-                                 → (x₁ : Node (suc (suc k)) a₁ a₂)
-            → ev[ x ]b b ⋆ ev[ x₁ ]b b ≡ ev[ x N2++ x₁ ]b b
-   evN2++b b x idN = ⋆IdR _
-   evN2++b b x (no (x₁ ∷N x₂)) =
-      sym (⋆Assoc _ _ _)
-      ∙ cong (_⋆ eva[ x₂ ]) (evN2++b b x x₁)
-   evN2++b false x (no (involN x₁ x₂)) =
-     sym (⋆Assoc _ _ _)
-    ∙∙ congS (_⋆ eva[ invAtom _ _ x₂ ]) (sym (⋆Assoc _ _ _))
-    ∙∙ congS (λ y → ((y ⋆ eva[ x₂ ]) ⋆ eva[ invAtom _ _ x₂ ])) (evN2++b false x x₁)
-
-   evN2++b true x (no (involN x₁ x₂)) = evN2++b true x x₁
-
-   evN2++ : ∀ {k} {a₀ a₁ a₂ : ob}  → (x : Node (suc (suc k)) a₀ a₁)
-                                 → (x₁ : Node (suc (suc k)) a₁ a₂)
-            → ev[ x ] ⋆ ev[ x₁ ] ≡ ev[ x N2++ x₁ ]
-   evN2++ = evN2++b false
-
-   module Ev'' (id≡inv-id : ∀ {x hi} → id {x} ≡ inv {hi} id)
-               (involInv : ∀ {x y hi hi'} → (f : Hom[ x , y ])  →
-                 inv {hi} (inv {hi'} f) ≡ f)
-               (distInv : ∀ {x y z hi}
-                  (f : Hom[ x , y ])
-                  (g : Hom[ y , z ])
-                 → inv {hi} (f ⋆ g) ≡ inv {hi} g ⋆ inv {hi} f)
-               where
-
-    inv-eva : ∀ {x y} {k} {k'} a {hi} →
-      inv {hi} {x} {y} (eva[_] {k} a) ≡ eva[ invAtom (k) {k'} hi a ]
-    inv-eva a⟦ x ⟧ = refl
-    inv-eva a⟦ x ⟧⁻ {hi} = involInv x
-
-    invAtomInvol : ∀ {x y} k {hi hi'} → (x : Atom (suc (suc k)) x y) →
-          (eva[ invAtom 2 {suc k} (hi) (invAtom (suc (suc k)) {1} hi' x) ]) ≡ (eva[ x ])
-    invAtomInvol k a⟦ x ⟧ = refl
-    invAtomInvol k {hi} (a⟦ x ⟧⁻ {hi'}) i = inv {isPropBool→Type hi hi' i} x
-
-
-    ev[_]≡inv : ∀ {k} → ∀ {x y} {hi} b → (f : Node k x y) →
-              inv {hi} (ev[ f ]b b) ≡ ev[ invNode* {hi = hi} f ]b b
-    ev[_]≡inv {zero} b f = refl
-    ev[_]≡inv {suc k} {hi = hi} b idN = sym (id≡inv-id {hi = hi})
-    ev[_]≡inv {suc zero} {hi = hi} b (atomN x) = inv-eva x {hi}
-    ev[_]≡inv {suc zero} b (no (x ⋆N x₁)) =
-       distInv (ev[ x ]b b) (ev[ x₁ ]b b) ∙
-         cong₂ _⋆_ (ev[_]≡inv b x₁) (ev[_]≡inv b x)
-    ev[_]≡inv {suc (suc k)} {hi = hi} b (no (x ∷N x₁)) =
-          distInv (ev[ x ]b b) (eva[ x₁ ])
-           ∙∙ cong₂ _⋆_ (λ i → ⋆IdL (inv-eva {k' = suc k} x₁ {hi} i) (~ i))
-                (ev[_]≡inv b x)
-           ∙∙ evN2++b b (no (idN ∷N invAtom (suc (suc k)) hi x₁)) (invNode x)
-               
-    ev[_]≡inv {suc (suc k)} {hi = hi} false (no (involN x x₁ {hi'})) =
-          distInv (ev[ x ] ⋆ eva[ x₁ ]) (eva[ invAtom (suc (suc k)) hi' x₁ ]) 
-       ∙∙
-         cong₂ _⋆_
-           (inv-eva {k' = suc k} (invAtom (suc (suc k)) hi' x₁))
-           (distInv ev[ x ] eva[ x₁ ]) ∙
-            (λ i → ⋆Assoc (⋆IdL (invAtomInvol k {hi} {hi'} x₁ i) (~ i))
-               (inv-eva {k' = 1}  x₁ {isPropBool→Type hi hi' i} i)
-               (ev[_]≡inv {suc (suc k)} {hi = hi} false x i) (~ i) )
-       ∙∙ evN2++b false (no (involN idN x₁)) (invNode x)
-
-    ev[_]≡inv {suc (suc k)} true (no (involN x x₁)) = 
-      ev[_]≡inv true x 
-       ∙∙ sym (⋆IdL _) 
-       ∙∙ evN2++b true (no (involN idN x₁)) (invNode x)
-
-
-   
-
-  data NodeCase : {a₀ a₁ : ob} → Hom[ a₀ , a₁ ] → Type (ℓ-max ℓ ℓ') where
-   idCase : ∀ {x} → NodeCase (id {a = x})
-   opCase : ∀ {x y z : _} → (p : Hom[ x , y ]) (q : Hom[ y , z ]) → NodeCase (p ⋆ q)
-   invCase : ∀ {x y : _} → {hi : Bool→Type hasInvs}  (p : Hom[ x , y ]) → NodeCase (inv {hi} p)
-
-
-module _ (WC : WildCat ℓ ℓ')  where
-
- open WildCat WC
- 
- module WGi hasInvs (iwg : Bool→Type hasInvs → IsWildGroupoid WC) {hi : Bool→Type hasInvs} where
-  open WildGroupoid (record { wildCat = WC ; isWildGroupoid = iwg hi }) public
-   using (inv ; ⋆InvR; ⋆InvL; id≡inv-id; distInv; invol-inv)
-
- invol-inv' : ∀ hasInvs  (iwg : Bool→Type hasInvs → IsWildGroupoid WC)
-            {hi hi' : Bool→Type hasInvs} {x y : WC .WildCat.ob}
-      (f : Hom[ x , y ]) →
-      WildGroupoid.inv
-      (record { wildCat = WC ; isWildGroupoid = iwg hi })
-      (WildGroupoid.inv
-       (record { wildCat = WC ; isWildGroupoid = iwg hi' }) f)
-      ≡ f
- invol-inv' true iwg {hi} {hi'} = WGi.invol-inv true iwg
- 
- module WCTerm hasInvs (iwg : Bool→Type hasInvs → IsWildGroupoid WC) {hi : Bool→Type hasInvs} where
-
-  open WGi hasInvs iwg 
-
-  open Nodes ob Hom[_,_] hasInvs public
-  open Ev id _⋆_ (λ {ig} → wildIsIso.inv' Fu.∘ iwg ig) public
-
-
-  module WEv' = Ev' ⋆Assoc ⋆IdR ⋆IdL ⋆InvR ⋆InvL
-
-
-  module WEv'' = WEv'.Ev'' (sym (id≡inv-id)) (invol-inv' hasInvs iwg) distInv 
-
-
-  eva⤋ : ∀ k {a₀ a₁ : ob} → ∀ (h : Atom k a₀ a₁) → eva[ h ] ≡ eva[ k a⤋ h ]
-  eva⤋ k a⟦ x ⟧ = refl
-  eva⤋ k a⟦ x ⟧⁻ = refl
-
-
-  invAtom⤋ : ∀ k k'  {hi} {a₀ a₁ : ob} → ∀ (h : Atom (suc (suc k)) a₀ a₁) →
-                  eva[ invAtom (suc (suc k)) {k'} hi h ]
-             ≡ eva[ invAtom (suc (suc (suc k))) {k'} hi (suc (suc k) a⤋ h) ]
-  invAtom⤋ k k' Nodes.a⟦ x ⟧ = refl
-  invAtom⤋ k k' Nodes.a⟦ x ⟧⁻ = refl
-
-
-  ev⤋' : ∀ k {a₀ a₁ : ob} → ∀ (f' : Node' k a₀ a₁) → ev[ no f' ] ≡ ev[ k ⤋' f' ]
-  ev⤋ :  ∀ k {a₀ a₁ : ob} → ∀ (f : Node k a₀ a₁) → ev[ f ] ≡ ev[ k ⤋ f ] 
-
-
-
-  ev⤋ k idN = refl
-  ev⤋ zero (Nodes.atomN Nodes.a⟦ x ⟧) = refl
-  ev⤋ (suc zero) (Nodes.atomN Nodes.a⟦ x ⟧) = sym (⋆IdL x)
-  ev⤋ (suc zero) (Nodes.atomN (Nodes.a⟦ x ⟧⁻)) = sym ((⋆IdL _))
-  ev⤋ k (no x) = ev⤋' k x
-
-  ev⤋' (suc (suc k)) (x ∷N x₁) =
-    cong₂ _⋆_ (ev⤋ (suc (suc k)) x) (eva⤋ (suc (suc k)) x₁ )
-  ev⤋' zero (x ⋆N x₁) = cong₂ _⋆_ (ev⤋ zero x) (ev⤋ zero x₁)
-  ev⤋' (suc zero) (x ⋆N x₁) = cong₂ _⋆_ (ev⤋ 1 x) (ev⤋ 1 x₁) ∙
-    WEv'.evN2++ (1 ⤋ x) (1 ⤋ x₁)
-  ev⤋' zero (invN x {hi}) =
-       cong inv (ev⤋ zero x) ∙ WEv''.ev[_]≡inv false (0 ⤋ x)  -- enInv1Node x hi
-  ev⤋' (suc (suc k)) (Nodes.involN x x₁ {hi}) =
-    cong₂ _⋆_ (λ i → (ev⤋ (suc (suc k)) x i ⋆ (eva⤋ (suc (suc k)) x₁) i))
-     (invAtom⤋ k 1 {hi} x₁)
-
-  ev⤋⁺ :  ∀ {k} m {a₀ a₁ : ob} → ∀ (f : Node k a₀ a₁) → ev[ f ] ≡ ev[ m ⤋⁺ f ] 
-  ev⤋⁺ zero f = refl
-  ev⤋⁺ (suc m) f = ev⤋⁺ m f ∙ ev⤋ (m + _) (m ⤋⁺ f)
-
-  ev⤋² = ev⤋⁺ {0} 2
-
-
-
-module WGTerm (WG : WildGroupoid ℓ ℓ') where
- open WCTerm (WildGroupoid.wildCat WG) true (λ _ → WildGroupoid.isWildGroupoid WG) public
-
- open WGi (WildGroupoid.wildCat WG) true (λ _ → WildGroupoid.isWildGroupoid WG) 
-
- open WildGroupoid WG hiding (⋆InvR ; ⋆InvL)
- open Ev' ⋆Assoc ⋆IdR ⋆IdL ⋆InvR ⋆InvL public
-
 module _ (A : Type ℓ) where
- module Expr = Nodes Unit (λ _ _ → A)
+  module Expr = Nodes Unit (λ _ _ → A)
 
- module DecNodes (_≟A_ : Discrete A) where
+  module DecNodes (_≟A_ : Discrete A) where
 
-  AtomTo𝟚×A : Expr.Atom true 2 _ _ → (Bool × A)
-  AtomTo𝟚×A Nodes.a⟦ x ⟧ = true , x
-  AtomTo𝟚×A Nodes.a⟦ x ⟧⁻ = false , x
+   AtomTo𝟚×A : Expr.Atom true 2 _ _ → (Bool × A)
+   AtomTo𝟚×A Nodes.a⟦ x ⟧ = true , x
+   AtomTo𝟚×A Nodes.a⟦ x ⟧⁻ = false , x
 
 
-  mbRed : Expr.Node true 2 _ _ → Maybe (Expr.Node true 2 _ _)
-  mbRed Nodes.idN = nothing
-  mbRed (Nodes.no (Nodes.idN Nodes.∷N x₁)) = nothing
-  mbRed (Nodes.no (x'@(Nodes.no (x Nodes.∷N x₂)) Nodes.∷N x₁)) =
-     decRec (λ _ → just $ Nodes.no (Nodes.involN (Mb.rec x (idfun _) (mbRed x)) x₂) )
-            (λ _ → map-Maybe (Nodes.no ∘ Nodes._∷N x₁) (mbRed x'))
-      (discreteΣ 𝟚._≟_ (λ _ → _≟A_) (AtomTo𝟚×A x₂) (AtomTo𝟚×A (Expr.invAtom true 2 _ x₁)))
-  mbRed (Nodes.no (Nodes.no (Nodes.involN x x₂) Nodes.∷N x₁)) = nothing
-  mbRed (Nodes.no (Nodes.involN x x₁)) = nothing
+   mbRed : Expr.Node true 2 _ _ → Maybe (Expr.Node true 2 _ _)
+   mbRed Nodes.idN = nothing
+   mbRed (Nodes.no (Nodes.idN Nodes.∷N x₁)) = nothing
+   mbRed (Nodes.no (x'@(Nodes.no (x Nodes.∷N x₂)) Nodes.∷N x₁)) =
+      decRec (λ _ → just $ Nodes.no (Nodes.involN (Mb.rec x (idfun _) (mbRed x)) x₂) )
+             (λ _ → map-Maybe (Nodes.no ∘ Nodes._∷N x₁) (mbRed x'))
+       (discreteΣ 𝟚._≟_ (λ _ → _≟A_) (AtomTo𝟚×A x₂) (AtomTo𝟚×A (Expr.invAtom true 2 _ x₁)))
+   mbRed (Nodes.no (Nodes.no (Nodes.involN x x₂) Nodes.∷N x₁)) = nothing
+   mbRed (Nodes.no (Nodes.involN x x₁)) = nothing
 
-  redList : Expr.Node true 2 _ _ → List (Expr.Node true 2 _ _)
-  redList x = unfoldMaybe (Expr.len true x) (mbRed ∘ Expr.red[_,_] true 2) x 
+   redList : Expr.Node true 2 _ _ → List (Expr.Node true 2 _ _)
+   redList x = unfoldMaybe (Expr.len true x) (mbRed ∘ Expr.red[_,_] true 2) x 
 
 redListℕ = DecNodes.redList ℕ discreteℕ
 
@@ -448,7 +232,7 @@ mapExpr {A = A} {A'} {b} {k} f = w
  wa : Expr.Atom A b k _ _ → Expr.Atom A' b k _ _
  wa Nodes.a⟦ x ⟧ = Nodes.a⟦ f x ⟧
  wa (Nodes.a⟦_⟧⁻ {invG = ig} x {g}) = Nodes.a⟦_⟧⁻ {invG = ig} (f x) {g}
- 
+
  w : Expr.Node A b k _ _ → Expr.Node A' b k _ _
  w Nodes.idN = Nodes.idN
  w (Nodes.atomN {aGuard = ag} x) = Nodes.atomN {aGuard = ag}  (wa x)
@@ -484,7 +268,7 @@ mapExprQ {A = A} {b} {k} f = w
  w Nodes.idN = R.con (quote Nodes.idN) []
  w (Nodes.atomN x) = R.con (quote Nodes.atomN) (wa x v∷ [])
  w (Nodes.no x) = R.con (quote Nodes.no) (w' x v∷ [])
- 
+
 
 ExprAccumM : ∀ {A : Type ℓ} {A' : Type ℓ'} {ℓs} {S : Type ℓs} {b k}
      → (S → A → R.TC (S × A')) → S         
@@ -497,7 +281,7 @@ ExprAccumM {A = A} {A'} {S = S} {b} {k} f = w
  wa : S → Expr.Atom A b k _ _ → R.TC (S × Expr.Atom A' b k _ _)
  wa s a⟦ x ⟧ = (λ (s' , x') → s' , a⟦ x' ⟧) <$> f s x
  wa s (a⟦_⟧⁻ {invG = g'} x {g}) = (λ (s' , x') → s' , (a⟦_⟧⁻  {invG = g'} x' {g})) <$> f s x 
- 
+
  w : S → Expr.Node A b k _ _ → R.TC (S × Expr.Node A' b k _ _)
  w' : S → Expr.Node' A b k _ _ → R.TC (S × Expr.Node A' b k _ _)
  w s idN = R.returnTC (s , idN)
@@ -520,57 +304,196 @@ ExprAccumM {A = A} {A'} {S = S} {b} {k} f = w
  w' s (involN x x₁) = w s x
 
 
-opCase' : ∀ (WG : WildGroupoid ℓ ℓ') {x y z} f g →
-  WGTerm.NodeCase WG {a₀ = x} {z} _ 
-opCase' WG {x} {y} {z} f g = WGTerm.opCase {WG = WG} {y = y} f g
- 
 
-invCase' : ∀ (WG : WildGroupoid ℓ ℓ') {x y} f →
-  WGTerm.NodeCase WG {a₀ = y} {x} _ 
-invCase' WG {x} {y} f = WGTerm.invCase {WG = WG} {x = x} {y} f
+WildStr : ∀ ℓ ℓ' →  Type (ℓ-suc (ℓ-max ℓ ℓ'))
+WildStr ℓ ℓ' = Σ (WildCat ℓ ℓ') (Maybe ∘ IsWildGroupoid) 
 
-id' : (WG : WildGroupoid ℓ ℓ') → ∀ {x} → WildGroupoid.Hom[_,_] WG x x
-id' WG = WildGroupoid.id WG
+hasInvs? : WildStr ℓ ℓ' → Bool
+hasInvs? = caseMaybe false true ∘ snd
 
-inv' : (WG : WildGroupoid ℓ ℓ') → ∀ {x y} → WildGroupoid.Hom[_,_] WG x y → WildGroupoid.Hom[_,_] WG y x
-inv' WG = WildGroupoid.inv WG
+WildStr→WG : (ws : WildStr ℓ ℓ') → Bool→Type (hasInvs? ws) → WildGroupoid ℓ ℓ'  
+WildGroupoid.wildCat (WildStr→WG (wc , _) _) = wc
+WildGroupoid.isWildGroupoid (WildStr→WG (_ , just x) _) = x
 
 
-⋆' : (WG : WildGroupoid ℓ ℓ') → ∀ {x y z} → WildGroupoid.Hom[_,_] WG x y → WildGroupoid.Hom[_,_] WG y z →  WildGroupoid.Hom[_,_] WG x z
-⋆' WG = WildGroupoid._⋆_ WG
+module WSExpr (WS : WildStr ℓ ℓ') where
+ open WildCat (fst WS) public
+ open Nodes ob Hom[_,_] (hasInvs? WS) public
+
+ InvGuard = Bool→Type (hasInvs? WS)
+
+ module _ {ig : InvGuard} where
+  open WildGroupoid (WildStr→WG WS ig) public
+
+ eva[_] : ∀ {k} → ∀ {x y} → Atom k x y → Hom[ x , y ]
+ eva[ a⟦ x ⟧ ] = x
+ eva[ a⟦ x ⟧⁻ {ig} ] = inv {ig} x
+
+ ev[_] : ∀ {k} → ∀ {x y} → Node k x y → Hom[ x , y ]
+ ev[_]b : ∀ {k} → ∀ {x y} → Node k x y → Bool → Hom[ x , y ]
+
+ ev[ f ] = ev[ f ]b false 
 
 
-module ETerm = Expr R.Term
+ ev[ idN ]b _ = id
+ ev[ atomN x ]b _ = eva[ x ]
+ ev[ no (xs ∷N x) ]b b = ev[ xs ]b b ⋆ eva[ x ]
+ ev[ no (x ⋆N x₁) ]b b = ev[ x ]b b ⋆ ev[ x₁ ]b b
+ ev[ no (invN x {invGuard}) ]b b = inv {invGuard} (ev[ x ]b b)
+ ev[ no (involN x x₁ {invGuard}) ]b false = (ev[ x ] ⋆ eva[ x₁ ]) ⋆
+   eva[ invAtom _ {1} invGuard  x₁  ]
+ ev[ no (involN x x₁) ]b true = ev[ x ]b true
 
-module _ (WGterm : R.Term) where
- module EvTerm = ETerm.Ev true
-      (R.def (quote id') (WGterm v∷ []))
-      (λ x y → (R.def (quote ⋆') (WGterm v∷ x v∷ y v∷ [])))
-      (λ x → (R.def (quote inv') (WGterm v∷ x v∷ [])))
+ evInv : ∀ {k} → ∀ {x y hi} → (f : Atom k x y) →
+           id ≡ (eva[ f ] ⋆ eva[ invAtom k {1} hi f ])
+ evInv a⟦ x ⟧ = sym (⋆InvR x)
+ evInv a⟦ x ⟧⁻ = sym (⋆InvL x) 
+
+ ev[_]≡ : ∀ {k} → ∀ {x y} → (f : Node k x y) → ev[ f ]b false ≡  ev[ f ]b true
+ ev[ idN ]≡ = refl
+ ev[ atomN x ]≡ = refl
+ ev[ no (x ∷N x₁) ]≡ = cong (_⋆ eva[ x₁ ]) ev[ x ]≡
+ ev[ no (x ⋆N x₁) ]≡ = cong₂ _⋆_ ev[ x ]≡ ev[ x₁ ]≡ 
+ ev[ no (invN x) ]≡ = cong inv ev[ x ]≡
+ ev[ no (involN x x₁) ]≡ = 
+      ⋆Assoc _ _ _
+   ∙∙ cong₂ _⋆_ ev[ x ]≡ (sym (evInv x₁))
+   ∙∙ ⋆IdR _
+
+ ev[_]₂≡ = ev[_]≡ {k = 2}
+
+
+ evN2++b : ∀ {k} {a₀ a₁ a₂ : ob} b → (x : Node (suc (suc k)) a₀ a₁)
+                               → (x₁ : Node (suc (suc k)) a₁ a₂)
+          → ev[ x ]b b ⋆ ev[ x₁ ]b b ≡ ev[ x N2++ x₁ ]b b
+ evN2++b b x idN = ⋆IdR _
+ evN2++b b x (no (x₁ ∷N x₂)) =
+    sym (⋆Assoc _ _ _)
+    ∙ cong (_⋆ eva[ x₂ ]) (evN2++b b x x₁)
+ evN2++b false x (no (involN x₁ x₂)) =
+   sym (⋆Assoc _ _ _)
+  ∙∙ congS (_⋆ eva[ invAtom _ _ x₂ ]) (sym (⋆Assoc _ _ _))
+  ∙∙ congS (λ y → ((y ⋆ eva[ x₂ ]) ⋆ eva[ invAtom _ _ x₂ ])) (evN2++b false x x₁)
+
+ evN2++b true x (no (involN x₁ x₂)) = evN2++b true x x₁
+
+ evN2++ : ∀ {k} {a₀ a₁ a₂ : ob}  → (x : Node (suc (suc k)) a₀ a₁)
+                               → (x₁ : Node (suc (suc k)) a₁ a₂)
+          → ev[ x ] ⋆ ev[ x₁ ] ≡ ev[ x N2++ x₁ ]
+ evN2++ = evN2++b false
+
+ inv-eva : ∀ {x y} {k} {k'} a {hi} →
+   inv {hi} {x} {y} (eva[_] {k} a) ≡ eva[ invAtom (k) {k'} hi a ]
+ inv-eva a⟦ x ⟧ = refl
+ inv-eva (a⟦ x ⟧⁻ {hi}) {hi'} =
+  cong (inv {hi'}) ((λ i → inv {isPropBool→Type hi hi' i}) ≡$ x) ∙ invol-inv x
+
+ invAtomInvol : ∀ {x y} k {hi hi'} → (x : Atom (suc (suc k)) x y) →
+       (eva[ invAtom 2 {suc k} (hi) (invAtom (suc (suc k)) {1} hi' x) ]) ≡ (eva[ x ])
+ invAtomInvol k a⟦ x ⟧ = refl
+ invAtomInvol k {hi} (a⟦ x ⟧⁻ {hi'}) i = inv {isPropBool→Type hi hi' i} x
+
+
+ ev[_]≡inv : ∀ {k} → ∀ {x y} {hi} b → (f : Node k x y) →
+           inv {hi} (ev[ f ]b b) ≡ ev[ invNode* {hi = hi} f ]b b
+ ev[_]≡inv {zero} b f = refl
+ ev[_]≡inv {suc k} b idN = id≡inv-id 
+ ev[_]≡inv {suc zero} {hi = hi} b (atomN x) = inv-eva x
+ ev[_]≡inv {suc zero} b (no (x ⋆N x₁)) =
+    distInv (ev[ x ]b b) (ev[ x₁ ]b b) ∙
+      cong₂ _⋆_ (ev[_]≡inv b x₁) (ev[_]≡inv b x)
+ ev[_]≡inv {suc (suc k)} {hi = hi} b (no (x ∷N x₁)) =
+       distInv (ev[ x ]b b) (eva[ x₁ ])
+        ∙∙ cong₂ _⋆_ (λ i → ⋆IdL (inv-eva {k' = suc k} x₁ {hi} i) (~ i))
+             (ev[_]≡inv b x)
+        ∙∙ evN2++b b (no (idN ∷N invAtom (suc (suc k)) hi x₁)) (invNode x)
+
+ ev[_]≡inv {suc (suc k)} {hi = hi} false (no (involN x x₁ {hi'})) =
+       distInv (ev[ x ] ⋆ eva[ x₁ ]) (eva[ invAtom (suc (suc k)) hi' x₁ ]) 
+    ∙∙
+      cong₂ _⋆_
+        (inv-eva {k' = suc k} (invAtom (suc (suc k)) hi' x₁))
+        (distInv ev[ x ] eva[ x₁ ]) ∙
+         (λ i → ⋆Assoc (⋆IdL (invAtomInvol k {hi} {hi'} x₁ i) (~ i))
+            (inv-eva {k' = 1}  x₁ {isPropBool→Type hi hi' i} i)
+            (ev[_]≡inv {suc (suc k)} {hi = hi} false x i) (~ i) )
+    ∙∙ evN2++b false (no (involN idN x₁)) (invNode x)
+
+ ev[_]≡inv {suc (suc k)} true (no (involN x x₁)) = 
+   ev[_]≡inv true x 
+    ∙∙ sym (⋆IdL _) 
+    ∙∙ evN2++b true (no (involN idN x₁)) (invNode x)
+
+
+ data NodeCase : {a₀ a₁ : ob} → Hom[ a₀ , a₁ ] → Type (ℓ-max ℓ ℓ') where
+  idCase : ∀ {x} → NodeCase (id {x = x})
+  opCase : ∀ {x y z : _} → (p : Hom[ x , y ]) (q : Hom[ y , z ]) → NodeCase (p ⋆ q)
+  invCase : ∀ {x y : _} → {hi : InvGuard}  (p : Hom[ x , y ]) → NodeCase (inv {hi} p)
+
+
+ eva⤋ : ∀ k {a₀ a₁ : ob} → ∀ (h : Atom k a₀ a₁) → eva[ h ] ≡ eva[ k a⤋ h ]
+ eva⤋ k a⟦ x ⟧ = refl
+ eva⤋ k a⟦ x ⟧⁻ = refl
+
+
+ invAtom⤋ : ∀ k k'  {hi} {a₀ a₁ : ob} → ∀ (h : Atom (suc (suc k)) a₀ a₁) →
+                 eva[ invAtom (suc (suc k)) {k'} hi h ]
+            ≡ eva[ invAtom (suc (suc (suc k))) {k'} hi (suc (suc k) a⤋ h) ]
+ invAtom⤋ k k' Nodes.a⟦ x ⟧ = refl
+ invAtom⤋ k k' Nodes.a⟦ x ⟧⁻ = refl
+
+
+ ev⤋' : ∀ k {a₀ a₁ : ob} → ∀ (f' : Node' k a₀ a₁) → ev[ no f' ] ≡ ev[ k ⤋' f' ]
+ ev⤋ :  ∀ k {a₀ a₁ : ob} → ∀ (f : Node k a₀ a₁) → ev[ f ] ≡ ev[ k ⤋ f ] 
+
+
+
+ ev⤋ k idN = refl
+ ev⤋ zero (Nodes.atomN Nodes.a⟦ x ⟧) = refl
+ ev⤋ (suc zero) (Nodes.atomN Nodes.a⟦ x ⟧) = sym (⋆IdL x)
+ ev⤋ (suc zero) (Nodes.atomN (Nodes.a⟦ x ⟧⁻)) = sym ((⋆IdL _))
+ ev⤋ k (no x) = ev⤋' k x
+
+ ev⤋' (suc (suc k)) (x ∷N x₁) =
+   cong₂ _⋆_ (ev⤋ (suc (suc k)) x) (eva⤋ (suc (suc k)) x₁ )
+ ev⤋' zero (x ⋆N x₁) = cong₂ _⋆_ (ev⤋ zero x) (ev⤋ zero x₁)
+ ev⤋' (suc zero) (x ⋆N x₁) = cong₂ _⋆_ (ev⤋ 1 x) (ev⤋ 1 x₁) ∙
+   evN2++ (1 ⤋ x) (1 ⤋ x₁)
+ ev⤋' zero (invN x {hi}) =
+      cong inv (ev⤋ zero x) ∙ ev[_]≡inv false (0 ⤋ x)  -- enInv1Node x hi
+ ev⤋' (suc (suc k)) (Nodes.involN x x₁ {hi}) =
+   cong₂ _⋆_ (λ i → (ev⤋ (suc (suc k)) x i ⋆ (eva⤋ (suc (suc k)) x₁) i))
+    (invAtom⤋ k 1 {hi} x₁)
+
+ ev⤋⁺ :  ∀ {k} m {a₀ a₁ : ob} → ∀ (f : Node k a₀ a₁) → ev[ f ] ≡ ev[ m ⤋⁺ f ] 
+ ev⤋⁺ zero f = refl
+ ev⤋⁺ (suc m) f = ev⤋⁺ m f ∙ ev⤋ (m + _) (m ⤋⁺ f)
+
+ ev⤋² = ev⤋⁺ {0} 2
 
 module Eℕ = Expr ℕ true
+module ETerm = Expr R.Term
 
 NodeTerm : Bool → ℕ → Type ℓ-zero
 NodeTerm = λ b k → Expr.Node R.Term b k tt tt
 
 
 
+module tryWCE (tG : R.Term)  where
 
-module tryGE (tG : R.Term)  where
- 
  tryG : ℕ → R.Term → R.TC (NodeTerm true 0)
 
  try1g : R.Term → R.TC (NodeTerm true 0)
  try1g t = do
-       _ ← R.unify t (R.def (quote id') [ varg tG ])
+       _ ← R.unify t (R.def (quote WSExpr.id) [ varg tG ])
        R.returnTC (ETerm.idN)
 
  tryOp : ℕ → R.Term → R.TC (NodeTerm true 0)
  tryOp zero _ = R.typeError []
  tryOp (suc k) t = do
-       tm ← R.withNormalisation true $ R.checkType (R.def (quote opCase')
-          (varg tG ∷ varg R.unknown ∷ [ varg R.unknown ]))
-           (R.def (quote WGTerm.NodeCase) ((varg tG) ∷ [ varg t ]))
+       tm ← R.withNormalisation true $ R.checkType (R.con (quote WSExpr.opCase)
+          (varg R.unknown ∷ [ varg R.unknown ]))
+           (R.def (quote WSExpr.NodeCase) ((varg tG) ∷ [ varg t ]))
        (t1 , t2) ← h tm
        t1' ← tryG k t1
        t2' ← tryG k t2
@@ -586,8 +509,8 @@ module tryGE (tG : R.Term)  where
  tryInv zero _ = R.typeError []
  tryInv (suc k) t =  do
        tm ← R.withNormalisation true $
-        (R.checkType (R.def (quote invCase')
-          ((varg tG) ∷ [ varg R.unknown ])) (R.def (quote WGTerm.NodeCase)
+        (R.checkType (R.con (quote WSExpr.invCase)
+          ([ varg R.unknown ])) (R.def (quote WSExpr.NodeCase)
            ((varg tG) ∷ [ varg t ])))
        R.debugPrint "tryInv" 30 ([ R.strErr "\n ---- \n" ])
        R.debugPrint "tryInv" 30 ([ R.termErr t ])
@@ -620,8 +543,12 @@ module tryGE (tG : R.Term)  where
    R.catchTC
     (try1g t)
     (R.catchTC (tryInv k t)
-               (R.catchTC (tryOp k t) (atom t)))
-  
+               -- (tryOp k t)
+               (R.catchTC (tryOp k t) (atom t))
+               )
+
+
+
 
 
 compareTerms : R.Term → R.Term → R.TC Bool
@@ -641,6 +568,7 @@ lookupOrAppend xs@(x ∷ xs') t = do
            R.returnTC (x ∷ xs'' , suc k)) 
 
 
+
 wildCatSolverTerm : Bool → R.Term → R.Term → R.TC (R.Term × List R.ErrorPart)
 wildCatSolverTerm debugFlag t-g hole = do
 
@@ -649,23 +577,19 @@ wildCatSolverTerm debugFlag t-g hole = do
      (R.typeError [ R.strErr "unable to get boundary" ])
      (λ x → R.returnTC x)
 
- (r0') ← tryGE.tryG t-g 100 t0
- (r1') ← tryGE.tryG t-g 100 t1
- (tmL , tmE0) ← ExprAccumM lookupOrAppend [] r0' 
- (tmL , tmE1) ← ExprAccumM lookupOrAppend tmL r1'  
+ (tmL , tmE0) ← tryWCE.tryG t-g 100 t0 >>= ExprAccumM lookupOrAppend [] 
+ (tmL , tmE1) ← tryWCE.tryG t-g 100 t1 >>= ExprAccumM lookupOrAppend tmL  
 
  let pa : Eℕ.Node 0 _ _ → (R.Term × List R.ErrorPart)
      pa = λ tmE →
             let rL = redListℕ (1 Eℕ.⤋ (0 Eℕ.⤋ tmE))
                 rLpaTm = foldl
                   (λ x y →
-                   (R∙ x ( R.def (quote WGTerm.ev[_]₂≡)
+                   (R∙ x ( R.def (quote WSExpr.ev[_]₂≡)
                     (t-g v∷ (mapExprQ (lookupWithDefault (R.unknown) tmL) y) v∷ []))) )
                   Rrefl rL
-            in ((R.def (quote _∙_)
-                 (R.def (quote WGTerm.ev⤋²)
-                   (t-g v∷ mapExprQ (lookupWithDefault (R.unknown) tmL) tmE v∷ [])
-                    v∷ rLpaTm v∷ [] )) ,
+            in ((R.def (quote WSExpr.ev⤋²)
+                   (t-g v∷ mapExprQ (lookupWithDefault (R.unknown) tmL) tmE v∷ [])) ,
                       (Li.foldr
                      (λ x → Expr.showN ℕ true mkNiceVar x ∷nl_ ) [] $ rL))
 
@@ -682,14 +606,22 @@ wildCatSolverTerm debugFlag t-g hole = do
  R.returnTC (final , info) 
 
 
--- wildCatSolverMain : Bool → R.Term → R.Term → R.TC Unit
--- wildCatSolverMain debugFlag  t-g hole = do
---   ty ← R.withNormalisation true $  R.inferType hole >>= wait-for-type
---   hole' ← R.withNormalisation true $ R.checkType hole ty
---   (solution , msg) ← groupoidSolverTerm debugFlag t-g  hole'
---   R.catchTC
---    (R.unify hole solution)
---     (R.typeError msg)
+wildCatSolverMain : Bool → R.Term → R.Term → R.TC Unit
+wildCatSolverMain debugFlag  t-g hole = do
+  ty ← R.withNormalisation true $  R.inferType hole >>= wait-for-type
+  hole' ← R.withNormalisation true $ R.checkType hole ty
+  (solution , msg) ← wildCatSolverTerm debugFlag t-g  hole'
+  R.catchTC
+   (R.unify hole solution)
+    (R.typeError msg)
+
+
+
+
+macro
+ solveWildCat : R.Term → R.Term → R.TC Unit
+ solveWildCat = wildCatSolverMain true
+
 
 
 groupoidSolverTerm : Bool → R.Term → R.Term → R.TC (R.Term × List R.ErrorPart)
@@ -700,21 +632,19 @@ groupoidSolverTerm debugFlag t-g hole = do
      (R.typeError [ R.strErr "unable to get boundary" ])
      (λ x → R.returnTC x)
 
- (r0') ← tryGE.tryG t-g 100 t0
- (r1') ← tryGE.tryG t-g 100 t1
- (tmL , tmE0) ← ExprAccumM lookupOrAppend [] r0' 
- (tmL , tmE1) ← ExprAccumM lookupOrAppend tmL r1'  
+ (tmL , tmE0) ← tryWCE.tryG t-g 100 t0 >>= ExprAccumM lookupOrAppend [] 
+ (tmL , tmE1) ← tryWCE.tryG t-g 100 t1 >>= ExprAccumM lookupOrAppend tmL  
 
  let pa : Eℕ.Node 0 _ _ → (R.Term × List R.ErrorPart)
      pa = λ tmE →
             let rL = redListℕ (1 Eℕ.⤋ (0 Eℕ.⤋ tmE))
                 rLpaTm = foldl
                   (λ x y →
-                   (R∙ x ( R.def (quote WGTerm.ev[_]₂≡)
+                   (R∙ x ( R.def (quote WSExpr.ev[_]₂≡)
                     (t-g v∷ (mapExprQ (lookupWithDefault (R.unknown) tmL) y) v∷ []))) )
                   Rrefl rL
             in ((R.def (quote _∙_)
-                 (R.def (quote WGTerm.ev⤋²)
+                 (R.def (quote WSExpr.ev⤋²)
                    (t-g v∷ mapExprQ (lookupWithDefault (R.unknown) tmL) tmE v∷ [])
                     v∷ rLpaTm v∷ [] )) ,
                       (Li.foldr
@@ -748,6 +678,17 @@ groupoidSolverMain debugFlag  t-g hole = do
 macro
  solveGroupoid : R.Term → R.Term → R.TC Unit
  solveGroupoid = groupoidSolverMain true
+
+
+
+
+
+
+
+
+
+
+
 
 
 
