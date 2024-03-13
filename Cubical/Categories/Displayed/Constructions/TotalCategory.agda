@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Displayed.TotalCategory.DisplayedTotalCategory where
+module Cubical.Categories.Displayed.Constructions.TotalCategory where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -11,7 +11,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Terminal
-open import Cubical.Categories.Displayed.TotalCategory.Base hiding (intro)
+open import Cubical.Categories.Constructions.TotalCategory hiding (intro)
 
 private
   variable
@@ -67,24 +67,3 @@ module _ {C : Category ℓC ℓC'}
     intro .F-homᴰ fᴰ = (Fᴰ .F-homᴰ fᴰ) , (Gᴰ .F-homᴰ _)
     intro .F-idᴰ = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
     intro .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ .F-seqᴰ fᴰ gᴰ , Gᴰ .F-seqᴰ _ _)
-
--- Weaken a displayed category Dᴰ over Cᴰ
-module _ {C : Category ℓC ℓC'}
-  (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-  (Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ')
-  where
-
-  open Categoryᴰ
-  private
-    module Dᴰ = Categoryᴰ Dᴰ
-
-  weakenᴰ : Categoryᴰ (∫C Cᴰ) ℓDᴰ ℓDᴰ'
-  weakenᴰ .ob[_] (x , _) = Dᴰ.ob[ x ]
-  weakenᴰ .Hom[_][_,_] (f , _) = Dᴰ.Hom[ f ][_,_]
-  weakenᴰ .idᴰ = Dᴰ.idᴰ
-  weakenᴰ ._⋆ᴰ_ = Dᴰ._⋆ᴰ_
-  weakenᴰ .⋆IdLᴰ = Dᴰ.⋆IdLᴰ
-  weakenᴰ .⋆IdRᴰ = Dᴰ.⋆IdRᴰ
-  weakenᴰ .⋆Assocᴰ = Dᴰ.⋆Assocᴰ
-  weakenᴰ .isSetHomᴰ = Dᴰ.isSetHomᴰ
-

@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Displayed.TotalCategory.Base where
+module Cubical.Categories.Constructions.TotalCategory where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -72,19 +72,3 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     intro .F-hom f = (F ⟪ f ⟫) , (Fᴰ .F-homᴰ _)
     intro .F-id = ΣPathP (F .F-id , Fᴰ .F-idᴰ)
     intro .F-seq f g = ΣPathP (F .F-seq f g , Fᴰ .F-seqᴰ _ _)
-
--- Display a category D over C
-module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
-  open Category
-  open Categoryᴰ
-  weaken : Categoryᴰ C ℓD ℓD'
-  weaken .ob[_] x = D .ob
-  weaken .Hom[_][_,_] f d d' = D [ d , d' ]
-  weaken .idᴰ = D .id
-  weaken ._⋆ᴰ_ = D ._⋆_
-  weaken .⋆IdLᴰ = D .⋆IdL
-  weaken .⋆IdRᴰ = D .⋆IdR
-  weaken .⋆Assocᴰ = D .⋆Assoc
-  weaken .isSetHomᴰ = D .isSetHom
-
-
