@@ -2,6 +2,7 @@
 module Cubical.WildCat.Functor where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma using (ΣPathP)
 
@@ -162,3 +163,13 @@ WildFunctor.F-ob commFunctor (x , y) = y , x
 WildFunctor.F-hom commFunctor (f , g) = g , f
 WildFunctor.F-id commFunctor = refl
 WildFunctor.F-seq commFunctor _ _ = refl
+
+module _
+  {C : WildGroupoid ℓC ℓC'} {D : WildGroupoid ℓD ℓD'}
+  (F : WildFunctor (WildGroupoid.wildCat C) (WildGroupoid.wildCat D)) where 
+  
+ module gC = WildGroupoid C
+ module gD = WildGroupoid D
+
+ F-inv :  ∀ {x y} f → F-hom F (gC.inv {x} {y} f) ≡ gD.inv (F-hom F f)
+ F-inv f = gD.invUniqueR $ sym (F-seq F _ _) ∙∙ congS (F-hom F) (gC.⋆InvR f) ∙∙ F-id F
