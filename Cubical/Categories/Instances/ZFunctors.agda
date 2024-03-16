@@ -23,20 +23,24 @@ open import Cubical.Data.FinData
 
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.CommRing.Localisation
+open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.BigOps
 open import Cubical.Algebra.ZariskiLattice.Base
 open import Cubical.Algebra.ZariskiLattice.UniversalProperty
+open import Cubical.Algebra.ZariskiLattice.Properties
 
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.CommRings
 open import Cubical.Categories.Instances.DistLattice
 open import Cubical.Categories.Instances.DistLattices
 open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Site.Cover
 open import Cubical.Categories.Site.Coverage
 open import Cubical.Categories.Site.Sheaf
 open import Cubical.Categories.Site.Instances.ZariskiCommRing
@@ -246,7 +250,7 @@ module _ {ℓ : Level} where
   isAffine : (X : ℤFunctor) → Type (ℓ-suc ℓ)
   isAffine X = ∃[ A ∈ CommRing ℓ ] NatIso (Sp .F-ob A) X
 
-  -- TODO: 𝔸¹ ≅ Sp ℤ[x] and 𝔾ₘ ≅ Sp ℤ[x,x⁻¹] as first examples of affine schemes
+  -- TODO: 𝔸¹ ≅ Sp ℤ[x] and 𝔾ₘ ≅ Sp ℤ[x,x⁻¹] ≅ D(x) ↪ 𝔸¹ as first examples of affine schemes
 
 
 -- The unit is an equivalence iff the ℤ-functor is affine.
@@ -296,12 +300,54 @@ module _ {ℓ : Level} where
   open ZarLat
   open ZarLatUniversalProp
 
-  -- the Zariski lattice classifying compact open subobjects
+  -- the Zariski lattice functor classifying compact open subobjects
   ZarLatFun : ℤFunctor {ℓ = ℓ}
   F-ob ZarLatFun A = ZL A , SQ.squash/
   F-hom ZarLatFun φ = inducedZarLatHom φ .fst
   F-id ZarLatFun {A} = cong fst (inducedZarLatHomId A)
   F-seq ZarLatFun φ ψ = cong fst (inducedZarLatHomSeq φ ψ)
+
+  -- this is a separated presheaf
+  -- (TODO: prove this a sheaf)
+  isSeparatedZarLatFun : isSeparated zariskiCoverage ZarLatFun
+  isSeparatedZarLatFun A (unimodvec n f 1∈⟨f₁,⋯,fₙ⟩) u w uRest≡wRest =
+    u                         ≡⟨ sym (∧lLid _) ⟩
+    1l ∧l u                  ≡⟨ congL _∧l_ D1≡⋁Dfᵢ ⟩
+    (⋁ (D A ∘ f)) ∧l u       ≡⟨ ⋁Meetldist _ _ ⟩
+    ⋁ (λ i → D A (f i) ∧l u) ≡⟨ ⋁Ext Dfᵢ∧u≡Dfᵢ∧w ⟩
+    ⋁ (λ i → D A (f i) ∧l w) ≡⟨ sym (⋁Meetldist _ _) ⟩
+    (⋁ (D A ∘ f)) ∧l w       ≡⟨ congL _∧l_ (sym D1≡⋁Dfᵢ) ⟩
+    1l ∧l w                  ≡⟨ ∧lLid _ ⟩
+    w ∎
+    where
+    open Join (ZariskiLattice A)
+    open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (ZariskiLattice A)))
+         using (IndPoset)
+    open LatticeTheory (DistLattice→Lattice (ZariskiLattice A))
+    open PosetStr (IndPoset .snd)
+    open IsSupport (isSupportD A)
+    open RadicalIdeal A
+    instance
+      _ = A .snd
+      _ = ZariskiLattice A .snd
+
+    D1≡⋁Dfᵢ : 1l ≡ ⋁ (D A ∘ f)
+    D1≡⋁Dfᵢ = is-antisym _ _
+                (supportRadicalIneq f 1r (∈→∈√ _ _ 1∈⟨f₁,⋯,fₙ⟩))
+                  (1lRightAnnihilates∨l _)
+
+    Dfᵢ∧u≡Dfᵢ∧w : ∀ i → D A (f i) ∧l u ≡ D A (f i) ∧l w
+    Dfᵢ∧u≡Dfᵢ∧w i =
+        D A (f i) ∧l u
+      ≡⟨ sym (cong fst (funExt⁻ (cong fst toLocToDown≡ToDown) u)) ⟩
+        locToDownHom .fst (inducedZarLatHom /1AsCommRingHom .fst u) .fst
+      ≡⟨ cong (λ x → locToDownHom .fst x .fst) (uRest≡wRest i) ⟩
+        locToDownHom .fst (inducedZarLatHom /1AsCommRingHom .fst w) .fst
+      ≡⟨ cong fst (funExt⁻ (cong fst toLocToDown≡ToDown) w) ⟩
+        D A (f i) ∧l w ∎
+      where
+      open InvertingElementsBase.UniversalProp A (f i)
+      open LocDownSetIso A (f i)
 
   CompactOpen : ℤFunctor → Type (ℓ-suc ℓ)
   CompactOpen X = X ⇒ ZarLatFun
@@ -413,7 +459,7 @@ module _ {ℓ : Level} where
 
 
   module _ (X : ℤFunctor) where
-    open isIso
+    open isIsoC
     private instance _ = (CompOpenDistLattice .F-ob X) .snd
 
     compOpenTopNatIso : NatIso X ⟦ 1l ⟧ᶜᵒ
@@ -425,24 +471,16 @@ module _ {ℓ : Level} where
 
 
   module _ (X : ℤFunctor) where
+    open isIsoC
     open Join (CompOpenDistLattice .F-ob X)
     open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
     open PosetStr (IndPoset .snd) hiding (_≤_)
-    open LatticeTheory ⦃...⦄ -- ((DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
+    open LatticeTheory ⦃...⦄
     private instance _ = (CompOpenDistLattice .F-ob X) .snd
 
-    record AffineCover : Type (ℓ-suc ℓ) where
-      field
-        n : ℕ
-        U : FinVec (CompactOpen X) n
-        covers : ⋁ U ≡ 1l -- TODO: equivalent to X ≡ ⟦ ⋁ U ⟧ᶜᵒ
-        isAffineU : ∀ i → isAffineCompactOpen (U i)
-
-    hasAffineCover : Type (ℓ-suc ℓ)
-    hasAffineCover = ∥ AffineCover ∥₁
-
-    -- the structure sheaf
-    private COᵒᵖ = (DistLatticeCategory (CompOpenDistLattice .F-ob X)) ^op
+    compOpenGlobalIncl : (U : CompactOpen X) → ⟦ U ⟧ᶜᵒ ⇒ X
+    N-ob (compOpenGlobalIncl U) A = fst
+    N-hom (compOpenGlobalIncl U) φ = refl
 
     compOpenIncl : {U V : CompactOpen X} → V ≤ U → ⟦ V ⟧ᶜᵒ ⇒ ⟦ U ⟧ᶜᵒ
     N-ob (compOpenIncl {U = U} {V = V} V≤U) A (x , Vx≡D1) = x , path
@@ -458,6 +496,30 @@ module _ {ℓ : Level} where
              D A 1r ∎
     N-hom (compOpenIncl V≤U) φ = funExt λ x → Σ≡Prop (λ _ → squash/ _ _) refl
 
+    -- this is essentially U∧_
+    compOpenDownHom : (U : CompactOpen X)
+                    → DistLatticeHom (CompOpenDistLattice .F-ob X)
+                                     (CompOpenDistLattice .F-ob ⟦ U ⟧ᶜᵒ)
+    compOpenDownHom U = CompOpenDistLattice .F-hom (compOpenGlobalIncl U)
+
+    module _ {U V : CompactOpen X} (V≤U : V ≤ U) where
+      -- We need this separate definition to avoid termination checker issues,
+      -- but we don't understand why.
+      private
+        compOpenDownHomFun : (A : CommRing ℓ)
+                           → ⟦ V ⟧ᶜᵒ .F-ob A .fst
+                           → ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ .F-ob A .fst
+        compOpenDownHomFun A v = (compOpenIncl V≤U ⟦ A ⟧) v , snd v
+
+      compOpenDownHomNatIso : NatIso ⟦ V ⟧ᶜᵒ ⟦ compOpenDownHom U .fst V ⟧ᶜᵒ
+      N-ob (trans compOpenDownHomNatIso) = compOpenDownHomFun
+      N-hom (trans compOpenDownHomNatIso) _ =
+        funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
+      inv (nIso compOpenDownHomNatIso A) ((x , Ux≡D1) , Vx≡D1) = x , Vx≡D1
+      sec (nIso compOpenDownHomNatIso A) =
+        funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (Σ≡Prop (λ _ → squash/ _ _) refl)
+      ret (nIso compOpenDownHomNatIso A) = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) refl
+
     compOpenInclId : ∀ {U : CompactOpen X} → compOpenIncl (is-refl U) ≡ idTrans ⟦ U ⟧ᶜᵒ
     compOpenInclId = makeNatTransPath (funExt₂ (λ _ _ → Σ≡Prop (λ _ → squash/ _ _) refl))
 
@@ -467,32 +529,267 @@ module _ {ℓ : Level} where
     compOpenInclSeq _ _ = makeNatTransPath
                             (funExt₂ (λ _ _ → Σ≡Prop (λ _ → squash/ _ _) refl))
 
+
+    -- the structure sheaf
+    private COᵒᵖ = (DistLatticeCategory (CompOpenDistLattice .F-ob X)) ^op
+
     strDLSh : Functor COᵒᵖ (CommRingsCategory {ℓ = ℓ-suc ℓ})
     F-ob strDLSh  U = 𝓞 .F-ob ⟦ U ⟧ᶜᵒ
     F-hom strDLSh U≥V = 𝓞 .F-hom (compOpenIncl U≥V)
     F-id strDLSh = cong (𝓞 .F-hom) compOpenInclId ∙ 𝓞 .F-id
     F-seq strDLSh _ _ = cong (𝓞 .F-hom) (compOpenInclSeq _ _) ∙ 𝓞 .F-seq _ _
 
-  -- the canonical one element affine cover of a representable
+
+  -- def. affine cover and locality for definition of qcqs-scheme
+  module _ (X : ℤFunctor) where
+    open isIsoC
+    open Join (CompOpenDistLattice .F-ob X)
+    open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob X)))
+    open PosetStr (IndPoset .snd) hiding (_≤_)
+    open LatticeTheory ⦃...⦄
+    private instance _ = (CompOpenDistLattice .F-ob X) .snd
+
+    record AffineCover : Type (ℓ-suc ℓ) where
+      field
+        n : ℕ
+        U : FinVec (CompactOpen X) n
+        covers : ⋁ U ≡ 1l -- TODO: equivalent to X ≡ ⟦ ⋁ U ⟧ᶜᵒ
+        isAffineU : ∀ i → isAffineCompactOpen (U i)
+
+    hasAffineCover : Type (ℓ-suc ℓ)
+    hasAffineCover = ∥ AffineCover ∥₁
+
+  -- qcqs-schemes as Zariski sheaves (local ℤ-functors) with an affine cover in the sense above
+  isLocal : ℤFunctor → Type (ℓ-suc ℓ)
+  isLocal X = isSheaf zariskiCoverage X
+
+  -- Compact opens of Zariski sheaves are sheaves
+  presLocalCompactOpen : (X : ℤFunctor) (U : CompactOpen X) → isLocal X → isLocal ⟦ U ⟧ᶜᵒ
+  presLocalCompactOpen X U isLocalX R um@(unimodvec _ f _) = isoToIsEquiv isoU
+    where
+    open Coverage zariskiCoverage
+    open InvertingElementsBase R
+    instance _ = R .snd
+
+    fᵢCoverR = covers R .snd um
+
+    isoX : Iso (X .F-ob R .fst) (CompatibleFamily X fᵢCoverR)
+    isoX = equivToIso (elementToCompatibleFamily _ _ , isLocalX R um)
+
+    compatibleFamIncl : (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR) → (CompatibleFamily X fᵢCoverR)
+    compatibleFamIncl fam = (fst ∘ fst fam)
+                          , λ i j B φ ψ φψComm → cong fst (fam .snd i j B φ ψ φψComm)
+
+    compatibleFamIncl≡ : ∀ (y : Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
+                       → compatibleFamIncl (elementToCompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR y)
+                       ≡ elementToCompatibleFamily X fᵢCoverR (y .fst)
+    compatibleFamIncl≡ y = CompatibleFamily≡ _ _ _ _ λ _ → refl
+
+    isoU : Iso (Σ[ x ∈ X .F-ob R .fst  ] U .N-ob R x ≡ D R 1r)
+               (CompatibleFamily ⟦ U ⟧ᶜᵒ fᵢCoverR)
+    fun isoU = elementToCompatibleFamily _ _
+    fst (inv isoU fam) = isoX .inv (compatibleFamIncl fam)
+    snd (inv isoU fam) = -- U (x) ≡ D(1)
+                         -- knowing that U(x/1)¸≡ D(1) in R[1/fᵢ]
+      let x = isoX .inv (compatibleFamIncl fam) in
+      isSeparatedZarLatFun R um (U .N-ob R x) (D R 1r)
+        λ i → let open UniversalProp (f i)
+                  instance _ = R[1/ (f i) ]AsCommRing .snd in
+
+                inducedZarLatHom /1AsCommRingHom .fst (U .N-ob R x)
+
+              ≡⟨ funExt⁻ (sym (U .N-hom /1AsCommRingHom)) x ⟩
+
+                U .N-ob R[1/ (f i) ]AsCommRing (X .F-hom /1AsCommRingHom x)
+
+              ≡⟨ cong (U .N-ob R[1/ f i ]AsCommRing)
+                      (funExt⁻ (cong fst (isoX .rightInv (compatibleFamIncl fam))) i) ⟩
+
+                U .N-ob R[1/ (f i) ]AsCommRing (fam .fst i .fst)
+
+              ≡⟨ fam .fst i .snd ⟩
+
+                D R[1/ (f i) ]AsCommRing 1r
+
+              ≡⟨ sym (inducedZarLatHom /1AsCommRingHom .snd .pres1) ⟩
+
+                inducedZarLatHom /1AsCommRingHom .fst (D R 1r) ∎
+
+    rightInv isoU fam =
+      Σ≡Prop (λ _ → isPropIsCompatibleFamily _ _ _)
+        (funExt λ i → Σ≡Prop (λ _ → squash/ _ _)
+                        (funExt⁻ (cong fst
+                          (isoX .rightInv (compatibleFamIncl fam))) i))
+    leftInv isoU y = Σ≡Prop (λ _ → squash/ _ _)
+                            (cong (isoX .inv) (compatibleFamIncl≡ y)
+                              ∙ isoX .leftInv (y .fst))
+
+
+  -- definition of quasi-compact, quasi-separated schemes
+  isQcQsScheme : ℤFunctor → Type (ℓ-suc ℓ)
+  isQcQsScheme X = isLocal X × hasAffineCover X
+
+
+  -- affine schemes are qcqs-schemes
   module _ (A : CommRing ℓ) where
     open AffineCover
     private instance _ = (CompOpenDistLattice ⟅ Sp ⟅ A ⟆ ⟆) .snd
 
+    -- the canonical one element affine cover of a representable
     singlAffineCover : AffineCover (Sp .F-ob A)
     n singlAffineCover = 1
     U singlAffineCover zero = 1l
     covers singlAffineCover = ∨lRid _
     isAffineU singlAffineCover zero = ∣ A , compOpenTopNatIso (Sp ⟅ A ⟆) ∣₁
 
+    isQcQsSchemeAffine : isQcQsScheme (Sp .F-ob A)
+    fst isQcQsSchemeAffine = isSubcanonicalZariskiCoverage A
+    snd isQcQsSchemeAffine = ∣ singlAffineCover ∣₁
 
-  -- qcqs-schemes as Zariski sheaves (local ℤ-functors) with an affine cover in the sense above
-  isLocal : ℤFunctor → Type (ℓ-suc ℓ)
-  isLocal X = isSheaf zariskiCoverage X
 
-  isQcQsScheme : ℤFunctor → Type (ℓ-suc ℓ)
-  isQcQsScheme X = isLocal X × hasAffineCover X
+-- standard affine opens
+-- TODO: separate file?
+module StandardOpens {ℓ : Level} (R : CommRing ℓ) (f : R .fst) where
 
-  -- affine schemes are qcqs-schemes
-  isQcQsSchemeAffine : ∀ (A : CommRing ℓ) → isQcQsScheme (Sp .F-ob A)
-  fst (isQcQsSchemeAffine A) = isSubcanonicalZariskiCoverage A
-  snd (isQcQsSchemeAffine A) = ∣ singlAffineCover A ∣₁
+  open Iso
+  open Functor
+  open NatTrans
+  open NatIso
+  open isIsoC
+  open DistLatticeStr ⦃...⦄
+  open CommRingStr ⦃...⦄
+  open IsRingHom
+  open RingHoms
+  open IsLatticeHom
+  open ZarLat
+
+  open InvertingElementsBase R
+  open UniversalProp f
+
+  private module ZL = ZarLatUniversalProp
+
+  private
+    instance
+      _ = R .snd
+
+  D : CompactOpen (Sp ⟅ R ⟆)
+  D = yonedaᴾ ZarLatFun R .inv (ZL.D R f)
+
+  SpR[1/f]≅⟦Df⟧ : NatIso (Sp .F-ob R[1/ f ]AsCommRing) ⟦ D ⟧ᶜᵒ
+  N-ob (trans SpR[1/f]≅⟦Df⟧) B φ = (φ ∘r /1AsCommRingHom) , ∨lRid _ ∙ path
+    where
+    open CommRingHomTheory φ
+    open IsSupport (ZL.isSupportD B)
+    instance
+      _ = B .snd
+      _ = ZariskiLattice B .snd
+
+    isUnitφ[f/1] : φ .fst (f /1) ∈ B ˣ
+    isUnitφ[f/1] = RingHomRespInv (f /1) ⦃ S/1⊆S⁻¹Rˣ f ∣ 1 , sym (·IdR f) ∣₁ ⦄
+
+    path : ZL.D B (φ .fst (f /1)) ≡ 1l
+    path = supportUnit _ isUnitφ[f/1]
+
+  N-hom (trans SpR[1/f]≅⟦Df⟧) _ = funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (RingHom≡ refl)
+
+  inv (nIso SpR[1/f]≅⟦Df⟧ B) (φ , Dφf≡D1) = invElemUniversalProp B φ isUnitφf .fst .fst
+    where
+    instance _ = ZariskiLattice B .snd
+    isUnitφf : φ .fst f ∈ B ˣ
+    isUnitφf = unitLemmaZarLat B (φ $r f) (sym (∨lRid _) ∙ Dφf≡D1)
+
+  sec (nIso SpR[1/f]≅⟦Df⟧ B) =
+    funExt λ _ → Σ≡Prop (λ _ → squash/ _ _) (RingHom≡ (invElemUniversalProp _ _ _ .fst .snd))
+  ret (nIso SpR[1/f]≅⟦Df⟧ B) =
+    funExt λ φ → cong fst (invElemUniversalProp B (φ ∘r /1AsCommRingHom) _ .snd (φ , refl))
+
+  isAffineD : isAffineCompactOpen D
+  isAffineD = ∣ R[1/ f ]AsCommRing , SpR[1/f]≅⟦Df⟧ ∣₁
+
+
+-- compact opens of affine schemes are qcqs-schemes
+module _ {ℓ : Level} (R : CommRing ℓ) (W : CompactOpen (Sp ⟅ R ⟆)) where
+
+  open StandardOpens
+
+  open Iso
+  open Functor
+  open NatTrans
+  open NatIso
+  open isIsoC
+  open DistLatticeStr ⦃...⦄
+  open CommRingStr ⦃...⦄
+  open PosetStr ⦃...⦄
+  open IsRingHom
+  open RingHoms
+  open IsLatticeHom
+  open ZarLat
+
+  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice (CompOpenDistLattice .F-ob (Sp .F-ob R)))) using (IndPoset; ind≤bigOp)
+  open InvertingElementsBase R
+  open Join
+  open JoinMap
+  open AffineCover
+  private module ZL = ZarLatUniversalProp
+
+  private
+    instance
+      _ = R .snd
+      _ = ZariskiLattice R .snd
+      _ = CompOpenDistLattice .F-ob (Sp .F-ob R) .snd
+      _ = CompOpenDistLattice .F-ob ⟦ W ⟧ᶜᵒ .snd
+      _ = IndPoset .snd
+
+    w : ZL R
+    w = yonedaᴾ ZarLatFun R .fun W
+
+    -- yoneda is a lattice homomorphsim
+    isHomYoneda : IsLatticeHom (DistLattice→Lattice (ZariskiLattice R) .snd)
+                               (yonedaᴾ ZarLatFun R .inv)
+                               (DistLattice→Lattice (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) .snd)
+    pres0 isHomYoneda = makeNatTransPath (funExt₂ (λ _ _ → refl))
+    pres1 isHomYoneda =
+      makeNatTransPath (funExt₂ (λ _ φ → inducedZarLatHom φ .snd .pres1))
+    pres∨l isHomYoneda u v =
+      makeNatTransPath (funExt₂ (λ _ φ → inducedZarLatHom φ .snd .pres∨l u v))
+    pres∧l isHomYoneda u v =
+      makeNatTransPath (funExt₂ (λ _ φ → inducedZarLatHom φ .snd .pres∧l u v))
+
+    module _ {n : ℕ}
+             (f : FinVec (fst R) n)
+             (⋁Df≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ f) ≡ W) where
+
+      Df≤W : ∀ i → D R (f i) ≤ W
+      Df≤W i = subst (D R (f i) ≤_) ⋁Df≡W (ind≤bigOp (D R ∘ f) i)
+
+      toAffineCover : AffineCover ⟦ W ⟧ᶜᵒ
+      AffineCover.n toAffineCover = n
+      U toAffineCover i = compOpenDownHom (Sp ⟅ R ⟆) W .fst (D R (f i))
+      covers toAffineCover = sym (pres⋁ (compOpenDownHom (Sp ⟅ R ⟆) W) (D R ∘ f))
+                           ∙ cong (compOpenDownHom (Sp ⟅ R ⟆) W .fst) ⋁Df≡W
+                           ∙ makeNatTransPath (funExt₂ (λ _ → snd))
+      isAffineU toAffineCover i =
+        ∣ _ , seqNatIso (SpR[1/f]≅⟦Df⟧ R (f i)) (compOpenDownHomNatIso _ (Df≤W i)) ∣₁
+
+  module _ {n : ℕ}
+           (f : FinVec (fst R) n)
+           (⋁Df≡w : ⋁ (ZariskiLattice R) (ZL.D R ∘ f) ≡ w) where
+
+    private
+      ⋁Df≡W : ⋁ (CompOpenDistLattice ⟅ Sp ⟅ R ⟆ ⟆) (D R ∘ f) ≡ W
+      ⋁Df≡W = sym (pres⋁ (_ , isHomYoneda) (ZL.D R ∘ f))
+            ∙ cong (yonedaᴾ ZarLatFun R .inv) ⋁Df≡w
+            ∙ yonedaᴾ ZarLatFun R .leftInv W
+
+    makeAffineCoverCompOpenOfAffine : AffineCover ⟦ W ⟧ᶜᵒ
+    makeAffineCoverCompOpenOfAffine = toAffineCover f ⋁Df≡W
+
+  hasAffineCoverCompOpenOfAffine : hasAffineCover ⟦ W ⟧ᶜᵒ
+  hasAffineCoverCompOpenOfAffine = PT.map truncHelper ([]surjective w)
+    where
+    truncHelper : Σ[ n,f ∈ Σ ℕ (FinVec (fst R)) ] [ n,f ] ≡ w → AffineCover ⟦ W ⟧ᶜᵒ
+    truncHelper ((n , f) , [n,f]≡w) = makeAffineCoverCompOpenOfAffine f (ZL.⋁D≡ R f ∙ [n,f]≡w)
+
+  isQcQsSchemeCompOpenOfAffine : isQcQsScheme ⟦ W ⟧ᶜᵒ
+  fst isQcQsSchemeCompOpenOfAffine = presLocalCompactOpen _ _ (isSubcanonicalZariskiCoverage R)
+  snd isQcQsSchemeCompOpenOfAffine = hasAffineCoverCompOpenOfAffine

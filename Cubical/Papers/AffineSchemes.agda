@@ -164,7 +164,7 @@ open FinGenIdeals using (FGIdealMultLemma)
 open ZariskiLatDef using (ZariskiLattice)
 
 -- support map D and universal property
-open ZariskiLatUnivProp using (D ; isZarMapD)
+open ZariskiLatUnivProp using (D ; isSupportD)
 open ZariskiLatUnivProp using (ZLHasUniversalProp)
 
 -- D(g) ≤ D(f) ⇔ isContr (R-Hom R[1/f] R[1/g])
