@@ -9,7 +9,9 @@ A Univalent Formalization of Constructive Affine Schemes
 
 Max Zeuner, Anders Mörtberg
 
-Preprint: https://arxiv.org/abs/2212.02902
+Available at: https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.TYPES.2022.14
+
+ArXiv version: https://arxiv.org/abs/2212.02902
 
 
 -}
