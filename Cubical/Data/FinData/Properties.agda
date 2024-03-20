@@ -13,7 +13,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum hiding (map)
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData.Base as Fin
 open import Cubical.Data.Nat renaming (zero to ℕzero ; suc to ℕsuc

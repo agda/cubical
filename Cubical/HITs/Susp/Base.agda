@@ -36,6 +36,12 @@ suspFun f north = north
 suspFun f south = south
 suspFun f (merid a i) = merid (f a) i
 
+-- pointed version
+suspFun∙ : {A B : Type ℓ} (f : A → B)
+       → Susp∙ A →∙ Susp∙ B
+fst (suspFun∙ f) = suspFun f
+snd (suspFun∙ f) = refl
+
 UnitIsoSuspUnit : Iso Unit (Susp Unit)
 fun UnitIsoSuspUnit _ = north
 inv UnitIsoSuspUnit _ = tt

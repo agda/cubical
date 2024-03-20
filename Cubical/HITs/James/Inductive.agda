@@ -23,6 +23,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sequence
 
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.Pushout

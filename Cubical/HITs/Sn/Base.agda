@@ -19,6 +19,11 @@ S₊ 0 = Bool
 S₊ 1 = S¹
 S₊ (suc (suc n)) = Susp (S₊ (suc n))
 
+-- Sⁿ⁻¹
+S⁻ : ℕ → Type
+S⁻ zero = ⊥
+S⁻ (suc n) = S₊ n
+
 ptSn : (n : ℕ) → S₊ n
 ptSn zero = true
 ptSn (suc zero) = base

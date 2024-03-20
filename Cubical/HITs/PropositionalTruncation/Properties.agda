@@ -263,20 +263,26 @@ module SetElim (Bset : isSet B) where
 
 open SetElim public using (rec→Set; trunc→Set≃)
 
-elim→Set
-  : {P : ∥ A ∥₁ → Type ℓ}
+elim→Set : ∀ {ℓ'} {A : Type ℓ'} {P : ∥ A ∥₁ → Type ℓ}
   → (∀ t → isSet (P t))
   → (f : (x : A) → P ∣ x ∣₁)
   → (kf : ∀ x y → PathP (λ i → P (squash₁ ∣ x ∣₁ ∣ y ∣₁ i)) (f x) (f y))
   → (t : ∥ A ∥₁) → P t
-elim→Set {A = A} {P = P} Pset f kf t
-  = rec→Set (Pset t) g gk t
+elim→Set {A = A} {P = P} Pset f kf t = main t .fst .fst
   where
-  g : A → P t
-  g x = transp (λ i → P (squash₁ ∣ x ∣₁ t i)) i0 (f x)
-
-  gk : 2-Constant g
-  gk x y i = transp (λ j → P (squash₁ (squash₁ ∣ x ∣₁ ∣ y ∣₁ i) t j)) i0 (kf x y i)
+  main : (t : ∥ A ∥₁)
+    → isContr (Σ[ x ∈ P t ]
+                ((a : A) → PathP (λ i → P (squash₁ t ∣ a ∣₁ i)) x (f a)))
+  main = elim (λ _ → isPropIsContr)
+    λ a →
+       (((f a) , kf a)
+      , λ {(x , p) → Σ≡Prop (λ _ → isPropΠ
+           λ _ → isOfHLevelPathP' 1 (Pset _) _ _)
+             (sym (transport (λ j → PathP (λ i → P (sq a j i)) x (f a)) (p a)))
+             })
+    where
+    sq : (a : A) → squash₁ ∣ a ∣₁ ∣ a ∣₁ ≡ refl
+    sq a = isProp→isSet squash₁ _ _ _ _
 
 elim2→Set :
     {P : ∥ A ∥₁ → ∥ B ∥₁ → Type ℓ}

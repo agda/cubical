@@ -496,6 +496,14 @@ PathIdTruncIso zero =
     (isOfHLevelUnit* 0)
 PathIdTruncIso (suc n) = ΩTrunc.IsoFinal ∣ _ ∣ ∣ _ ∣
 
+PathPIdTruncIso : {A : I → Type ℓ} {a : A i0} {b : A i1} (n : HLevel)
+  → Iso (PathP (λ i → ∥ A i ∥ suc n) ∣ a ∣ ∣ b ∣) (∥ PathP (λ i → A i) a b ∥ n)
+PathPIdTruncIso {A = A} n = lem (A i0) (A i1) (λ i → A i) n
+  where
+  lem : ∀ {ℓ} (A B : Type ℓ) (A' : A ≡ B) {a : A} {b : B} (n : HLevel)
+       → Iso (PathP (λ i → ∥ A' i ∥ suc n) ∣ a ∣ ∣ b ∣) (∥ PathP (λ i → A' i) a b ∥ n)
+  lem A = J> PathIdTruncIso
+
 PathIdTrunc : {a b : A} (n : HLevel) → (Path (∥ A ∥ (suc n)) ∣ a ∣ ∣ b ∣) ≡ (∥ a ≡ b ∥ n)
 PathIdTrunc n = isoToPath (PathIdTruncIso n)
 

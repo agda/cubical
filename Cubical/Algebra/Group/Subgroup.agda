@@ -207,3 +207,10 @@ module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
     f x H.· f (G.inv x)             ≡⟨ cong (f x H.·_) (ϕ.presinv x) ⟩
     f x H.· H.inv (f x)             ≡⟨ H.·InvR _ ⟩
     H.1g                            ∎
+
+module _ {G H : Group ℓ} (ϕ : GroupHom G H) where
+  kerGroup : Group ℓ
+  kerGroup = Subgroup→Group G (kerSubgroup ϕ)
+
+  kerGroup≡ : {x y : ⟨ kerGroup ⟩} → x .fst ≡ y .fst → x ≡ y
+  kerGroup≡ = Σ≡Prop (isPropIsInKer ϕ)

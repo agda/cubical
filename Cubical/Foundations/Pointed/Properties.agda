@@ -244,3 +244,14 @@ compPathlEquiv∙ : {A : Type ℓ} {a b c : A} {q : b ≡ c} (p : a ≡ b)
     → ((b ≡ c) , q) ≃∙ ((a ≡ c) , p ∙ q)
 fst (compPathlEquiv∙ p) = compPathlEquiv p
 snd (compPathlEquiv∙ p) = refl
+
+-- a pointed map is constant iff its non-pointed part is constant
+constantPointed≡ : {A B : Pointed ℓ} (f : A →∙ B)
+                 → fst f ≡ fst (const∙ A B) → f ≡ const∙ A B
+constantPointed≡ {A = A} {B = B , b} f Hf i =
+  (λ x → ((λ j → Hf j x) ∙∙ (λ j → Hf (~ j) (pt A)) ∙∙ (snd f)) i)
+  , λ j → hcomp (λ k
+    → λ { (i = i0) → invSides-filler (λ i → Hf i (pt A)) (λ i → snd f i) k (~ j)
+         ; (i = i1) → snd f k
+         ; (j = i1) → snd f k })
+    (Hf ((~ i) ∧ (~ j)) (pt A))

@@ -437,3 +437,9 @@ Square→compPathΩ² {a = a} sq k i j =
                  ; (j = i1) → a
                  ; (k = i1) → cong (λ x → rUnit x r) (flipSquare sq) i j})
         (sq j i)
+
+pathFiber : {B : Type ℓ} (f : A → B)
+  (b : B) {a a' : A} {t : f a ≡ b} {t' : f a' ≡ b} →
+  ((a , t) ≡ (a' , t' )) → Σ[ e ∈ a ≡ a' ] (t ≡ cong f e ∙ t')
+pathFiber {A} {B} f b {a} {a'} {t} {t'} e =
+  J (λ X _ → Σ[ e ∈ a ≡ fst X ] (t ≡ cong f e ∙ (snd X))) (refl , lUnit t) e

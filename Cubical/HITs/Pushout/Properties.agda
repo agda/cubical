@@ -29,8 +29,11 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
 
+open import Cubical.Relation.Nullary
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.Pushout.Base
 
@@ -527,3 +530,19 @@ module PushoutDistr {ℓ ℓ' ℓ'' ℓ''' : Level}
   leftInv PushoutDistrIso (inr (push a i)) j =
     compPath-filler' (push (g a)) (λ j → inr (push a j)) (~ j) i
   leftInv PushoutDistrIso (push a i) j = push a (i ∧ j)
+
+PushoutEmptyFam : ¬ A → ¬ C
+  → {f : A → B} {g : A → C}
+  → Iso B (Pushout {A = A} {B = B} {C = C} f g)
+fun (PushoutEmptyFam ¬A ¬C) = inl
+inv (PushoutEmptyFam ¬A ¬C) (inl x) = x
+inv (PushoutEmptyFam ¬A ¬C) (inr x) = ⊥.rec (¬C x)
+inv (PushoutEmptyFam ¬A ¬C {f = f} {g = g}) (push a i) =
+  ⊥.rec {A = f a ≡ rec (¬C (g a))} (¬A a) i
+rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inl x) = refl
+rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inr x) = ⊥.rec (¬C x)
+rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C {f = f} {g = g}) (push a i) j =
+  ⊥.rec {A = Square (λ i →  inl (rec {A = f a ≡ rec (¬C (g a))} (¬A a) i))
+                     (push a) (λ _ → inl (f a)) (rec (¬C (g a)))}
+         (¬A a) j i
+leftInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) x = refl

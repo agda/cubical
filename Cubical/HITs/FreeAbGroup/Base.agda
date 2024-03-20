@@ -4,6 +4,11 @@ module Cubical.HITs.FreeAbGroup.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Data.Nat hiding (_·_)
+open import Cubical.Data.Fin.Inductive.Base
+open import Cubical.Data.Fin.Inductive.Properties
+open import Cubical.Data.Empty as ⊥
 
 infixl 7 _·_
 infix 20 _⁻¹
@@ -78,3 +83,41 @@ module Rec {B : Type ℓ'} (BType : isSet B)
 
   f : FreeAbGroup A → B
   f = Elim.f ⟦_⟧* ε* _·*_ _⁻¹* assoc* comm* identityᵣ* invᵣ* (const BType)
+
+isContr-Free⊥ : isContr (FreeAbGroup ⊥)
+fst isContr-Free⊥ = ε
+snd isContr-Free⊥ =
+  ElimProp.f (trunc _ _)
+    (λ {()})
+    refl
+    (λ p q → sym (identityᵣ ε) ∙ cong₂ _·_ p q)
+    λ p → sym (invᵣ ε) ∙ comm _ _ ∙ identityᵣ (ε ⁻¹) ∙ cong _⁻¹ p
+
+isContr-FreeFin0 : isContr (FreeAbGroup (Fin 0))
+isContr-FreeFin0 = subst (isContr ∘ FreeAbGroup) (sym lem) isContr-Free⊥
+  where
+  lem : Fin 0 ≡ ⊥
+  lem = isoToPath (iso ¬Fin0 (λ{()}) (λ{()}) λ p → ⊥.rec (¬Fin0 p))
+
+Free↑ : (n : ℕ) → FreeAbGroup (Fin n) → FreeAbGroup (Fin (suc n))
+Free↑ n ⟦ x ⟧ = ⟦ injectSuc x ⟧
+Free↑ n ε = ε
+Free↑ n (x · x₁) = Free↑ n x · Free↑ n x₁
+Free↑ n (x ⁻¹) = (Free↑ n x) ⁻¹
+Free↑ n (assoc x x₁ x₂ i) = assoc (Free↑ n x) (Free↑ n x₁) (Free↑ n x₂) i
+Free↑ n (comm x x₁ i) = comm (Free↑ n x) (Free↑ n x₁) i
+Free↑ n (identityᵣ x i) = identityᵣ (Free↑ n x) i
+Free↑ n (invᵣ x i) = invᵣ (Free↑ n x) i
+Free↑ n (trunc x x₁ x₂ y i i₁) =
+  isSet→isSet' trunc
+    (λ _ → Free↑ n x) (λ _ → Free↑ n x₁)
+    (λ j → Free↑ n (x₂ j)) (λ j → Free↑ n (y j)) i₁ i
+
+Free↑sumFinℤ : (n m : ℕ) (g : Fin m → FreeAbGroup (Fin n))
+  → Free↑ n (sumFinGen {n = m} _·_ ε g) ≡ sumFinGen {n = m} _·_ ε (Free↑ n ∘ g)
+Free↑sumFinℤ zero zero g = refl
+Free↑sumFinℤ zero (suc m) g =
+  cong (Free↑ zero (g flast) ·_) (Free↑sumFinℤ zero m (λ x → g (injectSuc x)))
+Free↑sumFinℤ (suc n) zero g = refl
+Free↑sumFinℤ (suc n) (suc m) g =
+  cong (Free↑ (suc n) (g flast) ·_) (Free↑sumFinℤ (suc n) m (λ x → g (injectSuc x)))
