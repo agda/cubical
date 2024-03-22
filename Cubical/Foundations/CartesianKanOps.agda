@@ -3,8 +3,7 @@
 module Cubical.Foundations.CartesianKanOps where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Erp
 
 coe0→1 : ∀ {ℓ} (A : I → Type ℓ) → A i0 → A i1
 coe0→1 A a = transp (\ i → A i) i0 a
@@ -45,20 +44,20 @@ coei0→0 A a = refl
 coei1→0 : ∀ {ℓ} (A : I → Type ℓ) (a : A i1) → coei→0 A i1 a ≡ coe1→0 A a
 coei1→0 A a = refl
 
+-- "Equality" on the interval, chosen for the next definition:
+-- erp k i j is constant in k on eqI i j. Note that eqI i i is not i1
+-- but i ∨ ~ i.
+private
+  eqI : I → I → I
+  eqI i j = (i ∧ j) ∨ (~ i ∧ ~ j)
+
 -- "master coe"
--- defined as the filler of coei→0, coe0→i, and coe1→i
 -- unlike in cartesian cubes, we don't get coei→i = id definitionally
 coei→j : ∀ {ℓ} (A : I → Type ℓ) (i j : I) → A i → A j
-coei→j A i j a =
-  fill (\ i → A i)
-    (λ j → λ { (i = i0) → coe0→i A j a
-             ; (i = i1) → coe1→i A j a
-             })
-    (inS (coei→0 A i a))
-    j
+coei→j A i j a = transp (λ k → A (erp k i j)) (eqI i j) a
 
 -- "squeeze"
--- this is just defined as the composite face of the master coe
+-- this is just defined as the face of the master coe
 coei→1 : ∀ {ℓ} (A : I → Type ℓ) (i : I) → A i → A i1
 coei→1 A i a = coei→j A i i1 a
 
@@ -83,13 +82,14 @@ coei1→i A i a = refl
 
 -- only non-definitional equation, but definitional at the ends
 coei→i : ∀ {ℓ} (A : I → Type ℓ) (i : I) (a : A i) → coei→j A i i a ≡ a
-coei→i A i a j =
-  comp (λ k → A (i ∧ (j ∨ k)))
-  (λ k → λ
-    { (i = i0) → a
-    ; (i = i1) → coe1→i A (j ∨ k) a
-    ; (j = i1) → a })
-  (transpFill {A = A i0} (~ i) (λ t → inS (A (i ∧ ~ t))) a (~ j))
+coei→i A i a j = transp (λ _ → A i) (erp j (i ∨ ~ i) i1) a
+  where
+  -- note: coei→i is almost just transportRefl (but the φ for the
+  -- transp is i ∨ ~ i, not i0)
+  _ : Path (PathP (λ i → A i → A i) (λ a → a) (λ a → a))
+           (λ i a → coei→j A i i a)
+           (λ i a → transp (λ _ → A i) (i ∨ ~ i) a)
+  _ = refl
 
 coe0→0 : ∀ {ℓ} (A : I → Type ℓ) (a : A i0) → coei→i A i0 a ≡ refl
 coe0→0 A a = refl
@@ -99,14 +99,8 @@ coe1→1 A a = refl
 
 -- coercion when there already exists a path
 coePath : ∀ {ℓ} (A : I → Type ℓ) (p : (i : I) → A i) → (i j : I) → coei→j A i j (p i) ≡ p j
-coePath A p i j =
-  hcomp (λ k → λ
-    { (i = i0)(j = i0) → rUnit refl (~ k)
-    ; (i = i1)(j = i1) → rUnit refl (~ k) })
-  (diag ∙ coei→i A j (p j))
-  where
-  diag : coei→j A i j (p i) ≡ coei→j A j j (p j)
-  diag k = coei→j A _ j (p ((j ∨ (i ∧ ~ k)) ∧ (i ∨ (j ∧ k))))
+coePath A p i j k =
+  transp (λ l → A (erp l (erp k i j) j)) (erp k (eqI i j) i1) (p (erp k i j))
 
 coePathi0 : ∀ {ℓ} (A : I → Type ℓ) (p : (i : I) → A i) → coePath A p i0 i0 ≡ refl
 coePathi0 A p = refl
