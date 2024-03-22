@@ -21,6 +21,7 @@ f >> g = f >>= λ _ → g
 
 infixl 4 _>>=_ _>>_ _<|>_
 
+-- This should be called mapTC.
 liftTC : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → (A → B) → R.TC A → R.TC B
 liftTC f ta = ta >>= λ a → R.returnTC (f a)
 
