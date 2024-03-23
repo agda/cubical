@@ -15,15 +15,16 @@ If you want to use some specific release of Agda,
 the following table lists which releases of Agda you can use with which release of this library.
 Agda versions as written below, correspond to tags.
 
-| cubical library version | Agda versions     |
-|-------------------------|-------------------|
-| `current master`        | `v2.6.4`          |
-| `v0.6`                  | `v2.6.4`          |
-| `v0.5`                  | `v2.6.3` `v2.6.4` |
-| `v0.4`                  | `v2.6.2.2`        |
-| `v0.3`                  | `v2.6.2`          |
-| `v0.2`                  | `v2.6.1.3`        |
-| `v0.1`                  | `v2.6.0.1`        |
+| cubical library version | Agda versions       |
+|-------------------------|---------------------|
+| current master          | `v2.6.4` `v2.6.4.1` |
+| `v0.7`                  | `v2.6.4` `v2.6.4.1` |
+| `v0.6`                  | `v2.6.4`            |
+| `v0.5`                  | `v2.6.3` `v2.6.4`   |
+| `v0.4`                  | `v2.6.2.2`          |
+| `v0.3`                  | `v2.6.2`            |
+| `v0.2`                  | `v2.6.1.3`          |
+| `v0.1`                  | `v2.6.0.1`          |
 
 For example, if you have Agda 2.6.2.2, you can switch to version 0.4 of the cubical library with
 ```

@@ -29,25 +29,30 @@ private
     ℓ ℓ' ℓ'' ℓ''' : Level
 
 module LatticeTheory (L' : Lattice ℓ) where
- private L = fst L'
- open LatticeStr (snd L')
+  private L = fst L'
+  open LatticeStr (snd L')
 
- 0lLeftAnnihilates∧l : ∀ (x : L) → 0l ∧l x ≡ 0l
- 0lLeftAnnihilates∧l x = 0l ∧l x          ≡⟨ cong (0l ∧l_) (sym (∨lLid _)) ⟩
-                          0l ∧l (0l ∨l x) ≡⟨ ∧lAbsorb∨l _ _ ⟩
-                          0l ∎
+  0lLeftAnnihilates∧l : ∀ (x : L) → 0l ∧l x ≡ 0l
+  0lLeftAnnihilates∧l x = 0l ∧l x          ≡⟨ cong (0l ∧l_) (sym (∨lLid _)) ⟩
+                           0l ∧l (0l ∨l x) ≡⟨ ∧lAbsorb∨l _ _ ⟩
+                           0l ∎
 
- 0lRightAnnihilates∧l : ∀ (x : L) → x ∧l 0l ≡ 0l
- 0lRightAnnihilates∧l _ = ∧lComm _ _ ∙ 0lLeftAnnihilates∧l _
+  0lRightAnnihilates∧l : ∀ (x : L) → x ∧l 0l ≡ 0l
+  0lRightAnnihilates∧l _ = ∧lComm _ _ ∙ 0lLeftAnnihilates∧l _
 
- 1lLeftAnnihilates∨l : ∀ (x : L) → 1l ∨l x ≡ 1l
- 1lLeftAnnihilates∨l x = 1l ∨l x          ≡⟨ cong (1l ∨l_) (sym (∧lLid _)) ⟩
-                          1l ∨l (1l ∧l x) ≡⟨ ∨lAbsorb∧l _ _ ⟩
-                          1l ∎
+  1lLeftAnnihilates∨l : ∀ (x : L) → 1l ∨l x ≡ 1l
+  1lLeftAnnihilates∨l x = 1l ∨l x          ≡⟨ cong (1l ∨l_) (sym (∧lLid _)) ⟩
+                           1l ∨l (1l ∧l x) ≡⟨ ∨lAbsorb∧l _ _ ⟩
+                           1l ∎
 
- 1lRightAnnihilates∨l : ∀ (x : L) → x ∨l 1l ≡ 1l
- 1lRightAnnihilates∨l _ = ∨lComm _ _ ∙ 1lLeftAnnihilates∨l _
+  1lRightAnnihilates∨l : ∀ (x : L) → x ∨l 1l ≡ 1l
+  1lRightAnnihilates∨l _ = ∨lComm _ _ ∙ 1lLeftAnnihilates∨l _
 
+  -- Provide an interface to CommMonoid lemmas about _∧l_.
+  module ∧l = CommMonoidTheory (Semilattice→CommMonoid (Lattice→MeetSemilattice L'))
+
+  ∧lLdist∧l : ∀ x y z → x ∧l (y ∧l z) ≡ (x ∧l y) ∧l (x ∧l z)
+  ∧lLdist∧l x y z = congL _∧l_ (sym (∧lIdem _)) ∙ ∧l.commAssocSwap x x y z
 
 
 module Order (L' : Lattice ℓ) where
@@ -74,12 +79,15 @@ module Order (L' : Lattice ℓ) where
  IndPosetPath : JoinPoset ≡ MeetPoset
  IndPosetPath = PosetPath _ _ .fst ((idEquiv _) , isposetequiv ≤Equiv )
 
- -- transport inequalities from ≤m to ≤j
+ -- transport some inequalities from ≤m to ≤j
  ∧lIsMinJoin : ∀ x y z → z ≤j x → z ≤j y → z ≤j x ∧l y
  ∧lIsMinJoin _ _ _ z≤jx z≤jy = ≤m→≤j _ _ (∧lIsMin _ _ _ (≤j→≤m _ _ z≤jx) (≤j→≤m _ _ z≤jy))
 
  ∧≤LCancelJoin : ∀ x y → x ∧l y ≤j y
  ∧≤LCancelJoin x y = ≤m→≤j _ _ (∧≤LCancel x y)
+
+ ∧≤RCancelJoin : ∀ x y → x ∧l y ≤j x
+ ∧≤RCancelJoin x y = ≤m→≤j _ _ (∧≤RCancel x y)
 
 
 module _ {L : Lattice ℓ} {M : Lattice ℓ'} (φ ψ : LatticeHom L M) where

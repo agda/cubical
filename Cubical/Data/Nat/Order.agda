@@ -272,6 +272,12 @@ zero ≟ suc n = lt (n , +-comm n 1)
 suc m ≟ zero = gt (m , +-comm m 1)
 suc m ≟ suc n = Trichotomy-suc (m ≟ n)
 
+Dichotomyℕ : ∀ (n m : ℕ) → (n ≤ m) ⊎ (n > m)
+Dichotomyℕ n m with (n ≟ m)
+... | lt x = inl (<-weaken x)
+... | Trichotomy.eq x = inl (0 , x)
+... | gt x = inr x
+
 splitℕ-≤ : (m n : ℕ) → (m ≤ n) ⊎ (n < m)
 splitℕ-≤ m n with m ≟ n
 ... | lt x = inl (<-weaken x)

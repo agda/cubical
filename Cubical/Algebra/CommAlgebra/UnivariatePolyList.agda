@@ -17,7 +17,7 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials.UnivariatePolyList
 open import Cubical.Algebra.Polynomials.UnivariateList.Base
 open import Cubical.Algebra.Polynomials.UnivariateList.Properties
 
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 private variable
   ℓ ℓ' : Level
@@ -217,7 +217,7 @@ module _ (R : CommRing ℓ) where
             (is-set _ _)
           where
             useSolver : (r : ⟨ R ⟩) → r ≡ (r · 1r) + 0r
-            useSolver = solve R
+            useSolver r = solve! R
 
 
     {- Reforumlation in terms of the R-AlgebraHom from R[X] to A -}

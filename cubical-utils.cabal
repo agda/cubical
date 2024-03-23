@@ -10,5 +10,5 @@ executable Everythings
   hs-source-dirs:   .
   main-is:          Everythings.hs
   default-language: Haskell2010
-  build-depends:      base      >= 4.9.0.0 && < 4.18
+  build-depends:      base      >= 4.9.0.0 && < 4.20
                     , directory >= 1.0.0.0 && < 1.4

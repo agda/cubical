@@ -4,7 +4,7 @@ module Cubical.Algebra.CommRing.RadicalIdeal where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Powerset using (⊆-isProp)
+open import Cubical.Foundations.Powerset using (⊆-isProp ; ∈-isProp)
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
@@ -24,7 +24,7 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.BinomialThm
 open import Cubical.Algebra.Ring.Properties
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 private
   variable
@@ -54,8 +54,6 @@ module RadicalIdeal (R' : CommRing ℓ) where
    binomialCoeff∈I i with ≤-+-split n m (toℕ i) (pred-≤-pred (toℕ<n i))
    ... | inl n≤i = subst-∈ I (sym path) (·Closed (I .snd) _ xⁿ∈I)
     where
-    useSolver : ∀ a b c d → a · (b · c) · d ≡ a · b · d · c
-    useSolver = solve R'
     path : ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ (n +ℕ m ∸ toℕ i)
          ≡ ((n +ℕ m) choose toℕ i) · x ^ (toℕ i ∸ n) · y ^ (n +ℕ m ∸ toℕ i) · x ^ n
     path = ((n +ℕ m) choose toℕ i) · x ^ toℕ i · y ^ (n +ℕ m ∸ toℕ i)
@@ -65,7 +63,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
          ≡⟨ cong (λ z → ((n +ℕ m) choose toℕ i) · z · y ^ (n +ℕ m ∸ toℕ i))
                  (sym (·-of-^-is-^-of-+ x (toℕ i ∸ n) n)) ⟩
            ((n +ℕ m) choose toℕ i) · (x ^ (toℕ i ∸ n) · x ^ n) · y ^ (n +ℕ m ∸ toℕ i)
-         ≡⟨ useSolver _ _ _ _ ⟩
+         ≡⟨ solve! R' ⟩
            ((n +ℕ m) choose toℕ i) · x ^ (toℕ i ∸ n) · y ^ (n +ℕ m ∸ toℕ i) · x ^ n ∎
 
    ... | inr m≤n+m-i = subst-∈ I (sym path) (·Closed (I .snd) _ yᵐ∈I)
@@ -97,7 +95,9 @@ module RadicalIdeal (R' : CommRing ℓ) where
  ∈→∈√ : ∀ (I : CommIdeal) (x : R) → x ∈ I → x ∈ √ I
  ∈→∈√ I _ x∈I = ∣ 1 , subst-∈ I (sym (·IdR _)) x∈I ∣₁
 
-
+ -- inverse direction holds for 1
+ 1∈√→1∈ : ∀ (I : CommIdeal) → 1r ∈ √ I → 1r ∈ I
+ 1∈√→1∈ I = PT.rec (∈-isProp (fst I) _) λ (n , 1ⁿ∈I) → subst-∈ I (1ⁿ≡1 n) 1ⁿ∈I
 
  -- important lemma for characterization of the Zariski lattice
  open KroneckerDelta (CommRing→Ring R')
@@ -146,7 +146,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
                         λ _ → subst-∈ I (useSolver _ _ _ _) (I .snd .·Closed _ y∈I)
     where
     useSolver : (bc y y^i z^m-i : R) → (bc · y^i · z^m-i) · y ≡ bc · (y · y^i) · z^m-i
-    useSolver = solve R'
+    useSolver bc y y^i z^m-i = solve! R'
 
    path : (m : ℕ) → x ^ n ≡ y + z → x ^ (n ·ℕ m) ≡ ∑ (yVec m) + z ^ m
    path m p = x ^ (n ·ℕ m) ≡⟨ ^-rdist-·ℕ x n m ⟩
@@ -156,7 +156,7 @@ module RadicalIdeal (R' : CommRing ℓ) where
               ∑ (yVec m) + z ^ m ∎
     where
     useSolver : (zm ∑yVec : R) → 1r · 1r · zm + ∑yVec ≡ ∑yVec + zm
-    useSolver = solve R'
+    useSolver zm ∑yVec = solve! R'
 
    Σhelper : Σ[ m ∈ ℕ ] (z ^ m ∈ J) → x ^ n ≡ y + z → x ∈ √ (I +i J)
    Σhelper (m , z^m∈J) x^n≡y+z =
