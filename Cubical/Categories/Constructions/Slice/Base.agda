@@ -5,6 +5,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport using (transpFill)
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
@@ -68,6 +69,21 @@ module _ {xf yg : SliceOb} where
   SOPath≃PathΣ = isoToEquiv SOPathIsoPathΣ
 
   SOPath≡PathΣ = ua (isoToEquiv SOPathIsoPathΣ)
+
+-- If the type of objects of C forms a set then so does the type of objects of the slice cat
+module _ (isSetCOb : isSet (C .ob)) where
+  isSetSliceOb : isSet SliceOb
+  isSetSliceOb x y =
+    subst
+      (λ t → isProp t)
+      (sym (SOPath≡PathΣ {xf = x} {yg = y}))
+      (isPropΣ
+        (isSetCOb (x .S-ob) (y .S-ob))
+        λ x≡y →
+          subst
+            (λ t → isProp t)
+            (sym (ua (PathP≃Path (λ i → C [ x≡y i , c ]) (x .S-arr) (y .S-arr))))
+            (C .isSetHom (transport (λ i → C [ x≡y i , c ]) (x .S-arr)) (y .S-arr)))
 
 -- intro and elim for working with SliceHom equalities (is there a better way to do this?)
 SliceHom-≡-intro : ∀ {a b} {f g} {c₁} {c₂}
