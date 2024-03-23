@@ -32,3 +32,25 @@ _⋆_ (Free G) f g = ccat G f g
 ⋆IdL (Free G) = pnil++ _
 ⋆IdR (Free G) = λ _ → refl
 ⋆Assoc (Free G) f g h = ++assoc G f g h
+
+
+module UniversalProperty (G : Graph ℓg ℓg') where
+
+  incFree : GraphHom G (Cat→Graph (Free G))
+  incFree $g x = x
+  incFree <$g> e = pcons pnil e
+
+  {-
+     G ──→ Free G
+      \    ∣
+   ∀ F \   ∣ ∃ F'
+        ↘  ↓
+          C
+  -}
+  ump : (C : WildCat ℓc ℓc') → GraphHom G (Cat→Graph C) → WildFunctor (Free G) C
+  ump C F = F'
+    where F' : WildFunctor (Free G) C
+          F-ob F' = _$g_ F
+          F-hom F' = {!_<$g>_!}
+          F-id F' = {!!}
+          F-seq F' = {!!}
