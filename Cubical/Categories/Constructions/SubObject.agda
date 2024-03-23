@@ -2,12 +2,16 @@
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Path
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Morphism
+
+open import Cubical.Relation.Binary.Order.Preorder
 
 open Category
 
@@ -33,3 +37,55 @@ subObjMorIsMonic : {s t : SubObjCat .ob} (f : SubObjCat [ s , t ])
 subObjMorIsMonic {s = s} {t = t} f = postcompCreatesMonic C
   (S-hom f) (S-arr (t .fst)) comp-is-monic
   where comp-is-monic = subst (isMonic C) (sym (S-comm f)) (s .snd)
+
+isPropSubObjMor : (s t : SubObjCat .ob) → isProp (SubObjCat [ s , t ])
+SliceHom.S-hom
+  (isPropSubObjMor
+    (sliceob incS , isMonicIncS)
+    (sliceob incT , isMonicIncT)
+    (slicehom x xComm)
+    (slicehom y yComm) i) =
+    isMonicIncT {a = x} {a' = y} (xComm ∙ sym  yComm) i
+SliceHom.S-comm
+  (isPropSubObjMor
+    (sliceob incS , isMonicIncS)
+    (sliceob incT , isMonicIncT)
+    (slicehom x xComm)
+    (slicehom y yComm) i) =
+    isProp→PathP (λ i → C .isSetHom (seq' C (isMonicIncT (xComm ∙ sym yComm) i) incT) incS) xComm yComm i
+
+isReflSubObjMor : (x : SubObjCat .ob) → SubObjCat [ x , x ]
+SliceHom.S-hom (isReflSubObjMor (sliceob inc , isMonicInc)) = C .id
+SliceHom.S-comm (isReflSubObjMor (sliceob inc , isMonicInc)) = C .⋆IdL inc
+
+isTransSubObjMor : (x y z : SubObjCat .ob) → SubObjCat [ x , y ] → SubObjCat [ y , z ] → SubObjCat [ x , z ]
+SliceHom.S-hom
+  (isTransSubObjMor
+    (sliceob incX , isMonicIncX)
+    (sliceob incY , isMonicIncY)
+    (sliceob incZ , isMonicIncZ)
+    (slicehom f fComm)
+    (slicehom g gComm)) = seq' C f g
+SliceHom.S-comm
+  (isTransSubObjMor
+    (sliceob incX , isMonicIncX)
+    (sliceob incY , isMonicIncY)
+    (sliceob incZ , isMonicIncZ)
+    (slicehom f fComm)
+    (slicehom g gComm)) =
+  seq' C (seq' C f g) incZ
+    ≡⟨ C .⋆Assoc f g incZ ⟩
+  seq' C f (seq' C g incZ)
+    ≡⟨ cong (λ x → seq' C f x) gComm ⟩
+  seq' C f incY
+    ≡⟨ fComm ⟩
+  incX
+    ∎
+
+module _ (isSetCOb : isSet (C .ob)) where
+  subObjCatPreorderStr : PreorderStr _ (SubObjCat .ob)
+  PreorderStr._≲_ subObjCatPreorderStr x y = SubObjCat [ x , y ]
+  IsPreorder.is-set (PreorderStr.isPreorder subObjCatPreorderStr) = isSetΣ (isSetSliceOb isSetCOb) λ x → isProp→isSet (∈-isProp isSubObj x)
+  IsPreorder.is-prop-valued (PreorderStr.isPreorder subObjCatPreorderStr) = isPropSubObjMor
+  IsPreorder.is-refl (PreorderStr.isPreorder subObjCatPreorderStr) = isReflSubObjMor
+  IsPreorder.is-trans (PreorderStr.isPreorder subObjCatPreorderStr) = isTransSubObjMor
