@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism hiding (invIso ; compIso ; isIso)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
 
@@ -141,7 +142,6 @@ module _ {C : Category ℓC ℓC'} where
 
 
 module _ {C : Category ℓC ℓC'} where
-
   open Category C
   open isIso
 
@@ -193,6 +193,50 @@ module _ {C : Category ℓC ℓC'} where
     ∙ (λ i → h ⋆ f .snd .ret i)
     ∙ ⋆IdR _
 
+  ⋆InvLMove⁻ : {x y z : ob}
+    (f : CatIso C x y)
+    {g : Hom[ y , z ]}{h : Hom[ x , z ]}
+    → g ≡ f .snd .inv ⋆ h
+    → f .fst ⋆ g ≡ h
+  ⋆InvLMove⁻ f {g = g} {h = h} p =
+    cong (λ a → f .fst ⋆ a) p ∙
+    sym (⋆Assoc _ _ _) ∙
+    cong (λ a → a ⋆ h) (f .snd .ret) ∙
+    ⋆IdL _
+
+  ⋆InvRMove⁻ : {x y z : ob}
+    (f : CatIso C y z)
+    {g : Hom[ x , y ]}{h : Hom[ x , z ]}
+    → g ≡ h ⋆ f .snd .inv
+    → g ⋆ f .fst ≡ h
+  ⋆InvRMove⁻ f {g = g} {h = h} p =
+    cong (λ a → a ⋆ f .fst) p ∙
+    ⋆Assoc _ _ _ ∙
+    cong (λ a → h ⋆ a) (f .snd .sec) ∙
+    ⋆IdR _
+
+  ⋆InvsFlipSq : {w x y z : ob}
+    (e : CatIso C w x)
+    {g : Hom[ w , y ]}
+    {h : Hom[ x , z ]}
+    (f : CatIso C y z)
+    → e .fst ⋆ h ≡ g ⋆ f .fst
+    → h ⋆ f .snd .inv ≡ e .snd .inv ⋆ g
+  ⋆InvsFlipSq e {g} {h} f p =
+    ⋆InvLMove e
+      (sym (⋆Assoc _ _ _)
+      ∙ sym (⋆InvRMove f (sym p)))
+
+  ⋆InvsFlipSq⁻ : {w x y z : ob}
+    (e : CatIso C w x)
+    {g : Hom[ w , y ]}
+    {h : Hom[ x , z ]}
+    (f : CatIso C y z)
+    → h ⋆ f .snd .inv ≡ e .snd .inv ⋆ g
+    → e .fst ⋆ h ≡ g ⋆ f .fst
+  ⋆InvsFlipSq⁻ e f p = ⋆InvLMove⁻ e
+    ( sym (⋆InvRMove⁻ f (sym p))
+    ∙ ⋆Assoc _ _ _)
 
 module _ {C : Category ℓC ℓC'} where
 
@@ -240,3 +284,45 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{F : Functor C D} whe
 
   F-pathToIso-∘ : {x y : C .ob} → F-Iso ∘ pathToIso {x = x} {y = y} ≡ pathToIso ∘ cong (F .F-ob)
   F-pathToIso-∘ i p = F-pathToIso p i
+
+-- Univalent Categories
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{F : Functor C D} where
+  module _ (isUnivC : isUnivalent C) (isUnivD : isUnivalent D) where
+    open isUnivalent
+    open Category
+    open Functor
+    isoToPathC = CatIsoToPath isUnivC
+    isoToPathD = CatIsoToPath isUnivD
+
+    F-isoToPath : {x y : C .ob} → (f : CatIso C x y) →
+      isoToPathD (F-Iso {F = F} f) ≡ cong (F .F-ob) (isoToPathC f)
+    F-isoToPath f = isoFunInjective (equivToIso (univEquiv isUnivD _ _)) _ _
+      ( secEq (univEquiv isUnivD _ _) _
+      ∙ sym (sym (F-pathToIso {F = F} (isoToPathC f))
+      ∙ cong (F-Iso {F = F}) (secEq (univEquiv isUnivC _ _) f)))
+
+module _ {C : Category ℓC ℓC'} (isUnivC : isUnivalent C) where
+  open Category
+  open Functor
+  open isUnivalent
+  op-Iso-pathToIso : ∀ {x y : C .ob} (p : x ≡ y)
+                   → op-Iso (pathToIso {C = C} p) ≡ pathToIso {C = C ^op} p
+  op-Iso-pathToIso =
+    J (λ y p → op-Iso (pathToIso {C = C} p) ≡ pathToIso {C = C ^op} p)
+      (CatIso≡ _ _ refl)
+
+  op-Iso-pathToIso' : ∀ {x y : C .ob} (p : x ≡ y)
+                   → op-Iso (pathToIso {C = C ^op} p) ≡ pathToIso {C = C} p
+  op-Iso-pathToIso' =
+    J (λ y p → op-Iso (pathToIso {C = C ^op} p) ≡ pathToIso {C = C} p)
+      (CatIso≡ _ _ refl)
+
+  isUnivalentOp : isUnivalent (C ^op)
+  isUnivalentOp .univ x y = isIsoToIsEquiv
+    ( (λ f^op → CatIsoToPath isUnivC (op-Iso f^op))
+    , (λ f^op → CatIso≡ _ _
+        (cong fst
+        (cong op-Iso ((secEq (univEquiv isUnivC _ _) (op-Iso f^op))))))
+    , λ p → cong (CatIsoToPath isUnivC) (op-Iso-pathToIso' p)
+        ∙ retEq (univEquiv isUnivC _ _) p)
