@@ -161,3 +161,19 @@ isIsoΣPropCat : {C : Category ℓ ℓ'} {P : ℙ (ob C)}
 inv (isIsoΣPropCat p q f isIsoF) = isIsoF .inv
 sec (isIsoΣPropCat p q f isIsoF) = isIsoF .sec
 ret (isIsoΣPropCat p q f isIsoF) = isIsoF .ret
+
+IsGroupoidCat : (C : Category ℓ ℓ') → Type (ℓ-max ℓ ℓ')
+IsGroupoidCat C = ∀ {x} {y} (f : C [ x , y ]) → isIso C f
+
+IsPropIsGroupoidCat : (C : Category ℓ ℓ') → isProp (IsGroupoidCat C)
+IsPropIsGroupoidCat C =
+ isPropImplicitΠ2 λ _ _ → isPropΠ isPropIsIso
+
+record GroupoidCat ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
+ field
+  category : Category ℓ ℓ'
+  isGroupoidCat : IsGroupoidCat category
+
+
+ _⁻¹ : ∀ {x y} → category [ x , y ] → category [ y , x ]
+ f ⁻¹ = isIso.inv (isGroupoidCat f)

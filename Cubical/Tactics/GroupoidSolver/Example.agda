@@ -8,7 +8,7 @@ open import Cubical.WildCat.Base
 open import Cubical.Tactics.GroupoidSolver.Solver
 open import Cubical.Data.List
 open import Cubical.Data.Nat
-
+open import Cubical.Categories.Category
 open import Cubical.WildCat.Functor
 
 private
@@ -77,3 +77,37 @@ module example (WG WG* : WildGroupoid ℓ ℓ')
 
   lhs≡rhs : lhs ≡ rhs
   lhs≡rhs = solveWildGroupoid (WG ∷ [])
+
+
+module exampleGpd (G G* : GroupoidCat ℓ ℓ')
+               (F : WildFunctor
+                    (WildGroupoid.wildCat (Groupoid-Solver.Groupoid→WildGroupoid _ _ G*))
+                    (WildGroupoid.wildCat (Groupoid-Solver.Groupoid→WildGroupoid _ _ G)))
+                where
+
+ open Groupoid-Solver ℓ ℓ'
+
+
+
+ module * where
+   open GroupoidCat G* public
+   open Category category public
+
+ open GroupoidCat G
+ open Category category
+
+
+ module T1 x y z w
+          (p : Hom[ x , F ⟅ y ⟆ ])
+          (p' : Hom[ F ⟅ y ⟆ , x ])
+          (q : *.Hom[ z , y ])
+          (r : *.Hom[ z , w ]) where
+
+
+  lhs rhs : Hom[ x , F ⟅ w ⟆ ]
+  lhs = (p ⋆ p') ⋆ (p' ⁻¹ ⋆ (F ⟪ (q *.⁻¹) *.⋆ r ⟫))
+  rhs = (F ⟪ q ⟫ ⋆  p ⁻¹) ⁻¹ ⋆ F ⟪ r ⟫
+
+
+  lhs≡rhs : lhs ≡ rhs
+  lhs≡rhs = solveWildGroupoid (G ∷ G* ∷ [])

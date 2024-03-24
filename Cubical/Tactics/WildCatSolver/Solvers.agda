@@ -133,7 +133,7 @@ mbFunctorApp : R.Term → Maybe (R.Term × R.Term)
 mbFunctorApp (R.def (quote WildFunctor.F-hom) t) = matchFunctorAppArgs t
 mbFunctorApp _ = nothing
 
-record WildStr ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) where
+record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) where
  no-eta-equality
  field
    wildStr : Type (ℓ-suc (ℓ-max ℓ ℓ'))
