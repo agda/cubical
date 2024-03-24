@@ -29,7 +29,6 @@ open import Cubical.Relation.Binary
 
 open import Cubical.Reflection.Base
 import Agda.Builtin.Reflection as R
-open import Cubical.Tactics.GroupoidSolver.Reflection
 open import Cubical.Tactics.Reflection
 open import Agda.Builtin.String
 

@@ -1,6 +1,6 @@
 {-# OPTIONS --safe  #-}
 
-module Cubical.Tactics.Groupoid.Solver where
+module Cubical.Tactics.GroupoidSolver.Solver where
 
 
 open import Cubical.Foundations.Prelude
@@ -29,7 +29,6 @@ open import Cubical.Relation.Binary
 
 open import Cubical.Reflection.Base
 import Agda.Builtin.Reflection as R
-open import Cubical.Tactics.GroupoidSolver.Reflection
 open import Cubical.Tactics.Reflection
 open import Agda.Builtin.String
 
@@ -41,17 +40,17 @@ open import Cubical.Algebra.Group
 open import Cubical.Tactics.WildCatSolver.Solvers
 
 
-module WildCat-Solver ℓ ℓ' where
+module WildGroupoid-Solver ℓ ℓ' where
 
- WildCatWS : WildStr ℓ ℓ'
- WildStr.wildStr (WildCatWS) = WildCat ℓ ℓ'
- WildStr.toWildCat WildCatWS = idfun _
- WildStr.mbIsWildGroupoid WildCatWS = nothing
+ GroupoidWS : WildStr ℓ ℓ'
+ WildStr.wildStr GroupoidWS = WildGroupoid ℓ ℓ'
+ WildStr.toWildCat GroupoidWS = WildGroupoid.wildCat
+ WildStr.mbIsWildGroupoid GroupoidWS = just WildGroupoid.isWildGroupoid
 
  private 
-  module WC-WS = WildStr WildCatWS
+  module GPD-WS = WildStr GroupoidWS
 
  macro
-  solveWildCat : R.Term → R.Term → R.TC Unit
-  solveWildCat = WC-WS.solveW (R.def (quote WildCatWS) ( R.unknown v∷ R.unknown v∷ []))
+  solveWildGroupoid : R.Term → R.Term → R.TC Unit
+  solveWildGroupoid = GPD-WS.solveW (R.def (quote GroupoidWS) ( R.unknown v∷ R.unknown v∷ []))
  
