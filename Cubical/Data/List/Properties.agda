@@ -5,9 +5,11 @@ open import Agda.Builtin.List
 open import Cubical.Core.Everything
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
+open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Relation.Nullary
@@ -192,3 +194,23 @@ intersperse a (x ∷ xs) = x ∷ a ∷ intersperse a xs
 join : List (List A) → List A
 join [] = []
 join (x ∷ xs) = x ++ join xs
+
+
+rot : List A → List A
+rot [] = []
+rot (x ∷ xs) = xs ∷ʳ x
+
+rotN : ℕ → List A → List A
+rotN n = iter n rot
+
+module _ {A : Type ℓ} (_≟_ : Discrete A) where
+
+ private
+  fa : ℕ → (xs ys : List A) → Maybe (Σ _ λ k → xs ≡ rotN k ys)
+  fa zero _ _ = nothing
+  fa (suc k) xs ys =
+    decRec (just ∘ ((length xs ∸ k) ,_))
+     (λ _ → fa k xs ys) (discreteList _≟_ xs (rotN (length xs ∸ k) ys) )
+
+ findAligment : (xs ys : List A) → Maybe (Σ _ λ k → xs ≡ rotN k ys)
+ findAligment xs ys = fa (suc (length xs)) xs ys
