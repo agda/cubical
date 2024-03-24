@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Tactics.GroupoidSolver.Reflection where
+module Cubical.Tactics.WildCatSolver.Reflection where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -13,7 +13,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.Data.List
-open import Cubical.Data.Maybe
+open import Cubical.Data.Maybe as Mb
 
 open import Cubical.Reflection.Base
 import Agda.Builtin.Reflection as R
@@ -124,6 +124,11 @@ match2Vargs (harg _ ∷ xs) = match2Vargs xs
 match2Vargs (varg t1 ∷ varg t2 ∷ []) = R.returnTC (t1 , t2)
 match2Vargs _ = R.typeError []
 
+matchFunctorAppArgs : List (R.Arg R.Term) → Maybe (R.Term × R.Term)
+matchFunctorAppArgs (harg _ ∷ xs) = matchFunctorAppArgs xs
+matchFunctorAppArgs (varg t1 ∷ harg _ ∷ harg _ ∷ varg t2 ∷ []) = just (t1 , t2)
+matchFunctorAppArgs _ = nothing
+
 
 match3Vargs : List (R.Arg R.Term) → R.TC (R.Term × R.Term × R.Term)
 match3Vargs (harg _ ∷ xs) = match3Vargs xs
@@ -156,26 +161,42 @@ mkNiceVar : ℕ → String
 mkNiceVar k = "𝒙" <>
  primStringFromList (map digitsToSubscripts $ primStringToList $ primShowNat k)
 
+mkNiceVar' : String → ℕ → String
+mkNiceVar' v k = v <>
+ primStringFromList (map digitsToSubscripts $ primStringToList $ primShowNat k)
+
+
 record ToErrorPart {ℓ} (A : Type ℓ) : Type ℓ where
  field
    toErrorPart : A → R.ErrorPart
 
 open ToErrorPart
 
-infixr 5 _∷ₑ_ _∷nl_
+infixr 5 _∷ₑ_ _∷nl_ _++ₑ_
+
 _∷ₑ_ :  ∀ {ℓ} {A : Type ℓ} → {{ToErrorPart A}} → A → List R.ErrorPart → List R.ErrorPart
 _∷ₑ_  ⦃ tep ⦄ x = (toErrorPart tep x) ∷_
+
+_++ₑ_ :  ∀ {ℓ} {A : Type ℓ} → {{ToErrorPart A}} → List A → List R.ErrorPart → List R.ErrorPart
+_++ₑ_  ⦃ tep ⦄ x = (map (toErrorPart tep) x) ++_
 
 
 instance
  ToErrorPartString : ToErrorPart String
  ToErrorPart.toErrorPart ToErrorPartString = R.strErr
 
+ ToErrorPartℕ : ToErrorPart ℕ
+ ToErrorPart.toErrorPart ToErrorPartℕ = R.strErr ∘ primShowNat
+
+
  ToErrorPartTerm : ToErrorPart R.Term
  ToErrorPart.toErrorPart ToErrorPartTerm = R.termErr
 
  ToErrorPartName : ToErrorPart R.Name
  ToErrorPart.toErrorPart ToErrorPartName = R.nameErr
+
+ ToErrorPartErrorPart : ToErrorPart R.ErrorPart
+ ToErrorPart.toErrorPart ToErrorPartErrorPart x = x
 
 
 _∷nl_ :  ∀ {ℓ} {A : Type ℓ} → {{ToErrorPart A}} → A → List R.ErrorPart → List R.ErrorPart
@@ -200,3 +221,29 @@ R∙ x y = R.def (quote _∙_) (x v∷ y v∷ [] )
 
 Rrefl : R.Term
 Rrefl = R.def (quote refl) []
+
+unArgs : List (R.Arg (R.Term)) → List R.ErrorPart 
+unArgs [] = []
+unArgs (R.arg i x ∷ x₁) = x ∷ₑ unArgs x₁
+
+getConTail : R.Term → List R.ErrorPart
+getConTail (R.var x args) = "𝒗𝒂𝒓 " ∷ₑ x ∷ₑ " " ∷ₑ unArgs args
+getConTail (R.con c args) = "𝒄𝒐𝒏 " ∷ₑ c ∷ₑ " " ∷ₑ unArgs args
+getConTail (R.def f args) = "𝒅𝒆𝒇 " ∷ₑ f ∷ₑ " " ∷ₑ unArgs args
+getConTail _ = "other..." ∷ₑ []
+
+tryAllTC : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} →
+              R.TC B → List A → (A → R.TC B) → R.TC B 
+tryAllTC fallback [] f = fallback
+tryAllTC fallback (x ∷ xs) f =
+  f x <|> tryAllTC fallback xs f
+
+
+foldPathTerms : List (Maybe R.Term) → Maybe R.Term
+foldPathTerms [] = nothing
+foldPathTerms (nothing ∷ xs) = foldPathTerms xs
+foldPathTerms (just x ∷ xs) = 
+  just $ Mb.rec x (λ xs' → R.def (quote _∙_) (x v∷ xs' v∷ [])) (foldPathTerms xs)
+
+symPathTerms : List (Maybe R.Term) → List (Maybe R.Term)
+symPathTerms = map (map-Maybe (R.def (quote sym) ∘ v[_])) ∘ rev

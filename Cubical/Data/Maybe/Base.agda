@@ -28,3 +28,6 @@ rec n j (just a) = j a
 elim : ∀ {A : Type ℓA} (B : Maybe A → Type ℓB) → B nothing → ((x : A) → B (just x)) → (mx : Maybe A) → B mx
 elim B n j nothing = n
 elim B n j (just a) = j a
+
+fromMaybe : A → Maybe A → A
+fromMaybe x = rec x (λ x → x)

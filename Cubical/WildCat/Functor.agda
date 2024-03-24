@@ -167,9 +167,37 @@ WildFunctor.F-seq commFunctor _ _ = refl
 module _
   {C : WildGroupoid ℓC ℓC'} {D : WildGroupoid ℓD ℓD'}
   (F : WildFunctor (WildGroupoid.wildCat C) (WildGroupoid.wildCat D)) where 
-  
- module gC = WildGroupoid C
- module gD = WildGroupoid D
+
+ private
+  module gC = WildGroupoid C
+  module gD = WildGroupoid D
 
  F-inv :  ∀ {x y} f → F-hom F (gC.inv {x} {y} f) ≡ gD.inv (F-hom F f)
  F-inv f = gD.invUniqueR $ sym (F-seq F _ _) ∙∙ congS (F-hom F) (gC.⋆InvR f) ∙∙ F-id F
+
+module _
+  (C : WildGroupoid ℓC ℓC') (D : WildGroupoid ℓD ℓD')
+  (F : WildFunctor (WildGroupoid.wildCat C) (WildGroupoid.wildCat D)) where 
+  
+ private
+  module gC = WildGroupoid C
+  module gD = WildGroupoid D
+
+ F-inv' :  ∀ {x y} f → F-hom F (gC.inv {x} {y} f) ≡ gD.inv (F-hom F f)
+ F-inv' f = gD.invUniqueR $ sym (F-seq F _ _) ∙∙ congS (F-hom F) (gC.⋆InvR f) ∙∙ F-id F
+
+
+-- action on objects
+infix 30 _⟅_⟆
+_⟅_⟆ :  {C : WildCat ℓC ℓC'} {D : WildCat ℓD ℓD'} (F : WildFunctor C D)
+     → C .ob
+     → D .ob
+_⟅_⟆ = F-ob
+
+-- action on morphisms
+infix 30 _⟪_⟫ -- same infix level as on objects since these will never be used in the same context
+_⟪_⟫ : {C : WildCat ℓC ℓC'} {D : WildCat ℓD ℓD'}  (F : WildFunctor C D)
+     → ∀ {x y}
+     → C [ x , y ]
+     → D [(F ⟅ x ⟆) , (F ⟅ y ⟆)]
+_⟪_⟫ = F-hom

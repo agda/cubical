@@ -1,6 +1,6 @@
 {-# OPTIONS --safe  #-}
 
-module Cubical.Tactics.Groupoid.Solver where
+module Cubical.Tactics.WildCatSolver.Solver where
 
 
 open import Cubical.Foundations.Prelude
