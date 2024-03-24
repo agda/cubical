@@ -26,7 +26,7 @@ x ≟ℕ x₁ = Dec→Bool (discreteℕ x x₁)
 
 _<>_ = primStringAppend
 
-_≟qn_ = R.primQNameEquality 
+_≟qn_ = R.primQNameEquality
 
 quotedMaybe→maybeTerm : R.Term → R.TC (Maybe (R.Term))
 quotedMaybe→maybeTerm (R.con (quote nothing) _) = R.returnTC nothing
@@ -61,7 +61,7 @@ blockIfContainsMeta (R.lit l) = R.returnTC _
 blockIfContainsMeta (R.meta m _) = R.blockTC (R.blockerMeta m)
 blockIfContainsMeta R.unknown = R.returnTC _
 
-any? : List Bool → Bool 
+any? : List Bool → Bool
 any? [] = false
 any? (false ∷ x₁) = any? x₁
 any? (true ∷ x₁) = true
@@ -74,7 +74,7 @@ containsMeta? (R.con c args) = containsMetaAny? args
 containsMeta? (R.def f args) = containsMetaAny? args
 containsMeta? (R.lam v₁ (R.abs _ t)) = containsMeta? t
 containsMeta? (R.pat-lam cs args) = containsMetaAny? args
-containsMeta? (R.pi (R.arg _ a) (R.abs _ b)) = containsMeta? a or containsMeta? b 
+containsMeta? (R.pi (R.arg _ a) (R.abs _ b)) = containsMeta? a or containsMeta? b
 containsMeta? (R.agda-sort s) = false
 containsMeta? (R.lit l) = false
 containsMeta? (R.meta x x₁) = true
@@ -200,15 +200,15 @@ instance
 
 
 _∷nl_ :  ∀ {ℓ} {A : Type ℓ} → {{ToErrorPart A}} → A → List R.ErrorPart → List R.ErrorPart
-_∷nl_  x y = x ∷ₑ "\n" ∷ₑ y 
+_∷nl_  x y = x ∷ₑ "\n" ∷ₑ y
 
 
 niceAtomList : List (R.Term) → List R.ErrorPart
-niceAtomList = h 0 
+niceAtomList = h 0
  where
-  h : _ → _ 
+  h : _ → _
   h _  [] = []
-  h k (x ∷ xs) = (mkNiceVar k  <> " = ") ∷ₑ x ∷ₑ  "\n"  ∷ₑ h (suc k) xs 
+  h k (x ∷ xs) = (mkNiceVar k  <> " = ") ∷ₑ x ∷ₑ  "\n"  ∷ₑ h (suc k) xs
 
 
 foldlM : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'}
@@ -222,7 +222,7 @@ R∙ x y = R.def (quote _∙_) (x v∷ y v∷ [] )
 Rrefl : R.Term
 Rrefl = R.def (quote refl) []
 
-unArgs : List (R.Arg (R.Term)) → List R.ErrorPart 
+unArgs : List (R.Arg (R.Term)) → List R.ErrorPart
 unArgs [] = []
 unArgs (R.arg i x ∷ x₁) = x ∷ₑ unArgs x₁
 
@@ -233,7 +233,7 @@ getConTail (R.def f args) = "𝒅𝒆𝒇 " ∷ₑ f ∷ₑ " " ∷ₑ unArgs ar
 getConTail _ = "other..." ∷ₑ []
 
 tryAllTC : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} →
-              R.TC B → List A → (A → R.TC B) → R.TC B 
+              R.TC B → List A → (A → R.TC B) → R.TC B
 tryAllTC fallback [] f = fallback
 tryAllTC fallback (x ∷ xs) f =
   f x <|> tryAllTC fallback xs f
@@ -242,7 +242,7 @@ tryAllTC fallback (x ∷ xs) f =
 foldPathTerms : List (Maybe R.Term) → Maybe R.Term
 foldPathTerms [] = nothing
 foldPathTerms (nothing ∷ xs) = foldPathTerms xs
-foldPathTerms (just x ∷ xs) = 
+foldPathTerms (just x ∷ xs) =
   just $ Mb.rec x (λ xs' → R.def (quote _∙_) (x v∷ xs' v∷ [])) (foldPathTerms xs)
 
 symPathTerms : List (Maybe R.Term) → List (Maybe R.Term)

@@ -35,7 +35,7 @@ module exampleC (WC WC* : WildCat ℓ ℓ')
   open WildCat-Solver ℓ ℓ'
 
   pA=pB : pA ≡ pB
-  pA=pB = solveWildCat (WC ∷ WC* ∷ []) 
+  pA=pB = solveWildCat (WC ∷ WC* ∷ [])
 
   pB=pC : pB ≡ pC
   pB=pC = solveWildCat (WC ∷ WC* ∷ [])

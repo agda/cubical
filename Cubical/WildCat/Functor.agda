@@ -166,7 +166,7 @@ WildFunctor.F-seq commFunctor _ _ = refl
 
 module _
   {C : WildGroupoid ℓC ℓC'} {D : WildGroupoid ℓD ℓD'}
-  (F : WildFunctor (WildGroupoid.wildCat C) (WildGroupoid.wildCat D)) where 
+  (F : WildFunctor (WildGroupoid.wildCat C) (WildGroupoid.wildCat D)) where
 
  private
   module gC = WildGroupoid C
@@ -177,8 +177,8 @@ module _
 
 module _
   (C : WildGroupoid ℓC ℓC') (D : WildGroupoid ℓD ℓD')
-  (F : WildFunctor (WildGroupoid.wildCat C) (WildGroupoid.wildCat D)) where 
-  
+  (F : WildFunctor (WildGroupoid.wildCat C) (WildGroupoid.wildCat D)) where
+
  private
   module gC = WildGroupoid C
   module gD = WildGroupoid D

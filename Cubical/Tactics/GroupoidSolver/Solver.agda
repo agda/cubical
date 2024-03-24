@@ -47,10 +47,10 @@ module WildGroupoid-Solver ℓ ℓ' where
  WildStr.toWildCat GroupoidWS = WildGroupoid.wildCat
  WildStr.mbIsWildGroupoid GroupoidWS = just WildGroupoid.isWildGroupoid
 
- private 
+ private
   module GPD-WS = WildStr GroupoidWS
 
  macro
   solveWildGroupoid : R.Term → R.Term → R.TC Unit
   solveWildGroupoid = GPD-WS.solveW (R.def (quote GroupoidWS) ( R.unknown v∷ R.unknown v∷ []))
- 
+

@@ -88,31 +88,31 @@ _^op : WildCat ℓ ℓ' → WildCat ℓ ℓ'
 (C ^op) .⋆IdR = C .⋆IdL
 (C ^op) .⋆Assoc f g h = sym (C .⋆Assoc _ _ _)
 
-IsWildGroupoid : (wc : WildCat ℓ ℓ') → Type (ℓ-max ℓ ℓ') 
+IsWildGroupoid : (wc : WildCat ℓ ℓ') → Type (ℓ-max ℓ ℓ')
 IsWildGroupoid wc = ∀ {x y} f → wildIsIso {C = wc} {x} {y} f
- 
- 
+
+
 record WildGroupoid ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   no-eta-equality
-  
+
   field
-    wildCat : WildCat ℓ ℓ'  
+    wildCat : WildCat ℓ ℓ'
     isWildGroupoid : IsWildGroupoid wildCat
 
-  _⋆'_ = _⋆_ wildCat 
+  _⋆'_ = _⋆_ wildCat
 
   inv : ∀ {x y} → wildCat [ x , y ] → wildCat [ y , x ]
   inv f = wildIsIso.inv' (isWildGroupoid f)
 
   ⋆InvR : ∀ {x y} → (f : wildCat [ x , y ]) → f ⋆' inv f ≡ id wildCat
   ⋆InvR f = wildIsIso.retr (isWildGroupoid f)
-  
+
   ⋆InvL : ∀ {x y} → (f : wildCat [ x , y ]) → inv f ⋆' f ≡ id wildCat
   ⋆InvL f = wildIsIso.sect (isWildGroupoid f)
 
 
   invol-inv : ∀ {x y} → (f : wildCat [ x , y ])  → inv (inv f) ≡ f
-  invol-inv f = 
+  invol-inv f =
     (sym (⋆IdL wildCat (inv (inv f))) ∙ cong (_⋆' (inv (inv f))) (sym (⋆InvR _)) )
      ∙ ⋆Assoc wildCat _ _ _ ∙ cong (f ⋆'_) (⋆InvR (inv f))
      ∙ ⋆IdR wildCat f
@@ -124,7 +124,7 @@ record WildGroupoid ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   invUniqueR : ∀ {x y} {g : wildCat [ x , y ]} {h} → g ⋆' h ≡ id wildCat → h ≡ inv g
   invUniqueR {g = g} {h} p =
       (sym (⋆IdL wildCat h) ∙∙ cong (_⋆' h) (sym (⋆InvL g))
-       ∙∙ ⋆Assoc wildCat (inv g) g h) ∙∙ cong ((inv g) ⋆'_) p ∙∙ ⋆IdR wildCat (inv g) 
+       ∙∙ ⋆Assoc wildCat (inv g) g h) ∙∙ cong ((inv g) ⋆'_) p ∙∙ ⋆IdR wildCat (inv g)
 
 
   distInv : ∀  {x y z} (f : wildCat [ x , y ]) (g : wildCat [ y , z ]) →
@@ -133,7 +133,7 @@ record WildGroupoid ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
     (sym (⋆Assoc wildCat _ _ _) ∙∙ cong (_⋆' inv f) (⋆Assoc wildCat _ _ _)
       ∙∙ (λ i → ⋆Assoc wildCat f ((⋆InvR g) i) (inv f) i))
       ∙∙ cong (f ⋆'_) (⋆IdL wildCat _) ∙∙ ⋆InvR f
-      
+
   id≡inv-id : ∀ {x} → inv (id wildCat) ≡ id wildCat {x = x}
   id≡inv-id = sym (⋆IdL wildCat (inv (id wildCat))) ∙ ⋆InvR (id wildCat)
 

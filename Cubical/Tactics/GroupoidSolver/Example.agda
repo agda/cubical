@@ -15,14 +15,11 @@ private
   variable
     ℓ ℓ' : Level
 
-
-
 module example (WG WG* : WildGroupoid ℓ ℓ')
                (F : WildFunctor
                     (WildGroupoid.wildCat WG*)
                     (WildGroupoid.wildCat WG))
                 where
-
 
  open WildGroupoid-Solver ℓ ℓ'
 
@@ -45,14 +42,14 @@ module example (WG WG* : WildGroupoid ℓ ℓ')
 
 
    pA pB : Hom[ x , w ]
-   pA = ((((((id ⋆ p') ⋆ q) ⋆ (inv q)) ⋆ (inv p')) ⋆ p) ⋆ q) ⋆ r
-   pB = ((id ⋆ p) ⋆ q) ⋆ r
+   pA = ((((((id ⋆ p') ⋆ q) ⋆ ((inv q) ⋆ id)) ⋆ (inv p')) ⋆ p) ⋆ q) ⋆ r
+   pB = p ⋆ (q ⋆ r)
 
    pA≡pB : pA ≡ pB
    pA≡pB = solveWildGroupoid (WG ∷ WG* ∷ [])
-             
-            
- 
+
+
+
  module T2 x y z w
           (p : Hom[ x , F ⟅ y ⟆ ])
           (p' : Hom[ F ⟅ y ⟆ , x ])
@@ -62,7 +59,7 @@ module example (WG WG* : WildGroupoid ℓ ℓ')
 
   lhs rhs : Hom[ x , F-ob F w ]
   lhs = (p ⋆ p') ⋆ (inv p' ⋆ (F-hom F ((*.inv q) *.⋆ r)))
-  rhs = inv ((F-hom F q) ⋆ inv p) ⋆ (F-hom F r)  
+  rhs = inv ((F-hom F q) ⋆ inv p) ⋆ (F-hom F r)
 
 
   lhs≡rhs : lhs ≡ rhs
@@ -74,7 +71,7 @@ module example (WG WG* : WildGroupoid ℓ ℓ')
           where
 
   lhs rhs : Hom[ obs 1 , obs 5 ]
-  lhs = homs _ 2 1 ⋆ (homs _ _ 2 ⋆ (homs 3 5 2 ⋆ (homs _ 6 3 ⋆ inv (homs _ 6 3)))) 
+  lhs = homs _ 2 1 ⋆ (homs _ _ 2 ⋆ (homs 3 5 2 ⋆ (homs _ 6 3 ⋆ inv (homs _ 6 3))))
   rhs = ((homs _ 2 1 ⋆ homs _ _ 2) ⋆ id) ⋆ homs 3 5 2
 
 

@@ -54,14 +54,14 @@ module _ {ℓ} where
   WildCat._⋆_ (WildGroupoid.wildCat Group→WildGroupoid) = _·_
   WildCat.⋆IdL (WildGroupoid.wildCat Group→WildGroupoid) = ·IdL
   WildCat.⋆IdR (WildGroupoid.wildCat Group→WildGroupoid) = ·IdR
-  WildCat.⋆Assoc (WildGroupoid.wildCat Group→WildGroupoid) _ _ _ = sym (·Assoc _ _ _) 
+  WildCat.⋆Assoc (WildGroupoid.wildCat Group→WildGroupoid) _ _ _ = sym (·Assoc _ _ _)
   wildIsIso.inv' (WildGroupoid.isWildGroupoid Group→WildGroupoid f) = inv f
   wildIsIso.sect (WildGroupoid.isWildGroupoid Group→WildGroupoid f) = ·InvL f
   wildIsIso.retr (WildGroupoid.isWildGroupoid Group→WildGroupoid f) = ·InvR f
 
 
  GroupHom' : (G H : Group ℓ) → Type ℓ
-                
+
  GroupHom' G H = WildFunctor
     (WildGroupoid.wildCat (Group→WildGroupoid G))
     (WildGroupoid.wildCat (Group→WildGroupoid H))
@@ -81,7 +81,7 @@ module _ {ℓ} where
       (GroupStr.1g (snd H))
       (hom1g (G .snd) (WildFunctor.F-hom wf) (H .snd)
          (WildFunctor.F-seq wf))
-      (WildFunctor.F-id wf) i   
+      (WildFunctor.F-id wf) i
  WildFunctor.F-seq (Iso.leftInv IsoGroupHom' wf i) = λ f g → WildFunctor.F-seq wf f g
 
 
@@ -92,10 +92,10 @@ module Group-Solver ℓ where
  WildStr.toWildCat GroupWS = WildGroupoid.wildCat ∘ Group→WildGroupoid
  WildStr.mbIsWildGroupoid GroupWS = just (WildGroupoid.isWildGroupoid ∘ Group→WildGroupoid)
 
- private 
+ private
   module GRP-WS = WildStr GroupWS
 
  macro
   solveGroup : R.Term → R.Term → R.TC Unit
   solveGroup = GRP-WS.solveW (R.def (quote GroupWS) ( R.unknown v∷ []))
- 
+

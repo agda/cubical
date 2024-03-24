@@ -46,16 +46,16 @@ module example (G G* G○ : Group ℓ)
 
    pA≡pB : pA ≡ pB
    pA≡pB = solveGroup (G ∷ [])
-             
-            
- 
+
+
+
  module T2 p p' q r s t u where
 
 
   lhs rhs : fst G
   lhs = (p · p') · (inv p' · (F* ⟪ (((*.inv q) *.· r) *.· F○ ⟪ ○.inv t ⟫ *.·
               (*.inv (F○ ⟪ s ○.· s ⟫) *.· F○ ⟪ u ⟫ )) ⟫ ))
-            
+
   rhs = inv (F* ⟪ q ⟫ · inv p) · (F* ⟪ r ⟫) ·
           (comp-WildFunctor F○ F*) ⟪ ○.inv (s ○.· s ○.· t) ○.· u ⟫
 

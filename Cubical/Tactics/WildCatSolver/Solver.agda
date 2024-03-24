@@ -47,10 +47,10 @@ module WildCat-Solver ℓ ℓ' where
  WildStr.toWildCat WildCatWS = idfun _
  WildStr.mbIsWildGroupoid WildCatWS = nothing
 
- private 
+ private
   module WC-WS = WildStr WildCatWS
 
  macro
   solveWildCat : R.Term → R.Term → R.TC Unit
   solveWildCat = WC-WS.solveW (R.def (quote WildCatWS) ( R.unknown v∷ R.unknown v∷ []))
- 
+
