@@ -91,7 +91,7 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
 
  open ZarLat R'
  open ZarLatUniversalProp R'
- open IsZarMap
+ open IsSupport
 
  open Join ZariskiLattice
  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice ZariskiLattice))
@@ -111,9 +111,9 @@ module _ {ℓ : Level} (R' : CommRing ℓ) where
  BO = Σ[ 𝔞 ∈ ZL ] (𝔞 ∈ₚ BasicOpens)
 
  basicOpensAreBasis : IsBasis ZariskiLattice BasicOpens
- contains1 basicOpensAreBasis = ∣ 1r , isZarMapD .pres1 ∣₁
+ contains1 basicOpensAreBasis = ∣ 1r , isSupportD .pres1 ∣₁
  ∧lClosed basicOpensAreBasis 𝔞 𝔟 = map2
-            λ (f , Df≡𝔞) (g , Dg≡𝔟) → (f · g) , isZarMapD .·≡∧ f g ∙ cong₂ (_∧z_) Df≡𝔞 Dg≡𝔟
+            λ (f , Df≡𝔞) (g , Dg≡𝔟) → (f · g) , isSupportD .·≡∧ f g ∙ cong₂ (_∧z_) Df≡𝔞 Dg≡𝔟
  ⋁Basis basicOpensAreBasis = elimProp (λ _ → isPropPropTrunc) Σhelper
   where
   Σhelper : (a : Σ[ n ∈ ℕ ] FinVec R n)
