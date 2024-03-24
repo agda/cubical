@@ -179,3 +179,16 @@ length-map : ∀ {ℓA ℓB} {A : Type ℓA} {B : Type ℓB} → (f : A → B) �
   → length (map f as) ≡ length as
 length-map f [] = refl
 length-map f (a ∷ as) = cong suc (length-map f as)
+
+lookupWithDefault : A → List A → ℕ → A
+lookupWithDefault a [] _ = a
+lookupWithDefault _ (x ∷ _) zero = x
+lookupWithDefault a (x ∷ xs) (suc k) = lookupWithDefault a xs k
+
+intersperse : A → List A → List A
+intersperse _ [] = []
+intersperse a (x ∷ xs) = x ∷ a ∷ intersperse a xs
+
+join : List (List A) → List A
+join [] = []
+join (x ∷ xs) = x ++ join xs

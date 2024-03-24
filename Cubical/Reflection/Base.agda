@@ -32,6 +32,8 @@ pattern harg {q = q} t = R.arg (R.arg-info R.hidden (R.modality R.relevant q)) t
 pattern _v∷_ a l = varg a ∷ l
 pattern _h∷_ a l = harg a ∷ l
 
+pattern v[_] a = varg a ∷ []
+
 infixr 5 _v∷_ _h∷_
 
 vlam : String → R.Term → R.Term
