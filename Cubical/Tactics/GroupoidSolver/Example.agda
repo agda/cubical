@@ -57,9 +57,9 @@ module example (WG WG* : WildGroupoid ℓ ℓ')
           (r : *.Hom[ z , w ]) where
 
 
-  lhs rhs : Hom[ x , F-ob F w ]
-  lhs = (p ⋆ p') ⋆ (inv p' ⋆ (F-hom F ((*.inv q) *.⋆ r)))
-  rhs = inv ((F-hom F q) ⋆ inv p) ⋆ (F-hom F r)
+  lhs rhs : Hom[ x , F ⟅ w ⟆ ]
+  lhs = (p ⋆ p') ⋆ (inv p' ⋆ (F ⟪ (*.inv q) *.⋆ r ⟫))
+  rhs = inv (F ⟪ q ⟫ ⋆ inv p) ⋆ F ⟪ r ⟫
 
 
   lhs≡rhs : lhs ≡ rhs

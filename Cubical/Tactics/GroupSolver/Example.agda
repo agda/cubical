@@ -14,8 +14,6 @@ private
   variable
     ℓ : Level
 
-
-
 module example (G G* G○ : Group ℓ)
                (F* : GroupHom' G* G)
                (F○ : GroupHom' G○ G*)
