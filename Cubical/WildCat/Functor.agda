@@ -162,19 +162,3 @@ WildFunctor.F-ob commFunctor (x , y) = y , x
 WildFunctor.F-hom commFunctor (f , g) = g , f
 WildFunctor.F-id commFunctor = refl
 WildFunctor.F-seq commFunctor _ _ = refl
-
-
-infixl 20 _$_
-_$_ : {ℓC ℓC' ℓD ℓD' : Level}
-      {C : WildCat ℓC ℓC'}
-      {D : WildCat ℓD ℓD'}
-   → WildFunctor C D → C .ob → D .ob
-F $ x = F .F-ob x
-
-infixl 20 _$→_
-_$→_ : {ℓC ℓC' ℓD ℓD' : Level}
-      {C : WildCat ℓC ℓC'}
-      {D : WildCat ℓD ℓD'}
-      {x y : C .ob}
-   → (F : WildFunctor C D) → C [ x , y ] → D [ F $ x , F $ y ]
-F $→ f = F .F-hom f

@@ -8,8 +8,6 @@
 module Cubical.WildCat.Base where
 
 open import Cubical.Foundations.Prelude
-import Cubical.Foundations.Isomorphism as Iso
-open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma renaming (_×_ to _×'_)
 
@@ -33,60 +31,6 @@ record WildCat ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
   _∘_ : ∀ {x y z} (g : Hom[ y , z ]) (f : Hom[ x , y ]) → Hom[ x , z ]
   g ∘ f = f ⋆ g
 
-record WildGroupoid ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
-  no-eta-equality
-  
-  field
-    wildCat : WildCat ℓ ℓ'
-  open WildCat wildCat
-  field
-    inv : ∀ {x y} → Hom[ x , y ] → Hom[ y , x ]
-    ⋆InvR : ∀ {x y} → (f : Hom[ x , y ]) → f ⋆ inv f ≡ id
-    ⋆InvL : ∀ {x y} → (f : Hom[ x , y ]) → inv f ⋆ f ≡ id
-
-  wg⋆IsoPre : ∀ {x y z} → Hom[ x , y ] →  Iso.Iso Hom[ y , z ] Hom[ x , z ]
-  Iso.Iso.fun (wg⋆IsoPre f) = f ⋆_
-  Iso.Iso.inv (wg⋆IsoPre f) = inv f ⋆_
-  Iso.Iso.rightInv (wg⋆IsoPre f) b = sym (⋆Assoc _ _ _) ∙∙ cong (_⋆ b) (⋆InvR f) ∙∙ ⋆IdL b
-  Iso.Iso.leftInv (wg⋆IsoPre f) a = sym (⋆Assoc _ _ _) ∙∙ cong (_⋆ a) (⋆InvL f) ∙∙ ⋆IdL a
-  
-  wg⋆≃Pre :   ∀ {x y z} → Hom[ x , y ] →  Hom[ y , z ] ≃ Hom[ x , z ]
-  wg⋆≃Pre f = Iso.isoToEquiv (wg⋆IsoPre f)
-
-  wg⋆IsoPost : ∀ {x y z} → Hom[ y , z ] →  Iso.Iso Hom[ x , y ] Hom[ x , z ]
-  Iso.Iso.fun (wg⋆IsoPost f) = _⋆ f
-  Iso.Iso.inv (wg⋆IsoPost f) =  _⋆ inv f
-  Iso.Iso.rightInv (wg⋆IsoPost f) b = (⋆Assoc _ _ _) ∙∙ cong (b ⋆_) (⋆InvL f) ∙∙ ⋆IdR b
-  Iso.Iso.leftInv (wg⋆IsoPost f) a = (⋆Assoc _ _ _) ∙∙ cong (a ⋆_) (⋆InvR f) ∙∙ ⋆IdR a
-  
-  wg⋆≃Post :   ∀ {x y z} → Hom[ y , z ] →  Hom[ x , y ] ≃ Hom[ x , z ]
-  wg⋆≃Post f = Iso.isoToEquiv (wg⋆IsoPost f)
-
-  invol-inv : ∀ {x y} → (f : Hom[ x , y ])  → inv (inv f) ≡ f
-  invol-inv f = 
-    (sym (⋆IdL (inv (inv f))) ∙ cong (_⋆ (inv (inv f))) (sym (⋆InvR _)) )
-     ∙ ⋆Assoc _ _ _ ∙ cong (f ⋆_) (⋆InvR (inv f))
-     ∙ ⋆IdR f
-
-  swapInv : ∀ {x y} → (f : Hom[ x , y ]) → ∀ g → (inv f) ≡ g → f ≡ inv g
-  swapInv f g p =
-    sym (invol-inv f) ∙ cong inv p
-
-  invUniqueR : ∀ {x y} {g : Hom[ x , y ]} {h} → g ⋆ h ≡ id → h ≡ inv g
-  invUniqueR {g = g} {h} p =
-      (sym (⋆IdL h) ∙∙ cong (_⋆ h) (sym (⋆InvL g))
-       ∙∙ ⋆Assoc (inv g) g h) ∙∙ cong ((inv g) ⋆_) p ∙∙ ⋆IdR (inv g) 
-
-
-  distInv : ∀  {x y z} (f : Hom[ x , y ]) (g : Hom[ y , z ]) →
-              inv (f ⋆ g) ≡ inv g ⋆ inv f
-  distInv f g = sym
-   (invUniqueR (
-    (sym (⋆Assoc _ _ _) ∙∙ cong (_⋆ inv f) (⋆Assoc _ _ _) ∙∙ (λ i → ⋆Assoc f ((⋆InvR g) i) (inv f) i)) ∙∙ cong (f ⋆_) (⋆IdL _) ∙∙ ⋆InvR f))
-  
-  id≡inv-id : ∀ {x} → inv id ≡ id {x = x}
-  id≡inv-id = sym (⋆IdL (inv id)) ∙ ⋆InvR id
-     
 open WildCat
 
 -- Helpful syntax/notation
@@ -142,6 +86,3 @@ _^op : WildCat ℓ ℓ' → WildCat ℓ ℓ'
 (C ^op) .⋆IdL = C .⋆IdR
 (C ^op) .⋆IdR = C .⋆IdL
 (C ^op) .⋆Assoc f g h = sym (C .⋆Assoc _ _ _)
-
-
-    
