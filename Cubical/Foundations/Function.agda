@@ -9,7 +9,7 @@ open import Cubical.Foundations.Prelude
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A : Type ℓ
+    A A' A'' : Type ℓ
     B : A → Type ℓ
     C : (a : A) → B a → Type ℓ
     D : (a : A) (b : B a) → C a b → Type ℓ
@@ -26,11 +26,15 @@ _$_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} → ((a : A) → B a) 
 f $ a = f a
 {-# INLINE _$_ #-}
 
-infixr 9 _∘_
+infixr 9 _∘_ _∘S_
 
 _∘_ : (g : {a : A} → (b : B a) → C a b) → (f : (a : A) → B a) → (a : A) → C a (f a)
 g ∘ f = λ x → g (f x)
 {-# INLINE _∘_ #-}
+
+_∘S_ : (A' → A'') → (A → A') → A → A''
+g ∘S f = λ x → g (f x)
+{-# INLINE _∘S_ #-}
 
 ∘-assoc : (h : {a : A} {b : B a} → (c : C a b) → D a b c)
           (g : {a : A} → (b : B a) → C a b)

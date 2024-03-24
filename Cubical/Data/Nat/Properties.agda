@@ -173,6 +173,12 @@ m+n≡0→m≡0×n≡0 : m + n ≡ 0 → (m ≡ 0) × (n ≡ 0)
 m+n≡0→m≡0×n≡0 {zero} = refl ,_
 m+n≡0→m≡0×n≡0 {suc m} p = ⊥.rec (snotz p)
 
+m+n≡1→m≡0×n≡1⊎m≡1n≡0 : m + n ≡ 1 → ((m ≡ 0) × (n ≡ 1)) ⊎ ((m ≡ 1) × (n ≡ 0))
+m+n≡1→m≡0×n≡1⊎m≡1n≡0 {zero} x = inl (refl , x)
+m+n≡1→m≡0×n≡1⊎m≡1n≡0 {suc m} {n} x =
+ let (m≡0 , n≡0) = m+n≡0→m≡0×n≡0 (injSuc x)
+ in inr (cong suc m≡0 , n≡0 )
+
 -- Arithmetic facts about ·
 
 0≡m·0 : ∀ m → 0 ≡ m · 0
