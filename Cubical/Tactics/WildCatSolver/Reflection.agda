@@ -180,6 +180,8 @@ _∷ₑ_  ⦃ tep ⦄ x = (toErrorPart tep x) ∷_
 _++ₑ_ :  ∀ {ℓ} {A : Type ℓ} → {{ToErrorPart A}} → List A → List R.ErrorPart → List R.ErrorPart
 _++ₑ_  ⦃ tep ⦄ x = (map (toErrorPart tep) x) ++_
 
+[_]ₑ :  ∀ {ℓ} {A : Type ℓ} → {{ToErrorPart A}} → A → List R.ErrorPart
+[_]ₑ = _∷ₑ []
 
 instance
  ToErrorPartString : ToErrorPart String
