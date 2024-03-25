@@ -5,6 +5,7 @@ module Cubical.WildCat.UnderlyingGraph where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Graph.Base
+open import Cubical.Data.Graph.Reflexive
 
 open import Cubical.WildCat.Base
 open import Cubical.WildCat.Functor
@@ -26,25 +27,14 @@ Functor→GraphHom F ._$g_ = WildFunctor.F-ob F
 Functor→GraphHom F ._<$g>_ = WildFunctor.F-hom F
 
 
-module _ (G : Graph ℓg ℓg') (𝓒 : WildCat ℓc ℓc') where
-  -- Interpretation of a graph in a wild category
-  Interpret : Type _
-  Interpret = GraphHom G (Cat→Graph 𝓒)
+-- Underlying reflexive graph of a category
+Cat→RGraph : ∀ {ℓc ℓc'} (𝓒 : WildCat ℓc ℓc') → RGraph ℓc ℓc'
+Cat→RGraph 𝓒 .Node = 𝓒 .ob
+Cat→RGraph 𝓒 .Edge = 𝓒 .Hom[_,_]
+Cat→RGraph 𝓒 .Refl = λ n → 𝓒 .id {n}
 
-
-_⋆Interpret_ : ∀ {G : Graph ℓg ℓg'}
-              {𝓒 : WildCat ℓc ℓc'}
-              {𝓓 : WildCat ℓd ℓd'}
-              (ı : Interpret G 𝓒)
-              (F : WildFunctor 𝓒 𝓓)
-              → Interpret G 𝓓
-(ı ⋆Interpret F) ._$g_ x = WildFunctor.F-ob F (ı $g x)
-(ı ⋆Interpret F) ._<$g>_ e = WildFunctor.F-hom F (ı <$g> e)
-
-_∘Interpret_ : ∀ {G : Graph ℓg ℓg'}
-              {𝓒 : WildCat ℓc ℓc'}
-              {𝓓 : WildCat ℓd ℓd'}
-              (F : WildFunctor 𝓒 𝓓)
-              (ı : Interpret G 𝓒)
-              → Interpret G 𝓓
-F ∘Interpret ı = ı ⋆Interpret F
+Functor→RGraphHom : ∀ {ℓc ℓc' ℓd ℓd'} {𝓒 : WildCat ℓc ℓc'} {𝓓 : WildCat ℓd ℓd'}
+       (F : WildFunctor 𝓒 𝓓) → RGraphHom (Cat→RGraph 𝓒) (Cat→RGraph 𝓓)
+Functor→RGraphHom F ._$g_ = WildFunctor.F-ob F
+Functor→RGraphHom F ._<$g>_ = WildFunctor.F-hom F
+Functor→RGraphHom F .presRefl =  λ x → WildFunctor.F-id F {x}

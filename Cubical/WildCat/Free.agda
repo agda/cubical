@@ -1,7 +1,7 @@
 {-
   This file defines a wild category, which might be the free wild category over a
-  directed graph (I do not know). This is intended to be used in a solver for
-  wild categories.
+  directed graph (I do not know). Its refinement to the free wild category on a reflexive graph
+  is intended to be used in a solver for wild categories.
 -}
 {-# OPTIONS --safe #-}
 
@@ -50,7 +50,6 @@ composeAll++ C (pcons m p) q =
 
 module UniversalProperty (G : Graph ℓg ℓg') where
 
-
   incFree : GraphHom G (Cat→Graph (Free G))
   incFree $g x = x
   incFree <$g> e = pcons e pnil
@@ -72,3 +71,9 @@ module UniversalProperty (G : Graph ℓg ℓg') where
             composeAll C (map F (f ⋆⟨ Free G ⟩ g))                  ≡⟨ cong (λ u → composeAll C u) (map++ F f g) ⟩
             composeAll C (map F f ++ map F g)                       ≡⟨ composeAll++ C (map F f) (map F g) ⟩
             (composeAll C (map F f)) ⋆⟨ C ⟩ (composeAll C (map F g)) ∎
+
+  commutes : (C : WildCat ℓc ℓc') → (F : GraphHom G (Cat→Graph C))
+             →  incFree ⋆GrHom (Functor→GraphHom (inducedMorphism C F)) ≡ F
+  commutes C F =
+    GrHom≡ (λ x → refl)
+           (λ e → ⋆IdR C (F <$g> e))

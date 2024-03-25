@@ -44,6 +44,7 @@ record WildNatTrans (C : WildCat ℓC ℓC') (D : WildCat ℓD ℓD')
 record WildNatIso (C : WildCat ℓC ℓC') (D : WildCat ℓD ℓD')
          (F G : WildFunctor C D) :
          Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
+  no-eta-equality
   open WildNatTrans
 
   field
@@ -95,6 +96,8 @@ module _
  F-id (comp-WildFunctor F G) = cong (F-hom G) (F-id F) ∙ F-id G
  F-seq (comp-WildFunctor F G) f g = cong (F-hom G) (F-seq F f g) ∙ F-seq G _ _
 
+infixl 8 _∘F_
+_∘F_ = comp-WildFunctor
 
 module _ {C : WildCat ℓC ℓC'}
   (F : WildFunctor (C × C) C) where
@@ -164,14 +167,14 @@ WildFunctor.F-id commFunctor = refl
 WildFunctor.F-seq commFunctor _ _ = refl
 
 
-infixl 20 _$_
+infixl 10 _$_
 _$_ : {ℓC ℓC' ℓD ℓD' : Level}
       {C : WildCat ℓC ℓC'}
       {D : WildCat ℓD ℓD'}
    → WildFunctor C D → C .ob → D .ob
 F $ x = F .F-ob x
 
-infixl 20 _$→_
+infixl 10 _$→_
 _$→_ : {ℓC ℓC' ℓD ℓD' : Level}
       {C : WildCat ℓC ℓC'}
       {D : WildCat ℓD ℓD'}

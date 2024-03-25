@@ -61,6 +61,12 @@ RGrHom≡ ϕ≡ψ _ _ i $g v = ϕ≡ψ v i
 RGrHom≡ _ ϕ→≡ψ→ _ i <$g> e = ϕ→≡ψ→ e i
 RGrHom≡ _ _ presRefl≡presRefl i .presRefl v = presRefl≡presRefl v i
 
-ReflGraph→Graph : RGraph ℓv ℓe → Graph ℓv ℓe
-Node (ReflGraph→Graph G) = Node G
-Edge (ReflGraph→Graph G) = Edge G
+RGraph→Graph : RGraph ℓv ℓe → Graph ℓv ℓe
+Node (RGraph→Graph G) = Node G
+Edge (RGraph→Graph G) = Edge G
+
+module _ {G H : RGraph ℓv ℓe} where
+  fromGraphHom : (f : GraphHom (RGraph→Graph G) (RGraph→Graph H))
+               → ((v : Node G) → ? )
+               → RGraphHom G H
+  fromGraphHom = ?
