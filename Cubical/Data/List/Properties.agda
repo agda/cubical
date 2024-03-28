@@ -214,3 +214,7 @@ module _ {A : Type ℓ} (_≟_ : Discrete A) where
 
  findAligment : (xs ys : List A) → Maybe (Σ _ λ k → xs ≡ rotN k ys)
  findAligment xs ys = fa (suc (length xs)) xs ys
+
+zipWithIndex : List A → List (ℕ × A)
+zipWithIndex [] = []
+zipWithIndex (x ∷ xs) = (zero , x) ∷ map (map-fst suc) (zipWithIndex xs)

@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Tactics.PathSolver.Solver2 where
+module Cubical.Tactics.PathSolver.Solver3 where
 
 
 open import Cubical.Foundations.Prelude
@@ -13,6 +13,7 @@ open import Cubical.Foundations.Path
 open import Cubical.Data.Bool as 𝟚 hiding (_≤_)
 open import Cubical.Data.Nat as ℕ hiding (_·_)
 open import Cubical.Data.Unit
+open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 open import Cubical.Data.List as Li
 open import Cubical.Data.Maybe as Mb
@@ -32,6 +33,7 @@ open import Agda.Builtin.String
 private
   variable
     ℓ ℓ' : Level
+    A A' : Type ℓ
 
 
 infixr 5 _∷Tω_
@@ -40,14 +42,74 @@ data [Typeₙ] : Typeω where
  [] : [Typeₙ]
  _∷Tω_ : ∀ {ℓ} → Type ℓ → [Typeₙ] → [Typeₙ]
 
-ℓ[Typeₙ] : [Typeₙ] → Level
-ℓ[Typeₙ] [] = ℓ-zero
-ℓ[Typeₙ] (_∷Tω_ {ℓ} _ x₁) = ℓ-max ℓ (ℓ[Typeₙ] x₁)
+maxℓ : [Typeₙ] → Level
+maxℓ [] = ℓ-zero
+maxℓ (_∷Tω_ {ℓ} _ x₁) = ℓ-max ℓ (maxℓ x₁)
 
-lookupTₙ : (Ts : [Typeₙ]) → ℕ → Type (ℓ[Typeₙ] Ts)
-lookupTₙ [] x = Unit
-lookupTₙ (x₁ ∷Tω Ts) zero = Lift {_} {ℓ[Typeₙ] Ts} x₁
+lookupTₙ : (Ts : [Typeₙ]) → ℕ → Type (maxℓ Ts)
+lookupTₙ [] x = ⊥*
+lookupTₙ (x₁ ∷Tω Ts) zero = Lift {_} {maxℓ Ts} x₁
 lookupTₙ (_∷Tω_ {ℓ} x₁ Ts) (suc x) = Lift {_} {ℓ} (lookupTₙ Ts x)
+
+ℓAt : (Ts : [Typeₙ]) → ℕ → Level
+ℓAt [] x = ℓ-zero
+ℓAt (_∷Tω_ {ℓ} x₁ Ts) zero = ℓ
+ℓAt (x₁ ∷Tω Ts) (suc x) = ℓAt Ts x
+
+TyAt : (Ts : [Typeₙ]) → ∀ k → Type (ℓAt Ts k)
+TyAt [] k = ⊥*
+TyAt (x ∷Tω Ts) zero = x
+TyAt (x ∷Tω Ts) (suc k) = TyAt Ts k
+
+cast↓ : ∀ Ts k → lookupTₙ Ts k → TyAt Ts k
+cast↓ [] k ()
+cast↓ (x₁ ∷Tω Ts) zero x = lower x
+cast↓ (x₁ ∷Tω Ts) (suc k) x = cast↓ Ts k (lower x)
+
+cast↓Inj : ∀ {[T] A x y} → cast↓ [T] A x ≡ cast↓ [T] A y → x ≡ y
+cast↓Inj {[]} {A = A} {()}
+cast↓Inj {_ ∷Tω [T]} {A = zero} {lift lower₁} {lift lower₂} = cong lift
+cast↓Inj {_ ∷Tω [T]} {A = suc A} {lift lower₁} {lift lower₂} p =
+  cong lift (cast↓Inj {[T] = [T]} {A = A} p)
+
+cast↓Inj-sec : ∀ {[T] A x y} p →
+ cast↓Inj {[T]} {A} {x} {y} (cong (cast↓ [T] A ) p) ≡ p 
+cast↓Inj-sec {x ∷Tω [T]} {A = zero} p = refl
+cast↓Inj-sec {x ∷Tω [T]} {A = suc A} p =
+ cong (cong lift) $ cast↓Inj-sec {[T]} {A} (cong lower p) 
+
+cast↓Inj-∙∙ : ∀ {[T] A x y z w} p q r →
+   cast↓Inj {[T]} {A} {x} {w} (p ∙∙ q ∙∙ r)
+     ≡ (cast↓Inj p ∙∙ cast↓Inj {[T]} {A} {y} {z}  q ∙∙ cast↓Inj r)
+   
+     
+cast↓Inj-∙∙ {x ∷Tω [T]} {zero} p q r = cong-∙∙ lift _ _ _
+cast↓Inj-∙∙ {_ ∷Tω [T]} {suc A} p q r =
+ cong (cong lift) (cast↓Inj-∙∙  {[T]} {A} p q r) ∙ cong-∙∙ lift _ _ _ 
+
+
+cast↑ : ∀ Ts k → TyAt Ts k → lookupTₙ Ts k
+cast↑ [] k ()
+cast↑ (x₁ ∷Tω Ts) zero x = lift x
+cast↑ (x₁ ∷Tω Ts) (suc k) x = lift $ cast↑ Ts k x
+
+-- Ts-arr : (Ts : [Typeₙ]) → ∀ s t → Type (ℓ-max (ℓAt Ts s) (ℓAt Ts t))
+-- Ts-arr Ts s t = TyAt Ts s → TyAt Ts t
+
+
+-- Ts-arr' : (Ts : [Typeₙ]) → ℕ → ℕ → Type (maxℓ Ts)
+-- Ts-arr' [] x x₁ = Unit
+-- Ts-arr' (x₂ ∷Tω Ts) zero zero = Lift {_} {maxℓ Ts} (x₂ → x₂)
+-- Ts-arr' (x₂ ∷Tω Ts) zero (suc x₁) = {!Ts!} 
+-- Ts-arr' (x₂ ∷Tω Ts) (suc x) zero = {!!}
+-- Ts-arr' (_∷Tω_ {ℓ} x₂ Ts) (suc x) (suc x₁) = 
+--  Lift {_} {ℓ} (Ts-arr' (Ts) (x) (x₁))
+
+-- Ts-arr' : (Ts : [Typeₙ]) → ∀ s t →
+--  (lookupTₙ Ts s → lookupTₙ Ts t) → Ts-arr Ts s t
+-- Ts-arr' Ts s t x x₁ = {!!}
+
+
 
 data PathCase : {ℓ : Level} {A : Type ℓ} {a₀ a₁ : A} → a₀ ≡ a₁ → Typeω where
  reflCase : ∀ {ℓ A x} → PathCase {ℓ} {A} (refl {x = x})
@@ -57,72 +119,167 @@ data PathCase : {ℓ : Level} {A : Type ℓ} {a₀ a₁ : A} → a₀ ≡ a₁ �
                  → (p : Path {ℓ} A x y)  → PathCase {ℓ'} {A = A'} (cong f p)
 
 
--- module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'} (f : A → A') {x y}
---                    (p : Path {ℓ} A x y) where
+module _ {ℓ ℓ'} {A : Type ℓ} {A' : Type ℓ'} (f : A → A') {x y}
+                   (p : Path {ℓ} A x y) where
 
---  pathCaseCongTest : PathCase (cong f p)
---  pathCaseCongTest = congCase f λ z → p z
-
-data PathExprω : {ℓ : Level} (A : Type ℓ) {a₀ a₁ : A} → a₀ ≡ a₁ → Typeω where
- reflExpr : ∀ {ℓ A x} → PathExprω {ℓ} A (refl {x = x})
- atomExpr : ∀ {ℓ A x y} → (p : x ≡ y) → PathExprω {ℓ} A p
- compExpr : ∀ {ℓ A x y z w} → {p : x ≡ y} {q : y ≡ z} {r : z ≡ w}
-  → PathExprω {ℓ} A p → PathExprω {ℓ} A q → PathExprω {ℓ} A r
-  → PathExprω {ℓ} A (p ∙∙ q ∙∙ r)
- congExpr : ∀ {ℓ ℓ' A A' x y} → (f : A → A') {p : x ≡ y}
-  → PathExprω {ℓ} A p 
-  → PathExprω {ℓ'} A' (cong f p) 
+ pathCaseCongTest : PathCase (cong f p)
+ pathCaseCongTest = congCase f λ z → p z
 
 
-data PathExpr {ℓ : Level} : (A : Type ℓ) {a₀ a₁ : A} → a₀ ≡ a₁ → Type (ℓ-suc ℓ) where
- reflExpr : ∀ {A x} → PathExpr A (refl {x = x})
- atomExpr : ∀ {A x y} → (p : x ≡ y) → PathExpr A p
- compExpr : ∀ {A x y z w} → {p : x ≡ y} {q : y ≡ z} {r : z ≡ w}
-  → PathExpr A p → PathExpr A q → PathExpr A r
-  → PathExpr A (p ∙∙ q ∙∙ r)
- congExpr : ∀ {A A' x y} → (f : A → A') {p : x ≡ y}
-  → PathExpr {ℓ} A {x} {y} p 
-  → PathExpr A' (cong f p) 
+infixl 5 _fp∷_
+infixl 5 _fp++_
+
+data FlatPath {ℓ} (A : Type ℓ) : Bool → (a₀ a₁ : A) → Type ℓ where
+ [] : ∀ {x b} → FlatPath A b x x
+ _fp∷_ : ∀ {x y z b} → FlatPath A b x y → y ≡ z → FlatPath A b x z
+ _invol∷_ : ∀ {x y z} → FlatPath A true x y → y ≡ z → FlatPath A true x y 
+
+
+FP⟦_⟧ : {a₀ a₁ : A} → FlatPath A false a₀ a₁ → a₀ ≡ a₁
+FP⟦ [] ⟧ = refl
+FP⟦ x fp∷ x₁ ⟧ = FP⟦ x ⟧ ∙ x₁
+
+pattern fp[_] x = [] fp∷ x
+
+_fp++_ : ∀ {x y z}
+ → FlatPath A false x y
+ → FlatPath A false y z
+ → FlatPath A false x z
+x fp++ [] = x
+x fp++ (x₁ fp∷ x₂) = x fp++ x₁ fp∷ x₂
+
+fp++∙ : {a₀ a₁ a₂ : A} → (fp : FlatPath A false a₀ a₁)
+             (fp' : FlatPath A false a₁ a₂)
+          → FP⟦ fp ⟧ ∙ FP⟦ fp' ⟧ ≡ FP⟦ fp fp++ fp' ⟧
+fp++∙ fp [] = sym (rUnit _)
+fp++∙ fp (fp' fp∷ x) = assoc _ _ _ ∙ cong (_∙ x) (fp++∙ fp fp')
+
+module _ ([T] : [Typeₙ]) where
+
+ data PathExpr : (k : ℕ) (a₀ a₁ : lookupTₙ [T] k) → Type (maxℓ [T]) where
+  reflExpr : ∀ {A x} → PathExpr A x x
+  atomExpr : ∀ {A x y} → (p : x ≡ y) → PathExpr A x y
+  compExpr : ∀ {A x y z w} 
+   → PathExpr A x y → PathExpr A y z → PathExpr A z w
+   → PathExpr A x w
+  congExpr : ∀ {A A' x y} → (f : lookupTₙ [T] A → lookupTₙ [T] A') 
+   → PathExpr A x y 
+   → PathExpr A' (f x) (f y)
+
+
+ PE⟦_⟧ : ∀ {A a₀ a₁} → PathExpr A a₀ a₁ →
+  (cast↓ [T] A a₀) ≡  (cast↓ [T] A a₁)
+ PE⟦ reflExpr ⟧ = refl
+ PE⟦ atomExpr p ⟧ = cong _ p
+ PE⟦ compExpr x x₁ x₂ ⟧ = PE⟦ x ⟧ ∙∙ PE⟦ x₁ ⟧ ∙∙ PE⟦ x₂ ⟧
+ PE⟦ congExpr f x ⟧ = cong _ (cast↓Inj {[T]} PE⟦ x ⟧)
+
+ cong-flat : ∀ {A A₁ a₀ a₁ } → (f : lookupTₙ [T] A₁ → lookupTₙ [T] A)
+               → PathExpr A₁ a₀ a₁
+              
+              → FlatPath (TyAt [T] A) false (cast↓ [T] A (f a₀))
+                    (cast↓ [T] A (f a₁))
+ cong-flat f reflExpr = []
+ cong-flat f (atomExpr p) = fp[ cong _ p ]
+ cong-flat f (compExpr x x₁ x₂) =
+   cong-flat f x fp++ cong-flat f x₁ fp++ cong-flat f x₂
+ cong-flat f (congExpr f₁ x) = cong-flat (f ∘ f₁) x
+
+ flat⟦_⟧ : ∀ {A a₀ a₁} → PathExpr A a₀ a₁
+              → FlatPath (TyAt [T] A) false (cast↓ [T] A a₀) (cast↓ [T] A a₁)
+ flat⟦ reflExpr ⟧ = []
+ flat⟦ atomExpr p ⟧ = fp[ cong (cast↓ [T] _) p ]
+ flat⟦ compExpr x x₁ x₂ ⟧ = flat⟦ x ⟧ fp++ flat⟦ x₁ ⟧ fp++ flat⟦ x₂ ⟧
+ flat⟦ congExpr f x ⟧ = cong-flat f x
+
+
+ cong-flat≡ : ∀ {A₁ A a₀ a₁} → (pe : PathExpr A₁ a₀ a₁) →
+                 (f   : lookupTₙ [T] A₁ → lookupTₙ [T] A) → 
+                 (λ i → cast↓ [T] A (f (cast↓Inj PE⟦ pe ⟧ i))) ≡
+                  FP⟦ cong-flat f pe ⟧
+ cong-flat≡ reflExpr f = cong (cong (cast↓ [T] _ ∘ f)) (cast↓Inj-sec _)
+ cong-flat≡ (atomExpr p) f =
+   cong (cong (cast↓ [T] _ ∘ f)) (cast↓Inj-sec _) ∙ lUnit _
+ cong-flat≡ (compExpr pe pe₁ pe₂) f =
+    (cong (cong (cast↓ [T] _ ∘ f)) (cast↓Inj-∙∙ _ _ _) ∙∙
+      cong-∙∙ ((cast↓ [T] _ ∘ f)) _ _ _ ∙∙ 
+        (λ i → doubleCompPath-elim
+           (cong-flat≡ pe f i)
+           (cong-flat≡ pe₁ f i)
+           (cong-flat≡ pe₂ f i) i))
+      ∙∙ cong (_∙ FP⟦ cong-flat f  pe₂ ⟧)
+       (fp++∙ (cong-flat f pe) (cong-flat f pe₁))
+     ∙∙ fp++∙ _ (cong-flat f pe₂)
+ cong-flat≡ (congExpr f₁ pe) f =
+  cong (cong (cast↓ [T] _ ∘ f)) (cast↓Inj-sec _) ∙ cong-flat≡ pe (f ∘ f₁)
+  
+ pe≡flat : ∀ {A a₀ a₁} → (pe : PathExpr A a₀ a₁) →
+                   PE⟦ pe ⟧ ≡ FP⟦ flat⟦ pe ⟧ ⟧
+ pe≡flat reflExpr = refl
+ pe≡flat (atomExpr p) = lUnit _
+ pe≡flat (compExpr pe pe₁ pe₂) =
+   (λ i → doubleCompPath-elim
+           (pe≡flat pe i)
+           (pe≡flat pe₁ i)
+           (pe≡flat pe₂ i) i)
+   ∙∙ cong (_∙ FP⟦ flat⟦ pe₂ ⟧ ⟧) (fp++∙ flat⟦ pe ⟧ flat⟦ pe₁ ⟧)
+     ∙∙ fp++∙ _ flat⟦ pe₂ ⟧
+
+ pe≡flat (congExpr f pe) = cong-flat≡ pe f
+
+-- data PathExprω : {ℓ : Level} (A : Type ℓ) {a₀ a₁ : A} → a₀ ≡ a₁ → Typeω where
+--  reflExpr : ∀ {ℓ A x} → PathExprω {ℓ} A (refl {x = x})
+--  atomExpr : ∀ {ℓ A x y} → (p : x ≡ y) → PathExprω {ℓ} A p
+--  compExpr : ∀ {ℓ A x y z w} → {p : x ≡ y} {q : y ≡ z} {r : z ≡ w}
+--   → PathExprω {ℓ} A p → PathExprω {ℓ} A q → PathExprω {ℓ} A r
+--   → PathExprω {ℓ} A (p ∙∙ q ∙∙ r)
+--  congExpr : ∀ {ℓ ℓ' A A' x y} → (f : A → A') {p : x ≡ y}
+--   → PathExprω {ℓ} A p 
+--   → PathExprω {ℓ'} A' (cong f p) 
+
+
+-- data PathExpr {ℓ : Level} : (A : Type ℓ) {a₀ a₁ : A} → a₀ ≡ a₁ → Type (ℓ-suc ℓ) where
+--  reflExpr : ∀ {A x} → PathExpr A (refl {x = x})
+--  atomExpr : ∀ {A x y} → (p : x ≡ y) → PathExpr A p
+--  compExpr : ∀ {A x y z w} → {p : x ≡ y} {q : y ≡ z} {r : z ≡ w}
+--   → PathExpr A p → PathExpr A q → PathExpr A r
+--   → PathExpr A (p ∙∙ q ∙∙ r)
+--  congExpr : ∀ {A A' x y} → (f : A → A') {p : x ≡ y}
+--   → PathExpr {ℓ} A {x} {y} p 
+--   → PathExpr A' (cong f p) 
 
 
 
-PEω⟦_⟧ : {ℓ : Level} {A : Type ℓ} {a₀ a₁ : A} → {p : a₀ ≡ a₁} →
-           PathExprω A p → a₀ ≡ a₁
-PEω⟦ reflExpr ⟧ = refl
-PEω⟦ atomExpr p ⟧ = p
-PEω⟦ compExpr x x₁ x₂ ⟧ = PEω⟦ x ⟧ ∙∙ PEω⟦ x₁ ⟧ ∙∙ PEω⟦ x₂ ⟧
-PEω⟦ congExpr f x ⟧ = cong f PEω⟦ x ⟧
+-- PEω⟦_⟧ : {ℓ : Level} {A : Type ℓ} {a₀ a₁ : A} → {p : a₀ ≡ a₁} →
+--            PathExprω A p → a₀ ≡ a₁
+-- PEω⟦ reflExpr ⟧ = refl
+-- PEω⟦ atomExpr p ⟧ = p
+-- PEω⟦ compExpr x x₁ x₂ ⟧ = PEω⟦ x ⟧ ∙∙ PEω⟦ x₁ ⟧ ∙∙ PEω⟦ x₂ ⟧
+-- PEω⟦ congExpr f x ⟧ = cong f PEω⟦ x ⟧
 
 
-PE⟦_⟧ : {A : Type ℓ} {a₀ a₁ : A} → {p : a₀ ≡ a₁} →
-           PathExpr A p → a₀ ≡ a₁
-PE⟦ reflExpr ⟧ = refl
-PE⟦ atomExpr p ⟧ = p
-PE⟦ compExpr x x₁ x₂ ⟧ = PE⟦ x ⟧ ∙∙ PE⟦ x₁ ⟧ ∙∙ PE⟦ x₂ ⟧
-PE⟦ congExpr f x ⟧ = cong f PE⟦ x ⟧
 
+-- record ΣPathExprω : Typeω where
+--  field
+--   ℓa : Level
+--   A : Type ℓa
+--   a₀ a₁ : A
+--   p : a₀ ≡ a₁
+--   expr : PathExprω A p
 
-record ΣPathExprω : Typeω where
- field
-  ℓa : Level
-  A : Type ℓa
-  a₀ a₁ : A
-  p : a₀ ≡ a₁
-  expr : PathExprω A p
+--  ΣPEω⟦_⟧ : a₀ ≡ a₁
+--  ΣPEω⟦_⟧ = PEω⟦ expr ⟧
 
- ΣPEω⟦_⟧ : a₀ ≡ a₁
- ΣPEω⟦_⟧ = PEω⟦ expr ⟧
+-- record ΣPathExpr {ℓ} : Type (ℓ-suc ℓ) where
+--  constructor Σpe
+--  field
+--   {A} : Type ℓ
+--   {a₀ a₁} : A
+--   {p} : a₀ ≡ a₁
+--   expr : PathExpr A p
 
-record ΣPathExpr {ℓ} : Type (ℓ-suc ℓ) where
- constructor Σpe
- field
-  {A} : Type ℓ
-  {a₀ a₁} : A
-  {p} : a₀ ≡ a₁
-  expr : PathExpr A p
-
- ΣPE⟦_⟧ : a₀ ≡ a₁
- ΣPE⟦_⟧ = PE⟦ expr ⟧
+--  ΣPE⟦_⟧ : a₀ ≡ a₁
+--  ΣPE⟦_⟧ = PE⟦ expr ⟧
 
 
 
@@ -173,6 +330,8 @@ showRTrmTC =
   mmapPT
   (R.formatErrorParts ∘ [_]ₑ) (R.formatErrorParts ∘ [_]ₑ)
   >=> (pure ∘ StrTrm.showPathTrm.showPT (idfun _) (idfun _) )
+
+
 
 module tryPathE where
 

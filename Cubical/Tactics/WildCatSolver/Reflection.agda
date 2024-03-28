@@ -221,6 +221,13 @@ foldlM f b (x ∷ xs) = f b x >>= (flip (foldlM f)) xs
 R∙ : R.Term → R.Term → R.Term
 R∙ x y = R.def (quote _∙_) (x v∷ y v∷ [] )
 
+R∙∙ : R.Term → R.Term → R.Term → R.Term
+R∙∙ x y z = R.def (quote _∙∙_∙∙_) (x v∷ y v∷ z v∷ [] )
+
+Rsym : R.Term → R.Term
+Rsym x = R.def (quote sym) (x v∷ [] )
+
+
 Rrefl : R.Term
 Rrefl = R.def (quote refl) []
 

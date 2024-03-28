@@ -51,7 +51,7 @@ module example (G G* G○ : Group ℓ)
 
 
   lhs rhs : fst G
-  lhs = (p · p') · (inv p' · (F* ⟪ (((*.inv q) *.· r) *.· F○ ⟪ ○.inv t ⟫ *.·
+  lhs = p · (p · inv p) · inv p · (p' · inv p') · (p · p') · (inv p' · (F* ⟪ (((*.inv q) *.· r) *.· F○ ⟪ ○.inv t ⟫ *.·
               (*.inv (F○ ⟪ s ○.· s ⟫) *.· F○ ⟪ u ⟫ )) ⟫ ))
 
   rhs = inv (F* ⟪ q ⟫ · inv p) · (F* ⟪ r ⟫) ·

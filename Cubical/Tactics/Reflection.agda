@@ -90,6 +90,12 @@ get-boundary tm = unapply-path tm >>= λ where
   (just (_ , x , y)) → returnTC (just (x , y))
   nothing            → returnTC nothing
 
+get-boundaryWithDom : Term → TC (Maybe (Term × (Term × Term)))
+get-boundaryWithDom tm = unapply-path tm >>= λ where
+  (just (A , x , y)) → returnTC (just (A , (x , y)))
+  nothing            → returnTC nothing
+
+
 equation-solver : List Name → (Term -> Term -> TC Term) → Bool → Term → TC Unit
 equation-solver don't-Reduce mk-call debug hole =
     withNormalisation false (
