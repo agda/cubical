@@ -1,5 +1,19 @@
 {-# OPTIONS --safe #-}
 
+{-
+
+This module introduces a way to represent elements of free groups as lists of pairs ([𝟚× A]), where A identifies generators and Bool differentiates a generator from its inverse.
+
+A specific relation, _·_⁻¹≡ε,  captures the relationship where the concatenation of a word with the inverse of another equates to the group identity.
+
+By quotienting by _·_⁻¹≡ε, resulting in the List/↘↙group, a group structure on equivalence classes of lists is established. Here, concatenation acts as the group operation, hence forming the foundation for the free group constructed over A.
+
+Given that _·_⁻¹≡ε functions as an equivalence relation, it permits the retrieval of this relationship from paths in the quotient. This feature facilitates the proof of the uniqueness of the normal form in `Cubical.HITs.FreeGroup.NormalForm`.
+
+In the Discrete module, the presence of decidable equality on the type of generators (A) enables the definition of groups without requiring truncation. This utility is used in `Cubical.HITs.Bouquet.Discrete` to demonstrate that a bouquet over a discrete type is an hGroupoid without truncation.
+
+-}
+
 module Cubical.Algebra.Group.Free where
 
 open import Cubical.Foundations.Prelude
