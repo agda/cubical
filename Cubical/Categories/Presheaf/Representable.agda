@@ -56,11 +56,11 @@ open isIsoC
 -- | Lifts don't appear in practice because we usually use universal
 -- | elements instead
 module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
-  Representation : Type (ℓ-max (ℓ-max ℓo (ℓ-suc ℓh)) (ℓ-suc ℓp))
+  Representation : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   Representation =
     Σ[ A ∈ C .ob ] PshIso C (C [-, A ]) P
 
-  Representable : Type (ℓ-max (ℓ-max ℓo (ℓ-suc ℓh)) (ℓ-suc ℓp))
+  Representable : Type  (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   Representable = ∥ Representation ∥₁
 
   Elements = ∫ᴾ_ {C = C} P
