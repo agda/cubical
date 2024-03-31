@@ -1,5 +1,18 @@
 {-# OPTIONS --safe #-}
 
+{-
+
+For an arbitrary type of generators:
+ - `GroupIso-FG-L/↘↙` demonstrates that the free group defined as a HIT is equivalent to the definition based on quotienting lists by the appropriate relation (from `Cubical.Algebra.Group.Free`).
+
+The following properties are defined with the assumption that the type of the generators is an hSet. Without this assumption, they can be adapted to be stated "modulo set truncation":
+
+ - `isPropNF` ensures the uniqueness of the normal form.
+ - `ηInj` establishes that the `η` constructor of FreeGroup is injective.
+ - `NF⇔DiscreteA` indicates that computing the normal form is feasible if and only if the type of generators is discrete.
+ - `discreteFreeGroup` asserts that if the generators are discrete, then the FreeGroup has decidable equality.
+
+-}
 module Cubical.HITs.FreeGroup.NormalForm where
 
 open import Cubical.Foundations.Prelude

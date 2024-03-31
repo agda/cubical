@@ -1,5 +1,11 @@
 {-# OPTIONS --safe #-}
 
+{-
+
+This module, uses normalization and decidable equality from `Cubical.Algebra.Group.Free` to demonstrate that Bouquet over discrete type is hGroupoid by establishing a coding between loops in the bouquet and elements of the FreeGroup represented by normalised words.
+
+-}
+
 module Cubical.HITs.Bouquet.Discrete where
 
 open import Cubical.Foundations.Prelude

@@ -4,11 +4,17 @@
 
 This module introduces a way to represent elements of free groups as lists of pairs ([𝟚× A]), where A identifies generators and Bool differentiates a generator from its inverse.
 
-A specific relation, _·_⁻¹≡ε,  captures the relationship where the concatenation of a word with the inverse of another equates to the group identity.
+
+The definition of `_⇊1g` encodes the concept of a word being equivalent to the identity element in a free group. It includes three constructors:
+ - The trivial case `[]` represents the identity itself.
+ - The `cj` constructor signifies conjugation by a generator, indicating that a word extended by a generator and its inverse is still equivalent to the identity.
+ - Lastly, the `_·_` constructor asserts that if two words are each equivalent to the identity, their concatenation will also be equivalent to the identity, preserving the identity property under the group operation.
+
+Then, a `_·_⁻¹≡ε relation`, defined as `λ xs ys → (xs ++ invLi ys) ⇊1g`  captures the relationship where the concatenation of a word with the inverse of another equates to the group identity.
 
 By quotienting by _·_⁻¹≡ε, resulting in the List/↘↙group, a group structure on equivalence classes of lists is established. Here, concatenation acts as the group operation, hence forming the foundation for the free group constructed over A.
 
-Given that _·_⁻¹≡ε functions as an equivalence relation, it permits the retrieval of this relationship from paths in the quotient. This feature facilitates the proof of the uniqueness of the normal form in `Cubical.HITs.FreeGroup.NormalForm`.
+Given that _·_⁻¹≡ε functions is equivalence relation, it permits the retrieval of this relationship from paths in the quotient. This feature facilitates the proof of the uniqueness of the normal form in `Cubical.HITs.FreeGroup.NormalForm`.
 
 In the Discrete module, the presence of decidable equality on the type of generators (A) enables the definition of groups without requiring truncation. This utility is used in `Cubical.HITs.Bouquet.Discrete` to demonstrate that a bouquet over a discrete type is an hGroupoid without truncation.
 
@@ -52,7 +58,7 @@ private
 module NormalForm (A : Type ℓ) where
 
  -- Below we are defining predicate `HasRedex` over `List (Bool × A)`
- -- basing it on presence of sublist - redex of form [(b , x) , (not b , x)]
+ -- basing it on presence of sublist - REDucible EXpression of form [(b , x) , (not b , x)]
 
  not₁ : (Bool × A) → (Bool × A)
  not₁ = map-fst not
