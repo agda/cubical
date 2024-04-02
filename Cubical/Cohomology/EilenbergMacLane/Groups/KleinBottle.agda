@@ -47,8 +47,6 @@ open import Cubical.HITs.EilenbergMacLane1 renaming (elimProp to elimPropEM1 ; e
 open import Cubical.HITs.Susp
 open import Cubical.HITs.RPn
 
-open import Cubical.Tactics.PathSolver.Solver4
-
 open AbGroupStr
 
 private
@@ -361,10 +359,13 @@ fst (H¹[K²,G]≅G×H¹[RP²,G] G) = isoToEquiv mainIso
   F→ f (square i j) = help i (~ j)
     where
     help : cong f (sym line1) ≡ cong f line1
-    help = 
-       ≡!
-     ∙∙ cong (sym (cong f line2) ∙_) (isCommΩEM-base 0 _ _ _)
-     ∙∙ PathP→compPathL (λ i j → f (square j i))
+    help =
+      lUnit (cong f (sym line1))
+      ∙ cong (_∙ cong f (sym line1))
+          (sym (lCancel _))
+     ∙ sym (assoc _ _ _)
+     ∙ cong (sym (cong f line2) ∙_) (isCommΩEM-base 0 _ _ _)
+     ∙ PathP→compPathL (λ i j → f (square j i))
 
   F← : (g : fst G) → (RP² → EM G 1) → KleinBottle → EM G 1
   F← g f point = f point
