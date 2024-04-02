@@ -139,9 +139,9 @@ univProp (completeSET J D) c cc =
 
 
 module _ {ℓ} where
- 
+
  open Pullback
- 
+
  PullbacksSET : Pullbacks (SET ℓ)
  PullbacksSET (cospan l m r s₁ s₂) = pb
   where
