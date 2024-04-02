@@ -66,14 +66,14 @@ module _ (ℓ ℓ' : Level) where
   --       --   (fromPathP {A = (λ i → Hom[ C , F-ob (ret i) x ] (F-ob (ret i) y))}
   --       --    {!!}) ∙
   --         {!!} ∙
-  --         λ i → (fromPathP (cong F-hom sec)) i b  
-  --       -- {!!} ∙ λ i → {!sec i .F-hom b!} 
+  --         λ i → (fromPathP (cong F-hom sec)) i b
+  --       -- {!!} ∙ λ i → {!sec i .F-hom b!}
   --     Iso.leftInv (homIsom x y) a = {!!}
 
   --     open CategoryPath
   --     ww : CategoryPath C C'
   --     ob≡ ww = ua (isoToEquiv obIsom)
-  --     Hom≡ ww = RelPathP _ λ x y → isoToEquiv $ homIsom x y 
+  --     Hom≡ ww = RelPathP _ λ x y → isoToEquiv $ homIsom x y
   --     id≡ ww = {!!}
   --     ⋆≡ ww = {!!}
   --  Iso.rightInv w = {!!}

@@ -12,7 +12,7 @@ open import Cubical.Foundations.Equiv as Equiv hiding (transpEquiv)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Function using (_∘_ ; homotopyNatural)
+open import Cubical.Foundations.Function using (_∘_)
 
 -- Direct definition of transport filler, note that we have to
 -- explicitly tell Agda that the type is constant (like in CHM)
@@ -205,7 +205,6 @@ module _ {ℓ : Level} {A : Type ℓ} {a x1 x2 : A} (p : x1 ≡ x2) where
     ≡⟨ assoc (sym p) q refl ⟩
       (sym p ∙ q) ∙ refl
     ≡⟨ sym (rUnit (sym p ∙ q))⟩ sym p ∙ q ∎
-
 
 transport-filler-ua : ∀ {ℓ} {A B : Type ℓ} (e : A ≃ B) (a : A)
   → SquareP (λ _ i → ua e i)

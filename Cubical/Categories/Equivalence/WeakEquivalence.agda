@@ -3,28 +3,30 @@
 Weak Equivalence between Categories
 
 -}
-{-# OPTIONS --safe --lossy-unification  #-} 
+{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Equivalence.WeakEquivalence where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Transport hiding (pathToIso)
 open import Cubical.Foundations.Equiv
   renaming (isEquiv to isEquivMap ; equivFun to _≃$_)
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
+open import Cubical.HITs.PropositionalTruncation
+open import Cubical.Foundations.Transport hiding (pathToIso)
+open import Cubical.HITs.PropositionalTruncation
+open import Cubical.Data.Sigma
+
+open import Cubical.Relation.Binary
+
 open import Cubical.Functions.Surjection
 open import Cubical.Categories.Category
-open import Cubical.Categories.Category.Path
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Equivalence
-open import Cubical.Relation.Binary
-open import Cubical.Data.Sigma
-open import Cubical.HITs.PropositionalTruncation
+open import Cubical.Categories.Category.Path
+
 
 private
   variable
@@ -63,6 +65,11 @@ isPropIsWeakEquivalence =
          (isProp× (isPropΠ2 λ _ _ → isPropIsEquiv _)
                   (isPropΠ λ _ → squash₁))
 
+-- Equivalence is always weak equivalence.
+
+isEquiv→isWeakEquiv : isEquivalence F → isWeakEquivalence F
+isEquiv→isWeakEquiv isequiv .fullfaith = isEquiv→FullyFaithful isequiv
+isEquiv→isWeakEquiv isequiv .esssurj   = isEquiv→Surj isequiv
 
 isWeakEquivalenceTransportFunctor : (p : C ≡ D) → isWeakEquivalence (TransportFunctor p)
 fullfaith (isWeakEquivalenceTransportFunctor {C = C} p) x y = isEquivTransport
@@ -75,12 +82,6 @@ esssurj (isWeakEquivalenceTransportFunctor {C = C} p) d =
 ≡→WeakEquivlance : C ≡ D → WeakEquivalence C D
 func (≡→WeakEquivlance _) = _
 isWeakEquiv (≡→WeakEquivlance b) = isWeakEquivalenceTransportFunctor b
-
--- Equivalence is always weak equivalence.
-
-isEquiv→isWeakEquiv : isEquivalence F → isWeakEquivalence F
-isEquiv→isWeakEquiv isequiv .fullfaith = isEquiv→FullyFaithful isequiv
-isEquiv→isWeakEquiv isequiv .esssurj   = isEquiv→Surj isequiv
 
 
 -- Weak equivalence between univalent categories is equivalence,
@@ -110,6 +111,7 @@ module _
                isEquiv→isWeakEquiv isWeakEquiv→isEquiv)
      ∙ₑ isoToEquiv (iso (uncurry weakEquivalence) _ (λ _ → refl) λ _ → refl)
 
+
 module _
   {C C' : Category ℓC ℓC'}
   (isUnivC : isUnivalent C)
@@ -118,41 +120,39 @@ module _
 
  open CategoryPath
 
- module 𝑪  = Category C
- module 𝑪' = Category C'
-
- module _ {F} (we : isWeakEquivalence {C = C} {C'} F) where
+ module _ {F : Functor C C'} (we : isWeakEquivalence F) where
 
   open Category
 
-  ob≃ : 𝑪.ob ≃ 𝑪'.ob
+  ob≃ : C .ob ≃ C' .ob
   ob≃ = _ , isEquivF-ob isUnivC isUnivC' we
 
-  Hom≃ : ∀ x y → 𝑪.Hom[ x , y ] ≃ 𝑪'.Hom[ ob≃ ≃$ x , ob≃ ≃$ y ]
+  Hom≃ : ∀ x y → C [ x , y ] ≃ C' [ ob≃ ≃$ x , ob≃ ≃$ y ]
   Hom≃ _ _ = F-hom F , fullfaith we _ _
 
   HomPathP : PathP (λ i → ua ob≃ i → ua ob≃ i → Type ℓC')
-               𝑪.Hom[_,_] 𝑪'.Hom[_,_]
+               (C [_,_]) (C' [_,_])
   HomPathP = RelPathP _ Hom≃
 
   WeakEquivlance→CategoryPath : CategoryPath C C'
   ob≡ WeakEquivlance→CategoryPath = ua ob≃
   Hom≡ WeakEquivlance→CategoryPath = HomPathP
-  id≡ WeakEquivlance→CategoryPath = EquivJRel {_∻_ = 𝑪'.Hom[_,_]}
+  id≡ WeakEquivlance→CategoryPath = EquivJRel {_∻_ = C' [_,_]}
     (λ Ob e H[_,_] h[_,_] →
       (id* : ∀ {x : Ob} → H[ x , x ]) →
       ({x : Ob} → (h[ x , _ ] ≃$ id*) ≡ C' .id {e ≃$ x} )
-      → PathP (λ i → {x : ua e i} → RelPathP e {_} {𝑪'.Hom[_,_]} h[_,_] i x x) id* λ {x} → C' .id {x})
+      → PathP (λ i → {x : ua e i} →
+          RelPathP e {_} {C' [_,_]} h[_,_] i x x) id* λ {x} → C' .id {x})
     (λ _ x i → glue (λ {(i = i0) → _ ; (i = i1) → _ }) (x i)) _ _ Hom≃ (C .id) (F-id F)
 
-  ⋆≡ WeakEquivlance→CategoryPath = EquivJRel {_∻_ = 𝑪'.Hom[_,_]}
+  ⋆≡ WeakEquivlance→CategoryPath = EquivJRel {_∻_ = C' [_,_]}
     (λ Ob e H[_,_] h[_,_] → (⋆* : BinaryRelation.isTrans' H[_,_]) →
       (∀ {x y z : Ob} f g → (h[ x , z ] ≃$ (⋆* f g)) ≡
             C' ._⋆_ (h[ x , _ ] ≃$ f) (h[ y , _ ] ≃$ g) )
       → PathP (λ i → BinaryRelation.isTrans' (RelPathP e h[_,_] i))
-           (⋆*)  (λ {x y z} → C' ._⋆_ {x} {y} {z}))
-    (λ _ x i f g → glue
-     (λ {(i = i0) → _ ; (i = i1) → _ }) (x (unglue (i ∨ ~ i) f) (unglue (i ∨ ~ i) g) i  ))
+           ⋆*  (λ {x y z} → C' ._⋆_ {x} {y} {z}))
+    (λ _ x i f g → glue (λ {(i = i0) → _ ; (i = i1) → _ })
+        (x (unglue (i ∨ ~ i) f) (unglue (i ∨ ~ i) g) i  ))
       _ _ Hom≃ (C ._⋆_) (F-seq F)
 
  open Iso
@@ -161,44 +161,21 @@ module _
  fun IsoCategoryPath = WeakEquivlance→CategoryPath ∘f isWeakEquiv
  inv IsoCategoryPath = ≡→WeakEquivlance ∘f mk≡
  rightInv IsoCategoryPath b = CategoryPath≡
-     {C = C} {C' = C'} {_}
-     -- {categoryPath {C = C} {C' = C'}
-     --    (λ i →
-     --       Glue (C' .Category.ob) {φ = i ∨ ~ i}
-     --       (λ ._ → ob≡ b i , equivPathP {e = ob≃ ((≡→WeakEquivlance (mk≡ b)) .isWeakEquiv)}
-     --         {f = idEquiv _} (transport-fillerExt⁻ (ob≡ b)) i))
-     --    (λ j x y →
-     --       Glue 𝑪'.Hom[ unglue (~ j ∨ j) x , unglue (~ j ∨ j ∨ i0) y ]
-     --       (λ { (j = i0)
-     --              → 𝑪.Hom[ x , y ] ,
-     --                Hom≃ (isWeakEquivalenceTransportFunctor (mk≡ b)) x y
-     --          ; (j = i1)
-     --              → 𝑪'.Hom[ unglue (~ i1 ∨ i1 ∨ i0) x , unglue (~ i1 ∨ i1 ∨ i0) y ] ,
-     --                idEquiv
-     --                𝑪'.Hom[ unglue (~ i1 ∨ i1 ∨ i0) x , unglue (~ i1 ∨ i1 ∨ i0) y ]
-     --          }))
-     --    (id≡
-     --     (WeakEquivlance→CategoryPath
-     --      (isWeakEquiv (inv IsoCategoryPath b))))
-     --    (⋆≡
-     --     (WeakEquivlance→CategoryPath
-     --      (isWeakEquiv (inv IsoCategoryPath b))))}
-     {b}
-     (λ i j →
-        Glue _ {φ = ~ j ∨ j ∨ i}
-           (λ _ → _ , equivPathP
-              {e = ob≃ (isWeakEquivalenceTransportFunctor (mk≡ b))} {f = idEquiv _}
-                    (transport-fillerExt⁻ (ob≡ b)) j))
-      λ i j x y →
-        Glue (𝑪'.Hom[ unglue _ x , unglue _ y ])
-        λ { (j = i0) → _ , Hom≃ (isWeakEquivalenceTransportFunctor (mk≡ b)) _ _
-           ;(j = i1) → _ , idEquiv _
-           ;(i = i1) → _ , _
+   (WeakEquivlance→CategoryPath (isWeakEquiv (≡→WeakEquivlance (mk≡ b)))) b
+   (λ i j → Glue (C' .Category.ob) {φ = ~ j ∨ j ∨ i}
+         (λ _ → _ , equivPathP
+         {e = ob≃ (isWeakEquiv (≡→WeakEquivlance (mk≡ b)))} {f = idEquiv _}
+         (transport-fillerExt⁻ (ob≡ b)) j))
+    λ i j x y → Glue (C' [ unglue (~ j ∨ j ∨ i) x , unglue (~ j ∨ j ∨ i) y ])
+        λ {(j = i0) → _ , Hom≃ (isWeakEquiv (≡→WeakEquivlance (mk≡ b))) _ _
+          ;(j = i1) → _ , idEquiv _
+          ;(i = i1) → _ , _
             , isProp→PathP (λ j → isPropΠ2 λ x y → isPropIsEquiv (transp (λ i₂ →
                let tr = transp (λ j' → ob≡ b (j ∨ (i₂ ∧ j'))) (~ i₂ ∨ j)
                in Hom≡ b (i₂ ∨ j) (tr x) (tr y)) j))
-                (λ _ _ → snd (Hom≃ (isWeakEquivalenceTransportFunctor (mk≡ b)) _ _))
-                (λ _ _ → snd (idEquiv _)) j x y }
+                (λ _ _ → fullfaith (isWeakEquiv (≡→WeakEquivlance (mk≡ b))) _ _)
+                (λ _ _ → idIsEquiv _) j x y }
+
 
  leftInv IsoCategoryPath we = cong₂ weakEquivalence
    (Functor≡ (transportRefl ∘f (F-ob (func we)))

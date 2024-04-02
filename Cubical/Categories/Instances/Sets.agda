@@ -7,6 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
@@ -15,7 +16,7 @@ open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Categories.Limits
 
-open Category
+open Category hiding (_∘_)
 
 module _ ℓ where
   SET : Category (ℓ-suc ℓ) ℓ
@@ -147,20 +148,23 @@ univProp (completeSET' J D) c cc =
     (λ x → isPropIsConeMor cc (limCone (completeSET' J D)) x)
     (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
 
+module _ {ℓ} where
 
+ open Pullback
 
--- pullbacks : Pullbacks (SET ℓ)
--- pullbacks cspn = w
---  where
---  open Cospan cspn
---  w : Pullback (SET _) cspn
---  Pullback.pbOb w =
---    Σ (fst l × fst r) (λ (lo , ro) → s₁ lo ≡ s₂ ro ) ,
---    {!!}
---  Pullback.pbPr₁ w x = fst (fst x)
---  Pullback.pbPr₂ w x = snd (fst x)
---  Pullback.pbCommutes w = funExt snd
---  Pullback.univProp w h k H' =
---    ((λ x → _ , (funExt⁻ H' x)) , refl , refl) ,
---     λ y → Σ≡Prop {!!} (funExt
---      λ yy → Σ≡Prop {!!} λ i → fst (snd y) i yy , snd (snd y) i yy)
+ PullbacksSET : Pullbacks (SET ℓ)
+ PullbacksSET (cospan l m r s₁ s₂) = pb
+  where
+  pb : Pullback (SET ℓ) (cospan l m r s₁ s₂)
+  pbOb pb = _ , isSetΣ (isSet× (snd l) (snd r))
+   (uncurry λ x y → isOfHLevelPath 2 (snd m) (s₁ x) (s₂ y))
+  pbPr₁ pb = fst ∘ fst
+  pbPr₂ pb = snd ∘ fst
+  pbCommutes pb = funExt snd
+  fst (fst (univProp pb h k H')) d = _ , (H' ≡$ d)
+  snd (fst (univProp pb h k H')) = refl , refl
+  snd (univProp pb h k H') y =
+   Σ≡Prop
+    (λ _ → isProp× (isSet→ (snd l) _ _) (isSet→ (snd r) _ _))
+     (funExt λ x → Σ≡Prop (λ _ → (snd m) _ _)
+        λ i → fst (snd y) i x , snd (snd y) i x)

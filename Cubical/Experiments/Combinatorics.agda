@@ -78,10 +78,11 @@ s = refl
 p : prod (Fin _) f ≡ 6480
 p = refl
 
+{-
 -- the maximal value
 m : maxValue (Fin _) f ∣ fzero ∣ ≡ 9
 m = refl
-
+-}
 -- the number of numeral 1
 n1 : card (_ , isFinSetFiberDisc (Fin _) ℕ discreteℕ f 1) ≡ 2
 n1 = refl

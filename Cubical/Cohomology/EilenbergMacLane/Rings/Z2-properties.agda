@@ -17,6 +17,7 @@ open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.IntMod
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 
 open import Cubical.Homotopy.EilenbergMacLane.Order2
 

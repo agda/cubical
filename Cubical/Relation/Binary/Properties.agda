@@ -2,6 +2,14 @@
 module Cubical.Relation.Binary.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+open import Cubical.Functions.FunExtEquiv
+
+open import Cubical.Data.Sigma
+
 open import Cubical.Relation.Binary.Base
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
@@ -12,22 +20,21 @@ open import Cubical.Data.Sigma
 
 private
   variable
-    ℓA ℓA' ℓB ℓB' : Level
-    A : Type ℓA
-    B : Type ℓB
+    ℓ ℓ' : Level
+    A B : Type ℓ
     f : A → B
-    rA : Rel A A ℓA'
-    rB : Rel B B ℓB'
+    rA : Rel A A ℓ
+    rB : Rel B B ℓ
 
 open BinaryRelation
 
-module _ (R : Rel B B ℓB') where
+module _ (R : Rel B B ℓ) where
 
   -- Pulling back a relation along a function.
   -- This can for example be used when restricting an equivalence relation to a subset:
   --   _~'_ = on fst _~_
 
-  pulledbackRel : (A → B) → Rel A A ℓB'
+  pulledbackRel : (A → B) → Rel A A ℓ
   pulledbackRel f x y = R (f x) (f y)
 
   funRel : Rel (A → B) (A → B) _
@@ -49,9 +56,9 @@ module _ (isEquivRelR : isEquivRel rB) where
  transitive isEquivRelFunRel _ _ _ u v _ =
    transitive isEquivRelR _ _ _ (u _) (v _)
 
-module _ (rA : Rel A A ℓA') (rB : Rel B B ℓB') where
+module _ (rA : Rel A A ℓ) (rB : Rel B B ℓ') where
 
- ×Rel : Rel (A × B) (A × B) (ℓ-max ℓA' ℓB')
+ ×Rel : Rel (A × B) (A × B) (ℓ-max ℓ ℓ')
  ×Rel (a , b) (a' , b') = (rA a a') × (rB b b')
 
 module _ (isEquivRelRA : isEquivRel rA) (isEquivRelRB : isEquivRel rB) where
@@ -69,12 +76,12 @@ module _ (isEquivRelRA : isEquivRel rA) (isEquivRelRB : isEquivRel rB) where
    map-× (eqrA.transitive _ _ _ ra) (eqrB.transitive _ _ _ rb)
 
 
-module _ (rA : Rel A A ℓA') (rB : Rel A A ℓB') where
+module _ (rA : Rel A A ℓ) (rB : Rel A A ℓ') where
 
- ⊓Rel : Rel A A (ℓ-max ℓA' ℓB')
+ ⊓Rel : Rel A A (ℓ-max ℓ ℓ')
  ⊓Rel a a' = (rA a a') × (rB a a')
 
-module _ {rA : Rel A A ℓA} {rA' : Rel A A ℓA'}
+module _ {rA : Rel A A ℓ} {rA' : Rel A A ℓ'}
   (isEquivRelRA : isEquivRel rA) (isEquivRelRA' : isEquivRel rA') where
  open isEquivRel
 
@@ -82,13 +89,13 @@ module _ {rA : Rel A A ℓA} {rA' : Rel A A ℓA'}
  private module eqrA' = isEquivRel isEquivRelRA'
 
  isEquivRel⊓Rel : isEquivRel (⊓Rel rA rA')
- reflexive isEquivRel⊓Rel _ = eqrA.reflexive _ , eqrA'.reflexive _ 
+ reflexive isEquivRel⊓Rel _ = eqrA.reflexive _ , eqrA'.reflexive _
  symmetric isEquivRel⊓Rel _ _ (r , r') =
-  eqrA.symmetric _ _ r , eqrA'.symmetric _ _ r' 
+  eqrA.symmetric _ _ r , eqrA'.symmetric _ _ r'
  transitive isEquivRel⊓Rel _ _ _ (r , r') (q , q') =
-    eqrA.transitive' r q , eqrA'.transitive' r' q' 
+    eqrA.transitive' r q , eqrA'.transitive' r' q'
 
-module _ {A B : Type ℓA} (e : A ≃ B) {_∼_ : Rel A A ℓA'} {_∻_ : Rel B B ℓA'}
+module _ {A B : Type ℓ} (e : A ≃ B) {_∼_ : Rel A A ℓ'} {_∻_ : Rel B B ℓ'}
          (_h_ : ∀ x y → (x ∼ y) ≃ ((fst e x) ∻ (fst e y))) where
 
   RelPathP : PathP (λ i → ua e i → ua e i → Type _)
@@ -98,10 +105,10 @@ module _ {A B : Type ℓA} (e : A ≃ B) {_∼_ : Rel A A ℓA'} {_∻_ : Rel B 
         ; (i = i1) → _ , idEquiv _ }
 
 
-module _ {ℓ''} {B : Type ℓB} {_∻_ : B → B → Type ℓB'} where
+module _ {ℓ''} {B : Type ℓ} {_∻_ : B → B → Type ℓ'} where
 
   JRelPathP-Goal : Type _
-  JRelPathP-Goal = ∀ (A : Type ℓB) (e : A ≃ B) (_~_ : A → A → Type ℓB')
+  JRelPathP-Goal = ∀ (A : Type ℓ) (e : A ≃ B) (_~_ : A → A → Type ℓ')
              → (_h_ :  ∀ x y → x ~ y ≃ (fst e x ∻ fst e  y)) → Type ℓ''
 
 

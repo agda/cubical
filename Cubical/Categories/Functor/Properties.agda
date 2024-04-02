@@ -3,18 +3,18 @@
 module Cubical.Categories.Functor.Properties where
 
 open import Cubical.Foundations.Prelude
+import Cubical.Foundations.Isomorphism as Iso
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function hiding (_∘_)
 open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
-open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
-import Cubical.Foundations.Isomorphism as Iso
+open import Cubical.Foundations.Path
 open import Cubical.Functions.Surjection
 open import Cubical.Functions.Embedding
 open import Cubical.HITs.PropositionalTruncation as Prop
 open import Cubical.Data.Sigma
-open import Cubical.Data.Nat
+open import Cubical.Data.Nat using (_+_)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Morphism
@@ -50,20 +50,6 @@ module _ {F : Functor C D} where
   F-rUnit i .F-hom f = F ⟪ f ⟫
   F-rUnit i .F-id {x} = rUnit (F .F-id) (~ i)
   F-rUnit i .F-seq f g = rUnit (F .F-seq f g) (~ i)
-
-  -- functors preserve commutative diagrams (specificallysqures here)
-  preserveCommF : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , w ]} {h : C [ x , z ]} {k : C [ z , w ]}
-                → f ⋆⟨ C ⟩ g ≡ h ⋆⟨ C ⟩ k
-                → (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ≡ (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
-  preserveCommF {f = f} {g = g} {h = h} {k = k} eq
-    = (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫)
-    ≡⟨ sym (F .F-seq _ _) ⟩
-      F ⟪ f ⋆⟨ C ⟩ g ⟫
-    ≡⟨ cong (F ⟪_⟫) eq ⟩
-      F ⟪ h ⋆⟨ C ⟩ k ⟫
-    ≡⟨ F .F-seq _ _ ⟩
-      (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
-    ∎
 
   -- functors preserve isomorphisms
   preserveIsosF : ∀ {x y} → CatIso C x y → CatIso D (F ⟅ x ⟆) (F ⟅ y ⟆)
@@ -106,23 +92,22 @@ module _ {F : Functor C D} where
                → PathP (λ i → D [ F .F-ob (p i) , F. F-ob (q i) ]) (F .F-hom f) (F .F-hom g)
   functorCongP r i = F .F-hom (r i)
 
-
 isEquivFunctor≡ : ∀ {F} {G} → isEquiv (uncurry (Functor≡ {C = C} {D = D} {F = F} {G = G}))
-isEquivFunctor≡ {C = C} {D = D} = Iso.isoToIsEquiv ww
+isEquivFunctor≡ {C = C} {D = D} = Iso.isoToIsEquiv isom
  where
-
- ww : Iso.Iso _ _
- Iso.Iso.fun ww = _
- Iso.Iso.inv ww x = (λ c i → F-ob (x i) c) , λ {c} {c'} f i → F-hom (x i) {c} {c'} f
- F-ob (Iso.Iso.rightInv ww b i i₁) = F-ob (b i₁)
- F-hom (Iso.Iso.rightInv ww b i i₁) = F-hom (b i₁)
- F-id (Iso.Iso.rightInv ww b i i₁) = isProp→SquareP
+ open Iso.Iso
+ isom : Iso.Iso _ _
+ fun isom = _
+ inv isom x = (λ c i → F-ob (x i) c) , λ {c} {c'} f i → F-hom (x i) {c} {c'} f
+ F-ob (rightInv isom b _ i₁) = F-ob (b i₁)
+ F-hom (rightInv isom b _ i₁) = F-hom (b i₁)
+ F-id (rightInv isom b i i₁) = isProp→SquareP
       (λ i i₁ → D .isSetHom (F-hom (b i₁) (C .id)) (D .id)) refl refl
      (isProp→PathP (λ j → isSetHom D _ _) _ _) (λ i₁ → F-id (b i₁)) i i₁
- F-seq (Iso.Iso.rightInv ww b i i₁) f g = isProp→SquareP
+ F-seq (rightInv isom b i i₁) f g = isProp→SquareP
      (λ i i₁ → D .isSetHom (F-hom (b i₁) _) (seq' D (F-hom (b i₁) f) _))
      refl refl (isProp→PathP (λ j → isSetHom D _ _) _ _) (λ i₁ → F-seq (b i₁) f g) i i₁
- Iso.Iso.leftInv ww _ = refl
+ leftInv isom _ = refl
 
 isOfHLevelFunctor : ∀ hLevel → isOfHLevel (2 + hLevel) (D .ob)
                              → isOfHLevel (2 + hLevel) (Functor C D)
@@ -132,8 +117,25 @@ isOfHLevelFunctor  {D = D} {C = C} hLevel x _ _ =
      λ _ → isOfHLevelPlus' 1 (isPropImplicitΠ2
       λ _ _ → isPropΠ λ _ → isOfHLevelPathP' 1 (λ _ _ → D .isSetHom _ _) _ _ ))
 
+
 isSetFunctor : isSet (D .ob) → isSet (Functor C D)
 isSetFunctor = isOfHLevelFunctor 0
+
+module _ (F : Functor C D) where
+
+  -- functors preserve commutative diagrams (specificallysqures here)
+  preserveCommF : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , w ]} {h : C [ x , z ]} {k : C [ z , w ]}
+                → f ⋆⟨ C ⟩ g ≡ h ⋆⟨ C ⟩ k
+                → (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫) ≡ (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
+  preserveCommF {f = f} {g = g} {h = h} {k = k} eq
+    = (F ⟪ f ⟫) ⋆⟨ D ⟩ (F ⟪ g ⟫)
+    ≡⟨ sym (F .F-seq _ _) ⟩
+      F ⟪ f ⋆⟨ C ⟩ g ⟫
+    ≡⟨ cong (F ⟪_⟫) eq ⟩
+      F ⟪ h ⋆⟨ C ⟩ k ⟫
+    ≡⟨ F .F-seq _ _ ⟩
+      (F ⟪ h ⟫) ⋆⟨ D ⟩ (F ⟪ k ⟫)
+    ∎
 
 -- Conservative Functor,
 -- namely if a morphism f is mapped to an isomorphism,

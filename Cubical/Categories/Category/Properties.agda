@@ -92,6 +92,7 @@ module _ {C : Category ℓ ℓ'} where
                   → f ⋆⟨ C ⟩ g ≡ seqP' {p = p} f' g
   rCatWhiskerP f' f g r = cong (λ v → v ⋆⟨ C ⟩ g) (sym (fromPathP r))
 
+module _ (C : Category ℓ ℓ') where
 
 module _ (C : Category ℓ ℓ') where
 

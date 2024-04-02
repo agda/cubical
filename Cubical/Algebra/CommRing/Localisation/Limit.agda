@@ -39,7 +39,7 @@ open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
 open import Cubical.Algebra.Semilattice.Instances.NatMax
 
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 open import Cubical.HITs.SetQuotients as SQ
 open import Cubical.HITs.PropositionalTruncation as PT
@@ -59,12 +59,12 @@ private
 
 -- were not dealing with case 0 here
 -- but then R = 0 = lim {} (limit of the empty diagram)
-module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
+module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') n) where
  open isMultClosedSubset
  open CommRingTheory R'
  open RingTheory (CommRing→Ring R')
  open Sum (CommRing→Ring R')
- open CommIdeal R' hiding (subst-∈)
+ open CommIdeal R'
  open InvertingElementsBase R'
  open Exponentiation R'
  open CommRingStr ⦃...⦄
@@ -84,13 +84,13 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
   module UP i j = S⁻¹RUniversalProp R' [ f i · f j ⁿ|n≥0] (powersFormMultClosedSubset (f i · f j))
 
   -- some syntax to make things readable
-  0at : (i : Fin (suc n)) →  R[1/ (f i) ]
+  0at : (i : Fin n) →  R[1/ (f i) ]
   0at i = R[1/ (f i) ]AsCommRing .snd .CommRingStr.0r
 
-  _/1ˢ : R → {i : Fin (suc n)} →  R[1/ (f i) ]
+  _/1ˢ : R → {i : Fin n} →  R[1/ (f i) ]
   (r /1ˢ) {i = i} = U._/1 i r
 
-  _/1ᵖ : R → {i j : Fin (suc n)} →  R[1/ (f i) · (f j) ]
+  _/1ᵖ : R → {i j : Fin n} →  R[1/ (f i) · (f j) ]
   (r /1ᵖ) {i = i} {j = j} = UP._/1 i j r
 
 
@@ -108,7 +108,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                     → x ≡ 0r
   annihilatorHelper ann = recFin (is-set _ _) exponentHelper uIsPower
     where
-    u : FinVec R (suc n)
+    u : FinVec R n
     u i = ann i .fst .fst
 
     uIsPower : ∀ i → u i ∈ₚ [ (f i) ⁿ|n≥0]
@@ -121,7 +121,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                    → x ≡ 0r
     exponentHelper pows = PT.rec (is-set _ _) Σhelper (GeneratingPowers.thm R' l _ _ 1∈⟨f₀,⋯,fₙ⟩)
       where
-      m : FinVec ℕ (suc n)
+      m : FinVec ℕ n
       m i = pows i .fst
 
       u≡fᵐ : ∀ i → u i ≡ f i ^ m i
@@ -129,7 +129,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
       l = Max m
 
-      fˡ : FinVec R (suc n)
+      fˡ : FinVec R n
       fˡ i = f i ^ l
 
       fˡx≡0 : ∀ i → f i ^ l · x ≡ 0r
@@ -145,7 +145,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
         0r ∎
 
 
-      Σhelper : Σ[ α ∈ FinVec R (suc n) ] 1r ≡ ∑ (λ i → α i · f i ^ l)
+      Σhelper : Σ[ α ∈ FinVec R n ] 1r ≡ ∑ (λ i → α i · f i ^ l)
               → x ≡ 0r
       Σhelper (α , 1≡∑αfˡ) =
         x                                   ≡⟨ sym (·IdL _) ⟩
@@ -155,13 +155,13 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                                                                   (f i ^ l) x)) ⟩
         ∑ (λ i → α i · (f i ^ l · x))       ≡⟨ ∑Ext (λ i → cong (α i ·_) (fˡx≡0 i)) ⟩
         ∑ (λ i → α i · 0r)                  ≡⟨ ∑Ext (λ i → 0RightAnnihilates (α i)) ⟩
-        ∑ (replicateFinVec (suc n) 0r)      ≡⟨ ∑0r (suc n) ⟩
+        ∑ (replicateFinVec n 0r)            ≡⟨ ∑0r n ⟩
         0r ∎
 
 
  -- the morphisms into localisations of products from the left/right
  -- we need to define them by hand as using RadicalLemma wouldn't compute later
- χˡUnique : (i j : Fin (suc n))
+ χˡUnique : (i j : Fin n)
           → ∃![ χ ∈ CommRingHom R[1/ f i ]AsCommRing R[1/ f i · f j ]AsCommRing ]
                 (fst χ) ∘ (U._/1 i) ≡ (UP._/1 i j)
  χˡUnique i j = U.S⁻¹RHasUniversalProp i _ (UP./1AsCommRingHom i j) unitHelper
@@ -172,18 +172,13 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
                         , path m)
      where
-     useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ a · b
-     useSolver1 = solve R'
-     useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
-     useSolver2 = solve R'
-
      path : (n : ℕ) → 1r · (f i ^ n · f j ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
-     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
+     path n = solve! R' ∙ sym (^-ldist-· (f i) (f j) n) ∙ solve! R'
 
- χˡ : (i j : Fin (suc n)) → CommRingHom R[1/ f i ]AsCommRing R[1/ f i · f j ]AsCommRing
+ χˡ : (i j : Fin n) → CommRingHom R[1/ f i ]AsCommRing R[1/ f i · f j ]AsCommRing
  χˡ i j = χˡUnique i j .fst .fst
 
- χʳUnique : (i j : Fin (suc n))
+ χʳUnique : (i j : Fin n)
           →  ∃![ χ ∈ CommRingHom R[1/ f j ]AsCommRing R[1/ f i · f j ]AsCommRing ]
                 (fst χ) ∘ (U._/1 j) ≡ (UP._/1 i j)
  χʳUnique i j = U.S⁻¹RHasUniversalProp j _ (UP./1AsCommRingHom i j) unitHelper
@@ -194,22 +189,17 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                         , eq/ _ _ ((1r , powersFormMultClosedSubset (f i · f j) .containsOne)
                         , path m)
      where
-     useSolver1 : ∀ a b → 1r · (a · b) · 1r ≡ b · a
-     useSolver1 = solve R'
-     useSolver2 : ∀ a → a ≡ (1r · 1r) · (1r · a)
-     useSolver2 = solve R'
-
      path : (n : ℕ) → 1r · (f j ^ n · f i ^ n) · 1r ≡ (1r · 1r) · (1r · ((f i · f j) ^ n))
-     path n = useSolver1 _ _ ∙ sym (^-ldist-· (f i) (f j) n) ∙ useSolver2 _
+     path n = solve! R' ∙ sym (^-ldist-· (f i) (f j) n) ∙ solve! R'
 
- χʳ : (i j : Fin (suc n)) → CommRingHom R[1/ f j ]AsCommRing R[1/ f i · f j ]AsCommRing
+ χʳ : (i j : Fin n) → CommRingHom R[1/ f j ]AsCommRing R[1/ f i · f j ]AsCommRing
  χʳ i j = χʳUnique i j .fst .fst
 
 
 
  -- super technical stuff, please don't look at it
  private
-  χ≡Elim<Only : (x  : (i : Fin (suc n)) → R[1/ f i ])
+  χ≡Elim<Only : (x  : (i : Fin n) → R[1/ f i ])
           → (∀ i j → i < j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
           → ∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j)
   χ≡Elim<Only x <hyp i j = aux (i ≟ j) -- doesn't type check in reasonable time using with syntax
@@ -228,14 +218,14 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
       χˡsubst i j (x j) ≡⟨ sym (χSwapR→L i j (x j)) ⟩
       χʳ i j .fst (x j) ∎
       where
-      χʳsubst : (i j : Fin (suc n)) → R[1/ f i ] → R[1/ f i · f j ]
+      χʳsubst : (i j : Fin n) → R[1/ f i ] → R[1/ f i · f j ]
       χʳsubst i j x = subst (λ r → R[1/ r ]) (·Comm (f j) (f i)) (χʳ j i .fst x)
 
       χSwapL→R : ∀ i j x → χˡ i j .fst x ≡ χʳsubst i j x
       χSwapL→R i j = invElPropElim (λ _ → squash/ _ _)
              λ r m → cong [_] (ΣPathP (sym (transportRefl _) , Σ≡Prop (∈-isProp _)
                       (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))
-      χˡsubst : (i j : Fin (suc n)) → R[1/ f j ] → R[1/ f i · f j ]
+      χˡsubst : (i j : Fin n) → R[1/ f j ] → R[1/ f i · f j ]
       χˡsubst i j x = subst (λ r → R[1/ r ]) (·Comm (f j) (f i)) (χˡ j i .fst x)
 
       χSwapR→L : ∀ i j x → χʳ i j .fst x ≡ χˡsubst i j x
@@ -243,17 +233,17 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
              λ r m → cong [_] (ΣPathP (sym (transportRefl _) , Σ≡Prop (∈-isProp _)
                       (sym (transportRefl _ ∙ cong (λ x → 1r · transport refl (x ^ m)) (·Comm _ _)))))
 
- χ≡PropElim : {B : ((i : Fin (suc n)) → R[1/ f i ]) → Type ℓ''} (isPropB : ∀ {x} → isProp (B x))
-            → (∀ (r : FinVec R (suc n)) (m l : ℕ)
+ χ≡PropElim : {B : ((i : Fin n) → R[1/ f i ]) → Type ℓ''} (isPropB : ∀ {x} → isProp (B x))
+            → (∀ (r : FinVec R n) (m l : ℕ)
                   → (∀ i j → r i · f j ^ m · (f i · f j) ^ l ≡ r j · f i ^ m · (f i · f j) ^ l)
                   → B (λ i → [ r i , f i ^ m , ∣ m , refl ∣₁ ]))
           -------------------------------------------------------------------------------------
-           → (x : (i : Fin (suc n)) → R[1/ f i ])
+           → (x : (i : Fin n) → R[1/ f i ])
            → (∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
            → B x
  χ≡PropElim {B = B} isPropB baseHyp = invElPropElimN n f _ (λ _ → isProp→ isPropB) baseCase
    where
-   baseCase : ∀ (r : FinVec R (suc n)) (m : ℕ)
+   baseCase : ∀ (r : FinVec R n) (m : ℕ)
             → (∀ i j → χˡ i j .fst ([ r i , f i ^ m , ∣ m , refl ∣₁ ])
                      ≡ χʳ i j .fst ([ r j , f j ^ m , ∣ m , refl ∣₁ ]))
             → B (λ i → [ r i , f i ^ m , ∣ m , refl ∣₁ ])
@@ -279,7 +269,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
      annihilatorHelper anns = recFin2 isPropB exponentHelper sIsPow
        where
        -- notation
-       s : (i j : Fin (suc n)) → R
+       s : (i j : Fin n) → R
        s i j = anns i j .fst .fst
 
        sIsPow : ∀ i j → s i j ∈ₚ [ (f i · f j) ⁿ|n≥0]
@@ -307,7 +297,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
                                   ≡ a · b · transport refl c · transport refl d
          transpHelper a b c d i = a · b · transportRefl c (~ i) · transportRefl d (~ i)
          useSolver : ∀ a b c d → a · b · c · d ≡ a · (b · c) · (1r · d)
-         useSolver = solve R'
+         useSolver _ _ _ _ = solve! R'
 
        exponentHelper : (∀ i j
                            → Σ[ l ∈ ℕ ] s i j ≡ (f i · f j) ^ l)
@@ -315,7 +305,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
        exponentHelper pows = baseHyp r m (m +ℕ k) paths
          where
          -- sᵢⱼ = fᵢfⱼ ^ lᵢⱼ, so need to take max over all of these...
-         l : (i j : Fin (suc n)) → ℕ
+         l : (i j : Fin n) → ℕ
          l i j = pows i j .fst
 
          k = Max (λ i → Max (l i))
@@ -337,7 +327,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
              r i · f j ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i j)
 
-           ≡⟨ useSolver _ _ _ _ ⟩
+           ≡⟨ solve! R' ⟩
 
              (f i · f j) ^ l i j · r i · f j ^ m · (f i · f j) ^ m
 
@@ -353,16 +343,13 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
             (f i · f j) ^ l i j  · r j · f i ^ m · (f i · f j) ^ m
 
-           ≡⟨ sym (useSolver _ _ _ _) ⟩
+           ≡⟨ sym (solve! R') ⟩
 
              r j · f i ^ m · ((f i · f j) ^ m · (f i · f j) ^ l i j)
 
            ≡⟨ cong (r j · f i ^ m ·_) (·-of-^-is-^-of-+ _ _ _) ⟩
 
              r j · f i ^ m · (f i · f j) ^ (m +ℕ l i j) ∎
-           where
-           useSolver : ∀ a b c d → a · b · (c · d) ≡ d · a · b · c
-           useSolver = solve R'
 
          paths : ∀ i j → r i · f j ^ m · (f i · f j) ^ (m +ℕ k)
                         ≡ r j · f i ^ m · (f i · f j) ^ (m +ℕ k)
@@ -413,12 +400,12 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
 
  -- this will do all the heavy lifting
  equalizerLemma : 1r ∈ ⟨f₀,⋯,fₙ⟩
-                → ∀ (x : (i : Fin (suc n)) → R[1/ f i ]) -- s.t.
+                → ∀ (x : (i : Fin n) → R[1/ f i ]) -- s.t.
                 → (∀ i j → χˡ i j .fst (x i) ≡ χʳ i j .fst (x j))
                 → ∃![ y ∈ R ] (∀ i → y /1ˢ ≡ x i)
  equalizerLemma 1∈⟨f₀,⋯,fₙ⟩ = χ≡PropElim isProp∃! baseCase
    where
-   baseCase : ∀ (r : FinVec R (suc n)) (m l : ℕ)
+   baseCase : ∀ (r : FinVec R n) (m l : ℕ)
             → (∀ i j → r i · f j ^ m · (f i · f j) ^ l ≡ r j · f i ^ m · (f i · f j) ^ l)
             → ∃![ y ∈ R ] (∀ i → y /1ˢ ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ])
    baseCase r m l <Paths = PT.rec isProp∃! Σhelper (GeneratingPowers.thm R' 2m+l _ _ 1∈⟨f₀,⋯,fₙ⟩)
@@ -426,10 +413,10 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
      -- critical exponent
      2m+l = m +ℕ (m +ℕ l)
 
-     f²ᵐ⁺ˡ : FinVec R (suc n)
+     f²ᵐ⁺ˡ : FinVec R n
      f²ᵐ⁺ˡ i = f i ^ 2m+l
 
-     Σhelper : Σ[ α ∈ FinVec R (suc n) ] 1r ≡ linearCombination R' α f²ᵐ⁺ˡ
+     Σhelper : Σ[ α ∈ FinVec R n ] 1r ≡ linearCombination R' α f²ᵐ⁺ˡ
              → ∃![ y ∈ R ] (∀ i → y /1ˢ ≡ [ r i , f i ^ m , ∣ m , refl ∣₁ ])
      Σhelper (α , linCombi) = (z , z≡r/fᵐ)
                             , λ y' → Σ≡Prop (λ _ → isPropΠ (λ _ → squash/ _ _)) (unique _ (y' .snd))
@@ -441,11 +428,11 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
          where
          useSolver1 : ∀ a b c d e g → (a · b) · (c · d · (e · g)) · a
                                     ≡ c · (d · a · (b · g)) · (a · e)
-         useSolver1 = solve R'
+         useSolver1 a b c d e g = solve! R'
 
          useSolver2 : ∀ a b c d e g → a · (b · c · (d · e)) · (g · c)
                                     ≡ (g · d) · b · (a · (c · (c · e)))
-         useSolver2 = solve R'
+         useSolver2 a b c d e g = solve! R'
 
          path : f i ^ (m +ℕ l) · z · f i ^ m ≡ f i ^ (m +ℕ l) · r i · 1r
          path =
@@ -537,7 +524,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
  open Cone
  open Functor
 
- locDiagram : Functor (DLShfDiag (suc n) ℓ) CommRingsCategory
+ locDiagram : Functor (DLShfDiag n ℓ) CommRingsCategory
  F-ob locDiagram (sing i) = R[1/ f i ]AsCommRing
  F-ob locDiagram (pair i j _) = R[1/ f i · f j ]AsCommRing
  F-hom locDiagram idAr = idCommRingHom _
@@ -562,7 +549,7 @@ module _ (R' : CommRing ℓ) {n : ℕ} (f : FinVec (fst R') (suc n)) where
    instance
     _ = snd A'
 
-   φ : (i : Fin (suc n)) → CommRingHom A' R[1/ f i ]AsCommRing
+   φ : (i : Fin n) → CommRingHom A' R[1/ f i ]AsCommRing
    φ i = cᴬ .coneOut (sing i)
 
    applyEqualizerLemma : ∀ a → ∃![ r ∈ R ] ∀ i → r /1ˢ ≡ φ i .fst a

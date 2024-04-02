@@ -275,7 +275,7 @@ open H*𝕂² using (CohomologyRing-𝕂²)
 open H*ℝP²∨S¹ using (CohomologyRing-RP²⋁S¹)
 
 -- ℤ/2ℤ Cohomology groups of the Klein Bottle and ℝP² ⋁ S¹
-open ℤ/2-Hⁿ𝕂² using (H⁰[K²,ℤ/2]≅ℤ/2 ; H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 ; H²[K²,ℤ/2]≅ℤ/2 ; H³⁺ⁿK²≅0)
+open ℤ/2-Hⁿ𝕂² using (H⁰[K²,ℤ/2]≅ℤ/2 ; H¹[K²,ℤ/2]≅ℤ/2×ℤ/2 ; H²[K²,ℤ/2]≅ℤ/2 ; H³⁺ⁿ[K²,G]≅0)
 open ℤ/2-HⁿℝP²∨S¹ using (H⁰[RP²∨S¹,ℤ/2]≅ℤ/2 ; H¹[RP²∨S¹,ℤ/2]≅ℤ/2×ℤ/2 ; H²[RP²∨S¹,ℤ/2]≅ℤ/2 ; H³⁺ⁿ[RP²∨S¹,ℤ/2]≅Unit)
 
 -- Proposition 5.7, ℤ/2ℤ cohomology ring of the Klein Bottle

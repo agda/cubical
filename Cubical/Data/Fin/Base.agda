@@ -5,6 +5,7 @@ module Cubical.Data.Fin.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Pointed
 
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat using (ℕ ; zero ; suc ; _+_ ; znots)
@@ -43,6 +44,9 @@ fzero≠fone p = znots (cong fst p)
 -- number as a number in the next largest finite type.
 fsuc : Fin k → Fin (suc k)
 fsuc (k , l) = (suc k , suc-≤-suc l)
+
+finj : Fin k → Fin (suc k)
+finj (k , l) = k , ≤-trans l (1 , refl)
 
 -- Conversion back to ℕ is trivial...
 toℕ : Fin k → ℕ
@@ -109,3 +113,29 @@ FinPathℕ : {n : ℕ} (x : Fin n) (y : ℕ) → fst x ≡ y → Σ[ p ∈ _ ] (
 FinPathℕ {n = n} x y p =
     ((fst (snd x)) , (cong (λ y → fst (snd x) + y) (cong suc (sym p)) ∙ snd (snd x)))
   , (Σ≡Prop (λ _ → isProp≤) p)
+
+FinVec : (A : Type ℓ) (n : ℕ) → Type ℓ
+FinVec A n = Fin n → A
+
+FinFamily : (n : ℕ) (ℓ : Level) → Type (ℓ-suc ℓ)
+FinFamily n ℓ = FinVec (Type ℓ) n
+
+FinFamily∙ : (n : ℕ) (ℓ : Level) → Type (ℓ-suc ℓ)
+FinFamily∙ n ℓ = FinVec (Pointed ℓ) n
+
+predFinFamily : {n : ℕ} → FinFamily (suc n) ℓ → FinFamily n ℓ
+predFinFamily A n = A (finj n)
+
+predFinFamily∙ : {n : ℕ} → FinFamily∙ (suc n) ℓ → FinFamily∙ n ℓ
+fst (predFinFamily∙ A x) = predFinFamily (fst ∘ A) x
+snd (predFinFamily∙ A x) = snd (A _)
+
+prodFinFamily : (n : ℕ) → FinFamily (suc n) ℓ → Type ℓ
+prodFinFamily zero A = A fzero
+prodFinFamily (suc n) A = prodFinFamily n (predFinFamily A) × A flast
+
+prodFinFamily∙ : (n : ℕ) → FinFamily∙ (suc n) ℓ → Pointed ℓ
+fst (prodFinFamily∙ n A) = prodFinFamily n (fst ∘ A)
+snd (prodFinFamily∙ zero A) = snd (A fzero)
+snd (prodFinFamily∙ (suc n) A) =
+  snd (prodFinFamily∙ n (predFinFamily∙ A)) , snd (A flast)

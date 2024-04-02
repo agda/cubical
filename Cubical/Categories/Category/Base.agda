@@ -38,6 +38,10 @@ open Category
 _[_,_] : (C : Category ℓ ℓ') → (x y : C .ob) → Type ℓ'
 _[_,_] = Hom[_,_]
 
+_End[_] : (C : Category ℓ ℓ') → (x : C .ob) → Type ℓ'
+C End[ x ] = C [ x , x ]
+
+
 -- Needed to define this in order to be able to make the subsequence syntax declaration
 seq' : ∀ (C : Category ℓ ℓ') {x y z} (f : C [ x , y ]) (g : C [ y , z ]) → C [ x , z ]
 seq' = _⋆_
@@ -169,12 +173,12 @@ isSmall C = isSet (C .ob)
 isThin : (C : Category ℓ ℓ') → Type (ℓ-max ℓ ℓ')
 isThin C = ∀ x y → isProp (C [ x , y ])
 
-isPropIsThin : (C : Category ℓ ℓ') → isProp (isThin C) 
+isPropIsThin : (C : Category ℓ ℓ') → isProp (isThin C)
 isPropIsThin C = isPropΠ2 λ _ _ → isPropIsProp
 
 isGroupoidCat : (C : Category ℓ ℓ') → Type (ℓ-max ℓ ℓ')
 isGroupoidCat C = ∀ {x} {y} (f : C [ x , y ]) → isIso C f
 
-isPropIsGroupoidCat : (C : Category ℓ ℓ') → isProp (isGroupoidCat C) 
+isPropIsGroupoidCat : (C : Category ℓ ℓ') → isProp (isGroupoidCat C)
 isPropIsGroupoidCat C =
  isPropImplicitΠ2 λ _ _ → isPropΠ isPropIsIso

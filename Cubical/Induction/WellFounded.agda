@@ -4,9 +4,6 @@ module Cubical.Induction.WellFounded where
 
 open import Cubical.Foundations.Prelude
 
-Rel : ∀{ℓ} → Type ℓ → ∀ ℓ' → Type _
-Rel A ℓ = A → A → Type ℓ
-
 module _ {ℓ ℓ'} {A : Type ℓ} (_<_ : A → A → Type ℓ') where
   WFRec : ∀{ℓ''} → (A → Type ℓ'') → A → Type _
   WFRec P x = ∀ y → y < x → P y
@@ -22,6 +19,9 @@ module _ {ℓ ℓ'} {A : Type ℓ} {_<_ : A → A → Type ℓ'} where
   isPropAcc : ∀ x → isProp (Acc _<_ x)
   isPropAcc x (acc p) (acc q)
     = λ i → acc (λ y y<x → isPropAcc y (p y y<x) (q y y<x) i)
+
+  isPropWellFounded : isProp (WellFounded _<_)
+  isPropWellFounded p q i a = isPropAcc a (p a) (q a) i
 
   access : ∀{x} → Acc _<_ x → WFRec _<_ (Acc _<_) x
   access (acc r) = r

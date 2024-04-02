@@ -108,20 +108,20 @@ Strengthen A x = fst A , (_ , λ _ _ → isProp× (snd (fst (snd A)) _ _) (snd (
                     , isEquivRel⊓Rel (snd (snd A)) (snd x)
 
 SetoidΣ : (A : Setoid ℓA ℓA') → (B : Setoid ℓX ℓX') → SetoidMor A B
-            → Setoid ℓA (ℓ-max ℓA' ℓX') 
+            → Setoid ℓA (ℓ-max ℓA' ℓX')
 SetoidΣ A B f = Strengthen A ((_ , λ _ _ → snd (fst (snd B)) _ _) ,
    isEquivRelPulledbackRel (snd (snd B)) (fst f))
 
 setoidΣ-pr₁ : (A : Setoid ℓA ℓA') → (B : Setoid ℓX ℓX')
-            → (f : SetoidMor A B) 
-            → SetoidMor (SetoidΣ A B f) B            
+            → (f : SetoidMor A B)
+            → SetoidMor (SetoidΣ A B f) B
 setoidΣ-pr₁ A B f = _ , snd f ∘ fst
 
 
 module _ (𝑨@((A , isSetA) , ((_∼_ , propRel∼) , eqRel∼)) : Setoid ℓA ℓA')
          (P :  A → hProp ℓX) where
 
- ΣPropSetoid : Setoid (ℓ-max ℓA ℓX) ℓA' 
+ ΣPropSetoid : Setoid (ℓ-max ℓA ℓX) ℓA'
  fst (fst ΣPropSetoid) = Σ A (fst ∘ P)
  snd (fst ΣPropSetoid) = isSetΣ isSetA (isProp→isSet ∘ snd ∘ P)
  fst (snd ΣPropSetoid) = _ , λ _ _ → propRel∼ _ _
@@ -132,22 +132,6 @@ setoidSection : (A : Setoid ℓA ℓA') → (B : Setoid ℓX ℓX') → SetoidMo
 setoidSection A B (_ , f) = ΣPropSetoid (B ⟶ A)
   λ (_ , g) → _ , snd (fst (snd (B ⟶ B))) (_ , f ∘ g  ) (_ , idfun _)
 
--- setoidΠ-pr₁ : (A : Setoid ℓA ℓA') → (B : Setoid ℓX ℓX')
---             → (f : SetoidMor A B) 
---             → SetoidMor (setoidSection A B f) B            
--- setoidΠ-pr₁ A B f = {!!}
-
-
--- module _ (𝑨@((A , isSetA) , ((_∼_ , propRel∼) , eqRel∼)) : Setoid ℓA ℓA')
---          ((P , Presp) : SetoidMor 𝑨 (hPropSetoid ℓX)) where
-
---  ΣPropSetoid : Setoid (ℓ-max ℓA ℓX) ℓA' 
---  fst (fst ΣPropSetoid) = Σ A (fst ∘ P)
---  snd (fst ΣPropSetoid) = isSetΣ isSetA (isProp→isSet ∘ snd ∘ P)
---  fst (snd ΣPropSetoid) = _ , λ _ _ → propRel∼ _ _
---  snd (snd ΣPropSetoid) = isEquivRelPulledbackRel eqRel∼ fst
-
-
 module _ (L R M : Setoid ℓA ℓA') (s₁ : SetoidMor L M) (s₂ : SetoidMor R M) where
 
  PullbackSetoid : Setoid ℓA ℓA'
@@ -155,9 +139,9 @@ module _ (L R M : Setoid ℓA ℓA') (s₁ : SetoidMor L M) (s₂ : SetoidMor R 
    (Σ (fst (fst L) × fst (fst R)) (λ (l , r) → fst s₁ l ≡ fst s₂ r) ,
       isSetΣ (isSet× (snd (fst L)) (snd (fst R))) (λ _ → isProp→isSet (snd (fst M) _ _))) ,
     (_ , λ _ _ → (isProp× (snd (fst (snd L)) _ _ ) (snd (fst (snd R)) _ _))) ,
-    
+
      (isEquivRelPulledbackRel (isEquivRel×Rel (snd (snd L)) (snd (snd R))) fst)
-    
+
   where open BinaryRelation.isEquivRel (snd (snd M)) renaming (transitive' to _⊚_)
 
 module _ (L R M : Setoid ℓA ℓA') (s₁ : SetoidMor L M) (s₂ : SetoidMor R M) where
@@ -166,27 +150,6 @@ module _ (L R M : Setoid ℓA ℓA') (s₁ : SetoidMor L M) (s₂ : SetoidMor R 
  EPullbackSetoid =
    (Σ (fst (fst L) × fst (fst R)) (λ (l , r) → fst (fst (snd M)) (fst s₁ l) (fst s₂ r)) ,
       isSetΣ (isSet× (snd (fst L)) (snd (fst R))) (λ _ → isProp→isSet (snd (fst (snd M)) _ _))) ,
-    
+
     (_ , λ _ _ → isProp× (snd (fst (snd L)) _ _ ) (snd (fst (snd R)) _ _)) ,
      isEquivRelPulledbackRel (isEquivRel×Rel (snd (snd L)) (snd (snd R))) fst
-
-
- -- EPullbackSetoid₂ : Setoid (ℓ-max ℓA ℓA') ℓA'
- -- EPullbackSetoid₂ =
- --   (Σ (fst (fst L) × fst (fst R)) (λ (l , r) → fst (fst (snd M)) (fst s₁ l) (fst s₂ r)) ,
- --      isSetΣ (isSet× (snd (fst L)) (snd (fst R))) (λ _ → isProp→isSet (snd (fst (snd M)) _ _))) ,
-    
- --    (_ , λ _ _ → isProp× (isProp× (snd (fst (snd L)) _ _ ) (snd (fst (snd R)) _ _))
- --      (snd (fst (snd M)) _ _)) ,
-       
- --    isEquivRel⊓Rel
- --     (isEquivRelPulledbackRel (isEquivRel×Rel (snd (snd L)) (snd (snd R))) fst)
- --     (isEquivRelPulledbackRel (snd (snd M)) λ x → fst s₂ (snd (fst x)))
-
- -- EPullbackSetoid₁₌₂ : EPullbackSetoid₁ ≡ EPullbackSetoid₂
- -- EPullbackSetoid₁₌₂ = Setoid≡ _ _ (idEquiv _)
- --   λ x y → propBiimpl→Equiv {!snd (fst (snd M)) _ _!} {!!} {!!} {!!}
- 
- --  -- where open BinaryRelation.isEquivRel (snd (snd M)) renaming (transitive' to _⊚_)
-
- -- -- PullbackSetoid = PullbackSetoidP i0

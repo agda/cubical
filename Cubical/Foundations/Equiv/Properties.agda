@@ -265,7 +265,7 @@ equiv-proof (isPointedTarget→isEquiv→isEquiv f hf) =
                    hasSection (g ∘ f) → hasSection (h ∘ g)
                      → hasSection (h ∘ g ∘ f)
 2-out-of-6-sec f g h (u , p) (v , q) =
- u ∘ g ∘ v , λ _ → cong h (p _) ∙ q _ 
+ u ∘ g ∘ v , λ _ → cong h (p _) ∙ q _
 
 2-out-of-6-ret : (f : A → B) (g : B → C) (h : C → D) →
                    hasRetract (g ∘ f) → hasRetract (h ∘ g)
@@ -278,10 +278,10 @@ equiv-proof (isPointedTarget→isEquiv→isEquiv f hf) =
                 isEquiv (g ∘ f) → isEquiv (h ∘ g) → isEquiv (h ∘ g ∘ f)
 2-out-of-6-equiv f g h gfEquiv hgEquiv = isoToIsEquiv isom
  where
- 
+
  isom : Iso _ _
  Iso.fun isom = _
- Iso.inv isom = _ 
+ Iso.inv isom = _
  Iso.rightInv isom = snd (2-out-of-6-sec f g h
    (_ , secEq (_ , gfEquiv)) (_ , secEq (_ , hgEquiv)))
  Iso.leftInv isom = snd (2-out-of-6-ret f g h

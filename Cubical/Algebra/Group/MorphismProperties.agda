@@ -177,6 +177,10 @@ compGroupHom : GroupHom F G → GroupHom G H → GroupHom F H
 fst (compGroupHom f g) = fst g ∘ fst f
 snd (compGroupHom f g) = isGroupHomComp f g
 
+trivGroupHom : GroupHom G H
+fst (trivGroupHom {H = H}) _ = 1g (snd H)
+snd (trivGroupHom {H = H}) = makeIsGroupHom λ _ _ → sym (·IdR (snd H) _)
+
 GroupHomDirProd : {A : Group ℓ} {B : Group ℓ'} {C : Group ℓ''} {D : Group ℓ'''}
                 → GroupHom A C → GroupHom B D → GroupHom (DirProd A B) (DirProd C D)
 fst (GroupHomDirProd mf1 mf2) = map-× (fst mf1) (fst mf2)

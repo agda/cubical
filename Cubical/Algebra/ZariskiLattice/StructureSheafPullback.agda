@@ -53,7 +53,7 @@ open import Cubical.Algebra.CommAlgebra.Base
 open import Cubical.Algebra.CommAlgebra.Properties
 open import Cubical.Algebra.CommAlgebra.Localisation
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
@@ -92,7 +92,7 @@ module _ (R' : CommRing ℓ) where
 
  open ZarLat R'
  open ZarLatUniversalProp R'
- open IsZarMap
+ open IsSupport
 
  open Join ZariskiLattice
  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice ZariskiLattice))
@@ -115,9 +115,9 @@ module _ (R' : CommRing ℓ) where
  BO = Σ[ 𝔞 ∈ ZL ] (𝔞 ∈ₚ BasicOpens)
 
  basicOpensAreBasis : IsBasis ZariskiLattice BasicOpens
- contains1 basicOpensAreBasis = ∣ 1r , isZarMapD .pres1 ∣₁
+ contains1 basicOpensAreBasis = ∣ 1r , isSupportD .pres1 ∣₁
  ∧lClosed basicOpensAreBasis 𝔞 𝔟 = map2
-            λ (f , Df≡𝔞) (g , Dg≡𝔟) → (f · g) , isZarMapD .·≡∧ f g ∙ cong₂ (_∧z_) Df≡𝔞 Dg≡𝔟
+            λ (f , Df≡𝔞) (g , Dg≡𝔟) → (f · g) , isSupportD .·≡∧ f g ∙ cong₂ (_∧z_) Df≡𝔞 Dg≡𝔟
  ⋁Basis basicOpensAreBasis = elimProp (λ _ → isPropPropTrunc) Σhelper
   where
   Σhelper : (a : Σ[ n ∈ ℕ ] FinVec R n)
@@ -189,7 +189,7 @@ module _ (R' : CommRing ℓ) where
     _ = BasisStructurePShf
 
    canonical0∈BO : 0z ∈ₚ BasicOpens
-   canonical0∈BO = ∣ 0r , isZarMapD .pres0 ∣₁
+   canonical0∈BO = ∣ 0r , isSupportD .pres0 ∣₁
 
    canonical0∈BO≡0∈BO : canonical0∈BO ≡ 0∈BO
    canonical0∈BO≡0∈BO = BasicOpens 0z .snd _ _
@@ -314,16 +314,9 @@ module _ (R' : CommRing ℓ) where
         path = eq/ _ _ ((1r , ∣ 0 , refl ∣₁) , bigPath)
              ∙ cong (β zero · (f /1) +_) (sym (+IdR (β (suc zero) · (g /1))))
          where
-         useSolver1 : ∀ hn → 1r · 1r · ((hn · 1r) · (hn · 1r)) ≡ hn · hn
-         useSolver1 = solve R'
-
-         useSolver2 : ∀ az f hn as g → hn · (az · f + (as · g + 0r))
-                                      ≡ 1r · (az · f · (hn · 1r) + as · g · (hn · 1r)) · 1r
-         useSolver2 = solve R'
-
          bigPath : 1r · 1r · ((h ^ n · 1r) · (h ^ n · 1r))
                  ≡ 1r · (α zero · f · (h ^ n · 1r) + α (suc zero) · g · (h ^ n · 1r)) · 1r
-         bigPath = useSolver1 (h ^ n) ∙ cong (h ^ n ·_) p ∙ useSolver2 _ _ _ _ _
+         bigPath = solve! R' ∙ cong (h ^ n ·_) p ∙ solve! R'
 
     {-
 
@@ -371,12 +364,9 @@ module _ (R' : CommRing ℓ) where
     pres0 (snd /1/1AsCommRingHomFG) = refl
     pres1 (snd /1/1AsCommRingHomFG) = refl
     pres+ (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-×
-                                         (cong₂ _+_ (useSolver x) (useSolver y))
-                                         (Σ≡Prop (λ _ → isPropPropTrunc) (useSolver 1r))))
+                                         (cong₂ _+_ (solve! R') (solve! R'))
+                                         (Σ≡Prop (λ _ → isPropPropTrunc) (solve! R'))))
                                          (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))
-      where
-      useSolver : ∀ a → a ≡ a · 1r · (1r · 1r)
-      useSolver = solve R'
     pres· (snd /1/1AsCommRingHomFG) x y = cong [_] (≡-× (cong [_] (≡-× refl
                                             (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r)))))
                                             (Σ≡Prop (λ _ → isPropPropTrunc) (sym (·IdR 1r))))

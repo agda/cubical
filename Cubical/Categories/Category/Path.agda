@@ -119,21 +119,21 @@ module _ {C C' : Category ℓ ℓ'} where
  id≡ (Iso.leftInv CategoryPathIso a i) = id≡ a
  ⋆≡ (Iso.leftInv CategoryPathIso a i) = ⋆≡ a
 
- CategoryPath≡ : {cp cp' : CategoryPath C C'} →
+ CategoryPath≡ : (cp cp' : CategoryPath C C') →
      (p≡ : ob≡ cp ≡ ob≡ cp') →
      SquareP (λ i j → (p≡ i) j → (p≡ i) j → Type ℓ')
           (Hom≡ cp) (Hom≡ cp') (λ _ → C .Hom[_,_]) (λ _ → C' .Hom[_,_])
           → cp ≡ cp'
- ob≡ (CategoryPath≡ p≡ _ i) = p≡ i
- Hom≡ (CategoryPath≡ p≡ h≡ i) = h≡ i
- id≡ (CategoryPath≡ {cp = cp} {cp'} p≡ h≡ i) j {x} = isSet→SquareP
+ ob≡ (CategoryPath≡ _ _ p≡ _ i) = p≡ i
+ Hom≡ (CategoryPath≡ _ _ p≡ h≡ i) = h≡ i
+ id≡ (CategoryPath≡ cp cp' p≡ h≡ i) j {x} = isSet→SquareP
      (λ i j → isProp→PathP (λ i →
        isPropIsSet {A = BinaryRelation.isRefl' (h≡ i j)})
        (isSetImplicitΠ λ x → isSetHom≡ cp  j {x} {x})
        (isSetImplicitΠ λ x → isSetHom≡ cp' j {x} {x}) i)
     (id≡ cp) (id≡ cp') (λ _ → C .id) (λ _ → C' .id)
     i j {x}
- ⋆≡ (CategoryPath≡ {cp = cp} {cp'} p≡ h≡ i) j {x} {y} {z} = isSet→SquareP
+ ⋆≡ (CategoryPath≡ cp cp' p≡ h≡ i) j {x} {y} {z} = isSet→SquareP
     (λ i j → isProp→PathP (λ i →
         isPropIsSet {A = BinaryRelation.isTrans' (h≡ i j)})
          (isSetImplicitΠ3 (λ x _ z → isSetΠ2 λ _ _ → isSetHom≡ cp  j {x} {z}))

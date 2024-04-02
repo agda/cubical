@@ -19,7 +19,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Pointed hiding (pt)
 
 open import Cubical.Data.Nat
-open import Cubical.Tactics.NatSolver.Reflection
+open import Cubical.Tactics.NatSolver
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 
@@ -247,7 +247,7 @@ module _
                   (isEquiv→isConnected _ (𝕁amesPush≃ k .snd) _)))))
 
     nat-path : (n m k : ℕ) → (1 + (k + m)) · n ≡ k · n + (1 + m) · n
-    nat-path = solve
+    nat-path _ _ _ = solveℕ!
 
   -- Connectivity results
 
