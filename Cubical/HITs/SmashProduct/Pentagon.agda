@@ -128,7 +128,7 @@ module _ {ℓ ℓ' ℓ'' ℓ''' : Level}
             ∙ (λ i → inr (push (inl (inr (x , y))) i , d)))
         lem₄ = (λ _ i → assc₂ (inr (inr (x , y) , push (inr d) i)))
            ∙ (cong (cong (Iso.fun (⋀CommIso)))
-                (cong (cong (Iso.inv (Iso-⋀-⋀×3 D (A ⋀∙ B) C)))
+                (cong (cong (Iso.inv (Iso-⋀-⋀×2 D (A ⋀∙ B) C)))
                   (refl {x = sym (gluel d (inr (x , y))) }))
            ∙ cong-∙∙ (Iso.fun (⋀CommIso))
                (push (inl d))

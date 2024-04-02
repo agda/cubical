@@ -6,9 +6,7 @@
    Includes the following
    - isos in FUNCTOR are precisely the pointwise isos
    - FUNCTOR C D is univalent when D is
-   - currying of functors
 
-   TODO: show that currying of functors is an isomorphism.
 -}
 
 module Cubical.Categories.Instances.Functors where
@@ -139,33 +137,4 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     β .N-ob e ∘⟨ D ⟩ (G .F-hom g ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f))
       ≡⟨ D .⋆Assoc _ _ _ ⟩
     (β .N-ob e ∘⟨ D ⟩ G .F-hom g) ∘⟨ D ⟩ (α .N-ob d ∘⟨ D ⟩ F .F-hom f) ∎
-  module _ (E : Category ℓE ℓE') where
-    λF : Functor (E ×C C) D → Functor E FUNCTOR
-    λF F .F-ob e .F-ob c = F ⟅ e , c ⟆
-    λF F .F-ob e .F-hom f = F ⟪ (E .id) , f ⟫
-    λF F .F-ob e .F-id = F .F-id
-    λF F .F-ob e .F-seq f g =
-      F ⟪ E .id , g ∘⟨ C ⟩ f ⟫
-        ≡⟨ (λ i → F ⟪ (E .⋆IdL (E .id) (~ i)) , (g ∘⟨ C ⟩ f) ⟫) ⟩
-      (F ⟪ (E .id ∘⟨ E ⟩ E .id) , g ∘⟨ C ⟩ f ⟫)
-        ≡⟨ F .F-seq (E .id , f) (E .id , g) ⟩
-      (F ⟪ E .id , g ⟫ ∘⟨ D ⟩ F ⟪ E .id , f ⟫) ∎
-    λF F .F-hom h .N-ob c = F ⟪ h , (C .id) ⟫
-    λF F .F-hom h .N-hom f =
-      F ⟪ h , C .id ⟫ ∘⟨ D ⟩ F ⟪ E .id , f ⟫ ≡⟨ sym (F .F-seq _ _) ⟩
-      F ⟪ h ∘⟨ E ⟩ E .id , C .id ∘⟨ C ⟩ f ⟫
-        ≡⟨ (λ i → F ⟪ E .⋆IdL h i , C .⋆IdR f i  ⟫) ⟩
-      F ⟪ h , f ⟫ ≡⟨ (λ i → F ⟪ (E .⋆IdR h (~ i)) , (C .⋆IdL f (~ i)) ⟫) ⟩
-      F ⟪ E .id ∘⟨ E ⟩ h , f ∘⟨ C ⟩ C .id ⟫ ≡⟨ F .F-seq _ _ ⟩
-      F ⟪ E .id , f ⟫ ∘⟨ D ⟩ F ⟪ h , C .id ⟫ ∎
-    λF F .F-id = makeNatTransPath (funExt λ c → F .F-id)
-    λF F .F-seq f g = makeNatTransPath (funExt lem) where
-      lem : (c : C .ob) →
-            F ⟪ g ∘⟨ E ⟩ f , C .id ⟫ ≡
-            F ⟪ g , C .id ⟫ ∘⟨ D ⟩ F ⟪ f , C .id ⟫
-      lem c =
-        F ⟪ g ∘⟨ E ⟩ f , C .id ⟫
-          ≡⟨ (λ i → F ⟪ (g ∘⟨ E ⟩ f) , (C .⋆IdR (C .id) (~ i)) ⟫) ⟩
-        F ⟪ g ∘⟨ E ⟩ f , C .id ∘⟨ C ⟩ C .id ⟫
-          ≡⟨ F .F-seq (f , C .id) (g , C .id) ⟩
-        (F ⟪ g , C .id ⟫) ∘⟨ D ⟩ (F ⟪ f , C .id ⟫) ∎
+

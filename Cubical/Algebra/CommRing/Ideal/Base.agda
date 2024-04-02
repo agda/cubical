@@ -28,7 +28,7 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.Ring.Ideal renaming (IdealsIn to IdealsInRing)
 open import Cubical.Algebra.Ring.BigOps
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 
 private
   variable
@@ -82,9 +82,7 @@ module CommIdeal (R' : CommRing ℓ) where
 
  -Closed : (I : CommIdeal) (x : R)
          → x ∈ I → (- x) ∈ I
- -Closed I x x∈I = subst (_∈ I) (useSolver x) (·Closed (snd I) (- 1r) x∈I)
-   where useSolver : (x : R) → - 1r · x ≡ - x
-         useSolver = solve R'
+ -Closed I x x∈I = subst (_∈ I) (solve! R') (·Closed (snd I) (- 1r) x∈I)
 
  ∑Closed : (I : CommIdeal) {n : ℕ} (V : FinVec R n)
          → (∀ i → V i ∈ I) → ∑ V ∈ I
@@ -129,10 +127,8 @@ module _ {R : CommRing ℓ} where
   CommIdeal→Ideal : IdealsIn R → IdealsInRing (CommRing→Ring R)
   fst (CommIdeal→Ideal I) = fst I
   +-closed (snd (CommIdeal→Ideal I)) = +Closed (snd I)
-  -closed (snd (CommIdeal→Ideal I)) =  λ x∈pI → subst-∈p (fst I) (useSolver _)
+  -closed (snd (CommIdeal→Ideal I)) =  λ x∈pI → subst-∈p (fst I) (solve! R)
                                                            (·Closed (snd I) (- 1r) x∈pI)
-                                         where useSolver : (x : fst R) → - 1r · x ≡ - x
-                                               useSolver = solve R
   0r-closed (snd (CommIdeal→Ideal I)) = contains0 (snd I)
   ·-closedLeft (snd (CommIdeal→Ideal I)) = ·Closed (snd I)
   ·-closedRight (snd (CommIdeal→Ideal I)) = λ r x∈pI →

@@ -24,8 +24,11 @@ open import Cubical.HITs.PropositionalTruncation
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
-    A B C D : Type ℓ
+    ℓ ℓ' ℓ'' ℓa ℓb ℓc ℓd : Level
+    A : Type ℓa
+    B : Type ℓb
+    C : Type ℓc
+    D : Type ℓd
 
 isSetPathImplicit : {x y : ∥ A ∥₂} → isSet (x ≡ y)
 isSetPathImplicit = isOfHLevelPath 2 squash₂ _ _
@@ -72,19 +75,20 @@ elim2 Cset f (squash₂ x y p q i j) z =
 --                     (λ a → elim (λ _ → Cset _ _) (f a))
 
 -- TODO: generalize
-elim3 : {B : (x y z : ∥ A ∥₂) → Type ℓ}
-        (Bset : ((x y z : ∥ A ∥₂) → isSet (B x y z)))
-        (g : (a b c : A) → B ∣ a ∣₂ ∣ b ∣₂ ∣ c ∣₂)
-        (x y z : ∥ A ∥₂) → B x y z
-elim3 Bset g = elim2 (λ _ _ → isSetΠ (λ _ → Bset _ _ _))
-                     (λ a b → elim (λ _ → Bset _ _ _) (g a b))
+elim3 : {D : ∥ A ∥₂ → ∥ B ∥₂ → ∥ C ∥₂ → Type ℓ}
+        (Dset : ((x : ∥ A ∥₂) (y : ∥ B ∥₂) (z : ∥ C ∥₂) → isSet (D x y z)))
+        (g : (a : A) (b : B) (c : C) → D ∣ a ∣₂ ∣ b ∣₂ ∣ c ∣₂)
+        (x : ∥ A ∥₂) (y : ∥ B ∥₂) (z : ∥ C ∥₂) → D x y z
+elim3 Dset g = elim2 (λ _ _ → isSetΠ (λ _ → Dset _ _ _))
+                     (λ a b → elim (λ _ → Dset _ _ _) (g a b))
 
-elim4 : {B : (w x y z : ∥ A ∥₂) → Type ℓ}
-        (Bset : ((w x y z : ∥ A ∥₂) → isSet (B w x y z)))
-        (g : (a b c d : A) → B ∣ a ∣₂ ∣ b ∣₂ ∣ c ∣₂ ∣ d ∣₂)
-        (w x y z : ∥ A ∥₂) → B w x y z
-elim4 Bset g = elim3 (λ _ _ _ → isSetΠ λ _ → Bset _ _ _ _)
-                     λ a b c → elim (λ _ → Bset _ _ _ _) (g a b c)
+elim4 : {E : ∥ A ∥₂ → ∥ B ∥₂ → ∥ C ∥₂ → ∥ D ∥₂ → Type ℓ}
+        (Eset : ((w : ∥ A ∥₂) (x : ∥ B ∥₂) (y : ∥ C ∥₂) (z : ∥ D ∥₂)
+              → isSet (E w x y z)))
+        (g : (a : A) (b : B) (c : C) (d : D) → E ∣ a ∣₂ ∣ b ∣₂ ∣ c ∣₂ ∣ d ∣₂)
+        (w : ∥ A ∥₂) (x : ∥ B ∥₂) (y : ∥ C ∥₂) (z : ∥ D ∥₂) → E w x y z
+elim4 Eset g = elim3 (λ _ _ _ → isSetΠ λ _ → Eset _ _ _ _)
+                     λ a b c → elim (λ _ → Eset _ _ _ _) (g a b c)
 
 
 -- the recursor for maps into groupoids following the "HIT proof" in:

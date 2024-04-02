@@ -33,7 +33,6 @@ open import Cubical.Algebra.CommRing.Ideal
 open import Cubical.Algebra.CommRing.Ideal.Sum
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.RadicalIdeal
-open import Cubical.Tactics.CommRingSolver.Reflection
 open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice

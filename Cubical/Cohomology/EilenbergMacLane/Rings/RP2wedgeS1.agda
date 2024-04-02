@@ -34,7 +34,7 @@ open import Cubical.Cohomology.EilenbergMacLane.Rings.Z2-properties
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
 open import Cubical.Data.Unit
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin hiding (FinVec)
 open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.Sigma
 open import Cubical.Data.Vec
@@ -59,6 +59,7 @@ open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.Group.Instances.IntMod
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.AbGroup.Instances.Unit
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.AbGroup.TensorProduct

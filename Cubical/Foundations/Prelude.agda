@@ -327,6 +327,12 @@ funExt⁻ : {B : A → I → Type ℓ'}
   → ((x : A) → PathP (B x) (f x) (g x))
 funExt⁻ eq x i = eq i x
 
+congP₂$ : {A : I → Type ℓ} {B : ∀ i → A i → Type ℓ'}
+  {f : ∀ x → B i0 x} {g : ∀ y → B i1 y}
+  → (p : PathP (λ i → ∀ x → B i x) f g)
+  → ∀ {x y} (p : PathP A x y) → PathP (λ i → B i (p i)) (f x) (g y)
+congP₂$ eq x i = eq i (x i)
+
 implicitFunExt⁻ : {B : A → I → Type ℓ'}
   {f : {x : A} → B x i0} {g : {x : A} → B x i1}
   → PathP (λ i → {x : A} → B x i) f g
@@ -508,6 +514,8 @@ Cube :
   → Type _
 Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
   PathP (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋
+
+-- See HLevels.agda for CubeP
 
 -- Horizontal composition of squares (along their second dimension)
 -- See Cubical.Foundations.Path for vertical composition

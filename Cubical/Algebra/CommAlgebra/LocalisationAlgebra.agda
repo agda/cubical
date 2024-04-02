@@ -28,8 +28,6 @@ open import Cubical.Algebra.CommRing as CommRing hiding (_ˣ;module Units)
 open import Cubical.Algebra.CommRing.Localisation using (isMultClosedSubset)
 open import Cubical.Algebra.Ring
 
-open import Cubical.Tactics.CommRingSolver.Reflection
-
 module Cubical.Algebra.CommAlgebra.LocalisationAlgebra
   {ℓR : Level}
   (R : CommRing ℓR)

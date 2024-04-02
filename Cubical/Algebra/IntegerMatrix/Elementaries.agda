@@ -14,7 +14,7 @@ open import Cubical.Data.FinData
 
 open import Cubical.Relation.Nullary
 
-open import Cubical.Tactics.CommRingSolver.Reflection
+open import Cubical.Tactics.CommRingSolver
 open import Cubical.Algebra.Ring.BigOps
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Int
@@ -35,10 +35,10 @@ private
     open CommRingStr (𝓡 .snd)
 
     helper1 : (a b x y g : 𝓡 .fst) → (a · x - b · - y) · g ≡ a · (x · g) + b · (y · g)
-    helper1 = solve 𝓡
+    helper1 _ _ _ _ _ = solve! 𝓡
 
     helper2 : (a b : 𝓡 .fst) → a ≡ 1r · a + 0r · b
-    helper2 = solve 𝓡
+    helper2 _ _ = solve! 𝓡
 
 open Helper ℤCommRing
 

@@ -6,8 +6,10 @@ open import Cubical.Homotopy.EilenbergMacLane.GroupStructure
 open import Cubical.Homotopy.EilenbergMacLane.Base
 open import Cubical.Homotopy.EilenbergMacLane.Properties
 open import Cubical.Homotopy.EilenbergMacLane.Order2
+open import Cubical.Homotopy.Connected
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
@@ -17,6 +19,7 @@ open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.Truncation as TR
 
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
@@ -28,6 +31,9 @@ open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.Monoid
 open import Cubical.Algebra.Semigroup
 open import Cubical.Algebra.Group.Instances.IntMod
+open import Cubical.Algebra.AbGroup.Instances.IntMod
+open import Cubical.Algebra.AbGroup.Instances.DirectProduct
+open import Cubical.Algebra.AbGroup.Properties
 
 open import Cubical.HITs.SetTruncation as ST
   hiding (rec ; map ; elim ; elim2 ; elim3)
@@ -270,6 +276,44 @@ coHom≅coHomRed n G A =
     makeIsGroupHom (ST.elim2 (λ _ _ → isSetPathImplicit)
       λ _ _ → refl)
 
+coHom⁰≅coHomRed⁰ : (G : AbGroup ℓ) (A : Pointed ℓ)
+  →  AbGroupEquiv (AbDirProd (coHomRedGr 0 G A) G) (coHomGr 0 G (typ A))
+fst (coHom⁰≅coHomRed⁰ G A) = isoToEquiv is
+  where
+  is : Iso _ _
+  Iso.fun is = uncurry (ST.rec (isSetΠ (λ _ → squash₂))
+    λ f g → ∣ (λ x → AbGroupStr._+_ (snd G) (fst f x) g) ∣₂)
+  Iso.inv is = ST.rec (isSet× squash₂ (is-set (snd G)))
+    λ f → ∣ (λ x → AbGroupStr._-_ (snd G) (f x) (f (pt A)))
+          , +InvR (snd G) (f (pt A)) ∣₂ , f (pt A)
+  Iso.rightInv is = ST.elim (λ _ → isSetPathImplicit)
+    λ f → cong ∣_∣₂ (funExt λ x
+      → sym (+Assoc (snd G) _ _ _)
+      ∙∙ cong (AbGroupStr._+_ (snd G) (f x))
+              (+InvL (snd G) (f (pt A)))
+      ∙∙ +IdR (snd G) (f x))
+  Iso.leftInv is =
+    uncurry (ST.elim
+      (λ _ → isSetΠ (λ _ → isOfHLevelPath 2
+        (isSet× squash₂ (is-set (snd G))) _ _))
+      λ f → λ g
+        → ΣPathP (cong ∣_∣₂ (Σ≡Prop (λ _ → is-set (snd G) _ _)
+            (funExt (λ x → cong₂ (AbGroupStr._+_ (snd G))
+                              refl
+                              (cong (- (snd G))
+                                (cong₂ (AbGroupStr._+_ (snd G)) (snd f) refl
+                                ∙ +IdL (snd G) g))
+                            ∙ sym (+Assoc (snd G) _ _ _)
+                            ∙ cong (AbGroupStr._+_ (snd G) (fst f x))
+                                (+InvR (snd G) g)
+                            ∙ +IdR (snd G) (f .fst x))))
+        , (cong (λ x → AbGroupStr._+_ (snd G) x g) (snd f)
+        ∙ +IdL (snd G) g)))
+snd (coHom⁰≅coHomRed⁰ G A) =
+  makeIsGroupHom (uncurry (ST.elim (λ _ → isSetΠ2 λ _ _ → isSetPathImplicit)
+    λ f1 g1 → uncurry (ST.elim (λ _ → isSetΠ λ _ → isSetPathImplicit)
+      λ f2 g2 → cong ∣_∣₂ (funExt λ a → AbGroupTheory.comm-4 G _ _ _ _))))
+
 -- ℤ/2 lemmas
 +ₕ≡id-ℤ/2 : ∀ {ℓ}  {A : Type ℓ} (n : ℕ) (x : coHom n ℤ/2 A) → x +ₕ x ≡ 0ₕ n
 +ₕ≡id-ℤ/2 n =
@@ -296,6 +340,23 @@ fst (coHomHom n f) = coHomFun n f
 snd (coHomHom n f) =
   makeIsGroupHom (ST.elim2 (λ _ _ → isOfHLevelPath 2 squash₂ _ _)
    λ f g → refl)
+
+coHomEquiv : ∀ {ℓ''} {A : Type ℓ} {B : Type ℓ'} {G : AbGroup ℓ''}
+            (n : ℕ)
+         → (Iso A B)
+         → AbGroupEquiv (coHomGr n G B) (coHomGr n G A)
+fst (coHomEquiv n f) = isoToEquiv is
+  where
+  is : Iso _ _
+  Iso.fun is = coHomFun n (Iso.fun f)
+  Iso.inv is = coHomFun n (Iso.inv f)
+  Iso.rightInv is =
+    ST.elim (λ _ → isSetPathImplicit)
+      λ g → cong ∣_∣₂ (funExt λ x → cong g (Iso.leftInv f x))
+  Iso.leftInv is =
+    ST.elim (λ _ → isSetPathImplicit)
+      λ g → cong ∣_∣₂ (funExt λ x → cong g (Iso.rightInv f x))
+snd (coHomEquiv n f) = snd (coHomHom n (Iso.fun f))
 
 coHomFun∙ : ∀ {ℓ''} {A : Pointed ℓ} {B : Pointed ℓ'} {G : AbGroup ℓ''}
             (n : ℕ) (f : A →∙ B)
@@ -343,7 +404,51 @@ subst-EM-0ₖ : ∀{ℓ} {G : AbGroup ℓ} {n m : ℕ} (p : n ≡ m)
 subst-EM-0ₖ {G = G} {n = n} =
     J (λ m p → subst (EM G) p (0ₖ n) ≡ 0ₖ m) (transportRefl _)
 
-subst-EM∙ : ∀{ℓ} {G : AbGroup ℓ} {n m : ℕ} (p : n ≡ m)
+subst-EM∙ : ∀ {ℓ} {G : AbGroup ℓ} {n m : ℕ} (p : n ≡ m)
   → EM∙ G n →∙ EM∙ G m
 fst (subst-EM∙ {G = G} p) = subst (EM G) p
 snd (subst-EM∙ p) = subst-EM-0ₖ p
+
+coHomPointedElim : ∀ {ℓ ℓ' ℓ''} {G : AbGroup ℓ}
+  {A : Type ℓ'} (n : ℕ) (a : A) {B : coHom (suc n) G A → Type ℓ''}
+   → ((x : coHom (suc n) G A) → isProp (B x))
+   → ((f : A → EM G (suc n)) → f a ≡ 0ₖ (suc n) → B ∣ f ∣₂)
+   → (x : coHom (suc n) G A) → B x
+coHomPointedElim {ℓ'' = ℓ''} {G = G} {A = A} n a isprop indp =
+  ST.elim (λ _ → isOfHLevelSuc 1 (isprop _))
+         λ f → helper n isprop indp f
+  where
+  helper :  (n : ℕ) {B : coHom (suc n) G A → Type ℓ''}
+         → ((x : coHom (suc n) G A) → isProp (B x))
+         → ((f : A → EM G (suc n)) → f a ≡ 0ₖ (suc n) → B ∣ f ∣₂)
+         → (f : A → EM G (suc n))
+         → B ∣ f ∣₂
+  helper n isprop ind f =
+    TR.rec (isProp→isOfHLevelSuc n (isprop _))
+    (ind f)
+    (isConnectedPath (suc n) (isConnectedEM (suc n)) (f a) (0ₖ (suc n)) .fst)
+
+coHomTruncEquiv : {A : Type ℓ} (G : AbGroup ℓ) (n : ℕ)
+  → AbGroupEquiv (coHomGr n G (∥ A ∥ (suc (suc n)))) (coHomGr n G A)
+fst (coHomTruncEquiv G n) =
+  isoToEquiv (setTruncIso (univTrunc (suc (suc n)) {B = _ , hLevelEM G n}))
+snd (coHomTruncEquiv G n) =
+  makeIsGroupHom (ST.elim2 (λ _ _ → isSetPathImplicit)
+    λ _ _ → refl)
+
+EM→-charac : ∀ {ℓ ℓ'} {A : Pointed ℓ} {G : AbGroup ℓ'} (n : ℕ)
+  → Iso (fst A → EM G n) ((A →∙ EM∙ G n) × EM G n)
+Iso.fun (EM→-charac {A = A} n) f =
+  ((λ x → f x -ₖ f (pt A)) , rCancelₖ n (f (pt A))) , f (pt A)
+Iso.inv (EM→-charac n) (f , a) x = fst f x +ₖ a
+Iso.rightInv (EM→-charac {A = A} n) ((f , p) , a) =
+  ΣPathP (→∙Homogeneous≡ (isHomogeneousEM _)
+    (funExt (λ x → (λ i → (f x +ₖ a) -ₖ (cong (_+ₖ a) p ∙ lUnitₖ n a) i)
+                  ∙ sym (assocₖ n (f x) a (-ₖ a))
+                  ∙ cong (f x +ₖ_) (rCancelₖ n a)
+                  ∙ rUnitₖ n (f x)))
+  , cong (_+ₖ a) p ∙ lUnitₖ n a)
+Iso.leftInv (EM→-charac {A = A} n) f =
+  funExt λ x → sym (assocₖ n (f x) (-ₖ f (pt A)) (f (pt A)))
+    ∙∙ cong (f x +ₖ_) (lCancelₖ n (f (pt A)))
+    ∙∙ rUnitₖ n (f x)
