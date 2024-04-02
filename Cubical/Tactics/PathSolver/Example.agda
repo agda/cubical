@@ -81,7 +81,5 @@ module Examples4 (f : B → A) (g : C → B)
 
 module _ {A : Type ℓ} {x y z : A} (p q : x ≡ x) where
 
- open import Cubical.Foundations.Equiv
-
  SqCompEquiv : (Square p p q q) ≃ (p ∙ q ≡ q ∙ p)
  SqCompEquiv = 2-cylinder-from-square.Sq≃Sq' refl ≡!
