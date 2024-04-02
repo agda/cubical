@@ -84,7 +84,7 @@ midCancel p q r j =
      (λ i → p (i ∧ j))
   ∙∙ doubleCompPath-filler p refl (sym q) (~ j)
   ∙∙ λ i → hcomp (λ k → λ {(i = i0) → q (~ k ∨ j)  ; (i = i1) → r (~ k) ; (j = i1) → r (~ i ∨ ~ k) }) (r i1)
-  
+
 lCancel : (p : x ≡ y) → p ⁻¹ ∙ p ≡ refl
 lCancel p = rCancel (p ⁻¹)
 
