@@ -154,4 +154,3 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   _^opFᴰ .F-idᴰ = Fᴰ .F-idᴰ
   _^opFᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
 
-

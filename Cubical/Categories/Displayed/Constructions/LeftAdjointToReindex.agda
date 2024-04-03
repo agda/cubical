@@ -1,6 +1,6 @@
 {-# OPTIONS --safe #-}
 --
-module Cubical.Categories.Displayed.LeftAdjointToReindex where
+module Cubical.Categories.Displayed.Constructions.LeftAdjointToReindex where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path
@@ -58,7 +58,7 @@ module _
   ∃F .idᴰ {d} {c , x , p} =
     C .id ,
     Cᴰ .idᴰ ,
-    (F-id ◁ (cong (λ v → D .id {v}) p)) 
+    (F-id ◁ (cong (λ v → D .id {v}) p))
   ∃F ._⋆ᴰ_ (g , gᴰ , p) (h , hᴰ , q) =
       g ⋆⟨ C ⟩ h ,
       (Cᴰ._⋆ᴰ_ gᴰ hᴰ) ,
@@ -100,8 +100,7 @@ private
       (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       (Dᴰ : Categoryᴰ (∫C Cᴰ) ℓDᴰ ℓDᴰ')
       where
-   
+
       weaken' : Categoryᴰ C (ℓ-max (ℓ-max ℓ-zero ℓC) ℓD)
                  (ℓ-max (ℓ-max ℓ-zero ℓC') ℓD')
       weaken' = ∃F (Category→DispOverTerminal D) F
-
