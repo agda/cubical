@@ -38,8 +38,6 @@ open import Cubical.Relation.Binary
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.Binary.Setoid
 
-open import Cubical.Categories.Category.Path
-
 open import Cubical.Categories.Instances.Cat
 
 open import Cubical.Categories.Monoidal
@@ -52,87 +50,6 @@ open import Cubical.HITs.PropositionalTruncation
 
 open Category hiding (_∘_)
 open Functor
-
-
-
--- SETPullback : ∀ ℓ → Pullbacks (SET ℓ)
--- SETPullback ℓ (cospan l m r s₁ s₂) = w
---  where
---  open Pullback
---  w : Pullback (SET ℓ) (cospan l m r s₁ s₂)
---  pbOb w = _ , isSetΣ (isSet× (snd l) (snd r))
---   (uncurry λ x y → isOfHLevelPath 2 (snd m) (s₁ x) (s₂ y))
---  pbPr₁ w = fst ∘ fst
---  pbPr₂ w = snd ∘ fst
---  pbCommutes w = funExt snd
---  fst (fst (univProp w h k H')) d = _ , (H' ≡$ d)
---  snd (fst (univProp w h k H')) = refl , refl
---  snd (univProp w h k H') y =
---   Σ≡Prop
---    (λ _ → isProp× (isSet→ (snd l) _ _) (isSet→ (snd r) _ _))
---     (funExt λ x → Σ≡Prop (λ _ → (snd m) _ _)
---        λ i → fst (snd y) i x , snd (snd y) i x)
-
--- module SetLCCC ℓ {X@(_ , isSetX) Y@(_ , isSetY) : hSet ℓ} (f : ⟨ X ⟩ →  ⟨ Y ⟩) where
---  open BaseChange (SETPullback ℓ)
-
---  open Cubical.Categories.Adjoint.NaturalBijection
---  open _⊣_
-
---  open import Cubical.Categories.Instances.Cospan
---  open import Cubical.Categories.Limits.Limits
-
---  Π/ : Functor (SliceCat (SET ℓ) X) (SliceCat (SET ℓ) Y)
---  F-ob Π/ (sliceob {S-ob = _ , isSetA} h) =
---    sliceob {S-ob = _ , (isSetΣ isSetY $
---                      λ y → isSetΠ λ ((x , _) : fiber f y) →
---                            isOfHLevelFiber 2 isSetA isSetX h x)} fst
---  F-hom Π/ {a} {b} (slicehom g p) =
---    slicehom (map-snd (map-sndDep (λ q → (p ≡$ _) ∙ q ) ∘_)) refl
---  F-id Π/ = SliceHom-≡-intro' _ _ $
---    funExt λ x' → cong ((fst x') ,_)
---      (funExt λ y → Σ≡Prop (λ _ → isSetX _ _) refl)
---  F-seq Π/ _ _ = SliceHom-≡-intro' _ _ $
---    funExt λ x' → cong ((fst x') ,_)
---      (funExt λ y → Σ≡Prop (λ _ → isSetX _ _) refl)
-
---  f*⊣Π/ : f ＊ ⊣ Π/
---  Iso.fun (adjIso f*⊣Π/) (slicehom h p) =
---    slicehom (λ _ → _ , λ (_ , q) → h (_ , q) , (p ≡$ _)) refl
---  Iso.inv (adjIso f*⊣Π/) (slicehom h p) =
---    slicehom _  $ funExt λ (_ , q) → snd (snd (h _) (_ , q ∙ ((sym p) ≡$ _)))
---  Iso.rightInv (adjIso f*⊣Π/) b = SliceHom-≡-intro' _ _ $
---     funExt λ _ → cong₂ _,_ (sym (S-comm b ≡$ _))
---       $ toPathP $ funExt λ _ →
---         Σ≡Prop (λ _ → isSetX _ _) $ transportRefl _ ∙
---           cong (fst ∘ snd (S-hom b _))
---                (Σ≡Prop (λ _ → isSetY _ _) $ transportRefl _)
---  Iso.leftInv (adjIso f*⊣Π/) a = SliceHom-≡-intro' _ _ $
---    funExt λ _ → cong (S-hom a) $ Σ≡Prop (λ _ → isSetY _ _) refl
---  adjNatInD f*⊣Π/ _ _ = SliceHom-≡-intro' _ _ $
---    funExt λ _ → cong₂ _,_ refl $
---      funExt λ _ → Σ≡Prop (λ _ → isSetX _ _) refl
---  adjNatInC f*⊣Π/ g h = SliceHom-≡-intro' _ _ $
---    funExt λ _ → cong (fst ∘ (snd (S-hom g (S-hom h _)) ∘ (_ ,_))) $ isSetY _ _ _ _
-
--- --  Σ/ : Functor (SliceCat (SET ℓ) X) (SliceCat (SET ℓ) Y)
--- --  F-ob Σ/ (sliceob {S-ob = ob} arr) = sliceob {S-ob = ob} (f ∘ arr )
--- --  F-hom Σ/ (slicehom g p) = slicehom _ (cong (f ∘_) p)
--- --  F-id Σ/ = refl
--- --  F-seq Σ/ _ _ = SliceHom-≡-intro' _ _ $ refl
-
--- --  Σ/⊣f* : Σ/ ⊣ BaseChangeFunctor
--- --  Iso.fun (adjIso Σ/⊣f*) (slicehom g p) = slicehom (λ _ → _ , (sym p ≡$ _ )) refl
--- --  Iso.inv (adjIso Σ/⊣f*) (slicehom g p) = slicehom (snd ∘ fst ∘ g) $
--- --   funExt (λ x → sym (snd (g x))) ∙ cong (f ∘_) p
--- --  Iso.rightInv (adjIso Σ/⊣f*) (slicehom g p) =
--- --   SliceHom-≡-intro' _ _ $
--- --    funExt λ xx → Σ≡Prop (λ _ → isSetY _ _)
--- --     (ΣPathP (sym (p ≡$ _) , refl))
--- --  Iso.leftInv (adjIso Σ/⊣f*) _ = SliceHom-≡-intro' _ _ $ refl
--- --  adjNatInD Σ/⊣f* _ _ = SliceHom-≡-intro' _ _ $
--- --     funExt λ x → Σ≡Prop (λ _ → isSetY _ _) refl
--- --  adjNatInC Σ/⊣f* _ _ = SliceHom-≡-intro' _ _ $ refl
 
 
 module _ ℓ where
@@ -413,8 +330,14 @@ module _ ℓ where
   open WeakEquivalence
   open isWeakEquivalence
 
+
+  -- SET is subcategory of SETOID in two ways:
+
+  --  1. As as subcategory of SETOIDs with FullRelations
+
   module FullRelationsSubcategory = FullSubcategory SETOID
     (BinaryRelation.isFull ∘ EquivPropRel→Rel ∘ snd)
+
 
   FullRelationsSubcategory : Category _ _
   FullRelationsSubcategory = FullRelationsSubcategory.FullSubcategory
@@ -426,6 +349,8 @@ module _ ℓ where
        λ _ → SetoidMor≡ (fst x) (fst y) refl)
   esssurj (isWeakEquiv FullRelationsSubcategory≅SET) d =
     ∣ (FullRel ⟅ d ⟆ , _)  , idCatIso ∣₁
+
+  --  2. As as subcategory of SETOIDs with Identity relations
 
   module IdRelationsSubcategory = FullSubcategory SETOID
     (BinaryRelation.impliesIdentity ∘ EquivPropRel→Rel ∘ snd)
@@ -446,10 +371,12 @@ module _ ℓ where
     ∣ (IdRel ⟅ d ⟆ , idfun _)  , idCatIso ∣₁
 
 
-
-
+  -- base change functor does not have right adjoint (so SETOID cannot be LCCC)
+  -- implementation of `Setoids are not an LCCC` by Thorsten Altenkirch and Nicolai Kraus
+  -- (https://www.cs.nott.ac.uk/~psznk/docs/setoids.pdf)
 
   open BaseChange pullbacks public
+
 
   ¬BaseChange⊣SetoidΠ : ({X Y : ob SETOID} (f : SETOID .Hom[_,_] X Y) →
      Σ (Functor (SliceCat SETOID X) (SliceCat SETOID Y))
@@ -577,7 +504,7 @@ module _ ℓ where
    Πob-full-rel rr = elim𝟚<fromIso ((invIso
            (compIso aL (aIso {sliceob ((λ _ → lift true) , _)} {𝟚/}))))
           mT mF mMix
-         ( finLLem ∘S cong λ x → fst (S-hom x) (lift false))
+         (finLLem ∘S cong λ x → fst (S-hom x) (lift false))
          (finLLem ∘S cong λ x → fst (S-hom x) (lift false))
          (finLLem ∘S (sym ∘S cong λ x → fst (S-hom x) (lift true)))
 

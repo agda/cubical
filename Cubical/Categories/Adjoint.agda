@@ -188,9 +188,9 @@ module NaturalBijection where
   record _⊣_ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) (G : Functor D C) : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
     field
       adjIso : ∀ {c d} → Iso (D [ F ⟅ c ⟆ , d ]) (C [ c , G ⟅ d ⟆ ])
-      
+
     adjEquiv : ∀ {c d} → (D [ F ⟅ c ⟆ , d ]) ≃ (C [ c , G ⟅ d ⟆ ])
-    adjEquiv = isoToEquiv adjIso 
+    adjEquiv = isoToEquiv adjIso
 
     infix 40 _♭
     infix 40 _♯

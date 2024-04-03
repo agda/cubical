@@ -137,17 +137,6 @@ univProp (completeSET J D) c cc =
     (λ x → isPropIsConeMor cc (limCone (completeSET J D)) x)
     (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
 
-completeSET' : ∀ {ℓ} → Limits {ℓ-zero} {ℓ-zero} (SET ℓ)
-lim (completeSET' J D) = Cone D (Unit* , isOfHLevelLift 2 isSetUnit) , isSetCone D _
-coneOut (limCone (completeSET' J D)) j e = coneOut e j tt*
-coneOutCommutes (limCone (completeSET' J D)) j i e = coneOutCommutes e j i tt*
-univProp (completeSET' J D) c cc =
-  uniqueExists
-    (λ x → cone (λ v _ → coneOut cc v x) (λ e i _ → coneOutCommutes cc e i x))
-    (λ _ → funExt (λ _ → refl))
-    (λ x → isPropIsConeMor cc (limCone (completeSET' J D)) x)
-    (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
-
 module _ {ℓ} where
 
  open Pullback

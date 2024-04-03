@@ -33,6 +33,14 @@ private
 Setoid : ∀ ℓA ℓ≅A → Type (ℓ-suc (ℓ-max ℓA ℓ≅A))
 Setoid ℓA ℓ≅A = Σ (hSet ℓA) λ (X , _) → EquivPropRel X ℓ≅A
 
+module _ (((A , isSetA) , ((_∼_ , isPropValued∼) , isEquivRel∼))  : Setoid ℓA ℓ≅A) where
+
+ ⟨⟨_⟩⟩ = A
+ isSet⟨⟨⟩⟩ = isSetA
+ ⟨⟨_⟩_~_⟩ = _∼_
+ isProp∼ = isPropValued∼
+ eqRel∼ = isEquivRel∼
+
 Setoid≡ : (A@((A' , _) , ((_∼_ , _) , _)) B@((B' , _) , ((_∻_ , _) , _)) : Setoid ℓA ℓ≅A) →
               (e : A' ≃ B')
               → (∀ x y → (x ∼ y) ≃ ((fst e x) ∻ (fst e y))) → A ≡ B
@@ -136,11 +144,11 @@ module _ (L R M : Setoid ℓA ℓA') (s₁ : SetoidMor L M) (s₂ : SetoidMor R 
 
  PullbackSetoid : Setoid ℓA ℓA'
  PullbackSetoid =
-   (Σ (fst (fst L) × fst (fst R)) (λ (l , r) → fst s₁ l ≡ fst s₂ r) ,
-      isSetΣ (isSet× (snd (fst L)) (snd (fst R))) (λ _ → isProp→isSet (snd (fst M) _ _))) ,
-    (_ , λ _ _ → (isProp× (snd (fst (snd L)) _ _ ) (snd (fst (snd R)) _ _))) ,
+   (Σ (⟨⟨ L ⟩⟩ × ⟨⟨ R ⟩⟩) (λ (l , r) → fst s₁ l ≡ fst s₂ r) ,
+      isSetΣ (isSet⟨⟨⟩⟩ (L ⊗ R)) (λ _ → isProp→isSet (isSet⟨⟨⟩⟩ M _ _))) ,
+    (_ , λ _ _ → (isProp× (isProp∼ L _ _ ) (isProp∼ R _ _))) ,
 
-     (isEquivRelPulledbackRel (isEquivRel×Rel (snd (snd L)) (snd (snd R))) fst)
+     (isEquivRelPulledbackRel (isEquivRel×Rel (eqRel∼ L) (eqRel∼ R)) fst)
 
   where open BinaryRelation.isEquivRel (snd (snd M)) renaming (transitive' to _⊚_)
 
