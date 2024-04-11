@@ -1,14 +1,19 @@
 {-
+
    The definition of compact open subfunctors of a ℤ-functor X:
+
      U ↪ Sp(A) is compact open if it is given by a f.g. ideal of A,
      i.e. if ∃ f₁, ... ,fₙ : A s.t. for all rings B:
                 U(B) = { φ : Hom(A,B) | ⟨ φf₁ , ... , φfₙ ⟩ = B }
-     U ↪ X is compact, if pulling back along any A-valued Sp(A) → X
-     gives a compact open of Sp(A)
+
+     U ↪ X is compact open, if pulling back along any A-valued point
+     Sp(A) → X gives a compact open of Sp(A).
+
      By observing that compact open subfunctors of affine schemes
      are in 1-1 correspondence with radicals of f.g. ideals,
      we get that compact open subfunctors are classified by the
-     ℤ-functor that sends a ring to its Zariski lattice
+     ℤ-functor that sends a ring to its Zariski lattice.
+
 -}
 
 

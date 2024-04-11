@@ -1,7 +1,9 @@
 {-
+
    A qcqs-scheme is a ℤ-functor that is local (a Zariski-sheaf)
    and has an affine cover, where the notion of cover is given
    by the lattice structure of compact open subfunctors
+
 -}
 
 {-# OPTIONS --safe --lossy-unification #-}

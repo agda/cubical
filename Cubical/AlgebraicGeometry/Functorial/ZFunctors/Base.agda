@@ -1,19 +1,23 @@
 {-
+
   A ℤ-functor is just a functor from rings to sets.
+
   NOTE: we consider the functor category [ Ring ℓ , Set ℓ ] for some universe level ℓ
         and not [ Ring ℓ , Set (ℓ+1) ] as is done in
         "Introduction to Algebraic Geometry and Algebraic Groups"
         by Demazure & Gabriel!
+
   The category of ℤ-functors contains the category of (qcqs-) schemes
   as a full subcategory and satisfies a "universal property"
   similar to the one of schemes:
+
     There is an adjunction 𝓞 ⊣ᵢ Sp
     (relative to the inclusion i : CommRing ℓ → CommRing (ℓ+1))
     between the "global sections functor" 𝓞
     and the fully-faithful embedding of affines Sp,
     whose counit is a natural isomorphism
--}
 
+-}
 
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.AlgebraicGeometry.Functorial.ZFunctors.Base where

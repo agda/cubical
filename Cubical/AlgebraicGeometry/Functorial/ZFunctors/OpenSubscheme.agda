@@ -1,9 +1,12 @@
 {-
+
   Compact open subfunctors of qcqs-schemes are qcqs-schemes (TODO!!!)
   The proof proceeds by
     1. Defining standard/basic compact opens of affines and proving that they are affine
-    2. Proving that arbitrary compact opens of affines a re qcqs-schemes
+    2. Proving that arbitrary compact opens of affines are qcqs-schemes
+
 -}
+
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.AlgebraicGeometry.Functorial.ZFunctors.OpenSubscheme where
 
