@@ -68,6 +68,9 @@ import Cubical.ZCohomology.Everything
 -- Algebra library (in development)
 import Cubical.Algebra.Everything
 
+-- Algebraic geometry
+import Cubical.AlgebraicGeometry.Everything
+
 -- Various talks
 import Cubical.Talks.Everything
 
