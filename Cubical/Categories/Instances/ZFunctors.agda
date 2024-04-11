@@ -29,9 +29,9 @@ open import Cubical.Algebra.Semilattice
 open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.BigOps
-open import Cubical.Algebra.ZariskiLattice.Base
-open import Cubical.Algebra.ZariskiLattice.UniversalProperty
-open import Cubical.Algebra.ZariskiLattice.Properties
+open import Cubical.AlgebraicGeometry.ZariskiLattice.Base
+open import Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty
+open import Cubical.AlgebraicGeometry.ZariskiLattice.Properties
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor

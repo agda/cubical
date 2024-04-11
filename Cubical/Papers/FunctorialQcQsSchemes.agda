@@ -21,46 +21,45 @@ module Cubical.Papers.FunctorialQcQsSchemes where
 
 -- 2: Background
 -- 2.1: Univalent type theory in Cubical Agda
-import Cubical.Foundations.Prelude                              as Prelude
-import Cubical.Foundations.HLevels                              as HLevels
-import Cubical.Foundations.Univalence                           as Univalence
-import Cubical.Data.Sigma                                       as Sigma
-import Cubical.HITs.PropositionalTruncation                     as PT
-import Cubical.HITs.SetQuotients                                as SQ
+import Cubical.Foundations.Prelude                                 as Prelude
+import Cubical.Foundations.HLevels                                 as HLevels
+import Cubical.Foundations.Univalence                              as Univalence
+import Cubical.Data.Sigma                                          as Sigma
+import Cubical.HITs.PropositionalTruncation                        as PT
+import Cubical.HITs.SetQuotients                                   as SQ
 
 -- 2.2: Localizations and the Zariski lattice
-import Cubical.Algebra.CommRing.Localisation.InvertingElements  as LocalizationInvEl
+import Cubical.Algebra.CommRing.Localisation.InvertingElements     as LocalizationInvEl
 module LocalizationInvElBase = LocalizationInvEl.InvertingElementsBase
 module LocalizationInvElUniversalProp = LocalizationInvElBase.UniversalProp
 
-import Cubical.Algebra.ZariskiLattice.Base                      as ZLB
+import Cubical.AlgebraicGeometry.ZariskiLattice.Base               as ZLB
 module ZariskiLatDef = ZLB.ZarLat
 
-import Cubical.Algebra.ZariskiLattice.UniversalProperty         as ZLUP
+import Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty  as ZLUP
 module ZariskiLatUnivProp = ZLUP.ZarLatUniversalProp
 
 module Localization&Radicals = LocalizationInvEl.RadicalLemma
-import Cubical.Algebra.ZariskiLattice.Properties                as ZLP
+import Cubical.AlgebraicGeometry.ZariskiLattice.Properties         as ZLP
 
 -- 3: ℤ-functors
-import Cubical.Categories.Instances.ZFunctors                   as ZFun
+import Cubical.Categories.Instances.ZFunctors                      as ZFun
 module RelativeAdjunction = ZFun.AdjBij
 
 -- 4: Local ℤ-functors
-import Cubical.Categories.Site.Cover                            as Cover
-import Cubical.Categories.Site.Coverage                         as Coverage
-import Cubical.Categories.Site.Sheaf                            as Sheaf
+import Cubical.Categories.Site.Cover                               as Cover
+import Cubical.Categories.Site.Coverage                            as Coverage
+import Cubical.Categories.Site.Sheaf                               as Sheaf
 
-import Cubical.Categories.Site.Instances.ZariskiCommRing        as ZariskiCoverage
+import Cubical.Categories.Site.Instances.ZariskiCommRing           as ZariskiCoverage
 module ZarCovSubcanonical = ZariskiCoverage.SubcanonicalLemmas
-import Cubical.Algebra.CommRing.Localisation.Limit              as LocalizationLimit
+import Cubical.Algebra.CommRing.Localisation.Limit                 as LocalizationLimit
 
--- !!! note: the ZFunctors file is supposed to be broken up into smaller files !!!
 -- 5: Compact opens and qcqs-schemes
--- import Cubical.Categories.Instances.ZFunctors                as ZFun
+-- import Cubical.Categories.Instances.ZFunctors                   as ZFun
 
 -- 6: Open subschemes
--- import Cubical.Categories.Instances.ZFunctors                as ZFun
+-- import Cubical.Categories.Instances.ZFunctors                   as ZFun
 module StandardOpen = ZFun.StandardOpens
 
 

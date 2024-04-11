@@ -9,7 +9,7 @@
 -}
 
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Algebra.ZariskiLattice.StructureSheafPullback where
+module Cubical.AlgebraicGeometry.ZariskiLattice.StructureSheafPullback where
 
 
 open import Cubical.Foundations.Prelude
@@ -59,8 +59,8 @@ open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.Basis
 open import Cubical.Algebra.DistLattice.BigOps
-open import Cubical.Algebra.ZariskiLattice.Base
-open import Cubical.Algebra.ZariskiLattice.UniversalProperty
+open import Cubical.AlgebraicGeometry.ZariskiLattice.Base
+open import Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty
 
 open import Cubical.Categories.Category.Base hiding (_[_,_])
 open import Cubical.Categories.Functor
