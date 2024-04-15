@@ -143,6 +143,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
    toWildFunctor : ∀ x y → wildStrMor x y → WildFunctor (toWildCat x) (toWildCat y)
    mbFunctorApp : R.Term → Maybe (R.Term × R.Term)
    F-ty-extractSrc : R.Term → R.TC R.Term
+   extractWS : R.Term → R.TC R.Term
 
  InvFlag = caseMaybe ⊥ Unit mbIsWildGroupoid
 
@@ -580,17 +581,26 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
 
 
 
- solveW : R.Term → R.Term → R.Term → R.TC Unit
- solveW Ws Wt hole = do
+ solveW : R.Term → Maybe R.Term → R.Term → R.TC Unit
+ solveW Ws mbWt hole = do
    
    -- Wt ← tryAllTC
    --   (R.typeError $ "At least one 𝑿 must be provded!" ∷ₑ [])
    --   Wts R.returnTC
+
+
    hoTy ← R.withNormalisation true $
              R.inferType hole >>= wait-for-type
-   (t0 , t1) ←  (get-boundary hoTy ) >>= Mb.rec
+   (A , (t0 , t1)) ←  (get-boundaryWithDom hoTy ) >>= Mb.rec
     (R.typeError [ R.strErr "unable to get boundary" ])
-    (λ x → R.returnTC x)
+    pure
+
+   A' ← R.normalise A >>= wait-for-type 
+
+   Wt ← Mb.rec
+         (extractWS A')
+         pure mbWt
+
    t0' ← tryWCE.tryE Ws Wt magicNumber t0
    t1' ← tryWCE.tryE Ws Wt magicNumber t1
    expr0 ← tryWCE.checkFromTE Ws t0'

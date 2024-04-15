@@ -45,12 +45,20 @@ module WildGroupoid-Solver ℓ ℓ' where
  WildCatInstance.mbFunctorApp GroupoidWS = mbWildFunctorApp
  WildCatInstance.F-ty-extractSrc GroupoidWS =
    extraxtWildFunSrc >=> unWildCat
+ WildCatInstance.extractWS GroupoidWS =
+  WildCat-Solver.extrWS ℓ ℓ' >=> unWildCat
+ 
  private
   module WGPD-WS = WildCatInstance GroupoidWS
 
  macro
-  solveWildGroupoid : R.Term → R.Term → R.TC Unit
-  solveWildGroupoid = WGPD-WS.solveW (R.def (quote GroupoidWS) ( R.unknown v∷ R.unknown v∷ []))
+
+  solveWildGroupoid : R.Term → R.TC Unit
+  solveWildGroupoid = WGPD-WS.solveW (R.def (quote GroupoidWS) ( R.unknown v∷ R.unknown v∷ [])) nothing
+
+  solveWildGroupoid[_] : R.Term → R.Term → R.TC Unit
+  solveWildGroupoid[ x ] = WGPD-WS.solveW (R.def (quote GroupoidWS) ( R.unknown v∷ R.unknown v∷ [])) (just x)
+
 
 module Groupoid-Solver ℓ ℓ' where
  open import Cubical.Categories.Functor
@@ -91,10 +99,16 @@ module Groupoid-Solver ℓ ℓ' where
  WildCatInstance.mbFunctorApp GroupoidWS = mbFunctorApp
  WildCatInstance.F-ty-extractSrc GroupoidWS =
    extraxtWildFunSrc >=> unCategory
+ WildCatInstance.extractWS GroupoidWS =
+   Cat-Solver.extrWS ℓ ℓ' >=> unCategory
  private
   module GPD-WS = WildCatInstance GroupoidWS
 
  macro
-  solveWildGroupoid : R.Term → R.Term → R.TC Unit
-  solveWildGroupoid = GPD-WS.solveW (R.def (quote GroupoidWS) ( R.unknown v∷ R.unknown v∷ []))
+  solveWildGroupoid : R.Term → R.TC Unit
+  solveWildGroupoid = GPD-WS.solveW (R.def (quote GroupoidWS) ( R.unknown v∷ R.unknown v∷ [])) nothing
+
+  solveWildGroupoid[_] : R.Term → R.Term → R.TC Unit
+  solveWildGroupoid[ x ] = GPD-WS.solveW (R.def (quote GroupoidWS) ( R.unknown v∷ R.unknown v∷ [])) (just x)
+
 

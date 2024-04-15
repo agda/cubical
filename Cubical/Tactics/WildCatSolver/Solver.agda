@@ -28,6 +28,9 @@ module WildCat-Solver ℓ ℓ' where
  mbWildFunctorApp (R.def (quote WildFunctor.F-hom) t) = matchFunctorAppArgs t
  mbWildFunctorApp _ = nothing
 
+ extrWS : R.Term → R.TC R.Term
+ extrWS (R.def (quote WildCat.Hom[_,_]) t) = matchFirstVarg t
+ extrWS t = R.typeError (R.strErr "extrWS fail : " ∷ [ R.termErr t ])
 
  WildCatWS : WildCatInstance ℓ ℓ'
  WildCatInstance.wildStr (WildCatWS) = WildCat ℓ ℓ'
@@ -37,13 +40,17 @@ module WildCat-Solver ℓ ℓ' where
  WildCatInstance.toWildFunctor WildCatWS _ _ f = f
  WildCatInstance.mbFunctorApp WildCatWS = mbWildFunctorApp
  WildCatInstance.F-ty-extractSrc WildCatWS = extraxtWildFunSrc
+ WildCatInstance.extractWS WildCatWS = extrWS
 
  private
   module WC-WS = WildCatInstance WildCatWS
 
  macro
-  solveWildCat : R.Term → R.Term → R.TC Unit
-  solveWildCat = WC-WS.solveW (R.def (quote WildCatWS) ( R.unknown v∷ R.unknown v∷ []))
+  solveWildCat[_] : R.Term → R.Term → R.TC Unit
+  solveWildCat[_] x = WC-WS.solveW (R.def (quote WildCatWS) ( R.unknown v∷ R.unknown v∷ [])) (just x)
+
+  solveWildCat : R.Term → R.TC Unit
+  solveWildCat = WC-WS.solveW (R.def (quote WildCatWS) ( R.unknown v∷ R.unknown v∷ [])) nothing
 
 
 module Cat-Solver ℓ ℓ' where
@@ -65,6 +72,11 @@ module Cat-Solver ℓ ℓ' where
  WildCat.⋆Assoc (Cat→WildCat x) = Category.⋆Assoc x
 
 
+ extrWS : R.Term → R.TC R.Term
+ extrWS (R.def (quote Category.Hom[_,_]) t) = matchFirstVarg t
+ extrWS _ = R.typeError [ R.strErr "extrWS fail" ]
+
+
  CatWS : WildCatInstance ℓ ℓ'
  WildCatInstance.wildStr CatWS = Category ℓ ℓ'
  WildCatInstance.toWildCat CatWS = Cat→WildCat
@@ -74,10 +86,15 @@ module Cat-Solver ℓ ℓ' where
    record { F-ob = F-ob ; F-hom = F-hom ; F-id = F-id ; F-seq = F-seq }
    where open Functor f
  WildCatInstance.mbFunctorApp CatWS = mbFunctorApp
- WildCatInstance.F-ty-extractSrc CatWS = extraxtWildFunSrc 
+ WildCatInstance.F-ty-extractSrc CatWS = extraxtWildFunSrc
+ WildCatInstance.extractWS CatWS = extrWS
+
  private
   module C-WS = WildCatInstance CatWS
 
  macro
-  solveCat : R.Term → R.Term → R.TC Unit
-  solveCat = C-WS.solveW (R.def (quote CatWS) ( R.unknown v∷ R.unknown v∷ []))
+  solveCat[_] : R.Term → R.Term → R.TC Unit
+  solveCat[_] x = C-WS.solveW (R.def (quote CatWS) ( R.unknown v∷ R.unknown v∷ [])) (just x)
+
+  solveCat : R.Term → R.TC Unit
+  solveCat = C-WS.solveW (R.def (quote CatWS) ( R.unknown v∷ R.unknown v∷ [])) nothing

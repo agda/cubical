@@ -37,10 +37,10 @@ module exampleWC where
    open WildCat-Solver ℓ ℓ'
 
    pA=pB : pA ≡ pB
-   pA=pB = solveWildCat WC
-
+   pA=pB = solveWildCat
+   
    pB=pC : pB ≡ pC
-   pB=pC = solveWildCat WC
+   pB=pC = solveWildCat
 
 
 module exampleC ℓ ℓ' where
@@ -70,10 +70,10 @@ module exampleC ℓ ℓ' where
 
 
    pA=pB : pA ≡ pB
-   pA=pB = solveCat C
+   pA=pB = solveCat
 
    pB=pC : pB ≡ pC
-   pB=pC = solveCat C
+   pB=pC = solveCat
 
   module E2 x y z w v
            (p : Hom[ x , F ⟅ y ⟆ ])
@@ -99,8 +99,8 @@ module exampleC ℓ ℓ' where
    pC = p ⋆ (F ⟪ q *.⋆ r ⟫ ⋆ s)
 
    pA=pB : pA ≡ pB
-   pA=pB = solveCat C
+   pA=pB = solveCat
 
    pB=pC : pB ≡ pC
-   pB=pC = solveCat C
+   pB=pC = solveCat
 

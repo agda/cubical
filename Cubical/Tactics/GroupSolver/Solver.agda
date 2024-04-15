@@ -69,21 +69,20 @@ module _ ℓ where
    record { F-ob = _ ; F-hom = f ; F-id = pres1 ; F-seq = pres· }
    where open IsGroupHom isGHom
  WildCatInstance.mbFunctorApp GroupWS = mbGroupHomApp
- WildCatInstance.F-ty-extractSrc GroupWS =
-   groupHomTrmSrc
-
+ WildCatInstance.F-ty-extractSrc GroupWS = groupHomTrmSrc
+ WildCatInstance.extractWS GroupWS = unFst
  private
   module GRP-WS = WildCatInstance GroupWS
-
- -- macro
- --  solveGroup : R.Term → R.Term → R.TC Unit
- --  solveGroup = GRP-WS.solveW (R.def (quote GroupWS) ( R.unknown v∷ []))
 
 
  module Group-Solver (no-norm-defs : List R.Name) where
 
   macro
-   solveGroup : R.Term → R.Term → R.TC Unit
-   solveGroup x y =
-     R.withReduceDefs (false , no-norm-defs) (GRP-WS.solveW (R.def (quote GroupWS) ( R.unknown v∷ [])) x y)
+   solveGroup[_] : R.Term → R.Term → R.TC Unit
+   solveGroup[ x ] y =
+     R.withReduceDefs (false , no-norm-defs) (GRP-WS.solveW (R.def (quote GroupWS) ( R.unknown v∷ [])) (just x) y)
+
+   solveGroup : R.Term → R.TC Unit
+   solveGroup y =
+     R.withReduceDefs (false , no-norm-defs) (GRP-WS.solveW (R.def (quote GroupWS) ( R.unknown v∷ [])) nothing y)
 
