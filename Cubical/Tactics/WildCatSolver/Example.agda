@@ -38,7 +38,7 @@ module exampleWC where
 
    pA=pB : pA ≡ pB
    pA=pB = solveWildCat
-   
+
    pB=pC : pB ≡ pC
    pB=pC = solveWildCat
 

@@ -75,8 +75,8 @@ module ℤexamples where
 
 
   lhs rhs : (fst ℤGroup)
-  lhs = fst (ℤHom  k) ([ 1 ]ᶻ · [ 3 ]ᶻ)  
-  rhs = fst (ℤHom  k) [ 1 ]ᶻ · fst (ℤHom k) [ 3 ]ᶻ 
+  lhs = fst (ℤHom  k) ([ 1 ]ᶻ · [ 3 ]ᶻ)
+  rhs = fst (ℤHom  k) [ 1 ]ᶻ · fst (ℤHom k) [ 3 ]ᶻ
 
   lhs≡rhs : lhs ≡ rhs
   lhs≡rhs = solveGroup[ ℤGroup ]

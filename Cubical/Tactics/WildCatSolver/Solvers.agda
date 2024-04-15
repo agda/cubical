@@ -583,7 +583,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
 
  solveW : R.Term → Maybe R.Term → R.Term → R.TC Unit
  solveW Ws mbWt hole = do
-   
+
    -- Wt ← tryAllTC
    --   (R.typeError $ "At least one 𝑿 must be provded!" ∷ₑ [])
    --   Wts R.returnTC
@@ -595,7 +595,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
     (R.typeError [ R.strErr "unable to get boundary" ])
     pure
 
-   A' ← R.normalise A >>= wait-for-type 
+   A' ← R.normalise A >>= wait-for-type
 
    Wt ← Mb.rec
          (extractWS A')

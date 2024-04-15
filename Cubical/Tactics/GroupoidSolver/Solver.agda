@@ -29,7 +29,7 @@ module WildGroupoid-Solver ℓ ℓ' where
  mbWildFunctorApp : R.Term → Maybe (R.Term × R.Term)
  mbWildFunctorApp (R.def (quote WildFunctor.F-hom) t) = matchFunctorAppArgs t
  mbWildFunctorApp _ = nothing
- 
+
  unWildCat : R.Term → R.TC R.Term
  unWildCat (R.def (quote WildGroupoid.wildCat) t) = matchFirstVarg t
  unWildCat _ = R.typeError [ R.strErr "unWildCat fail" ]
@@ -47,7 +47,7 @@ module WildGroupoid-Solver ℓ ℓ' where
    extraxtWildFunSrc >=> unWildCat
  WildCatInstance.extractWS GroupoidWS =
   WildCat-Solver.extrWS ℓ ℓ' >=> unWildCat
- 
+
  private
   module WGPD-WS = WildCatInstance GroupoidWS
 
@@ -110,5 +110,4 @@ module Groupoid-Solver ℓ ℓ' where
 
   solveWildGroupoid[_] : R.Term → R.Term → R.TC Unit
   solveWildGroupoid[ x ] = GPD-WS.solveW (R.def (quote GroupoidWS) ( R.unknown v∷ R.unknown v∷ [])) (just x)
-
 
