@@ -3,6 +3,7 @@
 module Cubical.Tactics.GroupSolver.Example where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
@@ -21,7 +22,7 @@ module example (G G* G○ : Group ℓ)
                 where
 
 
- open Group-Solver ℓ
+ open Group-Solver ℓ []
 
 
  open GroupStr (snd G)
@@ -59,3 +60,28 @@ module example (G G* G○ : Group ℓ)
 
   lhs≡rhs : lhs ≡ rhs
   lhs≡rhs = solveGroup (G ∷ G* ∷ G○ ∷ [])
+
+module ℤexamples where
+ open import Cubical.Data.Int using (ℤ)
+ open import Cubical.Algebra.Group.Instances.Int
+ open import Cubical.Data.Nat using (ℕ)
+
+
+
+
+ open GroupStr (snd ℤGroup)
+
+ module _ k ([_]ᶻ : ℕ → fst ℤGroup) where
+
+
+  open Group-Solver ℓ-zero
+        (quote ℤGroup
+       ∷ [ quote ℤHom ])
+
+
+  lhs rhs : (fst ℤGroup)
+  lhs = fst (ℤHom  k) ([ 1 ]ᶻ · [ 3 ]ᶻ)  
+  rhs = fst (ℤHom  k) [ 1 ]ᶻ · fst (ℤHom k) [ 3 ]ᶻ 
+
+  lhs≡rhs : lhs ≡ rhs
+  lhs≡rhs = solveGroup (ℤGroup ∷ [])

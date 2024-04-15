@@ -8,6 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Data.Unit
 open import Cubical.Data.List
+open import Cubical.Data.Bool
 open import Cubical.Data.Maybe
 open import Cubical.Data.Sigma
 
@@ -44,7 +45,7 @@ module _ {ℓ} where
   wildIsIso.sect (WildGroupoid.isWildGroupoid Group→WildGroupoid f) = ·InvL f
   wildIsIso.retr (WildGroupoid.isWildGroupoid Group→WildGroupoid f) = ·InvR f
 
-module Group-Solver ℓ where
+module _ ℓ where
 
  mbGroupHomApp : R.Term → Maybe (R.Term × R.Term)
  mbGroupHomApp (R.def (quote fst) t) = match2Vargs' t
@@ -75,7 +76,15 @@ module Group-Solver ℓ where
  private
   module GRP-WS = WildCatInstance GroupWS
 
- macro
-  solveGroup : R.Term → R.Term → R.TC Unit
-  solveGroup = GRP-WS.solveW (R.def (quote GroupWS) ( R.unknown v∷ []))
+ -- macro
+ --  solveGroup : R.Term → R.Term → R.TC Unit
+ --  solveGroup = GRP-WS.solveW (R.def (quote GroupWS) ( R.unknown v∷ []))
+
+
+ module Group-Solver (no-norm-defs : List R.Name) where
+
+  macro
+   solveGroup : R.Term → R.Term → R.TC Unit
+   solveGroup x y =
+     R.withReduceDefs (false , no-norm-defs) (GRP-WS.solveW (R.def (quote GroupWS) ( R.unknown v∷ [])) x y)
 
