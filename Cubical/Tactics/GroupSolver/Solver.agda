@@ -9,18 +9,22 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Unit
 open import Cubical.Data.List
 open import Cubical.Data.Maybe
+open import Cubical.Data.Sigma
 
 open import Cubical.Reflection.Base
 import Agda.Builtin.Reflection as R
 
 open import Cubical.WildCat.Base
-open import Cubical.Tactics.WildCatSolver.Solvers
+
+
+
+open import Cubical.Tactics.WildCatSolver.Reflection
 
 open import Cubical.WildCat.Functor
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms
-open import Cubical.Algebra.Group.MorphismProperties
 
+open import Cubical.Tactics.Reflection
 open import Cubical.Tactics.WildCatSolver.Solvers
 
 
@@ -40,38 +44,33 @@ module _ {ℓ} where
   wildIsIso.sect (WildGroupoid.isWildGroupoid Group→WildGroupoid f) = ·InvL f
   wildIsIso.retr (WildGroupoid.isWildGroupoid Group→WildGroupoid f) = ·InvR f
 
-
- GroupHom' : (G H : Group ℓ) → Type ℓ
-
- GroupHom' G H = WildFunctor
-    (WildGroupoid.wildCat (Group→WildGroupoid G))
-    (WildGroupoid.wildCat (Group→WildGroupoid H))
-
- IsoGroupHom' : ∀ {G H} → Iso (GroupHom' G H) (GroupHom G H)
- Iso.fun IsoGroupHom' wf = _ , makeIsGroupHom (WildFunctor.F-seq wf)
- WildFunctor.F-ob (Iso.inv IsoGroupHom' _) = λ _ → tt
- WildFunctor.F-hom (Iso.inv IsoGroupHom' (f , _)) = f
- WildFunctor.F-id (Iso.inv IsoGroupHom' (_ , gh)) = IsGroupHom.pres1 gh
- WildFunctor.F-seq (Iso.inv IsoGroupHom' (_ , gh)) = IsGroupHom.pres· gh
- Iso.rightInv IsoGroupHom' _ = GroupHom≡ refl
- WildFunctor.F-ob (Iso.leftInv IsoGroupHom' _ i) = λ _ → tt
- WildFunctor.F-hom (Iso.leftInv IsoGroupHom' wf i) = WildFunctor.F-hom wf
- WildFunctor.F-id (Iso.leftInv (IsoGroupHom' {G = G} {H = H}) wf i) =
-   IsGroup.is-set (GroupStr.isGroup (snd H))
-      (WildFunctor.F-hom wf (GroupStr.1g (snd G)))
-      (GroupStr.1g (snd H))
-      (hom1g (G .snd) (WildFunctor.F-hom wf) (H .snd)
-         (WildFunctor.F-seq wf))
-      (WildFunctor.F-id wf) i
- WildFunctor.F-seq (Iso.leftInv IsoGroupHom' wf i) = λ f g → WildFunctor.F-seq wf f g
-
-
 module Group-Solver ℓ where
+
+ mbGroupHomApp : R.Term → Maybe (R.Term × R.Term)
+ mbGroupHomApp (R.def (quote fst) t) = match2Vargs' t
+ mbGroupHomApp _ = nothing
+
+
+ groupHomTrmSrc : R.Term → R.TC R.Term
+ groupHomTrmSrc (R.def (quote Σ) t) = do
+   (fun , isGrpHomTrm) ← match2Vargs t
+   funDom ← matchPiDom fun
+   unFst funDom
+ groupHomTrmSrc t = R.typeError $ (R.strErr "groupHomTrmSrc fail: ") ∷ (getConTail t)
+
 
  GroupWS : WildCatInstance ℓ-zero ℓ
  WildCatInstance.wildStr GroupWS = Group ℓ
  WildCatInstance.toWildCat GroupWS = WildGroupoid.wildCat ∘ Group→WildGroupoid
  WildCatInstance.mbIsWildGroupoid GroupWS = just (WildGroupoid.isWildGroupoid ∘ Group→WildGroupoid)
+ WildCatInstance.wildStrMor GroupWS = GroupHom
+ WildCatInstance.toWildFunctor GroupWS _ _ (f , isGHom) =
+   record { F-ob = _ ; F-hom = f ; F-id = pres1 ; F-seq = pres· }
+   where open IsGroupHom isGHom
+ WildCatInstance.mbFunctorApp GroupWS = mbGroupHomApp
+ WildCatInstance.F-ty-extractSrc GroupWS =
+   groupHomTrmSrc >=& λ x →
+    R.def (quote WildGroupoid.wildCat) v[ R.def (quote Group→WildGroupoid) (v[ x ])]
 
  private
   module GRP-WS = WildCatInstance GroupWS

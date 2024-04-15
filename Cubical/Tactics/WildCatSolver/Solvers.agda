@@ -54,6 +54,10 @@ FreeTWRM : ∀ {ℓ} (A : Type ℓ) → TypeWithRel ℓ-zero ℓ
 TypeWithRel.Carrier (FreeTWRM A) = Unit
 FreeTWRM A TypeWithRel.[ x ∼ x₁ ] = A
 
+extraxtWildFunSrc : R.Term → R.TC (R.Term)
+extraxtWildFunSrc (R.con _ l) = matchFirstVarg l
+extraxtWildFunSrc (R.def _ l) = matchFirstVarg l
+extraxtWildFunSrc t = R.typeError $ "extraxtWildFunSrc fail: " ∷ₑ t ∷ₑ []
 
 
 
@@ -129,16 +133,16 @@ wc→twr : WildCat ℓ ℓ' → TypeWithRel ℓ ℓ'
 TypeWithRel.Carrier (wc→twr x) = WildCat.ob x
 TypeWithRel._[_∼_] (wc→twr x) = WildCat.Hom[_,_] x
 
-mbFunctorApp : R.Term → Maybe (R.Term × R.Term)
-mbFunctorApp (R.def (quote WildFunctor.F-hom) t) = matchFunctorAppArgs t
-mbFunctorApp _ = nothing
-
 record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) where
  no-eta-equality
  field
    wildStr : Type (ℓ-suc (ℓ-max ℓ ℓ'))
    toWildCat : wildStr → WildCat ℓ ℓ'
    mbIsWildGroupoid : Maybe (∀ WS → IsWildGroupoid (toWildCat WS))
+   wildStrMor : wildStr → wildStr → Type (ℓ-max ℓ ℓ')
+   toWildFunctor : ∀ x y → wildStrMor x y → WildFunctor (toWildCat x) (toWildCat y)
+   mbFunctorApp : R.Term → Maybe (R.Term × R.Term)
+   F-ty-extractSrc : R.Term → R.TC R.Term
 
  InvFlag = caseMaybe ⊥ Unit mbIsWildGroupoid
 
@@ -170,13 +174,15 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
           → (f : ws H[ x , y ])
           → FuCases ws {y} {x} (inv ws invF f)
   ⟅_,_,_⟆FE : ∀ ws {ws' x y}
-            (F : WildF ws ws')
+            (F : wildStrMor ws ws')
           → (f : ws H[ x , y ])
-          → FuCases ws' {F-ob F x} {F-ob F y} (F-hom F f )
+          → FuCases ws' {F-ob (toWildFunctor _ _ F) x}
+                        {F-ob (toWildFunctor _ _ F) y}
+                          (F-hom (toWildFunctor _ _ F) f )
 
  module _ where
   open FuExpr' ℓ ℓ' InvFlag  wildStr ws→twr
-       WildF WildFunctor.F-ob public
+       wildStrMor (λ {x} {y} F → F-ob (toWildFunctor x y F)) public
 
  evFuExpr : {ws : wildStr} {x y : ob ws}
               → FuExpr ws x y → ws H[ x , y ]
@@ -184,7 +190,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
  evFuExpr {ws} FuExpr'.idFE = id ws
  evFuExpr {ws} (x FuExpr'.⋆FE x₁) = ws ⟨ evFuExpr x ⋆ evFuExpr x₁ ⟩
  evFuExpr {ws} (FuExpr'.invFE invF x) = inv ws invF (evFuExpr x)
- evFuExpr FuExpr'.⟅ T , F , x ⟆FE = F ⟪ evFuExpr x ⟫
+ evFuExpr FuExpr'.⟅ T , F , x ⟆FE = (toWildFunctor _ _ F) ⟪ evFuExpr x ⟫
 
  module _ {ws : wildStr} where
 
@@ -256,7 +262,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
  FuExpr→FF idFE = [ff]
  FuExpr→FF (x ⋆FE x₁) = (FuExpr→FF x) ff++ (FuExpr→FF x₁)
  FuExpr→FF (invFE invF x) = ffInv invF (FuExpr→FF x)
- FuExpr→FF ⟅ T , F , x ⟆FE = ff⟪ F , FuExpr→FF x ⟫
+ FuExpr→FF ⟅ T , F , x ⟆FE = ff⟪ (toWildFunctor _ _ F) , FuExpr→FF x ⟫
 
  evAtom : {ws : wildStr} {x y : ob ws}
               → FuAtom x y → ws H[ x , y ]
@@ -377,8 +383,8 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
          (WG ws' invF) F (evFuExpr f)
     ∙∙ cong (inv ws' invF) (evFF-Func F f) ∙∙ ff⟪⟫inv invF F (FuExpr→FF f)
  evFF-Func F FuExpr'.⟅ T , F' , f ⟆FE =
-   cong (F-hom F) (evFF-Func F' f) ∙
-     ff-Func F ff⟪ F' , FuExpr→FF f ⟫
+   cong (F-hom F) (evFF-Func (toWildFunctor _ _ F') f) ∙
+     ff-Func F ff⟪ (toWildFunctor _ _ F') , FuExpr→FF f ⟫
 
  evFuExpr≡evFF : (ws : wildStr) {x y : ob ws}
               → (f : FuExpr ws x y) →
@@ -390,7 +396,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
     ∙ evFF++ (FuExpr→FF f) (FuExpr→FF f₁)
  evFuExpr≡evFF ws (FuExpr'.invFE invF f) =
   cong (inv ws invF) (evFuExpr≡evFF ws f) ∙ evFFinv invF (FuExpr→FF f)
- evFuExpr≡evFF ws FuExpr'.⟅ T , F , f ⟆FE = evFF-Func F f
+ evFuExpr≡evFF ws FuExpr'.⟅ T , F , f ⟆FE = evFF-Func (toWildFunctor _ _ F) f
 
  magicNumber : ℕ
  magicNumber = 100
@@ -477,6 +483,12 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
      λ ws → R.unify (R.def (quote toWildCat)
            (WS v∷ ws v∷ [])) t >> R.returnTC ws
 
+  -- fromWC' : R.Term → R.TC R.Term
+  -- fromWC' t = tryAllTC
+  --   (R.typeError ("fromWC fail: " ∷ₑ t ∷ₑ []))
+  --    tGs
+  --    λ ws → R.unify ws t >> R.returnTC ws
+
   tryOp : (W : R.Term) → ℕ → R.Term → R.TC (TE InvFlag (lift W) _ _)
   tryOp W zero _ = R.typeError []
   tryOp W (suc k) t = do
@@ -523,7 +535,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
           (R.typeError $ "tryFunc fail " ∷nl t ∷nl t' ∷nl getConTail t')
           (λ (F-t , x-t) → do
             F-ty ← R.withNormalisation true $ R.inferType F-t
-            (W-src , W-trg) ← h F-ty
+            W-src ← F-ty-extractSrc F-ty
             R.returnTC {A = R.Term × R.Term × R.Term}
               (W-src , (F-t , x-t))
             )
@@ -536,12 +548,12 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
         tm' ← R.checkType tm ty
         x-t' ← tryE WS-src k x-t
         R.returnTC (TermExpr.⟅ lift WS-src , F-t , x-t' ⟆FE)
-     where
+     -- where
 
-      h : R.Term → R.TC (R.Term × R.Term)
-      h (R.con _ l) = match2Vargs l
-      h (R.def _ l) = match2Vargs l
-      h t = R.typeError $ "match2Fail: " ∷ₑ t ∷ₑ []
+     --  h : R.Term → R.TC (R.Term × R.Term)
+     --  h (R.con _ l) = match2Vargs l
+     --  h (R.def _ l) = match2Vargs l
+     --  h t = R.typeError $ "match2Fail: " ∷ₑ t ∷ₑ []
 
 
 
@@ -563,6 +575,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
     (tryId W t)
     (R.catchTC (tryInv W k t)
        (R.catchTC (tryOp W k t)
+         -- (tryFunc W k t)))
          (R.catchTC (tryFunc W k t) (atom W t))))
 
 
@@ -607,7 +620,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
        finalTrm1 =
           just (R.def (quote evFuExpr≡evFF) (Ws v∷ Wt v∷ expr1 v∷ []))
           ∷ invPa1
-
+   -- R.typeError msg
    let finalTrm = fromMaybe (R.def (quote refl) []) $ foldPathTerms
           (finalTrm0 ++ symPathTerms finalTrm1)
-   (R.unify finalTrm hole)
+   R.catchTC (R.unify finalTrm hole) (R.typeError msg)

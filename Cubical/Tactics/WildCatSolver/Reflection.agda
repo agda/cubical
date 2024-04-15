@@ -118,11 +118,22 @@ matchVarg (harg _ ∷ xs) = matchVarg xs
 matchVarg (varg t ∷ []) = R.returnTC t
 matchVarg _ = R.typeError [ R.strErr "matchV fail" ]
 
+matchFirstVarg : List (R.Arg R.Term) → R.TC R.Term
+matchFirstVarg (harg _ ∷ xs) = matchFirstVarg xs
+matchFirstVarg (varg t ∷ _) = R.returnTC t
+matchFirstVarg _ = R.typeError [ R.strErr "matchV fail" ]
+
+
 
 match2Vargs : List (R.Arg R.Term) → R.TC (R.Term × R.Term)
 match2Vargs (harg _ ∷ xs) = match2Vargs xs
 match2Vargs (varg t1 ∷ varg t2 ∷ []) = R.returnTC (t1 , t2)
 match2Vargs _ = R.typeError []
+
+match2Vargs' : List (R.Arg R.Term) → Maybe (R.Term × R.Term)
+match2Vargs' (harg _ ∷ xs) = match2Vargs' xs
+match2Vargs' (varg t1 ∷ varg t2 ∷ []) = just (t1 , t2)
+match2Vargs' _ = nothing
 
 matchFunctorAppArgs : List (R.Arg R.Term) → Maybe (R.Term × R.Term)
 matchFunctorAppArgs (harg _ ∷ xs) = matchFunctorAppArgs xs
@@ -256,3 +267,12 @@ foldPathTerms (just x ∷ xs) =
 
 symPathTerms : List (Maybe R.Term) → List (Maybe R.Term)
 symPathTerms = map (map-Maybe (R.def (quote sym) ∘ v[_])) ∘ rev
+
+
+matchPiDom : R.Term → R.TC R.Term
+matchPiDom (R.pi (varg d) _) = pure d
+matchPiDom t = R.typeError ("matchPiDom fail" ∷ₑ [ t  ]ₑ )
+
+unFst : R.Term → R.TC R.Term
+unFst (R.def (quote fst) t) = matchVarg t
+unFst t  = R.typeError ("unFst fail" ∷ₑ [ t ]ₑ )

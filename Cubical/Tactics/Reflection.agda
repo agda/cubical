@@ -33,6 +33,11 @@ _>=>_ : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ}{B : Type ℓ'}{C : Type ℓ''} →
   (A → TC B) → (B → TC C) → A → TC C
 (x >=> x₁) x₂ = x x₂ >>= x₁
 
+_>=&_ : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ}{B : Type ℓ'}{C : Type ℓ''} →
+  (A → TC B) → (B → C) → A → TC C
+(x >=& x₁) x₂ = x x₂ >>= (λ u → pure (x₁ u))
+
+
 wait-for-term-args : List (Arg Term) → TC (List (Arg Term))
 wait-for-term-clauses : List (Clause) → TC (List Clause)
 wait-for-term-clause : Clause → TC Clause

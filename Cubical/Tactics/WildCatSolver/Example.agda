@@ -7,7 +7,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.WildCat.Base
 open import Cubical.Tactics.WildCatSolver.Solver
 open import Cubical.Data.List
-open import Cubical.WildCat.Functor
 
 private
   variable
@@ -15,6 +14,7 @@ private
 
 
 module exampleWC where
+ open import Cubical.WildCat.Functor
 
  module _ (WC WC* : WildCat ℓ ℓ')
                  (F : WildFunctor WC* WC) where
@@ -45,10 +45,12 @@ module exampleWC where
 
 module exampleC ℓ ℓ' where
  open import Cubical.Categories.Category
+ open import Cubical.Categories.Functor
+
  open Cat-Solver ℓ ℓ'
 
 
- module _ (C C* : Category ℓ ℓ')  (F : Functor' C* C) where
+ module _ (C C* : Category ℓ ℓ')  (F : Functor C* C) where
 
 
   open Category C
@@ -78,6 +80,17 @@ module exampleC ℓ ℓ' where
            (q : *.Hom[ y , z ])
            (r : *.Hom[ z , w ])
            (s : Hom[ F ⟅ w ⟆ , v ]) where
+
+
+
+
+
+   -- pA pB : Hom[ F ⟅ y ⟆ , F ⟅ w ⟆ ]
+   -- pA = F ⟪ q *.⋆ r ⟫
+   -- pB = F ⟪ q ⟫ ⋆ F ⟪ r ⟫
+
+   -- pA=pB : pA ≡ pB
+   -- pA=pB = solveCat (C ∷ C* ∷ [])
 
 
    pA pB pC : Hom[ x , v ]
