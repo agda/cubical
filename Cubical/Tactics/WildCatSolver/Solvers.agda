@@ -115,9 +115,9 @@ module _ InvFlag where
 
 module _ if ([w] [F] [a] : List R.Term) where
  lkW lkF lkA : ℕ → R.Term
- lkW = lookupWithDefault R.unknown [w]
- lkF = lookupWithDefault R.unknown [F]
- lkA = lookupWithDefault R.unknown [a]
+ lkW = lookupAlways R.unknown [w]
+ lkF = lookupAlways R.unknown [F]
+ lkA = lookupAlways R.unknown [a]
 
  ℕExpr→TermExrp : ∀ {w} → ℕE if (lift w) _ _ → TE if (lift (lkW w)) _ _
  ℕExpr→TermExrp 𝒂⟦ x ⟧ = 𝒂⟦ lkA x ⟧

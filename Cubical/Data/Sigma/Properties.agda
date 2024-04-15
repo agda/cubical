@@ -381,6 +381,10 @@ snd (ΣPathPProp {B = B} {u = u} {v = v} pB p i) = lem i
   lem : PathP (λ i → B i (p i)) (snd u) (snd v)
   lem = toPathP (pB _ _ _)
 
+discreteΣProp : Discrete A → ((x : A) → isProp (B x)) → Discrete (Σ A B)
+discreteΣProp _≟_ isPropA _ _ =
+  EquivPresDec (Σ≡PropEquiv isPropA) (_ ≟ _)
+
 ≃-× : ∀ {ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''} → A ≃ C → B ≃ D → A × B ≃ C × D
 ≃-× eq1 eq2 =
     map-× (fst eq1) (fst eq2)
