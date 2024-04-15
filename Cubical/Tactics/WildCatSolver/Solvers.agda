@@ -419,7 +419,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
    R.con (quote FuExpr'.⟅_,_,_⟆FE)
     (T v∷ F v∷ buildFromTE x v∷ [])
 
- module tryWCE WS (tGs : List R.Term)  where
+ module tryWCE WS where
 
 
   mb-invol : R.Term → ℕ → R.Term → R.TC (Maybe (R.Term × R.Term))
@@ -476,12 +476,12 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
 
   tryE : (W : R.Term) → ℕ → R.Term → R.TC (TE InvFlag (lift W) _ _)
 
-  fromWC : R.Term → R.TC R.Term
-  fromWC t = tryAllTC
-    (R.typeError ("fromWC fail: " ∷ₑ t ∷ₑ []))
-     tGs
-     λ ws → R.unify (R.def (quote toWildCat)
-           (WS v∷ ws v∷ [])) t >> R.returnTC ws
+  -- fromWC : R.Term → R.TC R.Term
+  -- fromWC t = tryAllTC
+  --   (R.typeError ("fromWC fail: " ∷ₑ t ∷ₑ []))
+  --    tGs
+  --    λ ws → R.unify (R.def (quote toWildCat)
+  --          (WS v∷ ws v∷ [])) t >> R.returnTC ws
 
   -- fromWC' : R.Term → R.TC R.Term
   -- fromWC' t = tryAllTC
@@ -531,7 +531,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
   tryFunc W (suc k) t = do
         t' ← R.normalise t
         -- (R.typeError $ "tryFunc fail " ∷nl t ∷nl t' ∷nl getConTail t')
-        (WC-src , F-t , x-t) ← Mb.rec
+        (WS-src , F-t , x-t) ← Mb.rec
           (R.typeError $ "tryFunc fail " ∷nl t ∷nl t' ∷nl getConTail t')
           (λ (F-t , x-t) → do
             F-ty ← R.withNormalisation true $ R.inferType F-t
@@ -540,7 +540,7 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
               (W-src , (F-t , x-t))
             )
           (mbFunctorApp t')
-        WS-src ← fromWC WC-src
+        -- WS-src ← {!!} --fromWC WC-src
         let tm = R.con (quote FuCases.⟅_,_,_⟆FE)
                        (WS-src v∷ F-t v∷ x-t  v∷ [])
             ty = R.def (quote FuCases)
@@ -581,20 +581,20 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
 
 
  solveW : R.Term → R.Term → R.Term → R.TC Unit
- solveW Ws Wts' hole = do
-   Wts ← quotedList→ListOfTerms Wts'
-   Wt ← tryAllTC
-     (R.typeError $ "At least one 𝑿 must be provded!" ∷ₑ [])
-     Wts R.returnTC
+ solveW Ws Wt hole = do
+   
+   -- Wt ← tryAllTC
+   --   (R.typeError $ "At least one 𝑿 must be provded!" ∷ₑ [])
+   --   Wts R.returnTC
    hoTy ← R.withNormalisation true $
              R.inferType hole >>= wait-for-type
    (t0 , t1) ←  (get-boundary hoTy ) >>= Mb.rec
     (R.typeError [ R.strErr "unable to get boundary" ])
     (λ x → R.returnTC x)
-   t0' ← tryWCE.tryE Ws Wts Wt magicNumber t0
-   t1' ← tryWCE.tryE Ws Wts Wt magicNumber t1
-   expr0 ← tryWCE.checkFromTE Ws Wts t0'
-   expr1 ← tryWCE.checkFromTE Ws Wts t1'
+   t0' ← tryWCE.tryE Ws Wt magicNumber t0
+   t1' ← tryWCE.tryE Ws Wt magicNumber t1
+   expr0 ← tryWCE.checkFromTE Ws t0'
+   expr1 ← tryWCE.checkFromTE Ws t1'
 
    let msg = (TermExpr.printFuExpr InvFlag (λ _ → "●") t0' ∷nl
                 TermExpr.printFuExpr InvFlag (λ _ → "●") t1' ∷ₑ [])
@@ -602,8 +602,8 @@ record WildCatInstance ℓ ℓ' : Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) wh
    invol1 ← R.normalise (R.def (quote FuExpr→FF) (Ws v∷ v[ expr1 ]))
 
 
-   red0 ← tryWCE.redList' Ws Wts Wt invol0
-   red1 ← tryWCE.redList' Ws Wts Wt invol1
+   red0 ← tryWCE.redList' Ws Wt invol0
+   red1 ← tryWCE.redList' Ws Wt invol1
 
    let invPa0 = Li.map
            (λ t' → just (R.def (quote evFF≡↓) (Ws v∷ Wt v∷ t' v∷ [])))

@@ -74,9 +74,7 @@ module Cat-Solver ℓ ℓ' where
    record { F-ob = F-ob ; F-hom = F-hom ; F-id = F-id ; F-seq = F-seq }
    where open Functor f
  WildCatInstance.mbFunctorApp CatWS = mbFunctorApp
- WildCatInstance.F-ty-extractSrc CatWS =
-     extraxtWildFunSrc >=& λ x →
-        R.def (quote Cat→WildCat) (R.unknown v∷ R.unknown v∷ v[ x ])
+ WildCatInstance.F-ty-extractSrc CatWS = extraxtWildFunSrc 
  private
   module C-WS = WildCatInstance CatWS
 

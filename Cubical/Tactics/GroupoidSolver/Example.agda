@@ -51,7 +51,7 @@ module WildGroupoidExamples where
     pB = p ⋆ (q ⋆ r)
 
     pA≡pB : pA ≡ pB
-    pA≡pB = solveWildGroupoid (WG ∷ WG* ∷ [])
+    pA≡pB = solveWildGroupoid WG
 
 
 
@@ -68,7 +68,7 @@ module WildGroupoidExamples where
 
 
    lhs≡rhs : lhs ≡ rhs
-   lhs≡rhs = solveWildGroupoid (WG ∷ WG* ∷ [])
+   lhs≡rhs = solveWildGroupoid WG
 
 
   module T3 (obs : ℕ → ob)
@@ -81,7 +81,7 @@ module WildGroupoidExamples where
 
 
    lhs≡rhs : lhs ≡ rhs
-   lhs≡rhs = solveWildGroupoid (WG ∷ [])
+   lhs≡rhs = solveWildGroupoid WG
 
 
 module GroupoidExamples where
@@ -122,4 +122,4 @@ module GroupoidExamples where
 
 
    lhs≡rhs : lhs ≡ rhs
-   lhs≡rhs = solveWildGroupoid (G ∷ G* ∷ [])
+   lhs≡rhs = solveWildGroupoid G

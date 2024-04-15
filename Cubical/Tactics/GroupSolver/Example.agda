@@ -43,7 +43,7 @@ module example (G G* G○ : Group ℓ)
    pB = ((1g · p) · q) · r
 
    pA≡pB : pA ≡ pB
-   pA≡pB = solveGroup (G ∷ [])
+   pA≡pB = solveGroup G
 
 
  module T2 p p' q r s t u where
@@ -59,7 +59,7 @@ module example (G G* G○ : Group ℓ)
 
 
   lhs≡rhs : lhs ≡ rhs
-  lhs≡rhs = solveGroup (G ∷ G* ∷ G○ ∷ [])
+  lhs≡rhs = solveGroup G
 
 module ℤexamples where
  open import Cubical.Data.Int using (ℤ)
@@ -84,4 +84,4 @@ module ℤexamples where
   rhs = fst (ℤHom  k) [ 1 ]ᶻ · fst (ℤHom k) [ 3 ]ᶻ 
 
   lhs≡rhs : lhs ≡ rhs
-  lhs≡rhs = solveGroup (ℤGroup ∷ [])
+  lhs≡rhs = solveGroup ℤGroup

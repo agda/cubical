@@ -70,8 +70,7 @@ module _ ℓ where
    where open IsGroupHom isGHom
  WildCatInstance.mbFunctorApp GroupWS = mbGroupHomApp
  WildCatInstance.F-ty-extractSrc GroupWS =
-   groupHomTrmSrc >=& λ x →
-    R.def (quote WildGroupoid.wildCat) v[ R.def (quote Group→WildGroupoid) (v[ x ])]
+   groupHomTrmSrc
 
  private
   module GRP-WS = WildCatInstance GroupWS
