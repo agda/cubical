@@ -11,7 +11,7 @@
   as a full subcategory and satisfies a "universal property"
   similar to the one of schemes:
 
-    There is an adjunction 𝓞 ⊣ᵢ Sp
+    There is a coadjunction 𝓞 ⊣ᵢ Sp
     (relative to the inclusion i : CommRing ℓ → CommRing (ℓ+1))
     between the "global sections functor" 𝓞
     and the fully-faithful embedding of affines Sp,
@@ -164,7 +164,7 @@ module _ {ℓ : Level} where
 
 
 
--- There is an adjunction 𝓞 ⊣ᵢ Sp
+-- There is a coadjunction 𝓞 ⊣ᵢ Sp
 -- (relative to the inclusion i : CommRing ℓ → CommRing (ℓ+1))
 -- between the "global sections functor" 𝓞
 -- and the fully-faithful embedding of affines Sp,
