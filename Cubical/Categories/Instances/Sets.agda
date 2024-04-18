@@ -54,6 +54,14 @@ LiftF .F-hom f x = lift (f (x .lower))
 LiftF .F-id = refl
 LiftF .F-seq f g = funExt λ x → refl
 
+
+isisFullyFaithfulLift : isFullyFaithful (LiftF {ℓ} {ℓ'})
+isisFullyFaithfulLift X Y = isoToIsEquiv
+                              (iso (LiftF .F-hom {X} {Y})
+                                   (λ f x → f (lift x) .lower)
+                                   (λ _ → funExt λ _ → refl)
+                                   (λ _ → funExt λ _ → refl))
+
 module _ {C : Category ℓ ℓ'} {F : Functor C (SET ℓ')} where
   open NatTrans
 
@@ -135,3 +143,30 @@ univProp (completeSET J D) c cc =
     (λ _ → funExt (λ _ → refl))
     (λ x → isPropIsConeMor cc (limCone (completeSET J D)) x)
     (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
+
+
+completeSETSuc : ∀ {ℓJ ℓJ'} → Limits {ℓJ} {ℓJ'} (SET (ℓ-suc (ℓ-max ℓJ ℓJ')))
+lim (completeSETSuc J D) = Cone D (Unit* , isOfHLevelLift 2 isSetUnit) , isSetCone D _
+coneOut (limCone (completeSETSuc J D)) j e = coneOut e j tt*
+coneOutCommutes (limCone (completeSETSuc J D)) j i e = coneOutCommutes e j i tt*
+univProp (completeSETSuc J D) c cc =
+  uniqueExists
+    (λ x → cone (λ v _ → coneOut cc v x) (λ e i _ → coneOutCommutes cc e i x))
+    (λ _ → funExt (λ _ → refl))
+    (λ x → isPropIsConeMor cc (limCone (completeSETSuc J D)) x)
+    (λ x hx → funExt (λ d → cone≡ λ u → funExt (λ _ → sym (funExt⁻ (hx u) d))))
+
+
+presLimLift : preservesLimits {ℓJ = ℓ} {ℓJ' = ℓ} (LiftF {ℓ} {ℓ-suc ℓ})
+presLimLift = preservesLimitsChar _ completeSET completeSETSuc
+                (λ J D →
+                  (λ cc → lift (cone (λ { v tt* → cc .coneOut v tt* .lower })
+                                  λ e → funExt (
+                                    λ _ → cong lower (funExt⁻ (cc .coneOutCommutes e) tt*))))
+                            , isiso (λ cc → cone (λ { v tt* → lift (cc .lower .coneOut v tt*)})
+                                              λ e → funExt (
+                                                λ {tt* → cong lift (funExt⁻ (
+                                                           cc .lower .coneOutCommutes e) tt*) }))
+                                (funExt (λ _ → liftExt (cone≡ λ _ → refl)))
+                                (funExt (λ _ → cone≡ λ _ → refl)))
+                λ J D v → refl
