@@ -40,6 +40,9 @@ import Cubical.Papers.Everything
 -- Properties and proofs about relations
 import Cubical.Relation.Everything
 
+-- Wild category theory
+import Cubical.WildCat.Everything
+
 -- Category theory
 import Cubical.Categories.Everything
 

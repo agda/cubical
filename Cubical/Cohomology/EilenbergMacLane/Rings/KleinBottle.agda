@@ -3,6 +3,7 @@
 module Cubical.Cohomology.EilenbergMacLane.Rings.KleinBottle where
 
 open import Cubical.Cohomology.EilenbergMacLane.Groups.KleinBottle
+open import Cubical.Cohomology.EilenbergMacLane.Groups.RP2
 open import Cubical.Cohomology.EilenbergMacLane.Base
 open import Cubical.Cohomology.EilenbergMacLane.CupProduct
 open import Cubical.Cohomology.EilenbergMacLane.RingStructure
@@ -28,7 +29,7 @@ open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Nat
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin hiding (FinVec)
 open import Cubical.Data.Fin.Arithmetic
 open import Cubical.Data.FinData
 open import Cubical.Data.Vec
@@ -47,6 +48,7 @@ open import Cubical.Algebra.CommRing.Instances.Polynomials.MultivariatePoly-Quot
 open import Cubical.Algebra.AbGroup.TensorProduct
 open import Cubical.Algebra.Ring
 open import Cubical.Algebra.DirectSum.DirectSumHIT.Base
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 
 open import Cubical.HITs.KleinBottle renaming (rec to KleinFun)
 open import Cubical.HITs.EilenbergMacLane1

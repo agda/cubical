@@ -4,6 +4,9 @@ module Cubical.Algebra.Group.Instances.IntMod where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+
+open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
@@ -215,3 +218,55 @@ isHomℤ→Fin n =
 
 -Const-ℤ/2 : (x : fst (ℤGroup/ 2)) → -ₘ x ≡ x
 -Const-ℤ/2 = ℤ/2-elim refl refl
+
+pres0→GroupIsoℤ/2 : ∀ {ℓ} {G : Group ℓ} (f : fst G ≃ (ℤGroup/ 2) .fst)
+  → fst f (GroupStr.1g (snd G)) ≡ fzero
+  → IsGroupHom (snd G) (fst f) ((ℤGroup/ 2) .snd)
+pres0→GroupIsoℤ/2 {G = G} f fp = isGroupHomInv ((invEquiv f) , main)
+  where
+  one = invEq f fone
+
+  f⁻∙ : invEq f fzero ≡ GroupStr.1g (snd G)
+  f⁻∙ = sym (cong (invEq f) fp) ∙ retEq f _
+
+  f⁻1 : GroupStr._·_ (snd G) (invEq f fone) (invEq f fone)
+      ≡ GroupStr.1g (snd G)
+  f⁻1 = sym (retEq f (GroupStr._·_ (snd G) (invEq f fone) (invEq f fone)))
+    ∙∙ cong (invEq f) (mainlem _ refl ∙ sym fp)
+    ∙∙ retEq f (GroupStr.1g (snd G))
+    where
+    l : ¬ (fst f (GroupStr._·_ (snd G) (invEq f fone) (invEq f fone))
+                ≡ fone)
+    l p = snotz (cong fst q)
+      where
+      q : fone ≡ fzero
+      q = (sym (secEq f fone)
+        ∙ cong (fst f)
+            ((sym (GroupStr.·IdL (snd G) one)
+            ∙ cong (λ x → GroupStr._·_ (snd G) x one) (sym (GroupStr.·InvL (snd G) one)))
+            ∙ sym (GroupStr.·Assoc (snd G) (GroupStr.inv (snd G) one) one one)))
+        ∙ cong (fst f) (cong (GroupStr._·_ (snd G) (GroupStr.inv (snd G) (invEq f fone)))
+                ((sym (retEq f _) ∙ cong (invEq f) p)))
+        ∙ cong (fst f) (GroupStr.·InvL (snd G) _)
+        ∙ fp
+
+
+    mainlem : (x : _)
+      → fst f (GroupStr._·_ (snd G) (invEq f fone) (invEq f fone)) ≡ x
+      → f .fst ((snd G GroupStr.· invEq f fone) (invEq f fone)) ≡ fzero
+    mainlem = ℤ/2-elim
+      (λ p → p)
+      λ p → ⊥.rec (l p)
+
+
+  main : IsGroupHom ((ℤGroup/ 2) .snd) (invEq f) (snd G)
+  main =
+    makeIsGroupHom
+      (ℤ/2-elim
+        (ℤ/2-elim (f⁻∙ ∙ sym (GroupStr.·IdR (snd G) (GroupStr.1g (snd G)))
+                       ∙ cong (λ x → snd G .GroupStr._·_ x x) (sym f⁻∙))
+                  (sym (GroupStr.·IdL (snd G) one)
+                  ∙ cong (λ x → snd G .GroupStr._·_ x one) (sym f⁻∙)))
+        (ℤ/2-elim (sym (GroupStr.·IdR (snd G) one)
+                  ∙ cong (snd G .GroupStr._·_ (invEq f fone)) (sym f⁻∙))
+                  (f⁻∙ ∙ sym f⁻1)))

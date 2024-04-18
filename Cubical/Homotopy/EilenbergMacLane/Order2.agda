@@ -37,6 +37,7 @@ open import Cubical.HITs.Truncation as TR
 
 open import Cubical.Algebra.CommRing.Base
 open import Cubical.Algebra.Group.Instances.IntMod
+open import Cubical.Algebra.AbGroup.Instances.IntMod
 open import Cubical.Algebra.CommRing.Instances.IntMod
 open import Cubical.Algebra.AbGroup.Base
 open import Cubical.Algebra.AbGroup.TensorProduct
@@ -211,9 +212,6 @@ module EM2 {ℓ : Level} (G : AbGroup ℓ)
   symConstEM-refl {n = zero} = isOfHLevelPath 2 (is-set (snd G)) _ _ _ _ _ _
   symConstEM-refl {n = suc zero} = transportRefl refl
   symConstEM-refl {n = suc (suc n)} = transportRefl refl
-
-ℤ/2 : AbGroup ℓ-zero
-ℤ/2 = Group→AbGroup (ℤGroup/ 2) +ₘ-comm
 
 private
   module EMZ/2 = EM2 ℤ/2 -Const-ℤ/2

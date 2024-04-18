@@ -448,6 +448,14 @@ isPropImplicitΠ h f g i {x} = h x (f {x}) (g {x}) i
 isPropImplicitΠ2 : (h : (x : A) (y : B x) → isProp (C x y)) → isProp ({x : A} {y : B x} → C x y)
 isPropImplicitΠ2 h = isPropImplicitΠ (λ x → isPropImplicitΠ (λ y → h x y))
 
+isPropImplicitΠ3 : (h : (x : A) (y : B x) (z : C x y) → isProp (D x y z)) →
+    isProp ({x : A} {y : B x} {z : C x y} → D x y z)
+isPropImplicitΠ3 h = isPropImplicitΠ (λ x → isPropImplicitΠ2 (λ y → h x y))
+
+isPropImplicitΠ4 : (h : (x : A) (y : B x) (z : C x y) (w : D x y z) → isProp (E x y z w)) →
+    isProp ({x : A} {y : B x} {z : C x y} {w : D x y z} → E x y z w)
+isPropImplicitΠ4 h = isPropImplicitΠ (λ x → isPropImplicitΠ3 (λ y → h x y))
+
 isProp→ : {A : Type ℓ} {B : Type ℓ'} → isProp B → isProp (A → B)
 isProp→ pB = isPropΠ λ _ → pB
 
@@ -456,6 +464,13 @@ isSetΠ = isOfHLevelΠ 2
 
 isSetImplicitΠ : (h : (x : A) → isSet (B x)) → isSet ({x : A} → B x)
 isSetImplicitΠ h f g F G i j {x} = h x (f {x}) (g {x}) (λ i → F i {x}) (λ i → G i {x}) i j
+
+isSetImplicitΠ2 : (h : (x : A) → (y : B x) → isSet (C x y)) → isSet ({x : A} → {y : B x} → C x y)
+isSetImplicitΠ2 h = isSetImplicitΠ (λ x → isSetImplicitΠ (λ y → h x y))
+
+isSetImplicitΠ3 : (h : (x : A) → (y : B x) → (z : C x y) → isSet (D x y z)) →
+    isSet ({x : A} → {y : B x} → {z : C x y} → D x y z)
+isSetImplicitΠ3 h = isSetImplicitΠ (λ x → isSetImplicitΠ2 (λ y → λ z → h x y z))
 
 isSet→ : isSet A' → isSet (A → A')
 isSet→ isSet-A' = isOfHLevelΠ 2 (λ _ → isSet-A')
@@ -798,3 +813,29 @@ isSet→Iso-Iso-≡ isSet-A isSet-A' = ww
 
 hSet-Iso-Iso-≡ : (A : hSet ℓ) → (A' : hSet ℓ) → Iso (Iso (fst A) (fst A')) (A ≡ A')
 hSet-Iso-Iso-≡ A A' = compIso (isSet→Iso-Iso-≡ (snd A) (snd A')) (equivToIso (_ , isEquiv-Σ≡Prop λ _ → isPropIsSet))
+
+module _ (B : (i j k : I) → Type ℓ)
+  {c₀₀₀ : B i0 i0 i0} {c₀₀₁ : B i0 i0 i1} {c₀₁₀ : B i0 i1 i0} {c₀₁₁ : B i0 i1 i1}
+  {c₁₀₀ : B i1 i0 i0} {c₁₀₁ : B i1 i0 i1} {c₁₁₀ : B i1 i1 i0} {c₁₁₁ : B i1 i1 i1}
+  {c₀₀₋ : PathP (λ k → B i0 i0 k) c₀₀₀ c₀₀₁} {c₀₁₋ : PathP (λ k → B i0 i1 k) c₀₁₀ c₀₁₁}
+  {c₀₋₀ : PathP (λ i → B i0 i i0) c₀₀₀ c₀₁₀} {c₀₋₁ : PathP (λ i → B i0 i i1) c₀₀₁ c₀₁₁}
+  {c₁₀₋ : PathP (λ k → B i1 i0 k) c₁₀₀ c₁₀₁} {c₁₁₋ : PathP (λ k → B i1 i1 k) c₁₁₀ c₁₁₁}
+  {c₁₋₀ : PathP (λ i → B i1 i i0) c₁₀₀ c₁₁₀} {c₁₋₁ : PathP (λ i → B i1 i i1) c₁₀₁ c₁₁₁}
+  {c₋₀₀ : PathP (λ i → B i i0 i0) c₀₀₀ c₁₀₀} {c₋₀₁ : PathP (λ i → B i i0 i1) c₀₀₁ c₁₀₁}
+  {c₋₁₀ : PathP (λ i → B i i1 i0) c₀₁₀ c₁₁₀} {c₋₁₁ : PathP (λ i → B i i1 i1) c₀₁₁ c₁₁₁}
+  (c₀₋₋ : SquareP (λ j k → B i0 j k) c₀₀₋ c₀₁₋ c₀₋₀ c₀₋₁)
+  (c₁₋₋ : SquareP (λ j k → B i1 j k) c₁₀₋ c₁₁₋ c₁₋₀ c₁₋₁)
+  (c₋₀₋ : SquareP (λ i k → B i i0 k) c₀₀₋ c₁₀₋ c₋₀₀ c₋₀₁)
+  (c₋₁₋ : SquareP (λ i k → B i i1 k) c₀₁₋ c₁₁₋ c₋₁₀ c₋₁₁)
+  (c₋₋₀ : SquareP (λ i j → B i j i0) c₀₋₀ c₁₋₀ c₋₀₀ c₋₁₀)
+  (c₋₋₁ : SquareP (λ i j → B i j i1) c₀₋₁ c₁₋₁ c₋₀₁ c₋₁₁) where
+
+  CubeP : Type ℓ
+  CubeP = PathP (λ i → SquareP (λ j k → B i j k)
+                      (c₋₀₋ i) (c₋₁₋ i)
+                      (c₋₋₀ i) (c₋₋₁ i))
+                 c₀₋₋ c₁₋₋
+
+  isGroupoid→CubeP : isGroupoid (B i1 i1 i1) → CubeP
+  isGroupoid→CubeP grpd =
+    isOfHLevelPathP' 0 (isOfHLevelPathP' 1 (isOfHLevelPathP' 2 grpd _ _) _ _) _ _ .fst

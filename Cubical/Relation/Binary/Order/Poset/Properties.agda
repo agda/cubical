@@ -8,6 +8,8 @@ open import Cubical.Functions.Embedding
 
 open import Cubical.HITs.PropositionalTruncation as ∥₁
 
+open import Cubical.Data.Sigma
+
 open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Order.Poset.Base
 open import Cubical.Relation.Binary.Order.Preorder.Base
@@ -69,3 +71,20 @@ Poset→StrictPoset : Poset ℓ ℓ' → StrictPoset ℓ (ℓ-max ℓ ℓ')
 Poset→StrictPoset (_ , pos)
   = _ , strictposetstr (BinaryRelation.IrreflKernel (PosetStr._≤_ pos))
                        (isPoset→isStrictPosetIrreflKernel (PosetStr.isPoset pos))
+
+
+module PosetDownset (P' : Poset ℓ ℓ') where
+  private P = fst P'
+  open PosetStr (snd P')
+
+  ↓ : P → Type (ℓ-max ℓ ℓ')
+  ↓ u = Σ[ v ∈ P ] v ≤ u
+
+  ↓ᴾ : P → Poset (ℓ-max ℓ ℓ') ℓ'
+  fst (↓ᴾ u) = ↓ u
+  PosetStr._≤_ (snd (↓ᴾ u)) v w = v .fst ≤ w .fst
+  PosetStr.isPoset (snd (↓ᴾ u)) =
+    isPosetInduced
+      (PosetStr.isPoset (snd P'))
+      _
+      (EmbeddingΣProp (λ a → is-prop-valued _ _))

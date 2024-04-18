@@ -215,9 +215,30 @@ private
   fst (theMorph (negsuc n) f) = idfun _
   snd (theMorph (negsuc n) f) = makeIsGroupHom λ _ _ → refl
 
+  compMorph : ∀ {ℓ} (n : ℤ) {A B C : Pointed ℓ} (g : B →∙ C) (f : A →∙ B) →
+      compGroupHom (theMorph n g) (theMorph n f) ≡ theMorph n (g ∘∙ f)
+  compMorph (pos zero) g f =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt (ST.elim (λ _ → isSetPathImplicit)
+      λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl)))
+  compMorph (pos (suc n)) f g =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) (funExt (ST.elim (λ _ → isSetPathImplicit)
+      λ _ → refl))
+  compMorph (negsuc n) g f =
+    Σ≡Prop (λ _ → isPropIsGroupHom _ _) refl
+
+  idMorph : ∀ {ℓ} (n : ℤ) {A : Pointed ℓ} → theMorph n (idfun∙ A) ≡ idGroupHom
+  idMorph (pos zero) = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+    (funExt (ST.elim (λ _ → isSetPathImplicit)
+      λ _ → cong ∣_∣₂ (Σ≡Prop (λ _ → isSetℤ _ _) refl)))
+  idMorph (pos (suc n)) = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
+    (funExt (ST.elim (λ _ → isSetPathImplicit) λ _ → refl))
+  idMorph (negsuc n) = refl
+
   open coHomTheory
   isCohomTheoryZ' : ∀ {ℓ} → coHomTheory {ℓ} coHomFunctor'
   Hmap isCohomTheoryZ' = theMorph
+  HMapComp isCohomTheoryZ' = compMorph
+  HMapId isCohomTheoryZ' = idMorph
 
   -------------------------- Suspension --------------------------
   -- existence of suspension isomorphism
