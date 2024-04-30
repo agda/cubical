@@ -5,7 +5,7 @@ module Cubical.Foundations.CartesianKanOps where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Erp
+open import Cubical.Foundations.Interpolate
 
 coe0→1 : ∀ {ℓ} (A : I → Type ℓ) → A i0 → A i1
 coe0→1 A a = transp (\ i → A i) i0 a
@@ -47,8 +47,8 @@ coei1→0 : ∀ {ℓ} (A : I → Type ℓ) (a : A i1) → coei→0 A i1 a ≡ co
 coei1→0 A a = refl
 
 -- "Equality" on the interval, chosen for the next definition:
--- erp k i j is constant in k on eqI i j. Note that eqI i i is not i1
--- but i ∨ ~ i.
+-- interpolateI k i j is constant in k on eqI i j. Note that eqI i i
+-- is not i1 but i ∨ ~ i.
 private
   eqI : I → I → I
   eqI i j = (i ∧ j) ∨ (~ i ∧ ~ j)
@@ -56,7 +56,7 @@ private
 -- "master coe"
 -- unlike in cartesian cubes, we don't get coei→i = id definitionally
 coei→j : ∀ {ℓ} (A : I → Type ℓ) (i j : I) → A i → A j
-coei→j A i j a = transp (λ k → A (erp k i j)) (eqI i j) a
+coei→j A i j a = transp (λ k → A (interpolateI k i j)) (eqI i j) a
 
 -- "squeeze"
 -- this is just defined as the face of the master coe
@@ -84,7 +84,7 @@ coei1→i A i a = refl
 
 -- only non-definitional equation, but definitional at the ends
 coei→i : ∀ {ℓ} (A : I → Type ℓ) (i : I) (a : A i) → coei→j A i i a ≡ a
-coei→i A i a j = transp (λ _ → A i) (erp j (i ∨ ~ i) i1) a
+coei→i A i a j = transp (λ _ → A i) (interpolateI j (i ∨ ~ i) i1) a
   where
   -- note: coei→i is almost just transportRefl (but the φ for the
   -- transp is i ∨ ~ i, not i0)
@@ -102,7 +102,7 @@ coe1→1 A a = refl
 -- coercion when there already exists a path
 coePath : ∀ {ℓ} (A : I → Type ℓ) (p : (i : I) → A i) → (i j : I) → coei→j A i j (p i) ≡ p j
 coePath A p i j k =
-  transp (λ l → A (erp l (erp k i j) j)) (erp k (eqI i j) i1) (p (erp k i j))
+  transp (λ l → A (interpolateI l (interpolateI k i j) j)) (interpolateI k (eqI i j) i1) (p (interpolateI k i j))
 
 coePathi0 : ∀ {ℓ} (A : I → Type ℓ) (p : (i : I) → A i) → coePath A p i0 i0 ≡ refl
 coePathi0 A p = refl
