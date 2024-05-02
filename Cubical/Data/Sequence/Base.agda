@@ -11,11 +11,13 @@ private
     ℓ ℓ' ℓ'' : Level
 
 record Sequence (ℓ : Level) : Type (ℓ-suc ℓ) where
+  constructor sequence
   field
     obj : ℕ → Type ℓ
     map : {n : ℕ} → obj n → obj (1 + n)
 
 record SequenceMap (C : Sequence ℓ) (D : Sequence ℓ') : Type (ℓ-max ℓ ℓ') where
+  constructor sequencemap
   field
     map : (n : ℕ) → Sequence.obj C n → Sequence.obj D n
     comm : (n : ℕ) (x : Sequence.obj C n)

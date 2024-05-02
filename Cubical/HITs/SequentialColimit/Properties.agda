@@ -39,11 +39,13 @@ module _
     incl∞ n = incl {n = n}
 
   record ElimData (P : SeqColim X → Type ℓ') : Type (ℓ-max ℓ ℓ') where
+    constructor elimdata
     field
       inclP : {k : ℕ} (x : X .obj k) → P (incl x)
       pushP : {k : ℕ} (x : X .obj k) → PathP (λ i → P (push x i)) (inclP x) (inclP (X .map x))
 
   record ElimDataShifted (n : ℕ)(P : SeqColim X → Type ℓ') : Type (ℓ-max ℓ ℓ') where
+    constructor elimdata-shift
     field
       inclP : {k : ℕ} (x : X .obj (k + n)) → P (incl x)
       pushP : {k : ℕ} (x : X .obj (k + n)) → PathP (λ i → P (push x i)) (inclP x) (inclP (X .map x))
@@ -337,8 +339,7 @@ converges→ColimIso : ∀ {ℓ} {seq : Sequence ℓ} (n : ℕ)
 Iso.fun (converges→ColimIso {seq = seq} n e) = incl
 Iso.inv (converges→ColimIso {seq = seq} n e) = elimShifted seq n _ (shiftEqShifted seq n e)
 Iso.rightInv (converges→ColimIso {seq = seq} n e) = elimShifted seq n _
-  (record { inclP = λ {k} → paths k
-          ; pushP = λ {k} → cohs k})
+  (elimdata-shift (λ {k} → paths k) (λ {k} → cohs k))
   where
   zero-case : (x : seq .obj n)
     → Path (SeqColim seq)

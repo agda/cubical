@@ -10,6 +10,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat
 open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Nat.Order.Inductive
 
 open import Cubical.Algebra.Group
 open import Cubical.Algebra.Group.Morphisms

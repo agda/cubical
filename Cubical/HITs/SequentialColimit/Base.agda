@@ -31,6 +31,6 @@ FinSeqColim→Colim m (fpush n x i) = push x i
 
 realiseSequenceMap : {C : Sequence ℓ} {D : Sequence ℓ'}
   → SequenceMap C D → SeqColim C → SeqColim D
-realiseSequenceMap record { map = map ; comm = comm } (incl x) = incl (map _ x)
-realiseSequenceMap record { map = map ; comm = comm } (push {n = n} x i) =
+realiseSequenceMap (sequencemap map comm) (incl x) = incl (map _ x)
+realiseSequenceMap (sequencemap map comm) (push {n = n} x i) =
   (push (map n x) ∙ λ i → incl (comm n x i)) i

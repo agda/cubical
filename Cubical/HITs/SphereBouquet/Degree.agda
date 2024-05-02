@@ -16,6 +16,7 @@ open import Cubical.Data.Fin.Inductive
 open import Cubical.Data.Sigma
 open import Cubical.Data.Int renaming (_·_ to _·ℤ_ ; -_ to -ℤ_)
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Nat.Order.Inductive
 
 open import Cubical.HITs.S1
 open import Cubical.HITs.Sn

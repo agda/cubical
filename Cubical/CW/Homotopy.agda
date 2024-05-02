@@ -14,6 +14,7 @@ open import Cubical.CW.Map
 open import Cubical.CW.ChainComplex
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.GroupoidLaws
@@ -25,11 +26,15 @@ open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
 
+open import Cubical.HITs.S1
+open import Cubical.HITs.Sn
 open import Cubical.HITs.Sn.Degree
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
 open import Cubical.HITs.SphereBouquet
 open import Cubical.HITs.SphereBouquet.Degree
+open import Cubical.HITs.SetTruncation as ST hiding (map)
+open import Cubical.HITs.Truncation as TR hiding (map)
 
 open import Cubical.Algebra.Group.MorphismProperties
 open import Cubical.Algebra.AbGroup
@@ -37,12 +42,18 @@ open import Cubical.Algebra.Group.Morphisms
 open import Cubical.Algebra.AbGroup.Instances.FreeAbGroup
 open import Cubical.Algebra.ChainComplex
 
+open import Cubical.ZCohomology.Base
+open import Cubical.ZCohomology.Properties
+open import Cubical.ZCohomology.GroupStructure
+open import Cubical.ZCohomology.Groups.Sn
+
 private
   variable
     ℓ ℓ' ℓ'' : Level
 
 -- A cellular homotopy between two cellular maps
 record cellHom {C : CWskel ℓ} {D : CWskel ℓ'} (f g : cellMap C D) : Type (ℓ-max ℓ ℓ') where
+  constructor cellhom
   open SequenceMap
   field
     hom : (n : ℕ) → (x : C .fst n) → CW↪ D n (f .map n x) ≡ CW↪ D n (g .map n x)
@@ -55,6 +66,7 @@ record cellHom {C : CWskel ℓ} {D : CWskel ℓ'} (f g : cellMap C D) : Type (�
 -- Finite cellular homotopies
 record finCellHom (m : ℕ) {C : CWskel ℓ} {D : CWskel ℓ'}
                   (f g : finCellMap m C D) : Type (ℓ-max ℓ ℓ') where
+  constructor fincellhom
   open FinSequenceMap
   field
     fhom : (n : Fin (suc m)) (x : C .fst (fst n))
@@ -428,17 +440,6 @@ realiseMMΣH∂ C D (suc m) f g H n x =
 
 -- Then, we connect the addition of MMmaps to the addition of abelian maps
 module bouquetAdd where
-  -- keeping imports here for now
-  open import Cubical.ZCohomology.Base
-  open import Cubical.ZCohomology.Properties
-  open import Cubical.ZCohomology.GroupStructure
-  open import Cubical.HITs.Truncation as TR hiding (map)
-  open import Cubical.HITs.Sn
-  open import Cubical.HITs.S1
-  open import Cubical.Foundations.Path
-  open import Cubical.ZCohomology.Groups.Sn
-  open import Cubical.HITs.SetTruncation as ST hiding (map)
-
   open MMmaps
 
   module _ (C : CWskel ℓ) (D : CWskel ℓ') (m : ℕ) (n : Fin m)

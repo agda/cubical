@@ -25,6 +25,7 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sequence
 open import Cubical.Data.FinSequence
+open import Cubical.Data.Nat.Order.Inductive
 
 open import Cubical.HITs.SequentialColimit
 open import Cubical.HITs.PropositionalTruncation as PT hiding (elimFin)
@@ -72,7 +73,7 @@ snd (compFinCellApprox m {C = C} {g = g} {f} (F , p) (G , q)) =
     → funExt⁻ p _
      ∙ cong g (funExt⁻ q (fincl _ x))
 
--- a finite cellular homotopies relative
+-- a finite cellular homotopies relative a homotopy in the colimit
 finCellHomRel : {C : CWskel ℓ} {D : CWskel ℓ'} (m : ℕ)
   (f g : finCellMap m C D)
   (h∞ : (n : Fin (suc m)) (c : fst C (fst n))
@@ -264,7 +265,7 @@ CWmap→finCellMap : (C : CWskel ℓ) (D : CWskel ℓ')
   → ∥ finCellApprox C D f m ∥₁
 CWmap→finCellMap C D f m =
   PT.map (λ {(g , hom)
-  → (record { fmap = fst ∘ g ; fcomm = λ r x → sym (hom r x) })
+  → finsequencemap (fst ∘ g) (λ r x → sym (hom r x))
    , →FinSeqColimHomotopy _ _ (g flast .snd)})
      (approx C D f m)
 
@@ -580,17 +581,17 @@ private
          ≡ FinSeqColim→Colim m ∘ finCellMap→FinSeqColim C D g-c)
     → ∥ finCellHomRel m f-c g-c (approx.h∞ m f-c g-c h∞') ∥₁
   pathToCellularHomotopy-main {C = C} zero f-c g-c h∞' =
-    ∣ (record { fhom = λ {(zero , p) x → ⊥.rec (CW₀-empty C x)}
-              ; fcoh = λ {()} })
-              , (λ { (zero , p) x → ⊥.rec (CW₀-empty C x)}) ∣₁
+    ∣ fincellhom (λ {(zero , p) x → ⊥.rec (CW₀-empty C x)})
+                (λ { (zero , p) x → ⊥.rec (CW₀-empty C x)})
+   , (λ { (zero , p) x → ⊥.rec (CW₀-empty C x)}) ∣₁
   pathToCellularHomotopy-main {C = C} {D = D} (suc zero) f-c g-c h∞' =
     PT.map (λ {(d , h)
-      → (record
-        { fhom = λ {(zero , p) x → ⊥.rec (CW₀-empty C x)
-                  ; (suc zero , p) → d}
-        ; fcoh = λ {(zero , p) → λ x → ⊥.rec (CW₀-empty C x)} })
-        , (λ {(zero , p) x → ⊥.rec (CW₀-empty C x)
-            ; (suc zero , tt) → h})}) (invEq (_ , satAC∃Fin-C0 C _ _) k)
+      → (fincellhom (λ {(zero , p) x → ⊥.rec (CW₀-empty C x)
+                       ; (suc zero , p) → d})
+                     λ {(zero , p) → λ x → ⊥.rec (CW₀-empty C x)})
+       , (λ {(zero , p) x → ⊥.rec (CW₀-empty C x)
+           ; (suc zero , tt) → h})})
+           (invEq (_ , satAC∃Fin-C0 C _ _) k)
     where
     k : (c : _) → _
     k c = (approx.pathToCellularHomotopy₁ (suc zero) f-c g-c
@@ -598,10 +599,10 @@ private
   pathToCellularHomotopy-main {C = C} {D = D} (suc (suc m)) f-c g-c h∞' =
     PT.rec squash₁
       (λ ind → PT.map
-        (λ {(f , p) →
-         (record { fhom = main-hom ind f p
-                 ; fcoh = main-coh ind f p })
-                 , ∞coh ind f p})
+        (λ {(f , p)
+          → (fincellhom (main-hom ind f p)
+                         (main-coh ind f p))
+           , (∞coh ind f p)})
         (pathToCellularHomotopy-ind flast
           λ c → (finCellHom.fhom (ind .fst) flast c)
               , (ind .snd flast c)))

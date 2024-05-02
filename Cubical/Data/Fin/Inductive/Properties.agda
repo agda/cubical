@@ -13,19 +13,20 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Inductive
+open import Cubical.Data.Fin.Base as FinOld
+  hiding (Fin ; injectSuc ; fsuc ; fzero ; flast ; ¬Fin0 ; sumFinGen)
+open import Cubical.Data.Fin.Properties as FinOldProps
+  hiding (sumFinGen0 ; isSetFin ; sumFin-choose ; sumFinGenHom ; sumFinGenId)
 
 open import Cubical.Relation.Nullary
 
 open import Cubical.Algebra.AbGroup.Base using (move4)
 
--- inductive definition of <
-
 fsuc-injectSuc : {m : ℕ} (n : Fin m)
   → injectSuc {n = suc m} (fsuc {n = m} n) ≡ fsuc (injectSuc n)
 fsuc-injectSuc {m = suc m} (x , p) = refl
 
-fzero : {m : ℕ} → Fin (suc m)
-fzero = 0 , tt
 
 elimFin : ∀ {ℓ} {m : ℕ} {A : Fin (suc m) → Type ℓ}
                  (max : A flast)
@@ -60,21 +61,6 @@ elimFinβ {m = suc (suc m)} {A = A} max f =
 
 ¬Fin0 : ¬ Fin 0
 ¬Fin0 (x , ())
-
-<ᵗ-trans : {n m k : ℕ} → n <ᵗ m → m <ᵗ k → n <ᵗ k
-<ᵗ-trans {n = zero} {suc m} {suc k} _ _ = tt
-<ᵗ-trans {n = suc n} {suc m} {suc k} = <ᵗ-trans {n = n} {m} {k}
-
-¬m<ᵗm : {m : ℕ} → ¬ (m <ᵗ m)
-¬m<ᵗm {m = suc m} p = ¬m<ᵗm p
-
-<ᵗ-+ : {n k : ℕ} → n <ᵗ suc (k + n)
-<ᵗ-+ {n = zero} {k} = tt
-<ᵗ-+ {n = suc n} {k} =
-  subst (n <ᵗ_) (sym (+-suc k n)) (<ᵗ-+ {n = n} {k})
-
-¬squeeze : {n m : ℕ} → ¬ ((n <ᵗ m) × (m <ᵗ suc n))
-¬squeeze {n = suc n} {suc m} = ¬squeeze {n = n} {m = m}
 
 -- properties of finite sums
 module _ {ℓ : Level} {A : Type ℓ} (_+A_ : A → A → A) (0A : A)
@@ -137,23 +123,7 @@ sumFinGenId : ∀ {ℓ} {A : Type ℓ} {n : ℕ} (_+_ : A → A → A) (0A : A)
   (f g : Fin n → A) → f ≡ g → sumFinGen _+_ 0A f ≡ sumFinGen _+_ 0A g
 sumFinGenId _+_ 0A f g p i = sumFinGen _+_ 0A (p i)
 
-
-open import Cubical.Data.Fin.Base renaming (Fin to Fin*) hiding (¬Fin0)
-open import Cubical.Data.Fin.Properties renaming (isSetFin to isSetFin*)
-
-<ᵗ→< : {n m : ℕ} → n <ᵗ m → n < m
-<ᵗ→< {n = zero} {suc m} p = m , +-comm m 1
-<ᵗ→< {n = suc n} {suc m} p = suc-≤-suc (<ᵗ→< {n = n} {m = m} p)
-
-<→<ᵗ : {n m : ℕ} → n < m → n <ᵗ m
-<→<ᵗ {n = zero} {m = zero} x =
-  snotz (sym (+-suc (fst x) 0) ∙ snd x)
-<→<ᵗ {n = zero} {m = suc m} _ = tt
-<→<ᵗ {n = suc n} {m = zero} x =
-  snotz (sym (+-suc (fst x) (suc n)) ∙ snd x)
-<→<ᵗ {n = suc n} {m = suc m} p = <→<ᵗ {n = n} {m = m} (pred-≤-pred p)
-
-Iso-Fin-InductiveFin : (m : ℕ) → Iso (Fin* m) (Fin m)
+Iso-Fin-InductiveFin : (m : ℕ) → Iso (FinOld.Fin m) (Fin m)
 Iso.fun (Iso-Fin-InductiveFin m) (x , p) = x , <→<ᵗ p
 Iso.inv (Iso-Fin-InductiveFin m) (x , p) = x , <ᵗ→< p
 Iso.rightInv (Iso-Fin-InductiveFin m) (x , p) =
@@ -163,4 +133,4 @@ Iso.leftInv (Iso-Fin-InductiveFin m) _ = Σ≡Prop (λ _ → isProp≤) refl
 isSetFin : {n : ℕ} → isSet (Fin n)
 isSetFin {n = n} =
   isOfHLevelRetractFromIso 2 (invIso (Iso-Fin-InductiveFin n))
-    isSetFin*
+    FinOldProps.isSetFin
