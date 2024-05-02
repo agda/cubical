@@ -573,6 +573,22 @@ invSphere {n = zero} = not
 invSphere {n = (suc zero)} = invLooper
 invSphere {n = (suc (suc n))} = invSusp
 
+-- sometimes also this version is useful
+invSphere' : {n : ℕ} → S₊ n → S₊ n
+invSphere' {n = zero} = not
+invSphere' {n = (suc zero)} = invLooper
+invSphere' {n = suc (suc n)} north = north
+invSphere' {n = suc (suc n)} south = north
+invSphere' {n = suc (suc n)} (merid a i) = σ (S₊∙ _) a (~ i)
+
+invSphere'≡ : {n : ℕ} → (x : S₊ n) → invSphere' x ≡ invSphere x
+invSphere'≡ {n = zero} x = refl
+invSphere'≡ {n = suc zero} x = refl
+invSphere'≡ {n = suc (suc n)} north = merid (ptSn _)
+invSphere'≡ {n = suc (suc n)} south = refl
+invSphere'≡ {n = suc (suc n)} (merid a i) j =
+  compPath-filler (merid a) (sym (merid (ptSn _))) (~ j) (~ i)
+
 invSphere² : (n : ℕ) (x : S₊ n) → invSphere (invSphere x) ≡ x
 invSphere² zero = notnot
 invSphere² (suc zero) base = refl

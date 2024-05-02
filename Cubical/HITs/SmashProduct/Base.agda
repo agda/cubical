@@ -9,6 +9,7 @@ open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
@@ -278,6 +279,34 @@ _⋀∙→refl_ : ∀ {ℓ ℓ'} {C : Type ℓ} {D : Type ℓ'}
   → (A ⋀∙ B) →∙ ((C , f (pt A)) ⋀∙ (D , g (pt B)))
 fst (f ⋀∙→refl g) = f ⋀→refl g
 snd (f ⋀∙→refl g) = refl
+
+
+⋀≃ : ∀ {ℓ ℓ'} {A B : Pointed ℓ} {C D : Pointed ℓ'}
+  → (f : A ≃∙ B) (g : C ≃∙ D)
+  → (A ⋀ C) ≃ (B ⋀ D)
+⋀≃ {ℓ = ℓ} {ℓ'} {B = B} {D = D} f g = _ , ⋀≃-isEq f g
+  where
+  help : (x : _) → (idfun∙ B ⋀→ idfun∙ D) x ≡ x
+  help (inl x) = refl
+  help (inr x) = refl
+  help (push (inl x) i) j = rUnit (push (inl x)) (~ j) i
+  help (push (inr x) i) j = rUnit (push (inr x)) (~ j) i
+  help (push (push a i) j) k =
+    hcomp (λ r → λ {(i = i0) → rUnit (push (inl (snd B))) (~ k ∧ r) j
+                   ; (i = i1) → rUnit (push (inr (snd D))) (~ k ∧ r) j
+                   ; (j = i0) → inl tt
+                   ; (j = i1) → inr (snd B , snd D)
+                   ; (k = i1) → push (push tt i) j})
+           (push (push tt i) j)
+
+  ⋀≃-isEq : {A : Pointed ℓ} {C : Pointed ℓ'}
+    (f : A ≃∙ B) (g : C ≃∙ D) → isEquiv (≃∙map f ⋀→ ≃∙map g)
+  ⋀≃-isEq {C = C} =
+    Equiv∙J (λ A f → (g : C ≃∙ D)
+                   → isEquiv (≃∙map f ⋀→ ≃∙map g))
+     (Equiv∙J (λ _ g → isEquiv (idfun∙ _ ⋀→ ≃∙map g))
+       (subst isEquiv (sym (funExt help)) (idIsEquiv _)))
+
 
 ⋀→Smash : A ⋀ B → Smash A B
 ⋀→Smash (inl x) = basel
