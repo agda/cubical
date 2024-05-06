@@ -12,6 +12,7 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Nat
+open import Cubical.Data.Sequence
 
 open import Cubical.HITs.SequentialColimit
 
