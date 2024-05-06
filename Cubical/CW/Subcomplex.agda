@@ -10,6 +10,7 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
