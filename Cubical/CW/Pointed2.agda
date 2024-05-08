@@ -2,7 +2,7 @@
 
 -- This file contains definition of CW complexes and skeleta.
 
-module Cubical.CW.Pointed where
+module Cubical.CW.Pointed2 where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -278,11 +278,13 @@ decImFin {A = A} da (suc n) f y with da (f fzero) y
 ... | inl q = inl ((fsuc (fst q)) , snd q)
 ... | inr q = inr (Ind.elimFin-alt ¬p q)
 
-Bool×Fin≡Fin : {n : ℕ} → Iso (S₊ 0 × Fin n) (Fin (2 · n))
-Bool×Fin≡Fin = compIso (Σ-cong-iso-fst Iso-Bool-Fin) (Fin× {n = 2})
+Bool×Fin≡Fin : {n : ℕ} → Iso (Fin n × S₊ 0) (Fin (2 · n))
+Bool×Fin≡Fin =
+  compIso (compIso Σ-swap-Iso
+    (Σ-cong-iso-fst Iso-Bool-Fin)) (Fin× {n = 2})
 
 decIm-S⁰×Fin : ∀ {ℓ} {A : Type ℓ}
-  (da : Discrete A) (n : ℕ) (f : S₊ 0 × Fin n → A) → decIm f
+  (da : Discrete A) (n : ℕ) (f : Fin n × S₊ 0 → A) → decIm f
 decIm-S⁰×Fin {A = A} da n =
   subst (λ C → (f : C → A) → decIm f)
         (isoToPath (invIso Bool×Fin≡Fin))
@@ -329,8 +331,8 @@ allConst? {n = suc n} dis t
 ... | no ¬p | q = inr (_ , ¬p)
 
 
-isSurj-α₀ : (n m : ℕ) (f : S₊ 0 × Fin n → Fin (suc (suc m)))
-  → isConnected 2 (Pushout f snd)
+isSurj-α₀ : (n m : ℕ) (f : Fin n × S₊ 0 → Fin (suc (suc m)))
+  → isConnected 2 (Pushout f fst)
   → (y : _) → Σ[ x ∈ _ ] f x ≡ y
 isSurj-α₀ n m f c y with (decIm-S⁰×Fin DiscreteFin n f y)
 ... | inl x = x
@@ -344,7 +346,7 @@ isSurj-α₀ n m f c x₀ | inr q = ⊥.rec nope
         (λ s t → ⊥.rec (q _ t))
          λ s t b c → elimFinChooseβ x₀ ⊥ (λ _ _ → Unit) .snd s t
 
-  help : Pushout f snd → Type
+  help : Pushout f fst → Type
   help (inl x) = pre-help x
   help (inr x) = Unit
   help (push a i) = lem (f a) a refl i
@@ -361,11 +363,10 @@ isSurj-α₀ n m f c x₀ | inr q = ⊥.rec nope
                ∣ inl x₀ ∣
                ∣ inl (pickDifferentFin x₀ .fst) ∣))
 
-
-notAllLoops-α₀ : (n m : ℕ) (f : S₊ 0 × Fin n → Fin (suc (suc m)))
-  → isConnected 2 (Pushout f snd)
-  → Σ[ x ∈ Fin n ] (¬ f (true , x) ≡ f (false , x))
-notAllLoops-α₀ n m f c with (allConst? DiscreteFin (λ x y → f (y , x)))
+notAllLoops-α₀ : (n m : ℕ) (f : Fin n × S₊ 0 → Fin (suc (suc m)))
+  → isConnected 2 (Pushout f fst)
+  → Σ[ x ∈ Fin n ] (¬ f (x , true) ≡ f (x , false))
+notAllLoops-α₀ n m f c with (allConst? DiscreteFin (λ x y → f (x , y)))
 ... | inr x = x
 notAllLoops-α₀ n m f c | inl q =
   ⊥.rec (TR.rec isProp⊥ (λ p → subst T p tt)
@@ -374,7 +375,7 @@ notAllLoops-α₀ n m f c | inl q =
                ∣ inl flast ∣ ∣ inl fzero ∣)))
   where
   inrT : Fin n → Type
-  inrT x with (DiscreteFin (f (true , x)) fzero)
+  inrT x with (DiscreteFin (f (x , true)) fzero)
   ... | yes p = ⊥
   ... | no ¬p = Unit
 
@@ -382,18 +383,18 @@ notAllLoops-α₀ n m f c | inl q =
   inlT (zero , p) = ⊥
   inlT (suc x , p) = Unit
 
-  inlrT-pre : (a : _) → inlT (f (true , a)) ≡ inrT a
-  inlrT-pre a with ((DiscreteFin (f (true , a)) fzero))
+  inlrT-pre : (a : _) → inlT (f (a , true)) ≡ inrT a
+  inlrT-pre a with ((DiscreteFin (f (a , true)) fzero))
   ... | yes p = cong inlT p
-  inlrT-pre s | no ¬p with (f (true , s))
+  inlrT-pre s | no ¬p with (f (s , true))
   ... | zero , tt = ⊥.rec (¬p refl)
   ... | suc q , t = refl
 
-  inlrT : (a : _) → inlT (f a) ≡ inrT (snd a)
-  inlrT (false , b) = cong inlT (funExt⁻ (q b) false) ∙ inlrT-pre b
-  inlrT (true , b) = inlrT-pre b
+  inlrT : (a : _) → inlT (f a) ≡ inrT (fst a)
+  inlrT (b , false) = cong inlT (funExt⁻ (q b) false) ∙ inlrT-pre b
+  inlrT (b , true) = inlrT-pre b
 
-  T : Pushout f snd → Type
+  T : Pushout f fst → Type
   T (inl x) = inlT x
   T (inr x) = inrT x
   T (push a i) = inlrT a i
@@ -465,6 +466,79 @@ module _ {n : ℕ} where
   Iso.rightInv (swapFinIso x y) = swapFin² x y
   Iso.leftInv (swapFinIso x y) = swapFin² x y
 
+liftFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
+  (f : A → B) → Lift {j = ℓ''} A → Lift {j = ℓ'''} B
+liftFun f (lift a) = lift (f a)
+
+module _ {ℓ ℓ' ℓ'' : Level} (ℓ''' : Level)
+  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (f : A → B) (g : A → C) where
+  PushoutLevel  : Level
+  PushoutLevel = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ'''))
+
+  PushoutLift : Type PushoutLevel
+  PushoutLift = Pushout {A = Lift {j = ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')} A}
+                        {B = Lift {j = ℓ-max ℓ (ℓ-max ℓ'' ℓ''')} B}
+                        {C = Lift {j = ℓ-max ℓ (ℓ-max ℓ' ℓ''')} C}
+                        (liftFun f)
+                        (liftFun g)
+
+  PushoutLiftIso : Iso (Pushout f g) PushoutLift
+  Iso.fun PushoutLiftIso (inl x) = inl (lift x)
+  Iso.fun PushoutLiftIso (inr x) = inr (lift x)
+  Iso.fun PushoutLiftIso (push a i) = push (lift a) i
+  Iso.inv PushoutLiftIso (inl (lift x)) = inl x
+  Iso.inv PushoutLiftIso (inr (lift x)) = inr x
+  Iso.inv PushoutLiftIso (push (lift a) i) = push a i
+  Iso.rightInv PushoutLiftIso (inl (lift x)) = refl
+  Iso.rightInv PushoutLiftIso (inr (lift x)) = refl
+  Iso.rightInv PushoutLiftIso (push (lift a) i) = refl
+  Iso.leftInv PushoutLiftIso (inl x) = refl
+  Iso.leftInv PushoutLiftIso (inr x) = refl
+  Iso.leftInv PushoutLiftIso (push a i) = refl
+
+open import Cubical.Foundations.Equiv
+
+
+pushoutIso' : ∀ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
+      {A₁ : Type ℓA₁} {B₁ : Type ℓB₁} {C₁ : Type ℓC₁}
+      {A₂ : Type ℓA₂} {B₂ : Type ℓB₂} {C₂ : Type ℓC₂}
+      (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
+      (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
+      (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
+      (id1 : fst B≃ ∘ f₁ ≡ f₂ ∘ fst A≃)
+      (id2 : fst C≃ ∘ g₁ ≡ g₂ ∘ fst A≃) →
+      Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
+pushoutIso' {ℓA₁ = ℓA₁} {ℓB₁} {ℓC₁} {ℓA₂} {ℓB₂} {ℓC₂}
+  f₁ g₁ f₂ g₂ A≃ B≃ C≃ id1 id2 =
+    compIso (PushoutLiftIso ℓ* f₁ g₁)
+      (compIso (pushoutIso _ _ _ _
+        (Lift≃Lift A≃)
+        (Lift≃Lift B≃)
+        (Lift≃Lift C≃)
+        (funExt (λ { (lift x) → cong lift (funExt⁻ id1 x)}))
+        (funExt (λ { (lift x) → cong lift (funExt⁻ id2 x)})))
+      (invIso (PushoutLiftIso ℓ* f₂ g₂)))
+  where
+  ℓ* = ℓ-max ℓA₁ (ℓ-max ℓA₂ (ℓ-max ℓB₁ (ℓ-max ℓB₂ (ℓ-max ℓC₁ ℓC₂)))) 
+
+PushoutPostcompEquivIso : ∀ {ℓ ℓ' ℓ'' ℓ'''}
+  {A : Type ℓ} {B : Type ℓ'} {B' : Type ℓ''} {C : Type ℓ'''}
+  (e2 : B' ≃ B)
+  (f : A → B') (g : A → C)
+  → Iso (Pushout (fst e2 ∘ f) g) (Pushout f g)
+PushoutPostcompEquivIso {ℓ = ℓ} {ℓ'} {ℓ''} {ℓ'''}
+  {A = A} {B} {B'} {C} e2 f g =
+  compIso (PushoutLiftIso ℓ* _ _)
+    (compIso (pushoutIso _ _ _ _ (idEquiv _)
+      (compEquiv (invEquiv LiftEquiv)
+        (compEquiv (invEquiv e2) LiftEquiv))
+        (idEquiv _)
+        (funExt (λ { (lift l) → cong lift (retEq e2 (f l))}))
+        refl)
+      (invIso (PushoutLiftIso ℓ* _ _)))
+  where
+  ℓ* = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ'''))
+
 Pushout∘Equiv : ∀ {ℓ ℓ' ℓ''} {A A' : Type ℓ} {B B' : Type ℓ'} {C : Type ℓ''}
   (e1 : A ≃ A') (e2 : B' ≃ B)
   (f : A' → B') (g : A → C)
@@ -479,59 +553,59 @@ Pushout∘Equiv {A = A} {A' = A'} {B} {B'} {C} =
      λ f g → idIso)
 
 module _ {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'}
-  (f : Bool × A → Unit ⊎ B) (b₀ : B) where
+  (f : A × Bool → Unit ⊎ B) (b₀ : B) where
 
-  F : Bool × (Unit ⊎ A) → Unit ⊎ B
-  F (false , inl tt) = inl tt
-  F (true , inl tt) = inr b₀
-  F (x , inr a) = f (x , a)
+  F : (Unit ⊎ A) × Bool → Unit ⊎ B
+  F (inl tt , false) = inl tt
+  F (inl tt , true) = inr b₀
+  F (inr a , x) = f (a , x)
 
   g : Unit ⊎ B → B
   g (inl x) = b₀
   g (inr x) = x
 
-  PF→P∘ₗ : (x : Unit ⊎ A) → Pushout (g ∘ f) snd
+  PF→P∘ₗ : (x : Unit ⊎ A) → Pushout (g ∘ f) fst
   PF→P∘ₗ (inl x) = inl b₀
   PF→P∘ₗ (inr x) = inr x
 
-  theCoh : (a : _) → inl (g (F a)) ≡ PF→P∘ₗ (snd a)
-  theCoh (false , inl x) = refl
-  theCoh (true , inl x) = refl
-  theCoh (false , inr x) = push (false , x)
-  theCoh (true , inr x) = push (true , x)
+  theCoh : (a : _) → inl (g (F a)) ≡ PF→P∘ₗ (fst a)
+  theCoh (inl x , false) = refl
+  theCoh (inl x , true) = refl
+  theCoh (inr x , false) = push (x , false)
+  theCoh (inr x , true) = push (x , true)
 
-  PF→P∘' : Pushout F snd → Pushout (g ∘ f) snd
+  PF→P∘' : Pushout F fst → Pushout (g ∘ f) fst
   PF→P∘' (inl x) = inl (g x)
   PF→P∘' (inr x) = PF→P∘ₗ x
   PF→P∘' (push a i) = theCoh a i
 
   theCoh2 : (a : _) (b : _)
-    → Path (Pushout F snd) (inl (inr (g (f (b , a))))) (inl (f (b , a)))
-  theCoh2 a b with (f (b , a))
-  theCoh2 a b | inl x = (push (true , inl tt)) ∙ sym (push (false , inl tt))
+    → Path (Pushout F fst) (inl (inr (g (f (a , b))))) (inl (f (a , b)))
+  theCoh2 a b with (f (a , b))
+  theCoh2 a b | inl x = (push (inl tt , true)) ∙ sym (push (inl tt , false))
   ... | inr x = refl
 
-  P∘'→PF : Pushout (g ∘ f) snd → Pushout F snd
+  P∘'→PF : Pushout (g ∘ f) fst → Pushout F fst
   P∘'→PF (inl x) = inl (inr x)
   P∘'→PF (inr x) = inr (inr x)
-  P∘'→PF (push (false , a) i) = (theCoh2 a false ∙ push (false , inr a)) i
-  P∘'→PF (push (true , a) i) = (theCoh2 a true ∙ push (true , inr a)) i
+  P∘'→PF (push (a , false) i) = (theCoh2 a false ∙ push (inr a , false)) i
+  P∘'→PF (push (a , true) i) = (theCoh2 a true ∙ push (inr a , true)) i
 
   PFpushTₗ : (x : _) → P∘'→PF (PF→P∘' (inl x)) ≡ (inl x)
-  PFpushTₗ (inl x) = push (true , inl tt) ∙ sym (push (false , inl tt))
+  PFpushTₗ (inl x) = push (inl tt , true) ∙ sym (push (inl tt , false))
   PFpushTₗ (inr x) = refl
 
   PFpushTᵣ : (x : _) → P∘'→PF (PF→P∘' (inr x)) ≡ (inr x)
-  PFpushTᵣ (inl x) = push (true , inl tt)
+  PFpushTᵣ (inl x) = push (inl tt , true)
   PFpushTᵣ (inr x) = refl
 
-  pp1 : (x : A) → PFpushTₗ (f (false , x)) ≡ theCoh2 x false
-  pp1 x with (f (false , x))
+  pp1 : (x : A) → PFpushTₗ (f (x , false)) ≡ theCoh2 x false
+  pp1 x with (f (x , false))
   ... | inl x₁ = refl
   ... | inr x₁ = refl
 
-  pp2 : (x : A) → PFpushTₗ (f (true , x)) ≡ theCoh2 x true
-  pp2 x with (f (true , x))
+  pp2 : (x : A) → PFpushTₗ (f (x , true)) ≡ theCoh2 x true
+  pp2 x with (f (x , true))
   ... | inl x₁ = refl
   ... | inr x₁ = refl
 
@@ -542,39 +616,39 @@ module _ {ℓ ℓ' : Level} {A : Type ℓ} {B : Type ℓ'}
   PFpushT : (x : _) → P∘'→PF (PF→P∘' x) ≡ x 
   PFpushT (inl x) = PFpushTₗ x
   PFpushT (inr x) = PFpushTᵣ x
-  PFpushT (push (false , inl x) i) j =
-    compPath-filler (push (true , inl tt)) (sym (push (false , inl tt))) (~ i) j
-  PFpushT (push (false , inr x) i) j =
+  PFpushT (push (inl x , false) i) j =
+    compPath-filler (push (inl tt , true)) (sym (push (inl tt , false))) (~ i) j
+  PFpushT (push (inr x , false) i) j =
     (pp1 x
     ◁ flipSquare
        (symP (compPath-filler'
-         (theCoh2 x false) (push (false , inr x))))) i j
-  PFpushT (push (true , inl x) i) j = push (true , inl x) (i ∧ j)
-  PFpushT (push (true , inr x) i) j =
+         (theCoh2 x false) (push (inr x , false))))) i j
+  PFpushT (push (inl x , true) i) j = push (inl x , true) (i ∧ j)
+  PFpushT (push (inr x , true) i) j =
     (pp2 x
     ◁ flipSquare
        (symP (compPath-filler'
-         (theCoh2 x true) (push (true , inr x))))) i j
+         (theCoh2 x true) (push (inr x , true))))) i j
 
   cong-PF→P∘' : (b : _) (a : _) → cong PF→P∘' (theCoh2 b a) ≡ refl
-  cong-PF→P∘' b a with (f (a , b))
-  ... | inl x = cong-∙ PF→P∘' (push (true , inl tt)) (sym (push (false , inl tt)))
+  cong-PF→P∘' b a with (f (b , a))
+  ... | inl x = cong-∙ PF→P∘' (push (inl tt , true)) (sym (push (inl tt , false)))
               ∙ sym (rUnit refl)
   ... | inr x = refl
 
   PF→P∘'→PF : (x : _) → PF→P∘' (P∘'→PF x) ≡ x
   PF→P∘'→PF (inl x) = refl
   PF→P∘'→PF (inr x) = refl
-  PF→P∘'→PF (push (false , b) i) j =
-    (cong-∙ PF→P∘' (theCoh2 b false) (push (false , inr b))
-    ∙ cong (_∙ push (false , b)) (cong-PF→P∘' b false)
+  PF→P∘'→PF (push (b , false) i) j =
+    (cong-∙ PF→P∘' (theCoh2 b false) (push (inr b , false))
+    ∙ cong (_∙ push (b , false)) (cong-PF→P∘' b false)
     ∙ sym (lUnit _)) j i
-  PF→P∘'→PF (push (true , b) i) j =
-    (cong-∙ PF→P∘' (theCoh2 b true) (push (true , inr b))
-    ∙ cong (_∙ push (true , b)) (cong-PF→P∘' b true)
+  PF→P∘'→PF (push (b , true) i) j =
+    (cong-∙ PF→P∘' (theCoh2 b true) (push (inr b , true))
+    ∙ cong (_∙ push (b , true)) (cong-PF→P∘' b true)
     ∙ sym (lUnit _)) j i
 
-  Is1 : Iso (Pushout F snd) (Pushout (g ∘ f) snd)
+  Is1 : Iso (Pushout F fst) (Pushout (g ∘ f) fst)
   Iso.fun Is1 = PF→P∘'
   Iso.inv Is1 = P∘'→PF
   Iso.rightInv Is1 = PF→P∘'→PF
@@ -609,37 +683,36 @@ module _ {m : ℕ} where
 ≠flast→<ᵗflast : {n : ℕ} → (x : Fin (suc n)) → ¬ x ≡ flast → fst x <ᵗ n
 ≠flast→<ᵗflast = Ind.elimFin (λ p → ⊥.rec (p refl)) λ p _ → snd p
 
-CW₁DataPre : (n m : ℕ) (f : S₊ 0 × Fin (suc (suc n)) → Fin (suc (suc m)))
-  → f (false , flast) ≡ flast
-  → (t : f (true , flast) .fst <ᵗ suc m)
-  → Σ[ k ∈ ℕ ] Σ[ f' ∈ (S₊ 0 × Fin k → Fin (suc m)) ]
-       Iso (Pushout f snd)
-           (Pushout f' snd)
+CW₁DataPre : (n m : ℕ) (f : Fin (suc (suc n)) × S₊ 0 → Fin (suc (suc m)))
+  → f (flast , false) ≡ flast
+  → (t : f (flast , true) .fst <ᵗ suc m)
+  → Σ[ k ∈ ℕ ] Σ[ f' ∈ (Fin k × S₊ 0 → Fin (suc m)) ]
+       Iso (Pushout f fst)
+           (Pushout f' fst)
 CW₁DataPre n m f p q = (suc n)
   , _
   , compIso (invIso (pushoutIso _ _ _ _
-              (isoToEquiv (Σ-cong-iso-snd λ _ → invIso Iso-Fin-Unit⊎Fin))
+              (isoToEquiv (Σ-cong-iso-fst (invIso Iso-Fin-Unit⊎Fin)))
               (isoToEquiv (invIso Iso-Fin-Unit⊎Fin))
               (isoToEquiv (invIso Iso-Fin-Unit⊎Fin))
               (funExt (uncurry help))
               (funExt λ x → refl)))
      (Is1 {A = Fin (suc n)} {B = Fin (suc m)}
-               (λ x → Fin→Unit⊎Fin (f (fst x , injectSuc (snd x))))
-               (f (true , flast) .fst , q))
+               (λ x → Fin→Unit⊎Fin (f ((injectSuc (fst x)) , (snd x))))
+               (f (flast , true) .fst , q))
   where
-  help : (x : Bool) (y : Unit ⊎ Fin (suc n))
+  help : (y : Unit ⊎ Fin (suc n)) (x : Bool)
     → Unit⊎Fin→Fin
-         (F (λ x₁ → Ind.elimFin (inl tt) inr (f (fst x₁ , injectSuc (snd x₁))))
-         (f (true , flast) .fst , q) (x , y))
-     ≡ f (x , Unit⊎Fin→Fin y)
-  help false (inl a) = sym p
-  help true (inl b) = Σ≡Prop (λ _ → isProp<ᵗ) refl
-  help false (inr a) = Iso.leftInv Iso-Fin-Unit⊎Fin _
-  help true (inr a) = Iso.leftInv Iso-Fin-Unit⊎Fin _
+         (F (λ x₁ → Ind.elimFin (inl tt) inr (f (injectSuc (fst x₁) , snd x₁)))
+         (f (flast , true) .fst , q) (y , x))
+     ≡ f (Unit⊎Fin→Fin y , x)
+  help (inl a) false = sym p
+  help (inl b) true = Σ≡Prop (λ _ → isProp<ᵗ) refl
+  help (inr a) false = Iso.leftInv Iso-Fin-Unit⊎Fin _
+  help (inr a) true = Iso.leftInv Iso-Fin-Unit⊎Fin _
 
 isPropFin1 : isProp (Fin 1)
 isPropFin1 (zero , tt) (zero , tt) = refl
-
 
 Iso⊎→Iso : ∀ {ℓ'''} {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
   → (f : Iso A C)
@@ -723,20 +796,18 @@ Fin≠Fin {n = suc n} {m = suc m} p q =
   help : Iso (Fin 1 ⊎ Fin n) (Fin 1 ⊎ Fin m)
   help = compIso FinSuc (compIso q^ (invIso FinSuc))
 
-CW₁Data₁ : (m : ℕ) (f : S₊ 0 × Fin 1 → Fin (suc (suc m)))
-  → isConnected 2 (Pushout f snd)
-  → Iso (S₊ 0 × Fin 1) (Fin (suc (suc m)))
-CW₁Data₁ m f c = mainIso
+CW₁Data₁ : (m : ℕ) (f : Fin 1 × S₊ 0 → Fin (suc (suc m)))
+  → isConnected 2 (Pushout f fst)
+  → Iso (Fin 1 × S₊ 0) (Fin (suc (suc m)))
+CW₁Data₁ m f c = mainIso -- mainIso
   where
   f' : Bool → Fin (suc (suc m))
-  f' = f ∘ (_, fzero)
+  f' = f ∘ (fzero ,_)
 
   f'-surj : (x : _) → Σ[ t ∈ Bool ] (f' t ≡ x)
   f'-surj x =
-    isSurj-α₀ (suc zero) m f c x .fst .fst
-    , cong f (Σ≡Prop (λ _ → λ {(zero , p) (zero , q) → refl}) refl)
-     ∙ isSurj-α₀ (suc zero) m f c x .snd
-
+    isSurj-α₀ (suc zero) m f c x .fst .snd
+    , cong f (ΣPathP (isPropFin1 _ _ , refl)) ∙ isSurj-α₀ (suc zero) m f c x .snd
   f-true≠f-false : (x : _) → f' true ≡ x →  ¬ f' true ≡ f' false
   f-true≠f-false (zero , q) p r = lem (f'-surj fone)
     where
@@ -750,28 +821,28 @@ CW₁Data₁ m f c = mainIso
     lem (true , s) = snotz (cong fst (sym p ∙ s))
 
   f-inj : (x y : _) → f x ≡ f y → x ≡ y
-  f-inj (false , zero , tt) (false , zero , tt) p = refl
-  f-inj (false , zero , tt) (true , zero , tt) p = ⊥.rec (f-true≠f-false _ refl (sym p))
-  f-inj (true , zero , tt) (false , zero , tt) p = ⊥.rec (f-true≠f-false _ refl p)
-  f-inj (true , zero , tt) (true , zero , tt) p = refl
+  f-inj ((zero , tt) , false) ((zero , tt) , false) p = refl
+  f-inj ((zero , tt) , false) ((zero , tt) , true) p = ⊥.rec (f-true≠f-false _ refl (sym p))
+  f-inj ((zero , tt) , true) ((zero , tt) , false) p = ⊥.rec (f-true≠f-false _ refl p)
+  f-inj ((zero , tt) , true) ((zero , tt) , true) p = refl
 
-  mainIso : Iso (S₊ 0 × Fin 1) (Fin (suc (suc m)))
+  mainIso : Iso (Fin 1 × S₊ 0) (Fin (suc (suc m)))
   Iso.fun mainIso = f
   Iso.inv mainIso x = isSurj-α₀ (suc zero) m f c x .fst
   Iso.rightInv mainIso x = isSurj-α₀ 1 m f c x .snd
-  Iso.leftInv mainIso (x , zero , tt) =
-   (f-inj _ _ (isSurj-α₀ 1 m f c (f (x , fzero)) .snd))
+  Iso.leftInv mainIso ((zero , tt) , x) =
+   (f-inj _ _ (isSurj-α₀ 1 m f c (f (fzero , x)) .snd))
 
-CW₁Data : (n m : ℕ) (f : S₊ 0 × Fin n → Fin (suc (suc m)))
-  → isConnected 2 (Pushout f snd)
-  → Σ[ k ∈ ℕ ] Σ[ f' ∈ (S₊ 0 × Fin k → Fin (suc m)) ]
-       Iso (Pushout f snd)
-           (Pushout f' snd)
+CW₁Data : (n m : ℕ) (f : Fin n × S₊ 0 → Fin (suc (suc m)))
+  → isConnected 2 (Pushout f fst)
+  → Σ[ k ∈ ℕ ] Σ[ f' ∈ (Fin k × S₊ 0 → Fin (suc m)) ]
+       Iso (Pushout f fst)
+           (Pushout f' fst)
 CW₁Data zero m f c = ⊥.rec (snd (notAllLoops-α₀ zero m f c .fst))
-CW₁Data (suc zero) zero f c = 0 , ((λ ()) , compIso isoₗ (PushoutEmptyFam (snd ∘ snd) snd))
+CW₁Data (suc zero) zero f c = 0 , ((λ ()) , compIso isoₗ (PushoutEmptyFam (snd ∘ fst) snd))
   where
-  isoₗ : Iso (Pushout f snd) (Fin 1)
-  isoₗ = PushoutAlongEquiv (isoToEquiv (CW₁Data₁ zero f c)) _
+  isoₗ : Iso (Pushout f fst) (Fin 1)
+  isoₗ = PushoutAlongEquiv (isoToEquiv (CW₁Data₁ zero f c)) fst
 CW₁Data (suc zero) (suc m) f c =
   ⊥.rec (Fin≠Fin (snotz ∘ sym ∘ cong (predℕ ∘ predℕ))
         mainIso)
@@ -781,11 +852,13 @@ CW₁Data (suc zero) (suc m) f c =
     compIso
       (compIso
         (invIso rUnit×Iso)
-        (Σ-cong-iso
-          (invIso Iso-Bool-Fin)
-          (λ _ → isContr→Iso {A = Unit}
-            (tt , λ _ → refl) (fzero , λ {(zero , tt) → refl}))))
-    (CW₁Data₁ (suc m) f c)
+        (compIso
+          (Σ-cong-iso
+            (invIso Iso-Bool-Fin)
+            (λ _ → isContr→Iso (tt , (λ _ → refl))
+                                (inhProp→isContr fzero isPropFin1)))
+            Σ-swap-Iso))
+      (CW₁Data₁ (suc m) f c)
 CW₁Data (suc (suc n)) m f c =
     main .fst , main .snd .fst
   , compIso correct (main .snd .snd)
@@ -796,85 +869,73 @@ CW₁Data (suc (suc n)) m f c =
     x₀ : Fin (suc (suc n))
     x₀ = fst t
 
-    xpath : ¬ (f (true , x₀) ≡ f (false , x₀))
+    xpath : ¬ (f (x₀ , true) ≡ f (x₀ , false))
     xpath = snd t
 
-  Fin0-iso : Iso (S₊ 0 × Fin (suc (suc n))) (S₊ 0 × Fin (suc (suc n)))
-  Fin0-iso = Σ-cong-iso-snd λ _ → swapFinIso flast x₀
+  Fin0-iso : Iso (Fin (suc (suc n)) × S₊ 0) (Fin (suc (suc n)) × S₊ 0)
+  Fin0-iso = Σ-cong-iso-fst (swapFinIso flast x₀)
 
   FinIso2 : Iso (Fin (suc (suc m))) (Fin (suc (suc m)))
-  FinIso2 = swapFinIso (f (false , x₀)) flast
+  FinIso2 = swapFinIso (f (x₀ , false)) flast
 
-  f' : S₊ 0 × Fin (suc (suc n)) → Fin (suc (suc m))
+  f' : Fin (suc (suc n)) × S₊ 0 → Fin (suc (suc m))
   f' = Iso.fun FinIso2 ∘ f ∘ Iso.fun Fin0-iso
 
-  f'≡ : f' (false , flast) ≡ flast
+  f'≡ : f' (flast , false) ≡ flast
   f'≡ = cong (Iso.fun FinIso2 ∘ f)
-          (cong (false ,_) (swapFinβₗ flast x₀))
-      ∙ swapFinβₗ (f (false , x₀)) flast
+          (cong (_, false) (swapFinβₗ flast x₀))
+      ∙ swapFinβₗ (f (x₀ , false)) flast
 
-  f'¬≡ : ¬ (f' (true , flast) ≡ flast)
-  f'¬≡ p = xpath (cong f (ΣPathP (refl , sym (swapFinβₗ flast x₀)))
+  f'¬≡ : ¬ (f' (flast , true) ≡ flast)
+  f'¬≡ p = xpath (cong f (ΣPathP (sym (swapFinβₗ flast x₀) , refl))
                 ∙ sym (Iso.rightInv FinIso2 _)
                 ∙ cong (Iso.inv FinIso2) (p ∙ sym f'≡)
                 ∙ Iso.rightInv FinIso2 _
-                ∙ cong f (ΣPathP (refl , swapFinβₗ flast x₀)))
+                ∙ cong f (ΣPathP (swapFinβₗ flast x₀ , refl)))
 
-  f'< : fst (f' (true , flast)) <ᵗ suc m
+  f'< : fst (f' (flast , true)) <ᵗ suc m
   f'< = ≠flast→<ᵗflast _ f'¬≡
 
   main = CW₁DataPre _ _ f' f'≡ f'<
 
   Upath = isoToPath (swapFinIso x₀ fzero)
 
-  correct : Iso (Pushout f snd) (Pushout f' snd)
+  correct : Iso (Pushout f fst) (Pushout f' fst)
   correct = pushoutIso _ _ _ _
     (isoToEquiv Fin0-iso) (isoToEquiv FinIso2) (isoToEquiv (swapFinIso flast x₀))
       (funExt (λ x → cong (FinIso2 .Iso.fun ∘ f) (sym (Iso.rightInv Fin0-iso x))))
       refl
 
 
-CW₁Data' : (n m : ℕ) (f : S₊ 0 × Fin n → Fin m)
-  → isConnected 2 (Pushout f snd)
-  → Σ[ k ∈ ℕ ] Σ[ f' ∈ (S₊ 0 × Fin k → Fin 1) ]
-       Iso (Pushout f snd)
-           (Pushout f' snd)
+CW₁Data' : (n m : ℕ) (f : Fin n × S₊ 0 → Fin m)
+  → isConnected 2 (Pushout f fst)
+  → Σ[ k ∈ ℕ ]
+       Iso (Pushout f fst)
+           (Pushout {A = Fin k × S₊ 0} {B = Fin 1} (λ _ → fzero) fst)
 CW₁Data' zero zero f c = ⊥.rec (TR.rec (λ()) help (fst c))
   where
-  help : ¬ Pushout f snd
+  help : ¬ Pushout f fst
   help = elimProp _ (λ _ → λ ()) snd snd
-CW₁Data' (suc n) zero f c = ⊥.rec (f (true , fzero) .snd)
-CW₁Data' n (suc zero) f c = n , f , idIso
+CW₁Data' (suc n) zero f c = ⊥.rec (f (fzero , true) .snd)
+CW₁Data' n (suc zero) f c = n
+  , pushoutIso _ _ _ _ (idEquiv _) (idEquiv _) (idEquiv _)
+    (funExt (λ x → isPropFin1 _ _)) refl
 CW₁Data' zero (suc (suc m)) f c =
   ⊥.rec (TR.rec (λ()) (snotz ∘ sym ∘ cong fst)
           (Iso.fun (PathIdTruncIso _)
             (isContr→isProp (subst (isConnected 2) (isoToPath help) c)
               ∣ fzero ∣ ∣ fone ∣)))
   where
-  help : Iso (Pushout f snd) (Fin (suc (suc m)))
+  help : Iso (Pushout f fst) (Fin (suc (suc m)))
   help = invIso (PushoutEmptyFam (λ()) λ())
 CW₁Data' (suc n) (suc (suc m)) f c
   with (CW₁Data' _ (suc m) (CW₁Data (suc n) m f c .snd .fst)
        (subst (isConnected 2)
          (isoToPath (CW₁Data (suc n) m f c .snd .snd)) c))
-... | (k , f↓ , e) = k , f↓ , compIso (CW₁Data (suc n) m f c .snd .snd) e
-
-CW₁Data'' : (n m : ℕ) (f : Fin n × S₊ 0 → Fin m)
-  → isConnected 2 (Pushout f snd)
-  → Σ[ k ∈ ℕ ] Σ[ f' ∈ (Fin k × S₊ 0 → Fin 1) ]
-       Iso (Pushout f snd)
-           (Pushout f' snd)
-CW₁Data'' n m f c =
-    fst help
-  , (help .snd .fst ∘ Σ-swap-≃ .fst)
-  , compIso {!help .snd .snd!} {!!}
-  where
-  help : {!!}
-  help = CW₁Data' n m (f ∘ Σ-swap-≃ .fst) {!!}
-
+... | (k , e) = k , compIso (CW₁Data (suc n) m f c .snd .snd) e
 
 yieldsConnectedCWskel : (ℕ → Type ℓ) → Type _
-yieldsConnectedCWskel A = Σ[ sk ∈ yieldsCWskel A ] (sk .fst 1 ≡ 1)
+yieldsConnectedCWskel A = Σ[ sk ∈ yieldsCWskel A ] (sk .fst 0 ≡ 1)
 
 yieldsConnectedCWskel' : (ℕ → Type ℓ) → Type _
 yieldsConnectedCWskel' A = Σ[ sk ∈ yieldsCWskel A ] isConnected 2 (realise (_ , sk))
@@ -901,16 +962,58 @@ module _ (A : ℕ → Type ℓ) (sk+c : yieldsConnectedCWskel' A) where
   private
     c = snd sk+c
     sk = fst sk+c
+    c' = isConnectedColim→isConnectedSkel (_ , sk) 2 c
 
     module AC = CWskel-fields (_ , sk)
 
-    liftStr = CW₁Data' {!!} {!!} {!AC.α!} {!isConnectedColim→isConnectedSkel (_ , sk) 2 c!}
+    e₁ : Iso (Pushout (fst (CW₁-discrete (_ , sk)) ∘ AC.α 1) fst) (A 2)
+    e₁ = compIso (PushoutPostcompEquivIso (CW₁-discrete (A , sk)) (AC.α 1) fst)
+                 (equivToIso (invEquiv (AC.e 1)))
 
-  
-  
+    liftStr = CW₁Data' _ _ (fst (CW₁-discrete (_ , sk)) ∘ AC.α 1)
+                (isConnectedRetractFromIso 2 e₁ c')
 
-  connectedCWskel→ : yieldsConnectedCWskel' A
-  connectedCWskel→ = ({!!} , {!!}) , {!!}
+  collapse₁card : ℕ → ℕ
+  collapse₁card zero = 1
+  collapse₁card (suc zero) = fst liftStr
+  collapse₁card (suc (suc x)) = AC.card (suc (suc x))
+
+  collapse₁CWskel : ℕ → Type _
+  collapse₁CWskel zero = Lift ⊥
+  collapse₁CWskel (suc zero) = Lift (Fin 1)
+  collapse₁CWskel (suc (suc n)) = A (suc (suc n))
+
+  collapse₁α : (n : ℕ) → Fin (collapse₁card n) × S⁻ n → collapse₁CWskel n
+  collapse₁α (suc zero) (x , p) = lift fzero
+  collapse₁α (suc (suc n)) = AC.α (2 +ℕ n)
+
+  connectedCWskel→ : yieldsConnectedCWskel collapse₁CWskel
+  fst (fst connectedCWskel→) = collapse₁card
+  fst (snd (fst connectedCWskel→)) = collapse₁α
+  fst (snd (snd (fst connectedCWskel→))) = λ()
+  snd (snd (snd (fst connectedCWskel→))) zero =
+    isContr→Equiv (isOfHLevelLift 0 (inhProp→isContr fzero isPropFin1))
+                       ((inr fzero)
+                 , (λ { (inr x) j → inr (isPropFin1 fzero x j) }))
+  snd (snd (snd (fst connectedCWskel→))) (suc zero) =
+    compEquiv (invEquiv (isoToEquiv e₁))
+      (compEquiv (isoToEquiv (snd liftStr))
+      (isoToEquiv (pushoutIso' _ _ _ _
+        (idEquiv _) LiftEquiv (idEquiv _)
+        (funExt cohₗ) (funExt cohᵣ))))
+    where
+    -- Agda complains if these proofs are inlined...
+    cohₗ : (x : _) → collapse₁α 1 x ≡ collapse₁α 1 x
+    cohₗ (x , p) = refl
+
+    cohᵣ : (x : Fin (fst liftStr) × Bool) → fst x ≡ fst x
+    cohᵣ x = refl
+  snd (snd (snd (fst connectedCWskel→))) (suc (suc n)) = AC.e (suc (suc n))
+  snd connectedCWskel→ = refl
+
+  collapse₁Equiv : (n : ℕ)
+    → realise (_ , sk) ≃ realise (_ , connectedCWskel→ .fst)
+  collapse₁Equiv n = {!!}
   
 
 
