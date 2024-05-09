@@ -18,6 +18,18 @@ private
     ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' ℓEᴰ ℓEᴰ' : Level
 
 -- Displayed total category, i.e. Σ for displayed categories
+--
+-- The ordinary total category (∫C Cᴰ) has as objects
+-- pairs (x, xᴰ) where x is an object of C and xᴰ is an object of Cᴰ over x.
+--
+-- Whereas if we had a category Dᴰ displayed over (∫C Cᴰ),
+-- and a category Cᴰ displayed over C, then the
+-- displayed total category (∫Cᴰ Cᴰ Dᴰ) likewise has pairs
+-- as displayed objects.
+--
+-- In the displayed total category, we have objects (xᴰ, yᴰ) displayed
+-- over x, where x is an object of C, xᴰ an object in Cᴰ displayed over x,
+-- and yᴰ is an object of Dᴰ over (x, xᴰ).
 module _ {C : Category ℓC ℓC'}
   (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   (Dᴰ : Categoryᴰ (∫C Cᴰ) ℓDᴰ ℓDᴰ')
@@ -30,7 +42,8 @@ module _ {C : Category ℓC ℓC'}
 
   ∫Cᴰ : Categoryᴰ C (ℓ-max ℓCᴰ ℓDᴰ) (ℓ-max ℓCᴰ' ℓDᴰ')
   ∫Cᴰ .ob[_] x = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] Dᴰ.ob[ x , xᴰ ]
-  ∫Cᴰ .Hom[_][_,_] f (_ , zᴰ) (_ , wᴰ) = Σ[ fᴰ ∈ Cᴰ.Hom[ f ][ _ , _ ] ] Dᴰ.Hom[ f , fᴰ ][ zᴰ , wᴰ ]
+  ∫Cᴰ .Hom[_][_,_] f (_ , zᴰ) (_ , wᴰ) =
+    Σ[ fᴰ ∈ Cᴰ.Hom[ f ][ _ , _ ] ] Dᴰ.Hom[ f , fᴰ ][ zᴰ , wᴰ ]
   ∫Cᴰ .idᴰ = Cᴰ.idᴰ , Dᴰ.idᴰ
   ∫Cᴰ ._⋆ᴰ_ (_ , hᴰ) (_ , kᴰ) = _ , hᴰ Dᴰ.⋆ᴰ kᴰ
   ∫Cᴰ .⋆IdLᴰ _ = ΣPathP (_ , Dᴰ.⋆IdLᴰ _)

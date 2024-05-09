@@ -1,4 +1,7 @@
 {-# OPTIONS --safe #-}
+{-- This file contains some utilities for reasoning
+ -- about the HLevels of morphisms in displayed categories.
+ --}
 module Cubical.Categories.Displayed.HLevels where
 
 open import Cubical.Foundations.Prelude
