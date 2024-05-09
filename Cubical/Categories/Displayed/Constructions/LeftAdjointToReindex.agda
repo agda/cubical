@@ -51,6 +51,26 @@ module _
       fromPathPeq : fromPathP x ≡ fromPathP y
       fromPathPeq = D .isSetHom _ _ (fromPathP x) (fromPathP y)
 
+  -- Reindexing a dislayed category Dᴰ over D along a functor F : C → D
+  -- gives a displayed category over C
+  -- Fiberwise pullback the objects over D along F to display them over C
+  --
+  --    reindex Dᴰ F                Dᴰ
+  --         _                      _
+  --         |                      |
+  --         v           F          v
+  --         C -------------------> D
+  --
+  -- Which may be read as a 2-functor from displayed categories over D to
+  -- displayed categories over C. This operation has a left 2-adjoint, which
+  -- we call ∃F, that maps displays over C to displays over D
+  --
+  --         Cᴰ                  ∃F Cᴰ F
+  --         _                      _
+  --         |                      |
+  --         v           F          v
+  --         C -------------------> D
+  --
   ∃F : Categoryᴰ D (ℓ-max (ℓ-max ℓC ℓD) ℓDᴰ) (ℓ-max (ℓ-max ℓC' ℓD') ℓDᴰ')
   ∃F .ob[_] d = Σ[ c ∈ C .ob ]  Cᴰ.ob[ c ] × (F-ob c ≡ d)
   ∃F .Hom[_][_,_] f (c , x , p) (c' , x' , p') =
