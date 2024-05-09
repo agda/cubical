@@ -51,7 +51,7 @@ module _
       fromPathPeq : fromPathP x ≡ fromPathP y
       fromPathPeq = D .isSetHom _ _ (fromPathP x) (fromPathP y)
 
-  -- Reindexing a dislayed category Dᴰ over D along a functor F : C → D
+  -- Reindexing a displayed category Dᴰ over D along a functor F : C → D
   -- gives a displayed category over C
   -- Fiberwise pullback the objects over D along F to display them over C
   --
