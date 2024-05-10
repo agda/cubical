@@ -29,15 +29,17 @@ open isPathSplitEquiv
 private
   variable
     ℓα ℓs ℓ ℓ' : Level
+    A : Type ℓα
+    S : A → Type ℓs
+    X : Type ℓ
 
-isNull≡ : {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} (nX : isNull S X) {x y : X} → isNull S (x ≡ y)
-isNull≡ {A = A} {S = S} nX {x = x} {y = y} α =
+isNull≡ : (nX : isNull S X) {x y : X} → isNull S (x ≡ y)
+isNull≡ nX α =
   fromIsEquiv (λ p _ i → p i)
               (isEquiv[equivFunA≃B∘f]→isEquiv[f] (λ p _ → p) funExtEquiv (isEquivCong (const , toIsEquiv _ (nX α))))
 
-isNullΠ : {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : X → Type ℓ'} → ((x : X) → isNull S (Y x)) →
-                 isNull S ((x : X) → Y x)
-isNullΠ {S = S} {X = X} {Y = Y} nY α = fromIsEquiv _ (snd e)
+isNullΠ : {Y : X → Type ℓ'} → ((x : X) → isNull S (Y x)) → isNull S ((x : X) → Y x)
+isNullΠ {X = X} {S = S} {Y = Y} nY α = fromIsEquiv _ (snd e)
   where
     flipIso : Iso ((x : X) → S α → Y x) (S α → (x : X) → Y x)
     Iso.fun flipIso f = flip f
@@ -54,9 +56,9 @@ isNullΠ {S = S} {X = X} {Y = Y} nY α = fromIsEquiv _ (snd e)
       (S α → ((x : X) → Y x))
         ■
 
-isNullΣ : {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : X → Type ℓ'} → (isNull S X) → ((x : X) → isNull S (Y x)) →
+isNullΣ : {Y : X → Type ℓ'} → (isNull S X) → ((x : X) → isNull S (Y x)) →
   isNull S (Σ X Y)
-isNullΣ {S = S} {X = X} {Y = Y} nX nY α = fromIsEquiv _ (snd e)
+isNullΣ {X = X} {S = S} {Y = Y} nX nY α = fromIsEquiv _ (snd e)
   where
     e : Σ X Y ≃ (S α → Σ X Y)
     e =
@@ -69,23 +71,21 @@ isNullΣ {S = S} {X = X} {Y = Y} nX nY α = fromIsEquiv _ (snd e)
       (S α → Σ X Y)
         ■
 
-equivPreservesIsNull : {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'} →
-  (e : X ≃ Y) → (isNull S X) → isNull S Y
+equivPreservesIsNull : {Y : Type ℓ'} → (e : X ≃ Y) → (isNull S X) → isNull S Y
 equivPreservesIsNull e nullX α =
   fromIsEquiv _
     (isEquiv[f∘equivFunA≃B]→isEquiv[f]
       (λ y _ → y) e
       (snd (compEquiv (pathSplitToEquiv ((λ x _ → x) , (nullX α))) (postCompEquiv e))))
 
-rec : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'}
-      → (nB : isNull S Y) → (X → Y) → Null S X → Y
+rec : {Y : Type ℓ'} → (nB : isNull S Y) → (X → Y) → Null S X → Y
 rec nB g ∣ x ∣ = g x
 rec nB g (hub α f) = fst (sec (nB α)) (λ s → rec nB g (f s))
 rec nB g (spoke α f s i) = snd (sec (nB α)) (λ s → rec nB g (f s)) i s
 rec nB g (≡hub {x} {y} {α} p i) = fst (secCong (nB α) (rec nB g x) (rec nB g y)) (λ i s → rec nB g (p s i)) i
 rec nB g (≡spoke {x} {y} {α} p s i j) = snd (secCong (nB α) (rec nB g x) (rec nB g y)) (λ i s → rec nB g (p s i)) i j s
 
-toPathP⁻ : ∀ {ℓ} (A : I → Type ℓ) {x : A i0} {y : A i1} → x ≡ transport⁻ (λ i → A i) y → PathP A x y
+toPathP⁻ : (A : I → Type ℓ) {x : A i0} {y : A i1} → x ≡ transport⁻ (λ i → A i) y → PathP A x y
 toPathP⁻ A p i = toPathP {A = λ i → A (~ i)} (sym p) (~ i)
 
 toPathP⁻-sq : ∀ {ℓ} {A : Type ℓ} (x : A) → Square (toPathP⁻ (λ _ → A) (λ _ → transport refl x)) refl
@@ -94,7 +94,7 @@ toPathP⁻-sq x j i = hcomp (λ l → λ { (i = i0) → transportRefl x j
                                    ; (i = i1) → x ; (j = i1) → x })
                           (transportRefl x (i ∨ j))
 
-module _ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Null S X → Type ℓ'} where
+module _ {Y : Null S X → Type ℓ'} where
 
   private
     secCongDep' : ∀ (nY : (x : Null S X) → isNull S (Y x)) {x y : Null S X} {α} (p : x ≡ y)
@@ -138,46 +138,36 @@ module _ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type 
                      (λ i → elim nY g (p s i))
           q₂ j i = toPathP⁻ (λ j → Y (≡spoke p s j i)) (λ j → q₁ j i) j
 
-NullRecIsPathSplitEquiv : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'} → (isNull S Y) →
-                          isPathSplitEquiv {A = (Null S X) → Y} (λ f → f ∘ ∣_∣)
+NullRecIsPathSplitEquiv : {Y : Type ℓ'} → (isNull S Y) → isPathSplitEquiv {A = (Null S X) → Y} (λ f → f ∘ ∣_∣)
 sec (NullRecIsPathSplitEquiv nY) = rec nY , λ _ → refl
 secCong (NullRecIsPathSplitEquiv nY) f f' = (λ p → funExt (elim (λ _ → isNull≡ nY) (funExt⁻ p))) , λ _ → refl
 
-NullRecIsEquiv : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'} →  (isNull S Y) →
-                          isEquiv {A = (Null S X) → Y} (λ f → f ∘ ∣_∣)
+NullRecIsEquiv : {Y : Type ℓ'} → (isNull S Y) → isEquiv {A = (Null S X) → Y} (λ f → f ∘ ∣_∣)
 NullRecIsEquiv nY = toIsEquiv _ (NullRecIsPathSplitEquiv nY)
 
-NullRecEquiv : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'} → (isNull S Y) →
-                          ((Null S X) → Y) ≃ (X → Y)
+NullRecEquiv : {Y : Type ℓ'} → (isNull S Y) → ((Null S X) → Y) ≃ (X → Y)
 NullRecEquiv nY = (λ f → f ∘ ∣_∣) , (NullRecIsEquiv nY)
 
-
-NullPreservesProp : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} →
-                    (isProp X) → isProp (Null S X)
+NullPreservesProp : isProp X → isProp (Null S X)
 
 NullPreservesProp {S = S} pX u = elim (λ v' → isNull≡ (isNull-Null S))
   (λ y → elim (λ u' → isNull≡ (isNull-Null S) {x = u'}) (λ x → cong ∣_∣ (pX x y)) u)
 
-NullPreservesContr : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} →
-                     (isContr X) → isContr (Null S X)
+NullPreservesContr : isContr X → isContr (Null S X)
 NullPreservesContr l = inhProp→isContr ∣ fst l ∣ (NullPreservesProp (isContr→isProp l))
 
-isPropIsNull : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} →
-  isProp (isNull S X)
+isPropIsNull : isProp (isNull S X)
 isPropIsNull = isPropΠ (λ _ → isPropIsPathSplitEquiv _)
 
 {-
   We check that a few common definitions in type theory are null,
   assuming they are given null types as input.
 -}
-isNullIsContr :
-  ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs}
-  {X : Type ℓ} → isNull S X → isNull S (isContr X)
+isNullIsContr : isNull S X → isNull S (isContr X)
 isNullIsContr nullX = isNullΣ nullX λ _ → isNullΠ (λ _ → isNull≡ nullX)
 
 isNullIsEquiv :
-  ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs}
-  {X : Type ℓ} {Y : Type ℓ'} (nullX : isNull S X)
+  {Y : Type ℓ'} (nullX : isNull S X)
   (nullY : isNull S Y) (f : X → Y) → isNull S (isEquiv f)
 isNullIsEquiv nullX nullY f =
   equivPreservesIsNull (invEquiv (isEquiv≃isEquiv' f))
@@ -188,9 +178,7 @@ isNullEquiv :
   {X Y : Type ℓ} → isNull S X → isNull S Y → isNull S (X ≃ Y)
 isNullEquiv nullX nullY = isNullΣ (isNullΠ (λ _ → nullY)) (isNullIsEquiv nullX nullY)
 
-isNullIsOfHLevel :
-  ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ}
-  (n : HLevel) → isNull S X → isNull S (isOfHLevel n X)
+isNullIsOfHLevel : (n : HLevel) → isNull S X → isNull S (isOfHLevel n X)
 isNullIsOfHLevel zero nullX = isNullIsContr nullX
 isNullIsOfHLevel (suc zero) nullX = isNullΠ (λ _ → isNullΠ (λ _ → isNull≡ nullX))
 isNullIsOfHLevel (suc (suc n)) nullX =
@@ -198,7 +186,7 @@ isNullIsOfHLevel (suc (suc n)) nullX =
 
 -- nullification is a modality
 
-NullModality : ∀ {ℓα ℓs ℓ} {A : Type ℓα} (S : A → Type ℓs) → Modality (ℓ-max ℓ (ℓ-max ℓα ℓs))
+NullModality : {A : Type ℓα} (S : A → Type ℓs) → Modality (ℓ-max ℓ (ℓ-max ℓα ℓs))
 isModal       (NullModality S) = isNull S
 isPropIsModal (NullModality S) = isPropΠ (λ α → isPropIsPathSplitEquiv _)
 ◯             (NullModality S) = Null S
@@ -217,7 +205,7 @@ idemNull {ℓ = ℓ} S A nA = ∣_∣ , isModalToIsEquiv (NullModality {ℓ = �
 
 -- nullification is localization at a family of maps (S α → 1)
 
-module Null-iso-Localize {ℓα ℓs ℓ} {A : Type ℓα} (S : A → Type ℓs) (X : Type ℓ) where
+module Null-iso-Localize (S : A → Type ℓs) (X : Type ℓ) where
 
   to : Null S X → Localize {A = A} (λ α → const {B = S α} tt) X
   to ∣ x ∣ = ∣ x ∣
@@ -250,10 +238,10 @@ module Null-iso-Localize {ℓα ℓs ℓ} {A : Type ℓα} (S : A → Type ℓs)
   isom : Iso (Null S X) (Localize {A = A} (λ α → const {B = S α} tt) X)
   isom = iso to from to-from from-to
 
-Null≃Localize : ∀ {ℓα ℓs ℓ} {A : Type ℓα} (S : A → Type ℓs) (X : Type ℓ) → Null S X ≃ Localize (λ α → const {B = S α} tt) X
+Null≃Localize : (S : A → Type ℓs) (X : Type ℓ) → Null S X ≃ Localize (λ α → const {B = S α} tt) X
 Null≃Localize S X = isoToEquiv (Null-iso-Localize.isom S X)
 
-SeparatedAndInjective→Null : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs}
+SeparatedAndInjective→Null :
   (X : Type ℓ) (sep : (x y : X) → isNull S (x ≡ y))
   (inj : (α : A) → hasSection (const {A = X} {B = S α})) →
   isNull S X
