@@ -158,10 +158,18 @@ NullPreservesProp : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} 
 NullPreservesProp {S = S} pX u = elim (λ v' → isNull≡ (isNull-Null S))
   (λ y → elim (λ u' → isNull≡ (isNull-Null S) {x = u'}) (λ x → cong ∣_∣ (pX x y)) u)
 
+NullPreservesContr : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} →
+                     (isContr X) → isContr (Null S X)
+NullPreservesContr l = inhProp→isContr ∣ fst l ∣ (NullPreservesProp (isContr→isProp l))
+
 isPropIsNull : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} →
   isProp (isNull S X)
 isPropIsNull = isPropΠ (λ _ → isPropIsPathSplitEquiv _)
 
+{-
+  We check that a few common definitions in type theory are null,
+  assuming they are given null types as input.
+-}
 isNullIsContr :
   ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs}
   {X : Type ℓ} → isNull S X → isNull S (isContr X)
@@ -174,6 +182,11 @@ isNullIsEquiv :
 isNullIsEquiv nullX nullY f =
   equivPreservesIsNull (invEquiv (isEquiv≃isEquiv' f))
     (isNullΠ λ _ → isNullIsContr (isNullΣ nullX λ _ → isNull≡ nullY))
+
+isNullEquiv :
+  ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs}
+  {X Y : Type ℓ} → isNull S X → isNull S Y → isNull S (X ≃ Y)
+isNullEquiv nullX nullY = isNullΣ (isNullΠ (λ _ → nullY)) (isNullIsEquiv nullX nullY)
 
 isNullIsOfHLevel :
   ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ}

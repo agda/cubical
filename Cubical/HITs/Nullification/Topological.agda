@@ -1,4 +1,11 @@
 {-# OPTIONS --safe #-}
+{-
+  A topological modality is by definition the nullification of a family of
+  propositions. They are always lex modalities. We show that together
+  with a couple of useful corollaries. We roughly follow the proofs
+  from Rijke, Shulman, Spitters, Modalities in homotopy type theory.
+-}
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Fiberwise
@@ -23,27 +30,36 @@ module Cubical.HITs.Nullification.Topological
 variable
   ℓ ℓ' : Level
 
+{-
+  We use the formulation of lexness that the universe of null types is
+  null itself.
+
+  We choose the level of the universe of null types to be as low as
+  possible such that it is null when the generators are propositions.
+-}
 nullTypes : Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓs)) ℓα )
 nullTypes {ℓ} = Σ[ X ∈ Type (ℓ-max ℓ ℓs) ] isNull S X
 
-nullTypeEquivIsNull : (A : nullTypes {ℓ = ℓ}) (B : nullTypes {ℓ = ℓ'}) →
-  isNull S ((fst A) ≃ (fst B))
-nullTypeEquivIsNull A B = isNullΣ (isNullΠ (λ _ → snd B)) (isNullIsEquiv (snd A) (snd B))
-
-nullTypes≡isNull : (A B : nullTypes {ℓ = ℓ}) → isNull S (A ≡ B)
-nullTypes≡isNull {ℓ = ℓ} A B =
-  equivPreservesIsNull (invEquiv e) (nullTypeEquivIsNull {ℓ = ℓ} {ℓ' = ℓ} A B)
+{-
+  We can show that the universe is separated in general.
+-}
+nullTypes≡isNull : (X Y : nullTypes {ℓ = ℓ}) → isNull S (X ≡ Y)
+nullTypes≡isNull {ℓ = ℓ} X Y =
+  equivPreservesIsNull (invEquiv e) (isNullEquiv (snd X) (snd Y))
   where
-    e : (A ≡ B) ≃ ((fst A) ≃ (fst B))
+    e : (X ≡ Y) ≃ ((fst X) ≃ (fst Y))
     e =
-      A ≡ B ≃⟨ invEquiv (Σ≡PropEquiv λ _ → isPropIsNull) ⟩
-      (fst A) ≡ (fst B) ≃⟨ univalence ⟩
-      (fst A) ≃ (fst B) ■
+      X ≡ Y ≃⟨ invEquiv (Σ≡PropEquiv λ _ → isPropIsNull) ⟩
+      (fst X) ≡ (fst Y) ≃⟨ univalence ⟩
+      (fst X) ≃ (fst Y) ■
 
 module _ (isPropS : (α : A) → isProp (S α)) where
-  injNullTypes : (α : A) → hasSection (const {A = nullTypes {ℓ = ℓ}} {B = S α})
-  fst (injNullTypes α) f = ((z : S α) → fst (f z)) , isNullΠ (λ z → snd (f z))
-  snd (injNullTypes α) f = funExt (λ z → Σ≡Prop (λ _ → isPropIsNull) (ua (e z)))
+  {- Recall that a type Z is injective when can extend any map S α → Z to
+     an element of Z. We show this is the case for Z = nullTypes.
+  -}
+  nullTypesIsInj : (α : A) → hasSection (const {A = nullTypes {ℓ = ℓ}} {B = S α})
+  fst (nullTypesIsInj α) f = ((z : S α) → fst (f z)) , isNullΠ (λ z → snd (f z))
+  snd (nullTypesIsInj α) f = funExt (λ z → Σ≡Prop (λ _ → isPropIsNull) (ua (e z)))
     where
       e : (z : S α) → ((z : S α) → fst (f z)) ≃ fst (f z)
       e z =
@@ -61,8 +77,7 @@ module _ (isPropS : (α : A) → isProp (S α)) where
   isNullNullTypes : isNull S (nullTypes {ℓ = ℓ})
   isNullNullTypes {ℓ} =
     SeparatedAndInjective→Null (nullTypes {ℓ = ℓ})
-      (nullTypes≡isNull {ℓ = ℓ}) (injNullTypes {ℓ = ℓ})
-
+      (nullTypes≡isNull {ℓ = ℓ}) (nullTypesIsInj {ℓ = ℓ})
 
   topUnitWeaklyEmb : {X : Type ℓ} (x y : X) → Path (Null S X) ∣ x ∣ ∣ y ∣ ≃ Null S (x ≡ y)
   topUnitWeaklyEmb {ℓ} {X} x y = extensionToE ∣ y ∣
@@ -86,11 +101,8 @@ module _ (isPropS : (α : A) → isProp (S α)) where
   topUnitWeaklyInj x y = fst (topUnitWeaklyEmb x y)
 
   topPreservesHLevel : {X : Type ℓ} (n : HLevel) → (isOfHLevel n X) → isOfHLevel n (Null S X)
-  topPreservesHLevel zero l =
-    ∣ fst l ∣ , elim (λ _ → isNull≡ (isNull-Null S)) (λ y → cong ∣_∣ (snd l y))
-  topPreservesHLevel (suc zero) l =
-    elim (λ _ → isNullΠ (λ _ → isNull≡ (isNull-Null S)))
-      (λ x → elim (λ y → isNull≡ (isNull-Null S)) (λ y → cong ∣_∣ (l x y)))
+  topPreservesHLevel zero = NullPreservesContr
+  topPreservesHLevel (suc zero) = NullPreservesProp
   topPreservesHLevel (suc (suc n)) l =
     elim (λ x → isNullΠ (λ y → isNullIsOfHLevel _ (isNull≡ (isNull-Null S))))
       (λ x → elim (λ y → isNullIsOfHLevel _ (isNull≡ (isNull-Null S)))
