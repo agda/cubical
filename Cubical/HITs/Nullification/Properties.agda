@@ -67,6 +67,14 @@ isNullΣ {S = S} {X = X} {Y = Y} nX nY α = fromIsEquiv _ (snd e)
       (S α → Σ X Y)
         ■
 
+equivPreservesIsNull : {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'} →
+  (e : X ≃ Y) → (isNull S X) → isNull S Y
+equivPreservesIsNull e nullX α =
+  fromIsEquiv _
+    (isEquiv[f∘equivFunA≃B]→isEquiv[f]
+      (λ y _ → y) e
+      (snd (compEquiv (pathSplitToEquiv ((λ x _ → x) , (nullX α))) (postCompEquiv e))))
+
 rec : ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} {Y : Type ℓ'}
       → (nB : isNull S Y) → (X → Y) → Null S X → Y
 rec nB g ∣ x ∣ = g x
@@ -148,6 +156,20 @@ NullPreservesProp : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} 
 NullPreservesProp {S = S} pX u = elim (λ v' → isNull≡ (isNull-Null S))
   (λ y → elim (λ u' → isNull≡ (isNull-Null S) {x = u'}) (λ x → cong ∣_∣ (pX x y)) u)
 
+isPropIsNull : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ} →
+  isProp (isNull S X)
+isPropIsNull = isPropΠ (λ _ → isPropIsPathSplitEquiv _)
+
+isNullIsEquiv :
+  ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs}
+  {X : Type ℓ} {Y : Type ℓ'} (nullX : isNull S X)
+  (nullB : isNull S Y) (f : X → Y) → isNull S (isEquiv f)
+isNullIsEquiv nullA nullB f =
+  equivPreservesIsNull (invEquiv (isEquiv≃isEquiv' f))
+    (isNullΠ
+      (λ _ → isNullΣ (isNullΣ nullA (λ _ → isNull≡ nullB))
+        λ _ → isNullΠ (λ _ → isNull≡ (isNullΣ nullA (λ _ → isNull≡ nullB)))))
+
 -- nullification is a modality
 
 NullModality : ∀ {ℓα ℓs ℓ} {A : Type ℓα} (S : A → Type ℓs) → Modality (ℓ-max ℓ (ℓ-max ℓα ℓs))
@@ -204,3 +226,13 @@ module Null-iso-Localize {ℓα ℓs ℓ} {A : Type ℓα} (S : A → Type ℓs)
 
 Null≃Localize : ∀ {ℓα ℓs ℓ} {A : Type ℓα} (S : A → Type ℓs) (X : Type ℓ) → Null S X ≃ Localize (λ α → const {B = S α} tt) X
 Null≃Localize S X = isoToEquiv (Null-iso-Localize.isom S X)
+
+SeparatedAndInjective→Null : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs}
+  (X : Type ℓ) (sep : (x y : X) → isNull S (x ≡ y))
+  (inj : (α : A) → hasSection (const {A = X} {B = S α})) →
+  isNull S X
+sec (SeparatedAndInjective→Null X sep inj α) = inj α
+secCong (SeparatedAndInjective→Null X sep inj α) x y =
+  fst s ∘ funExt⁻ , λ p i j α → snd s (funExt⁻ p) i α j
+  where
+    s = sec (sep x y α)
