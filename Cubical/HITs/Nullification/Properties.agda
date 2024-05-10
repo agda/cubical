@@ -9,6 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.PathSplit
 open import Cubical.Foundations.Equiv.Properties
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
 open import Cubical.Functions.FunExtEquiv
 
@@ -18,6 +19,7 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.HITs.Localization renaming (rec to Localize-rec)
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
+open import Cubical.Data.Nat using (ℕ; zero; suc)
 
 open import Cubical.HITs.Nullification.Base
 
@@ -160,15 +162,26 @@ isPropIsNull : ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : 
   isProp (isNull S X)
 isPropIsNull = isPropΠ (λ _ → isPropIsPathSplitEquiv _)
 
+isNullIsContr :
+  ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs}
+  {X : Type ℓ} → isNull S X → isNull S (isContr X)
+isNullIsContr nullX = isNullΣ nullX λ _ → isNullΠ (λ _ → isNull≡ nullX)
+
 isNullIsEquiv :
   ∀ {ℓα ℓs ℓ ℓ'} {A : Type ℓα} {S : A → Type ℓs}
   {X : Type ℓ} {Y : Type ℓ'} (nullX : isNull S X)
-  (nullB : isNull S Y) (f : X → Y) → isNull S (isEquiv f)
-isNullIsEquiv nullA nullB f =
+  (nullY : isNull S Y) (f : X → Y) → isNull S (isEquiv f)
+isNullIsEquiv nullX nullY f =
   equivPreservesIsNull (invEquiv (isEquiv≃isEquiv' f))
-    (isNullΠ
-      (λ _ → isNullΣ (isNullΣ nullA (λ _ → isNull≡ nullB))
-        λ _ → isNullΠ (λ _ → isNull≡ (isNullΣ nullA (λ _ → isNull≡ nullB)))))
+    (isNullΠ λ _ → isNullIsContr (isNullΣ nullX λ _ → isNull≡ nullY))
+
+isNullIsOfHLevel :
+  ∀ {ℓα ℓs ℓ} {A : Type ℓα} {S : A → Type ℓs} {X : Type ℓ}
+  (n : HLevel) → isNull S X → isNull S (isOfHLevel n X)
+isNullIsOfHLevel zero nullX = isNullIsContr nullX
+isNullIsOfHLevel (suc zero) nullX = isNullΠ (λ _ → isNullΠ (λ _ → isNull≡ nullX))
+isNullIsOfHLevel (suc (suc n)) nullX =
+  isNullΠ (λ _ → isNullΠ (λ _ → isNullIsOfHLevel (suc n) (isNull≡ nullX)))
 
 -- nullification is a modality
 
