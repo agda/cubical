@@ -27,7 +27,7 @@ module Cubical.HITs.Nullification.Topological
   (S : A → Type ℓs)
   where
 
-variable
+private variable
   ℓ ℓ' : Level
 
 {-
