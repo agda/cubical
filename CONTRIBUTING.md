@@ -99,10 +99,9 @@ When preparing a PR here are some general guidelines:
   as well as various versions of function extensionality in
   [FunExtEquiv.agda](https://github.com/agda/cubical/blob/master/Cubical/Functions/FunExtEquiv.agda).
 
-- Unless a file is in the `Core`, `Foundations`, `Codata` or
-  `Experiments` package you don't need to add it manually to the
-  `Everything` file as it is automatically generated when running
-  `make`.
+- Unless a file is in the `Core`, `Foundations` or `Codata` package you
+  don't need to add it manually to the `Everything` file as it is
+  automatically generated when running `make`.
 
 - For folders with `Base` and `Properties` submodules, the `Base` file
   can contain some basic consequences of the main definition, but
