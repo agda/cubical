@@ -19,7 +19,7 @@ module Cubical.Papers.Pi4S3 where
 open import Cubical.Data.Int hiding (_+_)
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
-open import Cubical.Foundations.Everything
+open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sum
 open import Cubical.Data.Sigma
 
