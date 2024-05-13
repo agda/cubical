@@ -80,6 +80,10 @@ When preparing a PR here are some general guidelines:
 - Use copattern-matching when instantiating records for efficiency.
   This seems especially important when constructing Iso's.
 
+- New records should be defined with the ```no-eta-equality``` modifier,
+  unless you have a good reason to drop it - keep in mind that dropping it
+  can lead to type checking speed problems.
+
 - If typechecking starts becoming slow try to fix the efficiency
   problems directly. We don't want to merge files that are very slow
   to typecheck so they will have to optimized at some point and it's
