@@ -2,7 +2,9 @@
 module Cubical.Data.List.Base where
 
 open import Agda.Builtin.List public
-open import Cubical.Core.Everything
+
+open import Cubical.Foundations.Prelude
+
 open import Cubical.Data.Maybe.Base as Maybe hiding (rec ; elim)
 open import Cubical.Data.Nat.Base hiding (elim)
 

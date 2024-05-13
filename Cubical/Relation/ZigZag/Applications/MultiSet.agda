@@ -2,7 +2,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.Relation.ZigZag.Applications.MultiSet where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
@@ -11,6 +10,7 @@ open import Cubical.Foundations.RelationalStructure
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.SIP
 open import Cubical.Foundations.Univalence
+
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat
@@ -20,6 +20,7 @@ open import Cubical.HITs.SetQuotients
 open import Cubical.HITs.FiniteMultiset as FMS hiding ([_] ; _++_)
 open import Cubical.HITs.FiniteMultiset.CountExtensionality
 open import Cubical.HITs.PropositionalTruncation
+
 open import Cubical.Relation.Nullary
 open import Cubical.Relation.ZigZag.Base
 

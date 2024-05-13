@@ -2,13 +2,12 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Int.MoreInts.QuoInt.Base where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+
 open import Cubical.Relation.Nullary
 
 open import Cubical.Data.Int using ()

@@ -9,8 +9,6 @@ module Cubical.HITs.GroupoidQuotients.Properties where
 
 open import Cubical.HITs.GroupoidQuotients.Base
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv

@@ -1,8 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.HITs.Interval.Base where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 
 data Interval : Type₀ where
