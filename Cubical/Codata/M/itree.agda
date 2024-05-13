@@ -1,6 +1,6 @@
 {-# OPTIONS --guardedness --safe #-}
 
-module Cubical.Codata.M.AsLimit.itree where
+module Cubical.Codata.M.itree where
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod
@@ -12,9 +12,9 @@ open import Cubical.Data.Bool
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Codata.M.AsLimit.Container
-open import Cubical.Codata.M.AsLimit.M
-open import Cubical.Codata.M.AsLimit.Coalg
+open import Cubical.Codata.M.Container
+open import Cubical.Codata.M.M
+open import Cubical.Codata.M.Coalg
 
 -- Delay monad defined as an M-type
 delay-S : (R : Type₀) -> Container ℓ-zero

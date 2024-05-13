@@ -1,6 +1,6 @@
 {-# OPTIONS --guardedness --safe #-}
 
-module Cubical.Codata.M.AsLimit.Container where
+module Cubical.Codata.M.Container where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv using (_≃_)
@@ -20,7 +20,7 @@ open import Cubical.Data.Sum
 
 open import Cubical.Foundations.Structure
 
-open import Cubical.Codata.M.AsLimit.helper
+open import Cubical.Codata.M.helper
 
 -------------------------------------
 -- Container and Container Functor --

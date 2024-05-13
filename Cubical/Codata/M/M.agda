@@ -5,7 +5,7 @@
 -- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
 -}
 {-# OPTIONS --guardedness --safe #-}
-module Cubical.Codata.M.AsLimit.M where
+module Cubical.Codata.M.M where
 
-open import Cubical.Codata.M.AsLimit.M.Base public
-open import Cubical.Codata.M.AsLimit.M.Properties public
+open import Cubical.Codata.M.M.Base public
+open import Cubical.Codata.M.M.Properties public
