@@ -37,14 +37,14 @@ private variable
   We choose the level of the universe of null types to be as low as
   possible such that it is null when the generators are propositions.
 -}
-nullTypes : Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓs)) ℓα )
-nullTypes {ℓ} = Σ[ X ∈ Type (ℓ-max ℓ ℓs) ] isNull S X
+NullType : Type (ℓ-max (ℓ-suc (ℓ-max ℓ ℓs)) ℓα )
+NullType {ℓ} = Σ[ X ∈ Type (ℓ-max ℓ ℓs) ] isNull S X
 
 {-
   We can show that the universe is separated in general.
 -}
-nullTypes≡isNull : (X Y : nullTypes {ℓ = ℓ}) → isNull S (X ≡ Y)
-nullTypes≡isNull {ℓ = ℓ} X Y =
+NullType≡isNull : (X Y : NullType {ℓ = ℓ}) → isNull S (X ≡ Y)
+NullType≡isNull {ℓ = ℓ} X Y =
   equivPreservesIsNull (invEquiv e) (isNullEquiv (snd X) (snd Y))
   where
     e : (X ≡ Y) ≃ ((fst X) ≃ (fst Y))
@@ -54,12 +54,12 @@ nullTypes≡isNull {ℓ = ℓ} X Y =
       (fst X) ≃ (fst Y) ■
 
 module _ (isPropS : (α : A) → isProp (S α)) where
-  {- Recall that a type Z is injective when can extend any map S α → Z to
-     an element of Z. We show this is the case for Z = nullTypes.
+  {- Recall that a type Z is injective when we can extend any map S α → Z to
+     an element of Z. We show this is the case for Z = NullType.
   -}
-  nullTypesIsInj : (α : A) → hasSection (const {A = nullTypes {ℓ = ℓ}} {B = S α})
-  fst (nullTypesIsInj α) f = ((z : S α) → fst (f z)) , isNullΠ (λ z → snd (f z))
-  snd (nullTypesIsInj α) f = funExt (λ z → Σ≡Prop (λ _ → isPropIsNull) (ua (e z)))
+  NullTypeIsInj : (α : A) → hasSection (const {A = NullType {ℓ = ℓ}} {B = S α})
+  fst (NullTypeIsInj α) f = ((z : S α) → fst (f z)) , isNullΠ (λ z → snd (f z))
+  snd (NullTypeIsInj α) f = funExt (λ z → Σ≡Prop (λ _ → isPropIsNull) (ua (e z)))
     where
       e : (z : S α) → ((z : S α) → fst (f z)) ≃ fst (f z)
       e z =
@@ -74,15 +74,15 @@ module _ (isPropS : (α : A) → isProp (S α)) where
         fst (f z)
           ■
 
-  isNullNullTypes : isNull S (nullTypes {ℓ = ℓ})
+  isNullNullTypes : isNull S (NullType {ℓ = ℓ})
   isNullNullTypes {ℓ} =
-    SeparatedAndInjective→Null (nullTypes {ℓ = ℓ})
-      (nullTypes≡isNull {ℓ = ℓ}) (nullTypesIsInj {ℓ = ℓ})
+    SeparatedAndInjective→Null (NullType {ℓ = ℓ})
+      (NullType≡isNull {ℓ = ℓ}) (NullTypeIsInj {ℓ = ℓ})
 
   topUnitWeaklyEmb : {X : Type ℓ} (x y : X) → Path (Null S X) ∣ x ∣ ∣ y ∣ ≃ Null S (x ≡ y)
   topUnitWeaklyEmb {ℓ} {X} x y = extensionToE ∣ y ∣
     where
-      E : (Null S X) → nullTypes {ℓ = ℓ-max ℓ ℓα}
+      E : (Null S X) → NullType {ℓ = ℓ-max ℓ ℓα}
       E = rec (isNullNullTypes {ℓ = ℓ-max ℓ ℓα}) (λ y' → (Null S (x ≡ y')) , isNull-Null S)
 
       extensionToE : (z : Null S X) → (∣ x ∣ ≡ z) ≃ fst (E z)
