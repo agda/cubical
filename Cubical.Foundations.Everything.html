@@ -2,35 +2,31 @@
 <html><head><meta charset="utf-8"><title>Cubical.Foundations.Everything</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
 <a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Foundations.Everything.html" class="Module">Cubical.Foundations.Everything</a> <a id="62" class="Keyword">where</a>
 
-<a id="69" class="Comment">-- Basic cubical prelude</a>
-<a id="94" class="Keyword">open</a> <a id="99" class="Keyword">import</a> <a id="106" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a> <a id="134" class="Keyword">public</a>
-
-<a id="142" class="Keyword">open</a> <a id="147" class="Keyword">import</a> <a id="154" href="Cubical.Foundations.Function.html" class="Module">Cubical.Foundations.Function</a> <a id="183" class="Keyword">public</a>
-<a id="190" class="Keyword">open</a> <a id="195" class="Keyword">import</a> <a id="202" href="Cubical.Foundations.Equiv.html" class="Module">Cubical.Foundations.Equiv</a> <a id="228" class="Keyword">public</a>
-  <a id="237" class="Keyword">hiding</a> <a id="244" class="Symbol">(</a><a id="245" href="Cubical.Foundations.Equiv.Base.html#2360" class="Function">transpEquiv</a><a id="256" class="Symbol">)</a> <a id="258" class="Comment">-- Hide to avoid clash with Transport.transpEquiv</a>
-<a id="308" class="Keyword">open</a> <a id="313" class="Keyword">import</a> <a id="320" href="Cubical.Foundations.Equiv.Properties.html" class="Module">Cubical.Foundations.Equiv.Properties</a> <a id="357" class="Keyword">public</a>
-<a id="364" class="Keyword">open</a> <a id="369" class="Keyword">import</a> <a id="376" href="Cubical.Foundations.Equiv.Fiberwise.html" class="Module">Cubical.Foundations.Equiv.Fiberwise</a>
-<a id="412" class="Keyword">open</a> <a id="417" class="Keyword">import</a> <a id="424" href="Cubical.Foundations.Equiv.PathSplit.html" class="Module">Cubical.Foundations.Equiv.PathSplit</a> <a id="460" class="Keyword">public</a>
-<a id="467" class="Keyword">open</a> <a id="472" class="Keyword">import</a> <a id="479" href="Cubical.Foundations.Equiv.BiInvertible.html" class="Module">Cubical.Foundations.Equiv.BiInvertible</a> <a id="518" class="Keyword">public</a>
-<a id="525" class="Keyword">open</a> <a id="530" class="Keyword">import</a> <a id="537" href="Cubical.Foundations.Equiv.HalfAdjoint.html" class="Module">Cubical.Foundations.Equiv.HalfAdjoint</a>
-<a id="575" class="Keyword">open</a> <a id="580" class="Keyword">import</a> <a id="587" href="Cubical.Foundations.Equiv.Dependent.html" class="Module">Cubical.Foundations.Equiv.Dependent</a>
-<a id="623" class="Keyword">open</a> <a id="628" class="Keyword">import</a> <a id="635" href="Cubical.Foundations.HLevels.html" class="Module">Cubical.Foundations.HLevels</a> <a id="663" class="Keyword">public</a>
-<a id="670" class="Keyword">open</a> <a id="675" class="Keyword">import</a> <a id="682" href="Cubical.Foundations.HLevels.Extend.html" class="Module">Cubical.Foundations.HLevels.Extend</a>
-<a id="717" class="Keyword">open</a> <a id="722" class="Keyword">import</a> <a id="729" href="Cubical.Foundations.Path.html" class="Module">Cubical.Foundations.Path</a> <a id="754" class="Keyword">public</a>
-<a id="761" class="Keyword">open</a> <a id="766" class="Keyword">import</a> <a id="773" href="Cubical.Foundations.Pointed.html" class="Module">Cubical.Foundations.Pointed</a> <a id="801" class="Keyword">public</a>
-<a id="808" class="Keyword">open</a> <a id="813" class="Keyword">import</a> <a id="820" href="Cubical.Foundations.RelationalStructure.html" class="Module">Cubical.Foundations.RelationalStructure</a> <a id="860" class="Keyword">public</a>
-<a id="867" class="Keyword">open</a> <a id="872" class="Keyword">import</a> <a id="879" href="Cubical.Foundations.Structure.html" class="Module">Cubical.Foundations.Structure</a> <a id="909" class="Keyword">public</a>
-<a id="916" class="Keyword">open</a> <a id="921" class="Keyword">import</a> <a id="928" href="Cubical.Foundations.Transport.html" class="Module">Cubical.Foundations.Transport</a> <a id="958" class="Keyword">public</a>
-<a id="965" class="Keyword">open</a> <a id="970" class="Keyword">import</a> <a id="977" href="Cubical.Foundations.Univalence.html" class="Module">Cubical.Foundations.Univalence</a> <a id="1008" class="Keyword">public</a>
-<a id="1015" class="Keyword">open</a> <a id="1020" class="Keyword">import</a> <a id="1027" href="Cubical.Foundations.Univalence.Universe.html" class="Module">Cubical.Foundations.Univalence.Universe</a>
-<a id="1067" class="Keyword">open</a> <a id="1072" class="Keyword">import</a> <a id="1079" href="Cubical.Foundations.Univalence.Dependent.html" class="Module">Cubical.Foundations.Univalence.Dependent</a>
-<a id="1120" class="Keyword">open</a> <a id="1125" class="Keyword">import</a> <a id="1132" href="Cubical.Foundations.GroupoidLaws.html" class="Module">Cubical.Foundations.GroupoidLaws</a> <a id="1165" class="Keyword">public</a>
-<a id="1172" class="Keyword">open</a> <a id="1177" class="Keyword">import</a> <a id="1184" href="Cubical.Foundations.Isomorphism.html" class="Module">Cubical.Foundations.Isomorphism</a> <a id="1216" class="Keyword">public</a>
-<a id="1223" class="Keyword">open</a> <a id="1228" class="Keyword">import</a> <a id="1235" href="Cubical.Foundations.CartesianKanOps.html" class="Module">Cubical.Foundations.CartesianKanOps</a>
-<a id="1271" class="Keyword">open</a> <a id="1276" class="Keyword">import</a> <a id="1283" href="Cubical.Foundations.Powerset.html" class="Module">Cubical.Foundations.Powerset</a>
-<a id="1312" class="Keyword">open</a> <a id="1317" class="Keyword">import</a> <a id="1324" href="Cubical.Foundations.SIP.html" class="Module">Cubical.Foundations.SIP</a>
-<a id="1348" class="Keyword">open</a> <a id="1353" class="Keyword">import</a> <a id="1360" href="Cubical.Foundations.Cubes.html" class="Module">Cubical.Foundations.Cubes</a>
-<a id="1386" class="Keyword">open</a> <a id="1391" class="Keyword">import</a> <a id="1398" href="Cubical.Foundations.Cubes.Subtypes.html" class="Module">Cubical.Foundations.Cubes.Subtypes</a>
-<a id="1433" class="Keyword">open</a> <a id="1438" class="Keyword">import</a> <a id="1445" href="Cubical.Foundations.Cubes.Dependent.html" class="Module">Cubical.Foundations.Cubes.Dependent</a>
-<a id="1481" class="Keyword">open</a> <a id="1486" class="Keyword">import</a> <a id="1493" href="Cubical.Foundations.Cubes.HLevels.html" class="Module">Cubical.Foundations.Cubes.HLevels</a>
+<a id="69" class="Keyword">import</a> <a id="76" href="Cubical.Foundations.CartesianKanOps.html" class="Module">Cubical.Foundations.CartesianKanOps</a>
+<a id="112" class="Keyword">import</a> <a id="119" href="Cubical.Foundations.Cubes.html" class="Module">Cubical.Foundations.Cubes</a>
+<a id="145" class="Keyword">import</a> <a id="152" href="Cubical.Foundations.Cubes.Dependent.html" class="Module">Cubical.Foundations.Cubes.Dependent</a>
+<a id="188" class="Keyword">import</a> <a id="195" href="Cubical.Foundations.Cubes.Subtypes.html" class="Module">Cubical.Foundations.Cubes.Subtypes</a>
+<a id="230" class="Keyword">import</a> <a id="237" href="Cubical.Foundations.Equiv.html" class="Module">Cubical.Foundations.Equiv</a>
+<a id="263" class="Keyword">import</a> <a id="270" href="Cubical.Foundations.Equiv.BiInvertible.html" class="Module">Cubical.Foundations.Equiv.BiInvertible</a>
+<a id="309" class="Keyword">import</a> <a id="316" href="Cubical.Foundations.Equiv.Dependent.html" class="Module">Cubical.Foundations.Equiv.Dependent</a>
+<a id="352" class="Keyword">import</a> <a id="359" href="Cubical.Foundations.Equiv.Fiberwise.html" class="Module">Cubical.Foundations.Equiv.Fiberwise</a>
+<a id="395" class="Keyword">import</a> <a id="402" href="Cubical.Foundations.Equiv.HalfAdjoint.html" class="Module">Cubical.Foundations.Equiv.HalfAdjoint</a>
+<a id="440" class="Keyword">import</a> <a id="447" href="Cubical.Foundations.Equiv.PathSplit.html" class="Module">Cubical.Foundations.Equiv.PathSplit</a>
+<a id="483" class="Keyword">import</a> <a id="490" href="Cubical.Foundations.Equiv.Properties.html" class="Module">Cubical.Foundations.Equiv.Properties</a>
+<a id="527" class="Keyword">import</a> <a id="534" href="Cubical.Foundations.Function.html" class="Module">Cubical.Foundations.Function</a>
+<a id="563" class="Keyword">import</a> <a id="570" href="Cubical.Foundations.GroupoidLaws.html" class="Module">Cubical.Foundations.GroupoidLaws</a>
+<a id="603" class="Keyword">import</a> <a id="610" href="Cubical.Foundations.HLevels.html" class="Module">Cubical.Foundations.HLevels</a>
+<a id="638" class="Keyword">import</a> <a id="645" href="Cubical.Foundations.HLevels.Extend.html" class="Module">Cubical.Foundations.HLevels.Extend</a>
+<a id="680" class="Keyword">import</a> <a id="687" href="Cubical.Foundations.Isomorphism.html" class="Module">Cubical.Foundations.Isomorphism</a>
+<a id="719" class="Keyword">import</a> <a id="726" href="Cubical.Foundations.Path.html" class="Module">Cubical.Foundations.Path</a>
+<a id="751" class="Keyword">import</a> <a id="758" href="Cubical.Foundations.Pointed.html" class="Module">Cubical.Foundations.Pointed</a>
+<a id="786" class="Keyword">import</a> <a id="793" href="Cubical.Foundations.Powerset.html" class="Module">Cubical.Foundations.Powerset</a>
+<a id="822" class="Keyword">import</a> <a id="829" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="857" class="Keyword">import</a> <a id="864" href="Cubical.Foundations.RelationalStructure.html" class="Module">Cubical.Foundations.RelationalStructure</a>
+<a id="904" class="Keyword">import</a> <a id="911" href="Cubical.Foundations.SIP.html" class="Module">Cubical.Foundations.SIP</a>
+<a id="935" class="Keyword">import</a> <a id="942" href="Cubical.Foundations.Structure.html" class="Module">Cubical.Foundations.Structure</a>
+<a id="972" class="Keyword">import</a> <a id="979" href="Cubical.Foundations.Transport.html" class="Module">Cubical.Foundations.Transport</a>
+<a id="1009" class="Keyword">import</a> <a id="1016" href="Cubical.Foundations.Univalence.html" class="Module">Cubical.Foundations.Univalence</a>
+<a id="1047" class="Keyword">import</a> <a id="1054" href="Cubical.Foundations.Univalence.Dependent.html" class="Module">Cubical.Foundations.Univalence.Dependent</a>
+<a id="1095" class="Keyword">import</a> <a id="1102" href="Cubical.Foundations.Univalence.Universe.html" class="Module">Cubical.Foundations.Univalence.Universe</a>
 </pre></body></html>

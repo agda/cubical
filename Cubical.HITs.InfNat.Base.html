@@ -3,16 +3,15 @@
 
 <a id="42" class="Keyword">module</a> <a id="49" href="Cubical.HITs.InfNat.Base.html" class="Module">Cubical.HITs.InfNat.Base</a> <a id="74" class="Keyword">where</a>
 
-<a id="81" class="Keyword">open</a> <a id="86" class="Keyword">import</a> <a id="93" href="Cubical.Core.Everything.html" class="Module">Cubical.Core.Everything</a>
-<a id="117" class="Keyword">open</a> <a id="122" class="Keyword">import</a> <a id="129" href="Cubical.Data.Maybe.html" class="Module">Cubical.Data.Maybe</a>
-<a id="148" class="Keyword">open</a> <a id="153" class="Keyword">import</a> <a id="160" href="Cubical.Data.Nat.html" class="Module">Cubical.Data.Nat</a>
+<a id="81" class="Keyword">open</a> <a id="86" class="Keyword">import</a> <a id="93" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="121" class="Keyword">open</a> <a id="126" class="Keyword">import</a> <a id="133" href="Cubical.Foundations.Isomorphism.html" class="Module">Cubical.Foundations.Isomorphism</a>
 
-<a id="178" class="Keyword">open</a> <a id="183" class="Keyword">import</a> <a id="190" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
-<a id="218" class="Keyword">open</a> <a id="223" class="Keyword">import</a> <a id="230" href="Cubical.Foundations.Isomorphism.html" class="Module">Cubical.Foundations.Isomorphism</a>
+<a id="166" class="Keyword">open</a> <a id="171" class="Keyword">import</a> <a id="178" href="Cubical.Data.Maybe.html" class="Module">Cubical.Data.Maybe</a>
+<a id="197" class="Keyword">open</a> <a id="202" class="Keyword">import</a> <a id="209" href="Cubical.Data.Nat.html" class="Module">Cubical.Data.Nat</a>
 
-<a id="263" class="Keyword">data</a> <a id="ℕ+∞"></a><a id="268" href="Cubical.HITs.InfNat.Base.html#268" class="Datatype">ℕ+∞</a> <a id="272" class="Symbol">:</a> <a id="274" href="Agda.Primitive.html#388" class="Primitive">Type₀</a> <a id="280" class="Keyword">where</a>
-  <a id="ℕ+∞.zero"></a><a id="288" href="Cubical.HITs.InfNat.Base.html#288" class="InductiveConstructor">zero</a> <a id="293" class="Symbol">:</a> <a id="295" href="Cubical.HITs.InfNat.Base.html#268" class="Datatype">ℕ+∞</a>
-  <a id="ℕ+∞.suc"></a><a id="301" href="Cubical.HITs.InfNat.Base.html#301" class="InductiveConstructor">suc</a> <a id="305" class="Symbol">:</a> <a id="307" href="Cubical.HITs.InfNat.Base.html#268" class="Datatype">ℕ+∞</a> <a id="311" class="Symbol">→</a> <a id="313" href="Cubical.HITs.InfNat.Base.html#268" class="Datatype">ℕ+∞</a>
-  <a id="ℕ+∞.∞"></a><a id="319" href="Cubical.HITs.InfNat.Base.html#319" class="InductiveConstructor">∞</a> <a id="321" class="Symbol">:</a> <a id="323" href="Cubical.HITs.InfNat.Base.html#268" class="Datatype">ℕ+∞</a>
-  <a id="ℕ+∞.suc-inf"></a><a id="329" href="Cubical.HITs.InfNat.Base.html#329" class="InductiveConstructor">suc-inf</a> <a id="337" class="Symbol">:</a> <a id="339" href="Cubical.HITs.InfNat.Base.html#319" class="InductiveConstructor">∞</a> <a id="341" href="Agda.Builtin.Cubical.Path.html#272" class="Function Operator">≡</a> <a id="343" href="Cubical.HITs.InfNat.Base.html#301" class="InductiveConstructor">suc</a> <a id="347" href="Cubical.HITs.InfNat.Base.html#319" class="InductiveConstructor">∞</a>
+<a id="227" class="Keyword">data</a> <a id="ℕ+∞"></a><a id="232" href="Cubical.HITs.InfNat.Base.html#232" class="Datatype">ℕ+∞</a> <a id="236" class="Symbol">:</a> <a id="238" href="Agda.Primitive.html#388" class="Primitive">Type₀</a> <a id="244" class="Keyword">where</a>
+  <a id="ℕ+∞.zero"></a><a id="252" href="Cubical.HITs.InfNat.Base.html#252" class="InductiveConstructor">zero</a> <a id="257" class="Symbol">:</a> <a id="259" href="Cubical.HITs.InfNat.Base.html#232" class="Datatype">ℕ+∞</a>
+  <a id="ℕ+∞.suc"></a><a id="265" href="Cubical.HITs.InfNat.Base.html#265" class="InductiveConstructor">suc</a> <a id="269" class="Symbol">:</a> <a id="271" href="Cubical.HITs.InfNat.Base.html#232" class="Datatype">ℕ+∞</a> <a id="275" class="Symbol">→</a> <a id="277" href="Cubical.HITs.InfNat.Base.html#232" class="Datatype">ℕ+∞</a>
+  <a id="ℕ+∞.∞"></a><a id="283" href="Cubical.HITs.InfNat.Base.html#283" class="InductiveConstructor">∞</a> <a id="285" class="Symbol">:</a> <a id="287" href="Cubical.HITs.InfNat.Base.html#232" class="Datatype">ℕ+∞</a>
+  <a id="ℕ+∞.suc-inf"></a><a id="293" href="Cubical.HITs.InfNat.Base.html#293" class="InductiveConstructor">suc-inf</a> <a id="301" class="Symbol">:</a> <a id="303" href="Cubical.HITs.InfNat.Base.html#283" class="InductiveConstructor">∞</a> <a id="305" href="Agda.Builtin.Cubical.Path.html#272" class="Function Operator">≡</a> <a id="307" href="Cubical.HITs.InfNat.Base.html#265" class="InductiveConstructor">suc</a> <a id="311" href="Cubical.HITs.InfNat.Base.html#283" class="InductiveConstructor">∞</a>
 </pre></body></html>

@@ -1,35 +1,17 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="utf-8"><title>Cubical.Codata.Everything</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--guardedness</a> <a id="27" class="Symbol">#-}</a>
+<html><head><meta charset="utf-8"><title>Cubical.Codata.Everything</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Pragma">--guardedness</a> <a id="34" class="Symbol">#-}</a>
+<a id="38" class="Keyword">module</a> <a id="45" href="Cubical.Codata.Everything.html" class="Module">Cubical.Codata.Everything</a> <a id="71" class="Keyword">where</a>
 
-<a id="32" class="Keyword">module</a> <a id="39" href="Cubical.Codata.Everything.html" class="Module">Cubical.Codata.Everything</a> <a id="65" class="Keyword">where</a>
-
-<a id="72" class="Keyword">open</a> <a id="77" class="Keyword">import</a> <a id="84" href="Cubical.Codata.EverythingSafe.html" class="Module">Cubical.Codata.EverythingSafe</a> <a id="114" class="Keyword">public</a>
-
-<a id="122" class="Comment">--- Modules making assumptions that might be incompatible with other</a>
-<a id="191" class="Comment">--  flags or make use of potentially unsafe features.</a>
-
-<a id="246" class="Comment">-- Assumes --guardedness</a>
-<a id="271" class="Keyword">open</a> <a id="276" class="Keyword">import</a> <a id="283" href="Cubical.Codata.Stream.html" class="Module">Cubical.Codata.Stream</a> <a id="305" class="Keyword">public</a>
-
-<a id="313" class="Keyword">open</a> <a id="318" class="Keyword">import</a> <a id="325" href="Cubical.Codata.Conat.html" class="Module">Cubical.Codata.Conat</a> <a id="346" class="Keyword">public</a>
-<a id="353" class="Keyword">open</a> <a id="358" class="Keyword">import</a> <a id="365" href="Cubical.Codata.Conat.Bounded.html" class="Module">Cubical.Codata.Conat.Bounded</a>
-
-<a id="395" class="Keyword">open</a> <a id="400" class="Keyword">import</a> <a id="407" href="Cubical.Codata.M.html" class="Module">Cubical.Codata.M</a> <a id="424" class="Keyword">public</a>
-
-<a id="432" class="Comment">-- Also uses {-# TERMINATING #-}.</a>
-<a id="466" class="Keyword">open</a> <a id="471" class="Keyword">import</a> <a id="478" href="Cubical.Codata.M.Bisimilarity.html" class="Module">Cubical.Codata.M.Bisimilarity</a> <a id="508" class="Keyword">public</a>
-
-<a id="516" class="Comment">{-
--- Alternative M type implemetation, based on
--- https://arxiv.org/pdf/1504.02949.pdf
--- &quot;Non-wellfounded trees in Homotopy Type Theory&quot;
--- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
--}</a>
-
-<a id="712" class="Keyword">open</a> <a id="717" class="Keyword">import</a> <a id="724" href="Cubical.Codata.M.AsLimit.M.html" class="Module">Cubical.Codata.M.AsLimit.M</a>
-<a id="751" class="Keyword">open</a> <a id="756" class="Keyword">import</a> <a id="763" href="Cubical.Codata.M.AsLimit.Coalg.html" class="Module">Cubical.Codata.M.AsLimit.Coalg</a>
-<a id="794" class="Keyword">open</a> <a id="799" class="Keyword">import</a> <a id="806" href="Cubical.Codata.M.AsLimit.helper.html" class="Module">Cubical.Codata.M.AsLimit.helper</a>
-<a id="838" class="Keyword">open</a> <a id="843" class="Keyword">import</a> <a id="850" href="Cubical.Codata.M.AsLimit.Container.html" class="Module">Cubical.Codata.M.AsLimit.Container</a>
-<a id="885" class="Keyword">open</a> <a id="890" class="Keyword">import</a> <a id="897" href="Cubical.Codata.M.AsLimit.itree.html" class="Module">Cubical.Codata.M.AsLimit.itree</a>
-<a id="928" class="Keyword">open</a> <a id="933" class="Keyword">import</a> <a id="940" href="Cubical.Codata.M.AsLimit.stream.html" class="Module">Cubical.Codata.M.AsLimit.stream</a>
+<a id="78" class="Keyword">import</a> <a id="85" href="Cubical.Codata.Conat.html" class="Module">Cubical.Codata.Conat</a>
+<a id="106" class="Keyword">import</a> <a id="113" href="Cubical.Codata.Conat.Bounded.html" class="Module">Cubical.Codata.Conat.Bounded</a>
+<a id="142" class="Keyword">import</a> <a id="149" href="Cubical.Codata.M.Coalg.html" class="Module">Cubical.Codata.M.Coalg</a>
+<a id="172" class="Keyword">import</a> <a id="179" href="Cubical.Codata.M.Coalg.Base.html" class="Module">Cubical.Codata.M.Coalg.Base</a>
+<a id="207" class="Keyword">import</a> <a id="214" href="Cubical.Codata.M.Container.html" class="Module">Cubical.Codata.M.Container</a>
+<a id="241" class="Keyword">import</a> <a id="248" href="Cubical.Codata.M.M.html" class="Module">Cubical.Codata.M.M</a>
+<a id="267" class="Keyword">import</a> <a id="274" href="Cubical.Codata.M.M.Base.html" class="Module">Cubical.Codata.M.M.Base</a>
+<a id="298" class="Keyword">import</a> <a id="305" href="Cubical.Codata.M.M.Properties.html" class="Module">Cubical.Codata.M.M.Properties</a>
+<a id="335" class="Keyword">import</a> <a id="342" href="Cubical.Codata.M.helper.html" class="Module">Cubical.Codata.M.helper</a>
+<a id="366" class="Keyword">import</a> <a id="373" href="Cubical.Codata.M.itree.html" class="Module">Cubical.Codata.M.itree</a>
+<a id="396" class="Keyword">import</a> <a id="403" href="Cubical.Codata.M.stream.html" class="Module">Cubical.Codata.M.stream</a>
+<a id="427" class="Keyword">import</a> <a id="434" href="Cubical.Codata.Stream.html" class="Module">Cubical.Codata.Stream</a>
 </pre></body></html>
