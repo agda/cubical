@@ -9,6 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.RelationalStructure
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.SIP
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Unit
