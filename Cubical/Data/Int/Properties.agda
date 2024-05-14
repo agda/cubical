@@ -1,12 +1,11 @@
 {-# OPTIONS --safe #-}
 module Cubical.Data.Int.Properties where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Equiv
 
 open import Cubical.Relation.Nullary
 

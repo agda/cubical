@@ -1,14 +1,14 @@
 {-# OPTIONS --guardedness --safe #-}
 
-module Cubical.Codata.M.AsLimit.stream where
+module Cubical.Codata.M.stream where
 
 open import Cubical.Data.Unit
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Codata.M.AsLimit.M
-open import Cubical.Codata.M.AsLimit.helper
-open import Cubical.Codata.M.AsLimit.Container
+open import Cubical.Codata.M.M
+open import Cubical.Codata.M.helper
+open import Cubical.Codata.M.Container
 
 --------------------------------------
 -- Stream definitions using M.AsLimit --

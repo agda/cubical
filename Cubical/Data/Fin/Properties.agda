@@ -1,18 +1,16 @@
 {-# OPTIONS --safe #-}
-
 module Cubical.Data.Fin.Properties where
 
-open import Cubical.Core.Everything
-
-open import Cubical.Functions.Embedding
-open import Cubical.Functions.Surjection
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
+
+open import Cubical.Functions.Embedding
+open import Cubical.Functions.Surjection
 
 open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥∥rec)
 

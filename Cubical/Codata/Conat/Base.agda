@@ -21,10 +21,10 @@ of Sized Types.
 {-# OPTIONS --safe --guardedness #-}
 module Cubical.Codata.Conat.Base where
 
+open import Cubical.Foundations.Prelude
+
 open import Cubical.Data.Unit
 open import Cubical.Data.Sum
-
-open import Cubical.Core.Everything
 
 record Conat : Type₀
 Conat′ = Unit ⊎ Conat
