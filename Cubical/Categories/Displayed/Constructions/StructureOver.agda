@@ -52,7 +52,7 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : StructureOver C ℓCᴰ ℓCᴰ') whe
 
   open Functor
 
-  FstFaithful : isFaithful (Fst {Cᴰ = StructureOver→Catᴰ})
-  FstFaithful x y f g p =
+  isFaithfulFst : isFaithful (Fst {Cᴰ = StructureOver→Catᴰ})
+  isFaithfulFst x y f g p =
     ΣPathP (p ,
       isProp→PathP (λ i → Pᴰ .isPropHomᴰ {f = p i}) (f .snd) (g .snd))
