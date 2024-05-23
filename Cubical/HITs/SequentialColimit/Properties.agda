@@ -17,10 +17,12 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Nat hiding (elim)
 open import Cubical.Data.Sequence
 open import Cubical.Data.Fin.Inductive
+open import Cubical.Data.Sigma
 
 open import Cubical.HITs.SequentialColimit.Base
 open import Cubical.Homotopy.Connected
@@ -247,6 +249,7 @@ module _
 
 open Sequence
 open ElimDataShifted
+
 -- Proof that colim Aₘ ≃ Aₙ for a converging sequence
 -- A₀ → A₁ → ... → Aₙ ≃ Aₙ₊₁ ≃ ...
 module _ {ℓ : Level} (seq : Sequence ℓ) (n : ℕ) (term : converges seq n)
@@ -410,7 +413,8 @@ realiseCompSequenceMap {C = C} {E = E} g f =
                 (push {n = n} (g₁ (f₁ x))
                 ∙ cong incl (SequenceMap.comm g n (f₁ x)
                            ∙ cong g₊ (SequenceMap.comm f n x)))
-                (cong (realiseSequenceMap g) (push (f₁ x) ∙ cong incl (SequenceMap.comm f n x)))
+                (cong (realiseSequenceMap g)
+                  (push (f₁ x) ∙ cong incl (SequenceMap.comm f n x)))
     main = cong (push (SequenceMap.map g n (f₁ x)) ∙_)
                       (cong-∙ incl (SequenceMap.comm g n (f₁ x))
                                    (cong g₊ (SequenceMap.comm f n x)))
@@ -419,6 +423,34 @@ realiseCompSequenceMap {C = C} {E = E} g f =
                (cong (incl ∘ g₊) (SequenceMap.comm f n x))
       ∙ sym (cong-∙ (realiseSequenceMap g)
                     (push (f₁ x)) (cong incl (SequenceMap.comm f n x)))
+
+sequenceEquiv→ColimIso : {A B : Sequence ℓ}
+  → SequenceEquiv A B → Iso (SeqColim A) (SeqColim B)
+sequenceEquiv→ColimIso e = mainIso
+  where
+  main : {A : Sequence ℓ} (B : Sequence ℓ) (e : SequenceEquiv A B)
+    → section (realiseSequenceMap (fst e))
+               (realiseSequenceMap (fst (invSequenceEquiv e)))
+     × retract (realiseSequenceMap (fst e))
+               (realiseSequenceMap (fst (invSequenceEquiv e)))
+  main {A = A} = SequenceEquivJ>
+    ((λ x → (λ i → realiseIdSequenceMap {C = A} i
+                    (realiseSequenceMap (fst (invIdSequenceEquiv {A = A} i)) x))
+           ∙ funExt⁻ realiseIdSequenceMap x)
+   , λ x → (λ i → realiseSequenceMap (fst (invIdSequenceEquiv {A = A} i))
+                      (realiseIdSequenceMap {C = A} i x))
+           ∙ funExt⁻ realiseIdSequenceMap x)
+
+  mainIso : Iso _ _
+  Iso.fun mainIso = realiseSequenceMap (fst e)
+  Iso.inv mainIso = realiseSequenceMap (fst (invSequenceEquiv e))
+  Iso.rightInv mainIso = main _ e .fst
+  Iso.leftInv mainIso = main _ e .snd
+
+sequenceIso→ColimIso : {A B : Sequence ℓ}
+  → SequenceIso A B → Iso (SeqColim A) (SeqColim B)
+sequenceIso→ColimIso e =
+  sequenceEquiv→ColimIso (SequenceIso→SequenceEquiv e)
 
 converges→funId : {seq1 : Sequence ℓ} {seq2 : Sequence ℓ'}
   (n m : ℕ)
@@ -512,3 +544,74 @@ Iso.leftInv (Iso-FinSeqColim-Top X m) r =
   (transport (λ i → (x : isoToPath (invIso (Iso-FinSeqColim-Top X m)) i)
     → f (ua-unglue (isoToEquiv (invIso (Iso-FinSeqColim-Top X m))) i x)
      ≡ g (ua-unglue (isoToEquiv (invIso (Iso-FinSeqColim-Top X m))) i x)) h)
+
+
+-- Shifinting colimi
+
+Iso-SeqColim→SeqColimSuc : (X : Sequence ℓ)
+  → Iso (SeqColim X) (SeqColim (ShiftSeq X))
+Iso-SeqColim→SeqColimSuc X = iso G F F→G→F G→F→G
+  where
+  F : SeqColim (ShiftSeq X) → SeqColim X
+  F (incl {n = n} x) = incl {n = suc n} x
+  F (push {n = n} x i) = push {n = suc n} x i
+
+  G : SeqColim X → SeqColim (ShiftSeq X)
+  G (incl {n = zero} x) = incl {n = zero} (map X x)
+  G (incl {n = suc n} x) = incl {n = n} x
+  G (push {n = zero} x i) = incl {n = zero} (map X x)
+  G (push {n = suc n} x i) = push {n = n} x i
+
+  F→G→F : (x : SeqColim (ShiftSeq X)) → G (F x) ≡ x
+  F→G→F (incl x) = refl
+  F→G→F (push x i) = refl
+
+  G→F→G : (x : SeqColim X) → F (G x) ≡ x
+  G→F→G (incl {n = zero} x) = sym (push {n = zero} x)
+  G→F→G (incl {n = suc n} x) = refl
+  G→F→G (push {n = zero} x i) j = push {n = zero} x (i ∨ ~ j)
+  G→F→G (push {n = suc n} x i) = refl
+
+ShiftSequence+ : (S : Sequence ℓ) (n : ℕ) → Sequence ℓ
+Sequence.obj (ShiftSequence+ S n) m = Sequence.obj S (m + n)
+Sequence.map (ShiftSequence+ S n) {n = m} = Sequence.map S
+
+ShiftSequence+Rec : (S : Sequence ℓ) (n : ℕ) → Sequence ℓ
+ShiftSequence+Rec S zero = S
+ShiftSequence+Rec S (suc n) = ShiftSeq (ShiftSequence+Rec S n)
+
+Iso-SeqColim→SeqColimShift : (S : Sequence ℓ) (n : ℕ)
+  → Iso (SeqColim S) (SeqColim (ShiftSequence+Rec S n))
+Iso-SeqColim→SeqColimShift S zero = idIso
+Iso-SeqColim→SeqColimShift S (suc n) =
+  compIso (Iso-SeqColim→SeqColimShift S n)
+          (Iso-SeqColim→SeqColimSuc _)
+
+ShiftSequenceIso : {A : Sequence ℓ} (n : ℕ)
+  → SequenceIso (ShiftSequence+Rec A n) (ShiftSequence+ A n)
+fst (ShiftSequenceIso {A = A} zero) m =
+  pathToIso λ i → Sequence.obj A (+-comm zero m i)
+fst (ShiftSequenceIso {A = A} (suc n)) m =
+  compIso (fst (ShiftSequenceIso {A = A} n) (suc m))
+          (pathToIso λ i → Sequence.obj A (+-suc m n (~ i)))
+snd (ShiftSequenceIso {A = A} zero) m a =
+  sym (substCommSlice (Sequence.obj A) (Sequence.obj A ∘ suc)
+                        (λ _ → Sequence.map A)
+                        (+-comm zero m) a)
+  ∙ λ t → subst (Sequence.obj A)
+             (lUnit (cong suc (+-comm zero m)) t)
+             (Sequence.map A a)
+snd (ShiftSequenceIso {A = A} (suc n)) m a =
+    sym (substCommSlice (Sequence.obj A) (Sequence.obj A ∘ suc)
+                        (λ _ → Sequence.map A)
+                        (λ i → (+-suc m n (~ i)))
+                        (Iso.fun (fst (ShiftSequenceIso n) (suc m)) a))
+  ∙ cong (subst (λ x → Sequence.obj A (suc x)) (sym (+-suc m n)))
+         (snd (ShiftSequenceIso {A = A} n) (suc m) a)
+
+SeqColimIso : (S : Sequence ℓ) (n : ℕ)
+  → Iso (SeqColim S) (SeqColim (ShiftSequence+ S n))
+SeqColimIso S n =
+  compIso (Iso-SeqColim→SeqColimShift S n)
+    (sequenceEquiv→ColimIso
+      (SequenceIso→SequenceEquiv (ShiftSequenceIso n)))

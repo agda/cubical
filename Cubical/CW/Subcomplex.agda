@@ -14,6 +14,7 @@ open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
 open import Cubical.Data.Sigma
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Nat.Order.Inductive
 
 open import Cubical.CW.Base
 open import Cubical.CW.Properties
@@ -131,6 +132,39 @@ realiseSubComplex : (n : ℕ) (C : CWskel ℓ) → Iso (fst C n) (realise (subCo
 realiseSubComplex n C =
   compIso (equivToIso (complex≃subcomplex C n flast))
           (realiseFin n (finSubComplex C n))
+
+
+niceFinCWskel : ∀ {ℓ} (n : ℕ) → finCWskel ℓ n → finCWskel ℓ n
+fst (niceFinCWskel n (A , AC , fin)) = finSubComplex (A , AC) n .fst
+snd (niceFinCWskel n (A , AC , fin)) = finSubComplex (A , AC) n .snd
+
+open import Cubical.Foundations.HLevels
+makeNiceFinCW : ∀ {ℓ} → finCW ℓ → finCW ℓ
+fst (makeNiceFinCW C) = fst C
+snd (makeNiceFinCW C) =
+  PT.map better (snd C)
+  where
+    module _ (dim+CW : isFinCW (fst C)) where
+      dim = fst dim+CW
+      cwsk = fst (snd dim+CW)
+      e = snd (snd dim+CW)
+      improved = finSubComplex (cwsk .fst , cwsk .snd .fst) dim
+
+      better : isFinCW (fst C)
+      fst better = dim
+      fst (snd better) = improved
+      snd (snd better) =
+        compEquiv
+          (compEquiv e (invEquiv (isoToEquiv (realiseFin dim cwsk))))
+          (isoToEquiv (realiseSubComplex dim (cwsk .fst , cwsk .snd .fst)))
+
+makeNiceFinCW≡ : ∀ {ℓ} (C : finCW ℓ) → makeNiceFinCW C ≡ C
+makeNiceFinCW≡ C = Σ≡Prop (λ _ → squash₁) refl
+
+makeNiceFinCWElim : ∀ {ℓ ℓ'} {A : finCW ℓ → Type ℓ'}
+  → ((C : finCW ℓ) → A (makeNiceFinCW C))
+  → (C : _) → A C
+makeNiceFinCWElim {A = A} ind C = subst A (makeNiceFinCW≡ C) (ind C)
 
 -- Goal: Show that a cell complex C and its subcomplex Cₙ share
 -- homology in low enough dimensions
