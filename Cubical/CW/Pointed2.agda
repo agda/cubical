@@ -44,6 +44,62 @@ open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Univalence
 
+liftFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
+  (f : A → B) → Lift {j = ℓ''} A → Lift {j = ℓ'''} B
+liftFun f (lift a) = lift (f a)
+
+module _ {ℓ ℓ' ℓ'' : Level} (ℓ''' : Level)
+  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (f : A → B) (g : A → C) where
+  PushoutLevel  : Level
+  PushoutLevel = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ'''))
+
+  PushoutLift : Type PushoutLevel
+  PushoutLift = Pushout {A = Lift {j = ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')} A}
+                        {B = Lift {j = ℓ-max ℓ (ℓ-max ℓ'' ℓ''')} B}
+                        {C = Lift {j = ℓ-max ℓ (ℓ-max ℓ' ℓ''')} C}
+                        (liftFun f)
+                        (liftFun g)
+
+  PushoutLiftIso : Iso (Pushout f g) PushoutLift
+  Iso.fun PushoutLiftIso (inl x) = inl (lift x)
+  Iso.fun PushoutLiftIso (inr x) = inr (lift x)
+  Iso.fun PushoutLiftIso (push a i) = push (lift a) i
+  Iso.inv PushoutLiftIso (inl (lift x)) = inl x
+  Iso.inv PushoutLiftIso (inr (lift x)) = inr x
+  Iso.inv PushoutLiftIso (push (lift a) i) = push a i
+  Iso.rightInv PushoutLiftIso (inl (lift x)) = refl
+  Iso.rightInv PushoutLiftIso (inr (lift x)) = refl
+  Iso.rightInv PushoutLiftIso (push (lift a) i) = refl
+  Iso.leftInv PushoutLiftIso (inl x) = refl
+  Iso.leftInv PushoutLiftIso (inr x) = refl
+  Iso.leftInv PushoutLiftIso (push a i) = refl
+
+open import Cubical.Foundations.Equiv
+
+
+pushoutIso' : ∀ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
+      {A₁ : Type ℓA₁} {B₁ : Type ℓB₁} {C₁ : Type ℓC₁}
+      {A₂ : Type ℓA₂} {B₂ : Type ℓB₂} {C₂ : Type ℓC₂}
+      (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
+      (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
+      (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
+      (id1 : fst B≃ ∘ f₁ ≡ f₂ ∘ fst A≃)
+      (id2 : fst C≃ ∘ g₁ ≡ g₂ ∘ fst A≃) →
+      Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
+pushoutIso' {ℓA₁ = ℓA₁} {ℓB₁} {ℓC₁} {ℓA₂} {ℓB₂} {ℓC₂}
+  f₁ g₁ f₂ g₂ A≃ B≃ C≃ id1 id2 =
+    compIso (PushoutLiftIso ℓ* f₁ g₁)
+      (compIso (pushoutIso _ _ _ _
+        (Lift≃Lift A≃)
+        (Lift≃Lift B≃)
+        (Lift≃Lift C≃)
+        (funExt (λ { (lift x) → cong lift (funExt⁻ id1 x)}))
+        (funExt (λ { (lift x) → cong lift (funExt⁻ id2 x)})))
+      (invIso (PushoutLiftIso ℓ* f₂ g₂)))
+  where
+  ℓ* = ℓ-max ℓA₁ (ℓ-max ℓA₂ (ℓ-max ℓB₁ (ℓ-max ℓB₂ (ℓ-max ℓC₁ ℓC₂)))) 
+
+
 module _ {C : Type ℓ} {B : Type ℓ'} where
   PushoutAlongEquiv→ : {A : Type ℓ}
     (e : A ≃ C) (f : A → B) → Pushout (fst e) f → B
@@ -74,8 +130,8 @@ module _ {C : Type ℓ} {B : Type ℓ'} where
 -- New def: X 0 is empty and C (suc n) is pushout
 
 open import Cubical.HITs.Pushout
-module _ {A : Type} {B : A → Pointed₀} (C : Pointed₀) (f : (⋁gen A B , inl tt) →∙ C) where
-  
+module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A → Pointed ℓB} (C : Pointed ℓC)
+         (f : (⋁gen A B , inl tt) →∙ C) where
 
   private
     open 3x3-span
@@ -118,7 +174,7 @@ module _ {A : Type} {B : A → Pointed₀} (C : Pointed₀) (f : (⋁gen A B , i
 
   A○□Iso : Iso (A○□ inst) (Pushout (fst f ∘ inr) fst)
   A○□Iso = compIso (equivToIso (symPushout _ _))
-                   (invIso (pushoutIso _ _ _ _
+                   (invIso (pushoutIso' _ _ _ _
                      (isoToEquiv (invIso A2□Iso))
                      (isoToEquiv (invIso A4□Iso))
                      (isoToEquiv (invIso A0□Iso))
@@ -143,7 +199,7 @@ module _ {A : Type} {B : A → Pointed₀} (C : Pointed₀) (f : (⋁gen A B , i
 
   open import Cubical.Foundations.GroupoidLaws
   A□○Iso : Iso (A□○ inst) (cofib (fst f))
-  A□○Iso = invIso (pushoutIso _ _ _ _
+  A□○Iso = invIso (pushoutIso' _ _ _ _
     (isoToEquiv (invIso A□2Iso))
     (isoToEquiv (invIso A□0Iso))
     (isoToEquiv (invIso A□4Iso))
@@ -468,60 +524,8 @@ module _ {n : ℕ} where
   Iso.rightInv (swapFinIso x y) = swapFin² x y
   Iso.leftInv (swapFinIso x y) = swapFin² x y
 
-liftFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
-  (f : A → B) → Lift {j = ℓ''} A → Lift {j = ℓ'''} B
-liftFun f (lift a) = lift (f a)
-
-module _ {ℓ ℓ' ℓ'' : Level} (ℓ''' : Level)
-  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (f : A → B) (g : A → C) where
-  PushoutLevel  : Level
-  PushoutLevel = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ'''))
-
-  PushoutLift : Type PushoutLevel
-  PushoutLift = Pushout {A = Lift {j = ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')} A}
-                        {B = Lift {j = ℓ-max ℓ (ℓ-max ℓ'' ℓ''')} B}
-                        {C = Lift {j = ℓ-max ℓ (ℓ-max ℓ' ℓ''')} C}
-                        (liftFun f)
-                        (liftFun g)
-
-  PushoutLiftIso : Iso (Pushout f g) PushoutLift
-  Iso.fun PushoutLiftIso (inl x) = inl (lift x)
-  Iso.fun PushoutLiftIso (inr x) = inr (lift x)
-  Iso.fun PushoutLiftIso (push a i) = push (lift a) i
-  Iso.inv PushoutLiftIso (inl (lift x)) = inl x
-  Iso.inv PushoutLiftIso (inr (lift x)) = inr x
-  Iso.inv PushoutLiftIso (push (lift a) i) = push a i
-  Iso.rightInv PushoutLiftIso (inl (lift x)) = refl
-  Iso.rightInv PushoutLiftIso (inr (lift x)) = refl
-  Iso.rightInv PushoutLiftIso (push (lift a) i) = refl
-  Iso.leftInv PushoutLiftIso (inl x) = refl
-  Iso.leftInv PushoutLiftIso (inr x) = refl
-  Iso.leftInv PushoutLiftIso (push a i) = refl
-
-open import Cubical.Foundations.Equiv
 
 
-pushoutIso' : ∀ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
-      {A₁ : Type ℓA₁} {B₁ : Type ℓB₁} {C₁ : Type ℓC₁}
-      {A₂ : Type ℓA₂} {B₂ : Type ℓB₂} {C₂ : Type ℓC₂}
-      (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
-      (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
-      (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
-      (id1 : fst B≃ ∘ f₁ ≡ f₂ ∘ fst A≃)
-      (id2 : fst C≃ ∘ g₁ ≡ g₂ ∘ fst A≃) →
-      Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
-pushoutIso' {ℓA₁ = ℓA₁} {ℓB₁} {ℓC₁} {ℓA₂} {ℓB₂} {ℓC₂}
-  f₁ g₁ f₂ g₂ A≃ B≃ C≃ id1 id2 =
-    compIso (PushoutLiftIso ℓ* f₁ g₁)
-      (compIso (pushoutIso _ _ _ _
-        (Lift≃Lift A≃)
-        (Lift≃Lift B≃)
-        (Lift≃Lift C≃)
-        (funExt (λ { (lift x) → cong lift (funExt⁻ id1 x)}))
-        (funExt (λ { (lift x) → cong lift (funExt⁻ id2 x)})))
-      (invIso (PushoutLiftIso ℓ* f₂ g₂)))
-  where
-  ℓ* = ℓ-max ℓA₁ (ℓ-max ℓA₂ (ℓ-max ℓB₁ (ℓ-max ℓB₂ (ℓ-max ℓC₁ ℓC₂)))) 
 
 PushoutPostcompEquivIso : ∀ {ℓ ℓ' ℓ'' ℓ'''}
   {A : Type ℓ} {B : Type ℓ'} {B' : Type ℓ''} {C : Type ℓ'''}
@@ -1025,9 +1029,28 @@ module _ (A : ℕ → Type ℓ) (sk+c : yieldsConnectedCWskel' A 0) where
         (invEquiv (isoToEquiv (Iso-SeqColim→SeqColimShift _ 3))))
 
 
-connectedCWskel'→connectedCWskel : ∀ {ℓ} → connectedCWskel' ℓ 0 → connectedCWskel ℓ 0
-connectedCWskel'→connectedCWskel (A , sk) =
+connectedCWskel'→connectedCWskel : ∀ {ℓ}
+  → Σ[ t ∈ connectedCWskel' ℓ 0 ]
+       (Σ[ dim ∈ ℕ ]
+         ((k : ℕ) → isEquiv (CW↪ (_ , snd t .fst) (k +ℕ dim))))
+   → Σ[ t ∈ connectedCWskel ℓ 0 ]
+        Σ[ dim ∈ ℕ ]
+         ((k : ℕ) → isEquiv (CW↪ (_ , snd t .fst) (k +ℕ dim)))
+fst (connectedCWskel'→connectedCWskel ((A , sk) , conv)) =
   _ , connectedCWskel→ A ((sk .fst) , (sk .snd)) .fst , refl , (λ _ → λ())
+fst (snd (connectedCWskel'→connectedCWskel ((A , sk) , conv))) = suc (fst conv)
+snd (snd (connectedCWskel'→connectedCWskel ((A , sk) , zero , T))) k =
+  ⊥.rec (TR.rec (λ())
+    (λ a → TR.rec (λ())
+      (λ t → CW₀-empty (_ , fst sk) (invEq (_ , T 0) (t .fst)))
+      (isConnected-CW↪∞ 1 (_ , fst sk) a .fst)) (sk .snd .fst))
+snd (snd (connectedCWskel'→connectedCWskel ((A , sk) , (suc dim) , T))) k =
+  transport (λ i → isEquiv (CW↪ (collapse₁CWskel A sk , connectedCWskel→ A sk .fst)
+            (h i)))
+            (transport (λ i → isEquiv (CW↪ (A , sk .fst) (suc (+-suc k dim i))))
+            (T (suc k)))
+  where
+  h = cong suc (sym (+-suc k dim)) ∙ sym (+-suc k (suc dim))
 
 yieldsGoodCWskel : {ℓ : Level} (A₊₂ : ℕ → Pointed ℓ) → Type _
 yieldsGoodCWskel {ℓ = ℓ} A  =
@@ -1044,292 +1067,800 @@ Sequence.map (GoodCWskelSeq {A = A} (f , fin , α , sq)) {n = suc n} x = fst (fs
 realiseGood∙ : {ℓ : Level} {A : ℕ → Pointed ℓ} → yieldsGoodCWskel A → Pointed ℓ
 realiseGood∙ {A = A} S = SeqColim (GoodCWskelSeq S) , incl {n = 1} (snd (A 0))
 
-module _ {ℓ : Level} (A' : ℕ → Type ℓ) 
-  (con : isConnected 0 (A' 2))
-  (C : yieldsCWskel A')
-  (dim : ℕ) (ind : (n : ℕ) → dim <ᵗ n → fst C n ≡ 0)
-  (cA : fst C 0 ≡ 1)
+yieldsFinGoodCWskel : {ℓ : Level} (dim : ℕ) (A₊₂ : ℕ → Pointed ℓ) → Type _
+yieldsFinGoodCWskel {ℓ = ℓ} dim A  =
+  Σ[ A ∈ yieldsGoodCWskel A ] converges (GoodCWskelSeq A) dim
+
+GoodCWskel : (ℓ : Level) → Type (ℓ-suc ℓ)
+GoodCWskel ℓ = Σ[ A ∈ (ℕ → Pointed ℓ) ] yieldsGoodCWskel A
+
+FinGoodCWskel : (ℓ : Level) (dim : ℕ) → Type (ℓ-suc ℓ)
+FinGoodCWskel ℓ dim = Σ[ A ∈ (ℕ → Pointed ℓ) ] yieldsFinGoodCWskel dim A
+
+isGoodCWExpl : {ℓ : Level} (A : Pointed ℓ) → Type (ℓ-suc ℓ)
+isGoodCWExpl {ℓ} A = Σ[ sk ∈ GoodCWskel ℓ ] realiseGood∙ (snd sk) ≃∙ A
+
+isFinGoodCWExpl : {ℓ : Level} (A : Pointed ℓ) → Type (ℓ-suc ℓ)
+isFinGoodCWExpl {ℓ} A =
+  Σ[ dim ∈ ℕ ] Σ[ sk ∈ FinGoodCWskel ℓ dim ] realiseGood∙ (fst (snd sk)) ≃∙ A
+
+isGoodCW : {ℓ : Level} (A : Pointed ℓ) → Type (ℓ-suc ℓ)
+isGoodCW {ℓ} A = ∃[ sk ∈ GoodCWskel ℓ ] realiseGood∙ (snd sk) ≃∙ A
+
+isFinGoodCW : {ℓ : Level} (A : Pointed ℓ) → Type (ℓ-suc ℓ)
+isFinGoodCW {ℓ} A =
+  ∃[ dim ∈ ℕ ] Σ[ sk ∈ FinGoodCWskel ℓ dim ] (realiseGood∙ (fst (snd sk)) ≃∙ A)
+
+finGoodCW : (ℓ : Level) → Type (ℓ-suc ℓ)
+finGoodCW ℓ = Σ[ A ∈ Pointed ℓ ] isFinGoodCW A 
+
+ptCW : {ℓ : Level} {A : ℕ → Type ℓ} → yieldsCWskel A → A 1
+  → (n : ℕ) → A (suc n)
+ptCW sk a zero = a
+ptCW sk a (suc n) = CW↪ (_ , sk) (suc n) (ptCW sk a n)
+
+-- module TWOO {ℓ : Level} (A' : ℕ → Type ℓ) (pt0 : A' 1)
+--   (dim : ℕ) (con : isConnected 2 (A' 2))
+--   (C : yieldsFinCWskel dim A')
+--   where
+
+--   open CWskel-fields (_ , fst C)
+--   e₀ : A' 1 ≃ Fin (card 0)
+--   e₀ = CW₁-discrete (_ , fst C)
+
+--   ptA : (n : ℕ) → A' (suc n)
+--   ptA = ptCW (fst C) pt0
+
+--   conA : (n : ℕ) → isConnected 2 (A' (suc n))
+--   conA zero = isConnectedRetractFromIso 2 (equivToIso e₀)
+--                 (subst (isConnected 2) (sym (cong Fin cA))
+--                   (∣ flast ∣
+--                   , TR.elim (λ _ → isOfHLevelPath 2
+--                             (isOfHLevelTrunc 2) _ _)
+--                       λ {(zero , tt) → refl}))
+--   conA (suc n) =
+--     isConnectedRetractFromIso 2
+--       (equivToIso (e (suc n)))
+--       (∣ inl (ptA n) ∣ₕ
+--       , TR.elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _)
+--           (elimProp _ (λ _ → isOfHLevelTrunc 2 _ _)
+--             (conA' (conA n))
+--             λ c → conA' (conA n) _
+--                  ∙ cong ∣_∣ₕ (push (c , ptSn n))))
+--     where
+--     conA' : (conA : isConnected 2 (A' (suc n))) (c : A' (suc n))
+--       → Path (hLevelTrunc 2 (Pushout (α (suc n)) fst))
+--               ∣ inl (ptA n) ∣ₕ ∣ inl c ∣ₕ
+--     conA' conA c =
+--       TR.rec (isOfHLevelTrunc 2 _ _)
+--         (λ p i → ∣ inl (p i) ∣)
+--         (Iso.fun (PathIdTruncIso _)
+--           (isContr→isProp conA ∣ ptA n ∣ₕ ∣ c ∣ₕ))
+
+
+--   private
+--     funType = ((n : Fin (suc dim))
+--                 → Σ[ h ∈ (SphereBouquet∙ (fst n) (Fin (card (suc (fst n))))
+--                 →∙ (A' (suc (fst n)) , ptA (fst n))) ]
+--                    ((x : _) → fst h (inr x) ≡ α (suc (fst n)) x))
+
+--   mapMakerNil : ∥ funType ∥₁
+--   mapMakerNil =
+--     invEq propTrunc≃Trunc1 (invEq (_ , InductiveFinSatAC _ _ _)
+--       λ n → TR.map
+--         (λ pted → ((λ { (inl x) → ptA (fst n)
+--                        ; (inr x) → α _ x
+--                        ; (push a i) → pted a i})
+--                   , refl)
+--           , λ _ → refl) (help n))
+--     where
+--     help : (n : Fin (suc dim))
+--       → hLevelTrunc 1 ((x : Fin (card (suc (fst n))))
+--                      → (ptA (fst n) ≡ α (suc (fst n)) (x , ptSn (fst n))))
+--     help n = invEq (_ , InductiveFinSatAC _ _ _)
+--       λ m → Iso.fun (PathIdTruncIso _)
+--               (isContr→isProp
+--                 (conA (fst n)) ∣ (ptA (fst n)) ∣ₕ
+--                                ∣ α (suc (fst n)) (m , ptSn (fst n)) ∣ₕ)
+--   module _ (F : funType) where
+--     funs : (n : ℕ) → SphereBouquet∙ n (Fin (card (suc n)))
+--                    →∙ (A' (suc n) , ptA n)
+--     funs n with (n ≟ᵗ dim)
+--     ... | lt x = F (n , <ᵗ-trans-suc x) .fst
+--     ... | eq x = F (n , subst (_<ᵗ suc dim) (sym x) <ᵗsucm) .fst
+--     ... | gt x = const∙ _ _
+
+--     funEqP1 : (n : ℕ) → (cofib (funs n .fst) , inl tt)
+--                       ≃∙ Pushout (funs n .fst ∘ inr) (λ r → fst r) , inl (ptA n)
+--     funEqP1 n = invEquiv (isoToEquiv (⋁-cofib-Iso _ (funs n))) , refl
+
+--     funEq : (n : ℕ) → Pushout (funs n .fst ∘ inr) fst , inl (ptA n)
+--                      ≃∙ Pushout (fst (C .snd) (suc n)) fst , inl (ptA n)
+--     funEq n = isoToEquiv (pushoutIso' _ _ _ _
+--                   (idEquiv _)
+--                   (idEquiv _)
+--                   (idEquiv _)
+--                   (funExt (uncurry (main n)))
+--                   (λ i x → fst x))
+--                 , λ _ → inl (ptA n)
+--       where
+--       main : (n : ℕ) (x : Fin (card (suc n))) (y : S₊ n)
+--         → funs n .fst (inr (x , y)) ≡ fst (C .snd) (suc n) (x , y)
+--       main n with (n ≟ᵗ dim)
+--       ... | lt p = λ x y
+--         → F (n , <ᵗ-trans-suc p) .snd (x , y)
+--       ... | eq p = λ x y
+--         → F (n , subst (_<ᵗ suc dim) (λ i → p (~ i)) <ᵗsucm) .snd (x , y)
+--       ... | gt p = λ x
+--         → ⊥.rec (¬Fin0 (subst Fin (ind (suc n) (<ᵗ-trans p <ᵗsucm)) x))
+
+--   getGoodCWskelAux : ∥ yieldsGoodCWskel (λ n → A' (suc n) , ptA n) ∥₁
+--   getGoodCWskelAux = PT.map help mapMakerNil
+--     where
+--     help : funType → yieldsGoodCWskel (λ n → A' (suc n) , ptA n)
+--     fst (help F) = card ∘ suc
+--     fst (snd (help F)) = compEquiv e₀ (pathToEquiv (cong Fin cA))
+--     fst (snd (snd (help F))) n = funs F n
+--     snd (snd (snd (help F))) n =
+--       compEquiv∙ (compEquiv∙ (funEqP1 F n) (funEq F n))
+--                  (invEquiv (e (suc n)) , refl)
+
+
+module BS {ℓ : Level} (A' : ℕ → Type ℓ)
+  (dim : ℕ)
+  (C+eq : yieldsFinCWskel dim A')
+  (cA : fst (fst C+eq) 0 ≡ 1)
   where
+  C = fst C+eq
+  ind = snd C+eq
 
   open CWskel-fields (_ , C)
   e₀ : A' 1 ≃ Fin (card 0)
   e₀ = CW₁-discrete (_ , C)
 
+
+  ¬dim≡0 : ¬ (dim ≡ 0)
+  ¬dim≡0 p = CW₀-empty (_ , C) (subst A' p
+          (invEq (_ , ind 0) (subst A' (cong suc (sym p))
+            (invEq e₀ (subst Fin (sym cA) fzero)))))
+
   pt0 : A' 1
   pt0 = invEq e₀ (subst Fin (sym cA) flast)
 
   ptA : (n : ℕ) → A' (suc n)
-  ptA zero = pt0
-  ptA (suc n) = CW↪ (_ , C) (suc n) (ptA n)
+  ptA = ptCW C pt0
 
-  mapMakerNil : ∥ ((n : Fin (suc dim))
-              → Σ[ h ∈ (SphereBouquet∙ (fst n) (Fin (card (suc (fst n))))
-              →∙ (A' (suc (fst n)) , ptA (fst n))) ] ((x : _) → fst h (inr x) ≡ α _ x)) ∥₁
+  conA : (n : ℕ) → isConnected 2 (A' (suc n))
+  conA zero = isConnectedRetractFromIso 2 (equivToIso e₀)
+                (subst (isConnected 2) (sym (cong Fin cA))
+                  (∣ flast ∣
+                  , TR.elim (λ _ → isOfHLevelPath 2
+                            (isOfHLevelTrunc 2) _ _)
+                      λ {(zero , tt) → refl}))
+  conA (suc n) =
+    isConnectedRetractFromIso 2
+      (equivToIso (e (suc n)))
+      (∣ inl (ptA n) ∣ₕ
+      , TR.elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _)
+          (elimProp _ (λ _ → isOfHLevelTrunc 2 _ _)
+            (conA' (conA n))
+            λ c → conA' (conA n) _
+                 ∙ cong ∣_∣ₕ (push (c , ptSn n))))
+    where
+    conA' : (conA : isConnected 2 (A' (suc n))) (c : A' (suc n))
+      → Path (hLevelTrunc 2 (Pushout (α (suc n)) fst))
+              ∣ inl (ptA n) ∣ₕ ∣ inl c ∣ₕ
+    conA' conA c =
+      TR.rec (isOfHLevelTrunc 2 _ _)
+        (λ p i → ∣ inl (p i) ∣)
+        (Iso.fun (PathIdTruncIso _)
+          (isContr→isProp conA ∣ ptA n ∣ₕ ∣ c ∣ₕ))
+
+  private
+    funType = ((n : Fin dim)
+                → Σ[ h ∈ (SphereBouquet∙ (fst n) (Fin (card (suc (fst n))))
+                →∙ (A' (suc (fst n)) , ptA (fst n))) ]
+                   ((x : _) → fst h (inr x) ≡ α (suc (fst n)) x))
+
+  mapMakerNil : ∥ funType ∥₁
   mapMakerNil =
     invEq propTrunc≃Trunc1 (invEq (_ , InductiveFinSatAC _ _ _)
-      λ n → {!!})
+      λ n → TR.map
+        (λ pted → ((λ { (inl x) → ptA (fst n)
+                       ; (inr x) → α _ x
+                       ; (push a i) → pted a i})
+                  , refl)
+          , λ _ → refl) (help n))
     where
-    help : (n : Fin (suc dim)) → hLevelTrunc 1 ((x : Fin (card (suc (fst n)))) → ({!CW↪ ?!} ≡ {!!}))
-    help = {!!}
-{-
-  mapMaker : (n : ℕ) → SphereBouquet∙ n (Fin (card (suc n)))
-                     →∙ (A' (suc n) , ptA n)
-  mapMaker n with (n ≟ᵗ dim)
-  ... | lt x = mapMakerNil (n , <ᵗ-trans-suc x)
-  ... | eq x = mapMakerNil (n , subst (_<ᵗ suc dim) (sym x) <ᵗsucm)
-  ... | gt x = const∙ _ _
+    help : (n : Fin dim)
+      → hLevelTrunc 1 ((x : Fin (card (suc (fst n))))
+                     → (ptA (fst n) ≡ α (suc (fst n)) (x , ptSn (fst n))))
+    help n = invEq (_ , InductiveFinSatAC _ _ _)
+      λ m → Iso.fun (PathIdTruncIso _)
+              (isContr→isProp
+                (conA (fst n)) ∣ (ptA (fst n)) ∣ₕ  ∣ α (suc (fst n)) (m , ptSn (fst n)) ∣ₕ)
+
+  module _ (F : funType) where
+    card' : ℕ → ℕ
+    card' n with (n ≟ᵗ dim)
+    ... | lt x = card (suc n)
+    ... | eq x = 0
+    ... | gt x = 0
+
+    funs : (n : ℕ) → SphereBouquet∙ n (Fin (card' n))
+                   →∙ (A' (suc n) , ptA n)
+    funs n with (n ≟ᵗ dim)
+    ... | lt x = F (n , x) .fst
+    ... | eq x = const∙ _ _
+    ... | gt x = const∙ _ _
+
+    funEqP1 : (n : ℕ) → (cofib (funs n .fst) , inl tt)
+                      ≃∙ Pushout (funs n .fst ∘ inr) (λ r → fst r) , inl (ptA n)
+    funEqP1 n = invEquiv (isoToEquiv (⋁-cofib-Iso _ (funs n))) , refl
+
+    funEq : (n : ℕ) → Pushout (funs n .fst ∘ inr) fst , inl (ptA n)
+                     ≃∙ Pushout (fst (C .snd) (suc n)) fst , inl (ptA n)
+    funEq n with (n ≟ᵗ dim)
+    ... | lt x = isoToEquiv (pushoutIso' _ _ _ _
+                  (idEquiv _)
+                  (idEquiv _)
+                  (idEquiv _)
+                  (funExt (uncurry λ x y → F (n , _) .snd (x , y)))
+                  (λ i x → fst x))
+                , λ _ → inl (ptA n)
+    ... | eq x = (compEquiv (isoToEquiv (invIso (PushoutEmptyFam (λ()) λ())))
+                   (compEquiv ((CW↪ (_ , C) (suc n))
+                              , transport (λ i → isEquiv (CW↪ (A' , C)
+                                    (suc (x (~ i)))))
+                                      (ind 1)
+                                      )
+                              (e (suc n)))) , secEq (e (suc n)) _
+    ... | gt x = (compEquiv (isoToEquiv (invIso (PushoutEmptyFam (λ()) λ())))
+                   (compEquiv ((CW↪ (_ , C) (suc n))
+                                , (transport (λ i → isEquiv (CW↪ (A' , C)
+                                    (suc ((sym (+-suc (fst (<ᵗ→< x)) dim)
+                                        ∙ (<ᵗ→< x .snd)) i))))
+                                      (ind (suc (suc (fst (<ᵗ→< x)))))))
+                              (e (suc n)))) , secEq (e (suc n)) _
+
+    goodCWmk : yieldsGoodCWskel (λ n → A' (suc n) , ptA n)
+    fst goodCWmk = card'
+    fst (snd goodCWmk) = compEquiv e₀ (pathToEquiv (cong Fin cA))
+    fst (snd (snd goodCWmk)) = funs
+    snd (snd (snd goodCWmk)) n =
+      compEquiv∙ (compEquiv∙ (funEqP1 n) (funEq n))
+                  (invEquiv (e (suc n)) , refl)
+
+    goodCWmk-converges : converges
+      (sequence (obj (GoodCWskelSeq goodCWmk))
+                (Sequence.map (GoodCWskelSeq goodCWmk)))
+      dim
+    goodCWmk-converges zero = help dim refl
+      where
+      help : (x : _) (p : dim ≡ x) → isEquiv (Sequence.map (GoodCWskelSeq goodCWmk) {x})
+      help zero p = ⊥.rec (¬dim≡0 p)
+      help (suc x) p with (x ≟ᵗ dim)
+      ... | lt x₁ = transport (λ i → isEquiv λ z → CW↪ (A' , C) (p i) z) (ind zero)
+      ... | eq x₁ = ⊥.rec (¬m<m (0 , sym (x₁ ∙ p)))
+      ... | gt x₁ = ⊥.rec (¬m<ᵗm (subst (dim <ᵗ_) (sym p) (<ᵗ-trans x₁ <ᵗsucm)))
+    goodCWmk-converges (suc k) with ((k +ℕ dim) ≟ᵗ dim)
+    ... | lt x = ⊥.rec (¬squeeze (x , (<→<ᵗ (k , +-suc k dim))))
+    ... | eq x = compEquiv (_ , ind _)
+                  (compEquiv (e (suc (k +ℕ dim)))
+                   (invEquiv (_ , snd (fst C+eq .snd .snd .snd (suc (k +ℕ dim)))))) .snd
+    ... | gt x = compEquiv (_ , ind _)
+                  (compEquiv (e (suc (k +ℕ dim)))
+                   (invEquiv (_ , snd (fst C+eq .snd .snd .snd (suc (k +ℕ dim)))))) .snd
+ 
+    funType→ : realiseGood∙ goodCWmk .fst ≃ A' (suc dim)
+    funType→ = compEquiv (isoToEquiv (invIso
+        (converges→ColimIso dim goodCWmk-converges)))
+          (help dim refl)
+      where
+      help : (x : _) (p : dim ≡ x) → obj (GoodCWskelSeq goodCWmk) x ≃ A' (suc x)
+      help zero p = ⊥.rec (¬dim≡0 p)
+      help (suc x) p = subst (λ x → A' x ≃ A' (suc x)) p (_ , ind 0)
+
+    merelyPointed : ∥ realiseGood∙ goodCWmk ≃∙ A' (suc dim) , ptA dim ∥₁
+    merelyPointed = PT.map (λ idp → funType→ , idp) (help dim refl)
+      where
+      help : (x : ℕ) (p : dim ≡ x)
+        → ∥ funType→ .fst (realiseGood∙ goodCWmk .snd) ≡ ptA dim ∥₁
+      help zero p = ⊥.rec (¬dim≡0 p)
+      help (suc x) p = invEq propTrunc≃Trunc1 (PathIdTruncIso 1 .Iso.fun
+                        (isContr→isProp
+                          (subst (isConnected 2 ∘ A') (sym (cong suc p))
+                            (conA (suc x)))
+                            ∣ (funType→ .fst (realiseGood∙ goodCWmk .snd)) ∣ₕ
+                            ∣ ptA dim ∣ₕ))
+
+  getGoodCWskel : ∃[ skel ∈ yieldsGoodCWskel (λ n → A' (suc n) , ptA n) ]
+                     converges (GoodCWskelSeq skel) dim
+  getGoodCWskel = PT.map (λ F → (goodCWmk F)
+                       , (goodCWmk-converges F)) mapMakerNil
+
+  getGoodCWskelAux : ∥ yieldsGoodCWskel (λ n → A' (suc n) , ptA n) ∥₁
+  getGoodCWskelAux = PT.map help mapMakerNil
+    where
+    help : funType → yieldsGoodCWskel (λ n → A' (suc n) , ptA n)
+    fst (help F) = card' F
+    fst (snd (help F)) = compEquiv e₀ (pathToEquiv (cong Fin cA))
+    fst (snd (snd (help F))) = funs F
+    snd (snd (snd (help F))) n =
+      compEquiv∙ (compEquiv∙ (funEqP1 F n) (funEq F n))
+                  (invEquiv (e (suc n)) , refl)
+
+
+
+    {-
+    fst (help F) = card ∘ suc
+    fst (snd (help F)) = compEquiv e₀ (pathToEquiv (cong Fin cA))
+    fst (snd (snd (help F))) n = funs F n
+    snd (snd (snd (help F))) n =
+      compEquiv∙ (compEquiv∙ (funEqP1 F n) (funEq F n))
+                 (invEquiv (e (suc n)) , refl)
 -}
-  getGoodCWskelAux : yieldsGoodCWskel (λ n → A' (suc n) , ptA n)
-  fst getGoodCWskelAux = card
-  fst (snd getGoodCWskelAux) = {!!} -- CW₁-discrete (_ , C)
-  fst (snd (snd getGoodCWskelAux)) = {!!} -- mapMaker
-  snd (snd (snd getGoodCWskelAux)) n = {!!}
 
-connectedGoodCWskel' : ∀ {ℓ} (Aₙ₊₂ : ℕ → Pointed ℓ) → {!!}
-connectedGoodCWskel' = {!!}
+-- module _ {ℓ : Level} (A' : ℕ → Type ℓ)
+--   (C : yieldsCWskel A')
+--   (dim : ℕ) (ind : (n : ℕ) → dim <ᵗ n → fst C n ≡ 0)
+--   (cA : fst C 0 ≡ 1)
+--   where
 
-isGoodCW : ∀ {ℓ} (A : Pointed ℓ) → Pointed (ℓ-suc ℓ)
-isGoodCW A = {!!}
+--   open CWskel-fields (_ , C)
+--   e₀ : A' 1 ≃ Fin (card 0)
+--   e₀ = CW₁-discrete (_ , C)
+
+
+--   pt0 : A' 1
+--   pt0 = invEq e₀ (subst Fin (sym cA) flast)
+
+--   ptA : (n : ℕ) → A' (suc n)
+--   ptA = ptCW C pt0
+
+--   conA : (n : ℕ) → isConnected 2 (A' (suc n))
+--   conA zero = isConnectedRetractFromIso 2 (equivToIso e₀)
+--                 (subst (isConnected 2) (sym (cong Fin cA))
+--                   (∣ flast ∣
+--                   , TR.elim (λ _ → isOfHLevelPath 2
+--                             (isOfHLevelTrunc 2) _ _)
+--                       λ {(zero , tt) → refl}))
+--   conA (suc n) =
+--     isConnectedRetractFromIso 2
+--       (equivToIso (e (suc n)))
+--       (∣ inl (ptA n) ∣ₕ
+--       , TR.elim (λ _ → isOfHLevelPath 2 (isOfHLevelTrunc 2) _ _)
+--           (elimProp _ (λ _ → isOfHLevelTrunc 2 _ _)
+--             (conA' (conA n))
+--             λ c → conA' (conA n) _
+--                  ∙ cong ∣_∣ₕ (push (c , ptSn n))))
+--     where
+--     conA' : (conA : isConnected 2 (A' (suc n))) (c : A' (suc n))
+--       → Path (hLevelTrunc 2 (Pushout (α (suc n)) fst))
+--               ∣ inl (ptA n) ∣ₕ ∣ inl c ∣ₕ
+--     conA' conA c =
+--       TR.rec (isOfHLevelTrunc 2 _ _)
+--         (λ p i → ∣ inl (p i) ∣)
+--         (Iso.fun (PathIdTruncIso _)
+--           (isContr→isProp conA ∣ ptA n ∣ₕ ∣ c ∣ₕ))
+
+
+--   private
+--     funType = ((n : Fin (suc dim))
+--                 → Σ[ h ∈ (SphereBouquet∙ (fst n) (Fin (card (suc (fst n))))
+--                 →∙ (A' (suc (fst n)) , ptA (fst n))) ]
+--                    ((x : _) → fst h (inr x) ≡ α (suc (fst n)) x))
+
+--   mapMakerNil : ∥ funType ∥₁
+--   mapMakerNil =
+--     invEq propTrunc≃Trunc1 (invEq (_ , InductiveFinSatAC _ _ _)
+--       λ n → TR.map
+--         (λ pted → ((λ { (inl x) → ptA (fst n)
+--                        ; (inr x) → α _ x
+--                        ; (push a i) → pted a i})
+--                   , refl)
+--           , λ _ → refl) (help n))
+--     where
+--     help : (n : Fin (suc dim))
+--       → hLevelTrunc 1 ((x : Fin (card (suc (fst n))))
+--                      → (ptA (fst n) ≡ α (suc (fst n)) (x , ptSn (fst n))))
+--     help n = invEq (_ , InductiveFinSatAC _ _ _)
+--       λ m → Iso.fun (PathIdTruncIso _)
+--               (isContr→isProp
+--                 (conA (fst n)) ∣ (ptA (fst n)) ∣ₕ  ∣ α (suc (fst n)) (m , ptSn (fst n)) ∣ₕ)
+--   module _ (F : funType) where
+--     funs : (n : ℕ) → SphereBouquet∙ n (Fin (card (suc n)))
+--                    →∙ (A' (suc n) , ptA n)
+--     funs n with (n ≟ᵗ dim)
+--     ... | lt x = F (n , <ᵗ-trans-suc x) .fst
+--     ... | eq x = F (n , subst (_<ᵗ suc dim) (sym x) <ᵗsucm) .fst
+--     ... | gt x = const∙ _ _
+
+--     funEqP1 : (n : ℕ) → (cofib (funs n .fst) , inl tt)
+--                       ≃∙ Pushout (funs n .fst ∘ inr) (λ r → fst r) , inl (ptA n)
+--     funEqP1 n = invEquiv (isoToEquiv (⋁-cofib-Iso _ (funs n))) , refl
+
+--     funEq : (n : ℕ) → Pushout (funs n .fst ∘ inr) fst , inl (ptA n)
+--                      ≃∙ Pushout (fst (C .snd) (suc n)) fst , inl (ptA n)
+--     funEq n = isoToEquiv (pushoutIso' _ _ _ _
+--                   (idEquiv _)
+--                   (idEquiv _)
+--                   (idEquiv _)
+--                   (funExt (uncurry (main n)))
+--                   (λ i x → fst x))
+--                 , λ _ → inl (ptA n)
+--       where
+--       main : (n : ℕ) (x : Fin (card (suc n))) (y : S₊ n)
+--         → funs n .fst (inr (x , y)) ≡ fst (C .snd) (suc n) (x , y)
+--       main n with (n ≟ᵗ dim)
+--       ... | lt p = λ x y
+--         → F (n , <ᵗ-trans-suc p) .snd (x , y)
+--       ... | eq p = λ x y
+--         → F (n , subst (_<ᵗ suc dim) (λ i → p (~ i)) <ᵗsucm) .snd (x , y)
+--       ... | gt p = λ x
+--         → ⊥.rec (¬Fin0 (subst Fin (ind (suc n) (<ᵗ-trans p <ᵗsucm)) x))
+
+--   getGoodCWskelAux : ∥ yieldsGoodCWskel (λ n → A' (suc n) , ptA n) ∥₁
+--   getGoodCWskelAux = PT.map help mapMakerNil
+--     where
+--     help : funType → yieldsGoodCWskel (λ n → A' (suc n) , ptA n)
+--     fst (help F) = card ∘ suc
+--     fst (snd (help F)) = compEquiv e₀ (pathToEquiv (cong Fin cA))
+--     fst (snd (snd (help F))) n = funs F n
+--     snd (snd (snd (help F))) n =
+--       compEquiv∙ (compEquiv∙ (funEqP1 F n) (funEq F n))
+--                  (invEquiv (e (suc n)) , refl)
+
+
 
 open import Cubical.CW.Subcomplex
+finCW→GoodCW : ∀ {ℓ} (A : finCW ℓ) (a₀ : fst A)
+  → isConnected 2 (fst A)
+  → finGoodCW ℓ
+fst (finCW→GoodCW A a₀ cA) = fst A , a₀
+snd (finCW→GoodCW (A , cwA) a₀ cA) =
+  PT.rec squash₁ (λ cw → PT.rec squash₁
+    (λ {(sk , T) → ∣ suc (fst cw) , (_ , sk , T)
+       , compEquiv
+         (isoToEquiv
+           (compIso (invIso (converges→ColimIso _ T))
+           (compIso (eqv cw _ refl)
+             (converges→ColimIso _ (cw .snd .fst .snd .snd)))))
+         (invEquiv (cw .snd .snd)) , {!!} ∣₁})
+    (main cw))
+    cwA
+  where
+  module _ (cw : isFinCW A) where
+    makeNice' = makeNiceFinCWskel {A = A} cw
 
-GoodCWSeq→CWSeq : {ℓ : Level} (A₊₂ : ℕ → Pointed ℓ) → {!!}
-GoodCWSeq→CWSeq A₊₂ = {!!}
+    inst = connectedCWskel'→connectedCWskel
+             (((snd makeNice' .fst .fst)
+            , (snd makeNice' .fst .snd .fst
+            , isConnectedRetractFromIso 2
+                 (equivToIso (invEquiv (snd makeNice' .snd))) cA))
+            , _ , snd makeNice' .fst .snd .snd)
 
-isGoodCW→isCW : ∀ {ℓ} (A₊₂ : ℕ → Pointed ℓ) → yieldsGoodCWskel A₊₂ → {!!}
-isGoodCW→isCW = {!!}
+    open BS
+              (inst .fst .fst)
+              (suc (fst cw))
+              ((snd (inst .fst) .fst) , inst .snd .snd)
+              refl
 
--- connectedCWskel→CWskel : connectedCWskel ℓ → CWskel ℓ
--- connectedCWskel→CWskel (A , sk , _) = A , sk
+    main = BS.getGoodCWskel
+              (inst .fst .fst)
+              (suc (fst cw))
+              ((snd (inst .fst) .fst) , inst .snd .snd)
+              refl
 
--- module _ (C' : connectedCWskel ℓ) (n : ℕ) (x₀ : fst C' 1)
---          (term : converges (realiseSeq (fst C' , snd C' .fst)) n) where
---   private
---     C = fst C'
---     Csk = connectedCWskel→CWskel C'
+    open import Cubical.Foundations.Transport
+    eqv : (x : _) (p : fst cw ≡ x)
+      → Iso (inst .fst .fst (suc x))
+             (fst (finCWskel→CWskel (fst cw) (fst (cw .snd))) x)
+    eqv zero p = ⊥.rec (TR.rec (λ()) (λ s →
+      (CW₀-empty (_ , snd cw .fst .snd .fst)
+        (invEq (_ , transport (λ i → isEquiv
+                          (CW↪ (fst (snd cw .fst)
+                               , fst (snd cw .fst .snd)) (p i)))
+                 (snd cw .fst .snd .snd 0))
+          (s .fst))))
+            (isConnected-CW↪∞ 1
+              (_ , snd cw .fst .snd .fst)
+                (fst (snd cw .snd) a₀) .fst))
+    eqv (suc x) p with (suc (suc x) ≟ᵗ fst cw)
+    ... | lt x₁ = ⊥.rec (¬m<ᵗm (<ᵗ-trans (subst (suc (suc x) <ᵗ_) p x₁) <ᵗsucm))
+    ... | eq x₁ = ⊥.rec (¬m<ᵗm (subst (suc x <ᵗ_) (x₁ ∙ p) <ᵗsucm))
+    ... | gt x₁ = pathToIso (cong (fst (snd cw) .fst) p)
+      
+    {- compIso (equivToIso (invEquiv (complex≃subcomplex (_ , snd cw .fst .snd .fst) {!suc (cw .fst)!} (suc (fst cw) , {!fst cw!})))) {!(fst (finCWskel→CWskel (fst cw) (fst (cw .snd))) (fst cw))!}
+-}
+    {- BS.getGoodCWskel _ ? ? -- (snd inst .fst) (fst cw) -- (snd inst .fst) (fst cw)
+                              ? -- FN
+                              ? -- refl -- refl
+                              -}
 
---     open CWskel-fields Csk
+{-
+    inst = connectedCWskel'→connectedCWskel
+              ((snd cw .fst .fst)
+             , ((snd cw .fst .snd .fst)
+             , (isConnectedRetractFromIso 2
+                 (equivToIso (invEquiv (snd cw .snd))) cA)))
 
---     ptC : (n : ℕ) → C (suc n)
---     ptC zero = x₀
---     ptC (suc n) = CW↪ Csk (suc n) (ptC n)
+    makeNice = makeNiceFinCWskel {A = A} ((cw .fst)
+                , ((inst .fst , inst .snd .fst
+                 , {!cw .snd .fst .snd .snd!})
+                , compEquiv (snd cw .snd) {!!}))
 
---     C∙ : ℕ → Pointed _
---     C∙ n = C (suc n) , ptC n
+    check : (n : ℕ) → fst cw <ᵗ n → fst (snd inst .fst) n ≡ 0
+    check n p with (suc (fst cw) ≟ᵗ n)
+    ... | lt x = {!makeNiceFinCWskel!}
+    ... | eq x = {!x!}
+    ... | gt x = {!!}
 
---   improveFam : ∥ ((m : Fin (suc (suc n))) → ?) ∥₁
---   improveFam = {!!}
+    main = getGoodCWskelAux _ (makeNice .snd .fst .snd .fst) (fst cw) -- (snd inst .fst) (fst cw)
+                              {!makeNice .snd .fst!}
+                              {!!} -- refl
+                              -}
 
---   finConnectedCW : {!!}
---   finConnectedCW = {!!}
+--     ecw = snd (snd cw)
 
+--     FL : (n : ℕ) → fst cw <ᵗ n
+--       → fst (makeNiceFinCWskel cw .snd .fst .snd .fst) n ≡ 0
+--     FL n p = {!inst .snd .fst!}
 
+--     FR : fst (makeNiceFinCWskel cw .snd .fst .snd .fst) 0 ≡ 1
+--     FR with (0 ≟ᵗ fst cw)
+--     ... | lt t = {!!}
+--     ... | eq x = ⊥.rec {!!}
 
+--     main : {!!}
+--     main = getGoodCWskelAux _
+--             (makeNiceFinCWskel cw .snd .fst .snd .fst) (fst cw)
+--               FL FR
+-- -- makeNiceFinCWElim
 
--- -- yieldsGoodCWSkel : (ℕ → Type ℓ) → Type ℓ
--- -- yieldsGoodCWSkel = ?
-
--- -- yieldsCWskel∙ : (ℕ → Type ℓ) → Type ℓ
--- -- yieldsCWskel∙ X =
--- --   Σ[ f ∈ (ℕ → ℕ) ]
--- --     Σ[ α ∈ ((n : ℕ) → ⋁gen (Fin (f (suc n))) (λ _ → S₊∙ n) → X n) ]
--- --       ((X zero ≃ Fin (f zero)) ×
--- --       (((n : ℕ) → X (suc n) ≃ cofib (α n))))
-
--- -- CWskel∙ : (ℓ : Level) → Type (ℓ-suc ℓ)
--- -- CWskel∙ ℓ = Σ[ X ∈ (ℕ → Type ℓ) ] (yieldsCWskel∙ X)
-
--- -- module CWskel∙-fields (C : CWskel∙ ℓ) where
--- --   card = C .snd .fst
--- --   A = Fin ∘ card
--- --   α = C .snd .snd .fst
--- --   e = C .snd .snd .snd .snd
-
--- --   ℤ[A_] : (n : ℕ) → AbGroup ℓ-zero
--- --   ℤ[A n ] = ℤ[Fin (snd C .fst n) ]
-
--- -- CWpt : ∀ {ℓ} → (C : CWskel∙ ℓ) → (n : ℕ) → Pointed ℓ
--- -- fst (CWpt (C , f) n) = C n
--- -- snd (CWpt (C , f) n) = f .snd .fst n (inl tt)
-
--- -- -- Technically, a CW complex should be the sequential colimit over the following maps
--- -- CW∙↪ : (T : CWskel∙ ℓ) → (n : ℕ) → fst T n → fst T (suc n)
--- -- CW∙↪ (X , f , α , e₀ , e₊) n x = invEq (e₊ n) (inr x)
-
--- -- ptCW : (T : CWskel∙ ℓ) → (n : ℕ) → fst T n
--- -- ptCW T zero = T .snd .snd .fst zero (inl tt)
--- -- ptCW T (suc n) = CW∙↪ T n (ptCW T n)
-
--- -- CW∙ : (T : CWskel∙ ℓ) → (n : ℕ) → Pointed ℓ
--- -- CW∙ T n = fst T n , ptCW T n
-
--- -- CW∙↪∙ : (T : CWskel∙ ℓ) → (n : ℕ) → CW∙ T n →∙ CW∙ T (suc n)
--- -- fst (CW∙↪∙ T n) = CW∙↪ T n
--- -- snd (CW∙↪∙ T n) = refl
-
-
--- -- -- But if it stabilises, no need for colimits.
--- -- yieldsFinCWskel∙ : (n : ℕ) (X : ℕ → Type ℓ) → Type ℓ
--- -- yieldsFinCWskel∙ n X =
--- --   Σ[ CWskel ∈ yieldsCWskel∙ X ] ((k : ℕ) → isEquiv (CW∙↪ (X , CWskel) (k +ℕ n)))
-
--- -- -- ... which should give us finite CW complexes.
--- -- finCWskel∙ : (ℓ : Level) → (n : ℕ) → Type (ℓ-suc ℓ)
--- -- finCWskel∙ ℓ n = Σ[ C ∈ (ℕ → Type ℓ) ] (yieldsFinCWskel∙ n C)
-
--- -- finCWskel→CWskel∙ : (n : ℕ) → finCWskel ℓ n → CWskel ℓ
--- -- finCWskel→CWskel∙ n C = fst C , fst (snd C)
-
--- -- realiseSeq∙ : CWskel∙ ℓ → Sequence ℓ
--- -- Sequence.obj (realiseSeq∙ (C , p)) = C
--- -- Sequence.map (realiseSeq∙ C) = CW∙↪ C _
-
--- -- realiseFinSeq∙ : (m : ℕ) → CWskel∙ ℓ → FinSequence m ℓ
--- -- realiseFinSeq∙ m C = Sequence→FinSequence m (realiseSeq∙ C)
-
--- -- -- realisation of CW complex from skeleton
--- -- realise∙ : CWskel∙ ℓ → Type ℓ
--- -- realise∙ C = SeqColim (realiseSeq∙ C)
-
--- -- realise∙∙ : CWskel∙ ℓ → Pointed ℓ
--- -- realise∙∙ C = SeqColim (realiseSeq∙ C) , incl {n = 0} (CW∙ C 0 .snd)
--- -- open import Cubical.Data.Empty as ⊥
-
--- -- CWskel∙→CWskel : (A : ℕ → Type ℓ) → ℕ → Type ℓ
--- -- CWskel∙→CWskel A zero = Lift ⊥
--- -- CWskel∙→CWskel A (suc n) = A n
--- -- open import Cubical.Foundations.Isomorphism
+-- connectedGoodCWskel' : ∀ {ℓ} (Aₙ₊₂ : ℕ → Pointed ℓ) → {!!}
+-- connectedGoodCWskel' = {!!}
 
 
--- -- module _  (A : ℕ → Type ℓ)
--- --   (cwsk : yieldsCWskel∙ A) where
 
+
+-- GoodCWSeq→CWSeq : {ℓ : Level} (A₊₂ : ℕ → Pointed ℓ) → {!!}
+-- GoodCWSeq→CWSeq A₊₂ = {!!}
+
+-- isGoodCW→isCW : ∀ {ℓ} (A₊₂ : ℕ → Pointed ℓ) → yieldsGoodCWskel A₊₂ → {!!}
+-- isGoodCW→isCW = {!!}
+
+-- -- connectedCWskel→CWskel : connectedCWskel ℓ → CWskel ℓ
+-- -- connectedCWskel→CWskel (A , sk , _) = A , sk
+
+-- -- module _ (C' : connectedCWskel ℓ) (n : ℕ) (x₀ : fst C' 1)
+-- --          (term : converges (realiseSeq (fst C' , snd C' .fst)) n) where
 -- --   private
--- --     αs : (n : ℕ) → Fin (cwsk .fst n) × S⁻ n → CWskel∙→CWskel A n
--- --     αs (suc n) x = snd cwsk .fst n (inr x)
+-- --     C = fst C'
+-- --     Csk = connectedCWskel→CWskel C'
 
--- --     e0 : {!!}
--- --     e0 = {!!}
+-- --     open CWskel-fields Csk
 
--- --     es-suc→ : (n : ℕ) → cofib (fst (snd cwsk) n) → Pushout (αs (suc n)) fst
--- --     es-suc→ n (inl x) = inl (snd cwsk .fst n (inl tt))
--- --     es-suc→ n (inr x) = inl x
--- --     es-suc→ n (push (inl x) i) = inl (fst (snd cwsk) n (inl x))
--- --     es-suc→ n (push (inr (a , b)) i) = ((({!!} ∙ λ i → inl {!snd cwsk .snd n!}) ∙ push (a , b)) ∙ {!!}) i --  ({!!} ∙ sym (push (a , b))) i
--- --     es-suc→ n (push (push a i₁) i) = {!!}
+-- --     ptC : (n : ℕ) → C (suc n)
+-- --     ptC zero = x₀
+-- --     ptC (suc n) = CW↪ Csk (suc n) (ptC n)
 
--- --     es-suc : (n : ℕ)
--- --       → Iso (cofib (fst (snd cwsk) n))
--- --              (Pushout (αs (suc n)) fst)
--- --     Iso.fun (es-suc n) = es-suc→ n
--- --     Iso.inv (es-suc n) = {!!}
--- --     Iso.rightInv (es-suc n) = {!!}
--- --     Iso.leftInv (es-suc n) = {!!}
+-- --     C∙ : ℕ → Pointed _
+-- --     C∙ n = C (suc n) , ptC n
 
--- --     es : (n : ℕ) → A n ≃ Pushout (αs n) (λ r → fst r)
--- --     es zero = {!!}
--- --     es (suc n) = compEquiv (snd cwsk .snd .snd n) (isoToEquiv (es-suc n))
+-- --   improveFam : ∥ ((m : Fin (suc (suc n))) → ?) ∥₁
+-- --   improveFam = {!!}
 
--- --   yieldsCWskel∙→' : yieldsCWskel (CWskel∙→CWskel A)
--- --   fst yieldsCWskel∙→' = cwsk .fst
--- --   fst (snd yieldsCWskel∙→') = αs
--- --   fst (snd (snd yieldsCWskel∙→')) ()
--- --   snd (snd (snd yieldsCWskel∙→')) = {!!}
-
--- -- yieldsCWskel∙→ : (A : ℕ → Type ℓ)
--- --   → yieldsCWskel∙ A → yieldsCWskel (CWskel∙→CWskel A)
--- -- fst (yieldsCWskel∙→ A cwsk) = cwsk .fst
--- -- fst (snd (yieldsCWskel∙→ A cwsk)) (suc n) (x , p) = snd cwsk .fst n (inr (x , p))
--- -- fst (snd (snd (yieldsCWskel∙→ A cwsk))) ()
--- -- snd (snd (snd (yieldsCWskel∙→ A cwsk))) zero = {!!}
--- -- snd (snd (snd (yieldsCWskel∙→ A cwsk))) (suc n) =
--- --   compEquiv (cwsk .snd .snd .snd n)
--- --     (isoToEquiv {!(fst (snd (yieldsCWskel∙→ A cwsk)) (suc n))!}) -- theEq)
--- --   where
--- --   theEq→ : cofib (fst (cwsk .snd) n) → Pushout _ fst
--- --   theEq→ (inl x) = inl (cwsk .snd .fst n (inl tt))
--- --   theEq→ (inr x) = inl x
--- --   theEq→ (push (inl x) i) = inl (cwsk .snd .fst n (inl tt))
--- --   theEq→ (push (inr (a , b)) i) = ({!push ?!} ∙ push {!!} ∙ {!!}) i -- inl (cwsk .snd .fst n {!!})
--- --   theEq→ (push (push a i₁) i) = {!!}
-
--- --   theEq : Iso (cofib (fst (cwsk .snd) n)) (Pushout _ fst)
--- --   Iso.fun theEq = theEq→
--- --   Iso.inv theEq = {!!}
--- --   Iso.rightInv theEq x = {!!}
--- --   Iso.leftInv theEq x = {!!}
+-- --   finConnectedCW : {!!}
+-- --   finConnectedCW = {!!}
 
 
--- --  -- compEquiv {!!} {!!}
 
 
--- -- -- -- Finally: definition of CW complexes
--- -- -- isCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
--- -- -- isCW {ℓ = ℓ} X = Σ[ X' ∈ CWskel ℓ ] X ≃ realise X'
+-- -- -- yieldsGoodCWSkel : (ℕ → Type ℓ) → Type ℓ
+-- -- -- yieldsGoodCWSkel = ?
 
--- -- -- CW : (ℓ : Level) → Type (ℓ-suc ℓ)
--- -- -- CW ℓ = Σ[ A ∈ Type ℓ ] ∥ isCW A ∥₁
+-- -- -- yieldsCWskel∙ : (ℕ → Type ℓ) → Type ℓ
+-- -- -- yieldsCWskel∙ X =
+-- -- --   Σ[ f ∈ (ℕ → ℕ) ]
+-- -- --     Σ[ α ∈ ((n : ℕ) → ⋁gen (Fin (f (suc n))) (λ _ → S₊∙ n) → X n) ]
+-- -- --       ((X zero ≃ Fin (f zero)) ×
+-- -- --       (((n : ℕ) → X (suc n) ≃ cofib (α n))))
 
--- -- -- CWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
--- -- -- CWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isCW A)
+-- -- -- CWskel∙ : (ℓ : Level) → Type (ℓ-suc ℓ)
+-- -- -- CWskel∙ ℓ = Σ[ X ∈ (ℕ → Type ℓ) ] (yieldsCWskel∙ X)
 
--- -- -- -- Finite CW complexes
--- -- -- isFinCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
--- -- -- isFinCW {ℓ = ℓ} X =
--- -- --   Σ[ m ∈ ℕ ] (Σ[ X' ∈ finCWskel ℓ m ] X ≃ realise (finCWskel→CWskel m X'))
-
--- -- -- finCW : (ℓ : Level) → Type (ℓ-suc ℓ)
--- -- -- finCW ℓ = Σ[ A ∈ Type ℓ ] ∥ isFinCW A ∥₁
-
--- -- -- finCWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
--- -- -- finCWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isFinCW A)
-
--- -- -- isFinCW→isCW : (X : Type ℓ) → isFinCW X → isCW X
--- -- -- isFinCW→isCW X (n , X' , str) = (finCWskel→CWskel n X') , str
-
--- -- -- finCW→CW : finCW ℓ → CW ℓ
--- -- -- finCW→CW (X , p) = X , PT.map (isFinCW→isCW X) p
-
-
--- -- -- -- morphisms
--- -- -- _→ᶜʷ_ : CW ℓ → CW ℓ' → Type (ℓ-max ℓ ℓ')
--- -- -- C →ᶜʷ D = fst C → fst D
-
--- -- -- --the cofibre of the inclusion of X n into X (suc n)
--- -- -- cofibCW : ∀ {ℓ} (n : ℕ) (C : CWskel ℓ) → Type ℓ
--- -- -- cofibCW n C = cofib (CW↪ C n)
-
--- -- -- --...is basically a sphere bouquet
--- -- -- cofibCW≃bouquet : ∀ {ℓ} (n : ℕ) (C : CWskel ℓ)
--- -- --   → cofibCW n C ≃ SphereBouquet n (Fin (snd C .fst n))
--- -- -- cofibCW≃bouquet n C = Bouquet≃-gen n (snd C .fst n) (α n) e
--- -- --   where
--- -- --   s = Bouquet≃-gen
+-- -- -- module CWskel∙-fields (C : CWskel∙ ℓ) where
+-- -- --   card = C .snd .fst
+-- -- --   A = Fin ∘ card
 -- -- --   α = C .snd .snd .fst
--- -- --   e = C .snd .snd .snd .snd n
+-- -- --   e = C .snd .snd .snd .snd
 
--- -- -- --sending X (suc n) into the cofibCW
--- -- -- to_cofibCW : (n : ℕ) (C : CWskel ℓ) → fst C (suc n) → cofibCW n C
--- -- -- to_cofibCW n C x = inr x
+-- -- --   ℤ[A_] : (n : ℕ) → AbGroup ℓ-zero
+-- -- --   ℤ[A n ] = ℤ[Fin (snd C .fst n) ]
 
--- -- -- --the connecting map of the long exact sequence
--- -- -- δ-pre :  {A : Type ℓ} {B : Type ℓ'} (conn : A → B)
--- -- --   → cofib conn → Susp A
--- -- -- δ-pre conn (inl x) = north
--- -- -- δ-pre conn (inr x) = south
--- -- -- δ-pre conn (push a i) = merid a i
+-- -- -- CWpt : ∀ {ℓ} → (C : CWskel∙ ℓ) → (n : ℕ) → Pointed ℓ
+-- -- -- fst (CWpt (C , f) n) = C n
+-- -- -- snd (CWpt (C , f) n) = f .snd .fst n (inl tt)
 
--- -- -- δ : (n : ℕ) (C : CWskel ℓ) → cofibCW n C → Susp (fst C n)
--- -- -- δ n C = δ-pre (CW↪ C n)
+-- -- -- -- Technically, a CW complex should be the sequential colimit over the following maps
+-- -- -- CW∙↪ : (T : CWskel∙ ℓ) → (n : ℕ) → fst T n → fst T (suc n)
+-- -- -- CW∙↪ (X , f , α , e₀ , e₊) n x = invEq (e₊ n) (inr x)
 
--- -- -- -- send the stage n to the realization (the same as incl, but with explicit args and type)
--- -- -- CW↪∞ : (C : CWskel ℓ) → (n : ℕ) → fst C n → realise C
--- -- -- CW↪∞ C n x = incl x
+-- -- -- ptCW : (T : CWskel∙ ℓ) → (n : ℕ) → fst T n
+-- -- -- ptCW T zero = T .snd .snd .fst zero (inl tt)
+-- -- -- ptCW T (suc n) = CW∙↪ T n (ptCW T n)
 
--- -- -- finCW↑ : (n m : ℕ) → (m ≥ n) → finCWskel ℓ n → finCWskel ℓ m
--- -- -- fst (finCW↑ m n p C) = fst C
--- -- -- fst (snd (finCW↑ m n p C)) = snd C .fst
--- -- -- snd (snd (finCW↑ m n p C)) k =
--- -- --   subst (λ r → isEquiv (CW↪ (fst C , snd C .fst) r))
--- -- --         (sym (+-assoc k (fst p) m) ∙ cong (k +ℕ_) (snd p))
--- -- --         (snd C .snd (k +ℕ fst p))
+-- -- -- CW∙ : (T : CWskel∙ ℓ) → (n : ℕ) → Pointed ℓ
+-- -- -- CW∙ T n = fst T n , ptCW T n
+
+-- -- -- CW∙↪∙ : (T : CWskel∙ ℓ) → (n : ℕ) → CW∙ T n →∙ CW∙ T (suc n)
+-- -- -- fst (CW∙↪∙ T n) = CW∙↪ T n
+-- -- -- snd (CW∙↪∙ T n) = refl
+
+
+-- -- -- -- But if it stabilises, no need for colimits.
+-- -- -- yieldsFinCWskel∙ : (n : ℕ) (X : ℕ → Type ℓ) → Type ℓ
+-- -- -- yieldsFinCWskel∙ n X =
+-- -- --   Σ[ CWskel ∈ yieldsCWskel∙ X ] ((k : ℕ) → isEquiv (CW∙↪ (X , CWskel) (k +ℕ n)))
+
+-- -- -- -- ... which should give us finite CW complexes.
+-- -- -- finCWskel∙ : (ℓ : Level) → (n : ℕ) → Type (ℓ-suc ℓ)
+-- -- -- finCWskel∙ ℓ n = Σ[ C ∈ (ℕ → Type ℓ) ] (yieldsFinCWskel∙ n C)
+
+-- -- -- finCWskel→CWskel∙ : (n : ℕ) → finCWskel ℓ n → CWskel ℓ
+-- -- -- finCWskel→CWskel∙ n C = fst C , fst (snd C)
+
+-- -- -- realiseSeq∙ : CWskel∙ ℓ → Sequence ℓ
+-- -- -- Sequence.obj (realiseSeq∙ (C , p)) = C
+-- -- -- Sequence.map (realiseSeq∙ C) = CW∙↪ C _
+
+-- -- -- realiseFinSeq∙ : (m : ℕ) → CWskel∙ ℓ → FinSequence m ℓ
+-- -- -- realiseFinSeq∙ m C = Sequence→FinSequence m (realiseSeq∙ C)
+
+-- -- -- -- realisation of CW complex from skeleton
+-- -- -- realise∙ : CWskel∙ ℓ → Type ℓ
+-- -- -- realise∙ C = SeqColim (realiseSeq∙ C)
+
+-- -- -- realise∙∙ : CWskel∙ ℓ → Pointed ℓ
+-- -- -- realise∙∙ C = SeqColim (realiseSeq∙ C) , incl {n = 0} (CW∙ C 0 .snd)
+-- -- -- open import Cubical.Data.Empty as ⊥
+
+-- -- -- CWskel∙→CWskel : (A : ℕ → Type ℓ) → ℕ → Type ℓ
+-- -- -- CWskel∙→CWskel A zero = Lift ⊥
+-- -- -- CWskel∙→CWskel A (suc n) = A n
+-- -- -- open import Cubical.Foundations.Isomorphism
+
+
+-- -- -- module _  (A : ℕ → Type ℓ)
+-- -- --   (cwsk : yieldsCWskel∙ A) where
+
+-- -- --   private
+-- -- --     αs : (n : ℕ) → Fin (cwsk .fst n) × S⁻ n → CWskel∙→CWskel A n
+-- -- --     αs (suc n) x = snd cwsk .fst n (inr x)
+
+-- -- --     e0 : {!!}
+-- -- --     e0 = {!!}
+
+-- -- --     es-suc→ : (n : ℕ) → cofib (fst (snd cwsk) n) → Pushout (αs (suc n)) fst
+-- -- --     es-suc→ n (inl x) = inl (snd cwsk .fst n (inl tt))
+-- -- --     es-suc→ n (inr x) = inl x
+-- -- --     es-suc→ n (push (inl x) i) = inl (fst (snd cwsk) n (inl x))
+-- -- --     es-suc→ n (push (inr (a , b)) i) = ((({!!} ∙ λ i → inl {!snd cwsk .snd n!}) ∙ push (a , b)) ∙ {!!}) i --  ({!!} ∙ sym (push (a , b))) i
+-- -- --     es-suc→ n (push (push a i₁) i) = {!!}
+
+-- -- --     es-suc : (n : ℕ)
+-- -- --       → Iso (cofib (fst (snd cwsk) n))
+-- -- --              (Pushout (αs (suc n)) fst)
+-- -- --     Iso.fun (es-suc n) = es-suc→ n
+-- -- --     Iso.inv (es-suc n) = {!!}
+-- -- --     Iso.rightInv (es-suc n) = {!!}
+-- -- --     Iso.leftInv (es-suc n) = {!!}
+
+-- -- --     es : (n : ℕ) → A n ≃ Pushout (αs n) (λ r → fst r)
+-- -- --     es zero = {!!}
+-- -- --     es (suc n) = compEquiv (snd cwsk .snd .snd n) (isoToEquiv (es-suc n))
+
+-- -- --   yieldsCWskel∙→' : yieldsCWskel (CWskel∙→CWskel A)
+-- -- --   fst yieldsCWskel∙→' = cwsk .fst
+-- -- --   fst (snd yieldsCWskel∙→') = αs
+-- -- --   fst (snd (snd yieldsCWskel∙→')) ()
+-- -- --   snd (snd (snd yieldsCWskel∙→')) = {!!}
+
+-- -- -- yieldsCWskel∙→ : (A : ℕ → Type ℓ)
+-- -- --   → yieldsCWskel∙ A → yieldsCWskel (CWskel∙→CWskel A)
+-- -- -- fst (yieldsCWskel∙→ A cwsk) = cwsk .fst
+-- -- -- fst (snd (yieldsCWskel∙→ A cwsk)) (suc n) (x , p) = snd cwsk .fst n (inr (x , p))
+-- -- -- fst (snd (snd (yieldsCWskel∙→ A cwsk))) ()
+-- -- -- snd (snd (snd (yieldsCWskel∙→ A cwsk))) zero = {!!}
+-- -- -- snd (snd (snd (yieldsCWskel∙→ A cwsk))) (suc n) =
+-- -- --   compEquiv (cwsk .snd .snd .snd n)
+-- -- --     (isoToEquiv {!(fst (snd (yieldsCWskel∙→ A cwsk)) (suc n))!}) -- theEq)
+-- -- --   where
+-- -- --   theEq→ : cofib (fst (cwsk .snd) n) → Pushout _ fst
+-- -- --   theEq→ (inl x) = inl (cwsk .snd .fst n (inl tt))
+-- -- --   theEq→ (inr x) = inl x
+-- -- --   theEq→ (push (inl x) i) = inl (cwsk .snd .fst n (inl tt))
+-- -- --   theEq→ (push (inr (a , b)) i) = ({!push ?!} ∙ push {!!} ∙ {!!}) i -- inl (cwsk .snd .fst n {!!})
+-- -- --   theEq→ (push (push a i₁) i) = {!!}
+
+-- -- --   theEq : Iso (cofib (fst (cwsk .snd) n)) (Pushout _ fst)
+-- -- --   Iso.fun theEq = theEq→
+-- -- --   Iso.inv theEq = {!!}
+-- -- --   Iso.rightInv theEq x = {!!}
+-- -- --   Iso.leftInv theEq x = {!!}
+
+
+-- -- --  -- compEquiv {!!} {!!}
+
+
+-- -- -- -- -- Finally: definition of CW complexes
+-- -- -- -- isCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
+-- -- -- -- isCW {ℓ = ℓ} X = Σ[ X' ∈ CWskel ℓ ] X ≃ realise X'
+
+-- -- -- -- CW : (ℓ : Level) → Type (ℓ-suc ℓ)
+-- -- -- -- CW ℓ = Σ[ A ∈ Type ℓ ] ∥ isCW A ∥₁
+
+-- -- -- -- CWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
+-- -- -- -- CWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isCW A)
+
+-- -- -- -- -- Finite CW complexes
+-- -- -- -- isFinCW : (X : Type ℓ) → Type (ℓ-suc ℓ)
+-- -- -- -- isFinCW {ℓ = ℓ} X =
+-- -- -- --   Σ[ m ∈ ℕ ] (Σ[ X' ∈ finCWskel ℓ m ] X ≃ realise (finCWskel→CWskel m X'))
+
+-- -- -- -- finCW : (ℓ : Level) → Type (ℓ-suc ℓ)
+-- -- -- -- finCW ℓ = Σ[ A ∈ Type ℓ ] ∥ isFinCW A ∥₁
+
+-- -- -- -- finCWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
+-- -- -- -- finCWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isFinCW A)
+
+-- -- -- -- isFinCW→isCW : (X : Type ℓ) → isFinCW X → isCW X
+-- -- -- -- isFinCW→isCW X (n , X' , str) = (finCWskel→CWskel n X') , str
+
+-- -- -- -- finCW→CW : finCW ℓ → CW ℓ
+-- -- -- -- finCW→CW (X , p) = X , PT.map (isFinCW→isCW X) p
+
+
+-- -- -- -- -- morphisms
+-- -- -- -- _→ᶜʷ_ : CW ℓ → CW ℓ' → Type (ℓ-max ℓ ℓ')
+-- -- -- -- C →ᶜʷ D = fst C → fst D
+
+-- -- -- -- --the cofibre of the inclusion of X n into X (suc n)
+-- -- -- -- cofibCW : ∀ {ℓ} (n : ℕ) (C : CWskel ℓ) → Type ℓ
+-- -- -- -- cofibCW n C = cofib (CW↪ C n)
+
+-- -- -- -- --...is basically a sphere bouquet
+-- -- -- -- cofibCW≃bouquet : ∀ {ℓ} (n : ℕ) (C : CWskel ℓ)
+-- -- -- --   → cofibCW n C ≃ SphereBouquet n (Fin (snd C .fst n))
+-- -- -- -- cofibCW≃bouquet n C = Bouquet≃-gen n (snd C .fst n) (α n) e
+-- -- -- --   where
+-- -- -- --   s = Bouquet≃-gen
+-- -- -- --   α = C .snd .snd .fst
+-- -- -- --   e = C .snd .snd .snd .snd n
+
+-- -- -- -- --sending X (suc n) into the cofibCW
+-- -- -- -- to_cofibCW : (n : ℕ) (C : CWskel ℓ) → fst C (suc n) → cofibCW n C
+-- -- -- -- to_cofibCW n C x = inr x
+
+-- -- -- -- --the connecting map of the long exact sequence
+-- -- -- -- δ-pre :  {A : Type ℓ} {B : Type ℓ'} (conn : A → B)
+-- -- -- --   → cofib conn → Susp A
+-- -- -- -- δ-pre conn (inl x) = north
+-- -- -- -- δ-pre conn (inr x) = south
+-- -- -- -- δ-pre conn (push a i) = merid a i
+
+-- -- -- -- δ : (n : ℕ) (C : CWskel ℓ) → cofibCW n C → Susp (fst C n)
+-- -- -- -- δ n C = δ-pre (CW↪ C n)
+
+-- -- -- -- -- send the stage n to the realization (the same as incl, but with explicit args and type)
+-- -- -- -- CW↪∞ : (C : CWskel ℓ) → (n : ℕ) → fst C n → realise C
+-- -- -- -- CW↪∞ C n x = incl x
+
+-- -- -- -- finCW↑ : (n m : ℕ) → (m ≥ n) → finCWskel ℓ n → finCWskel ℓ m
+-- -- -- -- fst (finCW↑ m n p C) = fst C
+-- -- -- -- fst (snd (finCW↑ m n p C)) = snd C .fst
+-- -- -- -- snd (snd (finCW↑ m n p C)) k =
+-- -- -- --   subst (λ r → isEquiv (CW↪ (fst C , snd C .fst) r))
+-- -- -- --         (sym (+-assoc k (fst p) m) ∙ cong (k +ℕ_) (snd p))
+-- -- -- --         (snd C .snd (k +ℕ fst p))

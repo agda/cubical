@@ -50,3 +50,7 @@ module _ {ℓ} {A : Type ℓ} where
   foldl : ∀ {ℓ'} {B : Type ℓ'} → (B → A → B) → B → List A → B
   foldl f b [] = b
   foldl f b (x ∷ xs) = foldl f (f b x) xs
+
+ℓ-maxList : List Level → Level
+ℓ-maxList [] = ℓ-zero
+ℓ-maxList (x ∷ x₁) = ℓ-max x (ℓ-maxList x₁)

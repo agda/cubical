@@ -34,6 +34,7 @@ open import Cubical.Relation.Nullary
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.List
 
 open import Cubical.HITs.Pushout.Base
 
@@ -73,76 +74,88 @@ pushoutSwitchEquiv = isoToEquiv (iso f inv leftInv rightInv)
 {-
   Definition of pushout diagrams
 -}
+module _ {ℓ₀ ℓ₂ ℓ₄ : Level} where
+  private
+    ℓ* = ℓ-maxList (ℓ₀ ∷ ℓ₂ ∷ ℓ₄ ∷ [])
+  record  3-span : Type (ℓ-suc ℓ*) where
+    field
+      A0 : Type ℓ₀
+      A2 : Type ℓ₂
+      A4 : Type ℓ₄
+      f1 : A2 → A0
+      f3 : A2 → A4
 
-record 3-span : Type₁ where
-  field
-    A0 A2 A4 : Type₀
-    f1 : A2 → A0
-    f3 : A2 → A4
+  3span : {A0 : Type ℓ₀} {A2 : Type ℓ₂} {A4 : Type ℓ₄}
+    → (A2 → A0) → (A2 → A4) → 3-span
+  3span f1 f3 = record { f1 = f1 ; f3 = f3 }
 
-3span : {A0 A2 A4 : Type₀} → (A2 → A0) → (A2 → A4) → 3-span
-3span f1 f3 = record { f1 = f1 ; f3 = f3 }
-
-spanPushout : (s : 3-span) → Type₀
-spanPushout s = Pushout (3-span.f1 s) (3-span.f3 s)
+  spanPushout : (s : 3-span) → Type ℓ*
+  spanPushout s = Pushout (3-span.f1 s) (3-span.f3 s)
 
 {-
   Definition of a homotopy natural diagram equivalence
 -}
 
-record 3-span-equiv (s1 : 3-span) (s2 : 3-span) : Type₀ where
-   field
-     e0 : 3-span.A0 s1 ≃ 3-span.A0 s2
-     e2 : 3-span.A2 s1 ≃ 3-span.A2 s2
-     e4 : 3-span.A4 s1 ≃ 3-span.A4 s2
-     H1 : ∀ x → 3-span.f1 s2 (e2 .fst x) ≡ e0 .fst (3-span.f1 s1 x)
-     H3 : ∀ x → 3-span.f3 s2 (e2 .fst x) ≡ e4 .fst (3-span.f3 s1 x)
+module _ {ℓ₀₀ ℓ₀₂ ℓ₀₄ : Level} {ℓ₂₀ ℓ₂₂ ℓ₂₄ : Level}  where
+  private
+    ℓ* = ℓ-maxList (ℓ₀₀ ∷ ℓ₀₂ ∷ ℓ₀₄ ∷ ℓ₂₀ ∷ ℓ₂₂ ∷ ℓ₂₄ ∷ [])
+  record 3-span-equiv (s1 : 3-span {ℓ₀₀} {ℓ₀₂} {ℓ₀₄})
+                      (s2 : 3-span {ℓ₂₀} {ℓ₂₂} {ℓ₂₄})
+                    : Type (ℓ-suc ℓ*) where
+     field
+       e0 : 3-span.A0 s1 ≃ 3-span.A0 s2
+       e2 : 3-span.A2 s1 ≃ 3-span.A2 s2
+       e4 : 3-span.A4 s1 ≃ 3-span.A4 s2
+       H1 : ∀ x → 3-span.f1 s2 (e2 .fst x) ≡ e0 .fst (3-span.f1 s1 x)
+       H3 : ∀ x → 3-span.f3 s2 (e2 .fst x) ≡ e4 .fst (3-span.f3 s1 x)
 
-{-
-  Proof that homotopy equivalent spans are in fact equal
--}
-spanEquivToPath : {s1 : 3-span} → {s2 : 3-span} → (e : 3-span-equiv s1 s2) → s1 ≡ s2
-spanEquivToPath {s1} {s2} e = spanPath
-  where
-    open 3-span-equiv e
-    open 3-span
+  {-
+    Proof that homotopy equivalent spans are in fact equal
+  -}
+module _ {ℓ₀ ℓ₂ ℓ₄ : Level} where
+  spanEquivToPath : {s1 s2 : 3-span {ℓ₀} {ℓ₂} {ℓ₄}}
+    → (e : 3-span-equiv s1 s2) → s1 ≡ s2
+  spanEquivToPath {s1} {s2} e = spanPath
+    where
+      open 3-span-equiv e
+      open 3-span
 
-    path0 : A0 s1 ≡ A0 s2
-    path0 = ua e0
+      path0 : A0 s1 ≡ A0 s2
+      path0 = ua e0
 
-    path2 : A2 s1 ≡ A2 s2
-    path2 = ua e2
+      path2 : A2 s1 ≡ A2 s2
+      path2 = ua e2
 
-    path4 : A4 s1 ≡ A4 s2
-    path4 = ua e4
+      path4 : A4 s1 ≡ A4 s2
+      path4 = ua e4
 
-    spanPath1 : I → 3-span
-    spanPath1 i = record { A0 = path0 i ; A2 = path2 i ; A4 = path4 i ;
-                           f1 = λ x → (transp (λ j → path0 (i ∧ j)) (~ i) (f1 s1 (transp (λ j → path2 (~ j ∧ i)) (~ i) x))) ;
-                           f3 = λ x → (transp (λ j → path4 (i ∧ j)) (~ i) (f3 s1 (transp (λ j → path2 (~ j ∧ i)) (~ i) x))) }
+      spanPath1 : I → 3-span
+      spanPath1 i = record { A0 = path0 i ; A2 = path2 i ; A4 = path4 i ;
+                             f1 = λ x → (transp (λ j → path0 (i ∧ j)) (~ i) (f1 s1 (transp (λ j → path2 (~ j ∧ i)) (~ i) x))) ;
+                             f3 = λ x → (transp (λ j → path4 (i ∧ j)) (~ i) (f3 s1 (transp (λ j → path2 (~ j ∧ i)) (~ i) x))) }
 
-    spanPath2 : I → 3-span
-    spanPath2 i = record { A0 = A0 s2 ; A2 = A2 s2 ; A4 = A4 s2 ; f1 = f1Path i ; f3 = f3Path i }
-      where
-        f1Path : I → A2 s2 → A0 s2
-        f1Path i x = ((uaβ e0 (f1 s1 (transport (λ j → path2 (~ j)) x)))
-                     ∙ (H1 (transport (λ j → path2 (~ j)) x)) ⁻¹
-                     ∙ (λ j → f1 s2 (uaβ e2 (transport (λ j → path2 (~ j)) x) (~ j)))
-                     ∙ (λ j → f1 s2 (transportTransport⁻ path2 x j))) i
+      spanPath2 : I → 3-span
+      spanPath2 i = record { A0 = A0 s2 ; A2 = A2 s2 ; A4 = A4 s2 ; f1 = f1Path i ; f3 = f3Path i }
+        where
+          f1Path : I → A2 s2 → A0 s2
+          f1Path i x = ((uaβ e0 (f1 s1 (transport (λ j → path2 (~ j)) x)))
+                       ∙ (H1 (transport (λ j → path2 (~ j)) x)) ⁻¹
+                       ∙ (λ j → f1 s2 (uaβ e2 (transport (λ j → path2 (~ j)) x) (~ j)))
+                       ∙ (λ j → f1 s2 (transportTransport⁻ path2 x j))) i
 
-        f3Path : I → A2 s2 → A4 s2
-        f3Path i x = ((uaβ e4 (f3 s1 (transport (λ j → path2 (~ j)) x)))
-                     ∙ (H3 (transport (λ j → path2 (~ j)) x)) ⁻¹
-                     ∙ (λ j → f3 s2 (uaβ e2 (transport (λ j → path2 (~ j)) x) (~ j)))
-                     ∙ (λ j → f3 s2 (transportTransport⁻ path2 x j))) i
+          f3Path : I → A2 s2 → A4 s2
+          f3Path i x = ((uaβ e4 (f3 s1 (transport (λ j → path2 (~ j)) x)))
+                       ∙ (H3 (transport (λ j → path2 (~ j)) x)) ⁻¹
+                       ∙ (λ j → f3 s2 (uaβ e2 (transport (λ j → path2 (~ j)) x) (~ j)))
+                       ∙ (λ j → f3 s2 (transportTransport⁻ path2 x j))) i
 
-    spanPath : s1 ≡ s2
-    spanPath = (λ i → spanPath1 i) ∙ (λ i → spanPath2 i)
+      spanPath : s1 ≡ s2
+      spanPath = (λ i → spanPath1 i) ∙ (λ i → spanPath2 i)
 
--- as a corollary, they have the same pushout
-spanEquivToPushoutPath : {s1 : 3-span} → {s2 : 3-span} → (e : 3-span-equiv s1 s2)
-                         → spanPushout s1 ≡ spanPushout s2
-spanEquivToPushoutPath {s1} {s2} e = cong spanPushout (spanEquivToPath e)
+  -- as a corollary, they have the same pushout
+  spanEquivToPushoutPath : {s1 : 3-span} → {s2 : 3-span} → (e : 3-span-equiv s1 s2)
+                           → spanPushout s1 ≡ spanPushout s2
+  spanEquivToPushoutPath {s1} {s2} e = cong spanPushout (spanEquivToPath e)
 
 {-
 
@@ -169,9 +182,18 @@ Then the lemma states there is an equivalence A□○ ≃ A○□.
 
 -}
 
-record 3x3-span : Type₁ where
+record 3x3-span {ℓ₀₀ ℓ₀₂ ℓ₀₄ ℓ₂₀ ℓ₂₂ ℓ₂₄ ℓ₄₀ ℓ₄₂ ℓ₄₄ : Level} :
+  Type (ℓ-suc (ℓ-maxList (ℓ₀₀ ∷ ℓ₀₂ ∷ ℓ₀₄ ∷ ℓ₂₀ ∷ ℓ₂₂ ∷ ℓ₂₄ ∷ ℓ₄₀ ∷ ℓ₄₂ ∷ ℓ₄₄ ∷ []))) where
   field
-    A00 A02 A04 A20 A22 A24 A40 A42 A44 : Type₀
+    A00 : Type ℓ₀₀
+    A02 : Type ℓ₀₂
+    A04 : Type ℓ₀₄
+    A20 : Type ℓ₂₀
+    A22 : Type ℓ₂₂
+    A24 : Type ℓ₂₄
+    A40 : Type ℓ₄₀
+    A42 : Type ℓ₄₂
+    A44 : Type ℓ₄₄
 
     f10 : A20 → A00
     f12 : A22 → A02
@@ -195,13 +217,13 @@ record 3x3-span : Type₁ where
     H33 : ∀ x → f43 (f32 x) ≡ f34 (f23 x)
 
   -- pushouts of the lines
-  A□0 : Type₀
+  A□0 : Type _
   A□0 = Pushout f10 f30
 
-  A□2 : Type₀
+  A□2 : Type _
   A□2 = Pushout f12 f32
 
-  A□4 : Type₀
+  A□4 : Type _
   A□4 = Pushout f14 f34
 
   -- maps between pushouts
@@ -220,17 +242,17 @@ record 3x3-span : Type₁ where
                    ∙∙ (λ i → inr (H33 a (~ i)))) j
 
   -- total pushout
-  A□○ : Type₀
+  A□○ : Type _
   A□○ = Pushout f□1 f□3
 
   -- pushouts of the columns
-  A0□ : Type₀
+  A0□ : Type _
   A0□ = Pushout f01 f03
 
-  A2□ : Type₀
+  A2□ : Type _
   A2□ = Pushout f21 f23
 
-  A4□ : Type₀
+  A4□ : Type _
   A4□ = Pushout f41 f43
 
   -- maps between pushouts
@@ -249,7 +271,7 @@ record 3x3-span : Type₁ where
                    ∙∙ (λ i → inr (H33 a i))) j
 
   -- total pushout
-  A○□ : Type₀
+  A○□ : Type _
   A○□ = Pushout f1□ f3□
 
   -- forward map of the equivalence A□○ ≃ A○□

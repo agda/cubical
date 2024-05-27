@@ -7,6 +7,7 @@ module Cubical.CW.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
@@ -101,6 +102,9 @@ isFinCW {ℓ = ℓ} X =
 
 finCW : (ℓ : Level) → Type (ℓ-suc ℓ)
 finCW ℓ = Σ[ A ∈ Type ℓ ] ∥ isFinCW A ∥₁
+
+finCW∙ : (ℓ : Level) → Type (ℓ-suc ℓ)
+finCW∙ ℓ = Σ[ A ∈ Pointed ℓ ] ∥ isFinCW (fst A) ∥₁
 
 finCWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
 finCWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isFinCW A)
