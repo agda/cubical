@@ -8,7 +8,7 @@
 
 -}
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
 open import Agda.Builtin.Cubical.HCompU
 
@@ -44,8 +44,8 @@ module _ {C : Category ℓ ℓ'} where
     -- Proof 1 that the functor ⟦_⟧ is full and faithful
     -- Adapted from 'Containers: Constructing strictly positive types'
 
-    ⟦_⟧-fully-faithful : isFullyFaithful ⟦_⟧
-    equiv-proof (⟦_⟧-fully-faithful (S ◁ P & set-S) (T ◁ Q & set-T)) (natTrans mors nat) =
+    ⟦_⟧FullyFaithful : isFullyFaithful ⟦_⟧
+    equiv-proof (⟦_⟧FullyFaithful (S ◁ P & set-S) (T ◁ Q & set-T)) (natTrans mors nat) =
       (fib (natTrans mors nat) , fib-pf) , unique
       where
         fib : NatTrans ⟦ (S ◁ P & set-S) ⟧-obj ⟦ (T ◁ Q & set-T) ⟧-obj →
@@ -78,25 +78,24 @@ module _ {C : Category ℓ ℓ'} where
     -- Proof 2 that the functor ⟦_⟧ is full and faithful
     -- Uses the Yoneda lemma
 
-    -- Distributivity of Π over Σ
-    distrΠΣ : {A : Type ℓ''}{B : A → Type ℓ'''}{C : (a : A) → B a → Type ℓ''''} →
-              Iso ((a : A) → Σ (B a) (λ b → C a b))
-                  (Σ ((a : A) → B a) (λ f → (a : A) → C a (f a)))
-    distrΠΣ = iso
-               (λ f → (λ a → fst (f a)) , λ a → snd (f a))
-               (λ {(f , g) → λ a → f a , g a})
-               (λ _ → refl)
-               (λ _ → refl)
-
-    -- Compose heterogenous with homogenous equality
-    comp-het-hom : {A : I → Type ℓ'} (x : A i0) (y : A i1) (z : A i1) →
-                   PathP (λ i → A i) x y → y ≡ z → PathP (λ i → A i) x z
-    comp-het-hom {A} x y z p eq i = subst (λ c → PathP A x c) eq p i 
-
-    ⟦_⟧-fully-faithful' : isFullyFaithful ⟦_⟧
-    equiv-proof (⟦_⟧-fully-faithful' (S ◁ P & set-S) (T ◁ Q & set-T)) (natTrans mors nat) =
+    ⟦_⟧FullyFaithful' : isFullyFaithful ⟦_⟧
+    equiv-proof (⟦_⟧FullyFaithful' (S ◁ P & set-S) (T ◁ Q & set-T)) (natTrans mors nat) =
       (mor , mor-eq) , unique
       where
+        -- Distributivity of Π over Σ
+        distrΠΣ : {A : Type ℓ''}{B : A → Type ℓ'''}{C : (a : A) → B a → Type ℓ''''} →
+                  Iso ((a : A) → Σ (B a) (λ b → C a b))
+                      (Σ ((a : A) → B a) (λ f → (a : A) → C a (f a)))
+        fun distrΠΣ f = (λ a → fst (f a)) , λ a → snd (f a)
+        inv distrΠΣ (f , g) a = f a , g a
+        rightInv distrΠΣ _ = refl
+        leftInv distrΠΣ _ = refl
+
+        -- Compose heterogenous with homogenous equality
+        compHetHomP : {A : I → Type ℓ'} (x : A i0) (y : A i1) (z : A i1) →
+                       PathP (λ i → A i) x y → y ≡ z → PathP (λ i → A i) x z
+        compHetHomP {A} x y z p eq i = subst (λ c → PathP A x c) eq p i
+        
         nat-trans : (s : S) → FUNCTOR C (SET ℓ') [ C [ P s ,-] , ⟦ T ◁ Q & set-T ⟧-obj ]
         nat-trans s = natTrans (λ X → curry (mors X) s) nat'
           where
@@ -127,7 +126,7 @@ module _ {C : Category ℓ ℓ'} where
         unique ((u ◁ f) , m-eq) =
           ΣPathP
             (cong₂ _◁_ (funExt (λ s i → fst (N-ob (m-eq (~ i)) (P s) (s , C .id))))
-                       (funExt (λ s i → comp-het-hom
+                       (funExt (λ s i → compHetHomP
                                          (snd (mors (P s) (s , C .id)))
                                          (f s ⋆⟨ C ⟩ (C .id))
                                          (f s)
@@ -140,10 +139,11 @@ module _ {C : Category ℓ ℓ'} where
                                (λ i → m-eq i)
                                (λ i → ⟦_⟧-mor {S ◁ P & set-S} {T ◁ Q & set-T}
                                               (funExt (λ s j → fst (N-ob (m-eq (~ j)) (P s) (s , C .id))) i ◁
-                                              funExt (λ s j → comp-het-hom
+                                              funExt (λ s j → compHetHomP
                                                                  (snd (mors (P s) (s , C .id)))
                                                                  (seq' C (f s) (C .id)) (f s)
                                                                  (λ k → snd (N-ob (m-eq (~ k)) (P s) (s , C .id)))
                                                                  (C .⋆IdR (f s)) j) i))
                                (λ j → natTrans mors nat)
                square = isSet→SquareP (λ _ _ → isSetNatTrans) _ _ _ _
+               

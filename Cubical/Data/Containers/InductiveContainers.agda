@@ -5,7 +5,7 @@ by Abbott, Altenkirch, Ghani
 
 -}
 
-{-# OPTIONS --cubical --guardedness --safe #-}
+{-# OPTIONS --guardedness --safe #-}
 
 open import Cubical.Data.W
 open import Cubical.Data.Containers.Algebras
@@ -42,18 +42,18 @@ module Cubical.Data.Containers.InductiveContainers
   α̅ (w , k) = α̅' w k
 
   -- Diagram commutes 
-  α̅-comm : (s : S) (f : Q s → W S Q) (g : (i : Ind) → P i s → X i)
+  α̅Comm : (s : S) (f : Q s → W S Q) (g : (i : Ind) → P i s → X i)
            (h : (i : Ind) (q : Q s) → Pos WAlg i (f q) → X i) →
            α̅ (into ((s , f) , (g , h))) ≡ α (s , g , λ q → α̅ (f q , λ i → h i q))
-  α̅-comm s f g h = refl
+  α̅Comm s f g h = refl
 
   -- α̅ is unique
-  α̅-unique : (α̃ : Σ[ w ∈ W S Q ] ((i : Ind) → Pos WAlg i w → X i) → Y) →
+  α̅Unique : (α̃ : Σ[ w ∈ W S Q ] ((i : Ind) → Pos WAlg i w → X i) → Y) →
              ((s : S) (f : Q s → W S Q) (g : (i : Ind) → P i s → X i)
              (h : (i : Ind) (q : Q s) → Pos WAlg i (f q) → X i) →
              α̃ (into ((s , f) , (g , h))) ≡ α (s , g , λ q → α̃ (f q , λ i → h i q))) →
              α̅ ≡ α̃
-  α̅-unique α̃ α̃-comm = funExt w-rec
+  α̅Unique α̃ α̃-comm = funExt w-rec
     where
       lemma : (s : S) (f : Q s → W S Q) (g : (i : Ind) → Pos WAlg i (sup-W s f) → X i) →
               α̃ (into ((s , f) , (λ i p → g i (here p)) , (λ i q b → g i (below q b)))) ≡

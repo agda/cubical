@@ -11,7 +11,7 @@
 -}
 
 
-{-# OPTIONS --cubical --safe #-}
+{-# OPTIONS --safe #-}
 
 open import Cubical.Categories.Category.Base 
 open import Cubical.Categories.Functor

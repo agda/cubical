@@ -5,7 +5,7 @@ by Abbott, Altenkirch, Ghani
 
 -}
 
-{-# OPTIONS --guardedness --cubical --safe #-}
+{-# OPTIONS --guardedness --safe #-}
 
 open import Cubical.Codata.M.MRecord
 open import Cubical.Data.Sigma
@@ -56,8 +56,8 @@ module Cubical.Data.Containers.CoinductiveContainers
                      ((βs y , λ q → (β̃₁ (βh y q))) , (βg y , λ i q → (β̃₂ (βh y q)) i))) where
 
       -- Diagram commutes
-      β̅-comm : (y : Y) → out (β̅ y) ≡ ((βs y , β̅₁ ∘ (βh y)) , (βg y , λ i q → β̅₂ (βh y q) i))
-      β̅-comm y = refl
+      β̅Comm : (y : Y) → out (β̅ y) ≡ ((βs y , β̅₁ ∘ (βh y)) , (βg y , λ i q → β̅₂ (βh y q) i))
+      β̅Comm y = refl
 
       β̃ : Y → Σ (M' S Q) (λ m → (i : Ind) → Pos MAlg i m → X i)
       β̃ y = β̃₁ y , β̃₂ y
@@ -86,15 +86,15 @@ module Cubical.Data.Containers.CoinductiveContainers
       data R : M' S Q → M' S Q → Type where
         R-intro : (y : Y) → R (β̃₁ y) (β̅₁ y)
 
-      is-bisim-R : {m₀ : M' S Q} {m₁ : M' S Q} → R m₀ m₁ → M'-R R m₀ m₁
-      s-eq (is-bisim-R (R-intro y)) = comm1 y
-      p-eq (is-bisim-R (R-intro y)) q₀ q₁ q-eq = 
+      isBisimR : {m₀ : M' S Q} {m₁ : M' S Q} → R m₀ m₁ → M'-R R m₀ m₁
+      s-eq (isBisimR (R-intro y)) = comm1 y
+      p-eq (isBisimR (R-intro y)) q₀ q₁ q-eq = 
         transport (λ i → R (comm2 y (~ i) (q-eq (~ i))) (β̅₁ (βh y q₁))) (R-intro (βh y q₁))
 
-      fst-eq : (y : Y) → β̃₁ y ≡ β̅₁ y
-      fst-eq y = CoInd-M' {S} {Q} R is-bisim-R (R-intro y)
+      fstEq : (y : Y) → β̃₁ y ≡ β̅₁ y
+      fstEq y = CoInd-M' {S} {Q} R isBisimR (R-intro y)
 
-      snd-eq-gen : (y : Y) (β̃₁ : Y → M' S Q) (p : β̅₁ ≡ β̃₁)
+      sndEqGen : (y : Y) (β̃₁ : Y → M' S Q) (p : β̅₁ ≡ β̃₁)
                    (β̃₂ : (y : Y) (ind : Ind) → Pos MAlg ind (β̃₁ y) → X ind)
                    (comm1 : shape ∘ β̃₁ ≡ βs)
                    (comm2 : (y : Y) → PathP (λ i → Q (comm1 i y) → M' S Q)
@@ -108,7 +108,7 @@ module Cubical.Data.Containers.CoinductiveContainers
                                             λ ind q b → β̃₂ (βh y q) ind b) →
                    PathP (λ i → (ind : Ind) → Pos MAlg ind (p i y) → X ind)
                          (β̅₂ y) (β̃₂ y)
-      snd-eq-gen y =
+      sndEqGen y =
         J>_ -- we're applying J to p : makeβ̅₁ βs βg βh ≡ β̅₁
           {P = λ β̃₁ p →
             (β̃₂ : (y : Y) (ind : Ind) → Pos MAlg ind (β̃₁ y) → X ind)
@@ -125,7 +125,7 @@ module Cubical.Data.Containers.CoinductiveContainers
             (β̅₂ y) 
             (β̃₂ y)}
           λ β̃₂ comm1 →
-            prop-elim -- S is a set so equality on S is a prop
+            propElim -- S is a set so equality on S is a prop
               {A = (λ y → βs y) ≡ βs}
               (isSetΠ (λ _ → setS) (λ y → βs y) βs)
               (λ s-eq →
@@ -139,7 +139,7 @@ module Cubical.Data.Containers.CoinductiveContainers
                                    (λ ind q b → β̃₂ (βh y q) ind b)) →
                          (β̅₂ y) ≡ (β̃₂ y))
               refl
-              (prop-elim -- M' is a set so equality on M' is a prop
+              (propElim -- M' is a set so equality on M' is a prop
                 {A = (y : Y) →
                      (λ x → β̅₁ (βh y x)) ≡ (λ x → β̅₁ (βh y x))}
                 (isPropΠ λ y' → isSetΠ (λ _ → setM setS) (β̅₁ ∘ βh y') (β̅₁ ∘ βh y'))
@@ -151,23 +151,28 @@ module Cubical.Data.Containers.CoinductiveContainers
                                      (λ ind q b → β̃₂ (βh y q) ind b)) →
                          (β̅₂ y) ≡ (β̃₂ y))
                 (λ _ → refl)
-                λ comm3 comm4 → funExt (λ ind → funExt (snd-eq-aux β̃₂ comm3 comm4 y ind)))
+                λ comm3 comm4 → funExt (λ ind → funExt (sndEqAux β̃₂ comm3 comm4 y ind)))
               comm1
         where
-          snd-eq-aux : (β̃₂ : (s : Y) (i : Ind) → Pos MAlg i (β̅₁ s) → X i)
-                       (c3 : (s : Y) → (λ ind p → β̃₂ s ind (here p)) ≡ βg s)
-                       (c4 : (s : Y) → (λ ind q b → β̃₂ s ind (below q b)) ≡
-                                       (λ ind q → β̃₂ (βh s q) ind))
-                       (y : Y) (ind : Ind) (pos : Pos MAlg ind (β̅₁ y)) → β̅₂ y ind pos ≡ β̃₂ y ind pos
-          snd-eq-aux β̃₂ c3 c4 y ind (here x) = sym (funExt⁻ (funExt⁻ (c3 y) ind) x)
-          snd-eq-aux β̃₂ c3 c4 y ind (below q x) =
-            snd-eq-aux β̃₂ c3 c4 (βh y q) ind x ∙ funExt⁻ (funExt⁻ (sym (funExt⁻ (c4 y) ind)) q) x
+          -- Proposition elimination
+          propElim : ∀ {ℓ} {A : Type ℓ} (t : isProp A) → (D : A → Type ℓ) →
+                      (x : A) → D x → (a : A) → D a
+          propElim t D x pr a = subst D (t x a) pr
 
-      snd-eq : (y : Y) → PathP (λ i → (ind : Ind) → Pos MAlg ind (fst-eq y i) → X ind) (β̃₂ y) (β̅₂ y)
-      snd-eq y i = snd-eq-gen y β̃₁ (sym (funExt fst-eq)) β̃₂ (funExt comm1) comm2 comm3 comm4 (~ i)
+          sndEqAux : (β̃₂ : (s : Y) (i : Ind) → Pos MAlg i (β̅₁ s) → X i)
+                     (c3 : (s : Y) → (λ ind p → β̃₂ s ind (here p)) ≡ βg s)
+                     (c4 : (s : Y) → (λ ind q b → β̃₂ s ind (below q b)) ≡
+                                     (λ ind q → β̃₂ (βh s q) ind))
+                     (y : Y) (ind : Ind) (pos : Pos MAlg ind (β̅₁ y)) → β̅₂ y ind pos ≡ β̃₂ y ind pos
+          sndEqAux β̃₂ c3 c4 y ind (here x) = sym (funExt⁻ (funExt⁻ (c3 y) ind) x)
+          sndEqAux β̃₂ c3 c4 y ind (below q x) =
+            sndEqAux β̃₂ c3 c4 (βh y q) ind x ∙ funExt⁻ (funExt⁻ (sym (funExt⁻ (c4 y) ind)) q) x
+
+      sndEq : (y : Y) → PathP (λ i → (ind : Ind) → Pos MAlg ind (fstEq y i) → X ind) (β̃₂ y) (β̅₂ y)
+      sndEq y i = sndEqGen y β̃₁ (sym (funExt fstEq)) β̃₂ (funExt comm1) comm2 comm3 comm4 (~ i)
 
       -- β̅ is unique
-      β̅-unique : β̃ ≡ β̅
-      fst (β̅-unique i y) = fst-eq y i
-      snd (β̅-unique i y) = snd-eq y i
+      β̅Unique : β̃ ≡ β̅
+      fst (β̅Unique i y) = fstEq y i
+      snd (β̅Unique i y) = sndEq y i
 

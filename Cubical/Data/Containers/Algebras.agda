@@ -6,7 +6,7 @@
 
 -}
 
-{-# OPTIONS --cubical --guardedness --safe #-}
+{-# OPTIONS --guardedness --safe #-}
 
 open import Cubical.Data.W
 open import Cubical.Codata.M.MRecord renaming (M' to M)
@@ -16,17 +16,12 @@ open import Cubical.Foundations.Prelude
 
 module Cubical.Data.Containers.Algebras where
 
--- Proposition elimination
-prop-elim : ∀ {ℓ} {A : Type ℓ} (t : isProp A) → (D : A → Type ℓ) →
-            (x : A) → D x → (a : A) → D a
-prop-elim t D x pr a = subst D (t x a) pr
-
 module Algs (Ind : Type)
-         (S : Type)
-         (P : Ind → S → Type)
-         (Q : S → Type)
-         (X : Ind → Type)
-         (Y : Type) where
+            (S : Type)
+            (P : Ind → S → Type)
+            (Q : S → Type)
+            (X : Ind → Type)
+            (Y : Type) where
 
   open M
   open Iso
