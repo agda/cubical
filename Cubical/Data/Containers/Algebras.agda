@@ -1,7 +1,5 @@
 {- Basic definitions required for co/inductive container proofs
 
-- Proposition elimination
-
 - Definition of Pos
 
 -}
