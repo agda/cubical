@@ -93,6 +93,26 @@ module Cubical.Data.Containers.CoinductiveContainers
 
       fstEq : (y : Y) → β̃₁ y ≡ β̅₁ y
       fstEq y = M'Coind {S} {Q} R isBisimR (R-intro y)
+        where
+          -- Coinduction principle for M
+          M'Coind : {S : Type} {Q : S → Type} (R : M' S Q → M' S Q → Type)
+                    (is-bisim : {m₀ m₁ : M' S Q} → R m₀ m₁ → M'-R R m₀ m₁)
+                    {m₀ m₁ : M' S Q} → R m₀ m₁ → m₀ ≡ m₁ 
+          shape (M'Coind R is-bisim r i) = s-eq (is-bisim r) i
+          pos (M'Coind {S} {Q} R is-bisim {m₀ = m₀}{m₁ = m₁} r i) q =
+            M'Coind R is-bisim {m₀ = pos m₀ q₀} {m₁ = pos m₁ q₁} (p-eq (is-bisim r) q₀ q₁ q₂) i
+              where QQ : I → Type
+                    QQ i = Q (s-eq (is-bisim r) i)
+
+                    q₀ : QQ i0
+                    q₀ = transp (λ j → QQ (~ j ∧ i)) (~ i) q
+
+                    q₁ : QQ i1
+                    q₁ = transp (λ j → QQ (j ∨ i)) i q
+
+                    q₂ : PathP (λ i → QQ i) q₀ q₁
+                    q₂ k = transp (λ j → QQ ((~ k ∧ ~ j ∧ i) ∨ (k ∧ (j ∨ i)) ∨
+                           ((~ j ∧ i) ∧ (j ∨ i)))) ((~ k ∧ ~ i) ∨ (k ∧ i)) q
 
       sndEqGen : (y : Y) (β̃₁ : Y → M' S Q) (p : β̅₁ ≡ β̃₁)
                    (β̃₂ : (y : Y) (ind : Ind) → Pos MAlg ind (β̃₁ y) → X ind)

@@ -6,7 +6,7 @@
 
 -}
 
-{-# OPTIONS --guardedness --safe #-}
+{-# OPTIONS --safe #-}
 
 open import Cubical.Data.W.W
 open import Cubical.Codata.M.MRecord renaming (M' to M)

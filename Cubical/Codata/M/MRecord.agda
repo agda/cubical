@@ -2,7 +2,7 @@
 
 -}
 
-{-# OPTIONS --cubical --guardedness --safe #-}
+{-# OPTIONS --cubical --safe #-}
 
 open import Cubical.Foundations.Prelude
 
@@ -24,26 +24,6 @@ record M'-R {S : Type} {Q : S → Type} (R : M' S Q → M' S Q → Type) (m₀ m
           → R (pos m₀ q₀) (pos m₁ q₁)
 open M'-R
 
--- Coinduction principle for M
-M'Coind : {S : Type} {Q : S → Type} (R : M' S Q → M' S Q → Type)
-          (is-bisim : {m₀ m₁ : M' S Q} → R m₀ m₁ → M'-R R m₀ m₁)
-          {m₀ m₁ : M' S Q} → R m₀ m₁ → m₀ ≡ m₁ 
-shape (M'Coind R is-bisim r i) = s-eq (is-bisim r) i
-pos (M'Coind {S} {Q} R is-bisim {m₀ = m₀}{m₁ = m₁} r i) q =
-  M'Coind R is-bisim {m₀ = pos m₀ q₀} {m₁ = pos m₁ q₁} (p-eq (is-bisim r) q₀ q₁ q₂) i
-    where QQ : I → Type
-          QQ i = Q (s-eq (is-bisim r) i)
-
-          q₀ : QQ i0
-          q₀ = transp (λ j → QQ (~ j ∧ i)) (~ i) q
-
-          q₁ : QQ i1
-          q₁ = transp (λ j → QQ (j ∨ i)) i q
-
-          q₂ : PathP (λ i → QQ i) q₀ q₁
-          q₂ k = transp (λ j → QQ ((~ k ∧ ~ j ∧ i) ∨ (k ∧ (j ∨ i)) ∨
-                 ((~ j ∧ i) ∧ (j ∨ i)))) ((~ k ∧ ~ i) ∨ (k ∧ i)) q
-                 
 -- (Propositional) η-equality for M'
 ηEqM' : {S' : Type} {Q' : S' → Type} (m : M' S' Q') → sup-M (shape m) (pos m) ≡ m
 shape (ηEqM' m i) = shape m
