@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --guardedness --cubical --safe #-}
+{-# OPTIONS --cubical --safe #-}
 
 module Cubical.Data.W where
 
