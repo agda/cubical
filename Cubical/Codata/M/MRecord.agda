@@ -25,12 +25,12 @@ record M'-R {S : Type} {Q : S → Type} (R : M' S Q → M' S Q → Type) (m₀ m
 open M'-R
 
 -- Coinduction principle for M
-CoInd-M' : {S : Type} {Q : S → Type} (R : M' S Q → M' S Q → Type)
+M'Coind : {S : Type} {Q : S → Type} (R : M' S Q → M' S Q → Type)
           (is-bisim : {m₀ m₁ : M' S Q} → R m₀ m₁ → M'-R R m₀ m₁)
           {m₀ m₁ : M' S Q} → R m₀ m₁ → m₀ ≡ m₁ 
-shape (CoInd-M' R is-bisim r i) = s-eq (is-bisim r) i
-pos (CoInd-M' {S} {Q} R is-bisim {m₀ = m₀}{m₁ = m₁} r i) q =
-  CoInd-M' R is-bisim {m₀ = pos m₀ q₀} {m₁ = pos m₁ q₁} (p-eq (is-bisim r) q₀ q₁ q₂) i
+shape (M'Coind R is-bisim r i) = s-eq (is-bisim r) i
+pos (M'Coind {S} {Q} R is-bisim {m₀ = m₀}{m₁ = m₁} r i) q =
+  M'Coind R is-bisim {m₀ = pos m₀ q₀} {m₁ = pos m₁ q₁} (p-eq (is-bisim r) q₀ q₁ q₂) i
     where QQ : I → Type
           QQ i = Q (s-eq (is-bisim r) i)
 
@@ -45,6 +45,6 @@ pos (CoInd-M' {S} {Q} R is-bisim {m₀ = m₀}{m₁ = m₁} r i) q =
                  ((~ j ∧ i) ∧ (j ∨ i)))) ((~ k ∧ ~ i) ∨ (k ∧ i)) q
                  
 -- (Propositional) η-equality for M'
-M'-eta-eq : {S' : Type} {Q' : S' → Type} (m : M' S' Q') → sup-M (shape m) (pos m) ≡ m
-shape (M'-eta-eq m i) = shape m
-pos (M'-eta-eq m i) = pos m
+ηEqM' : {S' : Type} {Q' : S' → Type} (m : M' S' Q') → sup-M (shape m) (pos m) ≡ m
+shape (ηEqM' m i) = shape m
+pos (ηEqM' m i) = pos m

@@ -8,7 +8,7 @@
 
 {-# OPTIONS --guardedness --safe #-}
 
-open import Cubical.Data.W
+open import Cubical.Data.W.W
 open import Cubical.Codata.M.MRecord renaming (M' to M)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
@@ -50,7 +50,7 @@ module Algs (Ind : Type)
       isom : Iso (Σ[ s ∈ S ] (Q s → M S Q)) (M S Q)
       fun isom = uncurry sup-M
       inv isom m = shape m , pos m
-      rightInv isom m = M'-eta-eq m
+      rightInv isom m = ηEqM' m
       leftInv isom (s , f) = refl
 
   data Pos (FP : ContFuncIso S Q) (i : Ind) : carrier FP → Type where

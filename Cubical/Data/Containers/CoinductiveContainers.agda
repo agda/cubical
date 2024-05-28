@@ -92,7 +92,7 @@ module Cubical.Data.Containers.CoinductiveContainers
         transport (λ i → R (comm2 y (~ i) (q-eq (~ i))) (β̅₁ (βh y q₁))) (R-intro (βh y q₁))
 
       fstEq : (y : Y) → β̃₁ y ≡ β̅₁ y
-      fstEq y = CoInd-M' {S} {Q} R isBisimR (R-intro y)
+      fstEq y = M'Coind {S} {Q} R isBisimR (R-intro y)
 
       sndEqGen : (y : Y) (β̃₁ : Y → M' S Q) (p : β̅₁ ≡ β̃₁)
                    (β̃₂ : (y : Y) (ind : Ind) → Pos MAlg ind (β̃₁ y) → X ind)

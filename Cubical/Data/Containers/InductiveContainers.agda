@@ -7,7 +7,7 @@ by Abbott, Altenkirch, Ghani
 
 {-# OPTIONS --guardedness --safe #-}
 
-open import Cubical.Data.W
+open import Cubical.Data.W.W
 open import Cubical.Data.Containers.Algebras
 open import Cubical.Data.Sigma
 open import Cubical.Foundations.Prelude
@@ -61,7 +61,7 @@ module Cubical.Data.Containers.InductiveContainers
       lemma s f g = cong₂ (λ w fun → α̃ (w , fun)) refl (funExt λ i → funExt (λ {(here p) → refl ; (below q b) → refl})) 
 
       w-rec : (x : Σ[ w ∈ W S Q ] ((i : Ind) → Pos WAlg i w → X i)) → α̅ x ≡ α̃ x
-      w-rec (w , k) = W-ind S Q
+      w-rec (w , k) = WInd S Q
                                (λ w → (k : (i : Ind) → Pos WAlg i w → X i) → α̅ (w , k) ≡ α̃ (w , k))
                                (λ {s'} {f'} ind k →
                                  (λ i → α (s' , (λ i p → k i (here p)) ,
