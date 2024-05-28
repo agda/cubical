@@ -17,7 +17,7 @@ open import Cubical.Data.Containers.Algebras
 open M'
 open M'-R
 
-module Cubical.Data.Containers.CoinductiveContainers
+module Cubical.Codata.Containers.CoinductiveContainers
          (Ind : Type)
          (S : Type)
          (setS : isSet S)

@@ -5,7 +5,7 @@ by Abbott, Altenkirch, Ghani
 
 -}
 
-{-# OPTIONS --guardedness --safe #-}
+{-# OPTIONS --safe #-}
 
 open import Cubical.Data.W.W
 open import Cubical.Data.Containers.Algebras
