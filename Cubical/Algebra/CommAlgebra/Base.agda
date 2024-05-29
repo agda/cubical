@@ -141,6 +141,22 @@ module _ {R : CommRing ℓ} where
                        x · (r ⋆ y) ∎
     makeIsCommAlgebra .IsCommAlgebra.·Comm = ·Comm
 
+  makeCommAlgebraStr :
+    (A : Type ℓ') (0a 1a : A)
+    (_+_ _·_ : A → A → A) ( -_ : A → A) (_⋆_ : ⟨ R ⟩ → A → A)
+    (isCommAlg : IsCommAlgebra R 0a 1a _+_ _·_ -_ _⋆_)
+    → CommAlgebraStr R A
+  makeCommAlgebraStr A 0a 1a _+_ _·_ -_ _⋆_ isCommAlg =
+    record
+      { 0a = 0a
+      ; 1a = 1a
+      ; _+_ = _+_
+      ; _·_ = _·_
+      ; -_ =  -_
+      ; _⋆_ = _⋆_
+      ; isCommAlgebra = isCommAlg
+      }
+
   module _ (S : CommRing ℓ') where
     open CommRingStr (snd S) renaming (1r to 1S)
     open CommRingStr (snd R) using () renaming (_·_ to _·R_; _+_ to _+R_; 1r to 1R)
