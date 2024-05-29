@@ -91,6 +91,6 @@ module Construction (R : CommRing ℓ) where
                                     ⋆-assoc ⋆-rdist-+ ⋆-ldist-+ ·-lid ⋆-assoc-·
 
 _[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
-(R [ I ]) = R[ I ] , commalgebrastr 0a 1a _+_ _·_ -_ _⋆_ isCommAlgebra
-  where
-  open Construction R
+fst (R [ I ]) = Construction.R[_] R I
+snd (R [ I ]) = makeCommAlgebraStr _ _ _ _ _ _ _ isCommAlgebra
+  where open Construction R
