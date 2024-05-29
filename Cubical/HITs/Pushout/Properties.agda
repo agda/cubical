@@ -22,12 +22,14 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Pointed
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Transport
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv.HalfAdjoint
 
 open import Cubical.Relation.Nullary
 
@@ -502,7 +504,7 @@ private
                    ∙∙ λ j → inr (refl-lem (g₁ a) i j)))
           ∙∙ sym (rUnit (push a))
 
-
+-- induced isomorphism of pushouts (see later def. pushoutIso/pushoutEquiv for a more universe polymorphic)
 module _ {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
   (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
   (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
@@ -514,14 +516,92 @@ module _ {ℓ : Level} {A₁ B₁ C₁ A₂ B₂ C₂ : Type ℓ}
     module P = PushoutIso A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2
     l-r-cancel = F-G-cancel A≃ B≃ C≃ f₁ g₁ f₂ g₂ id1 id2
 
+  pushoutIso' : Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
+  fun pushoutIso' = P.F
+  inv pushoutIso' = P.G
+  rightInv pushoutIso' = fst l-r-cancel
+  leftInv pushoutIso' = snd l-r-cancel
+
+  pushoutEquiv' : Pushout f₁ g₁ ≃ Pushout f₂ g₂
+  pushoutEquiv' = isoToEquiv pushoutIso'
+
+-- lift induces an equivalence on Pushouts
+module _ {ℓ ℓ' ℓ'' : Level} (ℓ''' : Level)
+  {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} (f : A → B) (g : A → C) where
+  PushoutLevel  : Level
+  PushoutLevel = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓ'''))
+
+  PushoutLift : Type PushoutLevel
+  PushoutLift = Pushout {A = Lift {j = ℓ-max ℓ' (ℓ-max ℓ'' ℓ''')} A}
+                        {B = Lift {j = ℓ-max ℓ (ℓ-max ℓ'' ℓ''')} B}
+                        {C = Lift {j = ℓ-max ℓ (ℓ-max ℓ' ℓ''')} C}
+                        (liftFun f)
+                        (liftFun g)
+
+  PushoutLiftIso : Iso (Pushout f g) PushoutLift
+  Iso.fun PushoutLiftIso (inl x) = inl (lift x)
+  Iso.fun PushoutLiftIso (inr x) = inr (lift x)
+  Iso.fun PushoutLiftIso (push a i) = push (lift a) i
+  Iso.inv PushoutLiftIso (inl (lift x)) = inl x
+  Iso.inv PushoutLiftIso (inr (lift x)) = inr x
+  Iso.inv PushoutLiftIso (push (lift a) i) = push a i
+  Iso.rightInv PushoutLiftIso (inl (lift x)) = refl
+  Iso.rightInv PushoutLiftIso (inr (lift x)) = refl
+  Iso.rightInv PushoutLiftIso (push (lift a) i) = refl
+  Iso.leftInv PushoutLiftIso (inl x) = refl
+  Iso.leftInv PushoutLiftIso (inr x) = refl
+  Iso.leftInv PushoutLiftIso (push a i) = refl
+
+-- equivalence of pushouts with arbitrary univeses
+module _ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
+      {A₁ : Type ℓA₁} {B₁ : Type ℓB₁} {C₁ : Type ℓC₁}
+      {A₂ : Type ℓA₂} {B₂ : Type ℓB₂} {C₂ : Type ℓC₂}
+      (f₁ : A₁ → B₁) (g₁ : A₁ → C₁)
+      (f₂ : A₂ → B₂) (g₂ : A₂ → C₂)
+      (A≃ : A₁ ≃ A₂) (B≃ : B₁ ≃ B₂) (C≃ : C₁ ≃ C₂)
+      (id1 : fst B≃ ∘ f₁ ≡ f₂ ∘ fst A≃)
+      (id2 : fst C≃ ∘ g₁ ≡ g₂ ∘ fst A≃) where
+  private
+    ℓ* = ℓ-max ℓA₁ (ℓ-max ℓA₂ (ℓ-max ℓB₁ (ℓ-max ℓB₂ (ℓ-max ℓC₁ ℓC₂))))
+
   pushoutIso : Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
-  fun pushoutIso = P.F
-  inv pushoutIso = P.G
-  rightInv pushoutIso = fst l-r-cancel
-  leftInv pushoutIso = snd l-r-cancel
+  pushoutIso =
+      compIso (PushoutLiftIso ℓ* f₁ g₁)
+        (compIso (pushoutIso' _ _ _ _
+          (Lift≃Lift A≃)
+          (Lift≃Lift B≃)
+          (Lift≃Lift C≃)
+          (funExt (λ { (lift x) → cong lift (funExt⁻ id1 x)}))
+          (funExt (λ { (lift x) → cong lift (funExt⁻ id2 x)})))
+        (invIso (PushoutLiftIso ℓ* f₂ g₂)))
 
   pushoutEquiv : Pushout f₁ g₁ ≃ Pushout f₂ g₂
   pushoutEquiv = isoToEquiv pushoutIso
+
+module _ {C : Type ℓ} {B : Type ℓ'} where
+  PushoutAlongEquiv→ : {A : Type ℓ}
+    (e : A ≃ C) (f : A → B) → Pushout (fst e) f → B
+  PushoutAlongEquiv→ e f (inl x) = f (invEq e x)
+  PushoutAlongEquiv→ e f (inr x) = x
+  PushoutAlongEquiv→ e f (push a i) = f (retEq e a i)
+
+  private
+    PushoutAlongEquiv→Cancel : {A : Type ℓ} (e : A ≃ C) (f : A → B)
+      → retract (PushoutAlongEquiv→ e f) inr
+    PushoutAlongEquiv→Cancel =
+      EquivJ (λ A e → (f : A → B)
+                    → retract (PushoutAlongEquiv→ e f) inr)
+            λ f → λ { (inl x) → sym (push x)
+                      ; (inr x) → refl
+                      ; (push a i) j → push a (~ j ∨ i)}
+
+  PushoutAlongEquiv : {A : Type ℓ} (e : A ≃ C) (f : A → B)
+    → Iso (Pushout (fst e) f) B
+  Iso.fun (PushoutAlongEquiv e f) = PushoutAlongEquiv→ e f
+  Iso.inv (PushoutAlongEquiv e f) = inr
+  Iso.rightInv (PushoutAlongEquiv e f) x = refl
+  Iso.leftInv (PushoutAlongEquiv e f) = PushoutAlongEquiv→Cancel e f
+
 
 module PushoutDistr {ℓ ℓ' ℓ'' ℓ''' : Level}
   {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
@@ -568,3 +648,315 @@ rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C {f = f} {g = g}) (push a i) j 
                      (push a) (λ _ → inl (f a)) (rec (¬C (g a)))}
          (¬A a) j i
 leftInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) x = refl
+
+
+module _ {ℓA ℓB ℓC ℓD : Level}
+  {A : Type ℓA} {B : Type ℓB}
+  {C : Type ℓC} {D : Type ℓD}
+  (f : A → B) (g : A → C)
+  (inl*  : B → D)
+  (inr* : C → D)
+  (com : inl* ∘ f ≡ inr* ∘ g)
+  where
+  Pushout→AbstractPushout : Pushout f g → D
+  Pushout→AbstractPushout (inl x) = inl* x
+  Pushout→AbstractPushout (inr x) = inr* x
+  Pushout→AbstractPushout (push a i) = com i a
+
+-- Commutative squares and pushout squares
+module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where
+  private
+    ℓ* = ℓ-maxList (ℓ₀ ∷ ℓ₂ ∷ ℓ₄ ∷ ℓP ∷ [])
+
+  record  commSquare : Type (ℓ-suc ℓ*) where
+    open 3-span
+    field
+      sp : 3-span {ℓ₀} {ℓ₂} {ℓ₄}
+      P : Type ℓP
+      inlP : A0 sp → P
+      inrP : A4 sp → P
+      comm : inlP ∘ f1 sp ≡ inrP ∘ f3 sp
+
+  open commSquare
+
+  Pushout→commSquare : (sk : commSquare) → spanPushout (sp sk) → P sk
+  Pushout→commSquare sk (inl x) = inlP sk x
+  Pushout→commSquare sk (inr x) = inrP sk x
+  Pushout→commSquare sk (push a i) = comm sk i a
+
+  isPushoutSquare : commSquare → Type _
+  isPushoutSquare sk = isEquiv (Pushout→commSquare sk)
+
+  PushoutSquare : Type (ℓ-suc ℓ*)
+  PushoutSquare = Σ commSquare isPushoutSquare
+
+-- Rotations of commutative squares and pushout squares
+module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where
+  open commSquare
+  open 3-span
+
+  rotateCommSquare : commSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP} → commSquare {ℓ₄} {ℓ₂} {ℓ₀} {ℓP}
+  A0 (sp (rotateCommSquare sq)) = A4 (sp sq)
+  A2 (sp (rotateCommSquare sq)) = A2 (sp sq)
+  A4 (sp (rotateCommSquare sq)) = A0 (sp sq)
+  f1 (sp (rotateCommSquare sq)) = f3 (sp sq)
+  f3 (sp (rotateCommSquare sq)) = f1 (sp sq)
+  P (rotateCommSquare sq) = P sq
+  inlP (rotateCommSquare sq) = inrP sq
+  inrP (rotateCommSquare sq) = inlP sq
+  comm (rotateCommSquare sq) = sym (comm sq)
+
+  rotatePushoutSquare : PushoutSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP}
+                     → PushoutSquare {ℓ₄} {ℓ₂} {ℓ₀} {ℓP}
+  fst (rotatePushoutSquare (sq , eq)) = rotateCommSquare sq
+  snd (rotatePushoutSquare (sq , eq)) =
+    subst isEquiv (funExt lem) (compEquiv (symPushout _ _) (_ , eq) .snd)
+    where
+    lem : (x : _) → Pushout→commSquare sq (symPushout _ _ .fst x)
+                  ≡ Pushout→commSquare (rotateCommSquare sq) x
+    lem (inl x) = refl
+    lem (inr x) = refl
+    lem (push a i) = refl
+
+
+-- Pushout pasting lemma:
+{- Given a diagram consisting of two
+commuting squares where the top square is a pushout:
+
+A2 -—f3-→ A4
+ ∣           ∣
+f1         inrP
+ ↓       ⌜  ↓
+A0 -—inlP→ P
+ |          |
+ f          h
+ ↓          ↓
+ A -—-g-—→ B
+
+The bottom square is a pushout square iff the outer rectangle is
+a pushout square.
+-}
+
+module PushoutPasteDown {ℓ₀ ℓ₂ ℓ₄ ℓP ℓA ℓB : Level}
+  (SQ : PushoutSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP})
+  {A : Type ℓA} {B : Type ℓB}
+  (f : 3-span.A0 (commSquare.sp (fst SQ)) → A)
+  (g : A → B) (h : commSquare.P (fst SQ) → B)
+  (com : g ∘ f ≡ h ∘ commSquare.inlP (fst SQ))
+  where
+  private
+    sq = fst SQ
+    isP = snd SQ
+    ℓ* = ℓ-maxList (ℓ₀ ∷ ℓ₂ ∷ ℓ₄ ∷ ℓP ∷ [])
+
+  open commSquare sq
+  open 3-span sp
+
+  bottomSquare : commSquare
+  3-span.A0 (commSquare.sp bottomSquare) = A
+  3-span.A2 (commSquare.sp bottomSquare) = A0
+  3-span.A4 (commSquare.sp bottomSquare) = P
+  3-span.f1 (commSquare.sp bottomSquare) = f
+  3-span.f3 (commSquare.sp bottomSquare) = inlP
+  commSquare.P bottomSquare = B
+  commSquare.inlP bottomSquare = g
+  commSquare.inrP bottomSquare = h
+  commSquare.comm bottomSquare = com
+
+  totSquare : commSquare
+  3-span.A0 (commSquare.sp totSquare) = A
+  3-span.A2 (commSquare.sp totSquare) = A2
+  3-span.A4 (commSquare.sp totSquare) = A4
+  3-span.f1 (commSquare.sp totSquare) = f ∘ f1
+  3-span.f3 (commSquare.sp totSquare) = f3
+  commSquare.P totSquare = B
+  commSquare.inlP totSquare = g
+  commSquare.inrP totSquare = h ∘ inrP
+  commSquare.comm totSquare =
+    funExt λ x → funExt⁻ com (f1 x) ∙ cong h (funExt⁻ comm x)
+
+  private
+    P' : Type _
+    P' = Pushout f1 f3
+
+    Iso-P'-P : P' ≃ P
+    Iso-P'-P = _ , isP
+
+    P'≃P = equiv→HAEquiv Iso-P'-P
+
+    B'bot = Pushout {C = P'} f inl
+
+    B'bot→BBot : B'bot → Pushout {C = P} f inlP
+    B'bot→BBot (inl x) = inl x
+    B'bot→BBot (inr x) = inr (fst Iso-P'-P x)
+    B'bot→BBot (push a i) = push a i
+
+    Bbot→B'bot : Pushout {C = P} f inlP → B'bot
+    Bbot→B'bot (inl x) = inl x
+    Bbot→B'bot (inr x) = inr (invEq Iso-P'-P x)
+    Bbot→B'bot (push a i) =
+      (push a ∙ λ i → inr (isHAEquiv.linv (P'≃P .snd) (inl a) (~ i))) i
+
+    Iso-B'bot-Bbot : Iso B'bot (Pushout {C = P} f inlP)
+    fun Iso-B'bot-Bbot = B'bot→BBot
+    inv Iso-B'bot-Bbot = Bbot→B'bot
+    rightInv Iso-B'bot-Bbot (inl x) = refl
+    rightInv Iso-B'bot-Bbot (inr x) i = inr (isHAEquiv.rinv (P'≃P .snd) x i)
+    rightInv Iso-B'bot-Bbot (push a i) j = help j i
+      where
+      help : Square
+               (cong B'bot→BBot
+                (push a ∙ λ i → inr (isHAEquiv.linv (P'≃P .snd) (inl a) (~ i))))
+               (push a)
+               refl
+               λ i → inr (isHAEquiv.rinv (P'≃P .snd) (inlP a) i)
+      help = flipSquare ((λ i j → B'bot→BBot (compPath-filler (push a)
+              (λ i → inr (isHAEquiv.linv (P'≃P .snd) (inl a) (~ i))) (~ j) i))
+           ▷ λ j i → inr (isHAEquiv.com (P'≃P .snd) (inl a) j i))
+    leftInv Iso-B'bot-Bbot (inl x) = refl
+    leftInv Iso-B'bot-Bbot (inr x) i = inr (isHAEquiv.linv (P'≃P .snd) x i)
+    leftInv Iso-B'bot-Bbot (push a i) j =
+      compPath-filler (push a)
+        (λ i → inr (isHAEquiv.linv (P'≃P .snd) (inl a) (~ i))) (~ j) i
+
+    B'tot : Type _
+    B'tot = Pushout (f ∘ f1) f3
+
+    B'bot→B'tot : B'bot → B'tot
+    B'bot→B'tot (inl x) = inl x
+    B'bot→B'tot (inr (inl x)) = inl (f x)
+    B'bot→B'tot (inr (inr x)) = inr x
+    B'bot→B'tot (inr (push a i)) = push a i
+    B'bot→B'tot (push a i) = inl (f a)
+
+    B'tot→B'bot : B'tot → B'bot
+    B'tot→B'bot (inl x) = inl x
+    B'tot→B'bot (inr x) = inr (inr x)
+    B'tot→B'bot (push a i) = (push (f1 a) ∙ λ i → inr (push a i)) i
+
+    Iso-B'bot→B'tot : Iso B'bot B'tot
+    Iso.fun Iso-B'bot→B'tot = B'bot→B'tot
+    Iso.inv Iso-B'bot→B'tot = B'tot→B'bot
+    Iso.rightInv Iso-B'bot→B'tot (inl x) = refl
+    Iso.rightInv Iso-B'bot→B'tot (inr x) = refl
+    Iso.rightInv Iso-B'bot→B'tot (push a i) j =
+       (cong-∙ B'bot→B'tot (push (f1 a)) (λ i → inr (push a i))
+      ∙ sym (lUnit _)) j i
+    Iso.leftInv Iso-B'bot→B'tot (inl x) = refl
+    Iso.leftInv Iso-B'bot→B'tot (inr (inl x)) = push x
+    Iso.leftInv Iso-B'bot→B'tot (inr (inr x)) = refl
+    Iso.leftInv Iso-B'bot→B'tot (inr (push a i)) j =
+      compPath-filler' (push (f1 a)) (λ i → inr (push a i)) (~ j) i
+    Iso.leftInv Iso-B'bot→B'tot (push a i) j = push a (i ∧ j)
+
+    main' : Iso (spanPushout (commSquare.sp bottomSquare)) B'tot
+    main' = compIso (invIso Iso-B'bot-Bbot) (Iso-B'bot→B'tot)
+
+    mainInv∘ : (x : _) → Pushout→commSquare bottomSquare (main' .inv x)
+                        ≡ Pushout→commSquare totSquare x
+    mainInv∘ (inl x) = refl
+    mainInv∘ (inr x) = refl
+    mainInv∘ (push a i) j = help j i
+      where
+      help : cong (Pushout→commSquare bottomSquare)
+                  (cong (Iso.fun Iso-B'bot-Bbot) (push (f1 a) ∙ (λ i → inr (push a i))))
+          ≡ funExt⁻ com (f1 a) ∙ cong h (funExt⁻ comm a)
+      help = cong (cong (Pushout→commSquare bottomSquare))
+                  (cong-∙ (Iso.fun Iso-B'bot-Bbot) (push (f1 a)) (λ i → inr (push a i)))
+                ∙ cong-∙ (Pushout→commSquare bottomSquare)
+                         (push (3-span.f1 (commSquare.sp sq) a))
+                         (λ i → inr (commSquare.comm sq i a))
+
+  isPushoutBottomSquare→isPushoutTotSquare :
+    isPushoutSquare bottomSquare → isPushoutSquare totSquare
+  isPushoutBottomSquare→isPushoutTotSquare eq =
+    subst isEquiv (funExt mainInv∘) (isoToEquiv main .snd)
+    where
+    main : Iso (spanPushout (commSquare.sp totSquare)) B
+    main = compIso (invIso main') (equivToIso (_ , eq))
+
+  isPushoutTotSquare→isPushoutBottomSquare :
+    isPushoutSquare totSquare → isPushoutSquare bottomSquare
+  isPushoutTotSquare→isPushoutBottomSquare eq =
+    subst isEquiv (funExt coh)
+      (snd (isoToEquiv main))
+    where
+
+    main : Iso (spanPushout (commSquare.sp bottomSquare)) B
+    main = compIso
+            (compIso (invIso Iso-B'bot-Bbot) (Iso-B'bot→B'tot))
+            (equivToIso (_ , eq))
+
+    coh : (x : spanPushout (commSquare.sp bottomSquare)) →
+          main .fun x ≡ Pushout→commSquare bottomSquare x
+    coh x = sym (secEq (_ , eq) (fun main x))
+      ∙∙ sym (mainInv∘ (invEq (_ , eq) (Iso.fun main x)))
+      ∙∙ cong (Pushout→commSquare bottomSquare) (Iso.leftInv main x)
+
+-- Pushout pasting lemma, alternative version:
+{- Given a diagram consisting of two
+commuting squares where the left square is a pushout:
+
+A2 -—f3-→ A4 -—-f--→ A
+ ∣           ∣          ∣
+f1         inrP        g
+ ↓       ⌜  ↓          ↓
+A0 -—inlP→ P -—-h--→ B
+
+The right square is a pushout square iff the outer rectangle is
+a pushout square.
+-}
+module PushoutPasteLeft {ℓ₀ ℓ₂ ℓ₄ ℓP ℓA ℓB : Level}
+  (SQ : PushoutSquare {ℓ₀} {ℓ₂} {ℓ₄} {ℓP})
+  {A : Type ℓA} {B : Type ℓB}
+  (f : 3-span.A4 (commSquare.sp (fst SQ)) → A)
+  (g : A → B) (h : commSquare.P (fst SQ) → B)
+  (com : h ∘ commSquare.inrP (fst SQ) ≡ g ∘ f)
+  where
+
+  private
+    sq = fst SQ
+    isP = snd SQ
+    ℓ* = ℓ-maxList (ℓ₀ ∷ ℓ₂ ∷ ℓ₄ ∷ ℓP ∷ [])
+
+  open commSquare sq
+  open 3-span sp
+
+  rightSquare : commSquare
+  3-span.A0 (commSquare.sp rightSquare) = P
+  3-span.A2 (commSquare.sp rightSquare) = A4
+  3-span.A4 (commSquare.sp rightSquare) = A
+  3-span.f1 (commSquare.sp rightSquare) = inrP
+  3-span.f3 (commSquare.sp rightSquare) = f
+  commSquare.P rightSquare = B
+  commSquare.inlP rightSquare = h
+  commSquare.inrP rightSquare = g
+  commSquare.comm rightSquare = com
+
+  totSquare : commSquare
+  3-span.A0 (commSquare.sp totSquare) = A0
+  3-span.A2 (commSquare.sp totSquare) = A2
+  3-span.A4 (commSquare.sp totSquare) = A
+  3-span.f1 (commSquare.sp totSquare) = f1
+  3-span.f3 (commSquare.sp totSquare) = f ∘ f3
+  commSquare.P totSquare = B
+  commSquare.inlP totSquare = h ∘ inlP
+  commSquare.inrP totSquare = g
+  commSquare.comm totSquare = funExt λ x →
+    sym (sym (funExt⁻ com (f3 x)) ∙ cong h (sym (funExt⁻ comm x)))
+
+
+  module M = PushoutPasteDown (rotatePushoutSquare SQ) f g h (sym com)
+
+  isPushoutRightSquare→isPushoutTotSquare :
+    isPushoutSquare rightSquare → isPushoutSquare totSquare
+  isPushoutRightSquare→isPushoutTotSquare e = rotatePushoutSquare (_ , help) .snd
+    where
+    help : isPushoutSquare M.totSquare
+    help = M.isPushoutBottomSquare→isPushoutTotSquare (rotatePushoutSquare (_ , e) .snd)
+
+  isPushoutTotSquare→isPushoutRightSquare :
+    isPushoutSquare totSquare → isPushoutSquare rightSquare
+  isPushoutTotSquare→isPushoutRightSquare e = rotatePushoutSquare (_ , help) .snd
+    where
+    help = M.isPushoutTotSquare→isPushoutBottomSquare (rotatePushoutSquare (_ , e) .snd)

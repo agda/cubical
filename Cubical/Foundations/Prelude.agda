@@ -622,3 +622,7 @@ open Lift public
 
 liftExt : ∀ {A : Type ℓ} {a b : Lift {ℓ} {ℓ'} A} → (lower a ≡ lower b) → a ≡ b
 liftExt x i = lift (x i)
+
+liftFun : ∀ {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ} {B : Type ℓ'}
+  (f : A → B) → Lift {j = ℓ''} A → Lift {j = ℓ'''} B
+liftFun f (lift a) = lift (f a)
