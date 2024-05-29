@@ -13,9 +13,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.BiInvertible
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Structure using (⟨_⟩; str)
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sum as ⊎
 open import Cubical.Data.Sigma
@@ -62,21 +61,28 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
     _ = CommAlgebraHom R[I⊎J] (baseChange baseRingHom A)
 
     inducedHomOverR : CommAlgebraHom R[I⊎J] AOverR
-    inducedHomOverR = inducedHom AOverR (rec (λ i → var i ⋆ 1a) φ)
+    inducedHomOverR = inducedHom AOverR (⊎.rec (λ i → var i ⋆ 1a) φ)
 
     inducedHomOverR[I] : CommAlgebraHom R[I⊎J]overR[I] A
-    inducedHomOverR[I] = fst inducedHomOverR , record
-                                                { pres0 = {!!}
-                                                ; pres1 = {!!}
-                                                ; pres+ = {!!}
-                                                ; pres· = {!!}
-                                                ; pres- = {!!}
-                                                ; pres⋆ = {!!}
-                                                }
+    fst inducedHomOverR[I] = fst inducedHomOverR
+    snd inducedHomOverR[I] = record
+                              { pres0 = homStr .pres0
+                              ; pres1 = homStr .pres1
+                              ; pres+ = homStr .pres+
+                              ; pres· = homStr .pres·
+                              ; pres- = homStr .pres-
+                              ; pres⋆ = λ r x → f (r ⋆ x) ≡⟨ {!!} ⟩
+                                                r ⋆ f x ∎
+                              }
+        where open IsAlgebraHom
+              homStr = inducedHomOverR .snd
+              f = inducedHomOverR .fst
+              instance
+                _ = R[I⊎J]overR[I] .snd
+                _ = A .snd
 
 --  (r : R[I]) → (y : R[I⊎J]) → f (r ⋆ 1a) ≡ r ⋆ 1a
 --  (r : R[I]) → (y : R[I⊎J]) → f (var (inl i)) ≡ var i ⋆ 1a
-
 
 {-
   {-
@@ -310,4 +316,4 @@ module _ {R : CommRing ℓ} {I J : Type ℓ} where
       invr-rightInv asBiInv = toFromOverR[I]
       invl asBiInv = fst from
       invl-leftInv asBiInv = fromTo
--}
+-- -}
