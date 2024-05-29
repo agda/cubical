@@ -67,6 +67,23 @@ module _ (R : CommRing ℓ) where
     1∈√⟨f⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun D1≤Df .fst zero
 
 
+  module _ {n : ℕ} (f₁,⋯,fₙ : FinVec (fst R) n) where
+    private
+      D[f₁,⋯,fₙ] : ZL
+      D[f₁,⋯,fₙ] = [ n , f₁,⋯,fₙ ]
+
+    oneIdealLemmaZarLat :  D[f₁,⋯,fₙ] ≡ D 1r → 1r ∈ ⟨ f₁,⋯,fₙ ⟩
+    oneIdealLemmaZarLat D[f₁,⋯,fₙ]≡D1 = 1∈√→1∈ _ 1∈√⟨f₁,⋯,fₙ⟩
+      where
+      D1≤D[f₁,⋯,fₙ] : D 1r ≤ D[f₁,⋯,fₙ]
+      D1≤D[f₁,⋯,fₙ] = subst (_≤ D[f₁,⋯,fₙ]) D[f₁,⋯,fₙ]≡D1 (is-refl _)
+
+      1∈√⟨f₁,⋯,fₙ⟩ : 1r ∈ √ ⟨ f₁,⋯,fₙ ⟩
+      1∈√⟨f₁,⋯,fₙ⟩ = isEquivRel→effectiveIso ∼PropValued ∼EquivRel _ _ .fun
+                       D1≤D[f₁,⋯,fₙ] .fst zero
+
+
+
 module LocDownSetIso (R : CommRing ℓ) (f : R .fst) where
   open CommRingStr ⦃...⦄
   open DistLatticeStr ⦃...⦄

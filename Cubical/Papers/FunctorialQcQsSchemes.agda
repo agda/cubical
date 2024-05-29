@@ -5,14 +5,14 @@ Please do not move this file. Changes should only be made if necessary.
 This file contains pointers to the code examples and main results from
 the paper:
 
-The Functor of Points approach to Schemes in Cubical Agda
+The Functor of Points Approach to Schemes in Cubical Agda
 
 Max Zeuner, Matthias Hutzler
 
-Preprint: TODO ArXiv link
-
+Preprint: https://arxiv.org/abs/2403.13088
 
 -}
+
 
 -- The "--safe" flag ensures that there are no postulates or unfinished goals
 {-# OPTIONS --safe #-}
@@ -108,9 +108,15 @@ open ZLUP.IsSupport
 open ZariskiLatUnivProp using (D ; isSupportD)
 open ZariskiLatUnivProp using (ZLHasUniversalProp ; ⋁D≡)
 
--- facts about Zariski lattice and localization
-open Localization&Radicals using (toUnit)
+-- facts about Zariski lattice and localization:
+-- g ∈ √⟨f⟩ implies that f/1 is a unit in R[1/g]
+open Localization&Radicals using (unitHelper; toUnit)
+
+-- D(f) = D(1) implies that f is a unit
 open ZLP using (unitLemmaZarLat)
+
+-- D(f₁,...,fₙ) = D(1) implies 1 ∈ ⟨f₁,...,fₙ⟩
+open ZLP using (oneIdealLemmaZarLat)
 
 
 
