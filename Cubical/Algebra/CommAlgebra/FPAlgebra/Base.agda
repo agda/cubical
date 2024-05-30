@@ -51,7 +51,7 @@ module _ {R : CommRing ℓ} where
   evPolyHomomorphic A B f P values =
     (fst f) (evPoly A P values)                         ≡⟨ refl ⟩
     (fst f) (fst (freeInducedHom A values) P)           ≡⟨ refl ⟩
-    fst (f ∘a freeInducedHom A values) P                ≡⟨ cong (λ u → fst u P) (natIndHomR f values) ⟩
+    fst (f ∘a freeInducedHom A values) P                ≡⟨ cong (λ u → fst u P) (natIndHomR {A = A} {B = B} f values) ⟩
     fst (freeInducedHom B (fst f ∘ values)) P           ≡⟨ refl ⟩
     evPoly B P (fst f ∘ values) ∎
     where open AlgebraHoms
