@@ -20,14 +20,15 @@ module _ (S : Subalgebra) where
   Subalgebra→CommAlgebra≡ = Subalgebra→Algebra≡ S
 
   Subalgebra→CommAlgebra : CommAlgebra R ℓ'
-  Subalgebra→CommAlgebra =
-      Subalgebra→Algebra S .fst
-    , record
-      { AlgebraStr (Subalgebra→Algebra S .snd)
-      ; isCommAlgebra = iscommalgebra
-          (Subalgebra→Algebra S .snd .AlgebraStr.isAlgebra)
-          (λ x y → Subalgebra→CommAlgebra≡
-            (CommAlgebraStr.·Comm (snd A) (fst x) (fst y)))}
+  fst Subalgebra→CommAlgebra = Subalgebra→Algebra S .fst
+  snd Subalgebra→CommAlgebra = record
+                                { AlgebraStr (Subalgebra→Algebra S .snd)
+                                ; isCommAlgebra = record {
+                                    isAlgebra =
+                                       Subalgebra→Algebra S .snd .AlgebraStr.isAlgebra ;
+                                    ·Comm = λ x y → Subalgebra→CommAlgebra≡
+                                       (CommAlgebraStr.·Comm (snd A) (fst x) (fst y)) }
+                                }
 
   Subalgebra→CommAlgebraHom : CommAlgebraHom Subalgebra→CommAlgebra A
   Subalgebra→CommAlgebraHom = Subalgebra→AlgebraHom S
@@ -41,4 +42,3 @@ module _ (S : Subalgebra) where
                               (λ x y → Subalgebra→CommAlgebra≡ (pres+ x y))
                               (λ x y → Subalgebra→CommAlgebra≡ (pres· x y))
                               (λ x y → Subalgebra→CommAlgebra≡ (pres⋆ x y))
-
