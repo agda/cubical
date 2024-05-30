@@ -78,13 +78,13 @@ module _ (R : CommRing ℓ) where
         inverse1 : fromA ∘a toA ≡ idAlgebraHom _
         inverse1 =
           fromA ∘a toA
-            ≡⟨ sym (unique _ _ _ _ _ _ (λ i → cong (fst fromA) (
+            ≡⟨ sym (unique _ _ B _ _ _ (λ i → cong (fst fromA) (
                  fst toA (generator n emptyGen i)
                    ≡⟨ inducedHomOnGenerators _ _ _ _ _ _ ⟩
                  Construction.var i
                    ∎))) ⟩
           inducedHom n emptyGen B (generator _ _) (relationsHold _ _)
-            ≡⟨ unique _ _ _ _ _ _ (λ i → refl) ⟩
+            ≡⟨ unique _ _ B _ _ _ (λ i → refl) ⟩
           idAlgebraHom _
             ∎
         inverse2 : toA ∘a fromA ≡ idAlgebraHom _
