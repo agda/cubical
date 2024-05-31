@@ -564,16 +564,39 @@ module _ {ℓA₁ ℓB₁ ℓC₁ ℓA₂ ℓB₂ ℓC₂}
   private
     ℓ* = ℓ-max ℓA₁ (ℓ-max ℓA₂ (ℓ-max ℓB₁ (ℓ-max ℓB₂ (ℓ-max ℓC₁ ℓC₂))))
 
+    pushoutIso→ : Pushout f₁ g₁ → Pushout f₂ g₂
+    pushoutIso→ (inl x) = inl (fst B≃ x)
+    pushoutIso→ (inr x) = inr (fst C≃ x)
+    pushoutIso→ (push a i) =
+      ((λ i → inl (id1 i a)) ∙∙ push (fst A≃ a) ∙∙ λ i → inr (id2 (~ i) a)) i
+
+    pushoutIso* : Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
+    pushoutIso* =
+        compIso (PushoutLiftIso ℓ* f₁ g₁)
+          (compIso (pushoutIso' _ _ _ _
+            (Lift≃Lift A≃)
+            (Lift≃Lift B≃)
+            (Lift≃Lift C≃)
+            (funExt (λ { (lift x) → cong lift (funExt⁻ id1 x)}))
+            (funExt (λ { (lift x) → cong lift (funExt⁻ id2 x)})))
+          (invIso (PushoutLiftIso ℓ* f₂ g₂)))
+
+    pushoutIso→≡ : (x : _) → Iso.fun pushoutIso* x ≡ pushoutIso→ x
+    pushoutIso→≡ (inl x) = refl
+    pushoutIso→≡ (inr x) = refl
+    pushoutIso→≡ (push a i) j =
+      cong-∙∙ (Iso.inv (PushoutLiftIso ℓ* f₂ g₂))
+            (λ i → inl (lift (id1 i a)))
+            (push (lift (fst A≃ a)))
+            (λ i → inr (lift (id2 (~ i) a))) j i
+
   pushoutIso : Iso (Pushout f₁ g₁) (Pushout f₂ g₂)
-  pushoutIso =
-      compIso (PushoutLiftIso ℓ* f₁ g₁)
-        (compIso (pushoutIso' _ _ _ _
-          (Lift≃Lift A≃)
-          (Lift≃Lift B≃)
-          (Lift≃Lift C≃)
-          (funExt (λ { (lift x) → cong lift (funExt⁻ id1 x)}))
-          (funExt (λ { (lift x) → cong lift (funExt⁻ id2 x)})))
-        (invIso (PushoutLiftIso ℓ* f₂ g₂)))
+  fun pushoutIso = pushoutIso→
+  inv pushoutIso = inv pushoutIso*
+  rightInv pushoutIso x =
+    sym (pushoutIso→≡ (inv pushoutIso* x)) ∙ rightInv pushoutIso* x
+  leftInv pushoutIso x =
+    cong (inv pushoutIso*) (sym (pushoutIso→≡ x)) ∙ leftInv pushoutIso* x
 
   pushoutEquiv : Pushout f₁ g₁ ≃ Pushout f₂ g₂
   pushoutEquiv = isoToEquiv pushoutIso

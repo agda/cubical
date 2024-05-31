@@ -10,6 +10,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
@@ -22,8 +23,11 @@ open import Cubical.HITs.Sn
 open import Cubical.HITs.Pushout
 open import Cubical.HITs.Susp
 open import Cubical.HITs.PropositionalTruncation as PT
+open import Cubical.HITs.Truncation as TR
 open import Cubical.HITs.Wedge
 open import Cubical.HITs.SphereBouquet.Base
+
+open import Cubical.Homotopy.Connected
 
 private
   variable
@@ -53,6 +57,24 @@ isConnectedSphereBouquet {n = n} {A} =
   elimProp (λ x → ∥ x ≡ inl tt ∥₁) (λ x → squash₁) (λ x → ∣ refl ∣₁)
   (λ (a , s) → sphereToPropElim n {A = λ x → ∥ inr (a , x) ≡ inl tt ∥₁}
                                   (λ x → squash₁) ∣ sym (push a) ∣₁ s)
+
+isConnectedSphereBouquet' : {n : ℕ} {A : Type ℓ}
+  → isConnected (suc (suc n)) (SphereBouquet (suc n) A)
+fst (isConnectedSphereBouquet' {n = n}) = ∣ inl tt ∣
+snd (isConnectedSphereBouquet' {n = n} {A = A}) =
+  TR.elim (λ _ → isOfHLevelPath (suc (suc n))
+                   (isOfHLevelTrunc (suc (suc n))) _ _) (lem n)
+  where
+  lem : (n : ℕ) → (a : SphereBouquet (suc n) A)
+    → Path (hLevelTrunc (suc (suc n)) (SphereBouquet (suc n) A))
+            ∣ inl tt ∣ ∣ a ∣
+  lem n (inl x) = refl
+  lem n (inr (x , y)) =
+    sphereElim n {A = λ y → ∣ inl tt ∣ ≡ ∣ inr (x , y) ∣}
+      (λ _ → isOfHLevelTrunc (suc (suc n)) _ _)
+      (cong ∣_∣ₕ (push x)) y
+  lem zero (push a i) j = ∣ push a (i ∧ j) ∣ₕ
+  lem (suc n) (push a i) j = ∣ push a (i ∧ j) ∣ₕ
 
 sphereBouquetSuspIso₀ : {A : Type ℓ}
   → Iso (⋁gen A (λ a → Susp∙ (fst (S₊∙ zero))))

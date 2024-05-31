@@ -9,17 +9,77 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+open import Cubical.Data.Sum as ⊎
 
 open import Cubical.HITs.Pushout.Base
 open import Cubical.HITs.Wedge.Base
 open import Cubical.HITs.Susp
+open import Cubical.HITs.Pushout
 
 open import Cubical.Homotopy.Loopspace
 
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
+
+⋁-commFun : {A : Pointed ℓ} {B : Pointed ℓ'}
+  → A ⋁ B → B ⋁ A
+⋁-commFun (inl x) = inr x
+⋁-commFun (inr x) = inl x
+⋁-commFun (push a i) = push a (~ i)
+
+⋁-commFun² : {A : Pointed ℓ} {B : Pointed ℓ'}
+  → (x : A ⋁ B) → ⋁-commFun (⋁-commFun x) ≡ x
+⋁-commFun² (inl x) = refl
+⋁-commFun² (inr x) = refl
+⋁-commFun² (push a i) = refl
+
+⋁-commIso : {A : Pointed ℓ} {B : Pointed ℓ'}
+  → Iso (A ⋁ B) (B ⋁ A)
+Iso.fun ⋁-commIso = ⋁-commFun
+Iso.inv ⋁-commIso = ⋁-commFun
+Iso.rightInv ⋁-commIso = ⋁-commFun²
+Iso.leftInv ⋁-commIso = ⋁-commFun²
+
+cofibInl-⋁ : {A : Pointed ℓ} {B : Pointed ℓ'}
+  → Iso (cofib {B = A ⋁ B} inl) (fst B)
+Iso.fun (cofibInl-⋁ {B = B}) (inl x) = pt B
+Iso.fun (cofibInl-⋁ {B = B}) (inr (inl x)) = pt B
+Iso.fun cofibInl-⋁ (inr (inr x)) = x
+Iso.fun (cofibInl-⋁ {B = B}) (inr (push a i)) = pt B
+Iso.fun (cofibInl-⋁ {B = B}) (push a i) = pt B
+Iso.inv cofibInl-⋁ x = inr (inr x)
+Iso.rightInv cofibInl-⋁ x = refl
+Iso.leftInv (cofibInl-⋁ {A = A}) (inl x) =
+  (λ i → inr (push tt (~ i))) ∙ sym (push (pt A))
+Iso.leftInv (cofibInl-⋁ {A = A}) (inr (inl x)) =
+  ((λ i → inr (push tt (~ i))) ∙ sym (push (pt A))) ∙ push x
+Iso.leftInv cofibInl-⋁ (inr (inr x)) = refl
+Iso.leftInv (cofibInl-⋁ {A = A}) (inr (push a i)) j =
+  help (λ i → inr (push tt (~ i))) (sym (push (pt A))) (~ i) j
+  where
+  help : ∀ {ℓ} {A : Type ℓ} {x y z : A} (p : x ≡ y) (q : y ≡ z)
+    → Square refl ((p ∙ q) ∙ sym q) refl p
+  help p q =
+    (λ i j → p (i ∧ j))
+    ▷ (rUnit p
+    ∙∙ cong (p ∙_) (sym (rCancel q))
+    ∙∙ assoc p q (sym q))
+Iso.leftInv (cofibInl-⋁ {A = A}) (push a i) j =
+  compPath-filler
+    ((λ i → inr (push tt (~ i))) ∙ sym (push (pt A)))
+    (push a) i j
+
+cofibInr-⋁ : {A : Pointed ℓ} {B : Pointed ℓ'}
+  → Iso (cofib {B = A ⋁ B} inr) (fst A)
+cofibInr-⋁ {A = A} {B = B} =
+  compIso (pushoutIso _ _ _ _
+            (idEquiv _)
+            (idEquiv Unit)
+            (isoToEquiv ⋁-commIso)
+            refl refl)
+          (cofibInl-⋁ {A = B} {B = A})
 
 -- Susp (⋁ᵢ Aᵢ) ≃ ⋁ᵢ (Susp Aᵢ)
 private
@@ -165,3 +225,167 @@ Iso.leftInv (Iso-SuspBouquet-Bouquet A B) = SuspBouquet-Bouquet-cancel A B .snd
 SuspBouquet≃Bouquet : (A : Type ℓ) (B : A → Pointed ℓ')
   → Susp (⋁gen A B) ≃ ⋁gen A (λ a → Susp∙ (fst (B a)))
 SuspBouquet≃Bouquet A B = isoToEquiv (Iso-SuspBouquet-Bouquet A B)
+
+module _ {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+  (f : A →∙ C) (g : B →∙ C)
+  where
+  private
+    inst : 3x3-span
+    3x3-span.A00 inst = Unit
+    3x3-span.A02 inst = Unit
+    3x3-span.A04 inst = Unit
+    3x3-span.A20 inst = fst A
+    3x3-span.A22 inst = Unit
+    3x3-span.A24 inst = fst B
+    3x3-span.A40 inst = fst C
+    3x3-span.A42 inst = fst C
+    3x3-span.A44 inst = fst C
+    3x3-span.f10 inst = _
+    3x3-span.f12 inst = _
+    3x3-span.f14 inst = _
+    3x3-span.f30 inst = fst f
+    3x3-span.f32 inst = λ _ → pt C
+    3x3-span.f34 inst = fst g
+    3x3-span.f01 inst = _
+    3x3-span.f21 inst = λ _ → pt A
+    3x3-span.f41 inst = λ c → c
+    3x3-span.f03 inst = _
+    3x3-span.f23 inst = λ _ → pt B
+    3x3-span.f43 inst = λ c → c
+    3x3-span.H11 inst = λ _ → refl
+    3x3-span.H13 inst = λ _ → refl
+    3x3-span.H31 inst = λ _ → sym (snd f)
+    3x3-span.H33 inst = λ _ → sym (snd g)
+
+    open 3x3-span inst
+
+    A□2≅C : A□2 ≃ (fst C)
+    A□2≅C = isoToEquiv (PushoutAlongEquiv (idEquiv _) λ _ → pt C)
+
+    A□○≅ : Iso (Pushout {B = cofib (fst f)} {C = cofib (fst g)} inr inr) A□○
+    A□○≅ =
+      pushoutIso _ _ _ _ (invEquiv A□2≅C) (idEquiv _) (idEquiv _)
+             refl
+             refl
+
+    A0□≅ : A0□ ≃ Unit
+    A0□≅ = isoToEquiv (PushoutAlongEquiv (idEquiv _) _)
+
+    A4□≅ : A4□ ≃ fst C
+    A4□≅ = isoToEquiv (PushoutAlongEquiv (idEquiv _) _)
+
+    A○□≅ : Iso A○□ (cofib (f ∨→ g))
+    A○□≅ = pushoutIso _ _ _ _ (idEquiv _) A0□≅ A4□≅ refl
+      (funExt λ { (inl x) → refl
+                ; (inr x) → refl
+                ; (push tt i) j → help j i})
+      where
+      help : cong (fst A4□≅) (cong f3□ (push tt)) ≡ snd f ∙ sym (snd g)
+      help = cong-∙∙ (fst A4□≅) (λ i → inl (snd f i))
+                           refl (λ i → inl (snd g (~ i)))
+           ∙ doubleCompPath≡compPath _ _ _
+           ∙ cong (snd f ∙_) (sym (lUnit _))
+
+
+    cofibf-Square : commSquare
+    3-span.A0 (commSquare.sp cofibf-Square) = Unit
+    3-span.A2 (commSquare.sp cofibf-Square) = fst A
+    3-span.A4 (commSquare.sp cofibf-Square) = fst C
+    3-span.f1 (commSquare.sp cofibf-Square) = _
+    3-span.f3 (commSquare.sp cofibf-Square) = fst f
+    commSquare.P cofibf-Square = cofib (fst f)
+    commSquare.inlP cofibf-Square = λ _ → inl tt
+    commSquare.inrP cofibf-Square = inr
+    commSquare.comm cofibf-Square i x = push x i
+
+    cofibf-PSquare : PushoutSquare
+    fst cofibf-PSquare = cofibf-Square
+    snd cofibf-PSquare =
+      subst isEquiv (funExt (λ { (inl x) → refl
+                               ; (inr x) → refl
+                               ; (push a i) → refl}))
+                     (idIsEquiv _)
+
+    F : cofib (fst f)
+      → cofib {B = cofib (fst g)} (λ x → inr (fst f x))
+    F (inl x) = inl tt
+    F (inr x) = inr (inr x)
+    F (push a i) = push a i
+
+    open PushoutPasteLeft
+          cofibf-PSquare
+            {B = cofib {B = cofib (fst g)} (λ x → inr (fst f x))}
+            inr inr F refl
+
+    isPushoutRight : isPushoutSquare rightSquare
+    isPushoutRight = isPushoutTotSquare→isPushoutRightSquare
+             (subst isEquiv
+               (funExt (λ { (inl x) → refl
+                          ; (inr x) → refl
+                          ; (push a i) j → lUnit (sym (push a)) j (~ i)}))
+               (idEquiv _ .snd))
+
+  cofib∨→distrIso :
+    Iso (cofib (f ∨→ g))
+        (Pushout {B = cofib (fst f)} {C = cofib (fst g)} inr inr)
+  cofib∨→distrIso = invIso (compIso (compIso A□○≅ 3x3-Iso) A○□≅)
+
+  cofib∨→compIsoᵣ : Iso (cofib (f ∨→ g))
+                        (cofib {B = cofib (fst g)} (λ x → inr (fst f x)))
+  cofib∨→compIsoᵣ = compIso cofib∨→distrIso (equivToIso (_ , isPushoutRight))
+
+cofib∨→compIsoₗ :
+  {A : Pointed ℓ} {B : Pointed ℓ'} {C : Pointed ℓ''}
+  (f : A →∙ C) (g : B →∙ C)
+    → Iso (cofib (f ∨→ g))
+           (cofib {B = cofib (fst f)} (λ x → inr (fst g x)))
+cofib∨→compIsoₗ f g =
+  compIso (pushoutIso _ _ _ _ (isoToEquiv ⋁-commIso)
+            (idEquiv _) (idEquiv _)
+            refl (funExt
+            λ { (inl x) → refl
+              ; (inr x) → refl
+              ; (push a i) j → symDistr (snd g) (sym (snd f)) (~ j) i}))
+          (cofib∨→compIsoᵣ g f)
+
+
+module _ {A : Type ℓ} {B : Type ℓ'}
+  {P : A → Pointed ℓ''} {Q : B → Pointed ℓ''}
+  where
+  private
+    ⋁gen⊎→ : ⋁gen∙ A P ⋁ ⋁gen∙ B Q
+            → ⋁gen (A ⊎ B) (⊎.rec P Q)
+    ⋁gen⊎→ (inl (inl x)) = inl tt
+    ⋁gen⊎→ (inl (inr (a , p))) = inr (inl a , p)
+    ⋁gen⊎→ (inl (push a i)) = push (inl a) i
+    ⋁gen⊎→ (inr (inl x)) = inl tt
+    ⋁gen⊎→ (inr (inr (b , q))) = inr (inr b , q)
+    ⋁gen⊎→ (inr (push b i)) = push (inr b) i
+    ⋁gen⊎→ (push a i) = inl tt
+
+    ⋁gen⊎← : ⋁gen (A ⊎ B) (⊎.rec P Q)
+            → ⋁gen∙ A P ⋁ ⋁gen∙ B Q
+    ⋁gen⊎← (inl x) = inl (inl tt)
+    ⋁gen⊎← (inr (inl x , p)) = inl (inr (x , p))
+    ⋁gen⊎← (inr (inr x , p)) = inr (inr (x , p))
+    ⋁gen⊎← (push (inl x) i) = inl (push x i)
+    ⋁gen⊎← (push (inr x) i) = (push tt ∙ λ i → inr (push x i)) i
+
+  ⋁gen⊎Iso : Iso (⋁gen∙ A P ⋁ ⋁gen∙ B Q)
+                   (⋁gen (A ⊎ B) (⊎.rec P Q))
+  Iso.fun ⋁gen⊎Iso = ⋁gen⊎→
+  Iso.inv ⋁gen⊎Iso = ⋁gen⊎←
+  Iso.rightInv ⋁gen⊎Iso (inl tt) = refl
+  Iso.rightInv ⋁gen⊎Iso (inr (inl x , p)) = refl
+  Iso.rightInv ⋁gen⊎Iso (inr (inr x , p)) = refl
+  Iso.rightInv ⋁gen⊎Iso (push (inl x) i) = refl
+  Iso.rightInv ⋁gen⊎Iso (push (inr x) i) j =
+    ⋁gen⊎→ (compPath-filler' (push tt) (λ i → inr (push x i)) (~ j) i)
+  Iso.leftInv ⋁gen⊎Iso (inl (inl x)) = refl
+  Iso.leftInv ⋁gen⊎Iso (inl (inr x)) = refl
+  Iso.leftInv ⋁gen⊎Iso (inl (push a i)) = refl
+  Iso.leftInv ⋁gen⊎Iso (inr (inl x)) = push tt
+  Iso.leftInv ⋁gen⊎Iso (inr (inr x)) = refl
+  Iso.leftInv ⋁gen⊎Iso (inr (push a i)) j =
+    compPath-filler' (push tt) (λ i → inr (push a i)) (~ j) i
+  Iso.leftInv ⋁gen⊎Iso (push a i) j = push a (i ∧ j)
