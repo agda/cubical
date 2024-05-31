@@ -49,7 +49,22 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Equiv
 
 
+CW↪Iterate : ∀ {ℓ} (T : CWskel ℓ) (n m : ℕ) → fst T n → fst T (m +ℕ n)
+CW↪Iterate T n zero = idfun _
+CW↪Iterate T n (suc m) x = CW↪ T (m +ℕ n) (CW↪Iterate T n m x)
 
+⋁-rUnitIso : ∀ {ℓ ℓ'} {A : Pointed ℓ} → Iso (A ⋁ (Unit* {ℓ'} , tt*)) (fst A)
+Iso.fun ⋁-rUnitIso (inl x) = x
+Iso.fun (⋁-rUnitIso {A = A}) (inr x) = pt A
+Iso.fun (⋁-rUnitIso {A = A}) (push a i) = pt A
+Iso.inv ⋁-rUnitIso = inl
+Iso.rightInv ⋁-rUnitIso x = refl
+Iso.leftInv ⋁-rUnitIso (inl x) = refl
+Iso.leftInv ⋁-rUnitIso (inr x) = push tt
+Iso.leftInv ⋁-rUnitIso (push tt i) j = push tt (i ∧ j)
+
+⋁-lUnitIso : ∀ {ℓ ℓ'} {A : Pointed ℓ} → Iso ((Unit* {ℓ'} , tt*) ⋁ A) (fst A)
+⋁-lUnitIso = compIso ⋁-commIso ⋁-rUnitIso
 
 module _ {A : Pointed ℓ} {B : Pointed ℓ'} where
 
@@ -1729,7 +1744,9 @@ connectedCWskelLift zero {C = C} ((cwsk , e) , cA) =
   M = connectedCWskel→ (cwsk .fst) (snd cwsk , subst (isConnected 2) (ua e) cA)
 connectedCWskelLift {ℓ = ℓ} (suc n) {C = C} ((cwsk , eqv) , cA) with
   (connectedCWskelLift n ((cwsk , eqv) , (isConnectedSubtr (suc (suc n)) 1 cA)))
-... | s = PT.map {!C*!} s
+... | s = PT.rec squash₁
+  (λ s → PT.rec squash₁
+    (λ α-pt* → {!!}) (α-pt* s)) s
   where
   module _ (ind : isConnectedCW n C) where
     open CWskel-fields (_ , ind .fst .snd .fst)
@@ -1740,6 +1757,14 @@ connectedCWskelLift {ℓ = ℓ} (suc n) {C = C} ((cwsk , eqv) , cA) with
                         (flast , isPropFin1 _)
 
     ww = Susp→PushoutSusp
+
+    connC* : isConnected (3 +ℕ n) (C* (suc (suc (suc (suc n)))))
+    connC* = isConnectedCW→isConnectedSkel
+               (_ , ind .fst .snd .fst) (suc (suc (suc (suc n))))
+                 (suc (suc (suc n)) , <ᵗ-trans <ᵗsucm <ᵗsucm)
+                 (subst (isConnected (3 +ℕ n)) (ua (invEquiv (ind .snd)))
+                 cA)
+
 
     iso2 : Iso (C* (suc (suc n))) (SphereBouquet (suc n) (A (suc n)))
     iso2 = compIso (equivToIso
@@ -1772,6 +1797,11 @@ connectedCWskelLift {ℓ = ℓ} (suc n) {C = C} ((cwsk , eqv) , cA) with
                           refl
                           refl)
 
+    α-pt* : ∥ ((x : _) → α' (x , ptSn (suc n)) ≡ inl tt) ∥₁
+    α-pt* = invEq propTrunc≃Trunc1 (invEq (_ , InductiveFinSatAC _ _ _)
+             λ a → isConnectedPath 1
+               (isConnectedSubtr' n 2
+                 (isConnectedSphereBouquet' {n = n})) _ _ .fst)
 
     module _ (α-pt : (x : _) → α' (x , ptSn (suc n)) ≡ inl tt)
              where
@@ -1787,440 +1817,557 @@ connectedCWskelLift {ℓ = ℓ} (suc n) {C = C} ((cwsk , eqv) , cA) with
                    (cofib (fst α∙))
         iso4 = compIso iso3 (⋁-cofib-Iso _ α∙)
 
-      module _ (α-pt2 : (x : A (3 +ℕ n))
-               → Iso.fun iso4 (α (3 +ℕ n) (x , north)) ≡ inl tt) where
-        α↑ : SphereBouquet∙ (suc (suc n)) (A (suc (suc (suc n))))
-         →∙ (cofib (fst α∙) , inl tt)
-        fst α↑ (inl x) = inl tt
-        fst α↑ (inr x) = Iso.fun iso4 (α (3 +ℕ n) x)
-        fst α↑ (push a i) = α-pt2 a (~ i)
-        snd α↑ = refl
+      α-pt2* : ∥ ((x : A (3 +ℕ n))
+               → Iso.fun iso4 (α (3 +ℕ n) (x , north)) ≡ inl tt) ∥₁
+      α-pt2* = invEq propTrunc≃Trunc1 (invEq (_ , InductiveFinSatAC _ _ _)
+             λ a → isConnectedPath 1 {!isConnectedCofib!} _ _ .fst)
+      
+--       module _ (α-pt2 : (x : A (3 +ℕ n))
+--                → Iso.fun iso4 (α (3 +ℕ n) (x , north)) ≡ inl tt) where
+--         α↑ : SphereBouquet∙ (suc (suc n)) (A (suc (suc (suc n))))
+--          →∙ (cofib (fst α∙) , inl tt)
+--         fst α↑ (inl x) = inl tt
+--         fst α↑ (inr x) = Iso.fun iso4 (α (3 +ℕ n) x)
+--         fst α↑ (push a i) = α-pt2 a (~ i)
+--         snd α↑ = refl
 
-        iso5 : Iso (C* (4 +ℕ n)) (cofib (fst α↑))
-        iso5 = compIso (equivToIso (e (3 +ℕ n)))
-                (compIso
-                  (pushoutIso _ _ _ _
-                    (idEquiv _)
-                    (isoToEquiv iso4)
-                    (idEquiv _) refl refl)
-                  (⋁-cofib-Iso _ α↑))
+--         iso5 : Iso (C* (4 +ℕ n)) (cofib (fst α↑))
+--         iso5 = compIso (equivToIso (e (3 +ℕ n)))
+--                 (compIso
+--                   (pushoutIso _ _ _ _
+--                     (idEquiv _)
+--                     (isoToEquiv iso4)
+--                     (idEquiv _) refl refl)
+--                   (⋁-cofib-Iso _ α↑))
 
-        open commSquare
-        open 3-span
+--         open commSquare
+--         open 3-span
 
-        PT : commSquare
-        A0 (sp PT) = cofib (fst α∙)
-        A2 (sp PT) = SphereBouquet (suc (suc n)) (A (suc (suc (suc n))))
-        A4 (sp PT) = Unit
-        f1 (sp PT) = fst α↑
-        f3 (sp PT) = λ _ → tt
-        P PT = cofib (fst α↑)
-        inlP PT = inr
-        inrP PT = inl
-        comm PT = funExt λ x → sym (push x)
+--         PT : commSquare
+--         A0 (sp PT) = cofib (fst α∙)
+--         A2 (sp PT) = SphereBouquet (suc (suc n)) (A (suc (suc (suc n))))
+--         A4 (sp PT) = Unit
+--         f1 (sp PT) = fst α↑
+--         f3 (sp PT) = λ _ → tt
+--         P PT = cofib (fst α↑)
+--         inlP PT = inr
+--         inrP PT = inl
+--         comm PT = funExt λ x → sym (push x)
 
-        PTPush : PushoutSquare
-        fst PTPush = PT
-        snd PTPush =
-          subst isEquiv (funExt
-            (λ { (inl x) → refl
-               ; (inr x) → refl
-               ; (push a i) → refl}))
-            (symPushout _ _ .snd)
+--         PTPush : PushoutSquare
+--         fst PTPush = PT
+--         snd PTPush =
+--           subst isEquiv (funExt
+--             (λ { (inl x) → refl
+--                ; (inr x) → refl
+--                ; (push a i) → refl}))
+--             (symPushout _ _ .snd)
 
-        opaque
-          iso6 :  Iso (Pushout {B = cofib (fst α∙)} inr (λ _ → tt))
-                      (SphereBouquet (suc (suc n)) (A (suc (suc n))))
-          iso6 = compIso (equivToIso (symPushout _ _))
-                    (compIso (Iso-cofibInr-Susp α∙)
-                      sphereBouquetSuspIso)
+--         opaque
+--           iso6 :  Iso (Pushout {B = cofib (fst α∙)} inr (λ _ → tt))
+--                       (SphereBouquet (suc (suc n)) (A (suc (suc n))))
+--           iso6 = compIso (equivToIso (symPushout _ _))
+--                     (compIso (Iso-cofibInr-Susp α∙)
+--                       sphereBouquetSuspIso)
 
-          iso6∙ : Iso.fun iso6 (inl (inl tt)) ≡ inl tt
-          iso6∙ = refl
+--           iso6∙ : Iso.fun iso6 (inl (inl tt)) ≡ inl tt
+--           iso6∙ = refl
 
-        PL : commSquare
-        A0 (sp PL) = cofib (fst α∙)
-        A2 (sp PL) = SphereBouquet (suc n) (A (suc n))
-        A4 (sp PL) = Unit
-        f1 (sp PL) = inr
-        f3 (sp PL) = _
-        P PL = SphereBouquet (suc (suc n)) (A (suc (suc n)))
-        inlP PL x = Iso.fun iso6 (inl x)
-        inrP PL _ = Iso.fun iso6 (inr tt) -- 
-        comm PL = funExt λ x → cong (Iso.fun iso6) (push x)
+--         PL : commSquare
+--         A0 (sp PL) = cofib (fst α∙)
+--         A2 (sp PL) = SphereBouquet (suc n) (A (suc n))
+--         A4 (sp PL) = Unit
+--         f1 (sp PL) = inr
+--         f3 (sp PL) = _
+--         P PL = SphereBouquet (suc (suc n)) (A (suc (suc n)))
+--         inlP PL x = Iso.fun iso6 (inl x)
+--         inrP PL _ = Iso.fun iso6 (inr tt) -- 
+--         comm PL = funExt λ x → cong (Iso.fun iso6) (push x)
 
-        PLPush : PushoutSquare
-        fst PLPush = PL
-        snd PLPush = subst isEquiv (funExt coh) (isoToIsEquiv iso6)
-          where
-          coh : (x : _) → Iso.fun iso6 x ≡ Pushout→commSquare PL x
-          coh (inl x) = refl
-          coh (inr x) = refl
-          coh (push x i₁) = refl
+--         PLPush : PushoutSquare
+--         fst PLPush = PL
+--         snd PLPush = subst isEquiv (funExt coh) (isoToIsEquiv iso6)
+--           where
+--           coh : (x : _) → Iso.fun iso6 x ≡ Pushout→commSquare PL x
+--           coh (inl x) = refl
+--           coh (inr x) = refl
+--           coh (push x i₁) = refl
 
-        C∨PlaceHolder = Pushout (Iso.inv iso5 ∘ inr) λ x → Iso.fun iso6 (inl x)
+--         C∨PlaceHolder = Pushout (Iso.inv iso5 ∘ inr) λ x → Iso.fun iso6 (inl x)
 
-        C∨ = (C* (suc (suc (suc (suc n)))) , Iso.inv iso5 (inl tt))
-           ⋁ SphereBouquet∙ (suc (suc n)) (A (suc (suc n)))
+--         C∨ = (C* (suc (suc (suc (suc n)))) , Iso.inv iso5 (inl tt))
+--            ⋁ SphereBouquet∙ (suc (suc n)) (A (suc (suc n)))
 
-        module L→R = PushoutPasteDown PLPush {B = C∨PlaceHolder} (Iso.inv iso5 ∘ inr) inl inr (funExt push)
+--         module L→R = PushoutPasteDown PLPush {B = C∨PlaceHolder} (Iso.inv iso5 ∘ inr) inl inr (funExt push)
 
-        isPushoutTot = L→R.isPushoutBottomSquare→isPushoutTotSquare
-                          (subst isEquiv (funExt (λ { (inl x) → refl
-                                                    ; (inr x) → refl
-                                                    ; (push a i) → refl}))
-                          (idIsEquiv _))
-
-
-        C4n = C* (suc (suc (suc (suc n))))
-
-        const* : SphereBouquet (suc n) (A (suc n)) → C* (suc (suc (suc (suc n))))
-        const* = λ x → Iso.inv iso5 (inr (inr x))
-
-        connC* : isConnected (3 +ℕ n) (C* (suc (suc (suc (suc n)))))
-        connC* = isConnectedCW→isConnectedSkel
-                   (_ , ind .fst .snd .fst) (suc (suc (suc (suc n))))
-                     (suc (suc (suc n)) , <ᵗ-trans <ᵗsucm <ᵗsucm)
-                     (subst (isConnected (3 +ℕ n)) (ua (invEquiv (ind .snd)))
-                     cA)
-
-        C⋆ = iso5 .Iso.inv (inl tt)
-
-        sphereVanish : (f : S₊ (suc n) → C* (suc (suc (suc (suc n)))))
-                     → ∥ ((x : S₊ (suc n)) → f x ≡ C⋆) ∥₁
-        sphereVanish f = sphereToTrunc (suc n)
-          λ x → isConnectedPath (suc (suc n)) connC* _ _ .fst
-
-        sphereBouquetVanish : ∀ {k : ℕ} (f : SphereBouquet (suc n) (Fin k) → C4n)
-          → ∥ f ≡ (λ _ → C⋆) ∥₁
-        sphereBouquetVanish {k = k} f =
-          TR.rec (isProp→isOfHLevelSuc (suc n) squash₁)
-            (λ p → PT.rec squash₁
-            (λ q → ∣ funExt
-              (λ { (inl x) → p
-                 ; (inr (x , y)) → (q x y ∙ sym (q x (ptSn (suc n))))
-                                  ∙ cong f (sym (push x)) ∙ p
-                 ; (push a i) j → (cong (_∙ cong f (sym (push a)) ∙ p)
-                                         (rCancel (q a (ptSn (suc n))))
-                                  ∙ sym (lUnit _)
-                                  ◁ (symP (compPath-filler'
-                                      (cong f (sym (push a))) p))) (~ i) j}) ∣₁)
-            help)
-            isPted
-          where
-          isPted = Iso.fun (PathIdTruncIso (suc (suc n)))
-                           (isContr→isProp connC*  ∣ f (inl tt) ∣ₕ ∣ C⋆ ∣ₕ)
-
-          help : ∥ ((x : Fin k) → (y :  _) → f (inr (x , y)) ≡ C⋆) ∥₁
-          help = invEq propTrunc≃Trunc1
-            (invEq (_ , InductiveFinSatAC _ _ _)
-              λ x → PT.rec (isOfHLevelTrunc 1)
-                ∣_∣ₕ
-                (sphereVanish λ y → f (inr (x , y))))
-
-        pushoutTotAlt : C∨PlaceHolder ≃ cofib const*
-        pushoutTotAlt =
-          compEquiv
-           (invEquiv (_ , isPushoutTot))
-           (symPushout _ _)
-
-        β : SphereBouquet (suc (suc n)) (A (suc (suc (suc n))))
-          → SphereBouquet (suc (suc n)) (A (suc (suc n)))
-        β = (Iso.fun iso6 ∘ inl) ∘ fst α↑
-
-        β∙ : SphereBouquet∙ (suc (suc n)) (A (suc (suc (suc n))))
-          →∙ SphereBouquet∙ (suc (suc n)) (A (suc (suc n)))
-        fst β∙ = β
-        snd β∙ = iso6∙
-
-        module _ (vanish : const* ≡ λ _ → C⋆) where
-          S∨C = SphereBouquet∙ (suc (suc n)) (A (suc n)) ⋁ (C4n , C⋆)
-
-          connS∨C : isConnected (suc (suc (suc n))) S∨C
-          fst connS∨C = ∣ inl (inl tt) ∣ₕ
-          snd connS∨C =
-            TR.elim (λ _ → isOfHLevelPath (suc (suc (suc n)))
-                            (isOfHLevelTrunc (suc (suc (suc n)))) _ _)
-              λ { (inl x) → inlEq x
-                ; (inr x) → SP ∙ inrEq x
-                ; (push tt i) j →
-                  (compPath-filler (inlEq (inl tt)) (cong ∣_∣ₕ (push tt))
-                ▷ (rUnit SP ∙ cong (SP ∙_) (sym inrEq∙))) i j}
-            where
-            inlEq : (x : _)
-              → Path (hLevelTrunc (suc (suc (suc n))) S∨C)
-                ∣ inl (inl tt) ∣ ∣ inl x ∣
-            inlEq x = TR.rec (isOfHLevelTrunc (3 +ℕ n) _ _)
-              (λ p i → ∣ inl (p i) ∣ₕ)
-              (Iso.fun (PathIdTruncIso _)
-                (isContr→isProp
-                  (isConnectedSphereBouquet' {n = suc n})
-                    ∣ inl tt ∣ ∣ x ∣))
-
-            G :  (x : C4n) → ∥ C⋆ ≡ x ∥ suc (suc n)
-            G x = Iso.fun (PathIdTruncIso _) (isContr→isProp connC* ∣ C⋆ ∣ₕ ∣ x ∣ₕ)
-
-            G∙ : G C⋆ ≡ ∣ refl ∣ₕ
-            G∙ = cong (Iso.fun (PathIdTruncIso _))
-                  (isProp→isSet (isContr→isProp connC*) _ _
-                    (isContr→isProp connC* ∣ C⋆ ∣ₕ ∣ C⋆ ∣ₕ) refl)
-               ∙ cong ∣_∣ₕ (transportRefl refl)
-
-            inrEq : (x : C4n)
-              → Path (hLevelTrunc (suc (suc (suc n))) S∨C)
-                      ∣ inr C⋆ ∣ₕ ∣ inr x ∣ₕ
-            inrEq x = TR.rec (isOfHLevelTrunc (suc (suc (suc n))) _ _)
-                             (λ p i → ∣ inr (p i) ∣ₕ) (G x)
-
-            inrEq∙ : inrEq C⋆ ≡ refl
-            inrEq∙ = cong (TR.rec (isOfHLevelTrunc (suc (suc (suc n))) _ _)
-                             (λ p i → ∣ inr (p i) ∣ₕ)) G∙
-
-            SP = inlEq (inl tt) ∙ cong ∣_∣ₕ (push tt)
-
-          Iso-C∨PlaceHolder-Wedge :
-            C∨PlaceHolder ≃ (SphereBouquet∙ (suc (suc n)) (A (suc n)) ⋁ (C4n , C⋆))
-          Iso-C∨PlaceHolder-Wedge =
-            compEquiv pushoutTotAlt
-              (isoToEquiv (compIso (cofibConst' {A = _ , inl tt} {B = _ , C⋆}
-                                     (const* , funExt⁻ vanish _)
-                                     (funExt⁻ vanish))
-                          (pushoutIso _ _ _ _
-                            (idEquiv _)
-                            (isoToEquiv sphereBouquetSuspIso)
-                            (idEquiv _)
-                            refl
-                            refl)))
-
-          module T→B = PushoutPasteDown PTPush {B = C∨PlaceHolder}
-                         (λ x → Iso.fun iso6 (inl x)) inr
-                         (λ x → inl (Iso.inv iso5 x))
-                         (sym (funExt push))
-
-          helpIso : Iso (spanPushout (sp T→B.bottomSquare)) (P T→B.bottomSquare)
-          helpIso = compIso (equivToIso (symPushout _ _))
-                            (pushoutIso _ _ _ _ (idEquiv _)
-                              (invEquiv (isoToEquiv iso5))
-                              (idEquiv _) refl refl)
-
-          helpIsoCoh : (x : _) → Iso.fun helpIso x ≡ Pushout→commSquare T→B.bottomSquare x
-          helpIsoCoh (inl x) = refl
-          helpIsoCoh (inr x) = refl
-          helpIsoCoh (push a i) j = sym (rUnit (sym (push a))) j i
-
-          ⋁-as-cofib : cofib β ≃ S∨C
-          ⋁-as-cofib =
-            compEquiv (compEquiv (symPushout _ _)
-              (_ , T→B.isPushoutBottomSquare→isPushoutTotSquare
-                (subst isEquiv (funExt helpIsoCoh) (isoToIsEquiv helpIso))))
-              Iso-C∨PlaceHolder-Wedge
-
-          -- S∨C-CW-fam : ℕ → Type ℓ
-          -- S∨C-CW-fam zero = ⊥*
-          -- S∨C-CW-fam (suc m) with (m ≟ᵗ suc (suc n))
-          -- ... | lt x = Unit*
-          -- ... | eq x = Lift (SphereBouquet (suc (suc n)) (A (suc (suc n))))
-          -- ... | gt x = S∨C
+--         isPushoutTot = L→R.isPushoutBottomSquare→isPushoutTotSquare
+--                           (subst isEquiv (funExt (λ { (inl x) → refl
+--                                                     ; (inr x) → refl
+--                                                     ; (push a i) → refl}))
+--                           (idIsEquiv _))
 
 
-          -- asdd = {!!}
+--         C4n = C* (suc (suc (suc (suc n))))
 
-          -- cardS∨C : ℕ → ℕ -- n + 2
-          -- cardS∨C zero = 1
-          -- cardS∨C (suc m) with (m ≟ᵗ suc n) | (m ≟ᵗ suc (suc n)) 
-          -- ... | lt x | r = 0
-          -- ... | eq x | r = card (suc (suc n))
-          -- ... | gt x | lt x₁ = 0
-          -- ... | gt x | eq x₁ = card (suc (suc (suc n)))
-          -- ... | gt x | gt x₁ = 0
-
-          -- αS∨C-non-triv : (m : ℕ) (p : suc (suc n) ≡ m)
-          --   → A (suc (suc (suc n))) × S₊ m → Lift {j = ℓ} (SphereBouquet (suc (suc n)) (A (suc (suc n))))
-          -- αS∨C-non-triv m p (x , y) = lift (β (inr (x , (subst S₊ (sym p) y))))
-
-          -- αS∨C : (n₁ : ℕ) → Fin (cardS∨C n₁) × S⁻ n₁ → S∨C-CW-fam n₁
-          -- αS∨C (suc m) with (m ≟ᵗ suc n) | (m ≟ᵗ suc (suc n))
-          -- ... | eq x₁ | lt x = λ _ → tt*
-          -- ... | eq x₁ | eq x = λ _ → lift (inl tt)
-          -- ... | eq x₁ | gt x = λ _ → inl (inl tt)
-          -- ... | gt x₁ | lt x = λ()
-          -- ... | gt x₁ | eq p = αS∨C-non-triv m (sym p) -- 
-          -- ... | gt x₁ | gt x = λ()
-
-          -- eS∨C : (n₁ : ℕ) → S∨C-CW-fam (suc n₁) ≃ Pushout (αS∨C n₁) fst
-          -- eS∨C zero = isContr→Equiv (tt* , (λ {tt* → refl}))
-          --                            ((inr fzero)
-          --                           , (λ { (inr (zero , tt)) → refl}))
-          -- eS∨C (suc m) with (m ≟ᵗ suc n) | (m ≟ᵗ suc (suc n))
-          -- ... | lt x | lt x₁ =
-          --   isContr→Equiv (tt* , (λ {tt* → refl})) ((inl tt*)
-          --                       , λ { (inl tt*) → refl})
-          -- ... | lt x | eq x₁ =
-          --   ⊥.rec (¬m<ᵗm (<ᵗ-trans (subst (_<ᵗ suc n) x₁ x) <ᵗsucm))
-          -- ... | lt x | gt x₁ =
-          --   ⊥.rec (¬m<ᵗm (<ᵗ-trans (<ᵗ-trans x₁ x) <ᵗsucm))
-          -- ... | eq x | lt x₁ = {!!}
-          -- ... | eq x | eq x₁ =
-          --    ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc n) ((cong predℕ (sym x ∙ x₁))) <ᵗsucm))
-          -- ... | eq x | gt x₁ =
-          --   ⊥.rec (¬m<ᵗm (<ᵗ-trans (subst (suc (suc n) <ᵗ_) x x₁) <ᵗsucm))
-          -- ... | gt x | lt x₁ = ⊥.rec (¬squeeze (x , x₁))
-          -- ... | gt x | eq x₁ = {!isoToEquiv (invIso (PushoutEmptyFam ? ?))!}
-          -- ... | gt x | gt x₁ =
-          --   isoToEquiv (PushoutEmptyFam (λ()) λ())
-
-          -- S∨C-CW : CWskel ℓ
-          -- fst S∨C-CW = S∨C-CW-fam
-          -- fst (snd S∨C-CW) = cardS∨C
-          -- fst (snd (snd S∨C-CW)) = αS∨C
-          -- fst (snd (snd (snd S∨C-CW))) ()
-          -- snd (snd (snd (snd S∨C-CW))) = eS∨C
-
-          -- Sbouq-CW-fam : {!!}
-          -- Sbouq-CW-fam = {!elim.isConnectedPrecompose!}
-
-          -- SbouqSkel : CWskel ℓ
-          -- SbouqSkel = {!!}
-
-          open import Cubical.Data.Unit
-          testβ : isConnectedFun (suc (suc (suc n))) {B = cofib β} inr
-          testβ = inrConnected (3 +ℕ n) _ _
-                    λ b → isOfHLevelRetractFromIso 0 (mapCompIso fiberUnitIso)
-                            isConnectedSphereBouquet'
-
-          testβ3 : isConnectedFun (suc (suc (suc n))) {B = S∨C} (⋁-as-cofib .fst ∘ inr)
-          testβ3 = isConnectedComp (⋁-as-cofib .fst) inr (3 +ℕ n)
-                     (isEquiv→isConnected _ (⋁-as-cofib .snd) (3 +ℕ n)) testβ
-
-          main-inr : ∥ ((x : A (suc n)) (y : S₊ (suc (suc n)))
-            → Σ[ t ∈ SphereBouquet (suc (suc n)) (A (suc (suc n))) ]
-                  (⋁-as-cofib .fst (inr t) ≡ inl (inr (x , y)))) ∥₁
-          main-inr =
-            invEq propTrunc≃Trunc1
-              (invEq (_ , InductiveFinSatAC _ _ _)
-                λ x → fst propTrunc≃Trunc1
-                  (sphereToTrunc (suc (suc n))
-                    λ y → testβ3 (inl (inr (x , y))) .fst))
-
-          mainF : ∃[ F ∈ (SphereBouquet∙ (suc (suc n)) (A (suc n))
-                       →∙ SphereBouquet∙ (suc (suc n)) (A (suc (suc n)))) ]
-                   ((x : _) → Path S∨C (⋁-as-cofib .fst (inr (fst F x))) (inl x))
-          mainF = TR.rec (isProp→isOfHLevelSuc (suc n) squash₁)
-            (λ coh₁ → PT.rec squash₁ (λ F → TR.rec squash₁
-            (λ h → TR.rec squash₁ (λ q → ∣ (F* F coh₁ h , refl) ,
-                                            (coh F coh₁ h q) ∣₁)
-            (makeCoh F coh₁ h))
-            (F∙ F coh₁))
-            main-inr)
-              (isConnectedPath _ connS∨C
-                (⋁-as-cofib .fst (inr (inl tt))) (inl (inl tt)) .fst)
-            where
-            CON = (subst (λ x → isConnected x (SphereBouquet (suc (suc n))
-                         (A (suc (suc n)))))
-                         (cong suc (+-comm 2 n))
-                         isConnectedSphereBouquet')
-            module _ (F : ((x : A (suc n)) (y : S₊ (suc (suc n)))
-               → Σ[ t ∈ SphereBouquet (suc (suc n)) (A (suc (suc n))) ]
-                     (⋁-as-cofib .fst (inr t) ≡ inl (inr (x , y)))))
-                     (coh₁ : Path S∨C (⋁-as-cofib .fst (inr (inl tt)))
-                                        (inl (inl tt))) where
-              F∙ : hLevelTrunc 1 ((x : Fin _) → F x north .fst ≡ inl tt)
-              F∙ =
-                invEq (_ , InductiveFinSatAC _ _ _)
-                  λ a → isConnectedPath 1 (isConnectedSubtr 2 (suc n) CON) _ _ .fst
-
-              module _ (h  : (x : Fin _) → F x north .fst ≡ inl tt) where
-                F* : (SphereBouquet (suc (suc n)) (A (suc n))
-                    → SphereBouquet (suc (suc n)) (A (suc (suc n))))
-                F* (inl x) = inl tt
-                F* (inr (x , y)) = F x y .fst
-                F* (push a i) = h  a (~ i)
-
-                cohTy : Type _
-                cohTy = (a : A (suc n))
-                  → Square (λ i → ⋁-as-cofib .fst (inr (h a (~ i))))
-                            (λ i → inl (push a i))
-                            coh₁ (F a north .snd)
-
-                makeCoh : hLevelTrunc 1 cohTy
-                makeCoh = invEq (_ , InductiveFinSatAC _ _ _)
-                  λ a → isConnectedPathP 1
-                    (isConnectedSubtr' n 2 (isConnectedPath _ connS∨C _ _)) _ _ .fst
-
-                module _ (coh₂ : cohTy) where
-                  coh : (x : _) → Path S∨C (⋁-as-cofib .fst (inr (F* x))) (inl x)
-                  coh (inl x) = coh₁
-                  coh (inr (x , y)) = F x y .snd
-                  coh (push a i) j = coh₂ a j i
-          module _ (F : (SphereBouquet∙ (suc (suc n)) (A (suc n))
-                       →∙ SphereBouquet∙ (suc (suc n)) (A (suc (suc n)))))
-                   (h : (x : _) → Path S∨C (⋁-as-cofib .fst (inr (fst F x))) (inl x))
-            where
-            h' : (x : _) → inr (fst F x) ≡ invEq ⋁-as-cofib (inl x)
-            h' x = sym (retEq ⋁-as-cofib (inr (fst F x)))
-                 ∙ cong (invEq ⋁-as-cofib) (h x)
-
-            open import Cubical.Foundations.Transport
-
-            N = card (suc n) +ℕ card (suc (suc (suc n)))
-
-            iso7 : Iso (SphereBouquet (suc (suc n)) (Fin N))
-                       (SphereBouquet∙ (suc (suc n)) (A (suc n))
-                      ⋁ SphereBouquet∙ (suc (suc n)) (A (suc (suc (suc n)))))
-            iso7 = compIso
-              (pathToIso
-                ((λ i → ⋁gen (isoToPath
-                  (Fin+ {n = card (suc n)} {m = card (suc (suc (suc n)))}) (~ i))
-                    (λ _ → S₊∙ (suc (suc n))))
-                  ∙ cong (⋁gen (A (suc n) ⊎ A (suc (suc (suc n)))))
-                         (funExt (⊎.elim (λ _ → refl) (λ _ → refl)))))
-                (invIso ⋁gen⊎Iso)
-
-            T : Iso (cofib (F ∨→ β∙)) C4n
-            T = compIso (cofib∨→compIsoᵣ  F β∙)
-                 (compIso
-                   (pathToIso (cong cofib (funExt h')))
-                   (compIso
-                     (equivToIso (symPushout _ _))
-                     (compIso
-                       (Pushout∘Equiv
-                         (idEquiv (SphereBouquet (suc (suc n)) (A (suc n))))
-                         (invEquiv ⋁-as-cofib) inl (λ _ → tt))
-                       (compIso (equivToIso (symPushout _ _)) cofibInl-⋁))))
-
-            T∙ : Σ[ c ∈ ℕ ] Σ[ α ∈ (SphereBouquet (suc (suc n)) (Fin c)
-                                  → SphereBouquet (suc (suc n)) (A (suc (suc n)))) ]
-                 Iso (Pushout (α ∘ inr) fst) C4n
-            fst T∙ = N
-            fst (snd T∙) = F ∨→ β∙ ∘ Iso.fun iso7
-            snd (snd T∙) =
-              compIso
-                (compIso (⋁-cofib-Iso (_ , fst F (inl tt)) ((F ∨→ β∙ ∘ Iso.fun iso7) , refl))
-                         (invIso (Pushout∘Equiv
-                           (invEquiv (isoToEquiv iso7))
-                             (idEquiv Unit) _ _))) T
-
--- ⋁gen⊎Iso
-            
-{-
-          fst S∨C-CW = S∨C-CW-fam
-          fst (fst (snd S∨C-CW)) = {!S∨C-CW-fam!}
-          fst (snd (fst (snd S∨C-CW))) = {!!}
-          snd (snd (fst (snd S∨C-CW))) = {!!}
-          snd (snd S∨C-CW) = {!!}
--}
+--         const* : SphereBouquet (suc n) (A (suc n)) → C* (suc (suc (suc (suc n))))
+--         const* = λ x → Iso.inv iso5 (inr (inr x))
 
 
-        {-
-        snd PL = subst isEquiv {!!} (isoToIsEquiv help)
-          where
-          help : Iso _ _
-          help = compIso {!!} {!!}
+--         C⋆ = iso5 .Iso.inv (inl tt)
 
-        main : isConnectedCW (suc n) C
-        main = {!!}
--}
-{-Iso.fun help ≡ Pushout→commSquare PL
-yieldsConnectedCWskel : ?
-yieldsConnectedCWskel = ?
--}
+--         sphereVanish : (f : S₊ (suc n) → C* (suc (suc (suc (suc n)))))
+--                      → ∥ ((x : S₊ (suc n)) → f x ≡ C⋆) ∥₁
+--         sphereVanish f = sphereToTrunc (suc n)
+--           λ x → isConnectedPath (suc (suc n)) connC* _ _ .fst
+
+--         sphereBouquetVanish : ∀ {k : ℕ} (f : SphereBouquet (suc n) (Fin k) → C4n)
+--           → ∥ f ≡ (λ _ → C⋆) ∥₁
+--         sphereBouquetVanish {k = k} f =
+--           TR.rec (isProp→isOfHLevelSuc (suc n) squash₁)
+--             (λ p → PT.rec squash₁
+--             (λ q → ∣ funExt
+--               (λ { (inl x) → p
+--                  ; (inr (x , y)) → (q x y ∙ sym (q x (ptSn (suc n))))
+--                                   ∙ cong f (sym (push x)) ∙ p
+--                  ; (push a i) j → (cong (_∙ cong f (sym (push a)) ∙ p)
+--                                          (rCancel (q a (ptSn (suc n))))
+--                                   ∙ sym (lUnit _)
+--                                   ◁ (symP (compPath-filler'
+--                                       (cong f (sym (push a))) p))) (~ i) j}) ∣₁)
+--             help)
+--             isPted
+--           where
+--           isPted = Iso.fun (PathIdTruncIso (suc (suc n)))
+--                            (isContr→isProp connC*  ∣ f (inl tt) ∣ₕ ∣ C⋆ ∣ₕ)
+
+--           help : ∥ ((x : Fin k) → (y :  _) → f (inr (x , y)) ≡ C⋆) ∥₁
+--           help = invEq propTrunc≃Trunc1
+--             (invEq (_ , InductiveFinSatAC _ _ _)
+--               λ x → PT.rec (isOfHLevelTrunc 1)
+--                 ∣_∣ₕ
+--                 (sphereVanish λ y → f (inr (x , y))))
+
+--         pushoutTotAlt : C∨PlaceHolder ≃ cofib const*
+--         pushoutTotAlt =
+--           compEquiv
+--            (invEquiv (_ , isPushoutTot))
+--            (symPushout _ _)
+
+--         β : SphereBouquet (suc (suc n)) (A (suc (suc (suc n))))
+--           → SphereBouquet (suc (suc n)) (A (suc (suc n)))
+--         β = (Iso.fun iso6 ∘ inl) ∘ fst α↑
+
+--         β∙ : SphereBouquet∙ (suc (suc n)) (A (suc (suc (suc n))))
+--           →∙ SphereBouquet∙ (suc (suc n)) (A (suc (suc n)))
+--         fst β∙ = β
+--         snd β∙ = iso6∙
+
+--         module _ (vanish : const* ≡ λ _ → C⋆) where
+--           S∨C = SphereBouquet∙ (suc (suc n)) (A (suc n)) ⋁ (C4n , C⋆)
+
+--           connS∨C : isConnected (suc (suc (suc n))) S∨C
+--           fst connS∨C = ∣ inl (inl tt) ∣ₕ
+--           snd connS∨C =
+--             TR.elim (λ _ → isOfHLevelPath (suc (suc (suc n)))
+--                             (isOfHLevelTrunc (suc (suc (suc n)))) _ _)
+--               λ { (inl x) → inlEq x
+--                 ; (inr x) → SP ∙ inrEq x
+--                 ; (push tt i) j →
+--                   (compPath-filler (inlEq (inl tt)) (cong ∣_∣ₕ (push tt))
+--                 ▷ (rUnit SP ∙ cong (SP ∙_) (sym inrEq∙))) i j}
+--             where
+--             inlEq : (x : _)
+--               → Path (hLevelTrunc (suc (suc (suc n))) S∨C)
+--                 ∣ inl (inl tt) ∣ ∣ inl x ∣
+--             inlEq x = TR.rec (isOfHLevelTrunc (3 +ℕ n) _ _)
+--               (λ p i → ∣ inl (p i) ∣ₕ)
+--               (Iso.fun (PathIdTruncIso _)
+--                 (isContr→isProp
+--                   (isConnectedSphereBouquet' {n = suc n})
+--                     ∣ inl tt ∣ ∣ x ∣))
+
+--             G :  (x : C4n) → ∥ C⋆ ≡ x ∥ suc (suc n)
+--             G x = Iso.fun (PathIdTruncIso _) (isContr→isProp connC* ∣ C⋆ ∣ₕ ∣ x ∣ₕ)
+
+--             G∙ : G C⋆ ≡ ∣ refl ∣ₕ
+--             G∙ = cong (Iso.fun (PathIdTruncIso _))
+--                   (isProp→isSet (isContr→isProp connC*) _ _
+--                     (isContr→isProp connC* ∣ C⋆ ∣ₕ ∣ C⋆ ∣ₕ) refl)
+--                ∙ cong ∣_∣ₕ (transportRefl refl)
+
+--             inrEq : (x : C4n)
+--               → Path (hLevelTrunc (suc (suc (suc n))) S∨C)
+--                       ∣ inr C⋆ ∣ₕ ∣ inr x ∣ₕ
+--             inrEq x = TR.rec (isOfHLevelTrunc (suc (suc (suc n))) _ _)
+--                              (λ p i → ∣ inr (p i) ∣ₕ) (G x)
+
+--             inrEq∙ : inrEq C⋆ ≡ refl
+--             inrEq∙ = cong (TR.rec (isOfHLevelTrunc (suc (suc (suc n))) _ _)
+--                              (λ p i → ∣ inr (p i) ∣ₕ)) G∙
+
+--             SP = inlEq (inl tt) ∙ cong ∣_∣ₕ (push tt)
+
+--           Iso-C∨PlaceHolder-Wedge :
+--             C∨PlaceHolder ≃ (SphereBouquet∙ (suc (suc n)) (A (suc n)) ⋁ (C4n , C⋆))
+--           Iso-C∨PlaceHolder-Wedge =
+--             compEquiv pushoutTotAlt
+--               (isoToEquiv (compIso (cofibConst' {A = _ , inl tt} {B = _ , C⋆}
+--                                      (const* , funExt⁻ vanish _)
+--                                      (funExt⁻ vanish))
+--                           (pushoutIso _ _ _ _
+--                             (idEquiv _)
+--                             (isoToEquiv sphereBouquetSuspIso)
+--                             (idEquiv _)
+--                             refl
+--                             refl)))
+
+--           module T→B = PushoutPasteDown PTPush {B = C∨PlaceHolder}
+--                          (λ x → Iso.fun iso6 (inl x)) inr
+--                          (λ x → inl (Iso.inv iso5 x))
+--                          (sym (funExt push))
+
+--           helpIso : Iso (spanPushout (sp T→B.bottomSquare)) (P T→B.bottomSquare)
+--           helpIso = compIso (equivToIso (symPushout _ _))
+--                             (pushoutIso _ _ _ _ (idEquiv _)
+--                               (invEquiv (isoToEquiv iso5))
+--                               (idEquiv _) refl refl)
+
+--           helpIsoCoh : (x : _) → Iso.fun helpIso x ≡ Pushout→commSquare T→B.bottomSquare x
+--           helpIsoCoh (inl x) = refl
+--           helpIsoCoh (inr x) = refl
+--           helpIsoCoh (push a i) j = sym (rUnit (sym (push a))) j i
+
+--           ⋁-as-cofib : cofib β ≃ S∨C
+--           ⋁-as-cofib =
+--             compEquiv (compEquiv (symPushout _ _)
+--               (_ , T→B.isPushoutBottomSquare→isPushoutTotSquare
+--                 (subst isEquiv (funExt helpIsoCoh) (isoToIsEquiv helpIso))))
+--               Iso-C∨PlaceHolder-Wedge
+
+--           open import Cubical.Data.Unit
+--           testβ : isConnectedFun (suc (suc (suc n))) {B = cofib β} inr
+--           testβ = inrConnected (3 +ℕ n) _ _
+--                     λ b → isOfHLevelRetractFromIso 0 (mapCompIso fiberUnitIso)
+--                             isConnectedSphereBouquet'
+
+--           testβ3 : isConnectedFun (suc (suc (suc n))) {B = S∨C} (⋁-as-cofib .fst ∘ inr)
+--           testβ3 = isConnectedComp (⋁-as-cofib .fst) inr (3 +ℕ n)
+--                      (isEquiv→isConnected _ (⋁-as-cofib .snd) (3 +ℕ n)) testβ
+
+--           main-inr : ∥ ((x : A (suc n)) (y : S₊ (suc (suc n)))
+--             → Σ[ t ∈ SphereBouquet (suc (suc n)) (A (suc (suc n))) ]
+--                   (⋁-as-cofib .fst (inr t) ≡ inl (inr (x , y)))) ∥₁
+--           main-inr =
+--             invEq propTrunc≃Trunc1
+--               (invEq (_ , InductiveFinSatAC _ _ _)
+--                 λ x → fst propTrunc≃Trunc1
+--                   (sphereToTrunc (suc (suc n))
+--                     λ y → testβ3 (inl (inr (x , y))) .fst))
+
+--           mainF : ∃[ F ∈ (SphereBouquet∙ (suc (suc n)) (A (suc n))
+--                        →∙ SphereBouquet∙ (suc (suc n)) (A (suc (suc n)))) ]
+--                    ((x : _) → Path S∨C (⋁-as-cofib .fst (inr (fst F x))) (inl x))
+--           mainF = TR.rec (isProp→isOfHLevelSuc (suc n) squash₁)
+--             (λ coh₁ → PT.rec squash₁ (λ F → TR.rec squash₁
+--             (λ h → TR.rec squash₁ (λ q → ∣ (F* F coh₁ h , refl) ,
+--                                             (coh F coh₁ h q) ∣₁)
+--             (makeCoh F coh₁ h))
+--             (F∙ F coh₁))
+--             main-inr)
+--               (isConnectedPath _ connS∨C
+--                 (⋁-as-cofib .fst (inr (inl tt))) (inl (inl tt)) .fst)
+--             where
+--             CON = (subst (λ x → isConnected x (SphereBouquet (suc (suc n))
+--                          (A (suc (suc n)))))
+--                          (cong suc (+-comm 2 n))
+--                          isConnectedSphereBouquet')
+--             module _ (F : ((x : A (suc n)) (y : S₊ (suc (suc n)))
+--                → Σ[ t ∈ SphereBouquet (suc (suc n)) (A (suc (suc n))) ]
+--                      (⋁-as-cofib .fst (inr t) ≡ inl (inr (x , y)))))
+--                      (coh₁ : Path S∨C (⋁-as-cofib .fst (inr (inl tt)))
+--                                         (inl (inl tt))) where
+--               F∙ : hLevelTrunc 1 ((x : Fin _) → F x north .fst ≡ inl tt)
+--               F∙ =
+--                 invEq (_ , InductiveFinSatAC _ _ _)
+--                   λ a → isConnectedPath 1 (isConnectedSubtr 2 (suc n) CON) _ _ .fst
+
+--               module _ (h  : (x : Fin _) → F x north .fst ≡ inl tt) where
+--                 F* : (SphereBouquet (suc (suc n)) (A (suc n))
+--                     → SphereBouquet (suc (suc n)) (A (suc (suc n))))
+--                 F* (inl x) = inl tt
+--                 F* (inr (x , y)) = F x y .fst
+--                 F* (push a i) = h  a (~ i)
+
+--                 cohTy : Type _
+--                 cohTy = (a : A (suc n))
+--                   → Square (λ i → ⋁-as-cofib .fst (inr (h a (~ i))))
+--                             (λ i → inl (push a i))
+--                             coh₁ (F a north .snd)
+
+--                 makeCoh : hLevelTrunc 1 cohTy
+--                 makeCoh = invEq (_ , InductiveFinSatAC _ _ _)
+--                   λ a → isConnectedPathP 1
+--                     (isConnectedSubtr' n 2 (isConnectedPath _ connS∨C _ _)) _ _ .fst
+
+--                 module _ (coh₂ : cohTy) where
+--                   coh : (x : _) → Path S∨C (⋁-as-cofib .fst (inr (F* x))) (inl x)
+--                   coh (inl x) = coh₁
+--                   coh (inr (x , y)) = F x y .snd
+--                   coh (push a i) j = coh₂ a j i
+--           module _ (F : (SphereBouquet∙ (suc (suc n)) (A (suc n))
+--                        →∙ SphereBouquet∙ (suc (suc n)) (A (suc (suc n)))))
+--                    (h : (x : _) → Path S∨C (⋁-as-cofib .fst (inr (fst F x))) (inl x))
+--             where
+--             h' : (x : _) → inr (fst F x) ≡ invEq ⋁-as-cofib (inl x)
+--             h' x = sym (retEq ⋁-as-cofib (inr (fst F x)))
+--                  ∙ cong (invEq ⋁-as-cofib) (h x)
+
+--             open import Cubical.Foundations.Transport
+
+--             N = card (suc n) +ℕ card (suc (suc (suc n)))
+
+--             iso7 : Iso (SphereBouquet (suc (suc n)) (Fin N))
+--                        (SphereBouquet∙ (suc (suc n)) (A (suc n))
+--                       ⋁ SphereBouquet∙ (suc (suc n)) (A (suc (suc (suc n)))))
+--             iso7 = compIso
+--               (pathToIso
+--                 ((λ i → ⋁gen (isoToPath
+--                   (Fin+ {n = card (suc n)} {m = card (suc (suc (suc n)))}) (~ i))
+--                     (λ _ → S₊∙ (suc (suc n))))
+--                   ∙ cong (⋁gen (A (suc n) ⊎ A (suc (suc (suc n)))))
+--                          (funExt (⊎.elim (λ _ → refl) (λ _ → refl)))))
+--                 (invIso ⋁gen⊎Iso)
+
+--             T : Iso (cofib (F ∨→ β∙)) C4n
+--             T = compIso (cofib∨→compIsoᵣ  F β∙)
+--                  (compIso
+--                    (pathToIso (cong cofib (funExt h')))
+--                    (compIso
+--                      (equivToIso (symPushout _ _))
+--                      (compIso
+--                        (Pushout∘Equiv
+--                          (idEquiv (SphereBouquet (suc (suc n)) (A (suc n))))
+--                          (invEquiv ⋁-as-cofib) inl (λ _ → tt))
+--                        (compIso (equivToIso (symPushout _ _)) cofibInl-⋁))))
+                       
+
+--             T∙ : Σ[ c ∈ ℕ ] Σ[ α ∈ (SphereBouquet (suc (suc n)) (Fin c)
+--                                   → SphereBouquet (suc (suc n)) (A (suc (suc n)))) ]
+--                  Iso (Pushout (α ∘ inr) fst) C4n
+--             fst T∙ = N
+--             fst (snd T∙) = F ∨→ β∙ ∘ Iso.fun iso7
+--             snd (snd T∙) =
+--               compIso
+--                 (compIso (⋁-cofib-Iso (_ , fst F (inl tt)) ((F ∨→ β∙ ∘ Iso.fun iso7) , refl))
+--                          (invIso (Pushout∘Equiv
+--                            (invEquiv (isoToEquiv iso7))
+--                              (idEquiv Unit) _ _))) T
+
+--             tyFamParam : (m : ℕ) → Trichotomyᵗ m (suc (suc (suc n))) → Type ℓ
+--             tyFamParam zero (lt x) = ⊥*
+--             tyFamParam (suc m) (lt x) = Unit*
+--             tyFamParam m (eq x) = Lift (SphereBouquet (suc (suc n)) (A (suc (suc n))))
+--             tyFamParam m (gt x) = C* m
+
+--             cardParam : (m : ℕ) → Trichotomyᵗ m (suc (suc n)) → Trichotomyᵗ m (suc (suc (suc n))) → ℕ
+--             cardParam zero (lt x) q = 1
+--             cardParam (suc m) (lt x) q = 0
+--             cardParam m (eq x) q = card (suc (suc n))
+--             cardParam m (gt x) (lt x₁) = 0
+--             cardParam m (gt x) (eq x₁) = N
+--             cardParam m (gt x) (gt x₁) = card m
+
+
+--             tyFamParam∙ : (m : ℕ) (q : _) → tyFamParam (suc m) q
+--             tyFamParam∙ m (lt x) = tt*
+--             tyFamParam∙ m (eq x) = lift (inl tt)
+--             tyFamParam∙ m (gt x) = subst C* (+-comm m 1)
+--               (CW↪Iterate (_ , ind .fst .snd .fst) 1 m
+--                 (invEq (CW₁-discrete (_ , ind .fst .snd .fst))
+--                   (subst Fin (sym (ind .fst .snd .snd .fst)) flast)))
+
+--             carParamConn : (n₁ : ℕ) → n₁ <ᵗ suc n → (p : _) (q : _) → cardParam (suc n₁) p q ≡ 0
+--             carParamConn m ineq (lt x) q = refl
+--             carParamConn m ineq (eq x) q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc (suc n)) x ineq))
+--             carParamConn m ineq (gt x) q = ⊥.rec (¬m<ᵗm (<ᵗ-trans ineq x))
+
+--             newα : (m : ℕ) (p : _) (q : _) → Fin (cardParam m p q) × S⁻ m → tyFamParam m q
+--             newα (suc m) (lt x) q ()
+--             newα (suc m) (eq x) (lt x₁) _ = tt*
+--             newα (suc m) (eq x) (eq x₁) _ = tyFamParam∙ m (eq x₁)
+--             newα (suc m) (eq x) (gt x₁) _ = tyFamParam∙ m (gt x₁)
+--             newα (suc m) (gt x) (lt x₁) _ = tyFamParam∙ m (lt x₁)
+--             newα (suc m) (gt x) (eq x₁) (a , p) = lift (snd T∙ .fst (inr (a , subst S₊ (cong predℕ x₁) p)))
+--             newα (suc m) (gt x) (gt x₁) = α (suc m)
+
+--             tyFamParamContr : (m : _) (t : m <ᵗ suc n) (q : _) → isContr (tyFamParam (suc m) q)
+--             tyFamParamContr m t (lt x) = tt* , λ {tt* → refl}
+--             tyFamParamContr m t (eq x) =
+--               ⊥.rec (¬m<ᵗm (<ᵗ-trans (subst (_<ᵗ suc n) (cong predℕ x) t) <ᵗsucm))
+--             tyFamParamContr m t (gt x) =
+--               ⊥.rec (¬m<ᵗm (<ᵗ-trans (<ᵗ-trans x t) <ᵗsucm))
+
+--             newEq : (n₁ : ℕ) (p : _) (q : _)
+--               → tyFamParam (suc n₁) (Trichotomyᵗ-suc p)
+--                 ≃ Pushout (newα n₁ p q) fst
+--             newEq zero (lt s) (lt t) =
+--               isoToEquiv (isContr→Iso (tt* , (λ {tt* → refl}))
+--                          ((inr flast) , λ {(inr (zero , tt)) → refl}))
+--             newEq zero (lt x) (eq p) = ⊥.rec (snotz (sym p))
+--             newEq zero (eq x) q = ⊥.rec (snotz (sym x))
+--             newEq (suc m) (lt x) q =
+--               isoToEquiv (isContr→Iso (tt* , (λ {tt* → refl}))
+--                          ((inl (tyFamParamContr m x q .fst))
+--                         , (λ { (inl t) → λ i
+--                           → inl (tyFamParamContr m x q .snd t i)})))
+--             newEq (suc m) (eq x) (lt x₁) =
+--               invEquiv (isoToEquiv
+--                 (compIso (⋁-cofib-Iso {B = λ _ → _ , ptSn m} (_ , tt*) (_ , refl))
+--                   (compIso (cofibConst {A = SphereBouquet∙ m _})
+--                     (compIso ⋁-rUnitIso
+--                       (compIso sphereBouquetSuspIso
+--                         (compIso
+--                           (pathToIso (λ i → SphereBouquet (x i) (A (suc (suc n)))))
+--                           LiftIso))))))
+--             newEq (suc m) (eq x) (eq x₁) =
+--               ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc n)
+--                       (cong (predℕ ∘ predℕ) (sym x ∙ x₁)) <ᵗsucm))
+--             newEq (suc m) (eq x) (gt y) =
+--               ⊥.rec (¬m<ᵗm (<ᵗ-trans (subst (suc (suc n) <ᵗ_)
+--                                    (cong predℕ x) y) <ᵗsucm))
+--             newEq (suc m) (gt x) (lt x₁) = ⊥.rec (¬squeeze (x , x₁))
+--             newEq (suc m) (gt x) (eq x₁) =
+--               isoToEquiv (compIso (compIso
+--                 (pathToIso (λ i → C* (suc (x₁ i))))
+--                 (invIso (T∙ .snd .snd)))
+--                 (invIso (pushoutIso _ _ _ _
+--                   (Σ-cong-equiv-snd
+--                     (λ _ → pathToEquiv (cong S₊ (cong predℕ x₁))))
+--                     (invEquiv LiftEquiv) (idEquiv _) refl refl)))
+--             newEq (suc m) (gt x) (gt x₁) = e (suc m)
+
+--             buildCW* : connectedCWskel ℓ (suc n)
+--             fst buildCW* m = tyFamParam m (m ≟ᵗ (3 +ℕ n))
+--             fst (fst (snd buildCW*)) m = cardParam m (m ≟ᵗ (2 +ℕ n)) (m ≟ᵗ (3 +ℕ n))
+--             fst (snd (fst (snd buildCW*))) m = newα m _ _ 
+--             fst (snd (snd (fst (snd buildCW*)))) ()
+--             snd (snd (snd (fst (snd buildCW*)))) m = newEq m _ _
+--             fst (snd (snd buildCW*)) = refl
+--             snd (snd (snd buildCW*)) m ineq = carParamConn m ineq _ _
+
+--             3+n = suc (suc (suc n))
+--             4+n = suc 3+n
+
+--             buildCW-realise : (n₁ : ℕ) (q : _)
+--               → Iso (tyFamParam (n₁ +ℕ 4+n) q)
+--                      (C* (n₁ +ℕ 4+n))
+--             buildCW-realise m (lt x) = ⊥.rec (¬m<m (<-trans (<ᵗ→< x) (m , refl)))
+--             buildCW-realise m (eq x) = ⊥.rec (¬m<m (m , x))
+--             buildCW-realise zero (gt x) = idIso
+--             buildCW-realise (suc m) (gt x) = idIso
+
+--             buildCW-realise→help : (n₁ : ℕ) (q : _) (r : _)
+--                 (a : tyFamParam (n₁ +ℕ 4+n) q)
+--                 → CW↪ (fst (fst ind) , snd (fst ind) .fst) (n₁ +ℕ 4+n)
+--                       (Iso.fun (buildCW-realise n₁ q) a)
+--                 ≡ Iso.fun (buildCW-realise (suc n₁) _)
+--                     (invEq (newEq (n₁ +ℕ 4+n) r q) (inl a))
+--             buildCW-realise→help m (lt x) r a = ⊥.rec (¬m<m (<-trans (<ᵗ→< x) (m , refl)))
+--             buildCW-realise→help m (eq x) r a = ⊥.rec (¬m<m (m , x))
+--             buildCW-realise→help m (gt x) (lt x₁) a =
+--               ⊥.rec (¬m<ᵗm (<ᵗ-trans (<ᵗ-trans x x₁) <ᵗsucm))
+--             buildCW-realise→help m (gt x) (eq x₁) a =
+--               ⊥.rec (¬m<ᵗm (<ᵗ-trans ((subst (_<ᵗ (m +ℕ 4+n)) (cong suc (sym x₁)) x)) <ᵗsucm))
+--             buildCW-realise→help zero (gt x) (gt x₁) a = refl
+--             buildCW-realise→help (suc m) (gt x) (gt x₁) a = refl
+
+--             buildCW-realise→ : (n₁ : ℕ)
+--                 (a : tyFamParam (n₁ +ℕ 4+n) _)
+--                 → CW↪ (fst (fst ind) , snd (fst ind) .fst) (n₁ +ℕ 4+n)
+--                       (Iso.fun (buildCW-realise n₁ _) a)
+--                 ≡ Iso.fun (buildCW-realise (suc n₁) _)
+--                     (CW↪ ((λ m → tyFamParam m (m ≟ᵗ 3+n)) , snd buildCW* .fst)
+--                      (n₁ +ℕ 4+n) a)
+--             buildCW-realise→ n a = buildCW-realise→help n _ _ a
+
+--             buildCW : isConnectedCW (suc n) C
+--             fst buildCW = buildCW*
+--             snd buildCW =
+--               compEquiv (isoToEquiv
+--                 (compIso (SeqColimIso _ (4 +ℕ n))
+--                   (compIso (sequenceIso→ColimIso
+--                     ((λ m → buildCW-realise m ((m +ℕ 4+n) ≟ᵗ 3+n))
+--                     , buildCW-realise→))
+--                     (invIso (SeqColimIso _ (4 +ℕ n)))))) (ind .snd)
+
+-- --             {-
+-- --             ... | lt x | q = refl
+-- --             ... | eq x | q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc n) x ineq))
+-- --             ... | gt x | q = ⊥.rec (¬m<ᵗm (<ᵗ-trans ineq x))
+-- -- -}
+
+-- -- {-
+-- --             tyFam : ℕ → Type ℓ
+-- --             tyFam m with (m ≟ᵗ suc (suc (suc n)))
+-- --             tyFam zero | lt x = ⊥*
+-- --             tyFam (suc m) | lt x = Unit*
+-- --             ... | eq x = Lift (SphereBouquet (suc (suc n)) (A (suc (suc n))))
+-- --             ... | gt x = C* m
+
+-- --             newCard : ℕ → ℕ
+-- --             newCard m with (m ≟ᵗ suc (suc n)) | (m ≟ᵗ suc (suc (suc n)))
+-- --             newCard zero | lt x | s = 1
+-- --             newCard (suc m) | lt x | s = 0
+-- --             ... | eq x | s = card (suc (suc n))
+-- --             ... | gt x | lt p = 0 -- impossible ⊥.rec ?
+-- --             ... | gt x | eq p = N -- card m
+-- --             ... | gt x | gt p = card m
+-- -- -}
+
+-- --             newCardConn : (n₁ : ℕ) → n₁ <ᵗ suc n → newCard (suc n₁) ≡ 0
+-- --             newCardConn m ineq with (m ≟ᵗ suc n) | (m ≟ᵗ suc (suc n))
+-- --             ... | lt x | q = refl
+-- --             ... | eq x | q = ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc n) x ineq))
+-- --             ... | gt x | q = ⊥.rec (¬m<ᵗm (<ᵗ-trans ineq x))
+
+-- --             newα : (n₁ : ℕ) → Fin (newCard n₁) × S⁻ n₁ → tyFam n₁
+-- --             newα zero ()
+-- --             newα (suc m) (x , p) with  (m ≟ᵗ suc (suc n)) | (m ≟ᵗ suc n)
+-- --             ... | lt x₁ | t = tt*
+-- --             ... | eq x₁ | lt x₂ =
+-- --               ⊥.rec (¬m<ᵗm (<ᵗ-trans (subst (_<ᵗ suc n) x₁ x₂) <ᵗsucm))
+-- --             ... | eq x₁ | eq x₂ =
+-- --               ⊥.rec (¬m<ᵗm (subst (_<ᵗ suc (suc n)) (sym x₂ ∙ x₁) <ᵗsucm))
+-- --             ... | eq x₁ | gt x₂ = lift (T∙ .snd .fst (inr (x , subst S₊ x₁ p)))
+-- --             ... | gt x₁ | lt x₂ =
+-- --               ⊥.rec (¬m<ᵗm (<ᵗ-trans x₂ (<ᵗ-trans x₁ <ᵗsucm)))
+-- --             ... | gt x₁ | eq x₂ =
+-- --               ⊥.rec (¬m<ᵗm (<ᵗ-trans (subst ((suc (suc n)) <ᵗ_) x₂ x₁) <ᵗsucm))
+-- --             ... | gt x₁ | gt x₂ = ind .fst .snd .fst .snd .fst (suc m) (x , p)
+
+-- --             eqvs : (n₁ : ℕ) → Pushout (newα n₁) fst ≃ tyFam (suc n₁)
+-- --             eqvs = {!!}
+-- --             {-
+-- --             eqvs zero = ? {- isoToEquiv 
+-- --                                    ((inr flast)
+-- --                                   , (λ { (inr (zero , tt)) → refl}))
+-- --                                   (isContr→Iso (tt* , (λ {tt* → refl})))
+-- --                                   -}
+-- --             eqvs (suc m) =
+-- --             {-
+-- --             eqvs m with (suc m ≟ᵗ suc (suc (suc n)))
+-- --             ... | lt x = isoToEquiv (isContr→Iso (tt* , λ {tt* → refl})
+-- --                                     {!newα m!})
+-- --             ... | eq x = {!!}
+-- --             ... | gt x = {!!}
+-- -- -}
+
+-- --             -- buildCW : isConnectedCW (suc n) C
+-- --             -- fst (fst buildCW) = tyFam
+-- --             -- fst (fst (snd (fst buildCW))) = newCard
+-- --             -- fst (snd (fst (snd (fst buildCW)))) = newα
+-- --             -- snd (snd (fst (snd (fst buildCW)))) = (λ()) , eqvs
+-- --             -- snd (snd (fst buildCW)) = refl , newCardConn
+-- --             -- snd buildCW =
+-- --             --   compEquiv {!eqvs ?!} (ind .snd)
+-- -- -}
