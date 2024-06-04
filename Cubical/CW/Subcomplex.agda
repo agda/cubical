@@ -173,11 +173,6 @@ makeNiceFinCWElim' : ∀ {ℓ ℓ'} {C : Type ℓ} {A : ∥ isFinCW C ∥₁ →
 makeNiceFinCWElim' {A = A} pr ind =
   PT.elim pr λ cw → subst A (squash₁ _ _) (ind cw)
 
--- makeNiceFinCWElim' : {!∀ {ℓ ℓ'} {A : finCW ℓ → Type ℓ'}
---   → ((C : finCW ℓ) → A (makeNiceFinCW C))
---   → (C : _) → A C!}
--- makeNiceFinCWElim' = {!!}
-
 -- Goal: Show that a cell complex C and its subcomplex Cₙ share
 -- homology in low enough dimensions
 module _ (C : CWskel ℓ) where
