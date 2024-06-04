@@ -5,7 +5,7 @@
 -- "Non-wellfounded trees in Homotopy Type Theory"
 -- Benedikt Ahrens, Paolo Capriotti, Régis Spadotti
 
-module Cubical.Codata.M.AsLimit.M.Base where
+module Cubical.Codata.M.M.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv using (_≃_)
@@ -27,10 +27,9 @@ open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Data.Sum
 
-open import Cubical.Codata.M.AsLimit.helper
-open import Cubical.Codata.M.AsLimit.Container
-
-open import Cubical.Codata.M.AsLimit.Coalg.Base
+open import Cubical.Codata.M.helper
+open import Cubical.Codata.M.Container
+open import Cubical.Codata.M.Coalg.Base
 
 open Iso
 

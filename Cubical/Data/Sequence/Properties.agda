@@ -23,7 +23,6 @@ open Sequence
 open SequenceMap renaming (map to smap)
 open isHAEquiv
 
-
 -- Identity map of sequences
 idSequenceMap : (C : Sequence ℓ) → SequenceMap C C
 smap (idSequenceMap C) n x = x

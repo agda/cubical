@@ -208,3 +208,7 @@ hasDecidableImage : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'}
   (f : A → B) → Type (ℓ-max ℓ ℓ')
 hasDecidableImage {A = A} {B = B} f =
   (y : B) → (Σ[ x ∈ A ] f x ≡ y) ⊎ ((x : A) → ¬ f x ≡ y)
+
+≡no : ∀ {A : Type ℓ} x y → Path (Dec A) x (no y)
+≡no (yes p) y = ⊥.rec (y p)
+≡no (no ¬p) y i = no (isProp¬ _ ¬p y i)

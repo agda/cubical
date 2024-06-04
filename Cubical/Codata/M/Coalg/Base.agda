@@ -1,6 +1,6 @@
 {-# OPTIONS --guardedness --safe #-}
 
-module Cubical.Codata.M.AsLimit.Coalg.Base where
+module Cubical.Codata.M.Coalg.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function using ( _∘_ )
@@ -15,8 +15,8 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Prod
 open import Cubical.Data.Sigma
 
-open import Cubical.Codata.M.AsLimit.Container
-open import Cubical.Codata.M.AsLimit.helper
+open import Cubical.Codata.M.Container
+open import Cubical.Codata.M.helper
 
 -------------------------------
 -- Definition of a Coalgebra --

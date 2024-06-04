@@ -525,6 +525,8 @@ Cube :
 Cube a₀₋₋ a₁₋₋ a₋₀₋ a₋₁₋ a₋₋₀ a₋₋₁ =
   PathP (λ i → Square (a₋₀₋ i) (a₋₁₋ i) (a₋₋₀ i) (a₋₋₁ i)) a₀₋₋ a₁₋₋
 
+-- See HLevels.agda for CubeP
+
 -- Horizontal composition of squares (along their second dimension)
 -- See Cubical.Foundations.Path for vertical composition
 

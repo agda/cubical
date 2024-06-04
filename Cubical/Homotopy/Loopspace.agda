@@ -2,26 +2,26 @@
 
 module Cubical.Homotopy.Loopspace where
 
-open import Cubical.Core.Everything
-
-open import Cubical.Data.Nat
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Pointed
 open import Cubical.Foundations.Pointed.Homogeneous
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws
-open import Cubical.HITs.SetTruncation
-open import Cubical.HITs.Truncation hiding (elim2) renaming (rec to trRec)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Path
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Equiv
+
 open import Cubical.Functions.Morphism
+
+open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
+
+open import Cubical.HITs.SetTruncation
+open import Cubical.HITs.Truncation hiding (elim2) renaming (rec to trRec)
+
 open Iso
 
 {- loop space of a pointed type -}

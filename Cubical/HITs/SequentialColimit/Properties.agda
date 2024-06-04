@@ -249,7 +249,6 @@ module _
 
 open Sequence
 open ElimDataShifted
-
 -- Proof that colim Aₘ ≃ Aₙ for a converging sequence
 -- A₀ → A₁ → ... → Aₙ ≃ Aₙ₊₁ ≃ ...
 module _ {ℓ : Level} (seq : Sequence ℓ) (n : ℕ) (term : converges seq n)
@@ -546,8 +545,7 @@ Iso.leftInv (Iso-FinSeqColim-Top X m) r =
      ≡ g (ua-unglue (isoToEquiv (invIso (Iso-FinSeqColim-Top X m))) i x)) h)
 
 
--- Shifinting colimi
-
+-- Shifting colimits
 Iso-SeqColim→SeqColimSuc : (X : Sequence ℓ)
   → Iso (SeqColim X) (SeqColim (ShiftSeq X))
 Iso-SeqColim→SeqColimSuc X = iso G F F→G→F G→F→G

@@ -12,10 +12,6 @@ A couple of general facts about equivalences:
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Equiv.Properties where
 
-open import Cubical.Core.Everything
-
-open import Cubical.Data.Sigma
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
@@ -26,6 +22,8 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Functions.FunExtEquiv
+
+open import Cubical.Data.Sigma
 
 private
   variable

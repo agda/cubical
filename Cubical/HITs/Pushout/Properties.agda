@@ -32,6 +32,8 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 
 open import Cubical.Relation.Nullary
 
+open import Cubical.Relation.Nullary
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as ⊥
@@ -662,12 +664,12 @@ fun (PushoutEmptyFam ¬A ¬C) = inl
 inv (PushoutEmptyFam ¬A ¬C) (inl x) = x
 inv (PushoutEmptyFam ¬A ¬C) (inr x) = ⊥.rec (¬C x)
 inv (PushoutEmptyFam ¬A ¬C {f = f} {g = g}) (push a i) =
-  ⊥.rec {A = f a ≡ rec (¬C (g a))} (¬A a) i
+  ⊥.rec {A = f a ≡ ⊥.rec (¬C (g a))} (¬A a) i
 rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inl x) = refl
 rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) (inr x) = ⊥.rec (¬C x)
 rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C {f = f} {g = g}) (push a i) j =
-  ⊥.rec {A = Square (λ i →  inl (rec {A = f a ≡ rec (¬C (g a))} (¬A a) i))
-                     (push a) (λ _ → inl (f a)) (rec (¬C (g a)))}
+  ⊥.rec {A = Square (λ i →  inl (⊥.rec {A = f a ≡ ⊥.rec (¬C (g a))} (¬A a) i))
+                     (push a) (λ _ → inl (f a)) (⊥.rec (¬C (g a)))}
          (¬A a) j i
 leftInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) x = refl
 

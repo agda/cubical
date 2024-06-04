@@ -133,7 +133,6 @@ realiseSubComplex n C =
   compIso (equivToIso (complex≃subcomplex C n flast))
           (realiseFin n (finSubComplex C n))
 
-
 niceFinCWskel : ∀ {ℓ} (n : ℕ) → finCWskel ℓ n → finCWskel ℓ n
 fst (niceFinCWskel n (A , AC , fin)) = finSubComplex (A , AC) n .fst
 snd (niceFinCWskel n (A , AC , fin)) = finSubComplex (A , AC) n .snd
@@ -168,7 +167,7 @@ makeNiceFinCWElim : ∀ {ℓ ℓ'} {A : finCW ℓ → Type ℓ'}
 makeNiceFinCWElim {A = A} ind C = subst A (makeNiceFinCW≡ C) (ind C)
 
 makeNiceFinCWElim' : ∀ {ℓ ℓ'} {C : Type ℓ} {A : ∥ isFinCW C ∥₁ → Type ℓ'}
-  → ((x : _) → isProp (A x)) 
+  → ((x : _) → isProp (A x))
   → ((cw : isFinCW C) → A (makeNiceFinCW (C , ∣ cw ∣₁) .snd))
   → (cw : _) → A cw
 makeNiceFinCWElim' {A = A} pr ind =

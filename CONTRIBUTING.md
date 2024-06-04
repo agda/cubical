@@ -80,6 +80,10 @@ When preparing a PR here are some general guidelines:
 - Use copattern-matching when instantiating records for efficiency.
   This seems especially important when constructing Iso's.
 
+- New records should be defined with the ```no-eta-equality``` modifier,
+  unless you have a good reason to drop it - keep in mind that dropping it
+  can lead to type checking speed problems.
+
 - If typechecking starts becoming slow try to fix the efficiency
   problems directly. We don't want to merge files that are very slow
   to typecheck so they will have to optimized at some point and it's
@@ -99,20 +103,13 @@ When preparing a PR here are some general guidelines:
   as well as various versions of function extensionality in
   [FunExtEquiv.agda](https://github.com/agda/cubical/blob/master/Cubical/Functions/FunExtEquiv.agda).
 
-- Unless a file is in the `Core`, `Foundations`, `Codata` or
-  `Experiments` package you don't need to add it manually to the
-  `Everything` file as it is automatically generated when running
-  `make`.
+- Unless a file is in the `Core`, `Foundations` or `Codata` package you
+  don't need to add it manually to the `Everything` file as it is
+  automatically generated when running `make`.
 
 - For folders with `Base` and `Properties` submodules, the `Base` file
   can contain some basic consequences of the main definition, but
   shouldn't include theorems that would require additional imports.
-
-- Avoid importing `Foundations.Everything`; import only the modules in
-  `Foundations` you are using. Be reasonably specific in general when
-  importing.
-  In particular, avoid importing useless files or useless renaming
-  and try to group them by folder like `Foundations` or `Data`
 
 - Avoid `public` imports, except in modules that are specifically meant
   to collect and re-export results from several modules.

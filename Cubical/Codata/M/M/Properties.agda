@@ -1,6 +1,6 @@
 {-# OPTIONS --guardedness --safe #-}
 
-module Cubical.Codata.M.AsLimit.M.Properties where
+module Cubical.Codata.M.M.Properties where
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Prod
@@ -19,9 +19,9 @@ open import Cubical.Foundations.Equiv
 
 open import Cubical.Functions.Embedding
 
-open import Cubical.Codata.M.AsLimit.helper
-open import Cubical.Codata.M.AsLimit.M.Base
-open import Cubical.Codata.M.AsLimit.Container
+open import Cubical.Codata.M.helper
+open import Cubical.Codata.M.M.Base
+open import Cubical.Codata.M.Container
 
 -- in-fun and out-fun are inverse
 

@@ -9,7 +9,9 @@ A Univalent Formalization of Constructive Affine Schemes
 
 Max Zeuner, Anders Mörtberg
 
-Preprint: https://arxiv.org/abs/2212.02902
+Available at: https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.TYPES.2022.14
+
+ArXiv version: https://arxiv.org/abs/2212.02902
 
 
 -}
@@ -22,55 +24,55 @@ module Cubical.Papers.AffineSchemes where
 
 -- 2: Background
 -- 2.2: Cubical Agda
-import Cubical.Foundations.Prelude                              as Prelude
-import Cubical.Foundations.HLevels                              as HLevels
-import Cubical.Foundations.Univalence                           as Univalence
-import Cubical.Data.Sigma                                       as Sigma
-import Cubical.HITs.PropositionalTruncation                     as PT
-import Cubical.Algebra.DistLattice.Basis                        as DistLatticeBasis
-import Cubical.HITs.SetQuotients                                as SQ
+import Cubical.Foundations.Prelude                                 as Prelude
+import Cubical.Foundations.HLevels                                 as HLevels
+import Cubical.Foundations.Univalence                              as Univalence
+import Cubical.Data.Sigma                                          as Sigma
+import Cubical.HITs.PropositionalTruncation                        as PT
+import Cubical.Algebra.DistLattice.Basis                           as DistLatticeBasis
+import Cubical.HITs.SetQuotients                                   as SQ
 
 
 -- 3: Commutative Algebra
 -- 3.1: Localization
-import Cubical.Algebra.CommRing.Localisation.Base               as L
+import Cubical.Algebra.CommRing.Localisation.Base                  as L
 module Localization = L.Loc
 
-import Cubical.Algebra.CommRing.Localisation.UniversalProperty  as LocalizationUnivProp
-import Cubical.Algebra.CommRing.Localisation.InvertingElements  as LocalizationInvEl
-import Cubical.Algebra.CommAlgebra                              as R-Algs
-import Cubical.Algebra.CommAlgebra.Localisation                 as LocalizationR-Alg
+import Cubical.Algebra.CommRing.Localisation.UniversalProperty     as LocalizationUnivProp
+import Cubical.Algebra.CommRing.Localisation.InvertingElements     as LocalizationInvEl
+import Cubical.Algebra.CommAlgebra                                 as R-Algs
+import Cubical.Algebra.CommAlgebra.Localisation                    as LocalizationR-Alg
 
 
 -- 3.2: The Zariski Lattice
-import Cubical.Data.FinData.Base                                as FiniteTypes
-import Cubical.Algebra.Matrix                                   as Matrices
-import Cubical.Algebra.CommRing.FGIdeal                         as FinGenIdeals
+import Cubical.Data.FinData.Base                                   as FiniteTypes
+import Cubical.Algebra.Matrix                                      as Matrices
+import Cubical.Algebra.CommRing.FGIdeal                            as FinGenIdeals
 
-import Cubical.Algebra.ZariskiLattice.Base                      as ZLB
+import Cubical.AlgebraicGeometry.ZariskiLattice.Base               as ZLB
 module ZariskiLatDef = ZLB.ZarLat
 
-import Cubical.Algebra.ZariskiLattice.UniversalProperty         as ZLUP
+import Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty  as ZLUP
 module ZariskiLatUnivProp = ZLUP.ZarLatUniversalProp
 
 
 -- 4: Category Theory
 -- background theory not explicitly mentioned
-import Cubical.Categories.Category.Base                         as CatTheory
-import Cubical.Categories.Limits                                as GeneralLimits
-import Cubical.Categories.Limits.RightKan                       as GeneralKanExtension
+import Cubical.Categories.Category.Base                            as CatTheory
+import Cubical.Categories.Limits                                   as GeneralLimits
+import Cubical.Categories.Limits.RightKan                          as GeneralKanExtension
 
-import Cubical.Categories.DistLatticeSheaf.Diagram              as SheafDiagShapes
-import Cubical.Categories.DistLatticeSheaf.Base                 as Sheaves
+import Cubical.Categories.DistLatticeSheaf.Diagram                 as SheafDiagShapes
+import Cubical.Categories.DistLatticeSheaf.Base                    as Sheaves
 
-import Cubical.Categories.DistLatticeSheaf.Extension            as E
+import Cubical.Categories.DistLatticeSheaf.Extension               as E
 module SheafExtension = E.PreSheafExtension
 
 
 -- 5: The Structure Sheaf
-import Cubical.Categories.Instances.CommAlgebras                as R-AlgConstructions
-import Cubical.Algebra.CommRing.Localisation.Limit              as LocalizationLimit
-import Cubical.Algebra.ZariskiLattice.StructureSheaf            as StructureSheaf
+import Cubical.Categories.Instances.CommAlgebras                   as R-AlgConstructions
+import Cubical.Algebra.CommRing.Localisation.Limit                 as LocalizationLimit
+import Cubical.AlgebraicGeometry.ZariskiLattice.StructureSheaf     as StructureSheaf
 
 
 
@@ -164,7 +166,7 @@ open FinGenIdeals using (FGIdealMultLemma)
 open ZariskiLatDef using (ZariskiLattice)
 
 -- support map D and universal property
-open ZariskiLatUnivProp using (D ; isZarMapD)
+open ZariskiLatUnivProp using (D ; isSupportD)
 open ZariskiLatUnivProp using (ZLHasUniversalProp)
 
 -- D(g) ≤ D(f) ⇔ isContr (R-Hom R[1/f] R[1/g])

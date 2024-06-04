@@ -9,7 +9,7 @@
 -}
 
 {-# OPTIONS --safe --lossy-unification #-}
-module Cubical.Algebra.ZariskiLattice.StructureSheafPullback where
+module Cubical.AlgebraicGeometry.ZariskiLattice.StructureSheafPullback where
 
 
 open import Cubical.Foundations.Prelude
@@ -59,8 +59,8 @@ open import Cubical.Algebra.Lattice
 open import Cubical.Algebra.DistLattice
 open import Cubical.Algebra.DistLattice.Basis
 open import Cubical.Algebra.DistLattice.BigOps
-open import Cubical.Algebra.ZariskiLattice.Base
-open import Cubical.Algebra.ZariskiLattice.UniversalProperty
+open import Cubical.AlgebraicGeometry.ZariskiLattice.Base
+open import Cubical.AlgebraicGeometry.ZariskiLattice.UniversalProperty
 
 open import Cubical.Categories.Category.Base hiding (_[_,_])
 open import Cubical.Categories.Functor
@@ -92,7 +92,7 @@ module _ (R' : CommRing ℓ) where
 
  open ZarLat R'
  open ZarLatUniversalProp R'
- open IsZarMap
+ open IsSupport
 
  open Join ZariskiLattice
  open JoinSemilattice (Lattice→JoinSemilattice (DistLattice→Lattice ZariskiLattice))
@@ -115,9 +115,9 @@ module _ (R' : CommRing ℓ) where
  BO = Σ[ 𝔞 ∈ ZL ] (𝔞 ∈ₚ BasicOpens)
 
  basicOpensAreBasis : IsBasis ZariskiLattice BasicOpens
- contains1 basicOpensAreBasis = ∣ 1r , isZarMapD .pres1 ∣₁
+ contains1 basicOpensAreBasis = ∣ 1r , isSupportD .pres1 ∣₁
  ∧lClosed basicOpensAreBasis 𝔞 𝔟 = map2
-            λ (f , Df≡𝔞) (g , Dg≡𝔟) → (f · g) , isZarMapD .·≡∧ f g ∙ cong₂ (_∧z_) Df≡𝔞 Dg≡𝔟
+            λ (f , Df≡𝔞) (g , Dg≡𝔟) → (f · g) , isSupportD .·≡∧ f g ∙ cong₂ (_∧z_) Df≡𝔞 Dg≡𝔟
  ⋁Basis basicOpensAreBasis = elimProp (λ _ → isPropPropTrunc) Σhelper
   where
   Σhelper : (a : Σ[ n ∈ ℕ ] FinVec R n)
@@ -189,7 +189,7 @@ module _ (R' : CommRing ℓ) where
     _ = BasisStructurePShf
 
    canonical0∈BO : 0z ∈ₚ BasicOpens
-   canonical0∈BO = ∣ 0r , isZarMapD .pres0 ∣₁
+   canonical0∈BO = ∣ 0r , isSupportD .pres0 ∣₁
 
    canonical0∈BO≡0∈BO : canonical0∈BO ≡ 0∈BO
    canonical0∈BO≡0∈BO = BasicOpens 0z .snd _ _
