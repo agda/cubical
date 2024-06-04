@@ -20,6 +20,7 @@ open import Cubical.Foundations.Equiv.Properties
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
+open import Cubical.Data.Nat.Order.Inductive
 open import Cubical.Data.Unit
 open import Cubical.Data.Fin.Inductive.Base
 open import Cubical.Data.Fin.Inductive.Properties
@@ -249,3 +250,37 @@ isConnected-CW↪∞ (suc n) C = isConnectedIncl∞ (realiseSeq C) (suc n) (suc 
     subtr : (k : ℕ) → isConnectedFun (suc n) (CW↪ C (k +ℕ (suc n)))
     subtr k = isConnectedFunSubtr (suc n) k (CW↪ C (k +ℕ (suc n)))
                                    (isConnected-CW↪ (k +ℕ (suc n)) C)
+
+-- The m-skeleton of an n-connected complex (m≤n) is n-connected
+isConnectedCW→isConnectedSkel : (C : CWskel ℓ)
+  → (m : ℕ) (n : Fin (suc m))
+  → isConnected (fst n) (realise C)
+  → isConnected (fst n) (C .fst m)
+isConnectedCW→isConnectedSkel C m (n , p) =
+  isOfHLevelRetractFromIso 0
+    (compIso (truncOfTruncIso n t₀)
+      (compIso
+        (mapCompIso
+          (subst (λ k → Iso (hLevelTrunc k (C .fst m))
+                             (hLevelTrunc k (realise C)))
+                  (sym teq)
+                  (connectedTruncIso m _
+                    (isConnected-CW↪∞ m C))))
+        (invIso (truncOfTruncIso n t₀))))
+  where
+  t = <ᵗ→< p
+  t₀ = fst t
+  teq : t₀ +ℕ n ≡ m
+  teq = cong predℕ (sym (+-suc t₀ n) ∙ snd t)
+
+truncCWIso : (A : CWskel ℓ) (n : ℕ)
+  → Iso (hLevelTrunc n (realise A)) (hLevelTrunc n (fst A n))
+truncCWIso A n = invIso (connectedTruncIso n incl (isConnected-CW↪∞ n A))
+
+isConnectedColim→isConnectedSkel :
+  (A : CWskel ℓ) (n : ℕ)
+  → isConnected n (realise A)
+  → isConnected n (fst A n)
+isConnectedColim→isConnectedSkel A n c =
+  isOfHLevelRetractFromIso 0
+    (invIso (truncCWIso A n)) c

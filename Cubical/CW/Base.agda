@@ -151,6 +151,10 @@ to_cofibCW n C x = inr x
 CW↪∞ : (C : CWskel ℓ) → (n : ℕ) → fst C n → realise C
 CW↪∞ C n x = incl x
 
+CW↪Iterate : ∀ {ℓ} (T : CWskel ℓ) (n m : ℕ) → fst T n → fst T (m +ℕ n)
+CW↪Iterate T n zero = idfun _
+CW↪Iterate T n (suc m) x = CW↪ T (m +ℕ n) (CW↪Iterate T n m x)
+
 finCW↑ : (n m : ℕ) → (m ≥ n) → finCWskel ℓ n → finCWskel ℓ m
 fst (finCW↑ m n p C) = fst C
 fst (snd (finCW↑ m n p C)) = snd C .fst

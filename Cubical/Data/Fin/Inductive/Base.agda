@@ -34,6 +34,9 @@ snd (flast {m = m}) = <ᵗsucm {m = m}
 fzero : {m : ℕ} → Fin (suc m)
 fzero = 0 , tt
 
+fone : ∀ {m} → Fin (suc (suc m))
+fone {m} = suc zero , tt
+
 -- Sums
 sumFinGen : ∀ {ℓ} {A : Type ℓ} {n : ℕ}
   (_+_ : A → A → A) (0A : A) (f : Fin n → A) → A

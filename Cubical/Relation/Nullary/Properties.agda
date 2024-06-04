@@ -17,6 +17,7 @@ open import Cubical.Functions.Fixpoint
 
 open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Sigma.Base using (_×_)
+open import Cubical.Data.Sum.Base
 
 open import Cubical.Relation.Nullary.Base
 open import Cubical.HITs.PropositionalTruncation.Base
@@ -201,3 +202,9 @@ Discrete→Separated d x y = Dec→Stable (d x y)
 
 Discrete→isSet : Discrete A → isSet A
 Discrete→isSet = Separated→isSet ∘ Discrete→Separated
+
+-- Decidable images
+hasDecidableImage : ∀ {ℓ'} {A : Type ℓ} {B : Type ℓ'}
+  (f : A → B) → Type (ℓ-max ℓ ℓ')
+hasDecidableImage {A = A} {B = B} f =
+  (y : B) → (Σ[ x ∈ A ] f x ≡ y) ⊎ ((x : A) → ¬ f x ≡ y)

@@ -11,7 +11,6 @@ This file contains:
 
 - Homotopy natural equivalences of pushout spans
   (unpacked and avoiding transports)
-
 -}
 
 {-# OPTIONS --safe #-}
@@ -39,6 +38,7 @@ open import Cubical.Data.Empty as ⊥
 open import Cubical.Data.List
 
 open import Cubical.HITs.Pushout.Base
+open import Cubical.HITs.Susp.Base
 
 private
   variable
@@ -625,7 +625,6 @@ module _ {C : Type ℓ} {B : Type ℓ'} where
   Iso.rightInv (PushoutAlongEquiv e f) x = refl
   Iso.leftInv (PushoutAlongEquiv e f) = PushoutAlongEquiv→Cancel e f
 
-
 module PushoutDistr {ℓ ℓ' ℓ'' ℓ''' : Level}
   {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''} {D : Type ℓ'''}
   (f : B → A) (g : C → B) (h : C → D) where
@@ -672,19 +671,113 @@ rightInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C {f = f} {g = g}) (push a i) j 
          (¬A a) j i
 leftInv (PushoutEmptyFam {A = A} {B = B} ¬A ¬C) x = refl
 
-
-module _ {ℓA ℓB ℓC ℓD : Level}
-  {A : Type ℓA} {B : Type ℓB}
-  {C : Type ℓC} {D : Type ℓD}
-  (f : A → B) (g : A → C)
-  (inl*  : B → D)
-  (inr* : C → D)
-  (com : inl* ∘ f ≡ inr* ∘ g)
+PushoutCompEquivIso : ∀ {ℓA ℓA' ℓB ℓB' ℓC}
+  {A : Type ℓA} {A' : Type ℓA'} {B : Type ℓB} {B' : Type ℓB'}
+  {C : Type ℓC}
+  (e1 : A ≃ A') (e2 : B' ≃ B)
+  (f : A' → B') (g : A → C)
+  → Iso (Pushout (fst e2 ∘ f ∘ fst e1) g) (Pushout f (g ∘ invEq e1))
+PushoutCompEquivIso {ℓA = ℓA} {ℓA'} {ℓB} {ℓB'} {ℓC} e1 e2 f g =
+  compIso (pushoutIso _ _ _ _ LiftEquiv LiftEquiv LiftEquiv refl refl)
+    (compIso (PushoutCompEquivIso' {ℓ = ℓ*} {ℓ*} {ℓ*}
+      (liftEq ℓ* e1) (liftEq ℓ* e2) (liftFun f) (liftFun g))
+      (invIso (pushoutIso _ _ _ _
+               LiftEquiv LiftEquiv (LiftEquiv {ℓ' = ℓ*}) refl refl)))
   where
-  Pushout→AbstractPushout : Pushout f g → D
-  Pushout→AbstractPushout (inl x) = inl* x
-  Pushout→AbstractPushout (inr x) = inr* x
-  Pushout→AbstractPushout (push a i) = com i a
+  ℓ* = ℓ-maxList (ℓA ∷ ℓA' ∷ ℓB ∷ ℓB' ∷ ℓC ∷ [])
+
+  liftEq : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (ℓ* : Level)
+    → A ≃ B → Lift {j = ℓ*} A ≃ Lift {j = ℓ*} B
+  liftEq ℓ* e = compEquiv (invEquiv LiftEquiv) (compEquiv e LiftEquiv)
+
+  PushoutCompEquivIso' : ∀ {ℓ ℓ' ℓ''} {A A' : Type ℓ} {B B' : Type ℓ'} {C : Type ℓ''}
+    (e1 : A ≃ A') (e2 : B' ≃ B)
+    (f : A' → B') (g : A → C)
+    → Iso (Pushout (fst e2 ∘ f ∘ fst e1) g) (Pushout f (g ∘ invEq e1))
+  PushoutCompEquivIso' {A = A} {A' = A'} {B} {B'} {C} =
+    EquivJ (λ A e1 → (e2 : B' ≃ B) (f : A' → B') (g : A → C)
+                   →  Iso (Pushout (fst e2 ∘ f ∘ fst e1) g)
+                           (Pushout f (g ∘ invEq e1)))
+     (EquivJ (λ B' e2 → (f : A' → B') (g : A' → C)
+                   →  Iso (Pushout (fst e2 ∘ f) g)
+                           (Pushout f g))
+       λ f g → idIso)
+
+-- Computation of cofibre of the quotient map B → B/A
+module _ {A : Pointed ℓ} {B : Pointed ℓ'} (f : A →∙ B) where
+  private
+    open 3x3-span
+    inst : 3x3-span
+    A00 inst = Unit
+    A02 inst = Unit
+    A04 inst = Unit
+    A20 inst = fst A
+    A22 inst = Unit
+    A24 inst = Unit
+    A40 inst = fst B
+    A42 inst = fst B
+    A44 inst = Unit
+    f10 inst = _
+    f12 inst = _
+    f14 inst = _
+    f30 inst = fst f
+    f32 inst = λ _ → pt B
+    f34 inst = _
+    f01 inst = _
+    f21 inst = λ _ → pt A
+    f41 inst = idfun (fst B)
+    f03 inst = _
+    f23 inst = _
+    f43 inst = _
+    H11 inst = (λ _ → refl)
+    H13 inst = λ _ → refl
+    H31 inst = λ _ → sym (snd f)
+    H33 inst = λ _ → refl
+
+    A□0≅cofib-f : Iso (A□0 inst) (cofib (fst f))
+    A□0≅cofib-f = idIso
+
+    A□2≅B : Iso (A□2 inst) (fst B)
+    A□2≅B = PushoutAlongEquiv (idEquiv _) λ _ → pt B
+
+    A□4≅Unit : Iso (A□4 inst) Unit
+    A□4≅Unit = PushoutAlongEquiv (idEquiv _) λ _ → tt
+
+    A0□≅Unit : Iso (A0□ inst) Unit
+    A0□≅Unit = PushoutAlongEquiv (idEquiv _) λ _ → tt
+
+    A2□≅A : Iso (A2□ inst) (fst A)
+    A2□≅A = compIso (equivToIso (invEquiv (symPushout _ _)))
+                    (PushoutAlongEquiv (idEquiv _) λ _ → pt A)
+
+    A4□≅Unit : Iso (A4□ inst) Unit
+    A4□≅Unit = PushoutAlongEquiv (idEquiv _) λ _ → tt
+
+    A□○≅cofibInr : Iso (A□○ inst) (cofib {B = cofib (fst f)} inr)
+    A□○≅cofibInr = compIso (invIso (equivToIso (symPushout _ _)))
+                           (pushoutIso _ _ _ _
+                             (isoToEquiv A□2≅B)
+                             (isoToEquiv A□4≅Unit)
+                             (isoToEquiv A□0≅cofib-f)
+                             refl (funExt λ x
+                               → cong (A□0≅cofib-f .Iso.fun ∘ f□1 inst)
+                                       (sym (Iso.leftInv A□2≅B x))))
+
+    A○□≅ : Iso (A○□ inst) (Susp (typ A))
+    A○□≅ =
+      compIso
+        (pushoutIso _ _ _ _
+          (isoToEquiv A2□≅A)
+          (isoToEquiv A0□≅Unit)
+          (isoToEquiv A4□≅Unit)
+          refl refl)
+        PushoutSuspIsoSusp
+
+  Iso-cofibInr-Susp : Iso (cofib {B = cofib (fst f)} inr)
+                          (Susp (typ A))
+  Iso-cofibInr-Susp =
+    compIso (compIso (invIso A□○≅cofibInr)
+      (3x3-Iso inst)) A○□≅
 
 -- Commutative squares and pushout squares
 module _ {ℓ₀ ℓ₂ ℓ₄ ℓP : Level} where

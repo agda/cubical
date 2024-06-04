@@ -96,6 +96,22 @@ Iso.leftInv sphereBouquetSuspIso₀ (inr (a , y)) i =
   inr (a , Iso.rightInv (IsoSucSphereSusp 0) y i)
 Iso.leftInv sphereBouquetSuspIso₀ (push a i) = refl
 
+SphereBouquet₀Iso : (n : ℕ)
+  → Iso (SphereBouquet zero (Fin n))
+         (Fin (suc n))
+Iso.fun (SphereBouquet₀Iso n) (inl x) = fzero
+Iso.fun (SphereBouquet₀Iso n) (inr ((x , p) , false)) = suc x , p
+Iso.fun (SphereBouquet₀Iso n) (inr ((x , p) , true)) = fzero
+Iso.fun (SphereBouquet₀Iso n) (push a i) = fzero
+Iso.inv (SphereBouquet₀Iso n) (zero , p) = inl tt
+Iso.inv (SphereBouquet₀Iso n) (suc x , p) = inr ((x , p) , false)
+Iso.rightInv (SphereBouquet₀Iso n) (zero , p) = refl
+Iso.rightInv (SphereBouquet₀Iso n) (suc x , p) = refl
+Iso.leftInv (SphereBouquet₀Iso n) (inl x) = refl
+Iso.leftInv (SphereBouquet₀Iso n) (inr (x , false)) = refl
+Iso.leftInv (SphereBouquet₀Iso n) (inr (x , true)) = push x
+Iso.leftInv (SphereBouquet₀Iso n) (push a i) j = push a (i ∧ j)
+
 --a sphere bouquet is the wedge sum of A n-dimensional spheres
 sphereBouquetSuspIso : {A : Type ℓ} {n : ℕ}
   → Iso (Susp (SphereBouquet n A)) (SphereBouquet (suc n) A)
