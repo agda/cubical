@@ -50,7 +50,7 @@ record IsAlgebra (R : Ring ℓ) {A : Type ℓ'}
 
   open IsLeftModule +IsLeftModule public
 
-  isRing : IsRing _ _ _ _ _
+  isRing : IsRing 0a 1a _+_ _·_ (-_)
   isRing = isring (IsLeftModule.+IsAbGroup +IsLeftModule) ·IsMonoid ·DistR+ ·DistL+
   open IsRing isRing public
     hiding (_-_; +Assoc; +IdL; +InvL; +IdR; +InvR; +Comm; ·DistR+; ·DistL+; is-set)
