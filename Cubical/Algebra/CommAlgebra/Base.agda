@@ -58,6 +58,8 @@ record CommAlgebraStr (R : CommRing ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ
   infixl 7 _⋆_
   infixl 6 _+_
 
+unquoteDecl CommAlgebraStrIsoΣ = declareRecordIsoΣ CommAlgebraStrIsoΣ (quote CommAlgebraStr)
+
 CommAlgebra : (R : CommRing ℓ) → ∀ ℓ' → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 CommAlgebra R ℓ' = Σ[ A ∈ Type ℓ' ] CommAlgebraStr R A
 
