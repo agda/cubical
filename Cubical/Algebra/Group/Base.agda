@@ -48,6 +48,8 @@ record GroupStr (G : Type ℓ) : Type ℓ where
 
   open IsGroup isGroup public
 
+unquoteDecl GroupStrIsoΣ = declareRecordIsoΣ GroupStrIsoΣ (quote GroupStr)
+
 Group : ∀ ℓ → Type (ℓ-suc ℓ)
 Group ℓ = TypeWithStr ℓ GroupStr
 
