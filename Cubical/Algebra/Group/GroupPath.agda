@@ -17,6 +17,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Displayed.Base
 open import Cubical.Displayed.Auto
+open import Cubical.Displayed.Properties
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
@@ -184,25 +185,14 @@ uaCompGroupEquiv f g = caracGroup≡ _ _ (
 
 -- J-rule for GroupEquivs
 GroupEquivJ : {G : Group ℓ} (P : (H : Group ℓ) → GroupEquiv G H → Type ℓ')
-            → P G idGroupEquiv
-            → ∀ {H} e → P H e
-GroupEquivJ {G = G} P p {H} e =
-  transport (λ i → P (GroupPath G H .fst e i)
-    (transp (λ j → GroupEquiv G (GroupPath G H .fst e (i ∨ ~ j))) i e))
-      (subst (P G) (sym lem) p)
-  where
-  lem : transport (λ j → GroupEquiv G (GroupPath G H .fst e (~ j))) e
-       ≡ idGroupEquiv
-  lem = Σ≡Prop (λ _ → isPropIsGroupHom _ _)
-       (Σ≡Prop (λ _ → isPropIsEquiv _)
-         (funExt λ x → (λ i → fst (fst (fst e .snd .equiv-proof
-                          (transportRefl (fst (fst e) (transportRefl x i)) i))))
-                         ∙ retEq (fst e) x))
+  → P G idGroupEquiv
+  → ∀ {H} e → P H e
+GroupEquivJ P p e = 𝒮-J-customRefl≅ (∫ 𝒮ᴰ-Group) P p e
 
 GroupEquivJ>_ : {ℓ : Level} {ℓ' : Level} {G : Group ℓ}
    {P : (H : Group ℓ) → GroupEquiv G H → Type ℓ'} →
    P G idGroupEquiv → (H : Group ℓ) (e : GroupEquiv G H) → P H e
-GroupEquivJ>_ {G = G} {P} ids H = GroupEquivJ (λ H e → P H e) ids
+GroupEquivJ>_ {P = P} ids H = GroupEquivJ (λ H e → P H e) ids
 
 isGroupoidGroup : ∀ {ℓ} → isGroupoid (Group ℓ)
 isGroupoidGroup G H =

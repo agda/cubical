@@ -2,9 +2,10 @@
 module Cubical.Displayed.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Univalence using (pathToEquiv; univalence; ua-ungluePath-Equiv)
 
 open import Cubical.Data.Unit
@@ -23,29 +24,33 @@ private
 
 module _ {A : Type ℓA} (𝒮-A : UARel A ℓ≅A) where
   open UARel 𝒮-A
-  𝒮-J : {a : A}
-        (P : (a' : A) → (p : a ≡ a') → Type ℓ)
-        (d : P a refl)
-        {a' : A}
-        (p : a ≅ a')
-        → P a' (≅→≡ p)
-  𝒮-J {a} P d {a'} p
-    = J (λ y q → P y q)
-        d
-        (≅→≡ p)
 
-  𝒮-J-2 : {a : A}
-            (P : (a' : A) → (p : a ≅ a') → Type ℓ)
-            (d : P a (ρ a))
-            {a' : A}
-            (p : a ≅ a')
-            → P a' p
-  𝒮-J-2 {a = a} P d {a'} p
-    = subst (λ r → P a' r) (Iso.leftInv (uaIso a a') p) g
-    where
-      g : P a' (≡→≅ (≅→≡ p))
-      g = 𝒮-J (λ y q → P y (≡→≅ q)) d p
+  -- Contractibility of ≅-singletons
 
+  𝒮-isContrSingl : (a : A) → isContr (Σ[ a' ∈ A ] (a ≅ a'))
+  𝒮-isContrSingl a =
+    isOfHLevelRetractFromIso 0
+      (Σ-cong-iso-snd λ _ → uaIso _ _)
+      (isContrSingl a)
+
+  -- Sometimes we have a hard-coded a ≅ a we want to use as the reflexivity
+
+  𝒮-J-customRefl≅ : {a : A} {myRefl : a ≅ a}
+    (P : (a' : A) → (p : a ≅ a') → Type ℓ)
+    (d : P a myRefl)
+    {a' : A}
+    (p : a ≅ a')
+    → P a' p
+  𝒮-J-customRefl≅ P d p =
+    subst (uncurry P) (isContr→isProp (𝒮-isContrSingl _) _ _) d
+
+  𝒮-J-≅ : {a : A}
+    (P : (a' : A) → (p : a ≅ a') → Type ℓ)
+    (d : P a (ρ a))
+    {a' : A}
+    (p : a ≅ a')
+     → P a' p
+  𝒮-J-≅ = 𝒮-J-customRefl≅
 
 -- constructors
 
@@ -61,7 +66,7 @@ module _ {A : Type ℓA} {𝒮-A : UARel A ℓ≅A}
       𝒮ᴰ-make-aux : (uni : {a : A} (b b' : B a) → b ≅ᴰ⟨ ρ a ⟩ b' ≃ (b ≡ b'))
                     → ({a a' : A} (b : B a) (p : a ≅ a') (b' : B a') → (b ≅ᴰ⟨ p ⟩ b') ≃ PathP (λ i → B (≅→≡ p i)) b b')
       𝒮ᴰ-make-aux uni {a} {a'} b p
-        = 𝒮-J-2 𝒮-A
+        = 𝒮-J-≅ 𝒮-A
                     (λ y q → (b' : B y) → (b ≅ᴰ⟨ q ⟩ b') ≃ PathP (λ i → B (≅→≡ q i)) b b')
                     (λ b' → uni' b')
                     p
