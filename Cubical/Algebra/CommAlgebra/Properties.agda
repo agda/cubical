@@ -14,6 +14,8 @@ open import Cubical.Foundations.SIP
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
 
+open import Cubical.Functions.Embedding
+
 open import Cubical.Data.Sigma
 
 open import Cubical.Reflection.StrictEquiv
@@ -221,69 +223,37 @@ module CommAlgebraHoms {R : CommRing ℓ} where
   compAssocCommAlgebraHom = compAssocAlgebraHom
 
 module CommAlgebraEquivs {R : CommRing ℓ} where
- open AlgebraEquivs
+  open AlgebraEquivs
 
- compCommAlgebraEquiv : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
-                   → CommAlgebraEquiv A B → CommAlgebraEquiv B C → CommAlgebraEquiv A C
- compCommAlgebraEquiv {A = A} {B = B} {C = C} = compAlgebraEquiv {A = CommAlgebra→Algebra A}
-                                                           {B = CommAlgebra→Algebra B}
-                                                           {C = CommAlgebra→Algebra C}
+  compCommAlgebraEquiv : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
+                    → CommAlgebraEquiv A B → CommAlgebraEquiv B C → CommAlgebraEquiv A C
+  compCommAlgebraEquiv {A = A} {B = B} {C = C} = compAlgebraEquiv {A = CommAlgebra→Algebra A}
+                                                            {B = CommAlgebra→Algebra B}
+                                                            {C = CommAlgebra→Algebra C}
 
+
+  isSetCommAlgStr : (A : Type ℓ') → isSet (CommAlgebraStr R A)
+  isSetCommAlgStr A =
+    let open CommAlgebraStr
+    in isOfHLevelSucIfInhabited→isOfHLevelSuc 1 (λ str →
+       isOfHLevelRetractFromIso 2 CommAlgebraStrIsoΣ $
+       isSetΣ (str .is-set) λ _ →
+       isSetΣ (str .is-set) (λ _ →
+       isSetΣ (isSet→ (isSet→ (str .is-set))) λ _ →
+       isSetΣ (isSet→ (isSet→ (str .is-set))) (λ _ →
+       isSetΣ (isSet→ (str .is-set)) λ _ →
+       isSetΣSndProp (isSet→ (isSet→ (str .is-set))) (λ _ →
+       isPropIsCommAlgebra R _ _ _ _ _ _))))
 
 -- the CommAlgebra version of uaCompEquiv
 module CommAlgebraUAFunctoriality {R : CommRing ℓ} where
  open CommAlgebraStr
  open CommAlgebraEquivs
-{-
- CommAlgebra≡ : (A B : CommAlgebra R ℓ') → (
-   Σ[ p ∈ ⟨ A ⟩ ≡ ⟨ B ⟩ ]
-   Σ[ q0 ∈ PathP (λ i → p i) (0a (snd A)) (0a (snd B)) ]
-   Σ[ q1 ∈ PathP (λ i → p i) (1a (snd A)) (1a (snd B)) ]
-   Σ[ r+ ∈ PathP (λ i → p i → p i → p i) (_+_ (snd A)) (_+_ (snd B)) ]
-   Σ[ r· ∈ PathP (λ i → p i → p i → p i) (_·_ (snd A)) (_·_ (snd B)) ]
-   Σ[ s- ∈ PathP (λ i → p i → p i) (-_ (snd A)) (-_ (snd B)) ]
-   Σ[ s⋆ ∈ PathP (λ i → ⟨ R ⟩ → p i → p i) (_⋆_ (snd A)) (_⋆_ (snd B)) ]
-   PathP (λ i → IsCommAlgebra R (q0 i) (q1 i) (r+ i) (r· i) (s- i) (s⋆ i)) (isCommAlgebra (snd A))
-                                                                           (isCommAlgebra (snd B)))
-   ≃ (A ≡ B)
- CommAlgebra≡ A B = isoToEquiv theIso
-   where -- commalgebrastr (q0 i) (q1 i) (r+ i) (r· i) (s- i) (s⋆ i) (t i)
-   open Iso
-   theIso : Iso _ _
-   fst (fun theIso (p , q0 , q1 , r+ , r· , s- , s⋆ , t) i) = p i
-   snd (fun theIso (p , q0 , q1 , r+ , r· , s- , s⋆ , t) i) = Astr
-     where
-       Astr : CommAlgebraStr R (p i)
-       0a Astr = ?
-       1a Astr = ?
-       _+_ Astr = ?
-       _·_ Astr = ?
-       - Astr = ?
-       _⋆_ Astr = ?
-       isCommAlgebra Astr = ?
-   inv theIso x = cong ⟨_⟩ x , cong (0a ∘ snd) x , cong (1a ∘ snd) x
-                , cong (_+_ ∘ snd) x , cong (_·_ ∘ snd) x , cong (-_ ∘ snd) x , cong (_⋆_ ∘ snd) x
-                , cong (isCommAlgebra ∘ snd) x
-   rightInv theIso _ = ?
-   leftInv theIso _ = ?
 
  caracCommAlgebra≡ : {A B : CommAlgebra R ℓ'} (p q : A ≡ B) → cong ⟨_⟩ p ≡ cong ⟨_⟩ q → p ≡ q
- caracCommAlgebra≡ {A = A} {B = B} p q P =
-   sym (transportTransport⁻ (ua (CommAlgebra≡ A B)) p)
-                                    ∙∙ cong (transport (ua (CommAlgebra≡ A B))) helper
-                                    ∙∙ transportTransport⁻ (ua (CommAlgebra≡ A B)) q
-     where
-     helper : transport (sym (ua (CommAlgebra≡ A B))) p ≡ transport (sym (ua (CommAlgebra≡ A B))) q
-     helper = Σ≡Prop
-                (λ _ → isPropΣ
-                          (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ λ _ → is-set (snd B)) _ _)
-                          λ _ → isPropΣ (isOfHLevelPathP' 1 (isSetΠ2 λ _ _ → is-set (snd B)) _ _)
-                          λ _ → isOfHLevelPathP 1 (isPropIsCommAlgebra _ _ _ _ _ _ _) _ _)
-               (transportRefl (cong ⟨_⟩ p) ∙ P ∙ sym (transportRefl (cong ⟨_⟩ q)))
+ caracCommAlgebra≡  _ _ α =
+   isEmbedding→Inj (iso→isEmbedding (invIso ΣPathIsoPathΣ)) _ _ $
+   Σ≡Prop (λ _ → isOfHLevelPathP' 1 (isSetCommAlgStr _) _ _) α
 
  uaCompCommAlgebraEquiv : {A B C : CommAlgebra R ℓ'} (f : CommAlgebraEquiv A B) (g : CommAlgebraEquiv B C)
                   → uaCommAlgebra (compCommAlgebraEquiv f g) ≡ uaCommAlgebra f ∙ uaCommAlgebra g
@@ -306,7 +276,6 @@ recPT→CommAlgebra 𝓕 σ compCoh = GpdElim.rec→Gpd isGroupoidCommAlgebra �
   (3-ConstantCompChar 𝓕 (λ x y → uaCommAlgebra (σ x y))
                           λ x y z → sym (  cong uaCommAlgebra (compCoh x y z)
                                          ∙ uaCompCommAlgebraEquiv (σ x y) (σ y z)))
--}
 
 open CommAlgebraHoms
 
