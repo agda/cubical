@@ -14,6 +14,11 @@ open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Sigma
 
+open import Cubical.Displayed.Base
+open import Cubical.Displayed.Auto
+open import Cubical.Displayed.Record
+open import Cubical.Displayed.Universe
+
 open import Cubical.Algebra.Ring.Base
 open import Cubical.Algebra.Algebra.Base
 open import Cubical.Algebra.Algebra.Properties
@@ -24,6 +29,34 @@ private
     R : Ring ℓ
     A B C D : Algebra R ℓ
 
+open IsAlgebraHom
+
+𝒮ᴰ-Algebra : (R : Ring ℓ) → DUARel (𝒮-Univ ℓ') (AlgebraStr R) (ℓ-max ℓ ℓ')
+𝒮ᴰ-Algebra R =
+  𝒮ᴰ-Record (𝒮-Univ _) (IsAlgebraEquiv {R = R})
+    (fields:
+      data[ 0a ∣ nul ∣ pres0 ]
+      data[ 1a ∣ nul ∣ pres1 ]
+      data[ _+_ ∣ bin ∣ pres+ ]
+      data[ _·_ ∣ bin ∣ pres· ]
+      data[ -_ ∣ autoDUARel _ _ ∣ pres- ]
+      data[ _⋆_ ∣ autoDUARel _ _ ∣ pres⋆ ]
+      prop[ isAlgebra ∣ (λ _ _ → isPropIsAlgebra _ _ _ _ _ _ _) ])
+  where
+  open AlgebraStr
+
+  -- faster with some sharing
+  nul = autoDUARel (𝒮-Univ _) (λ A → A)
+  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
+
+AlgebraPath : (A B : Algebra R ℓ') → (AlgebraEquiv A B) ≃ (A ≡ B)
+AlgebraPath {R = R} = ∫ (𝒮ᴰ-Algebra R) .UARel.ua
+
+uaAlgebra : AlgebraEquiv A B → A ≡ B
+uaAlgebra {A = A} {B = B} = equivFun (AlgebraPath A B)
+
+isGroupoidAlgebra : isGroupoid (Algebra R ℓ')
+isGroupoidAlgebra _ _ = isOfHLevelRespectEquiv 2 (AlgebraPath _ _) (isSetAlgebraEquiv _ _)
 
 -- the Algebra version of uaCompEquiv
 module AlgebraUAFunctoriality where
