@@ -36,8 +36,6 @@ record IsAlgebra (R : Ring ℓ) {A : Type ℓ'}
                  (0a 1a : A) (_+_ _·_ : A → A → A) (-_ : A → A)
                  (_⋆_ : ⟨ R ⟩ → A → A) : Type (ℓ-max ℓ ℓ') where
 
-  constructor isalgebra
-
   open RingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
 
   field
@@ -71,6 +69,8 @@ record AlgebraStr (R : Ring ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
     isAlgebra      : IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
   open IsAlgebra isAlgebra public
+
+unquoteDecl AlgebraStrIsoΣ = declareRecordIsoΣ AlgebraStrIsoΣ (quote AlgebraStr)
 
 Algebra : (R : Ring ℓ) → ∀ ℓ' → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 Algebra R ℓ' = Σ[ A ∈ Type ℓ' ] AlgebraStr R A
