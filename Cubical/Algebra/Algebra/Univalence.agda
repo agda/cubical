@@ -41,7 +41,15 @@ open IsAlgebraHom
       data[ _·_ ∣ bin ∣ pres· ]
       data[ -_ ∣ autoDUARel _ _ ∣ pres- ]
       data[ _⋆_ ∣ autoDUARel _ _ ∣ pres⋆ ]
-      prop[ isAlgebra ∣ (λ _ _ → isPropIsAlgebra _ _ _ _ _ _ _) ])
+      prop[ isAlgebra ∣ (λ A ΣA →
+                          isPropIsAlgebra
+                            R
+                            (snd (fst (fst (fst (fst (fst ΣA))))))
+                            (snd (fst (fst (fst (fst ΣA)))))
+                            (snd (fst (fst (fst ΣA))))
+                            (snd (fst (fst ΣA)))
+                            (snd (fst ΣA))
+                            (snd ΣA))  ])
   where
   open AlgebraStr
 
