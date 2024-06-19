@@ -31,7 +31,8 @@ module _ (S : Subalgebra) where
                                 }
 
   Subalgebra→CommAlgebraHom : CommAlgebraHom Subalgebra→CommAlgebra A
-  Subalgebra→CommAlgebraHom = Subalgebra→AlgebraHom S
+  fst Subalgebra→CommAlgebraHom = Subalgebra→AlgebraHom S .fst
+  snd Subalgebra→CommAlgebraHom = record { IsAlgebraHom (Subalgebra→AlgebraHom S .snd) }
 
   SubalgebraHom : (B : CommAlgebra R ℓ') (f : CommAlgebraHom B A)
                 → ((b : ⟨ B ⟩) → fst f b ∈ fst S)
