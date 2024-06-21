@@ -30,11 +30,11 @@ private
 
 choice≃Fin :
   {n : ℕ}(Y : Fin n → Type ℓ) → ((x : Fin n) → ∥ Y x ∥₁) ≃ ∥ ((x : Fin n) → Y x) ∥₁
-choice≃Fin {n = 0} Y =
+choice≃Fin {ℓ} {n = 0} Y =
     isContr→≃Unit (isContrΠ⊥)
   ⋆ Unit≃Unit*
   ⋆ invEquiv (propTruncIdempotent≃ isPropUnit*)
-  ⋆ propTrunc≃ (invEquiv (isContr→≃Unit* (isContrΠ⊥ {A = Y})))
+  ⋆ propTrunc≃ (invEquiv (isContr→≃Unit* {ℓ' = ℓ} (isContrΠ⊥ {A = Y})))
 choice≃Fin {n = suc n} Y =
     Π⊎≃
   ⋆ Σ-cong-equiv-fst (ΠUnit (λ x → ∥ Y (inl x) ∥₁))
