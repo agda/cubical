@@ -65,7 +65,7 @@ isFinSet→Discrete : isFinSet A → Discrete A
 isFinSet→Discrete h = Prop.rec isPropDiscrete (λ p → EquivPresDiscrete (invEquiv p) discreteFin) (h .snd)
 
 isContr→isFinSet : isContr A → isFinSet A
-isContr→isFinSet h = 1 , ∣ isContr→≃Unit* h ⋆ invEquiv Unit≃Unit* ⋆ invEquiv Fin1≃Unit ∣₁
+isContr→isFinSet h = 1 , ∣ isContr→≃Unit h ⋆ invEquiv Fin1≃Unit ∣₁
 
 isDecProp→isFinSet : isProp A → Dec A → isFinSet A
 isDecProp→isFinSet h (yes p) = isContr→isFinSet (inhProp→isContr p h)
