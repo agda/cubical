@@ -35,12 +35,12 @@ check-everythings:
 
 .PHONY : gen-everythings
 gen-everythings:
-	$(EVERYTHINGS) gen-except Codata
+	$(EVERYTHINGS) gen-except
 
 .PHONY : gen-and-check-everythings
 gen-and-check-everythings:
-	$(EVERYTHINGS) gen-except Codata
-	$(EVERYTHINGS) check Codata
+	$(EVERYTHINGS) gen-except
+	$(EVERYTHINGS) check
 
 .PHONY : check-README
 check-README:
