@@ -4,6 +4,8 @@
 
 -}
 
+{-# OPTIONS --safe #-}
+
 module Cubical.Data.Containers.Algebras where
 
 open import Cubical.Data.W.W

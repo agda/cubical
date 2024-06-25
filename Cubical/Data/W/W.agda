@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-}
+
 module Cubical.Data.W.W where
 
 open import Cubical.Foundations.Prelude

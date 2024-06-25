@@ -5,7 +5,7 @@ by Abbott, Altenkirch, Ghani
 
 -}
 
-{-# OPTIONS --guardedness #-}
+{-# OPTIONS --safe --guardedness #-}
 
 open import Cubical.Codata.M.MRecord
 open import Cubical.Data.Sigma
