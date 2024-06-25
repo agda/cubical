@@ -4,36 +4,32 @@
 
 -}
 
-{-# OPTIONS --safe #-}
+module Cubical.Data.Containers.Algebras where
 
 open import Cubical.Data.W.W
-open import Cubical.Codata.M.MRecord renaming (M' to M)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 
-module Cubical.Data.Containers.Algebras where
+private
+  variable
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
-module Algs (Ind : Type)
-            (S : Type)
-            (P : Ind → S → Type)
-            (Q : S → Type)
-            (X : Ind → Type)
-            (Y : Type) where
+module Algs (S : Type ℓ)
+            (Q : S → Type ℓ') where
 
-  open M
   open Iso
 
   -- Fixed point algebras
-  record ContFuncIso (S : Type) (P : S → Type) : Type₁ where
+  record ContFuncIso : Type (ℓ-max (ℓ-suc ℓ'') (ℓ-max ℓ ℓ')) where
     constructor iso
     field
-      carrier : Type
-      χ : Iso (Σ[ s ∈ S ] (P s → carrier)) carrier
+      carrier : Type ℓ''
+      χ : Iso (Σ[ s ∈ S ] (Q s → carrier)) carrier
 
   open ContFuncIso
 
-  WAlg : ContFuncIso S Q
+  WAlg : ContFuncIso
   WAlg = iso (W S Q) isom
     where
       isom : Iso (Σ[ s ∈ S ] (Q s → W S Q)) (W S Q)
@@ -42,17 +38,8 @@ module Algs (Ind : Type)
       rightInv isom (sup-W s f) = refl
       leftInv isom (s , f) = refl
 
-  MAlg : ContFuncIso S Q
-  MAlg = iso (M S Q) isom
-    where
-      isom : Iso (Σ[ s ∈ S ] (Q s → M S Q)) (M S Q)
-      fun isom = uncurry sup-M
-      inv isom m = shape m , pos m
-      rightInv isom m = ηEqM' m
-      leftInv isom (s , f) = refl
-
-  data Pos (FP : ContFuncIso S Q) (i : Ind) : carrier FP → Type where
-    here : {wm : carrier FP} → P i (fst (FP .χ .inv wm)) → Pos FP i wm
+  data Pos {Ind : Type ℓ'''} (P : Ind → S → Type ℓ'') (FP : ContFuncIso {ℓ}) (i : Ind) :
+           carrier FP → Type (ℓ-max (ℓ-suc ℓ) (ℓ-max ℓ'' ℓ')) where
+    here : {wm : carrier FP} → P i (fst (FP .χ .inv wm)) → Pos P FP i wm
     below : {wm : carrier FP} → (q : Q (fst (FP .χ .inv wm))) →
-            Pos FP i (snd (FP .χ .inv wm) q) → Pos FP i wm
-
+            Pos P FP i (snd (FP .χ .inv wm) q) → Pos P FP i wm
