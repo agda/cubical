@@ -6,6 +6,9 @@ import Cubical.Codata.Conat.Bounded
 import Cubical.Codata.M.Coalg
 import Cubical.Codata.M.Coalg.Base
 import Cubical.Codata.M.Container
+import Cubical.Codata.Containers.Coalgebras
+import Cubical.Codata.Containers.CoinductiveContainers
+import Cubical.Codata.M.MRecord
 import Cubical.Codata.M.M
 import Cubical.Codata.M.M.Base
 import Cubical.Codata.M.M.Properties
