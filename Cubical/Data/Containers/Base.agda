@@ -10,6 +10,8 @@
 
 -}
 
+{-# OPTIONS --safe #-}
+
 module Cubical.Data.Containers.Base where
 
 open import Cubical.Categories.Category.Base

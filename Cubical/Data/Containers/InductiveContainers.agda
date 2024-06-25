@@ -5,6 +5,8 @@ by Abbott, Altenkirch, Ghani
 
 -}
 
+{-# OPTIONS --safe #-}
+
 open import Cubical.Data.W.W
 open import Cubical.Data.Containers.Algebras
 open import Cubical.Data.Sigma
