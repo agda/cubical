@@ -10,11 +10,6 @@ open import Cubical.Foundations.SIP
 
 open import Cubical.Data.Sigma
 
-open import Cubical.Displayed.Base
-open import Cubical.Displayed.Auto
-open import Cubical.Displayed.Record
-open import Cubical.Displayed.Universe
-
 open import Cubical.Reflection.RecordEquiv
 
 open import Cubical.Algebra.Monoid
@@ -36,7 +31,7 @@ record IsAlgebra (R : Ring ℓ) {A : Type ℓ'}
                  (0a 1a : A) (_+_ _·_ : A → A → A) (-_ : A → A)
                  (_⋆_ : ⟨ R ⟩ → A → A) : Type (ℓ-max ℓ ℓ') where
 
-  constructor isalgebra
+  no-eta-equality
 
   open RingStr (snd R) using (1r) renaming (_+_ to _+r_; _·_ to _·r_)
 
@@ -59,7 +54,7 @@ unquoteDecl IsAlgebraIsoΣ = declareRecordIsoΣ IsAlgebraIsoΣ (quote IsAlgebra)
 
 record AlgebraStr (R : Ring ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
 
-  constructor algebrastr
+  no-eta-equality
 
   field
     0a             : A
@@ -71,6 +66,8 @@ record AlgebraStr (R : Ring ℓ) (A : Type ℓ') : Type (ℓ-max ℓ ℓ') where
     isAlgebra      : IsAlgebra R 0a 1a _+_ _·_ -_ _⋆_
 
   open IsAlgebra isAlgebra public
+
+unquoteDecl AlgebraStrIsoΣ = declareRecordIsoΣ AlgebraStrIsoΣ (quote AlgebraStr)
 
 Algebra : (R : Ring ℓ) → ∀ ℓ' → Type (ℓ-max ℓ (ℓ-suc ℓ'))
 Algebra R ℓ' = Σ[ A ∈ Type ℓ' ] AlgebraStr R A
@@ -208,13 +205,15 @@ isPropIsAlgebra R _ _ _ _ _ _ = let open IsLeftModule in
 isPropIsAlgebraHom : (R : Ring ℓ) {A : Type ℓ'} {B : Type ℓ''}
                      (AS : AlgebraStr R A) (f : A → B) (BS : AlgebraStr R B)
                    → isProp (IsAlgebraHom AS f BS)
-isPropIsAlgebraHom R AS f BS = isOfHLevelRetractFromIso 1 IsAlgebraHomIsoΣ
-                               (isProp×5 (is-set _ _)
-                                         (is-set _ _)
-                                         (isPropΠ2 λ _ _ → is-set _ _)
-                                         (isPropΠ2 λ _ _ → is-set _ _)
-                                         (isPropΠ λ _ → is-set _ _)
-                                         (isPropΠ2 λ _ _ → is-set _ _))
+isPropIsAlgebraHom R AS f BS =
+  isOfHLevelRetractFromIso 1
+    IsAlgebraHomIsoΣ
+    (isProp×5 (is-set _ _)
+              (is-set _ _)
+              (isPropΠ2 λ _ _ → is-set _ _)
+              (isPropΠ2 λ _ _ → is-set _ _)
+              (isPropΠ λ _ → is-set _ _)
+              (isPropΠ2 λ _ _ → is-set _ _))
   where
   open AlgebraStr BS
 
@@ -236,33 +235,6 @@ isSetAlgebraEquiv M N = isSetΣ (isOfHLevel≃ 2 M.is-set N.is-set)
 
 AlgebraHom≡ : {φ ψ : AlgebraHom A B} → fst φ ≡ fst ψ → φ ≡ ψ
 AlgebraHom≡ = Σ≡Prop λ f → isPropIsAlgebraHom _ _ f _
-
-𝒮ᴰ-Algebra : (R : Ring ℓ) → DUARel (𝒮-Univ ℓ') (AlgebraStr R) (ℓ-max ℓ ℓ')
-𝒮ᴰ-Algebra R =
-  𝒮ᴰ-Record (𝒮-Univ _) (IsAlgebraEquiv {R = R})
-    (fields:
-      data[ 0a ∣ nul ∣ pres0 ]
-      data[ 1a ∣ nul ∣ pres1 ]
-      data[ _+_ ∣ bin ∣ pres+ ]
-      data[ _·_ ∣ bin ∣ pres· ]
-      data[ -_ ∣ autoDUARel _ _ ∣ pres- ]
-      data[ _⋆_ ∣ autoDUARel _ _ ∣ pres⋆ ]
-      prop[ isAlgebra ∣ (λ _ _ → isPropIsAlgebra _ _ _ _ _ _ _) ])
-  where
-  open AlgebraStr
-
-  -- faster with some sharing
-  nul = autoDUARel (𝒮-Univ _) (λ A → A)
-  bin = autoDUARel (𝒮-Univ _) (λ A → A → A → A)
-
-AlgebraPath : (A B : Algebra R ℓ') → (AlgebraEquiv A B) ≃ (A ≡ B)
-AlgebraPath {R = R} = ∫ (𝒮ᴰ-Algebra R) .UARel.ua
-
-uaAlgebra : AlgebraEquiv A B → A ≡ B
-uaAlgebra {A = A} {B = B} = equivFun (AlgebraPath A B)
-
-isGroupoidAlgebra : isGroupoid (Algebra R ℓ')
-isGroupoidAlgebra _ _ = isOfHLevelRespectEquiv 2 (AlgebraPath _ _) (isSetAlgebraEquiv _ _)
 
 -- Smart constructor for algebra homomorphisms
 -- that infers the other equations from pres1, pres+, pres·, and pres⋆
