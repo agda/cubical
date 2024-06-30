@@ -7,6 +7,7 @@ module Cubical.CW.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Pointed
 
 open import Cubical.Data.Nat renaming (_+_ to _+ℕ_)
 open import Cubical.Data.Nat.Order
@@ -102,6 +103,9 @@ isFinCW {ℓ = ℓ} X =
 finCW : (ℓ : Level) → Type (ℓ-suc ℓ)
 finCW ℓ = Σ[ A ∈ Type ℓ ] ∥ isFinCW A ∥₁
 
+finCW∙ : (ℓ : Level) → Type (ℓ-suc ℓ)
+finCW∙ ℓ = Σ[ A ∈ Pointed ℓ ] ∥ isFinCW (fst A) ∥₁
+
 finCWexplicit : (ℓ : Level) → Type (ℓ-suc ℓ)
 finCWexplicit ℓ = Σ[ A ∈ Type ℓ ] (isFinCW A)
 
@@ -146,6 +150,10 @@ to_cofibCW n C x = inr x
 -- send the stage n to the realization (the same as incl, but with explicit args and type)
 CW↪∞ : (C : CWskel ℓ) → (n : ℕ) → fst C n → realise C
 CW↪∞ C n x = incl x
+
+CW↪Iterate : ∀ {ℓ} (T : CWskel ℓ) (n m : ℕ) → fst T n → fst T (m +ℕ n)
+CW↪Iterate T n zero = idfun _
+CW↪Iterate T n (suc m) x = CW↪ T (m +ℕ n) (CW↪Iterate T n m x)
 
 finCW↑ : (n m : ℕ) → (m ≥ n) → finCWskel ℓ n → finCWskel ℓ m
 fst (finCW↑ m n p C) = fst C
