@@ -26,15 +26,15 @@ module Algs (S : Type ℓ)
   open Iso
 
   -- Fixed point algebras
-  record ContFuncIso : Type (ℓ-max (ℓ-suc ℓ'') (ℓ-max ℓ ℓ')) where
+  record FixedPoint : Type (ℓ-max (ℓ-suc ℓ'') (ℓ-max ℓ ℓ')) where
     constructor iso
     field
       carrier : Type ℓ''
       χ : Iso (Σ[ s ∈ S ] (Q s → carrier)) carrier
 
-  open ContFuncIso
+  open FixedPoint
 
-  WAlg : ContFuncIso
+  WAlg : FixedPoint
   WAlg = iso (W S Q) isom
     where
       isom : Iso (Σ[ s ∈ S ] (Q s → W S Q)) (W S Q)
@@ -44,7 +44,7 @@ module Algs (S : Type ℓ)
       leftInv isom (s , f) = refl
 
   data Pos {ℓ ℓ'' ℓ'''} {Ind : Type ℓ'''}
-           (P : Ind → S → Type ℓ'') (FP : ContFuncIso {ℓ}) (i : Ind) :
+           (P : Ind → S → Type ℓ'') (FP : FixedPoint {ℓ}) (i : Ind) :
            carrier FP → Type (ℓ-max (ℓ-suc ℓ''') (ℓ-max ℓ'' (ℓ-max ℓ' ℓ))) where
     here : {wm : carrier FP} (r : P i (fst (FP .χ .inv wm))) → Pos P FP i wm
     below : {wm : carrier FP} (q : Q (fst (FP .χ .inv wm)))
@@ -52,16 +52,16 @@ module Algs (S : Type ℓ)
 
   -- Height of an element of pos
   heightPos : ∀ {ℓInd ℓP ℓFP} {Ind : Type ℓInd} {P : Ind → S → Type ℓP}
-      {FP : ContFuncIso {ℓFP}} {i : Ind} {wm : _}
+      {FP : FixedPoint {ℓFP}} {i : Ind} {wm : _}
     → Pos P FP i wm → ℕ
   heightPos (here r) = 0
   heightPos (below q x) = suc (heightPos x)
 
   -- Elimination principle for Pos P FP i (β y)
   -- where β : Y → carrier FP
-  pos-rec-fun : ∀ {ℓY ℓInd ℓW ℓFP} {Y : Type ℓY} {Ind : Type ℓInd}
+  PosIndFun : ∀ {ℓY ℓInd ℓW ℓFP} {Y : Type ℓY} {Ind : Type ℓInd}
     (P : Ind → S → Type ℓ'')
-    (FP : ContFuncIso {ℓFP}) (i : Ind)
+    (FP : FixedPoint {ℓFP}) (i : Ind)
     (β : Y → carrier FP)
     (W : (y : Y) → Pos P FP i (β y) → Type ℓW)
     (βid : (t : Y) (q : Q (fst (FP .χ .inv (β t)))) -- additional assumption: β is nice
@@ -72,20 +72,20 @@ module Algs (S : Type ℓ)
            → W _ (subst (Pos P FP i) (βid t q .snd) e)
            → W t (below q e))
     (t : Y) (e : Pos P FP i (β t)) → W t e
-  pos-rec-fun {Ind} P FP i β W βid non non2 t e =
-    pos-rec-fun-help _ t e refl
+  PosIndFun {Ind} P FP i β W βid non non2 t e =
+    PosIndFunHelp _ t e refl
     where
-    pos-rec-fun-help :
+    PosIndFunHelp :
       (n : ℕ)
       (t : _) (e : Pos P FP i (β t))
       → heightPos e ≡ n
       → W t e
-    pos-rec-fun-help zero t (here r) p = non t r
-    pos-rec-fun-help zero t (below q e) p = ⊥.rec (snotz p)
-    pos-rec-fun-help (suc n) t (here r) p = ⊥.rec (snotz (sym p))
-    pos-rec-fun-help (suc n) t (below q e) p =
+    PosIndFunHelp zero t (here r) p = non t r
+    PosIndFunHelp zero t (below q e) p = ⊥.rec (snotz p)
+    PosIndFunHelp (suc n) t (here r) p = ⊥.rec (snotz (sym p))
+    PosIndFunHelp (suc n) t (below q e) p =
       non2 t q e
-        (pos-rec-fun-help n
+        (PosIndFunHelp n
           _ (subst (Pos P FP i) (βid t q .snd) e)
             (substPresHeight _ _ ∙ cong predℕ p))
       where
@@ -93,11 +93,10 @@ module Algs (S : Type ℓ)
         → heightPos (subst (Pos P FP i) p e)  ≡ heightPos e
       substPresHeight = J> cong heightPos (transportRefl e)
 
-
   -- transport preserves here and below
   module _ {ℓ ℓ'' ℓ''' : Level} {Ind : Type ℓ'''}
            {P : Ind → S → Type ℓ''}
-           {FP : ContFuncIso {ℓ}} (i : Ind) where
+           {FP : FixedPoint {ℓ}} (i : Ind) where
 
      transportPresHere : {a : _} (b : _) (p : a ≡ b) (x : _)
        → subst (Pos P FP i) p (here x)

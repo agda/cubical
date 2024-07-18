@@ -37,11 +37,17 @@ module _ {ℓInd ℓS ℓP ℓQ ℓX ℓY : Level}
   open Algs S Q
   open Coalgs S Q
 
-  open ContFuncIso
+  open FixedPoint
   open Iso
 
+  out : Σ[ m ∈ M S Q ] ((i : Ind) → Pos P MAlg i m → X i) →
+        Σ[ (s , f) ∈ Σ[ s ∈ S ] (Q s → M S Q) ]
+          (((i : Ind) → P i s → X i) ×
+          ((i : Ind) (q : Q s) → Pos P MAlg i (f q) → X i))
+  out (m , k) = (shape m , pos m) , ((λ i p → k i (here p)) , (λ i q p → k i (below q p)))
+
   -- Construction of a generic
-  -- β : Y → Σ[ m ∈ M S Q ] ((i : Ind) → Pos P MAlg i m → X i)
+  -- β̅ : Y → Σ[ m ∈ M S Q ] ((i : Ind) → Pos P MAlg i m → X i)
   module β1 (βs : Y → S)
             (βh : (y : Y) → Q (βs y) → Y) where
 
@@ -57,16 +63,20 @@ module _ {ℓInd ℓS ℓP ℓQ ℓX ℓY : Level}
       β̅ : Y → Σ[ m ∈ M S Q ] ((i : Ind) → Pos P MAlg i m → X i)
       β̅ y = β̅₁ y , β̅₂ y
 
+      -- Diagram commutes
+      β̅Comm : (y : Y) → out (β̅ y) ≡ ((βs y , β̅₁ ∘ (βh y)) , (βg y , λ i q → β̅₂ (βh y q) i))
+      β̅Comm y = refl
+
   -- Characterisation of the equality type of the first projection of
-  -- such a β
+  -- such a β̅
   module makeFirstEq
     (β̃₁ : Y → M S Q)
     (β̃₂ : (y : Y) (ind : Ind) → Pos P MAlg ind (β̃₁ y) → X ind)
     (βs : Y → S)
-    (comm1 : shape ∘ β̃₁ ≡ βs)
+    (comm1 : (λ y → fst (fst (out (β̃₁ y , β̃₂ y)))) ≡ βs) --(comm1 : shape ∘ β̃₁ ≡ βs)
     (βh : (y : Y) → Q (βs y) → Y)
-    (comm2 : (y : Y) → PathP (λ i → Q (comm1 i y) → M S Q)
-                              (pos (β̃₁ y)) (λ q → β̃₁ (βh y q)))
+    (comm2 :  (y : Y) → PathP (λ i → Q (comm1 i y) → M S Q)
+                              (λ q → snd (fst (out (β̃₁ y , β̃₂ y))) q) (λ q → β̃₁ (βh y q)))
     where
     open β1
 
@@ -81,25 +91,24 @@ module _ {ℓInd ℓS ℓP ℓQ ℓX ℓY : Level}
                 (R-intro (βh y q₁))
 
     -- first main result
-    pre-fst-eq : (y : Y) → β̃₁ y ≡ β̅₁ βs βh y
-    pre-fst-eq y = MCoind R isBisimR (R-intro y)
+    preFstEq : (y : Y) → β̃₁ y ≡ β̅₁ βs βh y
+    preFstEq y = MCoind R isBisimR (R-intro y)
 
-    -- Because pre-fst-eq is defined using MCoind, its proof term for
+    -- Because preFstEq is defined using MCoind, its proof term
     -- in the pos case is rather complicated. It _should_ look like this:
-    pre-fst-eq-pos : (y : Y)
-      → PathP (λ i → Q (shape (pre-fst-eq y i)) → M S Q)
+    preFstEq-pos : (y : Y)
+      → PathP (λ i → Q (shape (preFstEq y i)) → M S Q)
                (pos (β̃₁ y)) (λ t → β̅₁ βs βh (βh y t))
-    pre-fst-eq-pos y i q =
+    preFstEq-pos y i q =
       hcomp (λ j → λ { (i = i0) → pos (β̃₁ y) q ;
-                        (i = i1) → pre-fst-eq (βh y q) j })
+                       (i = i1) → preFstEq (βh y q) j })
             (comm2 y i q)
     -- but this definition is not accepted by the termination checker...
 
-
-  -- Fortunately, we can prove that (cong pos ∘ pre-fst-eq) and
-  -- pre-fst-eq-pos are equal up to a path (by J and some technical
+  -- Fortunately, we can prove that (cong pos ∘ preFstEq) and
+  -- preFstEq-pos are equal up to a path (by J and some technical
   -- transport juggling).
-  pre-fst-eq-id : (β̃₁ : Y → M S Q)
+  preFstEqId : (β̃₁ : Y → M S Q)
          (β̃₂ : (y : Y) (ind : Ind) → Pos P MAlg ind (β̃₁ y) → X ind)
          (βs : Y → S)
          (comm1 : shape ∘ β̃₁ ≡ βs)
@@ -107,9 +116,9 @@ module _ {ℓInd ℓS ℓP ℓQ ℓX ℓY : Level}
          (comm2 : (y : Y) → PathP (λ i → Q (comm1 i y) → M S Q)
                                    (pos (β̃₁ y)) (λ q → β̃₁ (βh y q)))
          (y : _)
-    → cong pos (makeFirstEq.pre-fst-eq β̃₁ β̃₂ βs comm1 βh comm2 y)
-     ≡ makeFirstEq.pre-fst-eq-pos β̃₁ β̃₂ βs comm1 βh comm2 y
-  pre-fst-eq-id β̃₁ β̃₂ =
+    → cong pos (makeFirstEq.preFstEq β̃₁ β̃₂ βs comm1 βh comm2 y)
+     ≡ makeFirstEq.preFstEq-pos β̃₁ β̃₂ βs comm1 βh comm2 y
+  preFstEqId β̃₁ β̃₂ =
     J> λ βh comm2 y
      → (λ j i q → MCoind (R βh comm2)
          (isBisimR βh comm2)
@@ -139,60 +148,60 @@ module _ {ℓInd ℓS ℓP ℓQ ℓX ℓY : Level}
     (βs : Y → S)
     (βh : (y : Y) → Q (βs y) → Y)
     (βg : (y : Y) → (i : Ind) → P i (βs y) → X i)
-    (β̃ : Y → Σ[ m ∈ M S Q ] ((i : Ind) → Pos P MAlg i m → X i))
+    (β̃₁ : Y → M S Q)
+    (β̃₂ : (y : Y) (ind : Ind) → Pos P MAlg ind (β̃₁ y) → X ind)
     (βh : (y : Y) → Q (βs y) → Y)
-    (comm1 : (y : _) → shape (fst (β̃ y)) ≡ βs y)
-    (comm2 : (y : Y) →
-          PathP (λ i → Q (comm1 y i) → M S Q)
-               (pos (fst (β̃ y))) (λ q → fst (β̃ (βh y q))))
+    (comm1 : (y : Y) → fst (fst (out (β̃₁ y , β̃₂ y))) ≡ βs y)
+    (comm2 :  (y : Y) → PathP (λ i → Q (comm1 y i) → M S Q)
+                              (λ q → snd (fst (out (β̃₁ y , β̃₂ y))) q) (λ q → β̃₁ (βh y q)))
     (comm3 : (y : Y) → PathP (λ i → (ind : Ind) → P ind (comm1 y i) → X ind)
-                             (λ ind p → snd (β̃ y) ind (here p))
-                              (βg y))
+                             (fst (snd (out (β̃₁ y , β̃₂ y))))
+                             (βg y))
     (comm4 : (y : Y) → PathP (λ i → (ind : Ind) → (q : Q (comm1 y i))
                      → Pos P MAlg ind (comm2 y i q) → X ind)
-                         (λ ind q b → snd (β̃ y) ind (below q b))
-                         (λ ind q b → snd (β̃ (βh y q)) ind b))
+                         (snd (snd (out (β̃₁ y , β̃₂ y))))
+                         (λ ind q b → (β̃₂ (βh y q)) ind b))
    where
    private
-     β̃₁ = fst ∘ β̃
-     β̃₂ = snd ∘ β̃
+     β̃ : Y → Σ[ m ∈ M S Q ] ((i : Ind) → Pos P MAlg i m → X i)
+     β̃ y = β̃₁ y , β̃₂ y
 
      open β1 βs βh
      open β2 βg
      open makeFirstEq β̃₁ β̃₂ βs (funExt comm1) βh comm2
 
-     fst-eq : (y : Y) → β̃₁ y ≡ β̅₁ y
-     fst-eq = pre-fst-eq
+     fstEq : (y : Y) → β̃₁ y ≡ β̅₁ y
+     fstEq = preFstEq
 
-     snd-eq : (y : Y)
-       → PathP (λ i → (ind : Ind) → Pos P MAlg ind (fst-eq y i) → X ind)
-                (β̃₂ y) (β̅₂ y)
-     snd-eq y = funExt λ ind
+     sndEq : (y : Y)
+       → PathP (λ i → (ind : Ind) → Pos P MAlg ind (fstEq y i) → X ind)
+               (β̃₂ y) (β̅₂ y)
+     sndEq y = funExt λ ind
        → toPathP (funExt λ x → transportRefl _
                                ∙ mainlem ind x)
        where
        module _ (ind : Ind) where
-         mainlem-here : (t : Y) (x : P ind _)
-           → β̃₂ t ind (subst (Pos P MAlg ind) (sym (fst-eq t)) (here x))
+         mainlemHere : (t : Y) (x : P ind _)
+           → β̃₂ t ind (subst (Pos P MAlg ind) (sym (fstEq t)) (here x))
             ≡ β̅₂ t ind (here x)
-         mainlem-here y x =
+         mainlemHere y x =
            cong (β̃₂ y ind)
-                (transportPresHere ind _ (sym (fst-eq y)) _)
+                (transportPresHere ind _ (sym (fstEq y)) _)
                 ∙ funExtDep⁻ (funExt⁻ (comm3 y) ind)
             λ j → (transp (λ i → P ind (comm1 y (~ i ∨ j))) j x)
 
-         mainlem-below : (t : Y) (q : Q (βs t))
+         mainlemBelow : (t : Y) (q : Q (βs t))
            (e : Pos P MAlg ind (β̅₁ (βh t q)))
           → β̃₂ (βh t q) ind
-             (subst (Pos P MAlg ind) (sym (fst-eq (βh t q))) (transport refl e))
+             (subst (Pos P MAlg ind) (sym (fstEq (βh t q))) (transport refl e))
            ≡ β̅₂ (βh t q) ind (transport refl e)
-          → β̃₂ t ind (subst (Pos P MAlg ind) (sym (fst-eq t))
+          → β̃₂ t ind (subst (Pos P MAlg ind) (sym (fstEq t))
                        (below q e))
-           ≡ β̅₂ (βh t q) ind e
-         mainlem-below t q e indh =
+            ≡ β̅₂ (βh t q) ind e
+         mainlemBelow t q e indh =
              cong (β̃₂ t ind)
                (transportPresBelow ind _ _ _ e
-               ∙ cong (below (subst (Q ∘ shape) (sym (fst-eq t)) q))
+               ∙ cong (below (subst (Q ∘ shape) (sym (fstEq t)) q))
                    (cong (λ p → subst (Pos P MAlg ind) p e)
                      (λ i j → comm2' i j)
                   ∙ moveTransp))
@@ -202,15 +211,15 @@ module _ {ℓInd ℓS ℓP ℓQ ℓX ℓY : Level}
            comm2' : I → I → M S Q
            comm2' j i =
              hcomp (λ k
-             → λ {(i = i0) → fst-eq (βh t q) i1
+             → λ {(i = i0) → fstEq (βh t q) i1
                  ; (i = i1) → pos-t
                  ; (j = i1) → cpf i1 i
-                ; (j = i0) → pre-fst-eq-id β̃₁ β̃₂ βs (funExt comm1) βh comm2 t
+                ; (j = i0) → preFstEqId β̃₁ β̃₂ βs (funExt comm1) βh comm2 t
                               (~ k) (~ i)
                               (transp (λ i₁ → Q (comm1 t (~ i ∨ ~ i₁)))
                                       (~ i) q)})
               (hcomp (λ k
-                → λ {(i = i0) → fst-eq (βh t q) k
+                → λ {(i = i0) → fstEq (βh t q) k
                    ; (i = i1) → pos-t
                    ; (j = i1) → cpf k i})
                 (comm2 t (~ i)
@@ -220,7 +229,7 @@ module _ {ℓInd ℓS ℓP ℓQ ℓX ℓY : Level}
              where
              pos-t = pos (β̃₁ t) (transport (sym (cong Q (comm1 t))) q)
              cpf = compPath-filler'
-                   (sym (fst-eq (βh t q)))
+                   (sym (fstEq (βh t q)))
                    (sym (funExtDep⁻ (comm2 t)
                          (λ j₁ → transp (λ i₂ → Q (comm1 t (j₁ ∨ ~ i₂)))
                          j₁ q)))
@@ -228,36 +237,36 @@ module _ {ℓInd ℓS ℓP ℓQ ℓX ℓY : Level}
            moveTransp =
              substComposite
               (Pos P MAlg ind)
-              (sym (fst-eq (βh t q)))
+              (sym (fstEq (βh t q)))
               (sym (funExtDep⁻ (comm2 t)
-              (λ j → transp (λ i → Q (shape (fst-eq t (j ∨ ~ i)))) j q))) e
+              (λ j → transp (λ i → Q (shape (fstEq t (j ∨ ~ i)))) j q))) e
 
            comm4' : _ ≡ β̃₂ (βh t q) ind
                       (subst (Pos P MAlg ind)
-                        (sym (fst-eq (βh t q))) e)
+                        (sym (fstEq (βh t q))) e)
            comm4' =
                sym (transportRefl _)
              ∙ funExt⁻ (fromPathP (funExtDep⁻ (funExt⁻ (comm4 t) ind)
-                       λ j → transp (λ i → Q (shape (fst-eq t (j ∨ ~ i)))) j q))
-                      (subst (Pos P MAlg ind) (λ i → fst-eq (βh t q) (~ i)) e)
+                       λ j → transp (λ i → Q (shape (fstEq t (j ∨ ~ i)))) j q))
+                      (subst (Pos P MAlg ind) (λ i → fstEq (βh t q) (~ i)) e)
 
            ind' : β̃₂ (βh t q) ind
-                   (subst (Pos P MAlg ind) (sym (fst-eq (βh t q))) e)
+                   (subst (Pos P MAlg ind) (sym (fstEq (βh t q))) e)
                ≡ β̅₂ (βh t q) ind e
            ind' = cong (β̃₂ (βh t q) ind)
-                    (cong (subst (Pos P MAlg ind) (sym (fst-eq (βh t q))))
+                    (cong (subst (Pos P MAlg ind) (sym (fstEq (βh t q))))
                       (sym (transportRefl e)))
                 ∙∙ indh
                 ∙∙ cong (β̅₂ (βh t q) ind) (transportRefl e)
 
          mainlem : (x : Pos P MAlg ind (β̅₁ y))
-           → β̃₂ y ind  (transport (λ j → Pos P MAlg ind (fst-eq y (~ j))) x)
+           → β̃₂ y ind  (transport (λ j → Pos P MAlg ind (fstEq y (~ j))) x)
             ≡ β̅₂ y ind x
          mainlem =
-           pos-rec-fun P MAlg ind β̅₁ _ (λ t q → (βh t q) , refl)
-                       mainlem-here mainlem-below y
+           PosIndFun P MAlg ind β̅₁ _ (λ t q → (βh t q) , refl)
+                       mainlemHere mainlemBelow y
 
-     -- main result
+     -- β̅ makes the diagram commute uniquely
      β̅Unique : β̃ ≡ β̅
-     fst (β̅Unique i y) = fst-eq y i
-     snd (β̅Unique i y) = snd-eq y i
+     fst (β̅Unique i y) = fstEq y i
+     snd (β̅Unique i y) = sndEq y i
