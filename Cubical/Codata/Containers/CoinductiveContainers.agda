@@ -162,7 +162,6 @@ module _ {ℓInd ℓS ℓP ℓQ ℓX ℓY : Level}
                          (snd (snd (out (β̃₁ y , β̃₂ y))))
                          (λ ind q b → (β̃₂ (βh y q)) ind b))
    where
-   private
      β̃ : Y → Σ[ m ∈ M S Q ] ((i : Ind) → Pos P MAlg i m → X i)
      β̃ y = β̃₁ y , β̃₂ y
 
