@@ -330,7 +330,7 @@ snd (leftInv (Σ-contractFstIso {B = B} c) p j) =
 -- a special case of the above
 module _ (A : Unit → Type ℓ) where
   ΣUnit : Σ Unit A ≃ A tt
-  unquoteDef ΣUnit = defStrictEquiv ΣUnit snd (λ { x → (tt , x) })
+  unquoteDef ΣUnit = defStrictEquiv {B = A tt} ΣUnit snd (tt ,_)
 
 Σ-contractSnd : ((a : A) → isContr (B a)) → Σ A B ≃ A
 Σ-contractSnd c = isoToEquiv isom
