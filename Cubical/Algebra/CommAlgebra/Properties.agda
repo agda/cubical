@@ -58,15 +58,15 @@ _≃CAlg⟨_⟩_ : {B C : CommAlgebra R ℓ}
 A ≃CAlg⟨ f ⟩ g = g ∘≃a f
 
 -- An R-algebra is the same as a CommRing A with a CommRingHom φ : R → A
-module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
+module CommAlgChar (R : CommRing ℓ) where
  open Iso
  open CommRingTheory
 
 
- CommRingWithHom : Type (ℓ-max ℓ (ℓ-suc ℓ'))
- CommRingWithHom = Σ[ A ∈ CommRing ℓ' ] CommRingHom R A
+ CommRingWithHom : (ℓ' : Level) → Type (ℓ-max ℓ (ℓ-suc ℓ'))
+ CommRingWithHom ℓ' = Σ[ A ∈ CommRing ℓ' ] CommRingHom R A
 
- toCommAlg : CommRingWithHom → CommAlgebra R ℓ'
+ toCommAlg : CommRingWithHom ℓ' → CommAlgebra R ℓ'
  toCommAlg (A , φ , φIsHom) =
   commAlgebraFromCommRing
     A
@@ -80,7 +80,7 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
   open CommRingStr (snd A)
   open IsRingHom φIsHom
 
- fromCommAlg : CommAlgebra R ℓ' → CommRingWithHom
+ fromCommAlg : CommAlgebra R ℓ' → CommRingWithHom ℓ'
  fromCommAlg A = (CommAlgebra→CommRing A) , φ , φIsHom
   where
   open CommRingStr (snd R) renaming (_·_ to _·r_) hiding (·IdL)
@@ -93,7 +93,7 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
            λ x y → cong (λ a → (x ·r y) ⋆ a) (sym (·IdL _)) ∙ ⋆Dist· _ _ _ _
 
  -- helpful for localisations
- module _ (Aφ : CommRingWithHom) where
+ module _ (Aφ : CommRingWithHom ℓ') where
    open CommRingStr
    private
      A = fst Aφ
@@ -108,7 +108,26 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
    isCommRing (snd (CommAlgebra→CommRing≡ i)) = isProp→PathP (λ i → isPropIsCommRing _ _ _ _ _ )
               (isCommRing (snd (CommAlgebra→CommRing (toCommAlg Aφ)))) (isCommRing (snd A)) i
 
- CommRingWithHomRoundTrip : (Aφ : CommRingWithHom) → fromCommAlg (toCommAlg Aφ) ≡ Aφ
+   CommAlgebra→CommRingEquiv : CommRingEquiv (CommAlgebra→CommRing (toCommAlg Aφ)) A
+   CommAlgebra→CommRingEquiv =
+     invEquiv (CommRingPath (CommAlgebra→CommRing (toCommAlg Aφ)) A) .fst CommAlgebra→CommRing≡
+
+   opaque
+     CommAlgebra→CommRingIdEquiv : CommAlgebra→CommRingEquiv .fst ≡ (idEquiv (A .fst))
+     CommAlgebra→CommRingIdEquiv = sym step2
+       where step : refl ≡ ua (fst CommAlgebra→CommRingEquiv)
+             step = refl                                                          ≡⟨⟩
+                    cong fst CommAlgebra→CommRing≡                                ≡⟨
+                        cong (cong fst)
+                        (sym (rightInv (equivToIso (CommRingPath _ _)) CommAlgebra→CommRing≡))
+                      ⟩
+                    cong fst ((CommRingPath _ _ .fst) CommAlgebra→CommRingEquiv) ≡⟨⟩
+                    ua (fst CommAlgebra→CommRingEquiv) ∎
+
+             step2 : idEquiv _ ≡ fst CommAlgebra→CommRingEquiv
+             step2 = sym pathToEquivRefl ∙ cong pathToEquiv step ∙ pathToEquiv-ua _
+
+ CommRingWithHomRoundTrip : (Aφ : CommRingWithHom ℓ') → fromCommAlg (toCommAlg Aφ) ≡ Aφ
  CommRingWithHomRoundTrip (A , φ) = ΣPathP (CommAlgebra→CommRing≡ (A , φ) , φPathP)
   where
   open CommRingStr
@@ -134,7 +153,7 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
     (λ i → isPropIsCommAlgebra _ _ _ _ _ _ (CommAlgebraStr._⋆_ (AlgStrPathP i)))
     (CommAlgebraStr.isCommAlgebra (snd (toCommAlg (fromCommAlg A)))) isCommAlgebra i
 
- CommAlgIso : Iso (CommAlgebra R ℓ') CommRingWithHom
+ CommAlgIso : Iso (CommAlgebra R ℓ') (CommRingWithHom ℓ')
  fun CommAlgIso = fromCommAlg
  inv CommAlgIso = toCommAlg
  rightInv CommAlgIso = CommRingWithHomRoundTrip
@@ -143,13 +162,13 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
  open RingHoms
  open IsRingHom
 
- isCommRingWithHomHom : (A B : CommRingWithHom) → CommRingHom (fst A) (fst B) → Type (ℓ-max ℓ ℓ')
+ isCommRingWithHomHom : (A B : CommRingWithHom ℓ') → CommRingHom (fst A) (fst B) → Type (ℓ-max ℓ ℓ')
  isCommRingWithHomHom (_ , f) (_ , g) h = h ∘r f ≡ g
 
- CommRingWithHomHom : CommRingWithHom → CommRingWithHom → Type (ℓ-max ℓ ℓ')
+ CommRingWithHomHom : CommRingWithHom ℓ' → CommRingWithHom ℓ'' → Type _ -- (ℓ-max ℓ ℓ')
  CommRingWithHomHom (A , f) (B , g) = Σ[ h ∈ CommRingHom A B ] h ∘r f ≡ g
 
- toCommAlgebraHom : (A B : CommRingWithHom) (h : CommRingHom (fst A) (fst B))
+ toCommAlgebraHom : (A B : CommRingWithHom ℓ') (h : CommRingHom (fst A) (fst B))
                   → isCommRingWithHomHom A B h
                   → CommAlgebraHom (toCommAlg A) (toCommAlg B)
  toCommAlgebraHom (A , f) (B , g) h commDiag =
@@ -165,7 +184,7 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
               fst g r · fst h 1r         ≡⟨ cong (fst g r ·_) (pres1 (snd h))  ⟩
               fst g r · 1r ∎
 
- fromCommAlgebraHom : (A B : CommAlgebra R ℓ') → CommAlgebraHom A B
+ fromCommAlgebraHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → CommAlgebraHom A B
                     → CommRingWithHomHom (fromCommAlg A) (fromCommAlg B)
  fst (fst (fromCommAlgebraHom A B f)) = fst f
  pres0 (snd (fst (fromCommAlgebraHom A B f))) = IsAlgebraHom.pres0 (snd f)
@@ -179,13 +198,13 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
   open CommAlgebraStr (snd A) using (1a)
   open CommAlgebraStr (snd B) using (_⋆_)
 
- isCommRingWithHomEquiv : (A B : CommRingWithHom) → CommRingEquiv (fst A) (fst B) → Type (ℓ-max ℓ ℓ')
+ isCommRingWithHomEquiv : (A B : CommRingWithHom ℓ') → CommRingEquiv (fst A) (fst B) → Type (ℓ-max ℓ ℓ')
  isCommRingWithHomEquiv A B e = isCommRingWithHomHom A B (RingEquiv→RingHom e)
 
- CommRingWithHomEquiv : CommRingWithHom → CommRingWithHom → Type (ℓ-max ℓ ℓ')
+ CommRingWithHomEquiv : CommRingWithHom ℓ' → CommRingWithHom ℓ' → Type (ℓ-max ℓ ℓ')
  CommRingWithHomEquiv A B = Σ[ e ∈ CommRingEquiv (fst A) (fst B) ] isCommRingWithHomEquiv A B e
 
- toCommAlgebraEquiv : (A B : CommRingWithHom) (e : CommRingEquiv (fst A) (fst B))
+ toCommAlgebraEquiv : (A B : CommRingWithHom ℓ') (e : CommRingEquiv (fst A) (fst B))
                     → isCommRingWithHomEquiv A B e
                     → CommAlgebraEquiv (toCommAlg A) (toCommAlg B)
  fst (toCommAlgebraEquiv A B e eCommDiag) = e .fst
@@ -341,10 +360,10 @@ module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ'} where
 
 module _ {R S : CommRing ℓ} (f : CommRingHom S R) where
   baseChange : CommAlgebra R ℓ' → CommAlgebra S ℓ'
-  baseChange A =
+  baseChange {ℓ' = ℓ'} A =
     Iso.inv (CommAlgChar.CommAlgIso S) (fst asRingHom , compCommRingHom _ _ _ f (snd asRingHom))
     where
-      asRingHom : CommAlgChar.CommRingWithHom R
+      asRingHom : CommAlgChar.CommRingWithHom R ℓ'
       asRingHom = Iso.fun (CommAlgChar.CommAlgIso R) A
 
   baseChangeHom : (A B : CommAlgebra R ℓ') → CommAlgebraHom A B → CommAlgebraHom (baseChange A) (baseChange B)

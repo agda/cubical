@@ -22,6 +22,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure using (⟨_⟩)
 
 open import Cubical.Algebra.CommRing
+open import Cubical.Algebra.Ring.Base using (IsRingHom; makeIsRingHom)
 open import Cubical.Algebra.CommAlgebra.Base
 
 private
@@ -92,7 +93,6 @@ module Construction (R : CommRing ℓ) where
                                     ⋆-assoc ⋆-rdist-+ ⋆-ldist-+ ·-lid ⋆-assoc-·
 
 
-
 module _ (R : CommRing ℓ) (I : Type ℓ') where
   open Construction R
   opaque
@@ -107,9 +107,33 @@ _[_]ᵣ : (R : CommRing ℓ) (I : Type ℓ') → CommRing (ℓ-max ℓ ℓ')
 (R [ I ]ᵣ) = CommAlgebra→CommRing (R [ I ])
 
 opaque
+  unfolding freeCAlgStr
   const : {R : CommRing ℓ} {I : Type ℓ'} → ⟨ R ⟩ → ⟨ R [ I ] ⟩
   const = Construction.const
+
+  constRingHom : (R : CommRing ℓ) (I : Type ℓ')
+                → IsRingHom (snd (CommRing→Ring R)) const (snd (CommRing→Ring (R [ I ]ᵣ)))
+  constRingHom R I = makeIsRingHom refl +HomConst ·HomConst
+    where open Construction R
+
+constHom : (R : CommRing ℓ) (I : Type ℓ') → CommRingHom R (R [ I ]ᵣ)
+constHom R I .fst = const
+constHom R I .snd = constRingHom R I
 
 opaque
   var : {R : CommRing ℓ} {I : Type ℓ'} → I → ⟨ R [ I ] ⟩
   var = Construction.var
+
+module _ (R : CommRing ℓ) (I : Type ℓ') where
+  open CommAlgebraStr ((R [ I ]) .snd) hiding (·IdR)
+  open CommRingStr (R .snd) using (1r; ·IdR) renaming (_·_ to _·R_)
+  open Construction R hiding (_⋆_; 1a; const; _·_)
+  opaque
+    unfolding freeCAlgStr const
+    const⋆1a : (x : ⟨ R ⟩ )
+               → x ⋆ 1a ≡ const x
+    const⋆1a x =
+      x ⋆ 1a             ≡⟨⟩
+      const x · const 1r ≡⟨ sym (·HomConst _ _) ⟩
+      const (x ·R 1r)    ≡⟨ cong const (·IdR _) ⟩
+      const x ∎

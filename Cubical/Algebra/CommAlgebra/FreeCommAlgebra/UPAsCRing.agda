@@ -5,19 +5,29 @@ module Cubical.Algebra.CommAlgebra.FreeCommAlgebra.UPAsCRing where
   This file contains
   * The universal property of the free commutative algebra/polynomial ring
     as a commutative ring.
+
+       R ──→ R[I]
+        \     ∣
+         f    ∃!          for a given φ : I → S
+          ↘  ↙
+            S
+
+  The constructions use the universal property of the free commutative algebra
+  from FreeCommAlgebra.Properties.
 -}
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Foundations.Function hiding (const)
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 open import Cubical.HITs.SetTruncation
 
+open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Base
@@ -32,11 +42,58 @@ private
   variable
     ℓ ℓ' ℓ'' : Level
 
+open RingHoms
 
 module UniversalPropertyAsCommRing
          {R : CommRing ℓ} (I : Type ℓ')
          (S : CommRing ℓ'') (f : CommRingHom R S)
          (φ : I → ⟨ S ⟩)
          where
-  inducedMap : ⟨ R [ I ]ᵣ ⟩ → ⟨ S ⟩
-  inducedMap = Theory.inducedMap (CommAlgChar.toCommAlg R (S , f)) φ
+
+  private
+    Sₐ : CommAlgebra R _
+    Sₐ = CommAlgChar.toCommAlg R (S , f)
+
+    cohSMap : CommRingHom (CommAlgebra→CommRing Sₐ) S
+    cohSMap = CommRingEquiv→CommRingHom {A = CommAlgebra→CommRing Sₐ} {B = S} (CommAlgChar.CommAlgebra→CommRingEquiv R (S , f))
+
+  inducedRingHom : CommRingHom (R [ I ]ᵣ) S
+  inducedRingHom = cohSMap ∘r t
+     where t : CommRingHom (R [ I ]ᵣ) (CommAlgebra→CommRing Sₐ)
+           t = CommAlgebraHom→CommRingHom
+                    (R [ I ]) Sₐ
+                    (Theory.inducedHom Sₐ φ)
+
+  private
+    cohS : CommAlgChar.fromCommAlg R Sₐ .fst ≡ S
+    cohS = cong fst (CommAlgChar.CommRingWithHomRoundTrip R (S , f))
+
+    cohf : (CommAlgChar.fromCommAlg R Sₐ) .snd .fst ≡ f .fst
+    cohf = cong (fst ∘ snd) (CommAlgChar.CommRingWithHomRoundTrip R (S , f))
+
+    open CommAlgebraStr ((R [ I ]) .snd)
+    cohConst : CommAlgChar.fromCommAlg R (R [ I ]) .snd .fst ≡ const
+    cohConst = funExt (λ x → x ⋆ 1a ≡⟨ const⋆1a _ _ _ ⟩ const x ∎)
+
+    cohSMapId : fst cohSMap ≡ idfun _
+    cohSMapId = cong fst (CommAlgChar.CommAlgebra→CommRingIdEquiv R (S , f))
+
+    cohInducedHom : fst (Theory.inducedHom Sₐ φ) ≡ fst inducedRingHom
+    cohInducedHom =
+      fst (Theory.inducedHom Sₐ φ)               ≡⟨ cong (_∘ fst (Theory.inducedHom Sₐ φ)) (sym cohSMapId) ⟩
+      fst cohSMap ∘ fst (Theory.inducedHom Sₐ φ) ≡⟨⟩
+      fst inducedRingHom ∎
+
+  inducedRingHomCommutes : inducedRingHom ∘r (constHom R I) ≡ f
+  inducedRingHomCommutes = Σ≡Prop (λ _ → isPropIsRingHom _ _ _) $
+      fst (inducedRingHom ∘r (constHom R I))                                        ≡⟨⟩
+      fst inducedRingHom ∘ fst (constHom R I)                                       ≡⟨ step1 ⟩
+      fst (Theory.inducedHom Sₐ φ) ∘ fst (constHom R I)                             ≡⟨ step2 ⟩
+      fst (Theory.inducedHom Sₐ φ) ∘ fst (CommAlgChar.fromCommAlg R (R [ I ]) .snd) ≡⟨ step3 ⟩
+      fst f ∎
+    where
+      step1 = cong (_∘ fst (constHom R I)) (sym cohInducedHom)
+      step2 = cong (fst (Theory.inducedHom Sₐ φ) ∘_) (sym cohConst)
+      step3 = cong fst (snd (CommAlgChar.fromCommAlgebraHom R (R [ I ]) Sₐ (Theory.inducedHom Sₐ φ))) ∙ cohf
+
+  -- inducedRingHomUnique :
