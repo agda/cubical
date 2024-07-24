@@ -92,20 +92,24 @@ module Construction (R : CommRing ℓ) where
                                     ⋆-assoc ⋆-rdist-+ ⋆-ldist-+ ·-lid ⋆-assoc-·
 
 
-opaque
-  _[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
-  fst (R [ I ]) = Construction.R[_] R I
-  snd (R [ I ]) = makeCommAlgebraStr _ _ _ _ _ _ _ isCommAlgebra
-    where open Construction R
+
+module _ (R : CommRing ℓ) (I : Type ℓ') where
+  open Construction R
+  opaque
+    freeCAlgStr : CommAlgebraStr R (R[ I ])
+    freeCAlgStr = makeCommAlgebraStr _ _ _ _ _ _ _ isCommAlgebra
+
+_[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R (ℓ-max ℓ ℓ')
+fst (R [ I ]) = Construction.R[_] R I
+snd (R [ I ]) = freeCAlgStr R I
+
+_[_]ᵣ : (R : CommRing ℓ) (I : Type ℓ') → CommRing (ℓ-max ℓ ℓ')
+(R [ I ]ᵣ) = CommAlgebra→CommRing (R [ I ])
 
 opaque
-  unfolding _[_]
-
   const : {R : CommRing ℓ} {I : Type ℓ'} → ⟨ R ⟩ → ⟨ R [ I ] ⟩
   const = Construction.const
 
 opaque
-  unfolding _[_]
-
   var : {R : CommRing ℓ} {I : Type ℓ'} → I → ⟨ R [ I ] ⟩
   var = Construction.var

@@ -70,7 +70,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
 
     private
       opaque
-        unfolding const
+        unfolding const freeCAlgStr
 
         on- : {x : ⟨ R [ I ] ⟩} → P x → P (- x)
         on- {x} Px = subst P (minusByMult x) (on· onConst Px)
@@ -86,7 +86,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
       mkPathP _ = isProp→PathP λ i → isPropP
 
     opaque
-      unfolding _[_] var const
+      unfolding var const freeCAlgStr
 
       elimProp : ((x : _) → P x)
 
@@ -175,7 +175,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
 --    imageOf1Works = ⋆IdL 1a
 
     opaque
-      unfolding _[_] const
+      unfolding const
 
       inducedMap : ⟨ R [ I ] ⟩ → ⟨ A ⟩
       inducedMap (C.var x) = φ x
@@ -224,7 +224,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
       open IsAlgebraHom
 
       opaque
-        unfolding inducedMap
+        unfolding inducedMap freeCAlgStr
 
         inducedHom : CommAlgebraHom (R [ I ]) A
         inducedHom .fst = inducedMap
