@@ -55,7 +55,9 @@ module UniversalPropertyAsCommRing
     Sₐ = CommAlgChar.toCommAlg R (S , f)
 
     cohSMap : CommRingHom (CommAlgebra→CommRing Sₐ) S
-    cohSMap = CommRingEquiv→CommRingHom {A = CommAlgebra→CommRing Sₐ} {B = S} (CommAlgChar.CommAlgebra→CommRingEquiv R (S , f))
+    cohSMap = CommRingEquiv→CommRingHom
+                {A = CommAlgebra→CommRing Sₐ} {B = S}
+                (CommAlgChar.CommAlgebra→CommRingEquiv R (S , f))
 
   inducedRingHom : CommRingHom (R [ I ]ᵣ) S
   inducedRingHom = cohSMap ∘r t
@@ -80,9 +82,21 @@ module UniversalPropertyAsCommRing
 
     cohInducedHom : fst (Theory.inducedHom Sₐ φ) ≡ fst inducedRingHom
     cohInducedHom =
-      fst (Theory.inducedHom Sₐ φ)               ≡⟨ cong (_∘ fst (Theory.inducedHom Sₐ φ)) (sym cohSMapId) ⟩
+      fst (Theory.inducedHom Sₐ φ)               ≡⟨ cong (_∘ fst (Theory.inducedHom Sₐ φ))
+                                                        (sym cohSMapId) ⟩
       fst cohSMap ∘ fst (Theory.inducedHom Sₐ φ) ≡⟨⟩
       fst inducedRingHom ∎
+
+  opaque
+    inducedRingHomVar : fst inducedRingHom ∘ var ≡ φ
+    inducedRingHomVar =
+      fst inducedRingHom ∘ var                      ≡⟨ step1 ⟩
+      (idfun _) ∘ fst (Theory.inducedHom Sₐ φ) ∘ var ≡⟨⟩
+      fst (Theory.inducedHom Sₐ φ) ∘ var             ≡⟨ inducedHomOnVar Sₐ φ ⟩
+      φ ∎
+      where
+        step1 : fst inducedRingHom ∘ var ≡ (idfun _) ∘ fst (Theory.inducedHom Sₐ φ) ∘ var
+        step1 = cong (_∘ fst (Theory.inducedHom Sₐ φ) ∘ var) cohSMapId
 
   inducedRingHomCommutes : inducedRingHom ∘r (constHom R I) ≡ f
   inducedRingHomCommutes = Σ≡Prop (λ _ → isPropIsRingHom _ _ _) $

@@ -309,6 +309,13 @@ inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
              → CommAlgebraHom (R [ I ]) A
 inducedHom = Theory.inducedHom
 
+opaque
+  unfolding var
+  inducedHomOnVar : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
+               (φ : I → fst A )
+               → fst (inducedHom A φ) ∘ var ≡ φ
+  inducedHomOnVar {R = R} {I = I} A φ = mapRetrievable A φ
+    where open Theory {R = R} {I = I}
 
 homMapIso : {R : CommRing ℓ} {I : Type ℓ''} (A : CommAlgebra R ℓ')
              → Iso (CommAlgebraHom (R [ I ]) A) (I → (fst A))
