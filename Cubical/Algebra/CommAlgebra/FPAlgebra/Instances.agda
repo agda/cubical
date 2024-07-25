@@ -32,7 +32,7 @@ open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra
   renaming (inducedHom to freeInducedHom)
 open import Cubical.Algebra.CommAlgebra.QuotientAlgebra
   renaming (inducedHom to quotientInducedHom)
-open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn)
+open import Cubical.Algebra.CommAlgebra.Ideal using (IdealsIn; 0Ideal)
 open import Cubical.Algebra.CommAlgebra.FGIdeal
 open import Cubical.Algebra.CommAlgebra.Instances.Initial
 open import Cubical.Algebra.CommAlgebra.Instances.Unit
@@ -67,37 +67,13 @@ module _ (R : CommRing ℓ) where
     m polynomialAlgFP = 0
     relations polynomialAlgFP = emptyGen
     equiv polynomialAlgFP =
-      -- Idea: A and B enjoy the same universal property.
-      toAAsEquiv , snd toA
-      where
-        toA : CommAlgebraHom B A
-        toA = inducedHom n emptyGen A Construction.var (λ ())
-        fromA : CommAlgebraHom A B
-        fromA = freeInducedHom B (generator _ _)
-        open AlgebraHoms
-        inverse1 : fromA ∘a toA ≡ idAlgebraHom _
-        inverse1 =
-          fromA ∘a toA
-            ≡⟨ sym (unique _ _ B _ _ _ (λ i → cong (fst fromA) (
-                 fst toA (generator n emptyGen i)
-                   ≡⟨ inducedHomOnGenerators _ _ _ _ _ _ ⟩
-                 Construction.var i
-                   ∎))) ⟩
-          inducedHom n emptyGen B (generator _ _) (relationsHold _ _)
-            ≡⟨ unique _ _ B _ _ _ (λ i → refl) ⟩
-          idAlgebraHom _
-            ∎
-        inverse2 : toA ∘a fromA ≡ idAlgebraHom _
-        inverse2 = isoFunInjective (homMapIso A) _ _ (
-          evaluateAt A (toA ∘a fromA)   ≡⟨ sym (naturalEvR {A = B} {B = A} toA fromA) ⟩
-          fst toA ∘ evaluateAt B fromA  ≡⟨ refl ⟩
-          fst toA ∘ generator _ _       ≡⟨ funExt (inducedHomOnGenerators _ _ _ _ _)⟩
-          Construction.var              ∎)
-        toAAsEquiv : ⟨ B ⟩ ≃ ⟨ A ⟩
-        toAAsEquiv = isoToEquiv (iso (fst toA)
-                                     (fst fromA)
-                                     (λ a i → fst (inverse2 i) a)
-                                     (λ b i → fst (inverse1 i) b))
+      invAlgebraEquiv
+       (compAlgebraEquiv
+         (zeroIdealQuotient A)
+         (fst (invEquiv (CommAlgebraPath R (A / (0Ideal A)) (A / generatedIdeal A emptyGen)))
+              (cong (λ I → A / I) (sym (0FGIdeal A)))))
+      where open AlgebraEquivs
+            open AlgebraHoms
 
   {- The initial R-algebra is finitely presented -}
   private
@@ -171,12 +147,11 @@ module _ (R : CommRing ℓ) where
                (incInIdeal (initialCAlg R) xs i)
 
 
-
     R/⟨xs⟩FP : FinitePresentation R/⟨xs⟩
     n R/⟨xs⟩FP = 0
     FinitePresentation.m R/⟨xs⟩FP = m
     relations R/⟨xs⟩FP = rels
-    equiv R/⟨xs⟩FP = (isoToEquiv (iso (fst toA) (fst fromA)
+    equiv R/⟨xs⟩FP = {!!} {- (isoToEquiv (iso (fst toA) (fst fromA)
                                     (λ a i → toFrom i $a a)
                                     λ a i → fromTo i $a a))
                    , (snd toA)
@@ -231,6 +206,7 @@ module _ (R : CommRing ℓ) where
         toFrom : toA ∘a fromA ≡ idCAlgHom R/⟨xs⟩
         toFrom = injectivePrecomp (initialCAlg R) ⟨xs⟩ R/⟨xs⟩ (toA ∘a fromA) (idCAlgHom R/⟨xs⟩)
                    (isContr→isProp (initialityContr R R/⟨xs⟩) _ _)
+-}
 
   module _ {m : ℕ} (x : ⟨ R ⟩) where
     R/⟨x⟩FP : FinitePresentation (initialCAlg R / generatedIdeal (initialCAlg R) (replicateFinVec 1 x))

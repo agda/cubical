@@ -162,13 +162,15 @@ module CommAlgChar (R : CommRing ℓ) where
  open RingHoms
  open IsRingHom
 
- isCommRingWithHomHom : (A B : CommRingWithHom ℓ') → CommRingHom (fst A) (fst B) → Type (ℓ-max ℓ ℓ')
+ isCommRingWithHomHom : (A : CommRingWithHom ℓ') (B : CommRingWithHom ℓ'')
+                      → CommRingHom (fst A) (fst B) → Type _
  isCommRingWithHomHom (_ , f) (_ , g) h = h ∘r f ≡ g
 
- CommRingWithHomHom : CommRingWithHom ℓ' → CommRingWithHom ℓ'' → Type _ -- (ℓ-max ℓ ℓ')
+ CommRingWithHomHom : CommRingWithHom ℓ' → CommRingWithHom ℓ'' → Type _
  CommRingWithHomHom (A , f) (B , g) = Σ[ h ∈ CommRingHom A B ] h ∘r f ≡ g
 
- toCommAlgebraHom : (A B : CommRingWithHom ℓ') (h : CommRingHom (fst A) (fst B))
+ toCommAlgebraHom : (A : CommRingWithHom ℓ') (B : CommRingWithHom ℓ'')
+                    (h : CommRingHom (fst A) (fst B))
                   → isCommRingWithHomHom A B h
                   → CommAlgebraHom (toCommAlg A) (toCommAlg B)
  toCommAlgebraHom (A , f) (B , g) h commDiag =

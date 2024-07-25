@@ -221,7 +221,7 @@ module PullbackFromCommRing (R : CommRing ℓ)
                               (isRHom₂ : isCommRingWithHomHom (A , f₁) (C , f₃) g₂)
                               (isRHom₃ : isCommRingWithHomHom (B , f₂) (D , f₄) g₃)
                               (isRHom₄ : isCommRingWithHomHom (C , f₃) (D , f₄) g₄)
-                              (E,f₅ : CommRingWithHom)
+                              (E,f₅ : CommRingWithHom _)
                               (h₂ : CommRingWithHomHom E,f₅ (C , f₃))
                               (h₁ : CommRingWithHomHom E,f₅ (B , f₂))
                             → g₄ ∘r fst h₂ ≡ g₃ ∘r fst h₁
@@ -426,7 +426,7 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
 
    module _ (univProp : isLimCone _ _ crCone) where
 
-    univPropWithHom : ∀ (C,ψ : CommRingWithHom) (cc : Cone crDiag (fst C,ψ))
+    univPropWithHom : ∀ (C,ψ : CommRingWithHom _) (cc : Cone crDiag (fst C,ψ))
                     → isConeMor toAlgCone cc (snd C,ψ)
                     → ∃![ χ ∈ CommRingWithHomHom C,ψ (A , φ) ]
                           isConeMor cc crCone (fst χ)

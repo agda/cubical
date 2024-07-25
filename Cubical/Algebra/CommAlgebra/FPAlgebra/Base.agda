@@ -35,7 +35,6 @@ private
     ℓ ℓ' : Level
 
 module _ {R : CommRing ℓ} where
-  open Construction using (var)
   Polynomials : (n : ℕ) → CommAlgebra R ℓ
   Polynomials n = R [ Fin n ]
 
@@ -62,14 +61,14 @@ module _ {R : CommRing ℓ} where
 
     relationsIdeal = generatedIdeal (Polynomials n) relation
 
+    FPAlgebra : CommAlgebra R ℓ
+    FPAlgebra = Polynomials n / relationsIdeal
     abstract
       {-
         The following definitions are abstract because of type checking speed
         problems - complete unfolding of FPAlgebra is triggered otherwise.
         This also means, the where blocks contain more type declarations than usual.
       -}
-      FPAlgebra : CommAlgebra R ℓ
-      FPAlgebra = Polynomials n / relationsIdeal
 
       modRelations : CommAlgebraHom (Polynomials n) (Polynomials n / relationsIdeal)
       modRelations = quotientHom (Polynomials n) relationsIdeal
@@ -124,11 +123,12 @@ module _ {R : CommRing ℓ} where
             isInKernel
 
         inducedHomOnGenerators :
-          (i : Fin n)
-          → fst inducedHom (generator i) ≡ values i
-        inducedHomOnGenerators i =
-          cong (λ f → fst f (var i))
-          (inducedHom∘quotientHom (Polynomials n) relationsIdeal A freeHom isInKernel)
+          (v : Fin n)
+          → fst inducedHom (generator v) ≡ values v
+        inducedHomOnGenerators v =
+          (cong (λ f → fst f (var v)) $
+            inducedHom∘quotientHom (Polynomials n) relationsIdeal A freeHom isInKernel)
+            ∙ (cong (λ f → f v) $ inducedHomOnVar A values)
 
         unique :
              (f : CommAlgebraHom FPAlgebra A)

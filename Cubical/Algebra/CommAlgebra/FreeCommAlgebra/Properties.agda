@@ -158,7 +158,7 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
           j
 
   {-
-    Construction of the induced map.
+    Construction of the induced map to an algebra.
   -}
   module _ (A : CommAlgebra R ℓ'') (φ : I → ⟨ A ⟩) where
 
@@ -167,12 +167,6 @@ module Theory {R : CommRing ℓ} {I : Type ℓ'} where
       _ = str A
 
     open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
-
---    imageOf0Works : 0r ⋆ 1a ≡ 0a
---    imageOf0Works = ⋆AnnihilL 1a
-
---    imageOf1Works : 1r ⋆ 1a ≡ 1a
---    imageOf1Works = ⋆IdL 1a
 
     opaque
       unfolding const
