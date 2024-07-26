@@ -12,7 +12,8 @@ open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal using ()
             renaming (generatedIdeal to generatedIdealCommRing;
                       indInIdeal to ringIncInIdeal;
-                      0FGIdeal to 0FGIdealCommRing)
+                      0FGIdeal to 0FGIdealCommRing;
+                      1FGIdeal to 1FGIdealCommRing)
 open import Cubical.Algebra.CommAlgebra
 open import Cubical.Algebra.CommAlgebra.Ideal
 
@@ -35,3 +36,9 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
 
   0FGIdeal : {n : ℕ} → ⟨ replicateFinVec n 0a ⟩[ A ] ≡ (0Ideal A)
   0FGIdeal = 0FGIdealCommRing (CommAlgebra→CommRing A)
+
+  justOne : FinVec ⟨ A ⟩ 1
+  justOne zero = 1a
+
+  1FGIdeal : ⟨ justOne ⟩[ A ] ≡ (1Ideal A)
+  1FGIdeal = 1FGIdealCommRing (CommAlgebra→CommRing A)

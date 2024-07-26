@@ -245,6 +245,17 @@ module _ (R' : CommRing ℓ) where
  0FGIdeal : {n : ℕ} → ⟨ replicateFinVec n 0r ⟩ ≡ 0Ideal
  0FGIdeal = CommIdeal≡Char 0FGIdealLIncl 0FGIdealRIncl
 
+ unitGen : FinVec (fst R') 1
+ unitGen zero = 1r
+
+ 1FGIdeal : ⟨ unitGen ⟩[ R' ] ≡ 1Ideal
+ 1FGIdeal =
+   CommIdeal≡Char
+   -- "⊆":
+      (λ _ _ → lift tt)
+   -- "⊇":
+      λ x _ → ∣ (λ {zero → x}) , solve! R' ∣₁
+
  FGIdealAddLemmaLIncl : {n m : ℕ} (U : FinVec R n) (V : FinVec R m)
                       → ⟨ U ++Fin V ⟩ ⊆ (⟨ U ⟩ +i ⟨ V ⟩)
  FGIdealAddLemmaLIncl {n = ℕzero} U V x x∈⟨V⟩ =
