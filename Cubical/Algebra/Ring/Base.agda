@@ -33,7 +33,7 @@ private
 
 record IsRing {R : Type ℓ}
               (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
-
+  no-eta-equality
   constructor isring
 
   field
@@ -61,8 +61,7 @@ unquoteDecl IsRingIsoΣ = declareRecordIsoΣ IsRingIsoΣ (quote IsRing)
 
 
 record RingStr (A : Type ℓ) : Type (ℓ-suc ℓ) where
-
-  constructor ringstr
+  no-eta-equality
 
   field
     0r      : A
@@ -218,7 +217,13 @@ RingHom≡ = Σ≡Prop λ f → isPropIsRingHom _ f _
       data[ _+_ ∣ bin ∣ pres+ ]
       data[ _·_ ∣ bin ∣ pres· ]
       data[ -_ ∣ un ∣ pres- ]
-      prop[ isRing ∣ (λ _ _ → isPropIsRing _ _ _ _ _) ])
+      prop[ isRing ∣ (λ R ΣR →
+                        isPropIsRing
+                          (snd (fst (fst (fst (fst ΣR)))))
+                          (snd (fst (fst (fst ΣR))))
+                          (snd (fst (fst ΣR)))
+                          (snd (fst ΣR))
+                          (snd ΣR)) ])
  where
   open RingStr
   open IsRingHom
