@@ -24,23 +24,48 @@ private
     ℓ ℓ' : Level
 
 _/_ : (R : CommRing ℓ) → (I : IdealsIn R) → CommRing ℓ
-R / I =
-  fst asRing , commringstr _ _ _ _ _
-                 (iscommring (RingStr.isRing (snd asRing))
-                             (elimProp2 (λ _ _ → squash/ _ _)
-                                        commEq))
-   where
-       asRing = (CommRing→Ring R) Ring./ (CommIdeal→Ideal I)
-       _·/_ : fst asRing → fst asRing → fst asRing
-       _·/_ = RingStr._·_ (snd asRing)
-       commEq : (x y : fst R) → ([ x ] ·/ [ y ]) ≡ ([ y ] ·/ [ x ])
-       commEq x y i = [ CommRingStr.·Comm (snd R) x y i ]
+R / I = Ring→CommRing
+          ((CommRing→Ring R) Ring./ (CommIdeal→Ideal I))
+          (elimProp2 (λ _ _ → squash/ _ _)
+                     λ x y i → [ CommRingStr.·Comm (snd R) x y i ])
 
 [_]/ : {R : CommRing ℓ} {I : IdealsIn R} → (a : fst R) → fst (R / I)
 [ a ]/ = [ a ]
 
 
+module _ (R : CommRing ℓ) (I : IdealsIn R) where
+  private
+    opaque
+      isRingHomCoh : IsRingHom (snd (CommRing→Ring (R / I)))
+                               (λ x → x)
+                               (snd ((CommRing→Ring R) Ring./ (CommIdeal→Ideal I)))
+      IsRingHom.pres0 isRingHomCoh = refl
+      IsRingHom.pres1 isRingHomCoh = refl
+      IsRingHom.pres+ isRingHomCoh = λ _ _ → refl
+      IsRingHom.pres· isRingHomCoh = λ _ _ → refl
+      IsRingHom.pres- isRingHomCoh = λ _ → refl
+      isRingHomCohInv : IsRingHom (snd ((CommRing→Ring R) Ring./ (CommIdeal→Ideal I)))
+                               (λ x → x)
+                               (snd (CommRing→Ring (R / I)))
+      IsRingHom.pres0 isRingHomCohInv = refl
+      IsRingHom.pres1 isRingHomCohInv = refl
+      IsRingHom.pres+ isRingHomCohInv = λ _ _ → refl
+      IsRingHom.pres· isRingHomCohInv = λ _ _ → refl
+      IsRingHom.pres- isRingHomCohInv = λ _ → refl
 
+  coh : RingHom (CommRing→Ring (R / I))
+                ((CommRing→Ring R) Ring./ (CommIdeal→Ideal I))
+
+  fst coh x = x
+  (snd coh) = isRingHomCoh
+
+  cohInv : RingHom ((CommRing→Ring R) Ring./ (CommIdeal→Ideal I))
+                   (CommRing→Ring (R / I))
+
+  fst cohInv x = x
+  (snd cohInv) = isRingHomCohInv
+
+open RingHoms
 module Quotient-FGideal-CommRing-Ring
   (A : CommRing ℓ)
   (B : Ring ℓ')
@@ -60,7 +85,8 @@ module Quotient-FGideal-CommRing-Ring
       x∈FGIdeal
 
   inducedHom : RingHom (CommRing→Ring (A / (generatedIdeal _ v))) B
-  inducedHom = Ring.UniversalProperty.inducedHom (CommRing→Ring A) (CommIdeal→Ideal ideal) g zeroOnGeneratedIdeal
+  inducedHom = (Ring.UniversalProperty.inducedHom (CommRing→Ring A) (CommIdeal→Ideal ideal) g zeroOnGeneratedIdeal)
+               ∘r coh A (generatedIdeal _ v)
     where ideal = generatedIdeal A v
 
 module Quotient-FGideal-CommRing-CommRing
@@ -74,6 +100,7 @@ module Quotient-FGideal-CommRing-CommRing
 
   inducedHom : CommRingHom (A / (generatedIdeal _ v)) B
   inducedHom = Quotient-FGideal-CommRing-Ring.inducedHom A (CommRing→Ring B) g v gnull
+               ∘r cohInv _ _
 
 module UniversalProperty
   (R S : CommRing ℓ)
@@ -84,6 +111,7 @@ module UniversalProperty
 
   inducedHom : CommRingHom (R / I) S
   inducedHom = Ring.UniversalProperty.inducedHom (CommRing→Ring R) (CommIdeal→Ideal I) f I⊆ker
+               ∘r coh _ _
 
 
 quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
