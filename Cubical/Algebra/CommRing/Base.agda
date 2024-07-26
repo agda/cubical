@@ -91,10 +91,21 @@ makeCommRing 0r 1r _+_ _·_ -_ is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·D
   _ , commringstr _ _ _ _ _ (makeIsCommRing is-setR +Assoc +IdR +InvR +Comm ·Assoc ·IdR ·DistR+ ·Comm)
 
 CommRingStr→RingStr : {A : Type ℓ} → CommRingStr A → RingStr A
-CommRingStr→RingStr (commringstr _ _ _ _ _ H) = ringstr _ _ _ _ _ (IsCommRing.isRing H)
+CommRingStr→RingStr cringStr =
+  record
+    { 0r = _ ; 1r = _ ; _+_ = _ ; _·_ = _ ; -_ = _ ;
+      isRing = IsCommRing.isRing (CommRingStr.isCommRing cringStr) }
 
 CommRing→Ring : CommRing ℓ → Ring ℓ
-CommRing→Ring (_ , commringstr _ _ _ _ _ H) = _ , ringstr _ _ _ _ _ (IsCommRing.isRing H)
+fst (CommRing→Ring CRing) = fst CRing
+snd (CommRing→Ring CRing) = record
+                             { 0r =  _
+                             ; 1r =  _
+                             ; _+_ = _
+                             ; _·_ = _
+                             ; -_ =  _
+                             ; isRing = IsCommRing.isRing (CommRingStr.isCommRing (snd CRing))
+                             }
 
 CommRing→AbGroup : CommRing ℓ → AbGroup ℓ
 CommRing→AbGroup R = Ring→AbGroup (CommRing→Ring R)
