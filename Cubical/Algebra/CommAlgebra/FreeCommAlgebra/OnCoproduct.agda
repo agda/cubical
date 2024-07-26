@@ -44,6 +44,7 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
   R[I⊎J]overR[I] = Iso.inv (CommAlgChar.CommAlgIso (CommAlgebra→CommRing (R [ I ])))
                    (CommAlgebra→CommRing (R [ I ⊎ J ]) ,
                     (CommAlgebraHom→CommRingHom (R [ I ]) (R [ I ⊎ J ]) R[I]→R[I⊎J]))
+{-
 
   module UniversalPropertyOfR[I⊎J]overR[I]
     (A : CommAlgebra R[I]AsRing ℓ)
@@ -84,7 +85,6 @@ module CalculateFreeCommAlgebraOnCoproduct (R : CommRing ℓ) (I J : Type ℓ) w
 --  (r : R[I]) → (y : R[I⊎J]) → f (r ⋆ 1a) ≡ r ⋆ 1a
 --  (r : R[I]) → (y : R[I⊎J]) → f (var (inl i)) ≡ var i ⋆ 1a
 
-{-
   {-
      We start by defining R[I][J] and R[I⊎J] as R[I] algebras,
      which we need later to use universal properties

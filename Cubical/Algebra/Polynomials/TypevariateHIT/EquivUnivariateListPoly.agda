@@ -29,7 +29,7 @@ module _ {R : CommRing ℓ} where
   private
     instance
       _ = snd R
-    X-HIT = Construction.var {R = R} {I = Unit} tt
+    X-HIT = var {R = R} {I = Unit} tt
     X-List = generatorList R
 
   {-
@@ -45,8 +45,10 @@ module _ {R : CommRing ℓ} where
     from : CommAlgebraHom (ListPolyCommAlgebra R) (R [ Unit ])
     from = inducedHomList R (CommAlgebra→Algebra (R [ Unit ])) X-HIT
 
-    toPresX : fst to X-HIT ≡ X-List
-    toPresX = refl
+    opaque
+      unfolding var inducedHomHIT
+      toPresX : fst to X-HIT ≡ X-List
+      toPresX = refl
 
     fromPresX : fst from X-List ≡ X-HIT
     fromPresX = inducedMapGenerator R (CommAlgebra→Algebra (R [ Unit ])) X-HIT
@@ -54,11 +56,13 @@ module _ {R : CommRing ℓ} where
     idList = AlgebraHoms.idAlgebraHom (CommAlgebra→Algebra (ListPolyCommAlgebra R))
     idHIT = AlgebraHoms.idAlgebraHom (CommAlgebra→Algebra (R [ Unit ]))
 
-    toFrom : (x : ⟨ ListPolyCommAlgebra R ⟩) → fst to (fst from x) ≡ x
-    toFrom = isIdByUMP-List R (to ∘a from) (cong (fst to) fromPresX)
+    opaque
+      unfolding var inducedHomHIT
+      toFrom : (x : ⟨ ListPolyCommAlgebra R ⟩) → fst to (fst from x) ≡ x
+      toFrom = isIdByUMP-List R (to ∘a from) (cong (fst to) fromPresX)
 
-    fromTo : (x : ⟨ R [ Unit ] ⟩) → fst from (fst to x) ≡ x
-    fromTo = isIdByUMP-HIT (from ∘a to) λ {tt → fromPresX}
+      fromTo : (x : ⟨ R [ Unit ] ⟩) → fst from (fst to x) ≡ x
+      fromTo = isIdByUMP-HIT (from ∘a to) λ {tt → fromPresX}
 
   typevariateListPolyIso : Iso ⟨ R [ Unit ] ⟩  ⟨ ListPolyCommAlgebra R ⟩
   fun typevariateListPolyIso = fst to
@@ -70,6 +74,8 @@ module _ {R : CommRing ℓ} where
   fst typevariateListPolyEquiv = isoToEquiv typevariateListPolyIso
   snd typevariateListPolyEquiv = snd to
 
-  typevariateListPolyGenerator :
-    fst (fst typevariateListPolyEquiv) X-HIT ≡ X-List
-  typevariateListPolyGenerator = refl
+  opaque
+    unfolding var inducedHomHIT
+    typevariateListPolyGenerator :
+      fst (fst typevariateListPolyEquiv) X-HIT ≡ X-List
+    typevariateListPolyGenerator = refl

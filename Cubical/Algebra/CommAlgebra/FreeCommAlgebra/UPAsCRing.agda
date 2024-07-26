@@ -110,7 +110,7 @@ module UniversalPropertyAsCommRing
       step2 = cong (fst (Theory.inducedHom Sₐ φ) ∘_) (sym cohConst)
       step3 = cong fst (snd (CommAlgChar.fromCommAlgebraHom R (R [ I ]) Sₐ (Theory.inducedHom Sₐ φ)))
               ∙ cohf
-
+{-
   private
     cohCAlgR[I] : CommAlgebraHom (R [ I ]) (CommAlgChar.toCommAlg R ((R [ I ]ᵣ) , constHom R I))
     cohCAlgR[I] = {!!}
@@ -128,3 +128,4 @@ module UniversalPropertyAsCommRing
     where open AlgebraHoms
           hₐ : CommAlgebraHom (R [ I ]) Sₐ
           hₐ = CommAlgChar.toCommAlgebraHom R (R [ I ]ᵣ , constHom R I) (S , f) h h∘const≡f ∘a cohCAlgR[I]
+-}
