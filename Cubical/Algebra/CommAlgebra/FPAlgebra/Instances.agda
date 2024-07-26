@@ -13,7 +13,7 @@ module Cubical.Algebra.CommAlgebra.FPAlgebra.Instances where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Function
+open import Cubical.Foundations.Function hiding (const)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
@@ -116,13 +116,18 @@ module _ (R : CommRing ℓ) where
   n terminalCAlgFP = 0
   m terminalCAlgFP = 1
   relations terminalCAlgFP = unitGen
-  equiv terminalCAlgFP = equivFrom1≡0 R R[⊥]/⟨1⟩ (sym (⋆IdL 1a) ∙ relationsHold 0 unitGen zero)
+  equiv terminalCAlgFP =
+   subst (λ I → CommAlgebraEquiv (R[⊥] / I) (TerminalCAlg R))
+         (sym (1FGIdeal R[⊥]))
+         (oneIdealQuotient R[⊥])
     where open CommAlgebraStr (snd R[⊥]/⟨1⟩)
 
 
   {-
     Quotients of the base ring by finitely generated ideals are finitely presented.
   -}
+  {-  This might better be shown as a special case of "fp over fp is fp"...
+
   module _ {m : ℕ} (xs : FinVec ⟨ R ⟩ m) where
     ⟨xs⟩ : IdealsIn (initialCAlg R)
     ⟨xs⟩ = generatedIdeal (initialCAlg R) xs
@@ -131,10 +136,10 @@ module _ (R : CommRing ℓ) where
 
     open CommAlgebraStr ⦃...⦄
     private
-      rels : FinVec ⟨ Polynomials {R = R} 0 ⟩ m
-      rels = Construction.const ∘ xs
+      xs' : FinVec ⟨ Polynomials {R = R} 0 ⟩ m
+      xs' = const ∘ xs
 
-      B = FPAlgebra 0 rels
+      B = FPAlgebra 0 xs'
 
       π = quotientHom (initialCAlg R) ⟨xs⟩
       instance
@@ -146,12 +151,13 @@ module _ (R : CommRing ℓ) where
       πxs≡0 i = isZeroFromIdeal {A = initialCAlg R} {I = ⟨xs⟩} (xs i)
                (incInIdeal (initialCAlg R) xs i)
 
-
     R/⟨xs⟩FP : FinitePresentation R/⟨xs⟩
     n R/⟨xs⟩FP = 0
     FinitePresentation.m R/⟨xs⟩FP = m
-    relations R/⟨xs⟩FP = rels
-    equiv R/⟨xs⟩FP = {!!} {- (isoToEquiv (iso (fst toA) (fst fromA)
+    relations R/⟨xs⟩FP = xs'
+    equiv R/⟨xs⟩FP = subst (λ R' → CommAlgebraEquiv R' R/⟨xs⟩) {!!} {!!}
+
+(isoToEquiv (iso (fst toA) (fst fromA)
                                     (λ a i → toFrom i $a a)
                                     λ a i → fromTo i $a a))
                    , (snd toA)
@@ -164,16 +170,16 @@ module _ (R : CommRing ℓ) where
             vals' : FinVec ⟨ initialCAlg R ⟩ 0
             vals' ()
             relation-holds =  λ i →
-               evPoly R/⟨xs⟩ (rels i) vals    ≡⟨ sym
+               evPoly R/⟨xs⟩ (rels i) vals    ≡⟨ ? {- sym
                                                 (evPolyHomomorphic
                                                   (initialCAlg R)
                                                      R/⟨xs⟩
                                                      π
                                                      (rels i)
-                                                     vals') ⟩
+                                                     vals') -} ⟩
               π $a (evPoly (initialCAlg R)
                            (rels i)
-                           vals')             ≡⟨ cong (π $a_) (·IdR (xs i)) ⟩
+                           vals')             ≡⟨ ? {- cong (π $a_) (·IdR (xs i)) -} ⟩
               π $a xs i                       ≡⟨ πxs≡0 i ⟩
               0a                              ∎
         {-
@@ -206,8 +212,8 @@ module _ (R : CommRing ℓ) where
         toFrom : toA ∘a fromA ≡ idCAlgHom R/⟨xs⟩
         toFrom = injectivePrecomp (initialCAlg R) ⟨xs⟩ R/⟨xs⟩ (toA ∘a fromA) (idCAlgHom R/⟨xs⟩)
                    (isContr→isProp (initialityContr R R/⟨xs⟩) _ _)
--}
 
   module _ {m : ℕ} (x : ⟨ R ⟩) where
     R/⟨x⟩FP : FinitePresentation (initialCAlg R / generatedIdeal (initialCAlg R) (replicateFinVec 1 x))
     R/⟨x⟩FP = R/⟨xs⟩FP (replicateFinVec 1 x)
+-}
