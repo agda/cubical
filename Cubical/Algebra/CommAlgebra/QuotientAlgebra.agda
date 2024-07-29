@@ -47,6 +47,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
     _ = snd A
 
   opaque
+    unfolding CommRing.quotientCommRingStr
     _/_ : CommAlgebra R ℓ
     _/_ = commAlgebraFromCommRing
            A/IAsCommRing
@@ -178,7 +179,6 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
         _ : CommAlgebraStr R ⟨ B ⟩
         _ = str B
 
-
 {- trivial quotient -}
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
   open CommAlgebraStr (snd A)
@@ -211,8 +211,6 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) where
        → (a : fst A) → fst (A / I)
 [_]/ = fst (quotientHom _ _)
 
-
-
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
   open CommIdeal using (isPropIsCommIdeal)
 
@@ -230,7 +228,6 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
                               refl ⟩
       _                  ≡⟨  CommRing.kernel≡I {R = CommAlgebra→CommRing A} I ⟩
       I                  ∎
-
 
 module _
   {R : CommRing ℓ}
