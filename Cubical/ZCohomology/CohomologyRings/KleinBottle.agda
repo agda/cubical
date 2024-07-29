@@ -370,7 +370,7 @@ module Equiv-𝕂²-Properties
 
     ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂² : ℤ[x,y]/<2y,y²,xy,x²> → H* KleinBottle
     ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂² = fst ℤ[X,Y]/<2Y,Y²,XY,X²>→H*R-𝕂²
-
+{-
     ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂²-pres0 : ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂² 0PℤI ≡ 0H*
     ℤ[x,y]/<2y,y²,xy,x²>→H*-𝕂²-pres0 = refl
 
@@ -570,3 +570,4 @@ module _ where
 
   CohomologyRing-𝕂² : RingEquiv (H*R KleinBottle) (CommRing→Ring ℤ[X,Y]/<2Y,Y²,XY,X²>)
   CohomologyRing-𝕂² = RingEquivs.invRingEquiv 𝕂²-CohomologyRing
+-- -}

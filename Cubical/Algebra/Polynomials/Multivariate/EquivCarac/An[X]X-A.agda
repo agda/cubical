@@ -19,6 +19,7 @@ open import Cubical.Algebra.Ring
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.FGIdeal
 open import Cubical.Algebra.CommRing.Quotient
+open import Cubical.Algebra.Monoid.Instances.NatVec
 
 
 open import Cubical.Algebra.CommRing.Instances.Int renaming (ℤCommRing to ℤCR)
@@ -216,37 +217,39 @@ module Properties-Equiv-QuotientXn-A
   ... | no ¬p = ⊥.rec (¬p refl)
 
 
-
+{-
 -----------------------------------------------------------------------------
 -- Retraction
 
   open RingStr
   open IsRing
 
-  e-retr : (x : A[x1,···,xn]/<x1,···,xn> Ar n) → A→PAI (PAI→A x) ≡ x
-  e-retr = SQ.elimProp (λ _ → isSetPAI _ _)
-           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPAI _ _)
-           base0-eq
-           base-eq
-           λ {U V} ind-U ind-V → cong [_] (A→PA-pres+ _ _) ∙ cong₂ _+PAI_ ind-U ind-V)
-           where
-           base0-eq : A→PAI (PAI→A [ 0PA ]) ≡ [ 0PA ]
-           base0-eq = cong [_] (base-neutral (replicate 0))
+  opaque
+    unfolding quotientCommRingStr
+    e-retr : (x : A[x1,···,xn]/<x1,···,xn> Ar n) → A→PAI (PAI→A x) ≡ x
+    e-retr = SQ.elimProp (λ _ → isSetPAI _ _)
+             (DS-Ind-Prop.f (NatVecMonoid n .fst) (λ _ → A) _ _ (λ _ → isSetPAI _ _)
+             base0-eq
+             base-eq
+             λ {U V} ind-U ind-V → cong [_] (A→PA-pres+ _ _) ∙ cong₂ _+PAI_ ind-U ind-V)
+             where
+             base0-eq : A→PAI (PAI→A [ 0PA ]) ≡ [ 0PA ]
+             base0-eq = cong [_] (base-neutral (replicate 0))
 
-           base-eq : (v : Vec ℕ n) → (a : A ) → [ A→PA (PA→A (base v a)) ] ≡ [ base v a ]
-           base-eq v a with (discreteVecℕn v (replicate 0))
-           ... | yes p = cong [_] (cong (λ X → base X a) (sym p))
-           ... | no ¬p with (pred-vec-≢0 v ¬p)
-           ... | k , v' , infkn , eqvv' = eq/ (base (replicate 0) 0A)
-                                             (base v a) ∣ ((genδ-FinVec n k (base v' (-A a)) 0PA) , helper) ∣₁
-               where
-               helper : _
-               helper = cong (λ X → X +PA base v (-A a)) (base-neutral (replicate 0))
-                        ∙ +PAIdL (base v (-A a))
-                        ∙ sym (
-                          genδ-FinVec-ℕLinearCombi ((A[X1,···,Xn] Ar n)) n k infkn (base v' (-A a)) (<X1,···,Xn> Ar n)
-                          ∙ cong₂ base (cong (λ X → v' +n-vec δℕ-Vec n X) (toFromId' n k infkn)) (·AIdR _)
-                          ∙ cong (λ X → base X (-A a)) (sym eqvv'))
+             base-eq : (v : Vec ℕ n) → (a : A ) → [ A→PA (PA→A (base v a)) ] ≡ [ base v a ]
+             base-eq v a with (discreteVecℕn v (replicate 0))
+             ... | yes p = cong [_] (cong (λ X → base X a) (sym p))
+             ... | no ¬p with (pred-vec-≢0 v ¬p)
+             ... | k , v' , infkn , eqvv' = eq/ (base (replicate 0) 0A)
+                                               (base v a) ∣ ((genδ-FinVec n k (base v' (-A a)) 0PA) , helper) ∣₁
+                 where
+                 helper : {!!} ≡ _
+                 helper = cong (λ X → X +PA base v (-A a)) (base-neutral (replicate 0))
+                          ∙ +PAIdL (base v (-A a))
+                          ∙ sym (
+                            genδ-FinVec-ℕLinearCombi ((A[X1,···,Xn] Ar n)) n k infkn (base v' (-A a)) (<X1,···,Xn> Ar n)
+                            ∙ cong₂ base (cong (λ X → v' +n-vec δℕ-Vec n X) (toFromId' n k infkn)) (·AIdR _)
+                            ∙ cong (λ X → base X (-A a)) (sym eqvv'))
 
 
 
@@ -254,17 +257,17 @@ module Properties-Equiv-QuotientXn-A
 -- Equiv
 
 module _
-  (Ar@(A , Astr) : CommRing ℓ)
+  (R : CommRing ℓ)
   (n : ℕ)
   where
 
   open Iso
-  open Properties-Equiv-QuotientXn-A Ar n
+  open Properties-Equiv-QuotientXn-A R n
 
-  Equiv-QuotientX-A : CommRingEquiv (A[X1,···,Xn]/<X1,···,Xn> Ar n) Ar
+  Equiv-QuotientX-A : CommRingEquiv (A[X1,···,Xn]/<X1,···,Xn> R n) R
   fst Equiv-QuotientX-A = isoToEquiv is
     where
-    is : Iso (A[x1,···,xn]/<x1,···,xn> Ar n) A
+    is : Iso (A[x1,···,xn]/<x1,···,xn> R n) (R .fst)
     fun is = PAI→A
     inv is = A→PAI
     rightInv is = e-sect
@@ -273,3 +276,4 @@ module _
 
 -- Warning this doesn't prove Z[X]/X ≅ ℤ because you get two definition,
 -- see notation Multivariate-Quotient-notationZ for more details
+-}
