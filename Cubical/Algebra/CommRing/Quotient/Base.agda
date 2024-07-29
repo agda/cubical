@@ -3,6 +3,7 @@ module Cubical.Algebra.CommRing.Quotient.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 open import Cubical.Functions.Surjection
 
@@ -112,11 +113,11 @@ module Quotient-FGideal-CommRing-CommRing
   (f : CommRingHom R S)
   {n : ℕ}
   (v : FinVec ⟨ R ⟩ n)
-  (fnull : (k : Fin n) → f $r v k ≡ CommRingStr.0r (snd S))
+  (fnull : (k : Fin n) → f $cr v k ≡ CommRingStr.0r (snd S))
   where
 
   inducedHom : CommRingHom (R / (generatedIdeal _ v)) S
-  inducedHom = Quotient-FGideal-CommRing-Ring.inducedHom R (CommRing→Ring S) f v fnull
+  inducedHom = RingHom→CommRingHom $ Quotient-FGideal-CommRing-Ring.inducedHom R (CommRing→Ring S) (CommRingHom→RingHom f) v fnull
 
 module UniversalProperty
   (R S : CommRing ℓ)
@@ -126,11 +127,14 @@ module UniversalProperty
   where
 
   inducedHom : CommRingHom (R / I) S
-  inducedHom = Ring.UniversalProperty.inducedHom (CommRing→Ring R) (CommIdeal→Ideal I) f I⊆ker
+  inducedHom = RingHom→CommRingHom $
+                Ring.UniversalProperty.inducedHom (CommRing→Ring R) (CommIdeal→Ideal I) (CommRingHom→RingHom f) I⊆ker
                ∘r Coherence.ringStr R I
 
 quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
-quotientHom R I = Coherence.ringStrInv R I ∘r Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
+quotientHom R I = RingHom→CommRingHom $
+                      Coherence.ringStrInv R I
+                   ∘r Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
 
 quotientHomSurjective : (R : CommRing ℓ) → (I : IdealsIn R)
                         → isSurjection (fst (quotientHom R I))
