@@ -52,72 +52,22 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
   _/_ = ((fst A) CommRing./ I) ,
         (CommRing.quotientHom (fst A) I ∘r A .snd)
 
-  quotientHom : CommAlgebraHom A (_/_)
+  quotientHom : CommAlgebraHom {R = R} A (_/_)
   quotientHom = (CommRing.quotientHom (fst A) I) , refl
 
-{-
-    commAlgebraFromCommRing
-           A/IAsCommRing
-           (λ r → elim (λ _ → squash/) (λ x → [ r ⋆ x ]) (eq r))
-           (λ r s → elimProp (λ _ → squash/ _ _)
-                             λ x i → [ ((r ·R s) ⋆ x ≡⟨ ⋆Assoc r s x ⟩
-                                         r ⋆ (s ⋆ x) ∎) i ])
-           (λ r → elimProp2 (λ _ _ → squash/ _ _)
-                            λ x y i → [ (r ⋆ (x + y)  ≡⟨ ⋆DistR+ r x y ⟩
-                                        r ⋆ x + r ⋆ y ∎) i ])
-           (λ r s → elimProp (λ _ → squash/ _ _)
-                             λ x i → [ ((r +R s) ⋆ x ≡⟨ ⋆DistL+ r s x ⟩
-                                       r ⋆ x + s ⋆ x ∎) i ])
-           (elimProp (λ _ → squash/ _ _)
-                     (λ x i →  [ (1r ⋆ x ≡⟨ ⋆IdL x ⟩ x ∎) i ]))
-           λ r → elimProp2 (λ _ _ → squash/ _ _)
-                           λ x y i → [ ((r ⋆ x) · y ≡⟨ ⋆AssocL r x y ⟩
-                                       r ⋆ (x · y) ∎) i ]
-
-          where
-                A/IAsCommRing : CommRing ℓ
-                A/IAsCommRing = (CommAlgebra→CommRing A) CommRing./ I
-                [_]/ : ⟨ A ⟩ → ⟨ A/IAsCommRing ⟩
-                [_]/ = CommRing.[_]/ {R = CommAlgebra→CommRing A} {I = I}
-                open CommIdeal using (isCommIdeal)
-                eq : (r : fst R) (x y : A .fst .fst) → x - y ∈ (fst I) → [ r ⋆ x ]/ ≡ [ r ⋆ y ]/
-                eq r x y x-y∈I = eq/ _ _
-                  (subst (λ u → u ∈ fst I)
-                  ((r ⋆ 1r) · (x - y)               ≡⟨ ·DistR+ (r ⋆ 1r) x (- y) ⟩
-                    (r ⋆ 1r) · x + (r ⋆ 1r) · (- y) ≡[ i ]⟨ (r ⋆ 1r) · x + -DistR· (r ⋆ 1r) y i ⟩
-                    (r ⋆ 1r) · x - (r ⋆ 1r) · y     ≡[ i ]⟨ ⋆AssocL r 1r x i
-                                                            - ⋆AssocL r 1r y i ⟩
-                    r ⋆ (1r · x) - r ⋆ (1r · y)     ≡[ i ]⟨ r ⋆ (·IdL x i) - r ⋆ (·IdL y i) ⟩
-                    r ⋆ x - r ⋆ y                   ∎ )
-                  (isCommIdeal.·Closed (snd I) _ x-y∈I))
-
--}
-
-{-
-
-  opaque
-    unfolding _/_
-
-    quotientHom : CommAlgebraHom A (_/_)
-    fst quotientHom x = [ x ]
-    IsAlgebraHom.pres0 (snd quotientHom) = refl
-    IsAlgebraHom.pres1 (snd quotientHom) = refl
-    IsAlgebraHom.pres+ (snd quotientHom) _ _ = refl
-    IsAlgebraHom.pres· (snd quotientHom) _ _ = refl
-    IsAlgebraHom.pres- (snd quotientHom) _ = refl
-    IsAlgebraHom.pres⋆ (snd quotientHom) _ _ = refl
-
-module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn A) where
-  open CommRingStr {{...}}
-    hiding (_-_; -_; ·IdL; ·DistR+; is-set)
-    renaming (_·_ to _·R_; _+_ to _+R_)
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
+  open CommRingStr ⦃...⦄
   open CommAlgebraStr ⦃...⦄
+
 
   instance
     _ : CommRingStr ⟨ R ⟩
     _ = snd R
-    _ : CommAlgebraStr R ⟨ A ⟩
-    _ = snd A
+    _ : CommRingStr ⟨ A ⟩ₐ
+    _ = A .fst .snd
+    _ = A
+
+{-
 
   opaque
     unfolding _/_
