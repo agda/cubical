@@ -34,7 +34,7 @@ open import Cubical.ZCohomology.CohomologyRings.Unit
 -- Computation of the cohomology ring
 
 open RingEquivs
-
+{-
 Cohomology-Ring-S⁰P : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤ[X]/X))
 Cohomology-Ring-S⁰P =  compRingEquiv (CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool))
                      (compRingEquiv (CohomologyRing-Coproduct Unit Unit)
@@ -44,3 +44,4 @@ Cohomology-Ring-S⁰ℤ : RingEquiv (H*R (S₊ 0)) (DirectProd-Ring (CommRing→
 Cohomology-Ring-S⁰ℤ =  compRingEquiv (CohomologyRing-Equiv (invIso Iso-⊤⊎⊤-Bool))
                      (compRingEquiv (CohomologyRing-Coproduct Unit Unit)
                                     (Coproduct-Equiv.Coproduct-Equiv-12 CohomologyRing-Unitℤ CohomologyRing-Unitℤ))
+-}
