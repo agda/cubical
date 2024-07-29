@@ -618,8 +618,10 @@ module Equiv-RP²∨S¹-Properties
     ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹ : ℤ/2[x,y]/<y³,xy,x²> → H*ℤ/2 RP²∨S¹
     ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹ = fst ℤ/2[X,Y]/<Y³,XY,X²>→H*R-RP²∨S¹
 
-    ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹-pres0 : ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹ 0Pℤ/2I ≡ 0H*
-    ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹-pres0 = refl
+    opaque
+      unfolding H*Klein→ℤ/2[X,Y]/I
+      ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹-pres0 : ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹ 0Pℤ/2I ≡ 0H*
+      ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹-pres0 = refl
 
     ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹-pres+ : (x y : ℤ/2[x,y]/<y³,xy,x²>) →
                                              ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹ ( x +Pℤ/2I y)
@@ -670,13 +672,15 @@ module Equiv-RP²∨S¹-Properties
     H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> : H*ℤ/2 RP²∨S¹ → ℤ/2[x,y]/<y³,xy,x²>
     H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> = [_] ∘ H*-RP²∨S¹→ℤ/2[x,y]
 
-    H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²>-pres0 : H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> 0H* ≡ 0Pℤ/2I
-    H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²>-pres0 = refl
+    opaque
+      unfolding H*Klein→ℤ/2[X,Y]/I
+      H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²>-pres0 : H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> 0H* ≡ 0Pℤ/2I
+      H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²>-pres0 = refl
 
-    H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²>-pres+ : (x y : H*ℤ/2 RP²∨S¹) →
-                                               H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> (x +H* y)
-                                           ≡ (H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> x) +Pℤ/2I (H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> y)
-    H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²>-pres+ x y = refl
+      H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²>-pres+ : (x y : H*ℤ/2 RP²∨S¹) →
+                                                 H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> (x +H* y)
+                                             ≡ (H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> x) +Pℤ/2I (H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> y)
+      H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²>-pres+ x y = refl
 
 
   -----------------------------------------------------------------------------
@@ -740,12 +744,14 @@ module Equiv-RP²∨S¹-Properties
                                  ∙ cong₂ baseP (cong₂ (λ X Y → X ∷ Y ∷ []) (+-comm _ _) (+-comm _ _))
                                                (·ℤ/2IdR _))
 
-    e-retr : (x : ℤ/2[x,y]/<y³,xy,x²>) → H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> (ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹ x) ≡ x
-    e-retr = SQ.elimProp (λ _ → isSetPℤ/2I _ _)
-             (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤ/2I _ _)
-             refl
-             e-retr-base
-             λ {U V} ind-U ind-V → cong₂ _+Pℤ/2I_ ind-U ind-V)
+    opaque
+      unfolding H*Klein→ℤ/2[X,Y]/I
+      e-retr : (x : ℤ/2[x,y]/<y³,xy,x²>) → H*-RP²∨S¹→ℤ/2[x,y]/<y³,xy,x²> (ℤ/2[x,y]/<y³,xy,x²>→H*-RP²∨S¹ x) ≡ x
+      e-retr = SQ.elimProp (λ _ → isSetPℤ/2I _ _)
+               (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤ/2I _ _)
+               refl
+               e-retr-base
+               λ {U V} ind-U ind-V → cong₂ _+Pℤ/2I_ ind-U ind-V)
 
 
   -- Computation of the Cohomology Ring
