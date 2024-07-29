@@ -109,6 +109,22 @@ CommRingStr.- snd (Ring→CommRing R p) = RingStr.-_ (snd R)
 IsCommRing.isRing (CommRingStr.isCommRing (snd (Ring→CommRing R p))) = RingStr.isRing (snd R)
 IsCommRing.·Comm (CommRingStr.isCommRing (snd (Ring→CommRing R p))) = p
 
+record IsCommRingHom {A : Type ℓ} {B : Type ℓ'} (R : CommRingStr A) (f : A → B) (S : CommRingStr B)
+  : Type (ℓ-max ℓ ℓ')
+  where
+
+  -- Shorter qualified names
+  private
+    module R = CommRingStr R
+    module S = CommRingStr S
+
+  field
+    pres0 : f R.0r ≡ S.0r
+    pres1 : f R.1r ≡ S.1r
+    pres+ : (x y : A) → f (x R.+ y) ≡ f x S.+ f y
+    pres· : (x y : A) → f (x R.· y) ≡ f x S.· f y
+    pres- : (x : A) → f (R.- x) ≡ S.- (f x)
+
 CommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingHom R S = RingHom (CommRing→Ring R) (CommRing→Ring S)
 
