@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommRing.Quotient.Base where
 
 open import Cubical.Foundations.Prelude
@@ -37,15 +37,12 @@ module _ (R : CommRing ℓ) (I : IdealsIn R) where
           (elimProp2 (λ _ _ → squash/ _ _)
                      λ x y i → [ CommRingStr.·Comm (snd R) x y i ]))
 
-
 _/_ : (R : CommRing ℓ) (I : IdealsIn R) → CommRing ℓ
 fst (R / I) = R/I R I
 snd (R / I) = quotientCommRingStr R I
 
 [_]/ : {R : CommRing ℓ} {I : IdealsIn R} → (a : fst R) → fst (R / I)
 [ a ]/ = SQ.[ a ]
-
-
 
 module Coherence (R : CommRing ℓ) (I : IdealsIn R) where
   opaque
@@ -82,9 +79,7 @@ module Coherence (R : CommRing ℓ) (I : IdealsIn R) where
   fst ringStrInv x = x
   (snd ringStrInv) = isRingHomCohInv
 
-
 open RingHoms
-
 
 module Quotient-FGideal-CommRing-Ring
   (R : CommRing ℓ)
@@ -140,7 +135,6 @@ quotientHom R I = Coherence.ringStrInv R I ∘r Ring.quotientHom (CommRing→Rin
 quotientHomSurjective : (R : CommRing ℓ) → (I : IdealsIn R)
                         → isSurjection (fst (quotientHom R I))
 quotientHomSurjective R I = Ring.quotientHomSurjective (CommRing→Ring R) (CommIdeal→Ideal I)
-
 
 module _ {R : CommRing ℓ} (I : IdealsIn R) where
   open CommRingStr ⦃...⦄
