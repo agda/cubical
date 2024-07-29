@@ -362,7 +362,7 @@ module ComputeCP²Notation
 
     H*-CP²→ℤ[x]/x³ : H* CP² → ℤ[x]/x³
     H*-CP²→ℤ[x]/x³ = [_] ∘ H*-CP²→ℤ[x]
-
+{-
     H*-CP²→ℤ[x]/x³-gmorph : (x y : H* CP²) → H*-CP²→ℤ[x]/x³ (x +H* y) ≡ (H*-CP²→ℤ[x]/x³ x) +PℤI (H*-CP²→ℤ[x]/x³ y)
     H*-CP²→ℤ[x]/x³-gmorph x y = refl
 
@@ -454,3 +454,4 @@ snd CP²-CohomologyRing = snd ℤ[X]/X³→H*R-CP²
 
 CohomologyRing-CP² : RingEquiv (H*R CP²) (CommRing→Ring ℤ[X]/X³)
 CohomologyRing-CP² = RingEquivs.invRingEquiv CP²-CohomologyRing
+-- -}
