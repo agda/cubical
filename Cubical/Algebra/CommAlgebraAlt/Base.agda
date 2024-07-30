@@ -44,8 +44,29 @@ module _ {R : CommRing ℓ} where
                   (fst g ∘cr snd B) .fst            ≡⟨ cong fst (g .snd) ⟩
                   (C .snd .fst) ∎)
 
+
   ⟨_⟩ₐ : (A : CommAlgebra R ℓ') → Type ℓ'
   ⟨ A ⟩ₐ = A .fst .fst
+
+  _$ca_ : {A : CommAlgebra R ℓ} {B : CommAlgebra R ℓ'} → (φ : CommAlgebraHom A B) → (x : ⟨ A ⟩ₐ) → ⟨ B ⟩ₐ
+  φ $ca x = φ .fst .fst x
+
+  _∘ca_ : {A : CommAlgebra R ℓ} {B : CommAlgebra R ℓ'} {C : CommAlgebra R ℓ''}
+        → CommAlgebraHom B C → CommAlgebraHom A B → CommAlgebraHom A C
+  g ∘ca f = compCommAlgebraHom g f
+
+  opaque
+    CommAlgebraHom≡ :
+      {A : CommAlgebra R ℓ} {B : CommAlgebra R ℓ'} {f g : CommAlgebraHom A B}
+      → f .fst .fst ≡ g .fst .fst
+      → f ≡ g
+    CommAlgebraHom≡ {B = B} p =
+      Σ≡Prop (λ _ → isSetΣSndProp (isSetΠ (λ _ → is-set))
+                                  (λ _ → isPropIsCommRingHom _ _ _)
+                                  _ _)
+             (Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
+              p)
+      where open CommRingStr (B .fst .snd) using (is-set)
 
   module CommAlgebraStr (A : CommAlgebra R ℓ') where
     open CommRingStr {{...}}
