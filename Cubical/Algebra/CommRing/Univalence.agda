@@ -16,7 +16,6 @@ open import Cubical.Displayed.Universe
 
 open import Cubical.Algebra.AbGroup
 open import Cubical.Algebra.CommRing.Base
-open import Cubical.Algebra.Ring.Base
 
 open import Cubical.Reflection.RecordEquiv
 
@@ -39,7 +38,7 @@ open Iso
       prop[ isCommRing ∣ (λ _ _ → isPropIsCommRing _ _ _ _ _) ])
  where
   open CommRingStr
-  open IsRingHom
+  open IsCommRingHom
 
   -- faster with some sharing
   null = autoDUARel (𝒮-Univ _) (λ A → A)
@@ -53,7 +52,7 @@ uaCommRing {A = A} {B = B} = equivFun (CommRingPath A B)
 
 CommRingIso : (R : CommRing ℓ) (S : CommRing ℓ') → Type (ℓ-max ℓ ℓ')
 CommRingIso R S = Σ[ e ∈ Iso (R .fst) (S .fst) ]
-                     IsRingHom (CommRingStr→RingStr (R .snd)) (e .fun) (CommRingStr→RingStr (S .snd))
+                     IsCommRingHom (R .snd) (e .fun) (S .snd)
 
 CommRingEquivIsoCommRingIso : (R : CommRing ℓ) (S : CommRing ℓ') → Iso (CommRingEquiv R S) (CommRingIso R S)
 fst (fun (CommRingEquivIsoCommRingIso R S) e) = equivToIso (e .fst)
@@ -61,7 +60,7 @@ snd (fun (CommRingEquivIsoCommRingIso R S) e) = e .snd
 fst (inv (CommRingEquivIsoCommRingIso R S) e) = isoToEquiv (e .fst)
 snd (inv (CommRingEquivIsoCommRingIso R S) e) = e .snd
 rightInv (CommRingEquivIsoCommRingIso R S) (e , he) =
-  Σ≡Prop (λ e → isPropIsRingHom (snd (CommRing→Ring R)) (e .fun) (snd (CommRing→Ring S)))
+  Σ≡Prop (λ e → isPropIsCommRingHom (snd R) (e .fun) (snd S))
          rem
   where
   rem : equivToIso (isoToEquiv e) ≡ e
@@ -70,15 +69,15 @@ rightInv (CommRingEquivIsoCommRingIso R S) (e , he) =
   rightInv (rem i) b j = CommRingStr.is-set (snd S) (fun e (inv e b)) b (rightInv e b) (rightInv e b) i j
   leftInv (rem i) a j = CommRingStr.is-set (snd R) (inv e (fun e a)) a (retEq (isoToEquiv e) a) (leftInv e a) i j
 leftInv (CommRingEquivIsoCommRingIso R S) e =
-  Σ≡Prop (λ e → isPropIsRingHom (snd (CommRing→Ring R)) (e .fst) (snd (CommRing→Ring S)))
+  Σ≡Prop (λ e → isPropIsCommRingHom (snd R) (e .fst) (snd S))
          (equivEq refl)
 
 isGroupoidCommRing : isGroupoid (CommRing ℓ)
-isGroupoidCommRing _ _ = isOfHLevelRespectEquiv 2 (CommRingPath _ _) (isSetRingEquiv _ _)
+isGroupoidCommRing _ _ = isOfHLevelRespectEquiv 2 (CommRingPath _ _) (isSetCommRingEquiv _ _)
 
 
 open CommRingStr
-open IsRingHom
+open IsCommRingHom
 -- TODO: Induced structure results are temporarily inconvenient while we transition between algebra
 -- representations
 module _ (R : CommRing ℓ) {A : Type ℓ}
