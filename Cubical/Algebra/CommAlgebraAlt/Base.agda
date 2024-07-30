@@ -48,6 +48,9 @@ module _ {R : CommRing ℓ} where
   ⟨_⟩ₐ : (A : CommAlgebra R ℓ') → Type ℓ'
   ⟨ A ⟩ₐ = A .fst .fst
 
+  ⟨_⟩ₐ→ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} (f : CommAlgebraHom A B) → ⟨ A ⟩ₐ → ⟨ B ⟩ₐ
+  ⟨ f ⟩ₐ→ = f .fst .fst
+
   _$ca_ : {A : CommAlgebra R ℓ} {B : CommAlgebra R ℓ'} → (φ : CommAlgebraHom A B) → (x : ⟨ A ⟩ₐ) → ⟨ B ⟩ₐ
   φ $ca x = φ .fst .fst x
 
