@@ -17,7 +17,7 @@ import Cubical.Algebra.Ring.Quotient as Ring
 open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebraAlt.Base
 open import Cubical.Algebra.CommAlgebraAlt.Ideal
--- open import Cubical.Algebra.CommAlgebra.Kernel
+open import Cubical.Algebra.CommAlgebraAlt.Kernel
 -- open import Cubical.Algebra.CommAlgebra.Instances.Unit
 -- open import Cubical.Algebra.Algebra.Base using (IsAlgebraHom; isPropIsAlgebraHom)
 open import Cubical.Algebra.Ring
@@ -40,7 +40,6 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
   open CommRingStr {{...}} -- hiding (_-_; -_; ·IdL ; ·DistR+) renaming (_·_ to _·R_; _+_ to _+R_)
   open CommAlgebraStr {{...}}
   open RingTheory (CommRing→Ring (fst A)) using (-DistR·)
-  open RingHoms
   instance
     _ : CommRingStr ⟨ R ⟩
     _ = snd R
@@ -50,15 +49,14 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
 
   _/_ : CommAlgebra R ℓ
   _/_ = ((fst A) CommRing./ I) ,
-        (CommRing.quotientHom (fst A) I ∘r A .snd)
+        (CommRing.quotientHom (fst A) I ∘cr A .snd)
 
-  quotientHom : CommAlgebraHom {R = R} A (_/_)
+  quotientHom : CommAlgebraHom A (_/_)
   quotientHom = (CommRing.quotientHom (fst A) I) , refl
 
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
   open CommRingStr ⦃...⦄
   open CommAlgebraStr ⦃...⦄
-
 
   instance
     _ : CommRingStr ⟨ R ⟩
@@ -81,6 +79,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
     IsRingHom.pres+ (snd CommForget/) = λ _ _ → refl
     IsRingHom.pres· (snd CommForget/) = λ _ _ → refl
     IsRingHom.pres- (snd CommForget/) = λ _ → refl
+-}
 
   module _
     (B : CommAlgebra R ℓ)
@@ -88,6 +87,7 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
     (I⊆kernel : (fst I) ⊆ (fst (kernel A B ϕ)))
     where
 
+{-
     open IsAlgebraHom
     open RingTheory (CommRing→Ring (CommAlgebra→CommRing B))
 
