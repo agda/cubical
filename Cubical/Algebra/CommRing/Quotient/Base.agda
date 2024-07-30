@@ -80,7 +80,17 @@ module Coherence (R : CommRing ℓ) (I : IdealsIn R) where
   fst ringStrInv x = x
   (snd ringStrInv) = isRingHomCohInv
 
+
 open RingHoms
+
+quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
+quotientHom R I = RingHom→CommRingHom $
+                      Coherence.ringStrInv R I
+                   ∘r Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
+
+quotientHomSurjective : (R : CommRing ℓ) → (I : IdealsIn R)
+                        → isSurjection (fst (quotientHom R I))
+quotientHomSurjective R I = Ring.quotientHomSurjective (CommRing→Ring R) (CommIdeal→Ideal I)
 
 module Quotient-FGideal-CommRing-Ring
   (R : CommRing ℓ)
@@ -131,14 +141,9 @@ module UniversalProperty
                 Ring.UniversalProperty.inducedHom (CommRing→Ring R) (CommIdeal→Ideal I) (CommRingHom→RingHom f) I⊆ker
                ∘r Coherence.ringStr R I
 
-quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
-quotientHom R I = RingHom→CommRingHom $
-                      Coherence.ringStrInv R I
-                   ∘r Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
-
-quotientHomSurjective : (R : CommRing ℓ) → (I : IdealsIn R)
-                        → isSurjection (fst (quotientHom R I))
-quotientHomSurjective R I = Ring.quotientHomSurjective (CommRing→Ring R) (CommIdeal→Ideal I)
+  isSolution : inducedHom ∘cr quotientHom R I ≡ f
+  isSolution = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
+                     (cong fst (Ring.UniversalProperty.solution (CommRing→Ring R) (CommIdeal→Ideal I) (CommRingHom→RingHom f) I⊆ker))
 
 module _ {R : CommRing ℓ} (I : IdealsIn R) where
   open CommRingStr ⦃...⦄
