@@ -3,6 +3,7 @@ module Cubical.Algebra.CommAlgebraAlt.QuotientAlgebra where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_)
 open import Cubical.Foundations.Structure
@@ -13,7 +14,6 @@ open import Cubical.Data.Sigma.Properties using (Σ≡Prop)
 
 open import Cubical.Algebra.CommRing
 import Cubical.Algebra.CommRing.Quotient as CommRing
-import Cubical.Algebra.Ring.Quotient as Ring
 open import Cubical.Algebra.CommRing.Ideal hiding (IdealsIn)
 open import Cubical.Algebra.CommAlgebraAlt.Base
 open import Cubical.Algebra.CommAlgebraAlt.Ideal
@@ -65,64 +65,60 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
     _ = A .fst .snd
     _ = A
 
-{-
-
-  opaque
-    unfolding _/_
-
-    -- sanity check / maybe a helper function some day
-    -- (These two rings are not definitionally equal, but only because of proofs, not data.)
-    CommForget/ : RingEquiv (CommAlgebra→Ring (A / I)) ((CommAlgebra→Ring A) Ring./ (CommIdeal→Ideal I))
-    fst CommForget/ = idEquiv _
-    IsRingHom.pres0 (snd CommForget/) = refl
-    IsRingHom.pres1 (snd CommForget/) = refl
-    IsRingHom.pres+ (snd CommForget/) = λ _ _ → refl
-    IsRingHom.pres· (snd CommForget/) = λ _ _ → refl
-    IsRingHom.pres- (snd CommForget/) = λ _ → refl
--}
-
   module _
     (B : CommAlgebra R ℓ)
     (ϕ : CommAlgebraHom A B)
     (I⊆kernel : (fst I) ⊆ (fst (kernel A B ϕ)))
     where
 
-{-
-    open IsAlgebraHom
     open RingTheory (CommRing→Ring (CommAlgebra→CommRing B))
 
+    open CommAlgebraStr ⦃...⦄
     private
       instance
-        _ : CommAlgebraStr R ⟨ B ⟩
-        _ = snd B
-        _ : CommRingStr ⟨ B ⟩
+        _ = B
+        _ : CommRingStr ⟨ B ⟩ₐ
         _ = snd (CommAlgebra→CommRing B)
 
-    opaque
-      unfolding _/_
+    inducedHom : CommAlgebraHom (A / I) B
+    inducedHom .fst = CommRing.UniversalProperty.inducedHom
+                             (CommAlgebra→CommRing A)
+                             (CommAlgebra→CommRing B)
+                             I
+                             (CommAlgebraHom→CommRingHom ϕ)
+                             I⊆kernel
+    inducedHom .snd = p
+      where
+      step1 = cong (inducedHom .fst ∘cr_) (sym (quotientHom A I .snd))
+      step2 = compAssocCommRingHom (A .snd) (CommRing.quotientHom (A .fst) I) (inducedHom .fst)
+      step3 = cong (_∘cr A .snd) (CommRing.UniversalProperty.isSolution
+                         (CommAlgebra→CommRing A) (CommAlgebra→CommRing B) I (CommAlgebraHom→CommRingHom ϕ) I⊆kernel)
+      opaque
+        p : (inducedHom .fst ∘cr snd (A / I)) ≡ snd B
+        p = (inducedHom .fst ∘cr snd (A / I))                                  ≡⟨ step1 ⟩
+            (inducedHom .fst ∘cr (CommRing.quotientHom (A .fst) I ∘cr A .snd)) ≡⟨ step2 ⟩
+            (inducedHom .fst ∘cr CommRing.quotientHom (A .fst) I) ∘cr A .snd   ≡⟨ step3 ⟩
+            (ϕ .fst) ∘cr A .snd                                                ≡⟨ ϕ .snd ⟩
+            snd B ∎
 
-      inducedHom : CommAlgebraHom (A / I) B
-      fst inducedHom =
-        rec is-set (λ x → fst ϕ x)
-          λ a b a-b∈I →
-            equalByDifference
-              (fst ϕ a) (fst ϕ b)
-              ((fst ϕ a) - (fst ϕ b)     ≡⟨ cong (λ u → (fst ϕ a) + u) (sym (IsAlgebraHom.pres- (snd ϕ) _)) ⟩
-               (fst ϕ a) + (fst ϕ (- b)) ≡⟨ sym (IsAlgebraHom.pres+ (snd ϕ) _ _) ⟩
-               fst ϕ (a - b)             ≡⟨ I⊆kernel (a - b) a-b∈I ⟩
-               0r ∎)
-      pres0 (snd inducedHom) = pres0 (snd ϕ)
-      pres1 (snd inducedHom) = pres1 (snd ϕ)
-      pres+ (snd inducedHom) = elimProp2 (λ _ _ → is-set _ _) (pres+ (snd ϕ))
-      pres· (snd inducedHom) = elimProp2 (λ _ _ → is-set _ _) (pres· (snd ϕ))
-      pres- (snd inducedHom) = elimProp (λ _ → is-set _ _) (pres- (snd ϕ))
-      pres⋆ (snd inducedHom) = λ r → elimProp (λ _ → is-set _ _) (pres⋆ (snd ϕ) r)
+    opaque
+      inducedHom∘quotientHom : inducedHom ∘ca quotientHom A I ≡ ϕ
+      inducedHom∘quotientHom = CommAlgebraHom≡ (funExt (λ _ → refl))
+
+    opaque
+      isUnique : (ψ : CommAlgebraHom (A / I) B) (ψIsSolution : ⟨ ψ ⟩ₐ→ ∘ ⟨ quotientHom A I ⟩ₐ→ ≡ ⟨ ϕ ⟩ₐ→)
+               → ψ ≡ inducedHom
+      isUnique ψ ψIsSolution =
+        CommAlgebraHom≡
+         (cong fst $
+          CommRing.UniversalProperty.isUnique
+            (A .fst) (B .fst) I (ϕ .fst) I⊆kernel (ψ .fst) ψIsSolution)
+{-
+
 
     opaque
       unfolding inducedHom quotientHom
 
-      inducedHom∘quotientHom : inducedHom ∘a quotientHom A I ≡ ϕ
-      inducedHom∘quotientHom = Σ≡Prop (isPropIsCommAlgebraHom {M = A} {N = B}) (funExt (λ a → refl))
 
   opaque
     unfolding quotientHom

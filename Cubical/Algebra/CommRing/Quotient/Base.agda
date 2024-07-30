@@ -138,12 +138,36 @@ module UniversalProperty
 
   inducedHom : CommRingHom (R / I) S
   inducedHom = RingHom→CommRingHom $
-                Ring.UniversalProperty.inducedHom (CommRing→Ring R) (CommIdeal→Ideal I) (CommRingHom→RingHom f) I⊆ker
+                Ring.UniversalProperty.inducedHom
+                  (CommRing→Ring R)
+                  (CommIdeal→Ideal I)
+                  (CommRingHom→RingHom f)
+                  I⊆ker
                ∘r Coherence.ringStr R I
 
   isSolution : inducedHom ∘cr quotientHom R I ≡ f
   isSolution = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
-                     (cong fst (Ring.UniversalProperty.solution (CommRing→Ring R) (CommIdeal→Ideal I) (CommRingHom→RingHom f) I⊆ker))
+                     (cong fst (Ring.UniversalProperty.solution
+                                      (CommRing→Ring R)
+                                      (CommIdeal→Ideal I)
+                                      (CommRingHom→RingHom f)
+                                      I⊆ker))
+
+  opaque
+    unfolding quotientCommRingStr
+    isUnique : (ψ : CommRingHom (R / I) S) → (ψIsSolution : ψ .fst ∘ quotientHom R I .fst ≡ f .fst)
+             →  ψ ≡ inducedHom
+    isUnique ψ ψIsSolution =
+      Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
+             (cong fst
+                   (Ring.UniversalProperty.unique'
+                       (CommRing→Ring R)
+                       (CommIdeal→Ideal I)
+                       (CommRingHom→RingHom f)
+                       I⊆ker
+                       (CommRingHom→RingHom ψ)
+                       ψIsSolution))
+
 
 module _ {R : CommRing ℓ} (I : IdealsIn R) where
   open CommRingStr ⦃...⦄
