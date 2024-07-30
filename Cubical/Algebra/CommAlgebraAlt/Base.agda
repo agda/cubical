@@ -23,21 +23,8 @@ module _ {R : CommRing ℓ} where
   CommAlgebra→CommRing : (A : CommAlgebra R ℓ') → CommRing ℓ'
   CommAlgebra→CommRing = fst
 
-  CommAlgebra→Ring : (A : CommAlgebra R ℓ') → Ring ℓ'
-  CommAlgebra→Ring A = CommRing→Ring (fst A)
-
   CommAlgebraHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → Type _
   CommAlgebraHom A B = Σ[ f ∈ CommRingHom (fst A) (fst B) ]  f ∘cr snd A ≡ snd B
-
-  CommAlgebraHom→CommRingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
-                             → CommAlgebraHom A B
-                             → CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
-  CommAlgebraHom→CommRingHom = fst
-
-  CommAlgebraHom→RingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
-                             → CommAlgebraHom A B
-                             → RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B)
-  CommAlgebraHom→RingHom = CommRingHom→RingHom ∘ CommAlgebraHom→CommRingHom
 
   idCAlgHom : (A : CommAlgebra R ℓ) → CommAlgebraHom A A
   idCAlgHom A = (idCommRingHom (fst A)) , Σ≡Prop (λ _ → isPropIsCommRingHom (R .snd) _ (A .fst .snd)) refl
@@ -46,12 +33,16 @@ module _ {R : CommRing ℓ} where
                       → (g : CommAlgebraHom B C) → (f : CommAlgebraHom A B)
                       → CommAlgebraHom A C
   compCommAlgebraHom {A = A} {B = B} {C = C} g f =
-    ((fst g) ∘cr (fst f)) ,
-    Σ≡Prop (λ _ → isPropIsCommRingHom (R .snd) _ (C .fst .snd))
-           (
-            (fst g ∘cr (fst f ∘cr snd A)) .fst ≡⟨ cong (λ h → (fst g ∘cr h) .fst) (f .snd) ⟩
-            (fst g ∘cr snd B) .fst            ≡⟨ cong fst (g .snd) ⟩
-            (C .snd .fst) ∎)
+    ((fst g) ∘cr (fst f)) , pasting
+    where
+      opaque
+        pasting : ((fst g) ∘cr (fst f)) ∘cr snd A ≡ snd C
+        pasting =
+          Σ≡Prop (λ _ → isPropIsCommRingHom (R .snd) _ (C .fst .snd))
+                 (
+                  (fst g ∘cr (fst f ∘cr snd A)) .fst ≡⟨ cong (λ h → (fst g ∘cr h) .fst) (f .snd) ⟩
+                  (fst g ∘cr snd B) .fst            ≡⟨ cong fst (g .snd) ⟩
+                  (C .snd .fst) ∎)
 
   ⟨_⟩ₐ : (A : CommAlgebra R ℓ') → Type ℓ'
   ⟨ A ⟩ₐ = A .fst .fst
@@ -86,3 +77,19 @@ module _ {R : CommRing ℓ} where
 
     ⋆AssocL : (r : ⟨ R ⟩) (x y : ⟨ A ⟩ₐ) → (r ⋆ x) · y ≡ r ⋆ (x · y)
     ⋆AssocL r x y = sym (·Assoc (A .snd .fst r) x y)
+
+
+{- Convenience forgetful functions -}
+module _ {R : CommRing ℓ} where
+  CommAlgebra→Ring : (A : CommAlgebra R ℓ') → Ring ℓ'
+  CommAlgebra→Ring A = CommRing→Ring (fst A)
+
+  CommAlgebraHom→CommRingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+                             → CommAlgebraHom A B
+                             → CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
+  CommAlgebraHom→CommRingHom = fst
+
+  CommAlgebraHom→RingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+                             → CommAlgebraHom A B
+                             → RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B)
+  CommAlgebraHom→RingHom = CommRingHom→RingHom ∘ CommAlgebraHom→CommRingHom
