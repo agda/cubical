@@ -33,7 +33,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
   open IdealSum R
   open Cubical.Algebra.Ring.Properties.RingHoms
   open CommRingStr ⦃...⦄
-  open IsRingHom ⦃...⦄
+  open IsCommRingHom ⦃...⦄
 
   {-
     We show ψ is an isomorphism, by showing it is
@@ -55,7 +55,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
   π₂ = quotientHom (R / I) π₁J
 
   π : CommRingHom R ((R / I) / π₁J)
-  π = π₂ ∘r π₁
+  π = π₂ ∘cr π₁
 
   π+ : CommRingHom R (R / (I +i J))
   π+ = quotientHom R (I +i J)
@@ -130,7 +130,7 @@ module Construction {R : CommRing ℓ} (I J : IdealsIn R) where
       RingHomTheory.ker≡0→inj
                   {R = CommRing→Ring (R / (I +i J))}
                   {S = CommRing→Ring ((R / I) / π₁J)}
-                  ψ
+                  (CommRingHom→RingHom ψ)
                   λ {x} → kernel-0 x
 
     ϕ≡ψ : ϕ ≡ ψ
