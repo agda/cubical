@@ -237,3 +237,6 @@ module _ {R : CommRing ℓ} {S : CommRing ℓ'} {f : ⟨ R ⟩ → ⟨ S ⟩} wh
 
 _$cr_ : {R : CommRing ℓ} {S : CommRing ℓ'} → (φ : CommRingHom R S) → (x : ⟨ R ⟩) → ⟨ S ⟩
 φ $cr x = φ .fst x
+
+CommRingHom≡ : {R : CommRing ℓ} {S : CommRing ℓ'} {φ ψ : CommRingHom R S} → fst φ ≡ fst ψ → φ ≡ ψ
+CommRingHom≡ = Σ≡Prop λ f → isPropIsCommRingHom _ f _

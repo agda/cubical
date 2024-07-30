@@ -74,7 +74,7 @@ module _ {ℓ : Level} where
   open NatIso
   open DistLatticeStr ⦃...⦄
   open CommRingStr ⦃...⦄
-  open IsRingHom
+  open IsCommRingHom
   open IsLatticeHom
   open ZarLat
   open ZarLatUniversalProp

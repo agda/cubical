@@ -23,4 +23,4 @@ imageIdeal : {R S : CommRing ℓ}
              (f : CommRingHom R S) (f-epi : isSurjection (fst f))
              (I : IdealsIn R)
               → IdealsIn S
-imageIdeal f f-epi I = Ideal→CommIdeal (Ring.imageIdeal f f-epi (CommIdeal→Ideal I))
+imageIdeal f f-epi I = Ideal→CommIdeal (Ring.imageIdeal (CommRingHom→RingHom f) f-epi (CommIdeal→Ideal I))
