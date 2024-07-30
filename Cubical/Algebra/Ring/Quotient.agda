@@ -3,6 +3,7 @@ module Cubical.Algebra.Ring.Quotient where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Powerset using (_∈_; _⊆_; ⊆-extensionality) -- \in, \sub=
@@ -290,6 +291,11 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
                → (ψ : RingHom (R / I) S) → (ψIsSolution : ψ ∘r quotientHom R I ≡ φ)
                →  ψ ≡ inducedHom p
       unique p ψ ψIsSolution = quotientHomEpi R I S ψ (inducedHom p) (ψIsSolution ∙ sym (solution p))
+
+      unique' : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
+               → (ψ : RingHom (R / I) S) → (ψIsSolution : ψ .fst ∘ quotientHom R I .fst ≡ φ .fst)
+               →  ψ ≡ inducedHom p
+      unique' p ψ ψIsSolution = unique p ψ (RingHom≡ ψIsSolution)
 
 {-
   Show that the kernel of the quotient map
