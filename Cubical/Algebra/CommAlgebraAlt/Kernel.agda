@@ -13,9 +13,9 @@ open import Cubical.Algebra.CommAlgebraAlt.Ideal
 
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
 
-module _ {R : CommRing ℓ} (A B : CommAlgebra R ℓ) (ϕ : CommAlgebraHom A B) where
+module _ {R : CommRing ℓ} (A B : CommAlgebra R ℓ') (ϕ : CommAlgebraHom A B) where
 
   kernel : IdealsIn R A
   kernel = Ideal→CommIdeal (ringKernel (CommAlgebraHom→RingHom {A = A} {B = B} ϕ))

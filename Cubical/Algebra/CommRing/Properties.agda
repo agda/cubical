@@ -32,7 +32,7 @@ open import Cubical.HITs.PropositionalTruncation
 
 private
   variable
-    ℓ ℓ' ℓ'' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
 
 module Units (R' : CommRing ℓ) where
  open CommRingStr (snd R')
@@ -174,7 +174,7 @@ module _ where
                     → compCommRingHom _ _ _ f (idCommRingHom S) ≡ f
   idCompCommRingHom f = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _) refl
 
-  compAssocCommRingHom : {R S T U : CommRing ℓ}
+  compAssocCommRingHom : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''} {U : CommRing ℓ'''}
                          (f : CommRingHom R S) (g : CommRingHom S T) (h : CommRingHom T U)
                        → compCommRingHom _ _ _ (compCommRingHom _ _ _ f g) h
                        ≡ compCommRingHom _ _ _ f (compCommRingHom _ _ _ g h)
