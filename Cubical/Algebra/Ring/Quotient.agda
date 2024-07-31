@@ -217,21 +217,19 @@ module _ (R : Ring ℓ) (I : IdealsIn R) where
   quotientHomSurjective = []surjective
 
   open RingHoms
-  quotientHomEpi :  (S : Ring ℓ')
-                   → (f g : RingHom (R / I) S)
-                   → f ∘r quotientHom R I ≡ g ∘r quotientHom R I
+  quotientHomEpi :  (S : hSet ℓ')
+                   → (f g : ⟨ R / I ⟩ → ⟨ S ⟩)
+                   → f ∘ fst (quotientHom R I) ≡ g ∘ fst (quotientHom R I)
                    → f ≡ g
   quotientHomEpi S f g p =
-    Σ≡Prop (λ _ → isPropIsRingHom _ _ _)
-           (funExt λ x
-             → PT.rec
-               (is-set _ _)
-               (λ {(x' , [x']≡x) → f .fst x                          ≡⟨ cong (λ y → f .fst y) (sym [x']≡x) ⟩
-                                   fst (f ∘r quotientHom R I) x'     ≡⟨ cong (λ h → fst h x') p ⟩
-                                   fst (g ∘r quotientHom R I) x'     ≡⟨ cong (λ y → g .fst y) [x']≡x ⟩
-                                   g .fst x ∎ })
-               (quotientHomSurjective x ))
-    where open RingStr (S .snd) using (is-set)
+    (funExt λ x
+      → PT.rec
+        (S .snd _ _)
+        (λ {(x' , [x']≡x) → f x                                ≡⟨ cong (λ y → f y) (sym [x']≡x) ⟩
+                            (f ∘ fst (quotientHom R I)) x'     ≡⟨ cong (λ h → h x') p ⟩
+                            (g ∘ fst (quotientHom R I)) x'     ≡⟨ cong (λ y → g y) [x']≡x ⟩
+                            g x ∎ })
+        (quotientHomSurjective x ))
 
 
 module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
@@ -290,7 +288,11 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
       unique : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
                → (ψ : RingHom (R / I) S) → (ψIsSolution : ψ ∘r quotientHom R I ≡ φ)
                →  ψ ≡ inducedHom p
-      unique p ψ ψIsSolution = quotientHomEpi R I S ψ (inducedHom p) (ψIsSolution ∙ sym (solution p))
+      unique p ψ ψIsSolution =
+        RingHom≡
+          (quotientHomEpi R I (S .fst , isSetS) (ψ .fst) (inducedHom p .fst)
+            (cong fst $ ψIsSolution ∙ sym (solution p)))
+        where open RingStr (S .snd) using () renaming (is-set to isSetS)
 
       unique' : (p : ((x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r))
                → (ψ : RingHom (R / I) S) → (ψIsSolution : ψ .fst ∘ quotientHom R I .fst ≡ φ .fst)
