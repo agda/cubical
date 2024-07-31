@@ -1,8 +1,9 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Algebra.CommRing.Quotient.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Powerset
 open import Cubical.Functions.Surjection
@@ -23,7 +24,7 @@ import Cubical.Algebra.Ring.Quotient as Ring
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
 
 module _ (R : CommRing ℓ) (I : IdealsIn R) where
   open CommRingStr (snd R)
@@ -83,14 +84,26 @@ module Coherence (R : CommRing ℓ) (I : IdealsIn R) where
 
 open RingHoms
 
-quotientHom : (R : CommRing ℓ) → (I : IdealsIn R) → CommRingHom R (R / I)
-quotientHom R I = RingHom→CommRingHom $
-                      Coherence.ringStrInv R I
-                   ∘r Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
+module _ (R : CommRing ℓ) (I : IdealsIn R) where
 
-quotientHomSurjective : (R : CommRing ℓ) → (I : IdealsIn R)
-                        → isSurjection (fst (quotientHom R I))
-quotientHomSurjective R I = Ring.quotientHomSurjective (CommRing→Ring R) (CommIdeal→Ideal I)
+  quotientHom : CommRingHom R (R / I)
+  quotientHom =
+    withOpaqueStr $
+    RingHom→CommRingHom $
+        Coherence.ringStrInv R I
+     ∘r Ring.quotientHom (CommRing→Ring R) (CommIdeal→Ideal I)
+
+  quotientHomSurjective : isSurjection (quotientHom .fst)
+  quotientHomSurjective = Ring.quotientHomSurjective (CommRing→Ring R) (CommIdeal→Ideal I)
+
+  quotientHomEpi : (S : hSet ℓ')
+                   → (f g : ⟨ R / I ⟩ → ⟨ S ⟩)
+                   → f ∘ quotientHom .fst ≡ g ∘ quotientHom .fst
+                   → f ≡ g
+  quotientHomEpi S f g p =
+      (Ring.quotientHomEpi
+         (CommRing→Ring R) (CommIdeal→Ideal I) S
+         f g p)
 
 module Quotient-FGideal-CommRing-Ring
   (R : CommRing ℓ)
@@ -137,13 +150,15 @@ module UniversalProperty
   where
 
   inducedHom : CommRingHom (R / I) S
-  inducedHom = RingHom→CommRingHom $
-                Ring.UniversalProperty.inducedHom
-                  (CommRing→Ring R)
-                  (CommIdeal→Ideal I)
-                  (CommRingHom→RingHom f)
-                  I⊆ker
-               ∘r Coherence.ringStr R I
+  inducedHom =
+    withOpaqueStr $
+    RingHom→CommRingHom $
+       Ring.UniversalProperty.inducedHom
+         (CommRing→Ring R)
+         (CommIdeal→Ideal I)
+         (CommRingHom→RingHom f)
+         I⊆ker
+      ∘r Coherence.ringStr R I
 
   isSolution : inducedHom ∘cr quotientHom R I ≡ f
   isSolution = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)

@@ -15,6 +15,20 @@ private
 TypeWithStr : (ℓ : Level) (S : Type ℓ → Type ℓ') → Type (ℓ-max (ℓ-suc ℓ) ℓ')
 TypeWithStr ℓ S = Σ[ X ∈ Type ℓ ] S X
 
+{-
+ A helper to make the second component opaque
+ it is a good idea to use this for set-level structures,
+ where the second component consists only of proofs of identities
+ or other propositions
+-}
+withOpaqueStr : {A : Type ℓ'} {B : A → Type ℓ''}
+               → Σ[ x ∈ A ] B x
+               → Σ[ x ∈ A ] B x
+withOpaqueStr {B = B} (x , str) = x , str'
+  where opaque
+          str' : B x
+          str' = str
+
 typ : TypeWithStr ℓ S → Type ℓ
 typ = fst
 

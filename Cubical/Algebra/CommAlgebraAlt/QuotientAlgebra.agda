@@ -30,14 +30,8 @@ private
   variable
     ℓ : Level
 
-{-
-  The definition of the quotient algebra (_/_ below) is marked opaque to avoid
-  long type checking times. All other definitions that need to "look into" this
-  opaque definition must be in an opaque block that unfolds the definition of _/_.
--}
-
 module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
-  open CommRingStr {{...}} -- hiding (_-_; -_; ·IdL ; ·DistR+) renaming (_·_ to _·R_; _+_ to _+R_)
+  open CommRingStr {{...}}
   open CommAlgebraStr {{...}}
   open RingTheory (CommRing→Ring (fst A)) using (-DistR·)
   instance
@@ -113,28 +107,25 @@ module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
          (cong fst $
           CommRing.UniversalProperty.isUnique
             (A .fst) (B .fst) I (ϕ .fst) I⊆kernel (ψ .fst) ψIsSolution)
-{-
 
 
-    opaque
-      unfolding inducedHom quotientHom
 
+module _ {R : CommRing ℓ} (A : CommAlgebra R ℓ) (I : IdealsIn R A) where
+  open CommRingStr {{...}}
+  open CommAlgebraStr {{...}}
 
   opaque
-    unfolding quotientHom
+--    unfolding quotientHom
 
     injectivePrecomp : (B : CommAlgebra R ℓ) (f g : CommAlgebraHom (A / I) B)
-                       → f ∘a (quotientHom A I) ≡ g ∘a (quotientHom A I)
+                       → f ∘ca (quotientHom A I) ≡ g ∘ca (quotientHom A I)
                        → f ≡ g
     injectivePrecomp B f g p =
-      Σ≡Prop
-        (λ h → isPropIsCommAlgebraHom {M = A / I} {N = B} h)
-        (descendMapPath (fst f) (fst g) is-set
-                        λ x → λ i → fst (p i) x)
-      where
-      instance
-        _ : CommAlgebraStr R ⟨ B ⟩
-        _ = str B
+      CommAlgebraHom≡ ?
+--        (descendMapPath ⟨ f ⟩ₐ→ ⟨ g ⟩ₐ→ is-set
+--                        λ x → λ i → fst (p i) x)
+--      where
+{-
 
 
 {- trivial quotient -}
