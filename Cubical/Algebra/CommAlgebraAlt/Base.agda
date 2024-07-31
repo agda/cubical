@@ -71,6 +71,9 @@ module _ {R : CommRing ℓ} where
               p)
       where open CommRingStr (B .fst .snd) using (is-set)
 
+  CommAlgebraEquiv : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → Type _
+  CommAlgebraEquiv A B = Σ[ f ∈ CommRingEquiv (A .fst) (B .fst) ] (f .fst .fst , f .snd)  ∘cr A .snd ≡ B .snd
+
   module CommAlgebraStr (A : CommAlgebra R ℓ') where
     open CommRingStr {{...}}
     instance
