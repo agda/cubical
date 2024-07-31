@@ -140,7 +140,8 @@ module Quotient-FGideal-CommRing-CommRing
   where
 
   inducedHom : CommRingHom (R / (generatedIdeal _ v)) S
-  inducedHom = RingHom→CommRingHom $ Quotient-FGideal-CommRing-Ring.inducedHom R (CommRing→Ring S) (CommRingHom→RingHom f) v fnull
+  inducedHom = RingHom→CommRingHom $
+               Quotient-FGideal-CommRing-Ring.inducedHom R (CommRing→Ring S) (CommRingHom→RingHom f) v fnull
 
 module UniversalProperty
   (R S : CommRing ℓ)
@@ -160,13 +161,14 @@ module UniversalProperty
          I⊆ker
       ∘r Coherence.ringStr R I
 
-  isSolution : inducedHom ∘cr quotientHom R I ≡ f
-  isSolution = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
-                     (cong fst (Ring.UniversalProperty.solution
-                                      (CommRing→Ring R)
-                                      (CommIdeal→Ideal I)
-                                      (CommRingHom→RingHom f)
-                                      I⊆ker))
+  opaque
+    isSolution : inducedHom ∘cr quotientHom R I ≡ f
+    isSolution = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
+                       (cong fst (Ring.UniversalProperty.solution
+                                        (CommRing→Ring R)
+                                        (CommIdeal→Ideal I)
+                                        (CommRingHom→RingHom f)
+                                        I⊆ker))
 
   opaque
     unfolding quotientCommRingStr
