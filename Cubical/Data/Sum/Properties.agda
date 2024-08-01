@@ -293,3 +293,67 @@ leftInv ×DistR⊎Iso (a , inr c) = refl
                                              (map f g x)
                                              (map f g y) ⟩
                           map f g x ≡ map f g y ■) .snd)
+
+-- A ⊎ B ≃ C ⊎ D implies B ≃ D if the first equiv respects inl
+Iso⊎→Iso : (f : Iso A C) (e : Iso (A ⊎ B) (C ⊎ D))
+   → ((a : A) → Iso.fun e (inl a) ≡ inl (Iso.fun f a))
+   → Iso B D
+Iso⊎→Iso {A = A} {C = C} {B = B} {D = D} f e p = Iso'
+  where
+  ⊥-fib : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A ⊎ B → Type
+  ⊥-fib (inl x) = ⊥
+  ⊥-fib (inr x) = Unit
+
+  module _ {A : Type ℓa} {B : Type ℓb} {C : Type ℓc} {D : Type ℓd}
+         (f : Iso A C)
+         (e : Iso (A ⊎ B) (C ⊎ D))
+         (p : (a : A) → Iso.fun e (inl a) ≡ inl (Iso.fun f a)) where
+    T : (b : B) → Type _
+    T b = Σ[ d' ∈ C ⊎ D ] (Iso.fun e (inr b) ≡ d')
+
+    T-elim : ∀ {ℓ} (b : B) {P : (x : T b) → Type ℓ}
+           → ((d : D) (s : _) → P (inr d , s))
+           → (x : _) → P x
+    T-elim b ind (inl x , q) =
+      ⊥.rec (subst ⊥-fib (sym (sym (Iso.leftInv e _)
+          ∙ cong (Iso.inv e)
+             (p _ ∙ cong inl (Iso.rightInv f x) ∙ sym q)
+          ∙ Iso.leftInv e _)) tt)
+    T-elim b ind (inr x , y) = ind x y
+
+  e-pres-inr-help : (b : B) → T f e p b  → D
+  e-pres-inr-help b = T-elim f e p b λ d _ → d
+
+  p' : (a : C) → Iso.inv e (inl a) ≡ inl (Iso.inv f a)
+  p' c = cong (Iso.inv e ∘ inl) (sym (Iso.rightInv f c))
+      ∙∙ cong (Iso.inv e) (sym (p (Iso.inv f c)))
+      ∙∙ Iso.leftInv e _
+
+  e⁻-pres-inr-help : (d : D) → T (invIso f) (invIso e) p' d → B
+  e⁻-pres-inr-help d = T-elim (invIso f) (invIso e) p' d λ b _ → b
+
+  e-pres-inr : B → D
+  e-pres-inr b = e-pres-inr-help b (_ , refl)
+
+  e⁻-pres-inr : D → B
+  e⁻-pres-inr d = e⁻-pres-inr-help d (_ , refl)
+
+  lem1 : (b : B) (e : T f e p b) (d : _)
+    → e⁻-pres-inr-help (e-pres-inr-help b e) d ≡ b
+  lem1 b = T-elim f e p b λ d s
+    → T-elim (invIso f) (invIso e) p' _
+      λ b' s' → invEq (_ , isEmbedding-inr _ _)
+        (sym s' ∙ cong (Iso.inv e) (sym s) ∙ Iso.leftInv e _)
+
+  lem2 : (d : D) (e : T (invIso f) (invIso e) p' d ) (t : _)
+    → e-pres-inr-help (e⁻-pres-inr-help d e) t ≡ d
+  lem2 d = T-elim (invIso f) (invIso e) p' d
+    λ b s → T-elim f e p _ λ d' s'
+    → invEq (_ , isEmbedding-inr _ _)
+         (sym s' ∙ cong (Iso.fun e) (sym s) ∙ Iso.rightInv e _)
+
+  Iso' : Iso B D
+  Iso.fun Iso' = e-pres-inr
+  Iso.inv Iso' = e⁻-pres-inr
+  Iso.rightInv Iso' x = lem2 x (_ , refl) (_ , refl)
+  Iso.leftInv Iso' x = lem1 x (_ , refl) (_ , refl)

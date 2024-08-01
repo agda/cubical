@@ -76,3 +76,7 @@ module _ {ℓ} {A : Type ℓ} where
            → List A → B
   rec b _ [] = b
   rec b f (x ∷ xs) = f x (rec b f xs)
+
+ℓ-maxList : List Level → Level
+ℓ-maxList [] = ℓ-zero
+ℓ-maxList (x ∷ x₁) = ℓ-max x (ℓ-maxList x₁)
