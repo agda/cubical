@@ -35,7 +35,7 @@ module _ (R : CommRing ℓ) where
 
   constantPolynomialHom : CommRingHom R UnivariatePolyList
   constantPolynomialHom = [_] ,
-                          makeIsRingHom
+                          makeIsCommRingHom
                             refl
                             (λ r s → refl)
                             λ r s → sym (MultHom[-] r s)

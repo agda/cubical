@@ -91,15 +91,15 @@ module AlgLoc (R' : CommRing ℓ)
 
   χᴬ : CommAlgebraHom S⁻¹RAsCommAlg B'
   fst χᴬ = fst χ
-  pres0 (snd χᴬ) = IsRingHom.pres0 (snd χ)
-  pres1 (snd χᴬ) = IsRingHom.pres1 (snd χ)
-  pres+ (snd χᴬ) = IsRingHom.pres+ (snd χ)
-  pres· (snd χᴬ) = IsRingHom.pres· (snd χ)
-  pres- (snd χᴬ) = IsRingHom.pres- (snd χ)
+  pres0 (snd χᴬ) = IsCommRingHom.pres0 (snd χ)
+  pres1 (snd χᴬ) = IsCommRingHom.pres1 (snd χ)
+  pres+ (snd χᴬ) = IsCommRingHom.pres+ (snd χ)
+  pres· (snd χᴬ) = IsCommRingHom.pres· (snd χ)
+  pres- (snd χᴬ) = IsCommRingHom.pres- (snd χ)
   pres⋆ (snd χᴬ) r x = path
    where
    path : fst χ ((r /1) ·ₗ x) ≡ _⋆_  (snd B') r (fst χ x)
-   path = fst χ ((r /1) ·ₗ x)             ≡⟨ IsRingHom.pres· (snd χ) _ _ ⟩
+   path = fst χ ((r /1) ·ₗ x)             ≡⟨ IsCommRingHom.pres· (snd χ) _ _ ⟩
           fst χ (r /1) ·b fst χ x         ≡⟨ cong (_·b fst χ x) (χcomp r) ⟩
           fst φ r ·b fst χ x              ≡⟨ refl ⟩
           _⋆_  (snd B') r 1b ·b fst χ x   ≡⟨ ⋆AssocL (snd B') _ _ _ ⟩
@@ -115,11 +115,11 @@ module AlgLoc (R' : CommRing ℓ)
 
    ψ' : CommRingHom S⁻¹RAsCommRing B
    fst ψ' = fst ψ
-   IsRingHom.pres0 (snd ψ') = pres0 (snd ψ)
-   IsRingHom.pres1 (snd ψ') = pres1 (snd ψ)
-   IsRingHom.pres+ (snd ψ') = pres+ (snd ψ)
-   IsRingHom.pres· (snd ψ') = pres· (snd ψ)
-   IsRingHom.pres- (snd ψ') = pres- (snd ψ)
+   IsCommRingHom.pres0 (snd ψ') = pres0 (snd ψ)
+   IsCommRingHom.pres1 (snd ψ') = pres1 (snd ψ)
+   IsCommRingHom.pres+ (snd ψ') = pres+ (snd ψ)
+   IsCommRingHom.pres· (snd ψ') = pres· (snd ψ)
+   IsCommRingHom.pres- (snd ψ') = pres- (snd ψ)
 
    ψ'r/1≡φr : ∀ r → fst ψ (r /1) ≡ fst φ r
    ψ'r/1≡φr r =
@@ -138,7 +138,7 @@ module AlgLoc (R' : CommRing ℓ)
                   → CommAlgebraEquiv S⁻¹RAsCommAlg (toCommAlg (A' , φ))
  S⁻¹RAlgCharEquiv A' φ cond = toCommAlgebraEquiv (S⁻¹RAsCommRing , /1AsCommRingHom) (A' , φ)
                                 (S⁻¹RCharEquiv R' S' SMultClosedSubset A' φ cond)
-                                (RingHom≡ (S⁻¹RHasUniversalProp A' φ (cond .φS⊆Aˣ) .fst .snd))
+                                (CommRingHom≡ (S⁻¹RHasUniversalProp A' φ (cond .φS⊆Aˣ) .fst .snd))
   where open PathToS⁻¹R
 
 
