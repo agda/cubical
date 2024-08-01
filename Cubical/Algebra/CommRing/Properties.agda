@@ -203,6 +203,12 @@ module CommRingEquivs where
   fst (idCommRingEquiv A) = idEquiv (fst A)
   snd (idCommRingEquiv A) = makeIsCommRingHom refl (λ _ _ → refl) (λ _ _ → refl)
 
+  CommRingEquiv≡ : {A : CommRing ℓ} {B : CommRing ℓ'} {f g : CommRingEquiv A B}
+                  → f .fst .fst ≡ g .fst .fst
+                  → f ≡ g
+  CommRingEquiv≡ p = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
+                            (Σ≡Prop isPropIsEquiv p)
+
 module Exponentiation (R' : CommRing ℓ) where
  open CommRingStr (snd R')
  private R = fst R'
