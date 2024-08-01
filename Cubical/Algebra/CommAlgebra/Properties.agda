@@ -107,6 +107,7 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
    -- note that the proofs of the axioms might differ!
    isCommRing (snd (CommAlgebra→CommRing≡ i)) = isProp→PathP (λ i → isPropIsCommRing _ _ _ _ _ )
               (isCommRing (snd (CommAlgebra→CommRing (toCommAlg Aφ)))) (isCommRing (snd A)) i
+
 {-
  CommRingWithHomRoundTrip : (Aφ : CommRingWithHom) → fromCommAlg (toCommAlg Aφ) ≡ Aφ
  CommRingWithHomRoundTrip (A , φ) = ΣPathP (CommAlgebra→CommRing≡ (A , φ) , φPathP)
@@ -117,6 +118,7 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
                  (snd (fromCommAlg (toCommAlg (A , φ)))) φ
   φPathP = RingHomPathP _ _ _ _ _ _ λ i x → ·IdR (snd A) (fst φ x) i
 -}
+
  CommAlgRoundTrip : (A : CommAlgebra R ℓ') → toCommAlg (fromCommAlg A) ≡ A
  CommAlgRoundTrip A = ΣPathP (refl , AlgStrPathP)
   where
@@ -133,6 +135,7 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
   CommAlgebraStr.isCommAlgebra (AlgStrPathP i) = isProp→PathP
     (λ i → isPropIsCommAlgebra _ _ _ _ _ _ (CommAlgebraStr._⋆_ (AlgStrPathP i)))
     (CommAlgebraStr.isCommAlgebra (snd (toCommAlg (fromCommAlg A)))) isCommAlgebra i
+
 {-
  CommAlgIso : Iso (CommAlgebra R ℓ') CommRingWithHom
  fun CommAlgIso = fromCommAlg
@@ -140,6 +143,7 @@ module CommAlgChar (R : CommRing ℓ) {ℓ' : Level} where
  rightInv CommAlgIso = CommRingWithHomRoundTrip
  leftInv CommAlgIso = CommAlgRoundTrip
 -}
+
  open IsCommRingHom
 
  isCommRingWithHomHom : (A B : CommRingWithHom) → CommRingHom (fst A) (fst B) → Type (ℓ-max ℓ ℓ')
