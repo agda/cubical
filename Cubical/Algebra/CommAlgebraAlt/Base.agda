@@ -4,6 +4,7 @@ module Cubical.Algebra.CommAlgebraAlt.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
@@ -28,8 +29,8 @@ module _ {R : CommRing ℓ} where
   CommAlgebraHom : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → Type _
   CommAlgebraHom A B = Σ[ f ∈ CommRingHom (fst A) (fst B) ]  f ∘cr snd A ≡ snd B
 
-  idCAlgHom : (A : CommAlgebra R ℓ) → CommAlgebraHom A A
-  idCAlgHom A = (idCommRingHom (fst A)) , Σ≡Prop (λ _ → isPropIsCommRingHom (R .snd) _ (A .fst .snd)) refl
+  idCAlgHom : (A : CommAlgebra R ℓ') → CommAlgebraHom A A
+  idCAlgHom A = (idCommRingHom (fst A)) , CommRingHom≡ refl
 
   compCommAlgebraHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {C : CommAlgebra R ℓ'''}
                       → (g : CommAlgebraHom B C) → (f : CommAlgebraHom A B)
@@ -95,6 +96,19 @@ module _ {R : CommRing ℓ} where
   CommAlgebraEquiv : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → Type _
   CommAlgebraEquiv A B = Σ[ f ∈ CommRingEquiv (A .fst) (B .fst) ] (f .fst .fst , f .snd)  ∘cr A .snd ≡ B .snd
 
+  idCAlgEquiv : (A : CommAlgebra R ℓ') → CommAlgebraEquiv A A
+  idCAlgEquiv A = (CommRingEquivs.idCommRingEquiv (fst A)) ,
+                   CommRingHom≡ refl
+
+  CommAlgebraEquiv≡ :
+      {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} {f g : CommAlgebraEquiv A B}
+      → f .fst .fst .fst ≡ g .fst .fst .fst
+      → f ≡ g
+  CommAlgebraEquiv≡ {B = B} p =
+    Σ≡Prop (λ _ → isSetΣSndProp (isSetΠ (λ _ → isSetB)) (λ _ → isPropIsCommRingHom _ _ _) _ _)
+           (CommRingEquivs.CommRingEquiv≡ p)
+    where open CommRingStr (B .fst .snd) using () renaming (is-set to isSetB)
+
   module CommAlgebraStr (A : CommAlgebra R ℓ') where
     open CommRingStr {{...}}
     instance
@@ -126,7 +140,7 @@ module _ {R : CommRing ℓ} where
     ⋆AssocL : (r : ⟨ R ⟩) (x y : ⟨ A ⟩ₐ) → (r ⋆ x) · y ≡ r ⋆ (x · y)
     ⋆AssocL r x y = sym (·Assoc (A .snd .fst r) x y)
 
-{- Convenience forgetful functions -}
+{- Convenient forgetful functions -}
 module _ {R : CommRing ℓ} where
   CommAlgebra→Ring : (A : CommAlgebra R ℓ') → Ring ℓ'
   CommAlgebra→Ring A = CommRing→Ring (fst A)
