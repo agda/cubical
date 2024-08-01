@@ -7,6 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Sigma
 
@@ -76,7 +77,20 @@ module _ {R : CommRing ℓ} where
       → (p : (A .fst) ≡ (B .fst))
       → (pathToEquiv $ cong fst p) .fst ∘ (A .snd) .fst ≡ (B .snd) .fst
       → A ≡ B
-    CommAlgebra≡ p q = {!!}
+    CommAlgebra≡ {A = A} {B = B} p q = ΣPathTransport→PathΣ A B (p , pComm)
+      where
+            pComm : subst (CommRingHom R) p (A .snd) ≡ B .snd
+            pComm =
+              CommRingHom≡
+                (fst (subst (CommRingHom R) p (A .snd))
+                   ≡⟨ sym (substCommSlice (CommRingHom R) (λ X → ⟨ R ⟩ → ⟨ X ⟩) (λ _ → fst) p (A .snd)) ⟩
+                 subst (λ X → ⟨ R ⟩ → ⟨ X ⟩) p (A .snd .fst)
+                   ≡⟨ fromPathP (funTypeTransp (λ _ → ⟨ R ⟩) ⟨_⟩ p (A .snd .fst)) ⟩
+                 subst ⟨_⟩ p ∘ A .snd .fst ∘ subst (λ _ → ⟨ R ⟩) (sym p)
+                   ≡⟨ cong ((subst ⟨_⟩ p ∘ A .snd .fst) ∘_) (funExt (λ _ → transportRefl _)) ⟩
+                 (pathToEquiv $ cong (λ r → fst r) p) .fst ∘ A .snd .fst
+                   ≡⟨ q ⟩
+                 fst (B .snd) ∎)
 
   CommAlgebraEquiv : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → Type _
   CommAlgebraEquiv A B = Σ[ f ∈ CommRingEquiv (A .fst) (B .fst) ] (f .fst .fst , f .snd)  ∘cr A .snd ≡ B .snd
@@ -126,3 +140,8 @@ module _ {R : CommRing ℓ} where
                              → CommAlgebraHom A B
                              → RingHom (CommAlgebra→Ring A) (CommAlgebra→Ring B)
   CommAlgebraHom→RingHom = CommRingHom→RingHom ∘ CommAlgebraHom→CommRingHom
+
+  CommAlgebraEquiv→CommRingHom : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+                             → CommAlgebraEquiv A B
+                             → CommRingHom (CommAlgebra→CommRing A) (CommAlgebra→CommRing B)
+  CommAlgebraEquiv→CommRingHom e = CommRingEquiv→CommRingHom (e .fst)
