@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Univalence
 
 open import Cubical.Data.Sigma
 
@@ -44,7 +45,6 @@ module _ {R : CommRing ℓ} where
                   (fst g ∘cr snd B) .fst            ≡⟨ cong fst (g .snd) ⟩
                   (C .snd .fst) ∎)
 
-
   ⟨_⟩ₐ : (A : CommAlgebra R ℓ') → Type ℓ'
   ⟨ A ⟩ₐ = A .fst .fst
 
@@ -70,6 +70,13 @@ module _ {R : CommRing ℓ} where
              (Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _)
               p)
       where open CommRingStr (B .fst .snd) using (is-set)
+
+    CommAlgebra≡ :
+      {A B : CommAlgebra R ℓ'}
+      → (p : (A .fst) ≡ (B .fst))
+      → (pathToEquiv $ cong fst p) .fst ∘ (A .snd) .fst ≡ (B .snd) .fst
+      → A ≡ B
+    CommAlgebra≡ p q = {!!}
 
   CommAlgebraEquiv : (A : CommAlgebra R ℓ') (B : CommAlgebra R ℓ'') → Type _
   CommAlgebraEquiv A B = Σ[ f ∈ CommRingEquiv (A .fst) (B .fst) ] (f .fst .fst , f .snd)  ∘cr A .snd ≡ B .snd
@@ -104,7 +111,6 @@ module _ {R : CommRing ℓ} where
 
     ⋆AssocL : (r : ⟨ R ⟩) (x y : ⟨ A ⟩ₐ) → (r ⋆ x) · y ≡ r ⋆ (x · y)
     ⋆AssocL r x y = sym (·Assoc (A .snd .fst r) x y)
-
 
 {- Convenience forgetful functions -}
 module _ {R : CommRing ℓ} where
