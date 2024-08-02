@@ -276,7 +276,7 @@ module Equiv-S1-Properties where
 
   H*-S¹→ℤ[x]/x² : H* (S₊ 1) → ℤ[x]/x²
   H*-S¹→ℤ[x]/x² = [_] ∘ H*-S¹→ℤ[x]
-{-
+
   H*-S¹→ℤ[x]/x²-pres+ : (x y : H* (S₊ 1)) → H*-S¹→ℤ[x]/x² (x +H* y) ≡ (H*-S¹→ℤ[x]/x² x) +PℤI (H*-S¹→ℤ[x]/x² y)
   H*-S¹→ℤ[x]/x²-pres+ x y = refl
 
@@ -337,4 +337,3 @@ module _ where
 
   CohomologyRing-S¹ : RingEquiv (H*R (S₊ 1)) (CommRing→Ring ℤ[X]/X²)
   CohomologyRing-S¹ = RingEquivs.invRingEquiv S¹-CohomologyRing
--- -}

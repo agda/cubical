@@ -245,118 +245,116 @@ module _ {ℓ : Level} (G : CommRing ℓ) (n : ℕ) where
         ∙ base-neutral (1 ∷ []))
     help (gt x) = refl
 
-  opaque
-    unfolding quotientCommRingStr
-    H*[Sⁿ,G]→G[X]/<X²>-fun-coh₂ : (r : ℕ) (x y : coHom r GAb (S₊ (suc n)))
+  H*[Sⁿ,G]→G[X]/<X²>-fun-coh₂ : (r : ℕ) (x y : coHom r GAb (S₊ (suc n)))
+    → CommRingStr._+_ (snd (G[X]/<X²>))
+        (H*[Sⁿ,G]→G[X]/<X²>-fun r x) (H*[Sⁿ,G]→G[X]/<X²>-fun r y)
+     ≡ H*[Sⁿ,G]→G[X]/<X²>-fun r (x +ₕ y)
+  H*[Sⁿ,G]→G[X]/<X²>-fun-coh₂ zero x y =
+    cong [_] (base-add (0 ∷ []) _ _
+    ∙ cong (base (0 ∷ [])) (sym (IsGroupHom.pres· (H⁰[Sⁿ,G]≅G GAb n .snd) _ _)))
+  H*[Sⁿ,G]→G[X]/<X²>-fun-coh₂ (suc r) x y = help (n ≟ r) x y
+    where
+    help : (p : _) (x y : coHom (suc r) GAb (S₊ (suc n)))
       → CommRingStr._+_ (snd (G[X]/<X²>))
-          (H*[Sⁿ,G]→G[X]/<X²>-fun r x) (H*[Sⁿ,G]→G[X]/<X²>-fun r y)
-       ≡ H*[Sⁿ,G]→G[X]/<X²>-fun r (x +ₕ y)
-    H*[Sⁿ,G]→G[X]/<X²>-fun-coh₂ zero x y =
-      cong [_] (base-add (0 ∷ []) _ _
-      ∙ cong (base (0 ∷ [])) (sym (IsGroupHom.pres· (H⁰[Sⁿ,G]≅G GAb n .snd) _ _)))
-    H*[Sⁿ,G]→G[X]/<X²>-fun-coh₂ (suc r) x y = help (n ≟ r) x y
+          (H*[Sⁿ,G]→G[X]/<X²>-fun^ r p x)
+          (H*[Sⁿ,G]→G[X]/<X²>-fun^ r p y)
+       ≡ H*[Sⁿ,G]→G[X]/<X²>-fun^ r p (x +ₕ y)
+    help (lt p) x y = cong [_] (addRid neutral)
+    help (eq p) = help' r p
       where
-      help : (p : _) (x y : coHom (suc r) GAb (S₊ (suc n)))
-        → CommRingStr._+_ (snd (G[X]/<X²>))
-            (H*[Sⁿ,G]→G[X]/<X²>-fun^ r p x)
-            (H*[Sⁿ,G]→G[X]/<X²>-fun^ r p y)
-         ≡ H*[Sⁿ,G]→G[X]/<X²>-fun^ r p (x +ₕ y)
-      help (lt p) x y = cong [_] (addRid neutral)
-      help (eq p) = help' r p
-        where
-        help' : (r : ℕ) (p : n ≡ r) (x y : _)
-          → CommRingStr._+_ (snd G[X]/<X²>)
-             (H*[Sⁿ,G]→G[X]/<X²>-fun^ r (eq p) x)
-             (H*[Sⁿ,G]→G[X]/<X²>-fun^ r (eq p) y)
-          ≡ H*[Sⁿ,G]→G[X]/<X²>-fun^ r (eq p) (x +ₕ y)
-        help' = J> λ a b → cong [_]
-          (cong₂ (λ x y → (base (1 ∷ []) x) add (base (1 ∷ []) y))
-                 (cong (Hⁿ[Sⁿ,G]≅G GAb n .fst .fst) (transportRefl a))
-                 (cong (Hⁿ[Sⁿ,G]≅G GAb n .fst .fst) (transportRefl b))
-              ∙ base-add _ _ _
-              ∙ cong (base (1 ∷ []))
-                 (sym (IsGroupHom.pres· (Hⁿ[Sⁿ,G]≅G GAb n .snd) _ _)
-                ∙ cong (Hⁿ[Sⁿ,G]≅G GAb n .fst .fst) (sym (transportRefl (a +ₕ b)))))
-      help (gt p) x y = cong [_] (addRid neutral)
+      help' : (r : ℕ) (p : n ≡ r) (x y : _)
+        → CommRingStr._+_ (snd G[X]/<X²>)
+           (H*[Sⁿ,G]→G[X]/<X²>-fun^ r (eq p) x)
+           (H*[Sⁿ,G]→G[X]/<X²>-fun^ r (eq p) y)
+        ≡ H*[Sⁿ,G]→G[X]/<X²>-fun^ r (eq p) (x +ₕ y)
+      help' = J> λ a b → cong [_]
+        (cong₂ (λ x y → (base (1 ∷ []) x) add (base (1 ∷ []) y))
+               (cong (Hⁿ[Sⁿ,G]≅G GAb n .fst .fst) (transportRefl a))
+               (cong (Hⁿ[Sⁿ,G]≅G GAb n .fst .fst) (transportRefl b))
+            ∙ base-add _ _ _
+            ∙ cong (base (1 ∷ []))
+               (sym (IsGroupHom.pres· (Hⁿ[Sⁿ,G]≅G GAb n .snd) _ _)
+              ∙ cong (Hⁿ[Sⁿ,G]≅G GAb n .fst .fst) (sym (transportRefl (a +ₕ b)))))
+    help (gt p) x y = cong [_] (addRid neutral)
 
-    H*[Sⁿ,G]→G[X]/<X²> : fst (H*R GRing (S₊ (suc n))) → G[X]/<X²> .fst
-    H*[Sⁿ,G]→G[X]/<X²> = DS-Rec-Set.f _ _ _ _ squash/
-      [ neutral ]
-      H*[Sⁿ,G]→G[X]/<X²>-fun
-      (CommRingStr._+_ (snd (G[X]/<X²>)))
-      (λ _ _ _ → CommRingStr.+Assoc (snd (G[X]/<X²>)) _ _ _)
-      (λ _ → CommRingStr.+IdR (snd (G[X]/<X²>)) _)
-      (λ _ _ → CommRingStr.+Comm (snd (G[X]/<X²>)) _ _)
-      H*[Sⁿ,G]→G[X]/<X²>-fun-coh₁
-      H*[Sⁿ,G]→G[X]/<X²>-fun-coh₂
+  H*[Sⁿ,G]→G[X]/<X²> : fst (H*R GRing (S₊ (suc n))) → G[X]/<X²> .fst
+  H*[Sⁿ,G]→G[X]/<X²> = DS-Rec-Set.f _ _ _ _ squash/
+    [ neutral ]
+    H*[Sⁿ,G]→G[X]/<X²>-fun
+    (CommRingStr._+_ (snd (G[X]/<X²>)))
+    (λ _ _ _ → CommRingStr.+Assoc (snd (G[X]/<X²>)) _ _ _)
+    (λ _ → CommRingStr.+IdR (snd (G[X]/<X²>)) _)
+    (λ _ _ → CommRingStr.+Comm (snd (G[X]/<X²>)) _ _)
+    H*[Sⁿ,G]→G[X]/<X²>-fun-coh₁
+    H*[Sⁿ,G]→G[X]/<X²>-fun-coh₂
 
-    H*[Sⁿ,G]→G[X]/<X²>→H*[Sⁿ,G] : (x : fst (H*R GRing (S₊ (suc n))))
-      → G[X]/<X²>→H*[Sⁿ,G] .fst (H*[Sⁿ,G]→G[X]/<X²> x) ≡ x
-    H*[Sⁿ,G]→G[X]/<X²>→H*[Sⁿ,G] =
-      DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
-        refl
-        (λ { zero a → cong (base zero) (retEq (H⁰[Sⁿ,G]≅G GAb n .fst) a)
-          ; (suc r) → help r (n ≟ r)})
-        λ p q → IsRingHom.pres+ (G[X]/<X²>→H*[Sⁿ,G] .snd) _ _
-              ∙ cong₂ _add_ p q
-      where
-      help : (r : ℕ) (p : _) (a : _)
-        → G[X]/<X²>→H*[Sⁿ,G] .fst (H*[Sⁿ,G]→G[X]/<X²>-fun^ r p a)
-         ≡ base (suc r) a
-      help r (lt x) a =
-        sym (base-neutral (suc r))
-        ∙ cong (base (suc r))
-          (isContr→isProp
-            (subst (λ k → isContr (coHom k GAb (S₊ (suc n))))
-              (cong suc (snd x))
-             (isContr-Hᵐ⁺ⁿ[Sⁿ,G] GAb n (fst x))) _ _)
-      help r (eq x) a =
-        J (λ r x → (a :  coHom (suc r) GAb (S₊ (suc n)))
-          → G[X]/<X²>→H*[Sⁿ,G] .fst (H*[Sⁿ,G]→G[X]/<X²>-fun^ r (eq x) a)
-           ≡ base (suc r) a)
-           (λ a → cong (base (suc n))
-             (retEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) _ ∙ transportRefl a)) x a
-      help r (gt x) a =
-        sym (base-neutral (suc r))
-        ∙ cong (base (suc r))
-          (isContr→isProp
-            (subst (λ k → isContr (coHom (suc r) GAb (S₊ k)))
-              (cong suc (snd x))
-             (isOfHLevelRetractFromIso 0
-               (equivToIso (fst (Hⁿ[Sᵐ⁺ⁿ,G]≅0 GAb r (fst x))))
-                isContrUnit*)) _ _)
+  H*[Sⁿ,G]→G[X]/<X²>→H*[Sⁿ,G] : (x : fst (H*R GRing (S₊ (suc n))))
+    → G[X]/<X²>→H*[Sⁿ,G] .fst (H*[Sⁿ,G]→G[X]/<X²> x) ≡ x
+  H*[Sⁿ,G]→G[X]/<X²>→H*[Sⁿ,G] =
+    DS-Ind-Prop.f _ _ _ _ (λ _ → trunc _ _)
+      refl
+      (λ { zero a → cong (base zero) (retEq (H⁰[Sⁿ,G]≅G GAb n .fst) a)
+        ; (suc r) → help r (n ≟ r)})
+      λ p q → IsRingHom.pres+ (G[X]/<X²>→H*[Sⁿ,G] .snd) _ _
+            ∙ cong₂ _add_ p q
+    where
+    help : (r : ℕ) (p : _) (a : _)
+      → G[X]/<X²>→H*[Sⁿ,G] .fst (H*[Sⁿ,G]→G[X]/<X²>-fun^ r p a)
+       ≡ base (suc r) a
+    help r (lt x) a =
+      sym (base-neutral (suc r))
+      ∙ cong (base (suc r))
+        (isContr→isProp
+          (subst (λ k → isContr (coHom k GAb (S₊ (suc n))))
+            (cong suc (snd x))
+           (isContr-Hᵐ⁺ⁿ[Sⁿ,G] GAb n (fst x))) _ _)
+    help r (eq x) a =
+      J (λ r x → (a :  coHom (suc r) GAb (S₊ (suc n)))
+        → G[X]/<X²>→H*[Sⁿ,G] .fst (H*[Sⁿ,G]→G[X]/<X²>-fun^ r (eq x) a)
+         ≡ base (suc r) a)
+         (λ a → cong (base (suc n))
+           (retEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) _ ∙ transportRefl a)) x a
+    help r (gt x) a =
+      sym (base-neutral (suc r))
+      ∙ cong (base (suc r))
+        (isContr→isProp
+          (subst (λ k → isContr (coHom (suc r) GAb (S₊ k)))
+            (cong suc (snd x))
+           (isOfHLevelRetractFromIso 0
+             (equivToIso (fst (Hⁿ[Sᵐ⁺ⁿ,G]≅0 GAb r (fst x))))
+              isContrUnit*)) _ _)
 
-    G[X]/<X²>→H*[Sⁿ,G]→H*[Sⁿ,G] : (x : G[X]/<X²> .fst)
-      → H*[Sⁿ,G]→G[X]/<X²> (G[X]/<X²>→H*[Sⁿ,G] .fst x) ≡ x
-    G[X]/<X²>→H*[Sⁿ,G]→H*[Sⁿ,G] = SQ.elimProp (λ _ → squash/ _ _)
-      (DS-Ind-Prop.f _ _ _ _ (λ _ → squash/ _ _)
-        refl
-        (λ { (zero ∷ []) g → cong [_] (cong (base (0 ∷ []))
-               (secEq (H⁰[Sⁿ,G]≅G GAb n .fst) g))
-           ; (one ∷ []) g → h2 g _
-           ; (suc (suc x) ∷ []) g
-             → sym (eq/ _ neutral ∣ hh x g
-               , (λ i → base (+-comm 2 x i ∷ []) (CommRingStr.·IdR (snd G) g (~ i))
-                     add neutral) ∣₁)})
-        λ p q → cong₂ (CommRingStr._+_ (snd (G[X]/<X²>))) p q)
-      where
-      hh : (x : ℕ) (g : fst G) → FinVec (fst (PolyCommRing G 1)) 1
-      hh x g zero = base (x ∷ []) g
+  G[X]/<X²>→H*[Sⁿ,G]→H*[Sⁿ,G] : (x : G[X]/<X²> .fst)
+    → H*[Sⁿ,G]→G[X]/<X²> (G[X]/<X²>→H*[Sⁿ,G] .fst x) ≡ x
+  G[X]/<X²>→H*[Sⁿ,G]→H*[Sⁿ,G] = SQ.elimProp (λ _ → squash/ _ _)
+    (DS-Ind-Prop.f _ _ _ _ (λ _ → squash/ _ _)
+      refl
+      (λ { (zero ∷ []) g → cong [_] (cong (base (0 ∷ []))
+             (secEq (H⁰[Sⁿ,G]≅G GAb n .fst) g))
+         ; (one ∷ []) g → h2 g _
+         ; (suc (suc x) ∷ []) g
+           → sym (eq/ _ neutral ∣ hh x g
+             , (λ i → base (+-comm 2 x i ∷ []) (CommRingStr.·IdR (snd G) g (~ i))
+                   add neutral) ∣₁)})
+      λ p q → cong₂ (CommRingStr._+_ (snd (G[X]/<X²>))) p q)
+    where
+    hh : (x : ℕ) (g : fst G) → FinVec (fst (PolyCommRing G 1)) 1
+    hh x g zero = base (x ∷ []) g
 
-      h2 : (g : fst G) (p : _)
-        → H*[Sⁿ,G]→G[X]/<X²>-fun^ n p
-             (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g)
-         ≡ [ base (one ∷ []) g ]
-      h2 g (lt x) = ⊥.rec (¬m<m x)
-      h2 g (eq x) = cong [_]
-        (cong (base (1 ∷ []))
-          (cong (Hⁿ[Sⁿ,G]≅G GAb n .fst .fst)
-            ((λ j → subst (λ k → coHom (suc k) GAb (S₊ (suc n)))
-                    (isSetℕ n n (sym x) refl j)
-                    (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g))
-          ∙ transportRefl (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g))
-          ∙ secEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g))
-      h2 g (gt x) = ⊥.rec (¬m<m x)
+    h2 : (g : fst G) (p : _)
+      → H*[Sⁿ,G]→G[X]/<X²>-fun^ n p
+           (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g)
+       ≡ [ base (one ∷ []) g ]
+    h2 g (lt x) = ⊥.rec (¬m<m x)
+    h2 g (eq x) = cong [_]
+      (cong (base (1 ∷ []))
+        (cong (Hⁿ[Sⁿ,G]≅G GAb n .fst .fst)
+          ((λ j → subst (λ k → coHom (suc k) GAb (S₊ (suc n)))
+                  (isSetℕ n n (sym x) refl j)
+                  (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g))
+        ∙ transportRefl (invEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g))
+        ∙ secEq (Hⁿ[Sⁿ,G]≅G GAb n .fst) g))
+    h2 g (gt x) = ⊥.rec (¬m<m x)
 
 
   G[X]/<X²>≅H*[Sⁿ,G] : RingEquiv (CommRing→Ring G[X]/<X²>) (H*R GRing (S₊ (suc n)))

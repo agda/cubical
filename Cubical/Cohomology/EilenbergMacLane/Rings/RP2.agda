@@ -379,66 +379,64 @@ module _ {ℓ : Level} (n : ℕ) where
   H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun : (r : ℕ) → coHom r ℤ/2 RP² → ℤ₂[X]/<X³> .fst
   H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun r x = [ base (r ∷ []) (H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun' r x) ]
 
-  opaque
-    unfolding H*Klein→ℤ/2[X,Y]/I quotientCommRingStr
-    H*[RP²,ℤ₂]→ℤ₂[X]/<X³> : H*R ℤ/2Ring RP² .fst → ℤ₂[X]/<X³> .fst
-    H*[RP²,ℤ₂]→ℤ₂[X]/<X³> = DS-Rec-Set.f _ _ _ _ squash/
-      [ neutral ]
-      H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun
-      (CommRingStr._+_ (snd ℤ₂[X]/<X³>))
-      (CommRingStr.+Assoc (snd ℤ₂[X]/<X³>))
-      (CommRingStr.+IdR (snd ℤ₂[X]/<X³>))
-      (CommRingStr.+Comm (snd ℤ₂[X]/<X³>))
-      (λ { zero → cong [_] (base-neutral (0 ∷ []))
-          ; one → cong [_] (cong (base (1 ∷ [])) (IsGroupHom.pres1 (snd (H¹[RP²,ℤ/2]≅ℤ/2)))
-                  ∙ base-neutral (1 ∷ []))
-          ; two → cong [_] (cong (base (2 ∷ [])) (IsGroupHom.pres1 (snd (H²[RP²,ℤ/2]≅ℤ/2)))
-                  ∙ base-neutral (2 ∷ []))
-          ; (suc (suc (suc r))) → cong [_] (base-neutral _)})
-      (λ { zero a b → cong [_] (base-add (0 ∷ []) _ _
-                               ∙ cong (base (0 ∷ []))
-                                  (sym (IsGroupHom.pres· (snd (H⁰[RP²,ℤ/2]≅ℤ/2)) a b)))
-          ; one a b → cong [_] (base-add (1 ∷ []) _ _
-                               ∙ cong (base (1 ∷ []))
-                                  (sym (IsGroupHom.pres· (snd (H¹[RP²,ℤ/2]≅ℤ/2)) a b)))
-          ; two a b → cong [_] (base-add (2 ∷ []) _ _
-                               ∙ cong (base (2 ∷ []))
-                                  (sym (IsGroupHom.pres· (snd (H²[RP²,ℤ/2]≅ℤ/2)) a b)))
-          ; (suc (suc (suc r))) a b
-            → cong [_] (cong₂ _add_ refl (base-neutral (3 +ℕ r ∷ []))
-                       ∙ addRid _)})
+  H*[RP²,ℤ₂]→ℤ₂[X]/<X³> : H*R ℤ/2Ring RP² .fst → ℤ₂[X]/<X³> .fst
+  H*[RP²,ℤ₂]→ℤ₂[X]/<X³> = DS-Rec-Set.f _ _ _ _ squash/
+    [ neutral ]
+    H*[RP²,ℤ₂]→ℤ₂[X]/<X³>-fun
+    (CommRingStr._+_ (snd ℤ₂[X]/<X³>))
+    (CommRingStr.+Assoc (snd ℤ₂[X]/<X³>))
+    (CommRingStr.+IdR (snd ℤ₂[X]/<X³>))
+    (CommRingStr.+Comm (snd ℤ₂[X]/<X³>))
+    (λ { zero → cong [_] (base-neutral (0 ∷ []))
+        ; one → cong [_] (cong (base (1 ∷ [])) (IsGroupHom.pres1 (snd (H¹[RP²,ℤ/2]≅ℤ/2)))
+                ∙ base-neutral (1 ∷ []))
+        ; two → cong [_] (cong (base (2 ∷ [])) (IsGroupHom.pres1 (snd (H²[RP²,ℤ/2]≅ℤ/2)))
+                ∙ base-neutral (2 ∷ []))
+        ; (suc (suc (suc r))) → cong [_] (base-neutral _)})
+    (λ { zero a b → cong [_] (base-add (0 ∷ []) _ _
+                             ∙ cong (base (0 ∷ []))
+                                (sym (IsGroupHom.pres· (snd (H⁰[RP²,ℤ/2]≅ℤ/2)) a b)))
+        ; one a b → cong [_] (base-add (1 ∷ []) _ _
+                             ∙ cong (base (1 ∷ []))
+                                (sym (IsGroupHom.pres· (snd (H¹[RP²,ℤ/2]≅ℤ/2)) a b)))
+        ; two a b → cong [_] (base-add (2 ∷ []) _ _
+                             ∙ cong (base (2 ∷ []))
+                                (sym (IsGroupHom.pres· (snd (H²[RP²,ℤ/2]≅ℤ/2)) a b)))
+        ; (suc (suc (suc r))) a b
+          → cong [_] (cong₂ _add_ refl (base-neutral (3 +ℕ r ∷ []))
+                     ∙ addRid _)})
 
-    ℤ₂[X]/<X³>→H*[RP²,ℤ₂]→ℤ₂[X]/<X³> : (x : _)
-      → H*[RP²,ℤ₂]→ℤ₂[X]/<X³> (ℤ₂[X]/<X³>→H*[RP²,ℤ₂] .fst x) ≡ x
-    ℤ₂[X]/<X³>→H*[RP²,ℤ₂]→ℤ₂[X]/<X³> = SQ.elimProp (λ _ → squash/ _ _)
-      (DS-Ind-Prop.f _ _ _ _ (λ _ → squash/ _ _)
-      refl
-      (λ { (zero ∷ []) a → cong [_] (cong (base (zero ∷ []))
-                             (secEq (H⁰[RP²,ℤ/2]≅ℤ/2 .fst) a))
-         ; (one ∷ []) a → cong [_] (cong (base (one ∷ []))
-                             (secEq (H¹[RP²,ℤ/2]≅ℤ/2 .fst) a))
-         ; (two ∷ []) a → cong [_] (cong (base (two ∷ []))
-                             (secEq (H²[RP²,ℤ/2]≅ℤ/2 .fst) a))
-         ; (suc (suc (suc r)) ∷ []) → ℤ/2-elim refl
-           (sym (eq/ _ _ ∣ (λ {zero → base (r ∷ []) fone})
-             , ((cong₂ _add_ refl (base-neutral _)
-             ∙ addRid _
-             ∙ λ i → base (+-comm 3 r i ∷ []) fone))
-             ∙ sym (addRid _) ∣₁))})
-      (λ p q → cong₂ (CommRingStr._+_ (snd ℤ₂[X]/<X³>)) p q))
+  ℤ₂[X]/<X³>→H*[RP²,ℤ₂]→ℤ₂[X]/<X³> : (x : _)
+    → H*[RP²,ℤ₂]→ℤ₂[X]/<X³> (ℤ₂[X]/<X³>→H*[RP²,ℤ₂] .fst x) ≡ x
+  ℤ₂[X]/<X³>→H*[RP²,ℤ₂]→ℤ₂[X]/<X³> = SQ.elimProp (λ _ → squash/ _ _)
+    (DS-Ind-Prop.f _ _ _ _ (λ _ → squash/ _ _)
+    refl
+    (λ { (zero ∷ []) a → cong [_] (cong (base (zero ∷ []))
+                           (secEq (H⁰[RP²,ℤ/2]≅ℤ/2 .fst) a))
+       ; (one ∷ []) a → cong [_] (cong (base (one ∷ []))
+                           (secEq (H¹[RP²,ℤ/2]≅ℤ/2 .fst) a))
+       ; (two ∷ []) a → cong [_] (cong (base (two ∷ []))
+                           (secEq (H²[RP²,ℤ/2]≅ℤ/2 .fst) a))
+       ; (suc (suc (suc r)) ∷ []) → ℤ/2-elim refl
+         (sym (eq/ _ _ ∣ (λ {zero → base (r ∷ []) fone})
+           , ((cong₂ _add_ refl (base-neutral _)
+           ∙ addRid _
+           ∙ λ i → base (+-comm 3 r i ∷ []) fone))
+           ∙ sym (addRid _) ∣₁))})
+    (λ p q → cong₂ (CommRingStr._+_ (snd ℤ₂[X]/<X³>)) p q))
 
-    H*[RP²,ℤ₂]→ℤ₂[X]/<X³>→H*[RP²,ℤ₂] : (x : H*R ℤ/2Ring RP² .fst)
-      → ℤ₂[X]/<X³>→H*[RP²,ℤ₂] .fst (H*[RP²,ℤ₂]→ℤ₂[X]/<X³> x) ≡ x
-    H*[RP²,ℤ₂]→ℤ₂[X]/<X³>→H*[RP²,ℤ₂] = DS-Ind-Prop.f _ _ _ _
-      (λ _ → trunc _ _)
-      refl
-      (λ { zero x → cong (base zero) (retEq (H⁰[RP²,ℤ/2]≅ℤ/2 .fst) x)
-         ; one x → cong (base one) (retEq (H¹[RP²,ℤ/2]≅ℤ/2 .fst) x)
-         ; two x → cong (base two) (retEq (H²[RP²,ℤ/2]≅ℤ/2 .fst) x)
-         ; (suc (suc (suc r))) x → cong (base (3 +ℕ r))
-           (isContr→isProp (isContrH³⁺ⁿ[RP²,G] r ℤ/2) _ _)})
-      λ {x} {y} p q
-        → (IsRingHom.pres+ (ℤ₂[X]/<X³>→H*[RP²,ℤ₂] .snd) _ _ ∙ cong₂ _add_ p q)
+  H*[RP²,ℤ₂]→ℤ₂[X]/<X³>→H*[RP²,ℤ₂] : (x : H*R ℤ/2Ring RP² .fst)
+    → ℤ₂[X]/<X³>→H*[RP²,ℤ₂] .fst (H*[RP²,ℤ₂]→ℤ₂[X]/<X³> x) ≡ x
+  H*[RP²,ℤ₂]→ℤ₂[X]/<X³>→H*[RP²,ℤ₂] = DS-Ind-Prop.f _ _ _ _
+    (λ _ → trunc _ _)
+    refl
+    (λ { zero x → cong (base zero) (retEq (H⁰[RP²,ℤ/2]≅ℤ/2 .fst) x)
+       ; one x → cong (base one) (retEq (H¹[RP²,ℤ/2]≅ℤ/2 .fst) x)
+       ; two x → cong (base two) (retEq (H²[RP²,ℤ/2]≅ℤ/2 .fst) x)
+       ; (suc (suc (suc r))) x → cong (base (3 +ℕ r))
+         (isContr→isProp (isContrH³⁺ⁿ[RP²,G] r ℤ/2) _ _)})
+    λ {x} {y} p q
+      → (IsRingHom.pres+ (ℤ₂[X]/<X³>→H*[RP²,ℤ₂] .snd) _ _ ∙ cong₂ _add_ p q)
 
   ℤ₂[X]/<X³>≅H*[RP²,ℤ₂] : RingEquiv (CommRing→Ring ℤ₂[X]/<X³>) (H*R ℤ/2Ring RP²)
   fst ℤ₂[X]/<X³>≅H*[RP²,ℤ₂] =

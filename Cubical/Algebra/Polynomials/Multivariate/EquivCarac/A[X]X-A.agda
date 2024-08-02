@@ -190,7 +190,7 @@ module Properties-Equiv-QuotientXn-A
 
   A→A[x]/x : A → A[x]/x
   A→A[x]/x = [_] ∘ A→A[x]
-{-
+
   A→A[x]/x-pres+ : (a a' : A) → A→A[x]/x (a +A a') ≡ A→A[x]/x a +PAI A→A[x]/x a'
   A→A[x]/x-pres+ a a' = cong [_] (A→A[x]-pres+ a a')
 
@@ -247,4 +247,3 @@ module _
 
 Equiv-ℤ[X]/X-ℤ : RingEquiv (CommRing→Ring ℤ[X]/X) (CommRing→Ring ℤCR)
 Equiv-ℤ[X]/X-ℤ = Equiv-A[X]/X-A ℤCR
--- -}
