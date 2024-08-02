@@ -30,14 +30,12 @@ module _ (R : CommRing ℓ) (I : IdealsIn R) where
   open CommRingStr (snd R)
   R/I = ⟨ R ⟩ /ₛ (λ x y → x - y ∈ (fst I))
 
-  opaque
-    unfolding Ring.quotientRingStr
-    quotientCommRingStr : CommRingStr R/I
-    quotientCommRingStr = snd
-      (Ring→CommRing
-          ((CommRing→Ring R) Ring./ (CommIdeal→Ideal I))
-          (elimProp2 (λ _ _ → squash/ _ _)
-                     λ x y i → [ CommRingStr.·Comm (snd R) x y i ]))
+  quotientCommRingStr : CommRingStr R/I
+  quotientCommRingStr = snd
+    (Ring→CommRing
+        ((CommRing→Ring R) Ring./ (CommIdeal→Ideal I))
+        (elimProp2 (λ _ _ → squash/ _ _)
+                   λ x y i → [ CommRingStr.·Comm (snd R) x y i ]))
 
 _/_ : (R : CommRing ℓ) (I : IdealsIn R) → CommRing ℓ
 fst (R / I) = R/I R I
@@ -48,7 +46,6 @@ snd (R / I) = quotientCommRingStr R I
 
 module Coherence (R : CommRing ℓ) (I : IdealsIn R) where
   opaque
-    unfolding quotientCommRingStr Ring.quotientRingStr
     isRingHomCoh : IsRingHom (snd (CommRing→Ring (R / I)))
                              (λ x → x)
                              (snd ((CommRing→Ring R) Ring./ (CommIdeal→Ideal I)))
@@ -171,7 +168,6 @@ module UniversalProperty
                                         I⊆ker))
 
   opaque
-    unfolding quotientCommRingStr
     isUnique : (ψ : CommRingHom (R / I) S) → (ψIsSolution : ψ .fst ∘ quotientHom R I .fst ≡ f .fst)
              →  ψ ≡ inducedHom
     isUnique ψ ψIsSolution =

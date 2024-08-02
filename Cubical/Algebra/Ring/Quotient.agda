@@ -185,11 +185,10 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
         eq : (x y z : R) → [ x ] ·/I ([ y ] +/I [ z ]) ≡ ([ x ] ·/I [ y ]) +/I ([ x ] ·/I [ z ])
         eq x y z i = [ ·DistR+ x y z i ]
 
-  opaque
-    quotientRingStr : RingStr R/I
-    quotientRingStr = snd (makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
-                      +/I-assoc +/I-rid +/I-rinv +/I-comm
-                      ·/I-assoc ·/I-rid ·/I-lid /I-rdist /I-ldist)
+  quotientRingStr : RingStr R/I
+  quotientRingStr = snd (makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
+                    +/I-assoc +/I-rid +/I-rinv +/I-comm
+                    ·/I-assoc ·/I-rid ·/I-lid /I-rdist /I-ldist)
 
 _/_ : (R : Ring ℓ) → (I : IdealsIn R) → Ring ℓ
 fst (R / I) = R/I R (fst I) (snd I)
@@ -199,7 +198,6 @@ snd (R / I) = quotientRingStr R (fst I) (snd I)
 [ a ]/I = [ a ]
 
 opaque
-  unfolding quotientRingStr
   isRingHomQuotientHom : (R : Ring ℓ) (I : IdealsIn R)
                          → IsRingHom (R .snd) [_] ((R / I) .snd)
   IsRingHom.pres0 (isRingHomQuotientHom R I) = refl
@@ -266,7 +264,6 @@ module UniversalProperty (R : Ring ℓ) (I : IdealsIn R) where
            0r ∎)
 
     opaque
-      unfolding quotientRingStr
       inducedMapIsRingHom : (Iₛ⊆kernel : (x : ⟨ R ⟩) → x ∈ Iₛ → φ $r x ≡ 0r)
                            → IsRingHom ((R / I) .snd) (inducedHomMap Iₛ⊆kernel) (S .snd)
       pres0 (inducedMapIsRingHom Iₛ⊆kernel) = φ.pres0
