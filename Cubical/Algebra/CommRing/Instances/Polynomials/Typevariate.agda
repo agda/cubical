@@ -52,7 +52,6 @@ module Construction (R : CommRing ℓ) where
 
     0-trunc : (x y : R[ I ]) (p q : x ≡ y) → p ≡ q
 
-
   opaque
     isCommRing : (I : Type ℓ') → IsCommRing (const {I = I} 0r) (const 1r) _+_ _·_ -_
     isCommRing I =
@@ -84,3 +83,8 @@ module Construction (R : CommRing ℓ) where
 _[_]ᵣ : (R : CommRing ℓ) (I : Type ℓ') → CommRing (ℓ-max ℓ ℓ')
 fst (R [ I ]ᵣ) = Construction.R[_] R I
 snd (R [ I ]ᵣ) = Construction.commRingStr R I
+
+const : (R : CommRing ℓ) (I : Type ℓ') → CommRingHom R (R [ I ]ᵣ)
+const R I .fst = let open Construction R
+                 in R[_].const
+const R I .snd = Construction.constIsCommRingHom R I
