@@ -376,7 +376,7 @@ module Equiv-RP2-Properties where
 
     ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ : ℤ[x,y]/<xy,x²,y²> → H* S²⋁S⁴
     ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ = fst ℤ[X,Y]/<XY,X²,Y²>→H*R-S²⋁S⁴
-{-
+
     ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴-pres0 : ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴ 0PℤI ≡ 0H*
     ℤ[x,y]/<xy,x²,y²>→H*-S²⋁S⁴-pres0 = refl
 
@@ -522,4 +522,3 @@ module _ where
 
   CohomologyRing-S²⋁S⁴ : RingEquiv (H*R S²⋁S⁴) (CommRing→Ring ℤ[X,Y]/<XY,X²,Y²>)
   CohomologyRing-S²⋁S⁴ = RingEquivs.invRingEquiv S²⋁S⁴-CohomologyRing
--- -}
