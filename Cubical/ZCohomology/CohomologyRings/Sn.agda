@@ -334,10 +334,8 @@ module Equiv-Sn-Properties (n : ℕ) where
   H*-Sⁿ→ℤ[x]/x² : H* (S₊ (suc n)) → ℤ[x]/x²
   H*-Sⁿ→ℤ[x]/x² = [_] ∘ H*-Sⁿ→ℤ[x]
 
-  opaque
-    unfolding quotientCommRingStr
-    H*-Sⁿ→ℤ[x]/x²-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x]/x² (x +H* y) ≡ (H*-Sⁿ→ℤ[x]/x² x) +PℤI (H*-Sⁿ→ℤ[x]/x² y)
-    H*-Sⁿ→ℤ[x]/x²-pres+ x y = refl
+  H*-Sⁿ→ℤ[x]/x²-pres+ : (x y : H* (S₊ (suc n))) → H*-Sⁿ→ℤ[x]/x² (x +H* y) ≡ (H*-Sⁿ→ℤ[x]/x² x) +PℤI (H*-Sⁿ→ℤ[x]/x² y)
+  H*-Sⁿ→ℤ[x]/x²-pres+ x y = refl
 
 
 
@@ -368,30 +366,29 @@ module Equiv-Sn-Properties (n : ℕ) where
 
 -----------------------------------------------------------------------------
 -- Retraction
-{-
-  opaque
-    unfolding quotientCommRingStr
-    e-retr : (x : ℤ[x]/x²) → H*-Sⁿ→ℤ[x]/x² (ℤ[x]/x²→H*-Sⁿ x) ≡ x
-    e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
-             (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
-             refl
-             base-case
-             λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
+
+  e-retr : (x : ℤ[x]/x²) → H*-Sⁿ→ℤ[x]/x² (ℤ[x]/x²→H*-Sⁿ x) ≡ x
+  e-retr = SQ.elimProp (λ _ → isSetPℤI _ _)
+           (DS-Ind-Prop.f _ _ _ _ (λ _ → isSetPℤI _ _)
+           refl
+           base-case
+           λ {U V} ind-U ind-V → cong₂ _+PℤI_ ind-U ind-V)
+           where
+           base-case : _
+           base-case (zero ∷ []) a = cong [_] (cong (base-trad-H* 0 (ϕ₀ a)) part0)
+                                     ∙ cong [_] (cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a))))
+                                     ∙ cong [_] (cong (base (0 ∷ [])) (ϕ₀-retr a))
+           base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (ϕₙ a)) (partSn (part (suc n))))
+                                     ∙ cong [_] (cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (transportRefl (ϕₙ a))))
+                                     ∙ cong [_] (cong (base (1 ∷ [])) (ϕₙ-retr a))
+           base-case (suc (suc k) ∷ []) a = eq/ _ _  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
              where
-             base-case : _
-             base-case (zero ∷ []) a = cong [_] (cong (base-trad-H* 0 (ϕ₀ a)) part0)
-                                       ∙ cong [_] (cong (base (0 ∷ [])) (cong ϕ₀⁻¹ (transportRefl (ϕ₀ a))))
-                                       ∙ cong [_] (cong (base (0 ∷ [])) (ϕ₀-retr a))
-             base-case (one ∷ []) a  = cong [_] (cong (base-trad-H* (suc n) (ϕₙ a)) (partSn (part (suc n))))
-                                       ∙ cong [_] (cong (base (1 ∷ [])) (cong ϕₙ⁻¹ (transportRefl (ϕₙ a))))
-                                       ∙ cong [_] (cong (base (1 ∷ [])) (ϕₙ-retr a))
-             base-case (suc (suc k) ∷ []) a = eq/ _ _  ∣ ((λ x → base (k ∷ []) (-ℤ a)) , helper) ∣₁
-               where
-               helper : _
-               helper = (+PℤIdL _)
-                        ∙ cong₂ base (cong (λ X → X ∷ [])
-                                     (sym (+n-comm k 2))) (sym (·ℤIdR _))
-                        ∙ (sym (+PℤIdR _))
+             helper : _
+             helper = (+PℤIdL _)
+                      ∙ cong₂ base (cong (λ X → X ∷ [])
+                                   (sym (+n-comm k 2))) (sym (·ℤIdR _))
+                      ∙ (sym (+PℤIdR _))
+
 
 
 -----------------------------------------------------------------------------
@@ -413,4 +410,3 @@ module _ (n : ℕ) where
 
   CohomologyRing-Sⁿ : RingEquiv (H*R (S₊ (suc n))) (CommRing→Ring ℤ[X]/X²)
   CohomologyRing-Sⁿ = RingEquivs.invRingEquiv Sⁿ-CohomologyRing
--- -}

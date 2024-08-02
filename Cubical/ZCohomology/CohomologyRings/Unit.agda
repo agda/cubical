@@ -241,7 +241,7 @@ module Equiv-Unit-Properties where
 
   H*-Unit→ℤ[x]/x : H* Unit → ℤ[x]/x
   H*-Unit→ℤ[x]/x = [_] ∘ H*-Unit→ℤ[x]
-{-
+
   H*-Unit→ℤ[x]/x-pres+ : (x y : H* Unit) → H*-Unit→ℤ[x]/x (x +H* y) ≡ (H*-Unit→ℤ[x]/x x) +PℤI (H*-Unit→ℤ[x]/x y)
   H*-Unit→ℤ[x]/x-pres+ x y = cong [_] (H*-Unit→ℤ[x]-pres+ x y)
 
@@ -314,4 +314,3 @@ module _ where
 
   CohomologyRing-Unitℤ : RingEquiv (H*R Unit) (CommRing→Ring ℤCR)
   CohomologyRing-Unitℤ = compRingEquiv CohomologyRing-UnitP Equiv-ℤ[X]/X-ℤ
--- -}
