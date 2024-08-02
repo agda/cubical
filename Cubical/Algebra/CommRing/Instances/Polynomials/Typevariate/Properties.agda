@@ -32,13 +32,7 @@ open import Cubical.HITs.SetTruncation
 open import Cubical.Algebra.CommRing
 open import Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Base
 open import Cubical.Algebra.Ring.Properties
-{-
-open import Cubical.Algebra.CommAlgebra.FreeCommAlgebra.Base
-open import Cubical.Algebra.CommAlgebra
-open import Cubical.Algebra.CommAlgebra.Instances.Initial
-open import Cubical.Algebra.Algebra
-open import Cubical.Algebra.Module using (module ModuleTheory)
--}
+
 open import Cubical.Data.Empty
 open import Cubical.Data.Sigma
 
@@ -163,80 +157,56 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
     Construction of the induced map.
   -}
   module _ (S : CommRing ℓ'') (f : CommRingHom R S) (φ : I → ⟨ S ⟩) where
-    open CommRingStr ⦃...⦄
     private instance
-      _ = R .snd
       _ = S .snd
---    open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
 
-    imageOf0Works : (f .fst 0r) · 1r ≡ 0r
-    imageOf0Works = ? -- ⋆AnnihilL 1a
-
-    imageOf1Works : 1r · 1r ≡ 1r
-    imageOf1Works = ? -- ⋆IdL 1a
-
+    open IsCommRingHom
 
     inducedMap : ⟨ R [ I ]ᵣ ⟩ → ⟨ S ⟩
     inducedMap (var x) = φ x
-    inducedMap (const r) = (f .fst r) · 1r
+    inducedMap (const r) = (f .fst r)
     inducedMap (P C.+ Q) = (inducedMap P) + (inducedMap Q)
     inducedMap (C.- P) = - inducedMap P
     inducedMap (C.+-assoc P Q S i) = +Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
     inducedMap (C.+-rid P i) =
       let
         eq : (inducedMap P) + (inducedMap (const 0r)) ≡ (inducedMap P)
-        eq = (inducedMap P) + (inducedMap (const 0r)) ≡⟨ refl ⟩
-             (inducedMap P) + ((f .fst 0r) · 1r)               ≡⟨ cong
-                                                         (λ u → (inducedMap P) + u)
-                                                         (imageOf0Works) ⟩
+        eq = (inducedMap P) + (inducedMap (const 0r)) ≡⟨⟩
+             (inducedMap P) + ((f .fst 0r))           ≡⟨ cong ((inducedMap P) +_) (pres0 (f .snd)) ⟩
              (inducedMap P) + 0r                      ≡⟨ +IdR _ ⟩
              (inducedMap P) ∎
       in eq i
     inducedMap (C.+-rinv P i) =
       let eq : (inducedMap P - inducedMap P) ≡ (inducedMap (const 0r))
           eq = (inducedMap P - inducedMap P) ≡⟨ +InvR _ ⟩
-               0a                            ≡⟨ sym imageOf0Works ⟩
+               0r                            ≡⟨ sym (pres0 (f .snd)) ⟩
                (inducedMap (const 0r))∎
       in eq i
     inducedMap (C.+-comm P Q i) = +Comm (inducedMap P) (inducedMap Q) i
     inducedMap (P C.· Q) = inducedMap P · inducedMap Q
     inducedMap (C.·-assoc P Q S i) = ·Assoc (inducedMap P) (inducedMap Q) (inducedMap S) i
     inducedMap (C.·-lid P i) =
-      let eq = inducedMap (const 1r) · inducedMap P ≡⟨ cong (λ u → u · inducedMap P) imageOf1Works ⟩
-               1a · inducedMap P                    ≡⟨ ·IdL (inducedMap P) ⟩
+      let eq = inducedMap (const 1r) · inducedMap P ≡⟨ cong (λ u → u · inducedMap P) (pres1 (f .snd)) ⟩
+               1r · inducedMap P                    ≡⟨ ·IdL (inducedMap P) ⟩
                inducedMap P ∎
       in eq i
     inducedMap (C.·-comm P Q i) = ·Comm (inducedMap P) (inducedMap Q) i
     inducedMap (C.ldist P Q S i) = ·DistL+ (inducedMap P) (inducedMap Q) (inducedMap S) i
-    inducedMap (C.+HomConst s t i) = ⋆DistL+ s t 1a i
-    inducedMap (C.·HomConst s t i) =
-      let eq = (s ·r t) ⋆ 1a       ≡⟨ cong (λ u → u ⋆ 1a) (·r-comm _ _) ⟩
-               (t ·r s) ⋆ 1a       ≡⟨ ⋆Assoc t s 1a ⟩
-               t ⋆ (s ⋆ 1a)        ≡⟨ cong (λ u → t ⋆ u) (sym (·IdR _)) ⟩
-               t ⋆ ((s ⋆ 1a) · 1a) ≡⟨ ⋆AssocR t (s ⋆ 1a) 1a ⟩
-               (s ⋆ 1a) · (t ⋆ 1a) ∎
-      in eq i
+    inducedMap (C.+HomConst s t i) = pres+ (f .snd) s t i
+    inducedMap (C.·HomConst s t i) = pres· (f .snd) s t i
     inducedMap (C.0-trunc P Q p q i j) =
       is-set (inducedMap P) (inducedMap Q) (cong _ p) (cong _ q) i j
 
-{-
-
     module _ where
-      open IsAlgebraHom
+      open IsCommRingHom
 
-      inducedHom : CommAlgebraHom (R [ I ]ᵣ) A
+      inducedHom : CommRingHom (R [ I ]ᵣ) S
       inducedHom .fst = inducedMap
-      inducedHom .snd .pres0 = ⋆AnnihilL _
-      inducedHom .snd .pres1 = imageOf1Works
-      inducedHom .snd .pres+ x y = refl
-      inducedHom .snd .pres· x y = refl
-      inducedHom .snd .pres- x = refl
-      inducedHom .snd .pres⋆ r x =
-        (r ⋆ 1a) · inducedMap x ≡⟨ ⋆AssocL r 1a (inducedMap x) ⟩
-        r ⋆ (1a · inducedMap x) ≡⟨ cong (λ u → r ⋆ u) (·IdL (inducedMap x)) ⟩
-        r ⋆ inducedMap x ∎
-
--}
+      inducedHom .snd .pres0 = pres0 (f .snd)
+      inducedHom .snd .pres1 = pres1 (f. snd)
+      inducedHom .snd .pres+ = λ _ _ → refl
+      inducedHom .snd .pres· = λ _ _ → refl
+      inducedHom .snd .pres- = λ _ → refl
 
 {-
 
