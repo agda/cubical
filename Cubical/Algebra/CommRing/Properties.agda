@@ -156,28 +156,28 @@ module _ where
   idCommRingHom : (R : CommRing ℓ) → CommRingHom R R
   idCommRingHom R = RingHom→CommRingHom (idRingHom (CommRing→Ring R))
 
-  compCommRingHom : (R : CommRing ℓ) (S : CommRing ℓ') (T : CommRing ℓ'')
+  compCommRingHom : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''}
                   → CommRingHom R S → CommRingHom S T → CommRingHom R T
-  compCommRingHom R S T f g =
+  compCommRingHom f g =
     RingHom→CommRingHom
       (compRingHom (CommRingHom→RingHom f) (CommRingHom→RingHom g))
 
   _∘cr_ : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''}
         → CommRingHom S T → CommRingHom R S → CommRingHom R T
-  g ∘cr f = compCommRingHom _ _ _ f g
+  g ∘cr f = compCommRingHom f g
 
   compIdCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S)
-                    → compCommRingHom _ _ _ (idCommRingHom R) f ≡ f
+                    → compCommRingHom (idCommRingHom R) f ≡ f
   compIdCommRingHom f = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _) refl
 
   idCompCommRingHom : {R S : CommRing ℓ} (f : CommRingHom R S)
-                    → compCommRingHom _ _ _ f (idCommRingHom S) ≡ f
+                    → compCommRingHom f (idCommRingHom S) ≡ f
   idCompCommRingHom f = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _) refl
 
   compAssocCommRingHom : {R : CommRing ℓ} {S : CommRing ℓ'} {T : CommRing ℓ''} {U : CommRing ℓ'''}
                          (f : CommRingHom R S) (g : CommRingHom S T) (h : CommRingHom T U)
-                       → compCommRingHom _ _ _ (compCommRingHom _ _ _ f g) h
-                       ≡ compCommRingHom _ _ _ f (compCommRingHom _ _ _ g h)
+                       → compCommRingHom (compCommRingHom f g) h
+                       ≡ compCommRingHom f (compCommRingHom g h)
   compAssocCommRingHom f g h = Σ≡Prop (λ _ → isPropIsCommRingHom _ _ _) refl
 
   open Iso
@@ -192,7 +192,7 @@ module CommRingEquivs where
   compCommRingEquiv : {A : CommRing ℓ} {B : CommRing ℓ'} {C : CommRing ℓ''}
                     → CommRingEquiv A B → CommRingEquiv B C → CommRingEquiv A C
   compCommRingEquiv f g .fst = compEquiv (f .fst) (g .fst)
-  compCommRingEquiv f g .snd = compCommRingHom _ _ _ (f .fst .fst , f .snd) (g .fst .fst , g .snd) .snd
+  compCommRingEquiv f g .snd = compCommRingHom (f .fst .fst , f .snd) (g .fst .fst , g .snd) .snd
 
   invCommRingEquiv : (A : CommRing ℓ) → (B : CommRing ℓ') → CommRingEquiv A B → CommRingEquiv B A
   fst (invCommRingEquiv A B e) = invEquiv (fst e)
