@@ -19,6 +19,7 @@ module Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Base where
   For more, see the Properties file.
 -}
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure using (⟨_⟩)
 
 open import Cubical.Algebra.CommRing.Base
 
@@ -88,3 +89,7 @@ constPolynomial : (R : CommRing ℓ) (I : Type ℓ') → CommRingHom R (R [ I ]�
 constPolynomial R I .fst = let open Construction R
                            in R[_].const
 constPolynomial R I .snd = Construction.constIsCommRingHom R I
+
+opaque
+  var : {R : CommRing ℓ} {I : Type ℓ'} → I → ⟨ R [ I ]ᵣ ⟩
+  var = Construction.var

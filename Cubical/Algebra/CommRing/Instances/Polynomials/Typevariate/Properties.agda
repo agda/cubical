@@ -1,21 +1,10 @@
 {-# OPTIONS --safe #-}
-
 module Cubical.Algebra.CommRing.Instances.Polynomials.Typevariate.Properties where
 {-
   This file contains
-  * an elimination principle for proving some proposition for all elements of R[I]
+  * an elimination principle for proving some proposition for all elements of R[I]ᵣ
     ('elimProp')
   * definitions of the induced maps appearing in the universal property of R[I],
-    that is:  * for any map I → A, where A is a commutative R-algebra,
-                the induced algebra homomorphism R[I] → A
-                ('inducedHom')
-              * for any hom R[I] → A, the 'restricttion to variables' I → A
-                ('evaluateAt')
-  * a proof that the two constructions are inverse to each other
-    ('homMapIso')
-  * proofs that the constructions are natural in various ways
-  * a proof that the Polynomials on zero generators are the initial R-Algebra
-    ('freeOn⊥')
 -}
 
 open import Cubical.Foundations.Prelude
@@ -43,13 +32,13 @@ private
     ℓ ℓ' ℓ'' : Level
 
 module _ {R : CommRing ℓ} {I : Type ℓ'} where
-  open CommRingStr ⦃...⦄ -- (snd R)
+  open CommRingStr ⦃...⦄
   private instance
     _ = snd R
     _ = snd (R [ I ]ᵣ)
 
   module C = Construction
-  open C using (var; const)
+  open C using (const)
 
   {-
     Construction of the 'elimProp' eliminator.
@@ -57,7 +46,7 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
   module _
     {P : ⟨ R [ I ]ᵣ ⟩ → Type ℓ''}
     (isPropP : {x : _} → isProp (P x))
-    (onVar : {x : I} → P (var x))
+    (onVar : {x : I} → P (C.var x))
     (onConst : {r : ⟨ R ⟩} → P (const r))
     (on+ : {x y : ⟨ R [ I ]ᵣ ⟩} → P x → P y → P (x + y))
     (on· : {x y : ⟨ R [ I ]ᵣ ⟩} → P x → P y → P (x · y))
@@ -86,7 +75,7 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
 
     elimProp : ((x : _) → P x)
 
-    elimProp (var _) = onVar
+    elimProp (C.var _) = onVar
     elimProp (const _) = onConst
     elimProp (x C.+ y) = on+ (elimProp x) (elimProp y)
     elimProp (C.- x) = on- (elimProp x)
@@ -155,6 +144,15 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
 
   {-
     Construction of the induced map.
+    In this module and the module below, we will show the universal property
+    of the polynomial ring as a commutative ring.
+
+       R ──→ R[I]
+        \     ∣
+         f    ∃!          for a given φ : I → S
+          ↘  ↙
+            S
+
   -}
   module _ (S : CommRing ℓ'') (f : CommRingHom R S) (φ : I → ⟨ S ⟩) where
     private instance
@@ -163,7 +161,7 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
     open IsCommRingHom
 
     inducedMap : ⟨ R [ I ]ᵣ ⟩ → ⟨ S ⟩
-    inducedMap (var x) = φ x
+    inducedMap (C.var x) = φ x
     inducedMap (const r) = (f .fst r)
     inducedMap (P C.+ Q) = (inducedMap P) + (inducedMap Q)
     inducedMap (C.- P) = - inducedMap P
@@ -208,179 +206,56 @@ module _ {R : CommRing ℓ} {I : Type ℓ'} where
       inducedHom .snd .pres· = λ _ _ → refl
       inducedHom .snd .pres- = λ _ → refl
 
-{-
+    opaque
+      inducedHomComm : inducedHom ∘cr constPolynomial R I ≡ f
+      inducedHomComm = CommRingHom≡ $ funExt (λ r → refl)
 
-  module _ (A : CommAlgebra R ℓ'') where
-    open CommAlgebraStr (A .snd)
-    open AlgebraTheory (CommRing→Ring R) (CommAlgebra→Algebra A)
+module _  {R : CommRing ℓ} {I : Type ℓ'} (S : CommRing ℓ'') (f : CommRingHom R S) where
+  open CommRingStr ⦃...⦄
+  private instance
+    _ = S .snd
+    _ = (R [ I ]ᵣ) .snd
+  open IsCommRingHom
 
-    Hom = CommAlgebraHom  (R [ I ]) A
-    open IsAlgebraHom
+  evalVar : CommRingHom (R [ I ]ᵣ) S → I → ⟨ S ⟩
+  evalVar f = f .fst ∘ var
 
-    evaluateAt : Hom → I → ⟨ A ⟩
-    evaluateAt φ x = φ .fst (var x)
+  opaque
+    unfolding var
+    evalInduce : ∀ (φ : I → ⟨ S ⟩)
+                     → evalVar (inducedHom S f φ) ≡ φ
+    evalInduce φ = refl
 
-    mapRetrievable : ∀ (φ : I → ⟨ A ⟩)
-                     → evaluateAt (inducedHom A φ) ≡ φ
-    mapRetrievable φ = refl
-
-    homRetrievable : ∀ (f : Hom)
-                     → inducedMap A (evaluateAt f) ≡ fst f
-    homRetrievable f = funExt (
+  opaque
+    unfolding var
+    induceEval : (g : CommRingHom (R [ I ]ᵣ) S)
+                 (p : g .fst ∘ constPolynomial R I .fst ≡ f .fst)
+                 → (inducedHom S f (evalVar g)) ≡ g
+    induceEval g p =
+      let theMap : ⟨ R [ I ]ᵣ ⟩ → ⟨ S ⟩
+          theMap = inducedMap S f (evalVar g)
+      in
+      CommRingHom≡ $
+      funExt $
       elimProp
-        {P = λ x → ι x ≡ f $a x}
         (is-set _ _)
         (λ {x} → refl)
-        (λ {r} →
-          r ⋆ 1a                      ≡⟨ cong (λ u → r ⋆ u) (sym f.pres1) ⟩
-          r ⋆ (f $a (const 1r))       ≡⟨ sym (f.pres⋆ r _) ⟩
-          f $a (const r C.· const 1r) ≡⟨ cong (λ u → f $a u) (sym (C.·HomConst r 1r)) ⟩
-          f $a (const (r ·r 1r))      ≡⟨ cong (λ u → f $a (const u)) (·r-rid r) ⟩
-          f $a (const r) ∎)
-
+        (λ {r} →  sym (cong (λ f → f r) p))
         (λ {x} {y} eq-x eq-y →
-          ι (x C.+ y)           ≡⟨ refl ⟩
-          (ι x + ι y)           ≡⟨ cong (λ u → u + ι y) eq-x ⟩
-          ((f $a x) + ι y)      ≡⟨ cong (λ u → (f $a x) + u) eq-y ⟩
-          ((f $a x) + (f $a y)) ≡⟨ sym (f.pres+ _ _) ⟩
-          (f $a (x C.+ y)) ∎)
+          theMap (x + y)        ≡⟨ pres+ (inducedHom S f (evalVar g) .snd) x y ⟩
+          theMap x + theMap y   ≡[ i ]⟨ (eq-x i + eq-y i) ⟩
+          (g $cr x + g $cr y)   ≡⟨ sym (pres+ (g .snd) _ _) ⟩
+          (g $cr (x + y)) ∎)
+        λ {x} {y} eq-x eq-y →
+          theMap (x · y)        ≡⟨ pres· (inducedHom S f (evalVar g) .snd) x y ⟩
+          theMap x · theMap y   ≡[ i ]⟨ (eq-x i · eq-y i) ⟩
+          (g $cr x · g $cr y)   ≡⟨ sym (pres· (g .snd) _ _) ⟩
+          (g $cr (x · y)) ∎
 
-        (λ {x} {y} eq-x eq-y →
-          ι (x C.· y)         ≡⟨ refl ⟩
-          ι x     · ι y       ≡⟨ cong (λ u → u · ι y) eq-x ⟩
-          (f $a x) · (ι y)    ≡⟨ cong (λ u → (f $a x) · u) eq-y ⟩
-          (f $a x) · (f $a y) ≡⟨ sym (f.pres· _ _) ⟩
-          f $a (x C.· y) ∎)
-      )
-      where
-      ι = inducedMap A (evaluateAt f)
-      module f = IsAlgebraHom (f .snd)
-
-
-evaluateAt : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
-             (f : CommAlgebraHom (R [ I ]) A)
-             → (I → fst A)
-evaluateAt A f x = f $a (Construction.var x)
-
-inducedHom : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'')
-             (φ : I → fst A )
-             → CommAlgebraHom (R [ I ]) A
-inducedHom A φ = Theory.inducedHom A φ
-
-
-homMapIso : {R : CommRing ℓ} {I : Type ℓ''} (A : CommAlgebra R ℓ')
-             → Iso (CommAlgebraHom (R [ I ]) A) (I → (fst A))
-Iso.fun (homMapIso A) = evaluateAt A
-Iso.inv (homMapIso A) = inducedHom A
-Iso.rightInv (homMapIso A) = λ ϕ → Theory.mapRetrievable A ϕ
-Iso.leftInv (homMapIso {R = R} {I = I} A) =
-  λ f → Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ I ]} {N = A} f)
-               (Theory.homRetrievable A f)
-
-inducedHomUnique :
-  {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R ℓ'') (φ : I → fst A )
-  → (f : CommAlgebraHom (R [ I ]) A) → ((i : I) → fst f (Construction.var i) ≡ φ i)
-  → f ≡ inducedHom A φ
-inducedHomUnique {I = I} A φ f p =
-  isoFunInjective (homMapIso A) f (inducedHom A φ) λ j i → p i j
-
-homMapPath : {R : CommRing ℓ} {I : Type ℓ'} (A : CommAlgebra R (ℓ-max ℓ ℓ'))
-             → CommAlgebraHom (R [ I ]) A ≡ (I → fst A)
-homMapPath A = isoToPath (homMapIso A)
-
-{- Corollary: Two homomorphisms with the same values on generators are equal -}
-equalByUMP : {R : CommRing ℓ} {I : Type ℓ'}
-           → (A : CommAlgebra R ℓ'')
-           → (f g : CommAlgebraHom (R [ I ]) A)
-           → ((i : I) → fst f (Construction.var i) ≡ fst g (Construction.var i))
-           → (x : ⟨ R [ I ] ⟩) → fst f x ≡ fst g x
-equalByUMP {R = R} {I = I} A f g = funExt⁻ ∘ cong fst ∘ isoFunInjective (homMapIso A) f g ∘ funExt
-
-{- A corollary, which is useful for constructing isomorphisms to
-   algebras with the same universal property -}
-isIdByUMP : {R : CommRing ℓ} {I : Type ℓ'}
-          → (f : CommAlgebraHom (R [ I ]) (R [ I ]))
-          → ((i : I) → fst f (Construction.var i) ≡ Construction.var i)
-          → (x : ⟨ R [ I ] ⟩) → fst f x ≡ x
-isIdByUMP {R = R} {I = I} f p = equalByUMP (R [ I ]) f (idCAlgHom (R [ I ])) p
-
--- The homomorphism induced by the variables is the identity.
-inducedHomVar : (R : CommRing ℓ) (I : Type ℓ')
-              → inducedHom (R [ I ]) Construction.var ≡ idCAlgHom (R [ I ])
-inducedHomVar R I = isoFunInjective (homMapIso (R [ I ])) _ _ refl
-
-module _ {R : CommRing ℓ} {A B : CommAlgebra R ℓ''} where
-  open AlgebraHoms
-  A′ = CommAlgebra→Algebra A
-  B′ = CommAlgebra→Algebra B
-  R′ = (CommRing→Ring R)
-  ν : AlgebraHom A′ B′ → (⟨ A ⟩ → ⟨ B ⟩)
-  ν φ = φ .fst
-
-  {-
-    Hom(R[I],A) → (I → A)
-         ↓          ↓ψ
-    Hom(R[I],B) → (I → B)
-  -}
-  naturalEvR : {I : Type ℓ'} (ψ : CommAlgebraHom A B)
-             (f : CommAlgebraHom (R [ I ]) A)
-             → (fst ψ) ∘ evaluateAt A f ≡ evaluateAt B (ψ ∘a f)
-  naturalEvR ψ f = refl
-
-  {-
-    Hom(R[I],A) ← (I → A)
-         ↓          ↓ψ
-    Hom(R[I],B) ← (I → B)
-  -}
-  natIndHomR : {I : Type ℓ'} (ψ : CommAlgebraHom A B)
-               (ϕ : I → ⟨ A ⟩)
-               → ψ ∘a inducedHom A ϕ ≡ inducedHom B (fst ψ ∘ ϕ)
-  natIndHomR ψ ϕ = isoFunInjective (homMapIso B) _ _
-                (evaluateAt B (ψ ∘a (inducedHom A ϕ))        ≡⟨ refl ⟩
-                 fst ψ ∘ evaluateAt A (inducedHom A ϕ)       ≡⟨ refl ⟩
-                 fst ψ ∘ ϕ                                   ≡⟨ Iso.rightInv (homMapIso B) _ ⟩
-                 evaluateAt B (inducedHom B (fst ψ ∘ ϕ))     ∎)
-
-  {-
-    Hom(R[I],A) → (I → A)
-         ↓          ↓
-    Hom(R[J],A) → (J → A)
-  -}
-  naturalEvL : {I J : Type ℓ'} (φ : J → I)
-             (f : CommAlgebraHom (R [ I ]) A)
-             → (evaluateAt A f) ∘ φ
-               ≡ evaluateAt A (f ∘a (inducedHom (R [ I ]) (λ x → Construction.var (φ x))))
-  naturalEvL φ f = refl
-
-module _ {R : CommRing ℓ} where
-  {-
-    Prove that the FreeCommAlgebra over R on zero generators is
-    isomorphic to the initial R-Algebra - R itsself.
-  -}
-  freeOn⊥ : CommAlgebraEquiv (R [ ⊥ ]) (initialCAlg R)
-  freeOn⊥ =
-     equivByInitiality
-        R (R [ ⊥ ])
-          {- Show that R[⊥] has the universal property of the
-             initial R-Algbera and conclude that those are isomorphic -}
-        λ B →  let to : CommAlgebraHom (R [ ⊥ ]) B → (⊥ → fst B)
-                   to = evaluateAt B
-
-                   from :  (⊥ → fst B) → CommAlgebraHom (R [ ⊥ ]) B
-                   from = inducedHom B
-
-                   from-to : (x : _) → from (to x) ≡ x
-                   from-to x =
-                     Σ≡Prop (λ f → isPropIsCommAlgebraHom {M = R [ ⊥ ]} {N = B} f)
-                            (Theory.homRetrievable B x)
-
-                   equiv : CommAlgebraHom (R [ ⊥ ]) B ≃ (⊥ → fst B)
-                   equiv =
-                     isoToEquiv
-                       (iso to from (λ x → isContr→isOfHLevel 1 isContr⊥→A _ _) from-to)
-               in isOfHLevelRespectEquiv 0 (invEquiv equiv) isContr⊥→A
-
-module _ {R : CommRing ℓ} {I : Type ℓ} where
-  baseRingHom : CommRingHom R (CommAlgebra→CommRing (R [ I ]))
-  baseRingHom = snd (Iso.fun (CommAlgChar.CommAlgIso R) (R [ I ]))
--}
+  opaque
+    inducedHomUnique : (φ : I → ⟨ S ⟩)
+                 (g : CommRingHom (R [ I ]ᵣ) S)
+                 (p : g .fst ∘ constPolynomial R I .fst ≡ f .fst)
+                 (q : evalVar g ≡ φ)
+                 → inducedHom S f φ ≡ g
+    inducedHomUnique φ g p q = cong (inducedHom S f) (sym q) ∙ induceEval g p
