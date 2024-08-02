@@ -65,7 +65,7 @@ module Test (R : CommRing ℓ) (x y z : fst R) where
   ex1 : x ≡ x
   ex1 = solve! R
 
-  ex2 : x ≡ x
+  ex2 : (0r - 1r) · x ≡ 0r - x
   ex2 = solve! R
 
   ex3 : x + y ≡ y + x
