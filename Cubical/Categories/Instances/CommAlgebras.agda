@@ -59,8 +59,8 @@ module _ (R : CommRing ℓ) where
   ForgetfulCommAlgebra→CommRing : Functor (CommAlgebrasCategory {ℓ' = ℓ'}) CommRingsCategory
   F-ob ForgetfulCommAlgebra→CommRing      = CommAlgebra→CommRing {R = R}
   F-hom ForgetfulCommAlgebra→CommRing     = CommAlgebraHom→CommRingHom _ _
-  F-id ForgetfulCommAlgebra→CommRing      = RingHom≡ refl
-  F-seq ForgetfulCommAlgebra→CommRing _ _ = RingHom≡ refl
+  F-id ForgetfulCommAlgebra→CommRing      = CommRingHom≡ refl
+  F-seq ForgetfulCommAlgebra→CommRing _ _ = CommRingHom≡ refl
 
   ForgetfulCommAlgebra→Set : Functor (CommAlgebrasCategory {ℓ' = ℓ'}) (SET ℓ')
   F-ob ForgetfulCommAlgebra→Set A    = A .fst , A .snd .CommAlgebraStr.is-set
@@ -167,17 +167,17 @@ module _ (R : CommRing ℓ) where
                             (ffA→R {ℓ' = theℓ} .F-ob (LimitsCommAlgebrasCategory J D .lim))
       coneOut (fst (fst (canonicalIso J D)) cc) = coneOut cc
       coneOutCommutes (fst (fst (canonicalIso J D)) cc) = coneOutCommutes cc
-      snd (fst (canonicalIso J D)) = makeIsRingHom refl (λ _ _ → refl) λ _ _ → refl
+      snd (fst (canonicalIso J D)) = makeIsCommRingHom refl (λ _ _ → refl) λ _ _ → refl
       coneOut (fst (inv (snd (canonicalIso J D))) cc) = coneOut cc
       coneOutCommutes (fst (inv (snd (canonicalIso J D))) cc) = coneOutCommutes cc
-      snd (inv (snd (canonicalIso J D))) = makeIsRingHom refl (λ _ _ → refl) λ _ _ → refl
-      sec (snd (canonicalIso J D)) = RingHom≡ refl
-      ret (snd (canonicalIso J D)) = RingHom≡ refl
+      snd (inv (snd (canonicalIso J D))) = makeIsCommRingHom refl (λ _ _ → refl) λ _ _ → refl
+      sec (snd (canonicalIso J D)) = CommRingHom≡ refl
+      ret (snd (canonicalIso J D)) = CommRingHom≡ refl
 
       isConeMorCanonicalIso : ∀ J D → isConeMor (LimitsCommRingsCategory J (funcComp ffA→R D) .limCone)
                                                 (F-cone ffA→R (LimitsCommAlgebrasCategory J D .limCone))
                                                 (canonicalIso J D .fst)
-      isConeMorCanonicalIso J D v = RingHom≡ refl
+      isConeMorCanonicalIso J D v = CommRingHom≡ refl
 
 
 module PullbackFromCommRing (R : CommRing ℓ)
@@ -216,7 +216,6 @@ module PullbackFromCommRing (R : CommRing ℓ)
               g₄
   -}
 
- open RingHoms
  univPropCommRingWithHomHom : (isRHom₁ : isCommRingWithHomHom (A , f₁) (B , f₂) g₁)
                               (isRHom₂ : isCommRingWithHomHom (A , f₁) (C , f₃) g₂)
                               (isRHom₃ : isCommRingWithHomHom (B , f₂) (D , f₄) g₃)
@@ -224,38 +223,38 @@ module PullbackFromCommRing (R : CommRing ℓ)
                               (E,f₅ : CommRingWithHom)
                               (h₂ : CommRingWithHomHom E,f₅ (C , f₃))
                               (h₁ : CommRingWithHomHom E,f₅ (B , f₂))
-                            → g₄ ∘r fst h₂ ≡ g₃ ∘r fst h₁
+                            → g₄ ∘cr fst h₂ ≡ g₃ ∘cr fst h₁
                             → ∃![ h₃ ∈ CommRingWithHomHom E,f₅ (A , f₁) ]
-                                 (fst h₂ ≡ g₂ ∘r fst h₃) × (fst h₁ ≡ g₁ ∘r fst h₃)
+                                 (fst h₂ ≡ g₂ ∘cr fst h₃) × (fst h₁ ≡ g₁ ∘cr fst h₃)
  univPropCommRingWithHomHom isRHom₁ isRHom₂ isRHom₃ isRHom₄
                              (E , f₅) (h₂ , comm₂) (h₁ , comm₁) squareComm =
     ((h₃ , h₃∘f₅≡f₁) , h₂≡g₂∘h₃ , h₁≡g₁∘h₃)
-  , λ h₃' → Σ≡Prop (λ _ → isProp× (isSetRingHom _ _ _ _) (isSetRingHom _ _ _ _))
-                     (Σ≡Prop (λ _ → isSetRingHom _ _ _ _)
+  , λ h₃' → Σ≡Prop (λ _ → isProp× (isSetCommRingHom _ _ _ _) (isSetCommRingHom _ _ _ _))
+                     (Σ≡Prop (λ _ → isSetCommRingHom _ _ _ _)
                        (cong fst (commRingPB .univProp h₂ h₁ squareComm .snd
                          (h₃' .fst .fst , h₃' .snd .fst , h₃' .snd .snd))))
   where
   h₃ : CommRingHom E A
   h₃ = commRingPB .univProp h₂ h₁ squareComm .fst .fst
-  h₂≡g₂∘h₃ : h₂ ≡ g₂ ∘r h₃
+  h₂≡g₂∘h₃ : h₂ ≡ g₂ ∘cr h₃
   h₂≡g₂∘h₃ = commRingPB .univProp h₂ h₁ squareComm .fst .snd .fst
-  h₁≡g₁∘h₃ : h₁ ≡ g₁ ∘r h₃
+  h₁≡g₁∘h₃ : h₁ ≡ g₁ ∘cr h₃
   h₁≡g₁∘h₃ = commRingPB .univProp h₂ h₁ squareComm .fst .snd .snd
 
   -- the crucial obervation:
   -- we can apply the universal property to maps R → A
-  fgSquare : g₄ ∘r f₃ ≡ g₃ ∘r f₂
+  fgSquare : g₄ ∘cr f₃ ≡ g₃ ∘cr f₂
   fgSquare = isRHom₄ ∙ sym isRHom₃
 
-  h₃∘f₅≡f₁ : h₃ ∘r f₅ ≡ f₁
+  h₃∘f₅≡f₁ : h₃ ∘cr f₅ ≡ f₁
   h₃∘f₅≡f₁ = cong fst (isContr→isProp (commRingPB .univProp f₃ f₂ fgSquare)
-                        (h₃ ∘r f₅ , triangle1 , triangle2) (f₁ , (sym isRHom₂) , sym isRHom₁))
+                        (h₃ ∘cr f₅ , triangle1 , triangle2) (f₁ , (sym isRHom₂) , sym isRHom₁))
     where
-    triangle1 : f₃ ≡ g₂ ∘r (h₃ ∘r f₅)
-    triangle1 = sym comm₂ ∙∙ cong (compRingHom f₅) h₂≡g₂∘h₃ ∙∙ sym (compAssocRingHom f₅ h₃ g₂)
+    triangle1 : f₃ ≡ g₂ ∘cr (h₃ ∘cr f₅)
+    triangle1 = sym comm₂ ∙∙ cong (compCommRingHom f₅) h₂≡g₂∘h₃ ∙∙ sym (compAssocCommRingHom f₅ h₃ g₂)
 
-    triangle2 : f₂ ≡ g₁ ∘r (h₃ ∘r f₅)
-    triangle2 = sym comm₁ ∙∙ cong (compRingHom f₅) h₁≡g₁∘h₃ ∙∙ sym (compAssocRingHom f₅ h₃ g₁)
+    triangle2 : f₂ ≡ g₁ ∘cr (h₃ ∘cr f₅)
+    triangle2 = sym comm₁ ∙∙ cong (compCommRingHom f₅) h₁≡g₁∘h₃ ∙∙ sym (compAssocCommRingHom f₅ h₃ g₁)
 
 
 
@@ -289,14 +288,14 @@ module PullbackFromCommRing (R : CommRing ℓ)
 
   h₁ : CommRingHom E B
   fst h₁ = fst h₁'
-  IsRingHom.pres0 (snd h₁) = IsAlgebraHom.pres0 (snd h₁')
-  IsRingHom.pres1 (snd h₁) = IsAlgebraHom.pres1 (snd h₁')
-  IsRingHom.pres+ (snd h₁) = IsAlgebraHom.pres+ (snd h₁')
-  IsRingHom.pres· (snd h₁) = IsAlgebraHom.pres· (snd h₁')
-  IsRingHom.pres- (snd h₁) = IsAlgebraHom.pres- (snd h₁')
+  IsCommRingHom.pres0 (snd h₁) = IsAlgebraHom.pres0 (snd h₁')
+  IsCommRingHom.pres1 (snd h₁) = IsAlgebraHom.pres1 (snd h₁')
+  IsCommRingHom.pres+ (snd h₁) = IsAlgebraHom.pres+ (snd h₁')
+  IsCommRingHom.pres· (snd h₁) = IsAlgebraHom.pres· (snd h₁')
+  IsCommRingHom.pres- (snd h₁) = IsAlgebraHom.pres- (snd h₁')
 
-  h₁comm : h₁ ∘r f₅ ≡ f₂
-  h₁comm = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd h₁') x 1a
+  h₁comm : h₁ ∘cr f₅ ≡ f₂
+  h₁comm = CommRingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd h₁') x 1a
                                       ∙∙ cong (fst f₂ x ·_) (IsAlgebraHom.pres1 (snd h₁'))
                                       ∙∙ ·IdR _))
    where
@@ -306,14 +305,14 @@ module PullbackFromCommRing (R : CommRing ℓ)
 
   h₂ : CommRingHom E C
   fst h₂ = fst h₂'
-  IsRingHom.pres0 (snd h₂) = IsAlgebraHom.pres0 (snd h₂')
-  IsRingHom.pres1 (snd h₂) = IsAlgebraHom.pres1 (snd h₂')
-  IsRingHom.pres+ (snd h₂) = IsAlgebraHom.pres+ (snd h₂')
-  IsRingHom.pres· (snd h₂) = IsAlgebraHom.pres· (snd h₂')
-  IsRingHom.pres- (snd h₂) = IsAlgebraHom.pres- (snd h₂')
+  IsCommRingHom.pres0 (snd h₂) = IsAlgebraHom.pres0 (snd h₂')
+  IsCommRingHom.pres1 (snd h₂) = IsAlgebraHom.pres1 (snd h₂')
+  IsCommRingHom.pres+ (snd h₂) = IsAlgebraHom.pres+ (snd h₂')
+  IsCommRingHom.pres· (snd h₂) = IsAlgebraHom.pres· (snd h₂')
+  IsCommRingHom.pres- (snd h₂) = IsAlgebraHom.pres- (snd h₂')
 
-  h₂comm : h₂ ∘r f₅ ≡ f₃
-  h₂comm = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd h₂') x 1a
+  h₂comm : h₂ ∘cr f₅ ≡ f₃
+  h₂comm = CommRingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd h₂') x 1a
                                       ∙∙ cong (fst f₃ x ·_) (IsAlgebraHom.pres1 (snd h₂'))
                                       ∙∙ ·IdR _))
    where
@@ -321,10 +320,10 @@ module PullbackFromCommRing (R : CommRing ℓ)
     _ = snd F
     _ = snd (toCommAlg (C , f₃))
 
-  commRingSquare : g₄ ∘r h₂ ≡ g₃ ∘r h₁
-  commRingSquare = RingHom≡ (funExt (λ x → funExt⁻ (cong fst g₄∘h₂'≡g₃∘h₁') x))
+  commRingSquare : g₄ ∘cr h₂ ≡ g₃ ∘cr h₁
+  commRingSquare = CommRingHom≡ (funExt (λ x → funExt⁻ (cong fst g₄∘h₂'≡g₃∘h₁') x))
 
-  uniqueH₃ : ∃![ h₃ ∈ CommRingWithHomHom (E , f₅) (A , f₁) ] (h₂ ≡ g₂ ∘r fst h₃) × (h₁ ≡ g₁ ∘r fst h₃)
+  uniqueH₃ : ∃![ h₃ ∈ CommRingWithHomHom (E , f₅) (A , f₁) ] (h₂ ≡ g₂ ∘cr fst h₃) × (h₁ ≡ g₁ ∘cr fst h₃)
   uniqueH₃ = univPropCommRingWithHomHom isRHom₁ isRHom₂ isRHom₃ isRHom₄
                                           (E , f₅) (h₂ , h₂comm) (h₁ , h₁comm) commRingSquare
 
@@ -335,14 +334,14 @@ module PullbackFromCommRing (R : CommRing ℓ)
 
   k : CommAlgebraHom F (toCommAlg (A , f₁))
   fst k = fst h₃
-  IsAlgebraHom.pres0 (snd k) = IsRingHom.pres0 (snd h₃)
-  IsAlgebraHom.pres1 (snd k) = IsRingHom.pres1 (snd h₃)
-  IsAlgebraHom.pres+ (snd k) = IsRingHom.pres+ (snd h₃)
-  IsAlgebraHom.pres· (snd k) = IsRingHom.pres· (snd h₃)
-  IsAlgebraHom.pres- (snd k) = IsRingHom.pres- (snd h₃)
+  IsAlgebraHom.pres0 (snd k) = IsCommRingHom.pres0 (snd h₃)
+  IsAlgebraHom.pres1 (snd k) = IsCommRingHom.pres1 (snd h₃)
+  IsAlgebraHom.pres+ (snd k) = IsCommRingHom.pres+ (snd h₃)
+  IsAlgebraHom.pres· (snd k) = IsCommRingHom.pres· (snd h₃)
+  IsAlgebraHom.pres- (snd k) = IsCommRingHom.pres- (snd h₃)
   IsAlgebraHom.pres⋆ (snd k) =
     λ r y → sym (fst f₁ r · fst h₃ y ≡⟨ cong (_· fst h₃ y) (sym (funExt⁻ (cong fst h₃comm) r)) ⟩
-                 fst h₃ (fst f₅ r) · fst h₃ y ≡⟨ sym (IsRingHom.pres· (snd h₃) _ _) ⟩
+                 fst h₃ (fst f₅ r) · fst h₃ y ≡⟨ sym (IsCommRingHom.pres· (snd h₃) _ _) ⟩
                  fst h₃ (fst f₅ r · y) ≡⟨ refl ⟩
                  fst h₃ ((r ⋆ 1a) · y) ≡⟨ cong (fst h₃) (⋆AssocL _ _ _) ⟩
                  fst h₃ (r ⋆ (1a · y)) ≡⟨ cong (λ x → fst h₃ (r ⋆ x)) (·IdL y) ⟩
@@ -368,14 +367,14 @@ module PullbackFromCommRing (R : CommRing ℓ)
    where
    h₃' : CommRingHom E A
    fst h₃' = fst k'
-   IsRingHom.pres0 (snd h₃') = IsAlgebraHom.pres0 (snd k')
-   IsRingHom.pres1 (snd h₃') = IsAlgebraHom.pres1 (snd k')
-   IsRingHom.pres+ (snd h₃') = IsAlgebraHom.pres+ (snd k')
-   IsRingHom.pres· (snd h₃') = IsAlgebraHom.pres· (snd k')
-   IsRingHom.pres- (snd h₃') = IsAlgebraHom.pres- (snd k')
+   IsCommRingHom.pres0 (snd h₃') = IsAlgebraHom.pres0 (snd k')
+   IsCommRingHom.pres1 (snd h₃') = IsAlgebraHom.pres1 (snd k')
+   IsCommRingHom.pres+ (snd h₃') = IsAlgebraHom.pres+ (snd k')
+   IsCommRingHom.pres· (snd h₃') = IsAlgebraHom.pres· (snd k')
+   IsCommRingHom.pres- (snd h₃') = IsAlgebraHom.pres- (snd k')
 
-   h₃'IsRHom : h₃' ∘r f₅ ≡ f₁
-   h₃'IsRHom = RingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd k') x 1a
+   h₃'IsRHom : h₃' ∘cr f₅ ≡ f₁
+   h₃'IsRHom = CommRingHom≡ (funExt (λ x → IsAlgebraHom.pres⋆ (snd k') x 1a
                                      ∙ cong (fst f₁ x ·_) (IsAlgebraHom.pres1 (snd k'))
                                      ∙ ·IdR (fst f₁ x)))
     where
@@ -383,11 +382,11 @@ module PullbackFromCommRing (R : CommRing ℓ)
      _ = snd F
      _ = (toCommAlg (A , f₁) .snd)
 
-   h₃'Comm₂ : h₂ ≡ g₂ ∘r h₃'
-   h₃'Comm₂ = RingHom≡ (cong fst k'Comm₂)
+   h₃'Comm₂ : h₂ ≡ g₂ ∘cr h₃'
+   h₃'Comm₂ = CommRingHom≡ (cong fst k'Comm₂)
 
-   h₃'Comm₁ : h₁ ≡ g₁ ∘r h₃'
-   h₃'Comm₁ = RingHom≡ (cong fst k'Comm₁)
+   h₃'Comm₁ : h₁ ≡ g₁ ∘cr h₃'
+   h₃'Comm₁ = CommRingHom≡ (cong fst k'Comm₁)
 
    -- basically saying that h₃≡h₃' but we have to give all the commuting triangles
    uniqHelper : uniqueH₃ .fst ≡ ((h₃' , h₃'IsRHom) , h₃'Comm₂ , h₃'Comm₁)
@@ -434,7 +433,7 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
       (χ , triangle)
         (univProp C cc .fst .snd)
           (λ _ → isPropIsConeMor _ _ _)
-            λ _ x → Σ≡Prop (λ _ → isSetRingHom _ _ _ _)
+            λ _ x → Σ≡Prop (λ _ → isSetCommRingHom _ _ _ _)
                            (cong fst (univProp C cc .snd (_ , x)))
       where
       χ = univProp C cc .fst .fst
@@ -457,15 +456,15 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
 
       cc : Cone crDiag C
       fst (coneOut cc v) = fst (coneOut cd v)
-      IsRingHom.pres0 (snd (coneOut cc v)) = IsAlgebraHom.pres0 (snd (coneOut cd v))
-      IsRingHom.pres1 (snd (coneOut cc v)) = IsAlgebraHom.pres1 (snd (coneOut cd v))
-      IsRingHom.pres+ (snd (coneOut cc v)) = IsAlgebraHom.pres+ (snd (coneOut cd v))
-      IsRingHom.pres· (snd (coneOut cc v)) = IsAlgebraHom.pres· (snd (coneOut cd v))
-      IsRingHom.pres- (snd (coneOut cc v)) = IsAlgebraHom.pres- (snd (coneOut cd v))
-      coneOutCommutes cc f = RingHom≡ (cong fst (coneOutCommutes cd f))
+      IsCommRingHom.pres0 (snd (coneOut cc v)) = IsAlgebraHom.pres0 (snd (coneOut cd v))
+      IsCommRingHom.pres1 (snd (coneOut cc v)) = IsAlgebraHom.pres1 (snd (coneOut cd v))
+      IsCommRingHom.pres+ (snd (coneOut cc v)) = IsAlgebraHom.pres+ (snd (coneOut cd v))
+      IsCommRingHom.pres· (snd (coneOut cc v)) = IsAlgebraHom.pres· (snd (coneOut cd v))
+      IsCommRingHom.pres- (snd (coneOut cc v)) = IsAlgebraHom.pres- (snd (coneOut cd v))
+      coneOutCommutes cc f = CommRingHom≡ (cong fst (coneOutCommutes cd f))
 
       isConeMorψ : isConeMor toAlgCone cc ψ
-      isConeMorψ v = RingHom≡ (funExt (λ x →
+      isConeMorψ v = CommRingHom≡ (funExt (λ x →
            IsAlgebraHom.pres⋆ (snd (coneOut cd v)) x 1a
         ∙∙ cong (fst (coneOut toAlgCone v) x ·_) (IsAlgebraHom.pres1 (snd (coneOut cd v)))
         ∙∙ ·IdR _))
@@ -482,14 +481,14 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
 
       ξ : CommAlgebraHom D B
       fst ξ = fst χ
-      IsAlgebraHom.pres0 (snd ξ) = IsRingHom.pres0 (snd χ)
-      IsAlgebraHom.pres1 (snd ξ) = IsRingHom.pres1 (snd χ)
-      IsAlgebraHom.pres+ (snd ξ) = IsRingHom.pres+ (snd χ)
-      IsAlgebraHom.pres· (snd ξ) = IsRingHom.pres· (snd χ)
-      IsAlgebraHom.pres- (snd ξ) = IsRingHom.pres- (snd χ)
+      IsAlgebraHom.pres0 (snd ξ) = IsCommRingHom.pres0 (snd χ)
+      IsAlgebraHom.pres1 (snd ξ) = IsCommRingHom.pres1 (snd χ)
+      IsAlgebraHom.pres+ (snd ξ) = IsCommRingHom.pres+ (snd χ)
+      IsAlgebraHom.pres· (snd ξ) = IsCommRingHom.pres· (snd χ)
+      IsAlgebraHom.pres- (snd ξ) = IsCommRingHom.pres- (snd χ)
       IsAlgebraHom.pres⋆ (snd ξ) = λ r y → sym (
         fst φ r · fst χ y         ≡⟨ cong (_· fst χ y) (sym (funExt⁻ (cong fst χComm) r)) ⟩
-        fst χ (fst ψ r) · fst χ y ≡⟨ sym (IsRingHom.pres· (snd χ) _ _) ⟩
+        fst χ (fst ψ r) · fst χ y ≡⟨ sym (IsCommRingHom.pres· (snd χ) _ _) ⟩
         fst χ (fst ψ r · y)       ≡⟨ refl ⟩
         fst χ ((r ⋆ 1a) · y)      ≡⟨ cong (fst χ) (⋆AssocL _ _ _) ⟩
         fst χ (r ⋆ (1a · y))      ≡⟨ cong (λ x → fst χ (r ⋆ x)) (·IdL y) ⟩
@@ -508,14 +507,14 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
         where
         ϑ : CommRingHom C A
         fst ϑ = fst ζ
-        IsRingHom.pres0 (snd ϑ) = IsAlgebraHom.pres0 (snd ζ)
-        IsRingHom.pres1 (snd ϑ) = IsAlgebraHom.pres1 (snd ζ)
-        IsRingHom.pres+ (snd ϑ) = IsAlgebraHom.pres+ (snd ζ)
-        IsRingHom.pres· (snd ϑ) = IsAlgebraHom.pres· (snd ζ)
-        IsRingHom.pres- (snd ϑ) = IsAlgebraHom.pres- (snd ζ)
+        IsCommRingHom.pres0 (snd ϑ) = IsAlgebraHom.pres0 (snd ζ)
+        IsCommRingHom.pres1 (snd ϑ) = IsAlgebraHom.pres1 (snd ζ)
+        IsCommRingHom.pres+ (snd ϑ) = IsAlgebraHom.pres+ (snd ζ)
+        IsCommRingHom.pres· (snd ϑ) = IsAlgebraHom.pres· (snd ζ)
+        IsCommRingHom.pres- (snd ϑ) = IsAlgebraHom.pres- (snd ζ)
 
         triangleϑ : ϑ ∘cr ψ ≡ φ
-        triangleϑ = RingHom≡ (funExt (λ x →
+        triangleϑ = CommRingHom≡ (funExt (λ x →
              IsAlgebraHom.pres⋆ (snd ζ) x 1a
           ∙∙ cong (fst φ x ·_) (IsAlgebraHom.pres1 (snd ζ))
           ∙∙ ·IdR (fst φ x)))
@@ -525,7 +524,7 @@ module LimitFromCommRing {ℓJ ℓJ' : Level} (R A : CommRing ℓ)
            _ = snd B
 
         isConeMorϑ : isConeMor cc crCone ϑ
-        isConeMorϑ v = RingHom≡ (cong fst (isConeMorζ v))
+        isConeMorϑ v = CommRingHom≡ (cong fst (isConeMorζ v))
 
 
 
