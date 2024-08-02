@@ -12,4 +12,4 @@ private
     ℓ ℓ' : Level
 
 _[_] : (R : CommRing ℓ) (I : Type ℓ') → CommAlgebra R _
-R [ I ] = (R [ I ]ᵣ) , {!!}
+R [ I ] = (R [ I ]ᵣ) , const R I
