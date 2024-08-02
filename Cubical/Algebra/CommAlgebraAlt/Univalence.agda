@@ -7,6 +7,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure using (⟨_⟩)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Transport
+open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
 
@@ -19,38 +21,34 @@ private
     ℓ ℓ' ℓ'' : Level
 
 
-module _ (R : CommRing ℓ) where
-  private
-    to : (A B : CommAlgebra R ℓ') → CommAlgebraEquiv A B → A ≡ B
-    to A B e = CommAlgebra≡
-             r≡
-             ((pathToEquiv $ cong fst r≡) .fst ∘ A .snd .fst
-                ≡⟨ cong (_∘ A .snd .fst) (cong fst $ pathToEquiv-ua (e .fst .fst) )  ⟩
-              CommAlgebraEquiv→CommRingHom e .fst ∘ A .snd .fst
-                ≡⟨ cong fst (e .snd) ⟩
-              B .snd .fst ∎)
-           where r≡ : (A .fst) ≡ (B .fst)
-                 r≡ = CommRingPath (A .fst) (B .fst) .fst (e .fst)
-
-    test : (A : CommAlgebra R ℓ') → to A A (idCAlgEquiv A) ≡ refl
-    test A = {!to A A (idCAlgEquiv A)!} ≡⟨ {!!} ⟩ ? ≡⟨ {!!} ⟩ refl ∎
-
-    toIsEquiv : (A : CommAlgebra R ℓ') {B' : CommAlgebra R ℓ'} → (p : A ≡ B') → isContr (fiber (to A B') p)
-    toIsEquiv A =
-      J (λ B' A≡B' → isContr (fiber (to A B') A≡B'))
-        ((idCAlgEquiv A , {!test A!}) ,
-          λ {(e , toe≡refl) → {!!}})
-
-  CommAlgebraPath : (A B : CommAlgebra R ℓ') → (CommAlgebraEquiv A B) ≃ (A ≡ B)
-  CommAlgebraPath {ℓ' = ℓ'} A B = to A B , {!!}
-
-{-
-CommAlgebraPath : (R : CommRing ℓ) → (A B : CommAlgebra R ℓ') → (CommAlgebraEquiv A B) ≃ (A ≡ B)
-CommAlgebraPath R = ∫ (𝒮ᴰ-CommAlgebra R) .UARel.ua
+CommAlgebraPath :
+  (R : CommRing ℓ)
+  (A B : CommAlgebra R ℓ')
+  → (Σ[ f ∈ CommRingEquiv (A .fst) (B .fst) ] (f .fst .fst , f .snd)  ∘cr A .snd ≡ B .snd)
+  ≃ (A ≡ B)
+CommAlgebraPath R A B =
+  (Σ-cong-equiv
+    (CommRingPath _ _)
+    (λ e → compPathlEquiv (computeSubst e)))
+  ∙ₑ ΣPathTransport≃PathΣ A B
+  where computeSubst :
+          (e : CommRingEquiv (fst A) (fst B))
+          → subst (CommRingHom R) (uaCommRing e) (A .snd)
+            ≡ (CommRingEquiv→CommRingHom e) ∘cr A .snd
+        computeSubst e =
+          CommRingHom≡ $
+            (subst (CommRingHom R) (uaCommRing e) (A .snd)) .fst
+              ≡⟨ sym (substCommSlice (CommRingHom R) (λ X → ⟨ R ⟩ → ⟨ X ⟩) (λ _ → fst) (uaCommRing e) (A .snd)) ⟩
+            subst (λ X → ⟨ R ⟩ → ⟨ X ⟩) (uaCommRing e) (A .snd .fst)
+              ≡⟨ fromPathP (funTypeTransp (λ _ → ⟨ R ⟩) ⟨_⟩ (uaCommRing e) (A .snd .fst)) ⟩
+            subst ⟨_⟩ (uaCommRing e) ∘ A .snd .fst ∘ subst (λ _ → ⟨ R ⟩) (sym (uaCommRing e))
+              ≡⟨ cong ((subst ⟨_⟩ (uaCommRing e) ∘ A .snd .fst) ∘_) (funExt (λ _ → transportRefl _)) ⟩
+            (subst ⟨_⟩ (uaCommRing e) ∘ (A .snd .fst))
+              ≡⟨ funExt (λ _ → uaβ (e .fst) _) ⟩
+            (CommRingEquiv→CommRingHom e ∘cr A .snd) .fst  ∎
 
 uaCommAlgebra : {R : CommRing ℓ} {A B : CommAlgebra R ℓ'} → CommAlgebraEquiv A B → A ≡ B
 uaCommAlgebra {R = R} {A = A} {B = B} = equivFun (CommAlgebraPath R A B)
 
 isGroupoidCommAlgebra : {R : CommRing ℓ} → isGroupoid (CommAlgebra R ℓ')
-isGroupoidCommAlgebra A B = isOfHLevelRespectEquiv 2 (CommAlgebraPath _ _ _) (isSetAlgebraEquiv _ _)
--}
+isGroupoidCommAlgebra A B = isOfHLevelRespectEquiv 2 (CommAlgebraPath _ _ _) (isSetCommAlgebraEquiv _ _)
