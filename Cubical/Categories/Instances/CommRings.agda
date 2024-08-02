@@ -43,7 +43,7 @@ CommRingsCategory : Category (ℓ-suc ℓ) ℓ
 ob CommRingsCategory                     = CommRing _
 Hom[_,_] CommRingsCategory               = CommRingHom
 id CommRingsCategory {R}                 = idCommRingHom R
-_⋆_ CommRingsCategory {R} {S} {T}        = compCommRingHom R S T
+_⋆_ CommRingsCategory {R} {S} {T}        = compCommRingHom
 ⋆IdL CommRingsCategory {R} {S}           = compIdCommRingHom {R = R} {S}
 ⋆IdR CommRingsCategory {R} {S}           = idCompCommRingHom {R = R} {S}
 ⋆Assoc CommRingsCategory {R} {S} {T} {U} = compAssocCommRingHom {R = R} {S} {T} {U}

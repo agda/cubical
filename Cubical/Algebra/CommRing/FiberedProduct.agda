@@ -75,16 +75,16 @@ module _ (A B C : CommRing ℓ) (α : CommRingHom A C) (β : CommRingHom B C) wh
   fst fiberedProductPr₂ = snd ∘ fst
   snd fiberedProductPr₂ = makeIsCommRingHom refl (λ _ _ → refl) (λ _ _ → refl)
 
-  fiberedProductPr₁₂Commutes : compCommRingHom fiberedProduct A C fiberedProductPr₁ α
-                             ≡ compCommRingHom fiberedProduct B C fiberedProductPr₂ β
+  fiberedProductPr₁₂Commutes : compCommRingHom fiberedProductPr₁ α
+                             ≡ compCommRingHom fiberedProductPr₂ β
   fiberedProductPr₁₂Commutes = CommRingHom≡ (funExt (λ x → x .snd))
 
   fiberedProductUnivProp :
     (D : CommRing ℓ) (h : CommRingHom D A) (k : CommRingHom D B) →
-    compCommRingHom D A C h α ≡ compCommRingHom D B C k β →
+    compCommRingHom h α ≡ compCommRingHom k β →
     ∃![ l ∈ CommRingHom D fiberedProduct ]
-        (h ≡ compCommRingHom D fiberedProduct A l fiberedProductPr₁)
-      × (k ≡ compCommRingHom D fiberedProduct B l fiberedProductPr₂)
+        (h ≡ compCommRingHom l fiberedProductPr₁)
+      × (k ≡ compCommRingHom l fiberedProductPr₂)
   fiberedProductUnivProp D (h , hh) (k , hk) H =
     uniqueExists f (CommRingHom≡ refl , CommRingHom≡ refl)
                  (λ _ → isProp× (isSetCommRingHom _ _ _ _) (isSetCommRingHom _ _ _ _))
