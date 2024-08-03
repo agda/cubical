@@ -34,7 +34,6 @@ private
 record IsRing {R : Type ℓ}
               (0r 1r : R) (_+_ _·_ : R → R → R) (-_ : R → R) : Type ℓ where
 
-  no-eta-equality
   constructor isring
 
   field
