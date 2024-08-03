@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Algebra.CommAlgebraAlt.Univalence where
 
 open import Cubical.Foundations.Prelude
