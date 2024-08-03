@@ -55,7 +55,7 @@ module _ {R : CommRing ℓ} where
   ⟨_⟩ₐ→ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} (f : CommAlgebraHom A B) → ⟨ A ⟩ₐ → ⟨ B ⟩ₐ
   ⟨ f ⟩ₐ→ = f .fst .fst
 
-  _$ca_ : {A : CommAlgebra R ℓ} {B : CommAlgebra R ℓ'} → (φ : CommAlgebraHom A B) → (x : ⟨ A ⟩ₐ) → ⟨ B ⟩ₐ
+  _$ca_ : {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} → (φ : CommAlgebraHom A B) → (x : ⟨ A ⟩ₐ) → ⟨ B ⟩ₐ
   φ $ca x = φ .fst .fst x
 
   _∘ca_ : {A : CommAlgebra R ℓ} {B : CommAlgebra R ℓ'} {C : CommAlgebra R ℓ''}
@@ -99,36 +99,80 @@ module _ {R : CommRing ℓ} where
       (λ e → isSetΣSndProp (isSet→ isSetB) (λ _ → isPropIsCommRingHom _ _ _) _ _)
     where open CommRingStr (B .fst .snd) using () renaming (is-set to isSetB)
 
-  module CommAlgebraStr (A : CommAlgebra R ℓ') where
+  {-
+    Contrary to most algebraic structures, this one only contains
+    law and structure of a CommAlgebra, which it is *in addition*
+    to its CommRing structure.
+  -}
+  record CommAlgebraStr (A : Type ℓ') : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
     open CommRingStr {{...}}
     instance
-      _ = A
-      _ : CommRingStr ⟨ A ⟩ₐ
-      _ = (A .fst .snd)
       _ : CommRingStr (R .fst)
       _ = (R .snd)
 
+    field
+      crStr : CommRingStr A
+      _⋆_ : ⟨ R ⟩ → A → A
+      ⋆Assoc : (r s : ⟨ R ⟩) (x : A) → (r · s) ⋆ x ≡ r ⋆ (s ⋆ x)
+      ⋆DistR+ : (r : ⟨ R ⟩) (x y : A) → r ⋆ (CommRingStr._+_ crStr x y) ≡ CommRingStr._+_ crStr(r ⋆ x) (r ⋆ y)
+      ⋆DistL+ : (r s : ⟨ R ⟩) (x : A) → (r + s) ⋆ x ≡ CommRingStr._+_ crStr (r ⋆ x) (s ⋆ x)
+      ⋆IdL    : (x : A) → 1r ⋆ x ≡ x
+      ⋆AssocL : (r : ⟨ R ⟩) (x y : A) → CommRingStr._·_ crStr (r ⋆ x) y ≡ r ⋆ (CommRingStr._·_ crStr x y)
     infixl 7 _⋆_
-    _⋆_ : ⟨ R ⟩ → ⟨ A ⟩ₐ → ⟨ A ⟩ₐ
-    _⋆_ r x = (A .snd .fst r) · x
 
-    ⋆Assoc  : (r s : ⟨ R ⟩) (x : ⟨ A ⟩ₐ) → (r · s) ⋆ x ≡ r ⋆ (s ⋆ x)
-    ⋆Assoc r s x = cong (_· x) (pres· r s) ∙ sym (·Assoc _ _ _)
-      where open IsCommRingHom (A .snd .snd)
+  CommAlgebra→CommAlgebraStr : (A : CommAlgebra R ℓ') → CommAlgebraStr ⟨ A ⟩ₐ
+  CommAlgebra→CommAlgebraStr A =
+    let open CommRingStr ⦃...⦄
+        instance
+          _ : CommRingStr (R .fst)
+          _ = R .snd
+          _ = A .fst .snd
+    in record
+       { crStr = A .fst .snd
+       ; _⋆_ = λ r x → (A .snd .fst r) · x
+       ; ⋆Assoc = λ r s x → cong (_· x) (IsCommRingHom.pres· (A .snd .snd) r s) ∙ sym (·Assoc _ _ _)
+       ; ⋆DistR+ = λ r x y → ·DistR+ _ _ _
+       ; ⋆DistL+ = λ r s x → cong (_· x) (IsCommRingHom.pres+ (A .snd .snd) r s) ∙ ·DistL+ _ _ _
+       ; ⋆IdL = λ x → cong (_· x) (IsCommRingHom.pres1 (A .snd .snd)) ∙ ·IdL x
+       ; ⋆AssocL = λ r x y → sym (·Assoc (A .snd .fst r) x y)
+       }
 
-    ⋆DistR+ : (r : ⟨ R ⟩) (x y : ⟨ A ⟩ₐ) → r ⋆ (x + y) ≡ (r ⋆ x) + (r ⋆ y)
-    ⋆DistR+ r x y = ·DistR+ _ _ _
+  module IsCommAlgebraHom {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''} (f : CommAlgebraHom A B) where
+    open IsCommRingHom (f .fst .snd)
+    open CommRingStr ⦃...⦄
+    open CommAlgebraStr ⦃...⦄
+    private instance
+      _ = CommAlgebra→CommAlgebraStr A
+      _ = CommAlgebra→CommAlgebraStr B
+      _ = B .fst .snd
 
-    ⋆DistL+ : (r s : ⟨ R ⟩) (x : ⟨ A ⟩ₐ) → (r + s) ⋆ x ≡ (r ⋆ x) + (s ⋆ x)
-    ⋆DistL+ r s x = cong (_· x) (pres+ r s) ∙ ·DistL+ _ _ _
-      where open IsCommRingHom (A .snd .snd)
+    opaque
+      pres⋆ : (r : ⟨ R ⟩) (x : ⟨ A ⟩ₐ) → f $ca (r ⋆ x) ≡ r ⋆ f $ca x
+      pres⋆ r x = f $ca (r ⋆ x)                        ≡⟨ pres· (A .snd .fst r) x ⟩
+                  (f $ca (A .snd .fst r)) · (f $ca x)  ≡⟨ cong (_· (f $ca x)) (cong (λ g → g .fst r) (f .snd)) ⟩
+                  r ⋆ f $ca x ∎
 
-    ⋆IdL    : (x : ⟨ A ⟩ₐ) → 1r ⋆ x ≡ x
-    ⋆IdL x = cong (_· x) pres1 ∙ ·IdL x
-      where open IsCommRingHom (A .snd .snd)
-
-    ⋆AssocL : (r : ⟨ R ⟩) (x y : ⟨ A ⟩ₐ) → (r ⋆ x) · y ≡ r ⋆ (x · y)
-    ⋆AssocL r x y = sym (·Assoc (A .snd .fst r) x y)
+  CommAlgebraHomFromCommRingHom :
+    {A : CommAlgebra R ℓ'} {B : CommAlgebra R ℓ''}
+    → (f : CommRingHom (A .fst) (B .fst))
+    → ((r : ⟨ R ⟩) (x : ⟨ A ⟩ₐ) → f .fst (CommAlgebraStr._⋆_ (CommAlgebra→CommAlgebraStr A) r x)
+                                 ≡ CommAlgebraStr._⋆_ (CommAlgebra→CommAlgebraStr B) r (f .fst x))
+    → CommAlgebraHom A B
+  CommAlgebraHomFromCommRingHom f pres⋆ .fst = f
+  CommAlgebraHomFromCommRingHom {A = A} {B = B} f pres⋆ .snd =
+    let open CommRingStr ⦃...⦄
+        open CommAlgebraStr ⦃...⦄
+        instance
+          _ = A .fst .snd
+          _ = B .fst .snd
+          _ = CommAlgebra→CommAlgebraStr B
+    in CommRingHom≡
+      (funExt (λ (r : ⟨ R ⟩) →
+              f .fst (A .snd .fst r)        ≡⟨ cong (λ u → f .fst u) (sym (·IdR _)) ⟩
+              f .fst ((A .snd .fst r) · 1r) ≡⟨ pres⋆ r (CommRingStr.1r (A .fst .snd)) ⟩
+              r ⋆ (f .fst 1r)               ≡⟨ cong (r ⋆_) (IsCommRingHom.pres1 (f .snd)) ⟩
+              r ⋆ 1r                        ≡⟨ ·IdR _ ⟩
+              B .snd .fst r ∎))
 
 {- Convenient forgetful functions -}
 module _ {R : CommRing ℓ} where
