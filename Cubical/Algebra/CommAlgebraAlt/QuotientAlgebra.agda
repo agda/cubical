@@ -176,6 +176,5 @@ module _
     _ = (A / I).fst .snd
 
   opaque
-    unfolding CommRing.quotientCommRingStr
     isZeroFromIdeal : (x : ⟨ A ⟩ₐ) → x ∈ (fst I) → ⟨ quotientHom A I ⟩ₐ→ x ≡ 0r
     isZeroFromIdeal x x∈I = eq/ x 0r (subst (_∈ fst I) (solve! (CommAlgebra→CommRing A)) x∈I )
