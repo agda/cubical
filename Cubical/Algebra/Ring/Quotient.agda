@@ -185,10 +185,20 @@ module _ (R' : Ring ℓ) (I : ⟨ R' ⟩  → hProp ℓ) (I-isIdeal : isIdeal R'
         eq : (x y z : R) → [ x ] ·/I ([ y ] +/I [ z ]) ≡ ([ x ] ·/I [ y ]) +/I ([ x ] ·/I [ z ])
         eq x y z i = [ ·DistR+ x y z i ]
 
+    quotientRingStr' : RingStr R/I
+    quotientRingStr' = snd (makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
+                      +/I-assoc +/I-rid +/I-rinv +/I-comm
+                      ·/I-assoc ·/I-rid ·/I-lid /I-rdist /I-ldist)
+
+  opaque
+    isRingQuotient : IsRing 0/I 1/I _+/I_ _·/I_ -/I
+    isRingQuotient = RingStr.isRing quotientRingStr'
+
   quotientRingStr : RingStr R/I
-  quotientRingStr = snd (makeRing 0/I 1/I _+/I_ _·/I_ -/I isSetR/I
-                    +/I-assoc +/I-rid +/I-rinv +/I-comm
-                    ·/I-assoc ·/I-rid ·/I-lid /I-rdist /I-ldist)
+  quotientRingStr =
+    record
+      { RingStr quotientRingStr'; isRing = isRingQuotient }
+
 
 _/_ : (R : Ring ℓ) → (I : IdealsIn R) → Ring ℓ
 fst (R / I) = R/I R (fst I) (snd I)
@@ -358,7 +368,8 @@ module idealIsKernel {R : Ring ℓ} (I : IdealsIn R) where
         x-0∈I : x - 0r ∈ fst I
         x-0∈I = effective ~IsPropValued ~IsEquivRel x 0r x∈ker
 
-kernel≡I :  {R : Ring ℓ} (I : IdealsIn R)
-          → kernelIdeal (quotientHom R I) ≡ I
-kernel≡I {R = R} I = Σ≡Prop (isPropIsIdeal R) (⊆-extensionality _ _ (ker⊆I , I⊆ker))
-  where open idealIsKernel I
+opaque
+  kernel≡I :  {R : Ring ℓ} (I : IdealsIn R)
+            → kernelIdeal (quotientHom R I) ≡ I
+  kernel≡I {R = R} I = Σ≡Prop (isPropIsIdeal R) (⊆-extensionality _ _ (ker⊆I , I⊆ker))
+    where open idealIsKernel I
